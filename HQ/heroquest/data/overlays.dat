@@ -1,0 +1,4 @@
+stairs      -> id: 0  short: st  width: 2  height: 2  description: stairs /description
+pit_trap    -> id: 1  short: pt  width: 1  height: 1  description: a dangerous pit /description
+rock_trap   -> id: 2  short: rt  width: 1  height: 1  description: falling rocks /description
+spear_trap  -> id: 3  short: sp  width: 1  height: 1  description: a spear trap /description

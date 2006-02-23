@@ -1,0 +1,13 @@
+heal_body		-> id: 0  class: earth description: This spell restores up to 4 lost body points but not more than the creature's starting number. /description
+rock_skin		-> id: 1  class: earth description: The spellbound creature may throw two extra combat dies when defending. The spell is broken when the creature suffers 1 point of body damage. /description
+pass_through_rock	-> id: 2  class: earth description: The spellbound creature may move through walls on his next move. /description
+fire_of_wrath 		-> id: 3  class: fire description: You can apply this spell on any creature on the board. The creature suffers damage of 1 body point, but it can defend with one combat dice.  /description
+ball_of_flame           -> id: 4  class: fire description: The spellbound creature suffers damage of 2 body points, but it can defend with two combat dices. /description
+courage                 -> id: 5  class: fire description: The spellbound creature attacks with two extra combat dices. The spell is broken when the creature can no longer see a monster /description
+genie1			-> id: 6  class: air description: You can attack any creature on the board with 5 combat dices. /description
+genie2			-> id: 7  class: air description: A genie shows you the content of any room. /description
+swift_wind		-> id: 8  class: air description: The spellbound creature can roll twice as many dices as normal the next time it moves /description
+tempest			-> id: 9  class: air description: The spellbound creature will miss its next turn. /description
+sleep			-> id: 10 class: water description: This spell puts a creature into a deep sleep so it cannot attack or move. The spell can be broken by the creature rolling one die for each of its mind points. If a 6 is rolled, the spell is broken. /description
+veil_of_mist		-> id: 11 class: water description: The spellbound creature may move unseen trough spaces that are occupied by oponent creatures /description
+water_of_healing	-> id: 12 class: water description: This spell restores up to 4 lost body points but not more than the creature's starting number. /description
