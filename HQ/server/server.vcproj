@@ -21,7 +21,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\SDL-1.2.8\include"
+				AdditionalIncludeDirectories="..\SDL\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;"
 				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="0"
@@ -74,7 +74,7 @@
 				Optimization="3"
 				GlobalOptimizations="TRUE"
 				OptimizeForWindowsApplication="FALSE"
-				AdditionalIncludeDirectories="C:\SDL-1.2.8\include"
+				AdditionalIncludeDirectories="..\SDL\include"
 				PreprocessorDefinitions="WIN32;NDEBUG"
 				MinimalRebuild="FALSE"
 				RuntimeLibrary="2"

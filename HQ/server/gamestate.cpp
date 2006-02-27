@@ -209,7 +209,7 @@ void GameState::endTurn(ServerSocket* ss){
   scr.endTurn(pos);
   ServerSocket* actSs = game.getNextPlayer();
   if (actSs == NULL){
-    *ss << toStr(CHAT)+ "Nobody plays a role. Game cannot run";
+    //*ss << toStr(CHAT)+ "Nobody plays a role. Game cannot run";
     game.end();
     globl.broadcast(toStr(END)+" game");
     return;

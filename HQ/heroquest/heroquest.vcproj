@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="C:\SDL-1.2.8\include"
+				AdditionalIncludeDirectories="..\SDL\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CLIENT_;"
 				MinimalRebuild="FALSE"
 				BasicRuntimeChecks="0"
@@ -79,7 +79,7 @@
 				Optimization="3"
 				GlobalOptimizations="TRUE"
 				OptimizeForWindowsApplication="FALSE"
-				AdditionalIncludeDirectories="C:\SDL-1.2.8\include"
+				AdditionalIncludeDirectories="..\SDL\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CLIENT_"
 				MinimalRebuild="FALSE"
 				RuntimeLibrary="2"
@@ -190,6 +190,9 @@
 				RelativePath=".\matrix.cpp">
 			</File>
 			<File
+				RelativePath=".\menu.cpp">
+			</File>
+			<File
 				RelativePath=".\message.cpp">
 			</File>
 			<File
@@ -286,6 +289,9 @@
 			</File>
 			<File
 				RelativePath=".\matrix.hh">
+			</File>
+			<File
+				RelativePath=".\menu.hh">
 			</File>
 			<File
 				RelativePath=".\message.hh">

@@ -465,12 +465,12 @@ int Script::getCreatureProperty(lua_State* L){
 		lua_pushnumber(L, def);
 	}
 	else if (what == "name"){
-		const char* name = c->getName().c_str();
-		lua_pushstring(L, name);
+		string name = c->getName();
+		lua_pushstring(L, name.c_str());
 	}
 	else if (what == "player"){
-		const char* plyr = c->getPlayer().c_str();
-		lua_pushstring(L, plyr);
+		string plyr = c->getPlayer();
+		lua_pushstring(L, plyr.c_str());
 	}
 	else if (what == "attack"){
 		short att = c->getAttack();
@@ -485,8 +485,8 @@ int Script::getCreatureProperty(lua_State* L){
     lua_pushboolean(L, sleep);
   }
   else if (what == "type"){
-    const char* type = c->getType().c_str();
-    lua_pushstring(L, type);
+    string type = c->getType();
+    lua_pushstring(L, type.c_str());
   }
   else if (what == "id"){
     short id = c->getId();
