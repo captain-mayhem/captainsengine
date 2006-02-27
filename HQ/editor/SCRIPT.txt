@@ -1,18 +1,62 @@
 Heroquest-Lua Script Reference
 
-addItem
-allowAnotherAction
-attack
-changeMoney
-console
-deleteItem
-dice
-enableHeroMonsterCollision
-enableWallCollision
-endGame
-err
-forceEndTurn
-getAdjacentFreeField
+addItem(x,y,name)
+  add an item called name to the inventory of the creature standing at (x,y).
+  
+allowAnotherAction()
+  when called after having done an action in this round, the flag that
+  the action was done is unset.
+  
+attack(attack, attype, defend, deftype, sx, sy, tx, ty)
+  when attype is "damage", then the creature at (tx,ty) has to defend so many
+  points as specified by attack in order to take no damage. If attype is
+  "normal", then attack dices are thrown and a maximum of attack attack points
+  can be achieved. 
+  After the damage is calculated, the attacked creature at (tx,ty) can defend 
+  with defend dices; deftype can be "white", "black" or "skull" to specify 
+  which symbol counts as defended.
+  In (sx,sy) has to be entered the field of the creature that has currently 
+  his turn.
+  
+changeMoney(x,y,amount)
+  change the money of the hero standing at (x,y) by amount gold coins. The
+  money of the hero can never become negative.
+
+console(text)
+  prints text to the console, i.e. to the game-console of the client and
+  to stderr in case of the server.
+
+deleteItem(x,y,name)
+  deletes one item called name from the inventory of the creature at (x,y).
+  Returns true if item name could be deleted, false otherwise.
+
+dice(type, number)
+  type can currently only be "normal". Throws number dices and returns that
+  many values as result. Can only be used in the server!
+
+enableHeroMonsterCollision(flag)
+  if flag is true, then heros and monsters collide with each other. If flag
+  is set to false, heros and monsters can pass through each other.
+
+enableWallCollision(flag)
+  if flag is true, then creatures collide with walls. If flag is set to false,
+  creatures can pass through walls.
+  
+endGame()
+  ends the game.
+
+err(x,y,message)
+  sends message to the player that controls creature standing at (x,y). Can
+  only be called in the server!
+  
+forceEndTurn()
+  forces the player that has his turn to end it, so that the next player gets
+  his turn. Can only be called in the client!!
+
+getAdjacentFreeField(x,y)
+  searches for a free field that is adjacent to (x,y). Returns (true,s,t) if
+  field (s,t) fulfills the requirements, otherwise (false,-1,-1) is returned.
+  
 getCreatureProperty
 getNumberOgHeros
 isMonsterVisible
