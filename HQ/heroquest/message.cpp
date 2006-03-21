@@ -454,12 +454,14 @@ void Message::process(const char* cmd){
 		GameObject* o = wrld.getObject(pos);
 		if (!o){
 			consol << "There is no object";
+      line << "There is no object";
 			break;
 		}
 		Creature* creat = dynamic_cast<Creature*>(o);
 		if (creat){
 			string msg = "Name: "+creat->getName()+ "/"+creat->getPlayer()+"("+creat->getType()+"), Body Points: "+toStr(creat->getBody());
 			consol << msg;
+      line << msg;
 			break;
 		}
 		}
@@ -517,8 +519,10 @@ void Message::process(const char* cmd){
     Item it = Templates::instance()->searchItem(argv[0]);
     if(it.getType() == Item::None)
       consol << "Sorry, unknown item "+argv[0];
-    else
+    else{
       consol << it.getDescription();
+      line << it.getDescription();
+    }
     break;
   }
 
@@ -1119,6 +1123,7 @@ void Message::init(){
 	  heroe.setMaxBody(toInt(temp));
     in >> temp; in >> temp;
     heroe.setMind(toInt(temp));
+    heroe.setMaxMind(toInt(temp));
     in >> temp; in >> temp;
     heroe.setMovement(toInt(temp));
     in >> temp; in >> temp;

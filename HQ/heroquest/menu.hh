@@ -32,6 +32,16 @@
   void trap();
   //! inventory button
   void inventory();
+  //! use button
+  void use();
+  //! use item on something
+  void useOn(Vector2D click);
+  //! takeoff button
+  void takeoff();
+  //! whatis button
+  void whatis();
+  //! close inventory
+  void close();
   //! trap button
   void trapMenu();
   //! disarm button

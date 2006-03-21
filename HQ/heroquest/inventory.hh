@@ -7,6 +7,9 @@
 #include <iostream>
 #include "array.hh"
 #include "item.hh"
+#ifdef _CLIENT_
+#include "font.hh"
+#endif
 
 using std::map;
 using std::vector;
@@ -49,6 +52,16 @@ class Inventory{
     void restoreSpells();
     //! render inventory
     void render();
+    //! update inventory
+    void update();
+#ifdef _CLIENT_
+    //! get chosen item
+    inline Item* getChosenItem() {return chosenItem_;}
+    //! deselect item
+    inline void deselect() {chosenItem_ = NULL;}
+    //! is visible
+    inline void makeVisible(bool doit) {visible_ = doit;}
+#endif
   private:
     //! the lookup table
     map<string,int> lookup_;
@@ -60,6 +73,16 @@ class Inventory{
     int head_;
     int body_;
     int belt_;
+#ifdef _CLIENT_
+    //! the font
+    Font fnt_;
+    //! the item page to be displayed
+    unsigned short page_;
+    //! the chosen item
+    Item* chosenItem_;
+    //! if inventory is visible
+    bool visible_;
+#endif
 };
 
 #endif

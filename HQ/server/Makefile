@@ -86,19 +86,19 @@ PROGRAM = HQServer-$(OS)
 SOURCE2 = socket.cpp \
           vector.cpp \
           bitset.cpp \
-	  gameobject.cpp \
+	  			gameobject.cpp \
           field.cpp \
-	  door.cpp \
-	  creature.cpp \
-	  hero.cpp \
-	  monster.cpp \
-	  furniture.cpp\
-	  world.cpp\
-	  script.cpp \
-		item.cpp \
-		inventory.cpp \
-		templates.cpp \
-		overlay.cpp
+	  			door.cpp \
+	  			creature.cpp \
+	  			hero.cpp \
+	  			monster.cpp \
+	  			furniture.cpp\
+	  			world.cpp\
+	  			script.cpp \
+					item.cpp \
+					inventory.cpp \
+					templates.cpp \
+					overlay.cpp
 S2PATH = $(patsubst %.cpp, ../heroquest/%.cpp,$(SOURCE2))
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))

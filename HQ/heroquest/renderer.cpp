@@ -114,7 +114,7 @@ void Renderer::initializeGL()
   text.buildFont();
   output.setBase(text.getBase());
   line.setBase(text.getBase());
-
+  text.toggle();
 
   //back face culling
   glCullFace(GL_BACK);
@@ -219,6 +219,12 @@ void Renderer::paintGL()
     glEnd();
   }
 
+  //render inventory
+  if (inventory_){
+    inventory_->render();
+    inventory_->update();
+  }
+
   //something with the GUI elements changed, so update here
   if (newIn_.size() != 0 || newBut_.size() != 0 || clear_){
     clear_ = false;
@@ -244,10 +250,6 @@ void Renderer::paintGL()
   text.render();
   output.render();
   line.render();
-
-  //render inventory
-  if (inventory_)
-    inventory_->render();
 
   //render console
   consol.render();
@@ -318,13 +320,13 @@ void Renderer::mousePressEvent(SDL_MouseButtonEvent * m){
     if ((*iter)->isHit(Vector2D(mousex_,SCREENHEIGHT-mousey_))){
       //set only input focus if console is not active
       if (!consol.isActive()){
-	//another input field was active, so remove cursor
+	      //another input field was active, so remove cursor
         if (input_ != NULL){
           input_->removeChar();
         }
         input_ = (*iter);
         input_->addChar('_');
-	gui_click = true;
+	      gui_click = true;
         break;
       }
     }
@@ -378,7 +380,6 @@ void Renderer::mousePressEvent(SDL_MouseButtonEvent * m){
     (gl->*awaitMapClick_)(click);
     awaitMapClick_ = NULL;
   }
-
 }
 
 

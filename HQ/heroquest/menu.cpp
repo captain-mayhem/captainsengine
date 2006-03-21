@@ -361,25 +361,93 @@ void Renderer::inventory(){
   but = new Button();
   but->setPosition(Vector2D(900, 240));
   but->setText("Use");
-	p = &Renderer::mainMenu;
+	p = &Renderer::use;
 	but->setCbFunc(p);
 	gl->addButtonListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 210));
   but->setText("Take off");
-	p = &Renderer::mainMenu;
+	p = &Renderer::takeoff;
 	but->setCbFunc(p);
 	gl->addButtonListener(but);
 
   but = new Button();
-  but->setPosition(Vector2D(900, 170));
-  but->setText("Back");
-	p = &Renderer::mainMenu;
+  but->setPosition(Vector2D(900, 180));
+  but->setText("What is");
+	p = &Renderer::whatis;
+	but->setCbFunc(p);
+	gl->addButtonListener(but);
+  
+  but = new Button();
+  but->setPosition(Vector2D(900, 140));
+  but->setText("Close");
+	p = &Renderer::close;
 	but->setCbFunc(p);
 	gl->addButtonListener(but);
 
   //get current inventory
+  inventory_ = plyr.getCreature()->getInventory();
+}
+
+//use button
+void Renderer::use(){
+  Item* ite = inventory_->getChosenItem();
+  if (ite == NULL){
+    line << "Please select an item first.";
+  }
+  else{
+    // map click is needed
+    if (ite->getType() == Item::Spell){
+      setViewTo3D(false);
+      awaitMapClick_ = &Renderer::useOn;
+      inventory_->makeVisible(false);
+    }
+    else{
+      inventory_->deselect();
+      msg.process(("use "+ite->getName()).c_str());
+    }
+  }
+}
+  
+void Renderer::useOn(Vector2D click){
+  Item* ite = inventory_->getChosenItem();
+  inventory_->makeVisible(true);
+  inventory_->deselect();
+  msg.process(("use "+ite->getName()+" "+toStr(click.x)+" "+toStr(click.y)).c_str());
+}
+
+//takeoff button
+void Renderer::takeoff(){
+  Item* ite = inventory_->getChosenItem();
+  if (ite == NULL){
+    line << "Please select an item first.";
+  }
+  else{
+    inventory_->deselect();
+    msg.process(("takeoff "+ite->getName()).c_str());
+  }
+}
+
+//whatis button
+void Renderer::whatis(){
+  Item* ite = inventory_->getChosenItem();
+  if (ite == NULL){
+    line << "Please select an item first.";
+  }
+  else{
+    inventory_->deselect();
+    msg.process(("whatis "+ite->getName()).c_str());
+  }
+}
+
+//close inventory
+void Renderer::close(){
+  inventory_->makeVisible(true);
+  inventory_->deselect();
+  inventory_ = NULL;
+  awaitMapClick_ = NULL;
+  mainMenu();
 }
 
 // trap button

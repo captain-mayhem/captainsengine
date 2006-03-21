@@ -59,6 +59,7 @@ Monster::Monster(const Monster& m){
   body_ = m.body_;
   maxBody_ = m.maxBody_;
   mind_ = m.mind_;
+  maxMind_ = m.maxMind_;
   bp_ = m.bp_;
   actPos_ = m.actPos_;
   positions_ = queue<Vector3D>(m.positions_);
@@ -87,6 +88,7 @@ Monster::Monster(const string& player, const string& name, const string& type,
   body_ = body;
   maxBody_ = body;
   mind_ = mind;
+  maxMind_ = mind;
   attack_ = attack;
   defend_ = defend;
   id_ = id;

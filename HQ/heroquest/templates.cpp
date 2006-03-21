@@ -101,6 +101,7 @@ void Templates::load(){
 		m.setMaxBody(toInt(temp));
 		in3 >> temp; in3 >> temp;
 		m.setMind(toInt(temp));
+		m.setMaxMind(toInt(temp));
 		monsterTypes_.push_back(m);
 	}
 	in3.close();

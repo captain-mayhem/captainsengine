@@ -60,6 +60,7 @@ Hero::Hero(const Hero& h){
   body_ = h.body_;
   maxBody_ = h.maxBody_;
   mind_ = h.mind_;
+  maxMind_ = h.maxMind_;
   bp_ = h.bp_;
   actPos_ = h.actPos_;
   positions_ = queue<Vector3D>(h.positions_);
@@ -86,6 +87,7 @@ Hero::Hero(const string& player, const string& name, const string& type, const c
   body_ = body;
   maxBody_ = body;
   mind_ = mind;
+  maxMind_ = mind;
   attack_ = attack;
   defend_ = defend;
   id_ = id;
@@ -145,7 +147,7 @@ void Hero::write(const string& p) const{
   out.write(&attack_, sizeof(attack_));
   out.write(&defend_, sizeof(defend_));
   out.write(&maxBody_, sizeof(maxBody_));
-  out.write(&mind_, sizeof(mind_));
+  out.write(&maxMind_, sizeof(maxMind_));
   out.write((char*)&money_, sizeof(money_));
   out.write(&movement_, sizeof(movement_));
 
@@ -204,7 +206,8 @@ bool Hero::load(const string& filename){
   in.read(&defend_, sizeof(defend_));
   in.read(&maxBody_, sizeof(maxBody_));
   body_ = maxBody_;
-  in.read(&mind_, sizeof(mind_));
+  in.read(&maxMind_, sizeof(maxMind_));
+  mind_ = maxMind_;
   in.read((char*)&money_, sizeof(money_));
   in.read(&movement_, sizeof(movement_));
 

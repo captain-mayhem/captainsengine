@@ -89,6 +89,11 @@ public:
   //! set the view to 3D
   void setViewTo3D(bool threeD);
 
+  //! get current mouse position
+  inline Vector2D getMousePos() {return Vector2D(mousex_, mousey_);}
+  //! reset mouse position
+  inline void resetMousePos() {mousex_ = -1; mousey_ = -1;}
+
 #include "menu.hh"
 
 protected:
