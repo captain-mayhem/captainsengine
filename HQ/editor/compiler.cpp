@@ -84,7 +84,7 @@ bool Compiler::isDoor(short x, short y, Direction dir) const{
 }
 	
 //set a door
-void Compiler::setDoor(const Vector2D& pos, Direction d, bool isSecret){
+void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   map_[pos.y][pos.x].doorbits.set(d);
   //see, if door is already stored, because each door is parsed two times (lower line of one field and upper line of the
   //other field)
@@ -139,11 +139,11 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, bool isSecret){
     //the door is closed in the beginning
     newDoor.setActive();
     //the door type is stored in the id
-    if (isSecret){
-      newDoor.setId(1);
-    }
-    else
-      newDoor.setId(0);
+    //if (isSecret){
+    //  newDoor.setId(1);
+    //}
+    //else
+    newDoor.setId(type);
     //save door and get index
     doors_.push_back(newDoor);
     idx = doors_.size()-1; 

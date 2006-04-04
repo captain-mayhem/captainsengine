@@ -104,7 +104,7 @@ function E(sx, sy)
         local num = getNumberOfHeros();
         Amount = 240 / num;
       end
-      changeMoney(Amount);
+      changeMoney(sx, sy, Amount);
     end
     winHero(sx, sy);
     forceEndTurn(sx, sy);

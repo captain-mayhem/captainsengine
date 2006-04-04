@@ -50,7 +50,7 @@ public:
    *  \param d the Direction of the Door
    *  \param isSecret if the Door is a secret Door
    */
-  void setDoor(const Vector2D& pos, Direction d, bool isSecret);
+  void setDoor(const Vector2D& pos, Direction d, short type);
   //! Add a hero starting position to the map
   void addStartPos(const Vector2D& pos);
   //! Writes the compiled map to the file given by filename

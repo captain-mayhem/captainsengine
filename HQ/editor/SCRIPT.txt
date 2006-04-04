@@ -6,6 +6,10 @@ addItem(x,y,name)
 allowAnotherAction()
   when called after having done an action in this round, the flag that
   the action was done is unset.
+
+allowSearchAgain(x,y)
+  if a room was already searched for treasure, it can be searched again
+  when this function is called. (x,y) has to be a field belonging to that room.
   
 attack(attack, attype, defend, deftype, sx, sy, tx, ty)
   when attype is "damage", then the creature at (tx,ty) has to defend so many
@@ -57,19 +61,74 @@ getAdjacentFreeField(x,y)
   searches for a free field that is adjacent to (x,y). Returns (true,s,t) if
   field (s,t) fulfills the requirements, otherwise (false,-1,-1) is returned.
   
-getCreatureProperty
-getNumberOgHeros
-isMonsterVisible
-isVisible
-makeOverlayActive
-openDoor
-output
-releaseBackPointer
-removeCreature
-setCreatureProperty
-setMonster
-setScript
-showRoom
-takeOff
-wearArmory
-winHero
+getCreatureProperty(x,y,prop)
+  returns the property of the creature located at (x,y). prop can be 
+  "attack", "body", "defense", "id",
+  "maxbody", "maxmind", "mind", "move", "name", 
+  "player", "sleeping", "type"
+  
+getNumberOfHeros()
+  returns the number of heros that are playing in the game.
+
+isMonsterVisible(x,y)
+  returns true, if the position (x,y) can be seen by any monster, false 
+  otherwise.
+  
+isVisible(sx,sy,tx,ty)
+  returns true, if position (tx,ty) is visible from position (sx,sy) and
+  false otherwise.
+
+makeOverlayActive(x,y,flag)
+  if flag is true, the overlay at (x,y) is activated. When flag is false,
+  it is deactivated.
+
+moveObject(sx,sy,tx,ty,flag)
+  move object located at (sx,sy) to (tx,ty). Currently only implemented
+  for objects of the size 1x1. If flag is true and the object is a
+  creature, than the movement is smoothly interpolated. Otherwise the
+  object is just set.
+  
+openDoor(x,y,dir)
+  opens the door located at (x,y) positioned in direction dir. dir can
+  be "RIGHT", "BOTTOM", "LEFT" or "TOP".
+  
+output(one,all)
+  shows message one to the currently active player and message all
+  to everybody else. All can also be an empty sting.
+
+releaseBackPointer(x,y)
+  releases the backpointer of the creature located at (x,y). The backpointer
+  points to the last valid field and is set when a creature steps on fields
+  that are occupied or contain traps.
+  
+removeCreature(x,y)
+  remove creature located at (x,y) from the world.
+  
+setCreatureProperty(x,y,prop,value)
+  sets a property of the creature located at (x,y) to value. prop can be 
+  "attack", "body", "defense",
+  "diceToMove", "maxmind", "mind", "move", 
+  "name", "player", "sleeping"
+  
+setMonster(x,y,name)
+  generates and sets a monster called name to the position (x,y).
+  
+setScript(x,y,name)
+  attaches to the field at (x,y) the script called name. Be careful,
+  infinite script loops can be created easily.
+  
+showRoom(x,y)
+  makes the room at (x,y) visible to everybody on the map.
+  
+takeOff(x,y,armory)
+  takes off armory from the creature located at (x,y). Armory remains
+  in the inventory of the creature.
+  
+wearArmory(x,y,armory,where1,where2)
+  creature at (x,y) takes on armory at where1 and where2. Where2 can be
+  an empty string. Where(1/2) can be 
+  "belt", "body", "breast", "head", "left hand", "right hand"
+  
+winHero(x,y)
+  let the hero at (x,y) win the game. It restores also lost points and
+  spells and saves the hero. If no hero is left, the game is ended.
