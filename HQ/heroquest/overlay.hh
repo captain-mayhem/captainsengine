@@ -72,6 +72,10 @@ public:
   inline void find(bool found) {found_ = found;}
   //! is overlay found
   inline bool isFound() {return found_;}
+  //! set walkability
+  inline void setWalkable(bool what) {walkable_ = what;}
+  //! is walkable
+  inline bool isWalkable() {return walkable_;}
 protected:
   //! the name
   string name_;
@@ -89,6 +93,8 @@ protected:
   bool rendered_;
   //! is the overlay (trap) found
   bool found_;
+  //! can someone walk on the overlay
+  bool walkable_;
 };
   
 #endif

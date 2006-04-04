@@ -74,6 +74,7 @@ Message::Message(): ss_(0) {
   cliToSrv_["spawn"] = SPAWN;
   cliToSrv_["trap"] = TRAP;
   cliToSrv_["disarm"] = DISARM;
+  cliToSrv_["jump"] = JUMP;
 }
 
 Message::Message(const Message& m){
@@ -278,6 +279,9 @@ void Message::process(const char* cmd){
       ite = inv->getArmory("belt");
       if (ite.isValid())
         consol << ite.getName()+" is worn on the belt.";
+      ite = inv->getArmory("breast");
+      if (ite.isValid())
+        consol << ite.getName()+" is worn on the breast.";
     }
   break;
       
@@ -583,7 +587,33 @@ void Message::process(const char* cmd){
 		*ss_ << toStr(DISARM) + " " + toStr((int)d);
 		}
 	break;
- 
+ 	
+  case JUMP:
+    if (game.getState() != RUN){
+			consol << "Not allowed at the moment";
+			break;
+		}
+		if (argv.size() < 2){
+			consol << "Usage: jump <direction>";
+		}
+		{
+		Direction d=TOP;
+		if (argv[0] == "w")
+			d = TOP;
+		else if (argv[0] == "s")
+			d = BOTTOM;
+		else if (argv[0] == "a")
+			d = LEFT;
+		else if (argv[0] == "d")
+			d = RIGHT;
+		else{
+			consol << "wrong direction";
+			break;
+		}
+		*ss_ << toStr(JUMP) + " " + toStr((int)d);
+		}
+	break;
+
 	default:
 		consol << "Unknown command. Please enter 'help' for available commands";
 	}
@@ -839,13 +869,13 @@ void Message::process(const string& answer){
 		bool possible = wrld.setObject(o, newPos,true);
 		if (!possible)
 			line << "You can't move there";
+		scr.move(newPos);
     //check if level dependent script is activated
     Field& f = wrld.getField(newPos);
     if (f.script != NULL){
       if (scr.call(OnWalkAt, f.script))
         f.script = NULL;
     }
-		scr.move(newPos);
 	}
 	break;
     
@@ -1041,6 +1071,7 @@ void Message::process(const string& answer){
         case OnOpen:
           break;
       }
+      //cerr << si->pos.x << " " << si->pos.y << " " << pos.x << " " << pos.y << "\n";
       scr.call(e, si, pos);
       break;
     }
@@ -1095,6 +1126,17 @@ void Message::process(const string& answer){
     line << "Trap disarmed!";
     break;
   }
+
+  case JUMP:{
+    Vector2D pos = Vector2D(toInt(argv[0]), toInt(argv[1]));
+    Vector2D newpos = Vector2D(toInt(argv[2]), toInt(argv[3]));
+    //Field& f = wrld.getField(newpos);
+    cerr << pos.x << " " << pos.y << "\n";
+    cerr << newpos.x << " " << newpos.y << "\n";
+    wrld.setObject(wrld.getObject(pos), newpos, true);
+    break;
+  }
+
 	
   }
     

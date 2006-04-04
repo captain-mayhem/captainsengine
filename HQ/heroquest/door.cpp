@@ -64,7 +64,11 @@ void Door::render() const{
   
   glColor3f(1,1,1);
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, tex.wallTex[1-id_]);
+  short id = 0;
+  //normal door
+  if (id_ == 0)
+    id = 1;
+  glBindTexture(GL_TEXTURE_2D, tex.wallTex[id]);
   glPushMatrix();
   
   //a door is just a textured, properly scaled cube
@@ -73,7 +77,7 @@ void Door::render() const{
     Matrix t(Matrix::Translation, Vector3D(position_.x*QUADSIZE+QUADSIZE/2,1.0/3*WALLHEIGHT,position_.y*QUADSIZE+QUADSIZE));
     Matrix s(Matrix::Scale, Vector3D((QUADSIZE-2*THICKNESS)/2,1.0/3*WALLHEIGHT,THICKNESS));
     //secret door?
-    if (id_ == 1){
+    if (id_ > 0){
 	    /*
       glTranslatef(position_.x*QUADSIZE+QUADSIZE/2,1.0/3*WALLHEIGHT,position_.y*QUADSIZE+QUADSIZE);
       glScalef((QUADSIZE-2*THICKNESS)/2,1.0/3*WALLHEIGHT,THICKNESS);
@@ -93,7 +97,7 @@ void Door::render() const{
   Matrix r(Matrix::Rotation, Vector3D(0,1,0), M_PI/2);
     Matrix t(Matrix::Translation, Vector3D(position_.x*QUADSIZE+QUADSIZE,1.0/3*WALLHEIGHT,position_.y*QUADSIZE+QUADSIZE/2));
     Matrix s(Matrix::Scale, Vector3D((QUADSIZE-2*THICKNESS)/2,1.0/3*WALLHEIGHT,THICKNESS));
-    if (id_ == 1){
+    if (id_ > 0){
 	    /*
       glTranslatef(position_.x*QUADSIZE+QUADSIZE,1.0/3*WALLHEIGHT,position_.y*QUADSIZE+QUADSIZE/2);
       glScalef(THICKNESS,1.0/3*WALLHEIGHT,(QUADSIZE-2*THICKNESS)/2);
@@ -109,7 +113,8 @@ void Door::render() const{
     (t*r*s).toOpenGL();
   }
  
-  if (id_ == 1){
+  //secret door
+  if (id_ > 0){
     float xr = (float)THICKNESS/QUADSIZE;
     float xl = (float)(QUADSIZE-THICKNESS)/QUADSIZE;
     float yu = 0;

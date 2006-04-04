@@ -150,6 +150,11 @@ void Templates::load(){
     in5 >> temp; in5 >> temp;
     o->setHeight((short)toInt(temp));
     in5 >> temp; in5 >> temp;
+    if (temp == "yes")
+      o->setWalkable(true);
+    else
+      o->setWalkable(false);
+    in5 >> temp; in5 >> temp;
     string desc;
     while(temp != "/description"){
       desc += temp;

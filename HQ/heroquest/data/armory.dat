@@ -10,3 +10,5 @@ chain_mail -> id: 8  price: 500 description: This light metal armor gives you 1 
 crossbow -> id: 9  price: 350 description: This long-range weapon gives you the attack strength of 3. You may fire at any creature you can see. However, you cannot fire at a monster that is adjacent to you. You have an unlimited supply of arrows. Not for the Wizard. /description
 battle_axe -> id: 10  price: 450 description: This heavy, double-edged axe gives you the attack strength of 4, but you need both hands to hold it. Not for the Wizard. /description
 plate_mail -> id: 11  price: 850 description: This heavy metal armor gives you 2 extra defense. However, because it is so heavy, you are slower in movement while wearing it. /description
+talisman_of_lore -> id: 12 price: -1 description: This magical medallion increases your mind points by 1 for as long as it is worn. /description
+victibleGarg -> id: 1000 price: -1 description: Special weapon for the Gargoyle in Melar's maze /description

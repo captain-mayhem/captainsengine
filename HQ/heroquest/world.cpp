@@ -96,7 +96,7 @@ void World::deInit(){
         delete [] f->vertices;
         delete [] f->texCoords;
       }
-			delete [] world_[j];
+			//TODO why segfault delete [] world_[j];
 		}
 		delete [] world_;
     
@@ -562,7 +562,7 @@ void World::render2D(bool vis){
 				}
 				if (isDoor(i,j,TOP, vis)){
 					Door* doo = getDoor(Vector2D(i,j),TOP);
-					if (doo->getId() == 1)
+					if (doo->getId() > 0)
 						glColor3f(1,1,1);
 					else
         		glColor3f(0.8,0.12,0.12);
@@ -573,7 +573,7 @@ void World::render2D(bool vis){
 				}
 				if (isDoor(i,j,RIGHT, vis)){
 					Door* doo = getDoor(Vector2D(i,j),RIGHT);
-					if (doo->getId() == 1)
+					if (doo->getId() > 0)
 						glColor3f(1,1,1);
 					else
         		glColor3f(0.8,0.12,0.12);
@@ -584,7 +584,7 @@ void World::render2D(bool vis){
 				}
 				if (isDoor(i,j,BOTTOM, vis)){
 					Door* doo = getDoor(Vector2D(i,j),BOTTOM);
-					if (doo->getId() == 1)
+					if (doo->getId() > 0)
 						glColor3f(1,1,1);
 					else
         		glColor3f(0.8,0.12,0.12);
@@ -595,7 +595,7 @@ void World::render2D(bool vis){
 				}
 				if (isDoor(i,j,LEFT, vis)){
 					Door* doo = getDoor(Vector2D(i,j),LEFT);
-					if (doo->getId() == 1)
+					if (doo->getId() > 0)
 						glColor3f(1,1,1);
 					else
         		glColor3f(0.8,0.12,0.12);
@@ -753,18 +753,28 @@ void World::updateCollisionVertices(Vector2D modelPos){
 	bool selfHero = dynamic_cast<Hero*>(world_[p.y][p.x].object) == NULL ? false : true;
 	
 	//TOP
-	GameObject *o = wrld.getObject(Vector2D(i, j-1));
 	bool objectHero = true;
 	bool objectMonster = true;
   bool objectFurni = false;
+  bool overlayNotWalkable = false;
+  bool outside = false;
+  if (i >= width_ || i < 0 || j-1 >= height_ || j-1 < 0){
+    outside = true;
+  }
+	GameObject *o = wrld.getObject(Vector2D(i, j-1));
 	if (o){
 		objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
 		objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
     objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
 	}
+  if (!outside){
+    Field* f = &wrld.getField(Vector2D(i, j-1));
+    if (f->overlay && f->overlay->getStatus() && !f->overlay->isWalkable())
+      overlayNotWalkable = true;
+  }
 	//cerr << selfHero << " " << objectHero << " " << objectMonster << "\n";
 	
-	if (game.getMoves() <= 0 || ((selfHero && !objectHero) && respectClasses_) || ((!selfHero && !objectMonster) && respectClasses_) || objectFurni){
+	if (game.getMoves() <= 0 || ((selfHero && !objectHero) && respectClasses_) || ((!selfHero && !objectMonster) && respectClasses_) || objectFurni || overlayNotWalkable){
 		vWorld_[index++] = &moveBox_[0];
 		vWorld_[index++] = &moveBox_[1];
 		vWorld_[index++] = &world_[j][i].vertices[0];
@@ -774,16 +784,26 @@ void World::updateCollisionVertices(Vector2D modelPos){
 	}
     
 	//LEFT
-	o = wrld.getObject(Vector2D(i-1, j));
 	objectHero = true;
 	objectMonster = true;
   objectFurni = false;
+  overlayNotWalkable = false;
+  outside = false;
+  if (i-1 >= width_ || i-1 < 0 || j >= height_ || j < 0){
+    outside = true;
+  }
+	o = wrld.getObject(Vector2D(i-1, j));
 	if (o){
 		objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
 		objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
     objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
 	}
-	if (game.getMoves() <= 0 || ((selfHero && !objectHero) && respectClasses_) || ((!selfHero && !objectMonster) && respectClasses_) || objectFurni){
+  if (!outside){
+    Field* f = &wrld.getField(Vector2D(i-1, j));
+    if (f->overlay && f->overlay->getStatus() && !f->overlay->isWalkable())
+      overlayNotWalkable = true;
+  }
+	if (game.getMoves() <= 0 || ((selfHero && !objectHero) && respectClasses_) || ((!selfHero && !objectMonster) && respectClasses_) || objectFurni || overlayNotWalkable){
 		vWorld_[index++] = &moveBox_[1];
 		vWorld_[index++] = &moveBox_[3];
 		vWorld_[index++] = &world_[j][i].vertices[1];
@@ -793,16 +813,26 @@ void World::updateCollisionVertices(Vector2D modelPos){
 	}
 
 	//BOTTOM
-	o = wrld.getObject(Vector2D(i, j+1));
 	objectHero = true;
 	objectMonster = true;
   objectFurni = false;
+  overlayNotWalkable = false;
+  outside = false;
+  if (i >= width_ || i < 0 || j+1 >= height_ || j+1 < 0){
+    outside = true;
+  }
+	o = wrld.getObject(Vector2D(i, j+1));
 	if (o){
 		objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
 		objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
     objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
 	}
-	if (game.getMoves() <= 0 || ((selfHero && !objectHero) && respectClasses_) || ((!selfHero && !objectMonster) && respectClasses_) || objectFurni){
+  if (!outside){
+    Field* f = &wrld.getField(Vector2D(i, j+1));
+    if (f->overlay && f->overlay->getStatus() && !f->overlay->isWalkable())
+      overlayNotWalkable = true;
+  }
+	if (game.getMoves() <= 0 || ((selfHero && !objectHero) && respectClasses_) || ((!selfHero && !objectMonster) && respectClasses_) || objectFurni || overlayNotWalkable){
 		vWorld_[index++] = &moveBox_[3];
 		vWorld_[index++] = &moveBox_[2];
 		vWorld_[index++] = &world_[j][i].vertices[3];
@@ -812,16 +842,26 @@ void World::updateCollisionVertices(Vector2D modelPos){
 	}
 
 	//RIGHT
-	o = wrld.getObject(Vector2D(i+1, j));
 	objectHero = true;
 	objectMonster = true;
   objectFurni = false;
+  overlayNotWalkable = false;
+  outside = false;
+  if (i+1 >= width_ || i+1 < 0 || j >= height_ || j < 0){
+    outside = true;
+  }
+	o = wrld.getObject(Vector2D(i+1, j));
 	if (o){
 		objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
 		objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
     objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
 	}
-	if (game.getMoves() <= 0 || ((selfHero && !objectHero) && respectClasses_) || ((!selfHero && !objectMonster) && respectClasses_) || objectFurni){
+  if (!outside){
+    Field* f = &wrld.getField(Vector2D(i+1, j));
+    if (f->overlay && f->overlay->getStatus() && !f->overlay->isWalkable())
+      overlayNotWalkable = true;
+  }
+	if (game.getMoves() <= 0 || ((selfHero && !objectHero) && respectClasses_) || ((!selfHero && !objectMonster) && respectClasses_) || objectFurni || overlayNotWalkable){
 		vWorld_[index++] = &moveBox_[2];
 		vWorld_[index++] = &moveBox_[0];
 		vWorld_[index++] = &world_[j][i].vertices[2];

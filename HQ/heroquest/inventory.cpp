@@ -19,6 +19,7 @@ Inventory::Inventory(){
   head_ = 0;
   body_ = 0;
   belt_ = 0;
+  breast_ = 0;
 #ifdef _CLIENT_
   fnt_.setBase(text.getBase());
   fnt_.setColor(0,1,1);
@@ -36,6 +37,13 @@ Inventory::Inventory(const Inventory& i){
   head_ = i.head_;
   body_ = i.body_;
   belt_ = i.belt_;
+  breast_ = i.breast_;
+#ifdef _CLIENT_
+  fnt_ = Font(i.fnt_);
+  page_ = i.page_;
+  chosenItem_ = i.chosenItem_;
+  visible_ = i.visible_;
+#endif
 }
 
 void Inventory::addItem(Item it){
@@ -85,6 +93,7 @@ void Inventory::write(ofstream& out)const{
   out.write((char*)&head_, sizeof(head_));
   out.write((char*)&body_, sizeof(body_));
   out.write((char*)&belt_, sizeof(belt_));
+  out.write((char*)&breast_, sizeof(breast_));
 }
 
 //! reads item data
@@ -102,6 +111,7 @@ void Inventory::read(ifstream& in){
   in.read((char*)&head_, sizeof(head_));
   in.read((char*)&body_, sizeof(body_));
   in.read((char*)&belt_, sizeof(belt_));
+  in.read((char*)&breast_, sizeof(breast_));
 }
 
 string Inventory::toString(){
@@ -114,6 +124,7 @@ string Inventory::toString(){
   ret += toStr(head_)+"$";
   ret += toStr(body_)+"$";
   ret += toStr(belt_)+"$";
+  ret += toStr(breast_)+"$";
   return ret;
 }
 
@@ -145,6 +156,9 @@ void Inventory::fromString(string it){
   pos = found+1;
   found = it.find('$', pos);
   belt_ = toInt(it.substr(pos,found-pos));
+  pos = found+1;
+  found = it.find('$', pos);
+  breast_ = toInt(it.substr(pos,found-pos));
   pos = found+1;
 
 }
@@ -181,6 +195,11 @@ bool Inventory::wearArmory(string what, string where1, string where2){
       return false;
     belt_ = idx;
   }
+  if (where1 == "breast" || where2 == "breast"){
+    if (breast_ != 0)
+      return false;
+    breast_ = idx;
+  }
   return true;
 }
 
@@ -197,6 +216,8 @@ Item& Inventory::getArmory(string where){
     return items_[body_];
   if (where == "belt")
     return items_[belt_];
+  if (where == "breast")
+    return items_[breast_];
   return items_[0];
 }
     
@@ -215,6 +236,8 @@ void Inventory::removeArmory(string what){
     body_ = 0;
   if (belt_ == idx)
     belt_ = 0;
+  if (breast_ == idx)
+    breast_ = 0;
 }
 
 
@@ -284,6 +307,7 @@ void Inventory::render(){
     int fill = (11 - name.size())/2;
     name.insert(name.begin(), fill, ' ');
     fnt_.glPrint(pos.x, pos.y, name.c_str(), 1);
+    fnt_.glPrint(pos.x+48, pos.y-18, toStr(items_[i].getNumber()).c_str(), 1);
     pos.x += 148;
     count++;
     if (count == 3){
@@ -328,9 +352,13 @@ void Inventory::render(){
   if (ite.isValid()){
     fnt_.glPrint(600, 500, (ite.getName()+" is worn on the belt").c_str(), 0);
   }
+  ite = getArmory("breast");
+  if (ite.isValid()){
+    fnt_.glPrint(600, 480, (ite.getName()+" is worn on the breast").c_str(), 0);
+  }
 
-  Vector2D click = gl->getMousePos();
-  fnt_.glPrint(600, 460, (toStr(click.x)+"/"+toStr(click.y)).c_str(), 0);
+  //Vector2D click = gl->getMousePos();
+  //fnt_.glPrint(600, 460, (toStr(click.x)+"/"+toStr(click.y)).c_str(), 0);
 
   if (chosenItem_ != NULL){
     fnt_.glPrint(600, 440, chosenItem_->getName().c_str(), 0);

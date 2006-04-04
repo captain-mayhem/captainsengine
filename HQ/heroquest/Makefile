@@ -44,7 +44,7 @@ endif
 ifeq "$(OS)" "Linux"
   # Modify this for your environment!
   CXX      := g++
-  CXXFLAGS := -g -O2 -Wall -I/usr/X11/include `sdl-config --cflags`
+  CXXFLAGS := -g -Wall -I/usr/X11/include `sdl-config --cflags`
   LDFLAGS  = 
   # Wherever you have installed your Qt
   QTDIR    = /usr

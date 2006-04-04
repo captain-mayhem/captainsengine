@@ -53,5 +53,6 @@
 #define SCRIPT        1036
 #define TRAP          1037
 #define DISARM        1038
+#define JUMP          1039
 
 #endif

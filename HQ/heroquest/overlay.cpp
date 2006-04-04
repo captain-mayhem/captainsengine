@@ -20,6 +20,7 @@ Overlay::Overlay(){
   active_ = false;
   rendered_ = false;
   found_ = false;
+  walkable_ = true;
 }
 
 //Destructor
@@ -38,6 +39,7 @@ Overlay::Overlay(const Overlay& o){
   height_ = o.height_;
   rendered_ = o.rendered_;
   found_ = o.found_;
+  walkable_ = o.walkable_;
 }
 
 void Overlay::render2D() const {

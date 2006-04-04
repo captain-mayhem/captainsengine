@@ -158,6 +158,14 @@ public:
   static int removeCreature(lua_State* L);
   //! release backpointer
   static int releaseBackPointer(lua_State* L);
+  //! set moves
+  static int setMoves(lua_State* L);
+  //! allow another treasure search
+  static int allowSearchAgain(lua_State* L);
+  //! move object
+  static int moveObject(lua_State* L);
+  //! get the names of the items in the inventory
+  static int getItems(lua_State* L);
   
 private:
 	//! The stack for communication between LUA and C

@@ -73,6 +73,7 @@ class Inventory{
     int head_;
     int body_;
     int belt_;
+    int breast_;
 #ifdef _CLIENT_
     //! the font
     Font fnt_;

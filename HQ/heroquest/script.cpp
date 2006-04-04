@@ -115,6 +115,15 @@ void Script::init(){
   lua_setglobal(L, "removeCreature");
   lua_pushcfunction(L, Script::releaseBackPointer);
   lua_setglobal(L, "releaseBackPointer");
+  lua_pushcfunction(L, Script::setMoves);
+  lua_setglobal(L, "setMoves");
+  lua_pushcfunction(L, Script::allowSearchAgain);
+  lua_setglobal(L, "allowSearchAgain");
+  lua_pushcfunction(L, Script::moveObject);
+  lua_setglobal(L, "moveObject");
+  lua_pushcfunction(L, Script::getItems);
+  lua_setglobal(L, "getItems");
+  
 	
 	lua_pcall(L,0,0,0);
 
@@ -446,6 +455,7 @@ int Script::getCreatureProperty(lua_State* L){
 	GameObject* o = wrld.getObject(Vector2D(x,y));
 	Creature* c = dynamic_cast<Creature*>(o);
 	if (!c){
+    cerr << "getCreatureProperty: No creature there\n";
 		lua_pushnil(L);
 	}
 	else if (what == "body"){
@@ -460,7 +470,11 @@ int Script::getCreatureProperty(lua_State* L){
     short mp = c->getMind();
     lua_pushnumber(L, mp);
   }
-	else if (what == "defence"){
+  else if (what == "maxmind"){
+    short mp = c->getMaxMind();
+    lua_pushnumber(L, mp);
+  }
+	else if (what == "defence" || what == "defense"){
 		short def = c->getDefence();
 		lua_pushnumber(L, def);
 	}
@@ -505,6 +519,7 @@ int Script::setCreatureProperty(lua_State* L){
 	GameObject* o = wrld.getObject(Vector2D(x,y));
 	Creature* c = dynamic_cast<Creature*>(o);
 	if (!c){
+    cerr << "setCreatureProperty: No creature there\n";
 		lua_pushboolean(L, false);
 		return 1;
 	}
@@ -513,7 +528,7 @@ int Script::setCreatureProperty(lua_State* L){
 		c->setBody((char)points);
 		lua_pushboolean(L, true);
 	}
-	else if (what == "defence"){
+	else if (what == "defence" || what == "defense"){
 		short points = (short)luaL_checknumber(L, 4);
 		c->setDefence((char)points);
 		lua_pushboolean(L, true);
@@ -547,6 +562,16 @@ int Script::setCreatureProperty(lua_State* L){
     bool dice = (bool)lua_toboolean(L, 4);
     c->setDiceToMove(dice);
     lua_pushboolean(L, true);
+  }
+  else if (what == "mind"){
+		short points = (short)luaL_checknumber(L, 4);
+		c->setMind((char)points);
+		lua_pushboolean(L, true);
+  }
+  else if (what == "maxmind"){
+		short points = (short)luaL_checknumber(L, 4);
+		c->setMaxMind((char)points);
+		lua_pushboolean(L, true);
   }
 	else{
 		lua_pushboolean(L,false);
@@ -679,7 +704,7 @@ int Script::addItem(lua_State* L){
   short tx = (short)luaL_checknumber(L, 1);
 	short ty = (short)luaL_checknumber(L, 2);
   string name = string(luaL_checkstring(L, 3));
-  Item it = Templates::instance()->getItem(name);
+  Item it = Templates::instance()->searchItem(name);
   Creature* creat = dynamic_cast<Creature*>(wrld.getObject(Vector2D(tx,ty)));
   Inventory* inv = creat->getInventory();
   inv->addItem(it);
@@ -962,7 +987,7 @@ int Script::getNumberOfHeros(lua_State* L){
   short num = 0;
   for (int i = 0; i < wrld.getHeroSize(); i++){
     Vector2D pos = wrld.getStarts()[i];
-    if (pos != Vector2D(-1,-1))
+    if (pos == Vector2D(-1,-1))
       ++num;
   }
   lua_pushnumber(L, num);
@@ -996,5 +1021,61 @@ int Script::releaseBackPointer(lua_State* L){
     return 0;
   }
   c->setBackPointer(NULL);
+  return 0;
+}
+
+
+//! set moves
+int Script::setMoves(lua_State* L){
+  short value = (short)luaL_checknumber(L, 1);
+#ifdef _CLIENT_
+  game.setMoves(value);
+  Vector2D pos = plyr.getCreature()->getPosition();
+  wrld.updateCollisionVertices(pos);
+#else
+  game.setMovement(value);
+#endif
+  return 0;
+}
+
+//allow to search for treasure again
+int Script::allowSearchAgain(lua_State* L){
+	short x = (short)luaL_checknumber(L, 1);
+	short y = (short)luaL_checknumber(L, 2);
+  Vector2D pos = Vector2D(x, y);
+  Field& f = wrld.getField(pos);
+  Field* field = wrld.getRoom(f.getId())[0];
+  field->treasure = false;
+  return 0;
+}
+
+//move object
+int Script::moveObject(lua_State* L){
+	short x = (short)luaL_checknumber(L, 1);
+	short y = (short)luaL_checknumber(L, 2);
+  Vector2D src = Vector2D(x, y);
+	x = (short)luaL_checknumber(L, 3);
+	y = (short)luaL_checknumber(L, 4);
+  Vector2D trg = Vector2D(x, y);
+  bool interpolate = (bool)(lua_toboolean(L, 5));
+  wrld.setObject(wrld.getObject(src), trg, interpolate);
+  return 0;
+}
+
+//take items away
+int Script::getItems(lua_State* L){
+  short x = (short)luaL_checknumber(L, 1);
+	short y = (short)luaL_checknumber(L, 2);
+  Vector2D pos = Vector2D(x, y);
+  Creature* c = dynamic_cast<Creature*>(wrld.getObject(pos));
+  if (c){
+    Inventory* inv = c->getInventory();
+    vector<Item> items = inv->getItems();
+    for (unsigned i = 0; i < items.size(); i++){
+      string name = items[i].getName();
+      lua_pushstring(L, name.c_str());
+    }
+    return items.size();
+  }
   return 0;
 }

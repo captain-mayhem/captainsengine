@@ -41,6 +41,8 @@ function a(sx, sy)
   local def = getCreatureProperty(sx, sy, "defence");
   setCreatureProperty(sx, sy, "attack", atta-1);
   setCreatureProperty(sx, sy, "defence", def-1);
+  --stop it
+  setMoves(0);
   --restore original when moving out
   function restorePitValues(sx, sy)
     local atta = getCreatureProperty(sx, sy, "attack");
@@ -60,6 +62,7 @@ function b(sx, sy)
   output("You are hit by a spear trap", "");
   makeOverlayActive(sx, sy, false);
   releaseBackPointer(sx, sy);
+  setMoves(0);
   attack(1, "normal", 0, "normal", sx, sy, sx, sy);
 end
 
@@ -67,6 +70,8 @@ end
 function c(sx, sy)
   output("You are hit by a falling rock trap", "");
   makeOverlayActive(sx, sy, true);
+  --may move away
+  setMoves(1);
   attack(3, "normal", 0, "normal", sx, sy, sx, sy);
   return false;
 end
