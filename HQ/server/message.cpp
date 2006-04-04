@@ -262,6 +262,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       GameObject* o = wrld.getObject(pos);
       Vector2D newPos = Vector2D(pos.x,pos.y-1);
       wrld.setObject(o, newPos);
+			scr.move(newPos);
       //check if script is activated
       Field& f = wrld.getField(newPos);
       if (f.script != NULL){
@@ -270,7 +271,6 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       message = toStr(UP_DIR)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
       globl.broadcast(message);
-			scr.move(newPos);
       break;
       }
     case DOWN_DIR:
@@ -284,6 +284,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       GameObject* o = wrld.getObject(pos);
       Vector2D newPos = Vector2D(pos.x,pos.y+1);
       wrld.setObject(o, newPos);
+			scr.move(newPos);
       //check if script is activated
       Field& f = wrld.getField(newPos);
       if (f.script != NULL){
@@ -293,7 +294,6 @@ void Message::process(ServerSocket* ss, const string& cmd){
 
       message = toStr(DOWN_DIR)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
       globl.broadcast(message);
-			scr.move(newPos);
       break;
       }
     case LEFT_DIR:
@@ -307,6 +307,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       GameObject* o = wrld.getObject(pos);
       Vector2D newPos = Vector2D(pos.x-1,pos.y);
       wrld.setObject(o, newPos);
+			scr.move(newPos);
       //check if script is activated
       Field& f = wrld.getField(newPos);
       if (f.script != NULL){
@@ -315,7 +316,6 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       message = toStr(LEFT_DIR)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
       globl.broadcast(message);
-			scr.move(newPos);
       break;
       }
     case RIGHT_DIR:
@@ -329,6 +329,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       GameObject* o = wrld.getObject(pos);
       Vector2D newPos = Vector2D(pos.x+1,pos.y);
       wrld.setObject(o, newPos);
+			scr.move(newPos);
       //check if script is activated
       Field& f = wrld.getField(newPos);
       if (f.script != NULL){
@@ -337,7 +338,6 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       message = toStr(RIGHT_DIR)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
       globl.broadcast(message);
-			scr.move(newPos);
       break;
       }
 
@@ -346,9 +346,9 @@ void Message::process(ServerSocket* ss, const string& cmd){
       GameObject* o = wrld.getObject(pos);
       Vector2D newPos = Vector2D(toInt(argv[0]), toInt(argv[1]));
       wrld.setObject(o, newPos);
+			scr.move(newPos);
       message = toStr(POSITION)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
       globl.broadcast(message);
-			scr.move(newPos);
       }
       break;
       
@@ -371,7 +371,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       else{
 	      //can't open secret doors
-        if (doo->getId() == 1){
+        if (doo->getId() > 0){
           *ss << toStr(CHAT)+ " There is no door.";
 	        break;
 	      }
@@ -779,6 +779,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
             string msg = toStr(SCRIPT)+" "+toStr(f->getPosition().x)+" "+toStr(f->getPosition().y)
               +" event "+toStr(OnTreasure)+ " "+toStr(pos.x)+" "+toStr(pos.y);
             globl.broadcast(msg);
+            break;
           }
         }
       }
@@ -878,7 +879,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         break;
       }
       if (game.getMovement() < 1){
-        *ss << toStr(CHAT)+" You need at least one field movement left.";
+        *ss << toStr(CHAT)+" You need at least one field of movement left.";
         break;
       }
       Vector2D pos = wrld.getHeros()[idx].getPosition();
@@ -926,14 +927,19 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       game.performAction();
       //is it no furniture trap?
+      bool noFurn = false;
       if (!f.object || (f.object && dynamic_cast<Furniture*>(f.object) == NULL)){
         wrld.setObject(wrld.getObject(pos), newpos);
-        pos = newpos;
+        noFurn = true;
       }
       //if disarming failed, trap is sprung
       if (thrown > 0){
-        cerr << "NOOO!";
-        scr.call(f.script->event, f.script, pos);
+        cerr << "Disarm: NOOO!";
+        if (noFurn)
+          scr.call(f.script->event, f.script, newpos);
+        else
+          scr.call(f.script->event, f.script, pos);
+        
         string message = toStr(SCRIPT)+" "+toStr(pos.x)+" "+toStr(pos.y)+
           " trap "+toStr(newpos.x)+" "+toStr(newpos.y);
         globl.broadcast(message);
@@ -948,14 +954,87 @@ void Message::process(ServerSocket* ss, const string& cmd){
           f.script->script[0] = toupper(f.script->script[0]);
         }
         f.overlay->find(false);
-        cerr << "DONE";
+        cerr << "Disarm: DONE";
         string message = toStr(DISARM) + " "+toStr(pos.x)+" "+toStr(pos.y)+" "
           +toStr(newpos.x)+" "+toStr(newpos.y);
         globl.broadcast(message);
       }
       }
       break;
-    
+
+    case JUMP:
+      if (!game.isActivePlayer(ss)){
+        *ss << toStr(NO_TURN);
+	      break;
+      }
+      {
+      short idx = game.getActivePlayerIdx();
+      if (game.getMovement() < 2){
+        *ss << toStr(CHAT)+" You need at least two fields of movement left.";
+        break;
+      }
+      Vector2D pos;
+      short thrown = 0;
+      if (idx >= wrld.getHeroSize()){
+        pos = wrld.getMonsters()[idx-wrld.getHeroSize()]->getPosition();
+        thrown = 0;
+      }
+      else{
+        pos = wrld.getHeros()[idx].getPosition();
+        game.die(1, false, &thrown);
+      }
+      //go to field that should be disarmed
+      Vector2D newpos;
+      Direction d = (Direction)toInt(argv[0]);
+      switch (d){
+        case TOP:
+          newpos = Vector2D(pos.x, pos.y-1);
+          break;
+        case RIGHT:
+          newpos = Vector2D(pos.x+1, pos.y);
+          break;
+        case BOTTOM:
+          newpos = Vector2D(pos.x, pos.y+1);
+          break;
+        case LEFT:
+          newpos = Vector2D(pos.x-1, pos.y);
+          break;
+      }
+      Field& f = wrld.getField(newpos);
+      //is there a visible trap?
+      if (!(f.script && f.script->isTrap) || !(f.overlay->getStatus() || f.overlay->isFound())){
+        *ss << toStr(CHAT) + " There is no trap that can be jumped over.";
+        break;
+      }
+      //is it a furniture trap?
+      if (f.object && dynamic_cast<Furniture*>(f.object) != NULL){
+        *ss << toStr(CHAT) + " You can't jump over furniture traps.";
+        break;
+      }
+      
+      wrld.setObject(wrld.getObject(pos), newpos);
+      //pos = newpos;
+      
+      //if jumping failed, trap is sprung
+      if (thrown > 0){
+        cerr << "Jump: NOOO!";
+        scr.call(f.script->event, f.script, pos);
+        string message = toStr(SCRIPT)+" "+toStr(pos.x)+" "+toStr(pos.y)+
+          " trap "+toStr(newpos.x)+" "+toStr(newpos.y);
+        globl.broadcast(message);
+      }
+      else{
+        //jump successful
+        *ss << toStr(CHAT)+" You jumped successfully.";
+        wait();
+        cerr << "Jump: DONE";
+        string message = toStr(JUMP) + " "+toStr(pos.x)+" "+toStr(pos.y)+" "
+          +toStr(newpos.x)+" "+toStr(newpos.y);
+        globl.broadcast(message);
+      }
+      }
+      break;
+      
     default:      
       *ss << toStr(NAK);
   }

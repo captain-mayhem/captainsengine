@@ -208,8 +208,24 @@ function armory(sx, sy, tx, ty, idx)
       err(sx, sy, "Your body has to be free");
       return false;
     end
-
     
+  -- talisman of lore
+  elseif idx == 12 then
+    local id = getArmory(sx, sy, "breast");
+    if id == -1 then
+      wearArmory(sx, sy, "talisman_of_lore", "breast", "");
+      local maxmind = getCreatureProperty(sx, sy, "maxmind");
+      setCreatureProperty(sx, sy, "maxmind", maxmind+1);
+      local mind = getCreatureProperty(sx, sy, "mind");
+      setCreatureProperty(sx, sy, "mind", mind+1);
+      return true;
+    end
+    output("Your breast has to be free","");
+    return false;
+
+  --Garg's weapon
+  --elseif idx == 1000 then
+  --  wearArmory(sx, sy, "victibleGarg", "right hand", "");
   end
 
 end
@@ -218,78 +234,89 @@ end
 function armoryOff(sx, sy, idx)
 
   -- tool kit
-  if idx == 0 then
+  if idx == 0 or idx == "tool_kit" then
     takeOff(sx, sy, "tool_kit");
   end
 
   --shortsword
-  if idx == 1 then
+  if idx == 1 or idx == "shortsword" then
     takeOff(sx, sy, "shortsword");
     local atta = getCreatureProperty(sx, sy, "attack");
     setCreatureProperty(sx, sy, "attack", atta-2);
 
   --helmet
-  elseif idx == 2 then
+  elseif idx == 2 or idx == "helmet" then
     takeOff(sx, sy, "helmet");
     local def = getCreatureProperty(sx, sy, "defence");
     setCreatureProperty(sx, sy, "defence", def-1);
   
   --dagger
-  elseif idx == 3 then
+  elseif idx == 3 or idx == "dagger" then
     takeOff(sx, sy, "dagger");
     local atta = getCreatureProperty(sx, sy, "attack");
     setCreatureProperty(sx, sy, "attack", atta-1);
   
   --broadsword
-  elseif idx == 4 then
+  elseif idx == 4 or idx == "broadsword" then
     takeOff(sx, sy, "broadsword");
     local atta = getCreatureProperty(sx, sy, "attack");
     setCreatureProperty(sx, sy, "attack", atta-3);
   
   --shield
-  elseif idx == 5 then
+  elseif idx == 5 or idx == "shield" then
     takeOff(sx, sy, "shield");
     local def = getCreatureProperty(sx, sy, "defence");
     setCreatureProperty(sx, sy, "defence", def-1);
     
   --staff
-  elseif idx == 6 then
+  elseif idx == 6 or idx == "staff" then
     takeOff(sx, sy, "staff");
     local atta = getCreatureProperty(sx, sy, "attack");
     setCreatureProperty(sx, sy, "attack", atta-1);
 
   --longsword
-  elseif idx == 7 then
+  elseif idx == 7 or idx == "longsword" then
     takeOff(sx, sy, "longsword");
     local atta = getCreatureProperty(sx, sy, "attack");
     setCreatureProperty(sx, sy, "attack", atta-3);
 
   --chain mail
-  elseif idx == 8 then
+  elseif idx == 8 or idx == "chain_mail" then
     takeOff(sx, sy, "chain_mail");
     local def = getCreatureProperty(sx, sy, "defence");
     setCreatureProperty(sx, sy, "defence", def-1);
 
   --crossbow
-  elseif idx == 9 then
+  elseif idx == 9 or idx == "crossbow" then
     takeOff(sx, sy, "crossbow");
     local atta = getCreatureProperty(sx, sy, "attack");
     setCreatureProperty(sx, sy, "attack", atta-3);
 
   --battle axe
-  elseif idx == 10 then
+  elseif idx == 10 or idx == "battle_axe" then
     takeOff(sx, sy, "battle_axe");
     local atta = getCreatureProperty(sx, sy, "attack");
     setCreatureProperty(sx, sy, "attack", atta-4);
 
   --plate mail
-  elseif idx == 11 then
+  elseif idx == 11 or idx == "plate_mail" then
     takeOff(sx, sy, "plate_mail");
     local def = getCreatureProperty(sx, sy, "defence");
     setCreatureProperty(sx, sy, "defence", def-2);
     local mov = getCreatureProperty(sx, sy, "move");
     setCreatureProperty(sx, sy, "move", mov+1);
 
+  -- talisman of lore
+  elseif idx == 12 or idx == "talisman_of_lore" then
+    takeOff(sx, sy, "talisman_of_lore");
+    local maxmind = getCreatureProperty(sx, sy, "maxmind");
+    setCreatureProperty(sx, sy, "maxmind", maxmind-1);
+    local mind = getCreatureProperty(sx, sy, "mind");
+    setCreatureProperty(sx, sy, "mind", mind-1);
+
+  -- Garg's weapon
+  --elseif idx == 1000 then
+  --  takeOff(sx, sy, "victibleGarg");
   end
 
 end
@@ -339,6 +366,18 @@ function use_weapon(sx, sy, tx, ty, idx)
     else
       return -1;
     end
+  --Gargoyle's weapon in Melar's maze
+  elseif idx == 1000 then
+    if not isVisible(sx, sy, tx, ty) then
+      return -1;
+    end
+    if WisAdjacent(sx, sy, tx, ty) then
+      GargInvictible = false;
+      return getCreatureProperty(sx, sy, "attack");
+    else
+      return -1;
+    end
+
   end
   return -1;
 end
