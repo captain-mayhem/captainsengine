@@ -1076,7 +1076,7 @@ void Message::process(const string& answer){
       break;
     }
     else if (argv[2] == "trap"){
-      Vector2D trg(toInt(argv[2]), toInt(argv[3]));
+      Vector2D trg(toInt(argv[3]), toInt(argv[4]));
       Field& f = wrld.getField(trg);
       if (!f.object || (f.object && dynamic_cast<Furniture*>(f.object) == NULL)){
         wrld.setObject(wrld.getObject(src), trg);

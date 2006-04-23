@@ -54,7 +54,8 @@ void Inventory::addItem(Item it){
     lookup_[it.getName()] = items_.size()-1;
   }
   else{
-    items_[idx].increase();
+    for (int i = 0; i < it.getNumber(); i++)
+      items_[idx].increase();
   }
 }
 

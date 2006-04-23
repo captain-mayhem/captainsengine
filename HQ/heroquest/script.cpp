@@ -123,6 +123,8 @@ void Script::init(){
   lua_setglobal(L, "moveObject");
   lua_pushcfunction(L, Script::getItems);
   lua_setglobal(L, "getItems");
+  lua_pushcfunction(L, Script::isCreatureAt);
+  lua_setglobal(L, "isCreatureAt");
   
 	
 	lua_pcall(L,0,0,0);
@@ -1062,7 +1064,7 @@ int Script::moveObject(lua_State* L){
   return 0;
 }
 
-//take items away
+//get item names
 int Script::getItems(lua_State* L){
   short x = (short)luaL_checknumber(L, 1);
 	short y = (short)luaL_checknumber(L, 2);
@@ -1078,4 +1080,17 @@ int Script::getItems(lua_State* L){
     return items.size();
   }
   return 0;
+}
+
+
+// is a creature at a position
+int Script::isCreatureAt(lua_State* L){
+  short x = (short)luaL_checknumber(L, 1);
+	short y = (short)luaL_checknumber(L, 2);
+  Creature* c = dynamic_cast<Creature*>(wrld.getObject(Vector2D(x,y)));
+  if (c)
+    lua_pushboolean(L, true);
+  else
+    lua_pushboolean(L, false);
+  return 1;
 }

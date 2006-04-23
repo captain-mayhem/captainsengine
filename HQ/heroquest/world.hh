@@ -217,20 +217,28 @@ public:
 	//! init some data structures
 	void init();
 
+  //! if a monster is visible from position pos
   bool isMonsterVisible(Vector2D pos);
 
+  //! when set to false, heros can pass through monsters and vice versa
   inline void setRespectClasses(bool respect){
     respectClasses_ = respect;
   }
 
+  //! the scripts
   struct scriptPos{
     char script[2];
     Vector2D pos;
   };
 
+  //! get all fields that belong to the room with the id id.
   inline vector<Field*>& getRoom(short id){return rooms_[id];}
 
+  //! unload a level
   inline void unload() {loaded_ = false; heroSize_ = 0;}
+
+  //! place an inventory at a certain field
+  void placeInventory(Inventory* items, Vector2D position);
 	
 private:
   //! tells if there is a door

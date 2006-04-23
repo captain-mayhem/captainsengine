@@ -19,6 +19,7 @@
 //#include "overlay.hh"
 class Overlay;
 struct ScriptInfo;
+class Inventory;
 
 #define QUADSIZE 8
 #define WALLHEIGHT 16
@@ -85,6 +86,8 @@ public:
   ScriptInfo* script;
   //! if already searched for treasure
   bool treasure;
+  //! lost items
+  Inventory* items;
 };
 
 #endif

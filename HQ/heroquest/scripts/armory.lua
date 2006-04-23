@@ -222,6 +222,24 @@ function armory(sx, sy, tx, ty, idx)
     end
     output("Your breast has to be free","");
     return false;
+    
+  -- wizard's cloak
+  elseif idx == 13 then
+    --is it the wizard?
+    if not (getCreatureProperty(sx, sy, "id") == 3) then
+      return false;
+    end
+    local id = getArmory(sx, sy, "body");
+    --free?
+    if id == -1 then
+      wearArmory(sx, sy, "wizards_cloak", "body", "");
+      local def = getCreatureProperty(sx, sy, "defence");
+      setCreatureProperty(sx, sy, "defence", def+1);
+      return true;
+    else
+      err(sx, sy, "Your body has to be free");
+      return false;
+    end
 
   --Garg's weapon
   --elseif idx == 1000 then
@@ -314,6 +332,11 @@ function armoryOff(sx, sy, idx)
     local mind = getCreatureProperty(sx, sy, "mind");
     setCreatureProperty(sx, sy, "mind", mind-1);
 
+  --wizards cloak
+  elseif idx == 13 or idx == "wizards_cloak" then
+    takeOff(sx, sy, "wizards_cloak");
+    local def = getCreatureProperty(sx, sy, "defence");
+    setCreatureProperty(sx, sy, "defence", def-1);
   -- Garg's weapon
   --elseif idx == 1000 then
   --  takeOff(sx, sy, "victibleGarg");

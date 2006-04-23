@@ -1700,3 +1700,29 @@ bool World::isMonsterVisible(Vector2D pos){
   }
   return false;
 }
+
+//place an inventory at a certain field
+void World::placeInventory(Inventory* items, Vector2D position){
+  Field& f = getField(position);
+  //reset inventory on that field
+  if (items == NULL){
+    f.inventory = NULL;
+    return;
+  }
+  //does the inventory contain no items
+  if(items->getItems().size() <= 1){
+    return;
+  }
+  //no inventory present, just set it
+  if (f.inventory == NULL){
+    f.inventory = items;
+  }
+  //merge inventories
+  else{
+    vector<Item>& its = items->getItems();
+    for (unsigned i = 0; i < its.size(); i++){
+      Item& it = its[i];
+      f.inventory->addItem(it);
+    }
+  }
+}

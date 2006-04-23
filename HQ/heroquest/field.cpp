@@ -13,7 +13,7 @@
 
 //Constructor
 Field::Field() : object(0), numVertices(0), vertices(0), texCoords(0), tryObject(0), overlay(0), script(0),
-  treasure(false){
+  treasure(false), items(0) {
 }
 
 Field::Field(const Field& f){
@@ -41,6 +41,7 @@ Field::Field(const Field& f){
   script = f.script;
   
   treasure = f.treasure;
+  items = f.items;
 }
 
 //Destructor

@@ -166,6 +166,8 @@ public:
   static int moveObject(lua_State* L);
   //! get the names of the items in the inventory
   static int getItems(lua_State* L);
+  //! is a creature at a position
+  static int isCreatureAt(lua_State* L);
   
 private:
 	//! The stack for communication between LUA and C
