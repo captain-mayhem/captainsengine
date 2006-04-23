@@ -70,6 +70,10 @@ getCreatureProperty(x,y,prop)
 getNumberOfHeros()
   returns the number of heros that are playing in the game.
 
+isCreatureAt(x,y)
+  returns true, if a creature stands at the position (x,y), false
+  otherwise.
+
 isMonsterVisible(x,y)
   returns true, if the position (x,y) can be seen by any monster, false 
   otherwise.
