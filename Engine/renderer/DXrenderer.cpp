@@ -16,7 +16,7 @@ DXRenderer::DXRenderer(): Renderer() {
 DXRenderer::~DXRenderer(){
 }
 
-void DXRenderer::initContext(::Window::Window* win){
+void DXRenderer::initContext(::Windows::AppWindow* win){
   ::Engine::Log << "Initializing DirectX context\n";
   win_ = win;
 
@@ -56,7 +56,7 @@ void DXRenderer::initContext(::Window::Window* win){
   ppm.AutoDepthStencilFormat = D3DFMT_D16;
   ppm.EnableAutoDepthStencil = TRUE;
 
-  HWND wnd = dynamic_cast<::Window::WindowsWindow*>(win)->getHandle();
+  HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win)->getHandle();
 
   if(win->isFullscreen()){
     ppm.SwapEffect = D3DSWAPEFFECT_FLIP;
@@ -147,7 +147,7 @@ void DXRenderer::resizeScene(int width, int height){
     return;
   ::Engine::Log << "Resizing Scene\n";
   win_->setWidth(width);
-  ein_->setHeight(height);
+  win_->setHeight(height);
   /*
   if (height == 0){
     height = 1;
