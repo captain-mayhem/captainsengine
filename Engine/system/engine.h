@@ -7,8 +7,8 @@
 using std::ofstream;
 using std::cerr;
 
-#define EXIT() (::Engine::Engine::instance()->shutdown())
-#define EXIT2(msg) {::Engine::Log << (msg) << "\n"; ::Engine::Engine::instance()->shutdown(); }
+#define EXIT() (::System::Engine::instance()->shutdown())
+#define EXIT2(msg) {::System::Log << (msg) << "\n"; ::System::Engine::instance()->shutdown(); }
 #define SAFE_DELETE(ptr)       { if(ptr) { delete (ptr); (ptr)=NULL; } }
 #define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=NULL; } }
 #define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=NULL; } }
@@ -17,11 +17,11 @@ namespace Windows{
 class AppWindow;
 }
 
-namespace Renderer{
+namespace Graphics{
 class Renderer;
 }
 
-namespace Engine{
+namespace System{
 
 extern ofstream Log;
 
@@ -32,13 +32,13 @@ class Engine{
     void startup();
     void run();
     void shutdown();
-    inline ::Renderer::Renderer* getRenderer() {return rend_;}
+    inline ::Graphics::Renderer* getRenderer() {return rend_;}
     inline ::Windows::AppWindow* getWindow() {return win_;}
   private:
     static Engine* eng;
     Engine();
     ::Windows::AppWindow* win_;
-    ::Renderer::Renderer* rend_;
+    ::Graphics::Renderer* rend_;
 };
 }
 

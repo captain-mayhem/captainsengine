@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace Renderer{
+namespace Graphics{
 class Renderer;
 }
 
@@ -13,7 +13,7 @@ namespace Windows{
 
 class AppWindow{
 public:
-  AppWindow(::Renderer::Renderer* render);
+  AppWindow(::Graphics::Renderer* render);
   virtual ~AppWindow(){};
   virtual void init(const std::string& name){};
   virtual void kill(){};
@@ -30,7 +30,7 @@ public:
   //! set window height
   inline void setHeight(int height) {height_ = height;}
 protected:
-  ::Renderer::Renderer* renderer_;
+  ::Graphics::Renderer* renderer_;
   bool fullscreen_;
   int width_;
   int height_;

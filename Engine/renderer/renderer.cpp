@@ -4,9 +4,11 @@
 
 using namespace ::Math;
 
-namespace Renderer{
+namespace Graphics{
 
 Renderer::Renderer(){
+  win_ = NULL;
+  renderCB_ = NULL;
 }
 
 Renderer::~Renderer(){
@@ -21,11 +23,13 @@ void Renderer::killContext(){
 }
 
 void Renderer::initRendering(){
-  setClearColor(Vector3D(0.5,0.5,0));
+  
 }
 
 void Renderer::renderScene(){
-  clear(ZBUFFER | COLORBUFFER);
+  if (renderCB_){
+    renderCB_();
+  }
 }
 
 void Renderer::resizeScene(int width, int height){

@@ -148,6 +148,12 @@
 			Name="window"
 			Filter="">
 			<File
+				RelativePath=".\window\nativeLinux.cpp">
+			</File>
+			<File
+				RelativePath=".\window\nativeLinux.h">
+			</File>
+			<File
 				RelativePath=".\window\nativeWindows.cpp">
 			</File>
 			<File
@@ -192,6 +198,12 @@
 				RelativePath=".\renderer\DXrenderer.h">
 			</File>
 			<File
+				RelativePath=".\renderer\DXvertexbuffer.cpp">
+			</File>
+			<File
+				RelativePath=".\renderer\DXvertexbuffer.h">
+			</File>
+			<File
 				RelativePath=".\renderer\OGLrenderer.cpp">
 			</File>
 			<File
@@ -202,6 +214,12 @@
 			</File>
 			<File
 				RelativePath=".\renderer\renderer.h">
+			</File>
+			<File
+				RelativePath=".\renderer\vertexbuffer.cpp">
+			</File>
+			<File
+				RelativePath=".\renderer\vertexbuffer.h">
 			</File>
 		</Filter>
 		<Filter
