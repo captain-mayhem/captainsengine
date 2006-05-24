@@ -11,7 +11,7 @@ namespace Windows{
 
 class WindowsWindow : public AppWindow{
 public:
-  WindowsWindow(::Renderer::Renderer* renderer);
+  WindowsWindow(::Graphics::Renderer* renderer);
   ~WindowsWindow() {}
   //! init the window
   void init(const std::string& name);

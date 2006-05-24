@@ -2,14 +2,16 @@
 #include "../renderer/DXrenderer.h"
 #include "engine.h"
 
+extern void engineMain();
+
 #ifdef WIN32
 
 #include <windows.h>
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int cmdShow){
   MSG msg;
-  Engine::Engine::init();
-  Engine::Engine::instance()->startup();
+  System::Engine::init();
+  System::Engine::instance()->startup();
   //Enter gameloop
   while(true){
     while (PeekMessage(&msg,NULL,0,0,PM_REMOVE)){
@@ -18,12 +20,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
-    Engine::Engine::instance()->run();
-    if (Engine::Engine::instance()->getRenderer()->getRenderType() == Renderer::OpenGL){
-      SwapBuffers(dynamic_cast<Renderer::OGLRenderer*>(Engine::Engine::instance()->getRenderer())->getDevice());
+    System::Engine::instance()->run();
+    if (System::Engine::instance()->getRenderer()->getRenderType() == Graphics::OpenGL){
+      SwapBuffers(dynamic_cast<Graphics::OGLRenderer*>(System::Engine::instance()->getRenderer())->getDevice());
     }
   }
-  Engine::Engine::instance()->shutdown();
+  System::Engine::instance()->shutdown();
   return (int)msg.wParam;
 }
 #endif
@@ -36,12 +38,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int
 #include <GL/glx.h>
 
 int main(int argc, char** argv){
-  Engine::Engine::init();
-  Engine::Engine::instance()->startup();
+  System::Engine::init();
+  System::Engine::instance()->startup();
   XEvent event;
   bool running = true;
-  Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(Engine::Engine::instance()->getWindow());
-  Renderer::Renderer* rend = Engine::Engine::instance()->getRenderer();
+  Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());
+  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   Display* disp = win->getDisplay();
   
   while(running){
@@ -52,7 +54,7 @@ int main(int argc, char** argv){
         case Expose:
           if (event.xexpose.count != 0)
             break;
-          Engine::Engine::instance()->run();
+          System::Engine::instance()->run();
           glXSwapBuffers(disp, win->getWindow());
           break;
         case ConfigureNotify:
@@ -73,10 +75,10 @@ int main(int argc, char** argv){
           break;
       }
     }
-    Engine::Engine::instance()->run();
+    System::Engine::instance()->run();
     glXSwapBuffers(disp, win->getWindow());
   }
-  Engine::Engine::instance()->shutdown();
+  System::Engine::instance()->shutdown();
   return 0;
 }
 #endif
@@ -84,28 +86,28 @@ int main(int argc, char** argv){
 #include "../window/nativeWindows.h"
 #include "script.h"
 
-ofstream Engine::Log("engine.log");
+ofstream System::Log("engine.log");
 
-Engine::Engine* Engine::Engine::eng = NULL;
+System::Engine* System::Engine::eng = NULL;
 
-Engine::Engine::Engine(){
+System::Engine::Engine(){
   win_ = NULL;
   rend_ = NULL;
   Log << "Engine instance created\n";
 }
 
-void Engine::Engine::init(){
+void System::Engine::init(){
   eng = new Engine();
 }
 
-void Engine::Engine::startup(){
+void System::Engine::startup(){
   Script::init();
   Script::instance()->initEnv();
   string type = Script::instance()->getStringSetting("renderer");
   if (type == "OpenGL")
-    rend_ = new Renderer::OGLRenderer();
+    rend_ = new ::Graphics::OGLRenderer();
   else if (type == "DirectX")
-    rend_ = new ::Renderer::DXRenderer();
+    rend_ = new ::Graphics::DXRenderer();
   else
     EXIT2("No valid renderer specified in engine.ini");
 #ifdef WIN32
@@ -116,9 +118,10 @@ void Engine::Engine::startup(){
 #endif
   win_->init("ACE-Engine");
   Input::Keyboard::init();
+  engineMain();
 }
 
-void Engine::Engine::shutdown(){
+void System::Engine::shutdown(){
   Log << "engine shutting down\n";
   Input::Keyboard::release();
   if (win_)
@@ -131,7 +134,7 @@ void Engine::Engine::shutdown(){
   exit(0);
 }
 
-void Engine::Engine::run(){
+void System::Engine::run(){
   rend_->renderScene();
 }
   

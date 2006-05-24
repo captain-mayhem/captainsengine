@@ -14,7 +14,7 @@ extern "C"{
 using std::string;
 
 
-namespace Engine{
+namespace System{
 
 //! Provides a simple interface to the LUA scripting language
 /*! Functions to call LUA from C and C-Functions to call from LUA

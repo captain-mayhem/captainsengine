@@ -2,7 +2,7 @@
 #include "engine.h"
 #include "script.h"
 
-namespace Engine{
+namespace System{
 
 Script* Script::scr_ = NULL;
 

@@ -1,4 +1,4 @@
-namespace Engine{
+namespace System{
 
 template <class T> 
 class Singleton{

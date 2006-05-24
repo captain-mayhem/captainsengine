@@ -6,11 +6,12 @@ class AppWindow;
 }
 
 #include "../math/vector.h"
+#include "vertexbuffer.h"
 
 #define ZBUFFER 0x00000001
 #define COLORBUFFER 0x00000010
 
-namespace Renderer{
+namespace Graphics{
 
 enum RenderType{
   OpenGL,
@@ -26,6 +27,8 @@ public:
   /*! It can be an OpenGL or DirectX renderer
   */
   RenderType getRenderType() {return type_;}
+  //! set render callback
+  void setRenderCB(void (*proc)()) {renderCB_ = proc;}
   //! initialize rendering context
   virtual void initContext(::Windows::AppWindow* win);
   //! kill rendering context
@@ -40,9 +43,16 @@ public:
   virtual void setClearColor(::Math::Vector3D color){}
   //! clear scene
   virtual void clear(long flags){}
+  //! create vertex buffer
+  virtual VertexBuffer* createVertexBuffer(){return NULL;}
 protected:
+  //! the type of the renderer
+  /*! can be OpenGL or DirectX*/
   RenderType type_;
+  //! the window in which is rendered
   ::Windows::AppWindow* win_;
+  //! the render callback
+  void (*renderCB_)();
 };
 
 }

@@ -5,7 +5,7 @@
 #include "../system/engine.h"
 #include "DXrenderer.h"
 
-namespace Renderer{
+namespace Graphics{
 
 DXRenderer::DXRenderer(): Renderer() {
   type_ = DirectX;
@@ -17,7 +17,7 @@ DXRenderer::~DXRenderer(){
 }
 
 void DXRenderer::initContext(::Windows::AppWindow* win){
-  ::Engine::Log << "Initializing DirectX context\n";
+  ::System::Log << "Initializing DirectX context\n";
   win_ = win;
 
   d3d_ = Direct3DCreate9(D3D_SDK_VERSION);
@@ -75,10 +75,10 @@ void DXRenderer::initContext(::Windows::AppWindow* win){
   if(SUCCEEDED(d3d_->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, wnd,
     D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_PUREDEVICE,
     &ppm, &device_))){
-      ::Engine::Log << "Hardware vertex-processing enabled.\n";
+      ::System::Log << "Hardware vertex-processing enabled\n";
   }
   else{
-    ::Engine::Log << "Failed to enable pure DX9 device.\n";
+    ::System::Log << "Failed to enable pure DX9 device.\n";
   }
   
 
@@ -96,7 +96,7 @@ void DXRenderer::killContext(){
 }
 
 void DXRenderer::initRendering(){
-  ::Engine::Log << "Initializing Scene\n";/*
+  ::System::Log << "Initializing Scene\n";/*
   //smooth shading
   glShadeModel(GL_SMOOTH);
 
@@ -145,7 +145,7 @@ void DXRenderer::renderScene(){
 void DXRenderer::resizeScene(int width, int height){
   if (device_ == NULL)
     return;
-  ::Engine::Log << "Resizing Scene\n";
+  ::System::Log << "Resizing Scene\n";
   win_->setWidth(width);
   win_->setHeight(height);
   /*

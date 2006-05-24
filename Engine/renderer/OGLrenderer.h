@@ -10,7 +10,7 @@
 #endif
 #include "renderer.h"
 
-namespace Renderer{
+namespace Graphics{
 //! The OpenGL version of the rendering interface
 class OGLRenderer : public Renderer{
 public: 

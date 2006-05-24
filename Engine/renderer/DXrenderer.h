@@ -8,7 +8,7 @@
 #include "../math/vector.h"
 #include "renderer.h"
 
-namespace Renderer{
+namespace Graphics{
 //! The DirectX version of the rendering interface
 class DXRenderer : public Renderer{
 public: 
@@ -16,6 +16,8 @@ public:
   DXRenderer();
   //! Destructor
   ~DXRenderer();
+  //! get device
+  inline LPDIRECT3DDEVICE9 getDevice() const {return device_;}
   //! init rendering context
   void initContext(::Windows::AppWindow* win);
   //! kill rendering context

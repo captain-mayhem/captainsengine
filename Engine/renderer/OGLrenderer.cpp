@@ -9,7 +9,7 @@
 #include <GL/glu.h>
 #include "OGLrenderer.h"
 
-namespace Renderer{
+namespace Graphics{
 
 OGLRenderer::OGLRenderer(): Renderer() {
   type_ = OpenGL;
@@ -26,7 +26,7 @@ OGLRenderer::~OGLRenderer(){
 }
 
 void OGLRenderer::initContext(::Windows::AppWindow* win){
-  ::Engine::Log << "Initializing OpenGL context\n";
+  ::System::Log << "Initializing OpenGL context\n";
   win_ = win;
 #ifdef WIN32
   static PIXELFORMATDESCRIPTOR pfd ={
@@ -50,28 +50,28 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
 
   HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win)->getHandle();
   if(!(hDC_ = GetDC(wnd))){
-    Engine::Log << "Can't create GL device context\n";
+    System::Log << "Can't create GL device context\n";
     EXIT();
   }
 
   GLuint pixelFormat;
   if(!(pixelFormat = ChoosePixelFormat(hDC_, &pfd))){
-    Engine::Log << "Can't find a suitable PixelFormat\n";
+    System::Log << "Can't find a suitable PixelFormat\n";
     EXIT();
   }
 
   if (!SetPixelFormat(hDC_, pixelFormat, &pfd)){
-    Engine::Log << "Can't set the PixelFormat\n";
+    System::Log << "Can't set the PixelFormat\n";
     EXIT();
   }
 
   if (!(hRC_ = wglCreateContext(hDC_))){
-    Engine::Log << "Can't create GL rendering context\n";
+    System::Log << "Can't create GL rendering context\n";
     EXIT();
   }
 
   if (!wglMakeCurrent(hDC_, hRC_)){
-    Engine::Log << "Cant't activate GL rendering context\n";
+    System::Log << "Cant't activate GL rendering context\n";
     EXIT();
   }
 
@@ -92,17 +92,17 @@ void OGLRenderer::killContext(){
 #ifdef WIN32
   if (hRC_){
     if (!wglMakeCurrent(NULL,NULL)){
-      ::Engine::Log << "Release of GL context failed";
+      ::System::Log << "Release of GL context failed";
     }
     if (!wglDeleteContext(hRC_)){
-      ::Engine::Log << "Release of rendering context failed";
+      ::System::Log << "Release of rendering context failed";
     }
     hRC_ = NULL;
   }
 
   HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win_)->getHandle();
   if (hDC_ && !ReleaseDC(wnd,hDC_)){
-    ::Engine::Log << "Release of device context failed";
+    ::System::Log << "Release of device context failed";
     hDC_ = NULL;
   }
 #endif
@@ -110,7 +110,7 @@ void OGLRenderer::killContext(){
   ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
   if (glx_){
     if (!glXMakeCurrent(x11->getDisplay(), None, NULL)){
-      ::Engine::Log << "Release of GL context failed";
+      ::System::Log << "Release of GL context failed";
     }
     glXDestroyContext(x11->getDisplay(), glx_);
     glx_ = NULL;
@@ -119,7 +119,7 @@ void OGLRenderer::killContext(){
 }
 
 void OGLRenderer::initRendering(){
-  ::Engine::Log << "Initializing Scene\n";
+  ::System::Log << "Initializing Scene\n";
   //smooth shading
   glShadeModel(GL_SMOOTH);
 
@@ -148,7 +148,7 @@ void OGLRenderer::resizeScene(int width, int height){
   if (hRC_ == NULL)
     return;
 #endif
-  ::Engine::Log << "Resizing Scene\n";
+  ::System::Log << "Resizing Scene\n";
   if (height == 0){
     height = 1;
   }

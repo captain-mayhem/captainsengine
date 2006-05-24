@@ -4,12 +4,12 @@
 
 namespace Windows{
 
-AppWindow::AppWindow(::Renderer::Renderer* render){
+AppWindow::AppWindow(::Graphics::Renderer* render){
   renderer_ = render;
-  fullscreen_ = ::Engine::Script::instance()->getBoolSetting("fullscreen");
-  width_ = ::Engine::Script::instance()->getNumberSetting("width");
-  height_ = ::Engine::Script::instance()->getNumberSetting("height");
-  bpp_ = ::Engine::Script::instance()->getNumberSetting("bitsPerPixel");
+  fullscreen_ = ::System::Script::instance()->getBoolSetting("fullscreen");
+  width_ = ::System::Script::instance()->getNumberSetting("width");
+  height_ = ::System::Script::instance()->getNumberSetting("height");
+  bpp_ = ::System::Script::instance()->getNumberSetting("bitsPerPixel");
 }
 
 }
