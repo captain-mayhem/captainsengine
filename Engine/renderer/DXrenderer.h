@@ -17,7 +17,7 @@ public:
   //! Destructor
   ~DXRenderer();
   //! init rendering context
-  void initContext(::Window::Window* win);
+  void initContext(::Windows::AppWindow* win);
   //! kill rendering context
   void killContext();
   //! start scene
