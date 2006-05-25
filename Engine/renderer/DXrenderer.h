@@ -9,6 +9,9 @@
 #include "renderer.h"
 
 namespace Graphics{
+
+class VertexBuffer;
+
 //! The DirectX version of the rendering interface
 class DXRenderer : public Renderer{
 public: 
@@ -32,6 +35,8 @@ public:
   void setClearColor(::Math::Vector3D color);
   //! clear scene
   void clear(long flags);
+  //! get a vertex buffer
+  VertexBuffer* createVertexBuffer();
 protected:
   //! the directX context
   LPDIRECT3D9 d3d_;

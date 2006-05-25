@@ -13,6 +13,9 @@ public:
   static void render(){
     Renderer* rend = Engine::instance()->getRenderer();
     rend->clear(ZBUFFER | COLORBUFFER);
+    VertexBuffer* vb = rend->createVertexBuffer();
+    vb->create(VB_POSITION, sizeof(Vertex), 8, 12);
+    delete vb;
   }
 };
 

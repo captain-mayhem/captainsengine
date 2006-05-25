@@ -3,6 +3,7 @@
 #include <windows.h>
 #include "../window/nativeWindows.h"
 #include "../system/engine.h"
+#include "DXvertexbuffer.h"
 #include "DXrenderer.h"
 
 namespace Graphics{
@@ -180,5 +181,10 @@ void DXRenderer::clear(long flags){
     , 1.0f, 0);
 }
 
+VertexBuffer* DXRenderer::createVertexBuffer(){
+  return new DXVertexBuffer();
 }
+
+}
+
 #endif
