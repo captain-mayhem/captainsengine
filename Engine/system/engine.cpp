@@ -117,10 +117,10 @@ void System::Engine::startup(){
 #ifdef UNIX
   win_ = new ::Windows::X11Window(rend_);
 #endif
-  win_->init("ACE-Engine");
   Input::Keyboard::init();
-  isUp_ = true;
   engineMain();
+  win_->init("ACE-Engine");
+  isUp_ = true;
 }
 
 void System::Engine::shutdown(){

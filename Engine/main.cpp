@@ -1,6 +1,7 @@
 #include <iostream>
 #include "system/engine.h"
 #include "renderer/renderer.h"
+#include "renderer/font.h"
 #include "math/vector.h"
 
 using std::cerr;
@@ -9,45 +10,51 @@ using namespace System;
 using namespace Graphics;
 
 class Rendering{
+private:
+    static VertexBuffer* vb;
+    static Texture* tex;
+    static Font* font;
 public:
-  static void render(){
+  Rendering(){}
+  ~Rendering(){
+    delete vb;
+    delete tex;
+    delete font;
+  }
+  static void init(){
     Renderer* rend = Engine::instance()->getRenderer();
+    rend->setClearColor(Vector3D(0.0,1.0,1.0));
     rend->renderMode(Filled);
-    rend->projection(45, 1.33333333f,1.0, 1000.0);
-    //rend->ortho();
-    rend->clear(ZBUFFER | COLORBUFFER);
-    static float l = -5;
-    //l += 0.0001;
-    rend->lookAt(&Vector3D(0,0,l), &Vector3D(0,0,0), &Vector3D(0,1,0));
+    vb = rend->createVertexBuffer();
+    tex = rend->createTexture("textures/font/font.bmp");
+    font = new Font();
+    font->buildFont();
     
-    VertexBuffer* vb = rend->createVertexBuffer();
-    Texture* tex = rend->createTexture("textures/font/font.bmp");
-    tex->activate();
-    vb->create(VB_POSITION | VB_TEXCOORD, 8, 36);
+    vb->create(VB_POSITION | VB_COLOR | VB_TEXCOORD, 8, 36);
     vb->lockVertexPointer();
     vb->setPosition(0, Vertex(-1.0, -1.0, -1.0));
-    //vb->setColor(0, Color(255,0,0,255));
+    vb->setColor(0, Color(255,0,0,255));
     vb->setTexCoord(0, Vec2f(0,0));
     vb->setPosition(1, Vertex(-1.0, 1.0, -1.0));
-    //vb->setColor(1, Color(0,255,0,255));
+    vb->setColor(1, Color(0,255,0,255));
     vb->setTexCoord(1, Vec2f(0,1));
     vb->setPosition(2, Vertex(1.0, 1.0, -1.0));
-    //vb->setColor(2, Color(0,0,255,255));
+    vb->setColor(2, Color(0,0,255,255));
     vb->setTexCoord(2, Vec2f(1,1));
     vb->setPosition(3, Vertex(1.0, -1.0, -1.0));
-    //vb->setColor(3, Color(0,0,0,255));
+    vb->setColor(3, Color(0,0,0,255));
     vb->setTexCoord(3, Vec2f(1,0));
     vb->setPosition(4, Vertex(-1.0, -1.0, 1.0));
-    //vb->setColor(4, Color(255,0,0,255));
+    vb->setColor(4, Color(255,0,0,255));
     vb->setTexCoord(4, Vec2f(0,0));
     vb->setPosition(5, Vertex(-1.0, 1.0, 1.0));
-    //vb->setColor(5, Color(255,0,0,255));
+    vb->setColor(5, Color(255,0,0,255));
     vb->setTexCoord(5, Vec2f(0,1));
     vb->setPosition(6, Vertex(1.0, 1.0, 1.0));
-    //vb->setColor(6, Color(255,0,0,255));
+    vb->setColor(6, Color(255,0,0,255));
     vb->setTexCoord(6, Vec2f(1,1));
     vb->setPosition(7, Vertex(1.0, -1.0, 1.0));
-    //vb->setColor(7, Color(255,0,0,255));
+    vb->setColor(7, Color(255,0,0,255));
     vb->setTexCoord(7, Vec2f(1,-1));
     vb->unlockVertexPointer();
     short* indices = vb->lockIndexPointer();
@@ -64,15 +71,34 @@ public:
     indices[30] = 4; indices[31] = 0; indices[32] = 3;
     indices[33] = 4; indices[34] = 3; indices[35] = 7;
     vb->unlockIndexPointer();
-    vb->activate();
-    vb->draw();
-    delete vb;
+  }
+  static void render(){
+    Renderer* rend = Engine::instance()->getRenderer();
+    
+    rend->projection(45, 1.33333333f,1.0, 1000.0);
+    //rend->ortho();
+    rend->clear(ZBUFFER | COLORBUFFER);
+    static float l = -5;
+    //l += 0.0001;
+    rend->lookAt(&Vector3D(0,0,5), &Vector3D(0,0,0), &Vector3D(0,1,0));
+    
+    tex->activate();
+    //vb->activate();
+    //vb->draw();
+
+    rend->ortho();
+    font->glPrint(200, 400, "Hallo", 0, 1);
+    font->render();
   }
 };
+
+VertexBuffer* Rendering::vb = NULL;
+Texture* Rendering::tex = NULL;
+Font* Rendering::font = NULL;
 
 void engineMain(){
   Rendering* rendering = new Rendering();
   Renderer* rend = Engine::instance()->getRenderer();
   rend->setRenderCB(rendering->render);
-  rend->setClearColor(Vector3D(0.0,1.0,1.0));
+  rend->setInitCB(rendering->init);
 }

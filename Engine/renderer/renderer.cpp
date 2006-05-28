@@ -9,6 +9,7 @@ namespace Graphics{
 Renderer::Renderer(){
   win_ = NULL;
   renderCB_ = NULL;
+  initCB_ = NULL;
 }
 
 Renderer::~Renderer(){
@@ -23,6 +24,9 @@ void Renderer::killContext(){
 }
 
 void Renderer::initRendering(){
+  if (initCB_){
+    initCB_();
+  }
   
 }
 

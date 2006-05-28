@@ -45,6 +45,10 @@ public:
   void projection(float angle, float aspect, float nearplane, float farplane);
   //! set orthographic projection
   void ortho();
+  //! reset modelview matrix
+  void resetModelView();
+  //! translate
+  void translate(float x, float y, float z);
   //! set render mode
   void renderMode(RendMode rm);
 protected:
