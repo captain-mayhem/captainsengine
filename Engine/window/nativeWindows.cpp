@@ -25,6 +25,7 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       return 0;
       break;
     case WM_DESTROY:
+      ::System::Engine::instance()->shutdown();
       PostQuitMessage(0);
       return 0;
       break;

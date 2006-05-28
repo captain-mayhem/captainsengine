@@ -93,6 +93,7 @@ System::Engine* System::Engine::eng = NULL;
 System::Engine::Engine(){
   win_ = NULL;
   rend_ = NULL;
+  isUp_ = false;
   Log << "Engine instance created\n";
 }
 
@@ -118,11 +119,15 @@ void System::Engine::startup(){
 #endif
   win_->init("ACE-Engine");
   Input::Keyboard::init();
+  isUp_ = true;
   engineMain();
 }
 
 void System::Engine::shutdown(){
+  if (!isUp_)
+    return;
   Log << "engine shutting down\n";
+  isUp_ = false;
   Input::Keyboard::release();
   if (win_)
     win_->kill();

@@ -7,6 +7,7 @@
 #include "../system/engine.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
+#include "OGLvertexbuffer.h"
 #include "OGLrenderer.h"
 
 namespace Graphics{
@@ -83,7 +84,7 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
   ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
   glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
 #endif
-  resizeScene(win->getWidth(), win->getHeight());
+  //resizeScene(win->getWidth(), win->getHeight());
   initRendering();  
   
 }
@@ -158,14 +159,16 @@ void OGLRenderer::resizeScene(int width, int height){
   glViewport(0, 0, width, height);
 
   //Projection Matrix
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
+  //glMatrixMode(GL_PROJECTION);
+  //glLoadIdentity();
 
   //Calculate Aspect Ratio
-  gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,1.0f,100.0f);
+  //gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,1.0f,100.0f);
 
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
+  //glMatrixMode(GL_MODELVIEW);
+  //glLoadIdentity();
+
+  glColor3f(0,0,0);
 }
 
 //! clear scene
@@ -180,6 +183,34 @@ void OGLRenderer::clear(long flags){
   if (flags & COLORBUFFER)
     glflags |= GL_COLOR_BUFFER_BIT;
   glClear(glflags);
+}
+
+//! get a vertex buffer
+VertexBuffer* OGLRenderer::createVertexBuffer(){
+  return new OGLVertexBuffer();
+}
+
+void OGLRenderer::lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up){
+  glLoadIdentity();
+  gluLookAt(position->x, position->y, position->z, look->x, look->y, look->z, up->x, up->y, up->z);
+}
+
+//! set projection
+void OGLRenderer::projection(float angle, float aspect, float nearplane, float farplane){
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluPerspective(angle, aspect, nearplane, farplane);
+  glMatrixMode(GL_MODELVIEW);
+}
+
+//! set rendermode
+void OGLRenderer::renderMode(RendMode rm){
+  if (rm == Filled){
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+  else if(rm == Wireframe){
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+  }
 }
 
 }

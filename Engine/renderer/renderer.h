@@ -8,6 +8,8 @@ class AppWindow;
 #include "../math/vector.h"
 #include "vertexbuffer.h"
 
+using namespace ::Math;
+
 #define ZBUFFER 0x00000001
 #define COLORBUFFER 0x00000010
 
@@ -16,6 +18,11 @@ namespace Graphics{
 enum RenderType{
   OpenGL,
   DirectX
+};
+
+enum RendMode{
+  Filled,
+  Wireframe
 };
 
 //! The abstract renderer
@@ -40,11 +47,17 @@ public:
   //! resize scene
   virtual void resizeScene(int width, int height);
   //! set clear color
-  virtual void setClearColor(::Math::Vector3D color){}
+  virtual void setClearColor(Vector3D color){}
   //! clear scene
   virtual void clear(long flags){}
   //! create vertex buffer
   virtual VertexBuffer* createVertexBuffer(){return NULL;}
+  //! set lookAt
+  virtual void lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up){}
+  //! set projection
+  virtual void projection(float angle, float aspect, float nearplane, float farplane){}
+  //! set render mode
+  virtual void renderMode(RendMode rm){}
 protected:
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/

@@ -1,15 +1,14 @@
-#ifndef DXVERTEXBUFFER_H
-#define DXVERTEXBUFFER_H
+#ifndef OGLVERTEXBUFFER_H
+#define OGLVERTEXBUFFER_H
 
-#include <d3d9.h>
 #include "vertexbuffer.h"
 
 namespace Graphics{
   
-class DXVertexBuffer : public VertexBuffer {
+class OGLVertexBuffer : public VertexBuffer {
 public:
-  DXVertexBuffer();
-  ~DXVertexBuffer();
+  OGLVertexBuffer();
+  ~OGLVertexBuffer();
   void create(int type, int vertexBufferSize, int indexBufferSize);
   void* lockVertexPointer();
   short* lockIndexPointer();
@@ -19,10 +18,9 @@ public:
   void draw();
   void setColor(int pos, Color c);
 protected:
-  LPDIRECT3DDEVICE9 device_;
-  IDirect3DVertexBuffer9* vb_;
-  IDirect3DIndexBuffer9* ib_;
-  DWORD flags_;
+  char* vb_;
+  short* ib_;
+  int flags_;
 };
 
 }

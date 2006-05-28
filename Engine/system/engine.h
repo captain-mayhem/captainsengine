@@ -39,6 +39,8 @@ class Engine{
     Engine();
     ::Windows::AppWindow* win_;
     ::Graphics::Renderer* rend_;
+    //! is the engine initialized and running?
+    bool isUp_;
 };
 }
 

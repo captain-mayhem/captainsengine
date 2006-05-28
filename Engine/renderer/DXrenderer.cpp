@@ -5,6 +5,7 @@
 #include "../system/engine.h"
 #include "DXvertexbuffer.h"
 #include "DXrenderer.h"
+#include <d3dx9.h>
 
 namespace Graphics{
 
@@ -97,7 +98,10 @@ void DXRenderer::killContext(){
 }
 
 void DXRenderer::initRendering(){
-  ::System::Log << "Initializing Scene\n";/*
+  ::System::Log << "Initializing Scene\n";
+  device_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+  device_->SetRenderState(D3DRS_LIGHTING, false);
+  /*
   //smooth shading
   glShadeModel(GL_SMOOTH);
 
@@ -111,6 +115,7 @@ void DXRenderer::initRendering(){
 
   //better perspective calculations
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);*/
+  //device_->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
   Renderer::initRendering();
 }
 
@@ -123,18 +128,6 @@ void DXRenderer::renderScene(){
   device_->BeginScene();
 
   Renderer::renderScene();
-
-  //Font1->DrawTextScaled(-0.55f, 0.0f, 0.9f, 0.06f, 0.02f, D3DCOLOR_XRGB(0,0,250),          
-  //  "Hello to all Game Programmers", D3DFONT_FILTERED);  
-
-  //sprintf( strBuffer, "Framerate:  %03d", (long)FrameRate );                                 
-  //Font1->DrawTextScaled(-0.8f, -0.8f, 0.9f, 0.03f, 0.02f, D3DCOLOR_XRGB(250,0,0), strBuffer, D3DFONT_FILTERED ); 
-
-  //sprintf( strBuffer, "Resolution:  %d, %d, %d", screenwidth, screenheight, Farbtiefe);                                 
-  //Font1->DrawTextScaled(-0.8f, -0.7f, 0.9f, 0.03f, 0.02f, D3DCOLOR_XRGB(250,0,0), strBuffer, D3DFONT_FILTERED ); 
-
-  //sprintf( strBuffer, "Blickweite:  %0.1f", SizeOfUniverse );                                 
-  //Font1->DrawTextScaled(-0.8f, -0.6f, 0.9f, 0.03f, 0.02f, D3DCOLOR_XRGB(250,0,0), strBuffer, D3DFONT_FILTERED ); 
 
   // End the scene
   device_->EndScene();
@@ -183,6 +176,33 @@ void DXRenderer::clear(long flags){
 
 VertexBuffer* DXRenderer::createVertexBuffer(){
   return new DXVertexBuffer();
+}
+
+//! set lookAt
+void DXRenderer::lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up){
+  const D3DXVECTOR3 pos((float*)position);
+  const D3DXVECTOR3 at((float*)look);
+  const D3DXVECTOR3 u((float*)up);
+  D3DXMATRIX V;
+  D3DXMatrixLookAtRH(&V, &pos, &at, &u);
+  device_->SetTransform(D3DTS_VIEW, &V);
+}
+
+//! set projection
+void DXRenderer::projection(float angle, float aspect, float nearplane, float farplane){
+  D3DXMATRIX proj;
+  D3DXMatrixPerspectiveFovRH(&proj, angle/180.0f*D3DX_PI, aspect, nearplane, farplane);
+  device_->SetTransform(D3DTS_PROJECTION, &proj);
+}
+
+//! set rendermode
+void DXRenderer::renderMode(RendMode rm){
+  if (rm == Filled){
+    device_->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+  }
+  else if(rm == Wireframe){
+    device_->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+  }
 }
 
 }

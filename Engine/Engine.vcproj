@@ -33,7 +33,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib liblua.lib liblualib.lib"
+				AdditionalDependencies=" msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="lib"
@@ -82,7 +82,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib liblua.lib liblualib.lib"
+				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="lib"
@@ -198,6 +198,12 @@
 				RelativePath=".\renderer\DXrenderer.h">
 			</File>
 			<File
+				RelativePath=".\renderer\DXtexture.cpp">
+			</File>
+			<File
+				RelativePath=".\renderer\DXtexture.h">
+			</File>
+			<File
 				RelativePath=".\renderer\DXvertexbuffer.cpp">
 			</File>
 			<File
@@ -210,10 +216,34 @@
 				RelativePath=".\renderer\OGLrenderer.h">
 			</File>
 			<File
+				RelativePath=".\renderer\OGLtexture.cpp">
+			</File>
+			<File
+				RelativePath=".\renderer\OGLtexture.h">
+			</File>
+			<File
+				RelativePath=".\renderer\OGLvertexbuffer.cpp">
+			</File>
+			<File
+				RelativePath=".\renderer\OGLvertexbuffer.h">
+			</File>
+			<File
 				RelativePath=".\renderer\renderer.cpp">
 			</File>
 			<File
 				RelativePath=".\renderer\renderer.h">
+			</File>
+			<File
+				RelativePath=".\renderer\texture.cpp">
+			</File>
+			<File
+				RelativePath=".\renderer\texture.h">
+			</File>
+			<File
+				RelativePath=".\renderer\textureManager.cpp">
+			</File>
+			<File
+				RelativePath=".\renderer\textureManager.h">
 			</File>
 			<File
 				RelativePath=".\renderer\vertexbuffer.cpp">
