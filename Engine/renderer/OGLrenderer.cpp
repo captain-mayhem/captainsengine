@@ -215,6 +215,16 @@ void OGLRenderer::ortho(){
   glMatrixMode(GL_MODELVIEW);
 }
 
+//! reset modelview matrix
+void OGLRenderer::resetModelView(){
+  glLoadIdentity();
+}
+
+//! translate
+void OGLRenderer::translate(float x, float y, float z){
+  glTranslatef(x,y,z);
+}
+
 //! set rendermode
 void OGLRenderer::renderMode(RendMode rm){
   if (rm == Filled){

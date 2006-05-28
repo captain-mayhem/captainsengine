@@ -90,7 +90,6 @@ void DXRenderer::initContext(::Windows::AppWindow* win){
   SetFocus(wnd);
   resizeScene(win->getWidth(), win->getHeight());
   initRendering();  
-  
 }
 
 void DXRenderer::killContext(){
@@ -203,8 +202,23 @@ void DXRenderer::projection(float angle, float aspect, float nearplane, float fa
 
 void DXRenderer::ortho(){
   D3DXMATRIX orth;
-  D3DXMatrixOrthoRH(&orth, 1024, 768, 1, -1);
+  D3DXMatrixOrthoRH(&orth, 1024, 768, 0, 1);
   device_->SetTransform(D3DTS_PROJECTION, &orth);
+}
+
+//! reset modelview matrix
+void DXRenderer::resetModelView(){
+  D3DXMATRIX id;
+  D3DXMatrixIdentity(&id);
+  device_->SetTransform(D3DTS_VIEW, &id);
+  device_->SetTransform(D3DTS_WORLD, &id);
+}
+
+//! translate
+void DXRenderer::translate(float x, float y, float z){
+  D3DXMATRIX trans;
+  D3DXMatrixTranslation(&trans, x, y, z);
+  device_->MultiplyTransform(D3DTS_WORLD, &trans);
 }
 
 //! set rendermode

@@ -176,6 +176,9 @@
 				RelativePath=".\system\engine.h">
 			</File>
 			<File
+				RelativePath=".\system\interactor.h">
+			</File>
+			<File
 				RelativePath=".\system\script.cpp">
 			</File>
 			<File
@@ -208,6 +211,12 @@
 			</File>
 			<File
 				RelativePath=".\renderer\DXvertexbuffer.h">
+			</File>
+			<File
+				RelativePath=".\renderer\font.cpp">
+			</File>
+			<File
+				RelativePath=".\renderer\font.h">
 			</File>
 			<File
 				RelativePath=".\renderer\OGLrenderer.cpp">

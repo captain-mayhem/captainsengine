@@ -43,8 +43,10 @@ void DXVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize)
     offset += 2*sizeof(float);
   }
   structsize_ = offset;
-  device_->CreateVertexBuffer(vertexBufferSize*structsize_, D3DUSAGE_WRITEONLY, flags_,
-      D3DPOOL_MANAGED, &vb_, 0);
+  if (device_->CreateVertexBuffer(vertexBufferSize*structsize_, D3DUSAGE_WRITEONLY, flags_,
+    D3DPOOL_MANAGED, &vb_, 0)){
+      EXIT2("Cannot create vertex buffer");
+    }
   if (indexBufferSize == 0)
     return;
   //::System::Log << structsize << " " << sizeof(short) << "\n";

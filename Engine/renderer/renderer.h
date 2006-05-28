@@ -6,6 +6,7 @@ class AppWindow;
 }
 
 #include "../math/vector.h"
+#include "../system/interactor.h"
 #include "vertexbuffer.h"
 #include "texture.h"
 
@@ -37,6 +38,8 @@ public:
   RenderType getRenderType() {return type_;}
   //! set render callback
   void setRenderCB(void (*proc)()) {renderCB_ = proc;}
+  //! set init callback
+  void setInitCB(void (*proc)()) {initCB_ = proc;}
   //! initialize rendering context
   virtual void initContext(::Windows::AppWindow* win);
   //! kill rendering context
@@ -61,6 +64,10 @@ public:
   virtual void projection(float angle, float aspect, float nearplane, float farplane){}
   //! set orthographic projection
   virtual void ortho()=0;
+  //! reset modelview matrix
+  virtual void resetModelView()=0;
+  //! translate
+  virtual void translate(float x, float y, float z)=0;
   //! set render mode
   virtual void renderMode(RendMode rm){}
 protected:
@@ -71,6 +78,8 @@ protected:
   ::Windows::AppWindow* win_;
   //! the render callback
   void (*renderCB_)();
+  //! the init callback
+  void (*initCB_)();
 };
 
 }
