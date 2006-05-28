@@ -37,6 +37,12 @@ public:
   void clear(long flags);
   //! get a vertex buffer
   VertexBuffer* createVertexBuffer();
+  //! set lookAt
+  void lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up);
+  //! set projection
+  void projection(float angle, float aspect, float nearplane, float farplane);
+  //! set render mode
+  void renderMode(RendMode rm);
 protected:
   //! the directX context
   LPDIRECT3D9 d3d_;

@@ -42,6 +42,14 @@ public:
   virtual void setClearColor(::Math::Vector3D color);
   //! clear scene
   virtual void clear(long flags);
+  //! get a vertex buffer
+  VertexBuffer* createVertexBuffer();
+  //! set look at
+  void lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up);
+  //! set projection
+  void projection(float angle, float aspect, float nearplane, float farplane);
+  //! set rendermode
+  void renderMode(RendMode rm);
 protected:
 #ifdef WIN32
   //! device context

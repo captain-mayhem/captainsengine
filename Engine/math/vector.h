@@ -28,6 +28,10 @@ public:
   }
   //! Destructor
   ~Vector3D();
+  //! cast
+  inline operator float*() {return &x;}
+  //! cast
+  inline operator const float*() {return &x;}
   //! Vector addition
   inline Vector3D operator+(const Vector3D& v) const{
     return Vector3D(v.x + x, v.y + y, v.z + z);
