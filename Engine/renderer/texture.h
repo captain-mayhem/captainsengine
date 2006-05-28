@@ -11,9 +11,9 @@ class Texture{
 public:
   Texture(string filename){}
   virtual ~Texture(){}
+  virtual void activate()=0;
 protected:
   virtual bool load(string filename)=0;
-  virtual void activate()=0;
 };
 
 }

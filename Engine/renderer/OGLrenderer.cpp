@@ -8,6 +8,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "OGLvertexbuffer.h"
+#include "OGLtexture.h"
 #include "OGLrenderer.h"
 
 namespace Graphics{
@@ -168,7 +169,7 @@ void OGLRenderer::resizeScene(int width, int height){
   //glMatrixMode(GL_MODELVIEW);
   //glLoadIdentity();
 
-  glColor3f(0,0,0);
+  //glColor3f(0,0,0);
 }
 
 //! clear scene
@@ -190,6 +191,10 @@ VertexBuffer* OGLRenderer::createVertexBuffer(){
   return new OGLVertexBuffer();
 }
 
+Texture* OGLRenderer::createTexture(string filename){
+  return new OGLTexture(filename);
+}
+
 void OGLRenderer::lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up){
   glLoadIdentity();
   gluLookAt(position->x, position->y, position->z, look->x, look->y, look->z, up->x, up->y, up->z);
@@ -200,6 +205,13 @@ void OGLRenderer::projection(float angle, float aspect, float nearplane, float f
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   gluPerspective(angle, aspect, nearplane, farplane);
+  glMatrixMode(GL_MODELVIEW);
+}
+
+void OGLRenderer::ortho(){
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  gluOrtho2D(0, 1024, 0, 768);
   glMatrixMode(GL_MODELVIEW);
 }
 

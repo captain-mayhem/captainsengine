@@ -37,10 +37,14 @@ public:
   void clear(long flags);
   //! get a vertex buffer
   VertexBuffer* createVertexBuffer();
+  //! get a texture
+  Texture* createTexture(string filename);
   //! set lookAt
   void lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up);
-  //! set projection
+  //! set perspective projection
   void projection(float angle, float aspect, float nearplane, float farplane);
+  //! set orthographic projection
+  void ortho();
   //! set render mode
   void renderMode(RendMode rm);
 protected:

@@ -13,6 +13,7 @@ DXVertexBuffer::DXVertexBuffer(){
   inds_ = NULL;
   vertoffset_ = -1;
   coloffset_ = -1;
+  texoffset_ = -1;
 }
 
 DXVertexBuffer::~DXVertexBuffer(){
@@ -35,6 +36,11 @@ void DXVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize)
     flags_ |= D3DFVF_DIFFUSE;
     coloffset_ = offset;
     offset += 4*sizeof(char);
+  }
+  if (type & VB_TEXCOORD){
+    flags_ |= D3DFVF_TEX1;
+    texoffset_ = offset;
+    offset += 2*sizeof(float);
   }
   structsize_ = offset;
   device_->CreateVertexBuffer(vertexBufferSize*structsize_, D3DUSAGE_WRITEONLY, flags_,
@@ -81,4 +87,10 @@ void DXVertexBuffer::setColor(int pos, Color c){
   Color* col;
   col = (Color*)(((char*)verts_)+pos*structsize_+coloffset_);
   col->r = c.b; col->g = c.g; col->b = c.r; col->a = c.a;
+}
+
+void DXVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t){
+  ::Math::Vec2f* tex;
+  tex = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
+  tex->x = t.x; tex->y = 1-t.y;
 }
