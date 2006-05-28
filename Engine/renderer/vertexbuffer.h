@@ -5,6 +5,7 @@
 
 #define VB_POSITION 0x0001
 #define VB_COLOR 0x0002
+#define VB_TEXCOORD 0x0004
 
 namespace Graphics{
 
@@ -19,15 +20,6 @@ struct Color{
   unsigned char r, g, b, a;
 };
 
-struct ColorVertex{
-  ColorVertex();
-  ColorVertex(float xn, float yn, float zn){
-    x = xn; y = yn; z = zn;
-    colour.r = 255; colour.g = 0; colour.b = 0; colour.a = 255;
-  }
-  float x, y, z;
-  Color colour;
-};
 
 //! a vertex buffer and optional index buffer
 /*! this is the central class for managing and drawing vertex data
@@ -45,6 +37,7 @@ public:
   virtual void draw()=0;
   virtual void setPosition(int pos, Vertex v);
   virtual void setColor(int pos, Color c)=0;
+  virtual void setTexCoord(int pos, ::Math::Vec2f t)=0;
 protected:
   int structsize_;
   int vbsize_;
@@ -53,6 +46,7 @@ protected:
   short* inds_;
   int vertoffset_;
   int coloffset_;
+  int texoffset_;
 };
 
 }

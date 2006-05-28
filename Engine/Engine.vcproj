@@ -240,12 +240,6 @@
 				RelativePath=".\renderer\texture.h">
 			</File>
 			<File
-				RelativePath=".\renderer\textureManager.cpp">
-			</File>
-			<File
-				RelativePath=".\renderer\textureManager.h">
-			</File>
-			<File
 				RelativePath=".\renderer\vertexbuffer.cpp">
 			</File>
 			<File

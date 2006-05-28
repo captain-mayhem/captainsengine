@@ -18,6 +18,7 @@ public:
   void activate();
   void draw();
   void setColor(int pos, Color c);
+  void setTexCoord(int pos, ::Math::Vec2f t);
 protected:
   LPDIRECT3DDEVICE9 device_;
   IDirect3DVertexBuffer9* vb_;

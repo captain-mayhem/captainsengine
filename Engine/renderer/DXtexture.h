@@ -6,12 +6,13 @@
 
 namespace Graphics{
 
-class DXTexture : Texture {
+class DXTexture : public Texture {
 public:
   DXTexture(string filename);
   virtual ~DXTexture(){}
+  void activate();
 protected:
-  virtual bool load(string filename)=0;
+  bool load(string filename);
   LPDIRECT3DDEVICE9 device_;
   IDirect3DTexture9* tex_;
 };

@@ -3,6 +3,7 @@
 
 #include <cstdio>
 
+#undef FAR
 extern "C"{
 #include "../include/jpeglib.h"
 }
@@ -33,7 +34,7 @@ struct Image{
   unsigned char *data;
 };
 
-class OGLTexture : Texture {
+class OGLTexture : public Texture {
 public:
   OGLTexture(string filename);
   virtual ~OGLTexture(){}

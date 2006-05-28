@@ -7,6 +7,7 @@ class AppWindow;
 
 #include "../math/vector.h"
 #include "vertexbuffer.h"
+#include "texture.h"
 
 using namespace ::Math;
 
@@ -52,10 +53,14 @@ public:
   virtual void clear(long flags){}
   //! create vertex buffer
   virtual VertexBuffer* createVertexBuffer(){return NULL;}
+  //! create texture
+  virtual Texture* createTexture(string filename)=0;
   //! set lookAt
   virtual void lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up){}
-  //! set projection
+  //! set perspective projection
   virtual void projection(float angle, float aspect, float nearplane, float farplane){}
+  //! set orthographic projection
+  virtual void ortho()=0;
   //! set render mode
   virtual void renderMode(RendMode rm){}
 protected:

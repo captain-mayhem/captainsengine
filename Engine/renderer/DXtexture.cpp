@@ -15,3 +15,7 @@ bool DXTexture::load(string filename){
     return false;
   return true;
 }
+
+void DXTexture::activate(){
+  device_->SetTexture(0, tex_);
+}

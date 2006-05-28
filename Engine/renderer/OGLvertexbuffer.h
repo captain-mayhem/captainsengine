@@ -17,6 +17,7 @@ public:
   void activate();
   void draw();
   void setColor(int pos, Color c);
+  void setTexCoord(int pos, ::Math::Vec2f t);
 protected:
   char* vb_;
   short* ib_;

@@ -8,7 +8,7 @@ typedef unsigned char byte;
 typedef unsigned short WORD;
 
 OGLTexture::OGLTexture(string filename) : Texture(filename){
-
+  load(filename);
 }
 
 bool OGLTexture::load(string filename){
@@ -31,6 +31,9 @@ bool OGLTexture::load(string filename){
   glBindTexture(GL_TEXTURE_2D, tex_);
   gluBuild2DMipmaps(GL_TEXTURE_2D, 3, img->sizeX, img->sizeY, GL_RGB, GL_UNSIGNED_BYTE, img->data);
 
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+
   if (img){
     if (img->data){
       free(img->data);
@@ -41,6 +44,7 @@ bool OGLTexture::load(string filename){
 }
 
 void OGLTexture::activate(){
+  glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, tex_);
 }
 
@@ -110,7 +114,8 @@ Image* OGLTexture::loadBMP(const char *filename){
     temp = pImage->data[i];
     pImage->data[i] = pImage->data[i + 2];
     pImage->data[i + 2] = temp;
-  } 
+  }
+  fclose(pFile);
   return pImage;
 }
 

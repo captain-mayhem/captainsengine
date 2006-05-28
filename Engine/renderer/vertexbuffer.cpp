@@ -19,3 +19,5 @@ void VertexBuffer::setPosition(int pos, Vertex v){
   vert = (Vertex*)(((char*)verts_)+pos*structsize_+vertoffset_);
   vert->x = v.x; vert->y = v.y; vert->z = v.z;
 }
+
+

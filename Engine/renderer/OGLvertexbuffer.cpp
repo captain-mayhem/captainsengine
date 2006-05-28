@@ -16,6 +16,7 @@ OGLVertexBuffer::OGLVertexBuffer(){
   inds_ = NULL;
   vertoffset_ = -1;
   coloffset_ = -1;
+  texoffset_ = -1;
 }
 
 OGLVertexBuffer::~OGLVertexBuffer(){
@@ -37,6 +38,10 @@ void OGLVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize
   if (flags_ & VB_COLOR){
     coloffset_ = offset;
     offset += 4*sizeof(char);
+  }
+  if (flags_ & VB_TEXCOORD){
+    texoffset_ = offset;
+    offset += 2*sizeof(float);
   }
   structsize_ = offset;
   
@@ -77,6 +82,12 @@ void OGLVertexBuffer::activate(){
   }
   else
     glDisableClientState(GL_COLOR_ARRAY);
+  if (flags_ & VB_TEXCOORD){
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glTexCoordPointer(2, GL_FLOAT, structsize_, vb_+texoffset_);
+  }
+  else
+    glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void OGLVertexBuffer::draw(){
@@ -87,4 +98,10 @@ void OGLVertexBuffer::setColor(int pos, Color c){
   Color* col;
   col = (Color*)(((char*)verts_)+pos*structsize_+coloffset_);
   col->r = c.r; col->g = c.g; col->b = c.b; col->a = c.a;
+}
+
+void OGLVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t){
+  ::Math::Vec2f* tex;
+  tex = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
+  tex->x = t.x; tex->y = t.y;
 }

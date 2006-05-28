@@ -4,6 +4,7 @@
 #include "../window/nativeWindows.h"
 #include "../system/engine.h"
 #include "DXvertexbuffer.h"
+#include "DXtexture.h"
 #include "DXrenderer.h"
 #include <d3dx9.h>
 
@@ -178,6 +179,11 @@ VertexBuffer* DXRenderer::createVertexBuffer(){
   return new DXVertexBuffer();
 }
 
+Texture* DXRenderer::createTexture(string filename){
+  return new DXTexture(filename);
+}
+
+
 //! set lookAt
 void DXRenderer::lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up){
   const D3DXVECTOR3 pos((float*)position);
@@ -193,6 +199,12 @@ void DXRenderer::projection(float angle, float aspect, float nearplane, float fa
   D3DXMATRIX proj;
   D3DXMatrixPerspectiveFovRH(&proj, angle/180.0f*D3DX_PI, aspect, nearplane, farplane);
   device_->SetTransform(D3DTS_PROJECTION, &proj);
+}
+
+void DXRenderer::ortho(){
+  D3DXMATRIX orth;
+  D3DXMatrixOrthoRH(&orth, 1024, 768, 1, -1);
+  device_->SetTransform(D3DTS_PROJECTION, &orth);
 }
 
 //! set rendermode
