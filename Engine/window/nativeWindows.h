@@ -33,7 +33,7 @@ protected:
 namespace Windows{
 class WindowsWindow : public AppWindow{
 public:
-  WindowsWindow(::Renderer::Renderer* renderer) : AppWindow(renderer) {}
+  WindowsWindow(::Graphics::Renderer* renderer) : AppWindow(renderer) {}
   ~WindowsWindow() {}
 };
 }

@@ -27,7 +27,7 @@ struct Color{
 class VertexBuffer{
 public:
   VertexBuffer();
-  ~VertexBuffer();
+  virtual ~VertexBuffer();
   virtual void create(int type, int vertexBufferSize, int indexBufferSize);
   virtual void* lockVertexPointer()=0;
   virtual void unlockVertexPointer()=0;

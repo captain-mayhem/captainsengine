@@ -9,7 +9,7 @@ CXXFLAGS := -g -Wall -I/usr/X11/include
 LDFLAGS  = 
 GL_LIBS  = /usr/lib/libGL.a -lGLU
 X11_LIBS = /usr/X11R6/lib/libX11.a /usr/X11R6/lib/libXext.a /usr/X11R6/lib/libXxf86vm.a
-SYS_LIBS = lib/liblua.a lib/liblualib.a -ldl -lpthread
+SYS_LIBS = lib/liblua.a lib/liblualib.a lib/libjpeg.a -ldl -lpthread
 DOXYGEN  = doxygen
 DEP_FLAGS= -MM
 

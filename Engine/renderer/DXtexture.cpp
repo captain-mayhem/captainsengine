@@ -1,3 +1,5 @@
+#ifdef WIN32
+
 #include "../system/engine.h"
 #include <d3dx9.h>
 #include "DXrenderer.h"
@@ -26,3 +28,5 @@ bool DXTexture::load(string filename){
 void DXTexture::activate(){
   device_->SetTexture(0, tex_);
 }
+
+#endif

@@ -3,10 +3,16 @@
 
 #include <cstdio>
 
+#ifdef WIN32
 #undef FAR
 extern "C"{
 #include "../include/jpeglib.h"
 }
+#endif
+#ifdef UNIX
+#include "../include/jpeglib.h"
+#endif
+
 #include "texture.h"
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
