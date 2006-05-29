@@ -51,13 +51,19 @@ public:
   //! set projection
   void projection(float angle, float aspect, float nearplane, float farplane);
   //! set orthographic viewing
-  void ortho();
+  void ortho(const int width, const int height);
   //! reset modelview matrix
   void resetModelView();
   //! translate
   void translate(float x, float y, float z);
   //! set rendermode
   void renderMode(RendMode rm);
+  //! set blending mode
+  void blendFunc(BlendType src, BlendType dest);
+  //! enable blending
+  void enableBlend(const bool flag);
+  //! set color
+  void setColor(char r, char g, char b, char a);
 protected:
 #ifdef WIN32
   //! device context
