@@ -107,8 +107,13 @@ void System::Engine::startup(){
   string type = Script::instance()->getStringSetting("renderer");
   if (type == "OpenGL")
     rend_ = new ::Graphics::OGLRenderer();
-  else if (type == "DirectX")
+  else if (type == "DirectX"){
+#ifdef UNIX
+    cerr << "DirectX is not supported on Linux\n";
+    exit(-1);
+#endif
     rend_ = new ::Graphics::DXRenderer();
+  }
   else
     EXIT2("No valid renderer specified in engine.ini");
 #ifdef WIN32

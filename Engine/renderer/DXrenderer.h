@@ -71,13 +71,31 @@ protected:
 #endif
 
 #ifdef UNIX
-namespace Renderer{
+#include "renderer.h"
+
+namespace Graphics{
 class DXRenderer : public Renderer{
 public: 
   //! Constructor
   DXRenderer(){}
   //! Destructor
-  ~DXRenderer(){}
+  ~DXRenderer(){}  
+  //! create texture
+  Texture* createTexture(string filename){return NULL;}
+  //! set orthographic projection
+  void ortho(const int width, const int height){}
+  //! reset modelview matrix
+  void resetModelView(){}
+  //! translate
+  void translate(float x, float y, float z){}
+  //! set render mode
+  void renderMode(RendMode rm){}
+  //! set blending mode
+  void blendFunc(BlendType src, BlendType dest){}
+  //! enable blending
+  void enableBlend(const bool flag){}
+  //! set color
+  void setColor(char r, char g, char b, char a){}
 };
 }
 #endif

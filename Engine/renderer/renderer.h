@@ -6,7 +6,6 @@ class AppWindow;
 }
 
 #include "../math/vector.h"
-#include "../system/interactor.h"
 #include "vertexbuffer.h"
 #include "texture.h"
 

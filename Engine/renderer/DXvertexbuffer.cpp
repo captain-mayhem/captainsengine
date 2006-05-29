@@ -1,3 +1,5 @@
+#ifdef WIN32
+
 #include "../system/engine.h"
 #include "DXrenderer.h"
 #include "DXvertexbuffer.h"
@@ -96,3 +98,5 @@ void DXVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t){
   tex = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
   tex->x = t.x; tex->y = 1-t.y;
 }
+
+#endif
