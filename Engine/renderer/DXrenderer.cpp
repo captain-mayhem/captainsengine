@@ -105,9 +105,6 @@ void DXRenderer::initRendering(){
   //smooth shading
   glShadeModel(GL_SMOOTH);
 
-  //background color black
-  glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
-
   //depth buffer
   glClearDepth(1.0f);
   glEnable(GL_DEPTH_TEST);
@@ -116,6 +113,22 @@ void DXRenderer::initRendering(){
   //better perspective calculations
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);*/
   //device_->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+  device_->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
+  //device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_RGBA(0,255,0,255));
+  // Coloring
+  device_->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_CURRENT);
+  device_->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_TEXTURE);
+  device_->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+  device_->SetTextureStageState(1, D3DTSS_COLORARG1, D3DTA_CURRENT);
+  device_->SetTextureStageState(1, D3DTSS_COLORARG2, D3DTA_TFACTOR);
+  device_->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_MODULATE);
+  device_->SetTextureStageState(2, D3DTSS_COLOROP, D3DTOP_DISABLE);
+
+  // Alpha transparency
+  device_->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TFACTOR);
+  device_->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_TEXTURE);
+  device_->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+  device_->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
   Renderer::initRendering();
 }
 
@@ -200,9 +213,9 @@ void DXRenderer::projection(float angle, float aspect, float nearplane, float fa
   device_->SetTransform(D3DTS_PROJECTION, &proj);
 }
 
-void DXRenderer::ortho(){
+void DXRenderer::ortho(const int width, const int height){
   D3DXMATRIX orth;
-  D3DXMatrixOrthoRH(&orth, 1024, 768, 0, 1);
+  D3DXMatrixOrthoRH(&orth, static_cast<float>(width), static_cast<float>(height), 0, 1);
   device_->SetTransform(D3DTS_PROJECTION, &orth);
 }
 
@@ -229,6 +242,33 @@ void DXRenderer::renderMode(RendMode rm){
   else if(rm == Wireframe){
     device_->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
   }
+}
+
+//! set blending mode
+void DXRenderer::blendFunc(BlendType src, BlendType dest){
+  switch(src){
+    case BLEND_ONE:
+      device_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
+      break;
+    case BLEND_SRC_ALPHA:
+      device_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+      break;
+  }
+  switch(dest){
+    case BLEND_ONE:
+      device_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+      break;
+  }
+}
+
+//! enable blending
+void DXRenderer::enableBlend(const bool flag){
+  device_->SetRenderState(D3DRS_ALPHABLENDENABLE, flag);
+}
+
+//! set color
+void DXRenderer::setColor(char r, char g, char b, char a){
+  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB(a,r,g,b));
 }
 
 }

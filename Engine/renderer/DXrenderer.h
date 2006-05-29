@@ -44,13 +44,19 @@ public:
   //! set perspective projection
   void projection(float angle, float aspect, float nearplane, float farplane);
   //! set orthographic projection
-  void ortho();
+  void ortho(const int width, const int height);
   //! reset modelview matrix
   void resetModelView();
   //! translate
   void translate(float x, float y, float z);
   //! set render mode
   void renderMode(RendMode rm);
+  //! set blending mode
+  void blendFunc(BlendType src, BlendType dest);
+  //! enable blending
+  void enableBlend(const bool flag);
+  //! set color
+  void setColor(char r, char g, char b, char a);
 protected:
   //! the directX context
   LPDIRECT3D9 d3d_;

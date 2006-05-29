@@ -208,10 +208,10 @@ void OGLRenderer::projection(float angle, float aspect, float nearplane, float f
   glMatrixMode(GL_MODELVIEW);
 }
 
-void OGLRenderer::ortho(){
+void OGLRenderer::ortho(const int width, const int height){
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluOrtho2D(0, 1024, 0, 768);
+  gluOrtho2D(-width/2.0, width/2.0, -height/2.0, height/2.0);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -233,6 +233,39 @@ void OGLRenderer::renderMode(RendMode rm){
   else if(rm == Wireframe){
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   }
+}
+
+//! set blending mode
+void OGLRenderer::blendFunc(BlendType src, BlendType dest){
+  int srcfl = 0;
+  int destfl = 0;
+  switch(src){
+    case BLEND_ONE:
+      srcfl = GL_ONE;
+      break;
+    case BLEND_SRC_ALPHA:
+      srcfl = GL_SRC_ALPHA;
+      break;
+  }
+  switch(dest){
+    case BLEND_ONE:
+      destfl = GL_ONE;
+      break;
+  }
+  glBlendFunc(srcfl, destfl);
+}
+
+//! enable blending
+void OGLRenderer::enableBlend(const bool flag){
+  if (flag)
+    glEnable(GL_BLEND);
+  else
+    glDisable(GL_BLEND);
+}
+
+//! set color
+void OGLRenderer::setColor(char r, char g, char b, char a){
+  glColor4ub(r,g,b,a);
 }
 
 }

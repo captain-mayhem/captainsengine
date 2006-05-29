@@ -60,7 +60,7 @@ void Font::buildFont()
     cy=float(i/16)/16.0f;
 
     //A Quad for each character
-    buffers_[i]->create(VB_POSITION | VB_COLOR | VB_TEXCOORD, 4, 6);
+    buffers_[i]->create(VB_POSITION | VB_TEXCOORD, 4, 6);
     buffers_[i]->lockVertexPointer();
     buffers_[i]->setPosition(0, Vertex(0,0,0));
     buffers_[i]->setPosition(1, Vertex(16,0,0));
@@ -70,10 +70,10 @@ void Font::buildFont()
     buffers_[i]->setTexCoord(1, Vec2f(cx+0.0625f,1-cy-0.0625f));
     buffers_[i]->setTexCoord(2, Vec2f(cx+0.0625f,1-cy));
     buffers_[i]->setTexCoord(3, Vec2f(cx,1-cy));
-    buffers_[i]->setColor(0, Color(255,0,0,255));
-    buffers_[i]->setColor(1, Color(255,0,0,255));
-    buffers_[i]->setColor(2, Color(255,0,0,255));
-    buffers_[i]->setColor(3, Color(255,0,0,255));
+    //buffers_[i]->setColor(0, Color(255,0,0,255));
+    //buffers_[i]->setColor(1, Color(255,0,0,255));
+    //buffers_[i]->setColor(2, Color(255,0,0,255));
+    //buffers_[i]->setColor(3, Color(255,0,0,255));
     buffers_[i]->unlockVertexPointer();
     short* in = buffers_[i]->lockIndexPointer();
     in[0] = 0; in[1] = 1; in[2] = 3;
@@ -111,7 +111,6 @@ void Font::setColor(float r, float g, float b){
 // Render all stored text strings
 void Font::render(){
   Renderer* rend = System::Engine::instance()->getRenderer();
-  rend->resetModelView();
   queue<font_data> temp;
   while(!q_.empty()){
     //take out the next font_data
@@ -124,14 +123,14 @@ void Font::render(){
       temp.push(f);
     }
     if (show_){
-      //glColor3f(f.rgb.x, f.rgb.y, f.rgb.z);
+      rend->setColor(f.rgb.x*255, f.rgb.y*255, f.rgb.z*255, 255);
       if (f.set>1){
         f.set=1;
       }
       tex_->activate();
       //glBindTexture(GL_TEXTURE_2D, tex.fontTex[0]);
       //glLoadIdentity();
-      //rend->translate(f.pos.x,f.pos.y,0);
+      rend->translate(f.pos.x,f.pos.y,0);
       
       //select and call list. The lists are selected such that 
       //the ascii code of a character corresponds to the right list

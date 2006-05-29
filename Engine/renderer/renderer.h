@@ -22,6 +22,11 @@ enum RenderType{
   DirectX
 };
 
+enum BlendType{
+  BLEND_ONE,
+  BLEND_SRC_ALPHA
+};
+
 enum RendMode{
   Filled,
   Wireframe
@@ -63,13 +68,19 @@ public:
   //! set perspective projection
   virtual void projection(float angle, float aspect, float nearplane, float farplane){}
   //! set orthographic projection
-  virtual void ortho()=0;
+  virtual void ortho(const int width, const int height)=0;
   //! reset modelview matrix
   virtual void resetModelView()=0;
   //! translate
   virtual void translate(float x, float y, float z)=0;
   //! set render mode
   virtual void renderMode(RendMode rm){}
+  //! set blending mode
+  virtual void blendFunc(BlendType src, BlendType dest)=0;
+  //! enable blending
+  virtual void enableBlend(const bool flag)=0;
+  //! set color
+  virtual void setColor(char r, char g, char b, char a)=0;
 protected:
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/

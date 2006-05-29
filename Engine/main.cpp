@@ -23,7 +23,7 @@ public:
   }
   static void init(){
     Renderer* rend = Engine::instance()->getRenderer();
-    rend->setClearColor(Vector3D(0.0,1.0,1.0));
+    rend->setClearColor(Vector3D(0.5,0.5,0.5));
     rend->renderMode(Filled);
     vb = rend->createVertexBuffer();
     tex = rend->createTexture("textures/font/font.bmp");
@@ -78,17 +78,25 @@ public:
     rend->projection(45, 1.33333333f,1.0, 1000.0);
     //rend->ortho();
     rend->clear(ZBUFFER | COLORBUFFER);
+    rend->setColor(255,255,255,255);
+    rend->resetModelView();
     static float l = -5;
     //l += 0.0001;
     rend->lookAt(&Vector3D(0,0,5), &Vector3D(0,0,0), &Vector3D(0,1,0));
     
     tex->activate();
-    //vb->activate();
-    //vb->draw();
+    vb->activate();
+    vb->draw();
 
-    rend->ortho();
+    rend->ortho(1024, 768);
+    rend->resetModelView();
+    rend->translate(-512, -384, 0);
+    rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
+    rend->enableBlend(true);
+    font->setColor(0.0,1.0,0);
     font->glPrint(200, 400, "Hallo", 0, 1);
     font->render();
+    rend->enableBlend(false);
   }
 };
 
