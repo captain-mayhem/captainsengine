@@ -44,7 +44,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int
 
 int main(int argc, char** argv){
   System::Engine::init();
-  System::Engine::instance()->startup();
+  System::Engine::instance()->startup(argc, argv);
   XEvent event;
   bool running = true;
   Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());
@@ -54,6 +54,7 @@ int main(int argc, char** argv){
   while(running){
     int x = XPending(disp);
     while(x > 0){
+      x--;
       XNextEvent(disp, &event);
       switch (event.type){
         case Expose:
@@ -85,6 +86,11 @@ int main(int argc, char** argv){
   }
   System::Engine::instance()->shutdown();
   return 0;
+}
+
+long GetTickCount(){
+  //return clock_gettime(CLOCK_MONOTONIC, NULL);
+  return times(NULL);
 }
 #endif
 
@@ -179,6 +185,7 @@ void System::Engine::run(){
   double currentTime;
   if (maxFramerate_ == 0){
     currentTime = GetTickCount()*0.001;
+    //cerr << currentTime;
     frameInterval_ = currentTime-frameTime_;
     frameTime_ = currentTime;
   }
