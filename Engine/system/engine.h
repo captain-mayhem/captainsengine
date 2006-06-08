@@ -45,6 +45,12 @@ inline const string toLower(string& s){
   return s;
 }
 
+#ifdef UNIX
+#include <sys/times.h>
+
+long GetTickCount();
+#endif
+
 namespace System{
 
 extern ofstream Log;
