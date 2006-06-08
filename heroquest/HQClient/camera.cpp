@@ -9,7 +9,7 @@
 // | File: camera.cpp                                                 |
 //  ==================================================================
 
-#include <math.h>
+#include <cmath>
 //#include "math.hh"
 #include "renderer.h"
 //#include "font.hh"
@@ -47,8 +47,8 @@ void Camera::rotateView(float angle, Vector3D v){
   // Get the view vector
   Vector3D vView = view_ - position_;
 
-  float cosTheta = Math::Cosinus(angle);
-  float sinTheta = Math::Sinus(angle);
+  float cosTheta = cos(angle);
+  float sinTheta = sin(angle);
 
   // find the new x position for the new rotated point
   newView.x  = (cosTheta + (1 - cosTheta) * v.x * v.x)	* vView.x;
@@ -191,7 +191,7 @@ Direction Camera::getLookDirection(){
   Vector3D view = view_ - position_;
   Direction dir;
   //looking mainly in x-direction
-  if (Math::Absolute(view.x) > Math::Absolute(view.z)){
+  if (fabs(view.x) > fabs(view.z)){
     if (view.x > 0)
       dir = RIGHT;
     else
