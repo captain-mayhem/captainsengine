@@ -5,8 +5,12 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <d3d9.h>
+#include <d3dx9.h>
+#include <stack>
 #include "../math/vector.h"
 #include "renderer.h"
+
+using std::stack;
 
 namespace Graphics{
 
@@ -56,7 +60,13 @@ public:
   //! enable blending
   void enableBlend(const bool flag);
   //! set color
-  void setColor(char r, char g, char b, char a);
+  void setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+  //! set color
+  void setColor(const Color* c);
+  //! push matrix
+  void pushMatrix();
+  //! pop matrix
+  void popMatrix();
 protected:
   //! the directX context
   LPDIRECT3D9 d3d_;
@@ -64,6 +74,8 @@ protected:
   LPDIRECT3DDEVICE9 device_;
   //! the clear color
   ::Math::Vector3D clearColor_;
+  //! the matrix stack
+  stack<D3DXMATRIX> modelstack_;
 };
 
 }

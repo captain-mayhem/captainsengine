@@ -46,7 +46,7 @@ bool Script::getBoolSetting(const string& name){
   if (!lua_isboolean(L,-1)){
     Log << "Lua_Error: " << name << " is no boolean.\n";
   }
-  return (bool)lua_toboolean(L,-1);
+  return lua_toboolean(L,-1) != 0;
 }
 
 string Script::getStringSetting(const string& name){

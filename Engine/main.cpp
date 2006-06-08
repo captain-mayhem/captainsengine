@@ -72,6 +72,7 @@ public:
     indices[33] = 4; indices[34] = 3; indices[35] = 7;
     vb->unlockIndexPointer();
   }
+
   static void render(){
     Renderer* rend = Engine::instance()->getRenderer();
     
@@ -86,7 +87,7 @@ public:
     
     tex->activate();
     vb->activate();
-    vb->draw();
+    vb->draw(VB_Triangles);
 
     rend->ortho(1024, 768);
     rend->resetModelView();
@@ -94,7 +95,12 @@ public:
     rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
     rend->enableBlend(true);
     font->setColor(0.0,1.0,0);
-    font->glPrint(200, 400, "Hallo", 0, 1);
+    //static int count = 0;
+    //count++;
+    //if (count == 100){
+      font->glPrint(200, 400, "FPS: "+toStr(Engine::instance()->getFPS()), 0);
+    //  count = 0;
+    //}
     font->render();
     rend->enableBlend(false);
   }

@@ -3,12 +3,44 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine.vcproj", "
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineTest", "..\heroquest\engineTest\EngineTest.vcproj", "{D2FF065B-A553-4673-9EDE-4873AFB86B78}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HQEditor", "..\heroquest\HQEditor\HQEditor.vcproj", "{D2FF065B-A553-4673-9EDE-4873AFB86B78}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HQClient", "..\heroquest\HQClient\HQClient.vcproj", "{D2FF065B-A553-4673-9EDE-4873AFB86B78}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HQServer", "..\heroquest\HQServer\HQServer.vcproj", "{D2FF065B-A553-4673-9EDE-4873AFB86B78}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfiguration) = preSolution
 		Debug = Debug
 		Release = Release
 	EndGlobalSection
 	GlobalSection(ProjectConfiguration) = postSolution
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.ActiveCfg = Debug|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.Build.0 = Debug|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Release.ActiveCfg = Release|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Release.Build.0 = Release|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.ActiveCfg = Debug|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.Build.0 = Debug|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Release.ActiveCfg = Release|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Release.Build.0 = Release|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.ActiveCfg = Debug|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.Build.0 = Debug|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Release.ActiveCfg = Release|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Release.Build.0 = Release|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.ActiveCfg = Debug|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.Build.0 = Debug|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Release.ActiveCfg = Release|Win32
+		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Release.Build.0 = Release|Win32
 		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.ActiveCfg = Debug|Win32
 		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Debug.Build.0 = Debug|Win32
 		{D2FF065B-A553-4673-9EDE-4873AFB86B78}.Release.ActiveCfg = Release|Win32

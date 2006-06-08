@@ -63,7 +63,13 @@ public:
   //! enable blending
   void enableBlend(const bool flag);
   //! set color
-  void setColor(char r, char g, char b, char a);
+  void setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+  //! set color
+  void setColor(const Color* c);
+  //! push matrix
+  void pushMatrix();
+  //! pop matrix
+  void popMatrix();
 protected:
 #ifdef WIN32
   //! device context

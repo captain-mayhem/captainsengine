@@ -6,9 +6,9 @@
 #include "DXvertexbuffer.h"
 #include "DXtexture.h"
 #include "DXrenderer.h"
-#include <d3dx9.h>
+//#include <d3dx9.h>
 
-namespace Graphics{
+using namespace Graphics;
 
 DXRenderer::DXRenderer(): Renderer() {
   type_ = DirectX;
@@ -267,10 +267,26 @@ void DXRenderer::enableBlend(const bool flag){
 }
 
 //! set color
-void DXRenderer::setColor(char r, char g, char b, char a){
+void DXRenderer::setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
   device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB(a,r,g,b));
 }
 
+void DXRenderer::setColor(const Color* c){
+  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB(c->a,c->r,c->g,c->b));
+}
+
+//! push matrix
+void DXRenderer::pushMatrix(){
+  D3DXMATRIX mat;
+  device_->GetTransform(D3DTS_WORLD, &mat);
+  modelstack_.push(mat);
+}
+
+//! pop matrix
+void DXRenderer::popMatrix(){
+  D3DXMATRIX mat = modelstack_.top();
+  device_->SetTransform(D3DTS_WORLD, &mat);
+  modelstack_.pop();
 }
 
 #endif

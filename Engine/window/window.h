@@ -9,7 +9,7 @@ class Renderer;
 
 namespace Windows{
 
-#define WINDOW_NAME "ACE-Engine"
+#define WINDOW_NAME "Hero-Engine"
 
 class AppWindow{
 public:

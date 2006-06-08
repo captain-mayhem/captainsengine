@@ -2,6 +2,7 @@
 #include "../system/engine.h"
 #include "../renderer/renderer.h"
 #include "../input/keyboard.h"
+#include "../input/mouse.h"
 #include "nativeWindows.h"
 
 namespace Windows{
@@ -37,6 +38,30 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       Input::Keyboard::instance()->keyUp((int)wparam);
       return 0;
       break;
+    case WM_CHAR:
+      Input::Keyboard::instance()->ascii((unsigned char)wparam);
+      return 0;
+    case WM_MOUSEMOVE:
+      Input::Mouse::instance()->move((int)LOWORD(lparam), (int)HIWORD(lparam), (int)wparam);
+      return 0;
+    case WM_LBUTTONDOWN:
+      Input::Mouse::instance()->buttonDown((int)LOWORD(lparam), (int)HIWORD(lparam), MK_LBUTTON);
+      return 0;
+    case WM_MBUTTONDOWN:
+      Input::Mouse::instance()->buttonDown((int)LOWORD(lparam), (int)HIWORD(lparam), MK_MBUTTON);
+      return 0;
+    case WM_RBUTTONDOWN:
+      Input::Mouse::instance()->buttonDown((int)LOWORD(lparam), (int)HIWORD(lparam), MK_RBUTTON);
+      return 0;
+    case WM_LBUTTONUP:
+      Input::Mouse::instance()->buttonUp((int)LOWORD(lparam), (int)HIWORD(lparam), MK_LBUTTON);
+      return 0;
+    case WM_MBUTTONUP:
+      Input::Mouse::instance()->buttonUp((int)LOWORD(lparam), (int)HIWORD(lparam), MK_MBUTTON);
+      return 0;
+    case WM_RBUTTONUP:
+      Input::Mouse::instance()->buttonUp((int)LOWORD(lparam), (int)HIWORD(lparam), MK_RBUTTON);
+      return 0;
     default:
       break;
   }

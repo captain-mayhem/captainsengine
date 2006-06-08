@@ -17,6 +17,7 @@ OGLVertexBuffer::OGLVertexBuffer(){
   vertoffset_ = -1;
   coloffset_ = -1;
   texoffset_ = -1;
+  userVertOffset_ = 0;
 }
 
 OGLVertexBuffer::~OGLVertexBuffer(){
@@ -72,26 +73,29 @@ void OGLVertexBuffer::unlockIndexPointer(){
 void OGLVertexBuffer::activate(){
   if (flags_ & VB_POSITION){
     glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(3, GL_FLOAT, structsize_, vb_+vertoffset_);
+    glVertexPointer(3, GL_FLOAT, structsize_, vb_+vertoffset_+userVertOffset_);
   }
   else
     glDisableClientState(GL_VERTEX_ARRAY);
   if (flags_ & VB_COLOR){
     glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(4, GL_UNSIGNED_BYTE, structsize_, vb_+coloffset_);
+    glColorPointer(4, GL_UNSIGNED_BYTE, structsize_, vb_+coloffset_+userVertOffset_);
   }
   else
     glDisableClientState(GL_COLOR_ARRAY);
   if (flags_ & VB_TEXCOORD){
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glTexCoordPointer(2, GL_FLOAT, structsize_, vb_+texoffset_);
+    glTexCoordPointer(2, GL_FLOAT, structsize_, vb_+texoffset_+userVertOffset_);
   }
   else
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
-void OGLVertexBuffer::draw(){
-  glDrawElements(GL_TRIANGLES, ibsize_, GL_UNSIGNED_SHORT, ib_);
+void OGLVertexBuffer::draw(PrimitiveType pt){
+  if (pt == VB_Tristrip)
+    glDrawElements(GL_TRIANGLE_STRIP, ibsize_, GL_UNSIGNED_SHORT, ib_);
+  else if (pt == VB_Triangles)
+    glDrawElements(GL_TRIANGLES, ibsize_, GL_UNSIGNED_SHORT, ib_);
 }
 
 void OGLVertexBuffer::setColor(int pos, Color c){
@@ -104,4 +108,11 @@ void OGLVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t){
   ::Math::Vec2f* tex;
   tex = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
   tex->x = t.x; tex->y = t.y;
+}
+
+void OGLVertexBuffer::setVertexOffset(int offset){
+  userVertOffset_ = 4*offset*structsize_;//offset*structsize_;
+  glVertexPointer(3, GL_FLOAT, structsize_, vb_+vertoffset_+userVertOffset_);
+  glColorPointer(4, GL_UNSIGNED_BYTE, structsize_, vb_+coloffset_+userVertOffset_);
+  glTexCoordPointer(2, GL_FLOAT, structsize_, vb_+texoffset_+userVertOffset_);
 }
