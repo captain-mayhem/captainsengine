@@ -1,109 +1,50 @@
-# *************** Graphics Programming and Applications (GraPA) ***************
-# Assignment 5 - "Hero Quest"
-#
 # File: Makefile
 
 SHELL :=/bin/sh
 
 # set OS variable
 OS := $(shell uname -s)
-ifeq "$(OS)" "IRIX64"
-OS := IRIX
-endif
-
-# choose compiler flags
-# --- IRIX ---
-ifeq "$(OS)" "IRIX"
-  CXX := CC
-  ifeq "$(IMMD9_ENV)" ""
-    # --- CIP pool (faui05x) ---
-    CXXFLAGS := -g -o32 -Dtrue=1 -Dfalse=0 -LANG:std
-    LDFLAGS  = -o32 -LANG:std
-    QTDIR    = /proj/i9grapa/qt.IRIX
-    DOXYGEN  = /proj/i9grapa/bin.IRIX/doxygen
-    # Hack for CC
-    LM_LICENSE_FILE = 1700@symphony
-    export LM_LICENSE_FILE
-  else
-    # --- IMMD IX ---
-    CXXFLAGS := -g -n32 -MDupdate Makedepend -LANG:std
-    LDFLAGS  = -n32 -LANG:std
-    QTDIR    = /share/pckg/qt23
-    DOXYGEN  = doxygen
-    # Hack for doxygen
-    LD_LIBRARYN32_PATH = /share/pckg/qt-egcs/lib:/share/pckg/egcs/lib
-    export LD_LIBRARYN32_PATH
-  endif
-  QT_LIBS  = -lqt 
-  GL_LIBS  = -lGL -lGLU
-  X11_LIBS = -lXmu -lXext -lX11
-  SYS_LIBS = -lm
-  DEP_FLAGS=
-endif
-# --- Linux ---
-ifeq "$(OS)" "Linux"
-  # Modify this for your environment!
-  CXX      := g++
-  CXXFLAGS := -g -O2 -Wall -I/usr/X11/include `sdl-config --cflags`
-  LDFLAGS  = 
-  # Wherever you have installed your Qt
-  QTDIR    = /usr/local/qt
-  QT_INCL  = /usr/local/qt/include
-  # This is the place to look at in the CIP-pool
-  # QTDIR    = /proj/i9lib
-  # QT_LIBS  = -L/usr/lib 
-  QT_LIBS  = `sdl-config --libs`
-  GL_LIBS  = -lGL -lGLU
-  X11_LIBS = -L/usr/X11R6/lib -lXmu -lXext -lX11
-  SYS_LIBS = 
-  DOXYGEN  = doxygen
-  DEP_FLAGS= -MM
-endif
-# --- CIP Sun (faui02x) ---
-ifeq "$(OS)" "SunOS"
-  CXX      := g++
-  CXXFLAGS := -g -Wall
-  LDFLAGS  =
-  QTDIR    = /local/KDE/
-  QT_LIBS  = -lqgl -lqt
-  GL_LIBS  = -L/usr/openwin/lib -ldga -lGL -lGLU
-  X11_LIBS =  -lXmu -lXext -lX11
-  LD_LIBRARY_PATH = /proj/i9grapa/lib.SunOS:/usr/openwin/lib
-  export LD_LIBRARY_PATH
-  SYS_LIBS =
-  DOXYGEN  = /proj/i9grapa/bin.SunOS/doxygen
-  DEP_FLAGS=
-endif                                                                           
+CXX      := g++
+CXXFLAGS := -g -Wall -I/usr/X11/include -I../../Engine
+LDFLAGS  = 
+GL_LIBS  = /usr/lib/libGL.a -lGLU
+X11_LIBS = /usr/X11R6/lib/libX11.a /usr/X11R6/lib/libXext.a /usr/X11R6/lib/libXxf86vm.a
+SYS_LIBS = -L../../Engine ../../Engine/lib/liblua.a ../../Engine/lib/liblualib.a ../../Engine/lib/libjpeg.a -ldl -lpthread -lrt
+DOXYGEN  = doxygen
+DEP_FLAGS= -MM
 
 # ----- Define the Compiler Environment -----
-CXXFLAGS += -c -I$(QT_INCL)
-LIBS = $(QT_LIBS) $(GL_LIBS) $(X11_LIBS) $(SYS_LIBS)
+CXXFLAGS += -c -DUNIX
+LIBS = $(GL_LIBS) $(X11_LIBS) $(SYS_LIBS)
 
 # The name of the application and binary
-PROGRAM = HQEdit-$(OS)
+PROGRAM = HQEdit
+
+DIRS = input \
+			 math \
+			 renderer \
+			 system \
+			 window
 
 # Fetch all source files
-SOURCE2 = vector.cpp \
-          bitset.cpp \
-	  			gameobject.cpp \
-          field.cpp \
-	  			door.cpp
-S2PATH = $(patsubst %.cpp, ../heroquest/%.cpp,$(SOURCE2))
+SOURCE2 = bitset.cpp \
+					gameobject.cpp \
+					field.cpp \
+					door.cpp
+S2PATH = $(patsubst %.cpp, ../HQClient/%.cpp,$(SOURCE2))
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 OBJECT2 = $(patsubst %.cpp,%.o,$(SOURCE2))
-MOCSRCS = $(patsubst %.qt.cpp,%.qt_moc.cpp,$(filter %.qt.cpp,$(SOURCES)))
-MOCOBJS = $(patsubst %.cpp,%.o,$(MOCSRCS))
+TEMP = $(wildcard ../../Engine/input/*.cpp) \
+	$(wildcard ../../Engine/math/*.cpp) \
+	$(wildcard ../../Engine/renderer/*.cpp) \
+	$(wildcard ../../Engine/system/*.cpp) \
+	$(wildcard ../../Engine/window/*.cpp)
+OBJECT3 = $(patsubst %.cpp,%.o,$(TEMP))
 
-OBJ = $(OBJECTS) $(OBJECT2) $(MOCOBJS)
 
-all: program levels
-
-levels: program
-	$(PROGRAM) *.map
-	./copy
-
-program: $(PROGRAM)
+OBJ = $(OBJECTS) $(OBJECT2) $(OBJECT3)
+all: $(PROGRAM)
 
 doc: #doxygen.conf $(wildcard *.hh)
 	$(DOXYGEN) doxygen.conf
@@ -111,24 +52,34 @@ doc: #doxygen.conf $(wildcard *.hh)
 clean:
 	rm -f $(PROGRAM)
 	rm -f *.o
-	rm -f *.qt_moc.*
 	rm -rf *~ ii_files
+	#rm -f input/*.o input/*~
+	#rm -f math/*.o math/*~
+	#rm -f renderer/*.o renderer/*~
+	#rm -f system/*.o system/*~
+	#rm -f window/*.o window/*~
 	rm -f Makedepend
 	rm -rf doc
 
 allclean: clean
 	rm -f *~
 
-%.qt_moc.cpp: %.qt.hh
-	$(QTDIR)/bin/moc $< > $@
+#socket.o: ../heroquest/socket.cpp
+#	$(CXX) $(CXXFLAGS) -c -o socket.o ../heroquest/socket.cpp
+bitset.o: ../HQClient/bitset.cpp
+	$(CXX) $(CXXFLAGS) -c -o bitset.o ../HQClient/bitset.cpp
+gameobject.o: ../HQClient/gameobject.cpp
+	$(CXX) $(CXXFLAGS) -c -o gameobject.o ../HQClient/gameobject.cpp
+field.o: ../HQClient/field.cpp
+	$(CXX) $(CXXFLAGS) -c -o field.o ../HQClient/field.cpp
+door.o: ../HQClient/door.cpp
+	$(CXX) $(CXXFLAGS) -c -o door.o ../HQClient/door.cpp
 
-o2: $(S2PATH)
-	$(CXX) $(CXXFLAGS) -c $(S2PATH)
 
 %.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $<
+	$(CXX) $(CXXFLAGS) -c $< -o $(patsubst %cpp,%o,$<)
 
-$(PROGRAM): $(OBJ) o2
+$(PROGRAM): $(OBJ)
 	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJ) $(LIBS)
 
 Makedepend:
