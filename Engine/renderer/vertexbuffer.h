@@ -7,10 +7,17 @@
 #define VB_COLOR 0x0002
 #define VB_TEXCOORD 0x0004
 
+#define VB_TRIANGLES 0x0001
+#define VB_TRISTRIP 0x0002
+
 namespace Graphics{
 
 typedef ::Math::Vector3D Vertex;
 
+enum PrimitiveType{
+  VB_Triangles,
+  VB_Tristrip
+};
 
 struct Color{
   Color(){r = 255; g = 255; b = 255; a=255;}
@@ -34,10 +41,11 @@ public:
   virtual short* lockIndexPointer()=0;
   virtual void unlockIndexPointer()=0;
   virtual void activate()=0;
-  virtual void draw()=0;
+  virtual void draw(PrimitiveType pt)=0;
   virtual void setPosition(int pos, Vertex v);
   virtual void setColor(int pos, Color c)=0;
   virtual void setTexCoord(int pos, ::Math::Vec2f t)=0;
+  virtual void setVertexOffset(int offset)=0;
 protected:
   int structsize_;
   int vbsize_;
@@ -47,6 +55,7 @@ protected:
   int vertoffset_;
   int coloffset_;
   int texoffset_;
+  int userVertOffset_;
 };
 
 }

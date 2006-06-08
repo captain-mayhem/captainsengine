@@ -16,6 +16,7 @@ DXVertexBuffer::DXVertexBuffer(){
   vertoffset_ = -1;
   coloffset_ = -1;
   texoffset_ = -1;
+  userVertOffset_ = 0;
 }
 
 DXVertexBuffer::~DXVertexBuffer(){
@@ -82,9 +83,12 @@ void DXVertexBuffer::activate(){
   device_->SetFVF(flags_);
 }
 
-void DXVertexBuffer::draw(){
+void DXVertexBuffer::draw(PrimitiveType pt){
   //device_->SetRenderState(D3DRS_LIGHTING, false);
-  device_->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, vbsize_, 0, ibsize_);
+  if (pt == VB_Tristrip)
+    device_->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, 0, vbsize_, 0, ibsize_);
+  else if (pt == VB_Triangles)
+    device_->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, userVertOffset_, 0, vbsize_, 0, ibsize_);
 }
 
 void DXVertexBuffer::setColor(int pos, Color c){
@@ -97,6 +101,10 @@ void DXVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t){
   ::Math::Vec2f* tex;
   tex = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
   tex->x = t.x; tex->y = 1-t.y;
+}
+
+void DXVertexBuffer::setVertexOffset(int offset){
+  userVertOffset_ = 4*offset;
 }
 
 #endif

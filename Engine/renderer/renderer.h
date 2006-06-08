@@ -79,7 +79,13 @@ public:
   //! enable blending
   virtual void enableBlend(const bool flag)=0;
   //! set color
-  virtual void setColor(char r, char g, char b, char a)=0;
+  virtual void setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)=0;
+  //! set color
+  virtual void setColor(const Color* c)=0;
+  //! push matrix
+  virtual void pushMatrix()=0;
+  //! pop matrix
+  virtual void popMatrix()=0;
 protected:
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/

@@ -4,7 +4,7 @@
 
 using namespace ::Math;
 
-namespace Graphics{
+using namespace Graphics;
 
 Renderer::Renderer(){
   win_ = NULL;
@@ -40,5 +40,4 @@ void Renderer::resizeScene(int width, int height){
 
 }
 
-}
 

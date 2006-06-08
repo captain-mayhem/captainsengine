@@ -11,7 +11,7 @@
 #include "OGLtexture.h"
 #include "OGLrenderer.h"
 
-namespace Graphics{
+using namespace Graphics;
 
 OGLRenderer::OGLRenderer(): Renderer() {
   type_ = OpenGL;
@@ -264,8 +264,21 @@ void OGLRenderer::enableBlend(const bool flag){
 }
 
 //! set color
-void OGLRenderer::setColor(char r, char g, char b, char a){
+void OGLRenderer::setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
   glColor4ub(r,g,b,a);
 }
 
+//! set color
+void OGLRenderer::setColor(const Color* c){
+  glColor4ub(c->r,c->g,c->b,c->a);
+}
+
+//! push matrix
+void OGLRenderer::pushMatrix(){
+  glPushMatrix();
+}
+
+//! pop matrix
+void OGLRenderer::popMatrix(){
+  glPopMatrix();
 }

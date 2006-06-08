@@ -1,8 +1,9 @@
 #include "../renderer/OGLrenderer.h"
 #include "../renderer/DXrenderer.h"
+#include "../renderer/dummyrenderer.h"
 #include "engine.h"
 
-extern void engineMain();
+extern void engineMain(int argc, char** argv);
 
 #ifdef WIN32
 
@@ -10,8 +11,11 @@ extern void engineMain();
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int cmdShow){
   MSG msg;
+  char* argv[2];
+  argv[0] = "Hero-Engine";
+  argv[1] = cmdline;
   System::Engine::init();
-  System::Engine::instance()->startup();
+  System::Engine::instance()->startup(2, argv);
   //Enter gameloop
   while(true){
     while (PeekMessage(&msg,NULL,0,0,PM_REMOVE)){
@@ -32,6 +36,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int
 
 #include "../window/nativeLinux.h"
 #include "../input/keyboard.h"
+#include "../renderer/font.h"
 
 #ifdef UNIX
 #include <X11/Xlib.h>
@@ -94,6 +99,12 @@ System::Engine::Engine(){
   win_ = NULL;
   rend_ = NULL;
   isUp_ = false;
+  frameInterval_ = 0;
+  frameTime_ = 0;
+  frameInterval_ = 0;
+  lastTime_ = 0;
+  fpscounter_ = 0;
+  fps_ = 0;
   Log << "Engine instance created\n";
 }
 
@@ -101,31 +112,43 @@ void System::Engine::init(){
   eng = new Engine();
 }
 
-void System::Engine::startup(){
+void System::Engine::startup(int argc, char** argv){
   Script::init();
   Script::instance()->initEnv();
   string type = Script::instance()->getStringSetting("renderer");
-  if (type == "OpenGL")
-    rend_ = new ::Graphics::OGLRenderer();
-  else if (type == "DirectX"){
+  maxFramerate_ = ::System::Script::instance()->getNumberSetting("timeScheme");
+  graphics_ = Script::instance()->getBoolSetting("graphics");
+
+  if (graphics_){
+    if (type == "OpenGL")
+      rend_ = new ::Graphics::OGLRenderer();
+    else if (type == "DirectX"){
 #ifdef UNIX
-    cerr << "DirectX is not supported on Linux\n";
-    exit(-1);
+      cerr << "DirectX is not supported on Linux\n";
+      exit(-1);
 #endif
-    rend_ = new ::Graphics::DXRenderer();
-  }
-  else
-    EXIT2("No valid renderer specified in engine.ini");
+      rend_ = new ::Graphics::DXRenderer();
+    }
+    else
+      EXIT2("No valid renderer specified in engine.ini");
 #ifdef WIN32
-  win_ = new ::Windows::WindowsWindow(rend_);
+    win_ = new ::Windows::WindowsWindow(rend_);
 #endif
 #ifdef UNIX
-  win_ = new ::Windows::X11Window(rend_);
+    win_ = new ::Windows::X11Window(rend_);
 #endif
+  }
+  else{
+    rend_ = new ::Graphics::DummyRenderer();
+  }
   Input::Keyboard::init();
-  engineMain();
-  win_->init("ACE-Engine");
   isUp_ = true;
+  engineMain(argc, argv);
+  if (graphics_)
+    win_->init("Hero-Engine");
+  fnt_ = new ::Graphics::Font();
+  fnt_->buildFont();
+  //isUp_ = true;
 }
 
 void System::Engine::shutdown(){
@@ -134,6 +157,8 @@ void System::Engine::shutdown(){
   Log << "engine shutting down\n";
   isUp_ = false;
   Input::Keyboard::release();
+  fnt_->killFont();
+  SAFE_DELETE(fnt_);
   if (win_)
     win_->kill();
   SAFE_DELETE(win_);
@@ -145,7 +170,32 @@ void System::Engine::shutdown(){
 }
 
 void System::Engine::run(){
+  //handle physics, KI, ...
+  
+  //render scene
   rend_->renderScene();
+
+  //calculate frame rate
+  double currentTime;
+  if (maxFramerate_ == 0){
+    currentTime = GetTickCount()*0.001;
+    frameInterval_ = currentTime-frameTime_;
+    frameTime_ = currentTime;
+  }
+  else{
+    while(((currentTime = GetTickCount()*0.001)-frameTime_) <= 1.0/maxFramerate_);
+    frameInterval_ = currentTime-frameTime_;
+    frameTime_ = currentTime;
+  }
+
+  fpscounter_++;
+
+  //one second passed by
+  if (currentTime - lastTime_ > 1.0){
+    lastTime_ = currentTime;
+    fps_ = fpscounter_;
+    fpscounter_ = 0;
+  }
 }
   
 

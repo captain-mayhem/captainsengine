@@ -121,9 +121,6 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
-			<File
-				RelativePath=".\main.cpp">
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -190,10 +187,19 @@
 			<File
 				RelativePath=".\system\singleton.h">
 			</File>
+			<File
+				RelativePath=".\system\thread.cpp">
+			</File>
+			<File
+				RelativePath=".\system\thread.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="renderer"
 			Filter="">
+			<File
+				RelativePath=".\renderer\dummyrenderer.h">
+			</File>
 			<File
 				RelativePath=".\renderer\DXrenderer.cpp">
 			</File>
@@ -264,6 +270,12 @@
 			<File
 				RelativePath=".\input\keyboard.h">
 			</File>
+			<File
+				RelativePath=".\input\mouse.cpp">
+			</File>
+			<File
+				RelativePath=".\input\mouse.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="math"
@@ -273,6 +285,13 @@
 			</File>
 			<File
 				RelativePath=".\math\vector.h">
+			</File>
+		</Filter>
+		<Filter
+			Name="test"
+			Filter="">
+			<File
+				RelativePath=".\main.cpp">
 			</File>
 		</Filter>
 		<File

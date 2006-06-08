@@ -15,9 +15,10 @@ public:
   void unlockVertexPointer();
   void unlockIndexPointer();
   void activate();
-  void draw();
+  void draw(PrimitiveType pt);
   void setColor(int pos, Color c);
   void setTexCoord(int pos, ::Math::Vec2f t);
+  void setVertexOffset(int offset);
 protected:
   char* vb_;
   short* ib_;

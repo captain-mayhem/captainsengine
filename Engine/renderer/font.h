@@ -15,6 +15,7 @@
 #include <string>
 #include <sstream>
 #include <queue>
+#include "vertexbuffer.h"
 #include "../math/vector.h"
 
 using std::string;
@@ -32,9 +33,9 @@ struct font_data{
   //! which font set shound be used
   short set;
   //! the font color
-  Vector3D rgb;
+  Color rgb;
   //! how long to display
-  float duration;
+  double duration;
 };
 
 //! The font class can render text to the screen, using Bitmap-Fonts and OpenGL
@@ -60,7 +61,7 @@ public:
    * \param set the font set to use
    * \param duration how long the text should be displayed
    */
-  void glPrint(int x, int y, const char *str, short set, float duration=0.001f);
+  void glPrint(int x, int y, const string& str, short set, float duration=0.001f);
   //! sets the color of the text
   void setColor(float r, float g, float b);
   //! renders the text
@@ -79,9 +80,9 @@ private:
   //! the texture
   Texture* tex_;
   //! the vertex buffers
-  VertexBuffer** buffers_;
+  VertexBuffer* buffer_;
   //! font color
-  Vector3D rgb_;
+  Color rgb_;
   //! all text strings that are to be rendered
   queue<font_data> q_;
 };

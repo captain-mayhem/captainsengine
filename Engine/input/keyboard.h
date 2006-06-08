@@ -22,6 +22,7 @@ public:
   inline static void release() {SAFE_DELETE(key_);}
   void keyDown(int key);
   void keyUp(int key);
+  void ascii(unsigned char key);
 protected:
   static Keyboard* key_;
   Keyboard();
