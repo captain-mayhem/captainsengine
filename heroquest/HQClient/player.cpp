@@ -13,12 +13,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "clientsocket.hh"
-#include "common.hh"
-#include "opcodes.hh"
-#include "world.hh"
-#include "console.hh"
-#include "player.hh"
+#include "clientsocket.h"
+#include "common.h"
+#include "opcodes.h"
+#include "world.h"
+#include "console.h"
+#include "player.h"
 
 using std::cout;
 using std::endl;
@@ -27,6 +27,8 @@ using std::cerr;
 using std::ios;
 using std::ifstream;
 using std::ostringstream;
+
+#define line *System::Engine::instance()->getFont()
 
 extern ClientSocket* sock;
 extern string path;

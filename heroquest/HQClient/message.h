@@ -49,7 +49,7 @@ public:
   /*! this function contains the main loop for the thread
    * that recieves messages from the server
    */
-  static int receiver(void*);
+  static void receiver(void*);
   //! processes a command from the server
   void process(const string& answer);
   //! callback function for some console commands

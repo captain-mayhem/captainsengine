@@ -15,7 +15,7 @@
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "renderer/texture.h"
+#include "textureManager.h"
 #include "camera.h"
 #include "renderer/font.h"
 #endif
@@ -362,7 +362,8 @@ void World::render(){
 		Field& curr = *canSee_[i];
 
 		//render ground tiles
-		glBindTexture(GL_TEXTURE_2D, tex.floorTex[curr.getId()]);
+    TextureManager::instance()->floorTex[curr.getId()]->activate();
+    //glBindTexture(GL_TEXTURE_2D, tex.floorTex[curr.getId()]);
 		glBegin(GL_TRIANGLE_STRIP);
 			glTexCoord2f(curr.texCoords[0].x, curr.texCoords[0].y);
 			glVertex3f(curr.vertices[0].x, curr.vertices[0].y, curr.vertices[0].z);
@@ -375,7 +376,8 @@ void World::render(){
 		glEnd();
 
 		//render walls
-		glBindTexture(GL_TEXTURE_2D, tex.wallTex[0]);
+    TextureManager::instance()->wallTex[0]->activate();
+		//glBindTexture(GL_TEXTURE_2D, tex.wallTex[0]);
 		short num = curr.doorbits.numSetBits()*3;
 		short count = 0;
 		for (unsigned k = 1; k < curr.numVertices/4; k++){
@@ -432,7 +434,8 @@ void World::render(){
 	}
   
 	//render ceiling
-	glBindTexture(GL_TEXTURE_2D, tex.wallTex[2]);
+  TextureManager::instance()->wallTex[2]->activate();
+	//glBindTexture(GL_TEXTURE_2D, tex.wallTex[2]);
 	glBegin(GL_QUADS);
 		glTexCoord2f(width_,height_);
 		glVertex3f(0, WALLHEIGHT, 0);
@@ -487,9 +490,11 @@ void World::render2D(bool vis){
 			// ground tiles
 			// not visible?
 			if (!curr.getStatus() && vis)
-				glBindTexture(GL_TEXTURE_2D, tex.floorTex[0]);
+        TextureManager::instance()->floorTex[0]->activate();
+				//glBindTexture(GL_TEXTURE_2D, tex.floorTex[0]);
 			else
-				glBindTexture(GL_TEXTURE_2D, tex.floorTex[curr.getId()]);
+        TextureManager::instance()->floorTex[curr.getId()]->activate();
+				//glBindTexture(GL_TEXTURE_2D, tex.floorTex[curr.getId()]);
       
 			if ((!curr.object && 
             (!curr.overlay || !curr.overlay->getStatus())
@@ -1720,7 +1725,7 @@ void World::placeInventory(Inventory* items, Vector2D position){
   }
   //merge inventories
   else{
-    vector<Item>& its = items->getItems();
+    vector<Item> its = items->getItems();
     for (unsigned i = 0; i < its.size(); i++){
       Item& it = its[i];
       f.items->addItem(it);

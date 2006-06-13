@@ -18,16 +18,16 @@
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "console.hh"
-#include "common.hh"
-#include "renderer.hh"
-#include "camera.hh"
-#include "texture.hh"
+#include "console.h"
+#include "common.h"
+#include "renderer.h"
+#include "camera.h"
+#include "textureManager.h"
 #endif
-#include "opcodes.hh"
-#include "world.hh"
-#include "player.hh"
-#include "monster.hh"
+#include "opcodes.h"
+#include "world.h"
+#include "player.h"
+#include "monster.h"
 
 using std::cout;
 using std::cin;
@@ -100,14 +100,16 @@ Monster::Monster(const string& player, const string& name, const string& type,
 
 void Monster::render() const {
 #ifdef _CLIENT_
-  glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_]);
+  TextureManager::instance()->monsterTex[id_]->activate();
+  //glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_]);
   Creature::render();
 #endif
 }
 
 void Monster::render2D() const {
 #ifdef _CLIENT_
-  glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_]);
+  TextureManager::instance()->monsterTex[id_]->activate();
+  //glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_]);
   Creature::render2D();
 #endif
 }

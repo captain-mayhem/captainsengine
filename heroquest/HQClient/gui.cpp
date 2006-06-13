@@ -15,15 +15,15 @@
 #endif
 #include <GL/gl.h>
 
-#include "common.hh"
-#include "font.hh"
-#include "gui.hh"
+#include "common.h"
+#include "renderer/font.h"
+#include "gui.h"
 
 //CONSTRUCTOR
 InputField::InputField(){
   //set standard values
   pos_ = Vector2D(-1,-1);
-  fnt_.setBase(text.getBase());
+  //fnt_ = System::Engine::instance()->getFont();
   span_ = Vector2D(150,18);
   bgColor_ = Vector3D(0.1, 0.1, 0.1);
   fgColor_ = Vector3D(0.0, 1.0, 1.0);
@@ -38,7 +38,7 @@ InputField::InputField(const InputField& i){
     bgColor_ = i.bgColor_;
     fgColor_ = i.fgColor_;
     opacity_ = i.opacity_;
-    fnt_ = Font(i.fnt_);
+    fnt_ = i.fnt_;
     field_ = string(field_);
     finished_ = i.finished_;
     isHidden_ = i.isHidden_;
@@ -63,7 +63,7 @@ void InputField::render(){
   //render text
   glEnable(GL_TEXTURE_2D);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-  fnt_.setColor(fgColor_.x,fgColor_.y,fgColor_.z);
+  fnt_->setColor(fgColor_.x,fgColor_.y,fgColor_.z);
   
   //cut off too long inputs
   unsigned numChars = span_.x/10;
@@ -78,13 +78,13 @@ void InputField::render(){
       replacement.erase(replacement.length()-1,1);
       replacement += '_';
     }
-    fnt_.glPrint(pos_.x, pos_.y, replacement.c_str(), 0, 0.0);
+    fnt_->glPrint(pos_.x, pos_.y, replacement.c_str(), 0, 0.0);
   }
   //display string without modifications
   else{
-    fnt_.glPrint(pos_.x, pos_.y, out.c_str(), 0, 0.0);
+    fnt_->glPrint(pos_.x, pos_.y, out.c_str(), 0, 0.0);
   }
-  fnt_.render();
+  //fnt_.render();
 }
 
 //If the input field is hit by the mouse

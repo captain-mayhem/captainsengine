@@ -10,9 +10,9 @@
 // | File: overlay.cpp                                                |
 //  ==================================================================
 
-#include "overlay.hh"
+#include "overlay.h"
 #ifdef _CLIENT_
-  #include "texture.hh"
+  #include "textureManager.h"
 #endif
 
 //Constructor
@@ -54,7 +54,8 @@ void Overlay::render2D() const {
   int dx = SCREENWIDTH/wrld.getMapSize().x;
   int dy = SCREENHEIGHT/height;
   glEnable(GL_TEXTURE_2D);
-  glBindTexture(GL_TEXTURE_2D, tex.overlayTex[id_]);
+  TextureManager::instance()->overlayTex[id_]->activate();
+  //glBindTexture(GL_TEXTURE_2D, tex.overlayTex[id_]);
   switch(orientation_){ 
     case TOP:
       glBegin(GL_QUADS);

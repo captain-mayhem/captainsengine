@@ -25,7 +25,7 @@
 Console::Console(){
   //set standard values
   pos_ = Vector2D(0, 468);
-  fnt_ = System::Engine::instance()->getFont();
+  //fnt_ = System::Engine::instance()->getFont();
   span_ = Vector2D(1024,300);
   input_.setPosition(Vector2D(0, 468));
   input_.setOpacity(0.0);

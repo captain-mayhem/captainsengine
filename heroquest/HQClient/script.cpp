@@ -11,22 +11,24 @@
 
 #include <ctype.h>
 
-#include "common.hh"
-#include "world.hh"
-#include "script.hh"
+#include "common.h"
+#include "world.h"
+#include "script.h"
 #ifdef _CLIENT_
-#include "console.hh"
-#include "message.hh"
-#include "player.hh"
-#include "gamestate.hh"
+#include "console.h"
+#include "message.h"
+#include "player.h"
+#include "gamestate.h"
 #else
 #include "../server/gamestate.hh"
 #include "../server/message.hh"
 #include "../server/player.hh"
 #include "../server/admin.hh"
 #endif
-#include "opcodes.hh"
-#include "templates.hh"
+#include "opcodes.h"
+#include "templates.h"
+
+#define line *System::Engine::instance()->getFont()
 
 Script::Script() : L(0) {
 }

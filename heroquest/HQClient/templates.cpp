@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "common.hh"
-#include "templates.hh"
+#include "common.h"
+#include "templates.h"
 
 using std::ifstream;
 using std::string;

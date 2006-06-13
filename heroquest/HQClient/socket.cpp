@@ -16,7 +16,7 @@
 #ifndef WIN32
 #include <netdb.h>
 #endif
-#include "socket.hh"
+#include "socket.h"
 
 using std::cerr;
 

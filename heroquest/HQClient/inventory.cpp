@@ -3,7 +3,7 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
-#include "renderer/texture.h"
+#include "textureManager.h"
 #include "inventory.h"
 #ifdef _CLIENT_
 #include "player.h"
@@ -40,7 +40,7 @@ Inventory::Inventory(const Inventory& i){
   belt_ = i.belt_;
   breast_ = i.breast_;
 #ifdef _CLIENT_
-  fnt_ = Font(i.fnt_);
+  fnt_ = i.fnt_;
   page_ = i.page_;
   chosenItem_ = i.chosenItem_;
   visible_ = i.visible_;
@@ -286,7 +286,8 @@ void Inventory::render(){
   //background
   glDisable(GL_BLEND);
   glColor4f(1.0,1.0,1.0,1.0);
-  glBindTexture(GL_TEXTURE_2D, tex.otherTex[1]);
+  TextureManager::instance()->otherTex[1]->activate();
+  //glBindTexture(GL_TEXTURE_2D, tex.otherTex[1]);
   glBegin(GL_QUADS);
     glTexCoord2f(1, 0);
     glVertex2i(SCREENWIDTH, SCREENHEIGHT);
@@ -302,14 +303,15 @@ void Inventory::render(){
   //items
   Vector2D pos(50, 485);
   short count = 0;
+  fnt_->setColor(0,1,1);
   for (unsigned i = 9*(page_-1)+1; i < items_.size() && i < 9*page_+1; i++){
     string name = items_[i].getName();
     if (name.size() > 11)
       name.erase(11);
     int fill = (11 - name.size())/2;
     name.insert(name.begin(), fill, ' ');
-    fnt_.glPrint(pos.x, pos.y, name.c_str(), 1);
-    fnt_.glPrint(pos.x+48, pos.y-18, toStr(items_[i].getNumber()).c_str(), 1);
+    fnt_->glPrint(pos.x, pos.y, name.c_str(), 1);
+    fnt_->glPrint(pos.x+48, pos.y-18, toStr(items_[i].getNumber()).c_str(), 1);
     pos.x += 148;
     count++;
     if (count == 3){
@@ -318,7 +320,7 @@ void Inventory::render(){
       pos.y -= 193;
     }
   }
-  fnt_.glPrint(177, 50, ("<<  Page "+toStr(page_)+"  >>").c_str(), 0);
+  fnt_->glPrint(177, 50, ("<<  Page "+toStr(page_)+"  >>").c_str(), 0);
 
   //stats
   Creature* c = plyr.getCreature();
@@ -331,43 +333,43 @@ void Inventory::render(){
   fnt_->glPrint(800, 660, ("Mind: "+toStr(c->getMind())+"/"+toStr(c->getMaxMind())).c_str(), 0);
   Hero* h = dynamic_cast<Hero*>(c);
   if (h){
-    fnt_.glPrint(600, 620, ("Money: "+toStr(h->getMoney())).c_str(), 0);
+    fnt_->glPrint(600, 620, ("Money: "+toStr(h->getMoney())).c_str(), 0);
   }
 
   //worn items
   Item ite = getArmory("right hand");
   if (ite.isValid()){
-    fnt_.glPrint(600, 580, (ite.getName()+" is held in the right hand").c_str(), 0);
+    fnt_->glPrint(600, 580, (ite.getName()+" is held in the right hand").c_str(), 0);
   }
   ite = getArmory("left hand");
   if (ite.isValid()){
-    fnt_.glPrint(600, 560, (ite.getName()+" is held in the left hand").c_str(), 0);
+    fnt_->glPrint(600, 560, (ite.getName()+" is held in the left hand").c_str(), 0);
   }
   ite = getArmory("head");
   if (ite.isValid()){
-    fnt_.glPrint(600, 540, (ite.getName()+" is worn on the head").c_str(), 0);
+    fnt_->glPrint(600, 540, (ite.getName()+" is worn on the head").c_str(), 0);
   }
   ite = getArmory("body");
   if (ite.isValid()){
-    fnt_.glPrint(600, 520, (ite.getName()+" is worn on the body").c_str(), 0);
+    fnt_->glPrint(600, 520, (ite.getName()+" is worn on the body").c_str(), 0);
   }
   ite = getArmory("belt");
   if (ite.isValid()){
-    fnt_.glPrint(600, 500, (ite.getName()+" is worn on the belt").c_str(), 0);
+    fnt_->glPrint(600, 500, (ite.getName()+" is worn on the belt").c_str(), 0);
   }
   ite = getArmory("breast");
   if (ite.isValid()){
-    fnt_.glPrint(600, 480, (ite.getName()+" is worn on the breast").c_str(), 0);
+    fnt_->glPrint(600, 480, (ite.getName()+" is worn on the breast").c_str(), 0);
   }
 
   //Vector2D click = gl->getMousePos();
-  //fnt_.glPrint(600, 460, (toStr(click.x)+"/"+toStr(click.y)).c_str(), 0);
+  //fnt_->glPrint(600, 460, (toStr(click.x)+"/"+toStr(click.y)).c_str(), 0);
 
   if (chosenItem_ != NULL){
-    fnt_.glPrint(600, 440, chosenItem_->getName().c_str(), 0);
+    fnt_->glPrint(600, 440, chosenItem_->getName().c_str(), 0);
   }
 
-  fnt_.render();
+  //fnt_.render();
 #endif
 }
 
@@ -375,11 +377,11 @@ void Inventory::update(){
 #ifdef _CLIENT_
   if (!visible_)
     return;
-  Vector2D click = gl->getMousePos();
+  Vector2D click;// = gl->getMousePos();
   //forward button
   if (click.x >= 300 && click.x <= 325){
     if (click.y >= 700 && click.y <= 720){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       page_++;
     }
   }
@@ -387,7 +389,7 @@ void Inventory::update(){
   if (click.x >= 180 && click.x <= 200){
     if (click.y >= 700 && click.y <= 720){
       if (page_ > 1){
-        gl->resetMousePos();
+        //gl->resetMousePos();
         page_--;
       }
     }
@@ -395,19 +397,19 @@ void Inventory::update(){
   //first item column
   if (click.x >= 65 && click.x <= 155){
     if (click.y >= 125 && click.y <= 280){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       unsigned idx = 9*(page_-1)+1;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 315 && click.y <= 475){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       unsigned idx = 9*(page_-1)+4;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 510 && click.y <= 670){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       unsigned idx = 9*(page_-1)+7;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
@@ -416,19 +418,19 @@ void Inventory::update(){
   //second item column
   if (click.x >= 210 && click.x <= 300){
     if (click.y >= 125 && click.y <= 280){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       unsigned idx = 9*(page_-1)+2;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 315 && click.y <= 475){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       unsigned idx = 9*(page_-1)+5;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 510 && click.y <= 670){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       unsigned idx = 9*(page_-1)+8;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
@@ -437,19 +439,19 @@ void Inventory::update(){
   //third item column
   if (click.x >= 355 && click.x <= 450){
     if (click.y >= 125 && click.y <= 280){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       unsigned idx = 9*(page_-1)+3;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 315 && click.y <= 475){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       unsigned idx = 9*(page_-1)+6;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 510 && click.y <= 670){
-      gl->resetMousePos();
+      //gl->resetMousePos();
       unsigned idx = 9*(page_-1)+9;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];

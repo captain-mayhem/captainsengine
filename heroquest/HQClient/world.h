@@ -248,12 +248,6 @@ public:
   void placeInventory(Inventory* items, Vector2D position);
 	
 private:
-  //! the wall textures
-  Texture** wallTex_;
-  
-  //! the floor textures
-  Texture** floorTex_;
-
   //! tells if there is a door
   /*! the function works as isWall
    */

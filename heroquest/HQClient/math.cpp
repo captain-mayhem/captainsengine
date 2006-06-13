@@ -13,7 +13,7 @@
 #define _USE_MATH_DEFINES
 
 #include <math.h>
-#include "math.hh"
+#include "math.h"
 
 Maths::Maths(){
 }

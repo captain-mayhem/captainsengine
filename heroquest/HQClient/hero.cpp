@@ -22,7 +22,7 @@
 #include "common.h"
 #include "renderer.h"
 #include "camera.h"
-#include "texture.hh"
+#include "textureManager.h"
 #endif
 #include "opcodes.h"
 #include "world.h"
@@ -228,7 +228,8 @@ bool Hero::load(const string& filename){
 
 void Hero::render() const {
 #ifdef _CLIENT_
-  glBindTexture(GL_TEXTURE_2D, tex.heroTex[id_]);
+  TextureManager::instance()->heroTex[id_]->activate();
+  //glBindTexture(GL_TEXTURE_2D, tex.heroTex[id_]);
   Creature::render();
 #endif
 }
@@ -236,7 +237,8 @@ void Hero::render() const {
 
 void Hero::render2D() const {
 #ifdef _CLIENT_
-  glBindTexture(GL_TEXTURE_2D, tex.heroTex[id_]);
+  TextureManager::instance()->heroTex[id_]->activate();
+  //glBindTexture(GL_TEXTURE_2D, tex.heroTex[id_]);
   Creature::render2D();
 #endif
 }

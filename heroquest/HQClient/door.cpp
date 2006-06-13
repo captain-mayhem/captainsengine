@@ -16,14 +16,16 @@
 #include <string>
 
 #include "common.h"
-#include "../HQEditor/compiler.h"
-//#include "texture.hh"
-//#include "world.hh"
-//#include "field.hh"
-//#include "matrix.hh"
+//#include "../HQEditor/compiler.h"
+#include "textureManager.h"
+#include "world.h"
+#include "field.h"
+#include "math/matrix.h"
 #include "door.h"
 
 using std::string;
+
+using Math::Matrix;
 
 extern string path;
 
@@ -72,7 +74,9 @@ void Door::render() const{
   //normal door
   if (id_ == 0)
     id = 1;
-  glBindTexture(GL_TEXTURE_2D, tex.wallTex[id]);
+  //glBindTexture(GL_TEXTURE_2D, tex.wallTex[id]);
+  //wrld.getWallTex(id)->activate();
+  TextureManager::instance()->wallTex[id]->activate();
   glPushMatrix();
   
   //a door is just a textured, properly scaled cube

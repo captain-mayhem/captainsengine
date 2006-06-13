@@ -19,6 +19,7 @@
 #include <assert.h>
 //#include "SDL_thread.h"
 
+#include "system/engine.h"
 #include "common.h"
 #include "opcodes.h"
 #include "renderer.h"
@@ -39,6 +40,8 @@ using std::vector;
 using std::cerr;
 using std::cin;
 using std::endl;
+
+#define line *System::Engine::instance()->getFont()
 
 extern string path;
 
@@ -93,10 +96,12 @@ Message::~Message(){
 void Message::quit(){
 	if (ss_ != NULL){
 		*ss_ << toStr(QUIT);
-		SDL_KillThread(tid_);
+		//SDL_KillThread(tid_);
+    tid_.destroy();
 		delete ss_;
 	}
-	gl->quit();
+	//gl->quit();
+  System::Engine::instance()->shutdown();
 }
 
 //process the line that the user typed in
@@ -176,7 +181,8 @@ void Message::process(const char* cmd){
 			consol << welcome;
 
 			//create thread for recieving server messages
-			tid_ = SDL_CreateThread(receiver, (void*)ss_);
+			//tid_ = SDL_CreateThread(receiver, (void*)ss_);
+			tid_.create(receiver, (void*)ss_);
 		}
 		catch (SocketException& e){
 			consol << "Error: " + e.description()  + "\n";
@@ -661,7 +667,7 @@ void Message::process(const string& answer){
 		plyr.setStatus(toInt(argv[0]));
 		consol << "Logged in.";
 		line << "Logged in.";
-      
+    /*  
 		//setup GUI to choose level
 		gl->clearListeners(false);
 		//only the player with admin status can create games
@@ -689,7 +695,7 @@ void Message::process(const string& answer){
 			p = &Renderer::loadLevel;
 			but->setCbFunc(p);
 			gl->addButtonListener(but,false);
-		}
+		}*/
 	break;
     
 	case LIST:
@@ -714,7 +720,7 @@ void Message::process(const string& answer){
 			//yet logged in, so there exist choose-level-GUI-elements on
 			//the screen and they are no longer needed
 			if (plyr.getStatus() != 0){
-				gl->clearListeners(false);
+				//gl->clearListeners(false);
 			}
 			break;
 		}
@@ -723,6 +729,7 @@ void Message::process(const string& answer){
 	case PLAY:{
 		if (plyr.getStatus() == 0)
 			break;
+    /*
 		//someone plays a character, so the button to start the game must appear
 		Button* but = new Button();
 		but->setPosition(Vector2D(900, 170));
@@ -731,7 +738,7 @@ void Message::process(const string& answer){
 		p = &Renderer::start;
 		but->setCbFunc(p);
 		gl->addButtonListener(but);
-      
+      */
 		if (argv[0] == "zargon"){
 			//you sended the command
 			if (argv.size() == 1){
@@ -759,7 +766,7 @@ void Message::process(const string& answer){
 		game.setState(RUN);
 		consol << "Game started now.\n";
 		{
-		//game is running now, so buttons for ingame actions are needed
+		/*//game is running now, so buttons for ingame actions are needed
 		void (Renderer::*p)();
 
 		Button* but = new Button();
@@ -817,7 +824,7 @@ void Message::process(const string& answer){
 		p = &Renderer::endTurn;
 		but->setCbFunc(p);
 		gl->addButtonListener(but,false);
-    
+    */
     //now run level init
     scr.levelInit();
 	}
@@ -948,10 +955,10 @@ void Message::process(const string& answer){
 			but->setPosition(Vector2D(900, 270));
 			but->setText("Defend");
 
-			void (Renderer::*p)();
-			p = &Renderer::defend;
-			but->setCbFunc(p);
-			gl->addButtonListener(but); 
+			//void (Renderer::*p)();
+			//p = &Renderer::defend;
+			//but->setCbFunc(p);
+			//gl->addButtonListener(but); 
 		}
 	}
 	break;
@@ -1194,7 +1201,7 @@ void Message::init(){
 }
 
 //receiving thread
-int Message::receiver(void* v){
+void Message::receiver(void* v){
   ClientSocket* sock = (ClientSocket*)v;
   while(true){
     string answer;

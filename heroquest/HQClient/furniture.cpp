@@ -18,7 +18,7 @@
 #include "common.h"
 #include "world.h"
 #ifdef _CLIENT_
-	#include "texture.hh"
+	#include "textureManager.h"
 #endif
 
 
@@ -39,8 +39,9 @@ void Furniture::render() const {
 #ifdef _CLIENT_
 	if (rendered_)
 		return;
-	glBindTexture(GL_TEXTURE_2D, tex.furnitureTex[id_]);
-	glPushMatrix();
+  TextureManager::instance()->furnitureTex[id_]->activate();
+	//glBindTexture(GL_TEXTURE_2D, tex.furnitureTex[id_]);
+  glPushMatrix();
 	
 	switch(orientation_){
 		case TOP:
@@ -82,7 +83,8 @@ void Furniture::render2D() const {
 	int dx = SCREENWIDTH/wrld.getMapSize().x;
 	int dy = SCREENHEIGHT/height;
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, tex.furnitureTex[id_]);
+	//glBindTexture(GL_TEXTURE_2D, tex.furnitureTex[id_]);
+  TextureManager::instance()->furnitureTex[id_]->activate();
 	switch(orientation_){	
 		case TOP:
 			glBegin(GL_QUADS);
