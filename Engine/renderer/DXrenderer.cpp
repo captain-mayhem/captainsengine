@@ -89,7 +89,7 @@ void DXRenderer::initContext(::Windows::AppWindow* win){
   SetForegroundWindow(wnd);
   SetFocus(wnd);
   resizeScene(win->getWidth(), win->getHeight());
-  initRendering();  
+  //initRendering();  
 }
 
 void DXRenderer::killContext(){

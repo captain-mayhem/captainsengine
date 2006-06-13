@@ -86,7 +86,7 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
   glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
 #endif
   //resizeScene(win->getWidth(), win->getHeight());
-  initRendering();  
+  //initRendering();  
   
 }
 
