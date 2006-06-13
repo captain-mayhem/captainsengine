@@ -24,10 +24,12 @@ using std::queue;
 
 namespace Graphics{
 
+class Texture;
+
 //! encapsulates font data with all neccessary variables to be able to be rendered
 struct font_data{
   //! position of the text
-  Vector2D pos;
+  ::Math::Vector2D pos;
   //! the text
   string text;
   //! which font set shound be used
