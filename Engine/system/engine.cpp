@@ -154,6 +154,7 @@ void System::Engine::startup(int argc, char** argv){
     win_->init("Hero-Engine");
   fnt_ = new ::Graphics::Font();
   fnt_->buildFont();
+  rend_->initRendering();
   //isUp_ = true;
 }
 
