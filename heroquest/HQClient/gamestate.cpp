@@ -47,25 +47,25 @@ bool GameState::start(){
   //init camera
   cam.positionCamera(Vector3D(-10, 8, -12), Vector3D(-9, 8, -12), Vector3D(0, 1, 0));
   cam.setCameraRadius(1);
- 
+  
   //start screen with GUI
   Font* f = System::Engine::instance()->getFont();
   f->setColor(1.0,1.0,1.0);
   f->glPrint(120, 450, "Server:", 1, HUGE_VAL);
-  InputField* in = new InputField();
-  in->setPosition(Vector2D(200, 450));
-  in->setText(msg.getSetting(0));
+  //InputField* in = new InputField();
+  //in->setPosition(Vector2D(200, 450));
+  //in->setText(msg.getSetting(0));
   //gl->addInputListener(in);
   
   f->glPrint(120, 400, "Port:", 1, HUGE_VAL);
-  InputField* in2 = new InputField();
-  in2->setPosition(Vector2D(200, 400));
-  in2->setText(msg.getSetting(1));
+  //InputField* in2 = new InputField();
+  //in2->setPosition(Vector2D(200, 400));
+  //in2->setText(msg.getSetting(1));
   //gl->addInputListener(in2);
 
-  Button* but = new Button();
-  but->setPosition(Vector2D(200,300));
-  but->setText("   Connect");
+  //Button* but = new Button();
+  //but->setPosition(Vector2D(200,300));
+  //but->setText("   Connect");
   //gl->addButtonListener(but);
   //void (Renderer::*p)();
   //p = &Renderer::connect;

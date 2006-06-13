@@ -26,6 +26,7 @@ ClientSocket* sock;
 string path;
 
 void engineMain(int argc, char** argv){
+  path = "";
   Renderer* rend = Engine::instance()->getRenderer();
   HQRenderer::init(rend);
 

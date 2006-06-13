@@ -62,7 +62,12 @@ void HQRenderer::paint_(){
     glEnd();
   }
   
-  System::Engine::instance()->getFont()->render();
+  Font *f = System::Engine::instance()->getFont();
+  f->setColor(0,1,0);
+  f->glPrint(20, 720, "Current Frames Per Second: "+toStr(System::Engine::instance()->getFPS()), 0);
+  
+  f->render();
+ 
   
   rend->enableBlend(false);
   

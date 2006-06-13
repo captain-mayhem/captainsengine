@@ -22,7 +22,7 @@ void Templates::load(){
   string file;
   
   //read items
-  file = path + "../heroquest/data/items.dat";
+  file = path + "../HQClient/data/items.dat";
   ifstream in(file.c_str());
   if (!in){
     cerr << "Could not load items.dat";
@@ -50,7 +50,7 @@ void Templates::load(){
   in.close();
 
   //read armory
-  file = path + "../heroquest/data/armory.dat";
+  file = path + "../HQClient/data/armory.dat";
   ifstream in2(file.c_str());
   if (!in2){
     cerr << "Could not load armory.dat";
@@ -76,7 +76,7 @@ void Templates::load(){
   in2.close();
 
   //read monsters
-  file = path + "../heroquest/data/monsters.dat";
+  file = path + "../HQClient/data/monsters.dat";
 	ifstream in3(file.c_str());
   if (!in3){
     cerr << "Could not load monsters.dat";
@@ -107,7 +107,7 @@ void Templates::load(){
 	in3.close();
     
   //read spells
-  file = path + "../heroquest/data/spells.dat";
+  file = path + "../HQClient/data/spells.dat";
   ifstream in4(file.c_str());
   if (!in4){
     cerr << "Could not load spells.dat";
@@ -133,7 +133,7 @@ void Templates::load(){
   in4.close();
   
   //read overlays
-  file = path + "../heroquest/data/overlays.dat";
+  file = path + "../HQClient/data/overlays.dat";
   ifstream in5(file.c_str());
   if (!in5){
     cerr << "Could not load overlays.dat";
