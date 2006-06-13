@@ -33,6 +33,9 @@ namespace Graphics{
   class Texture;
 }
 
+using Graphics::Texture;
+
+
 //! The world in the game
 /*! This class is responsible for loading and rendering the 
  * tile-based world and for bringing all gameobjects

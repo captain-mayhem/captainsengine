@@ -25,6 +25,8 @@ using std::string;
 using std::list;
 using std::ostringstream;
 
+using ::Math::Vector2D;
+
 //! Provides a customizable quake-like game console
 class Console{
   public:
@@ -123,7 +125,7 @@ private:
     //! opacity
     float opacity_;
     //! the font for displaying text
-    Font fnt_;
+    Font* fnt_;
     //! is console active?
     bool active_;
     //! has it new contents?

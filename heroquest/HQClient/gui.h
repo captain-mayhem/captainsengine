@@ -25,6 +25,9 @@ using std::string;
 using std::list;
 using std::ostringstream;
 
+using Math::Vector3D;
+using Graphics::Font;
+
 //! a highly customizable text field for user input based on OpenGL
 class InputField{
   public:
@@ -85,7 +88,7 @@ class InputField{
     //! opacity
     float opacity_;
     //! The font to write the field text with
-    Font fnt_;
+    Font* fnt_;
     //! The field text
     string field_;
     //! Input finished?
@@ -114,9 +117,9 @@ class Button{
     //! sets the button position
     inline void setPosition(const Vector2D& pos) {input_.setPosition(pos);}
     //! sets the callback function
-    inline void setCbFunc(void (Renderer::*click)()) { handleClicks_ = click; }
+    inline void setCbFunc(void (HQRenderer::*click)()) { handleClicks_ = click; }
     //! executes the callback function
-    inline void process() { (gl->*handleClicks_)(); }
+    inline void process() { (HQRenderer::instance()->*handleClicks_)(); }
     //! renders the button
     inline void render() {input_.render(); }
   private:
@@ -125,7 +128,7 @@ class Button{
     // and some input field functions not being accessible.
     InputField input_;
     //! The callback function
-    void (Renderer::*handleClicks_)();
+    void (HQRenderer::*handleClicks_)();
 };
 
 #endif

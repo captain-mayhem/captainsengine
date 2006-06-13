@@ -15,20 +15,20 @@
 #endif
 #include <GL/gl.h>
 
-#include "common.hh"
-#include "renderer.hh"
-#include "console.hh"
+#include "common.h"
+#include "renderer.h"
+#include "system/engine.h"
+#include "console.h"
 
 
 //CONSTRUCTOR
 Console::Console(){
   //set standard values
   pos_ = Vector2D(0, 468);
-  fnt_.setBase(text.getBase()+1);
+  fnt_ = System::Engine::instance()->getFont();
   span_ = Vector2D(1024,300);
   input_.setPosition(Vector2D(0, 468));
   input_.setOpacity(0.0);
-  input_.setFontBase(text.getBase()+1);
   bgColor_ = Vector3D(0.0, 0.0, 0.0);
   fgColor_ = Vector3D(1.0, 1.0, 1.0);
   input_.setColors(fgColor_, bgColor_);
@@ -54,7 +54,7 @@ Console::Console(const Console& c){
     bgColor_ = c.bgColor_;
     fgColor_ = c.fgColor_;
     opacity_ = c.opacity_;
-    fnt_ = Font(c.fnt_);
+    fnt_ = c.fnt_;
     active_ = c.active_;
     new_ = c.new_;
     process_ = c.process_;
@@ -65,6 +65,7 @@ Console::Console(const Console& c){
 
 //DESTRUCTOR
 Console::~Console(){
+  fnt_ = NULL;
 }
 
 //adds text to the console
@@ -135,13 +136,13 @@ void Console::render(){
   //draw console text
   glEnable(GL_TEXTURE_2D);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-  fnt_.setColor(fgColor_.x,fgColor_.y,fgColor_.z);
+  fnt_->setColor(fgColor_.x,fgColor_.y,fgColor_.z);
   int y = pos_.y + 20;
   for (list<string>::iterator iter = history_.begin(); iter != history_.end(); iter++){
-    fnt_.glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
+    fnt_->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
     y += 20;
   }
-  fnt_.render();
+  //fnt_.render();
   //draw input field
   input_.render();
 

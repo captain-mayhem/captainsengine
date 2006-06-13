@@ -10,8 +10,8 @@
 //  ==================================================================
 
 #include <iostream>
-#include "socketexception.hh"
-#include "clientsocket.hh"
+#include "socketexception.h"
+#include "clientsocket.h"
 
 using std::cerr;
 

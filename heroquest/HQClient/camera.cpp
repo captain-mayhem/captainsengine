@@ -10,12 +10,12 @@
 //  ==================================================================
 
 #include <cmath>
-//#include "math.hh"
+#include "math.h"
 #include "renderer.h"
 //#include "font.hh"
-//#include "message.hh"
+#include "message.h"
 #include "world.h"
-//#include "gamestate.hh"
+#include "gamestate.h"
 #include "camera.h"
 
 Camera::Camera(){
@@ -123,10 +123,10 @@ void Camera::checkCameraCollision(Vector3D **pVertices, int numOfVerts){
   for(int i = 0; i < numOfVerts; i += 3){
     // the current triangle
     Vector3D triangle[3] = { *pVertices[i], *pVertices[i+1], *pVertices[i+2] };
-    Vector3D normal = Math::Normal(triangle);
+    Vector3D normal = Maths::Normal(triangle);
     
     float distance = 0.0f;
-    int classification = Math::ClassifySphere(position_, normal, 
+    int classification = Maths::ClassifySphere(position_, normal, 
 		  triangle[0], radius_, distance);
     // If the sphere intersects the polygon's plane, then check further
     if(classification == INTERSECTS){
@@ -135,11 +135,11 @@ void Camera::checkCameraCollision(Vector3D **pVertices, int numOfVerts){
       Vector3D intersection = position_ - offset;
 
      //collision?
-     if(Math::InsidePolygon(intersection, triangle, 3) ||
-        Math::EdgeSphereCollision(position_, triangle, 3, radius_ / 2)){
+     if(Maths::InsidePolygon(intersection, triangle, 3) ||
+        Maths::EdgeSphereCollision(position_, triangle, 3, radius_ / 2)){
       
         //correct camera position
-        offset = Math::GetCollisionOffset(normal, radius_, distance);
+        offset = Maths::GetCollisionOffset(normal, radius_, distance);
         position_ = position_ + offset;
         view_ = view_ + offset;
       }
@@ -159,15 +159,16 @@ void Camera::update(){
   //Print position
   char temp[100];
   sprintf(temp, "Coordinates(2D): x: %d y: %d", modelPos_.x, modelPos_.y);
-  text.glPrint(20, 700, temp, 0);
+  System::Engine::instance()->getFont()->glPrint(20, 700, temp, 0);
 }
 
 
 // set lookat of the camera
 void Camera::look(){
-  gluLookAt(position_.x, position_.y, position_.z,
-	    view_.x, view_.y, view_.z,
-	    upVector_.x, upVector_.y, upVector_.z);
+  System::Engine::instance()->getRenderer()->lookAt(&position_, &view_, &upVector_);
+  //gluLookAt(position_.x, position_.y, position_.z,
+	//    view_.x, view_.y, view_.z,
+	//    upVector_.x, upVector_.y, upVector_.z);
 }
 
 // update movement on the map

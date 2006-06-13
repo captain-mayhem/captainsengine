@@ -20,7 +20,7 @@
 #include <GL/glu.h>
 #include "console.h"
 #include "renderer.h"
-#include "texture.hh"
+//#include "texture.hh"
 #include "player.h"
 #include "camera.h"
 #endif
@@ -184,7 +184,7 @@ void Creature::update(){
     return;
   toReach = positions_.front();
   // move how far
-  float move = gl->getFrameInterval()*cam.getSpeed();
+  float move = System::Engine::instance()->getFrameInterval()*cam.getSpeed();
   // a little epsilon to avoid oscillation around the target point
   float epsilon = 0.1;
   // move in the correct direction
