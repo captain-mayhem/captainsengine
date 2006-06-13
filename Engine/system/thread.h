@@ -8,7 +8,7 @@ public:
   int create(void (*proc)(void* data), void* data);
   void destroy();
 private:
-  int threadID_;
+  long threadID_;
 };
 
 }
