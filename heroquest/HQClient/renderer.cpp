@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "textureManager.h"
+#include "gamestate.h"
 #include "world.h"
 #include "renderer.h"
 
@@ -21,9 +22,18 @@ void HQRenderer::initialize_(){
 
   rend->setClearColor(Vector3D());
 
+  //init game
+  game.init();
+
+  //start game
+  if (!game.start())
+    EXIT();
+
 }
 
 void HQRenderer::paint_(){
+  game.run();
+  
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   rend->clear(ZBUFFER | COLORBUFFER);
   rend->setColor(255,255,255,255);
