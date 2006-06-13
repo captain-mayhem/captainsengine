@@ -5,6 +5,9 @@
 #include <windows.h>
 #include <process.h>
 #endif
+#ifdef UNIX
+#include <pthread.h>
+#endif
 
 using namespace System;
 
@@ -16,7 +19,7 @@ int Thread::create(void (*proc)(void* data), void* data){
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   pthread_attr_setstacksize(&attr, 8192);
-  pthread_create(&threadID_, &attr, proc, data);
+  pthread_create((pthread_t*)&threadID_, &attr, (void* (*)(void*))proc, data);
 #endif
   return threadID_;
 }
@@ -26,7 +29,7 @@ void Thread::destroy(){
   TerminateThread(&threadID_, 0);
 #endif
 #ifdef UNIX 
-  pthread_cancel(&threadID_);
+  pthread_cancel(threadID_);
 #endif
   //_endthread();
 }
