@@ -16,7 +16,7 @@ void Keyboard::init(){
 
 void Keyboard::keyDown(int key){
   //cerr << key;
-  ::System::Log << (unsigned char)key << " ";
+  //::System::Log << (unsigned char)key << " ";
   //::System::Log << (unsigned char)__toascii(key) << "\n";
   if (key == KEY_ESCAPE)
     EXIT();
