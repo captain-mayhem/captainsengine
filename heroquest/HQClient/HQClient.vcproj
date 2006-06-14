@@ -20,7 +20,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Engine"
+				AdditionalIncludeDirectories="..\..\Engine;..\..\Engine\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CLIENT_"
 				MinimalRebuild="TRUE"
 				BasicRuntimeChecks="3"
@@ -34,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib"
+				AdditionalDependencies=" msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib wsock32.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../Engine/lib"
@@ -73,7 +73,7 @@
 			CharacterSet="2">
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\Engine"
+				AdditionalIncludeDirectories="..\..\Engine;..\..\Engine\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="TRUE"
@@ -85,7 +85,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib"
+				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Wsock32.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../Engine/lib"
@@ -128,6 +128,18 @@
 				RelativePath=".\bitset.cpp">
 			</File>
 			<File
+				RelativePath=".\camera.cpp">
+			</File>
+			<File
+				RelativePath=".\clientsocket.cpp">
+			</File>
+			<File
+				RelativePath=".\common.cpp">
+			</File>
+			<File
+				RelativePath=".\console.cpp">
+			</File>
+			<File
 				RelativePath=".\creature.cpp">
 			</File>
 			<File
@@ -143,6 +155,12 @@
 				RelativePath=".\gameobject.cpp">
 			</File>
 			<File
+				RelativePath=".\gamestate.cpp">
+			</File>
+			<File
+				RelativePath=".\gui.cpp">
+			</File>
+			<File
 				RelativePath=".\hero.cpp">
 			</File>
 			<File
@@ -155,7 +173,19 @@
 				RelativePath=".\main.cpp">
 			</File>
 			<File
+				RelativePath=".\math.cpp">
+			</File>
+			<File
 				RelativePath=".\message.cpp">
+			</File>
+			<File
+				RelativePath=".\monster.cpp">
+			</File>
+			<File
+				RelativePath=".\overlay.cpp">
+			</File>
+			<File
+				RelativePath=".\player.cpp">
 			</File>
 			<File
 				RelativePath=".\renderer.cpp">
@@ -188,6 +218,27 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\socket.cpp">
+			</File>
+			<File
+				RelativePath=".\templates.cpp">
+			</File>
+			<File
+				RelativePath=".\textureManager.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\world.cpp">
 			</File>
 		</Filter>
@@ -202,7 +253,13 @@
 				RelativePath=".\camera.h">
 			</File>
 			<File
+				RelativePath=".\clientsocket.h">
+			</File>
+			<File
 				RelativePath=".\common.h">
+			</File>
+			<File
+				RelativePath=".\console.h">
 			</File>
 			<File
 				RelativePath=".\door.h">
@@ -214,13 +271,40 @@
 				RelativePath=".\gameobject.h">
 			</File>
 			<File
+				RelativePath=".\gamestate.h">
+			</File>
+			<File
+				RelativePath=".\gui.h">
+			</File>
+			<File
 				RelativePath=".\inventory.h">
+			</File>
+			<File
+				RelativePath=".\math.h">
 			</File>
 			<File
 				RelativePath=".\message.h">
 			</File>
 			<File
+				RelativePath=".\monster.h">
+			</File>
+			<File
+				RelativePath=".\overlay.h">
+			</File>
+			<File
+				RelativePath=".\player.h">
+			</File>
+			<File
 				RelativePath=".\renderer.h">
+			</File>
+			<File
+				RelativePath=".\socket.h">
+			</File>
+			<File
+				RelativePath=".\templates.h">
+			</File>
+			<File
+				RelativePath=".\textureManager.h">
 			</File>
 			<File
 				RelativePath=".\world.h">
@@ -280,6 +364,12 @@
 				RelativePath="..\..\Engine\input\keyboard.h">
 			</File>
 			<File
+				RelativePath="..\..\Engine\math\matrix.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\math\matrix.h">
+			</File>
+			<File
 				RelativePath="..\..\Engine\input\mouse.cpp">
 			</File>
 			<File
@@ -334,10 +424,10 @@
 				RelativePath="..\..\Engine\renderer\texture.h">
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\textureManager.cpp">
+				RelativePath="..\..\Engine\system\thread.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\textureManager.h">
+				RelativePath="..\..\Engine\system\thread.h">
 			</File>
 			<File
 				RelativePath="..\..\Engine\math\vector.cpp">

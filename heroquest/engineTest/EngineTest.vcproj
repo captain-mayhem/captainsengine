@@ -241,12 +241,6 @@
 				RelativePath="..\..\Engine\renderer\texture.h">
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\textureManager.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\textureManager.h">
-			</File>
-			<File
 				RelativePath="..\..\Engine\math\vector.cpp">
 			</File>
 			<File

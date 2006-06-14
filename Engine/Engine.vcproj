@@ -281,6 +281,12 @@
 			Name="math"
 			Filter="">
 			<File
+				RelativePath=".\math\matrix.cpp">
+			</File>
+			<File
+				RelativePath=".\math\matrix.h">
+			</File>
+			<File
 				RelativePath=".\math\vector.cpp">
 			</File>
 			<File
