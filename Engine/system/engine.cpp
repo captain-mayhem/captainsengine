@@ -36,6 +36,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int
 
 #include "../window/nativeLinux.h"
 #include "../input/keyboard.h"
+#include "../input/mouse.h"
 #include "../renderer/font.h"
 
 #ifdef UNIX
@@ -70,7 +71,34 @@ int main(int argc, char** argv){
           }
           break;
         case KeyPress:
-          Input::Keyboard::instance()->keyDown(XLookupKeysym(&event.xkey, 0));
+        {
+          char ascii;
+          KeySym key;
+          int num = XLookupString(&event.xkey, &ascii, 1, &key, NULL);
+          Input::Keyboard::instance()->keyDown(key);
+          if (num > 0)
+            Input::Keyboard::instance()->ascii(ascii);
+          break;
+        }
+        case KeyRelease:
+          Input::Keyboard::instance()->keyUp(XLookupKeysym(&event.xkey, 0));
+          break;
+        case ButtonPress:
+          Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, event.xbutton.button);
+          /*
+          if (event.xbutton.button == Button1)
+            Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, MK_LBUTTON);
+          else if (event.xbutton.button == Button2)
+            Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, MK_MBUTTON);
+          else if (event.xbutton.button == Button3)
+            Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, MK_RBUTTON);
+          */
+          break;
+        case ButtonRelease:
+          Input::Mouse::instance()->buttonUp(event.xbutton.x, event.xbutton.y, event.xbutton.button);
+          break;
+        case MotionNotify:
+          Input::Mouse::instance()->move(event.xmotion.x, event.xmotion.y, event.xmotion.state);
           break;
         case ClientMessage:
           if (*XGetAtomName(disp, event.xclient.message_type) == *"WM_PROTOCOLS"){

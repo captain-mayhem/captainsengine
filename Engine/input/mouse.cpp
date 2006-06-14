@@ -14,6 +14,7 @@ void Mouse::init(){
 }
 
 void Mouse::buttonDown(int x, int y, int button){
+  System::Log << "Click: " << x << " " << y << " " << button<< "\n";
 }
 
 void Mouse::buttonUp(int x, int y, int button){
@@ -21,5 +22,6 @@ void Mouse::buttonUp(int x, int y, int button){
 }
 
 void Mouse::move(int x, int y, int buttons){
+  System::Log << "Move: " << x << " " << y << "\n";
 }
 

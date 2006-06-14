@@ -66,7 +66,7 @@ void X11Window::init(const std::string& name){
     XFree(modes);
     
     attr.override_redirect = True;
-    attr.event_mask = ExposureMask | KeyPressMask | ButtonPressMask | StructureNotifyMask;
+    attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
     win_ = XCreateWindow(disp_, RootWindow(disp_, vi->screen), 0, 0,
         width_, height_, 0, vi->depth, InputOutput, vi->visual,
         CWBorderPixel | CWColormap | CWEventMask | CWOverrideRedirect,
@@ -74,7 +74,7 @@ void X11Window::init(const std::string& name){
     XWarpPointer(disp_, None, win_, 0, 0, 0, 0, 0, 0);
     XMapRaised(disp_, win_);
     XGrabKeyboard(disp_, win_, True, GrabModeAsync, GrabModeAsync, CurrentTime);
-    XGrabPointer(disp_, win_, True, ButtonPressMask, GrabModeAsync,
+    XGrabPointer(disp_, win_, True, ButtonPressMask | ButtonReleaseMask | PointerMotionMask, GrabModeAsync,
         GrabModeAsync, win_, None, CurrentTime);
   }
   else{

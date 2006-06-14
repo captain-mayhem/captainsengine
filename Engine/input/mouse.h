@@ -13,6 +13,14 @@
 #define MB_CTRL MK_CONTROL
 #define MB_SHIFT MK_SHIFT
 #endif
+#ifdef UNIX
+#include <X11/Xlib.h>
+#define MB_LEFT Button1
+#define MB_MIDDLE Button2
+#define MB_RIGHT Button3
+#define MB_CTRL ControlMask
+#define MB_SHIFT ShiftMask
+#endif
 
 namespace Input{
 
