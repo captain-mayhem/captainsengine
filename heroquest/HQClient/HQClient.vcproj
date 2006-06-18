@@ -358,6 +358,30 @@
 				RelativePath="..\..\Engine\renderer\font.h">
 			</File>
 			<File
+				RelativePath="..\..\Engine\renderer\forms.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\forms.h">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\gui.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\gui.h">
+			</File>
+			<File
 				RelativePath="..\..\Engine\input\keyboard.cpp">
 			</File>
 			<File

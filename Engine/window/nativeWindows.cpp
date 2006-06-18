@@ -120,7 +120,7 @@ void WindowsWindow::init(const std::string& name){
     if (fullscreen_){
       exStyle = WS_EX_APPWINDOW;
       style = WS_POPUP;
-      ShowCursor(FALSE);
+      //ShowCursor(FALSE);
     }
     else{
       exStyle = WS_EX_APPWINDOW | WS_EX_WINDOWEDGE;

@@ -76,7 +76,7 @@ void DXRenderer::initContext(::Windows::AppWindow* win){
   }
 
   if(SUCCEEDED(d3d_->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, wnd,
-    D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_PUREDEVICE,
+    D3DCREATE_HARDWARE_VERTEXPROCESSING /*| D3DCREATE_PUREDEVICE*/,
     &ppm, &device_))){
       ::System::Log << "Hardware vertex-processing enabled\n";
   }
@@ -143,10 +143,10 @@ void DXRenderer::renderScene(){
   Renderer::renderScene();
 
   // End the scene
-  device_->EndScene();
+  //device_->EndScene();
 
   // Present the backbuffer contents to the display
-  device_->Present( NULL, NULL, NULL, NULL );
+  //device_->Present( NULL, NULL, NULL, NULL );
 }
 
 void DXRenderer::resizeScene(int width, int height){
@@ -204,9 +204,9 @@ Texture* DXRenderer::createTexture(string filename){
 
 //! set lookAt
 void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
-  const D3DXVECTOR3 pos((float*)position);
-  const D3DXVECTOR3 at((float*)look);
-  const D3DXVECTOR3 u((float*)up);
+  const D3DXVECTOR3 pos(&position.x);
+  const D3DXVECTOR3 at(&look.x);
+  const D3DXVECTOR3 u(&up.x);
   D3DXMATRIX V;
   D3DXMatrixLookAtRH(&V, &pos, &at, &u);
   device_->SetTransform(D3DTS_VIEW, &V);
@@ -243,7 +243,7 @@ void DXRenderer::translate(float x, float y, float z){
 //! scale
 void DXRenderer::scale(float x, float y, float z){
   D3DXMATRIX scal;
-  D3DXMatrixScale(&scal, x, y, z);
+  D3DXMatrixScaling(&scal, x, y, z);
   device_->MultiplyTransform(D3DTS_WORLD, &scal);
 }
 
@@ -286,7 +286,8 @@ void DXRenderer::enableBlend(const bool flag){
 void DXRenderer::enableTexturing(const bool flag){
   if (!flag)
     device_->SetTexture(0,0);
-  *NULL;
+  //TODO
+  //save texture when disabling to reenable it.
 }
 
 //! set color
@@ -303,11 +304,16 @@ void DXRenderer::pushMatrix(){
   D3DXMATRIX mat;
   device_->GetTransform(D3DTS_WORLD, &mat);
   modelstack_.push(mat);
+  device_->GetTransform(D3DTS_VIEW, &mat);
+  modelstack_.push(mat);
 }
 
 //! pop matrix
 void DXRenderer::popMatrix(){
   D3DXMATRIX mat = modelstack_.top();
+  device_->SetTransform(D3DTS_VIEW, &mat);
+  modelstack_.pop();
+  mat = modelstack_.top();
   device_->SetTransform(D3DTS_WORLD, &mat);
   modelstack_.pop();
 }

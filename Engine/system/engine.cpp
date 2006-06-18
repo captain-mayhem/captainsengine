@@ -146,6 +146,7 @@ System::Engine::Engine(){
   lastTime_ = 0;
   fpscounter_ = 0;
   fps_ = 0;
+  input_ = NULL;
   Log << "Engine instance created\n";
 }
 
@@ -241,6 +242,15 @@ void System::Engine::run(){
   fnt_->render();
 
   rend_->enableBlend(false);
+
+  if (rend_->getRenderType() == Graphics::DirectX){
+    Graphics::DXRenderer* dxr = dynamic_cast<Graphics::DXRenderer*>(rend_);
+    // End the scene
+    dxr->getDevice()->EndScene();
+
+    // Present the backbuffer contents to the display
+    dxr->getDevice()->Present( NULL, NULL, NULL, NULL );
+  }
 
   //calculate frame rate
   double currentTime;

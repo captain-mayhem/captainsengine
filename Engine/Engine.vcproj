@@ -225,6 +225,12 @@
 				RelativePath=".\renderer\font.h">
 			</File>
 			<File
+				RelativePath=".\renderer\forms.cpp">
+			</File>
+			<File
+				RelativePath=".\renderer\forms.h">
+			</File>
+			<File
 				RelativePath=".\renderer\OGLrenderer.cpp">
 			</File>
 			<File
@@ -298,6 +304,16 @@
 			Filter="">
 			<File
 				RelativePath=".\main.cpp">
+			</File>
+		</Filter>
+		<Filter
+			Name="gui"
+			Filter="">
+			<File
+				RelativePath=".\gui\gui.cpp">
+			</File>
+			<File
+				RelativePath=".\gui\gui.h">
 			</File>
 		</Filter>
 		<File

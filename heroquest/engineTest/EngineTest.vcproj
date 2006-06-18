@@ -181,6 +181,18 @@
 				RelativePath="..\..\Engine\renderer\font.h">
 			</File>
 			<File
+				RelativePath="..\..\Engine\renderer\forms.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\forms.h">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\gui.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\gui.h">
+			</File>
+			<File
 				RelativePath="..\..\Engine\input\keyboard.cpp">
 			</File>
 			<File
