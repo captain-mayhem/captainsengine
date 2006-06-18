@@ -159,6 +159,8 @@ void OGLRenderer::resizeScene(int width, int height){
 
   glViewport(0, 0, width, height);
 
+  Renderer::resizeScene(width, height);
+
   //Projection Matrix
   //glMatrixMode(GL_PROJECTION);
   //glLoadIdentity();
@@ -195,9 +197,9 @@ Texture* OGLRenderer::createTexture(string filename){
   return new OGLTexture(filename);
 }
 
-void OGLRenderer::lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up){
+void OGLRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
   glLoadIdentity();
-  gluLookAt(position->x, position->y, position->z, look->x, look->y, look->z, up->x, up->y, up->z);
+  gluLookAt(position.x, position.y, position.z, look.x, look.y, look.z, up.x, up.y, up.z);
 }
 
 //! set projection
@@ -223,6 +225,11 @@ void OGLRenderer::resetModelView(){
 //! translate
 void OGLRenderer::translate(float x, float y, float z){
   glTranslatef(x,y,z);
+}
+
+//! scale
+void OGLRenderer::scale(float x, float y, float z){
+  glScalef(x,y,z);
 }
 
 //! set rendermode
@@ -251,6 +258,9 @@ void OGLRenderer::blendFunc(BlendType src, BlendType dest){
     case BLEND_ONE:
       destfl = GL_ONE;
       break;
+    case BLEND_ONE_MINUS_SRC_ALPHA:
+      destfl = GL_ONE_MINUS_SRC_ALPHA;
+      break;
   }
   glBlendFunc(srcfl, destfl);
 }
@@ -261,6 +271,14 @@ void OGLRenderer::enableBlend(const bool flag){
     glEnable(GL_BLEND);
   else
     glDisable(GL_BLEND);
+}
+
+//! enable texturing
+void OGLRenderer::enableTexturing(const bool flag){
+  if (flag)
+    glEnable(GL_TEXTURE_2D);
+  else
+    glDisable(GL_TEXTURE_2D);
 }
 
 //! set color

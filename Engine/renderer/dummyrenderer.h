@@ -18,12 +18,16 @@ namespace Graphics{
     void resetModelView(){}
     //! translate
     void translate(float x, float y, float z){}
+    //! scale
+    void scale(float x, float y, float z){}
     //! set render mode
     void renderMode(RendMode rm){}
     //! set blending mode
     void blendFunc(BlendType src, BlendType dest){}
     //! enable blending
     void enableBlend(const bool flag){}
+    //! enable texturing
+    void enableTexturing(const bool flag){}
     //! set color
     void setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a){}
     //! set color

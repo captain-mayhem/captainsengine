@@ -129,10 +129,10 @@ void Font::render(){
       //The bases are selected such that 
       //the ascii code of a character corresponds to the right list
       for (unsigned i = 0; i < f.text.size(); i++){
-        //increase translation
-        rend->translate(10,0,0);
         buffer_->setVertexOffset(f.text[i]-32+(128*f.set));
         buffer_->draw(VB_Tristrip);
+        //increase translation
+        rend->translate(10,0,0);
       }
       rend->popMatrix();
     }

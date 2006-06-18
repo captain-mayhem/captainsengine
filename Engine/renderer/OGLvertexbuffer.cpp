@@ -47,9 +47,11 @@ void OGLVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize
   structsize_ = offset;
   
   vb_ = new char[vertexBufferSize*structsize_];
-  if (indexBufferSize == 0)
+  if (indexBufferSize == 0){
+    ib_ = NULL;
     return;
-  ib_ = new short[indexBufferSize*sizeof(short)];
+  }
+  ib_ = new short[indexBufferSize];
 }
 
 void* OGLVertexBuffer::lockVertexPointer(){
@@ -92,6 +94,13 @@ void OGLVertexBuffer::activate(){
 }
 
 void OGLVertexBuffer::draw(PrimitiveType pt){
+  if (ibsize_ == 0){
+    if (pt == VB_Tristrip)
+      glDrawArrays(GL_TRIANGLE_STRIP, 0, vbsize_);
+    else if (pt == VB_Triangles)
+      glDrawArrays(GL_TRIANGLES, 0, vbsize_);
+    return;
+  }
   if (pt == VB_Tristrip)
     glDrawElements(GL_TRIANGLE_STRIP, ibsize_, GL_UNSIGNED_SHORT, ib_);
   else if (pt == VB_Triangles)

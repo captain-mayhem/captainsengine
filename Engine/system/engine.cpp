@@ -9,6 +9,8 @@ extern void engineMain(int argc, char** argv);
 
 #include <windows.h>
 
+#define TIME_FACTOR 0.001
+
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int cmdShow){
   MSG msg;
   char* argv[2];
@@ -38,10 +40,14 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int
 #include "../input/keyboard.h"
 #include "../input/mouse.h"
 #include "../renderer/font.h"
+#include "../renderer/forms.h"
+#include "../gui/gui.h"
 
 #ifdef UNIX
 #include <X11/Xlib.h>
 #include <GL/glx.h>
+
+#define TIME_FACTOR 0.01
 
 int main(int argc, char** argv){
   System::Engine::init();
@@ -118,6 +124,7 @@ int main(int argc, char** argv){
 
 long GetTickCount(){
   //return clock_gettime(CLOCK_MONOTONIC, NULL);
+  //long factor = sysconf(_SC_CLK_TCK);
   return times(NULL);
 }
 #endif
@@ -176,12 +183,14 @@ void System::Engine::startup(int argc, char** argv){
     rend_ = new ::Graphics::DummyRenderer();
   }
   Input::Keyboard::init();
+  Input::Mouse::init();
   isUp_ = true;
   engineMain(argc, argv);
   if (graphics_)
     win_->init("Hero-Engine");
   fnt_ = new ::Graphics::Font();
   fnt_->buildFont();
+  forms_ = new ::Graphics::Forms();
   rend_->initRendering();
   //isUp_ = true;
 }
@@ -192,8 +201,10 @@ void System::Engine::shutdown(){
   Log << "engine shutting down\n";
   isUp_ = false;
   Input::Keyboard::release();
+  Input::Mouse::release();
   fnt_->killFont();
   SAFE_DELETE(fnt_);
+  SAFE_DELETE(forms_);
   if (win_)
     win_->kill();
   SAFE_DELETE(win_);
@@ -210,16 +221,37 @@ void System::Engine::run(){
   //render scene
   rend_->renderScene();
 
+  rend_->resetModelView();
+  rend_->ortho(1024, 768);
+  rend_->translate(-512, -384, 0);
+  rend_->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
+  rend_->enableBlend(true);
+  
+  //render GUI-elements
+  list< ::Gui::InputField*>::iterator iter;
+  for (iter = listeners_.begin(); iter != listeners_.end(); iter++){
+    (*iter)->render();
+  }
+  
+  list< ::Gui::Button*>::iterator iter2;
+  for (iter2 = buttons_.begin(); iter2 != buttons_.end(); iter2++){
+    (*iter2)->render();
+  }
+
+  fnt_->render();
+
+  rend_->enableBlend(false);
+
   //calculate frame rate
   double currentTime;
   if (maxFramerate_ == 0){
-    currentTime = GetTickCount()*0.001;
+    currentTime = GetTickCount()*TIME_FACTOR;
     //cerr << currentTime;
     frameInterval_ = currentTime-frameTime_;
     frameTime_ = currentTime;
   }
   else{
-    while(((currentTime = GetTickCount()*0.001)-frameTime_) <= 1.0/maxFramerate_);
+    while(((currentTime = GetTickCount()*TIME_FACTOR)-frameTime_) <= 1.0/maxFramerate_);
     frameInterval_ = currentTime-frameTime_;
     frameTime_ = currentTime;
   }
@@ -233,5 +265,18 @@ void System::Engine::run(){
     fpscounter_ = 0;
   }
 }
-  
+ 
+
+// set the current input field that should be active
+void System::Engine::setActiveInput(::Gui::InputField* field){
+  if (field == NULL){
+    input_ = NULL;
+    return;
+  }
+  if (input_ != NULL){
+    input_->removeChar();
+  }
+  input_ = field;
+  input_->addChar('_');
+}
 

@@ -153,8 +153,14 @@ void DXRenderer::resizeScene(int width, int height){
   if (device_ == NULL)
     return;
   ::System::Log << "Resizing Scene\n";
+  if (height == 0){
+    height = 1;
+  }
+  
   win_->setWidth(width);
   win_->setHeight(height);
+ 
+  Renderer::resizeScene(width, height);
   /*
   if (height == 0){
     height = 1;
@@ -197,7 +203,7 @@ Texture* DXRenderer::createTexture(string filename){
 
 
 //! set lookAt
-void DXRenderer::lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up){
+void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
   const D3DXVECTOR3 pos((float*)position);
   const D3DXVECTOR3 at((float*)look);
   const D3DXVECTOR3 u((float*)up);
@@ -234,6 +240,13 @@ void DXRenderer::translate(float x, float y, float z){
   device_->MultiplyTransform(D3DTS_WORLD, &trans);
 }
 
+//! scale
+void DXRenderer::scale(float x, float y, float z){
+  D3DXMATRIX scal;
+  D3DXMatrixScale(&scal, x, y, z);
+  device_->MultiplyTransform(D3DTS_WORLD, &scal);
+}
+
 //! set rendermode
 void DXRenderer::renderMode(RendMode rm){
   if (rm == Filled){
@@ -258,12 +271,22 @@ void DXRenderer::blendFunc(BlendType src, BlendType dest){
     case BLEND_ONE:
       device_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
       break;
+    case BLEND_ONE_MINUS_SRC_ALPHA:
+      device_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+      break; 
   }
 }
 
 //! enable blending
 void DXRenderer::enableBlend(const bool flag){
   device_->SetRenderState(D3DRS_ALPHABLENDENABLE, flag);
+}
+
+//! enable texturing
+void DXRenderer::enableTexturing(const bool flag){
+  if (!flag)
+    device_->SetTexture(0,0);
+  *NULL;
 }
 
 //! set color
