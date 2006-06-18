@@ -4,8 +4,11 @@
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#define KEY_BACKSPACE VK_BACK
+#define KEY_DOWN VK_DOWN
 #define KEY_ESCAPE VK_ESCAPE
 #define KEY_RETURN VK_RETURN
+#define KEY_UP VK_UP
 #endif
 #ifdef UNIX
 #include <X11/keysym.h>

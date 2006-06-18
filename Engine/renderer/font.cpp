@@ -54,19 +54,19 @@ void Font::buildFont(){
     //A Quad for each character
     buffer_->setPosition(4*i+0, Vertex(0,0,0));
     buffer_->setPosition(4*i+1, Vertex(16,0,0));
-    buffer_->setPosition(4*i+2, Vertex(16,16,0));
-    buffer_->setPosition(4*i+3, Vertex(0,16,0));
-    buffer_->setTexCoord(4*i+0, Vec2f(cx,1-cy-0.0625f));
-    buffer_->setTexCoord(4*i+1, Vec2f(cx+0.0625f,1-cy-0.0625f));
-    buffer_->setTexCoord(4*i+2, Vec2f(cx+0.0625f,1-cy));
-    buffer_->setTexCoord(4*i+3, Vec2f(cx,1-cy));
+    buffer_->setPosition(4*i+3, Vertex(16,16,0));
+    buffer_->setPosition(4*i+2, Vertex(0,16,0));
+    buffer_->setTexCoord(4*i+0, Vec2f(cx,1-cy-0.0625f), true);
+    buffer_->setTexCoord(4*i+1, Vec2f(cx+0.0625f,1-cy-0.0625f), true);
+    buffer_->setTexCoord(4*i+3, Vec2f(cx+0.0625f,1-cy), true);
+    buffer_->setTexCoord(4*i+2, Vec2f(cx,1-cy), true);
   }
 
   buffer_->unlockVertexPointer();
 
   short* in = buffer_->lockIndexPointer();
-  in[0] = 0; in[1] = 1; in[2] = 3;
-  in[3] = 2; //in[4] = 1; in[5] = 2;
+  in[0] = 0; in[1] = 1; in[3] = 3;
+  in[2] = 2; //in[4] = 1; in[5] = 2;
   buffer_->unlockIndexPointer();
 }
 

@@ -10,6 +10,7 @@ Renderer::Renderer(){
   win_ = NULL;
   renderCB_ = NULL;
   initCB_ = NULL;
+  resizeCB_ = NULL;
 }
 
 Renderer::~Renderer(){

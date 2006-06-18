@@ -44,7 +44,7 @@ public:
   virtual void draw(PrimitiveType pt)=0;
   virtual void setPosition(int pos, Vertex v);
   virtual void setColor(int pos, Color c)=0;
-  virtual void setTexCoord(int pos, ::Math::Vec2f t)=0;
+  virtual void setTexCoord(int pos, ::Math::Vec2f t, bool dxswap=false)=0;
   virtual void setVertexOffset(int offset)=0;
 protected:
   int structsize_;

@@ -18,7 +18,7 @@ public:
   void activate();
   void draw(PrimitiveType pt);
   void setColor(int pos, Color c);
-  void setTexCoord(int pos, ::Math::Vec2f t);
+  void setTexCoord(int pos, ::Math::Vec2f t, bool dxswap=false);
   void setVertexOffset(int offset);
 protected:
   LPDIRECT3DDEVICE9 device_;
