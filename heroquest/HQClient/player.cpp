@@ -59,7 +59,7 @@ void Player::login(const string& name){
   }
   
   consol << "Enter password: ";
-  consol.setParams(Vector3D(), Vector3D(), 0.0);
+  consol.setParams(Vector3D(), Graphics::Color(0,0,0,0), 0);
   void (Message::*p)(const string&, int, void*);
   p = &Message::special;
   consol.setSpecialFunc(p, LOGIN, NULL);

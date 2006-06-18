@@ -1221,7 +1221,7 @@ void Message::special(const string& message, int mode, void* additional){
   switch (mode){
     case LOGIN:
       //hidden input for password entering
-      consol.setParams(Vector3D(1,1,1), Vector3D(), 0.0);
+      consol.setParams(Vector3D(1,1,1), Graphics::Color(0,0,0,0), 0);
       toSend = toStr(LOGIN)+" "+plyr.getName() + " " + message;
       consol.hideLastInput();
       *ss_ << toSend;

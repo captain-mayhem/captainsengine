@@ -32,5 +32,5 @@ void engineMain(int argc, char** argv){
 
   rend->setInitCB(HQRenderer::initialize);
   rend->setRenderCB(HQRenderer::paint);
-
+  rend->setResizeCB(HQRenderer::resize);
 }

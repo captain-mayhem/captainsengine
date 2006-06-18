@@ -159,13 +159,14 @@ void Camera::update(){
   //Print position
   char temp[100];
   sprintf(temp, "Coordinates(2D): x: %d y: %d", modelPos_.x, modelPos_.y);
+  System::Engine::instance()->getFont()->setColor(0, 1, 0);
   System::Engine::instance()->getFont()->glPrint(20, 700, temp, 0);
 }
 
 
 // set lookat of the camera
 void Camera::look(){
-  System::Engine::instance()->getRenderer()->lookAt(&position_, &view_, &upVector_);
+  System::Engine::instance()->getRenderer()->lookAt(position_, view_, upVector_);
   //gluLookAt(position_.x, position_.y, position_.z,
 	//    view_.x, view_.y, view_.z,
 	//    upVector_.x, upVector_.y, upVector_.z);

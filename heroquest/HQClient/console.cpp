@@ -27,13 +27,7 @@ Console::Console(){
   pos_ = Vector2D(0, 468);
   //fnt_ = System::Engine::instance()->getFont();
   span_ = Vector2D(1024,300);
-  input_.setPosition(Vector2D(0, 468));
-  input_.setOpacity(0.0);
-  bgColor_ = Vector3D(0.0, 0.0, 0.0);
-  fgColor_ = Vector3D(1.0, 1.0, 1.0);
-  input_.setColors(fgColor_, bgColor_);
-  input_.setSpan(Vector2D(1024,18));
-  opacity_ = 0.7;
+  opacity_ = 178;
   //put in a nice starting message
   string start("HeroQuest v");
   start += VERSTRING;
@@ -46,7 +40,7 @@ Console::Console(){
 }
 
 Console::Console(const Console& c){
-    input_ = InputField(c.input_);
+    input_ = c.input_;
     history_ = list<string>(c.history_);
     histIter_ = list<string>::iterator(c.histIter_);
     pos_ = c.pos_;
@@ -66,6 +60,18 @@ Console::Console(const Console& c){
 //DESTRUCTOR
 Console::~Console(){
   fnt_ = NULL;
+  SAFE_DELETE(input_);
+}
+
+//init console
+void Console::init(){
+  input_ = new InputField();
+  input_->setPosition(Vector2D(0, 468));
+  input_->setOpacity(0);
+  bgColor_ = Graphics::Color(0, 0, 0, 0);
+  fgColor_ = Vector3D(1.0, 1.0, 1.0);
+  input_->setColors(fgColor_, bgColor_);
+  input_->setSpan(Vector2D(1024,18));
 }
 
 //adds text to the console
@@ -95,16 +101,16 @@ void Console::addText(const string& text){
 void Console::update(){
   if (!active_)
     return;
-  if (input_.isFinished()){
+  if (input_->isFinished()){
     //get user input
-    history_.push_front(input_.getText());
+    history_.push_front(input_->getText());
     histIter_ = history_.begin();
     if (history_.size() > 15)
       history_.pop_back();
     new_ = true;
     //reset input line
-    input_.clear();
-    input_.addChar('_');
+    input_->clear();
+    input_->addChar('_');
     //call special or main callback function
     if (special_){
       void (Message::*s)(const string&, int, void*);
@@ -126,7 +132,7 @@ void Console::render(){
   glLoadIdentity();
 
   //draw background
-  glColor4f(bgColor_.x,bgColor_.y, bgColor_.z, opacity_);
+  glColor4ub(bgColor_.r,bgColor_.g, bgColor_.b, opacity_);
   glBegin(GL_QUADS);
     glVertex2f(pos_.x         , pos_.y+span_.y);
     glVertex2f(pos_.x         , pos_.y         );
@@ -144,7 +150,7 @@ void Console::render(){
   }
   //fnt_.render();
   //draw input field
-  input_.render();
+  input_->render();
 
 }
 

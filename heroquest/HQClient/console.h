@@ -19,13 +19,16 @@
 #include "math/vector.h"
 #include "renderer/font.h"
 #include "message.h"
-#include "gui.h"
+#include "gui/gui.h"
 
 using std::string;
 using std::list;
 using std::ostringstream;
 
 using ::Math::Vector2D;
+using ::Gui::InputField;
+using ::Gui::Button;
+using ::Graphics::Font;
 
 //! Provides a customizable quake-like game console
 class Console{
@@ -38,9 +41,12 @@ class Console{
     
     //! Destructor
     ~Console();
+
+    //! initializing console
+    void init();
     
     //! returns the input field where the text can be typed in
-    inline InputField* GetInputField() {return &input_;}
+    inline InputField* GetInputField() {return input_;}
     
     //! toggles the console on or off
     inline void toggle() {active_ = !active_;}
@@ -57,8 +63,8 @@ class Console{
      * \param bgCol background color of the input field
      * \param opaque opacity of the input
      */
-    inline void setParams(Vector3D fgCol, Vector3D bgCol, float opaque)
-      {input_.setColors(fgCol, bgCol); input_.setOpacity(opaque);}
+    inline void setParams(Vector3D fgCol, ::Graphics::Color bgCol, unsigned char opaque)
+      {input_->setColors(fgCol, bgCol); input_->setOpacity(opaque);}
     
     //! returns the text of the input field
     inline string getText() {new_ = false; return history_.front();}
@@ -93,10 +99,10 @@ class Console{
     inline void hideLastInput(){history_.pop_front();histIter_ = history_.begin();}
     
     //! Goes up in history
-    inline void Up(){if(histIter_ != history_.end()){input_.setText(*histIter_);input_.addChar('_');histIter_++;}}
+    inline void Up(){if(histIter_ != history_.end()){input_->setText(*histIter_);input_->addChar('_');histIter_++;}}
     
     //! Goes down in history
-    inline void Down(){if(histIter_ != history_.begin()){histIter_--;input_.setText(*histIter_);input_.addChar('_');}}
+    inline void Down(){if(histIter_ != history_.begin()){histIter_--;input_->setText(*histIter_);input_->addChar('_');}}
     
     //! Adds text to the console output.
     void addText(const string& text);
@@ -109,7 +115,7 @@ class Console{
     
 private:
     //! The input field
-    InputField input_;
+    InputField* input_;
     //! Here 
     list<string> history_;
     //! To iterate on the history
@@ -119,11 +125,11 @@ private:
     //! the console dimensions
     Vector2D span_;
     //! background color
-    Vector3D bgColor_;
+    ::Graphics::Color bgColor_;
     //! foreground color
     Vector3D fgColor_;
     //! opacity
-    float opacity_;
+    unsigned char opacity_;
     //! the font for displaying text
     Font* fnt_;
     //! is console active?

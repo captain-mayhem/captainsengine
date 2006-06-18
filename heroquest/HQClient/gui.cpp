@@ -23,7 +23,7 @@
 InputField::InputField(){
   //set standard values
   pos_ = Vector2D(-1,-1);
-  //fnt_ = System::Engine::instance()->getFont();
+  fnt_ = System::Engine::instance()->getFont();
   span_ = Vector2D(150,18);
   bgColor_ = Vector3D(0.1, 0.1, 0.1);
   fgColor_ = Vector3D(0.0, 1.0, 1.0);

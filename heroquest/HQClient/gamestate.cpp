@@ -15,6 +15,7 @@
 #include "renderer.h"
 #include "textureManager.h"
 #include "renderer/font.h"
+#include "gui/gui.h"
 #include "message.h"
 #include "console.h"
 #include "script.h"
@@ -52,21 +53,21 @@ bool GameState::start(){
   Font* f = System::Engine::instance()->getFont();
   f->setColor(1.0,1.0,1.0);
   f->glPrint(120, 450, "Server:", 1, HUGE_VAL);
-  //InputField* in = new InputField();
-  //in->setPosition(Vector2D(200, 450));
-  //in->setText(msg.getSetting(0));
-  //gl->addInputListener(in);
+  InputField* in = new InputField();
+  in->setPosition(Vector2D(200, 450));
+  in->setText(msg.getSetting(0));
+  System::Engine::instance()->addInputListener(in);
   
   f->glPrint(120, 400, "Port:", 1, HUGE_VAL);
-  //InputField* in2 = new InputField();
-  //in2->setPosition(Vector2D(200, 400));
-  //in2->setText(msg.getSetting(1));
-  //gl->addInputListener(in2);
+  InputField* in2 = new InputField();
+  in2->setPosition(Vector2D(200, 400));
+  in2->setText(msg.getSetting(1));
+  System::Engine::instance()->addInputListener(in2);
 
-  //Button* but = new Button();
-  //but->setPosition(Vector2D(200,300));
-  //but->setText("   Connect");
-  //gl->addButtonListener(but);
+  Button* but = new Button();
+  but->setPosition(Vector2D(200,300));
+  but->setText("   Connect");
+  System::Engine::instance()->addButtonListener(but);
   //void (Renderer::*p)();
   //p = &Renderer::connect;
   //but->setCbFunc(p);
