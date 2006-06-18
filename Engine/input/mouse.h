@@ -29,12 +29,28 @@ namespace Input{
     static void init();
     inline static Mouse* instance() {return mouse_;}
     inline static void release() {SAFE_DELETE(mouse_);}
+    //! set button down callback
+    inline void setButtonDownCB_(void (*proc)(int x, int y, int button)) {buttonDownCB_ = proc;}
+    //! set button up callback
+    inline void setButtonUpCB_(void (*proc)(int x, int y, int button)) {buttonUpCB_ = proc;}
+    //! set mouse move callback
+    inline void setMouseMoveCB_(void (*proc)(int x, int y, int button)) {moveCB_ = proc;}
     void buttonDown(int x, int y, int button);
     void buttonUp(int x, int y, int button);
     void move(int x, int y, int buttons);
   protected:
     static Mouse* mouse_;
     Mouse();
+    //! button down callback
+    void (*buttonDownCB_)(int x, int y, int button);
+    //! button up callback
+    void (*buttonUpCB_)(int x, int y, int button);
+    //! mouse move callback
+    void (*moveCB_)(int x, int y, int button);
+    //! the position of the last click
+    ::Math::Vector2D clickPos_;
+    //! was it a click on a gui element?
+    bool gui_click_;
   };
 
 }

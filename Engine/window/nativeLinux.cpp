@@ -91,7 +91,7 @@ void X11Window::init(const std::string& name){
 
   glx = NULL;
   renderer_->initContext(this);
-
+  renderer_->resizeScene(width_, height_);
 }
 
 void X11Window::kill(){

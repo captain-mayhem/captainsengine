@@ -47,7 +47,7 @@ public:
   //! create texture
   Texture* createTexture(string filename);
   //! set look at
-  void lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up);
+  void lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up);
   //! set projection
   void projection(float angle, float aspect, float nearplane, float farplane);
   //! set orthographic viewing
@@ -56,12 +56,16 @@ public:
   void resetModelView();
   //! translate
   void translate(float x, float y, float z);
+  //! scale
+  void scale(float x, float y, float z);
   //! set rendermode
   void renderMode(RendMode rm);
   //! set blending mode
   void blendFunc(BlendType src, BlendType dest);
   //! enable blending
   void enableBlend(const bool flag);
+  //! enable texturing
+  void enableTexturing(const bool flag);
   //! set color
   void setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
   //! set color

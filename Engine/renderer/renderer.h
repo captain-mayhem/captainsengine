@@ -23,7 +23,8 @@ enum RenderType{
 
 enum BlendType{
   BLEND_ONE,
-  BLEND_SRC_ALPHA
+  BLEND_SRC_ALPHA,
+  BLEND_ONE_MINUS_SRC_ALPHA
 };
 
 enum RendMode{
@@ -44,6 +45,8 @@ public:
   void setRenderCB(void (*proc)()) {renderCB_ = proc;}
   //! set init callback
   void setInitCB(void (*proc)()) {initCB_ = proc;}
+  //! set resize callback
+  void setResizeCB(void (*proc)(int width, int height)) {resizeCB_ = proc;}
   //! initialize rendering context
   virtual void initContext(::Windows::AppWindow* win);
   //! kill rendering context
@@ -63,7 +66,7 @@ public:
   //! create texture
   virtual Texture* createTexture(string filename)=0;
   //! set lookAt
-  virtual void lookAt(const Vector3D* position, const Vector3D* look, const Vector3D* up){}
+  virtual void lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){}
   //! set perspective projection
   virtual void projection(float angle, float aspect, float nearplane, float farplane){}
   //! set orthographic projection
@@ -72,12 +75,16 @@ public:
   virtual void resetModelView()=0;
   //! translate
   virtual void translate(float x, float y, float z)=0;
+  //! scale
+  virtual void scale(float x, float y, float z)=0;
   //! set render mode
   virtual void renderMode(RendMode rm){}
   //! set blending mode
   virtual void blendFunc(BlendType src, BlendType dest)=0;
   //! enable blending
   virtual void enableBlend(const bool flag)=0;
+  //! enable texturing
+  virtual void enableTexturing(const bool flag)=0;
   //! set color
   virtual void setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)=0;
   //! set color
@@ -96,6 +103,8 @@ protected:
   void (*renderCB_)();
   //! the init callback
   void (*initCB_)();
+  //! the resize callback
+  void (*resizeCB_)(int width, int height);
 };
 
 }

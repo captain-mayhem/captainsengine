@@ -37,7 +37,9 @@ void Renderer::renderScene(){
 }
 
 void Renderer::resizeScene(int width, int height){
-
+  if (resizeCB_){
+    resizeCB_(width, height);
+  }
 }
 
 

@@ -4,16 +4,21 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <list>
 
 using std::string;
 using std::ofstream;
 using std::cerr;
+using std::list;
 
 #define EXIT() (::System::Engine::instance()->shutdown())
 #define EXIT2(msg) {::System::Log << (msg) << "\n"; ::System::Engine::instance()->shutdown(); }
 #define SAFE_DELETE(ptr)       { if(ptr) { delete (ptr); (ptr)=NULL; } }
 #define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=NULL; } }
 #define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=NULL; } }
+
+#define SCREENWIDTH 1024
+#define SCREENHEIGHT 768
 
 namespace Windows{
 class AppWindow;
@@ -22,6 +27,12 @@ class AppWindow;
 namespace Graphics{
 class Renderer;
 class Font;
+class Forms;
+}
+
+namespace Gui{
+class InputField;
+class Button;
 }
 
 //! changes an integer to a string
@@ -46,6 +57,7 @@ inline const string toLower(string& s){
 }
 
 #ifdef UNIX
+#include <unistd.h>
 #include <sys/times.h>
 
 long GetTickCount();
@@ -64,15 +76,39 @@ class Engine{
     void shutdown();
     inline ::Graphics::Renderer* getRenderer() {return rend_;}
     inline ::Graphics::Font* getFont() {return fnt_;}
+    //! Get the standard forms
+    inline ::Graphics::Forms* getForms() {return forms_;}
+    //! get the window
     inline ::Windows::AppWindow* getWindow() {return win_;}
     inline double getFrameInterval() {return frameInterval_;}
     inline int getFPS() {return fps_;}
+   
+    //! get the input field list
+    inline list< ::Gui::InputField*>& getInputFields() {return listeners_;}
+    //! get the button list
+    inline list< ::Gui::Button*>& getButtons() {return buttons_;}
+    //! adds an input field for mouse click checking
+    void addInputListener(::Gui::InputField* in, bool immediate=true){if (immediate)listeners_.push_back(in);
+      else newIn_.push_back(in);}
+    //! adds a button for mouse click checking
+    void addButtonListener(::Gui::Button* button, bool immediate=true){if (immediate)buttons_.push_back(button);
+      else newBut_.push_back(button);}
+    //! set the current input field that should be active
+    void setActiveInput(::Gui::InputField* field);
+    //! get the current input field that should be active
+    inline ::Gui::InputField* getActiveInput() {return input_;}
+  
   private:
     static Engine* eng;
     Engine();
+    //! The window
     ::Windows::AppWindow* win_;
+    //! The renderer
     ::Graphics::Renderer* rend_;
+    //! The font
     ::Graphics::Font* fnt_;
+    //! Stadard forms
+    ::Graphics::Forms* forms_;
     //! is the engine initialized and running?
     bool isUp_;
     //! graphics subsystem
@@ -91,6 +127,16 @@ class Engine{
     int fpscounter_;
     //! fps
     int fps_;
+    //! waiting input fields
+    list< ::Gui::InputField*> listeners_;
+    //! waiting buttons
+    list< ::Gui::Button*> buttons_;
+    //! the new input fields
+    list< ::Gui::InputField*> newIn_;
+    //! the new buttons
+    list< ::Gui::Button*> newBut_;
+    //! where should the keyboard input go to?
+    ::Gui::InputField* input_;
 };
 }
 

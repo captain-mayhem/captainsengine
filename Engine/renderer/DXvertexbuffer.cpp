@@ -50,8 +50,10 @@ void DXVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize)
     D3DPOOL_MANAGED, &vb_, 0)){
       EXIT2("Cannot create vertex buffer");
     }
-  if (indexBufferSize == 0)
+  if (indexBufferSize == 0){
+    ib_ = NULL;
     return;
+  }
   //::System::Log << structsize << " " << sizeof(short) << "\n";
   device_->CreateIndexBuffer(indexBufferSize*sizeof(short),
     D3DUSAGE_WRITEONLY, D3DFMT_INDEX16, D3DPOOL_MANAGED, &ib_, 0);
@@ -79,12 +81,20 @@ void DXVertexBuffer::unlockIndexPointer(){
 
 void DXVertexBuffer::activate(){
   device_->SetStreamSource(0, vb_, 0, structsize_);
-  device_->SetIndices(ib_);
+  if (ibsize_ != 0)
+    device_->SetIndices(ib_);
   device_->SetFVF(flags_);
 }
 
 void DXVertexBuffer::draw(PrimitiveType pt){
   //device_->SetRenderState(D3DRS_LIGHTING, false);
+  if (ibsize_ == 0){
+    if (pt == VB_Tristrip)
+      device_->DrawPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, vbsize_);
+    else if (pt == VB_Triangles)
+      device_->DrawPrimitive(D3DPT_TRIANGLELIST, userVertOffset_, vbsize_);
+    return;
+  }
   if (pt == VB_Tristrip)
     device_->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, 0, vbsize_, 0, ibsize_);
   else if (pt == VB_Triangles)

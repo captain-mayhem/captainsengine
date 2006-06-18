@@ -83,7 +83,7 @@ public:
     rend->resetModelView();
     static float l = -5;
     //l += 0.0001;
-    rend->lookAt(&Vector3D(0,0,5), &Vector3D(0,0,0), &Vector3D(0,1,0));
+    rend->lookAt(Vector3D(0,0,5), Vector3D(0,0,0), Vector3D(0,1,0));
     
     tex->activate();
     vb->activate();
