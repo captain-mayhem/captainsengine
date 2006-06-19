@@ -131,6 +131,7 @@ long GetTickCount(){
 
 #include "../window/nativeWindows.h"
 #include "script.h"
+#include "../gui/console.h"
 
 ofstream System::Log("engine.log");
 
@@ -147,6 +148,7 @@ System::Engine::Engine(){
   fpscounter_ = 0;
   fps_ = 0;
   input_ = NULL;
+  console_ = NULL;
   Log << "Engine instance created\n";
 }
 
@@ -185,13 +187,14 @@ void System::Engine::startup(int argc, char** argv){
   }
   Input::Keyboard::init();
   Input::Mouse::init();
-  isUp_ = true;
   engineMain(argc, argv);
   if (graphics_)
     win_->init("Hero-Engine");
   fnt_ = new ::Graphics::Font();
   fnt_->buildFont();
   forms_ = new ::Graphics::Forms();
+  console_ = new ::Gui::Console();
+  isUp_ = true;
   rend_->initRendering();
   //isUp_ = true;
 }
@@ -203,6 +206,7 @@ void System::Engine::shutdown(){
   isUp_ = false;
   Input::Keyboard::release();
   Input::Mouse::release();
+  SAFE_DELETE(console_);
   fnt_->killFont();
   SAFE_DELETE(fnt_);
   SAFE_DELETE(forms_);
@@ -218,7 +222,8 @@ void System::Engine::shutdown(){
 
 void System::Engine::run(){
   //handle physics, KI, ...
-  
+  console_->update();
+
   //render scene
   rend_->renderScene();
 
@@ -239,10 +244,13 @@ void System::Engine::run(){
     (*iter2)->render();
   }
 
+  System::Engine::instance()->getConsole()->render();
+
   fnt_->render();
 
   rend_->enableBlend(false);
 
+#ifdef WIN32
   if (rend_->getRenderType() == Graphics::DirectX){
     Graphics::DXRenderer* dxr = dynamic_cast<Graphics::DXRenderer*>(rend_);
     // End the scene
@@ -251,6 +259,7 @@ void System::Engine::run(){
     // Present the backbuffer contents to the display
     dxr->getDevice()->Present( NULL, NULL, NULL, NULL );
   }
+#endif
 
   //calculate frame rate
   double currentTime;

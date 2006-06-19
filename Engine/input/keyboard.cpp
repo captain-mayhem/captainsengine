@@ -1,6 +1,7 @@
 #include <cstdlib>
 #include "../system/engine.h"
 #include "../gui/gui.h"
+#include "../gui/console.h"
 #include "../input/keyboard.h"
 
 using Gui::InputField;
@@ -28,7 +29,7 @@ void Keyboard::keyDown(int key){
       input->removeChar();
       input->end();
       //normal input ==> single line
-      //if (!consol.isActive())
+      if (!System::Engine::instance()->getConsole()->isActive())
         System::Engine::instance()->setActiveInput(NULL);
       return;
     }
@@ -41,15 +42,29 @@ void Keyboard::keyDown(int key){
     }
     //history
     else if (key == KEY_UP){
+      System::Engine::instance()->getConsole()->Up();
     }
     else if (key == KEY_DOWN){
+      System::Engine::instance()->getConsole()->Down();
+    }
+  }
+  if (key == KEY_ESCAPE){
+    Gui::Console* consol = System::Engine::instance()->getConsole();
+    //quit console
+    if (consol->isActive()){
+      consol->toggle();
+      System::Engine::instance()->getActiveInput()->clear();
+      System::Engine::instance()->setActiveInput(NULL);
+      return;
     }
   }
   if (keyDownCB_){
     keyDownCB_(key);
   }
-  if (key == KEY_ESCAPE)
-    EXIT();
+  else{
+    if (key == KEY_ESCAPE)
+      EXIT();
+  }
 }
 
 void Keyboard::keyUp(int key){
@@ -60,7 +75,7 @@ void Keyboard::keyUp(int key){
 
 void Keyboard::ascii(unsigned char key){
   //accept only printable asciis
-  if (key <= 31 || key >= 127)
+  if (key <= 31 /*|| key >= 127*/)
     return;
   InputField* input = System::Engine::instance()->getActiveInput();
   //input goes to input field
@@ -68,7 +83,14 @@ void Keyboard::ascii(unsigned char key){
     input->removeChar();
     input->addChar(key);
     input->addChar('_');
+    return;
   }
+  //open console
+  if (key == '~'){
+    System::Engine::instance()->getConsole()->toggle();
+    System::Engine::instance()->setActiveInput(System::Engine::instance()->getConsole()->GetInputField());
+  }
+
   if (asciiCB_){
     asciiCB_(key);
   }

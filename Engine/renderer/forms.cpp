@@ -43,3 +43,12 @@ void Forms::activateQuad(){
 void Forms::drawQuad(){
   quad_->draw(VB_Tristrip);
 }
+
+void Forms::drawQuad(const Vector2D& position, const Vector2D& size) const {
+  Renderer* rend = System::Engine::instance()->getRenderer();
+  rend->pushMatrix();
+  rend->translate(position.x+size.x/2.0f, position.y+size.y/2.0f, 0);
+  rend->scale(size.x, size.y, 1);
+  quad_->draw(VB_Tristrip);
+  rend->popMatrix();
+}

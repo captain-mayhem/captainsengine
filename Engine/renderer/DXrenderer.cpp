@@ -125,10 +125,17 @@ void DXRenderer::initRendering(){
   device_->SetTextureStageState(2, D3DTSS_COLOROP, D3DTOP_DISABLE);
 
   // Alpha transparency
-  device_->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TFACTOR);
+  device_->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
   device_->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_TEXTURE);
   device_->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-  device_->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+  device_->SetTextureStageState(1, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
+  device_->SetTextureStageState(1, D3DTSS_ALPHAARG2, D3DTA_TFACTOR);
+  device_->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+  device_->SetTextureStageState(2, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
+  /*device_->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TFACTOR);
+  device_->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_TEXTURE);
+  device_->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+  device_->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);*/
   Renderer::initRendering();
 }
 

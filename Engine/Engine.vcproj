@@ -310,6 +310,12 @@
 			Name="gui"
 			Filter="">
 			<File
+				RelativePath=".\gui\console.cpp">
+			</File>
+			<File
+				RelativePath=".\gui\console.h">
+			</File>
+			<File
 				RelativePath=".\gui\gui.cpp">
 			</File>
 			<File
