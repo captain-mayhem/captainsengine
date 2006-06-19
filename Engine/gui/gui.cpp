@@ -64,7 +64,7 @@ void InputField::render(){
   Graphics::Forms* form = System::Engine::instance()->getForms();
   form->activateQuad();
   rend->pushMatrix();
-  rend->translate(pos_.x+span_.x/2.0, pos_.y+span_.y/2.0, 0);
+  rend->translate(pos_.x+span_.x/2.0f, pos_.y+span_.y/2.0f, 0);
   rend->scale(span_.x, span_.y, 1);
   form->drawQuad();
   rend->popMatrix();
@@ -121,7 +121,7 @@ bool InputField::isHit(const Vector2D& pos){
 //The Button constructor
 Button::Button(){
   handleClicks_ = NULL;
-  input_.setColors(Vector3D(1,1,0.1),Color(51,2,2,255));
+  input_.setColors(Vector3D(1,1,0.1f),Color(51,2,2,255));
 }
 
 Button::Button(const Button& b){

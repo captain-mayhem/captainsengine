@@ -151,6 +151,12 @@
 			Name="engine"
 			Filter="">
 			<File
+				RelativePath="..\..\Engine\gui\console.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\console.h">
+			</File>
+			<File
 				RelativePath="..\..\Engine\renderer\DXrenderer.cpp">
 			</File>
 			<File

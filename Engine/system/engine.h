@@ -20,6 +20,11 @@ using std::list;
 #define SCREENWIDTH 1024
 #define SCREENHEIGHT 768
 
+#ifndef VERSION
+#define VERSION 0.6
+#define VERSTRING "0.6"
+#endif
+
 namespace Windows{
 class AppWindow;
 }
@@ -33,6 +38,7 @@ class Forms;
 namespace Gui{
 class InputField;
 class Button;
+class Console;
 }
 
 //! changes an integer to a string
@@ -80,6 +86,8 @@ class Engine{
     inline ::Graphics::Forms* getForms() {return forms_;}
     //! get the window
     inline ::Windows::AppWindow* getWindow() {return win_;}
+    //! get the console
+    inline ::Gui::Console* getConsole() {return console_;}
     inline double getFrameInterval() {return frameInterval_;}
     inline int getFPS() {return fps_;}
    
@@ -137,6 +145,8 @@ class Engine{
     list< ::Gui::Button*> newBut_;
     //! where should the keyboard input go to?
     ::Gui::InputField* input_;
+    //! the game console
+    ::Gui::Console* console_;
 };
 }
 

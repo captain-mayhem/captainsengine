@@ -328,6 +328,24 @@
 			Name="engine"
 			Filter="">
 			<File
+				RelativePath="..\..\Engine\gui\console.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\console.h">
+			</File>
+			<File
 				RelativePath="..\..\Engine\renderer\DXrenderer.cpp">
 			</File>
 			<File
