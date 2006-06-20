@@ -17,7 +17,8 @@
 #include "common.h"
 #include "opcodes.h"
 #include "world.h"
-#include "console.h"
+#include "gui/console.h"
+#include "message.h"
 #include "player.h"
 
 using std::cout;
@@ -60,7 +61,7 @@ void Player::login(const string& name){
   
   consol << "Enter password: ";
   consol.setParams(Vector3D(), Graphics::Color(0,0,0,0), 0);
-  void (Message::*p)(const string&, int, void*);
+  void (*p)(const string&, int, void*);
   p = &Message::special;
   consol.setSpecialFunc(p, LOGIN, NULL);
   name_ = name;
@@ -100,7 +101,7 @@ void Player::addHero(const string& filename, const ClientSocket* ss){
     return;
   }
   consol << "Choose starting position:";
-  void (Message::*p)(const string&, int, void*);
+  void (*p)(const string&, int, void*);
   p = &Message::special;
   consol.setSpecialFunc(p, PLAY, (void*)heroe);
 }

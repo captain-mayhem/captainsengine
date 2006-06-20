@@ -18,7 +18,7 @@
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "console.h"
+#include "gui/console.h"
 #include "common.h"
 #include "renderer.h"
 #include "camera.h"

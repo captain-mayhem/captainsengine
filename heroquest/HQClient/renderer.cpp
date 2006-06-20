@@ -25,6 +25,15 @@ void HQRenderer::resize_(int width, int height){
   render_->projection(fieldOV_, aspect_, 0.1f, 100.0f);
 }
 
+
+//! ascii input
+void HQRenderer::ascii_(unsigned char key){
+  switch (key){
+  case 'y':
+    break;
+  }
+}
+
 void HQRenderer::initialize_(){
   //init textures
   TextureManager::init();

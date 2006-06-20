@@ -18,11 +18,12 @@
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include "console.h"
+#include "gui/console.h"
 #include "common.h"
 #include "renderer.h"
 #include "camera.h"
 #include "textureManager.h"
+#include "message.h"
 #endif
 #include "opcodes.h"
 #include "world.h"
@@ -119,7 +120,7 @@ void Hero::Create(const string& path, const vector<Hero>& heros, const string& p
   tmp << "Choose your character class: ";
   consol << tmp;
   //set the create function
-  void (Message::*p)(const string&, int, void*);
+  void (*p)(const string&, int, void*);
   p = &Message::special;
   consol.setSpecialFunc(p, CREATE, NULL); 
 #endif

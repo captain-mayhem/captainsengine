@@ -4,11 +4,12 @@
 #include "gamestate.h"
 #include "camera.h"
 #include "world.h"
-#include "console.h"
+//#include "console.h"
 #include "player.h"
 #include "message.h"
 #include "script.h"
 #include "clientsocket.h"
+#include "input/keyboard.h"
 
 #include "renderer.h"
 
@@ -18,7 +19,7 @@ using namespace Graphics;
 GameState game;
 Camera cam;
 World wrld;
-Console consol;
+//Console consol;
 Player plyr;
 Message msg;
 Script scr;
@@ -33,4 +34,5 @@ void engineMain(int argc, char** argv){
   rend->setInitCB(HQRenderer::initialize);
   rend->setRenderCB(HQRenderer::paint);
   rend->setResizeCB(HQRenderer::resize);
+  Input::Keyboard::instance()->setAsciiCB(HQRenderer::ascii);
 }

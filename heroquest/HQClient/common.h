@@ -24,8 +24,8 @@
 #endif
 
 //progam version
-#define VERSION 0.5
-#define VERSTRING "0.5"
+//#define VERSION 0.5
+//#define VERSTRING "0.5"
 
 //! width of the virtual screen
 //! const int SCREENWIDTH = 1024;

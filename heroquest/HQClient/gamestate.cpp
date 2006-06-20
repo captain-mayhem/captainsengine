@@ -17,11 +17,14 @@
 #include "renderer/font.h"
 #include "gui/gui.h"
 #include "message.h"
-#include "console.h"
+#include "gui/console.h"
 #include "script.h"
 #include "templates.h"
 #include "player.h"
 #include "gamestate.h"
+
+using Gui::InputField;
+using Gui::Button;
 
 //Constructor
 GameState::GameState() : moves_(0){
@@ -38,7 +41,7 @@ void GameState::init(){
   msg.init();
   wrld.init();
   scr.init();
-  void (Message::*p)(const char*);
+  void (*p)(const char*);
   p = &Message::process;
   consol.setCbFunc(p);
 }
@@ -77,7 +80,7 @@ bool GameState::start(){
 
 //run one step further
 void GameState::run(){
-  consol.update();
+  //consol.update();
   cam.update();
   //gl->handleKeys();
   //gl->calculateFrameRate();

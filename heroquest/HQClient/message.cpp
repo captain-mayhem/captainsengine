@@ -27,7 +27,7 @@
 #include "camera.h"
 #include "player.h"
 #include "gamestate.h"
-#include "console.h"
+#include "gui/console.h"
 #include "clientsocket.h"
 #include "socketexception.h"
 #include "script.h"
@@ -40,6 +40,8 @@ using std::vector;
 using std::cerr;
 using std::cin;
 using std::endl;
+
+using Gui::Button;
 
 #define line *System::Engine::instance()->getFont()
 
@@ -105,7 +107,7 @@ void Message::quit(){
 }
 
 //process the line that the user typed in
-void Message::process(const char* cmd){
+void Message::process_(const char* cmd){
 	istringstream temp(cmd);
 	char buffer[1024];
 	int opcode;
@@ -1216,7 +1218,7 @@ void Message::receiver(void* v){
 }
 
 //special console command function
-void Message::special(const string& message, int mode, void* additional){
+void Message::special_(const string& message, int mode, void* additional){
   string toSend;
   switch (mode){
     case LOGIN:
@@ -1235,7 +1237,7 @@ void Message::special(const string& message, int mode, void* additional){
         *h = heros_[selection];
         h->setId(selection);
         consol << "Enter the name of your character: ";
-        void (Message::*p)(const string&, int, void*);
+        void (*p)(const string&, int, void*);
         p = &Message::special;
         consol.setSpecialFunc(p, CREATE, (void*)h);
         break;
@@ -1246,7 +1248,7 @@ void Message::special(const string& message, int mode, void* additional){
         h->setName(message);
         h->setPlayer(plyr.getName());
         if (h->getSpellClasses() > 0){
-          void (Message::*p)(const string&, int, void*);
+          void (*p)(const string&, int, void*);
           p = &Message::special;
           consol.setSpecialFunc(p, SPELL, (void*)h);
           consol << "Enter the spell classes you want to obtain (e.g. \"fire water air\"):";

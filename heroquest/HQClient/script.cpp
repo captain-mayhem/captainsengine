@@ -15,7 +15,7 @@
 #include "world.h"
 #include "script.h"
 #ifdef _CLIENT_
-#include "console.h"
+#include "gui/console.h"
 #include "message.h"
 #include "player.h"
 #include "gamestate.h"

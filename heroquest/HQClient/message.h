@@ -21,6 +21,9 @@
 #include "clientsocket.h"
 #include "item.h"
 
+class Message;
+extern Message msg;
+
 class Hero;
 
 using std::string;
@@ -44,7 +47,7 @@ public:
   //! inits some data structures
   void init();
   //! processes a command from user input
-  void process(const char* cmd);
+  static inline void process(const char* cmd) {msg.process_(cmd);}
   //! receive thread
   /*! this function contains the main loop for the thread
    * that recieves messages from the server
@@ -58,7 +61,7 @@ public:
    * \param mode mode can switch the behaviour of this special function
    * \param additional if additional data is required, it can be passed in here
    */
-  void special(const string& message, int mode, void* additional);
+  inline static void special(const string& message, int mode, void* additional) {msg.special_(message, mode, additional); }
   //! quits the application with notifying the server
   void quit();
   //! returns true if the client is connected to the server
@@ -68,6 +71,10 @@ public:
   //! gets an initial setting value
   string& getSetting(short number);
 private:
+  //! the special function callback
+  void special_(const string& message, int mode, void* additional);
+  //! processes a command from user input
+  void process_(const char* cmd);
   //! maps typed in commands to server opcodes
   map<string,int> cliToSrv_;
   //! all available heros
@@ -80,6 +87,5 @@ private:
   vector<string> settings_;
 };
 
-extern Message msg;
 
 #endif
