@@ -41,6 +41,8 @@ protected:
   float aspect_;
   //! the field of view
   float fieldOV_;
+  //! render 3d
+  bool threeD_;
 };
 
 #endif

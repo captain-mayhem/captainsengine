@@ -5,7 +5,9 @@
 #include "common.h"
 #include "textureManager.h"
 #include "gamestate.h"
+#include "camera.h"
 #include "world.h"
+#include "player.h"
 #include "renderer.h"
 
 #include <GL/gl.h>
@@ -18,6 +20,9 @@ HQRenderer::HQRenderer(Graphics::Renderer* rend){
   //camera
   aspect_ = 1.0;
   fieldOV_ = 40;
+
+  //start with 2D view
+  threeD_ = false;
 }
 
 void HQRenderer::resize_(int width, int height){
@@ -57,7 +62,20 @@ void HQRenderer::paint_(){
   render_->resetModelView();
 
   if (wrld.isLoaded()){
-  
+    //number of moves in the upper right corner
+    System::Engine::instance()->getFont()->glPrint(1000, 750, toStr(game.getMoves()).c_str(), 1);
+    //get the nearest vertices and check them for camera collision
+    Vector3D** worldCollision = wrld.getWorld();
+    cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+    //allow lookat changes by mouse
+    cam.look();
+    //render world without blending
+    glDisable(GL_BLEND);
+    if (threeD_)
+      wrld.render();
+    else
+      wrld.render2D(plyr.isZargon());
+    glEnable(GL_BLEND);
   }
   
   render_->ortho(SCREENWIDTH, SCREENHEIGHT);
