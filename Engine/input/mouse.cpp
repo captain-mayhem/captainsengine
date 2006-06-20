@@ -1,10 +1,13 @@
 #include "../system/engine.h"
 #include "../window/window.h"
 #include "../gui/gui.h"
+#include "../gui/console.h"
 #include "../input/mouse.h"
 
 using Windows::AppWindow;
 using Gui::InputField;
+using Gui::Button;;
+using Gui::Console;
 
 using namespace Input;
 
@@ -35,12 +38,29 @@ void Mouse::buttonDown(int x, int y, int button){
   for (iter = System::Engine::instance()->getInputFields().begin(); iter != System::Engine::instance()->getInputFields().end(); iter++){
     if ((*iter)->isHit(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
       //set only input focus if console is not active
-      //if (!consol.isActive()){
+      if (!System::Engine::instance()->getConsole()->isActive()){
         //another input field was active, so remove cursor
         System::Engine::instance()->setActiveInput(*iter);
         gui_click_ = true;
         break;
-      //}
+      }
+    }
+  }
+
+  list<Button*>::iterator iter2;
+  for (iter2 = System::Engine::instance()->getButtons().begin(); iter2 != System::Engine::instance()->getButtons().end(); iter2++){
+    if ((*iter2)->isClicked(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
+      //allow only clicks if the console is deactivated
+      if (!System::Engine::instance()->getConsole()->isActive()){
+        InputField* input = System::Engine::instance()->getActiveInput();
+        if (input != NULL){
+          input->removeChar();
+        }
+        System::Engine::instance()->setActiveInput(NULL);
+        (*iter2)->process();
+        gui_click_ = true;
+        break;
+      }
     }
   }
     
