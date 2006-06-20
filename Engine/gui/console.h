@@ -21,6 +21,8 @@
 //#include "message.h"
 #include "gui.h"
 
+#define consol (*System::Engine::instance()->getConsole())
+
 using std::string;
 using std::list;
 using std::ostringstream;
