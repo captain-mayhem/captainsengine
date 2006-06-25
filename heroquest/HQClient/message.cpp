@@ -32,6 +32,7 @@
 #include "socketexception.h"
 #include "script.h"
 #include "templates.h"
+#include "menu.h"
 #include "message.h"
 
 using std::istringstream;
@@ -667,37 +668,38 @@ void Message::process(const string& answer){
     
 	case LOGIN:
 		plyr.setStatus(toInt(argv[0]));
+    (line).setColor(1,1,1);
 		consol << "Logged in.";
 		line << "Logged in.";
-    /*  
+    
 		//setup GUI to choose level
-		gl->clearListeners(false);
+    System::Engine::instance()->clearListeners(false);
 		//only the player with admin status can create games
 		if (plyr.getStatus() == 2){
-			output.glPrint(120, 450, "Package:",1, (float)HUGE_VAL);
+			(line).glPrint(120, 450, "Package:",1, (float)HUGE_VAL);
 			Button* but = new Button();
 			but->setPosition(Vector2D(200,450));
 			but->setText("basic");
-			void (Renderer::*p)();
-			p = &Renderer::package;
-			but->setCbFunc(p);
-			gl->addButtonListener(but,false);
+			//void (Renderer::*p)();
+			//p = &Renderer::package;
+			but->setCbFunc(Menu::package);
+      System::Engine::instance()->addButtonListener(but,false);
 
-			output.glPrint(120, 400, "Level:", 1, (float)HUGE_VAL);
+			(line).glPrint(120, 400, "Level:", 1, (float)HUGE_VAL);
 			but = new Button();
 			but->setPosition(Vector2D(200,400));
 			but->setText("maze");
-			p = &Renderer::level;
-			but->setCbFunc(p);
-			gl->addButtonListener(but,false);
+			//p = &Renderer::level;
+			but->setCbFunc(Menu::level);
+      System::Engine::instance()->addButtonListener(but,false);
 
 			but = new Button();
 			but->setPosition(Vector2D(200,300));
 			but->setText("     Load");
-			p = &Renderer::loadLevel;
-			but->setCbFunc(p);
-			gl->addButtonListener(but,false);
-		}*/
+			//p = &Renderer::loadLevel;
+			but->setCbFunc(Menu::loadLevel);
+      System::Engine::instance()->addButtonListener(but,false);
+		}
 	break;
     
 	case LIST:

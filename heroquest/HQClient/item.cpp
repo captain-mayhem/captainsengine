@@ -2,10 +2,10 @@
 #ifdef _CLIENT_
 #include "gamestate.h"
 #else
-#include "../server/gamestate.hh"
-#include "../server/admin.hh"
-#include "opcodes.hh"
-#include "world.hh"
+#include "../HQServer/gamestate.h"
+#include "../HQServer/admin.h"
+#include "opcodes.h"
+#include "world.h"
 #endif
 #include "item.h"
 #include "gui/console.h"

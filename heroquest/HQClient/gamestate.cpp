@@ -21,6 +21,7 @@
 #include "script.h"
 #include "templates.h"
 #include "player.h"
+#include "menu.h"
 #include "gamestate.h"
 
 using Gui::InputField;
@@ -71,9 +72,9 @@ bool GameState::start(){
   but->setPosition(Vector2D(200,300));
   but->setText("   Connect");
   System::Engine::instance()->addButtonListener(but);
-  //void (Renderer::*p)();
+  //void (*p)();
   //p = &Renderer::connect;
-  //but->setCbFunc(p);
+  but->setCbFunc(Menu::connect);
   
   return true;
 }

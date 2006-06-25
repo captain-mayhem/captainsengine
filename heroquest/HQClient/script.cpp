@@ -20,10 +20,10 @@
 #include "player.h"
 #include "gamestate.h"
 #else
-#include "../server/gamestate.hh"
-#include "../server/message.hh"
-#include "../server/player.hh"
-#include "../server/admin.hh"
+#include "../HQServer/gamestate.h"
+#include "../HQServer/message.h"
+#include "../HQServer/player.h"
+#include "../HQServer/admin.h"
 #endif
 #include "opcodes.h"
 #include "templates.h"
