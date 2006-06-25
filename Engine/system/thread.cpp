@@ -35,24 +35,36 @@ void Thread::destroy(){
 }
 
 Mutex::Mutex(){
+#ifdef WIN32
+  mutex_ = CreateMutex(0, FALSE, 0);
+#endif
 #ifdef UNIX
   pthread_mutex_init(&mutex_, NULL);
 #endif
 }
 
 Mutex::~Mutex(){
+#ifdef WIN32
+  CloseHandle(mutex_);
+#endif
 #ifdef UNIX
   pthread_mutex_destroy(&mutex_);
 #endif
 }
 
 void Mutex::lock(){
+#ifdef WIN32
+  WaitForSingleObject(mutex_, INFINITE);
+#endif
 #ifdef UNIX
   pthread_mutex_lock(&mutex_);
 #endif
 }
 
 void Mutex::unlock(){
+#ifdef WIN32
+  ReleaseMutex(mutex_);
+#endif
 #ifdef UNIX
   pthread_mutex_unlock(&mutex_);
 #endif
