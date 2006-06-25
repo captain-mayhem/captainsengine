@@ -105,7 +105,8 @@ class Engine{
     void setActiveInput(::Gui::InputField* field);
     //! get the current input field that should be active
     inline ::Gui::InputField* getActiveInput() {return input_;}
-  
+    //! clears the input and button listeners
+    void clearListeners(bool immediate=true);
   private:
     static Engine* eng;
     Engine();
@@ -143,6 +144,8 @@ class Engine{
     list< ::Gui::InputField*> newIn_;
     //! the new buttons
     list< ::Gui::Button*> newBut_;
+    //! if the input listeners should be cleared
+    bool clear_;
     //! where should the keyboard input go to?
     ::Gui::InputField* input_;
     //! the game console

@@ -49,10 +49,10 @@ void Keyboard::keyDown(int key){
     }
   }
   if (key == KEY_ESCAPE){
-    Gui::Console* consol = System::Engine::instance()->getConsole();
+    Gui::Console* cons = System::Engine::instance()->getConsole();
     //quit console
-    if (consol->isActive()){
-      consol->toggle();
+    if (cons->isActive()){
+      cons->toggle();
       System::Engine::instance()->getActiveInput()->clear();
       System::Engine::instance()->setActiveInput(NULL);
       return;
