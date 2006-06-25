@@ -1,118 +1,163 @@
+/***************************************************************************
+                          main.cpp  -  description
+                             -------------------
+    begin                : Fr Feb 11 13:34:51 CET 2005
+    copyright            : (C) 2005 by Marco Staginski
+    email                : captain@captain-online.de
+ ***************************************************************************/
+
+/***************************************************************************
+ *                                                                         *
+ *   This program is free software; you can redistribute it and/or modify  *
+ *   it under the terms of the GNU General Public License as published by  *
+ *   the Free Software Foundation; either version 2 of the License, or     *
+ *   (at your option) any later version.                                   *
+ *                                                                         *
+ ***************************************************************************/
+
+#include <stdlib.h>
+#include <errno.h>
+#include <time.h>
 #include <iostream>
+#include <string>
+#ifdef WIN32
+#include <direct.h>
+#ifdef _DEBUG
+#include <windows.h>
+#include <crtdbg.h>
+#endif
+#endif
+//#include "SDL.h"
+//#include "SDL_thread.h"
 #include "system/engine.h"
-#include "renderer/renderer.h"
-#include "renderer/font.h"
-#include "math/vector.h"
+#include "system/thread.h"
+#include "serversocket.h"
+#include "../HQClient/socketexception.h"
+#include "../HQClient/opcodes.h"
+#include "../HQClient/world.h"
+#include "../HQClient/script.h"
+#include "message.h"
+#include "admin.h"
+#include "gamestate.h"
 
+using std::vector;
+using std::cout;
 using std::cerr;
-using namespace Math;
-using namespace System;
-using namespace Graphics;
+using std::endl;
+using std::string;
 
-class Rendering{
-private:
-    static VertexBuffer* vb;
-    static Texture* tex;
-    static Font* font;
-public:
-  Rendering(){}
-  ~Rendering(){
-    delete vb;
-    delete tex;
-    delete font;
+
+const string getCwd(){
+  char cwd[2048];
+#ifdef WIN32
+  _getcwd(cwd, 2048);
+#else
+  getcwd(cwd, 2048);
+#endif
+  return string(cwd);
+}
+
+Admin globl;
+Message msg;
+World wrld;
+GameState game;
+System::Mutex mutex;
+Script scr;
+void running(void* s);
+string path;
+
+
+int engineMain(int argc, char* argv[]) {
+#ifdef WIN32
+#ifdef _DEBUG
+#define _CRTDBG_MAP_ALLOC 1
+//int flag = _CrtSetDbgFlag( _CRTDBG_REPORT_FLAG );
+//flag |= _CRTDBG_CHECK_ALWAYS_DF;
+//_CrtSetDbgFlag(flag);
+#endif
+#endif
+  short port;
+
+  if (argc < 2){
+    //cerr << "Usage: HQServer-Linux <port>" << endl;
+    //exit(EXIT_FAILURE);
+    port = 28405;
   }
-  static void init(){
-    Renderer* rend = Engine::instance()->getRenderer();
-    rend->setClearColor(Vector3D(0.5,0.5,0.5));
-    rend->renderMode(Filled);
-    vb = rend->createVertexBuffer();
-    tex = rend->createTexture("textures/font/font.bmp");
-    font = new Font();
-    font->buildFont();
-    
-    vb->create(VB_POSITION | VB_COLOR | VB_TEXCOORD, 8, 36);
-    vb->lockVertexPointer();
-    vb->setPosition(0, Vertex(-1.0, -1.0, -1.0));
-    vb->setColor(0, Color(255,0,0,255));
-    vb->setTexCoord(0, Vec2f(0,0));
-    vb->setPosition(1, Vertex(-1.0, 1.0, -1.0));
-    vb->setColor(1, Color(0,255,0,255));
-    vb->setTexCoord(1, Vec2f(0,1));
-    vb->setPosition(2, Vertex(1.0, 1.0, -1.0));
-    vb->setColor(2, Color(0,0,255,255));
-    vb->setTexCoord(2, Vec2f(1,1));
-    vb->setPosition(3, Vertex(1.0, -1.0, -1.0));
-    vb->setColor(3, Color(0,0,0,255));
-    vb->setTexCoord(3, Vec2f(1,0));
-    vb->setPosition(4, Vertex(-1.0, -1.0, 1.0));
-    vb->setColor(4, Color(255,0,0,255));
-    vb->setTexCoord(4, Vec2f(0,0));
-    vb->setPosition(5, Vertex(-1.0, 1.0, 1.0));
-    vb->setColor(5, Color(255,0,0,255));
-    vb->setTexCoord(5, Vec2f(0,1));
-    vb->setPosition(6, Vertex(1.0, 1.0, 1.0));
-    vb->setColor(6, Color(255,0,0,255));
-    vb->setTexCoord(6, Vec2f(1,1));
-    vb->setPosition(7, Vertex(1.0, -1.0, 1.0));
-    vb->setColor(7, Color(255,0,0,255));
-    vb->setTexCoord(7, Vec2f(1,-1));
-    vb->unlockVertexPointer();
-    short* indices = vb->lockIndexPointer();
-    indices[0] = 0; indices[1] = 1; indices[2] = 2;
-    indices[3] = 0; indices[4] = 2; indices[5] = 3;
-    indices[6] = 4; indices[7] = 6; indices[8] = 5;
-    indices[9] = 4; indices[10] = 7; indices[11] = 6;
-    indices[12] = 4; indices[13] = 5; indices[14] = 1;
-    indices[15] = 4; indices[16] = 1; indices[17] = 0;
-    indices[18] = 3; indices[19] = 2; indices[20] = 6;
-    indices[21] = 3; indices[22] = 6; indices[23] = 7;
-    indices[24] = 1; indices[25] = 5; indices[26] = 6;
-    indices[27] = 1; indices[28] = 6; indices[29] = 2;
-    indices[30] = 4; indices[31] = 0; indices[32] = 3;
-    indices[33] = 4; indices[34] = 3; indices[35] = 7;
-    vb->unlockIndexPointer();
+  else
+	  port = atoi(argv[1]);
+
+  //calculate correct directory;
+  path = string(argv[0]);
+  int t = path.find_last_of('/');
+  if (t != -1 && path[0] != '/'){
+    path.erase(t);
+    globl.setPath(getCwd()+"/"+path+"/");
+  }
+  else{
+    globl.setPath(getCwd()+"/");
+  }
+  path = globl.getPath();
+
+  //mutex = SDL_CreateMutex();
+
+  //now init global data and settings
+  game.init();
+  globl.init();
+
+  try{
+    ServerSocket server(port);
+    //take on connection
+    while (true){
+      ServerSocket* new_sock = new ServerSocket();
+      server.accept(*new_sock);
+
+      //System::Thread* th = SDL_CreateThread(running, (void*)new_sock);
+      System::Thread* th = new System::Thread();
+      th->create(running, (void*)new_sock);
+      
+      globl.add(new_sock,th);
+    }
+  }
+  catch(SocketException& e){
+	  cout << e.description() << endl;
+  }
+  return 0;
+}
+
+void running(void* s){
+  ServerSocket *ss = (ServerSocket*) s;
+
+  // get time
+  time_t times;
+  if (time(&times) == (time_t) -1) {
+    perror("Cannot get time:");
   }
 
-  static void render(){
-    Renderer* rend = Engine::instance()->getRenderer();
-    
-    rend->projection(45, 1.33333333f,1.0, 1000.0);
-    //rend->ortho();
-    rend->clear(ZBUFFER | COLORBUFFER);
-    rend->setColor(255,255,255,255);
-    rend->resetModelView();
-    static float l = -5;
-    //l += 0.0001;
-    rend->lookAt(&Vector3D(0,0,5), &Vector3D(0,0,0), &Vector3D(0,1,0));
-    
-    tex->activate();
-    vb->activate();
-    vb->draw(VB_Triangles);
+  struct tm * broken_times;
+  broken_times = localtime(&times);
 
-    rend->ortho(1024, 768);
-    rend->resetModelView();
-    rend->translate(-512, -384, 0);
-    rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
-    rend->enableBlend(true);
-    font->setColor(0.0,1.0,0);
-    //static int count = 0;
-    //count++;
-    //if (count == 100){
-      font->glPrint(200, 400, "FPS: "+toStr(Engine::instance()->getFPS()), 0);
-    //  count = 0;
-    //}
-    font->render();
-    rend->enableBlend(false);
+  // write time formatted to string
+  char output[18];
+  if (strftime(output, 18, "%d.%m.%Y %H:%M", broken_times) == 0) {
+        printf("Error formating time.");
   }
-};
+  output[16] = '\n';
+  output[17] = '\0';
+  string welcome("\nHero Quest Server v"+string(VERSTRING)+"\nServer Time: ");
+  welcome += output;
+  *ss << welcome;
 
-VertexBuffer* Rendering::vb = NULL;
-Texture* Rendering::tex = NULL;
-Font* Rendering::font = NULL;
+  while(1){
+    string recieve;
+    //int cmd;
 
-void engineMain(){
-  Rendering* rendering = new Rendering();
-  Renderer* rend = Engine::instance()->getRenderer();
-  rend->setRenderCB(rendering->render);
-  rend->setInitCB(rendering->init);
+    try{
+      *ss >> recieve;
+    }
+    catch(SocketException& e){
+      cout << e.description() << endl;
+      globl.end(ss);
+    }
+    msg.process(ss, recieve);
+  }
 }
