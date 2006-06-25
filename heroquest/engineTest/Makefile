@@ -20,7 +20,8 @@ LIBS = $(GL_LIBS) $(X11_LIBS) $(SYS_LIBS)
 # The name of the application and binary
 PROGRAM = Engine-$(OS)
 
-DIRS = input \
+DIRS = gui \
+			 input \
 			 math \
 			 renderer \
 			 system \
@@ -32,7 +33,8 @@ SOURCE2 = #socket.cpp
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 #OBJECT2 = $(patsubst %.cpp,%.o,$(SOURCE2))
-TEMP = $(wildcard ../../Engine/input/*.cpp) \
+TEMP = $(wildcard ../../Engine/gui/*.cpp) \
+	$(wildcard ../../Engine/input/*.cpp) \
 	$(wildcard ../../Engine/math/*.cpp) \
 	$(wildcard ../../Engine/renderer/*.cpp) \
 	$(wildcard ../../Engine/system/*.cpp) \

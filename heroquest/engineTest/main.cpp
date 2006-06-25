@@ -1,7 +1,9 @@
+#include <GL/gl.h>
 #include <iostream>
 #include "system/engine.h"
 #include "renderer/renderer.h"
 #include "renderer/font.h"
+#include "renderer/forms.h"
 #include "math/vector.h"
 
 using std::cerr;
@@ -81,7 +83,7 @@ public:
     rend->clear(ZBUFFER | COLORBUFFER);
     rend->setColor(255,255,255,255);
     rend->resetModelView();
-    static float l = -5;
+    //static float l = -5;
     //l += 0.0001;
     rend->lookAt(Vector3D(0,0,5), Vector3D(0,0,0), Vector3D(0,1,0));
     
@@ -92,10 +94,19 @@ public:
     rend->ortho(1024, 768);
     rend->resetModelView();
     rend->translate(-512, -384, 0);
-    rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
-    rend->enableBlend(true);
+    rend->setColor(0,0,255,255);
+    glDisable(GL_TEXTURE_2D);
+    Forms f;
+    f.activateQuad();
+    rend->translate(100, 100, 0);
+    rend->scale(19, 19, 19);
+    f.drawQuad();
+    rend->translate(-100, -100, 0);
+    //rend->scale(-9.5, -9.5, -9.5);
+    //rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
+    //rend->enableBlend(true);
     Font* fnt = System::Engine::instance()->getFont();
-    fnt->setColor(0.0,1.0,0);
+    fnt->setColor(0.0,1.0,0.0);
     //static int count = 0;
     //count++;
     //if (count == 100){
