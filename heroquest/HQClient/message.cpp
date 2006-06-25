@@ -1214,7 +1214,7 @@ void Message::receiver(void* v){
       msg.process(answer);
     }
     catch (SocketException& e){
-      consol << "Error: " + e.description();
+      System::Log << "Error: " + e.description();
     }
   }
 }

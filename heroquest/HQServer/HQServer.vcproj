@@ -34,7 +34,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib"
+				AdditionalDependencies=" msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Wsock32.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../Engine/lib"
@@ -85,7 +85,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib"
+				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Wsock32.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../Engine/lib"
@@ -125,13 +125,145 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath=".\admin.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\bitset.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\creature.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\door.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\field.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\furniture.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\gameobject.cpp">
+			</File>
+			<File
+				RelativePath=".\gamestate.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\hero.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\inventory.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\item.cpp">
+			</File>
+			<File
 				RelativePath=".\main.cpp">
+			</File>
+			<File
+				RelativePath=".\message.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\monster.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\overlay.cpp">
+			</File>
+			<File
+				RelativePath=".\player.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\script.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\serversocket.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\socket.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\templates.cpp">
+			</File>
+			<File
+				RelativePath="..\HQClient\world.cpp">
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			<File
+				RelativePath=".\admin.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\bitset.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\creature.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\door.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\field.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\furniture.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\gameobject.h">
+			</File>
+			<File
+				RelativePath=".\gamestate.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\hero.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\inventory.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\item.h">
+			</File>
+			<File
+				RelativePath=".\message.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\monster.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\overlay.h">
+			</File>
+			<File
+				RelativePath=".\player.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\script.h">
+			</File>
+			<File
+				RelativePath=".\serversocket.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\socket.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\templates.h">
+			</File>
+			<File
+				RelativePath="..\HQClient\world.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -150,6 +282,12 @@
 		<Filter
 			Name="engine"
 			Filter="">
+			<File
+				RelativePath="..\..\Engine\gui\console.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\console.h">
+			</File>
 			<File
 				RelativePath="..\..\Engine\renderer\DXrenderer.cpp">
 			</File>
@@ -179,6 +317,18 @@
 			</File>
 			<File
 				RelativePath="..\..\Engine\renderer\font.h">
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\forms.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\forms.h">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\gui.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\gui.h">
 			</File>
 			<File
 				RelativePath="..\..\Engine\input\keyboard.cpp">
@@ -241,10 +391,10 @@
 				RelativePath="..\..\Engine\renderer\texture.h">
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\textureManager.cpp">
+				RelativePath="..\..\Engine\system\thread.cpp">
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\textureManager.h">
+				RelativePath="..\..\Engine\system\thread.h">
 			</File>
 			<File
 				RelativePath="..\..\Engine\math\vector.cpp">

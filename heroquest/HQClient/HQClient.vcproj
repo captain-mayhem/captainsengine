@@ -158,9 +158,6 @@
 				RelativePath=".\gamestate.cpp">
 			</File>
 			<File
-				RelativePath=".\gui.cpp">
-			</File>
-			<File
 				RelativePath=".\hero.cpp">
 			</File>
 			<File
@@ -174,6 +171,9 @@
 			</File>
 			<File
 				RelativePath=".\math.cpp">
+			</File>
+			<File
+				RelativePath=".\menu.cpp">
 			</File>
 			<File
 				RelativePath=".\message.cpp">
@@ -274,13 +274,13 @@
 				RelativePath=".\gamestate.h">
 			</File>
 			<File
-				RelativePath=".\gui.h">
-			</File>
-			<File
 				RelativePath=".\inventory.h">
 			</File>
 			<File
 				RelativePath=".\math.h">
+			</File>
+			<File
+				RelativePath=".\menu.h">
 			</File>
 			<File
 				RelativePath=".\message.h">

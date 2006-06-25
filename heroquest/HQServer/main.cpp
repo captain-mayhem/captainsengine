@@ -67,7 +67,7 @@ void running(void* s);
 string path;
 
 
-int engineMain(int argc, char* argv[]) {
+void engineMain(int argc, char** argv) {
 #ifdef WIN32
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC 1
@@ -121,7 +121,7 @@ int engineMain(int argc, char* argv[]) {
   catch(SocketException& e){
 	  cout << e.description() << endl;
   }
-  return 0;
+  //return 0;
 }
 
 void running(void* s){
