@@ -33,3 +33,27 @@ void Thread::destroy(){
 #endif
   //_endthread();
 }
+
+Mutex::Mutex(){
+#ifdef UNIX
+  pthread_mutex_init(&mutex_, NULL);
+#endif
+}
+
+Mutex::~Mutex(){
+#ifdef UNIX
+  pthread_mutex_destroy(&mutex_);
+#endif
+}
+
+void Mutex::lock(){
+#ifdef UNIX
+  pthread_mutex_lock(&mutex_);
+#endif
+}
+
+void Mutex::unlock(){
+#ifdef UNIX
+  pthread_mutex_unlock(&mutex_);
+#endif
+}

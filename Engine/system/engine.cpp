@@ -149,6 +149,7 @@ System::Engine::Engine(){
   fps_ = 0;
   input_ = NULL;
   console_ = NULL;
+  clear_ = false;
   Log << "Engine instance created\n";
 }
 
@@ -223,6 +224,16 @@ void System::Engine::shutdown(){
 void System::Engine::run(){
   //handle physics, KI, ...
   console_->update();
+
+  //something with the GUI elements changed, so update here
+  if (newIn_.size() != 0 || newBut_.size() != 0 || clear_){
+    clear_ = false;
+    clearListeners();
+    listeners_ = newIn_;
+    buttons_ = newBut_;
+    newIn_.clear();
+    newBut_.clear();
+  }
 
   //render scene
   rend_->renderScene();
@@ -299,3 +310,21 @@ void System::Engine::setActiveInput(::Gui::InputField* field){
   input_->addChar('_');
 }
 
+// clears the input and button listeners
+void System::Engine::clearListeners(bool immediate){
+  if (!immediate){
+    clear_ = true;
+    return;
+  }
+  list< ::Gui::InputField* >::iterator iter;
+  for (iter = listeners_.begin(); iter != listeners_.end(); iter++){
+    delete (*iter);
+  }
+  list< ::Gui::Button* >::iterator iter2;
+  for (iter2 = buttons_.begin(); iter2 != buttons_.end(); iter2++){
+    delete (*iter2);
+  }
+  listeners_.clear();
+  buttons_.clear();
+  fnt_->clear();
+}
