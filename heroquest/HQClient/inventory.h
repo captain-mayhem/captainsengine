@@ -33,7 +33,7 @@ class Inventory{
     //! delete item from inventory
     bool deleteItem(string name);
     //! use item from inventory
-    bool useItem(string name, Vector2D pos, Vector2D target);
+    bool useItem(string name, Math::Vector2D pos, Math::Vector2D target);
     //! mounts an armory on the body part
     bool wearArmory(string what, string where1, string where2="");
     //! get worn item

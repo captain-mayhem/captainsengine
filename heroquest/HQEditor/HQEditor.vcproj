@@ -172,6 +172,12 @@
 			Name="engine"
 			Filter="">
 			<File
+				RelativePath="..\..\Engine\gui\console.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\console.h">
+			</File>
+			<File
 				RelativePath="..\..\Engine\renderer\DXrenderer.cpp">
 			</File>
 			<File
@@ -200,6 +206,18 @@
 			</File>
 			<File
 				RelativePath="..\..\Engine\renderer\font.h">
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\forms.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\forms.h">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\gui.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\gui.h">
 			</File>
 			<File
 				RelativePath="..\..\Engine\input\keyboard.cpp">
@@ -260,12 +278,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Engine\renderer\texture.h">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\textureManager.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\textureManager.h">
 			</File>
 			<File
 				RelativePath="..\..\Engine\math\vector.cpp">

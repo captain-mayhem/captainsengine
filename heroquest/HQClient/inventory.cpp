@@ -11,6 +11,7 @@
 #endif
 
 using std::cerr;
+using Math::Vector2D;
 
 Inventory::Inventory(){
   items_.push_back(Item());

@@ -1,7 +1,7 @@
 HQEditor basic\maze.map
 HQEditor basic\trial.map
-copy *.hqm ..\heroquest\levels\basic\
-copy *.lua ..\heroquest\levels\basic\
-copy *.hqm ..\server\levels\basic\
-copy *.lua ..\server\levels\basic\
+copy basic\*.hqm ..\HQClient\levels\basic\
+copy basic\*.lua ..\HQClient\levels\basic\
+copy basic\*.hqm ..\HQServer\levels\basic\
+copy basic\*.lua ..\HQServer\levels\basic\
 cmd

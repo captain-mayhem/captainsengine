@@ -137,9 +137,6 @@
 				RelativePath=".\common.cpp">
 			</File>
 			<File
-				RelativePath=".\console.cpp">
-			</File>
-			<File
 				RelativePath=".\creature.cpp">
 			</File>
 			<File
@@ -257,9 +254,6 @@
 			</File>
 			<File
 				RelativePath=".\common.h">
-			</File>
-			<File
-				RelativePath=".\console.h">
 			</File>
 			<File
 				RelativePath=".\door.h">
