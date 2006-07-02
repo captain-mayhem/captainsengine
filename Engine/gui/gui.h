@@ -23,8 +23,8 @@ using std::string;
 using std::list;
 using std::ostringstream;
 
-using Math::Vector3D;
-using Math::Vector2D;
+//using Math::Vector3D;
+//using Math::Vector2D;
 
 namespace Gui{
 //! a highly customizable text field for user input based on OpenGL
@@ -48,18 +48,18 @@ class InputField{
     //! Sets the position of the input field
     /*! The position is specified by the lower left corner of the field
      */
-    inline void setPosition(Vector2D position) {pos_ = position;}
+    inline void setPosition(::Math::Vector2D position) {pos_ = position;}
     //! Sets the dimensions of the field
     /*! the x-component of span is the width, the y-component the height
      */
-    inline void setSpan(Vector2D span) {span_ = span;}
+    inline void setSpan(::Math::Vector2D span) {span_ = span;}
     //! Sets the opacity of the field
     inline void setOpacity(unsigned char opaque) {opacity_ = opaque;}
     //! Sets the colors of the field
     /*! \param fgCol foreground (text) color of the field (RGB)
      *  \param bgCol background color (RGB)
      */
-    inline void setColors(Vector3D fgCol, ::Graphics::Color bgCol)
+    inline void setColors(::Math::Vector3D fgCol, ::Graphics::Color bgCol)
       {fgColor_ = fgCol, bgColor_ = bgCol;}
     //! Says that the user input has finished
     inline void end() {finished_ = true;}
@@ -72,18 +72,18 @@ class InputField{
     //! Displays the field using OpenGL
     void render();
     //! Returns if the position belongs to the input field
-    bool isHit(const Vector2D& pos);
+    bool isHit(const ::Math::Vector2D& pos);
     //! Hides typed input (for password fields);
     inline void setHidden(bool hide = true) {isHidden_ = hide;}
   private:
     //! position
-    Vector2D pos_;
+    ::Math::Vector2D pos_;
     //! dimensions of the field
-    Vector2D span_;
+    ::Math::Vector2D span_;
     //! background color
     ::Graphics::Color bgColor_;
     //! foreground color
-    Vector3D fgColor_;
+    ::Math::Vector3D fgColor_;
     //! opacity
     unsigned char opacity_;
     //! The font to write the field text with
@@ -108,13 +108,13 @@ class Button{
     //! Destructor
     ~Button();
     //! Is it clicked upon?
-    inline bool isClicked(const Vector2D& pos) {return input_.isHit(pos);}
+    inline bool isClicked(const ::Math::Vector2D& pos) {return input_.isHit(pos);}
     //! sets the button text
     inline void setText(const string& text) { input_.setText(text); }
     //! gets the button text
     inline const string& getText() { return input_.getText(); }
     //! sets the button position
-    inline void setPosition(const Vector2D& pos) {input_.setPosition(pos);}
+    inline void setPosition(const ::Math::Vector2D& pos) {input_.setPosition(pos);}
     //! sets the callback function
     inline void setCbFunc(void (*click)()) { handleClicks_ = click; }
     //! executes the callback function
