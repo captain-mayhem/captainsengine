@@ -57,6 +57,7 @@ int main(int argc, char** argv){
   Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   Display* disp = win->getDisplay();
+  XSynchronize(disp, true);
   
   while(running){
     int x = XPending(disp);
@@ -186,11 +187,13 @@ void System::Engine::startup(int argc, char** argv){
   else{
     rend_ = new ::Graphics::DummyRenderer();
   }
-  Input::Keyboard::init();
-  Input::Mouse::init();
-  engineMain(argc, argv);
   if (graphics_)
     win_->init("Hero-Engine");
+  Input::Keyboard::init();
+  Input::Mouse::init(graphics_);
+  
+  engineMain(argc, argv);
+  
   fnt_ = new ::Graphics::Font();
   fnt_->buildFont();
   forms_ = new ::Graphics::Forms();
@@ -327,4 +330,36 @@ void System::Engine::clearListeners(bool immediate){
   listeners_.clear();
   buttons_.clear();
   fnt_->clear();
+}
+
+
+// remove the input listener at position idx
+void System::Engine::removeInputListener(int idx){
+  list< ::Gui::InputField*>::iterator iter = listeners_.begin();
+  for (int i = 0; i < idx; i++){
+    iter++;
+  }
+  listeners_.erase(iter);
+}
+
+// remove the button listener at position idx
+void System::Engine::removeButtonListener(int idx){
+  list< ::Gui::Button*>::iterator iter = buttons_.begin();
+  for (int i = 0; i < idx; i++){
+    iter++;
+  }
+  delete *iter;
+  buttons_.erase(iter);
+}
+
+// remove all button listeners beginning at idx
+void System::Engine::removeButtonListeners(int idx){
+  list< ::Gui::Button*>::iterator iter = buttons_.begin();
+  for (int i = 0; i < idx; i++){
+    iter++;
+  }
+  while (iter != buttons_.end()){
+    delete *iter;
+    iter = buttons_.erase(iter);
+  }
 }

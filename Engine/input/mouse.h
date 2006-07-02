@@ -26,18 +26,25 @@ namespace Input{
 
   class Mouse{
   public:
-    static void init();
+    ~Mouse();
+    static void init(bool hasGraphics);
     inline static Mouse* instance() {return mouse_;}
     inline static void release() {SAFE_DELETE(mouse_);}
     //! set button down callback
-    inline void setButtonDownCB_(void (*proc)(int x, int y, int button)) {buttonDownCB_ = proc;}
+    inline void setButtonDownCB(void (*proc)(int x, int y, int button)) {buttonDownCB_ = proc;}
     //! set button up callback
-    inline void setButtonUpCB_(void (*proc)(int x, int y, int button)) {buttonUpCB_ = proc;}
+    inline void setButtonUpCB(void (*proc)(int x, int y, int button)) {buttonUpCB_ = proc;}
     //! set mouse move callback
-    inline void setMouseMoveCB_(void (*proc)(int x, int y, int button)) {moveCB_ = proc;}
+    inline void setMouseMoveCB(void (*proc)(int x, int y, int button)) {moveCB_ = proc;}
     void buttonDown(int x, int y, int button);
     void buttonUp(int x, int y, int button);
     void move(int x, int y, int buttons);
+    //! get the position of the last click
+    inline ::Math::Vector2D getClickPos() {return clickPos_;}
+    //! was the last click a gui click
+    inline bool isGuiClick() {return gui_click_;}
+    //! show the cursor
+    void showCursor(bool visible);
   protected:
     static Mouse* mouse_;
     Mouse();
@@ -51,6 +58,14 @@ namespace Input{
     ::Math::Vector2D clickPos_;
     //! was it a click on a gui element?
     bool gui_click_;
+    //! is the mouse pointer present
+    bool mousePointer_;
+#ifdef UNIX
+    //! app has graphics context
+    bool graphics_;
+    //! the invisible cursor
+    Cursor invCursor_;
+#endif
   };
 
 }

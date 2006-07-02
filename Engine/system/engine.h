@@ -107,6 +107,12 @@ class Engine{
     inline ::Gui::InputField* getActiveInput() {return input_;}
     //! clears the input and button listeners
     void clearListeners(bool immediate=true);
+    //! remove the input listener at position idx
+    void removeInputListener(int idx);
+    //! remove the button listener at position idx
+    void removeButtonListener(int idx);
+    //! remove all button listeners beginning at idx
+    void removeButtonListeners(int idx);
   private:
     static Engine* eng;
     Engine();

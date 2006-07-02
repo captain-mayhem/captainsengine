@@ -66,7 +66,7 @@ class Console{
      * \param bgCol background color of the input field
      * \param opaque opacity of the input
      */
-    inline void setParams(Vector3D fgCol, ::Graphics::Color bgCol, unsigned char opaque)
+    inline void setParams(::Math::Vector3D fgCol, ::Graphics::Color bgCol, unsigned char opaque)
       {input_->setColors(fgCol, bgCol); input_->setOpacity(opaque);}
     
     //! returns the text of the input field
@@ -124,13 +124,13 @@ private:
     //! To iterate on the history
     list<string>::iterator histIter_;
     //! position of lower left corner
-    Vector2D pos_;
+    ::Math::Vector2D pos_;
     //! the console dimensions
-    Vector2D span_;
+    ::Math::Vector2D span_;
     //! background color
     ::Graphics::Color bgColor_;
     //! foreground color
-    Vector3D fgColor_;
+    ::Math::Vector3D fgColor_;
     //! opacity
     unsigned char opacity_;
     //! the font for displaying text

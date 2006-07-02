@@ -19,6 +19,8 @@ public:
   inline Display* getDisplay() const {return disp_;}
   //! get window
   inline Window getWindow() const {return win_;}
+  //! get screen
+  inline int getScreen() const {return screen_;}
   //! kill the window
   void kill();
 protected:
