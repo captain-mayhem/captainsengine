@@ -446,6 +446,17 @@ void World::render(){
 		glTexCoord2f(width_,0);
 		glVertex3f(0, WALLHEIGHT, QUADSIZE*height_);
 	glEnd();
+
+  string messg;
+  GLenum errCode;
+
+  const GLubyte *errString;
+/*
+  if( (errCode = glGetError() ) != GL_NO_ERROR ){
+    errString = gluErrorString(errCode);
+    messg = string("An OpenGL error has occurred [") + (const char*)errString + "]";
+    System::Log << messg;
+  }*/
 #endif
 }
 

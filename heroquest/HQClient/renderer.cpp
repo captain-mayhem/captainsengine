@@ -125,6 +125,8 @@ void HQRenderer::initialize_(){
 
 void HQRenderer::paint_(){
   game.run();
+
+  render_->projection(fieldOV_, aspect_, 0.1f, 100.0f);
   
   render_->clear(ZBUFFER | COLORBUFFER);
   render_->setColor(255,255,255,255);
@@ -140,10 +142,11 @@ void HQRenderer::paint_(){
     cam.look();
     //render world without blending
     glDisable(GL_BLEND);
+    //glEnable(GL_TEXTURE_2D);
     if (threeD_)
       wrld.render();
     else
-      wrld.render2D(plyr.isZargon());
+      wrld.render2D(!plyr.isZargon());
     glEnable(GL_BLEND);
   }
   
@@ -176,6 +179,8 @@ void HQRenderer::paint_(){
   }
  
   //render inventory
+  glLoadIdentity();
+  render_->translate(-512, -384, 0);
   if (inventory_){
     inventory_->render();
     inventory_->update();

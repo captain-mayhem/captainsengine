@@ -3,6 +3,8 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
+#include "input/mouse.h"
+
 #include "textureManager.h"
 #include "inventory.h"
 #ifdef _CLIENT_
@@ -12,6 +14,7 @@
 
 using std::cerr;
 using Math::Vector2D;
+using Input::Mouse;
 
 Inventory::Inventory(){
   items_.push_back(Item());
@@ -378,11 +381,11 @@ void Inventory::update(){
 #ifdef _CLIENT_
   if (!visible_)
     return;
-  Vector2D click;// = gl->getMousePos();
+  Vector2D click = Input::Mouse::instance()->getClickPos();
   //forward button
   if (click.x >= 300 && click.x <= 325){
     if (click.y >= 700 && click.y <= 720){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       page_++;
     }
   }
@@ -390,7 +393,7 @@ void Inventory::update(){
   if (click.x >= 180 && click.x <= 200){
     if (click.y >= 700 && click.y <= 720){
       if (page_ > 1){
-        //gl->resetMousePos();
+        Mouse::instance()->resetMousePos();
         page_--;
       }
     }
@@ -398,19 +401,19 @@ void Inventory::update(){
   //first item column
   if (click.x >= 65 && click.x <= 155){
     if (click.y >= 125 && click.y <= 280){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       unsigned idx = 9*(page_-1)+1;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 315 && click.y <= 475){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       unsigned idx = 9*(page_-1)+4;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 510 && click.y <= 670){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       unsigned idx = 9*(page_-1)+7;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
@@ -419,19 +422,19 @@ void Inventory::update(){
   //second item column
   if (click.x >= 210 && click.x <= 300){
     if (click.y >= 125 && click.y <= 280){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       unsigned idx = 9*(page_-1)+2;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 315 && click.y <= 475){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       unsigned idx = 9*(page_-1)+5;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 510 && click.y <= 670){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       unsigned idx = 9*(page_-1)+8;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
@@ -440,19 +443,19 @@ void Inventory::update(){
   //third item column
   if (click.x >= 355 && click.x <= 450){
     if (click.y >= 125 && click.y <= 280){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       unsigned idx = 9*(page_-1)+3;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 315 && click.y <= 475){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       unsigned idx = 9*(page_-1)+6;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];
     }
     else if (click.y >= 510 && click.y <= 670){
-      //gl->resetMousePos();
+      Mouse::instance()->resetMousePos();
       unsigned idx = 9*(page_-1)+9;
       if (idx < items_.size())
         chosenItem_ = &items_[idx];

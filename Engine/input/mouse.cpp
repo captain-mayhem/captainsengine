@@ -24,7 +24,9 @@ Mouse::Mouse(){
   buttonUpCB_ = NULL;
   moveCB_ = NULL;
   mousePointer_ = true;
+#ifdef UNIX
   graphics_ = false;
+#endif
 }
 
 Mouse::~Mouse(){

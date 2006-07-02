@@ -2,6 +2,7 @@
 #define MOUSE_H
 
 #include "../system/engine.h"
+#include "../math/vector.h"
 
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -41,6 +42,8 @@ namespace Input{
     void move(int x, int y, int buttons);
     //! get the position of the last click
     inline ::Math::Vector2D getClickPos() {return clickPos_;}
+    //! reset click position
+    inline void resetMousePos() {clickPos_ = ::Math::Vector2D(-1,-1);}
     //! was the last click a gui click
     inline bool isGuiClick() {return gui_click_;}
     //! show the cursor
