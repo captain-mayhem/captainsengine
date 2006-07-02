@@ -1,0 +1,4 @@
+#/bin/sh
+
+HQEdit basic/maze.map
+HQEdit basic/trial.map
