@@ -1255,7 +1255,7 @@ void World::init(){
 	
 	//furniture
   string temp;
-	string file = path + "../heroquest/data/furniture.dat";
+	string file = "../HQClient/data/furniture.dat";
 	ifstream in2(file.c_str());
 	while(in2 >> temp){
 		Furniture* f = new Furniture();

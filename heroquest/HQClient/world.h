@@ -33,7 +33,7 @@ namespace Graphics{
   class Texture;
 }
 
-using Graphics::Texture;
+//using Graphics::Texture;
 
 
 //! The world in the game

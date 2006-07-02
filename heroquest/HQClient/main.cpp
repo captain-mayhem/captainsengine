@@ -10,6 +10,7 @@
 #include "script.h"
 #include "clientsocket.h"
 #include "input/keyboard.h"
+#include "input/mouse.h"
 
 #include "renderer.h"
 
@@ -19,7 +20,6 @@ using namespace Graphics;
 GameState game;
 Camera cam;
 World wrld;
-//Console consol;
 Player plyr;
 Message msg;
 Script scr;
@@ -34,5 +34,7 @@ void engineMain(int argc, char** argv){
   rend->setInitCB(HQRenderer::initialize);
   rend->setRenderCB(HQRenderer::paint);
   rend->setResizeCB(HQRenderer::resize);
+  Input::Keyboard::instance()->setKeyDownCB(HQRenderer::special);
   Input::Keyboard::instance()->setAsciiCB(HQRenderer::ascii);
+  Input::Mouse::instance()->setButtonDownCB(HQRenderer::buttonDown);
 }

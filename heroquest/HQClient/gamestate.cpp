@@ -26,6 +26,7 @@
 
 using Gui::InputField;
 using Gui::Button;
+using Graphics::Font;
 
 //Constructor
 GameState::GameState() : moves_(0){

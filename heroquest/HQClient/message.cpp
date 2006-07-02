@@ -530,7 +530,7 @@ void Message::process_(const char* cmd){
       break;
     }
     Item it = Templates::instance()->searchItem(argv[0]);
-    if(it.getType() == Item::None)
+    if(it.getType() == Item::NoItem)
       consol << "Sorry, unknown item "+argv[0];
     else{
       consol << it.getDescription();
@@ -724,7 +724,7 @@ void Message::process(const string& answer){
 			//yet logged in, so there exist choose-level-GUI-elements on
 			//the screen and they are no longer needed
 			if (plyr.getStatus() != 0){
-				//gl->clearListeners(false);
+        System::Engine::instance()->clearListeners(false);
 			}
 			break;
 		}
@@ -733,16 +733,16 @@ void Message::process(const string& answer){
 	case PLAY:{
 		if (plyr.getStatus() == 0)
 			break;
-    /*
+    
 		//someone plays a character, so the button to start the game must appear
 		Button* but = new Button();
 		but->setPosition(Vector2D(900, 170));
 		but->setText("Start");
-		void (Renderer::*p)();
-		p = &Renderer::start;
-		but->setCbFunc(p);
-		gl->addButtonListener(but);
-      */
+		//void (Renderer::*p)();
+		//p = &Renderer::start;
+		but->setCbFunc(Menu::start);
+    System::Engine::instance()->addButtonListener(but);
+    
 		if (argv[0] == "zargon"){
 			//you sended the command
 			if (argv.size() == 1){
@@ -770,65 +770,65 @@ void Message::process(const string& answer){
 		game.setState(RUN);
 		consol << "Game started now.\n";
 		{
-		/*//game is running now, so buttons for ingame actions are needed
-		void (Renderer::*p)();
+		//game is running now, so buttons for ingame actions are needed
+		//void (Renderer::*p)();
 
 		Button* but = new Button();
 		but->setPosition(Vector2D(900, 240));
 		but->setText("Attack");
-		p = &Renderer::attack;
-		but->setCbFunc(p);
-		gl->addButtonListener(but, false);
+		//p = &Renderer::attack;
+		but->setCbFunc(Menu::attack);
+    System::Engine::instance()->addButtonListener(but, false);
       
     but = new Button();
     but->setPosition(Vector2D(900, 210));
     but->setText("Search");
-		p = &Renderer::search;
-		but->setCbFunc(p);
-		gl->addButtonListener(but,false);
+		//p = &Renderer::search;
+		but->setCbFunc(Menu::search);
+    System::Engine::instance()->addButtonListener(but,false);
     
     but = new Button();
     but->setPosition(Vector2D(900, 180));
     but->setText("Inventory");
-		p = &Renderer::inventory;
-		but->setCbFunc(p);
-		gl->addButtonListener(but,false);
+		//p = &Renderer::inventory;
+		but->setCbFunc(Menu::inventory);
+    System::Engine::instance()->addButtonListener(but,false);
 
     but = new Button();
     but->setPosition(Vector2D(900, 150));
     but->setText("Trap");
-		p = &Renderer::trapMenu;
-		but->setCbFunc(p);
-		gl->addButtonListener(but,false);
+		//p = &Renderer::trapMenu;
+		but->setCbFunc(Menu::trapMenu);
+    System::Engine::instance()->addButtonListener(but,false);
  
 		but = new Button();
 		but->setPosition(Vector2D(900, 120));
 		but->setText("Open Door");
-		p = &Renderer::open;
-		but->setCbFunc(p);
-		gl->addButtonListener(but,false);
+		//p = &Renderer::open;
+		but->setCbFunc(Menu::open);
+    System::Engine::instance()->addButtonListener(but,false);
 
 		but = new Button();
 		but->setPosition(Vector2D(900, 90));
 		but->setText("Move");
-		p = &Renderer::move;
-		but->setCbFunc(p);
-		gl->addButtonListener(but,false);
+		//p = &Renderer::move;
+		but->setCbFunc(Menu::move);
+    System::Engine::instance()->addButtonListener(but,false);
       
 		but = new Button();
 		but->setPosition(Vector2D(900, 60));
 		but->setText("Other");
-		p = &Renderer::other;
-		but->setCbFunc(p);
-		gl->addButtonListener(but,false);
+		//p = &Renderer::other;
+		but->setCbFunc(Menu::other);
+    System::Engine::instance()->addButtonListener(but,false);
 		
     but = new Button();
 		but->setPosition(Vector2D(900, 30));
 		but->setText("End turn");
-		p = &Renderer::endTurn;
-		but->setCbFunc(p);
-		gl->addButtonListener(but,false);
-    */
+		//p = &Renderer::endTurn;
+		but->setCbFunc(Menu::endTurn);
+    System::Engine::instance()->addButtonListener(but,false);
+    
     //now run level init
     scr.levelInit();
 	}
@@ -961,8 +961,8 @@ void Message::process(const string& answer){
 
 			//void (Renderer::*p)();
 			//p = &Renderer::defend;
-			//but->setCbFunc(p);
-			//gl->addButtonListener(but); 
+			but->setCbFunc(Menu::defend);
+      System::Engine::instance()->addButtonListener(but); 
 		}
 	}
 	break;

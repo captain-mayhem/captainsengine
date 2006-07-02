@@ -176,7 +176,7 @@ Item Templates::getItem(string name){
       return *it;
     it++;
   }
-  return Item("",-1,Item::None);
+  return Item("",-1,Item::NoItem);
 }
 
 vector<Item> Templates::getItems(Item::Type type){
@@ -197,7 +197,7 @@ Item Templates::getArmory(string name){
       return *it;
     it++;
   }
-  return Item("",-1,Item::None);
+  return Item("",-1,Item::NoItem);
 }
 
 Monster Templates::getMonster(string name){
@@ -217,7 +217,7 @@ Item Templates::getSpell(string name){
       return *it;
     it++;
   }
-  return Item("",-1,Item::None);
+  return Item("",-1,Item::NoItem);
 }
 
 vector<Item> Templates::getSpells(string type){
@@ -234,15 +234,15 @@ vector<Item> Templates::getSpells(string type){
 Item Templates::searchItem(string name){
   Item result;
   result = getItem(name);
-  if(result.getType() != Item::None)
+  if(result.getType() != Item::NoItem)
     return result;
   result = getArmory(name);
-  if(result.getType() != Item::None)
+  if(result.getType() != Item::NoItem)
     return result;
   result = getSpell(name);
-  if(result.getType() != Item::None)
+  if(result.getType() != Item::NoItem)
     return result;
-  return Item("",-1,Item::None);
+  return Item("",-1,Item::NoItem);
 }
 
 Overlay* Templates::getOverlay(string brev){

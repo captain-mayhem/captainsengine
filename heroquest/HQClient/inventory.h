@@ -6,19 +6,19 @@
 #include <fstream>
 #include <iostream>
 //#include "array.hh"
-#include "item.h"
 #ifdef _CLIENT_
 #include "renderer/renderer.h"
 //#include "renderer/vertexbuffer.h"
 #include "renderer/font.h"
 #endif
+#include "item.h"
 
 using std::map;
 using std::vector;
 using std::ifstream;
 using std::ofstream;
 
-using Graphics::Font;
+//using Graphics::Font;
 
 class Inventory{
   public:
@@ -80,7 +80,7 @@ class Inventory{
     int breast_;
 #ifdef _CLIENT_
     //! the font
-    Font* fnt_;
+    ::Graphics::Font* fnt_;
     //! the item page to be displayed
     unsigned short page_;
     //! the chosen item

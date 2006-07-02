@@ -1,6 +1,9 @@
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "renderer/forms.h"
+#include "gui/gui.h"
+#include "input/mouse.h"
+#include "input/keyboard.h"
 
 #include "common.h"
 #include "textureManager.h"
@@ -8,9 +11,14 @@
 #include "camera.h"
 #include "world.h"
 #include "player.h"
+#include "menu.h"
+#include "message.h"
 #include "renderer.h"
 
-#include <GL/gl.h>
+//#include <GL/gl.h>
+using Gui::InputField;
+using Gui::Button;
+using Input::Mouse;
 
 HQRenderer* HQRenderer::rend_ = NULL;
 
@@ -23,6 +31,11 @@ HQRenderer::HQRenderer(Graphics::Renderer* rend){
 
   //start with 2D view
   threeD_ = false;
+  // the clicked field
+  clickedField_ = Vector2D(-1,-1);
+  awaitMapClick_ = NULL;
+
+  inventory_ = NULL;
 }
 
 void HQRenderer::resize_(int width, int height){
@@ -30,14 +43,70 @@ void HQRenderer::resize_(int width, int height){
   render_->projection(fieldOV_, aspect_, 0.1f, 100.0f);
 }
 
+//special input
+void HQRenderer::special_(int key){
+  switch (key){
+  case KEY_ESCAPE:
+    msg.quit();
+    break;
+  }
+}
 
-//! ascii input
+// ascii input
 void HQRenderer::ascii_(unsigned char key){
   switch (key){
   case 'y':
     break;
+  case 'q':
+  case 'm':
+    if (game.getState() != RUN)
+      break;
+    threeD_ = !threeD_;
+    if (threeD_ && wrld.isLoaded()){
+      Mouse::instance()->showCursor(false);
+    }
+    else
+      Mouse::instance()->showCursor(true);
+    break;
   }
 }
+
+
+// the button click handling
+void HQRenderer::buttonDown_(int x, int y, int buttons){
+  //clickable map
+  if (game.getState() == PREPARE && !Mouse::instance()->isGuiClick() && clickedField_ == Vector2D(-1,-1)){
+    float dx = (float)wrld.getMapSize().x/SCREENWIDTH;
+    float dy = (float)wrld.getMapSize().y/SCREENHEIGHT;
+    clickedField_.x = (int)(x*dx);
+    clickedField_.y = (int)(y*dy);
+
+    //buttons to add a hero at this position
+    System::Engine::instance()->getFont()->setColor(1,1,1);
+    System::Engine::instance()->getFont()->glPrint(250, 500, "Hero name:", 1, (float)HUGE_VAL);
+    InputField* in = new InputField();
+    in->setPosition(Vector2D(400, 500));
+    System::Engine::instance()->addInputListener(in);
+
+    Button* but = new Button();
+    but->setPosition(Vector2D(400, 450));
+    but->setText("    Play");
+    but->setCbFunc(Menu::play);
+    System::Engine::instance()->addButtonListener(but);
+  }
+  else if (game.getState() == RUN && !Mouse::instance()->isGuiClick() && awaitMapClick_){
+    //awaiting click on map for various ingame functions
+    float dx = (float)wrld.getMapSize().x/SCREENWIDTH;
+    float dy = (float)wrld.getMapSize().y/SCREENHEIGHT;
+    Vector2D click;
+    click.x = (int)(x*dx);
+    click.y = (int)(y*dy);
+    //call function that awaits the click
+    awaitMapClick_(click);
+    awaitMapClick_ = NULL;
+  }
+}
+
 
 void HQRenderer::initialize_(){
   //init textures
@@ -105,14 +174,29 @@ void HQRenderer::paint_(){
     glEnd();
     */
   }
+ 
+  //render inventory
+  if (inventory_){
+    inventory_->render();
+    inventory_->update();
+  }
   
-  Font *f = System::Engine::instance()->getFont();
+  Graphics::Font *f = System::Engine::instance()->getFont();
   f->setColor(0,1,0);
   f->glPrint(20, 720, "Current Frames Per Second: "+toStr(System::Engine::instance()->getFPS()), 0);
   
-  //f->render();
+  //interpolate
  
-  
-  render_->enableBlend(false);
-  
+  render_->enableBlend(false);  
+}
+
+// set the view to 3D
+void HQRenderer::setViewTo3D(bool threeD){
+  threeD_ = threeD;
+  if (threeD_ && wrld.isLoaded()){
+    Mouse::instance()->showCursor(false);
+  }
+  else{
+    Mouse::instance()->showCursor(true);
+  }
 }

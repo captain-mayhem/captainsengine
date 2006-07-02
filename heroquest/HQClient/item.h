@@ -13,13 +13,13 @@ using std::ifstream;
 using std::ofstream;
 using std::string;
 
-using Math::Vector2D;
+//using Math::Vector2D;
 
 class Item{
   public:
     enum Type{
       Armory,
-      None,
+      NoItem,
       Potion,
       Spell,
       Unusable,
@@ -46,7 +46,7 @@ class Item{
     inline void reset() {count_ = 0;}
     inline short getNumber() {return count_;}
     inline bool isValid() {return (id_ != -1 && count_ > 0);}
-    bool use(Vector2D source, Vector2D target);
+    bool use(::Math::Vector2D source, ::Math::Vector2D target);
     //! writes item data
     void write(ofstream& out)const;
     //! reads item data
