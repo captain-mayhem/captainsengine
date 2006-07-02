@@ -824,7 +824,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       Vector2D pos = c->getPosition();
       Inventory* inv = c->getInventory();
       Item it = Templates::instance()->searchItem(argv[0]);
-      if (it.getType() != Item::None){
+      if (it.getType() != Item::NoItem){
         inv->addItem(it);
         string msg = toStr(SPAWN)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0];
         globl.broadcast(msg);
