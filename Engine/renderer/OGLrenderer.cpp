@@ -85,7 +85,9 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
   ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
   glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
 #endif
-  //resizeScene(win->getWidth(), win->getHeight());
+#ifdef WIN32
+  resizeScene(win->getWidth(), win->getHeight());
+#endif
   //initRendering();  
   
 }
@@ -198,7 +200,7 @@ Texture* OGLRenderer::createTexture(string filename){
 }
 
 void OGLRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
-  glLoadIdentity();
+  //glLoadIdentity();
   gluLookAt(position.x, position.y, position.z, look.x, look.y, look.z, up.x, up.y, up.z);
 }
 
