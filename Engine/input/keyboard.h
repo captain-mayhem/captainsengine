@@ -17,6 +17,10 @@
 #define KEY_ESCAPE XK_Escape
 #define KEY_RETURN XK_Return
 #define KEY_UP XK_Up
+#define KEY_W XK_w
+#define KEY_S XK_s
+#define KEY_A XK_a
+#define KEY_D XK_d
 #endif
 
 #include "../system/engine.h"

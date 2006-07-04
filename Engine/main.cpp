@@ -98,7 +98,7 @@ public:
     //static int count = 0;
     //count++;
     //if (count == 100){
-      font->glPrint(200, 400, "FPS: "+toStr(Engine::instance()->getFPS()), 0);
+      font->glPrint(200, 400, ("FPS: "+toStr(Engine::instance()->getFPS())).c_str(), 0);
     //  count = 0;
     //}
     font->render();

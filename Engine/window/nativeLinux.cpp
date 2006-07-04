@@ -78,7 +78,7 @@ void X11Window::init(const std::string& name){
         GrabModeAsync, win_, None, CurrentTime);
   }
   else{
-    attr.event_mask = ExposureMask | KeyPressMask | ButtonPressMask | StructureNotifyMask;
+    attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
     win_ = XCreateWindow(disp_, RootWindow(disp_, vi->screen), 0, 0,
         width_, height_, 0, vi->depth, InputOutput, vi->visual,
         CWBorderPixel | CWColormap | CWEventMask, &attr);
