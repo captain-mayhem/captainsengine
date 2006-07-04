@@ -75,13 +75,13 @@ void Font::killFont(){
   //glDeleteLists(base_,256);
 }
 
-// Stores all neccessary information to render the text
+// Stores all necessary information to render the text
 void Font::glPrint(int x, int y, const char* str, short set, float duration){
   font_data f;
   f.pos.x = x;
   f.pos.y = y;
   f.set = set;
-  f.text = string(str);
+  f.text = new string(str);
   f.rgb = rgb_;
   f.duration = duration;
   q_.push(f);
@@ -128,21 +128,24 @@ void Font::render(){
       
       //The bases are selected such that 
       //the ascii code of a character corresponds to the right list
-      for (unsigned i = 0; i < f.text.size(); i++){
-        buffer_->setVertexOffset(f.text[i]-32+(128*f.set));
+      for (unsigned i = 0; i < f.text->size(); i++){
+        unsigned char tmp = (*f.text)[i]-32;
+        buffer_->setVertexOffset(f.text->at(i)-32+(128*f.set));
         buffer_->draw(VB_Tristrip);
         //increase translation
         rend->translate(10,0,0);
       }
       rend->popMatrix();
     }
+    if (f.duration <= 0)
+      delete f.text;
   }
   q_ = temp;
 }
 
 //simplified glPrint
 void Font::operator<<(const string& text){
-  clear();
+  //clear();
   setColor(1,1,1);
   glPrint(20, 750, text.c_str(), 0, 10);
 }

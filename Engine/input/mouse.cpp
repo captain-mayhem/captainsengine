@@ -4,6 +4,7 @@
 #include "../system/engine.h"
 #include "../window/window.h"
 #include "../window/nativeLinux.h"
+#include "../window/nativeWindows.h"
 #include "../gui/gui.h"
 #include "../gui/console.h"
 #include "../math/vector.h"
@@ -30,6 +31,9 @@ Mouse::Mouse(){
 }
 
 Mouse::~Mouse(){
+#ifdef WIN32
+  //ReleaseCapture();
+#endif
 #ifdef UNIX
   if (!graphics_)
     return;
@@ -40,6 +44,10 @@ Mouse::~Mouse(){
 
 void Mouse::init(bool hasGraphics){
   mouse_ = new Mouse();
+#ifdef WIN32
+  //Windows::WindowsWindow* wnd = dynamic_cast<Windows::WindowsWindow*>(System::Engine::instance()->getWindow());
+  //SetCapture(wnd->getHandle());
+#endif
 #ifdef UNIX
   if (!hasGraphics)
     return;
@@ -146,7 +154,7 @@ void Mouse::showCursor(bool visible){
 
 void Mouse::setMousePos(int x, int y){
 #ifdef WIN32
-#error Implement it.
+  SetCursorPos(x, y);
 #endif
 #ifdef UNIX
   Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());

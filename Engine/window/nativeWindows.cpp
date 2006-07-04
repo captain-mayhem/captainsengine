@@ -42,7 +42,7 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       Input::Keyboard::instance()->ascii((unsigned char)wparam);
       return 0;
     case WM_MOUSEMOVE:
-      Input::Mouse::instance()->move((int)LOWORD(lparam), (int)HIWORD(lparam), (int)wparam);
+      //Input::Mouse::instance()->move((int)LOWORD(lparam), (int)HIWORD(lparam), (int)wparam);
       return 0;
     case WM_LBUTTONDOWN:
       Input::Mouse::instance()->buttonDown((int)LOWORD(lparam), (int)HIWORD(lparam), MK_LBUTTON);
