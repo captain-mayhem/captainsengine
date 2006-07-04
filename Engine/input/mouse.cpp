@@ -143,3 +143,15 @@ void Mouse::showCursor(bool visible){
   }
 #endif
 }
+
+void Mouse::setMousePos(int x, int y){
+#ifdef WIN32
+#error Implement it.
+#endif
+#ifdef UNIX
+  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());
+  XWarpPointer(wnd->getDisplay(), None, wnd->getWindow(), 0, 0, 0, 0, x, y);
+  XEvent useless;
+  XMaskEvent(wnd->getDisplay(), PointerMotionMask, &useless);
+#endif
+}

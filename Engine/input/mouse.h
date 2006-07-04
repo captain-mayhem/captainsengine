@@ -48,6 +48,10 @@ namespace Input{
     inline bool isGuiClick() {return gui_click_;}
     //! show the cursor
     void showCursor(bool visible);
+    //! set mouse position
+    void setMousePos(int x, int y);
+    //! is the mouse visible
+    inline bool isMouseActive() {return mousePointer_;}
   protected:
     static Mouse* mouse_;
     Mouse();

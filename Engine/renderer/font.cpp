@@ -76,7 +76,7 @@ void Font::killFont(){
 }
 
 // Stores all neccessary information to render the text
-void Font::glPrint(int x, int y, const string& str, short set, float duration){
+void Font::glPrint(int x, int y, const char* str, short set, float duration){
   font_data f;
   f.pos.x = x;
   f.pos.y = y;
@@ -143,6 +143,7 @@ void Font::render(){
 //simplified glPrint
 void Font::operator<<(const string& text){
   clear();
+  setColor(1,1,1);
   glPrint(20, 750, text.c_str(), 0, 10);
 }
 
