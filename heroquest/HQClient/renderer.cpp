@@ -1,4 +1,9 @@
+#ifdef WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#endif
 #include <GL/gl.h>
+
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "renderer/forms.h"
@@ -162,7 +167,7 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
 void HQRenderer::mouseMove_(int x, int y, int buttons){
   int width = System::Engine::instance()->getWindow()->getWidth();
   int height = System::Engine::instance()->getWindow()->getHeight();
-  //cerr << x << " " << y << "\n";
+  
   if (x == width/2 && y == height/2)
     return;
   if(threeD_ && !Mouse::instance()->isMouseActive()){
@@ -171,8 +176,8 @@ void HQRenderer::mouseMove_(int x, int y, int buttons){
 
     int xrel = x - mousePos_.x;
     int yrel = y - mousePos_.y;
-    if (xrel == 0 && yrel == 0)
-      return;
+    //if (xrel == 0 && yrel == 0)
+    //  return;
 
     mousePos_.x = width/2;
     mousePos_.y = height/2;
