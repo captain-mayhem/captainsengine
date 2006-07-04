@@ -937,13 +937,14 @@ void Message::process(const string& answer){
 
 	case ATTACK:
 	{
-		//get creature to attack
+    //get creature to attack
 		Vector2D pos(toInt(argv[0]), toInt(argv[1]));
 		GameObject* o = wrld.getObject(pos);
 		Creature* creat = dynamic_cast<Creature*>(o);
 		int num = toInt(argv[2]);
 		string result = "";
 		int skull_count = 0;
+    //cerr << num << " ";
 		for (int i = 0; i < num; i++){
 			result += argv[3+i] + " ";
 			if (argv[3+i] == "Skull"){

@@ -457,9 +457,12 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(SCRIPT)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0]+" "+argv[1]+" 0 attack";
         wait();
         wait();
+        //wait();
 	      //everything is correct, throw attack dices
 	      game.performAction();
 	      *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+        //wait();
+        //wait();
         //short num = getCreature()->getAttack();
         string name = getCreature()->getName();
 	      short skulls = 0;

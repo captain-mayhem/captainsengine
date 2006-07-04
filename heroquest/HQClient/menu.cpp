@@ -222,6 +222,7 @@ void Menu::play(){
   list<InputField*>::iterator iter = System::Engine::instance()->getInputFields().begin();
   int position = -1;
   for (int i = 0; i < wrld.getHeroSize(); i++){
+    //cerr << HQRenderer::instance()->getClickedField().x << " " << HQRenderer::instance()->getClickedField().y << "\n";
     if (HQRenderer::instance()->getClickedField() == wrld.getStarts()[i]){
       position = i;
       break;

@@ -34,6 +34,11 @@
 
 //! waits a short period to avoid buffer overflow
 inline void wait(){
+#ifdef UNIX
+  struct timespec ts;
+  ts.tv_nsec = 3000000;
+  nanosleep(&ts, NULL);
+#endif
   //SDL_Delay(3);
 }
 

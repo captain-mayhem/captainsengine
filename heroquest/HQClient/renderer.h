@@ -33,10 +33,14 @@ public:
   inline static void ascii(unsigned char key) {rend_->ascii_(key);}
   //! the callback for special characters
   inline static void special(int key) {rend_->special_(key);}
+  //! the callback for key up
+  inline static void keyUp(int key) {rend_->keyUp_(key);}
   //! the resize callback
   inline static void resize(int width, int height) {rend_->resize_(width, height);}
   //! the callback for mouse clicks
   inline static void buttonDown(int x, int y, int buttons) {rend_->buttonDown_(x, y, buttons);}
+  //! the mouse move callback
+  inline static void mouseMove(int x, int y, int buttons) {rend_->mouseMove_(x, y, buttons);}
   //! get the clicked field
   inline Math::Vector2D getClickedField() {return clickedField_;}
   //! reset the clicked field
@@ -60,18 +64,31 @@ protected:
   void ascii_(unsigned char key);
   //! special button input
   void special_(int key);
+  //! key up callbak
+  void keyUp_(int key);
   //! the button clicks
   void buttonDown_(int x, int y, int buttons);
+  //! the mouse motion
+  void mouseMove_(int x, int y, int buttons);
+  //! handle keys continously
+  void handleKeys();
+  
   //! renderer
   static HQRenderer* rend_;
   //! the engine renderer
   Graphics::Renderer* render_;
+  //! ask before quitting app
+  bool ask_;
   //! the aspect
   float aspect_;
   //! the field of view
   float fieldOV_;
   //! render 3d
   bool threeD_;
+  //! the pressed keys
+  bool keys_[256];
+  //! the mouse position
+  Math::Vector2D mousePos_;
   //! the clicked field
   Math::Vector2D clickedField_;
   //! if map click is awaited

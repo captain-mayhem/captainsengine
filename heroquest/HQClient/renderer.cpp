@@ -1,9 +1,11 @@
+#include <GL/gl.h>
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "renderer/forms.h"
 #include "gui/gui.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
+#include "window/window.h"
 
 #include "common.h"
 #include "textureManager.h"
@@ -15,7 +17,8 @@
 #include "message.h"
 #include "renderer.h"
 
-//#include <GL/gl.h>
+#define line *System::Engine::instance()->getFont()
+
 using Gui::InputField;
 using Gui::Button;
 using Input::Mouse;
@@ -24,16 +27,22 @@ HQRenderer* HQRenderer::rend_ = NULL;
 
 HQRenderer::HQRenderer(Graphics::Renderer* rend){
   render_ = rend;
-  
+  ask_ = false;
+
   //camera
   aspect_ = 1.0;
   fieldOV_ = 40;
 
+  for (int i = 0; i < 256; i++){
+    keys_[i] = false;
+  }
+  
   //start with 2D view
   threeD_ = false;
   // the clicked field
   clickedField_ = Vector2D(-1,-1);
   awaitMapClick_ = NULL;
+  mousePos_ = Vector2D(0,0);
 
   inventory_ = NULL;
 }
@@ -47,15 +56,58 @@ void HQRenderer::resize_(int width, int height){
 void HQRenderer::special_(int key){
   switch (key){
   case KEY_ESCAPE:
-    msg.quit();
+    line << "Do you really want to quit (y/n)";
+    ask_ = true;
     break;
+  case KEY_W:
+  case KEY_S:
+  case KEY_A:
+  case KEY_D:
+    keys_[key] = true;
   }
+}
+
+//key up
+void HQRenderer::keyUp_(int key){
+  switch (key){
+  case KEY_W:
+  case KEY_S:
+  case KEY_A:
+  case KEY_D:
+    keys_[key] = false;
+  }
+}
+
+// handle keys continously
+void HQRenderer::handleKeys(){
+  float speed = cam.getSpeed()*System::Engine::instance()->getFrameInterval();
+  if (keys_[KEY_W])
+    cam.moveCamera(speed);
+  if (keys_[KEY_S])
+    cam.moveCamera(-speed);
+  if (keys_[KEY_A])
+    cam.strafeCamera(-speed);
+  if (keys_[KEY_D])
+    cam.strafeCamera(speed);
 }
 
 // ascii input
 void HQRenderer::ascii_(unsigned char key){
   switch (key){
   case 'y':
+    //quit application
+    if (ask_)
+      msg.quit();
+    break;
+  case 'n':
+    ask_ = false;
+    line << " ";
+    break;
+  case 'f':
+    //lock/unlock mouse pointer in 3D
+    if (threeD_){
+      Mouse::instance()->showCursor(!Mouse::instance()->isMouseActive());
+    }
     break;
   case 'q':
   case 'm':
@@ -107,6 +159,61 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
   }
 }
 
+void HQRenderer::mouseMove_(int x, int y, int buttons){
+  int width = System::Engine::instance()->getWindow()->getWidth();
+  int height = System::Engine::instance()->getWindow()->getHeight();
+  //cerr << x << " " << y << "\n";
+  if (x == width/2 && y == height/2)
+    return;
+  if(threeD_ && !Mouse::instance()->isMouseActive()){
+    float angleY = 0.0f;
+    float angleZ = 0.0f;
+
+    int xrel = x - mousePos_.x;
+    int yrel = y - mousePos_.y;
+    if (xrel == 0 && yrel == 0)
+      return;
+
+    mousePos_.x = width/2;
+    mousePos_.y = height/2;
+    Mouse::instance()->setMousePos(width/2, height/2);
+
+    angleY = (float) (-xrel)/400.0f;
+    angleZ = (float) (-yrel)/400.0f;
+
+    cam.setLastRotX(cam.getCurrRotX());
+    cam.setCurrRotX(cam.getCurrRotX()+angleZ);
+
+    Vector3D look = cam.view();
+    Vector3D pos = cam.position();
+    Vector3D up = cam.upVector();
+    Vector3D axis = (look - pos).cross(up);
+    axis = axis.normalized();
+
+    //stop camera from going too high or too low
+    if (cam.getCurrRotX() > 1.0){
+      cam.setCurrRotX(1.0);
+      if (cam.getLastRotX() != 1.0f){
+        cam.rotateView(1.0f - cam.getLastRotX(), axis);
+      }
+    }
+    else if (cam.getCurrRotX() < -1.0){
+      cam.setCurrRotX(-1.0);
+      if (cam.getLastRotX() != -1.0f){
+        cam.rotateView(-1.0f - cam.getLastRotX(), axis);
+      }
+    }
+    else{
+      cam.rotateView(angleZ, axis);
+    }
+    cam.rotateView(angleY, Vector3D(0.0, 1.0, 0.0));
+  }
+  else{
+    mousePos_.x = x;
+    mousePos_.y = y;
+  }
+}
+
 
 void HQRenderer::initialize_(){
   //init textures
@@ -117,6 +224,20 @@ void HQRenderer::initialize_(){
   //init game
   game.init();
 
+  //setup some nice dark fog
+  float fogColor[4] = {0, 0, 0, 1};
+  glFogi(GL_FOG_MODE, GL_EXP2);
+  glFogfv(GL_FOG_COLOR, fogColor);
+  glFogf(GL_FOG_DENSITY, 0.035f);
+  glHint(GL_FOG_HINT, GL_DONT_CARE);
+  glFogf(GL_FOG_START, 0.0);
+  glFogf(GL_FOG_END, 100.0);
+  glEnable(GL_FOG);
+
+  //back face culling
+  glCullFace(GL_BACK);
+  glEnable(GL_CULL_FACE);
+
   //start game
   if (!game.start())
     EXIT();
@@ -125,6 +246,7 @@ void HQRenderer::initialize_(){
 
 void HQRenderer::paint_(){
   game.run();
+  handleKeys();
 
   render_->projection(fieldOV_, aspect_, 0.1f, 100.0f);
   
@@ -188,9 +310,22 @@ void HQRenderer::paint_(){
   
   Graphics::Font *f = System::Engine::instance()->getFont();
   f->setColor(0,1,0);
-  f->glPrint(20, 720, "Current Frames Per Second: "+toStr(System::Engine::instance()->getFPS()), 0);
+  f->glPrint(20, 720, ("Current Frames Per Second: "+toStr(System::Engine::instance()->getFPS())).c_str(), 0);
   
-  //interpolate
+  //interpolate hero positions
+  for (int i = 0; i < wrld.getHeroSize(); i++){
+    if (wrld.getStarts()[i] != Vector2D(-1,-1))
+      continue;
+    wrld.getHeros()[i].update();
+  }
+
+  //interpolate hero positions
+  if (wrld.isLoaded()){
+    for (unsigned i = 0; i < wrld.getMonsters().size(); i++){
+      if (wrld.getMonsters()[i]->getStatus())
+        wrld.getMonsters()[i]->update();
+    }
+  }
  
   render_->enableBlend(false);  
 }

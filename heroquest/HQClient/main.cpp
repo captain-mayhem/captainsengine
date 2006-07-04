@@ -35,6 +35,8 @@ void engineMain(int argc, char** argv){
   rend->setRenderCB(HQRenderer::paint);
   rend->setResizeCB(HQRenderer::resize);
   Input::Keyboard::instance()->setKeyDownCB(HQRenderer::special);
+  Input::Keyboard::instance()->setKeyUpCB(HQRenderer::keyUp);
   Input::Keyboard::instance()->setAsciiCB(HQRenderer::ascii);
   Input::Mouse::instance()->setButtonDownCB(HQRenderer::buttonDown);
+  Input::Mouse::instance()->setMouseMoveCB(HQRenderer::mouseMove);
 }

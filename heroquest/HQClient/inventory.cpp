@@ -330,6 +330,7 @@ void Inventory::render(){
   Creature* c = plyr.getCreature();
   fnt_->setColor(0,255,255);
   fnt_->glPrint(600, 700, ("Name: "+c->getName()).c_str(), 0);
+  //fnt_->glPrint(177, 50, ("Name: "+c->getName()), 0);
   fnt_->glPrint(800, 700, ("Race: "+c->getType()).c_str(), 0);
   fnt_->glPrint(600, 680, ("Attack: "+toStr(c->getAttack())).c_str(), 0);
   fnt_->glPrint(800, 680, ("Defense: "+toStr(c->getDefence())).c_str(), 0);
