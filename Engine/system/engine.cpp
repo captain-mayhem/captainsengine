@@ -1,6 +1,7 @@
 #include "../renderer/OGLrenderer.h"
 #include "../renderer/DXrenderer.h"
 #include "../renderer/dummyrenderer.h"
+#include "../input/mouse.h"
 #include "engine.h"
 
 extern void engineMain(int argc, char** argv);
@@ -26,6 +27,10 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
+    //Do not use WM_MouseMove-Event, because it causes the cursor to freeze
+    POINT p;
+    GetCursorPos(&p);
+    Input::Mouse::instance()->move(p.x, p.y, 0);
     System::Engine::instance()->run();
     if (System::Engine::instance()->getRenderer()->getRenderType() == Graphics::OpenGL){
       SwapBuffers(dynamic_cast<Graphics::OGLRenderer*>(System::Engine::instance()->getRenderer())->getDevice());
@@ -38,7 +43,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int
 
 #include "../window/nativeLinux.h"
 #include "../input/keyboard.h"
-#include "../input/mouse.h"
 #include "../renderer/font.h"
 #include "../renderer/forms.h"
 #include "../gui/gui.h"

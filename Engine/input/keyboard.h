@@ -9,6 +9,10 @@
 #define KEY_ESCAPE VK_ESCAPE
 #define KEY_RETURN VK_RETURN
 #define KEY_UP VK_UP
+#define KEY_W 'W'
+#define KEY_S 'S'
+#define KEY_A 'A'
+#define KEY_D 'D'
 #endif
 #ifdef UNIX
 #include <X11/keysym.h>

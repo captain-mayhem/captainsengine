@@ -26,13 +26,13 @@ namespace Graphics{
 
 class Texture;
 
-//! encapsulates font data with all neccessary variables to be able to be rendered
+//! encapsulates font data with all necessary variables to be able to be rendered
 struct font_data{
   //! position of the text
   ::Math::Vector2D pos;
   //! the text
-  string text;
-  //! which font set shound be used
+  string* text;
+  //! which font set should be used
   short set;
   //! the font color
   Color rgb;
@@ -63,7 +63,7 @@ public:
    * \param set the font set to use
    * \param duration how long the text should be displayed
    */
-  void glPrint(int x, int y, const char* str, short set, float duration=0.001f);
+  void glPrint(int x, int y, const char* str, short set, float duration=0.00f);
   //! sets the color of the text
   void setColor(float r, float g, float b);
   //! renders the text
