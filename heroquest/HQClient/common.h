@@ -36,6 +36,7 @@
 inline void wait(){
 #ifdef UNIX
   struct timespec ts;
+  ts.tv_sec = 0;
   ts.tv_nsec = 3000000;
   nanosleep(&ts, NULL);
 #endif

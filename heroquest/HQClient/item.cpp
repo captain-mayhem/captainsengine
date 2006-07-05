@@ -13,6 +13,11 @@
 Item::Item(){
   count_ = 1;
   id_ = -1;
+  type_ = NoItem;
+  name_ = "";
+  additional_ = "";
+  description_ = "";
+
 }
 
 Item::Item(const Item& it){
@@ -21,7 +26,7 @@ Item::Item(const Item& it){
   id_ = it.id_;
   count_ = it.count_;
   type_ = it.type_;
-  description_ = it.description_;
+  description_ = string(it.description_);
 }
 
 Item Item::operator=(Item it){
@@ -30,7 +35,7 @@ Item Item::operator=(Item it){
   id_ = it.id_;
   count_ = it.count_;
   type_ = it.type_;
-  description_ = it.description_;
+  description_ = string(it.description_);
   return *this;
 }
 
