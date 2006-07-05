@@ -145,7 +145,7 @@ void Font::render(){
 
 //simplified glPrint
 void Font::operator<<(const string& text){
-  //clear();
+  clear();
   setColor(1,1,1);
   glPrint(20, 750, text.c_str(), 0, 10);
 }
