@@ -26,6 +26,10 @@ public:
   Vector3D(float x, float y, float z) {
     this->x = x; this->y = y; this->z = z;
   }
+  //! Constructor that inits the vector with an array
+  Vector3D(float data[3]){
+    x = data[0]; y = data[1]; z = data[2];
+  }
   //! Destructor
   ~Vector3D();
   //! cast
