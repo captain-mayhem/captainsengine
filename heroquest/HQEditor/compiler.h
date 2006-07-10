@@ -114,6 +114,12 @@ private:
     char script[2];
     ::Math::Vector2D pos;
   };
+
+  struct Tile{
+    short id;
+    ::Math::Vector3D translation;
+    float rotation;
+  };
 	
 	//! the monsters
 	vector<monsterPos> monsters_;
@@ -126,6 +132,9 @@ private:
 
   //! the scripts
   vector<scriptPos> scripts_;
+
+  //! the tiles
+  vector<Tile> tiles_;
 };
 
 #endif

@@ -230,6 +230,11 @@ void Compiler::write(string filename){
       f.texCoords[counter++] = Vec2f(1,0);
       f.vertices[counter] = Vector3D(i*QUADSIZE         , 0, j*QUADSIZE+QUADSIZE);
       f.texCoords[counter++] = Vec2f(0,0);
+      Tile t;
+      t.id = 0;
+      t.translation = Vector3D(i*QUADSIZE+QUADSIZE/2, 0, j*QUADSIZE+QUADSIZE/2);
+      t.rotation = 0;
+      tiles_.push_back(t);
       //top walls
       if (f.wallbits.test(TOP)){
         int LEFTTHICK = -THICKNESS;
@@ -564,7 +569,7 @@ void Compiler::write(string filename){
 	      f.texCoords[counter++] = Vec2f((float)THICKNESS/QUADSIZE,(float)THICKNESS/QUADSIZE);
         f.vertices[counter] = Vector3D(i*QUADSIZE, DOORHEIGHT, j*QUADSIZE+DOORTHICK);
 	      f.texCoords[counter++] = Vec2f(1-(float)THICKNESS/QUADSIZE,0);
-	      f.vertices[counter] = Vector3D(i*QUADSIZE, DOORHEIGHT, j*QUADSIZE+QUADSIZE-DOORTHICK);
+	      f.vertices[counter] = Vector3D(i*QUADSIZE, DOORHEIghT, j*QUADSIZE+QUADSIZE-DOORTHICK);
 	      f.texCoords[counter++] = Vec2f((float)THICKNESS/QUADSIZE,0);
       }
       
