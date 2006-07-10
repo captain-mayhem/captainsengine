@@ -1,6 +1,8 @@
 #include <string>
 #include <vector>
 
+#include "../math/matrix.h"
+
 namespace Graphics{
 
 class VertexBuffer;
@@ -17,11 +19,12 @@ public:
   ~Model();
   void loadFromHMB(const std::string& filename);
   inline void activate() {vb_->activate();}
-  inline void draw() {vb_->draw(VB_TRIANGLES);}
+  inline void draw() {vb_->draw(VB_Triangles);}
 private:
   std::vector<VerTexNorm> vertices_;
   std::vector<unsigned short> indices_;
   VertexBuffer* vb_;
+  Math::Matrix transform_;
 };
 
 }
