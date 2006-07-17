@@ -3,6 +3,7 @@
 #include <list>
 #include <vector>
 #include <set>
+#include <string>
 #include "glm.h"
 
 using std::ofstream;
@@ -11,6 +12,7 @@ using std::list;
 using std::set;
 using std::pair;
 using std::vector;
+using std::string;
 
 struct vtn{
   long v;
@@ -41,8 +43,12 @@ int main(int argc, char** argv){
   GLMmodel* model = glmReadOBJ(argv[1]);
   glmVertexNormals(model, 90.0, GL_TRUE);
   //glmWriteOBJ(model, "test.obj", GLM_SMOOTH | GLM_TEXTURE);
-  
-  ofstream out("test.hmb", ios::binary);
+ 
+  string output(argv[1]);
+  output[output.size()-3] = 'h';
+  output[output.size()-2] = 'm';
+  output[output.size()-1] = 'b';
+  ofstream out(output.c_str(), ios::binary);
 
   vector<VerTexNorm> points;
   vector<unsigned short> indices;

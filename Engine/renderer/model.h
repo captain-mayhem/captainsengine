@@ -1,7 +1,11 @@
+#ifndef MODEL_H
+#define MODEL_H
+
 #include <string>
 #include <vector>
 
 #include "../math/matrix.h"
+#include "vertexbuffer.h"
 
 namespace Graphics{
 
@@ -28,4 +32,6 @@ private:
 };
 
 }
+
+#endif
 
