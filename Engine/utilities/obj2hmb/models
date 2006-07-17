@@ -1,0 +1,2 @@
+obj2hmb ../../../heroquest/HQClient/models/world/ground.obj
+mv ../../../heroquest/HQClient/models/world/ground.hmb ../../../heroquest/HQClient/models/
