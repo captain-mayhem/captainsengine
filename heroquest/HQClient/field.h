@@ -13,6 +13,7 @@
 #define FIELD_HH
 
 #include "math/vector.h"
+#include "renderer/model.h"
 #include "bitset.h"
 #include "gameobject.h"
 //#include "script.hh"
@@ -78,6 +79,8 @@ public:
   Vector3D *vertices;
   //! the texture coordinates
   Vec2f *texCoords;
+  //! the models
+  Graphics::Model *models;
   //! object storage, if two creatures try to cross
   /*! If two creatures are on the same field, the first
    * is stored here

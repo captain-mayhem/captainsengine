@@ -2,6 +2,9 @@
 #define TEMPLATES_HH
 
 #include <vector>
+
+#include "renderer/model.h"
+
 #include "item.h"
 #include "monster.h"
 #include "overlay.h"
@@ -51,6 +54,8 @@ class Templates{
     vector<Item> spells_;
     //! the overlays
     vector<Overlay*> overlays_;
+    //! the template models
+    vector<Graphics::Model> models_;
 };
 
 #endif

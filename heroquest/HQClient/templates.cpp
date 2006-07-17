@@ -7,6 +7,8 @@
 using std::ifstream;
 using std::string;
 
+using Graphics::Model;
+
 extern string path;
 
 Templates* Templates::templ = NULL;
@@ -165,7 +167,26 @@ void Templates::load(){
     overlays_.push_back(o);
   }
   in5.close();
-  
+ 
+  //read models
+  file = path + "../HQClient/models/models.dat";
+  ifstream in6(file.c_str());
+  if (!in6){
+    cerr << "Could not load models.dat";
+  }
+  string name;
+  int idx;
+  int number;
+  in6 >> temp;
+  in6 >> number;
+  for (int i = 0; i < number; i++){
+    in6 >> name;
+    in6 >> idx;
+    Model mod;
+    mod.loadFromHMB("../HQClient/models/"+name);
+    models_.push_back(mod);
+  }
+  in6.close();
 
 }
 
