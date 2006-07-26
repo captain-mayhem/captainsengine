@@ -477,7 +477,7 @@ void Menu::trapMenu(){
   but->setPosition(Vector2D(900, 180));
   but->setText("Jump");
 	//p = &Renderer::trap;
-	but->setCbFunc(trap);
+	but->setCbFunc(jump);
   System::Engine::instance()->addButtonListener(but);
   
   but = new Button();
@@ -492,6 +492,28 @@ void Menu::disarm(){
   Vector2D pos = cam.modelPos();
   Direction d = cam.getLookDirection();
   string cmd = "disarm ";
+  switch(d){
+    case TOP:
+      cmd += "w";
+      break;
+    case RIGHT:
+      cmd += "d";
+      break;
+    case BOTTOM:
+      cmd += "s";
+      break;
+    case LEFT:
+      cmd += "a";
+      break;
+  }
+  msg.process(cmd.c_str());
+  mainMenu();
+}
+
+void Menu::jump(){
+  Vector2D pos = cam.modelPos();
+  Direction d = cam.getLookDirection();
+  string cmd = "jump ";
   switch(d){
     case TOP:
       cmd += "w";

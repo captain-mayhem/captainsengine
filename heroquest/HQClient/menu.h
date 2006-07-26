@@ -54,6 +54,8 @@ public:
   static void trapMenu();
   //! disarm button
   static void disarm();
+  //! jump over traps
+  static void jump();
   //! other button
   static void other();
   //! whois button
