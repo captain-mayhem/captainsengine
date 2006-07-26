@@ -90,10 +90,13 @@ void engineMain(int argc, char** argv){
         }
         //or a door
         else if (c == 'D'){
-          cmp.setDoor(Vector2D(i,j), TOP, false);
+          cmp.setDoor(Vector2D(i,j), TOP, 0);
         }
         else if (c == 'S'){
-          cmp.setDoor(Vector2D(i,j), TOP, true);
+          cmp.setDoor(Vector2D(i,j), TOP, 1);
+        }
+        else if (c == 'H'){
+          cmp.setDoor(Vector2D(i,j), TOP, 2);
         }
       }
 
@@ -112,10 +115,13 @@ void engineMain(int argc, char** argv){
         }
         //or a door?
         else if (c == 'D'){
-          cmp.setDoor(Vector2D(i,j), LEFT, false);
+          cmp.setDoor(Vector2D(i,j), LEFT, 0);
         }
         else if (c == 'S'){
-          cmp.setDoor(Vector2D(i,j), LEFT, true);
+          cmp.setDoor(Vector2D(i,j), LEFT, 1);
+        }
+        else if (c == 'H'){
+          cmp.setDoor(Vector2D(i,j), LEFT, 2);
         }
       }
 
@@ -129,10 +135,13 @@ void engineMain(int argc, char** argv){
           cmp.setWall(Vector2D(i,j), RIGHT);
         }
         else if (c == 'D'){
-          cmp.setDoor(Vector2D(i,j), RIGHT, false);
+          cmp.setDoor(Vector2D(i,j), RIGHT, 0);
         }
         else if (c == 'S'){
-          cmp.setDoor(Vector2D(i,j), RIGHT, true);
+          cmp.setDoor(Vector2D(i,j), RIGHT, 1);
+        }
+        else if (c == 'H'){
+          cmp.setDoor(Vector2D(i,j), RIGHT, 2);
         }
       }
 
@@ -214,10 +223,13 @@ void engineMain(int argc, char** argv){
         }
         //or a door?
         else if (c == 'D'){
-          cmp.setDoor(Vector2D(i,j), BOTTOM, false);
+          cmp.setDoor(Vector2D(i,j), BOTTOM, 0);
         }
         else if (c == 'S'){
-          cmp.setDoor(Vector2D(i,j), BOTTOM, true);
+          cmp.setDoor(Vector2D(i,j), BOTTOM, 1);
+        }
+        else if (c == 'H'){
+          cmp.setDoor(Vector2D(i,j), BOTTOM, 2);
         }
       }
     }

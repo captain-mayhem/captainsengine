@@ -91,7 +91,7 @@ bool Compiler::isDoor(short x, short y, Direction dir) const{
 }
 	
 //set a door
-void Compiler::setDoor(const Vector2D& pos, Direction d, bool isSecret){
+void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   map_[pos.y][pos.x].doorbits.set(d);
   //see, if door is already stored, because each door is parsed two times (lower line of one field and upper line of the
   //other field)
@@ -146,11 +146,7 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, bool isSecret){
     //the door is closed in the beginning
     newDoor.setActive();
     //the door type is stored in the id
-    if (isSecret){
-      newDoor.setId(1);
-    }
-    else
-      newDoor.setId(0);
+    newDoor.setId(type);
     //save door and get index
     doors_.push_back(newDoor);
     idx = (int)doors_.size()-1; 
@@ -569,7 +565,7 @@ void Compiler::write(string filename){
 	      f.texCoords[counter++] = Vec2f((float)THICKNESS/QUADSIZE,(float)THICKNESS/QUADSIZE);
         f.vertices[counter] = Vector3D(i*QUADSIZE, DOORHEIGHT, j*QUADSIZE+DOORTHICK);
 	      f.texCoords[counter++] = Vec2f(1-(float)THICKNESS/QUADSIZE,0);
-	      f.vertices[counter] = Vector3D(i*QUADSIZE, DOORHEIghT, j*QUADSIZE+QUADSIZE-DOORTHICK);
+	      f.vertices[counter] = Vector3D(i*QUADSIZE, DOORHEIGHT, j*QUADSIZE+QUADSIZE-DOORTHICK);
 	      f.texCoords[counter++] = Vec2f((float)THICKNESS/QUADSIZE,0);
       }
       

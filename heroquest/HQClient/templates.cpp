@@ -174,6 +174,7 @@ void Templates::load(){
   if (!in6){
     cerr << "Could not load models.dat";
   }
+#ifdef _CLIENT_
   string name;
   int idx;
   int number;
@@ -187,7 +188,7 @@ void Templates::load(){
     models_.push_back(mod);
   }
   in6.close();
-
+#endif
 }
 
 Item Templates::getItem(string name){
