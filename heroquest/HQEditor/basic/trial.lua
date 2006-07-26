@@ -6,14 +6,13 @@ function intro()
     "heros. Tread carefully my friends.";
 end
 
-VeragDead = false;
+veragDead = false;
 
 function levelInit()
   function killVerag(tx, ty)
-    console("Verag kill");
     local body = getCreatureProperty(tx, ty, "body");
     if body <= 0 then
-      VeragDead = true;
+      veragDead = true;
     else
       addEntry("hit", tx, ty, killVerag);
     end
@@ -66,7 +65,7 @@ function F(sx, sy)
 end
 
 function G(sx, sy)
-  if not VeragDead then
+  if not veragDead then
     output("You must kill Verag first.", "");
     return false;
   end

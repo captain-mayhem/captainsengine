@@ -1,5 +1,9 @@
 function intro()
-
+  local text = "Prince Magnus has ordered that the Orc Warlord, Ulag, "..
+    "who was responsible for the imprisonment of Sir Ragnar, be sought "..
+    "out and destroyed. When Ulag is destroyed, the heros will receive "..
+    "a reward of 180 gold coins to be divided among them. Any treasure "..
+    "found in Ulag's stronghold may be kept by the finder alone."
 end
 
 UlagDead = false;
@@ -36,7 +40,7 @@ function A(sx, sy)
 end
 
 function B(sx, sy)
-  changeMoney(24);
+  changeMoney(sx, sy, 24);
   addItem(sx, sy, "potion_of_healing");
   output("You found 24 gold and a potion of healing", "");
 end
@@ -53,7 +57,7 @@ function C(sx, sy)
     local num = getNumberOfHeros();
     Amount = 180 / num;
   end
-  changeMoney(Amount);
+  changeMoney(sx, sy, Amount);
   winHero(sx, sy);
   forceEndTurn(sx, sy);
   return false;
