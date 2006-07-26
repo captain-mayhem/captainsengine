@@ -779,6 +779,8 @@ void Message::process(ServerSocket* ss, const string& cmd){
       f->treasure = true;
       
       game.performAction();
+      *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+      wait();
       //is a treasure script availabale?
       bool scripttreasure = false;
       for (unsigned i = 0; i < wrld.getRoom(roomId).size(); i++){
@@ -852,6 +854,8 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       //search for traps in visible area
       game.performAction();
+      *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+      wait();
       vector<Field*> vf = wrld.getVisibleFields(pos);
       bool trapfound = false;
       string message = toStr(TRAP);

@@ -1,5 +1,11 @@
+- = open
++ = fixed
+t = to test
+w = currently working on it
+
+new:
 - defend in anderem menue kackt ab
-- fallen/schaetze suchen: weiterlaufen moeglich
+t fallen/schaetze suchen: weiterlaufen moeglich
 - trap suchen vor falle ==> absturz
 - ueber Falle springen geht nicht
 
