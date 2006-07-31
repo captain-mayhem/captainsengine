@@ -34,7 +34,7 @@
 
 //! waits a short period to avoid buffer overflow
 inline void wait(){
-#ifdef UNIX
+#ifdef UNIX_OLD
   struct timespec ts;
   ts.tv_sec = 0;
   ts.tv_nsec = 250000000;

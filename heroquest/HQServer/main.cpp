@@ -148,16 +148,22 @@ void running(void* s){
   *ss << welcome;
 
   while(1){
-    string recieve;
+    string receive;
     //int cmd;
 
     try{
-      *ss >> recieve;
+      *ss >> receive;
     }
     catch(SocketException& e){
       cout << e.description() << endl;
       globl.end(ss);
     }
-    msg.process(ss, recieve);
+    int pos = 0;
+    unsigned found;
+    while ((found = receive.find(SEPARATOR,pos)) != string::npos){
+      string tmp = receive.substr(pos,found-pos);
+      pos = found+1;
+      msg.process(ss, tmp);
+    }
   }
 }

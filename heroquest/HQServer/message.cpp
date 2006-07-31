@@ -1032,7 +1032,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       //if jumping failed, trap is sprung
       if (thrown > 0){
         cerr << "Jump: NOOO!";
-        scr.call(f.script->event, f.script, pos);
+        scr.call(f.script->event, f.script, newpos);
         string message = toStr(SCRIPT)+" "+toStr(pos.x)+" "+toStr(pos.y)+
           " trap "+toStr(newpos.x)+" "+toStr(newpos.y);
         globl.broadcast(message);

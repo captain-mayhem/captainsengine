@@ -34,6 +34,8 @@ const int MAXHOSTNAME = 200;
 const int MAXCONNECTIONS = 5;
 //! maximum length of the receive message
 const int MAXRECV = 4096;
+//! the separator
+const char SEPARATOR = '\004';
 
 //! The base class for socket operations
 /*! It uses unix socket system calls for providing the functionality
@@ -60,7 +62,7 @@ public:
    */
   bool connect(const string host, const int port);
   //! sends a message through the socket
-  bool send(const string s) const;
+  bool send(string s) const;
   //! receives a message from the socket
   int recv(string& s) const;
   //! set the socket to non-blocking system calls

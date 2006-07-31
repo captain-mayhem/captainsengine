@@ -81,6 +81,8 @@ Message::Message(): ss_(0) {
   cliToSrv_["trap"] = TRAP;
   cliToSrv_["disarm"] = DISARM;
   cliToSrv_["jump"] = JUMP;
+  cliToSrv_["dump"] = DUMP;
+  cliToSrv_["replay"] = REPLAY;
 }
 
 Message::Message(const Message& m){
@@ -622,6 +624,20 @@ void Message::process_(const char* cmd){
 		*ss_ << toStr(JUMP) + " " + toStr((int)d);
 		}
 	break;
+  
+  case DUMP:
+		if (argv.size() < 2){
+			consol << "Usage: dump <filename>";
+		}
+    *ss_ << toStr(DUMP) + " " + argv[0];
+    break;
+
+  case REPLAY:
+		if (argv.size() < 2){
+			consol << "Usage: replay <filename>";
+		}
+    *ss_ << toStr(REPLAY) + " " + argv[0];
+    break;
 
 	default:
 		consol << "Unknown command. Please enter 'help' for available commands";
@@ -1212,7 +1228,14 @@ void Message::receiver(void* v){
     string answer;
     try{
       *sock >> answer;
-      msg.process(answer);
+      //separate messages
+      int pos = 0;
+      unsigned found;
+      while ((found = answer.find(SEPARATOR,pos)) != string::npos){
+        string tmp = answer.substr(pos,found-pos);
+        pos = found+1;
+        msg.process(tmp);
+      }
     }
     catch (SocketException& e){
       System::Log << "Error: " + e.description();

@@ -106,10 +106,11 @@ bool Socket::accept(Socket& new_socket) const{
 }
 
 //send message
-bool Socket::send(const string s) const{
+bool Socket::send(string s) const{
 #ifdef WIN32
 #define MSG_NOSIGNAL 0
 #endif
+  s += SEPARATOR;
   int status = ::send(sock_, s.c_str(), s.size(), MSG_NOSIGNAL);
   if (status == -1){
     perror("send");
