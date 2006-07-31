@@ -21,6 +21,16 @@ void Keyboard::init(){
 }
 
 void Keyboard::keyDown(int key){
+  if (key == KEY_ESCAPE){
+    Gui::Console* cons = System::Engine::instance()->getConsole();
+    //quit console
+    if (cons->isActive()){
+      cons->toggle();
+      System::Engine::instance()->getActiveInput()->clear();
+      System::Engine::instance()->setActiveInput(NULL);
+      return;
+    }
+  }
   InputField* input = System::Engine::instance()->getActiveInput();
   //input goes to input field
   if (input != NULL){
@@ -47,17 +57,9 @@ void Keyboard::keyDown(int key){
     else if (key == KEY_DOWN){
       System::Engine::instance()->getConsole()->Down();
     }
+    return;
   }
-  if (key == KEY_ESCAPE){
-    Gui::Console* cons = System::Engine::instance()->getConsole();
-    //quit console
-    if (cons->isActive()){
-      cons->toggle();
-      System::Engine::instance()->getActiveInput()->clear();
-      System::Engine::instance()->setActiveInput(NULL);
-      return;
-    }
-  }
+  
   if (keyDownCB_){
     keyDownCB_(key);
   }
