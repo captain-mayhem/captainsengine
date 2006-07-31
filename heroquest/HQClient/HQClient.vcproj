@@ -406,6 +406,12 @@
 				RelativePath="..\..\Engine\math\matrix.h">
 			</File>
 			<File
+				RelativePath="..\..\Engine\renderer\model.cpp">
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\model.h">
+			</File>
+			<File
 				RelativePath="..\..\Engine\input\mouse.cpp">
 			</File>
 			<File
