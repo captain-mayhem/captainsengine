@@ -851,7 +851,7 @@ void Message::process(const string& answer){
 	break;
       
 	case NO_TURN:
-		consol << "Not possible, becuase it's not your turn.\n";
+		consol << "Not possible, because it's not your turn.\n";
 	break;
     
 	case MOVE:{

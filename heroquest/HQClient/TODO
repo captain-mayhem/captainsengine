@@ -5,10 +5,19 @@ w = currently working on it
 
 new:
 - defend in anderem menue kackt ab
-t fallen/schaetze suchen: weiterlaufen moeglich
-- trap suchen vor falle ==> absturz
-t ueber Falle springen geht nicht
+f fallen/schaetze suchen: weiterlaufen moeglich
+t trap suchen vor falle ==> absturz
+f ueber Falle springen geht nicht
+- konsolenhintergrund verschoben
+- Zusatzpuffer fuer schnelle Schrift
+- Windows: Cursor verschwindet manchmal nicht mehr
+- whois nur auf sichtbaren Feldern
+- bereits gefundene Fallen nicht erneut finden
+t melarsMaze: sleeping Garg killt server, wenn heros gewonnen
 
 classics:
 - collision detection
 - camera view
+
+keine Fehler, sondern gewuenschte Erweiterungen:
+- Auf Map anzeigen, wer gerade am Zug ist
