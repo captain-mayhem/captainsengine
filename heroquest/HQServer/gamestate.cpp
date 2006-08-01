@@ -208,7 +208,15 @@ void GameState::endTurn(ServerSocket* ss){
   }
   scr.endTurn(pos);
   ServerSocket* actSs = game.getNextPlayer();
-  if (actSs == NULL){
+  //is a hero player there?
+  bool heroThere = false;
+  for (int i = 0; i < wrld.getHeroSize(); i++){
+    if (wrld.getStarts()[i] == Vector2D(-1,-1)){
+      if (wrld.getHeros()[i].getStatus() == true)
+        heroThere = true;
+    }
+  }
+  if (actSs == NULL || !heroThere){
     //*ss << toStr(CHAT)+ "Nobody plays a role. Game cannot run";
     game.end();
     globl.broadcast(toStr(END)+" game");
