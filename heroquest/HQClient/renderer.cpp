@@ -125,6 +125,39 @@ void HQRenderer::ascii_(unsigned char key){
     else
       Mouse::instance()->showCursor(true);
     break;
+  case 'w':
+  case 's':
+  case 'a':
+  case 'd':
+    if (!threeD_){
+      Vector2D pos = plyr.getCreature()->getPosition();
+      Direction d;
+      Vector2D moveTo;
+      if (key == 'w'){
+        d = TOP;
+        moveTo = Vector2D(pos.x, pos.y-1);
+      }
+      else if (key == 's'){
+        d = BOTTOM;
+        moveTo = Vector2D(pos.x, pos.y+1);
+      }
+      else if (key == 'a'){
+        d = LEFT;
+        moveTo = Vector2D(pos.x-1, pos.y);
+      }
+      else if (key == 'd'){
+        d = RIGHT;
+        moveTo = Vector2D(pos.x+1, pos.y);
+      }
+      //is move not allowed due to wall?
+      if (wrld.isWall(pos.x, pos.y, d) || wrld.getObject(moveTo) != NULL)
+        break;
+      char tmp[2];
+      tmp[0] = key;
+      tmp[1] = '\0';
+      msg.process(tmp);
+    }
+    break;
   }
 }
 
@@ -251,7 +284,10 @@ void HQRenderer::initialize_(){
 
 void HQRenderer::paint_(){
   game.run();
-  handleKeys();
+
+  //move camera only in 3D
+  if (threeD_)
+    handleKeys();
 
   render_->projection(fieldOV_, aspect_, 0.1f, 100.0f);
   

@@ -979,7 +979,8 @@ void Message::process(const string& answer){
 			//void (Renderer::*p)();
 			//p = &Renderer::defend;
 			but->setCbFunc(Menu::defend);
-      System::Engine::instance()->addButtonListener(but); 
+      System::Engine::instance()->addButtonListener(but);
+      defidx_ = System::Engine::instance()->getButtons().size()-1;
 		}
 	}
 	break;

@@ -4,20 +4,23 @@ t = to test
 w = currently working on it
 
 new:
-- defend in anderem menue kackt ab
-f fallen/schaetze suchen: weiterlaufen moeglich
+t defend in anderem menue kackt ab
+- defend verschwindet bei menue-wechsel
++ fallen/schaetze suchen: weiterlaufen moeglich
 t trap suchen vor falle ==> absturz
-f ueber Falle springen geht nicht
++ ueber Falle springen geht nicht
 - konsolenhintergrund verschoben
 - Zusatzpuffer fuer schnelle Schrift
 - Windows: Cursor verschwindet manchmal nicht mehr
 - whois nur auf sichtbaren Feldern
 - bereits gefundene Fallen nicht erneut finden
+- Kamerarichtungsruecksetzer bei disarm/jump trap
 t melarsMaze: sleeping Garg killt server, wenn heros gewonnen
 
 classics:
-- collision detection
+w collision detection
 - camera view
 
 keine Fehler, sondern gewuenschte Erweiterungen:
+t Mit w,s,a,d vernuenftig auf 2D-Map laufen
 - Auf Map anzeigen, wer gerade am Zug ist

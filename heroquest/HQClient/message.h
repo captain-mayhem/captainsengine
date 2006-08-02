@@ -85,6 +85,8 @@ private:
   Thread tid_;
   //! initialization settings
   vector<string> settings_;
+  //! the index of the defend button
+  int defidx_;
 };
 
 
