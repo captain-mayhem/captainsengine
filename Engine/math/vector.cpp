@@ -35,14 +35,14 @@ Vector3D Vector3D::cross(const Vector3D& v) const{
 }
 
 //returns the magnitude of a vector
-float Vector3D::magnitude() {
+float Vector3D::magnitude() const {
   // uses the euclidian norm
   return (float)sqrt( (x * x) + (y * y) + (z * z) );
 }
 
 
 //returns a normalized vector
-Vector3D Vector3D::normalized() {
+Vector3D Vector3D::normalized() const {
   float mag = magnitude();
   if (mag == 0){
     return *this;

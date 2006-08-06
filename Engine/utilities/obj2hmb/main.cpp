@@ -40,11 +40,18 @@ struct VerTexNorm{
 };
 
 int main(int argc, char** argv){
-  GLMmodel* model = glmReadOBJ(argv[1]);
+  GLMmodel* model = glmReadOBJ(argv[2]);
   glmVertexNormals(model, 90.0, GL_TRUE);
   //glmWriteOBJ(model, "test.obj", GLM_SMOOTH | GLM_TEXTURE);
+  bool flip;
+  if (string(argv[1]) == "-f")
+    flip = true;
+  else
+    flip = false;
  
-  string output(argv[1]);
+  if (flip)
+    std::cerr << "Flipped\n";
+  string output(argv[2]);
   output[output.size()-3] = 'h';
   output[output.size()-2] = 'm';
   output[output.size()-1] = 'b';
@@ -58,35 +65,70 @@ int main(int argc, char** argv){
   GLMgroup* group = model->groups;
   while(group){
     for (int i = 0; i < group->numtriangles; i++){
-      for (int j = 0; j < 3; j++){
-        vtn tripel;
-        tripel.v = model->triangles[ group->triangles[i] ].vindices[j];
-        tripel.t = model->triangles[ group->triangles[i] ].tindices[j];
-        tripel.n = model->triangles[ group->triangles[i] ].nindices[j];
-        tripel.idx = count;
-        //insert into set
-        pair<set<vtn>::iterator,bool> result;
-        result = tripels.insert(tripel);
-        //std::cerr << i << " " << j << "\n";
-        //std::cerr << tripel.v << " " << tripel.t << " " << tripel.n << "\n";
-        //tripel already present
-        if (!result.second){
-          vtn orig = *result.first;
-          indices.push_back(orig.idx);
+      if (flip){
+        for (int j = 2; j >= 0; j--){
+          vtn tripel;
+          tripel.v = model->triangles[ group->triangles[i] ].vindices[j];
+          tripel.t = model->triangles[ group->triangles[i] ].tindices[j];
+          tripel.n = model->triangles[ group->triangles[i] ].nindices[j];
+          tripel.idx = count;
+          //insert into set
+          pair<set<vtn>::iterator,bool> result;
+          result = tripels.insert(tripel);
+          //std::cerr << i << " " << j << "\n";
+          //std::cerr << tripel.v << " " << tripel.t << " " << tripel.n << "\n";
+          //tripel already present
+          if (!result.second){
+            vtn orig = *result.first;
+            indices.push_back(orig.idx);
+          }
+          else{
+            indices.push_back(tripel.idx);
+            VerTexNorm point;
+            point.v[0] = model->vertices[3*tripel.v+0];
+            point.v[1] = model->vertices[3*tripel.v+2];
+            point.v[2] = model->vertices[3*tripel.v+1];
+            point.t[0] = model->texcoords[2*tripel.t+0];
+            point.t[1] = model->texcoords[2*tripel.t+1];
+            point.n[0] = model->normals[3*tripel.n+0];
+            point.n[1] = model->normals[3*tripel.n+1];
+            point.n[2] = model->normals[3*tripel.n+2];
+            points.push_back(point);
+            count++;
+          }
         }
-        else{
-          indices.push_back(tripel.idx);
-          VerTexNorm point;
-          point.v[0] = model->vertices[3*tripel.v+0];
-          point.v[1] = model->vertices[3*tripel.v+1];
-          point.v[2] = model->vertices[3*tripel.v+2];
-          point.t[0] = model->texcoords[2*tripel.t+0];
-          point.t[1] = model->texcoords[2*tripel.t+1];
-          point.n[0] = model->normals[3*tripel.n+0];
-          point.n[1] = model->normals[3*tripel.n+1];
-          point.n[2] = model->normals[3*tripel.n+2];
-          points.push_back(point);
-          count++;
+      }
+      else{
+        for (int j = 0; j < 3; j++){
+          vtn tripel;
+          tripel.v = model->triangles[ group->triangles[i] ].vindices[j];
+          tripel.t = model->triangles[ group->triangles[i] ].tindices[j];
+          tripel.n = model->triangles[ group->triangles[i] ].nindices[j];
+          tripel.idx = count;
+          //insert into set
+          pair<set<vtn>::iterator,bool> result;
+          result = tripels.insert(tripel);
+          //std::cerr << i << " " << j << "\n";
+          //std::cerr << tripel.v << " " << tripel.t << " " << tripel.n << "\n";
+          //tripel already present
+          if (!result.second){
+            vtn orig = *result.first;
+            indices.push_back(orig.idx);
+          }
+          else{
+            indices.push_back(tripel.idx);
+            VerTexNorm point;
+            point.v[0] = model->vertices[3*tripel.v+0];
+            point.v[1] = model->vertices[3*tripel.v+1];
+            point.v[2] = model->vertices[3*tripel.v+2];
+            point.t[0] = model->texcoords[2*tripel.t+0];
+            point.t[1] = model->texcoords[2*tripel.t+1];
+            point.n[0] = model->normals[3*tripel.n+0];
+            point.n[1] = model->normals[3*tripel.n+1];
+            point.n[2] = model->normals[3*tripel.n+2];
+            points.push_back(point);
+            count++;
+          }
         }
       }
     }
