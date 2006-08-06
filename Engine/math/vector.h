@@ -16,6 +16,38 @@
 
 namespace Math{
 
+//! A 2D-Vector for integers
+class Vector2D {
+public:
+  //! Constructor
+  Vector2D();
+  //! Constructor that inits with values
+  Vector2D(short x, short y){ 
+    this->x = x; this->y = y;
+  }
+  //! Destructor
+  ~Vector2D();
+  //! Subtract two vectors
+  inline Vector2D operator-(const Vector2D& v) const {
+    return Vector2D(x-v.x, y-v.y);
+  }
+  //! tests for inequality
+  inline const bool operator!=(const Vector2D& v) const {
+    return (v.x != x || v.y != y);
+  }
+  //! tests for equality
+  inline const bool operator==(const Vector2D& v) const {
+    return (v.x == x && v.y == y);
+  }
+  //! the components
+  short x, y;
+};
+
+inline bool operator<(Vector2D a, Vector2D b){
+  return a.x < b.x && a.y < b.y;
+}
+
+
 //! A 3D-Vector with float precision
 class Vector3D {
 public:
@@ -29,6 +61,12 @@ public:
   //! Constructor that inits the vector with an array
   Vector3D(float data[3]){
     x = data[0]; y = data[1]; z = data[2];
+  }
+  //! takes a 2D vector as initialization
+  /*! y-component is set to 0
+   */
+  Vector3D(const Vector2D v){
+    x = v.x; y = 0; z = v.y;
   }
   //! Destructor
   ~Vector3D();
@@ -71,9 +109,9 @@ public:
   //! performing the cross product.
   Vector3D cross(const Vector3D& v) const;
   //! returns the magnitude of the vector
-  float magnitude();
+  float magnitude() const;
   //! returns a normalized vector
-  Vector3D normalized();
+  Vector3D normalized() const;
   //! returns the distance between two 3D points
   float distance(Vector3D p);
   //! performs the dot product between two vectors
@@ -84,32 +122,6 @@ public:
   float x, y, z;						
 };
 
-//! A 2D-Vector for integers
-class Vector2D {
-public:
-  //! Constructor
-  Vector2D();
-  //! Constructor that inits with values
-  Vector2D(short x, short y){ 
-    this->x = x; this->y = y;
-  }
-  //! Destructor
-  ~Vector2D();
-  //! tests for inequality
-  inline const bool operator!=(const Vector2D& v) const {
-    return (v.x != x || v.y != y);
-  }
-  //! tests for equality
-  inline const bool operator==(const Vector2D& v) const {
-    return (v.x == x && v.y == y);
-  }
-  //! the components
-  short x, y;
-};
-
-inline bool operator<(Vector2D a, Vector2D b){
-  return a.x < b.x && a.y < b.y;
-}
 
 //! A 2D-Vector for floats
 class Vec2f{

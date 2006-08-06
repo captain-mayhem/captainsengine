@@ -9,15 +9,32 @@
 
 using std::ifstream;
 using std::ios;
+using std::vector;
 
 using Graphics::Model;
 
 Model::Model(){
   vb_ = NULL;
+  cloned_ = false;
+}
+
+
+// copy constructor
+Model::Model(const Model& m){
+  indices_ = vector<unsigned short>(m.indices_);
+  vertices_ = vector<VerTexNorm>(m.vertices_);
+  transform_ = m.transform_;
+  cloned_ = true;
+  vb_ = m.vb_;
 }
 
 Model::~Model(){
-  SAFE_DELETE(vb_);
+  //delete only original models
+  if (cloned_)
+    vb_ = NULL;
+  else
+    SAFE_DELETE(vb_);
+    
 }
 
 void Model::loadFromHMB(const std::string& filename){
@@ -52,3 +69,14 @@ void Model::loadFromHMB(const std::string& filename){
   }
   vb_->unlockVertexPointer();
 }
+
+Model Model::clone(){
+  Model mod;
+  mod.indices_ = vector<unsigned short>(indices_);
+  mod.vertices_ = vector<VerTexNorm>(vertices_);
+  mod.vb_ = vb_;
+  mod.transform_ = transform_;
+  mod.cloned_ = true;
+  return mod;
+}
+
