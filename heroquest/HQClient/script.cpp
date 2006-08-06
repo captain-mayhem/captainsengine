@@ -19,6 +19,7 @@
 #include "message.h"
 #include "player.h"
 #include "gamestate.h"
+#include "camera.h"
 #else
 #include "../HQServer/gamestate.h"
 #include "../HQServer/message.h"
@@ -127,6 +128,10 @@ void Script::init(){
   lua_setglobal(L, "getItems");
   lua_pushcfunction(L, Script::isCreatureAt);
   lua_setglobal(L, "isCreatureAt");
+  lua_pushcfunction(L, Script::exchangeModel);
+  lua_setglobal(L, "exchangeModel");
+  lua_pushcfunction(L, Script::moveCamera);
+  lua_setglobal(L, "moveCamera");
   
 	
 	lua_pcall(L,0,0,0);
@@ -1096,3 +1101,31 @@ int Script::isCreatureAt(lua_State* L){
     lua_pushboolean(L, false);
   return 1;
 }
+
+// exchange model
+int Script::exchangeModel(lua_State* L){
+#ifdef _CLIENT_
+  short x = (short)luaL_checknumber(L, 1);
+	short y = (short)luaL_checknumber(L, 2);
+  int fieldidx = (int)luaL_checknumber(L, 3);
+  int modelid = (int)luaL_checknumber(L, 4);
+	const Field& field = wrld.getField(Vector2D(x,y));
+  Graphics::Model old = field.models[fieldidx];
+  field.models[fieldidx] = Templates::instance()->getModel(modelid).clone();
+  field.models[fieldidx].setTransform(old.getTransform());
+#endif
+  return 0;
+}
+
+// move the camera
+int Script::moveCamera(lua_State* L){
+#ifdef _CLIENT_
+  float x = (float)luaL_checknumber(L, 1);
+  float y = (float)luaL_checknumber(L, 2);
+  float z = (float)luaL_checknumber(L, 3);
+  Vector3D to(x,y,z);
+  cam.moveTo(to.magnitude(), to);
+#endif
+  return 0;
+}
+

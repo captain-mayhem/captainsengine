@@ -57,6 +57,8 @@ public:
   void strafeCamera(float speed);
   //! move the camera forward or backward
   void moveCamera(float speed);
+  //! set the camera
+  void moveTo(float dist, const Vector3D dir);
   //! check for camera collision
   /*! checks, if the camera's bounding sphere collided 
    * with any triangle specified with pVertices

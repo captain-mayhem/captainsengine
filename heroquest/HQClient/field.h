@@ -77,10 +77,12 @@ public:
   unsigned numVertices;
   //! the vertices
   Vector3D *vertices;
-  //! the texture coordinates
-  Vec2f *texCoords;
+  //! number of models
+  unsigned numModels;
   //! the models
   Graphics::Model *models;
+  //! the texture coordinates
+  Vec2f *texCoords;
   //! object storage, if two creatures try to cross
   /*! If two creatures are on the same field, the first
    * is stored here

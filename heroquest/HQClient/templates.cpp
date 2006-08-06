@@ -174,7 +174,6 @@ void Templates::load(){
   if (!in6){
     cerr << "Could not load models.dat";
   }
-#ifdef _CLIENT_
   string name;
   int idx;
   int number;
@@ -184,11 +183,12 @@ void Templates::load(){
     in6 >> name;
     in6 >> idx;
     Model mod;
-    mod.loadFromHMB("../HQClient/models/"+name);
     models_.push_back(mod);
+#ifdef _CLIENT_
+    models_.back().loadFromHMB("../HQClient/models/"+name);
+#endif
   }
   in6.close();
-#endif
 }
 
 Item Templates::getItem(string name){

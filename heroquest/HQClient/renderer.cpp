@@ -155,6 +155,7 @@ void HQRenderer::ascii_(unsigned char key){
       char tmp[2];
       tmp[0] = key;
       tmp[1] = '\0';
+      cam.moveTo(QUADSIZE, Vector3D(moveTo-pos));
       msg.process(tmp);
     }
     break;

@@ -4,7 +4,7 @@ t = to test
 w = currently working on it
 
 new:
-t defend in anderem menue kackt ab
+w defend in anderem menue kackt ab
 - defend verschwindet bei menue-wechsel
 + fallen/schaetze suchen: weiterlaufen moeglich
 t trap suchen vor falle ==> absturz
@@ -14,7 +14,7 @@ t trap suchen vor falle ==> absturz
 - Windows: Cursor verschwindet manchmal nicht mehr
 - whois nur auf sichtbaren Feldern
 - bereits gefundene Fallen nicht erneut finden
-- Kamerarichtungsruecksetzer bei disarm/jump trap
++ Kamerarichtungsruecksetzer bei disarm/jump trap
 t melarsMaze: sleeping Garg killt server, wenn heros gewonnen
 
 classics:

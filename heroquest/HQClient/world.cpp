@@ -33,6 +33,8 @@
 #include <assert.h>
 #include <ctype.h>
 
+#include "math/matrix.h"
+
 #include "player.h"
 #ifdef _CLIENT_
 #include "gamestate.h"
@@ -45,6 +47,8 @@
 using std::ifstream;
 using std::ostringstream;
 using std::ios;
+
+using Math::Matrix;
 
 extern string path;
 
@@ -182,6 +186,14 @@ bool World::load(const string& name){
 			for (unsigned k = 0; k < f->numVertices; k++){
 				in.read((char*)&f->texCoords[k], sizeof(Vec2f));
 				in.read((char*)&f->vertices[k], sizeof(Vector3D));
+			}
+			in.read((char*)&f->numModels, sizeof(f->models));
+      f->models = new Graphics::Model[f->numModels];
+			for (unsigned k = 0; k < f->numModels; k++){
+				Matrix mat;
+        in.read((char*)&mat, sizeof(Matrix));
+        f->models[0] = Templates::instance()->getModel(0).clone();
+        f->models[0].setTransform(mat);
 			}
 		}
 	}
@@ -364,6 +376,7 @@ void World::render(){
 		//render ground tiles
     TextureManager::instance()->floorTex[curr.getId()]->activate();
     //glBindTexture(GL_TEXTURE_2D, tex.floorTex[curr.getId()]);
+    /*
 		glBegin(GL_TRIANGLE_STRIP);
 			glTexCoord2f(curr.texCoords[0].x, curr.texCoords[0].y);
 			glVertex3f(curr.vertices[0].x, curr.vertices[0].y, curr.vertices[0].z);
@@ -374,6 +387,12 @@ void World::render(){
 			glTexCoord2f(curr.texCoords[3].x, curr.texCoords[3].y);
 			glVertex3f(curr.vertices[3].x, curr.vertices[3].y, curr.vertices[3].z);
 		glEnd();
+    */
+    curr.models[0].activate();
+    glPushMatrix();
+    curr.models[0].getTransform().toOpenGL();
+    curr.models[0].draw();
+    glPopMatrix();
 
 		//render walls
     TextureManager::instance()->wallTex[0]->activate();

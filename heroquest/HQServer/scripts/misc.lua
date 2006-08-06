@@ -36,6 +36,8 @@ end
 function a(sx, sy)
   output("You fall into a pit trap", "");
   makeOverlayActive(sx, sy, true);
+  exchangeModel(sx, sy, 0, 1);
+  moveCamera(0, -3.7, 0);
   --make creature weaker when being in the pit
   local atta = getCreatureProperty(sx, sy, "attack");
   local def = getCreatureProperty(sx, sy, "defence");
@@ -49,6 +51,7 @@ function a(sx, sy)
     local def = getCreatureProperty(sx, sy, "defence");
     setCreatureProperty(sx, sy, "attack", atta+1);
     setCreatureProperty(sx, sy, "defence", def+1);
+    moveCamera(0, 3.7, 0);
   end
   addEntry("move", sx, sy, restorePitValues);
   --hero may stay here

@@ -168,6 +168,10 @@ public:
   static int getItems(lua_State* L);
   //! is a creature at a position
   static int isCreatureAt(lua_State* L);
+  //! change a model to another one
+  static int exchangeModel(lua_State* L);
+  //! move the camera
+  static int moveCamera(lua_State* L);
   
 private:
 	//! The stack for communication between LUA and C

@@ -112,6 +112,31 @@ void Camera::moveCamera(float speed){
   }
 }
 
+//move the camera forward or backward depending on the speed
+void Camera::moveTo(float dist, const Vector3D dir){
+  
+  Vector3D vVector = dir.normalized();
+
+  position_.x += vVector.x * dist;
+  position_.y += vVector.y * dist;
+  position_.z += vVector.z * dist;
+  view_.x += vVector.x * dist;
+  view_.y += vVector.y * dist;
+  view_.z += vVector.z * dist;
+
+  //The position changed one field
+  Vector2D temp = wrld.realToModelPos(position_);
+  if (temp != modelPos_){
+    game.setMoves(game.getMoves()-1);
+    wrld.updateCollisionVertices(temp);
+    game.setMoves(game.getMoves()+1);
+    oldPos_ = modelPos_;
+    modelPos_ = temp;
+    //update2D();
+  }
+}
+
+
 
 //checks all the polygons in list and resets the camera if collided
 void Camera::checkCameraCollision(Vector3D **pVertices, int numOfVerts){

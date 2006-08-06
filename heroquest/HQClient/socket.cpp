@@ -111,6 +111,7 @@ bool Socket::send(string s) const{
 #define MSG_NOSIGNAL 0
 #endif
   s += SEPARATOR;
+  //std::cerr << "s: "<< s << "\n";
   int status = ::send(sock_, s.c_str(), s.size(), MSG_NOSIGNAL);
   if (status == -1){
     perror("send");
@@ -138,6 +139,7 @@ int Socket::recv(string& s) const{
   }
   else{
     s = buf;
+    //std::cerr << "r: "<< s << "\n";
     return status;
   }
 }

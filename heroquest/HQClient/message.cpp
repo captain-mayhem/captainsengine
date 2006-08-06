@@ -877,6 +877,7 @@ void Message::process(const string& answer){
 		Vector2D pos(toInt(argv[0]), toInt(argv[1]));
 		Vector2D newPos(toInt(argv[2]), toInt(argv[3]));
 		GameObject* o = wrld.getObject(pos);
+    cam.moveTo(Vector3D(newPos-pos).magnitude(), Vector3D(newPos-pos));
 		wrld.setObject(o, newPos);
 		scr.move(newPos);
 	}
@@ -1108,11 +1109,12 @@ void Message::process(const string& answer){
       Vector2D trg(toInt(argv[3]), toInt(argv[4]));
       Field& f = wrld.getField(trg);
       if (!f.object || (f.object && dynamic_cast<Furniture*>(f.object) == NULL)){
-        wrld.setObject(wrld.getObject(src), trg);
+        cam.moveTo(QUADSIZE, Vector3D(trg-src));
+        wrld.setObject(wrld.getObject(src), trg, true);
         src = trg;
       }
       scr.call(f.script->event, f.script, src);
-      break;
+      return;
     }
     Vector2D trg(toInt(argv[2]), toInt(argv[3]));
     //short idx = toInt(argv[4]);
@@ -1145,6 +1147,7 @@ void Message::process(const string& answer){
     Field& f = wrld.getField(newpos);
     //no furniture trap
     if (!f.object || (f.object && dynamic_cast<Furniture*>(f.object) == NULL)){
+      cam.moveTo(QUADSIZE, Vector3D(newpos-pos));
       wrld.setObject(wrld.getObject(pos), newpos, true);
     }
     if (f.script->script[0] < 'n')
@@ -1160,8 +1163,7 @@ void Message::process(const string& answer){
     Vector2D pos = Vector2D(toInt(argv[0]), toInt(argv[1]));
     Vector2D newpos = Vector2D(toInt(argv[2]), toInt(argv[3]));
     //Field& f = wrld.getField(newpos);
-    cerr << pos.x << " " << pos.y << "\n";
-    cerr << newpos.x << " " << newpos.y << "\n";
+    cam.moveTo(QUADSIZE, Vector3D(newpos-pos));
     wrld.setObject(wrld.getObject(pos), newpos, true);
     break;
   }

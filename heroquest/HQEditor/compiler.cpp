@@ -213,9 +213,11 @@ void Compiler::write(string filename){
       
       //a quad has 4 vertices
       f.numVertices = 4*counter;
+      f.numModels = 1;
       //vertices and texture coordinates
       f.vertices = new Vector3D[f.numVertices];
       f.texCoords = new Vec2f[f.numVertices];
+      f.models = new Graphics::Model[f.numModels];
       counter = 0;
       //ground tile
       f.vertices[counter] = Vector3D(i*QUADSIZE+QUADSIZE, 0, j*QUADSIZE         );
@@ -226,11 +228,13 @@ void Compiler::write(string filename){
       f.texCoords[counter++] = Vec2f(1,0);
       f.vertices[counter] = Vector3D(i*QUADSIZE         , 0, j*QUADSIZE+QUADSIZE);
       f.texCoords[counter++] = Vec2f(0,0);
-      Tile t;
+      Matrix mat(Matrix::Translation, Vector3D(i*QUADSIZE+QUADSIZE/2, 0, j*QUADSIZE+QUADSIZE/2));
+      f.models[0].setTransform(mat);
+      /*Tile t;
       t.id = 0;
       t.translation = Vector3D(i*QUADSIZE+QUADSIZE/2, 0, j*QUADSIZE+QUADSIZE/2);
       t.rotation = 0;
-      tiles_.push_back(t);
+      tiles_.push_back(t);*/
       //top walls
       if (f.wallbits.test(TOP)){
         int LEFTTHICK = -THICKNESS;
@@ -574,6 +578,10 @@ void Compiler::write(string filename){
       for (unsigned k = 0; k < f.numVertices; k++){
 	      out.write((char*)&f.texCoords[k], sizeof(Vec2f));
         out.write((char*)&f.vertices[k], sizeof(Vector3D));
+      }
+      out.write((char*)&f.numModels, sizeof(f.numModels));
+      for (unsigned k = 0; k < f.numModels; k++){
+	      out.write((char*)&f.models[k].getTransform(), sizeof(Matrix));
       }
     }
   }

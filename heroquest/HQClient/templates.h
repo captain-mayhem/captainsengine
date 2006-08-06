@@ -40,6 +40,8 @@ class Templates{
     static inline Templates* instance() {return templ;}
     //! get an overlay object by shortcut
     Overlay* getOverlay(string brev);
+    //! get a model
+    Graphics::Model getModel(int idx) {return models_[idx];}
   private:
     static Templates* templ;
     //! Constructor
