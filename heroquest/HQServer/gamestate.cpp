@@ -222,6 +222,7 @@ void GameState::endTurn(ServerSocket* ss){
     globl.broadcast(toStr(END)+" game");
     return;
   }
+  wrld.setObjectAnchor(msg.getCreature(), msg.getCreature()->getPosition());
   scr.startTurn(msg.getCreature()->getPosition());
   //is creature sleeping?
   if (msg.getCreature()->isSleeping()){
