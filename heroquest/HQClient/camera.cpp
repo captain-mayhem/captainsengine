@@ -23,7 +23,7 @@ Camera::Camera(){
   position_ = Vector3D();
   view_	= Vector3D(0.0,0.0,1.0);
   upVector_ = Vector3D(0.0,1.0,0.0);
-  speed_ = 15.0;
+  speed_ = 12.0;
   modelPos_ = Vector2D();
 }
 
@@ -71,11 +71,35 @@ void Camera::rotateView(float angle, Vector3D v){
 
 //strafe the camera left and right depending on the speed
 void Camera::strafeCamera(float speed){
-  //update position and view
-  position_.x += strafe_.x * speed;
-  position_.z += strafe_.z * speed;
-  view_.x += strafe_.x * speed;
-  view_.z += strafe_.z * speed;
+  float step = 0;
+  if (speed > 0){
+    while (step < speed){
+      //update position and view
+      position_.x += strafe_.x * step;
+      position_.z += strafe_.z * step;
+      view_.x += strafe_.x * step;
+      view_.z += strafe_.z * step;
+    
+      //get the nearest vertices and check them for camera collision
+      Vector3D** worldCollision = wrld.getWorld();
+      cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+      step += 0.1;
+    }
+  }
+  else{
+     while (step > speed){
+      //update position and view
+      position_.x += strafe_.x * step;
+      position_.z += strafe_.z * step;
+      view_.x += strafe_.x * step;
+      view_.z += strafe_.z * step;
+    
+      //get the nearest vertices and check them for camera collision
+      Vector3D** worldCollision = wrld.getWorld();
+      cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+      step -= 0.1;
+    }
+  }
 
   //The position changed one field
   Vector2D temp = wrld.realToModelPos(position_);
@@ -95,10 +119,34 @@ void Camera::moveCamera(float speed){
   Vector3D vVector = view_ - position_;
   vVector = vVector.normalized();
 
-  position_.x += vVector.x * speed;
-  position_.z += vVector.z * speed;
-  view_.x += vVector.x * speed;
-  view_.z += vVector.z * speed;
+  float step = 0;
+  if (speed > 0){
+    while(step < speed){
+      position_.x += vVector.x * speed;
+      position_.z += vVector.z * speed;
+      view_.x += vVector.x * speed;
+      view_.z += vVector.z * speed;
+    
+      //get the nearest vertices and check them for camera collision
+      Vector3D** worldCollision = wrld.getWorld();
+      cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+      step += 0.1;
+    }
+  }
+  else{
+    while(step > speed){
+      position_.x += vVector.x * speed;
+      position_.z += vVector.z * speed;
+      view_.x += vVector.x * speed;
+      view_.z += vVector.z * speed;
+    
+      //get the nearest vertices and check them for camera collision
+      Vector3D** worldCollision = wrld.getWorld();
+      cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+      step -= 0.1;
+    }
+
+  }
 
   //The position changed one field
   Vector2D temp = wrld.realToModelPos(position_);

@@ -300,8 +300,8 @@ void HQRenderer::paint_(){
     //number of moves in the upper right corner
     System::Engine::instance()->getFont()->glPrint(1000, 750, toStr(game.getMoves()).c_str(), 1);
     //get the nearest vertices and check them for camera collision
-    Vector3D** worldCollision = wrld.getWorld();
-    cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+    //Vector3D** worldCollision = wrld.getWorld();
+    //cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
     //allow lookat changes by mouse
     cam.look();
     //render world without blending

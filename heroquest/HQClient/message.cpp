@@ -923,6 +923,7 @@ void Message::process(const string& answer){
 				cam.setCurrRotX(c->getRot());
 				wrld.updateCollisionVertices(c->getPosition());
 			}
+      wrld.setObjectAnchor(c, creatPos);
       scr.startTurn(creatPos);
 		}
 		consol << argv[0]+ ", it's your turn.";
