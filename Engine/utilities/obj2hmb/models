@@ -1,4 +1,4 @@
 obj2hmb -k ../../../heroquest/HQClient/models/world/ground.obj
 mv ../../../heroquest/HQClient/models/world/ground.hmb ../../../heroquest/HQClient/models/
-obj2hmb -f ../../../heroquest/HQClient/models/world/pit.obj
-mv ../../../heroquest/HQClient/models/world/pit.hmb ../../../heroquest/HQClient/models/
+obj2hmb -k ../../../heroquest/HQClient/models/world/pit2.obj
+mv ../../../heroquest/HQClient/models/world/pit2.hmb ../../../heroquest/HQClient/models/pit.hmb
