@@ -1146,6 +1146,8 @@ void World::addHero(const Hero& heroe, const short posIdx){
   if (heroe.getPlayer() == plyr.getName()){
     Vector3D p = modelToRealPos(pos);
     cam.positionCamera(p, Vector3D(p.x+1,p.y,p.z), Vector3D(0,1,0));
+    //game.setMoves(0);
+    plyr.setActCreature(heroe.getName());
     updateCollisionVertices(pos);
   }
 #endif

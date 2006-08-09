@@ -369,6 +369,7 @@ void Message::process_(const char* cmd){
 			}
 			wait();
 			game.setMoves(0);
+      wrld.updateCollisionVertices(creat->getPosition());
 			creat->setLookAt(cam.view());
 			creat->setRot(cam.getCurrRotX());
 			plyr.setTurn(false);
