@@ -144,6 +144,7 @@ void Console::render(){
   //draw background
   //glColor4ub(bgColor_.r,bgColor_.g, bgColor_.b, opacity_);
   rend->setColor(bgColor_.r, bgColor_.g, bgColor_.b, opacity_);
+  System::Engine::instance()->getForms()->activateQuad();
   System::Engine::instance()->getForms()->drawQuad(pos_, span_);
   /*
   glBegin(GL_QUADS);
