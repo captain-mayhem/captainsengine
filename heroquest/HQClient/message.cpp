@@ -466,6 +466,12 @@ void Message::process_(const char* cmd){
 		}
 		{
 		Vector2D pos(toInt(argv[0]), toInt(argv[1]));
+    const Field& f = wrld.getField(pos);
+    if (!f.getStatus() && !plyr.isZargon()){
+			consol << "You can't examine unknown fields";
+      line << "You can't examine unknown fields";
+			break;
+		}
 		GameObject* o = wrld.getObject(pos);
 		if (!o){
 			consol << "There is no object";
@@ -474,7 +480,7 @@ void Message::process_(const char* cmd){
 		}
 		Creature* creat = dynamic_cast<Creature*>(o);
 		if (creat){
-			string msg = "Name: "+creat->getName()+ "/"+creat->getPlayer()+"("+creat->getType()+"), Body Points: "+toStr(creat->getBody());
+			string msg = "Name: "+creat->getName()+ "/"+creat->getPlayer()+"("+creat->getType()+"), Body Points: "+toStr(creat->getBody())+ ", Attack: "+toStr(creat->getAttack())+ ", Defense: "+toStr(creat->getDefence());
 			consol << msg;
       line << msg;
 			break;
