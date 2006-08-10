@@ -16,7 +16,10 @@
 #include "message.h"
 #include "world.h"
 #include "gamestate.h"
+#include "player.h"
 #include "camera.h"
+
+#define COLL_STEP 0.1
 
 Camera::Camera(){
   //Set some standard values
@@ -75,29 +78,29 @@ void Camera::strafeCamera(float speed){
   if (speed > 0){
     while (step < speed){
       //update position and view
-      position_.x += strafe_.x * step;
-      position_.z += strafe_.z * step;
-      view_.x += strafe_.x * step;
-      view_.z += strafe_.z * step;
+      position_.x += strafe_.x * COLL_STEP;
+      position_.z += strafe_.z * COLL_STEP;
+      view_.x += strafe_.x * COLL_STEP;
+      view_.z += strafe_.z * COLL_STEP;
     
       //get the nearest vertices and check them for camera collision
       Vector3D** worldCollision = wrld.getWorld();
       cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
-      step += 0.1;
+      step += COLL_STEP;
     }
   }
   else{
      while (step > speed){
       //update position and view
-      position_.x += strafe_.x * step;
-      position_.z += strafe_.z * step;
-      view_.x += strafe_.x * step;
-      view_.z += strafe_.z * step;
+      position_.x += strafe_.x * -COLL_STEP;
+      position_.z += strafe_.z * -COLL_STEP;
+      view_.x += strafe_.x * -COLL_STEP;
+      view_.z += strafe_.z * -COLL_STEP;
     
       //get the nearest vertices and check them for camera collision
       Vector3D** worldCollision = wrld.getWorld();
       cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
-      step -= 0.1;
+      step -= COLL_STEP;
     }
   }
 
@@ -122,28 +125,28 @@ void Camera::moveCamera(float speed){
   float step = 0;
   if (speed > 0){
     while(step < speed){
-      position_.x += vVector.x * step;
-      position_.z += vVector.z * step;
-      view_.x += vVector.x * step;
-      view_.z += vVector.z * step;
+      position_.x += vVector.x * COLL_STEP;
+      position_.z += vVector.z * COLL_STEP;
+      view_.x += vVector.x * COLL_STEP;
+      view_.z += vVector.z * COLL_STEP;
     
       //get the nearest vertices and check them for camera collision
       Vector3D** worldCollision = wrld.getWorld();
       cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
-      step += 0.1;
+      step += COLL_STEP;
     }
   }
   else{
     while(step > speed){
-      position_.x += vVector.x * step;
-      position_.z += vVector.z * step;
-      view_.x += vVector.x * step;
-      view_.z += vVector.z * step;
+      position_.x += vVector.x * -COLL_STEP;
+      position_.z += vVector.z * -COLL_STEP;
+      view_.x += vVector.x * -COLL_STEP;
+      view_.z += vVector.z * -COLL_STEP;
     
       //get the nearest vertices and check them for camera collision
       Vector3D** worldCollision = wrld.getWorld();
       cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
-      step -= 0.1;
+      step -= COLL_STEP;
     }
 
   }
@@ -162,6 +165,8 @@ void Camera::moveCamera(float speed){
 
 //move the camera forward or backward depending on the speed
 void Camera::moveTo(float dist, const Vector3D dir){
+  if (!plyr.yourTurn())
+    return;
   
   Vector3D vVector = dir.normalized();
 

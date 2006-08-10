@@ -232,6 +232,11 @@ public:
     respectClasses_ = respect;
   }
 
+  //! get the value of the respectClasses variable explained in setRespectClasses
+  inline bool getRespectClasses(){
+    return respectClasses_;
+  }
+
   //! the scripts
   struct scriptPos{
     char script[2];

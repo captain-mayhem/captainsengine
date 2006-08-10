@@ -130,6 +130,9 @@ void HQRenderer::ascii_(unsigned char key){
   case 'a':
   case 'd':
     if (!threeD_){
+      //no moves left?
+      if (game.getMoves() <= 0)
+        break;
       Vector2D pos = plyr.getCreature()->getPosition();
       Direction d;
       Vector2D moveTo;
@@ -150,8 +153,29 @@ void HQRenderer::ascii_(unsigned char key){
         moveTo = Vector2D(pos.x+1, pos.y);
       }
       //is move not allowed due to wall?
-      if (wrld.isWall(pos.x, pos.y, d) || wrld.getObject(moveTo) != NULL)
+      if (wrld.isWall(pos.x, pos.y, d))
         break;
+      //is move not allowed due to other reasons?
+	    bool selfHero = dynamic_cast<Hero*>(wrld.getObject(pos)) == NULL ? false : true;
+      bool objectHero = true;
+	    bool objectMonster = true;
+      bool objectFurni = false;
+      bool overlayNotWalkable = false;
+	    
+      GameObject *o = wrld.getObject(moveTo);
+	    if (o){
+		    objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
+		    objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
+        objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
+	    }
+      Field* f = &wrld.getField(moveTo);
+      if (f->overlay && f->overlay->getStatus() && !f->overlay->isWalkable())
+        overlayNotWalkable = true;
+	
+	    if (((selfHero && !objectHero) && wrld.getRespectClasses()) || ((!selfHero && !objectMonster) && wrld.getRespectClasses()) || objectFurni || overlayNotWalkable){
+	      break;
+      }
+
       char tmp[2];
       tmp[0] = key;
       tmp[1] = '\0';

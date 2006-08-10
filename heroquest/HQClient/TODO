@@ -14,11 +14,11 @@ t konsolenhintergrund verschoben
 - Windows: Cursor verschwindet manchmal nicht mehr
 + whois nur auf sichtbaren Feldern
 - bereits gefundene Fallen nicht erneut finden
-+ Kamerarichtungsruecksetzer bei disarm/jump trap
-t melarsMaze: sleeping Garg killt server, wenn heros gewonnen
+t Kamerarichtungsruecksetzer bei disarm/jump trap (multiplayer)
++ melarsMaze: sleeping Garg killt server, wenn heros gewonnen
 
 classics:
-t collision detection
++ collision detection
 - camera view
 
 keine Fehler, sondern gewuenschte Erweiterungen:
