@@ -119,7 +119,7 @@ void Mouse::buttonDown(int x, int y, int button){
   }
     
   if (buttonDownCB_)
-    buttonDownCB_(x, y, button);
+    buttonDownCB_(clickPos_.x, clickPos_.y, button);
 }
 
 void Mouse::buttonUp(int x, int y, int button){
