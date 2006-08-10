@@ -337,6 +337,9 @@ void HQRenderer::paint_(){
       wrld.render2D(!plyr.isZargon());
     glEnable(GL_BLEND);
   }
+  else{
+    setViewTo3D(false);
+  }
   
   render_->ortho(SCREENWIDTH, SCREENHEIGHT);
   render_->translate(-SCREENWIDTH/2, -SCREENHEIGHT/2, 0);

@@ -91,38 +91,39 @@ void GameState::run(){
 
 // ends the game
 void GameState::end(){
+  //HQRenderer::instance()->setViewTo3D(false);
+  cam.positionCamera(Vector3D(-10, 8, -12), Vector3D(-9, 8, -12), Vector3D(0, 1, 0));
   status_ = INIT;
   wrld.unload();
   //wrld.deInit();
-  cam.positionCamera(Vector3D(-10, 8, -12), Vector3D(-9, 8, -12), Vector3D(0, 1, 0));
-  //gl->setViewTo3D(false);
   //re-setup GUI to choose level
   Font* f = System::Engine::instance()->getFont();
-	//gl->clearListeners(false);
+  System::Engine::instance()->clearListeners(false);
 	//only the player with admin status can create games
 	if (plyr.getStatus() == 2){
+    f->setColor(1,1,1);
 		f->glPrint(120, 450, "Package:",1, (float)HUGE_VAL);
 		Button* but = new Button();
 		but->setPosition(Vector2D(200,450));
 		but->setText("basic");
 		//void (Renderer::*p)();
 		//p = &Renderer::package;
-		//but->setCbFunc(p);
-		//gl->addButtonListener(but,false);
-
+		but->setCbFunc(Menu::package);
+    System::Engine::instance()->addButtonListener(but,false);
+    
 		f->glPrint(120, 400, "Level:", 1, (float)HUGE_VAL);
 		but = new Button();
 		but->setPosition(Vector2D(200,400));
 		but->setText("maze");
 		//p = &Renderer::level;
-		//but->setCbFunc(p);
-		//gl->addButtonListener(but,false);
+		but->setCbFunc(Menu::level);
+    System::Engine::instance()->addButtonListener(but,false);
 
 		but = new Button();
 		but->setPosition(Vector2D(200,300));
 		but->setText("     Load");
 		//p = &Renderer::loadLevel;
-		//but->setCbFunc(p);
-		//gl->addButtonListener(but,false);
+		but->setCbFunc(Menu::loadLevel);
+    System::Engine::instance()->addButtonListener(but,false);
 	}
 }
