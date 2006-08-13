@@ -10,12 +10,14 @@
 namespace Graphics{
 
 class VertexBuffer;
+class ModelInstance;
   
 struct VerTexNorm{
   float v[3];
   float t[2];
   float n[3];
 };
+
 
 //! A model
 class Model{
@@ -36,7 +38,7 @@ public:
   /*! cloning a model means that the vertexbuffer
    * is not copied but shared 
    */
-  Model clone();
+  ModelInstance clone();
   //! set a transformation
   inline void setTransform(const Math::Matrix mat) {transform_ = mat;}
   //! get a transformation
@@ -53,6 +55,34 @@ private:
   //! if the model was cloned
   bool cloned_;
 };
+
+
+//! A model instance
+class ModelInstance{
+public:
+  //! default constructor
+  ModelInstance();
+  //! constructor
+  ModelInstance(Graphics::Model* model);
+  //! copy constructor
+  ModelInstance(const ModelInstance& m);
+  //! destructor
+  ~ModelInstance();
+  //! activate the model for rendering
+  inline void activate() {model_->activate();}
+  //! draw a model
+  inline void draw() {model_->draw();}
+  //! set a transformation
+  inline void setTransform(const Math::Matrix mat) {transform_ = mat;}
+  //! get a transformation
+  inline Math::Matrix getTransform() {return transform_;}
+private:
+  //! the transformation
+  Math::Matrix transform_;
+  //! a pointer to the model
+  Graphics::Model* model_;
+};
+
 
 }
 

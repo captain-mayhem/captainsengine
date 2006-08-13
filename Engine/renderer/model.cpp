@@ -12,6 +12,29 @@ using std::ios;
 using std::vector;
 
 using Graphics::Model;
+using Graphics::ModelInstance;
+
+//default constructor
+ModelInstance::ModelInstance(){
+  model_ = NULL;
+  transform_ = Matrix(Matrix::Identity);
+}
+
+//constructor
+ModelInstance::ModelInstance(Model* model){
+  model_ = model;
+  transform_ = Matrix(Matrix::Identity);
+}
+
+// copy constructor
+ModelInstance::ModelInstance(const ModelInstance& m){
+  model_ = m.model_;
+  transform_ = m.transform_;
+}
+
+ModelInstance::~ModelInstance(){
+}
+
 
 Model::Model(){
   vb_ = NULL;
@@ -70,13 +93,13 @@ void Model::loadFromHMB(const std::string& filename){
   vb_->unlockVertexPointer();
 }
 
-Model Model::clone(){
-  Model mod;
-  mod.indices_ = vector<unsigned short>(indices_);
-  mod.vertices_ = vector<VerTexNorm>(vertices_);
-  mod.vb_ = vb_;
-  mod.transform_ = transform_;
-  mod.cloned_ = true;
+ModelInstance Model::clone(){
+  ModelInstance mod(this);
+  //mod.indices_ = vector<unsigned short>(indices_);
+  //mod.vertices_ = vector<VerTexNorm>(vertices_);
+  //mod.vb_ = vb_;
+  mod.setTransform(transform_);
+  //mod.cloned_ = true;
   return mod;
 }
 
