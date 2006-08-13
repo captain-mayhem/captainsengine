@@ -86,8 +86,8 @@ int main(int argc, char** argv){
             indices.push_back(tripel.idx);
             VerTexNorm point;
             point.v[0] = model->vertices[3*tripel.v+0];
-            point.v[1] = model->vertices[3*tripel.v+2];
-            point.v[2] = model->vertices[3*tripel.v+1];
+            point.v[1] = model->vertices[3*tripel.v+1];
+            point.v[2] = model->vertices[3*tripel.v+2];
             point.t[0] = model->texcoords[2*tripel.t+0];
             point.t[1] = model->texcoords[2*tripel.t+1];
             point.n[0] = model->normals[3*tripel.n+0];

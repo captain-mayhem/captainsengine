@@ -91,10 +91,12 @@ void Console::addText(const string& text){
     while (tmp.size() > 102){
       string part = tmp.substr(0, 102);
       history_.push_front(part);
+      histIter_ = history_.begin();
       tmp.erase(0, 102);
     }
     //write it to console
     history_.push_front(tmp);
+    histIter_ = history_.begin();
     //console full, delete what is not visible
     while (history_.size() > 15)
       history_.pop_back();
