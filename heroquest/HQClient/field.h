@@ -79,8 +79,10 @@ public:
   Vector3D *vertices;
   //! number of models
   unsigned numModels;
+  //! number of used models
+  unsigned usedModels;
   //! the models
-  Graphics::Model *models;
+  std::vector<Graphics::ModelInstance> models;
   //! the texture coordinates
   Vec2f *texCoords;
   //! object storage, if two creatures try to cross

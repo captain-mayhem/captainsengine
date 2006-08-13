@@ -182,10 +182,10 @@ void Templates::load(){
   for (int i = 0; i < number; i++){
     in6 >> name;
     in6 >> idx;
-    Model mod;
+    Model* mod = new Model;
     models_.push_back(mod);
 #ifdef _CLIENT_
-    models_.back().loadFromHMB("../HQClient/models/"+name);
+    models_.back()->loadFromHMB("../HQClient/models/"+name);
 #endif
   }
   in6.close();

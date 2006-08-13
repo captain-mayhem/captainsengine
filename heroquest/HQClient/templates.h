@@ -41,7 +41,7 @@ class Templates{
     //! get an overlay object by shortcut
     Overlay* getOverlay(string brev);
     //! get a model
-    Graphics::Model getModel(int idx) {return models_[idx];}
+    Graphics::Model* getModel(int idx) {return models_[idx];}
   private:
     static Templates* templ;
     //! Constructor
@@ -57,7 +57,7 @@ class Templates{
     //! the overlays
     vector<Overlay*> overlays_;
     //! the template models
-    vector<Graphics::Model> models_;
+    vector<Graphics::Model*> models_;
 };
 
 #endif

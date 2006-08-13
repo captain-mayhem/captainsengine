@@ -9,17 +9,18 @@ w defend in anderem menue kackt ab
 + fallen/schaetze suchen: weiterlaufen moeglich
 t trap suchen vor falle ==> absturz
 + ueber Falle springen geht nicht
-t konsolenhintergrund verschoben
++ konsolenhintergrund verschoben
 - Zusatzpuffer fuer schnelle Schrift
 - Windows: Cursor verschwindet manchmal nicht mehr
 + whois nur auf sichtbaren Feldern
-- bereits gefundene Fallen nicht erneut finden
+t bereits gefundene Fallen nicht erneut finden
 t Kamerarichtungsruecksetzer bei disarm/jump trap (multiplayer)
 + melarsMaze: sleeping Garg killt server, wenn heros gewonnen
 
 classics:
 + collision detection
 - camera view
+t console up manchmal segfault
 
 keine Fehler, sondern gewuenschte Erweiterungen:
 t Mit w,s,a,d vernuenftig auf 2D-Map laufen

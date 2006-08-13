@@ -213,7 +213,8 @@ void Compiler::write(string filename){
       
       //a quad has 4 vertices
       f.numVertices = 4*counter;
-      f.numModels = 1;
+      f.numModels = 0;
+      f.usedModels = 0;
       //vertices and texture coordinates
       f.vertices = new Vector3D[f.numVertices];
       f.texCoords = new Vec2f[f.numVertices];
@@ -230,6 +231,8 @@ void Compiler::write(string filename){
       f.texCoords[counter++] = Vec2f(0,0);
       Matrix mat(Matrix::Translation, Vector3D(i*QUADSIZE+QUADSIZE/2, 0, j*QUADSIZE+QUADSIZE/2));
       f.models[0].setTransform(mat);
+      //f.numModels++;
+      //f.usedModels++;
       /*Tile t;
       t.id = 0;
       t.translation = Vector3D(i*QUADSIZE+QUADSIZE/2, 0, j*QUADSIZE+QUADSIZE/2);

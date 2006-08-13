@@ -14,9 +14,13 @@
 //Constructor
 Field::Field() : object(0), numVertices(0), vertices(0), texCoords(0), tryObject(0), overlay(0), script(0),
   treasure(false), items(0) {
+    numModels = 0;
+    usedModels = 0;
+    //models = NULL;
 }
 
 Field::Field(const Field& f){
+  //std::cerr << "Copy ";
   position_ = f.position_;
   id_ = f.id_;
   active_ = f.active_;
@@ -29,6 +33,9 @@ Field::Field(const Field& f){
   }
   object = f.object;
   tempVis = Bitset(f.tempVis);
+  numModels = f.numModels;
+  usedModels = f.usedModels;
+  models = f.models;
   numVertices = f.numVertices;
   vertices = new Vector3D[numVertices];
   texCoords = new Vec2f[numVertices];

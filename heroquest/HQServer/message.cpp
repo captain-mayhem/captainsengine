@@ -861,7 +861,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       string message = toStr(TRAP);
       for (unsigned i = 0; i < vf.size(); i++){
         Field* f = vf[i];
-        if (f->script && f->script->isTrap){
+        if (f->script && f->script->isTrap && (!f->overlay->isFound() && !f->overlay->getStatus())){
           trapfound = true;
           f->overlay->find(true);
           message += " "+toStr(f->getPosition().x)+" "+toStr(f->getPosition().y);
@@ -948,7 +948,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       //if disarming failed, trap is sprung
       if (thrown > 0){
-        cerr << "Disarm: NOOO!";
+        //cerr << "Disarm: NOOO!";
         if (noFurn)
           scr.call(f.script->event, f.script, newpos);
         else
@@ -968,7 +968,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
           f.script->script[0] = toupper(f.script->script[0]);
         }
         f.overlay->find(false);
-        cerr << "Disarm: DONE";
+        //cerr << "Disarm: DONE";
         string message = toStr(DISARM) + " "+toStr(pos.x)+" "+toStr(pos.y)+" "
           +toStr(newpos.x)+" "+toStr(newpos.y);
         globl.broadcast(message);
@@ -1031,7 +1031,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       
       //if jumping failed, trap is sprung
       if (thrown > 0){
-        cerr << "Jump: NOOO!";
+        //cerr << "Jump: NOOO!";
         scr.call(f.script->event, f.script, newpos);
         string message = toStr(SCRIPT)+" "+toStr(pos.x)+" "+toStr(pos.y)+
           " trap "+toStr(newpos.x)+" "+toStr(newpos.y);
@@ -1041,7 +1041,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         //jump successful
         *ss << toStr(CHAT)+" You jumped successfully.";
         wait();
-        cerr << "Jump: DONE";
+        //cerr << "Jump: DONE";
         string message = toStr(JUMP) + " "+toStr(pos.x)+" "+toStr(pos.y)+" "
           +toStr(newpos.x)+" "+toStr(newpos.y);
         globl.broadcast(message);

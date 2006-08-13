@@ -130,6 +130,8 @@ void Script::init(){
   lua_setglobal(L, "isCreatureAt");
   lua_pushcfunction(L, Script::exchangeModel);
   lua_setglobal(L, "exchangeModel");
+  lua_pushcfunction(L, Script::addModel);
+  lua_setglobal(L, "addModel");
   lua_pushcfunction(L, Script::moveCamera);
   lua_setglobal(L, "moveCamera");
   
@@ -1109,10 +1111,26 @@ int Script::exchangeModel(lua_State* L){
 	short y = (short)luaL_checknumber(L, 2);
   int fieldidx = (int)luaL_checknumber(L, 3);
   int modelid = (int)luaL_checknumber(L, 4);
-	const Field& field = wrld.getField(Vector2D(x,y));
-  Graphics::Model old = field.models[fieldidx];
-  field.models[fieldidx] = Templates::instance()->getModel(modelid).clone();
+	Field& field = wrld.getField(Vector2D(x,y));
+  Graphics::ModelInstance old = field.models[fieldidx];
+  field.models[fieldidx] = Templates::instance()->getModel(modelid)->clone();
   field.models[fieldidx].setTransform(old.getTransform());
+#endif
+  return 0;
+}
+
+
+// add a model
+int Script::addModel(lua_State* L){
+#ifdef _CLIENT_
+  short x = (short)luaL_checknumber(L, 1);
+	short y = (short)luaL_checknumber(L, 2);
+  int modelid = (int)luaL_checknumber(L, 3);
+	Field& field = wrld.getField(Vector2D(x,y));
+  unsigned fieldidx = field.models.size();
+  field.models.push_back(Templates::instance()->getModel(modelid)->clone());
+  Matrix mat(Matrix::Translation, Vector3D(x*QUADSIZE+QUADSIZE/2, 0, y*QUADSIZE+QUADSIZE/2));
+  field.models[fieldidx].setTransform(mat);
 #endif
   return 0;
 }

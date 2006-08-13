@@ -170,6 +170,8 @@ public:
   static int isCreatureAt(lua_State* L);
   //! change a model to another one
   static int exchangeModel(lua_State* L);
+  //! add a model
+  static int addModel(lua_State* L);
   //! move the camera
   static int moveCamera(lua_State* L);
   
