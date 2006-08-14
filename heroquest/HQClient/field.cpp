@@ -35,7 +35,7 @@ Field::Field(const Field& f){
   tempVis = Bitset(f.tempVis);
   numModels = f.numModels;
   usedModels = f.usedModels;
-  models = f.models;
+  models = std::vector<Graphics::ModelInstance>(f.models);
   numVertices = f.numVertices;
   vertices = new Vector3D[numVertices];
   texCoords = new Vec2f[numVertices];
