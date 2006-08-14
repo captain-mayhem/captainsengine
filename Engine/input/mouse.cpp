@@ -134,6 +134,8 @@ void Mouse::move(int x, int y, int buttons){
 }
 
 void Mouse::showCursor(bool visible){
+  if (mousePointer_ == visible)
+    return;
   mousePointer_ = visible;
 #ifdef WIN32
   if (mousePointer_)
