@@ -49,8 +49,8 @@ int main(int argc, char** argv){
   else
     flip = false;
  
-  if (flip)
-    std::cerr << "Flipped\n";
+  //if (flip)
+    //std::cerr << "Flipped\n";
   string output(argv[2]);
   output[output.size()-3] = 'h';
   output[output.size()-2] = 'm';
@@ -141,18 +141,18 @@ int main(int argc, char** argv){
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < points.size(); i++){
     VerTexNorm p = points[i];
-    std::cerr << p.v[0] << " " << p.v[1] << " " << p.v[2] << " / " << p.t[0] << " " << p.t[1] << " / " << p.n[0] << " " << p.n[1] << " " << p.n[2] << "\n";
+    //std::cerr << p.v[0] << " " << p.v[1] << " " << p.v[2] << " / " << p.t[0] << " " << p.t[1] << " / " << p.n[0] << " " << p.n[1] << " " << p.n[2] << "\n";
     out.write((char*)&p, sizeof(p));
   }
   
   size = indices.size();
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < indices.size(); i++){
-    std::cerr << indices[i] << " ";
+    //std::cerr << indices[i] << " ";
     out.write((char*)&indices[i], sizeof(indices[i]));
   }
 
-  std::cerr << "\n";
+  //std::cerr << "\n";
   /*
   //vertices
   out.write((char*)&model->numvertices, sizeof(model->numvertices));

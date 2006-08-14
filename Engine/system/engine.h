@@ -5,11 +5,13 @@
 #include <fstream>
 #include <string>
 #include <list>
+#include <vector>
 
 using std::string;
 using std::ofstream;
 using std::cerr;
 using std::list;
+using std::vector;
 
 #define EXIT() (::System::Engine::instance()->shutdown())
 #define EXIT2(msg) {::System::Log << (msg) << "\n"; ::System::Engine::instance()->shutdown(); }
@@ -110,7 +112,7 @@ class Engine{
     //! remove the input listener at position idx
     void removeInputListener(int idx);
     //! remove the button listener at position idx
-    void removeButtonListener(int idx);
+    void removeButtonListener(int idx, bool immediate=true);
     //! remove all button listeners beginning at idx
     void removeButtonListeners(int idx);
   private:
@@ -152,6 +154,8 @@ class Engine{
     list< ::Gui::Button*> newBut_;
     //! if the input listeners should be cleared
     bool clear_;
+    //! which buttons should be removed
+    std::vector<short> remBut_;
     //! where should the keyboard input go to?
     ::Gui::InputField* input_;
     //! the game console

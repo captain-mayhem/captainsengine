@@ -233,6 +233,10 @@ void System::Engine::run(){
   console_->update();
 
   //something with the GUI elements changed, so update here
+  for (unsigned i = 0; i < remBut_.size(); i++){
+    removeButtonListener(remBut_[i]);
+  }
+  remBut_.clear();
   if (newIn_.size() != 0 || newBut_.size() != 0 || clear_){
     clear_ = false;
     clearListeners();
@@ -347,7 +351,11 @@ void System::Engine::removeInputListener(int idx){
 }
 
 // remove the button listener at position idx
-void System::Engine::removeButtonListener(int idx){
+void System::Engine::removeButtonListener(int idx, bool immediate){
+  if (!immediate){
+    remBut_.push_back(idx);
+    return;
+  }
   list< ::Gui::Button*>::iterator iter = buttons_.begin();
   for (int i = 0; i < idx; i++){
     iter++;
