@@ -16,11 +16,11 @@ See LICENSE.TXT for details
 Calling the programs:
 
 The editor:
-HQEdit-Linux <filename>.map   or   editor.exe <filename>.map
+HQEditor <filename>.map   or   editor.exe <filename>.map
 The server:
-HQServer-Linux <port>   or   server.exe <port>
+HQServer <port>   or   server.exe <port>
 The client:
-HeroQuest-Linux   or   heroquest.exe
+HQClient   or   heroquest.exe
 
 
 What you should know when using HeroQuest:
@@ -112,7 +112,7 @@ somewhere in order to do anything with HeroQuest.
       You should not use these console movement commands. They are for DEBUG/DEVELOPMENT purposes ONLY.
       They bypass collision detection and have not many security checks. They are there to be able to
       reach a desired position quickly against every rule. For normal movement, move as described in 7.
-      i.e. in 3D view, press W S A D keys with the console being closed.
+      i.e. in 3D or 2D view, press W S A D keys with the console being closed.
  "end turn"                    ends your turn
  "quit"                        quits HeroQuest
 
@@ -136,6 +136,11 @@ somewhere in order to do anything with HeroQuest.
  "whatis <item>"               displays information about an item
  "takeoff <item>"              takes off a wearable item that is currently worn
  "spawn <item>"                spawn an item into the inventory
+
+-v0.6 added commands:
+ "trap"                       searches for traps in the visible area
+ "disarm <direction>"         try to disarm a found but unsprung trap
+ "jump <direction>"           try to jump over a found or active trap
 
 9. Final remarks:
  When testing the game, you should at least run two HeroQuest clients on two different computers and
@@ -171,8 +176,8 @@ What you should know when modifying HeroQuest:
  . . .
  T = type of object that is standing on the field, e.g. M (monster); F (furniture)
  Aa = specific object id of the object on the field, e.g. zo (zombie); th (throne)
- S = special action that is associated with the field, e.g. X (hero starting position)
- Oo = Object on the field, that is not blocking the field, e.g. st (stair). Traps are also encoded here.
+ S = special action that is associated with the field, e.g. X (hero starting position), a (pit trap), ...
+ Oo = Object on the field, that is typically not blocking the field, e.g. st (stair). Trap overlays are also encoded here.
  Rr = RoomId, e.g. 04. If no roomId is specified, the field belongs to the corridor.
  
  Every valid map has to have walls all around the outer border and needs at least one hero
@@ -190,7 +195,7 @@ What you should know when modifying HeroQuest:
    In the future, when the editor will understand more commands and the maps can therefore become more complex, 
    a parser will of course be added, but that is currently not urgently neccessary.
 2. Usage of the editor
- If you have written a valid map file, just type HQ-Edit <file> and the editor will create a .hqm file
+ If you have written a valid map file, just type HQEditor <file> and the editor will create a .hqm file
  out of it. To play the map, copy the .hqm file in the levels/basic/ directory of the client and
  the server. The structure of the .hqm file is explained in the section data structures of this README file.
 3. startup and texture files
@@ -222,13 +227,13 @@ The main program (Client):
 This program needs a hardware-accelerated graphics card (GeForce4 or better recommended)
 because rendering the level with textures, heros, walls, etc. is a lot of work for the GPU. 
 The CPU however is not critical: 1 GHz or better should be enough.
-HeroQuest is built upon the platform-independent SDL library, so currently it can run on Linux or UNIX platforms 
+HeroQuest is no longer built upon the platform-independent SDL library, so currently it can run on Linux or UNIX platforms 
 and on windows 2000/XP. Moreover, the game uses the jpeg-library for loading jpgs. If neccessary 
 (e.g. when porting HeroQuest to other platforms), it can be compiled again from the jpeg.tar.gz and copied back 
 to the heroquest directory.
 The server:
 It makes no use of graphics, so the graphics card in the system is irrelevant for the server. But
-it uses sockets ans SDL-threads heavily. So it should run on almost every Linux/UNIX/Windows-system.
+it uses sockets ans threads heavily. So it should run on almost every Linux/UNIX/Windows-system.
 However, if many players join the server, RAM and CPU have to be chosen sufficiently high.
 The editor:
 It has no dependencies and should run on every system that has a C++ compiler. However, the editor
@@ -304,7 +309,7 @@ Known bugs:
 See TODO in HQClient
 
 ================================ The future of this project ======================================================
-To do for next releases:
+Already done:
 v0.5
 - armory and treasures
 - level init scripting (special monster names, introduction, ...)
@@ -312,6 +317,8 @@ v0.6
 - level scripting (goals to reach, special monsters and level properties, ...)
 - traps
 - distance weapons like crossbow
+
+To do for next releases:
 v0.7
 - extending the GUI (new elements, more control buttons)
 - extend scripting to be ready for all basic levels

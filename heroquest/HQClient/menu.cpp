@@ -277,6 +277,13 @@ void Menu::open(){
 //attack button
 void Menu::attack(){
   Vector2D pos = cam.modelPos();
+  short id = plyr.getCreature()->getInventory()->getArmory("right hand").getId();
+  //is it a long range weapon?
+  if (id == 3 || id == 9 || id == 6 || id == 7){
+    HQRenderer::instance()->setViewTo3D(false);
+    HQRenderer::instance()->setAwaitMapclick(attackOn);
+    return;
+  }
   Direction d = cam.getLookDirection();
   switch(d){
     case TOP:
@@ -293,6 +300,13 @@ void Menu::attack(){
       break;
   }
   string cmd = "attack "+toStr(pos.x)+" "+toStr(pos.y);
+  msg.process(cmd.c_str());
+}
+
+//! attack button for long range
+void Menu::attackOn(Vector2D click){
+  HQRenderer::instance()->setViewTo3D(true);
+  string cmd = "attack "+toStr(click.x)+" "+toStr(click.y);
   msg.process(cmd.c_str());
 }
 

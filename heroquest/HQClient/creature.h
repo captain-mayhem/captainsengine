@@ -27,7 +27,7 @@ using std::queue;
 
 //! A creature in the game with all its attributes
 //! A creature can be a hero or a monster
-class Creature : public GameObject{
+class Creature : public GameObject {
 public:
   //! Default constructor
   Creature();

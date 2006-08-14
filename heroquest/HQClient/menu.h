@@ -28,6 +28,8 @@ public:
   static void open();
   //! attack button
   static void attack();
+  //! attack button for long range
+  static void attackOn(Vector2D click);
   //! defend button
   static void defend();
   //! search button
