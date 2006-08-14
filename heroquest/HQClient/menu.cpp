@@ -74,6 +74,14 @@ void Menu::mainMenu(){
 	//p = &Renderer::endTurn;
 	but->setCbFunc(endTurn);
   System::Engine::instance()->addButtonListener(but);
+
+  if (msg.isToDefend()){
+		but = new Button();
+		but->setPosition(Vector2D(900, 270));
+		but->setText("Defend");
+		but->setCbFunc(Menu::defend);
+    System::Engine::instance()->addButtonListener(but);
+  }
 }
 
 
@@ -312,6 +320,7 @@ void Menu::attackOn(Vector2D click){
 
 //defend button
 void Menu::defend(){
+  msg.setDefended();
   msg.process("defend");
   System::Engine::instance()->removeButtonListener(System::Engine::instance()->getButtons().size()-1);
 }

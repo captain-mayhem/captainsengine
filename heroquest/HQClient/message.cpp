@@ -50,7 +50,8 @@ extern string path;
 
 //Constructor: init all console commands
 Message::Message(): ss_(0) {
-	cliToSrv_["quit"] = QUIT;
+	toDefend_ = false;
+  cliToSrv_["quit"] = QUIT;
   cliToSrv_["exit"] = QUIT;
 	cliToSrv_["connect"] = CONNECT;
 	cliToSrv_[":"] = CHAT;
@@ -371,6 +372,7 @@ void Message::process_(const char* cmd){
 			game.setMoves(0);
       wrld.updateCollisionVertices(creat->getPosition());
 			creat->setLookAt(cam.view());
+			creat->setCamPos(cam.position());
 			creat->setRot(cam.getCurrRotX());
 			plyr.setTurn(false);
 			*ss_ << toStr(END)+ " turn";
@@ -924,7 +926,7 @@ void Message::process(const string& answer){
 			Vector2D creatPos = c->getPosition();
 			//update 3D camera if neccessary
 			if (creatPos != cam.modelPos()){
-				Vector3D pos = wrld.modelToRealPos(creatPos);
+				Vector3D pos = c->getCamPos();//wrld.modelToRealPos(creatPos);
 				//choose arbitrary viewing direction, in this case positive x-axis
 				cam.positionCamera(pos, c->getLookAt(), Vector3D(0,1,0));
 				cam.setCurrRotX(c->getRot());
@@ -989,7 +991,7 @@ void Message::process(const string& answer){
 			//p = &Renderer::defend;
 			but->setCbFunc(Menu::defend);
       System::Engine::instance()->addButtonListener(but);
-      defidx_ = System::Engine::instance()->getButtons().size()-1;
+      toDefend_ = true;
 		}
 	}
 	break;

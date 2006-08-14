@@ -70,6 +70,10 @@ public:
   void send(const string& text);
   //! gets an initial setting value
   string& getSetting(short number);
+  //! get the defend status
+  inline bool isToDefend() {return toDefend_;}
+  //! set defended
+  inline void setDefended() {toDefend_ = false;}
 private:
   //! the special function callback
   void special_(const string& message, int mode, void* additional);
@@ -85,8 +89,8 @@ private:
   Thread tid_;
   //! initialization settings
   vector<string> settings_;
-  //! the index of the defend button
-  int defidx_;
+  //! if there is something to defend
+  bool toDefend_;
 };
 
 

@@ -1145,6 +1145,7 @@ void World::addHero(const Hero& heroe, const short posIdx){
   starts_[posIdx] = Vector2D(-1,-1);
   heros_[posIdx] = heroe;
   Vector2D pos = heroe.getPosition();
+  heros_[posIdx].setCamPos(wrld.modelToRealPos(pos));
   wrld.setObject(&heros_[posIdx], pos);
 #ifdef _CLIENT_
   if (heroe.getPlayer() == plyr.getName()){
@@ -1160,6 +1161,7 @@ void World::addHero(const Hero& heroe, const short posIdx){
 //add a monster to the map
 void World::addMonster(Monster* monsta, const Vector2D& pos, int vecPos){
 	monsta->setPosition(pos);
+  monsta->setCamPos(wrld.modelToRealPos(pos));
 	short mid = monsta->getId();
 	monsterCounter_[mid]++;
 	string name = monsta->getType() + toStr(monsterCounter_[mid]);
@@ -1179,6 +1181,7 @@ void World::addMonster(Monster* monsta, const Vector2D& pos, int vecPos){
 //add a monster to the map
 void World::addMonster(Monster* monsta, const Vector2D& pos){
 	monsta->setPosition(pos);
+  monsta->setCamPos(wrld.modelToRealPos(pos));
 	short mid = monsta->getId();
 	monsterCounter_[mid]++;
 	string name = monsta->getType() + toStr(monsterCounter_[mid]);

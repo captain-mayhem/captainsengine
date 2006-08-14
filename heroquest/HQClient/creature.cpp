@@ -43,6 +43,7 @@ Creature::Creature() : name_(), type_(){
   this->setActive();
   this->setPosition(Vector2D());
   actPos_ = Vector3D(0,2,0);
+  camPos_ = Vector3D(0,2,0);
 	lookAt_ = Vector3D(1,2,0);
   xRot_ = 0;
   sleeping_ = false;
@@ -69,6 +70,7 @@ Creature::Creature(const Creature& c){
   actPos_ = c.actPos_;
   positions_ = queue<Vector3D>(c.positions_);
 	lookAt_ = c.lookAt_;
+	camPos_ = c.camPos_;
 	xRot_ = c.xRot_;
   items_ = Inventory(c.items_);
   sleeping_ = c.sleeping_;
@@ -94,6 +96,7 @@ Creature::Creature(const string& player, const string& name, const string& type,
   position_ = position;
   movement_ = movement;
   actPos_ = Vector3D(0,2,0);
+  camPos_ = Vector3D(0,2,0);
 	lookAt_ = Vector3D(1,2,0);
   xRot_ = 0;
   sleeping_ = false;

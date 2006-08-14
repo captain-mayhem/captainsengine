@@ -2,10 +2,11 @@
 + = fixed
 t = to test
 w = currently working on it
+n = not reproducable, under observation
 
 new:
-w defend in anderem menue kackt ab
-- defend verschwindet bei menue-wechsel
+n defend in anderem menue kackt ab
+t defend verschwindet bei menue-wechsel
 + fallen/schaetze suchen: weiterlaufen moeglich
 t trap suchen vor falle ==> absturz
 + ueber Falle springen geht nicht
@@ -19,7 +20,7 @@ t Kamerarichtungsruecksetzer bei disarm/jump trap (multiplayer)
 
 classics:
 + collision detection
-- camera view
+t camera view
 t console up manchmal segfault
 
 keine Fehler, sondern gewuenschte Erweiterungen:

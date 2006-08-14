@@ -150,20 +150,26 @@ public:
 	//! adds a position to the positions that should be interpolated
   inline void addPosition(Vector3D pos){positions_.push(pos);}
 
-	//! set look at vector
-	inline void setLookAt(Vector3D look){lookAt_ = look;};
+  //! set the camera position Vector
+	inline void setCamPos(Vector3D pos){camPos_ = pos;}
 
 	//! get look at vector
-	inline Vector3D getLookAt(){return lookAt_;};
+	inline Vector3D getCamPos(){return camPos_;}
+  
+	//! set look at vector
+	inline void setLookAt(Vector3D look){lookAt_ = look;}
+
+	//! get look at vector
+	inline Vector3D getLookAt(){return lookAt_;}
 
 	//! get x-rotation
-	inline float getRot(){return xRot_;};
+	inline float getRot(){return xRot_;}
 	
 	//! set x-rotation
-	inline void setRot(float rot){xRot_ = rot;};
+	inline void setRot(float rot){xRot_ = rot;}
   
   //! get a pointer to the inventory
-  inline Inventory* getInventory(){return &items_;};
+  inline Inventory* getInventory(){return &items_;}
 
   //!set the creature sleeping
   inline void setSleeping(bool sleep){sleeping_ = sleep;}
@@ -216,7 +222,10 @@ protected:
   
 	//! over which fields it should interpolate movement
   queue<Vector3D> positions_;
-	
+
+  //! the last camera point
+  Vector3D camPos_;
+  
 	//! look at vector of the creature
 	Vector3D lookAt_;
 
