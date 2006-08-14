@@ -25,9 +25,19 @@ Message msg;
 Script scr;
 ClientSocket* sock;
 string path;
+string home;
 
 void engineMain(int argc, char** argv){
   path = "";
+#ifdef WIN32
+  char* drv = getenv("HOMEDRIVE");
+  char* pth = getenv("HOMEPATH");
+  if (drv && pth)
+    home = string(drv)+pth;
+  else
+    home = path;
+  System::Log << home;
+#endif
   Renderer* rend = Engine::instance()->getRenderer();
   HQRenderer::init(rend);
 
