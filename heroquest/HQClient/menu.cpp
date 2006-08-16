@@ -14,6 +14,8 @@ using Gui::Button;
 
 #define line *System::Engine::instance()->getFont()
 
+extern string home;
+
 // setup main ingame menu
 void Menu::mainMenu(){
   System::Engine::instance()->clearListeners();
@@ -240,7 +242,8 @@ void Menu::play(){
     line << "Invalid starting position";
   //position is valid
   else {
-    string file = "data/"+plyr.getName()+(*iter)->getText() +".sav";
+    //string file = "data/"+plyr.getName()+(*iter)->getText() +".sav";
+    string file = home+plyr.getName()+(*iter)->getText() +".sav";
     Hero* heroe = plyr.addHero(file);
     if (heroe != NULL)
       msg.special(toStr(position), PLAY, (void*)heroe);

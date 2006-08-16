@@ -65,7 +65,7 @@ System::Mutex mutex;
 Script scr;
 void running(void* s);
 string path;
-
+string home;
 
 void engineMain(int argc, char** argv) {
 #ifdef WIN32
@@ -97,6 +97,7 @@ void engineMain(int argc, char** argv) {
     globl.setPath(getCwd()+"/");
   }
   path = globl.getPath();
+  home = path;
 
   //mutex = SDL_CreateMutex();
 

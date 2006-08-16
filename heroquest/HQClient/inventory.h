@@ -32,6 +32,8 @@ class Inventory{
     void addItem(Item it);
     //! delete item from inventory
     bool deleteItem(string name);
+    //! get item from inventory
+    Item getItem(const string name);
     //! use item from inventory
     bool useItem(string name, Math::Vector2D pos, Math::Vector2D target);
     //! mounts an armory on the body part

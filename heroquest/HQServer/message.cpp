@@ -1048,6 +1048,34 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       }
       break;
+    
+    case DROP:{
+      Creature* c = globl.getPlayer(ss)->getLastCreature();
+      if (c == NULL){
+        *ss << toStr(CHAT)+" Wait until your first turn before dropping anything.";
+        break;
+      }
+      Vector2D pos = c->getPosition();
+      Inventory* inv = c->getInventory();
+      Item it = inv->getItem(argv[0]);
+      if (!it.isValid()){
+        *ss << toStr(CHAT)+" You do not have a "+argv[0]+" that could be dropped.";
+        break;
+      }
+      if (it.getType() == Item::Armory){
+        //TODO check if really worn
+        scr.armoryOff(pos, it.getId());
+      }
+      inv->deleteItem(argv[0]);
+      it.reset();
+      it.increase();
+      //TODO This causes memory leak
+      Inventory* newInv = new Inventory();
+      newInv->addItem(it);
+      wrld.placeInventory(newInv, pos);
+      *ss << toStr(DROP)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0];
+      break;
+    }
       
     default:      
       *ss << toStr(NAK);

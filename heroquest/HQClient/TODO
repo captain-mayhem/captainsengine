@@ -12,7 +12,7 @@ t trap suchen vor falle ==> absturz
 + ueber Falle springen geht nicht
 + konsolenhintergrund verschoben
 - Zusatzpuffer fuer schnelle Schrift
-- Windows: Cursor verschwindet manchmal nicht mehr
++ Windows: Cursor verschwindet manchmal nicht mehr
 + whois nur auf sichtbaren Feldern
 t bereits gefundene Fallen nicht erneut finden
 t Kamerarichtungsruecksetzer bei disarm/jump trap (multiplayer)

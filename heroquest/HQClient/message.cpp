@@ -47,6 +47,7 @@ using Gui::Button;
 #define line *System::Engine::instance()->getFont()
 
 extern string path;
+extern string home;
 
 //Constructor: init all console commands
 Message::Message(): ss_(0) {
@@ -84,6 +85,7 @@ Message::Message(): ss_(0) {
   cliToSrv_["jump"] = JUMP;
   cliToSrv_["dump"] = DUMP;
   cliToSrv_["replay"] = REPLAY;
+  cliToSrv_["drop"] = DROP;
 }
 
 Message::Message(const Message& m){
@@ -336,7 +338,8 @@ void Message::process_(const char* cmd){
 			}
 			//or a hero
 			else{
-				string file = path+"data/"+plyr.getName()+argv[0]+".sav";
+				//string file = path+"data/"+plyr.getName()+argv[0]+".sav";
+				string file = home+plyr.getName()+argv[0]+".sav";
 				plyr.addHero(file, ss_);
 			}
 			break;
@@ -646,6 +649,17 @@ void Message::process_(const char* cmd){
 			consol << "Usage: replay <filename>";
 		}
     *ss_ << toStr(REPLAY) + " " + argv[0];
+    break;
+
+  case DROP:
+    if (game.getState() != RUN){
+			consol << "Not allowed at the moment";
+			break;
+		}
+		if (argv.size() < 2){
+			consol << "Usage: drop <item>";
+		}
+		*ss_ << toStr(DROP) + " " + argv[0];
     break;
 
 	default:
@@ -1178,6 +1192,22 @@ void Message::process(const string& answer){
     break;
   }
 
+  case DROP:{
+    Vector2D pos(toInt(argv[0]), toInt(argv[1]));
+    Inventory* inv = dynamic_cast<Creature*>(wrld.getObject(pos))->getInventory();
+    Item it = inv->getItem(argv[2]);
+    if (it.getType() == Item::Armory){
+      scr.armoryOff(pos, it.getId());
+    }
+    inv->deleteItem(argv[2]);
+    it.reset();
+    it.increase();
+    //TODO This causes memory leak
+    Inventory* newInv = new Inventory();
+    newInv->addItem(it);
+    wrld.placeInventory(newInv, pos);
+  break;
+  }
 	
   }
     
@@ -1293,7 +1323,8 @@ void Message::special_(const string& message, int mode, void* additional){
           consol << "Enter the spell classes you want to obtain (e.g. \"fire water air\"):";
           break;
         }
-        string p = path + "data/"+plyr.getName()+h->getName()+".sav";
+        //string p = path + "data/"+plyr.getName()+h->getName()+".sav";
+        string p = home +plyr.getName()+h->getName()+".sav";
         h->write(p);
         consol << h->getName()+ " successfully created.";
         delete h;
@@ -1302,7 +1333,8 @@ void Message::special_(const string& message, int mode, void* additional){
 
     case SPELL:{
       Hero* h = (Hero*) additional;
-      string p = path + "data/"+plyr.getName()+h->getName()+".sav";
+      //string p = path + "data/"+plyr.getName()+h->getName()+".sav";
+      string p = home + plyr.getName()+h->getName()+".sav";
       istringstream temp(message);
       string res;
       Inventory* inv = h->getInventory();

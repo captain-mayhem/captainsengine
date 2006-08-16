@@ -39,6 +39,7 @@ using std::ostringstream;
 using std::ios;
 
 extern string path;
+extern string home;
 
 //CONSTRUCTOR
 Hero::Hero() : money_(0), spellClasses_(0) {
@@ -257,6 +258,7 @@ void Hero::win(){
   //deactivate and save hero
   active_ = false;
   wrld.removeObject(position_);
-  string filename = path+"/data/"+player_+name_+".sav";
+  //string filename = path+"/data/"+player_+name_+".sav";
+  string filename = home+player_+name_+".sav";
   write(filename);
 }

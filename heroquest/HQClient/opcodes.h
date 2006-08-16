@@ -23,7 +23,7 @@
 #define CHAT_PERSON   1006
 #define HELP          1007
 #define LIST          1008
-#define DRAW          1009
+#define DRAW          1009  //unused
 #define PLAY          1010
 #define START         1011
 #define END           1012
@@ -54,7 +54,8 @@
 #define TRAP          1037
 #define DISARM        1038
 #define JUMP          1039
-#define DUMP          1040
-#define REPLAY        1041
+#define DUMP          1040 //unused
+#define REPLAY        1041 //unused
+#define DROP          1042
 
 #endif

@@ -77,6 +77,13 @@ bool Inventory::deleteItem(string name){
   return false;
 }
 
+
+// get item from inventory
+Item Inventory::getItem(const string name){
+  int idx = lookup_[name];
+  return items_[idx];
+}
+
 bool Inventory::useItem(string name, Vector2D pos, Vector2D target){
   int idx = lookup_[name];
   if (idx == 0)

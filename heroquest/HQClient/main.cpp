@@ -29,6 +29,7 @@ string home;
 
 void engineMain(int argc, char** argv){
   path = "";
+  home = "";
 #ifdef WIN32
   char* drv = getenv("HOMEDRIVE");
   char* pth = getenv("HOMEPATH");
@@ -36,8 +37,15 @@ void engineMain(int argc, char** argv){
     home = string(drv)+pth;
   else
     home = path;
-  System::Log << home;
 #endif
+#ifdef UNIX
+  char* pth = getenv("HOME");
+  if (pth)
+    home = string(pth)+"/";
+  else
+    home = path;
+#endif
+  System::Log << home;
   Renderer* rend = Engine::instance()->getRenderer();
   HQRenderer::init(rend);
 
