@@ -1,120 +1,184 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8,00"
 	Name="HQClient"
-	ProjectGUID="{D2FF065B-A553-4673-9EDE-4873AFB86B78}"
+	ProjectGUID="{885DB7B1-490A-4B47-8A3A-0BD6136B04A3}"
 	RootNamespace="HQClient"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Engine;..\..\Engine\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CLIENT_"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib wsock32.lib"
+				AdditionalDependencies="msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib wsock32.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../Engine/lib"
-				IgnoreAllDefaultLibraries="TRUE"
-				GenerateDebugInformation="TRUE"
+				IgnoreAllDefaultLibraries="true"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/Engine.pdb"
 				SubSystem="2"
 				EntryPointSymbol=""
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\Engine;..\..\Engine\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CLIENT_"
 				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Wsock32.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../Engine/lib"
-				IgnoreAllDefaultLibraries="TRUE"
-				GenerateDebugInformation="TRUE"
+				IgnoreAllDefaultLibraries="true"
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -123,375 +187,496 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 			<File
-				RelativePath=".\bitset.cpp">
+				RelativePath=".\bitset.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\camera.cpp">
+				RelativePath=".\camera.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\clientsocket.cpp">
+				RelativePath=".\clientsocket.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\common.cpp">
+				RelativePath=".\common.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\creature.cpp">
+				RelativePath=".\creature.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\door.cpp">
+				RelativePath=".\door.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\field.cpp">
+				RelativePath=".\field.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\furniture.cpp">
+				RelativePath=".\furniture.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\gameobject.cpp">
+				RelativePath=".\gameobject.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\gamestate.cpp">
+				RelativePath=".\gamestate.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\hero.cpp">
+				RelativePath=".\hero.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\inventory.cpp">
+				RelativePath=".\inventory.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\item.cpp">
+				RelativePath=".\item.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\main.cpp">
+				RelativePath=".\main.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\math.cpp">
+				RelativePath=".\math.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\menu.cpp">
+				RelativePath=".\menu.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\message.cpp">
+				RelativePath=".\message.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\monster.cpp">
+				RelativePath=".\monster.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\overlay.cpp">
+				RelativePath=".\overlay.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\player.cpp">
+				RelativePath=".\player.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer.cpp">
+				RelativePath=".\renderer.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\script.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\socket.cpp">
-			</File>
-			<File
-				RelativePath=".\templates.cpp">
-			</File>
-			<File
-				RelativePath=".\textureManager.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\world.cpp">
+				RelativePath=".\script.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\socket.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\templates.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\textureManager.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\world.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 			<File
-				RelativePath=".\bitset.h">
+				RelativePath=".\bitset.h"
+				>
 			</File>
 			<File
-				RelativePath=".\camera.h">
+				RelativePath=".\camera.h"
+				>
 			</File>
 			<File
-				RelativePath=".\clientsocket.h">
+				RelativePath=".\clientsocket.h"
+				>
 			</File>
 			<File
-				RelativePath=".\common.h">
+				RelativePath=".\common.h"
+				>
 			</File>
 			<File
-				RelativePath=".\door.h">
+				RelativePath=".\door.h"
+				>
 			</File>
 			<File
-				RelativePath=".\field.h">
+				RelativePath=".\field.h"
+				>
 			</File>
 			<File
-				RelativePath=".\gameobject.h">
+				RelativePath=".\gameobject.h"
+				>
 			</File>
 			<File
-				RelativePath=".\gamestate.h">
+				RelativePath=".\gamestate.h"
+				>
 			</File>
 			<File
-				RelativePath=".\inventory.h">
+				RelativePath=".\inventory.h"
+				>
 			</File>
 			<File
-				RelativePath=".\math.h">
+				RelativePath=".\math.h"
+				>
 			</File>
 			<File
-				RelativePath=".\menu.h">
+				RelativePath=".\menu.h"
+				>
 			</File>
 			<File
-				RelativePath=".\message.h">
+				RelativePath=".\message.h"
+				>
 			</File>
 			<File
-				RelativePath=".\monster.h">
+				RelativePath=".\monster.h"
+				>
 			</File>
 			<File
-				RelativePath=".\overlay.h">
+				RelativePath=".\overlay.h"
+				>
 			</File>
 			<File
-				RelativePath=".\player.h">
+				RelativePath=".\player.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer.h">
+				RelativePath=".\renderer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\socket.h">
+				RelativePath=".\socket.h"
+				>
 			</File>
 			<File
-				RelativePath=".\templates.h">
+				RelativePath=".\templates.h"
+				>
 			</File>
 			<File
-				RelativePath=".\textureManager.h">
+				RelativePath=".\textureManager.h"
+				>
 			</File>
 			<File
-				RelativePath=".\world.h">
+				RelativePath=".\world.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 			<File
-				RelativePath="..\..\Engine\Engine.ico">
+				RelativePath="..\..\Engine\Engine.ico"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\Engine.rc">
+				RelativePath="..\..\Engine\Engine.rc"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\small.ico">
+				RelativePath="..\..\Engine\small.ico"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="engine"
-			Filter="">
+			>
 			<File
-				RelativePath="..\..\Engine\gui\console.cpp">
+				RelativePath="..\..\Engine\gui\console.cpp"
+				>
 				<FileConfiguration
-					Name="Debug|Win32">
+					Name="Debug|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32">
+					Name="Release|Win32"
+					>
 					<Tool
 						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\..\Engine\gui\console.h">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXrenderer.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXrenderer.h">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXtexture.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXtexture.h">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXvertexbuffer.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXvertexbuffer.h">
-			</File>
-			<File
-				RelativePath="..\..\Engine\system\engine.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Engine\system\engine.h">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\font.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\font.h">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\forms.cpp">
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\forms.h">
-			</File>
-			<File
-				RelativePath="..\..\Engine\gui\gui.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						ObjectFile="$(IntDir)/$(InputName)1.obj"/>
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\Engine\gui\gui.h">
+				RelativePath="..\..\Engine\gui\console.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\input\keyboard.cpp">
+				RelativePath="..\..\Engine\renderer\DXrenderer.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\input\keyboard.h">
+				RelativePath="..\..\Engine\renderer\DXrenderer.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\math\matrix.cpp">
+				RelativePath="..\..\Engine\renderer\DXtexture.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\math\matrix.h">
+				RelativePath="..\..\Engine\renderer\DXtexture.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\model.cpp">
+				RelativePath="..\..\Engine\renderer\DXvertexbuffer.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\model.h">
+				RelativePath="..\..\Engine\renderer\DXvertexbuffer.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\input\mouse.cpp">
+				RelativePath="..\..\Engine\system\engine.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\input\mouse.h">
+				RelativePath="..\..\Engine\system\engine.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\window\nativeLinux.cpp">
+				RelativePath="..\..\Engine\renderer\font.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\window\nativeLinux.h">
+				RelativePath="..\..\Engine\renderer\font.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\window\nativeWindows.cpp">
+				RelativePath="..\..\Engine\renderer\forms.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\window\nativeWindows.h">
+				RelativePath="..\..\Engine\renderer\forms.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\OGLrenderer.cpp">
+				RelativePath="..\..\Engine\gui\gui.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)/$(InputName)1.obj"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\OGLrenderer.h">
+				RelativePath="..\..\Engine\gui\gui.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\OGLtexture.cpp">
+				RelativePath="..\..\Engine\input\keyboard.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\OGLtexture.h">
+				RelativePath="..\..\Engine\input\keyboard.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\OGLvertexbuffer.cpp">
+				RelativePath="..\..\Engine\math\matrix.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\OGLvertexbuffer.h">
+				RelativePath="..\..\Engine\math\matrix.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\renderer.cpp">
+				RelativePath="..\..\Engine\renderer\model.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\renderer.h">
+				RelativePath="..\..\Engine\renderer\model.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\system\script.cpp">
+				RelativePath="..\..\Engine\input\mouse.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\system\script.h">
+				RelativePath="..\..\Engine\input\mouse.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\texture.cpp">
+				RelativePath="..\..\Engine\window\nativeLinux.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\texture.h">
+				RelativePath="..\..\Engine\window\nativeLinux.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\system\thread.cpp">
+				RelativePath="..\..\Engine\window\nativeWindows.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\system\thread.h">
+				RelativePath="..\..\Engine\window\nativeWindows.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\math\vector.cpp">
+				RelativePath="..\..\Engine\renderer\OGLrenderer.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\math\vector.h">
+				RelativePath="..\..\Engine\renderer\OGLrenderer.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\vertexbuffer.cpp">
+				RelativePath="..\..\Engine\renderer\OGLtexture.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\renderer\vertexbuffer.h">
+				RelativePath="..\..\Engine\renderer\OGLtexture.h"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\window\window.cpp">
+				RelativePath="..\..\Engine\renderer\OGLvertexbuffer.cpp"
+				>
 			</File>
 			<File
-				RelativePath="..\..\Engine\window\window.h">
+				RelativePath="..\..\Engine\renderer\OGLvertexbuffer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\renderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\renderer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\system\script.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\system\script.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\texture.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\texture.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\system\thread.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\system\thread.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\math\vector.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\math\vector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\vertexbuffer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\renderer\vertexbuffer.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\window\window.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\window\window.h"
+				>
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\ReadMe.txt">
+			RelativePath=".\ReadMe.txt"
+			>
 		</File>
 	</Files>
 	<Globals>
