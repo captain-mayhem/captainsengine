@@ -1,117 +1,181 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="8,00"
 	Name="Engine"
 	ProjectGUID="{D2FF065B-A553-4673-9EDE-4873AFB86B78}"
 	RootNamespace="Engine"
-	Keyword="Win32Proj">
+	Keyword="Win32Proj"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="Debug"
 			IntermediateDirectory="Debug"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
-				MinimalRebuild="TRUE"
+				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="4"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="4"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies=" msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib"
+				AdditionalDependencies="msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="lib"
-				IgnoreAllDefaultLibraries="TRUE"
-				GenerateDebugInformation="TRUE"
+				IgnoreAllDefaultLibraries="true"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="$(OutDir)/Engine.pdb"
 				SubSystem="2"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="Release"
 			IntermediateDirectory="Release"
 			ConfigurationType="1"
-			CharacterSet="2">
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
+				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="true"
+				DebugInformationFormat="3"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib"
 				OutputFile="$(OutDir)/Engine.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="lib"
-				IgnoreAllDefaultLibraries="TRUE"
-				GenerateDebugInformation="TRUE"
+				IgnoreAllDefaultLibraries="true"
+				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
+				Name="VCWebDeploymentTool"
+			/>
 			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
@@ -120,210 +184,268 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			>
 		</Filter>
 		<Filter
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
 			<File
-				RelativePath=".\Engine.ico">
+				RelativePath=".\Engine.ico"
+				>
 			</File>
 			<File
-				RelativePath=".\Engine.rc">
+				RelativePath=".\Engine.rc"
+				>
 			</File>
 			<File
-				RelativePath=".\small.ico">
+				RelativePath=".\small.ico"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="window"
-			Filter="">
+			>
 			<File
-				RelativePath=".\window\nativeLinux.cpp">
+				RelativePath=".\window\nativeLinux.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\window\nativeLinux.h">
+				RelativePath=".\window\nativeLinux.h"
+				>
 			</File>
 			<File
-				RelativePath=".\window\nativeWindows.cpp">
+				RelativePath=".\window\nativeWindows.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\window\nativeWindows.h">
+				RelativePath=".\window\nativeWindows.h"
+				>
 			</File>
 			<File
-				RelativePath=".\window\window.cpp">
+				RelativePath=".\window\window.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\window\window.h">
+				RelativePath=".\window\window.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="system"
-			Filter="">
+			>
 			<File
-				RelativePath=".\system\engine.cpp">
+				RelativePath=".\system\engine.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\system\engine.h">
+				RelativePath=".\system\engine.h"
+				>
 			</File>
 			<File
-				RelativePath=".\system\interactor.h">
+				RelativePath=".\system\interactor.h"
+				>
 			</File>
 			<File
-				RelativePath=".\system\script.cpp">
+				RelativePath=".\system\script.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\system\script.h">
+				RelativePath=".\system\script.h"
+				>
 			</File>
 			<File
-				RelativePath=".\system\singleton.cpp">
+				RelativePath=".\system\singleton.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\system\singleton.h">
+				RelativePath=".\system\singleton.h"
+				>
 			</File>
 			<File
-				RelativePath=".\system\thread.cpp">
+				RelativePath=".\system\thread.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\system\thread.h">
+				RelativePath=".\system\thread.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="renderer"
-			Filter="">
+			>
 			<File
-				RelativePath=".\renderer\dummyrenderer.h">
+				RelativePath=".\renderer\dummyrenderer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\DXrenderer.cpp">
+				RelativePath=".\renderer\DXrenderer.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\DXrenderer.h">
+				RelativePath=".\renderer\DXrenderer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\DXtexture.cpp">
+				RelativePath=".\renderer\DXtexture.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\DXtexture.h">
+				RelativePath=".\renderer\DXtexture.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\DXvertexbuffer.cpp">
+				RelativePath=".\renderer\DXvertexbuffer.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\DXvertexbuffer.h">
+				RelativePath=".\renderer\DXvertexbuffer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\font.cpp">
+				RelativePath=".\renderer\font.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\font.h">
+				RelativePath=".\renderer\font.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\forms.cpp">
+				RelativePath=".\renderer\forms.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\forms.h">
+				RelativePath=".\renderer\forms.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\OGLrenderer.cpp">
+				RelativePath=".\renderer\OGLrenderer.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\OGLrenderer.h">
+				RelativePath=".\renderer\OGLrenderer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\OGLtexture.cpp">
+				RelativePath=".\renderer\OGLtexture.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\OGLtexture.h">
+				RelativePath=".\renderer\OGLtexture.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\OGLvertexbuffer.cpp">
+				RelativePath=".\renderer\OGLvertexbuffer.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\OGLvertexbuffer.h">
+				RelativePath=".\renderer\OGLvertexbuffer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\renderer.cpp">
+				RelativePath=".\renderer\renderer.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\renderer.h">
+				RelativePath=".\renderer\renderer.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\texture.cpp">
+				RelativePath=".\renderer\texture.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\texture.h">
+				RelativePath=".\renderer\texture.h"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\vertexbuffer.cpp">
+				RelativePath=".\renderer\vertexbuffer.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\renderer\vertexbuffer.h">
+				RelativePath=".\renderer\vertexbuffer.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="input"
-			Filter="">
+			>
 			<File
-				RelativePath=".\input\keyboard.cpp">
+				RelativePath=".\input\keyboard.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\input\keyboard.h">
+				RelativePath=".\input\keyboard.h"
+				>
 			</File>
 			<File
-				RelativePath=".\input\mouse.cpp">
+				RelativePath=".\input\mouse.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\input\mouse.h">
+				RelativePath=".\input\mouse.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="math"
-			Filter="">
+			>
 			<File
-				RelativePath=".\math\matrix.cpp">
+				RelativePath=".\math\matrix.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\math\matrix.h">
+				RelativePath=".\math\matrix.h"
+				>
 			</File>
 			<File
-				RelativePath=".\math\vector.cpp">
+				RelativePath=".\math\vector.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\math\vector.h">
+				RelativePath=".\math\vector.h"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="test"
-			Filter="">
+			>
 			<File
-				RelativePath=".\main.cpp">
+				RelativePath=".\main.cpp"
+				>
 			</File>
 		</Filter>
 		<Filter
 			Name="gui"
-			Filter="">
+			>
 			<File
-				RelativePath=".\gui\console.cpp">
+				RelativePath=".\gui\console.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\gui\console.h">
+				RelativePath=".\gui\console.h"
+				>
 			</File>
 			<File
-				RelativePath=".\gui\gui.cpp">
+				RelativePath=".\gui\gui.cpp"
+				>
 			</File>
 			<File
-				RelativePath=".\gui\gui.h">
+				RelativePath=".\gui\gui.h"
+				>
 			</File>
 		</Filter>
 		<File
-			RelativePath=".\ReadMe.txt">
+			RelativePath=".\ReadMe.txt"
+			>
 		</File>
 	</Files>
 	<Globals>
