@@ -19,6 +19,8 @@
 #include "world.h"
 #include "gui/console.h"
 #include "message.h"
+#include "templates.h"
+#include "trade.h"
 #include "player.h"
 
 using std::cout;
@@ -33,11 +35,15 @@ using std::ostringstream;
 
 extern ClientSocket* sock;
 extern string path;
+extern string home;
 
 //Csontructor: set initial values
 Player::Player(): status_(0), zargon_(false){
   activeCreature_ = "nobody";
   turn_ = false;
+  wonLevel_ = 0;
+  wonPackage_ = 0;
+  trade_ = NULL;
 }
 
 Player::Player(const Player& p){
@@ -46,10 +52,14 @@ Player::Player(const Player& p){
   zargon_ = p.zargon_;
   activeCreature_ = string(p.activeCreature_);
   turn_ = p.turn_;
+  wonLevel_ = p.wonLevel_;
+  wonPackage_ = p.wonPackage_;
+  trade_ = new Trade(*p.trade_);
 }
 
 //Destructor
 Player::~Player(){
+  SAFE_DELETE(trade_);
 }
 
 //login on server
@@ -171,4 +181,38 @@ Creature* Player::getCreature() const {
     }
   }
   return ret;
+}
+
+void Player::loadStatus(){
+  string path = home+name_+".sav";
+  ifstream in(path.c_str(), ios::binary);
+  if (!in){
+    //the login is used the first time
+    //write standard file
+    ofstream out(path.c_str(), ios::binary);
+    out.write((char*)&wonPackage_, sizeof(wonPackage_));
+    out.write((char*)&wonLevel_, sizeof(wonLevel_));
+    out.close();
+  }
+  else{
+    in.read((char*)&wonPackage_, sizeof(wonPackage_));
+    in.read((char*)&wonLevel_, sizeof(wonLevel_));
+    in.close();
+  }
+  //setup trading
+  //open appropriate trade file
+  trade_ = new Trade();
+  string pth = "data/trade"+toStr(wonPackage_)+".dat";
+  ifstream trade(pth.c_str());
+  if (!trade)
+    cerr << pth << " not found!";
+  int numits;
+  trade >> numits;
+  string name;
+  for (int i = 0; i < numits; i++){
+    trade >> name;
+    Item it = Templates::instance()->searchItem(name);
+    trade_->addItem(it);
+  }
+  trade.close();
 }

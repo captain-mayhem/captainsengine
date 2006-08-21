@@ -33,6 +33,7 @@
 #include "script.h"
 #include "templates.h"
 #include "menu.h"
+#include "trade.h"
 #include "message.h"
 
 using std::istringstream;
@@ -255,9 +256,8 @@ void Message::process_(const char* cmd){
       consol << "Please connect to a server first";
       break;
     }
-    //only 'list players' currently implemented
     if (argv.size() < 2){
-      consol << "Usage: list (players | inventory)";
+      consol << "Usage: list (players | inventory | shop)";
     }
     else if(toLower(argv[0]) == "players"){
       toSend += toLower(argv[0]);
@@ -296,6 +296,20 @@ void Message::process_(const char* cmd){
       ite = inv->getArmory("breast");
       if (ite.isValid())
         consol << ite.getName()+" is worn on the breast.";
+    }
+    else if(toLower(argv[0]) == "shop"){
+      if (plyr.getTrade() == NULL){
+        consol<<"There is no shop available at the moment.";
+        break;
+      }
+      consol<<"This can be bought at the shop:";
+      vector<Item> items = plyr.getTrade()->getItems();
+      vector<Item>::iterator it = items.begin();
+      it++;
+      while( it != items.end() ) {
+        consol<<it->getName()+"   Price: "+it->getAdditional();
+        it++;
+      }
     }
   break;
       
@@ -570,11 +584,11 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
     }
-    if (argv.size() < 2){
-      consol << "Usage: spawn <item>";
+    if (argv.size() < 3){
+      consol << "Usage: spawn <item> <amount>";
       break;
     }
-    *ss_ << toStr(SPAWN)+" "+argv[0];
+    *ss_ << toStr(SPAWN)+" "+argv[0]+" "+argv[1];
     break;
 
   case TRAP:
@@ -708,6 +722,7 @@ void Message::process(const string& answer){
 	case LOGIN:
 		plyr.setStatus(toInt(argv[0]));
     (line).setColor(1,1,1);
+    plyr.loadStatus();
 		consol << "Logged in.";
 		line << "Logged in.";
     
@@ -1103,8 +1118,16 @@ void Message::process(const string& answer){
 
   case SPAWN:{
     Vector2D pos(toInt(argv[0]), toInt(argv[1]));
+    if (argv[2] == "money"){
+      Hero* h = dynamic_cast<Hero*>(wrld.getObject(pos));
+      h->changeMoney(toInt(argv[3]));
+      break;
+    }
     Inventory* inv = dynamic_cast<Creature*>(wrld.getObject(pos))->getInventory();
     Item it = Templates::instance()->searchItem(argv[2]);
+    for (int i = 1; i < toInt(argv[3]); i++){
+      it.increase();
+    }
     inv->addItem(it);
   break;
   }

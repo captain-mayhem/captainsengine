@@ -20,6 +20,8 @@
 using std::string;
 using std::vector;  
 
+class Trade;
+
 //! this class stores informations about the player
 class Player {
 public: 
@@ -57,17 +59,27 @@ public:
   bool isZargon() const;
   //! returns the currently controlled hero or NULL if none is controlled
   Creature* getCreature() const;
+  //! load status
+  void loadStatus();
+  //! get the trading system
+  inline Trade* getTrade() {return trade_;}
 private:
-  //player name
+  //! player name
   string name_;
-  //player state
+  //! player state
   char status_;
-  //is the player zargon
+  //! is the player zargon
   bool zargon_;
-  //the name of the active creature
+  //! the name of the active creature
   string activeCreature_;
-  //is it your turn
+  //! is it your turn
   bool turn_;
+  //! the last won package
+  short wonPackage_;
+  //! the last won level of the package
+  short wonLevel_;
+  //! the shop for trading items
+  Trade* trade_;
 };
 
 extern Player plyr;
