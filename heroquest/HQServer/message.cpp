@@ -828,10 +828,24 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       Vector2D pos = c->getPosition();
       Inventory* inv = c->getInventory();
+      if (argv[0] == "money"){
+        Hero* h = dynamic_cast<Hero*>(c);
+        if (!h){
+          *ss << toStr(CHAT)+" Only a hero can possess money.";
+          break;
+        }
+        h->changeMoney(toInt(argv[1]));
+        string msg = toStr(SPAWN)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0]+" "+argv[1];
+        globl.broadcast(msg);
+        break;
+      }
       Item it = Templates::instance()->searchItem(argv[0]);
       if (it.getType() != Item::NoItem){
+        for (int i = 1; i < toInt(argv[2]); i++){
+          it.increase();
+        }
         inv->addItem(it);
-        string msg = toStr(SPAWN)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0];
+        string msg = toStr(SPAWN)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0]+" "+argv[1];
         globl.broadcast(msg);
       }
     }

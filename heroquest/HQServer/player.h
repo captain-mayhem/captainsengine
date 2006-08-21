@@ -62,7 +62,7 @@ public:
   //! get the last creature
   inline Creature* getLastCreature() {return lastCreat_;}
 private:
-  //!player name
+  //! player name
   string name;
   //! password of the player
   string pwd;
