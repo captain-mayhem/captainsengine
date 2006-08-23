@@ -113,6 +113,8 @@ class Engine{
     void removeInputListener(int idx);
     //! remove the button listener at position idx
     void removeButtonListener(int idx, bool immediate=true);
+    //! remove the button listener with a certain name
+    void removeButtonListener(const string& name);
     //! remove all button listeners beginning at idx
     void removeButtonListeners(int idx);
   private:

@@ -364,6 +364,21 @@ void System::Engine::removeButtonListener(int idx, bool immediate){
   buttons_.erase(iter);
 }
 
+
+// remove the button listener with a certain name
+void System::Engine::removeButtonListener(const string& name){
+  list< ::Gui::Button*>::iterator iter = buttons_.begin();
+  for (unsigned i = 0; i < buttons_.size(); i++){
+    if((*iter)->getText() == name){
+      delete *iter;
+      buttons_.erase(iter);
+      break;
+    }
+    iter++;
+  }
+}
+
+
 // remove all button listeners beginning at idx
 void System::Engine::removeButtonListeners(int idx){
   list< ::Gui::Button*>::iterator iter = buttons_.begin();
