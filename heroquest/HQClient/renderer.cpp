@@ -20,6 +20,7 @@
 #include "player.h"
 #include "menu.h"
 #include "message.h"
+#include "trade.h"
 #include "renderer.h"
 
 #define line *System::Engine::instance()->getFont()
@@ -50,6 +51,7 @@ HQRenderer::HQRenderer(Graphics::Renderer* rend){
   mousePos_ = Vector2D(0,0);
 
   inventory_ = NULL;
+  trade_ = false;
 }
 
 void HQRenderer::resize_(int width, int height){
@@ -190,7 +192,7 @@ void HQRenderer::ascii_(unsigned char key){
 // the button click handling
 void HQRenderer::buttonDown_(int x, int y, int buttons){
   //clickable map
-  if (game.getState() == PREPARE && !Mouse::instance()->isGuiClick() && clickedField_ == Vector2D(-1,-1)){
+  if (game.getState() == PREPARE && !Mouse::instance()->isGuiClick() && clickedField_ == Vector2D(-1,-1) && !trade_){
     float dx = (float)wrld.getMapSize().x/SCREENWIDTH;
     float dy = (float)wrld.getMapSize().y/SCREENHEIGHT;
     clickedField_.x = (int)(x*dx);
@@ -375,6 +377,11 @@ void HQRenderer::paint_(){
   if (inventory_){
     inventory_->render();
     inventory_->update();
+  }
+  
+  if (trade_){
+    plyr.getTrade()->render();
+    plyr.getTrade()->update();
   }
   
   Graphics::Font *f = System::Engine::instance()->getFont();

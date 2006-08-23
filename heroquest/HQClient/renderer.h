@@ -53,6 +53,8 @@ public:
   void setViewTo3D(bool threeD);
   //! set awaiting map click
   inline void setAwaitMapclick(void (*proc)(Math::Vector2D click)) {awaitMapClick_ = proc;}
+  //! set the trade status
+  inline void setTrade(bool on) {trade_ = on;}
 protected:
   HQRenderer(Graphics::Renderer* rend);
   void initialize_();
@@ -95,6 +97,8 @@ protected:
   void (*awaitMapClick_)(Math::Vector2D click);
   //! the inventory that should be rendered
   Inventory* inventory_;
+  //! if the trading is active
+  bool trade_;
 };
 
 #endif

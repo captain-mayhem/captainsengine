@@ -64,6 +64,10 @@ public:
   static void whois();
   //! whois button
   static void whois(Vector2D click);
+  //! shop button
+  static void shop();
+  //! close shop button
+  static void closeShop();
   private:
 };
 

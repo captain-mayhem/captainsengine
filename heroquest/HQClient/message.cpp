@@ -789,13 +789,21 @@ void Message::process(const string& answer){
 			break;
     
 		//someone plays a character, so the button to start the game must appear
-		Button* but = new Button();
-		but->setPosition(Vector2D(900, 170));
-		but->setText("Start");
-		//void (Renderer::*p)();
-		//p = &Renderer::start;
-		but->setCbFunc(Menu::start);
-    System::Engine::instance()->addButtonListener(but);
+		if (plyr.getActCreature() == "nobody"){
+      Button* but = new Button();
+		  but->setPosition(Vector2D(900, 170));
+		  but->setText("Start");
+		  //void (Renderer::*p)();
+		  //p = &Renderer::start;
+		  but->setCbFunc(Menu::start);
+      System::Engine::instance()->addButtonListener(but);
+
+      but = new Button();
+      but->setPosition(Vector2D(900, 130));
+      but->setText("Shop");
+      but->setCbFunc(Menu::shop);
+      System::Engine::instance()->addButtonListener(but);
+    }
     
 		if (argv[0] == "zargon"){
 			//you sended the command

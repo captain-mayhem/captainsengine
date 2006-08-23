@@ -250,7 +250,10 @@ void Menu::play(){
   }
 
   //Reset GUI
-  System::Engine::instance()->clearListeners();
+  System::Engine::instance()->getFont()->clear();
+  System::Engine::instance()->removeButtonListener("    Play");
+  System::Engine::instance()->removeInputListener(System::Engine::instance()->getInputFields().size()-1);
+  /*System::Engine::instance()->clearListeners();
   Button* but = new Button();
   but->setPosition(Vector2D(900,170));
   but->setText("Start");
@@ -258,6 +261,7 @@ void Menu::play(){
   //p = &Renderer::start;
   but->setCbFunc(start);
   System::Engine::instance()->addButtonListener(but);
+*/
   
   //cf_ = Vector2D(-1,-1);
   HQRenderer::instance()->resetClickedField();
@@ -588,4 +592,37 @@ void Menu::whois(){
 //! whois button
 void Menu::whois(Vector2D click){
   msg.process(("whois "+toStr(click.x)+" "+toStr(click.y)).c_str());
+}
+
+//! shop button
+void Menu::shop(){
+  System::Engine::instance()->clearListeners();
+  
+  HQRenderer::instance()->setTrade(true);
+  
+  Button* but = new Button();
+  but->setPosition(Vector2D(900, 170));
+  but->setText("Close");
+	//p = &Renderer::mainMenu;
+	but->setCbFunc(closeShop);
+  System::Engine::instance()->addButtonListener(but);
+}
+
+//! close shop button
+void Menu::closeShop(){
+  System::Engine::instance()->clearListeners();
+  HQRenderer::instance()->setTrade(false);
+  
+  Button* but = new Button();
+	but->setPosition(Vector2D(900, 170));
+	but->setText("Start");
+	but->setCbFunc(Menu::start);
+  System::Engine::instance()->addButtonListener(but);
+
+  but = new Button();
+  but->setPosition(Vector2D(900, 130));
+  but->setText("Shop");
+  but->setCbFunc(Menu::shop);
+  System::Engine::instance()->addButtonListener(but);
+
 }

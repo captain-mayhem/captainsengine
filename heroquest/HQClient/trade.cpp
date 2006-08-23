@@ -122,7 +122,7 @@ void Trade::render(){
   //background
   glDisable(GL_BLEND);
   glColor4f(1.0,1.0,1.0,1.0);
-  TextureManager::instance()->otherTex[1]->activate();
+  TextureManager::instance()->otherTex[2]->activate();
   //glBindTexture(GL_TEXTURE_2D, tex.otherTex[1]);
   glBegin(GL_QUADS);
     glTexCoord2f(1, 0);
@@ -137,7 +137,7 @@ void Trade::render(){
   glEnable(GL_BLEND);
 
   //items
-  Vector2D pos(50, 485);
+  Vector2D pos(575, 485);
   short count = 0;
   fnt_->setColor(0,1,1);
   for (unsigned i = 9*(page_-1)+1; i < items_.size() && i < 9*page_+1; i++){
@@ -147,11 +147,11 @@ void Trade::render(){
     int fill = (11 - name.size())/2;
     name.insert(name.begin(), fill, ' ');
     fnt_->glPrint(pos.x, pos.y, name.c_str(), 1);
-    fnt_->glPrint(pos.x+48, pos.y-18, toStr(items_[i].getNumber()).c_str(), 1);
+    fnt_->glPrint(pos.x+28, pos.y-18, items_[i].getAdditional().c_str(), 1);
     pos.x += 148;
     count++;
     if (count == 3){
-      pos.x = 50;
+      pos.x = 575;
       count = 0;
       pos.y -= 193;
     }
