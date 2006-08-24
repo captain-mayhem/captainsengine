@@ -46,9 +46,9 @@ class Trade{
     void update();
 #ifdef _CLIENT_
     //! get chosen item
-    inline Item* getChosenItem() {return chosenItem_;}
+    inline Item getChosenItem() {return chosenItem_;}
     //! deselect item
-    inline void deselect() {chosenItem_ = NULL;}
+    inline void deselect() {chosenItem_ = Item();}
     //! is visible
     inline void makeVisible(bool doit) {visible_ = doit;}
 #endif
@@ -60,10 +60,12 @@ class Trade{
 #ifdef _CLIENT_
     //! the font
     ::Graphics::Font* fnt_;
-    //! the item page to be displayed
-    unsigned short page_;
+    //! the inventory page to be displayed
+    unsigned short invPage_;
+    //! the shop page to be displayed
+    unsigned short shopPage_;
     //! the chosen item
-    Item* chosenItem_;
+    Item chosenItem_;
     //! if inventory is visible
     bool visible_;
 #endif

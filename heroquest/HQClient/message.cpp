@@ -787,29 +787,17 @@ void Message::process(const string& answer){
 	case PLAY:{
 		if (plyr.getStatus() == 0)
 			break;
-    
-		//someone plays a character, so the button to start the game must appear
-		if (plyr.getActCreature() == "nobody"){
-      Button* but = new Button();
-		  but->setPosition(Vector2D(900, 170));
-		  but->setText("Start");
-		  //void (Renderer::*p)();
-		  //p = &Renderer::start;
-		  but->setCbFunc(Menu::start);
-      System::Engine::instance()->addButtonListener(but);
-
-      but = new Button();
-      but->setPosition(Vector2D(900, 130));
-      but->setText("Shop");
-      but->setCbFunc(Menu::shop);
-      System::Engine::instance()->addButtonListener(but);
-    }
-    
+		    
 		if (argv[0] == "zargon"){
 			//you sended the command
 			if (argv.size() == 1){
 				plyr.addZargon();
 				consol << "You are Zargon.\n";
+        Button* but = new Button();
+		    but->setPosition(Vector2D(900, 170));
+		    but->setText("Start");
+		    but->setCbFunc(Menu::start);
+        System::Engine::instance()->addButtonListener(but);
 				break;
 			}
 			for (unsigned i = 0; i < wrld.getMonsters().size(); i++){
@@ -823,8 +811,28 @@ void Message::process(const string& answer){
 		short posidx = toInt(argv[10]);
     Inventory* inv = heroe.getInventory();
     inv->fromString(argv[13]);
+    
+    //only if you added the creature, it should be the active one
+    if (heroe.getPlayer() == plyr.getName()){
+      //you play a character, so the button to start the game must appear
+		  if (plyr.getActCreature() == "nobody"){
+        Button* but = new Button();
+		    but->setPosition(Vector2D(900, 170));
+		    but->setText("Start");
+		    //void (Renderer::*p)();
+		    //p = &Renderer::start;
+		    but->setCbFunc(Menu::start);
+        System::Engine::instance()->addButtonListener(but);
+
+        but = new Button();
+        but->setPosition(Vector2D(900, 130));
+        but->setText("Shop");
+        but->setCbFunc(Menu::shop);
+        System::Engine::instance()->addButtonListener(but);
+      }
+		  plyr.setActCreature(heroe.getName());
+    }
 		wrld.addHero(heroe, posidx);
-		plyr.setActCreature(heroe.getName());
 		break;
 	}
 	      

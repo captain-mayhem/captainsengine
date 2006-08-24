@@ -7,6 +7,7 @@
 #include "world.h"
 #include "camera.h"
 #include "renderer.h"
+#include "trade.h"
 #include "menu.h"
 
 using Gui::InputField;
@@ -601,7 +602,25 @@ void Menu::shop(){
   HQRenderer::instance()->setTrade(true);
   
   Button* but = new Button();
-  but->setPosition(Vector2D(900, 170));
+  but->setPosition(Vector2D(900, 240));
+  but->setText("Buy");
+	but->setCbFunc(buy);
+  System::Engine::instance()->addButtonListener(but);
+
+  but = new Button();
+  but->setPosition(Vector2D(900, 210));
+  but->setText("Sell");
+	but->setCbFunc(sell);
+  System::Engine::instance()->addButtonListener(but);
+  
+  but = new Button();
+  but->setPosition(Vector2D(900, 180));
+  but->setText("What is");
+	but->setCbFunc(whatisShop);
+  System::Engine::instance()->addButtonListener(but);
+
+  but = new Button();
+  but->setPosition(Vector2D(900, 140));
   but->setText("Close");
 	//p = &Renderer::mainMenu;
 	but->setCbFunc(closeShop);
@@ -612,6 +631,7 @@ void Menu::shop(){
 void Menu::closeShop(){
   System::Engine::instance()->clearListeners();
   HQRenderer::instance()->setTrade(false);
+  plyr.getTrade()->deselect();
   
   Button* but = new Button();
 	but->setPosition(Vector2D(900, 170));
@@ -625,4 +645,22 @@ void Menu::closeShop(){
   but->setCbFunc(Menu::shop);
   System::Engine::instance()->addButtonListener(but);
 
+}
+
+//whatis (shop) button
+void Menu::whatisShop(){
+  Item ite = plyr.getTrade()->getChosenItem();
+  if (!ite.isValid()){
+    line << "Please select an item first.";
+  }
+  else{
+    plyr.getTrade()->deselect();
+    msg.process(("whatis "+ite.getName()).c_str());
+  }
+}
+
+void Menu::buy(){
+}
+
+void Menu::sell(){
 }

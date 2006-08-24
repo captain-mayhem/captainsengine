@@ -68,6 +68,12 @@ public:
   static void shop();
   //! close shop button
   static void closeShop();
+  //! whatis (shop) button
+  static void whatisShop();
+  //! buy button
+  static void buy();
+  //! sell button
+  static void sell();
   private:
 };
 
