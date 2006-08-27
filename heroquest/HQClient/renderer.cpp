@@ -64,6 +64,10 @@ void HQRenderer::resize_(int width, int height){
 void HQRenderer::special_(int key){
   switch (key){
   case KEY_ESCAPE:
+    if (inventory_){
+      Menu::close();
+      break;
+    }
     line << "Do you really want to quit (y/n)";
     ask_ = true;
     break;
@@ -151,6 +155,8 @@ void HQRenderer::ascii_(unsigned char key){
     break;
   }
   case 'i':
+    if (game.getState() == RUN)
+      Menu::inventory();
     break;
   case 'w':
   case 's':

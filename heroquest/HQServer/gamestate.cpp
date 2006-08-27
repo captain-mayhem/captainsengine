@@ -127,7 +127,8 @@ string GameState::die(const short num, const bool movementDice, short* s, short*
   if (movementDice){
     for (short i = 0; i < num; i++){
       double number = ((double)rand() / RAND_MAX * 6.0)+1;
-      *m += (short)number;
+      if (m)
+        *m += (short)number;
       ret += toStr((int)number)+" ";
     }
     return ret;
