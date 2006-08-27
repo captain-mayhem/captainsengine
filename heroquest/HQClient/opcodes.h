@@ -57,5 +57,8 @@
 #define DUMP          1040 //unused
 #define REPLAY        1041 //unused
 #define DROP          1042
+#define BUY           1043
+#define SELL          1044
+#define CREAT_CHANGE  1045
 
 #endif

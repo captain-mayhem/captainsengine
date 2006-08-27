@@ -179,7 +179,7 @@ function armory(sx, sy, tx, ty, idx)
     local id2 = getArmory(sx, sy, "left hand");
     --free?
     if id1 == -1 and id2 == -1 then
-      wearArmory(sx, sy, "longsword", "right hand", "left hand");
+      wearArmory(sx, sy, "battle_axe", "right hand", "left hand");
       local atta = getCreatureProperty(sx, sy, "attack");
       setCreatureProperty(sx, sy, "attack", atta+4);
       return true;

@@ -660,6 +660,14 @@ void Menu::whatisShop(){
 }
 
 void Menu::buy(){
+  Item ite = plyr.getTrade()->getChosenItem();
+  if (!ite.isValid()){
+    line << "Please select an item first.";
+  }
+  else{
+    plyr.getTrade()->deselect();
+    msg.process(("buy "+ite.getName()).c_str());
+  }
 }
 
 void Menu::sell(){

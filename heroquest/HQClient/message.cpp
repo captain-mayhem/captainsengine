@@ -87,6 +87,8 @@ Message::Message(): ss_(0) {
   cliToSrv_["dump"] = DUMP;
   cliToSrv_["replay"] = REPLAY;
   cliToSrv_["drop"] = DROP;
+  cliToSrv_["buy"] = BUY;
+  cliToSrv_["sell"] = SELL;
 }
 
 Message::Message(const Message& m){
@@ -580,7 +582,7 @@ void Message::process_(const char* cmd){
     break;
 
   case SPAWN:
-    if (game.getState() != RUN){
+    if (game.getState() == INIT){
 			consol << "Not allowed at the moment";
 			break;
     }
@@ -606,6 +608,7 @@ void Message::process_(const char* cmd){
 		}
 		if (argv.size() < 2){
 			consol << "Usage: disarm <direction>";
+      break;
 		}
 		{
 		Direction d=TOP;
@@ -632,6 +635,7 @@ void Message::process_(const char* cmd){
 		}
 		if (argv.size() < 2){
 			consol << "Usage: jump <direction>";
+      break;
 		}
 		{
 		Direction d=TOP;
@@ -654,6 +658,7 @@ void Message::process_(const char* cmd){
   case DUMP:
 		if (argv.size() < 2){
 			consol << "Usage: dump <filename>";
+      break;
 		}
     *ss_ << toStr(DUMP) + " " + argv[0];
     break;
@@ -661,6 +666,7 @@ void Message::process_(const char* cmd){
   case REPLAY:
 		if (argv.size() < 2){
 			consol << "Usage: replay <filename>";
+      break;
 		}
     *ss_ << toStr(REPLAY) + " " + argv[0];
     break;
@@ -672,8 +678,28 @@ void Message::process_(const char* cmd){
 		}
 		if (argv.size() < 2){
 			consol << "Usage: drop <item>";
+      break;
 		}
 		*ss_ << toStr(DROP) + " " + argv[0];
+    break;
+
+  case BUY:
+    if (game.getState() != PREPARE){
+			consol << "Not allowed at the moment";
+			break;
+		}
+		if (argv.size() < 2){
+			consol << "Usage: buy <item>";
+      break;
+		}
+    if (!plyr.getTrade()->getItem(argv[0]).isValid()){
+      consol << "There exists no "+argv[0]+" in the shop";
+      break;
+    }
+    *ss_ << toStr(BUY) + " " + argv[0];
+    break;
+
+  case SELL:
     break;
 
 	default:
@@ -1245,6 +1271,16 @@ void Message::process(const string& answer){
     Inventory* newInv = new Inventory();
     newInv->addItem(it);
     wrld.placeInventory(newInv, pos);
+  break;
+  }
+
+  case BUY:{
+    Vector2D pos(toInt(argv[0]), toInt(argv[1]));
+    Hero* h = dynamic_cast<Hero*>(wrld.getObject(pos));
+    Item good = plyr.getTrade()->getItem(argv[2]);
+    int price = toInt(good.getAdditional());
+    h->changeMoney(-price);
+    h->getInventory()->addItem(good);
   break;
   }
 	

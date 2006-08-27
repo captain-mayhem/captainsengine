@@ -13,6 +13,7 @@
 #include "window/window.h"
 
 #include "common.h"
+#include "opcodes.h"
 #include "textureManager.h"
 #include "gamestate.h"
 #include "camera.h"
@@ -126,6 +127,30 @@ void HQRenderer::ascii_(unsigned char key){
     }
     else
       Mouse::instance()->showCursor(true);
+    break;
+  case 'c':{
+    //change camera
+    //only if it is not your turn or if no inventory is open
+    if (plyr.yourTurn() || inventory_)
+      break;
+    //get next controlled creature
+    Vector2D pos = game.getNextCreaturePos();
+    //save old camera and set it to new
+    Creature* creat = plyr.getCreature();
+		creat->setLookAt(cam.view());
+		creat->setCamPos(cam.position());
+		creat->setRot(cam.getCurrRotX());
+
+    Creature* c = dynamic_cast<Creature*>(wrld.getObject(pos));
+		cam.positionCamera(c->getCamPos(), c->getLookAt(), Vector3D(0,1,0));
+		cam.setCurrRotX(c->getRot());
+		wrld.updateCollisionVertices(c->getPosition());
+    plyr.setActCreature(c->getName());
+    //notify server
+    msg.send(toStr(CREAT_CHANGE)+" "+toStr(pos.x)+" "+toStr(pos.y));
+    break;
+  }
+  case 'i':
     break;
   case 'w':
   case 's':

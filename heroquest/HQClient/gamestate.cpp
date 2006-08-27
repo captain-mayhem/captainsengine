@@ -127,3 +127,54 @@ void GameState::end(){
     System::Engine::instance()->addButtonListener(but,false);
 	}
 }
+
+Vector2D GameState::getNextCreaturePos(){
+  //get current creature
+  Creature* c = plyr.getCreature();
+  
+  bool currFound = false;
+  Hero* heros = wrld.getHeros();
+  for (int i = 0; i < wrld.getHeroSize(); i++){
+    if (wrld.getStarts()[i] != Vector2D(-1,-1))
+      continue;
+    Hero h = heros[i];
+    if (h.getName() == c->getName() && h.getPlayer() == c->getPlayer()){
+      //found current
+      currFound = true;
+      continue;
+    }
+    if (currFound && h.getPlayer() == plyr.getName()){
+      //found next
+      return h.getPosition();
+    }
+  }
+  vector<Monster*>& monsters = wrld.getMonsters();
+  for (unsigned i = 0; i < monsters.size(); i++){
+    Monster* m = monsters[i];
+    if (m->getName() == c->getName() && m->getPlayer() == c->getPlayer()){
+      //found current
+      currFound = true;
+      continue;
+    }
+    if (currFound && m->getPlayer() == plyr.getName()){
+      //found next
+      return m->getPosition();
+    }
+  }
+  for (int i = 0; i < wrld.getHeroSize(); i++){
+    if (wrld.getStarts()[i] != Vector2D(-1,-1))
+      continue;
+    Hero h = heros[i];
+    if (h.getName() == c->getName() && h.getPlayer() == c->getPlayer()){
+      //found current
+      currFound = true;
+      continue;
+    }
+    if (currFound && h.getPlayer() == plyr.getName()){
+      //found next
+      return h.getPosition();
+    }
+  }
+  //nothing suitable found, so the next is the old
+  return c->getPosition();
+}

@@ -179,6 +179,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         break;
       }
       wrld.addHero(heroe, posidx);
+      globl.getPlayer(ss)->setLastCreature(&wrld.getHeros()[posidx]);
       globl.broadcast(cmd);
       //SDL_mutexV(gamtex);
       gamtex.unlock();
@@ -1088,6 +1089,51 @@ void Message::process(ServerSocket* ss, const string& cmd){
       newInv->addItem(it);
       wrld.placeInventory(newInv, pos);
       *ss << toStr(DROP)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0];
+      break;
+    }
+
+    case CREAT_CHANGE:{
+      GameObject* obj = wrld.getObject(Vector2D(toInt(argv[0]), toInt(argv[1])));
+      if (!obj){
+        *ss << toStr(NAK);
+        break;
+      }
+      Creature* c = dynamic_cast<Creature*>(obj);
+      if (!c){
+        *ss << toStr(NAK);
+        break;
+      }
+      globl.getPlayer(ss)->setLastCreature(c);
+      break;
+    }
+
+    case BUY:{
+      Creature* c = globl.getPlayer(ss)->getLastCreature();
+      if (c == NULL){
+        *ss << toStr(CHAT)+" Wait until your first turn before buying anything.";
+        break;
+      }
+      Hero* h = dynamic_cast<Hero*>(c);
+      if (!h){
+        *ss << toStr(CHAT)+" Only heros can buy goods.";
+        break;
+      }
+      Item good = Templates::instance()->searchItem(argv[0]);
+      if (!good.isValid()){
+        *ss << toStr(CHAT)+" This cannot be bought.";
+        break;
+      }
+      int price = toInt(good.getAdditional());
+      if (h->getMoney() < price){
+        *ss << toStr(CHAT)+" You don't have enough money to buy this.";
+        break;
+      }
+      //everything seems alright, so buy it.
+      h->changeMoney(-price);
+      h->getInventory()->addItem(good);
+      string message = toStr(BUY) +" "+toStr(h->getPosition().x)+
+        " "+toStr(h->getPosition().y)+" "+argv[0];
+      globl.broadcast(message);
       break;
     }
       

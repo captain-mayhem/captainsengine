@@ -46,6 +46,8 @@ public:
   void run();
   //! ends the game
   void end();
+  //! gets the position of the next creature that is controlled by you
+  Vector2D getNextCreaturePos();
 private:
   //! the game state
   State status_;
