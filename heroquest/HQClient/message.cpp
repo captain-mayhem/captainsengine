@@ -1261,10 +1261,7 @@ void Message::process(const string& answer){
     Vector2D pos(toInt(argv[0]), toInt(argv[1]));
     Inventory* inv = dynamic_cast<Creature*>(wrld.getObject(pos))->getInventory();
     Item it = inv->getItem(argv[2]);
-    if (it.getType() == Item::Armory){
-      scr.armoryOff(pos, it.getId());
-    }
-    inv->deleteItem(argv[2]);
+    inv->deleteItemSavely(pos, argv[2]);
     it.reset();
     it.increase();
     //TODO This causes memory leak

@@ -1077,11 +1077,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(CHAT)+" You do not have a "+argv[0]+" that could be dropped.";
         break;
       }
-      if (it.getType() == Item::Armory){
-        //TODO check if really worn
-        scr.armoryOff(pos, it.getId());
-      }
-      inv->deleteItem(argv[0]);
+      inv->deleteItemSavely(pos, argv[0]);
       it.reset();
       it.increase();
       //TODO This causes memory leak

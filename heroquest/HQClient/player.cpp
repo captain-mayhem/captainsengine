@@ -216,3 +216,12 @@ void Player::loadStatus(){
   }
   trade.close();
 }
+
+void Player::saveStatus(){
+  string path = home+name_+".sav";
+  ofstream out(path.c_str(), ios::binary);
+  out.write((char*)&wonPackage_, sizeof(wonPackage_));
+  out.write((char*)&wonLevel_, sizeof(wonLevel_));
+  out.close();
+}
+

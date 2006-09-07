@@ -32,6 +32,9 @@ class Inventory{
     void addItem(Item it);
     //! delete item from inventory
     bool deleteItem(string name);
+    //! delete item savely
+    //! if the item is worn, it is taken off before deleting the item
+    bool deleteItemSavely(const Vector2D& pos, string name);
     //! get item from inventory
     Item getItem(const string name);
     //! use item from inventory

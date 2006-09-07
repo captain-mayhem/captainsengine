@@ -6,6 +6,7 @@
 #include "input/mouse.h"
 
 #include "textureManager.h"
+#include "script.h"
 #include "inventory.h"
 #ifdef _CLIENT_
 #include "player.h"
@@ -67,6 +68,28 @@ void Inventory::addItem(Item it){
 bool Inventory::deleteItem(string name){
   int idx = lookup_[name];
   if (idx != 0){
+    //last item deleted
+    if (!items_[idx].decrease()){
+      items_[idx].reset();
+      return false;
+    }
+    return true;
+  }
+  return false;
+}
+
+
+bool Inventory::deleteItemSavely(const Vector2D& pos, string name){
+  int idx = lookup_[name];
+  if (idx != 0){
+    //is it wearable
+    if (items_[idx].getType() == Item::Armory){
+      int id = items_[idx].getId();
+      if (id == left_hand_ || id == right_hand_ || id == head_ || id == body_ ||
+          id == belt_ || id == breast_){
+        scr.armoryOff(pos, id);
+      }
+    }
     //last item deleted
     if (!items_[idx].decrease()){
       items_[idx].reset();
@@ -470,3 +493,5 @@ void Inventory::update(){
   }
 #endif
 }
+
+

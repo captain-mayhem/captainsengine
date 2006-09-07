@@ -61,6 +61,8 @@ public:
   Creature* getCreature() const;
   //! load status
   void loadStatus();
+  //! save status
+  void saveStatus();
   //! get the trading system
   inline Trade* getTrade() {return trade_;}
 private:

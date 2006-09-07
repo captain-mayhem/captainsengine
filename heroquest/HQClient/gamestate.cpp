@@ -92,6 +92,7 @@ void GameState::run(){
 // ends the game
 void GameState::end(){
   //HQRenderer::instance()->setViewTo3D(false);
+  plyr.saveStatus();
   cam.positionCamera(Vector3D(-10, 8, -12), Vector3D(-9, 8, -12), Vector3D(0, 1, 0));
   status_ = INIT;
   wrld.unload();
