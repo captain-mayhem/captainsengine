@@ -17,6 +17,11 @@ t trap suchen vor falle ==> absturz
 t bereits gefundene Fallen nicht erneut finden
 t Kamerarichtungsruecksetzer bei disarm/jump trap (multiplayer)
 + melarsMaze: sleeping Garg killt server, wenn heros gewonnen
+- changeCreature bei Zargon am Anfang: Absturz.
+- neuer Level: Keine Buttons
+- neuer Level: Zargon-Status erneuern
+- backpointer Ruecksetzung, Kamera bleibt
+- bei streunendem Monster und keiner aktiven Kreatur wird zargon gekillt
 
 classics:
 + collision detection
@@ -26,3 +31,4 @@ t console up manchmal segfault
 keine Fehler, sondern gewuenschte Erweiterungen:
 t Mit w,s,a,d vernuenftig auf 2D-Map laufen
 - Auf Map anzeigen, wer gerade am Zug ist
+- Kompass
