@@ -88,6 +88,12 @@ double Vector3D::angle(Vector3D v) {
   return angle;
 }
 
+ostream& Math::operator<<(ostream& stream, const Vector3D& vec){
+  stream << "( " << vec.x << " / " << vec.y << " / " << vec.z << " )";
+  return stream;
+}
+
+
 //Constructor
 Vector2D::Vector2D() : x(0), y(0) {
 }
@@ -102,6 +108,12 @@ Vec2f::Vec2f() : x(0), y(0){
 
 //Destructor
 Vec2f::~Vec2f(){
+}
+
+
+ostream& operator<<(ostream& stream, const Vector2D& vec){
+  stream << "( " << vec.x << " / " << vec.y << " )";
+  return stream;
 }
 
 }

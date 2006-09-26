@@ -49,10 +49,14 @@ class InputField{
     /*! The position is specified by the lower left corner of the field
      */
     inline void setPosition(::Math::Vector2D position) {pos_ = position;}
+    //! Gets the position
+    inline ::Math::Vector2D getPosition() {return pos_;}
     //! Sets the dimensions of the field
     /*! the x-component of span is the width, the y-component the height
      */
     inline void setSpan(::Math::Vector2D span) {span_ = span;}
+    //! Gets the dimensions of the field
+    inline ::Math::Vector2D getSpan() {return span_;}
     //! Sets the opacity of the field
     inline void setOpacity(unsigned char opaque) {opacity_ = opaque;}
     //! Sets the colors of the field
@@ -67,8 +71,8 @@ class InputField{
     inline bool isFinished() {return finished_;}
     //! Clears the text in the field
     inline void clear() {field_.erase();}
-    //! Sets the display list base for the font
-    //inline void setFontBase(int base) {fnt_.setBase(base);}
+    //! Sets the font to use
+    inline void setFont(::Graphics::Font* fnt) {fnt_ = fnt;}
     //! Displays the field using OpenGL
     void render();
     //! Returns if the position belongs to the input field
@@ -106,7 +110,7 @@ class Button{
     //! Copy Constructor
     Button(const Button& b);
     //! Destructor
-    ~Button();
+    virtual ~Button();
     //! Is it clicked upon?
     inline bool isClicked(const ::Math::Vector2D& pos) {return input_.isHit(pos);}
     //! sets the button text
@@ -114,20 +118,28 @@ class Button{
     //! gets the button text
     inline const string& getText() { return input_.getText(); }
     //! sets the button position
-    inline void setPosition(const ::Math::Vector2D& pos) {input_.setPosition(pos);}
+    virtual void setPosition(const ::Math::Vector2D& pos) {input_.setPosition(pos);}
+    //! sets the button dimesions
+    void setSpan(const ::Math::Vector2D& span) {input_.setSpan(span);}
     //! sets the callback function
     inline void setCbFunc(void (*click)()) { handleClicks_ = click; }
     //! executes the callback function
-    inline void process() { (*handleClicks_)(); }
+    virtual void process() { (*handleClicks_)(); }
     //! renders the button
-    inline void render() {input_.render(); }
-  private:
+    virtual void render() {input_.render(); }
+    //! name the button
+    inline void setName(const string& name) {name_ = name;}
+    //! get the button's name
+    inline const string& getName() {return name_;}
+  protected:
     //! The InputField
     //! The button is nothing more than an input field with an additional callback
     // and some input field functions not being accessible.
     InputField input_;
     //! The callback function
     void (*handleClicks_)();
+    //! A name of the button
+    string name_;
 };
 }
 #endif

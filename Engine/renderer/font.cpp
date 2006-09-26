@@ -22,12 +22,14 @@ Font::Font(){
   rgb_ = Color(255,255,255,255);
   tex_ = System::Engine::instance()->getRenderer()->createTexture("textures/font/font.bmp");
   buffer_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
+  id_ = -1;
 }
 
 Font::Font(const Font& f){
   show_ = f.show_;
   rgb_ = f.rgb_;
   q_ = queue<font_data>(f.q_);
+  id_ = f.id_;
 }
 
 //Destructor
@@ -76,7 +78,7 @@ void Font::killFont(){
 }
 
 // Stores all necessary information to render the text
-void Font::glPrint(int x, int y, const char* str, short set, float duration){
+void Font::print(int x, int y, const char* str, short set, float duration){
   font_data f;
   f.pos.x = x;
   f.pos.y = y;
@@ -84,7 +86,9 @@ void Font::glPrint(int x, int y, const char* str, short set, float duration){
   f.text = new string(str);
   f.rgb = rgb_;
   f.duration = duration;
+  f.id = id_;
   q_.push(f);
+  id_ = -1;
 }
 
 // Set font color
@@ -92,6 +96,11 @@ void Font::setColor(float r, float g, float b){
   rgb_.r = (unsigned char)(r*255);
   rgb_.g = (unsigned char)(g*255);
   rgb_.b = (unsigned char)(b*255);
+}
+
+// Set font color
+void Font::setColor(Color& c){
+  rgb_ = c;
 }
 
 // Render all stored text strings
@@ -129,7 +138,7 @@ void Font::render(){
       //The bases are selected such that 
       //the ascii code of a character corresponds to the right list
       for (unsigned i = 0; i < f.text->size(); i++){
-        unsigned char tmp = (*f.text)[i]-32;
+        //unsigned char tmp = (*f.text)[i]-32;
         buffer_->setVertexOffset(f.text->at(i)-32+(128*f.set));
         buffer_->draw(VB_Tristrip);
         //increase translation
@@ -154,3 +163,17 @@ void Font::operator<<(const string& text){
 void Font::operator<<(const ostringstream& text){
   (*this) << text.str();
 }
+
+// delete the texts with a certain id
+void Font::deleteText(short id){
+  queue<font_data> temp;
+  
+  while(!q_.empty()){ 
+    font_data f = q_.front();
+    q_.pop();
+    if (f.id != id)
+      temp.push(f);
+  }
+  q_ = temp;
+}
+

@@ -198,8 +198,13 @@ void System::Engine::startup(int argc, char** argv){
   
   engineMain(argc, argv);
   
-  fnt_ = new ::Graphics::Font();
-  fnt_->buildFont();
+  fnt_ = new ::Graphics::Font*[3];
+  for (int i = 0; i < 3; i++){
+    fnt_[i] = new ::Graphics::Font();
+  }
+  fnt_[0]->buildFont();
+  fnt_[1]->setVB(fnt_[0]->getVB());
+  fnt_[2]->setVB(fnt_[0]->getVB());
   forms_ = new ::Graphics::Forms();
   console_ = new ::Gui::Console();
   isUp_ = true;
@@ -215,8 +220,13 @@ void System::Engine::shutdown(){
   Input::Keyboard::release();
   Input::Mouse::release();
   SAFE_DELETE(console_);
-  fnt_->killFont();
-  SAFE_DELETE(fnt_);
+  fnt_[0]->killFont();
+  for (int i = 0; i < 3; i++){
+    if (i != 0)
+      fnt_[i]->setVB(NULL);
+    SAFE_DELETE(fnt_[i]);
+  }
+  SAFE_DELETE_ARRAY(fnt_);
   SAFE_DELETE(forms_);
   if (win_)
     win_->kill();
@@ -255,6 +265,8 @@ void System::Engine::run(){
   rend_->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
   rend_->enableBlend(true);
   
+  fnt_[0]->render();
+  
   //render GUI-elements
   list< ::Gui::InputField*>::iterator iter;
   for (iter = listeners_.begin(); iter != listeners_.end(); iter++){
@@ -266,9 +278,11 @@ void System::Engine::run(){
     (*iter2)->render();
   }
 
+  fnt_[1]->render();
+
   System::Engine::instance()->getConsole()->render();
 
-  fnt_->render();
+  fnt_[2]->render();
 
   rend_->enableBlend(false);
 
@@ -337,7 +351,9 @@ void System::Engine::clearListeners(bool immediate){
   }
   listeners_.clear();
   buttons_.clear();
-  fnt_->clear();
+  fnt_[0]->clear();
+  fnt_[1]->clear();
+  fnt_[2]->clear();
 }
 
 
@@ -389,4 +405,16 @@ void System::Engine::removeButtonListeners(int idx){
     delete *iter;
     iter = buttons_.erase(iter);
   }
+}
+
+// get a button by name
+::Gui::Button* System::Engine::getButtonListener(const string& name){
+  list< ::Gui::Button*>::iterator iter = buttons_.begin();
+  for (unsigned i = 0; i < buttons_.size(); i++){
+    if ((*iter)->getName() == name){
+      return *iter;
+    }
+    iter++;
+  }
+  return NULL;
 }

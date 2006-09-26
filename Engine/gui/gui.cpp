@@ -28,7 +28,7 @@ using Graphics::Color;
 InputField::InputField(){
   //set standard values
   pos_ = Vector2D(-1,-1);
-  fnt_ = System::Engine::instance()->getFont();
+  fnt_ = System::Engine::instance()->getFont(1);
   span_ = Vector2D(150,18);
   bgColor_ = Color(25, 25, 25, 255);
   fgColor_ = Vector3D(0.0, 1.0, 1.0);
@@ -122,11 +122,13 @@ bool InputField::isHit(const Vector2D& pos){
 Button::Button(){
   handleClicks_ = NULL;
   input_.setColors(Vector3D(1,1,0.1f),Color(51,2,2,255));
+  name_ = "";
 }
 
 Button::Button(const Button& b){
   input_ = InputField(b.input_);
   handleClicks_ = b.handleClicks_;
+  name_ = string(b.name_);
 }
 
 //and destructor

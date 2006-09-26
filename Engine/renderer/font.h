@@ -18,6 +18,9 @@
 #include "vertexbuffer.h"
 #include "../math/vector.h"
 
+//for compatibility to older code
+#define glPrint print
+
 using std::string;
 using std::ostringstream;
 using std::queue;
@@ -38,6 +41,8 @@ struct font_data{
   Color rgb;
   //! how long to display
   double duration;
+  //! the text id
+  short id;
 };
 
 //! The font class can render text to the screen, using Bitmap-Fonts and OpenGL
@@ -63,9 +68,13 @@ public:
    * \param set the font set to use
    * \param duration how long the text should be displayed
    */
-  void glPrint(int x, int y, const char* str, short set, float duration=0.00f);
+  void print(int x, int y, const char* str, short set, float duration=0.00f);
   //! sets the color of the text
   void setColor(float r, float g, float b);
+  //! sets the color of the text
+  void setColor(Graphics::Color& c);
+  //! sets a id with which the text can be identified
+  void setId(short id) {id_ = id;}
   //! renders the text
   void render();
   //! toggles the visibility of the text
@@ -76,6 +85,12 @@ public:
   void operator<<(const string& text);
   //! output for streams
   void operator<<(const ostringstream& text);
+  //! get the font vertex buffer
+  inline VertexBuffer* getVB() {return buffer_;}
+  //! set the font vertex buffer
+  inline void setVB(VertexBuffer* vb) {buffer_ = vb;}
+  //! delete the texts with a certain id
+  void deleteText(short id);
 private:
   //! text visible?
   bool show_;
@@ -87,6 +102,8 @@ private:
   Color rgb_;
   //! all text strings that are to be rendered
   queue<font_data> q_;
+  //! a id to identify the text
+  short id_;
 };
 
 inline bool operator<(font_data a, font_data b){
