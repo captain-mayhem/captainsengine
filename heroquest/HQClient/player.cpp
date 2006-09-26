@@ -31,7 +31,7 @@ using std::ios;
 using std::ifstream;
 using std::ostringstream;
 
-#define line *System::Engine::instance()->getFont()
+#define line *System::Engine::instance()->getFont(0)
 
 extern ClientSocket* sock;
 extern string path;

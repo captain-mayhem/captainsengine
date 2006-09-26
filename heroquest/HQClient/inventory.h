@@ -58,7 +58,7 @@ class Inventory{
     //! delete used items and restructure data
     void compactify();
     //! give back used spells
-    void restoreSpells();
+    void restoreSpells(int classes);
     //! render inventory
     void render();
     //! update inventory

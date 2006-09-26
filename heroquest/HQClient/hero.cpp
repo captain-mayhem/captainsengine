@@ -19,6 +19,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "gui/console.h"
+#include "gui/dropdown.h"
 #include "common.h"
 #include "renderer.h"
 #include "camera.h"
@@ -37,6 +38,11 @@ using std::ifstream;
 using std::ofstream;
 using std::ostringstream;
 using std::ios;
+
+#ifdef _CLIENT_
+using Gui::Button;
+using Gui::DropDownButton;
+#endif
 
 extern string path;
 extern string home;
@@ -126,6 +132,54 @@ void Hero::Create(const string& path, const vector<Hero>& heros, const string& p
   consol.setSpecialFunc(p, CREATE, NULL); 
 #endif
 }
+
+//create a hero from gui
+void Hero::createFromGui(){
+#ifdef _CLIENT_
+  const vector<Hero>& heros = msg.getHeros();
+  //write available heros to the gui
+  Gui::DropDownButton* cls = dynamic_cast<Gui::DropDownButton*>(System::Engine::instance()->getButtonListener("class"));
+  ostringstream tmp;
+  Hero heroe;
+  for (unsigned i = 0; i < heros.size(); i++){
+    heroe = heros[i];
+    if (cls->getText() == heroe.getType())
+      break;
+  }
+  tmp << "Body points: " << heroe.getBody();
+  tmp << ", Attack: " << heroe.getAttack();
+  tmp << ", Defence: " << heroe.getDefence();
+  tmp << ", Intelligence: " << heroe.getMind();
+  tmp << ", Movement dice: " << heroe.getMovement();
+  //tmp << ", Spell types: " << heroe.getSpellClasses();
+  
+  Graphics::Font* fnt = System::Engine::instance()->getFont(1);
+  fnt->deleteText(1);
+  fnt->setId(1);
+  fnt->setColor(1,1,1);
+  fnt->print(120, 570, tmp.str().c_str(), 1, HUGE_VAL);
+
+  if (heroe.getSpellClasses() > 0){
+    fnt->setId(1);
+    fnt->print(120, 530, "Spells:", 1, HUGE_VAL);
+  }
+
+  while (Button* but = System::Engine::instance()->getButtonListener("spell")){
+    System::Engine::instance()->removeButtonListener(but->getText());
+  }
+
+  Vector2D pos = Vector2D(120, 490);
+  for (int i = 0; i < heroe.getSpellClasses(); i++){
+    Gui::DropDownButton* spell = new Gui::DropDownButton();
+    spell->setPosition(pos);
+    spell->calcDDPos(2);
+    spell->setName("spell");
+    System::Engine::instance()->addButtonListener(spell);
+    pos.x += 190;
+  }
+#endif
+}
+
 
 //write hero to disk
 void Hero::write(const string& p) const{
@@ -249,7 +303,7 @@ void Hero::render2D() const {
 //! let the hero win the game
 void Hero::win(){
   //restore spells
-  items_.restoreSpells();
+  items_.restoreSpells(spellClasses_);
   //delete used items
   items_.compactify();
   //restore body and mind

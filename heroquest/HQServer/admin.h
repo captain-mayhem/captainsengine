@@ -77,6 +77,8 @@ class Admin{
   void alter_idx(string& old_name, string& new_name);
   //! set a plyers to be the evil Zargon
   bool setZargon(ServerSocket* ss);
+  //! reset the zargon to nobody
+  inline void resetZargon() {zargon = NULL;}
   //! returns the socket that is associated with Zargon
   ServerSocket* getZargon() const;
 

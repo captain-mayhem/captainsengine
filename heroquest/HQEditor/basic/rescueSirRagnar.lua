@@ -4,6 +4,7 @@ function intro()
     "Sir Ragnar and bring him back to the stairway. Prince Magnus will pay 240 gold coins to be " ..
     "divided among the heroes, if they rescue Sir Ragnar. No reward will be paid if Sir Ragnar is " ..
     "killed during the escape."
+  messageBox(text);
 end
 
 SirRagnarFound = false;

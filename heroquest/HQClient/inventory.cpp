@@ -26,7 +26,7 @@ Inventory::Inventory(){
   belt_ = 0;
   breast_ = 0;
 #ifdef _CLIENT_
-  fnt_ = System::Engine::instance()->getFont();
+  fnt_ = System::Engine::instance()->getFont(0);
   //fnt_.setBase(text.getBase());
   //fnt_.setColor(0,1,1);
   page_ = 1;
@@ -85,8 +85,8 @@ bool Inventory::deleteItemSavely(const Vector2D& pos, string name){
     //is it wearable
     if (items_[idx].getType() == Item::Armory){
       int id = items_[idx].getId();
-      if (id == left_hand_ || id == right_hand_ || id == head_ || id == body_ ||
-          id == belt_ || id == breast_){
+      if (idx == left_hand_ || idx == right_hand_ || idx == head_ || idx == body_ ||
+          idx == belt_ || idx == breast_){
         scr.armoryOff(pos, id);
       }
     }
@@ -300,14 +300,28 @@ void Inventory::compactify(){
 
 
 // give back used spells
-void Inventory::restoreSpells(){
+void Inventory::restoreSpells(int classes){
   vector<Item>::iterator iter = items_.begin();
   iter++;
+  string lastSpell = "blubb";
+  int currClass = -1;
   while (iter != items_.end()){
     Item& it = *iter;
-    if (!it.isValid() && it.getType() == Item::Spell){
-      //looks like a used spell, so give one more
-      it.increase();
+    if (it.getType() == Item::Spell){
+      //update class
+      if (lastSpell != it.getAdditional()){
+        lastSpell = it.getAdditional();
+        currClass++;
+      }
+      //is it allowed to have and invalid
+      if (currClass < classes && !it.isValid()){
+        //looks like a used spell, so give one more
+        it.increase();
+      }
+      else if (currClass >= classes){
+        //not allowed to possess
+        it.decrease();
+      }
     }
     iter++;
   }

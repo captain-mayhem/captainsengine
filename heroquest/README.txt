@@ -142,6 +142,12 @@ somewhere in order to do anything with HeroQuest.
  "disarm <direction>"         try to disarm a found but unsprung trap
  "jump <direction>"           try to jump over a found or active trap
 
+-v0.7 added commands:
+ "drop <item>"                drops an item from the inventory
+ "pickup"                     pick up any visible items that were dropped
+ "buy <item>"                 buys an item from the shop
+ "sell <item>"                sells an item
+
 9. Final remarks:
  When testing the game, you should at least run two HeroQuest clients on two different computers and
  connect them both to the same server to be able to see and test all features of the game.

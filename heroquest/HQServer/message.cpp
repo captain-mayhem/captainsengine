@@ -140,6 +140,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         globl.broadcast(cmd);
         //SDL_mutexV(gamtex);
         gamtex.unlock();
+        scr.intro();
         break;
       }
       else{
@@ -533,6 +534,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
  		 			if (toAttack->getBody() <= 0){
  		 				toAttack->setActive(false);
  		 				wrld.removeObject(toAttack->getPosition());
+            wrld.placeInventory(toAttack->getInventory(), toAttack->getPosition());
  		 			}
  		 			string msg = toStr(DAMAGE)+" "+toStr(target.x)+" "+toStr(target.y)+" "+toStr(damage);
 	 				globl.broadcast(msg);
@@ -573,6 +575,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
 			if (creat->getBody() <= 0){
 				creat->setActive(false);
 				wrld.removeObject(creat->getPosition());
+        wrld.placeInventory(creat->getInventory(), creat->getPosition());
 			}
 			string msg = toStr(DAMAGE)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(damage);
 			globl.broadcast(msg);
@@ -1073,7 +1076,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       Vector2D pos = c->getPosition();
       Inventory* inv = c->getInventory();
       Item it = inv->getItem(argv[0]);
-      if (!it.isValid()){
+      if (!it.isValid() || it.getType() == Item::Unusable){
         *ss << toStr(CHAT)+" You do not have a "+argv[0]+" that could be dropped.";
         break;
       }
@@ -1132,6 +1135,79 @@ void Message::process(ServerSocket* ss, const string& cmd){
       globl.broadcast(message);
       break;
     }
+    
+    case SELL:{
+      Creature* c = globl.getPlayer(ss)->getLastCreature();
+      if (c == NULL){
+        *ss << toStr(CHAT)+" Wait until your first turn before selling anything.";
+        break;
+      }
+      Hero* h = dynamic_cast<Hero*>(c);
+      if (!h){
+        *ss << toStr(CHAT)+" Only heros can sell goods.";
+        break;
+      }
+      Vector2D pos = h->getPosition();
+      Inventory* inv = h->getInventory();
+      Item good = inv->getItem(argv[0]);
+      if (!good.isValid()){
+        *ss << toStr(CHAT)+" You do not have a "+argv[0]+" that could be sold.";
+        break;
+      }
+      int price = toInt(good.getAdditional());
+      if (price <= 0){
+        *ss << toStr(CHAT)+" You cannot sell this item.";
+        break;
+      }
+      //everything seems alright, so sell it.
+      h->changeMoney(price/2);
+      inv->deleteItemSavely(pos, argv[0]);
+      string message = toStr(SELL) +" "+toStr(h->getPosition().x)+
+        " "+toStr(h->getPosition().y)+" "+argv[0];
+      globl.broadcast(message);
+      break;
+    }
+
+    case PICKUP:{
+      if (!game.isActivePlayer(ss)){
+        *ss << toStr(NO_TURN);
+	      break;
+      }
+      if (game.isActionPerformed()){
+        *ss << toStr(NO_ACTION);
+        break;
+      }
+      Vector2D pos = getCreature()->getPosition();
+      Inventory* inv = getCreature()->getInventory();
+      //collect any dropped items
+      bool foundAny = false;
+      vector<Field*> vf = wrld.getVisibleFields(pos);
+      for (unsigned i = 0; i < vf.size(); i++){
+        Field* f = vf[i];
+        //is there an inventory?
+        if (f->items){
+          foundAny = true;
+          //merge inventories
+          vector<Item> its = f->items->getItems();
+          for (unsigned j = 1; j < its.size(); j++){
+            Item& it = its[j];
+            inv->addItem(it);
+          }
+          //delete inventory on the ground
+          wrld.placeInventory(NULL, f->getPosition());
+        }
+      }
+      if (foundAny){
+        game.performAction();
+        *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+        globl.broadcast(toStr(PICKUP)+" "+toStr(pos.x)+" "+toStr(pos.y));
+      }
+      else{
+        *ss << toStr(CHAT)+ " There are no items to be picked up.";
+      }
+    }
+    break;
+
       
     default:      
       *ss << toStr(NAK);

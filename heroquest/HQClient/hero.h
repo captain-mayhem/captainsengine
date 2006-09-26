@@ -63,6 +63,9 @@ public:
    *  \param playerName the name of the player
    */
   static void Create(const string& path, const vector<Hero>& heros, const string& playerName);
+  //! creates a hero from the gui
+  static void createFromGui();
+
   //! loads a hero from a file
   bool load(const string& filename);
   //! saves a hero to disk

@@ -4,6 +4,7 @@ function intro()
     "destroy Verag, a foul Gargoyle who hides in the catacombs. This Quest is not easy and you " ..
     "must work together in order to survive. This is your first step on the road to becoming true " ..
     "heros. Tread carefully my friends.";
+  messageBox(text);
 end
 
 veragDead = false;

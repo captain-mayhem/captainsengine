@@ -178,6 +178,7 @@ void GameState::performAction(bool action){
 
 void GameState::end(){
   status = INIT;
+  globl.resetZargon();
   wrld.unload();
 }
 

@@ -74,6 +74,8 @@ public:
   inline bool isToDefend() {return toDefend_;}
   //! set defended
   inline void setDefended() {toDefend_ = false;}
+  //! get all available heros
+  inline vector<Hero>& getHeros() {return heros_;}
 private:
   //! the special function callback
   void special_(const string& message, int mode, void* additional);

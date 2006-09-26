@@ -1,5 +1,10 @@
 function intro()
-
+  local text = "Three treasure chests have been stolen while being taken to "..
+    "the Emperor. A reward of 240 gold coins has been offered to any group "..
+    "of heroes who return the chests and ALL of the gold. The thieves are "..
+    "a well-known band of Orcs whose lair is in the Black Mountains. They "..
+    "are led by Gulthor, a Chaos Warrior.";
+  messageBox(text);
 end
 
 Amount = 0;
@@ -48,6 +53,13 @@ function A(sx, sy)
 end
 
 function B(sx, sy)
+  --check if you are already carrying a chest
+  if deleteItem(sx, sy, "chest") then
+    addItem(sx, sy, "chest");
+    output("You can carry only one chest at a time.", "");
+    allowSearchAgain(sx, sy);
+    return;
+  end
   if PickedUp < 3 then
     PickedUp = PickedUp + 1;
     setCreatureProperty(sx, sy, "move", 1);

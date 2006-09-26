@@ -16,6 +16,7 @@
 #include "script.h"
 #ifdef _CLIENT_
 #include "gui/console.h"
+#include "gui/messagebox.h"
 #include "message.h"
 #include "player.h"
 #include "gamestate.h"
@@ -29,7 +30,11 @@
 #include "opcodes.h"
 #include "templates.h"
 
-#define line *System::Engine::instance()->getFont()
+#define line *System::Engine::instance()->getFont(0)
+
+#ifdef _CLIENT_
+using Gui::MessageBox;
+#endif
 
 Script::Script() : L(0) {
 }
@@ -116,6 +121,8 @@ void Script::init(){
   lua_setglobal(L, "getNumberOfHeros");
   lua_pushcfunction(L, Script::removeCreature);
   lua_setglobal(L, "removeCreature");
+  lua_pushcfunction(L, Script::removeObject);
+  lua_setglobal(L, "removeObject");
   lua_pushcfunction(L, Script::releaseBackPointer);
   lua_setglobal(L, "releaseBackPointer");
   lua_pushcfunction(L, Script::setMoves);
@@ -134,7 +141,8 @@ void Script::init(){
   lua_setglobal(L, "addModel");
   lua_pushcfunction(L, Script::moveCamera);
   lua_setglobal(L, "moveCamera");
-  
+  lua_pushcfunction(L, Script::messageBox);
+  lua_setglobal(L, "messageBox");
 	
 	lua_pcall(L,0,0,0);
 
@@ -340,6 +348,14 @@ void Script::levelInit(){
 	}
 }
 
+
+//call intro
+void Script::intro(){
+  lua_getglobal(L, "intro");
+	if (lua_pcall(L, 0, 0, 0) != 0){
+		cerr << lua_tostring(L, -1);
+	}
+}
 
 // process all events that are specified in the level file
 void Script::processEvents(const vector<World::scriptPos>& scripts){
@@ -1021,6 +1037,21 @@ int Script::removeCreature(lua_State* L){
   return 0;
 }
 
+// remove object from world
+int Script::removeObject(lua_State* L){
+	short x = (short)luaL_checknumber(L, 1);
+	short y = (short)luaL_checknumber(L, 2);
+  Vector2D pos = Vector2D(x, y);
+  GameObject* o = wrld.getObject(pos);
+  if (!o){
+    cerr << "removeObject: There is no object";
+    return 0;
+  }
+  wrld.removeObject(pos);
+  return 0;
+}
+
+
 // release back pointer of the hero
 int Script::releaseBackPointer(lua_State* L){
 	short x = (short)luaL_checknumber(L, 1);
@@ -1147,3 +1178,12 @@ int Script::moveCamera(lua_State* L){
   return 0;
 }
 
+int Script::messageBox(lua_State* L){
+#ifdef _CLIENT_
+	string msg = string(luaL_checkstring(L, 1));
+  MessageBox* mb = new MessageBox();
+  mb->setMessage(msg);
+  System::Engine::instance()->addButtonListener(mb, false);
+#endif
+  return 0;
+}

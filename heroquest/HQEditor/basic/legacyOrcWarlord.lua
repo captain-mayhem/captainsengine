@@ -6,6 +6,7 @@ Inv1 = {};
 Inv2 = {};
 Inv3 = {};
 Inv4 = {};
+EquipFound = false;
 
 function levelInit()
   if isCreatureAt(5,11) then
@@ -79,6 +80,10 @@ function eventScheduler(script)
 end
 
 function A(sx, sy)
+  if not EquipFound then
+    output("The equipment has to be found.", "");
+    return;
+  end
   output("You win", "Won");
   winHero(sx, sy);
   forceEndTurn(sx, sy);
@@ -137,6 +142,7 @@ function C(sx, sy)
   else
     output("You already got your equipment", "");
   end
+  EquipFound = true;
 end
 
 function wandering_monster(sx, sy)

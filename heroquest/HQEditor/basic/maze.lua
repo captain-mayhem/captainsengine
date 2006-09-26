@@ -4,11 +4,11 @@ function intro()
     "placed in the Maze. They will try to stop you, so take care. Whoever finds his way out first " ..
     "will be rewarded with 100 gold coins. This may be used to buy equipment for the adventures to "..
     "come.";
+  messageBox(text);
 end
 
 
 function levelInit()
-
 end
 
 

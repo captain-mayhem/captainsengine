@@ -9,11 +9,14 @@
 #include "renderer/font.h"
 #include "renderer/forms.h"
 #include "math/vector.h"
+#include "gui/messagebox.h"
+#include "gui/dropdown.h"
 
 using std::cerr;
 using namespace Math;
 using namespace System;
 using namespace Graphics;
+using namespace Gui;
 
 class Rendering{
 private:
@@ -77,6 +80,17 @@ public:
     indices[30] = 4; indices[31] = 0; indices[32] = 3;
     indices[33] = 4; indices[34] = 3; indices[35] = 7;
     vb->unlockIndexPointer();
+
+    //MessageBox* mb = new MessageBox();
+    //mb->setPosition(Vector2D(200, 100));
+    //mb->setMessage("Hallo Du!");
+    DropDownButton* db = new DropDownButton();
+    db->setPosition(Vector2D(400,400));
+    db->calcDDPos(1);
+    db->addEntry("Hallo");
+    db->addEntry("Du");
+    db->addEntry("Test");
+    System::Engine::instance()->addButtonListener(db);
   }
 
   static void render(){
@@ -109,7 +123,7 @@ public:
     //rend->scale(-9.5, -9.5, -9.5);
     //rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
     //rend->enableBlend(true);
-    Font* fnt = System::Engine::instance()->getFont();
+    Font* fnt = System::Engine::instance()->getFont(0);
     fnt->setColor(0.0,1.0,0.0);
     //static int count = 0;
     //count++;

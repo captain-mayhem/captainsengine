@@ -4,6 +4,7 @@ function intro()
     "out and destroyed. When Ulag is destroyed, the heros will receive "..
     "a reward of 180 gold coins to be divided among them. Any treasure "..
     "found in Ulag's stronghold may be kept by the finder alone."
+  messageBox(text);
 end
 
 UlagDead = false;

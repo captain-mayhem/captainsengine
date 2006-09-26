@@ -12,6 +12,10 @@
 #ifndef GAMESTATE_HH
 #define GAMESTATE_HH
 
+namespace Gui{
+class DropDownButton;
+}
+
 //! The states the game can be in
 enum State{
   INIT,
@@ -48,6 +52,8 @@ public:
   void end();
   //! gets the position of the next creature that is controlled by you
   Vector2D getNextCreaturePos();
+  //! choose the packages and levels that are available
+  void choosePackage(Gui::DropDownButton* pack, Gui::DropDownButton* level);
 private:
   //! the game state
   State status_;

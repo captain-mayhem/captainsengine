@@ -71,6 +71,8 @@ public:
   short useWeapon(Vector2D source, Vector2D target);
   //! itits level specific settings
   void levelInit();
+  //! the level intro
+  void intro();
 	
   //Event handling
   //! if a creature is attacked
@@ -156,6 +158,8 @@ public:
   static int getNumberOfHeros(lua_State* L);
   //! remove creature from world
   static int removeCreature(lua_State* L);
+  //! remove object from world
+  static int removeObject(lua_State* L);
   //! release backpointer
   static int releaseBackPointer(lua_State* L);
   //! set moves
@@ -174,6 +178,8 @@ public:
   static int addModel(lua_State* L);
   //! move the camera
   static int moveCamera(lua_State* L);
+  //! display messageBox
+  static int messageBox(lua_State* L);
   
 private:
 	//! The stack for communication between LUA and C

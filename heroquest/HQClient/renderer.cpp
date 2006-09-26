@@ -24,7 +24,7 @@
 #include "trade.h"
 #include "renderer.h"
 
-#define line *System::Engine::instance()->getFont()
+#define line *System::Engine::instance()->getFont(0)
 
 using Gui::InputField;
 using Gui::Button;
@@ -141,11 +141,15 @@ void HQRenderer::ascii_(unsigned char key){
     Vector2D pos = game.getNextCreaturePos();
     //save old camera and set it to new
     Creature* creat = plyr.getCreature();
-		creat->setLookAt(cam.view());
-		creat->setCamPos(cam.position());
-		creat->setRot(cam.getCurrRotX());
+    if (creat){
+		  creat->setLookAt(cam.view());
+		  creat->setCamPos(cam.position());
+		  creat->setRot(cam.getCurrRotX());
+    }
 
     Creature* c = dynamic_cast<Creature*>(wrld.getObject(pos));
+    if (!c)
+      break;
 		cam.positionCamera(c->getCamPos(), c->getLookAt(), Vector3D(0,1,0));
 		cam.setCurrRotX(c->getRot());
 		wrld.updateCollisionVertices(c->getPosition());
@@ -230,8 +234,8 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
     clickedField_.y = (int)(y*dy);
 
     //buttons to add a hero at this position
-    System::Engine::instance()->getFont()->setColor(1,1,1);
-    System::Engine::instance()->getFont()->glPrint(250, 500, "Hero name:", 1, (float)HUGE_VAL);
+    System::Engine::instance()->getFont(0)->setColor(1,1,1);
+    System::Engine::instance()->getFont(0)->glPrint(250, 500, "Hero name:", 1, (float)HUGE_VAL);
     InputField* in = new InputField();
     in->setPosition(Vector2D(400, 500));
     System::Engine::instance()->addInputListener(in);
@@ -355,7 +359,7 @@ void HQRenderer::paint_(){
 
   if (wrld.isLoaded()){
     //number of moves in the upper right corner
-    System::Engine::instance()->getFont()->glPrint(1000, 750, toStr(game.getMoves()).c_str(), 1);
+    System::Engine::instance()->getFont(0)->glPrint(1000, 750, toStr(game.getMoves()).c_str(), 1);
     //get the nearest vertices and check them for camera collision
     //Vector3D** worldCollision = wrld.getWorld();
     //cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
@@ -415,7 +419,7 @@ void HQRenderer::paint_(){
     plyr.getTrade()->update();
   }
   
-  Graphics::Font *f = System::Engine::instance()->getFont();
+  Graphics::Font *f = System::Engine::instance()->getFont(0);
   f->setColor(0,1,0);
   f->glPrint(20, 720, ("Current Frames Per Second: "+toStr(System::Engine::instance()->getFPS())).c_str(), 0);
   

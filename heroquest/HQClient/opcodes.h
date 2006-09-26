@@ -60,5 +60,6 @@
 #define BUY           1043
 #define SELL          1044
 #define CREAT_CHANGE  1045
+#define PICKUP        1046
 
 #endif

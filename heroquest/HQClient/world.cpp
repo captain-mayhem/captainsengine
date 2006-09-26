@@ -363,8 +363,8 @@ void World::render(){
 	ostringstream fields;
 	unsigned size = (unsigned)canSee_.size();
 	fields << size << " of " << (width_*height_) << " Fields rendered";
-  System::Engine::instance()->getFont()->setColor(0,1,0);
-  System::Engine::instance()->getFont()->glPrint(20,680, fields.str().c_str(), 0, 0);
+  System::Engine::instance()->getFont(0)->setColor(0,1,0);
+  System::Engine::instance()->getFont(0)->glPrint(20,680, fields.str().c_str(), 0, 0);
 
 	//reset furniture
 	for (unsigned i = 0; i < furniture_.size(); i++){
@@ -549,11 +549,26 @@ void World::render2D(bool vis){
 			
       glColor3f(1,1,1);
 			
+      //render overlay
       if ((curr.getStatus() || !vis) && curr.overlay){
 				curr.overlay->render2D();
 			  curr.overlay->update();
       }
-       
+
+      //render items
+      if ((curr.getStatus() || !vis) && curr.items){
+        TextureManager::instance()->otherTex[3]->activate();
+        glBegin(GL_TRIANGLE_STRIP);
+					glTexCoord2f(1.0f, 0.0f);
+					glVertex2f(i*xstep+xstep, (height_-j)*ystep);
+					glTexCoord2f(0.0f, 0.0f);
+					glVertex2f(i*xstep, (height_-j)*ystep);
+					glTexCoord2f(1.0f, 1.0f);
+					glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
+					glTexCoord2f(0.0f, 1.0f);
+					glVertex2f(i*xstep, (height_-j)*ystep-ystep);
+				glEnd();
+      }
 			//if there's an object, render it too.
 			if ((curr.getStatus() || !vis) && curr.object){
 				curr.object->render2D();
@@ -1765,7 +1780,7 @@ void World::placeInventory(Inventory* items, Vector2D position){
   //merge inventories
   else{
     vector<Item> its = items->getItems();
-    for (unsigned i = 0; i < its.size(); i++){
+    for (unsigned i = 1; i < its.size(); i++){
       Item& it = its[i];
       f.items->addItem(it);
     }

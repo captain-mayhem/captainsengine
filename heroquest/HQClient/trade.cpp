@@ -19,13 +19,14 @@ using Input::Mouse;
 Trade::Trade(){
   items_.push_back(Item());
 #ifdef _CLIENT_
-  fnt_ = System::Engine::instance()->getFont();
+  fnt_ = System::Engine::instance()->getFont(0);
   //fnt_.setBase(text.getBase());
   //fnt_.setColor(0,1,1);
   invPage_ = 1;
   shopPage_ = 1;
   chosenItem_ = Item();
   visible_ = true;
+  halfPrice_ = false;
 #endif
 }
 
@@ -38,6 +39,7 @@ Trade::Trade(const Trade& i){
   shopPage_ = i.shopPage_;
   chosenItem_ = Item(i.chosenItem_);
   visible_ = i.visible_;
+  halfPrice_ = i.halfPrice_;
 #endif
 }
 
@@ -202,6 +204,8 @@ void Trade::render(){
   if (chosenItem_.isValid()){
     fnt_->glPrint(450, 50, chosenItem_.getName().c_str(), 0);
     int price = toInt(chosenItem_.getAdditional());
+    if (halfPrice_)
+      price = price >> 1;
     fnt_->glPrint(560, 680, ("Price: "+toStr(price)).c_str(), 0);
   }
 
@@ -260,18 +264,21 @@ void Trade::update(){
         unsigned idx = 9*(invPage_-1)+1;
         if (idx < items.size())
           chosenItem_ = items[idx];
+        halfPrice_ = true;
       }
       else if (click.y >= 315 && click.y <= 475){
         Mouse::instance()->resetMousePos();
         unsigned idx = 9*(invPage_-1)+4;
         if (idx < items.size())
           chosenItem_ = items[idx];
+        halfPrice_ = true;
       }
       else if (click.y >= 510 && click.y <= 670){
         Mouse::instance()->resetMousePos();
         unsigned idx = 9*(invPage_-1)+7;
         if (idx < items.size())
           chosenItem_ = items[idx];
+        halfPrice_ = true;
       }
     }
     //second item column
@@ -281,18 +288,21 @@ void Trade::update(){
         unsigned idx = 9*(invPage_-1)+2;
         if (idx < items.size())
           chosenItem_ = items[idx];
+        halfPrice_ = true;
       }
       else if (click.y >= 315 && click.y <= 475){
         Mouse::instance()->resetMousePos();
         unsigned idx = 9*(invPage_-1)+5;
         if (idx < items.size())
           chosenItem_ = items[idx];
+        halfPrice_ = true;
       }
       else if (click.y >= 510 && click.y <= 670){
         Mouse::instance()->resetMousePos();
         unsigned idx = 9*(invPage_-1)+8;
         if (idx < items.size())
           chosenItem_ = items[idx];
+        halfPrice_ = true;
       }
     }
     //third item column
@@ -302,18 +312,21 @@ void Trade::update(){
         unsigned idx = 9*(invPage_-1)+3;
         if (idx < items.size())
           chosenItem_ = items[idx];
+        halfPrice_ = true;
       }
       else if (click.y >= 315 && click.y <= 475){
         Mouse::instance()->resetMousePos();
         unsigned idx = 9*(invPage_-1)+6;
         if (idx < items.size())
           chosenItem_ = items[idx];
+        halfPrice_ = true;
       }
       else if (click.y >= 510 && click.y <= 670){
         Mouse::instance()->resetMousePos();
         unsigned idx = 9*(invPage_-1)+9;
         if (idx < items.size())
           chosenItem_ = items[idx];
+        halfPrice_ = true;
       }
     }
   }
@@ -326,18 +339,21 @@ void Trade::update(){
       unsigned idx = 9*(shopPage_-1)+1;
       if (idx < items_.size())
         chosenItem_ = items_[idx];
+      halfPrice_ = false;
     }
     else if (click.y >= 315 && click.y <= 475){
       Mouse::instance()->resetMousePos();
       unsigned idx = 9*(shopPage_-1)+4;
       if (idx < items_.size())
         chosenItem_ = items_[idx];
+      halfPrice_ = false;
     }
     else if (click.y >= 510 && click.y <= 670){
       Mouse::instance()->resetMousePos();
       unsigned idx = 9*(shopPage_-1)+7;
       if (idx < items_.size())
         chosenItem_ = items_[idx];
+      halfPrice_ = false;
     }
   }
   //second item column
@@ -347,18 +363,21 @@ void Trade::update(){
       unsigned idx = 9*(shopPage_-1)+2;
       if (idx < items_.size())
         chosenItem_ = items_[idx];
+      halfPrice_ = false;
     }
     else if (click.y >= 315 && click.y <= 475){
       Mouse::instance()->resetMousePos();
       unsigned idx = 9*(shopPage_-1)+5;
       if (idx < items_.size())
         chosenItem_ = items_[idx];
+      halfPrice_ = false;
     }
     else if (click.y >= 510 && click.y <= 670){
       Mouse::instance()->resetMousePos();
       unsigned idx = 9*(shopPage_-1)+8;
       if (idx < items_.size())
         chosenItem_ = items_[idx];
+      halfPrice_ = false;
     }
   }
   //third item column
@@ -368,18 +387,21 @@ void Trade::update(){
       unsigned idx = 9*(shopPage_-1)+3;
       if (idx < items_.size())
         chosenItem_ = items_[idx];
+      halfPrice_ = false;
     }
     else if (click.y >= 315 && click.y <= 475){
       Mouse::instance()->resetMousePos();
       unsigned idx = 9*(shopPage_-1)+6;
       if (idx < items_.size())
         chosenItem_ = items_[idx];
+      halfPrice_ = false;
     }
     else if (click.y >= 510 && click.y <= 670){
       Mouse::instance()->resetMousePos();
       unsigned idx = 9*(shopPage_-1)+9;
       if (idx < items_.size())
         chosenItem_ = items_[idx];
+      halfPrice_ = false;
     }
   }
 

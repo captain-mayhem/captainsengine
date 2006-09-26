@@ -28,6 +28,7 @@
 #include "player.h"
 #include "gamestate.h"
 #include "gui/console.h"
+#include "gui/dropdown.h"
 #include "clientsocket.h"
 #include "socketexception.h"
 #include "script.h"
@@ -44,8 +45,9 @@ using std::cin;
 using std::endl;
 
 using Gui::Button;
+using Gui::DropDownButton;
 
-#define line *System::Engine::instance()->getFont()
+#define line *System::Engine::instance()->getFont(0)
 
 extern string path;
 extern string home;
@@ -61,7 +63,6 @@ Message::Message(): ss_(0) {
 	cliToSrv_["create"] = CREATE;
 	cliToSrv_["help"] = HELP;
 	cliToSrv_["list"] = LIST;
-	cliToSrv_["create"] = CREATE;
 	cliToSrv_["play"] = PLAY;
 	cliToSrv_["start"] = START;
 	cliToSrv_["end"] = END;
@@ -89,6 +90,7 @@ Message::Message(): ss_(0) {
   cliToSrv_["drop"] = DROP;
   cliToSrv_["buy"] = BUY;
   cliToSrv_["sell"] = SELL;
+  cliToSrv_["pickup"] = PICKUP;
 }
 
 Message::Message(const Message& m){
@@ -150,6 +152,10 @@ void Message::process_(const char* cmd){
 		}
 		//determine opcode
 		string op = string(buffer);
+    if (op == "fuck"){
+      consol << "fuck yourself, asshole!";
+      return;
+    }
 		opcode = cliToSrv_[op];
 		op.clear();
 		toSend = toStr(opcode);
@@ -385,6 +391,8 @@ void Message::process_(const char* cmd){
 			const Field* back = creat->getBackPointer();
 			//move did not succeed?
 			if (back != NULL){
+        Vector3D move = Vector3D(back->getPosition()-creat->getPosition());
+        cam.moveTo(move.magnitude()*QUADSIZE, move);
 				*ss_ << toStr(POSITION) + " " + toStr(back->getPosition().x) + " "+ toStr(back->getPosition().y);
 			}
 			wait();
@@ -700,7 +708,29 @@ void Message::process_(const char* cmd){
     break;
 
   case SELL:
+    if (game.getState() != PREPARE){
+			consol << "Not allowed at the moment";
+			break;
+		}
+		if (argv.size() < 2){
+			consol << "Usage: sell <item>";
+      break;
+		}
+    if (!plyr.getCreature()->getInventory()->getItem(argv[0]).isValid()){
+      consol << "You possess no "+argv[0]+" that you could sell";
+      break;
+    }
+    *ss_ << toStr(SELL) + " " + argv[0];
+
     break;
+
+  case PICKUP:
+		if (game.getState() != RUN){
+			consol << "Not allowed at the moment";
+			break;
+		}
+		*ss_ << toStr(PICKUP);
+	  break;
 
 	default:
 		consol << "Unknown command. Please enter 'help' for available commands";
@@ -757,28 +787,25 @@ void Message::process(const string& answer){
 		//only the player with admin status can create games
 		if (plyr.getStatus() == 2){
 			(line).glPrint(120, 450, "Package:",1, (float)HUGE_VAL);
-			Button* but = new Button();
+			DropDownButton* but = new DropDownButton();
 			but->setPosition(Vector2D(200,450));
+      but->calcDDPos(1);
 			but->setText("basic");
-			//void (Renderer::*p)();
-			//p = &Renderer::package;
-			but->setCbFunc(Menu::package);
+      but->setCbFunc(Menu::level);
       System::Engine::instance()->addButtonListener(but,false);
 
 			(line).glPrint(120, 400, "Level:", 1, (float)HUGE_VAL);
-			but = new Button();
-			but->setPosition(Vector2D(200,400));
-			but->setText("maze");
-			//p = &Renderer::level;
-			but->setCbFunc(Menu::level);
-      System::Engine::instance()->addButtonListener(but,false);
+			DropDownButton* but2 = new DropDownButton();
+			but2->setPosition(Vector2D(200,400));
+      but2->calcDDPos(1);
+      System::Engine::instance()->addButtonListener(but2,false);
+      game.choosePackage(but, but2);
 
-			but = new Button();
-			but->setPosition(Vector2D(200,300));
-			but->setText("     Load");
-			//p = &Renderer::loadLevel;
-			but->setCbFunc(Menu::loadLevel);
-      System::Engine::instance()->addButtonListener(but,false);
+			Button* but3 = new Button();
+			but3->setPosition(Vector2D(200,300));
+			but3->setText("     Load");
+			but3->setCbFunc(Menu::loadLevel);
+      System::Engine::instance()->addButtonListener(but3,false);
 		}
 	break;
     
@@ -806,6 +833,20 @@ void Message::process(const string& answer){
 			if (plyr.getStatus() != 0){
         System::Engine::instance()->clearListeners(false);
 			}
+
+      Button* but = new Button();
+      but->setPosition(Vector2D(900, 90));
+      but->setText("Zargon");
+      but->setCbFunc(Menu::zargon);
+      System::Engine::instance()->addButtonListener(but, false);
+  
+      but = new Button();
+      but->setPosition(Vector2D(900, 50));
+      but->setText("Create hero");
+      but->setCbFunc(Menu::createHero);
+      System::Engine::instance()->addButtonListener(but, false);
+      
+      scr.intro();
 			break;
 		}
 	break;
@@ -817,14 +858,34 @@ void Message::process(const string& answer){
 		if (argv[0] == "zargon"){
 			//you sended the command
 			if (argv.size() == 1){
-				plyr.addZargon();
-				consol << "You are Zargon.\n";
+				//set zargon to the first monster
+        plyr.addZargon();
+        Vector2D pos = wrld.getMonsters()[0]->getPosition();
+        Vector3D p = wrld.modelToRealPos(pos);
+        cam.positionCamera(p, Vector3D(p.x+1,p.y,p.z), Vector3D(0,1,0));
+        plyr.setActCreature(wrld.getMonsters()[0]->getName());
+        wrld.updateCollisionVertices(pos);
+				
+        consol << "You are Zargon.\n";
         Button* but = new Button();
 		    but->setPosition(Vector2D(900, 170));
 		    but->setText("Start");
 		    but->setCbFunc(Menu::start);
         System::Engine::instance()->addButtonListener(but);
-				break;
+        
+        but = new Button();
+        but->setPosition(Vector2D(900, 130));
+        but->setText("Shop");
+        but->setCbFunc(Menu::shop);
+        System::Engine::instance()->addButtonListener(but);
+				
+        but = new Button();
+        but->setPosition(Vector2D(900, 50));
+        but->setText("Create hero");
+        but->setCbFunc(Menu::createHero);
+        System::Engine::instance()->addButtonListener(but);
+        
+        break;
 			}
 			for (unsigned i = 0; i < wrld.getMonsters().size(); i++){
 				wrld.getMonsters()[i]->setPlayer(argv[1]);
@@ -845,8 +906,6 @@ void Message::process(const string& answer){
         Button* but = new Button();
 		    but->setPosition(Vector2D(900, 170));
 		    but->setText("Start");
-		    //void (Renderer::*p)();
-		    //p = &Renderer::start;
 		    but->setCbFunc(Menu::start);
         System::Engine::instance()->addButtonListener(but);
 
@@ -854,6 +913,18 @@ void Message::process(const string& answer){
         but->setPosition(Vector2D(900, 130));
         but->setText("Shop");
         but->setCbFunc(Menu::shop);
+        System::Engine::instance()->addButtonListener(but);
+
+        but = new Button();
+        but->setPosition(Vector2D(900, 90));
+        but->setText("Zargon");
+        but->setCbFunc(Menu::zargon);
+        System::Engine::instance()->addButtonListener(but);
+
+        but = new Button();
+        but->setPosition(Vector2D(900, 50));
+        but->setText("Create hero");
+        but->setCbFunc(Menu::createHero);
         System::Engine::instance()->addButtonListener(but);
       }
 		  plyr.setActCreature(heroe.getName());
@@ -957,7 +1028,9 @@ void Message::process(const string& answer){
 		Vector2D pos(toInt(argv[0]), toInt(argv[1]));
 		Vector2D newPos(toInt(argv[2]), toInt(argv[3]));
 		GameObject* o = wrld.getObject(pos);
-    cam.moveTo(Vector3D(newPos-pos).magnitude(), Vector3D(newPos-pos));
+    //TODO when backpointer is set, the position call takes place AFTER the turn ended.
+    //cam.moveTo has wrong effect
+    cam.moveTo(Vector3D(newPos-pos).magnitude()*QUADSIZE, Vector3D(newPos-pos));
 		wrld.setObject(o, newPos);
 		scr.move(newPos);
 	}
@@ -1089,6 +1162,7 @@ void Message::process(const string& answer){
 		if (creat->getBody() <= 0){
 			creat->setActive(false);
 			wrld.removeObject(creat->getPosition());
+      wrld.placeInventory(creat->getInventory(), creat->getPosition());
 			line << creat->getName()+" died.";
 		}
 	}
@@ -1278,6 +1352,42 @@ void Message::process(const string& answer){
     int price = toInt(good.getAdditional());
     h->changeMoney(-price);
     h->getInventory()->addItem(good);
+  break;
+  }
+
+  case SELL:{
+    Vector2D pos(toInt(argv[0]), toInt(argv[1]));
+    Hero* h = dynamic_cast<Hero*>(wrld.getObject(pos));
+    Inventory* inv = h->getInventory();
+    Item good = inv->getItem(argv[2]);
+    int price = toInt(good.getAdditional());
+    h->changeMoney(price/2);
+    inv->deleteItemSavely(pos, argv[2]);
+  break;
+  }
+
+  case PICKUP:{
+    Vector2D pos(toInt(argv[0]), toInt(argv[1]));
+    Inventory* inv = dynamic_cast<Creature*>(wrld.getObject(pos))->getInventory();
+    vector<Field*> vf = wrld.getVisibleFields(pos);
+    string names = "";
+    for (unsigned i = 0; i < vf.size(); i++){
+      Field* f = vf[i];
+      //is there an inventory?
+      if (f->items){
+        //merge inventories
+        vector<Item> its = f->items->getItems();
+        for (unsigned j = 1; j < its.size(); j++){
+          Item& it = its[j];
+          names += it.getName()+" ";
+          inv->addItem(it);
+        }
+        //delete inventory on the ground
+        wrld.placeInventory(NULL, f->getPosition());
+      }
+    }
+    consol << dynamic_cast<Creature*>(wrld.getObject(pos))->getName()+" picked up "+names;
+    line << dynamic_cast<Creature*>(wrld.getObject(pos))->getName()+" picked up "+names;
   break;
   }
 	

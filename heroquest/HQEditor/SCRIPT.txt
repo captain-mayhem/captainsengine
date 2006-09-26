@@ -2,7 +2,10 @@ Heroquest-Lua Script Reference
 
 addItem(x,y,name)
   add an item called name to the inventory of the creature standing at (x,y).
-  
+
+addModel(x,y,id)
+  add the model with the id id at (x,y).
+
 allowAnotherAction()
   when called after having done an action in this round, the flag that
   the action was done is unset.
@@ -64,13 +67,22 @@ forceEndTurn()
 getAdjacentFreeField(x,y)
   searches for a free field that is adjacent to (x,y). Returns (true,s,t) if
   field (s,t) fulfills the requirements, otherwise (false,-1,-1) is returned.
-  
+
+getArmory(x,y,where)
+  returns the id of the armory that is worn at the point where. Where can
+  be one of the values also allowed in wearArmory. Returns -1 if no
+  armory is worn at where.
+
 getCreatureProperty(x,y,prop)
   returns the property of the creature located at (x,y). prop can be 
   "attack", "body", "defense", "id",
   "maxbody", "maxmind", "mind", "move", "name", 
   "player", "sleeping", "type"
-  
+
+getItems(x,y)
+  returns the names of the items of a creature's inventory at (x,y) as 
+  a table.
+
 getNumberOfHeros()
   returns the number of heros that are playing in the game.
 
@@ -89,6 +101,9 @@ isVisible(sx,sy,tx,ty)
 makeOverlayActive(x,y,flag)
   if flag is true, the overlay at (x,y) is activated. When flag is false,
   it is deactivated.
+
+messageBox(msg)
+  displays a standard message box with msg as text.
 
 moveCamera(x,y,z)
   move the camera with the vector (x,y,z).
@@ -114,6 +129,9 @@ releaseBackPointer(x,y)
   
 removeCreature(x,y)
   remove creature located at (x,y) from the world.
+
+removeObject(x,y)
+  remove object (not creature) located at (x,y) from the world.
   
 setCreatureProperty(x,y,prop,value)
   sets a property of the creature located at (x,y) to value. prop can be 
@@ -123,7 +141,11 @@ setCreatureProperty(x,y,prop,value)
   
 setMonster(x,y,name)
   generates and sets a monster called name to the position (x,y).
-  
+
+setMoves(value)
+  set the available movement of the creature whose turn it is 
+  immedialtely to value.
+
 setScript(x,y,name)
   attaches to the field at (x,y) the script called name. Be careful,
   infinite script loops can be created easily.

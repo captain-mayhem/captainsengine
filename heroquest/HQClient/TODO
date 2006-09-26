@@ -4,9 +4,17 @@ t = to test
 w = currently working on it
 n = not reproducable, under observation
 
-new:
+v0.6:
++ changeCreature bei Zargon am Anfang: Absturz.
+- neuer Level: Keine Buttons
+t neuer Level: Zargon-Status erneuern
+t backpointer Ruecksetzung, Kamera bleibt
+t bei streunendem Monster und keiner aktiven Kreatur wird zargon gekillt
+- princeMagnusGold: removeChests
+
+v0.5:
 n defend in anderem menue kackt ab
-t defend verschwindet bei menue-wechsel
++ defend verschwindet bei menue-wechsel
 + fallen/schaetze suchen: weiterlaufen moeglich
 t trap suchen vor falle ==> absturz
 + ueber Falle springen geht nicht
@@ -15,20 +23,15 @@ t trap suchen vor falle ==> absturz
 + Windows: Cursor verschwindet manchmal nicht mehr
 + whois nur auf sichtbaren Feldern
 t bereits gefundene Fallen nicht erneut finden
-t Kamerarichtungsruecksetzer bei disarm/jump trap (multiplayer)
++ Kamerarichtungsruecksetzer bei disarm/jump trap (multiplayer)
 + melarsMaze: sleeping Garg killt server, wenn heros gewonnen
-- changeCreature bei Zargon am Anfang: Absturz.
-- neuer Level: Keine Buttons
-- neuer Level: Zargon-Status erneuern
-- backpointer Ruecksetzung, Kamera bleibt
-- bei streunendem Monster und keiner aktiven Kreatur wird zargon gekillt
 
-classics:
+v0.4 and before:
 + collision detection
 t camera view
 t console up manchmal segfault
 
 keine Fehler, sondern gewuenschte Erweiterungen:
-t Mit w,s,a,d vernuenftig auf 2D-Map laufen
++ Mit w,s,a,d vernuenftig auf 2D-Map laufen
 - Auf Map anzeigen, wer gerade am Zug ist
 - Kompass

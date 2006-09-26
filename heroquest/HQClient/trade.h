@@ -68,6 +68,8 @@ class Trade{
     Item chosenItem_;
     //! if inventory is visible
     bool visible_;
+    //! is half price needed (selling)
+    bool halfPrice_;
 #endif
 };
 

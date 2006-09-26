@@ -55,6 +55,8 @@ public:
   Hero* addHero(const string& filename);
   //! the player is Zargon
   void addZargon();
+  //! reset zargon status
+  inline void resetZargon() {zargon_ = false;}
   //! tells if the player is zargon
   bool isZargon() const;
   //! returns the currently controlled hero or NULL if none is controlled

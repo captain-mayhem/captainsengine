@@ -1,5 +1,7 @@
 #include "system/engine.h"
 #include "gui/gui.h"
+#include "gui/messagebox.h"
+#include "gui/dropdown.h"
 
 #include "message.h"
 #include "opcodes.h"
@@ -10,10 +12,13 @@
 #include "trade.h"
 #include "menu.h"
 
+using Graphics::Font;
 using Gui::InputField;
 using Gui::Button;
+using Gui::MessageBox;
+using Gui::DropDownButton;
 
-#define line *System::Engine::instance()->getFont()
+#define line *System::Engine::instance()->getFont(0)
 
 extern string home;
 
@@ -105,14 +110,14 @@ void Menu::connect(){
   if (msg.isConnected()){
     System::Engine::instance()->clearListeners();
 
-    System::Engine::instance()->getFont()->setColor(1,1,1);
-    System::Engine::instance()->getFont()->glPrint(120, 450, "User name:", 1, HUGE_VAL);
+    System::Engine::instance()->getFont(0)->setColor(1,1,1);
+    System::Engine::instance()->getFont(0)->glPrint(120, 450, "User name:", 1, HUGE_VAL);
     InputField* in = new InputField();
     in->setPosition(Vector2D(220, 450));
     in->setText(msg.getSetting(2));
     System::Engine::instance()->addInputListener(in);
 
-    System::Engine::instance()->getFont()->glPrint(120, 400, "Password:", 1, HUGE_VAL);
+    System::Engine::instance()->getFont(0)->glPrint(120, 400, "Password:", 1, HUGE_VAL);
     InputField* in2 = new InputField();
     in2->setPosition(Vector2D(220, 400));
     in2->setHidden();
@@ -183,6 +188,23 @@ void Menu::level(){
     return;
   }
   but++;
+  DropDownButton* db = dynamic_cast<DropDownButton*>(*but);
+  if (db){
+    if (db->isOpen()){
+      db->process();
+    }
+    db->clear();
+    string level;
+    in >> level;
+    //first entry
+    in >> level;
+    db->addEntry(level);
+    db->setText(level);
+    while (in >> level){
+      db->addEntry(level);
+    }
+  }
+  /*
   string level;
   string firstlevel;
   in >> firstlevel;
@@ -197,7 +219,7 @@ void Menu::level(){
   }
   if(found)
     level = firstlevel;
-  (*but)->setText(level);
+  (*but)->setText(level);*/
   in.close();
 }
 
@@ -251,7 +273,8 @@ void Menu::play(){
   }
 
   //Reset GUI
-  System::Engine::instance()->getFont()->clear();
+  System::Engine::instance()->getFont(0)->clear();
+  System::Engine::instance()->getFont(1)->clear();
   System::Engine::instance()->removeButtonListener("    Play");
   System::Engine::instance()->removeInputListener(System::Engine::instance()->getInputFields().size()-1);
   /*System::Engine::instance()->clearListeners();
@@ -412,9 +435,15 @@ void Menu::inventory(){
 	//p = &Renderer::whatis;
 	but->setCbFunc(whatis);
   System::Engine::instance()->addButtonListener(but);
+
+  but = new Button();
+  but->setPosition(Vector2D(900, 150));
+  but->setText("Drop");
+  but->setCbFunc(drop);
+  System::Engine::instance()->addButtonListener(but);
   
   but = new Button();
-  but->setPosition(Vector2D(900, 140));
+  but->setPosition(Vector2D(900, 110));
   but->setText("Close");
 	//p = &Renderer::close;
 	but->setCbFunc(close);
@@ -575,9 +604,15 @@ void Menu::other(){
 	//p = &Renderer::whois;
 	but->setCbFunc(whois);
   System::Engine::instance()->addButtonListener(but);
+
+  but = new Button();
+  but->setPosition(Vector2D(900, 210));
+  but->setText("Pick up");
+  but->setCbFunc(pickup);
+  System::Engine::instance()->addButtonListener(but);
   
   but = new Button();
-  but->setPosition(Vector2D(900, 200));
+  but->setPosition(Vector2D(900, 170));
   but->setText("Back");
 	//p = &Renderer::mainMenu;
 	but->setCbFunc(mainMenu);
@@ -645,6 +680,17 @@ void Menu::closeShop(){
   but->setCbFunc(Menu::shop);
   System::Engine::instance()->addButtonListener(but);
 
+  but = new Button();
+  but->setPosition(Vector2D(900, 90));
+  but->setText("Zargon");
+  but->setCbFunc(Menu::zargon);
+  System::Engine::instance()->addButtonListener(but);
+
+  but = new Button();
+  but->setPosition(Vector2D(900, 50));
+  but->setText("Create hero");
+  but->setCbFunc(Menu::createHero);
+  System::Engine::instance()->addButtonListener(but);
 }
 
 //whatis (shop) button
@@ -671,4 +717,56 @@ void Menu::buy(){
 }
 
 void Menu::sell(){
+  Item ite = plyr.getTrade()->getChosenItem();
+  if (!ite.isValid()){
+    line << "Please select an item first.";
+  }
+  else{
+    plyr.getTrade()->deselect();
+    msg.process(("sell "+ite.getName()).c_str());
+  }
+}
+
+void Menu::zargon(){
+  msg.process("play zargon");
+}
+
+void Menu::drop(){
+  Item* ite = HQRenderer::instance()->getInventory()->getChosenItem();
+  if (ite == NULL){
+    line << "Please select an item first.";
+  }
+  else{
+    HQRenderer::instance()->getInventory()->deselect();
+    msg.process(("drop "+ite->getName()).c_str());
+  }
+}
+
+void Menu::pickup(){
+  msg.process("pickup");
+}
+
+void Menu::createHero(){
+  MessageBox* mb = new MessageBox();
+  System::Engine::instance()->addButtonListener(mb);
+  Font* fnt = System::Engine::instance()->getFont(1);
+  fnt->setColor(1,1,1);
+  
+  fnt->print(120, 650, "Charakter class:", 1, HUGE_VAL);
+  DropDownButton* cls = new DropDownButton();
+  cls->setPosition(Vector2D(300, 650));
+  cls->calcDDPos(2);
+  cls->setCbFunc(Hero::createFromGui);
+  cls->setName("class");
+  vector<Hero>& heros = msg.getHeros();
+  for (unsigned i = 0; i < heros.size(); i++){
+    cls->addEntry(heros[i].getType());
+  }
+  System::Engine::instance()->addButtonListener(cls);
+  
+  fnt->print(120, 610, "Name:", 1, HUGE_VAL);
+  InputField* in = new InputField();
+  in->setPosition(Vector2D(180, 610));
+  System::Engine::instance()->addInputListener(in);
+
 }

@@ -9,6 +9,8 @@
 // | File: gamestate.cpp                                              |
 //  ==================================================================
 
+#include "system/engine.h"
+
 #include "common.h"
 #include "camera.h"
 #include "world.h"
@@ -16,6 +18,7 @@
 #include "textureManager.h"
 #include "renderer/font.h"
 #include "gui/gui.h"
+#include "gui/dropdown.h"
 #include "message.h"
 #include "gui/console.h"
 #include "script.h"
@@ -26,6 +29,7 @@
 
 using Gui::InputField;
 using Gui::Button;
+using Gui::DropDownButton;
 using Graphics::Font;
 
 //Constructor
@@ -55,7 +59,7 @@ bool GameState::start(){
   cam.setCameraRadius(1);
   
   //start screen with GUI
-  Font* f = System::Engine::instance()->getFont();
+  Font* f = System::Engine::instance()->getFont(0);
   f->setColor(1.0,1.0,1.0);
   f->glPrint(120, 450, "Server:", 1, HUGE_VAL);
   InputField* in = new InputField();
@@ -93,12 +97,13 @@ void GameState::run(){
 void GameState::end(){
   //HQRenderer::instance()->setViewTo3D(false);
   plyr.saveStatus();
+  plyr.resetZargon();
   cam.positionCamera(Vector3D(-10, 8, -12), Vector3D(-9, 8, -12), Vector3D(0, 1, 0));
   status_ = INIT;
   wrld.unload();
   //wrld.deInit();
   //re-setup GUI to choose level
-  Font* f = System::Engine::instance()->getFont();
+  Font* f = System::Engine::instance()->getFont(0);
   System::Engine::instance()->clearListeners(false);
 	//only the player with admin status can create games
 	if (plyr.getStatus() == 2){
@@ -132,6 +137,11 @@ void GameState::end(){
 Vector2D GameState::getNextCreaturePos(){
   //get current creature
   Creature* c = plyr.getCreature();
+  if (!c){
+    //TODO return any creature
+    cerr << "not set";
+    return Vector2D(-1,-1);
+  }
   
   bool currFound = false;
   Hero* heros = wrld.getHeros();
@@ -176,6 +186,50 @@ Vector2D GameState::getNextCreaturePos(){
       return h.getPosition();
     }
   }
+  for (unsigned i = 0; i < monsters.size(); i++){
+    Monster* m = monsters[i];
+    if (m->getName() == c->getName() && m->getPlayer() == c->getPlayer()){
+      //found current
+      currFound = true;
+      continue;
+    }
+    if (currFound && m->getPlayer() == plyr.getName()){
+      //found next
+      return m->getPosition();
+    }
+  }
   //nothing suitable found, so the next is the old
   return c->getPosition();
+}
+
+void GameState::choosePackage(DropDownButton* pack, DropDownButton* level){
+  ifstream in("levels/levels.dat");
+  int number;
+  in >> number;
+  string name;
+  if (!in){
+    System::Log << "levels.dat (packages) not found.";
+    return;
+  }
+  for (int i = 0; i < number; i++){
+    in >> name;
+    pack->addEntry(name);
+    if (i == 0)
+      pack->setText(name);
+  }
+  in.close();
+
+  ifstream in2(string("levels/"+pack->getText()+"/levels.dat").c_str());
+  in2 >> number;
+  if (!in2){
+    System::Log << "levels.dat (levels) not found.";
+    return;
+  }
+  for (int i = 0; i < number; i++){
+    in2 >> name;
+    level->addEntry(name);
+    if (i == 0)
+      level->setText(name);
+  }
+  in2.close();
 }

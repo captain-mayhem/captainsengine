@@ -74,6 +74,14 @@ public:
   static void buy();
   //! sell button
   static void sell();
+  //! play zargon button
+  static void zargon();
+  //! drop button
+  static void drop();
+  //! pickup button
+  static void pickup();
+  //! create hero button
+  static void createHero();
   private:
 };
 

@@ -5,6 +5,7 @@ function intro()
     "labratory at the heart of his maze, fearing it might be stolen by the "..
     "evil minions of Zargon. As you search for the talisman, beware of "..
     "many traps and deadly monsters.";
+  messageBox(text);
 end
 
 GargInvictible = true;
