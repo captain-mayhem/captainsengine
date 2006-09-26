@@ -19,6 +19,7 @@
 //#include "renderer.h"
 #include "../system/engine.h"
 #include "../renderer/renderer.h"
+#include "../renderer/font.h"
 #include "../renderer/forms.h"
 #include "console.h"
 
@@ -72,6 +73,7 @@ Console::~Console(){
 //init console
 void Console::init(){
   input_ = new InputField();
+  input_->setFont(System::Engine::instance()->getFont(2));
   input_->setPosition(Vector2D(0, 468));
   input_->setOpacity(0);
   bgColor_ = Graphics::Color(0, 0, 0, 178);
@@ -161,10 +163,10 @@ void Console::render(){
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE);
   rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
   
-  System::Engine::instance()->getFont()->setColor(fgColor_.x,fgColor_.y,fgColor_.z);
+  System::Engine::instance()->getFont(2)->setColor(fgColor_.x,fgColor_.y,fgColor_.z);
   int y = pos_.y + 20;
   for (list<string>::iterator iter = history_.begin(); iter != history_.end(); iter++){
-    System::Engine::instance()->getFont()->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
+    System::Engine::instance()->getFont(2)->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
     y += 20;
   }
   //fnt_.render();

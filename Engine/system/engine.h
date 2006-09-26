@@ -83,7 +83,7 @@ class Engine{
     void run();
     void shutdown();
     inline ::Graphics::Renderer* getRenderer() {return rend_;}
-    inline ::Graphics::Font* getFont() {return fnt_;}
+    inline ::Graphics::Font* getFont(int idx) {return fnt_[idx];}
     //! Get the standard forms
     inline ::Graphics::Forms* getForms() {return forms_;}
     //! get the window
@@ -117,6 +117,8 @@ class Engine{
     void removeButtonListener(const string& name);
     //! remove all button listeners beginning at idx
     void removeButtonListeners(int idx);
+    //! get a button by name
+    ::Gui::Button* getButtonListener(const string& name);
   private:
     static Engine* eng;
     Engine();
@@ -124,8 +126,8 @@ class Engine{
     ::Windows::AppWindow* win_;
     //! The renderer
     ::Graphics::Renderer* rend_;
-    //! The font
-    ::Graphics::Font* fnt_;
+    //! The fonts
+    ::Graphics::Font** fnt_;
     //! Stadard forms
     ::Graphics::Forms* forms_;
     //! is the engine initialized and running?

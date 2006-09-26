@@ -12,7 +12,10 @@
 #ifndef VECTOR_HH
 #define VECTOR_HH
 
+#include <iostream>
 #include <math.h>
+
+using std::ostream;
 
 namespace Math{
 
@@ -39,6 +42,8 @@ public:
   inline const bool operator==(const Vector2D& v) const {
     return (v.x == x && v.y == y);
   }
+  //! write vector to a stream
+	friend ostream& operator<<(ostream& stream, const Vector2D& mat);
   //! the components
   short x, y;
 };
@@ -46,6 +51,8 @@ public:
 inline bool operator<(Vector2D a, Vector2D b){
   return a.x < b.x && a.y < b.y;
 }
+
+ostream& operator<<(ostream& stream, const Vector2D& vec);
 
 
 //! A 3D-Vector with float precision
@@ -118,9 +125,13 @@ public:
   float dot(const Vector3D& v) const;
   //! returns the angle (in radians) between two vectors
   double angle(Vector3D v);
+  //! write matrix to a stream
+	friend ostream& operator<<(ostream& stream, const Vector3D& vec);
   //! the three conponents of the vector
   float x, y, z;						
 };
+
+ostream& operator<<(ostream& stream, const Vector3D& vec);
 
 
 //! A 2D-Vector for floats
