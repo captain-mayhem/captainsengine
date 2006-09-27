@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\Engine;..\..\Engine\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CLIENT_"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CLIENT_"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -125,7 +125,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="..\..\Engine;..\..\Engine\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CLIENT_"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;_CLIENT_"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
@@ -338,6 +338,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\trade.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\world.cpp"
 				>
 			</File>
@@ -424,6 +428,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\trade.h"
+				>
+			</File>
+			<File
 				RelativePath=".\world.h"
 				>
 			</File>
@@ -471,6 +479,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Engine\gui\console.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\dropdown.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\dropdown.h"
 				>
 			</File>
 			<File
@@ -559,6 +575,14 @@
 			</File>
 			<File
 				RelativePath="..\..\Engine\math\matrix.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\messagebox.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\Engine\gui\messagebox.h"
 				>
 			</File>
 			<File

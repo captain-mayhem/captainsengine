@@ -12,6 +12,8 @@
 #include "trade.h"
 #include "menu.h"
 
+//to compile on windows
+#undef MessageBox
 using Graphics::Font;
 using Gui::InputField;
 using Gui::Button;
