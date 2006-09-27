@@ -3,6 +3,9 @@
 
 #include "gui.h"
 
+//to compile on windows
+#undef MessageBox
+
 namespace Gui{
 //! This class is a message box.
 /*! only a message box

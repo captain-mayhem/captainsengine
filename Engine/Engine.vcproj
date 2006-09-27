@@ -435,11 +435,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\dropdown.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\dropdown.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\gui.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\gui\gui.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\messagebox.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\messagebox.h"
 				>
 			</File>
 		</Filter>

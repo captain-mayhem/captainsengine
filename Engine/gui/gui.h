@@ -43,7 +43,7 @@ class InputField{
     //! Sets text in the input field
     inline void setText(const string text) {field_ = text;}
     //! Returns the text in the input field
-    inline string& getText() {finished_ = false; if(field_[field_.length()-1] == '_')
+    inline string& getText() {finished_ = false; if (field_.length() == 0) return field_; if(field_[field_.length()-1] == '_')
 	    field_.erase(field_.length()-1,1); return field_;}
     //! Sets the position of the input field
     /*! The position is specified by the lower left corner of the field
