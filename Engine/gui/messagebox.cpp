@@ -44,6 +44,8 @@ void MessageBox::process(){
     idx++;
   }
   System::Engine::instance()->removeButtonListener(idx, false);
+  if (handleClicks_)
+    (*handleClicks_)();
 }
 
 void MessageBox::setPosition(const ::Math::Vector2D& pos){
