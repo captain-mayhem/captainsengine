@@ -168,12 +168,28 @@ void Hero::createFromGui(){
     System::Engine::instance()->removeButtonListener(but->getText());
   }
 
+  //read spell classes
+  vector<string> spellClasses;
+  ifstream in("data/spellClasses.dat");
+  if (in){
+    string tmp;
+    while (in >> tmp){
+      spellClasses.push_back(tmp);
+    }
+    in.close();
+  }
+
   Vector2D pos = Vector2D(120, 490);
   for (int i = 0; i < heroe.getSpellClasses(); i++){
     Gui::DropDownButton* spell = new Gui::DropDownButton();
     spell->setPosition(pos);
     spell->calcDDPos(2);
     spell->setName("spell");
+    for (unsigned i = 0; i < spellClasses.size(); i++){
+      if (i == 0)
+        spell->setText(spellClasses[i]);
+      spell->addEntry(spellClasses[i]);
+    }
     System::Engine::instance()->addButtonListener(spell);
     pos.x += 190;
   }

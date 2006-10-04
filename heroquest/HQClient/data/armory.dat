@@ -12,4 +12,5 @@ battle_axe -> id: 10  price: 450 description: This heavy, double-edged axe gives
 plate_mail -> id: 11  price: 850 description: This heavy metal armor gives you 2 extra defense. However, because it is so heavy, you are slower in movement while wearing it. /description
 talisman_of_lore -> id: 12 price: -1 description: This magical medallion increases your mind points by 1 for as long as it is worn. /description
 wizards_cloak -> id: 13 price: -1 description: This magical cloak made of shimmery fabric is covered with mystical runes. It gives the wearer 1 extra defense. Only for the Wizard. /description
+borins_armor -> id: 14 price: -1 description: This magical suit of plate mail allows the wearer to have 2 more in defense. Unlike normal plate mail, this mysterious, ultralight metal armor does not slow down its wearer. Not for the Wizard. /description
 victibleGarg -> id: 1000 price: -1 description: Special weapon for the Gargoyle in Melar's maze /description

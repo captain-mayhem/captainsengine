@@ -39,6 +39,8 @@ void Templates::load(){
       ite.setType(Item::Potion);
     else if (temp == "unusable")
       ite.setType(Item::Unusable);
+    else if (temp == "artifact")
+      ite.setType(Item::Artifact);
     in >> temp; in >> temp;
     string desc;
     while(temp != "/description"){

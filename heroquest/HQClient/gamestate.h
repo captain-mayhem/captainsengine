@@ -12,6 +12,8 @@
 #ifndef GAMESTATE_HH
 #define GAMESTATE_HH
 
+#include <queue>
+
 namespace Gui{
 class DropDownButton;
 }
@@ -54,6 +56,10 @@ public:
   Vector2D getNextCreaturePos();
   //! choose the packages and levels that are available
   void choosePackage(Gui::DropDownButton* pack, Gui::DropDownButton* level);
+  //! add a random number to repository
+  void addRandom(int number);
+  //! get a cached random number
+  inline int getRandomNumber() {int res = randoms_.front(); randoms_.pop(); return res;}
 private:
   //! the game state
   State status_;
@@ -61,6 +67,8 @@ private:
   short moves_;
   //! if damage is pending
   short pending_damage_;
+  //! the cached random numbers
+  std::queue<int> randoms_;
 };
 
 extern class GameState game;

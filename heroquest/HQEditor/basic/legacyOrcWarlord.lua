@@ -1,5 +1,12 @@
 function intro()
-
+  local text = "Ulag's foul offspring, Grak, has sworn revenge on those who "..
+    "killed his father. Altough is has taken him several month, he has "..
+    "finally tracked you down and captured you in an ambush. Now you are all "..
+    "held prisoner in his dungeons while he decides when and how you will "..
+    "meet your fate. While the guard sleeps outside your cell, you manage "..
+    "to pick the lock with an old rat bone. You must find your equipment "..
+    "and escape to the stairway.";
+  messageBox(text);
 end
 
 Inv1 = {};
@@ -94,8 +101,14 @@ function B(sx, sy)
   setCreatureProperty(sx, sy, "name", "Grak");
   setCreatureProperty(sx, sy, "body", 3);
   setCreatureProperty(sx, sy, "mind", 3);
+  setCreatureProperty(sx, sy, "defense", 3);
   addItem(sx, sy, "staff");
   addItem(sx, sy, "wizards_cloak");
+  armory(sx,sy,sx,sy,13);
+  armory(sx,sy,sx,sy,6);
+  addItem(sx, sy, "fear");
+  addItem(sx, sy, "chaosSleep");
+  addItem(sx, sy, "chaosTempest");
 end
 
 function C(sx, sy)

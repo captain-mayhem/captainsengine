@@ -12,5 +12,9 @@ sleep			-> id: 10 class: water description: This spell puts a creature into a de
 veilOfMist		-> id: 11 class: water description: The spellbound creature may move unseen trough spaces that are occupied by oponent creatures /description
 waterOfHealing	-> id: 12 class: water description: This spell restores up to 4 lost body points but not more than the creature's starting number. /description
 fear -> id: 13 class: chaos description: This spell causes any one creature to become so fearful that his attacks are reduced to one combat die. The spell can be broken by the creature on a future turn by rolling one movement die for each of his mind points. If a 6 is rolled, the spell is broken. /description
-chaosSleep -> id: 14 class: chaos description: This spell puts any one creature into a deep sleep. A sleeping hero is unable to move, attack or defend himself. The spell can be broken immediately or on a future turn by the creature rolling one movement die for each of his mind points. If a 6 is rolled, the spell is broken. /description
+chaosSleep -> id: 14 class: chaos description: This spell puts any one creature into a deep sleep. A sleeping creature is unable to move or attack. The spell can be broken immediately or on a future turn by the creature rolling one movement die for each of his mind points. If a 6 is rolled, the spell is broken. /description
 chaosTempest -> id: 15 class: chaos description: This spell creates a small whirlwind that envelops one creature of your choice. The creature will then miss his next turn. /description
+chaosBallOfFlame -> id: 16 class: chaos description: This spell can be cast on any creature. It will inflict 2 damage, but it can defend with 2. /description
+firestorm -> id: 17 class chaos description: This spell creates a roomful of fire that inflics 3 damage on all creatures in the same room, but they can defend with 2. The spellcaster is not affected. /description
+summonOrcs -> id: 18 class chaos description: /description
+escape -> id: 19 class chaos description: /description

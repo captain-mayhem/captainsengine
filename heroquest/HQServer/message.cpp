@@ -188,6 +188,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
     }
       
     case START:{
+      game.getRandomNumber();
       scr.levelInit();
       game.start();
       ServerSocket* actSs = game.getNextPlayer();

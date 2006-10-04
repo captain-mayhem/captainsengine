@@ -121,7 +121,7 @@ function spell(sx, sy, tx, ty, idx)
 		return true;
 
   --tempest
-  elseif idx == 9 then
+  elseif idx == 9 or idx == 15 then
     if not isVisible(sx, sy, tx, ty) then
       return false;
     end
@@ -135,7 +135,7 @@ function spell(sx, sy, tx, ty, idx)
     return true;
 
   --sleep
-  elseif idx == 10 then
+  elseif idx == 10 or idx == 14 then
     if not isVisible(sx, sy, tx, ty) then
       return false;
     end
@@ -182,6 +182,35 @@ function spell(sx, sy, tx, ty, idx)
    
     
     return true;
+
+  --fear
+  elseif idx == 13 then
+    if not isVisible(sx, sy, tx, ty) then
+      return false;
+    end
+    local atta = getCreatureProperty(tx, ty, "attack")-1;
+    setCreatureProperty(tx, ty, "attack", 1);
+    function attackRestoreFear(tx, ty)
+      local mind = getCreatureProperty(tx, ty, "mind");
+      local broken = false;
+      for i = 1, mind, 1 do
+        local die = dice("normal", 1);
+        if die == 6 then
+          broken = true;
+          break;
+        end
+      end
+      if broken then
+        output("Fear is broken","Fear is broken");
+        local att = getCreatureProperty(tx, ty, "attack");
+        setCreatureProperty(tx, ty, "attack", att+atta);
+      else
+        addEntry("startTurn", tx, ty, attackRestoreFear);
+      end
+    end
+    addEntry("startTurn", tx, ty, attackRestoreFear);
+    return true;
+
   end
 
 	return false;

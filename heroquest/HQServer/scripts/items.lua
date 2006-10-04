@@ -28,7 +28,7 @@ function item(sx, sy, tx, ty, idx)
     	setCreatureProperty(tx, ty, "defence", defend-2);
 		end
     
-    addEntry("attack", tx, ty, restoreDef);
+    addEntry("attack", sx, sy, restoreDef);
     return true;
 
   -- potion of strength
@@ -41,9 +41,23 @@ function item(sx, sy, tx, ty, idx)
     	setCreatureProperty(tx, ty, "attack", attack-2);
 		end
     
-		addEntry("endTurn", tx, ty, restoreAtt);	
+		addEntry("endTurn", sx, sy, restoreAtt);	
     return true;
 
+  -- purple liquid
+  elseif idx == 5 then
+    setCreatureProperty(sx, sy, "sleeping", true);
+    local count = 0;
+    function purpleLiqWakeUp(tx, ty)
+      count = count+1;
+      if count == 5 then
+        setCreatureProperty(tx, ty, "sleeping", false);
+      else
+        addEntry("startTurn", tx, ty, purpleLiqWakeUp)
+      end
+    end
+    forceEndTurn();
+    addEntry("startTurn", sx, sy, purpleLiqWakeUp)
   end
 
   return false;

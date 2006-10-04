@@ -108,29 +108,26 @@ void GameState::end(){
 	//only the player with admin status can create games
 	if (plyr.getStatus() == 2){
     f->setColor(1,1,1);
-		f->glPrint(120, 450, "Package:",1, (float)HUGE_VAL);
-		Button* but = new Button();
+    f->print(120, 450, "Package:",1, (float)HUGE_VAL);
+	  DropDownButton* but = new DropDownButton();
 		but->setPosition(Vector2D(200,450));
+    but->calcDDPos(1);
 		but->setText("basic");
-		//void (Renderer::*p)();
-		//p = &Renderer::package;
-		but->setCbFunc(Menu::package);
-    System::Engine::instance()->addButtonListener(but,false);
-    
-		f->glPrint(120, 400, "Level:", 1, (float)HUGE_VAL);
-		but = new Button();
-		but->setPosition(Vector2D(200,400));
-		but->setText("maze");
-		//p = &Renderer::level;
-		but->setCbFunc(Menu::level);
+    but->setCbFunc(Menu::level);
     System::Engine::instance()->addButtonListener(but,false);
 
-		but = new Button();
-		but->setPosition(Vector2D(200,300));
-		but->setText("     Load");
-		//p = &Renderer::loadLevel;
-		but->setCbFunc(Menu::loadLevel);
-    System::Engine::instance()->addButtonListener(but,false);
+		f->print(120, 400, "Level:", 1, (float)HUGE_VAL);
+		DropDownButton* but2 = new DropDownButton();
+		but2->setPosition(Vector2D(200,400));
+    but2->calcDDPos(1);
+    System::Engine::instance()->addButtonListener(but2,false);
+    game.choosePackage(but, but2);
+
+		Button* but3 = new Button();
+		but3->setPosition(Vector2D(200,300));
+		but3->setText("     Load");
+		but3->setCbFunc(Menu::loadLevel);
+    System::Engine::instance()->addButtonListener(but3,false);
 	}
 }
 
@@ -232,4 +229,9 @@ void GameState::choosePackage(DropDownButton* pack, DropDownButton* level){
       level->setText(name);
   }
   in2.close();
+}
+
+// add a random number to repository
+void GameState::addRandom(int number){
+  randoms_.push(number);
 }

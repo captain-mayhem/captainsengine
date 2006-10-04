@@ -238,3 +238,19 @@ void GameState::endTurn(ServerSocket* ss){
   globl.chat(actSs, toStr(CHAT)+" It's "+ globl.getPlayer(actSs)->getName()+ "'s turn.");
 }
 
+// get and generate random numbers
+int GameState::getRandomNumber(){
+  const int maxEntries = 20;
+  int diff = maxEntries - randoms_.size();
+  string message = toStr(RANDOM)+" "+toStr(diff);
+  for (int i = 0; i < diff; i++){
+    string result = game.die(1, true);
+    message += " "+result;
+    randoms_.push(result);
+  }
+  int result = toInt(randoms_.front());
+  randoms_.pop();
+  globl.broadcast(message);
+  return result;
+}
+

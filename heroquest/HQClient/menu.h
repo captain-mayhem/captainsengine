@@ -82,6 +82,8 @@ public:
   static void pickup();
   //! create hero button
   static void createHero();
+  //! create hero execute button
+  static void chexec();
   private:
 };
 

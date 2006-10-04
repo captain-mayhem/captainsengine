@@ -19,6 +19,7 @@ class Item{
   public:
     enum Type{
       Armory,
+      Artifact,
       NoItem,
       Potion,
       Spell,

@@ -691,20 +691,20 @@ int Script::showRoom(lua_State *L){
 }
 
 int Script::dice(lua_State *L){
-#ifndef _CLIENT_
+//#ifndef _CLIENT_
   string type = string(luaL_checkstring(L, 1));
   short number = (short)luaL_checknumber(L, 2);
   if (type == "normal"){
     for (int i = 0; i < number; i++){
-      string result = game.die(1, true);
-      lua_pushnumber(L, toInt(result));
+      int result = game.getRandomNumber();
+      lua_pushnumber(L, result);
     }
     return number;
   }
   return 0;
-#else
-  return 0;
-#endif
+//#else
+//  return 0;
+//#endif
 }
 
 //! enable hero/monster collision

@@ -241,9 +241,24 @@ function armory(sx, sy, tx, ty, idx)
       return false;
     end
 
-  --Garg's weapon
-  --elseif idx == 1000 then
-  --  wearArmory(sx, sy, "victibleGarg", "right hand", "");
+  --borin's armor
+  elseif idx == 14 then
+     --is it the wizard?
+    if getCreatureProperty(sx, sy, "id") == 3 then
+      return false;
+    end
+    local id = getArmory(sx, sy, "body");
+    --free?
+    if id == -1 then
+      wearArmory(sx, sy, "borins_armor", "body", "");
+      local def = getCreatureProperty(sx, sy, "defense");
+      setCreatureProperty(sx, sy, "defense", def+2);
+      return true;
+    else
+      err(sx, sy, "Your body has to be free");
+      return false;
+    end
+
   end
 
 end
@@ -337,9 +352,12 @@ function armoryOff(sx, sy, idx)
     takeOff(sx, sy, "wizards_cloak");
     local def = getCreatureProperty(sx, sy, "defence");
     setCreatureProperty(sx, sy, "defence", def-1);
-  -- Garg's weapon
-  --elseif idx == 1000 then
-  --  takeOff(sx, sy, "victibleGarg");
+  
+  --borin's armor
+  elseif idx == 14 or idx == "borins_armor" then
+    takeOff(sx, sy, "borins_armor");
+    local def = getCreatureProperty(sx, sy, "defense");
+    setCreatureProperty(sx, sy, "defense", def-2);
   end
 
 end

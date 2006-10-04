@@ -95,7 +95,8 @@ bool Item::use(Vector2D source, Vector2D target){
       return true;
     }
 
-    case Potion:{
+    case Potion:
+    case Artifact:{
 #ifdef _CLIENT_
       scr.item(source, target, id_);
       count_--;

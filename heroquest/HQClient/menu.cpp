@@ -9,6 +9,7 @@
 #include "world.h"
 #include "camera.h"
 #include "renderer.h"
+#include "templates.h"
 #include "trade.h"
 #include "menu.h"
 
@@ -750,10 +751,12 @@ void Menu::pickup(){
 
 void Menu::createHero(){
   MessageBox* mb = new MessageBox();
+  mb->setCbFunc(chexec);
   System::Engine::instance()->addButtonListener(mb);
   Font* fnt = System::Engine::instance()->getFont(1);
   fnt->setColor(1,1,1);
   
+  fnt->setId(2);
   fnt->print(120, 650, "Charakter class:", 1, HUGE_VAL);
   DropDownButton* cls = new DropDownButton();
   cls->setPosition(Vector2D(300, 650));
@@ -766,9 +769,66 @@ void Menu::createHero(){
   }
   System::Engine::instance()->addButtonListener(cls);
   
+  fnt->setId(2);
   fnt->print(120, 610, "Name:", 1, HUGE_VAL);
   InputField* in = new InputField();
   in->setPosition(Vector2D(180, 610));
   System::Engine::instance()->addInputListener(in);
 
 }
+
+// create hero execute button
+void Menu::chexec(){
+  //fonts
+  Graphics::Font* fnt = System::Engine::instance()->getFont(1);
+  fnt->deleteText(1);
+  fnt->deleteText(2);
+  
+  //character class
+  Button* cls = System::Engine::instance()->getButtonListener("class");
+  string charClass = cls->getText();
+  System::Engine::instance()->removeButtonListener(charClass);
+
+  //character name
+  if (System::Engine::instance()->getActiveInput() != NULL){
+    InputField* inp = System::Engine::instance()->getActiveInput();
+    inp->removeChar();
+    inp->end();
+    System::Engine::instance()->setActiveInput(NULL);
+  }
+  string name = System::Engine::instance()->getInputFields().front()->getText();
+  System::Engine::instance()->removeInputListener(0);
+  
+  //find hero
+  Hero hero;
+  const vector<Hero>& heroes = msg.getHeros();
+  for (unsigned i = 0; i < heroes.size(); i++){
+    hero = heroes[i];
+    if (charClass == hero.getType())
+      break;
+  }
+  hero.setName(name);
+  hero.setPlayer(plyr.getName());
+  
+  //spells
+  Inventory* inv = hero.getInventory();
+  while (Button* but = System::Engine::instance()->getButtonListener("spell")){
+    string spell = but->getText();
+    System::Engine::instance()->removeButtonListener(spell);
+    vector<Item> spells = Templates::instance()->getSpells(spell);
+    for (unsigned int i = 0; i < spells.size(); i++){
+      inv->addItem(spells[i]);
+    }
+  }
+
+  //save hero
+  if (name.size() == 0){
+    line << "Creation failed. Enter a name for the hero.";
+  }
+  else{
+    string p = home + plyr.getName()+hero.getName()+".sav";
+    hero.write(p);
+    line << hero.getName()+" successfully created.";
+  }
+}
+

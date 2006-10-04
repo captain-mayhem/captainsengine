@@ -18,6 +18,9 @@
 #ifndef GAMESTATE_HH
 #define GAMESTATE_HH
 
+#include <queue>
+#include <string>
+
 #include "serversocket.h"
 #include "math/vector.h"
 
@@ -80,6 +83,8 @@ public:
   inline short getMovement() {return moves;}
   //! end a turn
   void endTurn(ServerSocket* ss);
+  //! get and generate random number
+  int getRandomNumber();
 private:
   //! the gamestate
   enum state status;
@@ -99,6 +104,8 @@ private:
   short pendingDamage;
   //! the currently remaining moves
   short moves;
+  //! the random numbers
+  std::queue<std::string> randoms_;
 };
 
 extern GameState game;

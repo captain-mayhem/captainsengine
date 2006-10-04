@@ -935,6 +935,7 @@ void Message::process(const string& answer){
 	      
 	case START:
 		game.setState(RUN);
+    game.getRandomNumber();
 		consol << "Game started now.\n";
 		{
 		//game is running now, so buttons for ingame actions are needed
@@ -1389,6 +1390,13 @@ void Message::process(const string& answer){
     consol << dynamic_cast<Creature*>(wrld.getObject(pos))->getName()+" picked up "+names;
     line << dynamic_cast<Creature*>(wrld.getObject(pos))->getName()+" picked up "+names;
   break;
+  }
+
+  case RANDOM:{
+    for (int i = 0; i < toInt(argv[0]); i++){
+      game.addRandom(toInt(argv[i+1]));
+    }
+    break;
   }
 	
   }

@@ -186,6 +186,8 @@ private:
 	lua_State* L;
   //! The level dependent scripts
   vector<ScriptInfo*> scripts_;
+  //! The dice result from server
+  static string dice_;
 };
 
 extern Script scr;

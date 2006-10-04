@@ -76,6 +76,7 @@ function c(sx, sy)
   --may move away
   setMoves(1);
   attack(3, "normal", 0, "normal", sx, sy, sx, sy);
+  addModel(sx, sy, 2);
   return false;
 end
 
