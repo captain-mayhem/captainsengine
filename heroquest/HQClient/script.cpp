@@ -143,6 +143,8 @@ void Script::init(){
   lua_setglobal(L, "moveCamera");
   lua_pushcfunction(L, Script::messageBox);
   lua_setglobal(L, "messageBox");
+  lua_pushcfunction(L, Script::getVisibleCreatures);
+  lua_setglobal(L, "getVisibleCreatures");
 	
 	lua_pcall(L,0,0,0);
 
@@ -956,7 +958,16 @@ int Script::setScript(lua_State* L){
 
 int Script::allowAnotherAction(lua_State* L){
 #ifndef _CLIENT_
-  game.performAction(false);
+  string action = string(luaL_checkstring(L, 1));
+  if (action == "attack")
+    game.performAction(GameState::Attack, false);
+  else if (action == "spell")
+    game.performAction(GameState::Spell, false);
+  else if (action == "generic")
+    game.performAction(GameState::Generic, false);
+  else
+    cerr << "allowAnotherAction: Unknown action: " << action << "\n";
+  game.performAction(GameState::Generic, false);
 #endif
   return 0;
 }
@@ -1186,4 +1197,24 @@ int Script::messageBox(lua_State* L){
   System::Engine::instance()->addButtonListener(mb, false);
 #endif
   return 0;
+}
+
+// get visible creatures
+int Script::getVisibleCreatures(lua_State* L){
+  short x = (short)luaL_checknumber(L, 1);
+	short y = (short)luaL_checknumber(L, 2);
+  Vector2D pos = Vector2D(x, y);
+  vector<Field*> vf = wrld.getVisibleFields(pos);
+  int count = 0;
+  for (unsigned i = 0; i < vf.size(); i++){
+    Vector2D fp = vf[i]->getPosition();
+    //a monster?
+    Creature* c =dynamic_cast<Creature*>(wrld.getObject(fp));
+    if (c){
+      lua_pushnumber(L, fp.x);
+      lua_pushnumber(L, fp.y);
+      count += 2;
+    }
+  }
+  return count;
 }

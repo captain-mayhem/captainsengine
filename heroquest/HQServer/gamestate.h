@@ -37,7 +37,14 @@ enum state{
 
 //! manages the state of the game
 class GameState {
-public: 
+public:
+  enum ActionType{
+    Generic,
+    Attack,
+    Spell,
+    Search,
+    Disarm,
+  };
   //! Constructor
   GameState();
   //! Destructor
@@ -64,9 +71,9 @@ public:
   //! if the player has already moved
   inline const bool hasMoved(){return moved;}
   //! if an action was performed, it must be set here
-  void performAction(bool action=true);
+  void performAction(ActionType type, bool action=true);
   //! if an action has been performed
-  inline bool isActionPerformed() {return actionPerformed;}
+  inline bool isActionPerformed(ActionType type) {return actionPerformed[type] == 0 && actionPerformed[Generic] == 0;}
   //! set the place of the action
   inline void setActionPlace(Vector2D& pos) {actionPlace = pos;}
   //! get the place of the action
@@ -97,7 +104,7 @@ private:
   //! already moved
   bool moved;
   //! an action was already performed
-  bool actionPerformed;
+  short actionPerformed[5];
   //! where the last action took place
   Math::Vector2D actionPlace;
   //! the damage that is pending

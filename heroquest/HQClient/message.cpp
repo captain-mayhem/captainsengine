@@ -783,7 +783,7 @@ void Message::process(const string& answer){
 		line << "Logged in.";
     
 		//setup GUI to choose level
-    System::Engine::instance()->clearListeners(false);
+    System::Engine::instance()->clearListeners(true/*false*/);
 		//only the player with admin status can create games
 		if (plyr.getStatus() == 2){
 			(line).glPrint(120, 450, "Package:",1, (float)HUGE_VAL);

@@ -406,7 +406,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(NO_TURN);
 	      break;
       }
-      if (game.isActionPerformed()){
+      if (game.isActionPerformed(GameState::Attack)){
         *ss << toStr(NO_ACTION);
         break;
       }
@@ -462,7 +462,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         wait();
         //wait();
 	      //everything is correct, throw attack dices
-	      game.performAction();
+	      game.performAction(GameState::Attack);
 	      *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
         //wait();
         //wait();
@@ -593,7 +593,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(NO_TURN);
 	      break;
       }
-      if (game.isActionPerformed()){
+      if (game.isActionPerformed(GameState::Search)){
         *ss << toStr(NO_ACTION);
         break;
       }
@@ -644,7 +644,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
 	      }
       }
       //search for secret doors
-      game.performAction();
+      game.performAction(GameState::Search);
       *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
       if (secretDoors.size() == 0){
         *ss << toStr(CHAT)+"There are no secret doors.";
@@ -669,7 +669,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(NO_TURN);
 	      break;
     }
-    if (game.isActionPerformed()){
+    if (game.isActionPerformed(GameState::Spell)){
       *ss << toStr(NO_ACTION);
       break;
     }
@@ -702,7 +702,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
 		//cast spell
 		if (scr.spell(pos, target, toInt(argv[2]))){
 			//everything is correct
-			game.performAction();
+			game.performAction(GameState::Spell);
 			*ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
 			string msg = toStr(SPELL)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+
 				toStr(target.x)+" "+toStr(target.y)+" "+argv[2];
@@ -759,7 +759,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(NO_TURN);
 	      break;
       }
-      if (game.isActionPerformed()){
+      if (game.isActionPerformed(GameState::Search)){
         *ss << toStr(NO_ACTION);
         break;
       }
@@ -783,7 +783,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       f->treasure = true;
       
-      game.performAction();
+      game.performAction(GameState::Search);
       *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
       wait();
       //is a treasure script availabale?
@@ -861,7 +861,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(NO_TURN);
 	      break;
       }
-      if (game.isActionPerformed()){
+      if (game.isActionPerformed(GameState::Search)){
         *ss << toStr(NO_ACTION);
         break;
       }
@@ -872,7 +872,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         break;
       }
       //search for traps in visible area
-      game.performAction();
+      game.performAction(GameState::Search);
       *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
       wait();
       vector<Field*> vf = wrld.getVisibleFields(pos);
@@ -907,7 +907,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(CHAT)+" You, as monster, are not allowed to disarm traps";
         break;
       }
-      if (game.isActionPerformed()){
+      if (game.isActionPerformed(GameState::Disarm)){
         *ss << toStr(NO_ACTION);
         break;
       }
@@ -958,7 +958,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(CHAT) + " There is no trap that can be disarmed.";
         break;
       }
-      game.performAction();
+      game.performAction(GameState::Disarm);
       //is it no furniture trap?
       bool noFurn = false;
       if (!f.object || (f.object && dynamic_cast<Furniture*>(f.object) == NULL)){
@@ -1174,7 +1174,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         *ss << toStr(NO_TURN);
 	      break;
       }
-      if (game.isActionPerformed()){
+      if (game.isActionPerformed(GameState::Search)){
         *ss << toStr(NO_ACTION);
         break;
       }
@@ -1199,7 +1199,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         }
       }
       if (foundAny){
-        game.performAction();
+        game.performAction(GameState::Search);
         *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
         globl.broadcast(toStr(PICKUP)+" "+toStr(pos.x)+" "+toStr(pos.y));
       }

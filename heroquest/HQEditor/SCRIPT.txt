@@ -6,9 +6,9 @@ addItem(x,y,name)
 addModel(x,y,id)
   add the model with the id id at (x,y).
 
-allowAnotherAction()
-  when called after having done an action in this round, the flag that
-  the action was done is unset.
+allowAnotherAction(action)
+  allows another action of the type action in the current turn. Action can
+  be "attack", "generic" or "spell".
 
 allowSearchAgain(x,y)
   if a room was already searched for treasure, it can be searched again
@@ -85,6 +85,10 @@ getItems(x,y)
 
 getNumberOfHeros()
   returns the number of heros that are playing in the game.
+
+getVisibleCreatures(x,y)
+  returns the positions of the creatures that are visible form (x,y) as
+  a table.
 
 isCreatureAt(x,y)
   returns true, if a creature stands at the position (x,y), false

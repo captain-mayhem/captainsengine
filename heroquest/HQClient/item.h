@@ -19,11 +19,11 @@ class Item{
   public:
     enum Type{
       Armory,
-      Artifact,
       NoItem,
       Potion,
       Spell,
       Unusable,
+      Artifact,
     };
     Item();
     Item(const Item& i);

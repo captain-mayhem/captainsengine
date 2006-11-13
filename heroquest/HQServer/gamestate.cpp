@@ -51,7 +51,11 @@ void GameState::start(){
 ServerSocket* GameState::getNextPlayer(){
   moves = 0;
   moved = false;
-  actionPerformed = false;
+  actionPerformed[Generic] = 1;
+  actionPerformed[Attack] = 0;
+  actionPerformed[Spell] = 0;
+  actionPerformed[Search] = 0;
+  actionPerformed[Disarm] = 0;
   short count = 0;
   //run through all players
   short heroMax = wrld.getHeroSize();
@@ -171,8 +175,12 @@ string GameState::die(const short num, const bool movementDice, short* s, short*
 }
 
 
-void GameState::performAction(bool action){
-  actionPerformed = action;
+void GameState::performAction(ActionType type, bool action){
+  short num = action ? -1 : 1;
+  if (actionPerformed[Generic] > 0)
+    actionPerformed[Generic] += num;
+  else
+    actionPerformed[type] += num;
 }
 
 

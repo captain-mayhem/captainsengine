@@ -15,7 +15,7 @@ function item(sx, sy, tx, ty, idx)
   
   -- heroic brew
   elseif idx == 1 then
-    allowAnotherAction();
+    allowAnotherAction("attack");
     return true;
 
   -- potion of defence
@@ -47,6 +47,7 @@ function item(sx, sy, tx, ty, idx)
   -- purple liquid
   elseif idx == 5 then
     setCreatureProperty(sx, sy, "sleeping", true);
+    output("You turn into a statue for 5 turns", "");
     local count = 0;
     function purpleLiqWakeUp(tx, ty)
       count = count+1;
@@ -57,7 +58,21 @@ function item(sx, sy, tx, ty, idx)
       end
     end
     forceEndTurn();
-    addEntry("startTurn", sx, sy, purpleLiqWakeUp)
+    addEntry("startTurn", sx, sy, purpleLiqWakeUp);
+    return true;
+
+  --wand of magic
+  elseif idx == 6 then
+    local charId = getCreatureProperty(sx, sy, "id");
+    --elf or wizard
+    if charId == 2 or charId == 3 then
+      allowAnotherAction("spell");
+      return true;
+    else
+      output("You cannot use this item.","");
+      return false;
+    end
+    
   end
 
   return false;

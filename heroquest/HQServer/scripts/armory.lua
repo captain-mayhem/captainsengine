@@ -258,9 +258,9 @@ function armory(sx, sy, tx, ty, idx)
       err(sx, sy, "Your body has to be free");
       return false;
     end
-
+    
   end
-
+  
 end
 
 
@@ -269,10 +269,9 @@ function armoryOff(sx, sy, idx)
   -- tool kit
   if idx == 0 or idx == "tool_kit" then
     takeOff(sx, sy, "tool_kit");
-  end
 
   --shortsword
-  if idx == 1 or idx == "shortsword" then
+  elseif idx == 1 or idx == "shortsword" then
     takeOff(sx, sy, "shortsword");
     local atta = getCreatureProperty(sx, sy, "attack");
     setCreatureProperty(sx, sy, "attack", atta-2);
@@ -358,6 +357,7 @@ function armoryOff(sx, sy, idx)
     takeOff(sx, sy, "borins_armor");
     local def = getCreatureProperty(sx, sy, "defense");
     setCreatureProperty(sx, sy, "defense", def-2);
+
   end
 
 end

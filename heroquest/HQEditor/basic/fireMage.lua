@@ -2,9 +2,18 @@ function intro()
 
 end
 
+balurDead = false;
 
 function levelInit()
-
+  function hitBalur(tx, ty)
+    local body = getCreatureProperty(tx, ty, "body");
+    if body <= 0 then
+      balurDead = true;
+    else
+      addEntry("hit", tx, ty, hitBalur);
+    end
+  end
+  addEntry("hit", 2, 3, hitBalur);
 end
 
 
@@ -21,6 +30,11 @@ function eventScheduler(script)
 end
 
 function A(sx, sy)
+  if not balurDead then
+    output("You must kill Balur first.", "");
+    return false;
+  end
+  changeMoney(sx, sy, 100);
   output("You win", "Won");
   winHero(sx, sy);
   forceEndTurn(sx, sy);

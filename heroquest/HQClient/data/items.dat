@@ -1,5 +1,5 @@
 potion_of_healing ->  id: 0  type: potion  description: restores up to 4 body points /description
-heroic_brew ->  id: 1  type: potion  description: you can drink this liquid after you have done an action to do another one. /description
+heroic_brew ->  id: 1  type: potion  description: you can drink this liquid to get another attack in this round. /description
 potion_of_defense ->  id: 2  type: potion  description: throw 2 extra dices at your next defense /description
 potion_of_strength ->  id: 3  type: potion  description: throw 2 extra dices at your next attack /description
 chest ->  id: 4  type: unusable  description: a chest belonging to Prince Magnus with 250 gold in it /description

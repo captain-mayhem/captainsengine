@@ -15,7 +15,7 @@ function item(sx, sy, tx, ty, idx)
   
   -- heroic brew
   elseif idx == 1 then
-    allowAnotherAction();
+    allowAnotherAction("attack");
     return true;
 
   -- potion of defence
@@ -66,7 +66,7 @@ function item(sx, sy, tx, ty, idx)
     local charId = getCreatureProperty(sx, sy, "id");
     --elf or wizard
     if charId == 2 or charId == 3 then
-      allowAnotherAction();
+      allowAnotherAction("spell");
       return true;
     else
       output("You cannot use this item.","");

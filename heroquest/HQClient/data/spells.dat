@@ -16,5 +16,5 @@ chaosSleep -> id: 14 class: chaos description: This spell puts any one creature 
 chaosTempest -> id: 15 class: chaos description: This spell creates a small whirlwind that envelops one creature of your choice. The creature will then miss his next turn. /description
 chaosBallOfFlame -> id: 16 class: chaos description: This spell can be cast on any creature. It will inflict 2 damage, but it can defend with 2. /description
 firestorm -> id: 17 class chaos description: This spell creates a roomful of fire that inflics 3 damage on all creatures in the same room, but they can defend with 2. The spellcaster is not affected. /description
-summonOrcs -> id: 18 class chaos description: /description
-escape -> id: 19 class chaos description: /description
+summonOrcs -> id: 18 class chaos description: This spell conjures up a group of Orcs (maximal six) to surround and protect the spellcaster. /description
+escape -> id: 19 class chaos description: This spell allows the spellcaster to disappear and instantly teleport to a secret destination. /description

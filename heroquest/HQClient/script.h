@@ -180,6 +180,8 @@ public:
   static int moveCamera(lua_State* L);
   //! display messageBox
   static int messageBox(lua_State* L);
+  //! get visible creatures
+  static int getVisibleCreatures(lua_State* L);
   
 private:
 	//! The stack for communication between LUA and C

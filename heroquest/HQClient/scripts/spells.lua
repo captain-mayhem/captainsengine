@@ -61,8 +61,8 @@ function spell(sx, sy, tx, ty, idx)
 		attack(1, "damage", 1, "normal", sx, sy, tx, ty);
 		return true;
   
-	-- ball of flame (fire)
-	elseif idx == 4 then
+	-- ball of flame (fire) and chaos ball of flame (chaos)
+	elseif idx == 4 or idx == 16 then
     if not isVisible(sx, sy, tx, ty) then
       return false;
     end
@@ -91,20 +91,20 @@ function spell(sx, sy, tx, ty, idx)
 		
 		return true;
 	
-	-- genie1 attack
+	-- genie1 attack (air)
 	elseif idx == 6 then
 		local defence = getCreatureProperty(tx, ty, "defence");
 		attack(5, "normal", defence, "normal", sx, sy, tx, ty);
     deleteItem(sx, sy, "genie2");
 		return true;
 	
-	-- genie2 show room
+	-- genie2 show room (air)
 	elseif idx == 7 then
 		showRoom(tx, ty);
     deleteItem(sx, sy, "genie1");
 		return true;
 
-	-- swift wind
+	-- swift wind (air)
 	elseif idx == 8 then
     if not isVisible(sx, sy, tx, ty) then
       return false;
@@ -120,7 +120,7 @@ function spell(sx, sy, tx, ty, idx)
 		
 		return true;
 
-  --tempest
+  --tempest (air) and chaosTempest (chaos)
   elseif idx == 9 or idx == 15 then
     if not isVisible(sx, sy, tx, ty) then
       return false;
@@ -134,7 +134,7 @@ function spell(sx, sy, tx, ty, idx)
     addEntry("endTurn", tx, ty, awakening);
     return true;
 
-  --sleep
+  --sleep (water) and chaosSleep (chaos)
   elseif idx == 10 or idx == 14 then
     if not isVisible(sx, sy, tx, ty) then
       return false;
@@ -159,7 +159,7 @@ function spell(sx, sy, tx, ty, idx)
     mindwakeup(tx, ty);
     return true;
 
-  --veil of mist
+  --veil of mist (water)
   elseif idx == 11 then
     if not isVisible(sx, sy, tx, ty) then
       return false;
@@ -183,7 +183,7 @@ function spell(sx, sy, tx, ty, idx)
     
     return true;
 
-  --fear
+  --fear (chaos)
   elseif idx == 13 then
     if not isVisible(sx, sy, tx, ty) then
       return false;
@@ -211,7 +211,41 @@ function spell(sx, sy, tx, ty, idx)
     addEntry("startTurn", tx, ty, attackRestoreFear);
     return true;
 
-  end
+  --firestorm (chaos)
+  elseif idx == 17 then
+    local positions = {getVisibleCreatures(sx, sy)};
+    local size = table.getn(positions);
+    for i=1, size, 2 do
+      local posx = positions[i];
+      local posy = positions[i+1];
+      attack(3, "damage", 2, "white", sx, sy, posx, posy);
+    end
+    return true;
 
+  --summon Orcs (chaos)
+  elseif idx == 18 then
+    local number = dice("normal", 1);
+    local num;
+    if number < 4 then
+      num = 4;
+    elseif number > 3 and number < 6 then
+      num = 5;
+    else
+      num = 6;
+    end
+    --generate num Orcs
+    for i=1, num, 1 do
+      local adjacent;
+      local posx;
+      local posy;
+      adjacent, posx, posy = getAdjacentFreeField(sx, sy);
+      if posx == -1 and posy == -1 then
+        return true;
+      end
+      setMonster(posx,posy,"Orc");
+    end
+    return true;
+
+  end
 	return false;
 end

@@ -62,7 +62,7 @@ bool Item::use(Vector2D source, Vector2D target){
         *ss << toStr(NO_TURN);
         return false;
       }
-      if (game.isActionPerformed()){
+      if (game.isActionPerformed(GameState::Spell)){
         *ss << toStr(NO_ACTION);
         return false;
       }
@@ -80,7 +80,7 @@ bool Item::use(Vector2D source, Vector2D target){
         return false;
       }
       if (scr.spell(source,target,id_)){
-        game.performAction();
+        game.performAction(GameState::Spell);
         count_--;
         *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
       }
