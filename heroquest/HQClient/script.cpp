@@ -1169,8 +1169,17 @@ int Script::addModel(lua_State* L){
 	short y = (short)luaL_checknumber(L, 2);
   int modelid = (int)luaL_checknumber(L, 3);
 	Field& field = wrld.getField(Vector2D(x,y));
-  unsigned fieldidx = field.models.size();
-  field.models.push_back(Templates::instance()->getModel(modelid)->clone());
+  unsigned fieldidx = field.numModels;
+  //realloc model array
+  Graphics::ModelInstance* tmp = new Graphics::ModelInstance[fieldidx+1];
+  for (int i = 0; i < fieldidx; i++){
+    tmp[i] = field.models[i];
+  }
+  delete [] field.models;
+  field.models = tmp;
+  field.numModels++;
+
+  field.models[fieldidx] = Templates::instance()->getModel(modelid)->clone();
   Matrix mat(Matrix::Translation, Vector3D(x*QUADSIZE+QUADSIZE/2, 0, y*QUADSIZE+QUADSIZE/2));
   field.models[fieldidx].setTransform(mat);
 #endif

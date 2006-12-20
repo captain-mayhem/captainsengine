@@ -82,7 +82,7 @@ public:
   //! number of used models
   unsigned usedModels;
   //! the models
-  std::vector<Graphics::ModelInstance> models;
+  Graphics::ModelInstance* models;
   //! the texture coordinates
   Vec2f *texCoords;
   //! object storage, if two creatures try to cross

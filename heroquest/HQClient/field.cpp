@@ -16,7 +16,7 @@ Field::Field() : object(0), numVertices(0), vertices(0), texCoords(0), tryObject
   treasure(false), items(0) {
     numModels = 0;
     usedModels = 0;
-    //models = NULL;
+    models = NULL;
 }
 
 Field::Field(const Field& f){
@@ -35,7 +35,12 @@ Field::Field(const Field& f){
   tempVis = Bitset(f.tempVis);
   numModels = f.numModels;
   usedModels = f.usedModels;
-  models = std::vector<Graphics::ModelInstance>(f.models);
+  //models = new std::vector<Graphics::ModelInstance>();
+  models = new Graphics::ModelInstance[numModels];
+  for (int i = 0; i < numModels; i++)
+    models[i] = f.models[i];
+  //for (int i = 0; i < models->size(); i++)
+  //  (*models)[i] = (*f.models)[i];
   numVertices = f.numVertices;
   vertices = new Vector3D[numVertices];
   texCoords = new Vec2f[numVertices];
@@ -57,6 +62,8 @@ Field::~Field(){
     delete [] vertices;
   if (texCoords)
     delete [] texCoords;
+  if (models)
+    delete [] models;
 }
 
 void Field::render() const{

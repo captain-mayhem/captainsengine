@@ -219,7 +219,7 @@ void Compiler::write(string filename){
       f.vertices = new Vector3D[f.numVertices];
       f.texCoords = new Vec2f[f.numVertices];
       //f.models = new Graphics::ModelInstance[f.numModels];
-      f.models.reserve(f.numModels);
+      f.models = new Graphics::ModelInstance[f.numModels];
       counter = 0;
       //ground tile
       f.vertices[counter] = Vector3D(i*QUADSIZE+QUADSIZE, 0, j*QUADSIZE         );

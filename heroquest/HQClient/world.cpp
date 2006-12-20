@@ -189,13 +189,13 @@ bool World::load(const string& name){
 			}
 			in.read((char*)&f->numModels, sizeof(f->numModels));
       //f->models = new Graphics::ModelInstance[f->numModels+1];
-      f->models.reserve(f->numModels);
+      f->models = new Graphics::ModelInstance[f->numModels];
       f->usedModels = 1;
 			for (unsigned k = 0; k < f->numModels; k++){
 				Matrix mat;
         in.read((char*)&mat, sizeof(Matrix));
-        f->models.push_back(Templates::instance()->getModel(0)->clone());
-        f->models[0].setTransform(mat);
+        f->models[k] = Templates::instance()->getModel(0)->clone();
+        f->models[k].setTransform(mat);
 			}
 		}
 	}
@@ -390,7 +390,7 @@ void World::render(){
 			glVertex3f(curr.vertices[3].x, curr.vertices[3].y, curr.vertices[3].z);
 		glEnd();
     */
-    for (unsigned j = 0; j < curr.models.size(); j++){
+    for (unsigned j = 0; j < curr.numModels; j++){
       curr.models[j].activate();
       glPushMatrix();
       curr.models[j].getTransform().toOpenGL();
