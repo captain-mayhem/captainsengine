@@ -1,5 +1,16 @@
-function intro()
+ESCAPEX = 12;
+ESCAPEY = 9;
 
+function intro()
+  function BalurHit(tx, ty)
+    if  getLastWeapon() == "fireOfWrath" or "ballOfFlame" or "courage" then
+      output("This spell has no effect on Balur","");
+      --take no damage
+      setCreatureProperty(tx, ty, "body", 3);
+    end
+    addEntry("hit", tx, ty, BalurHit);
+  end
+  addEntry("hit", 2, 3, BalurHit);
 end
 
 balurDead = false;
@@ -59,7 +70,7 @@ end
 function C(x, y)
   output("You find 150 gold and the Wand of Magic","Gold and Wand of Magic found");
   changeMoney(x, y, 150);
-  addItem("wandOfMagic");
+  addItem("wand_of_magic");
 end
 
 

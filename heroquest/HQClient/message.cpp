@@ -783,7 +783,8 @@ void Message::process(const string& answer){
 		line << "Logged in.";
     
 		//setup GUI to choose level
-    System::Engine::instance()->clearListeners(true/*false*/);
+    System::Engine::instance()->getGuiMutex().lock();
+    System::Engine::instance()->clearListeners(false);
 		//only the player with admin status can create games
 		if (plyr.getStatus() == 2){
 			(line).glPrint(120, 450, "Package:",1, (float)HUGE_VAL);
@@ -807,6 +808,7 @@ void Message::process(const string& answer){
 			but3->setCbFunc(Menu::loadLevel);
       System::Engine::instance()->addButtonListener(but3,false);
 		}
+    System::Engine::instance()->getGuiMutex().unlock();
 	break;
     
 	case LIST:
@@ -1199,8 +1201,8 @@ void Message::process(const string& answer){
 		Vector2D pos(toInt(argv[0]), toInt(argv[1]));
 		Vector2D target(toInt(argv[2]), toInt(argv[3]));
 		short idx = toInt(argv[4]);
-		scr.spell(pos, target, idx);
 		string from = dynamic_cast<Creature*>(wrld.getObject(pos))->getName();
+		scr.spell(pos, target, idx);
 		//string to = dynamic_cast<Creature*>(wrld.getObject(target))->getName();
 		string msg = from+" casted a spell to someone";
 		line << msg;
@@ -1211,8 +1213,8 @@ void Message::process(const string& answer){
 		Vector2D pos(toInt(argv[0]), toInt(argv[1]));
 		Vector2D target(toInt(argv[2]), toInt(argv[3]));
     Inventory* inv = dynamic_cast<Creature*>(wrld.getObject(pos))->getInventory();
-    inv->useItem(argv[4], pos, target);
 		string from = dynamic_cast<Creature*>(wrld.getObject(pos))->getName();
+    inv->useItem(argv[4], pos, target);
     string msg = from+" used the item "+argv[4];
     line << msg;
     consol << msg;

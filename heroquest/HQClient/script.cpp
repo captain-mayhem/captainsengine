@@ -145,6 +145,8 @@ void Script::init(){
   lua_setglobal(L, "messageBox");
   lua_pushcfunction(L, Script::getVisibleCreatures);
   lua_setglobal(L, "getVisibleCreatures");
+  lua_pushcfunction(L, Script::getLastWeapon);
+  lua_setglobal(L, "getLastWeapon");
 	
 	lua_pcall(L,0,0,0);
 
@@ -187,6 +189,16 @@ bool Script::spell(Vector2D source, Vector2D target, short index){
 
 	bool success = (lua_toboolean(L, -1) != 0) ? true : false;
 	lua_pop(L, 1);
+
+  if (success){
+    vector<Item> spells = Templates::instance()->getItems(Item::Spell);
+    for (unsigned i = 0; i < spells.size(); i++){
+      if (spells[i].getId() == index){
+        weapon_ = spells[i].getName();
+        break;
+      }
+    }
+  }
 
 	return success;
 }
@@ -243,6 +255,7 @@ short Script::useWeapon(Vector2D source, Vector2D target){
   Inventory* inv = dynamic_cast<Creature*>(wrld.getObject(source))->getInventory();
   Item it = inv->getArmory("right hand");
   short index = it.getId();
+  weapon_ = it.getName();
   lua_getglobal(L, "use_weapon");
   lua_pushnumber(L, source.x);
   lua_pushnumber(L, source.y);
@@ -1226,4 +1239,10 @@ int Script::getVisibleCreatures(lua_State* L){
     }
   }
   return count;
+}
+
+// get last used weapon
+int Script::getLastWeapon(lua_State* L){
+  lua_pushstring(L, scr.weapon_.c_str());
+  return 1;
 }

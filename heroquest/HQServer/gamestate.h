@@ -113,6 +113,8 @@ private:
   short moves;
   //! the random numbers
   std::queue<std::string> randoms_;
+  //! the last thing that led to an attack
+  std::string lastWeapon_;
 };
 
 extern GameState game;

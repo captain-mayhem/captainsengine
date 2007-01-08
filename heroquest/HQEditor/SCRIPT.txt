@@ -83,6 +83,9 @@ getItems(x,y)
   returns the names of the items of a creature's inventory at (x,y) as 
   a table.
 
+getLastWeapon()
+  returns the name of the last weapon or spell that was used in an attack
+
 getNumberOfHeros()
   returns the number of heros that are playing in the game.
 

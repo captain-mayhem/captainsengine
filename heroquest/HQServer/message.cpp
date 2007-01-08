@@ -428,30 +428,6 @@ void Message::process(ServerSocket* ss, const string& cmd){
 	        *ss << toStr(CHAT)+" You stay on no valid position.";
 	        break;
 	      }
-        /*
-	      //neighbouring?
-	      if (pos.x == target.x){
-	        if (pos.y + 1 != target.y && pos.y-1 != target.y){
-	          *ss << toStr(CHAT)+" You are not close enough.";
-	          break;
-	        }
-	      }
-	      else if (pos.y == target.y){
-	        if (pos.x + 1 != target.x && pos.x-1 != target.x){
-	          *ss << toStr(CHAT)+" You are not close enough.";
-	          break;
-	        }
-	      }
-	      else{
-	        *ss << toStr(CHAT)+" You are not close enough.";
-	        break;
-	      }
-	      //wall in between
-	      if (!wrld.isVisible(pos,target)){
-	        *ss << toStr(CHAT)+" Your view is blocked by something.";
-	        break;
-	      }
-        */
         short num = scr.useWeapon(pos, target);
         if (num == -1){
 	        *ss << toStr(CHAT)+" Your weapon is not capable of such an attack.";

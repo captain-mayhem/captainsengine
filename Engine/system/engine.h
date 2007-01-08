@@ -71,6 +71,8 @@ inline const string toLower(string& s){
 long GetTickCount();
 #endif
 
+#include "thread.h"
+
 namespace System{
 
 extern ofstream Log;
@@ -119,6 +121,8 @@ class Engine{
     void removeButtonListeners(int idx);
     //! get a button by name
     ::Gui::Button* getButtonListener(const string& name);
+    //! get the gui mutex
+    Mutex& getGuiMutex() {return guitex_;}
   private:
     static Engine* eng;
     Engine();
@@ -164,6 +168,8 @@ class Engine{
     ::Gui::InputField* input_;
     //! the game console
     ::Gui::Console* console_;
+    //! a gui lock mutex
+    Mutex guitex_;
 };
 }
 

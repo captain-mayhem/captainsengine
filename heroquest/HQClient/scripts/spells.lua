@@ -1,3 +1,7 @@
+--variables for escape spell (chaos)
+ESCAPEX = 12;
+ESCAPEY = 9;
+
 function spell(sx, sy, tx, ty, idx)
 
 
@@ -244,6 +248,12 @@ function spell(sx, sy, tx, ty, idx)
       end
       setMonster(posx,posy,"Orc");
     end
+    return true;
+
+  --escape (chaos)
+  elseif idx == 19 then
+    output(ESCAPEX.." "..ESCAPEY,"");
+    moveObject(sx,sy,ESCAPEX,ESCAPEY,false);
     return true;
 
   end

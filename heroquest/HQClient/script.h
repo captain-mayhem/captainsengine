@@ -182,6 +182,8 @@ public:
   static int messageBox(lua_State* L);
   //! get visible creatures
   static int getVisibleCreatures(lua_State* L);
+  //! get the weapon that was last used
+  static int getLastWeapon(lua_State* L);
   
 private:
 	//! The stack for communication between LUA and C
@@ -190,6 +192,8 @@ private:
   vector<ScriptInfo*> scripts_;
   //! The dice result from server
   static string dice_;
+  //! The last thing that was used within an attack
+  string weapon_;
 };
 
 extern Script scr;

@@ -28,7 +28,7 @@ t bereits gefundene Fallen nicht erneut finden
 
 v0.4 and before:
 + collision detection
-t camera view
++ camera view
 t console up manchmal segfault
 
 keine Fehler, sondern gewuenschte Erweiterungen:
