@@ -268,6 +268,8 @@ void System::Engine::run(){
   fnt_[0]->render();
   
   //render GUI-elements
+  guitex_.lock();
+  
   list< ::Gui::InputField*>::iterator iter;
   for (iter = listeners_.begin(); iter != listeners_.end(); iter++){
     (*iter)->render();
@@ -284,6 +286,8 @@ void System::Engine::run(){
 
   fnt_[2]->render();
 
+  guitex_.unlock();
+  
   rend_->enableBlend(false);
 
 #ifdef WIN32
@@ -341,6 +345,7 @@ void System::Engine::clearListeners(bool immediate){
     clear_ = true;
     return;
   }
+  guitex_.lock();
   list< ::Gui::InputField* >::iterator iter;
   for (iter = listeners_.begin(); iter != listeners_.end(); iter++){
     delete (*iter);
@@ -354,16 +359,19 @@ void System::Engine::clearListeners(bool immediate){
   fnt_[0]->clear();
   fnt_[1]->clear();
   fnt_[2]->clear();
+  guitex_.unlock();
 }
 
 
 // remove the input listener at position idx
 void System::Engine::removeInputListener(int idx){
+  guitex_.lock();
   list< ::Gui::InputField*>::iterator iter = listeners_.begin();
   for (int i = 0; i < idx; i++){
     iter++;
   }
   listeners_.erase(iter);
+  guitex_.unlock();
 }
 
 // remove the button listener at position idx
@@ -372,17 +380,20 @@ void System::Engine::removeButtonListener(int idx, bool immediate){
     remBut_.push_back(idx);
     return;
   }
+  guitex_.lock();
   list< ::Gui::Button*>::iterator iter = buttons_.begin();
   for (int i = 0; i < idx; i++){
     iter++;
   }
   delete *iter;
   buttons_.erase(iter);
+  guitex_.unlock();
 }
 
 
 // remove the button listener with a certain name
 void System::Engine::removeButtonListener(const string& name){
+  guitex_.lock();
   list< ::Gui::Button*>::iterator iter = buttons_.begin();
   for (unsigned i = 0; i < buttons_.size(); i++){
     if((*iter)->getText() == name){
@@ -392,11 +403,13 @@ void System::Engine::removeButtonListener(const string& name){
     }
     iter++;
   }
+  guitex_.unlock();
 }
 
 
 // remove all button listeners beginning at idx
 void System::Engine::removeButtonListeners(int idx){
+  guitex_.lock();
   list< ::Gui::Button*>::iterator iter = buttons_.begin();
   for (int i = 0; i < idx; i++){
     iter++;
@@ -405,6 +418,7 @@ void System::Engine::removeButtonListeners(int idx){
     delete *iter;
     iter = buttons_.erase(iter);
   }
+  guitex_.unlock();
 }
 
 // get a button by name
