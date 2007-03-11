@@ -63,8 +63,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Wsock32.lib"
-				OutputFile="$(OutDir)/Engine.exe"
+				AdditionalDependencies="msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Wsock32.lib Engine_Debug.lib"
+				OutputFile="$(OutDir)/HQServer.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../Engine/lib"
 				IgnoreAllDefaultLibraries="true"
@@ -144,8 +144,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Wsock32.lib"
-				OutputFile="$(OutDir)/Engine.exe"
+				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Wsock32.lib Engine.lib"
+				OutputFile="$(OutDir)/HQServer.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../Engine/lib"
 				IgnoreAllDefaultLibraries="true"
@@ -391,202 +391,6 @@
 			</File>
 			<File
 				RelativePath="..\..\Engine\small.ico"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="engine"
-			>
-			<File
-				RelativePath="..\..\Engine\gui\console.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\gui\console.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXrenderer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXrenderer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXtexture.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXtexture.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXvertexbuffer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\DXvertexbuffer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\system\engine.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\system\engine.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\font.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\font.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\forms.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\forms.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\gui\gui.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\gui\gui.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\input\keyboard.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\input\keyboard.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\math\matrix.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\math\matrix.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\model.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\model.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\input\mouse.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\input\mouse.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\window\nativeLinux.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\window\nativeLinux.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\window\nativeWindows.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\window\nativeWindows.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\OGLrenderer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\OGLrenderer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\OGLtexture.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\OGLtexture.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\OGLvertexbuffer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\OGLvertexbuffer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\renderer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\renderer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\system\script.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\system\script.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\texture.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\texture.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\system\thread.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\system\thread.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\math\vector.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\math\vector.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\vertexbuffer.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\renderer\vertexbuffer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\window\window.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\Engine\window\window.h"
 				>
 			</File>
 		</Filter>
