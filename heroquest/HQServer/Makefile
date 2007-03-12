@@ -8,6 +8,7 @@ CXX      := g++
 CXXFLAGS := -g -Wall -I/usr/X11/include -I../../Engine
 LDFLAGS  = 
 GL_LIBS  = -lGL -lGLU
+ENGINE_LIBS = ../../Engine/libengine.a
 X11_LIBS = /usr/X11R6/lib/libX11.a /usr/X11R6/lib/libXext.a /usr/X11R6/lib/libXxf86vm.a
 SYS_LIBS = -L../../Engine ../../Engine/lib/liblua.a ../../Engine/lib/liblualib.a ../../Engine/lib/libjpeg.a -ldl -lpthread -lrt
 DOXYGEN  = doxygen
@@ -15,17 +16,10 @@ DEP_FLAGS= -MM
 
 # ----- Define the Compiler Environment -----
 CXXFLAGS += -c -DUNIX
-LIBS = $(GL_LIBS) $(X11_LIBS) $(SYS_LIBS)
+LIBS = $(GL_LIBS) $(ENGINE_LIBS) $(X11_LIBS) $(SYS_LIBS)
 
 # The name of the application and binary
 PROGRAM = HQServer
-
-DIRS = gui \
-			 input \
-			 math \
-			 renderer \
-			 system \
-			 window
 
 # Fetch all source files
 SOURCE2 = bitset.cpp \
@@ -43,20 +37,13 @@ SOURCE2 = bitset.cpp \
 					overlay.cpp \
 					furniture.cpp \
 					templates.cpp
+
 S2PATH = $(patsubst %.cpp, ../HQClient/%.cpp,$(SOURCE2))
 SOURCES = $(wildcard *.cpp)
 OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 OBJECT2 = $(patsubst %.cpp,%.o,$(SOURCE2))
-TEMP = $(wildcard ../../Engine/gui/*.cpp) \
-	$(wildcard ../../Engine/input/*.cpp) \
-	$(wildcard ../../Engine/math/*.cpp) \
-	$(wildcard ../../Engine/renderer/*.cpp) \
-	$(wildcard ../../Engine/system/*.cpp) \
-	$(wildcard ../../Engine/window/*.cpp)
-OBJECT3 = $(patsubst %.cpp,%.o,$(TEMP))
 
-
-OBJ = $(OBJECTS) $(OBJECT2) $(OBJECT3)
+OBJ = $(OBJECTS) $(OBJECT2)
 all: $(PROGRAM)
 
 doc: #doxygen.conf $(wildcard *.hh)
@@ -66,11 +53,6 @@ clean:
 	rm -f $(PROGRAM)
 	rm -f *.o
 	rm -rf *~ ii_files
-	#rm -f input/*.o input/*~
-	#rm -f math/*.o math/*~
-	#rm -f renderer/*.o renderer/*~
-	#rm -f system/*.o system/*~
-	#rm -f window/*.o window/*~
 	rm -f Makedepend
 	rm -rf doc
 

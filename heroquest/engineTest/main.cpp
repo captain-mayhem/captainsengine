@@ -3,6 +3,7 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
+#include "include/Cal3d/cal3d.h"
 #include <iostream>
 #include "system/engine.h"
 #include "renderer/renderer.h"
@@ -81,6 +82,7 @@ public:
     indices[33] = 4; indices[34] = 3; indices[35] = 7;
     vb->unlockIndexPointer();
 
+    CalCoreModel* m = new CalCoreModel("dummy");
     //MessageBox* mb = new MessageBox();
     //mb->setPosition(Vector2D(200, 100));
     //mb->setMessage("Hallo Du!");
