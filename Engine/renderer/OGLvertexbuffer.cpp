@@ -129,12 +129,6 @@ void OGLVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t, bool dxswap){
   tex->x = t.x; tex->y = t.y;
 }
 
-void OGLVertexBuffer::setNormal(int pos, Math::Vector3D normal){
-  ::Math::Vec2f* norm;
-  norm = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+normoffset_);
-  norm->x = normal.x; norm->y = normal.y;
-}
-
 void OGLVertexBuffer::setVertexOffset(int offset){
   userVertOffset_ = 4*offset*structsize_;//offset*structsize_;
   glVertexPointer(3, GL_FLOAT, structsize_, vb_+vertoffset_+userVertOffset_);

@@ -3,7 +3,9 @@
 
 #include <vector>
 
-class MeshGeo::Mesh;
+namespace MeshGeo{
+class Mesh;
+}
 
 class Graphic{
 public:

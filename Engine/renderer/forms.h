@@ -15,7 +15,7 @@ public:
   */
   void drawQuad();
   //! draw a quad at position position with the spanning of size
-  void Forms::drawQuad(const Vector2D& position, const Vector2D& size) const;
+  void drawQuad(const Vector2D& position, const Vector2D& size) const;
 private:
   void constructVBOs();
   VertexBuffer* quad_;
