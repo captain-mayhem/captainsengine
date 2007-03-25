@@ -44,6 +44,10 @@ void OGLVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize
     texoffset_ = offset;
     offset += 2*sizeof(float);
   }
+  if (flags_ & VB_NORMAL){
+    normoffset_ = offset;
+    offset += 3*sizeof(float);
+  }
   structsize_ = offset;
   
   vb_ = new char[vertexBufferSize*structsize_];
@@ -91,6 +95,12 @@ void OGLVertexBuffer::activate(){
   }
   else
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+  if (flags_ & VB_NORMAL){
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glNormalPointer(GL_FLOAT, structsize_, vb_+normoffset_+userVertOffset_);
+  }
+  else
+    glDisableClientState(GL_NORMAL_ARRAY);
 }
 
 void OGLVertexBuffer::draw(PrimitiveType pt){
@@ -117,6 +127,12 @@ void OGLVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t, bool dxswap){
   ::Math::Vec2f* tex;
   tex = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
   tex->x = t.x; tex->y = t.y;
+}
+
+void OGLVertexBuffer::setNormal(int pos, Math::Vector3D normal){
+  ::Math::Vec2f* norm;
+  norm = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+normoffset_);
+  norm->x = normal.x; norm->y = normal.y;
 }
 
 void OGLVertexBuffer::setVertexOffset(int offset){

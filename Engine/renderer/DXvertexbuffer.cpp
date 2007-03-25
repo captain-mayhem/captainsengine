@@ -16,6 +16,7 @@ DXVertexBuffer::DXVertexBuffer(){
   vertoffset_ = -1;
   coloffset_ = -1;
   texoffset_ = -1;
+  normoffset_ = -1;
   userVertOffset_ = 0;
 }
 
@@ -33,6 +34,11 @@ void DXVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize)
   if (type & VB_POSITION){
     flags_ |= D3DFVF_XYZ;
     vertoffset_ = offset;
+    offset += 3*sizeof(float);
+  }
+  if (type & VB_NORMAL){
+    flags_ |= D3DFVF_TEX1;
+    normoffset_ = offset;
     offset += 3*sizeof(float);
   }
   if (type & VB_COLOR){
@@ -115,6 +121,12 @@ void DXVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t, bool dxswap){
     tex->y = 1-t.y;
   else
     tex->y = t.y;
+}
+
+void DXVertexBuffer::setNormal(int pos, Math::Vector3D normal){
+  ::Math::Vector3D* norm;
+  norm = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+normoffset_);
+  norm->x = normal.x; norm->y = normal.y; norm->z = normal.z;
 }
 
 void DXVertexBuffer::setVertexOffset(int offset){
