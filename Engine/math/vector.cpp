@@ -103,7 +103,7 @@ double Vector3D::angle(Vector3D v) {
   return angle;
 }
 
-ostream& Math::operator<<(ostream& stream, const Vector3D& vec){
+ostream& operator<<(ostream& stream, const Vector3D& vec){
   stream << "( " << vec.x << " / " << vec.y << " / " << vec.z << " )";
   return stream;
 }

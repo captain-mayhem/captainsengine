@@ -3,7 +3,7 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
-#include "include/Cal3d/cal3d.h"
+#include "include/cal3d/cal3d.h"
 #include <iostream>
 #include "system/engine.h"
 #include "renderer/renderer.h"

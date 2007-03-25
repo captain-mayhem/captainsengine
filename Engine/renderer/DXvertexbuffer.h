@@ -20,7 +20,6 @@ public:
   void setColor(int pos, Color c);
   void setTexCoord(int pos, ::Math::Vec2f t, bool dxswap=false);
   void setVertexOffset(int offset);
-  void setNormal(int pos, Math::Vector3D normal);
 protected:
   LPDIRECT3DDEVICE9 device_;
   IDirect3DVertexBuffer9* vb_;
