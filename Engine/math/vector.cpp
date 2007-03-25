@@ -37,7 +37,12 @@ Vector3D Vector3D::cross(const Vector3D& v) const{
 //returns the magnitude of a vector
 float Vector3D::magnitude() const {
   // uses the euclidian norm
-  return (float)sqrt( (x * x) + (y * y) + (z * z) );
+  return (float)sqrt(x*x + y*y + z*z);
+}
+
+//returns the magnitude of a vector
+float Vector3D::magnitudeSquared() const {
+  return x*x + y*y + z*z;
 }
 
 
@@ -53,6 +58,16 @@ Vector3D Vector3D::normalized() const {
   float zr = z/mag;
 
   return Vector3D(xr, yr, zr);
+}
+  
+//! normalizes a vector
+void Vector3D::normalize(){
+  float mag = magnitude();
+  if (mag != 0.0){
+    x /= mag;
+    y /= mag;
+    z /= mag;
+  }
 }
 
 //returns the distance between two 3D points

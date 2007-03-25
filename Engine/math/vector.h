@@ -78,9 +78,9 @@ public:
   //! Destructor
   ~Vector3D();
   //! cast
-  inline operator float*() {return &x;}
+  inline operator float*() {return data;}
   //! cast
-  inline operator const float*() {return &x;}
+  inline operator const float*() {return data;}
   //! Vector addition
   inline Vector3D operator+(const Vector3D& v) const{
     return Vector3D(v.x + x, v.y + y, v.z + z);
@@ -117,8 +117,12 @@ public:
   Vector3D cross(const Vector3D& v) const;
   //! returns the magnitude of the vector
   float magnitude() const;
+  //! returns the squared magnitude of the vector
+  float magnitudeSquared() const;
   //! returns a normalized vector
   Vector3D normalized() const;
+  //! normalizes a vector
+  void normalize();
   //! returns the distance between two 3D points
   float distance(Vector3D p);
   //! performs the dot product between two vectors
@@ -128,7 +132,14 @@ public:
   //! write matrix to a stream
 	friend ostream& operator<<(ostream& stream, const Vector3D& vec);
   //! the three conponents of the vector
-  float x, y, z;						
+  union{
+    struct{
+      float x;
+      float y;
+      float z;
+    };
+    float data[3];
+  };
 };
 
 ostream& operator<<(ostream& stream, const Vector3D& vec);

@@ -6,6 +6,7 @@
 #define VB_POSITION 0x0001
 #define VB_COLOR 0x0002
 #define VB_TEXCOORD 0x0004
+#define VB_NORMAL 0x008
 
 #define VB_TRIANGLES 0x0001
 #define VB_TRISTRIP 0x0002
@@ -45,6 +46,7 @@ public:
   virtual void setPosition(int pos, Vertex v);
   virtual void setColor(int pos, Color c)=0;
   virtual void setTexCoord(int pos, ::Math::Vec2f t, bool dxswap=false)=0;
+  virtual void setNormal(int pos, Math::Vector3D normal);
   virtual void setVertexOffset(int offset)=0;
 protected:
   int structsize_;
@@ -55,6 +57,7 @@ protected:
   int vertoffset_;
   int coloffset_;
   int texoffset_;
+  int normoffset_;
   int userVertOffset_;
 };
 

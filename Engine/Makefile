@@ -23,6 +23,7 @@ PROGRAM = Engine-$(OS)
 DIRS = gui \
 			 input \
 			 math \
+			 mesh \
 			 renderer \
 			 system \
 			 window
@@ -36,6 +37,7 @@ OBJECTS = $(patsubst %.cpp,%.o,$(SOURCES))
 TEMP = $(wildcard gui/*.cpp) \
 	$(wildcard input/*.cpp) \
 	$(wildcard math/*.cpp) \
+	$(wildcard mesh/*.cpp) \
 	$(wildcard renderer/*.cpp) \
 	$(wildcard system/*.cpp) \
 	$(wildcard window/*.cpp)
@@ -55,6 +57,7 @@ clean:
 	rm -f gui/*.o gui/*~
 	rm -f input/*.o input/*~
 	rm -f math/*.o math/*~
+	rm -f mesh/*.o mesh/*~
 	rm -f renderer/*.o renderer/*~
 	rm -f system/*.o system/*~
 	rm -f window/*.o window/*~
@@ -71,7 +74,9 @@ allclean: clean
 	$(CXX) $(CXXFLAGS) -c $< -o $(patsubst %cpp,%o,$<)
 
 $(PROGRAM): $(OBJ)
-	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJ) $(LIBS)
+#	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJ) $(LIBS)
+	ar -cvq libengine.a $(OBJ)
+	ranlib libengine.a
 
 Makedepend:
 	$(CXX) $(CXXFLAGS) $(DEP_FLAGS) $(SOURCES) $(S2PATH) > Makedepend
