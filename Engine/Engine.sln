@@ -12,6 +12,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HQServer", "..\heroquest\HQ
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "obj2hmb", "utilities\obj2hmb\obj2hmb.vcproj", "{BE0E47BD-D76B-4F1D-B522-0DB00AFADD3B}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "editor", "..\editor\editor.vcproj", "{C7DC1010-FD3D-4B6C-A93F-89DF8D8C2176}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -34,6 +36,10 @@ Global
 		{BE0E47BD-D76B-4F1D-B522-0DB00AFADD3B}.Debug|Win32.Build.0 = Debug|Win32
 		{BE0E47BD-D76B-4F1D-B522-0DB00AFADD3B}.Release|Win32.ActiveCfg = Release|Win32
 		{BE0E47BD-D76B-4F1D-B522-0DB00AFADD3B}.Release|Win32.Build.0 = Release|Win32
+		{C7DC1010-FD3D-4B6C-A93F-89DF8D8C2176}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C7DC1010-FD3D-4B6C-A93F-89DF8D8C2176}.Debug|Win32.Build.0 = Debug|Win32
+		{C7DC1010-FD3D-4B6C-A93F-89DF8D8C2176}.Release|Win32.ActiveCfg = Release|Win32
+		{C7DC1010-FD3D-4B6C-A93F-89DF8D8C2176}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
