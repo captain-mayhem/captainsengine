@@ -44,7 +44,7 @@ public:
   //! add edge
   Edge* addEdge(int v0, int v1);
   //! add triangle
-  Triangle* addTriangle(int v0, int v1, int v2, int t0=-1, int t1=-1, int t1=-1);
+  Triangle* addTriangle(int v0, int v1, int v2, int t0=-1, int t1=-1, int t2=-1);
   //! loads a mesh from a file
   bool loadFromFile(std::string filename);
   //! build vertex buffer object
