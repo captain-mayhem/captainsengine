@@ -3,7 +3,7 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
-#include "include/cal3d/cal3d.h"
+#include "cal3d/cal3d.h"
 #include <iostream>
 #include "system/engine.h"
 #include "renderer/renderer.h"
@@ -44,28 +44,28 @@ public:
     vb->lockVertexPointer();
     vb->setPosition(0, Vertex(-1.0, -1.0, -1.0));
     vb->setColor(0, Color(255,0,0,255));
-    vb->setTexCoord(0, Vec2f(0,0));
+    vb->setTexCoord(0, Vec2f(0,0),true);
     vb->setPosition(1, Vertex(-1.0, 1.0, -1.0));
     vb->setColor(1, Color(0,255,0,255));
-    vb->setTexCoord(1, Vec2f(0,1));
+    vb->setTexCoord(1, Vec2f(0,1),true);
     vb->setPosition(2, Vertex(1.0, 1.0, -1.0));
     vb->setColor(2, Color(0,0,255,255));
-    vb->setTexCoord(2, Vec2f(1,1));
+    vb->setTexCoord(2, Vec2f(1,1),true);
     vb->setPosition(3, Vertex(1.0, -1.0, -1.0));
     vb->setColor(3, Color(0,0,0,255));
-    vb->setTexCoord(3, Vec2f(1,0));
+    vb->setTexCoord(3, Vec2f(1,0),true);
     vb->setPosition(4, Vertex(-1.0, -1.0, 1.0));
     vb->setColor(4, Color(255,0,0,255));
-    vb->setTexCoord(4, Vec2f(0,0));
+    vb->setTexCoord(4, Vec2f(0,0),true);
     vb->setPosition(5, Vertex(-1.0, 1.0, 1.0));
     vb->setColor(5, Color(255,0,0,255));
-    vb->setTexCoord(5, Vec2f(0,1));
+    vb->setTexCoord(5, Vec2f(0,1),true);
     vb->setPosition(6, Vertex(1.0, 1.0, 1.0));
     vb->setColor(6, Color(255,0,0,255));
-    vb->setTexCoord(6, Vec2f(1,1));
+    vb->setTexCoord(6, Vec2f(1,1),true);
     vb->setPosition(7, Vertex(1.0, -1.0, 1.0));
     vb->setColor(7, Color(255,0,0,255));
-    vb->setTexCoord(7, Vec2f(1,-1));
+    vb->setTexCoord(7, Vec2f(1,-1),true);
     vb->unlockVertexPointer();
     short* indices = vb->lockIndexPointer();
     indices[0] = 0; indices[1] = 1; indices[2] = 2;
@@ -115,7 +115,8 @@ public:
     rend->resetModelView();
     rend->translate(-512, -384, 0);
     rend->setColor(0,0,255,255);
-    glDisable(GL_TEXTURE_2D);
+    //glDisable(GL_TEXTURE_2D);
+    rend->enableTexturing(false);
     Forms f;
     f.activateQuad();
     rend->translate(100, 100, 0);

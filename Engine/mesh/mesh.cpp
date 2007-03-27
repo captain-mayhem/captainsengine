@@ -334,14 +334,14 @@ float* Mesh::getNormal(int i){
 
 //! build vertex buffer object
 void Mesh::buildVBO(){
-  float* vertices = new float[numTriangles_*3*3];
-  unsigned int* indices = new unsigned int[numTriangles_*3];
+  //float* vertices = new float[numTriangles_*3*3];
+  //unsigned int* indices = new unsigned int[numTriangles_*3];
   
   vb_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
-  if (numTexCoords_>0)
-    vb_->create(VB_POSITION | VB_NORMAL | VB_TEXCOORD, numTriangles_*3, numTriangles_*3);
-  else
-    vb_->create(VB_POSITION | VB_NORMAL, numTriangles_*3, numTriangles_*3);
+  //if (numTexCoords_>0)
+    vb_->create(VB_POSITION/* | VB_NORMAL | VB_TEXCOORD*/, numTriangles_*3, numTriangles_*3);
+  //else
+   // vb_->create(VB_POSITION/* | VB_NORMAL*/, numTriangles_*3, numTriangles_*3);
   vb_->lockVertexPointer();
   
   for (int i = 0; i < numTriangles_; i++){
@@ -351,7 +351,7 @@ void Mesh::buildVBO(){
     Vector3D v2 = vertices_[tri->v2];
     vb_->setPosition(3*i+0, v0);
     vb_->setPosition(3*i+1, v1);
-    vb_->setPosition(3*i+3, v2);
+    vb_->setPosition(3*i+2, v2);/*
     Vector3D n0 = getNormal(tri->v0);
     Vector3D n1 = getNormal(tri->v1);
     Vector3D n2 = getNormal(tri->v2);
@@ -360,11 +360,19 @@ void Mesh::buildVBO(){
       Vector3D t1 = texCoords_[tri->t1];
       Vector3D t2 = texCoords_[tri->t2];
       vb_->setTexCoord(3*i+0, Vec2f());
-    } 
-    indices[i*3+0] = i*3+0;
-    indices[i*3+1] = i*3+1;
-    indices[i*3+2] = i*3+2;
+    } */
+    //indices[i*3+0] = i*3+0;
+    //indices[i*3+1] = i*3+1;
+    //indices[i*3+2] = i*3+2;
   }
+
+  vb_->unlockVertexPointer();
+
+  short* indi = vb_->lockIndexPointer();
+  for (int i = 0; i < numTriangles_*3; i++){
+    indi[i] = i;
+  }
+  vb_->unlockIndexPointer();
 /*
   glGenBuffersARB(1, &m_vbo);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
@@ -378,8 +386,8 @@ void Mesh::buildVBO(){
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 */
-  delete [] vertices;
-  delete [] indices;
+  //delete [] vertices;
+  //delete [] indices;
 }
 
 // --------------------------------------------------------------------
@@ -414,5 +422,7 @@ void Mesh::draw(){/*
   glDrawElements(GL_TRIANGLES, m_numTriangles*3, GL_UNSIGNED_INT, NULL);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);*/
+  vb_->activate();
+  vb_->draw(Graphics::VB_Triangles);
 }
 

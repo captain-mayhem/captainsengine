@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\Engine"
+				AdditionalIncludeDirectories="..\..\Engine;..\..\Engine\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -124,7 +124,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\..\Engine"
+				AdditionalIncludeDirectories="..\..\Engine;..\..\Engine\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
@@ -144,7 +144,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Engine.lib"
+				AdditionalDependencies="msvcprt.lib msvcrt.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Engine.lib cal3d.lib"
 				OutputFile="$(OutDir)/EngineTest.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../Engine/lib"
