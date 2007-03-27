@@ -20,9 +20,8 @@ using namespace Graphics;
 using namespace System;
 
 void engineMain(int argc, char** argv){
-  Graphic* graphic = new Graphic();
   Renderer* rend = Engine::instance()->getRenderer();
-  rend->setRenderCB(graphic->render);
-  rend->setInitCB(graphic->init);
+  rend->setRenderCB(Graphic::render);
+  rend->setInitCB(Graphic::init);
 }
 
