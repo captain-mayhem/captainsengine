@@ -24,14 +24,16 @@ void Graphic::init(){
   rend->setClearColor(Vector3D(0.5,0.5,0.5));
   rend->renderMode(Graphics::Filled);
   gra_ = new Graphic();
-  //gra_->addMesh("J:/Projects/medalyvis/simastag/meshes/oelfass.obj");
+  gra_->addMesh("J:/Projects/medalyvis/simastag/meshes/oelfass.obj");
   gra_->addMesh("/home/captain/medalyvis/simastag/meshes/oelfass.obj");
 }
 
 void Graphic::addMesh(std::string filename){
   MeshGeo::Mesh* mesh = new MeshGeo::Mesh();
-  if (!mesh->loadFromFile(filename))
+  if (!mesh->loadFromFile(filename)){
     System::Log << "cannot load file";
+    return;
+  }
   mesh->buildVBO();
   meshes_.push_back(mesh);
 }

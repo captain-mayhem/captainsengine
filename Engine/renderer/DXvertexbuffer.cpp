@@ -37,7 +37,7 @@ void DXVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize)
     offset += 3*sizeof(float);
   }
   if (type & VB_NORMAL){
-    flags_ |= D3DFVF_TEX1;
+    flags_ |= D3DFVF_NORMAL;
     normoffset_ = offset;
     offset += 3*sizeof(float);
   }
@@ -98,7 +98,7 @@ void DXVertexBuffer::draw(PrimitiveType pt){
     if (pt == VB_Tristrip)
       device_->DrawPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, vbsize_);
     else if (pt == VB_Triangles)
-      device_->DrawPrimitive(D3DPT_TRIANGLELIST, userVertOffset_, vbsize_);
+      device_->DrawPrimitive(D3DPT_TRIANGLELIST, userVertOffset_, vbsize_/3);
     return;
   }
   if (pt == VB_Tristrip)

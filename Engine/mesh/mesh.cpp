@@ -341,7 +341,7 @@ void Mesh::buildVBO(){
   
   vb_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
   //if (numTexCoords_>0)
-    vb_->create(VB_POSITION/* | VB_NORMAL | VB_TEXCOORD*/, numTriangles_*3, numTriangles_*3);
+    vb_->create(VB_POSITION/* | VB_NORMAL | VB_TEXCOORD*/, numTriangles_*3, 0/*numTriangles_*3*/);
   //else
    // vb_->create(VB_POSITION/* | VB_NORMAL*/, numTriangles_*3, numTriangles_*3);
   vb_->lockVertexPointer();
@@ -367,14 +367,14 @@ void Mesh::buildVBO(){
     //indices[i*3+1] = i*3+1;
     //indices[i*3+2] = i*3+2;
   }
-
+/*
   vb_->unlockVertexPointer();
 
   short* indi = vb_->lockIndexPointer();
   for (int i = 0; i < numTriangles_*3; i++){
     indi[i] = i;
   }
-  vb_->unlockIndexPointer();
+  vb_->unlockIndexPointer();*/
 /*
   glGenBuffersARB(1, &m_vbo);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
