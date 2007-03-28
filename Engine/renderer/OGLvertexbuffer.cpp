@@ -17,6 +17,7 @@ OGLVertexBuffer::OGLVertexBuffer(){
   vertoffset_ = -1;
   coloffset_ = -1;
   texoffset_ = -1;
+  normoffset_ = -1;
   userVertOffset_ = 0;
 }
 
@@ -134,4 +135,5 @@ void OGLVertexBuffer::setVertexOffset(int offset){
   glVertexPointer(3, GL_FLOAT, structsize_, vb_+vertoffset_+userVertOffset_);
   glColorPointer(4, GL_UNSIGNED_BYTE, structsize_, vb_+coloffset_+userVertOffset_);
   glTexCoordPointer(2, GL_FLOAT, structsize_, vb_+texoffset_+userVertOffset_);
+  glNormalPointer(GL_FLOAT, structsize_, vb_+normoffset_+userVertOffset_);
 }

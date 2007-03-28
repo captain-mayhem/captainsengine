@@ -13,6 +13,7 @@ public:
   static void init();
   static void render();
   inline static Graphic* instance() {return gra_;}
+  inline static void release() {SAFE_DELETE(gra_);}
   //! add a mesh to the editor
   void addMesh(std::string filename);
 protected:

@@ -18,7 +18,7 @@ CXXFLAGS += -c -DUNIX
 LIBS = $(GL_LIBS) $(X11_LIBS) $(SYS_LIBS)
 
 # The name of the application and binary
-PROGRAM = Engine-$(OS)
+PROGRAM = libengine.a
 
 DIRS = gui \
 			 input \
@@ -75,8 +75,8 @@ allclean: clean
 
 $(PROGRAM): $(OBJ)
 #	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJ) $(LIBS)
-	ar -cvq libengine.a $(OBJ)
-	ranlib libengine.a
+	ar -cvq $(PROGRAM) $(OBJ)
+	ranlib $(PROGRAM)
 
 Makedepend:
 	$(CXX) $(CXXFLAGS) $(DEP_FLAGS) $(SOURCES) $(S2PATH) > Makedepend

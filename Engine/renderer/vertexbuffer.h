@@ -6,7 +6,7 @@
 #define VB_POSITION 0x0001
 #define VB_COLOR 0x0002
 #define VB_TEXCOORD 0x0004
-#define VB_NORMAL 0x008
+#define VB_NORMAL 0x0008
 
 #define VB_TRIANGLES 0x0001
 #define VB_TRISTRIP 0x0002
