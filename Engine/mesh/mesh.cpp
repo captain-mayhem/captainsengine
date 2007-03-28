@@ -39,6 +39,7 @@ Mesh::Mesh(){
   for (int i = 0; i < 4; i++){
     m_color[i] = 1.0;
   }
+  vb_ = NULL;
 }
 
 // --------------------------------------------------------------------
@@ -47,6 +48,7 @@ Mesh::Mesh(){
 Mesh::~Mesh(){
   //glDeleteBuffersARB(1, &m_vbo);
   //glDeleteBuffersARB(1, &m_vboidx);
+  SAFE_DELETE(vb_);
   for (unsigned i = 0; i < triangles_.size(); i++){
     delete triangles_[i];
     triangles_[i] = NULL;

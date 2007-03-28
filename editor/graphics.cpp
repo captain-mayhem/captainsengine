@@ -13,6 +13,10 @@ Graphic::Graphic(){
 }
 
 Graphic::~Graphic(){
+  for (unsigned i = 0; i < meshes_.size(); i++){
+    delete meshes_[i];
+  }
+  meshes_.clear();
 }
 
 void Graphic::init(){
@@ -20,7 +24,8 @@ void Graphic::init(){
   rend->setClearColor(Vector3D(0.5,0.5,0.5));
   rend->renderMode(Graphics::Filled);
   gra_ = new Graphic();
-  gra_->addMesh("J:/Projects/medalyvis/simastag/meshes/oelfass.obj");
+  //gra_->addMesh("J:/Projects/medalyvis/simastag/meshes/oelfass.obj");
+  gra_->addMesh("/home/captain/medalyvis/simastag/meshes/oelfass.obj");
 }
 
 void Graphic::addMesh(std::string filename){
