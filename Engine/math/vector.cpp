@@ -15,6 +15,8 @@
 
 namespace Math{
 
+float Epsilon = 1.0e-5;
+  
 //Constructor
 Vector3D::Vector3D() : x(0), y(0), z(0){
 }
@@ -123,6 +125,16 @@ Vec2f::Vec2f() : x(0), y(0){
 
 //Destructor
 Vec2f::~Vec2f(){
+}
+
+// get the length of the vector
+float Vec2f::length() const{
+  return sqrt(x*x+y*y);
+}
+
+// get the squared length of the vector
+float Vec2f::lengthSquared() const{
+  return x*x+y*y;
 }
 
 

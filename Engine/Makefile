@@ -77,8 +77,9 @@ $(PROGRAM): $(OBJ)
 #	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJ) $(LIBS)
 	ar -cvq $(PROGRAM) $(OBJ)
 	ranlib $(PROGRAM)
+	cp $(PROGRAM) lib/
 
 Makedepend:
-	$(CXX) $(CXXFLAGS) $(DEP_FLAGS) $(SOURCES) $(S2PATH) > Makedepend
+	$(CXX) $(CXXFLAGS) $(DEP_FLAGS) $(SOURCES) $(TEMP) > Makedepend
 
 include Makedepend
