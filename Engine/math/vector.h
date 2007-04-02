@@ -19,6 +19,8 @@ using std::ostream;
 
 namespace Math{
 
+extern float Epsilon;
+  
 //! A 2D-Vector for integers
 class Vector2D {
 public:
@@ -115,6 +117,8 @@ public:
   }
   //! performing the cross product.
   Vector3D cross(const Vector3D& v) const;
+  //! returns the length of the vector
+  inline float length() const {return magnitude();}
   //! returns the magnitude of the vector
   float magnitude() const;
   //! returns the squared magnitude of the vector
@@ -154,6 +158,10 @@ public:
   Vec2f(float x, float y){ 
     this->x = x; this->y = y;
   }
+  //! get the length of the vector
+  float length() const;
+  //! get the squared length of the vector
+  float lengthSquared() const;
   //! Destructor
   ~Vec2f();
   float x, y;
