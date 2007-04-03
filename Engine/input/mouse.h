@@ -52,6 +52,10 @@ namespace Input{
     void setMousePos(int x, int y);
     //! is the mouse visible
     inline bool isMouseActive() {return mousePointer_;}
+    //! is a button clicked
+    bool isPressed(int button);
+    //! get the position of the mouse
+    inline ::Math::Vector2D getMousePos() {return mousePos_;}
   protected:
     static Mouse* mouse_;
     Mouse();
@@ -63,10 +67,14 @@ namespace Input{
     void (*moveCB_)(int x, int y, int button);
     //! the position of the last click
     ::Math::Vector2D clickPos_;
+    //! the position of the mouse
+    ::Math::Vector2D mousePos_;
     //! was it a click on a gui element?
     bool gui_click_;
     //! is the mouse pointer present
     bool mousePointer_;
+    //! is a mouse button pressed
+    bool pressed_[3];
 #ifdef UNIX
     //! app has graphics context
     bool graphics_;

@@ -1,6 +1,7 @@
 #include "arcball.h"
 
 #include "../system/engine.h"
+#include "../input/mouse.h"
 
 const float ADJ_WIDTH = (1.0f / ((SCREENWIDTH - 1.0f)*0.5f));
 const float ADJ_HEIGHT = (1.0f / ((SCREENHEIGHT - 1.0f)*0.5f));
@@ -8,6 +9,12 @@ const float ADJ_HEIGHT = (1.0f / ((SCREENHEIGHT - 1.0f)*0.5f));
 using namespace Math;
 
 Arcball::Arcball(){
+  startVec_ = Vector3D();
+  endVec_ = Vector3D();
+  isDragging_ = false;
+  currRot_ = Matrix(Matrix::Identity);
+  lastRot_ = Matrix(Matrix::Identity);
+  transform_ = Matrix(Matrix::Identity);
 }
 
 Arcball::~Arcball(){
@@ -50,5 +57,32 @@ void Arcball::mapToSphere(const Vector2D& point, Vector3D& newVec) const{
     newVec.x = tempVec.x;
     newVec.y = tempVec.y;
     newVec.z = sqrt(1.0f-length);
+  }
+}
+
+void Arcball::update(){
+  if (Input::Mouse::instance()->isPressed(MB_RIGHT)){
+    //Reset
+    lastRot_ = Matrix(Matrix::Identity);
+    currRot_ = Matrix(Matrix::Identity);
+    transform_ = Matrix(Matrix::Rotation, currRot_);
+  }
+  if (!isDragging_){
+    if (Input::Mouse::instance()->isPressed(MB_LEFT)){
+      isDragging_ = true;
+      lastRot_ = currRot_;
+      click(Input::Mouse::instance()->getMousePos());
+    }
+  }
+  else{
+    if (Input::Mouse::instance()->isPressed(MB_LEFT)){
+      Quaternion quat;
+      drag(Input::Mouse::instance()->getMousePos(), &quat);
+      currRot_ = Matrix(quat);
+      currRot_ = currRot_*lastRot_;
+      transform_ = Matrix(Matrix::Rotation, currRot_);
+    }
+    else
+      isDragging_ = false;
   }
 }

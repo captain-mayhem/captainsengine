@@ -2,6 +2,7 @@
 #define ARCBALL_H
 
 #include "vector.h"
+#include "matrix.h"
 #include "quaternion.h"
 
 namespace Math{
@@ -12,10 +13,15 @@ public:
   ~Arcball();
   void click(const Vector2D& point);
   void drag(const Vector2D& point, Quaternion* rot);
+  void update();
 protected:
   void mapToSphere(const Vector2D& point, Vector3D& newVec) const;
   Vector3D startVec_;
   Vector3D endVec_;
+  bool isDragging_;
+  Matrix lastRot_;
+  Matrix currRot_;
+  Matrix transform_;
 };
 
 }

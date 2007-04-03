@@ -111,6 +111,37 @@ Matrix::Matrix(float entries[16]){
 	}
 }
 
+Matrix::Matrix(Type t, const Matrix& mat){
+	for (short i = 0; i < 16; i++){
+		data_[i] = mat.data_[i];
+	}
+  if (t == Matrix::Rotation){
+    float scale = mat.SVD();
+    data_[0] *= scale; data_[1] *= scale; data_[2] *= scale;
+    data_[4] *= scale; data_[5] *= scale; data_[6] *= scale;
+    data_[8] *= scale; data_[9] *= scale; data_[10] *= scale;
+  }
+}
+
+
+// Builds a matrix from a quaternion
+Matrix::Matrix(const Quaternion& quat){
+	memset(data_, 0, 16*sizeof(float));
+  float n = quat.x*quat.x + quat.y*quat.y + quat.z*quat.z + quat.w*quat.w;
+  float s = (n > 0.0f) ? (2.0f/n) : 0.0f;
+
+  float xs = quat.x*s; float ys = quat.y*s; float zs = quat.z*s;
+  float wx = quat.w*xs; float wy = quat.w*ys; float wz = quat.w*zs;
+  float xx = quat.x*xs; float xy = quat.x*ys; float xz = quat.x*zs;
+  float yy = quat.y*ys; float yz = quat.y*zs; float zz = quat.z*zs;
+  
+  data_[0] = 1.0f - (yy+zz); data_[1] = xy+wz; data_[2] = xz-wy;
+  data_[4] = xy-wz; data_[5] = 1.0f - (xx+zz); data_[6] = yz+wx;
+  data_[8] = xz+wy; data_[9] = yz-wx; data_[10] = 1.0f - (xx+yy);
+  
+  data_[15] = 1.0f;
+}
+
 Matrix::~Matrix(){}
 
 Matrix Matrix::operator+(const Matrix& mat)
@@ -366,4 +397,11 @@ Matrix Matrix::inverse(){
   mat[14] = r3[6]; mat[15] = r3[7];
   return ret;
 #undef SWAP_ROWS
+}
+
+float Matrix::SVD() const{
+  float s = sqrt((data_[0]*data_[0] + data_[1]*data_[1] + data_[2]*data_[2] +
+              data_[4]*data_[4] + data_[5]*data_[5] + data_[6]*data_[6] +
+              data_[8]*data_[8] + data_[9]*data_[9] + data_[10]*data_[10])/3.0f);
+  return s;
 }
