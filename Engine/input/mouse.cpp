@@ -25,6 +25,9 @@ Mouse::Mouse(){
   buttonUpCB_ = NULL;
   moveCB_ = NULL;
   mousePointer_ = true;
+  pressed_[0] = false;
+  pressed_[1] = false;
+  pressed_[2] = false;
 #ifdef UNIX
   graphics_ = false;
 #endif
@@ -117,18 +120,47 @@ void Mouse::buttonDown(int x, int y, int button){
       }
     }
   }
+
+  if (!gui_click_){
+    switch(button){
+      case MB_LEFT:
+        pressed_[0] = true;
+        break;
+      case MB_MIDDLE:
+        pressed_[1] = true;
+        break;
+      case MB_RIGHT:
+        pressed_[2] = true;
+        break;
+    };
+  }
     
   if (buttonDownCB_)
     buttonDownCB_(clickPos_.x, clickPos_.y, button);
 }
 
 void Mouse::buttonUp(int x, int y, int button){
+  switch(button){
+    case MB_LEFT:
+      pressed_[0] = false;
+      break;
+    case MB_MIDDLE:
+      pressed_[1] = false;
+      break;
+    case MB_RIGHT:
+      pressed_[2] = false;
+      break;
+  };
+
   if (buttonUpCB_)
     buttonUpCB_(x, y, button);
 }
 
 void Mouse::move(int x, int y, int buttons){
-  //System::Log << "Move: " << x << " " << y << "\n";
+  //map to virtual resolution
+  AppWindow* wnd = System::Engine::instance()->getWindow();
+  mousePos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
+  mousePos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
   if (moveCB_)
     moveCB_(x, y, buttons);
 }
@@ -164,4 +196,17 @@ void Mouse::setMousePos(int x, int y){
   XEvent useless;
   XMaskEvent(wnd->getDisplay(), PointerMotionMask, &useless);
 #endif
+}
+
+// is a button pressed
+bool Mouse::isPressed(int button){
+  switch(button){
+    case MB_LEFT:
+      return pressed_[0];
+    case MB_MIDDLE:
+      return pressed_[1];
+    case MB_RIGHT:
+      return pressed_[2];
+  };
+  return false;
 }

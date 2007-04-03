@@ -14,6 +14,7 @@
 
 #include <iostream>
 #include "vector.h"
+#include "quaternion.h"
 
 using std::ostream;
 
@@ -39,6 +40,11 @@ public:
    * \param angle the rotation angle specified in radians
    */
 	Matrix(Type t, Vector3D axis, float angle);
+  //! Set matrix from another matrix
+  /* \param t the type of the new matrix
+   * \param mat the matrix
+   */
+  Matrix(Type t, const Matrix& mat);
   //! Translation or Scale matrix
   /*! for Translation, data has to hold the translation vector
    *  for Scale, data is a vector with the scale factors
@@ -52,6 +58,8 @@ public:
 	/*! Be careful: The values must be specified columnwise like in OpenGL
    */
   Matrix(float entries[16]);
+  //! Builds a matrix from a quaternion
+  Matrix(const Quaternion& quat);
   //! Destructor
 	~Matrix();
   //! Matrix addition
@@ -78,6 +86,10 @@ public:
 	Matrix transpose();
   //! invert a matrix
 	Matrix inverse();
+  //! perform SVD
+  /* \param
+   * \return scale factor*/
+  float SVD() const;
 private:
   //! the matrix entries
 	float data_[16];
