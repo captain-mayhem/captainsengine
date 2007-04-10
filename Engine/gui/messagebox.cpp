@@ -14,10 +14,10 @@ using Math::Vector2D;
 //The MessageBox constructor
 MessageBox::MessageBox(){
   handleClicks_ = NULL;
-  input_.setColors(Vector3D(1,1,0.1f),Color(51,2,2,255));
+  input_.setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
   input_.setSpan(Vector2D(75,18));
-  bgColor_ = Color(0,0,0,200);//178);
-  fgColor_ = Color(255,0,0,255);
+  bgColor_ = Color(0,0,0,0.8);//178);
+  fgColor_ = Color(1.0,0,0,1.0);
   setText("  OK");
   span_ = Vector2D(800, 600);
   setPosition(Vector2D(100,100));

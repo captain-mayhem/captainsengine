@@ -12,16 +12,24 @@
 #include "math/vector.h"
 #include "gui/messagebox.h"
 #include "gui/dropdown.h"
+#include "input/keyboard.h"
 
 #include "graphics.h"
+#include "editor.h"
 
 using std::cerr;
 using namespace Graphics;
 using namespace System;
 
 void engineMain(int argc, char** argv){
+  Editor::instance()->init();
+  
+  //render callbacks
   Renderer* rend = Engine::instance()->getRenderer();
   rend->setRenderCB(Graphic::render);
   rend->setInitCB(Graphic::init);
+
+  //input callbacks
+  Input::Keyboard::instance()->setKeyDownCB(Editor::keypress);
 }
 

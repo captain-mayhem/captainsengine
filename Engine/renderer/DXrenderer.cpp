@@ -297,13 +297,18 @@ void DXRenderer::enableTexturing(const bool flag){
   //save texture when disabling to reenable it.
 }
 
+//! enable lighting
+void DXRenderer::enableLighting(const bool flag){
+  device_->SetRenderState(D3DRS_LIGHTING, flag);
+}
+  
 //! set color
-void DXRenderer::setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
-  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB(a,r,g,b));
+void DXRenderer::setColor(float r, float g, float b, float a){
+  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB(a*255,r*255,g*255,b*255));
 }
 
 void DXRenderer::setColor(const Color* c){
-  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB(c->a,c->r,c->g,c->b));
+  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB(c->a*255,c->r*255,c->g*255,c->b*255));
 }
 
 //! push matrix
@@ -323,6 +328,13 @@ void DXRenderer::popMatrix(){
   mat = modelstack_.top();
   device_->SetTransform(D3DTS_WORLD, &mat);
   modelstack_.pop();
+}
+
+//! set material
+void DXRenderer::setMaterial(const Material& mat){
+  D3DMATERIAL9 m;
+  m.Diffuse = D3DCOLOR_RGBA(mat.diffuse.r, mat.diffuse.g, mat.diffuse.b, mat.diffuse.a);
+  //TODO continue
 }
 
 #endif

@@ -32,7 +32,7 @@ void DDEntryButton::process(){
 //The MessageBox constructor
 DropDownButton::DropDownButton(){
   handleClicks_ = NULL;
-  input_.setColors(Vector3D(1,1,0.1f),Color(51,2,2,255));
+  input_.setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
   input_.setSpan(Vector2D(160,18));
   ddPos_ = Vector2D(0, 768);
   isOpen_ = false;

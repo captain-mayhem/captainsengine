@@ -2,6 +2,7 @@
 #define VERTEXBUFFER_H
 
 #include "../math/vector.h"
+#include "material.h"
 
 #define VB_POSITION 0x0001
 #define VB_COLOR 0x0002
@@ -18,14 +19,6 @@ typedef ::Math::Vector3D Vertex;
 enum PrimitiveType{
   VB_Triangles,
   VB_Tristrip
-};
-
-struct Color{
-  Color(){r = 255; g = 255; b = 255; a=255;}
-  Color(unsigned char rn, unsigned char gn, unsigned char bn, unsigned char an){
-    r = rn; g = gn; b = bn; a = an;
-  }
-  unsigned char r, g, b, a;
 };
 
 

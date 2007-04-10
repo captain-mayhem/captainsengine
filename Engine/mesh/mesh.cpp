@@ -147,7 +147,7 @@ bool Mesh::loadOBJ(std::string filename){
   char type;
   char tester;	
   float x,y,z;
-  unsigned int vertexid[3], textureid[3], normalid[3];
+  unsigned int vertexid[4], textureid[4], normalid[4];
   char line[2000];
 
   std::ifstream file(filename.c_str());
@@ -221,7 +221,27 @@ bool Mesh::loadOBJ(std::string filename){
           file >> tester >> normalid[2]; 
           if (file.eof()) {bEnd = true; fprintf(stderr, "end at n2\n"); break;}
         }
+        
         addTriangle(vertexid[0]-1,vertexid[1]-1,vertexid[2]-1);
+
+        //do we have a quad?
+        file.ignore();
+        tester = file.peek();
+        if (tester >=48 && tester <= 57){
+          file >> vertexid[3];
+          if (file.eof()) {bEnd = true; fprintf(stderr, "end at v3\n"); break;}
+          if (file.peek() == '/') {
+            // read texture index
+            file >> tester >> textureid[3]; 
+            if (file.eof()) {bEnd = true; fprintf(stderr, "end at t3\n"); break;}
+          }
+          if (file.peek() == '/') {
+            // read normal index
+            file >> tester >> normalid[3]; 
+            if (file.eof()) {bEnd = true; fprintf(stderr, "end at n3\n"); break;}
+          }
+          addTriangle(vertexid[0]-1,vertexid[2]-1,vertexid[3]-1);
+        }
         break;
       default:
         file.getline(line, 2000);
@@ -341,7 +361,7 @@ void Mesh::buildVBO(){
   
   vb_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
   //if (numTexCoords_>0)
-    vb_->create(VB_POSITION/* | VB_NORMAL | VB_TEXCOORD*/, numTriangles_*3, 0/*numTriangles_*3*/);
+    vb_->create(VB_POSITION | VB_NORMAL/* | VB_TEXCOORD*/, numTriangles_*3, 0/*numTriangles_*3*/);
   //else
    // vb_->create(VB_POSITION/* | VB_NORMAL*/, numTriangles_*3, numTriangles_*3);
   vb_->lockVertexPointer();
@@ -353,11 +373,14 @@ void Mesh::buildVBO(){
     Vector3D v2 = vertices_[tri->v2];
     vb_->setPosition(3*i+0, v0);
     vb_->setPosition(3*i+1, v1);
-    vb_->setPosition(3*i+2, v2);/*
+    vb_->setPosition(3*i+2, v2);
     Vector3D n0 = getNormal(tri->v0);
     Vector3D n1 = getNormal(tri->v1);
     Vector3D n2 = getNormal(tri->v2);
-    if (numTexCoords_>0){
+    vb_->setNormal(3*i+0, n0);
+    vb_->setNormal(3*i+1, n1);
+    vb_->setNormal(3*i+2, n2);
+    /*if (numTexCoords_>0){
       Vector3D t0 = texCoords_[tri->t0];
       Vector3D t1 = texCoords_[tri->t1];
       Vector3D t2 = texCoords_[tri->t2];
@@ -424,6 +447,7 @@ void Mesh::draw(){/*
   glDrawElements(GL_TRIANGLES, m_numTriangles*3, GL_UNSIGNED_INT, NULL);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);*/
+  trafo_.toOpenGL();
   vb_->activate();
   vb_->draw(Graphics::VB_Triangles);
 }

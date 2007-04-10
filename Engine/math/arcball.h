@@ -13,7 +13,8 @@ public:
   ~Arcball();
   void click(const Vector2D& point);
   void drag(const Vector2D& point, Quaternion* rot);
-  void update();
+  void update(const bool change, const bool reset, const Vector2D coords);
+  Matrix getTrafo() const {return transform_;}
 protected:
   void mapToSphere(const Vector2D& point, Vector3D& newVec) const;
   Vector3D startVec_;

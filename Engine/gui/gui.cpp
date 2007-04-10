@@ -30,9 +30,9 @@ InputField::InputField(){
   pos_ = Vector2D(-1,-1);
   fnt_ = System::Engine::instance()->getFont(1);
   span_ = Vector2D(150,18);
-  bgColor_ = Color(25, 25, 25, 255);
+  bgColor_ = Color(0.1, 0.1, 0.1, 1.0);
   fgColor_ = Vector3D(0.0, 1.0, 1.0);
-  opacity_ = 255;
+  opacity_ = 1.0;
   finished_ = false;
   isHidden_ = false;
 }
@@ -121,7 +121,7 @@ bool InputField::isHit(const Vector2D& pos){
 //The Button constructor
 Button::Button(){
   handleClicks_ = NULL;
-  input_.setColors(Vector3D(1,1,0.1f),Color(51,2,2,255));
+  input_.setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
   name_ = "";
 }
 

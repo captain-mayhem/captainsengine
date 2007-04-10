@@ -58,7 +58,7 @@ class InputField{
     //! Gets the dimensions of the field
     inline ::Math::Vector2D getSpan() {return span_;}
     //! Sets the opacity of the field
-    inline void setOpacity(unsigned char opaque) {opacity_ = opaque;}
+    inline void setOpacity(float opaque) {opacity_ = opaque;}
     //! Sets the colors of the field
     /*! \param fgCol foreground (text) color of the field (RGB)
      *  \param bgCol background color (RGB)
@@ -89,7 +89,7 @@ class InputField{
     //! foreground color
     ::Math::Vector3D fgColor_;
     //! opacity
-    unsigned char opacity_;
+    float opacity_;
     //! The font to write the field text with
     ::Graphics::Font* fnt_;
     //! The field text

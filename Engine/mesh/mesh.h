@@ -22,6 +22,7 @@
 #include <string>
 
 #include "triangle.h"
+#include "../system/gameobject.h"
 
 namespace Graphics{
 class VertexBuffer;
@@ -30,13 +31,13 @@ class VertexBuffer;
 namespace MeshGeo{
 
 //! Mesh provides storage and loading for meshes
-class Mesh{
+class Mesh : public System::GameObject{
       
 public:
 	//! Default constructor
 	Mesh();
 	//! Destructor
-	~Mesh();
+	virtual ~Mesh();
   //! add vertex
   void addVertex(float x, float y, float z);
   //! add texture coordinates
