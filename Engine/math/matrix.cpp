@@ -217,10 +217,10 @@ void Matrix::fromOpenGL()
 	glGetFloatv(GL_MODELVIEW_MATRIX, data_);
 }
 
-void Matrix::toOpenGL()
+/*void Matrix::toOpenGL()
 {
 	glMultMatrixf(data_);
-}
+}*/
 
 Matrix operator*(float number, const Matrix& mat){
 	Matrix tmp = mat;

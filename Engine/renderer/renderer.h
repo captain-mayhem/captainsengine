@@ -6,6 +6,7 @@ class AppWindow;
 }
 
 #include "../math/vector.h"
+#include "../math/matrix.h"
 #include "vertexbuffer.h"
 #include "texture.h"
 
@@ -97,6 +98,8 @@ public:
   virtual void pushMatrix()=0;
   //! pop matrix
   virtual void popMatrix()=0;
+  //! multiply matrix
+  virtual void multiplyMatrix(const Matrix& mat)=0;
 protected:
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/
