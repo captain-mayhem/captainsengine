@@ -216,6 +216,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\system\gameobject.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\system\gameobject.h"
+				>
+			</File>
+			<File
 				RelativePath=".\system\interactor.h"
 				>
 			</File>
@@ -289,6 +297,14 @@
 			</File>
 			<File
 				RelativePath=".\renderer\forms.h"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer\material.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer\material.h"
 				>
 			</File>
 			<File
@@ -372,11 +388,23 @@
 			Name="math"
 			>
 			<File
+				RelativePath=".\math\arcball.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\math\arcball.h"
+				>
+			</File>
+			<File
 				RelativePath=".\math\matrix.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\math\matrix.h"
+				>
+			</File>
+			<File
+				RelativePath=".\math\quaternion.h"
 				>
 			</File>
 			<File

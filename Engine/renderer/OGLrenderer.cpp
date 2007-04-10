@@ -311,6 +311,11 @@ void OGLRenderer::popMatrix(){
   glPopMatrix();
 }
 
+//! multiply matrix
+void OGLRenderer::multiplyMatrix(const Math::Matrix& mat){
+  glMultMatrixf(mat.getData());
+}
+
 //! set material
 void OGLRenderer::setMaterial(const Material& mat){
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.ambient.array);

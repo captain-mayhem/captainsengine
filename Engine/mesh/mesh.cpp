@@ -447,7 +447,7 @@ void Mesh::draw(){/*
   glDrawElements(GL_TRIANGLES, m_numTriangles*3, GL_UNSIGNED_INT, NULL);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);*/
-  trafo_.toOpenGL();
+  System::Engine::instance()->getRenderer()->multiplyMatrix(trafo_);
   vb_->activate();
   vb_->draw(Graphics::VB_Triangles);
 }

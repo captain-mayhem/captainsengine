@@ -15,6 +15,9 @@
 #include <GL/gl.h>
 #include <string>
 
+#include "system/engine.h"
+#include "renderer/renderer.h"
+
 #include "common.h"
 //#include "../HQEditor/compiler.h"
 #include "textureManager.h"
@@ -98,7 +101,7 @@ void Door::render() const{
       glScalef((QUADSIZE-2*THICKNESS)/2,1.0/3*WALLHEIGHT,THICKNESS*0.5);
       */
     }
-    (t*s).toOpenGL(); 
+    System::Engine::instance()->getRenderer()->multiplyMatrix(t*s); 
   }
   //vertical doors
   else{
@@ -118,7 +121,7 @@ void Door::render() const{
       glScalef(THICKNESS*0.5,1.0/3*WALLHEIGHT,(QUADSIZE-2*THICKNESS)/2);
       */
     }
-    (t*r*s).toOpenGL();
+    System::Engine::instance()->getRenderer()->multiplyMatrix(t*r*s);
   }
  
   //secret door

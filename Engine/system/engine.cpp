@@ -155,6 +155,7 @@ System::Engine::Engine(){
   input_ = NULL;
   console_ = NULL;
   clear_ = false;
+  guitex_ = Mutex();
   Log << "Engine instance created\n";
 }
 

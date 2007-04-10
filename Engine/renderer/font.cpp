@@ -19,7 +19,7 @@ using namespace Graphics;
 //Constructor
 Font::Font(){
   show_ = true;
-  rgb_ = Color(255,255,255,255);
+  rgb_ = Color(1.0,1.0,1.0,1.0);
   tex_ = System::Engine::instance()->getRenderer()->createTexture("textures/font/font.bmp");
   buffer_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
   id_ = -1;
@@ -93,9 +93,9 @@ void Font::print(int x, int y, const char* str, short set, float duration){
 
 // Set font color
 void Font::setColor(float r, float g, float b){
-  rgb_.r = (unsigned char)(r*255);
-  rgb_.g = (unsigned char)(g*255);
-  rgb_.b = (unsigned char)(b*255);
+  rgb_.r = r;
+  rgb_.g = g;
+  rgb_.b = b;
 }
 
 // Set font color

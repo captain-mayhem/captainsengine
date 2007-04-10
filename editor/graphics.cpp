@@ -1,4 +1,4 @@
-#include <GL/gl.h>
+//#include <GL/gl.h>
 #include "system/engine.h"
 #include "renderer/renderer.h"
 #include "renderer/font.h"
@@ -27,8 +27,8 @@ void Graphic::init(){
   rend->setClearColor(Vector3D(0.5,0.5,0.5));
   rend->renderMode(Graphics::Filled);
   Material mat;
-  rend->setMaterial(mat);
-  glEnable(GL_LIGHT0);
+  //rend->setMaterial(mat);
+  //glEnable(GL_LIGHT0);
   gra_ = new Graphic();
   gra_->addMesh("../heroquest/HQClient/models/world/pit2.obj");
   //gra_->addMesh("ground.obj");
@@ -52,7 +52,7 @@ void Graphic::render(){
 void Graphic::render_(){
   Renderer* rend = Engine::instance()->getRenderer(); 
   rend->clear(ZBUFFER | COLORBUFFER);
-  rend->setColor(255,255,255,255);
+  rend->setColor(1.0,1.0,1.0,1.0);
   rend->enableTexturing(false);
   rend->projection(60, 4.0f/3.0f, 0.1f, 1000.0f);
   rend->resetModelView();
@@ -61,11 +61,11 @@ void Graphic::render_(){
   Font* fnt = System::Engine::instance()->getFont(0);
   fnt->setColor(0.0,1.0,0.0);
   fnt->glPrint(200, 400, ("FPS: "+toStr(Engine::instance()->getFPS())).c_str(), 0);
-  rend->enableLighting(true);
+  //rend->enableLighting(true);
   for (unsigned i = 0; i < meshes_.size(); i++){
     meshes_[i]->draw();
   }
-  rend->enableLighting(false);
+  //rend->enableLighting(false);
 }
 
 //! set transformation of a mesh

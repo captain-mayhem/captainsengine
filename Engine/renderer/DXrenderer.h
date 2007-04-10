@@ -75,6 +75,8 @@ public:
   void pushMatrix();
   //! pop matrix
   void popMatrix();
+  //! multiply matrix
+  void multiplyMatrix(const Math::Matrix& mat);
 protected:
   //! the directX context
   LPDIRECT3D9 d3d_;

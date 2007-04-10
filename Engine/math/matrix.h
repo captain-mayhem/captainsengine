@@ -81,7 +81,7 @@ public:
   //! get matrix from OpenGL
 	void fromOpenGL();
   //! multiply matrix with the OpenGL matrix stack
-	void toOpenGL();
+	//void toOpenGL();
   //! transpose a matrix
 	Matrix transpose();
   //! invert a matrix
@@ -90,6 +90,8 @@ public:
   /* \param
    * \return scale factor*/
   float SVD() const;
+  //! get the matrix data
+  const float* getData() const {return data_;}
 private:
   //! the matrix entries
 	float data_[16];

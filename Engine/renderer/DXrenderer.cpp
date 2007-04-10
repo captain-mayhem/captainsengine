@@ -6,7 +6,7 @@
 #include "DXvertexbuffer.h"
 #include "DXtexture.h"
 #include "DXrenderer.h"
-//#include <d3dx9.h>
+#include <d3dx9.h>
 
 using namespace Graphics;
 
@@ -304,11 +304,11 @@ void DXRenderer::enableLighting(const bool flag){
   
 //! set color
 void DXRenderer::setColor(float r, float g, float b, float a){
-  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB(a*255,r*255,g*255,b*255));
+  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB((int)(a*255),(int)(r*255),(int)(g*255),(int)(b*255)));
 }
 
 void DXRenderer::setColor(const Color* c){
-  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB(c->a*255,c->r*255,c->g*255,c->b*255));
+  device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB((int)(c->a*255),(int)(c->r*255),(int)(c->g*255),(int)(c->b*255)));
 }
 
 //! push matrix
@@ -330,10 +330,16 @@ void DXRenderer::popMatrix(){
   modelstack_.pop();
 }
 
+//! multiply matrix
+void DXRenderer::multiplyMatrix(const Math::Matrix& mat){
+  D3DXMATRIX matrix(mat.getData());
+  device_->MultiplyTransform(D3DTS_WORLD, &matrix);
+}
+
 //! set material
 void DXRenderer::setMaterial(const Material& mat){
   D3DMATERIAL9 m;
-  m.Diffuse = D3DCOLOR_RGBA(mat.diffuse.r, mat.diffuse.g, mat.diffuse.b, mat.diffuse.a);
+  m.Diffuse.r = mat.diffuse.r; m.Diffuse.g = mat.diffuse.g; m.Diffuse.b = mat.diffuse.b; m.Diffuse.a = mat.diffuse.a;
   //TODO continue
 }
 

@@ -78,6 +78,8 @@ public:
   void pushMatrix();
   //! pop matrix
   void popMatrix();
+  //! multiply matrix
+  void multiplyMatrix(const Math::Matrix& mat);
 protected:
 #ifdef WIN32
   //! device context

@@ -393,7 +393,7 @@ void World::render(){
     for (unsigned j = 0; j < curr.numModels; j++){
       curr.models[j].activate();
       glPushMatrix();
-      curr.models[j].getTransform().toOpenGL();
+      System::Engine::instance()->getRenderer()->multiplyMatrix(curr.models[j].getTransform());
       curr.models[j].draw();
       glPopMatrix();
     }
