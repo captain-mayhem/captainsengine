@@ -16,6 +16,7 @@
 #include <sstream>
 #include <queue>
 #include "vertexbuffer.h"
+#include "material.h"
 #include "../math/vector.h"
 
 //for compatibility to older code

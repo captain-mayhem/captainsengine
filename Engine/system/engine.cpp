@@ -176,8 +176,9 @@ void System::Engine::startup(int argc, char** argv){
 #ifdef UNIX
       cerr << "DirectX is not supported on Linux\n";
       exit(-1);
-#endif
+#else
       rend_ = new ::Graphics::DXRenderer();
+#endif
     }
     else
       EXIT2("No valid renderer specified in engine.ini");

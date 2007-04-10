@@ -2,6 +2,7 @@
 #define GRAPHIC_H
 
 #include <vector>
+#include "math/matrix.h"
 
 namespace MeshGeo{
 class Mesh;
@@ -16,6 +17,8 @@ public:
   inline static void release() {SAFE_DELETE(gra_);}
   //! add a mesh to the editor
   void addMesh(std::string filename);
+  //! set transformation of a mesh
+  void setTrafo(const int id, const Math::Matrix& mat);
 protected:
   //! Constructor
   Graphic();

@@ -283,14 +283,22 @@ void OGLRenderer::enableTexturing(const bool flag){
     glDisable(GL_TEXTURE_2D);
 }
 
+// enable lighting
+void OGLRenderer::enableLighting(const bool flag){
+  if (flag)
+    glEnable(GL_LIGHTING);
+  else
+    glDisable(GL_LIGHTING);
+}
+
 //! set color
-void OGLRenderer::setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
-  glColor4ub(r,g,b,a);
+void OGLRenderer::setColor(float r, float g, float b, float a){
+  glColor4f(r,g,b,a);
 }
 
 //! set color
 void OGLRenderer::setColor(const Color* c){
-  glColor4ub(c->r,c->g,c->b,c->a);
+  glColor4fv(c->array);
 }
 
 //! push matrix
@@ -302,3 +310,13 @@ void OGLRenderer::pushMatrix(){
 void OGLRenderer::popMatrix(){
   glPopMatrix();
 }
+
+//! set material
+void OGLRenderer::setMaterial(const Material& mat){
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.ambient.array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat.diffuse.array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat.specular.array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat.emissive.array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.power);
+}
+

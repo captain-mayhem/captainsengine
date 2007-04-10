@@ -41,7 +41,7 @@ void Arcball::drag(const Vector2D& point, Quaternion* rot){
 }
 
 void Arcball::mapToSphere(const Vector2D& point, Vector3D& newVec) const{
-  Vec2f tempVec = Vec2f(newVec.x, newVec.y);
+  Vec2f tempVec = Vec2f(point.x, point.y);
   //scale to [-1..1]
   tempVec.x = (tempVec.x * ADJ_WIDTH) - 1.0f;
   tempVec.y = 1.0f - (tempVec.y * ADJ_HEIGHT);
@@ -60,24 +60,24 @@ void Arcball::mapToSphere(const Vector2D& point, Vector3D& newVec) const{
   }
 }
 
-void Arcball::update(){
-  if (Input::Mouse::instance()->isPressed(MB_RIGHT)){
+void Arcball::update(const bool change, const bool reset, const Vector2D coords){
+  if (reset){
     //Reset
     lastRot_ = Matrix(Matrix::Identity);
     currRot_ = Matrix(Matrix::Identity);
     transform_ = Matrix(Matrix::Rotation, currRot_);
   }
   if (!isDragging_){
-    if (Input::Mouse::instance()->isPressed(MB_LEFT)){
+    if (change){
       isDragging_ = true;
       lastRot_ = currRot_;
-      click(Input::Mouse::instance()->getMousePos());
+      click(coords);
     }
   }
   else{
-    if (Input::Mouse::instance()->isPressed(MB_LEFT)){
+    if (change){
       Quaternion quat;
-      drag(Input::Mouse::instance()->getMousePos(), &quat);
+      drag(coords, &quat);
       currRot_ = Matrix(quat);
       currRot_ = currRot_*lastRot_;
       transform_ = Matrix(Matrix::Rotation, currRot_);

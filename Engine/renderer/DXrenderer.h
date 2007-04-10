@@ -63,10 +63,14 @@ public:
   void enableBlend(const bool flag);
   //! enable texturing
   void enableTexturing(const bool flag);
+  //! enable lighting
+  void enableLighting(const bool flag);
   //! set color
-  void setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a);
+  void setColor(float r, float g, float b, float a);
   //! set color
   void setColor(const Color* c);
+  //! set material
+  void setMaterial(const Material& mat);
   //! push matrix
   void pushMatrix();
   //! pop matrix
@@ -114,10 +118,14 @@ public:
   void enableBlend(const bool flag){}
   //! enable texturing
   void enableTexturing(const bool flag){}
+  //! enable lighting
+  void enableLighting(const bool flag){}
   //! set color
-  void setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a){}
+  void setColor(float r, float g, float b, float a){}
   //! set color
   void setColor(const Color* c){}
+  //! set material
+  void setMaterial(const Material& mat){}
   //! push matrix
   void pushMatrix(){}
   //! pop matrix

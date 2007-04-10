@@ -66,7 +66,7 @@ class Console{
      * \param bgCol background color of the input field
      * \param opaque opacity of the input
      */
-    inline void setParams(::Math::Vector3D fgCol, ::Graphics::Color bgCol, unsigned char opaque)
+    inline void setParams(::Math::Vector3D fgCol, ::Graphics::Color bgCol, float opaque)
       {input_->setColors(fgCol, bgCol); input_->setOpacity(opaque);}
     
     //! returns the text of the input field
@@ -132,7 +132,7 @@ private:
     //! foreground color
     ::Math::Vector3D fgColor_;
     //! opacity
-    unsigned char opacity_;
+    float opacity_;
     //! the font for displaying text
     //::Graphics::Font* fnt_;
     //! is console active?

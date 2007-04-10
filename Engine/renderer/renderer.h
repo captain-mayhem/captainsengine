@@ -85,10 +85,14 @@ public:
   virtual void enableBlend(const bool flag)=0;
   //! enable texturing
   virtual void enableTexturing(const bool flag)=0;
+  //! enable lighting
+  virtual void enableLighting(const bool flag)=0;
   //! set color
-  virtual void setColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a)=0;
+  virtual void setColor(float r, float g, float b, float a)=0;
   //! set color
   virtual void setColor(const Color* c)=0;
+  //! set material
+  virtual void setMaterial(const Material& mat)=0;
   //! push matrix
   virtual void pushMatrix()=0;
   //! pop matrix

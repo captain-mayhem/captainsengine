@@ -75,6 +75,7 @@ allclean: clean
 
 $(PROGRAM): $(OBJ)
 #	$(CXX) $(LDFLAGS) -o $(PROGRAM) $(OBJ) $(LIBS)
+	rm -f $(PROGRAM)
 	ar -cvq $(PROGRAM) $(OBJ)
 	ranlib $(PROGRAM)
 	cp $(PROGRAM) lib/
