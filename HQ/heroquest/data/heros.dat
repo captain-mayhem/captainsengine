@@ -1,4 +1,0 @@
-Barbarian     -> id: 0  attack: 3  defend: 2  body: 8  mind: 2  movement: 2  spellclasses: 0  weapon: broadsword
-Dwarf         -> id: 1  attack: 2  defend: 2  body: 7  mind: 3  movement: 2  spellclasses: 0  weapon: shortsword
-Elf           -> id: 2  attack: 2  defend: 2  body: 6  mind: 4  movement: 2  spellclasses: 1  weapon: shortsword
-Wizard        -> id: 3  attack: 1  defend: 2  body: 4  mind: 6  movement: 2  spellclasses: 3  weapon: dagger
