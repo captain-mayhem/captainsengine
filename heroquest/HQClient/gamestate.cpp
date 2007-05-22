@@ -65,18 +65,18 @@ bool GameState::start(){
   InputField* in = new InputField();
   in->setPosition(Vector2D(200, 450));
   in->setText(msg.getSetting(0));
-  System::Engine::instance()->addInputListener(in);
+  System::Engine::instance()->addGuiListener(in);
   
   f->glPrint(120, 400, "Port:", 1, HUGE_VAL);
   InputField* in2 = new InputField();
   in2->setPosition(Vector2D(200, 400));
   in2->setText(msg.getSetting(1));
-  System::Engine::instance()->addInputListener(in2);
+  System::Engine::instance()->addGuiListener(in2);
 
   Button* but = new Button();
   but->setPosition(Vector2D(200,300));
   but->setText("   Connect");
-  System::Engine::instance()->addButtonListener(but);
+  System::Engine::instance()->addGuiListener(but);
   //void (*p)();
   //p = &Renderer::connect;
   but->setCbFunc(Menu::connect);
@@ -86,10 +86,8 @@ bool GameState::start(){
 
 //run one step further
 void GameState::run(){
-  //consol.update();
+  msg.process();
   cam.update();
-  //gl->handleKeys();
-  //gl->calculateFrameRate();
 }
 
 
@@ -114,20 +112,20 @@ void GameState::end(){
     but->calcDDPos(1);
 		but->setText("basic");
     but->setCbFunc(Menu::level);
-    System::Engine::instance()->addButtonListener(but,false);
+    System::Engine::instance()->addGuiListener(but,false);
 
 		f->print(120, 400, "Level:", 1, (float)HUGE_VAL);
 		DropDownButton* but2 = new DropDownButton();
 		but2->setPosition(Vector2D(200,400));
     but2->calcDDPos(1);
-    System::Engine::instance()->addButtonListener(but2,false);
+    System::Engine::instance()->addGuiListener(but2,false);
     game.choosePackage(but, but2);
 
 		Button* but3 = new Button();
 		but3->setPosition(Vector2D(200,300));
 		but3->setText("     Load");
 		but3->setCbFunc(Menu::loadLevel);
-    System::Engine::instance()->addButtonListener(but3,false);
+    System::Engine::instance()->addGuiListener(but3,false);
 	}
 }
 

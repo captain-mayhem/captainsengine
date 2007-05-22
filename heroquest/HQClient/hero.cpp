@@ -40,6 +40,7 @@ using std::ostringstream;
 using std::ios;
 
 #ifdef _CLIENT_
+using Gui::GuiElement;
 using Gui::Button;
 using Gui::DropDownButton;
 #endif
@@ -138,7 +139,7 @@ void Hero::createFromGui(){
 #ifdef _CLIENT_
   const vector<Hero>& heros = msg.getHeros();
   //write available heros to the gui
-  Gui::DropDownButton* cls = dynamic_cast<Gui::DropDownButton*>(System::Engine::instance()->getButtonListener("class"));
+  Gui::DropDownButton* cls = dynamic_cast<Gui::DropDownButton*>(System::Engine::instance()->getGuiListener("class"));
   ostringstream tmp;
   Hero heroe;
   for (unsigned i = 0; i < heros.size(); i++){
@@ -164,8 +165,8 @@ void Hero::createFromGui(){
     fnt->print(120, 530, "Spells:", 1, HUGE_VAL);
   }
 
-  while (Button* but = System::Engine::instance()->getButtonListener("spell")){
-    System::Engine::instance()->removeButtonListener(but->getText());
+  while (GuiElement* but = System::Engine::instance()->getGuiListener("spell")){
+    System::Engine::instance()->removeGuiListener(but->getName());
   }
 
   //read spell classes
@@ -190,7 +191,7 @@ void Hero::createFromGui(){
         spell->setText(spellClasses[i]);
       spell->addEntry(spellClasses[i]);
     }
-    System::Engine::instance()->addButtonListener(spell);
+    System::Engine::instance()->addGuiListener(spell);
     pos.x += 190;
   }
 #endif

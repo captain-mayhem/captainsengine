@@ -1216,7 +1216,7 @@ int Script::messageBox(lua_State* L){
 	string msg = string(luaL_checkstring(L, 1));
   MessageBox* mb = new MessageBox();
   mb->setMessage(msg);
-  System::Engine::instance()->addButtonListener(mb, false);
+  System::Engine::instance()->addGuiListener(mb, false);
 #endif
   return 0;
 }

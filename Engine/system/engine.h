@@ -38,6 +38,7 @@ class Forms;
 }
 
 namespace Gui{
+class GuiElement;
 class InputField;
 class Button;
 class Console;
@@ -96,15 +97,15 @@ class Engine{
     inline int getFPS() {return fps_;}
    
     //! get the input field list
-    inline list< ::Gui::InputField*>& getInputFields() {return listeners_;}
+    //inline list< ::Gui::InputField*>& getInputFields() {return listeners_;}
     //! get the button list
-    inline list< ::Gui::Button*>& getButtons() {return buttons_;}
+    inline list< ::Gui::GuiElement*>& getGuiElements() {return guiElems_;}
     //! adds an input field for mouse click checking
-    void addInputListener(::Gui::InputField* in, bool immediate=true){if (immediate)listeners_.push_back(in);
-      else newIn_.push_back(in);}
+    //void addInputListener(::Gui::InputField* in, bool immediate=true){if (immediate)listeners_.push_back(in);
+    //  else newIn_.push_back(in);}
     //! adds a button for mouse click checking
-    void addButtonListener(::Gui::Button* button, bool immediate=true){if (immediate)buttons_.push_back(button);
-      else newBut_.push_back(button);}
+    void addGuiListener(::Gui::GuiElement* element, bool immediate=true){if (immediate)guiElems_.push_back(element);
+      else newBut_.push_back(element);}
     //! set the current input field that should be active
     void setActiveInput(::Gui::InputField* field);
     //! get the current input field that should be active
@@ -112,15 +113,15 @@ class Engine{
     //! clears the input and button listeners
     void clearListeners(bool immediate=true);
     //! remove the input listener at position idx
-    void removeInputListener(int idx);
+    //void removeInputListener(int idx);
     //! remove the button listener at position idx
-    void removeButtonListener(int idx, bool immediate=true);
+    void removeGuiListener(int idx, bool immediate=true);
     //! remove the button listener with a certain name
-    void removeButtonListener(const string& name);
+    void removeGuiListener(const string& name);
     //! remove all button listeners beginning at idx
-    void removeButtonListeners(int idx);
+    void removeGuiListeners(int idx);
     //! get a button by name
-    ::Gui::Button* getButtonListener(const string& name);
+    ::Gui::GuiElement* getGuiListener(const string& name);
     //! get the gui mutex
     Mutex& getGuiMutex() {return guitex_;}
   private:
@@ -153,13 +154,13 @@ class Engine{
     //! fps
     int fps_;
     //! waiting input fields
-    list< ::Gui::InputField*> listeners_;
+    //list< ::Gui::InputField*> listeners_;
     //! waiting buttons
-    list< ::Gui::Button*> buttons_;
+    list< ::Gui::GuiElement*> guiElems_;
     //! the new input fields
-    list< ::Gui::InputField*> newIn_;
+    //list< ::Gui::InputField*> newIn_;
     //! the new buttons
-    list< ::Gui::Button*> newBut_;
+    list< ::Gui::GuiElement*> newBut_;
     //! if the input listeners should be cleared
     bool clear_;
     //! which buttons should be removed

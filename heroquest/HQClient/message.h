@@ -15,6 +15,7 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <queue>
 
 #include <system/thread.h>
 //#include "SDL_thread.h"
@@ -54,7 +55,7 @@ public:
    */
   static void receiver(void*);
   //! processes a command from the server
-  void process(const string& answer);
+  void process();
   //! callback function for some console commands
   /*! handles some special functions for the console
    * \param message the message the console has to give
@@ -93,6 +94,8 @@ private:
   vector<string> settings_;
   //! if there is something to defend
   bool toDefend_;
+  //! the incoming messages
+  std::queue<string> messages_;
 };
 
 

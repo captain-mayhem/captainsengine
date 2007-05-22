@@ -237,14 +237,16 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
     System::Engine::instance()->getFont(0)->setColor(1,1,1);
     System::Engine::instance()->getFont(0)->glPrint(250, 500, "Hero name:", 1, (float)HUGE_VAL);
     InputField* in = new InputField();
+    in->setName("Playname");
     in->setPosition(Vector2D(400, 500));
-    System::Engine::instance()->addInputListener(in);
+    System::Engine::instance()->addGuiListener(in);
 
     Button* but = new Button();
     but->setPosition(Vector2D(400, 450));
     but->setText("    Play");
+    but->setName("Play");
     but->setCbFunc(Menu::play);
-    System::Engine::instance()->addButtonListener(but);
+    System::Engine::instance()->addGuiListener(but);
   }
   else if (game.getState() == RUN && !Mouse::instance()->isGuiClick() && awaitMapClick_){
     //awaiting click on map for various ingame functions
@@ -354,7 +356,7 @@ void HQRenderer::paint_(){
   render_->projection(fieldOV_, aspect_, 0.1f, 100.0f);
   
   render_->clear(ZBUFFER | COLORBUFFER);
-  render_->setColor(255,255,255,255);
+  render_->setColor(1.0,1.0,1.0,1.0);
   render_->resetModelView();
 
   if (wrld.isLoaded()){

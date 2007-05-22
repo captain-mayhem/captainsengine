@@ -27,15 +27,31 @@ using std::ostringstream;
 //using Math::Vector2D;
 
 namespace Gui{
+//! a common base class for gui elements
+class GuiElement{
+public:
+  GuiElement(){}
+  virtual ~GuiElement(){name_ = "none";}
+  virtual void render() = 0;
+  virtual bool isClicked(const ::Math::Vector2D& pos) = 0;
+  virtual void process() = 0;
+  //! sets the button text
+  inline void setName(const string& text) { name_ = text; }
+  //! gets the button text
+  inline const string& getName() { return name_; }
+protected:
+  std::string name_;
+};
+
 //! a highly customizable text field for user input based on OpenGL
-class InputField{
+class InputField : public GuiElement{
   public:
     //! Constructor: Sets default parameters
     InputField();
     //! Copy constructor
     InputField(const InputField& i);
     //! Destructor
-    ~InputField() {}
+    virtual ~InputField() {}
     //! Add a character to the field
     inline void addChar(char ch) {field_.append(1,ch);}
     //! Remove a character from the field
@@ -74,11 +90,13 @@ class InputField{
     //! Sets the font to use
     inline void setFont(::Graphics::Font* fnt) {fnt_ = fnt;}
     //! Displays the field using OpenGL
-    void render();
+    virtual void render();
     //! Returns if the position belongs to the input field
-    bool isHit(const ::Math::Vector2D& pos);
+    virtual bool isClicked(const ::Math::Vector2D& pos);
     //! Hides typed input (for password fields);
     inline void setHidden(bool hide = true) {isHidden_ = hide;}
+    //! overloaded process
+    virtual void process() {};
   private:
     //! position
     ::Math::Vector2D pos_;
@@ -103,7 +121,7 @@ class InputField{
 //! This class is a button (the thing you can click on).
 /*! The button is based on OpenGL.
  */
-class Button{
+class Button : public GuiElement{
   public:
     //! Constructor
     Button();
@@ -112,7 +130,7 @@ class Button{
     //! Destructor
     virtual ~Button();
     //! Is it clicked upon?
-    inline bool isClicked(const ::Math::Vector2D& pos) {return input_.isHit(pos);}
+    inline bool isClicked(const ::Math::Vector2D& pos) {return input_.isClicked(pos);}
     //! sets the button text
     inline void setText(const string& text) { input_.setText(text); }
     //! gets the button text
@@ -127,10 +145,6 @@ class Button{
     virtual void process() { (*handleClicks_)(); }
     //! renders the button
     virtual void render() {input_.render(); }
-    //! name the button
-    inline void setName(const string& name) {name_ = name;}
-    //! get the button's name
-    inline const string& getName() {return name_;}
   protected:
     //! The InputField
     //! The button is nothing more than an input field with an additional callback
@@ -138,8 +152,6 @@ class Button{
     InputField input_;
     //! The callback function
     void (*handleClicks_)();
-    //! A name of the button
-    string name_;
 };
 }
 #endif
