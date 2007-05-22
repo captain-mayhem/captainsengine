@@ -93,8 +93,8 @@ void DropDownButton::process(){
       isOpen_ = false;
       return;
     }
-    list< ::Gui::Button*>& buts = System::Engine::instance()->getButtons();
-    list< ::Gui::Button* >::iterator iter;
+    list< ::Gui::GuiElement*>& buts = System::Engine::instance()->getGuiElements();
+    list< ::Gui::GuiElement* >::iterator iter;
     int idx = 0;
     for (iter = buts.begin(); iter != buts.end(); iter++){
       if (*iter == entries_[0]){
@@ -112,7 +112,7 @@ void DropDownButton::process(){
   else{
     //register drop down buttons
     for (unsigned i = 0; i < entries_.size(); i++){
-      System::Engine::instance()->addButtonListener(entries_[i]);
+      System::Engine::instance()->addGuiListener(entries_[i]);
     }
     isOpen_ = true;
   }

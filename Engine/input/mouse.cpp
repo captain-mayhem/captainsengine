@@ -14,6 +14,7 @@ using Windows::AppWindow;
 using Gui::InputField;
 using Gui::Button;;
 using Gui::Console;
+using Gui::GuiElement;
 using Math::Vector2D;
 
 using namespace Input;
@@ -89,11 +90,11 @@ void Mouse::buttonDown(int x, int y, int button){
   clickPos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
   
   gui_click_ = false;
-
+/*
   //click on a GUI-element?
   list<InputField*>::iterator iter;
   for (iter = System::Engine::instance()->getInputFields().begin(); iter != System::Engine::instance()->getInputFields().end(); iter++){
-    if ((*iter)->isHit(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
+    if ((*iter)->isClicked(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
       //set only input focus if console is not active
       if (!System::Engine::instance()->getConsole()->isActive()){
         //another input field was active, so remove cursor
@@ -103,10 +104,22 @@ void Mouse::buttonDown(int x, int y, int button){
       }
     }
   }
-
-  list<Button*>::iterator iter2;
-  for (iter2 = System::Engine::instance()->getButtons().begin(); iter2 != System::Engine::instance()->getButtons().end(); iter2++){
+*/
+  list<GuiElement*>::iterator iter2;
+  for (iter2 = System::Engine::instance()->getGuiElements().begin(); iter2 != System::Engine::instance()->getGuiElements().end(); iter2++){
     if ((*iter2)->isClicked(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
+      //is it an input field?
+      InputField* inp = dynamic_cast<InputField*>(*iter2);
+      if (inp){
+        //set only input focus if console is not active
+        if (!System::Engine::instance()->getConsole()->isActive()){
+          (*iter2)->process();
+          //another input field was active, so remove cursor
+          System::Engine::instance()->setActiveInput(inp);
+          gui_click_ = true;
+          break;
+        }
+      }
       //allow only clicks if the console is deactivated
       if (!System::Engine::instance()->getConsole()->isActive()){
         InputField* input = System::Engine::instance()->getActiveInput();

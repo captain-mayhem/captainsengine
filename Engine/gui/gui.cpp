@@ -109,7 +109,7 @@ void InputField::render(){
 }
 
 //If the input field is hit by the mouse
-bool InputField::isHit(const Vector2D& pos){
+bool InputField::isClicked(const Vector2D& pos){
   if (pos.x < pos_.x || pos.x > pos_.x+span_.x)
     return false;
   if (pos.y < pos_.y || pos.y > pos_.y+span_.y)

@@ -34,8 +34,8 @@ MessageBox::~MessageBox(){
 void MessageBox::process(){
   //close messageBox
   //find yourself
-  list< ::Gui::Button*>& buts = System::Engine::instance()->getButtons();
-  list< ::Gui::Button* >::iterator iter;
+  list< ::Gui::GuiElement*>& buts = System::Engine::instance()->getGuiElements();
+  list< ::Gui::GuiElement* >::iterator iter;
   int idx = 0;
   for (iter = buts.begin(); iter != buts.end(); iter++){
     if (*iter == this){
@@ -43,7 +43,7 @@ void MessageBox::process(){
     }
     idx++;
   }
-  System::Engine::instance()->removeButtonListener(idx, false);
+  System::Engine::instance()->removeGuiListener(idx, false);
   if (handleClicks_)
     (*handleClicks_)();
 }
