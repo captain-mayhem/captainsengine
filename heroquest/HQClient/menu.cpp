@@ -108,7 +108,7 @@ void Menu::connect(){
   string send = "connect";
   for (iter = System::Engine::instance()->getGuiElements().begin(); iter != System::Engine::instance()->getGuiElements().end(); iter++){
     InputField* inp = dynamic_cast<InputField*>(*iter);
-    if (inp)
+    if ((*iter)->getType() == Gui::InputFieldT && inp)
       send += " "+inp->getText();
   }
   msg.process(send.c_str());
@@ -151,7 +151,7 @@ void Menu::login(){
   bool firstInput = true;
   for (iter = System::Engine::instance()->getGuiElements().begin(); iter != System::Engine::instance()->getGuiElements().end(); iter++){
     InputField* inp = dynamic_cast<InputField*>(*iter);
-    if (inp){
+    if ((*iter)->getType() == Gui::InputFieldT && inp){
       if (firstInput){
         plyr.setName(inp->getText());
         firstInput = false;
