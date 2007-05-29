@@ -24,6 +24,17 @@
 using namespace Gui;
 using Graphics::Color;
 
+GuiElement::GuiElement(){
+  //set standard values
+  pos_ = Vector2D(-1,-1);
+  span_ = Vector2D(150,18);
+  bgColor_ = Color(0.1, 0.1, 0.1, 1.0);
+  fgColor_ = Vector3D(0.0, 1.0, 1.0);
+  opacity_ = 1.0;
+  name_ = "";
+  type_ = UnknownT;
+}
+
 //CONSTRUCTOR
 InputField::InputField(){
   //set standard values
@@ -35,6 +46,7 @@ InputField::InputField(){
   opacity_ = 1.0;
   finished_ = false;
   isHidden_ = false;
+  type_ = InputFieldT;
 }
 
 InputField::InputField(const InputField& i){
@@ -44,9 +56,11 @@ InputField::InputField(const InputField& i){
     fgColor_ = i.fgColor_;
     opacity_ = i.opacity_;
     fnt_ = i.fnt_;
-    field_ = string(field_);
+    field_ = string(i.field_);
     finished_ = i.finished_;
     isHidden_ = i.isHidden_;
+    name_ = string(i.name_);
+    type_ = i.type_;
 }
 
 // renders the field
@@ -121,14 +135,23 @@ bool InputField::isClicked(const Vector2D& pos){
 //The Button constructor
 Button::Button(){
   handleClicks_ = NULL;
-  input_.setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
-  name_ = "";
+  setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
+  type_ = ButtonT;
 }
 
 Button::Button(const Button& b){
-  input_ = InputField(b.input_);
   handleClicks_ = b.handleClicks_;
+  pos_ = b.pos_;
+  span_ = b.span_;
+  bgColor_ = b.bgColor_;
+  fgColor_ = b.fgColor_;
+  opacity_ = b.opacity_;
+  fnt_ = b.fnt_;
+  field_ = string(b.field_);
+  finished_ = b.finished_;
+  isHidden_ = b.isHidden_;
   name_ = string(b.name_);
+  type_ = b.type_;
 }
 
 //and destructor

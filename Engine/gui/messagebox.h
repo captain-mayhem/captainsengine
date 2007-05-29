@@ -28,13 +28,13 @@ class MessageBox : public Button {
     void setMessage(const string& text);
   private:
     //! the dimensions of the background
-    Math::Vector2D span_;
+    Math::Vector2D surSpan_;
     //! the position of the box
-    Math::Vector2D pos_;
+    Math::Vector2D surPos_;
     //! the background color
-    Graphics::Color bgColor_;
+    Graphics::Color surBgColor_;
     //! the foreground color
-    Graphics::Color fgColor_;
+    Graphics::Color surFgColor_;
     //! the message to be displayed
     list<string> msg_;
 };
