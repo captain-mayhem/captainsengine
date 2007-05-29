@@ -21,7 +21,7 @@ DDEntryButton::~DDEntryButton(){
 
 void DDEntryButton::process(){
   if (parent_){
-    parent_->setText(input_.getText());
+    parent_->setText(getText());
     parent_->process();
   }
   if (handleClicks_){
@@ -32,11 +32,12 @@ void DDEntryButton::process(){
 //The MessageBox constructor
 DropDownButton::DropDownButton(){
   handleClicks_ = NULL;
-  input_.setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
-  input_.setSpan(Vector2D(160,18));
+  setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
+  setSpan(Vector2D(160,18));
   ddPos_ = Vector2D(0, 768);
   isOpen_ = false;
   direction_ = 0;
+  type_ = DropDownButtonT;
 }
 
 DropDownButton::DropDownButton(const DropDownButton& d){
@@ -55,15 +56,15 @@ DropDownButton::~DropDownButton(){
 
 void DropDownButton::calcDDPos(int direction){
   direction_ = direction;
-  ddPos_ = input_.getPosition();
+  ddPos_ = getPosition();
   if (direction == 1){
-    ddPos_.x += input_.getSpan().x;
+    ddPos_.x += getSpan().x;
   }
   else if (direction == 2){
-    ddPos_.y -= input_.getSpan().y;
+    ddPos_.y -= getSpan().y;
   }
   else if (direction == 3){
-    ddPos_.x -= 2*input_.getSpan().x;
+    ddPos_.x -= 2*getSpan().x;
   }
 }
 
@@ -75,7 +76,7 @@ void DropDownButton::addEntry(const string& entry){
   but->setParent(this);
   but->setCbFunc(handleClicks_);
   entries_.push_back(but);
-  ddPos_.y -= input_.getSpan().y;
+  ddPos_.y -= getSpan().y;
 }
 
 void DropDownButton::clear(){

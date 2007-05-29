@@ -110,7 +110,7 @@ void Mouse::buttonDown(int x, int y, int button){
     if ((*iter2)->isClicked(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
       //is it an input field?
       InputField* inp = dynamic_cast<InputField*>(*iter2);
-      if (inp){
+      if ((*iter2)->getType() == Gui::InputFieldT && inp){
         //set only input focus if console is not active
         if (!System::Engine::instance()->getConsole()->isActive()){
           (*iter2)->process();

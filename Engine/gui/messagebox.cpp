@@ -14,13 +14,14 @@ using Math::Vector2D;
 //The MessageBox constructor
 MessageBox::MessageBox(){
   handleClicks_ = NULL;
-  input_.setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
-  input_.setSpan(Vector2D(75,18));
-  bgColor_ = Color(0,0,0,0.8);//178);
-  fgColor_ = Color(1.0,0,0,1.0);
+  setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
+  setSpan(Vector2D(75,18));
+  surBgColor_ = Color(0,0,0,0.8);//178);
+  surFgColor_ = Color(1.0,0,0,1.0);
   setText("  OK");
-  span_ = Vector2D(800, 600);
+  surSpan_ = Vector2D(800, 600);
   setPosition(Vector2D(100,100));
+  type_ = MessageBoxT;
 }
 
 MessageBox::MessageBox(const MessageBox& m){
@@ -49,16 +50,16 @@ void MessageBox::process(){
 }
 
 void MessageBox::setPosition(const ::Math::Vector2D& pos){
-  pos_ = pos;
+  surPos_ = pos;
   Vector2D inpos = pos;
-  inpos.x += (short)(0.5*span_.x-75.0/2.0);
-  inpos.y += (short)(0.05*span_.y);
-  input_.setPosition(inpos);
+  inpos.x += (short)(0.5*surSpan_.x-75.0/2.0);
+  inpos.y += (short)(0.05*surSpan_.y);
+  GuiElement::setPosition(inpos);
 }
 
 void MessageBox::setMessage(const string& text){
   istringstream str(text);
-  unsigned maxchars = span_.x/10-1;
+  unsigned maxchars = surSpan_.x/10-1;
   unsigned chars = 0;
   string word;
   string line = "";
@@ -83,18 +84,18 @@ void MessageBox::render(){
   rend->enableTexturing(false);
 
   //draw background
-  rend->setColor(&bgColor_);//_.r, bgColor_.g, bgColor_.b, opacity_);
+  rend->setColor(&surBgColor_);//_.r, bgColor_.g, bgColor_.b, opacity_);
   System::Engine::instance()->getForms()->activateQuad();
-  System::Engine::instance()->getForms()->drawQuad(pos_, span_);
+  System::Engine::instance()->getForms()->drawQuad(surPos_, surSpan_);
   
   //draw console text
   rend->enableTexturing(true);
   rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
-  System::Engine::instance()->getFont(1)->setColor(fgColor_);
-  int y = pos_.y + span_.y - 20;
+  System::Engine::instance()->getFont(1)->setColor(surFgColor_);
+  int y = surPos_.y + surSpan_.y - 20;
   for (list<string>::iterator iter = msg_.begin(); iter != msg_.end(); iter++){
-    System::Engine::instance()->getFont(1)->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
+    System::Engine::instance()->getFont(1)->glPrint(surPos_.x, y, (*iter).c_str(), 0, 0.0);
     y -= 20;
   }
-  input_.render();
+  InputField::render();
 }
