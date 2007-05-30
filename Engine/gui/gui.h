@@ -15,6 +15,7 @@
 #include <string>
 #include <list>
 #include <sstream>
+#include <cassert>
 
 #include "../math/vector.h"
 #include "../renderer/font.h"
@@ -43,24 +44,24 @@ public:
   GuiElement();
   virtual ~GuiElement(){}
   virtual void render() = 0;
-  virtual bool isClicked(const ::Math::Vector2D& pos) = 0;
+  virtual bool isClicked(const ::Math::Vector2D& pos);
   virtual void process() = 0;
   //! sets the button text
   inline void setName(const string& text) { name_ = text; }
   //! gets the button text
-  inline const string& getName() { return name_; }
+  inline const string& getName() const { return name_; }
   //! Sets the position of the input field
   /*! The position is specified by the lower left corner of the field
    */
   inline virtual void setPosition(::Math::Vector2D position) {pos_ = position;}
   //! Gets the position
-  inline ::Math::Vector2D getPosition() {return pos_;}
+  inline ::Math::Vector2D getPosition() const {return pos_;}
   //! Sets the dimensions of the field
   /*! the x-component of span is the width, the y-component the height
    */
   inline void setSpan(::Math::Vector2D span) {span_ = span;}
   //! Gets the dimensions of the field
-  inline ::Math::Vector2D getSpan() {return span_;}
+  inline ::Math::Vector2D getSpan() const {return span_;}
   //! Sets the opacity of the field
   inline void setOpacity(float opaque) {opacity_ = opaque;}
   //! Sets the colors of the field
@@ -70,7 +71,11 @@ public:
   inline void setColors(::Math::Vector3D fgCol, ::Graphics::Color bgCol)
       {fgColor_ = fgCol, bgColor_ = bgCol;}
   //! Get the gui type
-  inline GuiType getType() {return type_;}
+  inline GuiType getType() const {return type_;}
+  //! Set the parent
+  inline void setParent(GuiElement* parent) {parent_ = parent;}
+  //! Get the parent
+  inline GuiElement* getParent() const {return parent_;}
 protected:
   //! position
   ::Math::Vector2D pos_;
@@ -86,6 +91,8 @@ protected:
   std::string name_;
   //! the type of the gui element
   GuiType type_;
+  //! the parent of the gui element
+  GuiElement* parent_;
 };
 
 //! a highly customizable text field for user input based on OpenGL
@@ -116,8 +123,6 @@ class InputField : public GuiElement{
     inline void setFont(::Graphics::Font* fnt) {fnt_ = fnt;}
     //! Displays the field using OpenGL
     virtual void render();
-    //! Returns if the position belongs to the input field
-    virtual bool isClicked(const ::Math::Vector2D& pos);
     //! Hides typed input (for password fields);
     inline void setHidden(bool hide = true) {isHidden_ = hide;}
     //! overloaded process
@@ -147,10 +152,17 @@ class Button : public InputField{
     //! sets the callback function
     inline void setCbFunc(void (*click)()) { handleClicks_ = click; }
     //! executes the callback function
-    virtual void process() { (*handleClicks_)(); }
+    virtual void process() { assert(handleClicks_ && "Button callback not set!"); (*handleClicks_)(); }
   protected:
     //! The callback function
     void (*handleClicks_)();
 };
+
+//! A button that destroys his parent if clicked upon
+class PDButton : public Button{
+  //! executes the callback function and destroys parent
+  virtual void process();
+};
+
 }
 #endif

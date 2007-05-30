@@ -16,10 +16,14 @@
 #include "../renderer/forms.h"
 
 using namespace Gui;
+using Graphics::Color;
 
 //! Constructor
 Dialog::Dialog(){
   type_ = DialogT;
+  pos_ = Vector2D(112, 84);
+  span_ = Vector2D(800,600);
+  bgColor_ = Color(0.0,0.0,0.0,0.8f);
 }
   
 //! Destructor
@@ -47,8 +51,40 @@ void Dialog::render(){
   }
 }
 
-//! is the dialog clicked
+//! Is the dialog clicked
 bool Dialog::isClicked(const ::Math::Vector2D& pos){
+  list<GuiElement*>::iterator iter;
+  //handle click
+  for (iter = elements_.begin(); iter != elements_.end(); iter++){
+    if ((*iter)->isClicked(pos)){
+      (*iter)->process();
+      break;
+    }
+  }
+  //return if it was clicked upon
+  if (pos.x < pos_.x || pos.x > pos_.x+span_.x)
+    return false;
+  if (pos.y < pos_.y || pos.y > pos_.y+span_.y)
+    return false;
   return true;
+}
+
+//! Process an event
+void Dialog::process(){
+}
+
+//! Add an element
+void Dialog::addElement(GuiElement* elem){
+  //Change coordinates to dialog-relative ones
+  Vector2D pos = elem->getPosition();
+  Vector2D span = elem->getSpan();
+  pos.x = pos_.x+(short)((float)pos.x/SCREENWIDTH*span_.x);
+  pos.y = pos_.y+(short)((float)pos.y/SCREENHEIGHT*span_.y);
+  span.x = (short)((float)span.x/SCREENWIDTH*span_.x);
+  span.y = (short)((float)span.y/SCREENHEIGHT*span_.y);
+  elem->setPosition(pos);
+  elem->setSpan(span);
+  elem->setParent(this);
+  elements_.push_front(elem);
 }
 
