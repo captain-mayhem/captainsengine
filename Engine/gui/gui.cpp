@@ -32,7 +32,17 @@ GuiElement::GuiElement(){
   fgColor_ = Vector3D(0.0, 1.0, 1.0);
   opacity_ = 1.0;
   name_ = "";
+  parent_ = NULL;
   type_ = UnknownT;
+}
+
+//If the input field is hit by the mouse
+bool GuiElement::isClicked(const Vector2D& pos){
+  if (pos.x < pos_.x || pos.x > pos_.x+span_.x)
+    return false;
+  if (pos.y < pos_.y || pos.y > pos_.y+span_.y)
+    return false;
+  return true;
 }
 
 //CONSTRUCTOR
@@ -122,15 +132,6 @@ void InputField::render(){
   //fnt_->setColor(0,1,0);
 }
 
-//If the input field is hit by the mouse
-bool InputField::isClicked(const Vector2D& pos){
-  if (pos.x < pos_.x || pos.x > pos_.x+span_.x)
-    return false;
-  if (pos.y < pos_.y || pos.y > pos_.y+span_.y)
-    return false;
-  return true;
-}
-
 
 //The Button constructor
 Button::Button(){
@@ -156,4 +157,21 @@ Button::Button(const Button& b){
 
 //and destructor
 Button::~Button(){
+}
+
+void PDButton::process(){
+ if (handleClicks_)
+  (*handleClicks_)();
+ //try to find the parent
+ //TODO: go deeper into dialogs
+ list< ::Gui::GuiElement*>& elems = System::Engine::instance()->getGuiElements();
+ list< ::Gui::GuiElement* >::iterator iter;
+ int idx = 0;
+ for (iter = elems.begin(); iter != elems.end(); iter++){
+   if (*iter == parent_){
+     break;
+   }
+   idx++;
+ }
+ System::Engine::instance()->removeGuiListener(idx, false);
 }

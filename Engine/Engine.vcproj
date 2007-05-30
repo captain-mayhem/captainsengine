@@ -216,6 +216,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\system\file.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\system\file.h"
+				>
+			</File>
+			<File
 				RelativePath=".\system\gameobject.cpp"
 				>
 			</File>
@@ -433,6 +441,14 @@
 			</File>
 			<File
 				RelativePath=".\gui\console.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\dialog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\dialog.h"
 				>
 			</File>
 			<File

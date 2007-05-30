@@ -31,7 +31,7 @@ Console::Console(){
   pos_ = Vector2D(0, 468);
   //fnt_ = System::Engine::instance()->getFont();
   span_ = Vector2D(1024,300);
-  opacity_ = 0.7;
+  opacity_ = 0.7f;
   //put in a nice starting message
   string start("HeroQuest v");
   start += VERSTRING;
@@ -76,7 +76,7 @@ void Console::init(){
   input_->setFont(System::Engine::instance()->getFont(2));
   input_->setPosition(Vector2D(0, 468));
   input_->setOpacity(0);
-  bgColor_ = Graphics::Color(0, 0, 0, 0.7);
+  bgColor_ = Graphics::Color(0, 0, 0, 0.7f);
   fgColor_ = Vector3D(1.0, 1.0, 1.0);
   input_->setColors(fgColor_, bgColor_);
   input_->setSpan(Vector2D(1024,18));

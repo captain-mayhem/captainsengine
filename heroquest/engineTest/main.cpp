@@ -6,12 +6,14 @@
 #include "cal3d/cal3d.h"
 #include <iostream>
 #include "system/engine.h"
+#include "system/file.h"
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "renderer/forms.h"
 #include "math/vector.h"
 #include "gui/messagebox.h"
 #include "gui/dropdown.h"
+#include "gui/dialog.h"
 
 using std::cerr;
 using namespace Math;
@@ -82,17 +84,27 @@ public:
     indices[33] = 4; indices[34] = 3; indices[35] = 7;
     vb->unlockIndexPointer();
 
-    CalCoreModel* m = new CalCoreModel("dummy");
+    //CalCoreModel* m = new CalCoreModel("dummy");
     //MessageBox* mb = new MessageBox();
     //mb->setPosition(Vector2D(200, 100));
     //mb->setMessage("Hallo Du!");
+    /*
     DropDownButton* db = new DropDownButton();
     db->setPosition(Vector2D(400,400));
     db->calcDDPos(1);
     db->addEntry("Hallo");
     db->addEntry("Du");
     db->addEntry("Test");
-    System::Engine::instance()->addButtonListener(db);
+    System::Engine::instance()->addGuiListener(db);
+    */
+    Dialog* dia = new Dialog();
+    //The OK button
+    PDButton* but = new PDButton();
+    but->setPosition(Vector2D(475, 20));
+    but->setText("Start");
+    dia->addElement(but);
+    System::Engine::instance()->addGuiListener(dia);
+    Filesystem::getFiles(".");
   }
 
   static void render(){

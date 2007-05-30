@@ -63,7 +63,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Engine_Debug.lib"
+				AdditionalDependencies="msvcprtd.lib msvcrtd.lib OpenGL32.lib GLu32.lib d3d9.lib d3dx9.lib liblua.lib liblualib.lib jpeg.lib Engine_Debug.lib cal3d.lib"
 				OutputFile="$(OutDir)/EngineTest.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../Engine/lib"
