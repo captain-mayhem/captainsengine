@@ -27,7 +27,7 @@ using Gui::DropDownButton;
 extern string home;
 
 // setup main ingame menu
-void Menu::mainMenu(){
+void Menu::mainMenu(GuiElement*){
   System::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
 
@@ -97,7 +97,7 @@ void Menu::mainMenu(){
 }
 
 
-void Menu::connect(){
+void Menu::connect(GuiElement*){
   if (System::Engine::instance()->getActiveInput() != NULL){
     InputField* inp = System::Engine::instance()->getActiveInput();
     inp->removeChar();
@@ -139,7 +139,7 @@ void Menu::connect(){
 }
 
 //login button
-void Menu::login(){
+void Menu::login(GuiElement*){
   if (System::Engine::instance()->getActiveInput() != NULL){
     InputField* inp = System::Engine::instance()->getActiveInput();
     inp->removeChar();
@@ -163,7 +163,7 @@ void Menu::login(){
 }
 
 //package button
-void Menu::package(){
+void Menu::package(GuiElement* elem){
   ifstream in("levels/levels.dat");
   int number;
   in >> number;
@@ -189,11 +189,11 @@ void Menu::package(){
     level = firstlevel;
   but->setText(level);
   in.close();
-  Menu::level();
+  Menu::level(elem);
 }
 
 //level button
-void Menu::level(){
+void Menu::level(GuiElement*){
   list<GuiElement*>::iterator gui = System::Engine::instance()->getGuiElements().begin();
   Button* but = dynamic_cast<Button*>(*gui);
   ifstream in(string("levels/"+but->getText()+"/levels.dat").c_str());
@@ -240,7 +240,7 @@ void Menu::level(){
 }
 
 //load level button
-void Menu::loadLevel(){
+void Menu::loadLevel(GuiElement*){
   list<GuiElement*>::iterator iter;
   string proc = "create game";
   for (iter = System::Engine::instance()->getGuiElements().begin(); iter != System::Engine::instance()->getGuiElements().end(); iter++){
@@ -253,22 +253,22 @@ void Menu::loadLevel(){
 }
 
 //move button
-void Menu::move(){
+void Menu::move(GuiElement*){
   msg.process("move");
 }
 
 //end turn button
-void Menu::endTurn(){
+void Menu::endTurn(GuiElement*){
   msg.process("end turn");
 }
 
 //start button
-void Menu::start(){
+void Menu::start(GuiElement*){
   msg.process("start");
 }
 
 //play button
-void Menu::play(){
+void Menu::play(GuiElement*){
   GuiElement* elem = System::Engine::instance()->getGuiListener("Playname");
   int position = -1;
   for (int i = 0; i < wrld.getHeroSize(); i++){
@@ -310,7 +310,7 @@ void Menu::play(){
 }
 
 //open button
-void Menu::open(){
+void Menu::open(GuiElement*){
   string dir;
   Direction d = cam.getLookDirection();
   switch(d){
@@ -332,7 +332,7 @@ void Menu::open(){
 }
 
 //attack button
-void Menu::attack(){
+void Menu::attack(GuiElement*){
   Vector2D pos = cam.modelPos();
   short id = plyr.getCreature()->getInventory()->getArmory("right hand").getId();
   //is it a long range weapon?
@@ -368,14 +368,14 @@ void Menu::attackOn(Vector2D click){
 }
 
 //defend button
-void Menu::defend(){
+void Menu::defend(GuiElement*){
   msg.setDefended();
   msg.process("defend");
   System::Engine::instance()->removeGuiListener(System::Engine::instance()->getGuiElements().size()-1);
 }
 
 // search menu
-void Menu::search(){
+void Menu::search(GuiElement*){
   System::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
     
@@ -409,26 +409,26 @@ void Menu::search(){
 }
 
 // search button
-void Menu::secretdoor(){
+void Menu::secretdoor(GuiElement* elem){
   msg.process("secretdoor");
-  mainMenu();
+  mainMenu(elem);
 }
 
 // search button
-void Menu::treasure(){
+void Menu::treasure(GuiElement* elem){
   msg.process("treasure");
-  mainMenu();
+  mainMenu(elem);
 }
  
 // search button
-void Menu::trap(){
+void Menu::trap(GuiElement* elem){
   msg.process("trap");
-  mainMenu();
+  mainMenu(elem);
 }
 
 
 // inventory button
-void Menu::inventory(){
+void Menu::inventory(GuiElement*){
   System::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
   Button* but;
@@ -472,7 +472,7 @@ void Menu::inventory(){
 }
 
 //use button
-void Menu::use(){
+void Menu::use(GuiElement*){
   Item* ite = HQRenderer::instance()->getInventory()->getChosenItem();
   if (ite == NULL){
     line << "Please select an item first.";
@@ -499,7 +499,7 @@ void Menu::useOn(Vector2D click){
 }
 
 //takeoff button
-void Menu::takeoff(){
+void Menu::takeoff(GuiElement*){
   Item* ite = HQRenderer::instance()->getInventory()->getChosenItem();
   if (ite == NULL){
     line << "Please select an item first.";
@@ -511,7 +511,7 @@ void Menu::takeoff(){
 }
 
 //whatis button
-void Menu::whatis(){
+void Menu::whatis(GuiElement*){
   Item* ite = HQRenderer::instance()->getInventory()->getChosenItem();
   if (ite == NULL){
     line << "Please select an item first.";
@@ -523,16 +523,16 @@ void Menu::whatis(){
 }
 
 //close inventory
-void Menu::close(){
+void Menu::close(GuiElement* elem){
   HQRenderer::instance()->getInventory()->makeVisible(true);
   HQRenderer::instance()->getInventory()->deselect();
   HQRenderer::instance()->setInventory(NULL);
   HQRenderer::instance()->setAwaitMapclick(NULL);
-  mainMenu();
+  mainMenu(elem);
 }
 
 // trap button
-void Menu::trapMenu(){
+void Menu::trapMenu(GuiElement*){
   System::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
   Button* but;
@@ -566,7 +566,7 @@ void Menu::trapMenu(){
   System::Engine::instance()->addGuiListener(but);
 }
 
-void Menu::disarm(){
+void Menu::disarm(GuiElement* elem){
   Vector2D pos = cam.modelPos();
   Direction d = cam.getLookDirection();
   string cmd = "disarm ";
@@ -585,10 +585,10 @@ void Menu::disarm(){
       break;
   }
   msg.process(cmd.c_str());
-  mainMenu();
+  mainMenu(elem);
 }
 
-void Menu::jump(){
+void Menu::jump(GuiElement* elem){
   Vector2D pos = cam.modelPos();
   Direction d = cam.getLookDirection();
   string cmd = "jump ";
@@ -607,11 +607,11 @@ void Menu::jump(){
       break;
   }
   msg.process(cmd.c_str());
-  mainMenu();
+  mainMenu(elem);
 }
 
 // other menu
-void Menu::other(){
+void Menu::other(GuiElement*){
   System::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
   Button* but;
@@ -638,7 +638,7 @@ void Menu::other(){
 }
 
 // whois button
-void Menu::whois(){
+void Menu::whois(GuiElement*){
   HQRenderer::instance()->setViewTo3D(false);
   HQRenderer::instance()->setAwaitMapclick(whois);
 }
@@ -649,7 +649,7 @@ void Menu::whois(Vector2D click){
 }
 
 //! shop button
-void Menu::shop(){
+void Menu::shop(GuiElement*){
   System::Engine::instance()->clearListeners();
   
   HQRenderer::instance()->setTrade(true);
@@ -681,7 +681,7 @@ void Menu::shop(){
 }
 
 //! close shop button
-void Menu::closeShop(){
+void Menu::closeShop(GuiElement*){
   System::Engine::instance()->clearListeners();
   HQRenderer::instance()->setTrade(false);
   plyr.getTrade()->deselect();
@@ -712,7 +712,7 @@ void Menu::closeShop(){
 }
 
 //whatis (shop) button
-void Menu::whatisShop(){
+void Menu::whatisShop(GuiElement*){
   Item ite = plyr.getTrade()->getChosenItem();
   if (!ite.isValid()){
     line << "Please select an item first.";
@@ -723,7 +723,7 @@ void Menu::whatisShop(){
   }
 }
 
-void Menu::buy(){
+void Menu::buy(GuiElement*){
   Item ite = plyr.getTrade()->getChosenItem();
   if (!ite.isValid()){
     line << "Please select an item first.";
@@ -734,7 +734,7 @@ void Menu::buy(){
   }
 }
 
-void Menu::sell(){
+void Menu::sell(GuiElement*){
   Item ite = plyr.getTrade()->getChosenItem();
   if (!ite.isValid()){
     line << "Please select an item first.";
@@ -745,11 +745,11 @@ void Menu::sell(){
   }
 }
 
-void Menu::zargon(){
+void Menu::zargon(GuiElement*){
   msg.process("play zargon");
 }
 
-void Menu::drop(){
+void Menu::drop(GuiElement*){
   Item* ite = HQRenderer::instance()->getInventory()->getChosenItem();
   if (ite == NULL){
     line << "Please select an item first.";
@@ -760,11 +760,11 @@ void Menu::drop(){
   }
 }
 
-void Menu::pickup(){
+void Menu::pickup(GuiElement*){
   msg.process("pickup");
 }
 
-void Menu::createHero(){
+void Menu::createHero(GuiElement*){
   MessageBox* mb = new MessageBox();
   mb->setCbFunc(chexec);
   System::Engine::instance()->addGuiListener(mb);
@@ -794,7 +794,7 @@ void Menu::createHero(){
 }
 
 // create hero execute button
-void Menu::chexec(){
+void Menu::chexec(GuiElement*){
   //fonts
   Graphics::Font* fnt = System::Engine::instance()->getFont(1);
   fnt->deleteText(1);

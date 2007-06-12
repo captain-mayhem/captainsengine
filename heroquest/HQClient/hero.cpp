@@ -135,7 +135,7 @@ void Hero::Create(const string& path, const vector<Hero>& heros, const string& p
 }
 
 //create a hero from gui
-void Hero::createFromGui(){
+void Hero::createFromGui(GuiElement*){
 #ifdef _CLIENT_
   const vector<Hero>& heros = msg.getHeros();
   //write available heros to the gui

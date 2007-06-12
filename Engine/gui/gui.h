@@ -36,6 +36,7 @@ enum GuiType{
   MessageBoxT,
   DropDownButtonT,
   DialogT,
+  ListBoxT,
 };
   
 //! a common base class for gui elements
@@ -103,7 +104,7 @@ class InputField : public GuiElement{
     //! Copy constructor
     InputField(const InputField& i);
     //! Destructor
-    virtual ~InputField() {}
+    virtual ~InputField();
     //! Add a character to the field
     inline void addChar(char ch) {field_.append(1,ch);}
     //! Remove a character from the field
@@ -126,7 +127,7 @@ class InputField : public GuiElement{
     //! Hides typed input (for password fields);
     inline void setHidden(bool hide = true) {isHidden_ = hide;}
     //! overloaded process
-    virtual void process() {};
+    virtual void process();
   protected:
     //! The font to write the field text with
     ::Graphics::Font* fnt_;
@@ -150,12 +151,12 @@ class Button : public InputField{
     //! Destructor
     virtual ~Button();
     //! sets the callback function
-    inline void setCbFunc(void (*click)()) { handleClicks_ = click; }
+    inline void setCbFunc(void (*click)(GuiElement*)) { handleClicks_ = click; }
     //! executes the callback function
-    virtual void process() { assert(handleClicks_ && "Button callback not set!"); (*handleClicks_)(); }
+    virtual void process() { assert(handleClicks_ && "Button callback not set!"); (*handleClicks_)(this); }
   protected:
     //! The callback function
-    void (*handleClicks_)();
+    void (*handleClicks_)(GuiElement*);
 };
 
 //! A button that destroys his parent if clicked upon

@@ -14,6 +14,8 @@
 #include "gui/messagebox.h"
 #include "gui/dropdown.h"
 #include "gui/dialog.h"
+#include "gui/listbox.h"
+#include "gui/filedialog.h"
 
 using std::cerr;
 using namespace Math;
@@ -97,6 +99,7 @@ public:
     db->addEntry("Test");
     System::Engine::instance()->addGuiListener(db);
     */
+    /*
     Dialog* dia = new Dialog();
     //The OK button
     PDButton* but = new PDButton();
@@ -104,7 +107,14 @@ public:
     but->setText("Start");
     dia->addElement(but);
     System::Engine::instance()->addGuiListener(dia);
-    Filesystem::getFiles(".");
+    Filesystem::getFiles(".");*/
+    /*ListBox* lb = new ListBox();
+    lb->addEntry("Hallo");
+    lb->addEntry("Du");
+    lb->addEntry("Test");
+    System::Engine::instance()->addGuiListener(lb);*/
+    FileDialog* fd = new FileDialog();
+    System::Engine::instance()->addGuiListener(fd);
   }
 
   static void render(){

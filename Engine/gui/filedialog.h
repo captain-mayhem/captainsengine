@@ -6,41 +6,43 @@
 // | Marco Staginski                                                  |
 // | captain@captain-online.de                                        |
 // |------------------------------------------------------------------|
-// | File: dialog.h                                                   |
+// | File: filedialog.h                                               |
 //  ==================================================================
 
-#ifndef DIALOG_H
-#define DIALOG_H
+#ifndef FILEDIALOG_H
+#define FILEDIALOG_H
 
-#include "gui.h"
+#include "dialog.h"
 
 namespace Gui{
 
 //! a dialog field
-class Dialog : public GuiElement {
+class FileDialog : public Dialog {
 public:
   //! Constructor
-  Dialog();
+  FileDialog();
   //! Destructor
-  virtual ~Dialog();
-  //! The render function
-  virtual void render();
-  //! Is the dialog clicked
-  virtual bool isClicked(const ::Math::Vector2D& pos);
+  virtual ~FileDialog();
   //! Process the click
   virtual void process();
-  //! Add an element
-  /*! Position and Span of Dialog and GuiElement has to be set before adding elements
-  */
-  virtual void addElement(GuiElement* elem);
-  //! Add an unscaled element
-  /*! Position and Span of Dialog and GuiElement has to be set before adding elements
-  */
-  virtual void addUnscaledElement(GuiElement* elem);
-  //! Get an element
-  GuiElement* getElement(int idx);
+  //! The change directory callback
+  static void changeDir(GuiElement* elem);
+  //! The write filename callback
+  static void writeFilename(GuiElement* elem);
+  //! Get the path and file (after being chosen)
+  std::string getFile() const;
+  //! Set the callback that is executed when OK button is pressed
+  void setCbFunc(void (*click)(GuiElement*));
 protected:
-  std::list<GuiElement*> elements_;
+  //! Init the dialog with its elements
+  void init();
+  //! The working directory
+  static std::string cwd_;
+  //! The chosen file
+  std::string file_;
+  //! The callback
+  void (*handleClicks_)(GuiElement*);
+
 };
 
 }

@@ -1,89 +1,93 @@
 #ifndef MENU_H
 #define MENU_H
 
+namespace Gui{
+class GuiElement;
+}
+
 //! This class is responsible for menu and button handling
 class Menu{
 public:
   //! the main menu
-  static void mainMenu();
+  static void mainMenu(Gui::GuiElement* elem);
   //! connect button
-  static void connect();
+  static void connect(Gui::GuiElement* elem);
   //! login button
-  static void login();
+  static void login(Gui::GuiElement* elem);
   //! package button
-  static void package();
+  static void package(Gui::GuiElement* elem);
   //! level button
-  static void level();
+  static void level(Gui::GuiElement* elem);
   //! load level button
-  static void loadLevel();
+  static void loadLevel(Gui::GuiElement* elem);
   //! movement button
-  static void move();
+  static void move(Gui::GuiElement* elem);
   //! end turn button
-  static void endTurn();
+  static void endTurn(Gui::GuiElement* elem);
   //! start game button
-  static void start();
+  static void start(Gui::GuiElement* elem);
   //! play button
-  static void play();
+  static void play(Gui::GuiElement* elem);
   //! open door button
-  static void open();
+  static void open(Gui::GuiElement* elem);
   //! attack button
-  static void attack();
+  static void attack(Gui::GuiElement* elem);
   //! attack button for long range
   static void attackOn(Vector2D click);
   //! defend button
-  static void defend();
+  static void defend(Gui::GuiElement* elem);
   //! search button
-  static void search();
+  static void search(Gui::GuiElement* elem);
   //! search button
-  static void secretdoor();
+  static void secretdoor(Gui::GuiElement* elem);
   //! search button
-  static void treasure();
+  static void treasure(Gui::GuiElement* elem);
   //! search button
-  static void trap();
+  static void trap(Gui::GuiElement* elem);
   //! inventory button
-  static void inventory();
+  static void inventory(Gui::GuiElement* elem);
   //! use button
-  static void use();
+  static void use(Gui::GuiElement* elem);
   //! use item on something
   static void useOn(Vector2D click);
   //! takeoff button
-  static void takeoff();
+  static void takeoff(Gui::GuiElement* elem);
   //! whatis button
-  static void whatis();
+  static void whatis(Gui::GuiElement* elem);
   //! close inventory
-  static void close();
+  static void close(Gui::GuiElement* elem);
   //! trap button
-  static void trapMenu();
+  static void trapMenu(Gui::GuiElement* elem);
   //! disarm button
-  static void disarm();
+  static void disarm(Gui::GuiElement* elem);
   //! jump over traps
-  static void jump();
+  static void jump(Gui::GuiElement* elem);
   //! other button
-  static void other();
+  static void other(Gui::GuiElement* elem);
   //! whois button
-  static void whois();
+  static void whois(Gui::GuiElement* elem);
   //! whois button
   static void whois(Vector2D click);
   //! shop button
-  static void shop();
+  static void shop(Gui::GuiElement* elem);
   //! close shop button
-  static void closeShop();
+  static void closeShop(Gui::GuiElement* elem);
   //! whatis (shop) button
-  static void whatisShop();
+  static void whatisShop(Gui::GuiElement* elem);
   //! buy button
-  static void buy();
+  static void buy(Gui::GuiElement* elem);
   //! sell button
-  static void sell();
+  static void sell(Gui::GuiElement* elem);
   //! play zargon button
-  static void zargon();
+  static void zargon(Gui::GuiElement* elem);
   //! drop button
-  static void drop();
+  static void drop(Gui::GuiElement* elem);
   //! pickup button
-  static void pickup();
+  static void pickup(Gui::GuiElement* elem);
   //! create hero button
-  static void createHero();
+  static void createHero(Gui::GuiElement* elem);
   //! create hero execute button
-  static void chexec();
+  static void chexec(Gui::GuiElement* elem);
   private:
 };
 

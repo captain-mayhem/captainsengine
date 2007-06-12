@@ -108,25 +108,25 @@ void Mouse::buttonDown(int x, int y, int button){
   list<GuiElement*>::iterator iter2;
   for (iter2 = System::Engine::instance()->getGuiElements().begin(); iter2 != System::Engine::instance()->getGuiElements().end(); iter2++){
     if ((*iter2)->isClicked(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
-      //is it an input field?
+      /*//is it an input field?
       InputField* inp = dynamic_cast<InputField*>(*iter2);
       if ((*iter2)->getType() == Gui::InputFieldT && inp){
         //set only input focus if console is not active
         if (!System::Engine::instance()->getConsole()->isActive()){
           (*iter2)->process();
           //another input field was active, so remove cursor
-          System::Engine::instance()->setActiveInput(inp);
+          //System::Engine::instance()->setActiveInput(inp);
           gui_click_ = true;
           break;
         }
-      }
+      }*/
       //allow only clicks if the console is deactivated
       if (!System::Engine::instance()->getConsole()->isActive()){
-        InputField* input = System::Engine::instance()->getActiveInput();
+        /*InputField* input = System::Engine::instance()->getActiveInput();
         if (input != NULL){
           input->removeChar();
         }
-        System::Engine::instance()->setActiveInput(NULL);
+        System::Engine::instance()->setActiveInput(NULL);*/
         (*iter2)->process();
         gui_click_ = true;
         break;
