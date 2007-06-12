@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "math/matrix.h"
+#include "system/engine.h"
 
 namespace MeshGeo{
 class Mesh;

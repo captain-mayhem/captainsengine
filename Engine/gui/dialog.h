@@ -33,6 +33,12 @@ public:
   /*! Position and Span of Dialog and GuiElement has to be set before adding elements
   */
   virtual void addElement(GuiElement* elem);
+  //! Add an unscaled element
+  /*! Position and Span of Dialog and GuiElement has to be set before adding elements
+  */
+  virtual void addUnscaledElement(GuiElement* elem);
+  //! Get an element
+  GuiElement* getElement(int idx);
 protected:
   std::list<GuiElement*> elements_;
 };

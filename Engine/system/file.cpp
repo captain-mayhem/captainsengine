@@ -18,7 +18,10 @@
 #include <windows.h>
 #endif
 #ifdef UNIX
-#include <pthread.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <dirent.h>
+#include <unistd.h>
 #endif
 
 using namespace System;
@@ -46,8 +49,24 @@ std::vector<std::string> Filesystem::getDirectories(const std::string& path){
     }
   }
   FindClose(hFind);
-  return result;
 #endif
+#ifdef UNIX
+  DIR* dir = opendir(path.c_str());
+  if (!dir)
+    return result;
+  struct dirent* entry;
+  while((entry = readdir(dir))){
+    struct stat st;
+    string tmp = path+"/"+entry->d_name;
+    stat(tmp.c_str(), &st);
+    if ((st.st_mode & S_IFDIR)){
+      result.push_back(entry->d_name);
+    }
+  }
+  closedir(dir);
+#endif
+
+  return result;
 }
 
 //get all directories in a directory
@@ -71,6 +90,34 @@ std::vector<std::string> Filesystem::getFiles(const std::string& path){
     }
   }
   FindClose(hFind);
-  return result;
 #endif
+#ifdef UNIX
+  DIR* dir = opendir(path.c_str());
+  if (!dir)
+    return result;
+  struct dirent* entry;
+  while((entry = readdir(dir))){
+    struct stat st;
+    string tmp = path+"/"+entry->d_name;
+    stat(tmp.c_str(), &st);
+    if (!(st.st_mode & S_IFDIR)){
+      result.push_back(entry->d_name);
+    }
+  }
+  closedir(dir);
+#endif
+  return result;
 }
+
+// get the working directory
+std::string Filesystem::getCwd(){
+  char cwd[2048];
+#ifdef WIN32
+  _getcwd(cwd, 2048);
+#endif
+#ifdef UNIX
+  getcwd(cwd, 2048);
+#endif
+  return string(cwd);
+}
+

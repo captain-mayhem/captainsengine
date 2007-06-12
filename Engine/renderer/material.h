@@ -1,6 +1,8 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+#include "../math/vector.h"
+
 namespace Graphics{
 
 struct Color{
@@ -8,10 +10,9 @@ struct Color{
   Color(float rn, float gn, float bn, float an){
     r = rn; g = gn; b = bn; a = an;
   }
-  //Color(float rn, float gn, float bn, float an){
-  //  r = rn*255; g = gn*255; b = bn*255; a = an*255;
-  //}
-  //unsigned char r, g, b, a;
+  Color(const Math::Vector3D& col){
+    r = col.x; g = col.y; b = col.z; a = 1.0;
+  }
   union{
     struct{
       float r;

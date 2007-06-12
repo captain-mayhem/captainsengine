@@ -27,12 +27,15 @@ namespace System {
   
 class Filesystem{
 public:
-  //get all directories in a directory
+  //! get all directories in a directory
   static std::vector<std::string> getDirectories(const std::string& path);
-  //get all non-directory files in a directory
+  //! get all non-directory files in a directory
   static std::vector<std::string> getFiles(const std::string& path);
+  //! get the working directory
+  static std::string getCwd();
 };
 
 }
 
 #endif
+

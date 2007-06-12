@@ -71,6 +71,15 @@ InputField::InputField(const InputField& i){
     isHidden_ = i.isHidden_;
     name_ = string(i.name_);
     type_ = i.type_;
+    parent_ = i.parent_;
+}
+
+InputField::~InputField(){
+  InputField* input = System::Engine::instance()->getActiveInput();
+  if (input == this){
+    input->removeChar();
+  }
+  System::Engine::instance()->setActiveInput(NULL);
 }
 
 // renders the field
@@ -82,31 +91,15 @@ void InputField::render(){
   //glDisable(GL_TEXTURE_2D);
 
   //set color and draw background quad
-  //glColor4f(bgColor_.x,bgColor_.y, bgColor_.z, opacity_);
   bgColor_.a = opacity_;
   rend->setColor(&bgColor_);
   Graphics::Forms* form = System::Engine::instance()->getForms();
   form->activateQuad();
-  rend->pushMatrix();
-  rend->translate(pos_.x+span_.x/2.0f, pos_.y+span_.y/2.0f, 0);
-  rend->scale(span_.x, span_.y, 1);
-  form->drawQuad();
-  rend->popMatrix();
-  /*
-  glBegin(GL_QUADS);
-    glVertex2f(pos_.x         , pos_.y+span_.y );
-    glVertex2f(pos_.x         , pos_.y         );
-    glVertex2f(pos_.x+span_.x , pos_.y         );
-    glVertex2f(pos_.x+span_.x , pos_.y+span_.y );
-  glEnd();
-  */
-  //glLoadIdentity();
+  form->drawQuad(pos_, span_);
 
   //render text
-  //glEnable(GL_TEXTURE_2D);
   rend->enableTexturing(true);
   rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
-  //glBlendFunc(GL_SRC_ALPHA, GL_ONE);
   fnt_->setColor(fgColor_.x,fgColor_.y,fgColor_.z);
   
   //cut off too long inputs
@@ -128,10 +121,11 @@ void InputField::render(){
   else{
     fnt_->glPrint(pos_.x, pos_.y, out.c_str(), 0, 0.0);
   }
-  //fnt_.render();
-  //fnt_->setColor(0,1,0);
 }
 
+void InputField::process(){
+  System::Engine::instance()->setActiveInput(this);
+}
 
 //The Button constructor
 Button::Button(){
@@ -153,6 +147,7 @@ Button::Button(const Button& b){
   isHidden_ = b.isHidden_;
   name_ = string(b.name_);
   type_ = b.type_;
+  parent_ = b.parent_;
 }
 
 //and destructor
@@ -161,7 +156,7 @@ Button::~Button(){
 
 void PDButton::process(){
  if (handleClicks_)
-  (*handleClicks_)();
+  (*handleClicks_)(this);
  //try to find the parent
  //TODO: go deeper into dialogs
  list< ::Gui::GuiElement*>& elems = System::Engine::instance()->getGuiElements();

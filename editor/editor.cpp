@@ -5,8 +5,10 @@
 #include "math/arcball.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
+#include "gui/gui.h"
 
 using Math::Vector2D;
+using Gui::Button;
 
 Editor* Editor::edi_ = NULL;
 
@@ -38,6 +40,6 @@ void Editor::update(){
   bool reset = Input::Mouse::instance()->isPressed(MB_RIGHT);
   Vector2D pos = Input::Mouse::instance()->getMousePos();
   arcball_->update(active,reset,pos);
-  Graphic::instance()->setTrafo(0, arcball_->getTrafo());
+  //Graphic::instance()->setTrafo(0, arcball_->getTrafo());
 }
 

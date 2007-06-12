@@ -85,6 +85,29 @@ void Dialog::addElement(GuiElement* elem){
   elem->setPosition(pos);
   elem->setSpan(span);
   elem->setParent(this);
-  elements_.push_front(elem);
+  elements_.push_back(elem);
+}
+
+//! Add an unscaled element
+void Dialog::addUnscaledElement(GuiElement* elem){
+   //Change position to dialog-relative ones
+  Vector2D pos = elem->getPosition();
+  pos.x = pos_.x+(short)((float)pos.x/SCREENWIDTH*span_.x);
+  pos.y = pos_.y+(short)((float)pos.y/SCREENHEIGHT*span_.y);
+  elem->setPosition(pos);
+  elem->setSpan(elem->getSpan());
+  elem->setParent(this);
+  elements_.push_back(elem);
+}
+
+//! Get an element
+GuiElement* Dialog::getElement(int idx){
+  list<GuiElement*>::iterator iter;
+  for (iter = elements_.begin(); iter != elements_.end(); iter++){
+    if (idx == 0)
+      return *iter;
+    idx--;
+  }
+  return NULL;
 }
 

@@ -1,14 +1,16 @@
-//#include <GL/gl.h>
 #include "system/engine.h"
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "mesh/mesh.h"
+#include "gui/gui.h"
 
 #include "editor.h"
+#include "menu.h"
 #include "graphics.h"
 
 using namespace Graphics;
 using System::Engine;
+using Gui::Button;
 
 Graphic* Graphic::gra_ = NULL;
 
@@ -26,11 +28,17 @@ void Graphic::init(){
   Renderer* rend = Engine::instance()->getRenderer();
   rend->setClearColor(Vector3D(0.5,0.5,0.5));
   rend->renderMode(Graphics::Filled);
-  Material mat;
+  //Material mat;
   //rend->setMaterial(mat);
   //glEnable(GL_LIGHT0);
   gra_ = new Graphic();
-  gra_->addMesh("../heroquest/HQClient/models/world/pit2.obj");
+
+  Button* add = new Button();
+  add->setPosition(Vector2D(900,100));
+  add->setText("Add mesh");
+  add->setCbFunc(Menu::addMesh);
+  System::Engine::instance()->addGuiListener(add);
+  //gra_->addMesh("../heroquest/HQClient/models/world/pit2.obj");
   //gra_->addMesh("ground.obj");
 }
 
