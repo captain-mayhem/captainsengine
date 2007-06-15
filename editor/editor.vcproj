@@ -201,6 +201,10 @@
 				RelativePath=".\main.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\menu.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -213,6 +217,10 @@
 			</File>
 			<File
 				RelativePath=".\graphics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\menu.h"
 				>
 			</File>
 		</Filter>

@@ -46,7 +46,7 @@ void MessageBox::process(){
   }
   System::Engine::instance()->removeGuiListener(idx, false);
   if (handleClicks_)
-    (*handleClicks_)();
+    (*handleClicks_)(this);
 }
 
 void MessageBox::setPosition(const ::Math::Vector2D& pos){
