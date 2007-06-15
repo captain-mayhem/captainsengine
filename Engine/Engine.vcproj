@@ -460,11 +460,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\gui\filedialog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\filedialog.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gui\gui.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\gui\gui.h"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\listbox.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\gui\listbox.h"
 				>
 			</File>
 			<File

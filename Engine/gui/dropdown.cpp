@@ -25,7 +25,7 @@ void DDEntryButton::process(){
     parent_->process();
   }
   if (handleClicks_){
-    (*handleClicks_)(); 
+    (*handleClicks_)(this); 
   }
 }
 
