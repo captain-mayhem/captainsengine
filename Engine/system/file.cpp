@@ -124,6 +124,9 @@ std::string Filesystem::getCwd(){
 
 // change directory
 bool Filesystem::changeDir(const std::string& path){
+#ifdef WIN32
+  return SetCurrentDirectory(path.c_str()) == TRUE ? true : false;
+#endif
 #ifdef UNIX
   return chdir(path.c_str()) == 0 ? true : false;
 #endif
