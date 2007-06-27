@@ -356,6 +356,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\renderer\scene.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\renderer\scene.h"
+				>
+			</File>
+			<File
 				RelativePath=".\renderer\texture.cpp"
 				>
 			</File>
@@ -404,6 +412,26 @@
 				>
 			</File>
 			<File
+				RelativePath=".\math\bbox.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\math\bbox.h"
+				>
+			</File>
+			<File
+				RelativePath=".\math\boundingobject.h"
+				>
+			</File>
+			<File
+				RelativePath=".\math\bsphere.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\math\bsphere.h"
+				>
+			</File>
+			<File
 				RelativePath=".\math\matrix.cpp"
 				>
 			</File>
@@ -413,6 +441,14 @@
 			</File>
 			<File
 				RelativePath=".\math\quaternion.h"
+				>
+			</File>
+			<File
+				RelativePath=".\math\ray.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\math\ray.h"
 				>
 			</File>
 			<File
@@ -501,6 +537,32 @@
 			</File>
 			<File
 				RelativePath=".\mesh\mesh.h"
+				>
+			</File>
+			<File
+				RelativePath=".\mesh\model.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						ObjectFile="$(IntDir)\$(InputName)1.obj"
+						XMLDocumentationFileName="$(IntDir)\$(InputName)1.xdc"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\mesh\model.h"
 				>
 			</File>
 			<File
