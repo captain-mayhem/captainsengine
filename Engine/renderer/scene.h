@@ -23,7 +23,7 @@ public:
   Scene();
   virtual ~Scene();
   //! Add a mesh
-  unsigned int addMesh(MeshGeo::Mesh* mesh) {meshes_.push_back(mesh); return meshes_.size();}
+  unsigned addMesh(MeshGeo::Mesh* mesh) {meshes_.push_back(mesh); return (unsigned)meshes_.size();}
   //! Get all meshes
   std::vector<MeshGeo::Mesh*> getMeshes() const {return meshes_;}
   //! Add a model
@@ -31,7 +31,7 @@ public:
   //! Get a model
   MeshGeo::Model* getModel(const int id);
   //! Add a texture
-  unsigned int addTexture(Texture* tex) {textures_.push_back(tex); return textures_.size();}
+  unsigned addTexture(Texture* tex) {textures_.push_back(tex); return (unsigned)textures_.size();}
   //! Get all textures
   std::vector<Graphics::Texture*> getTextures() const {return textures_;}
   //! render the scene

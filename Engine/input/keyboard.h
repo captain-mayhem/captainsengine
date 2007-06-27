@@ -12,9 +12,11 @@
 #define KEY_ESCAPE VK_ESCAPE
 #define KEY_RETURN VK_RETURN
 #define KEY_A 'A'
+#define KEY_C 'C'
 #define KEY_D 'D'
 #define KEY_R 'R'
 #define KEY_S 'S'
+#define KEY_T 'T'
 #define KEY_W 'W'
 #endif
 #ifdef UNIX
@@ -27,9 +29,11 @@
 #define KEY_ESCAPE XK_Escape
 #define KEY_RETURN XK_Return
 #define KEY_A XK_a
+#define KEY_C XK_c
 #define KEY_D XK_d
 #define KEY_R XK_r
 #define KEY_S XK_s
+#define KEY_T XK_t
 #define KEY_W XK_w
 #endif
 

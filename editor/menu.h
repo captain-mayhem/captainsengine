@@ -34,6 +34,10 @@ public:
   static void assignTexture(Gui::GuiElement* elem);
   //! the assign texture dialog handler
   static void assignTextureDialog(Gui::GuiElement* elem);
+  //! the options button
+  static void options(Gui::GuiElement* elem);
+  //! the change options button
+  static void changeOptions(Gui::GuiElement* elem);
 };
 
 #endif

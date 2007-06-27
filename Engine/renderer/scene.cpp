@@ -13,6 +13,7 @@ using namespace Graphics;
 using std::list;
 using std::ofstream;
 using std::ifstream;
+using std::ios;
 using MeshGeo::Model;
 using MeshGeo::Mesh;
 using Math::BoundingObject;
@@ -62,7 +63,7 @@ Model* Scene::getModel(const int id){
 
 //! save the scene
 void Scene::save(const std::string& filename) const{
-  ofstream out(filename.c_str());
+  ofstream out(filename.c_str(), ios::binary);
   if (!out)
     return;
   //version
@@ -122,7 +123,7 @@ void Scene::save(const std::string& filename) const{
 
 //! load the scene
 void Scene::load(const std::string& filename){
-  ifstream in(filename.c_str());
+  ifstream in(filename.c_str(), ios::binary);
   if (!in)
     return;
   char buffer[256];
@@ -142,6 +143,7 @@ void Scene::load(const std::string& filename){
       System::Log << "cannot load file";
       return;
     }
+    buffer[length] = -52;
     msh->buildVBO();
     meshes_.push_back(msh);
   }
@@ -150,6 +152,7 @@ void Scene::load(const std::string& filename){
   for (unsigned i = 0; i < size; i++){
     unsigned length;
     in.read((char*)&length, sizeof(length));
+    //System::Log << in.bad() << " " << in.eof();
     in.read(buffer, length*sizeof(char));
     buffer[length] = '\0';
     string name = string(buffer);

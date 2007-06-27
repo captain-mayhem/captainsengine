@@ -22,6 +22,8 @@ class Model : public System::GameObject{
 public:
   //! Default constructor
   Model();
+  //! Copy constructor
+  Model(const Model& m);
   //! Initializes model with a mesh
   Model(Mesh* mesh);
   //! Destructor

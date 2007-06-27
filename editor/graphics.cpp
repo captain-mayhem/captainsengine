@@ -38,6 +38,12 @@ void Graphic::init(){
   //glEnable(GL_LIGHT0);
   gra_ = new Graphic();
 
+  Button* opt = new Button();
+  opt->setPosition(Vector2D(900,40));
+  opt->setText("Options");
+  opt->setCbFunc(Menu::options);
+  System::Engine::instance()->addGuiListener(opt);
+
   Button* addTex = new Button();
   addTex->setPosition(Vector2D(900,70));
   addTex->setText("Add texture");

@@ -1,3 +1,6 @@
+#define _USE_MATH_DEFINES
+
+#include <math.h>
 
 #include "editor.h"
 #include "graphics.h"
@@ -10,7 +13,7 @@
 #include "mesh/model.h"
 #include "renderer/renderer.h"
 
-#define TRANSLATION_SPEED 0.1
+#define TRANSLATION_SPEED 0.1f
 
 using Math::Vector2D;
 using Math::Vector3D;
@@ -26,6 +29,9 @@ Editor::Editor(){
   lastPos_ = Vector2D();
   gridStep_ = 8;
   gridOffset_ = 4;
+  rotationStep_ = (float)M_PI/2.0f;
+  editPlane_ = XZ;
+  editMode_ = Translation;
 }
 
 Editor::~Editor(){
@@ -51,43 +57,126 @@ void Editor::mouseUp(int x, int y, int button){
 void Editor::_keypress(int key){
   if (key == KEY_ESCAPE)
     EXIT();
+  if (key == KEY_C){
+    Model* mdl = Graphic::instance()->getCurrModel();
+    if (!mdl)
+      return;
+    Model* copy = new Model(*mdl);
+    Graphic::instance()->getScene().addModel(copy);
+  }
   if (key == KEY_R)
-    arcball_->update(false,true,Vector2D());
+    editMode_ = Rotation;
+  if (key == KEY_T)
+    editMode_ = Translation;
+    //arcball_->update(false,true,Vector2D());
   if (key == KEY_UP){
     Model* mdl = Graphic::instance()->getCurrModel();
     if (!mdl)
       return;
     Matrix oldMat = mdl->getTrafo();
-    Vector3D translation = Vector3D(0,0,gridStep_);
-    Matrix newMat = Matrix(Matrix::Translation, translation);
-    mdl->setTrafo(newMat*oldMat);
+    if (editMode_ == Translation){
+      Vector3D translation;
+      if (editPlane_ == XZ)
+        translation = Vector3D(0,0,-gridStep_);
+      else if (editPlane_ == XY)
+        translation = Vector3D(0,gridStep_,0);
+      else if (editPlane_ == YZ)
+        translation = Vector3D(0,gridStep_,0);
+      Matrix newMat = Matrix(Matrix::Translation, translation);
+      mdl->setTrafo(newMat*oldMat);
+    }
+    else if (editMode_ == Rotation){
+      Matrix newMat;
+      if (editPlane_ == XZ)
+        newMat = Matrix(Matrix::Rotation, Vector3D(0,1,0), rotationStep_);
+      else if (editPlane_ == XY)
+        newMat = Matrix(Matrix::Rotation, Vector3D(0,0,1), rotationStep_);
+      else if (editPlane_ == YZ)
+        newMat = Matrix(Matrix::Rotation, Vector3D(1,0,0), rotationStep_);
+      mdl->setTrafo(oldMat*newMat);
+    }
   }
   if (key == KEY_DOWN){
     Model* mdl = Graphic::instance()->getCurrModel();
     if (!mdl)
       return;
     Matrix oldMat = mdl->getTrafo();
-    Vector3D translation = Vector3D(0,0,-gridStep_);
-    Matrix newMat = Matrix(Matrix::Translation, translation);
-    mdl->setTrafo(newMat*oldMat);
+    if (editMode_ == Translation){
+      Vector3D translation;
+      if (editPlane_ == XZ)
+        translation = Vector3D(0,0,gridStep_);
+      else if (editPlane_ == XY)
+        translation = Vector3D(0,-gridStep_,0);
+      else if (editPlane_ == YZ)
+        translation = Vector3D(0,-gridStep_,0);
+      Matrix newMat = Matrix(Matrix::Translation, translation);
+      mdl->setTrafo(newMat*oldMat);
+    }
+    else if (editMode_ == Rotation){
+      Matrix newMat;
+      if (editPlane_ == XZ)
+        newMat = Matrix(Matrix::Rotation, Vector3D(0,1,0), -rotationStep_);
+      else if (editPlane_ == XY)
+        newMat = Matrix(Matrix::Rotation, Vector3D(0,0,1), -rotationStep_);
+      else if (editPlane_ == YZ)
+        newMat = Matrix(Matrix::Rotation, Vector3D(1,0,0), -rotationStep_);
+      mdl->setTrafo(oldMat*newMat);
+    }
   }
   if (key == KEY_LEFT){
     Model* mdl = Graphic::instance()->getCurrModel();
     if (!mdl)
       return;
     Matrix oldMat = mdl->getTrafo();
-    Vector3D translation = Vector3D(gridStep_,0,0);
-    Matrix newMat = Matrix(Matrix::Translation, translation);
-    mdl->setTrafo(newMat*oldMat);
+    if (editMode_ == Translation){
+      Vector3D translation;
+      if (editPlane_ == XZ)
+        translation = Vector3D(-gridStep_,0,0);
+      else if (editPlane_ == XY)
+        translation = Vector3D(-gridStep_,0,0);
+      else if (editPlane_ == YZ)
+        translation = Vector3D(0,0,gridStep_);
+      Matrix newMat = Matrix(Matrix::Translation, translation);
+      mdl->setTrafo(newMat*oldMat);
+    }
+    else if (editMode_ == Rotation){
+      Matrix newMat;
+      if (editPlane_ == XZ)
+        newMat = Matrix(Matrix::Rotation, Vector3D(0,1,0), rotationStep_);
+      else if (editPlane_ == XY)
+        newMat = Matrix(Matrix::Rotation, Vector3D(0,0,1), rotationStep_);
+      else if (editPlane_ == YZ)
+        newMat = Matrix(Matrix::Rotation, Vector3D(1,0,0), rotationStep_);
+      mdl->setTrafo(oldMat*newMat);
+    }
   }
   if (key == KEY_RIGHT){
     Model* mdl = Graphic::instance()->getCurrModel();
     if (!mdl)
       return;
     Matrix oldMat = mdl->getTrafo();
-    Vector3D translation = Vector3D(-gridStep_,0,0);
-    Matrix newMat = Matrix(Matrix::Translation, translation);
-    mdl->setTrafo(newMat*oldMat);
+    Matrix newMat;
+    if (editMode_ == Translation){
+      Vector3D translation;
+      if (editPlane_ == XZ)
+        translation = Vector3D(gridStep_,0,0);
+      else if (editPlane_ == XY)
+        translation = Vector3D(gridStep_,0,0);
+      else if (editPlane_ == YZ)
+        translation = Vector3D(0,0,-gridStep_);
+      Matrix newMat = Matrix(Matrix::Translation, translation);
+      mdl->setTrafo(newMat*oldMat);
+    }
+    else if (editMode_ == Rotation){
+      Matrix newMat;
+      if (editPlane_ == XZ)
+        newMat = Matrix(Matrix::Rotation, Vector3D(0,1,0), -rotationStep_);
+      else if (editPlane_ == XY)
+        newMat = Matrix(Matrix::Rotation, Vector3D(0,0,1), -rotationStep_);
+      else if (editPlane_ == YZ)
+        newMat = Matrix(Matrix::Rotation, Vector3D(1,0,0), -rotationStep_);
+      mdl->setTrafo(oldMat*newMat);
+    }
   }
 }
 
@@ -106,7 +195,7 @@ void Editor::_mouseDown(int x, int y, int button){
     rend->projection(60, 4.0f/3.0f, 0.1f, 1000.0f);
     Matrix proj = rend->getMatrix(Graphics::Projection);
     Ray r;
-    r.buildPickingRay(x, y, /*viewport[2]-viewport[0], viewport[3]-viewport[1]*/1024, 768, proj.getData()[0], proj.getData()[5], proj.getData()[10]);
+    r.buildPickingRay((float)x, (float)y, /*viewport[2]-viewport[0], viewport[3]-viewport[1]*/1024.0f, 768.0f, proj.getData()[0], proj.getData()[5], proj.getData()[10]);
     Matrix view = Graphic::instance()->getViewMat();
     r.transform(view.inverse());
     //get the picked model
