@@ -122,3 +122,10 @@ std::string Filesystem::getCwd(){
   return string(cwd);
 }
 
+// change directory
+bool Filesystem::changeDir(const std::string& path){
+#ifdef UNIX
+  return chdir(path.c_str()) == 0 ? true : false;
+#endif
+}
+

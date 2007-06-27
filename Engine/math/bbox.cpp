@@ -1,8 +1,22 @@
 #include <float.h>
 #include "ray.h"
 #include "bbox.h"
+#include "matrix.h"
 
 using namespace Math;
+
+BBox::BBox(){
+  min_ = Vector3D(FLT_MAX, FLT_MAX, FLT_MAX);
+  max_ = Vector3D(FLT_MIN, FLT_MIN, FLT_MIN);
+}
+
+BBox::BBox(const Vector3D& min, const Vector3D& max){
+  min_ = min;
+  max_ = max;
+}
+
+BBox::~BBox(){
+}
 
 bool BBox::hit(const Ray& r) const{
   float tmin, tmax;
@@ -49,3 +63,13 @@ bool BBox::hit(const Ray& r) const{
 
   return (tmin < FLT_MAX && tmax > -1e-4);
 }
+
+void BBox::transform(const Matrix& mat){
+  min_ = mat*min_;
+  max_ = mat*max_;
+}
+
+BoundingObject* BBox::copy(){
+  return new BBox(min_, max_);
+}
+

@@ -23,6 +23,7 @@
 
 #include "triangle.h"
 #include "../system/gameobject.h"
+#include "../math/bbox.h"
 
 namespace Graphics{
 class VertexBuffer;
@@ -31,7 +32,7 @@ class VertexBuffer;
 namespace MeshGeo{
 
 //! Mesh provides storage and loading for meshes
-class Mesh : public System::GameObject{
+class Mesh{
       
 public:
 	//! Default constructor
@@ -53,7 +54,9 @@ public:
 	//! draw the mesh
 	void draw();
   //! get the name of the mesh
-  std::string getName() {return m_name;}
+  std::string getName() const {return name_;}
+  //! get the filename of the mesh
+  std::string getFilename() const {return filename_;}
 
   //! is the mesh visible
   bool isVisible() {return m_visible;}
@@ -66,6 +69,12 @@ public:
 
   //! get the normal of a triangle
   float* getNormal(int i);
+
+  //! get the center of the mesh
+  Math::Vector3D getCenter() {return center_;}
+
+  //! get the extent
+  Math::BBox getExtents() {return Math::BBox(min_,max_);}
 
 protected:
   //! load obj-files
@@ -95,6 +104,12 @@ protected:
   //! the triangles
   TriangleList triangles_;
 
+  //! Extent of the mesh
+  Math::Vector3D min_, max_;
+
+  //! The center of the mesh
+  Math::Vector3D center_;
+
   //! the indices
   std::vector<unsigned short> indices_;
 
@@ -108,7 +123,10 @@ protected:
   //GLuint m_vboidx;
 
   //! the name of the mesh
-  std::string m_name;
+  std::string name_;
+
+  //! the filename
+  std::string filename_;
 
   //! should it be visible
   bool m_visible;

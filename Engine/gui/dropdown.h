@@ -12,7 +12,7 @@ namespace Gui{
 class DDEntryButton : public Button {
 public:
   //! Constructor
-  DDEntryButton();
+  DDEntryButton(int number);
   //! Destructor
   virtual ~DDEntryButton();
   //! set the parent button
@@ -20,7 +20,10 @@ public:
   //! process the click
   virtual void process();
 private:
+  //! the parent
   Button* parent_;
+  //! the entry number
+  int entryNum_;
 };
   
 //! This class is a drop down field.
@@ -46,7 +49,11 @@ class DropDownButton : public Button {
     //! process the click
     virtual void process();
     //! if the drop down field is opened
-    inline bool isOpen() {return isOpen_;}
+    inline bool isOpen() const {return isOpen_;}
+    //! set selection
+    inline void setSelection(int idx) {selected_ = idx;}
+    //! get selection
+    inline int getSelection() const {return selected_;}
   private:
     //! the drop down entries
     vector<DDEntryButton*> entries_;
@@ -56,6 +63,10 @@ class DropDownButton : public Button {
     bool isOpen_;
     //! the popup direction
     int direction_;
+    //! the number of the current entry
+    int entryNum_;
+    //! the selection index
+    int selected_;
 };
 
 }

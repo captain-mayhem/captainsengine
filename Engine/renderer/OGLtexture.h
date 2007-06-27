@@ -45,6 +45,7 @@ public:
   OGLTexture(string filename);
   virtual ~OGLTexture(){}
   void activate();
+  virtual void deactivate();
 protected:
   bool load(string filename);
   //! loads and returns a BMP image

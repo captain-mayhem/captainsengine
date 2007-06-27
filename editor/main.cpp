@@ -13,6 +13,7 @@
 #include "gui/messagebox.h"
 #include "gui/dropdown.h"
 #include "input/keyboard.h"
+#include "input/mouse.h"
 
 #include "graphics.h"
 #include "editor.h"
@@ -31,5 +32,7 @@ void engineMain(int argc, char** argv){
 
   //input callbacks
   Input::Keyboard::instance()->setKeyDownCB(Editor::keypress);
+  Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
+  Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);
 }
 

@@ -95,14 +95,27 @@ void Dialog::addUnscaledElement(GuiElement* elem){
   pos.x = pos_.x+(short)((float)pos.x/SCREENWIDTH*span_.x);
   pos.y = pos_.y+(short)((float)pos.y/SCREENHEIGHT*span_.y);
   elem->setPosition(pos);
-  elem->setSpan(elem->getSpan());
+  //elem->setSpan(elem->getSpan());
   elem->setParent(this);
   elements_.push_back(elem);
 }
 
+//! Add an unscaled element
+void Dialog::addOriginalElement(GuiElement* elem){
+  elem->setParent(this);
+  elements_.push_back(elem);
+}
+
+void Dialog::preparePosition(GuiElement* elem) const {
+  Vector2D pos = elem->getPosition();
+  pos.x = pos_.x+(short)((float)pos.x/SCREENWIDTH*span_.x);
+  pos.y = pos_.y+(short)((float)pos.y/SCREENHEIGHT*span_.y);
+  elem->setPosition(pos);
+}
+
 //! Get an element
-GuiElement* Dialog::getElement(int idx){
-  list<GuiElement*>::iterator iter;
+GuiElement* Dialog::getElement(int idx) const{
+  list<GuiElement*>::const_iterator iter;
   for (iter = elements_.begin(); iter != elements_.end(); iter++){
     if (idx == 0)
       return *iter;

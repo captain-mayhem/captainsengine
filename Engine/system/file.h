@@ -33,6 +33,8 @@ public:
   static std::vector<std::string> getFiles(const std::string& path);
   //! get the working directory
   static std::string getCwd();
+  //! change directory
+  static bool changeDir(const std::string& path);
 };
 
 }

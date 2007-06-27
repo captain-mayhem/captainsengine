@@ -343,4 +343,23 @@ void DXRenderer::setMaterial(const Material& mat){
   //TODO continue
 }
 
+
+//! get the viewport
+void DXRenderer::getViewport(int view[4]){
+  D3DVIEWPORT9 vp;
+  device_->GetViewport(&vp);
+  view[0] = vp[0];
+  //TODO make it right
+}
+
+//! get a matrix
+Matrix DXRenderer::getMatrix(MatrixType mt){
+  if (mt == Projection){
+    D3DXMatrix proj;
+    device_->GetTransform(D3DTS_PROJECTION, &proj);
+    //TODO continue
+  }
+  return Matrix(Matrix::Identity);
+}
+
 #endif

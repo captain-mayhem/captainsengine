@@ -49,9 +49,10 @@ void ListBox::render(){
   rend->enableTexturing(true);
   rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
   int y = pos_.y + span_.y - 20;
+  int maxy = span_.y / 20;
   int count = 0;
   vector<std::string>::iterator iter;
-  for (iter = entries_.begin(); iter != entries_.end(); iter++){
+  for (iter = entries_.begin(); iter != entries_.end() && count < maxy; iter++){
     if (count == selected_){
       System::Engine::instance()->getFont(1)->setColor(selColor_.x, selColor_.y, selColor_.z);
     }
