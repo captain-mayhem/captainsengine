@@ -10,6 +10,16 @@ class Arcball;
 
 class Editor{
 public:
+  //The editing planes
+  enum Plane{
+    XZ,
+    XY,
+    YZ
+  };
+  enum Editmode{
+    Translation,
+    Rotation,
+  };
   ~Editor();
   static void init();
   inline static Editor* instance() {return edi_;}
@@ -21,6 +31,10 @@ public:
   void update();
   //! get grid offset
   inline float getGridOffset() const {return gridOffset_;}
+  //! set the edit plane
+  inline void setEditPlane(Plane p) {editPlane_ = p;}
+  //! get the edit plane
+  inline Plane getEditPlane() const {return editPlane_;}
 protected:
   //! Constructor
   Editor();
@@ -40,6 +54,12 @@ protected:
   float gridOffset_;
   //! the grid step
   float gridStep_;
+  //! the rotation step
+  float rotationStep_;
+  //! the editing plane
+  Plane editPlane_;
+  //! the edit mode
+  Editmode editMode_;
 };
 
 #endif

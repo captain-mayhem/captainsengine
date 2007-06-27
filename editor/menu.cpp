@@ -1,6 +1,7 @@
 
 #include "menu.h"
 #include "graphics.h"
+#include "editor.h"
 
 #include "gui/gui.h"
 #include "gui/filedialog.h"
@@ -192,4 +193,45 @@ void Menu::assignTextureDialog(Gui::GuiElement* elem){
   //assign the texture
   mdl->assignTexture(tex,stage);
 }
+
+void Menu::options(Gui::GuiElement* elem){
+  //Dialog
+  Dialog* dia = new Dialog();
+  System::Engine::instance()->addGuiListener(dia);
+
+  //The plane chooser
+  DropDownButton* planes = new DropDownButton();
+  planes->setPosition(Vector2D(20, 680));
+  dia->addUnscaledElement(planes);
+  planes->calcDDPos(1);
+  Editor::Plane plane = Editor::instance()->getEditPlane();
+  string label;
+  if (plane == Editor::XZ)
+    label = "XZ Plane";
+  else if (plane == Editor::XY)
+    label = "XY Plane";
+  else if (plane == Editor::YZ)
+    label = "YZ Plane";
+  planes->setText(label);
+  planes->addEntry("XZ Plane");
+  planes->addEntry("XY Plane");
+  planes->addEntry("YZ Plane");
+
+  //OK button
+  PDButton* ok = new PDButton();
+  ok->setPosition(Vector2D(575, 50));
+  ok->setSpan(Vector2D(75,18));
+  ok->setText("  OK");
+  ok->setCbFunc(changeOptions);
+  dia->addUnscaledElement(ok);
+}
+
+void Menu::changeOptions(Gui::GuiElement* elem){
+  Dialog* dia = dynamic_cast<Dialog*>(elem->getParent());
+  //The edit plane
+  DropDownButton* dd = dynamic_cast<DropDownButton*>(dia->getElement(0));
+  Editor::Plane plane = (Editor::Plane)dd->getSelection();
+  Editor::instance()->setEditPlane(plane);
+}
+
 

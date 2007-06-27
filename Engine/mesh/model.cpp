@@ -32,6 +32,16 @@ Model::Model(Mesh* mesh){
   }
 }
 
+//! Copy constructor
+Model::Model(const Model& m){
+  trafo_ = m.trafo_;
+  mesh_ = m.mesh_;
+  boundingObj_ = new BSphere(*dynamic_cast<BSphere*>(m.boundingObj_));
+  for (int i = 0; i < MAX_TEXTURES; i++){
+    textures_[i] = m.textures_[i];
+  }
+}
+
 Model::~Model(){
   SAFE_DELETE(boundingObj_);
 }
