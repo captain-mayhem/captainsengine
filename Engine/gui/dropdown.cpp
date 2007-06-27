@@ -3,6 +3,7 @@
 #include "../renderer/renderer.h"
 #include "../renderer/forms.h"
 #include "../math/vector.h"
+#include "dialog.h"
 #include "dropdown.h"
 
 using std::istringstream;
@@ -11,9 +12,10 @@ using Graphics::Color;
 using Math::Vector3D;
 using Math::Vector2D;
 
-DDEntryButton::DDEntryButton() : Button(){
+DDEntryButton::DDEntryButton(int number) : Button(){
   parent_ = NULL;
   handleClicks_ = NULL;
+  entryNum_ = number;
 }
 
 DDEntryButton::~DDEntryButton(){
@@ -21,7 +23,9 @@ DDEntryButton::~DDEntryButton(){
 
 void DDEntryButton::process(){
   if (parent_){
+    DropDownButton* ddb = dynamic_cast<DropDownButton*>(parent_);
     parent_->setText(getText());
+    ddb->setSelection(entryNum_);
     parent_->process();
   }
   if (handleClicks_){
@@ -37,6 +41,8 @@ DropDownButton::DropDownButton(){
   ddPos_ = Vector2D(0, 768);
   isOpen_ = false;
   direction_ = 0;
+  entryNum_ = 0;
+  selected_ = 0;
   type_ = DropDownButtonT;
 }
 
@@ -69,7 +75,7 @@ void DropDownButton::calcDDPos(int direction){
 }
 
 void DropDownButton::addEntry(const string& entry){
-  DDEntryButton* but = new DDEntryButton();
+  DDEntryButton* but = new DDEntryButton(entryNum_++);
   but->setPosition(ddPos_);
   but->setSpan(Vector2D(160,18));
   but->setText(entry);
@@ -84,6 +90,7 @@ void DropDownButton::clear(){
     delete entries_[i];
   }
   entries_.clear();
+  entryNum_ = 0;
   calcDDPos(direction_);
 }
 
@@ -94,15 +101,23 @@ void DropDownButton::process(){
       isOpen_ = false;
       return;
     }
-    list< ::Gui::GuiElement*>& buts = System::Engine::instance()->getGuiElements();
+    list< ::Gui::GuiElement*>* buts;
+    if (parent_){
+      Dialog* dia = dynamic_cast<Dialog*>(parent_);
+      if (dia)
+        buts = &dia->getElements();
+    }
+    else{
+      buts = &System::Engine::instance()->getGuiElements();
+    }
     list< ::Gui::GuiElement* >::iterator iter;
     int idx = 0;
-    for (iter = buts.begin(); iter != buts.end(); iter++){
+    for (iter = buts->begin(); iter != buts->end(); iter++){
       if (*iter == entries_[0]){
         //found position
         //delete the next enties_.size buttons because they are the wanted ones
         for (unsigned i = 0; i < entries_.size(); i++){
-          iter = buts.erase(iter);
+          iter = buts->erase(iter);
         }
         break;
       }
@@ -113,7 +128,14 @@ void DropDownButton::process(){
   else{
     //register drop down buttons
     for (unsigned i = 0; i < entries_.size(); i++){
-      System::Engine::instance()->addGuiListener(entries_[i]);
+      if (parent_){
+        //is it a dialog
+        Dialog* dia = dynamic_cast<Dialog*>(parent_);
+        if (dia)
+          dia->addOriginalElement(entries_[i]);
+      }
+      else
+        System::Engine::instance()->addGuiListener(entries_[i]);
     }
     isOpen_ = true;
   }

@@ -24,6 +24,10 @@ using std::string;
 using std::vector;
 using std::queue;
 
+namespace Gui{
+class GuiElement;
+}
+
 //! The hero in the game with all ist attributes
 class Hero : public Creature{
 public:

@@ -48,6 +48,12 @@ void OGLTexture::activate(){
   glBindTexture(GL_TEXTURE_2D, tex_);
 }
 
+
+void OGLTexture::deactivate(){
+  glDisable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 //simple loader for 24bit bitmaps (data has to be in rgb-format)
 Image* OGLTexture::loadBMP(const char *filename){
   FILE *pFile = NULL;

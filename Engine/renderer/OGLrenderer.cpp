@@ -255,6 +255,8 @@ void OGLRenderer::blendFunc(BlendType src, BlendType dest){
     case BLEND_SRC_ALPHA:
       srcfl = GL_SRC_ALPHA;
       break;
+    default:
+      break;
   }
   switch(dest){
     case BLEND_ONE:
@@ -262,6 +264,8 @@ void OGLRenderer::blendFunc(BlendType src, BlendType dest){
       break;
     case BLEND_ONE_MINUS_SRC_ALPHA:
       destfl = GL_ONE_MINUS_SRC_ALPHA;
+      break;
+    default:
       break;
   }
   glBlendFunc(srcfl, destfl);
@@ -324,4 +328,20 @@ void OGLRenderer::setMaterial(const Material& mat){
   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat.emissive.array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.power);
 }
+
+//! get the viewport
+void OGLRenderer::getViewport(int view[4]){
+  glGetIntegerv(GL_VIEWPORT, view);
+}
+
+//! get a matrix
+Matrix OGLRenderer::getMatrix(MatrixType mt){
+  float tmp[16];
+  if (mt == Projection){
+    glGetFloatv(GL_PROJECTION_MATRIX, tmp);
+    return Matrix(tmp);
+  }
+  return Matrix(Matrix::Identity);
+}
+
 

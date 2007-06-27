@@ -12,6 +12,7 @@
 #include <iostream>
 #include <fstream>
 #include "system/engine.h"
+#include "system/file.h"
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "math/vector.h"
@@ -51,6 +52,9 @@ void engineMain(int argc, char** argv){
       Log << "map not found" << endl;
       exit(EXIT_FAILURE);
     }
+
+    //change working dir
+    Filesystem::changeDir("../HQClient/");
 
     int width,height,i,j;
     char c;

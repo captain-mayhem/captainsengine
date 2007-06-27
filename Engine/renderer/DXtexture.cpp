@@ -29,4 +29,8 @@ void DXTexture::activate(){
   device_->SetTexture(0, tex_);
 }
 
+void DXTexture::deactivate(){
+  device_->SetTexture(0, 0);
+}
+
 #endif

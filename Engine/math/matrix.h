@@ -67,9 +67,9 @@ public:
   //! Matrix subtraction
 	Matrix operator-(const Matrix& mat);
   //! Matrix multiplication
-	Matrix operator*(const Matrix& mat);
+	Matrix operator*(const Matrix& mat) const;
   //! Multiply a vector to a matrix
-	Vector3D operator*(const Vector3D& vec);
+	Vector3D operator*(const Vector3D& vec) const;
   //! Multiply the matrix with a scalar
 	Matrix operator*(float number);
   //! Multiply the matrix with a scalar
@@ -83,9 +83,9 @@ public:
   //! multiply matrix with the OpenGL matrix stack
 	//void toOpenGL();
   //! transpose a matrix
-	Matrix transpose();
+	Matrix transpose() const;
   //! invert a matrix
-	Matrix inverse();
+	Matrix inverse() const;
   //! perform SVD
   /* \param
    * \return scale factor*/

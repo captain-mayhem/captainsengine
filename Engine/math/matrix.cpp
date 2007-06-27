@@ -164,7 +164,7 @@ Matrix Matrix::operator-(const Matrix& mat)
 	return result;
 }
 
-Matrix Matrix::operator*(const Matrix& mat)
+Matrix Matrix::operator*(const Matrix& mat) const
 {
 	Matrix result;
 	for(short j=0; j<4; j++)
@@ -180,7 +180,7 @@ Matrix Matrix::operator*(const Matrix& mat)
 	return result;
 }
 
-Vector3D Matrix::operator*(const Vector3D& vec)
+Vector3D Matrix::operator*(const Vector3D& vec) const
 {
 	Vector3D result;
 	result.x = vec.x*data_[0] + vec.y*data_[4] + vec.z*data_[8] + data_[12];
@@ -227,7 +227,7 @@ Matrix operator*(float number, const Matrix& mat){
 	return tmp*number;
 }
 
-Matrix Matrix::transpose()
+Matrix Matrix::transpose() const
 {
 	Matrix result;
 	for(short i=0; i<4; i++)
@@ -240,10 +240,10 @@ Matrix Matrix::transpose()
 	return result;
 }
 
-Matrix Matrix::inverse(){
+Matrix Matrix::inverse() const {
 #define SWAP_ROWS(a, b) { float *_tmp_ = a; a=b; b=_tmp_;}
   float tmp[4][8];
-  float* m = data_;
+  const float* m = data_;
   float* r0 = tmp[0]; float* r1 = tmp[1]; float* r2 = tmp[2]; float* r3 = tmp[3];
  /* 
   r0[0] = m[(0<<2)+0]; r0[1] = m[1<<2+0];

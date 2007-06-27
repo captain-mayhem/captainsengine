@@ -22,6 +22,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <float.h>
 
 using namespace MeshGeo;
 using Math::Vector3D;
@@ -33,13 +34,17 @@ Mesh::Mesh(){
   numTriangles_ = 0;
   numVertices_ = 0;
   numTexCoords_ = 0;
-  m_name = "undefined";
+  name_ = "none";
+  filename_ = "none";
   m_visible = true;
   m_light = true;
   for (int i = 0; i < 4; i++){
     m_color[i] = 1.0;
   }
   vb_ = NULL;
+  min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
+  max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
+  center_ = Vector3D();
 }
 
 // --------------------------------------------------------------------
@@ -67,6 +72,21 @@ Mesh::~Mesh(){
 void Mesh::addVertex(float x, float y, float z){
   vertices_.push_back(Vertex(x,y,z));
   numVertices_++;
+  //extent
+  if (x < min_.x)
+    min_.x = x;
+  if (y < min_.y)
+    min_.y = y;
+  if (z < min_.z)
+    min_.z = z;
+  if (x > max_.x)
+    max_.x = x;
+  if (y > max_.y)
+    max_.y = y;
+  if (z > max_.z)
+    max_.z = z;
+  //center
+  center_ += Vector3D(x,y,z);
 }
 
 
@@ -120,9 +140,17 @@ Triangle* Mesh::addTriangle(int v0, int v1, int v2, int t0, int t1, int t2){
 
 //load from file
 bool Mesh::loadFromFile(std::string filename){
+  filename_ = filename;
   int n = filename.find_last_of(".");
   std::string ending = filename.substr(n+1);
-  m_name = filename;
+#ifdef WIN32
+  n = filename.find_last_of("\\");
+#endif
+#ifdef UNIX
+  n = filename.find_last_of("/");
+#endif
+  std::string name = filename.substr(n+1);
+  name_ = name;
   if (ending == "nofile"){
     addVertex(0.5,0.5,0.5);
     addVertex(1.0,0.5,0.5);
@@ -165,7 +193,14 @@ bool Mesh::loadOBJ(std::string filename){
           file >> type;
           file >> x; if (file.eof()) {bEnd = true; fprintf(stderr, "end at x\n"); break;};
           file >> y; if (file.eof()) {bEnd = true; fprintf(stderr, "end at y\n"); break;};
-          //addTextureVertex(x,y,0);
+          z = 0.0f;
+          //do we have 3D coords?
+          file.ignore();
+          tester = file.peek();
+          if (tester >=48 && tester <= 57){
+            file >> z;
+          }
+          addTexCoord(x,y,z);
         }
         else if (file.peek() == 'n') {
           // normal vector
@@ -222,7 +257,7 @@ bool Mesh::loadOBJ(std::string filename){
           if (file.eof()) {bEnd = true; fprintf(stderr, "end at n2\n"); break;}
         }
         
-        addTriangle(vertexid[0]-1,vertexid[1]-1,vertexid[2]-1);
+        addTriangle(vertexid[0]-1,vertexid[1]-1,vertexid[2]-1,textureid[0]-1,textureid[1]-1,textureid[2]-1);
 
         //do we have a quad?
         file.ignore();
@@ -240,7 +275,7 @@ bool Mesh::loadOBJ(std::string filename){
             file >> tester >> normalid[3]; 
             if (file.eof()) {bEnd = true; fprintf(stderr, "end at n3\n"); break;}
           }
-          addTriangle(vertexid[0]-1,vertexid[2]-1,vertexid[3]-1);
+          addTriangle(vertexid[0]-1,vertexid[2]-1,vertexid[3]-1,textureid[0]-1,textureid[2]-1,textureid[3]-1);
         }
         break;
       default:
@@ -360,10 +395,10 @@ void Mesh::buildVBO(){
   //unsigned int* indices = new unsigned int[numTriangles_*3];
   
   vb_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
-  //if (numTexCoords_>0)
-    vb_->create(VB_POSITION | VB_NORMAL/* | VB_TEXCOORD*/, numTriangles_*3, 0/*numTriangles_*3*/);
-  //else
-   // vb_->create(VB_POSITION/* | VB_NORMAL*/, numTriangles_*3, numTriangles_*3);
+  if (numTexCoords_ > 0)
+    vb_->create(VB_POSITION | VB_NORMAL | VB_TEXCOORD, numTriangles_*3, 0/*numTriangles_*3*/);
+  else
+    vb_->create(VB_POSITION | VB_NORMAL, numTriangles_*3, 0/*numTriangles_*3*/);
   vb_->lockVertexPointer();
   
   for (int i = 0; i < numTriangles_; i++){
@@ -380,12 +415,14 @@ void Mesh::buildVBO(){
     vb_->setNormal(3*i+0, n0);
     vb_->setNormal(3*i+1, n1);
     vb_->setNormal(3*i+2, n2);
-    /*if (numTexCoords_>0){
+    if (numTexCoords_ > 0){
       Vector3D t0 = texCoords_[tri->t0];
       Vector3D t1 = texCoords_[tri->t1];
       Vector3D t2 = texCoords_[tri->t2];
-      vb_->setTexCoord(3*i+0, Vec2f());
-    } */
+      vb_->setTexCoord(3*i+0, Vec2f(t0.x,t0.y));
+      vb_->setTexCoord(3*i+1, Vec2f(t1.x,t1.y));
+      vb_->setTexCoord(3*i+2, Vec2f(t2.x,t2.y));
+    }
     //indices[i*3+0] = i*3+0;
     //indices[i*3+1] = i*3+1;
     //indices[i*3+2] = i*3+2;
@@ -413,6 +450,9 @@ void Mesh::buildVBO(){
 */
   //delete [] vertices;
   //delete [] indices;
+
+  //compute real center
+  center_ = center_ / numVertices_;
 }
 
 // --------------------------------------------------------------------
@@ -447,7 +487,7 @@ void Mesh::draw(){/*
   glDrawElements(GL_TRIANGLES, m_numTriangles*3, GL_UNSIGNED_INT, NULL);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);*/
-  System::Engine::instance()->getRenderer()->multiplyMatrix(trafo_);
+  //System::Engine::instance()->getRenderer()->multiplyMatrix(trafo_);
   vb_->activate();
   vb_->draw(Graphics::VB_Triangles);
 }

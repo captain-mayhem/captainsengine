@@ -42,6 +42,8 @@ public:
   inline void setCbFunc(void (*click)(GuiElement*)) { handleClicks_ = click; }
   //! get selected item
   inline std::string selectedItem() {if (selected_ == -1) return "none"; return entries_[selected_];}
+  //! get selection index
+  inline int selected() const {return selected_;}
 protected:
   //! The list box entries
   std::vector<std::string> entries_;

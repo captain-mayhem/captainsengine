@@ -33,6 +33,11 @@ enum RendMode{
   Wireframe
 };
 
+enum MatrixType{
+  Projection,
+  Modelview,
+};
+
 //! The abstract renderer
 class Renderer{
 public:
@@ -100,6 +105,10 @@ public:
   virtual void popMatrix()=0;
   //! multiply matrix
   virtual void multiplyMatrix(const Matrix& mat)=0;
+  //! get the viewport
+  virtual void getViewport(int view[4])=0;
+  //! get a matrix
+  virtual Matrix getMatrix(MatrixType mt)=0;
 protected:
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/

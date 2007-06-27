@@ -77,6 +77,10 @@ public:
   void popMatrix();
   //! multiply matrix
   void multiplyMatrix(const Math::Matrix& mat);
+  //! get the viewport
+  virtual void getViewport(int view[4]);
+  //! get a matrix
+  virtual Matrix getMatrix(MatrixType mt);
 protected:
   //! the directX context
   LPDIRECT3D9 d3d_;

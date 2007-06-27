@@ -13,6 +13,7 @@ public:
   DXTexture(string filename);
   virtual ~DXTexture(){}
   void activate();
+  virtual void deactivate();
 protected:
   bool load(string filename);
   LPDIRECT3DDEVICE9 device_;
