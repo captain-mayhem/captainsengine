@@ -38,6 +38,8 @@ public:
   static void options(Gui::GuiElement* elem);
   //! the change options button
   static void changeOptions(Gui::GuiElement* elem);
+  //! the export hqm button
+  static void hqmExport(Gui::GuiElement* elem);
 };
 
 #endif

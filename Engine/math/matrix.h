@@ -92,6 +92,8 @@ public:
   float SVD() const;
   //! get the matrix data
   const float* getData() const {return data_;}
+  //! get the translation vector
+  Vector3D getTranslation() const {return Vector3D(data_[12], data_[13], data_[14]);}
 private:
   //! the matrix entries
 	float data_[16];

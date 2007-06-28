@@ -15,6 +15,7 @@ public:
   void drag(const Vector2D& point, Quaternion* rot);
   void update(const bool change, const bool reset, const Vector2D coords);
   Matrix getTrafo() const {return transform_;}
+  Matrix getIncTrafo() const {return stepTransform_;}
 protected:
   void mapToSphere(const Vector2D& point, Vector3D& newVec) const;
   Vector3D startVec_;
@@ -23,6 +24,7 @@ protected:
   Matrix lastRot_;
   Matrix currRot_;
   Matrix transform_;
+  Matrix stepTransform_;
 };
 
 }

@@ -185,7 +185,7 @@ void Editor::_mouseDown(int x, int y, int button){
   if (Input::Mouse::instance()->isGuiClick())
     return;
   if (button == MB_MIDDLE){
-    lastPos_ = Vector2D(x,y);
+    lastPos_ = Input::Mouse::instance()->getMousePos();
   }
   if (button == MB_LEFT){
     //Picking
@@ -223,6 +223,7 @@ void Editor::update(){
   //Rotation
   bool active = Input::Mouse::instance()->isPressed(MB_RIGHT);
   arcball_->update(active,false,pos);
-  Graphic::instance()->setCamRotation(arcball_->getTrafo());
+  //Graphic::instance()->setCamRotation(arcball_->getTrafo());
+  Graphic::instance()->multCamTrafo(arcball_->getIncTrafo());
 }
 

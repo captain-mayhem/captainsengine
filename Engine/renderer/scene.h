@@ -42,6 +42,8 @@ public:
   void load(const std::string& filename);
   //! Get the model that is the nearest one on the ray
   MeshGeo::Model* pickModel(const Math::Ray& ray) const;
+  //! get the models
+  const std::list<MeshGeo::Model*>& getModels() const {return models_;}
 protected:
   //! The scene version number
   int version_;
