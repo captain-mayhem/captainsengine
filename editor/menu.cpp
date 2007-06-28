@@ -2,6 +2,7 @@
 #include "menu.h"
 #include "graphics.h"
 #include "editor.h"
+#include "hqmExport.h"
 
 #include "gui/gui.h"
 #include "gui/filedialog.h"
@@ -232,6 +233,12 @@ void Menu::changeOptions(Gui::GuiElement* elem){
   DropDownButton* dd = dynamic_cast<DropDownButton*>(dia->getElement(0));
   Editor::Plane plane = (Editor::Plane)dd->getSelection();
   Editor::instance()->setEditPlane(plane);
+}
+
+//! the export hqm button
+void Menu::hqmExport(Gui::GuiElement* elem){
+  HQMExport exp;
+  exp.exportHQM(Graphic::instance()->getScene(), "test.hqm");
 }
 
 

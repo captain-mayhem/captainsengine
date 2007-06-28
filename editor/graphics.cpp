@@ -19,6 +19,7 @@ Graphic* Graphic::gra_ = NULL;
 
 Graphic::Graphic(){
   camTrafo_ = Math::Matrix(Matrix::Translation, Vector3D(0.0,0.0,-10.0f));
+  camRot_ = Math::Matrix(Matrix::Identity);
   currModel_ = NULL;
 }
 
@@ -79,6 +80,12 @@ void Graphic::init(){
   load->setText("Load scene");
   load->setCbFunc(Menu::load);
   System::Engine::instance()->addGuiListener(load);
+
+  Button* hqm = new Button();
+  hqm->setPosition(Vector2D(900, 250));
+  hqm->setText("Export HQM");
+  hqm->setCbFunc(Menu::hqmExport);
+  System::Engine::instance()->addGuiListener(hqm);
 }
 
 void Graphic::addMesh(std::string filename){

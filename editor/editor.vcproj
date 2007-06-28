@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\hqmExport.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
@@ -217,6 +221,10 @@
 			</File>
 			<File
 				RelativePath=".\graphics.h"
+				>
+			</File>
+			<File
+				RelativePath=".\hqmExport.h"
 				>
 			</File>
 			<File

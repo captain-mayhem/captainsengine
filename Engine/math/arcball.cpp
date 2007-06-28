@@ -15,6 +15,7 @@ Arcball::Arcball(){
   currRot_ = Matrix(Matrix::Identity);
   lastRot_ = Matrix(Matrix::Identity);
   transform_ = Matrix(Matrix::Identity);
+  stepTransform_ = Matrix(Matrix::Identity);
 }
 
 Arcball::~Arcball(){
@@ -80,9 +81,12 @@ void Arcball::update(const bool change, const bool reset, const Vector2D coords)
       drag(coords, &quat);
       currRot_ = Matrix(quat);
       currRot_ = currRot_*lastRot_;
+      stepTransform_ = currRot_*transform_.transpose();
       transform_ = Matrix(Matrix::Rotation, currRot_);
     }
-    else
+    else{
       isDragging_ = false;
+      stepTransform_ = Matrix(Matrix::Identity);
+    }
   }
 }
