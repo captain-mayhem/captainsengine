@@ -108,31 +108,40 @@ void Menu::loadTexture(Gui::GuiElement* elem){
 void Menu::properties(Gui::GuiElement* elem){
   //Dialog
   Dialog* dia = new Dialog();
+  System::Engine::instance()->addGuiListener(dia);
   //Assign texture button
   PDButton* assTex = new PDButton();
   assTex->setPosition(Vector2D(20, 730));
-  //assTex->setSpan(Vector2D(75,18));
   assTex->setText("Assign Texture");
   assTex->setCbFunc(assignTexture);
   dia->addUnscaledElement(assTex);
+
+  Model* mdl = Graphic::instance()->getCurrModel();
   
-  /*
-  ListBox* lb = new ListBox();
-  lb->setPosition(Vector2D(50, 100));
-  lb->setSpan(Vector2D(400,600));
-  vector<Mesh*> meshes = Graphic::instance()->getScene().getMeshes();
-  for (unsigned i = 0; i < meshes.size(); i++){
-    lb->addEntry(meshes[i]->getName());
-  }
-  dia->addElement(lb);
-  */
+  //Attributes
+  InputField* in = new InputField();
+  in->setPosition(Vector2D(20, 690));
+  if (!mdl)
+    in->setText("-1");
+  else
+    in->setText(Editor::instance()->attribString(mdl->getAttrib(0)));
+  dia->addUnscaledElement(in);
+  
+  in = new InputField();
+  in->setPosition(Vector2D(20, 660));
+  if (!mdl)
+    in->setText("-1");
+  else
+    in->setText(Editor::instance()->attribString(mdl->getAttrib(1)));
+  dia->addUnscaledElement(in);
+  
   //Close button
   PDButton* close = new PDButton();
   close->setPosition(Vector2D(575, 50));
   close->setSpan(Vector2D(75,18));
   close->setText(" Close");
+  close->setCbFunc(evaluateAttribs);
   dia->addUnscaledElement(close);
-  System::Engine::instance()->addGuiListener(dia);
 }
 
 //! the assign texture button
@@ -241,4 +250,17 @@ void Menu::hqmExport(Gui::GuiElement* elem){
   exp.exportHQM(Graphic::instance()->getScene(), "test.hqm");
 }
 
+//! evaluate attribs button
+void Menu::evaluateAttribs(Gui::GuiElement* elem){
+  Model* mdl = Graphic::instance()->getCurrModel();
+  if (!mdl)
+    return;
+  Dialog* dia = dynamic_cast<Dialog*>(elem->getParent());
+  InputField* in = dynamic_cast<InputField*>(dia->getElement(1));
+  int att = Editor::instance()->attribValue(in->getText());
+  mdl->setAttrib(0,att);
+  in = dynamic_cast<InputField*>(dia->getElement(2));
+  att = Editor::instance()->attribValue(in->getText());
+  mdl->setAttrib(1,att);
+}
 

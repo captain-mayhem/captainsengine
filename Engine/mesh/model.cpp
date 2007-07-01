@@ -18,6 +18,9 @@ Model::Model(){
   for (int i = 0; i < MAX_TEXTURES; i++){
     textures_[i] = NULL;
   }
+  for (int i = 0; i < MAX_ATTRIBS; i++){
+    attribs_[i] = 0;
+  }
 }
 
 Model::Model(Mesh* mesh){
@@ -30,6 +33,9 @@ Model::Model(Mesh* mesh){
   for (int i = 0; i < MAX_TEXTURES; i++){
     textures_[i] = NULL;
   }
+  for (int i = 0; i < MAX_ATTRIBS; i++){
+    attribs_[i] = 0;
+  }
 }
 
 //! Copy constructor
@@ -39,6 +45,9 @@ Model::Model(const Model& m){
   boundingObj_ = new BSphere(*dynamic_cast<BSphere*>(m.boundingObj_));
   for (int i = 0; i < MAX_TEXTURES; i++){
     textures_[i] = m.textures_[i];
+  }
+  for (int i = 0; i < MAX_ATTRIBS; i++){
+    attribs_[i] = m.attribs_[i];
   }
 }
 

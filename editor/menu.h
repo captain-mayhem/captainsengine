@@ -40,6 +40,8 @@ public:
   static void changeOptions(Gui::GuiElement* elem);
   //! the export hqm button
   static void hqmExport(Gui::GuiElement* elem);
+  //! evaluate attribs button
+  static void evaluateAttribs(Gui::GuiElement* elem);
 };
 
 #endif

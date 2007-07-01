@@ -32,6 +32,10 @@ Editor::Editor(){
   rotationStep_ = (float)M_PI/2.0f;
   editPlane_ = XZ;
   editMode_ = Translation;
+  aTov_["ground"] = 1000;
+  vToa_[1000] = "ground";
+  aTov_["wall"] = 1001;
+  vToa_[1001] = "wall";
 }
 
 Editor::~Editor(){
@@ -225,5 +229,23 @@ void Editor::update(){
   arcball_->update(active,false,pos);
   //Graphic::instance()->setCamRotation(arcball_->getTrafo());
   Graphic::instance()->multCamTrafo(arcball_->getIncTrafo());
+}
+
+//! get the string to an attribute
+std::string Editor::attribString(int attrib){
+  //normal number
+  if (attrib < 1000)
+    return toStr(attrib);
+  return vToa_[attrib];
+}
+  
+//! get the attribute to a string
+int Editor::attribValue(const std::string& attrib){
+  //try to get a value from string
+  int att = aTov_[attrib];
+  if (att >= 1000)
+    return att;
+  else
+    return toInt(attrib);
 }
 
