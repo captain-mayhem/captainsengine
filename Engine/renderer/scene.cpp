@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "texture.h"
 #include "../system/engine.h"
+#include "../system/utilities.h"
 #include "../mesh/model.h"
 #include "../mesh/mesh.h"
 #include "../math/ray.h"
@@ -19,6 +20,7 @@ using MeshGeo::Mesh;
 using Math::BoundingObject;
 using Math::Matrix;
 using Math::Ray;
+using System::Utilities;
 
 Scene::Scene(){
   version_ = 1;
@@ -73,6 +75,9 @@ void Scene::save(const std::string& filename) const{
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
     string name = meshes_[i]->getFilename();
+#ifdef UNIX
+    Utilities::replaceWith(name, '/', '\\');
+#endif
     unsigned length = name.size();
     out.write((char*)&length, sizeof(length));
     out.write(name.c_str(), sizeof(char)*length);
@@ -82,6 +87,9 @@ void Scene::save(const std::string& filename) const{
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
     string name = textures_[i]->getFilename();
+#ifdef UNIX
+    Utilities::replaceWith(name, '/', '\\');
+#endif
     unsigned length = name.size();
     out.write((char*)&length, sizeof(length));
     out.write(name.c_str(), sizeof(char)*length);
@@ -117,6 +125,11 @@ void Scene::save(const std::string& filename) const{
     //trafo
     const float* mat = (*iter)->getTrafo().getData();
     out.write((char*)mat, 16*sizeof(float));
+    //attributes
+    for (int i = 0; i < MAX_ATTRIBS; i++){
+      int att = (*iter)->getAttrib(i);
+      out.write((char*)&att, sizeof(att));
+    }
   }
   out.close();
 }
@@ -138,6 +151,9 @@ void Scene::load(const std::string& filename){
     in.read(buffer, length*sizeof(char));
     buffer[length] = '\0';
     string name = string(buffer);
+#ifdef UNIX
+    Utilities::replaceWith(name, '\\', '/');
+#endif
     Mesh* msh = new Mesh();
     if (!msh->loadFromFile(name)){
       System::Log << "cannot load file";
@@ -156,6 +172,9 @@ void Scene::load(const std::string& filename){
     in.read(buffer, length*sizeof(char));
     buffer[length] = '\0';
     string name = string(buffer);
+#ifdef UNIX
+    Utilities::replaceWith(name, '\\', '/');
+#endif
     Texture* tex = Texture::create(name);
     textures_.push_back(tex);
   }
@@ -180,6 +199,12 @@ void Scene::load(const std::string& filename){
     float mat[16];
     in.read((char*)mat, 16*sizeof(float));
     mdl->setTrafo(Matrix(mat));
+    //attributes
+    for (int i = 0; i < MAX_ATTRIBS; i++){
+      int attrib;
+      in.read((char*)&attrib, sizeof(attrib));
+      mdl->setAttrib(i, attrib);
+    }
   }
   in.close();
 }
