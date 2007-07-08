@@ -4,6 +4,7 @@
 #include "matrix.h"
 
 using namespace Math;
+using std::min;
 
 BBox::BBox(){
   min_ = Vector3D(FLT_MAX, FLT_MAX, FLT_MAX);
@@ -18,7 +19,7 @@ BBox::BBox(const Vector3D& min, const Vector3D& max){
 BBox::~BBox(){
 }
 
-bool BBox::hit(const Ray& r) const{
+float BBox::hit(const Ray& r) const{
   float tmin, tmax;
   float tymin, tymax;
   float tzmin, tzmax;
@@ -61,7 +62,10 @@ bool BBox::hit(const Ray& r) const{
   if (tzmax < tmax)
     tmax = tzmax;
 
-  return (tmin < FLT_MAX && tmax > -1e-4);
+  if (tmin < FLT_MAX && tmax > -1e-4){
+    return min(tmin, tmax);
+  }
+  return FLT_MAX;//(tmin < FLT_MAX && tmax > -1e-4);
 }
 
 void BBox::transform(const Matrix& mat){

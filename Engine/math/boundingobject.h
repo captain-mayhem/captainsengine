@@ -11,7 +11,7 @@ class BoundingObject{
 public:
   BoundingObject() {}
   virtual ~BoundingObject() {}
-  virtual bool hit(const Ray& r) const=0;
+  virtual float hit(const Ray& r) const=0;
   virtual void transform(const Matrix& mat)=0;
   virtual BoundingObject* copy()=0;
 };

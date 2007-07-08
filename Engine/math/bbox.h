@@ -11,7 +11,7 @@ public:
   BBox();
   BBox(const Vector3D& min, const Vector3D& max);
   virtual ~BBox();
-  virtual bool hit(const Ray& r) const;
+  virtual float hit(const Ray& r) const;
   virtual void transform(const Matrix& mat);
   virtual BoundingObject* copy();
   Vector3D getMin() const {return min_;}

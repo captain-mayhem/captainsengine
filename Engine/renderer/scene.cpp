@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <float.h>
 
 using namespace Graphics;
 using std::list;
@@ -213,17 +214,22 @@ void Scene::load(const std::string& filename){
 MeshGeo::Model* Scene::pickModel(const Ray& ray) const {
   list<MeshGeo::Model*>::const_iterator iter;
   //std::cerr << ray.getOrigin() << " " << ray.getDirection() << "\n";
+  Model* nearest = NULL;
+  float nearDistance = FLT_MAX;
   for (iter = models_.begin(); iter != models_.end(); iter++){
     Model* mdl = *iter;
     BoundingObject* bound = mdl->getBoundingObject();
     BoundingObject* tmp = bound->copy();
     tmp->transform(mdl->getTrafo());
-    if (tmp->hit(ray)){
-      delete tmp;
-      return mdl;
+    float currDistance = tmp->hit(ray);
+    if (currDistance < nearDistance){
+      nearDistance = currDistance;
+      nearest = mdl;
+      //delete tmp;
+      //return mdl;
     }
     delete tmp;
   }
-  return NULL;
+  return nearest;
 }
 

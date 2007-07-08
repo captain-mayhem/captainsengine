@@ -53,6 +53,8 @@ protected:
   Math::Vector3D selColor_;
   //! The callback function
   void (*handleClicks_)(GuiElement*);
+  //! The scroll position
+  int scroll_;
 };
 
 }

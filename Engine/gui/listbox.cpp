@@ -18,6 +18,7 @@
 using namespace Gui;
 using Graphics::Color;
 using Graphics::Renderer;
+using std::max;
 
 //! Constructor
 ListBox::ListBox(){
@@ -28,6 +29,7 @@ ListBox::ListBox(){
   selected_ = -1;
   selColor_ = Vector3D(0.0,1.0,0.0);
   handleClicks_ = NULL;
+  scroll_ = 0;
 }
   
 //! Destructor
@@ -52,7 +54,12 @@ void ListBox::render(){
   int maxy = span_.y / 20;
   int count = 0;
   vector<std::string>::iterator iter;
-  for (iter = entries_.begin(); iter != entries_.end() && count < maxy; iter++){
+  for (iter = entries_.begin(); iter != entries_.end() && count < maxy+scroll_; iter++){
+    //scrolled away
+    if (count < scroll_){
+      ++count;
+      continue;
+    }
     if (count == selected_){
       System::Engine::instance()->getFont(1)->setColor(selColor_.x, selColor_.y, selColor_.z);
     }
@@ -72,12 +79,28 @@ bool ListBox::isClicked(const ::Math::Vector2D& pos){
     return false;
   if (pos.y < pos_.y || pos.y > pos_.y+span_.y)
     return false;
+  //scroll down
+  if (pos.x < pos_.x+span_.x && pos.x > pos_.x+span_.x-20
+      && pos.y < pos_.y+span_.y/2){
+    //is scrolling neccessary
+    int maxy = span_.y / 20;
+    if (scroll_+maxy >= entries_.size())
+      return false;
+    scroll_++;
+    return false;
+  }
+  //scroll up
+  if (pos.x < pos_.x+span_.x && pos.x > pos_.x+span_.x-20
+      && pos.y > pos_.y+span_.y/2){
+    scroll_ = max(0,scroll_-1);
+    return false;
+  }
   //calculate the selection index
   int diff = pos_.y+span_.y-pos.y;
   diff /= 20;
   //a valid entry?
   if (diff <= (int)entries_.size()){
-    selected_ = diff;
+    selected_ = diff+scroll_;
   }
   return true;
 }
