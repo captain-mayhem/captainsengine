@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include "hqmExport.h"
 #include "editor.h"
@@ -153,7 +155,7 @@ HQMExport::Direction HQMExport::extractDir(const Math::Matrix& mat){
   Vector3D rotated = mat*orig;
   rotated.normalize();
   float angle = acos(orig.dot(rotated));
-  angle = angle / M_PI*180;
+  angle = angle / (float)M_PI*180;
   //correct quadrant
   angle = rotated.x < 0 ? 360-angle : angle;
   if (angle >= 315 || angle < 45)

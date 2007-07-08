@@ -113,6 +113,8 @@ void DXRenderer::initRendering(){
   //better perspective calculations
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);*/
   //device_->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+  device_->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
+  device_->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
   device_->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
   //device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_RGBA(0,255,0,255));
   // Coloring
