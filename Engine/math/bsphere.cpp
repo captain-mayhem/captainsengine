@@ -3,7 +3,10 @@
 #include "ray.h"
 #include "matrix.h"
 
+#include <float.h>
+
 using namespace Math;
+using std::min;
 
 BSphere::BSphere(){
   center_ = Vector3D();
@@ -18,7 +21,7 @@ BSphere::BSphere(const Vector3D& center, const float radius){
 BSphere::~BSphere(){
 }
 
-bool BSphere::hit(const Ray& r) const{
+float BSphere::hit(const Ray& r) const{
   Vector3D v = r.getOrigin() - center_;
   float b = 2.0f*r.getDirection().dot(v);
   float c = v.dot(v) - radius_*radius_;
@@ -26,17 +29,21 @@ bool BSphere::hit(const Ray& r) const{
 
   //no solution
   if (discriminant < 0.0)
-    return false;
+    return FLT_MAX;
 
   discriminant = sqrtf(discriminant);
 
   float s0 = (-b + discriminant)/2.0f;
   float s1 = (-b - discriminant)/2.0f;
 
-  if (s0 >= 0.0f || s1 >= 0.0f)
-    return true;
-
-  return false;
+  if (s0 >= 0.0f && s1 >= 0.0f)
+    return min(s0, s1);
+  else if (s0 >= 0.0f)
+    return s0;
+  else if (s1 >= 0.0f)
+    return s1;
+  else
+    return FLT_MAX;
 }
 
 void BSphere::transform(const Matrix& mat){

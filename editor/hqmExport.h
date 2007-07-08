@@ -2,6 +2,8 @@
 #define HQMEXPORT_H
 
 #include <string>
+#include <vector>
+
 #include "system/bitset.h"
 #include "math/vector.h"
 #include "math/matrix.h"
@@ -12,12 +14,28 @@ class Scene;
 
 class Field{
 public:
+  Field() {
+    position = Math::Vector2D(-1,-1);
+    id = -1;
+    active = false;
+    wallbits.setData(0);
+    doorbits.setData(0);
+    for (int i = 0; i < 4; i++){
+      dooridx[i] = 0;
+    }
+  }
   //! The postion
   Math::Vector2D position;
   //! Object id
   short id;
+  //! Is the field active
+  bool active;
   //! Where are the walls
   System::Bitset wallbits;
+  //! Where are the doors
+  System::Bitset doorbits;
+  //! door indices
+  short dooridx[4];
 };
 
 class HQMExport{
@@ -42,6 +60,8 @@ private:
   short height_;
   //! the map
   Field** map_;
+  //! the room structure
+  std::vector< std::vector< Math::Vector2D > > rooms_;
 };
   
 
