@@ -209,6 +209,14 @@
 			Name="system"
 			>
 			<File
+				RelativePath=".\system\bitset.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\system\bitset.h"
+				>
+			</File>
+			<File
 				RelativePath=".\system\engine.cpp"
 				>
 			</File>
@@ -258,6 +266,14 @@
 			</File>
 			<File
 				RelativePath=".\system\thread.h"
+				>
+			</File>
+			<File
+				RelativePath=".\system\utilities.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\system\utilities.h"
 				>
 			</File>
 		</Filter>
