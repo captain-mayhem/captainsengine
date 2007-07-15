@@ -11,6 +11,7 @@
 #define KEY_RIGHT VK_RIGHT
 #define KEY_ESCAPE VK_ESCAPE
 #define KEY_RETURN VK_RETURN
+#define KEY_DELETE VK_DELETE
 #define KEY_A 'A'
 #define KEY_C 'C'
 #define KEY_D 'D'
@@ -28,6 +29,7 @@
 #define KEY_RIGHT XK_Right
 #define KEY_ESCAPE XK_Escape
 #define KEY_RETURN XK_Return
+#define KEY_DELETE XK_Delete
 #define KEY_A XK_a
 #define KEY_C XK_c
 #define KEY_D XK_d

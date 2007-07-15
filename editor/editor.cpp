@@ -182,6 +182,12 @@ void Editor::_keypress(int key){
       mdl->setTrafo(oldMat*newMat);
     }
   }
+  if (key == KEY_DELETE){
+    Model* mdl = Graphic::instance()->getCurrModel();
+    if (!mdl)
+      return;
+    Graphic::instance()->getScene().deleteModel(mdl->getID());
+  }
 }
 
 //! mouse down
