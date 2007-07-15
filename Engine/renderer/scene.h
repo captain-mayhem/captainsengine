@@ -28,6 +28,8 @@ public:
   std::vector<MeshGeo::Mesh*> getMeshes() const {return meshes_;}
   //! Add a model
   void addModel(MeshGeo::Model* model) {models_.push_back(model);}
+  //! Delete a model
+  void deleteModel(const unsigned id);
   //! Get a model
   MeshGeo::Model* getModel(const int id);
   //! Add a texture

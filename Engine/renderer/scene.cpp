@@ -233,3 +233,14 @@ MeshGeo::Model* Scene::pickModel(const Ray& ray) const {
   return nearest;
 }
 
+//! Delete a model
+void Scene::deleteModel(const unsigned id){
+  list<MeshGeo::Model*>::iterator iter;
+  for (iter = models_.begin(); iter != models_.end(); iter++){
+    if (id == (*iter)->getID()){
+      models_.erase(iter);
+      return;
+    }
+  }
+}
+
