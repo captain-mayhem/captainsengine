@@ -76,6 +76,9 @@ public:
   //! get the extent
   Math::BBox getExtents() {return Math::BBox(min_,max_);}
 
+  //! intersects a ray and a triangle
+  float intersect(const Math::Ray& r) const;
+
 protected:
   //! load obj-files
   bool loadOBJ(std::string filename);
