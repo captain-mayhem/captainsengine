@@ -17,6 +17,7 @@
 #include "../system/engine.h"
 #include "../renderer/renderer.h"
 #include "../renderer/vertexbuffer.h"
+#include "../math/ray.h"
 
 #include <cmath>
 #include <vector>
@@ -24,6 +25,7 @@
 #include <fstream>
 #include <float.h>
 
+using std::min;
 using namespace MeshGeo;
 using Math::Vector3D;
 
@@ -490,5 +492,36 @@ void Mesh::draw(){/*
   //System::Engine::instance()->getRenderer()->multiplyMatrix(trafo_);
   vb_->activate();
   vb_->draw(Graphics::VB_Triangles);
+}
+
+//! intersects a ray and a triangle
+float Mesh::intersect(const Math::Ray& r) const{
+  float intersection = FLT_MAX;
+  //go over all triangles
+  for (unsigned i = 0; i < triangles_.size(); i++){
+    Vector3D v0 = vertices_[triangles_[i]->v0];
+    Vector3D e1 = vertices_[triangles_[i]->v1] - v0;
+    Vector3D e2 = vertices_[triangles_[i]->v2] - v0;
+    Vector3D p = r.getDirection().cross(e2);
+    float a = e1.dot(p);
+    if (a > -1e-7 && a < 1e-7)
+      continue;
+    float f = 1.0f/a;
+    Vector3D s = r.getOrigin()-v0;
+    float u = f * s.dot(p);
+    if (u < 0.0f || u > 1.0f){
+      continue;
+    }
+    Vector3D q = s.cross(e1);
+    float v = f * r.getDirection().dot(q);
+    if (v < 0.0 || u+v > 1.0f){
+      continue;
+    }
+    float t = f * e2.dot(q);
+    if (t >= 0){
+      intersection = min(t, intersection);
+    }
+  }
+  return intersection;
 }
 

@@ -222,6 +222,13 @@ MeshGeo::Model* Scene::pickModel(const Ray& ray) const {
     BoundingObject* tmp = bound->copy();
     tmp->transform(mdl->getTrafo());
     float currDistance = tmp->hit(ray);
+    //Bounding object was hit
+    if (currDistance < FLT_MAX){
+      //determine real intersection point
+      Ray r(ray);
+      r.transform(mdl->getTrafo().inverse());
+      currDistance = mdl->getMesh()->intersect(r);
+    }
     if (currDistance < nearDistance){
       nearDistance = currDistance;
       nearest = mdl;
