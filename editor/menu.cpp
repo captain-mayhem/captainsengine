@@ -76,6 +76,7 @@ void Menu::save(Gui::GuiElement* elem){
 void Menu::saveScene(Gui::GuiElement* elem){
   FileDialog* fd = dynamic_cast<FileDialog*>(elem->getParent());
   Graphic::instance()->getScene().save(fd->getFile());
+  Graphic::instance()->setFilename(fd->getFile());
 }
 
 //! The load scene callback
@@ -89,6 +90,7 @@ void Menu::load(Gui::GuiElement* elem){
 void Menu::loadScene(Gui::GuiElement* elem){
   FileDialog* fd = dynamic_cast<FileDialog*>(elem->getParent());
   Graphic::instance()->getScene().load(fd->getFile());
+  Graphic::instance()->setFilename(fd->getFile());
 }
 
 //! The add texture callback
@@ -247,7 +249,11 @@ void Menu::changeOptions(Gui::GuiElement* elem){
 //! the export hqm button
 void Menu::hqmExport(Gui::GuiElement* elem){
   HQMExport exp;
-  exp.exportHQM(Graphic::instance()->getScene(), "test.hqm");
+  std::string file = Graphic::instance()->getFilename();
+  unsigned idx = file.find_last_of('.');
+  file.erase(idx+1);
+  file += "hqm";
+  exp.exportHQM(Graphic::instance()->getScene(), file);
 }
 
 //! evaluate attribs button

@@ -36,6 +36,8 @@ public:
   System::Bitset doorbits;
   //! door indices
   short dooridx[4];
+  //! the models on that field
+  std::vector<unsigned> modelids;
 };
 
 class HQMExport{
@@ -62,6 +64,8 @@ private:
   Field** map_;
   //! the room structure
   std::vector< std::vector< Math::Vector2D > > rooms_;
+  //! the starting positions
+  std::vector<Math::Vector2D> startpos_;
 };
   
 
