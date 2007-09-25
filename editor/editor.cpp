@@ -36,6 +36,8 @@ Editor::Editor(){
   vToa_[1000] = "ground";
   aTov_["wall"] = 1001;
   vToa_[1001] = "wall";
+  aTov_["startpos"] = 1002;
+  vToa_[1002] = "startpos";
 }
 
 Editor::~Editor(){

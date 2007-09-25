@@ -24,6 +24,7 @@ public:
   enum Attribs{
     GROUND = 1000,
     WALL = 1001,
+    STARTPOS = 1002,
   };
   ~Editor();
   static void init();

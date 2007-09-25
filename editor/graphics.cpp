@@ -21,6 +21,7 @@ Graphic::Graphic(){
   camTrafo_ = Math::Matrix(Matrix::Translation, Vector3D(0.0,0.0,-10.0f));
   camRot_ = Math::Matrix(Matrix::Identity);
   currModel_ = NULL;
+  filename_ = "";
 }
 
 Graphic::~Graphic(){

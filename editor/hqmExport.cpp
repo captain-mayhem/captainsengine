@@ -76,10 +76,15 @@ bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
       }
       vector<Vector2D>* room = &rooms_[f.id];
       room->push_back(pos);
+      f.modelids.push_back((*iter)->getID());
     }
     //wall
-    if (classAttrib == Editor::WALL){
+    else if (classAttrib == Editor::WALL){
       f.wallbits.set(extractDir(mat));
+    }
+    //starting position
+    else if (classAttrib == Editor::STARTPOS){
+      startpos_.push_back(pos);
     }
     //door
     {
@@ -104,11 +109,19 @@ bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
       bits = f.doorbits.getData();
       out.write(&bits, sizeof(bits));
       out.write((char*)f.dooridx, 4*sizeof(f.dooridx[0]));
+      unsigned size = f.modelids.size();
+      out.write((char*)&size, sizeof(size));
+      for (unsigned i = 0; i < size; ++i){
+        out.write((char*)&f.modelids[i], sizeof(unsigned));
+      }
     }
   }
   //hero starting positions
-  unsigned short size;
-  //TODO
+  unsigned short size = startpos_.size();
+  out.write((char*)&size, sizeof(size));
+  for (unsigned i = 0; i < size; ++i){
+    out.write((char*)&startpos_[i], sizeof(Vector2D));
+  }
   
   //room structure
   size = rooms_.size();
@@ -123,7 +136,18 @@ bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
     }
   }
 
-  //TODO more data
+  //TODO complete
+  size = 0;
+  //doors
+  out.write((char*)&size, sizeof(size));
+  //monsters
+  out.write((char*)&size, sizeof(size));
+  //furniture
+  out.write((char*)&size, sizeof(size));
+  //overlays
+  out.write((char*)&size, sizeof(size));
+  //scripts
+  out.write((char*)&size, sizeof(size));
   
   out.close();
   

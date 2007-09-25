@@ -38,7 +38,11 @@ public:
   //! get the current model
   MeshGeo::Model* getCurrModel() const {return currModel_;}
   //! get view matrix
-  Math::Matrix getViewMat() {return camTrafo_ * camRot_;} 
+  Math::Matrix getViewMat() {return camTrafo_ * camRot_;}
+  //! set the filename
+  inline void setFilename(std::string filename) {filename_ = filename;}
+  //! get the filename
+  inline std::string getFilename() {return filename_;}
 protected:
   //! Constructor
   Graphic();
@@ -55,6 +59,8 @@ protected:
   Math::Matrix camRot_;
   //! the current model
   MeshGeo::Model* currModel_;
+  //! the filename of the loaded scene
+  std::string filename_;
 };
 
 #endif
