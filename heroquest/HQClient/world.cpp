@@ -97,8 +97,8 @@ void World::deInit(){
     for (int j = 0; j < height_; j++){
       for (int i = 0; i < width_; i++){
         Field* f = &world_[j][i];
-        delete [] f->vertices;
-        delete [] f->texCoords;
+        //delete [] f->vertices;
+        //delete [] f->texCoords;
       }
 			//TODO why segfault delete [] world_[j];
 		}
@@ -138,8 +138,16 @@ void World::deInit(){
 
 //load the world
 bool World::load(const string& name){
-
 	deInit();
+  
+#ifdef _CLIENT_
+  //load scene file
+  std::string scenename = name;
+  unsigned idx = name.find_last_of('.');
+  scenename.erase(idx+1);
+  scenename += "hsf";
+  scene_.load(scenename);
+#endif
   
   float version;
 	ifstream in(name.c_str(), ios::binary);
@@ -173,12 +181,23 @@ bool World::load(const string& name){
 			f->setId(id);
 			bool active;
 			in.read((char*)&active, sizeof(bool));
-			f->setActive(active);
+      f->setActive(active);
 			in.read((char*)&bits, sizeof(char));
 			f->doorbits.setData(bits);
 			in.read((char*)f->dooridx, 4*sizeof(short));
       
 			//readin 3D geometry
+      unsigned numModels;
+      in.read((char*)&numModels, sizeof(numModels));
+      f->numModels = numModels;
+      f->models = new MeshGeo::Model*[numModels];
+      for (unsigned i = 0; i < numModels; ++i){
+        unsigned modelid;
+        in.read((char*)&modelid, sizeof(modelid));
+        //resolve pointers
+        f->models[i] = scene_.getModel(modelid);
+      }
+      /*
 			in.read((char*)&f->numVertices, sizeof(unsigned));
 			f->vertices = new Vector3D[f->numVertices];
 			f->texCoords = new Vec2f[f->numVertices];
@@ -196,7 +215,7 @@ bool World::load(const string& name){
         in.read((char*)&mat, sizeof(Matrix));
         f->models[k] = Templates::instance()->getModel(0)->clone();
         f->models[k].setTransform(mat);
-			}
+			}*/
 		}
 	}
 
@@ -230,7 +249,7 @@ bool World::load(const string& name){
 	doors_.resize(size);
 	for (unsigned i = 0; i < size; i++){
 		Door* d = new Door();
-		d->read(in);
+		d->read(in, scene_);
 		d->update();
 		doors_[i] = d;
 	}
@@ -326,7 +345,6 @@ bool World::load(const string& name){
   }
 					
 	in.close();
-	//assert(_CrtCheckMemory());
   
 	loaded_ = true;
   
@@ -371,12 +389,20 @@ void World::render(){
 		furniture_[i]->reset();
 	}
   
+  //scene_.render();
+  
 	//Render scene
 	for (unsigned i = 0; i < canSee_.size(); i++){
 		Field& curr = *canSee_[i];
 
+    for (unsigned j = 0; j < curr.numModels; ++j){
+      curr.models[j]->setupMaterial();
+      curr.models[j]->render();
+      curr.models[j]->resetMaterial();
+    }
+    
 		//render ground tiles
-    TextureManager::instance()->floorTex[curr.getId()]->activate();
+    //TextureManager::instance()->floorTex[curr.getId()]->activate();
     //glBindTexture(GL_TEXTURE_2D, tex.floorTex[curr.getId()]);
     /*
 		glBegin(GL_TRIANGLE_STRIP);
@@ -390,19 +416,19 @@ void World::render(){
 			glVertex3f(curr.vertices[3].x, curr.vertices[3].y, curr.vertices[3].z);
 		glEnd();
     */
-    for (unsigned j = 0; j < curr.numModels; j++){
-      curr.models[j].activate();
-      glPushMatrix();
-      System::Engine::instance()->getRenderer()->multiplyMatrix(curr.models[j].getTransform());
-      curr.models[j].draw();
-      glPopMatrix();
-    }
+    //for (unsigned j = 0; j < curr.numModels; j++){
+      //curr.models[j].activate();
+      //glPushMatrix();
+      //System::Engine::instance()->getRenderer()->multiplyMatrix(curr.models[j].getTransform());
+      //curr.models[j].draw();
+      //glPopMatrix();
+    //}
 
 		//render walls
-    TextureManager::instance()->wallTex[0]->activate();
+    //TextureManager::instance()->wallTex[0]->activate();
 		//glBindTexture(GL_TEXTURE_2D, tex.wallTex[0]);
-		short num = curr.doorbits.numSetBits()*3;
-		short count = 0;
+		//short num = curr.doorbits.numSetBits()*3;
+		/*short count = 0;
 		for (unsigned k = 1; k < curr.numVertices/4; k++){
 			if (count >= 3)
 				count = 0;
@@ -418,9 +444,10 @@ void World::render(){
 				glTexCoord2f(curr.texCoords[k*4+3].x, curr.texCoords[k*4+3].y);
 				glVertex3f(curr.vertices[k*4+3].x,curr.vertices[k*4+3].y,curr.vertices[k*4+3].z);
 			glEnd();
-		}
+		}*/
     
 		//if there are objects on the field, render them, too
+    /*
 		if (curr.object){
 			if (curr.object->getStatus()){
 				curr.object->render();
@@ -434,7 +461,7 @@ void World::render(){
 			if (curr.tryObject->getStatus())
 				curr.tryObject->render();
 		}
-
+    */
 		//render doors
 		if (curr.doorbits.getData() != '\0'){
 			if (curr.doorbits.test(BOTTOM)){
@@ -617,44 +644,44 @@ void World::render2D(bool vis){
 				}
 				if (isDoor(i,j,TOP, vis)){
 					Door* doo = getDoor(Vector2D(i,j),TOP);
-					if (doo->getId() > 0)
+					if (doo->getType() > 0)
 						glColor3f(1,1,1);
 					else
         		glColor3f(0.8,0.12,0.12);
-					if(doo->getStatus()){
+					if(doo->isClosed()){
 						glVertex2f(i*xstep, (height_-j)*ystep);
 						glVertex2f(i*xstep+xstep, (height_-j)*ystep);
 					}
 				}
 				if (isDoor(i,j,RIGHT, vis)){
 					Door* doo = getDoor(Vector2D(i,j),RIGHT);
-					if (doo->getId() > 0)
+					if (doo->getType() > 0)
 						glColor3f(1,1,1);
 					else
         		glColor3f(0.8,0.12,0.12);
-					if(doo->getStatus()){
+					if(doo->isClosed()){
 						glVertex2f(i*xstep+xstep, (height_-j)*ystep);
 						glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
 					}
 				}
 				if (isDoor(i,j,BOTTOM, vis)){
 					Door* doo = getDoor(Vector2D(i,j),BOTTOM);
-					if (doo->getId() > 0)
+					if (doo->getType() > 0)
 						glColor3f(1,1,1);
 					else
         		glColor3f(0.8,0.12,0.12);
-					if(doo->getStatus()){
+					if(doo->isClosed()){
 						glVertex2f(i*xstep, (height_-j)*ystep-ystep);
 						glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
 					}
 				}
 				if (isDoor(i,j,LEFT, vis)){
 					Door* doo = getDoor(Vector2D(i,j),LEFT);
-					if (doo->getId() > 0)
+					if (doo->getType() > 0)
 						glColor3f(1,1,1);
 					else
         		glColor3f(0.8,0.12,0.12);
-					if(doo->getStatus()){
+					if(doo->isClosed()){
 						glVertex2f(i*xstep, (height_-j)*ystep-ystep);
 						glVertex2f(i*xstep, (height_-j)*ystep);
 					}
@@ -716,6 +743,7 @@ void World::render2D(bool vis){
 //update vertices for collision detection
 void World::updateCollisionVertices(Vector2D modelPos){
 #ifdef _CLIENT_
+  /*
 	if (!isLoaded()){
 		numberOfVerts_ = 0;
 		return;
@@ -989,7 +1017,7 @@ void World::updateCollisionVertices(Vector2D modelPos){
 
   //this is finally the number of vertices for collision detection
   numberOfVerts_ = index;
-  assert(index < 976);
+  assert(index < 976);*/
 #endif
 }
 
@@ -1624,7 +1652,7 @@ bool World::isWall(short x, short y, Direction dir, bool useVisibility){
   const Door* doo = getDoor(Vector2D(x,y),dir);
   bool closedDoor = false;
   if (doo){
-    closedDoor = doo->getStatus();
+    closedDoor = doo->isClosed();
   }
   //The field must be active or visibility disabled(see everything) to see something
   //And there must be a wall or a closed door

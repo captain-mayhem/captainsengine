@@ -252,7 +252,7 @@ bool Hero::load(const string& filename){
   ifstream in(filename.c_str(), ios::binary);
 
   in.read((char*)&version, sizeof(version));
-  if (version < VERSION || version > VERSION+0.01){
+  if (version < VERSION-0.01 || version > VERSION+0.01){
     in.close();
     return false;
   }

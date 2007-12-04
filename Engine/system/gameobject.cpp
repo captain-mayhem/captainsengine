@@ -11,6 +11,12 @@ GameObject::GameObject(){
   id_ = ++idCount_;
 }
 
+GameObject::GameObject(GameObject const& g){
+  trafo_ = g.trafo_;
+  //! the copy of an object is another object
+  id_ = ++idCount_;
+}
+
 GameObject::~GameObject(){
 }
 

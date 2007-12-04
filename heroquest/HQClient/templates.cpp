@@ -2,12 +2,12 @@
 #include <fstream>
 #include <string>
 #include "common.h"
+#include "mesh/model.h"
+#include "mesh/mesh.h"
 #include "templates.h"
 
 using std::ifstream;
 using std::string;
-
-using Graphics::Model;
 
 extern string path;
 
@@ -184,11 +184,12 @@ void Templates::load(){
   for (int i = 0; i < number; i++){
     in6 >> name;
     in6 >> idx;
-    Model* mod = new Model;
-    models_.push_back(mod);
+    MeshGeo::Mesh* msh = new MeshGeo::Mesh();
 #ifdef _CLIENT_
-    models_.back()->loadFromHMB("../HQClient/models/"+name);
+    msh->loadFromFile("../HQClient/models/"+name);
 #endif
+    MeshGeo::Model* mod = new MeshGeo::Model(msh);
+    models_.push_back(mod);
   }
   in6.close();
 }

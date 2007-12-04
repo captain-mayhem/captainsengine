@@ -381,7 +381,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       else{
 	      //can't open secret doors
-        if (doo->getId() > 0){
+        if (doo->getType() > 0){
           *ss << toStr(CHAT)+ " There is no door.";
 	        break;
 	      }
@@ -390,7 +390,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       if (doo->getScript() != NULL){
         scr.call(OnOpen, doo->getScript(), pos);
       }
-      doo->setActive(false);
+      doo->setClosed(false);
       //Make visible what's behind the door
       if (pos == doo->getPosition())
         wrld.update_visibility(doo->getPosition2());
@@ -596,25 +596,25 @@ void Message::process(ServerSocket* ss, const string& cmd){
 	      Door* d;
 	      d = wrld.getDoor(pos, TOP);
 	      if (d){
-	        if (d->getId() == 1){
+	        if (d->getType() == 1){
 	          secretDoors.push_back(d);
 	        }
 	      }
 	      d = wrld.getDoor(pos, RIGHT);
 	      if (d){
-	        if (d->getId() == 1){
+	        if (d->getType() == 1){
 	          secretDoors.push_back(d);
 	        }
 	      }
 	      d = wrld.getDoor(pos, BOTTOM);
 	      if (d){
-	        if (d->getId() == 1){
+	        if (d->getType() == 1){
 	          secretDoors.push_back(d);
 	        }
 	      }
 	      d = wrld.getDoor(pos, LEFT);
 	      if (d){
-	        if (d->getId() == 1){
+	        if (d->getType() == 1){
 	          secretDoors.push_back(d);
 	        }
 	      }
@@ -631,7 +631,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       for (unsigned i = 0; i < secretDoors.size(); i++){
         Door* d = secretDoors[i];
 	      //make door "unsecret";
-	      d->setId(0);
+	      d->setType(0);
 	      msg += " "+toStr(d->getPosition().x)+" "+toStr(d->getPosition().y)+" "+
 		    toStr(d->getPosition2().x)+" "+toStr(d->getPosition2().y);
       }

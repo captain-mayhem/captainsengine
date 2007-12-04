@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 #include "math/vector.h"
+#include "renderer/scene.h"
 #include "../HQClient/field.h"
 #include "../HQClient/door.h"
 
@@ -80,16 +81,12 @@ public:
 
   //! Add a script
   void addScript(char ident, const ::Math::Vector2D& pos);
+
+  //! Set the current (ascii) map
+  void setMap(char** map) {map_ = map;}
 private:
-  //! the width of the map
-  short width_;
-  //! the height of the map
-  short height_;
-  //! the map
-  //! it is just an array of Fields
-  Field **map_;
-  //! the room structure
-  vector< vector< ::Math::Vector2D > > rooms_;
+  //! the scene
+  Graphics::Scene scene_;
   //! the hero starting positions
   vector< ::Math::Vector2D > starts_;
   //! the doors in the map
@@ -135,6 +132,15 @@ private:
 
   //! the tiles
   vector<Tile> tiles_;
+
+  //! the ascii map
+  char** map_;
+
+  //! the width
+  short width_;
+
+  //! the height
+  short height_;
 };
 
 #endif

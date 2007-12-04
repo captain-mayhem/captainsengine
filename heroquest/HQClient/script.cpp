@@ -1020,11 +1020,11 @@ int Script::openDoor(lua_State* L){
     cerr << "openDoor: No Door!";
     return 0;
   }
-  d->setId(0);
+  d->setType(0);
   if(d->getScript() != NULL){
     scr.call(OnOpen, d->getScript(), Vector2D(x,y));
   }
-  d->setActive(false);
+  d->setClosed(false);
   //update visibility
   wrld.update_visibility(d->getPosition());
   wrld.update_visibility(d->getPosition2());
@@ -1167,9 +1167,10 @@ int Script::exchangeModel(lua_State* L){
   int fieldidx = (int)luaL_checknumber(L, 3);
   int modelid = (int)luaL_checknumber(L, 4);
 	Field& field = wrld.getField(Vector2D(x,y));
-  Graphics::ModelInstance old = field.models[fieldidx];
-  field.models[fieldidx] = Templates::instance()->getModel(modelid)->clone();
-  field.models[fieldidx].setTransform(old.getTransform());
+  MeshGeo::Model* old = field.models[fieldidx];
+  //TODO clone
+  field.models[fieldidx] = Templates::instance()->getModel(modelid);
+  field.models[fieldidx]->setTrafo(old->getTrafo());
 #endif
   return 0;
 }
@@ -1184,7 +1185,7 @@ int Script::addModel(lua_State* L){
 	Field& field = wrld.getField(Vector2D(x,y));
   unsigned fieldidx = field.numModels;
   //realloc model array
-  Graphics::ModelInstance* tmp = new Graphics::ModelInstance[fieldidx+1];
+  MeshGeo::Model** tmp = new MeshGeo::Model*[fieldidx+1];
   for (int i = 0; i < fieldidx; i++){
     tmp[i] = field.models[i];
   }
@@ -1192,9 +1193,10 @@ int Script::addModel(lua_State* L){
   field.models = tmp;
   field.numModels++;
 
-  field.models[fieldidx] = Templates::instance()->getModel(modelid)->clone();
+  //TODO clone
+  field.models[fieldidx] = Templates::instance()->getModel(modelid);
   Matrix mat(Matrix::Translation, Vector3D(x*QUADSIZE+QUADSIZE/2, 0, y*QUADSIZE+QUADSIZE/2));
-  field.models[fieldidx].setTransform(mat);
+  field.models[fieldidx]->setTrafo(mat);
 #endif
   return 0;
 }

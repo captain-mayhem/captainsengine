@@ -13,7 +13,8 @@
 #define FIELD_HH
 
 #include "math/vector.h"
-#include "renderer/model.h"
+//#include "renderer/model.h"
+#include "mesh/model.h"
 #include "bitset.h"
 #include "gameobject.h"
 //#include "script.hh"
@@ -74,17 +75,21 @@ public:
   //! a helper for 2d and 3d visiblility calculations
   Bitset tempVis;
   //! number of vertices
-  unsigned numVertices;
+  //unsigned numVertices;
   //! the vertices
-  Vector3D *vertices;
+  //Vector3D *vertices;
   //! number of models
-  unsigned numModels;
+  //unsigned numModels;
   //! number of used models
-  unsigned usedModels;
+  //unsigned usedModels;
   //! the models
-  Graphics::ModelInstance* models;
+  //Graphics::ModelInstance* models;
   //! the texture coordinates
-  Vec2f *texCoords;
+  //Vec2f *texCoords;
+  //! number of models on the field
+  unsigned numModels;
+  //! the ids of the models
+  MeshGeo::Model** models;
   //! object storage, if two creatures try to cross
   /*! If two creatures are on the same field, the first
    * is stored here

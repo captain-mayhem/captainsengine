@@ -78,6 +78,7 @@ void engineMain(int argc, char** argv){
       in.getline(map[k], width*5+2);
     }
 
+    cmp.setMap(map);
     //Now parse the map data
     for (j = 0; j < height; j++){
       //***********

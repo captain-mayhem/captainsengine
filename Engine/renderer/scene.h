@@ -31,7 +31,7 @@ public:
   //! Delete a model
   void deleteModel(const unsigned id);
   //! Get a model
-  MeshGeo::Model* getModel(const int id);
+  MeshGeo::Model* getModel(const unsigned id);
   //! Add a texture
   unsigned addTexture(Texture* tex) {textures_.push_back(tex); return (unsigned)textures_.size();}
   //! Get all textures

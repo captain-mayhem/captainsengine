@@ -16,6 +16,7 @@
 #include <string>
 
 #include "math/vector.h"
+#include "renderer/scene.h"
 //#include "array.hh"
 #include "field.h"
 #include "hero.h"
@@ -338,10 +339,14 @@ private:
 		Vector2D pos;
 	};
 
-
+  //! should collision between walls be enabled
   bool wallCollision_;
 
+  //! is there a difference between monsters and heros
   bool respectClasses_;
+
+  //! the scene
+  Graphics::Scene scene_;
 };
 
 extern class World wrld;

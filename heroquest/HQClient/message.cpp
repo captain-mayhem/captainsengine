@@ -1099,7 +1099,7 @@ void Message::process(){
       if (doo->getScript() != NULL){
         scr.call(OnOpen, doo->getScript(), pos);
       }
-		  doo->setActive(false);
+		  doo->setClosed(false);
 		  //Update collition vertices if it's your turn
 		  if (plyr.yourTurn()){
 			  wrld.updateCollisionVertices(pos);
@@ -1195,7 +1195,7 @@ void Message::process(){
 					  dir = LEFT;
 			  }
 			  Door* d = wrld.getDoor(p1, dir);
-			  d->setId(0);
+			  d->setType(0);
 		  }
 	  }
 	  break;

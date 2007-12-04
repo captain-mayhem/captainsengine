@@ -38,6 +38,10 @@ Editor::Editor(){
   vToa_[1001] = "wall";
   aTov_["startpos"] = 1002;
   vToa_[1002] = "startpos";
+  aTov_["door"] = 1003;
+  vToa_[1003] = "door";
+  aTov_["wallpart"] = 1004;
+  vToa_[1004] = "wallpart";
 }
 
 Editor::~Editor(){

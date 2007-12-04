@@ -5,7 +5,7 @@ SHELL :=/bin/sh
 # set OS variable
 OS := $(shell uname -s)
 CXX      := g++
-CXXFLAGS := -g -Wall -I/usr/X11/include -I../../Engine -D_CLIENT_
+CXXFLAGS := -g -Wall -I/usr/X11/include -I../../Engine -D_CLIENT_ -D_DEBUG_
 LDFLAGS  = 
 GL_LIBS  = -lGL -lGLU
 ENGINE_LIBS = ../../Engine/libengine.a
