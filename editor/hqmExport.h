@@ -40,6 +40,13 @@ public:
   std::vector<unsigned> modelids;
 };
 
+struct Door{
+  unsigned id;
+  short type;
+  Math::Vector2D pos;
+  Math::Vector2D pos2;
+};
+
 class HQMExport{
 public:
   enum Direction{
@@ -66,6 +73,8 @@ private:
   std::vector< std::vector< Math::Vector2D > > rooms_;
   //! the starting positions
   std::vector<Math::Vector2D> startpos_;
+  //! the doors
+  std::vector<Door> doors_;
 };
   
 

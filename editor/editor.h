@@ -25,6 +25,8 @@ public:
     GROUND = 1000,
     WALL = 1001,
     STARTPOS = 1002,
+    DOOR = 1003,
+    WALLPART = 1004,
   };
   ~Editor();
   static void init();

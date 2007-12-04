@@ -63,31 +63,75 @@ bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
     Matrix mat = (*iter)->getTrafo();
     Vector3D trans = mat.getTranslation();
     Vector2D pos = convertToMap(trans);
-    Field& f = map_[pos.y][pos.x];
+    Field* f = &map_[pos.y][pos.x];
     int classAttrib = (*iter)->getAttrib(0);
     //ground
     if (classAttrib == Editor::GROUND){
-      f.position = pos;
-      f.id = (*iter)->getAttrib(1);
+      f->position = pos;
+      f->id = (*iter)->getAttrib(1);
       //update rooms
-      while (rooms_.size() <= (unsigned short)f.id){
+      while (rooms_.size() <= (unsigned short)f->id){
         vector<Vector2D> tmp;
         rooms_.push_back(tmp);
       }
-      vector<Vector2D>* room = &rooms_[f.id];
+      vector<Vector2D>* room = &rooms_[f->id];
       room->push_back(pos);
-      f.modelids.push_back((*iter)->getID());
+      f->modelids.push_back((*iter)->getID());
+      //std::cerr << (*iter)->getID();
     }
     //wall
     else if (classAttrib == Editor::WALL){
-      f.wallbits.set(extractDir(mat));
+      Direction d = extractDir(mat);
+      //std::cerr << d << " " << pos << "\n";
+      f->wallbits.set(d);
+      f->modelids.push_back((*iter)->getID());
+    }
+    //wallpart
+    else if (classAttrib == Editor::WALLPART){
+      f->modelids.push_back((*iter)->getID());
     }
     //starting position
     else if (classAttrib == Editor::STARTPOS){
       startpos_.push_back(pos);
     }
     //door
-    {
+    else if (classAttrib == Editor::DOOR){
+      Door door;
+      door.id = (*iter)->getID();
+      door.type = (*iter)->getAttrib(1);
+      int idx = (int)doors_.size();
+      Direction d = extractDir(mat);
+      f->doorbits.set(d);
+      f->dooridx[d] = idx;
+      if (d == TOP){
+        door.pos = Vector2D(pos.x,pos.y-1);
+        door.pos2 = pos;
+        Field* f2 = &map_[pos.y-1][pos.x];
+        f2->doorbits.set(BOTTOM);
+        f2->dooridx[BOTTOM] = idx;
+      }
+      else if (d == RIGHT){
+        door.pos = pos;
+        door.pos2 = Vector2D(pos.x+1,pos.y);
+        Field* f2 = &map_[pos.y][pos.x+1];
+        f2->doorbits.set(LEFT);
+        f2->dooridx[LEFT] = idx;
+      }
+      else if (d == BOTTOM){
+        door.pos = pos;
+        door.pos2 = Vector2D(pos.x,pos.y+1);
+        Field* f2 = &map_[pos.y+1][pos.x];
+        f2->doorbits.set(TOP);
+        f2->dooridx[TOP] = idx;
+      }
+      else if (d == LEFT){
+        door.pos = Vector2D(pos.x-1,pos.y);
+        door.pos2 = pos;
+        Field* f2 = &map_[pos.y][pos.x-1];
+        f2->doorbits.set(RIGHT);
+        f2->dooridx[RIGHT] = idx;
+      }
+      doors_.push_back(door);
     }
   }
   
@@ -100,19 +144,19 @@ bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
   for (int j = 0; j < height_; j++){
     for(int i = 0; i < width_; i++){
       //write field content
-      Field& f = map_[j][i];
-      char bits = f.wallbits.getData();
+      Field* f = &map_[j][i];
+      char bits = f->wallbits.getData();
       out.write(&bits, sizeof(bits));
-      out.write((char*)&f.position, sizeof(f.position));
-      out.write((char*)&f.id, sizeof(f.id));
-      out.write((char*)&f.active, sizeof(f.active));
-      bits = f.doorbits.getData();
+      out.write((char*)&f->position, sizeof(f->position));
+      out.write((char*)&f->id, sizeof(f->id));
+      out.write((char*)&f->active, sizeof(f->active));
+      bits = f->doorbits.getData();
       out.write(&bits, sizeof(bits));
-      out.write((char*)f.dooridx, 4*sizeof(f.dooridx[0]));
-      unsigned size = f.modelids.size();
+      out.write((char*)f->dooridx, 4*sizeof(f->dooridx[0]));
+      unsigned size = f->modelids.size();
       out.write((char*)&size, sizeof(size));
       for (unsigned i = 0; i < size; ++i){
-        out.write((char*)&f.modelids[i], sizeof(unsigned));
+        out.write((char*)&f->modelids[i], sizeof(unsigned));
       }
     }
   }
@@ -136,10 +180,19 @@ bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
     }
   }
 
+  //doors
+  size = doors_.size();
+  out.write((char*)&size, sizeof(size));
+  for (unsigned i = 0; i < size; ++i){
+    Door door = doors_[i];
+    out.write((char*)&door.id, sizeof(door.id));
+    out.write((char*)&door.type, sizeof(door.type));
+    out.write((char*)&door.pos, sizeof(door.pos));
+    out.write((char*)&door.pos2, sizeof(door.pos2));
+  }
+  
   //TODO complete
   size = 0;
-  //doors
-  out.write((char*)&size, sizeof(size));
   //monsters
   out.write((char*)&size, sizeof(size));
   //furniture
@@ -175,20 +228,22 @@ Vector2D HQMExport::convertToMap(const Vector3D& pos){
 //! Get the direction given a matrix
 HQMExport::Direction HQMExport::extractDir(const Math::Matrix& mat){
   //it is assumed that the matrix contains a rotation around the axis (0,1,0).
-  Vector3D orig = Vector3D(1,0,1).normalized();
-  Vector3D rotated = mat*orig;
-  rotated.normalize();
+  Vector3D orig = Vector3D(0,0,1);
+  Vector3D rotated1 = mat*orig;
+  Vector3D rotated2 = mat*(orig*-1);
+  Vector3D rotated = (rotated1 - rotated2).normalized();
   float angle = acos(orig.dot(rotated));
   angle = angle / (float)M_PI*180;
+  //std::cerr << "*" << rotated << "!" << angle << "*";
   //correct quadrant
   angle = rotated.x < 0 ? 360-angle : angle;
   if (angle >= 315 || angle < 45)
     return TOP;
   else if (angle >= 45 && angle < 135)
-    return RIGHT;
+    return LEFT;
   else if (angle >= 135 && angle < 225)
     return BOTTOM;
   else
-    return LEFT;
+    return RIGHT;
 }
 

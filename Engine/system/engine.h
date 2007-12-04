@@ -23,8 +23,8 @@ using std::vector;
 #define SCREENHEIGHT 768
 
 #ifndef VERSION
-#define VERSION 0.6
-#define VERSTRING "0.6"
+#define VERSION 0.7
+#define VERSTRING "0.7"
 #endif
 
 namespace Windows{

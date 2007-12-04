@@ -53,13 +53,13 @@ void Scene::render(){
 }
 
 //! Get a model
-Model* Scene::getModel(const int id){
+Model* Scene::getModel(const unsigned id){
   list<MeshGeo::Model*>::iterator iter;
-  int count = 0;
+  //int count = 0;
   for (iter = models_.begin(); iter != models_.end(); iter++){
-    if (count == id)
+    if ((*iter)->getID() == id)
       return *iter;
-    count++;
+    //count++;
   };
   return NULL;
 }
@@ -100,6 +100,9 @@ void Scene::save(const std::string& filename) const{
   out.write((char*)&size, sizeof(size));
   list<MeshGeo::Model*>::const_iterator iter;
   for (iter = models_.begin(); iter != models_.end(); iter++){
+    //model id
+    unsigned id = (*iter)->getID();
+    out.write((char*)&id, sizeof(id));
     //mesh link
     Mesh* mesh = (*iter)->getMesh();
     unsigned idx;
@@ -182,11 +185,16 @@ void Scene::load(const std::string& filename){
   //read models
   in.read((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
+    //model id
+    unsigned id;
+    in.read((char*)&id, sizeof(id));
+    System::GameObject::setIDCount(std::max(id+1, System::GameObject::getIDCount()));
     //mesh link
     unsigned idx;
     in.read((char*)&idx, sizeof(idx));
     Mesh* msh = meshes_[idx];
     Model* mdl = new Model(msh);
+    mdl->setID(id);
     models_.push_back(mdl);
     //texture links
     for (int i = 0; i < MAX_TEXTURES; i++){
