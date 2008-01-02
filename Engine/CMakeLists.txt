@@ -10,9 +10,9 @@ INCLUDE(window/CMakeLists.txt)
 
 LINK_DIRECTORIES(${HeroEngine_SOURCE_DIR}/Engine/lib)
 
-IF(NOT ${DIRECTX})
+IF(NOT ${DIRECTX} AND ${OS} STREQUAL "windows")
 	ADD_DEFINITIONS(/D_NODIRECTX)	
-ENDIF(NOT ${DIRECTX})
+ENDIF(NOT ${DIRECTX} AND ${OS} STREQUAL "windows")
 
 ADD_LIBRARY(Engine STATIC 
 	${Engine_gui_SRCS}
@@ -32,13 +32,23 @@ SOURCE_GROUP("math\\Header Files" FILES ${Engine_math_HDRS})
 SOURCE_GROUP("mesh\\Source Files" FILES ${Engine_mesh_SRCS})
 SOURCE_GROUP("mesh\\Header Files" FILES ${Engine_mesh_HDRS})
 
-TARGET_LINK_LIBRARIES(Engine
-	jpeg
-	liblua
-	liblualib
-	d3d9
-	d3dx9
-	${OPENGL_LIBRARIES})
+IF (${OS} STREQUAL "windows")
+  TARGET_LINK_LIBRARIES(Engine
+	  jpeg
+	  liblua
+	  liblualib
+	  d3d9
+	  d3dx9
+	  ${OPENGL_LIBRARIES})
+ENDIF (${OS} STREQUAL "windows")
+IF (${OS} STREQUAL "linux")
+  TARGET_LINK_LIBRARIES(Engine
+	  jpeg
+	  lua
+	  lualib
+	  ${OPENGL_LIBRARIES})
+ENDIF (${OS} STREQUAL "linux")
+
 
 INSTALL(TARGETS Engine ARCHIVE DESTINATION Engine/lib)
 INSTALL(FILES engine.ini DESTINATION Engine)
