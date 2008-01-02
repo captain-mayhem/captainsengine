@@ -30,7 +30,7 @@ float Maths::Absolute(float num){
 
 
 //returns the normal of a polygon
-Vector3D Maths::Normal(Vector3D polygon[]){
+Vector3D Maths::Normal(const Vector3D polygon[]){
   Vector3D v1 = polygon[2] - polygon[0];
   Vector3D v2 = polygon[1] - polygon[0];
 
@@ -118,7 +118,7 @@ Vector3D Maths::IntersectionPoint(Vector3D normal, Vector3D line[], double dista
 }
 
 // checks, if a point is inside of a polygon
-bool Maths::InsidePolygon(Vector3D intersection, Vector3D polygon[], long verticeCount){
+bool Maths::InsidePolygon(Vector3D intersection, const Vector3D polygon[], long verticeCount){
   const double MATCH_FACTOR = 0.99;
   double angle = 0.0;
   
@@ -156,7 +156,7 @@ bool Maths::IntersectedPolygon(Vector3D polygon[], Vector3D line[], int vertexCo
 }
 
 // classifies a sphere according to a plane
-int Maths::ClassifySphere(Vector3D &center, Vector3D &normal, Vector3D &point, float radius, float &distance){
+int Maths::ClassifySphere(Vector3D &center, Vector3D &normal, const Vector3D &point, float radius, float &distance){
   // distance of the polygon from the origin
   float d = (float)PlaneDistance(normal, point);
 
@@ -171,7 +171,7 @@ int Maths::ClassifySphere(Vector3D &center, Vector3D &normal, Vector3D &point, f
 }
 
 //returns true if the sphere intersects edges of the polygon
-bool Maths::EdgeSphereCollision(Vector3D &center, Vector3D polygon[], int vertexCount, float radius){
+bool Maths::EdgeSphereCollision(Vector3D &center, const Vector3D polygon[], int vertexCount, float radius){
 	
   for(int i = 0; i < vertexCount; i++){
     // closest point on edge to the sphere's center

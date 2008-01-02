@@ -79,6 +79,12 @@ public:
   //! intersects a ray and a triangle
   float intersect(const Math::Ray& r) const;
 
+  //! get a triangle from the mesh
+  bool getTriangle(int i, Math::Vector3D** result);
+
+  //! get number of triangles
+  int getNumTriangles() {return numTriangles_;}
+
 protected:
   //! load obj-files
   bool loadOBJ(std::string filename);

@@ -1,4 +1,4 @@
-#ifdef WIN32
+#if defined WIN32 && !defined _NODIRECTX
 
 #include "../system/engine.h"
 #include "DXrenderer.h"

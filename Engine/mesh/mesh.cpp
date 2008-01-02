@@ -525,3 +525,12 @@ float Mesh::intersect(const Math::Ray& r) const{
   return intersection;
 }
 
+bool Mesh::getTriangle(int i, Vector3D** result){
+  if (i >= numTriangles_)
+    return false;
+  (*result)[0] = vertices_[triangles_[i]->v0];
+  (*result)[1] = vertices_[triangles_[i]->v1];
+  (*result)[2] = vertices_[triangles_[i]->v2];
+  return true;
+}
+

@@ -174,7 +174,7 @@ void System::Engine::startup(int argc, char** argv){
     if (type == "OpenGL")
       rend_ = new ::Graphics::OGLRenderer();
     else if (type == "DirectX"){
-#ifdef UNIX
+#if defined UNIX || defined _NODIRECTX
       cerr << "DirectX is not supported on Linux\n";
       exit(-1);
 #else
@@ -285,7 +285,7 @@ void System::Engine::run(){
   
   rend_->enableBlend(false);
 
-#ifdef WIN32
+#if defined WIN32 && !defined _NODIRECTX
   if (rend_->getRenderType() == Graphics::DirectX){
     Graphics::DXRenderer* dxr = dynamic_cast<Graphics::DXRenderer*>(rend_);
     // End the scene

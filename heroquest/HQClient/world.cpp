@@ -53,7 +53,7 @@ using Math::Matrix;
 extern string path;
 
 //Constructor
-World::World(void) : width_(0), height_(0), world_(0), numberOfVerts_(0), starts_(0){
+World::World(void) : width_(0), height_(0), world_(0), starts_(0){
 	loaded_ = false;
 	wallCollision_ = true;
   respectClasses_ = true;
@@ -65,7 +65,7 @@ World::World(const World& w){
 	height_ = w.height_;
 	loaded_ = w.loaded_;
 	//Field** world_;//!
-	numberOfVerts_ = w.numberOfVerts_;
+	//numberOfVerts_ = w.numberOfVerts_;
 	//Vector3D** vWorld_;//!
 	//Vector3D moveBox_[4];//!
 	heroSize_ = w.heroSize_;
@@ -130,7 +130,8 @@ void World::deInit(){
     //TODO reset other datastructures
     
 #ifdef _CLIENT_
-    delete [] vWorld_;
+    //delete [] vWorld_;
+    coll_models_.clear();
 #endif
 
 	}
@@ -350,7 +351,7 @@ bool World::load(const string& name){
   
 #ifdef _CLIENT_
 	//Collision update
-	vWorld_ = new Vector3D*[976];
+	//vWorld_ = new Vector3D*[976];
 	updateCollisionVertices(cam.modelPos());
 #endif
 
@@ -711,7 +712,7 @@ void World::render2D(bool vis){
 	glEnable(GL_TEXTURE_2D);
   
 	//in debug compilation, visualize all fields that will be rendered in 3D on the 2D map.   
-#ifdef _DEBUG_
+#ifdef _DEBUG
 	//what is visible in 3D?
 	currently_visible(cam.modelPos(), cam.getLookDirection());
 	glDisable(GL_TEXTURE_2D);
@@ -743,6 +744,92 @@ void World::render2D(bool vis){
 //update vertices for collision detection
 void World::updateCollisionVertices(Vector2D modelPos){
 #ifdef _CLIENT_
+  if (!isLoaded())
+    return;
+  coll_models_.clear();
+  for (short neighbours = 0; neighbours < 5; ++neighbours){
+    int j = 0;
+    int i = 0;
+    switch(neighbours){
+      case 0:
+        j = (int)modelPos.y;
+        i = (int)modelPos.x;
+        break;
+      case 5:
+        j = (int)modelPos.y;
+        i = (int)modelPos.x+1;
+        break;
+      case 6:
+        j = (int)modelPos.y;
+        i = (int)modelPos.x-1;
+        break;
+      case 7:
+        j = (int)modelPos.y+1;
+        i = (int)modelPos.x;
+        break;
+      case 8:
+        j = (int)modelPos.y-1;
+        i = (int)modelPos.x;
+        break;
+      case 1:
+        j = (int)modelPos.y+1;
+        i = (int)modelPos.x+1;
+        break;
+      case 2:
+        j = (int)modelPos.y-1;
+        i = (int)modelPos.x+1;
+        break;
+      case 3:
+        j = (int)modelPos.y+1;
+        i = (int)modelPos.x-1;
+        break;
+      case 4:
+        j = (int)modelPos.y-1;
+        i = (int)modelPos.x-1;
+        break;
+    }
+    if (i < 0)
+      i = 0;
+    if (i >= width_)
+      i = width_ - 1;
+    if (j < 0)
+      j = 0;
+    if (j > height_)
+      j = height_ - 1;
+    //collision with walls
+    for (unsigned k = 0; k < world_[j][i].numModels; ++k){
+      MeshGeo::Model* mdl = world_[j][i].models[k];
+      int attrib = mdl->getAttrib(0);
+      //collide with walls, wallparts and doors
+      if ((attrib == 1001 || attrib == 1004 || attrib == 1003) && wallCollision_){
+        coll_models_.push_back(mdl);
+      }
+    }
+    //collision with doors
+    Field& curr = world_[j][i];
+    if (curr.doorbits.getData() != '\0'){
+      if (curr.doorbits.test(BOTTOM)){
+        int idx = curr.dooridx[BOTTOM];
+        if (doors_[idx]->isClosed() && wallCollision_)
+          coll_models_.push_back(doors_[idx]->getModel());
+      }
+      if (curr.doorbits.test(RIGHT)){
+        int idx = curr.dooridx[RIGHT];
+        if (doors_[idx]->isClosed() && wallCollision_)
+          coll_models_.push_back(doors_[idx]->getModel());
+      }
+      if (curr.doorbits.test(TOP)){
+        int idx = curr.dooridx[TOP];
+        if (doors_[idx]->isClosed() && wallCollision_)
+          coll_models_.push_back(doors_[idx]->getModel());
+      }
+      if (curr.doorbits.test(LEFT)){
+        int idx = curr.dooridx[LEFT];
+        if (doors_[idx]->isClosed() && wallCollision_)
+          coll_models_.push_back(doors_[idx]->getModel());
+      }
+    }
+  }
   /*
 	if (!isLoaded()){
 		numberOfVerts_ = 0;
@@ -814,8 +901,9 @@ void World::updateCollisionVertices(Vector2D modelPos){
       vWorld_[index++] = &doo->getColVerts()[5];
       vWorld_[index++] = &doo->getColVerts()[7];
     }
-  }
+  }*/
 
+  /*
   //set invisible box around the field, if no more moves are left
   //if (game.getMoves() <= 0){
     moveBox_[0] = world_[j][i].vertices[0];

@@ -36,7 +36,7 @@ public:
   //! returns the absolute value of num
   static float Absolute(float num);
   //! the normal of a planar polygon
-  static Vector3D Normal(Vector3D polygon[]);
+  static Vector3D Normal(const Vector3D polygon[]);
   //! returns the point on the line segment [a b] that is closest to point
   static Vector3D ClosestPointOnLine(Vector3D a, Vector3D b, Vector3D point);
   //! returns the distance of the plane from the origin
@@ -60,7 +60,7 @@ public:
    */
   static Vector3D IntersectionPoint(Vector3D normal, Vector3D line[], double distance);
   //! returns true if the intersection point is inside the polygon
-  static bool InsidePolygon(Vector3D intersection, Vector3D polygon[], long verticesCount);
+  static bool InsidePolygon(Vector3D intersection, const Vector3D polygon[], long verticesCount);
   //! tests collision between a line and polygon
   static bool IntersectedPolygon(Vector3D polygon[], Vector3D line[], int vertexCount);
   //! classifies a sphere according to a plane
@@ -71,9 +71,9 @@ public:
    * \param distance the distance between the sphere's middle point and the plane is returned in here
    * \returns BEHIND, INTERSECTS or FRONT
    */
-  static int ClassifySphere(Vector3D &center, Vector3D &normal, Vector3D &point, float radius, float &distance);
+  static int ClassifySphere(Vector3D &center, Vector3D &normal, const Vector3D &point, float radius, float &distance);
   //! Tests, if the sphere collided with an edge of the polygon
-  static bool EdgeSphereCollision(Vector3D &center, Vector3D polygon[], int vertexCount, float radius);
+  static bool EdgeSphereCollision(Vector3D &center, const Vector3D polygon[], int vertexCount, float radius);
   //! returns true if the sphere intersects the polygon.
   static bool SpherePolygonCollision(Vector3D polygon[], Vector3D &center, int vertexCount, float radius);
   //! returns the offset that the sphere needs to move that it does not intersect the plane any longer

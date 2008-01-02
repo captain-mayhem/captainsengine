@@ -12,6 +12,8 @@
 #ifndef CAMERA_HH
 #define CAMERA_HH
 
+#include <list>
+
 #include "math/vector.h"
 #include "field.h"
 
@@ -65,7 +67,7 @@ public:
    * \param pVertices The vertices with which the camera could collide
    * \param numOfVerts the number of vertices that were given in pVertices
    */
-  void checkCameraCollision(Vector3D **pVertices, int numOfVerts);
+  void checkCameraCollision(const std::list<MeshGeo::Model*>& models, const Math::Vector3D* vertices);
   //! This updates the camera's view and calls framerate calculation
   void update();
   //! Gives the lookAt parameters to OpenGL
@@ -76,6 +78,8 @@ public:
 private:
   //! updates the map, if the camera moved in map coordinates
   void update2D();
+  //! check the collision of one triangle
+  void collisionHelper(const Vector3D* triangle);
   //! The camera's position
   Vector3D position_;	
   //! The camera's view

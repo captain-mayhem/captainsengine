@@ -10,6 +10,8 @@
 //  ==================================================================
 
 #include <cmath>
+
+#include <mesh/mesh.h>
 #include "math.h"
 #include "renderer.h"
 //#include "font.hh"
@@ -84,8 +86,7 @@ void Camera::strafeCamera(float speed){
       view_.z += strafe_.z * COLL_STEP;
     
       //get the nearest vertices and check them for camera collision
-      Vector3D** worldCollision = wrld.getWorld();
-      cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+      cam.checkCameraCollision(wrld.getCollisionModels(), wrld.getCollisionVertices());
       step += COLL_STEP;
     }
   }
@@ -98,8 +99,7 @@ void Camera::strafeCamera(float speed){
       view_.z += strafe_.z * -COLL_STEP;
     
       //get the nearest vertices and check them for camera collision
-      Vector3D** worldCollision = wrld.getWorld();
-      cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+      cam.checkCameraCollision(wrld.getCollisionModels(), wrld.getCollisionVertices());
       step -= COLL_STEP;
     }
   }
@@ -131,8 +131,7 @@ void Camera::moveCamera(float speed){
       view_.z += vVector.z * COLL_STEP;
     
       //get the nearest vertices and check them for camera collision
-      Vector3D** worldCollision = wrld.getWorld();
-      cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+      cam.checkCameraCollision(wrld.getCollisionModels(), wrld.getCollisionVertices());
       step += COLL_STEP;
     }
   }
@@ -144,8 +143,7 @@ void Camera::moveCamera(float speed){
       view_.z += vVector.z * -COLL_STEP;
     
       //get the nearest vertices and check them for camera collision
-      Vector3D** worldCollision = wrld.getWorld();
-      cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
+      cam.checkCameraCollision(wrld.getCollisionModels(), wrld.getCollisionVertices());
       step -= COLL_STEP;
     }
 
@@ -192,35 +190,56 @@ void Camera::moveTo(float dist, const Vector3D dir){
 
 
 //checks all the polygons in list and resets the camera if collided
-void Camera::checkCameraCollision(Vector3D **pVertices, int numOfVerts){
+void Camera::checkCameraCollision(const std::list<MeshGeo::Model*>& models, const Math::Vector3D* vertices){
   //Can happen directly after loading world, that this is NULL
   //because the world is loaded asynchronously within another thread
-  if (pVertices == NULL)
-    return;
+  //if (pVertices == NULL)
+  //  return;
   // go through all given triangles
-  for(int i = 0; i < numOfVerts; i += 3){
+  //for(int i = 0; i < numOfVerts; i += 3){
     // the current triangle
-    Vector3D triangle[3] = { *pVertices[i], *pVertices[i+1], *pVertices[i+2] };
-    Vector3D normal = Maths::Normal(triangle);
-    
-    float distance = 0.0f;
-    int classification = Maths::ClassifySphere(position_, normal, 
-		  triangle[0], radius_, distance);
-    // If the sphere intersects the polygon's plane, then check further
-    if(classification == INTERSECTS){
-      //offset to the plane
-      Vector3D offset = normal * distance;
-      Vector3D intersection = position_ - offset;
+    //Vector3D triangle[3] = { *pVertices[i], *pVertices[i+1], *pVertices[i+2] };
+    //collisionHelper(triangle);
+  //}
+  for (std::list<MeshGeo::Model*>::const_iterator iter = models.begin(); iter != models.end(); ++iter){
+    MeshGeo::Model* mdl = *iter;
+    MeshGeo::Mesh* msh = mdl->getMesh();
+    for (int i = 0; i < msh->getNumTriangles(); ++i){
+      Vector3D triangle[3];
+      Vector3D* p = &triangle[0];
+      if (mdl->getAttrib(0) == 1003){
+        p = &triangle[0];
+        //just for debug (there is a door)
+      }
+      msh->getTriangle(i, &p);
+      for (int j = 0; j < 3; ++j){
+        triangle[j] = mdl->getTrafo()*triangle[j];
+      }
+      collisionHelper(triangle);
+    }
+  }
+}
 
-     //collision?
-     if(Maths::InsidePolygon(intersection, triangle, 3) ||
-        Maths::EdgeSphereCollision(position_, triangle, 3, radius_ / 2)){
-      
+void Camera::collisionHelper(const Vector3D* triangle){
+  Vector3D normal = Maths::Normal(triangle);
+
+  float distance = 0.0f;
+  int classification = Maths::ClassifySphere(position_, normal, 
+    triangle[0], radius_, distance);
+  // If the sphere intersects the polygon's plane, then check further
+  if(classification == INTERSECTS){
+    //offset to the plane
+    Vector3D offset = normal * distance;
+    Vector3D intersection = position_ - offset;
+
+    //collision?
+    if(Maths::InsidePolygon(intersection, triangle, 3) ||
+      Maths::EdgeSphereCollision(position_, triangle, 3, radius_ / 2)){
+
         //correct camera position
         offset = Maths::GetCollisionOffset(normal, radius_, distance);
         position_ = position_ + offset;
         view_ = view_ + offset;
-      }
     }
   }
 }
