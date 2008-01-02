@@ -16,6 +16,7 @@ using std::list;
 using std::ofstream;
 using std::ifstream;
 using std::ios;
+using std::max;
 using MeshGeo::Model;
 using MeshGeo::Mesh;
 using Math::BoundingObject;
@@ -72,16 +73,16 @@ void Scene::save(const std::string& filename) const{
   //version
   out.write((char*)&version_, sizeof(version_));
   //meshes
-  unsigned size = meshes_.size();
+  size_t size = meshes_.size();
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
     string name = meshes_[i]->getFilename();
 #ifdef UNIX
     Utilities::replaceWith(name, '/', '\\');
 #endif
-    unsigned length = name.size();
+    size_t length = name.size();
     out.write((char*)&length, sizeof(length));
-    out.write(name.c_str(), sizeof(char)*length);
+    out.write(name.c_str(), (std::streamsize) sizeof(char)*length);
   }
   //textures
   size = textures_.size();
@@ -91,7 +92,7 @@ void Scene::save(const std::string& filename) const{
 #ifdef UNIX
     Utilities::replaceWith(name, '/', '\\');
 #endif
-    unsigned length = name.size();
+    size_t length = name.size();
     out.write((char*)&length, sizeof(length));
     out.write(name.c_str(), sizeof(char)*length);
   }
@@ -188,7 +189,7 @@ void Scene::load(const std::string& filename){
     //model id
     unsigned id;
     in.read((char*)&id, sizeof(id));
-    System::GameObject::setIDCount(std::max(id+1, System::GameObject::getIDCount()));
+    System::GameObject::setIDCount(max(id+1, System::GameObject::getIDCount()));
     //mesh link
     unsigned idx;
     in.read((char*)&idx, sizeof(idx));
