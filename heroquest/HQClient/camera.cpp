@@ -190,7 +190,7 @@ void Camera::moveTo(float dist, const Vector3D dir){
 
 
 //checks all the polygons in list and resets the camera if collided
-void Camera::checkCameraCollision(const std::list<MeshGeo::Model*>& models, const Math::Vector3D* vertices){
+void Camera::checkCameraCollision(const std::list<MeshGeo::Model*>& models, const MeshGeo::Mesh* mesh){
   //Can happen directly after loading world, that this is NULL
   //because the world is loaded asynchronously within another thread
   //if (pVertices == NULL)
@@ -207,16 +207,18 @@ void Camera::checkCameraCollision(const std::list<MeshGeo::Model*>& models, cons
     for (int i = 0; i < msh->getNumTriangles(); ++i){
       Vector3D triangle[3];
       Vector3D* p = &triangle[0];
-      if (mdl->getAttrib(0) == 1003){
-        p = &triangle[0];
-        //just for debug (there is a door)
-      }
       msh->getTriangle(i, &p);
       for (int j = 0; j < 3; ++j){
         triangle[j] = mdl->getTrafo()*triangle[j];
       }
       collisionHelper(triangle);
     }
+  }
+  for (int i = 0; i < mesh->getNumTriangles(); ++i){
+    Vector3D triangle[3];
+    Vector3D* p = &triangle[0];
+    mesh->getTriangle(i, &p);
+    collisionHelper(triangle);
   }
 }
 

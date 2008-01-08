@@ -78,7 +78,7 @@ public:
   void updateCollisionVertices(Vector2D modelPos);
   
 	//! returns the vertices for collision
-  Vector3D* getCollisionVertices() {return moveBox_;}
+  MeshGeo::Mesh* getCollisionVertices() {return moveBox_;}
 
   //! returns the models for collision
   std::list<MeshGeo::Model*>& getCollisionModels() {return coll_models_;}
@@ -290,7 +290,7 @@ private:
   /*! this is an invisible box around the current field if
    *  no more moves are left
    */
-  Vector3D moveBox_[8];
+  MeshGeo::Mesh* moveBox_;
   
 	//! the number of hero starting positions	
   unsigned short heroSize_;
