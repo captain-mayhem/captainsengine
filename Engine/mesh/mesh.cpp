@@ -454,7 +454,7 @@ void Mesh::buildVBO(){
   //delete [] indices;
 
   //compute real center
-  center_ = center_ / numVertices_;
+  center_ = center_ / (float)numVertices_;
 }
 
 // --------------------------------------------------------------------
@@ -525,12 +525,30 @@ float Mesh::intersect(const Math::Ray& r) const{
   return intersection;
 }
 
-bool Mesh::getTriangle(int i, Vector3D** result){
+bool Mesh::getTriangle(int i, Vector3D** result) const{
   if (i >= numTriangles_)
     return false;
   (*result)[0] = vertices_[triangles_[i]->v0];
   (*result)[1] = vertices_[triangles_[i]->v1];
   (*result)[2] = vertices_[triangles_[i]->v2];
   return true;
+}
+
+void Mesh::clear(){
+  numVertices_ = 0;
+  numTriangles_ = 0;
+  numTexCoords_ = 0;
+  vertices_.clear();
+  texCoords_.clear();
+  edges_.clear();
+  triangles_.clear();
+  indices_.clear();
+  name_ = "none";
+  filename_ = "none";
+  if (vb_)
+    SAFE_DELETE(vb_);
+  min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
+  max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
+  center_ = Vector3D();
 }
 

@@ -80,10 +80,13 @@ public:
   float intersect(const Math::Ray& r) const;
 
   //! get a triangle from the mesh
-  bool getTriangle(int i, Math::Vector3D** result);
+  bool getTriangle(int i, Math::Vector3D** result) const;
 
   //! get number of triangles
-  int getNumTriangles() {return numTriangles_;}
+  int getNumTriangles() const {return numTriangles_;}
+
+  //! clear an existing mesh
+  void clear();
 
 protected:
   //! load obj-files
