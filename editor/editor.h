@@ -27,6 +27,7 @@ public:
     STARTPOS = 1002,
     DOOR = 1003,
     WALLPART = 1004,
+    MONSTER = 1005,
   };
   ~Editor();
   static void init();
@@ -47,6 +48,10 @@ public:
   std::string attribString(int attrib);
   //! get the attribute to a string
   int attribValue(const std::string& attrib);
+  //! get grid step
+  inline void setGridStep(float step) {gridStep_=step;}
+  //! set grid step
+  inline float getGridStep() {return gridStep_;}
 protected:
   //! Constructor
   Editor();

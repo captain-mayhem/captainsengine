@@ -4,7 +4,9 @@ SET(Engine_input_SRCS
 	${PRE}/keyboard.cpp
 	${PRE}/mouse.cpp)
 
-INSTALL(FILES 	
+SET(Engine_input_HDRS
 	${PRE}/keyboard.h
 	${PRE}/mouse.h
-DESTINATION Engine/include/${PRE})
+)
+
+INSTALL(FILES ${Engine_input_HDRS} DESTINATION Engine/include/${PRE})

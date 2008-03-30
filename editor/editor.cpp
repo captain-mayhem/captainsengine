@@ -12,6 +12,7 @@
 #include "gui/gui.h"
 #include "mesh/model.h"
 #include "renderer/renderer.h"
+#include "system/file.h"
 
 #define TRANSLATION_SPEED 0.1f
 
@@ -21,6 +22,7 @@ using Math::Matrix;
 using Math::Ray;
 using Gui::Button;
 using MeshGeo::Model;
+using System::Filesystem;
 
 Editor* Editor::edi_ = NULL;
 
@@ -32,16 +34,22 @@ Editor::Editor(){
   rotationStep_ = (float)M_PI/2.0f;
   editPlane_ = XZ;
   editMode_ = Translation;
-  aTov_["ground"] = 1000;
-  vToa_[1000] = "ground";
-  aTov_["wall"] = 1001;
-  vToa_[1001] = "wall";
-  aTov_["startpos"] = 1002;
-  vToa_[1002] = "startpos";
-  aTov_["door"] = 1003;
-  vToa_[1003] = "door";
-  aTov_["wallpart"] = 1004;
-  vToa_[1004] = "wallpart";
+  std::string path = Filesystem::getCwd();
+  std::cerr << path;
+  std::ifstream in((path+"/data/attributes.dat").c_str());
+  assert(in);
+  std::string attrib;
+  char buffer[1024];
+  while(in >> attrib){
+    if (attrib[0] == '#'){
+      in.getline(buffer, 1024);
+      continue;
+    }
+    int value;
+    in >> value;
+    aTov_[attrib] = value;
+    vToa_[value] = attrib;
+  }
 }
 
 Editor::~Editor(){

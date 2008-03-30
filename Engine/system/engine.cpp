@@ -265,10 +265,10 @@ void System::Engine::run(){
   rend_->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
   rend_->enableBlend(true);
   
-  fnt_[0]->render();
-  
   //render GUI-elements
   guitex_.lock();
+
+  fnt_[0]->render();
   
   list< ::Gui::GuiElement*>::iterator iter2;
   for (iter2 = guiElems_.begin(); iter2 != guiElems_.end(); iter2++){

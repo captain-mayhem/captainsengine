@@ -17,13 +17,13 @@ SET(Engine_renderer_SRCS
 	${PRE}/vertexbuffer.cpp
 )
 
-INSTALL(FILES 	
-	${PRE}/dummyrenderer.h 
-	${PRE}/DXrenderer.h 
-	${PRE}/DXtexture.h 
-	${PRE}/DXvertexbuffer.h 
-	${PRE}/font.h 
-	${PRE}/forms.h 
+SET(Engine_renderer_HDRS
+	${PRE}/dummyrenderer.h
+	${PRE}/DXrenderer.h
+	${PRE}/DXtexture.h
+	${PRE}/DXvertexbuffer.h
+	${PRE}/font.h
+	${PRE}/forms.h
 	${PRE}/material.h
 	${PRE}/model.h
 	${PRE}/OGLrenderer.h
@@ -32,5 +32,7 @@ INSTALL(FILES
 	${PRE}/renderer.h
 	${PRE}/scene.h
 	${PRE}/texture.h
-	${PRE}/vertexbuffer.h 
-DESTINATION Engine/include/${PRE})
+	${PRE}/vertexbuffer.h
+)
+
+INSTALL(FILES ${Engine_renderer_HDRS} DESTINATION Engine/include/${PRE})

@@ -9,12 +9,13 @@ SET(Engine_gui_SRCS
 	${PRE}/listbox.cpp
 	${PRE}/messagebox.cpp)
 
-INSTALL(FILES 	
-	${PRE}/console.h 
-	${PRE}/dialog.h 
-	${PRE}/dropdown.h 
-	${PRE}/filedialog.h 
-	${PRE}/gui.h 
-	${PRE}/listbox.h 
-	${PRE}/messagebox.h 
-DESTINATION Engine/include/${PRE})
+SET(Engine_gui_HDRS
+	${PRE}/console.h
+	${PRE}/dialog.h
+	${PRE}/dropdown.h
+	${PRE}/filedialog.h
+	${PRE}/gui.h
+	${PRE}/listbox.h
+	${PRE}/messagebox.h)
+
+INSTALL(FILES ${Engine_gui_HDRS} DESTINATION Engine/include/${PRE})

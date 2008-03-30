@@ -136,6 +136,54 @@ void Menu::properties(Gui::GuiElement* elem){
   else
     in->setText(Editor::instance()->attribString(mdl->getAttrib(1)));
   dia->addUnscaledElement(in);
+
+  in = new InputField();
+  in->setPosition(Vector2D(20, 630));
+  if (!mdl)
+    in->setText("-1");
+  else
+    in->setText(Editor::instance()->attribString(mdl->getAttrib(2)));
+  dia->addUnscaledElement(in);
+
+  in = new InputField();
+  in->setPosition(Vector2D(20, 600));
+  if (!mdl)
+    in->setText("-1");
+  else
+    in->setText(Editor::instance()->attribString(mdl->getAttrib(3)));
+  dia->addUnscaledElement(in);
+
+  in = new InputField();
+  in->setPosition(Vector2D(20, 570));
+  if (!mdl)
+    in->setText("-1");
+  else
+    in->setText(Editor::instance()->attribString(mdl->getAttrib(4)));
+  dia->addUnscaledElement(in);
+
+  in = new InputField();
+  in->setPosition(Vector2D(20, 540));
+  if (!mdl)
+    in->setText("-1");
+  else
+    in->setText(Editor::instance()->attribString(mdl->getAttrib(5)));
+  dia->addUnscaledElement(in);
+
+  in = new InputField();
+  in->setPosition(Vector2D(20, 510));
+  if (!mdl)
+    in->setText("-1");
+  else
+    in->setText(Editor::instance()->attribString(mdl->getAttrib(6)));
+  dia->addUnscaledElement(in);
+
+  in = new InputField();
+  in->setPosition(Vector2D(20, 480));
+  if (!mdl)
+    in->setText("-1");
+  else
+    in->setText(Editor::instance()->attribString(mdl->getAttrib(7)));
+  dia->addUnscaledElement(in);
   
   //Close button
   PDButton* close = new PDButton();
@@ -229,6 +277,13 @@ void Menu::options(Gui::GuiElement* elem){
   planes->addEntry("XY Plane");
   planes->addEntry("YZ Plane");
 
+  //The translation step
+  InputField* input = new InputField();
+  input->setPosition(Vector2D(20, 650));
+  float step = Editor::instance()->getGridStep();
+  input->setText(toStr(step));
+  dia->addUnscaledElement(input);
+
   //OK button
   PDButton* ok = new PDButton();
   ok->setPosition(Vector2D(575, 50));
@@ -244,6 +299,10 @@ void Menu::changeOptions(Gui::GuiElement* elem){
   DropDownButton* dd = dynamic_cast<DropDownButton*>(dia->getElement(0));
   Editor::Plane plane = (Editor::Plane)dd->getSelection();
   Editor::instance()->setEditPlane(plane);
+  //The translation step
+  InputField* input = dynamic_cast<InputField*>(dia->getElement(1));
+  float step = toFloat(input->getText());
+  Editor::instance()->setGridStep(step);
 }
 
 //! the export hqm button
@@ -268,5 +327,23 @@ void Menu::evaluateAttribs(Gui::GuiElement* elem){
   in = dynamic_cast<InputField*>(dia->getElement(2));
   att = Editor::instance()->attribValue(in->getText());
   mdl->setAttrib(1,att);
+  in = dynamic_cast<InputField*>(dia->getElement(3));
+  att = Editor::instance()->attribValue(in->getText());
+  mdl->setAttrib(2,att);
+  in = dynamic_cast<InputField*>(dia->getElement(4));
+  att = Editor::instance()->attribValue(in->getText());
+  mdl->setAttrib(3,att);
+  in = dynamic_cast<InputField*>(dia->getElement(5));
+  att = Editor::instance()->attribValue(in->getText());
+  mdl->setAttrib(4,att);
+  in = dynamic_cast<InputField*>(dia->getElement(6));
+  att = Editor::instance()->attribValue(in->getText());
+  mdl->setAttrib(5,att);
+  in = dynamic_cast<InputField*>(dia->getElement(7));
+  att = Editor::instance()->attribValue(in->getText());
+  mdl->setAttrib(6,att);
+  in = dynamic_cast<InputField*>(dia->getElement(8));
+  att = Editor::instance()->attribValue(in->getText());
+  mdl->setAttrib(7,att);
 }
 
