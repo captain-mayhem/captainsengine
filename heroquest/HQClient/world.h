@@ -255,6 +255,9 @@ public:
 
   //! place an inventory at a certain field
   void placeInventory(Inventory* items, Vector2D position);
+
+  //! get the scene
+  inline Graphics::Scene& getScene() {return scene_;}
 	
 private:
   //! tells if there is a door

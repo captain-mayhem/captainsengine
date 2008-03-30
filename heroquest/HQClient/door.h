@@ -76,6 +76,8 @@ public:
   inline short getType() const {return type_;}
   //! get the model of the door
   inline MeshGeo::Model* getModel() {return model_;}
+  //! set the model of the door
+  inline void setModel(MeshGeo::Model* mdl) {model_ = mdl;}
 private:
   //! The neighbouring field to the door
   Vector2D pos_;

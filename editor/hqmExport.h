@@ -47,6 +47,12 @@ struct Door{
   Math::Vector2D pos2;
 };
 
+struct Monster{
+  unsigned id;
+  unsigned instanceid;
+  Math::Vector2D pos;
+};
+
 class HQMExport{
 public:
   enum Direction{
@@ -75,6 +81,8 @@ private:
   std::vector<Math::Vector2D> startpos_;
   //! the doors
   std::vector<Door> doors_;
+  //! the monsters
+  std::vector<Monster> monsters_;
 };
   
 

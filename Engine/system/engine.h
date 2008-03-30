@@ -45,6 +45,14 @@ class Console;
 }
 
 //! changes an integer to a string
+inline string toStr(const unsigned i){
+  char tmp[16];
+  memset(tmp, 0, 16);
+  sprintf(tmp, "%d", i);
+  return string(tmp);
+}
+
+//! changes an integer to a string
 inline string toStr(const int i){
   char tmp[16];
   memset(tmp, 0, 16);
@@ -55,6 +63,19 @@ inline string toStr(const int i){
 //! changes a string to an integer
 inline const int toInt(const string& s){
   return atoi(s.c_str());
+}
+
+//! changed a float to a string
+inline string toStr(const float f){
+  char tmp[32];
+  memset(tmp, 0, 32);
+  sprintf(tmp, "%f", f);
+  return string(tmp);
+}
+
+//! changes a string to a float
+inline float toFloat(const string& s){
+  return (float)atof(s.c_str());
 }
 
 //! changes a string to lowercase

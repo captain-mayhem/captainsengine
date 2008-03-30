@@ -21,7 +21,7 @@ class Templates{
     //! get the number of monster types
     inline unsigned numMonsterTypes() {return (unsigned)monsterTypes_.size();}
     //! get monster reference by index
-    inline Monster& getMonster(int idx) {return monsterTypes_[idx];}
+    inline Monster& getMonster(unsigned id) {return monsterTypes_[id-2000];/*This is dangerous*/}
     //! get monster by name
     Monster getMonster(string name);
     //! get the item called "name"

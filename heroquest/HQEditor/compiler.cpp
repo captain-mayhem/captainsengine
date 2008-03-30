@@ -12,6 +12,7 @@
 #define _USE_MATH_DEFINES
 #include <iostream>
 #include <fstream>
+#include <cassert>
 
 #include "system/engine.h"
 #include "mesh/mesh.h"
@@ -233,22 +234,131 @@ void Compiler::addStartPos(const Vector2D& pos){
 
 //add a monster
 void Compiler::addMonster(const Vector2D& pos, char monster[2]){
-	monsterPos mp;
-	mp.monster[0] = monster[0];
-	mp.monster[1] = monster[1];
-	mp.monster[2] = '\0';
-	mp.pos = pos;
-	monsters_.push_back(mp);
+  //resolve monster name
+  std::string monstername;
+  int monstervalue;
+  short instanceid;
+  short movement;
+  short attack;
+  short defend;
+  short body;
+  short mind;
+  if (towlower(monster[0]) == 'g' && towlower(monster[1]) == 'o'){
+    static int goblincount = 0;
+    monstername = "goblin";
+    monstervalue = 2000;
+  }
+  else if (towlower(monster[0]) == 's' && towlower(monster[1]) == 'k'){
+    static int skeletoncount = 0;
+    monstername = "skeleton";
+    monstervalue = 2001;
+  }
+  else if (towlower(monster[0]) == 'z' && towlower(monster[1]) == 'o'){
+    static int zombiecount = 0;
+    monstername = "zombie";
+    monstervalue = 2002;
+  }
+  else if (towlower(monster[0]) == 'o' && towlower(monster[1]) == 'r'){
+    static int orccount = 0;
+    monstername = "orc";
+    monstervalue = 2003;
+    instanceid = ++orccount;
+    movement = 8;
+    attack = 3;
+    defend = 2;
+    body = 1;
+    mind = 2;
+  }
+  else if (towlower(monster[0]) == 'f' && towlower(monster[1]) == 'i'){
+    monstername = "fimir";
+    monstervalue = 2004;
+  }
+  else if (towlower(monster[0]) == 'm' && towlower(monster[1]) == 'u'){
+    monstername = "mummy";
+    monstervalue = 2005;
+  }
+  else if (towlower(monster[0]) == 'c' && towlower(monster[1]) == 'h'){
+    monstername = "chaoswarrior";
+    monstervalue = 2006;
+  }
+  else if (towlower(monster[0]) == 'g' && towlower(monster[1]) == 'a'){
+    monstername = "gargoyle";
+    monstervalue = 2007;
+  }
+  else if (towlower(monster[0]) == 'c' && towlower(monster[1]) == 'w'){
+    monstername = "chaoswarlock";
+    monstervalue = 2008;
+  }
+  else
+    assert(false);
+  //build monster model
+  MeshGeo::Mesh* msh = getMesh(monstername+".obj", "models/monsters/");
+  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+
+  Graphics::Texture* tex = getTexture("textures/monsters/"+monstername+".jpg");
+  mdl->assignTexture(tex, 0);
+  //monster
+  mdl->setAttrib(0, 1005);
+  mdl->setAttrib(1, monstervalue);
+  //mdl->setAttrib(2, instanceid);
+  //mdl->setAttrib(3, movement);
+  //mdl->setAttrib(4, attack);
+  //mdl->setAttrib(5, defend);
+  //mdl->setAttrib(6, body);
+  //mdl->setAttrib(7, mind);
+  Math::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
+  mdl->setTrafo(mat);
+  scene_.addModel(mdl);
 }
 
 //add furniture
 void Compiler::addFurniture(const Vector2D& pos, char furniture[2]){
-	furniturePos fp;
-	fp.furniture[0] = furniture[0];
-	fp.furniture[1] = furniture[1];
-	fp.furniture[2] = '\0';
-	fp.pos = pos;
-	furnitures_.push_back(fp);
+  //resolve furniture name
+  std::string furniturename;
+  int furniturevalue;
+  short width;
+  short height;
+  if (towlower(furniture[0]) == 'a' && towlower(furniture[1]) == 'b'){
+    furniturename = "alchemists_bench";
+    furniturevalue = 3000;
+    width = 3;
+    height = 2;
+  }
+  else if (towlower(furniture[0]) == 't' && towlower(furniture[1]) == 'a'){
+    furniturename = "table";
+    furniturevalue = 3007;
+    width = 3;
+    height = 2;
+  }
+  else
+    return;
+    //assert(false);
+  MeshGeo::Mesh* msh = getMesh(furniturename+".obj", "models/furniture/");
+  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+
+  Graphics::Texture* tex = getTexture("textures/furniture/"+furniturename+".jpg");
+  mdl->assignTexture(tex, 0);
+  //furniture
+  mdl->setAttrib(0, 1006);
+  mdl->setAttrib(1, furniturevalue);
+  //determine rotation
+  float angle = 0;
+  if (islower(furniture[0]) && islower(furniture[1]))
+    angle = 0;
+  else if (islower(furniture[0]) && !islower(furniture[1])){
+    angle = M_PI/2.0;
+    short tmp; tmp = width; width = height; height = tmp;
+  }
+  else if (!islower(furniture[0]) && islower(furniture[1]))
+    angle = M_PI;
+  else if (!islower(furniture[0]) && !islower(furniture[1])){
+    angle = 3.0*M_PI/2.0;
+    short tmp; tmp = width; width = height; height = tmp;
+  }
+  Math::Matrix rot(Matrix::Rotation, Vector3D(0,1,0), angle);
+  Math::Matrix trans(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
+  mdl->setTrafo(rot*trans);
+  scene_.addModel(mdl);
 }
 
 //add overlay

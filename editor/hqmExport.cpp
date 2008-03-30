@@ -133,11 +133,20 @@ bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
       }
       doors_.push_back(door);
     }
+
+    //monsters
+    else if (classAttrib == Editor::MONSTER){
+      Monster m;
+      m.id = (*iter)->getID();
+      m.instanceid = (*iter)->getAttrib(1);
+      m.pos = pos;
+      monsters_.push_back(m);
+    }
   }
   
   //write
   ofstream out(filename.c_str(), ios::binary);
-  float version = 0.7;
+  float version = 0.7f;
   out.write((char*)&version, sizeof(version));
   out.write((char*)&width_, sizeof(width_));
   out.write((char*)&height_, sizeof(height_));
@@ -191,10 +200,18 @@ bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
     out.write((char*)&door.pos2, sizeof(door.pos2));
   }
   
+  //monsters
+  size = monsters_.size();
+  out.write((char*)&size, sizeof(size));
+  for (unsigned i = 0; i < size; ++i){
+    Monster m = monsters_[i];
+    out.write((char*)&m.id, sizeof(m.id));
+    out.write((char*)&m.instanceid, sizeof(m.instanceid));
+    out.write((char*)&m.pos, sizeof(m.pos));
+    //out.write((char*)&m, sizeof(m));
+  }
   //TODO complete
   size = 0;
-  //monsters
-  out.write((char*)&size, sizeof(size));
   //furniture
   out.write((char*)&size, sizeof(size));
   //overlays

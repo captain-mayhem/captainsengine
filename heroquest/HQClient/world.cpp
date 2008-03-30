@@ -262,18 +262,21 @@ bool World::load(const string& name){
 	in.read((char*)&size, sizeof(size));
 	monsters_.resize(size);
 	for(unsigned i=0; i<size; i++){
-		monsterPos mp;
-		in.read((char*)&mp, sizeof(mp));
-		string monster = string(mp.monster);
-		for(unsigned j=0; j<Templates::instance()->numMonsterTypes(); j++){
-			if(Templates::instance()->getMonster(j).getBrev() == monster){
-				Monster m = Templates::instance()->getMonster(j);
-        Monster* ptr = new Monster();
-        *ptr = m;
-				addMonster(ptr, mp.pos, i);
-				break;
-			}
-		}
+		//monsterPos mp;
+		//in.read((char*)&mp, sizeof(mp));
+    unsigned mid;
+    unsigned instanceid;
+    Vector2D pos;
+    in.read((char*)&mid, sizeof(mid));
+    in.read((char*)&instanceid, sizeof(instanceid));
+    in.read((char*)&pos, sizeof(pos));
+    Monster m = Templates::instance()->getMonster(instanceid);
+    Monster* ptr = new Monster(m);
+#ifdef _CLIENT_
+    MeshGeo::Model* mdl = scene_.getModel(mid);
+    ptr->setModel(mdl);
+#endif
+		addMonster(ptr, pos, i);
 	}
 
 	//Furniture
@@ -451,7 +454,6 @@ void World::render(){
 		}*/
     
 		//if there are objects on the field, render them, too
-    /*
 		if (curr.object){
 			if (curr.object->getStatus()){
 				curr.object->render();
@@ -465,7 +467,7 @@ void World::render(){
 			if (curr.tryObject->getStatus())
 				curr.tryObject->render();
 		}
-    */
+    
 		//render doors
 		if (curr.doorbits.getData() != '\0'){
 			if (curr.doorbits.test(BOTTOM)){
@@ -1232,8 +1234,8 @@ void World::addMonster(Monster* monsta, const Vector2D& pos, int vecPos){
 	monsta->setPosition(pos);
   monsta->setCamPos(wrld.modelToRealPos(pos));
 	short mid = monsta->getId();
-	monsterCounter_[mid]++;
-	string name = monsta->getType() + toStr(monsterCounter_[mid]);
+	monsterCounter_[mid-2000]++;
+	string name = monsta->getType() + toStr(monsterCounter_[mid-2000]);
 	monsta->setName(name);
   monsters_[vecPos] = monsta;
 	

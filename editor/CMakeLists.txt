@@ -9,7 +9,13 @@ SET(editor_SRCS
 	main.cpp
 	menu.cpp)
 
-ADD_EXECUTABLE(editor ${editor_SRCS})
+SET(editor_HDRS
+	editor.h
+	graphics.h
+	hqmExport.h
+	menu.h)
+
+ADD_EXECUTABLE(editor ${editor_SRCS} ${editor_HDRS})
 
 TARGET_LINK_LIBRARIES(editor Engine)
 

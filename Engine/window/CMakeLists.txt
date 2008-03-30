@@ -5,8 +5,10 @@ SET(Engine_window_SRCS
 	${PRE}/nativeWindows.cpp
 	${PRE}/window.cpp)
 
-INSTALL(FILES 	
+SET(Engine_window_HDRS
 	${PRE}/nativeLinux.h 
 	${PRE}/nativeWindows.h 
 	${PRE}/window.h
-DESTINATION Engine/include/${PRE})
+)
+
+INSTALL(FILES ${Engine_window_HDRS} DESTINATION Engine/include/${PRE})

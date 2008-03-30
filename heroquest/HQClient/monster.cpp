@@ -100,16 +100,16 @@ Monster::Monster(const string& player, const string& name, const string& type,
 
 void Monster::render() const {
 #ifdef _CLIENT_
-  TextureManager::instance()->monsterTex[id_]->activate();
-  //glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_]);
+  TextureManager::instance()->monsterTex[id_-2000]->activate();
+  //glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_-2000]);
   Creature::render();
 #endif
 }
 
 void Monster::render2D() const {
 #ifdef _CLIENT_
-  TextureManager::instance()->monsterTex[id_]->activate();
-  //glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_]);
+  TextureManager::instance()->monsterTex[id_-2000]->activate();
+  //glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_-2000]);
   Creature::render2D();
 #endif
 }

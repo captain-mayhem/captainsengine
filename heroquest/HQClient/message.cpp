@@ -36,6 +36,8 @@
 #include "menu.h"
 #include "trade.h"
 #include "message.h"
+#include "mesh/mesh.h"
+#include "mesh/model.h"
 
 using std::istringstream;
 using std::ifstream;
@@ -1196,6 +1198,36 @@ void Message::process(){
 			  }
 			  Door* d = wrld.getDoor(p1, dir);
 			  d->setType(0);
+        //remove old door model
+        unsigned id = d->getModel()->getID();
+        //wrld.getScene().deleteModel(id);
+        //set new door model
+        MeshGeo::Mesh* msh = NULL;
+        std::vector<MeshGeo::Mesh*> meshes = wrld.getScene().getMeshes();
+        for (unsigned  i = 0; i < meshes.size(); ++i){
+          if (meshes[i]->getName() == "models/world/door.obj"){
+            msh = meshes[i];
+            break;
+          }
+        }
+        assert(msh);
+        Graphics::Texture* tex = NULL;
+        std::vector<Graphics::Texture*> textures = wrld.getScene().getTextures();
+        for (unsigned i = 0; i < textures.size(); ++i){
+          if (textures[i]->getFilename() == "textures/world/door.jpg"){
+            tex = textures[i];
+            break;
+          }
+        }
+        assert(tex);
+        MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+        mdl->setTrafo(wrld.getScene().getModel(id)->getTrafo());
+        mdl->assignTexture(tex, 0);
+        mdl->setAttrib(0, 1003);
+        mdl->setAttrib(1, 0);
+        d->setModel(mdl);
+        //mdl->setID(id);
+        //wrld.getScene().addModel(mdl);
 		  }
 	  }
 	  break;

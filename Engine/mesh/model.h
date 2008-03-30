@@ -17,7 +17,7 @@ namespace MeshGeo{
 class Mesh;
 
 #define MAX_TEXTURES 8
-#define MAX_ATTRIBS 4
+#define MAX_ATTRIBS 8
 
 class Model : public System::GameObject{
 public:

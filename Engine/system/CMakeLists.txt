@@ -9,12 +9,13 @@ SET(Engine_system_SRCS
 	${PRE}/thread.cpp
 	${PRE}/utilities.cpp)
 
-INSTALL(FILES 	
+SET(Engine_system_HDRS
 	${PRE}/bitset.h 
 	${PRE}/engine.h 
 	${PRE}/file.h 
 	${PRE}/gameobject.h 
 	${PRE}/script.h 
 	${PRE}/thread.h 
-	${PRE}/utilities.h 
-DESTINATION Engine/include/${PRE})
+	${PRE}/utilities.h)
+
+INSTALL(FILES ${Engine_system_HDRS} DESTINATION Engine/include/${PRE})

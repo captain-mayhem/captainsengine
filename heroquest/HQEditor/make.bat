@@ -13,8 +13,8 @@ HQEditor basic\bastionChaos.map
 HQEditor basic\barakTor.map
 HQEditor basic\spiritBlade.map
 HQEditor basic\returnBarakTor.map
-copy basic\*.hqm ..\HQClient\levels\basic\
-copy basic\*.lua ..\HQClient\levels\basic\
-copy basic\*.hqm ..\HQServer\levels\basic\
-copy basic\*.lua ..\HQServer\levels\basic\
+rem copy basic\*.hqm ..\HQClient\levels\basic\
+rem copy basic\*.lua ..\HQClient\levels\basic\
+rem copy basic\*.hqm ..\HQServer\levels\basic\
+rem copy basic\*.lua ..\HQServer\levels\basic\
 cmd
