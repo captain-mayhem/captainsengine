@@ -66,7 +66,10 @@ IF (${OS} STREQUAL "linux")
 	  jpeg
 	  lua
 	  lualib
-	  ${OPENGL_LIBRARIES})
+	  ${OPENGL_LIBRARIES}
+    X11
+    Xxf86vm
+    pthread)
 ENDIF (${OS} STREQUAL "linux")
 
 

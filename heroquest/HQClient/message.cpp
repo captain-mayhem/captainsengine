@@ -1205,7 +1205,7 @@ void Message::process(){
         MeshGeo::Mesh* msh = NULL;
         std::vector<MeshGeo::Mesh*> meshes = wrld.getScene().getMeshes();
         for (unsigned  i = 0; i < meshes.size(); ++i){
-          if (meshes[i]->getName() == "models/world/door.obj"){
+          if (meshes[i]->getFilename() == "models/world/door.obj"){
             msh = meshes[i];
             break;
           }
