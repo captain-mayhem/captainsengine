@@ -324,11 +324,65 @@ void Compiler::addFurniture(const Vector2D& pos, char furniture[2]){
     width = 3;
     height = 2;
   }
+  else if (towlower(furniture[0]) == 'b' && towlower(furniture[1]) == 'c'){
+    furniturename = "bookcase";
+    furniturevalue = 3001;
+    width = 3;
+    height = 1;
+  }
+  else if (towlower(furniture[0]) == 'c' && towlower(furniture[1]) == 'h'){
+    furniturename = "chest";
+    furniturevalue = 3002;
+    width = 1;
+    height = 1;
+  }
+  else if (towlower(furniture[0]) == 'c' && towlower(furniture[1]) == 'b'){
+    furniturename = "cupboard";
+    furniturevalue = 3003;
+    width = 3;
+    height = 1;
+  }
+  else if (towlower(furniture[0]) == 'f' && towlower(furniture[1]) == 'p'){
+    furniturename = "fireplace";
+    furniturevalue = 3004;
+    width = 3;
+    height = 1;
+  }
+  else if (towlower(furniture[0]) == 'r' && towlower(furniture[1]) == 'a'){
+    furniturename = "rack";
+    furniturevalue = 3005;
+    width = 3;
+    height = 2;
+  }
+  else if (towlower(furniture[0]) == 's' && towlower(furniture[1]) == 't'){
+    furniturename = "sorcerers_table";
+    furniturevalue = 3006;
+    width = 3;
+    height = 2;
+  }
   else if (towlower(furniture[0]) == 't' && towlower(furniture[1]) == 'a'){
     furniturename = "table";
     furniturevalue = 3007;
     width = 3;
     height = 2;
+  }
+  else if (towlower(furniture[0]) == 't' && towlower(furniture[1]) == 'h'){
+    furniturename = "throne";
+    furniturevalue = 3008;
+    width = 1;
+    height = 1;
+  }
+  else if (towlower(furniture[0]) == 't' && towlower(furniture[1]) == 'o'){
+    furniturename = "tomb";
+    furniturevalue = 3009;
+    width = 3;
+    height = 2;
+  }
+  else if (towlower(furniture[0]) == 'w' && towlower(furniture[1]) == 'r'){
+    furniturename = "weapons_rack";
+    furniturevalue = 3010;
+    width = 3;
+    height = 1;
   }
   else
     return;
@@ -341,23 +395,37 @@ void Compiler::addFurniture(const Vector2D& pos, char furniture[2]){
   //furniture
   mdl->setAttrib(0, 1006);
   mdl->setAttrib(1, furniturevalue);
+  mdl->setAttrib(2, width);
+  mdl->setAttrib(3, height);
   //determine rotation
   float angle = 0;
-  if (islower(furniture[0]) && islower(furniture[1]))
+  short xoffset = 0;
+  short yoffset = 0;
+  if (islower(furniture[0]) && islower(furniture[1])){
     angle = 0;
+    xoffset = width*8/2;
+    yoffset = height*8/2;
+  }
   else if (islower(furniture[0]) && !islower(furniture[1])){
     angle = M_PI/2.0;
-    short tmp; tmp = width; width = height; height = tmp;
+    //short tmp; tmp = width; width = height; height = tmp;
+    xoffset = height*8/2-(height-1)*8;
+    yoffset = width*8/2;
   }
-  else if (!islower(furniture[0]) && islower(furniture[1]))
+  else if (!islower(furniture[0]) && islower(furniture[1])){
     angle = M_PI;
+    xoffset = width*8/2-(width-1)*8;
+    yoffset = height*8/2-(height-1)*8;
+  }
   else if (!islower(furniture[0]) && !islower(furniture[1])){
     angle = 3.0*M_PI/2.0;
-    short tmp; tmp = width; width = height; height = tmp;
+    //short tmp; tmp = width; width = height; height = tmp;
+    xoffset = height*8/2;
+    yoffset = width*8/2-(width-1)*8;
   }
   Math::Matrix rot(Matrix::Rotation, Vector3D(0,1,0), angle);
-  Math::Matrix trans(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
-  mdl->setTrafo(rot*trans);
+  Math::Matrix trans(Matrix::Translation, Vector3D((float)(pos.x*8+xoffset),0,(float)(pos.y*8+yoffset)));
+  mdl->setTrafo(trans*rot);
   scene_.addModel(mdl);
 }
 
