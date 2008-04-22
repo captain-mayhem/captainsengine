@@ -24,6 +24,16 @@ namespace AdventureBuilder
       return null;
     }
 
+    public override object visit(GraphEdge edge)
+    {
+      if (edge.IsLoop)
+        return null;
+      object found = visit(edge.To);
+      if (found != null)
+        return found;
+      return null;
+    }
+
     public override object visit(GraphNode node)
     {
       //test against the box that surrounds the ellipsis
@@ -32,6 +42,12 @@ namespace AdventureBuilder
         {
           return node;
         }
+      }
+      foreach (GraphEdge edge in node.Successors)
+      {
+        object found = visit(edge);
+        if (found != null)
+          return found;
       }
       return null;
     }
