@@ -4,6 +4,8 @@ using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Data;
+using System.Threading;
+using System.IO;
 
 namespace AdventureBuilder
 {
@@ -16,17 +18,21 @@ namespace AdventureBuilder
     private System.Windows.Forms.MenuItem menu_new;
     private System.Windows.Forms.MenuItem menu_exit;
     private System.Windows.Forms.MenuItem menu_file;
+    private System.Windows.Forms.MenuItem menu_load;
+    private System.Windows.Forms.MenuItem menu_save;
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
 		private System.ComponentModel.Container components = null;
 
-		public MainForm()
+		public MainForm() : base()
 		{
 			//
 			// Required for Windows Form Designer support
 			//
 			InitializeComponent();
+
+      m_graph = new RoomGraph();
 		}
 
 		/// <summary>
@@ -54,6 +60,8 @@ namespace AdventureBuilder
       this.mainMenu1 = new System.Windows.Forms.MainMenu();
       this.menu_file = new System.Windows.Forms.MenuItem();
       this.menu_new = new System.Windows.Forms.MenuItem();
+      this.menu_load = new System.Windows.Forms.MenuItem();
+      this.menu_save = new System.Windows.Forms.MenuItem();
       this.menu_exit = new System.Windows.Forms.MenuItem();
       // 
       // mainMenu1
@@ -66,6 +74,8 @@ namespace AdventureBuilder
       this.menu_file.Index = 0;
       this.menu_file.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
                                                                               this.menu_new,
+                                                                              this.menu_load,
+                                                                              this.menu_save,
                                                                               this.menu_exit});
       this.menu_file.Text = "File";
       // 
@@ -75,9 +85,21 @@ namespace AdventureBuilder
       this.menu_new.Text = "New";
       this.menu_new.Click += new System.EventHandler(this.menu_new_Click);
       // 
+      // menu_load
+      // 
+      this.menu_load.Index = 1;
+      this.menu_load.Text = "Load";
+      this.menu_load.Click += new System.EventHandler(this.menu_load_Click);
+      // 
+      // menu_save
+      // 
+      this.menu_save.Index = 2;
+      this.menu_save.Text = "Save";
+      this.menu_save.Click += new System.EventHandler(this.menu_save_Click);
+      // 
       // menu_exit
       // 
-      this.menu_exit.Index = 1;
+      this.menu_exit.Index = 3;
       this.menu_exit.Text = "Exit";
       this.menu_exit.Click += new System.EventHandler(this.menu_exit_Click);
       // 
@@ -116,6 +138,46 @@ namespace AdventureBuilder
     {
       m_graph.Roots.Clear();
       Invalidate();
+    }
+
+    private void menu_save_Click(object sender, System.EventArgs e)
+    {
+      System.Windows.Forms.SaveFileDialog sfd = new System.Windows.Forms.SaveFileDialog();
+      sfd.Title = "Save Adventure";
+      sfd.Filter = "Adventure Builder Files (*.adv)|*.adv";
+      sfd.ShowDialog(this);
+      try
+      {
+        Stream strm = sfd.OpenFile();
+        AdventurePersistance pers = new AdventurePersistance(strm);
+        pers.save(m_graph);
+        m_selection = null;
+        m_left_down = false;
+        strm.Close();
+      }
+      catch (System.Exception ex)
+      {
+      	Console.WriteLine(ex);
+      }
+    }
+
+    private void menu_load_Click(object sender, System.EventArgs e)
+    {
+      System.Windows.Forms.OpenFileDialog ofd = new System.Windows.Forms.OpenFileDialog();
+      ofd.Title = "Load Adventure";
+      ofd.Filter = "Adventure Builder Files (*.adv)|*.adv";
+      ofd.ShowDialog(this);
+      try{
+        Stream strm = ofd.OpenFile();
+        AdventurePersistance pers = new AdventurePersistance(strm);
+        m_graph = (RoomGraph)pers.load();
+        strm.Close();
+        Invalidate();
+      }
+      catch (System.Exception ex)
+      {
+      	Console.WriteLine(ex);
+      }
     }
   }
 }

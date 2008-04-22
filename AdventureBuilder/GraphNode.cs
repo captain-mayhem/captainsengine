@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Drawing;
+using System.IO;
 
 namespace AdventureBuilder
 {
@@ -20,11 +21,26 @@ namespace AdventureBuilder
       m_preds = new ArrayList();
 		}
 
-    public GraphNode(Point p){
+    public GraphNode(Point p)
+    {
       m_location = p;
       m_size = new Point(50,30);
       m_succs = new ArrayList();
       m_preds = new ArrayList();
+    }
+
+    protected GraphNode(BinaryReader reader) : this() {
+      m_location.X = reader.ReadInt32();
+      m_location.Y = reader.ReadInt32();
+      m_size.X = reader.ReadInt32();
+      m_size.Y = reader.ReadInt32();
+    }
+
+    public void save(BinaryWriter writer){
+      writer.Write(m_location.X);
+      writer.Write(m_location.Y);
+      writer.Write(m_size.X);
+      writer.Write(m_size.Y);
     }
 
     public Point Location{
