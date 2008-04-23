@@ -8,22 +8,23 @@ namespace AdventureBuilder
 	/// <summary>
 	/// Summary description for Graph.
 	/// </summary>
-	[Serializable]
 	public class Graph : ISavable
 	{
 		public Graph()
 		{
       m_roots = new ArrayList();
       m_leafs = new ArrayList();
+      m_type = Factory.ObjectType.Graph;
 		}
 
     public Graph(BinaryReader reader) : this() 
     {
+      m_type = Factory.ObjectType.Graph;
       ArrayList tmpnodes = new ArrayList();
       int count = reader.ReadInt32();
       for (int i = 0; i < count; ++i)
       {
-        GraphNode node = new Room(reader);
+        GraphNode node = (GraphNode)Factory.makeObject(reader);
         tmpnodes.Add(node);
         addUnconnectedNode(node);
       }
@@ -31,7 +32,7 @@ namespace AdventureBuilder
       count = reader.ReadInt32();
       for (int i = 0; i < count; ++i)
       {
-        GraphEdge edge = new GraphEdge(reader);
+        GraphEdge edge = (GraphEdge)Factory.makeObject(reader);
         int from = reader.ReadInt32();
         int to = reader.ReadInt32();
         edge.From = (GraphNode)tmpnodes[from];
@@ -42,6 +43,7 @@ namespace AdventureBuilder
 
     public void save(BinaryWriter writer)
     {
+      writer.Write((int)m_type);
       GraphFlattenVisitor gflv = new GraphFlattenVisitor();
       getVisited(gflv);
       writer.Write(gflv.Nodes.Count);
@@ -81,7 +83,9 @@ namespace AdventureBuilder
 
       //build connections
       m_leafs.Remove(edge.From);
-      m_roots.Remove(edge.To);
+      //TODO
+      if (!edge.IsLoop || edge.From.getRoot() != edge.To.getRoot())
+        m_roots.Remove(edge.To);
       edge.From.Successors.Add(edge);
       edge.To.Predecessors.Add(edge);
     }
@@ -101,5 +105,6 @@ namespace AdventureBuilder
 
     private ArrayList m_roots;
     private ArrayList m_leafs;
+    protected Factory.ObjectType m_type;
 	}
 }
