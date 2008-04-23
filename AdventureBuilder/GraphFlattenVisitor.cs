@@ -26,7 +26,8 @@ namespace AdventureBuilder
     public override object visit(GraphEdge edge)
     {
       m_edges.Add(edge);
-      if (!edge.IsLoop)
+      //not looping and not second pass
+      if (!edge.IsLoop && edge.From == GraphNode.getFirstNonLoopingPredecessor(edge.To))
       {
         visit(edge.To);
       }

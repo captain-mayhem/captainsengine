@@ -7,18 +7,16 @@ namespace AdventureBuilder
 	/// <summary>
 	/// Summary description for Room.
 	/// </summary>
-	[Serializable]
 	public class Room : GraphNode
 	{
 		public Room(Point p) : base(p)
 		{
-			//
-			// TODO: Add constructor logic here
-			//
+			m_type = Factory.ObjectType.Room;
 		}
 
     public Room(BinaryReader reader) : base(reader)
     {
+      m_type = Factory.ObjectType.Room;
     }
 	}
 }

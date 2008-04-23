@@ -11,14 +11,12 @@ namespace AdventureBuilder
 	{
 		public RoomGraph()
 		{
-			//
-			// TODO: Add constructor logic here
-			//
+			m_type = Factory.ObjectType.RoomGraph;
 		}
 
     public RoomGraph(BinaryReader reader) : base(reader)
     {
-
+      m_type = Factory.ObjectType.RoomGraph;
     }
 
     public override GraphNode newNode(Point p)

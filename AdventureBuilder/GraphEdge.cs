@@ -10,24 +10,24 @@ namespace AdventureBuilder
 	{
 		public GraphEdge(GraphNode from, GraphNode to)
 		{
-			//
-			// TODO: Add constructor logic here
-			//
+      m_type = Factory.ObjectType.GraphEdge;
       m_from = from;
       m_to = to;
-      if (to.Successors.Count > 0)
+      if (to.Successors.Count > 0 && to.getRoot() == from.getRoot())
         m_loop = true;
       else
         m_loop = false;
 		}
 
     public GraphEdge(BinaryReader reader){
+      m_type = Factory.ObjectType.GraphEdge;
       m_from = null;
       m_to = null;
       m_loop = reader.ReadBoolean();
     }
 
     public void save(BinaryWriter writer){
+      writer.Write((int)m_type);
       writer.Write(m_loop);
     }
 
@@ -49,5 +49,6 @@ namespace AdventureBuilder
     private GraphNode m_from;
     private GraphNode m_to;
     private bool m_loop;
+    protected Factory.ObjectType m_type;
 	}
 }

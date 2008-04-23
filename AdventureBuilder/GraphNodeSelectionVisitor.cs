@@ -26,7 +26,7 @@ namespace AdventureBuilder
 
     public override object visit(GraphEdge edge)
     {
-      if (edge.IsLoop)
+      if (edge.IsLoop || edge.From != GraphNode.getFirstNonLoopingPredecessor(edge.To))
         return null;
       object found = visit(edge.To);
       if (found != null)
