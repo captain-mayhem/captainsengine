@@ -16,16 +16,15 @@ namespace AdventureBuilder
       m_size = new Point(0,0);
       m_succs = new ArrayList();
       m_preds = new ArrayList();
+      m_properties = new ArrayList();
       m_type = Factory.ObjectType.GraphNode;
+      m_name = "Node";
 		}
 
-    public GraphNode(Point p)
+    public GraphNode(Point p) : this()
     {
       m_location = p;
       m_size = new Point(50,30);
-      m_succs = new ArrayList();
-      m_preds = new ArrayList();
-      m_type = Factory.ObjectType.GraphNode;
     }
 
     public GraphNode(BinaryReader reader) : this() {
@@ -33,7 +32,12 @@ namespace AdventureBuilder
       m_location.Y = reader.ReadInt32();
       m_size.X = reader.ReadInt32();
       m_size.Y = reader.ReadInt32();
+      m_name = reader.ReadString();
       m_type = Factory.ObjectType.GraphNode;
+      int count = reader.ReadInt32();
+      for (int i = 0; i < count; ++i){
+        m_properties.Add(new ObjProperty(reader));
+      }
     }
 
     public void save(BinaryWriter writer){
@@ -42,15 +46,22 @@ namespace AdventureBuilder
       writer.Write(m_location.Y);
       writer.Write(m_size.X);
       writer.Write(m_size.Y);
+      writer.Write(m_name);
+      writer.Write(m_properties.Count);
+      foreach (ObjProperty prop in m_properties)
+      {
+        prop.save(writer);
+      }
     }
 
     public GraphNode getRoot(){
       GraphNode current = this;
       while (current.Predecessors.Count > 0){
-        current = getFirstNonLoopingPredecessor(current);
+        GraphNode tmp = getFirstNonLoopingPredecessor(current);
         //it is a pseudo-root
-        if (current == null)
+        if (tmp == null)
           return current;
+        current = tmp;
       }
       return current;
     }
@@ -89,10 +100,22 @@ namespace AdventureBuilder
       get{return m_preds;}
     }
 
+    public string Name{
+      get{return m_name;}
+      set{m_name = value;}
+    }
+
+    public ArrayList Properties{
+      get{return m_properties;}
+      set{m_properties = value;}
+    }
+
     private ArrayList m_succs;
     private ArrayList m_preds;
     private Point m_location;
     private Point m_size;
     protected Factory.ObjectType m_type;
+    protected string m_name;
+    protected ArrayList m_properties;
 	}
 }

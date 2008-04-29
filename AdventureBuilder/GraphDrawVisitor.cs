@@ -57,8 +57,15 @@ namespace AdventureBuilder
       }
       else
         p = new Pen(Brushes.BlueViolet,1.5f);
+      if (node.getRoot() == node)
+        p.DashStyle = DashStyle.Dash;
       m_gc.DrawEllipse(p, node.Location.X-node.Width/2, node.Location.Y-node.Height/2, node.Width, node.Height);
       
+      //with its text
+      m_gc.DrawString(node.Name, new Font(FontFamily.GenericSerif, 8), 
+        Brushes.DarkGreen, 
+        node.Location.X-node.Name.Length*3, node.Location.Y-5);
+
       //visit edges
       foreach (GraphEdge edge in node.Successors)
       {
