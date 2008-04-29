@@ -20,6 +20,8 @@ namespace AdventureBuilder
     private System.Windows.Forms.MenuItem menu_file;
     private System.Windows.Forms.MenuItem menu_load;
     private System.Windows.Forms.MenuItem menu_save;
+    private System.Windows.Forms.MenuItem menu_object;
+    private System.Windows.Forms.MenuItem object_properties;
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
@@ -63,11 +65,14 @@ namespace AdventureBuilder
       this.menu_load = new System.Windows.Forms.MenuItem();
       this.menu_save = new System.Windows.Forms.MenuItem();
       this.menu_exit = new System.Windows.Forms.MenuItem();
+      this.menu_object = new System.Windows.Forms.MenuItem();
+      this.object_properties = new System.Windows.Forms.MenuItem();
       // 
       // mainMenu1
       // 
       this.mainMenu1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
-                                                                              this.menu_file});
+                                                                              this.menu_file,
+                                                                              this.menu_object});
       // 
       // menu_file
       // 
@@ -102,6 +107,19 @@ namespace AdventureBuilder
       this.menu_exit.Index = 3;
       this.menu_exit.Text = "Exit";
       this.menu_exit.Click += new System.EventHandler(this.menu_exit_Click);
+      // 
+      // menu_object
+      // 
+      this.menu_object.Index = 1;
+      this.menu_object.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+                                                                                this.object_properties});
+      this.menu_object.Text = "Object";
+      // 
+      // object_properties
+      // 
+      this.object_properties.Index = 0;
+      this.object_properties.Text = "Properties";
+      this.object_properties.Click += new System.EventHandler(this.object_properties_Click);
       // 
       // MainForm
       // 
@@ -178,6 +196,17 @@ namespace AdventureBuilder
       {
       	Console.WriteLine(ex);
       }
+    }
+
+    private void object_properties_Click(object sender, System.EventArgs e)
+    {
+      ObjectProperties prop = new ObjectProperties(m_selection);
+      if (m_selection != null)
+      {
+        prop.ShowDialog(this);
+      }
+      else
+        System.Windows.Forms.MessageBox.Show(this, "A Node must be selected");
     }
   }
 }
