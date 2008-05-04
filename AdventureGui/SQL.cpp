@@ -28,6 +28,8 @@ std::string SQL::execute(std::string sql){
     entries_.push_back(query_result[cols+i]);
   }
   sqlite3_free_table(query_result);
+  if (entries_.empty())
+    return "";
   return entries_[0];
 }
 

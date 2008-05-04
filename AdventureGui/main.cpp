@@ -38,9 +38,9 @@ Application::~Application(){
 
 void Application::_rendererInit(){
   Renderer* rend = Engine::instance()->getRenderer();
-  rend->setClearColor(Vector3D(0.5,0.5,0.5));
+  rend->setClearColor(Vector3D(0.0,0.0,0.0));
   rend->renderMode(Graphics::Filled);
-  rend->ortho(1024, 768);
+  rend->ortho(SCREENWIDTH, SCREENHEIGHT);
 
   sql_ = new SQL("C:\\Dokumente und Einstellungen\\Weller\\Eigene Dateien\\adventure.hac");
   //sql_->execute("SELECT curr_room FROM characters WHERE chid=0;");
@@ -50,8 +50,19 @@ void Application::_rendererInit(){
   setupMainGui();
 }
 
-void Application::_mouseDown(int x, int y, int button){
+void Application::_render(){
+  Renderer* rend = Engine::instance()->getRenderer();
+  rend->clear(COLORBUFFER | ZBUFFER);
+}
 
+void Application::_mouseDown(int x, int y, int button){
+  //calculate line
+  if (x < SECOND_CURSOR_X)
+    return;
+  int lineidx = (SECOND_CURSOR_Y-(SCREENHEIGHT-y))/LINE_SPACING;
+  if (lineidx < 0)
+    return;
+  core_->performAction(lineidx);
 }
 
 void Application::setupMainGui(){
@@ -163,8 +174,8 @@ void engineMain(int argc, char** argv){
   
   //render callbacks
   Renderer* rend = Engine::instance()->getRenderer();
-  //rend->setRenderCB(Application::rendererInit);
   rend->setInitCB(Application::rendererInit);
+  rend->setRenderCB(Application::render);
 
   //input callbacks
   //Input::Keyboard::instance()->setKeyDownCB(Editor::keypress);

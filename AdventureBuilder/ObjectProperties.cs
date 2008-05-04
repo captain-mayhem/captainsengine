@@ -30,6 +30,9 @@ namespace AdventureBuilder
     private System.Windows.Forms.Button button_value;
     private System.Windows.Forms.Button button_response;
     private System.Windows.Forms.TextBox textbox_add;
+    private System.Windows.Forms.Label label5;
+    private System.Windows.Forms.ComboBox responseType;
+    private System.Windows.Forms.TextBox responsefield;
     private ArrayList m_properties;
 
     public ObjectProperties(GraphNode node)
@@ -82,6 +85,9 @@ namespace AdventureBuilder
       this.textbox_add = new System.Windows.Forms.TextBox();
       this.OK = new System.Windows.Forms.Button();
       this.button4 = new System.Windows.Forms.Button();
+      this.label5 = new System.Windows.Forms.Label();
+      this.responseType = new System.Windows.Forms.ComboBox();
+      this.responsefield = new System.Windows.Forms.TextBox();
       this.SuspendLayout();
       // 
       // ObjectName
@@ -96,7 +102,7 @@ namespace AdventureBuilder
       // 
       this.Properties.Location = new System.Drawing.Point(24, 72);
       this.Properties.Name = "Properties";
-      this.Properties.Size = new System.Drawing.Size(120, 277);
+      this.Properties.Size = new System.Drawing.Size(120, 160);
       this.Properties.TabIndex = 2;
       this.Properties.SelectedIndexChanged += new System.EventHandler(this.Properties_SelectedIndexChanged);
       // 
@@ -104,7 +110,7 @@ namespace AdventureBuilder
       // 
       this.Value.Location = new System.Drawing.Point(152, 72);
       this.Value.Name = "Value";
-      this.Value.Size = new System.Drawing.Size(80, 277);
+      this.Value.Size = new System.Drawing.Size(80, 160);
       this.Value.TabIndex = 3;
       this.Value.SelectedIndexChanged += new System.EventHandler(this.Value_SelectedIndexChanged);
       // 
@@ -112,7 +118,7 @@ namespace AdventureBuilder
       // 
       this.Response.Location = new System.Drawing.Point(240, 72);
       this.Response.Name = "Response";
-      this.Response.Size = new System.Drawing.Size(528, 277);
+      this.Response.Size = new System.Drawing.Size(528, 160);
       this.Response.TabIndex = 4;
       // 
       // label1
@@ -149,7 +155,7 @@ namespace AdventureBuilder
       // 
       // button_property
       // 
-      this.button_property.Location = new System.Drawing.Point(48, 16);
+      this.button_property.Location = new System.Drawing.Point(64, 16);
       this.button_property.Name = "button_property";
       this.button_property.TabIndex = 9;
       this.button_property.Text = "Add";
@@ -194,10 +200,41 @@ namespace AdventureBuilder
       this.button4.Text = "Cancel";
       this.button4.Click += new System.EventHandler(this.button4_Click);
       // 
+      // label5
+      // 
+      this.label5.Location = new System.Drawing.Point(40, 264);
+      this.label5.Name = "label5";
+      this.label5.Size = new System.Drawing.Size(88, 16);
+      this.label5.TabIndex = 15;
+      this.label5.Text = "Response type:";
+      // 
+      // responseType
+      // 
+      this.responseType.Items.AddRange(new object[] {
+                                                      "none",
+                                                      "textout"});
+      this.responseType.Location = new System.Drawing.Point(136, 264);
+      this.responseType.Name = "responseType";
+      this.responseType.Size = new System.Drawing.Size(121, 21);
+      this.responseType.TabIndex = 16;
+      this.responseType.Text = "none";
+      // 
+      // responsefield
+      // 
+      this.responsefield.Location = new System.Drawing.Point(24, 296);
+      this.responsefield.Multiline = true;
+      this.responsefield.Name = "responsefield";
+      this.responsefield.Size = new System.Drawing.Size(744, 208);
+      this.responsefield.TabIndex = 17;
+      this.responsefield.Text = "";
+      // 
       // ObjectProperties
       // 
       this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
       this.ClientSize = new System.Drawing.Size(792, 566);
+      this.Controls.Add(this.responsefield);
+      this.Controls.Add(this.responseType);
+      this.Controls.Add(this.label5);
       this.Controls.Add(this.button4);
       this.Controls.Add(this.OK);
       this.Controls.Add(this.textbox_add);
@@ -328,6 +365,10 @@ namespace AdventureBuilder
 
     private void Value_SelectedIndexChanged(object sender, System.EventArgs e)
     {
+      if (Properties.SelectedIndex == -1){
+        MessageBox.Show(this, "You need to select a property first.");
+        return;
+      }
       ObjProperty prop = (ObjProperty)m_properties[Properties.SelectedIndex];
       ObjValue val = (ObjValue)prop.Values[Value.SelectedIndex];
       Response.Items.Clear();
