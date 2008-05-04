@@ -1,5 +1,7 @@
 #include <iostream>
 #include <sstream>
+#include <limits>
+
 #include "system/engine.h"
 #include "renderer/renderer.h"
 #include "renderer/font.h"
@@ -17,20 +19,14 @@ using std::cerr;
 using namespace Graphics;
 using namespace System;
 
-#define CURSOR_X 10
-#define CURSOR_Y 740
-#define RIGHT_INDENT 300
-#define CHAR_WIDTH 10
-#define MAX_CHARS ((SCREENWIDTH-RIGHT_INDENT)/CHAR_WIDTH-1)
-#define LINE_SPACING 20
-
 AdventureCore::AdventureCore(SQL* sql){
   m_sql = sql;
   cursor = Vector2D(CURSOR_X, CURSOR_Y);
-  second_cursor = Vector2D(1024-RIGHT_INDENT+CURSOR_X, CURSOR_Y);
+  second_cursor = Vector2D(SECOND_CURSOR_X, SECOND_CURSOR_Y);
   Graphics::Font* fnt = System::Engine::instance()->getFont(0);
   fnt->setColor(Graphics::Color(0,1,0,1));
   chid_ = "0";
+  action_ = None;
 }
 
 AdventureCore::~AdventureCore(){
@@ -57,7 +53,7 @@ void AdventureCore::printWord(std::string txt){
   }
   Graphics::Font* fnt = System::Engine::instance()->getFont(0);
   txt += " ";
-  fnt->print(cursor.x, cursor.y, txt.c_str(), 0);
+  fnt->print(cursor.x, cursor.y, txt.c_str(), 0, FLT_MAX);
   cursor.x += txt.size()*CHAR_WIDTH;
 }
 
@@ -68,7 +64,7 @@ void AdventureCore::newline(){
 
 void AdventureCore::printLine(std::string txt){
   Graphics::Font* fnt = System::Engine::instance()->getFont(0);
-  fnt->print(cursor.x,cursor.y, txt.c_str(), 0);
+  fnt->print(cursor.x,cursor.y, txt.c_str(), 0, FLT_MAX);
   cursor.y -= LINE_SPACING;
   cursor.x = CURSOR_X;
 }
@@ -113,20 +109,57 @@ std::string AdventureCore::transformUtf8(std::string txt){
 
 void AdventureCore::clearDisplay(){
   cursor = Vector2D(CURSOR_X, CURSOR_Y);
+  Graphics::Font* fnt = System::Engine::instance()->getFont(0);
+  fnt->clear();
+}
+
+void AdventureCore::clearSecondDisplay(){
+  second_cursor = Vector2D(SECOND_CURSOR_X, SECOND_CURSOR_Y);
+  Graphics::Font* fnt = System::Engine::instance()->getFont(1);
+  fnt->clear();
+  actionids_.clear();
+  action_ = None;
 }
 
 void AdventureCore::showWays(){
   std::string rid = m_sql->execute("SELECT curr_room FROM characters where chid="+chid_+";");
   m_sql->execute("SELECT rid, name FROM room_connections JOIN rooms ON room_connections.too = rooms.rid WHERE room_connections.frm ="+rid+";");
   for (int i = 0; i < m_sql->getNumRows(); ++i){
-    displayOption(transformUtf8(m_sql->getResultString("name", i)));
+    displayOption(Goto, m_sql->getResultString("rid", i), transformUtf8(m_sql->getResultString("name", i)));
   }
 }
 
 //displays a choosable option
-void AdventureCore::displayOption(std::string txt){
+void AdventureCore::displayOption(Action act, std::string id, std::string txt){
   Graphics::Font* fnt = System::Engine::instance()->getFont(1);
   fnt->setColor(Graphics::Color(0,0,1,1));
-  fnt->print(second_cursor.x, second_cursor.y, transform(txt).c_str(), 0);
+  fnt->print(second_cursor.x, second_cursor.y, transform(txt).c_str(), 0, FLT_MAX);
   second_cursor.y -= LINE_SPACING;
+  action_ = act;
+  actionids_.push_back(id);
+}
+
+//performs an action from the GUI
+void AdventureCore::performAction(unsigned lineidx){
+  if (lineidx >= actionids_.size())
+    return;
+  std::string actionid = actionids_[lineidx];
+  Action act = action_;
+  clearSecondDisplay();
+  switch (act){
+    case Goto:
+      gotoRoom(actionid);
+      break;
+    case None:
+      break;
+  }
+}
+
+//goto a room
+void AdventureCore::gotoRoom(std::string roomid){
+  //Graphics::Font* fnt = System::Engine::instance()->getFont(1);
+  //fnt->setColor(Graphics::Color(0,0,1,1));
+  //fnt->print(second_cursor.x, second_cursor.y, "Hallo", 1, FLT_MAX);
+  //second_cursor.y -= LINE_SPACING;
+  m_sql->execute("UPDATE characters SET curr_room="+roomid+" WHERE chid="+chid_+";");
 }
