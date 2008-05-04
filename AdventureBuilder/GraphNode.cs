@@ -79,6 +79,10 @@ namespace AdventureBuilder
       return null;
     }
 
+    public override String ToString(){
+      return m_name;
+    }
+
     public Point Location{
       get{return m_location;}
       set{m_location = value;}

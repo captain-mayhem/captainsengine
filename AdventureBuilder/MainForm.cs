@@ -22,10 +22,16 @@ namespace AdventureBuilder
     private System.Windows.Forms.MenuItem menu_save;
     private System.Windows.Forms.MenuItem menu_object;
     private System.Windows.Forms.MenuItem object_properties;
+    private System.Windows.Forms.MenuItem menu_settings;
+    private System.Windows.Forms.MenuItem menu_compile;
+    private System.Windows.Forms.MenuItem menu_cmp_cpp;
+    private System.Windows.Forms.MenuItem menu_cmp_php;
 		/// <summary>
 		/// Required designer variable.
 		/// </summary>
 		private System.ComponentModel.Container components = null;
+
+    private Settings m_settings;
 
 		public MainForm() : base()
 		{
@@ -35,6 +41,7 @@ namespace AdventureBuilder
 			InitializeComponent();
 
       m_graph = new RoomGraph();
+      m_settings = new Settings((RoomGraph)m_graph);
 		}
 
 		/// <summary>
@@ -67,12 +74,18 @@ namespace AdventureBuilder
       this.menu_exit = new System.Windows.Forms.MenuItem();
       this.menu_object = new System.Windows.Forms.MenuItem();
       this.object_properties = new System.Windows.Forms.MenuItem();
+      this.menu_settings = new System.Windows.Forms.MenuItem();
+      this.menu_compile = new System.Windows.Forms.MenuItem();
+      this.menu_cmp_cpp = new System.Windows.Forms.MenuItem();
+      this.menu_cmp_php = new System.Windows.Forms.MenuItem();
       // 
       // mainMenu1
       // 
       this.mainMenu1.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
                                                                               this.menu_file,
-                                                                              this.menu_object});
+                                                                              this.menu_object,
+                                                                              this.menu_settings,
+                                                                              this.menu_compile});
       // 
       // menu_file
       // 
@@ -120,6 +133,32 @@ namespace AdventureBuilder
       this.object_properties.Index = 0;
       this.object_properties.Text = "Properties";
       this.object_properties.Click += new System.EventHandler(this.object_properties_Click);
+      // 
+      // menu_settings
+      // 
+      this.menu_settings.Index = 2;
+      this.menu_settings.Text = "Settings";
+      this.menu_settings.Click += new System.EventHandler(this.menu_settings_Click);
+      // 
+      // menu_compile
+      // 
+      this.menu_compile.Index = 3;
+      this.menu_compile.MenuItems.AddRange(new System.Windows.Forms.MenuItem[] {
+                                                                                 this.menu_cmp_cpp,
+                                                                                 this.menu_cmp_php});
+      this.menu_compile.Text = "Compile";
+      // 
+      // menu_cmp_cpp
+      // 
+      this.menu_cmp_cpp.Index = 0;
+      this.menu_cmp_cpp.Text = "C++ (Hero Engine)";
+      this.menu_cmp_cpp.Click += new System.EventHandler(this.menu_cmp_cpp_Click);
+      // 
+      // menu_cmp_php
+      // 
+      this.menu_cmp_php.Index = 1;
+      this.menu_cmp_php.Text = "PHP + MySQL";
+      this.menu_cmp_php.Click += new System.EventHandler(this.menu_cmp_php_Click);
       // 
       // MainForm
       // 
@@ -169,6 +208,7 @@ namespace AdventureBuilder
         Stream strm = sfd.OpenFile();
         AdventurePersistance pers = new AdventurePersistance(strm);
         pers.save(m_graph);
+        pers.save(m_settings);
         m_selection = null;
         m_left_down = false;
         strm.Close();
@@ -189,6 +229,8 @@ namespace AdventureBuilder
         Stream strm = ofd.OpenFile();
         AdventurePersistance pers = new AdventurePersistance(strm);
         m_graph = (RoomGraph)pers.load();
+        m_settings = (Settings)pers.load();
+        m_settings.Graph = (RoomGraph)m_graph;
         strm.Close();
         Invalidate();
       }
@@ -207,6 +249,23 @@ namespace AdventureBuilder
       }
       else
         System.Windows.Forms.MessageBox.Show(this, "A Node must be selected");
+    }
+
+    private void menu_settings_Click(object sender, System.EventArgs e)
+    {
+      m_settings.synchronize();
+      m_settings.ShowDialog(this);
+    }
+
+    private void menu_cmp_cpp_Click(object sender, System.EventArgs e)
+    {
+      CppCompiler compi = new CppCompiler(m_settings, m_graph);
+      compi.ShowDialog(this);
+    }
+
+    private void menu_cmp_php_Click(object sender, System.EventArgs e)
+    {
+      MessageBox.Show(this, "Not yet implemented");
     }
   }
 }
