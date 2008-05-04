@@ -11,6 +11,9 @@
 
 #include "main.h"
 
+#include "AdventureCore.h"
+#include "SQL.h"
+
 using std::cerr;
 using namespace Graphics;
 using namespace System;
@@ -21,12 +24,34 @@ void Application::init(){
   instance_ = new Application();
 }
 
+void Application::gotoButton(Gui::GuiElement* elem){
+  instance_->core()->showWays();
+}
+
+Application::Application(){
+}
+
+Application::~Application(){
+  delete core_;
+  delete sql_;
+}
+
 void Application::_rendererInit(){
   Renderer* rend = Engine::instance()->getRenderer();
   rend->setClearColor(Vector3D(0.5,0.5,0.5));
   rend->renderMode(Graphics::Filled);
   rend->ortho(1024, 768);
+
+  sql_ = new SQL("C:\\Dokumente und Einstellungen\\Weller\\Eigene Dateien\\adventure.hac");
+  //sql_->execute("SELECT curr_room FROM characters WHERE chid=0;");
+  //int rid = sql_->getResultString("curr_room", 0);
+  core_ = new AdventureCore(sql_);
+
   setupMainGui();
+}
+
+void Application::_mouseDown(int x, int y, int button){
+
 }
 
 void Application::setupMainGui(){
@@ -40,37 +65,38 @@ void Application::setupMainGui(){
   but = new Gui::Button();
   but->setPosition(Vector2D(140, 100));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Gehen");
+  but->setText(" Gehe");
+  but->setCbFunc(gotoButton);
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(260, 100));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Oeffnen");
+  but->setText(" Oeffne");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(380, 100));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Nehmen");
+  but->setText(" Nimm");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(500, 100));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Benutzen");
+  but->setText(" Benutze");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(620, 100));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Ziehen");
+  but->setText(" Ziehe");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(740, 100));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Schlafen");
+  but->setText(" Schlafe");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
@@ -89,37 +115,37 @@ void Application::setupMainGui(){
   but = new Gui::Button();
   but->setPosition(Vector2D(140, 50));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Ansehen");
+  but->setText(" Sieh an");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(260, 50));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Schliessen");
+  but->setText("Schliesse");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(380, 50));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Reden");
+  but->setText(" Rede");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(500, 50));
   but->setSpan(Vector2D(100,20));
-  but->setText("Kombinieren");
+  but->setText("Kombiniere");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(620, 50));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Druecken");
+  but->setText(" Druecke");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(740, 50));
   but->setSpan(Vector2D(100,20));
-  but->setText(" Lernen");
+  but->setText(" Lerne");
   System::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
@@ -127,6 +153,9 @@ void Application::setupMainGui(){
   but->setSpan(Vector2D(100,20));
   but->setText("Charakter");
   System::Engine::instance()->addGuiListener(but);
+
+  //TODO make it correct
+  core_->displayText("Ich muss hier einen langen Text schreiben, der weit über eine Zeile geht, um die Funktionsweise des Textdisplays zu erkunden.");
 }
 
 void engineMain(int argc, char** argv){
@@ -140,6 +169,6 @@ void engineMain(int argc, char** argv){
   //input callbacks
   //Input::Keyboard::instance()->setKeyDownCB(Editor::keypress);
   //Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
-  //Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);
+  Input::Mouse::instance()->setButtonDownCB(Application::mouseDown);
 }
 

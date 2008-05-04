@@ -4,10 +4,17 @@ LINK_DIRECTORIES(${HeroEngine_SOURCE_DIR}/Engine/lib)
 
 SET(AdventureGui_SRCS
 	main.cpp
+	AdventureCore.cpp
+	sqlite3.c
+	SQL.cpp
 )
 
 SET(AdventureGui_HDRS
 	main.h
+	AdventureCore.h
+	sqlite3.h
+	sqlite3ext.h
+	SQL.h
 )
 
 ADD_EXECUTABLE("AdventureGui" ${AdventureGui_SRCS} ${AdventureGui_HDRS})

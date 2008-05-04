@@ -89,6 +89,11 @@
                     AssemblyName = "System.Xml"
                     HintPath = "..\..\WINDOWS\Microsoft.NET\Framework\v1.1.4322\System.XML.dll"
                 />
+                <Reference
+                    Name = "SQLite.NET"
+                    AssemblyName = "SQLite.NET"
+                    HintPath = "SQLite.NET.dll"
+                />
             </References>
         </Build>
         <Files>
@@ -108,6 +113,21 @@
                 />
                 <File
                     RelPath = "AssemblyInfo.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CppCompiler.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "CppCompiler.resx"
+                    DependentUpon = "CppCompiler.cs"
+                    BuildAction = "EmbeddedResource"
+                />
+                <File
+                    RelPath = "CppSqlGenerationVisitor.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
                 />
@@ -210,6 +230,16 @@
                     RelPath = "RoomGraph.cs"
                     SubType = "Code"
                     BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Settings.cs"
+                    SubType = "Form"
+                    BuildAction = "Compile"
+                />
+                <File
+                    RelPath = "Settings.resx"
+                    DependentUpon = "Settings.cs"
+                    BuildAction = "EmbeddedResource"
                 />
             </Include>
         </Files>
