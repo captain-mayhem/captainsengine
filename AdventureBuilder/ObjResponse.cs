@@ -19,6 +19,8 @@ namespace AdventureBuilder
       m_name = "Response";
       m_opcode = Opcode.none;
       m_arguments = new ArrayList();
+      m_arguments.Add("");
+      m_arguments.Add("");
 		}
 
     public ObjResponse(String name) : this(){
@@ -31,7 +33,7 @@ namespace AdventureBuilder
       m_opcode = (Opcode)reader.ReadInt32();
       int size = reader.ReadInt32();
       for (int i = 0; i < size; ++i){
-        m_arguments.Add(reader.ReadString());
+        m_arguments[i] = reader.ReadString();
       }
     }
 
@@ -46,6 +48,16 @@ namespace AdventureBuilder
 
     public String Name{
       get{return m_name;}
+      set{m_name = value;}
+    }
+
+    public Opcode Operation{
+      get{return m_opcode;}
+      set{m_opcode = value;}
+    }
+
+    public ArrayList Arguments{
+      get{return m_arguments;}
     }
 
     protected String m_name;

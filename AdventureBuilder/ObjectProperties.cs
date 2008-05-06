@@ -32,7 +32,14 @@ namespace AdventureBuilder
     private System.Windows.Forms.TextBox textbox_add;
     private System.Windows.Forms.Label label5;
     private System.Windows.Forms.ComboBox responseType;
-    private System.Windows.Forms.TextBox responsefield;
+    private System.Windows.Forms.Button button_value_edit;
+    private System.Windows.Forms.Button button_property_edit;
+    private System.Windows.Forms.Button button_response_edit;
+    private System.Windows.Forms.TabControl tab_arguments;
+    private System.Windows.Forms.TabPage tabPage1;
+    private System.Windows.Forms.TabPage tabPage2;
+    private System.Windows.Forms.TextBox argument1;
+    private System.Windows.Forms.TextBox argument2;
     private ArrayList m_properties;
 
     public ObjectProperties(GraphNode node)
@@ -46,6 +53,10 @@ namespace AdventureBuilder
       m_node = node;
       if (m_node != null){
         getValuesFromNode();
+        Properties.SelectedIndex = 0;
+        Value.SelectedIndex = 0;
+        Response.SelectedIndex = 0;
+        responseType.SelectedIndex = 1;
       }
     }
 
@@ -87,7 +98,17 @@ namespace AdventureBuilder
       this.button4 = new System.Windows.Forms.Button();
       this.label5 = new System.Windows.Forms.Label();
       this.responseType = new System.Windows.Forms.ComboBox();
-      this.responsefield = new System.Windows.Forms.TextBox();
+      this.argument1 = new System.Windows.Forms.TextBox();
+      this.button_value_edit = new System.Windows.Forms.Button();
+      this.button_property_edit = new System.Windows.Forms.Button();
+      this.button_response_edit = new System.Windows.Forms.Button();
+      this.tab_arguments = new System.Windows.Forms.TabControl();
+      this.tabPage1 = new System.Windows.Forms.TabPage();
+      this.tabPage2 = new System.Windows.Forms.TabPage();
+      this.argument2 = new System.Windows.Forms.TextBox();
+      this.tab_arguments.SuspendLayout();
+      this.tabPage1.SuspendLayout();
+      this.tabPage2.SuspendLayout();
       this.SuspendLayout();
       // 
       // ObjectName
@@ -157,6 +178,7 @@ namespace AdventureBuilder
       // 
       this.button_property.Location = new System.Drawing.Point(64, 16);
       this.button_property.Name = "button_property";
+      this.button_property.Size = new System.Drawing.Size(32, 23);
       this.button_property.TabIndex = 9;
       this.button_property.Text = "Add";
       this.button_property.Click += new System.EventHandler(this.button_property_Click);
@@ -165,6 +187,7 @@ namespace AdventureBuilder
       // 
       this.button_value.Location = new System.Drawing.Point(160, 16);
       this.button_value.Name = "button_value";
+      this.button_value.Size = new System.Drawing.Size(32, 23);
       this.button_value.TabIndex = 10;
       this.button_value.Text = "Add";
       this.button_value.Click += new System.EventHandler(this.button_value_Click);
@@ -173,6 +196,7 @@ namespace AdventureBuilder
       // 
       this.button_response.Location = new System.Drawing.Point(256, 16);
       this.button_response.Name = "button_response";
+      this.button_response.Size = new System.Drawing.Size(32, 23);
       this.button_response.TabIndex = 11;
       this.button_response.Text = "Add";
       this.button_response.Click += new System.EventHandler(this.button_response_Click);
@@ -218,21 +242,90 @@ namespace AdventureBuilder
       this.responseType.Size = new System.Drawing.Size(121, 21);
       this.responseType.TabIndex = 16;
       this.responseType.Text = "none";
+      this.responseType.SelectedIndexChanged += new System.EventHandler(this.responseType_SelectedIndexChanged);
       // 
-      // responsefield
+      // argument1
       // 
-      this.responsefield.Location = new System.Drawing.Point(24, 296);
-      this.responsefield.Multiline = true;
-      this.responsefield.Name = "responsefield";
-      this.responsefield.Size = new System.Drawing.Size(744, 208);
-      this.responsefield.TabIndex = 17;
-      this.responsefield.Text = "";
+      this.argument1.Location = new System.Drawing.Point(0, 0);
+      this.argument1.Multiline = true;
+      this.argument1.Name = "argument1";
+      this.argument1.Size = new System.Drawing.Size(744, 208);
+      this.argument1.TabIndex = 17;
+      this.argument1.Text = "";
+      this.argument1.Visible = false;
+      this.argument1.TextChanged += new System.EventHandler(this.argument1_TextChanged);
+      // 
+      // button_value_edit
+      // 
+      this.button_value_edit.Location = new System.Drawing.Point(192, 16);
+      this.button_value_edit.Name = "button_value_edit";
+      this.button_value_edit.Size = new System.Drawing.Size(32, 23);
+      this.button_value_edit.TabIndex = 18;
+      this.button_value_edit.Text = "Edit";
+      // 
+      // button_property_edit
+      // 
+      this.button_property_edit.Location = new System.Drawing.Point(96, 16);
+      this.button_property_edit.Name = "button_property_edit";
+      this.button_property_edit.Size = new System.Drawing.Size(32, 23);
+      this.button_property_edit.TabIndex = 19;
+      this.button_property_edit.Text = "Edit";
+      // 
+      // button_response_edit
+      // 
+      this.button_response_edit.Location = new System.Drawing.Point(288, 16);
+      this.button_response_edit.Name = "button_response_edit";
+      this.button_response_edit.Size = new System.Drawing.Size(32, 23);
+      this.button_response_edit.TabIndex = 20;
+      this.button_response_edit.Text = "Edit";
+      this.button_response_edit.Click += new System.EventHandler(this.button_response_edit_Click);
+      // 
+      // tab_arguments
+      // 
+      this.tab_arguments.Controls.Add(this.tabPage1);
+      this.tab_arguments.Controls.Add(this.tabPage2);
+      this.tab_arguments.Location = new System.Drawing.Point(24, 288);
+      this.tab_arguments.Name = "tab_arguments";
+      this.tab_arguments.SelectedIndex = 0;
+      this.tab_arguments.Size = new System.Drawing.Size(744, 232);
+      this.tab_arguments.TabIndex = 21;
+      // 
+      // tabPage1
+      // 
+      this.tabPage1.Controls.Add(this.argument1);
+      this.tabPage1.Location = new System.Drawing.Point(4, 22);
+      this.tabPage1.Name = "tabPage1";
+      this.tabPage1.Size = new System.Drawing.Size(736, 206);
+      this.tabPage1.TabIndex = 0;
+      this.tabPage1.Text = "First";
+      // 
+      // tabPage2
+      // 
+      this.tabPage2.Controls.Add(this.argument2);
+      this.tabPage2.Location = new System.Drawing.Point(4, 22);
+      this.tabPage2.Name = "tabPage2";
+      this.tabPage2.Size = new System.Drawing.Size(736, 206);
+      this.tabPage2.TabIndex = 1;
+      this.tabPage2.Text = "Second";
+      // 
+      // argument2
+      // 
+      this.argument2.Location = new System.Drawing.Point(0, 0);
+      this.argument2.Multiline = true;
+      this.argument2.Name = "argument2";
+      this.argument2.Size = new System.Drawing.Size(744, 208);
+      this.argument2.TabIndex = 22;
+      this.argument2.Text = "";
+      this.argument2.Visible = false;
       // 
       // ObjectProperties
       // 
       this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
       this.ClientSize = new System.Drawing.Size(792, 566);
-      this.Controls.Add(this.responsefield);
+      this.Controls.Add(this.tab_arguments);
+      this.Controls.Add(this.button_response_edit);
+      this.Controls.Add(this.button_property_edit);
+      this.Controls.Add(this.button_value_edit);
       this.Controls.Add(this.responseType);
       this.Controls.Add(this.label5);
       this.Controls.Add(this.button4);
@@ -251,6 +344,9 @@ namespace AdventureBuilder
       this.Controls.Add(this.ObjectName);
       this.Name = "ObjectProperties";
       this.Text = "ObjectProperties";
+      this.tab_arguments.ResumeLayout(false);
+      this.tabPage1.ResumeLayout(false);
+      this.tabPage2.ResumeLayout(false);
       this.ResumeLayout(false);
 
     }
@@ -376,6 +472,57 @@ namespace AdventureBuilder
       {
         Response.Items.Add(resp.Name);
       }
+    }
+
+    private void button_response_edit_Click(object sender, System.EventArgs e)
+    {
+      if (textbox_add.Text.Length == 0)
+        return;
+      if (Response.SelectedIndex == -1 || Value.SelectedIndex == -1 || Properties.SelectedIndex == -1)
+      {
+        MessageBox.Show(this, "You need to select a property, a value and a response first.");
+        return;
+      }
+      ObjProperty prop = (ObjProperty)m_properties[Properties.SelectedIndex];
+      ObjValue val = (ObjValue)prop.Values[Value.SelectedIndex];
+      ObjResponse resp = (ObjResponse)val.Responses[Response.SelectedIndex];
+      resp.Name = textbox_add.Text;
+      Response.Items[Response.SelectedIndex] = textbox_add.Text;
+    }
+
+    private void responseType_SelectedIndexChanged(object sender, System.EventArgs e)
+    {
+      if (Response.SelectedIndex == -1 || Value.SelectedIndex == -1 || Properties.SelectedIndex == -1)
+      {
+        MessageBox.Show(this, "You need to select a property, a value and a response first.");
+        return;
+      }
+      ObjProperty prop = (ObjProperty)m_properties[Properties.SelectedIndex];
+      ObjValue val = (ObjValue)prop.Values[Value.SelectedIndex];
+      ObjResponse resp = (ObjResponse)val.Responses[Response.SelectedIndex];
+      Opcode code = (Opcode)responseType.SelectedIndex;
+      resp.Operation = code;
+      switch(code){
+        case Opcode.none:
+          argument1.Visible = false;
+          argument2.Visible = false;
+          break;
+        case Opcode.textout:
+          argument1.Visible = true;
+          argument2.Visible = false;
+          if (resp.Arguments.Count < 1)
+            resp.Arguments.Add("");
+          argument1.Text = (string)resp.Arguments[0];
+          break;
+      }
+    }
+
+    private void argument1_TextChanged(object sender, System.EventArgs e)
+    {
+      ObjProperty prop = (ObjProperty)m_properties[Properties.SelectedIndex];
+      ObjValue val = (ObjValue)prop.Values[Value.SelectedIndex];
+      ObjResponse resp = (ObjResponse)val.Responses[Response.SelectedIndex];
+      resp.Arguments[0] = argument1.Text;
     }
 	}
 }

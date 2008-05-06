@@ -27,4 +27,5 @@ private:
   sqlite3* db_;
   std::vector<std::string> header_;
   std::vector<std::string> entries_;
+  char* error_msg_;
 };
