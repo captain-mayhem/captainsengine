@@ -18,6 +18,8 @@ namespace AdventureBuilder
       m_conn = new SQLiteConnection("Data Source=adventure.hac;Version=3;New=True;Compress=True");
       m_conn.Open();
       m_cmd = m_conn.CreateCommand();
+      m_propid = 0;
+      m_respid = 0;
 		}
 
     ~CppSqlGenerationVisitor(){
@@ -47,7 +49,13 @@ namespace AdventureBuilder
       m_cmd.CommandText = "CREATE TABLE rooms (rid INTEGER, chid INTEGER, name VARCHAR(50), PRIMARY KEY(rid,chid));";
       m_cmd.ExecuteNonQuery();
 
-      m_cmd.CommandText = "CREATE TABLE room_connections (frm INTEGER, too INTEGER, type INTEGER(1), PRIMARY KEY (frm, too));";
+      m_cmd.CommandText = "CREATE TABLE room_connections (frm INTEGER, too INTEGER, chid INTEGER, type INTEGER(1), PRIMARY KEY (frm, too, chid));";
+      m_cmd.ExecuteNonQuery();
+
+      m_cmd.CommandText = "CREATE TABLE properties (propid INTEGER, chid INTEGER, rid INTEGER, objid INTEGER, property VARCHAR(50), PRIMARY KEY (propid, chid));";
+      m_cmd.ExecuteNonQuery();
+
+      m_cmd.CommandText = "CREATE TABLE responses (respid INTEGER, chid INTEGER, propid INTEGER, value INTEGER, opcode INTEGER, argument1 TEXT, argument2 TEXT, PRIMARY KEY (respid, chid));";
       m_cmd.ExecuteNonQuery();
 
       //insert default character
@@ -72,7 +80,7 @@ namespace AdventureBuilder
     public override object visit(GraphEdge edge){
       int frm = m_flatter.Nodes.IndexOf(edge.From);
       int to = m_flatter.Nodes.IndexOf(edge.To);
-      m_cmd.CommandText = "INSERT INTO room_connections (frm, too, type) VALUES ("+frm+", "+to+", 0);";
+      m_cmd.CommandText = "INSERT INTO room_connections (frm, too, chid, type) VALUES ("+frm+", "+to+",0 , 0);";
       m_cmd.ExecuteNonQuery();
       if (!edge.IsLoop  && edge.From == GraphNode.getFirstNonLoopingPredecessor(edge.To))
         visit(edge.To);
@@ -85,6 +93,22 @@ namespace AdventureBuilder
       String name = node.Name;
       m_cmd.CommandText = "INSERT INTO rooms (rid, chid, name) VALUES ("+rid+", 1,'"+name+"');";
       m_cmd.ExecuteNonQuery();
+      foreach (ObjProperty prop in node.Properties)
+      {
+        m_cmd.CommandText = "INSERT INTO properties (propid, chid, rid, objid, property) VALUES ("+m_propid+", 0,"+rid+", NULL, '"+prop.Name+"');";
+        m_cmd.ExecuteNonQuery();
+        foreach (ObjValue val in prop.Values)
+        {
+          string value = Convert.ToString(val.Value);
+          foreach (ObjResponse resp in val.Responses)
+          {
+            m_cmd.CommandText = "INSERT INTO responses (respid, chid, propid, value, opcode, argument1, argument2) VALUES ("+m_respid+", 0, "+m_propid+", "+value+", "+Convert.ToString((int)resp.Operation)+", '"+(string)resp.Arguments[0]+"', '"+(string)resp.Arguments[1]+"');";
+            m_cmd.ExecuteNonQuery();
+            ++m_respid;
+          }
+        }
+        ++m_propid;
+      }
       //visit edges
       foreach (GraphEdge edge in node.Successors)
       {
@@ -98,5 +122,7 @@ namespace AdventureBuilder
     private SQLiteConnection m_conn;
     private SQLiteCommand m_cmd;
     private GraphFlattenVisitor m_flatter;
+    private int m_propid;
+    private int m_respid;
   }
 }

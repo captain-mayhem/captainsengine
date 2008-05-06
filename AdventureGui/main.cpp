@@ -59,7 +59,7 @@ void Application::_mouseDown(int x, int y, int button){
   //calculate line
   if (x < SECOND_CURSOR_X)
     return;
-  int lineidx = (SECOND_CURSOR_Y-(SCREENHEIGHT-y))/LINE_SPACING;
+  int lineidx = (SECOND_CURSOR_Y-(SCREENHEIGHT-LINE_SPACING-y))/LINE_SPACING;
   if (lineidx < 0)
     return;
   core_->performAction(lineidx);
