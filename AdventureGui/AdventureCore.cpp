@@ -163,10 +163,10 @@ void AdventureCore::gotoRoom(std::string roomid){
   //second_cursor.y -= LINE_SPACING;
   clearDisplay();
   m_sql->execute("UPDATE characters SET curr_room="+roomid+" WHERE chid="+chid_+";");
-  m_sql->execute("SELECT propid FROM properties WHERE chid="+chid_+" AND rid="+roomid+" AND property='description';");
+  m_sql->execute("SELECT propid FROM staticproperties WHERE rid="+roomid+" AND property='description';");
   std::string propid = m_sql->getResultString("propid",0);
   std::string val = "0";
-  m_sql->execute("SELECT opcode, argument1, argument2 FROM responses WHERE chid="+chid_+" AND value="+val+" AND propid="+propid+";");
+  m_sql->execute("SELECT opcode, argument1, argument2 FROM responses WHERE value="+val+" AND propid="+propid+";");
   std::string text = m_sql->getResultString("argument1",0);
   displayText(transform(transformUtf8(text)));
 }

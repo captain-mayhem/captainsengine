@@ -31,6 +31,10 @@ namespace AdventureBuilder
       writer.Write(m_loop);
     }
 
+    virtual public object getVisited(GraphVisitor visitor){
+      return visitor.visit(this);
+    }
+
     public GraphNode From{
       set{m_from = value;}
       get{return m_from;}

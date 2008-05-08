@@ -79,6 +79,11 @@ namespace AdventureBuilder
       return null;
     }
 
+    virtual public object getVisited(GraphVisitor visitor)
+    {
+      return visitor.visit(this);
+    }
+
     public override String ToString(){
       return m_name;
     }

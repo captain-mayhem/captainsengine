@@ -23,5 +23,10 @@ namespace AdventureBuilder
     {
       return new Room(p);
     }
+
+    public override object getVisited(GraphVisitor visitor)
+    {
+      return visitor.visit(this);
+    }
 	}
 }

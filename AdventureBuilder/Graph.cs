@@ -95,7 +95,7 @@ namespace AdventureBuilder
       addEdge(edge);
     }
 
-    public object getVisited(GraphVisitor visitor){
+    virtual public object getVisited(GraphVisitor visitor){
       return visitor.visit(this);
     }
 
