@@ -17,5 +17,7 @@ namespace AdventureBuilder
     public abstract object visit(Graph graph);
     public abstract object visit(GraphNode node);
     public abstract object visit(GraphEdge edge);
+    public abstract object visit(Room room);
+    public abstract object visit(RoomGraph graph);
 	}
 }

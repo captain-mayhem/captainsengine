@@ -166,7 +166,9 @@ void Application::setupMainGui(){
   System::Engine::instance()->addGuiListener(but);
 
   //TODO make it correct
-  core_->displayText("Ich muss hier einen langen Text schreiben, der weit über eine Zeile geht, um die Funktionsweise des Textdisplays zu erkunden.");
+  std::string chid_ = "0";
+  std::string rid = sql_->execute("SELECT curr_room FROM characters where chid="+chid_+";");
+  core_->gotoRoom(rid);
 }
 
 void engineMain(int argc, char** argv){

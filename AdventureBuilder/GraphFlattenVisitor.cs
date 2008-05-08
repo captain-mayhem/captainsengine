@@ -18,9 +18,13 @@ namespace AdventureBuilder
     {
       foreach (GraphNode node in graph.Roots)
       {
-        visit(node);
+        node.getVisited(this);
       }
       return null;
+    }
+
+    public override object visit(RoomGraph graph){
+      return visit((Graph)graph);
     }
 
     public override object visit(GraphEdge edge)
@@ -29,7 +33,7 @@ namespace AdventureBuilder
       //not looping and not second pass
       if (!edge.IsLoop && edge.From == GraphNode.getFirstNonLoopingPredecessor(edge.To))
       {
-        visit(edge.To);
+        edge.To.getVisited(this);
       }
       return null;
     }
@@ -39,9 +43,13 @@ namespace AdventureBuilder
       m_nodes.Add(node);
       foreach (GraphEdge edge in node.Successors)
       {
-        visit(edge);
+        edge.getVisited(this);
       }
       return null;
+    }
+
+    public override object visit(Room room){
+      return visit((GraphNode)room);
     }
 
     public ArrayList Nodes{

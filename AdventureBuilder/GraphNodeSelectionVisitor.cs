@@ -17,18 +17,22 @@ namespace AdventureBuilder
     {
       foreach (GraphNode node in graph.Roots)
       {
-        object hit = visit(node);
+        object hit = node.getVisited(this);
         if (hit != null)
           return hit;
       }
       return null;
     }
 
+    public override object visit(RoomGraph graph){
+      return visit((Graph)graph);
+    }
+
     public override object visit(GraphEdge edge)
     {
       if (edge.IsLoop || edge.From != GraphNode.getFirstNonLoopingPredecessor(edge.To))
         return null;
-      object found = visit(edge.To);
+      object found = edge.To.getVisited(this);
       if (found != null)
         return found;
       return null;
@@ -45,11 +49,15 @@ namespace AdventureBuilder
       }
       foreach (GraphEdge edge in node.Successors)
       {
-        object found = visit(edge);
+        object found = edge.getVisited(this);
         if (found != null)
           return found;
       }
       return null;
+    }
+
+    public override object visit(Room room){
+      return visit((GraphNode)room);
     }
 
     private Point m_hitpoint;
