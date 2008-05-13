@@ -34,6 +34,12 @@ public:
     Goto,
   };
 
+  enum Opcode{
+    none,
+    textout,
+    increment,
+  };
+
   AdventureCore(SQL* sql);
   ~AdventureCore();
   //performs an action from the GUI
@@ -61,6 +67,8 @@ private:
   void printLine(std::string txt);
   //make a newline
   void newline();
+  //interpret opcodess
+  void interpret(Opcode opcode, std::string argument1, std::string argument2);
   
   //a cursor position
   Vector2D cursor;

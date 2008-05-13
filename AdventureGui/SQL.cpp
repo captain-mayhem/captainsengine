@@ -35,6 +35,10 @@ std::string SQL::execute(std::string sql){
   return entries_[0];
 }
 
+std::string SQL::getResultString(int column, int row){
+  return entries_[row*header_.size()+column];
+}
+
 std::string SQL::getResultString(std::string column, int row){
   int idx = -1;
   for (unsigned i = 0; i < header_.size(); ++i){
@@ -46,6 +50,11 @@ std::string SQL::getResultString(std::string column, int row){
   if (idx == -1)
     return "";
   return entries_[row*header_.size()+idx];
+}
+
+int SQL::getResultInt(int column, int row){
+  std::string res = getResultString(column, row);
+  return atoi(res.c_str());
 }
 
 int SQL::getResultInt(std::string column, int row){

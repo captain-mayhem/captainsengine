@@ -7,7 +7,8 @@ namespace AdventureBuilder
   public enum Opcode
   {
     none,
-    textout
+    textout,
+    increment,
   }
 	/// <summary>
 	/// Summary description for ObjResponse.

@@ -21,8 +21,10 @@ public:
   ~SQL();
   std::string execute(std::string sql);
   std::string getResultString(std::string column, int row);
+  std::string getResultString(int column, int row);
   int getResultInt(std::string column, int row);
-  int getNumRows() {return entries_.size()/header_.size();}
+  int getResultInt(int column, int row);
+  int getNumRows() {if (header_.size() == 0) return 0; return entries_.size()/header_.size();}
 private:
   sqlite3* db_;
   std::vector<std::string> header_;

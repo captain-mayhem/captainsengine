@@ -157,16 +157,32 @@ void AdventureCore::performAction(unsigned lineidx){
 
 //goto a room
 void AdventureCore::gotoRoom(std::string roomid){
-  //Graphics::Font* fnt = System::Engine::instance()->getFont(1);
-  //fnt->setColor(Graphics::Color(0,0,1,1));
-  //fnt->print(second_cursor.x, second_cursor.y, "Hallo", 1, FLT_MAX);
-  //second_cursor.y -= LINE_SPACING;
   clearDisplay();
   m_sql->execute("UPDATE characters SET curr_room="+roomid+" WHERE chid="+chid_+";");
   m_sql->execute("SELECT propid FROM staticproperties WHERE rid="+roomid+" AND property='description';");
   std::string propid = m_sql->getResultString("propid",0);
-  std::string val = "0";
-  m_sql->execute("SELECT opcode, argument1, argument2 FROM responses WHERE value="+val+" AND propid="+propid+";");
-  std::string text = m_sql->getResultString("argument1",0);
-  displayText(transform(transformUtf8(text)));
+  m_sql->execute("SELECT value FROM properties WHERE chid="+chid_+" AND rid="+roomid+" AND property='state';");
+  std::string val = m_sql->getResultString(0,0);
+  m_sql->execute("SELECT opcode, argument1, argument2, value FROM responses WHERE value<="+val+" AND propid="+propid+" ORDER BY value DESC;");
+  int value = m_sql->getResultInt(3,0);
+  for (int i = 0; i < m_sql->getNumRows(); ++i){
+    if (m_sql->getResultInt(3,i) == value)
+      interpret((Opcode)m_sql->getResultInt(0,i), m_sql->getResultString(1,i), m_sql->getResultString(2,i));
+    else
+      break;
+  }
+}
+
+void AdventureCore::interpret(Opcode opcode, std::string argument1, std::string argument2){
+  switch (opcode){
+    case none:
+      break;
+    case textout:
+      displayText(transform(transformUtf8(argument1)));
+      break;
+    case increment:
+      std::string roomid = m_sql->execute("SELECT curr_room FROM characters where chid="+chid_+";");
+      m_sql->execute("UPDATE properties SET value=value+1 WHERE chid="+chid_+" AND rid="+roomid+" AND property='"+argument1+"';");
+      break;
+  }
 }
