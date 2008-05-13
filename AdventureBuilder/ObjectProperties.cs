@@ -236,7 +236,8 @@ namespace AdventureBuilder
       // 
       this.responseType.Items.AddRange(new object[] {
                                                       "none",
-                                                      "textout"});
+                                                      "textout",
+                                                      "increment"});
       this.responseType.Location = new System.Drawing.Point(136, 264);
       this.responseType.Name = "responseType";
       this.responseType.Size = new System.Drawing.Size(121, 21);
@@ -512,6 +513,11 @@ namespace AdventureBuilder
           argument2.Visible = false;
           if (resp.Arguments.Count < 1)
             resp.Arguments.Add("");
+          argument1.Text = (string)resp.Arguments[0];
+          break;
+        case Opcode.increment:
+          argument1.Visible = true;
+          argument2.Visible = false;
           argument1.Text = (string)resp.Arguments[0];
           break;
       }
