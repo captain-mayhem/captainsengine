@@ -11,11 +11,8 @@ namespace AdventureBuilder
 	{
 		public Room(Point p) : base(p)
 		{
+      m_name = "Raum";
 			m_type = Factory.ObjectType.Room;
-      ObjProperty state = new ObjProperty("state");
-      //m_properties.Add(state);
-      ObjValue stateval = new ObjValue(0);
-      state.Values.Add(stateval);
       ObjProperty prop = new ObjProperty("description");
       m_properties.Add(prop);
       ObjValue val = new ObjValue(0);
@@ -24,6 +21,10 @@ namespace AdventureBuilder
       resp.Operation = Opcode.textout;
       resp.Arguments[0] = "Raumbeschreibung";
       val.Responses.Add(resp);
+      ObjProperty state = new ObjProperty("state");
+      m_properties.Add(state);
+      ObjValue stateval = new ObjValue(0);
+      state.Values.Add(stateval);
 		}
 
     public Room(BinaryReader reader) : base(reader)
@@ -33,6 +34,10 @@ namespace AdventureBuilder
 
     public override object getVisited(GraphVisitor visitor)
     {
+      return visitor.visit(this);
+    }
+
+    public override object getVisited(AdventureGraphVisitor visitor){
       return visitor.visit(this);
     }
 

@@ -14,7 +14,8 @@ namespace AdventureBuilder
       GraphEdge,
       RoomGraph,
       Room,
-      Settings
+      Settings,
+      MultipleChoiceNode,
     }
 
 		public Factory()
@@ -44,6 +45,8 @@ namespace AdventureBuilder
           return new RoomGraph(reader);
         case ObjectType.Settings:
           return new Settings(reader);
+        case ObjectType.MultipleChoiceNode:
+          return new MultipleChoiceNode(reader);
       }
       return null;
     }

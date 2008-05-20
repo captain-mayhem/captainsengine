@@ -19,12 +19,17 @@ namespace AdventureBuilder
       m_type = Factory.ObjectType.RoomGraph;
     }
 
-    public override GraphNode newNode(Point p)
-    {
-      return new Room(p);
-    }
+    //public override GraphNode newNode(Point p)
+    //{
+    //  return new Room(p);
+    //}
 
     public override object getVisited(GraphVisitor visitor)
+    {
+      return visitor.visit(this);
+    }
+
+    public override object getVisited(AdventureGraphVisitor visitor)
     {
       return visitor.visit(this);
     }

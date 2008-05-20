@@ -3,11 +3,11 @@ using System;
 namespace AdventureBuilder
 {
 	/// <summary>
-	/// Summary description for GraphVisitor.
+	/// Summary description for AdventureGraphVisitor.
 	/// </summary>
-	public abstract class GraphVisitor
+	public abstract class AdventureGraphVisitor
 	{
-		public GraphVisitor()
+		public AdventureGraphVisitor()
 		{
 			//
 			// TODO: Add constructor logic here
@@ -17,5 +17,7 @@ namespace AdventureBuilder
     public abstract object visit(Graph graph);
     public abstract object visit(GraphNode node);
     public abstract object visit(GraphEdge edge);
+    public abstract object visit(Room room);
+    public abstract object visit(RoomGraph graph);
 	}
 }

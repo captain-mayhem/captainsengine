@@ -24,10 +24,6 @@ namespace AdventureBuilder
       return null;
     }
 
-    public override object visit(RoomGraph graph){
-      return visit((Graph)graph);
-    }
-
     public override object visit(GraphEdge edge)
     {
       if (edge.IsLoop || edge.From != GraphNode.getFirstNonLoopingPredecessor(edge.To))
@@ -54,10 +50,6 @@ namespace AdventureBuilder
           return found;
       }
       return null;
-    }
-
-    public override object visit(Room room){
-      return visit((GraphNode)room);
     }
 
     private Point m_hitpoint;

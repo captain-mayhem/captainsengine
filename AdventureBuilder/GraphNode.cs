@@ -5,6 +5,7 @@ using System.IO;
 
 namespace AdventureBuilder
 {
+  public delegate GraphNode genNode(Point p);
 	/// <summary>
 	/// Summary description for GraphNode.
 	/// </summary>
@@ -81,6 +82,10 @@ namespace AdventureBuilder
 
     virtual public object getVisited(GraphVisitor visitor)
     {
+      return visitor.visit(this);
+    }
+
+    virtual public object getVisited(AdventureGraphVisitor visitor){
       return visitor.visit(this);
     }
 

@@ -53,10 +53,20 @@ namespace AdventureBuilder
       m_node = node;
       if (m_node != null){
         getValuesFromNode();
-        Properties.SelectedIndex = 0;
-        Value.SelectedIndex = 0;
-        Response.SelectedIndex = 0;
-        responseType.SelectedIndex = 1;
+        if (m_properties.Count > 0)
+        {
+          Properties.SelectedIndex = 0;
+          if (((ObjProperty)m_properties[0]).Values.Count > 0)
+          {
+            Value.SelectedIndex = 0;
+            if (((ObjValue)(((ObjProperty)m_properties[0]).Values[0])).Responses.Count > 0)
+            {
+              Response.SelectedIndex = 0;
+              Opcode code = ((ObjResponse)((ObjValue)(((ObjProperty)m_properties[0]).Values[0])).Responses[0]).Operation;
+              responseType.SelectedIndex = (int)code;
+            }
+          }
+        }
       }
     }
 
@@ -141,6 +151,7 @@ namespace AdventureBuilder
       this.Response.Name = "Response";
       this.Response.Size = new System.Drawing.Size(528, 160);
       this.Response.TabIndex = 4;
+      this.Response.SelectedIndexChanged += new System.EventHandler(this.Response_SelectedIndexChanged);
       // 
       // label1
       // 
@@ -509,15 +520,11 @@ namespace AdventureBuilder
           argument2.Visible = false;
           break;
         case Opcode.textout:
+        case Opcode.increment:
           argument1.Visible = true;
           argument2.Visible = false;
           if (resp.Arguments.Count < 1)
             resp.Arguments.Add("");
-          argument1.Text = (string)resp.Arguments[0];
-          break;
-        case Opcode.increment:
-          argument1.Visible = true;
-          argument2.Visible = false;
           argument1.Text = (string)resp.Arguments[0];
           break;
       }
@@ -529,6 +536,21 @@ namespace AdventureBuilder
       ObjValue val = (ObjValue)prop.Values[Value.SelectedIndex];
       ObjResponse resp = (ObjResponse)val.Responses[Response.SelectedIndex];
       resp.Arguments[0] = argument1.Text;
+    }
+
+    private void Response_SelectedIndexChanged(object sender, System.EventArgs e)
+    {
+      if (Response.SelectedIndex == -1 || Value.SelectedIndex == -1)
+      {
+        MessageBox.Show(this, "You need to select a property and a value first.");
+        return;
+      }
+      ObjProperty prop = (ObjProperty)m_properties[Properties.SelectedIndex];
+      ObjValue val = (ObjValue)prop.Values[Value.SelectedIndex];
+      ObjResponse resp = (ObjResponse)val.Responses[Response.SelectedIndex];
+      responseType.SelectedIndex = (int)resp.Operation;
+      argument1.Text = (string)resp.Arguments[0];
+      argument2.Text = (string)resp.Arguments[1];
     }
 	}
 }
