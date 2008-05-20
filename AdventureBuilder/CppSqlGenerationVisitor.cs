@@ -7,7 +7,7 @@ namespace AdventureBuilder
 	/// <summary>
 	/// Summary description for GraphDrawVisitor.
 	/// </summary>
-	public class CppSqlGenerationVisitor : GraphVisitor, IDisposable
+	public class CppSqlGenerationVisitor : AdventureGraphVisitor, IDisposable
 	{
 		public CppSqlGenerationVisitor(Settings sett, Graph rooms)
 		{

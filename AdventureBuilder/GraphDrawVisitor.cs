@@ -30,10 +30,6 @@ namespace AdventureBuilder
       return null;
     }
 
-    public override object visit(RoomGraph graph){
-      return visit((Graph)graph);
-    }
-
     public override object visit(GraphEdge edge){
       Pen p;
       if (edge.IsLoop)
@@ -76,10 +72,6 @@ namespace AdventureBuilder
         edge.getVisited(this);
       }
       return null;
-    }
-
-    public override object visit(Room room){
-      return visit((GraphNode)room);
     }
 
     private Point intersectLineCircle(Point lineStart, Point lineEnd, Point center, int radius){

@@ -63,9 +63,9 @@ namespace AdventureBuilder
       }
     }
 
-    public virtual GraphNode newNode(Point p){
-      return new GraphNode(p);
-    }
+    //public virtual GraphNode newNode(Point p){
+    //  return new GraphNode(p);
+    //}
 
     public virtual GraphEdge newEdge(GraphNode from, GraphNode to){
       return new GraphEdge(from, to);
@@ -96,6 +96,10 @@ namespace AdventureBuilder
     }
 
     virtual public object getVisited(GraphVisitor visitor){
+      return visitor.visit(this);
+    }
+
+    virtual public object getVisited(AdventureGraphVisitor visitor){
       return visitor.visit(this);
     }
 

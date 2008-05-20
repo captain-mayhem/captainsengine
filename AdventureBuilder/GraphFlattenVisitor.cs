@@ -23,10 +23,6 @@ namespace AdventureBuilder
       return null;
     }
 
-    public override object visit(RoomGraph graph){
-      return visit((Graph)graph);
-    }
-
     public override object visit(GraphEdge edge)
     {
       m_edges.Add(edge);
@@ -46,10 +42,6 @@ namespace AdventureBuilder
         edge.getVisited(this);
       }
       return null;
-    }
-
-    public override object visit(Room room){
-      return visit((GraphNode)room);
     }
 
     public ArrayList Nodes{

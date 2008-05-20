@@ -42,6 +42,9 @@ namespace AdventureBuilder
 
       m_graph = new RoomGraph();
       m_settings = new Settings((RoomGraph)m_graph);
+      addNodeGeneration("Room", 0, new genNode(genRoom));
+      addNodeGeneration("Choice", 1, new genNode(genMultipleChoice));
+      addNodeGeneration("Cancel", 2, new genNode(genNothing));
 		}
 
 		/// <summary>
@@ -180,6 +183,18 @@ namespace AdventureBuilder
 		{
 			Application.Run(new MainForm());
 		}
+
+    private GraphNode genRoom(Point p){
+      return new Room(p);
+    }
+
+    private GraphNode genMultipleChoice(Point p){
+      return new MultipleChoiceNode(p);
+    }
+
+    private GraphNode genNothing(Point p){
+      return null;
+    }
 
     private void menu_exit_Click(object sender, System.EventArgs e)
     {

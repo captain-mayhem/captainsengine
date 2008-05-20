@@ -35,6 +35,10 @@ namespace AdventureBuilder
       return visitor.visit(this);
     }
 
+    virtual public object getVisited(AdventureGraphVisitor visitor){
+      return visitor.visit(this);
+    }
+
     public GraphNode From{
       set{m_from = value;}
       get{return m_from;}
