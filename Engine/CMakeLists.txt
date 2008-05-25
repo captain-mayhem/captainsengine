@@ -9,7 +9,7 @@ INCLUDE(system/CMakeLists.txt)
 INCLUDE(window/CMakeLists.txt)
 INCLUDE(common/CMakeLists.txt)
 
-LINK_DIRECTORIES(${HeroEngine_SOURCE_DIR}/Engine/lib)
+LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
 
 IF(NOT ${DIRECTX} AND ${OS} STREQUAL "windows")
 	ADD_DEFINITIONS(/D_NODIRECTX)	

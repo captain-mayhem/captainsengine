@@ -5,6 +5,7 @@ using System.IO;
 
 namespace AdventureBuilder
 {
+  public delegate Graph GenGraph();
 	/// <summary>
 	/// Summary description for Graph.
 	/// </summary>
@@ -14,6 +15,7 @@ namespace AdventureBuilder
 		{
       m_roots = new ArrayList();
       m_leafs = new ArrayList();
+      m_parent = null;
       m_type = Factory.ObjectType.Graph;
 		}
 
@@ -107,8 +109,14 @@ namespace AdventureBuilder
       get{return m_roots;}
     }
 
+    public Graph Parent{
+      set{m_parent = value;}
+      get{return m_parent;}
+    }
+
     private ArrayList m_roots;
     private ArrayList m_leafs;
     protected Factory.ObjectType m_type;
+    private Graph m_parent;
 	}
 }

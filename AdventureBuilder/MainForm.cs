@@ -40,11 +40,12 @@ namespace AdventureBuilder
 			//
 			InitializeComponent();
 
-      m_graph = new RoomGraph();
+      m_graph = genRoomGraph();
       m_settings = new Settings((RoomGraph)m_graph);
-      addNodeGeneration("Room", 0, new genNode(genRoom));
-      addNodeGeneration("Choice", 1, new genNode(genMultipleChoice));
-      addNodeGeneration("Cancel", 2, new genNode(genNothing));
+      addNodeGeneration("Room", 0, new GenNode(genRoom));
+      addNodeGeneration("Choice", 1, new GenNode(genMultipleChoice));
+      addNodeGeneration("Cancel", 2, new GenNode(genNothing));
+      GraphGenFunc = new GenGraph(genStateGraph);
 		}
 
 		/// <summary>
@@ -194,6 +195,14 @@ namespace AdventureBuilder
 
     private GraphNode genNothing(Point p){
       return null;
+    }
+
+    private Graph genRoomGraph(){
+      return new RoomGraph();
+    }
+
+    private Graph genStateGraph(){
+      return new StateGraph();
     }
 
     private void menu_exit_Click(object sender, System.EventArgs e)

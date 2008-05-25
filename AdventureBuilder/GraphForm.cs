@@ -22,10 +22,19 @@ namespace AdventureBuilder
     protected bool m_left_down;
     //! the node generation functions
     protected ArrayList m_node_func;
+    //! the menu to generate nodes
     private System.Windows.Forms.ContextMenu NodeMenu;
+    //! the current sublevel of the graph
+    private System.Windows.Forms.Button graph_level;
+    //! the subgraph generation function
+    private GenGraph m_gen_graph;
 
     public Graph UsedGraph{
       set{m_graph = value;}
+    }
+
+    public GenGraph GraphGenFunc{
+      set{m_gen_graph = value;}
     }
 
 		/// <summary>
@@ -73,17 +82,30 @@ namespace AdventureBuilder
 		private void InitializeComponent()
 		{
       this.NodeMenu = new System.Windows.Forms.ContextMenu();
+      this.graph_level = new System.Windows.Forms.Button();
+      this.SuspendLayout();
       // 
       // NodeMenu
       // 
       this.NodeMenu.Popup += new System.EventHandler(this.NodeMenu_Popup);
       // 
+      // graph_level
+      // 
+      this.graph_level.Location = new System.Drawing.Point(8, 8);
+      this.graph_level.Name = "graph_level";
+      this.graph_level.Size = new System.Drawing.Size(48, 24);
+      this.graph_level.TabIndex = 0;
+      this.graph_level.Text = "level 0";
+      this.graph_level.Click += new System.EventHandler(this.graph_level_Click);
+      // 
       // GraphForm
       // 
       this.AutoScaleBaseSize = new System.Drawing.Size(5, 13);
       this.ClientSize = new System.Drawing.Size(480, 382);
+      this.Controls.Add(this.graph_level);
       this.Name = "GraphForm";
       this.Text = "GraphForm";
+      this.ResumeLayout(false);
 
     }
 		#endregion
@@ -115,6 +137,20 @@ namespace AdventureBuilder
         if (m_selection != null)
         {
           //it was clicked on a node
+          if (e.Clicks > 1)
+          {
+            //double click
+            if (m_selection.LowerGraph == null)
+            {
+              m_selection.LowerGraph = m_gen_graph();
+            }
+            m_selection.LowerGraph.Parent = m_graph;
+            m_graph = m_selection.LowerGraph;
+            string tmp = graph_level.Text.Substring(6);
+            int level = Convert.ToInt32(tmp);
+            graph_level.Text = "level "+Convert.ToString(level+1);
+            //m_selection.Name = "dc";
+          }
           m_left_down = true;
         }
         else
@@ -151,19 +187,30 @@ namespace AdventureBuilder
 
     private void nodeMenuNodeGen_Click(object sender, System.EventArgs e){
       MenuItem item = (MenuItem)sender;
-      genNode gen = (genNode)m_node_func[item.Index];
+      GenNode gen = (GenNode)m_node_func[item.Index];
       GraphNode node = gen(m_click);
       if (node == null)
         return;
       m_graph.addUnconnectedNode(node);
     }
 
-    public void addNodeGeneration(string name, int idx, genNode function){
+    public void addNodeGeneration(string name, int idx, GenNode function){
       EventHandler ev = new System.EventHandler(nodeMenuNodeGen_Click);
       MenuItem item = new MenuItem(name, ev);
       item.Index = idx;
       NodeMenu.MenuItems.Add(idx, item);
       m_node_func.Insert(idx, function);
+    }
+
+    private void graph_level_Click(object sender, System.EventArgs e)
+    {
+      if (m_graph.Parent != null){
+        m_graph = m_graph.Parent;
+        string tmp = graph_level.Text.Substring(6);
+        int level = Convert.ToInt32(tmp);
+        graph_level.Text = "level "+Convert.ToString(level-1);
+        Invalidate();
+      }
     }
   }
 }

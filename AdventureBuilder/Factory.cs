@@ -16,6 +16,7 @@ namespace AdventureBuilder
       Room,
       Settings,
       MultipleChoiceNode,
+      StateGraph,
     }
 
 		public Factory()
@@ -47,6 +48,8 @@ namespace AdventureBuilder
           return new Settings(reader);
         case ObjectType.MultipleChoiceNode:
           return new MultipleChoiceNode(reader);
+        case ObjectType.StateGraph:
+          return new StateGraph(reader);
       }
       return null;
     }
