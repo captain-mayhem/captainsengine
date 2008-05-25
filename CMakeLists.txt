@@ -1,4 +1,4 @@
-PROJECT(HeroEngine)
+PROJECT(CaptainsEngine)
 
 OPTION(DIRECTX "compiles with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
 
@@ -7,7 +7,7 @@ IF (${OS} STREQUAL "")
 ENDIF (${OS} STREQUAL "")
 SET(OS ${OS} CACHE STRING "the current operating system")
 
-INCLUDE_DIRECTORIES(${HeroEngine_SOURCE_DIR}/Engine/include)
+INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/include)
 
 IF (${OS} STREQUAL "windows")
   ADD_DEFINITIONS(/D_CRT_SECURE_NO_DEPRECATE)

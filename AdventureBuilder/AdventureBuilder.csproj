@@ -251,6 +251,11 @@
                     DependentUpon = "Settings.cs"
                     BuildAction = "EmbeddedResource"
                 />
+                <File
+                    RelPath = "StateGraph.cs"
+                    SubType = "Code"
+                    BuildAction = "Compile"
+                />
             </Include>
         </Files>
     </CSHARP>

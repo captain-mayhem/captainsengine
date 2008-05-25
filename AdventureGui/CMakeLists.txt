@@ -1,6 +1,6 @@
-INCLUDE_DIRECTORIES(${HeroEngine_SOURCE_DIR}/Engine)
+INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
 
-LINK_DIRECTORIES(${HeroEngine_SOURCE_DIR}/Engine/lib)
+LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
 
 SET(AdventureGui_SRCS
 	main.cpp

@@ -5,7 +5,7 @@ using System.IO;
 
 namespace AdventureBuilder
 {
-  public delegate GraphNode genNode(Point p);
+  public delegate GraphNode GenNode(Point p);
 	/// <summary>
 	/// Summary description for GraphNode.
 	/// </summary>
@@ -20,6 +20,7 @@ namespace AdventureBuilder
       m_properties = new ArrayList();
       m_type = Factory.ObjectType.GraphNode;
       m_name = "Node";
+      m_lower_graph = null;
 		}
 
     public GraphNode(Point p) : this()
@@ -39,6 +40,13 @@ namespace AdventureBuilder
       for (int i = 0; i < count; ++i){
         m_properties.Add(new ObjProperty(reader));
       }
+      bool subgraph = reader.ReadBoolean();
+      if (subgraph){
+        //load subgraph
+        //attention: currently, the parent member cannot be restored. 
+        //It is re-set when needed by the GraphFrom
+        m_lower_graph = (Graph)Factory.makeObject(reader);
+      }
     }
 
     public void save(BinaryWriter writer){
@@ -52,6 +60,13 @@ namespace AdventureBuilder
       foreach (ObjProperty prop in m_properties)
       {
         prop.save(writer);
+      }
+      if (m_lower_graph == null){
+        writer.Write(false);
+      }
+      else{
+        writer.Write(true);
+        m_lower_graph.save(writer);
       }
     }
 
@@ -124,6 +139,11 @@ namespace AdventureBuilder
       set{m_properties = value;}
     }
 
+    public Graph LowerGraph{
+      get{return m_lower_graph;}
+      set{m_lower_graph = value;}
+    }
+
     private ArrayList m_succs;
     private ArrayList m_preds;
     private Point m_location;
@@ -131,5 +151,6 @@ namespace AdventureBuilder
     protected Factory.ObjectType m_type;
     protected string m_name;
     protected ArrayList m_properties;
+    private Graph m_lower_graph;
 	}
 }
