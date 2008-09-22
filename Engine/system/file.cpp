@@ -16,7 +16,9 @@
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#ifndef UNDER_CE
 #include <direct.h>
+#endif
 #endif
 #ifdef UNIX
 #include <sys/types.h>
@@ -37,16 +39,34 @@ std::vector<std::string> Filesystem::getDirectories(const std::string& path){
   tmp.append("/*");
   WIN32_FIND_DATA fileData;
   HANDLE hFind;
+#ifdef UNICODE
+  wchar_t wtmp[512];
+  mbstowcs(wtmp, tmp.c_str(), 512);
+  hFind = FindFirstFile(wtmp, &fileData);
+#else
   hFind = FindFirstFile(tmp.c_str(), &fileData);
+#endif
   if (hFind == INVALID_HANDLE_VALUE){
     return result;
   }
   if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY){
+#ifdef UNICODE
+    char ctmp[512];
+    wcstombs(ctmp, fileData.cFileName, 512);
+    result.push_back(ctmp);
+#else
     result.push_back(fileData.cFileName);
+#endif
   }
   while(FindNextFile(hFind, &fileData)){
     if (fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY){
+#ifdef UNICODE
+      char ctmp[512];
+      wcstombs(ctmp, fileData.cFileName, 512);
+      result.push_back(ctmp);
+#else
       result.push_back(fileData.cFileName);
+#endif
     }
   }
   FindClose(hFind);
@@ -78,16 +98,34 @@ std::vector<std::string> Filesystem::getFiles(const std::string& path){
   tmp.append("/*");
   WIN32_FIND_DATA fileData;
   HANDLE hFind;
+#ifdef UNICODE
+  wchar_t wtmp[512];
+  mbstowcs(wtmp, tmp.c_str(), 512);
+  hFind = FindFirstFile(wtmp, &fileData);
+#else
   hFind = FindFirstFile(tmp.c_str(), &fileData);
+#endif
   if (hFind == INVALID_HANDLE_VALUE){
     return result;
   }
   if (!(fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
+#ifdef UNICODE
+    char ctmp[512];
+    wcstombs(ctmp, fileData.cFileName, 512);
+    result.push_back(ctmp);
+#else
     result.push_back(fileData.cFileName);
+#endif
   }
   while(FindNextFile(hFind, &fileData)){
     if (!(fileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)){
+#ifdef UNICODE
+      char ctmp[512];
+      wcstombs(ctmp, fileData.cFileName, 512);
+      result.push_back(ctmp);
+#else
       result.push_back(fileData.cFileName);
+#endif
     }
   }
   FindClose(hFind);
@@ -114,7 +152,13 @@ std::vector<std::string> Filesystem::getFiles(const std::string& path){
 std::string Filesystem::getCwd(){
   char cwd[2048];
 #ifdef WIN32
+#ifdef UNDER_CE
+  //no working directory under CE
+  //TODO
+  return cwd_;
+#else
   _getcwd(cwd, 2048);
+#endif
 #endif
 #ifdef UNIX
   getcwd(cwd, 2048);
@@ -125,7 +169,12 @@ std::string Filesystem::getCwd(){
 // change directory
 bool Filesystem::changeDir(const std::string& path){
 #ifdef WIN32
+#ifdef UNDER_CE
+  //TODO
+  return true;
+#else
   return SetCurrentDirectory(path.c_str()) == TRUE ? true : false;
+#endif
 #endif
 #ifdef UNIX
   return chdir(path.c_str()) == 0 ? true : false;

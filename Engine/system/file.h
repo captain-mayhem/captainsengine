@@ -35,6 +35,10 @@ public:
   static std::string getCwd();
   //! change directory
   static bool changeDir(const std::string& path);
+#ifdef UNDER_CE
+  //! working directory emulation for Windows CE
+  static std::string cwd_;
+#endif
 };
 
 }

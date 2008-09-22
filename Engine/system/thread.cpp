@@ -3,7 +3,9 @@
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#ifndef UNDER_CE
 #include <process.h>
+#endif
 #endif
 #ifdef UNIX
 #include <pthread.h>
@@ -13,7 +15,8 @@ using namespace System;
 
 int Thread::create(void (*proc)(void* data), void* data){
 #ifdef WIN32
-  threadID_ = (int)_beginthread(proc, 8192, data);
+  //threadID_ = (int)_beginthread(proc, 8192, data);
+  threadID_ = (int)CreateThread(NULL, 8192, (LPTHREAD_START_ROUTINE)proc, data, 0, NULL);
 #endif
 #ifdef UNIX 
   pthread_attr_t attr;
