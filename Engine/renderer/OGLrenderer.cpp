@@ -30,7 +30,7 @@ OGLRenderer::~OGLRenderer(){
 void OGLRenderer::initContext(::Windows::AppWindow* win){
   ::System::Log << "Initializing OpenGL context\n";
   win_ = win;
-#ifdef WIN32
+#if defined(WIN32) && !defined(UNDER_CE)
   static PIXELFORMATDESCRIPTOR pfd ={
     sizeof(PIXELFORMATDESCRIPTOR),
       1,
@@ -93,7 +93,7 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
 }
 
 void OGLRenderer::killContext(){
-#ifdef WIN32
+#if defined(WIN32) && !defined(UNDER_CE)
   if (hRC_){
     if (!wglMakeCurrent(NULL,NULL)){
       ::System::Log << "Release of GL context failed";

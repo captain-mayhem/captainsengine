@@ -75,11 +75,22 @@ WindowsWindow::WindowsWindow(::Graphics::Renderer* renderer) : AppWindow(rendere
 
 void WindowsWindow::init(const std::string& name){
   System::Log << "Initializing window\n";
+#ifndef IDI_APPLICATION
+#define IDI_APPLICATION ((LPWSTR)((ULONG_PTR)((WORD)(32512))))
+#endif
   HWND hwnd = NULL;
+#ifdef UNDER_CE
+  WNDCLASS wndclass;
+#else
   WNDCLASSEX wndclass;
-
   wndclass.cbSize = sizeof(WNDCLASSEX);
-  wndclass.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+#endif
+
+  wndclass.style = CS_HREDRAW | CS_VREDRAW
+#ifndef UNDER_CE
+    | CS_OWNDC
+#endif
+    ;
   wndclass.lpfnWndProc = messageLoop;
   wndclass.cbClsExtra = 0;
   wndclass.cbWndExtra = 0;
@@ -88,21 +99,28 @@ void WindowsWindow::init(const std::string& name){
   wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
   wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
   wndclass.lpszMenuName = NULL;
-  wndclass.lpszClassName = WINDOW_NAME;
+  wndclass.lpszClassName = TEXT(WINDOW_NAME);
+#ifndef UNDER_CE
   wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+#endif
 
   instance_ = wndclass.hInstance;
 
+#ifdef UNDER_CE
+  if (!RegisterClass(&wndclass)){
+#else
   if (!RegisterClassEx(&wndclass)){
+#endif
     System::Log << "Cannot register window\n";
     EXIT();
   }
 
-  DWORD style;
-  DWORD exStyle;
+  DWORD style = 0;
+  DWORD exStyle = 0;
 
   if (renderer_->getRenderType() == ::Graphics::OpenGL){
     if (fullscreen_){
+#ifndef UNDER_CE
       DEVMODE screenSettings;
       memset(&screenSettings, 0, sizeof(screenSettings));
       screenSettings.dmSize = sizeof(screenSettings);
@@ -115,8 +133,11 @@ void WindowsWindow::init(const std::string& name){
         System::Log << "Changing to fullscreen failed\nTrying windowed mode\n";
         fullscreen_ = false;
       }
+#endif
     }
 }
+
+#ifndef UNDER_CE
     if (fullscreen_){
       exStyle = WS_EX_APPWINDOW;
       style = WS_POPUP;
@@ -136,8 +157,19 @@ void WindowsWindow::init(const std::string& name){
     //Change size
     AdjustWindowRectEx(&windowRect, style, FALSE, exStyle);
   }
+#endif
 
-  if (!(hwnd = CreateWindowEx(exStyle, WINDOW_NAME, name.c_str(), WS_CLIPCHILDREN | WS_CLIPSIBLINGS | style,
+#ifdef UNDER_CE
+    wchar_t wtmp[256];
+    mbstowcs(wtmp, name.c_str(), 256);
+#endif
+  if (!(hwnd = CreateWindowEx(exStyle, TEXT(WINDOW_NAME), 
+#ifdef UNDER_CE
+    wtmp,
+#else
+    name.c_str(),
+#endif
+    WS_CLIPCHILDREN | WS_CLIPSIBLINGS | style,
     0, 0, width_, height_, NULL, NULL, instance_, NULL))){
       System::Log << "Create Window failed" << "\n";
       EXIT();
@@ -152,7 +184,9 @@ void WindowsWindow::init(const std::string& name){
 void WindowsWindow::kill(){
   ::System::Log << "Killing window\n";
   if (fullscreen_){
+#ifndef UNDER_CE
     ChangeDisplaySettings(NULL, 0);
+#endif
     ShowCursor(TRUE);
   }
 
@@ -163,7 +197,7 @@ void WindowsWindow::kill(){
     handle_ = NULL;
   }
 
-  if (!UnregisterClass(WINDOW_NAME, instance_)){
+  if (!UnregisterClass(TEXT(WINDOW_NAME), instance_)){
     ::System::Log << "Unregistering class failed";
     instance_ = NULL;
   }

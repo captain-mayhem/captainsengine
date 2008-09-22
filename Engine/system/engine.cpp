@@ -12,11 +12,17 @@ extern void engineMain(int argc, char** argv);
 
 #define TIME_FACTOR 0.001
 
-int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int cmdShow){
+int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, int cmdShow){
   MSG msg;
   char* argv[2];
   argv[0] = "Hero-Engine";
+#ifdef UNDER_CE
+  char tmp[1024];
+  wcstombs(tmp, cmdline, 1024);
+  argv[1] = tmp;
+#else
   argv[1] = cmdline;
+#endif
   System::Engine::init();
   System::Engine::instance()->startup(2, argv);
   //Enter gameloop
@@ -33,7 +39,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPSTR cmdline, int
     Input::Mouse::instance()->move(p.x, p.y, 0);
     System::Engine::instance()->run();
     if (System::Engine::instance()->getRenderer()->getRenderType() == Graphics::OpenGL){
+#ifndef UNDER_CE
       SwapBuffers(dynamic_cast<Graphics::OGLRenderer*>(System::Engine::instance()->getRenderer())->getDevice());
+#endif
     }
   }
   System::Engine::instance()->shutdown();
