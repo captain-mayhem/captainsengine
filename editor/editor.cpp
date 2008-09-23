@@ -14,6 +14,10 @@
 #include "renderer/renderer.h"
 #include "system/file.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 #define TRANSLATION_SPEED 0.1f
 
 using Math::Vector2D;
