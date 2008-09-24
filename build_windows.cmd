@@ -1,0 +1,1 @@
+cmake -G "Visual Studio 8 2005" ../captainsengine/trunk -DOS=windows -DCPU=x86
