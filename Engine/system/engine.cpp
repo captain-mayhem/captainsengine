@@ -38,11 +38,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
     GetCursorPos(&p);
     Input::Mouse::instance()->move(p.x, p.y, 0);
     System::Engine::instance()->run();
-    if (System::Engine::instance()->getRenderer()->getRenderType() == Graphics::OpenGL){
-#ifndef UNDER_CE
-      SwapBuffers(dynamic_cast<Graphics::OGLRenderer*>(System::Engine::instance()->getRenderer())->getDevice());
-#endif
-    }
   }
   System::Engine::instance()->shutdown();
   return (int)msg.wParam;
@@ -179,18 +174,24 @@ void System::Engine::startup(int argc, char** argv){
   graphics_ = Script::instance()->getBoolSetting("graphics");
 
   if (graphics_){
-    if (type == "OpenGL")
-      rend_ = new ::Graphics::OGLRenderer();
-    else if (type == "DirectX"){
-#if defined UNIX || defined _NODIRECTX
-      cerr << "DirectX is not supported on Linux\n";
-      exit(-1);
+    if (type == "OpenGL"){
+#ifdef OPENGL
+        rend_ = new ::Graphics::OGLRenderer();
 #else
-      rend_ = new ::Graphics::DXRenderer();
+        EXIT2("OpenGL support is not compiled in\n");
 #endif
     }
-    else
+    else if (type == "DirectX"){
+#ifdef DIRECTX
+        rend_ = new ::Graphics::DXRenderer();
+#else
+        EXIT2("DirectX support is not compiled in\n");
+#endif
+    }
+    else{
       EXIT2("No valid renderer specified in engine.ini");
+    }
+
 #ifdef WIN32
     win_ = new ::Windows::WindowsWindow(rend_);
 #endif
@@ -293,16 +294,7 @@ void System::Engine::run(){
   
   rend_->enableBlend(false);
 
-#if defined WIN32 && !defined _NODIRECTX
-  if (rend_->getRenderType() == Graphics::DirectX){
-    Graphics::DXRenderer* dxr = dynamic_cast<Graphics::DXRenderer*>(rend_);
-    // End the scene
-    dxr->getDevice()->EndScene();
-
-    // Present the backbuffer contents to the display
-    dxr->getDevice()->Present( NULL, NULL, NULL, NULL );
-  }
-#endif
+  rend_->swapBuffers();
 
   //calculate frame rate
   double currentTime;

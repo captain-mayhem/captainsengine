@@ -31,6 +31,11 @@ using namespace System;
 using std::string;
 using std::vector;
 
+#ifdef UNDER_CE
+std::string Filesystem::cwd_;
+#endif
+
+
 //get all directories in a directory
 std::vector<std::string> Filesystem::getDirectories(const std::string& path){
   vector<string> result;

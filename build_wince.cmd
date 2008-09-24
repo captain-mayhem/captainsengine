@@ -1,1 +1,1 @@
-cmake -G "NMake Makefiles" ../captainsengine/trunk -DOS=wince -DCPU=armv4i -DSDK_DIR="C:/Program Files/Microsoft Visual Studio 8/SmartDevices/SDK/PocketPC2003" -DSDK_LIB_SUFFIX="Lib/armv4" -DSDK_INC_SUFFIX="Include" -DADD_LIB="ccrtrtti.lib secchk.lib"
+cmake -G "NMake Makefiles" ../captainsengine/trunk -DRENDER_GLES=ON -DRENDER_OPENGL=OFF -DOS=wince -DCPU=armv4i -DSDK_DIR="C:/Program Files/Microsoft Visual Studio 8/SmartDevices/SDK/PocketPC2003" -DSDK_LIB_SUFFIX="Lib/armv4" -DSDK_INC_SUFFIX="Include" -DADD_LIB="ccrtrtti.lib secchk.lib"

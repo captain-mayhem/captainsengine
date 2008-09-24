@@ -1,6 +1,11 @@
 #ifndef OGLRENDERER_H
 #define OGLRENDERER_H
 
+#ifndef OPENGL
+#define Dummy OGL
+#include "dummyrenderer.h"
+#undef Dummy
+#else
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -84,6 +89,8 @@ public:
   virtual void getViewport(int view[4]);
   //! get a matrix
   virtual Matrix getMatrix(MatrixType mt);
+  //! swap back and front buffer
+  virtual void swapBuffers();
 protected:
 #ifdef WIN32
   //! device context
@@ -97,6 +104,8 @@ protected:
 };
 
 }
+
+#endif
 
 #endif
 

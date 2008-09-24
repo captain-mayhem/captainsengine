@@ -79,7 +79,7 @@ public:
   //! write matrix to a stream
 	friend ostream& operator<<(ostream& stream, const Matrix& mat);
   //! get matrix from OpenGL
-	void fromOpenGL();
+	//void fromOpenGL();
   //! multiply matrix with the OpenGL matrix stack
 	//void toOpenGL();
   //! transpose a matrix
