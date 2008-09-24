@@ -1,20 +1,32 @@
 SET(PRE renderer)
 
+IF(RENDER_DIRECTX)
+	SET(RENDERER_SRCS
+		${PRE}/DXrenderer.cpp
+		${PRE}/DXtexture.cpp
+		${PRE}/DXvertexbuffer.cpp
+		${RENDERER_SRCS}
+	)
+ENDIF(RENDER_DIRECTX)
+IF(RENDER_OPENGL)
+	SET(RENDERER_SRCS
+		${PRE}/OGLrenderer.cpp
+		${PRE}/OGLtexture.cpp
+		${PRE}/OGLvertexbuffer.cpp
+		${RENDERER_SRCS}
+	)
+ENDIF(RENDER_OPENGL)
+
 SET(Engine_renderer_SRCS
-	${PRE}/DXrenderer.cpp
-	${PRE}/DXtexture.cpp
-	${PRE}/DXvertexbuffer.cpp
 	${PRE}/font.cpp
 	${PRE}/forms.cpp
 	${PRE}/material.cpp
 	${PRE}/model.cpp
-	${PRE}/OGLrenderer.cpp
-	${PRE}/OGLtexture.cpp
-	${PRE}/OGLvertexbuffer.cpp
 	${PRE}/renderer.cpp
 	${PRE}/scene.cpp
 	${PRE}/texture.cpp
 	${PRE}/vertexbuffer.cpp
+	${RENDERER_SRCS}
 )
 
 SET(Engine_renderer_HDRS

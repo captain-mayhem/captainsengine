@@ -344,4 +344,8 @@ Matrix OGLRenderer::getMatrix(MatrixType mt){
   return Matrix(Matrix::Identity);
 }
 
+void OGLRenderer::swapBuffers(){
+  SwapBuffers(hDC_);
+}
+
 

@@ -1,7 +1,11 @@
 #ifndef DXRENDERER_H
 #define DXRENDERER_H
 
-#if defined WIN32 && !defined _NODIRECTX 
+#ifndef DIRECTX
+#define Dummy DX
+#include "dummyrenderer.h"
+#undef Dummy
+#else
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <d3d9.h>
@@ -81,6 +85,8 @@ public:
   virtual void getViewport(int view[4]);
   //! get a matrix
   virtual Matrix getMatrix(MatrixType mt);
+  //! swap back and front buffer
+  virtual void swapBuffers();
 protected:
   //! the directX context
   LPDIRECT3D9 d3d_;
@@ -95,50 +101,5 @@ protected:
 }
 
 #endif
-
-#if defined UNIX || defined _NODIRECTX
-#include "renderer.h"
-
-namespace Graphics{
-class DXRenderer : public Renderer{
-public: 
-  //! Constructor
-  DXRenderer(){}
-  //! Destructor
-  ~DXRenderer(){}  
-  //! create texture
-  Texture* createTexture(string filename){return NULL;}
-  //! set orthographic projection
-  void ortho(const int width, const int height){}
-  //! reset modelview matrix
-  void resetModelView(){}
-  //! translate
-  void translate(float x, float y, float z){}
-  //! scale
-  void scale(float x, float y, float z){}
-  //! set render mode
-  void renderMode(RendMode rm){}
-  //! set blending mode
-  void blendFunc(BlendType src, BlendType dest){}
-  //! enable blending
-  void enableBlend(const bool flag){}
-  //! enable texturing
-  void enableTexturing(const bool flag){}
-  //! enable lighting
-  void enableLighting(const bool flag){}
-  //! set color
-  void setColor(float r, float g, float b, float a){}
-  //! set color
-  void setColor(const Color* c){}
-  //! set material
-  void setMaterial(const Material& mat){}
-  //! push matrix
-  void pushMatrix(){}
-  //! pop matrix
-  void popMatrix(){}
-};
-}
-#endif
-
 
 #endif

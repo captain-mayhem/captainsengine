@@ -211,12 +211,12 @@ ostream& Math::operator<<(ostream& stream, const Matrix& mat)
 	stream<<"|-----------|"<<std::endl;
   return stream;
 }
-
+/*
 void Matrix::fromOpenGL()
 {
 	glGetFloatv(GL_MODELVIEW_MATRIX, data_);
 }
-
+*/
 /*void Matrix::toOpenGL()
 {
 	glMultMatrixf(data_);

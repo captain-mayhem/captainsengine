@@ -109,6 +109,8 @@ public:
   virtual void getViewport(int view[4])=0;
   //! get a matrix
   virtual Matrix getMatrix(MatrixType mt)=0;
+  //! swap back and front buffer
+  virtual void swapBuffers()=0;
 protected:
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/

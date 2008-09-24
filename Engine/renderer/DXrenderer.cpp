@@ -1,4 +1,3 @@
-#if defined WIN32 && !defined _NODIRECTX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include "../window/nativeWindows.h"
@@ -366,4 +365,10 @@ Matrix DXRenderer::getMatrix(MatrixType mt){
   return Matrix(Matrix::Identity);
 }
 
-#endif
+void DXRenderer::swapBuffers(){
+    // End the scene
+    device_->EndScene();
+
+    // Present the backbuffer contents to the display
+    device_->Present( NULL, NULL, NULL, NULL );
+}

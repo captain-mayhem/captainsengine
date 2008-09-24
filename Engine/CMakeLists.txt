@@ -1,4 +1,3 @@
-INCLUDE(FindOpenGL)
 
 INCLUDE(gui/CMakeLists.txt)
 INCLUDE(input/CMakeLists.txt)
@@ -10,10 +9,6 @@ INCLUDE(window/CMakeLists.txt)
 INCLUDE(common/CMakeLists.txt)
 
 LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
-
-IF(NOT ${DIRECTX} AND ${OS} STREQUAL "windows")
-	ADD_DEFINITIONS(/D_NODIRECTX)	
-ENDIF(NOT ${DIRECTX} AND ${OS} STREQUAL "windows")
 
 ADD_LIBRARY(Engine STATIC 
 	${Engine_gui_SRCS}
@@ -52,27 +47,8 @@ SOURCE_GROUP("window" FILES ${Engine_window_HDRS})
 SOURCE_GROUP("common" FILES ${Engine_common_SRCS})
 SOURCE_GROUP("common" FILES ${Engine_common_HDRS})
 
-IF (${OS} STREQUAL "windows")
-  TARGET_LINK_LIBRARIES(Engine
-	  jpeg
-	  liblua
-	  liblualib
-	  d3d9
-	  d3dx9
-	  ${OPENGL_LIBRARIES})
-ENDIF (${OS} STREQUAL "windows")
-IF (${OS} STREQUAL "linux")
-  TARGET_LINK_LIBRARIES(Engine
-	  jpeg
-	  lua
-	  lualib
-	  ${OPENGL_LIBRARIES}
-    X11
-    Xxf86vm
-    pthread)
-ENDIF (${OS} STREQUAL "linux")
-
-
+TARGET_LINK_LIBRARIES(Engine ${ENGINE_LINK_LIBRARIES})
+	  
 INSTALL(TARGETS Engine ARCHIVE DESTINATION Engine/lib)
 INSTALL(FILES engine.ini DESTINATION Engine)
 INSTALL(FILES textures/font/font.bmp DESTINATION Engine/textures/font)

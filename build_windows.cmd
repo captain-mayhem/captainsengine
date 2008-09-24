@@ -1,1 +1,1 @@
-cmake -G "Visual Studio 8 2005" ../captainsengine/trunk -DOS=windows -DCPU=x86
+cmake -G "Visual Studio 8 2005" ../captainsengine/trunk -DRENDER_DIRECTX=ON -DOS=windows -DCPU=x86

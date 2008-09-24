@@ -46,6 +46,8 @@ public:
   virtual void getViewport(int view[4]){}
   //! get a matrix
   virtual Matrix getMatrix(MatrixType mt){return Matrix(Matrix::Identity);}
+  //! swap back and front buffer
+  virtual void swapBuffers(){}
 };
 
 }
