@@ -1,0 +1,35 @@
+//
+// TestPPC.RC2 - Ressourcen, die von Microsoft Visual C++ nicht direkt bearbeitet werden
+//
+
+#ifdef APSTUDIO_INVOKED
+#error Diese Datei kann nicht in Microsoft Visual C++ bearbeitet werden.
+#endif //APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Fügen Sie hier manuell bearbeitete Ressourcen hinzu...
+
+/////////////////////////////////////////////////////////////////////////////
+HI_RES_AWARE CEUX {1}	// Emulationsebene deaktivieren
+			// Diese Ressource entfernen, um die Pixel-
+			// verdopplung auf unterstützenden Plattformen zu aktivieren
+/////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SHMENUBAR
+//
+
+IDR_MENU SHMENUBAR DISCARDABLE
+BEGIN
+    IDR_MENU, 
+    2,
+
+    I_IMAGENONE, IDM_OK, TBSTATE_ENABLED, TBSTYLE_BUTTON | TBSTYLE_AUTOSIZE,
+    IDS_OK, 0, NOMENU,
+    
+    I_IMAGENONE, IDM_HELP, TBSTATE_ENABLED, TBSTYLE_DROPDOWN | TBSTYLE_AUTOSIZE,
+    IDS_HELP, 0, 0,
+END
+

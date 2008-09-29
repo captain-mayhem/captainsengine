@@ -3,7 +3,7 @@
 
 #ifndef DIRECTX
 #define Dummy DX
-#include "dummyrenderer.h"
+#include "../dummyrenderer.h"
 #undef Dummy
 #else
 #define WIN32_LEAN_AND_MEAN
@@ -12,7 +12,7 @@
 #include <d3dx9.h>
 #include <stack>
 #include "../math/vector.h"
-#include "renderer.h"
+#include "../renderer.h"
 
 using std::stack;
 

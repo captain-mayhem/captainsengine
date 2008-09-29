@@ -2,20 +2,46 @@ SET(PRE renderer)
 
 IF(RENDER_DIRECTX)
 	SET(RENDERER_SRCS
-		${PRE}/DXrenderer.cpp
-		${PRE}/DXtexture.cpp
-		${PRE}/DXvertexbuffer.cpp
+		${PRE}/DirectX/DXrenderer.cpp
+		${PRE}/DirectX/DXtexture.cpp
+		${PRE}/DirectX/DXvertexbuffer.cpp
 		${RENDERER_SRCS}
+	)
+	SET(RENDERER_HDRS
+		${PRE}/DirectX/DXrenderer.h
+		${PRE}/DirectX/DXtexture.h
+		${PRE}/DirectX/DXvertexbuffer.h
+		${RENDERER_HDRS}
 	)
 ENDIF(RENDER_DIRECTX)
 IF(RENDER_OPENGL)
 	SET(RENDERER_SRCS
-		${PRE}/OGLrenderer.cpp
-		${PRE}/OGLtexture.cpp
-		${PRE}/OGLvertexbuffer.cpp
+		${PRE}/OpenGL/OGLrenderer.cpp
+		${PRE}/OpenGL/OGLtexture.cpp
+		${PRE}/OpenGL/OGLvertexbuffer.cpp
 		${RENDERER_SRCS}
 	)
+	SET(RENDERER_HDRS
+		${PRE}/OpenGL/OGLrenderer.h
+		${PRE}/OpenGL/OGLtexture.h
+		${PRE}/OpenGL/OGLvertexbuffer.h
+		${RENDERER_HDRS}
+	)
 ENDIF(RENDER_OPENGL)
+IF(RENDER_GLES)
+	SET(RENDERER_SRCS
+		${PRE}/GLES/GLESrenderer.cpp
+		${PRE}/GLES/GLEStexture.cpp
+		${PRE}/GLES/GLESvertexbuffer.cpp
+		${RENDERER_SRCS}
+	)
+	SET(RENDERER_HDRS
+		${PRE}/GLES/GLESrenderer.h
+		${PRE}/GLES/GLEStexture.h
+		${PRE}/GLES/GLESvertexbuffer.h
+		${RENDERER_HDRS}
+	)
+ENDIF(RENDER_GLES)
 
 SET(Engine_renderer_SRCS
 	${PRE}/font.cpp
@@ -31,20 +57,15 @@ SET(Engine_renderer_SRCS
 
 SET(Engine_renderer_HDRS
 	${PRE}/dummyrenderer.h
-	${PRE}/DXrenderer.h
-	${PRE}/DXtexture.h
-	${PRE}/DXvertexbuffer.h
 	${PRE}/font.h
 	${PRE}/forms.h
 	${PRE}/material.h
 	${PRE}/model.h
-	${PRE}/OGLrenderer.h
-	${PRE}/OGLtexture.h
-	${PRE}/OGLvertexbuffer.h
 	${PRE}/renderer.h
 	${PRE}/scene.h
 	${PRE}/texture.h
 	${PRE}/vertexbuffer.h
+	${RENDERER_HDRS}
 )
 
 INSTALL(FILES ${Engine_renderer_HDRS} DESTINATION Engine/include/${PRE})

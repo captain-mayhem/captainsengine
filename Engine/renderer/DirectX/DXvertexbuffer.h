@@ -2,7 +2,7 @@
 #define DXVERTEXBUFFER_H
 
 #include <d3d9.h>
-#include "vertexbuffer.h"
+#include "../vertexbuffer.h"
 
 namespace Graphics{
   
