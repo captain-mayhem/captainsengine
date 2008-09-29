@@ -13,7 +13,7 @@ extern "C"{
 #include "../include/jpeglib.h"
 #endif
 
-#include "texture.h"
+#include "../texture.h"
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

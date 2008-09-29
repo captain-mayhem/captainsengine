@@ -1,7 +1,7 @@
 #ifndef OGLVERTEXBUFFER_H
 #define OGLVERTEXBUFFER_H
 
-#include "vertexbuffer.h"
+#include "../vertexbuffer.h"
 
 namespace Graphics{
   

@@ -1,6 +1,7 @@
 
 #include "engine.h"
 #include "script.h"
+#include "file.h"
 
 namespace System{
 
@@ -27,8 +28,8 @@ void Script::initEnv(){
 	luaopen_string(L);
 	luaopen_math(L);
 
-	if (luaL_loadfile(L, "engine.ini") || lua_pcall(L,0,0,0)){
-    Log << "Cannot load engine.ini" <<lua_tostring(L, -1);
+  if (luaL_loadfile(L, (Filesystem::getCwd()+"/engine.ini").c_str()) || lua_pcall(L,0,0,0)){
+    Log << "Cannot load engine.ini\n" <<lua_tostring(L, -1);
     EXIT();
 	}
 }

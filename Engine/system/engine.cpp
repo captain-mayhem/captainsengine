@@ -1,5 +1,6 @@
-#include "../renderer/OGLrenderer.h"
-#include "../renderer/DXrenderer.h"
+#include "../renderer/OpenGL/OGLrenderer.h"
+#include "../renderer/DirectX/DXrenderer.h"
+#include "../renderer/GLES/GLESrenderer.h"
 #include "../renderer/dummyrenderer.h"
 #include "../input/mouse.h"
 #include "engine.h"

@@ -3,7 +3,7 @@
 
 #ifndef OPENGL
 #define Dummy OGL
-#include "dummyrenderer.h"
+#include "../dummyrenderer.h"
 #undef Dummy
 #else
 #ifdef WIN32
@@ -13,7 +13,7 @@
 #ifdef UNIX
 #include <GL/glx.h>
 #endif
-#include "renderer.h"
+#include "../renderer.h"
 
 namespace Graphics{
 //! The OpenGL version of the rendering interface

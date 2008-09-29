@@ -1,0 +1,168 @@
+//In Microsoft Visual C++ generiertes Ressourcenskript.
+//
+#include "resourceppc.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Von der Ressource TEXTINCLUDE 2 generiert.
+//
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "resdefce.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Symbol
+//
+
+// Das Symbol mit dem niedrigsten ID-Wert wird an erster Stelle platziert,  um sicherzustellen,
+// dass es auf allen Systemen einheitlich ist.
+
+IDI_TEST       ICON         "Test.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menü
+//
+
+IDR_MENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Hilfe"
+    BEGIN
+        MENUITEM "Info",		IDM_HELP_ABOUT
+    END
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Zugriffstaste
+//
+
+IDC_TEST ACCELERATORS
+BEGIN
+    "A",            IDM_HELP_ABOUT,         VIRTKEY, CONTROL, NOINVERT
+    "Q",            IDM_OK,          VIRTKEY, CONTROL, NOINVERT
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialogfeld
+//
+
+IDD_ABOUTBOX DIALOG 0, 0, 156, 129
+STYLE DS_SETFONT | DS_FIXEDSYS | WS_POPUP | WS_CAPTION
+EXSTYLE WS_EX_CAPTIONOKBTN
+CAPTION "Info über Test"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON         IDI_TEST,IDC_STATIC_1,12,12,21,20,SS_REALSIZEIMAGE
+    LTEXT        "Test, Version 1.0",IDC_STATIC_2,12,36,70,8,SS_NOPREFIX
+    LTEXT        "Copyright (C) 2008",IDC_STATIC_3,12,48,66,8
+END
+
+IDD_ABOUTBOX_WIDE DIALOG 0, 0, 210, 129
+STYLE WS_POPUP | WS_CAPTION 
+EXSTYLE WS_EX_CAPTIONOKBTN
+CAPTION "Info über Test"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON         IDI_TEST,IDC_STATIC_1,12,12,21,20,SS_REALSIZEIMAGE
+    LTEXT        "Test, Version 1.0",IDC_STATIC_2,48,12,66,8,SS_NOPREFIX
+    LTEXT        "Copyright (C) 2008",IDC_STATIC_3,48,24,66,8
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 149
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 122
+    END
+
+    IDD_ABOUTBOX_WIDE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 203
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 122
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+1 TEXTINCLUDE  
+BEGIN
+    "resourceppc.h\0"
+END
+
+2 TEXTINCLUDE  
+BEGIN
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""resdefce.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE  
+BEGIN
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#include ""Testppc.rc2""  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen\r\n"
+    "#endif\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Zeichenfolgentabelle
+//
+STRINGTABLE  
+BEGIN
+   IDC_TEST   "TEST"
+   IDS_APP_TITLE    "Test"
+   IDS_OK	"OK"
+   IDS_HELP	"HELP"
+END
+
+#endif
+/////////////////////////////////////////////////////////////////////////////
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Von der Ressource TEXTINCLUDE 3 generiert.
+//
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#include "Testppc.rc2"  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen
+#endif
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // nicht APSTUDIO_INVOKED

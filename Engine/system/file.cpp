@@ -32,7 +32,7 @@ using std::string;
 using std::vector;
 
 #ifdef UNDER_CE
-std::string Filesystem::cwd_;
+std::string Filesystem::cwd_ = std::string();
 #endif
 
 
@@ -159,7 +159,15 @@ std::string Filesystem::getCwd(){
 #ifdef WIN32
 #ifdef UNDER_CE
   //no working directory under CE
-  //TODO
+  if (cwd_.empty()){
+    wchar_t tmp[256];
+    GetModuleFileName(NULL, tmp, 256);
+    char ctmp[256];
+    wcstombs(ctmp, tmp, 256);
+    cwd_ = std::string(ctmp);
+    int idx = cwd_.find_last_of('\\');
+    cwd_.erase(idx);
+  }
   return cwd_;
 #else
   _getcwd(cwd, 2048);

@@ -4,7 +4,7 @@
 #ifdef WIN32
 
 #include <d3d9.h>
-#include "texture.h"
+#include "../texture.h"
 
 namespace Graphics{
 
