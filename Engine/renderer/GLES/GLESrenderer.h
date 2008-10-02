@@ -6,10 +6,7 @@
 #include "../dummyrenderer.h"
 #undef Dummy
 #else
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
+#include <GLES/egl.h>
 #include "../renderer.h"
 
 namespace Graphics{
@@ -22,16 +19,6 @@ public:
   ~GLESRenderer();
   //! init rendering context
   void initContext(::Windows::AppWindow* win);
-#ifdef WIN32
-  //! get the device context
-  inline HDC getDevice() {return hDC_;}
-#endif
-#ifdef UNIX
-  //set glx context
-  inline void setGLX(GLXContext glx){glx_ = glx;}
-  //get glx context
-  inline GLXContext getGLX() const {return glx_;}
-#endif
   //! kill rendering context
   void killContext();
   //! initialize scene
@@ -89,12 +76,9 @@ public:
   //! swap back and front buffer
   virtual void swapBuffers();
 protected:
-#ifdef WIN32
-  //! device context
-  HDC hDC_;
-  //! GL rendering context
-  HGLRC hRC_;
-#endif
+  EGLDisplay display_;
+  EGLContext context_;
+  EGLSurface surface_;
 };
 
 }

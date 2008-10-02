@@ -15,10 +15,18 @@ IF (NOT CPU)
 ENDIF (NOT CPU)
 SET(CPU ${CPU} CACHE STRING "the current processor architecture")
 
+SET(ADD_INC_PATH ${ADD_INC_PATH} CACHE STRING "additional include path")
+SET(ADD_LIB_PATH ${ADD_LIB_PATH} CACHE STRING "additional link library path")
 SET(ADD_LIB ${ADD_LIB} CACHE STRING "additional libraries to be linked against")
 SET(ENGINE_LINK_LIBRARIES "")
 
-INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/include)
+INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/include
+	${ADD_INC_PATH}
+)
+
+LINK_DIRECTORIES(
+	${ADD_LIB_PATH}
+)
 
 IF (${OS} STREQUAL "wince")
   IF (NOT SDK_DIR)
@@ -91,6 +99,11 @@ IF(RENDER_OPENGL)
 ENDIF(RENDER_OPENGL)
 IF(RENDER_GLES)
 	ADD_DEFINITIONS(-DGLES)
+	SET(ENGINE_LINK_LIBRARIES
+		libEGL
+		libGLES_CM_NoE
+		${ENGINE_LINK_LIBRARIES}
+	)
 ENDIF(RENDER_GLES)
 
 
