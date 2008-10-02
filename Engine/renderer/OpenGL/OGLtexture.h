@@ -5,13 +5,10 @@
 
 #ifdef WIN32
 #undef FAR
+#endif
 extern "C"{
 #include "../include/jpeglib.h"
 }
-#endif
-#ifdef UNIX
-#include "../include/jpeglib.h"
-#endif
 
 #include "../texture.h"
 #ifdef WIN32
