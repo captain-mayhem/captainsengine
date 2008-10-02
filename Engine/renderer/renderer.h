@@ -19,7 +19,8 @@ namespace Graphics{
 
 enum RenderType{
   OpenGL,
-  DirectX
+  DirectX,
+  OpenGL_ES
 };
 
 enum BlendType{

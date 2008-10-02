@@ -187,6 +187,13 @@ void System::Engine::startup(int argc, char** argv){
         EXIT2("DirectX support is not compiled in\n");
 #endif
     }
+    else if (type == "GLES"){
+#ifdef GLES
+      rend_ = new ::Graphics::GLESRenderer();
+#else
+      EXIT2("OpenGL ES support is not compiled in\n");
+#endif
+    }
     else{
       EXIT2("No valid renderer specified in engine.ini");
     }

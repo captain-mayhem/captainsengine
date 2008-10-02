@@ -3,7 +3,6 @@
 #include <windows.h>
 #endif
 #include "../window/nativeWindows.h"
-#include "../window/nativeLinux.h"
 #include "../system/engine.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -14,20 +13,50 @@
 using namespace Graphics;
 
 GLESRenderer::GLESRenderer(): Renderer() {
-  type_ = OpenGL;
-#ifdef WIN32
-  hDC_ = NULL;
-  hRC_ = NULL;
-#endif
-#ifdef UNIX
-  glx_ = NULL;
-#endif
+  type_ = OpenGL_ES;
 }
 
 GLESRenderer::~GLESRenderer(){
 }
 
 void GLESRenderer::initContext(::Windows::AppWindow* win){
+  ::System::Log << "Initializing OpenGL ES context\n";
+  win_ = win;
+
+  static const EGLint config[] = {
+    EGL_RED_SIZE, 8,
+    EGL_GREEN_SIZE, 8,
+    EGL_BLUE_SIZE, 8,
+    EGL_ALPHA_SIZE, 0,
+    EGL_LUMINANCE_SIZE,			EGL_DONT_CARE,
+    EGL_SURFACE_TYPE,			EGL_WINDOW_BIT,
+    EGL_RENDERABLE_TYPE,		EGL_OPENGL_ES_BIT,
+    EGL_BIND_TO_TEXTURE_RGBA,	EGL_DONT_CARE,
+    EGL_NONE
+  };
+  display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  EGLint major, minor;
+  eglInitialize(display_, &major, &minor);
+
+  EGLint numConfigs;
+  eglGetConfigs(display_, NULL, 0, &numConfigs);
+
+  EGLConfig*	allConfigs;
+  allConfigs = new EGLConfig[numConfigs];
+  eglChooseConfig(display_, config, allConfigs, numConfigs, &numConfigs);
+
+  Windows::WindowsWindow* wnd = dynamic_cast<Windows::WindowsWindow*>(win);
+  surface_ = eglCreateWindowSurface(display_, allConfigs[0], wnd->getHandle(), NULL);
+  eglBindAPI(EGL_OPENGL_ES_API);
+  context_ = eglCreateContext(display_, allConfigs[0], NULL, NULL);
+  delete [] allConfigs;
+
+  ShowWindow(wnd->getHandle(), SW_SHOW);
+  SetForegroundWindow(wnd->getHandle());
+  SetFocus(wnd->getHandle());
+
+  eglMakeCurrent(display_, surface_, surface_, context_);
+
   /*::System::Log << "Initializing OpenGL context\n";
   win_ = win;
 #if defined(WIN32) && !defined(UNDER_CE)
