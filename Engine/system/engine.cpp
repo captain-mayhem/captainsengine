@@ -77,7 +77,6 @@ int main(int argc, char** argv){
           if (event.xexpose.count != 0)
             break;
           System::Engine::instance()->run();
-          glXSwapBuffers(disp, win->getWindow());
           break;
         case ConfigureNotify:
           if (event.xconfigure.width != win->getWidth() ||
@@ -125,7 +124,6 @@ int main(int argc, char** argv){
       }
     }
     System::Engine::instance()->run();
-    glXSwapBuffers(disp, win->getWindow());
   }
   System::Engine::instance()->shutdown();
   return 0;

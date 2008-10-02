@@ -1,7 +1,7 @@
 #ifdef UNIX
 #include <GL/glx.h>
 #include "../system/engine.h"
-#include "../renderer/OGLrenderer.h"
+#include "../renderer/OpenGL/OGLrenderer.h"
 //#include "../input/keyboard.h"
 #include "nativeLinux.h"
 

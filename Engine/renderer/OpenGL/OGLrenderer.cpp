@@ -345,7 +345,13 @@ Matrix OGLRenderer::getMatrix(MatrixType mt){
 }
 
 void OGLRenderer::swapBuffers(){
+#ifdef WIN32
   SwapBuffers(hDC_);
+#endif
+#ifdef UNIX
+  Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(win_);
+  glXSwapBuffers(win->getDisplay(), win->getWindow());
+#endif
 }
 
 
