@@ -6,7 +6,7 @@
 #include "../dummyrenderer.h"
 #undef Dummy
 #else
-#include <GLES/egl.h>
+#include <EGL/egl.h>
 #include "../renderer.h"
 
 namespace Graphics{

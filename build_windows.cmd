@@ -1,1 +1,1 @@
-cmake -G "Visual Studio 8 2005" ../captainsengine/trunk -DRENDER_DIRECTX=ON -DOS=windows -DCPU=x86 -DADD_LIB_PATH="E:\OpenGL\rasteroid\rasteroid3.1\lib\win32" -DADD_INC_PATH="E:\OpenGL\rasteroid\rasteroid3.1\include"
+cmake -G "Visual Studio 8 2005" ../captainsengine/trunk -DRENDER_DIRECTX=ON -DRENDER_GLES=ON -DOS=windows -DCPU=x86 -DADD_LIB_PATH="E:\OpenGL\rasteroid\rasteroid3.1\lib\win32" -DADD_INC_PATH="E:\OpenGL\rasteroid\rasteroid3.1\include"

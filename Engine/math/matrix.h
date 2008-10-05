@@ -60,6 +60,8 @@ public:
   Matrix(float entries[16]);
   //! Builds a matrix from a quaternion
   Matrix(const Quaternion& quat);
+  //! Init a matrix with four vectors
+  Matrix(Vector3D& r1, Vector3D& r2, Vector3D& r3, Vector3D& r4);
   //! Destructor
 	~Matrix();
   //! Matrix addition
