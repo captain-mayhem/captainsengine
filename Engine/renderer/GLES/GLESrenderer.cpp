@@ -4,8 +4,7 @@
 #endif
 #include "../window/nativeWindows.h"
 #include "../system/engine.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
+#include <GLES/gl.h>
 #include "GLESvertexbuffer.h"
 #include "GLEStexture.h"
 #include "GLESrenderer.h"
@@ -22,11 +21,18 @@ GLESRenderer::~GLESRenderer(){
 void GLESRenderer::initContext(::Windows::AppWindow* win){
   ::System::Log << "Initializing OpenGL ES context\n";
   win_ = win;
+  EGLint rs = 0, gs = 0, bs = 0;
+  if (win->getBpp() == 16){
+    rs = 5; gs = 6; bs = 5;
+  }
+  else if (win->getBpp() == 32){
+    rs = 8; gs = 8; bs = 8;
+  }
 
   static const EGLint config[] = {
-    EGL_RED_SIZE, 8,
-    EGL_GREEN_SIZE, 8,
-    EGL_BLUE_SIZE, 8,
+    EGL_RED_SIZE, rs,
+    EGL_GREEN_SIZE, gs,
+    EGL_BLUE_SIZE, bs,
     EGL_ALPHA_SIZE, 0,
     EGL_LUMINANCE_SIZE,			EGL_DONT_CARE,
     EGL_SURFACE_TYPE,			EGL_WINDOW_BIT,
@@ -35,8 +41,17 @@ void GLESRenderer::initContext(::Windows::AppWindow* win){
     EGL_NONE
   };
   display_ = eglGetDisplay(EGL_DEFAULT_DISPLAY);
+  if (display_ == NULL){
+    EXIT2("Cannot get display");
+  }
+  
   EGLint major, minor;
-  eglInitialize(display_, &major, &minor);
+  if (!eglInitialize(display_, &major, &minor)){
+    EXIT2("EGL initialization failed.");
+  }
+  else{
+    ::System::Log << "EGL version " << major << "." << minor << " initalized.";
+  }
 
   EGLint numConfigs;
   eglGetConfigs(display_, NULL, 0, &numConfigs);
@@ -45,10 +60,21 @@ void GLESRenderer::initContext(::Windows::AppWindow* win){
   allConfigs = new EGLConfig[numConfigs];
   eglChooseConfig(display_, config, allConfigs, numConfigs, &numConfigs);
 
+  static const EGLint surface[] =
+  {
+    EGL_COLORSPACE,		EGL_COLORSPACE_sRGB,
+    EGL_ALPHA_FORMAT,	EGL_ALPHA_FORMAT_NONPRE,
+    EGL_NONE
+  };
   Windows::WindowsWindow* wnd = dynamic_cast<Windows::WindowsWindow*>(win);
-  surface_ = eglCreateWindowSurface(display_, allConfigs[0], wnd->getHandle(), NULL);
+  surface_ = eglCreateWindowSurface(display_, allConfigs[0], wnd->getHandle(), surface);
+  
   eglBindAPI(EGL_OPENGL_ES_API);
+  
   context_ = eglCreateContext(display_, allConfigs[0], NULL, NULL);
+  if (context_ == NULL){
+    EXIT2("Cannot create EGL context");
+  }
   delete [] allConfigs;
 
   ShowWindow(wnd->getHandle(), SW_SHOW);
@@ -57,131 +83,38 @@ void GLESRenderer::initContext(::Windows::AppWindow* win){
 
   eglMakeCurrent(display_, surface_, surface_, context_);
 
-  /*::System::Log << "Initializing OpenGL context\n";
-  win_ = win;
-#if defined(WIN32) && !defined(UNDER_CE)
-  static PIXELFORMATDESCRIPTOR pfd ={
-    sizeof(PIXELFORMATDESCRIPTOR),
-      1,
-      PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-      PFD_TYPE_RGBA,
-      win->getBpp(),
-      0, 0, 0, 0, 0, 0,   //Color bits ignored
-      0,					//No Alpha buffer
-      0,					//shift bit ignored
-      0,					//no accumulation buffer
-      0, 0, 0, 0,			//accumulation bits ignored
-      16,					//Z-buffer depth
-      0,					//no stencil buffer
-      0,					//no auxiliary buffer
-      PFD_MAIN_PLANE,
-      0,					//Reserved
-      0, 0, 0				//Layer masks ignored
-  };
-
-  HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win)->getHandle();
-  if(!(hDC_ = GetDC(wnd))){
-    System::Log << "Can't create GL device context\n";
-    EXIT();
-  }
-
-  GLuint pixelFormat;
-  if(!(pixelFormat = ChoosePixelFormat(hDC_, &pfd))){
-    System::Log << "Can't find a suitable PixelFormat\n";
-    EXIT();
-  }
-
-  if (!SetPixelFormat(hDC_, pixelFormat, &pfd)){
-    System::Log << "Can't set the PixelFormat\n";
-    EXIT();
-  }
-
-  if (!(hRC_ = wglCreateContext(hDC_))){
-    System::Log << "Can't create GL rendering context\n";
-    EXIT();
-  }
-
-  if (!wglMakeCurrent(hDC_, hRC_)){
-    System::Log << "Cant't activate GL rendering context\n";
-    EXIT();
-  }
-
-  ShowWindow(wnd, SW_SHOW);
-  SetForegroundWindow(wnd);
-  SetFocus(wnd);
-#endif
-#ifdef UNIX
-  ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
-  glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
-#endif
-#ifdef WIN32
   resizeScene(win->getWidth(), win->getHeight());
-#endif
-  //initRendering();  
-  */
 }
 
-void GLESRenderer::killContext(){/*
-#if defined(WIN32) && !defined(UNDER_CE)
-  if (hRC_){
-    if (!wglMakeCurrent(NULL,NULL)){
-      ::System::Log << "Release of GL context failed";
-    }
-    if (!wglDeleteContext(hRC_)){
-      ::System::Log << "Release of rendering context failed";
-    }
-    hRC_ = NULL;
-  }
-
-  HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win_)->getHandle();
-  if (hDC_ && !ReleaseDC(wnd,hDC_)){
-    ::System::Log << "Release of device context failed";
-    hDC_ = NULL;
-  }
-#endif
-#ifdef UNIX
-  ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
-  if (glx_){
-    if (!glXMakeCurrent(x11->getDisplay(), None, NULL)){
-      ::System::Log << "Release of GL context failed";
-    }
-    glXDestroyContext(x11->getDisplay(), glx_);
-    glx_ = NULL;
-  }
-#endif*/
+void GLESRenderer::killContext(){
+  eglMakeCurrent(display_,NULL, NULL, NULL);
+  eglDestroyContext(display_, context_);
+  eglDestroySurface(display_, surface_);
+  eglTerminate(display_);
 }
 
-void GLESRenderer::initRendering(){/*
+void GLESRenderer::initRendering(){
   ::System::Log << "Initializing Scene\n";
   //smooth shading
   glShadeModel(GL_SMOOTH);
 
-  //background color black
-  //glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
-
   //depth buffer
-  glClearDepth(1.0f);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
 
   //better perspective calculations
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  Renderer::initRendering();*/
+  Renderer::initRendering();
 }
 
 void GLESRenderer::renderScene(){
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  //glLoadIdentity();
   Renderer::renderScene();
 }
 
 void GLESRenderer::resizeScene(int width, int height){
-  /*
-#ifdef WIN32
-  if (hRC_ == NULL)
+  if (context_ == NULL)
     return;
-#endif
   ::System::Log << "Resizing Scene\n";
   if (height == 0){
     height = 1;
@@ -192,18 +125,6 @@ void GLESRenderer::resizeScene(int width, int height){
   glViewport(0, 0, width, height);
 
   Renderer::resizeScene(width, height);
-
-  //Projection Matrix
-  //glMatrixMode(GL_PROJECTION);
-  //glLoadIdentity();
-
-  //Calculate Aspect Ratio
-  //gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,1.0f,100.0f);
-
-  //glMatrixMode(GL_MODELVIEW);
-  //glLoadIdentity();
-
-  //glColor3f(0,0,0);*/
 }
 
 //! clear scene
@@ -222,31 +143,40 @@ void GLESRenderer::clear(long flags){
 
 //! get a vertex buffer
 VertexBuffer* GLESRenderer::createVertexBuffer(){
-  return NULL;//new OGLVertexBuffer();
+  return new GLESVertexBuffer();
 }
 
 Texture* GLESRenderer::createTexture(string filename){
-  return NULL;//new OGLTexture(filename);
+  return new GLESTexture(filename);
 }
 
 void GLESRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
-  //glLoadIdentity();
-  //gluLookAt(position.x, position.y, position.z, look.x, look.y, look.z, up.x, up.y, up.z);
+  Vector3D forward = look - position;
+  forward.normalize();
+  Vector3D side = forward.cross(up).normalized();
+  Vector3D up_new = side.cross(forward);
+
+  Matrix mat(side, up_new, forward*-1, position*-1);
+  multiplyMatrix(mat);
 }
 
 //! set projection
 void GLESRenderer::projection(float angle, float aspect, float nearplane, float farplane){
-  /*glMatrixMode(GL_PROJECTION);
+  glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(angle, aspect, nearplane, farplane);
-  glMatrixMode(GL_MODELVIEW);*/
+  GLfloat ymax = nearplane * (GLfloat)tan(angle * 3.1415962f / 360.0);
+  GLfloat ymin = -ymax;
+  GLfloat xmin = ymin * aspect;
+  GLfloat xmax = ymax * aspect;
+  glFrustumf(xmin, xmax, ymin, ymax, nearplane, farplane);
+  glMatrixMode(GL_MODELVIEW);
 }
 
 void GLESRenderer::ortho(const int width, const int height){
-  /*glMatrixMode(GL_PROJECTION);
+  glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluOrtho2D(-width/2.0, width/2.0, -height/2.0, height/2.0);
-  glMatrixMode(GL_MODELVIEW);*/
+  glOrthof(-width/2.0f, width/2.0f, -height/2.0f, height/2.0f, -1.0f, 1.0f);
+  glMatrixMode(GL_MODELVIEW);
 }
 
 //! reset modelview matrix
@@ -266,12 +196,13 @@ void GLESRenderer::scale(float x, float y, float z){
 
 //! set rendermode
 void GLESRenderer::renderMode(RendMode rm){
-  if (rm == Filled){
+  //TODO
+  /*if (rm == Filled){
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
   else if(rm == Wireframe){
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  }
+  }*/
 }
 
 //! set blending mode
@@ -332,7 +263,7 @@ void GLESRenderer::setColor(float r, float g, float b, float a){
 
 //! set color
 void GLESRenderer::setColor(const Color* c){
-  glColor4fv(c->array);
+  glColor4f(c->r, c->g, c->b, c->a);
 }
 
 //! push matrix
@@ -375,7 +306,7 @@ Matrix GLESRenderer::getMatrix(MatrixType mt){
 }
 
 void GLESRenderer::swapBuffers(){
-  //SwapBuffers(hDC_);
+  eglSwapBuffers(display_, surface_);
 }
 
 

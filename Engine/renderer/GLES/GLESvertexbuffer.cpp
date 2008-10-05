@@ -3,7 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#include <GL/gl.h>
+#include <GLES/gl.h>
 #include "GLESvertexbuffer.h"
 
 using namespace Graphics;

@@ -1,6 +1,5 @@
 #include "../system/engine.h"
 #include "GLEStexture.h"
-#include <GL/glu.h>
 
 using namespace Graphics;
 
@@ -29,10 +28,10 @@ bool GLESTexture::load(string filename){
 
   glGenTextures(1, &tex_);
   glBindTexture(GL_TEXTURE_2D, tex_);
-  gluBuild2DMipmaps(GL_TEXTURE_2D, 3, img->sizeX, img->sizeY, GL_RGB, GL_UNSIGNED_BYTE, img->data);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->sizeX, img->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img->data);
 
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
   if (img){
     if (img->data){
