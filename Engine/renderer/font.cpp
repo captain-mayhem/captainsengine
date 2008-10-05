@@ -10,6 +10,7 @@
 //  ==================================================================
 
 #include "../system/engine.h"
+#include "../system/file.h"
 #include "texture.h"
 #include "renderer.h"
 #include "font.h"
@@ -20,7 +21,7 @@ using namespace Graphics;
 Font::Font(){
   show_ = true;
   rgb_ = Color(1.0,1.0,1.0,1.0);
-  tex_ = System::Engine::instance()->getRenderer()->createTexture("textures/font/font.bmp");
+  tex_ = System::Engine::instance()->getRenderer()->createTexture(System::Filesystem::getCwd()+"/textures/font/font.bmp");
   buffer_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
   id_ = -1;
 }

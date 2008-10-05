@@ -34,6 +34,7 @@ void GLESRenderer::initContext(::Windows::AppWindow* win){
     EGL_GREEN_SIZE, gs,
     EGL_BLUE_SIZE, bs,
     EGL_ALPHA_SIZE, 0,
+    EGL_DEPTH_SIZE, 16,
     EGL_LUMINANCE_SIZE,			EGL_DONT_CARE,
     EGL_SURFACE_TYPE,			EGL_WINDOW_BIT,
     EGL_RENDERABLE_TYPE,		EGL_OPENGL_ES_BIT,
@@ -99,6 +100,7 @@ void GLESRenderer::initRendering(){
   glShadeModel(GL_SMOOTH);
 
   //depth buffer
+  glClearDepthf(1.0f);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
 
