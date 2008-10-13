@@ -1,6 +1,6 @@
 #if defined WIN32 && !defined _NODIRECTX
 
-#include "../system/engine.h"
+#include "../../system/engine.h"
 #include <d3dx9.h>
 #include "DXrenderer.h"
 #include "DXtexture.h"
