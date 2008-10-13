@@ -1,4 +1,4 @@
-#include "../system/engine.h"
+#include "../../system/engine.h"
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -25,8 +25,6 @@ OGLVertexBuffer::~OGLVertexBuffer(){
   SAFE_DELETE_ARRAY(vb_);
   SAFE_DELETE_ARRAY(ib_);
 }
-
-#include "../system/engine.h"
 
 void OGLVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize){
   vbsize_ = vertexBufferSize;

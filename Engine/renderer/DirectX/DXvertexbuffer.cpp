@@ -1,6 +1,6 @@
 #if defined WIN32 && !defined _NODIRECTX
 
-#include "../system/engine.h"
+#include "../../system/engine.h"
 #include "DXrenderer.h"
 #include "DXvertexbuffer.h"
 
@@ -24,8 +24,6 @@ DXVertexBuffer::~DXVertexBuffer(){
   SAFE_RELEASE(vb_);
   SAFE_RELEASE(ib_);
 }
-
-#include "../system/engine.h"
 
 void DXVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize){
   vbsize_ = vertexBufferSize;

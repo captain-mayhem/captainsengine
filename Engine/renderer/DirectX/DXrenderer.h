@@ -11,7 +11,7 @@
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <stack>
-#include "../math/vector.h"
+#include "../../math/vector.h"
 #include "../renderer.h"
 
 using std::stack;

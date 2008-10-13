@@ -1,7 +1,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include "../window/nativeWindows.h"
-#include "../system/engine.h"
+#include "../../window/nativeWindows.h"
+#include "../../system/engine.h"
 #include "DXvertexbuffer.h"
 #include "DXtexture.h"
 #include "DXrenderer.h"

@@ -2,9 +2,9 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#include "../window/nativeWindows.h"
-#include "../window/nativeLinux.h"
-#include "../system/engine.h"
+#include "../../window/nativeWindows.h"
+#include "../../window/nativeLinux.h"
+#include "../../system/engine.h"
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include "OGLvertexbuffer.h"
