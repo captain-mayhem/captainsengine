@@ -13,7 +13,6 @@
 	#include <windows.h>
 #endif
 
-#include <GL/gl.h>
 #include "matrix.h"
 
 using namespace Math;

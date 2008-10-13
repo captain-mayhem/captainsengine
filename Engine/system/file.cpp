@@ -41,7 +41,7 @@ std::vector<std::string> Filesystem::getDirectories(const std::string& path){
   vector<string> result;
 #ifdef WIN32
   string tmp = path;
-  tmp.append("/*");
+  tmp.append("\\*");
   WIN32_FIND_DATA fileData;
   HANDLE hFind;
 #ifdef UNICODE
@@ -100,7 +100,7 @@ std::vector<std::string> Filesystem::getFiles(const std::string& path){
   vector<string> result;
 #ifdef WIN32
   string tmp = path;
-  tmp.append("/*");
+  tmp.append("\\*");
   WIN32_FIND_DATA fileData;
   HANDLE hFind;
 #ifdef UNICODE

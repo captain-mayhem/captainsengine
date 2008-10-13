@@ -1,4 +1,4 @@
-#include "../system/engine.h"
+#include "../../system/engine.h"
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -26,7 +26,7 @@ GLESVertexBuffer::~GLESVertexBuffer(){
   SAFE_DELETE_ARRAY(ib_);
 }
 
-#include "../system/engine.h"
+#include "../../system/engine.h"
 
 void GLESVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize){
   vbsize_ = vertexBufferSize;

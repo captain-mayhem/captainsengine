@@ -2,7 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#include <GL/gl.h>
+//#include <GL/gl.h>
 //#include "include/cal3d/cal3d.h"
 #include <iostream>
 #include "system/engine.h"
