@@ -3,6 +3,7 @@
 #include "texture.h"
 #include "../system/engine.h"
 #include "../system/utilities.h"
+#include "../system/file.h"
 #include "../mesh/model.h"
 #include "../mesh/mesh.h"
 #include "../math/ray.h"
@@ -144,6 +145,8 @@ void Scene::load(const std::string& filename){
   ifstream in(filename.c_str(), ios::binary);
   if (!in)
     return;
+  std::string cwd = System::Filesystem::getCwd();
+  cwd += "\\";
   char buffer[256];
   //version
   in.read((char*)&version_, sizeof(version_));
@@ -160,7 +163,7 @@ void Scene::load(const std::string& filename){
     Utilities::replaceWith(name, '\\', '/');
 #endif
     Mesh* msh = new Mesh();
-    if (!msh->loadFromFile(name)){
+    if (!msh->loadFromFile(cwd+name)){
       System::Log << "cannot load file";
       return;
     }
@@ -180,7 +183,7 @@ void Scene::load(const std::string& filename){
 #ifdef UNIX
     Utilities::replaceWith(name, '\\', '/');
 #endif
-    Texture* tex = Texture::create(name);
+    Texture* tex = Texture::create(cwd+name);
     textures_.push_back(tex);
   }
   //read models

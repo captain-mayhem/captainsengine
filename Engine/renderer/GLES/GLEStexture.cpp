@@ -1,4 +1,4 @@
-#include "../system/engine.h"
+#include "../../system/engine.h"
 #include "GLEStexture.h"
 
 using namespace Graphics;
@@ -28,10 +28,10 @@ bool GLESTexture::load(string filename){
 
   glGenTextures(1, &tex_);
   glBindTexture(GL_TEXTURE_2D, tex_);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->sizeX, img->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img->data);
-
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->sizeX, img->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img->data);
 
   if (img){
     if (img->data){

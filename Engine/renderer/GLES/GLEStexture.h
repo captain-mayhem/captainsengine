@@ -5,9 +5,11 @@
 
 #ifdef WIN32
 #undef FAR
+#define INT32 this_is_really
+#define boolean an_ugly_hack
 #endif
 extern "C"{
-#include "../include/jpeglib.h"
+#include <jpeglib.h>
 }
 
 #include "../texture.h"

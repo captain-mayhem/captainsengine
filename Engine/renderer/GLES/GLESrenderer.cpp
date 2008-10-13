@@ -2,8 +2,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#include "../window/nativeWindows.h"
-#include "../system/engine.h"
+#include "../../window/nativeWindows.h"
+#include "../../system/engine.h"
 #include <GLES/gl.h>
 #include "GLESvertexbuffer.h"
 #include "GLEStexture.h"
@@ -34,7 +34,7 @@ void GLESRenderer::initContext(::Windows::AppWindow* win){
     EGL_GREEN_SIZE, gs,
     EGL_BLUE_SIZE, bs,
     EGL_ALPHA_SIZE, 0,
-    EGL_DEPTH_SIZE, 16,
+    EGL_DEPTH_SIZE, 24,
     EGL_LUMINANCE_SIZE,			EGL_DONT_CARE,
     EGL_SURFACE_TYPE,			EGL_WINDOW_BIT,
     EGL_RENDERABLE_TYPE,		EGL_OPENGL_ES_BIT,
