@@ -185,6 +185,9 @@ public:
 
   //! sets a Model for the creature
   inline void setModel(MeshGeo::Model* mdl) {model_ = mdl;}
+
+  //! gets the model
+  inline MeshGeo::Model* getModel() {return model_;}
 	
 protected:
   //! the creature's name

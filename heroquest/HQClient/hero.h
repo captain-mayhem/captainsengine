@@ -82,6 +82,8 @@ public:
   virtual void render2D() const;
   //! let the hero win the game
   void win();
+  //! create model of hero
+  void createModel();
 private:
   //! amount of money
   int money_;

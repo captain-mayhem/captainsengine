@@ -180,6 +180,12 @@ void Creature::update(){
   //no interpolation
   if (!interpolate_){
     actPos_ = wrld.modelToRealPos(position_);
+    if (model_){
+      Vector3D pos = actPos_;
+      pos.y = 0;
+      Math::Matrix mat = Matrix(Matrix::Translation, pos);
+      model_->setTrafo(mat);
+    }
     while(!positions_.empty())
       positions_.pop();
     return;
@@ -209,5 +215,11 @@ void Creature::update(){
     actPos_.z += move;
   else if (actPos_.z > toReach.z+epsilon)
     actPos_.z -= move;
+  if (model_){
+    Vector3D pos = actPos_;
+    pos.y = 0;
+    Math::Matrix mat = Matrix(Matrix::Translation, pos);
+    model_->setTrafo(mat);
+  }
 #endif
 }

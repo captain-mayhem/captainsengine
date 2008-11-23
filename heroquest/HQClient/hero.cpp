@@ -333,3 +333,8 @@ void Hero::win(){
   string filename = home+player_+name_+".sav";
   write(filename);
 }
+
+void Hero::createModel(){
+  //MeshGeo::Mesh msh = new MeshGeo::Mesh();
+  //model_ = new MeshGeo::Model();
+}

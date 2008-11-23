@@ -146,6 +146,9 @@ bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
       m.pos = pos;
       monsters_.push_back(m);
     }
+    else if (classAttrib == Editor::FURNITURE){
+
+    }
   }
   
   //write

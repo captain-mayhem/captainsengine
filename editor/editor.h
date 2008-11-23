@@ -28,6 +28,7 @@ public:
     DOOR = 1003,
     WALLPART = 1004,
     MONSTER = 1005,
+    FURNITURE = 1006,
   };
   ~Editor();
   static void init();
