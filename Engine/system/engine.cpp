@@ -219,10 +219,12 @@ void System::Engine::startup(int argc, char** argv){
   for (int i = 0; i < 3; i++){
     fnt_[i] = new ::Graphics::Font();
   }
-  fnt_[0]->buildFont();
-  fnt_[1]->setVB(fnt_[0]->getVB());
-  fnt_[2]->setVB(fnt_[0]->getVB());
-  forms_ = new ::Graphics::Forms();
+  if (graphics_){
+    fnt_[0]->buildFont();
+    fnt_[1]->setVB(fnt_[0]->getVB());
+    fnt_[2]->setVB(fnt_[0]->getVB());
+    forms_ = new ::Graphics::Forms();
+  }
   console_ = new ::Gui::Console();
   isUp_ = true;
   rend_->initRendering();
@@ -271,36 +273,38 @@ void System::Engine::run(){
     newBut_.clear();
   }
 
-  //render scene
-  rend_->renderScene();
+  if (graphics_){
+    //render scene
+    rend_->renderScene();
 
-  rend_->resetModelView();
-  rend_->ortho(1024, 768);
-  rend_->translate(-512, -384, 0);
-  rend_->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
-  rend_->enableBlend(true);
+    rend_->resetModelView();
+    rend_->ortho(1024, 768);
+    rend_->translate(-512, -384, 0);
+    rend_->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
+    rend_->enableBlend(true);
   
-  //render GUI-elements
-  guitex_.lock();
+    //render GUI-elements
+    guitex_.lock();
 
-  fnt_[0]->render();
+    fnt_[0]->render();
   
-  list< ::Gui::GuiElement*>::iterator iter2;
-  for (iter2 = guiElems_.begin(); iter2 != guiElems_.end(); iter2++){
-    (*iter2)->render();
+    list< ::Gui::GuiElement*>::iterator iter2;
+    for (iter2 = guiElems_.begin(); iter2 != guiElems_.end(); iter2++){
+      (*iter2)->render();
+    }
+
+    fnt_[1]->render();
+
+    System::Engine::instance()->getConsole()->render();
+
+    fnt_[2]->render();
+
+    guitex_.unlock();
+  
+    rend_->enableBlend(false);
+
+    rend_->swapBuffers();
   }
-
-  fnt_[1]->render();
-
-  System::Engine::instance()->getConsole()->render();
-
-  fnt_[2]->render();
-
-  guitex_.unlock();
-  
-  rend_->enableBlend(false);
-
-  rend_->swapBuffers();
 
   //calculate frame rate
   double currentTime;

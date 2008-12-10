@@ -172,6 +172,8 @@ void Mouse::buttonUp(int x, int y, int button){
 void Mouse::move(int x, int y, int buttons){
   //map to virtual resolution
   AppWindow* wnd = System::Engine::instance()->getWindow();
+  if (!wnd)
+    return;
   mousePos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
   mousePos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
   if (moveCB_)

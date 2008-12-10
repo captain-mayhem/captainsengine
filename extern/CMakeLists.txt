@@ -1,2 +1,10 @@
+ADD_CUSTOM_TARGET(unpack
+  tar -xzf "${CMAKE_CURRENT_SOURCE_DIR}/../../contrib/libxml2-2.7.2.tar.gz"
+  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}//../../contrib
+  COMMENT "unpacking archives"
+  VERBATIM
+)
+
 ADD_SUBDIRECTORY(jpeg)
 ADD_SUBDIRECTORY(lua)
+ADD_SUBDIRECTORY(libxml)
