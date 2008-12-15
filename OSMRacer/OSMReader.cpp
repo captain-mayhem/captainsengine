@@ -1,8 +1,8 @@
 
 #include "OSMReader.h"
-#include "MapChunk.h"
-
 #include "system/engine.h"
+#include "MapChunk.h"
+#include "Utilities.h"
 
 OSMReader::OSMReader(const std::string& filename) : mState(START){
   mDoc.LoadFile(filename.c_str());
@@ -57,6 +57,10 @@ bool OSMReader::processElement(TiXmlNode* node){
     readAttribute(elem, "maxlat", maxlat);
     readAttribute(elem, "minlon", minlon);
     readAttribute(elem, "maxlon", maxlon);
+    Math::Vec3d minBox = Utility::polarToCartesian(minlat, minlon)*Utility::SCALE;
+    Math::Vec3d maxBox = Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE;
+    Math::Vec3d center = (minBox+maxBox)/2;
+    Math::Vec3d extreme = center.normalized()*Utility::SCALE;
     mMap->addStreetNode(10,2,3,1);
     mMap->addStreetNode(10,2.5,3,2);
     return true;

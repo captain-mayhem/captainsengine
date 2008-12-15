@@ -16,7 +16,7 @@
 namespace Math{
 
 float Epsilon = 1.0e-5;
-  
+/*  
 //Constructor
 Vector3D::Vector3D() : x(0), y(0), z(0){
 }
@@ -109,7 +109,7 @@ ostream& operator<<(ostream& stream, const Vector3D& vec){
   stream << "( " << vec.x << " / " << vec.y << " / " << vec.z << " )";
   return stream;
 }
-
+*/
 
 //Constructor
 Vector2D::Vector2D() : x(0), y(0) {
