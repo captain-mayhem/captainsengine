@@ -7,11 +7,13 @@ SET(OSMRacer_SRCS
 	main.cpp
 	OSMReader.cpp
 	MapChunk.cpp
+	Utilities.cpp
 	)
 
 SET(OSMRacer_HDRS
 	OSMReader.h
 	MapChunk.h
+	Utilities.h
 	)
 
 ADD_EXECUTABLE(OSMRacer ${OSMRacer_SRCS} ${OSMRacer_HDRS})
