@@ -108,12 +108,16 @@ void OGLVertexBuffer::draw(PrimitiveType pt){
       glDrawArrays(GL_TRIANGLE_STRIP, 0, vbsize_);
     else if (pt == VB_Triangles)
       glDrawArrays(GL_TRIANGLES, 0, vbsize_);
+    else if (pt == VB_Lines)
+      glDrawArrays(GL_LINES, 0, vbsize_);
     return;
   }
   if (pt == VB_Tristrip)
     glDrawElements(GL_TRIANGLE_STRIP, ibsize_, GL_UNSIGNED_SHORT, ib_);
   else if (pt == VB_Triangles)
     glDrawElements(GL_TRIANGLES, ibsize_, GL_UNSIGNED_SHORT, ib_);
+  else if (pt == VB_Lines)
+    glDrawElements(GL_LINES, ibsize_, GL_UNSIGNED_SHORT, ib_);
 }
 
 void OGLVertexBuffer::setColor(int pos, Color c){

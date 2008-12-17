@@ -59,10 +59,28 @@ bool OSMReader::processElement(TiXmlNode* node){
     readAttribute(elem, "maxlon", maxlon);
     Math::Vec3d minBox = Utility::polarToCartesian(minlat, minlon)*Utility::SCALE;
     Math::Vec3d maxBox = Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE;
+    if (minBox.x > maxBox.x){
+      double tmp = minBox.x; minBox.x = maxBox.x; maxBox.x = tmp;
+    }
+    if (minBox.y > maxBox.y){
+      double tmp = minBox.y; minBox.y = maxBox.y; maxBox.y = tmp;
+    }
+    if (minBox.z > maxBox.z){
+      double tmp = minBox.z; minBox.z = maxBox.z; maxBox.z = tmp;
+    }
     Math::Vec3d center = (minBox+maxBox)/2;
     Math::Vec3d extreme = center.normalized()*Utility::SCALE;
-    mMap->addStreetNode(10,2,3,1);
-    mMap->addStreetNode(10,2.5,3,2);
+    minBox.x = extreme.x < minBox.x ? extreme.x : minBox.x;
+    minBox.y = extreme.y < minBox.y ? extreme.y : minBox.y;
+    minBox.z = extreme.z < minBox.z ? extreme.z : minBox.z;
+    maxBox.x = extreme.x > maxBox.x ? extreme.x : maxBox.x;
+    maxBox.y = extreme.y > maxBox.y ? extreme.y : maxBox.y;
+    maxBox.z = extreme.z > maxBox.z ? extreme.z : maxBox.z;
+    //recalculate new center
+    center = (minBox+maxBox)/2;
+    mMap->setDimensions(center, (maxBox-minBox)/2.0f);
+    //mMap->addStreetNode(10,2,3,1);
+    //mMap->addStreetNode(10,2.5,3,2);
     return true;
   }
   if (std::strcmp(node->Value(),"node") == 0){
