@@ -97,12 +97,16 @@ void DXVertexBuffer::draw(PrimitiveType pt){
       device_->DrawPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, vbsize_);
     else if (pt == VB_Triangles)
       device_->DrawPrimitive(D3DPT_TRIANGLELIST, userVertOffset_, vbsize_/3);
+    else if (pt == VB_Lines)
+      device_->DrawPrimitive(D3DPT_LINELIST, userVertOffset_, vbsize_/3);
     return;
   }
   if (pt == VB_Tristrip)
     device_->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, 0, vbsize_, 0, ibsize_);
   else if (pt == VB_Triangles)
     device_->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, userVertOffset_, 0, vbsize_, 0, ibsize_);
+  else if (pt == VB_Lines)
+    device_->DrawIndexedPrimitive(D3DPT_LINELIST, userVertOffset_, 0, vbsize_, 0, ibsize_);
 }
 
 void DXVertexBuffer::setColor(int pos, Color c){

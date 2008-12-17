@@ -18,7 +18,8 @@ typedef ::Math::Vector3D Vertex;
 
 enum PrimitiveType{
   VB_Triangles,
-  VB_Tristrip
+  VB_Tristrip,
+  VB_Lines
 };
 
 
