@@ -44,6 +44,7 @@ IF(RENDER_GLES)
 ENDIF(RENDER_GLES)
 
 SET(Engine_renderer_SRCS
+	${PRE}/camera.cpp
 	${PRE}/font.cpp
 	${PRE}/forms.cpp
 	${PRE}/material.cpp
@@ -56,6 +57,7 @@ SET(Engine_renderer_SRCS
 )
 
 SET(Engine_renderer_HDRS
+	${PRE}/camera.h
 	${PRE}/dummyrenderer.h
 	${PRE}/font.h
 	${PRE}/forms.h

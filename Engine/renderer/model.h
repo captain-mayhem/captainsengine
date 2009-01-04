@@ -28,7 +28,7 @@ public:
   Model(const Model& m);
   //! destructor
   ~Model();
-  //! load from a Hero-Engine-Model (binary format)
+  //! load from a Captains-Engine-Model (binary format)
   void loadFromHMB(const std::string& filename);
   //! activate the model for rendering
   inline void activate() {vb_->activate();}

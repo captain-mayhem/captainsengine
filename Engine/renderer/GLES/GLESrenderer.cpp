@@ -153,12 +153,11 @@ Texture* GLESRenderer::createTexture(string filename){
 }
 
 void GLESRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
-  Vector3D forward = look - position;
+  Vec3f forward = look - position;
   forward.normalize();
-  Vector3D side = forward.cross(up).normalized();
-  Vector3D up_new = side.cross(forward);
-
-  Matrix mat(side, up_new, forward*-1, position*-1);
+  Vec3f side = forward.cross(up).normalized();
+  Vec3f up_new = side.cross(forward);
+  Matrix mat = Matrix(side, up_new, forward*-1, Vec3f()/*eye*1*/)*Matrix(Matrix::Translation,position*-1);
   multiplyMatrix(mat);
 }
 
@@ -240,6 +239,13 @@ void GLESRenderer::enableBlend(const bool flag){
     glEnable(GL_BLEND);
   else
     glDisable(GL_BLEND);
+}
+
+void GLESRenderer::enableBackFaceCulling(const bool flag){
+  if (flag)
+    glEnable(GL_CULL_FACE);
+  else
+    glDisable(GL_CULL_FACE);
 }
 
 //! enable texturing

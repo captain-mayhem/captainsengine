@@ -26,6 +26,8 @@ public:
   void blendFunc(BlendType src, BlendType dest){}
   //! enable blending
   void enableBlend(const bool flag){}
+  //! enable backface culling
+  void enableBackFaceCulling(const bool flag){}
   //! enable texturing
   void enableTexturing(const bool flag){}
   //! enable lighting

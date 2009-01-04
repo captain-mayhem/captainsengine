@@ -7,6 +7,7 @@ ENDIF(${OS} STREQUAL "wince")
 SET(Engine_system_SRCS
 	${PRE}/bitset.cpp
 	${PRE}/engine.cpp
+	${PRE}/event.cpp
 	${PRE}/file.cpp
 	${PRE}/gameobject.cpp
 	${PRE}/script.cpp
@@ -17,7 +18,8 @@ SET(Engine_system_SRCS
 
 SET(Engine_system_HDRS
 	${PRE}/bitset.h 
-	${PRE}/engine.h 
+	${PRE}/engine.h
+	${PRE}/event.h
 	${PRE}/file.h 
 	${PRE}/gameobject.h 
 	${PRE}/script.h 

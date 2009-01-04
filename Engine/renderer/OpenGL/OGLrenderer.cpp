@@ -279,6 +279,13 @@ void OGLRenderer::enableBlend(const bool flag){
     glDisable(GL_BLEND);
 }
 
+void OGLRenderer::enableBackFaceCulling(const bool flag){
+  if (flag)
+    glEnable(GL_CULL_FACE);
+  else
+    glDisable(GL_CULL_FACE);
+}
+
 //! enable texturing
 void OGLRenderer::enableTexturing(const bool flag){
   if (flag)
@@ -337,6 +344,10 @@ void OGLRenderer::getViewport(int view[4]){
 //! get a matrix
 Matrix OGLRenderer::getMatrix(MatrixType mt){
   float tmp[16];
+  if (mt == Modelview){
+    glGetFloatv(GL_MODELVIEW_MATRIX, tmp);
+    return Matrix(tmp);
+  }
   if (mt == Projection){
     glGetFloatv(GL_PROJECTION_MATRIX, tmp);
     return Matrix(tmp);

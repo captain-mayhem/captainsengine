@@ -72,25 +72,29 @@ Mesh::~Mesh(){
 
 //! add vertex
 void Mesh::addVertex(float x, float y, float z){
-  vertices_.push_back(Vertex(x,y,z));
-  numVertices_++;
-  //extent
-  if (x < min_.x)
-    min_.x = x;
-  if (y < min_.y)
-    min_.y = y;
-  if (z < min_.z)
-    min_.z = z;
-  if (x > max_.x)
-    max_.x = x;
-  if (y > max_.y)
-    max_.y = y;
-  if (z > max_.z)
-    max_.z = z;
-  //center
-  center_ += Vector3D(x,y,z);
+  addVertex(Math::Vec3f(x,y,z));
 }
 
+//add vertex
+void Mesh::addVertex(Math::Vec3f v){
+  vertices_.push_back(Vertex(v.x,v.y,v.z));
+  numVertices_++;
+  //extent
+  if (v.x < min_.x)
+    min_.x = v.x;
+  if (v.y < min_.y)
+    min_.y = v.y;
+  if (v.z < min_.z)
+    min_.z = v.z;
+  if (v.x > max_.x)
+    max_.x = v.x;
+  if (v.y > max_.y)
+    max_.y = v.y;
+  if (v.z > max_.z)
+    max_.z = v.z;
+  //center
+  center_ += v;
+}
 
 // add texture coordinates
 void Mesh::addTexCoord(float x, float y, float z){

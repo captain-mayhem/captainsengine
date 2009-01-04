@@ -1,4 +1,16 @@
 //  ==================================================================
+// |                         Captains Engine                          |
+// |------------------------------------------------------------------|
+// |             The simple but powerful game engine                  |
+// |                                                                  |
+// | Marco Staginski                                                  |
+// | captain@captain-online.de                                        |
+// | 2007-03-15                                                       |
+// |------------------------------------------------------------------|
+// | File: mesh.h                                                     |
+//  ==================================================================
+// based on:
+//  ==================================================================
 // | Medalyvis                                                        |
 // |------------------------------------------------------------------|
 // | Medical Data Analysis and Visualization                          |
@@ -41,6 +53,8 @@ public:
 	virtual ~Mesh();
   //! add vertex
   void addVertex(float x, float y, float z);
+  //! add vertex
+  void addVertex(Math::Vec3f v);
   //! add texture coordinates
   void addTexCoord(float x, float y, float z = -1);
   //! add edge

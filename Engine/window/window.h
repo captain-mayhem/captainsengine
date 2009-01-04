@@ -9,7 +9,7 @@ class Renderer;
 
 namespace Windows{
 
-#define WINDOW_NAME "Hero-Engine"
+#define WINDOW_NAME "Captains Game Engine"
 
 class AppWindow{
 public:
