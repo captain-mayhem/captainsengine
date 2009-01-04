@@ -111,7 +111,7 @@ Matrix::Matrix(float entries[16]){
 }
 
 //! Init a matrix with four vectors
-Matrix::Matrix(Vector3D& r1, Vector3D& r2, Vector3D& r3, Vector3D& r4){
+Matrix::Matrix(const Vec3f& r1, const Vec3f& r2, const Vec3f& r3, const Vec3f& r4){
   data_[0] = r1.x; data_[4] = r1.y; data_[8] = r1.z; data_[12] = 0;
   data_[1] = r2.x; data_[5] = r2.y; data_[9] = r2.z; data_[13] = 0;
   data_[2] = r3.x; data_[6] = r3.y; data_[10] = r3.z; data_[14] = 0;

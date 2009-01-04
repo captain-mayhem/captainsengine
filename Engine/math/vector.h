@@ -271,7 +271,7 @@ public:
   //! returns the angle (in radians) between two vectors
   double angle(Vec3 v);
   //! write matrix to a stream
-  friend ostream& operator<<(ostream& stream, const Vec3& vec);
+  template <typename S> friend ostream& operator<<(ostream& stream, const Vec3& vec);
   //! the three conponents of the vector
   union{
     struct{

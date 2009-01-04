@@ -95,3 +95,4 @@ void engineMain(int argc, char** argv){
   rdr.read(&map);
   System::Log.flush();
 }
+

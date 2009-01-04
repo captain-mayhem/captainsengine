@@ -70,3 +70,4 @@ void Camera::activate(){
   Matrix mat = Matrix(mSide, mUp, mForward*-1, Vec3f()/*eye*1*/)*Matrix(Matrix::Translation,mPosition*-1);
   rend->multiplyMatrix(mat);
 }
+

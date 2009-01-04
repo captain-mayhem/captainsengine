@@ -24,3 +24,4 @@ protected:
   MeshGeo::Mesh* mMesh;
   int mLastIdx;
 };
+

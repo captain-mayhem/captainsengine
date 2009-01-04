@@ -77,3 +77,4 @@ void MapChunk::renderOctreeCallback(MapChunk::Node* node){
     node->mModel->resetMaterial();
   }
 }
+
