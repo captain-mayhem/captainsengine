@@ -26,7 +26,7 @@ class Octree{
 public:
 
   struct Node{
-    Node(const Math::Vec3<index>& idx, value val, Math::Vec3<index>& boxMin, Math::Vec3<index>& boxMax) : mIndex(idx), mParent(NULL), mIsLeaf(true), mBox(boxMin,boxMax) {
+    Node(const Math::Vec3<index>& idx, value val, const Math::Vec3<index>& boxMin, const Math::Vec3<index>& boxMax) : mIndex(idx), mParent(NULL), mIsLeaf(true), mBox(boxMin,boxMax) {
       for(int i = 0; i < 8; ++i)
         mChildren[i] = NULL;
     };
@@ -240,7 +240,7 @@ void Octree<index,value>::recurseCullAndRender(const Graphics::Camera* cam, Node
   
   //render this node
   if(mRenderCB){
-    for (std::list<value>::iterator iter = node->mValue.begin(); iter != node->mValue.end(); ++iter){
+    for (typename std::list<value>::iterator iter = node->mValue.begin(); iter != node->mValue.end(); ++iter){
       mRenderCB(*iter);
     }
   }

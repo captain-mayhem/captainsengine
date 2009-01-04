@@ -5,6 +5,11 @@
 #ifdef WIN32
 #include <Windows.h>
 #endif
+#ifdef UNIX
+#include <pthread.h>
+#endif
+
+#include "thread.h"
 
 namespace System{
 
@@ -18,8 +23,13 @@ protected:
 #ifdef WIN32
   HANDLE mEvent;
 #endif
+#ifdef UNIX
+  pthread_cond_t mCondition;
+#endif
+  Mutex mMutex;
 };
 
 }
 
 #endif
+

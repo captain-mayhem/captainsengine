@@ -193,3 +193,4 @@ std::pair<std::string,std::string> OSMReader::readTag(TiXmlElement* element){
   res.second = element->Attribute("v");
   return res;
 }
+

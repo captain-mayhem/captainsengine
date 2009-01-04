@@ -61,7 +61,7 @@ public:
   //! Builds a matrix from a quaternion
   Matrix(const Quaternion& quat);
   //! Init a matrix with four vectors
-  Matrix(Vector3D& r1, Vector3D& r2, Vector3D& r3, Vector3D& r4);
+  Matrix(const Vec3f& r1, const Vec3f& r2, const Vec3f& r3, const Vec3f& r4);
   //! Destructor
 	~Matrix();
   //! Matrix addition
