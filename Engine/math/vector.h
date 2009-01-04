@@ -188,6 +188,11 @@ public:
   Vec3(const Vector2D v){
     x = v.x; y = 0; z = v.y;
   }
+
+  template<typename S> Vec3(const S& v){
+    x = (T)v.x; y = (T)v.y; z = (T)v.z;
+  }
+
   //! Destructor
   ~Vec3();
   //! cast
@@ -226,6 +231,27 @@ public:
     float epsilon = 0.101f;
     return (fabs(v.x - x) < epsilon && fabs(v.y - y) < epsilon && fabs(v.z - z) < epsilon);
   }
+
+  inline bool operator<(const Vec3& v) const {
+    if (x == v.x){
+      if (y == v.y){
+        return z < v.z;
+      }
+      return y < v.y;
+    }
+    return x < v.x;
+  }
+
+  inline bool operator>(const Vec3& v) const {
+    if (x == v.x){
+      if (y == v.y){
+        return z > v.z;
+      }
+      return y > v.y;
+    }
+    return x > v.x;
+  }
+
   //! performing the cross product.
   Vec3 cross(const Vec3& v) const;
   //! returns the length of the vector

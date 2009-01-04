@@ -4,7 +4,9 @@ SET(Engine_math_SRCS
 	${PRE}/arcball.cpp
 	${PRE}/bbox.cpp
 	${PRE}/bsphere.cpp
+	${PRE}/frustum.cpp
 	${PRE}/matrix.cpp
+	${PRE}/plane.cpp
 #	${PRE}/quaternion.cpp
 	${PRE}/ray.cpp
 	${PRE}/vector.cpp)
@@ -14,7 +16,9 @@ SET(Engine_math_HDRS
 	${PRE}/bbox.h 
 	${PRE}/boundingobject.h 
 	${PRE}/bsphere.h 
-	${PRE}/matrix.h 
+	${PRE}/frustum.h
+	${PRE}/matrix.h
+	${PRE}/plane.h
 	${PRE}/quaternion.h 
 	${PRE}/ray.h 
 	${PRE}/vector.h)

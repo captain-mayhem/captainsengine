@@ -3,7 +3,7 @@
 
 #include <math.h>
 
-const double Utility::SCALE=6371.009;
+const double Utility::SCALE=6371.6009;
 
 Math::Vec3<double> Utility::polarToCartesian(double latitude, double longitude){
   double lat = latitude/360*M_PI;

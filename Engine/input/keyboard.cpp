@@ -14,6 +14,7 @@ Keyboard::Keyboard(){
   keyDownCB_ = NULL;
   keyUpCB_ = NULL;
   asciiCB_ = NULL;
+  keyPressedCB_ = NULL;
 }
 
 void Keyboard::init(){
@@ -21,6 +22,8 @@ void Keyboard::init(){
 }
 
 void Keyboard::keyDown(int key){
+  pressedKeys_.remove(key);
+  pressedKeys_.push_back(key);
   if (key == KEY_ESCAPE){
     Gui::Console* cons = System::Engine::instance()->getConsole();
     //quit console
@@ -70,6 +73,7 @@ void Keyboard::keyDown(int key){
 }
 
 void Keyboard::keyUp(int key){
+  pressedKeys_.remove(key);
   if (keyUpCB_){
     keyUpCB_(key);
   }
@@ -97,5 +101,13 @@ void Keyboard::ascii(unsigned char key){
     asciiCB_(key);
   }
   //::System::Log << (unsigned char)key << " ";
+}
+
+void Keyboard::processPressedKeys(float diffTime){
+  if (keyPressedCB_){
+    for (std::list<int>::iterator iter = pressedKeys_.begin(); iter != pressedKeys_.end(); ++iter){
+      keyPressedCB_(*iter, diffTime);
+    }
+  }
 }
 

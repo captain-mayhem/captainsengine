@@ -1,6 +1,8 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include <list>
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -54,9 +56,12 @@ public:
   inline void setKeyUpCB(void (*proc)(int key)) {keyUpCB_ = proc;}
   //! set keydown callback
   inline void setAsciiCB(void (*proc)(unsigned char key)) {asciiCB_ = proc;}
+  //! set keypressed callback
+  inline void setKeyPressedCB(void (*proc)(int key, float diffTime)) {keyPressedCB_ = proc;}
   void keyDown(int key);
   void keyUp(int key);
   void ascii(unsigned char key);
+  void processPressedKeys(float diffTime);
 protected:
   static Keyboard* key_;
   Keyboard();
@@ -66,6 +71,10 @@ protected:
   void (*keyUpCB_)(int key);
   //! ascii callback
   void (*asciiCB_)(unsigned char key);
+  //! key pressed callback
+  void (*keyPressedCB_)(int key, float diffTime);
+  //! the key state
+  std::list<int> pressedKeys_;
 };
 
 }

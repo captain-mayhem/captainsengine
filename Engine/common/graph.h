@@ -22,7 +22,7 @@ class GraphNode{
 public:
   GraphNode();
   ~GraphNode();
-protected:
+//protected:
   std::vector<GraphNode*> preds_;
   std::vector<GraphNode*> succs_;
 };

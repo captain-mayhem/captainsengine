@@ -1,5 +1,6 @@
 
 #include "OSMReader.h"
+#include <float.h>
 #include "system/engine.h"
 #include "MapChunk.h"
 #include "Utilities.h"
@@ -15,6 +16,7 @@ OSMReader::~OSMReader(){
 void OSMReader::read(MapChunk* map){
   mMap = map;
   readNode(&mDoc);
+  mMap->buildAccelerationStructures();
 }
 
 void OSMReader::readNode(TiXmlNode* node){
@@ -28,6 +30,9 @@ void OSMReader::readNode(TiXmlNode* node){
         case START:
         case OSM:
           ignoreChildren = processElement(node);
+          break;
+        case NODE:
+          ignoreChildren = processNode(node);
           break;
         case WAY:
           ignoreChildren = processWay(node);
@@ -52,14 +57,21 @@ bool OSMReader::processElement(TiXmlNode* node){
     return false;
   }
   if (std::strcmp(node->Value(),"bounds") == 0){
-    double minlat, maxlat, minlon, maxlon;
+    //info is not usable for octree
+    /*double minlat, maxlat, minlon, maxlon;
     readAttribute(elem, "minlat", minlat);
     readAttribute(elem, "maxlat", maxlat);
     readAttribute(elem, "minlon", minlon);
     readAttribute(elem, "maxlon", maxlon);
-    Math::Vec3d minBox = Utility::polarToCartesian(minlat, minlon)*Utility::SCALE;
-    Math::Vec3d maxBox = Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE;
-    if (minBox.x > maxBox.x){
+    Math::Vec3d minBox = Math::Vec3d(DBL_MAX,DBL_MAX,DBL_MAX);
+    Math::Vec3d maxBox = Math::Vec3d(-DBL_MAX,-DBL_MAX,-DBL_MAX);
+    box_extent(minBox,maxBox,(Utility::polarToCartesian(minlat, minlon)*Utility::SCALE));
+    box_extent(minBox,maxBox,(Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE));
+    box_extent(minBox,maxBox,(Utility::polarToCartesian(minlat, maxlon)*Utility::SCALE));
+    box_extent(minBox,maxBox,(Utility::polarToCartesian(maxlat, minlon)*Utility::SCALE));*/
+    //Math::Vec3d minBox = Utility::polarToCartesian(minlat, minlon)*Utility::SCALE;
+    //Math::Vec3d maxBox = Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE;
+    /*if (minBox.x > maxBox.x){
       double tmp = minBox.x; minBox.x = maxBox.x; maxBox.x = tmp;
     }
     if (minBox.y > maxBox.y){
@@ -67,7 +79,7 @@ bool OSMReader::processElement(TiXmlNode* node){
     }
     if (minBox.z > maxBox.z){
       double tmp = minBox.z; minBox.z = maxBox.z; maxBox.z = tmp;
-    }
+    }*//*
     Math::Vec3d center = (minBox+maxBox)/2;
     Math::Vec3d extreme = center.normalized()*Utility::SCALE;
     minBox.x = extreme.x < minBox.x ? extreme.x : minBox.x;
@@ -75,12 +87,10 @@ bool OSMReader::processElement(TiXmlNode* node){
     minBox.z = extreme.z < minBox.z ? extreme.z : minBox.z;
     maxBox.x = extreme.x > maxBox.x ? extreme.x : maxBox.x;
     maxBox.y = extreme.y > maxBox.y ? extreme.y : maxBox.y;
-    maxBox.z = extreme.z > maxBox.z ? extreme.z : maxBox.z;
+    maxBox.z = extreme.z > maxBox.z ? extreme.z : maxBox.z;*/
     //recalculate new center
-    center = (minBox+maxBox)/2;
-    mMap->setDimensions(center, (maxBox-minBox)/2.0f);
-    //mMap->addStreetNode(10,2,3,1);
-    //mMap->addStreetNode(10,2.5,3,2);
+    //Math::Vec3d center = (minBox+maxBox)/2;
+    //mMap->setDimensions(center, (maxBox-minBox)/2.0f);
     return true;
   }
   if (std::strcmp(node->Value(),"node") == 0){
@@ -89,11 +99,18 @@ bool OSMReader::processElement(TiXmlNode* node){
     readAttribute(elem, "id", id);
     readAttribute(elem, "lat", lat);
     readAttribute(elem, "lon", lon);
+    Math::Vec3d v = Utility::polarToCartesian(lat, lon)*Utility::SCALE;
+    mState = NODE;
+    for(TiXmlNode* child = node->FirstChild(); child != NULL; child = child->NextSibling()){
+      readNode(child);
+    }
+    mState = OSM;
+    mMap->addNode(v,id);
     return true;
   }
   if (std::strcmp(node->Value(),"way") == 0){
-    int id;
-    readAttribute(elem, "id", id);
+    readAttribute(elem, "id", mCurrStreet);
+    mLastNode = 0;
     mState = WAY;
     for(TiXmlNode* child = node->FirstChild(); child != NULL; child = child->NextSibling()){
       readNode(child);
@@ -108,14 +125,56 @@ bool OSMReader::processElement(TiXmlNode* node){
   return true;
 }
 
+bool OSMReader::processNode(TiXmlNode* node){
+  TiXmlElement* elem = node->ToElement();
+  if (std::strcmp(node->Value(),"tag") == 0){
+    std::pair<std::string,std::string> tag = readTag(elem);
+    if (tag.first == "created_by" || tag.first == "converted_by" ||
+      tag.first == "source" || tag.first == "class"){
+      //not interesting
+    }
+    /*else if (tag.first == "amenity"){
+
+    }
+    else if (tag.first == "name"){
+
+    }
+    else if (tag.first == "is_in"){
+
+    }
+    else if (tag.first == "place"){
+
+    }*/
+    //System::Log << "Unexpected tag in xml file: " << tag.first << " - " << tag.second << "\n";
+    return true;
+  }
+  System::Log << "Unexpected xml value " << node->Value() << "\n";
+  return true;
+}
+
 bool OSMReader::processWay(TiXmlNode* node){
   TiXmlElement* elem = node->ToElement();
   if (std::strcmp(node->Value(),"nd") == 0){
     int ref;
     readAttribute(elem, "ref", ref);
+    if (mLastNode != 0){
+      mMap->addStreet(mCurrStreet,mLastNode,ref);
+    }
+    mLastNode = ref;
     return true;
   }
   if (std::strcmp(node->Value(),"tag") == 0){
+    std::pair<std::string,std::string> tag = readTag(elem);
+    if (tag.first == "created_by"){
+      //uninteresting
+    }
+    else if(tag.first == "highway"){
+      //we have really a street
+    }
+    else if(tag.first == "name"){
+
+    }
+    System::Log << "Unexpected tag in xml file: " << tag.first << " - " << tag.second << "\n";
     return true;
   }
   System::Log << "Unexpected xml value " << node->Value() << "\n";
@@ -126,4 +185,11 @@ template<typename T> void OSMReader::readAttribute(TiXmlElement* element, const 
   if (!element || !name)
     return;
   element->Attribute(name, &value);
+}
+
+std::pair<std::string,std::string> OSMReader::readTag(TiXmlElement* element){
+  std::pair<std::string,std::string> res;
+  res.first = element->Attribute("k");
+  res.second = element->Attribute("v");
+  return res;
 }

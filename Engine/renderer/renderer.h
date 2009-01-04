@@ -90,6 +90,8 @@ public:
   virtual void blendFunc(BlendType src, BlendType dest)=0;
   //! enable blending
   virtual void enableBlend(const bool flag)=0;
+  //! enable culling
+  virtual void enableBackFaceCulling(const bool flag)=0;
   //! enable texturing
   virtual void enableTexturing(const bool flag)=0;
   //! enable lighting

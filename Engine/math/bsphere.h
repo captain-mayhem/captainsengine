@@ -14,8 +14,10 @@ public:
   virtual float hit(const Ray& r) const;
   virtual void transform(const Matrix& mat);
   virtual BoundingObject* copy();
+  Vec3f getCenter() const {return center_;}
+  float getRadius() const {return radius_;}
 protected:
-  Vector3D center_;
+  Vec3f center_;
   float radius_;
 };
 

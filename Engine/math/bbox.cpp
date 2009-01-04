@@ -77,3 +77,25 @@ BoundingObject* BBox::copy(){
   return new BBox(min_, max_);
 }
 
+Vec3f BBox::getNearestCorner(const Vec3f& normal) const{
+  Vec3f res = min_;
+  if (normal.x > 0)
+    res.x = max_.x;
+  if (normal.y > 0)
+    res.y = max_.y;
+  if (normal.z > 0)
+    res.z = max_.z;
+  return res;
+}
+
+Vec3f BBox::getFarestCorner(const Vec3f& normal) const{
+  Vec3f res = min_;
+  if (normal.x < 0)
+    res.x = max_.x;
+  if (normal.y < 0)
+    res.y = max_.y;
+  if (normal.z < 0)
+    res.z = max_.z;
+  return res;
+}
+

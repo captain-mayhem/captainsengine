@@ -14,11 +14,15 @@ public:
   virtual float hit(const Ray& r) const;
   virtual void transform(const Matrix& mat);
   virtual BoundingObject* copy();
-  Vector3D getMin() const {return min_;}
-  Vector3D getMax() const {return max_;}
+  Vec3f getMin() const {return min_;}
+  Vec3f getMax() const {return max_;}
+  Vec3f getCenter() const {return (max_+min_)/2;}
+  Vec3f getSpan() const {return (max_-min_)/2;}
+  Vec3f getNearestCorner(const Vec3f& normal) const;
+  Vec3f getFarestCorner(const Vec3f& normal) const;
 private:
-  Vector3D min_;
-  Vector3D max_;
+  Vec3f min_;
+  Vec3f max_;
 };
 
 }

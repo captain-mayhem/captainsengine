@@ -9,9 +9,6 @@
 #define VB_TEXCOORD 0x0004
 #define VB_NORMAL 0x0008
 
-#define VB_TRIANGLES 0x0001
-#define VB_TRISTRIP 0x0002
-
 namespace Graphics{
 
 typedef ::Math::Vector3D Vertex;
@@ -19,7 +16,8 @@ typedef ::Math::Vector3D Vertex;
 enum PrimitiveType{
   VB_Triangles,
   VB_Tristrip,
-  VB_Lines
+  VB_Lines,
+  VB_Points,
 };
 
 

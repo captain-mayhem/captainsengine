@@ -3,6 +3,7 @@
 #include "../renderer/GLES/GLESrenderer.h"
 #include "../renderer/dummyrenderer.h"
 #include "../input/mouse.h"
+#include "../input/keyboard.h"
 #include "engine.h"
 
 extern void engineMain(int argc, char** argv);
@@ -16,7 +17,7 @@ extern void engineMain(int argc, char** argv);
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, int cmdShow){
   MSG msg;
   char* argv[2];
-  argv[0] = "Hero-Engine";
+  argv[0] = "Captains Game Engine";
 #ifdef UNDER_CE
   char tmp[1024];
   wcstombs(tmp, cmdline, 1024);
@@ -209,7 +210,7 @@ void System::Engine::startup(int argc, char** argv){
     rend_ = new ::Graphics::DummyRenderer();
   }
   if (graphics_)
-    win_->init("Hero-Engine");
+    win_->init("Captains Game Engine");
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
   
@@ -260,6 +261,7 @@ void System::Engine::shutdown(){
 void System::Engine::run(){
   //handle physics, KI, ...
   console_->update();
+  Input::Keyboard::instance()->processPressedKeys((float)frameInterval_);
 
   //something with the GUI elements changed, so update here
   for (unsigned i = 0; i < remBut_.size(); i++){
