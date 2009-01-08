@@ -25,6 +25,12 @@ public:
   ~Mutex();
   void lock();
   void unlock();
+#ifdef WIN32
+  operator HANDLE() {return mutex_;}
+#endif
+#ifdef UNIX
+  operator pthread_mutex_t*() {return &mutex_;}
+#endif
 private:
 #ifdef WIN32
   HANDLE mutex_;

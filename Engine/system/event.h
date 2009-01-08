@@ -19,12 +19,13 @@ public:
   ~Event();
   void wait();
   void signal();
+  void reset();
 protected:
 #ifdef WIN32
   HANDLE mEvent;
 #endif
 #ifdef UNIX
-  pthread_cond_t mCondition;
+  pthread_cond_t mEvent;
 #endif
   Mutex mMutex;
 };

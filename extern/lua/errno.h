@@ -3,3 +3,6 @@
 #define errno 0
 #define tmpfile() NULL
 #endif
+#ifdef UNIX
+#include <sys/../errno.h>
+#endif
