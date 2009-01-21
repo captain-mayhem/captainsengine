@@ -24,6 +24,7 @@ void init(){
 }
 
 void render(){
+  GeoGen::useGeometry();
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   rend->clear(ZBUFFER | COLORBUFFER);
   //rend->projection(60,1.0f,0.1f,100000.0f);
