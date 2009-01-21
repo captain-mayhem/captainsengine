@@ -1,0 +1,2517 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<osm version="0.5" generator="OpenStreetMap server">
+  <bounds minlat="49.54092" minlon="11.02933" maxlat="49.54869" maxlon="11.04133"/>
+  <node id="8851303" lat="49.541503" lon="11.0300867" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:15+00:00"/>
+  <node id="15159473" lat="49.5415293" lon="11.0302879" user="matmai" visible="true" timestamp="2008-08-27T17:59:45+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24669291" lat="49.5410454" lon="11.0299533" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:15+00:00"/>
+  <node id="116017642" lat="49.5410377" lon="11.0302465" user="matmai" visible="true" timestamp="2008-08-27T17:59:28+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="116017646" lat="49.5410198" lon="11.0300553" user="matmai" visible="true" timestamp="2008-08-27T17:59:28+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="291618561" lat="49.5422648" lon="11.0302804" user="matmai" visible="true" timestamp="2008-08-27T17:57:55+01:00"/>
+  <node id="291618564" lat="49.5418834" lon="11.0301607" user="matmai" visible="true" timestamp="2008-08-27T17:57:56+01:00"/>
+  <node id="291618565" lat="49.5418834" lon="11.030364" user="matmai" visible="true" timestamp="2008-08-27T17:57:56+01:00"/>
+  <node id="303644993" lat="49.5434273" lon="11.0293849" user="rsl" visible="true" timestamp="2008-11-16T23:45:34+00:00"/>
+  <node id="307610680" lat="49.5428372" lon="11.0303378" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:27+00:00"/>
+  <node id="307610681" lat="49.5419182" lon="11.0300288" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610682" lat="49.5410828" lon="11.0297971" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610693" lat="49.5431157" lon="11.0300288" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="24487287" lat="49.5443285" lon="11.0301086" user="Spot" visible="true" timestamp="2008-07-30T12:12:08+01:00">
+    <tag k="created_by" v="JOSM"/>
+    <tag k="highway" v="traffic_signals"/>
+  </node>
+  <node id="24668950" lat="49.5450836" lon="11.0303447" user="audifahrer" visible="true" timestamp="2007-09-28T08:34:10+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24669296" lat="49.5437358" lon="11.030179" user="matmai" visible="true" timestamp="2008-08-27T17:59:39+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782829" lat="49.5436465" lon="11.0304319" user="waschbaer" visible="true" timestamp="2007-06-22T22:21:30+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782831" lat="49.5438041" lon="11.0302059" user="waschbaer" visible="true" timestamp="2007-06-22T22:21:31+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782832" lat="49.544024" lon="11.0300902" user="waschbaer" visible="true" timestamp="2007-06-22T22:21:31+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="31923027" lat="49.546166" lon="11.0302746" user="waschbaer" visible="true" timestamp="2007-07-15T15:13:02+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="31923029" lat="49.5458118" lon="11.0301566" user="waschbaer" visible="true" timestamp="2007-07-15T15:13:07+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="31923032" lat="49.5459154" lon="11.0294333" user="rsl" visible="true" timestamp="2008-12-04T17:34:15+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="60011256" lat="49.5452089" lon="11.0296741" user="rsl" visible="true" timestamp="2008-11-16T23:48:28+00:00">
+    <tag k="created_by" v="JOSM"/>
+    <tag k="name" v="Autohof Tennenlohe"/>
+    <tag k="amenity" v="fuel"/>
+    <tag k="operator" v="Shell"/>
+  </node>
+  <node id="64713376" lat="49.5448296" lon="11.0303262" user="ulfl" visible="true" timestamp="2008-02-16T19:38:03+00:00">
+    <tag k="highway" v="bus_stop"/>
+    <tag k="name" v="Wetterkreuz"/>
+  </node>
+  <node id="261117434" lat="49.5443883" lon="11.0300267" user="watschel" visible="true" timestamp="2008-05-01T21:15:33+01:00"/>
+  <node id="261117435" lat="49.5450399" lon="11.030267" user="watschel" visible="true" timestamp="2008-05-01T21:15:33+01:00"/>
+  <node id="261117436" lat="49.545374" lon="11.0297177" user="watschel" visible="true" timestamp="2008-05-01T21:15:33+01:00"/>
+  <node id="303644982" lat="49.5439939" lon="11.0293849" user="rsl" visible="true" timestamp="2008-11-16T23:45:34+00:00"/>
+  <node id="307610677" lat="49.5437227" lon="11.0300803" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:27+00:00"/>
+  <node id="311191025" lat="49.5436591" lon="11.029566" user="rsl" visible="true" timestamp="2008-11-10T22:15:50+00:00"/>
+  <node id="311191029" lat="49.5436586" lon="11.0299345" user="rsl" visible="true" timestamp="2008-11-10T22:15:50+00:00"/>
+  <node id="311191034" lat="49.5441442" lon="11.0295666" user="rsl" visible="true" timestamp="2008-11-10T22:15:50+00:00"/>
+  <node id="311191037" lat="49.5441437" lon="11.0299351" user="rsl" visible="true" timestamp="2008-11-10T22:15:51+00:00"/>
+  <node id="311351027" lat="49.5439219" lon="11.0297382" user="rsl" visible="true" timestamp="2008-11-11T18:04:22+00:00">
+    <tag k="shop" v="furniture"/>
+  </node>
+  <node id="312660659" lat="49.5456962" lon="11.029481" user="rsl" visible="true" timestamp="2008-11-16T23:35:12+00:00"/>
+  <node id="312660661" lat="49.5459534" lon="11.0295584" user="rsl" visible="true" timestamp="2008-11-16T23:35:12+00:00"/>
+  <node id="312663799" lat="49.5453399" lon="11.0299824" user="rsl" visible="true" timestamp="2008-11-30T17:20:57+00:00">
+    <tag k="name" v="Autoport"/>
+    <tag k="amenity" v="restaurant"/>
+  </node>
+  <node id="313086900" lat="49.5444078" lon="11.0294843" user="rsl" visible="true" timestamp="2008-11-18T23:19:10+00:00"/>
+  <node id="313086901" lat="49.5439066" lon="11.0294843" user="rsl" visible="true" timestamp="2008-11-18T23:19:11+00:00"/>
+  <node id="316659802" lat="49.5460248" lon="11.0294606" user="rsl" visible="true" timestamp="2008-12-04T17:34:13+00:00"/>
+  <node id="29812642" lat="49.5473459" lon="11.0299905" user="waschbaer" visible="true" timestamp="2007-05-31T20:00:17+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="31923025" lat="49.5464748" lon="11.0303291" user="waschbaer" visible="true" timestamp="2007-07-15T15:12:54+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="311187120" lat="49.5481633" lon="11.0301463" user="rsl" visible="true" timestamp="2008-11-10T21:58:09+00:00"/>
+  <node id="313962833" lat="49.5473794" lon="11.030003" user="rsl" visible="true" timestamp="2008-11-23T17:41:16+00:00"/>
+  <node id="313962836" lat="49.5481291" lon="11.0301494" user="rsl" visible="true" timestamp="2008-11-23T17:41:17+00:00"/>
+  <node id="24487274" lat="49.5426774" lon="11.030782" user="matmai" visible="true" timestamp="2008-08-27T17:59:32+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24487275" lat="49.5428445" lon="11.0310237" user="matmai" visible="true" timestamp="2008-08-27T17:59:32+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24487276" lat="49.5429743" lon="11.0318987" user="matmai" visible="true" timestamp="2008-08-27T17:59:33+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24487277" lat="49.5430587" lon="11.0321376" user="matmai" visible="true" timestamp="2008-08-27T17:59:33+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24487279" lat="49.5432218" lon="11.0323093" user="matmai" visible="true" timestamp="2008-08-27T17:59:32+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24487299" lat="49.5422545" lon="11.0304989" user="matmai" visible="true" timestamp="2008-08-27T17:59:34+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24487301" lat="49.543446" lon="11.0323135" user="matmai" visible="true" timestamp="2008-08-27T17:59:33+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24669302" lat="49.5434108" lon="11.0306114" user="matmai" visible="true" timestamp="2008-08-27T17:59:40+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782821" lat="49.5429999" lon="11.0314648" user="matmai" visible="true" timestamp="2008-08-27T17:59:31+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782822" lat="49.5431191" lon="11.0312527" user="matmai" visible="true" timestamp="2008-08-27T17:59:31+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782823" lat="49.5434616" lon="11.031158" user="waschbaer" visible="true" timestamp="2007-06-22T22:21:29+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782833" lat="49.5428997" lon="11.0305189" user="matmai" visible="true" timestamp="2007-12-04T20:08:05+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782834" lat="49.5432113" lon="11.0306269" user="matmai" visible="true" timestamp="2007-12-04T20:08:05+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="150684011" lat="49.5433547" lon="11.0307498" user="matmai" visible="true" timestamp="2007-12-04T20:07:54+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="150684016" lat="49.543271" lon="11.0309539" user="matmai" visible="true" timestamp="2007-12-04T20:07:54+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="250381248" lat="49.541818" lon="11.0326638" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="250381249" lat="49.5419177" lon="11.0353587" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="250738108" lat="49.5433257" lon="11.0354852" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="257079756" lat="49.542337" lon="11.0326386" user="keichwa" visible="true" timestamp="2008-04-12T16:58:44+01:00"/>
+  <node id="257079757" lat="49.5426489" lon="11.0329304" user="keichwa" visible="true" timestamp="2008-04-12T16:58:44+01:00"/>
+  <node id="257079758" lat="49.5430276" lon="11.0331364" user="keichwa" visible="true" timestamp="2008-04-12T16:58:44+01:00"/>
+  <node id="257079760" lat="49.5431943" lon="11.033224" user="matmai" visible="true" timestamp="2008-08-27T17:59:39+01:00"/>
+  <node id="257079761" lat="49.5435901" lon="11.0332995" user="keichwa" visible="true" timestamp="2008-04-12T16:58:44+01:00"/>
+  <node id="291618562" lat="49.5429068" lon="11.0314343" user="matmai" visible="true" timestamp="2008-08-27T17:57:56+01:00"/>
+  <node id="291618563" lat="49.5433144" lon="11.0311236" user="matmai" visible="true" timestamp="2008-08-27T17:57:56+01:00"/>
+  <node id="307610346" lat="49.5433997" lon="11.0353932" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610347" lat="49.5420408" lon="11.0352216" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610348" lat="49.5419795" lon="11.0343976" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610349" lat="49.5424585" lon="11.0343804" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610350" lat="49.5424919" lon="11.0318742" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610351" lat="49.5418514" lon="11.0317025" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610352" lat="49.5416509" lon="11.0325694" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610361" lat="49.5416064" lon="11.0304494" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610362" lat="49.5424696" lon="11.0307412" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610363" lat="49.5427425" lon="11.031033" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610364" lat="49.5428316" lon="11.0315394" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610365" lat="49.5428428" lon="11.0319772" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610366" lat="49.5430823" lon="11.0324149" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610367" lat="49.5433774" lon="11.0324921" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610564" lat="49.5424306" lon="11.0326981" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="307610565" lat="49.5424028" lon="11.0342774" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="307610566" lat="49.5419071" lon="11.0343375" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="307610678" lat="49.5434108" lon="11.0304837" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:27+00:00"/>
+  <node id="307610679" lat="49.5432326" lon="11.0305352" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:27+00:00"/>
+  <node id="323317979" lat="49.5418832" lon="11.0353792" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T00:35:35+00:00"/>
+  <node id="323348795" lat="49.5424092" lon="11.0341294" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T01:09:29+00:00"/>
+  <node id="323363379" lat="49.5423752" lon="11.0328546" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T01:31:04+00:00"/>
+  <node id="323385550" lat="49.5425201" lon="11.0334795" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T01:57:52+00:00"/>
+  <node id="323420259" lat="49.5415323" lon="11.0329495" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T02:40:52+00:00"/>
+  <node id="323442551" lat="49.5418902" lon="11.0346743" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T03:13:10+00:00"/>
+  <node id="323481887" lat="49.5422532" lon="11.0343033" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T04:10:23+00:00"/>
+  <node id="323510225" lat="49.5418562" lon="11.0329475" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T04:54:01+00:00"/>
+  <node id="323578126" lat="49.5424592" lon="11.0330925" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T06:29:13+00:00"/>
+  <node id="323593984" lat="49.5418482" lon="11.0350852" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T07:45:28+00:00"/>
+  <node id="323662109" lat="49.5420202" lon="11.0358191" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T09:11:09+00:00"/>
+  <node id="250738109" lat="49.5432143" lon="11.036541" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="307610345" lat="49.543383" lon="11.0362773" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="323332193" lat="49.5435121" lon="11.0394346" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T00:51:30+00:00"/>
+  <node id="323493605" lat="49.5428751" lon="11.0377768" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T04:28:36+00:00"/>
+  <node id="323583399" lat="49.5427871" lon="11.037" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T06:36:31+00:00"/>
+  <node id="8851301" lat="49.5455156" lon="11.0322714" user="matmai" visible="true" timestamp="2007-12-04T20:08:01+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="8851302" lat="49.543975" lon="11.0311281" user="waschbaer" visible="true" timestamp="2007-06-22T22:34:48+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="15159477" lat="49.5454311" lon="11.0324509" user="matmai" visible="true" timestamp="2007-12-04T20:08:13+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="15159478" lat="49.5438678" lon="11.0312853" user="waschbaer" visible="true" timestamp="2006-09-10T06:46:45+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24487281" lat="49.5436643" lon="11.0321154" user="matmai" visible="true" timestamp="2008-08-27T17:59:33+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24487283" lat="49.5438815" lon="11.0316221" user="matmai" visible="true" timestamp="2008-08-27T17:59:33+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24487285" lat="49.5440929" lon="11.0309162" user="matmai" visible="true" timestamp="2008-08-27T17:59:33+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24668989" lat="49.5457162" lon="11.0307675" user="waschbaer" visible="true" timestamp="2007-07-15T15:18:41+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782825" lat="49.543696" lon="11.0308948" user="matmai" visible="true" timestamp="2007-12-04T20:08:06+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782827" lat="49.5436397" lon="11.0307165" user="matmai" visible="true" timestamp="2008-08-27T17:59:31+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="64713378" lat="49.545615" lon="11.0306067" user="spocket" visible="true" timestamp="2008-10-07T22:58:09+01:00">
+    <tag k="highway" v="bus_stop"/>
+    <tag k="name" v="Wetterkreuz"/>
+  </node>
+  <node id="257079762" lat="49.5436908" lon="11.0334001" user="matmai" visible="true" timestamp="2008-08-27T17:59:39+01:00"/>
+  <node id="257079764" lat="49.5437378" lon="11.0335969" user="matmai" visible="true" timestamp="2008-08-27T17:59:38+01:00"/>
+  <node id="257079765" lat="49.5437294" lon="11.0353508" user="keichwa" visible="true" timestamp="2008-04-12T16:58:44+01:00"/>
+  <node id="307610368" lat="49.5436893" lon="11.0323119" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610369" lat="49.5439399" lon="11.031857" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610370" lat="49.5439956" lon="11.0316596" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610371" lat="49.5450538" lon="11.0324578" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610372" lat="49.5458167" lon="11.0328955" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610373" lat="49.5459894" lon="11.0318999" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="312660664" lat="49.5458029" lon="11.0306401" user="rsl" visible="true" timestamp="2008-11-16T23:35:12+00:00"/>
+  <node id="312660683" lat="49.5462236" lon="11.031515" user="rsl" visible="true" timestamp="2008-11-16T23:35:13+00:00"/>
+  <node id="318167408" lat="49.5456668" lon="11.0308299" user="Mathemathis" visible="true" timestamp="2008-12-12T18:49:00+00:00">
+    <tag k="created_by" v="Potlatch 0.10f"/>
+    <tag k="vending" v="cigarettes"/>
+    <tag k="amenity" v="vending_machine"/>
+  </node>
+  <node id="8851300" lat="49.5476586" lon="11.0330594" user="matmai" visible="true" timestamp="2007-12-04T20:08:01+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="15159475" lat="49.5476208" lon="11.0332818" user="matmai" visible="true" timestamp="2007-12-04T20:08:13+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24669255" lat="49.5464694" lon="11.0309447" user="audifahrer" visible="true" timestamp="2007-01-04T21:39:34+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24669258" lat="49.5476721" lon="11.0306839" user="waschbaer" visible="true" timestamp="2007-06-22T22:35:13+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24669260" lat="49.5471599" lon="11.0308265" user="waschbaer" visible="true" timestamp="2007-06-22T22:34:29+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="29812643" lat="49.5473293" lon="11.0307398" user="waschbaer" visible="true" timestamp="2007-05-31T20:00:17+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782862" lat="49.5485832" lon="11.0333365" user="matmai" visible="true" timestamp="2007-12-04T20:08:00+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782865" lat="49.5485542" lon="11.0331192" user="matmai" visible="true" timestamp="2007-12-04T20:08:00+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782867" lat="49.5465192" lon="11.033003" user="waschbaer" visible="true" timestamp="2007-06-22T22:21:48+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782870" lat="49.5465953" lon="11.032813" user="waschbaer" visible="true" timestamp="2007-06-22T22:21:48+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="251092467" lat="49.5473831" lon="11.0355708" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="251092468" lat="49.5486528" lon="11.0338627" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="307610335" lat="49.5486847" lon="11.0336165" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:53+00:00"/>
+  <node id="307610336" lat="49.5478884" lon="11.0344405" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:53+00:00"/>
+  <node id="307610337" lat="49.5473927" lon="11.0353331" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:53+00:00"/>
+  <node id="307610374" lat="49.5470865" lon="11.0323634" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610375" lat="49.5475375" lon="11.0323291" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610376" lat="49.5477157" lon="11.0320801" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610377" lat="49.5477491" lon="11.0317626" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610378" lat="49.5477595" lon="11.0308212" user="rsl" visible="true" timestamp="2008-11-16T23:35:16+00:00"/>
+  <node id="311187123" lat="49.548257" lon="11.0305536" user="rsl" visible="true" timestamp="2008-11-23T17:41:23+00:00"/>
+  <node id="312660667" lat="49.5472196" lon="11.0306485" user="rsl" visible="true" timestamp="2008-11-16T23:35:12+00:00"/>
+  <node id="312660672" lat="49.5474922" lon="11.0308241" user="rsl" visible="true" timestamp="2008-11-23T17:52:35+00:00"/>
+  <node id="312660675" lat="49.5473065" lon="11.0320975" user="rsl" visible="true" timestamp="2008-11-23T17:52:35+00:00"/>
+  <node id="312660677" lat="49.547059" lon="11.0321551" user="rsl" visible="true" timestamp="2008-11-16T23:35:13+00:00"/>
+  <node id="312660680" lat="49.5469711" lon="11.0317786" user="rsl" visible="true" timestamp="2008-11-16T23:35:13+00:00"/>
+  <node id="313421756" lat="49.5477515" lon="11.0305531" user="rsl" visible="true" timestamp="2008-11-21T00:13:38+00:00"/>
+  <node id="313421767" lat="49.5477967" lon="11.0307755" user="rsl" visible="true" timestamp="2008-11-21T00:13:42+00:00"/>
+  <node id="313421768" lat="49.5478303" lon="11.0310294" user="rsl" visible="true" timestamp="2008-11-21T00:13:43+00:00"/>
+  <node id="313421769" lat="49.5479984" lon="11.0317392" user="rsl" visible="true" timestamp="2008-11-21T00:13:44+00:00"/>
+  <node id="313421770" lat="49.5482841" lon="11.0329724" user="rsl" visible="true" timestamp="2008-11-21T00:13:46+00:00"/>
+  <node id="313421771" lat="49.5484892" lon="11.0337393" user="rsl" visible="true" timestamp="2008-11-21T00:13:46+00:00"/>
+  <node id="313421772" lat="49.5484119" lon="11.0334646" user="rsl" visible="true" timestamp="2008-11-21T00:13:47+00:00"/>
+  <node id="313962834" lat="49.5473577" lon="11.0306924" user="rsl" visible="true" timestamp="2008-11-23T17:41:16+00:00"/>
+  <node id="313962835" lat="49.5481836" lon="11.030576" user="rsl" visible="true" timestamp="2008-11-23T17:41:17+00:00"/>
+  <node id="313965211" lat="49.5475561" lon="11.0315709" user="rsl" visible="true" timestamp="2008-11-23T17:52:35+00:00"/>
+  <node id="313965212" lat="49.5473344" lon="11.0317734" user="rsl" visible="true" timestamp="2008-11-23T17:52:35+00:00"/>
+  <node id="317671435" lat="49.5486047" lon="11.0348042" user="rsl" visible="true" timestamp="2008-12-09T23:09:52+00:00"/>
+  <node id="323493688" lat="49.5473686" lon="11.0354211" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T04:28:43+00:00"/>
+  <node id="323531381" lat="49.5469027" lon="11.0356601" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T05:26:34+00:00"/>
+  <node id="323580795" lat="49.5482615" lon="11.0341343" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T06:32:58+00:00"/>
+  <node id="323631005" lat="49.5477846" lon="11.0347022" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T08:32:57+00:00"/>
+  <node id="323636351" lat="49.5464337" lon="11.0357741" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T08:40:17+00:00"/>
+  <node id="323671573" lat="49.5485125" lon="11.0340023" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T09:23:38+00:00"/>
+  <node id="29084191" lat="49.5438436" lon="11.0379572" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="250738110" lat="49.5437712" lon="11.0362835" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="251092465" lat="49.5450943" lon="11.0373217" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="251092466" lat="49.5457013" lon="11.036163" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="251092677" lat="49.5440528" lon="11.0386092" user="keichwa" visible="true" timestamp="2008-03-08T07:27:05+00:00"/>
+  <node id="257079766" lat="49.5439187" lon="11.0378657" user="keichwa" visible="true" timestamp="2008-04-12T16:58:44+01:00"/>
+  <node id="279813186" lat="49.5443951" lon="11.0387485" user="willikl" visible="true" timestamp="2008-07-20T16:43:15+01:00"/>
+  <node id="279813188" lat="49.5447045" lon="11.0389934" user="willikl" visible="true" timestamp="2008-07-20T16:43:15+01:00"/>
+  <node id="279813189" lat="49.544988" lon="11.0393672" user="willikl" visible="true" timestamp="2008-07-20T16:43:15+01:00"/>
+  <node id="279813191" lat="49.5455294" lon="11.0403597" user="willikl" visible="true" timestamp="2008-07-20T16:43:15+01:00"/>
+  <node id="279813193" lat="49.5458388" lon="11.0406175" user="willikl" visible="true" timestamp="2008-07-20T16:43:15+01:00"/>
+  <node id="279813195" lat="49.5461739" lon="11.0405531" user="willikl" visible="true" timestamp="2008-07-20T16:43:16+01:00"/>
+  <node id="307610338" lat="49.5457722" lon="11.0360198" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:53+00:00"/>
+  <node id="307610339" lat="49.5456664" lon="11.036097" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610340" lat="49.5450872" lon="11.03723" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610341" lat="49.5444801" lon="11.0374789" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610342" lat="49.5443298" lon="11.0361056" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610343" lat="49.5438564" lon="11.0361914" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610344" lat="49.5438341" lon="11.0360799" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="317671436" lat="49.5450709" lon="11.0381282" user="rsl" visible="true" timestamp="2008-12-09T23:09:52+00:00"/>
+  <node id="323523846" lat="49.5457928" lon="11.036191" user="geofabrik_infas_import" visible="true" timestamp="2008-12-31T05:15:39+00:00"/>
+  <node id="279813197" lat="49.5464446" lon="11.0403339" user="willikl" visible="true" timestamp="2008-07-20T16:43:16+01:00"/>
+  <node id="279813198" lat="49.5477336" lon="11.0389676" user="willikl" visible="true" timestamp="2008-07-20T16:43:16+01:00"/>
+  <node id="279813200" lat="49.5482621" lon="11.0383231" user="willikl" visible="true" timestamp="2008-07-20T16:43:16+01:00"/>
+  <node id="8851296" lat="49.5566373" lon="11.0327127" user="Radfahrer" visible="true" timestamp="2008-11-09T21:35:00+00:00"/>
+  <node id="8851297" lat="49.5544849" lon="11.0323008" user="matmai" visible="true" timestamp="2007-12-04T20:08:05+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="8851298" lat="49.5525904" lon="11.0321099" user="matmai" visible="true" timestamp="2007-12-04T20:08:05+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="8851299" lat="49.5500782" lon="11.0327792" user="matmai" visible="true" timestamp="2007-12-04T20:08:01+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="8851495" lat="49.540078" lon="11.0300938" user="matmai" visible="true" timestamp="2008-08-27T17:59:52+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="8851496" lat="49.5388185" lon="11.0304046" user="matmai" visible="true" timestamp="2008-08-27T18:07:25+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="12452104" lat="49.570948" lon="11.0316462" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:04+00:00"/>
+  <node id="12452106" lat="49.5777597" lon="11.0323735" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:05+00:00"/>
+  <node id="12452108" lat="49.5803701" lon="11.033099" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:05+00:00"/>
+  <node id="12452109" lat="49.5841311" lon="11.0339749" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:05+00:00"/>
+  <node id="15159471" lat="49.5407857" lon="11.0302255" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:25+00:00"/>
+  <node id="15159480" lat="49.5544498" lon="11.0325072" user="matmai" visible="true" timestamp="2007-12-04T20:08:12+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="15159481" lat="49.5525878" lon="11.0323311" user="matmai" visible="true" timestamp="2007-12-04T20:08:13+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="15159483" lat="49.5501646" lon="11.0329923" user="matmai" visible="true" timestamp="2007-12-04T20:08:12+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="15159486" lat="49.5566382" lon="11.0329617" user="Radfahrer" visible="true" timestamp="2008-11-09T21:34:57+00:00"/>
+  <node id="15160774" lat="49.5392465" lon="11.0304403" user="matmai" visible="true" timestamp="2008-08-27T17:59:28+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="21317477" lat="49.5737159" lon="11.0314663" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:04+00:00"/>
+  <node id="21971288" lat="49.574695" lon="11.0316212" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:04+00:00"/>
+  <node id="24487289" lat="49.5444338" lon="11.0292579" user="audifahrer" visible="true" timestamp="2007-01-03T12:43:51+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24669274" lat="49.5493465" lon="11.0304899" user="waschbaer" visible="true" timestamp="2007-07-16T20:58:11+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24669282" lat="49.5507173" lon="11.030269" user="waschbaer" visible="true" timestamp="2007-06-22T22:35:15+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="24669285" lat="49.5404267" lon="11.0294601" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:15+00:00"/>
+  <node id="24669288" lat="49.5397199" lon="11.0270013" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:15+00:00"/>
+  <node id="24669294" lat="49.5399543" lon="11.0260976" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:55+00:00"/>
+  <node id="24797444" lat="49.5444537" lon="11.0280222" user="disasterarea" visible="true" timestamp="2008-10-27T10:07:45+00:00"/>
+  <node id="25928582" lat="49.5813864" lon="11.0333341" user="andrenarchy" visible="true" timestamp="2008-09-08T17:58:42+01:00">
+    <tag k="created_by" v="JOSM"/>
+    <tag k="highway" v="traffic_signals"/>
+  </node>
+  <node id="26841333" lat="49.5816421" lon="11.033378" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:05+00:00"/>
+  <node id="29084170" lat="49.5401431" lon="11.0328585" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="29084172" lat="49.5899771" lon="11.0707527" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="29084175" lat="49.5757628" lon="11.0317901" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:05+00:00"/>
+  <node id="29084177" lat="49.5906995" lon="11.0422262" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="29084179" lat="49.5865846" lon="11.086067" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="29084181" lat="49.586332" lon="11.0811124" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="29084183" lat="49.5885997" lon="11.0960855" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="29084185" lat="49.5204873" lon="11.0763405" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="29084188" lat="49.569507" lon="11.0314701" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:04+00:00"/>
+  <node id="29084193" lat="49.5514928" lon="11.0335967" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="29084196" lat="49.5368171" lon="11.0341909" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="29084200" lat="49.590023" lon="11.1031875" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="29084203" lat="49.5868818" lon="11.1097601" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="29084205" lat="49.5603044" lon="11.1096594" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="29084207" lat="49.5615994" lon="11.1170493" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="29084209" lat="49.5701039" lon="11.1183372" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="29084212" lat="49.586567" lon="11.1224854" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="29084215" lat="49.5889782" lon="11.1199399" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="29084217" lat="49.5714317" lon="11.1278939" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="29084220" lat="49.5697376" lon="11.1388303" user="kam" visible="true" timestamp="2008-12-06T20:30:43+00:00"/>
+  <node id="29084221" lat="49.5862446" lon="11.1293267" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="29084224" lat="49.5879236" lon="11.1436402" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="29084227" lat="49.5880205" lon="11.1453665" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="29084229" lat="49.5864222" lon="11.1511788" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="29084231" lat="49.5744979" lon="11.1515147" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="29084234" lat="49.5717338" lon="11.1388495" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="29084235" lat="49.5819743" lon="11.1515341" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="29084238" lat="49.5774996" lon="11.159205" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="29084240" lat="49.5796641" lon="11.1559439" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="29084242" lat="49.5703359" lon="11.1571005" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="29084245" lat="49.5743163" lon="11.1621844" user="LonelyPixel" visible="true" timestamp="2008-12-18T22:09:58+00:00">
+    <tag k="created_by" v="Merkaartor 0.12"/>
+  </node>
+  <node id="29084246" lat="49.5787631" lon="11.1627694" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="29084248" lat="49.5564215" lon="11.1084938" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="29084251" lat="49.5527409" lon="11.1137873" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="29084252" lat="49.5068665" lon="11.1174512" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="29084255" lat="49.5017526" lon="11.1296959" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="29084258" lat="49.5376621" lon="11.1315645" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="29084260" lat="49.5118385" lon="11.0983577" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="29084263" lat="49.5483097" lon="11.1115136" user="gypakk" visible="true" timestamp="2008-12-08T13:07:07+00:00"/>
+  <node id="29084265" lat="49.545119" lon="11.1222232" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="29084267" lat="49.5445068" lon="11.1321577" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="29084269" lat="49.5323469" lon="11.1447444" user="keichwa" visible="true" timestamp="2008-12-14T19:33:59+00:00"/>
+  <node id="29084271" lat="49.524391" lon="11.1380477" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="29084274" lat="49.5152149" lon="11.1401791" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="29084276" lat="49.519907" lon="11.1485857" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="29084279" lat="49.5089426" lon="11.1340553" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="29084281" lat="49.500593" lon="11.1338653" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="29812640" lat="49.5472459" lon="11.0267674" user="Mathemathis" visible="true" timestamp="2008-12-01T16:21:42+00:00"/>
+  <node id="29812641" lat="49.5472348" lon="11.0286128" user="waschbaer" visible="true" timestamp="2007-05-31T20:00:17+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782872" lat="49.5535213" lon="11.0321189" user="matmai" visible="true" timestamp="2007-12-04T20:07:59+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782874" lat="49.5535251" lon="11.0323443" user="matmai" visible="true" timestamp="2007-12-04T20:07:59+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782876" lat="49.5511892" lon="11.0326029" user="matmai" visible="true" timestamp="2007-12-04T20:08:00+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="30782879" lat="49.5510227" lon="11.0324414" user="matmai" visible="true" timestamp="2007-12-04T20:08:00+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="31923009" lat="49.5487015" lon="11.0305745" user="waschbaer" visible="true" timestamp="2007-07-15T15:11:41+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="31923022" lat="49.5466841" lon="11.0267928" user="Mathemathis" visible="true" timestamp="2008-12-01T16:21:42+00:00"/>
+  <node id="31923023" lat="49.5466201" lon="11.0292212" user="waschbaer" visible="true" timestamp="2007-07-15T15:12:51+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="34080116" lat="49.5886283" lon="11.0918774" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="34080117" lat="49.5875478" lon="11.0866359" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="34080118" lat="49.5863549" lon="11.0854679" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="34080119" lat="49.5869047" lon="11.0784311" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="34080120" lat="49.5891205" lon="11.0738389" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="34080158" lat="49.5891167" lon="11.0705562" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="34080160" lat="49.5892644" lon="11.0703906" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="34080164" lat="49.5890627" lon="11.0645662" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="36142221" lat="49.5191385" lon="11.0811218" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="36142222" lat="49.5147009" lon="11.0897091" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="36256701" lat="49.5715324" lon="11.1586873" user="kam" visible="true" timestamp="2008-12-24T08:37:27+00:00"/>
+  <node id="36262284" lat="49.5781183" lon="11.1579384" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="36814051" lat="49.5728581" lon="11.0315243" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:04+00:00"/>
+  <node id="49923268" lat="49.5299638" lon="11.0452875" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="49923273" lat="49.5322132" lon="11.0334829" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="49923276" lat="49.5251281" lon="11.0629429" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="49923281" lat="49.5266996" lon="11.0685299" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="49923284" lat="49.5268607" lon="11.0575355" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="57705468" lat="49.5230454" lon="11.1413907" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="57705473" lat="49.5221189" lon="11.1455807" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="57705479" lat="49.5209601" lon="11.1467489" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="57705483" lat="49.5223252" lon="11.1483368" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="57705487" lat="49.5216065" lon="11.1477445" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="71089896" lat="49.5356129" lon="11.1361943" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="71089900" lat="49.5342053" lon="11.1394299" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="71089904" lat="49.5355173" lon="11.1392248" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="71098093" lat="49.5362652" lon="11.1319258" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="71098104" lat="49.5353294" lon="11.1298659" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="71098115" lat="49.5342822" lon="11.1307757" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="71098124" lat="49.5366149" lon="11.1339334" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="71098135" lat="49.536782" lon="11.1354355" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="71098145" lat="49.535033" lon="11.1347402" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="71098153" lat="49.5411094" lon="11.1322263" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="71098161" lat="49.539543" lon="11.1305096" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="71098167" lat="49.5398176" lon="11.1328949" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="116017648" lat="49.5555211" lon="11.0325716" user="matmai" visible="true" timestamp="2007-12-04T20:08:00+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="116017653" lat="49.5554738" lon="11.0327841" user="matmai" visible="true" timestamp="2007-12-04T20:07:59+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="146707989" lat="49.5411307" lon="11.0423473" user="willikl" visible="true" timestamp="2008-07-20T16:43:23+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="150683985" lat="49.549339" lon="11.0332439" user="matmai" visible="true" timestamp="2007-12-04T20:07:53+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="150683992" lat="49.5492887" lon="11.0330242" user="matmai" visible="true" timestamp="2007-12-04T20:07:53+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="150684000" lat="49.5517352" lon="11.0322245" user="matmai" visible="true" timestamp="2007-12-04T20:07:54+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="150684005" lat="49.5518138" lon="11.0324349" user="matmai" visible="true" timestamp="2007-12-04T20:07:54+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="150684066" lat="49.5391858" lon="11.0302753" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:47+00:00"/>
+  <node id="150721185" lat="49.5009326" lon="11.1326354" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="242080449" lat="49.5693545" lon="11.1276409" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="242080453" lat="49.5699127" lon="11.1311858" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="247050766" lat="49.5231682" lon="11.0677916" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="247059367" lat="49.5173444" lon="11.0846285" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="247078387" lat="49.5274809" lon="11.0665946" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="247078390" lat="49.5268619" lon="11.0615159" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="247078392" lat="49.5256908" lon="11.0649361" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="248960860" lat="49.5462997" lon="11.1190045" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="248960932" lat="49.5453529" lon="11.1257594" user="gypakk" visible="true" timestamp="2008-12-08T13:07:06+00:00"/>
+  <node id="248961219" lat="49.5458148" lon="11.1157536" user="gypakk" visible="true" timestamp="2008-12-08T13:07:07+00:00"/>
+  <node id="248961220" lat="49.5466338" lon="11.1167729" user="gypakk" visible="true" timestamp="2008-12-08T13:07:07+00:00"/>
+  <node id="248961222" lat="49.544991" lon="11.1288321" user="gypakk" visible="true" timestamp="2008-12-08T13:07:06+00:00"/>
+  <node id="248961959" lat="49.5249001" lon="11.0632084" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="248961960" lat="49.5244822" lon="11.0632942" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="248962022" lat="49.5258751" lon="11.0658005" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="248962023" lat="49.5251508" lon="11.0669163" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="249047083" lat="49.5100566" lon="11.1048485" user="keichwa" visible="true" timestamp="2008-12-14T19:22:09+00:00"/>
+  <node id="249348811" lat="49.5226038" lon="11.1475471" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="249348812" lat="49.5207261" lon="11.1466974" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="249348924" lat="49.5431033" lon="11.1339601" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="249497490" lat="49.5061643" lon="11.1195883" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="249497491" lat="49.5087995" lon="11.1097779" user="keichwa" visible="true" timestamp="2008-12-14T19:22:09+00:00"/>
+  <node id="249498100" lat="49.5118545" lon="11.1352524" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="249498101" lat="49.5117263" lon="11.1348834" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="249498102" lat="49.5114143" lon="11.1346516" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="249498103" lat="49.511351" lon="11.1347793" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="249498104" lat="49.5083713" lon="11.1339564" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="249499628" lat="49.5170489" lon="11.145203" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="249499629" lat="49.5146019" lon="11.1384883" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="249724855" lat="49.5182692" lon="11.1466192" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="249742183" lat="49.5303482" lon="11.1433748" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="249742184" lat="49.529741" lon="11.1427482" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="249742185" lat="49.5303482" lon="11.1412634" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="249742186" lat="49.5298468" lon="11.1402506" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="249742187" lat="49.529351" lon="11.1428598" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="249764921" lat="49.5305933" lon="11.0477508" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="249764922" lat="49.5306657" lon="11.0433391" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="249764923" lat="49.5304986" lon="11.0391506" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="249764955" lat="49.52739" lon="11.0596212" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="249764956" lat="49.5267493" lon="11.059132" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="249764957" lat="49.5279917" lon="11.0581621" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="249764958" lat="49.5288942" lon="11.0579046" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="249764959" lat="49.5297187" lon="11.0559562" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="249765014" lat="49.5286825" lon="11.0561279" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="250739934" lat="49.5303475" lon="11.0502138" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="250739935" lat="49.5310327" lon="11.0499305" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="250739936" lat="49.5303642" lon="11.0498018" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="250940002" lat="49.5360814" lon="11.1317198" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="250940003" lat="49.5355968" lon="11.1320975" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="250940004" lat="49.5342042" lon="11.1322348" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="250940005" lat="49.5346722" lon="11.1324236" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:39+00:00"/>
+  <node id="250941805" lat="49.5282463" lon="11.1422706" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="250941806" lat="49.5268062" lon="11.1445086" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="250941807" lat="49.5255666" lon="11.1437297" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="250941808" lat="49.5255554" lon="11.1380477" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="251092462" lat="49.5378607" lon="11.0340788" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="251092463" lat="49.5391071" lon="11.0329529" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="251092464" lat="49.5401653" lon="11.0323521" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="251092469" lat="49.5499057" lon="11.0354077" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="251092470" lat="49.5501229" lon="11.034618" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="252143056" lat="49.549003" lon="11.1165037" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="252143057" lat="49.5489863" lon="11.1171303" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="252143058" lat="49.5491144" lon="11.1174736" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="252143059" lat="49.549532" lon="11.1204949" user="gypakk" visible="true" timestamp="2008-12-08T13:07:07+00:00"/>
+  <node id="252143060" lat="49.5492285" lon="11.1195903" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="252143062" lat="49.5484294" lon="11.116787" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="252143063" lat="49.5463857" lon="11.118392" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="252143064" lat="49.5467365" lon="11.1184349" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="252143829" lat="49.5457159" lon="11.1259455" user="gypakk" visible="true" timestamp="2008-12-08T13:07:06+00:00"/>
+  <node id="252143830" lat="49.545766" lon="11.1229844" user="gypakk" visible="true" timestamp="2008-12-08T13:07:06+00:00"/>
+  <node id="252143834" lat="49.5464998" lon="11.1149297" user="gypakk" visible="true" timestamp="2008-12-08T13:07:07+00:00"/>
+  <node id="252143835" lat="49.5476915" lon="11.1143803" user="gypakk" visible="true" timestamp="2008-12-08T13:07:07+00:00"/>
+  <node id="253716283" lat="49.5891848" lon="11.131188" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="253716284" lat="49.5891017" lon="11.1362352" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="253716285" lat="49.5868978" lon="11.13643" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="254488319" lat="49.5273299" lon="11.0643826" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="254488320" lat="49.5267951" lon="11.0641766" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="254488321" lat="49.5309844" lon="11.0503493" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="257079287" lat="49.5297596" lon="11.0555468" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:42+00:00"/>
+  <node id="257079486" lat="49.5300103" lon="11.0440884" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="257079487" lat="49.530339" lon="11.0440455" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="257079488" lat="49.5394186" lon="11.0321923" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="258394920" lat="49.5683247" lon="11.0315171" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="258394928" lat="49.5709521" lon="11.0396029" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="258394931" lat="49.5696075" lon="11.0314798" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:04+00:00"/>
+  <node id="258394933" lat="49.57005" lon="11.0401266" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="258405916" lat="49.5579789" lon="11.0335216" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="260202889" lat="49.5706085" lon="11.0376752" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="260934265" lat="49.5170035" lon="11.1451312" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="260934732" lat="49.5132477" lon="11.0941306" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:41+00:00"/>
+  <node id="261117429" lat="49.5454297" lon="11.0293229" user="watschel" visible="true" timestamp="2008-05-01T21:15:33+01:00"/>
+  <node id="261117430" lat="49.5453239" lon="11.0292542" user="watschel" visible="true" timestamp="2008-05-01T21:15:33+01:00"/>
+  <node id="261117431" lat="49.5453517" lon="11.0288687" user="rsl" visible="true" timestamp="2008-10-10T22:59:11+01:00"/>
+  <node id="261117432" lat="49.544547" lon="11.0288403" user="rsl" visible="true" timestamp="2008-10-10T22:59:11+01:00"/>
+  <node id="261117433" lat="49.5444829" lon="11.0292628" user="watschel" visible="true" timestamp="2008-05-01T21:15:33+01:00"/>
+  <node id="261560645" lat="49.5485547" lon="11.1182685" user="gypakk" visible="true" timestamp="2008-12-08T13:07:07+00:00"/>
+  <node id="261560646" lat="49.5491533" lon="11.1108952" user="gypakk" visible="true" timestamp="2008-12-08T13:07:07+00:00"/>
+  <node id="261618226" lat="49.5467615" lon="11.1189036" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="261618383" lat="49.5494341" lon="11.120578" user="gypakk" visible="true" timestamp="2008-12-08T13:07:07+00:00"/>
+  <node id="261618384" lat="49.5480702" lon="11.1151957" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="261618401" lat="49.5501974" lon="11.1122392" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="261632299" lat="49.5879951" lon="11.1170098" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261632300" lat="49.5876735" lon="11.1131797" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261632301" lat="49.5880641" lon="11.1208728" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261632302" lat="49.5889963" lon="11.1207774" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261632303" lat="49.5892945" lon="11.1045937" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261632304" lat="49.5883897" lon="11.1032585" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261632305" lat="49.5885466" lon="11.1061452" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261632306" lat="49.5880119" lon="11.1056949" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261632553" lat="49.5907389" lon="11.1011009" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261632554" lat="49.5894369" lon="11.1003423" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261655047" lat="49.5882169" lon="11.130881" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="261655049" lat="49.5835935" lon="11.1514762" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="261655050" lat="49.583256" lon="11.1522566" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="261655052" lat="49.578488" lon="11.1606077" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="261655053" lat="49.5769137" lon="11.1594447" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="261655055" lat="49.5765513" lon="11.1583885" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="261655057" lat="49.5757259" lon="11.1620713" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="261655059" lat="49.575163" lon="11.161216" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="261696984" lat="49.5736074" lon="11.1473916" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="261696985" lat="49.5730508" lon="11.1457208" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="261696986" lat="49.5724238" lon="11.1446771" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="261696987" lat="49.5721046" lon="11.1425086" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="261696988" lat="49.572303" lon="11.1421541" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="261697014" lat="49.5701181" lon="11.1227649" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="261697015" lat="49.5692249" lon="11.1208793" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="261697016" lat="49.5699366" lon="11.12004" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="261697017" lat="49.5683891" lon="11.11828" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="261697018" lat="49.5682069" lon="11.1201923" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="261697019" lat="49.5672062" lon="11.1201068" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="261697020" lat="49.5668297" lon="11.1176164" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267533029" lat="49.5515781" lon="11.1146314" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="267533032" lat="49.55375" lon="11.1134972" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267533034" lat="49.5528185" lon="11.1134196" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:38+00:00"/>
+  <node id="267534173" lat="49.5600216" lon="11.1141674" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267534174" lat="49.5632834" lon="11.1171288" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267534175" lat="49.56291" lon="11.1164948" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267534181" lat="49.559911" lon="11.1129579" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267534182" lat="49.5594698" lon="11.1085676" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267534186" lat="49.5589558" lon="11.1160944" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267534196" lat="49.5538257" lon="11.1118409" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267534197" lat="49.5545744" lon="11.1106842" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267535226" lat="49.569144" lon="11.1202392" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267535227" lat="49.5660955" lon="11.1175905" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267535228" lat="49.5649648" lon="11.1178924" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267535229" lat="49.5658672" lon="11.1181692" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267535230" lat="49.5646873" lon="11.1165768" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267535246" lat="49.5698382" lon="11.1212668" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267535247" lat="49.5705867" lon="11.1281065" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267535248" lat="49.5692463" lon="11.1269188" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267535567" lat="49.5695486" lon="11.1295207" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="267535570" lat="49.5687785" lon="11.1277884" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267537121" lat="49.5693761" lon="11.1390793" user="kam" visible="true" timestamp="2008-12-06T20:30:42+00:00"/>
+  <node id="267537122" lat="49.5696551" lon="11.1323062" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="267537123" lat="49.5695496" lon="11.1364059" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="267537125" lat="49.5697252" lon="11.1334383" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="267537142" lat="49.5712105" lon="11.1247401" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267537143" lat="49.570365" lon="11.1232226" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267537144" lat="49.569807" lon="11.1231049" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267537145" lat="49.5690545" lon="11.1237964" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267537147" lat="49.568249" lon="11.1240068" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267537148" lat="49.5697576" lon="11.1239772" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267537149" lat="49.5683228" lon="11.1225517" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:36+00:00"/>
+  <node id="267539231" lat="49.5712939" lon="11.1553664" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267539237" lat="49.5704357" lon="11.1573752" user="frosty409" visible="true" timestamp="2008-11-02T19:00:33+00:00"/>
+  <node id="267539240" lat="49.5704638" lon="11.1555819" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="267539242" lat="49.5725393" lon="11.1574646" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="267539245" lat="49.5730738" lon="11.1601592" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="267539246" lat="49.574685" lon="11.1611205" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="267539267" lat="49.5705596" lon="11.1403616" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="267551317" lat="49.5713768" lon="11.1544819" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267551320" lat="49.5736916" lon="11.1536911" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267551321" lat="49.5734975" lon="11.1541613" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267551322" lat="49.5723341" lon="11.1509258" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267551323" lat="49.5736296" lon="11.1518241" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267551324" lat="49.5729173" lon="11.1506608" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267551326" lat="49.5729492" lon="11.1523771" user="kam" visible="true" timestamp="2008-12-06T15:53:07+00:00"/>
+  <node id="267551327" lat="49.5732815" lon="11.15237" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267551332" lat="49.5711839" lon="11.1531971" user="kam" visible="true" timestamp="2008-12-07T12:40:59+00:00"/>
+  <node id="267552827" lat="49.5719008" lon="11.1576993" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="267552833" lat="49.5544784" lon="11.1101" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267552987" lat="49.5543644" lon="11.1092478" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267602391" lat="49.5602933" lon="11.1109812" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267602418" lat="49.570355" lon="11.1399018" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="267602419" lat="49.5710523" lon="11.1388423" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="267602425" lat="49.5696822" lon="11.141467" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="267602426" lat="49.5698232" lon="11.1408081" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="267602427" lat="49.5728425" lon="11.1474466" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267602432" lat="49.575182" lon="11.1583368" user="kam" visible="true" timestamp="2008-12-06T15:53:02+00:00"/>
+  <node id="267602433" lat="49.575485" lon="11.1581155" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="267602434" lat="49.5768347" lon="11.1591057" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="267602435" lat="49.5754987" lon="11.1586661" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="267602436" lat="49.5762801" lon="11.1587456" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="267602437" lat="49.5807314" lon="11.1538649" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="267602438" lat="49.5761241" lon="11.1582084" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="267602439" lat="49.5746141" lon="11.1556063" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="267602440" lat="49.5744063" lon="11.1563796" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="267602441" lat="49.5740218" lon="11.1557561" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="267602442" lat="49.5807319" lon="11.1554555" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="267968290" lat="49.5598847" lon="11.1151654" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267968291" lat="49.5590459" lon="11.1150657" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:37+00:00"/>
+  <node id="267977866" lat="49.5783172" lon="11.1574506" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="267977867" lat="49.5788402" lon="11.1573208" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:32+00:00"/>
+  <node id="267978395" lat="49.5732943" lon="11.1605902" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:33+00:00"/>
+  <node id="267978396" lat="49.5732031" lon="11.1615997" user="LonelyPixel" visible="true" timestamp="2008-12-28T19:24:22+00:00">
+    <tag k="created_by" v="Merkaartor 0.12"/>
+  </node>
+  <node id="267978397" lat="49.5737658" lon="11.1482356" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267978398" lat="49.5740347" lon="11.1492085" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267978399" lat="49.5741891" lon="11.1484333" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="267978400" lat="49.5735106" lon="11.1482236" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="268008852" lat="49.5692194" lon="11.1413857" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:35+00:00"/>
+  <node id="268183951" lat="49.5866335" lon="11.0587843" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="268535317" lat="49.5251955" lon="11.1378109" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="268535318" lat="49.5249649" lon="11.138185" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="268535319" lat="49.5234773" lon="11.1423478" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="268535385" lat="49.528422" lon="11.1418071" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="268535386" lat="49.5278076" lon="11.1422205" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:40+00:00"/>
+  <node id="276068932" lat="49.5886811" lon="11.050298" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="276068933" lat="49.5877235" lon="11.0540353" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:30+00:00"/>
+  <node id="276798025" lat="49.5511431" lon="11.0303835" user="keichwa" visible="true" timestamp="2008-07-06T22:05:06+01:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="276807439" lat="49.5818502" lon="11.0334278" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:05+00:00"/>
+  <node id="276807440" lat="49.5748602" lon="11.0316461" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:04+00:00"/>
+  <node id="276807445" lat="49.5785243" lon="11.0325726" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:05+00:00"/>
+  <node id="276810388" lat="49.587762" lon="11.0347493" user="vokatatoschm" visible="true" timestamp="2008-12-10T18:35:05+00:00"/>
+  <node id="279813202" lat="49.549203" lon="11.0372404" user="willikl" visible="true" timestamp="2008-07-20T16:43:16+01:00"/>
+  <node id="279813205" lat="49.5499506" lon="11.0363123" user="willikl" visible="true" timestamp="2008-07-20T16:43:16+01:00"/>
+  <node id="280009978" lat="49.5731283" lon="11.1523391" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:34+00:00"/>
+  <node id="288590254" lat="49.5387801" lon="11.0306296" user="little star" visible="true" timestamp="2008-08-16T22:58:29+01:00"/>
+  <node id="291618528" lat="49.5396946" lon="11.0274699" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:15+00:00"/>
+  <node id="291618529" lat="49.5397734" lon="11.0279765" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:15+00:00"/>
+  <node id="291618554" lat="49.5400583" lon="11.0287599" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:15+00:00"/>
+  <node id="291618555" lat="49.540742" lon="11.0298067" user="disasterarea" visible="true" timestamp="2008-10-27T10:09:15+00:00"/>
+  <node id="291618558" lat="49.540124" lon="11.0302389" user="matmai" visible="true" timestamp="2008-08-27T17:57:55+01:00"/>
+  <node id="291620166" lat="49.534848" lon="11.0326418" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="291620167" lat="49.5355955" lon="11.0328624" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:43+00:00"/>
+  <node id="303644980" lat="49.5439939" lon="11.028935" user="rsl" visible="true" timestamp="2008-11-16T23:45:35+00:00"/>
+  <node id="303644999" lat="49.5434273" lon="11.0283579" user="rsl" visible="true" timestamp="2008-11-16T23:45:34+00:00"/>
+  <node id="303645005" lat="49.5436777" lon="11.0283579" user="rsl" visible="true" timestamp="2008-11-16T23:45:33+00:00"/>
+  <node id="303645010" lat="49.5436777" lon="11.028935" user="rsl" visible="true" timestamp="2008-11-16T23:45:34+00:00"/>
+  <node id="305779266" lat="49.588577" lon="11.0916961" user="disasterarea" visible="true" timestamp="2008-10-26T07:11:31+00:00"/>
+  <node id="307610353" lat="49.5404757" lon="11.0326209" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610354" lat="49.5403198" lon="11.0326466" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610355" lat="49.5403086" lon="11.0322518" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610356" lat="49.5394955" lon="11.0320801" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610357" lat="49.539774" lon="11.0311446" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610358" lat="49.5399856" lon="11.0307498" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610359" lat="49.5402697" lon="11.0304837" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610360" lat="49.5408823" lon="11.0303979" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:54+00:00"/>
+  <node id="307610379" lat="49.5496592" lon="11.0305695" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610380" lat="49.5496982" lon="11.0311703" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610381" lat="49.5502495" lon="11.0311274" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610382" lat="49.5504388" lon="11.0313935" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610383" lat="49.5504611" lon="11.0318141" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610384" lat="49.5503831" lon="11.0321059" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610385" lat="49.5501604" lon="11.0322261" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610386" lat="49.5498597" lon="11.0324235" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610387" lat="49.5496648" lon="11.0327668" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610388" lat="49.5487125" lon="11.0329985" user="disasterarea" visible="true" timestamp="2008-10-26T07:10:55+00:00"/>
+  <node id="307610683" lat="49.5407765" lon="11.0296426" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610684" lat="49.5403142" lon="11.0289559" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610685" lat="49.5400079" lon="11.0283036" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610686" lat="49.5398631" lon="11.02772" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610687" lat="49.5398631" lon="11.0272908" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610688" lat="49.5411886" lon="11.0275998" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610689" lat="49.5416286" lon="11.0280547" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610690" lat="49.5419238" lon="11.0282607" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610691" lat="49.5424473" lon="11.0284323" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="307610692" lat="49.5431602" lon="11.0284667" user="disasterarea" visible="true" timestamp="2008-10-26T07:12:28+00:00"/>
+  <node id="308050734" lat="49.5875957" lon="11.1469888" user="B76" visible="true" timestamp="2008-10-27T19:19:32+00:00"/>
+  <node id="311187051" lat="49.5541362" lon="11.0155182" user="rsl" visible="true" timestamp="2008-11-10T21:58:03+00:00"/>
+  <node id="311187055" lat="49.5535639" lon="11.0155629" user="rsl" visible="true" timestamp="2008-11-10T21:58:03+00:00"/>
+  <node id="311187057" lat="49.5535192" lon="11.0163051" user="rsl" visible="true" timestamp="2008-11-10T21:58:03+00:00"/>
+  <node id="311187061" lat="49.5514895" lon="11.0165018" user="rsl" visible="true" timestamp="2008-11-10T21:58:03+00:00"/>
+  <node id="311187066" lat="49.5514716" lon="11.0167968" user="rsl" visible="true" timestamp="2008-11-10T21:58:04+00:00"/>
+  <node id="311187070" lat="49.5509972" lon="11.0167775" user="rsl" visible="true" timestamp="2008-11-23T17:41:24+00:00"/>
+  <node id="311187075" lat="49.5510001" lon="11.0172751" user="rsl" visible="true" timestamp="2008-11-23T17:41:23+00:00"/>
+  <node id="311187081" lat="49.5496241" lon="11.0175005" user="rsl" visible="true" timestamp="2008-11-23T17:41:24+00:00"/>
+  <node id="311187087" lat="49.5497638" lon="11.0186566" user="rsl" visible="true" timestamp="2008-11-10T21:58:05+00:00"/>
+  <node id="311187093" lat="49.5501662" lon="11.0194345" user="rsl" visible="true" timestamp="2008-11-10T21:58:06+00:00"/>
+  <node id="311187098" lat="49.5503539" lon="11.0207042" user="rsl" visible="true" timestamp="2008-11-10T21:58:07+00:00"/>
+  <node id="311187102" lat="49.5504791" lon="11.0209546" user="rsl" visible="true" timestamp="2008-11-10T21:58:07+00:00"/>
+  <node id="311187106" lat="49.549843" lon="11.0238165" user="rsl" visible="true" timestamp="2008-11-10T21:58:07+00:00"/>
+  <node id="311187109" lat="49.5495403" lon="11.0239321" user="rsl" visible="true" timestamp="2008-11-10T21:58:08+00:00"/>
+  <node id="311187113" lat="49.548825" lon="11.0254074" user="rsl" visible="true" timestamp="2008-11-10T21:58:08+00:00"/>
+  <node id="311187116" lat="49.5486282" lon="11.0272136" user="rsl" visible="true" timestamp="2008-11-10T21:58:08+00:00"/>
+  <node id="311187126" lat="49.5500678" lon="11.0302179" user="rsl" visible="true" timestamp="2008-11-10T21:58:10+00:00"/>
+  <node id="311187129" lat="49.550272" lon="11.0311342" user="rsl" visible="true" timestamp="2008-11-10T21:58:10+00:00"/>
+  <node id="311187134" lat="49.5513414" lon="11.0310764" user="rsl" visible="true" timestamp="2008-11-10T21:58:11+00:00"/>
+  <node id="311187137" lat="49.551546" lon="11.0300691" user="rsl" visible="true" timestamp="2008-11-23T18:45:11+00:00"/>
+  <node id="311187140" lat="49.5524732" lon="11.0298549" user="rsl" visible="true" timestamp="2008-11-23T18:45:12+00:00"/>
+  <node id="311187144" lat="49.5528159" lon="11.0291398" user="rsl" visible="true" timestamp="2008-11-21T17:48:33+00:00"/>
+  <node id="311187149" lat="49.5537845" lon="11.029366" user="rsl" visible="true" timestamp="2008-11-21T17:48:33+00:00"/>
+  <node id="311187152" lat="49.5540378" lon="11.028519" user="rsl" visible="true" timestamp="2008-11-10T21:58:13+00:00"/>
+  <node id="311187158" lat="49.5549945" lon="11.0282061" user="rsl" visible="true" timestamp="2008-11-10T21:58:14+00:00"/>
+  <node id="311187165" lat="49.555075" lon="11.0270169" user="rsl" visible="true" timestamp="2008-11-10T21:58:14+00:00"/>
+  <node id="311187172" lat="49.5561301" lon="11.0264893" user="rsl" visible="true" timestamp="2008-11-10T21:58:15+00:00"/>
+  <node id="311187178" lat="49.5575339" lon="11.0237801" user="rsl" visible="true" timestamp="2008-11-10T21:58:16+00:00"/>
+  <node id="311187184" lat="49.5573372" lon="11.0223047" user="rsl" visible="true" timestamp="2008-11-10T21:58:16+00:00"/>
+  <node id="311187193" lat="49.5570958" lon="11.0213033" user="rsl" visible="true" timestamp="2008-11-10T21:58:17+00:00"/>
+  <node id="311187199" lat="49.556291" lon="11.0195061" user="rsl" visible="true" timestamp="2008-11-10T21:58:17+00:00"/>
+  <node id="311187207" lat="49.5550392" lon="11.017074" user="rsl" visible="true" timestamp="2008-11-10T21:58:18+00:00"/>
+  <node id="311187213" lat="49.5503613" lon="11.022178" user="rsl" visible="true" timestamp="2008-11-10T21:58:18+00:00"/>
+  <node id="311187219" lat="49.5501694" lon="11.0222478" user="rsl" visible="true" timestamp="2008-11-10T21:58:19+00:00"/>
+  <node id="311190541" lat="49.5444527" lon="11.028433" user="rsl" visible="true" timestamp="2008-11-10T22:12:05+00:00"/>
+  <node id="312081365" lat="49.5444536" lon="11.0281772" user="rsl" visible="true" timestamp="2008-11-14T23:24:12+00:00"/>
+  <node id="312087797" lat="49.5488857" lon="11.0195345" user="rsl" visible="true" timestamp="2008-11-23T17:41:22+00:00"/>
+  <node id="312087798" lat="49.5488079" lon="11.0196853" user="rsl" visible="true" timestamp="2008-11-19T18:43:25+00:00"/>
+  <node id="312087802" lat="49.5483844" lon="11.0197269" user="rsl" visible="true" timestamp="2008-11-19T18:43:26+00:00"/>
+  <node id="312087803" lat="49.548389" lon="11.0200305" user="rsl" visible="true" timestamp="2008-11-19T18:43:26+00:00"/>
+  <node id="312087804" lat="49.5482208" lon="11.0199834" user="rsl" visible="true" timestamp="2008-11-19T18:43:25+00:00"/>
+  <node id="312087806" lat="49.5480628" lon="11.0200005" user="rsl" visible="true" timestamp="2008-11-19T18:43:25+00:00"/>
+  <node id="312087809" lat="49.547834" lon="11.0195318" user="rsl" visible="true" timestamp="2008-11-19T18:43:24+00:00"/>
+  <node id="312087811" lat="49.5457396" lon="11.0272552" user="rsl" visible="true" timestamp="2008-11-16T23:35:15+00:00"/>
+  <node id="312087812" lat="49.5485447" lon="11.0240569" user="rsl" visible="true" timestamp="2008-11-15T00:10:38+00:00"/>
+  <node id="312087813" lat="49.5488839" lon="11.0227118" user="rsl" visible="true" timestamp="2008-11-15T00:10:38+00:00"/>
+  <node id="312087814" lat="49.5490385" lon="11.0217451" user="rsl" visible="true" timestamp="2008-11-15T00:10:38+00:00"/>
+  <node id="312087815" lat="49.5489359" lon="11.0211474" user="rsl" visible="true" timestamp="2008-11-15T00:10:39+00:00"/>
+  <node id="312087816" lat="49.5489739" lon="11.0209909" user="rsl" visible="true" timestamp="2008-11-15T00:10:39+00:00"/>
+  <node id="312087817" lat="49.5489432" lon="11.0200813" user="rsl" visible="true" timestamp="2008-11-15T00:10:39+00:00"/>
+  <node id="312660653" lat="49.5455658" lon="11.0227789" user="rsl" visible="true" timestamp="2008-11-25T17:56:04+00:00"/>
+  <node id="312660654" lat="49.5462769" lon="11.0226729" user="rsl" visible="true" timestamp="2008-11-25T17:56:03+00:00"/>
+  <node id="312660655" lat="49.5455427" lon="11.0235548" user="rsl" visible="true" timestamp="2008-11-25T17:56:04+00:00"/>
+  <node id="312660656" lat="49.5459718" lon="11.0248375" user="rsl" visible="true" timestamp="2008-11-16T23:35:11+00:00"/>
+  <node id="312660657" lat="49.5461162" lon="11.0262638" user="rsl" visible="true" timestamp="2008-11-16T23:35:11+00:00"/>
+  <node id="312660658" lat="49.5455989" lon="11.0263923" user="rsl" visible="true" timestamp="2008-11-16T23:35:11+00:00"/>
+  <node id="312660669" lat="49.5471974" lon="11.0268353" user="rsl" visible="true" timestamp="2008-11-17T00:25:28+00:00"/>
+  <node id="312660685" lat="49.5457774" lon="11.0228122" user="rsl" visible="true" timestamp="2008-11-25T17:56:03+00:00"/>
+  <node id="312670080" lat="49.5480742" lon="11.0249462" user="rsl" visible="true" timestamp="2008-11-17T00:25:27+00:00"/>
+  <node id="312670081" lat="49.5474137" lon="11.0244025" user="rsl" visible="true" timestamp="2008-11-17T00:25:27+00:00"/>
+  <node id="312670082" lat="49.5469258" lon="11.0257097" user="rsl" visible="true" timestamp="2008-11-17T00:25:27+00:00"/>
+  <node id="313421748" lat="49.548072" lon="11.0266443" user="rsl" visible="true" timestamp="2008-11-21T00:13:36+00:00"/>
+  <node id="313421749" lat="49.5478878" lon="11.0268573" user="rsl" visible="true" timestamp="2008-11-21T00:13:36+00:00"/>
+  <node id="313421750" lat="49.547692" lon="11.0270126" user="rsl" visible="true" timestamp="2008-11-21T00:13:36+00:00"/>
+  <node id="313421751" lat="49.5475394" lon="11.0273321" user="rsl" visible="true" timestamp="2008-11-21T00:13:37+00:00"/>
+  <node id="313421752" lat="49.5474099" lon="11.0276027" user="rsl" visible="true" timestamp="2008-11-21T00:13:37+00:00"/>
+  <node id="313421753" lat="49.5473523" lon="11.0278557" user="rsl" visible="true" timestamp="2008-11-21T00:13:37+00:00"/>
+  <node id="313421754" lat="49.5473753" lon="11.0282861" user="rsl" visible="true" timestamp="2008-11-21T00:13:37+00:00"/>
+  <node id="313421755" lat="49.5474588" lon="11.0289694" user="rsl" visible="true" timestamp="2008-11-21T00:13:38+00:00"/>
+  <node id="313421758" lat="49.5480747" lon="11.0266012" user="rsl" visible="true" timestamp="2008-11-21T00:13:38+00:00"/>
+  <node id="313542103" lat="49.5466565" lon="11.0222473" user="rsl" visible="true" timestamp="2008-11-25T17:56:05+00:00"/>
+  <node id="313962809" lat="49.5491312" lon="11.0194944" user="rsl" visible="true" timestamp="2008-11-23T17:41:10+00:00"/>
+  <node id="313962810" lat="49.549137" lon="11.0200264" user="rsl" visible="true" timestamp="2008-11-23T17:41:11+00:00"/>
+  <node id="313962811" lat="49.5496964" lon="11.0181967" user="rsl" visible="true" timestamp="2008-11-23T17:41:11+00:00"/>
+  <node id="313962813" lat="49.5492743" lon="11.0182367" user="rsl" visible="true" timestamp="2008-11-23T17:41:11+00:00"/>
+  <node id="313962814" lat="49.5490255" lon="11.0168027" user="rsl" visible="true" timestamp="2008-11-25T17:50:39+00:00"/>
+  <node id="313962815" lat="49.5487587" lon="11.0161178" user="rsl" visible="true" timestamp="2008-11-25T17:50:39+00:00"/>
+  <node id="313962816" lat="49.5486535" lon="11.016144" user="rsl" visible="true" timestamp="2008-11-25T17:50:39+00:00"/>
+  <node id="313962817" lat="49.5487473" lon="11.0168332" user="rsl" visible="true" timestamp="2008-11-25T17:50:39+00:00"/>
+  <node id="313962818" lat="49.5488074" lon="11.0181548" user="rsl" visible="true" timestamp="2008-11-25T17:50:38+00:00"/>
+  <node id="313962819" lat="49.5489414" lon="11.0195143" user="rsl" visible="true" timestamp="2008-11-25T17:50:38+00:00"/>
+  <node id="313962820" lat="49.5491418" lon="11.0194776" user="rsl" visible="true" timestamp="2008-11-23T17:41:13+00:00"/>
+  <node id="313962821" lat="49.5491481" lon="11.02005" user="rsl" visible="true" timestamp="2008-11-23T17:41:13+00:00"/>
+  <node id="313962822" lat="49.5489753" lon="11.020086" user="rsl" visible="true" timestamp="2008-11-23T17:41:13+00:00"/>
+  <node id="313962823" lat="49.5490055" lon="11.0210215" user="rsl" visible="true" timestamp="2008-11-23T17:41:13+00:00"/>
+  <node id="313962824" lat="49.5490714" lon="11.0217552" user="rsl" visible="true" timestamp="2008-11-23T17:41:14+00:00"/>
+  <node id="313962825" lat="49.5489205" lon="11.0227366" user="rsl" visible="true" timestamp="2008-11-23T17:41:14+00:00"/>
+  <node id="313962826" lat="49.5485711" lon="11.0240968" user="rsl" visible="true" timestamp="2008-11-23T17:41:14+00:00"/>
+  <node id="313962827" lat="49.5480843" lon="11.0249813" user="rsl" visible="true" timestamp="2008-11-23T17:41:14+00:00"/>
+  <node id="313962828" lat="49.5474229" lon="11.0244661" user="rsl" visible="true" timestamp="2008-11-23T17:41:15+00:00"/>
+  <node id="313962830" lat="49.5469844" lon="11.0256357" user="rsl" visible="true" timestamp="2008-11-23T17:41:15+00:00"/>
+  <node id="313962831" lat="49.5472768" lon="11.026748" user="rsl" visible="true" timestamp="2008-11-23T17:41:15+00:00"/>
+  <node id="313962832" lat="49.5472564" lon="11.0286137" user="rsl" visible="true" timestamp="2008-11-23T17:41:16+00:00"/>
+  <node id="313962839" lat="49.5485988" lon="11.0271943" user="rsl" visible="true" timestamp="2008-11-23T17:41:18+00:00"/>
+  <node id="313962841" lat="49.5487886" lon="11.0253927" user="rsl" visible="true" timestamp="2008-11-23T17:41:18+00:00"/>
+  <node id="313962843" lat="49.5495159" lon="11.0239046" user="rsl" visible="true" timestamp="2008-11-23T17:41:18+00:00"/>
+  <node id="313962845" lat="49.5498123" lon="11.0237856" user="rsl" visible="true" timestamp="2008-11-23T17:41:18+00:00"/>
+  <node id="313962847" lat="49.5501456" lon="11.0222166" user="rsl" visible="true" timestamp="2008-11-23T17:41:19+00:00"/>
+  <node id="313962849" lat="49.5503289" lon="11.0221518" user="rsl" visible="true" timestamp="2008-11-23T17:41:19+00:00"/>
+  <node id="313962851" lat="49.5504608" lon="11.02096" user="rsl" visible="true" timestamp="2008-11-23T17:41:19+00:00"/>
+  <node id="313962853" lat="49.5503306" lon="11.020713" user="rsl" visible="true" timestamp="2008-11-23T17:41:19+00:00"/>
+  <node id="313962854" lat="49.5501412" lon="11.0194497" user="rsl" visible="true" timestamp="2008-11-23T17:41:20+00:00"/>
+  <node id="313962855" lat="49.5497405" lon="11.0186636" user="rsl" visible="true" timestamp="2008-11-23T17:41:20+00:00"/>
+  <node id="313962857" lat="49.5489668" lon="11.0211655" user="rsl" visible="true" timestamp="2008-11-23T17:41:20+00:00"/>
+  <node id="313962858" lat="49.5497318" lon="11.0181309" user="rsl" visible="true" timestamp="2008-11-23T17:41:21+00:00"/>
+  <node id="313962859" lat="49.5495922" lon="11.0181453" user="rsl" visible="true" timestamp="2008-11-23T17:41:21+00:00"/>
+  <node id="313962861" lat="49.5503676" lon="11.0173277" user="rsl" visible="true" timestamp="2008-11-23T17:41:21+00:00"/>
+  <node id="313980712" lat="49.5513581" lon="11.0304454" user="rsl" visible="true" timestamp="2008-11-23T18:45:08+00:00"/>
+  <node id="313980716" lat="49.5514168" lon="11.0306284" user="rsl" visible="true" timestamp="2008-11-23T18:45:09+00:00"/>
+  <node id="314679648" lat="49.5480658" lon="11.0199873" user="rsl" visible="true" timestamp="2008-11-25T17:50:36+00:00"/>
+  <node id="314679650" lat="49.5478401" lon="11.0195217" user="rsl" visible="true" timestamp="2008-11-25T17:50:36+00:00"/>
+  <node id="314679652" lat="49.5482461" lon="11.0192469" user="rsl" visible="true" timestamp="2008-11-25T17:50:36+00:00"/>
+  <node id="314679654" lat="49.5489103" lon="11.0191088" user="rsl" visible="true" timestamp="2008-11-25T17:50:36+00:00"/>
+  <node id="314679656" lat="49.5487618" lon="11.0191204" user="rsl" visible="true" timestamp="2008-11-25T17:50:37+00:00"/>
+  <node id="314679658" lat="49.5483774" lon="11.019724" user="rsl" visible="true" timestamp="2008-11-25T17:50:37+00:00"/>
+  <node id="314679660" lat="49.5483844" lon="11.0200219" user="rsl" visible="true" timestamp="2008-11-25T17:50:37+00:00"/>
+  <node id="314679661" lat="49.548218" lon="11.0199765" user="rsl" visible="true" timestamp="2008-11-25T17:50:37+00:00"/>
+  <node id="314679663" lat="49.5488048" lon="11.0196728" user="rsl" visible="true" timestamp="2008-11-25T17:50:37+00:00"/>
+  <node id="314679665" lat="49.5488807" lon="11.0195244" user="rsl" visible="true" timestamp="2008-11-25T17:50:37+00:00"/>
+  <node id="314679667" lat="49.5479556" lon="11.019481" user="rsl" visible="true" timestamp="2008-11-25T17:50:38+00:00"/>
+  <node id="314679669" lat="49.5478726" lon="11.0194508" user="rsl" visible="true" timestamp="2008-11-25T17:50:38+00:00"/>
+  <node id="314679671" lat="49.5484881" lon="11.0191522" user="rsl" visible="true" timestamp="2008-11-25T17:50:38+00:00"/>
+  <node id="316659800" lat="49.5461231" lon="11.0290063" user="rsl" visible="true" timestamp="2008-12-04T17:34:13+00:00"/>
+  <node id="316659801" lat="49.5460494" lon="11.0291388" user="rsl" visible="true" timestamp="2008-12-04T17:34:13+00:00"/>
+  <node id="316968417" lat="49.573213" lon="11.1550524" user="kam" visible="true" timestamp="2008-12-06T15:52:27+00:00"/>
+  <node id="316968418" lat="49.5722073" lon="11.1550658" user="kam" visible="true" timestamp="2008-12-06T15:52:28+00:00"/>
+  <node id="316968420" lat="49.5716832" lon="11.1526132" user="kam" visible="true" timestamp="2008-12-07T12:40:57+00:00"/>
+  <node id="316968422" lat="49.5724945" lon="11.1524032" user="kam" visible="true" timestamp="2008-12-06T15:52:30+00:00"/>
+  <node id="316968439" lat="49.5746035" lon="11.1566745" user="kam" visible="true" timestamp="2008-12-06T15:52:39+00:00"/>
+  <node id="316968441" lat="49.5746827" lon="11.1568009" user="kam" visible="true" timestamp="2008-12-06T15:52:40+00:00"/>
+  <node id="316968442" lat="49.57473" lon="11.1569802" user="kam" visible="true" timestamp="2008-12-06T15:52:40+00:00"/>
+  <node id="317167278" lat="49.5726858" lon="11.1549256" user="kam" visible="true" timestamp="2008-12-07T12:29:09+00:00"/>
+  <node id="317167280" lat="49.573052" lon="11.1549459" user="kam" visible="true" timestamp="2008-12-07T12:29:10+00:00"/>
+  <node id="317168797" lat="49.5714572" lon="11.1528345" user="kam" visible="true" timestamp="2008-12-07T12:40:57+00:00"/>
+  <node id="317671423" lat="49.5658022" lon="11.0742908" user="rsl" visible="true" timestamp="2008-12-09T23:09:49+00:00"/>
+  <node id="317671424" lat="49.5649711" lon="11.0637183" user="rsl" visible="true" timestamp="2008-12-09T23:09:50+00:00"/>
+  <node id="317671425" lat="49.567906" lon="11.0604745" user="rsl" visible="true" timestamp="2008-12-09T23:09:50+00:00"/>
+  <node id="317671426" lat="49.5666334" lon="11.0510634" user="rsl" visible="true" timestamp="2008-12-09T23:09:50+00:00"/>
+  <node id="317671427" lat="49.5632567" lon="11.0458973" user="rsl" visible="true" timestamp="2008-12-09T23:09:50+00:00"/>
+  <node id="317671428" lat="49.5665814" lon="11.0432142" user="rsl" visible="true" timestamp="2008-12-09T23:09:50+00:00"/>
+  <node id="317671429" lat="49.5641659" lon="11.0339232" user="rsl" visible="true" timestamp="2008-12-09T23:09:50+00:00"/>
+  <node id="317671430" lat="49.5605293" lon="11.0350445" user="rsl" visible="true" timestamp="2008-12-09T23:09:51+00:00"/>
+  <node id="317671431" lat="49.5599318" lon="11.0335227" user="rsl" visible="true" timestamp="2008-12-09T23:09:51+00:00"/>
+  <node id="317671432" lat="49.5553337" lon="11.0342035" user="rsl" visible="true" timestamp="2008-12-09T23:09:51+00:00"/>
+  <node id="317671433" lat="49.5505274" lon="11.0348443" user="rsl" visible="true" timestamp="2008-12-09T23:09:51+00:00"/>
+  <node id="317671434" lat="49.5496959" lon="11.0360457" user="rsl" visible="true" timestamp="2008-12-09T23:09:51+00:00"/>
+  <node id="317671437" lat="49.5426023" lon="11.0415322" user="rsl" visible="true" timestamp="2008-12-09T23:09:52+00:00"/>
+  <node id="317671438" lat="49.5396398" lon="11.0467784" user="rsl" visible="true" timestamp="2008-12-09T23:09:52+00:00"/>
+  <node id="317671439" lat="49.53925" lon="11.0564698" user="rsl" visible="true" timestamp="2008-12-09T23:09:52+00:00"/>
+  <node id="317671440" lat="49.5395087" lon="11.0730381" user="rsl" visible="true" timestamp="2008-12-09T23:38:49+00:00"/>
+  <node id="317671441" lat="49.539807" lon="11.0794666" user="rsl" visible="true" timestamp="2008-12-09T23:38:48+00:00"/>
+  <node id="317671442" lat="49.5442496" lon="11.0753594" user="rsl" visible="true" timestamp="2008-12-09T23:09:53+00:00"/>
+  <node id="317671443" lat="49.553744" lon="11.0738275" user="rsl" visible="true" timestamp="2008-12-09T23:09:53+00:00"/>
+  <node id="317671444" lat="49.5617891" lon="11.0842018" user="rsl" visible="true" timestamp="2008-12-09T23:09:53+00:00"/>
+  <node id="317671445" lat="49.5661268" lon="11.038271" user="rsl" visible="true" timestamp="2008-12-09T23:09:53+00:00"/>
+  <node id="318720548" lat="49.5333881" lon="11.1421656" user="keichwa" visible="true" timestamp="2008-12-14T19:33:55+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="318720549" lat="49.5329156" lon="11.1436217" user="keichwa" visible="true" timestamp="2008-12-14T19:33:55+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="318720550" lat="49.5337069" lon="11.1425175" user="keichwa" visible="true" timestamp="2008-12-14T19:33:56+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="318720551" lat="49.531697" lon="11.1443114" user="keichwa" visible="true" timestamp="2008-12-14T19:33:56+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="318720552" lat="49.5312233" lon="11.1446174" user="keichwa" visible="true" timestamp="2008-12-14T19:33:56+00:00">
+    <tag k="created_by" v="JOSM"/>
+  </node>
+  <node id="319834128" lat="49.5743024" lon="11.1615192" user="LonelyPixel" visible="true" timestamp="2008-12-18T22:09:49+00:00">
+    <tag k="created_by" v="Merkaartor 0.12"/>
+  </node>
+  <node id="320032722" lat="49.5742763" lon="11.1621679" user="LonelyPixel" visible="true" timestamp="2008-12-19T20:01:28+00:00">
+    <tag k="created_by" v="Merkaartor 0.12"/>
+  </node>
+  <node id="321421213" lat="49.5710915" lon="11.1577456" user="kam" visible="true" timestamp="2008-12-24T08:37:26+00:00"/>
+  <way id="4275158" visible="true" timestamp="2008-11-18T23:19:11+00:00" user="rsl">
+    <nd ref="24487287"/>
+    <nd ref="313086900"/>
+    <nd ref="24487289"/>
+    <nd ref="311190541"/>
+    <nd ref="312081365"/>
+    <nd ref="24797444"/>
+    <tag k="highway" v="secondary"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="name" v="Wetterkreuz"/>
+  </way>
+  <way id="4400947" visible="true" timestamp="2008-08-27T18:00:26+01:00" user="matmai">
+    <nd ref="8851296"/>
+    <nd ref="116017648"/>
+    <nd ref="8851297"/>
+    <nd ref="30782872"/>
+    <nd ref="8851298"/>
+    <nd ref="150684000"/>
+    <nd ref="30782879"/>
+    <nd ref="8851299"/>
+    <nd ref="150683992"/>
+    <nd ref="30782865"/>
+    <nd ref="8851300"/>
+    <nd ref="30782870"/>
+    <nd ref="8851301"/>
+    <nd ref="8851302"/>
+    <nd ref="150684011"/>
+    <nd ref="30782833"/>
+    <nd ref="291618561"/>
+    <nd ref="291618564"/>
+    <nd ref="8851303"/>
+    <nd ref="116017646"/>
+    <nd ref="8851495"/>
+    <nd ref="150684066"/>
+    <nd ref="8851496"/>
+    <tag k="oneway" v="yes"/>
+    <tag k="name" v="Äußere Nürnberger Straße"/>
+    <tag k="maxspeed" v="100"/>
+    <tag k="highway" v="primary"/>
+    <tag k="created_by" v="Potlatch 0.10b"/>
+  </way>
+  <way id="4599637" visible="true" timestamp="2008-12-24T08:37:33+00:00" user="kam">
+    <nd ref="276810388"/>
+    <nd ref="29084177"/>
+    <nd ref="276068932"/>
+    <nd ref="276068933"/>
+    <nd ref="268183951"/>
+    <nd ref="34080164"/>
+    <nd ref="29084172"/>
+    <nd ref="34080160"/>
+    <nd ref="34080158"/>
+    <nd ref="34080120"/>
+    <nd ref="34080119"/>
+    <nd ref="29084181"/>
+    <nd ref="34080118"/>
+    <nd ref="29084179"/>
+    <nd ref="34080117"/>
+    <nd ref="305779266"/>
+    <nd ref="34080116"/>
+    <nd ref="29084183"/>
+    <nd ref="261632554"/>
+    <nd ref="261632553"/>
+    <nd ref="29084200"/>
+    <nd ref="261632303"/>
+    <nd ref="261632304"/>
+    <nd ref="261632306"/>
+    <nd ref="261632305"/>
+    <nd ref="29084203"/>
+    <nd ref="261632300"/>
+    <nd ref="261632299"/>
+    <nd ref="29084215"/>
+    <nd ref="261632302"/>
+    <nd ref="261632301"/>
+    <nd ref="29084212"/>
+    <nd ref="29084221"/>
+    <nd ref="261655047"/>
+    <nd ref="253716283"/>
+    <nd ref="253716284"/>
+    <nd ref="253716285"/>
+    <nd ref="29084224"/>
+    <nd ref="29084227"/>
+    <nd ref="308050734"/>
+    <nd ref="29084229"/>
+    <nd ref="261655049"/>
+    <nd ref="261655050"/>
+    <nd ref="29084235"/>
+    <nd ref="267602437"/>
+    <nd ref="267602442"/>
+    <nd ref="29084240"/>
+    <nd ref="267977867"/>
+    <nd ref="267977866"/>
+    <nd ref="36262284"/>
+    <nd ref="29084238"/>
+    <nd ref="261655055"/>
+    <nd ref="267602438"/>
+    <nd ref="267602433"/>
+    <nd ref="267602439"/>
+    <nd ref="267602441"/>
+    <nd ref="267602440"/>
+    <nd ref="316968439"/>
+    <nd ref="316968441"/>
+    <nd ref="316968442"/>
+    <nd ref="267602432"/>
+    <nd ref="267602435"/>
+    <nd ref="267602436"/>
+    <nd ref="267602434"/>
+    <nd ref="261655053"/>
+    <nd ref="261655052"/>
+    <nd ref="29084246"/>
+    <nd ref="261655057"/>
+    <nd ref="261655059"/>
+    <nd ref="267539246"/>
+    <nd ref="319834128"/>
+    <nd ref="29084245"/>
+    <nd ref="320032722"/>
+    <nd ref="267978396"/>
+    <nd ref="267978395"/>
+    <nd ref="267539245"/>
+    <nd ref="267539242"/>
+    <nd ref="267552827"/>
+    <nd ref="36256701"/>
+    <nd ref="321421213"/>
+    <nd ref="267539237"/>
+    <nd ref="29084242"/>
+    <nd ref="267539240"/>
+    <nd ref="267539231"/>
+    <nd ref="267551317"/>
+    <nd ref="267551332"/>
+    <nd ref="317168797"/>
+    <nd ref="316968420"/>
+    <nd ref="316968418"/>
+    <nd ref="317167278"/>
+    <nd ref="317167280"/>
+    <nd ref="316968417"/>
+    <nd ref="267551321"/>
+    <nd ref="267551320"/>
+    <nd ref="267551327"/>
+    <nd ref="280009978"/>
+    <nd ref="267551326"/>
+    <nd ref="316968422"/>
+    <nd ref="267551322"/>
+    <nd ref="267551324"/>
+    <nd ref="267551323"/>
+    <nd ref="29084231"/>
+    <nd ref="267978398"/>
+    <nd ref="267978399"/>
+    <nd ref="267978397"/>
+    <nd ref="267978400"/>
+    <nd ref="267602427"/>
+    <nd ref="261696984"/>
+    <nd ref="261696985"/>
+    <nd ref="261696986"/>
+    <nd ref="261696987"/>
+    <nd ref="261696988"/>
+    <nd ref="29084234"/>
+    <nd ref="267602419"/>
+    <nd ref="267602418"/>
+    <nd ref="267539267"/>
+    <nd ref="267602425"/>
+    <nd ref="268008852"/>
+    <nd ref="267602426"/>
+    <nd ref="267537121"/>
+    <nd ref="29084220"/>
+    <nd ref="267537123"/>
+    <nd ref="267537125"/>
+    <nd ref="267537122"/>
+    <nd ref="242080453"/>
+    <nd ref="267535567"/>
+    <nd ref="267535570"/>
+    <nd ref="242080449"/>
+    <nd ref="267535248"/>
+    <nd ref="267535247"/>
+    <nd ref="29084217"/>
+    <nd ref="267537142"/>
+    <nd ref="267537143"/>
+    <nd ref="267537144"/>
+    <nd ref="267537148"/>
+    <nd ref="267537145"/>
+    <nd ref="267537147"/>
+    <nd ref="267537149"/>
+    <nd ref="261697014"/>
+    <nd ref="267535246"/>
+    <nd ref="261697015"/>
+    <nd ref="267535226"/>
+    <nd ref="261697016"/>
+    <nd ref="29084209"/>
+    <nd ref="261697017"/>
+    <nd ref="261697018"/>
+    <nd ref="261697019"/>
+    <nd ref="261697020"/>
+    <nd ref="267535227"/>
+    <nd ref="267535229"/>
+    <nd ref="267535228"/>
+    <nd ref="267535230"/>
+    <nd ref="267534174"/>
+    <nd ref="267534175"/>
+    <nd ref="29084207"/>
+    <nd ref="267534186"/>
+    <nd ref="267968291"/>
+    <nd ref="267968290"/>
+    <nd ref="267534173"/>
+    <nd ref="267534181"/>
+    <nd ref="267602391"/>
+    <nd ref="29084205"/>
+    <nd ref="267534182"/>
+    <nd ref="29084248"/>
+    <nd ref="267552987"/>
+    <nd ref="267552833"/>
+    <nd ref="267534197"/>
+    <nd ref="267534196"/>
+    <nd ref="267533032"/>
+    <nd ref="267533034"/>
+    <nd ref="29084251"/>
+    <nd ref="267533029"/>
+    <nd ref="261618401"/>
+    <nd ref="261560646"/>
+    <nd ref="29084263"/>
+    <nd ref="252143056"/>
+    <nd ref="252143057"/>
+    <nd ref="252143058"/>
+    <nd ref="252143059"/>
+    <nd ref="261618383"/>
+    <nd ref="252143060"/>
+    <nd ref="261560645"/>
+    <nd ref="252143062"/>
+    <nd ref="261618384"/>
+    <nd ref="252143835"/>
+    <nd ref="252143834"/>
+    <nd ref="248961219"/>
+    <nd ref="248961220"/>
+    <nd ref="252143063"/>
+    <nd ref="252143064"/>
+    <nd ref="261618226"/>
+    <nd ref="248960860"/>
+    <nd ref="29084265"/>
+    <nd ref="252143830"/>
+    <nd ref="248960932"/>
+    <nd ref="252143829"/>
+    <nd ref="248961222"/>
+    <nd ref="29084267"/>
+    <nd ref="249348924"/>
+    <nd ref="71098153"/>
+    <nd ref="71098167"/>
+    <nd ref="71098161"/>
+    <nd ref="29084258"/>
+    <nd ref="71098093"/>
+    <nd ref="250940002"/>
+    <nd ref="250940003"/>
+    <nd ref="71098104"/>
+    <nd ref="71098115"/>
+    <nd ref="250940004"/>
+    <nd ref="250940005"/>
+    <nd ref="71098145"/>
+    <nd ref="71098124"/>
+    <nd ref="71098135"/>
+    <nd ref="71089896"/>
+    <nd ref="71089904"/>
+    <nd ref="71089900"/>
+    <nd ref="318720548"/>
+    <nd ref="318720550"/>
+    <nd ref="318720549"/>
+    <nd ref="29084269"/>
+    <nd ref="318720551"/>
+    <nd ref="318720552"/>
+    <nd ref="249742183"/>
+    <nd ref="249742184"/>
+    <nd ref="249742185"/>
+    <nd ref="249742186"/>
+    <nd ref="249742187"/>
+    <nd ref="268535385"/>
+    <nd ref="250941805"/>
+    <nd ref="268535386"/>
+    <nd ref="250941806"/>
+    <nd ref="250941807"/>
+    <nd ref="250941808"/>
+    <nd ref="268535317"/>
+    <nd ref="268535318"/>
+    <nd ref="29084271"/>
+    <nd ref="57705468"/>
+    <nd ref="268535319"/>
+    <nd ref="57705473"/>
+    <nd ref="249348811"/>
+    <nd ref="57705483"/>
+    <nd ref="57705487"/>
+    <nd ref="57705479"/>
+    <nd ref="249348812"/>
+    <nd ref="29084276"/>
+    <nd ref="249724855"/>
+    <nd ref="249499628"/>
+    <nd ref="260934265"/>
+    <nd ref="29084274"/>
+    <nd ref="249499629"/>
+    <nd ref="249498100"/>
+    <nd ref="249498101"/>
+    <nd ref="249498102"/>
+    <nd ref="249498103"/>
+    <nd ref="29084279"/>
+    <nd ref="249498104"/>
+    <nd ref="29084281"/>
+    <nd ref="150721185"/>
+    <nd ref="29084255"/>
+    <nd ref="249497490"/>
+    <nd ref="29084252"/>
+    <nd ref="249497491"/>
+    <nd ref="249047083"/>
+    <nd ref="29084260"/>
+    <nd ref="260934732"/>
+    <nd ref="36142222"/>
+    <nd ref="247059367"/>
+    <nd ref="36142221"/>
+    <nd ref="29084185"/>
+    <nd ref="247050766"/>
+    <nd ref="248961960"/>
+    <nd ref="248961959"/>
+    <nd ref="49923276"/>
+    <nd ref="247078392"/>
+    <nd ref="248962022"/>
+    <nd ref="248962023"/>
+    <nd ref="49923281"/>
+    <nd ref="247078387"/>
+    <nd ref="254488319"/>
+    <nd ref="254488320"/>
+    <nd ref="247078390"/>
+    <nd ref="249764955"/>
+    <nd ref="249764956"/>
+    <nd ref="49923284"/>
+    <nd ref="249764957"/>
+    <nd ref="249764958"/>
+    <nd ref="249765014"/>
+    <nd ref="249764959"/>
+    <nd ref="257079287"/>
+    <nd ref="250739934"/>
+    <nd ref="254488321"/>
+    <nd ref="250739935"/>
+    <nd ref="250739936"/>
+    <nd ref="249764921"/>
+    <nd ref="49923268"/>
+    <nd ref="257079486"/>
+    <nd ref="257079487"/>
+    <nd ref="249764922"/>
+    <nd ref="249764923"/>
+    <nd ref="49923273"/>
+    <nd ref="291620166"/>
+    <nd ref="291620167"/>
+    <nd ref="29084196"/>
+    <nd ref="251092462"/>
+    <nd ref="251092463"/>
+    <nd ref="257079488"/>
+    <nd ref="251092464"/>
+    <nd ref="29084170"/>
+    <nd ref="250381248"/>
+    <nd ref="307610564"/>
+    <nd ref="307610565"/>
+    <nd ref="307610566"/>
+    <nd ref="250381249"/>
+    <nd ref="250738108"/>
+    <nd ref="250738109"/>
+    <nd ref="250738110"/>
+    <nd ref="29084191"/>
+    <nd ref="251092465"/>
+    <nd ref="251092466"/>
+    <nd ref="251092467"/>
+    <nd ref="251092468"/>
+    <nd ref="251092469"/>
+    <nd ref="251092470"/>
+    <nd ref="29084193"/>
+    <nd ref="258405916"/>
+    <nd ref="258394920"/>
+    <nd ref="258394933"/>
+    <nd ref="258394928"/>
+    <nd ref="260202889"/>
+    <nd ref="29084188"/>
+    <nd ref="258394931"/>
+    <nd ref="12452104"/>
+    <nd ref="36814051"/>
+    <nd ref="21317477"/>
+    <nd ref="21971288"/>
+    <nd ref="276807440"/>
+    <nd ref="29084175"/>
+    <nd ref="12452106"/>
+    <nd ref="276807445"/>
+    <nd ref="12452108"/>
+    <nd ref="25928582"/>
+    <nd ref="26841333"/>
+    <nd ref="276807439"/>
+    <nd ref="12452109"/>
+    <nd ref="276810388"/>
+    <tag k="source" v="yahoo"/>
+    <tag k="landuse" v="forest"/>
+    <tag k="created_by" v="Merkaartor 0.12"/>
+  </way>
+  <way id="4797801" visible="true" timestamp="2008-10-27T10:09:15+00:00" user="disasterarea">
+    <nd ref="8851303"/>
+    <nd ref="24669291"/>
+    <nd ref="291618555"/>
+    <nd ref="24669285"/>
+    <nd ref="291618554"/>
+    <nd ref="291618529"/>
+    <nd ref="291618528"/>
+    <nd ref="24669288"/>
+    <nd ref="24669294"/>
+    <tag k="highway" v="motorway_link"/>
+    <tag k="created_by" v="Potlatch 0.10e"/>
+    <tag k="oneway" v="yes"/>
+  </way>
+  <way id="4797804" visible="true" timestamp="2007-12-12T23:11:46+00:00" user="matmai">
+    <nd ref="8851302"/>
+    <nd ref="30782825"/>
+    <nd ref="30782827"/>
+    <nd ref="30782829"/>
+    <nd ref="30782831"/>
+    <nd ref="30782832"/>
+    <tag k="highway" v="primary_link"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="oneway" v="yes"/>
+  </way>
+  <way id="4797805" visible="true" timestamp="2007-12-12T23:11:46+00:00" user="matmai">
+    <nd ref="30782832"/>
+    <nd ref="24669296"/>
+    <nd ref="24669302"/>
+    <nd ref="30782834"/>
+    <nd ref="30782833"/>
+    <tag k="highway" v="primary_link"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="oneway" v="yes"/>
+  </way>
+  <way id="4797806" visible="true" timestamp="2008-04-12T16:57:44+01:00" user="keichwa">
+    <nd ref="24487276"/>
+    <nd ref="24487277"/>
+    <nd ref="24487279"/>
+    <nd ref="24487301"/>
+    <nd ref="24487281"/>
+    <nd ref="24487283"/>
+    <tag k="created_by" v="Potlatch 0.8a"/>
+    <tag k="highway" v="primary_link"/>
+  </way>
+  <way id="4797807" visible="true" timestamp="2008-11-08T00:39:52+00:00" user="rsl">
+    <nd ref="30782832"/>
+    <nd ref="24487287"/>
+    <tag k="traffic_sign" v="z254"/>
+    <tag k="bicycle" v="no"/>
+    <tag k="name" v="Sebastianstraße"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="highway" v="primary_link"/>
+  </way>
+  <way id="4797808" visible="true" timestamp="2008-08-27T18:00:27+01:00" user="matmai">
+    <nd ref="24487276"/>
+    <nd ref="30782821"/>
+    <nd ref="30782822"/>
+    <nd ref="291618563"/>
+    <nd ref="30782823"/>
+    <nd ref="15159478"/>
+    <tag k="highway" v="primary_link"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="oneway" v="yes"/>
+  </way>
+  <way id="4797809" visible="true" timestamp="2008-08-27T18:00:29+01:00" user="matmai">
+    <nd ref="24487299"/>
+    <nd ref="24487274"/>
+    <nd ref="24487275"/>
+    <nd ref="291618562"/>
+    <nd ref="24487276"/>
+    <tag k="highway" v="primary_link"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="oneway" v="yes"/>
+  </way>
+  <way id="4797813" visible="true" timestamp="2007-12-12T23:11:47+00:00" user="matmai">
+    <nd ref="24487283"/>
+    <nd ref="24487285"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="highway" v="primary_link"/>
+    <tag k="bridge" v="yes"/>
+    <tag k="layer" v="2"/>
+  </way>
+  <way id="4797814" visible="true" timestamp="2007-12-12T23:11:47+00:00" user="matmai">
+    <nd ref="24487285"/>
+    <nd ref="24487287"/>
+    <tag k="highway" v="primary_link"/>
+    <tag k="created_by" v="JOSM"/>
+  </way>
+  <way id="4898866" visible="true" timestamp="2007-07-15T15:17:57+01:00" user="waschbaer">
+    <nd ref="31923027"/>
+    <nd ref="31923029"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="highway" v="footway"/>
+  </way>
+  <way id="4900826" visible="true" timestamp="2008-11-30T17:33:04+00:00" user="rsl">
+    <nd ref="29812640"/>
+    <nd ref="29812641"/>
+    <nd ref="29812642"/>
+    <nd ref="29812643"/>
+    <tag k="motorcar" v="destination"/>
+    <tag k="name" v="Hutgraben"/>
+    <tag k="maxspeed" v="30"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="motorcycle" v="destination"/>
+    <tag k="highway" v="residential"/>
+  </way>
+  <way id="4907030" visible="true" timestamp="2007-07-16T21:06:31+01:00" user="waschbaer">
+    <nd ref="24668989"/>
+    <nd ref="31923029"/>
+    <nd ref="31923032"/>
+    <tag k="highway" v="residential"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="name" v="Am Winkelfeld"/>
+  </way>
+  <way id="4907031" visible="true" timestamp="2007-07-16T20:58:04+01:00" user="waschbaer">
+    <nd ref="31923022"/>
+    <nd ref="31923023"/>
+    <nd ref="31923025"/>
+    <nd ref="31923027"/>
+    <tag k="name" v="Falknersweg"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="highway" v="residential"/>
+  </way>
+  <way id="8028579" visible="true" timestamp="2007-09-28T08:34:10+01:00" user="audifahrer">
+    <nd ref="24668950"/>
+    <nd ref="60011256"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="highway" v="service"/>
+  </way>
+  <way id="16246462" visible="true" timestamp="2008-07-06T22:05:10+01:00" user="keichwa">
+    <nd ref="24487287"/>
+    <nd ref="24668950"/>
+    <nd ref="24668989"/>
+    <nd ref="24669255"/>
+    <nd ref="24669260"/>
+    <nd ref="29812643"/>
+    <nd ref="24669258"/>
+    <nd ref="31923009"/>
+    <nd ref="24669274"/>
+    <nd ref="24669282"/>
+    <nd ref="276798025"/>
+    <tag k="created_by" v="JOSM"/>
+    <tag k="name" v="Sebastianstraße"/>
+    <tag k="highway" v="secondary"/>
+  </way>
+  <way id="23212855" visible="true" timestamp="2008-07-20T16:44:27+01:00" user="willikl">
+    <nd ref="146707989"/>
+    <nd ref="251092677"/>
+    <tag k="highway" v="track"/>
+    <tag k="tracktype" v="grade2"/>
+  </way>
+  <way id="23737316" visible="true" timestamp="2008-08-27T18:00:24+01:00" user="matmai">
+    <nd ref="24487279"/>
+    <nd ref="257079758"/>
+    <tag k="tracktype" v="grade2"/>
+    <tag k="highway" v="track"/>
+  </way>
+  <way id="23737335" visible="true" timestamp="2008-07-20T16:44:29+01:00" user="willikl">
+    <nd ref="257079756"/>
+    <nd ref="257079757"/>
+    <nd ref="257079758"/>
+    <nd ref="257079760"/>
+    <nd ref="257079761"/>
+    <nd ref="257079762"/>
+    <nd ref="257079764"/>
+    <nd ref="257079765"/>
+    <nd ref="257079766"/>
+    <nd ref="251092677"/>
+    <tag k="tracktype" v="grade2"/>
+    <tag k="highway" v="track"/>
+  </way>
+  <way id="24070961" visible="true" timestamp="2008-05-01T21:15:33+01:00" user="watschel">
+    <nd ref="261117429"/>
+    <nd ref="261117430"/>
+    <nd ref="261117431"/>
+    <nd ref="261117432"/>
+    <nd ref="261117433"/>
+    <nd ref="261117434"/>
+    <nd ref="261117435"/>
+    <nd ref="60011256"/>
+    <nd ref="261117436"/>
+    <nd ref="261117429"/>
+    <tag k="created_by" v="Potlatch 0.8c"/>
+    <tag k="amenity" v="parking"/>
+  </way>
+  <way id="25666879" visible="true" timestamp="2008-07-20T16:43:21+01:00" user="willikl">
+    <nd ref="251092677"/>
+    <nd ref="279813186"/>
+    <nd ref="279813188"/>
+    <nd ref="279813189"/>
+    <nd ref="279813191"/>
+    <nd ref="279813193"/>
+    <nd ref="279813195"/>
+    <nd ref="279813197"/>
+    <nd ref="279813198"/>
+    <nd ref="279813200"/>
+    <nd ref="279813202"/>
+    <nd ref="279813205"/>
+    <tag k="highway" v="track"/>
+    <tag k="tracktype" v="grade3"/>
+  </way>
+  <way id="26341272" visible="true" timestamp="2008-09-08T21:20:03+01:00" user="matmai">
+    <nd ref="288590254"/>
+    <nd ref="15160774"/>
+    <nd ref="291618558"/>
+    <nd ref="15159471"/>
+    <nd ref="116017642"/>
+    <nd ref="15159473"/>
+    <nd ref="291618565"/>
+    <nd ref="24487299"/>
+    <nd ref="150684016"/>
+    <nd ref="15159478"/>
+    <nd ref="15159477"/>
+    <nd ref="30782867"/>
+    <nd ref="15159475"/>
+    <nd ref="30782862"/>
+    <nd ref="150683985"/>
+    <nd ref="15159483"/>
+    <nd ref="30782876"/>
+    <nd ref="150684005"/>
+    <nd ref="15159481"/>
+    <nd ref="30782874"/>
+    <nd ref="15159480"/>
+    <nd ref="116017653"/>
+    <nd ref="15159486"/>
+    <tag k="highway" v="primary"/>
+    <tag k="oneway" v="yes"/>
+    <tag k="created_by" v="Potlatch 0.10b"/>
+    <tag k="name" v="Äußere Nürnberger Straße"/>
+    <tag k="maxspeed" v="100"/>
+  </way>
+  <way id="27647531" visible="true" timestamp="2008-11-16T23:45:35+00:00" user="rsl">
+    <nd ref="303644980"/>
+    <nd ref="303644982"/>
+    <nd ref="303644993"/>
+    <nd ref="303644999"/>
+    <nd ref="303645005"/>
+    <nd ref="303645010"/>
+    <nd ref="303644980"/>
+    <tag k="building" v="yes"/>
+    <tag k="source" v="yahoo"/>
+  </way>
+  <way id="28012376" visible="true" timestamp="2008-10-26T07:10:55+00:00" user="disasterarea">
+    <nd ref="307610335"/>
+    <nd ref="307610336"/>
+    <nd ref="307610337"/>
+    <nd ref="307610338"/>
+    <nd ref="307610339"/>
+    <nd ref="307610340"/>
+    <nd ref="307610341"/>
+    <nd ref="307610342"/>
+    <nd ref="307610343"/>
+    <nd ref="307610344"/>
+    <nd ref="307610345"/>
+    <nd ref="307610346"/>
+    <nd ref="307610347"/>
+    <nd ref="307610348"/>
+    <nd ref="307610349"/>
+    <nd ref="307610350"/>
+    <nd ref="307610351"/>
+    <nd ref="307610352"/>
+    <nd ref="307610353"/>
+    <nd ref="307610354"/>
+    <nd ref="307610355"/>
+    <nd ref="307610356"/>
+    <nd ref="307610357"/>
+    <nd ref="307610358"/>
+    <nd ref="307610359"/>
+    <nd ref="307610360"/>
+    <nd ref="307610361"/>
+    <nd ref="307610362"/>
+    <nd ref="307610363"/>
+    <nd ref="307610364"/>
+    <nd ref="307610365"/>
+    <nd ref="307610366"/>
+    <nd ref="307610367"/>
+    <nd ref="307610368"/>
+    <nd ref="307610369"/>
+    <nd ref="307610370"/>
+    <nd ref="307610371"/>
+    <nd ref="307610372"/>
+    <nd ref="307610373"/>
+    <nd ref="307610374"/>
+    <nd ref="307610375"/>
+    <nd ref="307610376"/>
+    <nd ref="307610377"/>
+    <nd ref="307610378"/>
+    <nd ref="307610379"/>
+    <nd ref="307610380"/>
+    <nd ref="307610381"/>
+    <nd ref="307610382"/>
+    <nd ref="307610383"/>
+    <nd ref="307610384"/>
+    <nd ref="307610385"/>
+    <nd ref="307610386"/>
+    <nd ref="307610387"/>
+    <nd ref="307610388"/>
+    <nd ref="307610335"/>
+    <tag k="created_by" v="Potlatch 0.10e"/>
+    <tag k="landuse" v="farm"/>
+  </way>
+  <way id="28012401" visible="true" timestamp="2008-10-26T07:12:28+00:00" user="disasterarea">
+    <nd ref="307610677"/>
+    <nd ref="307610678"/>
+    <nd ref="307610679"/>
+    <nd ref="307610680"/>
+    <nd ref="307610681"/>
+    <nd ref="307610682"/>
+    <nd ref="307610683"/>
+    <nd ref="307610684"/>
+    <nd ref="307610685"/>
+    <nd ref="307610686"/>
+    <nd ref="307610687"/>
+    <nd ref="307610688"/>
+    <nd ref="307610689"/>
+    <nd ref="307610690"/>
+    <nd ref="307610691"/>
+    <nd ref="307610692"/>
+    <nd ref="307610693"/>
+    <nd ref="307610677"/>
+    <tag k="landuse" v="farm"/>
+    <tag k="created_by" v="Potlatch 0.10e"/>
+  </way>
+  <way id="28335963" visible="true" timestamp="2008-11-23T18:45:13+00:00" user="rsl">
+    <nd ref="311187051"/>
+    <nd ref="311187055"/>
+    <nd ref="311187057"/>
+    <nd ref="311187061"/>
+    <nd ref="311187066"/>
+    <nd ref="311187070"/>
+    <nd ref="311187075"/>
+    <nd ref="313962861"/>
+    <nd ref="311187081"/>
+    <nd ref="313962859"/>
+    <nd ref="313962858"/>
+    <nd ref="311187087"/>
+    <nd ref="311187093"/>
+    <nd ref="311187098"/>
+    <nd ref="311187102"/>
+    <nd ref="311187213"/>
+    <nd ref="311187219"/>
+    <nd ref="311187106"/>
+    <nd ref="311187109"/>
+    <nd ref="311187113"/>
+    <nd ref="311187116"/>
+    <nd ref="311187120"/>
+    <nd ref="311187123"/>
+    <nd ref="311187126"/>
+    <nd ref="311187129"/>
+    <nd ref="311187134"/>
+    <nd ref="313980716"/>
+    <nd ref="313980712"/>
+    <nd ref="311187137"/>
+    <nd ref="311187140"/>
+    <nd ref="311187144"/>
+    <nd ref="311187149"/>
+    <nd ref="311187152"/>
+    <nd ref="311187158"/>
+    <nd ref="311187165"/>
+    <nd ref="311187172"/>
+    <nd ref="311187178"/>
+    <nd ref="311187184"/>
+    <nd ref="311187193"/>
+    <nd ref="311187199"/>
+    <nd ref="311187207"/>
+    <nd ref="311187051"/>
+    <tag k="source" v="yahoo"/>
+    <tag k="landuse" v="residential"/>
+  </way>
+  <way id="28336488" visible="true" timestamp="2008-11-10T22:15:52+00:00" user="rsl">
+    <nd ref="311191025"/>
+    <nd ref="311191034"/>
+    <nd ref="311191037"/>
+    <nd ref="311191029"/>
+    <nd ref="311191025"/>
+    <tag k="building" v="yes"/>
+  </way>
+  <way id="28410870" visible="true" timestamp="2008-11-25T17:56:05+00:00" user="rsl">
+    <nd ref="312087797"/>
+    <nd ref="312087798"/>
+    <nd ref="312087802"/>
+    <nd ref="312087803"/>
+    <nd ref="312087804"/>
+    <nd ref="312087806"/>
+    <nd ref="312087809"/>
+    <nd ref="313542103"/>
+    <nd ref="312660654"/>
+    <nd ref="312660685"/>
+    <nd ref="312660653"/>
+    <nd ref="312660655"/>
+    <nd ref="312660656"/>
+    <nd ref="312660657"/>
+    <nd ref="312660658"/>
+    <nd ref="312087811"/>
+    <nd ref="312660659"/>
+    <nd ref="312660661"/>
+    <nd ref="312660664"/>
+    <nd ref="312660683"/>
+    <nd ref="312660680"/>
+    <nd ref="312660677"/>
+    <nd ref="312660675"/>
+    <nd ref="313965212"/>
+    <nd ref="313965211"/>
+    <nd ref="312660672"/>
+    <nd ref="312660667"/>
+    <nd ref="312660669"/>
+    <nd ref="312670082"/>
+    <nd ref="312670081"/>
+    <nd ref="312670080"/>
+    <nd ref="312087812"/>
+    <nd ref="312087813"/>
+    <nd ref="312087814"/>
+    <nd ref="312087815"/>
+    <nd ref="312087816"/>
+    <nd ref="312087817"/>
+    <nd ref="313962810"/>
+    <nd ref="313962809"/>
+    <nd ref="312087797"/>
+    <tag k="landuse" v="residential"/>
+  </way>
+  <way id="28499621" visible="true" timestamp="2008-11-18T23:19:11+00:00" user="rsl">
+    <nd ref="313086900"/>
+    <nd ref="313086901"/>
+    <tag k="service" v="driveway"/>
+    <tag k="highway" v="service"/>
+  </way>
+  <way id="28532506" visible="true" timestamp="2008-11-21T00:13:49+00:00" user="rsl">
+    <nd ref="313421771"/>
+    <nd ref="313421772"/>
+    <tag k="waterway" v="stream"/>
+  </way>
+  <way id="28532515" visible="true" timestamp="2008-11-21T00:13:57+00:00" user="rsl">
+    <nd ref="313421772"/>
+    <nd ref="313421770"/>
+    <tag k="tunnel" v="yes"/>
+    <tag k="waterway" v="stream"/>
+    <tag k="layer" v="-1"/>
+  </way>
+  <way id="28532516" visible="true" timestamp="2008-11-24T19:13:06+00:00" user="rsl">
+    <nd ref="313421770"/>
+    <nd ref="313421769"/>
+    <nd ref="313421768"/>
+    <nd ref="313421767"/>
+    <tag k="waterway" v="stream"/>
+    <tag k="name" v="Hutgraben"/>
+  </way>
+  <way id="28532517" visible="true" timestamp="2008-11-21T00:13:58+00:00" user="rsl">
+    <nd ref="313421767"/>
+    <nd ref="313421756"/>
+    <tag k="waterway" v="stream"/>
+    <tag k="tunnel" v="yes"/>
+    <tag k="layer" v="-1"/>
+  </way>
+  <way id="28532518" visible="true" timestamp="2008-11-24T18:39:04+00:00" user="rsl">
+    <nd ref="313421756"/>
+    <nd ref="313421755"/>
+    <nd ref="313421754"/>
+    <nd ref="313421753"/>
+    <nd ref="313421752"/>
+    <nd ref="313421751"/>
+    <nd ref="313421750"/>
+    <nd ref="313421749"/>
+    <nd ref="313421748"/>
+    <nd ref="313421758"/>
+    <tag k="name" v="Hutgraben"/>
+    <tag k="waterway" v="stream"/>
+  </way>
+  <way id="28584396" visible="true" timestamp="2008-11-25T17:50:40+00:00" user="rsl">
+    <nd ref="313962811"/>
+    <nd ref="313962813"/>
+    <nd ref="313962814"/>
+    <nd ref="313962815"/>
+    <nd ref="313962816"/>
+    <nd ref="313962817"/>
+    <nd ref="313962818"/>
+    <nd ref="314679654"/>
+    <nd ref="314679656"/>
+    <nd ref="314679671"/>
+    <nd ref="314679652"/>
+    <nd ref="314679667"/>
+    <nd ref="314679669"/>
+    <nd ref="314679650"/>
+    <nd ref="314679648"/>
+    <nd ref="314679661"/>
+    <nd ref="314679660"/>
+    <nd ref="314679658"/>
+    <nd ref="314679663"/>
+    <nd ref="314679665"/>
+    <nd ref="313962819"/>
+    <nd ref="313962820"/>
+    <nd ref="313962821"/>
+    <nd ref="313962822"/>
+    <nd ref="313962823"/>
+    <nd ref="313962857"/>
+    <nd ref="313962824"/>
+    <nd ref="313962825"/>
+    <nd ref="313962826"/>
+    <nd ref="313962827"/>
+    <nd ref="313962828"/>
+    <nd ref="313962830"/>
+    <nd ref="313962831"/>
+    <nd ref="313962832"/>
+    <nd ref="313962833"/>
+    <nd ref="313962834"/>
+    <nd ref="313962835"/>
+    <nd ref="313962836"/>
+    <nd ref="313962839"/>
+    <nd ref="313962841"/>
+    <nd ref="313962843"/>
+    <nd ref="313962845"/>
+    <nd ref="313962847"/>
+    <nd ref="313962849"/>
+    <nd ref="313962851"/>
+    <nd ref="313962853"/>
+    <nd ref="313962854"/>
+    <nd ref="313962855"/>
+    <nd ref="313962811"/>
+    <tag k="landuse" v="village_green"/>
+  </way>
+  <way id="28800569" visible="true" timestamp="2008-12-04T17:34:15+00:00" user="rsl">
+    <nd ref="316659800"/>
+    <nd ref="316659801"/>
+    <nd ref="316659802"/>
+    <tag k="name" v="Turmhügelweg"/>
+    <tag k="highway" v="footway"/>
+  </way>
+  <way id="28800570" visible="true" timestamp="2008-12-04T17:34:15+00:00" user="rsl">
+    <nd ref="316659802"/>
+    <nd ref="31923032"/>
+    <tag k="name" v="Am Winkelfeld"/>
+    <tag k="highway" v="footway"/>
+  </way>
+  <way id="28900639" visible="true" timestamp="2008-12-19T23:31:58+00:00" user="rsl">
+    <nd ref="317671423"/>
+    <nd ref="317671424"/>
+    <nd ref="317671425"/>
+    <nd ref="317671426"/>
+    <nd ref="317671427"/>
+    <nd ref="317671428"/>
+    <nd ref="317671445"/>
+    <nd ref="317671429"/>
+    <nd ref="317671430"/>
+    <nd ref="317671431"/>
+    <nd ref="317671432"/>
+    <nd ref="317671433"/>
+    <nd ref="317671434"/>
+    <nd ref="317671435"/>
+    <nd ref="317671436"/>
+    <nd ref="317671437"/>
+    <nd ref="317671438"/>
+    <nd ref="317671439"/>
+    <nd ref="317671440"/>
+    <nd ref="317671441"/>
+    <nd ref="317671442"/>
+    <nd ref="317671443"/>
+    <nd ref="317671444"/>
+    <nd ref="317671423"/>
+    <tag k="source" v="bylaw"/>
+    <tag k="note" v="FIXME Doublecheck boundaries"/>
+    <tag k="source_ref" v="Verordnung vom 9.9.1994 mit Anlage"/>
+    <tag k="wikipedia:de" v="Tennenloher_Forst"/>
+    <tag k="leisure" v="nature_reserve"/>
+    <tag k="landuse" v="forest"/>
+    <tag k="reg_ref" v="NSG500.051"/>
+    <tag k="name" v="Naturschutzgebiet Tennenloher Forst"/>
+  </way>
+  <relation id="7505" visible="true" timestamp="2008-11-12T21:43:30+00:00" user="Radfahrer">
+    <member type="way" ref="3639910" role=""/>
+    <member type="way" ref="3645696" role=""/>
+    <member type="way" ref="4047374" role=""/>
+    <member type="way" ref="4237492" role="forward"/>
+    <member type="way" ref="4237493" role="forward"/>
+    <member type="way" ref="4237494" role="forward"/>
+    <member type="way" ref="4275158" role=""/>
+    <member type="way" ref="4898745" role=""/>
+    <member type="way" ref="4898746" role=""/>
+    <member type="way" ref="4898748" role=""/>
+    <member type="way" ref="4900819" role=""/>
+    <member type="way" ref="10573415" role=""/>
+    <member type="way" ref="16246462" role=""/>
+    <member type="way" ref="23316717" role=""/>
+    <member type="way" ref="23316718" role=""/>
+    <member type="way" ref="25305337" role="forward"/>
+    <member type="way" ref="25397621" role=""/>
+    <member type="way" ref="25431533" role=""/>
+    <member type="way" ref="28133238" role=""/>
+    <member type="way" ref="28155881" role="backward"/>
+    <member type="way" ref="28155924" role="backward"/>
+    <member type="way" ref="28312219" role="forward"/>
+    <member type="way" ref="28373287" role="backward"/>
+    <tag k="lcn_ref" v="2"/>
+    <tag k="type" v="route"/>
+    <tag k="network" v="lcn"/>
+    <tag k="created_by" v="Potlatch 0.10f"/>
+    <tag k="route" v="bicycle"/>
+    <tag k="name" v="Erlanger Radroute 2"/>
+  </relation>
+  <relation id="31584" visible="true" timestamp="2008-12-29T12:12:43+00:00" user="Akrisios">
+    <member type="way" ref="2793546" role=""/>
+    <member type="way" ref="3071471" role=""/>
+    <member type="way" ref="3168871" role=""/>
+    <member type="way" ref="3236691" role=""/>
+    <member type="way" ref="3953703" role=""/>
+    <member type="way" ref="3997291" role=""/>
+    <member type="way" ref="3997423" role=""/>
+    <member type="way" ref="4047173" role=""/>
+    <member type="way" ref="4047232" role=""/>
+    <member type="way" ref="4047551" role=""/>
+    <member type="way" ref="4054261" role=""/>
+    <member type="way" ref="4054405" role=""/>
+    <member type="way" ref="4054509" role=""/>
+    <member type="way" ref="4054530" role=""/>
+    <member type="way" ref="4057611" role=""/>
+    <member type="way" ref="4057619" role=""/>
+    <member type="way" ref="4057624" role=""/>
+    <member type="way" ref="4057626" role=""/>
+    <member type="way" ref="4057629" role=""/>
+    <member type="way" ref="4057630" role=""/>
+    <member type="way" ref="4057644" role=""/>
+    <member type="way" ref="4057651" role=""/>
+    <member type="way" ref="4057655" role=""/>
+    <member type="way" ref="4057662" role=""/>
+    <member type="way" ref="4057664" role=""/>
+    <member type="way" ref="4057690" role=""/>
+    <member type="way" ref="4057700" role=""/>
+    <member type="way" ref="4057705" role=""/>
+    <member type="way" ref="4057713" role=""/>
+    <member type="way" ref="4057717" role=""/>
+    <member type="way" ref="4057736" role=""/>
+    <member type="way" ref="4057745" role=""/>
+    <member type="way" ref="4057750" role=""/>
+    <member type="way" ref="4057771" role=""/>
+    <member type="way" ref="4057788" role=""/>
+    <member type="way" ref="4057810" role=""/>
+    <member type="way" ref="4057841" role=""/>
+    <member type="way" ref="4057854" role=""/>
+    <member type="way" ref="4057878" role=""/>
+    <member type="way" ref="4057913" role=""/>
+    <member type="way" ref="4057920" role=""/>
+    <member type="way" ref="4057965" role=""/>
+    <member type="way" ref="4058001" role=""/>
+    <member type="way" ref="4068952" role=""/>
+    <member type="way" ref="4069623" role=""/>
+    <member type="way" ref="4069863" role=""/>
+    <member type="way" ref="4070198" role=""/>
+    <member type="way" ref="4070612" role=""/>
+    <member type="way" ref="4089436" role=""/>
+    <member type="way" ref="4228146" role=""/>
+    <member type="way" ref="4237699" role=""/>
+    <member type="way" ref="4250305" role=""/>
+    <member type="way" ref="4250307" role=""/>
+    <member type="way" ref="4250308" role=""/>
+    <member type="way" ref="4250309" role=""/>
+    <member type="way" ref="4275525" role=""/>
+    <member type="way" ref="4276214" role=""/>
+    <member type="way" ref="4279506" role=""/>
+    <member type="way" ref="4296546" role=""/>
+    <member type="way" ref="4296587" role=""/>
+    <member type="way" ref="4309604" role=""/>
+    <member type="way" ref="4309605" role=""/>
+    <member type="way" ref="4309606" role=""/>
+    <member type="way" ref="4309607" role=""/>
+    <member type="way" ref="4319349" role=""/>
+    <member type="way" ref="4319350" role=""/>
+    <member type="way" ref="4319351" role=""/>
+    <member type="way" ref="4319352" role=""/>
+    <member type="way" ref="4319353" role=""/>
+    <member type="way" ref="4322907" role=""/>
+    <member type="way" ref="4322908" role=""/>
+    <member type="way" ref="4322911" role=""/>
+    <member type="way" ref="4322915" role=""/>
+    <member type="way" ref="4322928" role=""/>
+    <member type="way" ref="4323008" role=""/>
+    <member type="way" ref="4344006" role=""/>
+    <member type="way" ref="4344007" role=""/>
+    <member type="way" ref="4344038" role=""/>
+    <member type="way" ref="4374914" role=""/>
+    <member type="way" ref="4400947" role=""/>
+    <member type="way" ref="4400948" role=""/>
+    <member type="way" ref="4400949" role=""/>
+    <member type="way" ref="4439727" role=""/>
+    <member type="way" ref="4549954" role=""/>
+    <member type="way" ref="4550930" role=""/>
+    <member type="way" ref="4577923" role=""/>
+    <member type="way" ref="4594606" role=""/>
+    <member type="way" ref="4673987" role=""/>
+    <member type="way" ref="4673990" role=""/>
+    <member type="way" ref="4779368" role=""/>
+    <member type="way" ref="4779387" role=""/>
+    <member type="way" ref="4779420" role=""/>
+    <member type="way" ref="4801282" role=""/>
+    <member type="way" ref="4801283" role=""/>
+    <member type="way" ref="4801286" role=""/>
+    <member type="way" ref="4805974" role=""/>
+    <member type="way" ref="4805975" role=""/>
+    <member type="way" ref="4831992" role=""/>
+    <member type="way" ref="4837568" role=""/>
+    <member type="way" ref="4857039" role=""/>
+    <member type="way" ref="4865849" role=""/>
+    <member type="way" ref="4881666" role=""/>
+    <member type="way" ref="4881667" role=""/>
+    <member type="way" ref="4887290" role=""/>
+    <member type="way" ref="4891571" role=""/>
+    <member type="way" ref="4898369" role=""/>
+    <member type="way" ref="4900729" role=""/>
+    <member type="way" ref="4900731" role=""/>
+    <member type="way" ref="4918433" role=""/>
+    <member type="way" ref="4919620" role=""/>
+    <member type="way" ref="4919644" role=""/>
+    <member type="way" ref="4928822" role=""/>
+    <member type="way" ref="4955641" role=""/>
+    <member type="way" ref="4993094" role=""/>
+    <member type="way" ref="4993243" role=""/>
+    <member type="way" ref="4993250" role=""/>
+    <member type="way" ref="5001913" role=""/>
+    <member type="way" ref="5007484" role=""/>
+    <member type="way" ref="5007563" role=""/>
+    <member type="way" ref="5007565" role=""/>
+    <member type="way" ref="5009104" role=""/>
+    <member type="way" ref="5009107" role=""/>
+    <member type="way" ref="5031990" role=""/>
+    <member type="way" ref="5064781" role=""/>
+    <member type="way" ref="5112928" role=""/>
+    <member type="way" ref="5112980" role=""/>
+    <member type="way" ref="5136452" role=""/>
+    <member type="way" ref="5136453" role=""/>
+    <member type="way" ref="5136548" role=""/>
+    <member type="way" ref="5137940" role=""/>
+    <member type="way" ref="5137941" role=""/>
+    <member type="way" ref="5472819" role=""/>
+    <member type="way" ref="5475857" role=""/>
+    <member type="way" ref="5931612" role=""/>
+    <member type="way" ref="6243425" role=""/>
+    <member type="way" ref="6243477" role=""/>
+    <member type="way" ref="7396985" role=""/>
+    <member type="way" ref="7622546" role=""/>
+    <member type="way" ref="7625249" role=""/>
+    <member type="way" ref="7911989" role=""/>
+    <member type="way" ref="7911990" role=""/>
+    <member type="way" ref="7911991" role=""/>
+    <member type="way" ref="7911992" role=""/>
+    <member type="way" ref="7979226" role=""/>
+    <member type="way" ref="7979227" role=""/>
+    <member type="way" ref="7984155" role=""/>
+    <member type="way" ref="7984183" role=""/>
+    <member type="way" ref="8034559" role=""/>
+    <member type="way" ref="8091786" role=""/>
+    <member type="way" ref="8091787" role=""/>
+    <member type="way" ref="8154953" role=""/>
+    <member type="way" ref="8160195" role=""/>
+    <member type="way" ref="8467304" role=""/>
+    <member type="way" ref="8590424" role=""/>
+    <member type="way" ref="10047802" role=""/>
+    <member type="way" ref="10062563" role=""/>
+    <member type="way" ref="10484979" role=""/>
+    <member type="way" ref="10488533" role=""/>
+    <member type="way" ref="10577416" role=""/>
+    <member type="way" ref="10614696" role=""/>
+    <member type="way" ref="10614697" role=""/>
+    <member type="way" ref="10614714" role=""/>
+    <member type="way" ref="10614715" role=""/>
+    <member type="way" ref="10615211" role=""/>
+    <member type="way" ref="10615213" role=""/>
+    <member type="way" ref="10615214" role=""/>
+    <member type="way" ref="10615215" role=""/>
+    <member type="way" ref="10621333" role=""/>
+    <member type="way" ref="10621334" role=""/>
+    <member type="way" ref="10623048" role=""/>
+    <member type="way" ref="10623050" role=""/>
+    <member type="way" ref="10623052" role=""/>
+    <member type="way" ref="10655755" role=""/>
+    <member type="way" ref="10655773" role=""/>
+    <member type="way" ref="10655775" role=""/>
+    <member type="way" ref="10660770" role=""/>
+    <member type="way" ref="10660782" role=""/>
+    <member type="way" ref="10660783" role=""/>
+    <member type="way" ref="10660785" role=""/>
+    <member type="way" ref="10660786" role=""/>
+    <member type="way" ref="10660794" role=""/>
+    <member type="way" ref="10660801" role=""/>
+    <member type="way" ref="10660804" role=""/>
+    <member type="way" ref="10665005" role=""/>
+    <member type="way" ref="10665007" role=""/>
+    <member type="way" ref="10665008" role=""/>
+    <member type="way" ref="10665009" role=""/>
+    <member type="way" ref="10665010" role=""/>
+    <member type="way" ref="10665012" role=""/>
+    <member type="way" ref="10665013" role=""/>
+    <member type="way" ref="10665802" role=""/>
+    <member type="way" ref="10665805" role=""/>
+    <member type="way" ref="10665806" role=""/>
+    <member type="way" ref="10665807" role=""/>
+    <member type="way" ref="10666256" role=""/>
+    <member type="way" ref="10666257" role=""/>
+    <member type="way" ref="10666258" role=""/>
+    <member type="way" ref="10666259" role=""/>
+    <member type="way" ref="10666260" role=""/>
+    <member type="way" ref="10666261" role=""/>
+    <member type="way" ref="10666262" role=""/>
+    <member type="way" ref="10666263" role=""/>
+    <member type="way" ref="10666269" role=""/>
+    <member type="way" ref="10666270" role=""/>
+    <member type="way" ref="10666272" role=""/>
+    <member type="way" ref="10666273" role=""/>
+    <member type="way" ref="10706765" role=""/>
+    <member type="way" ref="10784527" role=""/>
+    <member type="way" ref="10784531" role=""/>
+    <member type="way" ref="11098975" role=""/>
+    <member type="way" ref="11966684" role=""/>
+    <member type="way" ref="12171377" role=""/>
+    <member type="way" ref="12171404" role=""/>
+    <member type="way" ref="12698833" role=""/>
+    <member type="way" ref="12928562" role=""/>
+    <member type="way" ref="12977655" role=""/>
+    <member type="way" ref="13045857" role=""/>
+    <member type="way" ref="13279854" role=""/>
+    <member type="way" ref="13279859" role=""/>
+    <member type="way" ref="13280337" role=""/>
+    <member type="way" ref="13280338" role=""/>
+    <member type="way" ref="13280344" role=""/>
+    <member type="way" ref="13280348" role=""/>
+    <member type="way" ref="13286306" role=""/>
+    <member type="way" ref="13484955" role=""/>
+    <member type="way" ref="13484957" role=""/>
+    <member type="way" ref="13490616" role=""/>
+    <member type="way" ref="13490617" role=""/>
+    <member type="way" ref="13491331" role=""/>
+    <member type="way" ref="13787186" role=""/>
+    <member type="way" ref="13787187" role=""/>
+    <member type="way" ref="14432785" role=""/>
+    <member type="way" ref="14432786" role=""/>
+    <member type="way" ref="15550715" role=""/>
+    <member type="way" ref="15679921" role=""/>
+    <member type="way" ref="15679922" role=""/>
+    <member type="way" ref="15680745" role=""/>
+    <member type="way" ref="15720522" role=""/>
+    <member type="way" ref="15772193" role=""/>
+    <member type="way" ref="15772195" role=""/>
+    <member type="way" ref="15802198" role=""/>
+    <member type="way" ref="16097619" role=""/>
+    <member type="way" ref="16873525" role=""/>
+    <member type="way" ref="18482961" role=""/>
+    <member type="way" ref="18928964" role=""/>
+    <member type="way" ref="19371847" role=""/>
+    <member type="way" ref="19646583" role=""/>
+    <member type="way" ref="19750311" role=""/>
+    <member type="way" ref="19788585" role=""/>
+    <member type="way" ref="20438105" role=""/>
+    <member type="way" ref="20438113" role=""/>
+    <member type="way" ref="20439102" role=""/>
+    <member type="way" ref="20439110" role=""/>
+    <member type="way" ref="20439266" role=""/>
+    <member type="way" ref="20439285" role=""/>
+    <member type="way" ref="20541729" role=""/>
+    <member type="way" ref="20544607" role=""/>
+    <member type="way" ref="20548102" role=""/>
+    <member type="way" ref="20548130" role=""/>
+    <member type="way" ref="20549554" role=""/>
+    <member type="way" ref="20803814" role=""/>
+    <member type="way" ref="20869894" role=""/>
+    <member type="way" ref="20874929" role=""/>
+    <member type="way" ref="20874946" role=""/>
+    <member type="way" ref="21051344" role=""/>
+    <member type="way" ref="21051345" role=""/>
+    <member type="way" ref="21521128" role=""/>
+    <member type="way" ref="21521136" role=""/>
+    <member type="way" ref="21521321" role=""/>
+    <member type="way" ref="21521335" role=""/>
+    <member type="way" ref="21593477" role=""/>
+    <member type="way" ref="22376442" role=""/>
+    <member type="way" ref="22376443" role=""/>
+    <member type="way" ref="22376444" role=""/>
+    <member type="way" ref="22376445" role=""/>
+    <member type="way" ref="22672043" role=""/>
+    <member type="way" ref="22699199" role=""/>
+    <member type="way" ref="22729789" role=""/>
+    <member type="way" ref="22729790" role=""/>
+    <member type="way" ref="22744864" role=""/>
+    <member type="way" ref="22774338" role=""/>
+    <member type="way" ref="22790156" role=""/>
+    <member type="way" ref="22790157" role=""/>
+    <member type="way" ref="22790158" role=""/>
+    <member type="way" ref="22878433" role=""/>
+    <member type="way" ref="22878445" role=""/>
+    <member type="way" ref="23025982" role=""/>
+    <member type="way" ref="23040346" role=""/>
+    <member type="way" ref="23083392" role=""/>
+    <member type="way" ref="23159360" role=""/>
+    <member type="way" ref="23190865" role=""/>
+    <member type="way" ref="23288776" role=""/>
+    <member type="way" ref="23300405" role=""/>
+    <member type="way" ref="23300406" role=""/>
+    <member type="way" ref="23300407" role=""/>
+    <member type="way" ref="23300408" role=""/>
+    <member type="way" ref="23402845" role=""/>
+    <member type="way" ref="23402847" role=""/>
+    <member type="way" ref="23489761" role=""/>
+    <member type="way" ref="23619834" role=""/>
+    <member type="way" ref="23657833" role=""/>
+    <member type="way" ref="23657834" role=""/>
+    <member type="way" ref="23657835" role=""/>
+    <member type="way" ref="23657836" role=""/>
+    <member type="way" ref="23785362" role=""/>
+    <member type="way" ref="23785418" role=""/>
+    <member type="way" ref="24246463" role=""/>
+    <member type="way" ref="24273954" role=""/>
+    <member type="way" ref="24282854" role=""/>
+    <member type="way" ref="24387554" role=""/>
+    <member type="way" ref="24387555" role=""/>
+    <member type="way" ref="24389332" role=""/>
+    <member type="way" ref="24429047" role=""/>
+    <member type="way" ref="24438743" role=""/>
+    <member type="way" ref="24438745" role=""/>
+    <member type="way" ref="24438746" role=""/>
+    <member type="way" ref="24498903" role=""/>
+    <member type="way" ref="24498951" role=""/>
+    <member type="way" ref="24519328" role=""/>
+    <member type="way" ref="24521415" role=""/>
+    <member type="way" ref="24522739" role=""/>
+    <member type="way" ref="24522740" role=""/>
+    <member type="way" ref="24522741" role=""/>
+    <member type="way" ref="24532886" role=""/>
+    <member type="way" ref="24532889" role=""/>
+    <member type="way" ref="24717103" role=""/>
+    <member type="way" ref="24717291" role=""/>
+    <member type="way" ref="24913547" role=""/>
+    <member type="way" ref="24913550" role=""/>
+    <member type="way" ref="24913551" role=""/>
+    <member type="way" ref="25011061" role=""/>
+    <member type="way" ref="25011063" role=""/>
+    <member type="way" ref="25137903" role=""/>
+    <member type="way" ref="25137905" role=""/>
+    <member type="way" ref="25137906" role=""/>
+    <member type="way" ref="25137907" role=""/>
+    <member type="way" ref="25219227" role=""/>
+    <member type="way" ref="25222911" role=""/>
+    <member type="way" ref="25375742" role=""/>
+    <member type="way" ref="25375759" role=""/>
+    <member type="way" ref="25375761" role=""/>
+    <member type="way" ref="25376150" role=""/>
+    <member type="way" ref="25376152" role=""/>
+    <member type="way" ref="25376161" role=""/>
+    <member type="way" ref="25399945" role=""/>
+    <member type="way" ref="25400036" role=""/>
+    <member type="way" ref="25405234" role=""/>
+    <member type="way" ref="25405235" role=""/>
+    <member type="way" ref="25407366" role=""/>
+    <member type="way" ref="25407418" role=""/>
+    <member type="way" ref="25434725" role=""/>
+    <member type="way" ref="25440602" role=""/>
+    <member type="way" ref="25440604" role=""/>
+    <member type="way" ref="25440607" role=""/>
+    <member type="way" ref="25456571" role=""/>
+    <member type="way" ref="25466214" role=""/>
+    <member type="way" ref="25469048" role=""/>
+    <member type="way" ref="25469049" role=""/>
+    <member type="way" ref="25469051" role=""/>
+    <member type="way" ref="25469053" role=""/>
+    <member type="way" ref="25503801" role=""/>
+    <member type="way" ref="25503821" role=""/>
+    <member type="way" ref="25504118" role=""/>
+    <member type="way" ref="25504131" role=""/>
+    <member type="way" ref="25504132" role=""/>
+    <member type="way" ref="25504226" role=""/>
+    <member type="way" ref="25504228" role=""/>
+    <member type="way" ref="25504233" role=""/>
+    <member type="way" ref="25504234" role=""/>
+    <member type="way" ref="25504244" role=""/>
+    <member type="way" ref="25504245" role=""/>
+    <member type="way" ref="25504250" role=""/>
+    <member type="way" ref="25504253" role=""/>
+    <member type="way" ref="25504270" role=""/>
+    <member type="way" ref="25504272" role=""/>
+    <member type="way" ref="25504274" role=""/>
+    <member type="way" ref="25504276" role=""/>
+    <member type="way" ref="25504284" role=""/>
+    <member type="way" ref="25504285" role=""/>
+    <member type="way" ref="25504295" role=""/>
+    <member type="way" ref="25504786" role=""/>
+    <member type="way" ref="25536271" role=""/>
+    <member type="way" ref="25565193" role=""/>
+    <member type="way" ref="25646912" role=""/>
+    <member type="way" ref="25647020" role=""/>
+    <member type="way" ref="25647350" role=""/>
+    <member type="way" ref="25709588" role=""/>
+    <member type="way" ref="25715631" role=""/>
+    <member type="way" ref="25715632" role=""/>
+    <member type="way" ref="25717489" role=""/>
+    <member type="way" ref="25746497" role=""/>
+    <member type="way" ref="25750486" role=""/>
+    <member type="way" ref="25750665" role=""/>
+    <member type="way" ref="25870152" role=""/>
+    <member type="way" ref="25870162" role=""/>
+    <member type="way" ref="25870254" role=""/>
+    <member type="way" ref="25870256" role=""/>
+    <member type="way" ref="25873500" role=""/>
+    <member type="way" ref="25873534" role=""/>
+    <member type="way" ref="25874592" role=""/>
+    <member type="way" ref="25874683" role=""/>
+    <member type="way" ref="25909268" role=""/>
+    <member type="way" ref="25909269" role=""/>
+    <member type="way" ref="25909287" role=""/>
+    <member type="way" ref="25909289" role=""/>
+    <member type="way" ref="25916943" role=""/>
+    <member type="way" ref="25916957" role=""/>
+    <member type="way" ref="25916963" role=""/>
+    <member type="way" ref="25963733" role=""/>
+    <member type="way" ref="25963735" role=""/>
+    <member type="way" ref="26006456" role=""/>
+    <member type="way" ref="26006457" role=""/>
+    <member type="way" ref="26030832" role=""/>
+    <member type="way" ref="26036867" role=""/>
+    <member type="way" ref="26161618" role=""/>
+    <member type="way" ref="26201813" role=""/>
+    <member type="way" ref="26201814" role=""/>
+    <member type="way" ref="26238936" role=""/>
+    <member type="way" ref="26245481" role=""/>
+    <member type="way" ref="26245484" role=""/>
+    <member type="way" ref="26278683" role=""/>
+    <member type="way" ref="26341272" role=""/>
+    <member type="way" ref="26393924" role=""/>
+    <member type="way" ref="26393977" role=""/>
+    <member type="way" ref="26531120" role=""/>
+    <member type="way" ref="26533483" role=""/>
+    <member type="way" ref="26533488" role=""/>
+    <member type="way" ref="26533520" role=""/>
+    <member type="way" ref="26533532" role=""/>
+    <member type="way" ref="26533561" role=""/>
+    <member type="way" ref="26533568" role=""/>
+    <member type="way" ref="26533600" role=""/>
+    <member type="way" ref="26533616" role=""/>
+    <member type="way" ref="26533624" role=""/>
+    <member type="way" ref="26533627" role=""/>
+    <member type="way" ref="26580065" role=""/>
+    <member type="way" ref="26580067" role=""/>
+    <member type="way" ref="26585283" role=""/>
+    <member type="way" ref="26585285" role=""/>
+    <member type="way" ref="26589413" role=""/>
+    <member type="way" ref="26589568" role=""/>
+    <member type="way" ref="26589569" role=""/>
+    <member type="way" ref="26601544" role=""/>
+    <member type="way" ref="26636312" role=""/>
+    <member type="way" ref="26637167" role=""/>
+    <member type="way" ref="26637168" role=""/>
+    <member type="way" ref="26637169" role=""/>
+    <member type="way" ref="26637170" role=""/>
+    <member type="way" ref="26713137" role=""/>
+    <member type="way" ref="26713139" role=""/>
+    <member type="way" ref="26718520" role=""/>
+    <member type="way" ref="26718521" role=""/>
+    <member type="way" ref="26718523" role=""/>
+    <member type="way" ref="26727443" role=""/>
+    <member type="way" ref="26727544" role=""/>
+    <member type="way" ref="26743005" role=""/>
+    <member type="way" ref="26743009" role=""/>
+    <member type="way" ref="26927655" role=""/>
+    <member type="way" ref="26937985" role=""/>
+    <member type="way" ref="26938574" role=""/>
+    <member type="way" ref="26949916" role=""/>
+    <member type="way" ref="26949920" role=""/>
+    <member type="way" ref="26960109" role=""/>
+    <member type="way" ref="26960139" role=""/>
+    <member type="way" ref="26960804" role=""/>
+    <member type="way" ref="26960834" role=""/>
+    <member type="way" ref="26961484" role=""/>
+    <member type="way" ref="26996007" role=""/>
+    <member type="way" ref="26996009" role=""/>
+    <member type="way" ref="26996010" role=""/>
+    <member type="way" ref="26996011" role=""/>
+    <member type="way" ref="27148209" role=""/>
+    <member type="way" ref="27283954" role=""/>
+    <member type="way" ref="27292600" role=""/>
+    <member type="way" ref="27292601" role=""/>
+    <member type="way" ref="27320851" role=""/>
+    <member type="way" ref="27402444" role=""/>
+    <member type="way" ref="27402458" role=""/>
+    <member type="way" ref="27739175" role=""/>
+    <member type="way" ref="27739543" role=""/>
+    <member type="way" ref="27739653" role=""/>
+    <member type="way" ref="27739693" role=""/>
+    <member type="way" ref="27739778" role=""/>
+    <member type="way" ref="27739804" role=""/>
+    <member type="way" ref="27739885" role=""/>
+    <member type="way" ref="27739889" role=""/>
+    <member type="way" ref="27740526" role=""/>
+    <member type="way" ref="27740527" role=""/>
+    <member type="way" ref="27740577" role=""/>
+    <member type="way" ref="27740951" role=""/>
+    <member type="way" ref="27775810" role=""/>
+    <member type="way" ref="27913997" role=""/>
+    <member type="way" ref="27913998" role=""/>
+    <member type="way" ref="28038019" role=""/>
+    <member type="way" ref="28175272" role=""/>
+    <member type="way" ref="28180143" role=""/>
+    <member type="way" ref="28180178" role=""/>
+    <member type="way" ref="28193764" role=""/>
+    <member type="way" ref="28232708" role=""/>
+    <member type="way" ref="28232709" role=""/>
+    <member type="way" ref="28232711" role=""/>
+    <member type="way" ref="28232712" role=""/>
+    <member type="way" ref="28232730" role=""/>
+    <member type="way" ref="28232732" role=""/>
+    <member type="way" ref="28232733" role=""/>
+    <member type="way" ref="28232736" role=""/>
+    <member type="way" ref="28232795" role=""/>
+    <member type="way" ref="28232797" role=""/>
+    <member type="way" ref="28232798" role=""/>
+    <member type="way" ref="28232815" role=""/>
+    <member type="way" ref="28232816" role=""/>
+    <member type="way" ref="28232817" role=""/>
+    <member type="way" ref="28232818" role=""/>
+    <member type="way" ref="28232819" role=""/>
+    <member type="way" ref="28309499" role=""/>
+    <member type="way" ref="28333511" role=""/>
+    <member type="way" ref="28333513" role=""/>
+    <member type="way" ref="28333517" role=""/>
+    <member type="way" ref="28333534" role=""/>
+    <member type="way" ref="28343433" role=""/>
+    <member type="way" ref="28465424" role=""/>
+    <member type="way" ref="28630509" role=""/>
+    <member type="way" ref="28630510" role=""/>
+    <member type="way" ref="28755251" role=""/>
+    <member type="way" ref="28762079" role=""/>
+    <member type="way" ref="28762546" role=""/>
+    <member type="way" ref="28762547" role=""/>
+    <member type="way" ref="28762548" role=""/>
+    <member type="way" ref="28762887" role=""/>
+    <member type="way" ref="28762888" role=""/>
+    <member type="way" ref="28762889" role=""/>
+    <member type="way" ref="28764719" role=""/>
+    <member type="way" ref="28789868" role=""/>
+    <member type="way" ref="28789869" role=""/>
+    <member type="way" ref="28789937" role=""/>
+    <member type="way" ref="28789938" role=""/>
+    <member type="way" ref="28810280" role=""/>
+    <member type="way" ref="28834669" role=""/>
+    <member type="way" ref="28834671" role=""/>
+    <member type="way" ref="28871375" role=""/>
+    <member type="way" ref="29200400" role=""/>
+    <member type="way" ref="29200401" role=""/>
+    <member type="way" ref="29245937" role=""/>
+    <member type="way" ref="29246026" role=""/>
+    <member type="way" ref="29318238" role=""/>
+    <member type="way" ref="29341569" role=""/>
+    <tag k="ref" v="B 4"/>
+    <tag k="type" v="route"/>
+    <tag k="created_by" v="Potlatch 0.10f"/>
+    <tag k="route" v="road"/>
+  </relation>
+  <relation id="12298" visible="true" timestamp="2008-12-19T23:32:00+00:00" user="rsl">
+    <member type="way" ref="4599637" role="outer"/>
+    <member type="way" ref="24610990" role="inner"/>
+    <member type="way" ref="24611044" role="inner"/>
+    <member type="way" ref="24652899" role="inner"/>
+    <member type="way" ref="28900639" role="inner"/>
+    <tag k="created_by" v="Potlatch 0.10f"/>
+    <tag k="type" v="multipolygon"/>
+  </relation>
+  <relation id="54466" visible="true" timestamp="2008-11-29T13:01:11+00:00" user="rsl">
+    <member type="way" ref="28335963" role="outer"/>
+    <member type="way" ref="28700108" role="inner"/>
+    <tag k="type" v="multipolygon"/>
+  </relation>
+  <relation id="59386" visible="true" timestamp="2008-12-19T23:49:15+00:00" user="rsl">
+    <member type="way" ref="24055511" role="inner"/>
+    <member type="way" ref="24218274" role="inner"/>
+    <member type="way" ref="24221067" role="inner"/>
+    <member type="way" ref="25692984" role="inner"/>
+    <member type="way" ref="26628162" role="inner"/>
+    <member type="way" ref="28900639" role="outer"/>
+    <tag k="name" v="NSG Tennenloher Forst"/>
+    <tag k="type" v="multipolygon"/>
+  </relation>
+</osm>
