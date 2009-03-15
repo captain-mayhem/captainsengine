@@ -23,7 +23,8 @@ SET(Engine_system_HDRS
 	${PRE}/file.h 
 	${PRE}/gameobject.h 
 	${PRE}/script.h 
-	${PRE}/thread.h 
+	${PRE}/thread.h
+	${PRE}/types.h 
 	${PRE}/utilities.h)
 
 INSTALL(FILES ${Engine_system_HDRS} DESTINATION Engine/include/${PRE})
