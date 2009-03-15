@@ -21,6 +21,7 @@
 #define TRACE_ABORT(group, message, ...) internal_trace(group, TRACE_FATAL_ERROR, __FILE__, __FUNCTION__, message, __VA_ARGS__)
 #else
 #define TRACE(group, level, message, ...)
+#define TRACE_ABORT(group, message, ...) EXIT2(message)
 #endif
 
 void internal_trace(int group, int level, char* file, char* function, char* message, ...);
