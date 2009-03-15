@@ -290,6 +290,13 @@ void DXRenderer::enableBlend(const bool flag){
   device_->SetRenderState(D3DRS_ALPHABLENDENABLE, flag);
 }
 
+void DXRenderer::enableBackFaceCulling(const bool flag){
+  D3DCULL cull = D3DCULL_NONE;
+  if (flag)
+    cull = D3DCULL_CCW;
+  device_->SetRenderState(D3DRS_CULLMODE, cull);
+}
+
 //! enable texturing
 void DXRenderer::enableTexturing(const bool flag){
   if (!flag)
