@@ -8,6 +8,10 @@
 
 char buffer[BUF_SIZE];
 
+#ifdef UNDER_CE
+#define vsnprintf _vsnprintf
+#endif
+
 void internal_trace(int group, int level, char* file, char* function, char* message, ...){
   va_list list;
   va_start(list, message);

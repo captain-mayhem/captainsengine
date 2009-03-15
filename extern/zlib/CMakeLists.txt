@@ -1,3 +1,9 @@
+IF(${OS} STREQUAL "wince")
+ADD_DEFINITIONS(
+	-DNO_ERRNO_H
+)
+ENDIF(${OS} STREQUAL "wince")
+
 ADD_LIBRARY(zlib STATIC
 	adler32.c
 	compress.c

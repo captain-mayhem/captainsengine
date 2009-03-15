@@ -22,7 +22,11 @@ void* ClassLoader::mRuntime = NULL;
 
 ClassLoader::ClassLoader(std::string filename){
   if (mRuntime == NULL){
+#ifndef UNDER_CE
     char* tmp = getenv("ProgramFiles");
+#else
+    char* tmp = NULL;
+#endif
     std::string prefix;
     if (tmp)
       prefix = tmp;
