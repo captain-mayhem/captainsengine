@@ -1,6 +1,7 @@
 
 
 #include "Interpreter.h"
+#include <system/winceMain.h>
 
 int main(int argc, char* argv[])
 {

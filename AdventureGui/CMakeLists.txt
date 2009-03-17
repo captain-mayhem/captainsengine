@@ -19,7 +19,7 @@ SET(AdventureGui_HDRS
 
 ADD_EXECUTABLE("AdventureGui" ${AdventureGui_SRCS} ${AdventureGui_HDRS})
 
-TARGET_LINK_LIBRARIES(AdventureGui Engine)
+TARGET_LINK_LIBRARIES(AdventureGui EngineMain)
 IF (${OS} STREQUAL "windows")
   SET_TARGET_PROPERTIES(AdventureGui PROPERTIES LINK_FLAGS " /STACK:10000000 /machine:I386 /debug /SUBSYSTEM:Windows")
 ENDIF (${OS} STREQUAL "windows")

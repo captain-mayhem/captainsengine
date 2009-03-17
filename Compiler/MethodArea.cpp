@@ -39,7 +39,12 @@ unsigned MethodArea::getMethodIndex(const MethodEntry& method){
   unsigned idx = mMethodResolver[method];
   if (idx == 0){
     ClassLoader* loader = mClassData[method.mClassindex]->mLoader;
-    idx = loader->resolveMethod(*this, method);
+    if (loader == NULL){
+      idx = 1; //array method
+    }
+    else{
+      idx = loader->resolveMethod(*this, method);
+    }
   }
   return idx;
 }
