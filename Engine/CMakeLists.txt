@@ -53,7 +53,13 @@ SOURCE_GROUP("common" FILES ${Engine_common_SRCS})
 SOURCE_GROUP("common" FILES ${Engine_common_HDRS})
 
 TARGET_LINK_LIBRARIES(Engine ${ENGINE_LINK_LIBRARIES})
+
+ADD_LIBRARY(EngineMain STATIC
+	system/engineMain.cpp
+	system/winceMain.h
+)
+TARGET_LINK_LIBRARIES(EngineMain Engine)
 	  
-INSTALL(TARGETS Engine ARCHIVE DESTINATION Engine/lib)
+INSTALL(TARGETS Engine EngineMain ARCHIVE DESTINATION Engine/lib)
 INSTALL(FILES engine.ini DESTINATION Engine)
 INSTALL(FILES textures/font/font.bmp DESTINATION Engine/textures/font)
