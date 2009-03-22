@@ -79,18 +79,19 @@ void Model::loadFromHMB(const std::string& filename){
 
   //build vertexbuffer
   vb_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
-  vb_->create(VB_POSITION | VB_TEXCOORD, vertices_.size(), indices_.size());
+  vb_->create(VB_POSITION | VB_TEXCOORD, vertices_.size(), 1);
+  vb_->createIndexBuffer(0, indices_.size());
   vb_->lockVertexPointer();
   for (unsigned i = 0; i < vertices_.size(); i++){
     vb_->setPosition(i, Vertex(vertices_[i].v));
     vb_->setTexCoord(i, Vec2f(vertices_[i].t[0], vertices_[i].t[1]));
   }
   vb_->unlockVertexPointer();
-  short* idx = vb_->lockIndexPointer();
+  short* idx = vb_->lockIndexPointer(0);
   for (unsigned i = 0; i < indices_.size(); i++){
     idx[i] = indices_[i];
   }
-  vb_->unlockVertexPointer();
+  vb_->unlockIndexPointer(0);
 }
 
 ModelInstance Model::clone(){

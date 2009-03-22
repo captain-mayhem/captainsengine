@@ -10,7 +10,7 @@ using namespace Graphics;
 
 OGLVertexBuffer::OGLVertexBuffer(){
   vb_ = NULL;
-  ib_ = NULL;
+  ibs_ = NULL;
   flags_ = 0;
   verts_ = NULL;
   inds_ = NULL;
@@ -19,16 +19,26 @@ OGLVertexBuffer::OGLVertexBuffer(){
   texoffset_ = -1;
   normoffset_ = -1;
   userVertOffset_ = 0;
+  numIbs_ = 0;
+  ibsizes_ = NULL;
 }
 
 OGLVertexBuffer::~OGLVertexBuffer(){
   SAFE_DELETE_ARRAY(vb_);
-  SAFE_DELETE_ARRAY(ib_);
+  for (int i = 0; i < numIbs_; ++i){
+    SAFE_DELETE_ARRAY(ibs_[i]);
+  }
+  SAFE_DELETE_ARRAY(ibs_);
+  SAFE_DELETE_ARRAY(ibsizes_);
 }
 
-void OGLVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize){
+void OGLVertexBuffer::create(int type, int vertexBufferSize, short numIndexBuffers){
   vbsize_ = vertexBufferSize;
-  ibsize_ = indexBufferSize;
+  numIbs_ = numIndexBuffers;
+  if (numIbs_ > 0){
+    ibs_ = new short*[numIbs_];
+    ibsizes_ = new short[numIbs_];
+  }
   flags_ = type;
   int offset = 0;
   if (flags_ & VB_POSITION){
@@ -50,11 +60,11 @@ void OGLVertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize
   structsize_ = offset;
   
   vb_ = new char[vertexBufferSize*structsize_];
-  if (indexBufferSize == 0){
-    ib_ = NULL;
-    return;
-  }
-  ib_ = new short[indexBufferSize];
+}
+
+void OGLVertexBuffer::createIndexBuffer(short indexNum, short indexBufferSize){
+  ibs_[indexNum] = new short[indexBufferSize];
+  ibsizes_[indexNum] = indexBufferSize;
 }
 
 void* OGLVertexBuffer::lockVertexPointer(){
@@ -62,8 +72,8 @@ void* OGLVertexBuffer::lockVertexPointer(){
   return verts_;
 }
 
-short* OGLVertexBuffer::lockIndexPointer(){
-  inds_ = ib_;
+short* OGLVertexBuffer::lockIndexPointer(short indexNum){
+  inds_ = ibs_[indexNum];
   return inds_;
 }
 
@@ -71,7 +81,7 @@ void OGLVertexBuffer::unlockVertexPointer(){
   verts_ = NULL;
 }
 
-void OGLVertexBuffer::unlockIndexPointer(){
+void OGLVertexBuffer::unlockIndexPointer(short indexNum){
   inds_ = NULL;
 }
 
@@ -102,12 +112,14 @@ void OGLVertexBuffer::activate(){
     glDisableClientState(GL_NORMAL_ARRAY);
 }
 
-void OGLVertexBuffer::draw(PrimitiveType pt){
-  if (ibsize_ == 0){
+void OGLVertexBuffer::draw(PrimitiveType pt, short indexNum){
+  if (ibsizes_ == NULL){
     if (pt == VB_Tristrip)
       glDrawArrays(GL_TRIANGLE_STRIP, 0, vbsize_);
     else if (pt == VB_Triangles)
       glDrawArrays(GL_TRIANGLES, 0, vbsize_);
+    else if (pt == VB_Trifan)
+      glDrawArrays(GL_TRIANGLE_FAN, 0, vbsize_);
     else if (pt == VB_Lines)
       glDrawArrays(GL_LINES, 0, vbsize_);
     else if (pt == VB_Points)
@@ -115,13 +127,15 @@ void OGLVertexBuffer::draw(PrimitiveType pt){
     return;
   }
   if (pt == VB_Tristrip)
-    glDrawElements(GL_TRIANGLE_STRIP, ibsize_, GL_UNSIGNED_SHORT, ib_);
+    glDrawElements(GL_TRIANGLE_STRIP, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
   else if (pt == VB_Triangles)
-    glDrawElements(GL_TRIANGLES, ibsize_, GL_UNSIGNED_SHORT, ib_);
+    glDrawElements(GL_TRIANGLES, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
+  else if (pt == VB_Trifan)
+    glDrawElements(GL_TRIANGLE_FAN, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
   else if (pt == VB_Lines)
-    glDrawElements(GL_LINES, ibsize_, GL_UNSIGNED_SHORT, ib_);
+    glDrawElements(GL_LINES, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
   else if (pt == VB_Points)
-    glDrawElements(GL_POINTS, ibsize_, GL_UNSIGNED_SHORT, ib_);
+    glDrawElements(GL_POINTS, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
 }
 
 void OGLVertexBuffer::setColor(int pos, Color c){

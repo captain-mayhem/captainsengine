@@ -16,6 +16,7 @@ typedef ::Math::Vector3D Vertex;
 enum PrimitiveType{
   VB_Triangles,
   VB_Tristrip,
+  VB_Trifan,
   VB_Lines,
   VB_Points,
 };
@@ -28,13 +29,14 @@ class VertexBuffer{
 public:
   VertexBuffer();
   virtual ~VertexBuffer();
-  virtual void create(int type, int vertexBufferSize, int indexBufferSize);
+  virtual void create(int type, int vertexBufferSize, short numIndexBuffers);
   virtual void* lockVertexPointer()=0;
   virtual void unlockVertexPointer()=0;
-  virtual short* lockIndexPointer()=0;
-  virtual void unlockIndexPointer()=0;
+  virtual void createIndexBuffer(short indexNum, short indexBufferSize)=0;
+  virtual short* lockIndexPointer(short indexNum)=0;
+  virtual void unlockIndexPointer(short indexNum)=0;
   virtual void activate()=0;
-  virtual void draw(PrimitiveType pt)=0;
+  virtual void draw(PrimitiveType pt, short indexNum)=0;
   virtual void setPosition(int pos, Vertex v);
   virtual void setColor(int pos, Color c)=0;
   virtual void setTexCoord(int pos, ::Math::Vec2f t, bool dxswap=false)=0;
@@ -43,7 +45,8 @@ public:
 protected:
   int structsize_;
   int vbsize_;
-  int ibsize_;
+  int numIbs_;
+  short* ibsizes_;
   void* verts_;
   short* inds_;
   int vertoffset_;

@@ -10,7 +10,7 @@ VertexBuffer::~VertexBuffer(){
 
 }
 
-void VertexBuffer::create(int type, int vertexBufferSize, int indexBufferSize){
+void VertexBuffer::create(int type, int vertexBufferSize, short indexBufferSize){
 
 }
 
