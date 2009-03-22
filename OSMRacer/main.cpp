@@ -8,36 +8,45 @@
 #include "Utilities.h"
 #include "GeoGen.h"
 #include "GeoCache.h"
+#include "Vehicle.h"
 
 Graphics::Camera cam;
-MapChunk map;
+//MapChunk map;
+#include "TerrainChunk.h"
+#include <renderer/forms.h>
+TerrainChunk test;
+Vehicle car;
 
 void init(){
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   rend->setClearColor(Vec3f(0.5,0.5,0.5));
   //rend->renderMode(Graphics::Wireframe);
   rend->enableBackFaceCulling(true);
-  Vec3f ep = Vec3f(map.getCenter().x,map.getCenter().y,map.getCenter().z);
-  ep.normalize();
+  //Vec3f ep = Vec3f(map.getCenter().x,map.getCenter().y,map.getCenter().z);
+  //ep.normalize();
   cam.project(60,1,0.1f,5000);
-  cam.lookAt(Vec3f(ep*200),Vec3f(),Vec3f(0,1,0));
+  cam.lookAt(Vec3f(0,5,0), Vec3f(), Vec3f(0,0,-1));
+  //cam.lookAt(Vec3f(ep*200),Vec3f(),Vec3f(0,1,0));
 }
 
 void render(){
-  GeoGen::useGeometry();
+  //GeoGen::useGeometry();
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   rend->clear(ZBUFFER | COLORBUFFER);
   //rend->projection(60,1.0f,0.1f,100000.0f);
   rend->enableTexturing(false);
   rend->resetModelView();
   //rend->translate(0,0,-5);
-  rend->setColor(1.0,1.0,0.0,1.0);
+  rend->setColor(0.0,1.0,0.0,1.0);
   //cam.lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
   //rend->lookAt(Vec3f(ep*20),Vec3f(),Vec3f(0,1,0));
   //rend->lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
   //rend->lookAt(Vec3f(0,0,-2000),Vec3f(555.24565f,2670.81660f,5757.44706f),Vec3f(0,1,0));
   cam.activate();
-  map.render(&cam);
+  //map.render(&cam);
+  test.render(cam);
+  car.render(cam);
+  
 }
 
 void keyPress(int key, float timeInterval){
@@ -86,14 +95,16 @@ void engineMain(int argc, char** argv){
 /*Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
   Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);*/
 
-  GeoCache::init();
+  /*GeoCache::init();
 
   //start geo gen thread
   System::Thread geogen;
-  geogen.create(GeoGen::generateGeometry,NULL);
+  //geogen.create(GeoGen::generateGeometry,NULL);
 
-  OSMReader rdr("map2.osm");
+  OSMReader rdr("map.osm");
   rdr.read(&map);
-  System::Log.flush();
+  System::Log.flush();*/
+
+  test.generate(17);
 }
 

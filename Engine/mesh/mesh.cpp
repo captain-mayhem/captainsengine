@@ -495,7 +495,7 @@ void Mesh::draw(){/*
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);*/
   //System::Engine::instance()->getRenderer()->multiplyMatrix(trafo_);
   vb_->activate();
-  vb_->draw(Graphics::VB_Triangles);
+  vb_->draw(Graphics::VB_Triangles, 0);
 }
 
 //! intersects a ray and a triangle

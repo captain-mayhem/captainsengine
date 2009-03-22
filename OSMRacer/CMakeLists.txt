@@ -9,7 +9,9 @@ SET(OSMRacer_SRCS
 	GeoGen.cpp
 	OSMReader.cpp
 	MapChunk.cpp
+	TerrainChunk.cpp
 	Utilities.cpp
+	Vehicle.cpp
 	)
 
 SET(OSMRacer_HDRS
@@ -17,7 +19,9 @@ SET(OSMRacer_HDRS
 	GeoGen.h
 	OSMReader.h
 	MapChunk.h
+	TerrainChunk.h
 	Utilities.h
+	Vehicle.h
 	)
 
 ADD_EXECUTABLE(OSMRacer ${OSMRacer_SRCS} ${OSMRacer_HDRS})

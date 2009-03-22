@@ -15,10 +15,14 @@ public:
   */
   void drawQuad();
   //! draw a quad at position position with the spanning of size
-  void drawQuad(const Vector2D& position, const Vector2D& size) const;
+  void drawQuad(const Math::Vector2D& position, const Math::Vector2D& size) const;
+
+  void activateCylinder();
+  void drawCylinder();
 private:
   void constructVBOs();
   VertexBuffer* quad_;
+  VertexBuffer* cylinder_;
 };
   
 }

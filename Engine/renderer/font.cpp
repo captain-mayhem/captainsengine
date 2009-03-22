@@ -46,7 +46,8 @@ void Font::buildFont(){
   float	cy;
 
   tex_->activate();
-  buffer_->create(VB_POSITION | VB_TEXCOORD, 4*256, 4);
+  buffer_->create(VB_POSITION | VB_TEXCOORD, 4*256, 1);
+  buffer_->createIndexBuffer(0, 4);
   buffer_->lockVertexPointer();
   
   for (int i=0; i<256; i++){
@@ -67,10 +68,10 @@ void Font::buildFont(){
 
   buffer_->unlockVertexPointer();
 
-  short* in = buffer_->lockIndexPointer();
+  short* in = buffer_->lockIndexPointer(0);
   in[0] = 0; in[1] = 1; in[3] = 3;
   in[2] = 2; //in[4] = 1; in[5] = 2;
-  buffer_->unlockIndexPointer();
+  buffer_->unlockIndexPointer(0);
 }
 
 // Delete Font
@@ -141,7 +142,7 @@ void Font::render(){
       for (unsigned i = 0; i < f.text->size(); i++){
         //unsigned char tmp = (*f.text)[i]-32;
         buffer_->setVertexOffset(f.text->at(i)-32+(128*f.set));
-        buffer_->draw(VB_Tristrip);
+        buffer_->draw(VB_Tristrip, 0);
         //increase translation
         rend->translate(10,0,0);
       }

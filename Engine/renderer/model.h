@@ -33,7 +33,7 @@ public:
   //! activate the model for rendering
   inline void activate() {vb_->activate();}
   //! draw a model
-  inline void draw() {vb_->draw(VB_Triangles);}
+  inline void draw() {vb_->draw(VB_Triangles, 0);}
   //! clone a model
   /*! cloning a model means that the vertexbuffer
    * is not copied but shared 
