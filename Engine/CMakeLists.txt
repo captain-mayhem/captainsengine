@@ -4,6 +4,7 @@ INCLUDE(input/CMakeLists.txt)
 INCLUDE(io/CMakeLists.txt)
 INCLUDE(math/CMakeLists.txt)
 INCLUDE(mesh/CMakeLists.txt)
+INCLUDE(physics/CMakeLists.txt)
 INCLUDE(renderer/CMakeLists.txt)
 INCLUDE(system/CMakeLists.txt)
 INCLUDE(window/CMakeLists.txt)
@@ -17,6 +18,7 @@ ADD_LIBRARY(Engine STATIC
 	${Engine_io_SRCS}
 	${Engine_math_SRCS}
 	${Engine_mesh_SRCS}
+	${Engine_physics_SRCS}
 	${Engine_renderer_SRCS}
 	${Engine_system_SRCS}
 	${Engine_window_SRCS}
@@ -27,6 +29,7 @@ ADD_LIBRARY(Engine STATIC
 	${Engine_io_HDRS}
 	${Engine_math_HDRS}
 	${Engine_mesh_HDRS}
+	${Engine_physics_HDRS}
 	${Engine_renderer_HDRS}
 	${Engine_system_HDRS}
 	${Engine_window_HDRS}
@@ -43,6 +46,8 @@ SOURCE_GROUP("math" FILES ${Engine_math_SRCS})
 SOURCE_GROUP("math" FILES ${Engine_math_HDRS})
 SOURCE_GROUP("mesh" FILES ${Engine_mesh_SRCS})
 SOURCE_GROUP("mesh" FILES ${Engine_mesh_HDRS})
+SOURCE_GROUP("physics" FILES ${Engine_physics_SRCS})
+SOURCE_GROUP("physics" FILES ${Engine_physics_HDRS})
 SOURCE_GROUP("renderer" FILES ${Engine_renderer_SRCS})
 SOURCE_GROUP("renderer" FILES ${Engine_renderer_HDRS})
 SOURCE_GROUP("system" FILES ${Engine_system_SRCS})

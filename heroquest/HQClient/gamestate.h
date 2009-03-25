@@ -53,7 +53,7 @@ public:
   //! ends the game
   void end();
   //! gets the position of the next creature that is controlled by you
-  Vector2D getNextCreaturePos();
+  CGE::Vector2D getNextCreaturePos();
   //! choose the packages and levels that are available
   void choosePackage(Gui::DropDownButton* pack, Gui::DropDownButton* level);
   //! add a random number to repository

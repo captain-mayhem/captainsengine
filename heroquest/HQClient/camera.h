@@ -17,7 +17,7 @@
 #include "math/vector.h"
 #include "field.h"
 
-using ::Math::Vector3D;
+using ::CGE::Vector3D;
 
 //! Represents the camera in the game
 /*! Because the camera is a ego-perspective camera,

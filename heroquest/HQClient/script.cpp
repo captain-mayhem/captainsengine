@@ -32,6 +32,7 @@
 
 #define line *System::Engine::instance()->getFont(0)
 
+using namespace CGE;
 #ifdef _CLIENT_
 using Gui::MessageBox;
 #endif

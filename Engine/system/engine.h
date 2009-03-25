@@ -44,6 +44,10 @@ class Button;
 class Console;
 }
 
+namespace CGE{
+class Simulator;
+}
+
 //! changes an integer to a string
 inline string toStr(const unsigned i){
   char tmp[16];
@@ -145,11 +149,14 @@ class Engine{
     ::Gui::GuiElement* getGuiListener(const string& name);
     //! get the gui mutex
     Mutex& getGuiMutex() {return guitex_;}
+    inline CGE::Simulator* getSimulator() {return mSimulator;}
   private:
     static Engine* eng;
     Engine();
+
     //! The window
     ::Windows::AppWindow* win_;
+    
     //! The renderer
     ::Graphics::Renderer* rend_;
     //! The fonts
@@ -174,6 +181,12 @@ class Engine{
     int fpscounter_;
     //! fps
     int fps_;
+
+    //! physics subsystem
+    bool physics_;
+    //! the simulator
+    CGE::Simulator* mSimulator;
+
     //! waiting input fields
     //list< ::Gui::InputField*> listeners_;
     //! waiting buttons

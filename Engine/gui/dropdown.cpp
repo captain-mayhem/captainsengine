@@ -9,8 +9,8 @@
 using std::istringstream;
 using namespace Gui;
 using Graphics::Color;
-using Math::Vector3D;
-using Math::Vector2D;
+using CGE::Vector3D;
+using CGE::Vector2D;
 
 DDEntryButton::DDEntryButton(int number) : Button(){
   parent_ = NULL;

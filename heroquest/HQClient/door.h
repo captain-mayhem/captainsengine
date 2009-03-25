@@ -21,7 +21,7 @@ struct ScriptInfo;
 using std::ofstream;
 using std::ifstream;
 
-using ::Math::Vector3D;
+using ::CGE::Vector3D;
 
 namespace Graphics{
 class Scene;

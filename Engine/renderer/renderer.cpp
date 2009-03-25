@@ -2,8 +2,6 @@
 #include "../math/vector.h"
 #include "renderer.h"
 
-using namespace ::Math;
-
 using namespace Graphics;
 
 Renderer::Renderer(){

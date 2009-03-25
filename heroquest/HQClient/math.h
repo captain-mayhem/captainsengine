@@ -18,7 +18,7 @@
 #define INTERSECTS	1
 #define FRONT		2
 
-using Math::Vector3D;
+using CGE::Vector3D;
 
 //! provides some standard math and special math for 3d environments
 /*! In this class, everything is static because instanciating a math object 

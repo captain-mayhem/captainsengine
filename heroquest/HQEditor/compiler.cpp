@@ -30,7 +30,7 @@ using std::endl;
 
 extern string path;
 
-using namespace Math;
+using namespace CGE;
 using System::Log;
 
 
@@ -47,7 +47,7 @@ Compiler::~Compiler(){
 //Set a wall
 void Compiler::setWall(const Vector2D& pos, Direction d){
   std::string tilename = "wallstd.obj";
-  Math::Matrix rot;
+  CGE::Matrix rot;
 
   short length = getLengthInfo(pos, d, &rot);
   if (length == 3)
@@ -72,7 +72,7 @@ void Compiler::setWall(const Vector2D& pos, Direction d){
   //wall
   mdl->setAttrib(0, 1001);
   //mdl->setAttrib(1, id);
-  Math::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
+  CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
   mdl->setTrafo(mat*rot);
   scene_.addModel(mdl);
 }
@@ -119,7 +119,7 @@ bool Compiler::isDoor(short x, short y, Direction dir) const{
 void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   //add the wall part of the door
   std::string tilename = "doorstd.obj";
-  Math::Matrix rot;
+  CGE::Matrix rot;
 
   short length = getLengthInfo(pos, d, &rot);
   if (length == 3)
@@ -143,7 +143,7 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   mdl->assignTexture(tex, 0);
   //wall
   mdl->setAttrib(0, 1004);
-  Math::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
+  CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
   mdl->setTrafo(mat*rot);
   scene_.addModel(mdl);
 
@@ -155,9 +155,9 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
     return;
 
   if (d == RIGHT)
-    rot = Math::Matrix(Matrix::Rotation, Vector3D(0,1,0), (float)(270.0/180.0*M_PI));
+    rot = CGE::Matrix(Matrix::Rotation, Vector3D(0,1,0), (float)(270.0/180.0*M_PI));
   else
-    rot = Math::Matrix(Matrix::Identity);
+    rot = CGE::Matrix(Matrix::Identity);
 
   //standard
   if (type == 0){
@@ -179,7 +179,7 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   mdl->setAttrib(0, 1003);
   mdl->setAttrib(1, type);
 
-  mat = Math::Matrix(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
+  mat = CGE::Matrix(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
   mdl->setTrafo(mat*rot);
   scene_.addModel(mdl);
 }
@@ -211,7 +211,7 @@ void Compiler::addRoom(const Vector2D& pos, short id){
   //ground
   mdl->setAttrib(0, 1000);
   mdl->setAttrib(1, id);
-  Math::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
+  CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
   mdl->setTrafo(mat);
   scene_.addModel(mdl);
 }
@@ -227,7 +227,7 @@ void Compiler::addStartPos(const Vector2D& pos){
   mdl->assignTexture(tex, 0);
   //startpos
   mdl->setAttrib(0, 1002);
-  Math::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),4,(float)(pos.y*8+4)));
+  CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),4,(float)(pos.y*8+4)));
   mdl->setTrafo(mat);
   scene_.addModel(mdl);
 }
@@ -306,7 +306,7 @@ void Compiler::addMonster(const Vector2D& pos, char monster[2]){
   //mdl->setAttrib(5, defend);
   //mdl->setAttrib(6, body);
   //mdl->setAttrib(7, mind);
-  Math::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
+  CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
   mdl->setTrafo(mat);
   scene_.addModel(mdl);
 }
@@ -423,8 +423,8 @@ void Compiler::addFurniture(const Vector2D& pos, char furniture[2]){
     xoffset = height*8/2;
     yoffset = width*8/2-(width-1)*8;
   }
-  Math::Matrix rot(Matrix::Rotation, Vector3D(0,1,0), angle);
-  Math::Matrix trans(Matrix::Translation, Vector3D((float)(pos.x*8+xoffset),0,(float)(pos.y*8+yoffset)));
+  CGE::Matrix rot(Matrix::Rotation, Vector3D(0,1,0), angle);
+  CGE::Matrix trans(Matrix::Translation, Vector3D((float)(pos.x*8+xoffset),0,(float)(pos.y*8+yoffset)));
   mdl->setTrafo(trans*rot);
   scene_.addModel(mdl);
 }
@@ -490,7 +490,7 @@ short Compiler::getLengthInfo(const Vector2D& pos, Direction d, Matrix* rot){
   bool longLeft = false;
   if (d == TOP){
     if (rot)
-      *rot = Math::Matrix(Matrix::Identity);
+      *rot = CGE::Matrix(Matrix::Identity);
     if (!isWall(pos.x+1,pos.y, TOP) && (isWall(pos.x+1,pos.y, LEFT) || isWall(pos.x+1,pos.y-1, LEFT)))
       longRight = true;
     if (!isWall(pos.x-1,pos.y, TOP) && (isWall(pos.x-1,pos.y, RIGHT) || isWall(pos.x-1,pos.y-1, RIGHT)))
@@ -499,7 +499,7 @@ short Compiler::getLengthInfo(const Vector2D& pos, Direction d, Matrix* rot){
   else if (d == RIGHT){
     //std::cerr << pos.x << " " << pos.y << " " << isWall(pos.x,pos.y-1, RIGHT) << isWall(pos.x,pos.y-1, BOTTOM) << isWall(pos.x+1,pos.y-1, BOTTOM) << "\n";
     if (rot)
-      *rot = Math::Matrix(Matrix::Rotation, Vector3D(0,1,0), (float)(270.0/180.0*M_PI));
+      *rot = CGE::Matrix(Matrix::Rotation, Vector3D(0,1,0), (float)(270.0/180.0*M_PI));
     if (!isWall(pos.x,pos.y+1, RIGHT) && (isWall(pos.x,pos.y+1, TOP) || isWall(pos.x+1,pos.y+1, TOP)))
       longRight = true;
     if (!isWall(pos.x,pos.y-1, RIGHT) && (isWall(pos.x,pos.y-1, BOTTOM) || isWall(pos.x+1,pos.y-1, BOTTOM)))
@@ -507,7 +507,7 @@ short Compiler::getLengthInfo(const Vector2D& pos, Direction d, Matrix* rot){
   }
   else if (d == BOTTOM){
     if (rot)
-      *rot = Math::Matrix(Matrix::Rotation, Vector3D(0,1,0), (float)(180.0/180.0*M_PI));
+      *rot = CGE::Matrix(Matrix::Rotation, Vector3D(0,1,0), (float)(180.0/180.0*M_PI));
     if (!isWall(pos.x-1,pos.y, BOTTOM) && (isWall(pos.x-1,pos.y+1, RIGHT) || isWall(pos.x-1,pos.y, RIGHT)))
       longRight = true;
     if (!isWall(pos.x+1,pos.y, BOTTOM) && (isWall(pos.x+1,pos.y+1, LEFT) || isWall(pos.x+1,pos.y, LEFT)))
@@ -515,7 +515,7 @@ short Compiler::getLengthInfo(const Vector2D& pos, Direction d, Matrix* rot){
   }
   else if (d == LEFT){
     if (rot)
-      *rot = Math::Matrix(Matrix::Rotation, Vector3D(0,1,0), (float)(90.0/180.0*M_PI));
+      *rot = CGE::Matrix(Matrix::Rotation, Vector3D(0,1,0), (float)(90.0/180.0*M_PI));
     if (!isWall(pos.x,pos.y-1, LEFT) && (isWall(pos.x-1,pos.y-1, BOTTOM) || isWall(pos.x,pos.y-1, BOTTOM)))
       longRight = true;
     if (!isWall(pos.x,pos.y+1, LEFT) && (isWall(pos.x-1,pos.y+1, TOP) || isWall(pos.x,pos.y+1, TOP)))

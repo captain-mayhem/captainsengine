@@ -17,6 +17,7 @@
 using std::cerr;
 using namespace Graphics;
 using namespace System;
+using namespace CGE;
 
 Application* Application::instance_ = NULL;
 

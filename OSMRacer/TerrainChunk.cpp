@@ -4,6 +4,8 @@
 #include "system/engine.h"
 #include "renderer/renderer.h"
 
+using namespace CGE;
+
 const int SCALE = 10;
 
 TerrainChunk::TerrainChunk(){

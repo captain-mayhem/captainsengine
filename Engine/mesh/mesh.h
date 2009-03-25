@@ -54,7 +54,7 @@ public:
   //! add vertex
   void addVertex(float x, float y, float z);
   //! add vertex
-  void addVertex(Math::Vec3f v);
+  void addVertex(CGE::Vec3f v);
   //! add texture coordinates
   void addTexCoord(float x, float y, float z = -1);
   //! add edge
@@ -85,16 +85,16 @@ public:
   float* getNormal(int i);
 
   //! get the center of the mesh
-  Math::Vector3D getCenter() {return center_;}
+  CGE::Vector3D getCenter() {return center_;}
 
   //! get the extent
-  Math::BBox getExtents() {return Math::BBox(min_,max_);}
+  CGE::BBox getExtents() {return CGE::BBox(min_,max_);}
 
   //! intersects a ray and a triangle
-  float intersect(const Math::Ray& r) const;
+  float intersect(const CGE::Ray& r) const;
 
   //! get a triangle from the mesh
-  bool getTriangle(int i, Math::Vector3D** result) const;
+  bool getTriangle(int i, CGE::Vector3D** result) const;
 
   //! get number of triangles
   int getNumTriangles() const {return numTriangles_;}
@@ -122,7 +122,7 @@ protected:
   std::vector<Vertex> vertices_;
 
   //! the texture coordinates
-  std::vector<Math::Vector3D> texCoords_;
+  std::vector<CGE::Vector3D> texCoords_;
 
   //! the edges
   EdgeList edges_;
@@ -131,10 +131,10 @@ protected:
   TriangleList triangles_;
 
   //! Extent of the mesh
-  Math::Vector3D min_, max_;
+  CGE::Vector3D min_, max_;
 
   //! The center of the mesh
-  Math::Vector3D center_;
+  CGE::Vector3D center_;
 
   //! the indices
   std::vector<unsigned short> indices_;

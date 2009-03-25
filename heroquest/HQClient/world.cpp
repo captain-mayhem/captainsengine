@@ -49,7 +49,7 @@ using std::ifstream;
 using std::ostringstream;
 using std::ios;
 
-using Math::Matrix;
+using CGE::Matrix;
 
 extern string path;
 

@@ -77,7 +77,7 @@ public:
   //! set the place of the action
   inline void setActionPlace(Vector2D& pos) {actionPlace = pos;}
   //! get the place of the action
-  inline Math::Vector2D getActionPlace() {return actionPlace;}
+  inline CGE::Vector2D getActionPlace() {return actionPlace;}
   //! set the pending damage
   inline void setPendingDamage(short damage){pendingDamage = damage;}
   //! get the pending damage
@@ -106,7 +106,7 @@ private:
   //! an action was already performed
   short actionPerformed[5];
   //! where the last action took place
-  Math::Vector2D actionPlace;
+  CGE::Vector2D actionPlace;
   //! the damage that is pending
   short pendingDamage;
   //! the currently remaining moves

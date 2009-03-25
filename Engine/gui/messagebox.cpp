@@ -8,8 +8,8 @@
 using std::istringstream;
 using namespace Gui;
 using Graphics::Color;
-using Math::Vector3D;
-using Math::Vector2D;
+using CGE::Vector3D;
+using CGE::Vector2D;
 
 //The MessageBox constructor
 MessageBox::MessageBox(){
@@ -49,7 +49,7 @@ void MessageBox::process(){
     (*handleClicks_)(this);
 }
 
-void MessageBox::setPosition(const ::Math::Vector2D& pos){
+void MessageBox::setPosition(const ::CGE::Vector2D& pos){
   surPos_ = pos;
   Vector2D inpos = pos;
   inpos.x += (short)(0.5*surSpan_.x-75.0/2.0);

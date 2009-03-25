@@ -23,7 +23,7 @@ using std::cerr;
 using std::endl;
 using std::ifstream;
 
-using namespace Math;
+using namespace CGE;
 using namespace System;
 using namespace Graphics;
 

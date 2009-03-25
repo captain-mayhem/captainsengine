@@ -20,10 +20,10 @@
 
 #define TRANSLATION_SPEED 0.1f
 
-using Math::Vector2D;
-using Math::Vector3D;
-using Math::Matrix;
-using Math::Ray;
+using CGE::Vector2D;
+using CGE::Vector3D;
+using CGE::Matrix;
+using CGE::Ray;
 using Gui::Button;
 using MeshGeo::Model;
 using System::Filesystem;
@@ -31,7 +31,7 @@ using System::Filesystem;
 Editor* Editor::edi_ = NULL;
 
 Editor::Editor(){
-  arcball_ = new Math::Arcball();
+  arcball_ = new CGE::Arcball();
   lastPos_ = Vector2D();
   gridStep_ = 8;
   gridOffset_ = 4;

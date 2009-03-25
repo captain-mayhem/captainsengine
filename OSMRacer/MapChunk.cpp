@@ -3,6 +3,7 @@
 #include "GeoGen.h"
 
 using namespace Common;
+using namespace CGE;
 
 #define box_extent(minBox,maxBox,point) \
   minBox.x = point.x < minBox.x ? point.x : minBox.x; \
@@ -22,11 +23,11 @@ MapChunk::~MapChunk(){
 
 }
 
-//void MapChunk::setDimensions(const Math::Vec3d& center, const Math::Vec3d& range){
+//void MapChunk::setDimensions(const CGE::Vec3d& center, const CGE::Vec3d& range){
   //mTree.init(center, range*3);
 //}
 
-void MapChunk::addNode(const Math::Vec3d& position, int id){
+void MapChunk::addNode(const CGE::Vec3d& position, int id){
   Node* node = new Node(position,id);
   mNodes[id] = node;
   mGraph.addSingleNode(node);

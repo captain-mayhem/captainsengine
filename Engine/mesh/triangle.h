@@ -62,7 +62,7 @@ public:
   void insertEdge(Edge* e);
 };
 
-class Vertex : public Math::Vector3D{
+class Vertex : public CGE::Vector3D{
 public:
   Vertex(){x=0.0f;y=0.0f;z=0.0f;}
   Vertex(float x, float y, float z){data[0]=x;data[1]=y;data[2]=z;}

@@ -23,8 +23,8 @@ class Overlay;
 struct ScriptInfo;
 class Inventory;
 
-using ::Math::Vector3D;
-using ::Math::Vec2f;
+using ::CGE::Vector3D;
+using ::CGE::Vec2f;
 
 #define QUADSIZE 8
 #define WALLHEIGHT 16

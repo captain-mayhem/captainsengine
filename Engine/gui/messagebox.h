@@ -21,16 +21,16 @@ class MessageBox : public Button {
     //! renders the message box
     virtual void render();
     //! sets the message box position
-    virtual void setPosition(const ::Math::Vector2D& pos);
+    virtual void setPosition(const ::CGE::Vector2D& pos);
     //! process the click
     virtual void process();
     //! set the text in the message box
     void setMessage(const string& text);
   private:
     //! the dimensions of the background
-    Math::Vector2D surSpan_;
+    CGE::Vector2D surSpan_;
     //! the position of the box
-    Math::Vector2D surPos_;
+    CGE::Vector2D surPos_;
     //! the background color
     Graphics::Color surBgColor_;
     //! the foreground color

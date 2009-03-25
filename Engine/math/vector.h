@@ -18,7 +18,7 @@
 
 using std::ostream;
 
-namespace Math{
+namespace CGE{
 
 extern float Epsilon;
   
@@ -196,9 +196,9 @@ public:
   //! Destructor
   ~Vec3();
   //! cast
-  operator T*() {return data;}
+  //operator T*() {return data;}
   //! cast
-  operator const T*() {return data;}
+  //operator const T*() {return data;}
   //! Vector addition
   Vec3 operator+(const Vec3& v) const{
     return Vec3(v.x + x, v.y + y, v.z + z);
@@ -251,6 +251,8 @@ public:
     }
     return x > v.x;
   }
+
+  T& operator[](int i){return data[i];}
 
   //! performing the cross product.
   Vec3 cross(const Vec3& v) const;

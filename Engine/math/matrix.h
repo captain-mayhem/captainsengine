@@ -18,7 +18,7 @@
 
 using std::ostream;
 
-namespace Math{
+namespace CGE{
 
 //! This class is a 4x4-matrix
 /*! It provides some standard matrix operations
@@ -73,13 +73,17 @@ public:
   //! Multiply a vector to a matrix
 	Vector3D operator*(const Vector3D& vec) const;
   //! Multiply the matrix with a scalar
-	Matrix operator*(float number);
+	Matrix operator*(float number) const;
+  //! Multiply the matrix with a scalar
+  Matrix& operator*=(float number);
   //! Multiply the matrix with a scalar
 	friend Matrix operator*(float number, const Matrix& mat);
   //! returns the matrix as float array
 	float* operator*();
   //! write matrix to a stream
 	friend ostream& operator<<(ostream& stream, const Matrix& mat);
+  //! access a row of the matrix
+  CGE::Vec3<float*> operator[](int i);
   //! get matrix from OpenGL
 	//void fromOpenGL();
   //! multiply matrix with the OpenGL matrix stack

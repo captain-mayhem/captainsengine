@@ -28,7 +28,7 @@
 
 using std::string;
 
-using Math::Matrix;
+using CGE::Matrix;
 
 extern string path;
 

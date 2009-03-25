@@ -40,9 +40,9 @@ public:
    */
   ModelInstance clone();
   //! set a transformation
-  inline void setTransform(const Math::Matrix mat) {transform_ = mat;}
+  inline void setTransform(const CGE::Matrix mat) {transform_ = mat;}
   //! get a transformation
-  inline Math::Matrix getTransform() {return transform_;}
+  inline CGE::Matrix getTransform() {return transform_;}
 private:
   //! the vertices
   std::vector<VerTexNorm> vertices_;
@@ -51,7 +51,7 @@ private:
   //! the vertexbuffer
   VertexBuffer* vb_;
   //! the transformation
-  Math::Matrix transform_;
+  CGE::Matrix transform_;
   //! if the model was cloned
   bool cloned_;
 };
@@ -73,12 +73,12 @@ public:
   //! draw a model
   inline void draw() {model_->draw();}
   //! set a transformation
-  inline void setTransform(const Math::Matrix mat) {transform_ = mat;}
+  inline void setTransform(const CGE::Matrix mat) {transform_ = mat;}
   //! get a transformation
-  inline Math::Matrix getTransform() {return transform_;}
+  inline CGE::Matrix getTransform() {return transform_;}
 private:
   //! the transformation
-  Math::Matrix transform_;
+  CGE::Matrix transform_;
   //! a pointer to the model
   Graphics::Model* model_;
 };

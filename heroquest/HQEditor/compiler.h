@@ -37,12 +37,12 @@ public:
   /*! \param pos the position of the Field to be added
    *  \param id the id of the room
    */
-  void addRoom(const ::Math::Vector2D& pos, short id);
+  void addRoom(const ::CGE::Vector2D& pos, short id);
   //! Sets a wall at a Field
   /*! \param pos the position of the Field
    *  \param d the Direction of the wall
    */
-  void setWall(const ::Math::Vector2D& pos, Direction d);
+  void setWall(const ::CGE::Vector2D& pos, Direction d);
   //! Returns if there is a wall on a field in a specific direction
   bool isWall(short x, short y, Direction dir) const;
   //! Returns if there is a door on a field
@@ -52,9 +52,9 @@ public:
    *  \param d the Direction of the Door
    *  \param isSecret if the Door is a secret Door
    */
-  void setDoor(const ::Math::Vector2D& pos, Direction d, short idx);
+  void setDoor(const ::CGE::Vector2D& pos, Direction d, short idx);
   //! Add a hero starting position to the map
-  void addStartPos(const ::Math::Vector2D& pos);
+  void addStartPos(const ::CGE::Vector2D& pos);
   //! Writes the compiled map to the file given by filename
   void write(string filename);
 
@@ -62,25 +62,25 @@ public:
 	/*! \param pos the position of the monster
 	 *  \param monster the monster type
 	 */
-  void addMonster(const ::Math::Vector2D& pos, char monster[3]);
+  void addMonster(const ::CGE::Vector2D& pos, char monster[3]);
 	
 	//! Add a furniture
 	/*! \param pos the position of the furniture
 	 *  \param furniture the furniture type
 	 */
-  void addFurniture(const ::Math::Vector2D& pos, char furniture[3]);
+  void addFurniture(const ::CGE::Vector2D& pos, char furniture[3]);
 	
   //! Add an overlay
 	/*! \param pos the position of the overlay
 	 *  \param overlay the overlay type
 	 */
-  void addOverlay(const ::Math::Vector2D& pos, char overlay[3]);
+  void addOverlay(const ::CGE::Vector2D& pos, char overlay[3]);
 	
 	//! read in monster types
 	void init();
 
   //! Add a script
-  void addScript(char ident, const ::Math::Vector2D& pos);
+  void addScript(char ident, const ::CGE::Vector2D& pos);
 
   //! Set the current (ascii) map
   void setMap(char** map) {map_ = map;}
@@ -96,37 +96,37 @@ private:
             2 right is longer
             3 left and right is longer
   */
-  short getLengthInfo(const Vector2D& pos, Direction d, Math::Matrix* mat = NULL);
+  short getLengthInfo(const Vector2D& pos, Direction d, CGE::Matrix* mat = NULL);
   //! the scene
   Graphics::Scene scene_;
   //! the hero starting positions
-  vector< ::Math::Vector2D > starts_;
+  vector< ::CGE::Vector2D > starts_;
   //! the doors in the map
   vector<Door> doors_;
 	
 	struct monsterPos{
 		char monster[3];
-    ::Math::Vector2D pos;
+    ::CGE::Vector2D pos;
 	};
 
 	struct furniturePos{
 		char furniture[3];
-    ::Math::Vector2D pos;
+    ::CGE::Vector2D pos;
 	};
 
   struct overlayPos{
     char overlay[3];
-    ::Math::Vector2D pos;
+    ::CGE::Vector2D pos;
   };
 
   struct scriptPos{
     char script[2];
-    ::Math::Vector2D pos;
+    ::CGE::Vector2D pos;
   };
 
   struct Tile{
     short id;
-    ::Math::Vector3D translation;
+    ::CGE::Vector3D translation;
     float rotation;
   };
 	

@@ -26,13 +26,13 @@ class Octree{
 public:
 
   struct Node{
-    Node(const Math::Vec3<index>& idx, value val, const Math::Vec3<index>& boxMin, const Math::Vec3<index>& boxMax) : mIndex(idx), mParent(NULL), mIsLeaf(true), mBox(boxMin,boxMax) {
+    Node(const CGE::Vec3<index>& idx, value val, const CGE::Vec3<index>& boxMin, const CGE::Vec3<index>& boxMax) : mIndex(idx), mParent(NULL), mIsLeaf(true), mBox(boxMin,boxMax) {
       for(int i = 0; i < 8; ++i)
         mChildren[i] = NULL;
     };
     ~Node();
-    Math::Vec3<index> mIndex;
-    Math::BBox mBox;
+    CGE::Vec3<index> mIndex;
+    CGE::BBox mBox;
     std::list<value> mValue;
     Node* mChildren[8];
     Node* mParent;
@@ -41,10 +41,10 @@ public:
 
   Octree();
   ~Octree();
-  void init(const Math::Vec3<index>& center, const Math::Vec3<index>& halfspan){
+  void init(const CGE::Vec3<index>& center, const CGE::Vec3<index>& halfspan){
     mCenter = center; mSpan = halfspan;
   }
-  void insert(const Math::Vec3<index>& center, value val);
+  void insert(const CGE::Vec3<index>& center, value val);
   //value& at(index x, index y, index z);
   void buildDebugVertexBuffer();
   void renderDebug();
@@ -61,7 +61,7 @@ protected:
       int mIndex;
   };
 
-  Node** recurseCreate(const Math::Vec3<index>& idx, typename Octree<index,value>::Node** node, Math::Vec3<index> split, Math::Vec3<index> span, int level);
+  Node** recurseCreate(const CGE::Vec3<index>& idx, typename Octree<index,value>::Node** node, CGE::Vec3<index> split, CGE::Vec3<index> span, int level);
   Node* recurse(Node* node, int& data1, void* data2, void (*func)(Node* node, int& data1, void* data2));
   void recurseCullAndRender(const Graphics::Camera* cam, Node* node, bool passThrough);
 
@@ -69,8 +69,8 @@ protected:
 
   Node* mRoot;
   value mDefault;
-  Math::Vec3<index> mCenter;
-  Math::Vec3<index> mSpan;
+  CGE::Vec3<index> mCenter;
+  CGE::Vec3<index> mSpan;
   Graphics::VertexBuffer* mVB;
   int mNodeCount;
   void (*mRenderCB)(value val);
@@ -95,7 +95,7 @@ Octree<index,value>::~Octree(){
 //}
 
 template<typename index, typename value> 
-void Octree<index,value>::insert(const Math::Vec3<index>& center, value val){
+void Octree<index,value>::insert(const CGE::Vec3<index>& center, value val){
   if((center.x < (mCenter-mSpan).x) ||
     (center.y < (mCenter-mSpan).y) ||
     (center.z < (mCenter-mSpan).z) ||
@@ -123,7 +123,7 @@ typename Octree<index,value>::Node* Octree<index,value>::recurse(typename Octree
 }
 
 template<typename index, typename value> 
-typename Octree<index,value>::Node** Octree<index,value>::recurseCreate(const Math::Vec3<index>& idx, typename Octree<index,value>::Node** node, Math::Vec3<index> split, Math::Vec3<index> span, int level){
+typename Octree<index,value>::Node** Octree<index,value>::recurseCreate(const CGE::Vec3<index>& idx, typename Octree<index,value>::Node** node, CGE::Vec3<index> split, CGE::Vec3<index> span, int level){
   if (*node == NULL){
     *node = new Node(idx-mCenter,mDefault,split-span,split+span);
     return node;
@@ -224,17 +224,17 @@ void Octree<index,value>::renderDebug(){
 
 template<typename index, typename value>
 void Octree<index,value>::recurseCullAndRender(const Graphics::Camera* cam, Node* node, bool passThrough){
-  Math::Frustum::Result res;
+  CGE::Frustum::Result res;
   //test or use result from parent
   if (passThrough)
-    res = Math::Frustum::INSIDE;
+    res = CGE::Frustum::INSIDE;
   else{
     res = cam->getFrustum().checkBox(node->mBox);
 
     //we can stop here or pass through
-    if (res == Math::Frustum::OUTSIDE)
+    if (res == CGE::Frustum::OUTSIDE)
       return;
-    else if (res == Math::Frustum::INSIDE){
+    else if (res == CGE::Frustum::INSIDE){
       passThrough = true;
     }
   }

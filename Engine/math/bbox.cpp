@@ -3,7 +3,7 @@
 #include "bbox.h"
 #include "matrix.h"
 
-using namespace Math;
+using namespace CGE;
 using std::min;
 
 BBox::BBox(){

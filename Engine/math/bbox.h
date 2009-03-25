@@ -4,7 +4,7 @@
 #include "boundingobject.h"
 #include "vector.h"
 
-namespace Math{
+namespace CGE{
   
 class BBox : public BoundingObject {
 public:

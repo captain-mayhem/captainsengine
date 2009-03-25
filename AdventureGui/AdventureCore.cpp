@@ -18,6 +18,7 @@
 using std::cerr;
 using namespace Graphics;
 using namespace System;
+using namespace CGE;
 
 AdventureCore::AdventureCore(SQL* sql){
   m_sql = sql;

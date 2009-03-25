@@ -6,7 +6,7 @@
 const float ADJ_WIDTH = (1.0f / ((SCREENWIDTH - 1.0f)*0.5f));
 const float ADJ_HEIGHT = (1.0f / ((SCREENHEIGHT - 1.0f)*0.5f));
 
-using namespace Math;
+using namespace CGE;
 
 Arcball::Arcball(){
   startVec_ = Vector3D();
@@ -29,7 +29,7 @@ void Arcball::drag(const Vector2D& point, Quaternion* rot){
   mapToSphere(point, endVec_);
   if (rot){
     Vector3D perp = startVec_.cross(endVec_);
-    if (perp.length() > Math::Epsilon){
+    if (perp.length() > CGE::Epsilon){
       rot->x = perp.x;
       rot->y = perp.y;
       rot->z = perp.z;

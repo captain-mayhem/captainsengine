@@ -17,6 +17,7 @@
 
 using namespace Gui;
 using Graphics::Color;
+using namespace CGE;
 
 //! Constructor
 Dialog::Dialog(){
@@ -52,7 +53,7 @@ void Dialog::render(){
 }
 
 //! Is the dialog clicked
-bool Dialog::isClicked(const ::Math::Vector2D& pos){
+bool Dialog::isClicked(const ::CGE::Vector2D& pos){
   list<GuiElement*>::iterator iter;
   //handle click
   for (iter = elements_.begin(); iter != elements_.end(); iter++){

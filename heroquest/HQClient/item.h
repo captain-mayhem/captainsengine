@@ -13,7 +13,7 @@ using std::ifstream;
 using std::ofstream;
 using std::string;
 
-//using Math::Vector2D;
+//using CGE::Vector2D;
 
 class Item{
   public:
@@ -47,7 +47,7 @@ class Item{
     inline void reset() {count_ = 0;}
     inline short getNumber() {return count_;}
     inline bool isValid() {return (id_ != -1 && count_ > 0);}
-    bool use(::Math::Vector2D source, ::Math::Vector2D target);
+    bool use(::CGE::Vector2D source, ::CGE::Vector2D target);
     //! writes item data
     void write(ofstream& out)const;
     //! reads item data

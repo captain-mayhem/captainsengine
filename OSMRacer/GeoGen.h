@@ -21,9 +21,9 @@ public:
   void setMapChunk(MapChunk* map) {mCurMap = map;}
 protected:
   void genStreets(MapChunk::Node* node);
-  void genStreetSegment(Vec3f start, Vec3f end, Vec3f rightside, Vec3f leftside);
+  void genStreetSegment(CGE::Vec3f start, CGE::Vec3f end, CGE::Vec3f rightside, CGE::Vec3f leftside);
   void reorderGraph(MapChunk::Node* node);
-  static float getAngle(const Vec3f& v1, const Vec3f& v2, const Vec3f& normal);
+  static float getAngle(const CGE::Vec3f& v1, const CGE::Vec3f& v2, const CGE::Vec3f& normal);
 
   MapChunk* mCurMap;
   MeshGeo::Mesh* mMesh;

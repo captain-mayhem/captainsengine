@@ -13,7 +13,7 @@
 #endif
 
 using std::cerr;
-using Math::Vector2D;
+using CGE::Vector2D;
 using Input::Mouse;
 
 Trade::Trade(){

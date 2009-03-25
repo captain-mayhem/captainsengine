@@ -18,7 +18,7 @@ public:
   void activate();
   void draw(PrimitiveType pt, short indexNum);
   void setColor(int pos, Color c);
-  void setTexCoord(int pos, ::Math::Vec2f t, bool dxswap=false);
+  void setTexCoord(int pos, ::CGE::Vec2f t, bool dxswap=false);
   void setVertexOffset(int offset);
 protected:
   char* vb_;

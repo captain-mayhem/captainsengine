@@ -36,6 +36,7 @@ using std::ifstream;
 using std::ofstream;
 using std::ostringstream;
 using std::ios;
+using namespace CGE;
 
 
 //CONSTRUCTOR
@@ -183,7 +184,7 @@ void Creature::update(){
     if (model_){
       Vector3D pos = actPos_;
       pos.y = 0;
-      Math::Matrix mat = Matrix(Matrix::Translation, pos);
+      CGE::Matrix mat = Matrix(Matrix::Translation, pos);
       model_->setTrafo(mat);
     }
     while(!positions_.empty())
@@ -218,7 +219,7 @@ void Creature::update(){
   if (model_){
     Vector3D pos = actPos_;
     pos.y = 0;
-    Math::Matrix mat = Matrix(Matrix::Translation, pos);
+    CGE::Matrix mat = Matrix(Matrix::Translation, pos);
     model_->setTrafo(mat);
   }
 #endif

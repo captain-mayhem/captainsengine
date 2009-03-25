@@ -14,7 +14,7 @@
 
 #include "math/vector.h"
 
-using ::Math::Vector2D;
+using ::CGE::Vector2D;
 
 //! The base class for renderable objects in the game
 class GameObject {

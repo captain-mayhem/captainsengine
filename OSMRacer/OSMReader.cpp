@@ -63,14 +63,14 @@ bool OSMReader::processElement(TiXmlNode* node){
     readAttribute(elem, "maxlat", maxlat);
     readAttribute(elem, "minlon", minlon);
     readAttribute(elem, "maxlon", maxlon);
-    Math::Vec3d minBox = Math::Vec3d(DBL_MAX,DBL_MAX,DBL_MAX);
-    Math::Vec3d maxBox = Math::Vec3d(-DBL_MAX,-DBL_MAX,-DBL_MAX);
+    CGE::Vec3d minBox = CGE::Vec3d(DBL_MAX,DBL_MAX,DBL_MAX);
+    CGE::Vec3d maxBox = CGE::Vec3d(-DBL_MAX,-DBL_MAX,-DBL_MAX);
     box_extent(minBox,maxBox,(Utility::polarToCartesian(minlat, minlon)*Utility::SCALE));
     box_extent(minBox,maxBox,(Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE));
     box_extent(minBox,maxBox,(Utility::polarToCartesian(minlat, maxlon)*Utility::SCALE));
     box_extent(minBox,maxBox,(Utility::polarToCartesian(maxlat, minlon)*Utility::SCALE));*/
-    //Math::Vec3d minBox = Utility::polarToCartesian(minlat, minlon)*Utility::SCALE;
-    //Math::Vec3d maxBox = Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE;
+    //CGE::Vec3d minBox = Utility::polarToCartesian(minlat, minlon)*Utility::SCALE;
+    //CGE::Vec3d maxBox = Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE;
     /*if (minBox.x > maxBox.x){
       double tmp = minBox.x; minBox.x = maxBox.x; maxBox.x = tmp;
     }
@@ -80,8 +80,8 @@ bool OSMReader::processElement(TiXmlNode* node){
     if (minBox.z > maxBox.z){
       double tmp = minBox.z; minBox.z = maxBox.z; maxBox.z = tmp;
     }*//*
-    Math::Vec3d center = (minBox+maxBox)/2;
-    Math::Vec3d extreme = center.normalized()*Utility::SCALE;
+    CGE::Vec3d center = (minBox+maxBox)/2;
+    CGE::Vec3d extreme = center.normalized()*Utility::SCALE;
     minBox.x = extreme.x < minBox.x ? extreme.x : minBox.x;
     minBox.y = extreme.y < minBox.y ? extreme.y : minBox.y;
     minBox.z = extreme.z < minBox.z ? extreme.z : minBox.z;
@@ -89,7 +89,7 @@ bool OSMReader::processElement(TiXmlNode* node){
     maxBox.y = extreme.y > maxBox.y ? extreme.y : maxBox.y;
     maxBox.z = extreme.z > maxBox.z ? extreme.z : maxBox.z;*/
     //recalculate new center
-    //Math::Vec3d center = (minBox+maxBox)/2;
+    //CGE::Vec3d center = (minBox+maxBox)/2;
     //mMap->setDimensions(center, (maxBox-minBox)/2.0f);
     return true;
   }
@@ -99,7 +99,7 @@ bool OSMReader::processElement(TiXmlNode* node){
     readAttribute(elem, "id", id);
     readAttribute(elem, "lat", lat);
     readAttribute(elem, "lon", lon);
-    Math::Vec3d v = Utility::polarToCartesian(lat, lon)*Utility::SCALE;
+    CGE::Vec3d v = Utility::polarToCartesian(lat, lon)*Utility::SCALE;
     mState = NODE;
     for(TiXmlNode* child = node->FirstChild(); child != NULL; child = child->NextSibling()){
       readNode(child);

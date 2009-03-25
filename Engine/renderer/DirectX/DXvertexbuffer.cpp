@@ -132,9 +132,9 @@ void DXVertexBuffer::setColor(int pos, Color c){
   col->r = c.b; col->g = c.g; col->b = c.r; col->a = c.a;
 }
 
-void DXVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t, bool dxswap){
-  ::Math::Vec2f* tex;
-  tex = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
+void DXVertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t, bool dxswap){
+  ::CGE::Vec2f* tex;
+  tex = (::CGE::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
   tex->x = t.x; 
   if (dxswap)
     tex->y = 1-t.y;

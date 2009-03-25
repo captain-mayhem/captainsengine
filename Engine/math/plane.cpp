@@ -1,6 +1,6 @@
 #include "plane.h"
 
-using namespace Math;
+using namespace CGE;
 
 Plane::Plane() : mNormal(), mPoint(), mD(0){
 }

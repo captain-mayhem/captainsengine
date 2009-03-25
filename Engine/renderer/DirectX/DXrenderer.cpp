@@ -8,6 +8,7 @@
 #include <d3dx9.h>
 
 using namespace Graphics;
+using namespace CGE;
 
 DXRenderer::DXRenderer(): Renderer() {
   type_ = DirectX;
@@ -187,7 +188,7 @@ void DXRenderer::resizeScene(int width, int height){
 }
 
 //! clear scene
-void DXRenderer::setClearColor(::Math::Vector3D color){
+void DXRenderer::setClearColor(::CGE::Vector3D color){
   clearColor_ = color*255;
 }
 
@@ -339,7 +340,7 @@ void DXRenderer::popMatrix(){
 }
 
 //! multiply matrix
-void DXRenderer::multiplyMatrix(const Math::Matrix& mat){
+void DXRenderer::multiplyMatrix(const CGE::Matrix& mat){
   D3DXMATRIX matrix(mat.getData());
   device_->MultiplyTransform(D3DTS_WORLD, &matrix);
 }

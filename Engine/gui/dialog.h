@@ -26,7 +26,7 @@ public:
   //! The render function
   virtual void render();
   //! Is the dialog clicked
-  virtual bool isClicked(const ::Math::Vector2D& pos);
+  virtual bool isClicked(const ::CGE::Vector2D& pos);
   //! Process the click
   virtual void process();
   //! Add an element

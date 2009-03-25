@@ -3,7 +3,8 @@
 
 #include "vector.h"
 
-namespace Math{
+#define Math CGE
+namespace CGE{
 
 class Matrix;
 

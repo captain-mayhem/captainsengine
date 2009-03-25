@@ -42,9 +42,9 @@ public:
   //! the mouse move callback
   inline static void mouseMove(int x, int y, int buttons) {rend_->mouseMove_(x, y, buttons);}
   //! get the clicked field
-  inline Math::Vector2D getClickedField() {return clickedField_;}
+  inline CGE::Vector2D getClickedField() {return clickedField_;}
   //! reset the clicked field
-  inline void resetClickedField() {clickedField_ = Math::Vector2D(-1,-1);}
+  inline void resetClickedField() {clickedField_ = CGE::Vector2D(-1,-1);}
   //! set the current inventory
   inline void setInventory(Inventory* inv) {inventory_ = inv;}
   //! get the current inventory
@@ -52,7 +52,7 @@ public:
   //! set the view to 3D
   void setViewTo3D(bool threeD);
   //! set awaiting map click
-  inline void setAwaitMapclick(void (*proc)(Math::Vector2D click)) {awaitMapClick_ = proc;}
+  inline void setAwaitMapclick(void (*proc)(CGE::Vector2D click)) {awaitMapClick_ = proc;}
   //! set the trade status
   inline void setTrade(bool on) {trade_ = on;}
 protected:
@@ -90,11 +90,11 @@ protected:
   //! the pressed keys
   bool keys_[256];
   //! the mouse position
-  Math::Vector2D mousePos_;
+  CGE::Vector2D mousePos_;
   //! the clicked field
-  Math::Vector2D clickedField_;
+  CGE::Vector2D clickedField_;
   //! if map click is awaited
-  void (*awaitMapClick_)(Math::Vector2D click);
+  void (*awaitMapClick_)(CGE::Vector2D click);
   //! the inventory that should be rendered
   Inventory* inventory_;
   //! if the trading is active

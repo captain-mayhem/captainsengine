@@ -7,12 +7,26 @@
 #include "renderer/forms.h"
 #include "system/engine.h"
 
+using namespace CGE;
+
+Vehicle::Vehicle(){
+  //init wheels
+  for (int i = 0; i < 4; ++i){
+    mWheels[i] = new CGE::Body();
+    mWheels[i]->initCylinder(0.165,0.381,5);
+  }
+}
+
+Vehicle::~Vehicle(){
+
+}
+
 void Vehicle::render(const Graphics::Camera& cam){
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   Graphics::Forms* form = System::Engine::instance()->getForms();
   rend->setColor(1.0,0.0,0.0,1.0);
   form->activateCylinder();
-  Math::Matrix rot = Math::Matrix(Matrix::Rotation, Vec3f(1,0,0), M_PI/2);
+  CGE::Matrix rot = CGE::Matrix(Matrix::Rotation, Vec3f(1,0,0), M_PI/2);
   //rot = rot.inverse();
   rend->multiplyMatrix(rot);
   rend->translate(2,2,0);

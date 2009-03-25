@@ -5,7 +5,7 @@
 
 #include <float.h>
 
-using namespace Math;
+using namespace CGE;
 using std::min;
 
 BSphere::BSphere(){
