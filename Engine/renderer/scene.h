@@ -5,7 +5,7 @@
 #include <vector>
 #include <list>
 
-namespace Math{
+namespace CGE{
 class Ray;
 }
 
@@ -43,7 +43,7 @@ public:
   //! load the scene
   void load(const std::string& filename);
   //! Get the model that is the nearest one on the ray
-  MeshGeo::Model* pickModel(const Math::Ray& ray) const;
+  MeshGeo::Model* pickModel(const CGE::Ray& ray) const;
   //! get the models
   const std::list<MeshGeo::Model*>& getModels() const {return models_;}
 protected:

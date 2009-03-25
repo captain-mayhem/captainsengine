@@ -3,6 +3,6 @@
 class Utility{
 public:
   static const double SCALE;
-  static Math::Vec3<double> polarToCartesian(double longitude, double latitude);
+  static CGE::Vec3<double> polarToCartesian(double longitude, double latitude);
 };
 

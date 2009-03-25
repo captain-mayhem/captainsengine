@@ -14,12 +14,13 @@ using System::Engine;
 using Gui::Button;
 using MeshGeo::Mesh;
 using MeshGeo::Model;
+using namespace CGE;
 
 Graphic* Graphic::gra_ = NULL;
 
 Graphic::Graphic(){
-  camTrafo_ = Math::Matrix(Matrix::Translation, Vector3D(0.0,0.0,-10.0f));
-  camRot_ = Math::Matrix(Matrix::Identity);
+  camTrafo_ = CGE::Matrix(Matrix::Translation, Vector3D(0.0,0.0,-10.0f));
+  camRot_ = CGE::Matrix(Matrix::Identity);
   currModel_ = NULL;
   filename_ = "";
 }
@@ -130,7 +131,7 @@ void Graphic::render_(){
 }
 
 //! set transformation of a mesh
-void Graphic::setTrafo(const int id, const Math::Matrix& mat){
+void Graphic::setTrafo(const int id, const CGE::Matrix& mat){
   scene_.getModel(id)->setTrafo(mat);
   //meshes_[id]->setTrafo(mat);
 }

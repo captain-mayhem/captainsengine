@@ -20,9 +20,9 @@ using std::ios;
 using std::max;
 using MeshGeo::Model;
 using MeshGeo::Mesh;
-using Math::BoundingObject;
-using Math::Matrix;
-using Math::Ray;
+using CGE::BoundingObject;
+using CGE::Matrix;
+using CGE::Ray;
 using System::Utilities;
 
 Scene::Scene(){

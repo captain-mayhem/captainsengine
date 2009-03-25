@@ -15,7 +15,7 @@ using Gui::InputField;
 using Gui::Button;;
 using Gui::Console;
 using Gui::GuiElement;
-using Math::Vector2D;
+using CGE::Vector2D;
 
 using namespace Input;
 

@@ -27,7 +27,7 @@
 
 using std::min;
 using namespace MeshGeo;
-using Math::Vector3D;
+using namespace CGE;
 
 // --------------------------------------------------------------------
 //  Default constructor
@@ -72,11 +72,11 @@ Mesh::~Mesh(){
 
 //! add vertex
 void Mesh::addVertex(float x, float y, float z){
-  addVertex(Math::Vec3f(x,y,z));
+  addVertex(CGE::Vec3f(x,y,z));
 }
 
 //add vertex
-void Mesh::addVertex(Math::Vec3f v){
+void Mesh::addVertex(CGE::Vec3f v){
   vertices_.push_back(Vertex(v.x,v.y,v.z));
   numVertices_++;
   //extent
@@ -392,7 +392,7 @@ float* Mesh::getNormal(int i){
 
   normal.normalize();
 
-  return normal;
+  return normal.data;
 }
 
 //! build vertex buffer object
@@ -499,7 +499,7 @@ void Mesh::draw(){/*
 }
 
 //! intersects a ray and a triangle
-float Mesh::intersect(const Math::Ray& r) const{
+float Mesh::intersect(const CGE::Ray& r) const{
   float intersection = FLT_MAX;
   //go over all triangles
   for (unsigned i = 0; i < triangles_.size(); i++){

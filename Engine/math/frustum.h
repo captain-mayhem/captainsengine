@@ -17,7 +17,7 @@
 #include "bbox.h"
 #include "bsphere.h"
 
-namespace Math{
+namespace CGE{
 
 class Frustum{
 public:

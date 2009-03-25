@@ -18,6 +18,7 @@
 #include "../renderer/forms.h"
 
 using namespace Gui;
+using namespace CGE;
 using Graphics::Color;
 using System::Filesystem;
 

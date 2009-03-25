@@ -5,7 +5,7 @@
 #include "matrix.h"
 #include "quaternion.h"
 
-namespace Math{
+namespace CGE{
 
 class Arcball{
 public:

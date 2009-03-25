@@ -58,7 +58,7 @@ class DropDownButton : public Button {
     //! the drop down entries
     vector<DDEntryButton*> entries_;
     //! the current drop down position
-    Math::Vector2D ddPos_;
+    CGE::Vector2D ddPos_;
     //! the status of the field
     bool isOpen_;
     //! the popup direction

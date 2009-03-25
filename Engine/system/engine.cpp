@@ -9,6 +9,7 @@
 #include "script.h"
 #include "../gui/console.h"
 #include "../renderer/forms.h"
+#include "../physics/Simulator.h"
 
 #ifdef WIN32
 #define TIME_FACTOR 0.001
@@ -37,6 +38,7 @@ System::Engine::Engine(){
   console_ = NULL;
   clear_ = false;
   guitex_ = Mutex();
+  mSimulator = NULL;
   Log << "Engine instance created\n";
 }
 
@@ -50,6 +52,7 @@ void System::Engine::startup(int argc, char** argv){
   string type = Script::instance()->getStringSetting("renderer");
   maxFramerate_ = ::System::Script::instance()->getNumberSetting("timeScheme");
   graphics_ = Script::instance()->getBoolSetting("graphics");
+  physics_ = Script::instance()->getBoolSetting("physics");
 
   if (graphics_){
     if (type == "OpenGL"){
@@ -91,6 +94,9 @@ void System::Engine::startup(int argc, char** argv){
     win_->init("Captains Game Engine");
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
+
+  if (physics_)
+    mSimulator = new CGE::Simulator();
   
   if (internalEngineMain != NULL)
     internalEngineMain(argc, argv);
@@ -116,6 +122,7 @@ void System::Engine::shutdown(){
     return;
   Log << "engine shutting down\n";
   isUp_ = false;
+  SAFE_DELETE(mSimulator);
   Input::Keyboard::release();
   Input::Mouse::release();
   SAFE_DELETE(console_);
@@ -139,6 +146,10 @@ void System::Engine::shutdown(){
 
 void System::Engine::run(){
   //handle physics, KI, ...
+  if (physics_){
+    mSimulator->doSimulationStep(frameInterval_);
+  }
+
   console_->update();
   Input::Keyboard::instance()->processPressedKeys((float)frameInterval_);
 

@@ -9,7 +9,7 @@
 #include <cassert>
 
 using namespace MeshGeo;
-using Math::Matrix;
+using namespace CGE;
 
 Model::Model(){
   trafo_ = Matrix(Matrix::Identity);

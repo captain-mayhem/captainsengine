@@ -33,7 +33,7 @@ class Texture;
 //! encapsulates font data with all necessary variables to be able to be rendered
 struct font_data{
   //! position of the text
-  ::Math::Vector2D pos;
+  ::CGE::Vector2D pos;
   //! the text
   string* text;
   //! which font set should be used

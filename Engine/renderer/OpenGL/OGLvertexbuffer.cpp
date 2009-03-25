@@ -144,9 +144,9 @@ void OGLVertexBuffer::setColor(int pos, Color c){
   col->r = c.r; col->g = c.g; col->b = c.b; col->a = c.a;
 }
 
-void OGLVertexBuffer::setTexCoord(int pos, ::Math::Vec2f t, bool dxswap){
-  ::Math::Vec2f* tex;
-  tex = (::Math::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
+void OGLVertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t, bool dxswap){
+  ::CGE::Vec2f* tex;
+  tex = (::CGE::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
   tex->x = t.x; tex->y = t.y;
 }
 

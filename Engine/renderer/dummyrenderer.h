@@ -43,11 +43,11 @@ public:
   //! pop matrix
   void popMatrix(){}
   //! multiply matrix
-  void multiplyMatrix(const Math::Matrix& mat){}
+  void multiplyMatrix(const CGE::Matrix& mat){}
   //! get the viewport
   virtual void getViewport(int view[4]){}
   //! get a matrix
-  virtual Matrix getMatrix(MatrixType mt){return Matrix(Matrix::Identity);}
+  virtual CGE::Matrix getMatrix(MatrixType mt){return CGE::Matrix(CGE::Matrix::Identity);}
   //! swap back and front buffer
   virtual void swapBuffers(){}
 };

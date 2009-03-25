@@ -14,9 +14,9 @@ public:
   //! Destructor
   virtual ~GameObject();
   //! set transformation
-  inline void setTrafo(const Math::Matrix& mat) {trafo_ = mat;}
+  inline void setTrafo(const CGE::Matrix& mat) {trafo_ = mat;}
   //! get transformation
-  inline Math::Matrix getTrafo() const {return trafo_;}
+  inline CGE::Matrix getTrafo() const {return trafo_;}
   //! get id
   inline unsigned int getID() const {return id_;}
   //! set id
@@ -31,7 +31,7 @@ protected:
   //! The object id
   unsigned int id_;
   //! The transformation
-  Math::Matrix trafo_;
+  CGE::Matrix trafo_;
 };
 
 }

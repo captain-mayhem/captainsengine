@@ -14,7 +14,7 @@
 #include "renderer/texture.h"
 
 using namespace Gui;
-using Math::Vector2D;
+using CGE::Vector2D;
 using MeshGeo::Mesh;
 using MeshGeo::Model;
 using Graphics::Texture;

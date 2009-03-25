@@ -3,7 +3,7 @@
 #include "../renderer/renderer.h"
 #include "../system/engine.h"
 
-using namespace Math;
+using namespace CGE;
 using namespace Graphics;
 
 Camera::Camera(){
@@ -18,7 +18,7 @@ void Camera::project(float angle, float ratio, float nearDist, float farDist){
   mFrustum.setProjection(angle,ratio,nearDist,farDist);
 }
 
-void Camera::lookAt(Math::Vec3f eye, Math::Vec3f look, Math::Vec3f up){
+void Camera::lookAt(CGE::Vec3f eye, CGE::Vec3f look, CGE::Vec3f up){
   mPosition = eye;
   mForward = look - mPosition;
   mForward.normalize();

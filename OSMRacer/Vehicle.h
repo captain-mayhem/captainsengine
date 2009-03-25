@@ -1,13 +1,17 @@
 
 #include "math/vector.h"
+#include <physics/Body.h>
 
 namespace Graphics{
   class Camera;
 }
 
-class Vehicle{
+class Vehicle : public CGE::Body{
 public:
+  Vehicle();
+  ~Vehicle();
   void render(const Graphics::Camera& cam);
 protected:
-  Math::Vec3f mPosition;
+  CGE::Body* mAutobody;
+  CGE::Body* mWheels[4];
 };

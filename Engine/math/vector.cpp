@@ -13,7 +13,7 @@
 #include <float.h>
 #include "vector.h"
 
-namespace Math{
+namespace CGE{
 
 float Epsilon = 1.0e-5;
 /*  

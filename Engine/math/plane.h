@@ -15,7 +15,7 @@
 
 #include "vector.h"
 
-namespace Math{
+namespace CGE{
 
 class Plane{
 public:

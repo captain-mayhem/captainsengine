@@ -15,7 +15,7 @@
 
 #include "matrix.h"
 
-using namespace Math;
+using namespace CGE;
 
 //Pattern:
 // 0 4 8  12
@@ -196,7 +196,7 @@ Vector3D Matrix::operator*(const Vector3D& vec) const
 	return result;
 }
 
-Matrix Math::Matrix::operator*(float number){
+Matrix CGE::Matrix::operator*(float number) const {
 	Matrix ret = *this;
 	for (int i = 0; i < 16; i++){
 		ret.data_[i] *= number;
@@ -204,11 +204,18 @@ Matrix Math::Matrix::operator*(float number){
 	return ret;
 }
 
+Matrix& CGE::Matrix::operator*=(float number){
+  for (int i = 0; i < 16; i++){
+    data_[i] *= number;
+  }
+  return *this;
+}
+
 float* Matrix::operator*(){
 	return data_;
 }
 
-ostream& Math::operator<<(ostream& stream, const Matrix& mat)
+ostream& CGE::operator<<(ostream& stream, const Matrix& mat)
 {
 	stream<<"|-----------|"<<std::endl;
 	for(short i=0; i<4; i++)
@@ -230,8 +237,7 @@ void Matrix::fromOpenGL()
 }*/
 
 Matrix operator*(float number, const Matrix& mat){
-	Matrix tmp = mat;
-	return tmp*number;
+	return mat*number;
 }
 
 Matrix Matrix::transpose() const
@@ -411,4 +417,8 @@ float Matrix::SVD() const{
               data_[4]*data_[4] + data_[5]*data_[5] + data_[6]*data_[6] +
               data_[8]*data_[8] + data_[9]*data_[9] + data_[10]*data_[10])/3.0f);
   return s;
+}
+
+CGE::Vec3<float*> Matrix::operator[](int i){
+  return Vec3<float*>(data_+4*i+0, data_+4*i+1, data_+4*i+2);
 }

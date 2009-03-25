@@ -27,7 +27,7 @@ using std::string;
 using std::list;
 using std::ostringstream;
 
-//using ::Math::Vector2D;
+//using ::CGE::Vector2D;
 //using ::Gui::InputField;
 //using ::Gui::Button;
 //using ::Graphics::Font;
@@ -66,7 +66,7 @@ class Console{
      * \param bgCol background color of the input field
      * \param opaque opacity of the input
      */
-    inline void setParams(::Math::Vector3D fgCol, ::Graphics::Color bgCol, float opaque)
+    inline void setParams(::CGE::Vector3D fgCol, ::Graphics::Color bgCol, float opaque)
       {input_->setColors(fgCol, bgCol); input_->setOpacity(opaque);}
     
     //! returns the text of the input field
@@ -124,13 +124,13 @@ private:
     //! To iterate on the history
     list<string>::iterator histIter_;
     //! position of lower left corner
-    ::Math::Vector2D pos_;
+    ::CGE::Vector2D pos_;
     //! the console dimensions
-    ::Math::Vector2D span_;
+    ::CGE::Vector2D span_;
     //! background color
     ::Graphics::Color bgColor_;
     //! foreground color
-    ::Math::Vector3D fgColor_;
+    ::CGE::Vector3D fgColor_;
     //! opacity
     float opacity_;
     //! the font for displaying text

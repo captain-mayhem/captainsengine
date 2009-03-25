@@ -4,7 +4,7 @@
 
 #include "../system/gameobject.h"
 
-namespace Math{
+namespace CGE{
 class BoundingObject;
 }
 
@@ -38,9 +38,9 @@ public:
   //! Get the model
   Mesh* getMesh() const {return mesh_;}
   //! Set a bounding object
-  inline void setBoundingObject(Math::BoundingObject* obj) {boundingObj_ = obj;}
+  inline void setBoundingObject(CGE::BoundingObject* obj) {boundingObj_ = obj;}
   //! Get the bounding object
-  inline Math::BoundingObject* getBoundingObject() const {return boundingObj_;}
+  inline CGE::BoundingObject* getBoundingObject() const {return boundingObj_;}
   //! Assign a texture
   void assignTexture(Graphics::Texture* tex, int stage);
   //! Get a texture
@@ -53,7 +53,7 @@ protected:
   //! The mesh
   Mesh* mesh_;
   //! The corresponding bounding object
-  Math::BoundingObject* boundingObj_;
+  CGE::BoundingObject* boundingObj_;
   //! Assigned textures
   Graphics::Texture* textures_[MAX_TEXTURES];
   //! The model attributes

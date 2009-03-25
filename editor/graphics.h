@@ -24,13 +24,13 @@ public:
   //! add a texture to the editor
   void addTexture(const std::string& filename);
   //! set transformation of a mesh
-  void setTrafo(const int id, const Math::Matrix& mat);
+  void setTrafo(const int id, const CGE::Matrix& mat);
   //! set translation of the camera
-  void setCamTrafo(const Math::Matrix& mat) {camTrafo_ = mat;}
+  void setCamTrafo(const CGE::Matrix& mat) {camTrafo_ = mat;}
   //! set transformation of the camera
-  void multCamTrafo(const Math::Matrix& mat) {camTrafo_ = mat * camTrafo_;}
+  void multCamTrafo(const CGE::Matrix& mat) {camTrafo_ = mat * camTrafo_;}
   //! set transformation of the camera
-  void setCamRotation(const Math::Matrix& mat) {camRot_ = mat;}
+  void setCamRotation(const CGE::Matrix& mat) {camRot_ = mat;}
   //! get the scene
   Graphics::Scene& getScene() {return scene_;}
   //! set the current model
@@ -38,7 +38,7 @@ public:
   //! get the current model
   MeshGeo::Model* getCurrModel() const {return currModel_;}
   //! get view matrix
-  Math::Matrix getViewMat() {return camTrafo_ * camRot_;}
+  CGE::Matrix getViewMat() {return camTrafo_ * camRot_;}
   //! set the filename
   inline void setFilename(std::string filename) {filename_ = filename;}
   //! get the filename
@@ -54,9 +54,9 @@ protected:
   //std::vector<MeshGeo::Mesh*> meshes_;
   Graphics::Scene scene_;
   //! the camera transformation
-  Math::Matrix camTrafo_;
+  CGE::Matrix camTrafo_;
   //! the camera rotation
-  Math::Matrix camRot_;
+  CGE::Matrix camRot_;
   //! the current model
   MeshGeo::Model* currModel_;
   //! the filename of the loaded scene

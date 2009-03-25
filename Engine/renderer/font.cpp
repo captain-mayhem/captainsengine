@@ -16,6 +16,7 @@
 #include "font.h"
 
 using namespace Graphics;
+using namespace CGE;
 
 //Constructor
 Font::Font(){

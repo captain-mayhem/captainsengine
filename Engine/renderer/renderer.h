@@ -10,8 +10,6 @@ class AppWindow;
 #include "vertexbuffer.h"
 #include "texture.h"
 
-using namespace ::Math;
-
 #define ZBUFFER 0x00000001
 #define COLORBUFFER 0x00000010
 
@@ -65,7 +63,7 @@ public:
   //! resize scene
   virtual void resizeScene(int width, int height);
   //! set clear color
-  virtual void setClearColor(Vector3D color){}
+  virtual void setClearColor(CGE::Vec3f color){}
   //! clear scene
   virtual void clear(long flags){}
   //! create vertex buffer
@@ -73,7 +71,7 @@ public:
   //! create texture
   virtual Texture* createTexture(string filename)=0;
   //! set lookAt
-  virtual void lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){}
+  virtual void lookAt(const CGE::Vec3f& position, const CGE::Vec3f& look, const CGE::Vec3f& up){}
   //! set perspective projection
   virtual void projection(float angle, float aspect, float nearplane, float farplane){}
   //! set orthographic projection
@@ -107,11 +105,11 @@ public:
   //! pop matrix
   virtual void popMatrix()=0;
   //! multiply matrix
-  virtual void multiplyMatrix(const Matrix& mat)=0;
+  virtual void multiplyMatrix(const CGE::Matrix& mat)=0;
   //! get the viewport
   virtual void getViewport(int view[4])=0;
   //! get a matrix
-  virtual Matrix getMatrix(MatrixType mt)=0;
+  virtual CGE::Matrix getMatrix(MatrixType mt)=0;
   //! swap back and front buffer
   virtual void swapBuffers()=0;
 protected:

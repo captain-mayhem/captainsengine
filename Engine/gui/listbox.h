@@ -27,7 +27,7 @@ public:
   //! The render function
   virtual void render();
   //! Is the dialog clicked
-  virtual bool isClicked(const ::Math::Vector2D& pos);
+  virtual bool isClicked(const ::CGE::Vector2D& pos);
   //! Process the click
   virtual void process();
   //! Add an entry
@@ -37,7 +37,7 @@ public:
   //! Clear the entries
   void clear() {selected_ = -1; entries_.clear();}
   //! Set the highlight color
-  inline void setHighlightColor(const Math::Vector3D& color) {selColor_ = color;}
+  inline void setHighlightColor(const CGE::Vector3D& color) {selColor_ = color;}
   //! sets the callback function
   inline void setCbFunc(void (*click)(GuiElement*)) { handleClicks_ = click; }
   //! get selected item
@@ -50,7 +50,7 @@ protected:
   //! The selected item
   int selected_;
   //! Highlight color
-  Math::Vector3D selColor_;
+  CGE::Vector3D selColor_;
   //! The callback function
   void (*handleClicks_)(GuiElement*);
   //! The scroll position

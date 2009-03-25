@@ -6,6 +6,8 @@
 
 #include <mesh/mesh.h>
 
+using namespace CGE;
+
 CGE::EventQueue<std::pair<MapChunk*,MapChunk::Node*> > GeoGen::mQueue;
 CGE::EventQueue<std::pair<MapChunk::Node*,MeshGeo::Model* > > GeoGen::mAnswer;
 
@@ -81,13 +83,13 @@ void GeoGen::genStreets(MapChunk::Node* node){
       v3.normalize();
 
       float leftangle = getAngle(v1,v2,mCurMap->getNormal())/2;
-      Math::Matrix rot = Math::Matrix(Matrix::Rotation,mCurMap->getNormal(),leftangle);
+      CGE::Matrix rot = CGE::Matrix(Matrix::Rotation,mCurMap->getNormal(),leftangle);
       Vec3f leftside = rot*v1;
       leftside.normalize();
       leftside = leftside/sin(leftangle);
 
       float rightangle = getAngle(v2,v3,mCurMap->getNormal())/2;
-      Math::Matrix rot2 = Math::Matrix(Matrix::Rotation,mCurMap->getNormal(),rightangle);
+      CGE::Matrix rot2 = CGE::Matrix(Matrix::Rotation,mCurMap->getNormal(),rightangle);
       Vec3f rightside = rot2*v2;
       rightside.normalize();
       rightside = rightside/sin(rightangle);
@@ -104,14 +106,14 @@ void GeoGen::genStreets(MapChunk::Node* node){
     v3.normalize();
     Vec3f axis = v2.cross(v1);
     float angle = getAngle(v2,v1,mCurMap->getNormal());
-    Math::Matrix rot = Math::Matrix(Matrix::Rotation,axis,angle/2);
+    CGE::Matrix rot = CGE::Matrix(Matrix::Rotation,axis,angle/2);
     Vec3f side = rot*v2;
     side.normalize();
     side = side/sin(angle/2);
 
     Vec3f axis2 = v2.cross(v3);
     float angle2 = getAngle(v2,v3,mCurMap->getNormal());
-    Math::Matrix rot2 = Math::Matrix(Matrix::Rotation,axis2,angle2/2);
+    CGE::Matrix rot2 = CGE::Matrix(Matrix::Rotation,axis2,angle2/2);
     Vec3f side2 = rot2*v2;
     side2.normalize();
     side2 = side2/sin(angle2/2);
@@ -129,7 +131,7 @@ void GeoGen::genStreets(MapChunk::Node* node){
      v2.normalize();
      Vec3f axis = v1.cross(v2);
      float angle = acos(v1.dot(v2));
-     Math::Matrix rot = Math::Matrix(Matrix::Rotation,axis,-angle/2);
+     CGE::Matrix rot = CGE::Matrix(Matrix::Rotation,axis,-angle/2);
      Vec3f side = rot*v2;
      side.normalize();
      side = side/sin(angle/2);

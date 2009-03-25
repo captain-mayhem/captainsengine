@@ -5,11 +5,11 @@
 
 const double Utility::SCALE=6371.6009;
 
-Math::Vec3<double> Utility::polarToCartesian(double latitude, double longitude){
+CGE::Vec3<double> Utility::polarToCartesian(double latitude, double longitude){
   double lat = latitude/360*M_PI;
   double lon = longitude/360*M_PI;
   double x = cos(lat)*sin(lon);
   double y = sin(lat);
   double z = cos(lat)*cos(lon);
-  return Math::Vec3<double>(x,y,z);
+  return CGE::Vec3<double>(x,y,z);
 }

@@ -22,6 +22,7 @@ SET(ENGINE_LINK_LIBRARIES "")
 
 INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/extern/jpeg
 	${CaptainsEngine_SOURCE_DIR}/extern/lua
+	${CaptainsEngine_SOURCE_DIR}/extern/ode
 	${ADD_INC_PATH}
 )
 
@@ -79,6 +80,7 @@ SET(ENGINE_LINK_LIBRARIES
 	jpeg
 	lua
 	lualib
+	ode
 	${ENGINE_LINK_LIBRARIES}
 )
 

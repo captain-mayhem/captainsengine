@@ -24,8 +24,8 @@ using std::string;
 using std::list;
 using std::ostringstream;
 
-//using Math::Vector3D;
-//using Math::Vector2D;
+//using CGE::Vector3D;
+//using CGE::Vector2D;
 
 namespace Gui{
 
@@ -45,7 +45,7 @@ public:
   GuiElement();
   virtual ~GuiElement(){}
   virtual void render() = 0;
-  virtual bool isClicked(const ::Math::Vector2D& pos);
+  virtual bool isClicked(const ::CGE::Vector2D& pos);
   virtual void process() = 0;
   //! sets the button text
   inline void setName(const string& text) { name_ = text; }
@@ -54,22 +54,22 @@ public:
   //! Sets the position of the input field
   /*! The position is specified by the lower left corner of the field
    */
-  inline virtual void setPosition(::Math::Vector2D position) {pos_ = position;}
+  inline virtual void setPosition(::CGE::Vector2D position) {pos_ = position;}
   //! Gets the position
-  inline ::Math::Vector2D getPosition() const {return pos_;}
+  inline ::CGE::Vector2D getPosition() const {return pos_;}
   //! Sets the dimensions of the field
   /*! the x-component of span is the width, the y-component the height
    */
-  inline void setSpan(::Math::Vector2D span) {span_ = span;}
+  inline void setSpan(::CGE::Vector2D span) {span_ = span;}
   //! Gets the dimensions of the field
-  inline ::Math::Vector2D getSpan() const {return span_;}
+  inline ::CGE::Vector2D getSpan() const {return span_;}
   //! Sets the opacity of the field
   inline void setOpacity(float opaque) {opacity_ = opaque;}
   //! Sets the colors of the field
     /*! \param fgCol foreground (text) color of the field (RGB)
      *  \param bgCol background color (RGB)
      */
-  inline void setColors(::Math::Vector3D fgCol, ::Graphics::Color bgCol)
+  inline void setColors(::CGE::Vector3D fgCol, ::Graphics::Color bgCol)
       {fgColor_ = fgCol, bgColor_ = bgCol;}
   //! Get the gui type
   inline GuiType getType() const {return type_;}
@@ -79,13 +79,13 @@ public:
   inline GuiElement* getParent() const {return parent_;}
 protected:
   //! position
-  ::Math::Vector2D pos_;
+  ::CGE::Vector2D pos_;
   //! dimensions of the field
-  ::Math::Vector2D span_;
+  ::CGE::Vector2D span_;
   //! background color
   ::Graphics::Color bgColor_;
   //! foreground color
-  ::Math::Vector3D fgColor_;
+  ::CGE::Vector3D fgColor_;
   //! opacity
   float opacity_;
   //! name of the gui element

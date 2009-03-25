@@ -4,6 +4,7 @@
 #include "forms.h"
 
 using namespace Graphics;
+using namespace CGE;
 
 static const int cylinder_segments = 32;
 

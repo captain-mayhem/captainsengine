@@ -10,7 +10,7 @@ struct Color{
   Color(float rn, float gn, float bn, float an){
     r = rn; g = gn; b = bn; a = an;
   }
-  Color(const Math::Vector3D& col){
+  Color(const CGE::Vector3D& col){
     r = col.x; g = col.y; b = col.z; a = 1.0;
   }
   union{

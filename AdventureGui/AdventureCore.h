@@ -71,9 +71,9 @@ private:
   void interpret(Opcode opcode, std::string argument1, std::string argument2);
   
   //a cursor position
-  Vector2D cursor;
+  CGE::Vector2D cursor;
   //a second cursor position
-  Vector2D second_cursor;
+  CGE::Vector2D second_cursor;
   //a SQL connection
   SQL* m_sql;
   //the character id

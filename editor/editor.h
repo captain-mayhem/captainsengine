@@ -5,7 +5,7 @@
 #include "system/engine.h"
 #include "math/vector.h"
 
-namespace Math{
+namespace CGE{
 class Arcball;
 }
 
@@ -65,9 +65,9 @@ protected:
   //! the instance
   static Editor* edi_;
   //! the arcball
-  Math::Arcball* arcball_;
+  CGE::Arcball* arcball_;
   //! the last position
-  Math::Vector2D lastPos_;
+  CGE::Vector2D lastPos_;
   //! the grid offset
   float gridOffset_;
   //! the grid step

@@ -2,7 +2,7 @@
 #ifndef BOUNDINGOBJECT_H
 #define BOUNDINGOBJECT_H
 
-namespace Math{
+namespace CGE{
 
 class Ray;
 class Matrix;

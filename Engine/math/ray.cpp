@@ -2,7 +2,7 @@
 
 #include "matrix.h"
 
-using namespace Math;
+using namespace CGE;
 
 Ray::Ray(){
   origin_ = Vector3D();

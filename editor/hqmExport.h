@@ -15,7 +15,7 @@ class Scene;
 class Field{
 public:
   Field() {
-    position = Math::Vector2D(-1,-1);
+    position = CGE::Vector2D(-1,-1);
     id = -1;
     active = false;
     wallbits.setData(0);
@@ -25,7 +25,7 @@ public:
     }
   }
   //! The postion
-  Math::Vector2D position;
+  CGE::Vector2D position;
   //! Object id
   short id;
   //! Is the field active
@@ -43,14 +43,14 @@ public:
 struct Door{
   unsigned id;
   short type;
-  Math::Vector2D pos;
-  Math::Vector2D pos2;
+  CGE::Vector2D pos;
+  CGE::Vector2D pos2;
 };
 
 struct Monster{
   unsigned id;
   unsigned instanceid;
-  Math::Vector2D pos;
+  CGE::Vector2D pos;
 };
 
 class HQMExport{
@@ -66,9 +66,9 @@ public:
   bool exportHQM(Graphics::Scene& scn, const std::string& filename);
 private:
   //! Get the field position given a world position
-  Math::Vector2D convertToMap(const Math::Vector3D& pos);
+  CGE::Vector2D convertToMap(const CGE::Vector3D& pos);
   //! Get the direction given a matrix
-  Direction extractDir(const Math::Matrix& mat);
+  Direction extractDir(const CGE::Matrix& mat);
   //! the width of the map
   short width_;
   //! the height of the map
@@ -76,9 +76,9 @@ private:
   //! the map
   Field** map_;
   //! the room structure
-  std::vector< std::vector< Math::Vector2D > > rooms_;
+  std::vector< std::vector< CGE::Vector2D > > rooms_;
   //! the starting positions
-  std::vector<Math::Vector2D> startpos_;
+  std::vector<CGE::Vector2D> startpos_;
   //! the doors
   std::vector<Door> doors_;
   //! the monsters

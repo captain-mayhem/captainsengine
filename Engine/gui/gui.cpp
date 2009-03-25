@@ -22,6 +22,7 @@
 
 using namespace Gui;
 using Graphics::Color;
+using namespace CGE;
 
 GuiElement::GuiElement(){
   //set standard values

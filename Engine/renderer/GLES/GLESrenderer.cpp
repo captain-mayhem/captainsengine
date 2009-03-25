@@ -10,6 +10,7 @@
 #include "GLESrenderer.h"
 
 using namespace Graphics;
+using namespace CGE;
 
 GLESRenderer::GLESRenderer(): Renderer() {
   type_ = OpenGL_ES;
@@ -130,7 +131,7 @@ void GLESRenderer::resizeScene(int width, int height){
 }
 
 //! clear scene
-void GLESRenderer::setClearColor(::Math::Vector3D color){
+void GLESRenderer::setClearColor(::CGE::Vector3D color){
   glClearColor(color.x, color.y, color.z, 1.0);
 }
 
@@ -285,7 +286,7 @@ void GLESRenderer::popMatrix(){
 }
 
 //! multiply matrix
-void GLESRenderer::multiplyMatrix(const Math::Matrix& mat){
+void GLESRenderer::multiplyMatrix(const CGE::Matrix& mat){
   glMultMatrixf(mat.getData());
 }
 

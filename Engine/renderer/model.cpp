@@ -11,6 +11,7 @@ using std::ifstream;
 using std::ios;
 using std::vector;
 
+using namespace CGE;
 using Graphics::Model;
 using Graphics::ModelInstance;
 

@@ -23,9 +23,9 @@ using std::max;
 using std::ofstream;
 using std::ios;
 using MeshGeo::Model;
-using Math::Matrix;
-using Math::Vector3D;
-using Math::Vector2D;
+using CGE::Matrix;
+using CGE::Vector3D;
+using CGE::Vector2D;
 using System::Log;
 
 HQMExport::HQMExport(){
@@ -250,7 +250,7 @@ Vector2D HQMExport::convertToMap(const Vector3D& pos){
 }
 
 //! Get the direction given a matrix
-HQMExport::Direction HQMExport::extractDir(const Math::Matrix& mat){
+HQMExport::Direction HQMExport::extractDir(const CGE::Matrix& mat){
   //it is assumed that the matrix contains a rotation around the axis (0,1,0).
   Vector3D orig = Vector3D(0,0,1);
   Vector3D rotated1 = mat*orig;

@@ -24,6 +24,7 @@
 #include "console.h"
 
 using namespace Gui;
+using namespace CGE;
 
 //CONSTRUCTOR
 Console::Console(){

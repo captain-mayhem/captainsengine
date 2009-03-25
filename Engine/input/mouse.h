@@ -41,9 +41,9 @@ namespace Input{
     void buttonUp(int x, int y, int button);
     void move(int x, int y, int buttons);
     //! get the position of the last click
-    inline ::Math::Vector2D getClickPos() {return clickPos_;}
+    inline CGE::Vector2D getClickPos() {return clickPos_;}
     //! reset click position
-    inline void resetMousePos() {clickPos_ = ::Math::Vector2D(-1,-1);}
+    inline void resetMousePos() {clickPos_ = CGE::Vector2D(-1,-1);}
     //! was the last click a gui click
     inline bool isGuiClick() {return gui_click_;}
     //! show the cursor
@@ -55,7 +55,7 @@ namespace Input{
     //! is a button clicked
     bool isPressed(int button);
     //! get the position of the mouse
-    inline ::Math::Vector2D getMousePos() {return mousePos_;}
+    inline CGE::Vector2D getMousePos() {return mousePos_;}
   protected:
     static Mouse* mouse_;
     Mouse();
@@ -66,9 +66,9 @@ namespace Input{
     //! mouse move callback
     void (*moveCB_)(int x, int y, int button);
     //! the position of the last click
-    ::Math::Vector2D clickPos_;
+    CGE::Vector2D clickPos_;
     //! the position of the mouse
-    ::Math::Vector2D mousePos_;
+    CGE::Vector2D mousePos_;
     //! was it a click on a gui element?
     bool gui_click_;
     //! is the mouse pointer present

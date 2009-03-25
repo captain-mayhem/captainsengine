@@ -40,7 +40,7 @@ public:
   //! resize event
   void resizeScene(int width, int height);
   //! set clear color
-  void setClearColor(::Math::Vector3D color);
+  void setClearColor(::CGE::Vector3D color);
   //! clear scene
   void clear(long flags);
   //! get a vertex buffer
@@ -48,7 +48,7 @@ public:
   //! get a texture
   Texture* createTexture(string filename);
   //! set lookAt
-  void lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up);
+  void lookAt(const CGE::Vec3f& position, const CGE::Vec3f& look, const CGE::Vec3f& up);
   //! set perspective projection
   void projection(float angle, float aspect, float nearplane, float farplane);
   //! set orthographic projection
@@ -82,11 +82,11 @@ public:
   //! pop matrix
   void popMatrix();
   //! multiply matrix
-  void multiplyMatrix(const Math::Matrix& mat);
+  void multiplyMatrix(const CGE::Matrix& mat);
   //! get the viewport
   virtual void getViewport(int view[4]);
   //! get a matrix
-  virtual Matrix getMatrix(MatrixType mt);
+  virtual CGE::Matrix getMatrix(MatrixType mt);
   //! swap back and front buffer
   virtual void swapBuffers();
 protected:
@@ -95,7 +95,7 @@ protected:
   //! the graphics device
   LPDIRECT3DDEVICE9 device_;
   //! the clear color
-  ::Math::Vector3D clearColor_;
+  ::CGE::Vector3D clearColor_;
   //! the matrix stack
   stack<D3DXMATRIX> modelstack_;
 };

@@ -18,6 +18,7 @@
 using namespace Gui;
 using Graphics::Color;
 using Graphics::Renderer;
+using namespace CGE;
 using std::max;
 
 //! Constructor
@@ -73,7 +74,7 @@ void ListBox::render(){
 }
 
 //! Is the dialog clicked
-bool ListBox::isClicked(const ::Math::Vector2D& pos){
+bool ListBox::isClicked(const ::CGE::Vector2D& pos){
   //out of bounds?
   if (pos.x < pos_.x || pos.x > pos_.x+span_.x)
     return false;

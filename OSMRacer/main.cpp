@@ -2,6 +2,7 @@
 #include <renderer/renderer.h>
 #include <renderer/camera.h>
 #include <input/keyboard.h>
+#include <physics/Simulator.h>
 
 #include "OSMReader.h"
 #include "MapChunk.h"
@@ -10,10 +11,13 @@
 #include "GeoCache.h"
 #include "Vehicle.h"
 
-Graphics::Camera cam;
 //MapChunk map;
 #include "TerrainChunk.h"
 #include <renderer/forms.h>
+
+using namespace CGE;
+
+Graphics::Camera cam;
 TerrainChunk test;
 Vehicle car;
 
@@ -55,16 +59,16 @@ void keyPress(int key, float timeInterval){
     //  EXIT();
     //  break;
     case KEY_W:
-      cam.walk(500*timeInterval);
+      cam.walk(50*timeInterval);
       break;
     case KEY_S:
-      cam.walk(-500*timeInterval);
+      cam.walk(-50*timeInterval);
       break;
     case KEY_A:
-      cam.strafe(-500*timeInterval);
+      cam.strafe(-50*timeInterval);
       break;
     case KEY_D:
-      cam.strafe(500*timeInterval);
+      cam.strafe(50*timeInterval);
       break;
     case KEY_UP:
       cam.pitch(timeInterval);
@@ -81,6 +85,10 @@ void keyPress(int key, float timeInterval){
   }
 }
 
+void simulate(double time){
+
+}
+
 void engineMain(int argc, char** argv){
   //System::Engine::instance();
   //Editor::instance()->init();
@@ -89,6 +97,10 @@ void engineMain(int argc, char** argv){
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   rend->setRenderCB(render);
   rend->setInitCB(init);
+
+  //physics callbacks
+  CGE::Simulator* sim = System::Engine::instance()->getSimulator();
+  sim->setSimulationCallback(simulate);
 
   //input callbacks
   Input::Keyboard::instance()->setKeyPressedCB(keyPress);

@@ -12,6 +12,7 @@
 #include "OGLrenderer.h"
 
 using namespace Graphics;
+using namespace CGE;
 
 OGLRenderer::OGLRenderer(): Renderer() {
   type_ = OpenGL;
@@ -177,7 +178,7 @@ void OGLRenderer::resizeScene(int width, int height){
 }
 
 //! clear scene
-void OGLRenderer::setClearColor(::Math::Vector3D color){
+void OGLRenderer::setClearColor(::CGE::Vector3D color){
   glClearColor(color.x, color.y, color.z, 1.0);
 }
 
@@ -323,7 +324,7 @@ void OGLRenderer::popMatrix(){
 }
 
 //! multiply matrix
-void OGLRenderer::multiplyMatrix(const Math::Matrix& mat){
+void OGLRenderer::multiplyMatrix(const CGE::Matrix& mat){
   glMultMatrixf(mat.getData());
 }
 

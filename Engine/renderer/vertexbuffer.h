@@ -11,7 +11,7 @@
 
 namespace Graphics{
 
-typedef ::Math::Vector3D Vertex;
+typedef CGE::Vector3D Vertex;
 
 enum PrimitiveType{
   VB_Triangles,
@@ -39,8 +39,8 @@ public:
   virtual void draw(PrimitiveType pt, short indexNum)=0;
   virtual void setPosition(int pos, Vertex v);
   virtual void setColor(int pos, Color c)=0;
-  virtual void setTexCoord(int pos, ::Math::Vec2f t, bool dxswap=false)=0;
-  virtual void setNormal(int pos, Math::Vector3D normal);
+  virtual void setTexCoord(int pos, CGE::Vec2f t, bool dxswap=false)=0;
+  virtual void setNormal(int pos, CGE::Vec3f normal);
   virtual void setVertexOffset(int offset)=0;
 protected:
   int structsize_;
