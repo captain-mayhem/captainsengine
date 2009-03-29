@@ -6,8 +6,6 @@
 using namespace Graphics;
 using namespace CGE;
 
-static const int cylinder_segments = 32;
-
 Forms::Forms(){
   quad_ = NULL;
   cylinder_ = NULL;
@@ -19,8 +17,8 @@ Forms::~Forms(){
 }
 
 void Forms::constructVBOs(){
-  //generate textured quad
   Renderer* rend = System::Engine::instance()->getRenderer();
+  //generate textured quad
   quad_ = rend->createVertexBuffer();
   quad_->create(VB_POSITION | VB_TEXCOORD, 4, 0);
   quad_->lockVertexPointer();
@@ -35,44 +33,7 @@ void Forms::constructVBOs(){
   quad_->unlockVertexPointer();
   
   //generate cylinder
-  cylinder_ = rend->createVertexBuffer();
-  cylinder_->create(VB_POSITION, 2*cylinder_segments+2, 3);
-  cylinder_->lockVertexPointer();
-  float angle = 0;
-  for (int i = 0; i < 2*cylinder_segments; i+=2){
-    cylinder_->setPosition(i, Vec3f(cos(angle),-0.5, sin(angle)));
-    cylinder_->setPosition(i+1, Vec3f(cos(angle),0.5, sin(angle)));
-    angle += (float)(M_PI*2./cylinder_segments);
-  }
-  cylinder_->setPosition(2*cylinder_segments, Vec3f(0.0f,-0.5f,0.0f));
-  cylinder_->setPosition(2*cylinder_segments+1, Vec3f(0.0f,0.5f,0.0f));
-  cylinder_->unlockVertexPointer();
-  cylinder_->createIndexBuffer(0, (cylinder_segments+1)*2);
-  short* hull = cylinder_->lockIndexPointer(0);
-  for (int i = 0; i < (cylinder_segments+1)*2; ++i){
-    hull[i] = i%(2*cylinder_segments);
-  }
-  cylinder_->unlockIndexPointer(0);
-  cylinder_->createIndexBuffer(1, cylinder_segments+2);
-  short* bottom = cylinder_->lockIndexPointer(1);
-  bottom[0] = 2*cylinder_segments;
-  int count = 0;
-  for (int i = 1; i <= cylinder_segments; ++i){
-    bottom[i] = count;
-    count+=2;
-  }
-  bottom[cylinder_segments+1] = 0;
-  cylinder_->unlockIndexPointer(1);
-  cylinder_->createIndexBuffer(2, cylinder_segments+2);
-  short* top = cylinder_->lockIndexPointer(2);
-  top[0] = 2*cylinder_segments+1;
-  count = 2*cylinder_segments-1;
-  for (int i = 1; i <= cylinder_segments; ++i){
-    top[i] = count;
-    count-=2;
-  }
-  top[cylinder_segments+1] = 2*cylinder_segments-1;
-  cylinder_->unlockIndexPointer(2);
+  cylinder_ = createCylinder(1,1,32);
 }
 
 void Forms::activateQuad(){
@@ -100,4 +61,47 @@ void Forms::drawCylinder(){
   cylinder_->draw(VB_Tristrip, 0);
   cylinder_->draw(VB_Trifan, 1);
   cylinder_->draw(VB_Trifan, 2);
+}
+
+VertexBuffer* Forms::createCylinder(float radius, float height, int cylinder_segments){
+  Renderer* rend = System::Engine::instance()->getRenderer();
+  VertexBuffer* cylinder = rend->createVertexBuffer();
+  cylinder->create(VB_POSITION, 2*cylinder_segments+2, 3);
+  cylinder->lockVertexPointer();
+  float angle = 0;
+  for (int i = 0; i < 2*cylinder_segments; i+=2){
+    cylinder->setPosition(i, Vec3f(radius*cos(angle),-height/2, radius*sin(angle)));
+    cylinder->setPosition(i+1, Vec3f(radius*cos(angle),height/2, radius*sin(angle)));
+    angle += (float)(M_PI*2./cylinder_segments);
+  }
+  cylinder->setPosition(2*cylinder_segments, Vec3f(0.0f,-height/2,0.0f));
+  cylinder->setPosition(2*cylinder_segments+1, Vec3f(0.0f,height/2,0.0f));
+  cylinder->unlockVertexPointer();
+  cylinder->createIndexBuffer(0, (cylinder_segments+1)*2);
+  short* hull = cylinder->lockIndexPointer(0);
+  for (int i = 0; i < (cylinder_segments+1)*2; ++i){
+    hull[i] = i%(2*cylinder_segments);
+  }
+  cylinder->unlockIndexPointer(0);
+  cylinder->createIndexBuffer(1, cylinder_segments+2);
+  short* bottom = cylinder->lockIndexPointer(1);
+  bottom[0] = 2*cylinder_segments;
+  int count = 0;
+  for (int i = 1; i <= cylinder_segments; ++i){
+    bottom[i] = count;
+    count+=2;
+  }
+  bottom[cylinder_segments+1] = 0;
+  cylinder->unlockIndexPointer(1);
+  cylinder->createIndexBuffer(2, cylinder_segments+2);
+  short* top = cylinder->lockIndexPointer(2);
+  top[0] = 2*cylinder_segments+1;
+  count = 2*cylinder_segments-1;
+  for (int i = 1; i <= cylinder_segments; ++i){
+    top[i] = count;
+    count-=2;
+  }
+  top[cylinder_segments+1] = 2*cylinder_segments-1;
+  cylinder->unlockIndexPointer(2);
+  return cylinder;
 }

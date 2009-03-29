@@ -19,6 +19,7 @@ public:
 
   void activateCylinder();
   void drawCylinder();
+  static VertexBuffer* createCylinder(float radius, float height, int cylinder_segments);
 private:
   void constructVBOs();
   VertexBuffer* quad_;

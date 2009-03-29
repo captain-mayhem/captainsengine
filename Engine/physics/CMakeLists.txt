@@ -2,17 +2,24 @@ SET(PRE physics)
 
 SET(Engine_physics_SRCS
 	${PRE}/Body.cpp
+	${PRE}/CollisionBody.cpp
+	${PRE}/CollisionObject.cpp
+	${PRE}/CollisionPlane.cpp
+	${PRE}/CollisionSpace.cpp
+	${PRE}/Hinge2Joint.cpp
+	${PRE}/Joint.cpp
 	${PRE}/Simulator.cpp
-#	${PRE}/
-#	${PRE}/
 )
 
 SET(Engine_physics_HDRS
 	${PRE}/Body.h
+	${PRE}/CollisionBody.h
+	${PRE}/CollisionObject.h
+	${PRE}/CollisionPlane.h
+	${PRE}/CollisionSpace.h
+	${PRE}/Hinge2Joint.h
+	${PRE}/Joint.h
 	${PRE}/Simulator.h
-#	${PRE}/
-#	${PRE}/
-#	${PRE}/
 )
 
 INSTALL(FILES ${Engine_physics_HDRS} DESTINATION Engine/include/${PRE})

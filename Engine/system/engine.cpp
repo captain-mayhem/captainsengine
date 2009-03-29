@@ -114,6 +114,7 @@ void System::Engine::startup(int argc, char** argv){
   console_ = new ::Gui::Console();
   isUp_ = true;
   rend_->initRendering();
+  frameTime_ = GetTickCount()*TIME_FACTOR;
   //isUp_ = true;
 }
 
