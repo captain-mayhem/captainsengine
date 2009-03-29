@@ -8,7 +8,6 @@ IF(${OS} STREQUAL "wince")
 ENDIF(${OS} STREQUAL "wince")
 
 ADD_DEFINITIONS(
-	-DdDOUBLE
 	-DODE_LIB
 )
 
@@ -44,6 +43,7 @@ ADD_LIBRARY(ode STATIC
 	fastdot.c
 	fastldlt.c
 	fastlsolve.c
+	fastltsolve.c
 	heightfield.cpp
 	lcp.cpp
 	mass.cpp

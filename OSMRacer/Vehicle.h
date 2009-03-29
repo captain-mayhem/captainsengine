@@ -1,17 +1,25 @@
 
 #include "math/vector.h"
-#include <physics/Body.h>
+#include <physics/CollisionBody.h>
+#include <physics/CollisionSpace.h>
 
 namespace Graphics{
   class Camera;
 }
 
-class Vehicle : public CGE::Body{
+namespace CGE{
+  class Hinge2Joint;
+}
+
+class Vehicle : public CGE::CollisionSpace{
 public:
-  Vehicle();
+  Vehicle(const CGE::Simulator& sim);
   ~Vehicle();
+  void setPosition(const CGE::Vec3f& pos);
   void render(const Graphics::Camera& cam);
+  void accelerate(float torque);
 protected:
-  CGE::Body* mAutobody;
-  CGE::Body* mWheels[4];
+  CGE::CollisionBody* mAutobody;
+  CGE::CollisionBody* mWheels[4];
+  CGE::Hinge2Joint* mWheelHinges[4];
 };

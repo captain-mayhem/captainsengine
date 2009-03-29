@@ -44,10 +44,12 @@ IF (${OS} STREQUAL "wince")
   ENDIF (NOT SDK_INC_SUFFIX)
   SET(SDK_INC_SUFFIX ${SDK_INC_SUFFIX} CACHE STRING "the include path suffix of the Windows CE SDK")
 ENDIF (${OS} STREQUAL "wince")
+
 IF (${OS} STREQUAL "windows")
   MESSAGE(STATUS "Compiling for Windows")
   ADD_DEFINITIONS(/D_CRT_SECURE_NO_DEPRECATE)
 ENDIF (${OS} STREQUAL "windows")
+
 IF (${OS} STREQUAL "linux")
   MESSAGE(STATUS "Compiling for Linux")
   ADD_DEFINITIONS(-DUNIX)
@@ -58,6 +60,7 @@ IF (${OS} STREQUAL "linux")
     ${ENGINE_LINK_LIBRARIES}
   )
 ENDIF (${OS} STREQUAL "linux")
+
 IF (${OS} STREQUAL "wince")
   MESSAGE(STATUS "Cross compiling for Windows CE")
   SET(CMAKE_CXX_COMPILER "${VC_DIR}/ce/bin/x86_arm/cl.exe")
@@ -75,6 +78,8 @@ IF (${OS} STREQUAL "wince")
   SET(CMAKE_CREATE_CONSOLE_EXE "")
   SET(CMAKE_CREATE_WIN32_EXE "")
 ENDIF (${OS} STREQUAL "wince")
+
+ADD_DEFINITIONS(-DdDOUBLE)
 
 SET(ENGINE_LINK_LIBRARIES
 	jpeg

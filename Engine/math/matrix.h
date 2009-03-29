@@ -84,6 +84,8 @@ public:
 	friend ostream& operator<<(ostream& stream, const Matrix& mat);
   //! access a row of the matrix
   CGE::Vec3<float*> operator[](int i);
+  const float& at(int i) const {return data_[i];}
+  float& at(int i) {return data_[i];}
   //! get matrix from OpenGL
 	//void fromOpenGL();
   //! multiply matrix with the OpenGL matrix stack

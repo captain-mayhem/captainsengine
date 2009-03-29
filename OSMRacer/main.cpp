@@ -3,6 +3,7 @@
 #include <renderer/camera.h>
 #include <input/keyboard.h>
 #include <physics/Simulator.h>
+#include <physics/CollisionPlane.h>
 
 #include "OSMReader.h"
 #include "MapChunk.h"
@@ -19,7 +20,8 @@ using namespace CGE;
 
 Graphics::Camera cam;
 TerrainChunk test;
-Vehicle car;
+Vehicle* car;
+CollisionPlane* ground;
 
 void init(){
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
@@ -49,7 +51,7 @@ void render(){
   cam.activate();
   //map.render(&cam);
   test.render(cam);
-  car.render(cam);
+  car->render(cam);
   
 }
 
@@ -86,7 +88,7 @@ void keyPress(int key, float timeInterval){
 }
 
 void simulate(double time){
-
+  car->accelerate(0.3);
 }
 
 void engineMain(int argc, char** argv){
@@ -101,6 +103,7 @@ void engineMain(int argc, char** argv){
   //physics callbacks
   CGE::Simulator* sim = System::Engine::instance()->getSimulator();
   sim->setSimulationCallback(simulate);
+  sim->setGravitation(Vec3f(0,-0.5,0));
 
   //input callbacks
   Input::Keyboard::instance()->setKeyPressedCB(keyPress);
@@ -116,6 +119,11 @@ void engineMain(int argc, char** argv){
   OSMReader rdr("map.osm");
   rdr.read(&map);
   System::Log.flush();*/
+
+  car = new Vehicle(*sim);
+  //car->setPosition(Vec3f(0,2,0));
+  ground = new CollisionPlane(Vec3f(0,1,0),0);
+  sim->getRootSpace()->add(ground);
 
   test.generate(17);
 }
