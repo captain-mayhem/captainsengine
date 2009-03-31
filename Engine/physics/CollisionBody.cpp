@@ -26,9 +26,10 @@ void CollisionBody::initCylinder(const CollisionSpace& space, float height, floa
 
 void CollisionBody::initBox(const CollisionSpace& space, float width, float height, float depth, float mass){
   Body::initBox(width,height,depth,mass);
-  mGeom = dCreateBox(space.mSpace, width, height, depth);
+  mGeom = dCreateBox(space.mSpace, depth, height, width);
   dGeomSetBody(mGeom, mBody);
   dGeomSetData(mGeom, this);
+  mPhysicsVB = Graphics::Forms::createBox(width, height, depth);
 }
 
 void CollisionBody::initSphere(const CollisionSpace& space, float radius, float mass){
@@ -45,8 +46,13 @@ void CollisionBody::render(const Graphics::Camera& cam){
   rend->translate(trans.x,trans.y,trans.z);
   rend->multiplyMatrix(getOrientation());
   mPhysicsVB->activate();
-  mPhysicsVB->draw(Graphics::VB_Tristrip, 0);
-  mPhysicsVB->draw(Graphics::VB_Trifan, 1);
-  mPhysicsVB->draw(Graphics::VB_Trifan, 2);
+  if (dGeomGetClass(mGeom) == dCylinderClass){
+    mPhysicsVB->draw(Graphics::VB_Tristrip, 0);
+    mPhysicsVB->draw(Graphics::VB_Trifan, 1);
+    mPhysicsVB->draw(Graphics::VB_Trifan, 2);
+  }
+  else if (dGeomGetClass(mGeom) == dBoxClass){
+    mPhysicsVB->draw(Graphics::VB_Triangles, 0);
+  }
   rend->popMatrix();
 }

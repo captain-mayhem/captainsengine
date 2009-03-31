@@ -17,6 +17,10 @@
 #define KEY_A 'A'
 #define KEY_C 'C'
 #define KEY_D 'D'
+#define KEY_I 'I'
+#define KEY_J 'J'
+#define KEY_K 'K'
+#define KEY_L 'L'
 #define KEY_R 'R'
 #define KEY_S 'S'
 #define KEY_T 'T'
@@ -35,6 +39,10 @@
 #define KEY_A XK_a
 #define KEY_C XK_c
 #define KEY_D XK_d
+#define KEY_I XK_i
+#define KEY_J XK_j
+#define KEY_K XK_k
+#define KEY_L XK_l
 #define KEY_R XK_r
 #define KEY_S XK_s
 #define KEY_T XK_t

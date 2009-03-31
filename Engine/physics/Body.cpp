@@ -23,8 +23,9 @@ void Body::initCylinder(float height, float radius, float mass){
   mMass = mass;
   mInertiaTensor *= mMass;*/
   dMass m;
-  dMassSetCylinderTotal(&m, mass, 2, radius, height);
+  dMassSetCylinderTotal(&m, mass, 3, radius, height);
   dBodySetMass(mBody, &m);
+  setOrientation(Matrix(Matrix::Identity));
 }
 
 void Body::initBox(float width, float height, float depth, float mass){
@@ -39,6 +40,7 @@ void Body::initBox(float width, float height, float depth, float mass){
   dMass m;
   dMassSetBoxTotal(&m, mass, width, height, depth);
   dBodySetMass(mBody, &m);
+  setOrientation(Matrix(Matrix::Identity));
 }
 
 void Body::initSphere(float radius, float mass){
@@ -51,6 +53,7 @@ void Body::initSphere(float radius, float mass){
   dMass m;
   dMassSetSphereTotal(&m, mass, radius);
   dBodySetMass(mBody, &m);
+  setOrientation(Matrix(Matrix::Identity));
 }
 
 void Body::setPosition(const Vec3f& pos){
@@ -63,19 +66,21 @@ Vec3f Body::getPosition(){
 }
 
 void Body::setOrientation(const Matrix& orientation){
+  Matrix tmp(Matrix::Rotation, Vec3f(1,0,0), M_PI/2);
+  Matrix orientatio = orientation*tmp;
   dMatrix3 mat;
-  mat[0] = orientation.at(0);
-  mat[1] = orientation.at(4);
-  mat[2] = orientation.at(8);
-  mat[3] = orientation.at(12);
-  mat[4] = orientation.at(1);
-  mat[5] = orientation.at(5);
-  mat[6] = orientation.at(9);
-  mat[7] = orientation.at(13);
-  mat[8] = orientation.at(2);
-  mat[9] = orientation.at(6);
-  mat[10] = orientation.at(10);
-  mat[11] = orientation.at(14);
+  mat[0] = orientatio.at(0);
+  mat[1] = orientatio.at(4);
+  mat[2] = orientatio.at(8);
+  mat[3] = orientatio.at(12);
+  mat[4] = orientatio.at(1);
+  mat[5] = orientatio.at(5);
+  mat[6] = orientatio.at(9);
+  mat[7] = orientatio.at(13);
+  mat[8] = orientatio.at(2);
+  mat[9] = orientatio.at(6);
+  mat[10] = orientatio.at(10);
+  mat[11] = orientatio.at(14);
   dBodySetRotation(mBody, mat);
 }
 
@@ -94,5 +99,6 @@ Matrix Body::getOrientation(){
   mat.at(6) = (float)tmp[9];
   mat.at(10) = (float)tmp[10];
   mat.at(14) = (float)tmp[11];
-  return mat;
+  Matrix rot(Matrix::Rotation, Vec3f(1,0,0), -M_PI/2);
+  return mat*rot;
 }

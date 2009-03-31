@@ -13,8 +13,16 @@ public:
   void setAnchor(const Vec3f& point);
   void setAxis1(const Vec3f& axis);
   void setAxis2(const Vec3f& axis);
+  void setVelocityAxis1(float velocity);
   void setVelocityAxis2(float velocity);
+  void setMaxForceAxis1(float force);
   void setMaxForceAxis2(float force);
+  void setLowStop(float angle);
+  void setHighStop(float angle);
+  void setFudgeFactor(float factor);
+  void setSuspensionERP(float factor);
+  void setSuspensionCFM(float factor);
+  float getAngleAxis1();
 };
 
 }
