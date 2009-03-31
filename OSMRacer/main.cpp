@@ -19,13 +19,13 @@
 using namespace CGE;
 
 Graphics::Camera cam;
-TerrainChunk test;
+TerrainChunk test[4];
 Vehicle* car;
 CollisionPlane* ground;
 
 void init(){
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
-  rend->setClearColor(Vec3f(0.5,0.5,0.5));
+  rend->setClearColor(Vec3f(0.2,0.3,1.0));
   //rend->renderMode(Graphics::Wireframe);
   rend->enableBackFaceCulling(true);
   //Vec3f ep = Vec3f(map.getCenter().x,map.getCenter().y,map.getCenter().z);
@@ -50,10 +50,29 @@ void render(){
   //rend->lookAt(Vec3f(0,0,-2000),Vec3f(555.24565f,2670.81660f,5757.44706f),Vec3f(0,1,0));
   cam.activate();
   //map.render(&cam);
-  test.render(cam);
+  rend->pushMatrix();
+  rend->translate(0,0,0);
+  test[0].render(cam);
+  rend->popMatrix();
+  rend->pushMatrix();
+  rend->translate(-320,0,0);
+  test[1].render(cam);
+  rend->popMatrix();
+  rend->pushMatrix();
+  rend->translate(-320,0,-320);
+  test[2].render(cam);
+  rend->popMatrix();
+  rend->pushMatrix();
+  rend->translate(0,0,-320);
+  test[3].render(cam);
+  rend->popMatrix();
+
   car->render(cam);
   
 }
+
+float speed = 0;
+float steer = 0;
 
 void keyPress(int key, float timeInterval){
   switch(key){
@@ -72,23 +91,41 @@ void keyPress(int key, float timeInterval){
     case KEY_D:
       cam.strafe(50*timeInterval);
       break;
-    case KEY_UP:
+    case KEY_I:
       cam.pitch(timeInterval);
       break;
-    case KEY_DOWN:
+    case KEY_K:
       cam.pitch(-timeInterval);
       break;
-    case KEY_LEFT:
+    case KEY_J:
       cam.yaw(timeInterval);
       break;
-    case KEY_RIGHT:
+    case KEY_L:
       cam.yaw(-timeInterval);
+      break;
+    case KEY_UP:
+      speed += 13.3;
+      break;
+    case KEY_DOWN:
+      speed -= 13.3;
+      break;
+    case KEY_LEFT:
+      steer -= 0.1;
+      break;
+    case KEY_RIGHT:
+      steer += 0.1;
       break;
   }
 }
 
 void simulate(double time){
-  car->accelerate(0.3);
+  car->accelerate(speed);
+  speed = 0;
+  car->steer(steer);
+  if (steer < 0)
+    steer += 0.01;
+  else
+    steer -= 0.01;
 }
 
 void engineMain(int argc, char** argv){
@@ -103,7 +140,7 @@ void engineMain(int argc, char** argv){
   //physics callbacks
   CGE::Simulator* sim = System::Engine::instance()->getSimulator();
   sim->setSimulationCallback(simulate);
-  sim->setGravitation(Vec3f(0,-0.5,0));
+  sim->setGravitation(Vec3f(0,-2.5,0));
 
   //input callbacks
   Input::Keyboard::instance()->setKeyPressedCB(keyPress);
@@ -125,6 +162,9 @@ void engineMain(int argc, char** argv){
   ground = new CollisionPlane(Vec3f(0,1,0),0);
   sim->getRootSpace()->add(ground);
 
-  test.generate(17);
+  for (int i = 0; i < 4; ++i){
+    //test[i] = TerrainChunk();
+    test[i].generate(33);
+  }
 }
 

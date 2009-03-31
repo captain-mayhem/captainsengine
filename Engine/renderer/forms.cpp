@@ -105,3 +105,47 @@ VertexBuffer* Forms::createCylinder(float radius, float height, int cylinder_seg
   cylinder->unlockIndexPointer(2);
   return cylinder;
 }
+
+VertexBuffer* Forms::createBox(float width, float height, float depth){
+  
+   //1-----2//
+  //      //
+  //0----3// 6
+  //|     |/ 
+  //4---7//
+  Renderer* rend = System::Engine::instance()->getRenderer();
+  VertexBuffer* box = rend->createVertexBuffer();
+  box->create(VB_POSITION, 8, 1);
+  box->lockVertexPointer();
+  box->setPosition(0, Vec3f(-width/2,height/2,depth/2));
+  box->setPosition(1, Vec3f(-width/2,height/2,-depth/2));
+  box->setPosition(2, Vec3f(width/2,height/2,-depth/2));
+  box->setPosition(3, Vec3f(width/2,height/2,depth/2));
+  box->setPosition(4, Vec3f(-width/2,-height/2,depth/2));
+  box->setPosition(5, Vec3f(-width/2,-height/2,-depth/2));
+  box->setPosition(6, Vec3f(width/2,-height/2,-depth/2));
+  box->setPosition(7, Vec3f(width/2,-height/2,depth/2));
+  box->unlockVertexPointer();
+  box->createIndexBuffer(0, 36);
+  short* idx = box->lockIndexPointer(0);
+  //top
+  idx[0] = 0; idx[1] = 3; idx[2] = 1;
+  idx[3] = 1; idx[4] = 3; idx[5] = 2;
+  //front
+  idx[6] = 4; idx[7] = 7; idx[8] = 0;
+  idx[9] = 0; idx[10] = 7; idx[11] = 3;
+  //left
+  idx[12] = 5; idx[13] = 4; idx[14] = 1;
+  idx[15] = 1; idx[16] = 4; idx[17] = 0;
+  //back
+  idx[18] = 6; idx[19] = 5; idx[20] = 2;
+  idx[21] = 2; idx[22] = 5; idx[23] = 1;
+  //right
+  idx[24] = 7; idx[25] = 6; idx[26] = 3;
+  idx[27] = 3; idx[28] = 6; idx[29] = 2;
+  //bottom
+  idx[30] = 5; idx[31] = 6; idx[32] = 4;
+  idx[33] = 4; idx[34] = 6; idx[35] = 7;
+  box->unlockIndexPointer(0);
+  return box;
+}

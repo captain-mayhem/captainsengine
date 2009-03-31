@@ -25,10 +25,43 @@ void Hinge2Joint::setAxis2(const CGE::Vec3f &axis){
   dJointSetHinge2Axis2(mJoint, axis.x, axis.y, axis.z);
 }
 
+void Hinge2Joint::setVelocityAxis1(float velocity){
+  dJointSetHinge2Param(mJoint, dParamVel, velocity);
+}
+
 void Hinge2Joint::setVelocityAxis2(float velocity){
   dJointSetHinge2Param(mJoint, dParamVel2, velocity);
 }
 
+void Hinge2Joint::setMaxForceAxis1(float force){
+  dJointSetHinge2Param(mJoint, dParamFMax, force);
+}
+
 void Hinge2Joint::setMaxForceAxis2(float force){
   dJointSetHinge2Param(mJoint, dParamFMax2, force);
+}
+
+void Hinge2Joint::setLowStop(float angle){
+  dJointSetHinge2Param(mJoint, dParamLoStop, angle);
+}
+
+void Hinge2Joint::setHighStop(float angle){
+  dJointSetHinge2Param(mJoint, dParamHiStop, angle);
+}
+
+void Hinge2Joint::setFudgeFactor(float factor){
+  dJointSetHinge2Param(mJoint, dParamFudgeFactor, factor);
+}
+
+void Hinge2Joint::setSuspensionCFM(float factor){
+  dJointSetHinge2Param(mJoint, dParamSuspensionCFM, factor);
+}
+
+void Hinge2Joint::setSuspensionERP(float factor){
+  dJointSetHinge2Param(mJoint, dParamSuspensionERP, factor);
+}
+
+float Hinge2Joint::getAngleAxis1(){
+  dReal ang = dJointGetHinge2Angle1(mJoint);
+  return (float)ang;
 }

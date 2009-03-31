@@ -13,17 +13,17 @@ using namespace CGE;
 
 Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(), CollisionSpace::Simple){
   mAutobody = new CGE::CollisionBody(sim);
-  float startheight = 1;
+  float startheight = 2;
   float length = 3;
-  float height = 1.5;
+  float height = 1.0;
   float width = 1.7;
-  float chassis_weight = 2000;
+  float chassis_weight = 1;
   float wheel_width = 0.165;
   float wheel_radius = 0.381;
-  float wheel_weight = 5;
+  float wheel_weight = 0.2;
 
-  mAutobody->initBox(*this, length, height, width, chassis_weight);
-  mAutobody->setPosition(Vec3f(0,startheight,0));
+  mAutobody->initBox(*this, width, height, length, chassis_weight);
+  mAutobody->setPosition(Vec3f(0,startheight+height/2,0));
   //init wheels
   for (int i = 0; i < 4; ++i){
     mWheels[i] = new CGE::CollisionBody(sim);
@@ -48,13 +48,23 @@ Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(),
   for (int i = 0; i < 4; ++i){
     mWheelHinges[i] = new CGE::Hinge2Joint(sim);
     mWheelHinges[i]->attach(mAutobody, mWheels[i]);
-    mWheelHinges[i]->setAxis1(Vec3f(0,1,0));
-    mWheelHinges[i]->setAxis2(Vec3f(1,0,0));
   }
   mWheelHinges[0]->setAnchor(frontLeft);
   mWheelHinges[1]->setAnchor(frontRight);
   mWheelHinges[2]->setAnchor(backLeft);
   mWheelHinges[3]->setAnchor(backRight);
+
+  for (int i = 0; i < 4; ++i){
+    mWheelHinges[i]->setAxis1(Vec3f(0,1,0));
+    mWheelHinges[i]->setAxis2(Vec3f(1,0,0));
+    mWheelHinges[i]->setSuspensionERP(0.4);
+    mWheelHinges[i]->setSuspensionCFM(0.8);
+  }
+
+  mWheelHinges[2]->setLowStop(0);
+  mWheelHinges[2]->setHighStop(0);
+  mWheelHinges[3]->setLowStop(0);
+  mWheelHinges[3]->setHighStop(0);
   
 }
 
@@ -74,6 +84,8 @@ void Vehicle::render(const Graphics::Camera& cam){
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   Graphics::Forms* form = System::Engine::instance()->getForms();
 
+  rend->setColor(1.0,1.0,0.0,1.0);
+  mAutobody->render(cam);
   rend->setColor(0.0,0.0,1.0,1.0);
   for (int i = 0; i < 4; ++i){
     mWheels[i]->render(cam);
@@ -81,8 +93,19 @@ void Vehicle::render(const Graphics::Camera& cam){
 }
 
 void Vehicle::accelerate(float torque){
-  for (int i = 0; i < 4; ++i){
-    mWheelHinges[0]->setVelocityAxis2(torque);
-    mWheelHinges[0]->setMaxForceAxis2(0.1);
+  for (int i = 0; i < 2; ++i){
+    mWheelHinges[i]->setVelocityAxis2(torque);
+    mWheelHinges[i]->setMaxForceAxis2(0.1);
+    mWheelHinges[i]->setFudgeFactor(0.1);
+  }
+}
+
+void Vehicle::steer(float value){
+  for (int i = 0; i < 2; ++i){
+    float vel = value - mWheelHinges[i]->getAngleAxis1();
+    mWheelHinges[i]->setVelocityAxis1(vel);
+    mWheelHinges[i]->setMaxForceAxis1(0.2);
+    mWheelHinges[i]->setLowStop(-0.75);
+    mWheelHinges[i]->setHighStop(0.75);
   }
 }

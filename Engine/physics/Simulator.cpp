@@ -5,6 +5,8 @@
 
 #include "Body.h"
 #include "CollisionSpace.h"
+#include "CollisionBody.h"
+#include "CollisionPlane.h"
 
 using namespace CGE;
 
@@ -35,6 +37,35 @@ void Simulator::doSimulationStep(double time){
 
 void Simulator::nearCallback(void* data, dGeomID o1, dGeomID o2){
   Simulator* sim = (Simulator*)data;
+  if (dGeomIsSpace(o1) || dGeomIsSpace(o2)){
+    dSpaceCollide2(o1,o2,data,nearCallback);
+    if (dGeomIsSpace(o1))
+      dSpaceCollide((dSpaceID)o1,data,nearCallback);
+    if (dGeomIsSpace(o2))
+      dSpaceCollide((dSpaceID)o2,data,nearCallback);
+    return;
+  }
+  /*CollisionObject* obj1 = (CollisionObject*)dGeomGetData(o1);
+  CollisionObject* obj2 = (CollisionObject*)dGeomGetData(o2);
+  dBodyID bdy = 0;
+  CollisionPlane* p = dynamic_cast<CollisionPlane*>(obj1);
+  if (p){
+    bdy = dGeomGetBody(o2);
+  }
+  else{
+    p = dynamic_cast<CollisionPlane*>(obj2);
+    if (p){
+      bdy = dGeomGetBody(o1);
+    }
+  }
+  if (bdy == 0)
+    return;
+  if (dBodyGetType(bdy) == 1)
+    return;*/
+  if (dGeomGetClass(o1) == dPlaneClass && dGeomGetClass(o2) != dCylinderClass)
+    return;
+  if (dGeomGetClass(o2) == dPlaneClass && dGeomGetClass(o1) != dCylinderClass)
+    return;
   const int N = 10;
   dContact contact[N];
   int n = dCollide (o1,o2,N,&contact[0].geom,sizeof(dContact));

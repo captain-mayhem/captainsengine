@@ -18,6 +18,7 @@ public:
   void setPosition(const CGE::Vec3f& pos);
   void render(const Graphics::Camera& cam);
   void accelerate(float torque);
+  void steer(float value);
 protected:
   CGE::CollisionBody* mAutobody;
   CGE::CollisionBody* mWheels[4];
