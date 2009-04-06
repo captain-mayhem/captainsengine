@@ -13,20 +13,20 @@
 #include "Vehicle.h"
 
 //MapChunk map;
-#include "TerrainChunk.h"
+#include "Terrain.h"
 #include <renderer/forms.h>
 
 using namespace CGE;
 
 Graphics::Camera cam;
-TerrainChunk test[4];
+Terrain test(1024,1024,1.0f,1.0f,NULL,1.0f);
 Vehicle* car;
 CollisionPlane* ground;
 
 void init(){
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   rend->setClearColor(Vec3f(0.2,0.3,1.0));
-  //rend->renderMode(Graphics::Wireframe);
+  rend->renderMode(Graphics::Wireframe);
   rend->enableBackFaceCulling(true);
   //Vec3f ep = Vec3f(map.getCenter().x,map.getCenter().y,map.getCenter().z);
   //ep.normalize();
@@ -50,22 +50,7 @@ void render(){
   //rend->lookAt(Vec3f(0,0,-2000),Vec3f(555.24565f,2670.81660f,5757.44706f),Vec3f(0,1,0));
   cam.activate();
   //map.render(&cam);
-  rend->pushMatrix();
-  rend->translate(0,0,0);
-  test[0].render(cam);
-  rend->popMatrix();
-  rend->pushMatrix();
-  rend->translate(-320,0,0);
-  test[1].render(cam);
-  rend->popMatrix();
-  rend->pushMatrix();
-  rend->translate(-320,0,-320);
-  test[2].render(cam);
-  rend->popMatrix();
-  rend->pushMatrix();
-  rend->translate(0,0,-320);
-  test[3].render(cam);
-  rend->popMatrix();
+  test.render(*rend, cam);
 
   car->render(cam);
   
@@ -104,10 +89,10 @@ void keyPress(int key, float timeInterval){
       cam.yaw(-timeInterval);
       break;
     case KEY_UP:
-      speed += 13.3;
+      speed += 33.3;
       break;
     case KEY_DOWN:
-      speed -= 13.3;
+      speed -= 33.3;
       break;
     case KEY_LEFT:
       steer -= 0.1;
@@ -159,12 +144,10 @@ void engineMain(int argc, char** argv){
 
   car = new Vehicle(*sim);
   //car->setPosition(Vec3f(0,2,0));
-  ground = new CollisionPlane(Vec3f(0,1,0),0);
-  sim->getRootSpace()->add(ground);
+  //ground = new CollisionPlane(Vec3f(0,1,0),0);
+  //sim->getRootSpace()->add(ground);
 
-  for (int i = 0; i < 4; ++i){
-    //test[i] = TerrainChunk();
-    test[i].generate(33);
-  }
+  test.generateTerrainChunks(32);
+  sim->getRootSpace()->add(&test);
 }
 

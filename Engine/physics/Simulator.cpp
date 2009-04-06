@@ -62,9 +62,9 @@ void Simulator::nearCallback(void* data, dGeomID o1, dGeomID o2){
     return;
   if (dBodyGetType(bdy) == 1)
     return;*/
-  if (dGeomGetClass(o1) == dPlaneClass && dGeomGetClass(o2) != dCylinderClass)
+  if (dGeomGetClass(o1) == dHeightfieldClass && dGeomGetClass(o2) != dCylinderClass)
     return;
-  if (dGeomGetClass(o2) == dPlaneClass && dGeomGetClass(o1) != dCylinderClass)
+  if (dGeomGetClass(o2) == dHeightfieldClass && dGeomGetClass(o1) != dCylinderClass)
     return;
   const int N = 10;
   dContact contact[N];

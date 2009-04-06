@@ -33,6 +33,7 @@ public:
   void roll(float angle);
   void activate();
   const CGE::Frustum& getFrustum() const {return mFrustum;}
+  const CGE::Vec3f& getPosition() const {return mPosition;}
 protected:
   CGE::Vec3f mPosition;
   CGE::Vec3f mForward;
