@@ -9,6 +9,7 @@ SET(OSMRacer_SRCS
 	GeoGen.cpp
 	OSMReader.cpp
 	MapChunk.cpp
+	Terrain.cpp
 	TerrainChunk.cpp
 	Utilities.cpp
 	Vehicle.cpp
@@ -19,6 +20,7 @@ SET(OSMRacer_HDRS
 	GeoGen.h
 	OSMReader.h
 	MapChunk.h
+	Terrain.h
 	TerrainChunk.h
 	Utilities.h
 	Vehicle.h

@@ -3,6 +3,10 @@
 
 #include <math.h>
 
+#ifndef M_PI
+#define M_PI       3.14159265358979323846
+#endif
+
 const double Utility::SCALE=6371.6009;
 
 CGE::Vec3<double> Utility::polarToCartesian(double latitude, double longitude){

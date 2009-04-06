@@ -25,7 +25,7 @@ CollisionSpace::CollisionSpace(CollisionSpace* parent, Type t, const Vec3f& cent
       }
       break;
   }
-  //dSpaceSetCleanup(mSpace, 0);
+  dSpaceSetCleanup(mSpace, 0);
 }
 
 CollisionSpace::~CollisionSpace(){

@@ -6,6 +6,7 @@ SET(Engine_common_SRCS
 SET(Engine_common_HDRS
 	${PRE}/graph.h
 	${PRE}/octree.h
+	${PRE}/OctreeStatic.h
 )
 
 INSTALL(FILES ${Engine_common_HDRS} DESTINATION Engine/include/${PRE})

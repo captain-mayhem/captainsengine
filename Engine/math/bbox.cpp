@@ -8,7 +8,7 @@ using std::min;
 
 BBox::BBox(){
   min_ = Vector3D(FLT_MAX, FLT_MAX, FLT_MAX);
-  max_ = Vector3D(FLT_MIN, FLT_MIN, FLT_MIN);
+  max_ = Vector3D(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 }
 
 BBox::BBox(const Vector3D& min, const Vector3D& max){
@@ -97,5 +97,20 @@ Vec3f BBox::getFarestCorner(const Vec3f& normal) const{
   if (normal.z < 0)
     res.z = max_.z;
   return res;
+}
+
+void BBox::addPoint(const Vec3f& p){
+  if (p.x < min_.x)
+    min_.x = p.x;
+  if (p.x > max_.x)
+    max_.x = p.x;
+  if (p.y < min_.y)
+    min_.y = p.y;
+  if (p.y > max_.y)
+    max_.y = p.y;
+  if (p.z < min_.z)
+    min_.z = p.z;
+  if (p.z > max_.z)
+    max_.z = p.z;
 }
 

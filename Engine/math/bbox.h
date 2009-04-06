@@ -20,6 +20,7 @@ public:
   Vec3f getSpan() const {return (max_-min_)/2;}
   Vec3f getNearestCorner(const Vec3f& normal) const;
   Vec3f getFarestCorner(const Vec3f& normal) const;
+  void addPoint(const Vec3f& p);
 private:
   Vec3f min_;
   Vec3f max_;
