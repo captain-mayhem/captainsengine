@@ -22,11 +22,12 @@ Graphics::Camera cam;
 Terrain test(1024,1024,1.0f,1.0f,NULL,1.0f);
 Vehicle* car;
 CollisionPlane* ground;
+MapChunk map;
 
 void init(){
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   rend->setClearColor(Vec3f(0.2,0.3,1.0));
-  rend->renderMode(Graphics::Wireframe);
+  //rend->renderMode(Graphics::Wireframe);
   rend->enableBackFaceCulling(true);
   //Vec3f ep = Vec3f(map.getCenter().x,map.getCenter().y,map.getCenter().z);
   //ep.normalize();
@@ -36,7 +37,7 @@ void init(){
 }
 
 void render(){
-  //GeoGen::useGeometry();
+  GeoGen::useGeometry();
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
   rend->clear(ZBUFFER | COLORBUFFER);
   //rend->projection(60,1.0f,0.1f,100000.0f);
@@ -49,10 +50,10 @@ void render(){
   //rend->lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
   //rend->lookAt(Vec3f(0,0,-2000),Vec3f(555.24565f,2670.81660f,5757.44706f),Vec3f(0,1,0));
   cam.activate();
-  //map.render(&cam);
   test.render(*rend, cam);
 
   car->render(cam);
+  map.render(&cam);
   
 }
 
@@ -114,8 +115,6 @@ void simulate(double time){
 }
 
 void engineMain(int argc, char** argv){
-  //System::Engine::instance();
-  //Editor::instance()->init();
 
   //render callbacks
   Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
@@ -132,15 +131,7 @@ void engineMain(int argc, char** argv){
 /*Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
   Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);*/
 
-  /*GeoCache::init();
-
-  //start geo gen thread
-  System::Thread geogen;
-  //geogen.create(GeoGen::generateGeometry,NULL);
-
-  OSMReader rdr("map.osm");
-  rdr.read(&map);
-  System::Log.flush();*/
+  GeoCache::init();
 
   car = new Vehicle(*sim);
   //car->setPosition(Vec3f(0,2,0));
@@ -149,5 +140,13 @@ void engineMain(int argc, char** argv){
 
   test.generateTerrainChunks(32);
   sim->getRootSpace()->add(&test);
+
+  //start geo gen thread
+  System::Thread geogen;
+  geogen.create(GeoGen::generateGeometry,NULL);
+
+  OSMReader rdr("map2.osm");
+  rdr.read(&map);
+  System::Log.flush();
 }
 
