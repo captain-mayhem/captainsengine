@@ -56,11 +56,33 @@ void MapChunk::render(const Graphics::Camera* cam){
 void MapChunk::buildAccelerationStructures(){
   static const int scale = 1000;
   Vec3d center = (mMinBox+mMaxBox)/2.0;
+  std::map<int,Node*>::iterator iter = mNodes.begin();
+  //Vec3d v1 = (*iter++).second->mPos;
+  //Vec3d v2 = (*iter++).second->mPos;
+  //Vec3d v3 = (*iter++).second->mPos;
+  //mPlaneNormal = ((v2-v1).cross(v3-v1)).normalized();
+  //for (iter = mNodes.begin(); iter != mNodes.end(); ++iter){
+  //  (*i(*iter).second->mPos;
+  //}
   mPlaneNormal = center.normalized();
-  mTree.init(Vec3d(),(mMaxBox*scale-mMinBox*scale)/2.0);
-  std::map<int,Node*>::iterator iter;
+  CGE::Matrix planerotation(Matrix::Rotation, mPlaneNormal.cross(Vec3f(0,1,0)).normalized(), acos(mPlaneNormal.dot(Vec3f(0,1,0))));
+  CGE::Matrix origintranslation(Matrix::Translation, center*-1);
+  CGE::Matrix valuescale(Matrix::Scale, Vec3f(scale,scale,scale));
+  CGE::Matrix transform = valuescale*planerotation*origintranslation;/*valuescale*origintranslation/**planerotation*/;
+  mPlaneNormal = Vec3d(0,1,0);
+  mMinBox = Vec3d(DBL_MAX,DBL_MAX,DBL_MAX);
+  mMaxBox = Vec3d(-DBL_MAX,-DBL_MAX,-DBL_MAX);
   for (iter = mNodes.begin(); iter != mNodes.end(); ++iter){
-    (*iter).second->mPos = ((*iter).second->mPos-center)*scale;
+    (*iter).second->mPos = transform*(*iter).second->mPos;
+    box_extent(mMinBox,mMaxBox,(*iter).second->mPos);
+  }
+
+  //planerotation = planerotation.transpose();
+  //mMaxBox = transform*mMaxBox;
+  //mMinBox = transform*mMinBox;
+  mTree.init(Vec3d(),(mMaxBox-mMinBox)/2.0+Vec3d(1,1,1));
+  for (iter = mNodes.begin(); iter != mNodes.end(); ++iter){
+    //(*iter).second->mPos = transform*(*iter).second->mPos;//planerotation*(((*iter).second->mPos-center)*scale);
     mTree.insert((*iter).second->mPos, (*iter).second);
   }
   mTree.buildDebugVertexBuffer();
@@ -73,6 +95,8 @@ void MapChunk::renderOctreeCallback(MapChunk::Node* node){
     GeoGen::addJob(mMap,node);
   }
   else{
+    Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+    rend->setColor(0.2,0.2,0.2,1.0);
     node->mModel->setupMaterial();
     node->mModel->render();
     node->mModel->resetMaterial();
