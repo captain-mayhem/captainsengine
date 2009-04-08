@@ -58,12 +58,15 @@ bool OSMReader::processElement(TiXmlNode* node){
   }
   if (std::strcmp(node->Value(),"bounds") == 0){
     //info is not usable for octree
-    /*double minlat, maxlat, minlon, maxlon;
+    double minlat, maxlat, minlon, maxlon;
     readAttribute(elem, "minlat", minlat);
     readAttribute(elem, "maxlat", maxlat);
     readAttribute(elem, "minlon", minlon);
     readAttribute(elem, "maxlon", maxlon);
-    CGE::Vec3d minBox = CGE::Vec3d(DBL_MAX,DBL_MAX,DBL_MAX);
+    CGE::Vec3d minP = Utility::polarToCartesian(minlat, minlon)*Utility::SCALE;
+    CGE::Vec3d maxP = Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE;
+    mMap->setExtent(minP,maxP);
+    /*CGE::Vec3d minBox = CGE::Vec3d(DBL_MAX,DBL_MAX,DBL_MAX);
     CGE::Vec3d maxBox = CGE::Vec3d(-DBL_MAX,-DBL_MAX,-DBL_MAX);
     box_extent(minBox,maxBox,(Utility::polarToCartesian(minlat, minlon)*Utility::SCALE));
     box_extent(minBox,maxBox,(Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE));

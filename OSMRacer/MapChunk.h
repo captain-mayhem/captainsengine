@@ -19,7 +19,7 @@ public:
   };
   MapChunk();
   ~MapChunk();
-  //void setDimensions(const CGE::Vec3d& center, const CGE::Vec3d& range);
+  void setExtent(const CGE::Vec3d& minPoint, const CGE::Vec3d& maxPoint) {mMinExtent = minPoint; mMaxExtent = maxPoint;}
   void addNode(const CGE::Vec3d& position, int nodeid);
   void addStreet(int streetid, int fromNode, int toNode);
   void render(const Graphics::Camera* cam);
@@ -36,6 +36,8 @@ protected:
   Common::Graph mGraph;
   CGE::Vec3d mMinBox;
   CGE::Vec3d mMaxBox;
+  CGE::Vec3d mMinExtent;
+  CGE::Vec3d mMaxExtent;
   CGE::Vec3f mPlaneNormal;
 };
 
