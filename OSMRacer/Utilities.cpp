@@ -14,6 +14,6 @@ CGE::Vec3<double> Utility::polarToCartesian(double latitude, double longitude){
   double lon = longitude/360*M_PI;
   double x = sin(lat)*sin(lon);
   double y = cos(lat);
-  double z = -sin(lat)*cos(lon);
+  double z = sin(lat)*cos(lon);
   return CGE::Vec3<double>(x,y,z);
 }

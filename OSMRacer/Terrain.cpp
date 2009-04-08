@@ -33,17 +33,17 @@ void Terrain::generateTerrainChunks(int chunksize){
   mNumChunksX = mWidth/chunksize;
   mNumChunksY = mDepth/chunksize;
   //mChunks = new TerrainChunk*[mNumChunksY];
-  float y = -mDepth/2;
+  float y = -mDepth*mScale.z/2;
   for (int j = 0; j < mNumChunksY; ++j){
     //mChunks[j] = new TerrainChunk[mNumChunksX];
-    float x = -mWidth/2;
+    float x = -mWidth*mScale.x/2;
     for (int i = 0; i < mNumChunksX; ++i){
       TerrainChunk* chunk = new TerrainChunk();
-      chunk->generate(chunksize+1,1.0f,x,y);
+      chunk->generate(chunksize+1,mScale.x,x,y);
       mChunks.insert(chunk->getBox(), chunk);
-      x += chunksize;
+      x += chunksize*mScale.x;
     }
-    y += chunksize;
+    y += chunksize*mScale.z;
   }
   init(mWidth,mDepth,mScale.x,mScale.z,mHeightfield,mScale.y);
 }
@@ -53,9 +53,9 @@ void Terrain::render(Graphics::Renderer& rend, Graphics::Camera& cam){
   count = 0;
   mChunks.traverse(&cam);
   char buf[256];
-  sprintf(buf, "Chunks rendered: %i", count);
+  sprintf(buf, "Terrain chunks rendered: %i", count);
   Graphics::Font* fnt = System::Engine::instance()->getFont(0);
-  fnt->print(20,700,buf,0);
+  fnt->print(20,720,buf,0);
 }
 
 CGE::OctreeStatic<TerrainChunk*>::TraversalState Terrain::renderCB(const std::vector<TerrainChunk*>& values, const CGE::BBox& box, uint8 flags, void* data){

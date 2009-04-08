@@ -19,7 +19,7 @@
 using namespace CGE;
 
 Graphics::Camera cam;
-Terrain test(1024,1024,1.0f,1.0f,NULL,1.0f);
+Terrain test(256,256,4.0f,4.0f,NULL,1.0f);
 Vehicle* car;
 CollisionPlane* ground;
 MapChunk map;
