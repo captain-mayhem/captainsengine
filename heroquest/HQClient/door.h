@@ -23,7 +23,7 @@ using std::ifstream;
 
 using ::CGE::Vector3D;
 
-namespace Graphics{
+namespace CGE{
 class Scene;
 }
 
@@ -59,7 +59,7 @@ public:
   //! writes door data
   void write(ofstream& out);
   //! reads door data
-  void read(ifstream& in, Graphics::Scene& scene);
+  void read(ifstream& in, CGE::Scene& scene);
   //! provides vertices for collision detection
   inline Vector3D* getColVerts(){return verts_;}
   //! set the door script

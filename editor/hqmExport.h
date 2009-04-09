@@ -8,7 +8,7 @@
 #include "math/vector.h"
 #include "math/matrix.h"
 
-namespace Graphics{
+namespace CGE{
 class Scene;
 };
 
@@ -31,9 +31,9 @@ public:
   //! Is the field active
   bool active;
   //! Where are the walls
-  System::Bitset wallbits;
+  CGE::Bitset wallbits;
   //! Where are the doors
-  System::Bitset doorbits;
+  CGE::Bitset doorbits;
   //! door indices
   short dooridx[4];
   //! the models on that field
@@ -63,7 +63,7 @@ public:
   };
   HQMExport();
   ~HQMExport();
-  bool exportHQM(Graphics::Scene& scn, const std::string& filename);
+  bool exportHQM(CGE::Scene& scn, const std::string& filename);
 private:
   //! Get the field position given a world position
   CGE::Vector2D convertToMap(const CGE::Vector3D& pos);

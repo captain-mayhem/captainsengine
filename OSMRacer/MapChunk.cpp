@@ -43,14 +43,14 @@ void MapChunk::addStreet(int streetid, int fromNode, int toNode){
 
 int drawCount;
 
-void MapChunk::render(const Graphics::Camera* cam){
+void MapChunk::render(const CGE::Camera* cam){
   mMap = this;
   mTree.renderDebug();
   drawCount = 0;
   mTree.render(cam);
   char tmp[32];
   sprintf(tmp,"Map nodes rendered: %i", drawCount);
-  System::Engine::instance()->getFont(0)->print(20,700,tmp,0);
+  CGE::Engine::instance()->getFont(0)->print(20,700,tmp,0);
 }
 
 void MapChunk::buildAccelerationStructures(){
@@ -92,7 +92,7 @@ void MapChunk::renderOctreeCallback(MapChunk::Node* node){
     GeoGen::addJob(mMap,node);
   }
   else{
-    Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+    CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
     rend->setColor(0.2,0.2,0.2,1.0);
     node->mModel->setupMaterial();
     node->mModel->render();

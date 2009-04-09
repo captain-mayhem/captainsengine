@@ -149,7 +149,7 @@ void GeoGen::genStreets(MapChunk::Node* node){
     //crossroads
   }
   else{
-    System::Log << "GeoGen: Valence" << valence << "\n";
+    CGE::Log << "GeoGen: Valence" << valence << "\n";
     //TODO
   }*/
   //std::vector<Common::GraphNode*>::iterator iter;

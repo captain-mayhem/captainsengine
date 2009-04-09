@@ -58,7 +58,7 @@ Model::~Model(){
 // Render the model
 void Model::render(){
   assert(mesh_ && "A mesh needs to be assigned to the model");
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->pushMatrix();
   rend->multiplyMatrix(trafo_);
   mesh_->draw();
@@ -83,7 +83,7 @@ void Model::resetMaterial(){
 }
 
 //! Assign a texture
-void Model::assignTexture(Graphics::Texture* tex, int stage){
+void Model::assignTexture(CGE::Texture* tex, int stage){
   textures_[stage] = tex;
 }
 

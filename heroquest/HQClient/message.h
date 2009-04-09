@@ -31,8 +31,6 @@ using std::string;
 using std::map;
 using std::vector;
 
-using System::Thread;
-
 //! The central message handling class
 /*! This class is responsible for handling all game commands that
  * come from user input or from the server
@@ -89,7 +87,7 @@ private:
   //! the socket for communication with the server
   ClientSocket* ss_;
   //! the receiving thread
-  Thread tid_;
+  CGE::Thread tid_;
   //! initialization settings
   vector<string> settings_;
   //! if there is something to defend

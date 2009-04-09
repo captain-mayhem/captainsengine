@@ -12,8 +12,8 @@ using std::ios;
 using std::vector;
 
 using namespace CGE;
-using Graphics::Model;
-using Graphics::ModelInstance;
+using CGE::Model;
+using CGE::ModelInstance;
 
 //default constructor
 ModelInstance::ModelInstance(){
@@ -39,6 +39,7 @@ ModelInstance::~ModelInstance(){
 
 Model::Model(){
   vb_ = NULL;
+  inds_ = NULL;
   cloned_ = false;
 }
 
@@ -50,14 +51,19 @@ Model::Model(const Model& m){
   transform_ = m.transform_;
   cloned_ = true;
   vb_ = m.vb_;
+  inds_ = m.inds_;
 }
 
 Model::~Model(){
   //delete only original models
-  if (cloned_)
+  if (cloned_){
     vb_ = NULL;
-  else
+    inds_ = NULL;
+  }
+  else{
     SAFE_DELETE(vb_);
+    SAFE_DELETE(inds_);
+  }
     
 }
 
@@ -79,20 +85,20 @@ void Model::loadFromHMB(const std::string& filename){
   in.close();
 
   //build vertexbuffer
-  vb_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
-  vb_->create(VB_POSITION | VB_TEXCOORD, vertices_.size(), 1);
-  vb_->createIndexBuffer(0, indices_.size());
+  vb_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
+  inds_ = CGE::Engine::instance()->getRenderer()->createIndexBuffer(IndexBuffer::IB_USHORT, indices_.size());
+  vb_->create(VB_POSITION | VB_TEXCOORD, vertices_.size());
   vb_->lockVertexPointer();
   for (unsigned i = 0; i < vertices_.size(); i++){
     vb_->setPosition(i, Vertex(vertices_[i].v));
     vb_->setTexCoord(i, Vec2f(vertices_[i].t[0], vertices_[i].t[1]));
   }
   vb_->unlockVertexPointer();
-  short* idx = vb_->lockIndexPointer(0);
+  short* idx = (short*)inds_->lockIndexPointer();
   for (unsigned i = 0; i < indices_.size(); i++){
     idx[i] = indices_[i];
   }
-  vb_->unlockIndexPointer(0);
+  inds_->unlockIndexPointer();
 }
 
 ModelInstance Model::clone(){

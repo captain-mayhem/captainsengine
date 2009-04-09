@@ -7,7 +7,7 @@
 
 using std::istringstream;
 using namespace Gui;
-using Graphics::Color;
+using CGE::Color;
 using CGE::Vector3D;
 using CGE::Vector2D;
 
@@ -35,7 +35,7 @@ MessageBox::~MessageBox(){
 void MessageBox::process(){
   //close messageBox
   //find yourself
-  list< ::Gui::GuiElement*>& buts = System::Engine::instance()->getGuiElements();
+  list< ::Gui::GuiElement*>& buts = CGE::Engine::instance()->getGuiElements();
   list< ::Gui::GuiElement* >::iterator iter;
   int idx = 0;
   for (iter = buts.begin(); iter != buts.end(); iter++){
@@ -44,7 +44,7 @@ void MessageBox::process(){
     }
     idx++;
   }
-  System::Engine::instance()->removeGuiListener(idx, false);
+  CGE::Engine::instance()->removeGuiListener(idx, false);
   if (handleClicks_)
     (*handleClicks_)(this);
 }
@@ -78,23 +78,23 @@ void MessageBox::setMessage(const string& text){
 }
 
 void MessageBox::render(){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   
-  rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE_MINUS_SRC_ALPHA);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   rend->enableTexturing(false);
 
   //draw background
   rend->setColor(&surBgColor_);//_.r, bgColor_.g, bgColor_.b, opacity_);
-  System::Engine::instance()->getForms()->activateQuad();
-  System::Engine::instance()->getForms()->drawQuad(surPos_, surSpan_);
+  CGE::Engine::instance()->getForms()->activateQuad();
+  CGE::Engine::instance()->getForms()->drawQuad(surPos_, surSpan_);
   
   //draw console text
   rend->enableTexturing(true);
-  rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
-  System::Engine::instance()->getFont(1)->setColor(surFgColor_);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
+  CGE::Engine::instance()->getFont(1)->setColor(surFgColor_);
   int y = surPos_.y + surSpan_.y - 20;
   for (list<string>::iterator iter = msg_.begin(); iter != msg_.end(); iter++){
-    System::Engine::instance()->getFont(1)->glPrint(surPos_.x, y, (*iter).c_str(), 0, 0.0);
+    CGE::Engine::instance()->getFont(1)->glPrint(surPos_.x, y, (*iter).c_str(), 0, 0.0);
     y -= 20;
   }
   InputField::render();

@@ -15,20 +15,20 @@
 
 //to compile on windows
 #undef MessageBox
-using Graphics::Font;
+using CGE::Font;
 using Gui::GuiElement;
 using Gui::InputField;
 using Gui::Button;
 using Gui::MessageBox;
 using Gui::DropDownButton;
 
-#define line *System::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getFont(0)
 
 extern string home;
 
 // setup main ingame menu
 void Menu::mainMenu(GuiElement*){
-  System::Engine::instance()->clearListeners();
+  CGE::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
 
 	Button* but = new Button();
@@ -36,77 +36,77 @@ void Menu::mainMenu(GuiElement*){
 	but->setText("Attack");
 	//p = &Renderer::attack;
 	but->setCbFunc(attack);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
     
   but = new Button();
   but->setPosition(Vector2D(900, 210));
   but->setText("Search");
 	//p = &Renderer::search;
 	but->setCbFunc(search);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
   
   but = new Button();
   but->setPosition(Vector2D(900, 180));
   but->setText("Inventory");
 	//p = &Renderer::inventory;
 	but->setCbFunc(inventory);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 150));
   but->setText("Trap");
 	//p = &Renderer::trapMenu;
 	but->setCbFunc(trapMenu);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
 	but = new Button();
 	but->setPosition(Vector2D(900, 120));
 	but->setText("Open Door");
 	//p = &Renderer::open;
 	but->setCbFunc(open);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
 	but = new Button();
 	but->setPosition(Vector2D(900, 90));
 	but->setText("Move");
 	//p = &Renderer::move;
 	but->setCbFunc(move);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
     
 	but = new Button();
 	but->setPosition(Vector2D(900, 60));
 	but->setText("Other");
 	//p = &Renderer::other;
 	but->setCbFunc(other);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 	
   but = new Button();
 	but->setPosition(Vector2D(900, 30));
 	but->setText("End turn");
 	//p = &Renderer::endTurn;
 	but->setCbFunc(endTurn);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   if (msg.isToDefend()){
 		but = new Button();
 		but->setPosition(Vector2D(900, 270));
 		but->setText("Defend");
 		but->setCbFunc(Menu::defend);
-    System::Engine::instance()->addGuiListener(but);
+    CGE::Engine::instance()->addGuiListener(but);
   }
 }
 
 
 void Menu::connect(GuiElement*){
-  if (System::Engine::instance()->getActiveInput() != NULL){
-    InputField* inp = System::Engine::instance()->getActiveInput();
+  if (CGE::Engine::instance()->getActiveInput() != NULL){
+    InputField* inp = CGE::Engine::instance()->getActiveInput();
     inp->removeChar();
     inp->end();
-    System::Engine::instance()->setActiveInput(NULL);
+    CGE::Engine::instance()->setActiveInput(NULL);
   }
   list<GuiElement*>::iterator iter;
   string send = "connect";
-  for (iter = System::Engine::instance()->getGuiElements().begin(); iter != System::Engine::instance()->getGuiElements().end(); iter++){
+  for (iter = CGE::Engine::instance()->getGuiElements().begin(); iter != CGE::Engine::instance()->getGuiElements().end(); iter++){
     InputField* inp = dynamic_cast<InputField*>(*iter);
     if ((*iter)->getType() == Gui::InputFieldT && inp)
       send += " "+inp->getText();
@@ -114,42 +114,42 @@ void Menu::connect(GuiElement*){
   msg.process(send.c_str());
   //setup login-GUI after connection
   if (msg.isConnected()){
-    System::Engine::instance()->clearListeners();
+    CGE::Engine::instance()->clearListeners();
 
-    System::Engine::instance()->getFont(0)->setColor(1,1,1);
-    System::Engine::instance()->getFont(0)->glPrint(120, 450, "User name:", 1, HUGE_VAL);
+    CGE::Engine::instance()->getFont(0)->setColor(1,1,1);
+    CGE::Engine::instance()->getFont(0)->glPrint(120, 450, "User name:", 1, HUGE_VAL);
     InputField* in = new InputField();
     in->setPosition(Vector2D(220, 450));
     in->setText(msg.getSetting(2));
-    System::Engine::instance()->addGuiListener(in);
+    CGE::Engine::instance()->addGuiListener(in);
 
-    System::Engine::instance()->getFont(0)->glPrint(120, 400, "Password:", 1, HUGE_VAL);
+    CGE::Engine::instance()->getFont(0)->glPrint(120, 400, "Password:", 1, HUGE_VAL);
     InputField* in2 = new InputField();
     in2->setPosition(Vector2D(220, 400));
     in2->setHidden();
     in2->setText(msg.getSetting(3));
-    System::Engine::instance()->addGuiListener(in2);
+    CGE::Engine::instance()->addGuiListener(in2);
 
     Button* but = new Button();
     but->setPosition(Vector2D(220,300));
     but->setText("    Login");
-    System::Engine::instance()->addGuiListener(but);
+    CGE::Engine::instance()->addGuiListener(but);
     but->setCbFunc(login);
   }
 }
 
 //login button
 void Menu::login(GuiElement*){
-  if (System::Engine::instance()->getActiveInput() != NULL){
-    InputField* inp = System::Engine::instance()->getActiveInput();
+  if (CGE::Engine::instance()->getActiveInput() != NULL){
+    InputField* inp = CGE::Engine::instance()->getActiveInput();
     inp->removeChar();
     inp->end();
-    System::Engine::instance()->setActiveInput(NULL);
+    CGE::Engine::instance()->setActiveInput(NULL);
   }
   list<GuiElement*>::iterator iter;
   string send = toStr(LOGIN);
   bool firstInput = true;
-  for (iter = System::Engine::instance()->getGuiElements().begin(); iter != System::Engine::instance()->getGuiElements().end(); iter++){
+  for (iter = CGE::Engine::instance()->getGuiElements().begin(); iter != CGE::Engine::instance()->getGuiElements().end(); iter++){
     InputField* inp = dynamic_cast<InputField*>(*iter);
     if ((*iter)->getType() == Gui::InputFieldT && inp){
       if (firstInput){
@@ -171,7 +171,7 @@ void Menu::package(GuiElement* elem){
     in.close();
     return;
   }
-  list<GuiElement*>::iterator gui = System::Engine::instance()->getGuiElements().begin();
+  list<GuiElement*>::iterator gui = CGE::Engine::instance()->getGuiElements().begin();
   Button* but = dynamic_cast<Button*>(*gui);
   string level;
   string firstlevel;
@@ -194,7 +194,7 @@ void Menu::package(GuiElement* elem){
 
 //level button
 void Menu::level(GuiElement*){
-  list<GuiElement*>::iterator gui = System::Engine::instance()->getGuiElements().begin();
+  list<GuiElement*>::iterator gui = CGE::Engine::instance()->getGuiElements().begin();
   Button* but = dynamic_cast<Button*>(*gui);
   ifstream in(string("levels/"+but->getText()+"/levels.dat").c_str());
   if(!in.good()){
@@ -243,8 +243,8 @@ void Menu::level(GuiElement*){
 void Menu::loadLevel(GuiElement*){
   list<GuiElement*>::iterator iter;
   string proc = "create game";
-  for (iter = System::Engine::instance()->getGuiElements().begin(); iter != System::Engine::instance()->getGuiElements().end(); iter++){
-    if (iter == System::Engine::instance()->getGuiElements().end())
+  for (iter = CGE::Engine::instance()->getGuiElements().begin(); iter != CGE::Engine::instance()->getGuiElements().end(); iter++){
+    if (iter == CGE::Engine::instance()->getGuiElements().end())
       break;
     Button* but = dynamic_cast<Button*>(*iter);
     proc += " "+but->getText();
@@ -269,7 +269,7 @@ void Menu::start(GuiElement*){
 
 //play button
 void Menu::play(GuiElement*){
-  GuiElement* elem = System::Engine::instance()->getGuiListener("Playname");
+  GuiElement* elem = CGE::Engine::instance()->getGuiListener("Playname");
   int position = -1;
   for (int i = 0; i < wrld.getHeroSize(); i++){
     //cerr << HQRenderer::instance()->getClickedField().x << " " << HQRenderer::instance()->getClickedField().y << "\n";
@@ -291,18 +291,18 @@ void Menu::play(GuiElement*){
   }
 
   //Reset GUI
-  System::Engine::instance()->getFont(0)->clear();
-  System::Engine::instance()->getFont(1)->clear();
-  System::Engine::instance()->removeGuiListener("Play");
-  System::Engine::instance()->removeGuiListener("Playname");
-  /*System::Engine::instance()->clearListeners();
+  CGE::Engine::instance()->getFont(0)->clear();
+  CGE::Engine::instance()->getFont(1)->clear();
+  CGE::Engine::instance()->removeGuiListener("Play");
+  CGE::Engine::instance()->removeGuiListener("Playname");
+  /*CGE::Engine::instance()->clearListeners();
   Button* but = new Button();
   but->setPosition(Vector2D(900,170));
   but->setText("Start");
   //void (Renderer::*p)();
   //p = &Renderer::start;
   but->setCbFunc(start);
-  System::Engine::instance()->addButtonListener(but);
+  CGE::Engine::instance()->addButtonListener(but);
 */
   
   //cf_ = Vector2D(-1,-1);
@@ -371,12 +371,12 @@ void Menu::attackOn(Vector2D click){
 void Menu::defend(GuiElement*){
   msg.setDefended();
   msg.process("defend");
-  System::Engine::instance()->removeGuiListener(System::Engine::instance()->getGuiElements().size()-1);
+  CGE::Engine::instance()->removeGuiListener(CGE::Engine::instance()->getGuiElements().size()-1);
 }
 
 // search menu
 void Menu::search(GuiElement*){
-  System::Engine::instance()->clearListeners();
+  CGE::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
     
   Button* but = new Button();
@@ -384,28 +384,28 @@ void Menu::search(GuiElement*){
   but->setText("Secretdoor");
 	//p = &Renderer::secretdoor;
 	but->setCbFunc(secretdoor);
-	System::Engine::instance()->addGuiListener(but);
+	CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 210));
   but->setText("Treasure");
 	//p = &Renderer::treasure;
 	but->setCbFunc(treasure);
-	System::Engine::instance()->addGuiListener(but);
+	CGE::Engine::instance()->addGuiListener(but);
     
   but = new Button();
   but->setPosition(Vector2D(900, 180));
   but->setText("Trap");
 	//p = &Renderer::trap;
 	but->setCbFunc(trap);
-	System::Engine::instance()->addGuiListener(but);
+	CGE::Engine::instance()->addGuiListener(but);
     
   but = new Button();
   but->setPosition(Vector2D(900, 140));
   but->setText("Back");
 	//p = &Renderer::mainMenu;
 	but->setCbFunc(mainMenu);
-	System::Engine::instance()->addGuiListener(but);
+	CGE::Engine::instance()->addGuiListener(but);
 }
 
 // search button
@@ -429,7 +429,7 @@ void Menu::trap(GuiElement* elem){
 
 // inventory button
 void Menu::inventory(GuiElement*){
-  System::Engine::instance()->clearListeners();
+  CGE::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
   Button* but;
   
@@ -438,34 +438,34 @@ void Menu::inventory(GuiElement*){
   but->setText("Use");
 	//p = &Renderer::use;
 	but->setCbFunc(use);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 210));
   but->setText("Take off");
 	//p = &Renderer::takeoff;
 	but->setCbFunc(takeoff);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 180));
   but->setText("What is");
 	//p = &Renderer::whatis;
 	but->setCbFunc(whatis);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 150));
   but->setText("Drop");
   but->setCbFunc(drop);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
   
   but = new Button();
   but->setPosition(Vector2D(900, 110));
   but->setText("Close");
 	//p = &Renderer::close;
 	but->setCbFunc(close);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   //get current inventory
   HQRenderer::instance()->setInventory(plyr.getCreature()->getInventory());
@@ -533,7 +533,7 @@ void Menu::close(GuiElement* elem){
 
 // trap button
 void Menu::trapMenu(GuiElement*){
-  System::Engine::instance()->clearListeners();
+  CGE::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
   Button* but;
 
@@ -542,28 +542,28 @@ void Menu::trapMenu(GuiElement*){
   but->setText("Search");
 	//p = &Renderer::trap;
 	but->setCbFunc(trap);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
  
   but = new Button();
   but->setPosition(Vector2D(900, 210));
   but->setText("Disarm");
 	//p = &Renderer::disarm;
 	but->setCbFunc(disarm);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 180));
   but->setText("Jump");
 	//p = &Renderer::trap;
 	but->setCbFunc(jump);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
   
   but = new Button();
   but->setPosition(Vector2D(900, 140));
   but->setText("Back");
 	//p = &Renderer::mainMenu;
 	but->setCbFunc(mainMenu);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 }
 
 void Menu::disarm(GuiElement* elem){
@@ -612,7 +612,7 @@ void Menu::jump(GuiElement* elem){
 
 // other menu
 void Menu::other(GuiElement*){
-  System::Engine::instance()->clearListeners();
+  CGE::Engine::instance()->clearListeners();
 	//void (Renderer::*p)();
   Button* but;
 
@@ -621,20 +621,20 @@ void Menu::other(GuiElement*){
   but->setText("Who is");
 	//p = &Renderer::whois;
 	but->setCbFunc(whois);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 210));
   but->setText("Pick up");
   but->setCbFunc(pickup);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
   
   but = new Button();
   but->setPosition(Vector2D(900, 170));
   but->setText("Back");
 	//p = &Renderer::mainMenu;
 	but->setCbFunc(mainMenu);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 }
 
 // whois button
@@ -650,7 +650,7 @@ void Menu::whois(Vector2D click){
 
 //! shop button
 void Menu::shop(GuiElement*){
-  System::Engine::instance()->clearListeners();
+  CGE::Engine::instance()->clearListeners();
   
   HQRenderer::instance()->setTrade(true);
   
@@ -658,31 +658,31 @@ void Menu::shop(GuiElement*){
   but->setPosition(Vector2D(900, 240));
   but->setText("Buy");
 	but->setCbFunc(buy);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 210));
   but->setText("Sell");
 	but->setCbFunc(sell);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
   
   but = new Button();
   but->setPosition(Vector2D(900, 180));
   but->setText("What is");
 	but->setCbFunc(whatisShop);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 140));
   but->setText("Close");
 	//p = &Renderer::mainMenu;
 	but->setCbFunc(closeShop);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 }
 
 //! close shop button
 void Menu::closeShop(GuiElement*){
-  System::Engine::instance()->clearListeners();
+  CGE::Engine::instance()->clearListeners();
   HQRenderer::instance()->setTrade(false);
   plyr.getTrade()->deselect();
   
@@ -690,25 +690,25 @@ void Menu::closeShop(GuiElement*){
 	but->setPosition(Vector2D(900, 170));
 	but->setText("Start");
 	but->setCbFunc(Menu::start);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 130));
   but->setText("Shop");
   but->setCbFunc(Menu::shop);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 90));
   but->setText("Zargon");
   but->setCbFunc(Menu::zargon);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Button();
   but->setPosition(Vector2D(900, 50));
   but->setText("Create hero");
   but->setCbFunc(Menu::createHero);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 }
 
 //whatis (shop) button
@@ -767,8 +767,8 @@ void Menu::pickup(GuiElement*){
 void Menu::createHero(GuiElement*){
   MessageBox* mb = new MessageBox();
   mb->setCbFunc(chexec);
-  System::Engine::instance()->addGuiListener(mb);
-  Font* fnt = System::Engine::instance()->getFont(1);
+  CGE::Engine::instance()->addGuiListener(mb);
+  Font* fnt = CGE::Engine::instance()->getFont(1);
   fnt->setColor(1,1,1);
   
   fnt->setId(2);
@@ -782,40 +782,40 @@ void Menu::createHero(GuiElement*){
   for (unsigned i = 0; i < heros.size(); i++){
     cls->addEntry(heros[i].getType());
   }
-  System::Engine::instance()->addGuiListener(cls);
+  CGE::Engine::instance()->addGuiListener(cls);
   
   fnt->setId(2);
   fnt->print(120, 610, "Name:", 1, HUGE_VAL);
   InputField* in = new InputField();
   in->setName("heroname");
   in->setPosition(Vector2D(180, 610));
-  System::Engine::instance()->addGuiListener(in);
+  CGE::Engine::instance()->addGuiListener(in);
 
 }
 
 // create hero execute button
 void Menu::chexec(GuiElement*){
   //fonts
-  Graphics::Font* fnt = System::Engine::instance()->getFont(1);
+  CGE::Font* fnt = CGE::Engine::instance()->getFont(1);
   fnt->deleteText(1);
   fnt->deleteText(2);
   
   //character class
-  Button* cls = dynamic_cast<Button*>(System::Engine::instance()->getGuiListener("class"));
+  Button* cls = dynamic_cast<Button*>(CGE::Engine::instance()->getGuiListener("class"));
   string charClass = cls->getText();
-  System::Engine::instance()->removeGuiListener("class");
+  CGE::Engine::instance()->removeGuiListener("class");
 
   //character name
-  if (System::Engine::instance()->getActiveInput() != NULL){
-    InputField* inp = System::Engine::instance()->getActiveInput();
+  if (CGE::Engine::instance()->getActiveInput() != NULL){
+    InputField* inp = CGE::Engine::instance()->getActiveInput();
     inp->removeChar();
     inp->end();
-    System::Engine::instance()->setActiveInput(NULL);
+    CGE::Engine::instance()->setActiveInput(NULL);
   }
-  GuiElement* ele = System::Engine::instance()->getGuiListener("heroname");
+  GuiElement* ele = CGE::Engine::instance()->getGuiListener("heroname");
   InputField* inp = dynamic_cast<InputField*>(ele);
   string name = inp->getText();
-  System::Engine::instance()->removeGuiListener("heroname");
+  CGE::Engine::instance()->removeGuiListener("heroname");
   
   //find hero
   Hero hero;
@@ -830,9 +830,9 @@ void Menu::chexec(GuiElement*){
   
   //spells
   Inventory* inv = hero.getInventory();
-  while (Button* but = dynamic_cast<Button*>(System::Engine::instance()->getGuiListener("spell"))){
+  while (Button* but = dynamic_cast<Button*>(CGE::Engine::instance()->getGuiListener("spell"))){
     string spell = but->getText();
-    System::Engine::instance()->removeGuiListener("spell");
+    CGE::Engine::instance()->removeGuiListener("spell");
     vector<Item> spells = Templates::instance()->getSpells(spell);
     for (unsigned int i = 0; i < spells.size(); i++){
       inv->addItem(spells[i]);

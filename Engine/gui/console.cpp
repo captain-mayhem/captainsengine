@@ -30,7 +30,7 @@ using namespace CGE;
 Console::Console(){
   //set standard values
   pos_ = Vector2D(0, 468);
-  //fnt_ = System::Engine::instance()->getFont();
+  //fnt_ = CGE::Engine::instance()->getFont();
   span_ = Vector2D(1024,300);
   opacity_ = 0.7f;
   //put in a nice starting message
@@ -74,10 +74,10 @@ Console::~Console(){
 //init console
 void Console::init(){
   input_ = new InputField();
-  input_->setFont(System::Engine::instance()->getFont(2));
+  input_->setFont(CGE::Engine::instance()->getFont(2));
   input_->setPosition(Vector2D(0, 468));
   input_->setOpacity(0);
-  bgColor_ = Graphics::Color(0, 0, 0, 0.7f);
+  bgColor_ = CGE::Color(0, 0, 0, 0.7f);
   fgColor_ = Vector3D(1.0, 1.0, 1.0);
   input_->setColors(fgColor_, bgColor_);
   input_->setSpan(Vector2D(1024,18));
@@ -138,8 +138,8 @@ void Console::update(){
 void Console::render(){
   if (!active_)
     return;
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
-  rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE_MINUS_SRC_ALPHA);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   //glDisable(GL_TEXTURE_2D);
   rend->enableTexturing(false);
@@ -149,8 +149,8 @@ void Console::render(){
   //draw background
   //glColor4ub(bgColor_.r,bgColor_.g, bgColor_.b, opacity_);
   rend->setColor(bgColor_.r, bgColor_.g, bgColor_.b, opacity_);
-  System::Engine::instance()->getForms()->activateQuad();
-  System::Engine::instance()->getForms()->drawQuad(pos_, span_);
+  CGE::Engine::instance()->getForms()->activateQuad();
+  CGE::Engine::instance()->getForms()->drawQuad(pos_, span_);
   /*
   glBegin(GL_QUADS);
     glVertex2f(pos_.x         , pos_.y+span_.y);
@@ -162,12 +162,12 @@ void Console::render(){
   rend->enableTexturing(true);
   //glEnable(GL_TEXTURE_2D);
   //glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-  rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
   
-  System::Engine::instance()->getFont(2)->setColor(fgColor_.x,fgColor_.y,fgColor_.z);
+  CGE::Engine::instance()->getFont(2)->setColor(fgColor_.x,fgColor_.y,fgColor_.z);
   int y = pos_.y + 20;
   for (list<string>::iterator iter = history_.begin(); iter != history_.end(); iter++){
-    System::Engine::instance()->getFont(2)->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
+    CGE::Engine::instance()->getFont(2)->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
     y += 20;
   }
   //fnt_.render();

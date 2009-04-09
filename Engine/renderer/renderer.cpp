@@ -2,7 +2,7 @@
 #include "../math/vector.h"
 #include "renderer.h"
 
-using namespace Graphics;
+using namespace CGE;
 
 Renderer::Renderer(){
   win_ = NULL;

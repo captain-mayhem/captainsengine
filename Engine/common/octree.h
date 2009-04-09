@@ -48,7 +48,7 @@ public:
   //value& at(index x, index y, index z);
   void buildDebugVertexBuffer();
   void renderDebug();
-  void render(const Graphics::Camera* cam);
+  void render(const CGE::Camera* cam);
   void setRenderCallback(void (*func)(value val)){mRenderCB = func;}
 protected:
 
@@ -63,7 +63,7 @@ protected:
 
   Node** recurseCreate(const CGE::Vec3<index>& idx, typename Octree<index,value>::Node** node, CGE::Vec3<index> split, CGE::Vec3<index> span, int level);
   Node* recurse(Node* node, int& data1, void* data2, void (*func)(Node* node, int& data1, void* data2));
-  void recurseCullAndRender(const Graphics::Camera* cam, Node* node, bool passThrough);
+  void recurseCullAndRender(const CGE::Camera* cam, Node* node, bool passThrough);
 
   static void insertVertex(Node* node, int& data1, void* data2);
 
@@ -71,7 +71,7 @@ protected:
   value mDefault;
   CGE::Vec3<index> mCenter;
   CGE::Vec3<index> mSpan;
-  Graphics::VertexBuffer* mVB;
+  CGE::VertexBuffer* mVB;
   int mNodeCount;
   void (*mRenderCB)(value val);
 };
@@ -102,7 +102,7 @@ void Octree<index,value>::insert(const CGE::Vec3<index>& center, value val){
     (center.x > (mCenter+mSpan).x) ||
     (center.y > (mCenter+mSpan).y) ||
     (center.z > (mCenter+mSpan).z)){
-      System::Log << "Octree: tried to add out of bounds object";
+      CGE::Log << "Octree: tried to add out of bounds object";
       return;
   }
   Node** nd = recurseCreate(center,&mRoot,mCenter,mSpan,0);
@@ -174,16 +174,16 @@ typename Octree<index,value>::Node** Octree<index,value>::recurseCreate(const CG
 
 template<typename index, typename value>
 void Octree<index,value>::insertVertex(Node* node, int& data1, void* data2){
-  Graphics::VertexBuffer* vb = (Graphics::VertexBuffer*)data2;
-  vb->setPosition(data1,Graphics::Vertex((float)node->mIndex.x,(float)node->mIndex.y,(float)node->mIndex.z));
+  CGE::VertexBuffer* vb = (CGE::VertexBuffer*)data2;
+  vb->setPosition(data1,CGE::Vertex((float)node->mIndex.x,(float)node->mIndex.y,(float)node->mIndex.z));
   ++data1;
 }
 
 template<typename index, typename value>
 void Octree<index,value>::buildDebugVertexBuffer(){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   mVB = rend->createVertexBuffer();
-  mVB->create(VB_POSITION,mNodeCount,0);
+  mVB->create(VB_POSITION,mNodeCount);
   mVB->lockVertexPointer();
   int vbpos = 0;
   recurse(mRoot,vbpos,mVB,insertVertex);
@@ -192,38 +192,39 @@ void Octree<index,value>::buildDebugVertexBuffer(){
 
 template<typename index, typename value> 
 void Octree<index,value>::renderDebug(){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->pushMatrix();
   rend->translate((float)mCenter.x,(float)mCenter.y,(float)mCenter.z);
-  Graphics::VertexBuffer* vb = rend->createVertexBuffer();
-  vb->create(VB_POSITION,8,1);
-  vb->createIndexBuffer(0, 24);
+  CGE::VertexBuffer* vb = rend->createVertexBuffer();
+  CGE::IndexBuffer* indbuf = rend->createIndexBuffer(IndexBuffer::IB_USHORT, 24);
+  vb->create(VB_POSITION,8);
   vb->lockVertexPointer();
   Vec3<index> p = mCenter-mCenter;
-  vb->setPosition(0,Graphics::Vertex((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->setPosition(1,Graphics::Vertex((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(2,Graphics::Vertex((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(3,Graphics::Vertex((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->setPosition(4,Graphics::Vertex((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->setPosition(5,Graphics::Vertex((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(6,Graphics::Vertex((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(7,Graphics::Vertex((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
+  vb->setPosition(0,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
+  vb->setPosition(1,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
+  vb->setPosition(2,CGE::Vertex((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
+  vb->setPosition(3,CGE::Vertex((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
+  vb->setPosition(4,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
+  vb->setPosition(5,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
+  vb->setPosition(6,CGE::Vertex((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
+  vb->setPosition(7,CGE::Vertex((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
   vb->unlockVertexPointer();
-  short* ind = vb->lockIndexPointer(0);
+  short* ind = (short*)indbuf->lockIndexPointer();
   ind[0] = 0; ind[1] = 1; ind[2] = 1; ind[3] = 2; ind[4] = 2; ind[5] = 3; ind[6] = 3; ind[7] = 0;
   ind[8] = 4; ind[9] = 5; ind[10] = 5; ind[11] = 6; ind[12] = 6; ind[13] = 7; ind[14] = 7; ind[15] = 4;
   ind[16] = 0; ind[17] = 4; ind[18] = 1; ind[19] = 5; ind[20] = 2; ind[21] = 6; ind[22] = 3; ind[23] = 7;
-  vb->unlockIndexPointer(0);
+  indbuf->unlockIndexPointer();
   vb->activate();
-  vb->draw(Graphics::VB_Lines, 0);
+  vb->draw(CGE::VB_Lines, indbuf);
   mVB->activate();
-  mVB->draw(Graphics::VB_Points, 0);
+  mVB->draw(CGE::VB_Points, NULL);
   rend->popMatrix();
   delete vb;
+  delete indbuf;
 }
 
 template<typename index, typename value>
-void Octree<index,value>::recurseCullAndRender(const Graphics::Camera* cam, Node* node, bool passThrough){
+void Octree<index,value>::recurseCullAndRender(const CGE::Camera* cam, Node* node, bool passThrough){
   CGE::Frustum::Result res;
   //test or use result from parent
   if (passThrough)
@@ -266,7 +267,7 @@ void Octree<index,value>::recurseCullAndRender(const Graphics::Camera* cam, Node
 }
 
 template<typename index, typename value>
-void Octree<index,value>::render(const Graphics::Camera* cam){
+void Octree<index,value>::render(const CGE::Camera* cam){
   recurseCullAndRender(cam, mRoot, false);
 }
 

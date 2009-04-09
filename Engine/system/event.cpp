@@ -1,7 +1,7 @@
 
 #include "event.h"
 
-using namespace System;
+using namespace CGE;
 
 Event::Event(){
 #ifdef WIN32

@@ -39,11 +39,11 @@ using std::cout;
 using std::cerr;
 using std::ifstream;
 
-using System::Thread;
-using System::Mutex;
+using CGE::Thread;
+using CGE::Mutex;
 
 // a mutex to lock data for save multithread access
-extern System::Mutex mutex;
+extern CGE::Mutex mutex;
 
 //Construcor
 Admin::Admin() : zargon(NULL) {

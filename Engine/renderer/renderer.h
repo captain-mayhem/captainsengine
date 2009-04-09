@@ -8,12 +8,13 @@ class AppWindow;
 #include "../math/vector.h"
 #include "../math/matrix.h"
 #include "vertexbuffer.h"
+#include "indexbuffer.h"
 #include "texture.h"
 
 #define ZBUFFER 0x00000001
 #define COLORBUFFER 0x00000010
 
-namespace Graphics{
+namespace CGE{
 
 enum RenderType{
   OpenGL,
@@ -68,6 +69,8 @@ public:
   virtual void clear(long flags){}
   //! create vertex buffer
   virtual VertexBuffer* createVertexBuffer(){return NULL;}
+  //! create index buffer
+  virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size){return NULL;}
   //! create texture
   virtual Texture* createTexture(string filename)=0;
   //! set lookAt

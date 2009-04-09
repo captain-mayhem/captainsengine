@@ -3,7 +3,7 @@
 #include "script.h"
 #include "file.h"
 
-namespace System{
+namespace CGE{
 
 Script* Script::scr_ = NULL;
 
@@ -56,6 +56,14 @@ string Script::getStringSetting(const string& name){
     Log << "Lua_Error: " << name << " is no string.\n";
   }
   return string(lua_tostring(L,-1));
+}
+
+float Script::getRealSetting(const string& name){
+  lua_getglobal(L, name.c_str());
+  if (!lua_isnumber(L,-1)){
+    Log << "Lua_Error: " << name << " is no string.\n";
+  }
+  return (float)lua_tonumber(L,-1);
 }
 
 }

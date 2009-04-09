@@ -83,7 +83,7 @@ public:
   //! number of used models
   //unsigned usedModels;
   //! the models
-  //Graphics::ModelInstance* models;
+  //CGE::ModelInstance* models;
   //! the texture coordinates
   //Vec2f *texCoords;
   //! number of models on the field

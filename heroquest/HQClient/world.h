@@ -30,11 +30,11 @@ using std::string;
 #define WALL_HEIGHT 16;
 #define QUAD_SIZE 8;
 
-namespace Graphics{
+namespace CGE{
   class Texture;
 }
 
-//using Graphics::Texture;
+//using CGE::Texture;
 
 
 //! The world in the game
@@ -257,7 +257,7 @@ public:
   void placeInventory(Inventory* items, Vector2D position);
 
   //! get the scene
-  inline Graphics::Scene& getScene() {return scene_;}
+  inline CGE::Scene& getScene() {return scene_;}
 	
 private:
   //! tells if there is a door
@@ -353,7 +353,7 @@ private:
   bool respectClasses_;
 
   //! the scene
-  Graphics::Scene scene_;
+  CGE::Scene scene_;
 };
 
 extern class World wrld;

@@ -9,8 +9,9 @@
 #define VB_TEXCOORD 0x0004
 #define VB_NORMAL 0x0008
 
-namespace Graphics{
+namespace CGE{
 
+class IndexBuffer;
 typedef CGE::Vector3D Vertex;
 
 enum PrimitiveType{
@@ -29,14 +30,11 @@ class VertexBuffer{
 public:
   VertexBuffer();
   virtual ~VertexBuffer();
-  virtual void create(int type, int vertexBufferSize, short numIndexBuffers);
+  virtual void create(int type, int vertexBufferSize)=0;
   virtual void* lockVertexPointer()=0;
   virtual void unlockVertexPointer()=0;
-  virtual void createIndexBuffer(short indexNum, short indexBufferSize)=0;
-  virtual short* lockIndexPointer(short indexNum)=0;
-  virtual void unlockIndexPointer(short indexNum)=0;
   virtual void activate()=0;
-  virtual void draw(PrimitiveType pt, short indexNum)=0;
+  virtual void draw(PrimitiveType pt, IndexBuffer* indices)=0;
   virtual void setPosition(int pos, Vertex v);
   virtual void setColor(int pos, Color c)=0;
   virtual void setTexCoord(int pos, CGE::Vec2f t, bool dxswap=false)=0;
@@ -45,10 +43,7 @@ public:
 protected:
   int structsize_;
   int vbsize_;
-  int numIbs_;
-  short* ibsizes_;
   void* verts_;
-  short* inds_;
   int vertoffset_;
   int coloffset_;
   int texoffset_;

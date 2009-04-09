@@ -6,9 +6,6 @@
 
 namespace CGE{
 class BoundingObject;
-}
-
-namespace Graphics{
 class Texture;
 }
 
@@ -19,7 +16,7 @@ class Mesh;
 #define MAX_TEXTURES 8
 #define MAX_ATTRIBS 8
 
-class Model : public System::GameObject{
+class Model : public CGE::GameObject{
 public:
   //! Default constructor
   Model();
@@ -42,9 +39,9 @@ public:
   //! Get the bounding object
   inline CGE::BoundingObject* getBoundingObject() const {return boundingObj_;}
   //! Assign a texture
-  void assignTexture(Graphics::Texture* tex, int stage);
+  void assignTexture(CGE::Texture* tex, int stage);
   //! Get a texture
-  Graphics::Texture* getTexture(int stage) const {return textures_[stage];}
+  CGE::Texture* getTexture(int stage) const {return textures_[stage];}
   //! Set an attribute
   void setAttrib(int position, int value) {attribs_[position] = value;}
   //! Get an attribute
@@ -55,7 +52,7 @@ protected:
   //! The corresponding bounding object
   CGE::BoundingObject* boundingObj_;
   //! Assigned textures
-  Graphics::Texture* textures_[MAX_TEXTURES];
+  CGE::Texture* textures_[MAX_TEXTURES];
   //! The model attributes
   int attribs_[MAX_ATTRIBS];
 };

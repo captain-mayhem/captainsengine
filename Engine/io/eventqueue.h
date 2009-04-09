@@ -36,8 +36,8 @@ public:
     mMutex.unlock();
   }
 private:
-  System::Event mEvent;
-  System::Mutex mMutex;
+  CGE::Event mEvent;
+  CGE::Mutex mMutex;
   std::queue<T> mQ;
 };
 

@@ -22,7 +22,7 @@ public:
   void setExtent(const CGE::Vec3d& minPoint, const CGE::Vec3d& maxPoint) {mMinExtent = minPoint; mMaxExtent = maxPoint;}
   void addNode(const CGE::Vec3d& position, int nodeid);
   void addStreet(int streetid, int fromNode, int toNode);
-  void render(const Graphics::Camera* cam);
+  void render(const CGE::Camera* cam);
   void buildAccelerationStructures();
   //CGE::Vec3d getCenter(){return (mMinBox+mMaxBox)/2.0;}
   CGE::Vec3f getNormal() {return mPlaneNormal;}

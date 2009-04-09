@@ -47,11 +47,11 @@ TextureManager::~TextureManager(){
 }
 
 void TextureManager::loadTextures(){
-  floorTex = Texture::loadFromDat("textures/world/","ground.dat",floorNum_);
-  wallTex = Texture::loadFromDat("textures/world/","wall.dat",wallNum_);
-  heroTex = Texture::loadFromDat("textures/heros/","heros.dat",heroNum_);
-  monsterTex = Texture::loadFromDat("textures/monsters/","monsters.dat",monsterNum_);
-  furnitureTex = Texture::loadFromDat("textures/furniture/","furniture.dat",furnitureNum_);
-  overlayTex = Texture::loadFromDat("textures/overlays/","overlays.dat",overlayNum_);
-  otherTex = Texture::loadFromDat("textures/other/","other.dat",otherNum_);
+  floorTex = CGE::Texture::loadFromDat("textures/world/","ground.dat",floorNum_);
+  wallTex = CGE::Texture::loadFromDat("textures/world/","wall.dat",wallNum_);
+  heroTex = CGE::Texture::loadFromDat("textures/heros/","heros.dat",heroNum_);
+  monsterTex = CGE::Texture::loadFromDat("textures/monsters/","monsters.dat",monsterNum_);
+  furnitureTex = CGE::Texture::loadFromDat("textures/furniture/","furniture.dat",furnitureNum_);
+  overlayTex = CGE::Texture::loadFromDat("textures/overlays/","overlays.dat",overlayNum_);
+  otherTex = CGE::Texture::loadFromDat("textures/other/","other.dat",otherNum_);
 }

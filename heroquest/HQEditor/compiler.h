@@ -89,7 +89,7 @@ private:
   //! load or get a mesh
   MeshGeo::Mesh* getMesh(std::string tilename, std::string path);
   //! load or get a texture
-  Graphics::Texture* getTexture(std::string texname);
+  CGE::Texture* getTexture(std::string texname);
   /*! get the info which side has to be longer
     \result 0 nothing is longer
             1 left is longer
@@ -98,7 +98,7 @@ private:
   */
   short getLengthInfo(const Vector2D& pos, Direction d, CGE::Matrix* mat = NULL);
   //! the scene
-  Graphics::Scene scene_;
+  CGE::Scene scene_;
   //! the hero starting positions
   vector< ::CGE::Vector2D > starts_;
   //! the doors in the map

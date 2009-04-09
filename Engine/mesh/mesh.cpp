@@ -400,11 +400,11 @@ void Mesh::buildVBO(){
   //float* vertices = new float[numTriangles_*3*3];
   //unsigned int* indices = new unsigned int[numTriangles_*3];
   
-  vb_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
+  vb_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
   if (numTexCoords_ > 0)
-    vb_->create(VB_POSITION | VB_NORMAL | VB_TEXCOORD, numTriangles_*3, 0/*numTriangles_*3*/);
+    vb_->create(VB_POSITION | VB_NORMAL | VB_TEXCOORD, numTriangles_*3);
   else
-    vb_->create(VB_POSITION | VB_NORMAL, numTriangles_*3, 0/*numTriangles_*3*/);
+    vb_->create(VB_POSITION | VB_NORMAL, numTriangles_*3);
   vb_->lockVertexPointer();
   
   for (int i = 0; i < numTriangles_; i++){
@@ -493,9 +493,9 @@ void Mesh::draw(){/*
   glDrawElements(GL_TRIANGLES, m_numTriangles*3, GL_UNSIGNED_INT, NULL);
   glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);*/
-  //System::Engine::instance()->getRenderer()->multiplyMatrix(trafo_);
+  //CGE::Engine::instance()->getRenderer()->multiplyMatrix(trafo_);
   vb_->activate();
-  vb_->draw(Graphics::VB_Triangles, 0);
+  vb_->draw(CGE::VB_Triangles, 0);
 }
 
 //! intersects a ray and a triangle

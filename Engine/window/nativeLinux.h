@@ -11,7 +11,7 @@ namespace Windows{
 
 class X11Window : public AppWindow{
 public:
-  X11Window(::Graphics::Renderer* renderer);
+  X11Window(CGE::Renderer* renderer);
   ~X11Window() {}
   //! init the window
   void init(const std::string& name);
@@ -43,7 +43,7 @@ protected:
 namespace Windows{
 class X11Window : public AppWindow{
 public:
-  X11Window(::Graphics::Renderer* renderer) : AppWindow(renderer) {}
+  X11Window(CGE::Renderer* renderer) : AppWindow(renderer) {}
   ~X11Window() {}
 };
 }

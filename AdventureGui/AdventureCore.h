@@ -21,7 +21,7 @@
 #define SECOND_CURSOR_X SCREENWIDTH-RIGHT_INDENT+CURSOR_X
 #define SECOND_CURSOR_Y CURSOR_Y
 
-namespace Graphics{
+namespace CGE{
   class Font;
 }
 class SQL;

@@ -14,8 +14,7 @@
 
 #include "renderer.h"
 
-using namespace System;
-using namespace Graphics;
+using namespace CGE;
 
 GameState game;
 Camera cam;
@@ -45,7 +44,7 @@ void engineMain(int argc, char** argv){
   else
     home = path;
 #endif
-  System::Log << home;
+  CGE::Log << home;
   Renderer* rend = Engine::instance()->getRenderer();
   HQRenderer::init(rend);
 

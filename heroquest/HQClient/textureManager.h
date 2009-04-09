@@ -1,23 +1,21 @@
 #ifndef TEXTUREMANAGER_H
 #define TEXTUREMANAGER_H
 
-namespace Graphics{
+namespace CGE{
 class Texture;
 }
-
-using Graphics::Texture;
 
 class TextureManager{
   public:
     static void init() {texMan_ = new TextureManager();}
     static TextureManager* instance() {return texMan_;}
-    Texture** floorTex;
-    Texture** wallTex;
-    Texture** heroTex;
-    Texture** monsterTex;
-    Texture** furnitureTex;
-    Texture** overlayTex;
-    Texture** otherTex;
+    CGE::Texture** floorTex;
+    CGE::Texture** wallTex;
+    CGE::Texture** heroTex;
+    CGE::Texture** monsterTex;
+    CGE::Texture** furnitureTex;
+    CGE::Texture** overlayTex;
+    CGE::Texture** otherTex;
   private:
     TextureManager();
     ~TextureManager();

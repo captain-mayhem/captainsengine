@@ -37,7 +37,7 @@
 #include "../system/gameobject.h"
 #include "../math/bbox.h"
 
-namespace Graphics{
+namespace CGE{
 class VertexBuffer;
 }
 
@@ -140,7 +140,7 @@ protected:
   std::vector<unsigned short> indices_;
 
   //! the vertex buffer
-  Graphics::VertexBuffer* vb_;
+  CGE::VertexBuffer* vb_;
   
   //! vertex buffer object
   //GLuint m_vbo;

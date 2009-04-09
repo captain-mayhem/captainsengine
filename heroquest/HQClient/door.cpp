@@ -107,7 +107,7 @@ void Door::render() const{
       glScalef((QUADSIZE-2*THICKNESS)/2,1.0/3*WALLHEIGHT,THICKNESS*0.5);
       */
     }
-    System::Engine::instance()->getRenderer()->multiplyMatrix(t*s); 
+    CGE::Engine::instance()->getRenderer()->multiplyMatrix(t*s); 
   }
   //vertical doors
   else{
@@ -127,7 +127,7 @@ void Door::render() const{
       glScalef(THICKNESS*0.5,1.0/3*WALLHEIGHT,(QUADSIZE-2*THICKNESS)/2);
       */
     }
-    System::Engine::instance()->getRenderer()->multiplyMatrix(t*r*s);
+    CGE::Engine::instance()->getRenderer()->multiplyMatrix(t*r*s);
   }
  
   //secret door
@@ -200,7 +200,7 @@ void Door::write(ofstream& out){
 }
 
 //read a door from a stream
-void Door::read(ifstream& in, Graphics::Scene& scene){
+void Door::read(ifstream& in, CGE::Scene& scene){
   unsigned modelid;
   in.read((char*)&modelid, sizeof(modelid));
 #ifdef _CLIENT_

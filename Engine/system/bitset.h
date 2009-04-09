@@ -16,7 +16,7 @@
 
 using std::map;
 
-namespace System {
+namespace CGE {
 //! stores up to eight bits in one byte. 
 /*! It is a simple bitset class that has the following advantages: 
  * It takes less memory than the bitset class from STL. Moveover,

@@ -80,9 +80,9 @@ void Vehicle::setPosition(const CGE::Vec3f& pos){
   mAutobody->setPosition(pos);
 }
 
-void Vehicle::render(const Graphics::Camera& cam){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
-  Graphics::Forms* form = System::Engine::instance()->getForms();
+void Vehicle::render(const CGE::Camera& cam){
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::Forms* form = CGE::Engine::instance()->getForms();
 
   rend->setColor(1.0,1.0,0.0,1.0);
   mAutobody->render(cam);

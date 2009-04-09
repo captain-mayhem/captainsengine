@@ -11,7 +11,7 @@
 
 #include "thread.h"
 
-namespace System{
+namespace CGE{
 
 class Event{
 public:

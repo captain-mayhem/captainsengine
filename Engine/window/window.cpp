@@ -4,12 +4,12 @@
 
 namespace Windows{
 
-AppWindow::AppWindow(::Graphics::Renderer* render){
+AppWindow::AppWindow(CGE::Renderer* render){
   renderer_ = render;
-  fullscreen_ = ::System::Script::instance()->getBoolSetting("fullscreen");
-  width_ = ::System::Script::instance()->getNumberSetting("width");
-  height_ = ::System::Script::instance()->getNumberSetting("height");
-  bpp_ = ::System::Script::instance()->getNumberSetting("bitsPerPixel");
+  fullscreen_ = CGE::Script::instance()->getBoolSetting("fullscreen");
+  width_ = CGE::Script::instance()->getNumberSetting("width");
+  height_ = CGE::Script::instance()->getNumberSetting("height");
+  bpp_ = CGE::Script::instance()->getNumberSetting("bitsPerPixel");
 }
 
 }

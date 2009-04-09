@@ -26,7 +26,7 @@ using MeshGeo::Model;
 using CGE::Matrix;
 using CGE::Vector3D;
 using CGE::Vector2D;
-using System::Log;
+using CGE::Log;
 
 HQMExport::HQMExport(){
   width_ = 0;
@@ -43,7 +43,7 @@ HQMExport::~HQMExport(){
   map_ = NULL;
 }
 
-bool HQMExport::exportHQM(Graphics::Scene& scn, const std::string& filename){
+bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
   const list<Model*>& models = scn.getModels();
   //determine size of the map
   list<Model*>::const_iterator iter;

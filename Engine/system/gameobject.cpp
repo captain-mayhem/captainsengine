@@ -2,7 +2,7 @@
 
 #include "../math/matrix.h"
 
-using namespace System;
+using namespace CGE;
 
 unsigned int GameObject::idCount_ = 0;
 

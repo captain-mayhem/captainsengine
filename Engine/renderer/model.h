@@ -7,7 +7,7 @@
 #include "../math/matrix.h"
 #include "vertexbuffer.h"
 
-namespace Graphics{
+namespace CGE{
 
 class VertexBuffer;
 class ModelInstance;
@@ -33,7 +33,7 @@ public:
   //! activate the model for rendering
   inline void activate() {vb_->activate();}
   //! draw a model
-  inline void draw() {vb_->draw(VB_Triangles, 0);}
+  inline void draw() {vb_->draw(VB_Triangles, inds_);}
   //! clone a model
   /*! cloning a model means that the vertexbuffer
    * is not copied but shared 
@@ -50,6 +50,8 @@ private:
   std::vector<unsigned short> indices_;
   //! the vertexbuffer
   VertexBuffer* vb_;
+  //! the indexbuffer
+  IndexBuffer* inds_;
   //! the transformation
   CGE::Matrix transform_;
   //! if the model was cloned
@@ -63,7 +65,7 @@ public:
   //! default constructor
   ModelInstance();
   //! constructor
-  ModelInstance(Graphics::Model* model);
+  ModelInstance(CGE::Model* model);
   //! copy constructor
   ModelInstance(const ModelInstance& m);
   //! destructor
@@ -80,7 +82,7 @@ private:
   //! the transformation
   CGE::Matrix transform_;
   //! a pointer to the model
-  Graphics::Model* model_;
+  CGE::Model* model_;
 };
 
 

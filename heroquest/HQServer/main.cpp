@@ -61,7 +61,7 @@ Admin globl;
 Message msg;
 World wrld;
 GameState game;
-System::Mutex mutex;
+CGE::Mutex mutex;
 Script scr;
 void running(void* s);
 string path;
@@ -112,8 +112,8 @@ void engineMain(int argc, char** argv) {
       ServerSocket* new_sock = new ServerSocket();
       server.accept(*new_sock);
 
-      //System::Thread* th = SDL_CreateThread(running, (void*)new_sock);
-      System::Thread* th = new System::Thread();
+      //CGE::Thread* th = SDL_CreateThread(running, (void*)new_sock);
+      CGE::Thread* th = new CGE::Thread();
       th->create(running, (void*)new_sock);
       
       globl.add(new_sock,th);

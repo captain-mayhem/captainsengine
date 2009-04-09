@@ -26,7 +26,7 @@ using std::string;
 using std::ostringstream;
 using std::queue;
 
-namespace Graphics{
+namespace CGE{
 
 class Texture;
 
@@ -73,7 +73,7 @@ public:
   //! sets the color of the text
   void setColor(float r, float g, float b);
   //! sets the color of the text
-  void setColor(Graphics::Color& c);
+  void setColor(CGE::Color& c);
   //! sets a id with which the text can be identified
   void setId(short id) {id_ = id;}
   //! renders the text
@@ -99,6 +99,8 @@ private:
   Texture* tex_;
   //! the vertex buffers
   VertexBuffer* buffer_;
+  //! the index buffer
+  IndexBuffer* inds_;
   //! font color
   Color rgb_;
   //! all text strings that are to be rendered

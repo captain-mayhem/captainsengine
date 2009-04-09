@@ -138,7 +138,7 @@ void Creature::render() const{
     glTranslatef(actPos_.x/1.5, 1, actPos_.z/1.5);
   
     // In the current development stage, the creature is just a cube
-    Forms::drawCube();
+    ::Forms::drawCube();
   
     glPopMatrix();
     glColor3f(1,1,1);
@@ -204,7 +204,7 @@ void Creature::update(){
     return;
   toReach = positions_.front();
   // move how far
-  float move = System::Engine::instance()->getFrameInterval()*cam.getSpeed();
+  float move = CGE::Engine::instance()->getFrameInterval()*cam.getSpeed();
   // a little epsilon to avoid oscillation around the target point
   float epsilon = 0.1;
   // move in the correct direction

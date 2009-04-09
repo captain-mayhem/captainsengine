@@ -59,7 +59,7 @@ class Trade{
     vector<Item> items_;
 #ifdef _CLIENT_
     //! the font
-    ::Graphics::Font* fnt_;
+    CGE::Font* fnt_;
     //! the inventory page to be displayed
     unsigned short invPage_;
     //! the shop page to be displayed

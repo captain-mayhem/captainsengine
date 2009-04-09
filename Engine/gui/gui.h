@@ -69,7 +69,7 @@ public:
     /*! \param fgCol foreground (text) color of the field (RGB)
      *  \param bgCol background color (RGB)
      */
-  inline void setColors(::CGE::Vector3D fgCol, ::Graphics::Color bgCol)
+  inline void setColors(::CGE::Vector3D fgCol, ::CGE::Color bgCol)
       {fgColor_ = fgCol, bgColor_ = bgCol;}
   //! Get the gui type
   inline GuiType getType() const {return type_;}
@@ -79,13 +79,13 @@ public:
   inline GuiElement* getParent() const {return parent_;}
 protected:
   //! position
-  ::CGE::Vector2D pos_;
+  CGE::Vector2D pos_;
   //! dimensions of the field
-  ::CGE::Vector2D span_;
+  CGE::Vector2D span_;
   //! background color
-  ::Graphics::Color bgColor_;
+  CGE::Color bgColor_;
   //! foreground color
-  ::CGE::Vector3D fgColor_;
+  CGE::Vector3D fgColor_;
   //! opacity
   float opacity_;
   //! name of the gui element
@@ -121,7 +121,7 @@ class InputField : public GuiElement{
     //! Clears the text in the field
     inline void clear() {field_.erase();}
     //! Sets the font to use
-    inline void setFont(::Graphics::Font* fnt) {fnt_ = fnt;}
+    inline void setFont(CGE::Font* fnt) {fnt_ = fnt;}
     //! Displays the field using OpenGL
     virtual void render();
     //! Hides typed input (for password fields);
@@ -130,7 +130,7 @@ class InputField : public GuiElement{
     virtual void process();
   protected:
     //! The font to write the field text with
-    ::Graphics::Font* fnt_;
+    CGE::Font* fnt_;
     //! The field text
     string field_;
     //! Input finished?

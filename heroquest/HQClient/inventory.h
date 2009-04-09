@@ -18,7 +18,7 @@ using std::vector;
 using std::ifstream;
 using std::ofstream;
 
-//using Graphics::Font;
+//using CGE::Font;
 
 class Inventory{
   public:
@@ -85,7 +85,7 @@ class Inventory{
     int breast_;
 #ifdef _CLIENT_
     //! the font
-    ::Graphics::Font* fnt_;
+    CGE::Font* fnt_;
     //! the item page to be displayed
     unsigned short page_;
     //! the chosen item

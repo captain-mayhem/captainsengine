@@ -5,42 +5,29 @@
 #endif
 #include <GLES/gl.h>
 #include "GLESvertexbuffer.h"
+#include "GLESindexbuffer.h"
 
-using namespace Graphics;
+using namespace CGE;
 
 GLESVertexBuffer::GLESVertexBuffer(){
   vb_ = NULL;
-  ibs_ = NULL;
   flags_ = 0;
   verts_ = NULL;
-  inds_ = NULL;
   vertoffset_ = -1;
   coloffset_ = -1;
   texoffset_ = -1;
   normoffset_ = -1;
   userVertOffset_ = 0;
-  numIbs_ = 0;
-  ibsizes_ = NULL;
 }
 
 GLESVertexBuffer::~GLESVertexBuffer(){
   SAFE_DELETE_ARRAY(vb_);
-  for (int i = 0; i < numIbs_; ++i){
-    SAFE_DELETE_ARRAY(ibs_[i]);
-  }
-  SAFE_DELETE_ARRAY(ibs_);
-  SAFE_DELETE_ARRAY(ibsizes_);
 }
 
 #include "../../system/engine.h"
 
-void GLESVertexBuffer::create(int type, int vertexBufferSize, short numIndexBuffers){
+void GLESVertexBuffer::create(int type, int vertexBufferSize){
   vbsize_ = vertexBufferSize;
-  numIbs_ = numIndexBuffers;
-  if (numIbs_ > 0){
-    ibs_ = new short*[numIbs_];
-    ibsizes_ = new short[numIbs_];
-  }
   flags_ = type;
   int offset = 0;
   if (flags_ & VB_POSITION){
@@ -64,27 +51,13 @@ void GLESVertexBuffer::create(int type, int vertexBufferSize, short numIndexBuff
   vb_ = new char[vertexBufferSize*structsize_];
 }
 
-void GLESVertexBuffer::createIndexBuffer(short indexNum, short indexBufferSize){
-  ibs_[indexNum] = new short[indexBufferSize];
-  ibsizes_[indexNum] = indexBufferSize;
-}
-
 void* GLESVertexBuffer::lockVertexPointer(){
   verts_ = (void*)vb_;
   return verts_;
 }
 
-short* GLESVertexBuffer::lockIndexPointer(short indexNum){
-  inds_ = ibs_[indexNum];
-  return inds_;
-}
-
 void GLESVertexBuffer::unlockVertexPointer(){
   verts_ = NULL;
-}
-
-void GLESVertexBuffer::unlockIndexPointer(short indexNum){
-  inds_ = NULL;
 }
 
 void GLESVertexBuffer::activate(){
@@ -114,8 +87,8 @@ void GLESVertexBuffer::activate(){
     glDisableClientState(GL_NORMAL_ARRAY);
 }
 
-void GLESVertexBuffer::draw(PrimitiveType pt, short indexNum){
-  if (ibsizes_ == NULL){
+void GLESVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices){
+  if (indices == NULL){
     if (pt == VB_Tristrip)
       glDrawArrays(GL_TRIANGLE_STRIP, 0, vbsize_);
     else if (pt == VB_Triangles)
@@ -128,16 +101,17 @@ void GLESVertexBuffer::draw(PrimitiveType pt, short indexNum){
       glDrawArrays(GL_POINTS, 0, vbsize_);
     return;
   }
+  GLESIndexBuffer* glesidx = (GLESIndexBuffer*)indices;
   if (pt == VB_Tristrip)
-    glDrawElements(GL_TRIANGLE_STRIP, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
+    glDrawElements(GL_TRIANGLE_STRIP, glesidx->getNumIndices(), glesidx->getType(), glesidx->getIndices());
   else if (pt == VB_Triangles)
-    glDrawElements(GL_TRIANGLES, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
+    glDrawElements(GL_TRIANGLES, glesidx->getNumIndices(), glesidx->getType(), glesidx->getIndices());
   else if (pt == VB_Trifan)
-    glDrawElements(GL_TRIANGLE_FAN, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
+    glDrawElements(GL_TRIANGLE_FAN, glesidx->getNumIndices(), glesidx->getType(), glesidx->getIndices());
   else if (pt == VB_Lines)
-    glDrawElements(GL_LINES, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
+    glDrawElements(GL_LINES, glesidx->getNumIndices(), glesidx->getType(), glesidx->getIndices());
   else if (pt == VB_Points)
-    glDrawElements(GL_POINTS, ibsizes_[indexNum], GL_UNSIGNED_SHORT, ibs_[indexNum]);
+    glDrawElements(GL_POINTS, glesidx->getNumIndices(), glesidx->getType(), glesidx->getIndices());
 }
 
 void GLESVertexBuffer::setColor(int pos, Color c){

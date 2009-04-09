@@ -33,7 +33,7 @@ Field::Field(const Field& f){
   object = f.object;
   tempVis = Bitset(f.tempVis);
   numModels = f.numModels;
-  //models = new std::vector<Graphics::ModelInstance>();
+  //models = new std::vector<CGE::ModelInstance>();
   models = new MeshGeo::Model*[numModels];
   for (int i = 0; i < numModels; i++)
     models[i] = f.models[i];

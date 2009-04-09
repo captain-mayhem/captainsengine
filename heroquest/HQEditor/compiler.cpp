@@ -31,7 +31,6 @@ using std::endl;
 extern string path;
 
 using namespace CGE;
-using System::Log;
 
 
 //Constructor, takes map size
@@ -65,7 +64,7 @@ void Compiler::setWall(const Vector2D& pos, Direction d){
   texName = "textures/world/floorWall.jpg";
   
   //get texture
-  Graphics::Texture* tex = getTexture(texName);
+  CGE::Texture* tex = getTexture(texName);
   
   MeshGeo::Model* mdl = new MeshGeo::Model(msh);
   mdl->assignTexture(tex, 0);
@@ -137,7 +136,7 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   texName = "textures/world/floorWall.jpg";
 
   //get texture
-  Graphics::Texture* tex = getTexture(texName);
+  CGE::Texture* tex = getTexture(texName);
 
   MeshGeo::Model* mdl = new MeshGeo::Model(msh);
   mdl->assignTexture(tex, 0);
@@ -204,7 +203,7 @@ void Compiler::addRoom(const Vector2D& pos, short id){
     texName = "textures/world/room"+toStr(id)+".bmp";
 
   //get texture
-  Graphics::Texture* tex = getTexture(texName);
+  CGE::Texture* tex = getTexture(texName);
   
   MeshGeo::Model* mdl = new MeshGeo::Model(msh);
   mdl->assignTexture(tex, 0);
@@ -223,7 +222,7 @@ void Compiler::addStartPos(const Vector2D& pos){
   MeshGeo::Mesh* msh = getMesh("startpos.obj", "models/world/");
   MeshGeo::Model* mdl = new MeshGeo::Model(msh);
   
-  Graphics::Texture* tex = getTexture("textures/world/startpos1.jpg");
+  CGE::Texture* tex = getTexture("textures/world/startpos1.jpg");
   mdl->assignTexture(tex, 0);
   //startpos
   mdl->setAttrib(0, 1002);
@@ -295,7 +294,7 @@ void Compiler::addMonster(const Vector2D& pos, char monster[2]){
   MeshGeo::Mesh* msh = getMesh(monstername+".obj", "models/monsters/");
   MeshGeo::Model* mdl = new MeshGeo::Model(msh);
 
-  Graphics::Texture* tex = getTexture("textures/monsters/"+monstername+".jpg");
+  CGE::Texture* tex = getTexture("textures/monsters/"+monstername+".jpg");
   mdl->assignTexture(tex, 0);
   //monster
   mdl->setAttrib(0, 1005);
@@ -390,7 +389,7 @@ void Compiler::addFurniture(const Vector2D& pos, char furniture[2]){
   MeshGeo::Mesh* msh = getMesh(furniturename+".obj", "models/furniture/");
   MeshGeo::Model* mdl = new MeshGeo::Model(msh);
 
-  Graphics::Texture* tex = getTexture("textures/furniture/"+furniturename+".jpg");
+  CGE::Texture* tex = getTexture("textures/furniture/"+furniturename+".jpg");
   mdl->assignTexture(tex, 0);
   //furniture
   mdl->setAttrib(0, 1006);
@@ -467,10 +466,10 @@ MeshGeo::Mesh* Compiler::getMesh(std::string tilename, std::string path){
   return msh;
 }
 
-Graphics::Texture* Compiler::getTexture(std::string texname){
+CGE::Texture* Compiler::getTexture(std::string texname){
   //see if the texture is in there
-  Graphics::Texture* tex = NULL;
-  std::vector<Graphics::Texture*> textures = scene_.getTextures();
+  CGE::Texture* tex = NULL;
+  std::vector<CGE::Texture*> textures = scene_.getTextures();
   for (unsigned i = 0; i < textures.size(); ++i){
     if (textures[i]->getFilename() == texname){
       tex = textures[i];
@@ -479,7 +478,7 @@ Graphics::Texture* Compiler::getTexture(std::string texname){
   }
   //load texture
   if (!tex){
-    tex = System::Engine::instance()->getRenderer()->createTexture(texname);
+    tex = CGE::Engine::instance()->getRenderer()->createTexture(texname);
     scene_.addTexture(tex);
   }
   return tex;

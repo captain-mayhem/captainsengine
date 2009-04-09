@@ -21,7 +21,7 @@
 #include "gui.h"
 
 using namespace Gui;
-using Graphics::Color;
+using CGE::Color;
 using namespace CGE;
 
 GuiElement::GuiElement(){
@@ -49,7 +49,7 @@ bool GuiElement::isClicked(const Vector2D& pos){
 InputField::InputField(){
   //set standard values
   pos_ = Vector2D(-1,-1);
-  fnt_ = System::Engine::instance()->getFont(1);
+  fnt_ = CGE::Engine::instance()->getFont(1);
   span_ = Vector2D(150,18);
   bgColor_ = Color(0.1, 0.1, 0.1, 1.0);
   fgColor_ = Vector3D(0.0, 1.0, 1.0);
@@ -75,31 +75,31 @@ InputField::InputField(const InputField& i){
 }
 
 InputField::~InputField(){
-  InputField* input = System::Engine::instance()->getActiveInput();
+  InputField* input = CGE::Engine::instance()->getActiveInput();
   if (input == this){
     input->removeChar();
   }
-  System::Engine::instance()->setActiveInput(NULL);
+  CGE::Engine::instance()->setActiveInput(NULL);
 }
 
 // renders the field
 void InputField::render(){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   //appropriate blending
-  rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE_MINUS_SRC_ALPHA);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   rend->enableTexturing(false);
   //glDisable(GL_TEXTURE_2D);
 
   //set color and draw background quad
   bgColor_.a = opacity_;
   rend->setColor(&bgColor_);
-  Graphics::Forms* form = System::Engine::instance()->getForms();
+  CGE::Forms* form = CGE::Engine::instance()->getForms();
   form->activateQuad();
   form->drawQuad(pos_, span_);
 
   //render text
   rend->enableTexturing(true);
-  rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
   fnt_->setColor(fgColor_.x,fgColor_.y,fgColor_.z);
   
   //cut off too long inputs
@@ -124,7 +124,7 @@ void InputField::render(){
 }
 
 void InputField::process(){
-  System::Engine::instance()->setActiveInput(this);
+  CGE::Engine::instance()->setActiveInput(this);
 }
 
 //The Button constructor
@@ -159,7 +159,7 @@ void PDButton::process(){
   (*handleClicks_)(this);
  //try to find the parent
  //TODO: go deeper into dialogs
- list< ::Gui::GuiElement*>& elems = System::Engine::instance()->getGuiElements();
+ list< ::Gui::GuiElement*>& elems = CGE::Engine::instance()->getGuiElements();
  list< ::Gui::GuiElement* >::iterator iter;
  int idx = 0;
  for (iter = elems.begin(); iter != elems.end(); iter++){
@@ -168,5 +168,5 @@ void PDButton::process(){
    }
    idx++;
  }
- System::Engine::instance()->removeGuiListener(idx, false);
+ CGE::Engine::instance()->removeGuiListener(idx, false);
 }

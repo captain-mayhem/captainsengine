@@ -9,8 +9,7 @@
 #include "menu.h"
 #include "graphics.h"
 
-using namespace Graphics;
-using System::Engine;
+using CGE::Engine;
 using Gui::Button;
 using MeshGeo::Mesh;
 using MeshGeo::Model;
@@ -35,7 +34,7 @@ Graphic::~Graphic(){
 void Graphic::init(){
   Renderer* rend = Engine::instance()->getRenderer();
   rend->setClearColor(Vector3D(0.5,0.5,0.5));
-  rend->renderMode(Graphics::Filled);
+  rend->renderMode(CGE::Filled);
   //Material mat;
   //rend->setMaterial(mat);
   //glEnable(GL_LIGHT0);
@@ -45,55 +44,55 @@ void Graphic::init(){
   opt->setPosition(Vector2D(900,40));
   opt->setText("Options");
   opt->setCbFunc(Menu::options);
-  System::Engine::instance()->addGuiListener(opt);
+  CGE::Engine::instance()->addGuiListener(opt);
 
   Button* addTex = new Button();
   addTex->setPosition(Vector2D(900,70));
   addTex->setText("Add texture");
   addTex->setCbFunc(Menu::addTexture);
-  System::Engine::instance()->addGuiListener(addTex);
+  CGE::Engine::instance()->addGuiListener(addTex);
   
   Button* add = new Button();
   add->setPosition(Vector2D(900,100));
   add->setText("Add mesh");
   add->setCbFunc(Menu::addMesh);
-  System::Engine::instance()->addGuiListener(add);
+  CGE::Engine::instance()->addGuiListener(add);
 
   Button* mdl = new Button();
   mdl->setPosition(Vector2D(900,130));
   mdl->setText("Add model");
   mdl->setCbFunc(Menu::addModel);
-  System::Engine::instance()->addGuiListener(mdl);
+  CGE::Engine::instance()->addGuiListener(mdl);
 
   Button* mdlProp = new Button();
   mdlProp->setPosition(Vector2D(900,160));
   mdlProp->setText("Properties");
   mdlProp->setCbFunc(Menu::properties);
-  System::Engine::instance()->addGuiListener(mdlProp);
+  CGE::Engine::instance()->addGuiListener(mdlProp);
   
   Button* save = new Button();
   save->setPosition(Vector2D(900,190));
   save->setText("Save scene");
   save->setCbFunc(Menu::save);
-  System::Engine::instance()->addGuiListener(save);
+  CGE::Engine::instance()->addGuiListener(save);
   
   Button* load = new Button();
   load->setPosition(Vector2D(900,220));
   load->setText("Load scene");
   load->setCbFunc(Menu::load);
-  System::Engine::instance()->addGuiListener(load);
+  CGE::Engine::instance()->addGuiListener(load);
 
   Button* hqm = new Button();
   hqm->setPosition(Vector2D(900, 250));
   hqm->setText("Export HQM");
   hqm->setCbFunc(Menu::hqmExport);
-  System::Engine::instance()->addGuiListener(hqm);
+  CGE::Engine::instance()->addGuiListener(hqm);
 }
 
 void Graphic::addMesh(std::string filename){
   MeshGeo::Mesh* mesh = new MeshGeo::Mesh();
   if (!mesh->loadFromFile(filename)){
-    System::Log << "cannot load file";
+    CGE::Log << "cannot load file";
     std::cerr << "cannot load file";
     return;
   }
@@ -122,7 +121,7 @@ void Graphic::render_(){
   //glVertex3f(0,0,0);
   //glVertex3f(10,0,0);
   rend->renderMode(Filled);
-  //Font* fnt = System::Engine::instance()->getFont(0);
+  //Font* fnt = CGE::Engine::instance()->getFont(0);
   //fnt->setColor(0.0,1.0,0.0);
   //fnt->glPrint(200, 400, ("FPS: "+toStr(Engine::instance()->getFPS())).c_str(), 0);
   //rend->enableLighting(true);

@@ -18,13 +18,15 @@
 #define TIME_FACTOR 0.01
 #endif
 
+using namespace CGE;
+
 void (*internalEngineMain)(int argc, char** argv) = NULL;
 
-ofstream System::Log("engine.log");
+ofstream CGE::Log("engine.log");
 
-System::Engine* System::Engine::eng = NULL;
+Engine* Engine::eng = NULL;
 
-System::Engine::Engine(){
+Engine::Engine(){
   win_ = NULL;
   rend_ = NULL;
   isUp_ = false;
@@ -42,36 +44,36 @@ System::Engine::Engine(){
   Log << "Engine instance created\n";
 }
 
-void System::Engine::init(){
+void Engine::init(){
   eng = new Engine();
 }
 
-void System::Engine::startup(int argc, char** argv){
+void Engine::startup(int argc, char** argv){
   Script::init();
   Script::instance()->initEnv();
   string type = Script::instance()->getStringSetting("renderer");
-  maxFramerate_ = ::System::Script::instance()->getNumberSetting("timeScheme");
+  maxFramerate_ = CGE::Script::instance()->getNumberSetting("timeScheme");
   graphics_ = Script::instance()->getBoolSetting("graphics");
   physics_ = Script::instance()->getBoolSetting("physics");
 
   if (graphics_){
     if (type == "OpenGL"){
 #ifdef OPENGL
-        rend_ = new ::Graphics::OGLRenderer();
+        rend_ = new CGE::OGLRenderer();
 #else
         EXIT2("OpenGL support is not compiled in\n");
 #endif
     }
     else if (type == "DirectX"){
 #ifdef DIRECTX
-        rend_ = new ::Graphics::DXRenderer();
+        rend_ = new CGE::DXRenderer();
 #else
         EXIT2("DirectX support is not compiled in\n");
 #endif
     }
     else if (type == "GLES"){
 #ifdef GLES
-      rend_ = new ::Graphics::GLESRenderer();
+      rend_ = new CGE::GLESRenderer();
 #else
       EXIT2("OpenGL ES support is not compiled in\n");
 #endif
@@ -88,7 +90,7 @@ void System::Engine::startup(int argc, char** argv){
 #endif
   }
   else{
-    rend_ = new ::Graphics::DummyRenderer();
+    rend_ = new CGE::DummyRenderer();
   }
   if (graphics_)
     win_->init("Captains Game Engine");
@@ -101,15 +103,15 @@ void System::Engine::startup(int argc, char** argv){
   if (internalEngineMain != NULL)
     internalEngineMain(argc, argv);
   
-  fnt_ = new ::Graphics::Font*[3];
+  fnt_ = new CGE::Font*[3];
   for (int i = 0; i < 3; i++){
-    fnt_[i] = new ::Graphics::Font();
+    fnt_[i] = new CGE::Font();
   }
   if (graphics_){
     fnt_[0]->buildFont();
     fnt_[1]->setVB(fnt_[0]->getVB());
     fnt_[2]->setVB(fnt_[0]->getVB());
-    forms_ = new ::Graphics::Forms();
+    forms_ = new CGE::Forms();
   }
   console_ = new ::Gui::Console();
   isUp_ = true;
@@ -118,7 +120,7 @@ void System::Engine::startup(int argc, char** argv){
   //isUp_ = true;
 }
 
-void System::Engine::shutdown(){
+void Engine::shutdown(){
   if (!isUp_)
     return;
   Log << "engine shutting down\n";
@@ -145,7 +147,7 @@ void System::Engine::shutdown(){
   exit(0);
 }
 
-void System::Engine::run(){
+void Engine::run(){
   //handle physics, KI, ...
   if (physics_){
     mSimulator->doSimulationStep(frameInterval_);
@@ -173,7 +175,7 @@ void System::Engine::run(){
     rend_->resetModelView();
     rend_->ortho(1024, 768);
     rend_->translate(-512, -384, 0);
-    rend_->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
+    rend_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
     rend_->enableBlend(true);
   
     //render GUI-elements
@@ -188,7 +190,7 @@ void System::Engine::run(){
 
     fnt_[1]->render();
 
-    System::Engine::instance()->getConsole()->render();
+    CGE::Engine::instance()->getConsole()->render();
 
     fnt_[2]->render();
 
@@ -225,7 +227,7 @@ void System::Engine::run(){
  
 
 // set the current input field that should be active
-void System::Engine::setActiveInput(::Gui::InputField* field){
+void Engine::setActiveInput(::Gui::InputField* field){
   if (field == NULL){
     input_ = NULL;
     return;
@@ -238,7 +240,7 @@ void System::Engine::setActiveInput(::Gui::InputField* field){
 }
 
 // clears the input and button listeners
-void System::Engine::clearListeners(bool immediate){
+void Engine::clearListeners(bool immediate){
   if (!immediate){
     clear_ = true;
     return;
@@ -258,7 +260,7 @@ void System::Engine::clearListeners(bool immediate){
 
 // remove the input listener at position idx
 /*
-void System::Engine::removeInputListener(int idx){
+void Engine::removeInputListener(int idx){
   guitex_.lock();
   list< ::Gui::InputField*>::iterator iter = listeners_.begin();
   for (int i = 0; i < idx; i++){
@@ -269,7 +271,7 @@ void System::Engine::removeInputListener(int idx){
 }*/
 
 // remove the button listener at position idx
-void System::Engine::removeGuiListener(int idx, bool immediate){
+void Engine::removeGuiListener(int idx, bool immediate){
   if (!immediate){
     remBut_.push_back(idx);
     return;
@@ -286,7 +288,7 @@ void System::Engine::removeGuiListener(int idx, bool immediate){
 
 
 // remove the button listener with a certain name
-void System::Engine::removeGuiListener(const string& name){
+void Engine::removeGuiListener(const string& name){
   guitex_.lock();
   list< ::Gui::GuiElement*>::iterator iter = guiElems_.begin();
   for (unsigned i = 0; i < guiElems_.size(); i++){
@@ -302,7 +304,7 @@ void System::Engine::removeGuiListener(const string& name){
 
 
 // remove all button listeners beginning at idx
-void System::Engine::removeGuiListeners(int idx){
+void Engine::removeGuiListeners(int idx){
   guitex_.lock();
   list< ::Gui::GuiElement*>::iterator iter = guiElems_.begin();
   for (int i = 0; i < idx; i++){
@@ -316,7 +318,7 @@ void System::Engine::removeGuiListeners(int idx){
 }
 
 // get a button by name
-::Gui::GuiElement* System::Engine::getGuiListener(const string& name){
+::Gui::GuiElement* Engine::getGuiListener(const string& name){
   list< ::Gui::GuiElement*>::iterator iter = guiElems_.begin();
   for (unsigned i = 0; i < guiElems_.size(); i++){
     if ((*iter)->getName() == name){

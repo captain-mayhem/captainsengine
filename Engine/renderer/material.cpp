@@ -1,6 +1,6 @@
 #include "material.h"
 
-using namespace Graphics;
+using namespace CGE;
 
 Material::Material(){
   ambient = Color(0.2,0.2,0.2,1.0);

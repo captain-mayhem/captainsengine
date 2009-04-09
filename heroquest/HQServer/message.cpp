@@ -40,7 +40,7 @@ using std::cerr;
 using std::endl;
 
 // a mutex to lock data structures for save multithread access
-System::Mutex gamtex;
+CGE::Mutex gamtex;
 
 Message::Message(){
   //gamtex = SDL_CreateMutex();

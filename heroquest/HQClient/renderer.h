@@ -22,7 +22,7 @@ class Inventory;
  */
 class HQRenderer{
 public:
-  static void init(Graphics::Renderer* rend){rend_ = new HQRenderer(rend);}
+  static void init(CGE::Renderer* rend){rend_ = new HQRenderer(rend);}
   inline static HQRenderer* instance() {return rend_;}
   inline static void release() {SAFE_DELETE(rend_);}
   //! the callback for init the scene
@@ -56,7 +56,7 @@ public:
   //! set the trade status
   inline void setTrade(bool on) {trade_ = on;}
 protected:
-  HQRenderer(Graphics::Renderer* rend);
+  HQRenderer(CGE::Renderer* rend);
   void initialize_();
   //! render scene
   void paint_();
@@ -78,7 +78,7 @@ protected:
   //! renderer
   static HQRenderer* rend_;
   //! the engine renderer
-  Graphics::Renderer* render_;
+  CGE::Renderer* render_;
   //! ask before quitting app
   bool ask_;
   //! the aspect

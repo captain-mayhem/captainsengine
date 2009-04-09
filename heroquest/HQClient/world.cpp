@@ -211,8 +211,8 @@ bool World::load(const string& name){
 				in.read((char*)&f->vertices[k], sizeof(Vector3D));
 			}
 			in.read((char*)&f->numModels, sizeof(f->numModels));
-      //f->models = new Graphics::ModelInstance[f->numModels+1];
-      f->models = new Graphics::ModelInstance[f->numModels];
+      //f->models = new CGE::ModelInstance[f->numModels+1];
+      f->models = new CGE::ModelInstance[f->numModels];
       f->usedModels = 1;
 			for (unsigned k = 0; k < f->numModels; k++){
 				Matrix mat;
@@ -388,8 +388,8 @@ void World::render(){
 	ostringstream fields;
 	unsigned size = (unsigned)canSee_.size();
 	fields << size << " of " << (width_*height_) << " Fields rendered";
-  System::Engine::instance()->getFont(0)->setColor(0,1,0);
-  System::Engine::instance()->getFont(0)->glPrint(20,680, fields.str().c_str(), 0, 0);
+  CGE::Engine::instance()->getFont(0)->setColor(0,1,0);
+  CGE::Engine::instance()->getFont(0)->glPrint(20,680, fields.str().c_str(), 0, 0);
 
 	//reset furniture
 	for (unsigned i = 0; i < furniture_.size(); i++){
@@ -426,7 +426,7 @@ void World::render(){
     //for (unsigned j = 0; j < curr.numModels; j++){
       //curr.models[j].activate();
       //glPushMatrix();
-      //System::Engine::instance()->getRenderer()->multiplyMatrix(curr.models[j].getTransform());
+      //CGE::Engine::instance()->getRenderer()->multiplyMatrix(curr.models[j].getTransform());
       //curr.models[j].draw();
       //glPopMatrix();
     //}
@@ -511,7 +511,7 @@ void World::render(){
   if( (errCode = glGetError() ) != GL_NO_ERROR ){
     errString = gluErrorString(errCode);
     messg = string("An OpenGL error has occurred [") + (const char*)errString + "]";
-    System::Log << messg;
+    CGE::Log << messg;
   }*/
 #endif
 }

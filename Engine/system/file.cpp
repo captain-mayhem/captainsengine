@@ -27,7 +27,7 @@
 #include <unistd.h>
 #endif
 
-using namespace System;
+using namespace CGE;
 using std::string;
 using std::vector;
 

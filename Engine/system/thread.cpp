@@ -11,7 +11,7 @@
 #include <pthread.h>
 #endif
 
-using namespace System;
+using namespace CGE;
 
 int Thread::create(void (*proc)(void* data), void* data){
 #ifdef WIN32

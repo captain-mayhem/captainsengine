@@ -24,8 +24,6 @@ using std::endl;
 using std::ifstream;
 
 using namespace CGE;
-using namespace System;
-using namespace Graphics;
 
 void engineMain(int argc, char** argv){
   if (argc < 2){

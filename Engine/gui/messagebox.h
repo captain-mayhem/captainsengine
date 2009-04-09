@@ -32,9 +32,9 @@ class MessageBox : public Button {
     //! the position of the box
     CGE::Vector2D surPos_;
     //! the background color
-    Graphics::Color surBgColor_;
+    CGE::Color surBgColor_;
     //! the foreground color
-    Graphics::Color surFgColor_;
+    CGE::Color surFgColor_;
     //! the message to be displayed
     list<string> msg_;
 };

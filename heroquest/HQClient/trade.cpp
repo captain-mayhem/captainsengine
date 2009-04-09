@@ -19,7 +19,7 @@ using Input::Mouse;
 Trade::Trade(){
   items_.push_back(Item());
 #ifdef _CLIENT_
-  fnt_ = System::Engine::instance()->getFont(0);
+  fnt_ = CGE::Engine::instance()->getFont(0);
   //fnt_.setBase(text.getBase());
   //fnt_.setColor(0,1,1);
   invPage_ = 1;

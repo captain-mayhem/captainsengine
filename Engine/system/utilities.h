@@ -3,7 +3,7 @@
 
 #include <string>
 
-namespace System{
+namespace CGE{
 
 class Utilities{
   public:

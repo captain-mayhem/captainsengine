@@ -46,7 +46,7 @@ class Admin{
   ~Admin();
   //Message functions
   //! Add a socket i.e. player
-  void add(ServerSocket* ss, System::Thread* th);
+  void add(ServerSocket* ss, CGE::Thread* th);
   //! end a socket connection
   void end(ServerSocket* ss);
   //! Chat message to specific socket
@@ -95,7 +95,7 @@ class Admin{
   //! position zero of this vector is a dummy entry for the std::map
   vector<Player> players;
   //! the threads
-  vector<System::Thread*> threads;
+  vector<CGE::Thread*> threads;
   //! password lookup table
   map<string,string> pwd_lookup;
   //! map sockets to player indices

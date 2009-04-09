@@ -19,7 +19,7 @@ extern "C"{
 #endif
 #include <GLES/gl.h>
 
-namespace Graphics{
+namespace CGE{
 
 // tga file types
 #define TGA_RGB		 2

@@ -13,8 +13,8 @@ using std::cerr;
 using std::list;
 using std::vector;
 
-#define EXIT() (::System::Engine::instance()->shutdown())
-#define EXIT2(msg) {::System::Log << (msg) << "\n"; ::System::Engine::instance()->shutdown(); }
+#define EXIT() (CGE::Engine::instance()->shutdown())
+#define EXIT2(msg) {CGE::Log << (msg) << "\n"; CGE::Engine::instance()->shutdown(); }
 #define SAFE_DELETE(ptr)       { if(ptr) { delete (ptr); (ptr)=NULL; } }
 #define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=NULL; } }
 #define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=NULL; } }
@@ -31,7 +31,7 @@ namespace Windows{
 class AppWindow;
 }
 
-namespace Graphics{
+namespace CGE{
 class Renderer;
 class Font;
 class Forms;
@@ -99,7 +99,7 @@ long GetTickCount();
 
 #include "thread.h"
 
-namespace System{
+namespace CGE{
 
 extern ofstream Log;
 
@@ -110,10 +110,10 @@ class Engine{
     void startup(int argc, char** argv);
     void run();
     void shutdown();
-    inline ::Graphics::Renderer* getRenderer() {return rend_;}
-    inline ::Graphics::Font* getFont(int idx) {return fnt_[idx];}
+    inline CGE::Renderer* getRenderer() {return rend_;}
+    inline CGE::Font* getFont(int idx) {return fnt_[idx];}
     //! Get the standard forms
-    inline ::Graphics::Forms* getForms() {return forms_;}
+    inline CGE::Forms* getForms() {return forms_;}
     //! get the window
     inline ::Windows::AppWindow* getWindow() {return win_;}
     //! get the console
@@ -158,11 +158,11 @@ class Engine{
     ::Windows::AppWindow* win_;
     
     //! The renderer
-    ::Graphics::Renderer* rend_;
+    CGE::Renderer* rend_;
     //! The fonts
-    ::Graphics::Font** fnt_;
+    CGE::Font** fnt_;
     //! Stadard forms
-    ::Graphics::Forms* forms_;
+    CGE::Forms* forms_;
     //! is the engine initialized and running?
     bool isUp_;
     //! graphics subsystem

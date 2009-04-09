@@ -12,12 +12,18 @@ TerrainChunk::TerrainChunk(){
 
 TerrainChunk::~TerrainChunk(){
   delete mVB;
+  for (int i = 0; i < 5; ++i){
+    delete mInds[i];
+  }
+  delete [] mInds;
 }
 
 void TerrainChunk::generate(int32 numVertices, float widthScale, float startX, float startZ){
-  mVB = System::Engine::instance()->getRenderer()->createVertexBuffer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  mVB = rend->createVertexBuffer();
   int numLODs = (int)(log((double)(numVertices-1))/log(2.0))+1;
-  mVB->create(VB_POSITION, numVertices*numVertices, numLODs);
+  mVB->create(VB_POSITION, numVertices*numVertices);
+  mInds = new CGE::IndexBuffer*[numLODs];
   
   //generate vertices 
   mVB->lockVertexPointer();
@@ -34,8 +40,8 @@ void TerrainChunk::generate(int32 numVertices, float widthScale, float startX, f
   int skipSize = 1;
   for (int bufferNum = 0; bufferNum < numLODs; ++bufferNum){
     int numQuads = (numVertices-1)/skipSize;
-    mVB->createIndexBuffer(bufferNum,2*numQuads*(numQuads+1));
-    short* indices = mVB->lockIndexPointer(bufferNum);
+    mInds[bufferNum] = rend->createIndexBuffer(CGE::IndexBuffer::IB_USHORT,2*numQuads*(numQuads+1));
+    short* indices = (short*)mInds[bufferNum]->lockIndexPointer();
     int idx = 0;
     int curr_row = 0;
     for (int j = 0; j < (numVertices-1)/skipSize; ++j){
@@ -48,7 +54,7 @@ void TerrainChunk::generate(int32 numVertices, float widthScale, float startX, f
       }
       curr_row = next_row;
     }
-    mVB->unlockIndexPointer(bufferNum);
+    mInds[bufferNum]->unlockIndexPointer();
     skipSize *= 2;
   }
   /*indices[0] = 0;
@@ -57,7 +63,7 @@ void TerrainChunk::generate(int32 numVertices, float widthScale, float startX, f
   indices[3] = numVertices*numVertices-1;*/
 }
 
-void TerrainChunk::render(const Graphics::Camera& cam){
+void TerrainChunk::render(const CGE::Camera& cam){
   mVB->activate();
   float dist = (cam.getPosition()-mBox.getCenter()).magnitude();
   float dist2 = dist*dist;
@@ -72,7 +78,7 @@ void TerrainChunk::render(const Graphics::Camera& cam){
     lodLevel = 3;
   else
     lodLevel = 4;
-  mVB->draw(Graphics::VB_Tristrip, lodLevel);
+  mVB->draw(CGE::VB_Tristrip, mInds[lodLevel]);
 }
 
 CGE::BBox TerrainChunk::getBox(){

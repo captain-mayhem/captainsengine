@@ -1,6 +1,6 @@
 #include "utilities.h"
 
-using namespace System;
+using namespace CGE;
 
 void Utilities::replaceWith(std::string& text, char oldCh, char newCh){
   for (size_t i = 0; i < text.size(); i++){

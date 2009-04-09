@@ -30,7 +30,7 @@
 using Gui::InputField;
 using Gui::Button;
 using Gui::DropDownButton;
-using Graphics::Font;
+using CGE::Font;
 
 //Constructor
 GameState::GameState() : moves_(0){
@@ -59,24 +59,24 @@ bool GameState::start(){
   cam.setCameraRadius(1);
   
   //start screen with GUI
-  Font* f = System::Engine::instance()->getFont(0);
+  Font* f = CGE::Engine::instance()->getFont(0);
   f->setColor(1.0,1.0,1.0);
   f->glPrint(120, 450, "Server:", 1, HUGE_VAL);
   InputField* in = new InputField();
   in->setPosition(Vector2D(200, 450));
   in->setText(msg.getSetting(0));
-  System::Engine::instance()->addGuiListener(in);
+  CGE::Engine::instance()->addGuiListener(in);
   
   f->glPrint(120, 400, "Port:", 1, HUGE_VAL);
   InputField* in2 = new InputField();
   in2->setPosition(Vector2D(200, 400));
   in2->setText(msg.getSetting(1));
-  System::Engine::instance()->addGuiListener(in2);
+  CGE::Engine::instance()->addGuiListener(in2);
 
   Button* but = new Button();
   but->setPosition(Vector2D(200,300));
   but->setText("   Connect");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
   //void (*p)();
   //p = &Renderer::connect;
   but->setCbFunc(Menu::connect);
@@ -101,8 +101,8 @@ void GameState::end(){
   wrld.unload();
   //wrld.deInit();
   //re-setup GUI to choose level
-  Font* f = System::Engine::instance()->getFont(0);
-  System::Engine::instance()->clearListeners(false);
+  Font* f = CGE::Engine::instance()->getFont(0);
+  CGE::Engine::instance()->clearListeners(false);
 	//only the player with admin status can create games
 	if (plyr.getStatus() == 2){
     f->setColor(1,1,1);
@@ -112,20 +112,20 @@ void GameState::end(){
     but->calcDDPos(1);
 		but->setText("basic");
     but->setCbFunc(Menu::level);
-    System::Engine::instance()->addGuiListener(but,false);
+    CGE::Engine::instance()->addGuiListener(but,false);
 
 		f->print(120, 400, "Level:", 1, (float)HUGE_VAL);
 		DropDownButton* but2 = new DropDownButton();
 		but2->setPosition(Vector2D(200,400));
     but2->calcDDPos(1);
-    System::Engine::instance()->addGuiListener(but2,false);
+    CGE::Engine::instance()->addGuiListener(but2,false);
     game.choosePackage(but, but2);
 
 		Button* but3 = new Button();
 		but3->setPosition(Vector2D(200,300));
 		but3->setText("     Load");
 		but3->setCbFunc(Menu::loadLevel);
-    System::Engine::instance()->addGuiListener(but3,false);
+    CGE::Engine::instance()->addGuiListener(but3,false);
 	}
 }
 
@@ -203,7 +203,7 @@ void GameState::choosePackage(DropDownButton* pack, DropDownButton* level){
   in >> number;
   string name;
   if (!in){
-    System::Log << "levels.dat (packages) not found.";
+    CGE::Log << "levels.dat (packages) not found.";
     return;
   }
   for (int i = 0; i < number; i++){
@@ -217,7 +217,7 @@ void GameState::choosePackage(DropDownButton* pack, DropDownButton* level){
   ifstream in2(string("levels/"+pack->getText()+"/levels.dat").c_str());
   in2 >> number;
   if (!in2){
-    System::Log << "levels.dat (levels) not found.";
+    CGE::Log << "levels.dat (levels) not found.";
     return;
   }
   for (int i = 0; i < number; i++){

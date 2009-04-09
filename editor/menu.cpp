@@ -17,13 +17,13 @@ using namespace Gui;
 using CGE::Vector2D;
 using MeshGeo::Mesh;
 using MeshGeo::Model;
-using Graphics::Texture;
+using CGE::Texture;
 
 //! The add mesh callback function
 void Menu::addMesh(GuiElement* elem){
   FileDialog* fd = new FileDialog();
   fd->setCbFunc(loadMesh);
-  System::Engine::instance()->addGuiListener(fd);
+  CGE::Engine::instance()->addGuiListener(fd);
 }
 
 //! Load a mesh
@@ -52,7 +52,7 @@ void Menu::addModel(Gui::GuiElement* elem){
   ok->setText("  OK");
   ok->setCbFunc(setModel);
   dia->addUnscaledElement(ok);
-  System::Engine::instance()->addGuiListener(dia);
+  CGE::Engine::instance()->addGuiListener(dia);
 }
 
 //! The set model callback
@@ -69,7 +69,7 @@ void Menu::setModel(Gui::GuiElement* elem){
 void Menu::save(Gui::GuiElement* elem){
   FileDialog* fd = new FileDialog();
   fd->setCbFunc(saveScene);
-  System::Engine::instance()->addGuiListener(fd);
+  CGE::Engine::instance()->addGuiListener(fd);
 }
 
 //! The save scene callback
@@ -83,7 +83,7 @@ void Menu::saveScene(Gui::GuiElement* elem){
 void Menu::load(Gui::GuiElement* elem){
   FileDialog* fd = new FileDialog();
   fd->setCbFunc(loadScene);
-  System::Engine::instance()->addGuiListener(fd);
+  CGE::Engine::instance()->addGuiListener(fd);
 }
   
 //! The load scene callback
@@ -97,7 +97,7 @@ void Menu::loadScene(Gui::GuiElement* elem){
 void Menu::addTexture(Gui::GuiElement* elem){
   FileDialog* fd = new FileDialog();
   fd->setCbFunc(loadTexture);
-  System::Engine::instance()->addGuiListener(fd);
+  CGE::Engine::instance()->addGuiListener(fd);
 }
   
 //! The set texture callback
@@ -110,7 +110,7 @@ void Menu::loadTexture(Gui::GuiElement* elem){
 void Menu::properties(Gui::GuiElement* elem){
   //Dialog
   Dialog* dia = new Dialog();
-  System::Engine::instance()->addGuiListener(dia);
+  CGE::Engine::instance()->addGuiListener(dia);
   //Assign texture button
   PDButton* assTex = new PDButton();
   assTex->setPosition(Vector2D(20, 730));
@@ -228,7 +228,7 @@ void Menu::assignTexture(Gui::GuiElement* elem){
   ok->setText("  OK");
   ok->setCbFunc(assignTextureDialog);
   dia->addUnscaledElement(ok);
-  System::Engine::instance()->addGuiListener(dia);
+  CGE::Engine::instance()->addGuiListener(dia);
 }
 
 //! the assign texture dialog handler
@@ -257,7 +257,7 @@ void Menu::assignTextureDialog(Gui::GuiElement* elem){
 void Menu::options(Gui::GuiElement* elem){
   //Dialog
   Dialog* dia = new Dialog();
-  System::Engine::instance()->addGuiListener(dia);
+  CGE::Engine::instance()->addGuiListener(dia);
 
   //The plane chooser
   DropDownButton* planes = new DropDownButton();

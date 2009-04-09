@@ -2,12 +2,14 @@ SET(PRE renderer)
 
 IF(RENDER_DIRECTX)
 	SET(RENDERER_SRCS
+		${PRE}/DirectX/DXindexbuffer.cpp
 		${PRE}/DirectX/DXrenderer.cpp
 		${PRE}/DirectX/DXtexture.cpp
 		${PRE}/DirectX/DXvertexbuffer.cpp
 		${RENDERER_SRCS}
 	)
 	SET(RENDERER_HDRS
+		${PRE}/DirectX/DXindexbuffer.h
 		${PRE}/DirectX/DXrenderer.h
 		${PRE}/DirectX/DXtexture.h
 		${PRE}/DirectX/DXvertexbuffer.h
@@ -16,12 +18,14 @@ IF(RENDER_DIRECTX)
 ENDIF(RENDER_DIRECTX)
 IF(RENDER_OPENGL)
 	SET(RENDERER_SRCS
+		${PRE}/OpenGL/OGLindexbuffer.cpp
 		${PRE}/OpenGL/OGLrenderer.cpp
 		${PRE}/OpenGL/OGLtexture.cpp
 		${PRE}/OpenGL/OGLvertexbuffer.cpp
 		${RENDERER_SRCS}
 	)
 	SET(RENDERER_HDRS
+		${PRE}/OpenGL/OGLindexbuffer.h
 		${PRE}/OpenGL/OGLrenderer.h
 		${PRE}/OpenGL/OGLtexture.h
 		${PRE}/OpenGL/OGLvertexbuffer.h
@@ -30,12 +34,14 @@ IF(RENDER_OPENGL)
 ENDIF(RENDER_OPENGL)
 IF(RENDER_GLES)
 	SET(RENDERER_SRCS
+		${PRE}/GLES/GLESindexbuffer.cpp
 		${PRE}/GLES/GLESrenderer.cpp
 		${PRE}/GLES/GLEStexture.cpp
 		${PRE}/GLES/GLESvertexbuffer.cpp
 		${RENDERER_SRCS}
 	)
 	SET(RENDERER_HDRS
+		${PRE}/GLES/GLESindexbuffer.h
 		${PRE}/GLES/GLESrenderer.h
 		${PRE}/GLES/GLEStexture.h
 		${PRE}/GLES/GLESvertexbuffer.h
@@ -47,6 +53,7 @@ SET(Engine_renderer_SRCS
 	${PRE}/camera.cpp
 	${PRE}/font.cpp
 	${PRE}/forms.cpp
+	${PRE}/indexbuffer.cpp
 	${PRE}/material.cpp
 	${PRE}/model.cpp
 	${PRE}/renderer.cpp
@@ -61,6 +68,7 @@ SET(Engine_renderer_HDRS
 	${PRE}/dummyrenderer.h
 	${PRE}/font.h
 	${PRE}/forms.h
+	${PRE}/indexbuffer.h
 	${PRE}/material.h
 	${PRE}/model.h
 	${PRE}/renderer.h

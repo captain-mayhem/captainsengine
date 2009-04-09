@@ -139,7 +139,7 @@ void Hero::createFromGui(Gui::GuiElement*){
 #ifdef _CLIENT_
   const vector<Hero>& heros = msg.getHeros();
   //write available heros to the gui
-  Gui::DropDownButton* cls = dynamic_cast<Gui::DropDownButton*>(System::Engine::instance()->getGuiListener("class"));
+  Gui::DropDownButton* cls = dynamic_cast<Gui::DropDownButton*>(CGE::Engine::instance()->getGuiListener("class"));
   ostringstream tmp;
   Hero heroe;
   for (unsigned i = 0; i < heros.size(); i++){
@@ -154,7 +154,7 @@ void Hero::createFromGui(Gui::GuiElement*){
   tmp << ", Movement dice: " << heroe.getMovement();
   //tmp << ", Spell types: " << heroe.getSpellClasses();
   
-  Graphics::Font* fnt = System::Engine::instance()->getFont(1);
+  CGE::Font* fnt = CGE::Engine::instance()->getFont(1);
   fnt->deleteText(1);
   fnt->setId(1);
   fnt->setColor(1,1,1);
@@ -165,8 +165,8 @@ void Hero::createFromGui(Gui::GuiElement*){
     fnt->print(120, 530, "Spells:", 1, HUGE_VAL);
   }
 
-  while (GuiElement* but = System::Engine::instance()->getGuiListener("spell")){
-    System::Engine::instance()->removeGuiListener(but->getName());
+  while (GuiElement* but = CGE::Engine::instance()->getGuiListener("spell")){
+    CGE::Engine::instance()->removeGuiListener(but->getName());
   }
 
   //read spell classes
@@ -191,7 +191,7 @@ void Hero::createFromGui(Gui::GuiElement*){
         spell->setText(spellClasses[i]);
       spell->addEntry(spellClasses[i]);
     }
-    System::Engine::instance()->addGuiListener(spell);
+    CGE::Engine::instance()->addGuiListener(spell);
     pos.x += 190;
   }
 #endif

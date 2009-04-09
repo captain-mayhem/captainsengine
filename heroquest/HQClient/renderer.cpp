@@ -24,7 +24,7 @@
 #include "trade.h"
 #include "renderer.h"
 
-#define line *System::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getFont(0)
 
 using Gui::InputField;
 using Gui::Button;
@@ -32,7 +32,7 @@ using Input::Mouse;
 
 HQRenderer* HQRenderer::rend_ = NULL;
 
-HQRenderer::HQRenderer(Graphics::Renderer* rend){
+HQRenderer::HQRenderer(CGE::Renderer* rend){
   render_ = rend;
   ask_ = false;
 
@@ -92,7 +92,7 @@ void HQRenderer::keyUp_(int key){
 
 // handle keys continously
 void HQRenderer::handleKeys(){
-  float speed = cam.getSpeed()*System::Engine::instance()->getFrameInterval();
+  float speed = cam.getSpeed()*CGE::Engine::instance()->getFrameInterval();
   if (keys_[KEY_W])
     cam.moveCamera(speed);
   if (keys_[KEY_S])
@@ -234,19 +234,19 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
     clickedField_.y = (int)(y*dy);
 
     //buttons to add a hero at this position
-    System::Engine::instance()->getFont(0)->setColor(1,1,1);
-    System::Engine::instance()->getFont(0)->glPrint(250, 500, "Hero name:", 1, (float)HUGE_VAL);
+    CGE::Engine::instance()->getFont(0)->setColor(1,1,1);
+    CGE::Engine::instance()->getFont(0)->glPrint(250, 500, "Hero name:", 1, (float)HUGE_VAL);
     InputField* in = new InputField();
     in->setName("Playname");
     in->setPosition(Vector2D(400, 500));
-    System::Engine::instance()->addGuiListener(in);
+    CGE::Engine::instance()->addGuiListener(in);
 
     Button* but = new Button();
     but->setPosition(Vector2D(400, 450));
     but->setText("    Play");
     but->setName("Play");
     but->setCbFunc(Menu::play);
-    System::Engine::instance()->addGuiListener(but);
+    CGE::Engine::instance()->addGuiListener(but);
   }
   else if (game.getState() == RUN && !Mouse::instance()->isGuiClick() && awaitMapClick_){
     //awaiting click on map for various ingame functions
@@ -262,8 +262,8 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
 }
 
 void HQRenderer::mouseMove_(int x, int y, int buttons){
-  int width = System::Engine::instance()->getWindow()->getWidth();
-  int height = System::Engine::instance()->getWindow()->getHeight();
+  int width = CGE::Engine::instance()->getWindow()->getWidth();
+  int height = CGE::Engine::instance()->getWindow()->getHeight();
   
   if (x == width/2 && y == height/2)
     return;
@@ -361,7 +361,7 @@ void HQRenderer::paint_(){
 
   if (wrld.isLoaded()){
     //number of moves in the upper right corner
-    System::Engine::instance()->getFont(0)->glPrint(1000, 750, toStr(game.getMoves()).c_str(), 1);
+    CGE::Engine::instance()->getFont(0)->glPrint(1000, 750, toStr(game.getMoves()).c_str(), 1);
     //get the nearest vertices and check them for camera collision
     //Vector3D** worldCollision = wrld.getWorld();
     //cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
@@ -382,12 +382,12 @@ void HQRenderer::paint_(){
   
   render_->ortho(SCREENWIDTH, SCREENHEIGHT);
   render_->translate(-SCREENWIDTH/2, -SCREENHEIGHT/2, 0);
-  render_->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
+  render_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
   render_->enableBlend(true);
   
   if (!wrld.isLoaded()){
     TextureManager::instance()->otherTex[0]->activate();
-    Graphics::Forms* form = System::Engine::instance()->getForms();
+    CGE::Forms* form = CGE::Engine::instance()->getForms();
     render_->pushMatrix();
     render_->translate(512, 384, 0);
     render_->scale(1024, 768, 1);
@@ -421,9 +421,9 @@ void HQRenderer::paint_(){
     plyr.getTrade()->update();
   }
   
-  Graphics::Font *f = System::Engine::instance()->getFont(0);
+  CGE::Font *f = CGE::Engine::instance()->getFont(0);
   f->setColor(0,1,0);
-  f->glPrint(20, 720, ("Current Frames Per Second: "+toStr(System::Engine::instance()->getFPS())).c_str(), 0);
+  f->glPrint(20, 720, ("Current Frames Per Second: "+toStr(CGE::Engine::instance()->getFPS())).c_str(), 0);
   
   //interpolate hero positions
   for (int i = 0; i < wrld.getHeroSize(); i++){

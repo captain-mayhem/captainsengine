@@ -30,9 +30,9 @@
 #include "opcodes.h"
 #include "templates.h"
 
-#define line *System::Engine::instance()->getFont(0)
+#define line *CGE::Engine::instance()->getFont(0)
 
-using namespace CGE;
+//using namespace CGE;
 #ifdef _CLIENT_
 using Gui::MessageBox;
 #endif
@@ -1196,7 +1196,7 @@ int Script::addModel(lua_State* L){
 
   //TODO clone
   field.models[fieldidx] = Templates::instance()->getModel(modelid);
-  Matrix mat(Matrix::Translation, Vector3D(x*QUADSIZE+QUADSIZE/2, 0, y*QUADSIZE+QUADSIZE/2));
+  CGE::Matrix mat(CGE::Matrix::Translation, CGE::Vector3D(x*QUADSIZE+QUADSIZE/2, 0, y*QUADSIZE+QUADSIZE/2));
   field.models[fieldidx]->setTrafo(mat);
 #endif
   return 0;
@@ -1219,7 +1219,7 @@ int Script::messageBox(lua_State* L){
 	string msg = string(luaL_checkstring(L, 1));
   MessageBox* mb = new MessageBox();
   mb->setMessage(msg);
-  System::Engine::instance()->addGuiListener(mb, false);
+  CGE::Engine::instance()->addGuiListener(mb, false);
 #endif
   return 0;
 }
