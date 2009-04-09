@@ -18,16 +18,16 @@
 
 using namespace CGE;
 
-Graphics::Camera cam;
+CGE::Camera cam;
 Terrain test(256,256,4.0f,4.0f,NULL,1.0f);
 Vehicle* car;
 CollisionPlane* ground;
 MapChunk map;
 
 void init(){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->setClearColor(Vec3f(0.2,0.3,1.0));
-  //rend->renderMode(Graphics::Wireframe);
+  //rend->renderMode(CGE::Wireframe);
   rend->enableBackFaceCulling(true);
   //Vec3f ep = Vec3f(map.getCenter().x,map.getCenter().y,map.getCenter().z);
   //ep.normalize();
@@ -38,7 +38,7 @@ void init(){
 
 void render(){
   GeoGen::useGeometry();
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->clear(ZBUFFER | COLORBUFFER);
   //rend->projection(60,1.0f,0.1f,100000.0f);
   rend->enableTexturing(false);
@@ -117,12 +117,12 @@ void simulate(double time){
 void engineMain(int argc, char** argv){
 
   //render callbacks
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->setRenderCB(render);
   rend->setInitCB(init);
 
   //physics callbacks
-  CGE::Simulator* sim = System::Engine::instance()->getSimulator();
+  CGE::Simulator* sim = CGE::Engine::instance()->getSimulator();
   sim->setSimulationCallback(simulate);
   sim->setGravitation(Vec3f(0,-2.5,0));
 
@@ -142,11 +142,11 @@ void engineMain(int argc, char** argv){
   sim->getRootSpace()->add(&test);
 
   //start geo gen thread
-  System::Thread geogen;
+  CGE::Thread geogen;
   geogen.create(GeoGen::generateGeometry,NULL);
 
   OSMReader rdr("map2.osm");
   rdr.read(&map);
-  System::Log.flush();
+  CGE::Log.flush();
 }
 

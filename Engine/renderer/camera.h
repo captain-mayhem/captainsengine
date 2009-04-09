@@ -17,7 +17,7 @@
 #include "../math/matrix.h"
 #include "../math/frustum.h"
 
-namespace Graphics{
+namespace CGE{
 
 class Camera{
 public:

@@ -1,16 +1,12 @@
 #include "vertexbuffer.h"
 
-using namespace Graphics;
+using namespace CGE;
 
 VertexBuffer::VertexBuffer(){
 
 }
 
 VertexBuffer::~VertexBuffer(){
-
-}
-
-void VertexBuffer::create(int type, int vertexBufferSize, short indexBufferSize){
 
 }
 

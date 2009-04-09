@@ -45,6 +45,8 @@ public:
   void clear(long flags);
   //! get a vertex buffer
   VertexBuffer* createVertexBuffer();
+  //! get a index buffer
+  virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size);
   //! get a texture
   Texture* createTexture(string filename);
   //! set lookAt

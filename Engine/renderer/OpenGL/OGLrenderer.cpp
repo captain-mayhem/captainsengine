@@ -10,8 +10,8 @@
 #include "OGLvertexbuffer.h"
 #include "OGLtexture.h"
 #include "OGLrenderer.h"
+#include "OGLindexbuffer.h"
 
-using namespace Graphics;
 using namespace CGE;
 
 OGLRenderer::OGLRenderer(): Renderer() {
@@ -29,7 +29,7 @@ OGLRenderer::~OGLRenderer(){
 }
 
 void OGLRenderer::initContext(::Windows::AppWindow* win){
-  ::System::Log << "Initializing OpenGL context\n";
+  ::CGE::Log << "Initializing OpenGL context\n";
   win_ = win;
 #if defined(WIN32) && !defined(UNDER_CE)
   static PIXELFORMATDESCRIPTOR pfd ={
@@ -53,28 +53,28 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
 
   HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win)->getHandle();
   if(!(hDC_ = GetDC(wnd))){
-    System::Log << "Can't create GL device context\n";
+    CGE::Log << "Can't create GL device context\n";
     EXIT();
   }
 
   GLuint pixelFormat;
   if(!(pixelFormat = ChoosePixelFormat(hDC_, &pfd))){
-    System::Log << "Can't find a suitable PixelFormat\n";
+    CGE::Log << "Can't find a suitable PixelFormat\n";
     EXIT();
   }
 
   if (!SetPixelFormat(hDC_, pixelFormat, &pfd)){
-    System::Log << "Can't set the PixelFormat\n";
+    CGE::Log << "Can't set the PixelFormat\n";
     EXIT();
   }
 
   if (!(hRC_ = wglCreateContext(hDC_))){
-    System::Log << "Can't create GL rendering context\n";
+    CGE::Log << "Can't create GL rendering context\n";
     EXIT();
   }
 
   if (!wglMakeCurrent(hDC_, hRC_)){
-    System::Log << "Cant't activate GL rendering context\n";
+    CGE::Log << "Cant't activate GL rendering context\n";
     EXIT();
   }
 
@@ -97,17 +97,17 @@ void OGLRenderer::killContext(){
 #if defined(WIN32) && !defined(UNDER_CE)
   if (hRC_){
     if (!wglMakeCurrent(NULL,NULL)){
-      ::System::Log << "Release of GL context failed";
+      CGE::Log << "Release of GL context failed";
     }
     if (!wglDeleteContext(hRC_)){
-      ::System::Log << "Release of rendering context failed";
+      CGE::Log << "Release of rendering context failed";
     }
     hRC_ = NULL;
   }
 
   HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win_)->getHandle();
   if (hDC_ && !ReleaseDC(wnd,hDC_)){
-    ::System::Log << "Release of device context failed";
+    CGE::Log << "Release of device context failed";
     hDC_ = NULL;
   }
 #endif
@@ -115,7 +115,7 @@ void OGLRenderer::killContext(){
   ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
   if (glx_){
     if (!glXMakeCurrent(x11->getDisplay(), None, NULL)){
-      ::System::Log << "Release of GL context failed";
+      CGE::Log << "Release of GL context failed";
     }
     glXDestroyContext(x11->getDisplay(), glx_);
     glx_ = NULL;
@@ -124,7 +124,7 @@ void OGLRenderer::killContext(){
 }
 
 void OGLRenderer::initRendering(){
-  ::System::Log << "Initializing Scene\n";
+  CGE::Log << "Initializing Scene\n";
   //smooth shading
   glShadeModel(GL_SMOOTH);
 
@@ -153,7 +153,7 @@ void OGLRenderer::resizeScene(int width, int height){
   if (hRC_ == NULL)
     return;
 #endif
-  ::System::Log << "Resizing Scene\n";
+  CGE::Log << "Resizing Scene\n";
   if (height == 0){
     height = 1;
   }
@@ -198,6 +198,10 @@ VertexBuffer* OGLRenderer::createVertexBuffer(){
 
 Texture* OGLRenderer::createTexture(string filename){
   return new OGLTexture(filename);
+}
+
+IndexBuffer* OGLRenderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){
+  return new OGLIndexBuffer(t,size);
 }
 
 void OGLRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){

@@ -19,8 +19,8 @@
 
 using namespace Gui;
 using namespace CGE;
-using Graphics::Color;
-using System::Filesystem;
+using CGE::Color;
+using CGE::Filesystem;
 
 #ifdef WIN32
 #define SEPARATOR "\\"

@@ -5,7 +5,7 @@
 #include "../math/vector.h"
 #include "../math/matrix.h"
 
-namespace Graphics{
+namespace CGE{
   class Camera;
 }
 
@@ -20,7 +20,7 @@ public:
   virtual void setOrientation(const Matrix& orientation);
   virtual Vec3f getPosition();
   virtual Matrix getOrientation();
-  virtual void render(const Graphics::Camera& cam)=0;
+  virtual void render(const CGE::Camera& cam)=0;
 protected:
   dGeomID mGeom;
 };

@@ -15,15 +15,15 @@
 #include "renderer.h"
 #include "font.h"
 
-using namespace Graphics;
 using namespace CGE;
 
 //Constructor
 Font::Font(){
   show_ = true;
   rgb_ = Color(1.0,1.0,1.0,1.0);
-  tex_ = System::Engine::instance()->getRenderer()->createTexture(System::Filesystem::getCwd()+"/textures/font/font.bmp");
-  buffer_ = System::Engine::instance()->getRenderer()->createVertexBuffer();
+  tex_ = CGE::Engine::instance()->getRenderer()->createTexture(CGE::Filesystem::getCwd()+"/textures/font/font.bmp");
+  buffer_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
+  inds_ = CGE::Engine::instance()->getRenderer()->createIndexBuffer(IndexBuffer::IB_USHORT, 4);
   id_ = -1;
 }
 
@@ -38,6 +38,7 @@ Font::Font(const Font& f){
 Font::~Font(){
   SAFE_DELETE(tex_);
   SAFE_DELETE(buffer_);
+  SAFE_DELETE(inds_);
 }
 
 //Build font display list
@@ -47,8 +48,7 @@ void Font::buildFont(){
   float	cy;
 
   tex_->activate();
-  buffer_->create(VB_POSITION | VB_TEXCOORD, 4*256, 1);
-  buffer_->createIndexBuffer(0, 4);
+  buffer_->create(VB_POSITION | VB_TEXCOORD, 4*256);
   buffer_->lockVertexPointer();
   
   for (int i=0; i<256; i++){
@@ -69,10 +69,10 @@ void Font::buildFont(){
 
   buffer_->unlockVertexPointer();
 
-  short* in = buffer_->lockIndexPointer(0);
+  short* in = (short*)inds_->lockIndexPointer();
   in[0] = 0; in[1] = 1; in[3] = 3;
   in[2] = 2; //in[4] = 1; in[5] = 2;
-  buffer_->unlockIndexPointer(0);
+  inds_->unlockIndexPointer();
 }
 
 // Delete Font
@@ -108,7 +108,7 @@ void Font::setColor(Color& c){
 
 // Render all stored text strings
 void Font::render(){
-  Renderer* rend = System::Engine::instance()->getRenderer();
+  Renderer* rend = CGE::Engine::instance()->getRenderer();
   queue<font_data> temp;
 
   tex_->activate();
@@ -119,7 +119,7 @@ void Font::render(){
     //take out the next font_data
     font_data f = q_.front();
     q_.pop();
-    f.duration -= ::System::Engine::instance()->getFrameInterval();//gl->getFrameInterval();
+    f.duration -= ::CGE::Engine::instance()->getFrameInterval();//gl->getFrameInterval();
     
     //not displayed long enough, so display again in the next cycle
     if (f.duration > 0){
@@ -143,7 +143,7 @@ void Font::render(){
       for (unsigned i = 0; i < f.text->size(); i++){
         //unsigned char tmp = (*f.text)[i]-32;
         buffer_->setVertexOffset(f.text->at(i)-32+(128*f.set));
-        buffer_->draw(VB_Tristrip, 0);
+        buffer_->draw(VB_Tristrip, inds_);
         //increase translation
         rend->translate(10,0,0);
       }

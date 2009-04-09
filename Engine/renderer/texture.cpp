@@ -7,7 +7,7 @@
 
 using std::ifstream;
 
-using namespace Graphics;
+using namespace CGE;
 
 Texture::Texture(std::string filename){
   filename_ = filename;
@@ -19,7 +19,7 @@ Texture::~Texture(){
 Texture** Texture::loadFromDat(const string& path, const string& filename, int& number){
   ifstream in((path+filename).c_str());
   if (!in){
-    System::Log << "Cannot load "+filename;
+    CGE::Log << "Cannot load "+filename;
     return NULL;
   }
   string name;
@@ -30,7 +30,7 @@ Texture** Texture::loadFromDat(const string& path, const string& filename, int& 
   for (int i = 0; i < number; i++){
     in >> name;
     in >> idx;
-    tex[idx] = System::Engine::instance()->getRenderer()->createTexture(path+name);
+    tex[idx] = CGE::Engine::instance()->getRenderer()->createTexture(path+name);
   }
   in.close();
   return tex;
@@ -38,7 +38,7 @@ Texture** Texture::loadFromDat(const string& path, const string& filename, int& 
 
 //! load a texture
 Texture* Texture::create(const std::string& filename){
-  return System::Engine::instance()->getRenderer()->createTexture(filename);
+  return CGE::Engine::instance()->getRenderer()->createTexture(filename);
 }
 
 //! get the name

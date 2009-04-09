@@ -49,17 +49,17 @@ void Terrain::generateTerrainChunks(int chunksize){
 }
 
 static int count;
-void Terrain::render(Graphics::Renderer& rend, Graphics::Camera& cam){
+void Terrain::render(CGE::Renderer& rend, CGE::Camera& cam){
   count = 0;
   mChunks.traverse(&cam);
   char buf[256];
   sprintf(buf, "Terrain chunks rendered: %i", count);
-  Graphics::Font* fnt = System::Engine::instance()->getFont(0);
+  CGE::Font* fnt = CGE::Engine::instance()->getFont(0);
   fnt->print(20,720,buf,0);
 }
 
 CGE::OctreeStatic<TerrainChunk*>::TraversalState Terrain::renderCB(const std::vector<TerrainChunk*>& values, const CGE::BBox& box, uint8 flags, void* data){
-  Graphics::Camera* cam = (Graphics::Camera*)data;
+  CGE::Camera* cam = (CGE::Camera*)data;
   OctreeStatic<TerrainChunk*>::TraversalState state = OctreeStatic<TerrainChunk*>::RECURSE_TO_END;
 
   //check if we do not pass through

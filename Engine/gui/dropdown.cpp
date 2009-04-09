@@ -8,7 +8,7 @@
 
 using std::istringstream;
 using namespace Gui;
-using Graphics::Color;
+using CGE::Color;
 using CGE::Vector3D;
 using CGE::Vector2D;
 
@@ -108,7 +108,7 @@ void DropDownButton::process(){
         buts = &dia->getElements();
     }
     else{
-      buts = &System::Engine::instance()->getGuiElements();
+      buts = &CGE::Engine::instance()->getGuiElements();
     }
     list< ::Gui::GuiElement* >::iterator iter;
     int idx = 0;
@@ -135,7 +135,7 @@ void DropDownButton::process(){
           dia->addOriginalElement(entries_[i]);
       }
       else
-        System::Engine::instance()->addGuiListener(entries_[i]);
+        CGE::Engine::instance()->addGuiListener(entries_[i]);
     }
     isOpen_ = true;
   }

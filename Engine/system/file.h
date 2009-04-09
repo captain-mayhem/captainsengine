@@ -23,7 +23,7 @@
 #include <vector>
 #include <string>
 
-namespace System {
+namespace CGE {
   
 class Filesystem{
 public:

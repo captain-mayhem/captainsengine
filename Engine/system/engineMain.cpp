@@ -24,8 +24,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
 #else
   argv[1] = cmdline;
 #endif
-  System::Engine::init();
-  System::Engine::instance()->startup(2, argv);
+  CGE::Engine::init();
+  CGE::Engine::instance()->startup(2, argv);
   //Enter gameloop
   while(true){
     while (PeekMessage(&msg,NULL,0,0,PM_REMOVE)){
@@ -38,9 +38,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
     POINT p;
     GetCursorPos(&p);
     Input::Mouse::instance()->move(p.x, p.y, 0);
-    System::Engine::instance()->run();
+    CGE::Engine::instance()->run();
   }
-  System::Engine::instance()->shutdown();
+  CGE::Engine::instance()->shutdown();
   return (int)msg.wParam;
 }
 #endif
@@ -56,12 +56,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
 
 int main(int argc, char** argv){
   internalEngineMain = engineMain;
-  System::Engine::init();
-  System::Engine::instance()->startup(argc, argv);
+  CGE::Engine::init();
+  CGE::Engine::instance()->startup(argc, argv);
   XEvent event;
   bool running = true;
-  Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
+  Graphics::Renderer* rend = CGE::Engine::instance()->getRenderer();
   Display* disp = win->getDisplay();
   XSynchronize(disp, true);
 
@@ -74,7 +74,7 @@ int main(int argc, char** argv){
         case Expose:
           if (event.xexpose.count != 0)
             break;
-          System::Engine::instance()->run();
+          CGE::Engine::instance()->run();
           break;
         case ConfigureNotify:
           if (event.xconfigure.width != win->getWidth() ||
@@ -121,9 +121,9 @@ int main(int argc, char** argv){
           break;
       }
     }
-    System::Engine::instance()->run();
+    CGE::Engine::instance()->run();
   }
-  System::Engine::instance()->shutdown();
+  CGE::Engine::instance()->shutdown();
   return 0;
 }
 

@@ -16,8 +16,8 @@
 #include "../renderer/forms.h"
 
 using namespace Gui;
-using Graphics::Color;
-using Graphics::Renderer;
+using CGE::Color;
+using CGE::Renderer;
 using namespace CGE;
 using std::max;
 
@@ -40,17 +40,17 @@ ListBox::~ListBox(){
 
 //! The render function
 void ListBox::render(){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
-  rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE_MINUS_SRC_ALPHA);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   rend->enableTexturing(false);
   //draw background
   rend->setColor(&bgColor_);
-  System::Engine::instance()->getForms()->activateQuad();
-  System::Engine::instance()->getForms()->drawQuad(pos_, span_);
+  CGE::Engine::instance()->getForms()->activateQuad();
+  CGE::Engine::instance()->getForms()->drawQuad(pos_, span_);
 
   //draw text
   rend->enableTexturing(true);
-  rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
   int y = pos_.y + span_.y - 20;
   int maxy = span_.y / 20;
   int count = 0;
@@ -62,12 +62,12 @@ void ListBox::render(){
       continue;
     }
     if (count == selected_){
-      System::Engine::instance()->getFont(1)->setColor(selColor_.x, selColor_.y, selColor_.z);
+      CGE::Engine::instance()->getFont(1)->setColor(selColor_.x, selColor_.y, selColor_.z);
     }
     else{
-      System::Engine::instance()->getFont(1)->setColor(fgColor_.x, fgColor_.y, fgColor_.z);
+      CGE::Engine::instance()->getFont(1)->setColor(fgColor_.x, fgColor_.y, fgColor_.z);
     }
-    System::Engine::instance()->getFont(1)->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
+    CGE::Engine::instance()->getFont(1)->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
     y -= 20;
     ++count;
   }

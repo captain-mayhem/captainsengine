@@ -16,7 +16,6 @@
 #include "../renderer/forms.h"
 
 using namespace Gui;
-using Graphics::Color;
 using namespace CGE;
 
 //! Constructor
@@ -38,13 +37,13 @@ Dialog::~Dialog(){
 
 //! The render function
 void Dialog::render(){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
-  rend->blendFunc(Graphics::BLEND_SRC_ALPHA, Graphics::BLEND_ONE_MINUS_SRC_ALPHA);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   rend->enableTexturing(false);
   //draw background
   rend->setColor(&bgColor_);
-  System::Engine::instance()->getForms()->activateQuad();
-  System::Engine::instance()->getForms()->drawQuad(pos_, span_);
+  CGE::Engine::instance()->getForms()->activateQuad();
+  CGE::Engine::instance()->getForms()->drawQuad(pos_, span_);
 
   list<GuiElement*>::iterator iter;
   for (iter = elements_.begin(); iter != elements_.end(); iter++){

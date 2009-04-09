@@ -26,7 +26,7 @@ using CGE::Matrix;
 using CGE::Ray;
 using Gui::Button;
 using MeshGeo::Model;
-using System::Filesystem;
+using CGE::Filesystem;
 
 Editor* Editor::edi_ = NULL;
 
@@ -217,11 +217,11 @@ void Editor::_mouseDown(int x, int y, int button){
   }
   if (button == MB_LEFT){
     //Picking
-    Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+    CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
     int viewport[4];
     rend->getViewport(viewport);
     rend->projection(60, 4.0f/3.0f, 0.1f, 1000.0f);
-    Matrix proj = rend->getMatrix(Graphics::Projection);
+    Matrix proj = rend->getMatrix(CGE::Projection);
     Ray r;
     r.buildPickingRay((float)x, (float)y, /*viewport[2]-viewport[0], viewport[3]-viewport[1]*/1024.0f, 768.0f, proj.getData()[0], proj.getData()[5], proj.getData()[10]);
     Matrix view = Graphic::instance()->getViewMat();

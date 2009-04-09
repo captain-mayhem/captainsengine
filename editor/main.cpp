@@ -19,8 +19,7 @@
 #include "editor.h"
 
 using std::cerr;
-using namespace Graphics;
-using namespace System;
+using namespace CGE;
 
 void engineMain(int argc, char** argv){
   Editor::instance()->init();

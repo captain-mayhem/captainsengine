@@ -11,7 +11,7 @@ CollisionHeightfield::~CollisionHeightfield(){
   dGeomHeightfieldDataDestroy(id);
 }
 
-void CollisionHeightfield::render(const Graphics::Camera& cam){
+void CollisionHeightfield::render(const CGE::Camera& cam){
 
 }
 

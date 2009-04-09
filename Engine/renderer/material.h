@@ -1,9 +1,9 @@
-#ifndef MATERIAL_H
-#define MATERIAL_H
+#ifndef CGE_MATERIAL_H
+#define CGE_MATERIAL_H
 
 #include "../math/vector.h"
 
-namespace Graphics{
+namespace CGE{
 
 struct Color{
   Color(){r = 1.0; g = 1.0; b = 1.0; a=1.0;}

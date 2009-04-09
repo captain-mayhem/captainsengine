@@ -14,7 +14,7 @@
 #include "bitset.h"
 
 using std::map;
-using namespace System;
+using namespace CGE;
 
 //constructor
 Bitset::Bitset(){

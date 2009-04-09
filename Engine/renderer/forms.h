@@ -1,7 +1,7 @@
 #ifndef FORMS_H
 #define FORMS_H
 
-namespace Graphics{
+namespace CGE{
 
 class VertexBuffer;
   
@@ -19,12 +19,13 @@ public:
 
   void activateCylinder();
   void drawCylinder();
-  static VertexBuffer* createCylinder(float radius, float height, int cylinder_segments);
-  static VertexBuffer* createBox(float width, float height, float depth);
+  static VertexBuffer* createCylinder(float radius, float height, int cylinder_segments, IndexBuffer** indices);
+  static VertexBuffer* createBox(float width, float height, float depth, IndexBuffer** indices);
 private:
   void constructVBOs();
   VertexBuffer* quad_;
   VertexBuffer* cylinder_;
+  IndexBuffer* mCylinderInds[3];
 };
   
 }

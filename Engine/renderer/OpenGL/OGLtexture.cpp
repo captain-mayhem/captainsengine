@@ -2,7 +2,7 @@
 #include "OGLtexture.h"
 #include <GL/glu.h>
 
-using namespace Graphics;
+using namespace CGE;
 
 typedef unsigned char byte;
 typedef unsigned short WORD;

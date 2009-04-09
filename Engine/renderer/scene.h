@@ -14,7 +14,7 @@ class Model;
 class Mesh;
 }
 
-namespace Graphics{
+namespace CGE{
 
 class Texture;
   
@@ -35,7 +35,7 @@ public:
   //! Add a texture
   unsigned addTexture(Texture* tex) {textures_.push_back(tex); return (unsigned)textures_.size();}
   //! Get all textures
-  std::vector<Graphics::Texture*> getTextures() const {return textures_;}
+  std::vector<CGE::Texture*> getTextures() const {return textures_;}
   //! render the scene
   void render();
   //! save the scene

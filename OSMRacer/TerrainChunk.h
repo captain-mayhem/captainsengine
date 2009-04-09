@@ -1,9 +1,10 @@
 #include <system/types.h>
 #include <math/bbox.h>
 
-namespace Graphics{
+namespace CGE{
 class Camera;
 class VertexBuffer;
+class IndexBuffer;
 }
 
 class TerrainChunk{
@@ -11,9 +12,10 @@ public:
   TerrainChunk();
   ~TerrainChunk();
   void generate(int32 numVertices, float widthScale=1.0f, float startX=0, float startZ=0);
-  void render(const Graphics::Camera& cam);
+  void render(const CGE::Camera& cam);
   CGE::BBox getBox();
 protected:
   CGE::BBox mBox;
-  Graphics::VertexBuffer* mVB;
+  CGE::VertexBuffer* mVB;
+  CGE::IndexBuffer** mInds;
 };

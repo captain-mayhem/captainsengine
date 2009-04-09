@@ -15,8 +15,6 @@
 #include "SQL.h"
 
 using std::cerr;
-using namespace Graphics;
-using namespace System;
 using namespace CGE;
 
 Application* Application::instance_ = NULL;
@@ -40,7 +38,7 @@ Application::~Application(){
 void Application::_rendererInit(){
   Renderer* rend = Engine::instance()->getRenderer();
   rend->setClearColor(Vector3D(0.0,0.0,0.0));
-  rend->renderMode(Graphics::Filled);
+  rend->renderMode(CGE::Filled);
   rend->ortho(SCREENWIDTH, SCREENHEIGHT);
 
   sql_ = new SQL("C:\\Dokumente und Einstellungen\\Weller\\Eigene Dateien\\adventure.hac");
@@ -72,99 +70,99 @@ void Application::setupMainGui(){
   but->setPosition(Vector2D(20, 100));
   but->setSpan(Vector2D(100,20));
   but->setText(" Spiel");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(140, 100));
   but->setSpan(Vector2D(100,20));
   but->setText(" Gehe");
   but->setCbFunc(gotoButton);
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(260, 100));
   but->setSpan(Vector2D(100,20));
   but->setText(" Oeffne");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(380, 100));
   but->setSpan(Vector2D(100,20));
   but->setText(" Nimm");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(500, 100));
   but->setSpan(Vector2D(100,20));
   but->setText(" Benutze");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(620, 100));
   but->setSpan(Vector2D(100,20));
   but->setText(" Ziehe");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(740, 100));
   but->setSpan(Vector2D(100,20));
   but->setText(" Schlafe");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(860, 100));
   but->setSpan(Vector2D(100,20));
   but->setText(" Inventar");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   //second row
   but = new Gui::Button();
   but->setPosition(Vector2D(20, 50));
   but->setSpan(Vector2D(100,20));
   but->setText(" Karte");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(140, 50));
   but->setSpan(Vector2D(100,20));
   but->setText(" Sieh an");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(260, 50));
   but->setSpan(Vector2D(100,20));
   but->setText("Schliesse");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(380, 50));
   but->setSpan(Vector2D(100,20));
   but->setText(" Rede");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(500, 50));
   but->setSpan(Vector2D(100,20));
   but->setText("Kombiniere");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(620, 50));
   but->setSpan(Vector2D(100,20));
   but->setText(" Druecke");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(740, 50));
   but->setSpan(Vector2D(100,20));
   but->setText(" Lerne");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   but = new Gui::Button();
   but->setPosition(Vector2D(860, 50));
   but->setSpan(Vector2D(100,20));
   but->setText("Charakter");
-  System::Engine::instance()->addGuiListener(but);
+  CGE::Engine::instance()->addGuiListener(but);
 
   //TODO make it correct
   std::string chid_ = "0";

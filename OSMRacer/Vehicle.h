@@ -3,7 +3,7 @@
 #include <physics/CollisionBody.h>
 #include <physics/CollisionSpace.h>
 
-namespace Graphics{
+namespace CGE{
   class Camera;
 }
 
@@ -16,7 +16,7 @@ public:
   Vehicle(const CGE::Simulator& sim);
   ~Vehicle();
   void setPosition(const CGE::Vec3f& pos);
-  void render(const Graphics::Camera& cam);
+  void render(const CGE::Camera& cam);
   void accelerate(float torque);
   void steer(float value);
 protected:

@@ -8,36 +8,22 @@ using namespace Graphics;
 
 DXVertexBuffer::DXVertexBuffer(){
   vb_ = NULL;
-  ibs_ = NULL;
   device_ = dynamic_cast< ::Graphics::DXRenderer* >(::System::Engine::instance()->getRenderer())->getDevice();
   flags_ = 0;
   verts_ = NULL;
-  inds_ = NULL;
   vertoffset_ = -1;
   coloffset_ = -1;
   texoffset_ = -1;
   normoffset_ = -1;
   userVertOffset_ = 0;
-  numIbs_ = 0;
-  ibsizes_ = NULL;
 }
 
 DXVertexBuffer::~DXVertexBuffer(){
   SAFE_RELEASE(vb_);
-  for (int i = 0; i < numIbs_; ++i){
-    SAFE_RELEASE(ibs_[i]);
-  }
-  SAFE_DELETE_ARRAY(ibs_);
-  SAFE_DELETE_ARRAY(ibsizes_);
 }
 
-void DXVertexBuffer::create(int type, int vertexBufferSize, short numIndexBuffers){
+void DXVertexBuffer::create(int type, int vertexBufferSize){
   vbsize_ = vertexBufferSize;
-  numIbs_ = numIndexBuffers;
-  if (numIbs_ > 0){
-    ibsizes_ = new short[numIbs_];
-    ibs_ = new IDirect3DIndexBuffer9*[numIbs_];
-  }
   int offset = 0;
   if (type & VB_POSITION){
     flags_ |= D3DFVF_XYZ;
@@ -66,20 +52,9 @@ void DXVertexBuffer::create(int type, int vertexBufferSize, short numIndexBuffer
     }
 }
 
-void DXVertexBuffer::createIndexBuffer(short indexNum, short indexBufferSize){
-  device_->CreateIndexBuffer(indexBufferSize*sizeof(short),
-    D3DUSAGE_WRITEONLY, D3DFMT_INDEX16, D3DPOOL_MANAGED, ibs_+indexNum, 0);
-  ibsizes_[indexNum] = indexBufferSize;
-}
-
 void* DXVertexBuffer::lockVertexPointer(){
   vb_->Lock(0, 0, &verts_, 0);
   return verts_;
-}
-
-short* DXVertexBuffer::lockIndexPointer(short indexNum){
-  ibs_[indexNum]->Lock(0,0, (void**)&inds_, 0);
-  return inds_;
 }
 
 void DXVertexBuffer::unlockVertexPointer(){
@@ -97,11 +72,9 @@ void DXVertexBuffer::activate(){
   device_->SetFVF(flags_);
 }
 
-void DXVertexBuffer::draw(PrimitiveType pt, short indexNum){
-  if (ibsizes_ != NULL)
-    device_->SetIndices(ibs_[indexNum]);
+void DXVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices){
   //device_->SetRenderState(D3DRS_LIGHTING, false);
-  if (ibsizes_ == NULL){
+  if (indices == NULL){
     if (pt == VB_Tristrip)
       device_->DrawPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, vbsize_);
     else if (pt == VB_Triangles)
@@ -114,6 +87,8 @@ void DXVertexBuffer::draw(PrimitiveType pt, short indexNum){
       device_->DrawPrimitive(D3DPT_POINTLIST, userVertOffset_, vbsize_/3);
     return;
   }
+  DXIndexBuffer* dxinds = (DXIndexBuffer*)indices;
+  device_->SetIndices(ibs_[indexNum]);
   if (pt == VB_Tristrip)
     device_->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, 0, vbsize_, 0, ibsizes_[indexNum]);
   else if (pt == VB_Triangles)

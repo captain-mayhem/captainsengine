@@ -22,11 +22,11 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       return 0;
       break;
     case WM_SIZE:
-      ::System::Engine::instance()->getRenderer()->resizeScene(LOWORD(lparam), HIWORD(lparam));
+      CGE::Engine::instance()->getRenderer()->resizeScene(LOWORD(lparam), HIWORD(lparam));
       return 0;
       break;
     case WM_DESTROY:
-      ::System::Engine::instance()->shutdown();
+      CGE::Engine::instance()->shutdown();
       PostQuitMessage(0);
       return 0;
       break;
@@ -68,13 +68,13 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
   return DefWindowProc(wnd, msg, wparam, lparam);
 }
 
-WindowsWindow::WindowsWindow(::Graphics::Renderer* renderer) : AppWindow(renderer){
+WindowsWindow::WindowsWindow(CGE::Renderer* renderer) : AppWindow(renderer){
   handle_ = NULL;
   instance_ = NULL;
 }
 
 void WindowsWindow::init(const std::string& name){
-  System::Log << "Initializing window\n";
+  CGE::Log << "Initializing window\n";
 #ifndef IDI_APPLICATION
 #define IDI_APPLICATION ((LPWSTR)((ULONG_PTR)((WORD)(32512))))
 #endif
@@ -111,14 +111,14 @@ void WindowsWindow::init(const std::string& name){
 #else
   if (!RegisterClassEx(&wndclass)){
 #endif
-    System::Log << "Cannot register window\n";
+    CGE::Log << "Cannot register window\n";
     EXIT();
   }
 
   DWORD style = 0;
   DWORD exStyle = 0;
 
-  if (renderer_->getRenderType() == ::Graphics::OpenGL){
+  if (renderer_->getRenderType() == CGE::OpenGL){
     if (fullscreen_){
 #ifndef UNDER_CE
       DEVMODE screenSettings;
@@ -130,7 +130,7 @@ void WindowsWindow::init(const std::string& name){
       screenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
       if (ChangeDisplaySettings(&screenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL){
-        System::Log << "Changing to fullscreen failed\nTrying windowed mode\n";
+        CGE::Log << "Changing to fullscreen failed\nTrying windowed mode\n";
         fullscreen_ = false;
       }
 #endif
@@ -171,7 +171,7 @@ void WindowsWindow::init(const std::string& name){
 #endif
     WS_CLIPCHILDREN | WS_CLIPSIBLINGS | style,
     0, 0, width_, height_, NULL, NULL, instance_, NULL))){
-      System::Log << "Create Window failed" << "\n";
+      CGE::Log << "Create Window failed" << "\n";
       EXIT();
   }
 
@@ -182,7 +182,7 @@ void WindowsWindow::init(const std::string& name){
 }
 
 void WindowsWindow::kill(){
-  ::System::Log << "Killing window\n";
+  CGE::Log << "Killing window\n";
   if (fullscreen_){
 #ifndef UNDER_CE
     ChangeDisplaySettings(NULL, 0);
@@ -193,12 +193,12 @@ void WindowsWindow::kill(){
   renderer_->killContext();
 
   if (handle_ && !DestroyWindow(handle_)){
-    ::System::Log << "Destroying window failed";
+    CGE::Log << "Destroying window failed";
     handle_ = NULL;
   }
 
   if (!UnregisterClass(TEXT(WINDOW_NAME), instance_)){
-    ::System::Log << "Unregistering class failed";
+    CGE::Log << "Unregistering class failed";
     instance_ = NULL;
   }
 

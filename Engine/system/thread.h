@@ -9,7 +9,7 @@
 #include <pthread.h>
 #endif
 
-namespace System {
+namespace CGE {
   
 class Thread{
 public:

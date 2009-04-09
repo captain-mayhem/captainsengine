@@ -12,7 +12,7 @@
 #include <fstream>
 #include <float.h>
 
-using namespace Graphics;
+using namespace CGE;
 using std::list;
 using std::ofstream;
 using std::ifstream;
@@ -23,7 +23,7 @@ using MeshGeo::Mesh;
 using CGE::BoundingObject;
 using CGE::Matrix;
 using CGE::Ray;
-using System::Utilities;
+using CGE::Utilities;
 
 Scene::Scene(){
   version_ = 1;
@@ -145,7 +145,7 @@ void Scene::load(const std::string& filename){
   ifstream in(filename.c_str(), ios::binary);
   if (!in)
     return;
-  std::string cwd = System::Filesystem::getCwd();
+  std::string cwd = CGE::Filesystem::getCwd();
   cwd += "\\";
   char buffer[256];
   //version
@@ -164,7 +164,7 @@ void Scene::load(const std::string& filename){
 #endif
     Mesh* msh = new Mesh();
     if (!msh->loadFromFile(cwd+name)){
-      System::Log << "cannot load file";
+      CGE::Log << "cannot load file";
       return;
     }
     buffer[length] = -52;
@@ -176,7 +176,7 @@ void Scene::load(const std::string& filename){
   for (unsigned i = 0; i < size; i++){
     unsigned length;
     in.read((char*)&length, sizeof(length));
-    //System::Log << in.bad() << " " << in.eof();
+    //CGE::Log << in.bad() << " " << in.eof();
     in.read(buffer, length*sizeof(char));
     buffer[length] = '\0';
     string name = string(buffer);
@@ -192,7 +192,7 @@ void Scene::load(const std::string& filename){
     //model id
     unsigned id;
     in.read((char*)&id, sizeof(id));
-    System::GameObject::setIDCount(max(id+1, System::GameObject::getIDCount()));
+    CGE::GameObject::setIDCount(max(id+1, CGE::GameObject::getIDCount()));
     //mesh link
     unsigned idx;
     in.read((char*)&idx, sizeof(idx));

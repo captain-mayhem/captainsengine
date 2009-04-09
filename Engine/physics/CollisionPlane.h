@@ -9,7 +9,7 @@ class CollisionPlane : public CollisionObject{
 public:
   CollisionPlane(const Vec3f& normal, float distance);
   virtual ~CollisionPlane();
-  virtual void render(const Graphics::Camera& cam);
+  virtual void render(const CGE::Camera& cam);
 };
 
 }

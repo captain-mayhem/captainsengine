@@ -50,7 +50,7 @@ void OSMReader::readNode(TiXmlNode* node){
 }
 
 bool OSMReader::processElement(TiXmlNode* node){
-  //System::Log << node->Value() << "\n";
+  //CGE::Log << node->Value() << "\n";
   TiXmlElement* elem = node->ToElement();
   if (std::strcmp(node->Value(),"osm") == 0){
     mState = OSM;
@@ -124,7 +124,7 @@ bool OSMReader::processElement(TiXmlNode* node){
   if (std::strcmp(node->Value(),"relation") == 0){
     return true;
   }
-  System::Log << "Unexpected xml value " << node->Value() << "\n";
+  CGE::Log << "Unexpected xml value " << node->Value() << "\n";
   return true;
 }
 
@@ -148,10 +148,10 @@ bool OSMReader::processNode(TiXmlNode* node){
     else if (tag.first == "place"){
 
     }*/
-    //System::Log << "Unexpected tag in xml file: " << tag.first << " - " << tag.second << "\n";
+    //CGE::Log << "Unexpected tag in xml file: " << tag.first << " - " << tag.second << "\n";
     return true;
   }
-  System::Log << "Unexpected xml value " << node->Value() << "\n";
+  CGE::Log << "Unexpected xml value " << node->Value() << "\n";
   return true;
 }
 
@@ -177,10 +177,10 @@ bool OSMReader::processWay(TiXmlNode* node){
     else if(tag.first == "name"){
 
     }
-    System::Log << "Unexpected tag in xml file: " << tag.first << " - " << tag.second << "\n";
+    CGE::Log << "Unexpected tag in xml file: " << tag.first << " - " << tag.second << "\n";
     return true;
   }
-  System::Log << "Unexpected xml value " << node->Value() << "\n";
+  CGE::Log << "Unexpected xml value " << node->Value() << "\n";
   return true;
 }
 

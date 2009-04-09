@@ -41,7 +41,7 @@ Mouse::~Mouse(){
 #ifdef UNIX
   if (!graphics_)
     return;
-  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());
+  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
   XFreeCursor(wnd->getDisplay(), invCursor_);
 #endif
 }
@@ -49,14 +49,14 @@ Mouse::~Mouse(){
 void Mouse::init(bool hasGraphics){
   mouse_ = new Mouse();
 #ifdef WIN32
-  //Windows::WindowsWindow* wnd = dynamic_cast<Windows::WindowsWindow*>(System::Engine::instance()->getWindow());
+  //Windows::WindowsWindow* wnd = dynamic_cast<Windows::WindowsWindow*>(CGE::Engine::instance()->getWindow());
   //SetCapture(wnd->getHandle());
 #endif
 #ifdef UNIX
   if (!hasGraphics)
     return;
   mouse_->graphics_ = true;
-  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());
+  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
   //create invisible cursor
   char data[8] = {0,0,0,0,0,0,0,0};
   XImage* img = XCreateImage(wnd->getDisplay(), DefaultVisual(wnd->getDisplay(), wnd->getScreen()),
@@ -82,10 +82,10 @@ void Mouse::init(bool hasGraphics){
 }
 
 void Mouse::buttonDown(int x, int y, int button){
-  //System::Log << "Click: " << x << " " << y << " " << button<< "\n";
+  //CGE::Log << "Click: " << x << " " << y << " " << button<< "\n";
   
   //map to virtual resolution
-  AppWindow* wnd = System::Engine::instance()->getWindow();
+  AppWindow* wnd = CGE::Engine::instance()->getWindow();
   clickPos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
   clickPos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
   
@@ -93,12 +93,12 @@ void Mouse::buttonDown(int x, int y, int button){
 /*
   //click on a GUI-element?
   list<InputField*>::iterator iter;
-  for (iter = System::Engine::instance()->getInputFields().begin(); iter != System::Engine::instance()->getInputFields().end(); iter++){
+  for (iter = CGE::Engine::instance()->getInputFields().begin(); iter != CGE::Engine::instance()->getInputFields().end(); iter++){
     if ((*iter)->isClicked(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
       //set only input focus if console is not active
-      if (!System::Engine::instance()->getConsole()->isActive()){
+      if (!CGE::Engine::instance()->getConsole()->isActive()){
         //another input field was active, so remove cursor
-        System::Engine::instance()->setActiveInput(*iter);
+        CGE::Engine::instance()->setActiveInput(*iter);
         gui_click_ = true;
         break;
       }
@@ -106,27 +106,27 @@ void Mouse::buttonDown(int x, int y, int button){
   }
 */
   list<GuiElement*>::iterator iter2;
-  for (iter2 = System::Engine::instance()->getGuiElements().begin(); iter2 != System::Engine::instance()->getGuiElements().end(); iter2++){
+  for (iter2 = CGE::Engine::instance()->getGuiElements().begin(); iter2 != CGE::Engine::instance()->getGuiElements().end(); iter2++){
     if ((*iter2)->isClicked(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
       /*//is it an input field?
       InputField* inp = dynamic_cast<InputField*>(*iter2);
       if ((*iter2)->getType() == Gui::InputFieldT && inp){
         //set only input focus if console is not active
-        if (!System::Engine::instance()->getConsole()->isActive()){
+        if (!CGE::Engine::instance()->getConsole()->isActive()){
           (*iter2)->process();
           //another input field was active, so remove cursor
-          //System::Engine::instance()->setActiveInput(inp);
+          //CGE::Engine::instance()->setActiveInput(inp);
           gui_click_ = true;
           break;
         }
       }*/
       //allow only clicks if the console is deactivated
-      if (!System::Engine::instance()->getConsole()->isActive()){
-        /*InputField* input = System::Engine::instance()->getActiveInput();
+      if (!CGE::Engine::instance()->getConsole()->isActive()){
+        /*InputField* input = CGE::Engine::instance()->getActiveInput();
         if (input != NULL){
           input->removeChar();
         }
-        System::Engine::instance()->setActiveInput(NULL);*/
+        CGE::Engine::instance()->setActiveInput(NULL);*/
         (*iter2)->process();
         gui_click_ = true;
         break;
@@ -171,7 +171,7 @@ void Mouse::buttonUp(int x, int y, int button){
 
 void Mouse::move(int x, int y, int buttons){
   //map to virtual resolution
-  AppWindow* wnd = System::Engine::instance()->getWindow();
+  AppWindow* wnd = CGE::Engine::instance()->getWindow();
   if (!wnd)
     return;
   mousePos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
@@ -191,7 +191,7 @@ void Mouse::showCursor(bool visible){
     ShowCursor(0);
 #endif
 #ifdef UNIX
-  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());
+  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
   if (mousePointer_){
     XDefineCursor(wnd->getDisplay(), wnd->getWindow(), None);
   }
@@ -206,7 +206,7 @@ void Mouse::setMousePos(int x, int y){
   SetCursorPos(x, y);
 #endif
 #ifdef UNIX
-  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(System::Engine::instance()->getWindow());
+  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
   XWarpPointer(wnd->getDisplay(), None, wnd->getWindow(), 0, 0, 0, 0, x, y);
   XEvent useless;
   XMaskEvent(wnd->getDisplay(), PointerMotionMask, &useless);

@@ -1,11 +1,11 @@
-#ifndef TEXTURE_H
-#define TEXTURE_H
+#ifndef CGE_TEXTURE_H
+#define CGE_TEXTURE_H
 
 #include <string>
 
 using std::string;
 
-namespace Graphics{
+namespace CGE{
 
 class Texture{
 public:

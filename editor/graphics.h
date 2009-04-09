@@ -32,7 +32,7 @@ public:
   //! set transformation of the camera
   void setCamRotation(const CGE::Matrix& mat) {camRot_ = mat;}
   //! get the scene
-  Graphics::Scene& getScene() {return scene_;}
+  CGE::Scene& getScene() {return scene_;}
   //! set the current model
   void setCurrModel(MeshGeo::Model* mdl) {currModel_ = mdl;}
   //! get the current model
@@ -52,7 +52,7 @@ protected:
   static Graphic* gra_;
   //! the scene
   //std::vector<MeshGeo::Mesh*> meshes_;
-  Graphics::Scene scene_;
+  CGE::Scene scene_;
   //! the camera transformation
   CGE::Matrix camTrafo_;
   //! the camera rotation

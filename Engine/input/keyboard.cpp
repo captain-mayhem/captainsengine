@@ -25,16 +25,16 @@ void Keyboard::keyDown(int key){
   pressedKeys_.remove(key);
   pressedKeys_.push_back(key);
   if (key == KEY_ESCAPE){
-    Gui::Console* cons = System::Engine::instance()->getConsole();
+    Gui::Console* cons = CGE::Engine::instance()->getConsole();
     //quit console
     if (cons->isActive()){
       cons->toggle();
-      System::Engine::instance()->getActiveInput()->clear();
-      System::Engine::instance()->setActiveInput(NULL);
+      CGE::Engine::instance()->getActiveInput()->clear();
+      CGE::Engine::instance()->setActiveInput(NULL);
       return;
     }
   }
-  InputField* input = System::Engine::instance()->getActiveInput();
+  InputField* input = CGE::Engine::instance()->getActiveInput();
   //input goes to input field
   if (input != NULL){
     //input finished
@@ -42,8 +42,8 @@ void Keyboard::keyDown(int key){
       input->removeChar();
       input->end();
       //normal input ==> single line
-      if (!System::Engine::instance()->getConsole()->isActive())
-        System::Engine::instance()->setActiveInput(NULL);
+      if (!CGE::Engine::instance()->getConsole()->isActive())
+        CGE::Engine::instance()->setActiveInput(NULL);
       return;
     }
     //delete one char
@@ -55,10 +55,10 @@ void Keyboard::keyDown(int key){
     }
     //history
     else if (key == KEY_UP){
-      System::Engine::instance()->getConsole()->Up();
+      CGE::Engine::instance()->getConsole()->Up();
     }
     else if (key == KEY_DOWN){
-      System::Engine::instance()->getConsole()->Down();
+      CGE::Engine::instance()->getConsole()->Down();
     }
     return;
   }
@@ -83,7 +83,7 @@ void Keyboard::ascii(unsigned char key){
   //accept only printable asciis
   if (key <= 31 /*|| key >= 127*/)
     return;
-  InputField* input = System::Engine::instance()->getActiveInput();
+  InputField* input = CGE::Engine::instance()->getActiveInput();
   //input goes to input field
   if (input != NULL){
     input->removeChar();
@@ -93,14 +93,14 @@ void Keyboard::ascii(unsigned char key){
   }
   //open console
   if (key == '~'){
-    System::Engine::instance()->getConsole()->toggle();
-    System::Engine::instance()->setActiveInput(System::Engine::instance()->getConsole()->GetInputField());
+    CGE::Engine::instance()->getConsole()->toggle();
+    CGE::Engine::instance()->setActiveInput(CGE::Engine::instance()->getConsole()->GetInputField());
   }
 
   if (asciiCB_){
     asciiCB_(key);
   }
-  //::System::Log << (unsigned char)key << " ";
+  //::CGE::Log << (unsigned char)key << " ";
 }
 
 void Keyboard::processPressedKeys(float diffTime){

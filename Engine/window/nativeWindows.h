@@ -11,7 +11,7 @@ namespace Windows{
 
 class WindowsWindow : public AppWindow{
 public:
-  WindowsWindow(::Graphics::Renderer* renderer);
+  WindowsWindow(CGE::Renderer* renderer);
   ~WindowsWindow() {}
   //! init the window
   void init(const std::string& name);
@@ -33,7 +33,7 @@ protected:
 namespace Windows{
 class WindowsWindow : public AppWindow{
 public:
-  WindowsWindow(::Graphics::Renderer* renderer) : AppWindow(renderer) {}
+  WindowsWindow(CGE::Renderer* renderer) : AppWindow(renderer) {}
   ~WindowsWindow() {}
 };
 }

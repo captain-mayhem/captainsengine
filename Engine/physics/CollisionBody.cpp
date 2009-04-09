@@ -10,10 +10,17 @@
 using namespace CGE;
 
 CollisionBody::CollisionBody(const Simulator& sim) : CollisionObject(), Body(sim){
+  mPhysicsVB = NULL;
+  for (int i = 0; i < 3; ++i){
+    mPhysicsInds[i] = NULL;
+  }
 }
 
 CollisionBody::~CollisionBody(){
-
+  delete mPhysicsVB;
+  for (int i = 0; i < 3; ++i){
+    delete mPhysicsInds[i];
+  }
 }
 
 void CollisionBody::initCylinder(const CollisionSpace& space, float height, float radius, float mass){
@@ -21,7 +28,7 @@ void CollisionBody::initCylinder(const CollisionSpace& space, float height, floa
   mGeom = dCreateCylinder(space.mSpace, radius, height);
   dGeomSetBody(mGeom, mBody);
   dGeomSetData(mGeom, this);
-  mPhysicsVB = Graphics::Forms::createCylinder(radius, height, 32);
+  mPhysicsVB = CGE::Forms::createCylinder(radius, height, 32, mPhysicsInds);
 }
 
 void CollisionBody::initBox(const CollisionSpace& space, float width, float height, float depth, float mass){
@@ -29,7 +36,7 @@ void CollisionBody::initBox(const CollisionSpace& space, float width, float heig
   mGeom = dCreateBox(space.mSpace, depth, height, width);
   dGeomSetBody(mGeom, mBody);
   dGeomSetData(mGeom, this);
-  mPhysicsVB = Graphics::Forms::createBox(width, height, depth);
+  mPhysicsVB = CGE::Forms::createBox(width, height, depth, mPhysicsInds);
 }
 
 void CollisionBody::initSphere(const CollisionSpace& space, float radius, float mass){
@@ -39,20 +46,20 @@ void CollisionBody::initSphere(const CollisionSpace& space, float radius, float 
   dGeomSetData(mGeom, this);
 }
 
-void CollisionBody::render(const Graphics::Camera& cam){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+void CollisionBody::render(const CGE::Camera& cam){
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->pushMatrix();
   Vec3f trans = getPosition();
   rend->translate(trans.x,trans.y,trans.z);
   rend->multiplyMatrix(getOrientation());
   mPhysicsVB->activate();
   if (dGeomGetClass(mGeom) == dCylinderClass){
-    mPhysicsVB->draw(Graphics::VB_Tristrip, 0);
-    mPhysicsVB->draw(Graphics::VB_Trifan, 1);
-    mPhysicsVB->draw(Graphics::VB_Trifan, 2);
+    mPhysicsVB->draw(CGE::VB_Tristrip, mPhysicsInds[0]);
+    mPhysicsVB->draw(CGE::VB_Trifan, mPhysicsInds[1]);
+    mPhysicsVB->draw(CGE::VB_Trifan, mPhysicsInds[2]);
   }
   else if (dGeomGetClass(mGeom) == dBoxClass){
-    mPhysicsVB->draw(Graphics::VB_Triangles, 0);
+    mPhysicsVB->draw(CGE::VB_Triangles, mPhysicsInds[0]);
   }
   rend->popMatrix();
 }

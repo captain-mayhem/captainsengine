@@ -14,7 +14,7 @@ extern "C"{
 using std::string;
 
 
-namespace System{
+namespace CGE{
 
 //! Provides a simple interface to the LUA scripting language
 /*! Functions to call LUA from C and C-Functions to call from LUA
@@ -35,6 +35,8 @@ public:
   bool getBoolSetting(const string& name);
   //! get a setting as string
   string getStringSetting(const string& name);
+  //! get a setting as float
+  float getRealSetting(const string& name);
   //! get the script instance
   inline static Script* instance() {return scr_;}
 	

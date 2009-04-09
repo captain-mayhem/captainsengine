@@ -1,7 +1,7 @@
 #include "../../system/engine.h"
 #include "GLEStexture.h"
 
-using namespace Graphics;
+using namespace CGE;
 
 typedef unsigned char byte;
 typedef unsigned short WORD;

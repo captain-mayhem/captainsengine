@@ -60,7 +60,7 @@ protected:
   Node* findNode(Node* prevnode, Node* startnode, const CGE::BBox& treebox, const CGE::BBox& box);
   void traverse(Node* node, const CGE::BBox& box, uint8 flags, void* data);
   //Node* recurse(Node* node, int& data1, void* data2, void (*func)(Node* node, int& data1, void* data2));
-  //void recurseCullAndRender(const Graphics::Camera* cam, Node* node, bool passThrough);
+  //void recurseCullAndRender(const CGE::Camera* cam, Node* node, bool passThrough);
 
   //static void insertVertex(Node* node, int& data1, void* data2);
   //Node* mValues;

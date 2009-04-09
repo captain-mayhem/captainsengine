@@ -8,8 +8,8 @@
 #include "GLESvertexbuffer.h"
 #include "GLEStexture.h"
 #include "GLESrenderer.h"
+#include "GLESindexbuffer.h"
 
-using namespace Graphics;
 using namespace CGE;
 
 GLESRenderer::GLESRenderer(): Renderer() {
@@ -20,7 +20,7 @@ GLESRenderer::~GLESRenderer(){
 }
 
 void GLESRenderer::initContext(::Windows::AppWindow* win){
-  ::System::Log << "Initializing OpenGL ES context\n";
+  CGE::Log << "Initializing OpenGL ES context\n";
   win_ = win;
   EGLint rs = 0, gs = 0, bs = 0;
   if (win->getBpp() == 16){
@@ -52,7 +52,7 @@ void GLESRenderer::initContext(::Windows::AppWindow* win){
     EXIT2("EGL initialization failed.");
   }
   else{
-    ::System::Log << "EGL version " << major << "." << minor << " initalized.";
+    CGE::Log << "EGL version " << major << "." << minor << " initalized.";
   }
 
   EGLint numConfigs;
@@ -96,7 +96,7 @@ void GLESRenderer::killContext(){
 }
 
 void GLESRenderer::initRendering(){
-  ::System::Log << "Initializing Scene\n";
+  CGE::Log << "Initializing Scene\n";
   //smooth shading
   glShadeModel(GL_SMOOTH);
 
@@ -118,7 +118,7 @@ void GLESRenderer::renderScene(){
 void GLESRenderer::resizeScene(int width, int height){
   if (context_ == NULL)
     return;
-  ::System::Log << "Resizing Scene\n";
+  CGE::Log << "Resizing Scene\n";
   if (height == 0){
     height = 1;
   }
@@ -147,6 +147,10 @@ void GLESRenderer::clear(long flags){
 //! get a vertex buffer
 VertexBuffer* GLESRenderer::createVertexBuffer(){
   return new GLESVertexBuffer();
+}
+
+IndexBuffer* GLESRenderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){
+  return new GLESIndexBuffer(t,size);
 }
 
 Texture* GLESRenderer::createTexture(string filename){

@@ -5,7 +5,7 @@
 #include <common/OctreeStatic.h>
 #include <physics/CollisionHeightfield.h>
 
-namespace Graphics{
+namespace CGE{
   class Renderer;
   class Camera;
 }
@@ -18,7 +18,7 @@ public:
   ~Terrain();
   void generateRandomHeights();
   void generateTerrainChunks(int chunksize);
-  void render(Graphics::Renderer& rend, Graphics::Camera& cam);
+  void render(CGE::Renderer& rend, CGE::Camera& cam);
 protected:
   static CGE::OctreeStatic<TerrainChunk*>::TraversalState renderCB(const std::vector<TerrainChunk*>& values, const CGE::BBox& box, uint8 flags, void* data);
   int16 mDepth;

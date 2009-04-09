@@ -3,7 +3,7 @@
 
 #include "../math/matrix.h"
 
-namespace System{
+namespace CGE{
 
 class GameObject{
 public:

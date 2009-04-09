@@ -7,13 +7,13 @@
 
 namespace Windows{
 
-X11Window::X11Window(::Graphics::Renderer* renderer) : AppWindow(renderer){
+X11Window::X11Window(CGE::Renderer* renderer) : AppWindow(renderer){
   disp_ = NULL;
   win_ = 0;
 }
 
 void X11Window::init(const std::string& name){
-  System::Log << "Initializing window\n";
+  CGE::Log << "Initializing window\n";
 
   disp_ = XOpenDisplay(0);
   screen_ = DefaultScreen(disp_);
@@ -51,7 +51,7 @@ void X11Window::init(const std::string& name){
   
   XSetWindowAttributes attr;
   GLXContext glx = glXCreateContext(disp_, vi, 0, GL_TRUE);
-  dynamic_cast< ::Graphics::OGLRenderer* >(renderer_)->setGLX(glx);
+  dynamic_cast< CGE::OGLRenderer* >(renderer_)->setGLX(glx);
   Colormap color = XCreateColormap(disp_, RootWindow(disp_, vi->screen),
       vi->visual, AllocNone);
   attr.colormap = color;
@@ -95,7 +95,7 @@ void X11Window::init(const std::string& name){
 }
 
 void X11Window::kill(){
-  ::System::Log << "Killing window\n";
+  CGE::Log << "Killing window\n";
 
   renderer_->killContext();
 

@@ -9,7 +9,7 @@
 #include <EGL/egl.h>
 #include "../renderer.h"
 
-namespace Graphics{
+namespace CGE{
 //! The OpenGL ES version of the rendering interface
 class GLESRenderer : public Renderer{
 public: 
@@ -33,6 +33,8 @@ public:
   virtual void clear(long flags);
   //! get a vertex buffer
   VertexBuffer* createVertexBuffer();
+  //! get a index buffer
+  virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size);
   //! create texture
   Texture* createTexture(string filename);
   //! set look at

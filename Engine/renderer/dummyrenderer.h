@@ -3,7 +3,7 @@
 
 #include "renderer.h"
 
-namespace Graphics{
+namespace CGE{
 class DummyRenderer : public Renderer{
 public: 
   //! Constructor

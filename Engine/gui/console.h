@@ -21,7 +21,7 @@
 //#include "message.h"
 #include "gui.h"
 
-#define consol (*System::Engine::instance()->getConsole())
+#define consol (*CGE::Engine::instance()->getConsole())
 
 using std::string;
 using std::list;
@@ -30,7 +30,7 @@ using std::ostringstream;
 //using ::CGE::Vector2D;
 //using ::Gui::InputField;
 //using ::Gui::Button;
-//using ::Graphics::Font;
+//using ::CGE::Font;
 namespace Gui{
 
 //! Provides a customizable quake-like game console
@@ -66,7 +66,7 @@ class Console{
      * \param bgCol background color of the input field
      * \param opaque opacity of the input
      */
-    inline void setParams(::CGE::Vector3D fgCol, ::Graphics::Color bgCol, float opaque)
+    inline void setParams(CGE::Vector3D fgCol, CGE::Color bgCol, float opaque)
       {input_->setColors(fgCol, bgCol); input_->setOpacity(opaque);}
     
     //! returns the text of the input field
@@ -124,17 +124,17 @@ private:
     //! To iterate on the history
     list<string>::iterator histIter_;
     //! position of lower left corner
-    ::CGE::Vector2D pos_;
+    CGE::Vector2D pos_;
     //! the console dimensions
-    ::CGE::Vector2D span_;
+    CGE::Vector2D span_;
     //! background color
-    ::Graphics::Color bgColor_;
+    CGE::Color bgColor_;
     //! foreground color
-    ::CGE::Vector3D fgColor_;
+    CGE::Vector3D fgColor_;
     //! opacity
     float opacity_;
     //! the font for displaying text
-    //::Graphics::Font* fnt_;
+    //::CGE::Font* fnt_;
     //! is console active?
     bool active_;
     //! has it new contents?

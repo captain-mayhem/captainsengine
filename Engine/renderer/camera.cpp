@@ -4,7 +4,6 @@
 #include "../system/engine.h"
 
 using namespace CGE;
-using namespace Graphics;
 
 Camera::Camera(){
 
@@ -65,7 +64,7 @@ void Camera::roll(float angle){
 }
 
 void Camera::activate(){
-  Graphics::Renderer* rend = System::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->projection(mFrustum.getAngle(),mFrustum.getRatio(),mFrustum.getNearDist(),mFrustum.getFarDist());
   Matrix mat = Matrix(mSide, mUp, mForward*-1, Vec3f()/*eye*1*/)*Matrix(Matrix::Translation,mPosition*-1);
   rend->multiplyMatrix(mat);
