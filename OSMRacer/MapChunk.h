@@ -17,15 +17,31 @@ public:
     int mId;
     MeshGeo::Model* mModel;
   };
+  class Iterator{
+  public:
+    Iterator(std::map<int,Node*>& container){
+      mCurrent = container.begin(); mLast = container.end();
+    }
+    bool hasNext(){
+      return mCurrent != mLast;
+    }
+    Node* next(){
+      return (*mCurrent++).second;
+    }
+  protected:
+    std::map<int,Node*>::iterator mCurrent;
+    std::map<int,Node*>::iterator mLast;
+  };
   MapChunk();
   ~MapChunk();
   void setExtent(const CGE::Vec3d& minPoint, const CGE::Vec3d& maxPoint) {mMinExtent = minPoint; mMaxExtent = maxPoint;}
   void addNode(const CGE::Vec3d& position, int nodeid);
   void addStreet(int streetid, int fromNode, int toNode);
-  void render(const CGE::Camera* cam);
-  void buildAccelerationStructures();
+  void transformIntoPlane();
   //CGE::Vec3d getCenter(){return (mMinBox+mMaxBox)/2.0;}
-  CGE::Vec3f getNormal() {return mPlaneNormal;}
+  CGE::Vec3f getNormal() {return CGE::Vec3f(0,1,0);}
+  Iterator getNodeIterator() {return Iterator(mNodes);}
+  void render(const CGE::Camera* cam);
 protected:
   static void renderOctreeCallback(Node* node);
 
@@ -38,7 +54,7 @@ protected:
   CGE::Vec3d mMaxBox;
   CGE::Vec3d mMinExtent;
   CGE::Vec3d mMaxExtent;
-  CGE::Vec3f mPlaneNormal;
+  CGE::Matrix mTransform;
 };
 
 #endif

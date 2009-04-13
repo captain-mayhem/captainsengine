@@ -39,7 +39,7 @@ Engine::Engine(){
   input_ = NULL;
   console_ = NULL;
   clear_ = false;
-  guitex_ = Mutex();
+  //guitex_ = Mutex();
   mSimulator = NULL;
   Log << "Engine instance created\n";
 }

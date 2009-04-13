@@ -19,6 +19,7 @@ public:
   void generateRandomHeights();
   void generateTerrainChunks(int chunksize);
   void render(CGE::Renderer& rend, CGE::Camera& cam);
+  float getHeight(float x, float z);
 protected:
   static CGE::OctreeStatic<TerrainChunk*>::TraversalState renderCB(const std::vector<TerrainChunk*>& values, const CGE::BBox& box, uint8 flags, void* data);
   int16 mDepth;

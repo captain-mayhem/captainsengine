@@ -78,3 +78,9 @@ CGE::OctreeStatic<TerrainChunk*>::TraversalState Terrain::renderCB(const std::ve
 
   return state;
 }
+
+float Terrain::getHeight(float x, float z){
+  float xidx = x/mScale.x;
+  float zidx = z/mScale.z;
+  return 0;
+}

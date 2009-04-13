@@ -11,6 +11,7 @@
 #include "GeoGen.h"
 #include "GeoCache.h"
 #include "Vehicle.h"
+#include "StreetGenerator.h"
 
 //MapChunk map;
 #include "Terrain.h"
@@ -147,6 +148,8 @@ void engineMain(int argc, char** argv){
 
   OSMReader rdr("map2.osm");
   rdr.read(&map);
+  StreetGenerator strgen(&map);
+  strgen.buildStreets();
   CGE::Log.flush();
 }
 

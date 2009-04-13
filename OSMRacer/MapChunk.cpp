@@ -31,7 +31,7 @@ void MapChunk::addNode(const CGE::Vec3d& position, int id){
   Node* node = new Node(position,id);
   mNodes[id] = node;
   mGraph.addSingleNode(node);
-  box_extent(mMinBox,mMaxBox,position);
+  //box_extent(mMinBox,mMaxBox,position);
 }
 
 void MapChunk::addStreet(int streetid, int fromNode, int toNode){
@@ -53,33 +53,32 @@ void MapChunk::render(const CGE::Camera* cam){
   CGE::Engine::instance()->getFont(0)->print(20,700,tmp,0);
 }
 
-void MapChunk::buildAccelerationStructures(){
-  static const int scale = 1000;
+void MapChunk::transformIntoPlane(){
+  static const int scale = 1000; //km to m
   Vec3d center = (mMinExtent+mMaxExtent)/2.0;
   std::map<int,Node*>::iterator iter = mNodes.begin();
-  mPlaneNormal = center.normalized();
-  CGE::Matrix planerotation(Matrix::Rotation, mPlaneNormal.cross(Vec3f(0,1,0)).normalized(), acos(mPlaneNormal.dot(Vec3f(0,1,0))));
+  Vec3f planeNormal = center.normalized();
+  CGE::Matrix planerotation(Matrix::Rotation, planeNormal.cross(Vec3f(0,1,0)).normalized(), acos(planeNormal.dot(Vec3f(0,1,0))));
   CGE::Matrix origintranslation(Matrix::Translation, center*-1);
   CGE::Matrix valuescale(Matrix::Scale, Vec3f(scale,scale,scale));
   CGE::Matrix ytozero(Matrix::Identity); ytozero.at(5) = 0;
   CGE::Matrix offset(Matrix::Translation, Vec3f(0,0.05,0));
-  CGE::Matrix transform = offset*ytozero*valuescale*planerotation*origintranslation;/*valuescale*origintranslation/**planerotation*/;
-  mPlaneNormal = Vec3d(0,1,0);
+  mTransform = offset*ytozero*valuescale*planerotation*origintranslation;
   
   /*mMinBox = Vec3d(DBL_MAX,DBL_MAX,DBL_MAX);
   mMaxBox = Vec3d(-DBL_MAX,-DBL_MAX,-DBL_MAX);
   for (iter = mNodes.begin(); iter != mNodes.end(); ++iter){
     box_extent(mMinBox,mMaxBox,(*iter).second->mPos);
   }*/
-  mMinBox = transform*mMinExtent;
-  mMaxBox = transform*mMaxExtent;
+  mMinBox = mTransform*mMinExtent;
+  mMaxBox = mTransform*mMaxExtent;
 
   //planerotation = planerotation.transpose();
   //mMaxBox = transform*mMaxBox;
   //mMinBox = transform*mMinBox;
   mTree.init(Vec3d(),(mMaxBox-mMinBox)/2.0+Vec3d(1,1,1));
   for (iter = mNodes.begin(); iter != mNodes.end(); ++iter){
-    (*iter).second->mPos = transform*(*iter).second->mPos;
+    (*iter).second->mPos = mTransform*(*iter).second->mPos;
     mTree.insert((*iter).second->mPos, (*iter).second);
   }
   mTree.buildDebugVertexBuffer();
