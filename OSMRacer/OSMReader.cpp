@@ -16,7 +16,7 @@ OSMReader::~OSMReader(){
 void OSMReader::read(MapChunk* map){
   mMap = map;
   readNode(&mDoc);
-  mMap->buildAccelerationStructures();
+  mMap->transformIntoPlane();
 }
 
 void OSMReader::readNode(TiXmlNode* node){
