@@ -16,7 +16,7 @@
 
 using std::stack;
 
-namespace Graphics{
+namespace CGE{
 
 class VertexBuffer;
 

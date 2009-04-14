@@ -38,7 +38,7 @@ void init(){
 }
 
 void render(){
-  GeoGen::useGeometry();
+  //GeoGen::useGeometry();
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->clear(ZBUFFER | COLORBUFFER);
   //rend->projection(60,1.0f,0.1f,100000.0f);
@@ -54,6 +54,7 @@ void render(){
   test.render(*rend, cam);
 
   car->render(cam);
+  rend->setColor(0.2,0.2,0.2,1.0);
   map.render(&cam);
   
 }
@@ -143,13 +144,13 @@ void engineMain(int argc, char** argv){
   sim->getRootSpace()->add(&test);
 
   //start geo gen thread
-  CGE::Thread geogen;
-  geogen.create(GeoGen::generateGeometry,NULL);
+  //CGE::Thread geogen;
+  //geogen.create(GeoGen::generateGeometry,NULL);
 
-  OSMReader rdr("map2.osm");
+  OSMReader rdr("map.osm");
   rdr.read(&map);
   StreetGenerator strgen(&map);
-  strgen.buildStreets();
+  strgen.buildStreets(map.getStreets());
   CGE::Log.flush();
 }
 

@@ -10,6 +10,9 @@
 // | File: octree.h                                                   |
 //  ==================================================================
 
+#ifndef CGE_OCTREE_STATIC
+#define CGE_OCTREE_STATIC
+
 #include <cstdlib>
 #include <list>
 #include <cassert>
@@ -237,3 +240,6 @@ void OctreeStatic<value>::traverse(Node* node, const CGE::BBox& box, uint8 flags
 
 
 }
+
+#endif
+

@@ -1,6 +1,7 @@
 
 #include "MapChunk.h"
 #include "GeoGen.h"
+#include <mesh/SimpleMesh.h>
 
 using namespace Common;
 using namespace CGE;
@@ -17,6 +18,7 @@ MapChunk* MapChunk::mMap;
 
 MapChunk::MapChunk() : mMinBox(DBL_MAX,DBL_MAX,DBL_MAX), mMaxBox(-DBL_MAX,-DBL_MAX,-DBL_MAX){
   mTree.setRenderCallback(renderOctreeCallback);
+  mStreets.setTraversalCB(renderCB);
 }
 
 MapChunk::~MapChunk(){
@@ -45,9 +47,10 @@ int drawCount;
 
 void MapChunk::render(const CGE::Camera* cam){
   mMap = this;
-  mTree.renderDebug();
+  //mTree.renderDebug();
   drawCount = 0;
-  mTree.render(cam);
+  //mTree.render(cam);
+  mStreets.traverse((void*)cam);
   char tmp[32];
   sprintf(tmp,"Map nodes rendered: %i", drawCount);
   CGE::Engine::instance()->getFont(0)->print(20,700,tmp,0);
@@ -76,12 +79,13 @@ void MapChunk::transformIntoPlane(){
   //planerotation = planerotation.transpose();
   //mMaxBox = transform*mMaxBox;
   //mMinBox = transform*mMinBox;
-  mTree.init(Vec3d(),(mMaxBox-mMinBox)/2.0+Vec3d(1,1,1));
+  mStreets.init(Vec3d(),(mMaxBox-mMinBox)/2.0+Vec3d(1,1,1), Vec3f(10,10,10));
+  //mTree.init(Vec3d(),(mMaxBox-mMinBox)/2.0+Vec3d(1,1,1));
   for (iter = mNodes.begin(); iter != mNodes.end(); ++iter){
     (*iter).second->mPos = mTransform*(*iter).second->mPos;
-    mTree.insert((*iter).second->mPos, (*iter).second);
+    //mTree.insert((*iter).second->mPos, (*iter).second);
   }
-  mTree.buildDebugVertexBuffer();
+  //mTree.buildDebugVertexBuffer();
 }
 
 void MapChunk::renderOctreeCallback(MapChunk::Node* node){
@@ -97,5 +101,26 @@ void MapChunk::renderOctreeCallback(MapChunk::Node* node){
     node->mModel->render();
     node->mModel->resetMaterial();
   }
+}
+
+CGE::OctreeStatic<SimpleMesh*>::TraversalState MapChunk::renderCB(const std::vector<SimpleMesh*>& values, const CGE::BBox& box, uint8 flags, void* data){
+  CGE::Camera* cam = (CGE::Camera*)data;
+  OctreeStatic<SimpleMesh*>::TraversalState state = OctreeStatic<SimpleMesh*>::RECURSE_TO_END;
+
+  //check if we do not pass through
+  if (!(flags & OctreeStatic<SimpleMesh*>::PASS_THROUGH)){
+    Frustum::Result res = cam->getFrustum().checkBox(box);
+    if (res == Frustum::OUTSIDE)
+      return OctreeStatic<SimpleMesh*>::STOP_RECURSION;
+    if (res == Frustum::INTERSECT)
+      state = OctreeStatic<SimpleMesh*>::RECURSE_FURTHER;
+  }
+
+  for (uint32 i = 0; i < values.size(); ++i){
+    values[i]->render();
+    ++drawCount;
+  }
+
+  return state;
 }
 
