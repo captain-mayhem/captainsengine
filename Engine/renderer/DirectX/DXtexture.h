@@ -6,7 +6,7 @@
 #include <d3d9.h>
 #include "../texture.h"
 
-namespace Graphics{
+namespace CGE{
 
 class DXTexture : public Texture {
 public:

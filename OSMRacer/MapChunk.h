@@ -3,9 +3,14 @@
 
 #include <map>
 #include "common/octree.h"
+#include "common/OctreeStatic.h"
 #include "common/graph.h"
 #include "math/vector.h"
 #include "mesh/model.h"
+
+namespace CGE{
+class SimpleMesh;
+}
 
 class MapChunk{
 public:
@@ -42,8 +47,10 @@ public:
   CGE::Vec3f getNormal() {return CGE::Vec3f(0,1,0);}
   Iterator getNodeIterator() {return Iterator(mNodes);}
   void render(const CGE::Camera* cam);
+  CGE::OctreeStatic<CGE::SimpleMesh*>& getStreets() {return mStreets;}
 protected:
   static void renderOctreeCallback(Node* node);
+  static CGE::OctreeStatic<CGE::SimpleMesh*>::TraversalState renderCB(const std::vector<CGE::SimpleMesh*>& values, const CGE::BBox& box, uint8 flags, void* data);
 
   static MapChunk* mMap;
 
@@ -55,6 +62,7 @@ protected:
   CGE::Vec3d mMinExtent;
   CGE::Vec3d mMaxExtent;
   CGE::Matrix mTransform;
+  CGE::OctreeStatic<CGE::SimpleMesh*> mStreets;
 };
 
 #endif

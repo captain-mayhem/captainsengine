@@ -6,8 +6,8 @@
 #include "DXtexture.h"
 #include "DXrenderer.h"
 #include <d3dx9.h>
+#include "DXindexbuffer.h"
 
-using namespace Graphics;
 using namespace CGE;
 
 DXRenderer::DXRenderer(): Renderer() {
@@ -20,7 +20,7 @@ DXRenderer::~DXRenderer(){
 }
 
 void DXRenderer::initContext(::Windows::AppWindow* win){
-  ::System::Log << "Initializing DirectX context\n";
+  CGE::Log << "Initializing DirectX context\n";
   win_ = win;
 
   d3d_ = Direct3DCreate9(D3D_SDK_VERSION);
@@ -56,7 +56,7 @@ void DXRenderer::initContext(::Windows::AppWindow* win){
 
   ppm.Windowed = !win->isFullscreen();
   ppm.BackBufferCount = 1;
-  ppm.AutoDepthStencilFormat = D3DFMT_D16;
+  ppm.AutoDepthStencilFormat = D3DFMT_D24X8;
   ppm.EnableAutoDepthStencil = TRUE;
 
   HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win)->getHandle();
@@ -78,10 +78,10 @@ void DXRenderer::initContext(::Windows::AppWindow* win){
   if(SUCCEEDED(d3d_->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, wnd,
     D3DCREATE_HARDWARE_VERTEXPROCESSING /*| D3DCREATE_PUREDEVICE*/,
     &ppm, &device_))){
-      ::System::Log << "Hardware vertex-processing enabled\n";
+      CGE::Log << "Hardware vertex-processing enabled\n";
   }
   else{
-    ::System::Log << "Failed to enable pure DX9 device.\n";
+    CGE::Log << "Failed to enable pure DX9 device.\n";
   }
   
 
@@ -98,7 +98,7 @@ void DXRenderer::killContext(){
 }
 
 void DXRenderer::initRendering(){
-  ::System::Log << "Initializing Scene\n";
+  CGE::Log << "Initializing Scene\n";
   device_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
   device_->SetRenderState(D3DRS_LIGHTING, false);
   /*
@@ -161,7 +161,7 @@ void DXRenderer::renderScene(){
 void DXRenderer::resizeScene(int width, int height){
   if (device_ == NULL)
     return;
-  ::System::Log << "Resizing Scene\n";
+  CGE::Log << "Resizing Scene\n";
   if (height == 0){
     height = 1;
   }
@@ -204,6 +204,10 @@ void DXRenderer::clear(long flags){
 
 VertexBuffer* DXRenderer::createVertexBuffer(){
   return new DXVertexBuffer();
+}
+
+IndexBuffer* DXRenderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){
+  return new DXIndexBuffer(t,size);
 }
 
 Texture* DXRenderer::createTexture(string filename){
@@ -294,7 +298,7 @@ void DXRenderer::enableBlend(const bool flag){
 void DXRenderer::enableBackFaceCulling(const bool flag){
   D3DCULL cull = D3DCULL_NONE;
   if (flag)
-    cull = D3DCULL_CCW;
+    cull = D3DCULL_CW;
   device_->SetRenderState(D3DRS_CULLMODE, cull);
 }
 

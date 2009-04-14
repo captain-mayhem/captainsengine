@@ -16,10 +16,13 @@ public:
   virtual void setIndex(uint32 i, uint8 index);
   virtual void setIndex(uint32 i, uint16 index);
   virtual void setIndex(uint32 i, uint32 index);
+
+  IDirect3DIndexBuffer9* getIndices() {return ib_;}
   uint32 getNumIndices() {return mIbSize;}
-  void* getIndices() {return mInds;}
-  uint32 getType() {return mType;}
+  //void* getIndices() {return mInds;}
+  //uint32 getType() {return mType;}
 protected:
+  uint32 mIbSize;
   IDirect3DIndexBuffer9* ib_;
 };
 

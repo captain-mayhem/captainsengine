@@ -4,7 +4,7 @@
 #include <d3d9.h>
 #include "../vertexbuffer.h"
 
-namespace Graphics{
+namespace CGE{
   
 class DXVertexBuffer : public VertexBuffer {
 public:

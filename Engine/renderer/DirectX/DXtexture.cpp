@@ -5,10 +5,10 @@
 #include "DXrenderer.h"
 #include "DXtexture.h"
 
-using namespace Graphics; 
+using namespace CGE; 
 
 DXTexture::DXTexture(string filename) : Texture(filename) {
-  device_ = dynamic_cast< ::Graphics::DXRenderer* >(::System::Engine::instance()->getRenderer())->getDevice();
+  device_ = dynamic_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
   load(filename);
 }
 

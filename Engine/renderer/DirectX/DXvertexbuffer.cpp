@@ -3,12 +3,13 @@
 #include "../../system/engine.h"
 #include "DXrenderer.h"
 #include "DXvertexbuffer.h"
+#include "DXindexbuffer.h"
 
-using namespace Graphics;
+using namespace CGE;
 
 DXVertexBuffer::DXVertexBuffer(){
   vb_ = NULL;
-  device_ = dynamic_cast< ::Graphics::DXRenderer* >(::System::Engine::instance()->getRenderer())->getDevice();
+  device_ = dynamic_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
   flags_ = 0;
   verts_ = NULL;
   vertoffset_ = -1;
@@ -62,11 +63,6 @@ void DXVertexBuffer::unlockVertexPointer(){
   verts_ = NULL;
 }
 
-void DXVertexBuffer::unlockIndexPointer(short indexNum){
-  ibs_[indexNum]->Unlock();
-  inds_ = NULL;
-}
-
 void DXVertexBuffer::activate(){
   device_->SetStreamSource(0, vb_, 0, structsize_);
   device_->SetFVF(flags_);
@@ -88,17 +84,17 @@ void DXVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices){
     return;
   }
   DXIndexBuffer* dxinds = (DXIndexBuffer*)indices;
-  device_->SetIndices(ibs_[indexNum]);
+  device_->SetIndices(dxinds->getIndices());
   if (pt == VB_Tristrip)
-    device_->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, 0, vbsize_, 0, ibsizes_[indexNum]);
+    device_->DrawIndexedPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, 0, vbsize_, 0, dxinds->getNumIndices());
   else if (pt == VB_Triangles)
-    device_->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, userVertOffset_, 0, vbsize_, 0, ibsizes_[indexNum]);
+    device_->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, userVertOffset_, 0, vbsize_, 0, dxinds->getNumIndices());
   else if (pt == VB_Trifan)
-    device_->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, userVertOffset_, 0, vbsize_, 0, ibsizes_[indexNum]);
+    device_->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, userVertOffset_, 0, vbsize_, 0, dxinds->getNumIndices());
   else if (pt == VB_Lines)
-    device_->DrawIndexedPrimitive(D3DPT_LINELIST, userVertOffset_, 0, vbsize_, 0, ibsizes_[indexNum]);
+    device_->DrawIndexedPrimitive(D3DPT_LINELIST, userVertOffset_, 0, vbsize_, 0, dxinds->getNumIndices());
   else if (pt == VB_Points)
-    device_->DrawIndexedPrimitive(D3DPT_POINTLIST, userVertOffset_, 0, vbsize_, 0, ibsizes_[indexNum]);
+    device_->DrawIndexedPrimitive(D3DPT_POINTLIST, userVertOffset_, 0, vbsize_, 0, dxinds->getNumIndices());
 }
 
 void DXVertexBuffer::setColor(int pos, Color c){
