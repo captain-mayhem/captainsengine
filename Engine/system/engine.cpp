@@ -97,8 +97,10 @@ void Engine::startup(int argc, char** argv){
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
 
-  if (physics_)
-    mSimulator = new CGE::Simulator();
+  if (physics_){
+    float step = Script::instance()->getRealSetting("integration_interval")/1000;
+    mSimulator = new CGE::Simulator(step);
+  }
   
   if (internalEngineMain != NULL)
     internalEngineMain(argc, argv);

@@ -22,7 +22,7 @@ void TerrainChunk::generate(int32 numVertices, float widthScale, float startX, f
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   mVB = rend->createVertexBuffer();
   int numLODs = (int)(log((double)(numVertices-1))/log(2.0))+1;
-  mVB->create(VB_POSITION, numVertices*numVertices);
+  mVB->create(VB_POSITION | VB_NORMAL, numVertices*numVertices);
   mInds = new CGE::IndexBuffer*[numLODs];
   
   //generate vertices 
@@ -32,6 +32,7 @@ void TerrainChunk::generate(int32 numVertices, float widthScale, float startX, f
       Vec3f p(startX+i*widthScale,0,startZ+j*widthScale);
       mBox.addPoint(p);
       mVB->setPosition(j*numVertices+i,p);
+      mVB->setNormal(j*numVertices+i,Vec3f(0,1,0));
     }
   }
   mVB->unlockVertexPointer();

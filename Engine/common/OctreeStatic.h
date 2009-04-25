@@ -112,7 +112,7 @@ typename OctreeStatic<value>::Node* OctreeStatic<value>::findNode(typename Octre
 
   if (treespan.x < boxspan.x || treespan.y < boxspan.y || treespan.z < boxspan.z)
     return prevnode;
-  if (treespan.x < mMinSpan.x && treespan.y < mMinSpan.y && treespan.z < mMinSpan.z)
+  if (treespan.x < mMinSpan.x || treespan.y < mMinSpan.y || treespan.z < mMinSpan.z)
     return startnode;
 
   int access;

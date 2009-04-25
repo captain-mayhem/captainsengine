@@ -77,6 +77,12 @@ void StreetGenerator::calculateIntersections(MapChunk::Node* node){
   float thickness1 = 2.5;
   Vec3f s1 = v1.cross(mMap->getNormal()).normalized()*thickness1;
   Vec3f p1 = node->mPos-s1;
+  if (valence == 1){
+    Vec3f p2 = node->mPos+s1;
+    mIntersections[node].push_back(p2);
+    mIntersections[node].push_back(p1);
+    return;
+  }
   for (int i = 0; i < valence; ++i){
     Vec3f v2 = ((MapChunk::Node*)node->succs_[i])->mPos - node->mPos;
     float thickness2 = 2.5;
@@ -105,6 +111,7 @@ Vec3f StreetGenerator::intersectLine(const Vec3f& p1, const Vec3f& dir1, const V
 }
 
 void StreetGenerator::generateStreetGeometry(MapChunk::Node* node, CGE::OctreeStatic<CGE::SimpleMesh*>& streets){
+  //generate street crossing geometry
   if (node->succs_.size() >= 3){
     BBox crossingbox;
     VertexBuffer* crossing = Engine::instance()->getRenderer()->createVertexBuffer();
@@ -125,35 +132,48 @@ void StreetGenerator::generateStreetGeometry(MapChunk::Node* node, CGE::OctreeSt
     streets.insert(crossingbox, crossingmesh);
   }
 
+  //generate street geometry
+  if (node->succs_.size() != mIntersections[node].size()){
+    int i = 0;
+    ++i;
+  }
   for (unsigned i = 0; i < node->succs_.size(); ++i){
     MapChunk::Node* destination = (MapChunk::Node*)node->succs_[i];
+    if (mGenerated[std::make_pair(node,destination)] == true)
+      continue;
     unsigned j;
     for (j = 0; j < destination->succs_.size(); ++j){
       if (destination->succs_[j] == node)
         break;
     }
     Vec3f sr = mIntersections[node][i];
-    Vec3f sl = mIntersections[node][(i+1)%node->succs_.size()];
-    Vec3f er = mIntersections[destination][j];
-    Vec3f el = mIntersections[destination][(j+1)%destination->succs_.size()];
+    Vec3f sl = mIntersections[node][(i+1)%mIntersections[node].size()];
+    Vec3f er = mIntersections[destination][(j+1)%mIntersections[destination].size()];
+    Vec3f el = mIntersections[destination][j];
     BBox box;
     box.addPoint(sr);
     box.addPoint(sl);
     box.addPoint(er);
     box.addPoint(el);
     VertexBuffer* vb = Engine::instance()->getRenderer()->createVertexBuffer();
-    vb->create(VB_POSITION, 4);
+    vb->create(VB_POSITION | VB_NORMAL, 4);
     vb->lockVertexPointer();
-    vb->setPosition(0, sl);
-    vb->setPosition(1, el);
-    vb->setPosition(2, sr);
-    vb->setPosition(3, er);
+    vb->setPosition(0, el);
+    vb->setNormal(0, Vec3f(0,1,0));
+    vb->setPosition(1, sl);
+    vb->setNormal(1, Vec3f(0,1,0));
+    vb->setPosition(2, er);
+    vb->setNormal(2, Vec3f(0,1,0));
+    vb->setPosition(3, sr);
+    vb->setNormal(3, Vec3f(0,1,0));
     vb->unlockVertexPointer();
     SimpleMesh* mesh = new SimpleMesh(vb, NULL, VB_Tristrip);
     Vec3f mx = box.getMax();
     Vec3f mn = box.getMin();
     box = BBox(mn-Vec3f(1,0.1,1), mx+Vec3f(1,0.1,1));
     streets.insert(box, mesh);
+    mGenerated[std::make_pair(destination,node)] = true;
+    mGenerated[std::make_pair(node,destination)] = true;
   }
   //TODO mechanism to destroy geometry
 }

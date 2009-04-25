@@ -84,9 +84,14 @@ void Vehicle::render(const CGE::Camera& cam){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   CGE::Forms* form = CGE::Engine::instance()->getForms();
 
-  rend->setColor(1.0,1.0,0.0,1.0);
+  CGE::Material mat;
+  mat.setDiffuse(CGE::Color(1.0,1.0,0.0,1.0));
+  mat.setAmbient(CGE::Color(0.7,0.7,0.0,1.0));
+  rend->setMaterial(mat);
   mAutobody->render(cam);
-  rend->setColor(0.0,0.0,1.0,1.0);
+  mat.setDiffuse(CGE::Color(0.0,0.0,1.0,1.0));
+  mat.setAmbient(CGE::Color(0.0,0.0,0.3,1.0));
+  rend->setMaterial(mat);
   for (int i = 0; i < 4; ++i){
     mWheels[i]->render(cam);
   }
@@ -94,8 +99,9 @@ void Vehicle::render(const CGE::Camera& cam){
 
 void Vehicle::accelerate(float torque){
   for (int i = 0; i < 2; ++i){
-    mWheelHinges[i]->setVelocityAxis2(torque);
-    mWheelHinges[i]->setMaxForceAxis2(0.1);
+    //mWheelHinges[i]->setVelocityAxis2(torque);
+    //mWheelHinges[i]->setMaxForceAxis2(0.1);
+    mWheelHinges[i]->addTorques(0, torque);
     mWheelHinges[i]->setFudgeFactor(0.1);
   }
 }

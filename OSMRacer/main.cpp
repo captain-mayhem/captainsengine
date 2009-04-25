@@ -45,7 +45,8 @@ void render(){
   rend->enableTexturing(false);
   rend->resetModelView();
   //rend->translate(0,0,-5);
-  rend->setColor(0.0,1.0,0.0,1.0);
+  //rend->setColor(0.0,1.0,0.0,1.0);
+  rend->enableLighting(true);
   //cam.lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
   //rend->lookAt(Vec3f(ep*20),Vec3f(),Vec3f(0,1,0));
   //rend->lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
@@ -54,12 +55,13 @@ void render(){
   test.render(*rend, cam);
 
   car->render(cam);
-  rend->setColor(0.2,0.2,0.2,1.0);
+  //rend->setColor(0.2,0.2,0.2,1.0);
   map.render(&cam);
+  rend->enableLighting(false);
   
 }
 
-float speed = 0;
+float acceleration = 0;
 float steer = 0;
 
 void keyPress(int key, float timeInterval){
@@ -92,28 +94,50 @@ void keyPress(int key, float timeInterval){
       cam.yaw(-timeInterval);
       break;
     case KEY_UP:
-      speed += 33.3;
+      if (acceleration < 1)
+        acceleration += 0.1;
       break;
     case KEY_DOWN:
-      speed -= 33.3;
+      if (acceleration > -1)
+        acceleration -= 0.1;
       break;
     case KEY_LEFT:
-      steer -= 0.1;
+      if (steer > -0.5)
+        steer -= 0.05;
       break;
     case KEY_RIGHT:
-      steer += 0.1;
+      if (steer < 0.5)
+        steer += 0.05;
       break;
   }
 }
 
+void keyUp(int key){
+  switch(key){
+    case KEY_UP:
+      acceleration = 0;
+      break;
+    case KEY_DOWN:
+      acceleration = 0;
+      break;
+    case KEY_LEFT:
+      steer = 0;
+      break;
+    case KEY_RIGHT:
+      steer = 0;
+      break;
+  }
+}
+
+void keyDown(int key){
+  switch(key){
+    
+  }
+}
+
 void simulate(double time){
-  car->accelerate(speed);
-  speed = 0;
+  car->accelerate(acceleration);
   car->steer(steer);
-  if (steer < 0)
-    steer += 0.01;
-  else
-    steer -= 0.01;
 }
 
 void engineMain(int argc, char** argv){
@@ -130,6 +154,8 @@ void engineMain(int argc, char** argv){
 
   //input callbacks
   Input::Keyboard::instance()->setKeyPressedCB(keyPress);
+  Input::Keyboard::instance()->setKeyUpCB(keyUp);
+  //Input::Keyboard::instance()->setKeyDownCB(keyDown);
 /*Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
   Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);*/
 
@@ -147,7 +173,7 @@ void engineMain(int argc, char** argv){
   //CGE::Thread geogen;
   //geogen.create(GeoGen::generateGeometry,NULL);
 
-  OSMReader rdr("map.osm");
+  OSMReader rdr("map2.osm");
   rdr.read(&map);
   StreetGenerator strgen(&map);
   strgen.buildStreets(map.getStreets());

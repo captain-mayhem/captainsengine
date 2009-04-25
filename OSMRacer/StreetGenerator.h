@@ -21,6 +21,7 @@ protected:
   static CGE::Vec3f intersectLine(const CGE::Vec3f& p1, const CGE::Vec3f& dir1, const CGE::Vec3f& p2, const CGE::Vec3f& dir2);
   MapChunk* mMap;
   std::map<MapChunk::Node*,std::vector<CGE::Vec3f>> mIntersections;
+  std::map<std::pair<MapChunk::Node*,MapChunk::Node*>, bool> mGenerated;
 };
 
 #endif

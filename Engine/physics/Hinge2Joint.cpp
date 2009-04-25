@@ -65,3 +65,7 @@ float Hinge2Joint::getAngleAxis1(){
   dReal ang = dJointGetHinge2Angle1(mJoint);
   return (float)ang;
 }
+
+void Hinge2Joint::addTorques(float torque1, float torque2){
+  dJointAddHinge2Torques(mJoint, torque1, torque2);
+}
