@@ -13,7 +13,7 @@ class Simulator{
   friend class Joint;
   friend class Hinge2Joint;
 public:
-  Simulator();
+  Simulator(float timeStep);
   ~Simulator();
   CollisionSpace* getRootSpace() const {return mSpace;}
   void setSimulationCallback(void (*func)(double)) {mSimulationCB = func;}
@@ -24,5 +24,7 @@ protected:
   dWorldID mWorld;
   CollisionSpace* mSpace;
   void (*mSimulationCB)(double time);
+  float mStepInterval;
+  float mTimeAccumulator;
 };
 }

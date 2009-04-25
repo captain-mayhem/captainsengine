@@ -28,7 +28,7 @@ void Terrain::generateRandomHeights(){
 
 void Terrain::generateTerrainChunks(int chunksize){
   //determine dimensions of octree
-  mChunks.init(Vec3f(), Vec3f(mWidth, 0, mDepth)*mScale, Vec3f(chunksize,chunksize,chunksize)*mScale);
+  mChunks.init(Vec3f(), Vec3f(mWidth, 0, mDepth)*mScale, Vec3f(chunksize,0,chunksize)*mScale);
 
   mNumChunksX = mWidth/chunksize;
   mNumChunksY = mDepth/chunksize;
@@ -51,6 +51,10 @@ void Terrain::generateTerrainChunks(int chunksize){
 static int count;
 void Terrain::render(CGE::Renderer& rend, CGE::Camera& cam){
   count = 0;
+  CGE::Material mat;
+  mat.setDiffuse(CGE::Color(0,1,0,1));
+  mat.setAmbient(CGE::Color(0,0.7,0,1));
+  rend.setMaterial(mat);
   mChunks.traverse(&cam);
   char buf[256];
   sprintf(buf, "Terrain chunks rendered: %i", count);

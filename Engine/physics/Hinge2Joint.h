@@ -23,6 +23,7 @@ public:
   void setSuspensionERP(float factor);
   void setSuspensionCFM(float factor);
   float getAngleAxis1();
+  void addTorques(float torque1, float torque2);
 };
 
 }

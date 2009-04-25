@@ -10,11 +10,13 @@
 
 using namespace CGE;
 
-Simulator::Simulator() : mSimulationCB(NULL){
+Simulator::Simulator(float timeStep) : mSimulationCB(NULL){
   dInitODE2(0);
   dAllocateODEDataForThread(dAllocateMaskAll);
   mWorld = dWorldCreate();
   mSpace = new CollisionSpace(NULL, CollisionSpace::Hash);
+  mStepInterval = timeStep;
+  mTimeAccumulator = 0;
 }
 
 Simulator::~Simulator(){
@@ -26,13 +28,15 @@ Simulator::~Simulator(){
 
 dJointGroupID contactgroup;
 void Simulator::doSimulationStep(double time){
-  if (time == 0)
-    return;
-  if (mSimulationCB)
-    mSimulationCB(time);
-  dSpaceCollide(mSpace->mSpace, this, nearCallback);
-  dWorldStep(mWorld, time);
-  dJointGroupEmpty (contactgroup);
+  mTimeAccumulator += time;
+  while (mTimeAccumulator >= mStepInterval){
+    if (mSimulationCB)
+      mSimulationCB(mStepInterval);
+    dSpaceCollide(mSpace->mSpace, this, nearCallback);
+    dWorldStep(mWorld, mStepInterval);
+    dJointGroupEmpty (contactgroup);
+    mTimeAccumulator -= mStepInterval;
+  }
 }
 
 void Simulator::nearCallback(void* data, dGeomID o1, dGeomID o2){
@@ -73,10 +77,10 @@ void Simulator::nearCallback(void* data, dGeomID o1, dGeomID o2){
     contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
       dContactSoftERP | dContactSoftCFM | dContactApprox1;
     contact[i].surface.mu = dInfinity;
-    contact[i].surface.slip1 = 0.1;
-    contact[i].surface.slip2 = 0.1;
-    contact[i].surface.soft_erp = 0.5;
-    contact[i].surface.soft_cfm = 0.3;
+    contact[i].surface.slip1 = 1.1;
+    contact[i].surface.slip2 = 1.1;
+    contact[i].surface.soft_erp = 5.5;
+    contact[i].surface.soft_cfm = 3.3;
     dJointID c = dJointCreateContact(sim->mWorld,contactgroup,&contact[i]);
     dJointAttach(c,
       dGeomGetBody(contact[i].geom.g1),

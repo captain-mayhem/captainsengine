@@ -296,11 +296,11 @@ void GLESRenderer::multiplyMatrix(const CGE::Matrix& mat){
 
 //! set material
 void GLESRenderer::setMaterial(const Material& mat){
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.ambient.array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat.diffuse.array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat.specular.array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat.emissive.array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.power);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.getAmbient().array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat.getDiffuse().array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat.getSpecular().array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat.getEmissive().array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.getPower());
 }
 
 //! get the viewport

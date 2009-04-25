@@ -33,7 +33,7 @@ void MapChunk::addNode(const CGE::Vec3d& position, int id){
   Node* node = new Node(position,id);
   mNodes[id] = node;
   mGraph.addSingleNode(node);
-  //box_extent(mMinBox,mMaxBox,position);
+  box_extent(mMinBox,mMaxBox,position);
 }
 
 void MapChunk::addStreet(int streetid, int fromNode, int toNode){
@@ -49,7 +49,12 @@ void MapChunk::render(const CGE::Camera* cam){
   mMap = this;
   //mTree.renderDebug();
   drawCount = 0;
-  //mTree.render(cam);
+  //mTree.render(cam);s
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::Material mat;
+  mat.setDiffuse(CGE::Color(0.2,0.2,0.2,1.0));
+  mat.setAmbient(CGE::Color(0.1,0.1,0.1,1.0));
+  rend->setMaterial(mat);
   mStreets.traverse((void*)cam);
   char tmp[32];
   sprintf(tmp,"Map nodes rendered: %i", drawCount);
@@ -73,13 +78,13 @@ void MapChunk::transformIntoPlane(){
   for (iter = mNodes.begin(); iter != mNodes.end(); ++iter){
     box_extent(mMinBox,mMaxBox,(*iter).second->mPos);
   }*/
-  mMinBox = mTransform*mMinExtent;
-  mMaxBox = mTransform*mMaxExtent;
+  mMinBox = mTransform*mMinBox;//mMinExtent;
+  mMaxBox = mTransform*mMaxBox;//mMaxExtent;
 
   //planerotation = planerotation.transpose();
   //mMaxBox = transform*mMaxBox;
   //mMinBox = transform*mMinBox;
-  mStreets.init(Vec3d(),(mMaxBox-mMinBox)/2.0+Vec3d(1,1,1), Vec3f(10,10,10));
+  mStreets.init(Vec3d(),(mMaxBox-mMinBox)/2.0+Vec3d(1,1,1), Vec3f(10,0,10));
   //mTree.init(Vec3d(),(mMaxBox-mMinBox)/2.0+Vec3d(1,1,1));
   for (iter = mNodes.begin(); iter != mNodes.end(); ++iter){
     (*iter).second->mPos = mTransform*(*iter).second->mPos;
