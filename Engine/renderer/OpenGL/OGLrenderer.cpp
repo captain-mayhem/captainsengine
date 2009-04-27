@@ -139,8 +139,6 @@ void OGLRenderer::initRendering(){
   //better perspective calculations
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-  glEnable(GL_LIGHT0);//TODO implement lighting concept and remove this quick hack
-
   Renderer::initRendering();
 }
 
@@ -370,6 +368,24 @@ void OGLRenderer::swapBuffers(){
   Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(win_);
   glXSwapBuffers(win->getDisplay(), win->getWindow());
 #endif
+}
+
+void OGLRenderer::enableLight(short number, bool flag){
+  if (flag)
+    glEnable(GL_LIGHT0+number);
+  else
+    glDisable(GL_LIGHT0+number);
+}
+
+void OGLRenderer::setLight(int number, const Light& lit){
+  Vec3f dir = lit.getDirection();
+  dir.normalize();
+  float tmp[4];
+  tmp[0] = dir.x;
+  tmp[1] = dir.y;
+  tmp[2] = dir.z;
+  tmp[3] = 0;
+  glLightfv(GL_LIGHT0, GL_POSITION, tmp);
 }
 
 

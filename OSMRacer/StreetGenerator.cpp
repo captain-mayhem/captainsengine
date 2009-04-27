@@ -115,15 +115,18 @@ void StreetGenerator::generateStreetGeometry(MapChunk::Node* node, CGE::OctreeSt
   if (node->succs_.size() >= 3){
     BBox crossingbox;
     VertexBuffer* crossing = Engine::instance()->getRenderer()->createVertexBuffer();
-    crossing->create(VB_POSITION, node->succs_.size()+2);
+    crossing->create(VB_POSITION | VB_NORMAL, node->succs_.size()+2);
     crossing->lockVertexPointer();
     crossing->setPosition(0, node->mPos);
+    crossing->setNormal(0, Vec3f(0,1,0));
     crossingbox.addPoint(node->mPos);
     for (unsigned i = 0; i < mIntersections[node].size(); ++i){
       crossing->setPosition(i+1, mIntersections[node][i]);
+      crossing->setNormal(i+1, Vec3f(0,1,0));
       crossingbox.addPoint(mIntersections[node][i]);
     }
     crossing->setPosition(node->succs_.size()+1, mIntersections[node][0]);
+    crossing->setNormal(node->succs_.size()+1, Vec3f(0,1,0));
     crossing->unlockVertexPointer();
     SimpleMesh* crossingmesh = new SimpleMesh(crossing, NULL, VB_Trifan);
     Vec3f mx = crossingbox.getMax();

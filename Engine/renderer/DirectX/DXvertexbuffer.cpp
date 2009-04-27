@@ -72,11 +72,11 @@ void DXVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices){
   //device_->SetRenderState(D3DRS_LIGHTING, false);
   if (indices == NULL){
     if (pt == VB_Tristrip)
-      device_->DrawPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, vbsize_);
+      device_->DrawPrimitive(D3DPT_TRIANGLESTRIP, userVertOffset_, vbsize_-2);
     else if (pt == VB_Triangles)
       device_->DrawPrimitive(D3DPT_TRIANGLELIST, userVertOffset_, vbsize_/3);
     else if (pt == VB_Trifan)
-      device_->DrawPrimitive(D3DPT_TRIANGLEFAN, userVertOffset_, vbsize_);
+      device_->DrawPrimitive(D3DPT_TRIANGLEFAN, userVertOffset_, vbsize_-2);
     else if (pt == VB_Lines)
       device_->DrawPrimitive(D3DPT_LINELIST, userVertOffset_, vbsize_/3);
     else if (pt == VB_Points)
