@@ -322,4 +322,15 @@ void GLESRenderer::swapBuffers(){
   eglSwapBuffers(display_, surface_);
 }
 
+void GLESRenderer::enableLight(short number, bool flag){
+  if (flag)
+    glEnable(GL_LIGHT0+number);
+  else
+    glDisable(GL_LIGHT0+number);
+}
+
+void GLESRenderer::setLight(int number, const Light& lit){
+
+}
+
 

@@ -101,6 +101,9 @@ void DXRenderer::initRendering(){
   CGE::Log << "Initializing Scene\n";
   device_->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
   device_->SetRenderState(D3DRS_LIGHTING, false);
+
+  device_->SetRenderState(D3DRS_SPECULARENABLE, true);
+  device_->SetRenderState(D3DRS_NORMALIZENORMALS, true);
   /*
   //smooth shading
   glShadeModel(GL_SMOOTH);
@@ -352,8 +355,12 @@ void DXRenderer::multiplyMatrix(const CGE::Matrix& mat){
 //! set material
 void DXRenderer::setMaterial(const Material& mat){
   D3DMATERIAL9 m;
-  m.Diffuse.r = mat.diffuse.r; m.Diffuse.g = mat.diffuse.g; m.Diffuse.b = mat.diffuse.b; m.Diffuse.a = mat.diffuse.a;
-  //TODO continue
+  m.Diffuse.r = mat.getDiffuse().r*255; m.Diffuse.g = mat.getDiffuse().g*255; m.Diffuse.b = mat.getDiffuse().b*255; m.Diffuse.a = mat.getDiffuse().a*255;
+  m.Ambient.r = mat.getAmbient().r*255; m.Ambient.g = mat.getAmbient().g*255; m.Ambient.b = mat.getAmbient().b*255; m.Ambient.a = mat.getAmbient().a*255;
+  m.Specular.r = mat.getSpecular().r*255; m.Specular.g = mat.getSpecular().g*255; m.Specular.b = mat.getSpecular().b*255; m.Specular.a = mat.getSpecular().a*255;
+  m.Emissive.r = mat.getEmissive().r*255; m.Emissive.g = mat.getEmissive().g*255; m.Emissive.b = mat.getEmissive().b*255; m.Emissive.a = mat.getEmissive().a*255;
+  m.Power = mat.getPower();
+  device_->SetMaterial(&m);
 }
 
 
@@ -374,6 +381,14 @@ Matrix DXRenderer::getMatrix(MatrixType mt){
     device_->GetTransform(D3DTS_PROJECTION, &proj);
     return Matrix((float*)proj.m).transpose();
   }
+  else if (mt == Modelview){
+    D3DXMATRIX tmp;
+    device_->GetTransform(D3DTS_VIEW, &tmp);
+    Matrix view = Matrix(((float*)tmp.m))/*.transpose()*/;
+    device_->GetTransform(D3DTS_WORLD, &tmp);
+    Matrix wrld = Matrix(((float*)tmp.m))/*.transpose()*/;
+    return wrld*view;
+  }
   return Matrix(Matrix::Identity);
 }
 
@@ -384,3 +399,25 @@ void DXRenderer::swapBuffers(){
     // Present the backbuffer contents to the display
     device_->Present( NULL, NULL, NULL, NULL );
 }
+
+void DXRenderer::enableLight(short number, bool flag){
+  device_->LightEnable(number, flag);
+}
+
+void DXRenderer::setLight(int number, const Light& lit){
+  D3DXCOLOR c(1.0,1.0,1.0,1.0);
+  D3DXVECTOR3 dir(lit.getDirection().data);
+  D3DXVECTOR3 transdir;
+  D3DXMATRIX tmp, tmp2;
+  device_->GetTransform(D3DTS_WORLD, &tmp);
+  //D3DXMatrixTranspose(&tmp2, &tmp);
+  D3DXMatrixInverse(&tmp2, NULL, &tmp);
+  D3DXVec3TransformNormal(&transdir, &dir, &tmp2);
+  D3DLIGHT9 light;
+  ZeroMemory(&light, sizeof(light));
+  light.Type = D3DLIGHT_DIRECTIONAL;
+  light.Diffuse = c;
+  light.Direction = transdir;
+  device_->SetLight(number, &light);
+}
+

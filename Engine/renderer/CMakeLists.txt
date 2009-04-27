@@ -54,6 +54,7 @@ SET(Engine_renderer_SRCS
 	${PRE}/font.cpp
 	${PRE}/forms.cpp
 	${PRE}/indexbuffer.cpp
+	${PRE}/light.cpp
 	${PRE}/material.cpp
 	${PRE}/model.cpp
 	${PRE}/renderer.cpp
@@ -69,6 +70,7 @@ SET(Engine_renderer_HDRS
 	${PRE}/font.h
 	${PRE}/forms.h
 	${PRE}/indexbuffer.h
+	${PRE}/light.h
 	${PRE}/material.h
 	${PRE}/model.h
 	${PRE}/renderer.h

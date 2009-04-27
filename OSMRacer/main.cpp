@@ -35,6 +35,7 @@ void init(){
   cam.project(60,1,0.1f,5000);
   cam.lookAt(Vec3f(0,5,0), Vec3f(), Vec3f(0,0,-1));
   //cam.lookAt(Vec3f(ep*200),Vec3f(),Vec3f(0,1,0));
+  rend->enableLight(0, true);
 }
 
 void render(){
@@ -52,6 +53,8 @@ void render(){
   //rend->lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
   //rend->lookAt(Vec3f(0,0,-2000),Vec3f(555.24565f,2670.81660f,5757.44706f),Vec3f(0,1,0));
   cam.activate();
+  CGE::Light lit(CGE::Light::Directional, Vec3f(-0.5,1,0));
+  rend->setLight(0, lit);
   test.render(*rend, cam);
 
   car->render(cam);

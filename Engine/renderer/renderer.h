@@ -10,6 +10,7 @@ class AppWindow;
 #include "vertexbuffer.h"
 #include "indexbuffer.h"
 #include "texture.h"
+#include "light.h"
 
 #define ZBUFFER 0x00000001
 #define COLORBUFFER 0x00000010
@@ -97,12 +98,16 @@ public:
   virtual void enableTexturing(const bool flag)=0;
   //! enable lighting
   virtual void enableLighting(const bool flag)=0;
+  //! enable light
+  virtual void enableLight(short number, bool flag)=0;
   //! set color
   virtual void setColor(float r, float g, float b, float a)=0;
   //! set color
   virtual void setColor(const Color* c)=0;
   //! set material
   virtual void setMaterial(const Material& mat)=0;
+  //! set light
+  virtual void setLight(int number, const Light& lit)=0;
   //! push matrix
   virtual void pushMatrix()=0;
   //! pop matrix
