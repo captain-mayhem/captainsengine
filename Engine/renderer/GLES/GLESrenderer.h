@@ -83,6 +83,8 @@ public:
   virtual CGE::Matrix getMatrix(MatrixType mt);
   //! swap back and front buffer
   virtual void swapBuffers();
+  //! switch from view to model matrix
+  virtual void switchFromViewToModelTransform();
 protected:
   EGLDisplay display_;
   EGLContext context_;

@@ -378,14 +378,17 @@ void OGLRenderer::enableLight(short number, bool flag){
 }
 
 void OGLRenderer::setLight(int number, const Light& lit){
-  Vec3f dir = lit.getDirection();
-  dir.normalize();
+  Vec3f dir = lit.getDirection()*-1;
   float tmp[4];
   tmp[0] = dir.x;
   tmp[1] = dir.y;
   tmp[2] = dir.z;
   tmp[3] = 0;
   glLightfv(GL_LIGHT0, GL_POSITION, tmp);
+}
+
+void OGLRenderer::switchFromViewToModelTransform(){
+
 }
 
 

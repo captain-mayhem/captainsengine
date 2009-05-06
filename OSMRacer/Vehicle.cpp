@@ -8,6 +8,7 @@
 #include "system/engine.h"
 #include <physics/Simulator.h>
 #include <physics/Hinge2Joint.h>
+#include <renderer/font.h>
 
 using namespace CGE;
 
@@ -17,10 +18,12 @@ Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(),
   float length = 3;
   float height = 1.0;
   float width = 1.7;
-  float chassis_weight = 1;
+  float chassis_weight = 1500;
   float wheel_width = 0.165;
   float wheel_radius = 0.381;
-  float wheel_weight = 0.2;
+  float wheel_weight = 7.0;
+  float damping = 2000.0;
+  float springiness = 50000.0;
 
   mAutobody->initBox(*this, width, height, length, chassis_weight);
   mAutobody->setPosition(Vec3f(0,startheight+height/2,0));
@@ -57,14 +60,23 @@ Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(),
   for (int i = 0; i < 4; ++i){
     mWheelHinges[i]->setAxis1(Vec3f(0,1,0));
     mWheelHinges[i]->setAxis2(Vec3f(1,0,0));
-    mWheelHinges[i]->setSuspensionERP(0.4);
-    mWheelHinges[i]->setSuspensionCFM(0.8);
+    mWheelHinges[i]->setSuspension(sim, damping, springiness);
+    //mWheelHinges[i]->setStopERP(0.001);
+    //mWheelHinges[i]->setMaxForceAxis2(100000);
   }
 
-  mWheelHinges[2]->setLowStop(0);
-  mWheelHinges[2]->setHighStop(0);
-  mWheelHinges[3]->setLowStop(0);
-  mWheelHinges[3]->setHighStop(0);
+  //steering wheels
+  for (int i = 0; i < 2; ++i){
+    mWheelHinges[i]->setMaxForceAxis1(10000);
+    mWheelHinges[i]->setStopCFM(0.99);
+  }
+
+  //back wheels
+  for (int i = 2; i < 4; ++i){
+    mWheelHinges[i]->setLowStop(0);
+    mWheelHinges[i]->setHighStop(0);
+    //mWheelHinges[i]->setStopCFM(0.99);
+  }
   
 }
 
@@ -97,21 +109,32 @@ void Vehicle::render(const CGE::Camera& cam){
   }
 }
 
-void Vehicle::accelerate(float torque){
+void Vehicle::simulate(float acceleration, float steering){
+  for (int i = 0; i < 4; ++i){
+    mWheelHinges[i]->setMaxForceAxis2(0.0);
+  }
+  //acceleration
   for (int i = 0; i < 2; ++i){
     //mWheelHinges[i]->setVelocityAxis2(torque);
-    //mWheelHinges[i]->setMaxForceAxis2(0.1);
-    mWheelHinges[i]->addTorques(0, torque);
-    mWheelHinges[i]->setFudgeFactor(0.1);
+    mWheelHinges[i]->addTorques(0, acceleration);
+    //mWheelHinges[i]->setFudgeFactor(0.1);
   }
-}
-
-void Vehicle::steer(float value){
+  //steering
   for (int i = 0; i < 2; ++i){
-    float vel = value - mWheelHinges[i]->getAngleAxis1();
-    mWheelHinges[i]->setVelocityAxis1(vel);
-    mWheelHinges[i]->setMaxForceAxis1(0.2);
+    float vel = steering - mWheelHinges[i]->getAngleAxis1();
+    vel = min(vel, 0.1);
+    vel = max(vel, -0.1);
+    //mWheelHinges[i]->addTorques(steering, 0);
+    vel *= 10;
+    //mWheelHinges[i]->setMaxForceAxis1(10.0);
     mWheelHinges[i]->setLowStop(-0.75);
     mWheelHinges[i]->setHighStop(0.75);
+    mWheelHinges[i]->setVelocityAxis1(vel);
+    //mWheelHinges[i]->addTorques(vel, 0);
+    char tmp[1024];
+    sprintf(tmp, "Velocity: %f", vel);
+    //CGE::Engine::instance()->getFont(0)->print(10,500,tmp,0.1);
   }
+  //other things
+
 }

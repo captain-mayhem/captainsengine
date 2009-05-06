@@ -95,6 +95,8 @@ public:
   virtual CGE::Matrix getMatrix(MatrixType mt);
   //! swap back and front buffer
   virtual void swapBuffers();
+  //! switch from view to model matrix
+  virtual void switchFromViewToModelTransform();
 protected:
   //! the directX context
   LPDIRECT3D9 d3d_;
@@ -104,6 +106,8 @@ protected:
   ::CGE::Vector3D clearColor_;
   //! the matrix stack
   stack<D3DXMATRIX> modelstack_;
+  //! the transform type
+  D3DTRANSFORMSTATETYPE matrixtype_;
 };
 
 }

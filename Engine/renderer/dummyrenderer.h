@@ -54,6 +54,8 @@ public:
   virtual CGE::Matrix getMatrix(MatrixType mt){return CGE::Matrix(CGE::Matrix::Identity);}
   //! swap back and front buffer
   virtual void swapBuffers(){}
+  //! switch from view to model matrix
+  virtual void switchFromViewToModelTransform(){}
 };
 
 }

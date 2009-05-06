@@ -33,7 +33,7 @@ void Simulator::doSimulationStep(double time){
     if (mSimulationCB)
       mSimulationCB(mStepInterval);
     dSpaceCollide(mSpace->mSpace, this, nearCallback);
-    dWorldStep(mWorld, mStepInterval);
+    dWorldQuickStep(mWorld, mStepInterval);
     dJointGroupEmpty (contactgroup);
     mTimeAccumulator -= mStepInterval;
   }
@@ -77,10 +77,11 @@ void Simulator::nearCallback(void* data, dGeomID o1, dGeomID o2){
     contact[i].surface.mode = dContactSlip1 | dContactSlip2 |
       dContactSoftERP | dContactSoftCFM | dContactApprox1;
     contact[i].surface.mu = dInfinity;
-    contact[i].surface.slip1 = 1.1;
-    contact[i].surface.slip2 = 1.1;
-    contact[i].surface.soft_erp = 5.5;
-    contact[i].surface.soft_cfm = 3.3;
+    contact[i].surface.slip1 = 0.0001;
+    contact[i].surface.slip2 = 0.00003;
+    contact[i].surface.soft_erp = 0.99;
+    contact[i].surface.soft_cfm = 0.001;
+    contact[i].surface.bounce_vel = 0.1;
     dJointID c = dJointCreateContact(sim->mWorld,contactgroup,&contact[i]);
     dJointAttach(c,
       dGeomGetBody(contact[i].geom.g1),

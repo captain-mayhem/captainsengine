@@ -43,9 +43,11 @@ void Hinge2Joint::setMaxForceAxis2(float force){
 
 void Hinge2Joint::setLowStop(float angle){
   dJointSetHinge2Param(mJoint, dParamLoStop, angle);
+  dJointSetHinge2Param(mJoint, dParamLoStop, angle);
 }
 
 void Hinge2Joint::setHighStop(float angle){
+  dJointSetHinge2Param(mJoint, dParamHiStop, angle);
   dJointSetHinge2Param(mJoint, dParamHiStop, angle);
 }
 
@@ -59,6 +61,21 @@ void Hinge2Joint::setSuspensionCFM(float factor){
 
 void Hinge2Joint::setSuspensionERP(float factor){
   dJointSetHinge2Param(mJoint, dParamSuspensionERP, factor);
+}
+
+void Hinge2Joint::setStopCFM(float value){
+  dJointSetHinge2Param(mJoint, dParamStopCFM, value);
+}
+
+void Hinge2Joint::setStopERP(float value){
+  dJointSetHinge2Param(mJoint, dParamStopERP, value);
+}
+
+void Hinge2Joint::setSuspension(const Simulator& sim, float damping, float springiness){
+  float erp = sim.mStepInterval*springiness/(sim.mStepInterval*springiness+damping);
+  float cfm = 1.0f/(sim.mStepInterval*springiness+damping);
+  setSuspensionERP(erp);
+  setSuspensionCFM(cfm);
 }
 
 float Hinge2Joint::getAngleAxis1(){
