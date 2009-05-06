@@ -104,6 +104,8 @@ void DXRenderer::initRendering(){
 
   device_->SetRenderState(D3DRS_SPECULARENABLE, true);
   device_->SetRenderState(D3DRS_NORMALIZENORMALS, true);
+  //device_->SetRenderState(D3DRS_SHADEMODE, D3DSHADE_PHONG);
+  device_->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_RGBA(51,51,51,255));
   /*
   //smooth shading
   glShadeModel(GL_SMOOTH);
@@ -148,6 +150,7 @@ void DXRenderer::renderScene(){
   // Clear the backbuffer and the zbuffer
   //device_->Clear( 0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,
   //  D3DCOLOR_XRGB(128,128,128), 1.0f, 0 );
+  matrixtype_ = D3DTS_VIEW;
 
   // Begin the scene
   device_->BeginScene();
@@ -225,7 +228,7 @@ void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Ve
   const D3DXVECTOR3 u(&up.x);
   D3DXMATRIX V;
   D3DXMatrixLookAtRH(&V, &pos, &at, &u);
-  device_->SetTransform(D3DTS_VIEW, &V);
+  device_->SetTransform(matrixtype_, &V);
 }
 
 //! set projection
@@ -253,14 +256,14 @@ void DXRenderer::resetModelView(){
 void DXRenderer::translate(float x, float y, float z){
   D3DXMATRIX trans;
   D3DXMatrixTranslation(&trans, x, y, z);
-  device_->MultiplyTransform(D3DTS_WORLD, &trans);
+  device_->MultiplyTransform(matrixtype_, &trans);
 }
 
 //! scale
 void DXRenderer::scale(float x, float y, float z){
   D3DXMATRIX scal;
   D3DXMatrixScaling(&scal, x, y, z);
-  device_->MultiplyTransform(D3DTS_WORLD, &scal);
+  device_->MultiplyTransform(matrixtype_, &scal);
 }
 
 //! set rendermode
@@ -332,16 +335,16 @@ void DXRenderer::pushMatrix(){
   D3DXMATRIX mat;
   device_->GetTransform(D3DTS_WORLD, &mat);
   modelstack_.push(mat);
-  device_->GetTransform(D3DTS_VIEW, &mat);
-  modelstack_.push(mat);
+  //device_->GetTransform(D3DTS_VIEW, &mat);
+  //modelstack_.push(mat);
 }
 
 //! pop matrix
 void DXRenderer::popMatrix(){
   D3DXMATRIX mat = modelstack_.top();
-  device_->SetTransform(D3DTS_VIEW, &mat);
-  modelstack_.pop();
-  mat = modelstack_.top();
+  //device_->SetTransform(D3DTS_VIEW, &mat);
+  //modelstack_.pop();
+  //mat = modelstack_.top();
   device_->SetTransform(D3DTS_WORLD, &mat);
   modelstack_.pop();
 }
@@ -349,16 +352,16 @@ void DXRenderer::popMatrix(){
 //! multiply matrix
 void DXRenderer::multiplyMatrix(const CGE::Matrix& mat){
   D3DXMATRIX matrix(mat.getData());
-  device_->MultiplyTransform(D3DTS_WORLD, &matrix);
+  device_->MultiplyTransform(matrixtype_, &matrix);
 }
 
 //! set material
 void DXRenderer::setMaterial(const Material& mat){
   D3DMATERIAL9 m;
-  m.Diffuse.r = mat.getDiffuse().r*255; m.Diffuse.g = mat.getDiffuse().g*255; m.Diffuse.b = mat.getDiffuse().b*255; m.Diffuse.a = mat.getDiffuse().a*255;
-  m.Ambient.r = mat.getAmbient().r*255; m.Ambient.g = mat.getAmbient().g*255; m.Ambient.b = mat.getAmbient().b*255; m.Ambient.a = mat.getAmbient().a*255;
-  m.Specular.r = mat.getSpecular().r*255; m.Specular.g = mat.getSpecular().g*255; m.Specular.b = mat.getSpecular().b*255; m.Specular.a = mat.getSpecular().a*255;
-  m.Emissive.r = mat.getEmissive().r*255; m.Emissive.g = mat.getEmissive().g*255; m.Emissive.b = mat.getEmissive().b*255; m.Emissive.a = mat.getEmissive().a*255;
+  m.Diffuse = D3DXCOLOR(mat.getDiffuse().array);
+  m.Ambient = D3DXCOLOR(mat.getAmbient().array);
+  m.Specular = D3DXCOLOR(mat.getSpecular().array);
+  m.Emissive = D3DXCOLOR(mat.getEmissive().array);
   m.Power = mat.getPower();
   device_->SetMaterial(&m);
 }
@@ -407,17 +410,25 @@ void DXRenderer::enableLight(short number, bool flag){
 void DXRenderer::setLight(int number, const Light& lit){
   D3DXCOLOR c(1.0,1.0,1.0,1.0);
   D3DXVECTOR3 dir(lit.getDirection().data);
-  D3DXVECTOR3 transdir;
-  D3DXMATRIX tmp, tmp2;
-  device_->GetTransform(D3DTS_WORLD, &tmp);
+  //D3DXVECTOR3 transdir;
+  //D3DXMATRIX tmp, tmp2;
+  //device_->GetTransform(D3DTS_VIEW, &tmp);
   //D3DXMatrixTranspose(&tmp2, &tmp);
-  D3DXMatrixInverse(&tmp2, NULL, &tmp);
-  D3DXVec3TransformNormal(&transdir, &dir, &tmp2);
+  //D3DXMatrixInverse(&tmp2, NULL, &tmp);
+  //D3DXVec3TransformNormal(&transdir, &dir, &tmp2);
   D3DLIGHT9 light;
   ZeroMemory(&light, sizeof(light));
   light.Type = D3DLIGHT_DIRECTIONAL;
-  light.Diffuse = c;
-  light.Direction = transdir;
+  light.Ambient = D3DXCOLOR(0.0,0.0,0.0,1.0);
+  //light.Diffuse = D3DXCOLOR(0.1,0.0,0.0,1.0);
+  light.Diffuse = D3DXCOLOR(1.0,1.0,1.0,1.0);
+  light.Specular = D3DXCOLOR(1.0,1.0,1.0,1.0);
+  //light.Specular = c;
+  light.Direction = dir;
   device_->SetLight(number, &light);
+}
+
+void DXRenderer::switchFromViewToModelTransform(){
+  matrixtype_ = D3DTS_WORLD;
 }
 

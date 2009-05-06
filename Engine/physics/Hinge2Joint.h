@@ -22,6 +22,9 @@ public:
   void setFudgeFactor(float factor);
   void setSuspensionERP(float factor);
   void setSuspensionCFM(float factor);
+  void setStopERP(float value);
+  void setStopCFM(float value);
+  void setSuspension(const Simulator& sim, float damping, float springiness);
   float getAngleAxis1();
   void addTorques(float torque1, float torque2);
 };

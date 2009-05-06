@@ -53,7 +53,8 @@ void render(){
   //rend->lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
   //rend->lookAt(Vec3f(0,0,-2000),Vec3f(555.24565f,2670.81660f,5757.44706f),Vec3f(0,1,0));
   cam.activate();
-  CGE::Light lit(CGE::Light::Directional, Vec3f(-0.5,1,0));
+  rend->switchFromViewToModelTransform();
+  CGE::Light lit(CGE::Light::Directional, Vec3f(0.5,-1,0));
   rend->setLight(0, lit);
   test.render(*rend, cam);
 
@@ -97,20 +98,20 @@ void keyPress(int key, float timeInterval){
       cam.yaw(-timeInterval);
       break;
     case KEY_UP:
-      if (acceleration < 1)
-        acceleration += 0.1;
+      if (acceleration < 1000)
+        acceleration += 100.0;
       break;
     case KEY_DOWN:
-      if (acceleration > -1)
-        acceleration -= 0.1;
+      if (acceleration > -1000)
+        acceleration -= 100.0;
       break;
     case KEY_LEFT:
       if (steer > -0.5)
-        steer -= 0.05;
+        steer -= 0.01;
       break;
     case KEY_RIGHT:
       if (steer < 0.5)
-        steer += 0.05;
+        steer += 0.01;
       break;
   }
 }
@@ -139,8 +140,7 @@ void keyDown(int key){
 }
 
 void simulate(double time){
-  car->accelerate(acceleration);
-  car->steer(steer);
+  car->simulate(acceleration, steer);
 }
 
 void engineMain(int argc, char** argv){
@@ -153,7 +153,7 @@ void engineMain(int argc, char** argv){
   //physics callbacks
   CGE::Simulator* sim = CGE::Engine::instance()->getSimulator();
   sim->setSimulationCallback(simulate);
-  sim->setGravitation(Vec3f(0,-2.5,0));
+  sim->setGravitation(Vec3f(0,-9.81,0));
 
   //input callbacks
   Input::Keyboard::instance()->setKeyPressedCB(keyPress);
