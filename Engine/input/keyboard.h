@@ -25,6 +25,8 @@
 #define KEY_S 'S'
 #define KEY_T 'T'
 #define KEY_W 'W'
+#define KEY_1 '1'
+#define KEY_2 '2'
 #endif
 #ifdef UNIX
 #include <X11/keysym.h>
@@ -47,6 +49,8 @@
 #define KEY_S XK_s
 #define KEY_T XK_t
 #define KEY_W XK_w
+#define KEY_1 XK_1
+#define KEY_2 XK_2
 #endif
 
 #include "../system/engine.h"

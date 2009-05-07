@@ -5,6 +5,7 @@ LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
 
 SET(OSMRacer_SRCS
 	main.cpp
+	FollowCam.cpp
 	GeoCache.cpp
 	GeoGen.cpp
 	OSMReader.cpp
@@ -17,6 +18,8 @@ SET(OSMRacer_SRCS
 	)
 
 SET(OSMRacer_HDRS
+	FollowCam.h
+	Gameobject.h
 	GeoCache.h
 	GeoGen.h
 	OSMReader.h

@@ -12,6 +12,7 @@
 #include "GeoCache.h"
 #include "Vehicle.h"
 #include "StreetGenerator.h"
+#include "FollowCam.h"
 
 //MapChunk map;
 #include "Terrain.h"
@@ -19,7 +20,10 @@
 
 using namespace CGE;
 
+CGE::Camera* activeCam;
 CGE::Camera cam;
+FollowCam followCam;
+
 Terrain test(256,256,4.0f,4.0f,NULL,1.0f);
 Vehicle* car;
 CollisionPlane* ground;
@@ -34,6 +38,8 @@ void init(){
   //ep.normalize();
   cam.project(60,1,0.1f,5000);
   cam.lookAt(Vec3f(0,5,0), Vec3f(), Vec3f(0,0,-1));
+  followCam.project(60,1,0.1f,5000);
+  followCam.lookAt(Vec3f(0,5,0), Vec3f(), Vec3f(0,0,-1));
   //cam.lookAt(Vec3f(ep*200),Vec3f(),Vec3f(0,1,0));
   rend->enableLight(0, true);
 }
@@ -52,15 +58,15 @@ void render(){
   //rend->lookAt(Vec3f(ep*20),Vec3f(),Vec3f(0,1,0));
   //rend->lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
   //rend->lookAt(Vec3f(0,0,-2000),Vec3f(555.24565f,2670.81660f,5757.44706f),Vec3f(0,1,0));
-  cam.activate();
+  activeCam->activate();
   rend->switchFromViewToModelTransform();
   CGE::Light lit(CGE::Light::Directional, Vec3f(0.5,-1,0));
   rend->setLight(0, lit);
-  test.render(*rend, cam);
+  test.render(*rend, *activeCam);
 
-  car->render(cam);
+  car->render(*activeCam);
   //rend->setColor(0.2,0.2,0.2,1.0);
-  map.render(&cam);
+  map.render(activeCam);
   rend->enableLighting(false);
   
 }
@@ -135,7 +141,15 @@ void keyUp(int key){
 
 void keyDown(int key){
   switch(key){
-    
+    case KEY_ESCAPE:
+      EXIT();
+      break;
+    case KEY_1:
+      activeCam = &followCam;
+      break;
+    case KEY_2:
+      activeCam = &cam;
+      break;
   }
 }
 
@@ -158,7 +172,7 @@ void engineMain(int argc, char** argv){
   //input callbacks
   Input::Keyboard::instance()->setKeyPressedCB(keyPress);
   Input::Keyboard::instance()->setKeyUpCB(keyUp);
-  //Input::Keyboard::instance()->setKeyDownCB(keyDown);
+  Input::Keyboard::instance()->setKeyDownCB(keyDown);
 /*Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
   Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);*/
 
@@ -181,5 +195,8 @@ void engineMain(int argc, char** argv){
   StreetGenerator strgen(&map);
   strgen.buildStreets(map.getStreets());
   CGE::Log.flush();
+
+  activeCam = &cam;
+  followCam.setTarget(car);
 }
 
