@@ -22,7 +22,7 @@ namespace CGE{
 class Camera{
 public:
   Camera();
-  ~Camera();
+  virtual ~Camera();
   void project(float angle, float ratio, float nearDist, float farDist);
   void lookAt(CGE::Vec3f eye, CGE::Vec3f look, CGE::Vec3f up);
   void walk(float units);
@@ -31,7 +31,7 @@ public:
   void pitch(float angle);
   void yaw(float angle);
   void roll(float angle);
-  void activate();
+  virtual void activate();
   const CGE::Frustum& getFrustum() const {return mFrustum;}
   const CGE::Vec3f& getPosition() const {return mPosition;}
 protected:

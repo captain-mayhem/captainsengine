@@ -88,6 +88,15 @@ Vehicle::~Vehicle(){
   }
 }
 
+CGE::Vec3f Vehicle::getPosition(){
+  return mAutobody->getPosition();
+}
+
+CGE::Vec3f Vehicle::getDirection(){
+  CGE::Matrix mat = mAutobody->getOrientation();
+  return Vec3f(-mat.at(8), -mat.at(9), -mat.at(10));
+}
+
 void Vehicle::setPosition(const CGE::Vec3f& pos){
   mAutobody->setPosition(pos);
 }
