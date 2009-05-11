@@ -13,6 +13,7 @@ class Simulator;
 class Body{
   friend class CollisionBody;
   friend class Joint;
+  friend class Hinge2Joint;
 public:
   Body(const Simulator& simulator);
   virtual ~Body();
@@ -23,6 +24,9 @@ public:
   virtual void setOrientation(const Matrix& orientation);
   virtual Vec3f getPosition();
   virtual Matrix getOrientation();
+  void setAngularVelocity(const Vec3f& vel);
+  Vec3f getLinearVelocity();
+  Vec3f getAngularVelocity();
 protected:
   dBodyID mBody;
   //float mMass;

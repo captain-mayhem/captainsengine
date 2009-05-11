@@ -17,6 +17,7 @@ class CollisionHeightfield : public CollisionObject{
 public:
   CollisionHeightfield();
   virtual ~CollisionHeightfield();
+  virtual Type getType() {return Heightfield;}
   virtual void render(const CGE::Camera& cam);
   void init(int16 width, int16 depth, float widthscale, float depthscale, uint8* heightdata, float heightscale);
 };

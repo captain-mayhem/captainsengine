@@ -11,6 +11,7 @@ public:
   Hinge2Joint(const Simulator& sim);
   ~Hinge2Joint();
   void setAnchor(const Vec3f& point);
+  void setAnchor(const Body& body);
   void setAxis1(const Vec3f& axis);
   void setAxis2(const Vec3f& axis);
   void setVelocityAxis1(float velocity);

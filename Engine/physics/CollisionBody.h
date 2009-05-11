@@ -17,6 +17,7 @@ class CollisionBody : public CollisionObject, public Body{
 public:
   CollisionBody(const Simulator& sim);
   virtual ~CollisionBody();
+  virtual Type getType();
   virtual void setPosition(const Vec3f& pos) {Body::setPosition(pos);}
   virtual void setOrientation(const Matrix& orientation) {Body::setOrientation(orientation);}
   virtual Vec3f getPosition() {return Body::getPosition();}

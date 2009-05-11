@@ -4,6 +4,7 @@
 #include <ode/ode.h>
 #include "../math/vector.h"
 #include "../math/matrix.h"
+#include "CollisionBase.h"
 
 namespace CGE{
   class Camera;
@@ -11,8 +12,9 @@ namespace CGE{
 
 namespace CGE{
 
-class CollisionObject{
+class CollisionObject : public CollisionBase{
   friend class CollisionSpace;
+  friend class Simulator;
 public:
   CollisionObject();
   virtual ~CollisionObject();

@@ -22,8 +22,8 @@ Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(),
   float wheel_width = 0.165;
   float wheel_radius = 0.381;
   float wheel_weight = 7.0;
-  float damping = 2000.0;
-  float springiness = 50000.0;
+  float damping = 10000.0;
+  float springiness = 125000.0;
 
   mAutobody->initBox(*this, width, height, length, chassis_weight);
   mAutobody->setPosition(Vec3f(0,startheight+height/2,0));
@@ -51,11 +51,12 @@ Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(),
   for (int i = 0; i < 4; ++i){
     mWheelHinges[i] = new CGE::Hinge2Joint(sim);
     mWheelHinges[i]->attach(mAutobody, mWheels[i]);
+    mWheelHinges[i]->setAnchor(*mWheels[i]);
   }
-  mWheelHinges[0]->setAnchor(frontLeft);
-  mWheelHinges[1]->setAnchor(frontRight);
-  mWheelHinges[2]->setAnchor(backLeft);
-  mWheelHinges[3]->setAnchor(backRight);
+  //mWheelHinges[0]->setAnchor(frontLeft);
+  //mWheelHinges[1]->setAnchor(frontRight);
+  //mWheelHinges[2]->setAnchor(backLeft);
+  //mWheelHinges[3]->setAnchor(backRight);
 
   for (int i = 0; i < 4; ++i){
     mWheelHinges[i]->setAxis1(Vec3f(0,1,0));
@@ -63,19 +64,23 @@ Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(),
     mWheelHinges[i]->setSuspension(sim, damping, springiness);
     //mWheelHinges[i]->setStopERP(0.001);
     //mWheelHinges[i]->setMaxForceAxis2(100000);
+    //mWheelHinges[i]->setMaxForceAxis1(0);
   }
 
   //steering wheels
   for (int i = 0; i < 2; ++i){
-    mWheelHinges[i]->setMaxForceAxis1(10000);
-    mWheelHinges[i]->setStopCFM(0.99);
+    mWheelHinges[i]->setLowStop(-0.75);
+    mWheelHinges[i]->setHighStop(0.75);
+    mWheelHinges[i]->setMaxForceAxis1(1000);
+    //mWheelHinges[i]->setStopERP(0.99);
+    //mWheelHinges[i]->setStopCFM(0.01);
   }
 
   //back wheels
   for (int i = 2; i < 4; ++i){
     mWheelHinges[i]->setLowStop(0);
     mWheelHinges[i]->setHighStop(0);
-    //mWheelHinges[i]->setStopCFM(0.99);
+    mWheelHinges[i]->setStopERP(0.99);
   }
   
 }
@@ -94,7 +99,7 @@ CGE::Vec3f Vehicle::getPosition(){
 
 CGE::Vec3f Vehicle::getDirection(){
   CGE::Matrix mat = mAutobody->getOrientation();
-  return Vec3f(-mat.at(8), -mat.at(9), -mat.at(10));
+  return Vec3f(mat.at(8), mat.at(9), mat.at(10));
 }
 
 void Vehicle::setPosition(const CGE::Vec3f& pos){
@@ -119,31 +124,61 @@ void Vehicle::render(const CGE::Camera& cam){
 }
 
 void Vehicle::simulate(float acceleration, float steering){
+  char tmp[1024];
+  //steering
+  float velocity = mAutobody->getLinearVelocity().length()*3.6f;
+  float factor = steering/(0.02f*velocity+1.0f);
+  sprintf(tmp, "Velocity: %f", velocity);
+  CGE::Engine::instance()->getFont(0)->print(10,480,tmp,0.1);
+  for (int i = 0; i < 2; ++i){
+    mWheelHinges[i]->setLowStop(0.75*factor);
+    mWheelHinges[i]->setHighStop(0.75*factor);
+
+    //float v = 12*steering - mWheelHinges[i]->getAngleAxis1();	
+    //if (v > 0.1f) v = 0.1f;
+    //if (v < -0.1f) v = -0.1f;
+    //v *= 10.0f;
+    //mWheelHinges[i]->setVelocityAxis1(v);
+
+    //mWheelHinges[i]->addTorques(vel, 0);
+    sprintf(tmp, "Steering: %f", factor);
+    CGE::Engine::instance()->getFont(0)->print(10,500+20*i,tmp,0.1);
+  }
   for (int i = 0; i < 4; ++i){
     mWheelHinges[i]->setMaxForceAxis2(0.0);
   }
   //acceleration
   for (int i = 0; i < 2; ++i){
-    //mWheelHinges[i]->setVelocityAxis2(torque);
-    mWheelHinges[i]->addTorques(0, acceleration);
+    mWheelHinges[i]->setVelocityAxis2(acceleration);
+    mWheelHinges[i]->setMaxForceAxis2(10000.0);
+    //mWheelHinges[i]->addTorques(0, acceleration);
     //mWheelHinges[i]->setFudgeFactor(0.1);
+    //mWheelHinges[i]->setVelocityAxis2()
   }
-  //steering
-  for (int i = 0; i < 2; ++i){
-    float vel = steering - mWheelHinges[i]->getAngleAxis1();
-    vel = min(vel, 0.1);
-    vel = max(vel, -0.1);
-    //mWheelHinges[i]->addTorques(steering, 0);
-    vel *= 10;
-    //mWheelHinges[i]->setMaxForceAxis1(10.0);
-    mWheelHinges[i]->setLowStop(-0.75);
-    mWheelHinges[i]->setHighStop(0.75);
-    mWheelHinges[i]->setVelocityAxis1(vel);
-    //mWheelHinges[i]->addTorques(vel, 0);
-    char tmp[1024];
-    sprintf(tmp, "Velocity: %f", vel);
-    //CGE::Engine::instance()->getFont(0)->print(10,500,tmp,0.1);
+  //bound rolling
+  Vec3f angvel = mAutobody->getAngularVelocity();
+  if (angvel.length() > 5.0f){
+    angvel.normalize();
+    angvel *= 5.0f;
+    mAutobody->setAngularVelocity(angvel);
   }
-  //other things
+
+  Matrix orientation = mAutobody->getOrientation();
+  //get rid of translation if there is any
+  orientation.at(12) = 0; orientation.at(13) = 0; orientation.at(14) = 0;
+  Matrix invorient = orientation;
+  invorient = invorient.transpose(); //now, inversion can be done via transpose
+  invorient.at(3) = 0; invorient.at(7) = 0; invorient.at(11) = 0;
+  Vec3f invvel = invorient*angvel;
+  Vec3f front = Vec3f(orientation.at(8), orientation.at(9), orientation.at(10));
+  Vec3f side = Vec3f(orientation.at(0), orientation.at(1), orientation.at(2));
+  Vec3f up = Vec3f(orientation.at(4), orientation.at(5), orientation.at(6));
+  if (side.y * invvel.z > 0.0f) {
+    const float lborder = 0.85f;
+		float scale = max(-10.0f, (lborder - up.y) / (lborder - 1.0f));
+		invvel.z *= (1.0f - scale) * fabs(front.y) + scale;
+	}
+  angvel = orientation*invvel;
+  mAutobody->setAngularVelocity(angvel);
 
 }
