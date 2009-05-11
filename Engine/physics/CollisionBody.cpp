@@ -23,6 +23,17 @@ CollisionBody::~CollisionBody(){
   }
 }
 
+CollisionBase::Type CollisionBody::getType(){
+  int type = dGeomGetClass(mGeom);
+  if (type == dCylinderClass)
+    return Cylinder;
+  if (type == dBoxClass)
+    return Box;
+  if (type == dSphereClass)
+    return Sphere;
+  return Undefined;
+}
+
 void CollisionBody::initCylinder(const CollisionSpace& space, float height, float radius, float mass){
   Body::initCylinder(height,radius,mass);
   mGeom = dCreateCylinder(space.mSpace, radius, height);

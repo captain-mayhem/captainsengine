@@ -215,6 +215,11 @@ public:
   Vec3 operator*(const T num) const{
     return Vec3(x * num, y * num, z * num);
   }
+  //! product with vector and scalar
+  Vec3& operator*=(const T num){
+    x *= num; y *= num; z *= num;
+    return *this;
+  }
   //! component-wise product with vector and vector
   Vec3 operator*(const Vec3& v) const{
     return Vec3(x*v.x, y*v.y, z*v.z);

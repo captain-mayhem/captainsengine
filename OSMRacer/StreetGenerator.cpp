@@ -50,13 +50,13 @@ void StreetGenerator::reorderGrah(MapChunk::Node* node){
     return;
   std::pair<float,MapChunk::Node*>* nodes = new std::pair<float,MapChunk::Node*>[node->succs_.size()];
   MapChunk::Node* first = (MapChunk::Node*)node->succs_[0];
-  Vec3f v1 = first->mPos - node->mPos;
+  Vec3f v1 = Vec3f(first->mPos - node->mPos);
   v1.normalize();
   nodes[0] = std::pair<float,MapChunk::Node*>(0,first);
   //generate angles
   for (unsigned i = 1; i < node->succs_.size(); ++i){
     MapChunk::Node* second = (MapChunk::Node*)node->succs_[i];
-    Vec3f v2 = second->mPos - node->mPos;
+    Vec3f v2 = Vec3f(second->mPos - node->mPos);
     v2.normalize();
     float angle = getAngle(v1,v2,mMap->getNormal());
     nodes[i] = std::pair<float,MapChunk::Node*>(angle,second);

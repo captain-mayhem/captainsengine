@@ -104,20 +104,20 @@ void keyPress(int key, float timeInterval){
       cam.yaw(-timeInterval);
       break;
     case KEY_UP:
-      if (acceleration < 1000)
-        acceleration += 100.0;
+      if (acceleration < 100)
+        acceleration += 0.1;
       break;
     case KEY_DOWN:
-      if (acceleration > -1000)
-        acceleration -= 100.0;
+      if (acceleration > -100)
+        acceleration -= 0.1;
       break;
     case KEY_LEFT:
-      if (steer > -0.5)
-        steer -= 0.01;
+      if (steer > -1.0)
+        steer -= 0.04;
       break;
     case KEY_RIGHT:
-      if (steer < 0.5)
-        steer += 0.01;
+      if (steer < 1.0)
+        steer += 0.04;
       break;
   }
 }
@@ -125,10 +125,10 @@ void keyPress(int key, float timeInterval){
 void keyUp(int key){
   switch(key){
     case KEY_UP:
-      acceleration = 0;
+      //acceleration = 0;
       break;
     case KEY_DOWN:
-      acceleration = 0;
+      //acceleration = 0;
       break;
     case KEY_LEFT:
       steer = 0;
@@ -157,6 +157,21 @@ void simulate(double time){
   car->simulate(acceleration, steer);
 }
 
+bool collide(CollisionObject* a, CollisionObject* b, CollisionResponse& collision){
+  bool handleCollision = false;
+  if (a->getType() == CollisionBase::Heightfield && b->getType() == CollisionBase::Cylinder)
+    handleCollision = true;
+  if (a->getType() == CollisionBase::Cylinder && b->getType() == CollisionBase::Heightfield)
+    handleCollision = true;
+  collision.setMu(HUGE_VAL);
+  collision.setSlip1(0.0001);
+  collision.setSlip2(0.00003);
+  collision.setSoftERP(0.99);
+  collision.setSoftCFM(0.001);
+  collision.setBounce(0.1);
+  return handleCollision;
+}
+
 void engineMain(int argc, char** argv){
 
   //render callbacks
@@ -167,6 +182,7 @@ void engineMain(int argc, char** argv){
   //physics callbacks
   CGE::Simulator* sim = CGE::Engine::instance()->getSimulator();
   sim->setSimulationCallback(simulate);
+  sim->setCollisionCallback(collide);
   sim->setGravitation(Vec3f(0,-9.81,0));
 
   //input callbacks

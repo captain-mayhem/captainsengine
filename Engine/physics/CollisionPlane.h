@@ -9,6 +9,7 @@ class CollisionPlane : public CollisionObject{
 public:
   CollisionPlane(const Vec3f& normal, float distance);
   virtual ~CollisionPlane();
+  virtual Type getType() {return Plane;}
   virtual void render(const CGE::Camera& cam);
 };
 

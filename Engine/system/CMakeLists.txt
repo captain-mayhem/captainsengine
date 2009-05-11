@@ -5,6 +5,7 @@ SET (SYS_FILE cefunctions.cpp)
 ENDIF(${OS} STREQUAL "wince")
 
 SET(Engine_system_SRCS
+	${PRE}/AtomicCounter.cpp
 	${PRE}/bitset.cpp
 	${PRE}/engine.cpp
 	${PRE}/event.cpp
@@ -17,6 +18,7 @@ SET(Engine_system_SRCS
 )
 
 SET(Engine_system_HDRS
+	${PRE}/AtomicCounter.h
 	${PRE}/bitset.h 
 	${PRE}/engine.h
 	${PRE}/event.h

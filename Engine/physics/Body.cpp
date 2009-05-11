@@ -102,3 +102,17 @@ Matrix Body::getOrientation(){
   Matrix rot(Matrix::Rotation, Vec3f(1,0,0), -M_PI/2);
   return mat*rot;
 }
+
+Vec3f Body::getLinearVelocity(){
+  const dReal* tmp = dBodyGetLinearVel(mBody);
+  return Vec3f((float)tmp[0],(float)tmp[1],(float)tmp[2]);
+}
+
+Vec3f Body::getAngularVelocity(){
+  const dReal* tmp = dBodyGetAngularVel(mBody);
+  return Vec3f((float)tmp[0],(float)tmp[1],(float)tmp[2]);
+}
+
+void Body::setAngularVelocity(const Vec3f& vel){
+  dBodySetAngularVel(mBody, vel.x, vel.y, vel.z);
+}

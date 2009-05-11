@@ -5,6 +5,8 @@
 
 using namespace CGE;
 
+std::map<dSpaceID,CollisionSpace*> CollisionSpace::mSpaceMap;
+
 CollisionSpace::CollisionSpace(CollisionSpace* parent, Type t, const Vec3f& center, const Vec3f& extents, const int depth){
   dSpaceID prnt = 0;
   if (parent)
@@ -26,9 +28,11 @@ CollisionSpace::CollisionSpace(CollisionSpace* parent, Type t, const Vec3f& cent
       break;
   }
   dSpaceSetCleanup(mSpace, 0);
+  mSpaceMap[mSpace] = this;
 }
 
 CollisionSpace::~CollisionSpace(){
+  mSpaceMap.erase(mSpace);
   dSpaceDestroy(mSpace);
 }
 

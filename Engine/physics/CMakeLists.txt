@@ -14,6 +14,7 @@ SET(Engine_physics_SRCS
 
 SET(Engine_physics_HDRS
 	${PRE}/Body.h
+	${PRE}/CollisionBase.h
 	${PRE}/CollisionBody.h
 	${PRE}/CollisionHeightfield.h
 	${PRE}/CollisionObject.h

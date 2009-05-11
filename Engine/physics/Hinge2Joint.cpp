@@ -2,6 +2,7 @@
 #include "Hinge2Joint.h"
 
 #include "Simulator.h"
+#include "Body.h"
 
 using namespace CGE;
 
@@ -15,6 +16,11 @@ Hinge2Joint::~Hinge2Joint(){
 
 void Hinge2Joint::setAnchor(const Vec3f& anchor){
   dJointSetHinge2Anchor(mJoint, anchor.x, anchor.y, anchor.z);
+}
+
+void Hinge2Joint::setAnchor(const Body& body){
+  const dReal* pos = dBodyGetPosition(body.mBody);
+  dJointSetHinge2Anchor(mJoint, pos[0], pos[1], pos[2]);
 }
 
 void Hinge2Joint::setAxis1(const CGE::Vec3f &axis){
