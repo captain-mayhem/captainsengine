@@ -11,6 +11,7 @@
 #include <renderer/font.h>
 
 using namespace CGE;
+using std::max;
 
 Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(), CollisionSpace::Simple){
   mAutobody = new CGE::CollisionBody(sim);

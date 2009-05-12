@@ -16,10 +16,11 @@
 #include "math/vector.h"
 #include "system/engine.h"
 #include "renderer/renderer.h"
+#include "renderer/indexbuffer.h"
 #include "renderer/camera.h"
 #include "renderer/font.h"
 
-namespace Common{
+namespace CGE{
 
 template<typename index, typename value>
 class Octree{
@@ -128,7 +129,7 @@ typename Octree<index,value>::Node** Octree<index,value>::recurseCreate(const CG
     *node = new Node(idx-mCenter,mDefault,split-span,split+span);
     return node;
   }
-  if (!(span != Vec3<index>()))
+  if (!(span != CGE::Vec3<index>()))
     return node;
   if (!(idx != ((*node)->mIndex)) && (*node)->mIsLeaf)
     return node;
@@ -199,7 +200,7 @@ void Octree<index,value>::renderDebug(){
   CGE::IndexBuffer* indbuf = rend->createIndexBuffer(IndexBuffer::IB_USHORT, 24);
   vb->create(VB_POSITION,8);
   vb->lockVertexPointer();
-  Vec3<index> p = mCenter-mCenter;
+  CGE::Vec3<index> p = mCenter-mCenter;
   vb->setPosition(0,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
   vb->setPosition(1,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
   vb->setPosition(2,CGE::Vertex((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));

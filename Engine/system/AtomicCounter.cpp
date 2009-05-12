@@ -1,6 +1,10 @@
 
 #include "AtomicCounter.h"
 
+#ifdef UNIX
+#include <bits/atomicity.h>
+#endif
+
 using namespace CGE;
 
 
@@ -16,11 +20,17 @@ void AtomicCounter::increment(){
 #ifdef WIN32
   InterlockedIncrement(&mNumber);
 #endif
+#ifdef UNIX
+  __gnu_cxx::__atomic_add(&mNumber, 1);
+#endif
 }
 
 void AtomicCounter::decrement(){
 #ifdef WIN32
   InterlockedDecrement(&mNumber);
+#endif
+#ifdef UNIX
+  __gnu_cxx::__atomic_add(&mNumber, -1);
 #endif
 }
 

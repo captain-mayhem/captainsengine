@@ -55,7 +55,7 @@ protected:
   static MapChunk* mMap;
 
   std::map<int,Node*> mNodes;
-  Common::Octree<double,Node*> mTree;
+  CGE::Octree<double,Node*> mTree;
   Common::Graph mGraph;
   CGE::Vec3d mMinBox;
   CGE::Vec3d mMaxBox;
