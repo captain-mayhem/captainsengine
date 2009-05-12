@@ -6,6 +6,7 @@
 #include "../input/mouse.h"
 #include "../input/keyboard.h"
 #include "../window/nativeWindows.h"
+#include "../window/nativeLinux.h"
 #include "script.h"
 #include "../gui/console.h"
 #include "../renderer/forms.h"

@@ -19,7 +19,7 @@ SET(OSMRacer_SRCS
 
 SET(OSMRacer_HDRS
 	FollowCam.h
-	Gameobject.h
+	GameObject.h
 	GeoCache.h
 	GeoGen.h
 	OSMReader.h

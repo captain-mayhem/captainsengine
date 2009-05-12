@@ -46,3 +46,4 @@ protected:
   float mTimeAccumulator;
 };
 }
+

@@ -1,11 +1,12 @@
 
+#include "../renderer/vertexbuffer.h"
+
 namespace CGE{
 
 class VertexBuffer;
 class IndexBuffer;
 class Camera;
 class Renderer;
-enum PrimitiveType;
 
 class SimpleMesh{
 public:
@@ -19,3 +20,4 @@ protected:
 };
 
 }
+

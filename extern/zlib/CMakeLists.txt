@@ -4,6 +4,10 @@ ADD_DEFINITIONS(
 )
 ENDIF(${OS} STREQUAL "wince")
 
+IF(${OS} STREQUAL "windows" OR "wince")
+  SET(ZLIB_ADD_SOURCES iowin32.c)
+ENDIF(${OS} STREQUAL "windows" OR "wince")
+  
 ADD_LIBRARY(zlib STATIC
 	adler32.c
 	compress.c
@@ -15,13 +19,13 @@ ADD_LIBRARY(zlib STATIC
 	inflate.c
 	inftrees.c
 	ioapi.c
-	iowin32.c
 	mztools.c
 	trees.c
 	uncompr.c
 	unzip.c
 	zip.c
 	zutil.c
+  ${ZLIB_ADD_SOURCES}
 
 	crc32.h
 	crypt.h

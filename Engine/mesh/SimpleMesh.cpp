@@ -19,3 +19,4 @@ void SimpleMesh::render(){
   mVB->activate();
   mVB->draw(mRenderType, mIB);
 }
+

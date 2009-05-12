@@ -17,6 +17,9 @@ protected:
 #ifdef WIN32
   volatile LONG mNumber;
 #endif
+#ifdef UNIX
+  volatile int mNumber;
+#endif
 };
 
 }

@@ -47,6 +47,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
 
 #include "../window/nativeLinux.h"
 #include "../input/keyboard.h"
+#include "../renderer/renderer.h"
 #include "../renderer/font.h"
 #include "../gui/gui.h"
 
@@ -61,7 +62,7 @@ int main(int argc, char** argv){
   XEvent event;
   bool running = true;
   Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
-  Graphics::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   Display* disp = win->getDisplay();
   XSynchronize(disp, true);
 
@@ -133,3 +134,4 @@ long GetTickCount(){
   return times(NULL);
 }
 #endif
+
