@@ -10,6 +10,7 @@ INCLUDE(system/CMakeLists.txt)
 INCLUDE(window/CMakeLists.txt)
 INCLUDE(common/CMakeLists.txt)
 
+INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
 LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
 
 ADD_LIBRARY(Engine STATIC 

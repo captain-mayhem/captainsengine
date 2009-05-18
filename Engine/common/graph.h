@@ -13,29 +13,31 @@
 #include <vector>
 #include <set>
 
-namespace Common{
+#include <common/RefCountedObject.h>
+
+namespace CGE{
 
 class GraphVisitor;
 
-class GraphNode{
+class GraphNode : public RefCountedObject{
   friend class Graph;
 public:
   GraphNode();
   ~GraphNode();
 //protected:
-  std::vector<GraphNode*> preds_;
-  std::vector<GraphNode*> succs_;
+  std::vector<Ptr<GraphNode> > preds_;
+  std::vector<Ptr<GraphNode> > succs_;
 };
 
 class Graph{
 public:
   Graph();
   ~Graph();
-  void addSingleNode(GraphNode* node) {roots_.insert(node);}
-  void connect(GraphNode* from, GraphNode* to);
+  void addSingleNode(Ptr<GraphNode> node) {roots_.insert(node);}
+  void connect(Ptr<GraphNode> from, Ptr<GraphNode> to);
   void visit(GraphVisitor* visitor);
 protected:
-  std::set<GraphNode*> roots_;
+  std::set<Ptr<GraphNode> > roots_;
 
 };
 
@@ -43,7 +45,7 @@ class GraphVisitor{
 public:
   GraphVisitor();
   virtual ~GraphVisitor();
-  virtual void* visit(GraphNode* node)=0;
+  virtual void* visit(Ptr<GraphNode> node)=0;
 protected:
 };
 

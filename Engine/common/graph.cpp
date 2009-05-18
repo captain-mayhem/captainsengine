@@ -1,6 +1,6 @@
 #include "graph.h"
 
-using namespace Common;
+using namespace CGE;
 
 GraphNode::GraphNode(){
 
@@ -17,13 +17,14 @@ Graph::Graph(){
 }
 
 Graph::~Graph(){
-  std::set<GraphNode*>::iterator iter = roots_.begin();
+  std::set<Ptr<GraphNode> >::iterator iter = roots_.begin();
   while(iter != roots_.end()){
-    delete *iter;
+    *iter = NULL;
+    ++iter;
   }
 }
 
-void Graph::connect(GraphNode* from, GraphNode* to){
+void Graph::connect(Ptr<GraphNode> from, Ptr<GraphNode> to){
   //check if to is a root, then to is no longer root
   roots_.erase(to);
   //check if from has predecessors, otherwise it is a root
@@ -45,7 +46,7 @@ void Graph::connect(GraphNode* from, GraphNode* to){
 }
 
 void Graph::visit(GraphVisitor* visitor){
-  std::set<GraphNode*>::iterator iter;
+  std::set<Ptr<GraphNode> >::iterator iter;
   for (iter = roots_.begin(); iter != roots_.end(); ++iter){
     visitor->visit(*iter);
   }

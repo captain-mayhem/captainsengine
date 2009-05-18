@@ -12,8 +12,8 @@
 
 using namespace CGE;
 
-CGE::EventQueue<std::pair<MapChunk*,MapChunk::Node*> > GeoGen::mQueue;
-CGE::EventQueue<std::pair<MapChunk::Node*,MeshGeo::Model* > > GeoGen::mAnswer;
+CGE::EventQueue<std::pair<MapChunk*,Ptr<MapChunk::Node> > > GeoGen::mQueue;
+CGE::EventQueue<std::pair<Ptr<MapChunk::Node> ,MeshGeo::Model* > > GeoGen::mAnswer;
 
 void GeoGen::generateGeometry(void* data){
   while(true){
@@ -21,9 +21,9 @@ void GeoGen::generateGeometry(void* data){
   }
 }
 
-void GeoGen::process(std::pair<MapChunk*,MapChunk::Node*> val){
+void GeoGen::process(std::pair<MapChunk*,Ptr<MapChunk::Node> > val){
   MapChunk* map = val.first;
-  MapChunk::Node* node =  val.second;
+  Ptr<MapChunk::Node>  node =  val.second;
   GeoGen gg(map, node);
 }
 
@@ -31,16 +31,16 @@ void GeoGen::useGeometry(){
   mAnswer.tryProcess(processAnswer);
 }
 
-void GeoGen::processAnswer(std::pair<MapChunk::Node*,MeshGeo::Model*> val){
+void GeoGen::processAnswer(std::pair<Ptr<MapChunk::Node> ,MeshGeo::Model*> val){
   val.second->getMesh()->buildVBO();
   val.first->mModel = val.second;
 }
 
-void GeoGen::addJob(MapChunk* map, MapChunk::Node* node){
-  mQueue.enqueue(std::pair<MapChunk*,MapChunk::Node*>(map,node));
+void GeoGen::addJob(MapChunk* map, Ptr<MapChunk::Node>  node){
+  mQueue.enqueue(std::pair<MapChunk*,Ptr<MapChunk::Node> >(map,node));
 }
 
-GeoGen::GeoGen(MapChunk* map, MapChunk::Node* node) : mCurMap(map), mLastIdx(0){
+GeoGen::GeoGen(MapChunk* map, Ptr<MapChunk::Node>  node) : mCurMap(map), mLastIdx(0){
   mCurMap = map;
   mMesh = new MeshGeo::Mesh();
   genStreets(node);
@@ -48,14 +48,14 @@ GeoGen::GeoGen(MapChunk* map, MapChunk::Node* node) : mCurMap(map), mLastIdx(0){
   mMesh->buildVBO();
   MeshGeo::Model* mdl = new MeshGeo::Model(mMesh);
   node->mModel = mdl;
-  mAnswer.enqueue(std::pair<MapChunk::Node*,MeshGeo::Model*>(node,mdl));
+  mAnswer.enqueue(std::pair<Ptr<MapChunk::Node> ,MeshGeo::Model*>(node,mdl));
 }
 
 GeoGen::~GeoGen(){
 
 }
 
-void GeoGen::genStreets(MapChunk::Node* node){
+void GeoGen::genStreets(Ptr<MapChunk::Node>  node){
   reorderGraph(node);
   int valence = node->succs_.size();
   if (valence == 0 /*|| valence > 3*/){
@@ -63,7 +63,7 @@ void GeoGen::genStreets(MapChunk::Node* node){
   }
   else if (valence == 1){
     //street beginning
-    MapChunk::Node* nd = (MapChunk::Node*)node->succs_[0];
+    Ptr<MapChunk::Node> nd = (Ptr<MapChunk::Node>)node->succs_[0];
     Vec3f v = nd->mPos - node->mPos;
     v.normalize();
     Vec3f side = v.cross(mCurMap->getNormal());
@@ -71,18 +71,18 @@ void GeoGen::genStreets(MapChunk::Node* node){
     genStreetSegment(node->mPos,nd->mPos,side*-1,side);
   }
   else{
-    MapChunk::Node* first = (MapChunk::Node*)node->succs_[node->succs_.size()-1];
+    Ptr<MapChunk::Node>  first = (Ptr<MapChunk::Node> )node->succs_[node->succs_.size()-1];
     Vec3f v1 = first->mPos - node->mPos;
     v1.normalize();
-    MapChunk::Node* second = (MapChunk::Node*)node->succs_[0];
+    Ptr<MapChunk::Node>  second = (Ptr<MapChunk::Node> )node->succs_[0];
     Vec3f v2 = second->mPos - node->mPos;
     v2.normalize();
     for (unsigned i = 1; i < node->succs_.size()+1; ++i){
-      MapChunk::Node* third;
+      Ptr<MapChunk::Node>  third;
       if (i >= node->succs_.size())
-        third = (MapChunk::Node*)node->succs_[0];
+        third = (Ptr<MapChunk::Node> )node->succs_[0];
       else
-        third = (MapChunk::Node*)node->succs_[i];
+        third = (Ptr<MapChunk::Node> )node->succs_[i];
       Vec3f v3 = third->mPos - node->mPos;
       v3.normalize();
 
@@ -105,7 +105,7 @@ void GeoGen::genStreets(MapChunk::Node* node){
       second = third;
       v2 = v3;
     }
-    /*MapChunk::Node* third = (MapChunk::Node*)node->succs_[0];
+    /*Ptr<MapChunk::Node>  third = (Ptr<MapChunk::Node> )node->succs_[0];
     Vec3f v3 = third->mPos - node->mPos;
     v3.normalize();
     Vec3f axis = v2.cross(v1);
@@ -127,8 +127,8 @@ void GeoGen::genStreets(MapChunk::Node* node){
   /*
   else if (valence == 2){
     //normal street
-     MapChunk::Node* nd1 = (MapChunk::Node*)node->succs_[0];
-     MapChunk::Node* nd2 = (MapChunk::Node*)node->succs_[1];
+     Ptr<MapChunk::Node>  nd1 = (Ptr<MapChunk::Node> )node->succs_[0];
+     Ptr<MapChunk::Node>  nd2 = (Ptr<MapChunk::Node> )node->succs_[1];
      Vec3f v1 = nd1->mPos - node->mPos;
      Vec3f v2 = nd2->mPos - node->mPos;
      v1.normalize();
@@ -154,7 +154,7 @@ void GeoGen::genStreets(MapChunk::Node* node){
   }*/
   //std::vector<Common::GraphNode*>::iterator iter;
   //for (iter = node->succs_.begin(); iter != node->succs_.end(); ++iter){
-  //  MapChunk::Node* nd = (MapChunk::Node*)*iter;
+  //  Ptr<MapChunk::Node>  nd = (Ptr<MapChunk::Node> )*iter;
   //  genStreetSegment(node, nd);
   //}
 }
@@ -214,8 +214,8 @@ void GeoGen::genStreetSegment(Vec3f start, Vec3f end, Vec3f rightside, Vec3f lef
 }
 
 static int compare(const void* a, const void* b){
-  std::pair<float,MapChunk::Node*>* pa = (std::pair<float,MapChunk::Node*>*)a;
-  std::pair<float,MapChunk::Node*>* pb = (std::pair<float,MapChunk::Node*>*)b;
+  std::pair<float,Ptr<MapChunk::Node> >* pa = (std::pair<float,Ptr<MapChunk::Node> >*)a;
+  std::pair<float,Ptr<MapChunk::Node> >* pb = (std::pair<float,Ptr<MapChunk::Node> >*)b;
   if (pa < pb)
     return -1;
   if (pa > pb)
@@ -223,23 +223,23 @@ static int compare(const void* a, const void* b){
   return 0;
 }
 
-void GeoGen::reorderGraph(MapChunk::Node* node){
+void GeoGen::reorderGraph(Ptr<MapChunk::Node>  node){
   if (node->succs_.empty())
     return;
-  std::pair<float,MapChunk::Node*>* nodes = new std::pair<float,MapChunk::Node*>[node->succs_.size()];
-  MapChunk::Node* first = (MapChunk::Node*)node->succs_[0];
+  std::pair<float,Ptr<MapChunk::Node> >* nodes = new std::pair<float,Ptr<MapChunk::Node> >[node->succs_.size()];
+  Ptr<MapChunk::Node>  first = (Ptr<MapChunk::Node> )node->succs_[0];
   Vec3f v1 = first->mPos - node->mPos;
   v1.normalize();
-  nodes[0] = std::pair<float,MapChunk::Node*>(0,first);
+  nodes[0] = std::pair<float,Ptr<MapChunk::Node> >(0,first);
   //generate angles
   for (unsigned i = 1; i < node->succs_.size(); ++i){
-    MapChunk::Node* second = (MapChunk::Node*)node->succs_[i];
+    Ptr<MapChunk::Node>  second = (Ptr<MapChunk::Node> )node->succs_[i];
     Vec3f v2 = second->mPos - node->mPos;
     v2.normalize();
     float angle = getAngle(v1,v2,mCurMap->getNormal());
-    nodes[i] = std::pair<float,MapChunk::Node*>(angle,second);
+    nodes[i] = std::pair<float,Ptr<MapChunk::Node> >(angle,second);
   }
-  qsort(nodes, node->succs_.size(), sizeof(std::pair<float,MapChunk::Node*>), compare);
+  qsort(nodes, node->succs_.size(), sizeof(std::pair<float,Ptr<MapChunk::Node> >), compare);
   for (unsigned i = 1; i < node->succs_.size(); ++i){
     node->succs_[i] = nodes[i].second;
   }
