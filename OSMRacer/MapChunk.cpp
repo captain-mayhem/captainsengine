@@ -3,7 +3,6 @@
 #include "GeoGen.h"
 #include <mesh/SimpleMesh.h>
 
-using namespace Common;
 using namespace CGE;
 
 #define box_extent(minBox,maxBox,point) \
@@ -30,15 +29,15 @@ MapChunk::~MapChunk(){
 //}
 
 void MapChunk::addNode(const CGE::Vec3d& position, int id){
-  Node* node = new Node(position,id);
+  Ptr<Node> node = Ptr<Node>(new Node(position,id));
   mNodes[id] = node;
   mGraph.addSingleNode(node);
   box_extent(mMinBox,mMaxBox,position);
 }
 
 void MapChunk::addStreet(int streetid, int fromNode, int toNode){
-  Node* from = (*mNodes.find(fromNode)).second;
-  Node* to = (*mNodes.find(toNode)).second;
+  Ptr<Node> from = (*mNodes.find(fromNode)).second;
+  Ptr<Node> to = (*mNodes.find(toNode)).second;
   mGraph.connect(from,to);
   mGraph.connect(to,from);
 }
@@ -52,8 +51,8 @@ void MapChunk::render(const CGE::Camera* cam){
   //mTree.render(cam);s
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   CGE::Material mat;
-  mat.setDiffuse(CGE::Color(0.2,0.2,0.2,1.0));
-  mat.setAmbient(CGE::Color(0.1,0.1,0.1,1.0));
+  mat.setDiffuse(CGE::Color(0.2f,0.2f,0.2f,1.0f));
+  mat.setAmbient(CGE::Color(0.1f,0.1f,0.1f,1.0f));
   rend->setMaterial(mat);
   mStreets.traverse((void*)cam);
   char tmp[32];
@@ -64,7 +63,7 @@ void MapChunk::render(const CGE::Camera* cam){
 void MapChunk::transformIntoPlane(){
   static const int scale = 1000; //km to m
   Vec3d center = (mMinExtent+mMaxExtent)/2.0;
-  std::map<int,Node*>::iterator iter = mNodes.begin();
+  std::map<int,Ptr<Node> >::iterator iter = mNodes.begin();
   Vec3f planeNormal = center.normalized();
   CGE::Matrix planerotation(Matrix::Rotation, planeNormal.cross(Vec3f(0,1,0)).normalized(), acos(planeNormal.dot(Vec3f(0,1,0))));
   CGE::Matrix origintranslation(Matrix::Translation, center*-1);

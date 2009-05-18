@@ -14,7 +14,7 @@ class SimpleMesh;
 
 class MapChunk{
 public:
-  class Node : public Common::GraphNode{
+  class Node : public CGE::GraphNode{
   public:
     Node(const CGE::Vec3d& pos, int id) : mPos(pos),mId(id),mModel(NULL){}
     virtual ~Node() {}
@@ -24,18 +24,18 @@ public:
   };
   class Iterator{
   public:
-    Iterator(std::map<int,Node*>& container){
+    Iterator(std::map<int,CGE::Ptr<Node> >& container){
       mCurrent = container.begin(); mLast = container.end();
     }
     bool hasNext(){
       return mCurrent != mLast;
     }
-    Node* next(){
+    CGE::Ptr<Node> next(){
       return (*mCurrent++).second;
     }
   protected:
-    std::map<int,Node*>::iterator mCurrent;
-    std::map<int,Node*>::iterator mLast;
+    std::map<int,CGE::Ptr<Node> >::iterator mCurrent;
+    std::map<int,CGE::Ptr<Node> >::iterator mLast;
   };
   MapChunk();
   ~MapChunk();
@@ -54,9 +54,9 @@ protected:
 
   static MapChunk* mMap;
 
-  std::map<int,Node*> mNodes;
+  std::map<int,CGE::Ptr<Node> > mNodes;
   CGE::Octree<double,Node*> mTree;
-  Common::Graph mGraph;
+  CGE::Graph mGraph;
   CGE::Vec3d mMinBox;
   CGE::Vec3d mMaxBox;
   CGE::Vec3d mMinExtent;
