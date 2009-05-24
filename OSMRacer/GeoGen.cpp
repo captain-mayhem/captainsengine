@@ -33,7 +33,7 @@ void GeoGen::useGeometry(){
 
 void GeoGen::processAnswer(std::pair<Ptr<MapChunk::Node> ,MeshGeo::Model*> val){
   val.second->getMesh()->buildVBO();
-  val.first->mModel = val.second;
+  //val.first->mModel = val.second;
 }
 
 void GeoGen::addJob(MapChunk* map, Ptr<MapChunk::Node>  node){
@@ -47,7 +47,7 @@ GeoGen::GeoGen(MapChunk* map, Ptr<MapChunk::Node>  node) : mCurMap(map), mLastId
   
   mMesh->buildVBO();
   MeshGeo::Model* mdl = new MeshGeo::Model(mMesh);
-  node->mModel = mdl;
+  //node->mModel = mdl;
   mAnswer.enqueue(std::pair<Ptr<MapChunk::Node> ,MeshGeo::Model*>(node,mdl));
 }
 

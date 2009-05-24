@@ -6,6 +6,11 @@ GraphNode::GraphNode(){
 
 }
 
+GraphNode::GraphNode(const GraphNode& node){
+  succs_ = std::vector<Ptr<GraphNode> >(node.succs_);
+  preds_ = std::vector<Ptr<GraphNode> >(node.preds_);
+}
+
 GraphNode::~GraphNode(){
 
 }
@@ -25,8 +30,6 @@ Graph::~Graph(){
 }
 
 void Graph::connect(Ptr<GraphNode> from, Ptr<GraphNode> to){
-  //check if to is a root, then to is no longer root
-  roots_.erase(to);
   //check if from has predecessors, otherwise it is a root
   if (from->preds_.size() == 0){
     roots_.insert(from);
@@ -40,7 +43,14 @@ void Graph::connect(Ptr<GraphNode> from, Ptr<GraphNode> to){
   }
   //connect the two nodes
   if (unconnected){
-    from->succs_.push_back(to);
+    //do we have a loop
+    if (to->succs_.size() != 0){
+      from->succs_.push_back(Ptr<GraphNode>(to,true));
+    }
+    else{
+      from->succs_.push_back(to);
+      roots_.erase(to);
+    }
     to->preds_.push_back(from);
   }
 }
@@ -50,6 +60,33 @@ void Graph::visit(GraphVisitor* visitor){
   for (iter = roots_.begin(); iter != roots_.end(); ++iter){
     visitor->visit(*iter);
   }
+}
+
+//--------------------------
+
+Graph::Iterator::Iterator(const Graph& grph){
+  std::set<Ptr<GraphNode> >::const_iterator iter;
+  for (iter = grph.roots_.begin(); iter != grph.roots_.end(); ++iter){
+    mNodes.push(*iter);
+  }
+}
+
+Graph::Iterator::~Iterator(){
+}
+
+bool Graph::Iterator::hasNext(){
+  return !mNodes.empty();
+}
+
+Ptr<GraphNode> Graph::Iterator::next(){
+  Ptr<GraphNode> result = mNodes.front();
+  mNodes.pop();
+  for (unsigned i = 0; i < result->succs_.size(); ++i){
+    Ptr<GraphNode> succ = result->succs_[i];
+    if (!succ.isWeak())
+      mNodes.push(succ);
+  }
+  return result;
 }
 
 //--------------------------

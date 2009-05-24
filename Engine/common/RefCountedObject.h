@@ -1,6 +1,7 @@
 #ifndef CGE_REFCOUNTED_OBJECT_H
 #define CGE_REFCOUNTED_OBJECT_H
 
+#include <cassert>
 #include <system/AtomicCounter.h>
 
 namespace CGE{
@@ -28,34 +29,47 @@ class Ptr{
 public:
   Ptr(){
     mObject = NULL;
+    mStrong = false;
   }
   Ptr(T* obj, bool isWeak = false){
     mObject = obj;
-    if (mObject)
+    mStrong = !isWeak;
+    if (mObject == NULL)
+      mStrong = false;
+    if (mStrong)
       mObject->ref();
   }
   Ptr(const Ptr& ptr){
     mObject = ptr.mObject;
-    if (mObject)
+    mStrong = ptr.mStrong;
+    if (mStrong)
+      mObject->ref();
+  }
+  Ptr(const Ptr& ptr, bool isWeak){
+    mObject = ptr.mObject;
+    mStrong = !isWeak;
+    if (mStrong)
       mObject->ref();
   }
   template <typename U>
   Ptr(const Ptr<U>& ptr){
     mObject = static_cast<T*>(ptr.operator->());
-    if (mObject)
+    mStrong = !ptr.isWeak();
+    if (mStrong)
       mObject->ref();
   }
   ~Ptr(){
-    if (mObject)
+    if (mStrong)
       mObject->unref();
   }
   Ptr& operator=(const Ptr& ptr){
     if (mObject == ptr.mObject)
       return *this;
-    if (mObject)
+    if (mStrong)
       mObject->unref();
     mObject = ptr.mObject;
-    if (mObject)
+    mStrong = ptr.mStrong;
+    if (mStrong)
       mObject->ref();
     return *this;
   }
@@ -63,10 +77,11 @@ public:
   Ptr& operator=(const Ptr<U>& ptr){
     if (mObject == ptr.operator->())
       return *this;
-    if (mObject)
+    if (mStrong)
       mObject->unref();
     mObject = ptr.operator->();
-    if (mObject)
+    mStrong = !ptr.isWeak();
+    if (mStrong)
       mObject->ref();
     return *this;
   }
@@ -80,14 +95,21 @@ public:
   bool operator==(const Ptr<T>& ptr) const{
     return mObject == ptr.mObject;
   }
+  bool operator!=(const Ptr<T>& ptr) const{
+    return mObject != ptr.mObject;
+  }
   bool operator<(const Ptr<T>& ptr) const{
     return mObject < ptr.mObject;
   }
   T& operator[](int i){
     return mObject[i];
   }
+  bool isWeak() const{
+    return !mStrong;
+  }
 protected:
   T* mObject;
+  bool mStrong;
 };
 
 }

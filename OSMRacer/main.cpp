@@ -7,6 +7,7 @@
 
 #include "OSMReader.h"
 #include "MapChunk.h"
+#include "OSMMapAdapter.h"
 #include "Utilities.h"
 #include "GeoGen.h"
 #include "GeoCache.h"
@@ -27,11 +28,12 @@ FollowCam followCam;
 Terrain test(256,256,4.0f,4.0f,NULL,1.0f);
 Vehicle* car;
 CollisionPlane* ground;
+OSMMapAdapter mapAdapter;
 MapChunk map;
 
 void init(){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->setClearColor(Vec3f(0.2,0.3,1.0));
+  rend->setClearColor(Vec3f(0.2f,0.3f,1.0f));
   //rend->renderMode(CGE::Wireframe);
   rend->enableBackFaceCulling(true);
   //Vec3f ep = Vec3f(map.getCenter().x,map.getCenter().y,map.getCenter().z);
@@ -105,19 +107,19 @@ void keyPress(int key, float timeInterval){
       break;
     case KEY_UP:
       if (acceleration < 100)
-        acceleration += 0.1;
+        acceleration += 5.0f*timeInterval;
       break;
     case KEY_DOWN:
       if (acceleration > -100)
-        acceleration -= 0.1;
+        acceleration -= 5.0f*timeInterval;
       break;
     case KEY_LEFT:
       if (steer > -1.0)
-        steer -= 0.04;
+        steer -= 2.0f*timeInterval;
       break;
     case KEY_RIGHT:
       if (steer < 1.0)
-        steer += 0.04;
+        steer += 2.0f*timeInterval;
       break;
   }
 }
@@ -163,12 +165,12 @@ bool collide(CollisionObject* a, CollisionObject* b, CollisionResponse& collisio
     handleCollision = true;
   if (a->getType() == CollisionBase::Cylinder && b->getType() == CollisionBase::Heightfield)
     handleCollision = true;
-  collision.setMu(HUGE_VAL);
-  collision.setSlip1(0.0001);
-  collision.setSlip2(0.00003);
-  collision.setSoftERP(0.99);
-  collision.setSoftCFM(0.001);
-  collision.setBounce(0.1);
+  collision.setMu((float)HUGE_VAL);
+  collision.setSlip1(0.0001f);
+  collision.setSlip2(0.00003f);
+  collision.setSoftERP(0.99f);
+  collision.setSoftCFM(0.001f);
+  collision.setBounce(0.1f);
   return handleCollision;
 }
 
@@ -183,7 +185,7 @@ void engineMain(int argc, char** argv){
   CGE::Simulator* sim = CGE::Engine::instance()->getSimulator();
   sim->setSimulationCallback(simulate);
   sim->setCollisionCallback(collide);
-  sim->setGravitation(Vec3f(0,-9.81,0));
+  sim->setGravitation(Vec3f(0,-9.81f,0));
 
   //input callbacks
   Input::Keyboard::instance()->setKeyPressedCB(keyPress);
@@ -207,7 +209,8 @@ void engineMain(int argc, char** argv){
   //geogen.create(GeoGen::generateGeometry,NULL);
 
   OSMReader rdr("map2.osm");
-  rdr.read(&map);
+  rdr.read(&mapAdapter);
+  mapAdapter.buildMap(&map);
   StreetGenerator strgen(&map);
   strgen.buildStreets(map.getStreets());
   CGE::Log.flush();
