@@ -20,7 +20,7 @@ StreetGenerator::~StreetGenerator(){
 }
 
 void StreetGenerator::buildStreets(CGE::OctreeStatic<CGE::SimpleMesh*>& streets){
-  MapChunk::Iterator iter = mMap->getNodeIterator();
+  MapChunk::Iterator iter = mMap->getStreetNodeIterator();
   while (iter.hasNext()){
     Ptr<MapChunk::Node> currNode = iter.next();
     if (mIntersections.find(currNode) == mIntersections.end()){
@@ -28,7 +28,7 @@ void StreetGenerator::buildStreets(CGE::OctreeStatic<CGE::SimpleMesh*>& streets)
       calculateIntersections(currNode);
     }
   }
-  iter = mMap->getNodeIterator();
+  iter = mMap->getStreetNodeIterator();
   while (iter.hasNext()){
     Ptr<MapChunk::Node> currNode = iter.next();
     generateStreetGeometry(currNode, streets);

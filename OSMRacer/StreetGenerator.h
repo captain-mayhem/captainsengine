@@ -1,6 +1,7 @@
 #ifndef STREETGENERATOR_H
 #define STREETGENERATOR_H
 
+#include "OSMMapAdapter.h"
 #include "MapChunk.h"
 #include <math/vector.h>
 

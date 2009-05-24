@@ -12,7 +12,8 @@ typedef unsigned short uint16;
 typedef int int32;
 typedef unsigned int uint32;
 #ifdef WIN32
-typedef __int64 int64;
+typedef INT64 int64;
+typedef UINT64 uint64;
 #endif
 
 

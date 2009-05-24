@@ -2,7 +2,7 @@
 #include "OSMReader.h"
 #include <float.h>
 #include "system/engine.h"
-#include "MapChunk.h"
+#include "OSMMapAdapter.h"
 #include "Utilities.h"
 
 OSMReader::OSMReader(const std::string& filename) : mState(START){
@@ -13,10 +13,9 @@ OSMReader::~OSMReader(){
 
 }
 
-void OSMReader::read(MapChunk* map){
+void OSMReader::read(OSMMapAdapter* map){
   mMap = map;
   readNode(&mDoc);
-  mMap->transformIntoPlane();
 }
 
 void OSMReader::readNode(TiXmlNode* node){
@@ -57,51 +56,19 @@ bool OSMReader::processElement(TiXmlNode* node){
     return false;
   }
   if (std::strcmp(node->Value(),"bounds") == 0){
-    //info is not usable for octree
-    double minlat, maxlat, minlon, maxlon;
-    readAttribute(elem, "minlat", minlat);
-    readAttribute(elem, "maxlat", maxlat);
-    readAttribute(elem, "minlon", minlon);
-    readAttribute(elem, "maxlon", maxlon);
+    double minlat = readDoubleAttribute(elem, "minlat");
+    double maxlat = readDoubleAttribute(elem, "maxlat");
+    double minlon = readDoubleAttribute(elem, "minlon");
+    double maxlon = readDoubleAttribute(elem, "maxlon");
     CGE::Vec3d minP = Utility::polarToCartesian(minlat, minlon)*Utility::SCALE;
     CGE::Vec3d maxP = Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE;
     mMap->setExtent(minP,maxP);
-    /*CGE::Vec3d minBox = CGE::Vec3d(DBL_MAX,DBL_MAX,DBL_MAX);
-    CGE::Vec3d maxBox = CGE::Vec3d(-DBL_MAX,-DBL_MAX,-DBL_MAX);
-    box_extent(minBox,maxBox,(Utility::polarToCartesian(minlat, minlon)*Utility::SCALE));
-    box_extent(minBox,maxBox,(Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE));
-    box_extent(minBox,maxBox,(Utility::polarToCartesian(minlat, maxlon)*Utility::SCALE));
-    box_extent(minBox,maxBox,(Utility::polarToCartesian(maxlat, minlon)*Utility::SCALE));*/
-    //CGE::Vec3d minBox = Utility::polarToCartesian(minlat, minlon)*Utility::SCALE;
-    //CGE::Vec3d maxBox = Utility::polarToCartesian(maxlat, maxlon)*Utility::SCALE;
-    /*if (minBox.x > maxBox.x){
-      double tmp = minBox.x; minBox.x = maxBox.x; maxBox.x = tmp;
-    }
-    if (minBox.y > maxBox.y){
-      double tmp = minBox.y; minBox.y = maxBox.y; maxBox.y = tmp;
-    }
-    if (minBox.z > maxBox.z){
-      double tmp = minBox.z; minBox.z = maxBox.z; maxBox.z = tmp;
-    }*//*
-    CGE::Vec3d center = (minBox+maxBox)/2;
-    CGE::Vec3d extreme = center.normalized()*Utility::SCALE;
-    minBox.x = extreme.x < minBox.x ? extreme.x : minBox.x;
-    minBox.y = extreme.y < minBox.y ? extreme.y : minBox.y;
-    minBox.z = extreme.z < minBox.z ? extreme.z : minBox.z;
-    maxBox.x = extreme.x > maxBox.x ? extreme.x : maxBox.x;
-    maxBox.y = extreme.y > maxBox.y ? extreme.y : maxBox.y;
-    maxBox.z = extreme.z > maxBox.z ? extreme.z : maxBox.z;*/
-    //recalculate new center
-    //CGE::Vec3d center = (minBox+maxBox)/2;
-    //mMap->setDimensions(center, (maxBox-minBox)/2.0f);
     return true;
   }
   if (std::strcmp(node->Value(),"node") == 0){
-    int id;
-    double lat, lon;
-    readAttribute(elem, "id", id);
-    readAttribute(elem, "lat", lat);
-    readAttribute(elem, "lon", lon);
+    uint64 id = readULongAttribute(elem, "id");
+    double lat = readDoubleAttribute(elem, "lat");
+    double lon = readDoubleAttribute(elem, "lon");
     CGE::Vec3d v = Utility::polarToCartesian(lat, lon)*Utility::SCALE;
     mState = NODE;
     for(TiXmlNode* child = node->FirstChild(); child != NULL; child = child->NextSibling()){
@@ -112,12 +79,18 @@ bool OSMReader::processElement(TiXmlNode* node){
     return true;
   }
   if (std::strcmp(node->Value(),"way") == 0){
-    readAttribute(elem, "id", mCurrStreet);
-    mLastNode = 0;
     mState = WAY;
+    mCurrWay = WayInfo();
+    mCurrWay.wayid = readULongAttribute(elem, "id");
+
     for(TiXmlNode* child = node->FirstChild(); child != NULL; child = child->NextSibling()){
       readNode(child);
     }
+
+    if (mCurrWay.waytype == WayInfo::STREET){
+      mMap->addStreet(mCurrWay.wayid, mCurrWay.waynodes, mCurrWay.street);
+    }
+
     mState = OSM;
     return true;
   }
@@ -158,36 +131,64 @@ bool OSMReader::processNode(TiXmlNode* node){
 bool OSMReader::processWay(TiXmlNode* node){
   TiXmlElement* elem = node->ToElement();
   if (std::strcmp(node->Value(),"nd") == 0){
-    int ref;
-    readAttribute(elem, "ref", ref);
-    if (mLastNode != 0){
-      mMap->addStreet(mCurrStreet,mLastNode,ref);
-    }
-    mLastNode = ref;
+    uint64 ref = readULongAttribute(elem, "ref");
+    mCurrWay.waynodes.push_back(ref);
     return true;
   }
   if (std::strcmp(node->Value(),"tag") == 0){
     std::pair<std::string,std::string> tag = readTag(elem);
-    if (tag.first == "created_by"){
+    if (tag.first == "created_by" || tag.first == "source"){
       //uninteresting
     }
     else if(tag.first == "highway"){
       //we have really a street
+      mCurrWay.waytype = WayInfo::STREET;
+      //translate size
+      if (tag.second == "primary"){
+        mCurrWay.street.streettype = StreetInfo::FEDERAL_STREET;
+      }
+      else if (tag.second == "secondary"){
+        mCurrWay.street.streettype = StreetInfo::COUNTY_STREET;
+      }
+      else if (tag.second == "residential"){
+        mCurrWay.street.streettype = StreetInfo::MEDIUM_LOCAL_STREET;
+      }
+      else{
+        CGE::Log << "Unexpected street qualifier: " << tag.first << " - " << tag.second << "\n";
+      }
     }
     else if(tag.first == "name"){
-
+      mCurrWay.street.name = tag.second;
     }
-    CGE::Log << "Unexpected tag in xml file: " << tag.first << " - " << tag.second << "\n";
+    else if (tag.first == "oneway"){
+      if (tag.second == "yes")
+        mCurrWay.street.oneway = true;
+      else
+        mCurrWay.street.oneway = false;
+    }
+    else{
+      CGE::Log << "Unexpected street tag in xml file: " << tag.first << " - " << tag.second << "\n";
+    }
     return true;
   }
   CGE::Log << "Unexpected xml value " << node->Value() << "\n";
   return true;
 }
 
-template<typename T> void OSMReader::readAttribute(TiXmlElement* element, const char* name, T& value){
+double OSMReader::readDoubleAttribute(TiXmlElement* element, const char* name){
+  double value = 0;
   if (!element || !name)
-    return;
+    return value;
   element->Attribute(name, &value);
+  return value;
+}
+
+uint64 OSMReader::readULongAttribute(TiXmlElement* element, const char* name){
+  uint64 value = 0;
+  if (!element || !name)
+    return value;
+  value = _atoi64(element->Attribute(name));
+  return value;
 }
 
 std::pair<std::string,std::string> OSMReader::readTag(TiXmlElement* element){

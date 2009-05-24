@@ -8,6 +8,8 @@
 #include "math/vector.h"
 #include "mesh/model.h"
 
+#include "MapInfo.h"
+
 namespace CGE{
 class SimpleMesh;
 }
@@ -16,52 +18,35 @@ class MapChunk{
 public:
   class Node : public CGE::GraphNode{
   public:
-    Node(const CGE::Vec3d& pos, int id) : mPos(pos),mId(id),mModel(NULL){}
-    virtual ~Node() {}
-    CGE::Vec3d mPos;
-    int mId;
-    MeshGeo::Model* mModel;
+    Node(const CGE::Vec3f& pos) : mPos(pos){}
+    Node(const Node& node) : CGE::GraphNode(node) {mPos = node.mPos;}
+    virtual ~Node(){}
+    CGE::Vec3f mPos;
   };
+
   class Iterator{
   public:
-    Iterator(std::map<int,CGE::Ptr<Node> >& container){
-      mCurrent = container.begin(); mLast = container.end();
-    }
-    bool hasNext(){
-      return mCurrent != mLast;
-    }
-    CGE::Ptr<Node> next(){
-      return (*mCurrent++).second;
-    }
+    Iterator(const CGE::Graph& grph): mIter(grph) {}
+    bool hasNext() {return mIter.hasNext();}
+    CGE::Ptr<Node> next(){return (CGE::Ptr<Node>)mIter.next();}
   protected:
-    std::map<int,CGE::Ptr<Node> >::iterator mCurrent;
-    std::map<int,CGE::Ptr<Node> >::iterator mLast;
+    CGE::Graph::Iterator mIter;
   };
+
   MapChunk();
   ~MapChunk();
-  void setExtent(const CGE::Vec3d& minPoint, const CGE::Vec3d& maxPoint) {mMinExtent = minPoint; mMaxExtent = maxPoint;}
-  void addNode(const CGE::Vec3d& position, int nodeid);
-  void addStreet(int streetid, int fromNode, int toNode);
-  void transformIntoPlane();
+  void setExtent(const CGE::BBox& box) {mStreets.init(CGE::Vec3f(), box.getSpan()+CGE::Vec3f(1,1,1), CGE::Vec3f(10,0,10));}
+  CGE::Ptr<Node> addNode(const CGE::Vec3f& position);
+  void addStreet(CGE::Ptr<Node> from, CGE::Ptr<Node> to, CGE::Ptr<StreetInfo> info);
   //CGE::Vec3d getCenter(){return (mMinBox+mMaxBox)/2.0;}
   CGE::Vec3f getNormal() {return CGE::Vec3f(0,1,0);}
-  Iterator getNodeIterator() {return Iterator(mNodes);}
+  Iterator getStreetNodeIterator() {return Iterator(mGraph);}
   void render(const CGE::Camera* cam);
   CGE::OctreeStatic<CGE::SimpleMesh*>& getStreets() {return mStreets;}
 protected:
-  static void renderOctreeCallback(Node* node);
   static CGE::OctreeStatic<CGE::SimpleMesh*>::TraversalState renderCB(const std::vector<CGE::SimpleMesh*>& values, const CGE::BBox& box, uint8 flags, void* data);
 
-  static MapChunk* mMap;
-
-  std::map<int,CGE::Ptr<Node> > mNodes;
-  CGE::Octree<double,Node*> mTree;
   CGE::Graph mGraph;
-  CGE::Vec3d mMinBox;
-  CGE::Vec3d mMaxBox;
-  CGE::Vec3d mMinExtent;
-  CGE::Vec3d mMaxExtent;
-  CGE::Matrix mTransform;
   CGE::OctreeStatic<CGE::SimpleMesh*> mStreets;
 };
 
