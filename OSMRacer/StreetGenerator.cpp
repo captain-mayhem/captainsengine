@@ -38,9 +38,9 @@ void StreetGenerator::buildStreets(CGE::OctreeStatic<CGE::SimpleMesh*>& streets)
 static int compare(const void* a, const void* b){
   std::pair<float,Ptr<MapChunk::Node> >* pa = (std::pair<float,Ptr<MapChunk::Node> >*)a;
   std::pair<float,Ptr<MapChunk::Node> >* pb = (std::pair<float,Ptr<MapChunk::Node> >*)b;
-  if (pa < pb)
+  if (pa->first < pb->first)
     return -1;
-  if (pa > pb)
+  if (pa->first > pb->first)
     return 1;
   return 0;
 }
@@ -73,8 +73,10 @@ void StreetGenerator::calculateIntersections(Ptr<MapChunk::Node> node){
   if (valence == 0){
     return;
   }
-  Vec3f v1 = ((Ptr<MapChunk::Node>)node->succs_[node->succs_.size()-1])->mPos - node->mPos;
-  float thickness1 = 2.5;
+  MapChunk::NodeRef n1 = (Ptr<MapChunk::Node>)node->succs_[node->succs_.size()-1];
+  Vec3f v1 = n1->mPos - node->mPos;
+  Ptr<StreetInfo> info = node->mStreets[node->succs_.size()-1];
+  float thickness1 = calculateThinckness(*info);
   Vec3f s1 = v1.cross(mMap->getNormal()).normalized()*thickness1;
   Vec3f p1 = node->mPos-s1;
   if (valence == 1){
@@ -84,8 +86,10 @@ void StreetGenerator::calculateIntersections(Ptr<MapChunk::Node> node){
     return;
   }
   for (int i = 0; i < valence; ++i){
-    Vec3f v2 = ((Ptr<MapChunk::Node>)node->succs_[i])->mPos - node->mPos;
-    float thickness2 = 2.5;
+    MapChunk::NodeRef n2 = (Ptr<MapChunk::Node>)node->succs_[i];
+    Vec3f v2 = n2->mPos - node->mPos;
+    info = node->mStreets[i];
+    float thickness2 = calculateThinckness(*info);
     Vec3f s2 = v2.cross(mMap->getNormal()).normalized()*thickness2;
     Vec3f p2 = node->mPos+s2;
     Vec3f result = intersectLine(p1, v1, p2, v2);
@@ -93,6 +97,7 @@ void StreetGenerator::calculateIntersections(Ptr<MapChunk::Node> node){
     v1 = v2;
     s1 = s2;
     p1 = node->mPos-s1;
+    thickness1 = thickness2;
   }
 }
 
@@ -107,6 +112,9 @@ float StreetGenerator::getAngle(const Vec3f& v1, const Vec3f& v2, const Vec3f& n
 
 Vec3f StreetGenerator::intersectLine(const Vec3f& p1, const Vec3f& dir1, const Vec3f& p2, const Vec3f& dir2){
   float my = ((p2.z - p1.z)*dir1.x + (p1.x - p2.x)*dir1.z)/(dir2.x*dir1.z-dir2.z*dir1.x);
+  if (!_finite(my)){
+    return (p1+p2)*0.5;
+  }
   return p2+dir2*my;
 }
 
@@ -179,4 +187,32 @@ void StreetGenerator::generateStreetGeometry(Ptr<MapChunk::Node> node, CGE::Octr
     mGenerated[std::make_pair(node,destination)] = true;
   }
   //TODO mechanism to destroy geometry
+}
+
+float StreetGenerator::calculateThinckness(const StreetInfo& info){
+  float base = 2.5f;
+  switch(info.streettype){
+    case StreetInfo::MOTORWAY:
+      base = 3.5f;
+      break;
+    case StreetInfo::FEDERAL_STREET:
+      base = 3.0f;
+      break;
+    case StreetInfo::COUNTY_STREET:
+      base = 2.8f;
+      break;
+    case StreetInfo::BIG_LOCAL_STREET:
+      base = 2.6;
+      break;
+    case StreetInfo::MEDIUM_LOCAL_STREET:
+      base = 2.4;
+      break;
+    case StreetInfo::SMALL_LOCAL_STREET:
+      base = 2.1;
+      break;
+  }
+  float street = base*info.lanes;
+  if (!info.oneway)
+    street*=2;
+  return street;
 }

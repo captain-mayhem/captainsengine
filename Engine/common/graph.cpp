@@ -29,7 +29,7 @@ Graph::~Graph(){
   }
 }
 
-void Graph::connect(Ptr<GraphNode> from, Ptr<GraphNode> to){
+bool Graph::connect(Ptr<GraphNode> from, Ptr<GraphNode> to){
   //check if from has predecessors, otherwise it is a root
   if (from->preds_.size() == 0){
     roots_.insert(from);
@@ -53,6 +53,7 @@ void Graph::connect(Ptr<GraphNode> from, Ptr<GraphNode> to){
     }
     to->preds_.push_back(from);
   }
+  return unconnected;
 }
 
 void Graph::visit(GraphVisitor* visitor){

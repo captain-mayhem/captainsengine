@@ -13,15 +13,26 @@ MapChunk::~MapChunk(){
 
 }
 
-Ptr<MapChunk::Node> MapChunk::addNode(const CGE::Vec3f& position){
-  Ptr<Node> node = Ptr<Node>(new Node(position));
+MapChunk::NodeRef MapChunk::addNode(const CGE::Vec3f& position){
+  NodeRef node = Ptr<Node>(new Node(position));
   mGraph.addSingleNode(node);
   return node;
 }
 
-void MapChunk::addStreet(Ptr<MapChunk::Node> from, Ptr<MapChunk::Node> to, Ptr<StreetInfo> info){
-  mGraph.connect(from,to);
-  mGraph.connect(to,from);
+MapChunk::StreetRef MapChunk::addStreet(const StreetInfo& info){
+  StreetRef street = Ptr<StreetInfo>(new StreetInfo(info));
+  return street;
+}
+
+void MapChunk::addStreetSegment(MapChunk::NodeRef from, MapChunk::NodeRef to, StreetRef street){
+  if (mGraph.connect(from,to)){
+    from->mStreets.push_back(street);
+  }
+  //if (street->oneway)
+  //  return;
+  if (mGraph.connect(to,from)){
+    to->mStreets.push_back(street);
+  }
 }
 
 int drawCount;
