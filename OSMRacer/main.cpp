@@ -8,14 +8,12 @@
 #include "OSMReader.h"
 #include "MapChunk.h"
 #include "OSMMapAdapter.h"
+#include "SimpleMapAdapter.h"
 #include "Utilities.h"
 #include "GeoGen.h"
-#include "GeoCache.h"
 #include "Vehicle.h"
 #include "StreetGenerator.h"
 #include "FollowCam.h"
-
-//MapChunk map;
 #include "Terrain.h"
 #include <renderer/forms.h>
 
@@ -27,8 +25,6 @@ FollowCam followCam;
 
 Terrain test(256,256,4.0f,4.0f,NULL,1.0f);
 Vehicle* car;
-CollisionPlane* ground;
-OSMMapAdapter mapAdapter;
 MapChunk map;
 
 void init(){
@@ -47,19 +43,13 @@ void init(){
 }
 
 void render(){
-  //GeoGen::useGeometry();
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->clear(ZBUFFER | COLORBUFFER);
-  //rend->projection(60,1.0f,0.1f,100000.0f);
+  
   rend->enableTexturing(false);
   rend->resetModelView();
-  //rend->translate(0,0,-5);
-  //rend->setColor(0.0,1.0,0.0,1.0);
   rend->enableLighting(true);
-  //cam.lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
-  //rend->lookAt(Vec3f(ep*20),Vec3f(),Vec3f(0,1,0));
-  //rend->lookAt(ep*(Utility::SCALE+20),ep*Utility::SCALE,Vec3f(0,1,0));
-  //rend->lookAt(Vec3f(0,0,-2000),Vec3f(555.24565f,2670.81660f,5757.44706f),Vec3f(0,1,0));
+
   activeCam->activate();
   rend->switchFromViewToModelTransform();
   CGE::Light lit(CGE::Light::Directional, Vec3f(0.5,-1,0));
@@ -67,7 +57,6 @@ void render(){
   test.render(*rend, *activeCam);
 
   car->render(*activeCam);
-  //rend->setColor(0.2,0.2,0.2,1.0);
   map.render(activeCam);
   rend->enableLighting(false);
   
@@ -78,9 +67,6 @@ float steer = 0;
 
 void keyPress(int key, float timeInterval){
   switch(key){
-    //case KEY_ESCAPE:
-    //  EXIT();
-    //  break;
     case KEY_W:
       cam.walk(50*timeInterval);
       break;
@@ -194,23 +180,16 @@ void engineMain(int argc, char** argv){
 /*Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
   Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);*/
 
-  GeoCache::init();
-
   car = new Vehicle(*sim);
-  //car->setPosition(Vec3f(0,2,0));
-  //ground = new CollisionPlane(Vec3f(0,1,0),0);
-  //sim->getRootSpace()->add(ground);
 
   test.generateTerrainChunks(32);
   sim->getRootSpace()->add(&test);
-
-  //start geo gen thread
-  //CGE::Thread geogen;
-  //geogen.create(GeoGen::generateGeometry,NULL);
-
-  OSMReader rdr("map2.osm");
-  rdr.read(&mapAdapter);
-  mapAdapter.buildMap(&map);
+  
+  OSMMapAdapter mapAdapter;
+  mapAdapter.load("map2.osm", &map);
+  //SimpleMapAdapter mapAdapter;
+  //mapAdapter.load("testmaps/crossing.map", &map);
+  
   StreetGenerator strgen(&map);
   strgen.buildStreets(map.getStreets());
   CGE::Log.flush();

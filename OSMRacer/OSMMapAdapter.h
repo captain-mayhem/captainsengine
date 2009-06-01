@@ -17,6 +17,7 @@ public:
 
   OSMMapAdapter();
   ~OSMMapAdapter();
+  void load(std::string filename, MapChunk* map);
   void setExtent(const CGE::Vec3d& minPoint, const CGE::Vec3d& maxPoint) {mMinExtent = minPoint; mMaxExtent = maxPoint;}
   void addNode(const CGE::Vec3d& position, uint64 nodeid);
   void addStreet(uint64 streetid, const std::list<uint64>& nodes, const StreetInfo& info);

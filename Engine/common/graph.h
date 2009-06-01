@@ -48,7 +48,7 @@ public:
   Graph();
   ~Graph();
   void addSingleNode(Ptr<GraphNode> node) {roots_.insert(node);}
-  void connect(Ptr<GraphNode> from, Ptr<GraphNode> to);
+  bool connect(Ptr<GraphNode> from, Ptr<GraphNode> to);
   void visit(GraphVisitor* visitor);
   Iterator getIterator();
 protected:
