@@ -2,18 +2,7 @@
 #define ADV_TREE_CTRL
 
 #include <wx/treectrl.h>
-
-enum ResourceID{
-  SCRIPT=0,
-  ITEM=1,
-  MUSIC=2,
-  OBJECT=3,
-  IMAGE=4,
-  ROOM=5,
-  SOUND=6,
-  FOLDER=11,
-  CHARACTER=15,
-};
+#include "Ids.h"
 
 class AdvTreeItemData : public wxTreeItemData{
 public:
