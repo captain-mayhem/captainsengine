@@ -5,7 +5,9 @@
 #include "GraphNodes.h"
 #include "AdvMainTree.h"
 
+const float FPS_MAX = 50.0f;
 const int STATES_MAX = 10;
+const int CHAR_STATES_MAX = 36;
 const int FRAMES_MAX = 25;
 const int FRAMES2_MAX = 30;
 const int PARTS_MAX = 2;
@@ -138,13 +140,14 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
     str.ToLong(&val1);
     cs.command = val1;
     str = txtstream.ReadLine();
-    assert(str == "20");
+    str.ToLong(&val1);
+    cs.fps = FPS_MAX/val1;
     long val2;
     str = txtstream.ReadLine();
     str.ToLong(&val1);
     str = txtstream.ReadLine();
     str.ToLong(&val2);
-    cs.highlight = std::make_pair(val1,val2);
+    cs.highlight = Vec2i(val1,val2);
     mCursor.push_back(cs);
   }
   while(!stream.Eof()){
@@ -160,16 +163,18 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       Item it;
       it.name = name;
       for (int state = 0; state < STATES_MAX; ++state){
-        Frames frm;
+        ItemState is;
         for (int frames = 0; frames < FRAMES_MAX; ++frames){
           str = txtstream.ReadLine();
           if (str != ";" && str.Length() > 0){
-            frm.push_back(std::string(str.SubString(0,str.Length()-2).c_str()));
+            is.frames.push_back(std::string(str.SubString(0,str.Length()-2).c_str()));
           }
         }
         str = txtstream.ReadLine();
-        assert(str == "20");
-        it.frames.push_back(frm);
+        long val1;
+        str.ToLong(&val1);
+        is.fps = FPS_MAX/val1;
+        it.states.push_back(is);
       }
       mItems.push_back(it);
     }
@@ -182,48 +187,64 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       str.ToLong(&val1);
       str = txtstream.ReadLine();
       str.ToLong(&val2);
-      obj.size = std::make_pair(val1, val2);
+      obj.size = Vec2i(val1, val2);
       str = txtstream.ReadLine();
       str.ToLong(&val1);
-      obj.unknown = val1;
-      assert(obj.unknown == 0);
+      obj.lighten = (val1 != 0);
+      //assert(obj.lighten == false);
       for (int state = 0; state < STATES_MAX; ++state){
-        ExtendedFrames frms;
-        for (int frames = 0; frames < FRAMES2_MAX; ++frames){
-          ExtendedFrame frm;
-          bool set = false;
-          for (int parts = 0; parts < PARTS_MAX; ++parts){
-            str = txtstream.ReadLine();
-            if (str.Length() > 0){
-              set = true;
-              frm.names.push_back(std::string(str.c_str()));
-            }
-          }
-          //read offsets
-          str = txtstream.ReadLine();
-          for (unsigned i = 0; i < frm.names.size(); ++i){
-            int pos = str.Find(";");
-            wxString num = str.SubString(0, pos-1);
-            str = str.SubString(pos+1, str.Length());
-            num.ToLong(&val1);
-            pos = str.Find(";");
-            num = str.SubString(0, pos-1);
-            str = str.SubString(pos+1, str.Length());
-            num.ToLong(&val2);
-            frm.offsets.push_back(std::make_pair(val1,val2));
-          }
-          if (set)
-            frms.push_back(frm);
-        }
-        str = txtstream.ReadLine();
-        assert(str == "20");
-        obj.frames.push_back(frms);
+        ObjectState os;
+        os.fps = readExtendedFrames(txtstream, os.frames);
+        obj.states.push_back(os);
       }
       mObjects.push_back(obj);
     }
     // CHARACTER
     else if (type == "Character"){
-
+      Character ch;
+      ch.name = name;
+      long val1, val2;
+      str = txtstream.ReadLine(); str.ToLong(&val1); ch.textcolor = val1;
+      str = txtstream.ReadLine(); str.ToLong(&val1); ch.walkspeed = val1;
+      str = txtstream.ReadLine(); str.ToLong(&val1); ch.notzoom = (val1 != 0);
+      str = txtstream.ReadLine(); str.ToLong(&val1); ch.realleft = (val1 != 0);
+      str = txtstream.ReadLine(); str.ToLong(&val1); ch.memresistent = (val1 != 0);
+      str = txtstream.ReadLine(); str.ToLong(&val1); ch.ghost = (val1 != 0);
+      ch.walksound = txtstream.ReadLine();
+      str = txtstream.ReadLine();
+      unsigned pos = str.Find(";");
+      while (pos < str.Length()){
+        std::string state = str.SubString(0, pos-1);
+        ch.extrastatenames.push_back(state);
+        str = str.SubString(pos+1, str.Length());
+        pos = str.Find(";");
+      }
+      str = txtstream.ReadLine(); str.ToLong(&val1); ch.fontid = val1;
+      str = txtstream.ReadLine(); str.ToLong(&val1); ch.zoom = val1;
+      for (int state = 0; state < CHAR_STATES_MAX; ++state){
+        CharacterState cs;
+        str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+        cs.size = Vec2i(val1, val2);
+        str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+        cs.basepoint = Vec2i(val1, val2);
+        cs.fps = readExtendedFrames(txtstream, cs.frames);
+        ch.states.push_back(cs);
+      }
+      mCharacters.push_back(ch);
+    }
+    // RCHARACTER
+    else if (type == "Rcharacter"){
+      Rcharacter rc;
+      rc.name = txtstream.ReadLine();
+      rc.room = txtstream.ReadLine();
+      long val1, val2;
+      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      rc.position = Vec2i(val1,val2);
+      str = txtstream.ReadLine(); str.ToLong(&val1); rc.dir = (LookDir)val1;
+      str = txtstream.ReadLine(); str.ToLong(&val1); rc.unknown = val1;
+      assert(rc.unknown == -1);
+      str = txtstream.ReadLine(); str.ToLong(&val1); rc.unmovable = (val1 != 0);
+      mRoomCharacters.push_back(rc);
     }
     else{
       wxMessageBox(type, "Unknown type found");
@@ -235,4 +256,39 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
 
 wxFileName AdvDocument::getFilename(ResourceID id, wxString name){
   return mImageNames[name];
+}
+
+float AdvDocument::readExtendedFrames(wxTextInputStream& txtstream, ExtendedFrames& frms){
+  wxString str;
+  long val1, val2;
+  for (int frames = 0; frames < FRAMES2_MAX; ++frames){
+    ExtendedFrame frm;
+    bool set = false;
+    for (int parts = 0; parts < PARTS_MAX; ++parts){
+      str = txtstream.ReadLine();
+      if (str.Length() > 0){
+        set = true;
+        frm.names.push_back(std::string(str.c_str()));
+      }
+    }
+    //read offsets
+    str = txtstream.ReadLine();
+    for (unsigned i = 0; i < frm.names.size(); ++i){
+      int pos = str.Find(";");
+      wxString num = str.SubString(0, pos-1);
+      str = str.SubString(pos+1, str.Length());
+      num.ToLong(&val1);
+      pos = str.Find(";");
+      num = str.SubString(0, pos-1);
+      str = str.SubString(pos+1, str.Length());
+      num.ToLong(&val2);
+      frm.offsets.push_back(Vec2i(val1,val2));
+    }
+    if (set)
+      frms.push_back(frm);
+  }
+  str = txtstream.ReadLine();
+  str.ToLong(&val1);
+  float fps = FPS_MAX/val1;
+  return fps;
 }

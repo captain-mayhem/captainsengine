@@ -11,31 +11,61 @@
 
 typedef std::vector<std::string> Frames;
 
+struct Vec2i{
+  Vec2i() : x(0), y(0) {}
+  Vec2i(int x, int y) {this->x = x; this->y = y;}
+  int x;
+  int y;
+};
+
+struct Vec2f{
+  float x;
+  float y;
+};
+
 struct CursorState{
   Frames frames;
+  float fps;
   int command;
-  std::pair<int,int> highlight;
+  Vec2i highlight;
 };
 
 typedef std::vector<CursorState> Cursor;
 
+struct ItemState{
+  Frames frames;
+  float fps;
+};
+
 struct Item{
   std::string name;
-  std::vector<Frames> frames;
+  std::vector<ItemState> states;
 };
 
 struct ExtendedFrame{
   std::vector<std::string> names;
-  std::vector<std::pair<int,int> > offsets;
+  std::vector<Vec2i> offsets;
 };
 
 typedef std::vector<ExtendedFrame> ExtendedFrames;
 
+struct ObjectState{
+  ExtendedFrames frames;
+  float fps;
+};
+
 struct Object{
   std::string name;
-  std::pair<int,int> size;
-  int unknown;
-  std::vector<ExtendedFrames> frames;
+  Vec2i size;
+  bool lighten;
+  std::vector<ObjectState> states;
+};
+
+struct CharacterState{
+  Vec2i size;
+  Vec2i basepoint;
+  ExtendedFrames frames;
+  float fps;
 };
 
 struct Character{
@@ -47,11 +77,40 @@ struct Character{
   bool memresistent;
   bool ghost;
   std::string walksound;
-  int unknown;
+  std::vector<std::string> extrastatenames;
+  int fontid;
   int zoom;
-  std::pair<int,int> size;
-  std::pair<int,int> basepoint;
-  std::vector<ExtendedFrames> frames;
+  std::vector<CharacterState> states;
+};
+
+struct Rcharacter{
+  std::string name;
+  std::string room;
+  Vec2i position;
+  LookDir dir;
+  int unknown;
+  bool unmovable;
+};
+
+struct FXShape{
+  Vec2i points[4];
+};
+
+struct Room{
+  std::string name;
+  Vec2i size;
+  Vec2i parallaxpoint;
+  Vec2i depthmap;
+  int zoom;
+  std::string background;
+  std::string parallaxbackground;
+  bool doublewalkmap;
+  std::vector<FXShape> fxshapes;
+  bool hasInventory;
+  Vec2i invpos;
+  Vec2i invsize;
+  Vec2f invscale;
+  bool** walkmap;
 };
 
 class AdvDocument : public wxDocument{
@@ -67,11 +126,14 @@ protected:
   bool loadFile1(wxInputStream& stream);
   bool loadFile2(wxInputStream& stream);
   static int insertTreeElement(wxTreeCtrl* tree, const wxString& name, wxTreeItemId* current, int curr_level);
+  float readExtendedFrames(wxTextInputStream& txtstream, ExtendedFrames& frms);
   AdvMainTreeView* mView;
   std::map<wxString,wxFileName> mImageNames;
   Cursor mCursor;
   std::vector<Item> mItems;
   std::vector<Object> mObjects;
+  std::vector<Character> mCharacters;
+  std::vector<Rcharacter> mRoomCharacters;
   //Graph mGamepool;
 };
 
