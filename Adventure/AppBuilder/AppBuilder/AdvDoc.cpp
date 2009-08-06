@@ -11,6 +11,9 @@ const int CHAR_STATES_MAX = 36;
 const int FRAMES_MAX = 25;
 const int FRAMES2_MAX = 30;
 const int PARTS_MAX = 2;
+const int FXSHAPES_MAX = 3;
+const int WALKMAP_X = 32*2*2;
+const int WALKMAP_Y = 24*2*2;
 
 IMPLEMENT_DYNAMIC_CLASS(AdvDocument, wxDocument);
 
@@ -152,8 +155,10 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
   }
   while(!stream.Eof()){
     str = txtstream.ReadLine();
+    if (stream.Eof())
+      return true;
     wxString rest;
-    if (!str.StartsWith("//", &rest))
+    if (!str.StartsWith("//", &rest) && !str.StartsWith(";;", &rest))
       return false;
     int splitidx = rest.Find(" ");
     wxString type = rest.SubString(0, splitidx-1);
@@ -235,7 +240,8 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
     // RCHARACTER
     else if (type == "Rcharacter"){
       Rcharacter rc;
-      rc.name = txtstream.ReadLine();
+      rc.name = name;
+      rc.character = txtstream.ReadLine();
       rc.room = txtstream.ReadLine();
       long val1, val2;
       str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
@@ -245,6 +251,72 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       assert(rc.unknown == -1);
       str = txtstream.ReadLine(); str.ToLong(&val1); rc.unmovable = (val1 != 0);
       mRoomCharacters.push_back(rc);
+    }
+    // ROOM
+    else if (type == "Room"){
+      Room room;
+      room.name = name;
+      long val1, val2;
+      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      room.size = Vec2i(val1,val2);
+      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      room.parallaxpoint = Vec2i(val1, val2);
+      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      room.depthmap = Vec2i(val1, val2);
+      str = txtstream.ReadLine(); str.ToLong(&val1); room.zoom = val1;
+      room.background = txtstream.ReadLine();
+      room.parallaxbackground = txtstream.ReadLine();
+      str = txtstream.ReadLine(); str.ToLong(&val1); room.doublewalkmap = (val1 != 0);
+      for (int i = 0; i < FXSHAPES_MAX; ++i){
+        //TODO
+        txtstream.ReadLine();
+        txtstream.ReadLine();
+        txtstream.ReadLine();
+        txtstream.ReadLine();
+        txtstream.ReadLine();
+        txtstream.ReadLine();
+        txtstream.ReadLine();
+        txtstream.ReadLine();
+      }
+      //TODO inventory
+      txtstream.ReadLine();
+      txtstream.ReadLine();
+      str = txtstream.ReadLine();
+      //int gridsize = 640/32;
+      //int xsize = room.size.x/gridsize;
+      //int ysize = room.size.y/gridsize;
+      room.walkmap.resize(WALKMAP_X);
+      for(int i = 0; i < WALKMAP_X; ++i){
+        room.walkmap[i].resize(WALKMAP_Y);
+      }
+      for (int i = 0; i < WALKMAP_X*WALKMAP_Y; ++i){
+        wxChar ch = str[2*i];
+        wxChar ch2 = str[2*i+1];
+        bool walkable = true;
+        bool script = false;
+        if (ch == '1')
+          walkable = false;
+        if (ch2 == '1')
+          script = true;
+        int x = i/WALKMAP_Y;
+        int y = i%WALKMAP_Y;
+        room.walkmap[x][y].walkable = walkable;
+        room.walkmap[x][y].script = script;
+      }
+      mRooms.push_back(room);
+    }
+    else if (type == "Roomobject"){
+      Roomobject ro;
+      ro.name = name;
+      ro.object = txtstream.ReadLine();
+      long val1, val2;
+      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      ro.position = Vec2i(val1,val2);
+      str = txtstream.ReadLine(); str.ToLong(&val1); ro.state = val1;
+      str = txtstream.ReadLine(); str.ToLong(&val1); ro.layer = val1;
+      str = txtstream.ReadLine(); str.ToLong(&val1); ro.wm_depth = val1;
+      str = txtstream.ReadLine(); str.ToLong(&val1); ro.locked = (val1 != 0);
+      mRooms.back().objects.push_back(ro);
     }
     else{
       wxMessageBox(type, "Unknown type found");
