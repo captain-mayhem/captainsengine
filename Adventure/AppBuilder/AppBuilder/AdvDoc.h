@@ -85,6 +85,7 @@ struct Character{
 
 struct Rcharacter{
   std::string name;
+  std::string character;
   std::string room;
   Vec2i position;
   LookDir dir;
@@ -94,6 +95,21 @@ struct Rcharacter{
 
 struct FXShape{
   Vec2i points[4];
+};
+
+struct WMField{
+  bool walkable;
+  bool script;
+};
+
+struct Roomobject{
+  std::string name;
+  std::string object;
+  Vec2i position;
+  int state;
+  int layer;
+  int wm_depth;
+  bool locked;
 };
 
 struct Room{
@@ -110,7 +126,8 @@ struct Room{
   Vec2i invpos;
   Vec2i invsize;
   Vec2f invscale;
-  bool** walkmap;
+  std::vector<std::vector<WMField> > walkmap;
+  std::vector<Roomobject> objects;
 };
 
 class AdvDocument : public wxDocument{
@@ -134,6 +151,7 @@ protected:
   std::vector<Object> mObjects;
   std::vector<Character> mCharacters;
   std::vector<Rcharacter> mRoomCharacters;
+  std::vector<Room> mRooms;
   //Graph mGamepool;
 };
 
