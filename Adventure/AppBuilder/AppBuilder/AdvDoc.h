@@ -137,6 +137,7 @@ public:
   virtual wxOutputStream& SaveObject(wxOutputStream& stream);
   virtual wxInputStream& LoadObject(wxInputStream& stream);
   wxFileName getFilename(ResourceID id, wxString name);
+  Room* getRoom(std::string name);
   //Graph& getGamepool() {return mGamepool;}
 protected:
   DECLARE_DYNAMIC_CLASS(AdvDocument)
@@ -151,7 +152,8 @@ protected:
   std::vector<Object> mObjects;
   std::vector<Character> mCharacters;
   std::vector<Rcharacter> mRoomCharacters;
-  std::vector<Room> mRooms;
+  std::map<std::string,Room> mRooms;
+  Room* mLastRoom;
   //Graph mGamepool;
 };
 

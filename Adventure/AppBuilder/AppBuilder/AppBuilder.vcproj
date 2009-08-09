@@ -61,7 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="wxbase28d.lib wxmsw28d_core.lib wxmsw28d_adv.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib winmm.lib comctl32.lib rpcrt4.lib advapi32.lib wsock32.lib"
+				AdditionalDependencies="wxbase28d.lib wxmsw28d_core.lib wxmsw28d_adv.lib wxmsw28d_gl.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib winmm.lib comctl32.lib rpcrt4.lib advapi32.lib wsock32.lib OpenGL32.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.8.10\lib\vc_lib&quot;"
 				GenerateDebugInformation="true"
@@ -190,6 +190,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Engine.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FrameGraph.cpp"
 				>
 			</File>
@@ -203,6 +207,10 @@
 			</File>
 			<File
 				RelativePath=".\main.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderWindow.cpp"
 				>
 			</File>
 		</Filter>
@@ -221,6 +229,10 @@
 			</File>
 			<File
 				RelativePath=".\AdvTreeCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Engine.h"
 				>
 			</File>
 			<File
@@ -245,6 +257,10 @@
 			</File>
 			<File
 				RelativePath=".\main.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RenderWindow.h"
 				>
 			</File>
 		</Filter>
