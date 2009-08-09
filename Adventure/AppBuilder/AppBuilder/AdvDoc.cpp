@@ -303,7 +303,8 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
         room.walkmap[x][y].walkable = walkable;
         room.walkmap[x][y].script = script;
       }
-      mRooms.push_back(room);
+      mRooms[room.name] = room;
+      mLastRoom = &mRooms[room.name];
     }
     else if (type == "Roomobject"){
       Roomobject ro;
@@ -316,7 +317,7 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       str = txtstream.ReadLine(); str.ToLong(&val1); ro.layer = val1;
       str = txtstream.ReadLine(); str.ToLong(&val1); ro.wm_depth = val1;
       str = txtstream.ReadLine(); str.ToLong(&val1); ro.locked = (val1 != 0);
-      mRooms.back().objects.push_back(ro);
+      mLastRoom->objects.push_back(ro);
     }
     else{
       wxMessageBox(type, "Unknown type found");
@@ -363,5 +364,12 @@ float AdvDocument::readExtendedFrames(wxTextInputStream& txtstream, ExtendedFram
   str.ToLong(&val1);
   float fps = FPS_MAX/val1;
   return fps;
+}
+
+Room* AdvDocument::getRoom(std::string name){
+  std::map<std::string,Room>::iterator iter = mRooms.find(name);
+  if (iter == mRooms.end())
+    return NULL;
+  return &((*iter).second);
 }
 

@@ -9,23 +9,26 @@
 #include "main.h"
 #include "AdvDoc.h"
 #include "AdvMainTree.h"
+#include "RenderWindow.h"
+#include "Engine.h"
 
 enum{
   ID_Quit=1,
   ID_About,
   ID_Project_Setup,
+  ID_Create_Game,
 };
 
 BEGIN_EVENT_TABLE(MainFrame, wxDocMDIParentFrame)
 EVT_MENU(ID_Quit, MainFrame::OnQuit)
 EVT_MENU(ID_About, MainFrame::OnAbout)
 EVT_MENU(ID_Project_Setup, MainFrame::OnProjectSetup)
+EVT_MENU(ID_Create_Game, MainFrame::OnCreateGame)
 END_EVENT_TABLE()
 
 IMPLEMENT_APP(Application)
 
 Application::Application(){
-
 }
 
 Application::~Application(){
@@ -33,6 +36,7 @@ Application::~Application(){
 }
 
 bool Application::OnInit(){
+  Engine::init();
   mManager = new wxDocManager();
   new wxDocTemplate(mManager, "Adventure", "*.adv", "", "adv", "Adventure Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
   mFrame = new MainFrame(mManager, NULL, "AppBuilder", wxPoint(50,50), wxSize(800,600), wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE);
@@ -44,6 +48,7 @@ bool Application::OnInit(){
 
 int Application::OnExit(){
   delete mManager;
+  Engine::deinit();
   return 0;
 }
 
@@ -51,7 +56,8 @@ MainFrame::MainFrame(wxDocManager* manager, wxFrame* frame, const wxString& titl
 wxDocMDIParentFrame(manager, frame, wxID_ANY, title, pos, size, type, "myFrame"){
   wxMenu* menuFile = new wxMenu();
   menuFile->Append(wxID_OPEN, "&Open...");
-  //menuFile->AppendSeparator();
+  menuFile->AppendSeparator();
+  menuFile->Append(ID_Create_Game, "&Create Game...");
   manager->FileHistoryUseMenu(menuFile);
   menuFile->AppendSeparator();
   menuFile->Append(wxID_EXIT, "&Exit");
@@ -63,7 +69,7 @@ wxDocMDIParentFrame(manager, frame, wxID_ANY, title, pos, size, type, "myFrame")
   menuHelp->Append(ID_About, "&About");
 
   wxMenuBar* menuBar = new wxMenuBar();
-  menuBar->Append(menuFile, "&File");
+  menuBar->Append(menuFile, "&Project");
   menuBar->Append(menuSetup, "&Setup");
   menuBar->Append(menuHelp, "&Help");
   SetMenuBar(menuBar);
@@ -133,4 +139,21 @@ void MainFrame::OnProjectSetup(wxCommandEvent& event){
   topsizer->Add(ok, wxSizerFlags().Center());
   dialog.SetSizer(topsizer);
   dialog.ShowModal();
+}
+
+void MainFrame::OnCreateGame(wxCommandEvent& event){
+  wxSize sz(640,480);
+  wxMDIChildFrame* frame = new wxMDIChildFrame(wxGetApp().getFrame(), wxID_ANY, "Game", wxDefaultPosition, sz);
+  wxSize framesize = frame->ClientToWindowSize(sz);
+  frame->SetSize(framesize);
+  frame->Show(true);
+  int attribs[] = {
+    WX_GL_RGBA, //GL_TRUE,
+    WX_GL_DOUBLEBUFFER,// GL_TRUE,
+    //WX_GL_DEPTH_SIZE, 32,
+    NULL
+  };
+  RenderWindow* rendwin = new RenderWindow(frame, attribs, sz.x, sz.y);
+  rendwin->init();
+  Engine::instance()->loadRoom("FirstRoom");
 }

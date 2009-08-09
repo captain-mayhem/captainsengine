@@ -8,6 +8,7 @@ public:
   void OnQuit(wxCommandEvent& event);
   void OnAbout(wxCommandEvent& event);
   void OnProjectSetup(wxCommandEvent& event);
+  void OnCreateGame(wxCommandEvent& event);
 private:
   DECLARE_EVENT_TABLE();
 };

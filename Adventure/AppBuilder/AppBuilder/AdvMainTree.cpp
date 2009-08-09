@@ -5,6 +5,7 @@
 #include "AdvDoc.h"
 #include "GraphNodes.h"
 #include "Ids.h"
+#include "Engine.h"
 
 IMPLEMENT_DYNAMIC_CLASS(AdvMainTreeView, wxView);
 
@@ -24,7 +25,7 @@ bool AdvMainTreeView::OnCreate(wxDocument* doc, long flags){
   mGamepool = new AdvTreeCtrl(mGamepoolWindow, ID_AdvTreeCtrl, wxDefaultPosition, wxSize(200,200), wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_HIDE_ROOT);
   mMediapool = new AdvTreeCtrl(mMediapoolWindow, ID_AdvTreeCtrl, wxDefaultPosition, wxSize(200,200), wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_HIDE_ROOT);
   AdvDocument* adv = wxDynamicCast(doc, AdvDocument);
-  //buildTreeFromGraph(mTreeCtrl, adv->getGamepool());
+  Engine::instance()->setData(adv);
   Activate(true);
   return true;
 }
