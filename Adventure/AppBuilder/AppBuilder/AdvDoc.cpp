@@ -31,7 +31,7 @@ wxOutputStream& AdvDocument::SaveObject(wxOutputStream& stream){
 
 wxInputStream& AdvDocument::LoadObject(wxInputStream& stream){
   mView = (AdvMainTreeView*)GetFirstView();
-  wxDocument::LoadObject(stream);
+  //wxDocument::LoadObject(stream);
   wxZipInputStream zipstream(stream);
   wxZipEntry* entry = zipstream.GetNextEntry();
   if (!loadFile1(zipstream)){
@@ -219,7 +219,7 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       str = txtstream.ReadLine();
       unsigned pos = str.Find(";");
       while (pos < str.Length()){
-        std::string state = str.SubString(0, pos-1);
+        std::string state = std::string(str.SubString(0, pos-1));
         ch.extrastatenames.push_back(state);
         str = str.SubString(pos+1, str.Length());
         pos = str.Find(";");
@@ -364,3 +364,4 @@ float AdvDocument::readExtendedFrames(wxTextInputStream& txtstream, ExtendedFram
   float fps = FPS_MAX/val1;
   return fps;
 }
+
