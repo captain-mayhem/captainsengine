@@ -51,7 +51,7 @@ wxInputStream& AdvDocument::LoadObject(wxInputStream& stream){
   }
   delete entry;
   zipstream.CloseEntry();
-  wxMessageBox("Project loaded successfully", "Info");
+  //wxMessageBox("Project loaded successfully", "Info");
   return stream;
 }
 
@@ -202,7 +202,7 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
         os.fps = readExtendedFrames(txtstream, os.frames);
         obj.states.push_back(os);
       }
-      mObjects.push_back(obj);
+      mObjects[obj.name] = obj;
     }
     // CHARACTER
     else if (type == "Character"){
@@ -369,6 +369,13 @@ float AdvDocument::readExtendedFrames(wxTextInputStream& txtstream, ExtendedFram
 Room* AdvDocument::getRoom(std::string name){
   std::map<std::string,Room>::iterator iter = mRooms.find(name);
   if (iter == mRooms.end())
+    return NULL;
+  return &((*iter).second);
+}
+
+Object* AdvDocument::getObject(std::string name){
+  std::map<std::string,Object>::iterator iter = mObjects.find(name);
+  if (iter == mObjects.end())
     return NULL;
   return &((*iter).second);
 }
