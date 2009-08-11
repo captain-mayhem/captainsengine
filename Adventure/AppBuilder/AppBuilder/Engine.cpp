@@ -14,15 +14,35 @@ Engine::Engine() : mData(NULL){
 }
 
 Engine::~Engine(){
-  for (std::list<Object2D*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){
+  for (std::list<BlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){
     delete *iter;
   }
+}
+
+void Engine::initGame(){
+  //load cursor
+  if (!mData)
+    return;
+  Cursor* cursor = mData->getCursor();
+  mCursor.state = 1;
+  mCursor.blits.resize(cursor->size());
+  for (unsigned j = 0; j < cursor->size(); ++j){
+    mCursor.blits[j].resize((*cursor)[j].frames.size());
+    for (unsigned k = 0; k < (*cursor)[j].frames.size(); ++k){
+        BlitObject* obj = new BlitObject();
+        obj->pos = (*cursor)[j].highlight;
+        obj->depth = 20000;
+        obj->tex = genTexture((*cursor)[j].frames[k], obj->size);
+        mCursor.blits[j][k].push_back(obj);
+    }
+  }
+  insertToBlit(mCursor.blits[mCursor.state-1][0]);
 }
 
 void Engine::render(){
   glVertexPointer(2, GL_SHORT, 0, mVerts);
   glTexCoordPointer(2, GL_SHORT, 0, mVerts);
-  for (std::list<Object2D*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
+  for (std::list<BlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
     blit((*iter)->pos.x, (*iter)->pos.y, (*iter)->size.x, (*iter)->size.y, (*iter)->tex);
   }
 }
@@ -33,36 +53,50 @@ bool Engine::loadRoom(std::string name){
   Room* room = mData->getRoom(name);
   if (!room)
     return false;
-  Object2D* obj = new Object2D();
+  BlitObject* obj = new BlitObject();
   obj->depth = -1;
   obj->pos = Vec2i(0,0);
-  obj->size = room->size;
-  obj->tex = genTexture(room->background);
+  obj->tex = genTexture(room->background, obj->size);
   insertToBlit(obj);
   for (unsigned i = 0; i < room->objects.size(); ++i){
-    obj = new Object2D();
-    obj->pos = room->objects[i].position;
-    if (room->objects[i].layer == 1)
-      obj->depth = 0;
-    else if (room->objects[i].layer == 2)
-      obj->depth = room->objects[i].wm_depth;
-    else
-      obj->depth = 10000;
+    Object2D* object = new Object2D();
+    object->state = room->objects[i].state;
     Object* o = mData->getObject(room->objects[i].object);
-    obj->size = o->size;
-    obj->tex = genTexture(o->states[0].frames[0].names[0]);
-    insertToBlit(obj);
+    //calculate render depth
+    int depth;
+    if (room->objects[i].layer == 1)
+      depth = 0;
+    else if (room->objects[i].layer == 2)
+      depth = room->objects[i].wm_depth;
+    else
+      depth = 10000;
+    object->blits.resize(o->states.size());
+    for (unsigned j = 0; j < object->blits.size(); ++j){
+      object->blits[j].resize(o->states[j].frames.size());
+      for (unsigned k = 0; k < o->states[j].frames.size(); ++k){
+        for (unsigned l = (unsigned)o->states[j].frames[k].names.size(); l > 0; --l){
+          obj = new BlitObject();
+          obj->pos = room->objects[i].position+o->states[j].frames[k].offsets[l-1];
+          obj->depth = depth;
+          obj->tex = genTexture(o->states[j].frames[k].names[l-1], obj->size);
+          object->blits[j][k].push_back(obj);
+        }
+      }
+    }
+    insertToBlit(object->blits[object->state-1][0]);
   }
   return true;
 }
 
-GLuint Engine::genTexture(std::string name){
+GLuint Engine::genTexture(std::string name, Vec2i& size){
   wxImage image(mData->getFilename(IMAGE,name).GetFullPath());
-  unsigned size = image.GetWidth()*image.GetHeight();
+  size.x = image.GetWidth();
+  size.y = image.GetHeight();
+  unsigned totalsize = size.x*size.y;
   unsigned char* rgb = image.GetData();
   unsigned char* alpha = image.GetAlpha();
-  GLubyte* buffer = new GLubyte[size*4];
-  for (unsigned i = 0; i < size; ++i){
+  GLubyte* buffer = new GLubyte[totalsize*4];
+  for (unsigned i = 0; i < totalsize; ++i){
     buffer[4*i] = rgb[3*i];
     buffer[4*i+1] = rgb[3*i+1];
     buffer[4*i+2] = rgb[3*i+2];
@@ -80,7 +114,7 @@ GLuint Engine::genTexture(std::string name){
   GLuint tex;
   glGenTextures(1,&tex);
   glBindTexture(GL_TEXTURE_2D, tex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image.GetWidth(), image.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   delete buffer;
@@ -96,26 +130,37 @@ void Engine::blit(int x, int y, int width, int height, GLuint tex){
   glPopMatrix();
 }
 
-void Engine::insertToBlit(Object2D* obj){
+void Engine::insertToBlit(BlitObject* obj){
   mBlitQueue.push_front(obj);
   resortBlit(obj);
 }
 
-void Engine::resortBlit(Object2D* obj){
+void Engine::insertToBlit(BlitGroup& obj){
+  for (unsigned i = 0; i < obj.size(); ++i){
+    insertToBlit(obj[i]);
+  }
+}
+
+void Engine::resortBlit(BlitObject* obj){
   //search obj
-  std::list<Object2D*>::iterator objectiter;
-  for (std::list<Object2D*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){
+  std::list<BlitObject*>::iterator objectiter;
+  for (std::list<BlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){
     if (*iter == obj){
       objectiter = iter;
       break;
     }
   }
   //move object
-  for (std::list<Object2D*>::iterator iter = objectiter++; objectiter != mBlitQueue.end(); ++objectiter){
+  for (std::list<BlitObject*>::iterator iter = objectiter++; objectiter != mBlitQueue.end(); ++objectiter){
     if ((*objectiter)->depth < (*iter)->depth){
       std::swap(*objectiter, *iter);
     }
     else
       break;
   }
+}
+
+void Engine::setCursorPos(Vec2i pos){
+  mCursorPos = pos;
+  mCursor.blits[mCursor.state-1][0][0]->pos = pos;
 }

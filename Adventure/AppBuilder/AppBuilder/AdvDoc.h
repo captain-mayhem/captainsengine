@@ -14,6 +14,12 @@ typedef std::vector<std::string> Frames;
 struct Vec2i{
   Vec2i() : x(0), y(0) {}
   Vec2i(int x, int y) {this->x = x; this->y = y;}
+  Vec2i operator+(const Vec2i& v){
+    Vec2i result;
+    result.x = v.x+x;
+    result.y = v.y+y;
+    return result;
+  }
   int x;
   int y;
 };
@@ -139,6 +145,7 @@ public:
   wxFileName getFilename(ResourceID id, wxString name);
   Room* getRoom(std::string name);
   Object* getObject(std::string name);
+  Cursor* getCursor();
   //Graph& getGamepool() {return mGamepool;}
 protected:
   DECLARE_DYNAMIC_CLASS(AdvDocument)

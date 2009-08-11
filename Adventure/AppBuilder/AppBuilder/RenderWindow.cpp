@@ -5,6 +5,9 @@
 BEGIN_EVENT_TABLE(RenderWindow, wxGLCanvas)
 EVT_SIZE(RenderWindow::OnSize)
 EVT_PAINT(RenderWindow::OnPaint)
+//EVT_TIMER(wxID_ANY, RenderWindow::OnTimer)
+EVT_IDLE(RenderWindow::OnIdle)
+EVT_MOTION(RenderWindow::OnMouseMove)
 END_EVENT_TABLE()
 
 RenderWindow::RenderWindow(wxWindow* parent, int* attriblist, int resx, int resy) : 
@@ -14,10 +17,13 @@ mContext(NULL){
 }
 
 RenderWindow::~RenderWindow(){
+  mTimer.Stop();
   delete mContext;
 }
 
 bool RenderWindow::init(){
+  mTimer.SetOwner(this);
+  //mTimer.Start(50, false);
   mContext = new wxGLContext(this, NULL);
   SetCurrent(*mContext);
   glMatrixMode(GL_PROJECTION);
@@ -47,6 +53,7 @@ void RenderWindow::OnSize(wxSizeEvent& event){
 
 void RenderWindow::OnPaint(wxPaintEvent& event){
   wxPaintDC dc(this);
+
   SetCurrent(*mContext);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -54,8 +61,8 @@ void RenderWindow::OnPaint(wxPaintEvent& event){
 
   Engine::instance()->render();
 
-  glFlush();
   SwapBuffers();
+  //Refresh(false);
 }
 
 void RenderWindow::OnEnterWindow(wxMouseEvent& event){
@@ -64,4 +71,27 @@ void RenderWindow::OnEnterWindow(wxMouseEvent& event){
 
 void RenderWindow::OnEraseBackground(wxEraseEvent& event){
 
+}
+
+void RenderWindow::OnMouseMove(wxMouseEvent& event){
+  Vec2i pos(event.GetX(), event.GetY());
+  Engine::instance()->setCursorPos(pos);
+}
+
+void RenderWindow::OnTimer(wxTimerEvent& event){
+  Refresh(false);
+}
+
+void RenderWindow::OnIdle(wxIdleEvent& event){
+
+  SetCurrent(*mContext);
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glLoadIdentity();
+
+  Engine::instance()->render();
+
+  SwapBuffers();
+
+  event.RequestMore();
 }
