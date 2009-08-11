@@ -380,3 +380,7 @@ Object* AdvDocument::getObject(std::string name){
   return &((*iter).second);
 }
 
+Cursor* AdvDocument::getCursor(){
+  return &mCursor;
+}
+

@@ -118,7 +118,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;;&quot;C:\wxWidgets-2.8.10\lib\vc_lib\msw&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;WINVER=0x400;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;$(NOINHERIT)"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -136,9 +137,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="wxbase28.lib wxmsw28_core.lib wxmsw28_adv.lib wxmsw28_gl.lib wxzlib.lib wxjpeg.lib wxpng.lib wxtiff.lib winmm.lib comctl32.lib rpcrt4.lib advapi32.lib wsock32.lib OpenGL32.lib"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.8.10\lib\vc_lib&quot;"
 				GenerateDebugInformation="true"
-				SubSystem="1"
+				SubSystem="0"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"

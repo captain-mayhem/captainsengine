@@ -155,5 +155,6 @@ void MainFrame::OnCreateGame(wxCommandEvent& event){
   };
   RenderWindow* rendwin = new RenderWindow(frame, attribs, sz.x, sz.y);
   rendwin->init();
+  Engine::instance()->initGame();
   Engine::instance()->loadRoom("FirstRoom");
 }
