@@ -14,9 +14,6 @@ Engine::Engine() : mData(NULL){
 }
 
 Engine::~Engine(){
-  for (std::list<BlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){
-    delete *iter;
-  }
 }
 
 void Engine::initGame(){
@@ -24,26 +21,39 @@ void Engine::initGame(){
   if (!mData)
     return;
   Cursor* cursor = mData->getCursor();
-  mCursor.state = 1;
-  mCursor.blits.resize(cursor->size());
+  mCursor = new Object2D();
+  mCursor->state = 1;
+  mCursor->blits.resize(cursor->size());
   for (unsigned j = 0; j < cursor->size(); ++j){
-    mCursor.blits[j].resize((*cursor)[j].frames.size());
+    mCursor->blits[j].resize((*cursor)[j].frames.size());
     for (unsigned k = 0; k < (*cursor)[j].frames.size(); ++k){
         BlitObject* obj = new BlitObject();
         obj->pos = (*cursor)[j].highlight;
         obj->depth = 20000;
-        obj->tex = genTexture((*cursor)[j].frames[k], obj->size);
-        mCursor.blits[j][k].push_back(obj);
+        obj->tex = genTexture((*cursor)[j].frames[k], obj->size, obj->scale);
+        mCursor->blits[j][k].push_back(obj);
     }
   }
-  insertToBlit(mCursor.blits[mCursor.state-1][0]);
+  insertToBlit(mCursor->blits[mCursor->state-1][0]);
+}
+
+void Engine::exitGame(){
+  //for (std::list<BlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){
+  //  delete *iter;
+  //}
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    delete mObjects[i];
+  }
+  mObjects.clear();
+  mBlitQueue.clear();
+  delete mCursor;
 }
 
 void Engine::render(){
   glVertexPointer(2, GL_SHORT, 0, mVerts);
   glTexCoordPointer(2, GL_SHORT, 0, mVerts);
   for (std::list<BlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
-    blit((*iter)->pos.x, (*iter)->pos.y, (*iter)->size.x, (*iter)->size.y, (*iter)->tex);
+    blit((*iter)->pos.x, (*iter)->pos.y, (*iter)->size.x, (*iter)->size.y, (*iter)->scale.x, (*iter)->scale.y, (*iter)->tex);
   }
 }
 
@@ -53,11 +63,16 @@ bool Engine::loadRoom(std::string name){
   Room* room = mData->getRoom(name);
   if (!room)
     return false;
+  Object2D* roomobj = new Object2D();
   BlitObject* obj = new BlitObject();
   obj->depth = -1;
   obj->pos = Vec2i(0,0);
-  obj->tex = genTexture(room->background, obj->size);
+  obj->tex = genTexture(room->background, obj->size, obj->scale);
+  roomobj->blits.resize(1);
+  roomobj->blits[0].resize(1);
+  roomobj->blits[0][0].push_back(obj);
   insertToBlit(obj);
+  mObjects.push_back(roomobj);
   for (unsigned i = 0; i < room->objects.size(); ++i){
     Object2D* object = new Object2D();
     object->state = room->objects[i].state;
@@ -78,20 +93,36 @@ bool Engine::loadRoom(std::string name){
           obj = new BlitObject();
           obj->pos = room->objects[i].position+o->states[j].frames[k].offsets[l-1];
           obj->depth = depth;
-          obj->tex = genTexture(o->states[j].frames[k].names[l-1], obj->size);
+          obj->tex = genTexture(o->states[j].frames[k].names[l-1], obj->size, obj->scale);
           object->blits[j][k].push_back(obj);
         }
       }
     }
-    insertToBlit(object->blits[object->state-1][0]);
+    if (object->state > 0 && !object->blits[object->state-1].empty())
+      insertToBlit(object->blits[object->state-1][0]);
+    mObjects.push_back(object);
   }
   return true;
 }
 
-GLuint Engine::genTexture(std::string name, Vec2i& size){
+//TODO move into utility
+unsigned roundToPowerOf2(unsigned x){
+  --x;
+  x |= x >> 1;
+  x |= x >> 2;
+  x |= x >> 4;
+  x |= x >> 8;
+  x |= x >> 16;
+  return x + 1;
+}
+
+GLuint Engine::genTexture(std::string name, Vec2i& size, Vec2f& texscale){
   wxImage image(mData->getFilename(IMAGE,name).GetFullPath());
   size.x = image.GetWidth();
   size.y = image.GetHeight();
+  Vec2i pow2(roundToPowerOf2(size.x), roundToPowerOf2(size.y));
+  texscale.x = ((float)size.x)/pow2.x;
+  texscale.y = ((float)size.y)/pow2.y;
   unsigned totalsize = size.x*size.y;
   unsigned char* rgb = image.GetData();
   unsigned char* alpha = image.GetAlpha();
@@ -114,17 +145,22 @@ GLuint Engine::genTexture(std::string name, Vec2i& size){
   GLuint tex;
   glGenTextures(1,&tex);
   glBindTexture(GL_TEXTURE_2D, tex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pow2.x, pow2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   delete buffer;
   return tex;
 }
 
-void Engine::blit(int x, int y, int width, int height, GLuint tex){
+void Engine::blit(int x, int y, int width, int height, float xscale, float yscale, GLuint tex){
   glPushMatrix();
   glTranslatef(x,y,0.0f);
   glScalef(width,height,1.0f);
+  glMatrixMode(GL_TEXTURE);
+  glLoadIdentity();
+  glScalef(xscale, yscale, 1.0f);
+  glMatrixMode(GL_MODELVIEW);
   glBindTexture(GL_TEXTURE_2D, tex);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   glPopMatrix();
@@ -162,5 +198,5 @@ void Engine::resortBlit(BlitObject* obj){
 
 void Engine::setCursorPos(Vec2i pos){
   mCursorPos = pos;
-  mCursor.blits[mCursor.state-1][0][0]->pos = pos;
+  mCursor->blits[mCursor->state-1][0][0]->pos = pos;
 }
