@@ -9,13 +9,16 @@ public:
   void OnSize(wxSizeEvent& event);
   void OnPaint(wxPaintEvent& event);
   void OnEnterWindow(wxMouseEvent& event);
+  void OnExitWindow(wxMouseEvent& event);
   void OnEraseBackground(wxEraseEvent& event);
   void OnMouseMove(wxMouseEvent& event);
   void OnTimer(wxTimerEvent& event);
   void OnIdle(wxIdleEvent& event);
+  void OnClose(wxCloseEvent& event);
   bool init();
 protected:
   wxGLContext* mContext;
   wxTimer mTimer;
+  bool mRendering;
   DECLARE_EVENT_TABLE();
 };

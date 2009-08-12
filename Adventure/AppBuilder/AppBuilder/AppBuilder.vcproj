@@ -55,6 +55,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_UNICODE;UNICODE;wxUSE_NO_MANIFEST=1"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -64,6 +65,8 @@
 				AdditionalDependencies="wxbase28d.lib wxmsw28d_core.lib wxmsw28d_adv.lib wxmsw28d_gl.lib wxzlibd.lib wxjpegd.lib wxpngd.lib wxtiffd.lib winmm.lib comctl32.lib rpcrt4.lib advapi32.lib wsock32.lib OpenGL32.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.8.10\lib\vc_lib&quot;"
+				GenerateManifest="true"
+				IgnoreDefaultLibraryNames="libcd.lib libcid.lib msvcrtd.lib"
 				GenerateDebugInformation="true"
 				SubSystem="0"
 				TargetMachine="1"
@@ -131,6 +134,7 @@
 			/>
 			<Tool
 				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_UNICODE;UNICODE;wxUSE_NO_MANIFEST=1"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -140,6 +144,7 @@
 				AdditionalDependencies="wxbase28.lib wxmsw28_core.lib wxmsw28_adv.lib wxmsw28_gl.lib wxzlib.lib wxjpeg.lib wxpng.lib wxtiff.lib winmm.lib comctl32.lib rpcrt4.lib advapi32.lib wsock32.lib OpenGL32.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;C:\wxWidgets-2.8.10\lib\vc_lib&quot;"
+				GenerateManifest="true"
 				GenerateDebugInformation="true"
 				SubSystem="0"
 				OptimizeReferences="2"
@@ -272,6 +277,26 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath="..\..\..\wxWidgets-2.8.10\include\wx\msw\wx.rc"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCResourceCompilerTool"
+						AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;"
+					/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
