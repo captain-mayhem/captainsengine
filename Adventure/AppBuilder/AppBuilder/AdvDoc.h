@@ -20,6 +20,12 @@ struct Vec2i{
     result.y = v.y+y;
     return result;
   }
+  Vec2i operator*(int num){
+    Vec2i result;
+    result.x = x*num;
+    result.y = y*num;
+    return result;
+  }
   int x;
   int y;
 };
