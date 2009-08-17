@@ -12,8 +12,6 @@ const int FRAMES_MAX = 25;
 const int FRAMES2_MAX = 30;
 const int PARTS_MAX = 2;
 const int FXSHAPES_MAX = 3;
-const int WALKMAP_X = 32*2*2;
-const int WALKMAP_Y = 24*2*2;
 
 IMPLEMENT_DYNAMIC_CLASS(AdvDocument, wxDocument);
 
@@ -61,12 +59,17 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   if (str != "3.2 Point&Click Project File. DO NOT MODIFY!!"){
     return false;
   }
-  wxString unknown = txtstream.ReadLine();
+  str = txtstream.ReadLine();
   wxString workdir = txtstream.ReadLine();
-  wxString resolution = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  if (str == "Resolution X : 640"){
+    mSettings.resolution = Vec2i(640,480);
+  }
+  else
+    assert(false);
   wxString font = txtstream.ReadLine();
   while(!stream.Eof()){
-    wxString str = txtstream.ReadLine();
+    str = txtstream.ReadLine();
     if (str == "Mediapool :"){
       wxTreeCtrl* mediapool = mView->getMediapool();
       wxTreeItemId currNode = mediapool->AddRoot("Mediapool");
@@ -235,7 +238,7 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
         cs.fps = readExtendedFrames(txtstream, cs.frames);
         ch.states.push_back(cs);
       }
-      mCharacters.push_back(ch);
+      mCharacters[ch.name] = ch;
     }
     // RCHARACTER
     else if (type == "Rcharacter"){
@@ -282,9 +285,12 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       txtstream.ReadLine();
       txtstream.ReadLine();
       str = txtstream.ReadLine();
-      //int gridsize = 640/32;
-      //int xsize = room.size.x/gridsize;
-      //int ysize = room.size.y/gridsize;
+
+      int WALKMAP_X = 32;
+      int walkGridSize = mSettings.resolution.x/WALKMAP_X;
+      int WALKMAP_Y = mSettings.resolution.y/walkGridSize;
+      WALKMAP_X *= 2*2;
+      WALKMAP_Y *= 2*2;
       room.walkmap.resize(WALKMAP_X);
       for(int i = 0; i < WALKMAP_X; ++i){
         room.walkmap[i].resize(WALKMAP_Y);
@@ -382,5 +388,16 @@ Object* AdvDocument::getObject(std::string name){
 
 Cursor* AdvDocument::getCursor(){
   return &mCursor;
+}
+
+ProjectSettings* AdvDocument::getProjectSettings(){
+  return &mSettings;
+}
+
+Character* AdvDocument::getCharacter(std::string name){
+  std::map<std::string,Character>::iterator iter = mCharacters.find(name);
+  if (iter == mCharacters.end())
+    return NULL;
+  return &((*iter).second);
 }
 

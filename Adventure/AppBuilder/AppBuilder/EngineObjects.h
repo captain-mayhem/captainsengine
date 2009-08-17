@@ -35,27 +35,41 @@ protected:
   std::vector<BlitObject*> mBlits;
 };
 
-typedef std::vector<BlitGroup*> Animation;
-
-typedef std::vector<Animation> BlitObjectState;
+class Animation{
+public:
+  Animation(float fps);
+  Animation(ExtendedFrames& frames, float fps, int depth);
+  Animation(Frames& frames, float fps, Vec2i offset, int depth);
+  ~Animation();
+  void render(Vec2i pos);
+protected:
+  std::vector<BlitGroup*> mBlits;
+  float mFps;
+  int mCurrFrame;
+};
 
 class Object2D{
 public:
   Object2D(int state, Vec2i pos);
-  ~Object2D();
-  void render();
+  virtual ~Object2D();
+  virtual void render();
   void setPosition(const Vec2i& pos) {mPos = pos;}
+  void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
 protected:
   int mState;
   Vec2i mPos;
-public:
-  BlitObjectState blits;
+  std::vector<Animation*> mAnimations;
 };
 
-class RoomObject{
+class RoomObject : public Object2D{
 public:
-  void render();
-  std::vector<Object2D> mObjects;
+  RoomObject();
+  ~RoomObject();
+  void setBackground(std::string bg);
+  void addObject(Object2D* obj);
+  virtual void render();
+protected:
+  std::vector<Object2D*> mObjects;
 };
 
 #endif

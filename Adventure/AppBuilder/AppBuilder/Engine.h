@@ -28,6 +28,8 @@ protected:
   short mVerts[8];
   std::vector<Object2D*> mObjects;
   Object2D* mCursor;
+  int mWalkGridSize;
+  Vec2i mWalkFields;
 };
 
 #endif

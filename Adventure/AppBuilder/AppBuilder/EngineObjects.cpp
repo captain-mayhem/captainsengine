@@ -53,8 +53,8 @@ void BlitObject::genTexture(const std::string& name){
   glBindTexture(GL_TEXTURE_2D, mTex);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pow2.x, pow2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mSize.x, mSize.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
   delete buffer;
 }
 
@@ -107,20 +107,75 @@ void BlitGroup::render(Vec2i pos){
   }
 }
 
+Animation::Animation(float fps) : mFps(fps), mCurrFrame(0){
+
+}
+
+Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mFps(fps), mCurrFrame(0){
+  for (unsigned k = 0; k < frames.size(); ++k){
+    BlitGroup* group = new BlitGroup(frames[k].names, frames[k].offsets, depth);
+    mBlits.push_back(group);
+  }
+}
+
+Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mFps(fps), mCurrFrame(0){
+  for (unsigned k = 0; k < frames.size(); ++k){
+    BlitGroup* group = new BlitGroup(frames[k], offset, depth);
+    mBlits.push_back(group);
+  }
+}
+
+Animation::~Animation(){
+  for (unsigned k = 0; k < mBlits.size(); ++k){
+    delete mBlits[k];
+  }
+}
+
+void Animation::render(Vec2i pos){
+  if ((int)mBlits.size() > mCurrFrame)
+    mBlits[mCurrFrame]->render(pos);
+}
+
 Object2D::Object2D(int state, Vec2i pos) : mState(state), mPos(pos){
 
 }
 
 Object2D::~Object2D(){
-  for (unsigned i = 0; i < blits.size(); ++i){
-    for (unsigned j = 0; j < blits[i].size(); ++j){
-      delete blits[i][j];
-    }
+  for (unsigned i = 0; i < mAnimations.size(); ++i){
+    delete mAnimations[i];
   }
 }
 
 void Object2D::render(){
-  if (mState <= 0 || blits[mState-1].empty())
+  if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  blits[mState-1][0]->render(mPos);
+  mAnimations[mState-1]->render(mPos);
+}
+
+RoomObject::RoomObject() : Object2D(1, Vec2i(0,0)){
+
+}
+
+RoomObject::~RoomObject(){
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    delete mObjects[i];
+  }
+}
+
+void RoomObject::render(){
+  Object2D::render();
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    mObjects[i]->render();
+  }
+}
+
+void RoomObject::setBackground(std::string bg){
+  Frames f;
+  f.push_back(bg);
+  Animation* anim = new Animation(f, 2.5f, Vec2i(0,0), -1);
+  addAnimation(anim);
+}
+
+void RoomObject::addObject(Object2D* obj){
+  mObjects.push_back(obj);
 }

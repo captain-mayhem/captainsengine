@@ -9,8 +9,6 @@
 #include "AdvMainTree.h"
 //#include "Graph.h"
 
-typedef std::vector<std::string> Frames;
-
 struct Vec2i{
   Vec2i() : x(0), y(0) {}
   Vec2i(int x, int y) {this->x = x; this->y = y;}
@@ -34,6 +32,20 @@ struct Vec2f{
   float x;
   float y;
 };
+
+struct ProjectSettings{
+  std::string dir;
+  Vec2i resolution;
+  //TODO fonts
+  std::string startscript;
+  std::string mainscript;
+  std::string anywhere_room;
+  int screenchange;
+  std::map<std::string,std::string> commands;
+};
+
+
+typedef std::vector<std::string> Frames;
 
 struct CursorState{
   Frames frames;
@@ -152,6 +164,9 @@ public:
   Room* getRoom(std::string name);
   Object* getObject(std::string name);
   Cursor* getCursor();
+  std::vector<Rcharacter> getRoomCharacters() {return mRoomCharacters;}
+  Character* getCharacter(std::string name);
+  ProjectSettings* getProjectSettings();
   //Graph& getGamepool() {return mGamepool;}
 protected:
   DECLARE_DYNAMIC_CLASS(AdvDocument)
@@ -160,11 +175,12 @@ protected:
   static int insertTreeElement(wxTreeCtrl* tree, const wxString& name, wxTreeItemId* current, int curr_level);
   float readExtendedFrames(wxTextInputStream& txtstream, ExtendedFrames& frms);
   AdvMainTreeView* mView;
+  ProjectSettings mSettings;
   std::map<wxString,wxFileName> mImageNames;
   Cursor mCursor;
   std::vector<Item> mItems;
   std::map<std::string,Object> mObjects;
-  std::vector<Character> mCharacters;
+  std::map<std::string,Character> mCharacters;
   std::vector<Rcharacter> mRoomCharacters;
   std::map<std::string,Room> mRooms;
   Room* mLastRoom;
