@@ -20,16 +20,15 @@ void Engine::initGame(){
   //load cursor
   if (!mData)
     return;
+  Vec2i res = mData->getProjectSettings()->resolution;
+  mWalkGridSize = res.x/32;
+  mWalkFields = Vec2i(32,res.y/mWalkGridSize);
   Cursor* cursor = mData->getCursor();
   mCursor = new Object2D(1, Vec2i(0,0));
-  mCursor->blits.resize(cursor->size());
   for (unsigned j = 0; j < cursor->size(); ++j){
-    for (unsigned k = 0; k < (*cursor)[j].frames.size(); ++k){
-      BlitGroup* bg = new BlitGroup((*cursor)[j].frames[k], (*cursor)[j].highlight*-1, 20000);
-      mCursor->blits[j].push_back(bg);
-    }
+    Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, 20000);
+    mCursor->addAnimation(anim);
   }
-  //insertToBlit(mCursor->blits[mCursor->state-1][0]);
 }
 
 void Engine::exitGame(){
@@ -63,11 +62,8 @@ bool Engine::loadRoom(std::string name){
   Room* room = mData->getRoom(name);
   if (!room)
     return false;
-  Object2D* roomobj = new Object2D(1, Vec2i(0,0));
-  BlitGroup* grp = new BlitGroup(room->background, Vec2i(0,0), -1);
-  roomobj->blits.resize(1);
-  roomobj->blits[0].push_back(grp);
-  mObjects.push_back(roomobj);
+  RoomObject* roomobj = new RoomObject();
+  roomobj->setBackground(room->background);
   for (unsigned i = 0; i < room->objects.size(); ++i){
     Object2D* object = new Object2D(room->objects[i].state, room->objects[i].position);
     Object* o = mData->getObject(room->objects[i].object);
@@ -79,15 +75,34 @@ bool Engine::loadRoom(std::string name){
       depth = room->objects[i].wm_depth;
     else
       depth = 10000;
-    object->blits.resize(o->states.size());
-    for (unsigned j = 0; j < object->blits.size(); ++j){
-      for (unsigned k = 0; k < o->states[j].frames.size(); ++k){
-        BlitGroup* group = new BlitGroup(o->states[j].frames[k].names, o->states[j].frames[k].offsets, depth);
-        object->blits[j].push_back(group);
-      }
+    for (unsigned j = 0; j < o->states.size(); ++j){
+      Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth);
+      object->addAnimation(anim);
     }
-    mObjects.push_back(object);
+    roomobj->addObject(object);
   }
+  //now check for the characters
+  for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
+    if (mData->getRoomCharacters()[i].room == name){
+      Rcharacter ch = mData->getRoomCharacters()[i];
+      int state = 0;
+      if (ch.dir == BACK)
+        state = 1;
+      else if (ch.dir == FRONT)
+        state = 2;
+      else
+        state = 3;
+      Object2D* character = new Object2D(state, ch.position);
+      Character* chbase = mData->getCharacter(ch.name);
+      for (unsigned j = 0; j < chbase->states.size(); ++j){
+        int depth = ch.position.y/mWalkFields.y;
+        Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
+        character->addAnimation(anim);
+      }
+      roomobj->addObject(character);
+    }
+  };
+  mObjects.push_back(roomobj);
   return true;
 }
 
