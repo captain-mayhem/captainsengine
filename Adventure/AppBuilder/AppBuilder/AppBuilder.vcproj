@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;;&quot;C:\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;"
+				AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;;&quot;C:\wxWidgets-2.8.10\lib\vc_lib\mswd&quot;;antlr\include"
 				PreprocessorDefinitions="WIN32;WINVER=0x400;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_DEBUG;__WXDEBUG__;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;$(NOINHERIT)"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -222,7 +222,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pcdkLexer.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\pcdkParser.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\RenderWindow.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Script.cpp"
 				>
 			</File>
 		</Filter>
@@ -241,6 +269,10 @@
 			</File>
 			<File
 				RelativePath=".\AdvTreeCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AST.h"
 				>
 			</File>
 			<File
@@ -276,7 +308,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\pcdkLexer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\pcdkParser.h"
+				>
+			</File>
+			<File
 				RelativePath=".\RenderWindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Script.h"
 				>
 			</File>
 		</Filter>
@@ -302,6 +346,252 @@
 					<Tool
 						Name="VCResourceCompilerTool"
 						AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;"
+					/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="antlr"
+			>
+			<File
+				RelativePath=".\antlr\include\antlr3.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3baserecognizer.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3baserecognizer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3basetree.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3basetree.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3basetreeadaptor.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3basetreeadaptor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3bitset.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3bitset.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3collections.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3collections.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3commontoken.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3commontoken.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3commontree.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3commontree.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3commontreeadaptor.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3commontreeadaptor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3commontreenodestream.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3commontreenodestream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3convertutf.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3convertutf.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3cyclicdfa.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3cyclicdfa.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3debugeventlistener.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3debughandlers.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3defs.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3encodings.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3encodings.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3errors.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3exception.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3exception.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3filestream.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3filestream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3input.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3inputstream.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3interfaces.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3intstream.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3intstream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3lexer.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3lexer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3memory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3parser.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3parser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3parsetree.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3recognizersharedstate.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3rewritestreams.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3rewritestreams.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3string.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3string.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3stringstream.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3stringstream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3tokenstream.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3tokenstream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3treeparser.c"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\include\antlr3treeparser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\antlr\src\antlr3ucs2inputstream.c"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="grammar"
+			>
+			<File
+				RelativePath=".\pcdk.g"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="antlr&apos;ing grammar"
+						CommandLine="java -cp antlrworks-1.2.3.jar org.antlr.Tool pcdk.g"
+						Outputs="pcdkLexer.c;pcdkLexer.h;pcdkParser.h;pcdkParser.c"
 					/>
 				</FileConfiguration>
 			</File>

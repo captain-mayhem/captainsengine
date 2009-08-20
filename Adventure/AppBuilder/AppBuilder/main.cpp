@@ -27,8 +27,10 @@ EVT_MENU(ID_Create_Game, MainFrame::OnCreateGame)
 END_EVENT_TABLE()
 
 IMPLEMENT_APP(Application)
-
+#include "Script.h"
 Application::Application(){
+ PcdkScript script;
+ script.parseProgram();
 }
 
 Application::~Application(){
