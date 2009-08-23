@@ -11,9 +11,11 @@ Engine::Engine() : mData(NULL){
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
   mVerts[6] = 1; mVerts[7] = 0;
+  mInterpreter = new PcdkScript();
 }
 
 Engine::~Engine(){
+  delete mInterpreter;
 }
 
 void Engine::initGame(){
@@ -28,6 +30,12 @@ void Engine::initGame(){
   for (unsigned j = 0; j < cursor->size(); ++j){
     Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, 20000);
     mCursor->addAnimation(anim);
+  }
+  Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
+  if (startScript){
+    PcdkScript::CodeSegment* seg = mInterpreter->parseProgram(startScript->text);
+    mInterpreter->execute(seg);
+    delete seg;
   }
 }
 

@@ -19,6 +19,8 @@ public:
   virtual ~Application();
   virtual bool OnInit();
   virtual int OnExit();
+  virtual void OnInitCmdLine(wxCmdLineParser& parser);
+  virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
   wxDocMDIParentFrame* getFrame() {return mFrame;}
   wxDocument* getDocument() {return mManager->GetCurrentDocument();}
 protected:

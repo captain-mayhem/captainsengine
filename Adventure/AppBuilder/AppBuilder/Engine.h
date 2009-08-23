@@ -5,6 +5,7 @@
 #include <list>
 #include "AdvDoc.h"
 #include "EngineObjects.h"
+#include "Script.h"
 
 class Engine{
 public:
@@ -30,6 +31,7 @@ protected:
   Object2D* mCursor;
   int mWalkGridSize;
   Vec2i mWalkFields;
+  PcdkScript* mInterpreter;
 };
 
 #endif

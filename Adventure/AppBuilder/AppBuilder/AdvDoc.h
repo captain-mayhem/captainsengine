@@ -154,6 +154,20 @@ struct Room{
   std::vector<Roomobject> objects;
 };
 
+struct Script{
+  enum Type{
+    CUTSCENE,
+    ITEM,
+    CHARACTER,
+    ROOM,
+    OBJECT,
+    WALKMAP,
+  };
+  Type type;
+  std::string name;
+  std::string text;
+};
+
 class AdvDocument : public wxDocument{
 public:
   AdvDocument();
@@ -167,11 +181,13 @@ public:
   std::vector<Rcharacter> getRoomCharacters() {return mRoomCharacters;}
   Character* getCharacter(std::string name);
   ProjectSettings* getProjectSettings();
+  Script* getScript(Script::Type t, std::string name);
   //Graph& getGamepool() {return mGamepool;}
 protected:
   DECLARE_DYNAMIC_CLASS(AdvDocument)
   bool loadFile1(wxInputStream& stream);
   bool loadFile2(wxInputStream& stream);
+  bool loadFile3(wxInputStream& stream);
   static int insertTreeElement(wxTreeCtrl* tree, const wxString& name, wxTreeItemId* current, int curr_level);
   float readExtendedFrames(wxTextInputStream& txtstream, ExtendedFrames& frms);
   AdvMainTreeView* mView;
@@ -183,7 +199,9 @@ protected:
   std::map<std::string,Character> mCharacters;
   std::vector<Rcharacter> mRoomCharacters;
   std::map<std::string,Room> mRooms;
+  std::map<std::pair<Script::Type,std::string>,Script> mScripts;
   Room* mLastRoom;
+  Script* mLastScript;
   //Graph mGamepool;
 };
 
