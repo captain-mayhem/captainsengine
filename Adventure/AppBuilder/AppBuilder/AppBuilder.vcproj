@@ -276,6 +276,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CIL.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Engine.h"
 				>
 			</File>

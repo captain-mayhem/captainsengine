@@ -49,6 +49,15 @@ wxInputStream& AdvDocument::LoadObject(wxInputStream& stream){
   }
   delete entry;
   zipstream.CloseEntry();
+  entry = zipstream.GetNextEntry();
+  if(!loadFile3(zipstream)){
+    delete entry;
+    zipstream.CloseEntry();
+    wxMessageBox("Failed loading project file", "Error");
+    return stream;
+  }
+  delete entry;
+  zipstream.CloseEntry();
   //wxMessageBox("Project loaded successfully", "Info");
   return stream;
 }
@@ -60,7 +69,7 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
     return false;
   }
   str = txtstream.ReadLine();
-  wxString workdir = txtstream.ReadLine();
+  mSettings.dir = txtstream.ReadLine();
   str = txtstream.ReadLine();
   if (str == "Resolution X : 640"){
     mSettings.resolution = Vec2i(640,480);
@@ -68,6 +77,21 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   else
     assert(false);
   wxString font = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  str = txtstream.ReadLine();
+  assert(str.SubString(0,13) == "Startskript : ");
+  mSettings.startscript = str.SubString(14,str.Length());
+  mSettings.mainscript = txtstream.ReadLine();
+  mSettings.anywhere_room = txtstream.ReadLine();
   while(!stream.Eof()){
     str = txtstream.ReadLine();
     if (str == "Mediapool :"){
@@ -289,7 +313,7 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       int WALKMAP_X = 32;
       int walkGridSize = mSettings.resolution.x/WALKMAP_X;
       int WALKMAP_Y = mSettings.resolution.y/walkGridSize;
-      WALKMAP_X *= 2*2;
+      WALKMAP_X *= 3*2;
       WALKMAP_Y *= 2*2;
       room.walkmap.resize(WALKMAP_X);
       for(int i = 0; i < WALKMAP_X; ++i){
@@ -328,6 +352,52 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
     else{
       wxMessageBox(type, "Unknown type found");
       return false;
+    }
+  }
+  return true;
+}
+
+bool AdvDocument::loadFile3(wxInputStream& stream){
+  wxTextInputStream txtstream(stream);
+  wxString str = txtstream.ReadLine();
+  if (str != "3.2 Point&Click Project File. DO NOT MODIFY!!"){
+    return false;
+  }
+  txtstream.ReadLine();
+  mLastScript = NULL;
+  while(!stream.Eof()){
+    str = txtstream.ReadLine();
+    if (stream.Eof())
+      return true;
+    wxString rest;
+    if (str.StartsWith("//", &rest)){
+      int splitidx = rest.Find(" ");
+      wxString type = rest.SubString(0, splitidx-1);
+      wxString name = rest.SubString(splitidx+1, rest.Length());
+      Script::Type scrType;
+      if (type == "Cutscene")
+        scrType = Script::CUTSCENE;
+      else if (type == "Item")
+        scrType = Script::ITEM;
+      else if (type == "Character")
+        scrType = Script::CHARACTER;
+      else if (type == "Room")
+        scrType = Script::ROOM;
+      else if (type == "Object")
+        scrType = Script::OBJECT;
+      else if (type == "Walkmap")
+        scrType = Script::WALKMAP;
+      else{
+        wxMessageBox("Unknown script type: "+type, "Error");
+      }
+      Script scr;
+      scr.name = name;
+      scr.type = scrType;
+      mScripts[std::make_pair(scr.type, scr.name)] = scr;
+      mLastScript = &mScripts[std::make_pair(scr.type, scr.name)];
+    }
+    else{
+      mLastScript->text += str + "\n";
     }
   }
   return true;
@@ -397,6 +467,13 @@ ProjectSettings* AdvDocument::getProjectSettings(){
 Character* AdvDocument::getCharacter(std::string name){
   std::map<std::string,Character>::iterator iter = mCharacters.find(name);
   if (iter == mCharacters.end())
+    return NULL;
+  return &((*iter).second);
+}
+
+Script* AdvDocument::getScript(Script::Type t, std::string name){
+  std::map<std::pair<Script::Type,std::string>, Script>::iterator iter = mScripts.find(std::make_pair(t, name));
+  if (iter == mScripts.end())
     return NULL;
   return &((*iter).second);
 }

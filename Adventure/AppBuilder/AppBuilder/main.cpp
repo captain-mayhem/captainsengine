@@ -5,6 +5,7 @@
 #include <wx/docmdi.h>
 #include <wx/notebook.h>
 #include <wx/statline.h>
+#include <wx/cmdline.h>
 
 #include "main.h"
 #include "AdvDoc.h"
@@ -27,10 +28,9 @@ EVT_MENU(ID_Create_Game, MainFrame::OnCreateGame)
 END_EVENT_TABLE()
 
 IMPLEMENT_APP(Application)
-#include "Script.h"
+
 Application::Application(){
- PcdkScript script;
- script.parseProgram();
+
 }
 
 Application::~Application(){
@@ -38,9 +38,11 @@ Application::~Application(){
 }
 
 bool Application::OnInit(){
+  wxApp::OnInit();
   Engine::init();
   mManager = new wxDocManager();
   new wxDocTemplate(mManager, "Adventure", "*.adv", "", "adv", "Adventure Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
+  new wxDocTemplate(mManager, "Adventure runtime", "*.exe", "", "exe", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
   mFrame = new MainFrame(mManager, NULL, "AppBuilder", wxPoint(50,50), wxSize(800,600), wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE);
   mFrame->Show(true);
   SetTopWindow(mFrame);
@@ -52,6 +54,20 @@ int Application::OnExit(){
   delete mManager;
   Engine::deinit();
   return 0;
+}
+
+void Application::OnInitCmdLine(wxCmdLineParser& parser){
+  parser.AddOption("r", "run", "adventure file", wxCMD_LINE_VAL_STRING, 0);
+  wxApp::OnInitCmdLine(parser);
+}
+
+bool Application::OnCmdLineParsed(wxCmdLineParser& parser){
+  wxApp::OnCmdLineParsed(parser);
+  wxString value;
+  if (parser.Found("r"), &value){
+    //wxMessageBox(value+"test", "Test");
+  }
+  return true;
 }
 
 MainFrame::MainFrame(wxDocManager* manager, wxFrame* frame, const wxString& title, const wxPoint& pos, const wxSize& size, long type) :
@@ -158,5 +174,4 @@ void MainFrame::OnCreateGame(wxCommandEvent& event){
   RenderWindow* rendwin = new RenderWindow(frame, attribs, sz.x, sz.y);
   rendwin->init();
   Engine::instance()->initGame();
-  Engine::instance()->loadRoom("FirstRoom");
 }
