@@ -25,7 +25,8 @@ public:
   wxDocument* getDocument() {return mManager->GetCurrentDocument();}
 protected:
   wxDocManager* mManager;
-  wxDocMDIParentFrame* mFrame;
+  MainFrame* mFrame;
+  wxString mRunFile;
 };
 
 DECLARE_APP(Application)

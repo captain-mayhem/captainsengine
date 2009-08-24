@@ -29,7 +29,7 @@ END_EVENT_TABLE()
 
 IMPLEMENT_APP(Application)
 
-Application::Application(){
+Application::Application() : mRunFile(""){
 
 }
 
@@ -43,10 +43,15 @@ bool Application::OnInit(){
   mManager = new wxDocManager();
   new wxDocTemplate(mManager, "Adventure", "*.adv", "", "adv", "Adventure Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
   new wxDocTemplate(mManager, "Adventure runtime", "*.exe", "", "exe", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
-  mFrame = new MainFrame(mManager, NULL, "AppBuilder", wxPoint(50,50), wxSize(800,600), wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE);
+  mFrame = new MainFrame(mManager, NULL, "AppBuilder", wxPoint(0,0), wxSize(1024,768), wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE | wxMAXIMIZE);
   mFrame->Show(true);
   SetTopWindow(mFrame);
   wxInitAllImageHandlers();
+  if (mRunFile != ""){
+    wxDocument* doc = mManager->CreateDocument(mRunFile, wxDOC_SILENT);
+    wxCommandEvent dummy;
+    mFrame->OnCreateGame(dummy);
+  }
   return true;
 }
 
@@ -62,11 +67,11 @@ void Application::OnInitCmdLine(wxCmdLineParser& parser){
 }
 
 bool Application::OnCmdLineParsed(wxCmdLineParser& parser){
-  wxApp::OnCmdLineParsed(parser);
   wxString value;
-  if (parser.Found("r"), &value){
-    //wxMessageBox(value+"test", "Test");
+  if (parser.Found("r", &value)){
+    mRunFile = value;
   }
+  wxApp::OnCmdLineParsed(parser);
   return true;
 }
 
@@ -161,7 +166,7 @@ void MainFrame::OnProjectSetup(wxCommandEvent& event){
 
 void MainFrame::OnCreateGame(wxCommandEvent& event){
   wxSize sz(640,480);
-  wxMDIChildFrame* frame = new wxMDIChildFrame(wxGetApp().getFrame(), wxID_ANY, "Game", wxDefaultPosition, sz);
+  wxMDIChildFrame* frame = new wxMDIChildFrame(wxGetApp().getFrame(), wxID_ANY, "Game", wxPoint(200,50), sz);
   wxSize framesize = frame->ClientToWindowSize(sz);
   frame->SetSize(framesize);
   frame->Show(true);
@@ -173,5 +178,6 @@ void MainFrame::OnCreateGame(wxCommandEvent& event){
   };
   RenderWindow* rendwin = new RenderWindow(frame, attribs, sz.x, sz.y);
   rendwin->init();
+  rendwin->Raise();
   Engine::instance()->initGame();
 }

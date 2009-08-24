@@ -22,6 +22,7 @@ void Engine::initGame(){
   //load cursor
   if (!mData)
     return;
+  mFocussedChar = NULL;
   Vec2i res = mData->getProjectSettings()->resolution;
   mWalkGridSize = res.x/32;
   mWalkFields = Vec2i(32,res.y/mWalkGridSize);
@@ -40,11 +41,12 @@ void Engine::initGame(){
 }
 
 void Engine::exitGame(){
-  for (unsigned i = 0; i < mObjects.size(); ++i){
-    delete mObjects[i];
+  for (unsigned i = 0; i < mRooms.size(); ++i){
+    delete mRooms[i];
   }
-  mObjects.clear();
+  mRooms.clear();
   delete mCursor;
+  delete mFocussedChar;
 }
 
 std::string Engine::resolveFilename(ResourceID id, std::string resource){
@@ -52,9 +54,11 @@ std::string Engine::resolveFilename(ResourceID id, std::string resource){
 }
 
 void Engine::render(){
-  for (unsigned i = 0; i < mObjects.size(); ++i){
-    mObjects[i]->render();
+  for (unsigned i = 0; i < mRooms.size(); ++i){
+    mRooms[i]->render();
   }
+  if (mFocussedChar)
+    mFocussedChar->render();
   mCursor->render();
   glVertexPointer(2, GL_SHORT, 0, mVerts);
   glTexCoordPointer(2, GL_SHORT, 0, mVerts);
@@ -72,15 +76,16 @@ bool Engine::loadRoom(std::string name){
     return false;
   RoomObject* roomobj = new RoomObject();
   roomobj->setBackground(room->background);
+  roomobj->setWalkmap(room->walkmap);
   for (unsigned i = 0; i < room->objects.size(); ++i){
     Object2D* object = new Object2D(room->objects[i].state, room->objects[i].position);
     Object* o = mData->getObject(room->objects[i].object);
     //calculate render depth
     int depth;
-    if (room->objects[i].layer == 1)
+    if (room->objects[i].layer == 0)
       depth = 0;
-    else if (room->objects[i].layer == 2)
-      depth = room->objects[i].wm_depth;
+    else if (room->objects[i].layer == 1)
+      depth = room->objects[i].wm_depth-1;
     else
       depth = 10000;
     for (unsigned j = 0; j < o->states.size(); ++j){
@@ -100,17 +105,18 @@ bool Engine::loadRoom(std::string name){
         state = 2;
       else
         state = 3;
-      Object2D* character = new Object2D(state, ch.position);
-      Character* chbase = mData->getCharacter(ch.name);
+      Character* chbase = mData->getCharacter(ch.character);
+      CharacterObject* character = new CharacterObject(state, ch.position, ch.name);
       for (unsigned j = 0; j < chbase->states.size(); ++j){
-        int depth = ch.position.y/mWalkFields.y;
+        int depth = (ch.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
         Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
         character->addAnimation(anim);
+        character->addBasepoint(chbase->states[j].basepoint);
       }
       roomobj->addObject(character);
     }
   };
-  mObjects.push_back(roomobj);
+  mRooms.push_back(roomobj);
   return true;
 }
 
@@ -129,4 +135,27 @@ void Engine::insertToBlit(BlitObject* obj){
 
 void Engine::setCursorPos(Vec2i pos){
   mCursor->setPosition(pos);
+}
+
+void Engine::leftClick(Vec2i pos){
+  if (mFocussedChar){
+    Vec2i oldwmpos = mFocussedChar->getPosition()/mWalkGridSize;
+    Vec2i newwmpos = pos/mWalkGridSize;
+    if (mRooms.back()->isWalkable(newwmpos)){
+      mFocussedChar->setPosition(pos);
+      mFocussedChar->setDepth(newwmpos.y);
+    }
+  }
+}
+
+bool Engine::setFocus(std::string charname){
+  CharacterObject* res = NULL;
+  for (unsigned i = 0; i < mRooms.size(); ++i){
+    res = mRooms[i]->extractCharacter(charname);
+    if (res){
+      mFocussedChar = res;
+      return true;
+    }
+  }
+  return false;
 }

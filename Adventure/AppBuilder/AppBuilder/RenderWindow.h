@@ -12,6 +12,8 @@ public:
   void OnExitWindow(wxMouseEvent& event);
   void OnEraseBackground(wxEraseEvent& event);
   void OnMouseMove(wxMouseEvent& event);
+  void OnMouseLeft(wxMouseEvent& event);
+  void OnMouseRight(wxMouseEvent& event);
   void OnTimer(wxTimerEvent& event);
   void OnIdle(wxIdleEvent& event);
   void OnClose(wxCloseEvent& event);
