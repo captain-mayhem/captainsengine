@@ -95,5 +95,6 @@ int PcdkScript::loadRoom(Stack& s, unsigned numArgs){
 
 int PcdkScript::setFocus(Stack& s, unsigned numArgs){
   std::string character = s.pop().getString();
+  Engine::instance()->setFocus(character);
   return 0;
 }

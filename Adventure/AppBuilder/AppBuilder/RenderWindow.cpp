@@ -7,6 +7,8 @@ EVT_SIZE(RenderWindow::OnSize)
 EVT_PAINT(RenderWindow::OnPaint)
 //EVT_TIMER(wxID_ANY, RenderWindow::OnTimer)
 EVT_MOTION(RenderWindow::OnMouseMove)
+EVT_LEFT_UP(RenderWindow::OnMouseLeft)
+EVT_RIGHT_UP(RenderWindow::OnMouseRight)
 EVT_ENTER_WINDOW(RenderWindow::OnEnterWindow)
 EVT_LEAVE_WINDOW(RenderWindow::OnExitWindow)
 EVT_CLOSE(RenderWindow::OnClose)
@@ -95,6 +97,16 @@ void RenderWindow::OnEraseBackground(wxEraseEvent& event){
 void RenderWindow::OnMouseMove(wxMouseEvent& event){
   Vec2i pos(event.GetX(), event.GetY());
   Engine::instance()->setCursorPos(pos);
+}
+
+void RenderWindow::OnMouseLeft(wxMouseEvent& event){
+  Vec2i pos(event.GetX(), event.GetY());
+  Engine::instance()->leftClick(pos);
+}
+
+void RenderWindow::OnMouseRight(wxMouseEvent& event){
+  Vec2i pos(event.GetX(), event.GetY());
+  //Engine::instance()->leftClick(pos);
 }
 
 void RenderWindow::OnTimer(wxTimerEvent& event){

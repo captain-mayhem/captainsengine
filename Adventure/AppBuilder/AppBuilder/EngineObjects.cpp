@@ -107,6 +107,12 @@ void BlitGroup::render(Vec2i pos){
   }
 }
 
+void BlitGroup::setDepth(int depth){
+  for (unsigned i = 0; i < mBlits.size(); ++i){
+    mBlits[i]->setDepth(depth);
+  }
+}
+
 Animation::Animation(float fps) : mFps(fps), mCurrFrame(0){
 
 }
@@ -134,6 +140,12 @@ Animation::~Animation(){
 void Animation::render(Vec2i pos){
   if ((int)mBlits.size() > mCurrFrame)
     mBlits[mCurrFrame]->render(pos);
+}
+
+void Animation::setDepth(int depth){
+  for (unsigned k = 0; k < mBlits.size(); ++k){
+    mBlits[k]->setDepth(depth);
+  }
 }
 
 Object2D::Object2D(int state, Vec2i pos) : mState(state), mPos(pos){
@@ -178,4 +190,51 @@ void RoomObject::setBackground(std::string bg){
 
 void RoomObject::addObject(Object2D* obj){
   mObjects.push_back(obj);
+}
+
+CharacterObject* RoomObject::extractCharacter(const std::string& name){
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    if ((*iter)->getType() == Object2D::CHARACTER){
+      CharacterObject* ch = static_cast<CharacterObject*>((*iter));
+      if (ch->getName() == name){
+        mObjects.erase(iter);
+        return ch;
+      }
+    }
+  }
+  return NULL;
+}
+
+bool RoomObject::isWalkable(const Vec2i& pos){
+  WMField field = mWalkmap[pos.x][pos.y];
+  return field.walkable;
+}
+
+CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
+: Object2D(state, pos), mName(name)
+{
+
+}
+
+CharacterObject::~CharacterObject(){
+
+}
+
+void CharacterObject::setPosition(const Vec2i& pos){
+  Vec2i offset = mBasePoints[mState];
+  Object2D::setPosition(pos-offset);
+}
+
+Vec2i CharacterObject::getPosition(){
+  return mPos+mBasePoints[mState];
+}
+/*
+Vec2i CharacterObject::calcPosition(const Vec2i& p){
+  return mBasePoints[mState]+p;
+}*/
+
+void CharacterObject::setDepth(int depth){
+  for (unsigned i = 0; i < mAnimations.size(); ++i){
+    mAnimations[i]->setDepth(depth);
+  }
 }

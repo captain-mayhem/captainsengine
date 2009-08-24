@@ -19,7 +19,9 @@ public:
   void exitGame();
   void insertToBlit(BlitObject* obj);
   void setCursorPos(Vec2i pos);
+  void leftClick(Vec2i pos);
   bool loadRoom(std::string name);
+  bool setFocus(std::string charname);
   std::string resolveFilename(ResourceID id, std::string resource);
 protected:
   Engine();
@@ -27,10 +29,11 @@ protected:
   AdvDocument* mData;
   std::list<BlitObject*> mBlitQueue;
   short mVerts[8];
-  std::vector<Object2D*> mObjects;
+  std::vector<RoomObject*> mRooms;
   Object2D* mCursor;
   int mWalkGridSize;
   Vec2i mWalkFields;
+  CharacterObject* mFocussedChar;
   PcdkScript* mInterpreter;
 };
 
