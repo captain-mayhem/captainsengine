@@ -56,6 +56,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_UNICODE;UNICODE;wxUSE_NO_MANIFEST=1"
+				AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -121,7 +122,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;;&quot;C:\wxWidgets-2.8.10\lib\vc_lib\msw&quot;"
+				AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;;&quot;C:\wxWidgets-2.8.10\lib\vc_lib\msw&quot;;antlr\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;WINVER=0x400;__WXMSW__;_WINDOWS;wxUSE_GUI=1;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE;$(NOINHERIT)"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
@@ -135,6 +136,7 @@
 			<Tool
 				Name="VCResourceCompilerTool"
 				PreprocessorDefinitions="_UNICODE;UNICODE;wxUSE_NO_MANIFEST=1"
+				AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;"
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
@@ -198,6 +200,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Animator.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Engine.cpp"
 				>
 			</File>
@@ -232,12 +238,28 @@
 						CompileAs="2"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\pcdkParser.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						CompileAs="2"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -269,6 +291,10 @@
 			</File>
 			<File
 				RelativePath=".\AdvTreeCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Animator.h"
 				>
 			</File>
 			<File
@@ -334,24 +360,8 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath="..\..\..\wxWidgets-2.8.10\include\wx\msw\wx.rc"
+				RelativePath=".\AppBuilder.rc"
 				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCResourceCompilerTool"
-						AdditionalIncludeDirectories="&quot;C:\wxWidgets-2.8.10\include&quot;"
-					/>
-				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -594,7 +604,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="antlr&apos;ing grammar"
-						CommandLine="java -cp antlrworks-1.2.3.jar org.antlr.Tool pcdk.g"
+						CommandLine="java -cp antlrworks-1.2.3.jar org.antlr.Tool pcdk.g&#x0D;&#x0A;"
 						Outputs="pcdkLexer.c;pcdkLexer.h;pcdkParser.h;pcdkParser.c"
 					/>
 				</FileConfiguration>

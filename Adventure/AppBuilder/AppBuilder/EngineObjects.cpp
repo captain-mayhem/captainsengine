@@ -113,18 +113,18 @@ void BlitGroup::setDepth(int depth){
   }
 }
 
-Animation::Animation(float fps) : mFps(fps), mCurrFrame(0){
+Animation::Animation(float fps) : mInterval(1000/fps), mCurrFrame(0){
 
 }
 
-Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mFps(fps), mCurrFrame(0){
+Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mInterval(1000/fps), mCurrFrame(0){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k].names, frames[k].offsets, depth);
     mBlits.push_back(group);
   }
 }
 
-Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mFps(fps), mCurrFrame(0){
+Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mInterval(1000/fps), mCurrFrame(0){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k], offset, depth);
     mBlits.push_back(group);
@@ -138,13 +138,31 @@ Animation::~Animation(){
 }
 
 void Animation::render(Vec2i pos){
-  if ((int)mBlits.size() > mCurrFrame)
+  if (mCurrFrame != 0){
+    mBlits[mCurrFrame]->render(pos);
+  }
+  if (mBlits.size() > mCurrFrame)
     mBlits[mCurrFrame]->render(pos);
 }
 
 void Animation::setDepth(int depth){
   for (unsigned k = 0; k < mBlits.size(); ++k){
     mBlits[k]->setDepth(depth);
+  }
+}
+
+void Animation::start(){
+  mCurrFrame = 0;
+  mTimeAccu = 0;
+}
+
+void Animation::update(unsigned interval){
+  mTimeAccu += interval;
+  while(mTimeAccu >= mInterval){
+    mTimeAccu -= mInterval;
+    ++mCurrFrame;
+    if (mCurrFrame >= mBlits.size())
+      mCurrFrame = 0;
   }
 }
 
@@ -162,6 +180,12 @@ void Object2D::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
   mAnimations[mState-1]->render(mPos);
+}
+
+Animation* Object2D::getAnimation(){
+  if (mState <= 0 || (unsigned)mState > mAnimations.size())
+    return NULL;
+  return mAnimations[mState-1];
 }
 
 RoomObject::RoomObject() : Object2D(1, Vec2i(0,0)){
@@ -237,4 +261,12 @@ void CharacterObject::setDepth(int depth){
   for (unsigned i = 0; i < mAnimations.size(); ++i){
     mAnimations[i]->setDepth(depth);
   }
+}
+
+void CharacterObject::animationBegin(){
+  mState += 3;
+}
+
+void CharacterObject::animationEnd(){
+  mState -= 3;
 }

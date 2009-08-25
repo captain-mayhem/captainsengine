@@ -12,10 +12,12 @@ Engine::Engine() : mData(NULL){
   mVerts[4] = 1; mVerts[5] = 1;
   mVerts[6] = 1; mVerts[7] = 0;
   mInterpreter = new PcdkScript();
+  mAnimator = new Animator();
 }
 
 Engine::~Engine(){
   delete mInterpreter;
+  delete mAnimator;
 }
 
 void Engine::initGame(){
@@ -41,6 +43,7 @@ void Engine::initGame(){
 }
 
 void Engine::exitGame(){
+  mAnimator->clear();
   for (unsigned i = 0; i < mRooms.size(); ++i){
     delete mRooms[i];
   }
@@ -54,12 +57,20 @@ std::string Engine::resolveFilename(ResourceID id, std::string resource){
 }
 
 void Engine::render(){
+  unsigned interval = mTimer.Time();
+  mTimer.Start(0);
+  //some animation stuff
+  mAnimator->update(interval);
+
+  //build blit queue
   for (unsigned i = 0; i < mRooms.size(); ++i){
     mRooms[i]->render();
   }
   if (mFocussedChar)
     mFocussedChar->render();
   mCursor->render();
+
+  //render the stuff
   glVertexPointer(2, GL_SHORT, 0, mVerts);
   glTexCoordPointer(2, GL_SHORT, 0, mVerts);
   for (std::list<BlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
@@ -142,7 +153,10 @@ void Engine::leftClick(Vec2i pos){
     Vec2i oldwmpos = mFocussedChar->getPosition()/mWalkGridSize;
     Vec2i newwmpos = pos/mWalkGridSize;
     if (mRooms.back()->isWalkable(newwmpos)){
-      mFocussedChar->setPosition(pos);
+      std::queue<Vec2i> path;
+      path.push(pos);
+      mAnimator->add(mFocussedChar, path, 3);
+      //mFocussedChar->setPosition(pos);
       mFocussedChar->setDepth(newwmpos.y);
     }
   }

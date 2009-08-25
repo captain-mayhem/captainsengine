@@ -45,10 +45,13 @@ public:
   ~Animation();
   void render(Vec2i pos);
   void setDepth(int depth);
+  void start();
+  void update(unsigned interval);
 protected:
   std::vector<BlitGroup*> mBlits;
-  float mFps;
-  int mCurrFrame;
+  unsigned mInterval;
+  unsigned mTimeAccu;
+  unsigned mCurrFrame;
 };
 
 class Object2D{
@@ -63,7 +66,11 @@ public:
   virtual void render();
   virtual Type getType() {return OBJECT;}
   virtual void setPosition(const Vec2i& pos) {mPos = pos;}
+  virtual Vec2i getPosition() {return mPos;}
+  virtual void animationBegin() {}
+  virtual void animationEnd() {}
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
+  Animation* getAnimation();
 protected:
   int mState;
   Vec2i mPos;
@@ -96,8 +103,10 @@ public:
   const std::string& getName() {return mName;}
   void addBasepoint(Vec2i p) {mBasePoints.push_back(p);}
   virtual void setPosition(const Vec2i& pos);
-  Vec2i getPosition();
+  virtual Vec2i getPosition();
   void setDepth(int depth);
+  virtual void animationBegin();
+  virtual void animationEnd();
   //Vec2i calcPosition(const Vec2i& p);
 protected:
   std::string mName;
