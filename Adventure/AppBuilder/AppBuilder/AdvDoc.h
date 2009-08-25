@@ -36,6 +36,9 @@ struct Vec2i{
     result.y = y/num;
     return result;
   }
+  float length(){
+    return sqrt((float)x*x+y*y);
+  }
   int x;
   int y;
 };

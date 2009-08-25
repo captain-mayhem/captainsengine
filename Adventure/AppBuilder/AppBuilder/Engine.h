@@ -3,9 +3,11 @@
 
 #include <string>
 #include <list>
+#include <wx/stopwatch.h>
 #include "AdvDoc.h"
 #include "EngineObjects.h"
 #include "Script.h"
+#include "Animator.h"
 
 class Engine{
 public:
@@ -35,6 +37,8 @@ protected:
   Vec2i mWalkFields;
   CharacterObject* mFocussedChar;
   PcdkScript* mInterpreter;
+  Animator* mAnimator;
+  wxStopWatch mTimer;
 };
 
 #endif
