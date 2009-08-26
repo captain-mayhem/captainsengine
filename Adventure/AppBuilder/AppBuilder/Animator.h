@@ -11,7 +11,7 @@ class Animator{
   struct ObjectAnim{
     Object2D* object;
     Vec2i startpos;
-    std::queue<Vec2i> path;
+    std::list<Vec2i> path;
     int speedfactor;
     float normalization;
     float factor;
@@ -19,7 +19,7 @@ class Animator{
 public:
   Animator();
   ~Animator();
-  void add(Object2D* obj, const std::queue<Vec2i>& targetpath, int speedfactor);
+  void add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedfactor);
   void update(unsigned interval);
   void clear();
 protected:

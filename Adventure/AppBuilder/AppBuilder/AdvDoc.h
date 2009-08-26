@@ -39,6 +39,22 @@ struct Vec2i{
   float length(){
     return sqrt((float)x*x+y*y);
   }
+  bool operator<(const Vec2i& v) const{
+    if (x == v.x)
+      return y < v.y;
+    return x < v.x;
+  }
+  bool operator>(const Vec2i& v) const{
+    if (x == v.x)
+      return y > v.y;
+    return x > v.x;
+  }
+  bool operator==(const Vec2i& v) const{
+    return x==v.x && y==v.y;
+  }
+  bool operator!=(const Vec2i& v) const{
+    return x!=v.x || y!=v.y;
+  }
   int x;
   int y;
 };

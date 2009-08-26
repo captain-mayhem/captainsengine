@@ -9,7 +9,9 @@ Animator::~Animator(){
 
 }
 
-void Animator::add(Object2D* obj, const std::queue<Vec2i>& targetpath, int speedfactor){
+void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedfactor){
+  if (targetpath.empty())
+    return;
   ObjectAnim anim;
   anim.object = obj;
   anim.startpos = obj->getPosition();
@@ -18,7 +20,7 @@ void Animator::add(Object2D* obj, const std::queue<Vec2i>& targetpath, int speed
   anim.normalization = (targetpath.front()-anim.startpos).length();
   anim.factor = 0;
   if (anim.normalization != 0.0f){
-    obj->animationBegin();
+    obj->animationBegin(targetpath.front());
     //if (obj->getAnimation()){
     //  obj->getAnimation()->start();
     //}
@@ -44,17 +46,19 @@ void Animator::update(unsigned interval){
     }
     if (iter->factor >= iter->normalization){
       //goal reached
-      iter->path.pop();
+      iter->path.pop_front();
       if (iter->path.empty()){
-        iter->object->animationEnd();
+        iter->object->animationEnd(iter->startpos);
         iter = mObjects.erase(iter);
         if (iter == mObjects.end())
           break;
       }
       else{
+        Vec2i tmp = iter->startpos;
         iter->startpos = reachedpos;
         iter->normalization = (iter->path.front()-iter->startpos).length();
         iter->factor = 0;
+        iter->object->animationWaypoint(tmp, iter->path.front());
       }
     }
   }
