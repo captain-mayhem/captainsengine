@@ -235,7 +235,7 @@ bool RoomObject::isWalkable(const Vec2i& pos){
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
-: Object2D(state, pos), mName(name)
+: Object2D(state, pos), mName(name), mMirror(true)
 {
 
 }
@@ -263,10 +263,32 @@ void CharacterObject::setDepth(int depth){
   }
 }
 
-void CharacterObject::animationBegin(){
+void CharacterObject::animationBegin(const Vec2i& next){
   mState += 3;
 }
 
-void CharacterObject::animationEnd(){
+void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
+  int ycoord = getPosition().y;
+  if (prev.y-ycoord != 0){
+    setDepth(ycoord/Engine::instance()->getWalkGridSize());
+  }
+}
+
+void CharacterObject::animationEnd(const Vec2i& prev){
+  int ycoord = getPosition().y;
+  if (prev.y-ycoord != 0){
+    setDepth(ycoord/Engine::instance()->getWalkGridSize());
+  }
   mState -= 3;
+}
+
+void CharacterObject::render(){
+  if (mMirror){
+    glPushMatrix();
+    glScalef(-1.0,1.0,1.0);
+  }
+  Object2D::render();
+  if (mMirror){
+    glPopMatrix();
+  }
 }

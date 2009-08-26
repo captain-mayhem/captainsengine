@@ -67,8 +67,9 @@ public:
   virtual Type getType() {return OBJECT;}
   virtual void setPosition(const Vec2i& pos) {mPos = pos;}
   virtual Vec2i getPosition() {return mPos;}
-  virtual void animationBegin() {}
-  virtual void animationEnd() {}
+  virtual void animationBegin(const Vec2i& next) {}
+  virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next) {}
+  virtual void animationEnd(const Vec2i& prev) {}
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
   Animation* getAnimation();
 protected:
@@ -99,18 +100,21 @@ class CharacterObject : public Object2D{
 public:
   CharacterObject(int state, Vec2i pos, const std::string& name);
   ~CharacterObject();
+  virtual void render();
   virtual Type getType() {return CHARACTER;}
   const std::string& getName() {return mName;}
   void addBasepoint(Vec2i p) {mBasePoints.push_back(p);}
   virtual void setPosition(const Vec2i& pos);
   virtual Vec2i getPosition();
   void setDepth(int depth);
-  virtual void animationBegin();
-  virtual void animationEnd();
+  virtual void animationBegin(const Vec2i& next);
+  virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next);
+  virtual void animationEnd(const Vec2i& prev);
   //Vec2i calcPosition(const Vec2i& p);
 protected:
   std::string mName;
   std::vector<Vec2i> mBasePoints;
+  bool mMirror;
 };
 
 #endif
