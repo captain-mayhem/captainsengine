@@ -10,20 +10,22 @@
 class BlitObject{
 public:
   BlitObject(std::string texture, int depth, Vec2i offset);
-  ~BlitObject();
+  BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
+  virtual ~BlitObject();
   bool operator<(const BlitObject& obj);
-  void render(Vec2i pos);
-  void blit();
+  void render(Vec2i pos, bool mirrorx);
+  virtual void blit();
   int getDepth() {return mDepth;}
   void setDepth(int depth) {mDepth = depth;}
 protected:
-  void genTexture(const std::string& name);
   Vec2i mOffset;
   Vec2i mPos;
   Vec2i mSize;
   Vec2f mScale;
   int mDepth;
   GLuint mTex;
+  bool mMirrorX;
+  bool mDeleteTex;
 };
 
 class BlitGroup{
@@ -31,7 +33,7 @@ public:
   BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth);
   BlitGroup(const std::string& texture, const Vec2i& offset, int depth);
   ~BlitGroup();
-  void render(Vec2i pos);
+  void render(Vec2i pos, bool mirrorx);
   void setDepth(int depth);
 protected:
   std::vector<BlitObject*> mBlits;
@@ -43,7 +45,7 @@ public:
   Animation(ExtendedFrames& frames, float fps, int depth);
   Animation(Frames& frames, float fps, Vec2i offset, int depth);
   ~Animation();
-  void render(Vec2i pos);
+  void render(Vec2i pos, bool mirrorx);
   void setDepth(int depth);
   void start();
   void update(unsigned interval);

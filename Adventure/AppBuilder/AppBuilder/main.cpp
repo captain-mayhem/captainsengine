@@ -6,6 +6,7 @@
 #include <wx/notebook.h>
 #include <wx/statline.h>
 #include <wx/cmdline.h>
+#include <wx/fs_arc.h>
 
 #include "main.h"
 #include "AdvDoc.h"
@@ -41,12 +42,13 @@ bool Application::OnInit(){
   wxApp::OnInit();
   Engine::init();
   mManager = new wxDocManager();
-  new wxDocTemplate(mManager, "Adventure", "*.adv", "", "adv", "Adventure Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
-  new wxDocTemplate(mManager, "Adventure runtime", "*.exe", "", "exe", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
+  new wxDocTemplate(mManager, "Adventure project file", "*.adv", "", "adv", "Adventure Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
+  new wxDocTemplate(mManager, "Adventure game", "game.dat", "", "dat", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
   mFrame = new MainFrame(mManager, NULL, "AppBuilder", wxPoint(0,0), wxSize(1024,768), wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE | wxMAXIMIZE);
   mFrame->Show(true);
   SetTopWindow(mFrame);
   wxInitAllImageHandlers();
+  wxFileSystem::AddHandler(new wxArchiveFSHandler);
   if (mRunFile != ""){
     wxDocument* doc = mManager->CreateDocument(mRunFile, wxDOC_SILENT);
     wxCommandEvent dummy;

@@ -212,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Font.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FrameGraph.cpp"
 				>
 			</File>
@@ -311,6 +315,10 @@
 			</File>
 			<File
 				RelativePath=".\EngineObjects.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Font.h"
 				>
 			</File>
 			<File

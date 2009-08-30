@@ -8,6 +8,7 @@
 #include "EngineObjects.h"
 #include "Script.h"
 #include "Animator.h"
+#include "Font.h"
 
 class Engine{
 public:
@@ -15,16 +16,17 @@ public:
   static void init() {mInstance = new Engine();}
   static void deinit() {delete mInstance;}
   static Engine* instance() {return mInstance;}
-  void setData(AdvDocument* doc) {mData = doc;}
+  void setData(AdvDocument* doc);
   void render();
   void initGame();
   void exitGame();
+  GLuint genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const wxImage* alphaimage=NULL);
   void insertToBlit(BlitObject* obj);
   void setCursorPos(Vec2i pos);
   void leftClick(Vec2i pos);
   bool loadRoom(std::string name);
   bool setFocus(std::string charname);
-  std::string resolveFilename(ResourceID id, std::string resource);
+  wxImage getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
 protected:
   Engine();
@@ -43,6 +45,7 @@ protected:
   //helper classes
   PcdkScript* mInterpreter;
   Animator* mAnimator;
+  FontRenderer* mFonts;
   //TODO move out into render window
   wxStopWatch mTimer;
   std::list<unsigned> mTimeIntervals;

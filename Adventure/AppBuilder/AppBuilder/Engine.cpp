@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <numeric>
+#include <queue>
 
 #include <wx/image.h>
 
@@ -16,27 +17,38 @@ Engine::Engine() : mData(NULL){
   mVerts[6] = 1; mVerts[7] = 0;
   mInterpreter = new PcdkScript();
   mAnimator = new Animator();
+  mFonts = NULL;
 }
 
 Engine::~Engine(){
   delete mInterpreter;
   delete mAnimator;
+  delete mFonts;
+}
+
+void Engine::setData(AdvDocument* doc){
+  mData = doc;
+  delete mFonts;
+  mFonts = new FontRenderer(mData);
 }
 
 void Engine::initGame(){
-  //load cursor
   if (!mData)
     return;
   mFocussedChar = NULL;
   Vec2i res = mData->getProjectSettings()->resolution;
   mWalkGridSize = res.x/32;
   mWalkFields = Vec2i(32,res.y/mWalkGridSize);
+  //load cursor
   Cursor* cursor = mData->getCursor();
   mCursor = new Object2D(1, Vec2i(0,0));
   for (unsigned j = 0; j < cursor->size(); ++j){
     Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, 20000);
     mCursor->addAnimation(anim);
   }
+  //load fonts
+  mFonts->loadFont(1);
+  //load and execute start script
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
     PcdkScript::CodeSegment* seg = mInterpreter->parseProgram(startScript->text);
@@ -53,10 +65,61 @@ void Engine::exitGame(){
   mRooms.clear();
   delete mCursor;
   delete mFocussedChar;
+  mFonts->unloadFont(1);
 }
 
-std::string Engine::resolveFilename(ResourceID id, std::string resource){
-  return mData->getFilename(IMAGE,resource).GetFullPath().c_str();
+wxImage Engine::getImage(const std::string& name){
+  return mData->getImage(name);
+}
+
+//TODO move into utility
+unsigned roundToPowerOf2(unsigned x){
+  --x;
+  x |= x >> 1;
+  x |= x >> 2;
+  x |= x >> 4;
+  x |= x >> 8;
+  x |= x >> 16;
+  return x + 1;
+}
+
+GLuint Engine::genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const wxImage* alphaimage){
+  GLuint tex;
+  size.x = image.GetWidth();
+  size.y = image.GetHeight();
+  Vec2i pow2(roundToPowerOf2(size.x), roundToPowerOf2(size.y));
+  scale.x = ((float)size.x)/pow2.x;
+  scale.y = ((float)size.y)/pow2.y;
+  unsigned totalsize = size.x*size.y;
+  unsigned char* rgb = image.GetData();
+  unsigned char* alpha = image.GetAlpha();
+  GLubyte* buffer = new GLubyte[totalsize*4];
+  for (unsigned i = 0; i < totalsize; ++i){
+    buffer[4*i] = rgb[3*i];
+    buffer[4*i+1] = rgb[3*i+1];
+    buffer[4*i+2] = rgb[3*i+2];
+    if (alpha)
+      buffer[4*i+3] = alpha[i];
+    else if (alphaimage){
+      buffer[4*i+3] = alphaimage->GetRed(i%size.x, i/size.x);
+    }
+    else{
+      if (rgb[3*i] == 0xFF && rgb[3*i+1] == 0x0 && rgb[3*i+2] == 0xFF){
+        buffer[4*i+3] = 0;
+      }
+      else{
+        buffer[4*i+3] = 255;
+      }
+    }
+  }
+  glGenTextures(1,&tex);
+  glBindTexture(GL_TEXTURE_2D, tex);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pow2.x, pow2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+  delete buffer;
+  return tex;
 }
 
 void Engine::render(){
@@ -76,6 +139,10 @@ void Engine::render(){
   if (mFocussedChar)
     mFocussedChar->render();
   mCursor->render();
+
+  Vec2i res = mData->getProjectSettings()->resolution;
+  int offset = mFonts->getTextExtent("Walk to", 1)/2;
+  mFonts->render(res.x/2-offset, res.y-30, "Walk to", 1);
 
   //render the stuff
   glVertexPointer(2, GL_SHORT, 0, mVerts);

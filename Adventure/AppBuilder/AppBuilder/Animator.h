@@ -2,14 +2,14 @@
 #define ANIMATOR_H
 
 #include <list>
-#include <queue>
+#include <map>
 #include "AdvDoc.h"
 
 class Object2D;
 
 class Animator{
   struct ObjectAnim{
-    Object2D* object;
+    //Object2D* object;
     Vec2i startpos;
     std::list<Vec2i> path;
     int speedfactor;
@@ -23,7 +23,7 @@ public:
   void update(unsigned interval);
   void clear();
 protected:
-  std::list<ObjectAnim> mObjects;
+  std::map<Object2D*, ObjectAnim> mObjects;
 };
 
 #endif
