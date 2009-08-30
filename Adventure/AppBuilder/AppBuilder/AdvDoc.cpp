@@ -1,7 +1,11 @@
 #include "AdvDoc.h"
+#include <iomanip>
+#include <wx/wfstream.h>
 #include <wx/zipstrm.h>
 #include <wx/txtstrm.h>
 #include <wx/msgdlg.h>
+#include <wx/image.h>
+#include <wx/filesys.h>
 #include "GraphNodes.h"
 #include "AdvMainTree.h"
 
@@ -15,12 +19,12 @@ const int FXSHAPES_MAX = 3;
 
 IMPLEMENT_DYNAMIC_CLASS(AdvDocument, wxDocument);
 
-AdvDocument::AdvDocument(){
+AdvDocument::AdvDocument() : mStream(NULL){
   mView = NULL;
 }
 
 AdvDocument::~AdvDocument(){
-
+  delete mStream;
 }
 
 wxOutputStream& AdvDocument::SaveObject(wxOutputStream& stream){
@@ -58,6 +62,13 @@ wxInputStream& AdvDocument::LoadObject(wxInputStream& stream){
   }
   delete entry;
   zipstream.CloseEntry();
+  if (GetFilename().EndsWith("dat")){
+    wxFileName name(GetFilename());
+    wxString path = name.GetPath();
+    mStream = new wxFileSystem();
+    mStream->ChangePathTo("file:"+path, true);
+    //loadFonts();
+  }
   //wxMessageBox("Project loaded successfully", "Info");
   return stream;
 }
@@ -403,8 +414,19 @@ bool AdvDocument::loadFile3(wxInputStream& stream){
   return true;
 }
 
-wxFileName AdvDocument::getFilename(ResourceID id, wxString name){
-  return mImageNames[name];
+//wxFileName AdvDocument::getFilename(ResourceID id, wxString name){
+//  return mImageNames[name];
+//}
+wxImage AdvDocument::getImage(wxString name){
+  wxFileName filename = mImageNames[name];
+  if (mStream){
+    wxString path = "gfx.dat#zip:"+filename.GetFullName();
+    wxFSFile* file = mStream->OpenFile(path);
+    wxImage image(*file->GetStream());
+    delete file;
+    return image;
+  }
+  return wxImage(filename.GetFullPath());
 }
 
 float AdvDocument::readExtendedFrames(wxTextInputStream& txtstream, ExtendedFrames& frms){
@@ -476,5 +498,54 @@ Script* AdvDocument::getScript(Script::Type t, std::string name){
   if (iter == mScripts.end())
     return NULL;
   return &((*iter).second);
+}
+
+FontData AdvDocument::getFont(int num){
+  wxString number;
+  if (num < 100)
+    number << "0";
+  if (num < 10)
+    number << "0";
+  number << num;
+  wxString path;
+  if (num == 0)
+    path = "font.dat#zip:fontdata.sta";
+  else{
+    path << "fonts.dat#zip:font." << number << "#zip:fontdata." << number;
+  }
+  wxFSFile* file = mStream->OpenFile(path);
+  wxTextInputStream in(*file->GetStream());
+  FontData fnt;
+  long val;
+  wxString str = in.ReadLine(); str.ToLong(&val); fnt.images.resize(2*val);
+  str = in.ReadLine(); str.ToLong(&val); fnt.fontsize.x = val;
+  str = in.ReadLine(); str.ToLong(&val); fnt.fontsize.y = val;
+  str = in.ReadLine(); str.ToLong(&val); fnt.numChars.x = val;
+  str = in.ReadLine(); str.ToLong(&val); fnt.numChars.y = val;
+  fnt.charwidths.reserve(224);
+  while(!file->GetStream()->Eof()){
+    str = in.ReadLine(); str.ToLong(&val); fnt.charwidths.push_back(val);
+  }
+  delete file;
+  for (unsigned i = 0; i < fnt.images.size()/2; ++i){
+    path.Clear();
+    if (num == 0)
+      path << "font.dat#zip:fontsta.al" << (i+1);
+    else
+      path << "fonts.dat#zip:font." << number << "#zip:font" << num << ".al" << (i+1);
+    wxFSFile* file = mStream->OpenFile(path);
+    fnt.images[2*i] = wxImage(*file->GetStream());
+    delete file;
+    path.Clear();
+    if (num == 0)
+      path << "font.dat#zip:fontsta.bm" << (i+1);
+    else
+      path << "fonts.dat#zip:font." << number << "#zip:font" << num << ".bm" << (i+1);
+    file = mStream->OpenFile(path);
+    fnt.images[2*i+1] = wxImage(*file->GetStream());
+    delete file;
+  }
+  //mFonts.push_back(fnt);
+  return fnt;
 }
 

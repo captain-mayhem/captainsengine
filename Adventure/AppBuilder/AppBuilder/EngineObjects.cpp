@@ -4,74 +4,43 @@
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
 mDepth(depth), mOffset(offset){
-  genTexture(texture);
+  wxImage image = Engine::instance()->getImage(texture);
+  mTex = Engine::instance()->genTexture(image, mSize, mScale);
+  mDeleteTex = true;
+}
+
+BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
+mOffset(offset), mSize(size), mScale(scale), mDepth(depth), mTex(texture)
+{
+  mMirrorX = false;
+  mDeleteTex = false;
 }
 
 BlitObject::~BlitObject(){
-  glDeleteTextures(1, &mTex);
-}
-
-//TODO move into utility
-unsigned roundToPowerOf2(unsigned x){
-  --x;
-  x |= x >> 1;
-  x |= x >> 2;
-  x |= x >> 4;
-  x |= x >> 8;
-  x |= x >> 16;
-  return x + 1;
-}
-
-void BlitObject::genTexture(const std::string& name){
-  std::string filename = Engine::instance()->resolveFilename(IMAGE, name);
-  wxImage image(filename);
-  mSize.x = image.GetWidth();
-  mSize.y = image.GetHeight();
-  Vec2i pow2(roundToPowerOf2(mSize.x), roundToPowerOf2(mSize.y));
-  mScale.x = ((float)mSize.x)/pow2.x;
-  mScale.y = ((float)mSize.y)/pow2.y;
-  unsigned totalsize = mSize.x*mSize.y;
-  unsigned char* rgb = image.GetData();
-  unsigned char* alpha = image.GetAlpha();
-  GLubyte* buffer = new GLubyte[totalsize*4];
-  for (unsigned i = 0; i < totalsize; ++i){
-    buffer[4*i] = rgb[3*i];
-    buffer[4*i+1] = rgb[3*i+1];
-    buffer[4*i+2] = rgb[3*i+2];
-    if (alpha)
-      buffer[4*i+3] = alpha[i];
-    else{
-      if (rgb[3*i] == 0xFF && rgb[3*i+1] == 0x0 && rgb[3*i+2] == 0xFF){
-        buffer[4*i+3] = 0;
-      }
-      else{
-        buffer[4*i+3] = 255;
-      }
-    }
-  }
-  glGenTextures(1,&mTex);
-  glBindTexture(GL_TEXTURE_2D, mTex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pow2.x, pow2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mSize.x, mSize.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-  delete buffer;
+  if (mDeleteTex)
+    glDeleteTextures(1, &mTex);
 }
 
 bool BlitObject::operator<(const BlitObject& obj){
   return mDepth < obj.mDepth;
 }
 
-void BlitObject::render(Vec2i pos){
+void BlitObject::render(Vec2i pos, bool mirrorx){
   mPos.x = mOffset.x+pos.x;
   mPos.y = mOffset.y+pos.y;
+  mMirrorX = mirrorx;
   Engine::instance()->insertToBlit(this);
 }
 
 void BlitObject::blit(){
   glPushMatrix();
-  glTranslatef(mPos.x,mPos.y,0.0f);
+  //if (mMirrorX)
+  //  glTranslatef(mPos.x+mOffset.x,mPos.y,0.0f);
+  //else
+    glTranslatef(mPos.x,mPos.y,0.0f);
   glScalef(mSize.x,mSize.y,1.0f);
+  if (mMirrorX)
+    glScalef(-1.,1.,1.);
   glMatrixMode(GL_TEXTURE);
   glLoadIdentity();
   glScalef(mScale.x, mScale.y, 1.0f);
@@ -101,9 +70,9 @@ BlitGroup::~BlitGroup(){
   }
 }
 
-void BlitGroup::render(Vec2i pos){
+void BlitGroup::render(Vec2i pos, bool mirrorx){
   for (unsigned i = 0; i < mBlits.size(); ++i){
-    mBlits[i]->render(pos);
+    mBlits[i]->render(pos, mirrorx);
   }
 }
 
@@ -137,12 +106,12 @@ Animation::~Animation(){
   }
 }
 
-void Animation::render(Vec2i pos){
-  if (mCurrFrame != 0){
-    mBlits[mCurrFrame]->render(pos);
-  }
+void Animation::render(Vec2i pos, bool mirrorx){
+  //if (mCurrFrame != 0){
+  //  mBlits[mCurrFrame]->render(pos, mirrorx);
+  //}
   if (mBlits.size() > mCurrFrame)
-    mBlits[mCurrFrame]->render(pos);
+    mBlits[mCurrFrame]->render(pos, mirrorx);
 }
 
 void Animation::setDepth(int depth){
@@ -179,7 +148,7 @@ Object2D::~Object2D(){
 void Object2D::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  mAnimations[mState-1]->render(mPos);
+  mAnimations[mState-1]->render(mPos, false);
 }
 
 Animation* Object2D::getAnimation(){
@@ -235,7 +204,7 @@ bool RoomObject::isWalkable(const Vec2i& pos){
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
-: Object2D(state, pos), mName(name), mMirror(true)
+: Object2D(state, pos), mName(name), mMirror(false)
 {
 
 }
@@ -264,6 +233,23 @@ void CharacterObject::setDepth(int depth){
 }
 
 void CharacterObject::animationBegin(const Vec2i& next){
+  Vec2i dir = next-getPosition();
+  if (abs(dir.x) > abs(dir.y) && dir.x > 0){
+    mState = 3;
+    mMirror = false;
+  }
+  else if (abs(dir.x) > abs(dir.y) && dir.x < 0){
+    mState = 3;
+    mMirror = true;
+  }
+  else if (abs(dir.x) < abs(dir.y) && dir.y < 0){
+    mState = 2;
+    mMirror = false;
+  }
+  else if (abs(dir.x) < abs(dir.y) && dir.y > 0){
+    mState = 1;
+    mMirror = false;
+  }
   mState += 3;
 }
 
@@ -272,6 +258,24 @@ void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
   if (prev.y-ycoord != 0){
     setDepth(ycoord/Engine::instance()->getWalkGridSize());
   }
+  Vec2i dir = next-getPosition();
+  if (abs(dir.x) > abs(dir.y) && dir.x > 0){
+    mState = 3;
+    mMirror = false;
+  }
+  else if (abs(dir.x) > abs(dir.y) && dir.x < 0){
+    mState = 3;
+    mMirror = true;
+  }
+  else if (abs(dir.x) < abs(dir.y) && dir.y < 0){
+    mState = 2;
+    mMirror = false;
+  }
+  else if (abs(dir.x) < abs(dir.y) && dir.y > 0){
+    mState = 1;
+    mMirror = false;
+  }
+  mState += 3;
 }
 
 void CharacterObject::animationEnd(const Vec2i& prev){
@@ -283,12 +287,10 @@ void CharacterObject::animationEnd(const Vec2i& prev){
 }
 
 void CharacterObject::render(){
-  if (mMirror){
-    glPushMatrix();
-    glScalef(-1.0,1.0,1.0);
-  }
-  Object2D::render();
-  if (mMirror){
-    glPopMatrix();
-  }
+  if (mState <= 0 || (unsigned)mState > mAnimations.size())
+    return;
+  if (mMirror)
+    mAnimations[mState-1]->render(mPos+Vec2i(mBasePoints[mState-1].x,0), mMirror);
+  else
+    mAnimations[mState-1]->render(mPos, mMirror);
 }

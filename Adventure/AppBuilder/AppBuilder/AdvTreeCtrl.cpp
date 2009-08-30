@@ -32,7 +32,7 @@ void AdvTreeCtrl::OnItemActivated(wxTreeEvent& event){
       break;
     case IMAGE:{
       AdvDocument* doc = static_cast<AdvDocument*>(wxGetApp().getDocument());
-      wxImage image(doc->getFilename(IMAGE,name).GetFullPath());
+      wxImage image = doc->getImage(name);
       int width, height;
       width = image.GetWidth();
       height = image.GetHeight();

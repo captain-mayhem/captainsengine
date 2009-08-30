@@ -6,6 +6,8 @@
 
 #include <wx/docview.h>
 #include <wx/filename.h>
+#include <wx/filesys.h>
+#include <wx/image.h>
 #include "AdvMainTree.h"
 //#include "Graph.h"
 
@@ -60,6 +62,8 @@ struct Vec2i{
 };
 
 struct Vec2f{
+  Vec2f() : x(0), y(0) {}
+  Vec2f(float x, float y) {this->x = x; this->y = y;}
   float x;
   float y;
 };
@@ -199,13 +203,20 @@ struct Script{
   std::string text;
 };
 
+struct FontData{
+  Vec2i fontsize;
+  Vec2i numChars;
+  std::vector<wxImage> images;
+  std::vector<unsigned> charwidths;
+};
+
 class AdvDocument : public wxDocument{
 public:
   AdvDocument();
   virtual ~AdvDocument();
   virtual wxOutputStream& SaveObject(wxOutputStream& stream);
   virtual wxInputStream& LoadObject(wxInputStream& stream);
-  wxFileName getFilename(ResourceID id, wxString name);
+  wxImage getImage(wxString name);
   Room* getRoom(std::string name);
   Object* getObject(std::string name);
   Cursor* getCursor();
@@ -213,7 +224,7 @@ public:
   Character* getCharacter(std::string name);
   ProjectSettings* getProjectSettings();
   Script* getScript(Script::Type t, std::string name);
-  //Graph& getGamepool() {return mGamepool;}
+  FontData getFont(int num);
 protected:
   DECLARE_DYNAMIC_CLASS(AdvDocument)
   bool loadFile1(wxInputStream& stream);
@@ -221,6 +232,7 @@ protected:
   bool loadFile3(wxInputStream& stream);
   static int insertTreeElement(wxTreeCtrl* tree, const wxString& name, wxTreeItemId* current, int curr_level);
   float readExtendedFrames(wxTextInputStream& txtstream, ExtendedFrames& frms);
+  //void loadFonts();
   AdvMainTreeView* mView;
   ProjectSettings mSettings;
   std::map<wxString,wxFileName> mImageNames;
@@ -233,7 +245,8 @@ protected:
   std::map<std::pair<Script::Type,std::string>,Script> mScripts;
   Room* mLastRoom;
   Script* mLastScript;
-  //Graph mGamepool;
+  wxFileSystem* mStream;
+  //std::vector<Font> mFonts;
 };
 
 #endif
