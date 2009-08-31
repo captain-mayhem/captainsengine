@@ -16,13 +16,14 @@ prog returns [NodeList* nodes]
 		)*;
 
 stmt returns [StmtNode* stmt]
-	:	event_handler
+	:	evth=event_handler {$stmt = evth.evt;}
 	|	ns=nested_stmt {$stmt = ns.stmt;}
 ;
 	
 nested_stmt returns [StmtNode* stmt]
-	:	fc=func_call {$stmt = fc.func;}
-	|	conditional;
+	:	cond=conditional {$stmt = cond.cond;}
+	|	fc=func_call {$stmt = fc.func;}
+	;
 
 func_call returns [FuncCallNode* func]
 	:	IDENT LPAREN args=arg_list RPAREN 
@@ -32,37 +33,71 @@ func_call returns [FuncCallNode* func]
 	}
 ;
 	
-event_handler
-	:	ON LPAREN IDENT RPAREN block;
+event_handler returns [EventNode* evt]
+	:	ON LPAREN IDENT RPAREN evtblock=block
+	{
+		std::string eventname = std::string((char*)$IDENT.text->chars);
+		$evt = new EventNode(eventname, evtblock.nodes);
+	}
+	;
 	
-conditional
-	:	IF IDENT LPAREN arg_list RPAREN block
-;
+conditional returns [CondNode* cond]
+	:	IF IDENT LPAREN args=arg_list RPAREN ifblock=block
+	{
+		std::string condname = std::string((char*)$IDENT.text->chars);
+		$cond = new CondNode(condname, args.nodes, ifblock.nodes);
+	}
+	;
 	
-block	:	'{' (nested_stmt)* '}'
-	|	nested_stmt;
+block returns [NodeList* nodes]
+	:	{$nodes = new NodeList();}
+		LBRACE
+		(
+			stmtnode=nested_stmt {$nodes->addNode(stmtnode.stmt);}
+		)*
+		RBRACE
+	|	stmtnode=nested_stmt {$nodes = new NodeList(); $nodes->addNode(stmtnode.stmt);}
+	;
 	
 arg_list returns [NodeList* nodes]
 	:	node=arg {$nodes = new NodeList(); $nodes->addNode(node.value);}
 		(SEMICOLON 
 		node=arg {$nodes->addNode(node.value);}
 		)*
+	|	{$nodes = new NodeList();}
 ;
 
 arg	returns [ASTNode* value]
-	:	IDENT {$value = new IdentNode((char*)$IDENT.text->chars);}
+	: {$value = new IdentNode("");}
+	(INFO_BEG INT INFO_END )? 
+	(
+		IDENT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$IDENT.text->chars);}
+		| ON {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$ON.text->chars);}
+		| IF {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$IF.text->chars);}
+	)+
+	/*|	IDENT  {$value = new IdentNode((char*)$IDENT.text->chars);}*/
+	/*|	STRING {$value = new IdentNode((char*)$STRING.text->chars);}*/
 	|	INT {$value = new IntNode(atoi((char*)$INT.text->chars));}
 ;
 
 
 LPAREN	:	'(';
 RPAREN	:	')';
+LBRACE  :	'{';
+RBRACE	:	'}';
 SEMICOLON
 	:	';';
+UNDERSCORE
+	:	'_';
+INFO_BEG	:	'|''#';
+INFO_END	:	'#''|';
 ON	:	('O'|'o')('N'|'n');
-IF	:	('I'|'i')('F'|'f')'_';
+IF	:	('I'|'i')('F'|'f')UNDERSCORE;
 INT	:	'0'..'9'+;
 IDENT	:	('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9')*;
+/*STRING	:*/	/*WS*('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|WS)*//*('a'..'z'|'A'..'Z'|'0'..'9'|WS)**/
+	/*|	WS+('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9')*WS('a'..'z'|'A'..'Z'|'0'..'9'|WS)*	*/
+	//;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t')+ {$channel=HIDDEN;}

@@ -103,8 +103,29 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   mSettings.startscript = str.SubString(14,str.Length());
   mSettings.mainscript = txtstream.ReadLine();
   mSettings.anywhere_room = txtstream.ReadLine();
+  //TODO
+  for (int i = 0; i < 32; ++i){
+    str = txtstream.ReadLine();
+  }
+  str = txtstream.ReadLine();
+  mSettings.linktext = str.SubString(11, str.Length());
+  str = txtstream.ReadLine();
+  mSettings.givelink = str.SubString(11, str.Length());
+  str = txtstream.ReadLine();
+  mSettings.walktext = str.SubString(11, str.Length());
   while(!stream.Eof()){
     str = txtstream.ReadLine();
+    if (str == "Commands :"){
+      mSettings.pretty_commands.push_back(mSettings.walktext);
+      mSettings.commands["walkto"] = (unsigned)mSettings.pretty_commands.size()-1;
+      str = txtstream.ReadLine();
+      while (str != "Mediapool :"){
+        wxString pretty_name = txtstream.ReadLine();
+        mSettings.pretty_commands.push_back(pretty_name.c_str());
+        mSettings.commands[str.c_str()] = (unsigned)mSettings.pretty_commands.size()-1;
+        str = txtstream.ReadLine();
+      }
+    }
     if (str == "Mediapool :"){
       wxTreeCtrl* mediapool = mView->getMediapool();
       wxTreeItemId currNode = mediapool->AddRoot("Mediapool");

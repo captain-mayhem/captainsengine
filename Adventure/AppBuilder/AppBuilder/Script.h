@@ -5,6 +5,7 @@
 #include <antlr3.h>
 #include "pcdkLexer.h"
 #include "pcdkParser.h"
+#include "AdvDoc.h"
 
 #include "CIL.h"
 
@@ -37,10 +38,11 @@ public:
 
   class ExecutionContext{
     CodeSegment* mCode;
+    Stack mStack;
     unsigned mPC;
   };
 
-  PcdkScript();
+  PcdkScript(AdvDocument* data);
   ~PcdkScript();
   CodeSegment* parseProgram(std::string program);
   void registerFunction(std::string name, ScriptFunc func);
@@ -49,11 +51,13 @@ public:
   static int loadRoom(Stack& s, unsigned numArgs);
   static int setFocus(Stack& s, unsigned numArgs);
 protected:
-  void transform(NodeList* program, CodeSegment* codes, TrMode mode);
-  void transform(ASTNode* node, CodeSegment* codes);
+  unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode);
+  unsigned transform(ASTNode* node, CodeSegment* codes);
+  EngineEvent getEngineEvent(const std::string eventname);
   std::map<std::string, ScriptFunc> mFunctions;
   Stack mStack;
   unsigned mPc;
+  AdvDocument* mData;
 };
 
 #endif

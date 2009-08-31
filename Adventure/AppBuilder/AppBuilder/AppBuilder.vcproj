@@ -616,6 +616,16 @@
 						Outputs="pcdkLexer.c;pcdkLexer.h;pcdkParser.h;pcdkParser.c"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="antlr&apos;ing grammar"
+						CommandLine="java -cp antlrworks-1.2.3.jar org.antlr.Tool pcdk.g"
+						Outputs="pcdkLexer.c;pcdkLexer.h;pcdkParser.h;pcdkParser.c"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 	</Files>

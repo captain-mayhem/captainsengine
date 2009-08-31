@@ -11,6 +11,8 @@ public:
     IDENTIFIER,
     INTEGER,
     FUNCCALL,
+    EVENT,
+    CONDITION,
   };
   ASTNode(Type t) : mType(t) {}
   virtual ~ASTNode(){}
@@ -66,6 +68,11 @@ class IdentNode : public ASTNode{
 public:
   IdentNode(const std::string& value) : ASTNode(IDENTIFIER) {mValue = value;}
   virtual ~IdentNode(){}
+  void append(const char* str) {
+    std::string tmp(str);
+    if (!mValue.empty() || tmp != " ")
+      mValue += str;
+  }
   std::string& value() {return mValue;}
 protected:
   std::string mValue;
@@ -96,6 +103,39 @@ public:
 protected:
   std::string mFunc;
   NodeList* mArgs;
+};
+
+class EventNode : public StmtNode{
+public:
+  EventNode(const std::string& event, NodeList* eventblock) : StmtNode(EVENT){
+    mEvent = event;
+    mBlock = eventblock;
+  }
+  ~EventNode(){
+    delete mBlock;
+  }
+  std::string getEvent() {return mEvent;}
+  NodeList* getBlock() {return mBlock;}
+protected:
+  std::string mEvent;
+  NodeList* mBlock;
+};
+
+class CondNode : public StmtNode{
+public:
+  CondNode(const std::string& condition, NodeList* args, NodeList* ifblock) : StmtNode(CONDITION){
+    mCondition = condition;
+    mArgs = args;
+    mIfBlock = ifblock;
+  }
+  ~CondNode(){
+    delete mArgs;
+    delete mIfBlock;
+  }
+protected:
+  std::string mCondition;
+  NodeList* mArgs;
+  NodeList* mIfBlock;
 };
 
 #endif
