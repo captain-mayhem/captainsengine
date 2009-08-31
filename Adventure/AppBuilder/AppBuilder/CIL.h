@@ -8,6 +8,14 @@ CRET, CASSGN, CLOAD, CSTORE, CPUSH, CCALL,
 CVAR
 */
 
+enum EngineEvent{
+  EVT_USER_BEGIN=0,
+  EVT_USER_END=0x100,
+  EVT_UNKNOWN=EVT_USER_END+1,
+  EVT_MOUSE=EVT_UNKNOWN+1,
+  EVT_CLICK=EVT_MOUSE+1,
+};
+
 class Stack;
 
 typedef int (*ScriptFunc) (Stack&, unsigned numArgs);
@@ -62,6 +70,32 @@ public:
 protected:
   ScriptFunc mFunc;
   unsigned mNumArgs;
+};
+
+class CBRA : public CCode{
+public:
+  CBRA() : mOffset(1) {}
+  virtual ~CBRA() {}
+  virtual void setOffset(int offset) {mOffset = offset;}
+  virtual unsigned execute(Stack& stack, unsigned pc){
+    return pc+mOffset;
+  }
+protected:
+  int mOffset;
+};
+
+class CBNEEVT : public CBRA{
+public:
+  CBNEEVT(EngineEvent event) : mEvent(event) {}
+  virtual ~CBNEEVT() {}
+  virtual unsigned execute(Stack& stack, unsigned pc){
+    //check if event is set;
+    if (false)
+      return ++pc;
+    return pc+mOffset;
+  }
+protected:
+  EngineEvent mEvent;
 };
 
 #endif

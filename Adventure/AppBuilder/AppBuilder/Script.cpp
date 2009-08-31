@@ -2,12 +2,18 @@
 
 #include <cassert>
 #include <string>
+#include <wx/msgdlg.h>
 
 #include "Engine.h"
 
-PcdkScript::PcdkScript(){
+PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("loadroom", loadRoom);
   registerFunction("setfocus", setFocus);
+  registerFunction("showinfo", setFocus);
+  registerFunction("walkto", setFocus);
+  registerFunction("speech", setFocus);
+  registerFunction("pickup", setFocus);
+  registerFunction("playsound", setFocus);
 }
 
 PcdkScript::~PcdkScript(){
@@ -27,7 +33,8 @@ PcdkScript::CodeSegment* PcdkScript::parseProgram(std::string program){
   pcdkAST = parser->prog(parser);
   NodeList* p = pcdkAST.nodes;
   if (parser->pParser->rec->state->errorCount > 0){
-    //todo
+    wxMessageBox("Error parsing script");
+    return NULL;
   }
   parser->free(parser);
   tokStream->free(tokStream);
@@ -39,39 +46,55 @@ PcdkScript::CodeSegment* PcdkScript::parseProgram(std::string program){
   return segment;
 }
 
-void PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mode){
+unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mode){
+  unsigned count = 0;
   if (mode == ARGLIST){
     program->reset(false);
     while(program->hasPrev()){
       ASTNode* ast = program->prev();
-      transform(ast, codes);
+      count += transform(ast, codes);
     }
   }
   else{
     program->reset(true);
     while(program->hasNext()){
       ASTNode* ast = program->next();
-      transform(ast, codes);
+      count += transform(ast, codes);
     }
   }
+  return count;
 }
 
-void PcdkScript::transform(ASTNode* node, CodeSegment* codes){
+unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
+  unsigned count = 0;
   switch(node->getType()){
       case ASTNode::FUNCCALL:{
         FuncCallNode* fc = static_cast<FuncCallNode*>(node);
         ScriptFunc f = mFunctions[fc->getName()];
         assert(f != NULL);
-        transform(fc->getArguments(), codes, ARGLIST);
+        count += transform(fc->getArguments(), codes, ARGLIST);
         codes->addCode(new CCALL(f, fc->getArguments()->size()));
+        ++count;
       }
       break;
       case ASTNode::IDENTIFIER:{
         IdentNode* id = static_cast<IdentNode*>(node);
         codes->addCode(new CPUSH(id->value()));
+        ++count;
       }
       break;
+      case ASTNode::EVENT:{
+        EventNode* evt = static_cast<EventNode*>(node);
+        EngineEvent evtcode = getEngineEvent(evt->getEvent());
+        CBNEEVT* cevt = new CBNEEVT(evtcode);
+        codes->addCode(cevt);
+        ++count;
+        int offset = transform(evt->getBlock(), codes, START);
+        cevt->setOffset(offset+1);
+        count += offset;
+      }
   }
+  return count;
 }
 
 void PcdkScript::registerFunction(std::string name, ScriptFunc func){
@@ -97,4 +120,17 @@ int PcdkScript::setFocus(Stack& s, unsigned numArgs){
   std::string character = s.pop().getString();
   Engine::instance()->setFocus(character);
   return 0;
+}
+
+EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
+  if (eventname == "mouse")
+    return EVT_MOUSE;
+  else if (eventname == "click")
+    return EVT_CLICK;
+  std::map<std::string,unsigned>::iterator iter = mData->getProjectSettings()->commands.find(eventname);
+  if (iter != mData->getProjectSettings()->commands.end()){
+    return static_cast<EngineEvent>(iter->second);
+  }
+  assert(false);
+  return EVT_UNKNOWN;
 }

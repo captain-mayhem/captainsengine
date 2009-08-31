@@ -76,7 +76,12 @@ struct ProjectSettings{
   std::string mainscript;
   std::string anywhere_room;
   int screenchange;
-  std::map<std::string,std::string> commands;
+  std::string linktext;
+  std::string givelink;
+  std::string walktext;
+  std::map<std::string, unsigned> commands;
+  std::vector<std::string> pretty_commands;
+
 };
 
 

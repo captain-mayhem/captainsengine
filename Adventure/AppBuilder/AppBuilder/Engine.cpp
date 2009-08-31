@@ -15,9 +15,9 @@ Engine::Engine() : mData(NULL){
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
   mVerts[6] = 1; mVerts[7] = 0;
-  mInterpreter = new PcdkScript();
   mAnimator = new Animator();
   mFonts = NULL;
+  mInterpreter = NULL;
 }
 
 Engine::~Engine(){
@@ -29,6 +29,7 @@ Engine::~Engine(){
 void Engine::setData(AdvDocument* doc){
   mData = doc;
   delete mFonts;
+  mInterpreter = new PcdkScript(mData);
   mFonts = new FontRenderer(mData);
 }
 
@@ -141,8 +142,9 @@ void Engine::render(){
   mCursor->render();
 
   Vec2i res = mData->getProjectSettings()->resolution;
-  int offset = mFonts->getTextExtent("Walk to", 1)/2;
-  mFonts->render(res.x/2-offset, res.y-30, "Walk to", 1);
+  std::string text = mData->getProjectSettings()->walktext;
+  int offset = mFonts->getTextExtent(text, 1)/2;
+  mFonts->render(res.x/2-offset, res.y-30, text, 1);
 
   //render the stuff
   glVertexPointer(2, GL_SHORT, 0, mVerts);
@@ -176,6 +178,13 @@ bool Engine::loadRoom(std::string name){
     for (unsigned j = 0; j < o->states.size(); ++j){
       Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth);
       object->addAnimation(anim);
+    }
+    //check for scripts
+    Script* script = mData->getScript(Script::OBJECT,room->objects[i].object+";"+name);
+    if (script){
+      PcdkScript::CodeSegment* seg = mInterpreter->parseProgram(script->text);
+      //mInterpreter->execute(seg);
+      delete seg;
     }
     roomobj->addObject(object);
   }
