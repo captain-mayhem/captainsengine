@@ -9,7 +9,7 @@
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("loadroom", loadRoom);
   registerFunction("setfocus", setFocus);
-  registerFunction("showinfo", setFocus);
+  registerFunction("showinfo", showInfo);
   registerFunction("walkto", setFocus);
   registerFunction("speech", setFocus);
   registerFunction("pickup", setFocus);
@@ -20,7 +20,7 @@ PcdkScript::~PcdkScript(){
 
 }
 
-PcdkScript::CodeSegment* PcdkScript::parseProgram(std::string program){
+PcdkScript::ExecutionContext* PcdkScript::parseProgram(std::string program){
   pANTLR3_INPUT_STREAM input;
   ppcdkLexer lexer;
   pANTLR3_COMMON_TOKEN_STREAM tokStream;
@@ -43,7 +43,11 @@ PcdkScript::CodeSegment* PcdkScript::parseProgram(std::string program){
   CodeSegment* segment = new CodeSegment;
   transform(p, segment, START);
   delete p;
-  return segment;
+  if (segment->numInstructions() == 0){
+    delete segment;
+    return NULL;
+  }
+  return new ExecutionContext(segment);
 }
 
 unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mode){
@@ -83,6 +87,12 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         ++count;
       }
       break;
+      case ASTNode::INTEGER:{
+        IntNode* number = static_cast<IntNode*>(node);
+        codes->addCode(new CPUSH(number->value()));
+        ++count;
+      }
+      break;
       case ASTNode::EVENT:{
         EventNode* evt = static_cast<EventNode*>(node);
         EngineEvent evtcode = getEngineEvent(evt->getEvent());
@@ -93,21 +103,33 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         cevt->setOffset(offset+1);
         count += offset;
       }
+      break;
+      default:
+        //wxMessageBox("Unhandled AST-Type");
+        break;
   }
   return count;
+}
+
+PcdkScript::ExecutionContext::ExecutionContext(CodeSegment* segment) : mCode(segment), mStack(), mPC(0){
+
+}
+
+PcdkScript::ExecutionContext::~ExecutionContext(){
+  delete mCode;
 }
 
 void PcdkScript::registerFunction(std::string name, ScriptFunc func){
   mFunctions[name] = func;
 }
 
-void PcdkScript::execute(CodeSegment* segment){
-  mPc = 0;
-  CCode* code = segment->get(mPc);
+void PcdkScript::execute(ExecutionContext* script){
+  CCode* code = script->mCode->get(script->mPC);
   while(code){
-    mPc = code->execute(mStack, mPc);
-    code = segment->get(mPc);
+    script->mPC = code->execute(script->mStack, script->mPC);
+    code = script->mCode->get(script->mPC);
   }
+  script->mPC = 0;
 }
 
 int PcdkScript::loadRoom(Stack& s, unsigned numArgs){
@@ -122,6 +144,15 @@ int PcdkScript::setFocus(Stack& s, unsigned numArgs){
   return 0;
 }
 
+int PcdkScript::showInfo(Stack& s, unsigned numArgs){
+  std::string text = s.pop().getString();
+  std::string b = s.pop().getString();
+  Vec2i pos = Engine::instance()->getCursorPos();
+  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
+  Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, text, 1);
+  return 0;
+}
+
 EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
   if (eventname == "mouse")
     return EVT_MOUSE;
@@ -133,4 +164,16 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
   }
   assert(false);
   return EVT_UNKNOWN;
+}
+
+void PcdkScript::setEvent(EngineEvent evt){
+  mEvents.insert(evt);
+}
+
+void PcdkScript::resetEvent(EngineEvent evt){
+  mEvents.erase(evt);
+}
+
+bool PcdkScript::isEventSet(EngineEvent evt){
+  return mEvents.find(evt) != mEvents.end();
 }

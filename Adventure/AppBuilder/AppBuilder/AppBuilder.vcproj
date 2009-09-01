@@ -204,6 +204,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CIL.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Engine.cpp"
 				>
 			</File>

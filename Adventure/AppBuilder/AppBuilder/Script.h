@@ -2,6 +2,7 @@
 #define PCDK_SCRIPT_H
 
 #include <map>
+#include <set>
 #include <antlr3.h>
 #include "pcdkLexer.h"
 #include "pcdkParser.h"
@@ -32,11 +33,19 @@ public:
         return mCodes[pc];
       return NULL;
     }
+    unsigned numInstructions(){
+      return (unsigned)mCodes.size();
+    }
   protected:
     std::vector<CCode*> mCodes;
   };
 
   class ExecutionContext{
+    friend class PcdkScript;
+  public:
+    ExecutionContext(CodeSegment* segment);
+    ~ExecutionContext();
+  protected:
     CodeSegment* mCode;
     Stack mStack;
     unsigned mPC;
@@ -44,20 +53,23 @@ public:
 
   PcdkScript(AdvDocument* data);
   ~PcdkScript();
-  CodeSegment* parseProgram(std::string program);
+  ExecutionContext* parseProgram(std::string program);
   void registerFunction(std::string name, ScriptFunc func);
-  void execute(CodeSegment* segment);
+  void execute(ExecutionContext* script);
+  void setEvent(EngineEvent evt);
+  void resetEvent(EngineEvent evt);
+  bool isEventSet(EngineEvent evt);
 
   static int loadRoom(Stack& s, unsigned numArgs);
   static int setFocus(Stack& s, unsigned numArgs);
+  static int showInfo(Stack& s, unsigned numArgs);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode);
   unsigned transform(ASTNode* node, CodeSegment* codes);
   EngineEvent getEngineEvent(const std::string eventname);
   std::map<std::string, ScriptFunc> mFunctions;
-  Stack mStack;
-  unsigned mPc;
   AdvDocument* mData;
+  std::set<EngineEvent> mEvents;
 };
 
 #endif

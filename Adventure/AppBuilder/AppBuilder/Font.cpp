@@ -71,11 +71,14 @@ FontRenderer::Font::Font(const FontData& data){
 }
 
 FontRenderer::Font::~Font(){
+  while (mCache.size() > 0){
+    delete mCache.front();
+    mCache.pop();
+  }
 }
 
 void FontRenderer::Font::render(int x, int y, const std::string& text){
-  static String str;
-  str.clear();
+  String* str = new String();
   int xoffset = 0;
   for (unsigned i = 0; i < text.size(); ++i){
     char charnum = text[i]-0x20;
@@ -86,19 +89,24 @@ void FontRenderer::Font::render(int x, int y, const std::string& text){
     charnum %= mNumChars.x;
     BlitObject* obj = new FontBlitObject(mImages[texnum], mImages[texnum], 
       mFontsize, mScale, 15000, Vec2i(xoffset,0), Vec2f(charnum, rownum));
-    str.append(obj);
+    str->append(obj);
     xoffset += chardeviation;
   }
-  str.render(Vec2i(x,y));
+  while (mCache.size() > 10){
+    delete mCache.front();
+    mCache.pop();
+  }
+  mCache.push(str);
+  str->render(Vec2i(x,y));
 }
 
-unsigned FontRenderer::Font::getTextExtent(const std::string& text){
+Vec2i FontRenderer::Font::getTextExtent(const std::string& text){
   unsigned accu = 0;
   for (unsigned i = 0; i < text.size(); ++i){
     char charnum = text[i]-0x20;
     accu += mCharwidths[charnum];
   }
-  return accu;
+  return Vec2i(accu,mFontsize.y);
 }
 
 //////////////////////////////////////////////
@@ -132,6 +140,6 @@ void FontRenderer::render(int x, int y, const std::string& text, int fontid){
   mFonts[fontid]->render(x, y, text);
 }
 
-unsigned FontRenderer::getTextExtent(const std::string& text, int fontid){
+Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid){
   return mFonts[fontid]->getTextExtent(text);
 }

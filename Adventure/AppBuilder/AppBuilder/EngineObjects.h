@@ -6,6 +6,7 @@
 #endif
 #include <gl/GL.h>
 #include "AdvDoc.h"
+#include "Script.h"
 
 class BlitObject{
 public:
@@ -63,7 +64,7 @@ public:
     ROOM,
     CHARACTER,
   };
-  Object2D(int state, Vec2i pos);
+  Object2D(int state, const Vec2i& pos, const Vec2i& size);
   virtual ~Object2D();
   virtual void render();
   virtual Type getType() {return OBJECT;}
@@ -74,17 +75,22 @@ public:
   virtual void animationEnd(const Vec2i& prev) {}
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
   Animation* getAnimation();
+  bool isHit(const Vec2i& point);
+  void setScript(PcdkScript::ExecutionContext* script) {mScript = script;}
+  PcdkScript::ExecutionContext* getScript() {return mScript;}
 protected:
   int mState;
   Vec2i mPos;
+  Vec2i mSize;
   std::vector<Animation*> mAnimations;
+  PcdkScript::ExecutionContext* mScript;
 };
 
 class CharacterObject;
 
 class RoomObject : public Object2D{
 public:
-  RoomObject();
+  RoomObject(const Vec2i& size);
   ~RoomObject();
   void setBackground(std::string bg);
   void setWalkmap(const std::vector<std::vector<WMField> >& map){mWalkmap = map;}
@@ -93,6 +99,7 @@ public:
   virtual Type getType() {return ROOM;}
   CharacterObject* extractCharacter(const std::string& name);
   bool isWalkable(const Vec2i& pos);
+  Object2D* getObjectAt(const Vec2i& pos);
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;

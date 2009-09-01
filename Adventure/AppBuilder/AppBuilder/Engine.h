@@ -23,11 +23,15 @@ public:
   GLuint genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const wxImage* alphaimage=NULL);
   void insertToBlit(BlitObject* obj);
   void setCursorPos(Vec2i pos);
+  Vec2i getCursorPos();
   void leftClick(Vec2i pos);
   bool loadRoom(std::string name);
   bool setFocus(std::string charname);
   wxImage getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
+  Object2D* getObjectAt(const Vec2i& pos);
+  PcdkScript* getInterpreter() {return mInterpreter;}
+  FontRenderer* getFontRenderer() {return mFonts;}
 protected:
   Engine();
   static Engine* mInstance;
