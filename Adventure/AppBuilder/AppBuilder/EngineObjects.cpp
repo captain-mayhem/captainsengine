@@ -135,11 +135,13 @@ void Animation::update(unsigned interval){
   }
 }
 
-Object2D::Object2D(int state, Vec2i pos) : mState(state), mPos(pos){
+Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size) : mState(state), 
+mPos(pos), mSize(size), mScript(NULL){
 
 }
 
 Object2D::~Object2D(){
+  delete mScript;
   for (unsigned i = 0; i < mAnimations.size(); ++i){
     delete mAnimations[i];
   }
@@ -157,7 +159,17 @@ Animation* Object2D::getAnimation(){
   return mAnimations[mState-1];
 }
 
-RoomObject::RoomObject() : Object2D(1, Vec2i(0,0)){
+bool Object2D::isHit(const Vec2i& point){
+  if (mScript == NULL)
+    return false;
+  if (point.x >= mPos.x && point.x <= mPos.x+mSize.x){
+    if (point.y >= mPos.y && point.y <= mPos.y+mSize.y)
+      return true;
+  }
+  return false;
+}
+
+RoomObject::RoomObject(const Vec2i& size) : Object2D(1, Vec2i(0,0), size){
 
 }
 
@@ -185,6 +197,14 @@ void RoomObject::addObject(Object2D* obj){
   mObjects.push_back(obj);
 }
 
+Object2D* RoomObject::getObjectAt(const Vec2i& pos){
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    if(mObjects[i]->isHit(pos))
+      return mObjects[i];
+  }
+  return NULL;
+}
+
 CharacterObject* RoomObject::extractCharacter(const std::string& name){
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     if ((*iter)->getType() == Object2D::CHARACTER){
@@ -204,7 +224,7 @@ bool RoomObject::isWalkable(const Vec2i& pos){
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
-: Object2D(state, pos), mName(name), mMirror(false)
+: Object2D(state, pos, Vec2i(0,0)), mName(name), mMirror(false)
 {
 
 }

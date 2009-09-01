@@ -42,7 +42,7 @@ void Engine::initGame(){
   mWalkFields = Vec2i(32,res.y/mWalkGridSize);
   //load cursor
   Cursor* cursor = mData->getCursor();
-  mCursor = new Object2D(1, Vec2i(0,0));
+  mCursor = new Object2D(1, Vec2i(0,0), Vec2i(32,32));
   for (unsigned j = 0; j < cursor->size(); ++j){
     Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, 20000);
     mCursor->addAnimation(anim);
@@ -52,9 +52,9 @@ void Engine::initGame(){
   //load and execute start script
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
-    PcdkScript::CodeSegment* seg = mInterpreter->parseProgram(startScript->text);
-    mInterpreter->execute(seg);
-    delete seg;
+    PcdkScript::ExecutionContext* exe = mInterpreter->parseProgram(startScript->text);
+    mInterpreter->execute(exe);
+    delete exe;
   }
 }
 
@@ -143,8 +143,19 @@ void Engine::render(){
 
   Vec2i res = mData->getProjectSettings()->resolution;
   std::string text = mData->getProjectSettings()->walktext;
-  int offset = mFonts->getTextExtent(text, 1)/2;
+  int offset = mFonts->getTextExtent(text, 1).x/2;
   mFonts->render(res.x/2-offset, res.y-30, text, 1);
+
+  //do some scripting
+  Object2D* obj = getObjectAt(mCursor->getPosition());
+  if (obj != NULL){
+    PcdkScript::ExecutionContext* script = obj->getScript();
+    if (script != NULL){
+      mInterpreter->setEvent(EVT_MOUSE);
+      mInterpreter->execute(script);
+      mInterpreter->resetEvent(EVT_MOUSE);
+    }
+  }
 
   //render the stuff
   glVertexPointer(2, GL_SHORT, 0, mVerts);
@@ -161,12 +172,12 @@ bool Engine::loadRoom(std::string name){
   Room* room = mData->getRoom(name);
   if (!room)
     return false;
-  RoomObject* roomobj = new RoomObject();
+  RoomObject* roomobj = new RoomObject(room->size);
   roomobj->setBackground(room->background);
   roomobj->setWalkmap(room->walkmap);
   for (unsigned i = 0; i < room->objects.size(); ++i){
-    Object2D* object = new Object2D(room->objects[i].state, room->objects[i].position);
     Object* o = mData->getObject(room->objects[i].object);
+    Object2D* object = new Object2D(room->objects[i].state, room->objects[i].position, o->size);
     //calculate render depth
     int depth;
     if (room->objects[i].layer == 0)
@@ -182,9 +193,8 @@ bool Engine::loadRoom(std::string name){
     //check for scripts
     Script* script = mData->getScript(Script::OBJECT,room->objects[i].object+";"+name);
     if (script){
-      PcdkScript::CodeSegment* seg = mInterpreter->parseProgram(script->text);
-      //mInterpreter->execute(seg);
-      delete seg;
+      PcdkScript::ExecutionContext* scr = mInterpreter->parseProgram(script->text);
+      object->setScript(scr);
     }
     roomobj->addObject(object);
   }
@@ -229,6 +239,10 @@ void Engine::insertToBlit(BlitObject* obj){
 
 void Engine::setCursorPos(Vec2i pos){
   mCursor->setPosition(pos);
+}
+
+Vec2i Engine::getCursorPos(){
+  return mCursor->getPosition();
 }
 
 void Engine::leftClick(Vec2i pos){
@@ -359,4 +373,13 @@ float Engine::distance(const Vec2i& x, const Vec2i& y){
   Vec2i dir = y-x;
   //manhattan distance
   return fabs((float)dir.x)+fabs((float)dir.y);
+}
+
+Object2D* Engine::getObjectAt(const Vec2i& pos){
+  for (std::vector<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    Object2D* ret = (*iter)->getObjectAt(pos);
+    if (ret != NULL)
+      return ret;
+  }
+  return NULL;
 }

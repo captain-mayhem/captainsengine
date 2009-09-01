@@ -1,6 +1,9 @@
 #ifndef CIL_H
 #define CIL_H
 
+#include <string>
+#include <vector>
+
 /*
 CADD, CMUL, CSUB, CDIV, CLABEL, CBEQ, CBNE,
 CBLT, CBGT, CBLE, CBGE, CBRA, CI2R, CR2I,
@@ -23,9 +26,12 @@ typedef int (*ScriptFunc) (Stack&, unsigned numArgs);
 class StackData{
 public:
   StackData(std::string str) {mStr = str;}
+  StackData(int value) {mInt = value;}
   std::string getString() {return mStr;}
+  int getInt() {return mInt;}
 protected:
   std::string mStr;
+  int mInt;
 };
 
 class Stack{
@@ -50,6 +56,7 @@ public:
 class CPUSH : public CCode{
 public:
   CPUSH(const std::string& s) : mData(s) {}
+  CPUSH(const int i) : mData(i) {}
   virtual ~CPUSH() {}
   virtual unsigned execute(Stack& stack, unsigned pc){
     stack.push(mData);
@@ -88,12 +95,7 @@ class CBNEEVT : public CBRA{
 public:
   CBNEEVT(EngineEvent event) : mEvent(event) {}
   virtual ~CBNEEVT() {}
-  virtual unsigned execute(Stack& stack, unsigned pc){
-    //check if event is set;
-    if (false)
-      return ++pc;
-    return pc+mOffset;
-  }
+  virtual unsigned execute(Stack& stack, unsigned pc);
 protected:
   EngineEvent mEvent;
 };
