@@ -10,7 +10,7 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("loadroom", loadRoom);
   registerFunction("setfocus", setFocus);
   registerFunction("showinfo", showInfo);
-  registerFunction("walkto", setFocus);
+  registerFunction("walkto", walkTo);
   registerFunction("speech", setFocus);
   registerFunction("pickup", setFocus);
   registerFunction("playsound", setFocus);
@@ -146,10 +146,27 @@ int PcdkScript::setFocus(Stack& s, unsigned numArgs){
 
 int PcdkScript::showInfo(Stack& s, unsigned numArgs){
   std::string text = s.pop().getString();
-  std::string b = s.pop().getString();
-  Vec2i pos = Engine::instance()->getCursorPos();
-  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
-  Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, text, 1);
+  bool show = s.pop().getBool();
+  if (show){
+    Vec2i pos = Engine::instance()->getCursorPos();
+    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
+    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, text, 1);
+  }
+  Engine::instance()->setObjectString(text);
+  return 0;
+}
+
+int PcdkScript::walkTo(Stack& s, unsigned numArgs){
+  std::string character = s.pop().getString();
+  Vec2i pos;
+  pos.x = s.pop().getInt()-1;
+  pos.y = s.pop().getInt()-1;
+  pos = pos * Engine::instance()->getWalkGridSize();
+  LookDir dir = (LookDir)(s.pop().getInt()-1);
+  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  if (chr){
+    Engine::instance()->walkTo(chr, pos, dir);
+  }
   return 0;
 }
 

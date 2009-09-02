@@ -26,13 +26,13 @@ struct Vec2i{
     result.y = y-v.y;
     return result;
   }
-  Vec2i operator*(int num){
+  Vec2i operator*(int num) const{
     Vec2i result;
     result.x = x*num;
     result.y = y*num;
     return result;
   }
-  Vec2i operator/(int num){
+  Vec2i operator/(int num) const{
     Vec2i result;
     result.x = x/num;
     result.y = y/num;

@@ -63,6 +63,7 @@ public:
   static int loadRoom(Stack& s, unsigned numArgs);
   static int setFocus(Stack& s, unsigned numArgs);
   static int showInfo(Stack& s, unsigned numArgs);
+  static int walkTo(Stack& s, unsigned numArgs);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode);
   unsigned transform(ASTNode* node, CodeSegment* codes);

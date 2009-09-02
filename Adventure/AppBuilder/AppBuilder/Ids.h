@@ -14,10 +14,11 @@ enum ResourceID{
 };
 
 enum LookDir{
-  BACK=0,
-  FRONT=1,
-  LEFT=2,
-  RIGHT=3,
+  FRONT=0,
+  BACK=1,
+  RIGHT=2,
+  LEFT=3,
+  UNSPECIFIED=4,
 };
 
 enum WindowIds{
