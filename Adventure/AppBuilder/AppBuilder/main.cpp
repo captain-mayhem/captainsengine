@@ -42,16 +42,23 @@ bool Application::OnInit(){
   wxApp::OnInit();
   Engine::init();
   mManager = new wxDocManager();
-  new wxDocTemplate(mManager, "Adventure project file", "*.adv", "", "adv", "Adventure Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
-  new wxDocTemplate(mManager, "Adventure game", "game.dat", "", "dat", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
-  mFrame = new MainFrame(mManager, NULL, "AppBuilder", wxPoint(0,0), wxSize(1024,768), wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE | wxMAXIMIZE);
-  mFrame->Show(true);
-  SetTopWindow(mFrame);
+  if (mRunFile == ""){
+    new wxDocTemplate(mManager, "Adventure game", "game.dat", "", "dat", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
+    new wxDocTemplate(mManager, "Adventure project file", "*.adv", "", "adv", "Adventure Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
+    mFrame = new MainFrame(mManager, NULL, "AppBuilder", wxPoint(0,0), wxSize(1024,768), wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE | wxMAXIMIZE);
+    mFrame->Show(true);
+    SetTopWindow(mFrame);
+  }
+  else{
+    new wxDocTemplate(mManager, "Adventure game", "game.dat", "", "dat", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(wxFrame));
+  }
   wxInitAllImageHandlers();
   wxFileSystem::AddHandler(new wxArchiveFSHandler);
   if (mRunFile != ""){
     wxDocument* doc = mManager->CreateDocument(mRunFile, wxDOC_SILENT);
+    Engine::instance()->setData(static_cast<AdvDocument*>(doc));
     wxCommandEvent dummy;
+    dummy.SetInt(4711);
     mFrame->OnCreateGame(dummy);
   }
   return true;
@@ -168,9 +175,15 @@ void MainFrame::OnProjectSetup(wxCommandEvent& event){
 
 void MainFrame::OnCreateGame(wxCommandEvent& event){
   wxSize sz(640,480);
-  wxMDIChildFrame* frame = new wxMDIChildFrame(wxGetApp().getFrame(), wxID_ANY, "Game", wxPoint(200,50), sz);
+  wxWindow* frame;
+  if (event.GetInt() == 4711){
+    frame = new wxFrame(NULL, wxID_ANY, "Game", wxDefaultPosition, sz);
+  }
+  else{
+    frame = new wxMDIChildFrame(wxGetApp().getFrame(), wxID_ANY, "Game", wxPoint(200,50), sz);
+  }
   wxSize framesize = frame->ClientToWindowSize(sz);
-  frame->SetSize(framesize);
+  //frame->SetSize(framesize);
   frame->Show(true);
   int attribs[] = {
     WX_GL_RGBA, //GL_TRUE,
@@ -180,6 +193,6 @@ void MainFrame::OnCreateGame(wxCommandEvent& event){
   };
   RenderWindow* rendwin = new RenderWindow(frame, attribs, sz.x, sz.y);
   rendwin->init();
-  rendwin->Raise();
+  frame->SetSize(framesize);
   Engine::instance()->initGame();
 }

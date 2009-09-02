@@ -29,6 +29,7 @@ public:
   StackData(int value) {mInt = value;}
   std::string getString() {return mStr;}
   int getInt() {return mInt;}
+  bool getBool() {return mStr == "true";}
 protected:
   std::string mStr;
   int mInt;

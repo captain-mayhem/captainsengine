@@ -30,8 +30,11 @@ public:
   wxImage getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
   Object2D* getObjectAt(const Vec2i& pos);
+  CharacterObject* getCharacter(const std::string& name);
   PcdkScript* getInterpreter() {return mInterpreter;}
   FontRenderer* getFontRenderer() {return mFonts;}
+  void setObjectString(const std::string info) {mObjectInfo = info;}
+  void walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir);
 protected:
   Engine();
   static Engine* mInstance;
@@ -39,6 +42,7 @@ protected:
   //rendering
   std::list<BlitObject*> mBlitQueue;
   short mVerts[8];
+  bool mInitialized;
   //data
   std::vector<RoomObject*> mRooms;
   Object2D* mCursor;
@@ -72,6 +76,8 @@ protected:
   bool aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path);
   float distance(const Vec2i& x, const Vec2i& y);
   std::list<Vec2i> reconstruct_path(AStarData node, const std::set<AStarData>& data);
+  //engine - script communication
+  std::string mObjectInfo;
 };
 
 #endif

@@ -10,7 +10,7 @@
 
 Engine* Engine::mInstance = NULL;
 
-Engine::Engine() : mData(NULL){
+Engine::Engine() : mData(NULL), mInitialized(false){
   mVerts[0] = 0; mVerts[1] = 1;
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
@@ -56,9 +56,13 @@ void Engine::initGame(){
     mInterpreter->execute(exe);
     delete exe;
   }
+  mInitialized = true;
 }
 
 void Engine::exitGame(){
+  if (!mInitialized)
+    return;
+  mInitialized = false;
   mAnimator->clear();
   for (unsigned i = 0; i < mRooms.size(); ++i){
     delete mRooms[i];
@@ -124,12 +128,26 @@ GLuint Engine::genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const
 }
 
 void Engine::render(){
+  if (!mInitialized)
+    return;
+  //timing
   unsigned interval = mTimer.Time();
   mTimer.Start(0);
   if (mTimeIntervals.size() > 50)
     mTimeIntervals.pop_back();
   mTimeIntervals.push_front(interval);
   interval = std::accumulate(mTimeIntervals.begin(), mTimeIntervals.end(), 0)/(unsigned)mTimeIntervals.size();
+  
+  //do some scripting
+  Object2D* obj = getObjectAt(mCursor->getPosition());
+  if (obj != NULL){
+    PcdkScript::ExecutionContext* script = obj->getScript();
+    if (script != NULL){
+      mInterpreter->setEvent(EVT_MOUSE);
+      mInterpreter->execute(script);
+    }
+  }
+  
   //some animation stuff
   mAnimator->update(interval);
 
@@ -141,21 +159,15 @@ void Engine::render(){
     mFocussedChar->render();
   mCursor->render();
 
+  //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
   std::string text = mData->getProjectSettings()->walktext;
-  int offset = mFonts->getTextExtent(text, 1).x/2;
-  mFonts->render(res.x/2-offset, res.y-30, text, 1);
-
-  //do some scripting
-  Object2D* obj = getObjectAt(mCursor->getPosition());
-  if (obj != NULL){
-    PcdkScript::ExecutionContext* script = obj->getScript();
-    if (script != NULL){
-      mInterpreter->setEvent(EVT_MOUSE);
-      mInterpreter->execute(script);
-      mInterpreter->resetEvent(EVT_MOUSE);
-    }
+  if (!mObjectInfo.empty()){
+    text += " "+mObjectInfo;
+    mObjectInfo.clear();
   }
+  Vec2i offset = mFonts->getTextExtent(text, 1);
+  mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, 1);
 
   //render the stuff
   glVertexPointer(2, GL_SHORT, 0, mVerts);
@@ -202,15 +214,9 @@ bool Engine::loadRoom(std::string name){
   for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
     if (mData->getRoomCharacters()[i].room == name){
       Rcharacter ch = mData->getRoomCharacters()[i];
-      int state = 0;
-      if (ch.dir == BACK)
-        state = 1;
-      else if (ch.dir == FRONT)
-        state = 2;
-      else
-        state = 3;
       Character* chbase = mData->getCharacter(ch.character);
-      CharacterObject* character = new CharacterObject(state, ch.position, ch.name);
+      CharacterObject* character = new CharacterObject(0, ch.position, ch.name);
+      character->setLookDir(ch.dir);
       for (unsigned j = 0; j < chbase->states.size(); ++j){
         int depth = (ch.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
         Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
@@ -246,23 +252,17 @@ Vec2i Engine::getCursorPos(){
 }
 
 void Engine::leftClick(Vec2i pos){
-  if (mFocussedChar){
-    Vec2i oldwmpos = mFocussedChar->getPosition()/mWalkGridSize;
-    Vec2i newwmpos = pos/mWalkGridSize;
-    std::list<Vec2i> path;
-    bool couldReach = aStarSearch(oldwmpos,newwmpos,path); 
-    //remove first entry as we are already on that field
-    path.pop_front();
-    for (std::list<Vec2i>::iterator iter = path.begin(); iter != path.end(); ++iter){
-      *iter = *iter*mWalkGridSize+Vec2i(mWalkGridSize/2,mWalkGridSize/2);
+  mInterpreter->setEvent(EVT_CLICK);
+  Object2D* obj = getObjectAt(pos);
+  if (obj != NULL){
+    PcdkScript::ExecutionContext* script = obj->getScript();
+    if (script != NULL){
+      mInterpreter->execute(script);
     }
-    //replace last entry
-    if (couldReach){
-      if (!path.empty())
-        path.pop_back();
-      path.push_back(pos);
-    }
-    mAnimator->add(mFocussedChar, path, 3);
+  }
+  if (mFocussedChar && mInterpreter->isEventSet(EVT_CLICK)){
+    mInterpreter->resetEvent(EVT_CLICK);
+    walkTo(mFocussedChar, pos, UNSPECIFIED);
   }
 }
 
@@ -382,4 +382,37 @@ Object2D* Engine::getObjectAt(const Vec2i& pos){
       return ret;
   }
   return NULL;
+}
+
+CharacterObject* Engine::getCharacter(const std::string& name){
+  if (name == "self")
+    return mFocussedChar;
+  CharacterObject* res = NULL;
+  for (unsigned i = 0; i < mRooms.size(); ++i){
+    res = mRooms[i]->findCharacter(name);
+    if (res){
+      return res;
+    }
+  }
+  return NULL;
+}
+
+void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
+  Vec2i oldwmpos = chr->getPosition()/mWalkGridSize;
+  Vec2i newwmpos = pos/mWalkGridSize;
+  std::list<Vec2i> path;
+  bool couldReach = aStarSearch(oldwmpos,newwmpos,path); 
+  //remove first entry as we are already on that field
+  path.pop_front();
+  for (std::list<Vec2i>::iterator iter = path.begin(); iter != path.end(); ++iter){
+    *iter = *iter*mWalkGridSize+Vec2i(mWalkGridSize/2,mWalkGridSize/2);
+  }
+  //replace last entry
+  if (couldReach){
+    if (!path.empty())
+      path.pop_back();
+    path.push_back(pos);
+  }
+  mAnimator->add(chr, path, 3);
+  chr->setEndLookDir(dir);
 }

@@ -218,6 +218,18 @@ CharacterObject* RoomObject::extractCharacter(const std::string& name){
   return NULL;
 }
 
+CharacterObject* RoomObject::findCharacter(const std::string& name){
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    if ((*iter)->getType() == Object2D::CHARACTER){
+      CharacterObject* ch = static_cast<CharacterObject*>((*iter));
+      if (ch->getName() == name){
+        return ch;
+      }
+    }
+  }
+  return NULL;
+}
+
 bool RoomObject::isWalkable(const Vec2i& pos){
   WMField field = mWalkmap[pos.x][pos.y];
   return field.walkable;
@@ -255,20 +267,16 @@ void CharacterObject::setDepth(int depth){
 void CharacterObject::animationBegin(const Vec2i& next){
   Vec2i dir = next-getPosition();
   if (abs(dir.x) > abs(dir.y) && dir.x > 0){
-    mState = 3;
-    mMirror = false;
+    setLookDir(RIGHT);
   }
   else if (abs(dir.x) > abs(dir.y) && dir.x < 0){
-    mState = 3;
-    mMirror = true;
+    setLookDir(LEFT);
   }
   else if (abs(dir.x) < abs(dir.y) && dir.y < 0){
-    mState = 2;
-    mMirror = false;
+    setLookDir(BACK);
   }
   else if (abs(dir.x) < abs(dir.y) && dir.y > 0){
-    mState = 1;
-    mMirror = false;
+    setLookDir(FRONT);
   }
   mState += 3;
 }
@@ -280,22 +288,17 @@ void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
   }
   Vec2i dir = next-getPosition();
   if (abs(dir.x) > abs(dir.y) && dir.x > 0){
-    mState = 3;
-    mMirror = false;
+    setLookDir(RIGHT);
   }
   else if (abs(dir.x) > abs(dir.y) && dir.x < 0){
-    mState = 3;
-    mMirror = true;
+    setLookDir(LEFT);
   }
   else if (abs(dir.x) < abs(dir.y) && dir.y < 0){
-    mState = 2;
-    mMirror = false;
+    setLookDir(BACK);
   }
   else if (abs(dir.x) < abs(dir.y) && dir.y > 0){
-    mState = 1;
-    mMirror = false;
+    setLookDir(FRONT);
   }
-  mState += 3;
 }
 
 void CharacterObject::animationEnd(const Vec2i& prev){
@@ -303,7 +306,32 @@ void CharacterObject::animationEnd(const Vec2i& prev){
   if (prev.y-ycoord != 0){
     setDepth(ycoord/Engine::instance()->getWalkGridSize());
   }
+  if (mDesiredDir != UNSPECIFIED){
+    setLookDir(mDesiredDir);
+    mDesiredDir = UNSPECIFIED;
+  }
   mState -= 3;
+}
+
+void CharacterObject::setLookDir(LookDir dir){
+  int stateoffset = (mState-1)/3;
+  if (dir == FRONT){
+    mState = 1;
+    mMirror = false;
+  }
+  else if (dir == BACK){
+    mState = 2;
+    mMirror = false;
+  }
+  else if (dir == LEFT){
+    mState = 3;
+    mMirror = true;
+  }
+  else if (dir == RIGHT){
+    mState = 3;
+    mMirror = false;
+  }
+  mState += 3*stateoffset;
 }
 
 void CharacterObject::render(){

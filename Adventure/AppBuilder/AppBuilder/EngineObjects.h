@@ -98,6 +98,7 @@ public:
   virtual void render();
   virtual Type getType() {return ROOM;}
   CharacterObject* extractCharacter(const std::string& name);
+  CharacterObject* findCharacter(const std::string& name);
   bool isWalkable(const Vec2i& pos);
   Object2D* getObjectAt(const Vec2i& pos);
 protected:
@@ -119,11 +120,13 @@ public:
   virtual void animationBegin(const Vec2i& next);
   virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next);
   virtual void animationEnd(const Vec2i& prev);
-  //Vec2i calcPosition(const Vec2i& p);
+  void setLookDir(LookDir dir);
+  void setEndLookDir(LookDir dir) {mDesiredDir = dir;}
 protected:
   std::string mName;
   std::vector<Vec2i> mBasePoints;
   bool mMirror;
+  LookDir mDesiredDir;
 };
 
 #endif

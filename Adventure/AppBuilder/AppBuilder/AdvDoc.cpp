@@ -127,26 +127,29 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
       }
     }
     if (str == "Mediapool :"){
-      wxTreeCtrl* mediapool = mView->getMediapool();
-      wxTreeItemId currNode = mediapool->AddRoot("Mediapool");
-      int level = -1;
-      str = txtstream.ReadLine();
-      while (str != "Gamepool :"){
-        if (!str.empty())
-          level = insertTreeElement(mediapool, str, &currNode, level);
+      if (mView){
+        wxTreeCtrl* mediapool = mView->getMediapool();
+        wxTreeItemId currNode = mediapool->AddRoot("Mediapool");
+        int level = -1;
         str = txtstream.ReadLine();
+        while (str != "Gamepool :"){
+          if (!str.empty())
+            level = insertTreeElement(mediapool, str, &currNode, level);
+          str = txtstream.ReadLine();
+        }
       }
     }
     if (str == "Gamepool :"){
-      //Gamepool
-      wxTreeCtrl* gamepool = mView->getGamepool();
-      wxTreeItemId currNode = gamepool->AddRoot("Gamepool");
-      int level = -1;
-      str = txtstream.ReadLine();
-      while (str != "Images :"){
-        if (!str.empty())
-          level = insertTreeElement(gamepool, str, &currNode, level);
+      if (mView){
+        wxTreeCtrl* gamepool = mView->getGamepool();
+        wxTreeItemId currNode = gamepool->AddRoot("Gamepool");
+        int level = -1;
         str = txtstream.ReadLine();
+        while (str != "Images :"){
+          if (!str.empty())
+            level = insertTreeElement(gamepool, str, &currNode, level);
+          str = txtstream.ReadLine();
+        }
       }
     }
     //Images
@@ -305,7 +308,7 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       long val1, val2;
       str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
       rc.position = Vec2i(val1,val2);
-      str = txtstream.ReadLine(); str.ToLong(&val1); rc.dir = (LookDir)val1;
+      str = txtstream.ReadLine(); str.ToLong(&val1); rc.dir = (LookDir)(val1-1);
       str = txtstream.ReadLine(); str.ToLong(&val1); rc.unknown = val1;
       assert(rc.unknown == -1);
       str = txtstream.ReadLine(); str.ToLong(&val1); rc.unmovable = (val1 != 0);
