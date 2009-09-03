@@ -106,7 +106,7 @@ void RenderWindow::OnMouseLeft(wxMouseEvent& event){
 
 void RenderWindow::OnMouseRight(wxMouseEvent& event){
   Vec2i pos(event.GetX(), event.GetY());
-  //Engine::instance()->leftClick(pos);
+  Engine::instance()->rightClick(pos);
 }
 
 void RenderWindow::OnTimer(wxTimerEvent& event){

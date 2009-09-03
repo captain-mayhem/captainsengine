@@ -24,7 +24,8 @@ public:
   void insertToBlit(BlitObject* obj);
   void setCursorPos(Vec2i pos);
   Vec2i getCursorPos();
-  void leftClick(Vec2i pos);
+  void leftClick(const Vec2i& pos);
+  void rightClick(const Vec2i& pos);
   bool loadRoom(std::string name);
   bool setFocus(std::string charname);
   wxImage getImage(const std::string& name);
@@ -45,7 +46,7 @@ protected:
   bool mInitialized;
   //data
   std::vector<RoomObject*> mRooms;
-  Object2D* mCursor;
+  CursorObject* mCursor;
   CharacterObject* mFocussedChar;
   //grid variables
   int mWalkGridSize;
@@ -78,6 +79,7 @@ protected:
   std::list<Vec2i> reconstruct_path(AStarData node, const std::set<AStarData>& data);
   //engine - script communication
   std::string mObjectInfo;
+  unsigned mActiveCommand;
 };
 
 #endif

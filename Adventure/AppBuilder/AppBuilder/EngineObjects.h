@@ -50,6 +50,7 @@ public:
   void setDepth(int depth);
   void start();
   void update(unsigned interval);
+  bool exists() {return mBlits.size() > 0;}
 protected:
   std::vector<BlitGroup*> mBlits;
   unsigned mInterval;
@@ -63,6 +64,7 @@ public:
     OBJECT,
     ROOM,
     CHARACTER,
+    CURSOR,
   };
   Object2D(int state, const Vec2i& pos, const Vec2i& size);
   virtual ~Object2D();
@@ -84,6 +86,16 @@ protected:
   Vec2i mSize;
   std::vector<Animation*> mAnimations;
   PcdkScript::ExecutionContext* mScript;
+};
+
+class CursorObject : public Object2D{
+public:
+  CursorObject(const Vec2i& pos);
+  ~CursorObject();
+  void addAnimation(Animation* anim, int command);
+  int getNextCommand();
+protected:
+  std::vector<int> mCommands;
 };
 
 class CharacterObject;

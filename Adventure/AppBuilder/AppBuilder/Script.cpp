@@ -11,9 +11,9 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("setfocus", setFocus);
   registerFunction("showinfo", showInfo);
   registerFunction("walkto", walkTo);
-  registerFunction("speech", setFocus);
-  registerFunction("pickup", setFocus);
-  registerFunction("playsound", setFocus);
+  registerFunction("speech", speech);
+  registerFunction("pickup", pickup);
+  registerFunction("playsound", playSound);
 }
 
 PcdkScript::~PcdkScript(){
@@ -162,11 +162,48 @@ int PcdkScript::walkTo(Stack& s, unsigned numArgs){
   pos.x = s.pop().getInt()-1;
   pos.y = s.pop().getInt()-1;
   pos = pos * Engine::instance()->getWalkGridSize();
-  LookDir dir = (LookDir)(s.pop().getInt()-1);
+  LookDir dir = UNSPECIFIED;
+  if (numArgs >= 4)
+    dir = (LookDir)(s.pop().getInt()-1);
+  bool hold = true;
+  if (numArgs >= 5){
+    std::string dw = s.pop().getString();
+    if (dw == "dontwait")
+      hold = false;
+  }
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
     Engine::instance()->walkTo(chr, pos, dir);
   }
+  return 0;
+}
+
+int PcdkScript::speech(Stack& s, unsigned numArgs){
+  std::string character = s.pop().getString();
+  std::string text = s.pop().getString();
+  std::string sound = "";
+  if (numArgs >= 3)
+    sound = s.pop().getString();
+  bool hold = true;
+  if (numArgs >= 4){
+    std::string dw = s.pop().getString();
+    if (dw == "dontwait")
+      hold = false;
+  }
+  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  if (chr){
+    Vec2i pos = chr->getPosition();
+    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
+    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 1);
+  }
+  return 0;
+}
+
+int PcdkScript::pickup(Stack& s, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::playSound(Stack& s, unsigned numArgs){
   return 0;
 }
 
