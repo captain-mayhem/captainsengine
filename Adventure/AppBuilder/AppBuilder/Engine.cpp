@@ -42,13 +42,14 @@ void Engine::initGame(){
   mWalkFields = Vec2i(32,res.y/mWalkGridSize);
   //load cursor
   Cursor* cursor = mData->getCursor();
-  mCursor = new Object2D(1, Vec2i(0,0), Vec2i(32,32));
+  mCursor = new CursorObject(Vec2i(0,0));
   for (unsigned j = 0; j < cursor->size(); ++j){
     Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, 20000);
-    mCursor->addAnimation(anim);
+    mCursor->addAnimation(anim, (*cursor)[j].command-1);
   }
   //load fonts
   mFonts->loadFont(1);
+  mActiveCommand = 0;
   //load and execute start script
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
@@ -161,7 +162,7 @@ void Engine::render(){
 
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
-  std::string text = mData->getProjectSettings()->walktext;
+  std::string text = mData->getProjectSettings()->pretty_commands[mActiveCommand];
   if (!mObjectInfo.empty()){
     text += " "+mObjectInfo;
     mObjectInfo.clear();
@@ -251,19 +252,26 @@ Vec2i Engine::getCursorPos(){
   return mCursor->getPosition();
 }
 
-void Engine::leftClick(Vec2i pos){
+void Engine::leftClick(const Vec2i& pos){
   mInterpreter->setEvent(EVT_CLICK);
   Object2D* obj = getObjectAt(pos);
   if (obj != NULL){
     PcdkScript::ExecutionContext* script = obj->getScript();
     if (script != NULL){
+      mInterpreter->setEvent((EngineEvent)mActiveCommand);
       mInterpreter->execute(script);
+      mInterpreter->resetEvent((EngineEvent)mActiveCommand);
     }
   }
   if (mFocussedChar && mInterpreter->isEventSet(EVT_CLICK)){
     mInterpreter->resetEvent(EVT_CLICK);
     walkTo(mFocussedChar, pos, UNSPECIFIED);
   }
+}
+
+void Engine::rightClick(const Vec2i& pos){
+  int cmd = mCursor->getNextCommand();
+  mActiveCommand = cmd;
 }
 
 bool Engine::setFocus(std::string charname){

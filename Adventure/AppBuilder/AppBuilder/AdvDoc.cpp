@@ -117,7 +117,9 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
     str = txtstream.ReadLine();
     if (str == "Commands :"){
       mSettings.pretty_commands.push_back(mSettings.walktext);
+      mSettings.pretty_commands.push_back("Loading");
       mSettings.commands["walkto"] = (unsigned)mSettings.pretty_commands.size()-1;
+      mSettings.commands["loading"] = (unsigned)mSettings.pretty_commands.size()-1;
       str = txtstream.ReadLine();
       while (str != "Mediapool :"){
         wxString pretty_name = txtstream.ReadLine();

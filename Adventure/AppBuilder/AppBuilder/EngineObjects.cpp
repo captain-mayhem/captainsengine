@@ -169,6 +169,29 @@ bool Object2D::isHit(const Vec2i& point){
   return false;
 }
 
+CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32)){
+
+}
+
+CursorObject::~CursorObject(){
+
+}
+
+void CursorObject::addAnimation(Animation* anim, int command){
+  Object2D::addAnimation(anim);
+  mCommands.push_back(command);
+}
+
+int CursorObject::getNextCommand(){
+  if (mState == 0)
+    return 0;
+  ++mState;
+  if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){
+    mState = 1;
+  }
+  return mCommands[mState-1];
+}
+
 RoomObject::RoomObject(const Vec2i& size) : Object2D(1, Vec2i(0,0), size){
 
 }
