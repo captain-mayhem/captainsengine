@@ -18,8 +18,11 @@ public:
     int getTime() {return mDisplayTime;}
     void setSuspensionScript(ExecutionContext* ctx) {mSuspensionScript = ctx;}
     void setSpeaker(CharacterObject* chr) {mSpeaker = chr;}
+    CharacterObject* getSpeaker() {return mSpeaker;}
+    void setExtent(const Vec2i& extent);
   protected:
     Vec2i mPos;
+    Vec2i mCenterOffset;
     int mDisplayTime;
     std::vector<BlitObject*> mString;
     ExecutionContext* mSuspensionScript;
@@ -33,6 +36,7 @@ protected:
     String& render(int x, int y, const std::string& text, const Color& color, unsigned displayTime);
     Vec2i getTextExtent(const std::string& text);
     void blit(unsigned interval);
+    void removeText(CharacterObject* chr);
   protected:
     void buildBlitObject();
     Vec2i mFontsize;
@@ -51,6 +55,7 @@ public:
   String& render(int x, int y, const std::string& text, int fontid, const Color& col=Color(), unsigned displayTime=0);
   Vec2i getTextExtent(const std::string& text, int fontid);
   void prepareBlit(unsigned interval);
+  void removeText(CharacterObject* chr);
 protected:
   AdvDocument* mData;
   std::vector<Font*> mFonts;

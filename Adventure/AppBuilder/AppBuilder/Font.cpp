@@ -41,7 +41,7 @@ protected:
 ////////////////////////////////////////////////
 
 FontRenderer::String::String(const Vec2i& pos, unsigned displayTime) : 
-mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL){
+mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mCenterOffset(){
 }
 
 FontRenderer::String::~String(){
@@ -64,10 +64,19 @@ void FontRenderer::String::clear(){
 }
 
 void FontRenderer::String::render(unsigned interval){
+  Vec2i pos = mPos;
+  if (mSpeaker){
+    pos = mSpeaker->getOverheadPos()-mCenterOffset;
+  }
   for (unsigned i = 0; i < mString.size(); ++i){
-    mString[i]->render(mPos, false);
+    mString[i]->render(pos, false);
   }
   mDisplayTime -= interval;
+}
+
+void FontRenderer::String::setExtent(const Vec2i& extent){
+  mCenterOffset = extent;
+  mCenterOffset.x /= 2;
 }
 
 ////////////////////////////////////////
@@ -105,6 +114,7 @@ FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string
     str->append(obj);
     xoffset += chardeviation;
   }
+  str->setExtent(Vec2i(xoffset,mFontsize.y));
   mRenderQueue.push_back(str);
   return *str;
 }
@@ -129,6 +139,16 @@ void FontRenderer::Font::blit(unsigned interval){
     }
     if (iter == mRenderQueue.end())
       break;
+  }
+}
+
+void FontRenderer::Font::removeText(CharacterObject* chr){
+  for (std::list<String*>::iterator iter = mRenderQueue.begin(); iter != mRenderQueue.end(); ++iter){
+    if ((*iter)->getSpeaker() == chr){
+      delete *iter;
+      iter = mRenderQueue.erase(iter);
+      break;
+    }
   }
 }
 
@@ -171,5 +191,12 @@ void FontRenderer::prepareBlit(unsigned interval){
   for (unsigned i = 0; i < mFonts.size(); ++i){
     if (mFonts[i])
       mFonts[i]->blit(interval);
+  }
+}
+
+void FontRenderer::removeText(CharacterObject* chr){
+  for (unsigned i = 0; i < mFonts.size(); ++i){
+    if (mFonts[i])
+      mFonts[i]->removeText(chr);
   }
 }
