@@ -82,7 +82,7 @@ void BlitGroup::setDepth(int depth){
   }
 }
 
-Animation::Animation(float fps) : mInterval(1000/fps), mCurrFrame(0){
+Animation::Animation(float fps) : mInterval(1000/fps), mCurrFrame(0), mTimeAccu(0){
 
 }
 
@@ -136,12 +136,12 @@ void Animation::update(unsigned interval){
 }
 
 Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size) : mState(state), 
-mPos(pos), mSize(size), mScript(NULL){
+mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL){
 
 }
 
 Object2D::~Object2D(){
-  delete mScript;
+  Engine::instance()->getInterpreter()->remove(mScript);
   for (unsigned i = 0; i < mAnimations.size(); ++i){
     delete mAnimations[i];
   }
@@ -167,6 +167,20 @@ bool Object2D::isHit(const Vec2i& point){
       return true;
   }
   return false;
+}
+
+void Object2D::animationEnd(const Vec2i& prev){
+  if (mSuspensionScript){
+    mSuspensionScript->resume();
+    mSuspensionScript = NULL;
+  }
+}
+
+void Object2D::setSuspensionScript(ExecutionContext* script){
+  if (mSuspensionScript != NULL){
+    mSuspensionScript->reset();
+  }
+  mSuspensionScript = script;
 }
 
 CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32)){
@@ -258,8 +272,17 @@ bool RoomObject::isWalkable(const Vec2i& pos){
   return field.walkable;
 }
 
+void RoomObject::update(unsigned interval){
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    Animation* anim = (*iter)->getAnimation();
+    if (anim != NULL)
+      anim->update(interval);
+  }
+}
+
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
-: Object2D(state, pos, Vec2i(0,0)), mName(name), mMirror(false)
+: Object2D(state, pos, Vec2i(0,0)), mName(name), mMirror(false), mTextColor(), 
+mFontID(0), mNextState(-1)
 {
 
 }
@@ -269,12 +292,12 @@ CharacterObject::~CharacterObject(){
 }
 
 void CharacterObject::setPosition(const Vec2i& pos){
-  Vec2i offset = mBasePoints[mState];
+  Vec2i offset = mBasePoints[mState-1];
   Object2D::setPosition(pos-offset);
 }
 
 Vec2i CharacterObject::getPosition(){
-  return mPos+mBasePoints[mState];
+  return mPos+mBasePoints[mState-1];
 }
 /*
 Vec2i CharacterObject::calcPosition(const Vec2i& p){
@@ -301,7 +324,7 @@ void CharacterObject::animationBegin(const Vec2i& next){
   else if (abs(dir.x) < abs(dir.y) && dir.y > 0){
     setLookDir(FRONT);
   }
-  mState += 3;
+  mState = calculateState(mState, true, isTalking());
 }
 
 void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
@@ -333,7 +356,8 @@ void CharacterObject::animationEnd(const Vec2i& prev){
     setLookDir(mDesiredDir);
     mDesiredDir = UNSPECIFIED;
   }
-  mState -= 3;
+  mState = calculateState(mState, false, isTalking());
+  Object2D::animationEnd(prev);
 }
 
 void CharacterObject::setLookDir(LookDir dir){
@@ -364,4 +388,39 @@ void CharacterObject::render(){
     mAnimations[mState-1]->render(mPos+Vec2i(mBasePoints[mState-1].x,0), mMirror);
   else
     mAnimations[mState-1]->render(mPos, mMirror);
+}
+
+Vec2i CharacterObject::getOverheadPos(){
+  return mPos+Vec2i(mSizes[mState-1].x/2, 0);
+}
+
+void CharacterObject::activateNextState(){
+  if (mNextState != -1)
+    mState = mNextState;
+  mNextState = -1;
+}
+
+int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk){
+  int stateoffset = (currState-1)%3;
+  if (shouldWalk && shouldTalk){
+    return stateoffset+10;
+  }
+  if (shouldWalk && !shouldTalk){
+    return stateoffset+4;
+  }
+  if (!shouldWalk && shouldTalk){
+    return stateoffset+7;
+  }
+  if (!shouldWalk && !shouldTalk){
+    return stateoffset+1;
+  }
+  return stateoffset;
+}
+
+bool CharacterObject::isWalking(){
+  return (mState >= 4 && mState <= 6) || (mState >= 10 && mState <= 12);
+}
+
+bool CharacterObject::isTalking(){
+  return (mState >= 7 && mState <= 12);
 }

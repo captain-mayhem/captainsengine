@@ -8,6 +8,22 @@
 #include "AdvDoc.h"
 #include "Script.h"
 
+struct Color{
+  Color(){
+    r = 255; g=255; b=255; a=255;
+  }
+  Color(unsigned packedcolor){
+    r = (packedcolor >> 16);
+    g = (packedcolor >> 8) & 0xFF;
+    b = packedcolor & 0xFF;
+    a = 255;
+  }
+  unsigned char r;
+  unsigned char g;
+  unsigned char b;
+  unsigned char a;
+};
+
 class BlitObject{
 public:
   BlitObject(std::string texture, int depth, Vec2i offset);
@@ -74,18 +90,22 @@ public:
   virtual Vec2i getPosition() {return mPos;}
   virtual void animationBegin(const Vec2i& next) {}
   virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next) {}
-  virtual void animationEnd(const Vec2i& prev) {}
+  virtual void animationEnd(const Vec2i& prev);
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
   Animation* getAnimation();
   bool isHit(const Vec2i& point);
-  void setScript(PcdkScript::ExecutionContext* script) {mScript = script;}
-  PcdkScript::ExecutionContext* getScript() {return mScript;}
+  void setScript(ExecutionContext* script) {mScript = script;}
+  ExecutionContext* getScript() {return mScript;}
+  void setSuspensionScript(ExecutionContext* script);
+  int getState() {return mState;}
+  void setState(int state) {mState = state;}
 protected:
   int mState;
   Vec2i mPos;
   Vec2i mSize;
   std::vector<Animation*> mAnimations;
-  PcdkScript::ExecutionContext* mScript;
+  ExecutionContext* mScript;
+  ExecutionContext* mSuspensionScript;
 };
 
 class CursorObject : public Object2D{
@@ -113,6 +133,7 @@ public:
   CharacterObject* findCharacter(const std::string& name);
   bool isWalkable(const Vec2i& pos);
   Object2D* getObjectAt(const Vec2i& pos);
+  void update(unsigned interval);
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;
@@ -125,7 +146,7 @@ public:
   virtual void render();
   virtual Type getType() {return CHARACTER;}
   const std::string& getName() {return mName;}
-  void addBasepoint(Vec2i p) {mBasePoints.push_back(p);}
+  void addBasepoint(Vec2i p, Vec2i size) {mBasePoints.push_back(p); mSizes.push_back(size);}
   virtual void setPosition(const Vec2i& pos);
   virtual Vec2i getPosition();
   void setDepth(int depth);
@@ -134,11 +155,25 @@ public:
   virtual void animationEnd(const Vec2i& prev);
   void setLookDir(LookDir dir);
   void setEndLookDir(LookDir dir) {mDesiredDir = dir;}
+  Vec2i getOverheadPos();
+  void setTextColor(const Color& col) {mTextColor = col;}
+  const Color& getTextColor() {return mTextColor;}
+  void setFontID(unsigned id) {mFontID = id;}
+  unsigned getFontID() {return mFontID;}
+  void setNextState(int state) {mNextState = state;}
+  void activateNextState();
+  static int calculateState(int currState, bool shouldWalk, bool shouldTalk);
+  bool isWalking();
+  bool isTalking();
 protected:
   std::string mName;
   std::vector<Vec2i> mBasePoints;
+  std::vector<Vec2i> mSizes;
   bool mMirror;
   LookDir mDesiredDir;
+  Color mTextColor;
+  unsigned mFontID;
+  int mNextState;
 };
 
 #endif

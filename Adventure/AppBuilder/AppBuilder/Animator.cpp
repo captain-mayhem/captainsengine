@@ -49,9 +49,6 @@ void Animator::update(unsigned interval){
     float newy = oldpos.y+dir.y/iter->second.normalization*iter->second.factor;
     Vec2i reachedpos(newx,newy);
     iter->first->setPosition(reachedpos);
-    if (iter->first->getAnimation()){
-      iter->first->getAnimation()->update(interval);
-    }
     if (iter->second.factor >= iter->second.normalization){
       //goal reached
       iter->second.path.pop_front();
