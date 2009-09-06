@@ -365,6 +365,10 @@
 				RelativePath=".\Script.h"
 				>
 			</File>
+			<File
+				RelativePath=".\ScriptDefs.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -626,7 +630,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="antlr&apos;ing grammar"
-						CommandLine="java -cp antlrworks-1.2.3.jar org.antlr.Tool pcdk.g"
+						CommandLine="java -cp antlrworks-1.2.3.jar org.antlr.Tool pcdk.g&#x0D;&#x0A;"
 						Outputs="pcdkLexer.c;pcdkLexer.h;pcdkParser.h;pcdkParser.c"
 					/>
 				</FileConfiguration>

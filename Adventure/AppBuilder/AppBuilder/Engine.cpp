@@ -21,9 +21,9 @@ Engine::Engine() : mData(NULL), mInitialized(false){
 }
 
 Engine::~Engine(){
-  delete mInterpreter;
-  delete mAnimator;
   delete mFonts;
+  delete mAnimator;
+  delete mInterpreter;
 }
 
 void Engine::setData(AdvDocument* doc){
@@ -48,14 +48,14 @@ void Engine::initGame(){
     mCursor->addAnimation(anim, (*cursor)[j].command-1);
   }
   //load fonts
+  mFonts->loadFont(0);
   mFonts->loadFont(1);
   mActiveCommand = 0;
   //load and execute start script
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
-    PcdkScript::ExecutionContext* exe = mInterpreter->parseProgram(startScript->text);
-    mInterpreter->execute(exe);
-    delete exe;
+    ExecutionContext* exe = mInterpreter->parseProgram(startScript->text);
+    mInterpreter->execute(exe, true);
   }
   mInitialized = true;
 }
@@ -72,6 +72,7 @@ void Engine::exitGame(){
   delete mCursor;
   delete mFocussedChar;
   mFonts->unloadFont(1);
+  mFonts->unloadFont(0);
 }
 
 wxImage Engine::getImage(const std::string& name){
@@ -134,7 +135,7 @@ void Engine::render(){
   //timing
   unsigned interval = mTimer.Time();
   mTimer.Start(0);
-  if (mTimeIntervals.size() > 50)
+  if (mTimeIntervals.size() > 10)
     mTimeIntervals.pop_back();
   mTimeIntervals.push_front(interval);
   interval = std::accumulate(mTimeIntervals.begin(), mTimeIntervals.end(), 0)/(unsigned)mTimeIntervals.size();
@@ -142,15 +143,21 @@ void Engine::render(){
   //do some scripting
   Object2D* obj = getObjectAt(mCursor->getPosition());
   if (obj != NULL){
-    PcdkScript::ExecutionContext* script = obj->getScript();
+    ExecutionContext* script = obj->getScript();
     if (script != NULL){
-      mInterpreter->setEvent(EVT_MOUSE);
-      mInterpreter->execute(script);
+      script->setEvent(EVT_MOUSE);
     }
   }
+
+  mInterpreter->update();
   
   //some animation stuff
   mAnimator->update(interval);
+  for (std::vector<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    (*iter)->update(interval);
+  }
+  if (mFocussedChar && mFocussedChar->getAnimation())
+    mFocussedChar->getAnimation()->update(interval);
 
   //build blit queue
   for (unsigned i = 0; i < mRooms.size(); ++i){
@@ -169,6 +176,8 @@ void Engine::render(){
   }
   Vec2i offset = mFonts->getTextExtent(text, 1);
   mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, 1);
+
+  mFonts->prepareBlit(interval);
 
   //render the stuff
   glVertexPointer(2, GL_SHORT, 0, mVerts);
@@ -206,8 +215,9 @@ bool Engine::loadRoom(std::string name){
     //check for scripts
     Script* script = mData->getScript(Script::OBJECT,room->objects[i].object+";"+name);
     if (script){
-      PcdkScript::ExecutionContext* scr = mInterpreter->parseProgram(script->text);
+      ExecutionContext* scr = mInterpreter->parseProgram(script->text);
       object->setScript(scr);
+      mInterpreter->execute(scr, false);
     }
     roomobj->addObject(object);
   }
@@ -218,11 +228,13 @@ bool Engine::loadRoom(std::string name){
       Character* chbase = mData->getCharacter(ch.character);
       CharacterObject* character = new CharacterObject(0, ch.position, ch.name);
       character->setLookDir(ch.dir);
+      character->setFontID(chbase->fontid+1);
+      character->setTextColor(chbase->textcolor);
       for (unsigned j = 0; j < chbase->states.size(); ++j){
         int depth = (ch.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
         Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
         character->addAnimation(anim);
-        character->addBasepoint(chbase->states[j].basepoint);
+        character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
       }
       roomobj->addObject(character);
     }
@@ -253,19 +265,21 @@ Vec2i Engine::getCursorPos(){
 }
 
 void Engine::leftClick(const Vec2i& pos){
-  mInterpreter->setEvent(EVT_CLICK);
+  ExecutionContext* script = NULL;
   Object2D* obj = getObjectAt(pos);
   if (obj != NULL){
-    PcdkScript::ExecutionContext* script = obj->getScript();
+    script = obj->getScript();
     if (script != NULL){
-      mInterpreter->setEvent((EngineEvent)mActiveCommand);
-      mInterpreter->execute(script);
-      mInterpreter->resetEvent((EngineEvent)mActiveCommand);
+      script->setEvent(EVT_CLICK);
+      script->setEvent((EngineEvent)mActiveCommand);
+      script->setStepEndHandler(PcdkScript::clickEndHandler, new Vec2i(pos));
+    }
+    else if (mFocussedChar){
+      Engine::instance()->walkTo(mFocussedChar, pos, UNSPECIFIED);
     }
   }
-  if (mFocussedChar && mInterpreter->isEventSet(EVT_CLICK)){
-    mInterpreter->resetEvent(EVT_CLICK);
-    walkTo(mFocussedChar, pos, UNSPECIFIED);
+  else if (mFocussedChar){
+    Engine::instance()->walkTo(mFocussedChar, pos, UNSPECIFIED);
   }
 }
 

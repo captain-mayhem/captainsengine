@@ -6,6 +6,12 @@
 
 #include "Engine.h"
 
+CodeSegment::~CodeSegment(){
+  for (unsigned i = 0; i < mCodes.size(); ++i){
+    delete mCodes[i];
+  }
+}
+
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("loadroom", loadRoom);
   registerFunction("setfocus", setFocus);
@@ -17,10 +23,14 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
 }
 
 PcdkScript::~PcdkScript(){
-
+  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+    (*iter)->reset();
+    delete *iter;
+  }
+  mScripts.clear();
 }
 
-PcdkScript::ExecutionContext* PcdkScript::parseProgram(std::string program){
+ExecutionContext* PcdkScript::parseProgram(std::string program){
   pANTLR3_INPUT_STREAM input;
   ppcdkLexer lexer;
   pANTLR3_COMMON_TOKEN_STREAM tokStream;
@@ -111,11 +121,12 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
   return count;
 }
 
-PcdkScript::ExecutionContext::ExecutionContext(CodeSegment* segment) : mCode(segment), mStack(), mPC(0){
+ExecutionContext::ExecutionContext(CodeSegment* segment) : mCode(segment), mStack(), mPC(0),
+mHandler(NULL), mData(NULL), mSuspended(false){
 
 }
 
-PcdkScript::ExecutionContext::~ExecutionContext(){
+ExecutionContext::~ExecutionContext(){
   delete mCode;
 }
 
@@ -123,30 +134,73 @@ void PcdkScript::registerFunction(std::string name, ScriptFunc func){
   mFunctions[name] = func;
 }
 
-void PcdkScript::execute(ExecutionContext* script){
-  CCode* code = script->mCode->get(script->mPC);
-  while(code){
-    script->mPC = code->execute(script->mStack, script->mPC);
-    code = script->mCode->get(script->mPC);
+void PcdkScript::update(){
+  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+    execute(*iter);
+    if ((*iter)->mExecuteOnce){
+      delete *iter;
+      iter = mScripts.erase(iter);
+    }
+    if (iter == mScripts.end())
+      break;
   }
-  script->mPC = 0;
 }
 
-int PcdkScript::loadRoom(Stack& s, unsigned numArgs){
-  std::string room = s.pop().getString();
+void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
+  if (script == NULL)
+    return;
+  script->mExecuteOnce = executeOnce;
+  mScripts.push_back(script);
+}
+
+void PcdkScript::execute(ExecutionContext* script){
+  if (script->mSuspended)
+    return;
+  CCode* code = script->mCode->get(script->mPC);
+  while(code){
+    int result = script->mPC = code->execute(*script, script->mPC);
+    if (script->mSuspended)
+      break;
+    code = script->mCode->get(script->mPC);
+  }
+  //script ran through
+  if (!script->mSuspended && script->mPC >= script->mCode->numInstructions()){
+    if (script->mHandler)
+      script->mHandler(*script, script->mData);
+    script->reset();
+  }
+}
+
+void PcdkScript::remove(ExecutionContext* script){
+  if (script == NULL)
+    return;
+  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+    if (*iter == script){
+      iter = mScripts.erase(iter);
+      break;
+    }
+    if (iter == mScripts.end())
+      break;
+  }
+  script->reset();
+  delete script;
+}
+
+int PcdkScript::loadRoom(ExecutionContext& ctx, unsigned numArgs){
+  std::string room = ctx.stack().pop().getString();
   Engine::instance()->loadRoom(room);
   return 0;
 }
 
-int PcdkScript::setFocus(Stack& s, unsigned numArgs){
-  std::string character = s.pop().getString();
+int PcdkScript::setFocus(ExecutionContext& ctx, unsigned numArgs){
+  std::string character = ctx.stack().pop().getString();
   Engine::instance()->setFocus(character);
   return 0;
 }
 
-int PcdkScript::showInfo(Stack& s, unsigned numArgs){
-  std::string text = s.pop().getString();
-  bool show = s.pop().getBool();
+int PcdkScript::showInfo(ExecutionContext& ctx, unsigned numArgs){
+  std::string text = ctx.stack().pop().getString();
+  bool show = ctx.stack().pop().getBool();
   if (show){
     Vec2i pos = Engine::instance()->getCursorPos();
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
@@ -156,18 +210,18 @@ int PcdkScript::showInfo(Stack& s, unsigned numArgs){
   return 0;
 }
 
-int PcdkScript::walkTo(Stack& s, unsigned numArgs){
-  std::string character = s.pop().getString();
+int PcdkScript::walkTo(ExecutionContext& ctx, unsigned numArgs){
+  std::string character = ctx.stack().pop().getString();
   Vec2i pos;
-  pos.x = s.pop().getInt()-1;
-  pos.y = s.pop().getInt()-1;
+  pos.x = ctx.stack().pop().getInt()-1;
+  pos.y = ctx.stack().pop().getInt()-1;
   pos = pos * Engine::instance()->getWalkGridSize();
   LookDir dir = UNSPECIFIED;
   if (numArgs >= 4)
-    dir = (LookDir)(s.pop().getInt()-1);
+    dir = (LookDir)(ctx.stack().pop().getInt()-1);
   bool hold = true;
   if (numArgs >= 5){
-    std::string dw = s.pop().getString();
+    std::string dw = ctx.stack().pop().getString();
     if (dw == "dontwait")
       hold = false;
   }
@@ -175,35 +229,48 @@ int PcdkScript::walkTo(Stack& s, unsigned numArgs){
   if (chr){
     Engine::instance()->walkTo(chr, pos, dir);
   }
+  if (hold){
+    chr->setSuspensionScript(&ctx);
+    ctx.mSuspended = true;
+  }
   return 0;
 }
 
-int PcdkScript::speech(Stack& s, unsigned numArgs){
-  std::string character = s.pop().getString();
-  std::string text = s.pop().getString();
+int PcdkScript::speech(ExecutionContext& ctx, unsigned numArgs){
+  std::string character = ctx.stack().pop().getString();
+  std::string text = ctx.stack().pop().getString();
   std::string sound = "";
   if (numArgs >= 3)
-    sound = s.pop().getString();
+    sound = ctx.stack().pop().getString();
   bool hold = true;
   if (numArgs >= 4){
-    std::string dw = s.pop().getString();
+    std::string dw = ctx.stack().pop().getString();
     if (dw == "dontwait")
       hold = false;
   }
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
-    Vec2i pos = chr->getPosition();
-    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
-    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 1);
+    Vec2i pos = chr->getOverheadPos();
+    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID());
+    FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
+      chr->getFontID(), chr->getTextColor(), 3000);
+    str.setSuspensionScript(&ctx);
+    str.setSpeaker(chr);
+    int currState = chr->getState();
+    chr->setNextState(currState);
+    chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));
+  }
+  if (hold){
+    ctx.mSuspended = true;
   }
   return 0;
 }
 
-int PcdkScript::pickup(Stack& s, unsigned numArgs){
+int PcdkScript::pickup(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int PcdkScript::playSound(Stack& s, unsigned numArgs){
+int PcdkScript::playSound(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
@@ -220,14 +287,36 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
   return EVT_UNKNOWN;
 }
 
-void PcdkScript::setEvent(EngineEvent evt){
-  mEvents.insert(evt);
+void ExecutionContext::setEvent(EngineEvent evt){
+  if (!mSuspended)
+    mEvents.insert(evt);
 }
 
-void PcdkScript::resetEvent(EngineEvent evt){
+void ExecutionContext::resetEvent(EngineEvent evt){
   mEvents.erase(evt);
 }
 
-bool PcdkScript::isEventSet(EngineEvent evt){
+bool ExecutionContext::isEventSet(EngineEvent evt){
   return mEvents.find(evt) != mEvents.end();
+}
+
+void ExecutionContext::reset(){
+  mStack.clear();
+  mEvents.clear();
+  mPC = 0;
+  mSuspended = false;
+  delete mData;
+  mData = NULL;
+  mHandler = NULL;
+}
+
+void PcdkScript::clickEndHandler(ExecutionContext& ctx, void* data){
+  Vec2i* pos = reinterpret_cast<Vec2i*>(data);
+  if (ctx.isEventSet(EVT_CLICK)){
+    ctx.resetEvent(EVT_CLICK);
+    CharacterObject* chr = Engine::instance()->getCharacter("self");
+    Engine::instance()->walkTo(chr, *((Vec2i*)data), UNSPECIFIED);
+  }
+  delete pos;
+  ctx.mData = NULL;
 }

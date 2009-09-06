@@ -5,10 +5,12 @@
 
 class FontBlitObject : public BlitObject{
 public:
-  FontBlitObject(GLuint masktexture, GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset, const Vec2f& textrans) : 
+  FontBlitObject(GLuint masktexture, GLuint texture, const Vec2i& size, 
+    const Vec2f& scale, int depth, const Vec2i& offset, const Vec2f& textrans, const Color& color) : 
 BlitObject(texture, size, scale, depth, offset){
     mTexTrans = textrans;
     mMaskTexture = masktexture;
+    mColor = color;
   }
   virtual ~FontBlitObject(){
 
@@ -25,22 +27,32 @@ BlitObject(texture, size, scale, depth, offset){
     glTranslatef(mTexTrans.x, mTexTrans.y, 0);
     glMatrixMode(GL_MODELVIEW);
     glBindTexture(GL_TEXTURE_2D, mTex);
-    //glColor3f(1.0,0.0,0.0);
+    glColor4ub(mColor.r,mColor.g,mColor.b,mColor.a);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    //glColor3f(1.0,1.0,1.0);
+    glColor4ub(255,255,255,255);
     glPopMatrix();
   }
 protected:
   Vec2f mTexTrans;
   GLuint mMaskTexture;
+  Color mColor;
 };
 
 ////////////////////////////////////////////////
 
-FontRenderer::String::String(){
+FontRenderer::String::String(const Vec2i& pos, unsigned displayTime) : 
+mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL){
 }
 
 FontRenderer::String::~String(){
+  if (mSuspensionScript){
+    mSuspensionScript->resume();
+    mSuspensionScript = NULL;
+  }
+  if (mSpeaker){
+    mSpeaker->setState(CharacterObject::calculateState(mSpeaker->getState(), mSpeaker->isWalking(), false));
+    mSpeaker = NULL;
+  }
   clear();
 }
 
@@ -51,10 +63,11 @@ void FontRenderer::String::clear(){
   mString.clear();
 }
 
-void FontRenderer::String::render(const Vec2i& pos){
+void FontRenderer::String::render(unsigned interval){
   for (unsigned i = 0; i < mString.size(); ++i){
-    mString[i]->render(pos, false);
+    mString[i]->render(mPos, false);
   }
+  mDisplayTime -= interval;
 }
 
 ////////////////////////////////////////
@@ -71,14 +84,14 @@ FontRenderer::Font::Font(const FontData& data){
 }
 
 FontRenderer::Font::~Font(){
-  while (mCache.size() > 0){
-    delete mCache.front();
-    mCache.pop();
+  for (std::list<String*>::iterator iter = mRenderQueue.begin(); iter != mRenderQueue.end(); ++iter){
+    delete *iter;
   }
+  mRenderQueue.clear();
 }
 
-void FontRenderer::Font::render(int x, int y, const std::string& text){
-  String* str = new String();
+FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string& text, const Color& color, unsigned displayTime){
+  String* str = new String(Vec2i(x,y), displayTime);
   int xoffset = 0;
   for (unsigned i = 0; i < text.size(); ++i){
     char charnum = text[i]-0x20;
@@ -88,16 +101,12 @@ void FontRenderer::Font::render(int x, int y, const std::string& text){
     int rownum = charnum/mNumChars.x;
     charnum %= mNumChars.x;
     BlitObject* obj = new FontBlitObject(mImages[texnum], mImages[texnum], 
-      mFontsize, mScale, 15000, Vec2i(xoffset,0), Vec2f(charnum, rownum));
+      mFontsize, mScale, 15000, Vec2i(xoffset,0), Vec2f(charnum, rownum), color);
     str->append(obj);
     xoffset += chardeviation;
   }
-  while (mCache.size() > 10){
-    delete mCache.front();
-    mCache.pop();
-  }
-  mCache.push(str);
-  str->render(Vec2i(x,y));
+  mRenderQueue.push_back(str);
+  return *str;
 }
 
 Vec2i FontRenderer::Font::getTextExtent(const std::string& text){
@@ -107,6 +116,20 @@ Vec2i FontRenderer::Font::getTextExtent(const std::string& text){
     accu += mCharwidths[charnum];
   }
   return Vec2i(accu,mFontsize.y);
+}
+
+void FontRenderer::Font::blit(unsigned interval){
+  for (std::list<String*>::iterator iter = mRenderQueue.begin(); iter != mRenderQueue.end(); ++iter){
+    if ((*iter)->getTime() < 0){
+      delete *iter;
+      iter = mRenderQueue.erase(iter);
+    }
+    else{
+      (*iter)->render(interval);
+    }
+    if (iter == mRenderQueue.end())
+      break;
+  }
 }
 
 //////////////////////////////////////////////
@@ -136,10 +159,17 @@ void FontRenderer::unloadFont(unsigned id){
   mFonts[id] = NULL;
 }
 
-void FontRenderer::render(int x, int y, const std::string& text, int fontid){
-  mFonts[fontid]->render(x, y, text);
+FontRenderer::String& FontRenderer::render(int x, int y, const std::string& text, int fontid, const Color& color, unsigned displayTime){
+  return mFonts[fontid]->render(x, y, text, color, displayTime);
 }
 
 Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid){
   return mFonts[fontid]->getTextExtent(text);
+}
+
+void FontRenderer::prepareBlit(unsigned interval){
+  for (unsigned i = 0; i < mFonts.size(); ++i){
+    if (mFonts[i])
+      mFonts[i]->blit(interval);
+  }
 }
