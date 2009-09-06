@@ -255,10 +255,14 @@ int PcdkScript::speech(ExecutionContext& ctx, unsigned numArgs){
     FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
       chr->getFontID(), chr->getTextColor(), 3000);
     str.setSuspensionScript(&ctx);
+    //stop speaking
+    Engine::instance()->getFontRenderer()->removeText(chr);
     str.setSpeaker(chr);
     int currState = chr->getState();
     chr->setNextState(currState);
     chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));
+    if (sound != "") //TODO
+      assert(false && "Implement me");
   }
   if (hold){
     ctx.mSuspended = true;
