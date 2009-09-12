@@ -7,3 +7,4 @@ class GraphFrame : public wxFrame{
   GraphFrame();
 
 };
+

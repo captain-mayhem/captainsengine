@@ -15,7 +15,7 @@ BlitObject(texture, size, scale, depth, offset){
   virtual ~FontBlitObject(){
 
   }
-  virtual void FontBlitObject::blit(){
+  virtual void blit(){
     glPushMatrix();
     glTranslatef(mPos.x,mPos.y,0.0f);
     glScalef(mSize.x,mSize.y,1.0f);

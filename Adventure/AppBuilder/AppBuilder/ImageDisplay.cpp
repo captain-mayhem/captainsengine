@@ -67,3 +67,4 @@ void PopupWindow::OnPaint(wxPaintEvent& event){
   //mDisplay->OnDraw(dc);
   //dc.DrawText("Test",wxPoint(10,10));
 }
+

@@ -48,3 +48,4 @@ void AdvMainTreeView::buildTreeFromGraph(wxTreeCtrl* ctrl, const Graph& grf){
   TextNode* node = static_cast<TextNode*>(grf.getRoot());
   wxTreeItemId id = ctrl->AddRoot(node->getLabel());
 }
+

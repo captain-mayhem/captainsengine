@@ -82,18 +82,18 @@ void BlitGroup::setDepth(int depth){
   }
 }
 
-Animation::Animation(float fps) : mInterval(1000/fps), mCurrFrame(0), mTimeAccu(0){
+Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0), mTimeAccu(0){
 
 }
 
-Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mInterval(1000/fps), mCurrFrame(0){
+Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k].names, frames[k].offsets, depth);
     mBlits.push_back(group);
   }
 }
 
-Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mInterval(1000/fps), mCurrFrame(0){
+Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k], offset, depth);
     mBlits.push_back(group);

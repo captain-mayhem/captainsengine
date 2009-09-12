@@ -94,7 +94,7 @@ struct CursorState{
   Vec2i highlight;
 };
 
-typedef std::vector<CursorState> Cursor;
+typedef std::vector<CursorState> MouseCursor;
 
 struct ItemState{
   Frames frames;
@@ -224,7 +224,7 @@ public:
   wxImage getImage(wxString name);
   Room* getRoom(std::string name);
   Object* getObject(std::string name);
-  Cursor* getCursor();
+  MouseCursor* getCursor();
   std::vector<Rcharacter> getRoomCharacters() {return mRoomCharacters;}
   Character* getCharacter(std::string name);
   ProjectSettings* getProjectSettings();
@@ -241,7 +241,7 @@ protected:
   AdvMainTreeView* mView;
   ProjectSettings mSettings;
   std::map<wxString,wxFileName> mImageNames;
-  Cursor mCursor;
+  MouseCursor mCursor;
   std::vector<Item> mItems;
   std::map<std::string,Object> mObjects;
   std::map<std::string,Character> mCharacters;

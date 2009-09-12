@@ -189,7 +189,7 @@ void MainFrame::OnCreateGame(wxCommandEvent& event){
     WX_GL_RGBA, //GL_TRUE,
     WX_GL_DOUBLEBUFFER,// GL_TRUE,
     //WX_GL_DEPTH_SIZE, 32,
-    NULL
+    0
   };
   RenderWindow* rendwin = new RenderWindow(frame, attribs, sz.x, sz.y);
   rendwin->init();

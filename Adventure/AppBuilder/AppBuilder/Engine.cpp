@@ -41,7 +41,7 @@ void Engine::initGame(){
   mWalkGridSize = res.x/32;
   mWalkFields = Vec2i(32,res.y/mWalkGridSize);
   //load cursor
-  Cursor* cursor = mData->getCursor();
+  MouseCursor* cursor = mData->getCursor();
   mCursor = new CursorObject(Vec2i(0,0));
   for (unsigned j = 0; j < cursor->size(); ++j){
     Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, 20000);

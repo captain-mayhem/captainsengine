@@ -67,3 +67,4 @@ BEGIN_EVENT_TABLE(AdvTreeCtrl, wxTreeCtrl)
 EVT_TREE_ITEM_ACTIVATED(ID_AdvTreeCtrl, AdvTreeCtrl::OnItemActivated)
 EVT_TREE_ITEM_MENU(ID_AdvTreeCtrl, AdvTreeCtrl::OnItemMenu)
 END_EVENT_TABLE()
+

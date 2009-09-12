@@ -1,0 +1,11 @@
+#define HAVE_STDINT_H 1
+#define HAVE_SYS_TYPES_H 1
+#define HAVE_SYS_STAT_H 1
+#define STDC_HEADERS 1
+#define HAVE_STRING_H 1
+#define HAVE_UNISTD_H 1
+#define HAVE_NETINET_IN_H 1
+#define HAVE_SYS_SOCKET_H 1
+#define HAVE_NETINET_TCP_H 1
+#define HAVE_MALLOC_H 1
+
