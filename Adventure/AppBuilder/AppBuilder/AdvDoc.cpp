@@ -115,6 +115,15 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   mSettings.walktext = str.SubString(11, str.Length());
   while(!stream.Eof()){
     str = txtstream.ReadLine();
+    if (str == "Booleans :"){
+      str = txtstream.ReadLine();
+      while (str != "Commands :"){
+        wxString name = str.substr(0, str.size()-2);
+        wxString val = str.substr(str.size()-1);
+        mSettings.booleans[std::string(name)] = (val == "1");
+        str = txtstream.ReadLine();
+      }
+    }
     if (str == "Commands :"){
       mSettings.pretty_commands.push_back(mSettings.walktext);
       mSettings.pretty_commands.push_back("Loading");

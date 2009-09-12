@@ -34,14 +34,18 @@ protected:
 
 class StackData{
 public:
-  StackData(std::string str) {mStr = str;}
+  StackData(std::string str) : mInt(0) {mStr = str; if (mStr == "true"){mBool = true;}}
   StackData(int value) {mInt = value;}
+  StackData(bool value) {mBool = value;}
   std::string getString() {return mStr;}
   int getInt() {return mInt;}
-  bool getBool() {return mStr == "true";}
+  bool getBool() {return mBool;}
 protected:
   std::string mStr;
-  int mInt;
+  union{
+    int mInt;
+    bool mBool;
+  };
 };
 
 class Stack{

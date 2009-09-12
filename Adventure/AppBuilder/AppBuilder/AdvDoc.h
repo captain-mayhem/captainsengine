@@ -79,6 +79,7 @@ struct ProjectSettings{
   std::string linktext;
   std::string givelink;
   std::string walktext;
+  std::map<std::string,bool> booleans;
   std::map<std::string, unsigned> commands;
   std::vector<std::string> pretty_commands;
 

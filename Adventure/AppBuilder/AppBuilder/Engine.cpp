@@ -65,8 +65,8 @@ void Engine::exitGame(){
     return;
   mInitialized = false;
   mAnimator->clear();
-  for (unsigned i = 0; i < mRooms.size(); ++i){
-    delete mRooms[i];
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    delete *iter;
   }
   mRooms.clear();
   delete mCursor;
@@ -153,15 +153,15 @@ void Engine::render(){
   
   //some animation stuff
   mAnimator->update(interval);
-  for (std::vector<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     (*iter)->update(interval);
   }
   if (mFocussedChar && mFocussedChar->getAnimation())
     mFocussedChar->getAnimation()->update(interval);
 
   //build blit queue
-  for (unsigned i = 0; i < mRooms.size(); ++i){
-    mRooms[i]->render();
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    (*iter)->render();
   }
   if (mFocussedChar)
     mFocussedChar->render();
@@ -194,12 +194,12 @@ bool Engine::loadRoom(std::string name){
   Room* room = mData->getRoom(name);
   if (!room)
     return false;
-  RoomObject* roomobj = new RoomObject(room->size);
+  RoomObject* roomobj = new RoomObject(room->size, name);
   roomobj->setBackground(room->background);
   roomobj->setWalkmap(room->walkmap);
   for (unsigned i = 0; i < room->objects.size(); ++i){
     Object* o = mData->getObject(room->objects[i].object);
-    Object2D* object = new Object2D(room->objects[i].state, room->objects[i].position, o->size);
+    Object2D* object = new Object2D(room->objects[i].state, room->objects[i].position, o->size, o->name);
     //calculate render depth
     int depth;
     if (room->objects[i].layer == 0)
@@ -290,8 +290,8 @@ void Engine::rightClick(const Vec2i& pos){
 
 bool Engine::setFocus(std::string charname){
   CharacterObject* res = NULL;
-  for (unsigned i = 0; i < mRooms.size(); ++i){
-    res = mRooms[i]->extractCharacter(charname);
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    res = (*iter)->extractCharacter(charname);
     if (res){
       mFocussedChar = res;
       return true;
@@ -398,7 +398,7 @@ float Engine::distance(const Vec2i& x, const Vec2i& y){
 }
 
 Object2D* Engine::getObjectAt(const Vec2i& pos){
-  for (std::vector<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     Object2D* ret = (*iter)->getObjectAt(pos);
     if (ret != NULL)
       return ret;
@@ -410,10 +410,19 @@ CharacterObject* Engine::getCharacter(const std::string& name){
   if (name == "self")
     return mFocussedChar;
   CharacterObject* res = NULL;
-  for (unsigned i = 0; i < mRooms.size(); ++i){
-    res = mRooms[i]->findCharacter(name);
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    res = (*iter)->findCharacter(name);
     if (res){
       return res;
+    }
+  }
+  return NULL;
+}
+
+RoomObject* Engine::getRoom(const std::string& name){
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    if ((*iter)->getName() == name){
+      return *iter;
     }
   }
   return NULL;
@@ -435,6 +444,6 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
       path.pop_back();
     path.push_back(pos);
   }
-  mAnimator->add(chr, path, 3);
   chr->setEndLookDir(dir);
+  mAnimator->add(chr, path, 3);
 }

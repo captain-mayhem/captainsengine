@@ -32,6 +32,7 @@ public:
   int getWalkGridSize() {return mWalkGridSize;}
   Object2D* getObjectAt(const Vec2i& pos);
   CharacterObject* getCharacter(const std::string& name);
+  RoomObject* getRoom(const std::string& name);
   PcdkScript* getInterpreter() {return mInterpreter;}
   FontRenderer* getFontRenderer() {return mFonts;}
   void setObjectString(const std::string info) {mObjectInfo = info;}
@@ -45,7 +46,7 @@ protected:
   short mVerts[8];
   bool mInitialized;
   //data
-  std::vector<RoomObject*> mRooms;
+  std::list<RoomObject*> mRooms;
   CursorObject* mCursor;
   CharacterObject* mFocussedChar;
   //grid variables
