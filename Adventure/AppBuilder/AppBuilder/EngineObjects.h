@@ -8,6 +8,13 @@
 #include "AdvDoc.h"
 #include "Script.h"
 
+class Animation;
+
+class AnimationEndHandler{
+public:
+  virtual void animationEnded(Animation* anim)=0;
+};
+
 struct Color{
   Color(){
     r = 255; g=255; b=255; a=255;
@@ -67,11 +74,13 @@ public:
   void start();
   void update(unsigned interval);
   bool exists() {return mBlits.size() > 0;}
+  void registerAnimationEndHandler(AnimationEndHandler* handler) {mHandler = handler;}
 protected:
   std::vector<BlitGroup*> mBlits;
   unsigned mInterval;
   unsigned mTimeAccu;
   unsigned mCurrFrame;
+  AnimationEndHandler* mHandler;
 };
 
 class Object2D{
@@ -82,7 +91,7 @@ public:
     CHARACTER,
     CURSOR,
   };
-  Object2D(int state, const Vec2i& pos, const Vec2i& size);
+  Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name);
   virtual ~Object2D();
   virtual void render();
   virtual Type getType() {return OBJECT;}
@@ -99,6 +108,7 @@ public:
   void setSuspensionScript(ExecutionContext* script);
   int getState() {return mState;}
   void setState(int state) {mState = state;}
+  const std::string& getName() {return mName;}
 protected:
   int mState;
   Vec2i mPos;
@@ -106,6 +116,7 @@ protected:
   std::vector<Animation*> mAnimations;
   ExecutionContext* mScript;
   ExecutionContext* mSuspensionScript;
+  std::string mName;
 };
 
 class CursorObject : public Object2D{
@@ -122,7 +133,7 @@ class CharacterObject;
 
 class RoomObject : public Object2D{
 public:
-  RoomObject(const Vec2i& size);
+  RoomObject(const Vec2i& size, const std::string& name);
   ~RoomObject();
   void setBackground(std::string bg);
   void setWalkmap(const std::vector<std::vector<WMField> >& map){mWalkmap = map;}
@@ -134,18 +145,19 @@ public:
   bool isWalkable(const Vec2i& pos);
   Object2D* getObjectAt(const Vec2i& pos);
   void update(unsigned interval);
+  void setBlendColor(const Color& col) {mBlendColor = col;}
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;
+  Color mBlendColor;
 };
 
-class CharacterObject : public Object2D{
+class CharacterObject : public Object2D, public AnimationEndHandler{
 public:
   CharacterObject(int state, Vec2i pos, const std::string& name);
   ~CharacterObject();
   virtual void render();
   virtual Type getType() {return CHARACTER;}
-  const std::string& getName() {return mName;}
   void addBasepoint(Vec2i p, Vec2i size) {mBasePoints.push_back(p); mSizes.push_back(size);}
   virtual void setPosition(const Vec2i& pos);
   virtual Vec2i getPosition();
@@ -153,7 +165,9 @@ public:
   virtual void animationBegin(const Vec2i& next);
   virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next);
   virtual void animationEnd(const Vec2i& prev);
+  virtual void animationEnded(Animation* anim);
   void setLookDir(LookDir dir);
+  LookDir getLookDir();
   void setEndLookDir(LookDir dir) {mDesiredDir = dir;}
   Vec2i getOverheadPos();
   void setTextColor(const Color& col) {mTextColor = col;}
@@ -166,7 +180,6 @@ public:
   bool isWalking();
   bool isTalking();
 protected:
-  std::string mName;
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
   bool mMirror;

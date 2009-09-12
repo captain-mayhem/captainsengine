@@ -132,6 +132,9 @@ public:
     delete mArgs;
     delete mIfBlock;
   }
+  std::string getCondFuncName() {return "if_"+mCondition;}
+  NodeList* getArguments() {return mArgs;}
+  NodeList* getIfBlock() {return mIfBlock;}
 protected:
   std::string mCondition;
   NodeList* mArgs;

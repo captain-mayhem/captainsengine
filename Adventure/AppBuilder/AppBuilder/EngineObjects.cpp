@@ -82,18 +82,20 @@ void BlitGroup::setDepth(int depth){
   }
 }
 
-Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0), mTimeAccu(0){
+Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0), mTimeAccu(0), mHandler(NULL){
 
 }
 
-Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0){
+Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0),
+mHandler(NULL){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k].names, frames[k].offsets, depth);
     mBlits.push_back(group);
   }
 }
 
-Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0){
+Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mInterval((unsigned)(1000.0f/fps)), 
+mCurrFrame(0), mHandler(NULL){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k], offset, depth);
     mBlits.push_back(group);
@@ -130,13 +132,18 @@ void Animation::update(unsigned interval){
   while(mTimeAccu >= mInterval){
     mTimeAccu -= mInterval;
     ++mCurrFrame;
-    if (mCurrFrame >= mBlits.size())
+    if (mCurrFrame >= mBlits.size()){
+      if (mHandler){
+        mHandler->animationEnded(this);
+        mHandler = NULL;
+      }
       mCurrFrame = 0;
+    }
   }
 }
 
-Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size) : mState(state), 
-mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL){
+Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name)
+: mState(state), mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL), mName(name){
 
 }
 
@@ -183,7 +190,7 @@ void Object2D::setSuspensionScript(ExecutionContext* script){
   mSuspensionScript = script;
 }
 
-CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32)){
+CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32), "xxx"){
 
 }
 
@@ -206,7 +213,7 @@ int CursorObject::getNextCommand(){
   return mCommands[mState-1];
 }
 
-RoomObject::RoomObject(const Vec2i& size) : Object2D(1, Vec2i(0,0), size){
+RoomObject::RoomObject(const Vec2i& size, const std::string& name) : Object2D(1, Vec2i(0,0), size, name){
 
 }
 
@@ -281,7 +288,7 @@ void RoomObject::update(unsigned interval){
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
-: Object2D(state, pos, Vec2i(0,0)), mName(name), mMirror(false), mTextColor(), 
+: Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0), mNextState(-1)
 {
 
@@ -360,6 +367,11 @@ void CharacterObject::animationEnd(const Vec2i& prev){
   Object2D::animationEnd(prev);
 }
 
+void CharacterObject::animationEnded(Animation* anim){
+  mState = mNextState;
+  mNextState = -1;
+}
+
 void CharacterObject::setLookDir(LookDir dir){
   int stateoffset = (mState-1)/3;
   if (dir == FRONT){
@@ -379,6 +391,10 @@ void CharacterObject::setLookDir(LookDir dir){
     mMirror = false;
   }
   mState += 3*stateoffset;
+}
+
+LookDir CharacterObject::getLookDir(){
+  return (LookDir)((mState-1)%3);
 }
 
 void CharacterObject::render(){

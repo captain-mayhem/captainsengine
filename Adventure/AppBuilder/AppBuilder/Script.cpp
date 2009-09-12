@@ -20,6 +20,13 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("speech", speech);
   registerFunction("pickup", pickup);
   registerFunction("playsound", playSound);
+  registerFunction("if_bool", isBoolEqual);
+  registerFunction("if_obj", isObjectInState);
+  registerFunction("setlight", setLight);
+  registerFunction("setbool", setBool);
+  registerFunction("if_command", isCommandSet);
+  registerFunction("setobj", setObj);
+  mBooleans = data->getProjectSettings()->booleans;
 }
 
 PcdkScript::~PcdkScript(){
@@ -84,8 +91,17 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
   switch(node->getType()){
       case ASTNode::FUNCCALL:{
         FuncCallNode* fc = static_cast<FuncCallNode*>(node);
+        if (fc->getName() == "break"){
+          CBRA* jmp = new CBRA();
+          codes->addCode(jmp);
+          ++count;
+          mUnresolvedBranches.push_back(std::make_pair(jmp,codes->numInstructions()));
+          break;
+        }
         ScriptFunc f = mFunctions[fc->getName()];
-        assert(f != NULL);
+        if (f == NULL){
+          DebugBreak();
+        }
         count += transform(fc->getArguments(), codes, ARGLIST);
         codes->addCode(new CCALL(f, fc->getArguments()->size()));
         ++count;
@@ -111,6 +127,27 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         ++count;
         int offset = transform(evt->getBlock(), codes, START);
         cevt->setOffset(offset+1);
+        count += offset;
+        for (std::list<std::pair<CBRA*,unsigned> >::iterator iter = mUnresolvedBranches.begin(); iter != mUnresolvedBranches.end(); ++iter){
+          unsigned diff = codes->numInstructions() - iter->second;
+          iter->first->setOffset(diff+1);
+        }
+        mUnresolvedBranches.clear();
+      }
+      break;
+      case ASTNode::CONDITION:{
+        CondNode* cond = static_cast<CondNode*>(node);
+        ScriptFunc f = mFunctions[cond->getCondFuncName()];
+        if(f == NULL){
+          DebugBreak();
+        }
+        count += transform(cond->getArguments(), codes, ARGLIST);
+        codes->addCode(new CCALL(f, cond->getArguments()->size()));
+        CBEZERO* cez = new CBEZERO;
+        codes->addCode(cez);
+        count += 2;
+        int offset = transform(cond->getIfBlock(), codes, START);
+        cez->setOffset(offset+1);
         count += offset;
       }
       break;
@@ -227,11 +264,11 @@ int PcdkScript::walkTo(ExecutionContext& ctx, unsigned numArgs){
   }
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
+    if (hold){
+      chr->setSuspensionScript(&ctx);
+      ctx.mSuspended = true;
+    }
     Engine::instance()->walkTo(chr, pos, dir);
-  }
-  if (hold){
-    chr->setSuspensionScript(&ctx);
-    ctx.mSuspended = true;
   }
   return 0;
 }
@@ -240,7 +277,7 @@ int PcdkScript::speech(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
   std::string text = ctx.stack().pop().getString();
   std::string sound = "";
-  if (numArgs >= 3)
+  if (numArgs >= 3) //TODO SOUND
     sound = ctx.stack().pop().getString();
   bool hold = true;
   if (numArgs >= 4){
@@ -262,7 +299,7 @@ int PcdkScript::speech(ExecutionContext& ctx, unsigned numArgs){
     chr->setNextState(currState);
     chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));
     if (sound != "") //TODO
-      assert(false && "Implement me");
+      DebugBreak();
   }
   if (hold){
     ctx.mSuspended = true;
@@ -271,11 +308,70 @@ int PcdkScript::speech(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::pickup(ExecutionContext& ctx, unsigned numArgs){
+  std::string character = ctx.stack().pop().getString();
+  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  if (chr){
+    chr->setNextState(chr->getState());
+    LookDir dir = chr->getLookDir();
+    if (dir == LEFT || dir == RIGHT)
+      chr->setState(16);
+    else if (dir == FRONT)
+      chr->setState(15);
+    chr->getAnimation()->registerAnimationEndHandler(chr);
+  }
   return 0;
 }
 
 int PcdkScript::playSound(ExecutionContext& ctx, unsigned numArgs){
+  std::string sound = ctx.stack().pop().getString();
+  unsigned volume = 100;
+  if (numArgs >= 2)
+    volume = ctx.stack().pop().getInt();
+  //TODO SOUND
   return 0;
+}
+
+int PcdkScript::setLight(ExecutionContext& ctx, unsigned numArgs){
+  std::string room = ctx.stack().pop().getString();
+  Color c;
+  c.r = (unsigned char)ctx.stack().pop().getInt();
+  c.g = (unsigned char)ctx.stack().pop().getInt();
+  c.b = (unsigned char)ctx.stack().pop().getInt();
+  bool fade = false;
+  if (numArgs >= 5) //TODO
+    fade = ctx.stack().pop().getString() == "fade";
+  RoomObject* roomobj = Engine::instance()->getRoom(room);
+  if (roomobj){
+    roomobj->setBlendColor(c);
+  }
+  return 0;
+}
+
+int PcdkScript::setBool(ExecutionContext& ctx, unsigned numArgs){
+  std::string boolname = ctx.stack().pop().getString();
+  bool val = ctx.stack().pop().getBool();
+  Engine::instance()->getInterpreter()->mBooleans[boolname] = val;
+  return 0;
+}
+
+int PcdkScript::setObj(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::isBoolEqual(ExecutionContext& ctx, unsigned numArgs){
+  std::string boolname = ctx.stack().pop().getString();
+  bool test = ctx.stack().pop().getBool();
+  bool saved = Engine::instance()->getInterpreter()->mBooleans[boolname];
+  ctx.stack().push(StackData(test == saved));
+  return 1;
+}
+
+int PcdkScript::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
+  return 1;
+}
+
+int PcdkScript::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
+  return 1;
 }
 
 EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
@@ -287,7 +383,7 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
   if (iter != mData->getProjectSettings()->commands.end()){
     return static_cast<EngineEvent>(iter->second);
   }
-  assert(false);
+  DebugBreak();
   return EVT_UNKNOWN;
 }
 

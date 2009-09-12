@@ -71,4 +71,11 @@ protected:
   EngineEvent mEvent;
 };
 
+class CBEZERO : public CBRA{
+public:
+  CBEZERO() {}
+  virtual ~CBEZERO() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+};
+
 #endif

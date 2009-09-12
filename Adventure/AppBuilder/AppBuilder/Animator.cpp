@@ -18,8 +18,10 @@ void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedf
     obj->animationEnd(targetpath.front());
     mObjects.erase(iter);
   }
-  if (targetpath.empty())
+  if (targetpath.empty()){
+    obj->animationEnd(obj->getPosition());
     return;
+  }
   ObjectAnim anim;
   //anim.object = obj;
   anim.startpos = obj->getPosition();
@@ -33,6 +35,9 @@ void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedf
     //  obj->getAnimation()->start();
     //}
     mObjects[obj] = anim;
+  }
+  else{
+    obj->animationEnd(anim.startpos);
   }
 }
 
@@ -54,7 +59,7 @@ void Animator::update(unsigned interval){
       iter->second.path.pop_front();
       if (iter->second.path.empty()){
         iter->first->animationEnd(iter->second.startpos);
-        mObjects.erase(iter);
+        mObjects.erase(iter++);
         if (iter == mObjects.end())
           break;
       }
