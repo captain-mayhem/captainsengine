@@ -24,3 +24,4 @@ protected:
   bool mRendering;
   DECLARE_EVENT_TABLE();
 };
+

@@ -47,14 +47,14 @@ void Animator::update(unsigned interval){
     //float factor = iter->factor/iter->normalization;
     float newx = oldpos.x+dir.x/iter->second.normalization*iter->second.factor;
     float newy = oldpos.y+dir.y/iter->second.normalization*iter->second.factor;
-    Vec2i reachedpos(newx,newy);
+    Vec2i reachedpos((int)newx,(int)newy);
     iter->first->setPosition(reachedpos);
     if (iter->second.factor >= iter->second.normalization){
       //goal reached
       iter->second.path.pop_front();
       if (iter->second.path.empty()){
         iter->first->animationEnd(iter->second.startpos);
-        iter = mObjects.erase(iter);
+        mObjects.erase(iter);
         if (iter == mObjects.end())
           break;
       }

@@ -4,7 +4,7 @@
 #ifdef WIN32
 #include <Windows.h>
 #endif
-#include <gl/GL.h>
+#include <GL/gl.h>
 #include "AdvDoc.h"
 #include "Script.h"
 
