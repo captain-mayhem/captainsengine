@@ -439,8 +439,18 @@ bool AdvDocument::loadFile3(wxInputStream& stream){
       Script scr;
       scr.name = name;
       scr.type = scrType;
-      mScripts[std::make_pair(scr.type, scr.name)] = scr;
-      mLastScript = &mScripts[std::make_pair(scr.type, scr.name)];
+      if (scrType == Script::WALKMAP){
+        std::string roomname = std::string(name.substr(7).c_str());
+        Vec2i pos;
+        pos.x = atoi(name.substr(1,3).c_str());
+        pos.y = atoi(name.substr(4,3).c_str());
+        mWMScripts[roomname].push_back(std::make_pair(pos,scr));
+        mLastScript = &mWMScripts[roomname].back().second;
+      }
+      else{
+        mScripts[std::make_pair(scr.type, scr.name)] = scr;
+        mLastScript = &mScripts[std::make_pair(scr.type, scr.name)];
+      }
     }
     else{
       mLastScript->text += str + "\n";
@@ -533,6 +543,17 @@ Script* AdvDocument::getScript(Script::Type t, std::string name){
   if (iter == mScripts.end())
     return NULL;
   return &((*iter).second);
+}
+
+std::vector<std::pair<Vec2i,Script*> > AdvDocument::getWMScripts(std::string roomname){
+  std::vector<std::pair<Vec2i,Script*> > result;
+  std::map<std::string, std::vector<std::pair<Vec2i,Script> > >::iterator iter = mWMScripts.find(roomname);
+  if (iter == mWMScripts.end())
+    return result;
+  for (unsigned i = 0; i < iter->second.size(); ++i){
+    result.push_back(std::make_pair(iter->second[i].first, &iter->second[i].second));
+  }
+  return result;
 }
 
 FontData AdvDocument::getFont(int num){

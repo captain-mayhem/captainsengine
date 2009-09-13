@@ -31,7 +31,20 @@ struct Color{
   unsigned char a;
 };
 
-class BlitObject{
+class BaseBlitObject{
+public:
+  BaseBlitObject(int depth, const Vec2i& size);
+  virtual ~BaseBlitObject();
+  virtual void blit()=0;
+  int getDepth() {return mDepth;}
+  void setDepth(int depth) {mDepth = depth;}
+protected:
+  Vec2i mPos;
+  Vec2i mSize;
+  int mDepth;
+};
+
+class BlitObject : public BaseBlitObject{
 public:
   BlitObject(std::string texture, int depth, Vec2i offset);
   BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
@@ -39,17 +52,23 @@ public:
   bool operator<(const BlitObject& obj);
   void render(Vec2i pos, bool mirrorx);
   virtual void blit();
-  int getDepth() {return mDepth;}
-  void setDepth(int depth) {mDepth = depth;}
 protected:
   Vec2i mOffset;
-  Vec2i mPos;
-  Vec2i mSize;
   Vec2f mScale;
-  int mDepth;
   GLuint mTex;
   bool mMirrorX;
   bool mDeleteTex;
+};
+
+class LightingBlitObject : public BaseBlitObject{
+public:
+  LightingBlitObject(int depth, const Vec2i& size);
+  virtual ~LightingBlitObject();
+  virtual void blit();
+  void render(const Vec2i& pos);
+  void setColor(const Color& col) {mColor = col;}
+protected:
+  Color mColor;
 };
 
 class BlitGroup{
@@ -144,12 +163,16 @@ public:
   CharacterObject* findCharacter(const std::string& name);
   bool isWalkable(const Vec2i& pos);
   Object2D* getObjectAt(const Vec2i& pos);
+  Object2D* getObject(const std::string& name);
   void update(unsigned interval);
-  void setBlendColor(const Color& col) {mBlendColor = col;}
+  void setLightingColor(const Color& col) {mLighting->setColor(col);}
+  void addWalkmapScript(const Vec2i& wmpos, ExecutionContext* script) {mWalkmapScripts[wmpos] = script;}
+  void walkTo(const Vec2i& pos);
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;
-  Color mBlendColor;
+  LightingBlitObject* mLighting;
+  std::map<Vec2i,ExecutionContext*> mWalkmapScripts;
 };
 
 class CharacterObject : public Object2D, public AnimationEndHandler{

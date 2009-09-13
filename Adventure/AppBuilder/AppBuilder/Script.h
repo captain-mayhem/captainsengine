@@ -26,15 +26,71 @@ public:
   void update();
   void remove(ExecutionContext* script);
 
+  /**
+  \param character name of the character to beam
+  \param room room to beam to
+  \param x x-position to beam to
+  \param y y-position to beam to
+  \param dir [opt] look direction
+  **/
+  static int beamTo(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param room name of the room
+    \param effect [opt] blending effect TODO
+  **/
   static int loadRoom(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param bool name of the boolean
+    \param value true/false
+  **/
   static int setBool(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param character name of the character to focus
+           special values none/last TODO
+  **/
   static int setFocus(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param room name of the room
+    \param r red-component
+    \param g green-component
+    \param b blue-component
+    \param fade [opt] fading effect TODO
+  **/
   static int setLight(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param object name of the object instance
+    \param state state of the object
+    \param ... [opt] additional states TODO
+  **/
   static int setObj(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param text information about the object
+    \param show boolean if the text should be displayed on the mouse cursor
+  **/
   static int showInfo(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param character name of the character to speak
+    \param text the text to be displayed
+    \param sample [opt] sound file to be played TODO
+    \param dontwait [opt] continue script execution immediately
+  **/
   static int speech(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param character the name of the character to execute the pickup action
+  **/
   static int pickup(ExecutionContext& ctx, unsigned numArgs);
+  /** TODO
+    \param sound name of the sound file to play
+    \param volume [opt] the volume
+  **/
   static int playSound(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param character name of the character to walk
+    \param x x-position to walk to
+    \param y y-position to walk to
+    \param dir [opt] look direction
+    \param dontwait [opt] continue script execution immediately
+  **/
   static int walkTo(ExecutionContext& ctx, unsigned numArgs);
 
   static int isBoolEqual(ExecutionContext& ctx, unsigned numArgs);
