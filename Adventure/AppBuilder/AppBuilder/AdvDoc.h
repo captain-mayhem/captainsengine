@@ -230,6 +230,7 @@ public:
   Character* getCharacter(std::string name);
   ProjectSettings* getProjectSettings();
   Script* getScript(Script::Type t, std::string name);
+  std::vector<std::pair<Vec2i,Script*> > getWMScripts(std::string roomname);
   FontData getFont(int num);
 protected:
   DECLARE_DYNAMIC_CLASS(AdvDocument)
@@ -249,6 +250,7 @@ protected:
   std::vector<Rcharacter> mRoomCharacters;
   std::map<std::string,Room> mRooms;
   std::map<std::pair<Script::Type,std::string>,Script> mScripts;
+  std::map<std::string, std::vector<std::pair<Vec2i,Script> > > mWMScripts;
   Room* mLastRoom;
   Script* mLastScript;
   wxFileSystem* mStream;

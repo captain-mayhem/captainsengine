@@ -21,7 +21,7 @@ public:
   void initGame();
   void exitGame();
   GLuint genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const wxImage* alphaimage=NULL);
-  void insertToBlit(BlitObject* obj);
+  void insertToBlit(BaseBlitObject* obj);
   void setCursorPos(Vec2i pos);
   Vec2i getCursorPos();
   void leftClick(const Vec2i& pos);
@@ -31,6 +31,7 @@ public:
   wxImage getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
   Object2D* getObjectAt(const Vec2i& pos);
+  Object2D* getObject(const std::string& name);
   CharacterObject* getCharacter(const std::string& name);
   RoomObject* getRoom(const std::string& name);
   PcdkScript* getInterpreter() {return mInterpreter;}
@@ -42,7 +43,7 @@ protected:
   static Engine* mInstance;
   AdvDocument* mData;
   //rendering
-  std::list<BlitObject*> mBlitQueue;
+  std::list<BaseBlitObject*> mBlitQueue;
   short mVerts[8];
   bool mInitialized;
   //data

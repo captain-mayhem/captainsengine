@@ -48,6 +48,7 @@ bool RenderWindow::init(){
   glEnable(GL_TEXTURE_2D);
   glAlphaFunc(GL_GREATER, 0);
   glEnable(GL_ALPHA_TEST);
+  glBlendFunc(GL_ZERO, GL_SRC_COLOR);
 
   mRendering = true;
   Connect(wxID_ANY, wxEVT_IDLE, wxIdleEventHandler(RenderWindow::OnIdle));

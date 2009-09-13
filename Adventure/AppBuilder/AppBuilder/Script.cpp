@@ -26,6 +26,7 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("setbool", setBool);
   registerFunction("if_command", isCommandSet);
   registerFunction("setobj", setObj);
+  registerFunction("beamto", beamTo);
   mBooleans = data->getProjectSettings()->booleans;
 }
 
@@ -342,7 +343,7 @@ int PcdkScript::setLight(ExecutionContext& ctx, unsigned numArgs){
     fade = ctx.stack().pop().getString() == "fade";
   RoomObject* roomobj = Engine::instance()->getRoom(room);
   if (roomobj){
-    roomobj->setBlendColor(c);
+    roomobj->setLightingColor(c);
   }
   return 0;
 }
@@ -355,6 +356,20 @@ int PcdkScript::setBool(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::setObj(ExecutionContext& ctx, unsigned numArgs){
+  std::string objname = ctx.stack().pop().getString();
+  int state = ctx.stack().pop().getInt();
+  for (unsigned i = 2; i < numArgs; ++i){
+    DebugBreak(); //TODO state lists
+    state = ctx.stack().pop().getInt();
+  }
+  Object2D* obj = Engine::instance()->getObject(objname);
+  if (obj){
+    obj->setState(state);
+  }
+  return 0;
+}
+
+int PcdkScript::beamTo(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
@@ -367,10 +382,23 @@ int PcdkScript::isBoolEqual(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
+  std::string objname = ctx.stack().pop().getString();
+  int checkstate = ctx.stack().pop().getInt();
+  Object2D* obj = Engine::instance()->getObject(objname);
+  if (obj){
+    ctx.stack().push(StackData(checkstate == obj->getState()));
+  }
   return 1;
 }
 
 int PcdkScript::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
+  EngineEvent check = EVT_NONE;
+  if (numArgs >= 1){
+    std::string evtname = ctx.stack().pop().getString();
+    check = Engine::instance()->getInterpreter()->getEngineEvent(evtname);
+  }
+  EngineEvent evt = ctx.getCommandEvent();
+  ctx.stack().push(StackData(check == evt));
   return 1;
 }
 
@@ -384,7 +412,7 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
     return static_cast<EngineEvent>(iter->second);
   }
   DebugBreak();
-  return EVT_UNKNOWN;
+  return EVT_NONE;
 }
 
 void ExecutionContext::setEvent(EngineEvent evt){
@@ -398,6 +426,15 @@ void ExecutionContext::resetEvent(EngineEvent evt){
 
 bool ExecutionContext::isEventSet(EngineEvent evt){
   return mEvents.find(evt) != mEvents.end();
+}
+
+EngineEvent ExecutionContext::getCommandEvent(){
+  for (std::set<EngineEvent>::iterator iter = mEvents.begin(); iter != mEvents.end(); ++iter){
+    EngineEvent curr = *iter;
+    if (curr >= EVT_USER_BEGIN && curr <= EVT_USER_MIRROR_END)
+      return curr;
+  }
+  return EVT_NONE;
 }
 
 void ExecutionContext::reset(){

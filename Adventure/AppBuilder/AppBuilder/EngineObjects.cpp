@@ -2,15 +2,24 @@
 #include <wx/image.h>
 #include "Engine.h"
 
+BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) : 
+mPos(), mSize(size), mDepth(depth){
+
+}
+
+BaseBlitObject::~BaseBlitObject(){
+
+}
+
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
-mDepth(depth), mOffset(offset){
+BaseBlitObject(depth, Vec2i()), mOffset(offset){
   wxImage image = Engine::instance()->getImage(texture);
   mTex = Engine::instance()->genTexture(image, mSize, mScale);
   mDeleteTex = true;
 }
 
 BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
-mOffset(offset), mSize(size), mScale(scale), mDepth(depth), mTex(texture)
+BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture)
 {
   mMirrorX = false;
   mDeleteTex = false;
@@ -50,6 +59,32 @@ void BlitObject::blit(){
   glPopMatrix();
 }
 
+LightingBlitObject::LightingBlitObject(int depth, const Vec2i& size) : BaseBlitObject(depth, size){
+}
+
+LightingBlitObject::~LightingBlitObject(){
+
+}
+
+void LightingBlitObject::render(const Vec2i& pos){
+  mPos = pos;
+  Engine::instance()->insertToBlit(this);
+}
+
+void LightingBlitObject::blit(){
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_BLEND);
+  glPushMatrix();
+  glTranslatef(mPos.x,mPos.y,0.0f);
+  glScalef(mSize.x,mSize.y,1.0f);
+  glColor4ub(mColor.r, mColor.g, mColor.b, mColor.a);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  glColor4ub(255, 255, 255, 255);
+  glDisable(GL_BLEND);
+  glPopMatrix();
+  glEnable(GL_TEXTURE_2D);
+}
+
 ///
 
 BlitGroup::BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth){
@@ -86,8 +121,8 @@ Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame
 
 }
 
-Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0),
-mHandler(NULL){
+Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mInterval((unsigned)(1000.0f/fps)), mTimeAccu(0),
+mCurrFrame(0), mHandler(NULL){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k].names, frames[k].offsets, depth);
     mBlits.push_back(group);
@@ -95,7 +130,7 @@ mHandler(NULL){
 }
 
 Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mInterval((unsigned)(1000.0f/fps)), 
-mCurrFrame(0), mHandler(NULL){
+mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k], offset, depth);
     mBlits.push_back(group);
@@ -214,12 +249,16 @@ int CursorObject::getNextCommand(){
 }
 
 RoomObject::RoomObject(const Vec2i& size, const std::string& name) : Object2D(1, Vec2i(0,0), size, name){
-
+  mLighting = new LightingBlitObject(1000, size);
 }
 
 RoomObject::~RoomObject(){
   for (unsigned i = 0; i < mObjects.size(); ++i){
     delete mObjects[i];
+  }
+  delete mLighting;
+  for (std::map<Vec2i,ExecutionContext*>::iterator iter = mWalkmapScripts.begin(); iter != mWalkmapScripts.end(); ++iter){
+    Engine::instance()->getInterpreter()->remove(iter->second);
   }
 }
 
@@ -228,6 +267,7 @@ void RoomObject::render(){
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->render();
   }
+  mLighting->render(Vec2i());
 }
 
 void RoomObject::setBackground(std::string bg){
@@ -244,6 +284,14 @@ void RoomObject::addObject(Object2D* obj){
 Object2D* RoomObject::getObjectAt(const Vec2i& pos){
   for (unsigned i = 0; i < mObjects.size(); ++i){
     if(mObjects[i]->isHit(pos))
+      return mObjects[i];
+  }
+  return NULL;
+}
+
+Object2D* RoomObject::getObject(const std::string& name){
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    if(mObjects[i]->getName() == name)
       return mObjects[i];
   }
   return NULL;
@@ -285,6 +333,14 @@ void RoomObject::update(unsigned interval){
     if (anim != NULL)
       anim->update(interval);
   }
+}
+
+void RoomObject::walkTo(const Vec2i& pos){
+  std::map<Vec2i,ExecutionContext*>::iterator iter = mWalkmapScripts.find(pos);
+  if (iter == mWalkmapScripts.end())
+    return;
+  ExecutionContext* scr = iter->second;
+  Engine::instance()->getInterpreter()->execute(scr, true);
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 

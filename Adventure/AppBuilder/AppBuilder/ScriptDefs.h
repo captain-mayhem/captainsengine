@@ -6,10 +6,14 @@
 class CCode;
 
 enum EngineEvent{
-  EVT_USER_BEGIN=0,
-  EVT_USER_END=0x100,
-  EVT_UNKNOWN=EVT_USER_END+1,
-  EVT_MOUSE=EVT_UNKNOWN+1,
+  EVT_USER_RANGE=0x50,
+  EVT_NONE=0,
+  EVT_USER_BEGIN=EVT_NONE+1,
+  EVT_USER_END=EVT_USER_BEGIN+EVT_USER_RANGE,
+  EVT_USER_MIRROR_BEGIN=EVT_USER_END+1,
+  EVT_USER_MIRROR_END=EVT_USER_MIRROR_BEGIN+EVT_USER_RANGE,
+  EVT_RESERVED=EVT_USER_MIRROR_END+1,
+  EVT_MOUSE=EVT_RESERVED+1,
   EVT_CLICK=EVT_MOUSE+1,
 };
 
@@ -74,6 +78,7 @@ public:
   void setEvent(EngineEvent evt);
   void resetEvent(EngineEvent evt);
   bool isEventSet(EngineEvent evt);
+  EngineEvent getCommandEvent();
   Stack& stack() {return mStack;}
   void setStepEndHandler(StepEndHandler handler, void* data){
     mHandler = handler;

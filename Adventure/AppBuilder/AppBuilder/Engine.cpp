@@ -148,6 +148,10 @@ void Engine::render(){
       script->setEvent(EVT_MOUSE);
     }
   }
+  if (mRooms.size() > 0 && mFocussedChar){
+    Vec2i pos = mFocussedChar->getPosition()/mWalkGridSize;
+    mRooms.back()->walkTo(pos);
+  }
 
   mInterpreter->update();
   
@@ -160,7 +164,7 @@ void Engine::render(){
     mFocussedChar->getAnimation()->update(interval);
 
   //build blit queue
-  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+  for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
     (*iter)->render();
   }
   if (mFocussedChar)
@@ -182,7 +186,7 @@ void Engine::render(){
   //render the stuff
   glVertexPointer(2, GL_SHORT, 0, mVerts);
   glTexCoordPointer(2, GL_SHORT, 0, mVerts);
-  for (std::list<BlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
+  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
     (*iter)->blit();
   }
   mBlitQueue.clear();
@@ -197,6 +201,12 @@ bool Engine::loadRoom(std::string name){
   RoomObject* roomobj = new RoomObject(room->size, name);
   roomobj->setBackground(room->background);
   roomobj->setWalkmap(room->walkmap);
+  //check for walkmap scripts
+  std::vector<std::pair<Vec2i,Script*> > wmscripts = mData->getWMScripts(name);
+  for (unsigned i = 0; i < wmscripts.size(); ++i){
+    ExecutionContext* scr = mInterpreter->parseProgram(wmscripts[i].second->text);
+    roomobj->addWalkmapScript(wmscripts[i].first-Vec2i(1,1), scr);
+  }
   for (unsigned i = 0; i < room->objects.size(); ++i){
     Object* o = mData->getObject(room->objects[i].object);
     Object2D* object = new Object2D(room->objects[i].state, room->objects[i].position, o->size, o->name);
@@ -207,12 +217,12 @@ bool Engine::loadRoom(std::string name){
     else if (room->objects[i].layer == 1)
       depth = room->objects[i].wm_depth-1;
     else
-      depth = 10000;
+      depth = 999;
     for (unsigned j = 0; j < o->states.size(); ++j){
       Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth);
       object->addAnimation(anim);
     }
-    //check for scripts
+    //check for object scripts
     Script* script = mData->getScript(Script::OBJECT,room->objects[i].object+";"+name);
     if (script){
       ExecutionContext* scr = mInterpreter->parseProgram(script->text);
@@ -243,9 +253,9 @@ bool Engine::loadRoom(std::string name){
   return true;
 }
 
-void Engine::insertToBlit(BlitObject* obj){
+void Engine::insertToBlit(BaseBlitObject* obj){
   bool placenotfound = true;
-  for (std::list<BlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){
+  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){
     if (obj->getDepth() <= (*iter)->getDepth()){
       mBlitQueue.insert(iter, obj);
       placenotfound = false;
@@ -400,6 +410,15 @@ float Engine::distance(const Vec2i& x, const Vec2i& y){
 Object2D* Engine::getObjectAt(const Vec2i& pos){
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     Object2D* ret = (*iter)->getObjectAt(pos);
+    if (ret != NULL)
+      return ret;
+  }
+  return NULL;
+}
+
+Object2D* Engine::getObject(const std::string& name){
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    Object2D* ret = (*iter)->getObject(name);
     if (ret != NULL)
       return ret;
   }
