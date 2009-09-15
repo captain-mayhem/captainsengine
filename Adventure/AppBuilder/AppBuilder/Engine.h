@@ -38,6 +38,7 @@ public:
   FontRenderer* getFontRenderer() {return mFonts;}
   void setObjectString(const std::string info) {mObjectInfo = info;}
   void walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir);
+  Animator* getAnimator() {return mAnimator;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -48,8 +49,11 @@ protected:
   bool mInitialized;
   //data
   std::list<RoomObject*> mRooms;
+  std::list<RoomObject*> mRoomsToUnload;
   CursorObject* mCursor;
   CharacterObject* mFocussedChar;
+  ExecutionContext* mInitScript;
+  bool mMainRoomLoaded;
   //grid variables
   int mWalkGridSize;
   Vec2i mWalkFields;

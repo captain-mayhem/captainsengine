@@ -52,11 +52,13 @@ void Engine::initGame(){
   mFonts->loadFont(1);
   mActiveCommand = 0;
   //load and execute start script
+  mInitScript = NULL;
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
-    ExecutionContext* exe = mInterpreter->parseProgram(startScript->text);
-    mInterpreter->execute(exe, true);
+    mInitScript = mInterpreter->parseProgram(startScript->text);
+    mInterpreter->execute(mInitScript, true);
   }
+  mMainRoomLoaded = false;
   mInitialized = true;
 }
 
@@ -64,11 +66,17 @@ void Engine::exitGame(){
   if (!mInitialized)
     return;
   mInitialized = false;
+  delete mInitScript;
   mAnimator->clear();
+  for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
+    delete *iter;
+  }
+  mRoomsToUnload.clear();
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     delete *iter;
   }
   mRooms.clear();
+  mMainRoomLoaded = false;
   delete mCursor;
   delete mFocussedChar;
   mFonts->unloadFont(1);
@@ -140,6 +148,11 @@ void Engine::render(){
   mTimeIntervals.push_front(interval);
   interval = std::accumulate(mTimeIntervals.begin(), mTimeIntervals.end(), 0)/(unsigned)mTimeIntervals.size();
   
+  while (!mRoomsToUnload.empty()){
+    delete mRoomsToUnload.front();
+    mRoomsToUnload.pop_front();
+  }
+
   //do some scripting
   Object2D* obj = getObjectAt(mCursor->getPosition());
   if (obj != NULL){
@@ -148,7 +161,7 @@ void Engine::render(){
       script->setEvent(EVT_MOUSE);
     }
   }
-  if (mRooms.size() > 0 && mFocussedChar){
+  if (mRooms.size() > 0 && mFocussedChar){ //walkmap
     Vec2i pos = mFocussedChar->getPosition()/mWalkGridSize;
     mRooms.back()->walkTo(pos);
   }
@@ -198,6 +211,11 @@ bool Engine::loadRoom(std::string name){
   Room* room = mData->getRoom(name);
   if (!room)
     return false;
+  if (mMainRoomLoaded){
+    mRoomsToUnload.push_back(mRooms.back());
+    mRooms.pop_back();
+    mMainRoomLoaded = false;
+  }
   RoomObject* roomobj = new RoomObject(room->size, name);
   roomobj->setBackground(room->background);
   roomobj->setWalkmap(room->walkmap);
@@ -250,6 +268,7 @@ bool Engine::loadRoom(std::string name){
     }
   };
   mRooms.push_back(roomobj);
+  mMainRoomLoaded = true;
   return true;
 }
 

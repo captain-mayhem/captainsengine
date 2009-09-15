@@ -27,6 +27,14 @@ public:
   void remove(ExecutionContext* script);
 
   /**
+  \param character name of the character to whose inventory the item should be added
+          special values off
+  \param item the item to add
+          special values givelink
+  \param num [opt] the inventory number
+  **/
+  static int addItem(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param character name of the character to beam
   \param room room to beam to
   \param x x-position to beam to
@@ -34,6 +42,11 @@ public:
   \param dir [opt] look direction
   **/
   static int beamTo(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param cutscene name of the cutscene to start
+    \param donthide [opt] leaves anywhere-objects and user panel there
+   **/
+  static int cutScene(ExecutionContext& ctx, unsigned numArgs);
   /**
     \param room name of the room
     \param effect [opt] blending effect TODO
@@ -85,6 +98,10 @@ public:
   **/
   static int playSound(ExecutionContext& ctx, unsigned numArgs);
   /**
+    \param show true/false
+  **/
+  static int taskbar(ExecutionContext& ctx, unsigned numArgs);
+  /**
     \param character name of the character to walk
     \param x x-position to walk to
     \param y y-position to walk to
@@ -93,9 +110,12 @@ public:
   **/
   static int walkTo(ExecutionContext& ctx, unsigned numArgs);
 
+  static int dummy(ExecutionContext& ctx, unsigned numArgs);
+
   static int isBoolEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isCommandSet(ExecutionContext& ctx, unsigned numArgs);
   static int isObjectInState(ExecutionContext& ctx, unsigned numArgs);
+  static int isLinkedObject(ExecutionContext& ctx, unsigned numArgs);
 
   static void clickEndHandler(ExecutionContext& ctx, void* data);
 protected:

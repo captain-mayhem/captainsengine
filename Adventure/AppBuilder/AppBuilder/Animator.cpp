@@ -41,6 +41,14 @@ void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedf
   }
 }
 
+void Animator::remove(Object2D* obj){
+  std::map<Object2D*,ObjectAnim>::iterator iter = mObjects.find(obj);
+  if (iter != mObjects.end()){
+    obj->animationEnd(obj->getPosition());
+    mObjects.erase(iter);
+  }
+}
+
 void Animator::update(unsigned interval){
   for (std::map<Object2D*, ObjectAnim>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     iter->second.factor += interval*iter->second.speedfactor/20.f;
