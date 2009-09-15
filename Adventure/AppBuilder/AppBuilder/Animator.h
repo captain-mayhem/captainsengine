@@ -20,6 +20,7 @@ public:
   Animator();
   ~Animator();
   void add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedfactor);
+  void remove(Object2D* obj);
   void update(unsigned interval);
   void clear();
 protected:

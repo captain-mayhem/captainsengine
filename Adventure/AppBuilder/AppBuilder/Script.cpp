@@ -27,6 +27,10 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("if_command", isCommandSet);
   registerFunction("setobj", setObj);
   registerFunction("beamto", beamTo);
+  registerFunction("additem", addItem);
+  registerFunction("cutscene", cutScene);
+  registerFunction("if_link", isLinkedObject);
+  registerFunction("taskbar", taskbar);
   mBooleans = data->getProjectSettings()->booleans;
 }
 
@@ -101,6 +105,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         }
         ScriptFunc f = mFunctions[fc->getName()];
         if (f == NULL){
+          f = dummy;
           DebugBreak();
         }
         count += transform(fc->getArguments(), codes, ARGLIST);
@@ -176,7 +181,6 @@ void PcdkScript::update(){
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
     execute(*iter);
     if ((*iter)->mExecuteOnce){
-      delete *iter;
       iter = mScripts.erase(iter);
     }
     if (iter == mScripts.end())
@@ -370,6 +374,47 @@ int PcdkScript::setObj(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::beamTo(ExecutionContext& ctx, unsigned numArgs){
+  std::string charname = ctx.stack().pop().getString();
+  std::string roomname = ctx.stack().pop().getString();
+  Vec2i pos;
+  pos.x = ctx.stack().pop().getInt();
+  pos.y = ctx.stack().pop().getInt();
+  LookDir dir = UNSPECIFIED;
+  if (numArgs >= 5)
+    dir = (LookDir)(ctx.stack().pop().getInt()-1);
+  if (charname == "self"){
+    //focussed char, therefore change room
+    Engine::instance()->loadRoom(roomname);
+    CharacterObject* obj = Engine::instance()->getCharacter(charname);
+    if (obj){
+      Engine::instance()->getAnimator()->remove(obj);
+      obj->setPosition(pos*Engine::instance()->getWalkGridSize());
+      int state = CharacterObject::calculateState(obj->getState(), false, false);
+      obj->setState(state);
+    }
+  }
+  else{
+    //TODO
+  }
+  return 0;
+}
+
+int PcdkScript::addItem(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::cutScene(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::taskbar(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::dummy(ExecutionContext& ctx, unsigned numArgs){
+  for (unsigned i = 0; i < numArgs; ++i){
+    ctx.stack().pop();
+  }
   return 0;
 }
 
@@ -402,11 +447,17 @@ int PcdkScript::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
   return 1;
 }
 
+int PcdkScript::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
+  return 1;
+}
+
 EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
   if (eventname == "mouse")
     return EVT_MOUSE;
   else if (eventname == "click")
     return EVT_CLICK;
+  else if (eventname == "link")
+    return EVT_LINK;
   std::map<std::string,unsigned>::iterator iter = mData->getProjectSettings()->commands.find(eventname);
   if (iter != mData->getProjectSettings()->commands.end()){
     return static_cast<EngineEvent>(iter->second);
