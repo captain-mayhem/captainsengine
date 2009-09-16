@@ -71,6 +71,14 @@ protected:
   Color mColor;
 };
 
+class ScrollBlitObject : public BaseBlitObject{
+public:
+  ScrollBlitObject(int depth);
+  virtual ~ScrollBlitObject();
+  virtual void blit();
+  void render(const Vec2i& pos);
+};
+
 class BlitGroup{
 public:
   BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth);
@@ -128,10 +136,14 @@ public:
   int getState() {return mState;}
   void setState(int state) {mState = state;}
   const std::string& getName() {return mName;}
+  virtual Vec2i getSize() {return mSize;}
+  virtual void setScrollOffset(const Vec2i& offset) {mScrollOffset = offset;}
+  Vec2i getScrollOffset() {return mScrollOffset;}
 protected:
   int mState;
   Vec2i mPos;
   Vec2i mSize;
+  Vec2i mScrollOffset;
   std::vector<Animation*> mAnimations;
   ExecutionContext* mScript;
   ExecutionContext* mSuspensionScript;
@@ -159,6 +171,7 @@ public:
   void addObject(Object2D* obj);
   virtual void render();
   virtual Type getType() {return ROOM;}
+  virtual void setScrollOffset(const Vec2i& offset);
   CharacterObject* extractCharacter(const std::string& name);
   CharacterObject* findCharacter(const std::string& name);
   bool isWalkable(const Vec2i& pos);
@@ -202,6 +215,7 @@ public:
   static int calculateState(int currState, bool shouldWalk, bool shouldTalk);
   bool isWalking();
   bool isTalking();
+  virtual Vec2i getSize();
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;

@@ -39,6 +39,7 @@ public:
   void setObjectString(const std::string info) {mObjectInfo = info;}
   void walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir);
   Animator* getAnimator() {return mAnimator;}
+  Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -47,6 +48,7 @@ protected:
   std::list<BaseBlitObject*> mBlitQueue;
   short mVerts[8];
   bool mInitialized;
+  Vec2i mScrollOffset;
   //data
   std::list<RoomObject*> mRooms;
   std::list<RoomObject*> mRoomsToUnload;

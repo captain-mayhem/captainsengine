@@ -85,6 +85,25 @@ void LightingBlitObject::blit(){
   glEnable(GL_TEXTURE_2D);
 }
 
+ScrollBlitObject::ScrollBlitObject(int depth) : BaseBlitObject(depth, Vec2i(0,0)){
+}
+
+ScrollBlitObject::~ScrollBlitObject(){
+}
+
+void ScrollBlitObject::blit(){
+  if (mDepth < 0){
+    glPushMatrix();
+    glTranslatef(mPos.x, mPos.y, 0);
+  }
+  else
+    glPopMatrix();
+}
+  
+void ScrollBlitObject::render(const Vec2i& pos){
+  mPos = pos;
+}
+
 ///
 
 BlitGroup::BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth){
@@ -192,7 +211,7 @@ Object2D::~Object2D(){
 void Object2D::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  mAnimations[mState-1]->render(mPos, false);
+  mAnimations[mState-1]->render(mPos+mScrollOffset, false);
 }
 
 Animation* Object2D::getAnimation(){
@@ -283,7 +302,7 @@ void RoomObject::addObject(Object2D* obj){
 
 Object2D* RoomObject::getObjectAt(const Vec2i& pos){
   for (unsigned i = 0; i < mObjects.size(); ++i){
-    if(mObjects[i]->isHit(pos))
+    if(mObjects[i]->isHit(pos-mScrollOffset))
       return mObjects[i];
   }
   return NULL;
@@ -341,6 +360,21 @@ void RoomObject::walkTo(const Vec2i& pos){
     return;
   ExecutionContext* scr = iter->second;
   Engine::instance()->getInterpreter()->execute(scr, true);
+}
+
+void RoomObject::setScrollOffset(const Vec2i& offset){
+  mScrollOffset=offset;
+  if (mScrollOffset.x > 0)
+    mScrollOffset.x = 0;
+  if (mScrollOffset.y > 0)
+    mScrollOffset.y = 0;
+  if (mScrollOffset.x < Engine::instance()->getResolution().x-mSize.x)
+    mScrollOffset.x = Engine::instance()->getResolution().x-mSize.x;
+  if (mScrollOffset.y < Engine::instance()->getResolution().y-mSize.y)
+    mScrollOffset.y = Engine::instance()->getResolution().y-mSize.y;
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    (*iter)->setScrollOffset(mScrollOffset);
+  }
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
@@ -457,13 +491,13 @@ void CharacterObject::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
   if (mMirror)
-    mAnimations[mState-1]->render(mPos+Vec2i(mBasePoints[mState-1].x,0), mMirror);
+    mAnimations[mState-1]->render(mScrollOffset+mPos+Vec2i(mBasePoints[mState-1].x,0), mMirror);
   else
-    mAnimations[mState-1]->render(mPos, mMirror);
+    mAnimations[mState-1]->render(mScrollOffset+mPos, mMirror);
 }
 
 Vec2i CharacterObject::getOverheadPos(){
-  return mPos+Vec2i(mSizes[mState-1].x/2, 0);
+  return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, 0);
 }
 
 void CharacterObject::activateNextState(){
@@ -495,4 +529,8 @@ bool CharacterObject::isWalking(){
 
 bool CharacterObject::isTalking(){
   return (mState >= 7 && mState <= 12);
+}
+
+Vec2i CharacterObject::getSize(){
+  return mSizes[mState-1];
 }

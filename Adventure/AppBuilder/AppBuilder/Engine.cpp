@@ -167,7 +167,16 @@ void Engine::render(){
   }
 
   mInterpreter->update();
-  
+
+  //scrolling
+  if (mRooms.size() > 0 && mFocussedChar){
+    mScrollOffset = mData->getProjectSettings()->resolution/2-
+      (mFocussedChar->getPosition()-Vec2i(0,mFocussedChar->getSize().y/2));
+    mRooms.back()->setScrollOffset(mScrollOffset); //this function limits the scrolling
+    mScrollOffset = mRooms.back()->getScrollOffset();
+    mFocussedChar->setScrollOffset(mScrollOffset);
+  }
+
   //some animation stuff
   mAnimator->update(interval);
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
@@ -301,14 +310,14 @@ void Engine::leftClick(const Vec2i& pos){
     if (script != NULL){
       script->setEvent(EVT_CLICK);
       script->setEvent((EngineEvent)mActiveCommand);
-      script->setStepEndHandler(PcdkScript::clickEndHandler, new Vec2i(pos));
+      script->setStepEndHandler(PcdkScript::clickEndHandler, new Vec2i(pos-mScrollOffset));
     }
     else if (mFocussedChar){
-      Engine::instance()->walkTo(mFocussedChar, pos, UNSPECIFIED);
+      Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
     }
   }
   else if (mFocussedChar){
-    Engine::instance()->walkTo(mFocussedChar, pos, UNSPECIFIED);
+    Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
   }
 }
 
@@ -367,7 +376,7 @@ bool Engine::aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& p
           break;
         case 1:
           y.pos.y += 1;
-          if (y.pos.y >= mWalkFields.y)
+          if (y.pos.y >= mData->getProjectSettings()->resolution.y/mWalkGridSize*4)
             continue;
           break;
         case 2:
@@ -377,7 +386,7 @@ bool Engine::aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& p
           break;
         case 3:
           y.pos.x += 1;
-          if (y.pos.x >= mWalkFields.x)
+          if (y.pos.x >= mData->getProjectSettings()->resolution.x/mWalkGridSize*6)
             continue;
           break;
       }
