@@ -31,12 +31,17 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("cutscene", cutScene);
   registerFunction("if_link", isLinkedObject);
   registerFunction("taskbar", taskbar);
+  registerFunction("follow", follow);
+  registerFunction("lookto", lookTo);
+  registerFunction("textscene", textScene);
+  registerFunction("if_givelink", isGiveLinkedObject);
+  registerFunction("delitem", delItem);
   mBooleans = data->getProjectSettings()->booleans;
 }
 
 PcdkScript::~PcdkScript(){
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
-    (*iter)->reset();
+    (*iter)->reset(true);
     delete *iter;
   }
   mScripts.clear();
@@ -209,7 +214,7 @@ void PcdkScript::execute(ExecutionContext* script){
   if (!script->mSuspended && script->mPC >= script->mCode->numInstructions()){
     if (script->mHandler)
       script->mHandler(*script, script->mData);
-    script->reset();
+    script->reset(false);
   }
 }
 
@@ -224,7 +229,7 @@ void PcdkScript::remove(ExecutionContext* script){
     if (iter == mScripts.end())
       break;
   }
-  script->reset();
+  script->reset(true);
   delete script;
 }
 
@@ -411,6 +416,22 @@ int PcdkScript::taskbar(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+int PcdkScript::follow(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::lookTo(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::textScene(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::delItem(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
 int PcdkScript::dummy(ExecutionContext& ctx, unsigned numArgs){
   for (unsigned i = 0; i < numArgs; ++i){
     ctx.stack().pop();
@@ -451,6 +472,10 @@ int PcdkScript::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
   return 1;
 }
 
+int PcdkScript::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs){
+  return 1;
+}
+
 EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
   if (eventname == "mouse")
     return EVT_MOUSE;
@@ -458,9 +483,19 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
     return EVT_CLICK;
   else if (eventname == "link")
     return EVT_LINK;
+  else if (eventname == "cantall")
+    return EVT_CANT_ALL;
+  else if (eventname == "givelink")
+    return EVT_GIVE_LINK;
   std::map<std::string,unsigned>::iterator iter = mData->getProjectSettings()->commands.find(eventname);
   if (iter != mData->getProjectSettings()->commands.end()){
     return static_cast<EngineEvent>(iter->second);
+  }
+  if (eventname.substr(0, 4) == "cant"){
+    std::map<std::string,unsigned>::iterator iter = mData->getProjectSettings()->commands.find(eventname.substr(4));
+    if (iter != mData->getProjectSettings()->commands.end()){
+      return static_cast<EngineEvent>(iter->second+EVT_USER_RANGE);
+    }
   }
   DebugBreak();
   return EVT_NONE;
@@ -488,9 +523,10 @@ EngineEvent ExecutionContext::getCommandEvent(){
   return EVT_NONE;
 }
 
-void ExecutionContext::reset(){
+void ExecutionContext::reset(bool clearEvents){
   mStack.clear();
-  mEvents.clear();
+  if (clearEvents)
+    mEvents.clear();
   mPC = 0;
   mSuspended = false;
   delete mData;
@@ -504,6 +540,16 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx, void* data){
     ctx.resetEvent(EVT_CLICK);
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     Engine::instance()->walkTo(chr, *((Vec2i*)data), UNSPECIFIED);
+  }
+  EngineEvent evt = ctx.getCommandEvent();
+  if (evt != EVT_NONE){
+    //an action remained unhandled
+    CharacterObject* chr = Engine::instance()->getCharacter("self");
+    if (chr){
+      if (evt <= EVT_USER_END)
+        ctx.resetEvent(evt);
+        chr->getScript()->setEvent(static_cast<EngineEvent>(evt+EVT_USER_RANGE));
+    }
   }
   delete pos;
   ctx.mData = NULL;

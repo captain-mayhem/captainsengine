@@ -67,6 +67,7 @@ public:
   virtual void blit();
   void render(const Vec2i& pos);
   void setColor(const Color& col) {mColor = col;}
+  Color getColor() {return mColor;}
 protected:
   Color mColor;
 };
@@ -139,6 +140,8 @@ public:
   virtual Vec2i getSize() {return mSize;}
   virtual void setScrollOffset(const Vec2i& offset) {mScrollOffset = offset;}
   Vec2i getScrollOffset() {return mScrollOffset;}
+  virtual void save();
+  int getDepth();
 protected:
   int mState;
   Vec2i mPos;
@@ -181,6 +184,7 @@ public:
   void setLightingColor(const Color& col) {mLighting->setColor(col);}
   void addWalkmapScript(const Vec2i& wmpos, ExecutionContext* script) {mWalkmapScripts[wmpos] = script;}
   void walkTo(const Vec2i& pos);
+  virtual void save();
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;

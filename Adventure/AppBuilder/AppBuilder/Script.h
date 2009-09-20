@@ -48,10 +48,29 @@ public:
    **/
   static int cutScene(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param character name of the character from whose inventory the item should be removed
+  special values off
+  \param item the item to remove
+  special values givelink
+  \param num [opt] the inventory number
+  **/
+  static int delItem(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param char1 name of the character to follow char2
+  \param char2 name of the character to be followed by char1
+  \param dontwait [opt] continue script execution immediately
+  **/
+  static int follow(ExecutionContext& ctx, unsigned numArgs);
+  /**
     \param room name of the room
     \param effect [opt] blending effect TODO
   **/
   static int loadRoom(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param char name of the character to change look direction
+  \param dir direction number or character name
+  **/
+  static int lookTo(ExecutionContext& ctx, unsigned numArgs);
   /**
     \param bool name of the boolean
     \param value true/false
@@ -89,6 +108,13 @@ public:
   **/
   static int speech(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param textscene name of the textscene to start
+  \param posx [opt] x-position of the textscene
+  \param posy [opt] y-position of the textscene
+  \param width [opt] width if the textscene
+  **/
+  static int textScene(ExecutionContext& ctx, unsigned numArgs);
+  /**
     \param character the name of the character to execute the pickup action
   **/
   static int pickup(ExecutionContext& ctx, unsigned numArgs);
@@ -116,6 +142,7 @@ public:
   static int isCommandSet(ExecutionContext& ctx, unsigned numArgs);
   static int isObjectInState(ExecutionContext& ctx, unsigned numArgs);
   static int isLinkedObject(ExecutionContext& ctx, unsigned numArgs);
+  static int isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs);
 
   static void clickEndHandler(ExecutionContext& ctx, void* data);
 protected:

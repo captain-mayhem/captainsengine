@@ -10,6 +10,8 @@
 #include "Animator.h"
 #include "Font.h"
 
+class SaveStateProvider;
+
 class Engine{
 public:
   ~Engine();
@@ -39,6 +41,7 @@ public:
   void setObjectString(const std::string info) {mObjectInfo = info;}
   void walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir);
   Animator* getAnimator() {return mAnimator;}
+  SaveStateProvider* getSaver() {return mSaver;}
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
 protected:
   Engine();
@@ -63,6 +66,7 @@ protected:
   PcdkScript* mInterpreter;
   Animator* mAnimator;
   FontRenderer* mFonts;
+  SaveStateProvider* mSaver;
   //TODO move out into render window
   wxStopWatch mTimer;
   std::list<unsigned> mTimeIntervals;

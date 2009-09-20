@@ -16,6 +16,8 @@ enum EngineEvent{
   EVT_MOUSE=EVT_RESERVED+1,
   EVT_CLICK=EVT_MOUSE+1,
   EVT_LINK=EVT_CLICK+1,
+  EVT_CANT_ALL=EVT_LINK+1,
+  EVT_GIVE_LINK=EVT_CANT_ALL+1,
 };
 
 class CodeSegment{
@@ -87,7 +89,7 @@ public:
   }
   void suspend() {mSuspended = true;}
   void resume() {mSuspended = false;}
-  void reset();
+  void reset(bool clearEvents);
 protected:
   CodeSegment* mCode;
   Stack mStack;

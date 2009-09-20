@@ -280,6 +280,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SaveStateProvider.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Script.cpp"
 				>
 			</File>
@@ -359,6 +363,10 @@
 			</File>
 			<File
 				RelativePath=".\RenderWindow.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SaveStateProvider.h"
 				>
 			</File>
 			<File
