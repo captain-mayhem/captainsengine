@@ -42,10 +42,16 @@ event_handler returns [EventNode* evt]
 	;
 	
 conditional returns [CondNode* cond]
-	:	IF IDENT LPAREN args=arg_list RPAREN ifblock=block
+	:	
+		(IF {$cond = new CondNode(false);}
+		| 
+		IFNOT {$cond = new CondNode(true);}
+		) 
+		IDENT LPAREN args=arg_list RPAREN ifblock=block
 	{
-		std::string condname = std::string((char*)$IDENT.text->chars);
-		$cond = new CondNode(condname, args.nodes, ifblock.nodes);
+		$cond->setCondition(std::string((char*)$IDENT.text->chars));
+		$cond->setCondArgs(args.nodes);
+		$cond->setIfBlock(ifblock.nodes);
 	}
 	;
 	
@@ -93,6 +99,7 @@ INFO_BEG	:	'|''#';
 INFO_END	:	'#''|';
 ON	:	('O'|'o')('N'|'n');
 IF	:	('I'|'i')('F'|'f')UNDERSCORE;
+IFNOT   :	('I'|'i')('F'|'f')('N'|'n')('O'|'o')('T'|'t')UNDERSCORE;
 INT	:	'0'..'9'+;
 IDENT	:	('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9')*;
 /*STRING	:*/	/*WS*('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|WS)*//*('a'..'z'|'A'..'Z'|'0'..'9'|WS)**/

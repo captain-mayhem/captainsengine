@@ -7,6 +7,7 @@
 #include <wx/image.h>
 
 #include "AdvDoc.h"
+#include "SaveStateProvider.h"
 
 Engine* Engine::mInstance = NULL;
 
@@ -24,6 +25,7 @@ Engine::~Engine(){
   delete mFonts;
   delete mAnimator;
   delete mInterpreter;
+  delete mSaver;
 }
 
 void Engine::setData(AdvDocument* doc){
@@ -31,6 +33,7 @@ void Engine::setData(AdvDocument* doc){
   delete mFonts;
   mInterpreter = new PcdkScript(mData);
   mFonts = new FontRenderer(mData);
+  mSaver = new SaveStateProvider(mData);
 }
 
 void Engine::initGame(){
@@ -149,6 +152,7 @@ void Engine::render(){
   interval = std::accumulate(mTimeIntervals.begin(), mTimeIntervals.end(), 0)/(unsigned)mTimeIntervals.size();
   
   while (!mRoomsToUnload.empty()){
+    mRoomsToUnload.front()->save();
     delete mRoomsToUnload.front();
     mRoomsToUnload.pop_front();
   }
@@ -167,6 +171,15 @@ void Engine::render(){
   }
 
   mInterpreter->update();
+
+  //can't all
+  if (mFocussedChar){
+    EngineEvent evt = mFocussedChar->getScript()->getCommandEvent();
+    if (evt >= EVT_USER_MIRROR_BEGIN && evt <= EVT_USER_MIRROR_END){
+      mFocussedChar->getScript()->resetEvent(evt);
+      mFocussedChar->getScript()->setEvent(EVT_CANT_ALL);
+    }
+  }
 
   //scrolling
   if (mRooms.size() > 0 && mFocussedChar){
@@ -218,7 +231,8 @@ bool Engine::loadRoom(std::string name){
   if (!mData)
     return false;
   Room* room = mData->getRoom(name);
-  if (!room)
+  SaveStateProvider::SaveRoom* save = mSaver->getRoom(name);
+  if (!room || !save)
     return false;
   if (mMainRoomLoaded){
     mRoomsToUnload.push_back(mRooms.back());
@@ -227,6 +241,7 @@ bool Engine::loadRoom(std::string name){
   }
   RoomObject* roomobj = new RoomObject(room->size, name);
   roomobj->setBackground(room->background);
+  roomobj->setLightingColor(save->lighting);
   roomobj->setWalkmap(room->walkmap);
   //check for walkmap scripts
   std::vector<std::pair<Vec2i,Script*> > wmscripts = mData->getWMScripts(name);
@@ -236,7 +251,10 @@ bool Engine::loadRoom(std::string name){
   }
   for (unsigned i = 0; i < room->objects.size(); ++i){
     Object* o = mData->getObject(room->objects[i].object);
-    Object2D* object = new Object2D(room->objects[i].state, room->objects[i].position, o->size, o->name);
+    SaveStateProvider::SaveObject* saveobj = mSaver->getObject(room->objects[i].name);
+    if (!saveobj)
+      continue;
+    Object2D* object = new Object2D(saveobj->state, saveobj->position, o->size, o->name);
     //calculate render depth
     int depth;
     if (room->objects[i].layer == 0)
@@ -263,6 +281,9 @@ bool Engine::loadRoom(std::string name){
     if (mData->getRoomCharacters()[i].room == name){
       Rcharacter ch = mData->getRoomCharacters()[i];
       Character* chbase = mData->getCharacter(ch.character);
+      SaveStateProvider::SaveObject* saveobj = mSaver->getObject(ch.name);
+      if (!saveobj)
+        continue;
       CharacterObject* character = new CharacterObject(0, ch.position, ch.name);
       character->setLookDir(ch.dir);
       character->setFontID(chbase->fontid+1);
@@ -272,6 +293,12 @@ bool Engine::loadRoom(std::string name){
         Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
         character->addAnimation(anim);
         character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
+      }
+      Script* script = mData->getScript(Script::CHARACTER,ch.name);
+      if (script){
+        ExecutionContext* scr = mInterpreter->parseProgram(script->text);
+        character->setScript(scr);
+        mInterpreter->execute(scr, false);
       }
       roomobj->addObject(character);
     }

@@ -1,6 +1,7 @@
 #include "EngineObjects.h"
 #include <wx/image.h>
 #include "Engine.h"
+#include "SaveStateProvider.h"
 
 BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) : 
 mPos(), mSize(size), mDepth(depth){
@@ -223,8 +224,8 @@ Animation* Object2D::getAnimation(){
 bool Object2D::isHit(const Vec2i& point){
   if (mScript == NULL)
     return false;
-  if (point.x >= mPos.x && point.x <= mPos.x+mSize.x){
-    if (point.y >= mPos.y && point.y <= mPos.y+mSize.y)
+  if (point.x >= mPos.x && point.x <= mPos.x+getSize().x){
+    if (point.y >= mPos.y && point.y <= mPos.y+getSize().y)
       return true;
   }
   return false;
@@ -239,9 +240,21 @@ void Object2D::animationEnd(const Vec2i& prev){
 
 void Object2D::setSuspensionScript(ExecutionContext* script){
   if (mSuspensionScript != NULL){
-    mSuspensionScript->reset();
+    mSuspensionScript->reset(true);
   }
   mSuspensionScript = script;
+}
+
+void Object2D::save(){
+  SaveStateProvider::SaveObject* save = Engine::instance()->getSaver()->getObject(mName);
+  if (save){
+    save->position = mPos;
+    save->state = mState;
+  }
+}
+
+int Object2D::getDepth(){
+  return mPos.y/Engine::instance()->getWalkGridSize();
 }
 
 CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32), "xxx"){
@@ -301,11 +314,17 @@ void RoomObject::addObject(Object2D* obj){
 }
 
 Object2D* RoomObject::getObjectAt(const Vec2i& pos){
+  Object2D* curr = NULL;
+  int currdepth = -10000;
   for (unsigned i = 0; i < mObjects.size(); ++i){
-    if(mObjects[i]->isHit(pos-mScrollOffset))
-      return mObjects[i];
+    if(mObjects[i]->isHit(pos-mScrollOffset)){
+      if (mObjects[i]->getDepth() > currdepth){
+        curr = mObjects[i];
+        currdepth = curr->getDepth();
+      }
+    }
   }
-  return NULL;
+  return curr;
 }
 
 Object2D* RoomObject::getObject(const std::string& name){
@@ -322,6 +341,8 @@ CharacterObject* RoomObject::extractCharacter(const std::string& name){
       CharacterObject* ch = static_cast<CharacterObject*>((*iter));
       if (ch->getName() == name){
         mObjects.erase(iter);
+        Engine::instance()->getSaver()->getRoom(mName);
+        Engine::instance()->getSaver()->removeObject(name);
         return ch;
       }
     }
@@ -377,6 +398,14 @@ void RoomObject::setScrollOffset(const Vec2i& offset){
   }
 }
 
+void RoomObject::save(){
+  SaveStateProvider::SaveRoom* save = Engine::instance()->getSaver()->getRoom(mName);
+  save->lighting = mLighting->getColor();
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    mObjects[i]->save();
+  }
+}
+
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0), mNextState(-1)
@@ -394,6 +423,8 @@ void CharacterObject::setPosition(const Vec2i& pos){
 }
 
 Vec2i CharacterObject::getPosition(){
+  if (mState <= 1 || mState >= 36)
+    return Vec2i();
   return mPos+mBasePoints[mState-1];
 }
 /*

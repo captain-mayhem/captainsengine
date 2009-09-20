@@ -123,19 +123,21 @@ protected:
 
 class CondNode : public StmtNode{
 public:
-  CondNode(const std::string& condition, NodeList* args, NodeList* ifblock) : StmtNode(CONDITION){
-    mCondition = condition;
-    mArgs = args;
-    mIfBlock = ifblock;
+  CondNode(bool negation) : StmtNode(CONDITION), mNegation(negation){
   }
   ~CondNode(){
     delete mArgs;
     delete mIfBlock;
   }
+  void setCondition(const std::string& condition) {mCondition = condition;}
+  void setCondArgs(NodeList* args) {mArgs = args;}
+  void setIfBlock(NodeList* ifblock) {mIfBlock = ifblock;}
   std::string getCondFuncName() {return "if_"+mCondition;}
   NodeList* getArguments() {return mArgs;}
   NodeList* getIfBlock() {return mIfBlock;}
+  bool isNegated() {return mNegation;}
 protected:
+  bool mNegation;
   std::string mCondition;
   NodeList* mArgs;
   NodeList* mIfBlock;
