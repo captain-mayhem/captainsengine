@@ -23,6 +23,7 @@ public:
   ExecutionContext* parseProgram(std::string program);
   void registerFunction(std::string name, ScriptFunc func);
   void execute(ExecutionContext* script, bool executeOnce);
+  void executeImmediately(ExecutionContext* script);
   void update();
   void remove(ExecutionContext* script);
 
@@ -72,6 +73,29 @@ public:
   **/
   static int lookTo(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param sound the sound name which should be played in loop
+  \param volume [opt] the volume of the sound
+  **/
+  static int loopSound(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param sound the looping sound name which should be stopped
+  **/
+  static int loopStop(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param character the name of the character to execute the pickup action
+  **/
+  static int pickup(ExecutionContext& ctx, unsigned numArgs);
+  /** TODO
+  \param name the music file which should be played
+  \param position [opt] start position (as pattern for module track)
+  **/
+  static int playMusic(ExecutionContext& ctx, unsigned numArgs);
+  /** TODO
+  \param sound name of the sound file to play
+  \param volume [opt] the volume
+  **/
+  static int playSound(ExecutionContext& ctx, unsigned numArgs);
+  /**
     \param bool name of the boolean
     \param value true/false
   **/
@@ -108,6 +132,9 @@ public:
   **/
   static int speech(ExecutionContext& ctx, unsigned numArgs);
   /**
+  **/
+  static int stopMusic(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param textscene name of the textscene to start
   \param posx [opt] x-position of the textscene
   \param posy [opt] y-position of the textscene
@@ -115,18 +142,13 @@ public:
   **/
   static int textScene(ExecutionContext& ctx, unsigned numArgs);
   /**
-    \param character the name of the character to execute the pickup action
-  **/
-  static int pickup(ExecutionContext& ctx, unsigned numArgs);
-  /** TODO
-    \param sound name of the sound file to play
-    \param volume [opt] the volume
-  **/
-  static int playSound(ExecutionContext& ctx, unsigned numArgs);
-  /**
     \param show true/false
   **/
   static int taskbar(ExecutionContext& ctx, unsigned numArgs);
+  /**
+    \param time time in seconds
+  **/
+  static int wait(ExecutionContext& ctx, unsigned numArgs);
   /**
     \param character name of the character to walk
     \param x x-position to walk to
@@ -146,7 +168,6 @@ public:
 
   static void clickEndHandler(ExecutionContext& ctx, void* data);
 protected:
-  void execute(ExecutionContext* script);
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode);
   unsigned transform(ASTNode* node, CodeSegment* codes);
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;

@@ -36,6 +36,11 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("textscene", textScene);
   registerFunction("if_givelink", isGiveLinkedObject);
   registerFunction("delitem", delItem);
+  registerFunction("loopsound", loopSound);
+  registerFunction("loopstop", loopStop);
+  registerFunction("playmusic", playMusic);
+  registerFunction("stopmusic", stopMusic);
+  registerFunction("wait", wait);
   mBooleans = data->getProjectSettings()->booleans;
 }
 
@@ -184,7 +189,7 @@ void PcdkScript::registerFunction(std::string name, ScriptFunc func){
 
 void PcdkScript::update(){
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
-    execute(*iter);
+    executeImmediately(*iter);
     if ((*iter)->mExecuteOnce){
       iter = mScripts.erase(iter);
     }
@@ -200,7 +205,7 @@ void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
   mScripts.push_back(script);
 }
 
-void PcdkScript::execute(ExecutionContext* script){
+void PcdkScript::executeImmediately(ExecutionContext* script){
   if (script->mSuspended)
     return;
   CCode* code = script->mCode->get(script->mPC);
@@ -287,9 +292,14 @@ int PcdkScript::speech(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
   std::string text = ctx.stack().pop().getString();
   std::string sound = "";
-  if (numArgs >= 3) //TODO SOUND
-    sound = ctx.stack().pop().getString();
   bool hold = true;
+  if (numArgs >= 3){ //TODO SOUND
+    sound = ctx.stack().pop().getString();
+    if (sound == "dontwait"){
+      hold = false;
+      sound = "";
+    }
+  }
   if (numArgs >= 4){
     std::string dw = ctx.stack().pop().getString();
     if (dw == "dontwait")
@@ -432,6 +442,40 @@ int PcdkScript::delItem(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+int PcdkScript::loopSound(ExecutionContext& ctx, unsigned numArgs){
+  std::string sound = ctx.stack().pop().getString();
+  int volume = 100;
+  if (numArgs >= 2)
+    volume = ctx.stack().pop().getInt();
+  //TODO sound
+  return 0;
+}
+
+int PcdkScript::loopStop(ExecutionContext& ctx, unsigned numArgs){
+  std::string sound = ctx.stack().pop().getString();
+  //TODO sound
+  return 0;
+}
+
+int PcdkScript::playMusic(ExecutionContext& ctx, unsigned numArgs){
+  std::string music = ctx.stack().pop().getString();
+  std::string pattern;
+  if (numArgs >= 2)
+    pattern = ctx.stack().pop().getString();
+  //TODO sound
+  return 0;
+}
+
+int PcdkScript::stopMusic(ExecutionContext& ctx, unsigned numArgs){
+  //TODO sound
+  return 0;
+}
+
+int PcdkScript::wait(ExecutionContext& ctx, unsigned numArgs){
+  int seconds = ctx.stack().pop().getInt();
+  return 0;
+}
+
 int PcdkScript::dummy(ExecutionContext& ctx, unsigned numArgs){
   for (unsigned i = 0; i < numArgs; ++i){
     ctx.stack().pop();
@@ -487,6 +531,12 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
     return EVT_CANT_ALL;
   else if (eventname == "givelink")
     return EVT_GIVE_LINK;
+  else if (eventname == "enter")
+    return EVT_ENTER;
+  else if (eventname == "exit")
+    return EVT_EXIT;
+  else if (eventname == "loop2")
+    return EVT_LOOP2;
   std::map<std::string,unsigned>::iterator iter = mData->getProjectSettings()->commands.find(eventname);
   if (iter != mData->getProjectSettings()->commands.end()){
     return static_cast<EngineEvent>(iter->second);

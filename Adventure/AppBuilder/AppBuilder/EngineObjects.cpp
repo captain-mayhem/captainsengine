@@ -203,6 +203,7 @@ Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::st
 }
 
 Object2D::~Object2D(){
+  Engine::instance()->getAnimator()->remove(this);
   Engine::instance()->getInterpreter()->remove(mScript);
   for (unsigned i = 0; i < mAnimations.size(); ++i){
     delete mAnimations[i];
@@ -414,7 +415,7 @@ mFontID(0), mNextState(-1)
 }
 
 CharacterObject::~CharacterObject(){
-
+  Engine::instance()->getFontRenderer()->removeText(this);
 }
 
 void CharacterObject::setPosition(const Vec2i& pos){
@@ -423,7 +424,7 @@ void CharacterObject::setPosition(const Vec2i& pos){
 }
 
 Vec2i CharacterObject::getPosition(){
-  if (mState <= 1 || mState >= 36)
+  if (mState < 1 || mState >= (int)mAnimations.size())
     return Vec2i();
   return mPos+mBasePoints[mState-1];
 }
