@@ -151,6 +151,7 @@ void Engine::render(){
   mTimeIntervals.push_front(interval);
   interval = std::accumulate(mTimeIntervals.begin(), mTimeIntervals.end(), 0)/(unsigned)mTimeIntervals.size();
   
+  //unload rooms
   while (!mRoomsToUnload.empty()){
     mRoomsToUnload.front()->save();
     delete mRoomsToUnload.front();
@@ -163,6 +164,12 @@ void Engine::render(){
     ExecutionContext* script = obj->getScript();
     if (script != NULL){
       script->setEvent(EVT_MOUSE);
+    }
+  }
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    ExecutionContext* script = (*iter)->getScript();
+    if (script != NULL){
+      script->setEvent(EVT_LOOP2);
     }
   }
   if (mRooms.size() > 0 && mFocussedChar){ //walkmap
@@ -235,6 +242,11 @@ bool Engine::loadRoom(std::string name){
   if (!room || !save)
     return false;
   if (mMainRoomLoaded){
+    ExecutionContext* ctx = mRooms.back()->getScript();
+    if (ctx){
+      ctx->setEvent(EVT_EXIT);
+      mInterpreter->executeImmediately(ctx);
+    }
     mRoomsToUnload.push_back(mRooms.back());
     mRooms.pop_back();
     mMainRoomLoaded = false;
@@ -303,6 +315,14 @@ bool Engine::loadRoom(std::string name){
       roomobj->addObject(character);
     }
   };
+  //load room script
+  Script* script = mData->getScript(Script::ROOM,name);
+  if (script){
+    ExecutionContext* scr = mInterpreter->parseProgram(script->text);
+    roomobj->setScript(scr);
+    mInterpreter->execute(scr, false);
+    scr->setEvent(EVT_ENTER);
+  }
   mRooms.push_back(roomobj);
   mMainRoomLoaded = true;
   return true;
