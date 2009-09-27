@@ -8,6 +8,7 @@
 #include "AdvDoc.h"
 #include "Script.h"
 
+class Inventory;
 class Animation;
 
 class AnimationEndHandler{
@@ -221,6 +222,7 @@ public:
   bool isWalking();
   bool isTalking();
   virtual Vec2i getSize();
+  Inventory* getInventory() {return mInventory;}
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
@@ -229,6 +231,7 @@ protected:
   Color mTextColor;
   unsigned mFontID;
   int mNextState;
+  Inventory* mInventory;
 };
 
 #endif

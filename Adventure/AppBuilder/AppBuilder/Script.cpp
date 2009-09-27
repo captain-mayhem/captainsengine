@@ -5,6 +5,7 @@
 #include <wx/msgdlg.h>
 
 #include "Engine.h"
+#include "Inventory.h"
 
 CodeSegment::~CodeSegment(){
   for (unsigned i = 0; i < mCodes.size(); ++i){
@@ -43,6 +44,8 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("wait", wait);
   registerFunction("subroom", subRoom);
   registerFunction("return", subRoomReturn);
+  registerFunction("link", link);
+  registerFunction("givelink", giveLink);
   mBooleans = data->getProjectSettings()->booleans;
 }
 
@@ -425,6 +428,16 @@ int PcdkScript::beamTo(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::addItem(ExecutionContext& ctx, unsigned numArgs){
+  std::string charname = ctx.stack().pop().getString();
+  std::string itemname = ctx.stack().pop().getString();
+  int inventory = 1;
+  if (numArgs >= 3)
+    inventory = ctx.stack().pop().getInt();
+  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  if (chr){
+    Object2D* item = Engine::instance()->createItem(itemname);
+    chr->getInventory()->addItem(item, inventory);
+  }
   return 0;
 }
 
@@ -531,6 +544,14 @@ int PcdkScript::subRoom(ExecutionContext& ctx, unsigned numArgs){
 
 int PcdkScript::subRoomReturn(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->unloadRoom(NULL);
+  return 0;
+}
+
+int PcdkScript::link(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::giveLink(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 

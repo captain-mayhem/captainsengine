@@ -579,3 +579,21 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
   chr->setEndLookDir(dir);
   mAnimator->add(chr, path, 3);
 }
+
+Object2D* Engine::createItem(const std::string& name){
+  Item* it = mData->getItem(name);
+  Object2D* object = new Object2D(1, Vec2i(), Vec2i(), it->name);
+  int depth = 950;
+  for (unsigned j = 0; j < it->states.size(); ++j){
+    Animation* anim = new Animation(it->states[j].frames, it->states[j].fps, Vec2i(), depth);
+    object->addAnimation(anim);
+  }
+  //check for object scripts
+  Script* script = mData->getScript(Script::ITEM,name);
+  if (script){
+    ExecutionContext* scr = mInterpreter->parseProgram(script->text);
+    object->setScript(scr);
+    mInterpreter->execute(scr, false);
+  }
+  return object;
+}

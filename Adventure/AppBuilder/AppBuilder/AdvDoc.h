@@ -232,6 +232,7 @@ public:
   Script* getScript(Script::Type t, std::string name);
   std::vector<std::pair<Vec2i,Script*> > getWMScripts(std::string roomname);
   FontData getFont(int num);
+  Item* getItem(const std::string& name);
 protected:
   DECLARE_DYNAMIC_CLASS(AdvDocument)
   bool loadFile1(wxInputStream& stream);
@@ -244,7 +245,7 @@ protected:
   ProjectSettings mSettings;
   std::map<wxString,wxFileName> mImageNames;
   MouseCursor mCursor;
-  std::vector<Item> mItems;
+  std::map<std::string,Item> mItems;
   std::map<std::string,Object> mObjects;
   std::map<std::string,Character> mCharacters;
   std::vector<Rcharacter> mRoomCharacters;
