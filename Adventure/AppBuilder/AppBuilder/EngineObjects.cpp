@@ -223,7 +223,7 @@ Animation* Object2D::getAnimation(){
 }
 
 bool Object2D::isHit(const Vec2i& point){
-  if (mScript == NULL)
+  if (mScript == NULL || mState == 0)
     return false;
   if (point.x >= mPos.x && point.x <= mPos.x+getSize().x){
     if (point.y >= mPos.y && point.y <= mPos.y+getSize().y)
@@ -303,10 +303,12 @@ void RoomObject::render(){
   mLighting->render(Vec2i());
 }
 
-void RoomObject::setBackground(std::string bg){
+void RoomObject::setBackground(std::string bg, int depth){
+  if (bg.empty())
+    return;
   Frames f;
   f.push_back(bg);
-  Animation* anim = new Animation(f, 2.5f, Vec2i(0,0), -1);
+  Animation* anim = new Animation(f, 2.5f, Vec2i(0,0), depth);
   addAnimation(anim);
 }
 
@@ -441,18 +443,7 @@ void CharacterObject::setDepth(int depth){
 
 void CharacterObject::animationBegin(const Vec2i& next){
   Vec2i dir = next-getPosition();
-  if (abs(dir.x) > abs(dir.y) && dir.x > 0){
-    setLookDir(RIGHT);
-  }
-  else if (abs(dir.x) > abs(dir.y) && dir.x < 0){
-    setLookDir(LEFT);
-  }
-  else if (abs(dir.x) < abs(dir.y) && dir.y < 0){
-    setLookDir(BACK);
-  }
-  else if (abs(dir.x) < abs(dir.y) && dir.y > 0){
-    setLookDir(FRONT);
-  }
+  setLookDir(dir);
   mState = calculateState(mState, true, isTalking());
 }
 
@@ -462,18 +453,7 @@ void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
     setDepth(ycoord/Engine::instance()->getWalkGridSize());
   }
   Vec2i dir = next-getPosition();
-  if (abs(dir.x) > abs(dir.y) && dir.x > 0){
-    setLookDir(RIGHT);
-  }
-  else if (abs(dir.x) > abs(dir.y) && dir.x < 0){
-    setLookDir(LEFT);
-  }
-  else if (abs(dir.x) < abs(dir.y) && dir.y < 0){
-    setLookDir(BACK);
-  }
-  else if (abs(dir.x) < abs(dir.y) && dir.y > 0){
-    setLookDir(FRONT);
-  }
+  setLookDir(dir);
 }
 
 void CharacterObject::animationEnd(const Vec2i& prev){
@@ -513,6 +493,21 @@ void CharacterObject::setLookDir(LookDir dir){
     mMirror = false;
   }
   mState += 3*stateoffset;
+}
+
+void CharacterObject::setLookDir(const Vec2i& dir){
+  if (abs(dir.x) >= abs(dir.y) && dir.x >= 0){
+    setLookDir(RIGHT);
+  }
+  else if (abs(dir.x) >= abs(dir.y) && dir.x <= 0){
+    setLookDir(LEFT);
+  }
+  else if (abs(dir.x) <= abs(dir.y) && dir.y <= 0){
+    setLookDir(BACK);
+  }
+  else if (abs(dir.x) <= abs(dir.y) && dir.y >= 0){
+    setLookDir(FRONT);
+  }
 }
 
 LookDir CharacterObject::getLookDir(){

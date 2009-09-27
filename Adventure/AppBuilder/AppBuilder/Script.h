@@ -24,7 +24,7 @@ public:
   void registerFunction(std::string name, ScriptFunc func);
   void execute(ExecutionContext* script, bool executeOnce);
   void executeImmediately(ExecutionContext* script);
-  void update();
+  void update(unsigned time);
   void remove(ExecutionContext* script);
 
   /**
@@ -131,6 +131,14 @@ public:
     \param dontwait [opt] continue script execution immediately
   **/
   static int speech(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param room name of the subroom to load
+  \param fadingtime [opt] time in milliseconds for fading effect
+  **/
+  static int subRoom(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  **/
+  static int subRoomReturn(ExecutionContext& ctx, unsigned numArgs);
   /**
   **/
   static int stopMusic(ExecutionContext& ctx, unsigned numArgs);
