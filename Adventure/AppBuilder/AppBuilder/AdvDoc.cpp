@@ -254,7 +254,7 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
         is.fps = FPS_MAX/val1;
         it.states.push_back(is);
       }
-      mItems.push_back(it);
+      mItems[it.name] = it;
     }
     // OBJECT
     else if (type == "Object"){
@@ -365,9 +365,17 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       from = to+1; to = (unsigned)str.find(';', from);
       room.invsize.y = atoi(str.substr(from, to-from).c_str());
       from = to+1; to = (unsigned)str.find(';', from);
-      room.invscale.x = atof(str.substr(from, to-from).c_str());
+      wxString tmp = str.substr(from, to-from);
+      size_t idx = tmp.find(',');
+      if (idx != wxString::npos)
+        tmp[idx] = '.';
+      room.invscale.x = atof(tmp.c_str());
       from = to+1; to = (unsigned)str.find(';', from);
-      room.invscale.y = atof(str.substr(from, to-from).c_str());
+      tmp = str.substr(from, to-from);
+      idx = tmp.find(',');
+      if (idx != wxString::npos)
+        tmp[idx] = '.';
+      room.invscale.y = atof(tmp.c_str());
       //walkmap
       str = txtstream.ReadLine();
       int WALKMAP_X = 32;
@@ -617,5 +625,12 @@ FontData AdvDocument::getFont(int num){
   }
   //mFonts.push_back(fnt);
   return fnt;
+}
+
+Item* AdvDocument::getItem(const std::string& name){
+  std::map<std::string,Item>::iterator iter = mItems.find(name);
+  if (iter == mItems.end())
+    return NULL;
+  return &((*iter).second);
 }
 

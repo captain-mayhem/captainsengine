@@ -63,6 +63,14 @@ public:
   **/
   static int follow(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param name [opt] name of the object to link for giving
+  **/
+  static int giveLink(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param name name of the object to link
+  **/
+  static int link(ExecutionContext& ctx, unsigned numArgs);
+  /**
     \param room name of the room
     \param effect [opt] blending effect TODO
   **/

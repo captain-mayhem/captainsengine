@@ -44,6 +44,7 @@ public:
   Animator* getAnimator() {return mAnimator;}
   SaveStateProvider* getSaver() {return mSaver;}
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
+  Object2D* createItem(const std::string& name);
 protected:
   Engine();
   static Engine* mInstance;

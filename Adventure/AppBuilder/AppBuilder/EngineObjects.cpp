@@ -2,6 +2,7 @@
 #include <wx/image.h>
 #include "Engine.h"
 #include "SaveStateProvider.h"
+#include "Inventory.h"
 
 BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) : 
 mPos(), mSize(size), mDepth(depth){
@@ -413,11 +414,12 @@ CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name)
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0), mNextState(-1)
 {
-
+  mInventory = new Inventory();
 }
 
 CharacterObject::~CharacterObject(){
   Engine::instance()->getFontRenderer()->removeText(this);
+  delete mInventory;
 }
 
 void CharacterObject::setPosition(const Vec2i& pos){
