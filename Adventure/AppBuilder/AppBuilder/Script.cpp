@@ -41,6 +41,8 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("playmusic", playMusic);
   registerFunction("stopmusic", stopMusic);
   registerFunction("wait", wait);
+  registerFunction("subroom", subRoom);
+  registerFunction("return", subRoomReturn);
   mBooleans = data->getProjectSettings()->booleans;
 }
 
@@ -175,7 +177,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
 }
 
 ExecutionContext::ExecutionContext(CodeSegment* segment) : mCode(segment), mStack(), mPC(0),
-mHandler(NULL), mData(NULL), mSuspended(false){
+mHandler(NULL), mData(NULL), mSuspended(false), mSleepTime(0){
 
 }
 
@@ -187,8 +189,15 @@ void PcdkScript::registerFunction(std::string name, ScriptFunc func){
   mFunctions[name] = func;
 }
 
-void PcdkScript::update(){
+void PcdkScript::update(unsigned time){
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+    if ((*iter)->mSleepTime > 0 && (*iter)->mSuspended){
+      ((*iter)->mSleepTime -= time);
+      if ((*iter)->mSleepTime <= 0){
+        (*iter)->mSleepTime = 0;
+        (*iter)->mSuspended = false;
+      }
+    }
     executeImmediately(*iter);
     if ((*iter)->mExecuteOnce){
       iter = mScripts.erase(iter);
@@ -240,7 +249,7 @@ void PcdkScript::remove(ExecutionContext* script){
 
 int PcdkScript::loadRoom(ExecutionContext& ctx, unsigned numArgs){
   std::string room = ctx.stack().pop().getString();
-  Engine::instance()->loadRoom(room);
+  Engine::instance()->loadRoom(room, false);
   return 0;
 }
 
@@ -306,22 +315,23 @@ int PcdkScript::speech(ExecutionContext& ctx, unsigned numArgs){
       hold = false;
   }
   CharacterObject* chr = Engine::instance()->getCharacter(character);
+  FontRenderer::String* str = NULL;
   if (chr){
     Vec2i pos = chr->getOverheadPos();
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID());
-    FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
+    str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
       chr->getFontID(), chr->getTextColor(), 3000);
-    str.setSuspensionScript(&ctx);
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr);
-    str.setSpeaker(chr);
+    str->setSpeaker(chr);
     int currState = chr->getState();
     chr->setNextState(currState);
     chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));
     if (sound != "") //TODO
       DebugBreak();
   }
-  if (hold){
+  if (hold && str){
+    str->setSuspensionScript(&ctx);
     ctx.mSuspended = true;
   }
   return 0;
@@ -399,7 +409,7 @@ int PcdkScript::beamTo(ExecutionContext& ctx, unsigned numArgs){
     dir = (LookDir)(ctx.stack().pop().getInt()-1);
   if (charname == "self"){
     //focussed char, therefore change room
-    Engine::instance()->loadRoom(roomname);
+    Engine::instance()->loadRoom(roomname, false);
     CharacterObject* obj = Engine::instance()->getCharacter(charname);
     if (obj){
       Engine::instance()->getAnimator()->remove(obj);
@@ -427,10 +437,41 @@ int PcdkScript::taskbar(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::follow(ExecutionContext& ctx, unsigned numArgs){
+  std::string char1 = ctx.stack().pop().getString();
+  std::string char2 = ctx.stack().pop().getString();
+  bool hold = true;
+  if (numArgs >= 3){
+    if (ctx.stack().pop().getString() == "dontwait"){
+      hold = false;
+    }
+  }
+  CharacterObject* chr1 = Engine::instance()->getCharacter(char1);
+  CharacterObject* chr2 = Engine::instance()->getCharacter(char2);
+  if (chr1 && chr2){
+    if (hold){
+      chr1->setSuspensionScript(&ctx);
+      ctx.mSuspended = true;
+    }
+    Engine::instance()->walkTo(chr1, chr2->getPosition(), UNSPECIFIED);
+  }
   return 0;
 }
 
 int PcdkScript::lookTo(ExecutionContext& ctx, unsigned numArgs){
+  std::string character = ctx.stack().pop().getString();
+  StackData d = ctx.stack().pop();
+  LookDir dir = UNSPECIFIED;
+  CharacterObject* chr1 = Engine::instance()->getCharacter(character);
+  if (d.getInt() != 0){
+    dir = (LookDir)d.getInt();
+    chr1->setLookDir(dir);
+  }
+  else{
+    std::string char2 = d.getString();
+    CharacterObject* chr2 = Engine::instance()->getCharacter(char2);
+    Vec2i dir = chr2->getPosition()-chr1->getPosition();
+    chr1->setLookDir(dir);
+  }
   return 0;
 }
 
@@ -473,6 +514,23 @@ int PcdkScript::stopMusic(ExecutionContext& ctx, unsigned numArgs){
 
 int PcdkScript::wait(ExecutionContext& ctx, unsigned numArgs){
   int seconds = ctx.stack().pop().getInt();
+  ctx.mSleepTime = seconds*1000;
+  ctx.mSuspended = true;
+  return 0;
+}
+
+int PcdkScript::subRoom(ExecutionContext& ctx, unsigned numArgs){
+  std::string roomname = ctx.stack().pop().getString();
+  int fading_time = 0;
+  if (numArgs >= 2){
+    fading_time = ctx.stack().pop().getInt();
+  }
+  Engine::instance()->loadRoom(roomname, true);
+  return 0;
+}
+
+int PcdkScript::subRoomReturn(ExecutionContext& ctx, unsigned numArgs){
+  Engine::instance()->unloadRoom(NULL);
   return 0;
 }
 

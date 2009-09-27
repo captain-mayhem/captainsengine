@@ -39,6 +39,8 @@ void Engine::setData(AdvDocument* doc){
 void Engine::initGame(){
   if (!mData)
     return;
+  mMainRoomLoaded = false;
+  mSubRoomLoaded = false;
   mFocussedChar = NULL;
   Vec2i res = mData->getProjectSettings()->resolution;
   mWalkGridSize = res.x/32;
@@ -54,6 +56,10 @@ void Engine::initGame(){
   mFonts->loadFont(0);
   mFonts->loadFont(1);
   mActiveCommand = 0;
+  //load anywhere room
+  if (mData->getProjectSettings()->anywhere_room != ""){
+    loadRoom(mData->getProjectSettings()->anywhere_room, true);
+  }
   //load and execute start script
   mInitScript = NULL;
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
@@ -61,7 +67,6 @@ void Engine::initGame(){
     mInitScript = mInterpreter->parseProgram(startScript->text);
     mInterpreter->execute(mInitScript, true);
   }
-  mMainRoomLoaded = false;
   mInitialized = true;
 }
 
@@ -177,7 +182,7 @@ void Engine::render(){
     mRooms.back()->walkTo(pos);
   }
 
-  mInterpreter->update();
+  mInterpreter->update(interval);
 
   //can't all
   if (mFocussedChar){
@@ -234,25 +239,24 @@ void Engine::render(){
   mBlitQueue.clear();
 }
 
-bool Engine::loadRoom(std::string name){
+bool Engine::loadRoom(std::string name, bool isSubRoom){
   if (!mData)
     return false;
   Room* room = mData->getRoom(name);
   SaveStateProvider::SaveRoom* save = mSaver->getRoom(name);
   if (!room || !save)
     return false;
-  if (mMainRoomLoaded){
-    ExecutionContext* ctx = mRooms.back()->getScript();
-    if (ctx){
-      ctx->setEvent(EVT_EXIT);
-      mInterpreter->executeImmediately(ctx);
-    }
-    mRoomsToUnload.push_back(mRooms.back());
-    mRooms.pop_back();
-    mMainRoomLoaded = false;
+  if (mMainRoomLoaded && !isSubRoom){
+    unloadRoom(mRooms.back());
+  }
+  int depthoffset = 0;
+  if (isSubRoom){
+    depthoffset = (int)mRooms.size()*1000;
+    if (!mMainRoomLoaded)
+      depthoffset += 1000;
   }
   RoomObject* roomobj = new RoomObject(room->size, name);
-  roomobj->setBackground(room->background);
+  roomobj->setBackground(room->background, depthoffset-1);
   roomobj->setLightingColor(save->lighting);
   roomobj->setWalkmap(room->walkmap);
   //check for walkmap scripts
@@ -276,7 +280,7 @@ bool Engine::loadRoom(std::string name){
     else
       depth = 999;
     for (unsigned j = 0; j < o->states.size(); ++j){
-      Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth);
+      Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth+depthoffset);
       object->addAnimation(anim);
     }
     //check for object scripts
@@ -319,13 +323,45 @@ bool Engine::loadRoom(std::string name){
   Script* script = mData->getScript(Script::ROOM,name);
   if (script){
     ExecutionContext* scr = mInterpreter->parseProgram(script->text);
-    roomobj->setScript(scr);
-    mInterpreter->execute(scr, false);
-    scr->setEvent(EVT_ENTER);
+    if (scr != NULL){
+      roomobj->setScript(scr);
+      mInterpreter->execute(scr, false);
+      scr->setEvent(EVT_ENTER);
+    }
   }
-  mRooms.push_back(roomobj);
-  mMainRoomLoaded = true;
+  if (isSubRoom){
+    mRooms.push_front(roomobj);
+    if (mInitialized)
+      mSubRoomLoaded = true;
+  }
+  else{
+    mRooms.push_back(roomobj);
+    mMainRoomLoaded = true;
+  }
   return true;
+}
+
+void Engine::unloadRoom(RoomObject* room){
+  if (room == NULL)
+    room = mRooms.front();
+  ExecutionContext* ctx = room->getScript();
+  if (ctx){
+    ctx->setEvent(EVT_EXIT);
+    mInterpreter->executeImmediately(ctx);
+  }
+  mRoomsToUnload.push_back(room);
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    if (*iter == room){
+      if (room == mRooms.back()){
+        mMainRoomLoaded = false;
+      }
+      if (room == mRooms.front()){
+        mSubRoomLoaded = false;
+      }
+      mRooms.erase(iter);
+      break;
+    }
+  }
 }
 
 void Engine::insertToBlit(BaseBlitObject* obj){
@@ -359,11 +395,11 @@ void Engine::leftClick(const Vec2i& pos){
       script->setEvent((EngineEvent)mActiveCommand);
       script->setStepEndHandler(PcdkScript::clickEndHandler, new Vec2i(pos-mScrollOffset));
     }
-    else if (mFocussedChar){
+    else if (mFocussedChar && !mSubRoomLoaded){
       Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
     }
   }
-  else if (mFocussedChar){
+  else if (mFocussedChar && !mSubRoomLoaded){
     Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
   }
 }
@@ -487,6 +523,8 @@ Object2D* Engine::getObjectAt(const Vec2i& pos){
     Object2D* ret = (*iter)->getObjectAt(pos);
     if (ret != NULL)
       return ret;
+    if (mSubRoomLoaded)
+      break;
   }
   return NULL;
 }

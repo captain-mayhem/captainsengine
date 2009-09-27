@@ -28,7 +28,8 @@ public:
   Vec2i getCursorPos();
   void leftClick(const Vec2i& pos);
   void rightClick(const Vec2i& pos);
-  bool loadRoom(std::string name);
+  bool loadRoom(std::string name, bool isSubRoom);
+  void unloadRoom(RoomObject* room);
   bool setFocus(std::string charname);
   wxImage getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
@@ -59,6 +60,7 @@ protected:
   CharacterObject* mFocussedChar;
   ExecutionContext* mInitScript;
   bool mMainRoomLoaded;
+  bool mSubRoomLoaded;
   //grid variables
   int mWalkGridSize;
   Vec2i mWalkFields;

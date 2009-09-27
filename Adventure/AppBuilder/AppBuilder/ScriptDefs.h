@@ -102,6 +102,7 @@ protected:
   StepEndHandler mHandler;
   void* mData;
   bool mSuspended;
+  int mSleepTime;
 };
 
 

@@ -20,9 +20,9 @@ struct Color{
     r = 255; g=255; b=255; a=255;
   }
   Color(unsigned packedcolor){
-    r = (packedcolor >> 16);
+    r = (packedcolor >> 0) & 0xFF;
     g = (packedcolor >> 8) & 0xFF;
-    b = packedcolor & 0xFF;
+    b = (packedcolor >> 16) & 0xFF;
     a = 255;
   }
   unsigned char r;
@@ -169,7 +169,7 @@ class RoomObject : public Object2D{
 public:
   RoomObject(const Vec2i& size, const std::string& name);
   ~RoomObject();
-  void setBackground(std::string bg);
+  void setBackground(std::string bg, int depth);
   void setWalkmap(const std::vector<std::vector<WMField> >& map){mWalkmap = map;}
   void addObject(Object2D* obj);
   virtual void render();
@@ -207,6 +207,7 @@ public:
   virtual void animationEnd(const Vec2i& prev);
   virtual void animationEnded(Animation* anim);
   void setLookDir(LookDir dir);
+  void setLookDir(const Vec2i& dir);
   LookDir getLookDir();
   void setEndLookDir(LookDir dir) {mDesiredDir = dir;}
   Vec2i getOverheadPos();

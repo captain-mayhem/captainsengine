@@ -351,11 +351,25 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
         txtstream.ReadLine();
         txtstream.ReadLine();
       }
-      //TODO inventory
+      //TODO unknown
       txtstream.ReadLine();
-      txtstream.ReadLine();
+      //inventory
       str = txtstream.ReadLine();
-
+      unsigned from = 0;
+      unsigned to = (unsigned)str.find(';', from);
+      room.invpos.x = atoi(str.substr(from, to-from).c_str());
+      from = to+1; to = (unsigned)str.find(';', from);
+      room.invpos.y = atoi(str.substr(from, to-from).c_str());
+      from = to+1; to = (unsigned)str.find(';', from);
+      room.invsize.x = atoi(str.substr(from, to-from).c_str());
+      from = to+1; to = (unsigned)str.find(';', from);
+      room.invsize.y = atoi(str.substr(from, to-from).c_str());
+      from = to+1; to = (unsigned)str.find(';', from);
+      room.invscale.x = atof(str.substr(from, to-from).c_str());
+      from = to+1; to = (unsigned)str.find(';', from);
+      room.invscale.y = atof(str.substr(from, to-from).c_str());
+      //walkmap
+      str = txtstream.ReadLine();
       int WALKMAP_X = 32;
       int walkGridSize = mSettings.resolution.x/WALKMAP_X;
       int WALKMAP_Y = mSettings.resolution.y/walkGridSize;
