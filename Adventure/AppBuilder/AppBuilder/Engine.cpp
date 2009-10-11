@@ -8,6 +8,7 @@
 
 #include "AdvDoc.h"
 #include "SaveStateProvider.h"
+#include "Inventory.h"
 
 Engine* Engine::mInstance = NULL;
 
@@ -49,7 +50,7 @@ void Engine::initGame(){
   MouseCursor* cursor = mData->getCursor();
   mCursor = new CursorObject(Vec2i(0,0));
   for (unsigned j = 0; j < cursor->size(); ++j){
-    Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, 20000);
+    Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, DEPTH_CURSOR);
     mCursor->addAnimation(anim, (*cursor)[j].command-1);
   }
   //load fonts
@@ -67,6 +68,8 @@ void Engine::initGame(){
     mInitScript = mInterpreter->parseProgram(startScript->text);
     mInterpreter->execute(mInitScript, true);
   }
+  mUseObject = NULL;
+  mGiveObject = NULL;
   mInitialized = true;
 }
 
@@ -221,6 +224,14 @@ void Engine::render(){
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
   std::string text = mData->getProjectSettings()->pretty_commands[mActiveCommand];
+  if (mUseObject){
+    text += " "+mLinkObjectInfo;
+    text += " "+mData->getProjectSettings()->linktext;
+  }
+  if (mGiveObject){
+    text += " "+mLinkObjectInfo;
+    text += " "+mData->getProjectSettings()->givelink;
+  }
   if (!mObjectInfo.empty()){
     text += " "+mObjectInfo;
     mObjectInfo.clear();
@@ -329,6 +340,12 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
       scr->setEvent(EVT_ENTER);
     }
   }
+  //inventory display
+  if (room->invsize != Vec2i()){
+    InventoryDisplay* disp = new InventoryDisplay(room->invpos, room->invsize, room->invscale);
+    roomobj->setInventory(disp);
+  }
+
   if (isSubRoom){
     mRooms.push_front(roomobj);
     if (mInitialized)
@@ -392,8 +409,13 @@ void Engine::leftClick(const Vec2i& pos){
     script = obj->getScript();
     if (script != NULL){
       script->setEvent(EVT_CLICK);
-      script->setEvent((EngineEvent)mActiveCommand);
-      script->setStepEndHandler(PcdkScript::clickEndHandler, new Vec2i(pos-mScrollOffset));
+      if (mUseObject)
+        script->setEvent(EVT_LINK);
+      else if (mGiveObject)
+        script->setEvent(EVT_GIVE_LINK);
+      else
+        script->setEvent((EngineEvent)mActiveCommand);
+      script->setStepEndHandler(PcdkScript::clickEndHandler);
     }
     else if (mFocussedChar && !mSubRoomLoaded){
       Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
@@ -529,9 +551,19 @@ Object2D* Engine::getObjectAt(const Vec2i& pos){
   return NULL;
 }
 
-Object2D* Engine::getObject(const std::string& name){
+Object2D* Engine::getObject(const std::string& name, bool searchInventoryFirst){
+  if (mFocussedChar && searchInventoryFirst){
+    Object2D* ret = mFocussedChar->getInventory()->getItem(name);
+    if (ret != NULL)
+      return ret;
+  }
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     Object2D* ret = (*iter)->getObject(name);
+    if (ret != NULL)
+      return ret;
+  }
+  if (mFocussedChar && !searchInventoryFirst){
+    Object2D* ret = mFocussedChar->getInventory()->getItem(name);
     if (ret != NULL)
       return ret;
   }
@@ -582,8 +614,8 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
 
 Object2D* Engine::createItem(const std::string& name){
   Item* it = mData->getItem(name);
-  Object2D* object = new Object2D(1, Vec2i(), Vec2i(), it->name);
-  int depth = 950;
+  Object2D* object = new Object2D(1, Vec2i(), Vec2i(50,50), it->name);
+  int depth = DEPTH_ITEM;
   for (unsigned j = 0; j < it->states.size(); ++j){
     Animation* anim = new Animation(it->states[j].frames, it->states[j].fps, Vec2i(), depth);
     object->addAnimation(anim);
@@ -596,4 +628,14 @@ Object2D* Engine::createItem(const std::string& name){
     mInterpreter->execute(scr, false);
   }
   return object;
+}
+
+void Engine::setUseObject(Object2D* object, const std::string& objectInfo){
+  mUseObject = object;
+  mLinkObjectInfo = objectInfo;
+}
+
+void Engine::setGiveObject(Object2D* object, const std::string& objectInfo){
+  mGiveObject = object;
+  mLinkObjectInfo = objectInfo;
 }

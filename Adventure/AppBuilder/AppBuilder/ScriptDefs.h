@@ -74,33 +74,33 @@ protected:
 };
 
 class ExecutionContext;
-typedef void (*StepEndHandler) (ExecutionContext& ctx, void* data);
+typedef void (*StepEndHandler) (ExecutionContext& ctx);
 
 class ExecutionContext{
   friend class PcdkScript;
 public:
-  ExecutionContext(CodeSegment* segment);
+  ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo);
   ~ExecutionContext();
   void setEvent(EngineEvent evt);
   void resetEvent(EngineEvent evt);
   bool isEventSet(EngineEvent evt);
   EngineEvent getCommandEvent();
   Stack& stack() {return mStack;}
-  void setStepEndHandler(StepEndHandler handler, void* data){
+  void setStepEndHandler(StepEndHandler handler){
     mHandler = handler;
-    mData = data;
   }
   void suspend() {mSuspended = true;}
   void resume() {mSuspended = false;}
   void reset(bool clearEvents);
 protected:
   CodeSegment* mCode;
+  bool mIsGameObject;
+  std::string mObjectInfo;
   Stack mStack;
   unsigned mPC;
   std::set<EngineEvent> mEvents;
   bool mExecuteOnce;
   StepEndHandler mHandler;
-  void* mData;
   bool mSuspended;
   int mSleepTime;
 };
