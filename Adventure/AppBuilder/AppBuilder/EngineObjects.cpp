@@ -282,7 +282,8 @@ int CursorObject::getNextCommand(){
   return mCommands[mState-1];
 }
 
-RoomObject::RoomObject(const Vec2i& size, const std::string& name) : Object2D(1, Vec2i(0,0), size, name){
+RoomObject::RoomObject(const Vec2i& size, const std::string& name) : 
+Object2D(1, Vec2i(0,0), size, name), mInventroy(NULL){
   mLighting = new LightingBlitObject(1000, size);
 }
 
@@ -294,12 +295,17 @@ RoomObject::~RoomObject(){
   for (std::map<Vec2i,ExecutionContext*>::iterator iter = mWalkmapScripts.begin(); iter != mWalkmapScripts.end(); ++iter){
     Engine::instance()->getInterpreter()->remove(iter->second);
   }
+  delete mInventroy;
 }
 
 void RoomObject::render(){
   Object2D::render();
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->render();
+  }
+  CharacterObject* currChar = Engine::instance()->getCharacter("self");
+  if (mInventroy && currChar){
+    mInventroy->render(currChar->getInventory());
   }
   mLighting->render(Vec2i());
 }
@@ -327,6 +333,12 @@ Object2D* RoomObject::getObjectAt(const Vec2i& pos){
         currdepth = curr->getDepth();
       }
     }
+  }
+  if (curr)
+    return curr;
+  CharacterObject* currChar = Engine::instance()->getCharacter("self");
+  if (mInventroy && currChar){
+    curr = mInventroy->getObjectAt(pos, currChar->getInventory());
   }
   return curr;
 }

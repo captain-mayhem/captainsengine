@@ -78,4 +78,11 @@ public:
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
 };
 
+class CBNEZERO : public CBRA{
+public:
+  CBNEZERO() {}
+  virtual ~CBNEZERO() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+};
+
 #endif

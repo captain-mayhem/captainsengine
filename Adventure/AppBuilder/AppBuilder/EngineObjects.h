@@ -9,6 +9,7 @@
 #include "Script.h"
 
 class Inventory;
+class InventoryDisplay;
 class Animation;
 
 class AnimationEndHandler{
@@ -186,11 +187,14 @@ public:
   void addWalkmapScript(const Vec2i& wmpos, ExecutionContext* script) {mWalkmapScripts[wmpos] = script;}
   void walkTo(const Vec2i& pos);
   virtual void save();
+  InventoryDisplay* getInventory() {return mInventroy;}
+  void setInventory(InventoryDisplay* disp) {mInventroy = disp;} 
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;
   LightingBlitObject* mLighting;
   std::map<Vec2i,ExecutionContext*> mWalkmapScripts;
+  InventoryDisplay* mInventroy;
 };
 
 class CharacterObject : public Object2D, public AnimationEndHandler{

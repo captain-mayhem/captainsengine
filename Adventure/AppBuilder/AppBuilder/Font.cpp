@@ -110,7 +110,7 @@ FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string
     int rownum = charnum/mNumChars.x;
     charnum %= mNumChars.x;
     BlitObject* obj = new FontBlitObject(mImages[texnum], mImages[texnum], 
-      mFontsize, mScale, 15000, Vec2i(xoffset,0), Vec2f(charnum, rownum), color);
+      mFontsize, mScale, DEPTH_FONT, Vec2i(xoffset,0), Vec2f(charnum, rownum), color);
     str->append(obj);
     xoffset += chardeviation;
   }

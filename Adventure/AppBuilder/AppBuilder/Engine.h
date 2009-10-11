@@ -34,7 +34,7 @@ public:
   wxImage getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
   Object2D* getObjectAt(const Vec2i& pos);
-  Object2D* getObject(const std::string& name);
+  Object2D* getObject(const std::string& name, bool searchInventoryFirst);
   CharacterObject* getCharacter(const std::string& name);
   RoomObject* getRoom(const std::string& name);
   PcdkScript* getInterpreter() {return mInterpreter;}
@@ -45,6 +45,10 @@ public:
   SaveStateProvider* getSaver() {return mSaver;}
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
   Object2D* createItem(const std::string& name);
+  void setUseObject(Object2D* object, const std::string& objectInfo);
+  Object2D* getUseObject() {return mUseObject;}
+  void setGiveObject(Object2D* object, const std::string& objectInfo);
+  Object2D* getGiveObject() {return mGiveObject;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -95,6 +99,9 @@ protected:
   //engine - script communication
   std::string mObjectInfo;
   unsigned mActiveCommand;
+  Object2D* mUseObject;
+  Object2D* mGiveObject;
+  std::string mLinkObjectInfo;
 };
 
 #endif

@@ -16,3 +16,10 @@ unsigned CBEZERO::execute(ExecutionContext& ctx, unsigned pc){
     return pc+mOffset;
   return ++pc;
 }
+
+unsigned CBNEZERO::execute(ExecutionContext& ctx, unsigned pc){
+  bool check = ctx.stack().pop().getBool();
+  if (check != false)
+    return pc+mOffset;
+  return ++pc;
+}

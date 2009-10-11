@@ -182,16 +182,20 @@ public:
   static int isLinkedObject(ExecutionContext& ctx, unsigned numArgs);
   static int isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs);
 
-  static void clickEndHandler(ExecutionContext& ctx, void* data);
+  static void clickEndHandler(ExecutionContext& ctx);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode);
   unsigned transform(ASTNode* node, CodeSegment* codes);
+  std::string mObjectInfo;
+  bool mIsGameObject;
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;
+
   EngineEvent getEngineEvent(const std::string eventname);
   std::map<std::string, ScriptFunc> mFunctions;
   AdvDocument* mData;
   std::list<ExecutionContext*> mScripts;
   std::map<std::string,bool> mBooleans;
+  static bool mRemoveLinkObject;
 };
 
 #endif

@@ -25,6 +25,10 @@ enum WindowIds{
   ID_AdvTreeCtrl = 1000,
 };
 
+#define DEPTH_ITEM 19000
+#define DEPTH_FONT 19500
+#define DEPTH_CURSOR 20000
+
 /* parallax scolling
 //speed
 var speed0:Number = 130;//higher = slower

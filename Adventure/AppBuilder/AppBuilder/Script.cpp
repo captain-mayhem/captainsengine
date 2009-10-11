@@ -13,6 +13,8 @@ CodeSegment::~CodeSegment(){
   }
 }
 
+bool PcdkScript::mRemoveLinkObject = false;
+
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("loadroom", loadRoom);
   registerFunction("setfocus", setFocus);
@@ -77,6 +79,8 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   tokStream->free(tokStream);
   lexer->free(lexer);
   input->free(input);
+  mIsGameObject = false;
+  mObjectInfo = "";
   CodeSegment* segment = new CodeSegment;
   transform(p, segment, START);
   delete p;
@@ -84,7 +88,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
     delete segment;
     return NULL;
   }
-  return new ExecutionContext(segment);
+  return new ExecutionContext(segment, mIsGameObject, mObjectInfo);
 }
 
 unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mode){
@@ -117,6 +121,15 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           ++count;
           mUnresolvedBranches.push_back(std::make_pair(jmp,codes->numInstructions()));
           break;
+        }
+        else if (fc->getName() == "showinfo"){
+          mIsGameObject = true;
+          NodeList* nl = fc->getArguments();
+          ASTNode* node = nl->next();
+          assert(node->getType() == ASTNode::IDENTIFIER);
+          IdentNode* id = static_cast<IdentNode*>(node);
+          mObjectInfo = id->value();
+          nl->reset(true);
         }
         ScriptFunc f = mFunctions[fc->getName()];
         if (f == NULL){
@@ -164,7 +177,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         }
         count += transform(cond->getArguments(), codes, ARGLIST);
         codes->addCode(new CCALL(f, cond->getArguments()->size()));
-        CBEZERO* cez = new CBEZERO;
+        CBRA* cez;
+        if (cond->isNegated())
+          cez = new CBNEZERO;
+        else
+          cez = new CBEZERO;
         codes->addCode(cez);
         count += 2;
         int offset = transform(cond->getIfBlock(), codes, START);
@@ -179,8 +196,9 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
   return count;
 }
 
-ExecutionContext::ExecutionContext(CodeSegment* segment) : mCode(segment), mStack(), mPC(0),
-mHandler(NULL), mData(NULL), mSuspended(false), mSleepTime(0){
+ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
+mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
+mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0){
 
 }
 
@@ -230,7 +248,7 @@ void PcdkScript::executeImmediately(ExecutionContext* script){
   //script ran through
   if (!script->mSuspended && script->mPC >= script->mCode->numInstructions()){
     if (script->mHandler)
-      script->mHandler(*script, script->mData);
+      script->mHandler(*script);
     script->reset(false);
   }
 }
@@ -394,7 +412,7 @@ int PcdkScript::setObj(ExecutionContext& ctx, unsigned numArgs){
     DebugBreak(); //TODO state lists
     state = ctx.stack().pop().getInt();
   }
-  Object2D* obj = Engine::instance()->getObject(objname);
+  Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
     obj->setState(state);
   }
@@ -493,6 +511,15 @@ int PcdkScript::textScene(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::delItem(ExecutionContext& ctx, unsigned numArgs){
+  std::string charname = ctx.stack().pop().getString();
+  std::string itemname = ctx.stack().pop().getString();
+  int inventory = 1;
+  if (numArgs >= 3)
+    inventory = ctx.stack().pop().getInt();
+  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  if (chr){
+    chr->getInventory()->removeItem(itemname, inventory);
+  }
   return 0;
 }
 
@@ -548,10 +575,21 @@ int PcdkScript::subRoomReturn(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::link(ExecutionContext& ctx, unsigned numArgs){
+  std::string objectname = ctx.stack().pop().getString();
+  Object2D* obj = Engine::instance()->getObject(objectname, true);
+  Engine::instance()->setUseObject(obj, ctx.mObjectInfo);
+  mRemoveLinkObject = false;
   return 0;
 }
 
 int PcdkScript::giveLink(ExecutionContext& ctx, unsigned numArgs){
+  Object2D* obj = NULL;
+  if (numArgs >= 1){
+    std::string objectname = ctx.stack().pop().getString();
+    obj = Engine::instance()->getObject(objectname, true);
+  }
+  Engine::instance()->setGiveObject(obj, ctx.mObjectInfo);
+  mRemoveLinkObject = false;
   return 0;
 }
 
@@ -573,7 +611,7 @@ int PcdkScript::isBoolEqual(ExecutionContext& ctx, unsigned numArgs){
 int PcdkScript::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   int checkstate = ctx.stack().pop().getInt();
-  Object2D* obj = Engine::instance()->getObject(objname);
+  Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
     ctx.stack().push(StackData(checkstate == obj->getState()));
   }
@@ -592,10 +630,16 @@ int PcdkScript::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
+  std::string objname = ctx.stack().pop().getString();
+  std::string linkname = Engine::instance()->getUseObject()->getName();
+  ctx.stack().push(StackData(objname == linkname));
   return 1;
 }
 
 int PcdkScript::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs){
+  std::string objname = ctx.stack().pop().getString();
+  std::string linkname = Engine::instance()->getGiveObject()->getName();
+  ctx.stack().push(StackData(objname == linkname));
   return 1;
 }
 
@@ -658,28 +702,40 @@ void ExecutionContext::reset(bool clearEvents){
     mEvents.clear();
   mPC = 0;
   mSuspended = false;
-  delete mData;
-  mData = NULL;
   mHandler = NULL;
 }
 
-void PcdkScript::clickEndHandler(ExecutionContext& ctx, void* data){
-  Vec2i* pos = reinterpret_cast<Vec2i*>(data);
+void PcdkScript::clickEndHandler(ExecutionContext& ctx){
   if (ctx.isEventSet(EVT_CLICK)){
     ctx.resetEvent(EVT_CLICK);
-    CharacterObject* chr = Engine::instance()->getCharacter("self");
-    Engine::instance()->walkTo(chr, *((Vec2i*)data), UNSPECIFIED);
   }
   EngineEvent evt = ctx.getCommandEvent();
   if (evt != EVT_NONE){
     //an action remained unhandled
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (chr){
-      if (evt <= EVT_USER_END)
+      if (evt <= EVT_USER_END){
         ctx.resetEvent(evt);
-        chr->getScript()->setEvent(static_cast<EngineEvent>(evt+EVT_USER_RANGE));
+        if (ctx.mIsGameObject)
+          chr->getScript()->setEvent(static_cast<EngineEvent>(evt+EVT_USER_RANGE));
+      }
     }
   }
-  delete pos;
-  ctx.mData = NULL;
+  if (!mRemoveLinkObject)
+    mRemoveLinkObject = true;
+  else{
+    CharacterObject* chr = Engine::instance()->getCharacter("self");
+    if (ctx.isEventSet(EVT_LINK)){
+      ctx.resetEvent(EVT_LINK);
+      if (chr)
+        chr->getScript()->setEvent(EVT_CANT_ALL);
+    }
+    Engine::instance()->setUseObject(NULL, "");
+    if (ctx.isEventSet(EVT_GIVE_LINK)){
+      ctx.resetEvent(EVT_GIVE_LINK);
+      if (chr)
+        chr->getScript()->setEvent(EVT_CANT_ALL);
+    }
+    Engine::instance()->setGiveObject(NULL, "");
+  }
 }
