@@ -3,10 +3,14 @@
 
 #include <string>
 
+#ifdef WIN32
 #ifdef GraDbgRuntime_EXPORTS 
 #define IMPEXP __declspec(dllexport)
 #else
 #define IMPEXP __declspec(dllimport)
+#endif
+#else
+#define IMPEXP
 #endif
 
 typedef int (*DLLPROC)();
