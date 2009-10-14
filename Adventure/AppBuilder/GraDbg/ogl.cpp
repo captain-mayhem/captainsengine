@@ -1,13 +1,34 @@
+#include <sstream>
+#include "funcids.h"
+
 #ifdef WIN32
+#define APIENTRY __cdecl
 #define WINGDIAPI __declspec(dllexport)
-#define APIENTRY
 #define GL_API WINGDIAPI
 #define GL_APIENTRY APIENTRY
 #endif
 
-extern "C"{
+//extern "C"{
+#ifdef USE_GLES
+#include <GLES/gl.h>
+#ifndef GL_NONE
+#define GL_NONE 0
+#endif
+#ifndef GLdouble
+#define GLdouble double
+#endif
+#else
 #include <GL/gl.h>
-};
+#ifndef GLfixed
+#define GLfixed int
+#endif
+#endif
+//};
+
+//#undef GL_APIENTRY
+#undef GL_API
+//#define GL_APIENTRY
+#define GL_API
 
 GL_API void GL_APIENTRY glAlphaFunc (GLenum func, GLclampf ref){
 
@@ -33,11 +54,23 @@ GL_API void GL_APIENTRY glClearColor (GLclampf red, GLclampf green, GLclampf blu
 
 }
 
+GL_API void GL_APIENTRY glClearStencil (GLint s){
+
+}
+
 GL_API void GL_APIENTRY glColor3f (GLfloat red, GLfloat green, GLfloat blue){
 
 }
 
+GL_API void GL_APIENTRY glColor4f (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){
+
+}
+
 GL_API void GL_APIENTRY glColor4ub (GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha){
+
+}
+
+GL_API void GL_APIENTRY glColorMask (GLboolean red, GLboolean green, GLboolean blue, GLboolean alpha){
 
 }
 
@@ -105,6 +138,10 @@ GL_API const GLubyte * GL_APIENTRY glGetString (GLenum name){
   return (const GLubyte*)"";
 }
 
+GL_API void GL_APIENTRY glHint (GLenum target, GLenum mode){
+
+}
+
 GL_API void GL_APIENTRY glLoadIdentity (void){
 
 }
@@ -126,7 +163,10 @@ GL_API void GL_APIENTRY glMapGrid2d (GLint un, GLdouble u1, GLdouble u2, GLint v
 }
 
 GL_API void GL_APIENTRY glMatrixMode (GLenum mode){
-
+  std::ostringstream out;
+  out << WGLMAKECURRENT << " " << mode;
+  //BOOL ret = (BOOL)wgl_interpret(out.str());
+  //return ret;
 }
 
 GL_API void GL_APIENTRY glMultMatrixd (const GLdouble *m){
@@ -142,6 +182,10 @@ GL_API void GL_APIENTRY glNormal3f (GLfloat nx, GLfloat ny, GLfloat nz){
 }
 
 GL_API void GL_APIENTRY glOrtho (GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble zNear, GLdouble zFar){
+
+}
+
+GL_API void GL_APIENTRY glOrthof (GLfloat left, GLfloat right, GLfloat bottom, GLfloat top, GLfloat zNear, GLfloat zFar){
 
 }
 
@@ -173,11 +217,19 @@ GL_API void GL_APIENTRY glScalef (GLfloat x, GLfloat y, GLfloat z){
 
 }
 
+GL_API void GL_APIENTRY glShadeModel (GLenum mode){
+
+}
+
 GL_API void GL_APIENTRY glTexCoord2f (GLfloat s, GLfloat t){
 
 }
 
 GL_API void GL_APIENTRY glTexCoordPointer (GLint size, GLenum type, GLsizei stride, const GLvoid *pointer){
+
+}
+
+GL_API void GL_APIENTRY glTexEnvx (GLenum target, GLenum pname, GLfixed param){
 
 }
 
@@ -190,6 +242,10 @@ GL_API void GL_APIENTRY glTexImage2D (GLenum target, GLint level, GLint internal
 }
 
 GL_API void GL_APIENTRY glTexParameteri (GLenum target, GLenum pname, GLint param){
+
+}
+
+GL_API void GL_APIENTRY glTexParameterx (GLenum target, GLenum pname, GLfixed param){
 
 }
 
