@@ -1,16 +1,19 @@
 #include "util.h"
 #include <sstream>
 #include <map>
+#include <cassert>
 #include "funcids.h"
 #include "wgl_run.h"
+#include "ogl.h"
 
 #ifdef WIN32
 #define WINGDIAPI __declspec(dllexport)
+#define WINAPI __stdcall
 #else
 #define WINGDIAPI
+#define WINAPI
 #endif
 #define WGL_API WINGDIAPI
-#define WINAPI
 typedef int BOOL;
 typedef unsigned short WORD;
 typedef unsigned int DWORD;
@@ -58,8 +61,11 @@ extern "C"{
   WINGDIAPI BOOL  WINAPI wglSwapBuffers(HDC);
 };
 
+static void cleanup();
+
 struct WGLData{
   WGLData() : hdccount(-1), mHglrcCount(-1){
+    atexit(cleanup);
   }
   int hdccount;
   std::map<HDC, int> hdcs;
@@ -69,9 +75,14 @@ struct WGLData{
 
 static WGLData* gData = NULL;
 
+void cleanup(){
+  delete gData;
+}
+
 WGL_API int WINAPI wglChoosePixelFormat(HDC hdc, const PIXELFORMATDESCRIPTOR *ppfd){
   gData = new WGLData;
   wgl_init();
+  ogl_init();
   wgl_add_DC(hdc);
   if (gData->hdcs[hdc] == 0)
     gData->hdcs[hdc] = ++gData->hdccount;
@@ -92,8 +103,12 @@ WGL_API HGLRC WINAPI wglCreateContext(HDC hdc){
   return rc;
 }
 
-WGL_API BOOL WINAPI wglDeleteContext(HGLRC){
-  return 1;
+WGL_API BOOL WINAPI wglDeleteContext(HGLRC hglrc){
+  std::ostringstream out;
+  int num = gData->mHglrcs[hglrc];
+  out << WGLDELETECONTEXT << " " << num;
+  BOOL rc = (BOOL)wgl_interpret(out.str());
+  return rc;
 }
 
 WINGDIAPI int WINAPI wglDescribePixelFormat(HDC hdc, int iPixelFormat, unsigned nBytes, PIXELFORMATDESCRIPTOR *ppfd){
@@ -131,9 +146,14 @@ WGL_API BOOL  WINAPI wglSetPixelFormat(HDC hdc, int format, const PIXELFORMATDES
 }
 
 WGL_API BOOL WINAPI wglShareLists(HGLRC, HGLRC){
+  assert(false && "Implement me");
   return 1;
 }
 
-WGL_API BOOL WINAPI wglSwapBuffers(HDC){
-  return 1;
+WGL_API BOOL WINAPI wglSwapBuffers(HDC hdc){
+  std::ostringstream out;
+  int num = gData->hdcs[hdc];
+  out << WGLSWAPBUFFERS << " " << num;
+  BOOL ret = (BOOL)wgl_interpret(out.str());
+  return ret;
 }
