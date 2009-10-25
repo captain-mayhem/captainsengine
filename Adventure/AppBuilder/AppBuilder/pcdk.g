@@ -77,13 +77,42 @@ arg	returns [ASTNode* value]
 	: {$value = new IdentNode("");}
 	(INFO_BEG INT INFO_END )? 
 	(
-		IDENT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$IDENT.text->chars);}
-		| ON {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$ON.text->chars);}
-		| IF {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$IF.text->chars);}
-	)+
-	/*|	IDENT  {$value = new IdentNode((char*)$IDENT.text->chars);}*/
-	/*|	STRING {$value = new IdentNode((char*)$STRING.text->chars);}*/
-	|	INT {$value = new IntNode(atoi((char*)$INT.text->chars));}
+		first=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(first.value->value().c_str()); delete first.value;}
+	)
+	(
+		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
+		| MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$MINUS.text->chars);}
+	)*
+	|	exp=rel_expr {$value = exp.exp;}
+;
+
+stdarg returns [IdentNode* value]
+	:
+	IDENT {$value = new IdentNode(""); $value->append((char*)$IDENT.text->chars);}
+	| ON {$value = new IdentNode(""); $value->append((char*)$ON.text->chars);}
+	| IF {$value = new IdentNode(""); $value->append((char*)$IF.text->chars);}
+;
+
+rel_expr returns [ASTNode* exp]
+	: {$exp = new RelationalNode();}
+	( LESS {((RelationalNode*)$exp)->type() = RelationalNode::REL_LESS;}
+	| GREATER {((RelationalNode*)$exp)->type() = RelationalNode::REL_GREATER;}
+	| PLUS {((RelationalNode*)$exp)->type() = RelationalNode::REL_PLUS;}
+	| MINUS {((RelationalNode*)$exp)->type() = RelationalNode::REL_MINUS;}
+	)?
+	ex=expr {((RelationalNode*)$exp)->child() = ex.exp;}
+;
+
+expr returns [ASTNode* exp]
+	: var=variable {$exp = var.var;}
+	| INT  {$exp = new IntNode(atoi((char*)$INT.text->chars));}
+;
+
+variable returns [ASTNode* var]
+	:
+	LBRACKET
+	IDENT {$var = new VariableNode((char*)$IDENT.text->chars);}
+	RBRACKET
 ;
 
 
@@ -91,10 +120,16 @@ LPAREN	:	'(';
 RPAREN	:	')';
 LBRACE  :	'{';
 RBRACE	:	'}';
+LBRACKET:	'[';
+RBRACKET:	']';
 SEMICOLON
 	:	';';
 UNDERSCORE
 	:	'_';
+PLUS	:	'+';
+MINUS	:	'-';
+GREATER	:	'>';
+LESS	:	'<';
 INFO_BEG	:	'|''#';
 INFO_END	:	'#''|';
 ON	:	('O'|'o')('N'|'n');

@@ -26,6 +26,8 @@ public:
   void executeImmediately(ExecutionContext* script);
   void update(unsigned time);
   void remove(ExecutionContext* script);
+  std::map<std::string,StackData>& getVariables() {return mVariables;}
+  CBRA* getBranchInstr(RelationalNode* relnode, bool negated);
 
   /**
   \param character name of the character to whose inventory the item should be added
@@ -173,6 +175,11 @@ public:
     \param dontwait [opt] continue script execution immediately
   **/
   static int walkTo(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param name the name of the variable
+  \param value the value to set
+  **/
+  static int setNum(ExecutionContext& ctx, unsigned numArgs);
 
   static int dummy(ExecutionContext& ctx, unsigned numArgs);
 
@@ -181,6 +188,7 @@ public:
   static int isObjectInState(ExecutionContext& ctx, unsigned numArgs);
   static int isLinkedObject(ExecutionContext& ctx, unsigned numArgs);
   static int isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs);
+  static int isNumEqual(ExecutionContext& ctx, unsigned numArgs);
 
   static void clickEndHandler(ExecutionContext& ctx);
 protected:
@@ -189,12 +197,14 @@ protected:
   std::string mObjectInfo;
   bool mIsGameObject;
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;
+  RelationalNode* mLastRelation;
 
   EngineEvent getEngineEvent(const std::string eventname);
   std::map<std::string, ScriptFunc> mFunctions;
   AdvDocument* mData;
   std::list<ExecutionContext*> mScripts;
   std::map<std::string,bool> mBooleans;
+  std::map<std::string,StackData> mVariables;
   static bool mRemoveLinkObject;
 };
 

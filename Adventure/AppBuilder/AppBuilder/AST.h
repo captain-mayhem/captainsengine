@@ -13,6 +13,8 @@ public:
     FUNCCALL,
     EVENT,
     CONDITION,
+    VARIABLE,
+    RELATIONAL,
   };
   ASTNode(Type t) : mType(t) {}
   virtual ~ASTNode(){}
@@ -66,7 +68,7 @@ public:
 
 class IdentNode : public ASTNode{
 public:
-  IdentNode(const std::string& value) : ASTNode(IDENTIFIER) {mValue = value;}
+  IdentNode(const std::string& value) : ASTNode(IDENTIFIER) {append(value.c_str());}
   virtual ~IdentNode(){}
   void append(const char* str) {
     std::string tmp(str);
@@ -141,6 +143,35 @@ protected:
   std::string mCondition;
   NodeList* mArgs;
   NodeList* mIfBlock;
+};
+
+class VariableNode : public ASTNode{
+public:
+  VariableNode(const std::string& name) : ASTNode(VARIABLE) {mName = name;}
+  virtual ~VariableNode(){}
+  std::string& name() {return mName;}
+protected:
+  std::string mName;
+};
+
+class RelationalNode : public ASTNode{
+public:
+  enum Type{
+    REL_EQUAL,
+    REL_LESS,
+    REL_GREATER,
+    REL_PLUS,
+    REL_MINUS,
+  };
+  RelationalNode() : ASTNode(RELATIONAL), mType(REL_EQUAL), mChild(NULL){}
+  virtual ~RelationalNode(){
+    delete mChild;
+  }
+  Type& type() {return mType;}
+  ASTNode*& child() {return mChild;}
+protected:
+  Type mType;
+  ASTNode* mChild;
 };
 
 #endif

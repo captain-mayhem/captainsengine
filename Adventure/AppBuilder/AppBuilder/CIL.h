@@ -85,4 +85,13 @@ public:
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
 };
 
+class CLOAD : public CCode{
+public:
+  CLOAD(const std::string& s) : mVariable(s) {}
+  virtual ~CLOAD() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+protected:
+  std::string mVariable;
+};
+
 #endif

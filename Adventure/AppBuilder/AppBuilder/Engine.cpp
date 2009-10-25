@@ -429,9 +429,17 @@ void Engine::leftClick(const Vec2i& pos){
 void Engine::rightClick(const Vec2i& pos){
   int cmd = mCursor->getNextCommand();
   mActiveCommand = cmd;
+  mUseObject = NULL;
+  mGiveObject = NULL;
+  mLinkObjectInfo = "";
 }
 
 bool Engine::setFocus(std::string charname){
+  if (mFocussedChar && charname == "none"){
+    (*--mRooms.end())->addObject(mFocussedChar);
+    mFocussedChar = NULL;
+    return true;
+  }
   CharacterObject* res = NULL;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     res = (*iter)->extractCharacter(charname);
