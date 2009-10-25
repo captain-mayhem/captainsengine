@@ -44,6 +44,7 @@ protected:
 
 class StackData{
 public:
+  StackData() : mStr(""), mInt(0) {}
   StackData(std::string str) : mInt(0) {mStr = str; if (mStr == "true"){mBool = true;}}
   StackData(int value) {mInt = value;}
   StackData(bool value) {mBool = value;}

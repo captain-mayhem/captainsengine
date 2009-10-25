@@ -10,10 +10,14 @@
 #include <GL/gl.h>
 
 typedef void (GL_APIENTRY *PFNGLALPHAFUNC)(GLenum func, GLclampf ref);
+typedef void (GL_APIENTRY *PFNGLBEGIN)(GLenum mode);
 typedef void (GL_APIENTRY *PFNGLBINDTEXTURE)(GLenum target, GLuint texture);
 typedef void (GL_APIENTRY *PFNGLBLENDFUNC)(GLenum sfactor, GLenum dfactor);
 typedef void (GL_APIENTRY *PFNGLCLEAR)(GLbitfield mask);
 typedef void (GL_APIENTRY *PFNGLCLEARCOLOR)(GLclampf red, GLclampf green, GLclampf blue, GLclampf alpha);
+typedef void (GL_APIENTRY *PFNGLCLEARSTENCIL)(GLint s);
+typedef void (GL_APIENTRY *PFNGLCOLOR3F)(GLfloat red, GLfloat green, GLfloat blue);
+typedef void (GL_APIENTRY *PFNGLCOLOR4F)(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 typedef void (GL_APIENTRY *PFNGLCOLOR4UB)(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha);
 typedef void (GL_APIENTRY *PFNGLDELETETEXTURES)(GLsizei n, const GLuint *textures);
 typedef void (GL_APIENTRY *PFNGLDISABLE)(GLenum cap);
@@ -35,10 +39,14 @@ typedef void (GL_APIENTRY *PFNGLTRANSLATEF)(GLfloat x, GLfloat y, GLfloat z);
 typedef void (GL_APIENTRY *PFNGLVERTEXPOINTER)(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer);
 
 PFNGLALPHAFUNC alphaFunc = NULL;
+PFNGLBEGIN begin = NULL;
 PFNGLBINDTEXTURE bindTexture = NULL;
 PFNGLBLENDFUNC blendFunc = NULL;
 PFNGLCLEAR clear = NULL;
 PFNGLCLEARCOLOR clearColor = NULL;
+PFNGLCLEARSTENCIL clearStencil = NULL;
+PFNGLCOLOR3F color3f = NULL;
+PFNGLCOLOR4F color4f = NULL;
 PFNGLCOLOR4UB color4ub = NULL;
 PFNGLDELETETEXTURES deleteTextures = NULL;
 PFNGLDISABLE disable = NULL;
@@ -82,10 +90,14 @@ void cleanup(){
 void gl_init(void* lib){
   gData = new OGLRunData();
   alphaFunc = (PFNGLALPHAFUNC)getSymbol(lib, "glAlphaFunc");
+  begin = (PFNGLBEGIN)getSymbol(lib, "glBegin");
   bindTexture = (PFNGLBINDTEXTURE)getSymbol(lib, "glBindTexture");
   blendFunc = (PFNGLBLENDFUNC)getSymbol(lib, "glBlendFunc");
   clear = (PFNGLCLEAR)getSymbol(lib, "glClear");
   clearColor = (PFNGLCLEARCOLOR)getSymbol(lib, "glClearColor");
+  clearStencil = (PFNGLCLEARSTENCIL)getSymbol(lib, "glClearStencil");
+  color3f = (PFNGLCOLOR3F)getSymbol(lib, "glColor3f");
+  color4f = (PFNGLCOLOR4F)getSymbol(lib, "glColor4f");
   color4ub = (PFNGLCOLOR4UB)getSymbol(lib, "glColor4ub");
   deleteTextures = (PFNGLDELETETEXTURES)getSymbol(lib, "glDeleteTextures");
   disable = (PFNGLDISABLE)getSymbol(lib, "glDisable");
@@ -119,6 +131,12 @@ void* gl_interpret(const std::string& cmd){
         alphaFunc(func, ref);
         break;
       }
+    case GLBEGIN:
+      {
+        GLenum mode; in >> mode;
+        begin(mode);
+        break;
+      }
     case GLBINDTEXTURE:
       {
         GLenum target; in >> target;
@@ -144,6 +162,26 @@ void* gl_interpret(const std::string& cmd){
         GLclampf red, green, blue, alpha;
         in >> red >> green >> blue >> alpha;
         clearColor(red, green, blue, alpha);
+        break;
+      }
+    case GLCLEARSTENCIL:
+      {
+        GLint s; in >> s;
+        clearStencil(s);
+        break;
+      }
+    case GLCOLOR3F:
+      {
+        GLfloat red, green, blue;
+        in >> red >> green >> blue;
+        color3f(red, green, blue);
+        break;
+      }
+    case GLCOLOR4F:
+      {
+        GLfloat red, green, blue, alpha;
+        in >> red >> green >> blue >> alpha;
+        color4f(red, green, blue, alpha);
         break;
       }
     case GLCOLOR4UB:

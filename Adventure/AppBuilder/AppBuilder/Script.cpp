@@ -48,6 +48,8 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("return", subRoomReturn);
   registerFunction("link", link);
   registerFunction("givelink", giveLink);
+  registerFunction("if_num", isNumEqual);
+  registerFunction("setnum", setNum);
   mBooleans = data->getProjectSettings()->booleans;
 }
 
@@ -81,6 +83,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   input->free(input);
   mIsGameObject = false;
   mObjectInfo = "";
+  mLastRelation = NULL;
   CodeSegment* segment = new CodeSegment;
   transform(p, segment, START);
   delete p;
@@ -177,11 +180,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         }
         count += transform(cond->getArguments(), codes, ARGLIST);
         codes->addCode(new CCALL(f, cond->getArguments()->size()));
-        CBRA* cez;
-        if (cond->isNegated())
-          cez = new CBNEZERO;
-        else
-          cez = new CBEZERO;
+        CBRA* cez = getBranchInstr(mLastRelation, cond->isNegated());
         codes->addCode(cez);
         count += 2;
         int offset = transform(cond->getIfBlock(), codes, START);
@@ -189,11 +188,49 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         count += offset;
       }
       break;
+      case ASTNode::VARIABLE:{
+        VariableNode* var = static_cast<VariableNode*>(node);
+        codes->addCode(new CLOAD(var->name()));
+        ++count;
+      }
+      break;
+      case ASTNode::RELATIONAL:{
+        RelationalNode* relnode = static_cast<RelationalNode*>(node);
+        mLastRelation = relnode;
+        count += transform(relnode->child(), codes);
+      }
+      break;
       default:
         //wxMessageBox("Unhandled AST-Type");
         break;
   }
   return count;
+}
+
+CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
+  mLastRelation = NULL;
+  if (relnode == NULL){
+    if (!negated)
+      return new CBEZERO;
+    return new CBNEZERO;
+  }
+  if (!negated){
+    if (relnode->type() == RelationalNode::REL_EQUAL)
+      return new CBEZERO;
+    else if (relnode->type() == RelationalNode::REL_GREATER)
+      return NULL;
+    else if (relnode->type() == RelationalNode::REL_LESS)
+      return NULL;
+  }
+  else{
+    if (relnode->type() == RelationalNode::REL_EQUAL)
+      return new CBNEZERO;
+    else if (relnode->type() == RelationalNode::REL_GREATER)
+      return NULL;
+    else if (relnode->type() == RelationalNode::REL_LESS)
+      return NULL;
+  }
+  return NULL;
 }
 
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
@@ -464,6 +501,8 @@ int PcdkScript::cutScene(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::taskbar(ExecutionContext& ctx, unsigned numArgs){
+  bool state = ctx.stack().pop().getBool();
+  //TODO taskbar
   return 0;
 }
 
@@ -593,6 +632,13 @@ int PcdkScript::giveLink(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+int PcdkScript::setNum(ExecutionContext& ctx, unsigned numArgs){
+  std::string varname = ctx.stack().pop().getString();
+  int val = ctx.stack().pop().getInt();
+  Engine::instance()->getInterpreter()->mVariables[varname] = StackData(val);
+  return 0;
+}
+
 int PcdkScript::dummy(ExecutionContext& ctx, unsigned numArgs){
   for (unsigned i = 0; i < numArgs; ++i){
     ctx.stack().pop();
@@ -604,8 +650,9 @@ int PcdkScript::isBoolEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string boolname = ctx.stack().pop().getString();
   bool test = ctx.stack().pop().getBool();
   bool saved = Engine::instance()->getInterpreter()->mBooleans[boolname];
-  ctx.stack().push(StackData(test == saved));
-  return 1;
+  ctx.stack().push(saved ? 1 : 0);
+  ctx.stack().push(test ? 1 : 0);
+  return 2;
 }
 
 int PcdkScript::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
@@ -613,9 +660,12 @@ int PcdkScript::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
   int checkstate = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
-    ctx.stack().push(StackData(checkstate == obj->getState()));
+    ctx.stack().push(obj->getState());
   }
-  return 1;
+  else
+    ctx.stack().push(0);
+  ctx.stack().push(checkstate);
+  return 2;
 }
 
 int PcdkScript::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
@@ -625,22 +675,34 @@ int PcdkScript::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
     check = Engine::instance()->getInterpreter()->getEngineEvent(evtname);
   }
   EngineEvent evt = ctx.getCommandEvent();
-  ctx.stack().push(StackData(check == evt));
-  return 1;
+  ctx.stack().push(evt);
+  ctx.stack().push(check);
+  return 2;
 }
 
 int PcdkScript::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   std::string linkname = Engine::instance()->getUseObject()->getName();
-  ctx.stack().push(StackData(objname == linkname));
-  return 1;
+  ctx.stack().push(0);
+  ctx.stack().push(strcmp(linkname.c_str(), objname.c_str()));
+  return 2;
 }
 
 int PcdkScript::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   std::string linkname = Engine::instance()->getGiveObject()->getName();
-  ctx.stack().push(StackData(objname == linkname));
-  return 1;
+  ctx.stack().push(0);
+  ctx.stack().push(strcmp(linkname.c_str(), objname.c_str()));
+  return 2;
+}
+
+int PcdkScript::isNumEqual(ExecutionContext& ctx, unsigned numArgs){
+  std::string varname = ctx.stack().pop().getString();
+  int test = ctx.stack().pop().getInt();
+  int saved = Engine::instance()->getInterpreter()->mVariables[varname].getInt();
+  ctx.stack().push(saved);
+  ctx.stack().push(test);
+  return 2;
 }
 
 EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
@@ -723,7 +785,7 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
   }
   if (!mRemoveLinkObject)
     mRemoveLinkObject = true;
-  else{
+  else if (ctx.mIsGameObject){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (ctx.isEventSet(EVT_LINK)){
       ctx.resetEvent(EVT_LINK);

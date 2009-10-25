@@ -64,7 +64,9 @@ GL_API void GL_APIENTRY glAlphaFunc (GLenum func, GLclampf ref){
 }
 
 GL_API void GL_APIENTRY glBegin (GLenum mode){
-
+  std::ostringstream out;
+  out << GLBEGIN << SEP << mode;
+  gl_interpret(out.str());
 }
 
 GL_API void GL_APIENTRY glBindTexture (GLenum target, GLuint texture){
@@ -92,15 +94,21 @@ GL_API void GL_APIENTRY glClearColor (GLclampf red, GLclampf green, GLclampf blu
 }
 
 GL_API void GL_APIENTRY glClearStencil (GLint s){
-
+  std::ostringstream out;
+  out << GLCLEARSTENCIL << SEP << s;
+  gl_interpret(out.str());
 }
 
 GL_API void GL_APIENTRY glColor3f (GLfloat red, GLfloat green, GLfloat blue){
-
+  std::ostringstream out;
+  out << GLCOLOR3F << SEP << red << SEP << green << SEP << blue;
+  gl_interpret(out.str());
 }
 
 GL_API void GL_APIENTRY glColor4f (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){
-
+  std::ostringstream out;
+  out << GLCOLOR4F << SEP << red << SEP << green << SEP << blue << SEP << alpha;
+  gl_interpret(out.str());
 }
 
 GL_API void GL_APIENTRY glColor4ub (GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha){

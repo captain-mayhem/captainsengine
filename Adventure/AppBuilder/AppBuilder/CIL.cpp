@@ -11,15 +11,23 @@ unsigned CBNEEVT::execute(ExecutionContext& ctx, unsigned pc){
 }
 
 unsigned CBEZERO::execute(ExecutionContext& ctx, unsigned pc){
-  bool check = ctx.stack().pop().getBool();
-  if (check == false)
+  int second = ctx.stack().pop().getInt();
+  int first = ctx.stack().pop().getInt();
+  if (first != second)
     return pc+mOffset;
   return ++pc;
 }
 
 unsigned CBNEZERO::execute(ExecutionContext& ctx, unsigned pc){
-  bool check = ctx.stack().pop().getBool();
-  if (check != false)
+  int second = ctx.stack().pop().getInt();
+  int first = ctx.stack().pop().getInt();
+  if (first == second)
     return pc+mOffset;
+  return ++pc;
+}
+
+unsigned CLOAD::execute(ExecutionContext& ctx, unsigned pc){
+  StackData dat = Engine::instance()->getInterpreter()->getVariables()[mVariable];
+  ctx.stack().push(dat);
   return ++pc;
 }
