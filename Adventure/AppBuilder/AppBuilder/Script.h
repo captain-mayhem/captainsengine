@@ -198,6 +198,7 @@ protected:
   bool mIsGameObject;
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;
   RelationalNode* mLastRelation;
+  CLOAD* mUnresolvedLoad;
 
   EngineEvent getEngineEvent(const std::string eventname);
   std::map<std::string, ScriptFunc> mFunctions;

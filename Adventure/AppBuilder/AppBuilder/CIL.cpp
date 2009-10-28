@@ -10,7 +10,15 @@ unsigned CBNEEVT::execute(ExecutionContext& ctx, unsigned pc){
   return pc+mOffset;
 }
 
-unsigned CBEZERO::execute(ExecutionContext& ctx, unsigned pc){
+unsigned CBE::execute(ExecutionContext& ctx, unsigned pc){
+  int second = ctx.stack().pop().getInt();
+  int first = ctx.stack().pop().getInt();
+  if (first == second)
+    return pc+mOffset;
+  return ++pc;
+}
+
+unsigned CBNE::execute(ExecutionContext& ctx, unsigned pc){
   int second = ctx.stack().pop().getInt();
   int first = ctx.stack().pop().getInt();
   if (first != second)
@@ -18,10 +26,34 @@ unsigned CBEZERO::execute(ExecutionContext& ctx, unsigned pc){
   return ++pc;
 }
 
-unsigned CBNEZERO::execute(ExecutionContext& ctx, unsigned pc){
+unsigned CBLT::execute(ExecutionContext& ctx, unsigned pc){
   int second = ctx.stack().pop().getInt();
   int first = ctx.stack().pop().getInt();
-  if (first == second)
+  if (first < second)
+    return pc+mOffset;
+  return ++pc;
+}
+
+unsigned CBLE::execute(ExecutionContext& ctx, unsigned pc){
+  int second = ctx.stack().pop().getInt();
+  int first = ctx.stack().pop().getInt();
+  if (first <= second)
+    return pc+mOffset;
+  return ++pc;
+}
+
+unsigned CBGT::execute(ExecutionContext& ctx, unsigned pc){
+  int second = ctx.stack().pop().getInt();
+  int first = ctx.stack().pop().getInt();
+  if (first > second)
+    return pc+mOffset;
+  return ++pc;
+}
+
+unsigned CBGE::execute(ExecutionContext& ctx, unsigned pc){
+  int second = ctx.stack().pop().getInt();
+  int first = ctx.stack().pop().getInt();
+  if (first >= second)
     return pc+mOffset;
   return ++pc;
 }
