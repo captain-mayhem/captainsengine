@@ -71,17 +71,45 @@ protected:
   EngineEvent mEvent;
 };
 
-class CBEZERO : public CBRA{
+class CBE : public CBRA{
 public:
-  CBEZERO() {}
-  virtual ~CBEZERO() {}
+  CBE() {}
+  virtual ~CBE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
 };
 
-class CBNEZERO : public CBRA{
+class CBNE : public CBRA{
 public:
-  CBNEZERO() {}
-  virtual ~CBNEZERO() {}
+  CBNE() {}
+  virtual ~CBNE() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+};
+
+class CBLT : public CBRA{
+public:
+  CBLT() {}
+  virtual ~CBLT() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+};
+
+class CBLE : public CBRA{
+public:
+  CBLE() {}
+  virtual ~CBLE() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+};
+
+class CBGT : public CBRA{
+public:
+  CBGT() {}
+  virtual ~CBGT() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+};
+
+class CBGE : public CBRA{
+public:
+  CBGE() {}
+  virtual ~CBGE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
 };
 
@@ -90,8 +118,33 @@ public:
   CLOAD(const std::string& s) : mVariable(s) {}
   virtual ~CLOAD() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  void changeVariable(const std::string& var) {mVariable = var;}
 protected:
   std::string mVariable;
+};
+
+class CADD : public CCode{
+public:
+  CADD() {}
+  virtual ~CADD() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    int d2 = ctx.stack().pop().getInt();
+    int d1 = ctx.stack().pop().getInt();
+    ctx.stack().push(d1+d2);
+    return ++pc;
+  }
+};
+
+class CSUB : public CCode{
+public:
+  CSUB() {}
+  virtual ~CSUB() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    int d2 = ctx.stack().pop().getInt();
+    int d1 = ctx.stack().pop().getInt();
+    ctx.stack().push(d1-d2);
+    return ++pc;
+  }
 };
 
 #endif

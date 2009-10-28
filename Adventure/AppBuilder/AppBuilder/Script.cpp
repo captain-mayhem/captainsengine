@@ -84,6 +84,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   mIsGameObject = false;
   mObjectInfo = "";
   mLastRelation = NULL;
+  mUnresolvedLoad = NULL;
   CodeSegment* segment = new CodeSegment;
   transform(p, segment, START);
   delete p;
@@ -148,6 +149,10 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         IdentNode* id = static_cast<IdentNode*>(node);
         codes->addCode(new CPUSH(id->value()));
         ++count;
+        if (mUnresolvedLoad){
+          mUnresolvedLoad->changeVariable(id->value());
+          mUnresolvedLoad = NULL;
+        }
       }
       break;
       case ASTNode::INTEGER:{
@@ -196,8 +201,25 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::RELATIONAL:{
         RelationalNode* relnode = static_cast<RelationalNode*>(node);
-        mLastRelation = relnode;
-        count += transform(relnode->child(), codes);
+        if (relnode->type() == RelationalNode::REL_PLUS || relnode->type() == RelationalNode::REL_MINUS){
+          //CLOAD var; visit child; CADD/CSUB
+          CLOAD* ld = new CLOAD("");
+          codes->addCode(ld);
+          count += 1;
+          count += transform(relnode->child(), codes);
+          if (relnode->type() == RelationalNode::REL_PLUS)
+            codes->addCode(new CADD());
+          else if (relnode->type() == RelationalNode::REL_MINUS)
+            codes->addCode(new CSUB());
+          else
+            DebugBreak();
+          count += 1;
+          mUnresolvedLoad = ld;
+        }
+        else{
+          mLastRelation = relnode;
+          count += transform(relnode->child(), codes);
+        }
       }
       break;
       default:
@@ -211,24 +233,24 @@ CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
   mLastRelation = NULL;
   if (relnode == NULL){
     if (!negated)
-      return new CBEZERO;
-    return new CBNEZERO;
+      return new CBNE;
+    return new CBE;
   }
   if (!negated){
     if (relnode->type() == RelationalNode::REL_EQUAL)
-      return new CBEZERO;
+      return new CBNE;
     else if (relnode->type() == RelationalNode::REL_GREATER)
-      return NULL;
+      return new CBLE;
     else if (relnode->type() == RelationalNode::REL_LESS)
-      return NULL;
+      return new CBGE;
   }
   else{
     if (relnode->type() == RelationalNode::REL_EQUAL)
-      return new CBNEZERO;
+      return new CBE;
     else if (relnode->type() == RelationalNode::REL_GREATER)
-      return NULL;
+      return new CBGT;
     else if (relnode->type() == RelationalNode::REL_LESS)
-      return NULL;
+      return new CBLT;
   }
   return NULL;
 }
