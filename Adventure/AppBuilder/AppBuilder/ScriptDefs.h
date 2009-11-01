@@ -44,18 +44,25 @@ protected:
 
 class StackData{
 public:
-  StackData() : mStr(""), mInt(0) {}
-  StackData(std::string str) : mInt(0) {mStr = str; if (mStr == "true"){mBool = true;}}
-  StackData(int value) {mInt = value;}
-  StackData(bool value) {mBool = value;}
+  StackData() : mType(I), mStr(""), mInt(0) {}
+  StackData(std::string str) : mType(S), mInt(0) {mStr = str; if (mStr == "true"){mBool = true; mType = B;}}
+  StackData(int value) : mType(I) {mInt = value;}
+  StackData(bool value) : mType(B) {mBool = value;}
+  StackData(float value) : mType(F) {mFloat = value;}
   std::string getString() {return mStr;}
   int getInt() {return mInt;}
   bool getBool() {return mBool;}
+  float getFloat() {if (mType == I)return (float)mInt; return mFloat;}
 protected:
+  enum Type{
+    S, I, B, F,
+  };
+  Type mType;
   std::string mStr;
   union{
     int mInt;
     bool mBool;
+    float mFloat;
   };
 };
 

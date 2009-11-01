@@ -10,6 +10,7 @@ public:
     UNDEFINED,
     IDENTIFIER,
     INTEGER,
+    REALNUM,
     FUNCCALL,
     EVENT,
     CONDITION,
@@ -89,6 +90,17 @@ public:
   int& value() {return mValue;}
 protected:
   int mValue;
+};
+
+class RealNode : public ASTNode{
+public:
+  RealNode(float value) : ASTNode(REALNUM) {
+    mValue = value;
+  }
+  virtual ~RealNode(){}
+  float& value() {return mValue;}
+protected:
+  float mValue;
 };
 
 class FuncCallNode : public StmtNode{

@@ -24,6 +24,7 @@ public:
   void registerFunction(std::string name, ScriptFunc func);
   void execute(ExecutionContext* script, bool executeOnce);
   void executeImmediately(ExecutionContext* script);
+  void executeCutscene(ExecutionContext* cutscene);
   void update(unsigned time);
   void remove(ExecutionContext* script);
   std::map<std::string,StackData>& getVariables() {return mVariables;}
@@ -201,9 +202,11 @@ protected:
   CLOAD* mUnresolvedLoad;
 
   EngineEvent getEngineEvent(const std::string eventname);
+  void update(ExecutionContext* ctx, unsigned time);
   std::map<std::string, ScriptFunc> mFunctions;
   AdvDocument* mData;
   std::list<ExecutionContext*> mScripts;
+  ExecutionContext* mCutScene;
   std::map<std::string,bool> mBooleans;
   std::map<std::string,StackData> mVariables;
   static bool mRemoveLinkObject;

@@ -647,3 +647,9 @@ void Engine::setGiveObject(Object2D* object, const std::string& objectInfo){
   mGiveObject = object;
   mLinkObjectInfo = objectInfo;
 }
+
+ExecutionContext* Engine::loadScript(Script::Type type, const std::string& name){
+  Script* scr = mData->getScript(type, name);
+  ExecutionContext* ctx = mInterpreter->parseProgram(scr->text);
+  return ctx;
+}
