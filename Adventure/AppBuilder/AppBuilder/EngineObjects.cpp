@@ -489,7 +489,8 @@ void CharacterObject::animationEnded(Animation* anim){
 }
 
 void CharacterObject::setLookDir(LookDir dir){
-  int stateoffset = (mState-1)/3;
+  bool walking = isWalking();
+  bool talking = isTalking();
   if (dir == FRONT){
     mState = 1;
     mMirror = false;
@@ -506,7 +507,7 @@ void CharacterObject::setLookDir(LookDir dir){
     mState = 3;
     mMirror = false;
   }
-  mState += 3*stateoffset;
+  mState = calculateState(mState, walking, talking);
 }
 
 void CharacterObject::setLookDir(const Vec2i& dir){
@@ -525,6 +526,7 @@ void CharacterObject::setLookDir(const Vec2i& dir){
 }
 
 LookDir CharacterObject::getLookDir(){
+  //TODO check if contains bug
   return (LookDir)((mState-1)%3);
 }
 

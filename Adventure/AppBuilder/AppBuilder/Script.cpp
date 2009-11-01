@@ -51,6 +51,7 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("if_num", isNumEqual);
   registerFunction("setnum", setNum);
   mBooleans = data->getProjectSettings()->booleans;
+  mCutScene = NULL;
 }
 
 PcdkScript::~PcdkScript(){
@@ -157,6 +158,12 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::INTEGER:{
         IntNode* number = static_cast<IntNode*>(node);
+        codes->addCode(new CPUSH(number->value()));
+        ++count;
+      }
+      break;
+      case ASTNode::REALNUM:{
+        RealNode* number = static_cast<RealNode*>(node);
         codes->addCode(new CPUSH(number->value()));
         ++count;
       }
@@ -271,20 +278,31 @@ void PcdkScript::registerFunction(std::string name, ScriptFunc func){
 
 void PcdkScript::update(unsigned time){
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
-    if ((*iter)->mSleepTime > 0 && (*iter)->mSuspended){
-      ((*iter)->mSleepTime -= time);
-      if ((*iter)->mSleepTime <= 0){
-        (*iter)->mSleepTime = 0;
-        (*iter)->mSuspended = false;
-      }
-    }
-    executeImmediately(*iter);
+    update(*iter, time);
     if ((*iter)->mExecuteOnce){
       iter = mScripts.erase(iter);
     }
     if (iter == mScripts.end())
       break;
   }
+  if (mCutScene){
+    update(mCutScene, time);
+    if (!mCutScene->mSuspended && mCutScene->mExecuteOnce){
+      delete mCutScene;
+      mCutScene = NULL;
+    }
+  }
+}
+
+void PcdkScript::update(ExecutionContext* ctx, unsigned time){
+  if (ctx->mSleepTime > 0 && ctx->mSuspended){
+    (ctx->mSleepTime -= time);
+    if (ctx->mSleepTime <= 0){
+      ctx->mSleepTime = 0;
+      ctx->mSuspended = false;
+    }
+  }
+  executeImmediately(ctx);
 }
 
 void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
@@ -310,6 +328,13 @@ void PcdkScript::executeImmediately(ExecutionContext* script){
       script->mHandler(*script);
     script->reset(false);
   }
+}
+
+void PcdkScript::executeCutscene(ExecutionContext* script){
+  if (script == NULL)
+    return;
+  script->mExecuteOnce = true;
+  mCutScene = script;
 }
 
 void PcdkScript::remove(ExecutionContext* script){
@@ -519,6 +544,9 @@ int PcdkScript::addItem(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::cutScene(ExecutionContext& ctx, unsigned numArgs){
+  std::string scriptname = ctx.stack().pop().getString();
+  ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scriptname);
+  Engine::instance()->getInterpreter()->executeCutscene(context);
   return 0;
 }
 
@@ -614,8 +642,8 @@ int PcdkScript::stopMusic(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::wait(ExecutionContext& ctx, unsigned numArgs){
-  int seconds = ctx.stack().pop().getInt();
-  ctx.mSleepTime = seconds*1000;
+  float seconds = ctx.stack().pop().getFloat();
+  ctx.mSleepTime = (int)(seconds*1000);
   ctx.mSuspended = true;
   return 0;
 }

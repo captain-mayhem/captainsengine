@@ -49,6 +49,7 @@ public:
   Object2D* getUseObject() {return mUseObject;}
   void setGiveObject(Object2D* object, const std::string& objectInfo);
   Object2D* getGiveObject() {return mGiveObject;}
+  ExecutionContext* loadScript(Script::Type type, const std::string& name);
 protected:
   Engine();
   static Engine* mInstance;
