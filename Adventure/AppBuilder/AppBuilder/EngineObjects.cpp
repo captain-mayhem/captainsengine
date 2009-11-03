@@ -248,7 +248,7 @@ void Object2D::setSuspensionScript(ExecutionContext* script){
 }
 
 void Object2D::save(){
-  SaveStateProvider::SaveObject* save = Engine::instance()->getSaver()->getObject(mName);
+  SaveStateProvider::SaveObject* save = Engine::instance()->getSaver()->getOrAddObject(mName);
   if (save){
     save->position = mPos;
     save->state = mState;
@@ -358,7 +358,7 @@ CharacterObject* RoomObject::extractCharacter(const std::string& name){
       if (ch->getName() == name){
         mObjects.erase(iter);
         Engine::instance()->getSaver()->getRoom(mName);
-        Engine::instance()->getSaver()->removeObject(name);
+        Engine::instance()->getSaver()->removeCharacter(name);
         return ch;
       }
     }
@@ -576,4 +576,12 @@ bool CharacterObject::isTalking(){
 
 Vec2i CharacterObject::getSize(){
   return mSizes[mState-1];
+}
+
+void CharacterObject::save(){
+  SaveStateProvider::CharSaveObject* save = Engine::instance()->getSaver()->getOrAddCharacter(mName);
+  if (save){
+    save->base.position = mPos;
+    save->base.state = mState;
+  }
 }

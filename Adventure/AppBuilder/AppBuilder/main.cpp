@@ -56,6 +56,11 @@ bool Application::OnInit(){
   wxFileSystem::AddHandler(new wxArchiveFSHandler);
   if (mRunFile != ""){
     wxDocument* doc = mManager->CreateDocument(mRunFile, wxDOC_SILENT);
+    if (doc == NULL){
+      wxMessageBox("Game data not found. Program must exit.");
+      wxExit();
+      return false;
+    }
     Engine::instance()->setData(static_cast<AdvDocument*>(doc));
     wxCommandEvent dummy;
     dummy.SetInt(4711);
@@ -72,6 +77,7 @@ int Application::OnExit(){
 
 void Application::OnInitCmdLine(wxCmdLineParser& parser){
   parser.AddOption("r", "run", "adventure file", wxCMD_LINE_VAL_STRING, 0);
+  parser.AddSwitch("e", "edit", "adventure file", 0);
   wxApp::OnInitCmdLine(parser);
 }
 
@@ -79,6 +85,12 @@ bool Application::OnCmdLineParsed(wxCmdLineParser& parser){
   wxString value;
   if (parser.Found("r", &value)){
     mRunFile = value;
+  }
+  else{
+    mRunFile = "data/game.dat";
+  }
+  if (parser.Found("e")){
+    mRunFile = "";
   }
   wxApp::OnCmdLineParsed(parser);
   return true;

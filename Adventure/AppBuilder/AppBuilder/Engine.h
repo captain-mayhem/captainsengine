@@ -64,6 +64,8 @@ protected:
   std::list<RoomObject*> mRoomsToUnload;
   CursorObject* mCursor;
   CharacterObject* mFocussedChar;
+  std::string mLastFocussedChar;
+  std::string mLastFocussedCharRoom;
   ExecutionContext* mInitScript;
   bool mMainRoomLoaded;
   bool mSubRoomLoaded;

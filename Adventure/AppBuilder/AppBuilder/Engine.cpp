@@ -253,6 +253,9 @@ void Engine::render(){
 bool Engine::loadRoom(std::string name, bool isSubRoom){
   if (!mData)
     return false;
+  //already loaded //TODO subrooms
+  if (mMainRoomLoaded && mRooms.back()->getName() == name)
+    return true;
   Room* room = mData->getRoom(name);
   SaveStateProvider::SaveRoom* save = mSaver->getRoom(name);
   if (!room || !save)
@@ -308,7 +311,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     if (mData->getRoomCharacters()[i].room == name){
       Rcharacter ch = mData->getRoomCharacters()[i];
       Character* chbase = mData->getCharacter(ch.character);
-      SaveStateProvider::SaveObject* saveobj = mSaver->getObject(ch.name);
+      SaveStateProvider::CharSaveObject* saveobj = mSaver->getCharacter(ch.name);
       if (!saveobj)
         continue;
       CharacterObject* character = new CharacterObject(0, ch.position, ch.name);
@@ -436,9 +439,15 @@ void Engine::rightClick(const Vec2i& pos){
 
 bool Engine::setFocus(std::string charname){
   if (mFocussedChar && charname == "none"){
-    (*--mRooms.end())->addObject(mFocussedChar);
+    RoomObject* room = *--mRooms.end();
+    room->addObject(mFocussedChar);
+    mLastFocussedChar = mFocussedChar->getName();
+    mLastFocussedCharRoom = room->getName();
     mFocussedChar = NULL;
     return true;
+  }
+  if (charname == "last"){
+    charname = mLastFocussedChar;
   }
   CharacterObject* res = NULL;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
@@ -448,7 +457,8 @@ bool Engine::setFocus(std::string charname){
       return true;
     }
   }
-  return false;
+  loadRoom(mLastFocussedCharRoom, false);
+  return setFocus(mLastFocussedChar);
 }
 
 bool Engine::aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path){
