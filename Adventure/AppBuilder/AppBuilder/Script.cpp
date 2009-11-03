@@ -88,6 +88,11 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   mUnresolvedLoad = NULL;
   CodeSegment* segment = new CodeSegment;
   transform(p, segment, START);
+  for (std::list<std::pair<CBRA*,unsigned> >::iterator iter = mUnresolvedBranches.begin(); iter != mUnresolvedBranches.end(); ++iter){
+    unsigned diff = segment->numInstructions() - iter->second;
+    iter->first->setOffset(diff+1);
+  }
+  mUnresolvedBranches.clear();
   delete p;
   if (segment->numInstructions() == 0){
     delete segment;
@@ -177,11 +182,6 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         int offset = transform(evt->getBlock(), codes, START);
         cevt->setOffset(offset+1);
         count += offset;
-        for (std::list<std::pair<CBRA*,unsigned> >::iterator iter = mUnresolvedBranches.begin(); iter != mUnresolvedBranches.end(); ++iter){
-          unsigned diff = codes->numInstructions() - iter->second;
-          iter->first->setOffset(diff+1);
-        }
-        mUnresolvedBranches.clear();
       }
       break;
       case ASTNode::CONDITION:{

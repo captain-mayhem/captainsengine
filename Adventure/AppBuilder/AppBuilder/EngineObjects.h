@@ -227,6 +227,7 @@ public:
   bool isTalking();
   virtual Vec2i getSize();
   Inventory* getInventory() {return mInventory;}
+  virtual void save();
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
