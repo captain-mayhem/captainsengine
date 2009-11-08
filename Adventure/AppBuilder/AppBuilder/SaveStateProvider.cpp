@@ -34,9 +34,12 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
     }
     for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
       if (mData->getRoomCharacters()[i].room == name){
+        CharacterObject dummy(0, Vec2i(), "");
+        dummy.setLookDir(mData->getRoomCharacters()[i].dir);
         CharSaveObject* chr = new CharSaveObject();
-        chr->base.state = 0;
+        chr->base.state = dummy.getState();
         chr->base.position = mData->getRoomCharacters()[i].position;
+        chr->mirrored = dummy.isMirrored();
         save->characters[mData->getRoomCharacters()[i].name] = chr;
       }
     }

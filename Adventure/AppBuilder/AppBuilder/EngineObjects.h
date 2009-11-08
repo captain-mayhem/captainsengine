@@ -198,6 +198,7 @@ protected:
 };
 
 class CharacterObject : public Object2D, public AnimationEndHandler{
+  friend class SaveStateProvider;
 public:
   CharacterObject(int state, Vec2i pos, const std::string& name);
   ~CharacterObject();
@@ -228,6 +229,8 @@ public:
   virtual Vec2i getSize();
   Inventory* getInventory() {return mInventory;}
   virtual void save();
+  bool isMirrored() {return mMirror;}
+  void setMirrored(bool mirrored) {mMirror = mirrored;}
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
