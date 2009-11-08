@@ -5,6 +5,7 @@
 #include <list>
 #include <map>
 #include "AdvDoc.h"
+#include "SaveStateProvider.h"
 
 class Object2D;
 
@@ -16,6 +17,7 @@ public:
   void addItem(Object2D* item, int invnumber);
   void removeItem(const std::string& item, int invnumber);
   Object2D* getItem(const std::string& name);
+  void save(SaveStateProvider::SaveInventory& inv) const;
 protected:
   typedef std::list<Object2D*> SingleInv;
   std::map<int, SingleInv> mInventory;

@@ -37,6 +37,14 @@ Object2D* Inventory::getItem(const std::string& name){
   return NULL;
 }
 
+void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
+  for (std::map<int, SingleInv>::const_iterator iter = mInventory.begin(); iter != mInventory.end(); ++iter){
+    for (SingleInv::const_iterator inviter = iter->second.begin(); inviter != iter->second.end(); ++inviter){
+      inv.items[iter->first].push_back((*inviter)->getName());
+    }
+  }
+}
+
 ////////////////////////////////////////////
 
 InventoryDisplay::InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale)

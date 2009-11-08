@@ -307,31 +307,39 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     roomobj->addObject(object);
   }
   //now check for the characters
-  for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
-    if (mData->getRoomCharacters()[i].room == name){
-      Rcharacter ch = mData->getRoomCharacters()[i];
-      Character* chbase = mData->getCharacter(ch.character);
-      SaveStateProvider::CharSaveObject* saveobj = mSaver->getCharacter(ch.name);
-      if (!saveobj)
-        continue;
-      CharacterObject* character = new CharacterObject(0, ch.position, ch.name);
-      character->setLookDir(ch.dir);
-      character->setFontID(chbase->fontid+1);
-      character->setTextColor(chbase->textcolor);
-      for (unsigned j = 0; j < chbase->states.size(); ++j){
-        int depth = (ch.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
-        Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
-        character->addAnimation(anim);
-        character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
+  for (std::map<std::string, SaveStateProvider::CharSaveObject*>::iterator iter = save->characters.begin(); iter != save->characters.end(); ++iter){
+    Rcharacter ch;
+    for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
+      if (mData->getRoomCharacters()[i].name == iter->first){
+        ch = mData->getRoomCharacters()[i];
+        break;
       }
-      Script* script = mData->getScript(Script::CHARACTER,ch.name);
-      if (script){
-        ExecutionContext* scr = mInterpreter->parseProgram(script->text);
-        character->setScript(scr);
-        mInterpreter->execute(scr, false);
-      }
-      roomobj->addObject(character);
     }
+    Character* chbase = mData->getCharacter(ch.character);
+    CharacterObject* character = new CharacterObject(iter->second->base.state, iter->second->base.position, iter->first);
+    character->setMirrored(iter->second->mirrored);
+    character->setFontID(chbase->fontid+1);
+    character->setTextColor(chbase->textcolor);
+    for (unsigned j = 0; j < chbase->states.size(); ++j){
+      int depth = (iter->second->base.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
+      Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
+      character->addAnimation(anim);
+      character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
+    }
+    Script* script = mData->getScript(Script::CHARACTER,iter->first);
+    if (script){
+      ExecutionContext* scr = mInterpreter->parseProgram(script->text);
+      character->setScript(scr);
+      mInterpreter->execute(scr, false);
+    }
+    for (std::map<int,std::vector<std::string> >::iterator inviter = iter->second->inventory.items.begin();
+      inviter != iter->second->inventory.items.end(); ++inviter){
+      for (unsigned i = 0; i < inviter->second.size(); ++i){
+        Object2D* item = createItem(inviter->second[i]);
+        character->getInventory()->addItem(item, inviter->first);
+      }
+    }
+    roomobj->addObject(character);
   };
   //load room script
   Script* script = mData->getScript(Script::ROOM,name);
@@ -457,8 +465,11 @@ bool Engine::setFocus(std::string charname){
       return true;
     }
   }
-  loadRoom(mLastFocussedCharRoom, false);
-  return setFocus(mLastFocussedChar);
+  if (mLastFocussedCharRoom != mRooms.back()->getName()){
+    loadRoom(mLastFocussedCharRoom, false);
+    return setFocus(mLastFocussedChar);
+  }
+  return false;
 }
 
 bool Engine::aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path){

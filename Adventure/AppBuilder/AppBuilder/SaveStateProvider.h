@@ -9,8 +9,13 @@ public:
     Vec2i position;
     int state;
   };
+  struct SaveInventory{
+    std::map<int, std::vector<std::string> > items;
+  };
   struct CharSaveObject{
     SaveObject base;
+    bool mirrored;
+    SaveInventory inventory;
   };
   struct SaveRoom{
     Color lighting;

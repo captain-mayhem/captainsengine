@@ -583,5 +583,10 @@ void CharacterObject::save(){
   if (save){
     save->base.position = mPos;
     save->base.state = mState;
+    save->mirrored = mMirror;
+    save->inventory.items.clear();
+    if (mInventory){
+      mInventory->save(save->inventory);
+    }
   }
 }
