@@ -68,8 +68,8 @@ void Engine::initGame(){
     mInitScript = mInterpreter->parseProgram(startScript->text);
     mInterpreter->execute(mInitScript, true);
   }
-  mUseObject = NULL;
-  mGiveObject = NULL;
+  mUseObjectName = "";
+  mGiveObjectName = "";
   mInitialized = true;
 }
 
@@ -224,11 +224,11 @@ void Engine::render(){
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
   std::string text = mData->getProjectSettings()->pretty_commands[mActiveCommand];
-  if (mUseObject){
+  if (!mUseObjectName.empty()){
     text += " "+mLinkObjectInfo;
     text += " "+mData->getProjectSettings()->linktext;
   }
-  if (mGiveObject){
+  if (!mGiveObjectName.empty()){
     text += " "+mLinkObjectInfo;
     text += " "+mData->getProjectSettings()->givelink;
   }
@@ -420,9 +420,9 @@ void Engine::leftClick(const Vec2i& pos){
     script = obj->getScript();
     if (script != NULL){
       script->setEvent(EVT_CLICK);
-      if (mUseObject)
+      if (!mUseObjectName.empty())
         script->setEvent(EVT_LINK);
-      else if (mGiveObject)
+      else if (!mGiveObjectName.empty())
         script->setEvent(EVT_GIVE_LINK);
       else
         script->setEvent((EngineEvent)mActiveCommand);
@@ -440,8 +440,8 @@ void Engine::leftClick(const Vec2i& pos){
 void Engine::rightClick(const Vec2i& pos){
   int cmd = mCursor->getNextCommand();
   mActiveCommand = cmd;
-  mUseObject = NULL;
-  mGiveObject = NULL;
+  mUseObjectName = "";
+  mGiveObjectName = "";
   mLinkObjectInfo = "";
 }
 
@@ -660,13 +660,21 @@ Object2D* Engine::createItem(const std::string& name){
 }
 
 void Engine::setUseObject(Object2D* object, const std::string& objectInfo){
-  mUseObject = object;
+  //mUseObject = object;
   mLinkObjectInfo = objectInfo;
+  if (object)
+    mUseObjectName = object->getName();
+  else
+    mUseObjectName = "";
 }
 
 void Engine::setGiveObject(Object2D* object, const std::string& objectInfo){
-  mGiveObject = object;
+  //mGiveObject = object;
   mLinkObjectInfo = objectInfo;
+  if (object)
+    mGiveObjectName = object->getName();
+  else
+    mGiveObjectName = "";
 }
 
 ExecutionContext* Engine::loadScript(Script::Type type, const std::string& name){

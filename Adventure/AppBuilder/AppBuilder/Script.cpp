@@ -532,6 +532,8 @@ int PcdkScript::beamTo(ExecutionContext& ctx, unsigned numArgs){
 int PcdkScript::addItem(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   std::string itemname = ctx.stack().pop().getString();
+  if (itemname == "givelink")
+    itemname = Engine::instance()->getGiveObjectName();
   int inventory = 1;
   if (numArgs >= 3)
     inventory = ctx.stack().pop().getInt();
@@ -602,6 +604,9 @@ int PcdkScript::textScene(ExecutionContext& ctx, unsigned numArgs){
 int PcdkScript::delItem(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   std::string itemname = ctx.stack().pop().getString();
+  if (itemname == "givelink"){
+    itemname = Engine::instance()->getGiveObjectName();
+  }
   int inventory = 1;
   if (numArgs >= 3)
     inventory = ctx.stack().pop().getInt();
@@ -732,7 +737,7 @@ int PcdkScript::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
 
 int PcdkScript::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
-  std::string linkname = Engine::instance()->getUseObject()->getName();
+  std::string linkname = Engine::instance()->getUseObjectName();
   ctx.stack().push(0);
   ctx.stack().push(strcmp(linkname.c_str(), objname.c_str()));
   return 2;
@@ -740,7 +745,7 @@ int PcdkScript::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
 
 int PcdkScript::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
-  std::string linkname = Engine::instance()->getGiveObject()->getName();
+  std::string linkname = Engine::instance()->getGiveObjectName();
   ctx.stack().push(0);
   ctx.stack().push(strcmp(linkname.c_str(), objname.c_str()));
   return 2;

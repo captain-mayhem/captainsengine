@@ -71,14 +71,14 @@ void RenderWindow::OnPaint(wxPaintEvent& event){
   if (!GetParent()->IsShown())
     return;
 
-  SetCurrent(*mContext);
+  /*SetCurrent(*mContext);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
 
   Engine::instance()->render();
 
-  SwapBuffers();
+  SwapBuffers();*/
   //Refresh(false);
 }
 

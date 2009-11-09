@@ -21,7 +21,9 @@ void Inventory::addItem(Object2D* item, int invnumber){
 void Inventory::removeItem(const std::string& item, int invnumber){
   for (SingleInv::iterator iter = mInventory[invnumber].begin(); iter != mInventory[invnumber].end(); ++iter){
     if ((*iter)->getName() == item){
+      delete *iter;
       mInventory[invnumber].erase(iter);
+      break;
     }
   }
 }
