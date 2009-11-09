@@ -46,10 +46,11 @@ public:
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
   Object2D* createItem(const std::string& name);
   void setUseObject(Object2D* object, const std::string& objectInfo);
-  Object2D* getUseObject() {return mUseObject;}
+  std::string getUseObjectName() {return mUseObjectName;}
   void setGiveObject(Object2D* object, const std::string& objectInfo);
-  Object2D* getGiveObject() {return mGiveObject;}
+  std::string getGiveObjectName() {return mGiveObjectName;}
   ExecutionContext* loadScript(Script::Type type, const std::string& name);
+  //std::string getLinkObjectName() {return mLinkObjectName;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -102,8 +103,10 @@ protected:
   //engine - script communication
   std::string mObjectInfo;
   unsigned mActiveCommand;
-  Object2D* mUseObject;
-  Object2D* mGiveObject;
+  //Object2D* mUseObject;
+  std::string mUseObjectName;
+  //Object2D* mGiveObject;
+  std::string mGiveObjectName;
   std::string mLinkObjectInfo;
 };
 
