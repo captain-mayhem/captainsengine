@@ -261,7 +261,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
   if (!room || !save)
     return false;
   if (mMainRoomLoaded && !isSubRoom){
-    unloadRoom(mRooms.back());
+    unloadRoom(mRooms.back(), true);
   }
   int depthoffset = 0;
   if (isSubRoom){
@@ -369,9 +369,13 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
   return true;
 }
 
-void Engine::unloadRoom(RoomObject* room){
-  if (room == NULL)
-    room = mRooms.front();
+void Engine::unloadRoom(RoomObject* room, bool mainroom){
+  if (room == NULL){
+    if (mainroom)
+      room = mRooms.back();
+    else
+      room = mRooms.front();
+  }
   ExecutionContext* ctx = room->getScript();
   if (ctx){
     ctx->setEvent(EVT_EXIT);
@@ -457,13 +461,10 @@ bool Engine::setFocus(std::string charname){
   if (charname == "last"){
     charname = mLastFocussedChar;
   }
-  CharacterObject* res = NULL;
-  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    res = (*iter)->extractCharacter(charname);
-    if (res){
-      mFocussedChar = res;
-      return true;
-    }
+  CharacterObject* res = extractCharacter(charname);
+  if (res){
+    mFocussedChar = res;
+    return true;
   }
   if (mLastFocussedCharRoom != mRooms.back()->getName()){
     loadRoom(mLastFocussedCharRoom, false);
@@ -605,6 +606,17 @@ CharacterObject* Engine::getCharacter(const std::string& name){
   CharacterObject* res = NULL;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     res = (*iter)->findCharacter(name);
+    if (res){
+      return res;
+    }
+  }
+  return NULL;
+}
+
+CharacterObject* Engine::extractCharacter(const std::string& name){
+  CharacterObject* res = NULL;
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    res = (*iter)->extractCharacter(name);
     if (res){
       return res;
     }

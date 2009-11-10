@@ -29,13 +29,14 @@ public:
   void leftClick(const Vec2i& pos);
   void rightClick(const Vec2i& pos);
   bool loadRoom(std::string name, bool isSubRoom);
-  void unloadRoom(RoomObject* room);
+  void unloadRoom(RoomObject* room, bool mainroom);
   bool setFocus(std::string charname);
   wxImage getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
   Object2D* getObjectAt(const Vec2i& pos);
   Object2D* getObject(const std::string& name, bool searchInventoryFirst);
   CharacterObject* getCharacter(const std::string& name);
+  CharacterObject* extractCharacter(const std::string& name);
   RoomObject* getRoom(const std::string& name);
   PcdkScript* getInterpreter() {return mInterpreter;}
   FontRenderer* getFontRenderer() {return mFonts;}

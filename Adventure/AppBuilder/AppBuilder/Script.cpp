@@ -50,6 +50,9 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("givelink", giveLink);
   registerFunction("if_num", isNumEqual);
   registerFunction("setnum", setNum);
+  registerFunction("offspeech", offSpeech);
+  registerFunction("unloadroom", unloadRoom);
+  registerFunction("restart", restart);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
 }
@@ -524,7 +527,15 @@ int PcdkScript::beamTo(ExecutionContext& ctx, unsigned numArgs){
     }
   }
   else{
-    //TODO
+    CharacterObject* obj = Engine::instance()->extractCharacter(charname);
+    if (obj){
+      Engine::instance()->getAnimator()->remove(obj);
+      obj->setPosition(pos*Engine::instance()->getWalkGridSize());
+      int state = CharacterObject::calculateState(obj->getState(), false, false);
+      obj->setState(state);
+      Engine::instance()->getSaver()->getRoom(roomname);
+      obj->save();
+    }
   }
   return 0;
 }
@@ -664,7 +675,7 @@ int PcdkScript::subRoom(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::subRoomReturn(ExecutionContext& ctx, unsigned numArgs){
-  Engine::instance()->unloadRoom(NULL);
+  Engine::instance()->unloadRoom(NULL, false);
   return 0;
 }
 
@@ -691,6 +702,47 @@ int PcdkScript::setNum(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
   int val = ctx.stack().pop().getInt();
   Engine::instance()->getInterpreter()->mVariables[varname] = StackData(val);
+  return 0;
+}
+
+int PcdkScript::offSpeech(ExecutionContext& ctx, unsigned numArgs){
+  Vec2i pos;
+  pos.x = ctx.stack().pop().getInt()*Engine::instance()->getWalkGridSize();
+  pos.y = ctx.stack().pop().getInt()*Engine::instance()->getWalkGridSize();
+  std::string text = ctx.stack().pop().getString();
+  std::string sound = "";
+  bool hold = true;
+  if (numArgs >= 4){ //TODO SOUND
+    sound = ctx.stack().pop().getString();
+    if (sound == "dontwait"){
+      hold = false;
+      sound = "";
+    }
+  }
+  if (numArgs >= 5){
+    std::string dw = ctx.stack().pop().getString();
+    if (dw == "dontwait")
+      hold = false;
+  }
+  FontRenderer::String* str = NULL;
+  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
+  str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
+    1, Color(), 3000);
+  if (sound != "") //TODO
+    DebugBreak();
+  if (hold && str){
+    str->setSuspensionScript(&ctx);
+    ctx.mSuspended = true;
+  }
+  return 0;
+}
+
+int PcdkScript::unloadRoom(ExecutionContext& ctx, unsigned numArgs){
+  Engine::instance()->unloadRoom(NULL, true);
+  return 0;
+}
+
+int PcdkScript::restart(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
