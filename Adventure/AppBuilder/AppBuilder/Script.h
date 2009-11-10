@@ -93,6 +93,14 @@ public:
   **/
   static int loopStop(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param x x-coord of text (middle)
+  \param y y-coord of text (bottom)
+  \param text the text to be displayed
+  \param sample [opt] sound file to be played TODO
+  \param dontwait [opt] continue script execution immediately
+  **/
+  static int offSpeech(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param character the name of the character to execute the pickup action
   **/
   static int pickup(ExecutionContext& ctx, unsigned numArgs);
@@ -106,6 +114,9 @@ public:
   \param volume [opt] the volume
   **/
   static int playSound(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  **/
+  static int restart(ExecutionContext& ctx, unsigned numArgs);
   /**
     \param bool name of the boolean
     \param value true/false
@@ -164,6 +175,9 @@ public:
     \param show true/false
   **/
   static int taskbar(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  **/
+  static int unloadRoom(ExecutionContext& ctx, unsigned numArgs);
   /**
     \param time time in seconds
   **/

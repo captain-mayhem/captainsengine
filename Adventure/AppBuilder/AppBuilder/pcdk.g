@@ -75,16 +75,20 @@ arg_list returns [NodeList* nodes]
 
 arg	returns [ASTNode* value]
 	: {$value = new IdentNode("");}
-	(INFO_BEG INT INFO_END )? 
+	arg_header? 
 	(
 		first=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(first.value->value().c_str()); delete first.value;}
 	)
 	(
 		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
 		| MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$MINUS.text->chars);}
+		| INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$INT.text->chars);}
 	)*
 	|	exp=rel_expr {$value = exp.exp;}
 ;
+
+arg_header
+	: INFO_BEG INT INFO_END;
 
 stdarg returns [IdentNode* value]
 	:
