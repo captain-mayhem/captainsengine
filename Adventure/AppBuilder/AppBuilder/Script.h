@@ -52,6 +52,12 @@ public:
    **/
   static int cutScene(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param textscene name of the textscene to deactivate
+  \param level level of the textscene
+  \param row row to deactivate
+  **/
+  static int deactivate(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param character name of the character from whose inventory the item should be removed
   special values off
   \param item the item to remove
@@ -59,6 +65,9 @@ public:
   \param num [opt] the inventory number
   **/
   static int delItem(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  **/
+  static int endScene(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param char1 name of the character to follow char2
   \param char2 name of the character to be followed by char1
@@ -69,6 +78,10 @@ public:
   \param name [opt] name of the object to link for giving
   **/
   static int giveLink(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param level set the level of a textscene
+  **/
+  static int gotoLevel(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param name name of the object to link
   **/

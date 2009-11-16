@@ -32,6 +32,7 @@ public:
   CharSaveObject* getCharacter(const std::string& name);
   CharSaveObject* getOrAddCharacter(const std::string& name);
   void removeCharacter(const std::string& name);
+  void clear();
 protected:
   AdvDocument* mData;
   std::map<std::string, SaveRoom*> mRooms;

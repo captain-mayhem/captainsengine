@@ -72,6 +72,17 @@ protected:
   EngineEvent mEvent;
 };
 
+class CBNEROW : public CBRA{
+public:
+  CBNEROW(int row, const std::string& text, bool visible) : mRow(row), mText(text), mVisible(visible) {}
+  virtual ~CBNEROW() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+protected:
+  int mRow;
+  std::string mText;
+  bool mVisible;
+};
+
 class CBE : public CBRA{
 public:
   CBE() {}

@@ -53,6 +53,9 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("offspeech", offSpeech);
   registerFunction("unloadroom", unloadRoom);
   registerFunction("restart", restart);
+  registerFunction("gotolevel", gotoLevel);
+  registerFunction("deactivate", deactivate);
+  registerFunction("endscene", endScene);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
 }
@@ -230,6 +233,27 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           mLastRelation = relnode;
           count += transform(relnode->child(), codes);
         }
+      }
+      break;
+      case ASTNode::LEVELDEF:{
+        LevelNode* lvl = static_cast<LevelNode*>(node);
+        EngineEvent evtcode = (EngineEvent)(EVT_LEVEL+lvl->getLevel());
+        CBNEEVT* cevt = new CBNEEVT(evtcode);
+        codes->addCode(cevt);
+        ++count;
+        int offset = transform(lvl->getBlock(), codes, START);
+        cevt->setOffset(offset+1);
+        count += offset;
+      }
+      break;
+      case ASTNode::ROWDEF:{
+        RowNode* row = static_cast<RowNode*>(node);
+        CBNEROW* crow = new CBNEROW(row->getRow(), row->getText(), row->isVisible());
+        int offset = transform(row->getBlock(), codes, START);
+        codes->addCode(crow);
+        ++count;
+        crow->setOffset(offset+1);
+        count += offset;
       }
       break;
       default:
@@ -609,6 +633,17 @@ int PcdkScript::lookTo(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::textScene(ExecutionContext& ctx, unsigned numArgs){
+  std::string scenename = ctx.stack().pop().getString();
+  Vec2i pos(0,0);
+  int width = Engine::instance()->getResolution().x;
+  if (numArgs > 1){
+    //TODO
+    pos.x = ctx.stack().pop().getInt();
+    pos.y = ctx.stack().pop().getInt();
+    width = ctx.stack().pop().getInt();
+  }
+  ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scenename);
+  Engine::instance()->getInterpreter()->executeCutscene(context);
   return 0;
 }
 
@@ -743,6 +778,22 @@ int PcdkScript::unloadRoom(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::restart(ExecutionContext& ctx, unsigned numArgs){
+  Engine::instance()->setFocus("none");
+  Engine::instance()->getSaver()->clear();
+  Engine::instance()->exitGame();
+  Engine::instance()->initGame();
+  return 0;
+}
+
+int PcdkScript::gotoLevel(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::deactivate(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::endScene(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
@@ -829,6 +880,8 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
     return EVT_EXIT;
   else if (eventname == "loop2")
     return EVT_LOOP2;
+  else if (eventname == "level")
+    return EVT_LEVEL;
   std::map<std::string,unsigned>::iterator iter = mData->getProjectSettings()->commands.find(eventname);
   if (iter != mData->getProjectSettings()->commands.end()){
     return static_cast<EngineEvent>(iter->second);

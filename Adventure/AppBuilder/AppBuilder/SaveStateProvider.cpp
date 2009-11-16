@@ -5,15 +5,7 @@ SaveStateProvider::SaveStateProvider(AdvDocument* data) : mData(data) {
 }
 
 SaveStateProvider::~SaveStateProvider(){
-  for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    for (std::map<std::string,SaveObject*>::iterator objiter = iter->second->objects.begin(); objiter != iter->second->objects.end(); ++objiter){
-      delete objiter->second;
-    }
-    for (std::map<std::string,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
-      delete chriter->second;
-    }
-    delete iter->second;
-  }
+  clear();
 }
 
 SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
@@ -95,4 +87,17 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::getOrAddCharacter(const st
 void SaveStateProvider::removeCharacter(const std::string& name){
   delete mLastRoom->characters[name];
   mLastRoom->characters.erase(name);
+}
+
+void SaveStateProvider::clear(){
+  for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    for (std::map<std::string,SaveObject*>::iterator objiter = iter->second->objects.begin(); objiter != iter->second->objects.end(); ++objiter){
+      delete objiter->second;
+    }
+    for (std::map<std::string,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
+      delete chriter->second;
+    }
+    delete iter->second;
+  }
+  mRooms.clear();
 }
