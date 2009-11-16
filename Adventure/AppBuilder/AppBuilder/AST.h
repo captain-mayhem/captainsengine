@@ -16,6 +16,8 @@ public:
     CONDITION,
     VARIABLE,
     RELATIONAL,
+    LEVELDEF,
+    ROWDEF,
   };
   ASTNode(Type t) : mType(t) {}
   virtual ~ASTNode(){}
@@ -184,6 +186,44 @@ public:
 protected:
   Type mType;
   ASTNode* mChild;
+};
+
+class LevelNode : public StmtNode{
+public:
+  LevelNode(const int level, NodeList* levelblock) : StmtNode(LEVELDEF){
+    mLevel = level;
+    mBlock = levelblock;
+  }
+  ~LevelNode(){
+    delete mBlock;
+  }
+  int getLevel() {return mLevel;}
+  NodeList* getBlock() {return mBlock;}
+protected:
+  int mLevel;
+  NodeList* mBlock;
+};
+
+class RowNode : public StmtNode{
+public:
+  RowNode(const int row, const std::string& text, bool visible, NodeList* rowblock) : StmtNode(ROWDEF){
+    mRow = row;
+    mText = text;
+    mVisible = visible;
+    mBlock = rowblock;
+  }
+  ~RowNode(){
+    delete mBlock;
+  }
+  int getRow() {return mRow;}
+  std::string getText() {return mText;}
+  bool isVisible() {return mVisible;}
+  NodeList* getBlock() {return mBlock;}
+protected:
+  int mRow;
+  std::string mText;
+  bool mVisible;
+  NodeList* mBlock;
 };
 
 #endif

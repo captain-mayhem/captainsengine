@@ -22,6 +22,8 @@ stmt returns [StmtNode* stmt]
 	
 nested_stmt returns [StmtNode* stmt]
 	:	cond=conditional {$stmt = cond.cond;}
+	|       lvl=level_stmt {$stmt = lvl.lvl;}
+	|	row=row_stmt {$stmt = row.row;}
 	|	fc=func_call {$stmt = fc.func;}
 	;
 
@@ -38,6 +40,23 @@ event_handler returns [EventNode* evt]
 	{
 		std::string eventname = std::string((char*)$IDENT.text->chars);
 		$evt = new EventNode(eventname, evtblock.nodes);
+	}
+	;
+	
+level_stmt returns [LevelNode* lvl]
+	:	LEVEL LPAREN INT RPAREN lvlblock=block
+	{
+		int level = atoi((char*)$INT.text->chars);
+		$lvl = new LevelNode(level, lvlblock.nodes);
+	}
+	;
+
+row_stmt returns [RowNode* row]	
+	:	ROW LPAREN INT SEMICOLON txt=arg SEMICOLON vis=stdarg RPAREN row_blk=block
+	{
+		int rownum = atoi((char*)$INT.text->chars);
+		bool visible = vis.value->value() == "true" ? true : false;
+		$row = new RowNode(rownum, ((IdentNode*)txt.value)->value(), visible, row_blk.nodes);
 	}
 	;
 	
@@ -140,6 +159,8 @@ INFO_END	:	'#''|';
 ON	:	('O'|'o')('N'|'n');
 IF	:	('I'|'i')('F'|'f')UNDERSCORE;
 IFNOT   :	('I'|'i')('F'|'f')('N'|'n')('O'|'o')('T'|'t')UNDERSCORE;
+LEVEL	:	'l''e''v''e''l';
+ROW	:	'r''o''w';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+'.''0'..'9'+;
 IDENT	:	('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|',')*;

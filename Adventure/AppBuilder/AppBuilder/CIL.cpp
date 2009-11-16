@@ -10,6 +10,10 @@ unsigned CBNEEVT::execute(ExecutionContext& ctx, unsigned pc){
   return pc+mOffset;
 }
 
+unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
+  return ++pc;
+}
+
 unsigned CBE::execute(ExecutionContext& ctx, unsigned pc){
   int second = ctx.stack().pop().getInt();
   int first = ctx.stack().pop().getInt();
