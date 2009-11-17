@@ -11,7 +11,17 @@ unsigned CBNEEVT::execute(ExecutionContext& ctx, unsigned pc){
 }
 
 unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
-  return ++pc;
+  std::map<int,bool>::iterator iter = Engine::instance()->getInterpreter()->tsActive().find(mRow);
+  if (iter == Engine::instance()->getInterpreter()->tsActive().end()){
+    Engine::instance()->getInterpreter()->tsActive()[mRow] = mVisible;
+    iter = Engine::instance()->getInterpreter()->tsActive().find(mRow);
+  }
+  if (!iter->second) //the text is invisible, so skip further processing
+    return pc+mOffset;
+  Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(mText, 1);
+  Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
+  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Engine::instance()->getInterpreter()->tsPos().x, Engine::instance()->getInterpreter()->tsPos().y, mText, 1);
+  return pc+mOffset;
 }
 
 unsigned CBE::execute(ExecutionContext& ctx, unsigned pc){

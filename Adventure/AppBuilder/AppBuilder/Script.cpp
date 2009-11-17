@@ -66,6 +66,7 @@ PcdkScript::~PcdkScript(){
     delete *iter;
   }
   mScripts.clear();
+  delete mCutScene;
 }
 
 ExecutionContext* PcdkScript::parseProgram(std::string program){
@@ -241,7 +242,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         CBNEEVT* cevt = new CBNEEVT(evtcode);
         codes->addCode(cevt);
         ++count;
-        int offset = transform(lvl->getBlock(), codes, START);
+        int offset = transform(lvl->getBlock(), codes, ARGLIST);
         cevt->setOffset(offset+1);
         count += offset;
       }
@@ -249,9 +250,9 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       case ASTNode::ROWDEF:{
         RowNode* row = static_cast<RowNode*>(node);
         CBNEROW* crow = new CBNEROW(row->getRow(), row->getText(), row->isVisible());
-        int offset = transform(row->getBlock(), codes, START);
         codes->addCode(crow);
         ++count;
+        int offset = transform(row->getBlock(), codes, START);
         crow->setOffset(offset+1);
         count += offset;
       }
@@ -313,6 +314,8 @@ void PcdkScript::update(unsigned time){
       break;
   }
   if (mCutScene){
+    mTSPos = mTSPosOrig;
+    mCutScene->setEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
     update(mCutScene, time);
     if (!mCutScene->mSuspended && mCutScene->mExecuteOnce){
       delete mCutScene;
@@ -357,10 +360,13 @@ void PcdkScript::executeImmediately(ExecutionContext* script){
   }
 }
 
-void PcdkScript::executeCutscene(ExecutionContext* script){
+void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
   if (script == NULL)
     return;
-  script->mExecuteOnce = true;
+  if (mCutScene != NULL){
+    delete mCutScene;
+  }
+  script->mExecuteOnce = !looping;
   mCutScene = script;
 }
 
@@ -583,7 +589,7 @@ int PcdkScript::addItem(ExecutionContext& ctx, unsigned numArgs){
 int PcdkScript::cutScene(ExecutionContext& ctx, unsigned numArgs){
   std::string scriptname = ctx.stack().pop().getString();
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scriptname);
-  Engine::instance()->getInterpreter()->executeCutscene(context);
+  Engine::instance()->getInterpreter()->executeCutscene(context, false);
   return 0;
 }
 
@@ -634,7 +640,7 @@ int PcdkScript::lookTo(ExecutionContext& ctx, unsigned numArgs){
 
 int PcdkScript::textScene(ExecutionContext& ctx, unsigned numArgs){
   std::string scenename = ctx.stack().pop().getString();
-  Vec2i pos(0,0);
+  Vec2i pos(0,Engine::instance()->getResolution().y);
   int width = Engine::instance()->getResolution().x;
   if (numArgs > 1){
     //TODO
@@ -642,8 +648,12 @@ int PcdkScript::textScene(ExecutionContext& ctx, unsigned numArgs){
     pos.y = ctx.stack().pop().getInt();
     width = ctx.stack().pop().getInt();
   }
+  Engine::instance()->getInterpreter()->mTSName = scenename;
+  Engine::instance()->getInterpreter()->mTSLevel = 1;
+  Engine::instance()->getInterpreter()->mTSRow = 0;
+  Engine::instance()->getInterpreter()->mTSPosOrig = pos;
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scenename);
-  Engine::instance()->getInterpreter()->executeCutscene(context);
+  Engine::instance()->getInterpreter()->executeCutscene(context, true);
   return 0;
 }
 
@@ -786,14 +796,21 @@ int PcdkScript::restart(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::gotoLevel(ExecutionContext& ctx, unsigned numArgs){
+  int level = ctx.stack().pop().getInt();
+  Engine::instance()->getInterpreter()->mTSLevel = level;
   return 0;
 }
 
 int PcdkScript::deactivate(ExecutionContext& ctx, unsigned numArgs){
+  std::string scene = ctx.stack().pop().getString();
+  int level = ctx.stack().pop().getInt();
+  int row = ctx.stack().pop().getInt();
+  Engine::instance()->getInterpreter()->mTSActive[scene][level][row] = false;
   return 0;
 }
 
 int PcdkScript::endScene(ExecutionContext& ctx, unsigned numArgs){
+  Engine::instance()->getInterpreter()->mCutScene->mExecuteOnce = true;
   return 0;
 }
 
