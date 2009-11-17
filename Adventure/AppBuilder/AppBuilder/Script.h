@@ -24,11 +24,13 @@ public:
   void registerFunction(std::string name, ScriptFunc func);
   void execute(ExecutionContext* script, bool executeOnce);
   void executeImmediately(ExecutionContext* script);
-  void executeCutscene(ExecutionContext* cutscene);
+  void executeCutscene(ExecutionContext* cutscene, bool looping);
   void update(unsigned time);
   void remove(ExecutionContext* script);
   std::map<std::string,StackData>& getVariables() {return mVariables;}
   CBRA* getBranchInstr(RelationalNode* relnode, bool negated);
+  Vec2i& tsPos() {return mTSPos;}
+  std::map<int, bool>& tsActive() {return mTSActive[mTSName][mTSLevel];}
 
   /**
   \param character name of the character to whose inventory the item should be added
@@ -237,6 +239,12 @@ protected:
   std::map<std::string,bool> mBooleans;
   std::map<std::string,StackData> mVariables;
   static bool mRemoveLinkObject;
+  std::string mTSName;
+  int mTSLevel;
+  int mTSRow;
+  Vec2i mTSPosOrig;
+  Vec2i mTSPos;
+  std::map<std::string, std::map<int, std::map<int, bool> > > mTSActive;
 };
 
 #endif
