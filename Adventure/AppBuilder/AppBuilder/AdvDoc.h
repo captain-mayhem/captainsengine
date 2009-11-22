@@ -76,6 +76,15 @@ struct ProjectSettings{
   std::string mainscript;
   std::string anywhere_room;
   int screenchange;
+  int targacolor;
+  int bordercolor;
+  int backgroundcolor;
+  int textcolor;
+  int offtextcolor;
+  int areacolor;
+  int selectioncolor;
+  int textscenetextcolor;
+  int textscenebordercolor;
   std::string linktext;
   std::string givelink;
   std::string walktext;

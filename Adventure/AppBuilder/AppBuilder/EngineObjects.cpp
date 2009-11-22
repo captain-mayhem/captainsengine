@@ -259,6 +259,52 @@ int Object2D::getDepth(){
   return mPos.y/Engine::instance()->getWalkGridSize();
 }
 
+ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, text),
+BaseBlitObject(DEPTH_BUTTON, size){
+  BaseBlitObject::mPos = pos;
+  mBackgroundColor = Engine::instance()->getSettings()->backgroundcolor;
+  mBorderColor = Engine::instance()->getSettings()->bordercolor;
+  CodeSegment* code = new CodeSegment();
+  CBNEEVT* click = new CBNEEVT(EVT_CLICK);
+  code->addCode(click);
+  code->addCode(new CPUSH(id));
+  code->addCode(new CPUSH("#button"));
+  code->addCode(new CCALL(PcdkScript::setNum, 2));
+  click->setOffset(4);
+  mScript = new ExecutionContext(code, false, "");
+}
+
+ButtonObject::~ButtonObject(){
+
+}
+
+void ButtonObject::setColors(const Color& background, const Color& border){
+  mBackgroundColor = background;
+  mBorderColor = border;
+}
+
+void ButtonObject::render(){
+  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mName, DEPTH_UI_FONT, 1);
+  Engine::instance()->insertToBlit(this);
+}
+
+void ButtonObject::blit(){
+  glPushMatrix();
+  glDisable(GL_TEXTURE_2D);
+  glColor4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a);
+  glTranslatef(BaseBlitObject::mPos.x,BaseBlitObject::mPos.y,0.0f);
+  glScalef(BaseBlitObject::mSize.x,BaseBlitObject::mSize.y,1.0f);
+  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  glColor4ub(mBorderColor.r, mBorderColor.g, mBorderColor.b, mBorderColor.a);
+  short indices[] = {
+    2, 3, 1, 0
+  };
+  glDrawElements(GL_LINE_STRIP, 4, GL_UNSIGNED_SHORT, indices);
+  glEnable(GL_TEXTURE_2D);
+  glColor3ub(255,255,255);
+  glPopMatrix();
+}
+
 CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32), "xxx"){
 
 }

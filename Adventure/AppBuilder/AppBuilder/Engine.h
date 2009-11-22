@@ -51,7 +51,8 @@ public:
   void setGiveObject(Object2D* object, const std::string& objectInfo);
   std::string getGiveObjectName() {return mGiveObjectName;}
   ExecutionContext* loadScript(Script::Type type, const std::string& name);
-  //std::string getLinkObjectName() {return mLinkObjectName;}
+  void addUIElement(Object2D* elem);
+  ProjectSettings* getSettings() {return mData->getProjectSettings();}
 protected:
   Engine();
   static Engine* mInstance;
@@ -71,6 +72,7 @@ protected:
   ExecutionContext* mInitScript;
   bool mMainRoomLoaded;
   bool mSubRoomLoaded;
+  std::list<Object2D*> mUI;
   //grid variables
   int mWalkGridSize;
   Vec2i mWalkFields;

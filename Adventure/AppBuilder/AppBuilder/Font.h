@@ -33,7 +33,7 @@ protected:
   public:
     Font(const FontData& data);
     ~Font();
-    String& render(int x, int y, const std::string& text, const Color& color, unsigned displayTime);
+    String& render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime);
     Vec2i getTextExtent(const std::string& text);
     void blit(unsigned interval);
     void removeText(CharacterObject* chr);
@@ -52,7 +52,7 @@ public:
   ~FontRenderer();
   void loadFont(unsigned id);
   void unloadFont(unsigned id);
-  String& render(int x, int y, const std::string& text, int fontid, const Color& col=Color(), unsigned displayTime=0);
+  String& render(int x, int y, const std::string& text, int depth, int fontid, const Color& col=Color(), unsigned displayTime=0);
   Vec2i getTextExtent(const std::string& text, int fontid);
   void prepareBlit(unsigned interval);
   void removeText(CharacterObject* chr);

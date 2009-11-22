@@ -31,6 +31,8 @@ public:
   CBRA* getBranchInstr(RelationalNode* relnode, bool negated);
   Vec2i& tsPos() {return mTSPos;}
   std::map<int, bool>& tsActive() {return mTSActive[mTSName][mTSLevel];}
+  int getTSWidth() {return mTSWidth;}
+  void stop();
 
   /**
   \param character name of the character to whose inventory the item should be added
@@ -244,6 +246,7 @@ protected:
   int mTSRow;
   Vec2i mTSPosOrig;
   Vec2i mTSPos;
+  int mTSWidth;
   std::map<std::string, std::map<int, std::map<int, bool> > > mTSActive;
 };
 

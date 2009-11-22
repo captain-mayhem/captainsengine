@@ -103,8 +103,20 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   mSettings.startscript = str.SubString(14,str.Length());
   mSettings.mainscript = txtstream.ReadLine();
   mSettings.anywhere_room = txtstream.ReadLine();
+  //str = txtstream.ReadLine(); //Screenchange
   //TODO
-  for (int i = 0; i < 32; ++i){
+  for (int i = 0; i < 13; ++i){
+    str = txtstream.ReadLine();
+  }
+  str = txtstream.ReadLine();
+  mSettings.targacolor = atoi(str.substr(13).c_str());
+  str = txtstream.ReadLine();
+  mSettings.bordercolor = atoi(str.substr(14).c_str());
+  str = txtstream.ReadLine();
+  mSettings.backgroundcolor = atoi(str.substr(18).c_str());
+  str = txtstream.ReadLine();
+  mSettings.textcolor = atoi(str.substr(12).c_str());
+  for (int i = 0; i < 15; ++i){
     str = txtstream.ReadLine();
   }
   str = txtstream.ReadLine();

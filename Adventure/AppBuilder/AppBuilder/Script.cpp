@@ -58,15 +58,21 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
   registerFunction("endscene", endScene);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
+  mTSLevel = 1;
 }
 
 PcdkScript::~PcdkScript(){
+  stop();
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
     (*iter)->reset(true);
     delete *iter;
   }
+}
+
+void PcdkScript::stop(){
   mScripts.clear();
   delete mCutScene;
+  mCutScene = NULL;
 }
 
 ExecutionContext* PcdkScript::parseProgram(std::string program){
@@ -403,7 +409,7 @@ int PcdkScript::showInfo(ExecutionContext& ctx, unsigned numArgs){
   if (show){
     Vec2i pos = Engine::instance()->getCursorPos();
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
-    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, text, 1);
+    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, text, DEPTH_GAME_FONT, 1);
   }
   Engine::instance()->setObjectString(text);
   return 0;
@@ -458,7 +464,7 @@ int PcdkScript::speech(ExecutionContext& ctx, unsigned numArgs){
     Vec2i pos = chr->getOverheadPos();
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID());
     str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-      chr->getFontID(), chr->getTextColor(), 3000);
+      DEPTH_GAME_FONT, chr->getFontID(), chr->getTextColor(), 3000);
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr);
     str->setSpeaker(chr);
@@ -652,6 +658,7 @@ int PcdkScript::textScene(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getInterpreter()->mTSLevel = 1;
   Engine::instance()->getInterpreter()->mTSRow = 0;
   Engine::instance()->getInterpreter()->mTSPosOrig = pos;
+  Engine::instance()->getInterpreter()->mTSWidth = width;
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scenename);
   Engine::instance()->getInterpreter()->executeCutscene(context, true);
   return 0;
@@ -772,7 +779,7 @@ int PcdkScript::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   FontRenderer::String* str = NULL;
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
   str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    1, Color(), 3000);
+    DEPTH_GAME_FONT, 1, Color(), 3000);
   if (sound != "") //TODO
     DebugBreak();
   if (hold && str){
