@@ -99,7 +99,7 @@ FontRenderer::Font::~Font(){
   mRenderQueue.clear();
 }
 
-FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string& text, const Color& color, unsigned displayTime){
+FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime){
   String* str = new String(Vec2i(x,y), displayTime);
   int xoffset = 0;
   for (unsigned i = 0; i < text.size(); ++i){
@@ -110,7 +110,7 @@ FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string
     int rownum = charnum/mNumChars.x;
     charnum %= mNumChars.x;
     BlitObject* obj = new FontBlitObject(mImages[texnum], mImages[texnum], 
-      mFontsize, mScale, DEPTH_FONT, Vec2i(xoffset,0), Vec2f(charnum, rownum), color);
+      mFontsize, mScale, depth, Vec2i(xoffset,0), Vec2f(charnum, rownum), color);
     str->append(obj);
     xoffset += chardeviation;
   }
@@ -179,8 +179,8 @@ void FontRenderer::unloadFont(unsigned id){
   mFonts[id] = NULL;
 }
 
-FontRenderer::String& FontRenderer::render(int x, int y, const std::string& text, int fontid, const Color& color, unsigned displayTime){
-  return mFonts[fontid]->render(x, y, text, color, displayTime);
+FontRenderer::String& FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const Color& color, unsigned displayTime){
+  return mFonts[fontid]->render(x, y, text, depth, color, displayTime);
 }
 
 Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid){

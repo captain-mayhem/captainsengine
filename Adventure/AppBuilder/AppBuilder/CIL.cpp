@@ -20,7 +20,14 @@ unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
     return pc+mOffset;
   Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(mText, 1);
   Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
-  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Engine::instance()->getInterpreter()->tsPos().x, Engine::instance()->getInterpreter()->tsPos().y, mText, 1);
+  Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);
+  ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos(), butsize, mText, mRow);
+  Engine::instance()->addUIElement(but);
+  int chosenRow = Engine::instance()->getInterpreter()->getVariables()["#button"].getInt();
+  if (chosenRow == mRow){
+    Engine::instance()->getInterpreter()->getVariables()["#button"] = 0;
+    return ++pc;
+  }
   return pc+mOffset;
 }
 

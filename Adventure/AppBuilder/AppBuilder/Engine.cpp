@@ -77,6 +77,7 @@ void Engine::exitGame(){
   if (!mInitialized)
     return;
   mInitialized = false;
+  mInterpreter->stop();
   delete mInitScript;
   mAnimator->clear();
   for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
@@ -87,6 +88,10 @@ void Engine::exitGame(){
     delete *iter;
   }
   mRooms.clear();
+  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
+    delete (*iter);
+  }
+  mUI.clear();
   mMainRoomLoaded = false;
   delete mCursor;
   delete mFocussedChar;
@@ -185,6 +190,13 @@ void Engine::render(){
     mRooms.back()->walkTo(pos);
   }
 
+  //ui update
+  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
+    mInterpreter->executeImmediately((*iter)->getScript());
+    delete (*iter);
+  }
+  mUI.clear();
+
   mInterpreter->update(interval);
 
   //can't all
@@ -220,6 +232,9 @@ void Engine::render(){
   if (mFocussedChar)
     mFocussedChar->render();
   mCursor->render();
+  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
+    (*iter)->render();
+  }
 
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
@@ -237,7 +252,7 @@ void Engine::render(){
     mObjectInfo.clear();
   }
   Vec2i offset = mFonts->getTextExtent(text, 1);
-  mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, 1);
+  mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1);
 
   mFonts->prepareBlit(interval);
 
@@ -571,6 +586,11 @@ float Engine::distance(const Vec2i& x, const Vec2i& y){
 }
 
 Object2D* Engine::getObjectAt(const Vec2i& pos){
+  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
+    if ((*iter)->isHit(pos)){
+      return (*iter);
+    }
+  }
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     Object2D* ret = (*iter)->getObjectAt(pos);
     if (ret != NULL)
@@ -693,4 +713,9 @@ ExecutionContext* Engine::loadScript(Script::Type type, const std::string& name)
   Script* scr = mData->getScript(type, name);
   ExecutionContext* ctx = mInterpreter->parseProgram(scr->text);
   return ctx;
+}
+
+void Engine::addUIElement(Object2D* elem){
+  mUI.push_back(elem);
+  //mInterpreter->execute(elem->getScript(), false);
 }

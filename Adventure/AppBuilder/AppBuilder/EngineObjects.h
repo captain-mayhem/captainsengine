@@ -155,6 +155,18 @@ protected:
   std::string mName;
 };
 
+class ButtonObject : public Object2D, public BaseBlitObject{
+public:
+  ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id);
+  ~ButtonObject();
+  virtual void render();
+  virtual void blit();
+  void setColors(const Color& background, const Color& border);
+protected:
+  Color mBackgroundColor;
+  Color mBorderColor;
+};
+
 class CursorObject : public Object2D{
 public:
   CursorObject(const Vec2i& pos);
