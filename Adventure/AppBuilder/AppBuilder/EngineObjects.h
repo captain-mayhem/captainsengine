@@ -184,6 +184,7 @@ public:
   RoomObject(const Vec2i& size, const std::string& name);
   ~RoomObject();
   void setBackground(std::string bg, int depth);
+  void setParallaxBackground(const std::string& bg, int depth);
   void setWalkmap(const std::vector<std::vector<WMField> >& map){mWalkmap = map;}
   void addObject(Object2D* obj);
   virtual void render();
@@ -207,6 +208,7 @@ protected:
   LightingBlitObject* mLighting;
   std::map<Vec2i,ExecutionContext*> mWalkmapScripts;
   InventoryDisplay* mInventroy;
+  Animation* mParallaxBackground;
 };
 
 class CharacterObject : public Object2D, public AnimationEndHandler{

@@ -57,6 +57,8 @@ row_stmt returns [RowNode* row]
 		int rownum = atoi((char*)$INT.text->chars);
 		bool visible = vis.value->value() == "true" ? true : false;
 		$row = new RowNode(rownum, ((IdentNode*)txt.value)->value(), visible, row_blk.nodes);
+		delete txt.value;
+		delete vis.value;
 	}
 	;
 	

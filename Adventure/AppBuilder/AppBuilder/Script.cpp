@@ -15,7 +15,7 @@ CodeSegment::~CodeSegment(){
 
 bool PcdkScript::mRemoveLinkObject = false;
 
-PcdkScript::PcdkScript(AdvDocument* data) : mData(data) {
+PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
   registerFunction("loadroom", loadRoom);
   registerFunction("setfocus", setFocus);
   registerFunction("showinfo", showInfo);
@@ -71,6 +71,7 @@ PcdkScript::~PcdkScript(){
 
 void PcdkScript::stop(){
   mScripts.clear();
+  mGlobalSuspend = false;
   delete mCutScene;
   mCutScene = NULL;
 }
@@ -311,21 +312,28 @@ void PcdkScript::registerFunction(std::string name, ScriptFunc func){
 }
 
 void PcdkScript::update(unsigned time){
-  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
-    update(*iter, time);
-    if ((*iter)->mExecuteOnce){
-      iter = mScripts.erase(iter);
+  if (!mGlobalSuspend){
+    for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+      update(*iter, time);
+      if ((*iter)->mExecuteOnce){
+        iter = mScripts.erase(iter);
+      }
+      if (iter == mScripts.end())
+        break;
     }
-    if (iter == mScripts.end())
-      break;
   }
   if (mCutScene){
     mTSPos = mTSPosOrig;
     mCutScene->setEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
     update(mCutScene, time);
     if (!mCutScene->mSuspended && mCutScene->mExecuteOnce){
+      mGlobalSuspend = false;
       delete mCutScene;
       mCutScene = NULL;
+    }
+    if (mTSPos == mTSPosOrig && mCutScene && !mCutScene->mSuspended){
+      //no viable alternatives found (or no textscene)
+      mTSLevel = 1;
     }
   }
 }
@@ -594,6 +602,7 @@ int PcdkScript::addItem(ExecutionContext& ctx, unsigned numArgs){
 
 int PcdkScript::cutScene(ExecutionContext& ctx, unsigned numArgs){
   std::string scriptname = ctx.stack().pop().getString();
+  Engine::instance()->getInterpreter()->mGlobalSuspend = true;
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scriptname);
   Engine::instance()->getInterpreter()->executeCutscene(context, false);
   return 0;
@@ -659,6 +668,7 @@ int PcdkScript::textScene(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getInterpreter()->mTSRow = 0;
   Engine::instance()->getInterpreter()->mTSPosOrig = pos;
   Engine::instance()->getInterpreter()->mTSWidth = width;
+  Engine::instance()->getInterpreter()->mGlobalSuspend = true;
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scenename);
   Engine::instance()->getInterpreter()->executeCutscene(context, true);
   return 0;

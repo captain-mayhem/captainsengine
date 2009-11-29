@@ -285,6 +285,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
       depthoffset += 1000;
   }
   RoomObject* roomobj = new RoomObject(room->size, name);
+  roomobj->setParallaxBackground(room->parallaxbackground, depthoffset-2);
   roomobj->setBackground(room->background, depthoffset-1);
   roomobj->setLightingColor(save->lighting);
   roomobj->setWalkmap(room->walkmap);

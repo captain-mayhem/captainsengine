@@ -116,7 +116,20 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   mSettings.backgroundcolor = atoi(str.substr(18).c_str());
   str = txtstream.ReadLine();
   mSettings.textcolor = atoi(str.substr(12).c_str());
-  for (int i = 0; i < 15; ++i){
+  str = txtstream.ReadLine(); //offtextcolor
+  str = txtstream.ReadLine(); //unknown
+  assert(str == "1");
+  str = txtstream.ReadLine(); //unknown
+  assert(str == "1");
+  str = txtstream.ReadLine();
+  mSettings.tsbordercolor = atoi(str.c_str());
+  str = txtstream.ReadLine();
+  mSettings.tsareacolor = atoi(str.c_str());
+  str = txtstream.ReadLine();
+  mSettings.tsselectioncolor = atoi(str.c_str());
+  str = txtstream.ReadLine();
+  mSettings.tstextcolor = atoi(str.c_str());
+  for (int i = 0; i < 8; ++i){
     str = txtstream.ReadLine();
   }
   str = txtstream.ReadLine();
