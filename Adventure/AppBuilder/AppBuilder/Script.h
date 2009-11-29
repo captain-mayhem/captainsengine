@@ -248,6 +248,7 @@ protected:
   Vec2i mTSPos;
   int mTSWidth;
   std::map<std::string, std::map<int, std::map<int, bool> > > mTSActive;
+  bool mGlobalSuspend;
 };
 
 #endif

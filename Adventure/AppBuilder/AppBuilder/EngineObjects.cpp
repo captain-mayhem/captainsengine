@@ -262,8 +262,8 @@ int Object2D::getDepth(){
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, text),
 BaseBlitObject(DEPTH_BUTTON, size){
   BaseBlitObject::mPos = pos;
-  mBackgroundColor = Engine::instance()->getSettings()->backgroundcolor;
-  mBorderColor = Engine::instance()->getSettings()->bordercolor;
+  mBackgroundColor = Engine::instance()->getSettings()->tsareacolor;
+  mBorderColor = Engine::instance()->getSettings()->tsbordercolor;
   CodeSegment* code = new CodeSegment();
   CBNEEVT* click = new CBNEEVT(EVT_CLICK);
   code->addCode(click);
@@ -331,6 +331,7 @@ int CursorObject::getNextCommand(){
 RoomObject::RoomObject(const Vec2i& size, const std::string& name) : 
 Object2D(1, Vec2i(0,0), size, name), mInventroy(NULL){
   mLighting = new LightingBlitObject(1000, size);
+  mParallaxBackground = NULL;
 }
 
 RoomObject::~RoomObject(){
@@ -342,9 +343,12 @@ RoomObject::~RoomObject(){
     Engine::instance()->getInterpreter()->remove(iter->second);
   }
   delete mInventroy;
+  delete mParallaxBackground;
 }
 
 void RoomObject::render(){
+  if (mParallaxBackground)
+    mParallaxBackground->render(Vec2i(), false);
   Object2D::render();
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->render();
@@ -363,6 +367,14 @@ void RoomObject::setBackground(std::string bg, int depth){
   f.push_back(bg);
   Animation* anim = new Animation(f, 2.5f, Vec2i(0,0), depth);
   addAnimation(anim);
+}
+
+void RoomObject::setParallaxBackground(const std::string& bg, int depth){
+  if (bg.empty())
+    return;
+  Frames f;
+  f.push_back(bg);
+  mParallaxBackground = new Animation(f, 2.5f, Vec2i(), depth);
 }
 
 void RoomObject::addObject(Object2D* obj){

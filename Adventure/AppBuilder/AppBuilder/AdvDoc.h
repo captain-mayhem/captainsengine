@@ -81,10 +81,10 @@ struct ProjectSettings{
   int backgroundcolor;
   int textcolor;
   int offtextcolor;
-  int areacolor;
-  int selectioncolor;
-  int textscenetextcolor;
-  int textscenebordercolor;
+  int tsareacolor;
+  int tsselectioncolor;
+  int tstextcolor;
+  int tsbordercolor;
   std::string linktext;
   std::string givelink;
   std::string walktext;
