@@ -87,6 +87,12 @@ public:
   **/
   static int gotoLevel(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param object name of the object instance
+  \param state state of the object
+  \param ... [opt] additional states TODO
+  **/
+  static int instObj(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param name name of the object to link
   **/
   static int link(ExecutionContext& ctx, unsigned numArgs);

@@ -161,10 +161,12 @@ public:
   ~ButtonObject();
   virtual void render();
   virtual void blit();
-  void setColors(const Color& background, const Color& border);
+  void setColors(const Color& background, const Color& border, const Color& highlight);
 protected:
+  std::string mText;
   Color mBackgroundColor;
   Color mBorderColor;
+  Color mHighlightColor;
 };
 
 class CursorObject : public Object2D{

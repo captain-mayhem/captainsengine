@@ -193,6 +193,8 @@ void Engine::render(){
   //ui update
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
     mInterpreter->executeImmediately((*iter)->getScript());
+  }
+  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
     delete (*iter);
   }
   mUI.clear();
@@ -617,6 +619,10 @@ Object2D* Engine::getObject(const std::string& name, bool searchInventoryFirst){
     Object2D* ret = mFocussedChar->getInventory()->getItem(name);
     if (ret != NULL)
       return ret;
+  }
+  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
+    if ((*iter)->getName() == name)
+      return *iter;
   }
   return NULL;
 }

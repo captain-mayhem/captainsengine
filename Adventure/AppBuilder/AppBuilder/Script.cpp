@@ -56,6 +56,7 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
   registerFunction("gotolevel", gotoLevel);
   registerFunction("deactivate", deactivate);
   registerFunction("endscene", endScene);
+  registerFunction("instobj", instObj);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
   mTSLevel = 1;
@@ -828,6 +829,20 @@ int PcdkScript::deactivate(ExecutionContext& ctx, unsigned numArgs){
 
 int PcdkScript::endScene(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getInterpreter()->mCutScene->mExecuteOnce = true;
+  return 0;
+}
+
+int PcdkScript::instObj(ExecutionContext& ctx, unsigned numArgs){
+  std::string objname = ctx.stack().pop().getString();
+  int state = ctx.stack().pop().getInt();
+  for (unsigned i = 2; i < numArgs; ++i){
+    DebugBreak(); //TODO state lists
+    state = ctx.stack().pop().getInt();
+  }
+  Object2D* obj = Engine::instance()->getObject(objname, false);
+  if (obj){
+    obj->setState(state);
+  }
   return 0;
 }
 
