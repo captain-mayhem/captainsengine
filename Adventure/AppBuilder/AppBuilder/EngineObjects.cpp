@@ -259,11 +259,19 @@ int Object2D::getDepth(){
   return mPos.y/Engine::instance()->getWalkGridSize();
 }
 
-ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, text),
-BaseBlitObject(DEPTH_BUTTON, size){
+ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "#button"),
+BaseBlitObject(DEPTH_BUTTON, size), mText(text){
+  char tmp[16];
+  sprintf(tmp, "%i", id);
+  mName += tmp;
+  mState = Engine::instance()->getInterpreter()->getVariables()[mName].getInt();
+  if (mState == 0)
+    mState = 1;
+  Engine::instance()->getInterpreter()->getVariables()[mName] = 1;
   BaseBlitObject::mPos = pos;
   mBackgroundColor = Engine::instance()->getSettings()->tsareacolor;
   mBorderColor = Engine::instance()->getSettings()->tsbordercolor;
+  mHighlightColor = Engine::instance()->getSettings()->tsselectioncolor;
   CodeSegment* code = new CodeSegment();
   CBNEEVT* click = new CBNEEVT(EVT_CLICK);
   code->addCode(click);
@@ -271,27 +279,37 @@ BaseBlitObject(DEPTH_BUTTON, size){
   code->addCode(new CPUSH("#button"));
   code->addCode(new CCALL(PcdkScript::setNum, 2));
   click->setOffset(4);
+  CBNEEVT* mouse = new CBNEEVT(EVT_MOUSE);
   mScript = new ExecutionContext(code, false, "");
+  code->addCode(mouse);
+  code->addCode(new CPUSH(2));
+  code->addCode(new CPUSH(mName));
+  code->addCode(new CCALL(PcdkScript::setNum, 2));
+  mouse->setOffset(4);
 }
 
 ButtonObject::~ButtonObject(){
 
 }
 
-void ButtonObject::setColors(const Color& background, const Color& border){
+void ButtonObject::setColors(const Color& background, const Color& border, const Color& highlight){
   mBackgroundColor = background;
   mBorderColor = border;
+  mHighlightColor = highlight;
 }
 
 void ButtonObject::render(){
-  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mName, DEPTH_UI_FONT, 1);
+  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, 1);
   Engine::instance()->insertToBlit(this);
 }
 
 void ButtonObject::blit(){
   glPushMatrix();
   glDisable(GL_TEXTURE_2D);
-  glColor4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a);
+  if (mState == 1)
+    glColor4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a);
+  else if (mState == 2)
+    glColor4ub(mHighlightColor.r, mHighlightColor.g, mHighlightColor.b, mHighlightColor.a);
   glTranslatef(BaseBlitObject::mPos.x,BaseBlitObject::mPos.y,0.0f);
   glScalef(BaseBlitObject::mSize.x,BaseBlitObject::mSize.y,1.0f);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
