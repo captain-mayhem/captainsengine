@@ -57,6 +57,9 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
   registerFunction("deactivate", deactivate);
   registerFunction("endscene", endScene);
   registerFunction("instobj", instObj);
+  registerFunction("command", command);
+  registerFunction("inv_down", invDown);
+  registerFunction("inv_up", invUp);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
   mTSLevel = 1;
@@ -327,8 +330,9 @@ void PcdkScript::update(unsigned time){
     mTSPos = mTSPosOrig;
     mCutScene->setEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
     update(mCutScene, time);
-    if (!mCutScene->mSuspended && mCutScene->mExecuteOnce){
+    if (mCutScene && !mCutScene->mSuspended && mCutScene->mExecuteOnce){
       mGlobalSuspend = false;
+      Engine::instance()->setCommand(mPrevActiveCommand, false);
       delete mCutScene;
       mCutScene = NULL;
     }
@@ -378,11 +382,18 @@ void PcdkScript::executeImmediately(ExecutionContext* script){
 void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
   if (script == NULL)
     return;
+  mGlobalSuspend = true;
   if (mCutScene != NULL){
+    Engine::instance()->setCommand(mPrevActiveCommand, false);
     delete mCutScene;
   }
   script->mExecuteOnce = !looping;
   mCutScene = script;
+  mPrevActiveCommand = Engine::instance()->getActiveCommand();
+  if (looping)
+    Engine::instance()->setCommand("walkto", false);
+  else
+    Engine::instance()->setCommand("none", false);
 }
 
 void PcdkScript::remove(ExecutionContext* script){
@@ -669,7 +680,6 @@ int PcdkScript::textScene(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getInterpreter()->mTSRow = 0;
   Engine::instance()->getInterpreter()->mTSPosOrig = pos;
   Engine::instance()->getInterpreter()->mTSWidth = width;
-  Engine::instance()->getInterpreter()->mGlobalSuspend = true;
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scenename);
   Engine::instance()->getInterpreter()->executeCutscene(context, true);
   return 0;
@@ -845,6 +855,21 @@ int PcdkScript::instObj(ExecutionContext& ctx, unsigned numArgs){
   }
   return 0;
 }
+
+int PcdkScript::command(ExecutionContext& ctx, unsigned numArgs){
+  std::string cmd = ctx.stack().pop().getString();
+  Engine::instance()->setCommand(cmd, true);
+  return 0;
+}
+
+int PcdkScript::invDown(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int PcdkScript::invUp(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
 
 int PcdkScript::dummy(ExecutionContext& ctx, unsigned numArgs){
   for (unsigned i = 0; i < numArgs; ++i){

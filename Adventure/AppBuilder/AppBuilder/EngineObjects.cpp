@@ -346,6 +346,15 @@ int CursorObject::getNextCommand(){
   return mCommands[mState-1];
 }
 
+void CursorObject::setCommand(int command){
+  for (unsigned i = 0; i < mCommands.size(); ++i){
+    if (mCommands[i] == command){
+      mState = i+1;
+      break;
+    }
+  }
+}
+
 RoomObject::RoomObject(const Vec2i& size, const std::string& name) : 
 Object2D(1, Vec2i(0,0), size, name), mInventroy(NULL){
   mLighting = new LightingBlitObject(1000, size);

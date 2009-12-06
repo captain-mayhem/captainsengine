@@ -53,6 +53,8 @@ public:
   ExecutionContext* loadScript(Script::Type type, const std::string& name);
   void addUIElement(Object2D* elem);
   ProjectSettings* getSettings() {return mData->getProjectSettings();}
+  void setCommand(const std::string& command, bool deleteLinks);
+  std::string getActiveCommand();
 protected:
   Engine();
   static Engine* mInstance;

@@ -76,6 +76,9 @@ struct ProjectSettings{
   std::string mainscript;
   std::string anywhere_room;
   int screenchange;
+  int taskheight;
+  std::string taskroom;
+  int taskpopup;
   int targacolor;
   int bordercolor;
   int backgroundcolor;

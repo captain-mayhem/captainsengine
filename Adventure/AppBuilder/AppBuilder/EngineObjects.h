@@ -175,6 +175,7 @@ public:
   ~CursorObject();
   void addAnimation(Animation* anim, int command);
   int getNextCommand();
+  void setCommand(int command);
 protected:
   std::vector<int> mCommands;
 };
