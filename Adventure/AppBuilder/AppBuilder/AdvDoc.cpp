@@ -105,7 +105,16 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   mSettings.anywhere_room = txtstream.ReadLine();
   //str = txtstream.ReadLine(); //Screenchange
   //TODO
-  for (int i = 0; i < 13; ++i){
+  for (int i = 0; i < 5; ++i){
+    str = txtstream.ReadLine();
+  }
+  str = txtstream.ReadLine();
+  mSettings.taskheight = atoi(str.substr(13).c_str());
+  str = txtstream.ReadLine();
+  mSettings.taskroom = str.substr(11).c_str();
+  str = txtstream.ReadLine();
+  mSettings.taskpopup = atoi(str.substr(12).c_str());
+  for (int i = 0; i < 5; ++i){
     str = txtstream.ReadLine();
   }
   str = txtstream.ReadLine();
@@ -151,8 +160,8 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
     }
     if (str == "Commands :"){
       mSettings.pretty_commands.push_back(mSettings.walktext);
-      mSettings.pretty_commands.push_back("Loading");
       mSettings.commands["walkto"] = (unsigned)mSettings.pretty_commands.size()-1;
+      mSettings.pretty_commands.push_back("Loading");
       mSettings.commands["loading"] = (unsigned)mSettings.pretty_commands.size()-1;
       str = txtstream.ReadLine();
       while (str != "Mediapool :"){

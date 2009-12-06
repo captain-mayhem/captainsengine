@@ -33,6 +33,7 @@ public:
   std::map<int, bool>& tsActive() {return mTSActive[mTSName][mTSLevel];}
   int getTSWidth() {return mTSWidth;}
   void stop();
+  bool isBlockingScriptRunning() {return mGlobalSuspend;}
 
   /**
   \param character name of the character to whose inventory the item should be added
@@ -50,6 +51,10 @@ public:
   \param dir [opt] look direction
   **/
   static int beamTo(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param command name of the command to set
+  **/
+  static int command(ExecutionContext& ctx, unsigned numArgs);
   /**
     \param cutscene name of the cutscene to start
     \param donthide [opt] leaves anywhere-objects and user panel there
@@ -92,6 +97,14 @@ public:
   \param ... [opt] additional states TODO
   **/
   static int instObj(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param number scrolls the inventory number steps down
+  **/
+  static int invDown(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param number scrolls the inventory number steps up
+  **/
+  static int invUp(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param name name of the object to link
   **/
@@ -255,6 +268,7 @@ protected:
   int mTSWidth;
   std::map<std::string, std::map<int, std::map<int, bool> > > mTSActive;
   bool mGlobalSuspend;
+  std::string mPrevActiveCommand;
 };
 
 #endif

@@ -57,6 +57,10 @@ void Engine::initGame(){
   mFonts->loadFont(0);
   mFonts->loadFont(1);
   mActiveCommand = 0;
+  //load taskbar room
+  /*if (mData->getProjectSettings()->taskroom != ""){
+    loadRoom(mData->getProjectSettings()->taskroom, true);
+  }*/
   //load anywhere room
   if (mData->getProjectSettings()->anywhere_room != ""){
     loadRoom(mData->getProjectSettings()->anywhere_room, true);
@@ -230,6 +234,8 @@ void Engine::render(){
   //build blit queue
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
     (*iter)->render();
+    if (mInterpreter->isBlockingScriptRunning())
+      break;
   }
   if (mFocussedChar)
     mFocussedChar->render();
@@ -454,7 +460,7 @@ void Engine::leftClick(const Vec2i& pos){
       Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
     }
   }
-  else if (mFocussedChar && !mSubRoomLoaded){
+  else if (mFocussedChar && !mSubRoomLoaded && !mInterpreter->isBlockingScriptRunning()){
     Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
   }
 }
@@ -725,4 +731,31 @@ ExecutionContext* Engine::loadScript(Script::Type type, const std::string& name)
 void Engine::addUIElement(Object2D* elem){
   mUI.push_back(elem);
   //mInterpreter->execute(elem->getScript(), false);
+}
+
+void Engine::setCommand(const std::string& command, bool deleteLinks){
+  if (command == "none"){
+    int cmd = mData->getProjectSettings()->commands["walkto"];
+    mActiveCommand = cmd;
+    mCursor->setState(0);
+  }
+  else{
+    int cmd = mData->getProjectSettings()->commands[command];
+    mActiveCommand = cmd;
+    mCursor->setCommand(cmd);
+  }
+  if (deleteLinks){
+    mUseObjectName = "";
+    mGiveObjectName = "";
+    mLinkObjectInfo = "";
+  }
+}
+
+std::string Engine::getActiveCommand(){
+  for (std::map<std::string, unsigned int>::iterator iter = mData->getProjectSettings()->commands.begin();
+    iter != mData->getProjectSettings()->commands.end(); ++iter){
+      if (iter->second == mActiveCommand)
+        return iter->first;
+  }
+  return "";
 }

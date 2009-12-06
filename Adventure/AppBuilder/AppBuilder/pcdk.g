@@ -28,17 +28,17 @@ nested_stmt returns [StmtNode* stmt]
 	;
 
 func_call returns [FuncCallNode* func]
-	:	IDENT LPAREN args=arg_list RPAREN 
+	:	id=ident LPAREN args=arg_list RPAREN 
 	{
-		std::string fname = std::string((char*)$IDENT.text->chars);
+		std::string fname = id.id->value(); delete id.id;
 		$func = new FuncCallNode(fname,args.nodes);
 	}
 ;
 	
 event_handler returns [EventNode* evt]
-	:	ON LPAREN IDENT RPAREN evtblock=block
+	:	ON LPAREN id=ident RPAREN evtblock=block
 	{
-		std::string eventname = std::string((char*)$IDENT.text->chars);
+		std::string eventname = id.id->value(); delete id.id;
 		$evt = new EventNode(eventname, evtblock.nodes);
 	}
 	;
@@ -68,9 +68,9 @@ conditional returns [CondNode* cond]
 		| 
 		IFNOT {$cond = new CondNode(true);}
 		) 
-		IDENT LPAREN args=arg_list RPAREN ifblock=block
+		id=ident LPAREN args=arg_list RPAREN ifblock=block
 	{
-		$cond->setCondition(std::string((char*)$IDENT.text->chars));
+		$cond->setCondition(id.id->value()); delete id.id;
 		$cond->setCondArgs(args.nodes);
 		$cond->setIfBlock(ifblock.nodes);
 	}
@@ -113,7 +113,7 @@ arg_header
 
 stdarg returns [IdentNode* value]
 	:
-	IDENT {$value = new IdentNode(""); $value->append((char*)$IDENT.text->chars);}
+	id=ident {$value = id.id;}
 	| ON {$value = new IdentNode(""); $value->append((char*)$ON.text->chars);}
 	| IF {$value = new IdentNode(""); $value->append((char*)$IF.text->chars);}
 ;
@@ -137,9 +137,16 @@ expr returns [ASTNode* exp]
 variable returns [ASTNode* var]
 	:
 	LBRACKET
-	IDENT {$var = new VariableNode((char*)$IDENT.text->chars);}
+	id=ident {$var = new VariableNode(id.id->value());}
 	RBRACKET
 ;
+
+ident returns [IdentNode* id]	
+	:	
+	IDENT_PART {$id = new IdentNode((char*)$IDENT_PART.text->chars);}
+	(UNDERSCORE secid=ident {$id->append("_"); $id->append(secid.id->value().c_str()); delete secid.id;}
+	)?
+	;
 
 
 LPAREN	:	'(';
@@ -165,7 +172,8 @@ LEVEL	:	'l''e''v''e''l';
 ROW	:	'r''o''w';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+'.''0'..'9'+;
-IDENT	:	('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|',')*;
+IDENT_PART	:	('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|',')*;
+//IDENT	:	IDENT_PART;// (UNDERSCORE IDENT_PART)*;
 /*STRING	:*/	/*WS*('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|WS)*//*('a'..'z'|'A'..'Z'|'0'..'9'|WS)**/
 	/*|	WS+('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9')*WS('a'..'z'|'A'..'Z'|'0'..'9'|WS)*	*/
 	//;
