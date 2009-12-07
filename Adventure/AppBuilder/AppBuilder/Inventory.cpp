@@ -60,7 +60,7 @@ InventoryDisplay::~InventoryDisplay(){
 
 void InventoryDisplay::render(Inventory* inv){
   Inventory::SingleInv tmp = inv->mInventory[1];
-  Vec2i pos = mPos;
+  Vec2i pos = mPos+Vec2i(16,16);
   int count = 0;
   int invitemwidth = 100;
   int invitemheight = 70;

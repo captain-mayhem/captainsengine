@@ -75,14 +75,16 @@ void LightingBlitObject::render(const Vec2i& pos){
 
 void LightingBlitObject::blit(){
   glDisable(GL_TEXTURE_2D);
-  glEnable(GL_BLEND);
+  //glEnable(GL_BLEND);
+  glBlendFunc(GL_DST_COLOR, GL_ZERO);
   glPushMatrix();
   glTranslatef(mPos.x,mPos.y,0.0f);
   glScalef(mSize.x,mSize.y,1.0f);
   glColor4ub(mColor.r, mColor.g, mColor.b, mColor.a);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   glColor4ub(255, 255, 255, 255);
-  glDisable(GL_BLEND);
+  //glDisable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glPopMatrix();
   glEnable(GL_TEXTURE_2D);
 }
@@ -505,6 +507,16 @@ void RoomObject::save(){
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->save();
   }
+}
+
+void RoomObject::setPosition(const Vec2i& pos){
+  Vec2i move = pos - mPos;
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    (*iter)->setPosition((*iter)->getPosition()+move);
+  }
+  mPos += move;
+  if (mInventroy)
+    mInventroy->setPosition(mInventroy->getPosition()+move);
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 

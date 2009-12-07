@@ -58,9 +58,10 @@ void Engine::initGame(){
   mFonts->loadFont(1);
   mActiveCommand = 0;
   //load taskbar room
-  /*if (mData->getProjectSettings()->taskroom != ""){
+  if (mData->getProjectSettings()->taskroom != ""){
     loadRoom(mData->getProjectSettings()->taskroom, true);
-  }*/
+    mRooms.front()->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
+  }
   //load anywhere room
   if (mData->getProjectSettings()->anywhere_room != ""){
     loadRoom(mData->getProjectSettings()->anywhere_room, true);
@@ -316,7 +317,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     else if (room->objects[i].layer == 1)
       depth = room->objects[i].wm_depth-1;
     else
-      depth = 999;
+      depth = 990;
     for (unsigned j = 0; j < o->states.size(); ++j){
       Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth+depthoffset);
       object->addAnimation(anim);

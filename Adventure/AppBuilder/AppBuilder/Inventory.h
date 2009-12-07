@@ -29,6 +29,8 @@ public:
   ~InventoryDisplay();
   void render(Inventory* inv);
   Object2D* getObjectAt(const Vec2i& pos, Inventory* inv);
+  void setPosition(const Vec2i& pos) {mPos = pos;}
+  Vec2i getPosition() {return mPos;}
 protected:
   Vec2i mPos;
   Vec2i mSize;

@@ -204,7 +204,8 @@ public:
   void walkTo(const Vec2i& pos);
   virtual void save();
   InventoryDisplay* getInventory() {return mInventroy;}
-  void setInventory(InventoryDisplay* disp) {mInventroy = disp;} 
+  void setInventory(InventoryDisplay* disp) {mInventroy = disp;}
+  virtual void setPosition(const Vec2i& pos);
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;
