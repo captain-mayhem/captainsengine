@@ -20,6 +20,11 @@ struct Vec2i{
     result.y = v.y+y;
     return result;
   }
+  Vec2i& operator+=(const Vec2i& v){
+    x += v.x;
+    y += v.y;
+    return *this;
+  }
   Vec2i operator-(const Vec2i& v) const{
     Vec2i result;
     result.x = x-v.x;

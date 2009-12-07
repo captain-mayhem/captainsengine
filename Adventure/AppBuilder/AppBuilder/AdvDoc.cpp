@@ -525,6 +525,18 @@ wxImage AdvDocument::getImage(wxString name){
     wxFSFile* file = mStream->OpenFile(path);
     wxImage image(*file->GetStream());
     delete file;
+    if (filename.GetExt() == "pnj"){
+      path[path.length()-1] = 'a';
+      wxFSFile* alphafile = mStream->OpenFile(path);
+      wxImage alphaimage(*alphafile->GetStream());
+      delete alphafile;
+      int size = alphaimage.GetWidth()*alphaimage.GetHeight();
+      unsigned char* alphadata = (unsigned char*)malloc(size);
+      for (int i = 0; i < size; ++i){
+        alphadata[i] = alphaimage.GetData()[3*i];
+      }
+      image.SetAlpha(alphadata);
+    }
     return image;
   }
   return wxImage(filename.GetFullPath());

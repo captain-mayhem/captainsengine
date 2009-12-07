@@ -137,7 +137,7 @@ expr returns [ASTNode* exp]
 variable returns [ASTNode* var]
 	:
 	LBRACKET
-	id=ident {$var = new VariableNode(id.id->value());}
+	id=ident {$var = new VariableNode(id.id->value()); delete id.id;}
 	RBRACKET
 ;
 
