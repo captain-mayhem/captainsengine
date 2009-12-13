@@ -76,9 +76,9 @@ wxInputStream& AdvDocument::LoadObject(wxInputStream& stream){
 bool AdvDocument::loadFile1(wxInputStream& stream){
   wxTextInputStream txtstream(stream);
   wxString str = txtstream.ReadLine();
-  if (str != "3.2 Point&Click Project File. DO NOT MODIFY!!"){
+  /*if (str != "3.2 Point&Click Project File. DO NOT MODIFY!!"){
     return false;
-  }
+  }*/
   str = txtstream.ReadLine();
   mSettings.dir = txtstream.ReadLine();
   str = txtstream.ReadLine();
@@ -127,9 +127,9 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   mSettings.textcolor = atoi(str.substr(12).c_str());
   str = txtstream.ReadLine(); //offtextcolor
   str = txtstream.ReadLine(); //unknown
-  assert(str == "1");
+  mSettings.tsstyle = atoi(str.c_str());
   str = txtstream.ReadLine(); //unknown
-  assert(str == "1");
+  mSettings.tsborderstyle = atoi(str.c_str());
   str = txtstream.ReadLine();
   mSettings.tsbordercolor = atoi(str.c_str());
   str = txtstream.ReadLine();
@@ -233,7 +233,9 @@ int AdvDocument::insertTreeElement(wxTreeCtrl* tree, const wxString& name, wxTre
 bool AdvDocument::loadFile2(wxInputStream& stream){
   wxTextInputStream txtstream(stream);
   wxString str = txtstream.ReadLine();
-  if (str != "3.2 Point&Click Project File. DO NOT MODIFY!!"){
+  int ver_major = atoi(str.substr(0, 1).c_str());
+  int ver_minor = atoi(str.substr(2, 1).c_str());
+  if (str.substr(4) != "Point&Click Project File. DO NOT MODIFY!!"){
     return false;
   }
   txtstream.ReadLine();
@@ -274,12 +276,18 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
     if (type == "Item"){
       Item it;
       it.name = name;
-      for (int state = 0; state < STATES_MAX; ++state){
+      int numStates = STATES_MAX;
+      int delim = 2;
+      if (ver_major == 2){
+        numStates = 1;
+        delim = 1;
+      }
+      for (int state = 0; state < numStates; ++state){
         ItemState is;
         for (int frames = 0; frames < FRAMES_MAX; ++frames){
           str = txtstream.ReadLine();
           if (str != ";" && str.Length() > 0){
-            is.frames.push_back(std::string(str.SubString(0,str.Length()-2).c_str()));
+            is.frames.push_back(std::string(str.SubString(0,str.Length()-delim).c_str()));
           }
         }
         str = txtstream.ReadLine();
@@ -303,7 +311,6 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       str = txtstream.ReadLine();
       str.ToLong(&val1);
       obj.lighten = (val1 != 0);
-      //assert(obj.lighten == false);
       for (int state = 0; state < STATES_MAX; ++state){
         ObjectState os;
         os.fps = readExtendedFrames(txtstream, os.frames);
@@ -354,9 +361,8 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
       rc.position = Vec2i(val1,val2);
       str = txtstream.ReadLine(); str.ToLong(&val1); rc.dir = (LookDir)(val1-1);
-      str = txtstream.ReadLine(); str.ToLong(&val1); rc.unknown = val1;
-      assert(rc.unknown == -1);
       str = txtstream.ReadLine(); str.ToLong(&val1); rc.unmovable = (val1 != 0);
+      str = txtstream.ReadLine(); str.ToLong(&val1); rc.locked = (val1 != 0);
       mRoomCharacters.push_back(rc);
     }
     // ROOM
@@ -462,9 +468,9 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
 bool AdvDocument::loadFile3(wxInputStream& stream){
   wxTextInputStream txtstream(stream);
   wxString str = txtstream.ReadLine();
-  if (str != "3.2 Point&Click Project File. DO NOT MODIFY!!"){
+  /*if (str != "3.2 Point&Click Project File. DO NOT MODIFY!!"){
     return false;
-  }
+  }*/
   txtstream.ReadLine();
   mLastScript = NULL;
   while(!stream.Eof()){

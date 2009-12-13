@@ -60,7 +60,14 @@ void Engine::initGame(){
   //load taskbar room
   if (mData->getProjectSettings()->taskroom != ""){
     loadRoom(mData->getProjectSettings()->taskroom, true);
-    mRooms.front()->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
+    mTaskbar = mRooms.front();
+    if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)
+      mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
+    else
+      mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y));
+  }
+  else{
+    mTaskbar = NULL;
   }
   //load anywhere room
   if (mData->getProjectSettings()->anywhere_room != ""){
@@ -93,10 +100,7 @@ void Engine::exitGame(){
     delete *iter;
   }
   mRooms.clear();
-  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-    delete (*iter);
-  }
-  mUI.clear();
+  clearGui();
   mMainRoomLoaded = false;
   delete mCursor;
   delete mFocussedChar;
@@ -199,10 +203,7 @@ void Engine::render(){
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
     mInterpreter->executeImmediately((*iter)->getScript());
   }
-  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-    delete (*iter);
-  }
-  mUI.clear();
+  clearGui();
 
   mInterpreter->update(interval);
 
@@ -259,6 +260,10 @@ void Engine::render(){
   if (!mObjectInfo.empty()){
     text += " "+mObjectInfo;
     mObjectInfo.clear();
+  }
+  //elevate the action line
+  if (mTaskbar && !mInterpreter->isBlockingScriptRunning()){
+    res.y = mTaskbar->getPosition().y;
   }
   Vec2i offset = mFonts->getTextExtent(text, 1);
   mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1);
@@ -326,8 +331,10 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     Script* script = mData->getScript(Script::OBJECT,room->objects[i].object+";"+name);
     if (script){
       ExecutionContext* scr = mInterpreter->parseProgram(script->text);
-      object->setScript(scr);
-      mInterpreter->execute(scr, false);
+      if (scr){
+        object->setScript(scr);
+        mInterpreter->execute(scr, false);
+      }
     }
     roomobj->addObject(object);
   }
@@ -436,6 +443,29 @@ void Engine::insertToBlit(BaseBlitObject* obj){
 
 void Engine::setCursorPos(Vec2i pos){
   mCursor->setPosition(pos);
+  //triggered scrolling
+  if (mTaskbar && pos.y < mData->getProjectSettings()->resolution.y - mData->getProjectSettings()->taskheight - 16){
+    if (mData->getProjectSettings()->taskpopup == TB_SCROLLING){
+      //mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y));
+      std::list<Vec2i> target;
+      target.push_back(Vec2i(0,mData->getProjectSettings()->resolution.y));
+      mAnimator->add(mTaskbar, target, 10);
+    }
+    if (mData->getProjectSettings()->taskpopup == TB_DIRECT){
+      mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y));
+    }
+  }
+  if (mTaskbar && pos.y > mData->getProjectSettings()->resolution.y - 16){
+    if (mData->getProjectSettings()->taskpopup == TB_SCROLLING){
+      //mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
+      std::list<Vec2i> target;
+      target.push_back(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
+      mAnimator->add(mTaskbar, target, 10);
+    }
+    if (mData->getProjectSettings()->taskpopup == TB_DIRECT){
+      mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
+    }
+  }
 }
 
 Vec2i Engine::getCursorPos(){
@@ -759,4 +789,19 @@ std::string Engine::getActiveCommand(){
         return iter->first;
   }
   return "";
+}
+
+void Engine::clearGui(){
+  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
+    delete (*iter);
+  }
+  mUI.clear();
+}
+
+RoomObject* Engine::getContainingRoom(Object2D* object){
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    if ((*iter)->containsObject(object))
+      return *iter;
+  }
+  return NULL;
 }

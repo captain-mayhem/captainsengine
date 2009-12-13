@@ -60,6 +60,7 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
   registerFunction("command", command);
   registerFunction("inv_down", invDown);
   registerFunction("inv_up", invUp);
+  registerFunction("if_focus", isCharFocussed);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
   mTSLevel = 1;
@@ -67,10 +68,6 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
 
 PcdkScript::~PcdkScript(){
   stop();
-  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
-    (*iter)->reset(true);
-    delete *iter;
-  }
 }
 
 void PcdkScript::stop(){
@@ -78,6 +75,12 @@ void PcdkScript::stop(){
   mGlobalSuspend = false;
   delete mCutScene;
   mCutScene = NULL;
+  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+    (*iter)->reset(true);
+    delete *iter;
+  }
+  mScripts.clear();
+  mPrevState.clear();
 }
 
 ExecutionContext* PcdkScript::parseProgram(std::string program){
@@ -303,7 +306,7 @@ CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
 
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
-mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0){
+mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0), mOwner(NULL){
 
 }
 
@@ -316,6 +319,9 @@ void PcdkScript::registerFunction(std::string name, ScriptFunc func){
 }
 
 void PcdkScript::update(unsigned time){
+  for (std::list<std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
+    iter->first->setState(iter->second);
+  }
   if (!mGlobalSuspend){
     for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
       update(*iter, time);
@@ -372,7 +378,7 @@ void PcdkScript::executeImmediately(ExecutionContext* script){
     code = script->mCode->get(script->mPC);
   }
   //script ran through
-  if (!script->mSuspended && script->mPC >= script->mCode->numInstructions()){
+  if (!script->mSuspended && script->mCode && script->mPC >= script->mCode->numInstructions()){
     if (script->mHandler)
       script->mHandler(*script);
     script->reset(false);
@@ -394,6 +400,16 @@ void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
     Engine::instance()->setCommand("walkto", false);
   else
     Engine::instance()->setCommand("none", false);
+}
+
+void PcdkScript::remove(Object2D* object){
+  for (std::list<std::pair<Object2D*, int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
+    if (iter->first == object){
+      iter = mPrevState.erase(iter);
+      break;
+    }
+  }
+  remove(object->getScript());
 }
 
 void PcdkScript::remove(ExecutionContext* script){
@@ -766,6 +782,9 @@ int PcdkScript::giveLink(ExecutionContext& ctx, unsigned numArgs){
     std::string objectname = ctx.stack().pop().getString();
     obj = Engine::instance()->getObject(objectname, true);
   }
+  else{
+    obj = ctx.mOwner;
+  }
   Engine::instance()->setGiveObject(obj, ctx.mObjectInfo);
   mRemoveLinkObject = false;
   return 0;
@@ -839,6 +858,7 @@ int PcdkScript::deactivate(ExecutionContext& ctx, unsigned numArgs){
 
 int PcdkScript::endScene(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getInterpreter()->mCutScene->mExecuteOnce = true;
+  Engine::instance()->clearGui();
   return 0;
 }
 
@@ -851,6 +871,7 @@ int PcdkScript::instObj(ExecutionContext& ctx, unsigned numArgs){
   }
   Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
+    Engine::instance()->getInterpreter()->mPrevState.push_back(std::make_pair(obj, obj->getState()));
     obj->setState(state);
   }
   return 0;
@@ -863,10 +884,16 @@ int PcdkScript::command(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int PcdkScript::invDown(ExecutionContext& ctx, unsigned numArgs){
+  int move = ctx.stack().pop().getInt();
+  RoomObject* room = Engine::instance()->getContainingRoom(ctx.mOwner);
+  room->getInventory()->addScrollOffset(move);
   return 0;
 }
 
 int PcdkScript::invUp(ExecutionContext& ctx, unsigned numArgs){
+  int move = ctx.stack().pop().getInt();
+  RoomObject* room = Engine::instance()->getContainingRoom(ctx.mOwner);
+  room->getInventory()->addScrollOffset(-move);
   return 0;
 }
 
@@ -934,6 +961,17 @@ int PcdkScript::isNumEqual(ExecutionContext& ctx, unsigned numArgs){
   int saved = Engine::instance()->getInterpreter()->mVariables[varname].getInt();
   ctx.stack().push(saved);
   ctx.stack().push(test);
+  return 2;
+}
+
+int PcdkScript::isCharFocussed(ExecutionContext& ctx, unsigned numArgs){
+  std::string name = ctx.stack().pop().getString();
+  ctx.stack().push(0);
+  CharacterObject* chr = Engine::instance()->getCharacter("self");
+  if (chr && chr->getName() == name)
+    ctx.stack().push(0);
+  else
+    ctx.stack().push(1);
   return 2;
 }
 
