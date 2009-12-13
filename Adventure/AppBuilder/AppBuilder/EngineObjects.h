@@ -133,7 +133,7 @@ public:
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
   Animation* getAnimation();
   bool isHit(const Vec2i& point);
-  void setScript(ExecutionContext* script) {mScript = script;}
+  void setScript(ExecutionContext* script) {mScript = script; script->setOwner(this);}
   ExecutionContext* getScript() {return mScript;}
   void setSuspensionScript(ExecutionContext* script);
   int getState() {return mState;}
@@ -206,6 +206,7 @@ public:
   InventoryDisplay* getInventory() {return mInventroy;}
   void setInventory(InventoryDisplay* disp) {mInventroy = disp;}
   virtual void setPosition(const Vec2i& pos);
+  bool containsObject(Object2D* object);
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;

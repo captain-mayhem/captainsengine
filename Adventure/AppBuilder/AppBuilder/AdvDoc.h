@@ -89,6 +89,8 @@ struct ProjectSettings{
   int backgroundcolor;
   int textcolor;
   int offtextcolor;
+  int tsstyle;
+  int tsborderstyle;
   int tsareacolor;
   int tsselectioncolor;
   int tstextcolor;
@@ -173,6 +175,7 @@ struct Rcharacter{
   LookDir dir;
   int unknown;
   bool unmovable;
+  bool locked;
 };
 
 struct FXShape{

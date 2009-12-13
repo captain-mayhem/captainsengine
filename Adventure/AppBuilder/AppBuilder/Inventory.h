@@ -29,12 +29,14 @@ public:
   ~InventoryDisplay();
   void render(Inventory* inv);
   Object2D* getObjectAt(const Vec2i& pos, Inventory* inv);
-  void setPosition(const Vec2i& pos) {mPos = pos;}
-  Vec2i getPosition() {return mPos;}
+  void setPosition(const Vec2i& pos);
+  Vec2i getPosition();
+  void addScrollOffset(int offset);
 protected:
   Vec2i mPos;
   Vec2i mSize;
   Vec2f mScale;
+  int mItemOffset;
 };
 
 #endif

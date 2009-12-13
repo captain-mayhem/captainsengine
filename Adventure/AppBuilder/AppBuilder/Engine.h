@@ -55,6 +55,8 @@ public:
   ProjectSettings* getSettings() {return mData->getProjectSettings();}
   void setCommand(const std::string& command, bool deleteLinks);
   std::string getActiveCommand();
+  void clearGui();
+  RoomObject* getContainingRoom(Object2D* object);
 protected:
   Engine();
   static Engine* mInstance;
@@ -75,6 +77,7 @@ protected:
   bool mMainRoomLoaded;
   bool mSubRoomLoaded;
   std::list<Object2D*> mUI;
+  RoomObject* mTaskbar;
   //grid variables
   int mWalkGridSize;
   Vec2i mWalkFields;

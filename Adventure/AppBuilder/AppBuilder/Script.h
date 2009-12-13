@@ -11,6 +11,8 @@
 
 #include "CIL.h"
 
+class Object2D;
+
 class PcdkScript{
 public:
   enum TrMode{
@@ -26,6 +28,7 @@ public:
   void executeImmediately(ExecutionContext* script);
   void executeCutscene(ExecutionContext* cutscene, bool looping);
   void update(unsigned time);
+  void remove(Object2D* object);
   void remove(ExecutionContext* script);
   std::map<std::string,StackData>& getVariables() {return mVariables;}
   CBRA* getBranchInstr(RelationalNode* relnode, bool negated);
@@ -235,6 +238,7 @@ public:
   static int dummy(ExecutionContext& ctx, unsigned numArgs);
 
   static int isBoolEqual(ExecutionContext& ctx, unsigned numArgs);
+  static int isCharFocussed(ExecutionContext& cxt, unsigned numArgs);
   static int isCommandSet(ExecutionContext& ctx, unsigned numArgs);
   static int isObjectInState(ExecutionContext& ctx, unsigned numArgs);
   static int isLinkedObject(ExecutionContext& ctx, unsigned numArgs);
@@ -269,6 +273,7 @@ protected:
   std::map<std::string, std::map<int, std::map<int, bool> > > mTSActive;
   bool mGlobalSuspend;
   std::string mPrevActiveCommand;
+  std::list<std::pair<Object2D*, int> > mPrevState;
 };
 
 #endif

@@ -31,6 +31,12 @@ enum WindowIds{
 #define DEPTH_UI_FONT 19875
 #define DEPTH_CURSOR 20000
 
+enum TaskPopup{
+  TB_STATIC = 0,
+  TB_DIRECT,
+  TB_SCROLLING
+};
+
 /* parallax scolling
 //speed
 var speed0:Number = 130;//higher = slower

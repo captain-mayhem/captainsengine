@@ -50,7 +50,7 @@ void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
 ////////////////////////////////////////////
 
 InventoryDisplay::InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale)
-: mPos(pos), mSize(size), mScale(scale){
+: mPos(pos+Vec2i(16,16)), mSize(size), mScale(scale), mItemOffset(0){
 
 }
 
@@ -60,11 +60,16 @@ InventoryDisplay::~InventoryDisplay(){
 
 void InventoryDisplay::render(Inventory* inv){
   Inventory::SingleInv tmp = inv->mInventory[1];
-  Vec2i pos = mPos+Vec2i(16,16);
+  Vec2i pos = mPos;
+  int precount = 0;
   int count = 0;
-  int invitemwidth = 100;
-  int invitemheight = 70;
+  int invitemwidth = 64;
+  int invitemheight = 48;
   for (std::list<Object2D*>::iterator iter = tmp.begin(); iter != tmp.end(); ++iter){
+    if (precount < mItemOffset){
+      ++precount;
+      continue;
+    }
     (*iter)->setPosition(pos);
     (*iter)->render();
     ++count;
@@ -85,4 +90,18 @@ Object2D* InventoryDisplay::getObjectAt(const Vec2i& pos, Inventory* inv){
       return (*iter);
   }
   return NULL;
+}
+
+void InventoryDisplay::setPosition(const Vec2i& pos){
+  mPos = pos+Vec2i(16,16);
+}
+
+Vec2i InventoryDisplay::getPosition(){
+  return mPos-Vec2i(16,16);
+}
+
+void InventoryDisplay::addScrollOffset(int offset){
+  mItemOffset += offset;
+  if (mItemOffset < 0)
+    mItemOffset = 0;
 }

@@ -207,7 +207,7 @@ Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::st
 
 Object2D::~Object2D(){
   Engine::instance()->getAnimator()->remove(this);
-  Engine::instance()->getInterpreter()->remove(mScript);
+  Engine::instance()->getInterpreter()->remove(this);
   for (unsigned i = 0; i < mAnimations.size(); ++i){
     delete mAnimations[i];
   }
@@ -517,6 +517,14 @@ void RoomObject::setPosition(const Vec2i& pos){
   mPos += move;
   if (mInventroy)
     mInventroy->setPosition(mInventroy->getPosition()+move);
+}
+
+bool RoomObject::containsObject(Object2D* object){
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    if ((*iter) == object)
+      return true;
+  }
+  return false;
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 

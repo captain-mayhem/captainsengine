@@ -4,6 +4,7 @@
 #include <set>
 
 class CCode;
+class Object2D;
 
 enum EngineEvent{
   EVT_USER_RANGE=0x50,
@@ -32,7 +33,7 @@ public:
     mCodes.push_back(code);
   }
   CCode* get(unsigned pc){
-    if (pc < mCodes.size())
+    if (this && pc < mCodes.size())
       return mCodes[pc];
     return NULL;
   }
@@ -101,6 +102,7 @@ public:
   void suspend() {mSuspended = true;}
   void resume() {mSuspended = false;}
   void reset(bool clearEvents);
+  void setOwner(Object2D* owner) {mOwner = owner;}
 protected:
   CodeSegment* mCode;
   bool mIsGameObject;
@@ -112,6 +114,7 @@ protected:
   StepEndHandler mHandler;
   bool mSuspended;
   int mSleepTime;
+  Object2D* mOwner;
 };
 
 

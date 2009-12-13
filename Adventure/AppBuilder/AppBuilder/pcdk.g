@@ -130,8 +130,8 @@ rel_expr returns [ASTNode* exp]
 
 expr returns [ASTNode* exp]
 	: var=variable {$exp = var.var;}
-	| INT  {$exp = new IntNode(atoi((char*)$INT.text->chars));}
 	| REAL {$exp = new RealNode((float)atof((char*)$REAL.text->chars));}
+	| INT  {$exp = new IntNode(atoi((char*)$INT.text->chars));}
 ;
 
 variable returns [ASTNode* var]
@@ -171,7 +171,7 @@ IFNOT   :	('I'|'i')('F'|'f')('N'|'n')('O'|'o')('T'|'t')UNDERSCORE;
 LEVEL	:	'l''e''v''e''l';
 ROW	:	'r''o''w';
 INT	:	'0'..'9'+;
-REAL:	'0'..'9'+'.''0'..'9'+;
+REAL:	'0'..'9'+('.'|',')'0'..'9'+;
 IDENT_PART	:	('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|',')*;
 //IDENT	:	IDENT_PART;// (UNDERSCORE IDENT_PART)*;
 /*STRING	:*/	/*WS*('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|WS)*//*('a'..'z'|'A'..'Z'|'0'..'9'|WS)**/
