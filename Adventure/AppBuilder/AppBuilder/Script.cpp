@@ -61,6 +61,8 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
   registerFunction("inv_down", invDown);
   registerFunction("inv_up", invUp);
   registerFunction("if_focus", isCharFocussed);
+  registerFunction("setfont", setFont);
+  registerFunction("setscreenchange", setScreenchange);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
   mTSLevel = 1;
@@ -567,11 +569,12 @@ int PcdkScript::setBool(ExecutionContext& ctx, unsigned numArgs){
 int PcdkScript::setObj(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   int state = ctx.stack().pop().getInt();
-  for (unsigned i = 2; i < numArgs; ++i){
-    DebugBreak(); //TODO state lists
-    state = ctx.stack().pop().getInt();
-  }
   Object2D* obj = Engine::instance()->getObject(objname, false);
+  for (unsigned i = 2; i < numArgs; ++i){
+    state = ctx.stack().pop().getInt();
+    if (obj)
+      obj->addNextState(state);
+  }
   if (obj){
     obj->setState(state);
   }
@@ -894,6 +897,27 @@ int PcdkScript::invUp(ExecutionContext& ctx, unsigned numArgs){
   int move = ctx.stack().pop().getInt();
   RoomObject* room = Engine::instance()->getContainingRoom(ctx.mOwner);
   room->getInventory()->addScrollOffset(-move);
+  return 0;
+}
+
+int PcdkScript::setFont(ExecutionContext& ctx, unsigned numArgs){
+  int fontid = ctx.stack().pop().getInt();
+  if (numArgs >= 2){
+    CharacterObject* chr = Engine::instance()->getCharacter(ctx.stack().pop().getString());
+  }
+  return 0;
+}
+
+int PcdkScript::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
+  StackData data = ctx.stack().pop();
+  int screenchange = 0;
+  if (data.getString().size() > 1){
+    //TODO
+    DebugBreak();
+  }
+  else{
+    screenchange = data.getInt();
+  }
   return 0;
 }
 

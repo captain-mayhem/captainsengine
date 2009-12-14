@@ -261,6 +261,13 @@ int Object2D::getDepth(){
   return mPos.y/Engine::instance()->getWalkGridSize();
 }
 
+void Object2D::triggerNextState(){
+  if (mNextStates.empty())
+    return;
+  mState = mNextStates.front();
+  mNextStates.pop_front();
+}
+
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "#button"),
 BaseBlitObject(DEPTH_BUTTON, size), mText(text){
   char tmp[16];
@@ -379,7 +386,7 @@ void RoomObject::render(){
   if (mParallaxBackground)
     mParallaxBackground->render(Vec2i(), false);
   Object2D::render();
-  for (unsigned i = 0; i < mObjects.size(); ++i){
+  for (int i = mObjects.size()-1; i >= 0; --i){
     mObjects[i]->render();
   }
   CharacterObject* currChar = Engine::instance()->getCharacter("self");

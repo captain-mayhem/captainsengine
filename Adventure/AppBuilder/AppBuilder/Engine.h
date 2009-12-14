@@ -57,6 +57,7 @@ public:
   std::string getActiveCommand();
   void clearGui();
   RoomObject* getContainingRoom(Object2D* object);
+  CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className);
 protected:
   Engine();
   static Engine* mInstance;
@@ -73,7 +74,6 @@ protected:
   CharacterObject* mFocussedChar;
   std::string mLastFocussedChar;
   std::string mLastFocussedCharRoom;
-  ExecutionContext* mInitScript;
   bool mMainRoomLoaded;
   bool mSubRoomLoaded;
   std::list<Object2D*> mUI;

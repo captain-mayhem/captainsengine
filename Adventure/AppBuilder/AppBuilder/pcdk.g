@@ -130,7 +130,7 @@ rel_expr returns [ASTNode* exp]
 
 expr returns [ASTNode* exp]
 	: var=variable {$exp = var.var;}
-	| REAL {$exp = new RealNode((float)atof((char*)$REAL.text->chars));}
+	| REAL {char tmp[64]; strcpy(tmp, (char*)$REAL.text->chars); char* tst = strchr(tmp, ','); if (tst != NULL) *tst = '.'; $exp = new RealNode((float)atof(tmp));}
 	| INT  {$exp = new IntNode(atoi((char*)$INT.text->chars));}
 ;
 
