@@ -74,11 +74,10 @@ void Engine::initGame(){
     loadRoom(mData->getProjectSettings()->anywhere_room, true);
   }
   //load and execute start script
-  mInitScript = NULL;
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
-    mInitScript = mInterpreter->parseProgram(startScript->text);
-    mInterpreter->execute(mInitScript, true);
+    ExecutionContext* initScript = mInterpreter->parseProgram(startScript->text);
+    mInterpreter->executeCutscene(initScript, false);
   }
   mUseObjectName = "";
   mGiveObjectName = "";
@@ -90,7 +89,6 @@ void Engine::exitGame(){
     return;
   mInitialized = false;
   mInterpreter->stop();
-  delete mInitScript;
   mAnimator->clear();
   for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
     delete *iter;
@@ -347,30 +345,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
         break;
       }
     }
-    Character* chbase = mData->getCharacter(ch.character);
-    CharacterObject* character = new CharacterObject(iter->second->base.state, iter->second->base.position, iter->first);
-    character->setMirrored(iter->second->mirrored);
-    character->setFontID(chbase->fontid+1);
-    character->setTextColor(chbase->textcolor);
-    for (unsigned j = 0; j < chbase->states.size(); ++j){
-      int depth = (iter->second->base.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
-      Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
-      character->addAnimation(anim);
-      character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
-    }
-    Script* script = mData->getScript(Script::CHARACTER,iter->first);
-    if (script){
-      ExecutionContext* scr = mInterpreter->parseProgram(script->text);
-      character->setScript(scr);
-      mInterpreter->execute(scr, false);
-    }
-    for (std::map<int,std::vector<std::string> >::iterator inviter = iter->second->inventory.items.begin();
-      inviter != iter->second->inventory.items.end(); ++inviter){
-      for (unsigned i = 0; i < inviter->second.size(); ++i){
-        Object2D* item = createItem(inviter->second[i]);
-        character->getInventory()->addItem(item, inviter->first);
-      }
-    }
+    CharacterObject* character = loadCharacter(ch.name, ch.character);
     roomobj->addObject(character);
   };
   //load room script
@@ -521,10 +496,12 @@ bool Engine::setFocus(std::string charname){
     mFocussedChar = res;
     return true;
   }
-  if (mLastFocussedCharRoom != mRooms.back()->getName()){
+  if (!mLastFocussedCharRoom.empty() && mLastFocussedCharRoom != mRooms.back()->getName()){
     loadRoom(mLastFocussedCharRoom, false);
     return setFocus(mLastFocussedChar);
   }
+  //load character
+  mFocussedChar = loadCharacter(charname, charname);
   return false;
 }
 
@@ -804,4 +781,33 @@ RoomObject* Engine::getContainingRoom(Object2D* object){
       return *iter;
   }
   return NULL;
+}
+
+CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className){
+  SaveStateProvider::CharSaveObject* obj = mSaver->getOrAddCharacter(instanceName);
+  Character* chbase = mData->getCharacter(className);
+  CharacterObject* character = new CharacterObject(obj->base.state, obj->base.position, instanceName);
+  character->setMirrored(obj->mirrored);
+  character->setFontID(chbase->fontid+1);
+  character->setTextColor(chbase->textcolor);
+  for (unsigned j = 0; j < chbase->states.size(); ++j){
+    int depth = (obj->base.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
+    Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
+    character->addAnimation(anim);
+    character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
+  }
+  Script* script = mData->getScript(Script::CHARACTER,instanceName);
+  if (script){
+    ExecutionContext* scr = mInterpreter->parseProgram(script->text);
+    character->setScript(scr);
+    mInterpreter->execute(scr, false);
+  }
+  for (std::map<int,std::vector<std::string> >::iterator inviter = obj->inventory.items.begin();
+    inviter != obj->inventory.items.end(); ++inviter){
+      for (unsigned i = 0; i < inviter->second.size(); ++i){
+        Object2D* item = createItem(inviter->second[i]);
+        character->getInventory()->addItem(item, inviter->first);
+      }
+  }
+  return character;
 }

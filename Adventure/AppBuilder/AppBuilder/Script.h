@@ -163,9 +163,14 @@ public:
   static int setBool(ExecutionContext& ctx, unsigned numArgs);
   /**
     \param character name of the character to focus
-           special values none/last TODO
+           special values none/last
   **/
   static int setFocus(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param number number of the font to activate
+  \param character [opt] set the font for a character
+  **/
+  static int setFont(ExecutionContext& ctx, unsigned numArgs);
   /**
     \param room name of the room
     \param r red-component
@@ -180,6 +185,10 @@ public:
     \param ... [opt] additional states TODO
   **/
   static int setObj(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param change changes style of room changes
+  **/
+  static int setScreenchange(ExecutionContext& ctx, unsigned numArgs);
   /**
     \param text information about the object
     \param show boolean if the text should be displayed on the mouse cursor

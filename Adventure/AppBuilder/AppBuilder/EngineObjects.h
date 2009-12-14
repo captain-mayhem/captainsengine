@@ -144,6 +144,8 @@ public:
   Vec2i getScrollOffset() {return mScrollOffset;}
   virtual void save();
   int getDepth();
+  void addNextState(int state) {mNextStates.push_back(state);}
+  void triggerNextState();
 protected:
   int mState;
   Vec2i mPos;
@@ -153,6 +155,7 @@ protected:
   ExecutionContext* mScript;
   ExecutionContext* mSuspensionScript;
   std::string mName;
+  std::list<int> mNextStates;
 };
 
 class ButtonObject : public Object2D, public BaseBlitObject{

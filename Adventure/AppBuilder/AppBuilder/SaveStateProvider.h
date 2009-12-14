@@ -6,6 +6,7 @@
 class SaveStateProvider{
 public:
   struct SaveObject{
+    SaveObject() : position(-1000,-1000), state(1) {}
     Vec2i position;
     int state;
   };
@@ -13,6 +14,7 @@ public:
     std::map<int, std::vector<std::string> > items;
   };
   struct CharSaveObject{
+    CharSaveObject() : mirrored(false) {}
     SaveObject base;
     bool mirrored;
     SaveInventory inventory;
