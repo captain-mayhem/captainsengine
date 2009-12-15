@@ -18,6 +18,7 @@ public:
     RELATIONAL,
     LEVELDEF,
     ROWDEF,
+    TIMERFUNC,
   };
   ASTNode(Type t) : mType(t) {}
   virtual ~ASTNode(){}
@@ -224,6 +225,17 @@ protected:
   std::string mText;
   bool mVisible;
   NodeList* mBlock;
+};
+
+class TimerNode : public StmtNode{
+public:
+  TimerNode(float time, NodeList* exec) : StmtNode(TIMERFUNC), mTime(time), mExec(exec) {}
+  ~TimerNode(){
+    delete mExec;
+  }
+protected:
+  float mTime;
+  NodeList* mExec;
 };
 
 #endif

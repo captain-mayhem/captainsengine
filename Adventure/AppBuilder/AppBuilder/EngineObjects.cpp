@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "SaveStateProvider.h"
 #include "Inventory.h"
+#include "ScriptFunc.h"
 
 BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) : 
 mPos(), mSize(size), mDepth(depth){
@@ -192,8 +193,8 @@ void Animation::update(unsigned interval){
     ++mCurrFrame;
     if (mCurrFrame >= mBlits.size()){
       if (mHandler){
-        mHandler->animationEnded(this);
-        mHandler = NULL;
+        if (mHandler->animationEnded(this))
+          mHandler = NULL;
       }
       mCurrFrame = 0;
     }
@@ -261,7 +262,12 @@ int Object2D::getDepth(){
   return mPos.y/Engine::instance()->getWalkGridSize();
 }
 
-void Object2D::triggerNextState(){
+bool Object2D::animationEnded(Animation* anim){
+  activateNextState();
+  return mNextStates.empty();
+}
+
+void Object2D::activateNextState(){
   if (mNextStates.empty())
     return;
   mState = mNextStates.front();
@@ -286,14 +292,14 @@ BaseBlitObject(DEPTH_BUTTON, size), mText(text){
   code->addCode(click);
   code->addCode(new CPUSH(id));
   code->addCode(new CPUSH("#button"));
-  code->addCode(new CCALL(PcdkScript::setNum, 2));
+  code->addCode(new CCALL(ScriptFunctions::setNum, 2));
   click->setOffset(4);
   CBNEEVT* mouse = new CBNEEVT(EVT_MOUSE);
   mScript = new ExecutionContext(code, false, "");
   code->addCode(mouse);
   code->addCode(new CPUSH(2));
   code->addCode(new CPUSH(mName));
-  code->addCode(new CCALL(PcdkScript::setNum, 2));
+  code->addCode(new CCALL(ScriptFunctions::setNum, 2));
   mouse->setOffset(4);
 }
 
@@ -355,10 +361,19 @@ int CursorObject::getNextCommand(){
   return mCommands[mState-1];
 }
 
+int CursorObject::getCurrentCommand(){
+  if (mState == 0)
+    return 0;
+  return mCommands[mState-1];
+}
+
 void CursorObject::setCommand(int command){
   for (unsigned i = 0; i < mCommands.size(); ++i){
     if (mCommands[i] == command){
       mState = i+1;
+      if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){
+        mState = 1;
+      }
       break;
     }
   }
@@ -536,7 +551,7 @@ bool RoomObject::containsObject(Object2D* object){
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
-mFontID(0), mNextState(-1)
+mFontID(0)
 {
   mInventory = new Inventory();
 }
@@ -595,11 +610,6 @@ void CharacterObject::animationEnd(const Vec2i& prev){
   Object2D::animationEnd(prev);
 }
 
-void CharacterObject::animationEnded(Animation* anim){
-  mState = mNextState;
-  mNextState = -1;
-}
-
 void CharacterObject::setLookDir(LookDir dir){
   bool walking = isWalking();
   bool talking = isTalking();
@@ -653,12 +663,6 @@ void CharacterObject::render(){
 
 Vec2i CharacterObject::getOverheadPos(){
   return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, 0);
-}
-
-void CharacterObject::activateNextState(){
-  if (mNextState != -1)
-    mState = mNextState;
-  mNextState = -1;
 }
 
 int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk){
