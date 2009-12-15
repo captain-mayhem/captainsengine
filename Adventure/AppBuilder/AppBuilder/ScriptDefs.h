@@ -21,7 +21,8 @@ enum EngineEvent{
   EVT_GIVE_LINK=EVT_CANT_ALL+1,
   EVT_ENTER=EVT_GIVE_LINK+1,
   EVT_EXIT=EVT_ENTER+1,
-  EVT_LOOP2=EVT_EXIT+1,
+  EVT_LOOP1=EVT_EXIT+1,
+  EVT_LOOP2=EVT_LOOP1+1,
   EVT_LEVEL=EVT_LOOP2+1,
 };
 
@@ -88,6 +89,7 @@ typedef void (*StepEndHandler) (ExecutionContext& ctx);
 
 class ExecutionContext{
   friend class PcdkScript;
+  friend class ScriptFunctions;
 public:
   ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo);
   ~ExecutionContext();

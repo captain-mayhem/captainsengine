@@ -82,6 +82,9 @@ void Engine::initGame(){
   mUseObjectName = "";
   mGiveObjectName = "";
   mInitialized = true;
+  for (int i = 0; i < 10; ++i){
+    mTimeIntervals.push_back(50);
+  }
 }
 
 void Engine::exitGame(){
@@ -468,6 +471,13 @@ void Engine::leftClick(const Vec2i& pos){
   }
   else if (mFocussedChar && !mSubRoomLoaded && !mInterpreter->isBlockingScriptRunning()){
     Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
+  }
+  int curCmd = mCursor->getCurrentCommand();
+  if (curCmd != mActiveCommand){
+    mActiveCommand = curCmd;
+    mUseObjectName = "";
+    mGiveObjectName = "";
+    mLinkObjectInfo = "";
   }
 }
 

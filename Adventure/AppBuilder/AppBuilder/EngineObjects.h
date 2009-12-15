@@ -14,7 +14,7 @@ class Animation;
 
 class AnimationEndHandler{
 public:
-  virtual void animationEnded(Animation* anim)=0;
+  virtual bool animationEnded(Animation* anim)=0;
 };
 
 struct Color{
@@ -113,7 +113,7 @@ protected:
   AnimationEndHandler* mHandler;
 };
 
-class Object2D{
+class Object2D : public AnimationEndHandler{
 public:
   enum Type{
     OBJECT,
@@ -130,6 +130,7 @@ public:
   virtual void animationBegin(const Vec2i& next) {}
   virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next) {}
   virtual void animationEnd(const Vec2i& prev);
+  virtual bool animationEnded(Animation* anim);
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
   Animation* getAnimation();
   bool isHit(const Vec2i& point);
@@ -145,7 +146,7 @@ public:
   virtual void save();
   int getDepth();
   void addNextState(int state) {mNextStates.push_back(state);}
-  void triggerNextState();
+  void activateNextState();
 protected:
   int mState;
   Vec2i mPos;
@@ -178,6 +179,7 @@ public:
   ~CursorObject();
   void addAnimation(Animation* anim, int command);
   int getNextCommand();
+  int getCurrentCommand();
   void setCommand(int command);
 protected:
   std::vector<int> mCommands;
@@ -219,7 +221,7 @@ protected:
   Animation* mParallaxBackground;
 };
 
-class CharacterObject : public Object2D, public AnimationEndHandler{
+class CharacterObject : public Object2D{
   friend class SaveStateProvider;
 public:
   CharacterObject(int state, Vec2i pos, const std::string& name);
@@ -233,7 +235,6 @@ public:
   virtual void animationBegin(const Vec2i& next);
   virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next);
   virtual void animationEnd(const Vec2i& prev);
-  virtual void animationEnded(Animation* anim);
   void setLookDir(LookDir dir);
   void setLookDir(const Vec2i& dir);
   LookDir getLookDir();
@@ -243,8 +244,6 @@ public:
   const Color& getTextColor() {return mTextColor;}
   void setFontID(unsigned id) {mFontID = id;}
   unsigned getFontID() {return mFontID;}
-  void setNextState(int state) {mNextState = state;}
-  void activateNextState();
   static int calculateState(int currState, bool shouldWalk, bool shouldTalk);
   bool isWalking();
   bool isTalking();
@@ -260,7 +259,6 @@ protected:
   LookDir mDesiredDir;
   Color mTextColor;
   unsigned mFontID;
-  int mNextState;
   Inventory* mInventory;
 };
 

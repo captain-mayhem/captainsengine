@@ -24,6 +24,7 @@ nested_stmt returns [StmtNode* stmt]
 	:	cond=conditional {$stmt = cond.cond;}
 	|       lvl=level_stmt {$stmt = lvl.lvl;}
 	|	row=row_stmt {$stmt = row.row;}
+	|	timer=timer_stmt {$stmt = timer.timer;}
 	|	fc=func_call {$stmt = fc.func;}
 	;
 
@@ -59,6 +60,14 @@ row_stmt returns [RowNode* row]
 		$row = new RowNode(rownum, ((IdentNode*)txt.value)->value(), visible, row_blk.nodes);
 		delete txt.value;
 		delete vis.value;
+	}
+	;
+	
+timer_stmt returns [TimerNode* timer]
+	:	TIMER LPAREN INT RPAREN exec=block
+	{
+		float time = (float)atoi((char*)$INT.text->chars);
+		$timer = new TimerNode(time, exec.nodes);
 	}
 	;
 	
@@ -104,6 +113,8 @@ arg	returns [ASTNode* value]
 		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
 		| MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$MINUS.text->chars);}
 		| INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$INT.text->chars);}
+		| GREATER {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$GREATER.text->chars);}
+		| LESS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$LESS.text->chars);}
 	)*
 	|	exp=rel_expr {$value = exp.exp;}
 ;
@@ -161,6 +172,8 @@ UNDERSCORE
 	:	'_';
 PLUS	:	'+';
 MINUS	:	'-';
+//TIMES	:	'*';
+//DIVIDE	:	'/';
 GREATER	:	'>';
 LESS	:	'<';
 INFO_BEG	:	'|''#';
@@ -170,13 +183,10 @@ IF	:	('I'|'i')('F'|'f')UNDERSCORE;
 IFNOT   :	('I'|'i')('F'|'f')('N'|'n')('O'|'o')('T'|'t')UNDERSCORE;
 LEVEL	:	'l''e''v''e''l';
 ROW	:	'r''o''w';
+TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('.'|',')'0'..'9'+;
-IDENT_PART	:	('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|',')*;
-//IDENT	:	IDENT_PART;// (UNDERSCORE IDENT_PART)*;
-/*STRING	:*/	/*WS*('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|WS)*//*('a'..'z'|'A'..'Z'|'0'..'9'|WS)**/
-	/*|	WS+('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9')*WS('a'..'z'|'A'..'Z'|'0'..'9'|WS)*	*/
-	//;
+IDENT_PART	:	('a'..'z'|'A'..'Z')('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|'*')*;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t')+ {$channel=HIDDEN;}
