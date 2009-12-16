@@ -8,7 +8,7 @@ EVT_PAINT(PopupWindow::OnPaint)
 END_EVENT_TABLE()
 
 BEGIN_EVENT_TABLE(ImageDisplay, wxScrolledWindow)
-EVT_PAINT(ImageDisplay::OnPaint)
+//EVT_PAINT(ImageDisplay::OnPaint)
 EVT_SIZE(ImageDisplay::OnSize)
 END_EVENT_TABLE()
 

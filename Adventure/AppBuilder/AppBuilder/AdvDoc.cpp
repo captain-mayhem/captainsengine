@@ -166,8 +166,8 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
       str = txtstream.ReadLine();
       while (str != "Mediapool :"){
         wxString pretty_name = txtstream.ReadLine();
-        mSettings.pretty_commands.push_back(pretty_name.c_str());
-        mSettings.commands[str.c_str()] = (unsigned)mSettings.pretty_commands.size()-1;
+        mSettings.pretty_commands.push_back((const char*)pretty_name.c_str());
+        mSettings.commands[(const char*)str.c_str()] = (unsigned)mSettings.pretty_commands.size()-1;
         str = txtstream.ReadLine();
       }
     }
@@ -202,7 +202,7 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
       str = txtstream.ReadLine();
       while (str != "Sounds :"){
         wxString filename = txtstream.ReadLine();
-        mImageNames[str] = wxFileName(filename);
+        mImageNames[str] = wxFileName(filename, wxPATH_WIN);
         str = txtstream.ReadLine();
       }
     }
@@ -528,13 +528,16 @@ wxImage AdvDocument::getImage(wxString name){
   wxFileName filename = mImageNames[name];
   if (mStream){
     wxString path = "gfx.dat#zip:"+filename.GetFullName();
-    wxFSFile* file = mStream->OpenFile(path);
-    wxImage image(*file->GetStream());
+    wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
+    wxBitmapType type = wxBITMAP_TYPE_ANY;
+    if (filename.GetExt() == "pnj")
+      type = wxBITMAP_TYPE_JPEG;
+    wxImage image(*file->GetStream(), type);
     delete file;
     if (filename.GetExt() == "pnj"){
       path[path.length()-1] = 'a';
       wxFSFile* alphafile = mStream->OpenFile(path);
-      wxImage alphaimage(*alphafile->GetStream());
+      wxImage alphaimage(*alphafile->GetStream(), wxBITMAP_TYPE_JPEG);
       delete alphafile;
       int size = alphaimage.GetWidth()*alphaimage.GetHeight();
       unsigned char* alphadata = (unsigned char*)malloc(size);
@@ -664,7 +667,7 @@ FontData AdvDocument::getFont(int num){
     else
       path << "fonts.dat#zip:font." << number << "#zip:font" << num << ".al" << (i+1);
     wxFSFile* file = mStream->OpenFile(path);
-    fnt.images[2*i] = wxImage(*file->GetStream());
+    fnt.images[2*i] = wxImage(*file->GetStream(), wxBITMAP_TYPE_BMP);
     delete file;
     path.Clear();
     if (num == 0)
@@ -672,7 +675,7 @@ FontData AdvDocument::getFont(int num){
     else
       path << "fonts.dat#zip:font." << number << "#zip:font" << num << ".bm" << (i+1);
     file = mStream->OpenFile(path);
-    fnt.images[2*i+1] = wxImage(*file->GetStream());
+    fnt.images[2*i+1] = wxImage(*file->GetStream(), wxBITMAP_TYPE_BMP);
     delete file;
   }
   //mFonts.push_back(fnt);
