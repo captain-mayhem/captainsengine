@@ -10,6 +10,12 @@
 #include "SaveStateProvider.h"
 #include "Inventory.h"
 
+#ifndef WIN32
+void DebugBreak(){
+__builtin_trap();
+}
+#endif
+
 Engine* Engine::mInstance = NULL;
 
 Engine::Engine() : mData(NULL), mInitialized(false){

@@ -10,6 +10,10 @@
 #include "Animator.h"
 #include "Font.h"
 
+#ifndef WIN32
+void DebugBreak();
+#endif
+
 class SaveStateProvider;
 
 class Engine{
