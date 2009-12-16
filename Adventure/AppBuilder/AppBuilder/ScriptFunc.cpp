@@ -625,3 +625,4 @@ int ScriptFunctions::isCharFocussed(ExecutionContext& ctx, unsigned numArgs){
     ctx.stack().push(1);
   return 2;
 }
+
