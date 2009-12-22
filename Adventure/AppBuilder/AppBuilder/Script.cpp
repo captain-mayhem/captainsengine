@@ -228,6 +228,15 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         count += offset;
       }
       break;
+      case ASTNode::TIMERFUNC:{
+        TimerNode* timer = static_cast<TimerNode*>(node);
+        CodeSegment* seg = new CodeSegment();
+        transform(timer->getCommands(), seg, START);
+        ExecutionContext* ctx = new ExecutionContext(seg, false, "");
+        CTIMER* timercode = new CTIMER((int)(timer->getTime()*1000), ctx);
+        codes->addCode(timercode);
+        count += 1;
+      }
       default:
         //wxMessageBox("Unhandled AST-Type");
         break;
@@ -343,15 +352,17 @@ void PcdkScript::executeImmediately(ExecutionContext* script){
 }
 
 void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
-  if (script == NULL)
-    return;
   mGlobalSuspend = true;
   if (mCutScene != NULL){
     Engine::instance()->setCommand(mPrevActiveCommand, false);
     delete mCutScene;
   }
-  script->mExecuteOnce = !looping;
   mCutScene = script;
+  if (script == NULL){
+    mGlobalSuspend = false;
+    return;
+  }
+  script->mExecuteOnce = !looping;
   mPrevActiveCommand = Engine::instance()->getActiveCommand();
   if (looping)
     Engine::instance()->setCommand("walkto", false);
@@ -360,11 +371,12 @@ void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
 }
 
 void PcdkScript::remove(Object2D* object){
-  for (std::list<std::pair<Object2D*, int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
+  for (std::list<std::pair<Object2D*, int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ){
     if (iter->first == object){
       iter = mPrevState.erase(iter);
-      break;
     }
+    else
+      ++iter;
   }
   remove(object->getScript());
 }
@@ -483,4 +495,73 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
     }
     Engine::instance()->setGiveObject(NULL, "");
   }
+}
+
+std::ostream& PcdkScript::save(std::ostream& out){
+  out << mBooleans.size() << std::endl;
+  for (std::map<std::string,bool>::iterator iter = mBooleans.begin(); iter != mBooleans.end(); ++iter){
+    out << iter->first << " " << iter->second << std::endl;
+  }
+  out << mVariables.size() << std::endl;
+  for (std::map<std::string,StackData>::iterator iter = mVariables.begin(); iter != mVariables.end(); ++iter){
+    out << iter->first << " " << iter->second << std::endl;
+  }
+  out << mTSActive.size() << std::endl;
+  for (std::map<std::string, std::map<int, std::map<int, bool> > >::iterator iter = mTSActive.begin(); iter != mTSActive.end(); ++iter){
+    out << iter->second.size() << " " << iter->first << std::endl;
+    for (std::map<int, std::map<int, bool> >::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2){
+      out << iter2->second.size() << " " << iter2->first << std::endl;
+      for (std::map<int, bool>::iterator iter3 = iter2->second.begin(); iter3 != iter2->second.end(); ++iter3){
+        out << iter3->first << " " << iter3->second << std::endl;
+      }
+    }
+  }
+  return out;
+}
+
+std::istream& PcdkScript::load(std::istream& in){
+  mBooleans.clear();
+  mVariables.clear();
+  mTSActive.clear();
+  int num1, num2, num3;
+  in >> num1;
+  std::string name;
+  bool value;
+  for (int i = 0; i < num1; ++i){
+    in >> name >> value;
+    mBooleans[name] = value;
+  }
+  StackData data;
+  in >> num1;
+  for (int i = 0; i < num1; ++i){
+    in >> name >> data;
+    mVariables[name] = data;
+  }
+  in >> num1;
+  int secondval, thirdval;
+  for (int i = 0; i < num1; ++i){
+    in >> num2; in >> name;
+    for (int j = 0; j < num2; ++j){
+      in >> num3; in >> secondval;
+      for (int k = 0; k < num3; ++k){
+        in >> thirdval >> value;
+        mTSActive[name][secondval][thirdval] = value;
+      }
+    }
+  }
+  return in;
+}
+
+std::ostream& operator<<(std::ostream& strm, const StackData& data){
+  strm << data.mType << " " << (data.mStr.empty() ? "none" : data.mStr) << " " << data.mInt;
+  return strm;
+}
+
+std::istream& operator>>(std::istream& strm, StackData& data){
+  int tmp;
+  strm >> tmp >> data.mStr >> data.mInt;
+  data.mType = (StackData::Type)tmp;
+  if (data.mStr == "none")
+    data.mStr = "";
+  return strm;
 }

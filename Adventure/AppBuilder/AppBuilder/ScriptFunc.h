@@ -8,6 +8,12 @@ class ScriptFunctions{
 public:
   static void registerFunctions(PcdkScript* interpreter);
   /**
+  \param textscene name of the textscene to activate
+  \param level level of the textscene
+  \param row row to deactivate
+  **/
+  static int activate(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param character name of the character to whose inventory the item should be added
   special values off
   \param item the item to add
@@ -82,6 +88,10 @@ public:
   **/
   static int link(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param slot the save slot to be used
+  **/
+  static int loadGame(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param room name of the room
   \param effect [opt] blending effect TODO
   **/
@@ -126,6 +136,10 @@ public:
   **/
   static int restart(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param slot the save slot to be used
+  **/
+  static int saveGame(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param bool name of the boolean
   \param value true/false
   **/
@@ -149,9 +163,14 @@ public:
   **/
   static int setLight(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param name the name of the variable
+  \param value the value to set
+  **/
+  static int setNum(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param object name of the object instance
   \param state state of the object
-  \param ... [opt] additional states TODO
+  \param ... [opt] additional states
   **/
   static int setObj(ExecutionContext& ctx, unsigned numArgs);
   /**
@@ -207,11 +226,6 @@ public:
   \param dontwait [opt] continue script execution immediately
   **/
   static int walkTo(ExecutionContext& ctx, unsigned numArgs);
-  /**
-  \param name the name of the variable
-  \param value the value to set
-  **/
-  static int setNum(ExecutionContext& ctx, unsigned numArgs);
 
   static int dummy(ExecutionContext& ctx, unsigned numArgs);
 

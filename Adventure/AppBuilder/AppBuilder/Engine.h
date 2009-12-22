@@ -17,6 +17,7 @@ void DebugBreak();
 class SaveStateProvider;
 
 class Engine{
+  friend class SaveStateProvider;
 public:
   ~Engine();
   static void init() {mInstance = new Engine();}
@@ -62,6 +63,9 @@ public:
   void clearGui();
   RoomObject* getContainingRoom(Object2D* object);
   CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className);
+  void keyPress(int key);
+  void keyRelease(int key);
+  void unloadRooms();
 protected:
   Engine();
   static Engine* mInstance;

@@ -159,4 +159,18 @@ public:
   }
 };
 
+class CTIMER : public CCode{
+public:
+  CTIMER(int time, ExecutionContext* ctx){
+    mCommands = ctx;
+    mCommands->suspend(time);
+  }
+  ~CTIMER(){
+    delete mCommands;
+  }
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+protected:
+  ExecutionContext* mCommands;
+};
+
 #endif

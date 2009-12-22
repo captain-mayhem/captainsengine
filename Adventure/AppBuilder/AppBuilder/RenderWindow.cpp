@@ -11,6 +11,8 @@ EVT_LEFT_UP(RenderWindow::OnMouseLeft)
 EVT_RIGHT_UP(RenderWindow::OnMouseRight)
 EVT_ENTER_WINDOW(RenderWindow::OnEnterWindow)
 EVT_LEAVE_WINDOW(RenderWindow::OnExitWindow)
+EVT_KEY_UP(RenderWindow::OnKeyUp)
+EVT_KEY_DOWN(RenderWindow::OnKeyDown)
 EVT_CLOSE(RenderWindow::OnClose)
 END_EVENT_TABLE()
 
@@ -138,4 +140,12 @@ void RenderWindow::OnIdle(wxIdleEvent& event){
   SwapBuffers();
 
   event.RequestMore();
+}
+
+void RenderWindow::OnKeyDown(wxKeyEvent& event){
+  Engine::instance()->keyPress(event.GetKeyCode());
+}
+
+void RenderWindow::OnKeyUp(wxKeyEvent& event){
+  Engine::instance()->keyRelease(event.GetKeyCode());
 }

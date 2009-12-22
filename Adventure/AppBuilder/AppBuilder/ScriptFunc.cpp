@@ -1,4 +1,5 @@
 #include "ScriptFunc.h"
+
 #include "Engine.h"
 #include "Script.h"
 #include "SaveStateProvider.h"
@@ -52,6 +53,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("if_focus", isCharFocussed);
   interpreter->registerFunction("setfont", setFont);
   interpreter->registerFunction("setscreenchange", setScreenchange);
+  interpreter->registerFunction("activate", activate);
+  interpreter->registerFunction("savegame", saveGame);
+  interpreter->registerFunction("loadgame", loadGame);
 }
 
 int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
@@ -482,6 +486,8 @@ int ScriptFunctions::deactivate(ExecutionContext& ctx, unsigned numArgs){
   std::string scene = ctx.stack().pop().getString();
   int level = ctx.stack().pop().getInt();
   int row = ctx.stack().pop().getInt();
+  if (scene == "self")
+    scene = Engine::instance()->getInterpreter()->mTSName;
   Engine::instance()->getInterpreter()->mTSActive[scene][level][row] = false;
   return 0;
 }
@@ -545,6 +551,28 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
   else{
     screenchange = data.getInt();
   }
+  return 0;
+}
+
+int ScriptFunctions::activate(ExecutionContext& ctx, unsigned numArgs){
+  std::string scene = ctx.stack().pop().getString();
+  int level = ctx.stack().pop().getInt();
+  int row = ctx.stack().pop().getInt();
+  if (scene == "self")
+    scene = Engine::instance()->getInterpreter()->mTSName;
+  Engine::instance()->getInterpreter()->mTSActive[scene][level][row] = true;
+  return 0;
+}
+
+int ScriptFunctions::saveGame(ExecutionContext& ctx, unsigned numArgs){
+  int slot = ctx.stack().pop().getInt();
+  Engine::instance()->getSaver()->save(SaveStateProvider::saveSlotToPath(slot));
+  return 0;
+}
+
+int ScriptFunctions::loadGame(ExecutionContext& ctx, unsigned numArgs){
+  int slot = ctx.stack().pop().getInt();
+  Engine::instance()->getSaver()->load(SaveStateProvider::saveSlotToPath(slot));
   return 0;
 }
 

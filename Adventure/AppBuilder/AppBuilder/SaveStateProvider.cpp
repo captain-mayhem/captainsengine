@@ -1,6 +1,97 @@
 #include "SaveStateProvider.h"
 
-SaveStateProvider::SaveStateProvider(AdvDocument* data) : mData(data) {
+#include <fstream>
+#include <sstream>
+
+#include "Engine.h"
+
+std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room){
+  strm << room.base;
+  strm << room.lighting.r << " " << room.lighting.g << " " << room.lighting.b << " " << room.lighting.a << std::endl;
+  strm << room.objects.size() << std::endl;
+  for (std::map<std::string,SaveStateProvider::SaveObject*>::const_iterator iter = room.objects.begin(); iter != room.objects.end(); ++iter){
+    strm << iter->first << std::endl << *iter->second;
+  }
+  strm << room.characters.size() << std::endl;
+  for (std::map<std::string,SaveStateProvider::CharSaveObject*>::const_iterator iter = room.characters.begin(); iter != room.characters.end(); ++iter){
+    strm << iter->first << std::endl << *iter->second;
+  }
+  return strm;
+}
+
+std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
+  strm >> room.base;
+  strm >> room.lighting.r >> room.lighting.g >> room.lighting.b >> room.lighting.a;
+  int number;
+  strm >> number;
+  std::string name;
+  for (int i = 0; i < number; ++i){
+    strm >> name;
+    SaveStateProvider::SaveObject* obj = new SaveStateProvider::SaveObject;
+    strm >> *obj;
+    room.objects[name] = obj;
+  }
+  strm >> number;
+  for (int i = 0; i < number; ++i){
+    strm >> name;
+    SaveStateProvider::CharSaveObject* chr = new SaveStateProvider::CharSaveObject;
+    strm >> *chr;
+    room.characters[name] = chr;
+  }
+  return strm;
+}
+
+std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveObject& object){
+  strm << object.position.x << " " << object.position.y << " " << object.state << std::endl;
+  return strm;
+}
+
+std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveObject& object){
+  strm >> object.position.x >> object.position.y >> object.state;
+  return strm;
+}
+
+std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::CharSaveObject& chr){
+  strm << chr.base;
+  strm << chr.mirrored << std::endl;
+  strm << chr.inventory;
+  return strm;
+}
+
+std::istream& operator>>(std::istream& strm, SaveStateProvider::CharSaveObject& chr){
+  strm >> chr.base >> chr.mirrored;
+  strm >> chr.inventory;
+  return strm;
+}
+
+std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveInventory& inv){
+  strm << inv.items.size() << std::endl;
+  for (std::map<int, std::vector<std::string> >::const_iterator iter = inv.items.begin(); iter != inv.items.end(); ++iter){
+    strm << iter->first << " ";
+    strm << iter->second.size();
+    for (unsigned i = 0; i < iter->second.size(); ++i){
+      strm << " " << iter->second[i];
+    }
+    strm << std::endl;
+  }
+  return strm;
+}
+
+std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& inv){
+  int numInvs, invnum, number;
+  std::string itemName;
+  strm >> numInvs;
+  for (int i = 0; i < numInvs; ++i){
+    strm >> invnum >> number;
+    for (int j = 0; j < number; ++j){
+      strm >> itemName;
+      inv.items[invnum].push_back(itemName);
+    }
+  }
+  return strm;
+}
+
+SaveStateProvider::SaveStateProvider(AdvDocument* data) : mData(data), mAllowWrites(true) {
 
 }
 
@@ -17,6 +108,7 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
     if (!orig)
       return NULL;
     SaveRoom* save = new SaveRoom();
+    save->base.position = Vec2i();
     save->lighting = Color();
     for (unsigned i = 0; i < orig->objects.size(); ++i){
       SaveObject* object = new SaveObject();
@@ -100,4 +192,89 @@ void SaveStateProvider::clear(){
     delete iter->second;
   }
   mRooms.clear();
+}
+
+void SaveStateProvider::save(const std::string& name){
+  std::string focussedcharname;
+  if (Engine::instance()->mFocussedChar){
+    getRoom(Engine::instance()->mRooms.back()->getName());
+    focussedcharname = Engine::instance()->mFocussedChar->getName();
+    Engine::instance()->mFocussedChar->save();
+  }
+  for (std::list<RoomObject*>::iterator iter = Engine::instance()->mRooms.begin(); iter != Engine::instance()->mRooms.end(); ++iter){
+    (*iter)->save();
+  }
+  std::ofstream out(name.c_str());
+  //save room data
+  out << mRooms.size() << std::endl;
+  for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    out << iter->first << std::endl << *iter->second;
+  }
+  //save loaded rooms
+  out << Engine::instance()->mRooms.size();
+  for (std::list<RoomObject*>::reverse_iterator iter = Engine::instance()->mRooms.rbegin(); iter != Engine::instance()->mRooms.rend(); ++iter){
+    out << " " << (*iter)->getName();
+  }
+  out << std::endl;
+  //focussed char
+  CharacterObject* chr = Engine::instance()->getCharacter("self");
+  if (chr != NULL)
+    out << chr->getName() << std::endl;
+  else
+    out << "none" << std::endl;
+  if (!Engine::instance()->mLastFocussedChar.empty())
+    out << Engine::instance()->mLastFocussedChar << " " << out << Engine::instance()->mLastFocussedCharRoom << std::endl;
+  else
+    out << "none none" << std::endl;
+  out << Engine::instance()->mMainRoomLoaded << " " << Engine::instance()->mSubRoomLoaded << std::endl;
+  Engine::instance()->getInterpreter()->save(out);
+  if (Engine::instance()->mFocussedChar)
+    removeCharacter(focussedcharname);
+  out.close();
+}
+
+void SaveStateProvider::load(const std::string& name){
+  std::ifstream in(name.c_str());
+  if (!in)
+    return;
+  //clear the current save state;
+  clear();
+  Engine::instance()->getInterpreter()->executeCutscene(NULL, false);
+  Engine::instance()->unloadRooms();
+  //load room data
+  int numRooms;
+  in >> numRooms;
+  std::string roomname;
+  for (int i = 0; i < numRooms; ++i){
+    in >> roomname;
+    SaveRoom* room = new SaveRoom;
+    in >> *room;
+    mRooms[roomname] = room;
+  }
+  //load rooms to load
+  in >> numRooms;
+  for (int i = 0; i < numRooms; ++i){
+    in >> roomname;
+    Engine::instance()->loadRoom(roomname, i != 0);
+  }
+  //focussed char
+  std::string focussedchar;
+  in >> focussedchar;
+  in >> Engine::instance()->mLastFocussedChar >> Engine::instance()->mLastFocussedCharRoom;
+  if (Engine::instance()->mLastFocussedChar == "none"){
+    Engine::instance()->mLastFocussedChar = "none";
+    Engine::instance()->mLastFocussedCharRoom = "none";
+  }
+  Engine::instance()->setFocus(focussedchar);
+  in >> Engine::instance()->mMainRoomLoaded >> Engine::instance()->mSubRoomLoaded;
+  Engine::instance()->getInterpreter()->load(in);
+  allowWrites(false);
+  in.close();
+}
+
+std::string SaveStateProvider::saveSlotToPath(int slot){
+  std::ostringstream path;
+  path << Engine::instance()->getSettings()->savedir;
+  path << "/save" << slot << ".sav";
+  return path.str();
 }

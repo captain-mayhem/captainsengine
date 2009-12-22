@@ -66,7 +66,6 @@ void Engine::initGame(){
   //load taskbar room
   if (mData->getProjectSettings()->taskroom != ""){
     loadRoom(mData->getProjectSettings()->taskroom, true);
-    mTaskbar = mRooms.front();
     if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)
       mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
     else
@@ -182,10 +181,12 @@ void Engine::render(){
   
   //unload rooms
   while (!mRoomsToUnload.empty()){
-    mRoomsToUnload.front()->save();
+    if (mSaver->isWriteAllowed())
+      mRoomsToUnload.front()->save();
     delete mRoomsToUnload.front();
     mRoomsToUnload.pop_front();
   }
+  mSaver->allowWrites(true);
 
   //do some scripting
   Object2D* obj = getObjectAt(mCursor->getPosition());
@@ -305,7 +306,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     if (!mMainRoomLoaded)
       depthoffset += 1000;
   }
-  RoomObject* roomobj = new RoomObject(room->size, name);
+  RoomObject* roomobj = new RoomObject(save->base.state, save->base.position, room->size, name);
   roomobj->setParallaxBackground(room->parallaxbackground, depthoffset-2);
   roomobj->setBackground(room->background, depthoffset-1);
   roomobj->setLightingColor(save->lighting);
@@ -382,6 +383,8 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     mRooms.push_back(roomobj);
     mMainRoomLoaded = true;
   }
+  if (name == mData->getProjectSettings()->taskroom)
+    mTaskbar = roomobj;
   return true;
 }
 
@@ -518,6 +521,7 @@ bool Engine::setFocus(std::string charname){
   }
   //load character
   mFocussedChar = loadCharacter(charname, charname);
+  mSaver->removeCharacter(charname);
   return false;
 }
 
@@ -826,4 +830,30 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
       }
   }
   return character;
+}
+
+void Engine::keyPress(int key){
+  switch(key){
+    case WXK_F1:
+      mSaver->save(SaveStateProvider::saveSlotToPath(1));
+      break;
+    case WXK_F2:
+      mSaver->load(SaveStateProvider::saveSlotToPath(1));
+      break;
+  }
+}
+
+void Engine::keyRelease(int key){
+
+}
+
+void Engine::unloadRooms(){
+  setFocus("none");
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
+    mRoomsToUnload.push_back(*iter);
+    iter = mRooms.erase(iter);
+  }
+  mMainRoomLoaded = false;
+  mSubRoomLoaded = false;
+  mTaskbar = NULL;
 }

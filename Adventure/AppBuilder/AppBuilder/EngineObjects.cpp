@@ -379,8 +379,8 @@ void CursorObject::setCommand(int command){
   }
 }
 
-RoomObject::RoomObject(const Vec2i& size, const std::string& name) : 
-Object2D(1, Vec2i(0,0), size, name), mInventroy(NULL){
+RoomObject::RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name) : 
+Object2D(state, pos, size, name), mInventroy(NULL){
   mLighting = new LightingBlitObject(1000, size);
   mParallaxBackground = NULL;
 }
@@ -525,6 +525,8 @@ void RoomObject::setScrollOffset(const Vec2i& offset){
 
 void RoomObject::save(){
   SaveStateProvider::SaveRoom* save = Engine::instance()->getSaver()->getRoom(mName);
+  save->base.position = mPos;
+  save->base.state = mState;
   save->lighting = mLighting->getColor();
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->save();
@@ -547,6 +549,11 @@ bool RoomObject::containsObject(Object2D* object){
       return true;
   }
   return false;
+}
+
+void RoomObject::setInventory(InventoryDisplay* disp){
+  mInventroy = disp;
+  mInventroy->setPosition(mInventroy->getPosition()+mPos);
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 

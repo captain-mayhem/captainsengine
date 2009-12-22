@@ -62,13 +62,14 @@ wxInputStream& AdvDocument::LoadObject(wxInputStream& stream){
   }
   delete entry;
   zipstream.CloseEntry();
-  if (GetFilename().EndsWith("dat")){
+  //if (GetFilename().EndsWith("dat")){
     wxFileName name(GetFilename());
     wxString path = name.GetPath();
     mStream = new wxFileSystem();
     mStream->ChangePathTo("file:"+path, true);
     //loadFonts();
-  }
+    mSettings.savedir = path+"/../saves";
+  //}
   //wxMessageBox("Project loaded successfully", "Info");
   return stream;
 }
