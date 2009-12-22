@@ -84,3 +84,7 @@ unsigned CLOAD::execute(ExecutionContext& ctx, unsigned pc){
   ctx.stack().push(dat);
   return ++pc;
 }
+
+unsigned CTIMER::execute(ExecutionContext& ctx, unsigned pc){
+  return ++pc;
+}

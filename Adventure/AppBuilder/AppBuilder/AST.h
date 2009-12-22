@@ -233,6 +233,8 @@ public:
   ~TimerNode(){
     delete mExec;
   }
+  NodeList* getCommands() {return mExec;}
+  float getTime() {return mTime;}
 protected:
   float mTime;
   NodeList* mExec;

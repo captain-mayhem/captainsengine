@@ -17,6 +17,8 @@ public:
   void OnTimer(wxTimerEvent& event);
   void OnIdle(wxIdleEvent& event);
   void OnClose(wxCloseEvent& event);
+  void OnKeyDown(wxKeyEvent& event);
+  void OnKeyUp(wxKeyEvent& event);
   bool init();
 protected:
   wxGLContext* mContext;

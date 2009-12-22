@@ -37,6 +37,8 @@ public:
   std::map<int, bool>& tsActive() {return mTSActive[mTSName][mTSLevel];}
   int getTSWidth() {return mTSWidth;}
   void stop();
+  std::ostream& save(std::ostream& out);
+  std::istream& load(std::istream& in);
   bool isBlockingScriptRunning() {return mGlobalSuspend;}
 
   static void clickEndHandler(ExecutionContext& ctx);

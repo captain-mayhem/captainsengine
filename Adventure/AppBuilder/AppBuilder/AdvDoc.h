@@ -75,6 +75,7 @@ struct Vec2f{
 
 struct ProjectSettings{
   std::string dir;
+  std::string savedir;
   Vec2i resolution;
   //TODO fonts
   std::string startscript;

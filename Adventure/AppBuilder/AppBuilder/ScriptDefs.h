@@ -46,6 +46,8 @@ protected:
 };
 
 class StackData{
+  friend std::ostream& operator<<(std::ostream& strm, const StackData& data);
+  friend std::istream& operator>>(std::istream& strm, StackData& data);
 public:
   StackData() : mType(I), mStr(""), mInt(0) {}
   StackData(std::string str) : mType(S), mInt(0) {mStr = str; if (mStr == "true"){mBool = true; mType = B;}}
@@ -68,6 +70,9 @@ protected:
     float mFloat;
   };
 };
+
+std::ostream& operator<<(std::ostream& strm, const StackData& data);
+std::istream& operator>>(std::istream& strm, StackData& data);
 
 class Stack{
 public:
@@ -101,7 +106,7 @@ public:
   void setStepEndHandler(StepEndHandler handler){
     mHandler = handler;
   }
-  void suspend() {mSuspended = true;}
+  void suspend(int time) {mSuspended = true; mSleepTime = time;}
   void resume() {mSuspended = false;}
   void reset(bool clearEvents);
   void setOwner(Object2D* owner) {mOwner = owner;}

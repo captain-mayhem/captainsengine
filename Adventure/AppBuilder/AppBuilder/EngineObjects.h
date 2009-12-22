@@ -189,7 +189,7 @@ class CharacterObject;
 
 class RoomObject : public Object2D{
 public:
-  RoomObject(const Vec2i& size, const std::string& name);
+  RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name);
   ~RoomObject();
   void setBackground(std::string bg, int depth);
   void setParallaxBackground(const std::string& bg, int depth);
@@ -209,7 +209,7 @@ public:
   void walkTo(const Vec2i& pos);
   virtual void save();
   InventoryDisplay* getInventory() {return mInventroy;}
-  void setInventory(InventoryDisplay* disp) {mInventroy = disp;}
+  void setInventory(InventoryDisplay* disp);
   virtual void setPosition(const Vec2i& pos);
   bool containsObject(Object2D* object);
 protected:
