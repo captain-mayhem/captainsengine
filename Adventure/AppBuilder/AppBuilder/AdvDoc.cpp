@@ -589,8 +589,13 @@ float AdvDocument::readExtendedFrames(wxTextInputStream& txtstream, ExtendedFram
 
 Room* AdvDocument::getRoom(std::string name){
   std::map<std::string,Room>::iterator iter = mRooms.find(name);
-  if (iter == mRooms.end())
+  if (iter == mRooms.end()){
+    for (std::map<std::string,Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+      if (stricmp(name.c_str(), iter->first.c_str()) == 0)
+        return &iter->second;
+    }
     return NULL;
+  }
   return &((*iter).second);
 }
 

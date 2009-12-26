@@ -84,6 +84,11 @@ public:
   **/
   static int invUp(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param seconds time to jiggle
+  \param power how strong the jiggling is
+  **/
+  static int jiggle(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param name name of the object to link
   **/
   static int link(ExecutionContext& ctx, unsigned numArgs);
@@ -132,6 +137,11 @@ public:
   \param volume [opt] the volume
   **/
   static int playSound(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param name the variable to be filled with a random number
+  \param limit limits the number to 1 .. limit
+  **/
+  static int randomNum(ExecutionContext& ctx, unsigned numArgs);
   /**
   **/
   static int restart(ExecutionContext& ctx, unsigned numArgs);
