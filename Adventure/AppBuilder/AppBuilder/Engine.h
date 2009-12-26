@@ -66,6 +66,9 @@ public:
   void keyPress(int key);
   void keyRelease(int key);
   void unloadRooms();
+  void focusChar() {mCharOutOfFocus = false;}
+  bool isCharOutOfFocus() {return mCharOutOfFocus;}
+  std::string getLastFocussedCharRoom() {return mLastFocussedCharRoom;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -82,6 +85,7 @@ protected:
   CharacterObject* mFocussedChar;
   std::string mLastFocussedChar;
   std::string mLastFocussedCharRoom;
+  bool mCharOutOfFocus;
   bool mMainRoomLoaded;
   bool mSubRoomLoaded;
   std::list<Object2D*> mUI;

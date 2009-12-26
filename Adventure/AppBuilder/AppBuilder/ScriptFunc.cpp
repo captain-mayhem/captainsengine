@@ -56,6 +56,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("activate", activate);
   interpreter->registerFunction("savegame", saveGame);
   interpreter->registerFunction("loadgame", loadGame);
+  interpreter->registerFunction("jiggle", jiggle);
+  interpreter->registerFunction("randomnum", randomNum);
+  srand(time(NULL));
 }
 
 int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
@@ -87,7 +90,8 @@ int ScriptFunctions::walkTo(ExecutionContext& ctx, unsigned numArgs){
   Vec2i pos;
   pos.x = ctx.stack().pop().getInt()-1;
   pos.y = ctx.stack().pop().getInt()-1;
-  pos = pos * Engine::instance()->getWalkGridSize();
+  pos = pos * Engine::instance()->getWalkGridSize() + 
+    Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2);
   LookDir dir = UNSPECIFIED;
   if (numArgs >= 4)
     dir = (LookDir)(ctx.stack().pop().getInt()-1);
@@ -216,18 +220,19 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   std::string roomname = ctx.stack().pop().getString();
   Vec2i pos;
-  pos.x = ctx.stack().pop().getInt();
-  pos.y = ctx.stack().pop().getInt();
+  pos.x = ctx.stack().pop().getInt()-1;
+  pos.y = ctx.stack().pop().getInt()-1;
   LookDir dir = UNSPECIFIED;
   if (numArgs >= 5)
     dir = (LookDir)(ctx.stack().pop().getInt()-1);
   if (charname == "self"){
     //focussed char, therefore change room
     Engine::instance()->loadRoom(roomname, false);
+    Engine::instance()->focusChar();
     CharacterObject* obj = Engine::instance()->getCharacter(charname);
     if (obj){
       Engine::instance()->getAnimator()->remove(obj);
-      obj->setPosition(pos*Engine::instance()->getWalkGridSize());
+      obj->setPosition((pos*Engine::instance()->getWalkGridSize())+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
       int state = CharacterObject::calculateState(obj->getState(), false, false);
       obj->setState(state);
     }
@@ -303,7 +308,7 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
   LookDir dir = UNSPECIFIED;
   CharacterObject* chr1 = Engine::instance()->getCharacter(character);
   if (d.getInt() != 0){
-    dir = (LookDir)d.getInt();
+    dir = (LookDir)(d.getInt()-1);
     chr1->setLookDir(dir);
   }
   else{
@@ -573,6 +578,22 @@ int ScriptFunctions::saveGame(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::loadGame(ExecutionContext& ctx, unsigned numArgs){
   int slot = ctx.stack().pop().getInt();
   Engine::instance()->getSaver()->load(SaveStateProvider::saveSlotToPath(slot));
+  return 0;
+}
+
+int ScriptFunctions::jiggle(ExecutionContext& ctx, unsigned numArgs){
+  float seconds = ctx.stack().pop().getFloat();
+  int power = 10;
+  if (numArgs >= 2)
+    power = ctx.stack().pop().getInt();
+  return 0;
+}
+
+int ScriptFunctions::randomNum(ExecutionContext& ctx, unsigned numArgs){
+  std::string name = ctx.stack().pop().getString();
+  int limit = ctx.stack().pop().getInt();
+  int rnd = rand()%limit;
+  Engine::instance()->getInterpreter()->mVariables[name] = StackData(rnd);
   return 0;
 }
 

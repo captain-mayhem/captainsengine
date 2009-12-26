@@ -90,6 +90,7 @@ void Engine::initGame(){
   for (int i = 0; i < 10; ++i){
     mTimeIntervals.push_back(50);
   }
+  mCharOutOfFocus = true;
 }
 
 void Engine::exitGame(){
@@ -199,10 +200,11 @@ void Engine::render(){
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     ExecutionContext* script = (*iter)->getScript();
     if (script != NULL){
+      script->setEvent(EVT_LOOP1);
       script->setEvent(EVT_LOOP2);
     }
   }
-  if (mRooms.size() > 0 && mFocussedChar){ //walkmap
+  if (mRooms.size() > 0 && mFocussedChar && !mInterpreter->isBlockingScriptRunning()){ //walkmap
     Vec2i pos = mFocussedChar->getPosition()/mWalkGridSize;
     mRooms.back()->walkTo(pos);
   }
@@ -247,7 +249,7 @@ void Engine::render(){
     if (mInterpreter->isBlockingScriptRunning())
       break;
   }
-  if (mFocussedChar)
+  if (mFocussedChar && !mCharOutOfFocus)
     mFocussedChar->render();
   mCursor->render();
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
@@ -294,7 +296,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
   if (mMainRoomLoaded && mRooms.back()->getName() == name)
     return true;
   Room* room = mData->getRoom(name);
-  SaveStateProvider::SaveRoom* save = mSaver->getRoom(name);
+  SaveStateProvider::SaveRoom* save = mSaver->getRoom(room->name);
   if (!room || !save)
     return false;
   if (mMainRoomLoaded && !isSubRoom){
@@ -306,13 +308,13 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     if (!mMainRoomLoaded)
       depthoffset += 1000;
   }
-  RoomObject* roomobj = new RoomObject(save->base.state, save->base.position, room->size, name);
+  RoomObject* roomobj = new RoomObject(save->base.state, save->base.position, room->size, room->name);
   roomobj->setParallaxBackground(room->parallaxbackground, depthoffset-2);
   roomobj->setBackground(room->background, depthoffset-1);
   roomobj->setLightingColor(save->lighting);
   roomobj->setWalkmap(room->walkmap);
   //check for walkmap scripts
-  std::vector<std::pair<Vec2i,Script*> > wmscripts = mData->getWMScripts(name);
+  std::vector<std::pair<Vec2i,Script*> > wmscripts = mData->getWMScripts(room->name);
   for (unsigned i = 0; i < wmscripts.size(); ++i){
     ExecutionContext* scr = mInterpreter->parseProgram(wmscripts[i].second->text);
     roomobj->addWalkmapScript(wmscripts[i].first-Vec2i(1,1), scr);
@@ -322,7 +324,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     SaveStateProvider::SaveObject* saveobj = mSaver->getObject(room->objects[i].name);
     if (!saveobj)
       continue;
-    Object2D* object = new Object2D(saveobj->state, saveobj->position, o->size, o->name);
+    Object2D* object = new Object2D(saveobj->state, saveobj->position, o->size, room->objects[i].name);
     //calculate render depth
     int depth;
     if (room->objects[i].layer == 0)
@@ -336,7 +338,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
       object->addAnimation(anim);
     }
     //check for object scripts
-    Script* script = mData->getScript(Script::OBJECT,room->objects[i].object+";"+name);
+    Script* script = mData->getScript(Script::OBJECT,room->objects[i].name+";"+room->name);
     if (script){
       ExecutionContext* scr = mInterpreter->parseProgram(script->text);
       if (scr){
@@ -356,10 +358,11 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
       }
     }
     CharacterObject* character = loadCharacter(ch.name, ch.character);
-    roomobj->addObject(character);
+    if (character)
+      roomobj->addObject(character);
   };
   //load room script
-  Script* script = mData->getScript(Script::ROOM,name);
+  Script* script = mData->getScript(Script::ROOM,room->name);
   if (script){
     ExecutionContext* scr = mInterpreter->parseProgram(script->text);
     if (scr != NULL){
@@ -383,17 +386,24 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     mRooms.push_back(roomobj);
     mMainRoomLoaded = true;
   }
-  if (name == mData->getProjectSettings()->taskroom)
+  if (room->name == mData->getProjectSettings()->taskroom)
     mTaskbar = roomobj;
+  if (!isSubRoom)
+    mCharOutOfFocus = true;
   return true;
 }
 
 void Engine::unloadRoom(RoomObject* room, bool mainroom){
   if (room == NULL){
-    if (mainroom)
+    if (mainroom){
       room = mRooms.back();
+    }
     else
       room = mRooms.front();
+  }
+  if (mainroom && !mCharOutOfFocus){
+    mLastFocussedCharRoom = room->getName();
+    mCharOutOfFocus = true;
   }
   ExecutionContext* ctx = room->getScript();
   if (ctx){
@@ -513,6 +523,7 @@ bool Engine::setFocus(std::string charname){
   CharacterObject* res = extractCharacter(charname);
   if (res){
     mFocussedChar = res;
+    mCharOutOfFocus = false;
     return true;
   }
   if (!mLastFocussedCharRoom.empty() && mLastFocussedCharRoom != mRooms.back()->getName()){
@@ -522,6 +533,7 @@ bool Engine::setFocus(std::string charname){
   //load character
   mFocussedChar = loadCharacter(charname, charname);
   mSaver->removeCharacter(charname);
+  mCharOutOfFocus = true;
   return false;
 }
 
@@ -687,7 +699,7 @@ CharacterObject* Engine::extractCharacter(const std::string& name){
 
 RoomObject* Engine::getRoom(const std::string& name){
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    if ((*iter)->getName() == name){
+    if (stricmp((*iter)->getName().c_str(), name.c_str()) == 0){
       return *iter;
     }
   }
@@ -804,6 +816,8 @@ RoomObject* Engine::getContainingRoom(Object2D* object){
 }
 
 CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className){
+  if (mFocussedChar && mFocussedChar->getName() == instanceName)
+    return NULL;
   SaveStateProvider::CharSaveObject* obj = mSaver->getOrAddCharacter(instanceName);
   Character* chbase = mData->getCharacter(className);
   CharacterObject* character = new CharacterObject(obj->base.state, obj->base.position, instanceName);
@@ -819,8 +833,10 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   Script* script = mData->getScript(Script::CHARACTER,instanceName);
   if (script){
     ExecutionContext* scr = mInterpreter->parseProgram(script->text);
-    character->setScript(scr);
-    mInterpreter->execute(scr, false);
+    if (scr){
+      character->setScript(scr);
+      mInterpreter->execute(scr, false);
+    }
   }
   for (std::map<int,std::vector<std::string> >::iterator inviter = obj->inventory.items.begin();
     inviter != obj->inventory.items.end(); ++inviter){
@@ -856,4 +872,5 @@ void Engine::unloadRooms(){
   mMainRoomLoaded = false;
   mSubRoomLoaded = false;
   mTaskbar = NULL;
+  mCharOutOfFocus = true;
 }

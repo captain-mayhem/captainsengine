@@ -9,9 +9,13 @@
 #include "ScriptFunc.h"
 
 CodeSegment::~CodeSegment(){
+  --(*mRefCount);
+  if (*mRefCount > 0)
+    return;
   for (unsigned i = 0; i < mCodes.size(); ++i){
     delete mCodes[i];
   }
+  delete mRefCount;
 }
 
 bool PcdkScript::mRemoveLinkObject = false;
@@ -276,6 +280,20 @@ mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0), mOwner(NULL)
 
 }
 
+ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
+  mCode = new CodeSegment(*ctx.mCode);
+  mIsGameObject = ctx.mIsGameObject;
+  mObjectInfo = ctx.mIsGameObject;
+  mStack = ctx.mStack;
+  mPC = ctx.mPC;
+  mEvents = ctx.mEvents;
+  mExecuteOnce = ctx.mExecuteOnce;
+  mHandler = ctx.mHandler;
+  mSuspended = ctx.mSuspended;
+  mSleepTime = ctx.mSleepTime;
+  mOwner = ctx.mOwner;
+}
+
 ExecutionContext::~ExecutionContext(){
   delete mCode;
 }
@@ -289,13 +307,17 @@ void PcdkScript::update(unsigned time){
     iter->first->setState(iter->second);
   }
   if (!mGlobalSuspend){
-    for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+    for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ){
       update(*iter, time);
-      if ((*iter)->mExecuteOnce){
+      if ((*iter)->mExecuteOnce && !(*iter)->mSuspended){
+        if ((*iter)->mOwner == NULL)
+          delete *iter;
         iter = mScripts.erase(iter);
       }
-      if (iter == mScripts.end())
-        break;
+      else
+        ++iter;
+      //if (iter == mScripts.end())
+      //  break;
     }
   }
   if (mCutScene){
@@ -307,6 +329,11 @@ void PcdkScript::update(unsigned time){
       Engine::instance()->setCommand(mPrevActiveCommand, false);
       delete mCutScene;
       mCutScene = NULL;
+      CharacterObject* chr = Engine::instance()->getCharacter("self");
+      if (chr && Engine::instance()->isCharOutOfFocus()){
+        Engine::instance()->loadRoom(Engine::instance()->getLastFocussedCharRoom(), false);
+        Engine::instance()->focusChar();
+      }
     }
     if (mTSPos == mTSPosOrig && mCutScene && !mCutScene->mSuspended){
       //no viable alternatives found (or no textscene)

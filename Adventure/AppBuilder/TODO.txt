@@ -1,7 +1,7 @@
 taskbar on/off
-timer node transformation
 loop1 impl (always running)
 fontchange
 screenchange
 char positioning / char collision detection (->block walkmap?)
 text layouting
+jiggle

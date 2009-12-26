@@ -104,7 +104,9 @@ arg_list returns [NodeList* nodes]
 ;
 
 arg	returns [ASTNode* value]
-	: {$value = new IdentNode("");}
+	:
+	exp=rel_expr {$value = exp.exp;}
+	| {$value = new IdentNode("");}
 	arg_header? 
 	(
 		first=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(first.value->value().c_str()); delete first.value;}
@@ -113,10 +115,9 @@ arg	returns [ASTNode* value]
 		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
 		| MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$MINUS.text->chars);}
 		| INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$INT.text->chars);}
+		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| GREATER {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$GREATER.text->chars);}
-		| LESS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$LESS.text->chars);}
 	)*
-	|	exp=rel_expr {$value = exp.exp;}
 ;
 
 arg_header
@@ -127,6 +128,7 @@ stdarg returns [IdentNode* value]
 	id=ident {$value = id.id;}
 	| ON {$value = new IdentNode(""); $value->append((char*)$ON.text->chars);}
 	| IF {$value = new IdentNode(""); $value->append((char*)$IF.text->chars);}
+	| LESS {$value = new IdentNode(""); $value->append((char*)$LESS.text->chars);}
 ;
 
 rel_expr returns [ASTNode* exp]

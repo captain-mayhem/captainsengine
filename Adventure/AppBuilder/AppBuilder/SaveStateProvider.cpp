@@ -268,6 +268,7 @@ void SaveStateProvider::load(const std::string& name){
   Engine::instance()->setFocus(focussedchar);
   in >> Engine::instance()->mMainRoomLoaded >> Engine::instance()->mSubRoomLoaded;
   Engine::instance()->getInterpreter()->load(in);
+  Engine::instance()->mCharOutOfFocus = false;
   allowWrites(false);
   in.close();
 }

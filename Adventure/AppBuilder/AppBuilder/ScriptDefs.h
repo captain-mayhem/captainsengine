@@ -28,7 +28,12 @@ enum EngineEvent{
 
 class CodeSegment{
 public:
-  CodeSegment(){}
+  CodeSegment(){mRefCount = new int(1);}
+  CodeSegment(const CodeSegment& cs){
+    mCodes = cs.mCodes;
+    mRefCount = cs.mRefCount;
+    ++(*mRefCount);
+  }
   ~CodeSegment();
   void addCode(CCode* code){
     mCodes.push_back(code);
@@ -43,6 +48,7 @@ public:
   }
 protected:
   std::vector<CCode*> mCodes;
+  int* mRefCount;
 };
 
 class StackData{
@@ -76,6 +82,9 @@ std::istream& operator>>(std::istream& strm, StackData& data);
 
 class Stack{
 public:
+  Stack(){}
+  Stack(const Stack& st){mVariables = st.mVariables;}
+  ~Stack(){}
   void push(const StackData& v) {mVariables.push_back(v);}
   StackData pop() {
     StackData data = mVariables.back();
@@ -97,6 +106,7 @@ class ExecutionContext{
   friend class ScriptFunctions;
 public:
   ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo);
+  ExecutionContext(const ExecutionContext& ctx);
   ~ExecutionContext();
   void setEvent(EngineEvent evt);
   void resetEvent(EngineEvent evt);
