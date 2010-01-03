@@ -134,7 +134,7 @@ public:
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
   Animation* getAnimation();
   bool isHit(const Vec2i& point);
-  void setScript(ExecutionContext* script) {mScript = script; script->setOwner(this);}
+  void setScript(ExecutionContext* script) {mScript = script; if (script) script->setOwner(this);}
   ExecutionContext* getScript() {return mScript;}
   void setSuspensionScript(ExecutionContext* script);
   int getState() {return mState;}
@@ -252,6 +252,8 @@ public:
   virtual void save();
   bool isMirrored() {return mMirror;}
   void setMirrored(bool mirrored) {mMirror = mirrored;}
+  void setRoom(const std::string& room) {mRoom = room;}
+  std::string getRoom() {return mRoom;}
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
@@ -260,6 +262,7 @@ protected:
   Color mTextColor;
   unsigned mFontID;
   Inventory* mInventory;
+  std::string mRoom;
 };
 
 #endif

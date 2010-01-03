@@ -155,6 +155,12 @@ public:
   **/
   static int setBool(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param char name of the character instance
+  \param state extra state of the character (number or name)
+  \param ... [opt] additional states
+  **/
+  static int setChar(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param character name of the character to focus
   special values none/last
   **/

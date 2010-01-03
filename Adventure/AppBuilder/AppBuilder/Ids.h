@@ -37,6 +37,24 @@ enum TaskPopup{
   TB_SCROLLING
 };
 
+enum TsStyle{
+  TS_SOLID = 0,
+  TS_TRANSPARENT,
+  TS_ADDITIVE,
+  TS_NONE
+};
+
+enum ScreenChange{
+  SC_DIRECT = 0,
+  SC_FADEOUT,
+  SC_RECTANGLE,
+  SC_CIRCLE,
+  SC_SHUTTERS,
+  SC_CLOCK,
+  SC_BLEND,
+  SC_BLEND_SLOW,
+};
+
 /* parallax scolling
 //speed
 var speed0:Number = 130;//higher = slower

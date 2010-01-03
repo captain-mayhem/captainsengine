@@ -51,9 +51,9 @@ public:
   SaveStateProvider* getSaver() {return mSaver;}
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
   Object2D* createItem(const std::string& name);
-  void setUseObject(Object2D* object, const std::string& objectInfo);
+  void setUseObject(const std::string& object, const std::string& objectInfo);
   std::string getUseObjectName() {return mUseObjectName;}
-  void setGiveObject(Object2D* object, const std::string& objectInfo);
+  void setGiveObject(const std::string& object, const std::string& objectInfo);
   std::string getGiveObjectName() {return mGiveObjectName;}
   ExecutionContext* loadScript(Script::Type type, const std::string& name);
   void addUIElement(Object2D* elem);
@@ -62,13 +62,13 @@ public:
   std::string getActiveCommand();
   void clearGui();
   RoomObject* getContainingRoom(Object2D* object);
-  CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className);
+  CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom);
   void keyPress(int key);
   void keyRelease(int key);
   void unloadRooms();
-  void focusChar() {mCharOutOfFocus = false;}
-  bool isCharOutOfFocus() {return mCharOutOfFocus;}
-  std::string getLastFocussedCharRoom() {return mLastFocussedCharRoom;}
+  //void focusChar(const std::string& name);
+  //bool isCharOutOfFocus() {return mCharOutOfFocus;}
+  std::string getCharacterClass(const std::string instanceName);
 protected:
   Engine();
   static Engine* mInstance;
@@ -84,12 +84,11 @@ protected:
   CursorObject* mCursor;
   CharacterObject* mFocussedChar;
   std::string mLastFocussedChar;
-  std::string mLastFocussedCharRoom;
-  bool mCharOutOfFocus;
   bool mMainRoomLoaded;
   bool mSubRoomLoaded;
   std::list<Object2D*> mUI;
   RoomObject* mTaskbar;
+  //bool mCharOutOfFocus;
   //grid variables
   int mWalkGridSize;
   Vec2i mWalkFields;
@@ -123,9 +122,7 @@ protected:
   //engine - script communication
   std::string mObjectInfo;
   unsigned mActiveCommand;
-  //Object2D* mUseObject;
   std::string mUseObjectName;
-  //Object2D* mGiveObject;
   std::string mGiveObjectName;
   std::string mLinkObjectInfo;
 };

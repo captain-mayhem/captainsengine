@@ -68,8 +68,12 @@ void Engine::initGame(){
     loadRoom(mData->getProjectSettings()->taskroom, true);
     if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)
       mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
-    else
-      mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y));
+    else{
+      if (mData->getProjectSettings()->taskHideCompletely)
+        mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y));
+      else
+        mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-20));
+    }
   }
   else{
     mTaskbar = NULL;
@@ -90,7 +94,7 @@ void Engine::initGame(){
   for (int i = 0; i < 10; ++i){
     mTimeIntervals.push_back(50);
   }
-  mCharOutOfFocus = true;
+  //mCharOutOfFocus = true;
 }
 
 void Engine::exitGame(){
@@ -249,7 +253,7 @@ void Engine::render(){
     if (mInterpreter->isBlockingScriptRunning())
       break;
   }
-  if (mFocussedChar && !mCharOutOfFocus)
+  if (mFocussedChar && mFocussedChar->getRoom() == mRooms.back()->getName())
     mFocussedChar->render();
   mCursor->render();
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
@@ -357,7 +361,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
         break;
       }
     }
-    CharacterObject* character = loadCharacter(ch.name, ch.character);
+    CharacterObject* character = loadCharacter(ch.name, ch.character, false);
     if (character)
       roomobj->addObject(character);
   };
@@ -388,8 +392,8 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
   }
   if (room->name == mData->getProjectSettings()->taskroom)
     mTaskbar = roomobj;
-  if (!isSubRoom)
-    mCharOutOfFocus = true;
+  //if (!isSubRoom)
+  //  mCharOutOfFocus = true;
   return true;
 }
 
@@ -401,10 +405,9 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
     else
       room = mRooms.front();
   }
-  if (mainroom && !mCharOutOfFocus){
-    mLastFocussedCharRoom = room->getName();
-    mCharOutOfFocus = true;
-  }
+  //if (mainroom && !mCharOutOfFocus){
+  //  mCharOutOfFocus = true;
+  //}
   ExecutionContext* ctx = room->getScript();
   if (ctx){
     ctx->setEvent(EVT_EXIT);
@@ -443,9 +446,11 @@ void Engine::setCursorPos(Vec2i pos){
   //triggered scrolling
   if (mTaskbar && pos.y < mData->getProjectSettings()->resolution.y - mData->getProjectSettings()->taskheight - 16){
     if (mData->getProjectSettings()->taskpopup == TB_SCROLLING){
-      //mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y));
       std::list<Vec2i> target;
-      target.push_back(Vec2i(0,mData->getProjectSettings()->resolution.y));
+      if (mData->getProjectSettings()->taskHideCompletely)
+        target.push_back(Vec2i(0,mData->getProjectSettings()->resolution.y));
+      else
+        target.push_back(Vec2i(0,mData->getProjectSettings()->resolution.y-20));
       mAnimator->add(mTaskbar, target, 10);
     }
     if (mData->getProjectSettings()->taskpopup == TB_DIRECT){
@@ -492,7 +497,7 @@ void Engine::leftClick(const Vec2i& pos){
     Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
   }
   int curCmd = mCursor->getCurrentCommand();
-  if (curCmd != mActiveCommand){
+  if (curCmd != mActiveCommand && mLinkObjectInfo.empty()){
     mActiveCommand = curCmd;
     mUseObjectName = "";
     mGiveObjectName = "";
@@ -509,11 +514,11 @@ void Engine::rightClick(const Vec2i& pos){
 }
 
 bool Engine::setFocus(std::string charname){
+  if (mFocussedChar){
+    mRooms.back()->addObject(mFocussedChar);
+  }
   if (mFocussedChar && charname == "none"){
-    RoomObject* room = *--mRooms.end();
-    room->addObject(mFocussedChar);
     mLastFocussedChar = mFocussedChar->getName();
-    mLastFocussedCharRoom = room->getName();
     mFocussedChar = NULL;
     return true;
   }
@@ -523,17 +528,20 @@ bool Engine::setFocus(std::string charname){
   CharacterObject* res = extractCharacter(charname);
   if (res){
     mFocussedChar = res;
-    mCharOutOfFocus = false;
     return true;
   }
-  if (!mLastFocussedCharRoom.empty() && mLastFocussedCharRoom != mRooms.back()->getName()){
-    loadRoom(mLastFocussedCharRoom, false);
-    return setFocus(mLastFocussedChar);
-  }
+  /*if (!mLastFocussedChar.empty() && mLastFocussedChar != "none"){
+    focusChar(mLastFocussedChar);
+    return true;
+  }*/
   //load character
-  mFocussedChar = loadCharacter(charname, charname);
+  res = loadCharacter(charname, getCharacterClass(charname), true);
   mSaver->removeCharacter(charname);
-  mCharOutOfFocus = true;
+  if (res){
+    mFocussedChar = res;
+    return true;
+  }
+  //mCharOutOfFocus = true;
   return false;
 }
 
@@ -744,22 +752,14 @@ Object2D* Engine::createItem(const std::string& name){
   return object;
 }
 
-void Engine::setUseObject(Object2D* object, const std::string& objectInfo){
-  //mUseObject = object;
+void Engine::setUseObject(const std::string& object, const std::string& objectInfo){
   mLinkObjectInfo = objectInfo;
-  if (object)
-    mUseObjectName = object->getName();
-  else
-    mUseObjectName = "";
+  mUseObjectName = object;
 }
 
-void Engine::setGiveObject(Object2D* object, const std::string& objectInfo){
-  //mGiveObject = object;
+void Engine::setGiveObject(const std::string& object, const std::string& objectInfo){
   mLinkObjectInfo = objectInfo;
-  if (object)
-    mGiveObjectName = object->getName();
-  else
-    mGiveObjectName = "";
+  mGiveObjectName = object;
 }
 
 ExecutionContext* Engine::loadScript(Script::Type type, const std::string& name){
@@ -770,7 +770,6 @@ ExecutionContext* Engine::loadScript(Script::Type type, const std::string& name)
 
 void Engine::addUIElement(Object2D* elem){
   mUI.push_back(elem);
-  //mInterpreter->execute(elem->getScript(), false);
 }
 
 void Engine::setCommand(const std::string& command, bool deleteLinks){
@@ -815,15 +814,29 @@ RoomObject* Engine::getContainingRoom(Object2D* object){
   return NULL;
 }
 
-CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className){
+CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom){
+  SaveStateProvider::CharSaveObject* obj = NULL;
+  std::string room;
+  if (loadContainingRoom){
+    obj = mSaver->findCharacter(instanceName, room);
+    if (obj){
+      loadRoom(room, false);
+      CharacterObject* chr = extractCharacter(instanceName);
+      if (chr)
+        return chr;
+    }
+  }
   if (mFocussedChar && mFocussedChar->getName() == instanceName)
     return NULL;
-  SaveStateProvider::CharSaveObject* obj = mSaver->getOrAddCharacter(instanceName);
+  if (!obj){
+    obj = mSaver->findCharacter(instanceName, room);
+  }
   Character* chbase = mData->getCharacter(className);
   CharacterObject* character = new CharacterObject(obj->base.state, obj->base.position, instanceName);
   character->setMirrored(obj->mirrored);
   character->setFontID(chbase->fontid+1);
   character->setTextColor(chbase->textcolor);
+  character->setRoom(room);
   for (unsigned j = 0; j < chbase->states.size(); ++j){
     int depth = (obj->base.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
     Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
@@ -872,5 +885,14 @@ void Engine::unloadRooms(){
   mMainRoomLoaded = false;
   mSubRoomLoaded = false;
   mTaskbar = NULL;
-  mCharOutOfFocus = true;
+}
+
+std::string Engine::getCharacterClass(const std::string instanceName){
+  Rcharacter ch;
+  for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
+    if (mData->getRoomCharacters()[i].name == instanceName){
+      return mData->getRoomCharacters()[i].character;
+    }
+  }
+  return "";
 }

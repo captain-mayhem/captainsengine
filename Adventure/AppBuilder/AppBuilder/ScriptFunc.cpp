@@ -58,6 +58,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("loadgame", loadGame);
   interpreter->registerFunction("jiggle", jiggle);
   interpreter->registerFunction("randomnum", randomNum);
+  interpreter->registerFunction("setchar", setChar);
   srand(time(NULL));
 }
 
@@ -228,13 +229,13 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   if (charname == "self"){
     //focussed char, therefore change room
     Engine::instance()->loadRoom(roomname, false);
-    Engine::instance()->focusChar();
     CharacterObject* obj = Engine::instance()->getCharacter(charname);
     if (obj){
       Engine::instance()->getAnimator()->remove(obj);
       obj->setPosition((pos*Engine::instance()->getWalkGridSize())+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
       int state = CharacterObject::calculateState(obj->getState(), false, false);
       obj->setState(state);
+      obj->setRoom(Engine::instance()->getRoom(roomname)->getName());
     }
   }
   else{
@@ -244,8 +245,11 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       obj->setPosition(pos*Engine::instance()->getWalkGridSize());
       int state = CharacterObject::calculateState(obj->getState(), false, false);
       obj->setState(state);
+      obj->setRoom(roomname);
+      Engine::instance()->getSaver()->removeCharacter(charname);
       Engine::instance()->getSaver()->getRoom(roomname);
       obj->save();
+      delete obj;
     }
   }
   return 0;
@@ -335,6 +339,7 @@ int ScriptFunctions::textScene(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getInterpreter()->mTSRow = 0;
   Engine::instance()->getInterpreter()->mTSPosOrig = pos;
   Engine::instance()->getInterpreter()->mTSWidth = width;
+  Engine::instance()->getInterpreter()->mNextTSLevel = 0;
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scenename);
   Engine::instance()->getInterpreter()->executeCutscene(context, true);
   return 0;
@@ -351,6 +356,8 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
     inventory = ctx.stack().pop().getInt();
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
   if (chr){
+    //ctx.mExecuteOnce = true;
+    //ctx.mOwner = NULL;
     chr->getInventory()->removeItem(itemname, inventory);
   }
   return 0;
@@ -409,8 +416,7 @@ int ScriptFunctions::subRoomReturn(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::link(ExecutionContext& ctx, unsigned numArgs){
   std::string objectname = ctx.stack().pop().getString();
-  Object2D* obj = Engine::instance()->getObject(objectname, true);
-  Engine::instance()->setUseObject(obj, ctx.mObjectInfo);
+  Engine::instance()->setUseObject(objectname, ctx.mObjectInfo);
   PcdkScript::mRemoveLinkObject = false;
   return 0;
 }
@@ -424,7 +430,7 @@ int ScriptFunctions::giveLink(ExecutionContext& ctx, unsigned numArgs){
   else{
     obj = ctx.mOwner;
   }
-  Engine::instance()->setGiveObject(obj, ctx.mObjectInfo);
+  Engine::instance()->setGiveObject(obj->getName(), ctx.mObjectInfo);
   PcdkScript::mRemoveLinkObject = false;
   return 0;
 }
@@ -459,8 +465,9 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
   str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
     DEPTH_GAME_FONT, 1, Color(), 3000);
-  if (sound != "") //TODO
-    DebugBreak();
+  if (sound != ""){
+    //TODO SOUND
+  }
   if (hold && str){
     str->setSuspensionScript(&ctx);
     ctx.mSuspended = true;
@@ -483,7 +490,7 @@ int ScriptFunctions::restart(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::gotoLevel(ExecutionContext& ctx, unsigned numArgs){
   int level = ctx.stack().pop().getInt();
-  Engine::instance()->getInterpreter()->mTSLevel = level;
+  Engine::instance()->getInterpreter()->mNextTSLevel = level;
   return 0;
 }
 
@@ -593,7 +600,40 @@ int ScriptFunctions::randomNum(ExecutionContext& ctx, unsigned numArgs){
   std::string name = ctx.stack().pop().getString();
   int limit = ctx.stack().pop().getInt();
   int rnd = rand()%limit;
-  Engine::instance()->getInterpreter()->mVariables[name] = StackData(rnd);
+  Engine::instance()->getInterpreter()->mVariables[name] = StackData(rnd+1);
+  return 0;
+}
+
+int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
+  std::string chrname = ctx.stack().pop().getString();
+  StackData data = ctx.stack().pop();
+  int state = 0;
+  if (data.getInt() != 0)
+    state = data.getInt()+16;
+  else{
+    std::string statename = data.getString();
+  }
+  CharacterObject* obj = Engine::instance()->getCharacter(chrname);
+  int oldstate;
+  if (obj){
+    oldstate = obj->getState();
+    obj->setState(state);
+  }
+  for (unsigned i = 2; i < numArgs; ++i){
+    data = ctx.stack().pop();
+    if (data.getInt() != 0)
+      state = data.getInt()+16;
+    else{
+      std::string statename = data.getString();
+    }
+    if (obj){
+      obj->addNextState(state);
+    }
+  }
+  if (obj){
+    obj->addNextState(oldstate);
+    obj->getAnimation()->registerAnimationEndHandler(obj);
+  }
   return 0;
 }
 
