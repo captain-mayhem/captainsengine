@@ -25,6 +25,7 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
   mTSLevel = 1;
+  mNextTSLevel = 0;
 }
 
 PcdkScript::~PcdkScript(){
@@ -329,15 +330,26 @@ void PcdkScript::update(unsigned time){
       Engine::instance()->setCommand(mPrevActiveCommand, false);
       delete mCutScene;
       mCutScene = NULL;
+      //reload room if changed through cutscene
       CharacterObject* chr = Engine::instance()->getCharacter("self");
-      if (chr && Engine::instance()->isCharOutOfFocus()){
-        Engine::instance()->loadRoom(Engine::instance()->getLastFocussedCharRoom(), false);
-        Engine::instance()->focusChar();
-      }
+      if (chr)
+        Engine::instance()->loadRoom(chr->getRoom(), false);
     }
-    if (mTSPos == mTSPosOrig && mCutScene && !mCutScene->mSuspended){
+    if (mCutScene && !mCutScene->mSuspended){
+      int count = 0;
+      for (std::map<int, bool>::iterator iter = mTSActive[mTSName][mTSLevel].begin(); iter != mTSActive[mTSName][mTSLevel].end(); ++iter){
+        if (iter->second)
+          ++count;
+      }
       //no viable alternatives found (or no textscene)
-      mTSLevel = 1;
+      if (count == 0 && mTSLevel > 1)
+        --mTSLevel;
+      //goto another level
+      if (mNextTSLevel != 0){
+        mCutScene->resetEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
+        mTSLevel = mNextTSLevel;
+        mNextTSLevel = 0;
+      }
     }
   }
 }
@@ -514,13 +526,13 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
       if (chr)
         chr->getScript()->setEvent(EVT_CANT_ALL);
     }
-    Engine::instance()->setUseObject(NULL, "");
+    Engine::instance()->setUseObject("", "");
     if (ctx.isEventSet(EVT_GIVE_LINK)){
       ctx.resetEvent(EVT_GIVE_LINK);
       if (chr)
         chr->getScript()->setEvent(EVT_CANT_ALL);
     }
-    Engine::instance()->setGiveObject(NULL, "");
+    Engine::instance()->setGiveObject("", "");
   }
 }
 

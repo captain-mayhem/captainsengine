@@ -104,9 +104,10 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   mSettings.startscript = str.SubString(14,str.Length());
   mSettings.mainscript = txtstream.ReadLine();
   mSettings.anywhere_room = txtstream.ReadLine();
-  //str = txtstream.ReadLine(); //Screenchange
+  str = txtstream.ReadLine(); //Screenchange
+  mSettings.screenchange = (ScreenChange)atoi(str.substr(15).c_str());
   //TODO
-  for (int i = 0; i < 5; ++i){
+  for (int i = 0; i < 4; ++i){
     str = txtstream.ReadLine();
   }
   str = txtstream.ReadLine();
@@ -115,7 +116,13 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   mSettings.taskroom = str.substr(11).c_str();
   str = txtstream.ReadLine();
   mSettings.taskpopup = atoi(str.substr(12).c_str());
-  for (int i = 0; i < 5; ++i){
+  str = txtstream.ReadLine();
+  std::string taskshow = str.substr(11, 4).c_str();
+  if (taskshow == "hide")
+    mSettings.taskHideCompletely = true;
+  else
+    mSettings.taskHideCompletely = false;
+  for (int i = 0; i < 4; ++i){
     str = txtstream.ReadLine();
   }
   str = txtstream.ReadLine();
@@ -127,9 +134,9 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   str = txtstream.ReadLine();
   mSettings.textcolor = atoi(str.substr(12).c_str());
   str = txtstream.ReadLine(); //offtextcolor
-  str = txtstream.ReadLine(); //unknown
-  mSettings.tsstyle = atoi(str.c_str());
-  str = txtstream.ReadLine(); //unknown
+  str = txtstream.ReadLine();
+  mSettings.tsstyle = (TsStyle)(atoi(str.c_str())-1);
+  str = txtstream.ReadLine();
   mSettings.tsborderstyle = atoi(str.c_str());
   str = txtstream.ReadLine();
   mSettings.tsbordercolor = atoi(str.c_str());

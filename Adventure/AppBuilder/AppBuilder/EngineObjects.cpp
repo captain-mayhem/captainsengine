@@ -287,6 +287,10 @@ BaseBlitObject(DEPTH_BUTTON, size), mText(text){
   mBackgroundColor = Engine::instance()->getSettings()->tsareacolor;
   mBorderColor = Engine::instance()->getSettings()->tsbordercolor;
   mHighlightColor = Engine::instance()->getSettings()->tsselectioncolor;
+  if (Engine::instance()->getSettings()->tsstyle == TS_TRANSPARENT){
+    mBackgroundColor.a = 127;
+    mHighlightColor.a = 127;
+  }
   CodeSegment* code = new CodeSegment();
   CBNEEVT* click = new CBNEEVT(EVT_CLICK);
   code->addCode(click);

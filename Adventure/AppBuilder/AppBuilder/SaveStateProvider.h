@@ -35,6 +35,7 @@ public:
   void removeObject(const std::string& name);
   CharSaveObject* getCharacter(const std::string& name);
   CharSaveObject* getOrAddCharacter(const std::string& name);
+  CharSaveObject* findCharacter(const std::string& name, std::string& room);
   void removeCharacter(const std::string& name);
   void clear();
   void save(const std::string& name);

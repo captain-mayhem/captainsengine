@@ -40,7 +40,6 @@ public:
   std::ostream& save(std::ostream& out);
   std::istream& load(std::istream& in);
   bool isBlockingScriptRunning() {return mGlobalSuspend;}
-
   static void clickEndHandler(ExecutionContext& ctx);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode);
@@ -62,6 +61,7 @@ protected:
   static bool mRemoveLinkObject;
   std::string mTSName;
   int mTSLevel;
+  int mNextTSLevel;
   int mTSRow;
   Vec2i mTSPosOrig;
   Vec2i mTSPos;

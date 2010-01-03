@@ -223,7 +223,7 @@ void SaveStateProvider::save(const std::string& name){
   else
     out << "none" << std::endl;
   if (!Engine::instance()->mLastFocussedChar.empty())
-    out << Engine::instance()->mLastFocussedChar << " " << out << Engine::instance()->mLastFocussedCharRoom << std::endl;
+    out << Engine::instance()->mLastFocussedChar << std::endl;// << " " << Engine::instance()->mLastFocussedCharRoom << std::endl;
   else
     out << "none none" << std::endl;
   out << Engine::instance()->mMainRoomLoaded << " " << Engine::instance()->mSubRoomLoaded << std::endl;
@@ -260,15 +260,13 @@ void SaveStateProvider::load(const std::string& name){
   //focussed char
   std::string focussedchar;
   in >> focussedchar;
-  in >> Engine::instance()->mLastFocussedChar >> Engine::instance()->mLastFocussedCharRoom;
+  in >> Engine::instance()->mLastFocussedChar;
   if (Engine::instance()->mLastFocussedChar == "none"){
     Engine::instance()->mLastFocussedChar = "none";
-    Engine::instance()->mLastFocussedCharRoom = "none";
   }
   Engine::instance()->setFocus(focussedchar);
   in >> Engine::instance()->mMainRoomLoaded >> Engine::instance()->mSubRoomLoaded;
   Engine::instance()->getInterpreter()->load(in);
-  Engine::instance()->mCharOutOfFocus = false;
   allowWrites(false);
   in.close();
 }
@@ -278,4 +276,27 @@ std::string SaveStateProvider::saveSlotToPath(int slot){
   path << Engine::instance()->getSettings()->savedir;
   path << "/save" << slot << ".sav";
   return path.str();
+}
+
+SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::string& name, std::string& room){
+  //check if already present
+  for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    for (std::map<std::string,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
+      if (chriter->first == name){
+        room = iter->first;
+        return chriter->second;
+      }
+    }
+  }
+  for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
+    if (mData->getRoomCharacters()[i].name == name){
+      //load the room with the character into saving
+      room = mData->getRoomCharacters()[i].room;
+      SaveRoom* saveroom = getRoom(room);
+      std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.find(name);
+      if (iter != saveroom->characters.end())
+        return iter->second;
+    }
+  }
+  return NULL;
 }
