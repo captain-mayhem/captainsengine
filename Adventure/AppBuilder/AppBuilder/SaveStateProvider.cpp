@@ -223,10 +223,11 @@ void SaveStateProvider::save(const std::string& name){
   else
     out << "none" << std::endl;
   if (!Engine::instance()->mLastFocussedChar.empty())
-    out << Engine::instance()->mLastFocussedChar << std::endl;// << " " << Engine::instance()->mLastFocussedCharRoom << std::endl;
+    out << Engine::instance()->mLastFocussedChar << std::endl;
   else
-    out << "none none" << std::endl;
+    out << "none" << std::endl;
   out << Engine::instance()->mMainRoomLoaded << " " << Engine::instance()->mSubRoomLoaded << std::endl;
+  out << Engine::instance()->mShowTaskbar << std::endl;
   Engine::instance()->getInterpreter()->save(out);
   if (Engine::instance()->mFocussedChar)
     removeCharacter(focussedcharname);
@@ -265,7 +266,9 @@ void SaveStateProvider::load(const std::string& name){
     Engine::instance()->mLastFocussedChar = "none";
   }
   Engine::instance()->setFocus(focussedchar);
+  //data
   in >> Engine::instance()->mMainRoomLoaded >> Engine::instance()->mSubRoomLoaded;
+  in >> Engine::instance()->mShowTaskbar;
   Engine::instance()->getInterpreter()->load(in);
   allowWrites(false);
   in.close();

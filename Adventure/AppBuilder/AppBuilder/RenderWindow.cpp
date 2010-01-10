@@ -1,6 +1,7 @@
 #include "RenderWindow.h"
 #include <wx/dcclient.h>
 #include "Engine.h"
+#include "Sound.h"
 
 BEGIN_EVENT_TABLE(RenderWindow, wxGLCanvas)
 EVT_SIZE(RenderWindow::OnSize)
@@ -19,7 +20,7 @@ END_EVENT_TABLE()
 RenderWindow::RenderWindow(wxWindow* parent, int* attriblist, int resx, int resy) : 
 wxGLCanvas(parent, wxID_ANY, attriblist, wxPoint(100,100), wxSize(resx, resy), wxFULL_REPAINT_ON_RESIZE),
 mContext(NULL), mRendering(false){
-  
+  SoundPlayer::setParent(this);  
 }
 
 RenderWindow::~RenderWindow(){

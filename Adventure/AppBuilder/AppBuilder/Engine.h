@@ -15,6 +15,7 @@ void DebugBreak();
 #endif
 
 class SaveStateProvider;
+class SoundPlayer;
 
 class Engine{
   friend class SaveStateProvider;
@@ -66,9 +67,9 @@ public:
   void keyPress(int key);
   void keyRelease(int key);
   void unloadRooms();
-  //void focusChar(const std::string& name);
-  //bool isCharOutOfFocus() {return mCharOutOfFocus;}
   std::string getCharacterClass(const std::string instanceName);
+  void showTaskbar(bool show) {mShowTaskbar = show;}
+  SoundPlayer* getSound(const std::string& sound);
 protected:
   Engine();
   static Engine* mInstance;
@@ -88,7 +89,7 @@ protected:
   bool mSubRoomLoaded;
   std::list<Object2D*> mUI;
   RoomObject* mTaskbar;
-  //bool mCharOutOfFocus;
+  bool mShowTaskbar;
   //grid variables
   int mWalkGridSize;
   Vec2i mWalkFields;

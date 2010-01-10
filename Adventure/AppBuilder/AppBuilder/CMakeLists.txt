@@ -1,7 +1,7 @@
 INCLUDE(FindwxWidgets)
 
-SET(wxWidgets_USE_LIBS base core gl)
-FIND_PACKAGE(wxWidgets REQUIRED base core gl)
+SET(wxWidgets_USE_LIBS base core gl media)
+FIND_PACKAGE(wxWidgets REQUIRED base core gl media)
 INCLUDE(${wxWidgets_USE_FILE})
 ADD_DEFINITIONS(-DwxUSE_NO_MANIFEST=1)
 

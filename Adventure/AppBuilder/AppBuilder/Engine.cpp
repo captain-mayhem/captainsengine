@@ -94,7 +94,7 @@ void Engine::initGame(){
   for (int i = 0; i < 10; ++i){
     mTimeIntervals.push_back(50);
   }
-  //mCharOutOfFocus = true;
+  mShowTaskbar = true;
 }
 
 void Engine::exitGame(){
@@ -249,6 +249,10 @@ void Engine::render(){
 
   //build blit queue
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
+    if ((*iter) == mTaskbar){
+      if (!mShowTaskbar)
+        continue;
+    }
     (*iter)->render();
     if (mInterpreter->isBlockingScriptRunning())
       break;
@@ -276,11 +280,12 @@ void Engine::render(){
     mObjectInfo.clear();
   }
   //elevate the action line
-  if (mTaskbar && !mInterpreter->isBlockingScriptRunning()){
+  if (mTaskbar && !mInterpreter->isBlockingScriptRunning() && mShowTaskbar){
     res.y = mTaskbar->getPosition().y;
   }
   Vec2i offset = mFonts->getTextExtent(text, 1);
-  mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1);
+  if (!mInterpreter->isBlockingScriptRunning())
+    mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1);
 
   mFonts->prepareBlit(interval);
 
@@ -706,6 +711,11 @@ CharacterObject* Engine::extractCharacter(const std::string& name){
 }
 
 RoomObject* Engine::getRoom(const std::string& name){
+  if (name.empty()){
+    if (mMainRoomLoaded)
+      return mRooms.back();
+    return NULL;
+  }
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     if (stricmp((*iter)->getName().c_str(), name.c_str()) == 0){
       return *iter;
@@ -832,6 +842,8 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
     obj = mSaver->findCharacter(instanceName, room);
   }
   Character* chbase = mData->getCharacter(className);
+  if (chbase == NULL)
+    return NULL;
   CharacterObject* character = new CharacterObject(obj->base.state, obj->base.position, instanceName);
   character->setMirrored(obj->mirrored);
   character->setFontID(chbase->fontid+1);
@@ -895,4 +907,9 @@ std::string Engine::getCharacterClass(const std::string instanceName){
     }
   }
   return "";
+}
+
+SoundPlayer* Engine::getSound(const std::string& sound){
+  SoundPlayer* sp = mData->getSound(sound);
+  return sp;
 }

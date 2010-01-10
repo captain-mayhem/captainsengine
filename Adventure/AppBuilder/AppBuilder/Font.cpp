@@ -103,7 +103,7 @@ FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string
   String* str = new String(Vec2i(x,y), displayTime);
   int xoffset = 0;
   for (unsigned i = 0; i < text.size(); ++i){
-    char charnum = text[i]-0x20;
+    unsigned char charnum = ((unsigned char)text[i])-0x20;
     int chardeviation = mCharwidths[charnum];
     int texnum = charnum/(mNumChars.x*mNumChars.y);
     charnum %= mNumChars.x*mNumChars.y;
@@ -122,7 +122,7 @@ FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string
 Vec2i FontRenderer::Font::getTextExtent(const std::string& text){
   unsigned accu = 0;
   for (unsigned i = 0; i < text.size(); ++i){
-    char charnum = text[i]-0x20;
+    unsigned char charnum = ((unsigned char)text[i])-0x20;
     accu += mCharwidths[charnum];
   }
   return Vec2i(accu,mFontsize.y);
