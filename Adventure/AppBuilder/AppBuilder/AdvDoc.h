@@ -9,7 +9,8 @@
 #include <wx/filesys.h>
 #include <wx/image.h>
 #include "AdvMainTree.h"
-//#include "Graph.h"
+
+class SoundPlayer;
 
 struct Vec2i{
   Vec2i() : x(0), y(0) {}
@@ -245,6 +246,7 @@ public:
   virtual wxOutputStream& SaveObject(wxOutputStream& stream);
   virtual wxInputStream& LoadObject(wxInputStream& stream);
   wxImage getImage(wxString name);
+  SoundPlayer* getSound(const std::string& name);
   Room* getRoom(std::string name);
   Object* getObject(std::string name);
   MouseCursor* getCursor();
@@ -266,6 +268,9 @@ protected:
   AdvMainTreeView* mView;
   ProjectSettings mSettings;
   std::map<wxString,wxFileName> mImageNames;
+  std::map<wxString,wxFileName> mSoundNames;
+  std::map<wxString,wxFileName> mMusicNames;
+  std::map<wxString,wxFileName> mMovieNames;
   MouseCursor mCursor;
   std::map<std::string,Item> mItems;
   std::map<std::string,Object> mObjects;

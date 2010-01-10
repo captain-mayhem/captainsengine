@@ -4,6 +4,7 @@
 #include "Script.h"
 #include "SaveStateProvider.h"
 #include "Inventory.h"
+#include "Sound.h"
 
 void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("loadroom", loadRoom);
@@ -143,8 +144,8 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     int currState = chr->getState();
     chr->addNextState(currState);
     chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));
-    if (sound != "") //TODO
-      DebugBreak();
+    if (sound != ""){ //TODO SOUND
+    }
   }
   if (hold && str){
     str->setSuspensionScript(&ctx);
@@ -281,7 +282,7 @@ int ScriptFunctions::cutScene(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::taskbar(ExecutionContext& ctx, unsigned numArgs){
   bool state = ctx.stack().pop().getBool();
-  //TODO taskbar
+  Engine::instance()->showTaskbar(state);
   return 0;
 }
 
@@ -369,6 +370,8 @@ int ScriptFunctions::loopSound(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 2)
     volume = ctx.stack().pop().getInt();
   //TODO sound
+  //SoundPlayer* sp = Engine::instance()->getSound(sound);
+  //sp->play();
   return 0;
 }
 
@@ -593,6 +596,20 @@ int ScriptFunctions::jiggle(ExecutionContext& ctx, unsigned numArgs){
   int power = 10;
   if (numArgs >= 2)
     power = ctx.stack().pop().getInt();
+  RoomObject* room = Engine::instance()->getRoom("");
+  if (room){
+    std::list<Vec2i> path;
+    path.push_back(Vec2i());
+    int timecount = 0;
+    while(timecount < seconds*1000){
+      int x = (rand()%(2*power+1))-power;
+      int y = (rand()%(2*power+1))-power;
+      path.push_back(Vec2i(x,y));
+      timecount += 50;
+    }
+    path.push_back(Vec2i());
+    Engine::instance()->getAnimator()->add(room, path, power);
+  }
   return 0;
 }
 
@@ -612,6 +629,8 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     state = data.getInt()+16;
   else{
     std::string statename = data.getString();
+    //TODO 
+    DebugBreak();
   }
   CharacterObject* obj = Engine::instance()->getCharacter(chrname);
   int oldstate;
@@ -625,6 +644,8 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
       state = data.getInt()+16;
     else{
       std::string statename = data.getString();
+      //TODO
+      DebugBreak();
     }
     if (obj){
       obj->addNextState(state);
