@@ -120,6 +120,7 @@ public:
   void resume() {mSuspended = false;}
   void reset(bool clearEvents);
   void setOwner(Object2D* owner) {mOwner = owner;}
+  void setExecuteOnce() {mExecuteOnce = true;}
 protected:
   CodeSegment* mCode;
   bool mIsGameObject;

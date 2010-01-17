@@ -18,7 +18,8 @@ unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
   }
   if (!iter->second) //the text is invisible, so skip further processing
     return pc+mOffset;
-  Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(mText, 1);
+  std::vector<Vec2i> breakinfo;
+  Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
   Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
   Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);
   ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos(), butsize, mText, mRow);

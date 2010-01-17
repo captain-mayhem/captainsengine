@@ -15,12 +15,18 @@ Inventory::~Inventory(){
 }
 
 void Inventory::addItem(Object2D* item, int invnumber){
-  mInventory[invnumber].push_back(item);
+  mInventory[invnumber].push_front(item);
 }
 
-void Inventory::removeItem(const std::string& item, int invnumber){
+void Inventory::removeItem(const std::string& item, int invnumber, ExecutionContext* del_script){
   for (SingleInv::iterator iter = mInventory[invnumber].begin(); iter != mInventory[invnumber].end(); ++iter){
     if ((*iter)->getName() == item){
+      if (del_script == (*iter)->getScript()){
+        //do not delete as it is currently running
+        (*iter)->setScript(NULL);
+        del_script->setOwner(NULL);
+        del_script->setExecuteOnce();
+      }
       delete *iter;
       mInventory[invnumber].erase(iter);
       break;
@@ -50,7 +56,7 @@ void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
 ////////////////////////////////////////////
 
 InventoryDisplay::InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale)
-: mPos(pos+Vec2i(16,16)), mSize(size), mScale(scale), mItemOffset(0){
+: mPos(pos+Vec2i(32,16)), mSize(size), mScale(scale), mItemOffset(0){
 
 }
 
@@ -63,7 +69,7 @@ void InventoryDisplay::render(Inventory* inv){
   Vec2i pos = mPos;
   int precount = 0;
   int count = 0;
-  int invitemwidth = 64;
+  int invitemwidth = 56;
   int invitemheight = 48;
   for (std::list<Object2D*>::iterator iter = tmp.begin(); iter != tmp.end(); ++iter){
     if (precount < mItemOffset){
@@ -77,7 +83,7 @@ void InventoryDisplay::render(Inventory* inv){
     pos.x = mPos.x+xpos*invitemwidth;
     int ypos = count / mSize.x;
     pos.y = mPos.y+ypos*invitemheight;
-    if (count > mSize.x*mSize.y){
+    if (count >= mSize.x*mSize.y){
       break;
     }
   }
@@ -85,19 +91,28 @@ void InventoryDisplay::render(Inventory* inv){
 
 Object2D* InventoryDisplay::getObjectAt(const Vec2i& pos, Inventory* inv){
   Inventory::SingleInv tmp = inv->mInventory[1];
+  int precount = 0;
+  int count = 0;
   for (std::list<Object2D*>::iterator iter = tmp.begin(); iter != tmp.end(); ++iter){
+    if (precount < mItemOffset){
+      ++precount;
+      continue;
+    }
     if ((*iter)->isHit(pos))
       return (*iter);
+    ++count;
+    if (count >= mSize.x*mSize.y)
+      break;
   }
   return NULL;
 }
 
 void InventoryDisplay::setPosition(const Vec2i& pos){
-  mPos = pos+Vec2i(16,16);
+  mPos = pos+Vec2i(32,16);
 }
 
 Vec2i InventoryDisplay::getPosition(){
-  return mPos-Vec2i(16,16);
+  return mPos-Vec2i(32,16);
 }
 
 void InventoryDisplay::addScrollOffset(int offset){

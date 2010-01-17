@@ -81,6 +81,8 @@ void FontRenderer::String::setExtent(const Vec2i& extent){
 
 ////////////////////////////////////////
 
+static const int max_string_width = 200;
+
 FontRenderer::Font::Font(const FontData& data){
   mFontsize = data.fontsize;
   mNumChars = data.numChars;
@@ -99,9 +101,15 @@ FontRenderer::Font::~Font(){
   mRenderQueue.clear();
 }
 
-FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime){
+FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo){
   String* str = new String(Vec2i(x,y), displayTime);
-  int xoffset = 0;
+  unsigned max_len = 0;
+  for (unsigned i = 0; i < breakinfo.size(); ++i){
+    max_len = breakinfo[i].y > (int)max_len ? breakinfo[i].y : max_len;
+  }
+  unsigned line = 0;
+  int xoffset = (max_len-breakinfo[line].y)/2;
+  int yoffset = 0;
   for (unsigned i = 0; i < text.size(); ++i){
     unsigned char charnum = ((unsigned char)text[i])-0x20;
     int chardeviation = mCharwidths[charnum];
@@ -110,22 +118,44 @@ FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string
     int rownum = charnum/mNumChars.x;
     charnum %= mNumChars.x;
     BlitObject* obj = new FontBlitObject(mImages[texnum], mImages[texnum], 
-      mFontsize, mScale, depth, Vec2i(xoffset,0), Vec2f(charnum, rownum), color);
+      mFontsize, mScale, depth, Vec2i(xoffset,yoffset), Vec2f(charnum, rownum), color);
     str->append(obj);
     xoffset += chardeviation;
+    if (i >= (unsigned)breakinfo[line].x){
+      //line break
+      ++line;
+      xoffset = (max_len-breakinfo[line].y)/2;
+      yoffset += mFontsize.y;
+    }
   }
-  str->setExtent(Vec2i(xoffset,mFontsize.y));
+  str->setExtent(Vec2i(max_len,mFontsize.y*breakinfo.size()));
   mRenderQueue.push_back(str);
   return *str;
 }
 
-Vec2i FontRenderer::Font::getTextExtent(const std::string& text){
+Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo){
   unsigned accu = 0;
+  unsigned wordaccu = 0;
+  unsigned max_line = 0;
+  unsigned last_idx = 0;
   for (unsigned i = 0; i < text.size(); ++i){
     unsigned char charnum = ((unsigned char)text[i])-0x20;
-    accu += mCharwidths[charnum];
+    wordaccu += mCharwidths[charnum];
+    if (text[i] == ' '){
+      if (accu + wordaccu > max_string_width){
+        breakinfo.push_back(Vec2i(last_idx, accu));
+        max_line = accu > max_line ? accu : max_line;
+        accu = 0;
+      }
+      accu += wordaccu;
+      last_idx = i;
+      wordaccu = 0;
+    }
   }
-  return Vec2i(accu,mFontsize.y);
+  accu += wordaccu;
+  breakinfo.push_back(Vec2i(text.size(), accu));
+  max_line = accu > max_line ? accu : max_line;
+  return Vec2i(max_line, mFontsize.y*breakinfo.size());
 }
 
 void FontRenderer::Font::blit(unsigned interval){
@@ -179,12 +209,12 @@ void FontRenderer::unloadFont(unsigned id){
   mFonts[id] = NULL;
 }
 
-FontRenderer::String& FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const Color& color, unsigned displayTime){
-  return mFonts[fontid]->render(x, y, text, depth, color, displayTime);
+FontRenderer::String& FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& color, unsigned displayTime){
+  return mFonts[fontid]->render(x, y, text, depth, color, displayTime, breakinfo);
 }
 
-Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid){
-  return mFonts[fontid]->getTextExtent(text);
+Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo){
+  return mFonts[fontid]->getTextExtent(text, breakinfo);
 }
 
 void FontRenderer::prepareBlit(unsigned interval){

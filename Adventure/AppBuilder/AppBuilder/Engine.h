@@ -90,6 +90,7 @@ protected:
   std::list<Object2D*> mUI;
   RoomObject* mTaskbar;
   bool mShowTaskbar;
+  //bool mCharOutOfFocus;
   //grid variables
   int mWalkGridSize;
   Vec2i mWalkFields;
@@ -123,6 +124,7 @@ protected:
   //engine - script communication
   std::string mObjectInfo;
   unsigned mActiveCommand;
+  unsigned mPrevActiveCommand;
   std::string mUseObjectName;
   std::string mGiveObjectName;
   std::string mLinkObjectInfo;

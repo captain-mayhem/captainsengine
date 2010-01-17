@@ -15,7 +15,7 @@ public:
   Inventory();
   ~Inventory();
   void addItem(Object2D* item, int invnumber);
-  void removeItem(const std::string& item, int invnumber);
+  void removeItem(const std::string& item, int invnumber, ExecutionContext* del_script);
   Object2D* getItem(const std::string& name);
   void save(SaveStateProvider::SaveInventory& inv) const;
 protected:
