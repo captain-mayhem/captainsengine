@@ -266,7 +266,11 @@ void Engine::render(){
 
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
-  std::string text = mData->getProjectSettings()->pretty_commands[mActiveCommand];
+  std::string text;
+  if (mUseObjectName.empty() && mGiveObjectName.empty())
+    text = mData->getProjectSettings()->pretty_commands[mActiveCommand];
+  else
+    text = mData->getProjectSettings()->pretty_commands[mPrevActiveCommand];
   if (!mUseObjectName.empty()){
     text += " "+mLinkObjectInfo;
     text += " "+mData->getProjectSettings()->linktext;
@@ -283,9 +287,10 @@ void Engine::render(){
   if (mTaskbar && !mInterpreter->isBlockingScriptRunning() && mShowTaskbar){
     res.y = mTaskbar->getPosition().y;
   }
-  Vec2i offset = mFonts->getTextExtent(text, 1);
+  std::vector<Vec2i> breakinfo;
+  Vec2i offset = mFonts->getTextExtent(text, 1, breakinfo);
   if (!mInterpreter->isBlockingScriptRunning())
-    mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1);
+    mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1, breakinfo);
 
   mFonts->prepareBlit(interval);
 
@@ -503,6 +508,7 @@ void Engine::leftClick(const Vec2i& pos){
   }
   int curCmd = mCursor->getCurrentCommand();
   if (curCmd != mActiveCommand && mLinkObjectInfo.empty()){
+    mPrevActiveCommand = mActiveCommand;
     mActiveCommand = curCmd;
     mUseObjectName = "";
     mGiveObjectName = "";

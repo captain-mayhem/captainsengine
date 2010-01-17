@@ -318,7 +318,9 @@ void ButtonObject::setColors(const Color& background, const Color& border, const
 }
 
 void ButtonObject::render(){
-  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, 1);
+  std::vector<Vec2i> breakinfo;
+  Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
+  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, 1, breakinfo);
   Engine::instance()->insertToBlit(this);
 }
 

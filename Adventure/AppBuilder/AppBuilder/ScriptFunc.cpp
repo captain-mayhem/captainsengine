@@ -79,9 +79,10 @@ int ScriptFunctions::showInfo(ExecutionContext& ctx, unsigned numArgs){
   std::string text = ctx.stack().pop().getString();
   bool show = ctx.stack().pop().getBool();
   if (show){
+    std::vector<Vec2i> breakinfo;
     Vec2i pos = Engine::instance()->getCursorPos();
-    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
-    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, text, DEPTH_GAME_FONT, 1);
+    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1, breakinfo);
+    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, text, DEPTH_GAME_FONT, 1, breakinfo);
   }
   Engine::instance()->setObjectString(text);
   return 0;
@@ -134,10 +135,11 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   FontRenderer::String* str = NULL;
   if (chr){
+    std::vector<Vec2i> breakinfo;
     Vec2i pos = chr->getOverheadPos();
-    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID());
+    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID(), breakinfo);
     str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-      DEPTH_GAME_FONT, chr->getFontID(), chr->getTextColor(), 3000);
+      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), 3000);
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr);
     str->setSpeaker(chr);
@@ -359,7 +361,7 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
   if (chr){
     //ctx.mExecuteOnce = true;
     //ctx.mOwner = NULL;
-    chr->getInventory()->removeItem(itemname, inventory);
+    chr->getInventory()->removeItem(itemname, inventory, &ctx);
   }
   return 0;
 }
@@ -465,9 +467,10 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
       hold = false;
   }
   FontRenderer::String* str = NULL;
-  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1);
+  std::vector<Vec2i> breakinfo;
+  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1, breakinfo);
   str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, 1, Color(), 3000);
+    DEPTH_GAME_FONT, 1, breakinfo, Color(), 3000);
   if (sound != ""){
     //TODO SOUND
   }

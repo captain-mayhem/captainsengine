@@ -227,6 +227,13 @@ struct Script{
     OBJECT,
     WALKMAP,
   };
+  Script() {}
+  ~Script() {}
+  Script(const Script& s){
+    type = s.type;
+    name = s.name;
+    text = s.text;
+  }
   Type type;
   std::string name;
   std::string text;
