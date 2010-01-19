@@ -5,112 +5,6 @@
 #include "Inventory.h"
 #include "ScriptFunc.h"
 
-BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) : 
-mPos(), mSize(size), mDepth(depth){
-
-}
-
-BaseBlitObject::~BaseBlitObject(){
-
-}
-
-BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
-BaseBlitObject(depth, Vec2i()), mOffset(offset){
-  wxImage image = Engine::instance()->getImage(texture);
-  mTex = Engine::instance()->genTexture(image, mSize, mScale);
-  mDeleteTex = true;
-}
-
-BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
-BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture)
-{
-  mMirrorX = false;
-  mDeleteTex = false;
-}
-
-BlitObject::~BlitObject(){
-  if (mDeleteTex)
-    glDeleteTextures(1, &mTex);
-}
-
-bool BlitObject::operator<(const BlitObject& obj){
-  return mDepth < obj.mDepth;
-}
-
-void BlitObject::render(Vec2i pos, bool mirrorx){
-  mPos.x = mOffset.x+pos.x;
-  mPos.y = mOffset.y+pos.y;
-  mMirrorX = mirrorx;
-  Engine::instance()->insertToBlit(this);
-}
-
-void BlitObject::blit(){
-  glPushMatrix();
-  //if (mMirrorX)
-  //  glTranslatef(mPos.x+mOffset.x,mPos.y,0.0f);
-  //else
-    glTranslatef(mPos.x,mPos.y,0.0f);
-  glScalef(mSize.x,mSize.y,1.0f);
-  if (mMirrorX)
-    glScalef(-1.,1.,1.);
-  glMatrixMode(GL_TEXTURE);
-  glLoadIdentity();
-  glScalef(mScale.x, mScale.y, 1.0f);
-  glMatrixMode(GL_MODELVIEW);
-  glBindTexture(GL_TEXTURE_2D, mTex);
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  glPopMatrix();
-}
-
-LightingBlitObject::LightingBlitObject(int depth, const Vec2i& size) : BaseBlitObject(depth, size){
-}
-
-LightingBlitObject::~LightingBlitObject(){
-
-}
-
-void LightingBlitObject::render(const Vec2i& pos){
-  mPos = pos;
-  Engine::instance()->insertToBlit(this);
-}
-
-void LightingBlitObject::blit(){
-  glDisable(GL_TEXTURE_2D);
-  //glEnable(GL_BLEND);
-  glBlendFunc(GL_DST_COLOR, GL_ZERO);
-  glPushMatrix();
-  glTranslatef(mPos.x,mPos.y,0.0f);
-  glScalef(mSize.x,mSize.y,1.0f);
-  glColor4ub(mColor.r, mColor.g, mColor.b, mColor.a);
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  glColor4ub(255, 255, 255, 255);
-  //glDisable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glPopMatrix();
-  glEnable(GL_TEXTURE_2D);
-}
-
-ScrollBlitObject::ScrollBlitObject(int depth) : BaseBlitObject(depth, Vec2i(0,0)){
-}
-
-ScrollBlitObject::~ScrollBlitObject(){
-}
-
-void ScrollBlitObject::blit(){
-  if (mDepth < 0){
-    glPushMatrix();
-    glTranslatef(mPos.x, mPos.y, 0);
-  }
-  else
-    glPopMatrix();
-}
-  
-void ScrollBlitObject::render(const Vec2i& pos){
-  mPos = pos;
-}
-
-///
-
 BlitGroup::BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth){
   for (unsigned l = (unsigned)textures.size(); l > 0; --l){
     BlitObject* obj = new BlitObject(textures[l-1], depth, offsets[l-1]);
@@ -319,7 +213,8 @@ void ButtonObject::setColors(const Color& background, const Color& border, const
 
 void ButtonObject::render(){
   std::vector<Vec2i> breakinfo;
-  Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
+  breakinfo.push_back(Vec2i(mText.size(), 0)); //fake break
+  //Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
   FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, 1, breakinfo);
   Engine::instance()->insertToBlit(this);
 }

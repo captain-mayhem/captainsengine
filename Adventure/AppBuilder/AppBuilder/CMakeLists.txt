@@ -47,6 +47,10 @@ COMMENT "antlr'ing grammar"
 SOURCE_GROUP("Resource Files" FILES AppBuilder.rc)
 SOURCE_GROUP("Grammar" FILES pcdk.g)
 
+INCLUDE_DIRECTORIES(glew/include)
+ADD_DEFINITIONS(-DGLEW_STATIC)
+ADD_SUBDIRECTORY(glew)
+
 FILE(GLOB AppBuilder_SRCS *.cpp)
 FILE(GLOB AppBuilder_HDRS *.h)
 
@@ -57,7 +61,7 @@ ADD_EXECUTABLE(AppBuilder
   AppBuilder.rc
   pcdk.g
 )
-TARGET_LINK_LIBRARIES(AppBuilder ${wxWidgets_LIBRARIES} antlr)
+TARGET_LINK_LIBRARIES(AppBuilder ${wxWidgets_LIBRARIES} antlr glew)
 SET_TARGET_PROPERTIES(AppBuilder
 PROPERTIES
 WIN32_EXECUTABLE TRUE)

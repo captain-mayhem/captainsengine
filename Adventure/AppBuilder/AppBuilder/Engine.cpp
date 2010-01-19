@@ -124,7 +124,7 @@ wxImage Engine::getImage(const std::string& name){
 }
 
 //TODO move into utility
-unsigned roundToPowerOf2(unsigned x){
+unsigned Engine::roundToPowerOf2(unsigned x){
   --x;
   x |= x >> 1;
   x |= x >> 2;
