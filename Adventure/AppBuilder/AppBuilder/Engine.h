@@ -70,6 +70,7 @@ public:
   std::string getCharacterClass(const std::string instanceName);
   void showTaskbar(bool show) {mShowTaskbar = show;}
   SoundPlayer* getSound(const std::string& sound);
+  static unsigned roundToPowerOf2(unsigned x);
 protected:
   Engine();
   static Engine* mInstance;

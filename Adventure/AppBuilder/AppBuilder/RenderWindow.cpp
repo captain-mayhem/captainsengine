@@ -37,6 +37,9 @@ bool RenderWindow::init(){
   //mTimer.Start(50, false);
   mContext = new wxGLContext(this, NULL);
   SetCurrent(*mContext);
+  GLenum err = glewInit();
+  if (err != GLEW_OK)
+    assert(false && "Unable to init OpenGL extensions");
   glMatrixMode(GL_PROJECTION);
   glOrtho(0, 640, 480, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
