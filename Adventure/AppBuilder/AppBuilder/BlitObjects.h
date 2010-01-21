@@ -89,6 +89,8 @@ class RenderableBlitObject : public BlitObject{
 public:
   RenderableBlitObject(int width, int height);
   ~RenderableBlitObject();
+  void bind();
+  static void unbind();
 protected:
   GLuint mRenderBuffer;
   GLuint mFrameBuffer;

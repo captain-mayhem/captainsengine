@@ -101,7 +101,7 @@ public:
   CursorObject(const Vec2i& pos);
   ~CursorObject();
   void addAnimation(Animation* anim, int command);
-  int getNextCommand();
+  int getNextCommand(bool& leftClickRequired);
   int getCurrentCommand();
   void setCommand(int command);
 protected:

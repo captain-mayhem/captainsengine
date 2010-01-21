@@ -517,11 +517,14 @@ void Engine::leftClick(const Vec2i& pos){
 }
 
 void Engine::rightClick(const Vec2i& pos){
-  int cmd = mCursor->getNextCommand();
+  bool leftClickRequired;
+  int cmd = mCursor->getNextCommand(leftClickRequired);
   mActiveCommand = cmd;
   mUseObjectName = "";
   mGiveObjectName = "";
   mLinkObjectInfo = "";
+  if (leftClickRequired)
+    leftClick(pos);
 }
 
 bool Engine::setFocus(std::string charname){
