@@ -20,6 +20,8 @@ BlitObject::BlitObject(int width, int height) : BaseBlitObject(0, Vec2i(width, h
   glGenTextures(1, &mTex);
   glBindTexture(GL_TEXTURE_2D, mTex);
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pow2.x, pow2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 }
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
@@ -119,21 +121,33 @@ void ScrollBlitObject::render(const Vec2i& pos){
 }
 
 RenderableBlitObject::RenderableBlitObject(int width, int height) : BlitObject(width,height){
-  glGenRenderbuffers(1, &mRenderBuffer);
-  glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, (int)(width/mScale.x), (int)(height/mScale.y));
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+  int powx = (int)(width/mScale.x);
+  int powy = (int)(height/mScale.y);
+  glGenRenderbuffersEXT(1, &mRenderBuffer);
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, mRenderBuffer);
+  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, (int)(width/mScale.x), (int)(height/mScale.y));
+  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
 
-  glGenFramebuffers(1, &mFrameBuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTex, 0);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBuffer);
-  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glGenFramebuffersEXT(1, &mFrameBuffer);
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFrameBuffer);
+  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTex, 0);
+  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, mRenderBuffer);
+  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+  if (status != GL_FRAMEBUFFER_COMPLETE_EXT){
+    assert(false && "Unable to create framebuffer");
+  }
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 RenderableBlitObject::~RenderableBlitObject(){
-  glDeleteFramebuffers(1, &mFrameBuffer);
-  glDeleteRenderbuffers(1, &mRenderBuffer);
+  glDeleteFramebuffersEXT(1, &mFrameBuffer);
+  glDeleteRenderbuffersEXT(1, &mRenderBuffer);
+}
+
+void RenderableBlitObject::bind(){
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFrameBuffer);
+}
+
+void RenderableBlitObject::unbind(){
+  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }

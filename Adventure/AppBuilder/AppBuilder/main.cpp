@@ -31,7 +31,33 @@ END_EVENT_TABLE()
 IMPLEMENT_APP(Application)
 
 Application::Application() : mRunFile(""){
+#ifdef WIN32
+  AllocConsole();
+  CONSOLE_SCREEN_BUFFER_INFO coninfo;
+  GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);
+  coninfo.dwSize.Y = 9000;
+  SetConsoleScreenBufferSize(GetStdHandle(STD_OUTPUT_HANDLE), coninfo.dwSize);
+  
+  long stdHandle = (long)GetStdHandle(STD_OUTPUT_HANDLE);
+  int conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+  FILE* fp = _fdopen(conHandle, "w");
+  *stdout = *fp;
+  setvbuf(stdout, NULL, _IONBF, 0);
 
+  stdHandle = (long)GetStdHandle(STD_INPUT_HANDLE);
+  conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+  fp = _fdopen(conHandle, "r");
+  *stdin = *fp;
+  setvbuf(stdin, NULL, _IONBF, 0);
+
+  stdHandle = (long)GetStdHandle(STD_ERROR_HANDLE);
+  conHandle = _open_osfhandle(stdHandle, _O_TEXT);
+  fp = _fdopen(conHandle, "w");
+  *stderr = *fp;
+  setvbuf(stderr, NULL, _IONBF, 0);
+
+  std::ios::sync_with_stdio();
+#endif
 }
 
 Application::~Application(){

@@ -252,13 +252,20 @@ void CursorObject::addAnimation(Animation* anim, int command){
   mCommands.push_back(command);
 }
 
-int CursorObject::getNextCommand(){
+int CursorObject::getNextCommand(bool& leftClickRequired){
   if (mState == 0)
     return 0;
   ++mState;
   if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){
-    mState = 1;
+    if (mState == 2){
+      mState = 1;
+      leftClickRequired = true;
+      return mCommands[mState]; //take the next action
+    }
+    else
+      mState = 1;
   }
+  leftClickRequired = false;
   return mCommands[mState-1];
 }
 
