@@ -1,11 +1,22 @@
 #include "Sound.h"
 
-wxWindow* SoundPlayer::mParent = NULL;
-int SoundPlayer::mIDCount = 0;
+SoundEngine* SoundEngine::mInstance = NULL;
 
-SoundPlayer::SoundPlayer(const std::string file) :
-wxMediaCtrl(mParent, ++mIDCount, file, wxDefaultPosition, wxDefaultSize){
-  ShowPlayerControls(wxMEDIACTRLPLAYERCONTROLS_NONE);
+SoundEngine::SoundEngine(){
+  mDevice = alcOpenDevice(NULL);
+  if (mDevice){
+    mContext = alcCreateContext(mDevice, NULL);
+    alcMakeContextCurrent(mContext);
+  }
+}
+
+SoundEngine::~SoundEngine(){
+  alcMakeContextCurrent(NULL);
+  alcDestroyContext(mContext);
+  alcCloseDevice(mDevice);
+}
+
+SoundPlayer::SoundPlayer(const std::string file){
 }
 
 SoundPlayer::~SoundPlayer(){

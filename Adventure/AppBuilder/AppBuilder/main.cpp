@@ -13,6 +13,7 @@
 #include "AdvMainTree.h"
 #include "RenderWindow.h"
 #include "Engine.h"
+#include "Sound.h"
 
 enum{
   ID_Quit=1,
@@ -67,6 +68,7 @@ Application::~Application(){
 bool Application::OnInit(){
   wxApp::OnInit();
   Engine::init();
+  SoundEngine::init();
   mManager = new wxDocManager();
   if (mRunFile == ""){
     new wxDocTemplate(mManager, "Adventure game", "game.dat", "", "dat", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
@@ -97,6 +99,7 @@ bool Application::OnInit(){
 
 int Application::OnExit(){
   delete mManager;
+  SoundEngine::deinit();
   Engine::deinit();
   return 0;
 }
