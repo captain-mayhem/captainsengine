@@ -1,4 +1,5 @@
 INCLUDE(FindwxWidgets)
+INCLUDE(FindOpenAL)
 
 SET(wxWidgets_USE_LIBS base core gl media)
 FIND_PACKAGE(wxWidgets REQUIRED base core gl media)
@@ -14,6 +15,7 @@ ADD_LIBRARY(antlr STATIC
 
 INCLUDE_DIRECTORIES(
 antlr/include
+${OPENAL_INCLUDE_DIR}
 )
 
 INCLUDE(FindJava)
@@ -61,7 +63,7 @@ ADD_EXECUTABLE(AppBuilder
   AppBuilder.rc
   pcdk.g
 )
-TARGET_LINK_LIBRARIES(AppBuilder ${wxWidgets_LIBRARIES} antlr glew)
+TARGET_LINK_LIBRARIES(AppBuilder ${wxWidgets_LIBRARIES} ${OPENAL_LIBRARY} antlr glew)
 SET_TARGET_PROPERTIES(AppBuilder
 PROPERTIES
 WIN32_EXECUTABLE TRUE)

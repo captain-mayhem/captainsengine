@@ -68,6 +68,14 @@ void FontRenderer::String::render(unsigned interval){
   if (mSpeaker){
     pos = mSpeaker->getOverheadPos()-mCenterOffset;
   }
+  if (pos.x+mCenterOffset.x*2 > Engine::instance()->getResolution().x && pos.x+mCenterOffset.x*2 < Engine::instance()->getResolution().x+mCenterOffset.x)
+    pos.x = Engine::instance()->getResolution().x-mCenterOffset.x*2;
+  if (pos.x < 0 && pos.x > -mCenterOffset.x)
+    pos.x = 0;
+  if (pos.y+mCenterOffset.y > Engine::instance()->getResolution().y && pos.y+mCenterOffset.y < Engine::instance()->getResolution().y+mCenterOffset.y/2)
+    pos.y = Engine::instance()->getResolution().y-mCenterOffset.y;
+  if (pos.y < 0 && pos.y > -mCenterOffset.y/3*2)
+    pos.y = 0;
   for (unsigned i = 0; i < mString.size(); ++i){
     mString[i]->render(pos, false);
   }
@@ -81,7 +89,7 @@ void FontRenderer::String::setExtent(const Vec2i& extent){
 
 ////////////////////////////////////////
 
-static const int max_string_width = 200;
+static const int max_string_width = 300;
 
 FontRenderer::Font::Font(const FontData& data){
   mFontsize = data.fontsize;

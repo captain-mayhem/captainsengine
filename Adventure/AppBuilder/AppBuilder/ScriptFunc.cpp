@@ -139,7 +139,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     Vec2i pos = chr->getOverheadPos();
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID(), breakinfo);
     str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), 3000);
+      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), 100*text.length());
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr);
     str->setSpeaker(chr);
@@ -470,7 +470,7 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   std::vector<Vec2i> breakinfo;
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1, breakinfo);
   str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, 1, breakinfo, Color(), 3000);
+    DEPTH_GAME_FONT, 1, breakinfo, Color(), 100*text.length());
   if (sound != ""){
     //TODO SOUND
   }

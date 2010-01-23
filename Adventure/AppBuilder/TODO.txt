@@ -2,6 +2,5 @@ loop1 impl (always running)
 fontchange
 screenchange
 char positioning / char collision detection (->block walkmap?)
-text layouting
 jiggle (unblock scrolling)
 setchar with names

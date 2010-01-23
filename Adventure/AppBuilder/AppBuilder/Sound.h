@@ -1,14 +1,29 @@
+#ifndef SOUND_H
+#define SOUND_H
+
 #include <string>
+#include <al.h>
+#include <alc.h>
 
-#include <wx/mediactrl.h>
+class SoundEngine{
+public:
+  ~SoundEngine();
+  static void init() {mInstance = new SoundEngine();}
+  static void deinit() {delete mInstance;}
+  static SoundEngine* instance() {return mInstance;}
+protected:
+  SoundEngine();
+  static SoundEngine* mInstance;
+  ALCdevice* mDevice;
+  ALCcontext* mContext;
+};
 
-class SoundPlayer : wxMediaCtrl{
+class SoundPlayer{
 public:
   SoundPlayer(const std::string file);
   ~SoundPlayer();
-  static void setParent(wxWindow* wnd) {mParent = wnd;}
-  void play() {Play();}
+  void play();
 protected:
-  static wxWindow* mParent;
-  static int mIDCount;
 };
+
+#endif
