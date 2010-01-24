@@ -21,11 +21,11 @@ public:
   virtual int OnExit();
   virtual void OnInitCmdLine(wxCmdLineParser& parser);
   virtual bool OnCmdLineParsed(wxCmdLineParser& parser);
-  wxDocMDIParentFrame* getFrame() {return mFrame;}
+  wxDocMDIParentFrame* getFrame() {return mRunFile.empty() ? (MainFrame*)mFrame : NULL;}
   wxDocument* getDocument() {return mManager->GetCurrentDocument();}
 protected:
   wxDocManager* mManager;
-  MainFrame* mFrame;
+  wxFrame* mFrame;
   wxString mRunFile;
 };
 

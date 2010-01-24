@@ -19,6 +19,9 @@ END_EVENT_TABLE()
 RenderWindow::RenderWindow(wxWindow* parent, int* attriblist, int resx, int resy) : 
 wxGLCanvas(parent, wxID_ANY, attriblist, wxPoint(100,100), wxSize(resx, resy), wxFULL_REPAINT_ON_RESIZE),
 mContext(NULL), mRendering(false){
+#ifdef WIN32
+  MSWSetOldWndProc((WXFARPROC)DefWindowProc);
+#endif
 }
 
 RenderWindow::~RenderWindow(){

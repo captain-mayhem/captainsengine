@@ -27,13 +27,18 @@ void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedf
   anim.startpos = obj->getPosition();
   anim.path = targetpath;
   anim.speedfactor = speedfactor;
-  anim.normalization = (targetpath.front()-anim.startpos).length();
+  while (!anim.path.empty()){
+    anim.normalization = (anim.path.front()-anim.startpos).length();
+    if (anim.normalization == 0.0f){
+      anim.path.pop_front();
+    }
+    else{
+      break;
+    }
+  }
   anim.factor = 0;
   if (anim.normalization != 0.0f){
-    obj->animationBegin(targetpath.front());
-    //if (obj->getAnimation()){
-    //  obj->getAnimation()->start();
-    //}
+    obj->animationBegin(anim.path.front());
     mObjects[obj] = anim;
   }
   else{

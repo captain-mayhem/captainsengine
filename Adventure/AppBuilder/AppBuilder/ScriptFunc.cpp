@@ -607,8 +607,11 @@ int ScriptFunctions::jiggle(ExecutionContext& ctx, unsigned numArgs){
     while(timecount < seconds*1000){
       int x = (rand()%(2*power+1))-power;
       int y = (rand()%(2*power+1))-power;
-      path.push_back(Vec2i(x,y));
-      timecount += 50;
+      Vec2i next(x,y);
+      float length = (next-path.back()).length();
+      path.push_back(next);
+      float time = length*20.0f/power;
+      timecount += time;
     }
     path.push_back(Vec2i());
     Engine::instance()->getAnimator()->add(room, path, power);

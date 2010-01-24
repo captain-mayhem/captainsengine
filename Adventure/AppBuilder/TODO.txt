@@ -1,6 +1,6 @@
-loop1 impl (always running)
 fontchange
 screenchange
 char positioning / char collision detection (->block walkmap?)
-jiggle (unblock scrolling)
 setchar with names
+bored animation
+sound

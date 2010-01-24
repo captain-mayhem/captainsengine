@@ -307,19 +307,20 @@ void PcdkScript::update(unsigned time){
   for (std::list<std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
     iter->first->setState(iter->second);
   }
-  if (!mGlobalSuspend){
-    for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ){
-      update(*iter, time);
-      if ((*iter)->mExecuteOnce && !(*iter)->mSuspended){
-        if ((*iter)->mOwner == NULL)
-          delete *iter;
-        iter = mScripts.erase(iter);
-      }
-      else
-        ++iter;
-      //if (iter == mScripts.end())
-      //  break;
+  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ){
+    if (mGlobalSuspend){
+      //only set loop1 which is always executed
+      (*iter)->resetEvents();
+      (*iter)->setEvent(EVT_LOOP1);
     }
+    update(*iter, time);
+    if ((*iter)->mExecuteOnce && !(*iter)->mSuspended){
+      if ((*iter)->mOwner == NULL)
+        delete *iter;
+      iter = mScripts.erase(iter);
+    }
+    else
+      ++iter;
   }
   if (mCutScene){
     mTSPos = mTSPosOrig;
@@ -477,6 +478,10 @@ void ExecutionContext::setEvent(EngineEvent evt){
 
 void ExecutionContext::resetEvent(EngineEvent evt){
   mEvents.erase(evt);
+}
+
+void ExecutionContext::resetEvents(){
+  mEvents.clear();
 }
 
 bool ExecutionContext::isEventSet(EngineEvent evt){
