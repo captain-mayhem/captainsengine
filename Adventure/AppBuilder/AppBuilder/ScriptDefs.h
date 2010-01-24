@@ -110,6 +110,7 @@ public:
   ~ExecutionContext();
   void setEvent(EngineEvent evt);
   void resetEvent(EngineEvent evt);
+  void resetEvents();
   bool isEventSet(EngineEvent evt);
   EngineEvent getCommandEvent();
   Stack& stack() {return mStack;}

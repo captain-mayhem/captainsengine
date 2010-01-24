@@ -7,6 +7,7 @@
 #include <wx/statline.h>
 #include <wx/cmdline.h>
 #include <wx/fs_arc.h>
+#include <wx/wfstream.h>
 
 #include "main.h"
 #include "AdvDoc.h"
@@ -70,29 +71,45 @@ bool Application::OnInit(){
   Engine::init();
   SoundEngine::init();
   mManager = new wxDocManager();
+  wxSize sz(640,480);
   if (mRunFile == ""){
     new wxDocTemplate(mManager, "Adventure game", "game.dat", "", "dat", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
     new wxDocTemplate(mManager, "Adventure project file", "*.adv", "", "adv", "Adventure Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(AdvMainTreeView));
     mFrame = new MainFrame(mManager, NULL, "AppBuilder", wxPoint(0,0), wxSize(1024,768), wxDEFAULT_FRAME_STYLE | wxNO_FULL_REPAINT_ON_RESIZE | wxMAXIMIZE);
-    mFrame->Show(true);
-    SetTopWindow(mFrame);
   }
   else{
     new wxDocTemplate(mManager, "Adventure game", "game.dat", "", "dat", "Adventure runtime Doc", "Adventure View", CLASSINFO(AdvDocument), CLASSINFO(wxFrame));
+    mFrame = new wxFrame(NULL, wxID_ANY, "Game", wxDefaultPosition, sz);
   }
+  mFrame->Show(true);
+  SetTopWindow(mFrame);
   wxInitAllImageHandlers();
   wxFileSystem::AddHandler(new wxArchiveFSHandler);
   if (mRunFile != ""){
     wxDocument* doc = mManager->CreateDocument(mRunFile, wxDOC_SILENT);
     if (doc == NULL){
-      wxMessageBox("Game data not found. Program must exit.");
-      wxExit();
-      return false;
+      /*doc = new AdvDocument();
+      wxFileInputStream strm(mRunFile);
+      doc->LoadObject(strm);
+      mManager->AddDocument(doc);
+      if (doc == NULL){*/
+        wxMessageBox("Game data not found. Program must exit.");
+        wxExit();
+        return false;
+      //}
     }
     Engine::instance()->setData(static_cast<AdvDocument*>(doc));
-    wxCommandEvent dummy;
-    dummy.SetInt(4711);
-    mFrame->OnCreateGame(dummy);
+    wxSize framesize = mFrame->ClientToWindowSize(sz);
+    int attribs[] = {
+      WX_GL_RGBA, //GL_TRUE,
+      WX_GL_DOUBLEBUFFER,// GL_TRUE,
+      //WX_GL_DEPTH_SIZE, 32,
+      0
+    };
+    RenderWindow* rendwin = new RenderWindow(mFrame, attribs, sz.x, sz.y);
+    rendwin->init();
+    mFrame->SetSize(framesize);
+    Engine::instance()->initGame();
   }
   return true;
 }
@@ -216,13 +233,7 @@ void MainFrame::OnProjectSetup(wxCommandEvent& event){
 
 void MainFrame::OnCreateGame(wxCommandEvent& event){
   wxSize sz(640,480);
-  wxWindow* frame;
-  if (event.GetInt() == 4711){
-    frame = new wxFrame(NULL, wxID_ANY, "Game", wxDefaultPosition, sz);
-  }
-  else{
-    frame = new wxMDIChildFrame(wxGetApp().getFrame(), wxID_ANY, "Game", wxPoint(200,50), sz);
-  }
+  wxWindow* frame = new wxMDIChildFrame(wxGetApp().getFrame(), wxID_ANY, "Game", wxPoint(200,50), sz);
   wxSize framesize = frame->ClientToWindowSize(sz);
   //frame->SetSize(framesize);
   frame->Show(true);
