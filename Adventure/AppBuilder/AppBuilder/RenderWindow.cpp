@@ -1,6 +1,7 @@
 #include "RenderWindow.h"
 #include <wx/dcclient.h>
 #include "Engine.h"
+#include "Sound.h"
 
 BEGIN_EVENT_TABLE(RenderWindow, wxGLCanvas)
 EVT_SIZE(RenderWindow::OnSize)
@@ -145,6 +146,8 @@ void RenderWindow::OnIdle(wxIdleEvent& event){
   Engine::instance()->render();
 
   SwapBuffers();
+
+  SoundEngine::instance()->update();
 
   event.RequestMore();
 }

@@ -917,8 +917,3 @@ std::string Engine::getCharacterClass(const std::string instanceName){
   }
   return "";
 }
-
-SoundPlayer* Engine::getSound(const std::string& sound){
-  SoundPlayer* sp = mData->getSound(sound);
-  return sp;
-}

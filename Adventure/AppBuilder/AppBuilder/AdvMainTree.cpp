@@ -6,6 +6,7 @@
 #include "GraphNodes.h"
 #include "Ids.h"
 #include "Engine.h"
+#include "Sound.h"
 
 IMPLEMENT_DYNAMIC_CLASS(AdvMainTreeView, wxView);
 
@@ -26,6 +27,7 @@ bool AdvMainTreeView::OnCreate(wxDocument* doc, long flags){
   mMediapool = new AdvTreeCtrl(mMediapoolWindow, ID_AdvTreeCtrl, wxDefaultPosition, wxSize(200,200), wxTR_HAS_BUTTONS | wxTR_LINES_AT_ROOT | wxTR_HIDE_ROOT);
   AdvDocument* adv = wxDynamicCast(doc, AdvDocument);
   Engine::instance()->setData(adv);
+  SoundEngine::instance()->setData(adv);
   Activate(true);
   return true;
 }
