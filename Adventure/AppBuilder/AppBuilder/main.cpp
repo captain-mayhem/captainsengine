@@ -98,7 +98,9 @@ bool Application::OnInit(){
         return false;
       //}
     }
-    Engine::instance()->setData(static_cast<AdvDocument*>(doc));
+    AdvDocument* adoc = static_cast<AdvDocument*>(doc);
+    Engine::instance()->setData(adoc);
+    SoundEngine::instance()->setData(adoc);
     wxSize framesize = mFrame->ClientToWindowSize(sz);
     int attribs[] = {
       WX_GL_RGBA, //GL_TRUE,

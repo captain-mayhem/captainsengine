@@ -65,6 +65,8 @@ SET(AB_LINK_LIBS ${AB_LINK_LIBS} ${OPENAL_LIBRARY})
 
 ###ALUT###
 INCLUDE_DIRECTORIES(alut/include)
+#this crazy define prevents us from getting declspec dllexport/import defined
+ADD_DEFINITIONS(-D_XBOX)
 ADD_SUBDIRECTORY(alut)
 SET(AB_LINK_LIBS ${AB_LINK_LIBS} alut)
 

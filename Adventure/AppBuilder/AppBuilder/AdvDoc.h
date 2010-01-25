@@ -185,6 +185,22 @@ struct FontData{
   std::vector<unsigned> charwidths;
 };
 
+struct DataBuffer{
+  DataBuffer() : data(NULL), length(0) {}
+  DataBuffer(const DataBuffer& d){
+    name = d.name;
+    data = new char[d.length];
+    memcpy(data, d.data, d.length);
+    length = d.length;
+  }
+  ~DataBuffer(){
+    delete [] data;
+  }
+  std::string name;
+  char* data;
+  unsigned length;
+};
+
 class AdvDocument : public wxDocument{
 public:
   AdvDocument();
@@ -192,7 +208,7 @@ public:
   virtual wxOutputStream& SaveObject(wxOutputStream& stream);
   virtual wxInputStream& LoadObject(wxInputStream& stream);
   wxImage getImage(wxString name);
-  SoundPlayer* getSound(const std::string& name);
+  bool getSound(const std::string& name, DataBuffer& db);
   Room* getRoom(std::string name);
   Object* getObject(std::string name);
   MouseCursor* getCursor();

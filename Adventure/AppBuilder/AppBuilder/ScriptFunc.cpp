@@ -372,14 +372,19 @@ int ScriptFunctions::loopSound(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 2)
     volume = ctx.stack().pop().getInt();
   //TODO sound
-  //SoundPlayer* sp = Engine::instance()->getSound(sound);
-  //sp->play();
+  SoundPlayer* sp = SoundEngine::instance()->getSound(sound);
+  if (sp){
+    sp->setVolume(volume/100.0f);
+    sp->play(true);
+  }
   return 0;
 }
 
 int ScriptFunctions::loopStop(ExecutionContext& ctx, unsigned numArgs){
   std::string sound = ctx.stack().pop().getString();
-  //TODO sound
+  SoundPlayer* sp = SoundEngine::instance()->getSound(sound);
+  if (sp)
+    sp->stop();
   return 0;
 }
 
