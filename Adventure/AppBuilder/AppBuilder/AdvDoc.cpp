@@ -639,6 +639,30 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
   return true;
 }
 
+bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
+  wxFileName filename = mMusicNames[name];
+  db.name = filename.GetFullName();
+  if (mStream){
+    wxString path = "music.dat#zip:"+filename.GetFullName();
+    wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
+    db.length = file->GetStream()->GetSize();
+    db.data = new char[db.length];
+    file->GetStream()->Read(db.data, db.length);
+    delete file;
+    //std::string newName = mSettings.savedir+"/tmp/"+filename.GetFullName();
+    /*wxFileOutputStream fos(newName);
+    file->GetStream()->Read(fos);
+    filename = wxFileName(newName);*/
+  }
+  else{
+    wxFileInputStream strm(filename.GetFullPath());
+    db.length = strm.GetSize();
+    db.data = new char[db.length];
+    strm.Read(db.data, db.length);
+  }
+  return true;
+}
+
 float AdvDocument::readExtendedFrames(wxTextInputStream& txtstream, ExtendedFrames& frms){
   wxString str;
   long val1, val2;

@@ -5,6 +5,7 @@
 #include <map>
 #include <al.h>
 #include <alc.h>
+#include "AdvDoc.h"
 
 class SoundPlayer;
 class AdvDocument;
@@ -17,9 +18,11 @@ public:
   static SoundEngine* instance() {return mInstance;}
   void setData(AdvDocument* doc){mData = doc;}
   SoundPlayer* getSound(const std::string& name);
+  SoundPlayer* getMusic(const std::string& name);
   void update();
 protected:
   SoundEngine();
+  SoundPlayer* createPlayer(const DataBuffer& db);
   static SoundEngine* mInstance;
   AdvDocument* mData;
   ALCdevice* mDevice;
@@ -29,15 +32,46 @@ protected:
 
 class SoundPlayer{
 public:
-  SoundPlayer(ALuint buffer);
-  ~SoundPlayer();
+  SoundPlayer();
+  virtual ~SoundPlayer();
+  virtual void play(bool looping)=0;
+  virtual void stop()=0;
+  void setVolume(float volume);
+  virtual bool update()=0;
+protected:
+  ALuint mSource;
+};
+
+class SimpleSoundPlayer : public SoundPlayer{
+public:
+  SimpleSoundPlayer(ALuint buffer);
+  ~SimpleSoundPlayer();
   void play(bool looping);
   void stop();
-  void setVolume(float volume);
   bool update();
 protected:
   ALuint mBuffer;
-  ALuint mSource;
+};
+
+struct AVCodec;
+struct AVCodecContext;
+struct AVFormatContext;
+
+class StreamSoundPlayer : public SoundPlayer{
+public:
+  StreamSoundPlayer(const std::string& filename);
+  ~StreamSoundPlayer();
+  void play(bool looping);
+  void stop();
+  bool update();
+protected:
+  unsigned decode(DataBuffer& db);
+  ALuint mBuffers[4];
+  std::string mFilename;
+  AVFormatContext* mFormat;
+  AVCodecContext* mCodecContext;
+  AVCodec* mCodec;
+  DataBuffer mDecodeBuffer;
 };
 
 #endif
