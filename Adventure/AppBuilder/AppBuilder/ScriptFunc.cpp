@@ -394,6 +394,9 @@ int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 2)
     pattern = ctx.stack().pop().getString();
   //TODO sound
+  SoundPlayer* sp = SoundEngine::instance()->getMusic(music);
+  if (sp)
+    sp->play(true);
   return 0;
 }
 
