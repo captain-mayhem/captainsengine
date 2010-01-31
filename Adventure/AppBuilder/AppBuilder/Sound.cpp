@@ -57,13 +57,12 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
 SoundPlayer* SoundEngine::createPlayer(const DataBuffer& db){
   char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir+"/tmp/"+tmp+db.name;
-  FILE* f = fopen(filename.c_str(), "w");
+  FILE* f = fopen(filename.c_str(), "wb");
   fwrite(db.data, 1, db.length, f);
   fclose(f);
-  ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
-  SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
-  SoundPlayer* tmpply = new StreamSoundPlayer(filename);
-  delete tmpply;
+  //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
+  //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
+  SoundPlayer* plyr = new StreamSoundPlayer(filename);
   return plyr;
 }
 
@@ -118,7 +117,9 @@ bool SimpleSoundPlayer::update(){
 static const int BUFFER_SIZE = 19200;
 
 StreamSoundPlayer::StreamSoundPlayer(const std::string& filename) : SoundPlayer(), mFilename(filename){
-  alGenBuffers(4, mBuffers);
+  alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
+  alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
+  alGenBuffers(3, mBuffers);
   if (av_open_input_file(&mFormat, filename.c_str(), NULL, 0, NULL) != 0)
     return;
   if (av_find_stream_info(mFormat) != 0)
@@ -134,24 +135,117 @@ StreamSoundPlayer::StreamSoundPlayer(const std::string& filename) : SoundPlayer(
       continue;
     mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
     mDecodeBuffer.data = new char[mDecodeBuffer.length];
+    mDecodeBuffer.used = 0;
+    mDataBuffer.length = 0;
+    mDataBuffer.data = NULL;
+    mDataBuffer.used = 0;
+    mALBuffer.length = BUFFER_SIZE;
+    mALBuffer.data = new char[mALBuffer.length];
+    mALBuffer.used = 0;
+    if (mCodecContext->channels == 1)
+      mPCMFormat = AL_FORMAT_MONO16;
+    if (mCodecContext->channels == 2)
+      mPCMFormat = AL_FORMAT_STEREO16;
+    if (alIsExtensionPresent("AL_EXT_MCFORMATS")){
+      if (mCodecContext->channels == 4)
+        mPCMFormat = alGetEnumValue("AL_FORMAT_QUAD16");
+      if (mCodecContext->channels == 6)
+        mPCMFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+    }
+    if (mPCMFormat == 0)
+      continue;
   }
 }
 
-unsigned StreamSoundPlayer::decode(DataBuffer& db){
-  unsigned decoded = 0;
-  if (!mCodecContext)
-    return 0;
-  while (decoded < )
-}
-
 StreamSoundPlayer::~StreamSoundPlayer(){
-  alDeleteBuffers(4, mBuffers);
+  alDeleteBuffers(3, mBuffers);
   av_close_input_file(mFormat);
   remove(mFilename.c_str());
 }
 
-void StreamSoundPlayer::play(bool looping){
+unsigned StreamSoundPlayer::decode(){
+  if (!mCodecContext)
+    return 0;
+  unsigned decoded = 0;
+  char* ptr = mALBuffer.data;
+  while (decoded < mALBuffer.length){
+    if (mDecodeBuffer.used > 0){
+      unsigned remain = mALBuffer.length-decoded;
+      if (remain > mDecodeBuffer.used)
+        remain = mDecodeBuffer.used;
+      memcpy(ptr, mDecodeBuffer.data, remain);
+      ptr += remain;
+      decoded += remain;
+      if (remain < mDecodeBuffer.used){
+        memmove(mDecodeBuffer.data, mDecodeBuffer.data+remain, mDecodeBuffer.used-remain);
+      }
+      mDecodeBuffer.used -= remain;
+    }
+    if (mDecodeBuffer.used == 0){
+      unsigned insize = mDataBuffer.used;
+      if (insize == 0){
+        getNextPacket();
+        if (insize == mDataBuffer.used)
+          break;
+        insize = mDataBuffer.used;
+        memset(mDataBuffer.data+insize, 0, FF_INPUT_BUFFER_PADDING_SIZE);
+      }
+      int size = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+      int length;
+      while((length = avcodec_decode_audio2(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, (uint8_t*)mDataBuffer.data, insize)) == 0){
+        if (size > 0)
+          break;
+        getNextPacket();
+        if (insize == mDataBuffer.used)
+          break;
+        insize = mDataBuffer.used;
+        memset(mDataBuffer.data+insize, 0, FF_INPUT_BUFFER_PADDING_SIZE);
+      }
+      if (length < 0)
+        break;
+      if (length > 0){
+        unsigned remain = insize-length;
+        if (remain)
+          memmove(mDataBuffer.data, mDataBuffer.data+length, remain);
+        mDataBuffer.used = remain;
+      }
+      mDecodeBuffer.used = size;
+    }
+  }
+  mALBuffer.used = decoded;
+  return decoded;
+}
 
+void StreamSoundPlayer::getNextPacket(){
+  AVPacket packet;
+  while(av_read_frame(mFormat, &packet) >= 0){
+    if (packet.stream_index != 0)
+      continue;
+    unsigned idx = mDataBuffer.used;
+    if (idx+packet.size > mDataBuffer.length){
+      char* temp = new char[idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE];
+      memcpy(temp, mDataBuffer.data, mDataBuffer.used);
+      delete [] mDataBuffer.data;
+      mDataBuffer.data = temp;
+      mDataBuffer.length = idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE;
+    }
+    memcpy(mDataBuffer.data+idx, packet.data, packet.size);
+    mDataBuffer.used += packet.size;
+    av_free_packet(&packet);
+    break;
+  }
+}
+
+void StreamSoundPlayer::play(bool looping){
+  unsigned bytes;
+  for (int i = 0; i < 3; ++i){
+    bytes = decode();
+    if (bytes == 0)
+      break;
+    alBufferData(mBuffers[i], mPCMFormat, mALBuffer.data, bytes, mCodecContext->sample_rate);
+    alSourceQueueBuffers(mSource, 1, &mBuffers[i]);
+  }
+  alSourcePlay(mSource);
 }
 
 void StreamSoundPlayer::stop(){
@@ -159,5 +253,34 @@ void StreamSoundPlayer::stop(){
 }
 
 bool StreamSoundPlayer::update(){
+  ALint processed;
+  alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
+  if (processed == 0){
+    //all buffers full
+    ALint state;
+    alGetSourcei(mSource, AL_SOURCE_STATE, &state);
+    if (state != AL_PLAYING)
+      alSourcePlay(mSource);
+    else{
+      ALint offset;
+      alGetSourcei(mSource, AL_SAMPLE_OFFSET, &offset);
+    }
+    return true;
+  }
+  for (ALint i = 0; i < processed; ++i){
+    unsigned bytes = decode();
+    if (bytes > 0){
+      ALuint curBuf;
+      alSourceUnqueueBuffers(mSource, 1, &curBuf);
+      if (curBuf != 0){
+        alBufferData(curBuf, mPCMFormat, mALBuffer.data, bytes, mCodecContext->sample_rate);
+        alSourceQueueBuffers(mSource, 1, &curBuf);
+      }
+    }
+  }
+  ALint state;
+  alGetSourcei(mSource, AL_SOURCE_STATE, &state);
+  if (state != AL_PLAYING)
+    alSourcePlay(mSource);
   return true;
 }

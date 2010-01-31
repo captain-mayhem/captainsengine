@@ -186,12 +186,13 @@ struct FontData{
 };
 
 struct DataBuffer{
-  DataBuffer() : data(NULL), length(0) {}
+  DataBuffer() : data(NULL), length(0), used(0) {}
   DataBuffer(const DataBuffer& d){
     name = d.name;
     data = new char[d.length];
     memcpy(data, d.data, d.length);
     length = d.length;
+    used = d.used;
   }
   ~DataBuffer(){
     delete [] data;
@@ -199,6 +200,7 @@ struct DataBuffer{
   std::string name;
   char* data;
   unsigned length;
+  unsigned used;
 };
 
 class AdvDocument : public wxDocument{
