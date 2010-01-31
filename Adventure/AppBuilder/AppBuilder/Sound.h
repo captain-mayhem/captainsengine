@@ -65,13 +65,17 @@ public:
   void stop();
   bool update();
 protected:
-  unsigned decode(DataBuffer& db);
-  ALuint mBuffers[4];
+  unsigned decode();
+  void getNextPacket();
+  ALuint mBuffers[3];
+  ALenum mPCMFormat;
   std::string mFilename;
   AVFormatContext* mFormat;
   AVCodecContext* mCodecContext;
   AVCodec* mCodec;
+  DataBuffer mDataBuffer;
   DataBuffer mDecodeBuffer;
+  DataBuffer mALBuffer;
 };
 
 #endif
