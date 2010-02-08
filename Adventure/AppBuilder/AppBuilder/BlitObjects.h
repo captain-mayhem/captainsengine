@@ -96,4 +96,18 @@ protected:
   GLuint mFrameBuffer;
 };
 
+class DynamicAnimation{
+public:
+  DynamicAnimation();
+  virtual ~DynamicAnimation();
+  virtual void update(unsigned interval)=0;
+};
+
+class CircleScreenChange : public RenderableBlitObject, public DynamicAnimation{
+public:
+  CircleScreenChange(int width, int height, int duration);
+  virtual ~CircleScreenChange();
+  virtual void update(unsigned interval);
+};
+
 #endif

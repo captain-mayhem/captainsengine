@@ -151,3 +151,23 @@ void RenderableBlitObject::bind(){
 void RenderableBlitObject::unbind(){
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
+
+DynamicAnimation::DynamicAnimation(){
+
+}
+
+DynamicAnimation::~DynamicAnimation(){
+
+}
+
+CircleScreenChange::CircleScreenChange(int width, int height, int duration) : RenderableBlitObject(width, height){
+
+}
+
+CircleScreenChange::~CircleScreenChange(){
+
+}
+
+void CircleScreenChange::update(unsigned interval){
+
+}

@@ -95,6 +95,7 @@ void Engine::initGame(){
     mTimeIntervals.push_back(50);
   }
   mShowTaskbar = true;
+  mScreenChange = mData->getProjectSettings()->screenchange;
 }
 
 void Engine::exitGame(){
@@ -420,6 +421,7 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
   //}
   ExecutionContext* ctx = room->getScript();
   if (ctx){
+    ctx->reset(false);
     ctx->setEvent(EVT_EXIT);
     mInterpreter->executeImmediately(ctx);
   }

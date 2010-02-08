@@ -66,6 +66,32 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
 int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
   std::string room = ctx.stack().pop().getString();
   Engine::instance()->loadRoom(room, false);
+  switch(Engine::instance()->getScreenChange()){
+    case SC_DIRECT:
+      break;
+    case SC_FADEOUT:
+      DebugBreak();
+      break;
+    case SC_RECTANGLE:
+      DebugBreak();
+      break;
+    case SC_CIRCLE:{
+      CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, 2000);
+      Engine::instance()->getAnimator()->add(csc);
+      }
+      break;
+    case SC_SHUTTERS:
+      DebugBreak();
+      break;
+    case SC_CLOCK:
+      DebugBreak();
+      break;
+    case SC_BLEND:
+      break;
+    case SC_BLEND_SLOW:
+      DebugBreak();
+      break;
+  }
   return 0;
 }
 
@@ -176,7 +202,11 @@ int ScriptFunctions::playSound(ExecutionContext& ctx, unsigned numArgs){
   unsigned volume = 100;
   if (numArgs >= 2)
     volume = ctx.stack().pop().getInt();
-  //TODO SOUND
+  SoundPlayer* sp = SoundEngine::instance()->getSound(sound);
+  if (sp){
+    sp->setVolume(volume/100.0f);
+    sp->play(false);
+  }
   return 0;
 }
 
@@ -371,7 +401,6 @@ int ScriptFunctions::loopSound(ExecutionContext& ctx, unsigned numArgs){
   int volume = 100;
   if (numArgs >= 2)
     volume = ctx.stack().pop().getInt();
-  //TODO sound
   SoundPlayer* sp = SoundEngine::instance()->getSound(sound);
   if (sp){
     sp->setVolume(volume/100.0f);
@@ -391,9 +420,10 @@ int ScriptFunctions::loopStop(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
   std::string music = ctx.stack().pop().getString();
   std::string pattern;
-  if (numArgs >= 2)
+  if (numArgs >= 2){
     pattern = ctx.stack().pop().getString();
-  //TODO sound
+    DebugBreak();
+  }
   SoundPlayer* sp = SoundEngine::instance()->getMusic(music);
   if (sp)
     sp->play(true);
@@ -401,7 +431,9 @@ int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::stopMusic(ExecutionContext& ctx, unsigned numArgs){
-  //TODO sound
+  SoundPlayer* sp = SoundEngine::instance()->getMusic("");
+  if (sp)
+    sp->stop();
   return 0;
 }
 
@@ -576,6 +608,7 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
   }
   else{
     screenchange = data.getInt();
+    Engine::instance()->setScreenChange((ScreenChange)screenchange);
   }
   return 0;
 }
