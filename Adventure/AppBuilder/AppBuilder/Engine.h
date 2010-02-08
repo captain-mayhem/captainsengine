@@ -70,6 +70,8 @@ public:
   std::string getCharacterClass(const std::string instanceName);
   void showTaskbar(bool show) {mShowTaskbar = show;}
   static unsigned roundToPowerOf2(unsigned x);
+  void setScreenChange(ScreenChange sc) {mScreenChange = sc;}
+  ScreenChange getScreenChange() {return mScreenChange;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -90,6 +92,7 @@ protected:
   std::list<Object2D*> mUI;
   RoomObject* mTaskbar;
   bool mShowTaskbar;
+  ScreenChange mScreenChange;
   //bool mCharOutOfFocus;
   //grid variables
   int mWalkGridSize;

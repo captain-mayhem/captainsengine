@@ -1,6 +1,8 @@
-fontchange
-screenchange
-char positioning / char collision detection (->block walkmap?)
-setchar with names
-bored animation
-sound
+Topic | Prio
+-------------
+fontchange | 3
+screenchange | 1
+char positioning / char collision detection (->block walkmap?) | 2
+setchar with names | 4
+bored animation | 1
+sound | 1

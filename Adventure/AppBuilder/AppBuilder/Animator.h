@@ -6,6 +6,7 @@
 #include "AdvDoc.h"
 
 class Object2D;
+class DynamicAnimation;
 
 class Animator{
   struct ObjectAnim{
@@ -23,8 +24,10 @@ public:
   void remove(Object2D* obj);
   void update(unsigned interval);
   void clear();
+  void add(DynamicAnimation* anim);
 protected:
   std::map<Object2D*, ObjectAnim> mObjects;
+  std::list<DynamicAnimation*> mAnimations;
 };
 
 #endif

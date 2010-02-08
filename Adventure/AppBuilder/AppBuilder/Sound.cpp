@@ -5,10 +5,11 @@ extern "C"{
 #include <libavformat/avformat.h>
 };
 #include "AdvDoc.h"
+#include "Engine.h"
 
 SoundEngine* SoundEngine::mInstance = NULL;
 
-SoundEngine::SoundEngine() : mData(NULL){
+SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL){
   mDevice = alcOpenDevice(NULL);
   if (mDevice){
     mContext = alcCreateContext(mDevice, NULL);
@@ -25,6 +26,7 @@ SoundEngine::~SoundEngine(){
     delete iter->second;
   }
   mActiveSounds.clear();
+  delete mActiveMusic;
   alcMakeContextCurrent(NULL);
   alcDestroyContext(mContext);
   alcCloseDevice(mDevice);
@@ -44,13 +46,17 @@ SoundPlayer* SoundEngine::getSound(const std::string& name){
 }
 
 SoundPlayer* SoundEngine::getMusic(const std::string& name){
-  SoundPlayer* plyr = mActiveSounds[name];
+  SoundPlayer* plyr = NULL;
+  if (name.empty())
+    plyr = mActiveMusic;
+  //else
+  //  plyr = mActiveSounds[name];
   if (plyr)
     return plyr;
   DataBuffer db;
   mData->getMusic(name, db);
   plyr = createPlayer(db);
-  mActiveSounds[name] = plyr;
+  mActiveMusic = plyr;
   return plyr;
 }
 
@@ -58,6 +64,8 @@ SoundPlayer* SoundEngine::createPlayer(const DataBuffer& db){
   char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir+"/tmp/"+tmp+db.name;
   FILE* f = fopen(filename.c_str(), "wb");
+  if (!f)
+    return NULL;
   fwrite(db.data, 1, db.length, f);
   fclose(f);
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
@@ -72,6 +80,10 @@ void SoundEngine::update(){
       delete iter->second;
       iter->second = NULL;
     }
+  }
+  if (mActiveMusic && !mActiveMusic->update()){
+    delete mActiveMusic;
+    mActiveMusic = NULL;
   }
 }
 
@@ -116,14 +128,13 @@ bool SimpleSoundPlayer::update(){
 
 static const int BUFFER_SIZE = 19200;
 
-StreamSoundPlayer::StreamSoundPlayer(const std::string& filename) : SoundPlayer(), mFilename(filename){
+StreamSoundPlayer::StreamSoundPlayer(const std::string& filename) : SoundPlayer(), mFilename(filename), mLooping(false){
   alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
   alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
   alGenBuffers(3, mBuffers);
   if (av_open_input_file(&mFormat, filename.c_str(), NULL, 0, NULL) != 0)
     return;
-  if (av_find_stream_info(mFormat) != 0)
-    return;
+  av_find_stream_info(mFormat);
   for (unsigned i = 0; i < mFormat->nb_streams; ++i){
     if (mFormat->streams[i]->codec->codec_type != CODEC_TYPE_AUDIO)
       continue;
@@ -142,15 +153,32 @@ StreamSoundPlayer::StreamSoundPlayer(const std::string& filename) : SoundPlayer(
     mALBuffer.length = BUFFER_SIZE;
     mALBuffer.data = new char[mALBuffer.length];
     mALBuffer.used = 0;
-    if (mCodecContext->channels == 1)
-      mPCMFormat = AL_FORMAT_MONO16;
-    if (mCodecContext->channels == 2)
-      mPCMFormat = AL_FORMAT_STEREO16;
-    if (alIsExtensionPresent("AL_EXT_MCFORMATS")){
-      if (mCodecContext->channels == 4)
-        mPCMFormat = alGetEnumValue("AL_FORMAT_QUAD16");
-      if (mCodecContext->channels == 6)
-        mPCMFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+    if (mCodecContext->sample_fmt == SAMPLE_FMT_U8){
+      if (mCodecContext->channels == 1)
+        mPCMFormat = AL_FORMAT_MONO8;
+      if (mCodecContext->channels == 2)
+        mPCMFormat = AL_FORMAT_STEREO8;
+      if (alIsExtensionPresent("AL_EXT_MCFORMATS")){
+        if (mCodecContext->channels == 4)
+          mPCMFormat = alGetEnumValue("AL_FORMAT_QUAD8");
+        if (mCodecContext->channels == 6)
+          mPCMFormat = alGetEnumValue("AL_FORMAT_51CHN8");
+      }
+    }
+    else if (mCodecContext->sample_fmt == SAMPLE_FMT_S16){
+      if (mCodecContext->channels == 1)
+        mPCMFormat = AL_FORMAT_MONO16;
+      if (mCodecContext->channels == 2)
+        mPCMFormat = AL_FORMAT_STEREO16;
+      if (alIsExtensionPresent("AL_EXT_MCFORMATS")){
+        if (mCodecContext->channels == 4)
+          mPCMFormat = alGetEnumValue("AL_FORMAT_QUAD16");
+        if (mCodecContext->channels == 6)
+          mPCMFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+      }
+    }
+    else{
+      DebugBreak();
     }
     if (mPCMFormat == 0)
       continue;
@@ -159,7 +187,8 @@ StreamSoundPlayer::StreamSoundPlayer(const std::string& filename) : SoundPlayer(
 
 StreamSoundPlayer::~StreamSoundPlayer(){
   alDeleteBuffers(3, mBuffers);
-  av_close_input_file(mFormat);
+  if (mFormat)
+    av_close_input_file(mFormat);
   remove(mFilename.c_str());
 }
 
@@ -218,7 +247,15 @@ unsigned StreamSoundPlayer::decode(){
 
 void StreamSoundPlayer::getNextPacket(){
   AVPacket packet;
-  while(av_read_frame(mFormat, &packet) >= 0){
+  do{
+    int read = av_read_frame(mFormat, &packet);
+    if (read < 0){
+      if (!mLooping)
+        return;
+      //start all over again
+      av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY);
+      read = av_read_frame(mFormat, &packet);
+    }
     if (packet.stream_index != 0)
       continue;
     unsigned idx = mDataBuffer.used;
@@ -233,10 +270,11 @@ void StreamSoundPlayer::getNextPacket(){
     mDataBuffer.used += packet.size;
     av_free_packet(&packet);
     break;
-  }
+  } while(read >= 0);
 }
 
 void StreamSoundPlayer::play(bool looping){
+  mLooping = looping;
   unsigned bytes;
   for (int i = 0; i < 3; ++i){
     bytes = decode();
@@ -249,7 +287,8 @@ void StreamSoundPlayer::play(bool looping){
 }
 
 void StreamSoundPlayer::stop(){
-
+  alSourceStop(mSource);
+  av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY);
 }
 
 bool StreamSoundPlayer::update(){
@@ -260,7 +299,7 @@ bool StreamSoundPlayer::update(){
     ALint state;
     alGetSourcei(mSource, AL_SOURCE_STATE, &state);
     if (state != AL_PLAYING)
-      alSourcePlay(mSource);
+      return false;
     else{
       ALint offset;
       alGetSourcei(mSource, AL_SAMPLE_OFFSET, &offset);
@@ -277,10 +316,13 @@ bool StreamSoundPlayer::update(){
         alSourceQueueBuffers(mSource, 1, &curBuf);
       }
     }
+    else{
+      return false;
+    }
   }
   ALint state;
   alGetSourcei(mSource, AL_SOURCE_STATE, &state);
   if (state != AL_PLAYING)
-    alSourcePlay(mSource);
+    return false;
   return true;
 }

@@ -28,6 +28,7 @@ protected:
   ALCdevice* mDevice;
   ALCcontext* mContext;
   std::map<std::string, SoundPlayer*> mActiveSounds;
+  SoundPlayer* mActiveMusic;
 };
 
 class SoundPlayer{
@@ -76,6 +77,7 @@ protected:
   DataBuffer mDataBuffer;
   DataBuffer mDecodeBuffer;
   DataBuffer mALBuffer;
+  bool mLooping;
 };
 
 #endif

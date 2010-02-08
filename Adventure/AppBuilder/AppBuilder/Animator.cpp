@@ -89,4 +89,12 @@ void Animator::update(unsigned interval){
 
 void Animator::clear(){
   mObjects.clear();
+  for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){
+    delete *iter;
+  }
+  mAnimations.clear();
+}
+
+void Animator::add(DynamicAnimation* anim){
+  mAnimations.push_back(anim);
 }
