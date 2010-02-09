@@ -48,7 +48,7 @@ SoundPlayer* SoundEngine::getSound(const std::string& name){
 SoundPlayer* SoundEngine::getMusic(const std::string& name){
   SoundPlayer* plyr = NULL;
   if (name.empty())
-    plyr = mActiveMusic;
+    return mActiveMusic;
   //else
   //  plyr = mActiveSounds[name];
   if (plyr)
@@ -192,6 +192,21 @@ StreamSoundPlayer::~StreamSoundPlayer(){
   remove(mFilename.c_str());
 }
 
+#ifdef WIN32
+#define VHALIGNCALL16(x) \
+{\
+  _asm { mov ebx, esp }\
+  _asm { and esp, 0xfffffff0 }\
+  _asm { sub esp, 12 }\
+  _asm { push ebx }\
+  x;\
+  _asm { pop ebx }\
+  _asm { mov esp, ebx }\
+}
+#else
+#define VHALIGNCALL16(x) x
+#endif
+
 unsigned StreamSoundPlayer::decode(){
   if (!mCodecContext)
     return 0;
@@ -221,7 +236,8 @@ unsigned StreamSoundPlayer::decode(){
       }
       int size = AVCODEC_MAX_AUDIO_FRAME_SIZE;
       int length;
-      while((length = avcodec_decode_audio2(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, (uint8_t*)mDataBuffer.data, insize)) == 0){
+      VHALIGNCALL16(length = avcodec_decode_audio2(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, (uint8_t*)mDataBuffer.data, insize));
+      while(length == 0){
         if (size > 0)
           break;
         getNextPacket();
@@ -229,6 +245,7 @@ unsigned StreamSoundPlayer::decode(){
           break;
         insize = mDataBuffer.used;
         memset(mDataBuffer.data+insize, 0, FF_INPUT_BUFFER_PADDING_SIZE);
+        VHALIGNCALL16(length = avcodec_decode_audio2(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, (uint8_t*)mDataBuffer.data, insize));
       }
       if (length < 0)
         break;
@@ -259,7 +276,7 @@ void StreamSoundPlayer::getNextPacket(){
     if (packet.stream_index != 0)
       continue;
     unsigned idx = mDataBuffer.used;
-    if (idx+packet.size > mDataBuffer.length){
+    if (idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE > mDataBuffer.length){
       char* temp = new char[idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE];
       memcpy(temp, mDataBuffer.data, mDataBuffer.used);
       delete [] mDataBuffer.data;

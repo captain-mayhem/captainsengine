@@ -23,8 +23,8 @@
  * common internal and external API header
  */
 
-#ifndef AVUTIL_COMMON_H
-#define AVUTIL_COMMON_H
+#ifndef FFMPEG_COMMON_H
+#define FFMPEG_COMMON_H
 
 #include <inttypes.h>
 
@@ -41,10 +41,8 @@
 #    include <math.h>
 #endif /* HAVE_AV_CONFIG_H */
 
-#define AV_GCC_VERSION_AT_LEAST(x,y) (defined(__GNUC__) && (__GNUC__ > x || __GNUC__ == x && __GNUC_MINOR__ >= y))
-
 #ifndef av_always_inline
-#if AV_GCC_VERSION_AT_LEAST(3,1)
+#if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
 #    define av_always_inline __attribute__((always_inline)) inline
 #else
 #    define av_always_inline inline
@@ -52,7 +50,7 @@
 #endif
 
 #ifndef av_noinline
-#if AV_GCC_VERSION_AT_LEAST(3,1)
+#if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
 #    define av_noinline __attribute__((noinline))
 #else
 #    define av_noinline
@@ -60,7 +58,7 @@
 #endif
 
 #ifndef av_pure
-#if AV_GCC_VERSION_AT_LEAST(3,1)
+#if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
 #    define av_pure __attribute__((pure))
 #else
 #    define av_pure
@@ -68,7 +66,7 @@
 #endif
 
 #ifndef av_const
-#if AV_GCC_VERSION_AT_LEAST(2,6)
+#if defined(__GNUC__) && (__GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ > 5)
 #    define av_const __attribute__((const))
 #else
 #    define av_const
@@ -76,7 +74,7 @@
 #endif
 
 #ifndef av_cold
-#if (!defined(__ICC) || __ICC > 1100) && AV_GCC_VERSION_AT_LEAST(4,3)
+#if defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ > 2)
 #    define av_cold __attribute__((cold))
 #else
 #    define av_cold
@@ -88,7 +86,7 @@
 #endif /* HAVE_AV_CONFIG_H */
 
 #ifndef attribute_deprecated
-#if AV_GCC_VERSION_AT_LEAST(3,1)
+#if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
 #    define attribute_deprecated __attribute__((deprecated))
 #else
 #    define attribute_deprecated
@@ -118,7 +116,6 @@
 #define FFMIN3(a,b,c) FFMIN(FFMIN(a,b),c)
 
 #define FFSWAP(type,a,b) do{type SWAP_tmp= b; b= a; a= SWAP_tmp;}while(0)
-#define FF_ARRAY_ELEMS(a) (sizeof(a) / sizeof((a)[0]))
 
 /* misc math functions */
 extern const uint8_t ff_log2_tab[256];
@@ -156,7 +153,7 @@ static inline av_const int mid_pred(int a, int b, int c)
 {
 #ifdef HAVE_CMOV
     int i=b;
-    __asm__ volatile(
+    asm volatile(
         "cmp    %2, %1 \n\t"
         "cmovg  %1, %0 \n\t"
         "cmovg  %2, %1 \n\t"
@@ -226,20 +223,6 @@ static inline av_const int16_t av_clip_int16(int a)
 {
     if ((a+32768) & ~65535) return (a>>31) ^ 32767;
     else                    return a;
-}
-
-/**
- * clip a float value into the amin-amax range
- * @param a value to clip
- * @param amin minimum value of the clip range
- * @param amax maximum value of the clip range
- * @return clipped value
- */
-static inline av_const float av_clipf(float a, float amin, float amax)
-{
-    if      (a < amin) return amin;
-    else if (a > amax) return amax;
-    else               return a;
 }
 
 /* math */
@@ -323,15 +306,23 @@ static inline av_pure int ff_get_fourcc(const char *s){
         }\
     }
 
-#if defined(ARCH_X86) || defined(ARCH_PPC) || defined(ARCH_BFIN)
+#if defined(ARCH_X86) || defined(ARCH_POWERPC) || defined(ARCH_BFIN)
 #define AV_READ_TIME read_time
-#if defined(ARCH_X86)
+#if defined(ARCH_X86_64)
 static inline uint64_t read_time(void)
 {
-    uint32_t a, d;
-    __asm__ volatile("rdtsc\n\t"
+    uint64_t a, d;
+    asm volatile("rdtsc\n\t"
                  : "=a" (a), "=d" (d));
-    return ((uint64_t)d << 32) + a;
+    return (d << 32) | (a & 0xffffffff);
+}
+#elif defined(ARCH_X86_32)
+static inline long long read_time(void)
+{
+    long long l;
+    asm volatile("rdtsc\n\t"
+                 : "=A" (l));
+    return l;
 }
 #elif ARCH_BFIN
 static inline uint64_t read_time(void)
@@ -343,7 +334,7 @@ static inline uint64_t read_time(void)
         } p;
         unsigned long long c;
     } t;
-    __asm__ volatile ("%0=cycles; %1=cycles2;" : "=d" (t.p.lo), "=d" (t.p.hi));
+    asm volatile ("%0=cycles; %1=cycles2;" : "=d" (t.p.lo), "=d" (t.p.hi));
     return t.c;
 }
 #else //FIXME check ppc64
@@ -352,7 +343,7 @@ static inline uint64_t read_time(void)
     uint32_t tbu, tbl, temp;
 
      /* from section 2.2.1 of the 32-bit PowerPC PEM */
-     __asm__ volatile(
+     asm volatile(
          "1:\n"
          "mftbu  %2\n"
          "mftb   %0\n"
@@ -407,4 +398,4 @@ tend= AV_READ_TIME();\
 #   define NULL_IF_CONFIG_SMALL(x) x
 #endif
 
-#endif /* AVUTIL_COMMON_H */
+#endif /* FFMPEG_COMMON_H */

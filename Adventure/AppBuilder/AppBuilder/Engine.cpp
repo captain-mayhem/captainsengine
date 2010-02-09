@@ -63,6 +63,7 @@ void Engine::initGame(){
   mFonts->loadFont(0);
   mFonts->loadFont(1);
   mActiveCommand = 0;
+  mPrevActiveCommand = 0;
   //load taskbar room
   if (mData->getProjectSettings()->taskroom != ""){
     loadRoom(mData->getProjectSettings()->taskroom, true);
@@ -421,7 +422,7 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
   //}
   ExecutionContext* ctx = room->getScript();
   if (ctx){
-    ctx->reset(false);
+    ctx->reset(true);
     ctx->setEvent(EVT_EXIT);
     mInterpreter->executeImmediately(ctx);
   }
