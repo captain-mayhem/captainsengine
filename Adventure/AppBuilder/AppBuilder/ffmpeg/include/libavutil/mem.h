@@ -23,12 +23,10 @@
  * Memory handling functions.
  */
 
-#ifndef AVUTIL_MEM_H
-#define AVUTIL_MEM_H
+#ifndef FFMPEG_MEM_H
+#define FFMPEG_MEM_H
 
-#include "common.h"
-
-#if defined(__ICC) || defined(__SUNPRO_C)
+#ifdef __ICC
     #define DECLARE_ALIGNED(n,t,v)      t v __attribute__ ((aligned (n)))
     #define DECLARE_ASM_CONST(n,t,v)    const t __attribute__ ((aligned (n))) v
 #elif defined(__GNUC__)
@@ -44,13 +42,13 @@
     #define DECLARE_ASM_CONST(n,t,v)    static const t v
 #endif
 
-#if AV_GCC_VERSION_AT_LEAST(3,1)
+#if defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ > 0)
     #define av_malloc_attrib __attribute__((__malloc__))
 #else
     #define av_malloc_attrib
 #endif
 
-#if (!defined(__ICC) || __ICC > 1100) && AV_GCC_VERSION_AT_LEAST(4,3)
+#if defined(__GNUC__) && (__GNUC__ > 4 || __GNUC__ == 4 && __GNUC_MINOR__ > 2)
     #define av_alloc_size(n) __attribute__((alloc_size(n)))
 #else
     #define av_alloc_size(n)
@@ -118,4 +116,4 @@ char *av_strdup(const char *s) av_malloc_attrib;
  */
 void av_freep(void *ptr);
 
-#endif /* AVUTIL_MEM_H */
+#endif /* FFMPEG_MEM_H */

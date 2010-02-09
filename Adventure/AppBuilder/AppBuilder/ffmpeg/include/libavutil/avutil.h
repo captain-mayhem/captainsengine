@@ -18,8 +18,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
-#ifndef AVUTIL_AVUTIL_H
-#define AVUTIL_AVUTIL_H
+#ifndef FFMPEG_AVUTIL_H
+#define FFMPEG_AVUTIL_H
 
 /**
  * @file avutil.h
@@ -35,7 +35,7 @@
 #define AV_VERSION(a, b, c) AV_VERSION_DOT(a, b, c)
 
 #define LIBAVUTIL_VERSION_MAJOR 49
-#define LIBAVUTIL_VERSION_MINOR 12
+#define LIBAVUTIL_VERSION_MINOR  7
 #define LIBAVUTIL_VERSION_MICRO  0
 
 #define LIBAVUTIL_VERSION_INT   AV_VERSION_INT(LIBAVUTIL_VERSION_MAJOR, \
@@ -48,10 +48,6 @@
 
 #define LIBAVUTIL_IDENT         "Lavu" AV_STRINGIFY(LIBAVUTIL_VERSION)
 
-/**
- * Returns the LIBAVUTIL_VERSION_INT constant.
- */
-unsigned avutil_version(void);
 
 #include "common.h"
 #include "mathematics.h"
@@ -108,8 +104,8 @@ enum PixelFormat {
     PIX_FMT_BGR4,      ///< Packed RGB 1:2:1,  4bpp, (msb)1B 2G 1R(lsb)
     PIX_FMT_BGR4_BYTE, ///< Packed RGB 1:2:1,  8bpp, (msb)1B 2G 1R(lsb)
     PIX_FMT_RGB8,      ///< Packed RGB 3:3:2,  8bpp, (msb)2R 3G 3B(lsb)
-    PIX_FMT_RGB4,      ///< Packed RGB 1:2:1,  4bpp, (msb)1R 2G 1B(lsb)
-    PIX_FMT_RGB4_BYTE, ///< Packed RGB 1:2:1,  8bpp, (msb)1R 2G 1B(lsb)
+    PIX_FMT_RGB4,      ///< Packed RGB 1:2:1,  4bpp, (msb)2R 3G 3B(lsb)
+    PIX_FMT_RGB4_BYTE, ///< Packed RGB 1:2:1,  8bpp, (msb)2R 3G 3B(lsb)
     PIX_FMT_NV12,      ///< Planar YUV 4:2:0, 12bpp, 1 plane for Y and 1 for UV
     PIX_FMT_NV21,      ///< as above, but U and V bytes are swapped
 
@@ -121,7 +117,6 @@ enum PixelFormat {
     PIX_FMT_YUV440P,   ///< Planar YUV 4:4:0 (1 Cr & Cb sample per 1x2 Y samples)
     PIX_FMT_YUVJ440P,  ///< Planar YUV 4:4:0 full scale (jpeg)
     PIX_FMT_YUVA420P,  ///< Planar YUV 4:2:0, 20bpp, (1 Cr & Cb sample per 2x2 Y & A samples)
-    PIX_FMT_VDPAU_H264,///< H264 HW decoding with VDPAU, data[0] contains a vdpau_render_state struct which contains the bitstream of the slices as well as various fields extracted from headers
     PIX_FMT_NB,        ///< number of pixel formats, DO NOT USE THIS if you want to link with shared libav* because the number of formats might differ between versions
 };
 
@@ -145,4 +140,4 @@ enum PixelFormat {
 #define PIX_FMT_YUV422  PIX_FMT_YUYV422
 #endif
 
-#endif /* AVUTIL_AVUTIL_H */
+#endif /* FFMPEG_AVUTIL_H */
