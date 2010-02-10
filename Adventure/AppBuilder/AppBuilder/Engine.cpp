@@ -269,7 +269,7 @@ void Engine::render(){
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
   std::string text;
-  if (mUseObjectName.empty() && mGiveObjectName.empty())
+  if ((mUseObjectName.empty() && mGiveObjectName.empty()) || mPrevActiveCommand == 0)
     text = mData->getProjectSettings()->pretty_commands[mActiveCommand];
   else
     text = mData->getProjectSettings()->pretty_commands[mPrevActiveCommand];
@@ -385,6 +385,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
       roomobj->setScript(scr);
       mInterpreter->execute(scr, false);
       scr->setEvent(EVT_ENTER);
+      mInterpreter->executeImmediately(scr);
     }
   }
   //inventory display

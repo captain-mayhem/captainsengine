@@ -78,6 +78,7 @@ protected:
   DataBuffer mDecodeBuffer;
   DataBuffer mALBuffer;
   bool mLooping;
+  bool mStop;
 };
 
 #endif

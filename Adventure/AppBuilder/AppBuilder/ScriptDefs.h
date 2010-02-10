@@ -108,7 +108,9 @@ public:
   ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo);
   ExecutionContext(const ExecutionContext& ctx);
   ~ExecutionContext();
+  std::set<EngineEvent> getEvents() {return mEvents;}
   void setEvent(EngineEvent evt);
+  void setEvents(std::set<EngineEvent>& events);
   void resetEvent(EngineEvent evt);
   void resetEvents();
   bool isEventSet(EngineEvent evt);
