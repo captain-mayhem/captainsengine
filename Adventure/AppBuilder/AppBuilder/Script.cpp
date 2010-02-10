@@ -308,12 +308,17 @@ void PcdkScript::update(unsigned time){
     iter->first->setState(iter->second);
   }
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ){
+    std::set<EngineEvent> events;
     if (mGlobalSuspend){
       //only set loop1 which is always executed
+      events = (*iter)->getEvents();
       (*iter)->resetEvents();
       (*iter)->setEvent(EVT_LOOP1);
     }
     update(*iter, time);
+    if (mGlobalSuspend){
+      (*iter)->setEvents(events);
+    }
     if ((*iter)->mExecuteOnce && !(*iter)->mSuspended){
       if ((*iter)->mOwner == NULL)
         delete *iter;
@@ -474,6 +479,10 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
 void ExecutionContext::setEvent(EngineEvent evt){
   if (!mSuspended)
     mEvents.insert(evt);
+}
+
+void ExecutionContext::setEvents(std::set<EngineEvent>& events){
+  mEvents = events;
 }
 
 void ExecutionContext::resetEvent(EngineEvent evt){

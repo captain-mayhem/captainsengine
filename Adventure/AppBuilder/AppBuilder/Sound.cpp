@@ -128,7 +128,8 @@ bool SimpleSoundPlayer::update(){
 
 static const int BUFFER_SIZE = 19200;
 
-StreamSoundPlayer::StreamSoundPlayer(const std::string& filename) : SoundPlayer(), mFilename(filename), mLooping(false){
+StreamSoundPlayer::StreamSoundPlayer(const std::string& filename) : 
+SoundPlayer(), mFilename(filename), mLooping(false), mStop(true){
   alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
   alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
   alGenBuffers(3, mBuffers);
@@ -292,6 +293,7 @@ void StreamSoundPlayer::getNextPacket(){
 
 void StreamSoundPlayer::play(bool looping){
   mLooping = looping;
+  mStop = false;
   unsigned bytes;
   for (int i = 0; i < 3; ++i){
     bytes = decode();
@@ -304,26 +306,31 @@ void StreamSoundPlayer::play(bool looping){
 }
 
 void StreamSoundPlayer::stop(){
+  mStop = true;
   alSourceStop(mSource);
   av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY);
 }
 
 bool StreamSoundPlayer::update(){
   ALint processed;
+  ALint queued;
   alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);
-  if (processed == 0){
-    //all buffers full
+  alGetSourcei(mSource, AL_BUFFERS_QUEUED, &queued);
+  if (processed == queued){
+    //all buffers empty
     ALint state;
     alGetSourcei(mSource, AL_SOURCE_STATE, &state);
-    if (state != AL_PLAYING)
+    if (mStop)
       return false;
-    else{
+    /*else{
       ALint offset;
       alGetSourcei(mSource, AL_SAMPLE_OFFSET, &offset);
-    }
+    }*/
     return true;
   }
   for (ALint i = 0; i < processed; ++i){
+    if (mStop)
+      break;
     unsigned bytes = decode();
     if (bytes > 0){
       ALuint curBuf;
@@ -334,12 +341,12 @@ bool StreamSoundPlayer::update(){
       }
     }
     else{
-      return false;
+      mStop = true;
     }
   }
   ALint state;
   alGetSourcei(mSource, AL_SOURCE_STATE, &state);
   if (state != AL_PLAYING)
-    return false;
+    alSourcePlay(mSource);
   return true;
 }

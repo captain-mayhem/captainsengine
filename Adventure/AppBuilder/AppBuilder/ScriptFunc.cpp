@@ -173,6 +173,9 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     chr->addNextState(currState);
     chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));
     if (sound != ""){ //TODO SOUND
+      SoundPlayer* plyr = SoundEngine::instance()->getSound(sound);
+      if (plyr)
+        plyr->play(false);
     }
   }
   if (hold && str){
@@ -422,7 +425,8 @@ int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
   std::string pattern;
   if (numArgs >= 2){
     pattern = ctx.stack().pop().getString();
-    DebugBreak();
+    if (!pattern.empty())
+      DebugBreak();
   }
   SoundPlayer* sp = SoundEngine::instance()->getMusic(music);
   if (sp)
@@ -513,6 +517,9 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
     DEPTH_GAME_FONT, 1, breakinfo, Color(), 100*text.length());
   if (sound != ""){
     //TODO SOUND
+    SoundPlayer* plyr = SoundEngine::instance()->getSound(sound);
+    if (plyr)
+      plyr->play(false);
   }
   if (hold && str){
     str->setSuspensionScript(&ctx);
