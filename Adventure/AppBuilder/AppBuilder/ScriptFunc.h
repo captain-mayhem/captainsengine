@@ -97,6 +97,10 @@ public:
   **/
   static int loadGame(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param name the name of the variable to load
+  **/
+  static int loadNum(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param room name of the room
   \param effect [opt] blending effect TODO
   **/
@@ -150,6 +154,10 @@ public:
   **/
   static int saveGame(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param name of the variable to be saved
+  **/
+  static int saveNum(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param bool name of the boolean
   \param value true/false
   **/
@@ -193,6 +201,11 @@ public:
   \param change changes style of room changes
   **/
   static int setScreenchange(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param name the name of the variable
+  \param value the value to set
+  **/
+  static int setString(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param text information about the object
   \param show boolean if the text should be displayed on the mouse cursor

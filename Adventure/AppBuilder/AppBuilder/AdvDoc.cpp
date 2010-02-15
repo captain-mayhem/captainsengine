@@ -91,8 +91,10 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   }
   else
     assert(false);
-  wxString font = txtstream.ReadLine();
-  str = txtstream.ReadLine();
+  wxString font;
+  do{
+    font = txtstream.ReadLine();
+  } while (font.substr(0, 11) != "GameFont : ");
   str = txtstream.ReadLine();
   str = txtstream.ReadLine();
   str = txtstream.ReadLine();
@@ -589,7 +591,18 @@ bool AdvDocument::loadFile3(wxInputStream& stream){
 //  return mImageNames[name];
 //}
 wxImage AdvDocument::getImage(wxString name){
-  wxFileName filename = mImageNames[name];
+  wxFileName filename;
+  std::map<wxString,wxFileName>::iterator iter = mImageNames.find(name);
+  if (iter != mImageNames.end())
+    filename = iter->second;
+  else{
+    for (iter = mImageNames.begin(); iter != mImageNames.end(); ++iter){
+      if (stricmp(name.c_str(), iter->first.c_str()) == 0){
+        filename = iter->second;
+        break;
+      }
+    }
+  }
   if (mStream){
     wxString path = "gfx.dat#zip:"+filename.GetFullName();
     wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);

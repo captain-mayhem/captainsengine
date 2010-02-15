@@ -34,6 +34,7 @@ public:
   Vec2i getCursorPos();
   void leftClick(const Vec2i& pos);
   void rightClick(const Vec2i& pos);
+  void doubleClick(const Vec2i& pos);
   bool loadRoom(std::string name, bool isSubRoom);
   void unloadRoom(RoomObject* room, bool mainroom);
   bool setFocus(std::string charname);

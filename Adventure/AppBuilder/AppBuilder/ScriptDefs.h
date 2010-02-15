@@ -24,6 +24,7 @@ enum EngineEvent{
   EVT_LOOP1=EVT_EXIT+1,
   EVT_LOOP2=EVT_LOOP1+1,
   EVT_LEVEL=EVT_LOOP2+1,
+  EVT_DBLCLCK=EVT_LEVEL+1,
 };
 
 class CodeSegment{

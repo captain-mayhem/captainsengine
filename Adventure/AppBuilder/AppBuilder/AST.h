@@ -229,10 +229,11 @@ protected:
 
 class TimerNode : public StmtNode{
 public:
-  TimerNode(float time, NodeList* exec) : StmtNode(TIMERFUNC), mTime(time), mExec(exec) {}
+  TimerNode(float time) : StmtNode(TIMERFUNC), mTime(time), mExec(NULL) {}
   ~TimerNode(){
     delete mExec;
   }
+  void setCommands(NodeList* exec) {mExec = exec;}
   NodeList* getCommands() {return mExec;}
   float getTime() {return mTime;}
 protected:

@@ -462,6 +462,8 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
     return EVT_LOOP2;
   else if (eventname == "level")
     return EVT_LEVEL;
+  else if (eventname == "doubleclick")
+    return EVT_DBLCLCK;
   std::map<std::string,unsigned>::iterator iter = mData->getProjectSettings()->commands.find(eventname);
   if (iter != mData->getProjectSettings()->commands.end()){
     return static_cast<EngineEvent>(iter->second);

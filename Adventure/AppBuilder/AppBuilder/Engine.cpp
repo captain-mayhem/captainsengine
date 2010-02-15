@@ -403,7 +403,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     mRooms.push_back(roomobj);
     mMainRoomLoaded = true;
   }
-  if (room->name == mData->getProjectSettings()->taskroom)
+  if (stricmp(room->name.c_str(), mData->getProjectSettings()->taskroom.c_str()) == 0)
     mTaskbar = roomobj;
   //if (!isSubRoom)
   //  mCharOutOfFocus = true;
@@ -529,6 +529,17 @@ void Engine::rightClick(const Vec2i& pos){
   mLinkObjectInfo = "";
   if (leftClickRequired)
     leftClick(pos);
+}
+
+void Engine::doubleClick(const Vec2i& pos){
+  ExecutionContext* script = NULL;
+  Object2D* obj = getObjectAt(pos);
+  if (obj != NULL){
+    script = obj->getScript();
+    if (script != NULL){
+      script->setEvent(EVT_DBLCLCK);
+    }
+  }
 }
 
 bool Engine::setFocus(std::string charname){

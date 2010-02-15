@@ -14,6 +14,7 @@ EVT_ENTER_WINDOW(RenderWindow::OnEnterWindow)
 EVT_LEAVE_WINDOW(RenderWindow::OnExitWindow)
 EVT_KEY_UP(RenderWindow::OnKeyUp)
 EVT_KEY_DOWN(RenderWindow::OnKeyDown)
+EVT_LEFT_DCLICK(RenderWindow::OnMouseDoubleClick)
 EVT_CLOSE(RenderWindow::OnClose)
 END_EVENT_TABLE()
 
@@ -158,4 +159,9 @@ void RenderWindow::OnKeyDown(wxKeyEvent& event){
 
 void RenderWindow::OnKeyUp(wxKeyEvent& event){
   Engine::instance()->keyRelease(event.GetKeyCode());
+}
+
+void RenderWindow::OnMouseDoubleClick(wxMouseEvent& event){
+  Vec2i pos(event.GetX(), event.GetY());
+  Engine::instance()->doubleClick(pos);
 }
