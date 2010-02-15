@@ -60,6 +60,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("jiggle", jiggle);
   interpreter->registerFunction("randomnum", randomNum);
   interpreter->registerFunction("setchar", setChar);
+  interpreter->registerFunction("setstring", setString);
+  interpreter->registerFunction("loadnum", loadNum);
+  interpreter->registerFunction("savenum", saveNum);
   srand(time(NULL));
 }
 
@@ -89,7 +92,6 @@ int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
     case SC_BLEND:
       break;
     case SC_BLEND_SLOW:
-      DebugBreak();
       break;
   }
   return 0;
@@ -709,6 +711,27 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     obj->addNextState(oldstate);
     obj->getAnimation()->registerAnimationEndHandler(obj);
   }
+  return 0;
+}
+
+int ScriptFunctions::setString(ExecutionContext& ctx, unsigned numArgs){
+  std::string varname = ctx.stack().pop().getString();
+  std::string val = ctx.stack().pop().getString();
+  Engine::instance()->getInterpreter()->mVariables[varname] = StackData(val);
+  return 0;
+}
+
+int ScriptFunctions::loadNum(ExecutionContext& ctx, unsigned numArgs){
+  std::string varname = ctx.stack().pop().getString();
+  int val = 0; //TODO save
+  //Engine::instance()->getInterpreter()->mVariables[varname] = StackData(val);
+  return 0;
+}
+
+int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
+  std::string varname = ctx.stack().pop().getString();
+  int val = Engine::instance()->getInterpreter()->mVariables[varname].getInt();
+  //TODO save
   return 0;
 }
 

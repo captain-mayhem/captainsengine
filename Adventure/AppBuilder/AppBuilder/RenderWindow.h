@@ -14,6 +14,7 @@ public:
   void OnMouseMove(wxMouseEvent& event);
   void OnMouseLeft(wxMouseEvent& event);
   void OnMouseRight(wxMouseEvent& event);
+  void OnMouseDoubleClick(wxMouseEvent& event);
   void OnTimer(wxTimerEvent& event);
   void OnIdle(wxIdleEvent& event);
   void OnClose(wxCloseEvent& event);

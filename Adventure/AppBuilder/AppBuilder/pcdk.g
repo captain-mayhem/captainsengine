@@ -64,10 +64,13 @@ row_stmt returns [RowNode* row]
 	;
 	
 timer_stmt returns [TimerNode* timer]
-	:	TIMER LPAREN INT RPAREN exec=block
+	:	TIMER LPAREN (
+	REAL { char tmp[64]; strcpy(tmp, (char*)$REAL.text->chars); char* tst = strchr(tmp, ','); if (tst != NULL) *tst = '.'; float time = (float)atof(tmp); $timer = new TimerNode(time);}
+	| INT { float time = (float)atoi((char*)$INT.text->chars); $timer = new TimerNode(time); }
+	) RPAREN exec=block
 	{
-		float time = (float)atoi((char*)$INT.text->chars);
-		$timer = new TimerNode(time, exec.nodes);
+		//float time = (float)atoi((char*)$INT.text->chars);
+		$timer->setCommands(exec.nodes);
 	}
 	;
 	
