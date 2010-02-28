@@ -464,6 +464,16 @@ void RoomObject::setInventory(InventoryDisplay* disp){
   mInventroy->setPosition(mInventroy->getPosition()+mPos);
 }
 
+bool RoomObject::isScriptRunning(){
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    if ((*iter)->getScript() != NULL && (*iter)->getScript()->isRunning())
+      return true;
+  }
+  if (mScript != NULL && mScript->isRunning())
+    return true;
+  return false;
+}
+
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0)

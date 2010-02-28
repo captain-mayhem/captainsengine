@@ -115,6 +115,7 @@ public:
   void resetEvent(EngineEvent evt);
   void resetEvents();
   bool isEventSet(EngineEvent evt);
+  bool isRunning();
   EngineEvent getCommandEvent();
   Stack& stack() {return mStack;}
   void setStepEndHandler(StepEndHandler handler){
