@@ -330,8 +330,9 @@ void PcdkScript::update(unsigned time){
   if (mCutScene){
     mTSPos = mTSPosOrig;
     mCutScene->setEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
+    ExecutionContext* oldcutscene = mCutScene;
     update(mCutScene, time);
-    if (mCutScene && !mCutScene->mSuspended && mCutScene->mExecuteOnce){
+    if (mCutScene && !mCutScene->mSuspended && mCutScene->mExecuteOnce && mCutScene == oldcutscene){
       mGlobalSuspend = false;
       Engine::instance()->setCommand(mPrevActiveCommand, false);
       delete mCutScene;
@@ -341,7 +342,7 @@ void PcdkScript::update(unsigned time){
       if (chr)
         Engine::instance()->loadRoom(chr->getRoom(), false);
     }
-    if (mCutScene && !mCutScene->mSuspended){
+    if (mCutScene && !mCutScene->mSuspended && mCutScene == oldcutscene){
       int count = 0;
       for (std::map<int, bool>::iterator iter = mTSActive[mTSName][mTSLevel].begin(); iter != mTSActive[mTSName][mTSLevel].end(); ++iter){
         if (iter->second)
@@ -497,6 +498,10 @@ void ExecutionContext::resetEvents(){
 
 bool ExecutionContext::isEventSet(EngineEvent evt){
   return mEvents.find(evt) != mEvents.end();
+}
+
+bool ExecutionContext::isRunning(){
+  return mPC > 0;
 }
 
 EngineEvent ExecutionContext::getCommandEvent(){

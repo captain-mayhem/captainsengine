@@ -124,6 +124,7 @@ public:
   CharacterObject* extractCharacter(const std::string& name);
   CharacterObject* findCharacter(const std::string& name);
   bool isWalkable(const Vec2i& pos);
+  bool isScriptRunning();
   Object2D* getObjectAt(const Vec2i& pos);
   Object2D* getObject(const std::string& name);
   void update(unsigned interval);

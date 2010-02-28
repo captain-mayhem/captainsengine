@@ -147,6 +147,10 @@ public:
   **/
   static int randomNum(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param realtime true/false
+  **/
+  static int realTime(ExecutionContext& ctx, unsigned numArgs);
+  /**
   **/
   static int restart(ExecutionContext& ctx, unsigned numArgs);
   /**
@@ -240,6 +244,10 @@ public:
   \param show true/false
   **/
   static int taskbar(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param show true/false
+  **/
+  static int textEnabled(ExecutionContext& ctx, unsigned numArgs);
   /**
   **/
   static int unloadRoom(ExecutionContext& ctx, unsigned numArgs);

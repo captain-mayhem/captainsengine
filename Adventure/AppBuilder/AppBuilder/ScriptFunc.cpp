@@ -63,6 +63,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setstring", setString);
   interpreter->registerFunction("loadnum", loadNum);
   interpreter->registerFunction("savenum", saveNum);
+  interpreter->registerFunction("textenabled", textEnabled);
+  interpreter->registerFunction("realtime", realTime);
   srand(time(NULL));
 }
 
@@ -732,6 +734,18 @@ int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
   int val = Engine::instance()->getInterpreter()->mVariables[varname].getInt();
   //TODO save
+  return 0;
+}
+
+int ScriptFunctions::textEnabled(ExecutionContext& ctx, unsigned numArgs){
+  bool enabled = ctx.stack().pop().getBool();
+  //TODO
+  return 0;
+}
+
+int ScriptFunctions::realTime(ExecutionContext& ctx, unsigned numArgs){
+  bool enabled = ctx.stack().pop().getBool();
+  //this is intentionally left blank, consider implementing if engine too slow otherwise
   return 0;
 }
 
