@@ -70,6 +70,12 @@ public:
   **/
   static int gotoLevel(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param object name of the group
+  \param state first object of the group
+  \param ... [opt] additional objects to group
+  **/
+  static int group(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param object name of the object instance
   \param state state of the object
   \param ... [opt] additional states TODO
@@ -131,16 +137,24 @@ public:
   \param character the name of the character to execute the pickup action
   **/
   static int pickup(ExecutionContext& ctx, unsigned numArgs);
-  /** TODO
+  /**
   \param name the music file which should be played
   \param position [opt] start position (as pattern for module track)
   **/
   static int playMusic(ExecutionContext& ctx, unsigned numArgs);
-  /** TODO
+  /**
   \param sound name of the sound file to play
   \param volume [opt] the volume
   **/
   static int playSound(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param movie name of the swf movie file to play
+  \param x [opt] x-position of the movie
+  \param y [opt] y-position of the movie
+  \param width [opt] width of the movie
+  \param height [opt] height of the movie
+  **/
+  static int playSwf(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param name the variable to be filled with a random number
   \param limit limits the number to 1 .. limit
@@ -172,6 +186,14 @@ public:
   \param ... [opt] additional states
   **/
   static int setChar(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param char name of the character instance
+  \param r red component
+  \param g green component
+  \param b blue component
+  \param fade [opt] do a fading to the color
+  **/
+  static int setCharLight(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param character name of the character to focus
   special values none/last
@@ -222,6 +244,12 @@ public:
   \param dontwait [opt] continue script execution immediately
   **/
   static int speech(ExecutionContext& ctx, unsigned numArgs);
+  /*
+  */
+  static int stopSkip(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  **/
+  static int stopSwf(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param room name of the subroom to load
   \param fadingtime [opt] time in milliseconds for fading effect
@@ -268,6 +296,8 @@ public:
 
   static int isBoolEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isCharFocussed(ExecutionContext& cxt, unsigned numArgs);
+  static int isCharInRoom(ExecutionContext& ctx, unsigned numArgs);
+  static int isCharTriggering(ExecutionContext& ctx, unsigned numArgs);
   static int isCommandSet(ExecutionContext& ctx, unsigned numArgs);
   static int isObjectInState(ExecutionContext& ctx, unsigned numArgs);
   static int isLinkedObject(ExecutionContext& ctx, unsigned numArgs);
