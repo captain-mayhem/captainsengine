@@ -163,10 +163,16 @@ ident returns [IdentNode* id]
 	(UNDERSCORE (secid=ident {$id->append("_"); $id->append(secid.id->value().c_str()); delete secid.id;}
 		| INT {$id->append("_"); $id->append((char*)$INT.text->chars);}
 		)
-	)?
+	)*
 	;
 
-
+COMMENT	:	'(*'
+		(/*	{LA(2) != ')'}? '*'
+		|*/	~('*')
+		)*
+		'*)'
+{$channel=HIDDEN;}
+;
 LPAREN	:	'(';
 RPAREN	:	')';
 LBRACE  :	'{';
@@ -193,8 +199,9 @@ ROW	:	'r''o''w';
 TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('.'|',')'0'..'9'+;
-IDENT_PART	:	('a'..'z'|'A'..'Z'|'ü'|'Ü'|'ö'|'Ö'|'ä'|'Ä'|'ß'|':')('a'..'z'|'A'..'Z'|'ü'|'Ü'|'ö'|'Ö'|'ä'|'Ä'|'ß'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|'*'|':')*;
+IDENT_PART	:	('a'..'z'|'A'..'Z'|'ü'|'Ü'|'ö'|'Ö'|'ä'|'Ä'|'ß'|':'|'\''|'*')('a'..'z'|'A'..'Z'|'ü'|'Ü'|'ö'|'Ö'|'ä'|'Ä'|'ß'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|'*'|':')*;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}
 	;
+	

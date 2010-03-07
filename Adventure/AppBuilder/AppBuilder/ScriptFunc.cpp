@@ -1,5 +1,7 @@
 #include "ScriptFunc.h"
 
+#include <fstream>
+
 #include "Engine.h"
 #include "Script.h"
 #include "SaveStateProvider.h"
@@ -65,6 +67,13 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("savenum", saveNum);
   interpreter->registerFunction("textenabled", textEnabled);
   interpreter->registerFunction("realtime", realTime);
+  interpreter->registerFunction("setcharlight", setCharLight);
+  interpreter->registerFunction("group", group);
+  interpreter->registerFunction("stopskip", stopSkip);
+  interpreter->registerFunction("playswf", playSwf);
+  interpreter->registerFunction("stopswf", stopSwf);
+  interpreter->registerFunction("if_ischar", isCharTriggering);
+  interpreter->registerFunction("if_charin", isCharInRoom);
   srand(time(NULL));
 }
 
@@ -725,15 +734,47 @@ int ScriptFunctions::setString(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::loadNum(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
-  int val = 0; //TODO save
-  //Engine::instance()->getInterpreter()->mVariables[varname] = StackData(val);
+  int val = 0;
+  std::string file = Engine::instance()->getSettings()->savedir+"/num.sav";
+  std::ifstream in(file.c_str());
+  while(in){
+    std::string name;
+    int value;
+    in >> name >> value;
+    if (name == varname){
+      val = value;
+      break;
+    }
+  }
+  in.close();
+  Engine::instance()->getInterpreter()->mVariables[varname] = StackData(val);
   return 0;
 }
 
 int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
   int val = Engine::instance()->getInterpreter()->mVariables[varname].getInt();
-  //TODO save
+  std::string file = Engine::instance()->getSettings()->savedir+"/num.sav";
+  //load old content
+  std::ifstream in(file.c_str());
+  std::map<std::string, int> data;
+  while (in){
+    std::string name;
+    int value;
+    in >> name >> value;
+    if (!in)
+      break;
+    data[name] = value;
+  }
+  in.close();
+  //insert new content
+  data[varname] = val;
+  //save content
+  std::ofstream out(file.c_str());
+  for (std::map<std::string,int>::iterator iter = data.begin(); iter != data.end(); ++iter){
+    out << iter->first << " " << iter->second << std::endl;
+  }
+  out.close();
   return 0;
 }
 
@@ -748,6 +789,59 @@ int ScriptFunctions::realTime(ExecutionContext& ctx, unsigned numArgs){
   //this is intentionally left blank, consider implementing if engine too slow otherwise
   return 0;
 }
+
+int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
+  std::string charname = ctx.stack().pop().getString();
+  Color c;
+  c.r = (unsigned char)ctx.stack().pop().getInt();
+  c.g = (unsigned char)ctx.stack().pop().getInt();
+  c.b = (unsigned char)ctx.stack().pop().getInt();
+  bool fade = false;
+  if (numArgs >= 5){
+    std::string fading = ctx.stack().pop().getString();
+    if (fading == "fade")
+      fade = true;
+  }
+  return 0;
+}
+
+int ScriptFunctions::group(ExecutionContext& ctx, unsigned numArgs){
+  std::string groupname = ctx.stack().pop().getString();
+  for (unsigned i = 2; i < numArgs; ++i){
+    std::string object = ctx.stack().pop().getString();
+  }
+  return 0;
+}
+
+int ScriptFunctions::stopSkip(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int ScriptFunctions::playSwf(ExecutionContext& ctx, unsigned numArgs){
+  std::string moviename = ctx.stack().pop().getString();
+  int x = 0;
+  int y = 0;
+  int width = Engine::instance()->getSettings()->resolution.x;
+  int height = Engine::instance()->getSettings()->resolution.y;
+  if (numArgs >= 2){
+    x = ctx.stack().pop().getInt();
+  }
+  if (numArgs >= 3){
+    y = ctx.stack().pop().getInt();
+  }
+  if (numArgs >= 4){
+    width = ctx.stack().pop().getInt();
+  }
+  if (numArgs >= 5){
+    height = ctx.stack().pop().getInt();
+  }
+  return 0;
+}
+
+int ScriptFunctions::stopSwf(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
 
 
 int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){
@@ -824,6 +918,38 @@ int ScriptFunctions::isCharFocussed(ExecutionContext& ctx, unsigned numArgs){
     ctx.stack().push(0);
   else
     ctx.stack().push(1);
+  return 2;
+}
+
+int ScriptFunctions::isCharTriggering(ExecutionContext& ctx, unsigned numArgs){
+  std::string name = ctx.stack().pop().getString();
+  ctx.stack().push(0);
+  CharacterObject* chr = Engine::instance()->getCharacter(name);
+  RoomObject* room = Engine::instance()->getRoom("");
+  if (chr && room){
+    //find the position of the script
+    Vec2i pos = room->getScriptPosition(&ctx);
+    Vec2i charpos = chr->getPosition();
+    charpos.x /= Engine::instance()->getWalkGridSize();
+    charpos.y /= Engine::instance()->getWalkGridSize();
+    if (pos == charpos)
+      ctx.stack().push(0);
+    else
+      ctx.stack().push(1);
+  }
+  return 2;
+}
+
+int ScriptFunctions::isCharInRoom(ExecutionContext& ctx, unsigned numArgs){
+  std::string charname = ctx.stack().pop().getString();
+  std::string roomname = ctx.stack().pop().getString();
+  ctx.stack().push(0);
+  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  if (chr->getRoom() == roomname)
+    ctx.stack().push(0);
+  else
+    ctx.stack().push(1);
+  //RoomObject* room = Engine::instance()->getRoom(ro);
   return 2;
 }
 

@@ -474,6 +474,14 @@ bool RoomObject::isScriptRunning(){
   return false;
 }
 
+Vec2i RoomObject::getScriptPosition(ExecutionContext* wmscript){
+  for (std::map<Vec2i,ExecutionContext*>::iterator iter = mWalkmapScripts.begin(); iter != mWalkmapScripts.end(); ++iter){
+    if (iter->second == wmscript)
+      return iter->first;
+  }
+  return Vec2i(-1,-1);
+}
+
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0)
