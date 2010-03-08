@@ -145,11 +145,17 @@ int ScriptFunctions::walkTo(ExecutionContext& ctx, unsigned numArgs){
   }
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
-    if (hold){
-      chr->setSuspensionScript(&ctx);
-      ctx.mSuspended = true;
+    if (ctx.mSkip){
+      chr->setPosition(pos);
+      chr->setLookDir(dir);
     }
-    Engine::instance()->walkTo(chr, pos, dir);
+    else{
+      if (hold){
+        chr->setSuspensionScript(&ctx);
+        ctx.mSuspended = true;
+      }
+      Engine::instance()->walkTo(chr, pos, dir);
+    }
   }
   return 0;
 }
@@ -171,6 +177,8 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     if (dw == "dontwait")
       hold = false;
   }
+  if (ctx.mSkip)
+    return 0;
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   FontRenderer::String* str = NULL;
   if (chr){
@@ -185,7 +193,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     int currState = chr->getState();
     chr->addNextState(currState);
     chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));
-    if (sound != ""){ //TODO SOUND
+    if (sound != ""){
       SoundPlayer* plyr = SoundEngine::instance()->getSound(sound);
       if (plyr)
         plyr->play(false);
@@ -200,6 +208,8 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::pickup(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
+  if (ctx.mSkip)
+    return 0;
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
     chr->addNextState(chr->getState());
@@ -218,6 +228,8 @@ int ScriptFunctions::playSound(ExecutionContext& ctx, unsigned numArgs){
   unsigned volume = 100;
   if (numArgs >= 2)
     volume = ctx.stack().pop().getInt();
+  if (ctx.mSkip)
+    return 0;
   SoundPlayer* sp = SoundEngine::instance()->getSound(sound);
   if (sp){
     sp->setVolume(volume/100.0f);
@@ -259,8 +271,12 @@ int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
   for (unsigned i = 2; i < numArgs; ++i){
     state = ctx.stack().pop().getInt();
     if (obj){
-      obj->addNextState(state);
-      obj->getAnimation()->registerAnimationEndHandler(obj);
+      if (ctx.mSkip)
+        obj->setState(state);
+      else{
+        obj->addNextState(state);
+        obj->getAnimation()->registerAnimationEndHandler(obj);
+      }
     }
   }
   return 0;
@@ -289,16 +305,32 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   }
   else{
     CharacterObject* obj = Engine::instance()->extractCharacter(charname);
+    if (!obj){
+      obj = Engine::instance()->loadCharacter(charname, Engine::instance()->getCharacterClass(charname), false);
+      Engine::instance()->getSaver()->removeCharacter(charname);
+    }
     if (obj){
       Engine::instance()->getAnimator()->remove(obj);
-      obj->setPosition(pos*Engine::instance()->getWalkGridSize());
+      obj->setPosition(pos*Engine::instance()->getWalkGridSize()+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
       int state = CharacterObject::calculateState(obj->getState(), false, false);
       obj->setState(state);
-      obj->setRoom(roomname);
-      Engine::instance()->getSaver()->removeCharacter(charname);
-      Engine::instance()->getSaver()->getRoom(roomname);
-      obj->save();
-      delete obj;
+      RoomObject* room = Engine::instance()->getRoom(roomname);
+      if (room){
+        obj->setRoom(room->getName());
+        room->addObject(obj);
+        //scrolling
+        Vec2i scrollOffset = Engine::instance()->getSettings()->resolution/2-
+          (obj->getPosition()-Vec2i(0,obj->getSize().y/2));
+        Engine::instance()->getRoom("")->setScrollOffset(scrollOffset); //this function limits the scrolling
+        obj->setScrollOffset(scrollOffset);
+      }
+      else{
+        obj->setRoom(roomname);
+        Engine::instance()->getSaver()->removeCharacter(charname);
+        Engine::instance()->getSaver()->getRoom(roomname);
+        obj->save();
+        delete obj;
+      }
     }
   }
   return 0;
@@ -346,11 +378,16 @@ int ScriptFunctions::follow(ExecutionContext& ctx, unsigned numArgs){
   CharacterObject* chr1 = Engine::instance()->getCharacter(char1);
   CharacterObject* chr2 = Engine::instance()->getCharacter(char2);
   if (chr1 && chr2){
-    if (hold){
-      chr1->setSuspensionScript(&ctx);
-      ctx.mSuspended = true;
+    if (ctx.mSkip){
+      chr1->setPosition(chr2->getPosition());
     }
-    Engine::instance()->walkTo(chr1, chr2->getPosition(), UNSPECIFIED);
+    else{
+      if (hold){
+        chr1->setSuspensionScript(&ctx);
+        ctx.mSuspended = true;
+      }
+      Engine::instance()->walkTo(chr1, chr2->getPosition(), UNSPECIFIED);
+    }
   }
   return 0;
 }
@@ -456,6 +493,8 @@ int ScriptFunctions::stopMusic(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::wait(ExecutionContext& ctx, unsigned numArgs){
   float seconds = ctx.stack().pop().getFloat();
+  if (ctx.mSkip)
+    return 0;
   ctx.mSleepTime = (int)(seconds*1000);
   ctx.mSuspended = true;
   return 0;
@@ -511,7 +550,7 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   std::string text = ctx.stack().pop().getString();
   std::string sound = "";
   bool hold = true;
-  if (numArgs >= 4){ //TODO SOUND
+  if (numArgs >= 4){
     sound = ctx.stack().pop().getString();
     if (sound == "dontwait"){
       hold = false;
@@ -523,13 +562,14 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
     if (dw == "dontwait")
       hold = false;
   }
+  if (ctx.mSkip)
+    return 0;
   FontRenderer::String* str = NULL;
   std::vector<Vec2i> breakinfo;
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1, breakinfo);
   str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
     DEPTH_GAME_FONT, 1, breakinfo, Color(), 100*text.length());
   if (sound != ""){
-    //TODO SOUND
     SoundPlayer* plyr = SoundEngine::instance()->getSound(sound);
     if (plyr)
       plyr->play(false);
@@ -660,6 +700,8 @@ int ScriptFunctions::jiggle(ExecutionContext& ctx, unsigned numArgs){
   int power = 10;
   if (numArgs >= 2)
     power = ctx.stack().pop().getInt();
+  if (ctx.mSkip)
+    return 0;
   RoomObject* room = Engine::instance()->getRoom("");
   if (room){
     std::list<Vec2i> path;
@@ -814,6 +856,7 @@ int ScriptFunctions::group(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::stopSkip(ExecutionContext& ctx, unsigned numArgs){
+  ctx.mSkip = false;
   return 0;
 }
 

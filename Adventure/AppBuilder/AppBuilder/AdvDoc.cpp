@@ -814,8 +814,13 @@ FontData AdvDocument::getFont(int num){
 
 Item* AdvDocument::getItem(const std::string& name){
   std::map<std::string,Item>::iterator iter = mItems.find(name);
-  if (iter == mItems.end())
+  if (iter == mItems.end()){
+    for (std::map<std::string,Item>::iterator iter = mItems.begin(); iter != mItems.end(); ++iter){
+      if (stricmp(name.c_str(), iter->first.c_str()) == 0)
+        return &iter->second;
+    }
     return NULL;
+  }
   return &((*iter).second);
 }
 

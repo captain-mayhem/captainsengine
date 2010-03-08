@@ -126,6 +126,7 @@ public:
   void reset(bool clearEvents);
   void setOwner(Object2D* owner) {mOwner = owner;}
   void setExecuteOnce() {mExecuteOnce = true;}
+  void setSkip() {mSkip = true; mSuspended = false;}
 protected:
   CodeSegment* mCode;
   bool mIsGameObject;
@@ -138,6 +139,7 @@ protected:
   bool mSuspended;
   int mSleepTime;
   Object2D* mOwner;
+  bool mSkip;
 };
 
 
