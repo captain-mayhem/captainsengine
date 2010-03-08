@@ -41,6 +41,7 @@ public:
   std::istream& load(std::istream& in);
   bool isBlockingScriptRunning() {return mGlobalSuspend;}
   static void clickEndHandler(ExecutionContext& ctx);
+  ExecutionContext* getCutscene() {return mCutScene;}
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode);
   unsigned transform(ASTNode* node, CodeSegment* codes);

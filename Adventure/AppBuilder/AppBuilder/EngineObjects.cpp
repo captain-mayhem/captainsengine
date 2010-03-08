@@ -372,7 +372,7 @@ CharacterObject* RoomObject::extractCharacter(const std::string& name){
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     if ((*iter)->getType() == Object2D::CHARACTER){
       CharacterObject* ch = static_cast<CharacterObject*>((*iter));
-      if (ch->getName() == name){
+      if (stricmp(ch->getName().c_str(), name.c_str()) == 0){
         mObjects.erase(iter);
         Engine::instance()->getSaver()->getRoom(mName);
         Engine::instance()->getSaver()->removeCharacter(name);
@@ -387,7 +387,7 @@ CharacterObject* RoomObject::findCharacter(const std::string& name){
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     if ((*iter)->getType() == Object2D::CHARACTER){
       CharacterObject* ch = static_cast<CharacterObject*>((*iter));
-      if (ch->getName() == name){
+      if (stricmp(ch->getName().c_str(), name.c_str()) == 0){
         return ch;
       }
     }

@@ -277,7 +277,7 @@ CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
 
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
-mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0), mOwner(NULL){
+mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false){
 
 }
 
@@ -293,6 +293,7 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
   mSuspended = ctx.mSuspended;
   mSleepTime = ctx.mSleepTime;
   mOwner = ctx.mOwner;
+  mSkip = ctx.mSkip;
 }
 
 ExecutionContext::~ExecutionContext(){
@@ -520,6 +521,7 @@ void ExecutionContext::reset(bool clearEvents){
   mPC = 0;
   mSuspended = false;
   mHandler = NULL;
+  mSkip = false;
 }
 
 void PcdkScript::clickEndHandler(ExecutionContext& ctx){

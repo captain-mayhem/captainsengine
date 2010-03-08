@@ -869,7 +869,11 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
     return NULL;
   CharacterObject* character = new CharacterObject(obj->base.state, obj->base.position, instanceName);
   character->setMirrored(obj->mirrored);
-  character->setFontID(chbase->fontid+1);
+  int fontid = chbase->fontid;
+  if (fontid == 0)
+    fontid = 1;
+  character->setFontID(fontid);
+  mFonts->loadFont(fontid);
   character->setTextColor(chbase->textcolor);
   character->setRoom(room);
   for (unsigned j = 0; j < chbase->states.size(); ++j){
@@ -904,6 +908,14 @@ void Engine::keyPress(int key){
     case WXK_F2:
       mSaver->load(SaveStateProvider::saveSlotToPath(1));
       break;
+    case WXK_ESCAPE:
+      {
+        ExecutionContext* ctx = mInterpreter->getCutscene();
+        if (ctx){
+          ctx->setSkip();
+        }
+      }
+      break;
   }
 }
 
@@ -925,7 +937,7 @@ void Engine::unloadRooms(){
 std::string Engine::getCharacterClass(const std::string instanceName){
   Rcharacter ch;
   for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
-    if (mData->getRoomCharacters()[i].name == instanceName){
+    if (stricmp(mData->getRoomCharacters()[i].name.c_str(), instanceName.c_str()) == 0){
       return mData->getRoomCharacters()[i].character;
     }
   }
