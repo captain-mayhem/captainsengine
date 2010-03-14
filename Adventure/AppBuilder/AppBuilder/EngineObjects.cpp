@@ -338,6 +338,7 @@ void RoomObject::setParallaxBackground(const std::string& bg, int depth){
 }
 
 void RoomObject::addObject(Object2D* obj){
+  obj->setScrollOffset(mScrollOffset);
   mObjects.push_back(obj);
 }
 
@@ -437,6 +438,7 @@ void RoomObject::save(){
   save->base.position = mPos;
   save->base.state = mState;
   save->lighting = mLighting->getColor();
+  save->scrolloffset = mScrollOffset;
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->save();
   }

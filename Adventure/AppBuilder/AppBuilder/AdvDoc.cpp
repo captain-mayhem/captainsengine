@@ -422,7 +422,7 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
       room.size = Vec2i(val1,val2);
       str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
-      room.parallaxpoint = Vec2i(val1, val2);
+      room.scrolloffset = Vec2i(val1, val2);
       str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
       room.depthmap = Vec2i(val1, val2);
       str = txtstream.ReadLine(); str.ToLong(&val1); room.zoom = val1;

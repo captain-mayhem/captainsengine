@@ -142,7 +142,7 @@ struct Roomobject{
 struct Room{
   std::string name;
   Vec2i size;
-  Vec2i parallaxpoint;
+  Vec2i scrolloffset;
   Vec2i depthmap;
   int zoom;
   std::string background;

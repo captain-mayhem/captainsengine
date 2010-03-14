@@ -22,6 +22,7 @@ public:
   struct SaveRoom{
     SaveObject base;
     Color lighting;
+    Vec2i scrolloffset;
     std::map<std::string, SaveObject*> objects;
     std::map<std::string, CharSaveObject*> characters;
     //friend std::ostream& operator<<(std::ostream& strm, const SaveRoom& room);
