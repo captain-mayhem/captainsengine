@@ -317,7 +317,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
   if (!mData)
     return false;
   //already loaded //TODO subrooms
-  if (mMainRoomLoaded && mRooms.back()->getName() == name)
+  if (mMainRoomLoaded && stricmp(mRooms.back()->getName().c_str(), name.c_str()) == 0)
     return true;
   Room* room = mData->getRoom(name);
   SaveStateProvider::SaveRoom* save = mSaver->getRoom(room->name);
@@ -545,8 +545,9 @@ bool Engine::setFocus(std::string charname){
   if (mFocussedChar){
     mRooms.back()->addObject(mFocussedChar);
   }
-  if (mFocussedChar && charname == "none"){
-    mLastFocussedChar = mFocussedChar->getName();
+  if (charname == "none"){
+    if (mFocussedChar)
+      mLastFocussedChar = mFocussedChar->getName();
     mFocussedChar = NULL;
     return true;
   }
@@ -703,14 +704,16 @@ Object2D* Engine::getObject(const std::string& name, bool searchInventoryFirst){
       return ret;
   }
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-    if ((*iter)->getName() == name)
+    if (stricmp((*iter)->getName().c_str(), name.c_str()) == 0)
       return *iter;
   }
   return NULL;
 }
 
 CharacterObject* Engine::getCharacter(const std::string& name){
-  if (name == "self")
+  if (stricmp(name.c_str(), "self") == 0)
+    return mFocussedChar;
+  if (mFocussedChar && stricmp(mFocussedChar->getName().c_str(), name.c_str()) == 0)
     return mFocussedChar;
   CharacterObject* res = NULL;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
@@ -776,7 +779,7 @@ Object2D* Engine::createItem(const std::string& name){
     object->addAnimation(anim);
   }
   //check for object scripts
-  Script* script = mData->getScript(Script::ITEM,name);
+  Script* script = mData->getScript(Script::ITEM,it->name);
   if (script){
     ExecutionContext* scr = mInterpreter->parseProgram(script->text);
     object->setScript(scr);
@@ -859,7 +862,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
         return chr;
     }
   }
-  if (mFocussedChar && mFocussedChar->getName() == instanceName)
+  if (mFocussedChar && stricmp(mFocussedChar->getName().c_str(), instanceName.c_str()) == 0)
     return NULL;
   if (!obj){
     obj = mSaver->findCharacter(instanceName, room);

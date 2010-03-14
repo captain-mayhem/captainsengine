@@ -11,7 +11,7 @@ BaseBlitObject::~BaseBlitObject(){
 
 }
 
-BlitObject::BlitObject(int width, int height) : BaseBlitObject(0, Vec2i(width, height)), mOffset(){
+BlitObject::BlitObject(int width, int height) : BaseBlitObject(0, Vec2i(width, height)), mOffset(), mMirrorOffset(){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
   mScale.y = ((float)mSize.y)/pow2.y;
@@ -25,7 +25,7 @@ BlitObject::BlitObject(int width, int height) : BaseBlitObject(0, Vec2i(width, h
 }
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
-BaseBlitObject(depth, Vec2i()), mOffset(offset){
+BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(){
   wxImage image = Engine::instance()->getImage(texture);
   mTex = Engine::instance()->genTexture(image, mSize, mScale);
   mMirrorX = false;
@@ -33,7 +33,7 @@ BaseBlitObject(depth, Vec2i()), mOffset(offset){
 }
 
 BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
-BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture)
+BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mMirrorOffset()
 {
   mMirrorX = false;
   mDeleteTex = false;
@@ -48,7 +48,8 @@ bool BlitObject::operator<(const BlitObject& obj){
   return mDepth < obj.mDepth;
 }
 
-void BlitObject::render(Vec2i pos, bool mirrorx){
+void BlitObject::render(Vec2i pos, bool mirrorx, const Vec2i& parentsize){
+  mMirrorOffset.x = parentsize.x;
   mPos.x = mOffset.x+pos.x;
   mPos.y = mOffset.y+pos.y;
   mMirrorX = mirrorx;
@@ -57,13 +58,20 @@ void BlitObject::render(Vec2i pos, bool mirrorx){
 
 void BlitObject::blit(){
   glPushMatrix();
-  //if (mMirrorX)
-  //  glTranslatef(mPos.x+mOffset.x,mPos.y,0.0f);
-  //else
-  glTranslatef(mPos.x,mPos.y,0.0f);
-  glScalef(mSize.x,mSize.y,1.0f);
-  if (mMirrorX)
-    glScalef(-1.,1.,1.);
+  
+  if (mMirrorX){
+    glTranslatef(mMirrorOffset.x,0.0f,0.0f);
+    glTranslatef(mPos.x,mPos.y,0.0f);
+    glTranslatef(-mOffset.x, -mOffset.y, 0.0f);
+    glScalef(-1.0f, 1.0f, 1.0f);
+    glTranslatef(mOffset.x, mOffset.y, 0.0f);
+    glScalef(mSize.x,mSize.y,1.0f);
+  }
+  else{
+    glTranslatef(mPos.x,mPos.y,0.0f);
+    glScalef(mSize.x,mSize.y,1.0f);
+  }
+  
   glMatrixMode(GL_TEXTURE);
   glLoadIdentity();
   glScalef(mScale.x, mScale.y, 1.0f);

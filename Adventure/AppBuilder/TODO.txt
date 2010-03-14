@@ -1,8 +1,8 @@
 Topic | Prio
 -------------
-fontchange | 3
+fontchange | 2
 screenchange | 1
 char positioning / char collision detection (->block walkmap?) | 2
 setchar with names | 4
 bored animation | 1
-sound | 1
+module sounds | 5

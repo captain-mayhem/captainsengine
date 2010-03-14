@@ -74,6 +74,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("stopswf", stopSwf);
   interpreter->registerFunction("if_ischar", isCharTriggering);
   interpreter->registerFunction("if_charin", isCharInRoom);
+  interpreter->registerFunction("if_hasitem", isCharPossessingItem);
   srand(time(NULL));
 }
 
@@ -181,26 +182,34 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     return 0;
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   FontRenderer::String* str = NULL;
+  SoundPlayer* plyr = NULL;
   if (chr){
+    if (sound != ""){
+      plyr = SoundEngine::instance()->getSound(sound);
+      if (plyr){
+        plyr->play(false);
+        plyr->setSpeaker(chr);
+      }
+    }
     std::vector<Vec2i> breakinfo;
     Vec2i pos = chr->getOverheadPos();
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID(), breakinfo);
     str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), 100*text.length());
+      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 10000 : 100*text.length());
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr);
     str->setSpeaker(chr);
     int currState = chr->getState();
     chr->addNextState(currState);
     chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));
-    if (sound != ""){
-      SoundPlayer* plyr = SoundEngine::instance()->getSound(sound);
-      if (plyr)
-        plyr->play(false);
-    }
   }
-  if (hold && str){
-    str->setSuspensionScript(&ctx);
+  if (hold){
+    if (plyr){
+      plyr->setSuspensionScript(&ctx);
+    }
+    else if (str){
+      str->setSuspensionScript(&ctx);
+    }
     ctx.mSuspended = true;
   }
   return 0;
@@ -317,6 +326,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       RoomObject* room = Engine::instance()->getRoom(roomname);
       if (room){
         obj->setRoom(room->getName());
+        Engine::instance()->getSaver()->removeCharacter(obj->getName());
         room->addObject(obj);
         //scrolling
         Vec2i scrollOffset = Engine::instance()->getSettings()->resolution/2-
@@ -326,7 +336,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       }
       else{
         obj->setRoom(roomname);
-        Engine::instance()->getSaver()->removeCharacter(charname);
+        Engine::instance()->getSaver()->removeCharacter(obj->getName());
         Engine::instance()->getSaver()->getRoom(roomname);
         obj->save();
         delete obj;
@@ -565,17 +575,21 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   if (ctx.mSkip)
     return 0;
   FontRenderer::String* str = NULL;
+  SoundPlayer* plyr = NULL;
   std::vector<Vec2i> breakinfo;
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1, breakinfo);
   str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, 1, breakinfo, Color(), 100*text.length());
+    DEPTH_GAME_FONT, 1, breakinfo, Color(), plyr ? 10000 : 100*text.length());
   if (sound != ""){
-    SoundPlayer* plyr = SoundEngine::instance()->getSound(sound);
+    plyr = SoundEngine::instance()->getSound(sound);
     if (plyr)
       plyr->play(false);
   }
-  if (hold && str){
-    str->setSuspensionScript(&ctx);
+  if (hold){
+    if (plyr)
+      plyr->setSuspensionScript(&ctx);
+    else if (str)
+      str->setSuspensionScript(&ctx);
     ctx.mSuspended = true;
   }
   return 0;
@@ -980,6 +994,10 @@ int ScriptFunctions::isCharTriggering(ExecutionContext& ctx, unsigned numArgs){
     else
       ctx.stack().push(1);
   }
+  else{
+    ctx.stack().push(2);
+    DebugBreak();
+  }
   return 2;
 }
 
@@ -988,11 +1006,25 @@ int ScriptFunctions::isCharInRoom(ExecutionContext& ctx, unsigned numArgs){
   std::string roomname = ctx.stack().pop().getString();
   ctx.stack().push(0);
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
-  if (chr->getRoom() == roomname)
+  if (stricmp(chr->getRoom().c_str(), roomname.c_str()) == 0)
     ctx.stack().push(0);
   else
     ctx.stack().push(1);
   //RoomObject* room = Engine::instance()->getRoom(ro);
+  return 2;
+}
+
+int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArgs){
+  std::string charname = ctx.stack().pop().getString();
+  std::string itemname = ctx.stack().pop().getString();
+  ctx.stack().push(0);
+  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  if (!chr)
+    DebugBreak();
+  if (chr->getInventory()->getItem(itemname))
+    ctx.stack().push(0);
+  else
+    ctx.stack().push(1);
   return 2;
 }
 

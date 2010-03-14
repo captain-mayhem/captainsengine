@@ -9,6 +9,8 @@
 
 class SoundPlayer;
 class AdvDocument;
+class CharacterObject;
+class ExecutionContext;
 
 class SoundEngine{
 public:
@@ -20,6 +22,7 @@ public:
   SoundPlayer* getSound(const std::string& name);
   SoundPlayer* getMusic(const std::string& name);
   void update();
+  void removeSpeaker(CharacterObject* chr);
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const DataBuffer& db);
@@ -39,14 +42,19 @@ public:
   virtual void stop()=0;
   void setVolume(float volume);
   virtual bool update()=0;
+  void setSpeaker(CharacterObject* chr) {mSpeaker = chr;}
+  CharacterObject* getSpeaker() {return mSpeaker;}
+  void setSuspensionScript(ExecutionContext* ctx) {mSuspensionScript = ctx;}
 protected:
   ALuint mSource;
+  CharacterObject* mSpeaker;
+  ExecutionContext* mSuspensionScript;
 };
 
 class SimpleSoundPlayer : public SoundPlayer{
 public:
   SimpleSoundPlayer(ALuint buffer);
-  ~SimpleSoundPlayer();
+  virtual ~SimpleSoundPlayer();
   void play(bool looping);
   void stop();
   bool update();
@@ -61,7 +69,7 @@ struct AVFormatContext;
 class StreamSoundPlayer : public SoundPlayer{
 public:
   StreamSoundPlayer(const std::string& filename);
-  ~StreamSoundPlayer();
+  virtual ~StreamSoundPlayer();
   void play(bool looping);
   void stop();
   bool update();

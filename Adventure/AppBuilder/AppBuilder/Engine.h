@@ -12,6 +12,7 @@
 
 #ifndef WIN32
 void DebugBreak();
+#define stricmp _stricmp
 #endif
 
 class SaveStateProvider;

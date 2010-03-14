@@ -4,6 +4,7 @@
 #include "SaveStateProvider.h"
 #include "Inventory.h"
 #include "ScriptFunc.h"
+#include "Sound.h"
 
 BlitGroup::BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth){
   for (unsigned l = (unsigned)textures.size(); l > 0; --l){
@@ -23,9 +24,9 @@ BlitGroup::~BlitGroup(){
   }
 }
 
-void BlitGroup::render(Vec2i pos, bool mirrorx){
+void BlitGroup::render(const Vec2i& pos, bool mirrorx, const Vec2i& parentsize){
   for (unsigned i = 0; i < mBlits.size(); ++i){
-    mBlits[i]->render(pos, mirrorx);
+    mBlits[i]->render(pos, mirrorx, parentsize);
   }
 }
 
@@ -61,12 +62,12 @@ Animation::~Animation(){
   }
 }
 
-void Animation::render(Vec2i pos, bool mirrorx){
+void Animation::render(Vec2i pos, bool mirrorx, Vec2i parentsize){
   //if (mCurrFrame != 0){
   //  mBlits[mCurrFrame]->render(pos, mirrorx);
   //}
   if (mBlits.size() > mCurrFrame)
-    mBlits[mCurrFrame]->render(pos, mirrorx);
+    mBlits[mCurrFrame]->render(pos, mirrorx, parentsize);
 }
 
 void Animation::setDepth(int depth){
@@ -111,7 +112,7 @@ Object2D::~Object2D(){
 void Object2D::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  mAnimations[mState-1]->render(mPos+mScrollOffset, false);
+  mAnimations[mState-1]->render(mPos+mScrollOffset, false, Vec2i());
 }
 
 Animation* Object2D::getAnimation(){
@@ -307,7 +308,7 @@ RoomObject::~RoomObject(){
 
 void RoomObject::render(){
   if (mParallaxBackground)
-    mParallaxBackground->render(Vec2i(), false);
+    mParallaxBackground->render(Vec2i(), false, Vec2i());
   Object2D::render();
   for (int i = mObjects.size()-1; i >= 0; --i){
     mObjects[i]->render();
@@ -362,7 +363,7 @@ Object2D* RoomObject::getObjectAt(const Vec2i& pos){
 
 Object2D* RoomObject::getObject(const std::string& name){
   for (unsigned i = 0; i < mObjects.size(); ++i){
-    if(mObjects[i]->getName() == name)
+    if(stricmp(mObjects[i]->getName().c_str(), name.c_str()) == 0)
       return mObjects[i];
   }
   return NULL;
@@ -491,23 +492,24 @@ mFontID(0)
 
 CharacterObject::~CharacterObject(){
   Engine::instance()->getFontRenderer()->removeText(this);
+  SoundEngine::instance()->removeSpeaker(this);
   delete mInventory;
 }
 
 void CharacterObject::setPosition(const Vec2i& pos){
   Vec2i offset = mBasePoints[mState-1];
+  //if (mMirror)
+  //  offset+=mSize;
   Object2D::setPosition(pos-offset);
 }
 
 Vec2i CharacterObject::getPosition(){
   if (mState < 1 || mState >= (int)mAnimations.size())
     return Vec2i();
+  //if (mMirror)
+  //  return mPos+mSize-mBasePoints[mState-1];
   return mPos+mBasePoints[mState-1];
 }
-/*
-Vec2i CharacterObject::calcPosition(const Vec2i& p){
-  return mBasePoints[mState]+p;
-}*/
 
 void CharacterObject::setDepth(int depth){
   for (unsigned i = 0; i < mAnimations.size(); ++i){
@@ -588,10 +590,10 @@ LookDir CharacterObject::getLookDir(){
 void CharacterObject::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  if (mMirror)
-    mAnimations[mState-1]->render(mScrollOffset+mPos+Vec2i(mBasePoints[mState-1].x,0), mMirror);
-  else
-    mAnimations[mState-1]->render(mScrollOffset+mPos, mMirror);
+  //if (mMirror)
+  //  mAnimations[mState-1]->render(mScrollOffset+mPos+Vec2i(mBasePoints[mState-1].x,0), mMirror);
+  //else
+  mAnimations[mState-1]->render(mScrollOffset+mPos, mMirror, mSizes[mState-1]);
 }
 
 Vec2i CharacterObject::getOverheadPos(){
