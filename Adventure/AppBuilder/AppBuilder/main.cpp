@@ -33,7 +33,7 @@ END_EVENT_TABLE()
 IMPLEMENT_APP(Application)
 
 Application::Application() : mRunFile(""){
-#ifdef WIN32
+#ifdef WIN323
   AllocConsole();
   CONSOLE_SCREEN_BUFFER_INFO coninfo;
   GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &coninfo);

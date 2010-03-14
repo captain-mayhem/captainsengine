@@ -10,7 +10,7 @@ public:
   BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth);
   BlitGroup(const std::string& texture, const Vec2i& offset, int depth);
   ~BlitGroup();
-  void render(Vec2i pos, bool mirrorx);
+  void render(const Vec2i& pos, bool mirrorx, const Vec2i& parentsize);
   void setDepth(int depth);
 protected:
   std::vector<BlitObject*> mBlits;
@@ -22,7 +22,7 @@ public:
   Animation(ExtendedFrames& frames, float fps, int depth);
   Animation(Frames& frames, float fps, Vec2i offset, int depth);
   ~Animation();
-  void render(Vec2i pos, bool mirrorx);
+  void render(Vec2i pos, bool mirrorx, Vec2i parentsize);
   void setDepth(int depth);
   void start();
   void update(unsigned interval);

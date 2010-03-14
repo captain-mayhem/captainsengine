@@ -297,6 +297,7 @@ public:
   static int isBoolEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isCharFocussed(ExecutionContext& cxt, unsigned numArgs);
   static int isCharInRoom(ExecutionContext& ctx, unsigned numArgs);
+  static int isCharPossessingItem(ExecutionContext& ctx, unsigned numArgs);
   static int isCharTriggering(ExecutionContext& ctx, unsigned numArgs);
   static int isCommandSet(ExecutionContext& ctx, unsigned numArgs);
   static int isObjectInState(ExecutionContext& ctx, unsigned numArgs);

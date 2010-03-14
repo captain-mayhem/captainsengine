@@ -37,7 +37,7 @@ void Inventory::removeItem(const std::string& item, int invnumber, ExecutionCont
 Object2D* Inventory::getItem(const std::string& name){
   for (std::map<int, SingleInv>::iterator iter = mInventory.begin(); iter != mInventory.end(); ++iter){
     for (SingleInv::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2){
-      if ((*iter2)->getName() == name){
+      if (stricmp((*iter2)->getName().c_str(), name.c_str()) == 0){
         return *iter2;
       }
     }

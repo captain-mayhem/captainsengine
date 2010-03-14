@@ -56,6 +56,8 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
   DataBuffer db;
   mData->getMusic(name, db);
   plyr = createPlayer(db);
+  if (mActiveMusic)
+    delete mActiveMusic;
   mActiveMusic = plyr;
   return plyr;
 }
@@ -87,11 +89,31 @@ void SoundEngine::update(){
   }
 }
 
-SoundPlayer::SoundPlayer(){
+void SoundEngine::removeSpeaker(CharacterObject* chr){
+  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+    if (iter->second && iter->second->getSpeaker() == chr){
+      delete iter->second;
+      iter->second = NULL;
+    }
+  }
+}
+
+
+SoundPlayer::SoundPlayer() : mSpeaker(NULL), mSuspensionScript(NULL){
   alGenSources(1, &mSource);
 }
 
 SoundPlayer::~SoundPlayer(){
+  if (mSuspensionScript){
+    mSuspensionScript->resume();
+    mSuspensionScript = NULL;
+  }
+  if (mSpeaker){
+    //stop speaking
+    Engine::instance()->getFontRenderer()->removeText(mSpeaker);
+    mSpeaker->setState(CharacterObject::calculateState(mSpeaker->getState(), mSpeaker->isWalking(), false));
+    mSpeaker = NULL;
+  }
   alDeleteSources(1, &mSource);
 }
 
