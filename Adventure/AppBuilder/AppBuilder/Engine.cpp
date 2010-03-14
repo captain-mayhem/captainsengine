@@ -337,6 +337,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
   roomobj->setBackground(room->background, depthoffset-1);
   roomobj->setLightingColor(save->lighting);
   roomobj->setWalkmap(room->walkmap);
+  roomobj->setScrollOffset(save->scrolloffset);
   //check for walkmap scripts
   std::vector<std::pair<Vec2i,Script*> > wmscripts = mData->getWMScripts(room->name);
   for (unsigned i = 0; i < wmscripts.size(); ++i){

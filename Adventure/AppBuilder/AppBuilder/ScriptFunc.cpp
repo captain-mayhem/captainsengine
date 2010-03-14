@@ -329,10 +329,10 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
         Engine::instance()->getSaver()->removeCharacter(obj->getName());
         room->addObject(obj);
         //scrolling
-        Vec2i scrollOffset = Engine::instance()->getSettings()->resolution/2-
-          (obj->getPosition()-Vec2i(0,obj->getSize().y/2));
-        Engine::instance()->getRoom("")->setScrollOffset(scrollOffset); //this function limits the scrolling
-        obj->setScrollOffset(scrollOffset);
+        //Vec2i scrollOffset = Engine::instance()->getSettings()->resolution/2-
+        //  (obj->getPosition()-Vec2i(0,obj->getSize().y/2));
+        //Engine::instance()->getRoom("")->setScrollOffset(scrollOffset); //this function limits the scrolling
+        //obj->setScrollOffset(scrollOffset);
       }
       else{
         obj->setRoom(roomname);

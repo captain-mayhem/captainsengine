@@ -8,6 +8,7 @@
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room){
   strm << room.base;
   strm << room.lighting.r << " " << room.lighting.g << " " << room.lighting.b << " " << room.lighting.a << std::endl;
+  strm << room.scrolloffset.x << " " << room.scrolloffset.y << std::endl;
   strm << room.objects.size() << std::endl;
   for (std::map<std::string,SaveStateProvider::SaveObject*>::const_iterator iter = room.objects.begin(); iter != room.objects.end(); ++iter){
     strm << iter->first << std::endl << *iter->second;
@@ -22,6 +23,7 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
   strm >> room.base;
   strm >> room.lighting.r >> room.lighting.g >> room.lighting.b >> room.lighting.a;
+  strm >> room.scrolloffset.x >> room.scrolloffset.y;
   int number;
   strm >> number;
   std::string name;
@@ -110,6 +112,7 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
     SaveRoom* save = new SaveRoom();
     save->base.position = Vec2i();
     save->lighting = Color();
+    save->scrolloffset = orig->scrolloffset*-1;
     for (unsigned i = 0; i < orig->objects.size(); ++i){
       SaveObject* object = new SaveObject();
       object->state = orig->objects[i].state;
