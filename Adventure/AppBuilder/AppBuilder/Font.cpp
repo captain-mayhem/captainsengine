@@ -202,14 +202,17 @@ FontRenderer::~FontRenderer(){
   }
 }
 
-void FontRenderer::loadFont(unsigned id){
+bool FontRenderer::loadFont(unsigned id){
   if (mFonts.size() <= id){
     mFonts.resize(id+1);
   }
   if (mFonts[id] == NULL){
     FontData fnt = mData->getFont(id);
+    if (fnt.images.empty())
+      return false;
     mFonts[id] = new Font(fnt);
   }
+  return true;
 }
 
 void FontRenderer::unloadFont(unsigned id){

@@ -60,8 +60,9 @@ void Engine::initGame(){
     mCursor->addAnimation(anim, (*cursor)[j].command-1);
   }
   //load fonts
+  mFontID = 1;
   mFonts->loadFont(0);
-  mFonts->loadFont(1);
+  mFonts->loadFont(mFontID);
   mActiveCommand = 0;
   mPrevActiveCommand = 0;
   //load taskbar room
@@ -97,6 +98,7 @@ void Engine::initGame(){
   }
   mShowTaskbar = true;
   mScreenChange = mData->getProjectSettings()->screenchange;
+  mTextEnabled = true;
 }
 
 void Engine::exitGame(){

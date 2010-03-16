@@ -634,14 +634,12 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
   if (mStream){
     wxString path = "sfx.dat#zip:"+filename.GetFullName();
     wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
+    if (file == NULL)
+      return false;
     db.length = file->GetStream()->GetSize();
     db.data = new char[db.length];
     file->GetStream()->Read(db.data, db.length);
     delete file;
-    //std::string newName = mSettings.savedir+"/tmp/"+filename.GetFullName();
-    /*wxFileOutputStream fos(newName);
-    file->GetStream()->Read(fos);
-    filename = wxFileName(newName);*/
   }
   else{
     wxFileInputStream strm(filename.GetFullPath());
@@ -658,14 +656,34 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
   if (mStream){
     wxString path = "music.dat#zip:"+filename.GetFullName();
     wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
+    if (file == NULL)
+      return false;
     db.length = file->GetStream()->GetSize();
     db.data = new char[db.length];
     file->GetStream()->Read(db.data, db.length);
     delete file;
-    //std::string newName = mSettings.savedir+"/tmp/"+filename.GetFullName();
-    /*wxFileOutputStream fos(newName);
-    file->GetStream()->Read(fos);
-    filename = wxFileName(newName);*/
+  }
+  else{
+    wxFileInputStream strm(filename.GetFullPath());
+    db.length = strm.GetSize();
+    db.data = new char[db.length];
+    strm.Read(db.data, db.length);
+  }
+  return true;
+}
+
+bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
+  wxFileName filename = mMovieNames[name];
+  db.name = filename.GetFullName();
+  if (mStream){
+    wxString path = "movie.dat#zip:"+filename.GetFullName();
+    wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
+    if (file == NULL)
+      return false;
+    db.length = file->GetStream()->GetSize();
+    db.data = new char[db.length];
+    file->GetStream()->Read(db.data, db.length);
+    delete file;
   }
   else{
     wxFileInputStream strm(filename.GetFullPath());
@@ -776,9 +794,11 @@ FontData AdvDocument::getFont(int num){
   else{
     path << "fonts.dat#zip:font." << number << "#zip:fontdata." << number;
   }
-  wxFSFile* file = mStream->OpenFile(path);
-  wxTextInputStream in(*file->GetStream());
   FontData fnt;
+  wxFSFile* file = mStream->OpenFile(path);
+  if (file == NULL)
+    return fnt;
+  wxTextInputStream in(*file->GetStream());
   long val;
   wxString str = in.ReadLine(); str.ToLong(&val); fnt.images.resize(2*val);
   str = in.ReadLine(); str.ToLong(&val); fnt.fontsize.x = val;
@@ -797,6 +817,8 @@ FontData AdvDocument::getFont(int num){
     else
       path << "fonts.dat#zip:font." << number << "#zip:font" << num << ".al" << (i+1);
     wxFSFile* file = mStream->OpenFile(path);
+    if (file == NULL)
+      continue;
     fnt.images[2*i] = wxImage(*file->GetStream(), wxBITMAP_TYPE_BMP);
     delete file;
     path.Clear();

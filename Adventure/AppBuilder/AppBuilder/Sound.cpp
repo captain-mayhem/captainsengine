@@ -62,6 +62,14 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
   return plyr;
 }
 
+SoundPlayer* SoundEngine::getMovie(const std::string& name){
+  SoundPlayer* plyr = NULL;
+  DataBuffer db;
+  mData->getMovie(name, db);
+  plyr = createPlayer(db);
+  return plyr;
+}
+
 SoundPlayer* SoundEngine::createPlayer(const DataBuffer& db){
   char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir+"/tmp/"+tmp+db.name;
@@ -157,7 +165,11 @@ SoundPlayer(), mFilename(filename), mLooping(false), mStop(true){
   alGenBuffers(3, mBuffers);
   if (av_open_input_file(&mFormat, filename.c_str(), NULL, 0, NULL) != 0)
     return;
-  av_find_stream_info(mFormat);
+  unsigned last_nb_streams;
+  do{
+    last_nb_streams = mFormat->nb_streams;
+    av_find_stream_info(mFormat);
+  } while(last_nb_streams != mFormat->nb_streams);
   for (unsigned i = 0; i < mFormat->nb_streams; ++i){
     if (mFormat->streams[i]->codec->codec_type != CODEC_TYPE_AUDIO)
       continue;

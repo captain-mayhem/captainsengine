@@ -50,7 +50,7 @@ protected:
 public:
   FontRenderer(AdvDocument* data);
   ~FontRenderer();
-  void loadFont(unsigned id);
+  bool loadFont(unsigned id);
   void unloadFont(unsigned id);
   String& render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& col=Color(), unsigned displayTime=0);
   Vec2i getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo);

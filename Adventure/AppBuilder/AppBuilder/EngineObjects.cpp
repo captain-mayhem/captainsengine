@@ -216,7 +216,7 @@ void ButtonObject::render(){
   std::vector<Vec2i> breakinfo;
   breakinfo.push_back(Vec2i(mText.size(), 0)); //fake break
   //Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
-  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, 1, breakinfo);
+  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, Engine::instance()->getFontID(), breakinfo);
   Engine::instance()->insertToBlit(this);
 }
 

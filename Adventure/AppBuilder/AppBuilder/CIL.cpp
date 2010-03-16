@@ -19,7 +19,7 @@ unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
   if (!iter->second) //the text is invisible, so skip further processing
     return pc+mOffset;
   std::vector<Vec2i> breakinfo;
-  Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
+  Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(mText, Engine::instance()->getFontID(), breakinfo);
   extent.y /= breakinfo.size();
   Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
   Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);

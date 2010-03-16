@@ -577,9 +577,10 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   FontRenderer::String* str = NULL;
   SoundPlayer* plyr = NULL;
   std::vector<Vec2i> breakinfo;
-  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1, breakinfo);
+  int fontid = Engine::instance()->getFontID();
+  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
   str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, 1, breakinfo, Color(), plyr ? 10000 : 100*text.length());
+    DEPTH_GAME_FONT, fontid, breakinfo, Color(), plyr ? 10000 : 100*text.length());
   if (sound != ""){
     plyr = SoundEngine::instance()->getSound(sound);
     if (plyr)
@@ -667,8 +668,16 @@ int ScriptFunctions::invUp(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::setFont(ExecutionContext& ctx, unsigned numArgs){
   int fontid = ctx.stack().pop().getInt();
+  if (!Engine::instance()->getFontRenderer()->loadFont(fontid))
+    return 0;
   if (numArgs >= 2){
     CharacterObject* chr = Engine::instance()->getCharacter(ctx.stack().pop().getString());
+    if (!chr)
+      DebugBreak();
+    chr->setFontID(fontid);
+  }
+  else{
+    Engine::instance()->setFontID(fontid);
   }
   return 0;
 }
@@ -836,7 +845,7 @@ int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::textEnabled(ExecutionContext& ctx, unsigned numArgs){
   bool enabled = ctx.stack().pop().getBool();
-  //TODO
+  Engine::instance()->setTextEnabled(enabled);
   return 0;
 }
 
@@ -892,6 +901,10 @@ int ScriptFunctions::playSwf(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 5){
     height = ctx.stack().pop().getInt();
   }
+  /*SoundPlayer* mp = SoundEngine::instance()->getMovie(moviename);
+  if (mp){
+    mp->play(false);
+  }*/
   return 0;
 }
 
