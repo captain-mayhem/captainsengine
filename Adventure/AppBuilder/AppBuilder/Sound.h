@@ -21,6 +21,7 @@ public:
   void setData(AdvDocument* doc){mData = doc;}
   SoundPlayer* getSound(const std::string& name);
   SoundPlayer* getMusic(const std::string& name);
+  SoundPlayer* getMovie(const std::string& name);
   void update();
   void removeSpeaker(CharacterObject* chr);
 protected:

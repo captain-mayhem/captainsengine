@@ -108,9 +108,9 @@ arg_list returns [NodeList* nodes]
 
 arg	returns [ASTNode* value]
 	:
-	exp=rel_expr {$value = exp.exp;}
+	arg_header?
+	(exp=rel_expr {$value = exp.exp;}
 	| {$value = new IdentNode("");}
-	arg_header? 
 	(
 		first=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(first.value->value().c_str()); delete first.value;}
 	)
@@ -120,7 +120,7 @@ arg	returns [ASTNode* value]
 		| INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$INT.text->chars);}
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| GREATER {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$GREATER.text->chars);}
-	)*
+	)*)
 ;
 
 arg_header

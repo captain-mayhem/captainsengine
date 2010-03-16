@@ -74,6 +74,10 @@ public:
   static unsigned roundToPowerOf2(unsigned x);
   void setScreenChange(ScreenChange sc) {mScreenChange = sc;}
   ScreenChange getScreenChange() {return mScreenChange;}
+  void setTextEnabled(bool enable) {mTextEnabled = enable;}
+  bool isTextEnabled() {return mTextEnabled;}
+  void setFontID(int id) {mFontID = id;}
+  int getFontID() {return mFontID;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -95,6 +99,8 @@ protected:
   RoomObject* mTaskbar;
   bool mShowTaskbar;
   ScreenChange mScreenChange;
+  int mFontID;
+  bool mTextEnabled;
   //bool mCharOutOfFocus;
   //grid variables
   int mWalkGridSize;

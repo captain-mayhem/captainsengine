@@ -212,6 +212,7 @@ public:
   wxImage getImage(wxString name);
   bool getSound(const std::string& name, DataBuffer& db);
   bool getMusic(const std::string& name, DataBuffer& db);
+  bool getMovie(const std::string& name, DataBuffer& db);
   Room* getRoom(std::string name);
   Object* getObject(std::string name);
   MouseCursor* getCursor();

@@ -566,7 +566,10 @@ std::ostream& PcdkScript::save(std::ostream& out){
   }
   out << mVariables.size() << std::endl;
   for (std::map<std::string,StackData>::iterator iter = mVariables.begin(); iter != mVariables.end(); ++iter){
-    out << iter->first << " " << iter->second << std::endl;
+    std::string name = iter->first;
+    if (name.empty())
+      name = "none";
+    out << name << " " << iter->second << std::endl;
   }
   out << mTSActive.size() << std::endl;
   for (std::map<std::string, std::map<int, std::map<int, bool> > >::iterator iter = mTSActive.begin(); iter != mTSActive.end(); ++iter){

@@ -231,6 +231,7 @@ void SaveStateProvider::save(const std::string& name){
     out << "none" << std::endl;
   out << Engine::instance()->mMainRoomLoaded << " " << Engine::instance()->mSubRoomLoaded << std::endl;
   out << Engine::instance()->mShowTaskbar << " " << Engine::instance()->mScreenChange << std::endl;
+  out << Engine::instance()->mTextEnabled << " " << Engine::instance()->mFontID << std::endl;
   Engine::instance()->getInterpreter()->save(out);
   if (Engine::instance()->mFocussedChar)
     removeCharacter(focussedcharname);
@@ -274,6 +275,7 @@ void SaveStateProvider::load(const std::string& name){
   in >> Engine::instance()->mMainRoomLoaded >> Engine::instance()->mSubRoomLoaded;
   in >> Engine::instance()->mShowTaskbar >> tmp;
   Engine::instance()->mScreenChange = (ScreenChange)tmp;
+  in >> Engine::instance()->mTextEnabled >> Engine::instance()->mFontID;
   Engine::instance()->getInterpreter()->load(in);
   allowWrites(false);
   in.close();
