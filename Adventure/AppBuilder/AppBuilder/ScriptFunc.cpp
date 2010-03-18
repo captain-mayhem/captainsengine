@@ -75,6 +75,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("if_ischar", isCharTriggering);
   interpreter->registerFunction("if_charin", isCharInRoom);
   interpreter->registerFunction("if_hasitem", isCharPossessingItem);
+  interpreter->registerFunction("setwalkmap", setWalkmap);
   srand(time(NULL));
 }
 
@@ -194,8 +195,8 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     std::vector<Vec2i> breakinfo;
     Vec2i pos = chr->getOverheadPos();
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID(), breakinfo);
-    str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 10000 : 100*text.length());
+    str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
+      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : 100*text.length());
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr);
     str->setSpeaker(chr);
@@ -576,19 +577,26 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
     return 0;
   FontRenderer::String* str = NULL;
   SoundPlayer* plyr = NULL;
-  std::vector<Vec2i> breakinfo;
-  int fontid = Engine::instance()->getFontID();
-  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
-  str = &Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, fontid, breakinfo, Color(), plyr ? 10000 : 100*text.length());
   if (sound != ""){
     plyr = SoundEngine::instance()->getSound(sound);
     if (plyr)
       plyr->play(false);
   }
+  //correct the offspeech position
+  RoomObject* room = Engine::instance()->getRoom("");
+  if (room){
+    pos = pos+room->getScrollOffset();
+  }
+  std::vector<Vec2i> breakinfo;
+  int fontid = Engine::instance()->getFontID();
+  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
+  str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
+    DEPTH_GAME_FONT, fontid, breakinfo, Color(), plyr ? 100000 : 100*text.length());
   if (hold){
-    if (plyr)
+    if (plyr){
       plyr->setSuspensionScript(&ctx);
+      plyr->setSpokenString(str);
+    }
     else if (str)
       str->setSuspensionScript(&ctx);
     ctx.mSuspended = true;
@@ -909,6 +917,15 @@ int ScriptFunctions::playSwf(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::stopSwf(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
+  std::string room = ctx.stack().pop().getString();
+  Vec2i pos;
+  pos.x = ctx.stack().pop().getInt();
+  pos.y = ctx.stack().pop().getInt();
+  bool walkable = ctx.stack().pop().getBool();
   return 0;
 }
 

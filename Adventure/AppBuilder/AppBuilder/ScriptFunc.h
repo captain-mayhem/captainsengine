@@ -233,6 +233,13 @@ public:
   **/
   static int setString(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param room the room for which its walkmap should be modified
+  \param x x-position of the walkmap field
+  \param y y-position of the walkmap field
+  \param walkable if the field should be made walkable
+  **/
+  static int setWalkmap(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param text information about the object
   \param show boolean if the text should be displayed on the mouse cursor
   **/

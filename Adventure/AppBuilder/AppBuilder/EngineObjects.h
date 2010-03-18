@@ -94,6 +94,7 @@ protected:
   Color mBackgroundColor;
   Color mBorderColor;
   Color mHighlightColor;
+  Color mTextColor;
 };
 
 class CursorObject : public Object2D{
