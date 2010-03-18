@@ -182,6 +182,7 @@ BaseBlitObject(DEPTH_BUTTON, size), mText(text){
   mBackgroundColor = Engine::instance()->getSettings()->tsareacolor;
   mBorderColor = Engine::instance()->getSettings()->tsbordercolor;
   mHighlightColor = Engine::instance()->getSettings()->tsselectioncolor;
+  mTextColor = Engine::instance()->getSettings()->tstextcolor;
   if (Engine::instance()->getSettings()->tsstyle == TS_TRANSPARENT){
     mBackgroundColor.a = 127;
     mHighlightColor.a = 127;
@@ -210,13 +211,14 @@ void ButtonObject::setColors(const Color& background, const Color& border, const
   mBackgroundColor = background;
   mBorderColor = border;
   mHighlightColor = highlight;
+  mTextColor = Engine::instance()->getSettings()->tstextcolor;
 }
 
 void ButtonObject::render(){
   std::vector<Vec2i> breakinfo;
   breakinfo.push_back(Vec2i(mText.size(), 0)); //fake break
   //Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
-  FontRenderer::String& str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, Engine::instance()->getFontID(), breakinfo);
+  FontRenderer::String* str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, Engine::instance()->getFontID(), breakinfo, mTextColor);
   Engine::instance()->insertToBlit(this);
 }
 

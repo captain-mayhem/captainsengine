@@ -119,7 +119,7 @@ void Engine::exitGame(){
   mMainRoomLoaded = false;
   delete mCursor;
   delete mFocussedChar;
-  mFonts->unloadFont(1);
+  mFonts->unloadFont(mFontID);
   mFonts->unloadFont(0);
 }
 

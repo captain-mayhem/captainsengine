@@ -46,10 +46,12 @@ public:
   void setSpeaker(CharacterObject* chr) {mSpeaker = chr;}
   CharacterObject* getSpeaker() {return mSpeaker;}
   void setSuspensionScript(ExecutionContext* ctx) {mSuspensionScript = ctx;}
+  void setSpokenString(/*FontRenderer::String*/void* string) {mSpokenString = string;}
 protected:
   ALuint mSource;
   CharacterObject* mSpeaker;
   ExecutionContext* mSuspensionScript;
+  /*FontRenderer::String*/void* mSpokenString;
 };
 
 class SimpleSoundPlayer : public SoundPlayer{

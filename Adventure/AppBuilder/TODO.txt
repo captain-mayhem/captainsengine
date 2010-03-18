@@ -1,8 +1,12 @@
 Topic | Prio
 -------------
-fontchange | 2
+fontchange (chracter) | 3
 screenchange | 1
 char positioning / char collision detection (->block walkmap?) | 2
 setchar with names | 4
 bored animation | 1
 module sounds | 5
+setCharLight | 2
+textEnabled (use in Engine) | 3
+group | 3
+playswf/stopswf | 2

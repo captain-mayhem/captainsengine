@@ -109,7 +109,7 @@ FontRenderer::Font::~Font(){
   mRenderQueue.clear();
 }
 
-FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo){
+FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo){
   String* str = new String(Vec2i(x,y), displayTime);
   unsigned max_len = 0;
   for (unsigned i = 0; i < breakinfo.size(); ++i){
@@ -138,7 +138,7 @@ FontRenderer::String& FontRenderer::Font::render(int x, int y, const std::string
   }
   str->setExtent(Vec2i(max_len,mFontsize.y*breakinfo.size()));
   mRenderQueue.push_back(str);
-  return *str;
+  return str;
 }
 
 Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo){
@@ -190,6 +190,16 @@ void FontRenderer::Font::removeText(CharacterObject* chr){
   }
 }
 
+void FontRenderer::Font::removeText(String* str){
+  for (std::list<String*>::iterator iter = mRenderQueue.begin(); iter != mRenderQueue.end(); ++iter){
+    if ((*iter) == str){
+      delete *iter;
+      iter = mRenderQueue.erase(iter);
+      break;
+    }
+  }
+}
+
 //////////////////////////////////////////////
 
 FontRenderer::FontRenderer(AdvDocument* data):  mData(data){
@@ -220,7 +230,7 @@ void FontRenderer::unloadFont(unsigned id){
   mFonts[id] = NULL;
 }
 
-FontRenderer::String& FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& color, unsigned displayTime){
+FontRenderer::String* FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& color, unsigned displayTime){
   return mFonts[fontid]->render(x, y, text, depth, color, displayTime, breakinfo);
 }
 
@@ -239,5 +249,12 @@ void FontRenderer::removeText(CharacterObject* chr){
   for (unsigned i = 0; i < mFonts.size(); ++i){
     if (mFonts[i])
       mFonts[i]->removeText(chr);
+  }
+}
+
+void FontRenderer::removeText(String* str){
+  for (unsigned i = 0; i < mFonts.size(); ++i){
+    if (mFonts[i])
+      mFonts[i]->removeText(str);
   }
 }

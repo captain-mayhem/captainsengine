@@ -107,7 +107,7 @@ void SoundEngine::removeSpeaker(CharacterObject* chr){
 }
 
 
-SoundPlayer::SoundPlayer() : mSpeaker(NULL), mSuspensionScript(NULL){
+SoundPlayer::SoundPlayer() : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL){
   alGenSources(1, &mSource);
 }
 
@@ -121,6 +121,10 @@ SoundPlayer::~SoundPlayer(){
     Engine::instance()->getFontRenderer()->removeText(mSpeaker);
     mSpeaker->setState(CharacterObject::calculateState(mSpeaker->getState(), mSpeaker->isWalking(), false));
     mSpeaker = NULL;
+  }
+  if (mSpokenString){
+    Engine::instance()->getFontRenderer()->removeText((FontRenderer::String*)mSpokenString);
+    mSpokenString = NULL;
   }
   alDeleteSources(1, &mSource);
 }
