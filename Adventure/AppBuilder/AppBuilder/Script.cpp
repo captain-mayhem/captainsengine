@@ -37,11 +37,11 @@ void PcdkScript::stop(){
   mGlobalSuspend = false;
   delete mCutScene;
   mCutScene = NULL;
-  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+  /*for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
     (*iter)->reset(true);
     delete *iter;
   }
-  mScripts.clear();
+  mScripts.clear();*/
   mPrevState.clear();
 }
 
@@ -171,6 +171,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         CondNode* cond = static_cast<CondNode*>(node);
         ScriptFunc f = mFunctions[cond->getCondFuncName()];
         if(f == NULL){
+          f = ScriptFunctions::dummy;
           DebugBreak();
         }
         count += transform(cond->getArguments(), codes, ARGLIST);
@@ -242,6 +243,24 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         codes->addCode(timercode);
         count += 1;
       }
+      break;
+      case ASTNode::ARITHMETIC:{
+        ArithmeticNode* arnode = static_cast<ArithmeticNode*>(node);
+        count += transform(arnode->left(), codes);
+        count += transform(arnode->right(), codes);
+        if (arnode->type() == ArithmeticNode::AR_PLUS)
+          codes->addCode(new CADD());
+        else if (arnode->type() == ArithmeticNode::AR_MINUS)
+          codes->addCode(new CSUB());
+        else if (arnode->type() == ArithmeticNode::AR_TIMES)
+          codes->addCode(new CMUL());
+        else if (arnode->type() == ArithmeticNode::AR_DIV)
+          codes->addCode(new CDIV());
+        else
+          DebugBreak();
+        count += 1;
+      }
+      break;
       default:
         //wxMessageBox("Unhandled AST-Type");
         break;
@@ -629,4 +648,33 @@ std::istream& operator>>(std::istream& strm, StackData& data){
   if (data.mStr == "none")
     data.mStr = "";
   return strm;
+}
+
+StackData PcdkScript::getVariable(const std::string& name){
+  if (name == "mousex"){
+    DebugBreak();
+  }
+  else if (name == "mousey"){
+    DebugBreak();
+  }
+  else if (name == "charx"){
+    CharacterObject* chr = Engine::instance()->getCharacter("self");
+    if (!chr)
+      return 0;
+    return chr->getPosition().x;
+  }
+  else if (name == "chary"){
+    CharacterObject* chr = Engine::instance()->getCharacter("self");
+    if (!chr)
+      return 0;
+    return chr->getPosition().y;
+  }
+  std::map<std::string, StackData>::iterator iter = mVariables.find(name);
+  if (iter != mVariables.end())
+    return iter->second;
+  return 0;
+}
+
+void PcdkScript::setVariable(const std::string& name, const StackData& value){
+  mVariables[name] = value;
 }

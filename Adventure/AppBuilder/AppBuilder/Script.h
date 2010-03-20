@@ -31,7 +31,8 @@ public:
   void update(unsigned time);
   void remove(Object2D* object);
   void remove(ExecutionContext* script);
-  std::map<std::string,StackData>& getVariables() {return mVariables;}
+  StackData getVariable(const std::string& name);
+  void setVariable(const std::string& name, const StackData& value);
   CBRA* getBranchInstr(RelationalNode* relnode, bool negated);
   Vec2i& tsPos() {return mTSPos;}
   std::map<int, bool>& tsActive() {return mTSActive[mTSName][mTSLevel];}

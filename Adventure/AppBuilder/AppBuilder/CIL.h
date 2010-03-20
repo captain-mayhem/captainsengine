@@ -159,6 +159,30 @@ public:
   }
 };
 
+class CMUL : public CCode{
+public:
+  CMUL() {}
+  virtual ~CMUL() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    int d2 = ctx.stack().pop().getInt();
+    int d1 = ctx.stack().pop().getInt();
+    ctx.stack().push(d1*d2);
+    return ++pc;
+  }
+};
+
+class CDIV : public CCode{
+public:
+  CDIV() {}
+  virtual ~CDIV() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    int d2 = ctx.stack().pop().getInt();
+    int d1 = ctx.stack().pop().getInt();
+    ctx.stack().push(d1/d2);
+    return ++pc;
+  }
+};
+
 class CTIMER : public CCode{
 public:
   CTIMER(int time, ExecutionContext* ctx){

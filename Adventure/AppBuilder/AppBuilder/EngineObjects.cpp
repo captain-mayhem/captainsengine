@@ -174,10 +174,10 @@ BaseBlitObject(DEPTH_BUTTON, size), mText(text){
   char tmp[16];
   sprintf(tmp, "%i", id);
   mName += tmp;
-  mState = Engine::instance()->getInterpreter()->getVariables()[mName].getInt();
+  mState = Engine::instance()->getInterpreter()->getVariable(mName).getInt();
   if (mState == 0)
     mState = 1;
-  Engine::instance()->getInterpreter()->getVariables()[mName] = 1;
+  Engine::instance()->getInterpreter()->setVariable(mName, 1);
   BaseBlitObject::mPos = pos;
   mBackgroundColor = Engine::instance()->getSettings()->tsareacolor;
   mBorderColor = Engine::instance()->getSettings()->tsbordercolor;

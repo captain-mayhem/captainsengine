@@ -110,7 +110,7 @@ arg	returns [ASTNode* value]
 	:
 	arg_header?
 	(exp=rel_expr {$value = exp.exp;}
-	| {$value = new IdentNode("");}
+	| ({$value = new IdentNode("");}
 	(
 		first=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(first.value->value().c_str()); delete first.value;}
 	)
@@ -120,7 +120,7 @@ arg	returns [ASTNode* value]
 		| INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$INT.text->chars);}
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| GREATER {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$GREATER.text->chars);}
-	)*)
+	)*))
 ;
 
 arg_header
@@ -145,9 +145,29 @@ rel_expr returns [ASTNode* exp]
 ;
 
 expr returns [ASTNode* exp]
-	: var=variable {$exp = var.var;}
-	| REAL {char tmp[64]; strcpy(tmp, (char*)$REAL.text->chars); char* tst = strchr(tmp, ','); if (tst != NULL) *tst = '.'; $exp = new RealNode((float)atof(tmp));}
-	| INT  {$exp = new IntNode(atoi((char*)$INT.text->chars));}
+	: lt=term {$exp = lt.trm;}
+	((
+	PLUS {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_PLUS; an->left() = $exp; $exp = an;}
+	| MINUS {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_MINUS; an->left() = $exp; $exp = an;}
+	) 
+	rt=term {((ArithmeticNode*)$exp)->right() = rt.trm;}
+	)*
+;
+
+term returns [ASTNode* trm]
+	: lf=factor {$trm = lf.fac;}
+	((
+	TIMES {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_TIMES; an->left() = $trm; $trm = an;}
+	| DIVIDE {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_DIV; an->left() = $trm; $trm = an;}
+	) 
+	rf=factor {((ArithmeticNode*)$trm)->right() = rf.fac;}
+	)*
+;
+
+factor returns [ASTNode* fac]
+	: var=variable {$fac = var.var;}
+	| REAL {char tmp[64]; strcpy(tmp, (char*)$REAL.text->chars); char* tst = strchr(tmp, ','); if (tst != NULL) *tst = '.'; $fac = new RealNode((float)atof(tmp));}
+	| INT  {$fac = new IntNode(atoi((char*)$INT.text->chars));}
 ;
 
 variable returns [ASTNode* var]
@@ -168,7 +188,7 @@ ident returns [IdentNode* id]
 
 COMMENT	:	'(*'
 		(/*	{LA(2) != ')'}? '*'
-		|*/	~('*')
+		|*/	~(TIMES)
 		)*
 		'*)'
 {$channel=HIDDEN;}
@@ -185,8 +205,8 @@ UNDERSCORE
 	:	'_';
 PLUS	:	'+';
 MINUS	:	'-';
-//TIMES	:	'*';
-//DIVIDE	:	'/';
+TIMES	:	'*';
+DIVIDE	:	'/';
 GREATER	:	'>';
 LESS	:	'<';
 INFO_BEG	:	'|''#';
@@ -199,7 +219,7 @@ ROW	:	'r''o''w';
 TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('.'|',')'0'..'9'+;
-IDENT_PART	:	('a'..'z'|'A'..'Z'|'ü'|'Ü'|'ö'|'Ö'|'ä'|'Ä'|'ß'|':'|'\''|'*')('a'..'z'|'A'..'Z'|'ü'|'Ü'|'ö'|'Ö'|'ä'|'Ä'|'ß'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|'*'|':')*;
+IDENT_PART	:	('a'..'z'|'A'..'Z'|'ü'|'Ü'|'ö'|'Ö'|'ä'|'Ä'|'ß'|':'|'\''|TIMES)('a'..'z'|'A'..'Z'|'ü'|'Ü'|'ö'|'Ö'|'ä'|'Ä'|'ß'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|TIMES|':')*;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}
