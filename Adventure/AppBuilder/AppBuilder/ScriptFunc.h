@@ -251,6 +251,11 @@ public:
   \param dontwait [opt] continue script execution immediately
   **/
   static int speech(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param character name of the character
+  \param direction makes a step into the given direction
+  **/
+  static int stepTo(ExecutionContext& ctx, unsigned numArgs);
   /*
   */
   static int stopSkip(ExecutionContext& ctx, unsigned numArgs);
@@ -311,6 +316,9 @@ public:
   static int isLinkedObject(ExecutionContext& ctx, unsigned numArgs);
   static int isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs);
   static int isNumEqual(ExecutionContext& ctx, unsigned numArgs);
+  static int isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs);
+  static int isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs);
+  static int isStringEqual(ExecutionContext& ctx, unsigned numArgs);
 };
 
 #endif

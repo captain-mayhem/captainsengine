@@ -84,6 +84,12 @@ void Engine::initGame(){
   if (mData->getProjectSettings()->anywhere_room != ""){
     loadRoom(mData->getProjectSettings()->anywhere_room, true);
   }
+  //load main script
+  Script* mainScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->mainscript);
+  if (mainScript){
+    mMainScript = mInterpreter->parseProgram(mainScript->text);
+    mInterpreter->execute(mMainScript, false);
+  }
   //load and execute start script
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
@@ -106,6 +112,7 @@ void Engine::exitGame(){
     return;
   mInitialized = false;
   mInterpreter->stop();
+  delete mMainScript;
   mAnimator->clear();
   for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
     delete *iter;

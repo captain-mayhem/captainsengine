@@ -76,6 +76,10 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("if_charin", isCharInRoom);
   interpreter->registerFunction("if_hasitem", isCharPossessingItem);
   interpreter->registerFunction("setwalkmap", setWalkmap);
+  interpreter->registerFunction("if_keydown", isKeyDownEqual);
+  interpreter->registerFunction("if_keypressed", isKeyPressedEqual);
+  interpreter->registerFunction("if_string", isStringEqual);
+  interpreter->registerFunction("stepto", stepTo);
   srand(time(NULL));
 }
 
@@ -550,7 +554,7 @@ int ScriptFunctions::giveLink(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::setNum(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
   int val = ctx.stack().pop().getInt();
-  Engine::instance()->getInterpreter()->mVariables[varname] = StackData(val);
+  Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }
 
@@ -592,10 +596,11 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
   str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
     DEPTH_GAME_FONT, fontid, breakinfo, Color(), plyr ? 100000 : 100*text.length());
+  if (str && plyr)
+    plyr->setSpokenString(str);
   if (hold){
     if (plyr){
       plyr->setSuspensionScript(&ctx);
-      plyr->setSpokenString(str);
     }
     else if (str)
       str->setSuspensionScript(&ctx);
@@ -757,7 +762,7 @@ int ScriptFunctions::randomNum(ExecutionContext& ctx, unsigned numArgs){
   std::string name = ctx.stack().pop().getString();
   int limit = ctx.stack().pop().getInt();
   int rnd = rand()%limit;
-  Engine::instance()->getInterpreter()->mVariables[name] = StackData(rnd+1);
+  Engine::instance()->getInterpreter()->setVariable(name, StackData(rnd+1));
   return 0;
 }
 
@@ -801,7 +806,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::setString(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
   std::string val = ctx.stack().pop().getString();
-  Engine::instance()->getInterpreter()->mVariables[varname] = StackData(val);
+  Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }
 
@@ -820,13 +825,13 @@ int ScriptFunctions::loadNum(ExecutionContext& ctx, unsigned numArgs){
     }
   }
   in.close();
-  Engine::instance()->getInterpreter()->mVariables[varname] = StackData(val);
+  Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }
 
 int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
-  int val = Engine::instance()->getInterpreter()->mVariables[varname].getInt();
+  int val = Engine::instance()->getInterpreter()->getVariable(varname).getInt();
   std::string file = Engine::instance()->getSettings()->savedir+"/num.sav";
   //load old content
   std::ifstream in(file.c_str());
@@ -929,6 +934,10 @@ int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
 
 
 int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){
@@ -991,7 +1000,7 @@ int ScriptFunctions::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs)
 int ScriptFunctions::isNumEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
   int test = ctx.stack().pop().getInt();
-  int saved = Engine::instance()->getInterpreter()->mVariables[varname].getInt();
+  int saved = Engine::instance()->getInterpreter()->getVariable(varname).getInt();
   ctx.stack().push(saved);
   ctx.stack().push(test);
   return 2;
@@ -1055,6 +1064,29 @@ int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArg
     ctx.stack().push(0);
   else
     ctx.stack().push(1);
+  return 2;
+}
+
+int ScriptFunctions::isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs){
+  std::string key = ctx.stack().pop().getString();
+  ctx.stack().push(0);
+  ctx.stack().push(1);
+  return 2;
+}
+
+int ScriptFunctions::isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs){
+  std::string key = ctx.stack().pop().getString();
+  ctx.stack().push(0);
+  ctx.stack().push(1);
+  return 2;
+}
+
+int ScriptFunctions::isStringEqual(ExecutionContext& ctx, unsigned numArgs){
+  std::string name = ctx.stack().pop().getString();
+  std::string text = ctx.stack().pop().getString();
+  std::string val = Engine::instance()->getInterpreter()->getVariable(name).getString();
+  ctx.stack().push(0);
+  ctx.stack().push(stricmp(val.c_str(), text.c_str()));
   return 2;
 }
 

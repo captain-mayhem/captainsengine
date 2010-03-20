@@ -25,9 +25,9 @@ unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
   Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);
   ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos(), butsize, mText, mRow);
   Engine::instance()->addUIElement(but);
-  int chosenRow = Engine::instance()->getInterpreter()->getVariables()["#button"].getInt();
+  int chosenRow = Engine::instance()->getInterpreter()->getVariable("#button").getInt();
   if (chosenRow == mRow){
-    Engine::instance()->getInterpreter()->getVariables()["#button"] = 0;
+    Engine::instance()->getInterpreter()->setVariable("#button", 0);
     return ++pc;
   }
   return pc+mOffset;
@@ -82,7 +82,7 @@ unsigned CBGE::execute(ExecutionContext& ctx, unsigned pc){
 }
 
 unsigned CLOAD::execute(ExecutionContext& ctx, unsigned pc){
-  StackData dat = Engine::instance()->getInterpreter()->getVariables()[mVariable];
+  StackData dat = Engine::instance()->getInterpreter()->getVariable(mVariable);
   ctx.stack().push(dat);
   return ++pc;
 }

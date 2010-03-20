@@ -139,6 +139,7 @@ protected:
   std::string mUseObjectName;
   std::string mGiveObjectName;
   std::string mLinkObjectInfo;
+  ExecutionContext* mMainScript;
 };
 
 #endif

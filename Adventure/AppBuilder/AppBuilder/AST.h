@@ -19,6 +19,7 @@ public:
     LEVELDEF,
     ROWDEF,
     TIMERFUNC,
+    ARITHMETIC,
   };
   ASTNode(Type t) : mType(t) {}
   virtual ~ASTNode(){}
@@ -239,6 +240,29 @@ public:
 protected:
   float mTime;
   NodeList* mExec;
+};
+
+class ArithmeticNode : public ASTNode{
+public:
+  enum Type{
+    AR_PLUS,
+    AR_MINUS,
+    AR_TIMES,
+    AR_DIV,
+  };
+  ArithmeticNode() : ASTNode(ARITHMETIC), mType(AR_PLUS), mLeft(NULL), mRight(NULL) {}
+  //ArithmeticNode(ASTNode* left, Type t, ASTNode* right) : ASTNode(ARITHMETIC), mLeft(left), mType(t), mRight(right) {}
+  virtual ~ArithmeticNode(){
+    delete mLeft;
+    delete mRight;
+  }
+  Type& type() {return mType;}
+  ASTNode*& left() {return mLeft;}
+  ASTNode*& right() {return mRight;}
+protected:
+  Type mType;
+  ASTNode* mLeft;
+  ASTNode* mRight;
 };
 
 #endif
