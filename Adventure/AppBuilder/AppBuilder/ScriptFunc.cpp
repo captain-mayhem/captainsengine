@@ -80,6 +80,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("if_keypressed", isKeyPressedEqual);
   interpreter->registerFunction("if_string", isStringEqual);
   interpreter->registerFunction("stepto", stepTo);
+  interpreter->registerFunction("moveobj", moveObj);
   srand(time(NULL));
 }
 
@@ -935,6 +936,23 @@ int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
+  std::string name = ctx.stack().pop().getString();
+  LookDir dir = (LookDir)(ctx.stack().pop().getInt()-1);
+  return 0;
+}
+
+int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
+  std::string name = ctx.stack().pop().getString();
+  Vec2i newpos;
+  newpos.x = ctx.stack().pop().getInt();
+  newpos.y = ctx.stack().pop().getInt();
+  int speed = ctx.stack().pop().getInt();
+  bool hold = false;
+  if (numArgs >= 5){
+    std::string wait = ctx.stack().pop().getString();
+    if (wait == "wait")
+      hold = true;
+  }
   return 0;
 }
 

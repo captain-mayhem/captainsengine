@@ -170,7 +170,7 @@ void Object2D::activateNextState(){
 }
 
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "#button"),
-BaseBlitObject(DEPTH_BUTTON, size), mText(text){
+BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i()), mText(text){
   char tmp[16];
   sprintf(tmp, "%i", id);
   mName += tmp;
@@ -179,6 +179,7 @@ BaseBlitObject(DEPTH_BUTTON, size), mText(text){
     mState = 1;
   Engine::instance()->getInterpreter()->setVariable(mName, 1);
   BaseBlitObject::mPos = pos;
+  BaseBlitObject::mSize = size;
   mBackgroundColor = Engine::instance()->getSettings()->tsareacolor;
   mBorderColor = Engine::instance()->getSettings()->tsbordercolor;
   mHighlightColor = Engine::instance()->getSettings()->tsselectioncolor;
@@ -204,7 +205,6 @@ BaseBlitObject(DEPTH_BUTTON, size), mText(text){
 }
 
 ButtonObject::~ButtonObject(){
-
 }
 
 void ButtonObject::setColors(const Color& background, const Color& border, const Color& highlight){
@@ -223,6 +223,10 @@ void ButtonObject::render(){
 }
 
 void ButtonObject::blit(){
+  if (mTex != 0){
+    BlitObject::blit();
+    return;
+  }
   glPushMatrix();
   glDisable(GL_TEXTURE_2D);
   if (mState == 1)
