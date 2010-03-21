@@ -103,7 +103,7 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   str = txtstream.ReadLine();
   str = txtstream.ReadLine();
   str = txtstream.ReadLine();
-  str = txtstream.ReadLine();
+  mSettings.tsbackground = txtstream.ReadLine();
   str = txtstream.ReadLine();
   assert(str.SubString(0,13) == "Startskript : ");
   mSettings.startscript = str.SubString(14,str.Length());
@@ -151,7 +151,7 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
   mSettings.tsselectioncolor = atoi(str.c_str());
   str = txtstream.ReadLine();
   mSettings.tstextcolor = atoi(str.c_str());
-  if (ver_major >= 3){
+  if (ver_major >= 3 || (ver_major >=2 && ver_minor >= 7)){
     for (int i = 0; i < 8; ++i){
       str = txtstream.ReadLine();
     }
@@ -170,8 +170,12 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
     if (str == "Booleans :"){
       str = txtstream.ReadLine();
       while (str != "Commands :"){
-        wxString name = str.substr(0, str.size()-2);
+        wxString name;
         wxString val = str.substr(str.size()-1);
+        if (val == "1")
+          name = str.substr(0, str.size()-2);
+        else
+          name = str.substr(0, str.size()-1);
         mSettings.booleans[std::string(name)] = (val == "1");
         str = txtstream.ReadLine();
       }
@@ -606,6 +610,8 @@ wxImage AdvDocument::getImage(wxString name){
   if (mStream){
     wxString path = "gfx.dat#zip:"+filename.GetFullName();
     wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
+    if (!file)
+      return wxImage();
     wxBitmapType type = wxBITMAP_TYPE_ANY;
     if (filename.GetExt() == "pnj")
       type = wxBITMAP_TYPE_JPEG;

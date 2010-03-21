@@ -126,6 +126,14 @@ public:
   **/
   static int loopStop(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param instance name of the object instance
+  \param x the x-position the object should be moved to
+  \param y the y-position the object should be moved to
+  \param speed/time the moving speed (9-1, 0) or time (x ms)
+  \param wait [opt] if the script should be suspended
+  **/
+  static int moveObj(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param x x-coord of text (middle)
   \param y y-coord of text (bottom)
   \param text the text to be displayed

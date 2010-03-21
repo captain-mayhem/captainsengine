@@ -37,6 +37,7 @@ struct ProjectSettings{
   int tsselectioncolor;
   int tstextcolor;
   int tsbordercolor;
+  std::string tsbackground;
   std::string linktext;
   std::string givelink;
   std::string walktext;

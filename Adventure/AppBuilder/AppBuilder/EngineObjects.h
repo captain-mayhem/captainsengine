@@ -82,7 +82,7 @@ protected:
   std::list<int> mNextStates;
 };
 
-class ButtonObject : public Object2D, public BaseBlitObject{
+class ButtonObject : public Object2D, public BlitObject{
 public:
   ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id);
   ~ButtonObject();

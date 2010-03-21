@@ -147,6 +147,8 @@ unsigned Engine::roundToPowerOf2(unsigned x){
 
 GLuint Engine::genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const wxImage* alphaimage){
   GLuint tex;
+  if (!image.IsOk())
+    return 0;
   size.x = image.GetWidth();
   size.y = image.GetHeight();
   Vec2i pow2(roundToPowerOf2(size.x), roundToPowerOf2(size.y));
