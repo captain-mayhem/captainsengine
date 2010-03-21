@@ -1,3 +1,5 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+
 PROJECT(CaptainsEngine)
 
 OPTION(RENDER_OPENGL "compile renderer with OpenGL support" ON)
@@ -5,9 +7,9 @@ OPTION(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to
 OPTION(RENDER_GLES "compile renderer with OpenGL ES support" OFF)
 OPTION(PHYSICS_DOUBLE_PRECISION "enable double precision physics calculations" ON)
 OPTION(PROJECT_HEROQUEST "compile heroquest projects" ON)
-OPTION(PROJECT_ADVENTURE "compile adventure projects" OFF)
+OPTION(PROJECT_ADVENTURE "compile adventure projects" ON)
 OPTION(PROJECT_OSMRACER "compile osm racer projects" ON)
-OPTION(PROJECT_cOMPILER "compile compiler project" OFF)
+OPTION(PROJECT_COMPILER "compile compiler project" OFF)
 
 SET(VC_DIR "$ENV{VCINSTALLDIR}")
 
@@ -131,7 +133,7 @@ IF(PROJECT_HEROQUEST)
 	ADD_SUBDIRECTORY(heroquest)
 ENDIF(PROJECT_HEROQUEST)
 IF(PROJECT_ADVENTURE)
-	ADD_SUBDIREcTORY(AdventureGui)
+	ADD_SUBDIRECTORY(Adventure)
 ENDIF(PROJECT_ADVENTURE)
 IF(PROJECT_OSMRACER)
 	ADD_SUBDIRECTORY(OSMRacer)
