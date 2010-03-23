@@ -12,7 +12,7 @@
 
 #ifndef WIN32
 void DebugBreak();
-#define stricmp _stricmp
+int stricmp(const char* str1, const char* str2);
 #endif
 
 class SaveStateProvider;

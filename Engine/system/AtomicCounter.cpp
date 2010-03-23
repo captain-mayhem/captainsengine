@@ -1,7 +1,7 @@
 
 #include "AtomicCounter.h"
 
-#ifdef UNIX
+#if defined(UNIX) && defined(OLD_ATOMICITY)
 #include <bits/atomicity.h>
 #endif
 
@@ -21,7 +21,11 @@ void AtomicCounter::increment(){
   InterlockedIncrement(&mNumber);
 #endif
 #ifdef UNIX
+#ifdef OLD_ATOMICITY
   __gnu_cxx::__atomic_add(&mNumber, 1);
+#else
+  __sync_fetch_and_add(&mNumber, 1);
+#endif
 #endif
 }
 
@@ -30,7 +34,11 @@ void AtomicCounter::decrement(){
   InterlockedDecrement(&mNumber);
 #endif
 #ifdef UNIX
+#ifdef OLD_ATOMICITY
   __gnu_cxx::__atomic_add(&mNumber, -1);
+#else
+  __sync_fetch_and_add(&mNumber, -1);
+#endif
 #endif
 }
 

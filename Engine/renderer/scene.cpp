@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <float.h>
+#include <limits.h>
 
 using namespace CGE;
 using std::list;

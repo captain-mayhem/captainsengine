@@ -10,6 +10,8 @@
 //  ==================================================================
 
 #include <iostream>
+#include <cstring>
+#include <cstdio>
 #include "socketexception.h"
 #include "clientsocket.h"
 
