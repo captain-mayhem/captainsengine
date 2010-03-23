@@ -24,7 +24,9 @@ Graph::Graph(){
 Graph::~Graph(){
   std::set<Ptr<GraphNode> >::iterator iter = roots_.begin();
   while(iter != roots_.end()){
-    *iter = NULL;
+    //TODO check correctness
+    Ptr<GraphNode> ptr = *iter;
+    ptr = NULL;
     ++iter;
   }
 }

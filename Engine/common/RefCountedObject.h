@@ -117,8 +117,8 @@ protected:
 namespace std {
   template <typename T> 
   inline void swap(CGE::Ptr<T>& t1, CGE::Ptr<T>& t2){
-    std::cerr << "WTF";
-    //t1.swap (t2);
+    //std::cerr << "WTF";
+    t1.swap (t2);
   }
 }
 

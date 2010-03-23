@@ -6,6 +6,8 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <cstring>
+#include <cstdlib>
 
 using std::string;
 using std::ofstream;

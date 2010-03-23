@@ -1,5 +1,6 @@
 #include "Tracing.h"
 
+#include <cstdlib>
 #include <cstdio>
 #include <cstdarg>
 #include <iostream>

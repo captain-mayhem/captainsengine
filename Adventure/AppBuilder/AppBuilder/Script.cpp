@@ -58,7 +58,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   pcdkAST = parser->prog(parser);
   NodeList* p = pcdkAST.nodes;
   if (parser->pParser->rec->state->errorCount > 0){
-    wxMessageBox("Error parsing script");
+    wxMessageBox(_T("Error parsing script"));
     return NULL;
   }
   parser->free(parser);

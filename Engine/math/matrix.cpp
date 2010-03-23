@@ -15,6 +15,8 @@
 
 #include "matrix.h"
 
+#include <cstring>
+
 using namespace CGE;
 
 //Pattern:
