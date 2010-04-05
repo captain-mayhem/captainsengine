@@ -1,11 +1,14 @@
 #include "AdvDoc.h"
 #include <iomanip>
+#include <sstream>
 #include <wx/wfstream.h>
 #include <wx/zipstrm.h>
 #include <wx/txtstrm.h>
 #include <wx/msgdlg.h>
 #include <wx/image.h>
 #include <wx/filesys.h>
+#include <wx/mstream.h>
+#include <system/utilities.h>
 #include "GraphNodes.h"
 #include "AdvMainTree.h"
 #include "Sound.h"
@@ -19,6 +22,8 @@ const int PARTS_MAX = 2;
 const int FXSHAPES_MAX = 3;
 
 IMPLEMENT_DYNAMIC_CLASS(AdvDocument, wxDocument);
+
+#include <io/ZipReader.h>
 
 AdvDocument::AdvDocument() : mStream(NULL){
   mView = NULL;
@@ -34,150 +39,143 @@ wxOutputStream& AdvDocument::SaveObject(wxOutputStream& stream){
 
 wxInputStream& AdvDocument::LoadObject(wxInputStream& stream){
   mView = (AdvMainTreeView*)GetFirstView();
-  //wxDocument::LoadObject(stream);
-  wxZipInputStream zipstream(stream);
-  wxZipEntry* entry = zipstream.GetNextEntry();
-  if (!loadFile1(zipstream)){
-    delete entry;
-    zipstream.CloseEntry();
+  unsigned size = stream.GetSize();
+  char* buffer = new char[size];
+  stream.Read(buffer, size);
+  CGE::ZipReader zrdr(buffer, size);
+  CGE::MemReader rdr = zrdr.openEntry("game.001");
+  if (!loadFile1(rdr)){
     wxMessageBox("Failed loading project file", "Error");
     return stream;
   }
-  delete entry;
-  zipstream.CloseEntry();
-  entry = zipstream.GetNextEntry();
-  if(!loadFile2(zipstream)){
-    delete entry;
-    zipstream.CloseEntry();
+  rdr = zrdr.openEntry("game.002");
+  if(!loadFile2(rdr)){
     wxMessageBox("Failed loading project file", "Error");
     return stream;
   }
-  delete entry;
-  zipstream.CloseEntry();
-  entry = zipstream.GetNextEntry();
-  if(!loadFile3(zipstream)){
-    delete entry;
-    zipstream.CloseEntry();
+  rdr = zrdr.openEntry("game.003");
+  if(!loadFile3(rdr)){
     wxMessageBox("Failed loading project file", "Error");
     return stream;
   }
-  delete entry;
-  zipstream.CloseEntry();
   //if (GetFilename().EndsWith("dat")){
     wxFileName name(GetFilename());
-    wxString path = name.GetPath();
     mStream = new wxFileSystem();
+    std::string path = name.GetPath();
     mStream->ChangePathTo("file:"+path, true);
-    //loadFonts();
-    mSettings.savedir = path+"/../saves";
+    mPath = GetFilename();
+    CGE::Utilities::replaceWith(mPath, '\\', '/');
+    int pos = mPath.find_last_of('/');
+    mPath.erase(pos);
+    mSettings.savedir = mPath+"/../saves";
   //}
+  delete [] buffer;
   //wxMessageBox("Project loaded successfully", "Info");
   return stream;
 }
 
-bool AdvDocument::loadFile1(wxInputStream& stream){
-  wxTextInputStream txtstream(stream);
-  wxString str = txtstream.ReadLine();
+bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
+  std::string str = txtstream.readLine();
   int ver_major = atoi(str.substr(0, 1).c_str());
   int ver_minor = atoi(str.substr(2, 1).c_str());
   if (str.substr(4) != "Point&Click Project File. DO NOT MODIFY!!"){
     return false;
   }
-  str = txtstream.ReadLine();
-  mSettings.dir = txtstream.ReadLine();
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
+  mSettings.dir = txtstream.readLine();
+  str = txtstream.readLine();
   if (str == "Resolution X : 640"){
     mSettings.resolution = Vec2i(640,480);
   }
   else
     assert(false);
-  wxString font;
+  std::string font;
   do{
-    font = txtstream.ReadLine();
+    font = txtstream.readLine();
   } while (font.substr(0, 11) != "GameFont : ");
-  str = txtstream.ReadLine();
-  str = txtstream.ReadLine();
-  str = txtstream.ReadLine();
-  str = txtstream.ReadLine();
-  str = txtstream.ReadLine();
-  str = txtstream.ReadLine();
-  str = txtstream.ReadLine();
-  str = txtstream.ReadLine();
-  mSettings.tsbackground = txtstream.ReadLine();
-  str = txtstream.ReadLine();
-  assert(str.SubString(0,13) == "Startskript : ");
-  mSettings.startscript = str.SubString(14,str.Length());
-  mSettings.mainscript = txtstream.ReadLine();
-  mSettings.anywhere_room = txtstream.ReadLine();
-  str = txtstream.ReadLine(); //Screenchange
+  str = txtstream.readLine();
+  str = txtstream.readLine();
+  str = txtstream.readLine();
+  str = txtstream.readLine();
+  str = txtstream.readLine();
+  str = txtstream.readLine();
+  str = txtstream.readLine();
+  str = txtstream.readLine();
+  mSettings.tsbackground = txtstream.readLine();
+  str = txtstream.readLine();
+  assert(str.substr(0,14) == "Startskript : ");
+  mSettings.startscript = str.substr(14);
+  mSettings.mainscript = txtstream.readLine();
+  mSettings.anywhere_room = txtstream.readLine();
+  str = txtstream.readLine(); //Screenchange
   mSettings.screenchange = (ScreenChange)atoi(str.substr(15).c_str());
   //TODO
   for (int i = 0; i < 4; ++i){
-    str = txtstream.ReadLine();
+    str = txtstream.readLine();
   }
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.taskheight = atoi(str.substr(13).c_str());
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.taskroom = str.substr(11).c_str();
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.taskpopup = atoi(str.substr(12).c_str());
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   std::string taskshow = str.substr(11, 4).c_str();
   if (taskshow == "hide")
     mSettings.taskHideCompletely = true;
   else
     mSettings.taskHideCompletely = false;
   for (int i = 0; i < 4; ++i){
-    str = txtstream.ReadLine();
+    str = txtstream.readLine();
   }
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.targacolor = atoi(str.substr(13).c_str());
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.bordercolor = atoi(str.substr(14).c_str());
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.backgroundcolor = atoi(str.substr(18).c_str());
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.textcolor = atoi(str.substr(12).c_str());
-  str = txtstream.ReadLine(); //offtextcolor
-  str = txtstream.ReadLine();
+  str = txtstream.readLine(); //offtextcolor
+  str = txtstream.readLine();
   mSettings.tsstyle = (TsStyle)(atoi(str.c_str())-1);
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.tsborderstyle = atoi(str.c_str());
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.tsbordercolor = atoi(str.c_str());
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.tsareacolor = atoi(str.c_str());
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.tsselectioncolor = atoi(str.c_str());
-  str = txtstream.ReadLine();
+  str = txtstream.readLine();
   mSettings.tstextcolor = atoi(str.c_str());
   if (ver_major >= 3 || (ver_major >=2 && ver_minor >= 7)){
     for (int i = 0; i < 8; ++i){
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
     }
   }
   else{
     //mSettings.tsselectioncolor = 15793151;
   }
-  str = txtstream.ReadLine();
-  mSettings.linktext = str.SubString(11, str.Length());
-  str = txtstream.ReadLine();
-  mSettings.givelink = str.SubString(11, str.Length());
-  str = txtstream.ReadLine();
-  mSettings.walktext = str.SubString(11, str.Length());
-  while(!stream.Eof()){
-    str = txtstream.ReadLine();
+  str = txtstream.readLine();
+  mSettings.linktext = str.substr(11);
+  str = txtstream.readLine();
+  mSettings.givelink = str.substr(11);
+  str = txtstream.readLine();
+  mSettings.walktext = str.substr(11);
+  while(txtstream.isWorking()){
+    str = txtstream.readLine();
     if (str == "Booleans :"){
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
       while (str != "Commands :"){
-        wxString name;
-        wxString val = str.substr(str.size()-1);
+        std::string name;
+        std::string val = str.substr(str.size()-1);
         if (val == "1")
           name = str.substr(0, str.size()-2);
         else
           name = str.substr(0, str.size()-1);
         mSettings.booleans[std::string(name)] = (val == "1");
-        str = txtstream.ReadLine();
+        str = txtstream.readLine();
       }
     }
     if (str == "Commands :"){
@@ -185,12 +183,12 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
       mSettings.commands["walkto"] = (unsigned)mSettings.pretty_commands.size()-1;
       mSettings.pretty_commands.push_back("Loading");
       mSettings.commands["loading"] = (unsigned)mSettings.pretty_commands.size()-1;
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
       while (str != "Mediapool :"){
-        wxString pretty_name = txtstream.ReadLine();
+        std::string pretty_name = txtstream.readLine();
         mSettings.pretty_commands.push_back((const char*)pretty_name.c_str());
         mSettings.commands[(const char*)str.c_str()] = (unsigned)mSettings.pretty_commands.size()-1;
-        str = txtstream.ReadLine();
+        str = txtstream.readLine();
       }
     }
     if (str == "Mediapool :"){
@@ -198,11 +196,11 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
         wxTreeCtrl* mediapool = mView->getMediapool();
         wxTreeItemId currNode = mediapool->AddRoot("Mediapool");
         int level = -1;
-        str = txtstream.ReadLine();
+        str = txtstream.readLine();
         while (str != "Gamepool :"){
           if (!str.empty())
             level = insertTreeElement(mediapool, str, &currNode, level);
-          str = txtstream.ReadLine();
+          str = txtstream.readLine();
         }
       }
     }
@@ -211,48 +209,52 @@ bool AdvDocument::loadFile1(wxInputStream& stream){
         wxTreeCtrl* gamepool = mView->getGamepool();
         wxTreeItemId currNode = gamepool->AddRoot("Gamepool");
         int level = -1;
-        str = txtstream.ReadLine();
+        str = txtstream.readLine();
         while (str != "Images :"){
           if (!str.empty())
             level = insertTreeElement(gamepool, str, &currNode, level);
-          str = txtstream.ReadLine();
+          str = txtstream.readLine();
         }
       }
     }
     //Images
     if (str == "Images :"){
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
       while (str != "Sounds :"){
-        wxString filename = txtstream.ReadLine();
-        mImageNames[str] = wxFileName(filename, wxPATH_WIN);
-        str = txtstream.ReadLine();
+        std::string filename = txtstream.readLine();
+        CGE::Utilities::replaceWith(filename, '\\', '/');
+        mImageNames[str] = filename;
+        str = txtstream.readLine();
       }
     }
     //Sounds
     if (str == "Sounds :"){
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
       while (str != "Music :"){
-        wxString filename = txtstream.ReadLine();
-        mSoundNames[str] = wxFileName(filename, wxPATH_WIN);
-        str = txtstream.ReadLine();
+        std::string filename = txtstream.readLine();
+        CGE::Utilities::replaceWith(filename, '\\', '/');
+        mSoundNames[str] = filename;
+        str = txtstream.readLine();
       }
     }
     //Music
     if (str == "Music :"){
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
       while (str != "Movie :"){
-        wxString filename = txtstream.ReadLine();
-        mMusicNames[str] = wxFileName(filename, wxPATH_WIN);
-        str = txtstream.ReadLine();
+        std::string filename = txtstream.readLine();
+        CGE::Utilities::replaceWith(filename, '\\', '/');
+        mMusicNames[str] = filename;
+        str = txtstream.readLine();
       }
     }
     //Movie
     if (str == "Movie :"){
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
       while (!str.empty()){
-        wxString filename = txtstream.ReadLine();
-        mMovieNames[str] = wxFileName(filename, wxPATH_WIN);
-        str = txtstream.ReadLine();
+        std::string filename = txtstream.readLine();
+        CGE::Utilities::replaceWith(filename, '\\', '/');
+        mMovieNames[str] = filename;
+        str = txtstream.readLine();
       }
     }
   }
@@ -279,48 +281,47 @@ int AdvDocument::insertTreeElement(wxTreeCtrl* tree, const wxString& name, wxTre
   return level;
 }
 
-bool AdvDocument::loadFile2(wxInputStream& stream){
-  wxTextInputStream txtstream(stream);
-  wxString str = txtstream.ReadLine();
+bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
+  std::string str = txtstream.readLine();
   int ver_major = atoi(str.substr(0, 1).c_str());
   int ver_minor = atoi(str.substr(2, 1).c_str());
   if (str.substr(4) != "Point&Click Project File. DO NOT MODIFY!!"){
     return false;
   }
-  txtstream.ReadLine();
+  txtstream.readLine();
   for (int state = 0; state < STATES_MAX; ++state){
     CursorState cs;
     for (int frames = 0; frames < FRAMES_MAX; ++frames){
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
       if (!str.empty()){
         cs.frames.push_back(std::string(str.c_str()));
       }
     }
-    str = txtstream.ReadLine();
-    long val1;
-    str.ToLong(&val1);
+    str = txtstream.readLine();
+    int val1;
+    val1 = atoi(str.c_str());
     cs.command = val1;
-    str = txtstream.ReadLine();
-    str.ToLong(&val1);
+    str = txtstream.readLine();
+    val1 = atoi(str.c_str());
     cs.fps = FPS_MAX/val1;
     long val2;
-    str = txtstream.ReadLine();
-    str.ToLong(&val1);
-    str = txtstream.ReadLine();
-    str.ToLong(&val2);
+    str = txtstream.readLine();
+    val1 = atoi(str.c_str());
+    str = txtstream.readLine();
+    val2 = atoi(str.c_str());
     cs.highlight = Vec2i(val1,val2);
     mCursor.push_back(cs);
   }
-  while(!stream.Eof()){
-    str = txtstream.ReadLine();
-    if (stream.Eof())
+  while(txtstream.isWorking()){
+    str = txtstream.readLine();
+    if (!txtstream.isWorking())
       return true;
-    wxString rest;
-    if (!str.StartsWith("//", &rest) && !str.StartsWith(";;", &rest))
+    std::string rest = str.substr(2);
+    if (!(str[0] == '/' && str[1] == '/') && !(str[0] == ';' && str[1] == ';'))
       return false;
-    int splitidx = rest.Find(" ");
-    wxString type = rest.SubString(0, splitidx-1);
-    wxString name = rest.SubString(splitidx+1, rest.Length());
+    int splitidx = rest.find(" ");
+    std::string type = rest.substr(0, splitidx);
+    std::string name = rest.substr(splitidx+1);
     // ITEM
     if (type == "Item"){
       Item it;
@@ -334,14 +335,14 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       for (int state = 0; state < numStates; ++state){
         ItemState is;
         for (int frames = 0; frames < FRAMES_MAX; ++frames){
-          str = txtstream.ReadLine();
-          if (str != ";" && str.Length() > 0){
-            is.frames.push_back(std::string(str.SubString(0,str.Length()-delim).c_str()));
+          str = txtstream.readLine();
+          if (str != ";" && str.length() > 0){
+            is.frames.push_back(std::string(str.substr(0,str.length()+1-delim).c_str()));
           }
         }
-        str = txtstream.ReadLine();
+        str = txtstream.readLine();
         long val1;
-        str.ToLong(&val1);
+        val1 = atoi(str.c_str());
         is.fps = FPS_MAX/val1;
         it.states.push_back(is);
       }
@@ -352,13 +353,13 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       Object obj;
       obj.name = name;
       long val1, val2;
-      str = txtstream.ReadLine();
-      str.ToLong(&val1);
-      str = txtstream.ReadLine();
-      str.ToLong(&val2);
+      str = txtstream.readLine();
+      val1 = atoi(str.c_str());
+      str = txtstream.readLine();
+      val2 = atoi(str.c_str());
       obj.size = Vec2i(val1, val2);
-      str = txtstream.ReadLine();
-      str.ToLong(&val1);
+      str = txtstream.readLine();
+      val1 = atoi(str.c_str());
       obj.lighten = (val1 != 0);
       for (int state = 0; state < STATES_MAX; ++state){
         ObjectState os;
@@ -372,32 +373,32 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       Character ch;
       ch.name = name;
       long val1, val2;
-      str = txtstream.ReadLine(); str.ToLong(&val1); ch.textcolor = val1;
-      str = txtstream.ReadLine(); str.ToLong(&val1); ch.walkspeed = val1;
-      str = txtstream.ReadLine(); str.ToLong(&val1); ch.notzoom = (val1 != 0);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.textcolor = val1;
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.walkspeed = val1;
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.notzoom = (val1 != 0);
       if (ver_major >= 3)
-        str = txtstream.ReadLine(); str.ToLong(&val1); ch.realleft = (val1 != 0);
-      str = txtstream.ReadLine(); str.ToLong(&val1); ch.memresistent = (val1 != 0);
-      str = txtstream.ReadLine(); str.ToLong(&val1); ch.ghost = (val1 != 0);
-      ch.walksound = txtstream.ReadLine();
+        str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.realleft = (val1 != 0);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.memresistent = (val1 != 0);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.ghost = (val1 != 0);
+      ch.walksound = txtstream.readLine();
       if (ver_major >= 3){
-        str = txtstream.ReadLine();
-        unsigned pos = str.Find(";");
-        while (pos < str.Length()){
-          std::string state = std::string(str.SubString(0, pos-1));
+        str = txtstream.readLine();
+        unsigned pos = str.find(";");
+        while (pos < str.length()){
+          std::string state = std::string(str.substr(0, pos));
           ch.extrastatenames.push_back(state);
-          str = str.SubString(pos+1, str.Length());
-          pos = str.Find(";");
+          str = str.substr(pos+1);
+          pos = str.find(";");
         }
       }
-      str = txtstream.ReadLine(); str.ToLong(&val1); ch.fontid = val1;
-      str = txtstream.ReadLine(); str.ToLong(&val1); ch.zoom = val1;
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.fontid = val1;
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.zoom = val1;
       //int states = ver_major >= 3 ? CHAR_STATES_MAX : CHAR_STATES_MAX-20;
       for (int state = 0; state < CHAR_STATES_MAX; ++state){
         CharacterState cs;
-        str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+        str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
         cs.size = Vec2i(val1, val2);
-        str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+        str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
         cs.basepoint = Vec2i(val1, val2);
         cs.fps = readExtendedFrames(txtstream, cs.frames);
         ch.states.push_back(cs);
@@ -408,14 +409,14 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
     else if (type == "Rcharacter"){
       Rcharacter rc;
       rc.name = name;
-      rc.character = txtstream.ReadLine();
-      rc.room = txtstream.ReadLine();
+      rc.character = txtstream.readLine();
+      rc.room = txtstream.readLine();
       long val1, val2;
-      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
       rc.position = Vec2i(val1,val2);
-      str = txtstream.ReadLine(); str.ToLong(&val1); rc.dir = (LookDir)(val1-1);
-      str = txtstream.ReadLine(); str.ToLong(&val1); rc.unmovable = (val1 != 0);
-      str = txtstream.ReadLine(); str.ToLong(&val1); rc.locked = (val1 != 0);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.dir = (LookDir)(val1-1);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.unmovable = (val1 != 0);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.locked = (val1 != 0);
       mRoomCharacters.push_back(rc);
     }
     // ROOM
@@ -423,33 +424,33 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       Room room;
       room.name = name;
       long val1, val2;
-      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
       room.size = Vec2i(val1,val2);
-      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
       room.scrolloffset = Vec2i(val1, val2);
-      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
       room.depthmap = Vec2i(val1, val2);
-      str = txtstream.ReadLine(); str.ToLong(&val1); room.zoom = val1;
-      room.background = txtstream.ReadLine();
-      room.parallaxbackground = txtstream.ReadLine();
-      str = txtstream.ReadLine(); str.ToLong(&val1); room.doublewalkmap = (val1 != 0);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); room.zoom = val1;
+      room.background = txtstream.readLine();
+      room.parallaxbackground = txtstream.readLine();
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); room.doublewalkmap = (val1 != 0);
       if (ver_major >= 3){
         for (int i = 0; i < FXSHAPES_MAX; ++i){
           //TODO
-          txtstream.ReadLine();
-          txtstream.ReadLine();
-          txtstream.ReadLine();
-          txtstream.ReadLine();
-          txtstream.ReadLine();
-          txtstream.ReadLine();
-          txtstream.ReadLine();
-          txtstream.ReadLine();
+          txtstream.readLine();
+          txtstream.readLine();
+          txtstream.readLine();
+          txtstream.readLine();
+          txtstream.readLine();
+          txtstream.readLine();
+          txtstream.readLine();
+          txtstream.readLine();
         }
         //TODO unknown
-        txtstream.ReadLine();
+        txtstream.readLine();
       }
       //inventory
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
       unsigned from = 0;
       unsigned to = (unsigned)str.find(';', from);
       room.invpos.x = atoi(str.substr(from, to-from).c_str());
@@ -460,19 +461,19 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
       from = to+1; to = (unsigned)str.find(';', from);
       room.invsize.y = atoi(str.substr(from, to-from).c_str());
       from = to+1; to = (unsigned)str.find(';', from);
-      wxString tmp = str.substr(from, to-from);
+      std::string tmp = str.substr(from, to-from);
       size_t idx = tmp.find(',');
-      if (idx != wxString::npos)
+      if (idx != std::string::npos)
         tmp[idx] = '.';
       room.invscale.x = atof(tmp.c_str());
       from = to+1; to = (unsigned)str.find(';', from);
       tmp = str.substr(from, to-from);
       idx = tmp.find(',');
-      if (idx != wxString::npos)
+      if (idx != std::string::npos)
         tmp[idx] = '.';
       room.invscale.y = atof(tmp.c_str());
       //walkmap
-      str = txtstream.ReadLine();
+      str = txtstream.readLine();
       int WALKMAP_X = 32;
       int walkGridSize = mSettings.resolution.x/WALKMAP_X;
       int WALKMAP_Y = mSettings.resolution.y/walkGridSize;
@@ -507,14 +508,14 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
     else if (type == "Roomobject"){
       Roomobject ro;
       ro.name = name;
-      ro.object = txtstream.ReadLine();
+      ro.object = txtstream.readLine();
       long val1, val2;
-      str = txtstream.ReadLine(); str.ToLong(&val1); str = txtstream.ReadLine(); str.ToLong(&val2);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
       ro.position = Vec2i(val1,val2);
-      str = txtstream.ReadLine(); str.ToLong(&val1); ro.state = val1;
-      str = txtstream.ReadLine(); str.ToLong(&val1); ro.layer = val1;
-      str = txtstream.ReadLine(); str.ToLong(&val1); ro.wm_depth = val1;
-      str = txtstream.ReadLine(); str.ToLong(&val1); ro.locked = (val1 != 0);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.state = val1;
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.layer = val1;
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.wm_depth = val1;
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.locked = (val1 != 0);
       mLastRoom->objects.push_back(ro);
     }
     else{
@@ -525,25 +526,24 @@ bool AdvDocument::loadFile2(wxInputStream& stream){
   return true;
 }
 
-bool AdvDocument::loadFile3(wxInputStream& stream){
-  wxTextInputStream txtstream(stream);
-  wxString str = txtstream.ReadLine();
+bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
+  std::string str = txtstream.readLine();
   int ver_major = atoi(str.substr(0, 1).c_str());
   int ver_minor = atoi(str.substr(2, 1).c_str());
   if (str.substr(4) != "Point&Click Project File. DO NOT MODIFY!!"){
     return false;
   }
-  txtstream.ReadLine();
+  txtstream.readLine();
   mLastScript = NULL;
-  while(!stream.Eof()){
-    str = txtstream.ReadLine();
-    if (stream.Eof())
-      return true;
-    wxString rest;
-    if (str.StartsWith("//", &rest)){
-      int splitidx = rest.Find(" ");
-      wxString type = rest.SubString(0, splitidx-1);
-      wxString name = rest.SubString(splitidx+1, rest.Length());
+  while(txtstream.isWorking()){
+    str = txtstream.readLine();
+    //if (!txtstream.isWorking())
+    //  return true;
+    if (str.size() >= 2 && str[0] == '/' && str[1] == '/'){
+      std::string rest = str.substr(2);
+      int splitidx = rest.find(" ");
+      std::string type = rest.substr(0, splitidx);
+      std::string name = rest.substr(splitidx+1);
       Script::Type scrType;
       if (type == "Cutscene")
         scrType = Script::CUTSCENE;
@@ -591,37 +591,36 @@ bool AdvDocument::loadFile3(wxInputStream& stream){
   return true;
 }
 
-//wxFileName AdvDocument::getFilename(ResourceID id, wxString name){
-//  return mImageNames[name];
-//}
-wxImage AdvDocument::getImage(wxString name){
-  wxFileName filename;
-  std::map<wxString,wxFileName>::iterator iter = mImageNames.find(name);
+wxImage AdvDocument::getImage(const std::string& name){
+  std::string filename;
+  std::map<std::string,std::string>::iterator iter = mImageNames.find(name);
   if (iter != mImageNames.end())
     filename = iter->second;
   else{
     for (iter = mImageNames.begin(); iter != mImageNames.end(); ++iter){
-      if (stricmp(name.c_str(), iter->first.c_str()) == 0){
+      if (_stricmp(name.c_str(), iter->first.c_str()) == 0){
         filename = iter->second;
         break;
       }
     }
   }
   if (mStream){
-    wxString path = "gfx.dat#zip:"+filename.GetFullName();
-    wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
-    if (!file)
+    int namepos = filename.find_last_of('/');
+    static CGE::ZipReader zrdr(mPath+"/gfx.dat");
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(namepos+1));
+    if (!rdr.isWorking())
       return wxImage();
     wxBitmapType type = wxBITMAP_TYPE_ANY;
-    if (filename.GetExt() == "pnj")
+    int extpos = filename.find_last_of('.');
+    if (filename.substr(extpos+1) == "pnj")
       type = wxBITMAP_TYPE_JPEG;
-    wxImage image(*file->GetStream(), type);
-    delete file;
-    if (filename.GetExt() == "pnj"){
-      path[path.length()-1] = 'a';
-      wxFSFile* alphafile = mStream->OpenFile(path);
-      wxImage alphaimage(*alphafile->GetStream(), wxBITMAP_TYPE_JPEG);
-      delete alphafile;
+    wxMemoryInputStream mis(rdr.getData(), rdr.getSize());
+    wxImage image(mis, type);
+    if (filename.substr(extpos+1) == "pnj"){
+      filename[filename.length()-1] = 'a';
+      rdr = zrdr.openEntry(filename.substr(namepos+1));
+      wxMemoryInputStream mis(rdr.getData(), rdr.getSize());
+      wxImage alphaimage(mis, wxBITMAP_TYPE_JPEG);
       int size = alphaimage.GetWidth()*alphaimage.GetHeight();
       unsigned char* alphadata = (unsigned char*)malloc(size);
       for (int i = 0; i < size; ++i){
@@ -631,24 +630,24 @@ wxImage AdvDocument::getImage(wxString name){
     }
     return image;
   }
-  return wxImage(filename.GetFullPath());
+  return wxImage(filename);
 }
 
 bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
-  wxFileName filename = mSoundNames[name];
-  db.name = filename.GetFullName();
+  std::string filename = mSoundNames[name];
+  int pos = filename.find_last_of('/');
+  db.name = filename.substr(pos+1);
   if (mStream){
-    wxString path = "sfx.dat#zip:"+filename.GetFullName();
-    wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
-    if (file == NULL)
+    CGE::ZipReader zrdr(mPath+"/sfx.dat");
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
+    if (!rdr.isWorking())
       return false;
-    db.length = file->GetStream()->GetSize();
+    db.length = rdr.getSize();
     db.data = new char[db.length];
-    file->GetStream()->Read(db.data, db.length);
-    delete file;
+    memcpy(db.data, rdr.getData(), db.length);
   }
   else{
-    wxFileInputStream strm(filename.GetFullPath());
+    wxFileInputStream strm(filename);
     db.length = strm.GetSize();
     db.data = new char[db.length];
     strm.Read(db.data, db.length);
@@ -657,20 +656,21 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
 }
 
 bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
-  wxFileName filename = mMusicNames[name];
-  db.name = filename.GetFullName();
+  std::string filename = mMusicNames[name];
+  int pos = filename.find_last_of('/');
+  db.name = filename.substr(pos+1);
   if (mStream){
-    wxString path = "music.dat#zip:"+filename.GetFullName();
-    wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
-    if (file == NULL)
+    CGE::ZipReader zrdr(mPath+"/music.dat");
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
+    if (!rdr.isWorking())
       return false;
-    db.length = file->GetStream()->GetSize();
+      return false;
+    db.length = rdr.getSize();
     db.data = new char[db.length];
-    file->GetStream()->Read(db.data, db.length);
-    delete file;
+    memcpy(db.data, rdr.getData(), db.length);
   }
   else{
-    wxFileInputStream strm(filename.GetFullPath());
+    wxFileInputStream strm(filename);
     db.length = strm.GetSize();
     db.data = new char[db.length];
     strm.Read(db.data, db.length);
@@ -679,20 +679,20 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
 }
 
 bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
-  wxFileName filename = mMovieNames[name];
-  db.name = filename.GetFullName();
+  std::string filename = mMovieNames[name];
+  int pos = filename.find_last_of('/');
+  db.name = filename.substr(pos+1);
   if (mStream){
-    wxString path = "movie.dat#zip:"+filename.GetFullName();
-    wxFSFile* file = mStream->OpenFile(path, wxFS_READ | wxFS_SEEKABLE);
-    if (file == NULL)
+    CGE::ZipReader zrdr(mPath+"/movie.dat");
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
+    if (!rdr.isWorking())
       return false;
-    db.length = file->GetStream()->GetSize();
+    db.length = rdr.getSize();
     db.data = new char[db.length];
-    file->GetStream()->Read(db.data, db.length);
-    delete file;
+    memcpy(db.data, rdr.getData(), db.length);
   }
   else{
-    wxFileInputStream strm(filename.GetFullPath());
+    wxFileInputStream strm(filename);
     db.length = strm.GetSize();
     db.data = new char[db.length];
     strm.Read(db.data, db.length);
@@ -700,37 +700,37 @@ bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
   return true;
 }
 
-float AdvDocument::readExtendedFrames(wxTextInputStream& txtstream, ExtendedFrames& frms){
-  wxString str;
+float AdvDocument::readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames& frms){
+  std::string str;
   long val1, val2;
   for (int frames = 0; frames < FRAMES2_MAX; ++frames){
     ExtendedFrame frm;
     bool set = false;
     for (int parts = 0; parts < PARTS_MAX; ++parts){
-      str = txtstream.ReadLine();
-      if (str.Length() > 0){
+      str = txtstream.readLine();
+      if (str.length() > 0){
         set = true;
         frm.names.push_back(std::string(str.c_str()));
       }
     }
     //read offsets
-    str = txtstream.ReadLine();
+    str = txtstream.readLine();
     for (unsigned i = 0; i < frm.names.size(); ++i){
-      int pos = str.Find(";");
-      wxString num = str.SubString(0, pos-1);
-      str = str.SubString(pos+1, str.Length());
-      num.ToLong(&val1);
-      pos = str.Find(";");
-      num = str.SubString(0, pos-1);
-      str = str.SubString(pos+1, str.Length());
-      num.ToLong(&val2);
+      int pos = str.find(";");
+      std::string num = str.substr(0, pos);
+      str = str.substr(pos+1);
+      val1 = atoi(num.c_str());
+      pos = str.find(";");
+      num = str.substr(0, pos);
+      str = str.substr(pos+1);
+      val2 = atoi(num.c_str());
       frm.offsets.push_back(Vec2i(val1,val2));
     }
     if (set)
       frms.push_back(frm);
   }
-  str = txtstream.ReadLine();
-  str.ToLong(&val1);
+  str = txtstream.readLine();
+  val1 = atoi(str.c_str());
   float fps = FPS_MAX/val1;
   return fps;
 }
@@ -739,7 +739,7 @@ Room* AdvDocument::getRoom(std::string name){
   std::map<std::string,Room>::iterator iter = mRooms.find(name);
   if (iter == mRooms.end()){
     for (std::map<std::string,Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-      if (stricmp(name.c_str(), iter->first.c_str()) == 0)
+      if (_stricmp(name.c_str(), iter->first.c_str()) == 0)
         return &iter->second;
     }
     return NULL;
@@ -788,55 +788,72 @@ std::vector<std::pair<Vec2i,Script*> > AdvDocument::getWMScripts(std::string roo
 }
 
 FontData AdvDocument::getFont(int num){
-  wxString number;
+  std::ostringstream number;
   if (num < 100)
-    number << "0";
+  number << "0";
   if (num < 10)
-    number << "0";
+  number << "0";
   number << num;
-  wxString path;
-  if (num == 0)
-    path = "font.dat#zip:fontdata.sta";
+  CGE::ZipReader* firstzrdr = NULL;
+  CGE::MemReader firstrdr;
+  CGE::ZipReader* zrdr = NULL;
+  CGE::MemReader in;
+  if (num == 0){
+  zrdr = new CGE::ZipReader(mPath+"/font.dat");
+  in = zrdr->openEntry("fontdata.sta");
+  }
   else{
-    path << "fonts.dat#zip:font." << number << "#zip:fontdata." << number;
+  firstzrdr = new CGE::ZipReader(mPath+"/fonts.dat");
+  firstrdr = firstzrdr->openEntry("font."+number.str());
+  zrdr = new CGE::ZipReader(firstrdr.getData(), firstrdr.getSize());
+  in = zrdr->openEntry("fontdata."+number.str());
   }
   FontData fnt;
-  wxFSFile* file = mStream->OpenFile(path);
-  if (file == NULL)
-    return fnt;
-  wxTextInputStream in(*file->GetStream());
+  if (!in.isWorking()){
+  delete firstzrdr;
+  delete zrdr;
+  return fnt;
+  }
   long val;
-  wxString str = in.ReadLine(); str.ToLong(&val); fnt.images.resize(2*val);
-  str = in.ReadLine(); str.ToLong(&val); fnt.fontsize.x = val;
-  str = in.ReadLine(); str.ToLong(&val); fnt.fontsize.y = val;
-  str = in.ReadLine(); str.ToLong(&val); fnt.numChars.x = val;
-  str = in.ReadLine(); str.ToLong(&val); fnt.numChars.y = val;
+  std::string str = in.readLine(); val = atoi(str.c_str()); fnt.images.resize(2*val);
+  str = in.readLine(); val = atoi(str.c_str()); fnt.fontsize.x = val;
+  str = in.readLine(); val = atoi(str.c_str()); fnt.fontsize.y = val;
+  str = in.readLine(); val = atoi(str.c_str()); fnt.numChars.x = val;
+  str = in.readLine(); val = atoi(str.c_str()); fnt.numChars.y = val;
   fnt.charwidths.reserve(224);
-  while(!file->GetStream()->Eof()){
-    str = in.ReadLine(); str.ToLong(&val); fnt.charwidths.push_back(val);
+  while(in.isWorking()){
+  str = in.readLine(); val = atoi(str.c_str()); fnt.charwidths.push_back(val);
   }
-  delete file;
   for (unsigned i = 0; i < fnt.images.size()/2; ++i){
-    path.Clear();
-    if (num == 0)
-      path << "font.dat#zip:fontsta.al" << (i+1);
-    else
-      path << "fonts.dat#zip:font." << number << "#zip:font" << num << ".al" << (i+1);
-    wxFSFile* file = mStream->OpenFile(path);
-    if (file == NULL)
-      continue;
-    fnt.images[2*i] = wxImage(*file->GetStream(), wxBITMAP_TYPE_BMP);
-    delete file;
-    path.Clear();
-    if (num == 0)
-      path << "font.dat#zip:fontsta.bm" << (i+1);
-    else
-      path << "fonts.dat#zip:font." << number << "#zip:font" << num << ".bm" << (i+1);
-    file = mStream->OpenFile(path);
-    fnt.images[2*i+1] = wxImage(*file->GetStream(), wxBITMAP_TYPE_BMP);
-    delete file;
+  number.str("");
+  number.clear();
+  if (num == 0){
+  number << "fontsta.al" << (i+1);
+  in = zrdr->openEntry(number.str());
   }
-  //mFonts.push_back(fnt);
+  else{
+  number << "font" << num << ".al" << (i+1);
+  in = zrdr->openEntry(number.str());
+  }
+  if (!in.isWorking())
+  continue;
+  wxMemoryInputStream mis(in.getData(), in.getSize());
+  fnt.images[2*i] = wxImage(mis, wxBITMAP_TYPE_BMP);
+  number.str("");
+  number.clear();
+  if (num == 0){
+  number << "fontsta.bm" << (i+1);
+  in = zrdr->openEntry(number.str());
+  }
+  else{
+  number << "font" << num << ".bm" << (i+1);
+  in = zrdr->openEntry(number.str());
+  }
+  wxMemoryInputStream mis2(in.getData(), in.getSize());
+  fnt.images[2*i+1] = wxImage(mis2, wxBITMAP_TYPE_BMP);
+  }
+  delete firstzrdr;
+  delete zrdr;
   return fnt;
 }
 
@@ -844,7 +861,7 @@ Item* AdvDocument::getItem(const std::string& name){
   std::map<std::string,Item>::iterator iter = mItems.find(name);
   if (iter == mItems.end()){
     for (std::map<std::string,Item>::iterator iter = mItems.begin(); iter != mItems.end(); ++iter){
-      if (stricmp(name.c_str(), iter->first.c_str()) == 0)
+      if (_stricmp(name.c_str(), iter->first.c_str()) == 0)
         return &iter->second;
     }
     return NULL;

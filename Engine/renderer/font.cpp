@@ -32,6 +32,9 @@ Font::Font(const Font& f){
   rgb_ = f.rgb_;
   q_ = queue<font_data>(f.q_);
   id_ = f.id_;
+  tex_ = NULL;
+  buffer_ = NULL;
+  inds_ = NULL;
 }
 
 //Destructor

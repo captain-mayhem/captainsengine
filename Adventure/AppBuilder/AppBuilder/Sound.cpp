@@ -346,7 +346,7 @@ void StreamSoundPlayer::play(bool looping){
 void StreamSoundPlayer::stop(){
   mStop = true;
   alSourceStop(mSource);
-  av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY);
+  //VHALIGNCALL16(av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY));
 }
 
 bool StreamSoundPlayer::update(){

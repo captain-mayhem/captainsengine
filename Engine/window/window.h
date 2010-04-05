@@ -29,6 +29,8 @@ public:
   inline const int getHeight() const {return height_;}
   //! set window height
   inline void setHeight(int height) {height_ = height;}
+  //! set focussed
+  void focus(bool hasFocus);
 protected:
   CGE::Renderer* renderer_;
   bool fullscreen_;

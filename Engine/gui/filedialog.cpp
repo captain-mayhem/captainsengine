@@ -58,7 +58,7 @@ void FileDialog::init(){
   addElement(file);
   //Input field
   InputField* inp = new InputField();
-  inp->setOpacity(0.8);
+  inp->setOpacity(0.8f);
   inp->setPosition(Vector2D(50, 50));
   inp->setSpan(Vector2D(300,18));
   addUnscaledElement(inp);

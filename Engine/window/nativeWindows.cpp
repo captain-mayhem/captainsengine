@@ -62,6 +62,15 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
     case WM_RBUTTONUP:
       Input::Mouse::instance()->buttonUp((int)LOWORD(lparam), (int)HIWORD(lparam), MK_RBUTTON);
       return 0;
+    case WM_LBUTTONDBLCLK:
+      Input::Mouse::instance()->doubleClick((int)LOWORD(lparam), (int)HIWORD(lparam), MK_LBUTTON);
+      return 0;
+    case WM_MBUTTONDBLCLK:
+      Input::Mouse::instance()->doubleClick((int)LOWORD(lparam), (int)HIWORD(lparam), MK_MBUTTON);
+      return 0;
+    case WM_RBUTTONDBLCLK:
+      Input::Mouse::instance()->doubleClick((int)LOWORD(lparam), (int)HIWORD(lparam), MK_RBUTTON);
+      return 0;
     default:
       break;
   }
@@ -71,6 +80,10 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
 WindowsWindow::WindowsWindow(CGE::Renderer* renderer) : AppWindow(renderer){
   handle_ = NULL;
   instance_ = NULL;
+}
+
+WindowsWindow::~WindowsWindow(){
+
 }
 
 void WindowsWindow::init(const std::string& name){
@@ -176,6 +189,17 @@ void WindowsWindow::init(const std::string& name){
   }
 
   handle_ = hwnd;
+
+  //take decorations into account
+  RECT rectWin;
+  RECT rectClient;
+  GetWindowRect(handle_, &rectWin);
+  GetClientRect(handle_, &rectClient);
+  int xoffset = (rectWin.right-rectWin.left)-(rectClient.right-rectClient.left);
+  int yoffset = (rectWin.bottom-rectWin.top)-(rectClient.bottom-rectClient.top);
+  rectWin.right += xoffset;
+  rectWin.bottom += yoffset;
+  MoveWindow(handle_, rectWin.left, rectWin.top, rectWin.right-rectWin.left, rectWin.bottom-rectWin.top, TRUE);
 
   renderer_->initContext(this);
 

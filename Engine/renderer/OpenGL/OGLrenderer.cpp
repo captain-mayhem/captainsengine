@@ -26,6 +26,9 @@ OGLRenderer::OGLRenderer(): Renderer() {
 }
 
 OGLRenderer::~OGLRenderer(){
+#if defined(WIN32)
+  wglDeleteContext(hRC_);
+#endif
 }
 
 void OGLRenderer::initContext(::Windows::AppWindow* win){

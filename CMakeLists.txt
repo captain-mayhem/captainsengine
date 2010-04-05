@@ -1,6 +1,6 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-PROJECT(CaptainsEngine)
+PROJECT(CaptainsEngine C ASM_MASM CXX)
 
 OPTION(RENDER_OPENGL "compile renderer with OpenGL support" ON)
 OPTION(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
@@ -97,6 +97,7 @@ SET(ENGINE_LINK_LIBRARIES
 	lua
 	lualib
 	ode
+	zlib
 	${ENGINE_LINK_LIBRARIES}
 )
 

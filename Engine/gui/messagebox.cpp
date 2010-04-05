@@ -14,9 +14,9 @@ using CGE::Vector2D;
 //The MessageBox constructor
 MessageBox::MessageBox(){
   handleClicks_ = NULL;
-  setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
+  setColors(Vector3D(1,1,0.1f),Color(0.2f,0.01f,0.01f,1.0f));
   setSpan(Vector2D(75,18));
-  surBgColor_ = Color(0,0,0,0.8);//178);
+  surBgColor_ = Color(0,0,0,0.8f);//178);
   surFgColor_ = Color(1.0,0,0,1.0);
   setText("  OK");
   surSpan_ = Vector2D(800, 600);

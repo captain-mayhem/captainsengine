@@ -1,5 +1,5 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef CGE_ENGINE_H
+#define CGE_ENGINE_H
 
 #include <iostream>
 #include <fstream>

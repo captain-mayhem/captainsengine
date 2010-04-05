@@ -90,6 +90,8 @@ void Engine::initGame(){
     mMainScript = mInterpreter->parseProgram(mainScript->text);
     mInterpreter->execute(mMainScript, false);
   }
+  else
+    mMainScript = NULL;
   //load and execute start script
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){

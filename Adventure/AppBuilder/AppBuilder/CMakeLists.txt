@@ -35,9 +35,9 @@ INCLUDE(FindJava)
 
 SET(PARSER_SRCS
 ${CMAKE_CURRENT_SOURCE_DIR}/pcdkParser.c
-#${CMAKE_CURRENT_SOURCE_DIR}/pcdkParser.h
+${CMAKE_CURRENT_SOURCE_DIR}/pcdkParser.h
 ${CMAKE_CURRENT_SOURCE_DIR}/pcdkLexer.c
-#${CMAKE_CURRENT_SOURCE_DIR}/pcdkLexer.h
+${CMAKE_CURRENT_SOURCE_DIR}/pcdkLexer.h
 )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -95,14 +95,55 @@ SET_PROPERTY(TARGET swscale PROPERTY IMPORTED_LOCATION swscale-0.lib)
 ENDIF (OS STREQUAL windows)
 SET(AB_LINK_LIBS ${AB_LINK_LIBS} avformat avcodec avdevice avutil swscale)
 
+###Engine###
+INCLUDE_DIRECTORIES(../../../Engine)
+SET(AB_LINK_LIBS ${AB_LINK_LIBS} Engine)
+
 ###AppBuilder###
 
-FILE(GLOB AppBuilder_SRCS *.cpp)
-FILE(GLOB AppBuilder_HDRS *.h)
+SET(AppBuilder_SRCS
+  AdvDoc.cpp
+  AdvDoc.h
+  Animator.cpp
+  Animator.h
+  AST.h
+  BlitObjects.cpp
+  BlitObjects.h
+  CIL.cpp
+  CIL.h
+  Engine.cpp
+  Engine.h
+  EngineObjects.cpp
+  EngineObjects.h
+  Font.cpp
+  Font.h
+  Ids.h
+  Inventory.cpp
+  Inventory.h
+  SaveStateProvider.cpp
+  SaveStateProvider.h
+  Script.cpp
+  Script.h
+  ScriptDefs.h
+  ScriptFunc.cpp
+  ScriptFunc.h
+  Sound.cpp
+  Sound.h
+  Vector.h
+)
 
 ADD_EXECUTABLE(AppBuilder
   ${AppBuilder_SRCS}
-  ${AppBuilder_HDRS}
+  AdvMainTree.cpp
+  AdvMainTree.h
+  AdvTreeCtrl.cpp
+  AdvTreeCtrl.h
+  ImageDisplay.cpp
+  ImageDisplay.h
+  main.cpp
+  main.h
+  RenderWindow.cpp
+  RenderWindow.h
   ${PARSER_SRCS}
   AppBuilder.rc
   pcdk.g
@@ -110,5 +151,21 @@ ADD_EXECUTABLE(AppBuilder
 TARGET_LINK_LIBRARIES(AppBuilder ${AB_LINK_LIBS})
 
 SET_TARGET_PROPERTIES(AppBuilder
+PROPERTIES
+WIN32_EXECUTABLE TRUE)
+
+###Adventure###
+
+ADD_EXECUTABLE(Adventure
+  ${AppBuilder_SRCS}
+  CgeWindow.cpp
+  CgeWindow.h
+  ${PARSER_SRCS}
+  AppBuilder.rc
+  pcdk.g
+)
+TARGET_LINK_LIBRARIES(Adventure ${AB_LINK_LIBS} EngineMain)
+
+SET_TARGET_PROPERTIES(Adventure
 PROPERTIES
 WIN32_EXECUTABLE TRUE)

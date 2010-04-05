@@ -33,15 +33,14 @@ PcdkScript::~PcdkScript(){
 }
 
 void PcdkScript::stop(){
+  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+    if ((*iter)->mExecuteOnce && (*iter)->mOwner == NULL)
+      delete *iter;
+  }
   mScripts.clear();
   mGlobalSuspend = false;
   delete mCutScene;
   mCutScene = NULL;
-  /*for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
-    (*iter)->reset(true);
-    delete *iter;
-  }
-  mScripts.clear();*/
   mPrevState.clear();
 }
 
@@ -657,6 +656,33 @@ StackData PcdkScript::getVariable(const std::string& name){
   else if (name == "mousey"){
     DebugBreak();
   }
+  else if (name == "hour"){
+    DebugBreak();
+  }
+  else if (name == "minute"){
+    DebugBreak();
+  }
+  else if (name == "second"){
+    DebugBreak();
+  }
+  else if (name == "year"){
+    DebugBreak();
+  }
+  else if (name == "month"){
+    DebugBreak();
+  }
+  else if (name == "day"){
+    DebugBreak();
+  }
+  else if (name == "currentroom"){
+    DebugBreak();
+  }
+  else if (name == "roomx"){
+    DebugBreak();
+  }
+  else if (name == "roomy"){
+    DebugBreak();
+  }
   else if (name == "charx"){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (!chr)
@@ -669,6 +695,33 @@ StackData PcdkScript::getVariable(const std::string& name){
       return 0;
     return chr->getPosition().y;
   }
+  else if (name == "charzoom"){
+    DebugBreak();
+  }
+  else if (name.size() > 6 && name.substr(0,6) == "charx:"){
+    DebugBreak();
+  }
+  else if (name.size() > 6 && name.substr(0,6) == "charxy:"){
+    DebugBreak();
+  }
+  else if (name.size() > 9 && name.substr(0,9) == "charzoom:"){
+    DebugBreak();
+  }
+  else if (name.size() > 4 && name.substr(0,4) == "obj:"){
+    DebugBreak();
+  }
+  else if (name.size() > 5 && name.substr(0,5) == "objx:"){
+    DebugBreak();
+  }
+  else if (name.size() > 5 && name.substr(0,5) == "objy:"){
+    DebugBreak();
+  }
+  else if (name == "actiontext"){
+    DebugBreak();
+  }
+  else if (name == "empty"){
+    return "";
+  }
   std::map<std::string, StackData>::iterator iter = mVariables.find(name);
   if (iter != mVariables.end())
     return iter->second;
@@ -676,5 +729,11 @@ StackData PcdkScript::getVariable(const std::string& name){
 }
 
 void PcdkScript::setVariable(const std::string& name, const StackData& value){
+  if (name == "mousex"){
+    DebugBreak();
+  }
+  else if (name == "mousey"){
+    DebugBreak();
+  }
   mVariables[name] = value;
 }
