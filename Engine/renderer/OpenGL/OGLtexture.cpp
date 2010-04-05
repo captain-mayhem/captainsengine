@@ -7,8 +7,12 @@ using namespace CGE;
 typedef unsigned char byte;
 typedef unsigned short WORD;
 
-OGLTexture::OGLTexture(string filename) : Texture(filename){
+OGLTexture::OGLTexture(string filename) : Texture(filename), tex_(0){
   load(filename);
+}
+
+OGLTexture::~OGLTexture(){
+  glDeleteTextures(1, &tex_);
 }
 
 bool OGLTexture::load(string filename){
@@ -26,6 +30,9 @@ bool OGLTexture::load(string filename){
   else{
     EXIT2("Format ."+end+" not supported\n");
   }
+
+  if (!img)
+    return false;
 
   glGenTextures(1, &tex_);
   glBindTexture(GL_TEXTURE_2D, tex_);
@@ -66,8 +73,11 @@ Image* OGLTexture::loadBMP(const char *filename){
   int i;
   unsigned char temp;
 
-  if ((pFile = fopen(filename, "rb")) == NULL)
-    EXIT2("File not found.");
+  if ((pFile = fopen(filename, "rb")) == NULL){
+    CGE::Log << "File not found.";
+    free(pImage);
+    return NULL;
+  }
   if(!fread(&bfType, sizeof(short int), 1, pFile))
     EXIT2("Error reading file!\n");
 

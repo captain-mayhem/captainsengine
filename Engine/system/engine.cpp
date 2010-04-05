@@ -112,7 +112,9 @@ void Engine::startup(int argc, char** argv){
   }
   if (graphics_){
     fnt_[0]->buildFont();
+    delete fnt_[1]->getVB();
     fnt_[1]->setVB(fnt_[0]->getVB());
+    delete fnt_[2]->getVB();
     fnt_[2]->setVB(fnt_[0]->getVB());
     forms_ = new CGE::Forms();
   }
@@ -126,6 +128,7 @@ void Engine::startup(int argc, char** argv){
 void Engine::shutdown(){
   if (!isUp_)
     return;
+  rend_->deinitRendering();
   Log << "engine shutting down\n";
   isUp_ = false;
   SAFE_DELETE(mSimulator);
@@ -146,8 +149,8 @@ void Engine::shutdown(){
   SAFE_DELETE(rend_);
   Script::kill();
   Log.close();
-  //SAFE_DELETE(eng);
-  exit(0);
+  SAFE_DELETE(eng);
+  //exit(0);
 }
 
 void Engine::run(){

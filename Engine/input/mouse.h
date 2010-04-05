@@ -35,10 +35,13 @@ namespace Input{
     inline void setButtonDownCB(void (*proc)(int x, int y, int button)) {buttonDownCB_ = proc;}
     //! set button up callback
     inline void setButtonUpCB(void (*proc)(int x, int y, int button)) {buttonUpCB_ = proc;}
+    //! set double click callback
+    inline void setDoubleClickCB(void (*proc)(int x, int y, int button)) {doubleClickCB_ = proc;}
     //! set mouse move callback
     inline void setMouseMoveCB(void (*proc)(int x, int y, int button)) {moveCB_ = proc;}
     void buttonDown(int x, int y, int button);
     void buttonUp(int x, int y, int button);
+    void doubleClick(int x, int y, int button);
     void move(int x, int y, int buttons);
     //! get the position of the last click
     inline CGE::Vector2D getClickPos() {return clickPos_;}
@@ -63,6 +66,8 @@ namespace Input{
     void (*buttonDownCB_)(int x, int y, int button);
     //! button up callback
     void (*buttonUpCB_)(int x, int y, int button);
+    //! double click callback
+    void (*doubleClickCB_)(int x, int y, int button);
     //! mouse move callback
     void (*moveCB_)(int x, int y, int button);
     //! the position of the last click

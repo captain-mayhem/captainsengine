@@ -84,6 +84,7 @@ bool Application::OnInit(){
   mFrame->Show(true);
   SetTopWindow(mFrame);
   wxInitAllImageHandlers();
+  wxFileSystem::AddHandler(new wxLocalFSHandler);
   wxFileSystem::AddHandler(new wxArchiveFSHandler);
   if (mRunFile != ""){
     wxDocument* doc = mManager->CreateDocument(mRunFile, wxDOC_SILENT);

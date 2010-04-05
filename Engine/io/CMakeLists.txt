@@ -5,6 +5,7 @@ SET(Engine_io_SRCS
 	${PRE}/eventqueue.cpp
 	${PRE}/MemReader.cpp
 	${PRE}/Tracing.cpp
+	${PRE}/ZipReader.cpp
 )
 
 SET(Engine_io_HDRS
@@ -13,6 +14,7 @@ SET(Engine_io_HDRS
 	${PRE}/MemReader.h
 	${PRE}/Reader.h
 	${PRE}/Tracing.h
+	${PRE}/ZipReader.h
 )
 
 INSTALL(FILES ${Engine_io_HDRS} DESTINATION Engine/include/${PRE})

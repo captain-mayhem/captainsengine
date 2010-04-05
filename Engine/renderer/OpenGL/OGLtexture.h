@@ -42,7 +42,7 @@ struct Image{
 class OGLTexture : public Texture {
 public:
   OGLTexture(string filename);
-  virtual ~OGLTexture(){}
+  virtual ~OGLTexture();
   void activate();
   virtual void deactivate();
 protected:

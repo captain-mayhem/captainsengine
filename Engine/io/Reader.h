@@ -2,10 +2,11 @@
 #define READER_H
 
 #include <system/types.h>
+#include <string>
 
 class Reader{
 public:
-  virtual void readBytes(uint8* array, uint32 length) = 0;
+  virtual uint32 readBytes(uint8* array, uint32 length) = 0;
   virtual int8 readChar() = 0;
   virtual uint8 readUChar() = 0;
   virtual int16 readShort() = 0;
@@ -14,6 +15,9 @@ public:
   virtual uint32 readUInt() = 0;
   virtual int64 readLong() = 0;
   virtual uint64 readULong() = 0;
+
+  virtual std::string readString() = 0;
+  virtual std::string readLine() = 0;
   
   virtual bool isWorking() = 0;
   virtual void skip(int numberOfElements) = 0;

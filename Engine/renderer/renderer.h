@@ -52,6 +52,8 @@ public:
   void setRenderCB(void (*proc)()) {renderCB_ = proc;}
   //! set init callback
   void setInitCB(void (*proc)()) {initCB_ = proc;}
+  //! set deinit callback
+  void setDeinitCB(void (*proc)()) {deinitCB_ = proc;}
   //! set resize callback
   void setResizeCB(void (*proc)(int width, int height)) {resizeCB_ = proc;}
   //! initialize rendering context
@@ -60,6 +62,8 @@ public:
   virtual void killContext();
   //! initialize render settings
   virtual void initRendering();
+  //! deinitialize render settings
+  virtual void deinitRendering();
   //! render scene
   virtual void renderScene();
   //! resize scene
@@ -132,6 +136,8 @@ protected:
   void (*renderCB_)();
   //! the init callback
   void (*initCB_)();
+  //! the deinit callback
+  void (*deinitCB_)();
   //! the resize callback
   void (*resizeCB_)(int width, int height);
 };

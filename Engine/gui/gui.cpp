@@ -28,9 +28,9 @@ GuiElement::GuiElement(){
   //set standard values
   pos_ = Vector2D(-1,-1);
   span_ = Vector2D(150,18);
-  bgColor_ = Color(0.1, 0.1, 0.1, 1.0);
-  fgColor_ = Vector3D(0.0, 1.0, 1.0);
-  opacity_ = 1.0;
+  bgColor_ = Color(0.1f, 0.1f, 0.1f, 1.0f);
+  fgColor_ = Vector3D(0.0f, 1.0f, 1.0f);
+  opacity_ = 1.0f;
   name_ = "";
   parent_ = NULL;
   type_ = UnknownT;
@@ -51,8 +51,8 @@ InputField::InputField(){
   pos_ = Vector2D(-1,-1);
   fnt_ = CGE::Engine::instance()->getFont(1);
   span_ = Vector2D(150,18);
-  bgColor_ = Color(0.1, 0.1, 0.1, 1.0);
-  fgColor_ = Vector3D(0.0, 1.0, 1.0);
+  bgColor_ = Color(0.1f, 0.1f, 0.1f, 1.0f);
+  fgColor_ = Vector3D(0.0f, 1.0f, 1.0f);
   opacity_ = 1.0;
   finished_ = false;
   isHidden_ = false;
@@ -130,7 +130,7 @@ void InputField::process(){
 //The Button constructor
 Button::Button(){
   handleClicks_ = NULL;
-  setColors(Vector3D(1,1,0.1f),Color(0.2,0.01,0.01,1.0));
+  setColors(Vector3D(1,1,0.1f),Color(0.2f,0.01f,0.01f,1.0f));
   type_ = ButtonT;
 }
 

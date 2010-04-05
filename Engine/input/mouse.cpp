@@ -169,8 +169,15 @@ void Mouse::buttonUp(int x, int y, int button){
     buttonUpCB_(x, y, button);
 }
 
+void Mouse::doubleClick(int x, int y, int button){
+  if (doubleClickCB_)
+    doubleClickCB_(x, y, button);
+}
+
 void Mouse::move(int x, int y, int buttons){
   //map to virtual resolution
+  if (!CGE::Engine::instance())
+    return;
   AppWindow* wnd = CGE::Engine::instance()->getWindow();
   if (!wnd)
     return;

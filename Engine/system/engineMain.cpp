@@ -8,6 +8,7 @@ extern void (*internalEngineMain)(int argc, char** argv);
 
 #ifdef WIN32
 
+#include "../window/nativeWindows.h"
 #include <windows.h>
 
 
@@ -27,20 +28,23 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
   CGE::Engine::init();
   CGE::Engine::instance()->startup(2, argv);
   //Enter gameloop
-  while(true){
+  while(CGE::Engine::instance() != NULL){
     while (PeekMessage(&msg,NULL,0,0,PM_REMOVE)){
       if(msg.message == WM_QUIT)
         break;
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }
-    //Do not use WM_MouseMove-Event, because it causes the cursor to freeze
-    POINT p;
-    GetCursorPos(&p);
-    Input::Mouse::instance()->move(p.x, p.y, 0);
-    CGE::Engine::instance()->run();
+    if (CGE::Engine::instance()){
+      //Do not use WM_MouseMove-Event, because it causes the cursor to freeze
+      POINT p;
+      GetCursorPos(&p);
+      ScreenToClient(static_cast<Windows::WindowsWindow*>(CGE::Engine::instance()->getWindow())->getHandle(), &p);
+      Input::Mouse::instance()->move(p.x, p.y, 0);
+      CGE::Engine::instance()->run();
+    }
   }
-  CGE::Engine::instance()->shutdown();
+  //CGE::Engine::instance()->shutdown();
   return (int)msg.wParam;
 }
 #endif

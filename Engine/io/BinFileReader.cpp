@@ -10,8 +10,9 @@ BinFileReader::~BinFileReader(){
   mStream.close();
 }
 
-void BinFileReader::readBytes(unsigned char* array, unsigned int length){
+uint32 BinFileReader::readBytes(unsigned char* array, unsigned int length){
   mStream.read((char*)array,length);
+  return length;
 }
 
 char BinFileReader::readChar(){
@@ -57,3 +58,12 @@ bool BinFileReader::isWorking(){
 void BinFileReader::skip(int numberOfElements){
   mStream.seekg(numberOfElements, std::ios::cur);
 }
+
+std::string BinFileReader::readString(){
+  return "";
+}
+
+std::string BinFileReader::readLine(){
+  return "";
+}
+

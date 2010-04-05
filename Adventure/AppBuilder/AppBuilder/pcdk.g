@@ -187,9 +187,7 @@ ident returns [IdentNode* id]
 	;
 
 COMMENT	:	'(*'
-		(/*	{LA(2) != ')'}? '*'
-		|*/	~(TIMES)
-		)*
+		(~(TIMES))*
 		'*)'
 {$channel=HIDDEN;}
 ;
@@ -219,7 +217,7 @@ ROW	:	'r''o''w';
 TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('.'|',')'0'..'9'+;
-IDENT_PART	:	('a'..'z'|'A'..'Z'|'\xfc'|'\xdc'|'\xf6'|'\xd6'|'\xe4'|'\xc4'|'\xdf'|':'|'\''|TIMES)('a'..'z'|'A'..'Z'|'\xfc'|'\xdc'|'\xf6'|'\xd6'|'\xe4'|'\xc4'|'\xdf'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|TIMES|':')*;
+IDENT_PART	:	('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|':'|'\''|TIMES)('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|TIMES|':')*;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}

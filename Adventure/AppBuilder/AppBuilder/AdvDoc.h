@@ -12,6 +12,9 @@
 #include "Vector.h"
 
 class SoundPlayer;
+namespace CGE{
+class MemReader;
+}
 
 struct ProjectSettings{
   std::string dir;
@@ -210,7 +213,7 @@ public:
   virtual ~AdvDocument();
   virtual wxOutputStream& SaveObject(wxOutputStream& stream);
   virtual wxInputStream& LoadObject(wxInputStream& stream);
-  wxImage getImage(wxString name);
+  wxImage getImage(const std::string& name);
   bool getSound(const std::string& name, DataBuffer& db);
   bool getMusic(const std::string& name, DataBuffer& db);
   bool getMovie(const std::string& name, DataBuffer& db);
@@ -226,18 +229,17 @@ public:
   Item* getItem(const std::string& name);
 protected:
   DECLARE_DYNAMIC_CLASS(AdvDocument)
-  bool loadFile1(wxInputStream& stream);
-  bool loadFile2(wxInputStream& stream);
-  bool loadFile3(wxInputStream& stream);
+  bool loadFile1(CGE::MemReader& txtstream);
+  bool loadFile2(CGE::MemReader& txtstream);
+  bool loadFile3(CGE::MemReader& txtstream);
   static int insertTreeElement(wxTreeCtrl* tree, const wxString& name, wxTreeItemId* current, int curr_level);
-  float readExtendedFrames(wxTextInputStream& txtstream, ExtendedFrames& frms);
-  //void loadFonts();
+  float readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames& frms);
   AdvMainTreeView* mView;
   ProjectSettings mSettings;
-  std::map<wxString,wxFileName> mImageNames;
-  std::map<wxString,wxFileName> mSoundNames;
-  std::map<wxString,wxFileName> mMusicNames;
-  std::map<wxString,wxFileName> mMovieNames;
+  std::map<std::string,std::string> mImageNames;
+  std::map<std::string,std::string> mSoundNames;
+  std::map<std::string,std::string> mMusicNames;
+  std::map<std::string,std::string> mMovieNames;
   MouseCursor mCursor;
   std::map<std::string,Item> mItems;
   std::map<std::string,Object> mObjects;
@@ -249,7 +251,7 @@ protected:
   Room* mLastRoom;
   Script* mLastScript;
   wxFileSystem* mStream;
-  //std::vector<Font> mFonts;
+  std::string mPath;
 };
 
 #endif

@@ -10,13 +10,16 @@ class BinFileReader : public Reader{
 public:
   BinFileReader(std::string filename);
   virtual ~BinFileReader();
-  virtual void readBytes(unsigned char* array, unsigned int length);
+  virtual uint32 readBytes(unsigned char* array, unsigned int length);
   virtual char readChar();
   virtual unsigned char readUChar();
   virtual short readShort();
   virtual unsigned short readUShort();
   virtual int readInt();
   virtual unsigned int readUInt();
+
+  virtual std::string readString();
+  virtual std::string readLine();
 
   virtual bool isWorking();
   virtual void skip(int numberOfElements);

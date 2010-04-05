@@ -12,7 +12,7 @@ namespace Windows{
 class WindowsWindow : public AppWindow{
 public:
   WindowsWindow(CGE::Renderer* renderer);
-  ~WindowsWindow() {}
+  ~WindowsWindow();
   //! init the window
   void init(const std::string& name);
   //! get window handle

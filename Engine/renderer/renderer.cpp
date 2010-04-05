@@ -8,6 +8,7 @@ Renderer::Renderer(){
   win_ = NULL;
   renderCB_ = NULL;
   initCB_ = NULL;
+  deinitCB_ = NULL;
   resizeCB_ = NULL;
 }
 
@@ -26,7 +27,12 @@ void Renderer::initRendering(){
   if (initCB_){
     initCB_();
   }
-  
+}
+
+void Renderer::deinitRendering(){
+  if (deinitCB_){
+    deinitCB_();
+  }
 }
 
 void Renderer::renderScene(){

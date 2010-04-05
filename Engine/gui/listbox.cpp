@@ -85,7 +85,7 @@ bool ListBox::isClicked(const ::CGE::Vector2D& pos){
       && pos.y < pos_.y+span_.y/2){
     //is scrolling neccessary
     int maxy = span_.y / 20;
-    if (scroll_+maxy >= entries_.size())
+    if (scroll_+maxy >= (int)entries_.size())
       return false;
     scroll_++;
     return false;

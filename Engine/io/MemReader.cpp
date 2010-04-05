@@ -4,6 +4,11 @@
 
 using std::min;
 using std::max;
+using namespace CGE;
+
+MemReader::MemReader() : mStart(NULL), mEnd(NULL), mCurrent(NULL){
+
+}
 
 MemReader::MemReader(void* address, unsigned int length){
   mStart = (char*)address;
@@ -15,10 +20,11 @@ MemReader::~MemReader(){
   
 }
 
-void MemReader::readBytes(unsigned char* array, unsigned int length){
+unsigned int MemReader::readBytes(unsigned char* array, unsigned int length){
   unsigned realLength = min(length,(unsigned int)(mEnd-mCurrent));
   memcpy(array, mCurrent, realLength);
   mCurrent += realLength;
+  return realLength;
 }
 
 char MemReader::readChar(){
@@ -69,6 +75,22 @@ unsigned int MemReader::readUInt(){
   return ret;
 }
 
+int64 MemReader::readLong(){
+  int64 ret;
+  unsigned realLength = min(sizeof(int64),(unsigned)(mEnd-mCurrent));
+  memcpy(&ret, mCurrent, realLength);
+  mCurrent += realLength;
+  return ret;
+}
+
+uint64 MemReader::readULong(){
+  uint64 ret;
+  unsigned realLength = min(sizeof(uint64),(unsigned)(mEnd-mCurrent));
+  memcpy(&ret, mCurrent, realLength);
+  mCurrent += realLength;
+  return ret;
+}
+
 bool MemReader::isWorking(){
   return mCurrent >= mStart && mCurrent < mEnd && mStart < mEnd;
 }
@@ -80,4 +102,21 @@ void MemReader::skip(int numberOfElements){
   else
     realLength = min(numberOfElements, (int)(mEnd-mCurrent));
   mCurrent += realLength;
+}
+
+std::string MemReader::readString(){
+  return "";
+}
+
+std::string MemReader::readLine(){
+  std::string ret;
+  while(mCurrent < mEnd){
+    char chr = *mCurrent++;
+    if (chr == '\n')
+      break;
+    else if (chr == '\r')
+      continue;
+    ret.append(1, chr);
+  }
+  return ret;
 }

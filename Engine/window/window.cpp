@@ -12,4 +12,8 @@ AppWindow::AppWindow(CGE::Renderer* render){
   bpp_ = CGE::Script::instance()->getNumberSetting("bitsPerPixel");
 }
 
+void AppWindow::focus(bool hasFocus){
+
+}
+
 }
