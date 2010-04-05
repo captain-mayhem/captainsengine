@@ -12,7 +12,7 @@
 
 #ifndef WIN32
 void DebugBreak();
-int stricmp(const char* str1, const char* str2);
+int _stricmp(const char* str1, const char* str2);
 #endif
 
 class SaveStateProvider;
@@ -26,7 +26,7 @@ public:
   static void deinit() {delete mInstance;}
   static Engine* instance() {return mInstance;}
   void setData(AdvDocument* doc);
-  void render();
+  void render(unsigned time);
   void initGame();
   void exitGame();
   GLuint genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const wxImage* alphaimage=NULL);

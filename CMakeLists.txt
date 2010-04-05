@@ -1,6 +1,10 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-PROJECT(CaptainsEngine C ASM_MASM CXX)
+IF (${OS} STREQUAL "windows")
+PROJECT(CaptainsEngine ASM_MASM C CXX)
+ELSE (${OS} STREQUAL "windows")
+PROJECT(CaptainsEngine C CXX)
+ENDIF (${OS} STREQUAL "windows")
 
 OPTION(RENDER_OPENGL "compile renderer with OpenGL support" ON)
 OPTION(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)

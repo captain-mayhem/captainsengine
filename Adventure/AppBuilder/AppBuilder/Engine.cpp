@@ -14,6 +14,25 @@
 void DebugBreak(){
 __builtin_trap();
 }
+
+int _stricmp(const char* str1, const char* str2){
+  int len1 = strlen(str1);
+  int len2 = strlen(str2);
+  int len = len1 < len2 ? len1 : len2;
+  for (int i = 0; i < len; ++i){
+    char ch1 = tolower(str1[i]);
+    char ch2 = tolower(str2[i]);
+    if (ch1 == ch2)
+      continue;
+    if (ch1 < ch2)
+      return -1;
+    return 1;
+  }
+  if (len1 == len2)
+    return 0;
+  return len1 < len2 ? -1 : 1;
+}
+
 #endif
 
 Engine* Engine::mInstance = NULL;
@@ -188,16 +207,19 @@ GLuint Engine::genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const
   return tex;
 }
 
-void Engine::render(){
+void Engine::render(unsigned time){
   if (!mInitialized)
     return;
   //timing
-  unsigned interval = mTimer.Time();
-  mTimer.Start(0);
-  if (mTimeIntervals.size() > 10)
-    mTimeIntervals.pop_back();
-  mTimeIntervals.push_front(interval);
-  interval = std::accumulate(mTimeIntervals.begin(), mTimeIntervals.end(), 0)/(unsigned)mTimeIntervals.size();
+  unsigned interval = time;
+  if (interval == 0){
+    unsigned interval = mTimer.Time();
+    mTimer.Start(0);
+    if (mTimeIntervals.size() > 10)
+      mTimeIntervals.pop_back();
+    mTimeIntervals.push_front(interval);
+    interval = std::accumulate(mTimeIntervals.begin(), mTimeIntervals.end(), 0)/(unsigned)mTimeIntervals.size();
+  }
   
   //unload rooms
   while (!mRoomsToUnload.empty()){
@@ -330,7 +352,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
   if (!mData)
     return false;
   //already loaded //TODO subrooms
-  if (mMainRoomLoaded && stricmp(mRooms.back()->getName().c_str(), name.c_str()) == 0)
+  if (mMainRoomLoaded && _stricmp(mRooms.back()->getName().c_str(), name.c_str()) == 0)
     return true;
   Room* room = mData->getRoom(name);
   SaveStateProvider::SaveRoom* save = mSaver->getRoom(room->name);
@@ -425,7 +447,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     mRooms.push_back(roomobj);
     mMainRoomLoaded = true;
   }
-  if (stricmp(room->name.c_str(), mData->getProjectSettings()->taskroom.c_str()) == 0)
+  if (_stricmp(room->name.c_str(), mData->getProjectSettings()->taskroom.c_str()) == 0)
     mTaskbar = roomobj;
   //if (!isSubRoom)
   //  mCharOutOfFocus = true;
@@ -718,16 +740,16 @@ Object2D* Engine::getObject(const std::string& name, bool searchInventoryFirst){
       return ret;
   }
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-    if (stricmp((*iter)->getName().c_str(), name.c_str()) == 0)
+    if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0)
       return *iter;
   }
   return NULL;
 }
 
 CharacterObject* Engine::getCharacter(const std::string& name){
-  if (stricmp(name.c_str(), "self") == 0)
+  if (_stricmp(name.c_str(), "self") == 0)
     return mFocussedChar;
-  if (mFocussedChar && stricmp(mFocussedChar->getName().c_str(), name.c_str()) == 0)
+  if (mFocussedChar && _stricmp(mFocussedChar->getName().c_str(), name.c_str()) == 0)
     return mFocussedChar;
   CharacterObject* res = NULL;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
@@ -757,7 +779,7 @@ RoomObject* Engine::getRoom(const std::string& name){
     return NULL;
   }
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    if (stricmp((*iter)->getName().c_str(), name.c_str()) == 0){
+    if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0){
       return *iter;
     }
   }
@@ -876,7 +898,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
         return chr;
     }
   }
-  if (mFocussedChar && stricmp(mFocussedChar->getName().c_str(), instanceName.c_str()) == 0)
+  if (mFocussedChar && _stricmp(mFocussedChar->getName().c_str(), instanceName.c_str()) == 0)
     return NULL;
   if (!obj){
     obj = mSaver->findCharacter(instanceName, room);
@@ -954,7 +976,7 @@ void Engine::unloadRooms(){
 std::string Engine::getCharacterClass(const std::string instanceName){
   Rcharacter ch;
   for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
-    if (stricmp(mData->getRoomCharacters()[i].name.c_str(), instanceName.c_str()) == 0){
+    if (_stricmp(mData->getRoomCharacters()[i].name.c_str(), instanceName.c_str()) == 0){
       return mData->getRoomCharacters()[i].character;
     }
   }

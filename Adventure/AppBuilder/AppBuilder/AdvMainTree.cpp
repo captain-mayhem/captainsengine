@@ -48,6 +48,6 @@ void AdvMainTreeView::OnDraw(wxDC* dc){
 
 void AdvMainTreeView::buildTreeFromGraph(wxTreeCtrl* ctrl, const Graph& grf){
   TextNode* node = static_cast<TextNode*>(grf.getRoot());
-  wxTreeItemId id = ctrl->AddRoot(node->getLabel().c_str());
+  wxTreeItemId id = ctrl->AddRoot(wxString::FromAscii(node->getLabel().c_str()));
 }
 

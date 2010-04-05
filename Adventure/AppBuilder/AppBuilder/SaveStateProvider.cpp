@@ -292,7 +292,7 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::s
   //check if already present
   for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     for (std::map<std::string,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
-      if (stricmp(chriter->first.c_str(), name.c_str()) == 0){
+      if (_stricmp(chriter->first.c_str(), name.c_str()) == 0){
         room = iter->first;
         return chriter->second;
       }
@@ -307,7 +307,7 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::s
       if (iter != saveroom->characters.end())
         return iter->second;
       for (std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.begin(); iter != saveroom->characters.end(); ++iter){
-        if (stricmp(iter->first.c_str(), name.c_str()) == 0)
+        if (_stricmp(iter->first.c_str(), name.c_str()) == 0)
           return iter->second;
       }
     }

@@ -32,13 +32,13 @@ void AdvTreeCtrl::OnItemActivated(wxTreeEvent& event){
       break;
     case IMAGE:{
       AdvDocument* doc = static_cast<AdvDocument*>(wxGetApp().getDocument());
-      wxImage image = doc->getImage(name.c_str());
+      wxImage image = doc->getImage(std::string(name.mb_str(wxConvUTF8)));
       int width, height;
       width = image.GetWidth();
       height = image.GetHeight();
       wxSize size(width,height);
       //frame->GetClientSize(&width,&height);
-      wxMDIChildFrame* frame = new wxMDIChildFrame(wxGetApp().getFrame(), wxID_ANY, "Preview", wxDefaultPosition, size);
+      wxMDIChildFrame* frame = new wxMDIChildFrame(wxGetApp().getFrame(), wxID_ANY, wxT("Preview"), wxDefaultPosition, size);
       wxSize framesize = frame->ClientToWindowSize(size);
       frame->SetSize(framesize);
       ImageDisplay* display = new ImageDisplay(frame,image,size);
@@ -48,7 +48,7 @@ void AdvTreeCtrl::OnItemActivated(wxTreeEvent& event){
                }
       break;
     default:
-      wxMessageBox("Unhandled type clicked", "Implement me");
+      wxMessageBox(wxT("Unhandled type clicked"), wxT("Implement me"));
       break;
   }
 }
@@ -58,7 +58,7 @@ void AdvTreeCtrl::OnItemMenu(wxTreeEvent& event){
   AdvTreeItemData* item = (AdvTreeItemData*)GetItemData(id);
   wxPoint clientpt = event.GetPoint();
   wxMenu menu;
-  menu.SetTitle("Blubb");
+  menu.SetTitle(wxT("Blubb"));
   //menu.Append(ID_AdvTreeCtrl, "&Dump");
   PopupMenu(&menu,clientpt);
 }
