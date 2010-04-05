@@ -22,8 +22,8 @@ void init(){
   wxFileSystem::AddHandler(new wxArchiveFSHandler);
 
   adoc = new AdvDocument();
-  adoc->SetFilename(filename);
-  wxFileInputStream fis(filename);
+  adoc->SetFilename(wxString::FromAscii(filename.c_str()));
+  wxFileInputStream fis(wxString::FromAscii(filename.c_str()));
   adoc->LoadObject(fis);
   Engine::init();
   Engine::instance()->setData(adoc);
@@ -71,6 +71,7 @@ void deinit(){
 }
 
 void render(){
+  //CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(0, 640, 480, 0, -1.0, 1.0);
@@ -87,7 +88,7 @@ void render(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
 
-  Engine::instance()->render();
+  Engine::instance()->render((int)(CGE::Engine::instance()->getFrameInterval()*1000));
 
   SoundEngine::instance()->update();
 }
@@ -98,9 +99,9 @@ void mouse_move(int x, int y, int button){
 
 void mouse_click(int x, int y, int button){
   Vec2i pos(x/(float)SCREENWIDTH*640, y/(float)SCREENHEIGHT*480);
-  if (button & MK_LBUTTON)
+  if (button & MB_LEFT)
     Engine::instance()->leftClick(pos);
-  else if (button & MK_RBUTTON)
+  else if (button & MB_RIGHT)
     Engine::instance()->rightClick(pos);
 }
 

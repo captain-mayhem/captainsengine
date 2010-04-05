@@ -1063,7 +1063,7 @@ int ScriptFunctions::isCharInRoom(ExecutionContext& ctx, unsigned numArgs){
   std::string roomname = ctx.stack().pop().getString();
   ctx.stack().push(0);
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
-  if (stricmp(chr->getRoom().c_str(), roomname.c_str()) == 0)
+  if (_stricmp(chr->getRoom().c_str(), roomname.c_str()) == 0)
     ctx.stack().push(0);
   else
     ctx.stack().push(1);
@@ -1104,7 +1104,7 @@ int ScriptFunctions::isStringEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string text = ctx.stack().pop().getString();
   std::string val = Engine::instance()->getInterpreter()->getVariable(name).getString();
   ctx.stack().push(0);
-  ctx.stack().push(stricmp(val.c_str(), text.c_str()));
+  ctx.stack().push(_stricmp(val.c_str(), text.c_str()));
   return 2;
 }
 

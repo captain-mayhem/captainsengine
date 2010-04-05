@@ -13,6 +13,10 @@
 #include "AdvMainTree.h"
 #include "Sound.h"
 
+#ifndef WIN32
+int _stricmp(const char* str1, const char* str2);
+#endif
+
 const float FPS_MAX = 50.0f;
 const int STATES_MAX = 10;
 const int CHAR_STATES_MAX = 36;
@@ -45,25 +49,25 @@ wxInputStream& AdvDocument::LoadObject(wxInputStream& stream){
   CGE::ZipReader zrdr(buffer, size);
   CGE::MemReader rdr = zrdr.openEntry("game.001");
   if (!loadFile1(rdr)){
-    wxMessageBox("Failed loading project file", "Error");
+    wxMessageBox(wxT("Failed loading project file"), wxT("Error"));
     return stream;
   }
   rdr = zrdr.openEntry("game.002");
   if(!loadFile2(rdr)){
-    wxMessageBox("Failed loading project file", "Error");
+    wxMessageBox(wxT("Failed loading project file"), wxT("Error"));
     return stream;
   }
   rdr = zrdr.openEntry("game.003");
   if(!loadFile3(rdr)){
-    wxMessageBox("Failed loading project file", "Error");
+    wxMessageBox(wxT("Failed loading project file"), wxT("Error"));
     return stream;
   }
   //if (GetFilename().EndsWith("dat")){
     wxFileName name(GetFilename());
     mStream = new wxFileSystem();
-    std::string path = name.GetPath();
-    mStream->ChangePathTo("file:"+path, true);
-    mPath = GetFilename();
+    wxString path = name.GetPath();
+    mStream->ChangePathTo(wxT("file:")+path, true);
+    mPath = GetFilename().mb_str(wxConvUTF8);
     CGE::Utilities::replaceWith(mPath, '\\', '/');
     int pos = mPath.find_last_of('/');
     mPath.erase(pos);
@@ -194,12 +198,12 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     if (str == "Mediapool :"){
       if (mView){
         wxTreeCtrl* mediapool = mView->getMediapool();
-        wxTreeItemId currNode = mediapool->AddRoot("Mediapool");
+        wxTreeItemId currNode = mediapool->AddRoot(wxT("Mediapool"));
         int level = -1;
         str = txtstream.readLine();
         while (str != "Gamepool :"){
           if (!str.empty())
-            level = insertTreeElement(mediapool, str, &currNode, level);
+            level = insertTreeElement(mediapool, wxString::FromAscii(str.c_str()), &currNode, level);
           str = txtstream.readLine();
         }
       }
@@ -207,12 +211,12 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     if (str == "Gamepool :"){
       if (mView){
         wxTreeCtrl* gamepool = mView->getGamepool();
-        wxTreeItemId currNode = gamepool->AddRoot("Gamepool");
+        wxTreeItemId currNode = gamepool->AddRoot(wxT("Gamepool"));
         int level = -1;
         str = txtstream.readLine();
         while (str != "Images :"){
           if (!str.empty())
-            level = insertTreeElement(gamepool, str, &currNode, level);
+            level = insertTreeElement(gamepool, wxString::FromAscii(str.c_str()), &currNode, level);
           str = txtstream.readLine();
         }
       }
@@ -270,7 +274,7 @@ int AdvDocument::insertTreeElement(wxTreeCtrl* tree, const wxString& name, wxTre
       break;
   }
   wxString idstring = name.substr(level,2);
-  ResourceID id = (ResourceID)atoi(idstring.c_str());
+  ResourceID id = (ResourceID)atoi(idstring.mb_str(wxConvUTF8));
   wxString label = name.substr(level+2);
   int leveldiff = level - curr_level;
   while(leveldiff <= 0){
@@ -519,7 +523,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       mLastRoom->objects.push_back(ro);
     }
     else{
-      wxMessageBox(type, "Unknown type found");
+      wxMessageBox(wxString::FromAscii(type.c_str()), wxT("Unknown type found"));
       return false;
     }
   }
@@ -558,7 +562,7 @@ bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
       else if (type == "Walkmap")
         scrType = Script::WALKMAP;
       else{
-        wxMessageBox("Unknown script type: "+type, "Error");
+        wxMessageBox(wxString::FromAscii(("Unknown script type: "+type).c_str()), wxT("Error"));
       }
       Script scr;
       scr.name = name;
@@ -630,7 +634,7 @@ wxImage AdvDocument::getImage(const std::string& name){
     }
     return image;
   }
-  return wxImage(filename);
+  return wxImage(wxString::FromAscii(filename.c_str()));
 }
 
 bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
@@ -647,7 +651,7 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
     memcpy(db.data, rdr.getData(), db.length);
   }
   else{
-    wxFileInputStream strm(filename);
+    wxFileInputStream strm(wxString::FromAscii(filename.c_str()));
     db.length = strm.GetSize();
     db.data = new char[db.length];
     strm.Read(db.data, db.length);
@@ -670,7 +674,7 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
     memcpy(db.data, rdr.getData(), db.length);
   }
   else{
-    wxFileInputStream strm(filename);
+    wxFileInputStream strm(wxString::FromAscii(filename.c_str()));
     db.length = strm.GetSize();
     db.data = new char[db.length];
     strm.Read(db.data, db.length);
@@ -692,7 +696,7 @@ bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
     memcpy(db.data, rdr.getData(), db.length);
   }
   else{
-    wxFileInputStream strm(filename);
+    wxFileInputStream strm(wxString::FromAscii(filename.c_str()));
     db.length = strm.GetSize();
     db.data = new char[db.length];
     strm.Read(db.data, db.length);

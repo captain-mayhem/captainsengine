@@ -32,7 +32,7 @@ void ImageDisplay::OnDraw(wxDC& dc){
   dc.SetUserScale(scale,scale);
   dc.DrawBitmap(mBitmap,0,0,true);
   dc.SetTextForeground(wxColour(_T("WHITE")));
-  dc.DrawText("Test",wxPoint(10,10));
+  dc.DrawText(wxT("Test"),wxPoint(10,10));
 }
 
 void ImageDisplay::OnSize(wxSizeEvent& event){
@@ -40,7 +40,7 @@ void ImageDisplay::OnSize(wxSizeEvent& event){
 }
 
 PopupWindow::PopupWindow(wxMDIParentFrame* parent, wxWindowID id/* =-1 */, const wxPoint& pos/* =wxDefaultPosition */, const wxSize& size /* = wxDefaultSize */) :
-wxMDIChildFrame(parent,id,"Preview",pos,size){
+wxMDIChildFrame(parent,id,wxT("Preview"),pos,size){
   int width, height;
   GetClientSize(&width,&height);
   //mDisplay = new ImageDisplay(this, wxPoint(0,0), wxSize(width,height));
