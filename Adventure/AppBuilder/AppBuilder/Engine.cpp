@@ -4,6 +4,7 @@
 #include <numeric>
 #include <queue>
 
+#include <input/keyboard.h>
 #include <wx/image.h>
 
 #include "AdvDoc.h"
@@ -941,13 +942,13 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
 
 void Engine::keyPress(int key){
   switch(key){
-    case WXK_F1:
+    case KEY_F1:
       mSaver->save(SaveStateProvider::saveSlotToPath(1));
       break;
-    case WXK_F2:
+    case KEY_F2:
       mSaver->load(SaveStateProvider::saveSlotToPath(1));
       break;
-    case WXK_ESCAPE:
+    case KEY_ESCAPE:
       {
         ExecutionContext* ctx = mInterpreter->getCutscene();
         if (ctx){

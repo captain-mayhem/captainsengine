@@ -642,7 +642,7 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
   if (mStream){
-    CGE::ZipReader zrdr(mPath+"/sfx.dat");
+    static CGE::ZipReader zrdr(mPath+"/sfx.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
     if (!rdr.isWorking())
       return false;
@@ -664,7 +664,7 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
   if (mStream){
-    CGE::ZipReader zrdr(mPath+"/music.dat");
+    static CGE::ZipReader zrdr(mPath+"/music.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
     if (!rdr.isWorking())
       return false;
@@ -687,7 +687,7 @@ bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
   if (mStream){
-    CGE::ZipReader zrdr(mPath+"/movie.dat");
+    static CGE::ZipReader zrdr(mPath+"/movie.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
     if (!rdr.isWorking())
       return false;

@@ -350,7 +350,12 @@ void PcdkScript::update(unsigned time){
     mTSPos = mTSPosOrig;
     mCutScene->setEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
     ExecutionContext* oldcutscene = mCutScene;
-    update(mCutScene, time);
+    mCutScene = NULL;
+    update(oldcutscene, time);
+    if (mCutScene == NULL)
+      mCutScene = oldcutscene;
+    else
+      delete oldcutscene;
     if (mCutScene && !mCutScene->mSuspended && mCutScene->mExecuteOnce && mCutScene == oldcutscene){
       mGlobalSuspend = false;
       Engine::instance()->setCommand(mPrevActiveCommand, false);

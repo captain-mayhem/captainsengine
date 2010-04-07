@@ -2,11 +2,32 @@
 
 using namespace CGE;
 
-ZipReader::ZipReader(const std::string& zippath) : MemReader(NULL, 0), mBuffer(NULL), mBufferSize(0){
-  mHandle = unzOpen(zippath.c_str());
+ZipReader::ZipReader(const std::string& zippath) : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0){
+  mFileFuncs.opaque = this;
+  mFileFuncs.zclose_file = close_file_func;
+  mFileFuncs.zerror_file = testerror_file_func;
+  mFileFuncs.zopen_file = open_file_func;
+  mFileFuncs.zread_file = read_file_func;
+  mFileFuncs.zseek_file = seek_file_func;
+  mFileFuncs.ztell_file = tell_file_func;
+  mFileFuncs.zwrite_file = write_file_func;
+  FILE* f = fopen(zippath.c_str(), "rb");
+  unsigned bufferSize = -ftell(f);
+  fseek(f, 0, SEEK_END);
+  bufferSize += ftell(f);
+  fseek(f, 0, SEEK_SET);
+  static char* buffer = NULL;
+  mFileBuffer = new char[bufferSize];
+  fread(mFileBuffer, 1, bufferSize, f);
+  mStart = mFileBuffer;
+  mEnd = mStart+bufferSize;
+  mCurrent = mStart;
+  fclose(f);
+  mHandle = unzOpen2("memory", &mFileFuncs);
+  //mHandle = unzOpen(zippath.c_str());
 }
 
-ZipReader::ZipReader(void* address, uint32 length) : MemReader(address, length), mBuffer(NULL), mBufferSize(0){
+ZipReader::ZipReader(void* address, uint32 length) : MemReader(address, length), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0){
   mFileFuncs.opaque = this;
   mFileFuncs.zclose_file = close_file_func;
   mFileFuncs.zerror_file = testerror_file_func;
@@ -20,6 +41,7 @@ ZipReader::ZipReader(void* address, uint32 length) : MemReader(address, length),
 
 ZipReader::~ZipReader(){
   unzClose(mHandle);
+  delete [] mFileBuffer;
   delete [] mBuffer;
 }
 
