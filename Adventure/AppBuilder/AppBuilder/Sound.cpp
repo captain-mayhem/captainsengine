@@ -72,7 +72,11 @@ SoundPlayer* SoundEngine::getMovie(const std::string& name){
 
 SoundPlayer* SoundEngine::createPlayer(const DataBuffer& db){
   char* tmp = tmpnam(NULL);
-  std::string filename = mData->getProjectSettings()->savedir+"/tmp/"+tmp+db.name;
+  std::string filename = mData->getProjectSettings()->savedir
+#ifdef WIN32
++"/tmp/"
+#endif
++tmp+db.name;
   FILE* f = fopen(filename.c_str(), "wb");
   if (!f)
     return NULL;

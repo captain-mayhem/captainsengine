@@ -99,9 +99,9 @@ void mouse_move(int x, int y, int button){
 
 void mouse_click(int x, int y, int button){
   Vec2i pos(x/(float)SCREENWIDTH*640, y/(float)SCREENHEIGHT*480);
-  if (button & MB_LEFT)
+  if (button == MB_LEFT)
     Engine::instance()->leftClick(pos);
-  else if (button & MB_RIGHT)
+  else if (button == MB_RIGHT)
     Engine::instance()->rightClick(pos);
 }
 

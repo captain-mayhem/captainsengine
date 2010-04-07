@@ -16,6 +16,7 @@ public:
 protected:
   unzFile mHandle;
   zlib_filefunc_def mFileFuncs;
+  char* mFileBuffer;
   char* mBuffer;
   unsigned mBufferSize;
   static voidpf open_file_func(voidpf opaque, const char* filename, int mode);
