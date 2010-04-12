@@ -44,6 +44,75 @@ void PcdkScript::stop(){
   mPrevState.clear();
 }
 
+void myreportError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
+  if	(recognizer->state->errorRecovery == ANTLR3_TRUE)
+  {
+    // Already in error recovery so don't display another error while doing so
+    //
+    return;
+  }
+
+  ANTLR3_PARSER_struct* parser = (ANTLR3_PARSER_struct*)(recognizer->super);
+  recognizer->state->error = ANTLR3_FALSE;
+  parser->tstream->istream->rewindLast(parser->tstream->istream);
+  ppcdkParser pcdk = (ppcdkParser)parser->super;
+  pcdkParser_complex_arg_return ret = pcdk->complex_arg(pcdk);
+
+  // Signal we are in error recovery now
+  //
+  recognizer->state->errorRecovery = ANTLR3_TRUE;
+
+  // Indicate this recognizer had an error while processing.
+  //
+  recognizer->state->errorCount++;
+
+  // Call the error display routine
+  //
+  recognizer->displayRecognitionError(recognizer, recognizer->state->tokenNames);
+}
+
+void*	
+recoverFromMismatchedToken  (pANTLR3_BASE_RECOGNIZER recognizer, ANTLR3_UINT32 ttype, pANTLR3_BITSET_LIST follow){
+  recognizer->mismatch(recognizer, ttype, follow);
+  return NULL;
+}
+
+static std::string internal_stringify(ASTNode* node){
+  std::string ret;
+  switch(node->getType())
+  {
+  case ASTNode::RELATIONAL:
+    {
+      RelationalNode* rel = (RelationalNode*)node;
+      if (rel->type() == RelationalNode::REL_EQUAL){
+        //do nothing
+      }
+      else{
+        DebugBreak();
+      }
+      ret += internal_stringify(rel->child());
+    }
+    break;
+  case ASTNode::INTEGER:
+    {
+      IntNode* num = (IntNode*)node;
+      int n = num->value();
+      char tmp[64];
+      sprintf(tmp, "%i", n);
+      ret += tmp;
+    }
+    break;
+  default:
+    DebugBreak();
+  }
+  return ret;
+}
+
+ASTNode* stringify(ASTNode* node){
+  IdentNode* ret = new IdentNode(internal_stringify(node)+" ");
+  return ret;
+}
+
 ExecutionContext* PcdkScript::parseProgram(std::string program){
   pANTLR3_INPUT_STREAM input;
   ppcdkLexer lexer;
@@ -54,6 +123,9 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   lexer = pcdkLexerNew(input);
   tokStream = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lexer));
   parser = pcdkParserNew(tokStream);
+  parser->pParser->super = parser;
+  //parser->pParser->rec->reportError = myreportError;
+  parser->pParser->rec->recoverFromMismatchedToken = recoverFromMismatchedToken;
   pcdkAST = parser->prog(parser);
   NodeList* p = pcdkAST.nodes;
   if (parser->pParser->rec->state->errorCount > 0){

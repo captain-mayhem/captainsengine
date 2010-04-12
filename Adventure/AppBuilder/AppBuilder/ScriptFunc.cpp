@@ -640,7 +640,7 @@ int ScriptFunctions::deactivate(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::endScene(ExecutionContext& ctx, unsigned numArgs){
-  Engine::instance()->getInterpreter()->mCutScene->mExecuteOnce = true;
+  ctx.mExecuteOnce = true;
   Engine::instance()->clearGui();
   return 0;
 }

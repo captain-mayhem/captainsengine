@@ -130,10 +130,13 @@ SET(AppBuilder_SRCS
   Sound.cpp
   Sound.h
   Vector.h
+  ${PARSER_SRCS}
+  pcdk.g
 )
 
+ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
+
 ADD_EXECUTABLE(AppBuilder
-  ${AppBuilder_SRCS}
   AdvMainTree.cpp
   AdvMainTree.h
   AdvTreeCtrl.cpp
@@ -144,11 +147,9 @@ ADD_EXECUTABLE(AppBuilder
   main.h
   RenderWindow.cpp
   RenderWindow.h
-  ${PARSER_SRCS}
   AppBuilder.rc
-  pcdk.g
 )
-TARGET_LINK_LIBRARIES(AppBuilder ${AB_LINK_LIBS})
+TARGET_LINK_LIBRARIES(AppBuilder AdventureBase ${AB_LINK_LIBS})
 
 SET_TARGET_PROPERTIES(AppBuilder
 PROPERTIES
@@ -157,14 +158,11 @@ WIN32_EXECUTABLE TRUE)
 ###Adventure###
 
 ADD_EXECUTABLE(Adventure
-  ${AppBuilder_SRCS}
   CgeWindow.cpp
   CgeWindow.h
-  ${PARSER_SRCS}
   AppBuilder.rc
-  pcdk.g
 )
-TARGET_LINK_LIBRARIES(Adventure ${AB_LINK_LIBS} EngineMain)
+TARGET_LINK_LIBRARIES(Adventure AdventureBase ${AB_LINK_LIBS} EngineMain)
 
 SET_TARGET_PROPERTIES(Adventure
 PROPERTIES

@@ -121,9 +121,6 @@ void Engine::initGame(){
   mUseObjectName = "";
   mGiveObjectName = "";
   mInitialized = true;
-  for (int i = 0; i < 10; ++i){
-    mTimeIntervals.push_back(50);
-  }
   mShowTaskbar = true;
   mScreenChange = mData->getProjectSettings()->screenchange;
   mTextEnabled = true;
@@ -213,14 +210,6 @@ void Engine::render(unsigned time){
     return;
   //timing
   unsigned interval = time;
-  if (interval == 0){
-    unsigned interval = mTimer.Time();
-    mTimer.Start(0);
-    if (mTimeIntervals.size() > 10)
-      mTimeIntervals.pop_back();
-    mTimeIntervals.push_front(interval);
-    interval = std::accumulate(mTimeIntervals.begin(), mTimeIntervals.end(), 0)/(unsigned)mTimeIntervals.size();
-  }
   
   //unload rooms
   while (!mRoomsToUnload.empty()){

@@ -9,6 +9,10 @@ options{
 #include "AST.h"
 }
 
+@parser::postinclude{
+extern ASTNode* stringify(ASTNode* tree);
+}
+
 prog returns [NodeList* nodes]
 	:	{$nodes = new NodeList();}
 		(
@@ -110,7 +114,20 @@ arg	returns [ASTNode* value]
 	:
 	arg_header?
 	(exp=rel_expr {$value = exp.exp;}
-	| ({$value = new IdentNode("");}
+		//workaraound for strings that look like expressions first
+		(comp_arg=complex_arg
+			{IdentNode* ident = (IdentNode*)stringify($value); ident->append(((IdentNode*)comp_arg.value)->value().c_str()); delete $value; $value = ident;}
+		)?
+	| ca=complex_arg {$value = ca.value;}
+	)
+;
+
+arg_header
+	: INFO_BEG INT INFO_END;
+	
+complex_arg returns [ASTNode* value]
+	:
+	({$value = new IdentNode("");}
 	(
 		first=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(first.value->value().c_str()); delete first.value;}
 	)
@@ -120,11 +137,8 @@ arg	returns [ASTNode* value]
 		| INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$INT.text->chars);}
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| GREATER {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$GREATER.text->chars);}
-	)*))
-;
-
-arg_header
-	: INFO_BEG INT INFO_END;
+	)*)
+	;
 
 stdarg returns [IdentNode* value]
 	:
