@@ -110,9 +110,6 @@ protected:
   Animator* mAnimator;
   FontRenderer* mFonts;
   SaveStateProvider* mSaver;
-  //TODO move out into render window
-  wxStopWatch mTimer;
-  std::list<unsigned> mTimeIntervals;
   //a*-search
   struct AStarData{
     Vec2i pos;

@@ -1,3 +1,4 @@
+#include <list>
 #include <GL/glew.h>
 #include <wx/glcanvas.h>
 #include <wx/timer.h>
@@ -24,6 +25,8 @@ public:
 protected:
   wxGLContext* mContext;
   wxTimer mTimer;
+  wxStopWatch mStopTimer;
+  std::list<unsigned> mTimeIntervals;
   bool mRendering;
   DECLARE_EVENT_TABLE();
 };

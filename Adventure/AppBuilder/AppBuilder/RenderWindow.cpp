@@ -1,3 +1,5 @@
+#include <numeric>
+
 #include "RenderWindow.h"
 #include <wx/dcclient.h>
 #include "Engine.h"
@@ -24,6 +26,9 @@ mContext(NULL), mRendering(false){
 #ifdef WIN32
   MSWSetOldWndProc((WXFARPROC)DefWindowProc);
 #endif
+  for (int i = 0; i < 10; ++i){
+    mTimeIntervals.push_back(50);
+  }
 }
 
 RenderWindow::~RenderWindow(){
@@ -144,7 +149,14 @@ void RenderWindow::OnIdle(wxIdleEvent& event){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
 
-  Engine::instance()->render();
+  unsigned interval = mStopTimer.Time();
+  mStopTimer.Start(0);
+  if (mTimeIntervals.size() > 10)
+    mTimeIntervals.pop_back();
+  mTimeIntervals.push_front(interval);
+  interval = std::accumulate(mTimeIntervals.begin(), mTimeIntervals.end(), 0)/(unsigned)mTimeIntervals.size();
+
+  Engine::instance()->render(interval);
 
   SwapBuffers();
 
