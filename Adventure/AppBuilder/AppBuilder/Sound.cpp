@@ -188,7 +188,7 @@ SoundPlayer(), mFilename(filename), mLooping(false), mStop(true){
     if (avcodec_open(mCodecContext, mCodec) < 0)
       continue;
     mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
-    mDecodeBuffer.data = new char[mDecodeBuffer.length];
+    mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
     mDecodeBuffer.used = 0;
     mDataBuffer.length = 0;
     mDataBuffer.data = NULL;
@@ -229,10 +229,15 @@ SoundPlayer(), mFilename(filename), mLooping(false), mStop(true){
 }
 
 StreamSoundPlayer::~StreamSoundPlayer(){
+  alSourceStop(mSource);
+  alSourcei(mSource, AL_BUFFER, AL_NONE);
   alDeleteBuffers(3, mBuffers);
   if (mFormat)
     av_close_input_file(mFormat);
   remove(mFilename.c_str());
+  //deallocate this way, as it was allocated by av_malloc
+  av_free(mDecodeBuffer.data);
+  mDecodeBuffer.data = NULL;
 }
 
 #ifdef WIN32
