@@ -12,6 +12,8 @@ ZipReader::ZipReader(const std::string& zippath) : MemReader(NULL, 0), mFileBuff
   mFileFuncs.ztell_file = tell_file_func;
   mFileFuncs.zwrite_file = write_file_func;
   FILE* f = fopen(zippath.c_str(), "rb");
+  if (!f)
+    return;
   unsigned bufferSize = -ftell(f);
   fseek(f, 0, SEEK_END);
   bufferSize += ftell(f);
