@@ -66,6 +66,8 @@ void Engine::setData(AdvDocument* doc){
 void Engine::initGame(){
   if (!mData)
     return;
+  //ExecutionContext* ctx = mInterpreter->parseProgram("playswf (snitt ; 106 ;120 ;427 ; 330)");
+  //mInterpreter->execute(ctx, true);
   mMainRoomLoaded = false;
   mSubRoomLoaded = false;
   mFocussedChar = NULL;
@@ -898,11 +900,8 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
     return NULL;
   CharacterObject* character = new CharacterObject(obj->base.state, obj->base.position, instanceName);
   character->setMirrored(obj->mirrored);
-  int fontid = chbase->fontid;
-  if (fontid == 0)
-    fontid = 1;
-  character->setFontID(fontid);
-  mFonts->loadFont(fontid);
+  character->setFontID(obj->fontid);
+  mFonts->loadFont(obj->fontid);
   character->setTextColor(chbase->textcolor);
   character->setRoom(room);
   for (unsigned j = 0; j < chbase->states.size(); ++j){

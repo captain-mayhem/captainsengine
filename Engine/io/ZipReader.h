@@ -14,6 +14,10 @@ public:
   MemReader openEntry(const std::string& entry);
   virtual ~ZipReader();
 protected:
+#ifdef WIN32
+  HANDLE mFile;
+  HANDLE mFmap;
+#endif
   unzFile mHandle;
   zlib_filefunc_def mFileFuncs;
   char* mFileBuffer;

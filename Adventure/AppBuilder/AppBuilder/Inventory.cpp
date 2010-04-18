@@ -60,7 +60,7 @@ void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
 ////////////////////////////////////////////
 
 InventoryDisplay::InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale)
-: mPos(pos+Vec2i(32,16)), mSize(size), mScale(scale), mItemOffset(0){
+: mPos(pos+Vec2i(32,8)), mSize(size), mScale(scale), mItemOffset(0){
 
 }
 
@@ -112,11 +112,11 @@ Object2D* InventoryDisplay::getObjectAt(const Vec2i& pos, Inventory* inv){
 }
 
 void InventoryDisplay::setPosition(const Vec2i& pos){
-  mPos = pos+Vec2i(32,16);
+  mPos = pos+Vec2i(32,8);
 }
 
 Vec2i InventoryDisplay::getPosition(){
-  return mPos-Vec2i(32,16);
+  return mPos-Vec2i(32,8);
 }
 
 void InventoryDisplay::addScrollOffset(int offset){
