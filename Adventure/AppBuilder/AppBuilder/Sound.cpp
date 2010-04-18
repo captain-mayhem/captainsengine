@@ -3,6 +3,7 @@
 extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
 };
 #include "AdvDoc.h"
 #include "Engine.h"
@@ -179,52 +180,75 @@ SoundPlayer(), mFilename(filename), mLooping(false), mStop(true){
     av_find_stream_info(mFormat);
   } while(last_nb_streams != mFormat->nb_streams);
   for (unsigned i = 0; i < mFormat->nb_streams; ++i){
-    if (mFormat->streams[i]->codec->codec_type != CODEC_TYPE_AUDIO)
-      continue;
-    mCodecContext = mFormat->streams[i]->codec;
-    mCodec = avcodec_find_decoder(mCodecContext->codec_id);
-    if (!mCodec)
-      continue;
-    if (avcodec_open(mCodecContext, mCodec) < 0)
-      continue;
-    mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
-    mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
-    mDecodeBuffer.used = 0;
-    mDataBuffer.length = 0;
-    mDataBuffer.data = NULL;
-    mDataBuffer.used = 0;
-    mALBuffer.length = BUFFER_SIZE;
-    mALBuffer.data = new char[mALBuffer.length];
-    mALBuffer.used = 0;
-    if (mCodecContext->sample_fmt == SAMPLE_FMT_U8){
-      if (mCodecContext->channels == 1)
-        mPCMFormat = AL_FORMAT_MONO8;
-      if (mCodecContext->channels == 2)
-        mPCMFormat = AL_FORMAT_STEREO8;
-      if (alIsExtensionPresent("AL_EXT_MCFORMATS")){
-        if (mCodecContext->channels == 4)
-          mPCMFormat = alGetEnumValue("AL_FORMAT_QUAD8");
-        if (mCodecContext->channels == 6)
-          mPCMFormat = alGetEnumValue("AL_FORMAT_51CHN8");
+    if (mFormat->streams[i]->codec->codec_type == CODEC_TYPE_AUDIO){
+      mCodecContext = mFormat->streams[i]->codec;
+      mCodec = avcodec_find_decoder(mCodecContext->codec_id);
+      if (!mCodec)
+        continue;
+      if (avcodec_open(mCodecContext, mCodec) < 0)
+        continue;
+      mStreamNum = i;
+      mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+      mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
+      mDecodeBuffer.used = 0;
+      mDataBuffer.length = 0;
+      mDataBuffer.data = NULL;
+      mDataBuffer.used = 0;
+      mALBuffer.length = BUFFER_SIZE;
+      mALBuffer.data = new char[mALBuffer.length];
+      mALBuffer.used = 0;
+      if (mCodecContext->sample_fmt == SAMPLE_FMT_U8){
+        if (mCodecContext->channels == 1)
+          mPCMFormat = AL_FORMAT_MONO8;
+        if (mCodecContext->channels == 2)
+          mPCMFormat = AL_FORMAT_STEREO8;
+        if (alIsExtensionPresent("AL_EXT_MCFORMATS")){
+          if (mCodecContext->channels == 4)
+            mPCMFormat = alGetEnumValue("AL_FORMAT_QUAD8");
+          if (mCodecContext->channels == 6)
+            mPCMFormat = alGetEnumValue("AL_FORMAT_51CHN8");
+        }
       }
-    }
-    else if (mCodecContext->sample_fmt == SAMPLE_FMT_S16){
-      if (mCodecContext->channels == 1)
-        mPCMFormat = AL_FORMAT_MONO16;
-      if (mCodecContext->channels == 2)
-        mPCMFormat = AL_FORMAT_STEREO16;
-      if (alIsExtensionPresent("AL_EXT_MCFORMATS")){
-        if (mCodecContext->channels == 4)
-          mPCMFormat = alGetEnumValue("AL_FORMAT_QUAD16");
-        if (mCodecContext->channels == 6)
-          mPCMFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+      else if (mCodecContext->sample_fmt == SAMPLE_FMT_S16){
+        if (mCodecContext->channels == 1)
+          mPCMFormat = AL_FORMAT_MONO16;
+        if (mCodecContext->channels == 2)
+          mPCMFormat = AL_FORMAT_STEREO16;
+        if (alIsExtensionPresent("AL_EXT_MCFORMATS")){
+          if (mCodecContext->channels == 4)
+            mPCMFormat = alGetEnumValue("AL_FORMAT_QUAD16");
+          if (mCodecContext->channels == 6)
+            mPCMFormat = alGetEnumValue("AL_FORMAT_51CHN16");
+        }
       }
+      else{
+        DebugBreak();
+      }
+      if (mPCMFormat == 0)
+        continue;
     }
-    else{
-      DebugBreak();
-    }
-    if (mPCMFormat == 0)
-      continue;
+    /*if (mFormat->streams[i]->codec->codec_type == CODEC_TYPE_VIDEO){
+      mVidCodecContext = mFormat->streams[i]->codec;
+      mVidCodec = avcodec_find_decoder(mVidCodecContext->codec_id);
+      if (!mCodec)
+        continue;
+      if (avcodec_open(mVidCodecContext, mVidCodec) < 0){
+        continue;
+      }
+      mVidStreamNum = i;
+      if (mVidCodecContext->time_base.num>1000 && mVidCodecContext->time_base.den == 1)
+        mVidCodecContext->time_base.den = 1000;
+
+      mFrame = avcodec_alloc_frame();
+      mFrameRGB = avcodec_alloc_frame();
+      mVidDataBuffer.length = avpicture_get_size(PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
+      mVidDataBuffer.data = new char[mVidDataBuffer.length];
+      avpicture_fill((AVPicture*)mFrameRGB, (uint8_t*)mVidDataBuffer.data, PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
+    
+      mScaler = sws_getContext(mVidCodecContext->width, mVidCodecContext->height,
+        mVidCodecContext->pix_fmt, mVidCodecContext->width, mVidCodecContext->height,
+        PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+    }*/
   }
 }
 
@@ -241,7 +265,8 @@ StreamSoundPlayer::~StreamSoundPlayer(){
 }
 
 #ifdef WIN32
-#define VHALIGNCALL16(x) \
+#define VHALIGNCALL16(x) x
+/*\
 {\
   _asm { mov ebx, esp }\
   _asm { and esp, 0xfffffff0 }\
@@ -250,7 +275,7 @@ StreamSoundPlayer::~StreamSoundPlayer(){
   x;\
   _asm { pop ebx }\
   _asm { mov esp, ebx }\
-}
+}*/
 #else
 #define VHALIGNCALL16(x) x
 #endif
@@ -321,20 +346,31 @@ void StreamSoundPlayer::getNextPacket(){
       av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY);
       read = av_read_frame(mFormat, &packet);
     }
-    if (packet.stream_index != 0)
-      continue;
-    unsigned idx = mDataBuffer.used;
-    if (idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE > mDataBuffer.length){
-      char* temp = new char[idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE];
-      memcpy(temp, mDataBuffer.data, mDataBuffer.used);
-      delete [] mDataBuffer.data;
-      mDataBuffer.data = temp;
-      mDataBuffer.length = idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE;
+    if (packet.stream_index == mStreamNum){
+      unsigned idx = mDataBuffer.used;
+      if (idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE > mDataBuffer.length){
+        char* temp = new char[idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE];
+        memcpy(temp, mDataBuffer.data, mDataBuffer.used);
+        delete [] mDataBuffer.data;
+        mDataBuffer.data = temp;
+        mDataBuffer.length = idx+packet.size+FF_INPUT_BUFFER_PADDING_SIZE;
+      }
+      memcpy(mDataBuffer.data+idx, packet.data, packet.size);
+      mDataBuffer.used += packet.size;
+      av_free_packet(&packet);
+      break;
     }
-    memcpy(mDataBuffer.data+idx, packet.data, packet.size);
-    mDataBuffer.used += packet.size;
-    av_free_packet(&packet);
-    break;
+    /*else if (packet.stream_index == mVidStreamNum){
+      int frame_finished;
+      avcodec_decode_video(mVidCodecContext, mFrame, &frame_finished, packet.data, packet.size);
+      if (frame_finished){
+        sws_scale(mScaler, mFrame->data, mFrame->linesize, 0, mVidCodecContext->height,
+          mFrameRGB->data, mFrameRGB->linesize);
+        av_free_packet(&packet);
+        break;
+      }
+      av_free_packet(&packet);
+    }*/
   } while(read >= 0);
 }
 

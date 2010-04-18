@@ -68,6 +68,8 @@ protected:
 struct AVCodec;
 struct AVCodecContext;
 struct AVFormatContext;
+struct AVFrame;
+struct SwsContext;
 
 class StreamSoundPlayer : public SoundPlayer{
 public:
@@ -85,11 +87,20 @@ protected:
   AVFormatContext* mFormat;
   AVCodecContext* mCodecContext;
   AVCodec* mCodec;
+  int mStreamNum;
   DataBuffer mDataBuffer;
   DataBuffer mDecodeBuffer;
   DataBuffer mALBuffer;
   bool mLooping;
   bool mStop;
+
+  AVCodecContext* mVidCodecContext;
+  AVCodec* mVidCodec;
+  AVFrame* mFrame;
+  AVFrame* mFrameRGB;
+  SwsContext* mScaler;
+  int mVidStreamNum;
+  DataBuffer mVidDataBuffer;
 };
 
 #endif

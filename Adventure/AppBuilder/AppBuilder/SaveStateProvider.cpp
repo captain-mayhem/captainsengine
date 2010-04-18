@@ -57,12 +57,14 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::CharSaveOb
   strm << chr.base;
   strm << chr.mirrored << std::endl;
   strm << chr.inventory;
+  strm << chr.fontid << std::endl;
   return strm;
 }
 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::CharSaveObject& chr){
   strm >> chr.base >> chr.mirrored;
   strm >> chr.inventory;
+  strm >> chr.fontid;
   return strm;
 }
 
@@ -127,6 +129,11 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
         chr->base.state = dummy.getState();
         chr->base.position = mData->getRoomCharacters()[i].position;
         chr->mirrored = dummy.isMirrored();
+        Character* chbase = mData->getCharacter(mData->getRoomCharacters()[i].name);
+        int fontid = chbase->fontid;
+        if (fontid == 0)
+          fontid = 1;
+        chr->fontid = fontid;
         save->characters[mData->getRoomCharacters()[i].name] = chr;
       }
     }

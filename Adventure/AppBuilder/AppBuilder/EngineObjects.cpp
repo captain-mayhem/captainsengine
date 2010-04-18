@@ -647,5 +647,6 @@ void CharacterObject::save(){
     if (mInventory){
       mInventory->save(save->inventory);
     }
+    save->fontid = mFontID;
   }
 }

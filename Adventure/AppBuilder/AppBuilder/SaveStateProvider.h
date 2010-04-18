@@ -14,10 +14,11 @@ public:
     std::map<int, std::vector<std::string> > items;
   };
   struct CharSaveObject{
-    CharSaveObject() : mirrored(false) {}
+    CharSaveObject() : mirrored(false), fontid(-1) {}
     SaveObject base;
     bool mirrored;
     SaveInventory inventory;
+    int fontid;
   };
   struct SaveRoom{
     SaveObject base;
