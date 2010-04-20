@@ -668,7 +668,6 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
     if (!rdr.isWorking())
       return false;
-      return false;
     db.length = rdr.getSize();
     db.data = new char[db.length];
     memcpy(db.data, rdr.getData(), db.length);

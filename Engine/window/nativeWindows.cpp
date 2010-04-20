@@ -99,7 +99,7 @@ void WindowsWindow::init(const std::string& name){
   wndclass.cbSize = sizeof(WNDCLASSEX);
 #endif
 
-  wndclass.style = CS_HREDRAW | CS_VREDRAW
+  wndclass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS
 #ifndef UNDER_CE
     | CS_OWNDC
 #endif

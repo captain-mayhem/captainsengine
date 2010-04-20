@@ -1028,7 +1028,7 @@ int ScriptFunctions::isCharFocussed(ExecutionContext& ctx, unsigned numArgs){
   std::string name = ctx.stack().pop().getString();
   ctx.stack().push(0);
   CharacterObject* chr = Engine::instance()->getCharacter("self");
-  if (chr && chr->getName() == name)
+  if (chr && _stricmp(chr->getName().c_str(), name.c_str()) == 0)
     ctx.stack().push(0);
   else
     ctx.stack().push(1);
@@ -1062,8 +1062,14 @@ int ScriptFunctions::isCharInRoom(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   std::string roomname = ctx.stack().pop().getString();
   ctx.stack().push(0);
+  std::string room;
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
-  if (_stricmp(chr->getRoom().c_str(), roomname.c_str()) == 0)
+  if (chr)
+    room = chr->getRoom();
+  else{
+    SaveStateProvider::CharSaveObject* chs = Engine::instance()->getSaver()->findCharacter(charname, room);
+  }
+  if (_stricmp(room.c_str(), roomname.c_str()) == 0)
     ctx.stack().push(0);
   else
     ctx.stack().push(1);

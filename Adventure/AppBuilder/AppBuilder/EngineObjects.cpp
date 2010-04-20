@@ -491,6 +491,15 @@ Vec2i RoomObject::getScriptPosition(ExecutionContext* wmscript){
   return Vec2i(-1,-1);
 }
 
+void RoomObject::skipScripts(){
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    if ((*iter)->getScript() != NULL)
+      (*iter)->getScript()->setSkip();
+  }
+  if (mScript != NULL && mScript->isRunning())
+    mScript->setSkip();
+}
+
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0)

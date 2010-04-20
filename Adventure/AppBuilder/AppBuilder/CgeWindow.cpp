@@ -105,6 +105,11 @@ void mouse_click(int x, int y, int button){
     Engine::instance()->rightClick(pos);
 }
 
+void double_click(int x, int y, int button){
+  Vec2i pos(x/(float)SCREENWIDTH*640, y/(float)SCREENHEIGHT*480);
+  Engine::instance()->doubleClick(pos);
+}
+
 void key_press(int key){
   Engine::instance()->keyPress(key);
 }
@@ -130,5 +135,6 @@ void engineMain(int argc, char** argv){
   Input::Keyboard::instance()->setKeyUpCB(key_release);
   Input::Mouse::instance()->setButtonDownCB(mouse_click);
   Input::Mouse::instance()->setMouseMoveCB(mouse_move);
+  Input::Mouse::instance()->setDoubleClickCB(double_click);
   Input::Mouse::instance()->showCursor(false);
 }
