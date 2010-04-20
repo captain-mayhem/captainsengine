@@ -138,6 +138,7 @@ public:
   virtual void setPosition(const Vec2i& pos);
   bool containsObject(Object2D* object);
   Vec2i getScriptPosition(ExecutionContext* wmscript);
+  void skipScripts();
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;

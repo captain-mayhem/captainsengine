@@ -455,6 +455,8 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
       room = mRooms.front();
   }
   mRoomsToUnload.push_back(room);
+  room->skipScripts();
+  //room->save();
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     if (*iter == room){
       if (room == mRooms.back()){

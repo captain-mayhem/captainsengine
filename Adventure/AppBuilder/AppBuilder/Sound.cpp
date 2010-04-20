@@ -75,7 +75,7 @@ SoundPlayer* SoundEngine::createPlayer(const DataBuffer& db){
   char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir
 #ifdef WIN32
-+"/tmp/"
++"/tmp"
 #endif
 +tmp+db.name;
   FILE* f = fopen(filename.c_str(), "wb");
