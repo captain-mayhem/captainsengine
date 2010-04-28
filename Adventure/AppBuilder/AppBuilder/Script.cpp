@@ -3,6 +3,7 @@
 #include <cassert>
 #include <string>
 #include <wx/msgdlg.h>
+#include <input/keyboard.h>
 
 #include "Engine.h"
 #include "Inventory.h"
@@ -26,6 +27,29 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
   mCutScene = NULL;
   mTSLevel = 1;
   mNextTSLevel = 0;
+  std::string key = "a";
+  for (int i = 0; i < 26; ++i){
+    key[0] = 'a'+i;
+    mKeymap[key] = KEY_A+i;
+  }
+  for (int i = 0; i < 10; ++i){
+    key[0] = '0'+i;
+    mKeymap[key] = KEY_0+i;
+  }
+  key = "F1";
+  for (int i = 0; i < 12; ++i){
+    key[1] = '1'+i;
+    mKeymap[key] = KEY_F1+i;
+  }
+  mKeymap["up"] = KEY_UP;
+  mKeymap["down"] = KEY_DOWN;
+  mKeymap["left"] = KEY_LEFT;
+  mKeymap["right"] = KEY_RIGHT;
+  mKeymap["strg"] = KEY_CTRL;
+  mKeymap["alt"] = KEY_ALT;
+  mKeymap["space"] = KEY_SPACE;
+  mKeymap["enter"] = KEY_RETURN;
+  mKeymap["backspace"] = KEY_BACKSPACE;
 }
 
 PcdkScript::~PcdkScript(){

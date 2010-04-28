@@ -937,7 +937,45 @@ int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
   std::string name = ctx.stack().pop().getString();
-  LookDir dir = (LookDir)(ctx.stack().pop().getInt()-1);
+  std::string dirname = ctx.stack().pop().getString();
+  LookDir dir = UNSPECIFIED;
+  if (_stricmp(dirname.c_str(), "UP") == 0)
+    dir = BACK;
+  else if (_stricmp(dirname.c_str(), "DOWN") == 0)
+    dir = FRONT;
+  else if (_stricmp(dirname.c_str(), "LEFT") == 0)
+    dir = LEFT;
+  else if (_stricmp(dirname.c_str(), "RIGHT") == 0)
+    dir = RIGHT;
+  else
+    DebugBreak();
+  CharacterObject* chr = Engine::instance()->getCharacter(name);
+  if (chr){
+    int step = 3;
+    Vec2i pos = chr->getPosition();
+    switch(dir){
+      case LEFT:
+        pos.x -= step;
+        break;
+      case RIGHT:
+        pos.x += step;
+        break;
+      case FRONT:
+        pos.y += step;
+        break;
+      case BACK:
+        pos.y -= step;
+        break;
+      default:
+        break;
+    }
+    //Engine::instance()->walkTo(chr, pos, dir);
+    chr->setPosition(pos);
+    chr->setLookDir(dir);
+  }
+  else{
+    DebugBreak();
+  }
   return 0;
 }
 
@@ -1093,15 +1131,29 @@ int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArg
 
 int ScriptFunctions::isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string key = ctx.stack().pop().getString();
+  std::map<std::string,int>::iterator iter = Engine::instance()->getInterpreter()->mKeymap.find(key);
+  if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
+    DebugBreak();
+  int keycode = iter->second;
   ctx.stack().push(0);
-  ctx.stack().push(1);
+  if (Engine::instance()->isKeyDown(keycode))
+    ctx.stack().push(0);
+  else
+    ctx.stack().push(1);
   return 2;
 }
 
 int ScriptFunctions::isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string key = ctx.stack().pop().getString();
+  std::map<std::string,int>::iterator iter = Engine::instance()->getInterpreter()->mKeymap.find(key);
+  if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
+    DebugBreak();
+  int keycode = iter->second;
   ctx.stack().push(0);
-  ctx.stack().push(1);
+  if (Engine::instance()->isKeyPressed(keycode))
+    ctx.stack().push(0);
+  else
+    ctx.stack().push(1);
   return 2;
 }
 

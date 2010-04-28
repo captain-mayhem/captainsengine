@@ -78,6 +78,8 @@ public:
   bool isTextEnabled() {return mTextEnabled;}
   void setFontID(int id) {mFontID = id;}
   int getFontID() {return mFontID;}
+  bool isKeyDown(int key);
+  bool isKeyPressed(int key);
 protected:
   Engine();
   static Engine* mInstance;
@@ -137,6 +139,8 @@ protected:
   std::string mGiveObjectName;
   std::string mLinkObjectInfo;
   ExecutionContext* mMainScript;
+  bool mKeysDown[256];
+  bool mKeysPressed[256];
 };
 
 #endif

@@ -46,6 +46,10 @@ Engine::Engine() : mData(NULL), mInitialized(false){
   mAnimator = new Animator();
   mFonts = NULL;
   mInterpreter = NULL;
+  for (int i = 0; i < 256; ++i){
+    mKeysDown[i] = false;
+    mKeysPressed[i] = false;
+  }
 }
 
 Engine::~Engine(){
@@ -931,6 +935,8 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
 }
 
 void Engine::keyPress(int key){
+  mKeysPressed[key] = true;
+  mKeysDown[key] = true;
   switch(key){
     case KEY_F1:
       mSaver->save(SaveStateProvider::saveSlotToPath(1));
@@ -950,7 +956,8 @@ void Engine::keyPress(int key){
 }
 
 void Engine::keyRelease(int key){
-
+  mKeysDown[key] = false;
+  mKeysPressed[key] = false;
 }
 
 void Engine::unloadRooms(){
@@ -972,4 +979,14 @@ std::string Engine::getCharacterClass(const std::string instanceName){
     }
   }
   return "";
+}
+
+bool Engine::isKeyDown(int key){
+  bool ret = mKeysDown[key];
+  mKeysDown[key] = false;
+  return ret;
+}
+
+bool Engine::isKeyPressed(int key){
+  return mKeysPressed[key];
 }
