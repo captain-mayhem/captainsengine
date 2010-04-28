@@ -153,6 +153,10 @@ void Mouse::buttonDown(int x, int y, int button){
 }
 
 void Mouse::buttonUp(int x, int y, int button){
+  AppWindow* wnd = CGE::Engine::instance()->getWindow();
+  Vector2D pos;
+  pos.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
+  pos.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
   switch(button){
     case MB_LEFT:
       pressed_[0] = false;
@@ -166,12 +170,15 @@ void Mouse::buttonUp(int x, int y, int button){
   };
 
   if (buttonUpCB_)
-    buttonUpCB_(x, y, button);
+    buttonUpCB_(pos.x, pos.y, button);
 }
 
 void Mouse::doubleClick(int x, int y, int button){
+  AppWindow* wnd = CGE::Engine::instance()->getWindow();
+  clickPos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
+  clickPos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
   if (doubleClickCB_)
-    doubleClickCB_(x, y, button);
+    doubleClickCB_(clickPos_.x, clickPos_.y, button);
 }
 
 void Mouse::move(int x, int y, int buttons){

@@ -72,6 +72,7 @@ protected:
   bool mGlobalSuspend;
   std::string mPrevActiveCommand;
   std::list<std::pair<Object2D*, int> > mPrevState;
+  std::map<std::string, int> mKeymap;
 };
 
 #endif

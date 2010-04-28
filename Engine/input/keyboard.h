@@ -14,6 +14,9 @@
 #define KEY_ESCAPE VK_ESCAPE
 #define KEY_RETURN VK_RETURN
 #define KEY_DELETE VK_DELETE
+#define KEY_SPACE VK_SPACE
+#define KEY_CTRL VK_CONTROL
+#define KEY_ALT VK_MENU
 #define KEY_F1 VK_F1
 #define KEY_F2 VK_F2
 #define KEY_A 'A'
@@ -27,6 +30,7 @@
 #define KEY_S 'S'
 #define KEY_T 'T'
 #define KEY_W 'W'
+#define KEY_0 '0'
 #define KEY_1 '1'
 #define KEY_2 '2'
 #endif
@@ -40,6 +44,9 @@
 #define KEY_ESCAPE XK_Escape
 #define KEY_RETURN XK_Return
 #define KEY_DELETE XK_Delete
+#define KEY_SPACE XK_Space
+#define KEY_CTRL XK_Control
+#define KEY_ALT XK_Meta
 #define KEY_F1 XK_F1
 #define KEY_F2 XK_F2
 #define KEY_A XK_a
@@ -53,6 +60,7 @@
 #define KEY_S XK_s
 #define KEY_T XK_t
 #define KEY_W XK_w
+#define KEY_0 XK_0
 #define KEY_1 XK_1
 #define KEY_2 XK_2
 #endif

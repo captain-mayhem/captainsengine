@@ -4,6 +4,7 @@
 #include <wx/dcclient.h>
 #include "Engine.h"
 #include "Sound.h"
+#include <input/keyboard.h>
 
 BEGIN_EVENT_TABLE(RenderWindow, wxGLCanvas)
 EVT_SIZE(RenderWindow::OnSize)
@@ -166,14 +167,49 @@ void RenderWindow::OnIdle(wxIdleEvent& event){
 }
 
 void RenderWindow::OnKeyDown(wxKeyEvent& event){
-  Engine::instance()->keyPress(event.GetKeyCode());
+  Engine::instance()->keyPress(mapKey(event.GetKeyCode()));
 }
 
 void RenderWindow::OnKeyUp(wxKeyEvent& event){
-  Engine::instance()->keyRelease(event.GetKeyCode());
+  Engine::instance()->keyRelease(mapKey(event.GetKeyCode()));
 }
 
 void RenderWindow::OnMouseDoubleClick(wxMouseEvent& event){
   Vec2i pos(event.GetX(), event.GetY());
   Engine::instance()->doubleClick(pos);
+}
+
+int RenderWindow::mapKey(int key){
+  if (key >= 'A' && key <= 'Z'){
+    return KEY_A+key-'A';
+  }
+  if (key >= '0' && key <= '9'){
+    return KEY_0+key-'0';
+  }
+  if (key >= WXK_F1 && key <= WXK_F12){
+    return KEY_F1+key-WXK_F1;
+  }
+  switch(key){
+    case WXK_UP:
+      return KEY_UP;
+    case WXK_DOWN:
+      return KEY_DOWN;
+    case WXK_LEFT:
+      return KEY_LEFT;
+    case WXK_RIGHT:
+      return KEY_RIGHT;
+    case WXK_CONTROL:
+      return KEY_CTRL;
+    case WXK_ALT:
+      return KEY_ALT;
+    case WXK_SPACE:
+      return KEY_SPACE;
+    case WXK_RETURN:
+      return KEY_RETURN;
+    case WXK_BACK:
+      return KEY_BACKSPACE;
+    case WXK_ESCAPE:
+      return KEY_ESCAPE;
+  }
+  return 0;
 }

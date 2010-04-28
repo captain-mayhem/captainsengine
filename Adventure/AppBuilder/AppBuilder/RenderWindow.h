@@ -23,6 +23,7 @@ public:
   void OnKeyUp(wxKeyEvent& event);
   bool init();
 protected:
+  int mapKey(int key);
   wxGLContext* mContext;
   wxTimer mTimer;
   wxStopWatch mStopTimer;
