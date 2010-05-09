@@ -42,10 +42,13 @@ public:
   virtual void blit()=0;
   int getDepth() {return mDepth;}
   void setDepth(int depth) {mDepth = depth;}
+  void setColor(const Color& col) {mColor = col;}
+  Color getColor() {return mColor;}
 protected:
   Vec2i mPos;
   Vec2i mSize;
   int mDepth;
+  Color mColor;
 };
 
 class BlitObject : public BaseBlitObject{
@@ -74,10 +77,6 @@ public:
   virtual ~LightingBlitObject();
   virtual void blit();
   void render(const Vec2i& pos);
-  void setColor(const Color& col) {mColor = col;}
-  Color getColor() {return mColor;}
-protected:
-  Color mColor;
 };
 
 class ScrollBlitObject : public BaseBlitObject{

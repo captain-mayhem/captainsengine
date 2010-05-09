@@ -260,11 +260,18 @@ int ScriptFunctions::setLight(ExecutionContext& ctx, unsigned numArgs){
   c.g = (unsigned char)ctx.stack().pop().getInt();
   c.b = (unsigned char)ctx.stack().pop().getInt();
   bool fade = false;
-  if (numArgs >= 5) //TODO
+  if (numArgs >= 5)
     fade = ctx.stack().pop().getString() == "fade";
   RoomObject* roomobj = Engine::instance()->getRoom(room);
   if (roomobj){
     roomobj->setLightingColor(c);
+    if (fade && !ctx.mSkip){
+      DebugBreak();
+    }
+  }
+  else{
+    SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(room);
+    sr->base.lighting = c;
   }
   return 0;
 }
@@ -881,6 +888,19 @@ int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
     if (fading == "fade")
       fade = true;
   }
+  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  if (chr){
+    chr->setLightingColor(c);
+    if (fade && !ctx.mSkip){
+      //TODO Lighting animation
+      DebugBreak();
+    }
+  }
+  else{
+    std::string room;
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room);
+    cso->base.lighting = c;
+  }
   return 0;
 }
 
@@ -972,6 +992,7 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
     //Engine::instance()->walkTo(chr, pos, dir);
     chr->setPosition(pos);
     chr->setLookDir(dir);
+    chr->setDepth(pos.y/Engine::instance()->getWalkGridSize());
   }
   else{
     DebugBreak();

@@ -24,8 +24,9 @@ BlitGroup::~BlitGroup(){
   }
 }
 
-void BlitGroup::render(const Vec2i& pos, bool mirrorx, const Vec2i& parentsize){
+void BlitGroup::render(const Vec2i& pos, bool mirrorx, const Vec2i& parentsize, const Color& color){
   for (unsigned i = 0; i < mBlits.size(); ++i){
+    mBlits[i]->setColor(color);
     mBlits[i]->render(pos, mirrorx, parentsize);
   }
 }
@@ -62,12 +63,12 @@ Animation::~Animation(){
   }
 }
 
-void Animation::render(Vec2i pos, bool mirrorx, Vec2i parentsize){
+void Animation::render(Vec2i pos, bool mirrorx, Vec2i parentsize, const Color& color){
   //if (mCurrFrame != 0){
   //  mBlits[mCurrFrame]->render(pos, mirrorx);
   //}
   if (mBlits.size() > mCurrFrame)
-    mBlits[mCurrFrame]->render(pos, mirrorx, parentsize);
+    mBlits[mCurrFrame]->render(pos, mirrorx, parentsize, color);
 }
 
 void Animation::setDepth(int depth){
@@ -97,7 +98,8 @@ void Animation::update(unsigned interval){
 }
 
 Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name)
-: mState(state), mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL), mName(name){
+: mState(state), mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL), mName(name),
+mLightingColor(){
 
 }
 
@@ -112,7 +114,7 @@ Object2D::~Object2D(){
 void Object2D::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  mAnimations[mState-1]->render(mPos+mScrollOffset, false, Vec2i());
+  mAnimations[mState-1]->render(mPos+mScrollOffset, false, Vec2i(), mLightingColor);
 }
 
 Animation* Object2D::getAnimation(){
@@ -314,7 +316,7 @@ RoomObject::~RoomObject(){
 
 void RoomObject::render(){
   if (mParallaxBackground)
-    mParallaxBackground->render(Vec2i(), false, Vec2i());
+    mParallaxBackground->render(Vec2i(), false, Vec2i(), mLightingColor);
   Object2D::render();
   for (int i = mObjects.size()-1; i >= 0; --i){
     mObjects[i]->render();
@@ -443,7 +445,7 @@ void RoomObject::save(){
   SaveStateProvider::SaveRoom* save = Engine::instance()->getSaver()->getRoom(mName);
   save->base.position = mPos;
   save->base.state = mState;
-  save->lighting = mLighting->getColor();
+  save->base.lighting = mLighting->getColor();
   save->scrolloffset = mScrollOffset;
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->save();
@@ -607,10 +609,7 @@ LookDir CharacterObject::getLookDir(){
 void CharacterObject::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  //if (mMirror)
-  //  mAnimations[mState-1]->render(mScrollOffset+mPos+Vec2i(mBasePoints[mState-1].x,0), mMirror);
-  //else
-  mAnimations[mState-1]->render(mScrollOffset+mPos, mMirror, mSizes[mState-1]);
+  mAnimations[mState-1]->render(mScrollOffset+mPos, mMirror, mSizes[mState-1], mLightingColor);
 }
 
 Vec2i CharacterObject::getOverheadPos(){

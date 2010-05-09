@@ -366,7 +366,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
   RoomObject* roomobj = new RoomObject(save->base.state, save->base.position, room->size, room->name);
   roomobj->setParallaxBackground(room->parallaxbackground, depthoffset-2);
   roomobj->setBackground(room->background, depthoffset-1);
-  roomobj->setLightingColor(save->lighting);
+  roomobj->setLightingColor(save->base.lighting);
   roomobj->setWalkmap(room->walkmap);
   roomobj->setScrollOffset(save->scrolloffset);
   //check for walkmap scripts
@@ -381,6 +381,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     if (!saveobj)
       continue;
     Object2D* object = new Object2D(saveobj->state, saveobj->position, o->size, room->objects[i].name);
+    object->setLightingColor(saveobj->lighting);
     //calculate render depth
     int depth;
     if (room->objects[i].layer == 0)
@@ -905,6 +906,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   if (chbase == NULL)
     return NULL;
   CharacterObject* character = new CharacterObject(obj->base.state, obj->base.position, instanceName);
+  character->setLightingColor(obj->base.lighting);
   character->setMirrored(obj->mirrored);
   character->setFontID(obj->fontid);
   mFonts->loadFont(obj->fontid);
