@@ -77,6 +77,7 @@ void BlitObject::blit(){
   glScalef(mScale.x, mScale.y, 1.0f);
   glMatrixMode(GL_MODELVIEW);
   glBindTexture(GL_TEXTURE_2D, mTex);
+  glColor4ub(mColor.r, mColor.g, mColor.b, mColor.a);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   glPopMatrix();
 }

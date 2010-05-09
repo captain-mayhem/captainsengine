@@ -6,9 +6,10 @@
 class SaveStateProvider{
 public:
   struct SaveObject{
-    SaveObject() : position(-1000,-1000), state(1) {}
+    SaveObject() : position(-1000,-1000), state(1), lighting() {}
     Vec2i position;
     int state;
+    Color lighting;
   };
   struct SaveInventory{
     std::map<int, std::vector<std::string> > items;
@@ -22,7 +23,6 @@ public:
   };
   struct SaveRoom{
     SaveObject base;
-    Color lighting;
     Vec2i scrolloffset;
     std::map<std::string, SaveObject*> objects;
     std::map<std::string, CharSaveObject*> characters;

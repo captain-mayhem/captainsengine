@@ -10,7 +10,7 @@ public:
   BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth);
   BlitGroup(const std::string& texture, const Vec2i& offset, int depth);
   ~BlitGroup();
-  void render(const Vec2i& pos, bool mirrorx, const Vec2i& parentsize);
+  void render(const Vec2i& pos, bool mirrorx, const Vec2i& parentsize, const Color& color);
   void setDepth(int depth);
 protected:
   std::vector<BlitObject*> mBlits;
@@ -22,7 +22,7 @@ public:
   Animation(ExtendedFrames& frames, float fps, int depth);
   Animation(Frames& frames, float fps, Vec2i offset, int depth);
   ~Animation();
-  void render(Vec2i pos, bool mirrorx, Vec2i parentsize);
+  void render(Vec2i pos, bool mirrorx, Vec2i parentsize, const Color& color);
   void setDepth(int depth);
   void start();
   void update(unsigned interval);
@@ -70,6 +70,7 @@ public:
   int getDepth();
   void addNextState(int state) {mNextStates.push_back(state);}
   void activateNextState();
+  virtual void setLightingColor(const Color& col) {mLightingColor = col;}
 protected:
   int mState;
   Vec2i mPos;
@@ -80,6 +81,7 @@ protected:
   ExecutionContext* mSuspensionScript;
   std::string mName;
   std::list<int> mNextStates;
+  Color mLightingColor;
 };
 
 class ButtonObject : public Object2D, public BlitObject{
@@ -129,7 +131,7 @@ public:
   Object2D* getObjectAt(const Vec2i& pos);
   Object2D* getObject(const std::string& name);
   void update(unsigned interval);
-  void setLightingColor(const Color& col) {mLighting->setColor(col);}
+  virtual void setLightingColor(const Color& col) {mLighting->setColor(col);}
   void addWalkmapScript(const Vec2i& wmpos, ExecutionContext* script) {mWalkmapScripts[wmpos] = script; script->setOwner(this);}
   void walkTo(const Vec2i& pos);
   virtual void save();

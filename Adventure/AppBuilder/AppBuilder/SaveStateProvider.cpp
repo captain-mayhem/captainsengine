@@ -7,7 +7,6 @@
 
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room){
   strm << room.base;
-  strm << room.lighting.r << " " << room.lighting.g << " " << room.lighting.b << " " << room.lighting.a << std::endl;
   strm << room.scrolloffset.x << " " << room.scrolloffset.y << std::endl;
   strm << room.objects.size() << std::endl;
   for (std::map<std::string,SaveStateProvider::SaveObject*>::const_iterator iter = room.objects.begin(); iter != room.objects.end(); ++iter){
@@ -22,7 +21,6 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& 
 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
   strm >> room.base;
-  strm >> room.lighting.r >> room.lighting.g >> room.lighting.b >> room.lighting.a;
   strm >> room.scrolloffset.x >> room.scrolloffset.y;
   int number;
   strm >> number;
@@ -45,11 +43,13 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
 
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveObject& object){
   strm << object.position.x << " " << object.position.y << " " << object.state << std::endl;
+  strm << object.lighting.r << " " << object.lighting.g << " " << object.lighting.b << " " << object.lighting.a << std::endl;
   return strm;
 }
 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveObject& object){
   strm >> object.position.x >> object.position.y >> object.state;
+  strm >> object.lighting.r >> object.lighting.g >> object.lighting.b >> object.lighting.a;
   return strm;
 }
 
@@ -113,10 +113,11 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
       return NULL;
     SaveRoom* save = new SaveRoom();
     save->base.position = Vec2i();
-    save->lighting = Color();
+    save->base.lighting = Color();
     save->scrolloffset = orig->scrolloffset*-1;
     for (unsigned i = 0; i < orig->objects.size(); ++i){
       SaveObject* object = new SaveObject();
+      object->lighting = Color();
       object->state = orig->objects[i].state;
       object->position = orig->objects[i].position;
       save->objects[orig->objects[i].name] = object;
@@ -126,6 +127,7 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
         CharacterObject dummy(0, Vec2i(), "");
         dummy.setLookDir(mData->getRoomCharacters()[i].dir);
         CharSaveObject* chr = new CharSaveObject();
+        chr->base.lighting = Color();
         chr->base.state = dummy.getState();
         chr->base.position = mData->getRoomCharacters()[i].position;
         chr->mirrored = dummy.isMirrored();
