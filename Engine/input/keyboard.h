@@ -44,9 +44,9 @@
 #define KEY_ESCAPE XK_Escape
 #define KEY_RETURN XK_Return
 #define KEY_DELETE XK_Delete
-#define KEY_SPACE XK_Space
-#define KEY_CTRL XK_Control
-#define KEY_ALT XK_Meta
+#define KEY_SPACE XK_space
+#define KEY_CTRL XK_Control_L
+#define KEY_ALT XK_Alt_L
 #define KEY_F1 XK_F1
 #define KEY_F2 XK_F2
 #define KEY_A XK_a
