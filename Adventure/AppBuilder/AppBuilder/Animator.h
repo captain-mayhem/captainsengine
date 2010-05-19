@@ -7,6 +7,7 @@
 
 class Object2D;
 class DynamicAnimation;
+struct Color;
 
 class Animator{
   struct ObjectAnim{
@@ -25,6 +26,7 @@ public:
   void update(unsigned interval);
   void clear();
   void add(DynamicAnimation* anim);
+  void add(Object2D* obj, const Color& targetcolor);
 protected:
   std::map<Object2D*, ObjectAnim> mObjects;
   std::list<DynamicAnimation*> mAnimations;

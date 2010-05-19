@@ -752,8 +752,13 @@ Room* AdvDocument::getRoom(std::string name){
 
 Object* AdvDocument::getObject(std::string name){
   std::map<std::string,Object>::iterator iter = mObjects.find(name);
-  if (iter == mObjects.end())
+  if (iter == mObjects.end()){
+    for (std::map<std::string,Object>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+      if (_stricmp(name.c_str(), iter->first.c_str()) == 0)
+        return &iter->second;
+    }
     return NULL;
+  }
   return &((*iter).second);
 }
 
@@ -870,5 +875,16 @@ Item* AdvDocument::getItem(const std::string& name){
     return NULL;
   }
   return &((*iter).second);
+}
+
+Room* AdvDocument::getRoom(Object* obj){
+  for (std::map<std::string,Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    for (std::vector<Roomobject>::iterator objiter = iter->second.objects.begin(); objiter != iter->second.objects.end(); ++objiter){
+      if (objiter->name == obj->name)
+        return &iter->second;
+    }
+  }
+  DebugBreak();
+  return NULL;
 }
 

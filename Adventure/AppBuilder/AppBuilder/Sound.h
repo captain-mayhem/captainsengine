@@ -24,6 +24,8 @@ public:
   SoundPlayer* getMovie(const std::string& name);
   void update();
   void removeSpeaker(CharacterObject* chr);
+  std::ostream& save(std::ostream& out);
+  std::istream& load(std::istream& in);
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const DataBuffer& db);

@@ -287,8 +287,17 @@ int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   int state = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
+  SaveStateProvider::SaveObject* so = NULL;
   if (obj){
     obj->setState(state);
+  }
+  else{
+    std::string room;
+    so = Engine::instance()->getSaver()->findObject(objname, room);
+    if (so)
+      so->state = state;
+    else
+      DebugBreak();
   }
   for (unsigned i = 2; i < numArgs; ++i){
     state = ctx.stack().pop().getInt();
@@ -299,6 +308,9 @@ int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
         obj->addNextState(state);
         obj->getAnimation()->registerAnimationEndHandler(obj);
       }
+    }
+    else{
+      so->state = state;
     }
   }
   return 0;
@@ -777,6 +789,8 @@ int ScriptFunctions::randomNum(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   std::string chrname = ctx.stack().pop().getString();
   StackData data = ctx.stack().pop();
+  if (ctx.mSkip)
+    return 0;
   int state = 0;
   if (data.getInt() != 0)
     state = data.getInt()+16;
@@ -890,10 +904,13 @@ int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
   }
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
   if (chr){
-    chr->setLightingColor(c);
     if (fade && !ctx.mSkip){
-      //TODO Lighting animation
-      DebugBreak();
+      chr->setSuspensionScript(&ctx);
+      ctx.mSuspended = true;
+      Engine::instance()->getAnimator()->add(chr, c);
+    }
+    else{
+      chr->setLightingColor(c);
     }
   }
   else{
@@ -906,9 +923,12 @@ int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::group(ExecutionContext& ctx, unsigned numArgs){
   std::string groupname = ctx.stack().pop().getString();
+  ObjectGroup* grp = new ObjectGroup(groupname);
   for (unsigned i = 2; i < numArgs; ++i){
     std::string object = ctx.stack().pop().getString();
+    grp->add(object);
   }
+  Engine::instance()->getInterpreter()->mGroups.push_back(grp);
   return 0;
 }
 
@@ -952,6 +972,7 @@ int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
   pos.x = ctx.stack().pop().getInt();
   pos.y = ctx.stack().pop().getInt();
   bool walkable = ctx.stack().pop().getBool();
+  DebugBreak();
   return 0;
 }
 
@@ -1012,6 +1033,7 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
     if (wait == "wait")
       hold = true;
   }
+  DebugBreak();
   return 0;
 }
 

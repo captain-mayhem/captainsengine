@@ -34,6 +34,7 @@ public:
   SaveRoom* getRoom(const std::string name);
   SaveObject* getObject(const std::string& name);
   SaveObject* getOrAddObject(const std::string& name);
+  SaveObject* findObject(const std::string& name, std::string& room);
   void removeObject(const std::string& name);
   CharSaveObject* getCharacter(const std::string& name);
   CharSaveObject* getOrAddCharacter(const std::string& name);
