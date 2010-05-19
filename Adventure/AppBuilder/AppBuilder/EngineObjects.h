@@ -194,4 +194,16 @@ protected:
   std::string mRoom;
 };
 
+class ObjectGroup{
+  friend std::ostream& operator<<(std::ostream& strm, const ObjectGroup& group);
+  friend std::istream& operator>>(std::istream& strm, ObjectGroup& data);
+public:
+  ObjectGroup(const std::string& name) {mName = name;}
+  ~ObjectGroup() {}
+  void add(const std::string& obj) {mObjects.push_back(obj);}
+protected:
+  std::string mName;
+  std::vector<std::string> mObjects;
+};
+
 #endif

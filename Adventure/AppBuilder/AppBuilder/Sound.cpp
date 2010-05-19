@@ -111,6 +111,14 @@ void SoundEngine::removeSpeaker(CharacterObject* chr){
   }
 }
 
+std::ostream& SoundEngine::save(std::ostream& out){
+  return out;
+}
+
+std::istream& SoundEngine::load(std::istream& in){
+  return in;
+}
+
 
 SoundPlayer::SoundPlayer() : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL){
   alGenSources(1, &mSource);

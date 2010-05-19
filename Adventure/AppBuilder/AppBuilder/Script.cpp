@@ -21,6 +21,25 @@ CodeSegment::~CodeSegment(){
 
 bool PcdkScript::mRemoveLinkObject = false;
 
+std::ostream& operator<<(std::ostream& strm, const ObjectGroup& group){
+  strm << group.mName << " " << group.mObjects.size();
+  for (unsigned i = 0; i < group.mObjects.size(); ++i){
+    strm << " " << group.mObjects[i];
+  }
+  return strm;
+}
+
+std::istream& operator>>(std::istream& strm, ObjectGroup& data){
+  int size;
+  strm >> data.mName >> size;
+  for (int i = 0; i < size; ++i){
+    std::string obj;
+    strm >> obj;
+    data.mObjects.push_back(obj);
+  }
+  return strm;
+}
+
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
   ScriptFunctions::registerFunctions(this);
   mBooleans = data->getProjectSettings()->booleans;
@@ -66,6 +85,10 @@ void PcdkScript::stop(){
   delete mCutScene;
   mCutScene = NULL;
   mPrevState.clear();
+  for (unsigned i = 0; i < mGroups.size(); ++i){
+    delete mGroups[i];
+  }
+  mGroups.clear();
 }
 
 void myreportError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
@@ -700,6 +723,10 @@ std::ostream& PcdkScript::save(std::ostream& out){
       }
     }
   }
+  out << mGroups.size() << std::endl;
+  for (unsigned i = 0; i < mGroups.size(); ++i){
+    out << *mGroups[i];
+  }
   return out;
 }
 
@@ -732,6 +759,11 @@ std::istream& PcdkScript::load(std::istream& in){
         mTSActive[name][secondval][thirdval] = value;
       }
     }
+  }
+  in >> num1;
+  for (int i = 0; i < num1; ++i){
+    mGroups.push_back(new ObjectGroup(""));
+    in >> *mGroups.back();
   }
   return in;
 }

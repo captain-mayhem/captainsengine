@@ -99,3 +99,9 @@ void Animator::clear(){
 void Animator::add(DynamicAnimation* anim){
   mAnimations.push_back(anim);
 }
+
+void Animator::add(Object2D* obj, const Color& targetcolor){
+  //TODO Lighting animation
+  obj->setLightingColor(targetcolor);
+  obj->getScript()->resume();
+}

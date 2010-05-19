@@ -12,6 +12,7 @@
 #include "CIL.h"
 
 class Object2D;
+class ObjectGroup;
 
 class PcdkScript{
   friend class ScriptFunctions;
@@ -73,6 +74,7 @@ protected:
   std::string mPrevActiveCommand;
   std::list<std::pair<Object2D*, int> > mPrevState;
   std::map<std::string, int> mKeymap;
+  std::vector<ObjectGroup*> mGroups;
 };
 
 #endif

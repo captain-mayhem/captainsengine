@@ -4,6 +4,7 @@
 #include <sstream>
 
 #include "Engine.h"
+#include "Sound.h"
 
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room){
   strm << room.base;
@@ -242,6 +243,7 @@ void SaveStateProvider::save(const std::string& name){
   out << Engine::instance()->mShowTaskbar << " " << Engine::instance()->mScreenChange << std::endl;
   out << Engine::instance()->mTextEnabled << " " << Engine::instance()->mFontID << std::endl;
   Engine::instance()->getInterpreter()->save(out);
+  SoundEngine::instance()->save(out);
   if (Engine::instance()->mFocussedChar)
     removeCharacter(focussedcharname);
   out.close();
@@ -286,6 +288,7 @@ void SaveStateProvider::load(const std::string& name){
   Engine::instance()->mScreenChange = (ScreenChange)tmp;
   in >> Engine::instance()->mTextEnabled >> Engine::instance()->mFontID;
   Engine::instance()->getInterpreter()->load(in);
+  SoundEngine::instance()->load(in);
   allowWrites(false);
   in.close();
 }
@@ -321,5 +324,27 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::s
       }
     }
   }
+  return NULL;
+}
+
+SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& name, std::string& room){
+  //check if already present
+  for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    for (std::map<std::string,SaveObject*>::iterator objiter = iter->second->objects.begin(); objiter != iter->second->objects.end(); ++objiter){
+      if (_stricmp(objiter->first.c_str(), name.c_str()) == 0){
+        room = iter->first;
+        return objiter->second;
+      }
+    }
+  }
+  //load the room with the object into saving
+  Object* obj = mData->getObject(name);
+  Room* rm = mData->getRoom(obj);
+  room = rm->name;
+  SaveRoom* saveroom = getRoom(room);
+  std::map<std::string,SaveObject*>::iterator iter = saveroom->objects.find(obj->name);
+  if (iter != saveroom->objects.end())
+    return iter->second;
+  DebugBreak();
   return NULL;
 }
