@@ -58,7 +58,7 @@ public:
   BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
   virtual ~BlitObject();
   bool operator<(const BlitObject& obj);
-  void render(Vec2i pos, bool mirrorx, const Vec2i& parentsize);
+  void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize);
   virtual void blit();
   Vec2i getOffset() {return mOffset;}
   void setMirrorOffset(const Vec2i& mirror) {mMirrorOffset = mirror;}
@@ -66,7 +66,7 @@ protected:
   Vec2i mOffset;
   Vec2f mScale;
   GLuint mTex;
-  bool mMirrorX;
+  Vec2f mZoomScale;
   bool mDeleteTex;
   Vec2i mMirrorOffset;
 };

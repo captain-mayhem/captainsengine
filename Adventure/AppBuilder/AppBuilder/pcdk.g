@@ -179,7 +179,13 @@ term returns [ASTNode* trm]
 ;
 
 factor returns [ASTNode* fac]
-	: var=variable {$fac = var.var;}
+	: var=variable {$fac = var.var;} (',' var2=variable {
+		ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_PLUS; an->left() = $fac;
+		ArithmeticNode* mul = new ArithmeticNode(); mul->type() = ArithmeticNode::AR_TIMES; mul->left() = var2.var; an->right() = mul;
+		mul->right() = new RealNode(0.1f); //TODO how to make generic
+		$fac = an;
+	}
+	)?
 	| REAL {char tmp[64]; strcpy(tmp, (char*)$REAL.text->chars); char* tst = strchr(tmp, ','); if (tst != NULL) *tst = '.'; $fac = new RealNode((float)atof(tmp));}
 	| INT  {$fac = new IntNode(atoi((char*)$INT.text->chars));}
 ;

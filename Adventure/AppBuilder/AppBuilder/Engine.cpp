@@ -390,6 +390,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
       depth = room->objects[i].wm_depth-1;
     else
       depth = 990;
+    object->setScale(roomobj->getDepthScale(saveobj->position));
     for (unsigned j = 0; j < o->states.size(); ++j){
       Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth+depthoffset);
       object->addAnimation(anim);
@@ -912,6 +913,9 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   mFonts->loadFont(obj->fontid);
   character->setTextColor(chbase->textcolor);
   character->setRoom(room);
+  RoomObject* ro = getContainingRoom(character);
+  if (ro)
+    character->setScale(ro->getDepthScale(obj->base.position));
   for (unsigned j = 0; j < chbase->states.size(); ++j){
     int depth = (obj->base.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
     Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);

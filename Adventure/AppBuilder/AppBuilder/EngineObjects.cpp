@@ -24,10 +24,10 @@ BlitGroup::~BlitGroup(){
   }
 }
 
-void BlitGroup::render(const Vec2i& pos, bool mirrorx, const Vec2i& parentsize, const Color& color){
+void BlitGroup::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color){
   for (unsigned i = 0; i < mBlits.size(); ++i){
     mBlits[i]->setColor(color);
-    mBlits[i]->render(pos, mirrorx, parentsize);
+    mBlits[i]->render(pos, scale, parentsize);
   }
 }
 
@@ -63,12 +63,9 @@ Animation::~Animation(){
   }
 }
 
-void Animation::render(Vec2i pos, bool mirrorx, Vec2i parentsize, const Color& color){
-  //if (mCurrFrame != 0){
-  //  mBlits[mCurrFrame]->render(pos, mirrorx);
-  //}
+void Animation::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color){
   if (mBlits.size() > mCurrFrame)
-    mBlits[mCurrFrame]->render(pos, mirrorx, parentsize, color);
+    mBlits[mCurrFrame]->render(pos, scale, parentsize, color);
 }
 
 void Animation::setDepth(int depth){
@@ -99,7 +96,7 @@ void Animation::update(unsigned interval){
 
 Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name)
 : mState(state), mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL), mName(name),
-mLightingColor(){
+mLightingColor(), mScale(1.0f){
 
 }
 
@@ -114,7 +111,7 @@ Object2D::~Object2D(){
 void Object2D::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  mAnimations[mState-1]->render(mPos+mScrollOffset, false, Vec2i(), mLightingColor);
+  mAnimations[mState-1]->render(mPos+mScrollOffset, Vec2f(mScale,mScale), Vec2i(), mLightingColor);
 }
 
 Animation* Object2D::getAnimation(){
@@ -126,8 +123,11 @@ Animation* Object2D::getAnimation(){
 bool Object2D::isHit(const Vec2i& point){
   if (mScript == NULL || mState == 0)
     return false;
-  if (point.x >= mPos.x && point.x <= mPos.x+getSize().x){
-    if (point.y >= mPos.y && point.y <= mPos.y+getSize().y)
+  Vec2i scaleoffset;
+  scaleoffset.x = (1-mScale)*(mSize.x-mSize.x*abs(mScale));
+  scaleoffset.y = mSize.y-mSize.y*mScale;
+  if (point.x >= mPos.x+scaleoffset.x && point.x <= mPos.x+scaleoffset.x+getSize().x){
+    if (point.y >= mPos.y+scaleoffset.y && point.y <= mPos.y+scaleoffset.y+getSize().y)
       return true;
   }
   return false;
@@ -316,7 +316,7 @@ RoomObject::~RoomObject(){
 
 void RoomObject::render(){
   if (mParallaxBackground)
-    mParallaxBackground->render(Vec2i(), false, Vec2i(), mLightingColor);
+    mParallaxBackground->render(Vec2i(), Vec2f(mScale,mScale), Vec2i(), mLightingColor);
   Object2D::render();
   for (int i = mObjects.size()-1; i >= 0; --i){
     mObjects[i]->render();
@@ -456,6 +456,7 @@ void RoomObject::setPosition(const Vec2i& pos){
   Vec2i move = pos - mPos;
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     (*iter)->setPosition((*iter)->getPosition()+move);
+    (*iter)->setScale(getDepthScale((*iter)->getPosition()));
   }
   mPos += move;
   if (mInventroy)
@@ -502,6 +503,10 @@ void RoomObject::skipScripts(){
     mScript->setSkip();
 }
 
+float RoomObject::getDepthScale(const Vec2i& pos){
+  return 1.0f;
+}
+
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0)
@@ -517,16 +522,12 @@ CharacterObject::~CharacterObject(){
 
 void CharacterObject::setPosition(const Vec2i& pos){
   Vec2i offset = mBasePoints[mState-1];
-  //if (mMirror)
-  //  offset+=mSize;
   Object2D::setPosition(pos-offset);
 }
 
 Vec2i CharacterObject::getPosition(){
   if (mState < 1 || mState >= (int)mAnimations.size())
     return Vec2i();
-  //if (mMirror)
-  //  return mPos+mSize-mBasePoints[mState-1];
   return mPos+mBasePoints[mState-1];
 }
 
@@ -609,11 +610,14 @@ LookDir CharacterObject::getLookDir(){
 void CharacterObject::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  mAnimations[mState-1]->render(mScrollOffset+mPos, mMirror, mSizes[mState-1], mLightingColor);
+  Vec2f scale(mScale, mScale);
+  if (mMirror)
+    scale.x *= -1;
+  mAnimations[mState-1]->render(mScrollOffset+mPos, scale, mSizes[mState-1], mLightingColor);
 }
 
 Vec2i CharacterObject::getOverheadPos(){
-  return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, 0);
+  return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, (1-mScale)*mSizes[mState-1].y);
 }
 
 int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk){
@@ -642,7 +646,7 @@ bool CharacterObject::isTalking(){
 }
 
 Vec2i CharacterObject::getSize(){
-  return mSizes[mState-1];
+  return mSizes[mState-1]*mScale;
 }
 
 void CharacterObject::save(){
