@@ -29,6 +29,12 @@ struct Vec2i{
     result.y = y*num;
     return result;
   }
+  Vec2i operator*(float num) const{
+    Vec2i result;
+    result.x = (int)(x*num);
+    result.y = (int)(y*num);
+    return result;
+  }
   Vec2i operator/(int num) const{
     Vec2i result;
     result.x = x/num;

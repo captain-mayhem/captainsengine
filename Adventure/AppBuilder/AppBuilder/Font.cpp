@@ -77,7 +77,7 @@ void FontRenderer::String::render(unsigned interval){
   if (pos.y < 0 && pos.y > -mCenterOffset.y/3*2)
     pos.y = 0;
   for (unsigned i = 0; i < mString.size(); ++i){
-    mString[i]->render(pos, false, Vec2i());
+    mString[i]->render(pos, Vec2f(1.0f,1.0f), Vec2i());
   }
   mDisplayTime -= interval;
 }

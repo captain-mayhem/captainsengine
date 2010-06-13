@@ -10,7 +10,7 @@ public:
   BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth);
   BlitGroup(const std::string& texture, const Vec2i& offset, int depth);
   ~BlitGroup();
-  void render(const Vec2i& pos, bool mirrorx, const Vec2i& parentsize, const Color& color);
+  void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color);
   void setDepth(int depth);
 protected:
   std::vector<BlitObject*> mBlits;
@@ -22,7 +22,7 @@ public:
   Animation(ExtendedFrames& frames, float fps, int depth);
   Animation(Frames& frames, float fps, Vec2i offset, int depth);
   ~Animation();
-  void render(Vec2i pos, bool mirrorx, Vec2i parentsize, const Color& color);
+  void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color);
   void setDepth(int depth);
   void start();
   void update(unsigned interval);
@@ -63,7 +63,7 @@ public:
   int getState() {return mState;}
   void setState(int state) {mState = state;}
   const std::string& getName() {return mName;}
-  virtual Vec2i getSize() {return mSize;}
+  virtual Vec2i getSize() {return mSize*mScale;}
   virtual void setScrollOffset(const Vec2i& offset) {mScrollOffset = offset;}
   Vec2i getScrollOffset() {return mScrollOffset;}
   virtual void save();
@@ -71,6 +71,7 @@ public:
   void addNextState(int state) {mNextStates.push_back(state);}
   void activateNextState();
   virtual void setLightingColor(const Color& col) {mLightingColor = col;}
+  void setScale(float scale) {mScale = scale;}
 protected:
   int mState;
   Vec2i mPos;
@@ -82,6 +83,7 @@ protected:
   std::string mName;
   std::list<int> mNextStates;
   Color mLightingColor;
+  float mScale;
 };
 
 class ButtonObject : public Object2D, public BlitObject{
@@ -141,6 +143,7 @@ public:
   bool containsObject(Object2D* object);
   Vec2i getScriptPosition(ExecutionContext* wmscript);
   void skipScripts();
+  float getDepthScale(const Vec2i& pos);
 protected:
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;

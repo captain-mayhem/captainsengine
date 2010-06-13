@@ -15,7 +15,7 @@ BlitObject::BlitObject(int width, int height) : BaseBlitObject(0, Vec2i(width, h
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
   mScale.y = ((float)mSize.y)/pow2.y;
-  mMirrorX = false;
+  mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = true;
   glGenTextures(1, &mTex);
   glBindTexture(GL_TEXTURE_2D, mTex);
@@ -28,14 +28,14 @@ BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) :
 BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(){
   wxImage image = Engine::instance()->getImage(texture);
   mTex = Engine::instance()->genTexture(image, mSize, mScale);
-  mMirrorX = false;
+  mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = true;
 }
 
 BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
 BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mMirrorOffset()
 {
-  mMirrorX = false;
+  mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = false;
 }
 
@@ -48,29 +48,30 @@ bool BlitObject::operator<(const BlitObject& obj){
   return mDepth < obj.mDepth;
 }
 
-void BlitObject::render(Vec2i pos, bool mirrorx, const Vec2i& parentsize){
+void BlitObject::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize){
   mMirrorOffset.x = parentsize.x;
   mPos.x = mOffset.x+pos.x;
   mPos.y = mOffset.y+pos.y;
-  mMirrorX = mirrorx;
+  mZoomScale = scale;
   Engine::instance()->insertToBlit(this);
 }
 
 void BlitObject::blit(){
   glPushMatrix();
   
-  if (mMirrorX){
-    glTranslatef(mMirrorOffset.x,0.0f,0.0f);
-    glTranslatef(mPos.x,mPos.y,0.0f);
-    glTranslatef(-mOffset.x, -mOffset.y, 0.0f);
-    glScalef(-1.0f, 1.0f, 1.0f);
-    glTranslatef(mOffset.x, mOffset.y, 0.0f);
-    glScalef(mSize.x,mSize.y,1.0f);
+  if (mZoomScale.x < 0){
+    glTranslatef(mMirrorOffset.x*-mZoomScale.x,0.0f,0.0f);
   }
-  else{
-    glTranslatef(mPos.x,mPos.y,0.0f);
-    glScalef(mSize.x,mSize.y,1.0f);
-  }
+
+  glTranslatef(mPos.x,mPos.y,0.0f);
+  Vec2i zoomscaleoffset;
+  zoomscaleoffset.x = (1-mZoomScale.x)*(mSize.x-mSize.x*abs(mZoomScale.x));
+  zoomscaleoffset.y = mMirrorOffset.y-mMirrorOffset.y*mZoomScale.y;
+  //glTranslatef(zoomscaleoffset.x, zoomscaleoffset.y, 0.0f);
+  glTranslatef(-mOffset.x, -mOffset.y, 0.0f);
+  glScalef(mZoomScale.x, mZoomScale.y, 1.0f);
+  glTranslatef(mOffset.x, mOffset.y, 0.0f);
+  glScalef(mSize.x,mSize.y,1.0f);
   
   glMatrixMode(GL_TEXTURE);
   glLoadIdentity();

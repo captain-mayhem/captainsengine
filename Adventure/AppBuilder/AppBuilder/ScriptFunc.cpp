@@ -155,6 +155,9 @@ int ScriptFunctions::walkTo(ExecutionContext& ctx, unsigned numArgs){
     if (ctx.mSkip){
       chr->setPosition(pos);
       chr->setLookDir(dir);
+      RoomObject* ro = Engine::instance()->getContainingRoom(chr);
+      if (ro)
+        chr->setScale(ro->getDepthScale(pos));
     }
     else{
       if (hold){
@@ -334,7 +337,9 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       obj->setPosition((pos*Engine::instance()->getWalkGridSize())+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
       int state = CharacterObject::calculateState(obj->getState(), false, false);
       obj->setState(state);
-      obj->setRoom(Engine::instance()->getRoom(roomname)->getName());
+      RoomObject* ro = Engine::instance()->getRoom(roomname);
+      obj->setRoom(ro->getName());
+      obj->setScale(ro->getDepthScale(obj->getPosition()));
     }
   }
   else{
@@ -351,13 +356,9 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       RoomObject* room = Engine::instance()->getRoom(roomname);
       if (room){
         obj->setRoom(room->getName());
+        obj->setScale(room->getDepthScale(obj->getPosition()));
         Engine::instance()->getSaver()->removeCharacter(obj->getName());
         room->addObject(obj);
-        //scrolling
-        //Vec2i scrollOffset = Engine::instance()->getSettings()->resolution/2-
-        //  (obj->getPosition()-Vec2i(0,obj->getSize().y/2));
-        //Engine::instance()->getRoom("")->setScrollOffset(scrollOffset); //this function limits the scrolling
-        //obj->setScrollOffset(scrollOffset);
       }
       else{
         obj->setRoom(roomname);
@@ -415,6 +416,10 @@ int ScriptFunctions::follow(ExecutionContext& ctx, unsigned numArgs){
   if (chr1 && chr2){
     if (ctx.mSkip){
       chr1->setPosition(chr2->getPosition());
+      RoomObject* ro = Engine::instance()->getContainingRoom(chr1);
+      if (ro)
+        chr1->setScale(ro->getDepthScale(chr2->getPosition()));
+
     }
     else{
       if (hold){
@@ -1014,6 +1019,9 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
     chr->setPosition(pos);
     chr->setLookDir(dir);
     chr->setDepth(pos.y/Engine::instance()->getWalkGridSize());
+    RoomObject* ro = Engine::instance()->getContainingRoom(chr);
+    if (ro)
+      chr->setScale(ro->getDepthScale(pos));
   }
   else{
     DebugBreak();

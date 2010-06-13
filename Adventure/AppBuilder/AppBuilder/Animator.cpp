@@ -3,6 +3,7 @@
 #include <queue>
 
 #include "EngineObjects.h"
+#include "Engine.h"
 
 Animator::Animator(){
 
@@ -68,6 +69,9 @@ void Animator::update(unsigned interval){
     float newy = oldpos.y+dir.y/iter->second.normalization*iter->second.factor;
     Vec2i reachedpos((int)newx,(int)newy);
     iter->first->setPosition(reachedpos);
+    RoomObject* ro = Engine::instance()->getContainingRoom(iter->first);
+    if (ro)
+      iter->first->setScale(ro->getDepthScale(reachedpos));
     if (iter->second.factor >= iter->second.normalization){
       //goal reached
       iter->second.path.pop_front();
