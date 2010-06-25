@@ -29,7 +29,7 @@ unsigned MethodArea::getClassIndex(std::string name){
     }
     Java::ClassFile* clfile = new Java::ClassFile();
     ClassLoader* loader = new ClassLoader(name);
-    //loader->print();
+    loader->print();
     entry = loader->load(*this);
   }
   return entry;

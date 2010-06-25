@@ -3,6 +3,17 @@ INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/extern/zlib)
 
 LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
 
+###WXWIDGETS###
+
+INCLUDE(FindwxWidgets)
+
+SET(wxWidgets_USE_LIBS base core gl media)
+FIND_PACKAGE(wxWidgets REQUIRED base core gl media)
+INCLUDE(${wxWidgets_USE_FILE})
+ADD_DEFINITIONS(-DwxUSE_NO_MANIFEST=1)
+SET(AB_LINK_LIBS ${AB_LINK_LIBS} ${wxWidgets_LIBRARIES})
+###############
+
 ADD_DEFINITIONS(
 	-DENABLE_TRACING
 )
@@ -14,7 +25,11 @@ SET(Compiler_SRCS
 	JavaBinFileReader.cpp
 	JavaDefs.cpp
 	MethodArea.cpp
-	)
+	jni.cpp
+	JVM.cpp
+	VMclass.cpp
+	VMContext.cpp
+  )
 
 SET(Compiler_HDRS
 	ClassLoader.h
@@ -25,12 +40,16 @@ SET(Compiler_HDRS
 	MethodArea.h
 	Preproc.h
 	Trace.h
+	jni.h
+	JVM.h
+	VMclass.h
+	VMContext.h
 	)
 
 ADD_EXECUTABLE(Compiler ${Compiler_SRCS} ${Compiler_HDRS})
 
-TARGET_LINK_LIBRARIES(Compiler Engine zlib)
+TARGET_LINK_LIBRARIES(Compiler Engine zlib  ${wxWidgets_LIBRARIES})
 
 IF (${OS} STREQUAL "windows")
-  SET_TARGET_PROPERTIES(OSMRacer PROPERTIES LINK_FLAGS " /STACK:10000000 /machine:I386 /debug /SUBSYSTEM:Windows")
+  SET_TARGET_PROPERTIES(Compiler PROPERTIES LINK_FLAGS " /STACK:10000000 /machine:I386 /debug /SUBSYSTEM:Console")
 ENDIF (${OS} STREQUAL "windows")
