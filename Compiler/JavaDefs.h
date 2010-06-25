@@ -171,7 +171,7 @@ struct Code_attribute  : public attribute_info{
     u2 catch_type;
   };
   Code_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
-  ~Code_attribute() {delete [] code;}
+  ~Code_attribute();
   u2 max_stack;
   u2 max_locals;
   u4 code_length;

@@ -59,3 +59,10 @@ method_info::~method_info(){
     delete attributes[i];
   }
 }
+
+Code_attribute::~Code_attribute(){
+  delete [] code;
+  for (Java::u2 i = 0; i < attributes_count; ++i){
+    delete attributes[i];
+  }
+}

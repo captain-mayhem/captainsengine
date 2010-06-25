@@ -60,7 +60,7 @@ ClassLoader::ClassLoader(std::string filename){
     unzReadCurrentFile(mRuntime, buffer, info.uncompressed_size);
     unzCloseCurrentFile(mRuntime);
     delete reader;
-    reader = new MemReader(buffer,info.compressed_size);
+    reader = new CGE::MemReader(buffer,info.compressed_size);
     in.setReader(reader);
   }
   int ret = in.readClassFile(mClass);
@@ -169,7 +169,7 @@ void ClassLoader::print(){
 }
 
 int ClassLoader::load(MethodArea& area){
-  if (mClass.super_class != 0){
+  /*if (mClass.super_class != 0){
     //load superclass first
     Java::cp_info* cpinfo = mClass.constant_pool[mClass.super_class-1];
     Java::CONSTANT_Class_info* classinf = dynamic_cast<Java::CONSTANT_Class_info*>(cpinfo);
@@ -182,7 +182,7 @@ int ClassLoader::load(MethodArea& area){
       TRACE_ABORT(TRACE_JAVA, "Classfile inconsistent: Superclass string");
     TRACE(TRACE_JAVA, TRACE_DEBUG, "Superclass %s", stringinf->bytes.c_str());
     area.getClassIndex(stringinf->bytes);
-  }
+  }*/
   ClassData* data = new ClassData();
   data->mLoader = this;
   area.mClassData.push_back(data);
