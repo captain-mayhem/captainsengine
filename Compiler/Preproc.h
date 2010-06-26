@@ -32,6 +32,20 @@
   map_string[value] = #name; \
   map_value[#name] = value;
 
+#elif defined(PROC_DECL_MAP_MODE)
+
+#include <map>
+
+#define BEGIN_MAPPING(name, type) \
+  namespace name{\
+  extern std::map<type,std::string> map_string; \
+  extern std::map<std::string,type> map_value; \
+  void init();
+
+#define END_MAPPING(name)	\
+	}
+
+#define INSERT(name,value)
 
 #else
 #error Preproc.h used incorrectly!!!

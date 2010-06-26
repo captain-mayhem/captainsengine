@@ -36,6 +36,11 @@ jclass VMContext::FindClass(JNIEnv* env, const char* name){
   return CTX(env)->getVM()->findClass(name);
 }
 
+jmethodID VMContext::GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
+	VMClass* cls = (VMClass*)clazz;
+	return NULL;
+}
+
 JNIEnv_::JNIEnv_(JavaVM_* vm){
   m_func = new VMContext(this, (JVM*)vm->m_func);
 }

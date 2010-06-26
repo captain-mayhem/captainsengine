@@ -51,6 +51,18 @@ unsigned int BinFileReader::readUInt(){
   return ret;
 }
 
+int64 BinFileReader::readLong(){
+	int64 ret;
+	mStream.read((char*)&ret, sizeof(int64));
+	return ret;
+}
+
+uint64 BinFileReader::readULong(){
+	uint64 ret;
+	mStream.read((char*)&ret, sizeof(uint64));
+	return ret;
+}
+
 bool BinFileReader::isWorking(){
   return !!mStream;
 }

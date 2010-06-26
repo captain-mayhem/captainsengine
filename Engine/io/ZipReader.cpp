@@ -2,42 +2,11 @@
 
 using namespace CGE;
 
+ZipReader::ZipReader() : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0){
+}
+
 ZipReader::ZipReader(const std::string& zippath) : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0){
-  mFileFuncs.opaque = this;
-  mFileFuncs.zclose_file = close_file_func;
-  mFileFuncs.zerror_file = testerror_file_func;
-  mFileFuncs.zopen_file = open_file_func;
-  mFileFuncs.zread_file = read_file_func;
-  mFileFuncs.zseek_file = seek_file_func;
-  mFileFuncs.ztell_file = tell_file_func;
-  mFileFuncs.zwrite_file = write_file_func;
-#ifdef WIN32
-  mFile = CreateFile(zippath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-  mFmap = CreateFileMapping(mFile, NULL, PAGE_READONLY, 0, 0, NULL);
-  void* data = MapViewOfFile(mFmap, FILE_MAP_READ, 0, 0, 0);
-  MEMORY_BASIC_INFORMATION meminfo;
-  uint32 size = VirtualQuery(data, &meminfo, sizeof(meminfo));
-  mStart = (char*)data;
-  mCurrent = mStart;
-  mEnd = mStart+meminfo.RegionSize;
-#else
-  FILE* f = fopen(zippath.c_str(), "rb");
-  if (!f)
-    return;
-  unsigned bufferSize = -ftell(f);
-  fseek(f, 0, SEEK_END);
-  bufferSize += ftell(f);
-  fseek(f, 0, SEEK_SET);
-  static char* buffer = NULL;
-  mFileBuffer = new char[bufferSize];
-  fread(mFileBuffer, 1, bufferSize, f);
-  mStart = mFileBuffer;
-  mEnd = mStart+bufferSize;
-  mCurrent = mStart;
-  fclose(f);
-#endif
-  mHandle = unzOpen2("memory", &mFileFuncs);
-  //mHandle = unzOpen(zippath.c_str());
+  openFile(zippath);
 }
 
 ZipReader::ZipReader(void* address, uint32 length) : MemReader(address, length), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0){
@@ -67,6 +36,44 @@ ZipReader::~ZipReader(){
     CloseHandle(mFile);
   }
 #endif
+}
+
+bool ZipReader::openFile(const std::string& filename){
+	mFileFuncs.opaque = this;
+  mFileFuncs.zclose_file = close_file_func;
+  mFileFuncs.zerror_file = testerror_file_func;
+  mFileFuncs.zopen_file = open_file_func;
+  mFileFuncs.zread_file = read_file_func;
+  mFileFuncs.zseek_file = seek_file_func;
+  mFileFuncs.ztell_file = tell_file_func;
+  mFileFuncs.zwrite_file = write_file_func;
+#ifdef WIN32
+  mFile = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  mFmap = CreateFileMapping(mFile, NULL, PAGE_READONLY, 0, 0, NULL);
+  void* data = MapViewOfFile(mFmap, FILE_MAP_READ, 0, 0, 0);
+  MEMORY_BASIC_INFORMATION meminfo;
+  uint32 size = VirtualQuery(data, &meminfo, sizeof(meminfo));
+  mStart = (char*)data;
+  mCurrent = mStart;
+  mEnd = mStart+meminfo.RegionSize;
+#else
+  FILE* f = fopen(zippath.c_str(), "rb");
+  if (!f)
+    return;
+  unsigned bufferSize = -ftell(f);
+  fseek(f, 0, SEEK_END);
+  bufferSize += ftell(f);
+  fseek(f, 0, SEEK_SET);
+  static char* buffer = NULL;
+  mFileBuffer = new char[bufferSize];
+  fread(mFileBuffer, 1, bufferSize, f);
+  mStart = mFileBuffer;
+  mEnd = mStart+bufferSize;
+  mCurrent = mStart;
+  fclose(f);
+#endif
+  mHandle = unzOpen2("memory", &mFileFuncs);
+  return true;
 }
 
 MemReader ZipReader::openEntry(const std::string& entry){
