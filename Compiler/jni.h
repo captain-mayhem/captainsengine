@@ -5,6 +5,7 @@
 
 typedef int jint;
 typedef void* jclass;
+typedef void* jmethodID;
 
 typedef struct JDK1_1InitArgs{
   jint version;
@@ -47,6 +48,7 @@ typedef const struct JNINativeInterface_ *JNIEnv;
 struct JNINativeInterface_{
   void* reserved0;
   jclass (*FindClass)(JNIEnv *env, const char* name);
+	jmethodID (*GetStaticMethodID)(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 };
 
 jint JNI_CreateJavaVM(JavaVM **p_vm, JNIEnv **p_env, void *vm_args);
@@ -70,6 +72,7 @@ public:
   JNINativeInterface_* m_func;
   ~JNIEnv_();
   jclass FindClass(const char* name) {return m_func->FindClass(this, name);}
+	jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
 protected:
   JNIEnv_(JavaVM_* vm);
 };

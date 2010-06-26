@@ -12,6 +12,7 @@ public:
   JVM* getVM() {return mVm;}
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
+	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 
   JVM* mVm;
   JNIEnv* mSelf;

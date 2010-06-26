@@ -11,10 +11,10 @@
 #include "JavaBinFileReader.h"
 #include "Trace.h"
 
-#define PROC_MAP_MODE
+#define PROC_DECL_MAP_MODE
 #include "Preproc.h"
 #include "JavaOpcodes.h"
-#undef PROC_MAP_MODE
+#undef PROC_DECL_MAP_MODE
 
 #define CHUNKSIZE 262144
 
@@ -40,7 +40,7 @@ ClassLoader::ClassLoader(std::string filename){
       }
     }
   }
-  Opcode::init();
+  //Opcode::init();
   mFilename = filename;
 
   char* buffer = NULL;

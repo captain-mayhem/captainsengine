@@ -9,8 +9,10 @@ namespace CGE{
 
 class ZipReader : public MemReader{
 public:
+	ZipReader();
   ZipReader(const std::string& zippath);
   ZipReader(void* address, uint32 length);
+	bool openFile(const std::string& filename);
   MemReader openEntry(const std::string& entry);
   virtual ~ZipReader();
 protected:

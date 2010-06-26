@@ -17,6 +17,8 @@ public:
   virtual unsigned short readUShort();
   virtual int readInt();
   virtual unsigned int readUInt();
+  virtual int64 readLong();
+  virtual uint64 readULong();
 
   virtual std::string readString();
   virtual std::string readLine();

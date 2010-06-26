@@ -1,13 +1,17 @@
+#include <iostream>
+
 #include <wx/wx.h>
 
-#include "Interpreter.h"
+//#include "Interpreter.h"
 #include <system/winceMain.h>
+
 #include "jni.h"
 
 int main(int argc, char* argv[])
 {
   wxInitialize();
   char* filename = "test/Test";
+	//char* filename = "java/lang/Object";
   if (argc > 1){
     filename = argv[1];
   }
@@ -25,6 +29,13 @@ int main(int argc, char* argv[])
   JNI_CreateJavaVM(&jvm, &env, &vm_args);
   
   jclass cls = env->FindClass(filename);
+	jmethodID mainfunc = env->GetStaticMethodID(cls, "main", "([Ljava/lang/String;)V");
+	if (mainfunc == NULL){
+		std::cerr << "No main function found" << std::endl;
+		jvm->DestroyJavaVM();
+		wxUninitialize();
+		return -1;
+	}
   
   jvm->DestroyJavaVM();
   wxUninitialize();
