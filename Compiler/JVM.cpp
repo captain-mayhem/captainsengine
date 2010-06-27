@@ -1,6 +1,8 @@
 
 #include "JVM.h"
 
+#include <iostream>
+
 #include "VMContext.h"
 #include "VMclass.h"
 #include "ClassLoader.h"
@@ -70,7 +72,7 @@ VMClass* JVM::findClass(std::string name){
     //Java::ClassFile* clfile = new Java::ClassFile();
 		entry = new VMClass(name);
 		mClassResolver[name] = entry;
-		entry->print();
+		entry->print(std::cout);
   }
   return entry;
 }

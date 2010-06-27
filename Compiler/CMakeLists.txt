@@ -29,6 +29,7 @@ SET(Compiler_SRCS
 	JVM.cpp
 	VMclass.cpp
 	VMContext.cpp
+	VMMethod.cpp
   )
 
 SET(Compiler_HDRS
@@ -44,6 +45,7 @@ SET(Compiler_HDRS
 	JVM.h
 	VMclass.h
 	VMContext.h
+	VMMethod.h
 	)
 
 ADD_EXECUTABLE(Compiler ${Compiler_SRCS} ${Compiler_HDRS})

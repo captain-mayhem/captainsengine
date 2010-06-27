@@ -36,6 +36,8 @@ int main(int argc, char* argv[])
 		wxUninitialize();
 		return -1;
 	}
+
+	env->CallStaticVoidMethod(cls, mainfunc);
   
   jvm->DestroyJavaVM();
   wxUninitialize();

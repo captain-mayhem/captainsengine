@@ -7,6 +7,7 @@
 
 #include "Trace.h"
 #include "JVM.h"
+#include "VMMethod.h"
 
 #define PROC_DECL_MAP_MODE
 #include "Preproc.h"
@@ -40,44 +41,50 @@ VMClass::VMClass(const std::string& filename){
   TRACE(TRACE_JAVA, TRACE_INFO, "%s parsed successfully", filename.c_str());
 }
 
-void VMClass::print(){
-  std::cout << "Constant pool:\n";
+VMClass::~VMClass(){
+	for (std::map<std::string,VMMethod*>::iterator iter = mMethods.begin(); iter != mMethods.end(); ++iter){
+		delete iter->second;
+	}
+}
+
+void VMClass::print(std::ostream& strm){
+  strm << "Constant pool:\n";
   for (int i = 0; i < mClass.constant_pool_count-1; ++i){
     Java::cp_info* cpinfo = mClass.constant_pool[i];
-    std::cout << "#" << i+1 << " ";
+    strm << "#" << i+1 << " ";
     switch(cpinfo->tag){
       case CONSTANT_Class:
-        std::cout << "Class " << ((Java::CONSTANT_Class_info*)cpinfo)->name_index;
+        strm << "Class " << ((Java::CONSTANT_Class_info*)cpinfo)->name_index;
         break;
       case CONSTANT_Fieldref:
-        std::cout << "Fieldref " << ((Java::CONSTANT_Fieldref_info*)cpinfo)->class_index << "/" << ((Java::CONSTANT_Fieldref_info*)cpinfo)->name_and_type_index;
+        strm << "Fieldref " << ((Java::CONSTANT_Fieldref_info*)cpinfo)->class_index << "/" << ((Java::CONSTANT_Fieldref_info*)cpinfo)->name_and_type_index;
         break;
       case CONSTANT_Methodref:
-        std::cout << "Methodref " << ((Java::CONSTANT_Methodref_info*)cpinfo)->class_index << "/" << ((Java::CONSTANT_Methodref_info*)cpinfo)->name_and_type_index;
+        strm << "Methodref " << ((Java::CONSTANT_Methodref_info*)cpinfo)->class_index << "/" << ((Java::CONSTANT_Methodref_info*)cpinfo)->name_and_type_index;
         break;
       case CONSTANT_InterfaceMethodref:
-        std::cout << "InterfaceMethodref " << ((Java::CONSTANT_InterfaceMethodref_info*)cpinfo)->class_index << "/" << ((Java::CONSTANT_InterfaceMethodref_info*)cpinfo)->name_and_type_index;
+        strm << "InterfaceMethodref " << ((Java::CONSTANT_InterfaceMethodref_info*)cpinfo)->class_index << "/" << ((Java::CONSTANT_InterfaceMethodref_info*)cpinfo)->name_and_type_index;
         break;
       case CONSTANT_String:
-        std::cout << "String " << ((Java::CONSTANT_String_info*)cpinfo)->string_index;
+        strm << "String " << ((Java::CONSTANT_String_info*)cpinfo)->string_index;
         break;
       case CONSTANT_NameAndType:
-        std::cout << "NameAndType " << ((Java::CONSTANT_NameAndType_info*)cpinfo)->name_index << "/" << ((Java::CONSTANT_NameAndType_info*)cpinfo)->descriptor_index;
+        strm << "NameAndType " << ((Java::CONSTANT_NameAndType_info*)cpinfo)->name_index << "/" << ((Java::CONSTANT_NameAndType_info*)cpinfo)->descriptor_index;
         break;
       case CONSTANT_Utf8:
-        std::cout << "UTF8 " << ((Java::CONSTANT_Utf8_info*)cpinfo)->bytes;
+        strm << "UTF8 " << ((Java::CONSTANT_Utf8_info*)cpinfo)->bytes;
         break;
     };
-    std::cout << std::endl;
+    strm << std::endl;
   }
-  std::cout << "Methods:" << "\n";
+  strm << "Methods:" << "\n";
   for (int i = 0; i < mClass.methods_count; ++i){
     Java::method_info* mi = mClass.methods[i];
     Java::cp_info* cpinfo = mClass.constant_pool[mi->name_index-1];
     Java::CONSTANT_Utf8_info* utf = dynamic_cast<Java::CONSTANT_Utf8_info*>(cpinfo);
     if (!utf)
       TRACE_ABORT(TRACE_JAVA, "Method resolution invalid");
-    std::cout << utf->bytes;
+    strm << utf->bytes;
     cpinfo = mClass.constant_pool[mi->descriptor_index-1];
     utf = dynamic_cast<Java::CONSTANT_Utf8_info*>(cpinfo);
     if (!utf){
@@ -85,49 +92,41 @@ void VMClass::print(){
       cpinfo = mClass.constant_pool[mi->descriptor_index-2];
       utf = dynamic_cast<Java::CONSTANT_Utf8_info*>(cpinfo);
     }
-    std::cout << utf->bytes;
-
-    //find code attribute
-    for (int j = 0; j < mi->attributes_count; ++j){
-      Java::Code_attribute* code = dynamic_cast<Java::Code_attribute*>(mi->attributes[j]);
-      if (code){
-        //std::cerr << "\nCode:";
-        for (unsigned k = 0; k < code->code_length; ++k){
-          Java::u1 opcode = code->code[k];
-          std::string cd = Opcode::map_string[opcode];
-          std::cout << "\n\t"/*<< code->code[k]*/ << cd;
-          switch (opcode){
-            case Java::op_invokestatic:
-            case Java::op_invokespecial:
-            case Java::op_invokevirtual:
-            case Java::op_getstatic:
-            case Java::op_goto:
-            case Java::op_new:
-            case Java::op_if_acmpne:
-            case Java::op_if_icmpge:
-            case Java::op_if_icmple:
-            case Java::op_ifeq:
-            case Java::op_ifge:
-            case Java::op_iflt:
-            case Java::op_ifne:
-              {
-                Java::u1 b1 = code->code[++k];
-                Java::u1 b2 = code->code[++k];
-                Java::u2 operand = b1 << 8 | b2;
-                std::cout << " #" << (int)operand;
-              }
-              break;
-            case Java::op_ldc:{
-              Java::u1 operand = code->code[++k];
-              std::cout << " #" << (int)operand;
-              }
-              break;
-
-          }
-        }
-      }
-    }
-
-    std::cout << "\n\n";
+    strm << utf->bytes;
+    strm << "\n";
   }
+}
+
+VMMethod* VMClass::findMethod(const std::string& name, const std::string& signature){
+	VMMethod* mthd = mMethods[name+signature];
+	if (mthd)
+		return mthd;
+	for (int i = 0; i < mClass.methods_count; ++i){
+    Java::method_info* mi = mClass.methods[i];
+    Java::cp_info* cpinfo = mClass.constant_pool[mi->name_index-1];
+    std::string methodname = ((Java::CONSTANT_Utf8_info*)cpinfo)->bytes;
+    if (methodname != name)
+      continue;
+    cpinfo = mClass.constant_pool[mi->descriptor_index-1];
+    std::string sig = ((Java::CONSTANT_Utf8_info*)cpinfo)->bytes;
+    if (sig != signature)
+      continue;
+		VMMethod* mthd = NULL;
+		//find code attribute
+    for (int j = 0; j < mi->attributes_count; ++j){
+			if (mi->attributes[j]->attribute_type == Java::ATTR_Code){
+				Java::Code_attribute* code = static_cast<Java::Code_attribute*>(mi->attributes[j]);
+				mthd = new VMMethod(code);
+				break;
+			}
+		}
+		if (mthd == NULL){
+			TRACE(TRACE_JAVA, TRACE_ERROR, "No code attribute found");
+			return NULL;
+		}
+		mMethods[name+signature] = mthd;
+		mthd->print(std::cout);
+		return mthd;
+	}
+	return NULL;
 }
