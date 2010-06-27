@@ -4,12 +4,15 @@
 #include "jni.h"
 
 class JVM;
+class VMClass;
+class VMMethod;
 
 class VMContext : public JNINativeInterface_{
 public:
   VMContext(JNIEnv* myself, JVM* vm);
   ~VMContext();
-  JVM* getVM() {return mVm;}
+  //JVM* getVM() {return mVm;}
+	//void executeFunction(VMClass* cls, VMMethod* method);
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);

@@ -12,3 +12,6 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself){
 VMContext::~VMContext(){
   delete mSelf;
 }
+
+//void VMContext::executeFunction(VMClass* cls, VMMethod* method){
+//}

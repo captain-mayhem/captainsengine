@@ -1,6 +1,7 @@
 #include "JVM.h"
 #include "VMContext.h"
 #include "VMClass.h"
+#include "VMMethod.h"
 
 #define CTX(env) ((VMContext*)env->m_func)
 #define VM_CTX(vm) ((JVM*)vm->m_func)
@@ -34,7 +35,7 @@ JavaVM_::~JavaVM_(){
 }
 
 jclass VMContext::FindClass(JNIEnv* env, const char* name){
-  return CTX(env)->getVM()->findClass(name);
+  return getVM()->findClass(CTX(env), name);
 }
 
 jmethodID VMContext::GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
@@ -45,7 +46,7 @@ jmethodID VMContext::GetStaticMethodID(JNIEnv *env, jclass clazz, const char *na
 void VMContext::CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args){
 	VMClass* cls = (VMClass*)clazz;
 	VMMethod* mthd = (VMMethod*)methodID;
-	return;
+	mthd->execute(CTX(env), cls);
 }
 
 JNIEnv_::JNIEnv_(JavaVM_* vm){
