@@ -151,15 +151,28 @@ struct method_info{
   std::vector<attribute_info*> attributes;
 };
 
+enum attrib_type{
+	ATTR_ConstatntValue,
+	ATTR_Code,
+	ATTR_Exceptions,
+	ATTR_InnerClass,
+	ATTR_Synthetic,
+	ATTR_SourceFile,
+	ATTR_LineNumberTable,
+	ATTR_LocalVariableTable,
+	ATTR_Deprecated
+};
+
 struct attribute_info{
-  attribute_info(u2 attribute_name_index, u4 attribute_length) {this->attribute_name_index = attribute_name_index; this->attribute_length = attribute_length;}
+	attribute_info(attrib_type attribute_type, u2 attribute_name_index, u4 attribute_length) {this->attribute_type = attribute_type, this->attribute_name_index = attribute_name_index; this->attribute_length = attribute_length;}
   virtual ~attribute_info(){}
+	attrib_type attribute_type;
   u2 attribute_name_index;
   u4 attribute_length;
 };
 
 struct ConstantValue_attribute : public attribute_info{
-  ConstantValue_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
+  ConstantValue_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_ConstatntValue, attribute_name_index, attribute_length) {}
   u2 constantvalue_index;
 };
 
@@ -170,7 +183,7 @@ struct Code_attribute  : public attribute_info{
     u2 handler_pc;
     u2 catch_type;
   };
-  Code_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
+  Code_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_Code, attribute_name_index, attribute_length) {}
   ~Code_attribute();
   u2 max_stack;
   u2 max_locals;
@@ -183,7 +196,7 @@ struct Code_attribute  : public attribute_info{
 };
 
 struct Exceptions_attribute  : public attribute_info{
-  Exceptions_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
+  Exceptions_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_Exceptions, attribute_name_index, attribute_length) {}
   u2 number_of_exceptions;
   std::vector<u2> exception_index_table;
 };
@@ -195,17 +208,17 @@ struct InnerClasses_attribute  : public attribute_info{
     u2 inner_name_index;
     u2 inner_class_access_flags;
   };
-  InnerClasses_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
+  InnerClasses_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_InnerClass, attribute_name_index, attribute_length) {}
   u2 number_of_classes;
   std::vector<Classes> classes;
 };
 
 struct Synthetic_attribute  : public attribute_info{
-  Synthetic_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
+  Synthetic_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_Synthetic, attribute_name_index, attribute_length) {}
 };
 
 struct SourceFile_attribute : public attribute_info{
-  SourceFile_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
+  SourceFile_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_SourceFile, attribute_name_index, attribute_length) {}
   u2 sourcefile_index;
 };
 
@@ -214,7 +227,7 @@ struct LineNumberTable_attribute : public attribute_info{
     u2 start_pc;
     u2 line_number;
   };
-  LineNumberTable_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
+  LineNumberTable_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_LineNumberTable, attribute_name_index, attribute_length) {}
   u2 line_number_table_length;
   std::vector<Line_number_table> line_number_table;
 };
@@ -227,13 +240,13 @@ struct LocalVariableTable_attribute : public attribute_info{
     u2 descriptor_index;
     u2 index;
   };
-  LocalVariableTable_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
+  LocalVariableTable_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_LocalVariableTable, attribute_name_index, attribute_length) {}
   u2 local_variable_table_length;
   std::vector<Local_variable_table> local_variable_table;
 };
 
 struct Deprecated_attribute : public attribute_info{
-  Deprecated_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(attribute_name_index, attribute_length) {}
+  Deprecated_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_Deprecated, attribute_name_index, attribute_length) {}
 };
 
 #define PROC_ENUM_MODE

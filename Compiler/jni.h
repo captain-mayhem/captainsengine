@@ -1,7 +1,13 @@
 #ifndef JNI_H
 #define JNI_H
 
+#ifdef __cplusplus
 #include <fstream>
+#include <cstdarg>
+#else
+#include <stdio.h>
+#include <stdarg.h>
+#endif
 
 typedef int jint;
 typedef void* jclass;
@@ -49,6 +55,7 @@ struct JNINativeInterface_{
   void* reserved0;
   jclass (*FindClass)(JNIEnv *env, const char* name);
 	jmethodID (*GetStaticMethodID)(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+	void (*CallStaticVoidMethodV)(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
 };
 
 jint JNI_CreateJavaVM(JavaVM **p_vm, JNIEnv **p_env, void *vm_args);
@@ -73,6 +80,7 @@ public:
   ~JNIEnv_();
   jclass FindClass(const char* name) {return m_func->FindClass(this, name);}
 	jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
+	void CallStaticVoidMethod(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); m_func->CallStaticVoidMethodV(this, clazz, methodID, args); va_end(args);}
 protected:
   JNIEnv_(JavaVM_* vm);
 };

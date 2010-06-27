@@ -13,6 +13,7 @@ public:
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+	static void CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
 
   JVM* mVm;
   JNIEnv* mSelf;
