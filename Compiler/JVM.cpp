@@ -7,6 +7,7 @@
 #include "VMclass.h"
 #include "ClassLoader.h"
 #include "Trace.h"
+#include "VMMethod.h"
 
 #define PROC_MAP_MODE
 #include "Preproc.h"
@@ -57,7 +58,7 @@ void JVM::init(){
   Opcode::init();
 }
 
-VMClass* JVM::findClass(std::string name){
+VMClass* JVM::findClass(VMContext* ctx, std::string name){
   VMClass* entry = mClassResolver[name];
   if (entry == 0){
     //array functions
@@ -73,6 +74,11 @@ VMClass* JVM::findClass(std::string name){
 		entry = new VMClass(name);
 		mClassResolver[name] = entry;
 		entry->print(std::cout);
+		VMMethod* mthd = entry->findMethod("<clinit>", "()V");
+		if (mthd){
+			TRACE(TRACE_JAVA, TRACE_INFO, "Found class init method");
+			mthd->execute(ctx, entry);
+		}
   }
   return entry;
 }

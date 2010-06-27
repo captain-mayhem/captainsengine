@@ -17,7 +17,7 @@ public:
   ~JVM();
   void addThread(VMContext* thrd) {mThreads.push_back(thrd);}
 	CGE::MemReader getClassFile(const std::string& filename);
-  VMClass* findClass(std::string name);
+  VMClass* findClass(VMContext* ctx, std::string name);
 protected:
 	void init();
 
