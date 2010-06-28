@@ -7,6 +7,7 @@
 #include <map>
 
 #include <io/ZipReader.h>
+#include <system/soloader.h>
 
 class VMClass;
 class VMContext;
@@ -24,6 +25,7 @@ protected:
   static jint DestroyJavaVM(JavaVM* vm);
 
 	CGE::ZipReader mRuntimeClasses;
+	CGE::SOLoader mRuntime;
   std::list<VMContext*> mThreads;
   std::map <std::string,VMClass*> mClassResolver;
 };

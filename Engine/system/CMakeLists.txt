@@ -12,6 +12,7 @@ SET(Engine_system_SRCS
 	${PRE}/file.cpp
 	${PRE}/gameobject.cpp
 	${PRE}/script.cpp
+	${PRE}/soloader.cpp
 	${PRE}/thread.cpp
 	${PRE}/utilities.cpp
 	${PRE}/${SYS_FILE}
@@ -25,6 +26,7 @@ SET(Engine_system_HDRS
 	${PRE}/file.h 
 	${PRE}/gameobject.h 
 	${PRE}/script.h 
+	${PRE}/soloader.h
 	${PRE}/thread.h
 	${PRE}/types.h 
 	${PRE}/utilities.h)

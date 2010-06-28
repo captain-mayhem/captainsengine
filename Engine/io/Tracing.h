@@ -24,6 +24,6 @@
 #define TRACE_ABORT(group, message, ...) EXIT2(message)
 #endif
 
-void internal_trace(int group, int level, char* file, char* function, char* message, ...);
+void internal_trace(int group, int level, char* file, char* function, const char* message, ...);
 
 #endif
