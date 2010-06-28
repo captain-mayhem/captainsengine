@@ -5,6 +5,7 @@
 
 #include "JavaDefs.h"
 #include "VMClass.h"
+#include "Trace.h"
 
 #define PROC_DECL_MAP_MODE
 #include "Preproc.h"
@@ -51,12 +52,14 @@ void VMMethod::print(std::ostream& strm){
 void VMMethod::execute(VMContext* ctx, VMClass* cls){
 	for (unsigned k = 0; k < mCode->code_length; ++k){
     Java::u1 opcode = mCode->code[k];
+		TRACE(TRACE_JAVA, TRACE_DEBUG, Opcode::map_string[opcode].c_str());
     switch (opcode){
       //single byte number
       case Java::op_bipush:
         {
         Java::u1 constant = mCode->code[++k];
         }
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
         //two byte number
       case Java::op_sipush:
@@ -64,10 +67,12 @@ void VMMethod::execute(VMContext* ctx, VMClass* cls){
         Java::u1 b1 = mCode->code[++k];
         Java::u1 b2 = mCode->code[++k];
         Java::u2 constant = b1 << 8 | b2;
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         }
         break;
       case Java::op_ldc:
         {
+					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         /*Java::u1 operand = mCode->code[++k];
         Java::cp_info* info = mClass.constant_pool[operand-1];
         if (info->tag == CONSTANT_Integer){
@@ -99,6 +104,7 @@ void VMMethod::execute(VMContext* ctx, VMClass* cls){
         break;
       case Java::op_invokespecial:
         {
+					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         /*Java::u1 b1 = code->code[++k];
         Java::u1 b2 = code->code[++k];
         Java::u2 operand = b1 << 8 | b2;
@@ -116,16 +122,20 @@ void VMMethod::execute(VMContext* ctx, VMClass* cls){
       case Java::op_lookupswitch:
       case Java::op_tableswitch:
         k+=98;
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_invokeinterface:
         k+=4;
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_jsr_w:
       case Java::op_goto_w:
         k+=4;
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_multianewarray:
         k+=3;
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_ldc_w:
       case Java::op_ldc2_w:
@@ -154,6 +164,7 @@ void VMMethod::execute(VMContext* ctx, VMClass* cls){
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
 					VMField* fld = cls->findField(ctx, operand);
+					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         }
         break;
       case Java::op_putstatic:
@@ -163,23 +174,17 @@ void VMMethod::execute(VMContext* ctx, VMClass* cls){
         break;
       case Java::op_invokestatic:
         {
-          /*Java::u1 b1 = code->code[++k];
-          Java::u1 b2 = code->code[++k];
+          Java::u1 b1 = mCode->code[++k];
+          Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-          Java::CONSTANT_Methodref_info* methodref = dynamic_cast<Java::CONSTANT_Methodref_info*>(mClass.constant_pool[operand-1]);
-          Java::CONSTANT_Class_info* classinfo = dynamic_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[methodref->class_index-1]);
-          Java::CONSTANT_NameAndType_info* nameandtypeinfo = dynamic_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[methodref->name_and_type_index-1]);
-          std::string classname = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[classinfo->name_index-1])->bytes;
-          unsigned classidx = area.getClassIndex(classname);
-          std::string methodname = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
-          std::string signature = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
-          unsigned idx = area.getMethodIndex(MethodEntry(methodname,signature, classidx));
-          op.data.mUint = idx;
-          break;*/
+					VMMethod* mthd = cls->getMethod(ctx, operand);
+					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+          break;
         }
         break;
       case Java::op_invokevirtual:
         {
+					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
           /*Java::u1 b1 = code->code[++k];
           Java::u1 b2 = code->code[++k];
           Java::u2 operand = b1 << 8 | b2;
@@ -202,6 +207,7 @@ void VMMethod::execute(VMContext* ctx, VMClass* cls){
       case Java::op_instanceof:
       case Java::op_ifnull:
       case Java::op_ifnonnull:
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=2;
         break;
       case Java::op_iload:
@@ -216,6 +222,7 @@ void VMMethod::execute(VMContext* ctx, VMClass* cls){
       case Java::op_astore:
       case Java::op_ret:
       case Java::op_newarray:
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
         break;
     }

@@ -55,6 +55,13 @@ void JVM::init(){
       TRACE_ABORT(TRACE_JAVA, "Java runtime classes not found");
     }
   }
+	//TODO temporary hack to be able to load java.dll
+	mRuntime.open(prefix+"/Java/jre6/bin/client","jvm");
+	//mRuntime.addSearchPath(prefix+"/Java/jre6/bin;"+prefix+"/Java/jre6/bin/client");
+	mRuntime.addSearchPath(prefix+"/Java/jre6/bin");
+	if (!mRuntime.open(prefix+"/Java/jre6/bin","java")){
+		TRACE_ABORT(TRACE_JAVA, "Java runtime not found");
+	}
   Opcode::init();
 }
 

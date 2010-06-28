@@ -131,6 +131,17 @@ VMMethod* VMClass::findMethod(const std::string& name, const std::string& signat
 	return NULL;
 }
 
+VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref){
+	Java::CONSTANT_Methodref_info* methodref = static_cast<Java::CONSTANT_Methodref_info*>(mClass.constant_pool[method_ref-1]);
+  Java::CONSTANT_Class_info* classinfo = static_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[methodref->class_index-1]);
+  Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[methodref->name_and_type_index-1]);
+  std::string classname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[classinfo->name_index-1])->bytes;
+	VMClass* cls = getVM()->findClass(ctx, classname);
+  std::string methodname = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
+  std::string signature = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
+	return cls->findMethod(methodname, signature);
+}
+
 VMField* VMClass::findField(VMContext* ctx, Java::u2 field_ref){
 	Java::CONSTANT_Fieldref_info* fieldref = static_cast<Java::CONSTANT_Fieldref_info*>(mClass.constant_pool[field_ref-1]);
   Java::CONSTANT_Class_info* classinfo = static_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[fieldref->class_index-1]);

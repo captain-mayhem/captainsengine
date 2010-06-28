@@ -15,6 +15,7 @@ public:
 	~VMClass();
 	VMMethod* findMethod(const std::string& name, const std::string& signature);
 	VMField* findField(VMContext* ctx, Java::u2 field_ref);
+	VMMethod* getMethod(VMContext* ctx, Java::u2 method_ref);
 	void print(std::ostream& strm);
 protected:
 	Java::ClassFile mClass;
