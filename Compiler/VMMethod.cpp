@@ -5,6 +5,7 @@
 
 #include "JavaDefs.h"
 #include "VMClass.h"
+#include "VMContext.h"
 #include "Trace.h"
 
 #define PROC_DECL_MAP_MODE
@@ -12,7 +13,7 @@
 #include "JavaOpcodes.h"
 #undef PROC_DECL_MAP_MODE
 
-void VMMethod::print(std::ostream& strm){
+void BcVMMethod::print(std::ostream& strm){
 	for (unsigned k = 0; k < mCode->code_length; ++k){
 		Java::u1 opcode = mCode->code[k];
 		std::string cd = Opcode::map_string[opcode];
@@ -49,7 +50,7 @@ void VMMethod::print(std::ostream& strm){
 	}
 }
 
-void VMMethod::execute(VMContext* ctx, VMClass* cls){
+void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 	for (unsigned k = 0; k < mCode->code_length; ++k){
     Java::u1 opcode = mCode->code[k];
 		TRACE(TRACE_JAVA, TRACE_DEBUG, Opcode::map_string[opcode].c_str());
@@ -177,8 +178,10 @@ void VMMethod::execute(VMContext* ctx, VMClass* cls){
           Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					VMMethod* mthd = cls->getMethod(ctx, operand);
-					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+					VMClass* execCls;
+					VMMethod* mthd = cls->getMethod(ctx, operand, execCls);
+					mthd->execute(ctx, execCls);
+					//TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
           break;
         }
         break;
@@ -227,4 +230,12 @@ void VMMethod::execute(VMContext* ctx, VMClass* cls){
         break;
     }
   }
+}
+
+void NativeVMMethod::print(std::ostream& strm){
+	strm << "Native method\n";
+}
+
+void NativeVMMethod::execute(VMContext* ctx, VMClass* cls){
+	mFunction(ctx->getJNIEnv(), cls);
 }

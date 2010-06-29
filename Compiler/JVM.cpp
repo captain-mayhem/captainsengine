@@ -93,3 +93,8 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 CGE::MemReader JVM::getClassFile(const std::string& filename){
 	return mRuntimeClasses.openEntry(filename);
 }
+
+nativeMethod JVM::findNativeMethod(const std::string& name){
+	nativeMethod mthd = (nativeMethod)mRuntime.getFunction(name.c_str());
+	return mthd;
+}
