@@ -3,6 +3,8 @@
 
 #include <vector>
 
+#include "jni.h"
+
 namespace Java{
 
 typedef unsigned int u4;
@@ -280,5 +282,7 @@ enum Opcodes{
 };
 */
 }
+
+typedef void* (*nativeMethod)(JNIEnv* env, jobject object, ...);
 
 #endif

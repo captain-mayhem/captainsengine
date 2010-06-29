@@ -4,6 +4,7 @@
 
 #include <io/BinFileReader.h>
 #include <io/ZipReader.h>
+#include <system/utilities.h>
 
 #include "Trace.h"
 #include "JVM.h"
@@ -116,13 +117,18 @@ VMMethod* VMClass::findMethod(const std::string& name, const std::string& signat
     for (int j = 0; j < mi->attributes_count; ++j){
 			if (mi->attributes[j]->attribute_type == Java::ATTR_Code){
 				Java::Code_attribute* code = static_cast<Java::Code_attribute*>(mi->attributes[j]);
-				mthd = new VMMethod(code);
+				mthd = new BcVMMethod(code);
 				break;
 			}
 		}
 		if (mthd == NULL){
-			TRACE(TRACE_JAVA, TRACE_ERROR, "No code attribute found");
-			return NULL;
+			TRACE(TRACE_JAVA, TRACE_INFO, "No code attribute found");
+			nativeMethod m = getVM()->findNativeMethod(buildNativeMethodName(name, signature));
+			mthd = new NativeVMMethod(m);
+			if (mthd == NULL){
+				TRACE(TRACE_JAVA, TRACE_ERROR, "Cannot resolve native method");
+				return NULL;
+			}
 		}
 		mMethods[name+signature] = mthd;
 		mthd->print(std::cout);
@@ -131,15 +137,15 @@ VMMethod* VMClass::findMethod(const std::string& name, const std::string& signat
 	return NULL;
 }
 
-VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref){
+VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref, VMClass*& classRet){
 	Java::CONSTANT_Methodref_info* methodref = static_cast<Java::CONSTANT_Methodref_info*>(mClass.constant_pool[method_ref-1]);
   Java::CONSTANT_Class_info* classinfo = static_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[methodref->class_index-1]);
   Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[methodref->name_and_type_index-1]);
   std::string classname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[classinfo->name_index-1])->bytes;
-	VMClass* cls = getVM()->findClass(ctx, classname);
+	classRet = getVM()->findClass(ctx, classname);
   std::string methodname = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
   std::string signature = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
-	return cls->findMethod(methodname, signature);
+	return classRet->findMethod(methodname, signature);
 }
 
 VMField* VMClass::findField(VMContext* ctx, Java::u2 field_ref){
@@ -153,4 +159,19 @@ VMField* VMClass::findField(VMContext* ctx, Java::u2 field_ref){
   /*unsigned fieldidx = resolveField(area, MethodEntry(fieldname, type, classidx));
   op.data.mUint = fieldidx;*/
 	return 0;
+}
+
+std::string VMClass::buildNativeMethodName(const std::string& functionname, const std::string& signature){
+	std::string result = mFilename;
+	CGE::Utilities::replaceWith(result, '/', '_');
+	result = "Java_"+result+"_"+functionname;
+#ifdef WIN32
+	std::string params;
+	if (signature == "()V")
+		params = "8";
+	else
+		TRACE(TRACE_JAVA, TRACE_ERROR, "Cannot resolve signature");
+	result = "_"+result+"@"+params;
+#endif
+	return result;
 }

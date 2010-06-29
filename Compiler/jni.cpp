@@ -49,6 +49,10 @@ void VMContext::CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID metho
 	mthd->execute(CTX(env), cls);
 }
 
+jint VMContext::RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods){
+	return 0;
+}
+
 JNIEnv_::JNIEnv_(JavaVM_* vm){
   m_func = new VMContext(this, (JVM*)vm->m_func);
 }
