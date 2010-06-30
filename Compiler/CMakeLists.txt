@@ -1,5 +1,6 @@
 INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
 INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/extern/zlib)
+INCLUDE_DIRECTORIES(.)
 
 LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
 
@@ -55,3 +56,8 @@ TARGET_LINK_LIBRARIES(Compiler Engine zlib  ${wxWidgets_LIBRARIES})
 IF (${OS} STREQUAL "windows")
   SET_TARGET_PROPERTIES(Compiler PROPERTIES LINK_FLAGS " /STACK:10000000 /machine:I386 /debug /SUBSYSTEM:Console")
 ENDIF (${OS} STREQUAL "windows")
+
+ADD_LIBRARY(javaruntime SHARED
+	runtime/Runtime.cpp
+	runtime/Runtime.h
+)
