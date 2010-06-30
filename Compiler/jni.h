@@ -4,13 +4,18 @@
 #ifdef __cplusplus
 #include <fstream>
 #include <cstdarg>
+extern "C" {
 #else
 #include <stdio.h>
 #include <stdarg.h>
 #endif
+
 #include <system/Types.h>
 
 #define JNICALL
+#ifdef WIN32
+#define JNIEXPORT __declspec(dllexport)
+#endif
 
 typedef unsigned char jboolean;
 typedef unsigned char jbyte;
@@ -658,6 +663,8 @@ jint JNI_CreateJavaVM(JavaVM **p_vm, JNIEnv **p_env, void *vm_args);
 jint JNI_GetDefaultJavaVMInitArgs(void *vm_args);
 
 #ifdef __cplusplus
+} //extern "C"
+
 class JavaVM_{
   friend jint JNI_CreateJavaVM(JavaVM **p_vm, JNIEnv **p_env, void *vm_args);
 public:
@@ -676,6 +683,7 @@ public:
   jclass FindClass(const char* name) {return m_func->FindClass(this, name);}
 	jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
 	void CallStaticVoidMethod(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); m_func->CallStaticVoidMethodV(this, clazz, methodID, args); va_end(args);}
+	jint RegisterNatives(jclass clazz, const JNINativeMethod *methods, jint nMethods) {return m_func->RegisterNatives(this, clazz, methods, nMethods);}
 protected:
   JNIEnv_(JavaVM_* vm);
 };

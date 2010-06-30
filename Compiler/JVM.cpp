@@ -56,10 +56,10 @@ void JVM::init(){
     }
   }
 	//TODO temporary hack to be able to load java.dll
-	mRuntime.open(prefix+"/Java/jre6/bin/client","jvm");
+	//mRuntime.open(prefix+"/Java/jre6/bin/client","jvm");
 	//mRuntime.addSearchPath(prefix+"/Java/jre6/bin;"+prefix+"/Java/jre6/bin/client");
-	mRuntime.addSearchPath(prefix+"/Java/jre6/bin");
-	if (!mRuntime.open(prefix+"/Java/jre6/bin","java")){
+	//mRuntime.addSearchPath(prefix+"/Java/jre6/bin");
+	if (!mRuntime.open("C:\\Projects\\engine_windows\\Compiler\\Debug","javaruntime")){
 		TRACE_ABORT(TRACE_JAVA, "Java runtime not found");
 	}
   Opcode::init();

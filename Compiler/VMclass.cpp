@@ -166,12 +166,12 @@ std::string VMClass::buildNativeMethodName(const std::string& functionname, cons
 	CGE::Utilities::replaceWith(result, '/', '_');
 	result = "Java_"+result+"_"+functionname;
 #ifdef WIN32
-	std::string params;
+	/*std::string params;
 	if (signature == "()V")
 		params = "8";
 	else
 		TRACE(TRACE_JAVA, TRACE_ERROR, "Cannot resolve signature");
-	result = "_"+result+"@"+params;
+	result = "_"+result+"@"+params;*/
 #endif
 	return result;
 }
