@@ -50,6 +50,10 @@ void VMContext::CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID metho
 }
 
 jint VMContext::RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods){
+	VMClass* cls = (VMClass*)clazz;
+	for (int i = 0; i < nMethods; ++i){
+		cls->registerMethod(std::string(methods[i].name)+methods[i].signature, (nativeMethod)methods[i].fnPtr);
+	}
 	return 0;
 }
 

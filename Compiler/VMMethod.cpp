@@ -228,6 +228,9 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
         break;
+			default:
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				break;
     }
   }
 }

@@ -175,3 +175,7 @@ std::string VMClass::buildNativeMethodName(const std::string& functionname, cons
 #endif
 	return result;
 }
+
+void VMClass::registerMethod(const std::string& name_sig, nativeMethod mthd){
+	mMethods[name_sig] = new NativeVMMethod(mthd);
+}
