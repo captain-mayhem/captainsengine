@@ -19,7 +19,31 @@ void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
 	env->RegisterNatives(object, methods, 3);
 }
 
+#ifdef WIN32
+static int64 time1970=0;
+#endif
+
 jlong JNIEXPORT Java_java_lang_System_currentTimeMillis(JNIEnv* env, jobject object){
+#ifdef WIN32
+	SYSTEMTIME systime;
+		FILETIME filetime;
+	if (time1970 == 0){
+		systime.wDay = 1;
+		systime.wDayOfWeek = 4;
+		systime.wHour = 0;
+		systime.wMilliseconds = 0;
+		systime.wMinute = 0;
+		systime.wMonth = 1;
+		systime.wSecond = 0;
+		systime.wYear = 1970;
+		SystemTimeToFileTime(&systime, &filetime);
+		time1970 = (int64)filetime.dwHighDateTime << 32 | filetime.dwLowDateTime;
+	}
+	GetSystemTime(&systime);
+	SystemTimeToFileTime(&systime, &filetime);
+	int64 time = (int64)filetime.dwHighDateTime << 32 | filetime.dwLowDateTime;
+	return (time - time1970)/10000;
+#endif
 	return 0;
 }
 

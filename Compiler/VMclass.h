@@ -17,6 +17,7 @@ public:
 	VMField* findField(VMContext* ctx, Java::u2 field_ref);
 	VMMethod* getMethod(VMContext* ctx, Java::u2 method_ref, VMClass*& classRet);
 	void print(std::ostream& strm);
+	void registerMethod(const std::string& name_sig, nativeMethod mthd);
 protected:
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);
 	Java::ClassFile mClass;
