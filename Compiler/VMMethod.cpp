@@ -13,6 +13,27 @@
 #include "JavaOpcodes.h"
 #undef PROC_DECL_MAP_MODE
 
+void VMMethod::parseSignature(){
+	if (mSignature[0] != '(')
+		TRACE(TRACE_JAVA, TRACE_ERROR, "Unexpected method signature");
+	unsigned i;
+	for (i = 1; i < mSignature.size(); ++i){
+		if (mSignature[i] == ')'){
+			++i;
+			break;
+		}
+	}
+	//parse return
+	if (mSignature[i] == 'V')
+		mReturnType = Void;
+	else if (mSignature[i] == 'J')
+		mReturnType = Long;
+	else if (mSignature[i] == 'L')
+		mReturnType = Reference;
+	else
+		TRACE(TRACE_JAVA, TRACE_ERROR, "Unexpected return type in method signature");
+}
+
 void BcVMMethod::print(std::ostream& strm){
 	for (unsigned k = 0; k < mCode->code_length; ++k){
 		Java::u1 opcode = mCode->code[k];
@@ -25,6 +46,15 @@ void BcVMMethod::print(std::ostream& strm){
 			case Java::op_getstatic:
 			case Java::op_goto:
 			case Java::op_new:
+				{
+					{
+					Java::u1 b1 = mCode->code[++k];
+					Java::u1 b2 = mCode->code[++k];
+					Java::u2 operand = b1 << 8 | b2;
+					strm << " #" << (int)operand;
+				}
+				break;
+				}
 			case Java::op_if_acmpne:
 			case Java::op_if_icmpge:
 			case Java::op_if_icmple:
@@ -32,11 +62,12 @@ void BcVMMethod::print(std::ostream& strm){
 			case Java::op_ifge:
 			case Java::op_iflt:
 			case Java::op_ifne:
+			case Java::op_ifle:
 				{
 					Java::u1 b1 = mCode->code[++k];
 					Java::u1 b2 = mCode->code[++k];
 					Java::u2 operand = b1 << 8 | b2;
-					strm << " #" << (int)operand;
+					strm << " -> " << (int)operand;
 				}
 				break;
 			case Java::op_ldc:{
@@ -51,10 +82,18 @@ void BcVMMethod::print(std::ostream& strm){
 }
 
 void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
+	ctx->pushFrame(this);
 	for (unsigned k = 0; k < mCode->code_length; ++k){
     Java::u1 opcode = mCode->code[k];
 		TRACE(TRACE_JAVA, TRACE_DEBUG, Opcode::map_string[opcode].c_str());
     switch (opcode){
+			case Java::op_aconst_null:
+				ctx->push((void*)NULL);
+				break;
+			case Java::op_lconst_0:
+				ctx->push((uint32)0);
+				ctx->push((uint32)0);
+				break;
       //single byte number
       case Java::op_bipush:
         {
@@ -146,7 +185,18 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
       case Java::op_iflt:
       case Java::op_ifge:
       case Java::op_ifgt:
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				break;
       case Java::op_ifle:
+				{
+					Java::u1 b1 = mCode->code[++k];
+					Java::u1 b2 = mCode->code[++k];
+					int16 branch = b1 << 8 | b2;
+					if (ctx->pop().ui <= 0){
+						k += branch-3;
+					}
+				}
+				break;
       case Java::op_if_icmpeq:
       case Java::op_if_icmpne:
       case Java::op_if_icmplt:
@@ -158,6 +208,7 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
       case Java::op_goto:
       case Java::op_jsr:
         k+=2;
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_getstatic:
         {
@@ -228,11 +279,31 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
         break;
+			case Java::op_lcmp:{
+				int64 l1;
+				int64 l2;
+				l1 = (int64)ctx->pop().ui;
+				l1 |= ((int64)ctx->pop().ui) << 32;
+				l2 = (int64)ctx->pop().ui;
+				l2 |= ((int64)ctx->pop().ui) << 32;
+				ctx->push(l1 == l2 ? 0 : -1);
+				break;
+		  }
 			default:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
 				break;
     }
   }
+	ctx->popFrame();
+}
+
+void BcVMMethod::executeVoidRet(VMContext* ctx, VMClass* cls){
+}
+
+void BcVMMethod::executeLongRet(VMContext* ctx, VMClass* cls){
+}
+
+void BcVMMethod::executeRefRet(VMContext* ctx, VMClass* cls){
 }
 
 void NativeVMMethod::print(std::ostream& strm){
@@ -240,5 +311,35 @@ void NativeVMMethod::print(std::ostream& strm){
 }
 
 void NativeVMMethod::execute(VMContext* ctx, VMClass* cls){
+	switch (mReturnType){
+		case Void:
+			executeVoidRet(ctx, cls);
+			break;
+		case Long:
+			executeLongRet(ctx, cls);
+			break;
+		case Reference:
+			executeRefRet(ctx, cls);
+			break;
+	}
+}
+
+void NativeVMMethod::executeVoidRet(VMContext* ctx, VMClass* cls){
+	ctx->pushFrame(this);
 	mFunction(ctx->getJNIEnv(), cls);
+	ctx->popFrame();
+}
+
+void NativeVMMethod::executeLongRet(VMContext* ctx, VMClass* cls){
+	ctx->pushFrame(this);
+	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls);
+	ctx->popFrame();
+	ctx->push((uint32)(ret >> 32));
+	ctx->push((uint32)ret);
+}
+
+void NativeVMMethod::executeRefRet(VMContext* ctx, VMClass* cls){
+	ctx->pushFrame(this);
+	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls);
+	ctx->popFrame();
 }
