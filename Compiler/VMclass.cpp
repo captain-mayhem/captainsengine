@@ -117,14 +117,14 @@ VMMethod* VMClass::findMethod(const std::string& name, const std::string& signat
     for (int j = 0; j < mi->attributes_count; ++j){
 			if (mi->attributes[j]->attribute_type == Java::ATTR_Code){
 				Java::Code_attribute* code = static_cast<Java::Code_attribute*>(mi->attributes[j]);
-				mthd = new BcVMMethod(code);
+				mthd = new BcVMMethod(name, signature, code);
 				break;
 			}
 		}
 		if (mthd == NULL){
 			TRACE(TRACE_JAVA, TRACE_INFO, "No code attribute found");
 			nativeMethod m = getVM()->findNativeMethod(buildNativeMethodName(name, signature));
-			mthd = new NativeVMMethod(m);
+			mthd = new NativeVMMethod(name, signature, m);
 			if (mthd == NULL){
 				TRACE(TRACE_JAVA, TRACE_ERROR, "Cannot resolve native method");
 				return NULL;
@@ -176,6 +176,6 @@ std::string VMClass::buildNativeMethodName(const std::string& functionname, cons
 	return result;
 }
 
-void VMClass::registerMethod(const std::string& name_sig, nativeMethod mthd){
-	mMethods[name_sig] = new NativeVMMethod(mthd);
+void VMClass::registerMethod(const std::string& name, const std::string& signature, nativeMethod mthd){
+	mMethods[name+signature] = new NativeVMMethod(name, signature, mthd);
 }
