@@ -46,6 +46,7 @@ void BcVMMethod::print(std::ostream& strm){
 			case Java::op_getstatic:
 			case Java::op_goto:
 			case Java::op_new:
+			case Java::op_putstatic:
 				{
 					{
 					Java::u1 b1 = mCode->code[++k];
@@ -88,7 +89,15 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 		TRACE(TRACE_JAVA, TRACE_DEBUG, Opcode::map_string[opcode].c_str());
     switch (opcode){
 			case Java::op_aconst_null:
-				ctx->push((void*)NULL);
+				ctx->push((VMObject*)NULL);
+				break;
+			case Java::op_areturn:
+				{
+					VMContext::StackData dat = ctx->pop();
+					ctx->popFrame();
+					ctx->push(dat);
+					return;
+				}
 				break;
 			case Java::op_lconst_0:
 				ctx->push((uint32)0);
@@ -215,14 +224,24 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
           Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					VMField* fld = cls->findField(ctx, operand);
-					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+					VMObject** obj = cls->getField(ctx, operand);
+					ctx->push(*obj);
         }
         break;
       case Java::op_putstatic:
+				{
+					Java::u1 b1 = mCode->code[++k];
+          Java::u1 b2 = mCode->code[++k];
+          Java::u2 operand = b1 << 8 | b2;
+					VMObject** obj = cls->getField(ctx, operand);
+					VMObject* data = ctx->pop().obj;
+					*obj = data;
+				}
+				break;
       case Java::op_getfield:
       case Java::op_putfield:
         k+=2;
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_invokestatic:
         {
@@ -232,7 +251,6 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 					VMClass* execCls;
 					VMMethod* mthd = cls->getMethod(ctx, operand, execCls);
 					mthd->execute(ctx, execCls);
-					//TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
           break;
         }
         break;
@@ -289,6 +307,11 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 				ctx->push(l1 == l2 ? 0 : -1);
 				break;
 		  }
+			case Java::op_return:{
+				ctx->popFrame();
+				return;
+				break;
+			}
 			default:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
 				break;

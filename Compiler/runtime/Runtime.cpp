@@ -5,6 +5,10 @@
 
 extern "C" {
 
+void Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object){
+	return;
+}
+
 void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
 	JNINativeMethod methods[3];
 	methods[0].name = "currentTimeMillis";

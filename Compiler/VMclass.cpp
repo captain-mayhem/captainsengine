@@ -17,7 +17,7 @@
 
 #include "JavaBinFileReader.h"
 
-VMClass::VMClass(const std::string& filename){
+VMClass::VMClass(const std::string& filename) : mSuperclass(NULL){
 	 mFilename = filename;
 
   char* buffer = NULL;
@@ -94,6 +94,15 @@ void VMClass::print(std::ostream& strm){
       utf = dynamic_cast<Java::CONSTANT_Utf8_info*>(cpinfo);
     }
     strm << utf->bytes;
+		bool ca = false;
+		for (int j = 0; j < mi->attributes_count; ++j){
+			if (mi->attributes[j] && mi->attributes[j]->attribute_type == Java::ATTR_Code){
+				ca = true;
+				break;
+			}
+		}
+		if (!ca)
+			strm << "  (native)";
     strm << "\n";
   }
 }
@@ -137,6 +146,10 @@ VMMethod* VMClass::findMethod(const std::string& name, const std::string& signat
 	return NULL;
 }
 
+VMObject** VMClass::findField(const std::string& name){
+	return &mFields[name];
+}
+
 VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref, VMClass*& classRet){
 	Java::CONSTANT_Methodref_info* methodref = static_cast<Java::CONSTANT_Methodref_info*>(mClass.constant_pool[method_ref-1]);
   Java::CONSTANT_Class_info* classinfo = static_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[methodref->class_index-1]);
@@ -148,7 +161,7 @@ VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref, VMClass*& clas
 	return classRet->findMethod(methodname, signature);
 }
 
-VMField* VMClass::findField(VMContext* ctx, Java::u2 field_ref){
+VMObject** VMClass::getField(VMContext* ctx, Java::u2 field_ref){
 	Java::CONSTANT_Fieldref_info* fieldref = static_cast<Java::CONSTANT_Fieldref_info*>(mClass.constant_pool[field_ref-1]);
   Java::CONSTANT_Class_info* classinfo = static_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[fieldref->class_index-1]);
   Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[fieldref->name_and_type_index-1]);
@@ -156,9 +169,7 @@ VMField* VMClass::findField(VMContext* ctx, Java::u2 field_ref){
 	VMClass* cls = getVM()->findClass(ctx, classname);
   std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
   std::string type = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
-  /*unsigned fieldidx = resolveField(area, MethodEntry(fieldname, type, classidx));
-  op.data.mUint = fieldidx;*/
-	return 0;
+	return cls->findField(fieldname);
 }
 
 std::string VMClass::buildNativeMethodName(const std::string& functionname, const std::string& signature){
@@ -178,4 +189,12 @@ std::string VMClass::buildNativeMethodName(const std::string& functionname, cons
 
 void VMClass::registerMethod(const std::string& name, const std::string& signature, nativeMethod mthd){
 	mMethods[name+signature] = new NativeVMMethod(name, signature, mthd);
+}
+
+VMClass* VMClass::getSuperclass(VMContext* ctx){
+	if (mClass.super_class == 0)
+		return NULL;
+	Java::CONSTANT_Class_info* classinfo = static_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[mClass.super_class-1]);
+	std::string classname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[classinfo->name_index-1])->bytes;
+	return getVM()->findClass(ctx, classname);
 }
