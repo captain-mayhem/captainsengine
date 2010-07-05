@@ -2,6 +2,8 @@
 
 extern "C"{
 
+void JNIEXPORT Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object);
+
 void JNIEXPORT Java_java_lang_System_registerNatives(JNIEnv* env, jobject object);
 
 jlong JNIEXPORT Java_java_lang_System_currentTimeMillis(JNIEnv* env, jobject object);

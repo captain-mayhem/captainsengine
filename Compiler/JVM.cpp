@@ -80,6 +80,8 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
     //Java::ClassFile* clfile = new Java::ClassFile();
 		entry = new VMClass(name);
 		mClassResolver[name] = entry;
+		//init superclass first
+		entry->getSuperclass(ctx);
 		entry->print(std::cout);
 		VMMethod* mthd = entry->findMethod("<clinit>", "()V");
 		if (mthd){

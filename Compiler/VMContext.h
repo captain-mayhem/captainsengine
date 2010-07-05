@@ -6,6 +6,7 @@
 class JVM;
 class VMClass;
 class VMMethod;
+class VMObject;
 
 class VMContext : public JNINativeInterface_{
 public:
@@ -14,13 +15,13 @@ public:
 		StackData(StackData* sd) {stp = sd;}
 		StackData(VMMethod* md) {mthd = md;}
 		StackData(uint32 uin) {ui = uin;}
-		StackData(void* vop) {vp = vop;}
+		StackData(VMObject* ob) {obj = ob;}
 		VMMethod* mthd;
 		StackData* stp;
 		int32 i;
 		uint32 ui;
 		float f;
-		void* vp;
+		VMObject* obj;
 	};
   VMContext(JNIEnv* myself, JVM* vm);
   ~VMContext();
