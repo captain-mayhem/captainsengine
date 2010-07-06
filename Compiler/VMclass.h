@@ -19,6 +19,7 @@ public:
 	VMMethod* getMethod(VMContext* ctx, Java::u2 method_ref, VMClass*& classRet);
 	void print(std::ostream& strm);
 	void registerMethod(const std::string& nam, const std::string& signature, nativeMethod mthd);
+	VMClass* getClass(VMContext* ctx, Java::u2 class_ref);
 	VMClass* getSuperclass(VMContext* ctx);
 protected:
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);
