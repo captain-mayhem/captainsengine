@@ -37,6 +37,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	jclass string = env->FindClass("Java/lang/String");
 	env->CallStaticVoidMethod(cls, mainfunc);
   
   jvm->DestroyJavaVM();

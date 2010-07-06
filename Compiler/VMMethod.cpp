@@ -47,6 +47,7 @@ void BcVMMethod::print(std::ostream& strm){
 			case Java::op_goto:
 			case Java::op_new:
 			case Java::op_putstatic:
+			case Java::op_anewarray:
 				{
 					{
 					Java::u1 b1 = mCode->code[++k];
@@ -103,6 +104,9 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 				ctx->push((uint32)0);
 				ctx->push((uint32)0);
 				break;
+			case Java::op_iconst_0:
+				ctx->push((uint32)0);
+				break;
       //single byte number
       case Java::op_bipush:
         {
@@ -121,6 +125,8 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
         break;
       case Java::op_ldc:
         {
+					//ctx->popFrame();
+					//return;
 					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         /*Java::u1 operand = mCode->code[++k];
         Java::cp_info* info = mClass.constant_pool[operand-1];
@@ -274,7 +280,17 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
         }
         break;
       case Java::op_new:
-      case Java::op_anewarray:
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				break;
+			case Java::op_anewarray:{
+				Java::u1 b1 = mCode->code[++k];
+        Java::u1 b2 = mCode->code[++k];
+        Java::u2 operand = b1 << 8 | b2;
+				VMClass* arrcls = cls->getClass(ctx, operand);
+				int arrsize = ctx->pop().ui;
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				break;
+				}
       case Java::op_checkcast:
       case Java::op_instanceof:
       case Java::op_ifnull:
