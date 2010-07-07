@@ -111,7 +111,7 @@ Object2D::~Object2D(){
 void Object2D::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  mAnimations[mState-1]->render(mPos+mScrollOffset, Vec2f(mScale,mScale), Vec2i(), mLightingColor);
+  mAnimations[mState-1]->render(mPos+mScrollOffset, Vec2f(mScale,mScale), mSize, mLightingColor);
 }
 
 Animation* Object2D::getAnimation(){
@@ -124,8 +124,8 @@ bool Object2D::isHit(const Vec2i& point){
   if (mScript == NULL || mState == 0)
     return false;
   Vec2i scaleoffset;
-  scaleoffset.x = (1-mScale)*(mSize.x-mSize.x*abs(mScale));
-  scaleoffset.y = mSize.y-mSize.y*mScale;
+  scaleoffset.x = (1-abs(mScale))*(getSize().x-getSize().x*abs(mScale));
+  scaleoffset.y = getSize().y-getSize().y*mScale;
   if (point.x >= mPos.x+scaleoffset.x && point.x <= mPos.x+scaleoffset.x+getSize().x){
     if (point.y >= mPos.y+scaleoffset.y && point.y <= mPos.y+scaleoffset.y+getSize().y)
       return true;
@@ -296,8 +296,8 @@ void CursorObject::setCommand(int command){
   }
 }
 
-RoomObject::RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name) : 
-Object2D(state, pos, size, name), mInventroy(NULL){
+RoomObject::RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap) : 
+Object2D(state, pos, size, name), mInventroy(NULL), mDepthMap(depthmap){
   mLighting = new LightingBlitObject(1000, size);
   mParallaxBackground = NULL;
 }
@@ -316,7 +316,7 @@ RoomObject::~RoomObject(){
 
 void RoomObject::render(){
   if (mParallaxBackground)
-    mParallaxBackground->render(Vec2i(), Vec2f(mScale,mScale), Vec2i(), mLightingColor);
+    mParallaxBackground->render(Vec2i(), Vec2f(mScale,mScale), mSize, mLightingColor);
   Object2D::render();
   for (int i = mObjects.size()-1; i >= 0; --i){
     mObjects[i]->render();
@@ -347,6 +347,7 @@ void RoomObject::setParallaxBackground(const std::string& bg, int depth){
 
 void RoomObject::addObject(Object2D* obj){
   obj->setScrollOffset(mScrollOffset);
+  obj->setScale(getDepthScale(obj->getPosition()));
   mObjects.push_back(obj);
 }
 
@@ -504,7 +505,17 @@ void RoomObject::skipScripts(){
 }
 
 float RoomObject::getDepthScale(const Vec2i& pos){
-  return 1.0f;
+  float factor = (pos.y-mDepthMap.scaleStart)/(mDepthMap.scaleStop-mDepthMap.scaleStart);
+  factor = factor < 0 ? 0 : factor;
+  factor = factor > 1.0f ? 1.0f : factor;
+  float ret = (factor)*1+(1-factor)*mDepthMap.minVal;
+  return ret;
+}
+
+RoomObject::DepthMap::DepthMap(Vec2i depthmap){
+  scaleStart = depthmap.x*Engine::instance()->getWalkGridSize();
+  scaleStop = depthmap.y*Engine::instance()->getWalkGridSize();
+  minVal = 1.0f-(depthmap.y-depthmap.x)/100.0f;
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 

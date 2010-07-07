@@ -49,7 +49,7 @@ bool BlitObject::operator<(const BlitObject& obj){
 }
 
 void BlitObject::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize){
-  mMirrorOffset.x = parentsize.x;
+  mMirrorOffset = parentsize;
   mPos.x = mOffset.x+pos.x;
   mPos.y = mOffset.y+pos.y;
   mZoomScale = scale;
@@ -65,9 +65,9 @@ void BlitObject::blit(){
 
   glTranslatef(mPos.x,mPos.y,0.0f);
   Vec2i zoomscaleoffset;
-  zoomscaleoffset.x = (1-mZoomScale.x)*(mSize.x-mSize.x*abs(mZoomScale.x));
-  zoomscaleoffset.y = mMirrorOffset.y-mMirrorOffset.y*mZoomScale.y;
-  //glTranslatef(zoomscaleoffset.x, zoomscaleoffset.y, 0.0f);
+  zoomscaleoffset.x = (1-abs(mZoomScale.x))*(mSize.x-mSize.x*abs(mZoomScale.x));
+  zoomscaleoffset.y = mMirrorOffset.y-mMirrorOffset.y*mZoomScale.y;//mOffset.y-mOffset.y*mZoomScale.y;
+  glTranslatef(zoomscaleoffset.x, zoomscaleoffset.y, 0.0f);
   glTranslatef(-mOffset.x, -mOffset.y, 0.0f);
   glScalef(mZoomScale.x, mZoomScale.y, 1.0f);
   glTranslatef(mOffset.x, mOffset.y, 0.0f);

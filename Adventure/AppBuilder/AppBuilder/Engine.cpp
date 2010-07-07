@@ -363,7 +363,8 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
     if (!mMainRoomLoaded)
       depthoffset += 1000;
   }
-  RoomObject* roomobj = new RoomObject(save->base.state, save->base.position, room->size, room->name);
+  Room* rm = mData->getRoom(name);
+  RoomObject* roomobj = new RoomObject(save->base.state, save->base.position, room->size, room->name, rm->depthmap);
   roomobj->setParallaxBackground(room->parallaxbackground, depthoffset-2);
   roomobj->setBackground(room->background, depthoffset-1);
   roomobj->setLightingColor(save->base.lighting);
@@ -913,7 +914,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   mFonts->loadFont(obj->fontid);
   character->setTextColor(chbase->textcolor);
   character->setRoom(room);
-  RoomObject* ro = getContainingRoom(character);
+  RoomObject* ro = Engine::instance()->getRoom(room);
   if (ro)
     character->setScale(ro->getDepthScale(obj->base.position));
   for (unsigned j = 0; j < chbase->states.size(); ++j){

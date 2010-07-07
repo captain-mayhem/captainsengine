@@ -117,7 +117,7 @@ class CharacterObject;
 
 class RoomObject : public Object2D{
 public:
-  RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name);
+  RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap);
   ~RoomObject();
   void setBackground(std::string bg, int depth);
   void setParallaxBackground(const std::string& bg, int depth);
@@ -145,12 +145,20 @@ public:
   void skipScripts();
   float getDepthScale(const Vec2i& pos);
 protected:
+  class DepthMap {
+  public:
+    DepthMap(Vec2i depthmap);
+    int scaleStart;
+    int scaleStop;
+    float minVal;
+  };
   std::vector<Object2D*> mObjects;
   std::vector<std::vector<WMField> > mWalkmap;
   LightingBlitObject* mLighting;
   std::map<Vec2i,ExecutionContext*> mWalkmapScripts;
   InventoryDisplay* mInventroy;
   Animation* mParallaxBackground;
+  DepthMap mDepthMap;
 };
 
 class CharacterObject : public Object2D{
