@@ -37,19 +37,19 @@ struct ClassFile{
   std::vector<attribute_info*> attributes;
 };
 
-#define ACC_PUBLIC 0x0001;
-#define ACC_PRIVATE 0x0002;
-#define ACC_PROTECTED 0x0004;
-#define ACC_STATIC 0x0008;
-#define ACC_FINAL 0x0010;
-#define ACC_SUPER 0x0020;
-#define ACC_SYNCHRONIZED 0x0020;
-#define ACC_VOLATILE 0x0040;
-#define ACC_TRANSIENT 0x0080;
-#define ACC_NATIVE 0x0100;
-#define ACC_INTERFACE 0x0200;
-#define ACC_ABSTRACT 0x0400;
-#define ACC_STRICT 0x800;
+#define ACC_PUBLIC 0x0001
+#define ACC_PRIVATE 0x0002
+#define ACC_PROTECTED 0x0004
+#define ACC_STATIC 0x0008
+#define ACC_FINAL 0x0010
+#define ACC_SUPER 0x0020
+#define ACC_SYNCHRONIZED 0x0020
+#define ACC_VOLATILE 0x0040
+#define ACC_TRANSIENT 0x0080
+#define ACC_NATIVE 0x0100
+#define ACC_INTERFACE 0x0200
+#define ACC_ABSTRACT 0x0400
+#define ACC_STRICT 0x800
 
 struct cp_info{
   cp_info();
@@ -162,7 +162,9 @@ enum attrib_type{
 	ATTR_SourceFile,
 	ATTR_LineNumberTable,
 	ATTR_LocalVariableTable,
-	ATTR_Deprecated
+	ATTR_Deprecated,
+	ATTR_Signature,
+	ATTR_RuntimeVisibleAnnotations
 };
 
 struct attribute_info{
@@ -251,37 +253,67 @@ struct Deprecated_attribute : public attribute_info{
   Deprecated_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_Deprecated, attribute_name_index, attribute_length) {}
 };
 
+struct Signature_attribute : public attribute_info{
+	Signature_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_Signature, attribute_name_index, attribute_length) {}
+	u2 signature_index;
+};
+
+struct RuntimeVisibleAnnotations_attribute : public attribute_info{
+	struct annotation{
+		struct element_value_pair{
+			u2 element_name_index;
+			struct element_value {
+				u1 tag;
+				union{
+					u2 const_value_index;
+					struct {
+						u2 type_name_index;
+						u2 const_name_index;
+					} enum_const_value;
+					u2 class_info_index;
+					annotation* annotation_value;
+					struct {
+						u2 num_values;
+						element_value* values;
+					} array_value;
+				} value;
+			};
+		};
+		u2 type_index;
+		u2 num_element_value_pairs;
+		std::vector<element_value_pair> element_value_pairs;
+	};
+	RuntimeVisibleAnnotations_attribute(u2 attribute_name_index, u4 attribute_length) : attribute_info(ATTR_RuntimeVisibleAnnotations, attribute_name_index, attribute_length) {}
+	u2 num_annotations;
+	std::vector<annotation> annotations;
+};
+
 #define PROC_ENUM_MODE
 #include "Preproc.h"
 #include "JavaOpcodes.h"
 #undef PROC_ENUM_MODE
 
-/*
-enum Opcodes{
-  nop = 0x00,
-  aconst_null = 0x01,
-  iconst_ml = 0x02,
-  iconst_0 = 0x03,
-  iconst_1 = 0x04,
-  iconst_2 = 0x05,
-  iconst_3 = 0x06,
-  iconst_4 = 0x07,
-  iconst_5 = 0x08,
-  lconst_0 = 0x09,
-  lconst_1 = 0x0a,
-  fconst_0 = 0x0b,
-  fconst_1 = 0x0c,
-  fconst_2 = 0x0d,
-  dconst_0 = 0x0e,
-  dconst_1 = 0x0f,
-  bipush = 0x10,
-  sipush = 0x11,
-  ldc = 0x12,
-  ldc_w = 0x13,
-  ldc2_w = 0x14,
-};
-*/
 }
+
+class VMMethod;
+class VMObject;
+class VMClass;
+
+union StackData{
+		StackData() {}
+		StackData(StackData* sd) {stp = sd;}
+		StackData(VMMethod* md) {mthd = md;}
+		StackData(uint32 uin) {ui = uin;}
+		StackData(VMObject* ob) {obj = ob;}
+		StackData(VMClass* cs) {cls = cs;}
+		VMMethod* mthd;
+		StackData* stp;
+		int32 i;
+		uint32 ui;
+		float f;
+		VMObject* obj;
+		VMClass* cls;
+};
 
 typedef void (*nativeMethod)(JNIEnv* env, jobject object, ...);
 typedef int64 (*nativeLongMethod)(JNIEnv* env, jobject object, ...);

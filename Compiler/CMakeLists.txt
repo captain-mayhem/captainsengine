@@ -21,32 +21,36 @@ ADD_DEFINITIONS(
 
 SET(Compiler_SRCS
 	Compiler.cpp
-	ClassLoader.cpp
-	Interpreter.cpp
+	#ClassLoader.cpp
+	#Interpreter.cpp
 	JavaBinFileReader.cpp
 	JavaDefs.cpp
-	MethodArea.cpp
+	#MethodArea.cpp
 	jni.cpp
 	JVM.cpp
+	VMArray.cpp
 	VMclass.cpp
 	VMContext.cpp
 	VMMethod.cpp
+	VMObject.cpp
   )
 
 SET(Compiler_HDRS
-	ClassLoader.h
-	Interpreter.h
+	#ClassLoader.h
+	#Interpreter.h
 	JavaBinFileReader.h
 	JavaDefs.h
 	JavaOpcodes.h
-	MethodArea.h
+	#MethodArea.h
 	Preproc.h
 	Trace.h
 	jni.h
 	JVM.h
+	VMArray.h
 	VMclass.h
 	VMContext.h
 	VMMethod.h
+	VMObject.h
 	)
 
 ADD_EXECUTABLE(Compiler ${Compiler_SRCS} ${Compiler_HDRS})

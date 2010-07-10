@@ -14,6 +14,8 @@
 class VMClass;
 class VMContext;
 class VMMethod;
+class VMArray;
+class VMObject;
 
 class JVM : public JNIInvokeInterface_{
 public:
@@ -23,6 +25,8 @@ public:
 	CGE::MemReader getClassFile(const std::string& filename);
   VMClass* findClass(VMContext* ctx, std::string name);
 	nativeMethod findNativeMethod(const std::string& name);
+	VMArray* createArray(unsigned size);
+	VMObject* createObject(VMClass* cls);
 protected:
 	void init();
 
@@ -32,6 +36,7 @@ protected:
 	CGE::SOLoader mRuntime;
   std::list<VMContext*> mThreads;
   std::map <std::string,VMClass*> mClassResolver;
+	std::list<VMObject*> mCreatedObjects;
 };
 
 JVM* getVM();

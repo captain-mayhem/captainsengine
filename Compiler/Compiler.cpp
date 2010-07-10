@@ -37,8 +37,9 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	jclass string = env->FindClass("Java/lang/String");
-	env->CallStaticVoidMethod(cls, mainfunc);
+	jclass string = env->FindClass("java/lang/String");
+	jobjectArray args = env->NewObjectArray(1, string, NULL);
+	env->CallStaticVoidMethod(cls, mainfunc, args);
   
   jvm->DestroyJavaVM();
   wxUninitialize();

@@ -40,6 +40,9 @@ VMClass::VMClass(const std::string& filename) : mSuperclass(NULL){
     TRACE_ABORT(TRACE_JAVA, "Malformed classfile found - aborting...");
 
   TRACE(TRACE_JAVA, TRACE_INFO, "%s parsed successfully", filename.c_str());
+
+	mRCP.resize(mClass.constant_pool_count+1);
+	memset(&mRCP[0], 0, (mClass.constant_pool_count+1)*sizeof(StackData));
 }
 
 VMClass::~VMClass(){
@@ -108,9 +111,10 @@ void VMClass::print(std::ostream& strm){
 }
 
 VMMethod* VMClass::findMethod(const std::string& name, const std::string& signature){
-	VMMethod* mthd = mMethods[name+signature];
-	if (mthd)
-		return mthd;
+	VMMethod* mthd = NULL;
+	std::map<std::string,VMMethod*>::iterator iter = mMethods.find(name+signature);
+	if (iter != mMethods.end())
+		return iter->second;
 	for (int i = 0; i < mClass.methods_count; ++i){
     Java::method_info* mi = mClass.methods[i];
     Java::cp_info* cpinfo = mClass.constant_pool[mi->name_index-1];
@@ -126,14 +130,14 @@ VMMethod* VMClass::findMethod(const std::string& name, const std::string& signat
     for (int j = 0; j < mi->attributes_count; ++j){
 			if (mi->attributes[j]->attribute_type == Java::ATTR_Code){
 				Java::Code_attribute* code = static_cast<Java::Code_attribute*>(mi->attributes[j]);
-				mthd = new BcVMMethod(name, signature, code);
+				mthd = new BcVMMethod(name, signature, this, (mi->access_flags & ACC_STATIC) != 0, code);
 				break;
 			}
 		}
 		if (mthd == NULL){
 			TRACE(TRACE_JAVA, TRACE_INFO, "No code attribute found");
 			nativeMethod m = getVM()->findNativeMethod(buildNativeMethodName(name, signature));
-			mthd = new NativeVMMethod(name, signature, m);
+			mthd = new NativeVMMethod(name, signature, this, (mi->access_flags & ACC_STATIC) != 0, m);
 			if (mthd == NULL){
 				TRACE(TRACE_JAVA, TRACE_ERROR, "Cannot resolve native method");
 				return NULL;
@@ -150,13 +154,17 @@ VMObject** VMClass::findField(const std::string& name){
 	return &mFields[name];
 }
 
-VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref, VMClass*& classRet){
+VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref){
+	if (mRCP[method_ref].mthd != NULL)
+		return mRCP[method_ref].mthd;
 	Java::CONSTANT_Methodref_info* methodref = static_cast<Java::CONSTANT_Methodref_info*>(mClass.constant_pool[method_ref-1]);
+	VMClass* classRet = getClass(ctx, methodref->class_index);
   Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[methodref->name_and_type_index-1]);
-	classRet = getClass(ctx, methodref->class_index);
   std::string methodname = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
   std::string signature = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
-	return classRet->findMethod(methodname, signature);
+	VMMethod* mthd = classRet->findMethod(methodname, signature);
+	mRCP[method_ref] = mthd;
+	return mthd;
 }
 
 VMObject** VMClass::getField(VMContext* ctx, Java::u2 field_ref){
@@ -184,7 +192,21 @@ std::string VMClass::buildNativeMethodName(const std::string& functionname, cons
 }
 
 void VMClass::registerMethod(const std::string& name, const std::string& signature, nativeMethod mthd){
-	mMethods[name+signature] = new NativeVMMethod(name, signature, mthd);
+	Java::method_info* minfo = NULL;
+	for (int i = 0; i < mClass.methods_count; ++i){
+    Java::method_info* mi = mClass.methods[i];
+    Java::cp_info* cpinfo = mClass.constant_pool[mi->name_index-1];
+    std::string methodname = ((Java::CONSTANT_Utf8_info*)cpinfo)->bytes;
+    if (methodname != name)
+      continue;
+    cpinfo = mClass.constant_pool[mi->descriptor_index-1];
+    std::string sig = ((Java::CONSTANT_Utf8_info*)cpinfo)->bytes;
+    if (sig != signature)
+      continue;
+		minfo = mi;
+		break;
+	}
+	mMethods[name+signature] = new NativeVMMethod(name, signature, this, (minfo->access_flags & ACC_STATIC) != 0, mthd);
 }
 
 VMClass* VMClass::getSuperclass(VMContext* ctx){
@@ -194,7 +216,11 @@ VMClass* VMClass::getSuperclass(VMContext* ctx){
 }
 
 VMClass* VMClass::getClass(VMContext* ctx, Java::u2 class_ref){
+	if (mRCP[class_ref].cls != NULL)
+		return mRCP[class_ref].cls;
 	Java::CONSTANT_Class_info* classinfo = static_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[class_ref-1]);
 	std::string classname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[classinfo->name_index-1])->bytes;
-	return getVM()->findClass(ctx, classname);
+	VMClass* cls = getVM()->findClass(ctx, classname);
+	mRCP[class_ref] = cls;
+	return cls;
 }

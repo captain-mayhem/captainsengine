@@ -261,6 +261,11 @@ void JavaBinFileReader::readAttributes(std::vector<Java::attribute_info*>& attri
       Java::Deprecated_attribute* attr = new Java::Deprecated_attribute(attribute_name_index, attribute_length);
       attributes[i] = attr;
     }
+		else if (name == "Signature"){
+			Java::Signature_attribute* attr = new Java::Signature_attribute(attribute_name_index, attribute_length);
+			attr->signature_index = readU2();
+      attributes[i] = attr;
+		}
     else{
       mReader->skip(attribute_length);
       TRACE(TRACE_JAVA, TRACE_WARNING, "Unknown Attribute: %s", name.c_str());

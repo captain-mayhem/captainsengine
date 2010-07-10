@@ -7,6 +7,7 @@
 #include "VMClass.h"
 #include "VMContext.h"
 #include "Trace.h"
+#include "JVM.h"
 
 #define PROC_DECL_MAP_MODE
 #include "Preproc.h"
@@ -14,14 +15,35 @@
 #undef PROC_DECL_MAP_MODE
 
 void VMMethod::parseSignature(){
+	mArgSize = 0;
 	if (mSignature[0] != '(')
 		TRACE(TRACE_JAVA, TRACE_ERROR, "Unexpected method signature");
 	unsigned i;
+	bool count_args = true;
 	for (i = 1; i < mSignature.size(); ++i){
 		if (mSignature[i] == ')'){
 			++i;
 			break;
 		}
+		else if (mSignature[i] == 'L'){
+			do{
+				++i;
+			} while(mSignature[i] != ';');
+			if (count_args)
+				++mArgSize;
+			count_args = true;
+		}
+		else if (mSignature[i] == 'I'){
+			if (count_args)
+				++mArgSize;
+			count_args = true;
+		}
+		else if (mSignature[i] == '['){
+			++mArgSize;
+			count_args = false;
+		}
+		else
+			TRACE(TRACE_JAVA, TRACE_ERROR, "Unexpected argument type in method signature");
 	}
 	//parse return
 	if (mSignature[i] == 'V')
@@ -31,7 +53,7 @@ void VMMethod::parseSignature(){
 	else if (mSignature[i] == 'L')
 		mReturnType = Reference;
 	else
-		TRACE(TRACE_JAVA, TRACE_ERROR, "Unexpected return type in method signature");
+		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected return type in method signature");
 }
 
 void BcVMMethod::print(std::ostream& strm){
@@ -83,8 +105,10 @@ void BcVMMethod::print(std::ostream& strm){
 	}
 }
 
-void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
-	ctx->pushFrame(this);
+void BcVMMethod::execute(VMContext* ctx){
+	if (mCode->max_locals != (mIsStatic ? mArgSize : mArgSize+1))
+		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Argument size differs from local size");
+	ctx->pushFrame(this, mCode->max_locals);
 	for (unsigned k = 0; k < mCode->code_length; ++k){
     Java::u1 opcode = mCode->code[k];
 		TRACE(TRACE_JAVA, TRACE_DEBUG, Opcode::map_string[opcode].c_str());
@@ -92,9 +116,12 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 			case Java::op_aconst_null:
 				ctx->push((VMObject*)NULL);
 				break;
+			case Java::op_aload_0:
+				ctx->push(ctx->get(0));
+				break;
 			case Java::op_areturn:
 				{
-					VMContext::StackData dat = ctx->pop();
+					StackData dat = ctx->pop();
 					ctx->popFrame();
 					ctx->push(dat);
 					return;
@@ -125,8 +152,8 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
         break;
       case Java::op_ldc:
         {
-					//ctx->popFrame();
-					//return;
+					/*ctx->popFrame();
+					return;*/
 					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         /*Java::u1 operand = mCode->code[++k];
         Java::cp_info* info = mClass.constant_pool[operand-1];
@@ -159,21 +186,13 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
         break;
       case Java::op_invokespecial:
         {
-					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
-        /*Java::u1 b1 = code->code[++k];
-        Java::u1 b2 = code->code[++k];
-        Java::u2 operand = b1 << 8 | b2;
-        Java::CONSTANT_Methodref_info* methodref = dynamic_cast<Java::CONSTANT_Methodref_info*>(mClass.constant_pool[operand-1]);
-        Java::CONSTANT_Class_info* classinfo = dynamic_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[methodref->class_index-1]);
-        Java::CONSTANT_NameAndType_info* nameandtypeinfo = dynamic_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[methodref->name_and_type_index-1]);
-        std::string classname = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[classinfo->name_index-1])->bytes;
-        unsigned classidx = area.getClassIndex(classname);
-        std::string methodname = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
-        std::string signature = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
-        unsigned idx = area.getMethodIndex(MethodEntry(methodname,signature, classidx));
-        op.data.mUint = idx;
-        break;*/
-                                  }
+					Java::u1 b1 = mCode->code[++k];
+          Java::u1 b2 = mCode->code[++k];
+          Java::u2 operand = b1 << 8 | b2;
+					VMMethod* mthd = mClass->getMethod(ctx, operand);
+					mthd->execute(ctx);
+          break;
+        }
       case Java::op_lookupswitch:
       case Java::op_tableswitch:
         k+=98;
@@ -230,7 +249,7 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
           Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					VMObject** obj = cls->getField(ctx, operand);
+					VMObject** obj = mClass->getField(ctx, operand);
 					ctx->push(*obj);
         }
         break;
@@ -239,7 +258,7 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 					Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					VMObject** obj = cls->getField(ctx, operand);
+					VMObject** obj = mClass->getField(ctx, operand);
 					VMObject* data = ctx->pop().obj;
 					*obj = data;
 				}
@@ -254,9 +273,8 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
           Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					VMClass* execCls;
-					VMMethod* mthd = cls->getMethod(ctx, operand, execCls);
-					mthd->execute(ctx, execCls);
+					VMMethod* mthd = mClass->getMethod(ctx, operand);
+					mthd->execute(ctx);
           break;
         }
         break;
@@ -279,16 +297,23 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
           op.data.mUint = methodidx;*/
         }
         break;
-      case Java::op_new:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+			case Java::op_new:{
+				Java::u1 b1 = mCode->code[++k];
+        Java::u1 b2 = mCode->code[++k];
+        Java::u2 operand = b1 << 8 | b2;
+				VMClass* newcls = mClass->getClass(ctx, operand);
+				VMObject* obj = getVM()->createObject(newcls);
+				ctx->push(obj);
 				break;
+				}
 			case Java::op_anewarray:{
 				Java::u1 b1 = mCode->code[++k];
         Java::u1 b2 = mCode->code[++k];
         Java::u2 operand = b1 << 8 | b2;
-				VMClass* arrcls = cls->getClass(ctx, operand);
+				VMClass* arrcls = mClass->getClass(ctx, operand);
 				int arrsize = ctx->pop().ui;
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				VMArray* arr = getVM()->createArray(arrsize);
+				ctx->push((VMObject*)arr);
 				break;
 				}
       case Java::op_checkcast:
@@ -328,6 +353,10 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 				return;
 				break;
 			}
+			case Java::op_dup:{
+				ctx->dup();
+				break;
+			}
 			default:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
 				break;
@@ -336,49 +365,49 @@ void BcVMMethod::execute(VMContext* ctx, VMClass* cls){
 	ctx->popFrame();
 }
 
-void BcVMMethod::executeVoidRet(VMContext* ctx, VMClass* cls){
+void BcVMMethod::executeVoidRet(VMContext* ctx){
 }
 
-void BcVMMethod::executeLongRet(VMContext* ctx, VMClass* cls){
+void BcVMMethod::executeLongRet(VMContext* ctx){
 }
 
-void BcVMMethod::executeRefRet(VMContext* ctx, VMClass* cls){
+void BcVMMethod::executeRefRet(VMContext* ctx){
 }
 
 void NativeVMMethod::print(std::ostream& strm){
 	strm << "Native method\n";
 }
 
-void NativeVMMethod::execute(VMContext* ctx, VMClass* cls){
+void NativeVMMethod::execute(VMContext* ctx){
 	switch (mReturnType){
 		case Void:
-			executeVoidRet(ctx, cls);
+			executeVoidRet(ctx);
 			break;
 		case Long:
-			executeLongRet(ctx, cls);
+			executeLongRet(ctx);
 			break;
 		case Reference:
-			executeRefRet(ctx, cls);
+			executeRefRet(ctx);
 			break;
 	}
 }
 
-void NativeVMMethod::executeVoidRet(VMContext* ctx, VMClass* cls){
-	ctx->pushFrame(this);
-	mFunction(ctx->getJNIEnv(), cls);
+void NativeVMMethod::executeVoidRet(VMContext* ctx){
+	ctx->pushFrame(this, mArgSize);
+	mFunction(ctx->getJNIEnv(), mClass);
 	ctx->popFrame();
 }
 
-void NativeVMMethod::executeLongRet(VMContext* ctx, VMClass* cls){
-	ctx->pushFrame(this);
-	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls);
+void NativeVMMethod::executeLongRet(VMContext* ctx){
+	ctx->pushFrame(this, mArgSize);
+	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), mClass);
 	ctx->popFrame();
 	ctx->push((uint32)(ret >> 32));
 	ctx->push((uint32)ret);
 }
 
-void NativeVMMethod::executeRefRet(VMContext* ctx, VMClass* cls){
-	ctx->pushFrame(this);
-	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls);
+void NativeVMMethod::executeRefRet(VMContext* ctx){
+	ctx->pushFrame(this, mArgSize);
+	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), mClass);
 	ctx->popFrame();
 }

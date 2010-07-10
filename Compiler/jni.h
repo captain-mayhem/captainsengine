@@ -683,6 +683,7 @@ public:
   jclass FindClass(const char* name) {return m_func->FindClass(this, name);}
 	jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
 	void CallStaticVoidMethod(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); m_func->CallStaticVoidMethodV(this, clazz, methodID, args); va_end(args);}
+	jobjectArray NewObjectArray(jsize len, jclass clazz, jobject init) {return m_func->NewObjectArray(this, len, clazz, init);}
 	jint RegisterNatives(jclass clazz, const JNINativeMethod *methods, jint nMethods) {return m_func->RegisterNatives(this, clazz, methods, nMethods);}
 protected:
   JNIEnv_(JavaVM_* vm);
