@@ -16,7 +16,7 @@ public:
 	VMMethod* findMethod(const std::string& name, const std::string& signature);
 	VMObject** findField(const std::string& name);
 	VMObject** getField(VMContext* ctx, Java::u2 field_ref);
-	VMMethod* getMethod(VMContext* ctx, Java::u2 method_ref, VMClass*& classRet);
+	VMMethod* getMethod(VMContext* ctx, Java::u2 method_ref);
 	void print(std::ostream& strm);
 	void registerMethod(const std::string& nam, const std::string& signature, nativeMethod mthd);
 	VMClass* getClass(VMContext* ctx, Java::u2 class_ref);
@@ -28,6 +28,7 @@ protected:
 	std::map<std::string,VMMethod*> mMethods;
 	std::map<std::string,VMObject*> mFields;
 	VMClass* mSuperclass;
+	std::vector<StackData> mRCP;
 };
 
 #endif

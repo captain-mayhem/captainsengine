@@ -8,6 +8,7 @@
 #include "ClassLoader.h"
 #include "Trace.h"
 #include "VMMethod.h"
+#include "VMArray.h"
 
 #define PROC_MAP_MODE
 #include "Preproc.h"
@@ -28,6 +29,10 @@ JVM::JVM(){
 }
 
 JVM::~JVM(){
+	for (std::list<VMObject*>::iterator iter = mCreatedObjects.begin(); iter != mCreatedObjects.end(); ++iter){
+		delete *iter;
+	}
+	mCreatedObjects.clear();
 	globalVM = NULL;
   for (std::list<VMContext*>::iterator iter = mThreads.begin(); iter != mThreads.end(); ++iter){
     delete *iter;
@@ -86,7 +91,7 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 		VMMethod* mthd = entry->findMethod("<clinit>", "()V");
 		if (mthd){
 			TRACE(TRACE_JAVA, TRACE_INFO, "Found class init method");
-			mthd->execute(ctx, entry);
+			mthd->execute(ctx);
 		}
   }
   return entry;
@@ -99,4 +104,16 @@ CGE::MemReader JVM::getClassFile(const std::string& filename){
 nativeMethod JVM::findNativeMethod(const std::string& name){
 	nativeMethod mthd = (nativeMethod)mRuntime.getFunction(name.c_str());
 	return mthd;
+}
+
+VMArray* JVM::createArray(unsigned size){
+	VMArray* arr = new VMArray(size);
+	mCreatedObjects.push_back(arr);
+	return arr;
+}
+
+VMObject* JVM::createObject(VMClass* cls){
+	VMObject* obj = new VMObject(cls);
+	mCreatedObjects.push_back(obj);
+	return obj;
 }

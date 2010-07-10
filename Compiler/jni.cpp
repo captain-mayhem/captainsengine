@@ -46,7 +46,11 @@ jmethodID VMContext::GetStaticMethodID(JNIEnv *env, jclass clazz, const char *na
 void VMContext::CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args){
 	VMClass* cls = (VMClass*)clazz;
 	VMMethod* mthd = (VMMethod*)methodID;
-	mthd->execute(CTX(env), cls);
+	for (unsigned i = 0; i < mthd->getNumArgs(); ++i){
+		VMObject* obj = va_arg(args, VMObject*);
+		CTX(env)->push(obj);
+	}
+	mthd->execute(CTX(env));
 }
 
 jint VMContext::RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods){
@@ -55,6 +59,10 @@ jint VMContext::RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod
 		cls->registerMethod(methods[i].name, methods[i].signature, (nativeMethod)methods[i].fnPtr);
 	}
 	return 0;
+}
+
+jobjectArray VMContext::NewObjectArray(JNIEnv *env, jsize len, jclass clazz, jobject init){
+	return getVM()->createArray(len);
 }
 
 JNIEnv_::JNIEnv_(JavaVM_* vm){
