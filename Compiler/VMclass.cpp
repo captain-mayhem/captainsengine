@@ -150,8 +150,11 @@ VMMethod* VMClass::findMethod(const std::string& name, const std::string& signat
 	return NULL;
 }
 
-VMObject** VMClass::findField(const std::string& name){
-	return &mFields[name];
+unsigned VMClass::findFieldIndex(const std::string& name){
+	std::map<std::string,unsigned>::iterator iter = mFieldResolver.find(name);
+	if (iter == mFieldResolver.end())
+		return 0;
+	return iter->second+1;
 }
 
 VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref){
@@ -167,13 +170,25 @@ VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref){
 	return mthd;
 }
 
-VMObject** VMClass::getField(VMContext* ctx, Java::u2 field_ref){
+FieldData* VMClass::getField(VMContext* ctx, Java::u2 field_ref){
+	return &mFields[getFieldIndex(ctx, field_ref)-1];
+}
+
+unsigned VMClass::getFieldIndex(VMContext* ctx,Java::u2 field_ref){
+	if (mRCP[field_ref].ui != 0)
+		return mRCP[field_ref].ui;
+	/*if (mClass.constant_pool[field_ref-1]->tag != CONSTANT_Fieldref){
+		return 0;
+	}*/
 	Java::CONSTANT_Fieldref_info* fieldref = static_cast<Java::CONSTANT_Fieldref_info*>(mClass.constant_pool[field_ref-1]);
-  Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[fieldref->name_and_type_index-1]);
+	Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[fieldref->name_and_type_index-1]);
 	VMClass* cls = getClass(ctx, fieldref->class_index);
-  std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
-  std::string type = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
-	return cls->findField(fieldname);
+	std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
+	std::string type = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
+	unsigned idx = cls->findFieldIndex(fieldname);
+	//if (idx != 0)
+	mRCP[field_ref].ui = idx;
+	return idx;
 }
 
 std::string VMClass::buildNativeMethodName(const std::string& functionname, const std::string& signature){
@@ -223,4 +238,26 @@ VMClass* VMClass::getClass(VMContext* ctx, Java::u2 class_ref){
 	VMClass* cls = getVM()->findClass(ctx, classname);
 	mRCP[class_ref] = cls;
 	return cls;
+}
+
+void VMClass::initFields(VMContext* ctx){
+	VMClass* super = getSuperclass(ctx);
+	unsigned nonstatic = 0;
+	if (super)
+		nonstatic = super->getNonStaticFieldOffset();
+	for (unsigned i = 0; i < mClass.fields_count; ++i){
+		Java::field_info* info = mClass.fields[i];
+		std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[info->name_index-1])->bytes;
+		if ((info->access_flags & ACC_STATIC) != 0){
+			mFieldResolver[fieldname] = mFields.size();
+			mFields.resize(mFields.size()+1);
+		}
+		else{
+			mFieldResolver[fieldname] = nonstatic++;
+		}
+	}
+}
+
+unsigned VMClass::getNonStaticFieldOffset(){
+	return mClass.fields_count-mFields.size();
 }

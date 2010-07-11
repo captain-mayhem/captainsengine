@@ -315,6 +315,19 @@ union StackData{
 		VMClass* cls;
 };
 
+union FieldData{
+	VMMethod* mthd;
+	StackData* stp;
+	int32 i;
+	uint32 ui;
+	float f;
+	VMObject* obj;
+	VMClass* cls;
+
+	double d;
+	int64 l;
+};
+
 typedef void (*nativeMethod)(JNIEnv* env, jobject object, ...);
 typedef int64 (*nativeLongMethod)(JNIEnv* env, jobject object, ...);
 typedef void* (*nativeRefMethod)(JNIEnv* env, jobject object, ...);

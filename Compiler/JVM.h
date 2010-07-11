@@ -27,7 +27,7 @@ public:
 	nativeMethod findNativeMethod(const std::string& name);
 	VMObjectArray* createObjectArray(unsigned size);
 	VMByteArray* createByteArray(unsigned size);
-	VMObject* createObject(VMClass* cls);
+	VMObject* createObject(VMContext* ctx, VMClass* cls);
 protected:
 	void init();
 

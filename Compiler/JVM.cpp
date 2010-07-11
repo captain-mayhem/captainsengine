@@ -87,6 +87,7 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 		mClassResolver[name] = entry;
 		//init superclass first
 		entry->getSuperclass(ctx);
+		entry->initFields(ctx);
 		//entry->print(std::cout);
 		VMMethod* mthd = entry->findMethod("<clinit>", "()V");
 		if (mthd){
@@ -118,8 +119,8 @@ VMByteArray* JVM::createByteArray(unsigned size){
 	return arr;
 }
 
-VMObject* JVM::createObject(VMClass* cls){
-	VMObject* obj = new VMObject(cls);
+VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
+	VMObject* obj = new VMObject(ctx, cls);
 	mCreatedObjects.push_back(obj);
 	return obj;
 }
