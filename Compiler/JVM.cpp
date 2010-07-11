@@ -87,7 +87,7 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 		mClassResolver[name] = entry;
 		//init superclass first
 		entry->getSuperclass(ctx);
-		entry->print(std::cout);
+		//entry->print(std::cout);
 		VMMethod* mthd = entry->findMethod("<clinit>", "()V");
 		if (mthd){
 			TRACE(TRACE_JAVA, TRACE_INFO, "Found class init method");
@@ -106,8 +106,14 @@ nativeMethod JVM::findNativeMethod(const std::string& name){
 	return mthd;
 }
 
-VMArray* JVM::createArray(unsigned size){
-	VMArray* arr = new VMArray(size);
+VMObjectArray* JVM::createObjectArray(unsigned size){
+	VMObjectArray* arr = new VMObjectArray(size);
+	mCreatedObjects.push_back(arr);
+	return arr;
+}
+
+VMByteArray* JVM::createByteArray(unsigned size){
+	VMByteArray* arr = new VMByteArray(size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }

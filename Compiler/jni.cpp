@@ -62,7 +62,19 @@ jint VMContext::RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod
 }
 
 jobjectArray VMContext::NewObjectArray(JNIEnv *env, jsize len, jclass clazz, jobject init){
-	return getVM()->createArray(len);
+	return getVM()->createObjectArray(len);
+}
+
+jstring VMContext::NewStringUTF(JNIEnv *env, const char *utf){
+	VMClass* cls = getVM()->findClass(CTX(env), "java/lang/String");
+	VMObject* obj = getVM()->createObject(cls);
+	CTX(env)->push(obj);
+	VMMethod* mthd = cls->findMethod("<init>", "([B)V");
+	VMByteArray* arr = getVM()->createByteArray(strlen(utf));
+	CTX(env)->push(arr);
+	arr->setData(utf);
+	mthd->execute(CTX(env));
+	return NULL;
 }
 
 JNIEnv_::JNIEnv_(JavaVM_* vm){
