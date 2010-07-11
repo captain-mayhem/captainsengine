@@ -10,11 +10,11 @@
 #include <system/soloader.h>
 
 #include "JavaDefs.h"
+#include "VMArray.h"
 
 class VMClass;
 class VMContext;
 class VMMethod;
-class VMArray;
 class VMObject;
 
 class JVM : public JNIInvokeInterface_{
@@ -25,7 +25,8 @@ public:
 	CGE::MemReader getClassFile(const std::string& filename);
   VMClass* findClass(VMContext* ctx, std::string name);
 	nativeMethod findNativeMethod(const std::string& name);
-	VMArray* createArray(unsigned size);
+	VMObjectArray* createObjectArray(unsigned size);
+	VMByteArray* createByteArray(unsigned size);
 	VMObject* createObject(VMClass* cls);
 protected:
 	void init();

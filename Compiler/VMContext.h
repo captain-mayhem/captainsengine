@@ -24,6 +24,7 @@ protected:
   static jclass FindClass(JNIEnv* env, const char* name);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static void CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
+	static jstring NewStringUTF(JNIEnv *env, const char *utf);
 	static jobjectArray NewObjectArray(JNIEnv *env, jsize len, jclass clazz, jobject init);
 	static jint RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods);
 
