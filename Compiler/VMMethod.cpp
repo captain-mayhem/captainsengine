@@ -290,8 +290,8 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					VMObject** obj = mClass->getField(ctx, operand);
-					ctx->push(*obj);
+					FieldData* obj = mClass->getField(ctx, operand);
+					ctx->push(obj->obj);
         }
         break;
       case Java::op_putstatic:
@@ -299,15 +299,26 @@ void BcVMMethod::execute(VMContext* ctx){
 					Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					VMObject** obj = mClass->getField(ctx, operand);
+					FieldData* obj = mClass->getField(ctx, operand);
 					VMObject* data = ctx->pop().obj;
-					*obj = data;
+					obj->obj = data;
 				}
 				break;
       case Java::op_getfield:
-      case Java::op_putfield:
-        k+=2;
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+        break;
+      case Java::op_putfield:
+        {
+					Java::u1 b1 = mCode->code[++k];
+          Java::u1 b2 = mCode->code[++k];
+          Java::u2 operand = b1 << 8 | b2;
+					StackData value = ctx->pop();
+					VMObject* obj = ctx->pop().obj;
+					unsigned idx = mClass->getFieldIndex(ctx, operand);
+					FieldData* data = obj->getField(idx);
+					data->obj = value.obj;
+					//FieldData* obj = mClass->getFieldIndex(operand);
+				}
         break;
       case Java::op_invokestatic:
         {
@@ -343,7 +354,7 @@ void BcVMMethod::execute(VMContext* ctx){
         Java::u1 b2 = mCode->code[++k];
         Java::u2 operand = b1 << 8 | b2;
 				VMClass* newcls = mClass->getClass(ctx, operand);
-				VMObject* obj = getVM()->createObject(newcls);
+				VMObject* obj = getVM()->createObject(ctx, newcls);
 				ctx->push(obj);
 				break;
 				}

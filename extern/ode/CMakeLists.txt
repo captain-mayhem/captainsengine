@@ -7,6 +7,10 @@ IF(${OS} STREQUAL "wince")
 	)
 ENDIF(${OS} STREQUAL "wince")
 
+IF(${OS} STREQUAL "qnx")
+	ADD_DEFINITIONS(-D__linux__)
+ENDIF(${OS} STREQUAL "qnx")
+
 ADD_DEFINITIONS(
 	-DODE_LIB
 )

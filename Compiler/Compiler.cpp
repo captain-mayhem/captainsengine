@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
 	jclass string = env->FindClass("java/lang/String");
 	jobjectArray args = env->NewObjectArray(1, string, NULL);
-	//jstring test = env->NewStringUTF("teststring");
+	jstring test = env->NewStringUTF("teststring");
 	env->CallStaticVoidMethod(cls, mainfunc, args);
   
   jvm->DestroyJavaVM();
