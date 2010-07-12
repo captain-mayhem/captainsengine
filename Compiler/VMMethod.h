@@ -19,6 +19,14 @@ public:
 		Void,
 		Long,
 		Reference,
+		Int,
+		Boolean,
+		Char,
+		Array,
+		Byte,
+		Float,
+		Double,
+		Short
 	};
 	VMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic) : mName(name), mSignature(signature), mIsStatic(isStatic), mClass(cls) {parseSignature();}
 	virtual void execute(VMContext* ctx)=0;

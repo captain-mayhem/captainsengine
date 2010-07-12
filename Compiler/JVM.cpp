@@ -89,7 +89,8 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 		entry->getSuperclass(ctx);
 		entry->initFields(ctx);
 		//entry->print(std::cout);
-		VMMethod* mthd = entry->findMethod("<clinit>", "()V");
+		unsigned idx = entry->findMethodIndex("<clinit>", "()V");
+		VMMethod* mthd = entry->getMethod(idx);
 		if (mthd){
 			TRACE(TRACE_JAVA, TRACE_INFO, "Found class init method");
 			mthd->execute(ctx);
