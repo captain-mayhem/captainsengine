@@ -40,12 +40,12 @@ jclass VMContext::FindClass(JNIEnv* env, const char* name){
 
 jmethodID VMContext::GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
 	VMClass* cls = (VMClass*)clazz;
-	return cls->findMethod(name, sig);
+	return (jmethodID)cls->findMethodIndex(name, sig);
 }
 
 void VMContext::CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args){
 	VMClass* cls = (VMClass*)clazz;
-	VMMethod* mthd = (VMMethod*)methodID;
+	VMMethod* mthd = cls->getMethod((unsigned)methodID);
 	for (unsigned i = 0; i < mthd->getNumArgs(); ++i){
 		VMObject* obj = va_arg(args, VMObject*);
 		CTX(env)->push(obj);
@@ -69,7 +69,8 @@ jstring VMContext::NewStringUTF(JNIEnv *env, const char *utf){
 	VMClass* cls = getVM()->findClass(CTX(env), "java/lang/String");
 	VMObject* obj = getVM()->createObject(CTX(env), cls);
 	CTX(env)->push(obj);
-	VMMethod* mthd = cls->findMethod("<init>", "([B)V");
+	unsigned idx = cls->findMethodIndex("<init>", "([B)V");
+	VMMethod* mthd = cls->getMethod(idx);
 	VMByteArray* arr = getVM()->createByteArray(strlen(utf));
 	CTX(env)->push(arr);
 	arr->setData(utf);

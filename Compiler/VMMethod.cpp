@@ -33,17 +33,23 @@ void VMMethod::parseSignature(){
 				++mArgSize;
 			count_args = true;
 		}
-		else if (mSignature[i] == 'I' || mSignature[i] == 'B'){
+		else if (mSignature[i] == 'I' || mSignature[i] == 'B' || mSignature[i] == 'C'|| mSignature[i] == 'Z' || mSignature[i] == 'F'  || mSignature[i] == 'S'){
 			if (count_args)
 				++mArgSize;
 			count_args = true;
 		}
 		else if (mSignature[i] == '['){
-			++mArgSize;
+			if (count_args)
+				++mArgSize;
 			count_args = false;
 		}
+		else if (mSignature[i] == 'J' || mSignature[i] == 'D'){
+			if (count_args)
+				mArgSize += 2;
+			count_args = true;
+		}
 		else
-			TRACE(TRACE_JAVA, TRACE_ERROR, "Unexpected argument type in method signature");
+			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected argument type in method signature");
 	}
 	//parse return
 	if (mSignature[i] == 'V')
@@ -52,6 +58,22 @@ void VMMethod::parseSignature(){
 		mReturnType = Long;
 	else if (mSignature[i] == 'L')
 		mReturnType = Reference;
+	else if (mSignature[i] == 'I')
+		mReturnType = Int;
+	else if (mSignature[i] == 'Z')
+		mReturnType = Boolean;
+	else if (mSignature[i] == 'C')
+		mReturnType = Char;
+	else if (mSignature[i] == '[')
+		mReturnType = Array;
+	else if (mSignature[i] == 'B')
+		mReturnType = Byte;
+	else if (mSignature[i] == 'F')
+		mReturnType = Float;
+	else if (mSignature[i] == 'D')
+		mReturnType = Double;
+	else if (mSignature[i] == 'S')
+		mReturnType = Short;
 	else
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected return type in method signature");
 }
@@ -100,13 +122,16 @@ void BcVMMethod::print(std::ostream& strm){
 				strm << " #" << (int)operand;
 				}
 				break;
-
+			case Java::op_bipush:
+				char operand = mCode->code[++k];
+				strm << " " << (int)operand;
 		}
 		strm << "\n";
 	}
 }
 
 void BcVMMethod::execute(VMContext* ctx){
+	print(std::cout);
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
 	ctx->pushFrame(this, argsize);
 	//reserve additional locals
@@ -153,9 +178,9 @@ void BcVMMethod::execute(VMContext* ctx){
       //single byte number
       case Java::op_bipush:
         {
-        Java::u1 constant = mCode->code[++k];
+					int constant = (int)(char)mCode->code[++k];
+					ctx->push(constant);
         }
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
         //two byte number
       case Java::op_sipush:
@@ -170,34 +195,9 @@ void BcVMMethod::execute(VMContext* ctx){
         {
 					/*ctx->popFrame();
 					return;*/
-					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
-        /*Java::u1 operand = mCode->code[++k];
-        Java::cp_info* info = mClass.constant_pool[operand-1];
-        if (info->tag == CONSTANT_Integer){
-          Java::CONSTANT_Integer_info* intinf = (Java::CONSTANT_Integer_info*)(info);
-          op.data.mInt = intinf->bytes;
-        }*/
-        /*else if (info->tag == CONSTANT_Long){
-
-        }
-        else if (info->tag == CONSTANT_Float){
-          Java::CONSTANT_Float_info* fltinf = (Java::CONSTANT_Float_info*)(info);
-          op.data.mFloat = fltinf->bytes;
-        }
-        else if (info->tag == CONSTANT_Double){
-
-        }*/
-        //else if (info->tag == CONSTANT_String){
-          /*Java::CONSTANT_String_info* str = (Java::CONSTANT_String_info*)(info);
-          Java::CONSTANT_Utf8_info* utf = (Java::CONSTANT_Utf8_info*)(mClass.constant_pool[str->string_index-1]);
-          area.getClassIndex("java/lang/String");
-          area.mStrings.push_back(utf->bytes);*/
-        //}
-        //else{
-        //  TRACE(TRACE_JAVA, TRACE_ERROR, "Unhandled opcode in ldc");
-        //}
-        //op.data.i = (int)info;
-        //op.data1 = constant;
+					Java::u1 operand = mCode->code[++k];
+					StackData constant = mClass->getConstant(ctx, operand);
+					ctx->push(constant);
         }
         break;
       case Java::op_invokespecial:
@@ -314,7 +314,8 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u2 operand = b1 << 8 | b2;
 					StackData value = ctx->pop();
 					VMObject* obj = ctx->pop().obj;
-					unsigned idx = mClass->getFieldIndex(ctx, operand);
+					VMClass* dummy;
+					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy);
 					FieldData* data = obj->getField(idx);
 					data->obj = value.obj;
 					//FieldData* obj = mClass->getFieldIndex(operand);
@@ -332,21 +333,12 @@ void BcVMMethod::execute(VMContext* ctx){
         break;
       case Java::op_invokevirtual:
         {
-					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
-          /*Java::u1 b1 = code->code[++k];
-          Java::u1 b2 = code->code[++k];
+					Java::u1 b1 = mCode->code[++k];
+          Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-          Java::CONSTANT_Methodref_info* methodref = dynamic_cast<Java::CONSTANT_Methodref_info*>(mClass.constant_pool[operand-1]);
-          Java::CONSTANT_Class_info* classinfo = dynamic_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[methodref->class_index-1]);
-          Java::CONSTANT_NameAndType_info* nameandtypeinfo = dynamic_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[methodref->name_and_type_index-1]);
-          std::string classname = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[classinfo->name_index-1])->bytes;
-          unsigned classidx = area.getClassIndex(classname);
-          std::string methodname = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
-          std::string signature = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
-          //int32 methodidx = area.getMethodIndex(MethodEntry(methodname,signature,classidx));
-          //area.mClassData[classidx].mVtable;
-          uint32 methodidx = resolveVtable(area, MethodEntry(methodname, signature, classidx));
-          op.data.mUint = methodidx;*/
+					VMClass* execCls;
+					unsigned idx = mClass->getMethodIndex(ctx, operand, execCls);
+					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         }
         break;
 			case Java::op_new:{
