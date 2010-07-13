@@ -12,7 +12,7 @@ public:
 	VMObject(VMContext* ctx, VMClass* cls);
 	virtual ~VMObject();
 	FieldData* getField(unsigned idx);
-	//FieldData* getField(VMContext* ctx, Java::u2 field_ref);
+	VMMethod* getMethod(unsigned idx);
 protected:
 	std::vector<FieldData> mFields;
 	VMClass* mClass;

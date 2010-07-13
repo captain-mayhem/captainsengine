@@ -227,11 +227,14 @@ void VMClass::initFields(VMContext* ctx){
 	VMClass* super = getSuperclass(ctx);
 	unsigned nonstatic = 0;
 	unsigned methods = 0;
+	//superclass info
 	if (super){
 		nonstatic = super->getNonStaticFieldOffset();
 		super->copyMethodData(mMethodResolver, mMethods);
 		methods = mMethods.size();
 	}
+
+	//fields
 	for (unsigned i = 0; i < mClass.fields_count; ++i){
 		Java::field_info* info = mClass.fields[i];
 		std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[info->name_index-1])->bytes;
@@ -243,8 +246,10 @@ void VMClass::initFields(VMContext* ctx){
 			mFieldResolver[fieldname] = nonstatic++;
 		}
 	}
-	//mMethods.resize(methods+mClass.methods_count);
+
+	//methods
 	int offset = mMethods.size()+1;
+	std::vector<VMMethod*> plainMethods;
 	for (int i = 0; i < mClass.methods_count; ++i){
     Java::method_info* mi = mClass.methods[i];
     Java::cp_info* cpinfo = mClass.constant_pool[mi->name_index-1];
@@ -268,17 +273,30 @@ void VMClass::initFields(VMContext* ctx){
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Cannot resolve native method");
 			}
 		}
-		std::map<std::string,unsigned>::iterator iter = mMethodResolver.find(methodname+sig);
-		int idx;
-		if (iter == mMethodResolver.end()){
-			idx = methods++;
-			mMethods.resize(methods);
-			mMethodResolver[methodname+sig] = idx+1;
+		//is vtable method?
+		if (mthd->getName()[0] != '<'){
+			std::map<std::string,unsigned>::iterator iter = mMethodResolver.find(methodname+sig);
+			int idx;
+			if (iter == mMethodResolver.end()){
+				idx = methods++;
+				mMethods.resize(methods);
+				mMethodResolver[methodname+sig] = idx+1;
+			}
+			else{
+				idx = iter->second;
+			}
+			mMethods[idx] = mthd;
 		}
-		else{
-			idx = iter->second;
+		else{ //no vtable
+			plainMethods.push_back(mthd);
 		}
-		mMethods[idx] = mthd;
+	}
+	//add plain methods
+	mVtableEnd = mMethods.size();
+	mMethods.resize(mVtableEnd+plainMethods.size());
+	for (unsigned i = 0; i < plainMethods.size(); ++i){
+		mMethodResolver[plainMethods[i]->getName()+plainMethods[i]->getSignature()] = ++methods;
+		mMethods[methods-1] = plainMethods[i];
 	}
 }
 
@@ -322,4 +340,12 @@ StackData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 void VMClass::copyMethodData(std::map<std::string,unsigned>& methodresolver, std::vector<VMMethod*>& methods){
 	//methodresolver.insert(mMethodResolver.begin(), mMethodResolver.end());
 	//methods.insert(methods.begin(), mMethods.begin(), mMethods.end());
+	methods.resize(mVtableEnd);
+	for (unsigned i = 0; i < mVtableEnd; ++i){
+		VMMethod* mthd = mMethods[i];
+		std::string id = mthd->getName()+mthd->getSignature();
+		unsigned val = mMethodResolver[id];
+		methodresolver.insert(std::make_pair(id, val));
+		methods[i] = mthd;
+	}
 }
