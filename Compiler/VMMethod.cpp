@@ -110,6 +110,7 @@ void BcVMMethod::print(std::ostream& strm){
 			case Java::op_iflt:
 			case Java::op_ifne:
 			case Java::op_ifle:
+			case Java::op_ifnonnull:
 				{
 					Java::u1 b1 = mCode->code[++k];
 					Java::u1 b2 = mCode->code[++k];
@@ -338,7 +339,11 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u2 operand = b1 << 8 | b2;
 					VMClass* execCls;
 					unsigned idx = mClass->getMethodIndex(ctx, operand, execCls);
-					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+					VMMethod* temp = execCls->getMethod(idx); //TODO not very efficient
+					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
+					VMMethod* mthd = obj->getMethod(idx);
+					mthd->execute(ctx);
+					//TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         }
         break;
 			case Java::op_new:{
@@ -363,9 +368,21 @@ void BcVMMethod::execute(VMContext* ctx){
       case Java::op_checkcast:
       case Java::op_instanceof:
       case Java::op_ifnull:
-      case Java::op_ifnonnull:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
-        k+=2;
+        break;
+      case Java::op_ifnonnull:
+				{
+					VMObject* obj = ctx->pop().obj;
+					if (obj != NULL){
+						Java::u1 b1 = mCode->code[++k];
+						Java::u1 b2 = mCode->code[++k];
+						int16 branch = b1 << 8 | b2;
+						k += branch-3;
+					}
+					else{
+					  k += 2;
+					}
+				}
         break;
       case Java::op_iload:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
@@ -450,6 +467,9 @@ void NativeVMMethod::execute(VMContext* ctx){
 			break;
 		case Reference:
 			executeRefRet(ctx);
+			break;
+		default:
+			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unhandled return type called");
 			break;
 	}
 }

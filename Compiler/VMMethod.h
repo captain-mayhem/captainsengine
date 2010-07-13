@@ -32,6 +32,8 @@ public:
 	virtual void execute(VMContext* ctx)=0;
 	virtual void print(std::ostream& strm)=0;
 	unsigned getNumArgs() {return mArgSize;}
+	const std::string& getName() const {return mName;}
+	const std::string& getSignature() const {return mSignature;}
 	//virtual void executeVoidRet(VMContext* ctx, VMClass* cls)=0;
 	//virtual void executeLongRet(VMContext* ctx, VMClass* cls)=0;
 	//virtual void executeRefRet(VMContext* ctx, VMClass* cls)=0;

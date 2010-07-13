@@ -19,6 +19,7 @@ public:
 	void push(StackData data) {*mStackPointer++ = data;}
 	void dup() {*mStackPointer++ = *(mStackPointer-1);}
 	StackData get(int idx) {return mBasePointer[idx];}
+	StackData getTop(int idx) {return *(mStackPointer-idx-1);}
 	StackData pop() {return *--mStackPointer;}
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);

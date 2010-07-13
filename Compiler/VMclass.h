@@ -39,6 +39,7 @@ protected:
 	std::vector<FieldData> mFields;
 	VMClass* mSuperclass;
 	std::vector<StackData> mRCP;
+	unsigned mVtableEnd;
 };
 
 #endif
