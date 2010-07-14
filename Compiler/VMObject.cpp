@@ -9,6 +9,11 @@ VMObject::~VMObject(){
 }
 
 VMObject::VMObject(VMContext* ctx, VMClass* cls) : mClass(cls){
+	init(ctx, cls);
+}
+
+void VMObject::init(VMContext* ctx, VMClass* cls){
+	mClass = cls;
 	unsigned numFields = 0;
 	VMClass* clas = mClass;
 	while (clas){
@@ -18,10 +23,10 @@ VMObject::VMObject(VMContext* ctx, VMClass* cls) : mClass(cls){
 	mFields.resize(numFields);
 }
 
-FieldData* VMObject::getField(unsigned idx){
+FieldData* VMObject::getObjField(unsigned idx){
 	return &mFields[idx-1];
 }
 
-VMMethod* VMObject::getMethod(unsigned idx){
+VMMethod* VMObject::getObjMethod(unsigned idx){
 	return mClass->getMethod(idx);
 }

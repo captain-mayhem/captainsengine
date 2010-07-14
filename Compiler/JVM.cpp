@@ -38,7 +38,7 @@ JVM::~JVM(){
     delete *iter;
   }
   mThreads.clear();
-	for (std::map<std::string,VMClass*>::iterator iter = mClassResolver.begin(); iter != mClassResolver.end(); ++iter){
+	for (std::map<std::string,VMClass*>::reverse_iterator iter = mClassResolver.rbegin(); iter != mClassResolver.rend(); ++iter){
 		delete iter->second;
 	}
 	mClassResolver.clear();
@@ -84,11 +84,21 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
     }
     //Java::ClassFile* clfile = new Java::ClassFile();
 		entry = new VMClass(name);
-		mClassResolver[name] = entry;
+		
 		//init superclass first
 		entry->getSuperclass(ctx);
-		entry->initFields(ctx);
+		
+		mClassResolver[name] = entry;
 		//entry->print(std::cout);
+		
+		entry->initFields(ctx);
+
+		VMClass* cls = findClass(ctx, "java/lang/Class");
+		VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
+		entry->init(ctx, cls);
+		ctx->push((VMObject*)cls);
+		clsmthd->execute(ctx);
+
 		unsigned idx = entry->findMethodIndex("<clinit>", "()V");
 		VMMethod* mthd = entry->getMethod(idx);
 		if (mthd){
@@ -124,4 +134,13 @@ VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
 	VMObject* obj = new VMObject(ctx, cls);
 	mCreatedObjects.push_back(obj);
 	return obj;
+}
+
+void JVM::initBasicClasses(VMContext* ctx){
+	VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
+	VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("<init>", "()V"));
+	VMObject* ldr = createObject(ctx, ldrcls);
+	ctx->push(ldr);
+	mthd->execute(ctx);
+	return;
 }

@@ -34,6 +34,7 @@ public:
 	unsigned getNumArgs() {return mArgSize;}
 	const std::string& getName() const {return mName;}
 	const std::string& getSignature() const {return mSignature;}
+	VMClass* getClass() {return mClass;}
 	//virtual void executeVoidRet(VMContext* ctx, VMClass* cls)=0;
 	//virtual void executeLongRet(VMContext* ctx, VMClass* cls)=0;
 	//virtual void executeRefRet(VMContext* ctx, VMClass* cls)=0;
@@ -69,6 +70,7 @@ public:
 	void executeLongRet(VMContext* ctx);
 	void executeRefRet(VMContext* ctx);
 protected:
+	va_list packArguments(VMContext* ctx);
 	nativeMethod mFunction;
 };
 

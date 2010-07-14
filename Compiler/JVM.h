@@ -21,6 +21,7 @@ class JVM : public JNIInvokeInterface_{
 public:
   JVM();
   ~JVM();
+	void initBasicClasses(VMContext* ctx);
   void addThread(VMContext* thrd) {mThreads.push_back(thrd);}
 	CGE::MemReader getClassFile(const std::string& filename);
   VMClass* findClass(VMContext* ctx, std::string name);

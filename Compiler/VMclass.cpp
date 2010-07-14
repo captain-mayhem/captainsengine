@@ -17,7 +17,7 @@
 
 #include "JavaBinFileReader.h"
 
-VMClass::VMClass(const std::string& filename) : mSuperclass(NULL){
+VMClass::VMClass(const std::string& filename) : mSuperclass(NULL), mClassObject(NULL) {
 	 mFilename = filename;
 
   char* buffer = NULL;
@@ -47,7 +47,8 @@ VMClass::VMClass(const std::string& filename) : mSuperclass(NULL){
 
 VMClass::~VMClass(){
 	for (std::vector<VMMethod*>::iterator iter = mMethods.begin(); iter != mMethods.end(); ++iter){
-		delete *iter;
+		if ((*iter)->getClass() == this)
+			delete *iter;
 	}
 }
 
