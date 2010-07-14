@@ -1,9 +1,19 @@
 
 #include "Runtime.h"
 
+#include <VMContext.h>
+#include <VMMethod.h>
+#include <VMClass.h>
+
 #include <iostream>
 
+#define CTX(env) ((VMContext*)env->m_func)
+
 extern "C" {
+
+jobject JNIEXPORT Java_java_lang_Class_getClassLoader0(JNIEnv* env, jobject object){
+	return NULL;
+}
 
 void Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object){
 	return;
@@ -60,6 +70,12 @@ void JNIEXPORT Java_java_lang_System_arraycopy(JNIEnv* env, jobject object, jobj
 
 void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object){
 	return;
+}
+
+jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass(JNIEnv* env, jobject object, jint realFramesToSkip){
+	VMContext* ctx = CTX(env);
+	VMMethod* mthd = ctx->getFrameMethod(realFramesToSkip);
+	return (VMObject*)mthd->getClass();
 }
 
 }

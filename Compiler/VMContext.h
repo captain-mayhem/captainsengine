@@ -19,8 +19,10 @@ public:
 	void push(StackData data) {*mStackPointer++ = data;}
 	void dup() {*mStackPointer++ = *(mStackPointer-1);}
 	StackData get(int idx) {return mBasePointer[idx];}
+	void put(int idx, StackData data) {mBasePointer[idx] = data;}
 	StackData getTop(int idx) {return *(mStackPointer-idx-1);}
 	StackData pop() {return *--mStackPointer;}
+	VMMethod* getFrameMethod(int numFrames);
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);

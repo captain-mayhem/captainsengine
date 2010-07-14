@@ -80,6 +80,7 @@ jstring VMContext::NewStringUTF(JNIEnv *env, const char *utf){
 
 JNIEnv_::JNIEnv_(JavaVM_* vm){
   m_func = new VMContext(this, (JVM*)vm->m_func);
+	VM_CTX(vm)->initBasicClasses((VMContext*)m_func);
 }
 
 JNIEnv_::~JNIEnv_(){

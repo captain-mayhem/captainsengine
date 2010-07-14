@@ -43,3 +43,13 @@ void VMContext::popFrame(){
 	mStackPointer = mBasePointer;
 	mBasePointer = oldBase;
 }
+
+VMMethod* VMContext::getFrameMethod(int numFrames){
+	StackData* base = mBasePointer;
+	while(numFrames > 0){
+		base -= 2;
+		base = base->stp;
+		--numFrames;
+	}
+	return (base-1)->mthd;
+}

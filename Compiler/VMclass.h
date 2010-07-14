@@ -4,15 +4,15 @@
 #include <string>
 #include <map>
 #include "JavaDefs.h"
+#include "VMObject.h"
 
 class VMMethod;
-class VMObject;
 class VMContext;
 
-class VMClass{
+class VMClass : public VMObject{
 public:
 	VMClass(const std::string& filename);
-	~VMClass();
+	virtual ~VMClass();
 	unsigned findMethodIndex(const std::string& name, const std::string& signature);
 	unsigned findFieldIndex(const std::string& name);
 	FieldData* getField(VMContext* ctx, Java::u2 field_ref);
@@ -29,6 +29,8 @@ public:
 	void initFields(VMContext* ctx);
 	unsigned getNonStaticFieldOffset();
 	void copyMethodData(std::map<std::string,unsigned>& methodresolver, std::vector<VMMethod*>& methods);
+	//void setClassObject(VMObject* clsobj) {mClassObject = clsobj;}
+	//VMObject* getClassObject() {return mClassObject;}
 protected:
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);
 	Java::ClassFile mClass;
@@ -40,6 +42,7 @@ protected:
 	VMClass* mSuperclass;
 	std::vector<StackData> mRCP;
 	unsigned mVtableEnd;
+	VMObject* mClassObject;
 };
 
 #endif

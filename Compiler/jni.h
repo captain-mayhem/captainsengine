@@ -658,9 +658,9 @@ struct JNINativeInterface_{
       (JNIEnv* env, jobject obj);
 };
 
-jint JNI_CreateJavaVM(JavaVM **p_vm, JNIEnv **p_env, void *vm_args);
+jint JNIEXPORT JNI_CreateJavaVM(JavaVM **p_vm, JNIEnv **p_env, void *vm_args);
 
-jint JNI_GetDefaultJavaVMInitArgs(void *vm_args);
+jint JNIEXPORT JNI_GetDefaultJavaVMInitArgs(void *vm_args);
 
 #ifdef __cplusplus
 } //extern "C"

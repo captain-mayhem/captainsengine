@@ -1,4 +1,4 @@
-#ifndef VMOBJECT_H
+#ifndef VM_OBJECT_H
 #define VM_OBJECT_H
 
 #include "JavaDefs.h"
@@ -11,8 +11,9 @@ public:
 	VMObject();
 	VMObject(VMContext* ctx, VMClass* cls);
 	virtual ~VMObject();
-	FieldData* getField(unsigned idx);
-	VMMethod* getMethod(unsigned idx);
+	void init(VMContext* ctx, VMClass* cls);
+	FieldData* getObjField(unsigned idx);
+	VMMethod* getObjMethod(unsigned idx);
 protected:
 	std::vector<FieldData> mFields;
 	VMClass* mClass;

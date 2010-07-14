@@ -111,6 +111,7 @@ void BcVMMethod::print(std::ostream& strm){
 			case Java::op_ifne:
 			case Java::op_ifle:
 			case Java::op_ifnonnull:
+			case Java::op_ifnull:
 				{
 					Java::u1 b1 = mCode->code[++k];
 					Java::u1 b2 = mCode->code[++k];
@@ -166,12 +167,27 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->push(base->getLength());
 				}
 				break;
+			case Java::op_astore_0:
+				{
+					VMObject* obj = ctx->pop().obj;
+					ctx->put(0, obj);
+				}
+				break;
+			case Java::op_astore_1:
+				{
+					VMObject* obj = ctx->pop().obj;
+					ctx->put(1, obj);
+				}
+				break;
 			case Java::op_lconst_0:
 				ctx->push(0u);
 				ctx->push(0u);
 				break;
 			case Java::op_iconst_0:
 				ctx->push(0u);
+				break;
+			case Java::op_iconst_1:
+				ctx->push(1u);
 				break;
 			case Java::op_iconst_2:
 				ctx->push(2u);
@@ -317,7 +333,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					VMObject* obj = ctx->pop().obj;
 					VMClass* dummy;
 					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy);
-					FieldData* data = obj->getField(idx);
+					FieldData* data = obj->getObjField(idx);
 					data->obj = value.obj;
 					//FieldData* obj = mClass->getFieldIndex(operand);
 				}
@@ -341,7 +357,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					unsigned idx = mClass->getMethodIndex(ctx, operand, execCls);
 					VMMethod* temp = execCls->getMethod(idx); //TODO not very efficient
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
-					VMMethod* mthd = obj->getMethod(idx);
+					VMMethod* mthd = obj->getObjMethod(idx);
 					mthd->execute(ctx);
 					//TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         }
@@ -367,8 +383,21 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
       case Java::op_checkcast:
       case Java::op_instanceof:
-      case Java::op_ifnull:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+        break;
+      case Java::op_ifnull:
+				{
+					VMObject* obj = ctx->pop().obj;
+					if (obj == NULL){
+						Java::u1 b1 = mCode->code[++k];
+						Java::u1 b2 = mCode->code[++k];
+						int16 branch = b1 << 8 | b2;
+						k += branch-3;
+					}
+					else{
+					  k += 2;
+					}
+				}
         break;
       case Java::op_ifnonnull:
 				{
@@ -411,7 +440,12 @@ void BcVMMethod::execute(VMContext* ctx){
       case Java::op_lstore:
       case Java::op_fstore:
       case Java::op_dstore:
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+        k+=1;
+        break;
       case Java::op_astore:
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+        break;
       case Java::op_ret:
       case Java::op_newarray:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
@@ -477,16 +511,24 @@ void NativeVMMethod::execute(VMContext* ctx){
 void NativeVMMethod::executeVoidRet(VMContext* ctx){
 	if (mFunction == NULL)
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
-	ctx->pushFrame(this, mArgSize);
-	mFunction(ctx->getJNIEnv(), mClass);
+	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+	ctx->pushFrame(this, argsize);
+	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
+	va_list lst = packArguments(ctx);
+	delete [] lst;
+	mFunction(ctx->getJNIEnv(), cls, *lst);
 	ctx->popFrame();
 }
 
 void NativeVMMethod::executeLongRet(VMContext* ctx){
 	if (mFunction == NULL)
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
-	ctx->pushFrame(this, mArgSize);
-	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), mClass);
+	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+	ctx->pushFrame(this, argsize);
+	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
+	va_list lst = packArguments(ctx);
+	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls, *lst);
+	delete [] lst;
 	ctx->popFrame();
 	ctx->push((uint32)(ret >> 32));
 	ctx->push((uint32)ret);
@@ -495,7 +537,56 @@ void NativeVMMethod::executeLongRet(VMContext* ctx){
 void NativeVMMethod::executeRefRet(VMContext* ctx){
 	if (mFunction == NULL)
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
-	ctx->pushFrame(this, mArgSize);
-	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), mClass);
+	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+	ctx->pushFrame(this, argsize);
+	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
+	va_list lst = packArguments(ctx);
+	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls, *lst);
+	delete [] lst;
 	ctx->popFrame();
+	ctx->push((VMObject*)ret);
+}
+
+va_list NativeVMMethod::packArguments(VMContext* ctx){
+	union {
+		va_list varargs;
+		uint8* array;
+	} fakeArray;
+	fakeArray.array = new uint8[mArgSize*sizeof(uint32)];
+	uint8* curr = fakeArray.array;
+	bool count_args = true;
+	for (unsigned i = 1; i < mSignature.size(); ++i){
+		if (mSignature[i] == ')'){
+			++i;
+			break;
+		}
+		/*else if (mSignature[i] == 'L'){
+			do{
+				++i;
+			} while(mSignature[i] != ';');
+			if (count_args)
+				++mArgSize;
+			count_args = true;
+		}*/
+		else if (mSignature[i] == 'I'){
+			if (count_args){
+				int32 i = ctx->pop().i;
+				memcpy(curr, &i, sizeof(i));
+			}
+			count_args = true;
+		}
+		/*else if (mSignature[i] == '['){
+			if (count_args)
+				++mArgSize;
+			count_args = false;
+		}
+		else if (mSignature[i] == 'J' || mSignature[i] == 'D'){
+			if (count_args)
+				mArgSize += 2;
+			count_args = true;
+		}*/
+		else
+			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected argument type in method signature");
+	}
+	return fakeArray.varargs;
 }
