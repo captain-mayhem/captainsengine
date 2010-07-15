@@ -93,6 +93,7 @@ void BcVMMethod::print(std::ostream& strm){
 			case Java::op_putstatic:
 			case Java::op_anewarray:
 			case Java::op_putfield:
+			case Java::op_ldc_w:
 				{
 					{
 					Java::u1 b1 = mCode->code[++k];
@@ -153,7 +154,21 @@ void BcVMMethod::execute(VMContext* ctx){
 			case Java::op_aload_1:
 				ctx->push(ctx->get(1));
 				break;
+			case Java::op_aload_2:
+				ctx->push(ctx->get(2));
+				break;
+			case Java::op_aload_3:
+				ctx->push(ctx->get(3));
+				break;
 			case Java::op_areturn:
+				{
+					StackData dat = ctx->pop();
+					ctx->popFrame();
+					ctx->push(dat);
+					return;
+				}
+				break;
+			case Java::op_ireturn:
 				{
 					StackData dat = ctx->pop();
 					ctx->popFrame();
@@ -179,6 +194,30 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->put(1, obj);
 				}
 				break;
+			case Java::op_astore_2:
+				{
+					VMObject* obj = ctx->pop().obj;
+					ctx->put(2, obj);
+				}
+				break;
+			case Java::op_astore_3:
+				{
+					VMObject* obj = ctx->pop().obj;
+					ctx->put(3, obj);
+				}
+				break;
+			case Java::op_istore_1:
+				{
+					unsigned i = ctx->pop().ui;
+					ctx->put(1, i);
+				}
+				break;
+			case Java::op_istore_2:
+				{
+					unsigned i = ctx->pop().ui;
+					ctx->put(2, i);
+				}
+				break;
 			case Java::op_lconst_0:
 				ctx->push(0u);
 				ctx->push(0u);
@@ -191,6 +230,9 @@ void BcVMMethod::execute(VMContext* ctx){
 				break;
 			case Java::op_iconst_2:
 				ctx->push(2u);
+				break;
+			case Java::op_iconst_3:
+				ctx->push(3u);
 				break;
       //single byte number
       case Java::op_bipush:
@@ -210,8 +252,6 @@ void BcVMMethod::execute(VMContext* ctx){
         break;
       case Java::op_ldc:
         {
-					/*ctx->popFrame();
-					return;*/
 					Java::u1 operand = mCode->code[++k];
 					StackData constant = mClass->getConstant(ctx, operand);
 					ctx->push(constant);
@@ -245,12 +285,41 @@ void BcVMMethod::execute(VMContext* ctx){
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_ldc_w:
+				{
+					Java::u1 b1 = mCode->code[++k];
+          Java::u1 b2 = mCode->code[++k];
+          Java::u2 operand = b1 << 8 | b2;
+					StackData constant = mClass->getConstant(ctx, operand);
+					ctx->push(constant);
+        }
+        break;
       case Java::op_ldc2_w:
       case Java::op_iinc:
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				break;
       case Java::op_ifeq:
+				{
+					Java::u1 b1 = mCode->code[++k];
+					Java::u1 b2 = mCode->code[++k];
+					int16 branch = b1 << 8 | b2;
+					if (ctx->pop().ui == 0){
+						k += branch-3;
+					}
+				}
+				break;
       case Java::op_ifne:
+				{
+					Java::u1 b1 = mCode->code[++k];
+					Java::u1 b2 = mCode->code[++k];
+					int16 branch = b1 << 8 | b2;
+					if (ctx->pop().ui != 0){
+						k += branch-3;
+					}
+				}
+				break;
       case Java::op_iflt:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				break;
       case Java::op_ifge:
 				{
 					Java::u1 b1 = mCode->code[++k];
@@ -275,6 +344,20 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_if_icmpeq:
+				{
+					int val2 = ctx->pop().i;
+					int val1 = ctx->pop().i;
+					if (val1 == val2){
+						Java::u1 b1 = mCode->code[++k];
+						Java::u1 b2 = mCode->code[++k];
+						int16 branch = b1 << 8 | b2;
+						k += branch-3;
+					}
+					else{
+					  k += 2;
+					}
+				}
+				break;
       case Java::op_if_icmpne:
       case Java::op_if_icmplt:
       case Java::op_if_icmpge:
@@ -322,7 +405,16 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_getfield:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				{
+					Java::u1 b1 = mCode->code[++k];
+          Java::u1 b2 = mCode->code[++k];
+          Java::u2 operand = b1 << 8 | b2;
+					VMObject* obj = ctx->pop().obj;
+					VMClass* dummy;
+					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy);
+					FieldData* data = obj->getObjField(idx);
+					ctx->push(data->obj);
+				}
         break;
       case Java::op_putfield:
         {
@@ -470,6 +562,22 @@ void BcVMMethod::execute(VMContext* ctx){
 				ctx->dup();
 				break;
 			}
+			case Java::op_pop:{
+				ctx->pop();
+				break;
+			}
+			case Java::op_monitorenter:
+				{
+					VMObject* obj = ctx->pop().obj;
+					obj->lock();
+					break;
+				}
+			case Java::op_monitorexit:
+				{
+					VMObject* obj = ctx->pop().obj;
+					obj->unlock();
+					break;
+				}
 			default:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
 				break;
@@ -500,6 +608,7 @@ void NativeVMMethod::execute(VMContext* ctx){
 			executeLongRet(ctx);
 			break;
 		case Reference:
+		case Array:
 			executeRefRet(ctx);
 			break;
 		default:
@@ -527,7 +636,7 @@ void NativeVMMethod::executeLongRet(VMContext* ctx){
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	va_list lst = packArguments(ctx);
-	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls, *lst);
+	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
 	delete [] lst;
 	ctx->popFrame();
 	ctx->push((uint32)(ret >> 32));
@@ -541,7 +650,7 @@ void NativeVMMethod::executeRefRet(VMContext* ctx){
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	va_list lst = packArguments(ctx);
-	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls, *lst);
+	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
 	delete [] lst;
 	ctx->popFrame();
 	ctx->push((VMObject*)ret);
@@ -560,18 +669,27 @@ va_list NativeVMMethod::packArguments(VMContext* ctx){
 			++i;
 			break;
 		}
-		/*else if (mSignature[i] == 'L'){
+		else if (mSignature[i] == 'L'){
 			do{
 				++i;
 			} while(mSignature[i] != ';');
-			if (count_args)
-				++mArgSize;
+			if (count_args){
+				void* p = ctx->pop().obj;
+				memcpy(curr, &p, sizeof(p));
+			}
 			count_args = true;
-		}*/
+		}
 		else if (mSignature[i] == 'I'){
 			if (count_args){
 				int32 i = ctx->pop().i;
 				memcpy(curr, &i, sizeof(i));
+			}
+			count_args = true;
+		}
+		else if (mSignature[i] == 'Z'){
+			if (count_args){
+				jboolean b = ctx->pop().i;
+				memcpy(curr, &b, sizeof(b));
 			}
 			count_args = true;
 		}

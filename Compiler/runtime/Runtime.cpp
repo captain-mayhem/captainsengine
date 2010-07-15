@@ -11,8 +11,24 @@
 
 extern "C" {
 
+void JNIEXPORT Java_java_lang_Class_registerNatives(JNIEnv* env, jobject object){
+	return;
+}
+
 jobject JNIEXPORT Java_java_lang_Class_getClassLoader0(JNIEnv* env, jobject object){
 	return NULL;
+}
+
+jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobject object, jboolean unknown){
+	return NULL;
+}
+
+jboolean JNIEXPORT Java_java_lang_Class_desiredAssertionStatus0(JNIEnv* env, jobject object, jobject cls){
+	return 0;
+}
+
+void JNIEXPORT Java_java_lang_ClassLoader_registerNatives(JNIEnv* env, jobject object){
+	return;
 }
 
 void Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object){
@@ -66,6 +82,15 @@ jlong JNIEXPORT Java_java_lang_System_nanoTime(JNIEnv* env, jobject object){
 }
 
 void JNIEXPORT Java_java_lang_System_arraycopy(JNIEnv* env, jobject object, jobject src, int srcPos, jobject dest, int destPos, int length){
+}
+
+jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, jobject object, jobject action){
+	VMObject* obj = (VMObject*)action;
+	VMMethod* mthd = obj->getObjMethod(obj->getClass()->findMethodIndex("run", "()Ljava/lang/Object;"));
+	CTX(env)->push(obj);
+	mthd->execute(CTX(env));
+	obj = CTX(env)->pop().obj;
+	return obj;
 }
 
 void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object){

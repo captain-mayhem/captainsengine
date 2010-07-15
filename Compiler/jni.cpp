@@ -66,16 +66,7 @@ jobjectArray VMContext::NewObjectArray(JNIEnv *env, jsize len, jclass clazz, job
 }
 
 jstring VMContext::NewStringUTF(JNIEnv *env, const char *utf){
-	VMClass* cls = getVM()->findClass(CTX(env), "java/lang/String");
-	VMObject* obj = getVM()->createObject(CTX(env), cls);
-	CTX(env)->push(obj);
-	unsigned idx = cls->findMethodIndex("<init>", "([B)V");
-	VMMethod* mthd = cls->getMethod(idx);
-	VMByteArray* arr = getVM()->createByteArray(strlen(utf));
-	CTX(env)->push(arr);
-	arr->setData(utf);
-	mthd->execute(CTX(env));
-	return NULL;
+	return getVM()->createString(CTX(env), utf);
 }
 
 JNIEnv_::JNIEnv_(JavaVM_* vm){
