@@ -279,14 +279,14 @@ void VMClass::initFields(VMContext* ctx){
 			std::map<std::string,unsigned>::iterator iter = mMethodResolver.find(methodname+sig);
 			int idx;
 			if (iter == mMethodResolver.end()){
-				idx = methods++;
+				idx = ++methods;
 				mMethods.resize(methods);
-				mMethodResolver[methodname+sig] = idx+1;
+				mMethodResolver[methodname+sig] = idx;
 			}
 			else{
 				idx = iter->second;
 			}
-			mMethods[idx] = mthd;
+			mMethods[idx-1] = mthd;
 		}
 		else{ //no vtable
 			plainMethods.push_back(mthd);
@@ -320,17 +320,36 @@ StackData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 	else if (info->tag == CONSTANT_Float){
 		Java::CONSTANT_Float_info* fltinf = (Java::CONSTANT_Float_info*)(info);
 		ret.f = *((float*)&fltinf->bytes);
-		//op.data.mFloat = fltinf->bytes;
 	}
 	/*else if (info->tag == CONSTANT_Double){
 
 	}*/
-	//else if (info->tag == CONSTANT_String){
-	/*Java::CONSTANT_String_info* str = (Java::CONSTANT_String_info*)(info);
-	Java::CONSTANT_Utf8_info* utf = (Java::CONSTANT_Utf8_info*)(mClass.constant_pool[str->string_index-1]);
-	area.getClassIndex("java/lang/String");
-	area.mStrings.push_back(utf->bytes);*/
-	//}
+	else if (info->tag == CONSTANT_String){
+		Java::CONSTANT_String_info* str = (Java::CONSTANT_String_info*)(info);
+		Java::CONSTANT_Utf8_info* utf = (Java::CONSTANT_Utf8_info*)(mClass.constant_pool[str->string_index-1]);
+		//VMObject* obj = getVM()->create(ctx, utf->bytes.c_str());
+		VMClass* cls = getVM()->findClass(ctx, "java/lang/String");
+
+		//VMClass* chcls = getVM()->findClass(ctx, "java/lang/Character");
+
+		cls->print(std::cout);
+		VMObject* obj = getVM()->createObject(ctx, cls);
+		FieldData* val = obj->getObjField(cls->findFieldIndex("value"));
+		VMCharArray* strdata = getVM()->createCharArray(utf->length);
+		if (utf->length > 0)
+			strdata->setData(utf->bytes.c_str());
+		val->obj = strdata;
+		val = obj->getObjField(cls->findFieldIndex("offset"));
+		val->ui = 0;
+		val = obj->getObjField(cls->findFieldIndex("count"));
+		val->ui = utf->length;
+		ret.obj = obj;
+	}
+	else if (info->tag == CONSTANT_Class){
+		VMClass* cls = getClass(ctx, constant_ref);
+		ret.cls = cls;
+		return ret;
+	}
 	else{
 	  TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unhandled type");
 	}
@@ -347,6 +366,6 @@ void VMClass::copyMethodData(std::map<std::string,unsigned>& methodresolver, std
 		std::string id = mthd->getName()+mthd->getSignature();
 		unsigned val = mMethodResolver[id];
 		methodresolver.insert(std::make_pair(id, val));
-		methods[i] = mthd;
+		methods[val-1] = mthd;
 	}
 }

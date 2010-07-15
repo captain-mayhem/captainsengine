@@ -130,6 +130,12 @@ VMByteArray* JVM::createByteArray(unsigned size){
 	return arr;
 }
 
+VMCharArray* JVM::createCharArray(unsigned size){
+	VMCharArray* arr = new VMCharArray(size);
+	mCreatedObjects.push_back(arr);
+	return arr;
+}
+
 VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
 	VMObject* obj = new VMObject(ctx, cls);
 	mCreatedObjects.push_back(obj);
@@ -137,10 +143,24 @@ VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
 }
 
 void JVM::initBasicClasses(VMContext* ctx){
+	//createString(ctx, "teststring");
 	VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
 	VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("<init>", "()V"));
 	VMObject* ldr = createObject(ctx, ldrcls);
 	ctx->push(ldr);
 	mthd->execute(ctx);
 	return;
+}
+
+VMObject* JVM::createString(VMContext* ctx, const char* str){
+	VMClass* cls = getVM()->findClass(ctx, "java/lang/String");
+	VMObject* obj = getVM()->createObject(ctx, cls);
+	ctx->push(obj);
+	unsigned idx = cls->findMethodIndex("<init>", "([B)V");
+	VMMethod* mthd = cls->getMethod(idx);
+	VMByteArray* arr = getVM()->createByteArray(strlen(str));
+	ctx->push(arr);
+	arr->setData((const jbyte*)str);
+	mthd->execute(ctx);
+	return obj;
 }

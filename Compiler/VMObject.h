@@ -14,6 +14,9 @@ public:
 	void init(VMContext* ctx, VMClass* cls);
 	FieldData* getObjField(unsigned idx);
 	VMMethod* getObjMethod(unsigned idx);
+	void lock() {}
+	void unlock() {}
+	VMClass* getClass() {return mClass;}
 protected:
 	std::vector<FieldData> mFields;
 	VMClass* mClass;
