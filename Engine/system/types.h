@@ -6,6 +6,7 @@
 #endif
 #ifdef UNIX
 #include <sys/types.h>
+#include <stdint.h>
 #endif
 
 typedef char int8;

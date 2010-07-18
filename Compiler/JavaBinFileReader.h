@@ -6,8 +6,8 @@
 
 class JavaBinFileReader{
 public:
-  JavaBinFileReader::JavaBinFileReader(Reader* reader);
-  virtual JavaBinFileReader::~JavaBinFileReader();
+  JavaBinFileReader(Reader* reader);
+  virtual ~JavaBinFileReader();
   unsigned readClassFile(Java::ClassFile& jclass);
   bool isWorking() {return mReader->isWorking();}
   void setReader(Reader* reader) {mReader = reader;}

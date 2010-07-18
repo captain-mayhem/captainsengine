@@ -15,6 +15,8 @@ extern "C" {
 #define JNICALL
 #ifdef WIN32
 #define JNIEXPORT __declspec(dllexport)
+#else
+#define JNIEXPORT 
 #endif
 
 typedef unsigned char jboolean;

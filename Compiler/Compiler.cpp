@@ -1,15 +1,14 @@
 #include <iostream>
 
-#include <wx/wx.h>
-
-//#include "Interpreter.h"
+#include <system/engine.h>
+#include <system/allocation.h>
 #include <system/winceMain.h>
 
 #include "jni.h"
 
 int main(int argc, char* argv[])
 {
-  wxInitialize();
+	CGE::Engine::instance()->init();
   char* filename = "test/Test";
 	//char* filename = "java/lang/Object";
   if (argc > 1){
@@ -33,7 +32,6 @@ int main(int argc, char* argv[])
 	if (mainfunc == NULL){
 		std::cerr << "No main function found" << std::endl;
 		jvm->DestroyJavaVM();
-		wxUninitialize();
 		return -1;
 	}
 
@@ -43,7 +41,7 @@ int main(int argc, char* argv[])
 	env->CallStaticVoidMethod(cls, mainfunc, args);
   
   jvm->DestroyJavaVM();
-  wxUninitialize();
+	CGE::Engine::instance()->shutdown();
   return 0;
 }
 

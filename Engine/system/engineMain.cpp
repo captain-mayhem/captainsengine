@@ -39,7 +39,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
       //Do not use WM_MouseMove-Event, because it causes the cursor to freeze
       POINT p;
       GetCursorPos(&p);
-      ScreenToClient(static_cast<Windows::WindowsWindow*>(CGE::Engine::instance()->getWindow())->getHandle(), &p);
+      ScreenToClient((HWND)static_cast<Windows::WindowsWindow*>(CGE::Engine::instance()->getWindow())->getHandle(), &p);
       Input::Mouse::instance()->move(p.x, p.y, 0);
       CGE::Engine::instance()->run();
     }
@@ -130,12 +130,6 @@ int main(int argc, char** argv){
   }
   CGE::Engine::instance()->shutdown();
   return 0;
-}
-
-long GetTickCount(){
-  //return clock_gettime(CLOCK_MONOTONIC, NULL);
-  //long factor = sysconf(_SC_CLK_TCK);
-  return times(NULL);
 }
 #endif
 

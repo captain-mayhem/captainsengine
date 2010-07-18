@@ -4,17 +4,6 @@ INCLUDE_DIRECTORIES(.)
 
 LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
 
-###WXWIDGETS###
-
-INCLUDE(FindwxWidgets)
-
-SET(wxWidgets_USE_LIBS base core gl media)
-FIND_PACKAGE(wxWidgets REQUIRED base core gl media)
-INCLUDE(${wxWidgets_USE_FILE})
-ADD_DEFINITIONS(-DwxUSE_NO_MANIFEST=1)
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} ${wxWidgets_LIBRARIES})
-###############
-
 ADD_DEFINITIONS(
 	-DENABLE_TRACING
 )
@@ -34,7 +23,7 @@ SET(Compiler_HDRS
 
 ADD_EXECUTABLE(Compiler ${Compiler_SRCS} ${Compiler_HDRS})
 
-TARGET_LINK_LIBRARIES(Compiler javaruntime zlib  ${wxWidgets_LIBRARIES})
+TARGET_LINK_LIBRARIES(Compiler javaruntime zlib)
 
 IF (${OS} STREQUAL "windows")
   SET_TARGET_PROPERTIES(Compiler PROPERTIES LINK_FLAGS " /STACK:10000000 /machine:I386 /debug /SUBSYSTEM:Console")

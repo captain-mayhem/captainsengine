@@ -57,9 +57,9 @@ bool ZipReader::openFile(const std::string& filename){
   mCurrent = mStart;
   mEnd = mStart+meminfo.RegionSize;
 #else
-  FILE* f = fopen(zippath.c_str(), "rb");
+  FILE* f = fopen(filename.c_str(), "rb");
   if (!f)
-    return;
+    return false;
   unsigned bufferSize = -ftell(f);
   fseek(f, 0, SEEK_END);
   bufferSize += ftell(f);

@@ -79,9 +79,11 @@ void GLESRenderer::initContext(::Windows::AppWindow* win){
   }
   delete [] allConfigs;
 
+#ifdef WIN32
   ShowWindow(wnd->getHandle(), SW_SHOW);
   SetForegroundWindow(wnd->getHandle());
   SetFocus(wnd->getHandle());
+#endif
 
   eglMakeCurrent(display_, surface_, surface_, context_);
 
@@ -305,16 +307,24 @@ void GLESRenderer::setMaterial(const Material& mat){
 
 //! get the viewport
 void GLESRenderer::getViewport(int view[4]){
+#ifdef QNX
+	CGE::Log << "getViewport unimplemented";
+#else
   glGetIntegerv(GL_VIEWPORT, view);
+#endif
 }
 
 //! get a matrix
 Matrix GLESRenderer::getMatrix(MatrixType mt){
+#ifdef QNX
+	CGE::Log << "getMatrix unimplemented";
+#else
   float tmp[16];
   if (mt == Projection){
     glGetFloatv(GL_PROJECTION_MATRIX, tmp);
     return Matrix(tmp);
   }
+#endif
   return Matrix(Matrix::Identity);
 }
 

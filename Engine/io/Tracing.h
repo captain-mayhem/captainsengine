@@ -17,13 +17,13 @@
 #define TRACE_GROUP_USER_LAST 1 << 31
 
 #ifdef ENABLE_TRACING
-#define TRACE(group, level, message, ...) internal_trace(group, level, __FILE__, __FUNCTION__, message, __VA_ARGS__)
-#define TRACE_ABORT(group, message, ...) internal_trace(group, TRACE_FATAL_ERROR, __FILE__, __FUNCTION__, message, __VA_ARGS__)
+#define TRACE(group, level, message, ...) internal_trace(group, level, __FILE__, __FUNCTION__, message, ##__VA_ARGS__)
+#define TRACE_ABORT(group, message, ...) internal_trace(group, TRACE_FATAL_ERROR, __FILE__, __FUNCTION__, message, ##__VA_ARGS__)
 #else
 #define TRACE(group, level, message, ...)
 #define TRACE_ABORT(group, message, ...) EXIT2(message)
 #endif
 
-void internal_trace(int group, int level, char* file, char* function, const char* message, ...);
+void internal_trace(int group, int level, const char* file, const char* function, const char* message, ...);
 
 #endif

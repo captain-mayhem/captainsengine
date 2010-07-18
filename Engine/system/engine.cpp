@@ -7,6 +7,7 @@
 #include "../input/keyboard.h"
 #include "../window/nativeWindows.h"
 #include "../window/nativeLinux.h"
+#include "../window/nativeQNX.h"
 #include "script.h"
 #include "../gui/console.h"
 #include "../renderer/forms.h"
@@ -14,6 +15,9 @@
 
 #ifdef WIN32
 #define TIME_FACTOR 0.001
+#define _CRTDBG_MAP_ALLOC
+#include <stdlib.h>
+#include <crtdbg.h>
 #endif
 #ifdef UNIX
 #define TIME_FACTOR 0.01
@@ -42,6 +46,9 @@ Engine::Engine(){
   clear_ = false;
   //guitex_ = Mutex();
   mSimulator = NULL;
+#ifdef WIN32
+	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+#endif
   Log << "Engine instance created\n";
 }
 
@@ -86,8 +93,11 @@ void Engine::startup(int argc, char** argv){
 #ifdef WIN32
     win_ = new ::Windows::WindowsWindow(rend_);
 #endif
-#ifdef UNIX
+#ifdef LINUX
     win_ = new ::Windows::X11Window(rend_);
+#endif
+#ifdef QNX
+		win_ = new ::Windows::QNXWindow(rend_);
 #endif
   }
   else{
@@ -150,6 +160,9 @@ void Engine::shutdown(){
   Script::kill();
   Log.close();
   SAFE_DELETE(eng);
+#ifdef WIN32
+	_CrtDumpMemoryLeaks();
+#endif
   //exit(0);
 }
 
@@ -334,3 +347,11 @@ void Engine::removeGuiListeners(int idx){
   }
   return NULL;
 }
+
+#ifdef UNIX
+long GetTickCount(){
+  //return clock_gettime(CLOCK_MONOTONIC, NULL);
+  //long factor = sysconf(_SC_CLK_TCK);
+  return times(NULL);
+}
+#endif

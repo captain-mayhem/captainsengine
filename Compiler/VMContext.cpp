@@ -1,4 +1,7 @@
 #include "VMContext.h"
+
+#include <cstring>
+
 #include "JVM.h"
 
 VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself){

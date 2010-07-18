@@ -29,6 +29,8 @@ SET(Engine_system_HDRS
 	${PRE}/soloader.h
 	${PRE}/thread.h
 	${PRE}/types.h 
-	${PRE}/utilities.h)
+	${PRE}/utilities.h
+	${PRE}/allocation.h
+)
 
 INSTALL(FILES ${Engine_system_HDRS} DESTINATION Engine/include/${PRE})

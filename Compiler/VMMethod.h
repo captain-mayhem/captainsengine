@@ -70,7 +70,7 @@ public:
 	void executeLongRet(VMContext* ctx);
 	void executeRefRet(VMContext* ctx);
 protected:
-	va_list packArguments(VMContext* ctx);
+	uint8* packArguments(VMContext* ctx);
 	nativeMethod mFunction;
 };
 

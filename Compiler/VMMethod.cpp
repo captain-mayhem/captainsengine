@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <string>
+#include <cstring>
 
 #include "JavaDefs.h"
 #include "VMClass.h"
@@ -379,7 +380,22 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_if_acmpeq:
+				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
       case Java::op_if_acmpne:
+				{
+					VMObject* val2 = ctx->pop().obj;
+					VMObject* val1 = ctx->pop().obj;
+					if (val1 != val2){
+						Java::u1 b1 = mCode->code[++k];
+						Java::u1 b2 = mCode->code[++k];
+						int16 branch = b1 << 8 | b2;
+						k += branch-3;
+					}
+					else{
+					  k += 2;
+					}
+				}
+				break;
       case Java::op_goto:
       case Java::op_jsr:
         k+=2;
@@ -623,7 +639,7 @@ void NativeVMMethod::executeVoidRet(VMContext* ctx){
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	va_list lst = packArguments(ctx);
+	uint8* lst = packArguments(ctx);
 	delete [] lst;
 	mFunction(ctx->getJNIEnv(), cls, *lst);
 	ctx->popFrame();
@@ -635,7 +651,7 @@ void NativeVMMethod::executeLongRet(VMContext* ctx){
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	va_list lst = packArguments(ctx);
+	uint8* lst = packArguments(ctx);
 	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
 	delete [] lst;
 	ctx->popFrame();
@@ -649,14 +665,14 @@ void NativeVMMethod::executeRefRet(VMContext* ctx){
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	va_list lst = packArguments(ctx);
+	uint8* lst = packArguments(ctx);
 	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
 	delete [] lst;
 	ctx->popFrame();
 	ctx->push((VMObject*)ret);
 }
 
-va_list NativeVMMethod::packArguments(VMContext* ctx){
+uint8* NativeVMMethod::packArguments(VMContext* ctx){
 	union {
 		va_list varargs;
 		uint8* array;
@@ -706,5 +722,5 @@ va_list NativeVMMethod::packArguments(VMContext* ctx){
 		else
 			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected argument type in method signature");
 	}
-	return fakeArray.varargs;
+	return (uint8*)fakeArray.varargs;
 }

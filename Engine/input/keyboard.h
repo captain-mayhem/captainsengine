@@ -34,7 +34,7 @@
 #define KEY_1 '1'
 #define KEY_2 '2'
 #endif
-#ifdef UNIX
+#ifdef LINUX
 #include <X11/keysym.h>
 #define KEY_BACKSPACE XK_BackSpace
 #define KEY_UP XK_Up
@@ -63,6 +63,13 @@
 #define KEY_0 XK_0
 #define KEY_1 XK_1
 #define KEY_2 XK_2
+#endif
+#ifdef QNX
+#define KEY_ESCAPE 0
+#define KEY_RETURN 0
+#define KEY_BACKSPACE 0
+#define KEY_UP 0
+#define KEY_DOWN 0
 #endif
 
 #include "../system/engine.h"

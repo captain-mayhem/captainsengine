@@ -4,6 +4,7 @@
 #include <cstdio>
 #include <cstdarg>
 #include <iostream>
+#include <system/engine.h>
 
 #define BUF_SIZE 1024
 
@@ -13,7 +14,7 @@ char buffer[BUF_SIZE];
 #define vsnprintf _vsnprintf
 #endif
 
-void internal_trace(int group, int level, char* file, char* function, const char* message, ...){
+void internal_trace(int group, int level, const char* file, const char* function, const char* message, ...){
   va_list list;
   va_start(list, message);
   vsnprintf(buffer, BUF_SIZE, message, list);
@@ -22,6 +23,7 @@ void internal_trace(int group, int level, char* file, char* function, const char
   if (level == TRACE_ERROR){
     return; //for breakpoints
   }
-  if (level == TRACE_FATAL_ERROR)
-    exit(EXIT_FAILURE);
+	if (level == TRACE_FATAL_ERROR){
+		exit(EXIT_FAILURE);
+	}
 }

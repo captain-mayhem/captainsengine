@@ -14,13 +14,20 @@
 #define MB_CTRL MK_CONTROL
 #define MB_SHIFT MK_SHIFT
 #endif
-#ifdef UNIX
+#ifdef LINUX
 #include <X11/Xlib.h>
 #define MB_LEFT Button1
 #define MB_MIDDLE Button2
 #define MB_RIGHT Button3
 #define MB_CTRL ControlMask
 #define MB_SHIFT ShiftMask
+#endif
+#ifdef QNX
+#define MB_LEFT 0
+#define MB_MIDDLE 1
+#define MB_RIGHT 2
+#define MB_CTRL 3
+#define MB_SHIFT 4
 #endif
 
 namespace Input{
@@ -80,7 +87,7 @@ namespace Input{
     bool mousePointer_;
     //! is a mouse button pressed
     bool pressed_[3];
-#ifdef UNIX
+#ifdef LINUX
     //! app has graphics context
     bool graphics_;
     //! the invisible cursor
