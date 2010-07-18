@@ -144,6 +144,9 @@ VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
 }
 
 void JVM::initBasicClasses(VMContext* ctx){
+	VMClass* sys = findClass(ctx, "java/lang/System");
+	VMMethod* sysinit = sys->getMethod(sys->findMethodIndex("initializeSystemClass", "()V"));
+	sysinit->execute(ctx);
 	//createString(ctx, "teststring");
 	VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
 	VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("<init>", "()V"));

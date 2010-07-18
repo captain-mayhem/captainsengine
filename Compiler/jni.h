@@ -21,7 +21,7 @@ extern "C" {
 
 typedef unsigned char jboolean;
 typedef unsigned char jbyte;
-typedef char jchar;
+typedef unsigned short jchar;
 typedef short jshort;
 typedef int jint;
 typedef int64 jlong;

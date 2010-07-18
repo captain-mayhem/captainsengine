@@ -305,6 +305,8 @@ union StackData{
 		StackData(StackData* sd) {stp = sd;}
 		StackData(VMMethod* md) {mthd = md;}
 		StackData(uint32 uin) {ui = uin;}
+		StackData(int32 in) {i = in;}
+		StackData(float fl) {f = fl;}
 		StackData(VMObject* ob) {obj = ob;}
 		StackData(VMClass* cs) {cls = cs;}
 		VMMethod* mthd;

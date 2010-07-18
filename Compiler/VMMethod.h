@@ -16,17 +16,17 @@ class VMClass;
 class VMMethod{
 public:
 	enum ReturnType{
-		Void,
-		Long,
-		Reference,
-		Int,
-		Boolean,
-		Char,
-		Array,
-		Byte,
-		Float,
-		Double,
-		Short
+		Void=0,
+		Long=11,
+		Reference=1,
+		Int=10,
+		Boolean=4,
+		Char=5,
+		Array=2,
+		Byte=8,
+		Float=6,
+		Double=7,
+		Short=9
 	};
 	VMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic) : mName(name), mSignature(signature), mIsStatic(isStatic), mClass(cls) {parseSignature();}
 	virtual void execute(VMContext* ctx)=0;

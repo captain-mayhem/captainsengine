@@ -26,6 +26,12 @@ public:
 	virtual unsigned getLength(){
 		return mData.size();
 	}
+	void put(const T data, unsigned idx){
+		mData[idx] = data;
+	}
+	T get(unsigned idx){
+		return mData[idx];
+	}
 protected:
 	std::vector<T> mData;
 };
