@@ -54,7 +54,7 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
       0, 0, 0				//Layer masks ignored
   };
 
-  HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win)->getHandle();
+  HWND wnd = (HWND)dynamic_cast<::Windows::WindowsWindow*>(win)->getHandle();
   if(!(hDC_ = GetDC(wnd))){
     CGE::Log << "Can't create GL device context\n";
     EXIT();
@@ -108,7 +108,7 @@ void OGLRenderer::killContext(){
     hRC_ = NULL;
   }
 
-  HWND wnd = dynamic_cast<::Windows::WindowsWindow*>(win_)->getHandle();
+  HWND wnd = (HWND)dynamic_cast<::Windows::WindowsWindow*>(win_)->getHandle();
   if (hDC_ && !ReleaseDC(wnd,hDC_)){
     CGE::Log << "Release of device context failed";
     hDC_ = NULL;

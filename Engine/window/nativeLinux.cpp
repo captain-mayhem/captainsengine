@@ -1,4 +1,4 @@
-#ifdef UNIX
+#ifdef LINUX
 #include <GL/glx.h>
 #include "../system/engine.h"
 #include "../renderer/OpenGL/OGLrenderer.h"

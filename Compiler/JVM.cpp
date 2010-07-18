@@ -2,10 +2,11 @@
 #include "JVM.h"
 
 #include <iostream>
+#include <cstdlib>
+#include <cstring>
 
 #include "VMContext.h"
 #include "VMclass.h"
-#include "ClassLoader.h"
 #include "Trace.h"
 #include "VMMethod.h"
 #include "VMArray.h"

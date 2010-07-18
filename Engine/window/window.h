@@ -31,6 +31,8 @@ public:
   inline void setHeight(int height) {height_ = height;}
   //! set focussed
   void focus(bool hasFocus);
+	//! get a native window handle
+	virtual void* getHandle() {return NULL;}
 protected:
   CGE::Renderer* renderer_;
   bool fullscreen_;

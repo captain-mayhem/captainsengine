@@ -6,6 +6,10 @@ using namespace CGE;
 typedef unsigned char byte;
 typedef unsigned short WORD;
 
+#ifdef QNX
+#define glTexParameteri glTexParameterx
+#endif
+
 GLESTexture::GLESTexture(string filename) : Texture(filename){
   load(filename);
 }
@@ -30,7 +34,9 @@ bool GLESTexture::load(string filename){
   glBindTexture(GL_TEXTURE_2D, tex_);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+#ifndef QNX
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+#endif
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->sizeX, img->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img->data);
 
   if (img){

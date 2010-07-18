@@ -37,15 +37,15 @@ void Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object){
 
 void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
 	JNINativeMethod methods[3];
-	methods[0].name = "currentTimeMillis";
-	methods[0].signature = "()J";
-	methods[0].fnPtr = Java_java_lang_System_currentTimeMillis;
-	methods[1].name = "nanoTime";
-	methods[1].signature = "()J";
-	methods[1].fnPtr = Java_java_lang_System_nanoTime;
-	methods[2].name = "arraycopy";
-	methods[2].signature = "(Ljava/lang/Object;ILjava/lang/Object;II)V";
-	methods[2].fnPtr = Java_java_lang_System_arraycopy;
+	methods[0].name = (char*)"currentTimeMillis";
+	methods[0].signature = (char*)"()J";
+	methods[0].fnPtr = (void*)Java_java_lang_System_currentTimeMillis;
+	methods[1].name = (char*)"nanoTime";
+	methods[1].signature = (char*)"()J";
+	methods[1].fnPtr = (void*)Java_java_lang_System_nanoTime;
+	methods[2].name = (char*)"arraycopy";
+	methods[2].signature = (char*)"(Ljava/lang/Object;ILjava/lang/Object;II)V";
+	methods[2].fnPtr = (void*)Java_java_lang_System_arraycopy;
 	env->RegisterNatives(object, methods, 3);
 }
 

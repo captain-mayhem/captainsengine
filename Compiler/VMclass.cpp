@@ -1,6 +1,7 @@
 #include "VMClass.h"
 
 #include <iostream>
+#include <cstring>
 
 #include <io/BinFileReader.h>
 #include <io/ZipReader.h>
@@ -332,7 +333,7 @@ StackData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 
 		//VMClass* chcls = getVM()->findClass(ctx, "java/lang/Character");
 
-		cls->print(std::cout);
+		//cls->print(std::cout);
 		VMObject* obj = getVM()->createObject(ctx, cls);
 		FieldData* val = obj->getObjField(cls->findFieldIndex("value"));
 		VMCharArray* strdata = getVM()->createCharArray(utf->length);

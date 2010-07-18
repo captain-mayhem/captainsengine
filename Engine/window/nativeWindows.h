@@ -16,7 +16,7 @@ public:
   //! init the window
   void init(const std::string& name);
   //! get window handle
-  inline HWND getHandle(){return handle_;}
+  inline void* getHandle(){return handle_;}
   //! kill the window
   void kill();
 protected:
