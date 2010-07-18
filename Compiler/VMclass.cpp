@@ -337,8 +337,14 @@ StackData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 		VMObject* obj = getVM()->createObject(ctx, cls);
 		FieldData* val = obj->getObjField(cls->findFieldIndex("value"));
 		VMCharArray* strdata = getVM()->createCharArray(utf->length);
-		if (utf->length > 0)
-			strdata->setData(utf->bytes.c_str());
+		if (utf->length > 0){
+			unsigned short* data = new unsigned short[utf->length];
+			for (int i = 0; i < utf->length; ++i){
+				data[i] = utf->bytes[i];
+			}
+			strdata->setData(data);
+			delete [] data;
+		}
 		val->obj = strdata;
 		val = obj->getObjField(cls->findFieldIndex("offset"));
 		val->ui = 0;
