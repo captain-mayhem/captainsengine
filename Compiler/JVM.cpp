@@ -137,6 +137,12 @@ VMCharArray* JVM::createCharArray(unsigned size){
 	return arr;
 }
 
+VMIntArray* JVM::createIntArray(unsigned size){
+	VMIntArray* arr = new VMIntArray(size);
+	mCreatedObjects.push_back(arr);
+	return arr;
+}
+
 VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
 	VMObject* obj = new VMObject(ctx, cls);
 	mCreatedObjects.push_back(obj);

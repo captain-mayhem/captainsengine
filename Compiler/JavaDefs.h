@@ -334,5 +334,6 @@ union FieldData{
 typedef void (*nativeMethod)(JNIEnv* env, jobject object, ...);
 typedef int64 (*nativeLongMethod)(JNIEnv* env, jobject object, ...);
 typedef void* (*nativeRefMethod)(JNIEnv* env, jobject object, ...);
+typedef jboolean (*nativeBoolMethod)(JNIEnv* env, jobject object, ...);
 
 #endif

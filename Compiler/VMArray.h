@@ -39,5 +39,6 @@ protected:
 typedef VMArray<VMObject*> VMObjectArray;
 typedef VMArray<jbyte> VMByteArray;
 typedef VMArray<jchar> VMCharArray;
+typedef VMArray<jint> VMIntArray;
 
 #endif

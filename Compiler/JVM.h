@@ -29,6 +29,7 @@ public:
 	VMObjectArray* createObjectArray(unsigned size);
 	VMByteArray* createByteArray(unsigned size);
 	VMCharArray* createCharArray(unsigned size);
+	VMIntArray* createIntArray(unsigned size);
 	VMObject* createObject(VMContext* ctx, VMClass* cls);
 	VMObject* createString(VMContext* ctx, const char* str);
 protected:
