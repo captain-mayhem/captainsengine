@@ -19,7 +19,7 @@ jobject JNIEXPORT Java_java_lang_Class_getClassLoader0(JNIEnv* env, jobject obje
 	return NULL;
 }
 
-jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobject object, jboolean unknown){
+jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobject object, jboolean publicOnly){
 	return NULL;
 }
 
@@ -31,8 +31,12 @@ void JNIEXPORT Java_java_lang_ClassLoader_registerNatives(JNIEnv* env, jobject o
 	return;
 }
 
-void Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object){
+void JNIEXPORT Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object){
 	return;
+}
+
+jint JNIEXPORT Java_java_lang_Object_hashCode(JNIEnv* env, jobject object){
+	return (jint)object;
 }
 
 void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
@@ -78,6 +82,13 @@ jlong JNIEXPORT Java_java_lang_System_currentTimeMillis(JNIEnv* env, jobject obj
 }
 
 jlong JNIEXPORT Java_java_lang_System_nanoTime(JNIEnv* env, jobject object){
+#ifdef WIN32
+	LARGE_INTEGER frequency;
+	LARGE_INTEGER counter;
+	QueryPerformanceFrequency(&frequency);
+	QueryPerformanceCounter(&counter);
+	return (jlong)(counter.QuadPart*1000000000/(double)frequency.QuadPart);
+#endif
 	return 0;
 }
 

@@ -69,6 +69,7 @@ public:
 	void executeVoidRet(VMContext* ctx);
 	void executeLongRet(VMContext* ctx);
 	void executeRefRet(VMContext* ctx);
+	void executeBoolRet(VMContext* ctx);
 protected:
 	uint8* packArguments(VMContext* ctx);
 	nativeMethod mFunction;
