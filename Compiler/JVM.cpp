@@ -76,12 +76,9 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
   if (entry == 0){
     //array functions
     if (name[0] == '['){
-      //ClassData* clsdat = new ClassData();
-      //clsdat->mLoader = NULL;
-      //mClassData.push_back(clsdat);
-      //entry = mClassData.size()-1;
-      //mClassResolver[name] = entry;
-      return NULL;
+      entry = new VMArrayClass();
+			mClassResolver[name] = entry;
+      return entry;
     }
     //Java::ClassFile* clfile = new Java::ClassFile();
 		entry = new VMClass(name);

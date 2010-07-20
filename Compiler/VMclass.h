@@ -11,6 +11,7 @@ class VMContext;
 
 class VMClass : public VMObject{
 public:
+	VMClass();
 	VMClass(const std::string& filename);
 	virtual ~VMClass();
 	unsigned findMethodIndex(const std::string& name, const std::string& signature);
@@ -29,8 +30,9 @@ public:
 	void initFields(VMContext* ctx);
 	unsigned getNonStaticFieldOffset();
 	void copyMethodData(std::map<std::string,unsigned>& methodresolver, std::vector<VMMethod*>& methods);
+	Java::ClassFile& getClassDefinition() {return mClass;}
 	//void setClassObject(VMObject* clsobj) {mClassObject = clsobj;}
-	//VMObject* getClassObject() {return mClassObject;}
+	VMObject* getClassObject() {return mClassObject;}
 protected:
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);
 	Java::ClassFile mClass;
