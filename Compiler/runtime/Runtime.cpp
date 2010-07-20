@@ -4,6 +4,7 @@
 #include <VMContext.h>
 #include <VMMethod.h>
 #include <VMClass.h>
+#include <JVM.h>
 
 #include <iostream>
 
@@ -20,7 +21,32 @@ jobject JNIEXPORT Java_java_lang_Class_getClassLoader0(JNIEnv* env, jobject obje
 }
 
 jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobject object, jboolean publicOnly){
-	return NULL;
+	VMContext* ctx = CTX(env);
+	VMObject* obj = (VMObject*)object;
+	Java::ClassFile& cls = obj->getClass()->getClassDefinition();
+
+	VMClass* fieldcls = getVM()->findClass(CTX(env), "java/lang/reflect/Field");
+	VMObjectArray* arr = getVM()->createObjectArray(cls.fields_count);
+	arr->init(CTX(env), fieldcls);
+
+	for (unsigned i = 0; i < cls.fields_count; ++i){
+		Java::field_info* info = cls.fields[i];
+		std::string name = ((Java::CONSTANT_Utf8_info*)(cls.constant_pool[info->name_index-1]))->bytes;
+		VMObject* arrobj = getVM()->createObject(CTX(env), fieldcls);
+		CTX(env)->push(arrobj);
+		CTX(env)->push(obj->getClass()->getClassObject());
+		CTX(env)->push(obj->getClass()->getConstant(CTX(env), info->name_index));
+		ctx->push(0u); //type class
+		ctx->push(info->access_flags);
+		ctx->push(obj->getClass()->findFieldIndex(name));
+		ctx->push(obj->getClass()->getConstant(ctx, info->descriptor_index));
+		ctx->push(0u);
+		VMMethod* mthd = fieldcls->getMethod(fieldcls->findMethodIndex("<init>", "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;IILjava/lang/String;[B)V"));
+		mthd->execute(ctx);
+		arr->put(arrobj, i);
+	}
+	
+	return arr;
 }
 
 jboolean JNIEXPORT Java_java_lang_Class_desiredAssertionStatus0(JNIEnv* env, jobject object, jobject cls){

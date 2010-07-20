@@ -4,6 +4,10 @@
 #include <vector>
 
 #include "VMObject.h"
+#include "VMClass.h"
+
+class VMArrayClass : public VMClass{
+};
 
 class VMArrayBase : public VMObject{
 public:

@@ -18,6 +18,9 @@
 
 #include "JavaBinFileReader.h"
 
+VMClass::VMClass() : mSuperclass(NULL), mClassObject(NULL) {
+}
+
 VMClass::VMClass(const std::string& filename) : mSuperclass(NULL), mClassObject(NULL) {
 	 mFilename = filename;
 
@@ -327,7 +330,10 @@ StackData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 	}*/
 	else if (info->tag == CONSTANT_String){
 		Java::CONSTANT_String_info* str = (Java::CONSTANT_String_info*)(info);
-		Java::CONSTANT_Utf8_info* utf = (Java::CONSTANT_Utf8_info*)(mClass.constant_pool[str->string_index-1]);
+		ret.obj = getConstant(ctx, str->string_index).obj;
+	}
+	else if (info->tag == CONSTANT_Utf8){
+		Java::CONSTANT_Utf8_info* utf = (Java::CONSTANT_Utf8_info*)(info);
 		//VMObject* obj = getVM()->create(ctx, utf->bytes.c_str());
 		VMClass* cls = getVM()->findClass(ctx, "java/lang/String");
 
@@ -355,7 +361,6 @@ StackData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 	else if (info->tag == CONSTANT_Class){
 		VMClass* cls = getClass(ctx, constant_ref);
 		ret.cls = cls;
-		return ret;
 	}
 	else{
 	  TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unhandled type");
