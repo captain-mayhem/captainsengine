@@ -5,6 +5,7 @@
 #include <VMMethod.h>
 #include <VMClass.h>
 #include <JVM.h>
+#include <Trace.h>
 
 #include <iostream>
 
@@ -16,11 +17,18 @@ void JNIEXPORT Java_java_lang_Class_registerNatives(JNIEnv* env, jobject object)
 	return;
 }
 
+jboolean JNIEXPORT Java_java_lang_Class_desiredAssertionStatus0(JNIEnv* env, jobject object, jobject cls){
+	return 0;
+}
+
 jobject JNIEXPORT Java_java_lang_Class_getClassLoader0(JNIEnv* env, jobject object){
 	return NULL;
 }
 
 jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobject object, jboolean publicOnly){
+	if (publicOnly){
+		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "publicOnly not implemented");
+	}
 	VMContext* ctx = CTX(env);
 	VMObject* obj = (VMObject*)object;
 	Java::ClassFile& cls = obj->getClass()->getClassDefinition();
@@ -49,8 +57,8 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 	return arr;
 }
 
-jboolean JNIEXPORT Java_java_lang_Class_desiredAssertionStatus0(JNIEnv* env, jobject object, jobject cls){
-	return 0;
+jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls, jstring name){
+	return NULL;
 }
 
 void JNIEXPORT Java_java_lang_ClassLoader_registerNatives(JNIEnv* env, jobject object){
@@ -119,6 +127,10 @@ jlong JNIEXPORT Java_java_lang_System_nanoTime(JNIEnv* env, jobject object){
 }
 
 void JNIEXPORT Java_java_lang_System_arraycopy(JNIEnv* env, jobject object, jobject src, int srcPos, jobject dest, int destPos, int length){
+	TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "arraycopy not implemented");
+}
+
+void JNIEXPORT Java_java_lang_Thread_registerNatives(JNIEnv* env, jobject object){
 }
 
 jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, jobject object, jobject action){

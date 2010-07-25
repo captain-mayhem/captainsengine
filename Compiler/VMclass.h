@@ -5,6 +5,7 @@
 #include <map>
 #include "JavaDefs.h"
 #include "VMObject.h"
+#include "VMMethod.h"
 
 class VMMethod;
 class VMContext;
@@ -16,9 +17,9 @@ public:
 	virtual ~VMClass();
 	unsigned findMethodIndex(const std::string& name, const std::string& signature);
 	unsigned findFieldIndex(const std::string& name);
-	FieldData* getField(VMContext* ctx, Java::u2 field_ref);
+	FieldData* getField(VMContext* ctx, Java::u2 field_ref, VMMethod::ReturnType& type);
 	FieldData* getField(unsigned fieldid);
-	unsigned getFieldIndex(VMContext* ctx, Java::u2 field_ref, VMClass*& classRet);
+	unsigned getFieldIndex(VMContext* ctx, Java::u2 field_ref, VMClass*& classRet, VMMethod::ReturnType& type);
 	unsigned getMethodIndex(VMContext* ctx, Java::u2 method_ref, VMClass*& classRet);
 	VMMethod* getMethod(VMContext* ctx, Java::u2 method_ref);
 	VMMethod* getMethod(unsigned methodid);
@@ -31,8 +32,8 @@ public:
 	unsigned getNonStaticFieldOffset();
 	void copyMethodData(std::map<std::string,unsigned>& methodresolver, std::vector<VMMethod*>& methods);
 	Java::ClassFile& getClassDefinition() {return mClass;}
-	//void setClassObject(VMObject* clsobj) {mClassObject = clsobj;}
 	VMObject* getClassObject() {return mClassObject;}
+	std::string getName() {return mFilename;}
 protected:
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);
 	Java::ClassFile mClass;
@@ -41,6 +42,7 @@ protected:
 	std::vector<VMMethod*> mMethods;
 	std::map<std::string,unsigned> mFieldResolver;
 	std::vector<FieldData> mFields;
+	//std::vector<VMMethod::ReturnType> mFieldTypes;
 	VMClass* mSuperclass;
 	std::vector<StackData> mRCP;
 	unsigned mVtableEnd;
