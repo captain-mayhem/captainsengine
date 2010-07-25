@@ -53,30 +53,35 @@ void VMMethod::parseSignature(){
 			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected argument type in method signature");
 	}
 	//parse return
-	if (mSignature[i] == 'V')
-		mReturnType = Void;
-	else if (mSignature[i] == 'J')
-		mReturnType = Long;
-	else if (mSignature[i] == 'L')
-		mReturnType = Reference;
-	else if (mSignature[i] == 'I')
-		mReturnType = Int;
-	else if (mSignature[i] == 'Z')
-		mReturnType = Boolean;
-	else if (mSignature[i] == 'C')
-		mReturnType = Char;
-	else if (mSignature[i] == '[')
-		mReturnType = Array;
-	else if (mSignature[i] == 'B')
-		mReturnType = Byte;
-	else if (mSignature[i] == 'F')
-		mReturnType = Float;
-	else if (mSignature[i] == 'D')
-		mReturnType = Double;
-	else if (mSignature[i] == 'S')
-		mReturnType = Short;
+	mReturnType = parseType(mSignature[i]);
+}
+
+VMMethod::ReturnType VMMethod::parseType(const char type){
+	if (type == 'V')
+		return Void;
+	else if (type == 'J')
+		return Long;
+	else if (type == 'L')
+		return Reference;
+	else if (type == 'I')
+		return Int;
+	else if (type == 'Z')
+		return Boolean;
+	else if (type == 'C')
+		return Char;
+	else if (type == '[')
+		return Array;
+	else if (type == 'B')
+		return Byte;
+	else if (type == 'F')
+		return Float;
+	else if (type == 'D')
+		return Double;
+	else if (type == 'S')
+		return Short;
 	else
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected return type in method signature");
+	return Void;
 }
 
 void BcVMMethod::print(std::ostream& strm){
@@ -535,7 +540,11 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					FieldData* obj = mClass->getField(ctx, operand);
+					VMMethod::ReturnType type;
+					FieldData* obj = mClass->getField(ctx, operand, type);
+					if (type == Long || type == Double){
+						TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Type not implemented");
+					}
 					ctx->push(obj->obj);
         }
         break;
@@ -544,7 +553,11 @@ void BcVMMethod::execute(VMContext* ctx){
 					Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					FieldData* obj = mClass->getField(ctx, operand);
+					VMMethod::ReturnType type;
+					FieldData* obj = mClass->getField(ctx, operand, type);
+					if (type == Long || type == Double){
+						TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Type not implemented");
+					}
 					VMObject* data = ctx->pop().obj;
 					obj->obj = data;
 				}
@@ -556,7 +569,11 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u2 operand = b1 << 8 | b2;
 					VMObject* obj = ctx->pop().obj;
 					VMClass* dummy;
-					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy);
+					VMMethod::ReturnType type;
+					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy, type);
+					if (type == Long || type == Double){
+						TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Type not implemented");
+					}
 					FieldData* data = obj->getObjField(idx);
 					ctx->push(data->obj);
 				}
@@ -566,12 +583,20 @@ void BcVMMethod::execute(VMContext* ctx){
 					Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					StackData value = ctx->pop();
-					VMObject* obj = ctx->pop().obj;
 					VMClass* dummy;
-					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy);
+					VMMethod::ReturnType type;
+					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy, type);
+					FieldData value;
+					if (type == Long || type == Double){
+						value.l = (int64)ctx->pop().ui;
+						value.l |= ((int64)ctx->pop().ui) << 32;
+					}
+					else{
+						value.obj = ctx->pop().obj;
+					}
+					VMObject* obj = ctx->pop().obj;
 					FieldData* data = obj->getObjField(idx);
-					data->obj = value.obj;
+					*data = value;
 					//FieldData* obj = mClass->getFieldIndex(operand);
 				}
         break;
@@ -624,6 +649,8 @@ void BcVMMethod::execute(VMContext* ctx){
         Java::u2 operand = b1 << 8 | b2;
 				VMClass* cls = mClass->getClass(ctx, operand);
 				VMObject* instance = ctx->getTop(0).obj;
+				if (instance == NULL)
+					break; //null is always castable
 				VMClass* instanceClass = instance->getClass();
 				bool found = false;
 				do {
@@ -718,6 +745,13 @@ void BcVMMethod::execute(VMContext* ctx){
 					int v2 = ctx->pop().i;
 					int v1 = ctx->pop().i;
 					ctx->push(v1+v2);
+				}
+				break;
+			case Java::op_imul:
+				{
+					int v2 = ctx->pop().i;
+					int v1 = ctx->pop().i;
+					ctx->push(v1*v2);
 				}
 				break;
       case Java::op_lload:

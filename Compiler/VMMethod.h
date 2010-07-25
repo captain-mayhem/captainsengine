@@ -35,6 +35,7 @@ public:
 	const std::string& getName() const {return mName;}
 	const std::string& getSignature() const {return mSignature;}
 	VMClass* getClass() {return mClass;}
+	static ReturnType parseType(const char type);
 	//virtual void executeVoidRet(VMContext* ctx, VMClass* cls)=0;
 	//virtual void executeLongRet(VMContext* ctx, VMClass* cls)=0;
 	//virtual void executeRefRet(VMContext* ctx, VMClass* cls)=0;

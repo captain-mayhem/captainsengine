@@ -158,20 +158,21 @@ VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref){
 	return cls->getMethod(idx);
 }
 
-FieldData* VMClass::getField(VMContext* ctx, Java::u2 field_ref){
+FieldData* VMClass::getField(VMContext* ctx, Java::u2 field_ref, VMMethod::ReturnType& type){
 	VMClass* cls;
-	unsigned idx = getFieldIndex(ctx, field_ref, cls);
+	unsigned idx = getFieldIndex(ctx, field_ref, cls, type);
 	return cls->getField(idx);//&mFields[getFieldIndex(ctx, field_ref)-1];
 }
 
-unsigned VMClass::getFieldIndex(VMContext* ctx,Java::u2 field_ref, VMClass*& classRet){
+unsigned VMClass::getFieldIndex(VMContext* ctx,Java::u2 field_ref, VMClass*& classRet, VMMethod::ReturnType& type){
 	Java::CONSTANT_Fieldref_info* fieldref = static_cast<Java::CONSTANT_Fieldref_info*>(mClass.constant_pool[field_ref-1]);
 	classRet = getClass(ctx, fieldref->class_index);
+	Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[fieldref->name_and_type_index-1]);
+	std::string typestring = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
+	type = VMMethod::parseType(typestring[0]);
 	if (mRCP[field_ref].ui != 0)
 		return mRCP[field_ref].ui;
-		Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[fieldref->name_and_type_index-1]);
 	std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
-	std::string type = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
 	unsigned idx = classRet->findFieldIndex(fieldname);
 	//if (idx != 0)
 	mRCP[field_ref].ui = idx;
@@ -264,7 +265,7 @@ void VMClass::initFields(VMContext* ctx){
 		VMMethod* mthd = NULL;
 		//find code attribute
     for (int j = 0; j < mi->attributes_count; ++j){
-			if (mi->attributes[j]->attribute_type == Java::ATTR_Code){
+			if (mi->attributes[j] && mi->attributes[j]->attribute_type == Java::ATTR_Code){
 				Java::Code_attribute* code = static_cast<Java::Code_attribute*>(mi->attributes[j]);
 				mthd = new BcVMMethod(methodname, sig, this, (mi->access_flags & ACC_STATIC) != 0, code);
 				break;
