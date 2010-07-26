@@ -99,6 +99,7 @@ void BcVMMethod::print(std::ostream& strm){
 			case Java::op_anewarray:
 			case Java::op_putfield:
 			case Java::op_ldc_w:
+			case Java::op_ldc2_w:
 			case Java::op_instanceof:
 			case Java::op_checkcast:
 			case Java::op_getfield:
@@ -129,7 +130,9 @@ void BcVMMethod::print(std::ostream& strm){
 					strm << " -> " << operand;
 				}
 				break;
-			case Java::op_ldc:{
+			case Java::op_ldc:
+			case Java::op_istore:
+				{
 				Java::u1 operand = mCode->code[++k];
 				strm << " #" << (int)operand;
 				}
@@ -158,6 +161,13 @@ void BcVMMethod::print(std::ostream& strm){
 					Java::u1 null = mCode->code[++k];
 					strm << " #" << operand << " " << (int)count << " " << (int)null;
 				}
+			case Java::op_iinc:
+				{
+				Java::u1 operand = mCode->code[++k];
+				int8 val = mCode->code[++k];
+				strm << " #" << (int)operand << "+" << (int)val;
+				}
+				break;
 		}
 		strm << "\n";
 	}
@@ -203,6 +213,16 @@ void BcVMMethod::execute(VMContext* ctx){
 					StackData dat = ctx->pop();
 					ctx->popFrame();
 					ctx->push(dat);
+					return;
+				}
+				break;
+			case Java::op_lreturn:
+				{
+					StackData dat1 = ctx->pop();
+					StackData dat2 = ctx->pop();
+					ctx->popFrame();
+					ctx->push(dat2);
+					ctx->push(dat1);
 					return;
 				}
 				break;
@@ -258,6 +278,14 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					unsigned i = ctx->pop().ui;
 					ctx->put(3, i);
+				}
+				break;
+			case Java::op_lstore_2:
+				{
+					unsigned i = ctx->pop().ui;
+					unsigned i2 = ctx->pop().ui;
+					ctx->put(3, i);
+					ctx->put(2, i2);
 				}
 				break;
 			case Java::op_aaload:
@@ -334,8 +362,8 @@ void BcVMMethod::execute(VMContext* ctx){
       case Java::op_ldc:
         {
 					Java::u1 operand = mCode->code[++k];
-					StackData constant = mClass->getConstant(ctx, operand);
-					ctx->push(constant);
+					FieldData constant = mClass->getConstant(ctx, operand);
+					ctx->push(constant.ui);
         }
         break;
       case Java::op_invokespecial:
@@ -381,13 +409,26 @@ void BcVMMethod::execute(VMContext* ctx){
 					Java::u1 b1 = mCode->code[++k];
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					StackData constant = mClass->getConstant(ctx, operand);
-					ctx->push(constant);
+					FieldData constant = mClass->getConstant(ctx, operand);
+					ctx->push(constant.ui);
         }
         break;
       case Java::op_ldc2_w:
+				{
+					Java::u1 b1 = mCode->code[++k];
+          Java::u1 b2 = mCode->code[++k];
+          Java::u2 operand = b1 << 8 | b2;
+					FieldData constant = mClass->getConstant(ctx, operand);
+					ctx->push((uint32)(constant.l >> 32));
+					ctx->push((uint32)constant.l);
+        }
+        break;
       case Java::op_iinc:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				{
+					Java::u1 idx = mCode->code[++k];
+          int val = (int8)mCode->code[++k];
+					ctx->put(idx, ctx->get(idx).i+val);
+				}
 				break;
       case Java::op_ifeq:
 				{
@@ -488,8 +529,22 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_if_icmpge:
-      case Java::op_if_icmpgt:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				break;
+			case Java::op_if_icmpgt:
+				{
+					int val2 = ctx->pop().i;
+					int val1 = ctx->pop().i;
+					if (val1 > val2){
+						Java::u1 b1 = mCode->code[++k];
+						Java::u1 b2 = mCode->code[++k];
+						int16 branch = b1 << 8 | b2;
+						k += branch-3;
+					}
+					else{
+					  k += 2;
+					}
+				}
 				break;
       case Java::op_if_icmple:
 				{
@@ -555,11 +610,15 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u2 operand = b1 << 8 | b2;
 					VMMethod::ReturnType type;
 					FieldData* obj = mClass->getField(ctx, operand, type);
+					FieldData value;
 					if (type == Long || type == Double){
-						TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Type not implemented");
+						value.l = (int64)ctx->pop().ui;
+						value.l |= ((int64)ctx->pop().ui) << 32;
 					}
-					VMObject* data = ctx->pop().obj;
-					obj->obj = data;
+					else{
+						value.obj = ctx->pop().obj;
+					}
+					*obj = value;
 				}
 				break;
       case Java::op_getfield:
@@ -766,17 +825,34 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_istore:
+				{
+					unsigned idx = mCode->code[++k];
+					unsigned i = ctx->pop().ui;
+					ctx->put(idx, i);
+				}
+				break;
       case Java::op_lstore:
       case Java::op_fstore:
       case Java::op_dstore:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
         break;
+			case Java::op_fload_0:
+				ctx->push(ctx->get(0));
+				break;
 			case Java::op_fload_1:
 				ctx->push(ctx->get(1));
 				break;
 			case Java::op_fload_2:
 				ctx->push(ctx->get(2));
+				break;
+			case Java::op_dload_0:
+				ctx->push(ctx->get(0));
+				ctx->push(ctx->get(1));
+				break;
+			case Java::op_lload_2:
+				ctx->push(ctx->get(2));
+				ctx->push(ctx->get(3));
 				break;
       case Java::op_astore:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
@@ -840,6 +916,13 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->push(value1 >> value2);
 				}
 				break;
+			case Java::op_ishr:
+				{
+					int value2 = ctx->pop().i;
+					int value1 = ctx->pop().i;
+					ctx->push(value1 >> value2);
+				}
+				break;
 			case Java::op_ixor:
 				{
 					int value2 = ctx->pop().i;
@@ -854,6 +937,33 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->push(value1 & value2);
 				}
 				break;
+			case Java::op_ior:
+				{
+					int value2 = ctx->pop().i;
+					int value1 = ctx->pop().i;
+					ctx->push(value1 | value2);
+				}
+				break;
+			case Java::op_land:
+				{
+					int64 l1;
+					int64 l2;
+					l1 = (int64)ctx->pop().ui;
+					l1 |= ((int64)ctx->pop().ui) << 32;
+					l2 = (int64)ctx->pop().ui;
+					l2 |= ((int64)ctx->pop().ui) << 32;
+					int64 res = l1 & l2;
+					ctx->push((uint32)(res >> 32));
+					ctx->push((uint32)res);
+				}
+				break;
+			case Java::op_i2l:
+				{
+					unsigned value = ctx->pop().ui;
+					ctx->push(0);
+					ctx->push(value);
+					break;
+				}
 			case Java::op_monitorenter:
 				{
 					VMObject* obj = ctx->pop().obj;
@@ -984,7 +1094,7 @@ uint8* NativeVMMethod::packArguments(VMContext* ctx){
 			}
 			count_args = true;
 		}
-		else if (mSignature[i] == 'I'){
+		else if (mSignature[i] == 'I' || mSignature[i] == 'F'){
 			if (count_args){
 				int32 i = ctx->pop().i;
 				memcpy(curr, &i, sizeof(i));
@@ -1002,12 +1112,16 @@ uint8* NativeVMMethod::packArguments(VMContext* ctx){
 			if (count_args)
 				++mArgSize;
 			count_args = false;
-		}
-		else if (mSignature[i] == 'J' || mSignature[i] == 'D'){
-			if (count_args)
-				mArgSize += 2;
-			count_args = true;
 		}*/
+		else if (mSignature[i] == 'J' || mSignature[i] == 'D'){
+			if (count_args){
+				jlong l;
+				l = (int64)ctx->pop().ui;
+				l |= ((int64)ctx->pop().ui) << 32;
+				memcpy(curr, &l, sizeof(l));
+			}
+			count_args = true;
+		}
 		else
 			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected argument type in method signature");
 	}

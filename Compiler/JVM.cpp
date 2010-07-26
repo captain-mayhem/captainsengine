@@ -107,6 +107,25 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
   return entry;
 }
 
+VMClass* JVM::getPrimitiveClass(VMContext* ctx, std::string name){
+	 VMClass* entry = mClassResolver[name];
+  if (entry == 0){
+		entry = new VMClass();
+		
+		mClassResolver[name] = entry;
+		//entry->print(std::cout);
+		
+		//entry->initFields(ctx);
+
+		VMClass* cls = findClass(ctx, "java/lang/Class");
+		VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
+		entry->init(ctx, cls);
+		ctx->push((VMObject*)cls);
+		clsmthd->execute(ctx);
+  }
+  return entry;
+}
+
 CGE::MemReader JVM::getClassFile(const std::string& filename){
 	return mRuntimeClasses.openEntry(filename);
 }

@@ -19,6 +19,9 @@ extern "C" {
 #define JNIEXPORT 
 #endif
 
+#define JNI_FALSE 0
+#define JNI_TRUE 1
+
 typedef unsigned char jboolean;
 typedef unsigned char jbyte;
 typedef unsigned short jchar;
@@ -686,6 +689,8 @@ public:
 	jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
 	void CallStaticVoidMethod(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); m_func->CallStaticVoidMethodV(this, clazz, methodID, args); va_end(args);}
 	jstring NewStringUTF(const char* bytes) {return m_func->NewStringUTF(this, bytes);}
+	const char* GetStringUTFChars(jstring str, jboolean *isCopy) {return m_func->GetStringUTFChars(this, str, isCopy); }
+	void ReleaseStringUTFChars(jstring str, const char* chars) {return m_func->ReleaseStringUTFChars(this, str, chars); }
 	jobjectArray NewObjectArray(jsize len, jclass clazz, jobject init) {return m_func->NewObjectArray(this, len, clazz, init);}
 	jint RegisterNatives(jclass clazz, const JNINativeMethod *methods, jint nMethods) {return m_func->RegisterNatives(this, clazz, methods, nMethods);}
 protected:

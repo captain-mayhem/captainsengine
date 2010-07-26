@@ -69,6 +69,23 @@ jstring VMContext::NewStringUTF(JNIEnv *env, const char *utf){
 	return getVM()->createString(CTX(env), utf);
 }
 
+const char* VMContext::GetStringUTFChars(JNIEnv *env, jstring str, jboolean *isCopy){
+	if (isCopy)
+		*isCopy = JNI_TRUE;
+	VMObject* obj = (VMObject*)str;
+	VMCharArray* arr = (VMCharArray*)obj->getObjField(obj->getClass()->findFieldIndex("value"))->obj;
+	char* data = new char[arr->getLength()+1];
+	data[arr->getLength()] = '\0';
+	for (unsigned i = 0; i < arr->getLength(); ++i){
+		data[i] = (char)arr->get(i);
+	}
+	return data;
+}
+
+void VMContext::ReleaseStringUTFChars(JNIEnv *env, jstring str, const char* chars){
+	delete [] chars;
+}
+
 JNIEnv_::JNIEnv_(JavaVM_* vm){
   m_func = new VMContext(this, (JVM*)vm->m_func);
 	VM_CTX(vm)->initBasicClasses((VMContext*)m_func);

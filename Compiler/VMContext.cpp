@@ -10,6 +10,8 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself){
 	JNINativeInterface_::GetStaticMethodID = GetStaticMethodID;
 	JNINativeInterface_::CallStaticVoidMethodV = CallStaticVoidMethodV;
 	JNINativeInterface_::NewStringUTF = NewStringUTF;
+	JNINativeInterface_::GetStringUTFChars = GetStringUTFChars;
+	JNINativeInterface_::ReleaseStringUTFChars = ReleaseStringUTFChars;
 	JNINativeInterface_::NewObjectArray = NewObjectArray;
 	JNINativeInterface_::RegisterNatives = RegisterNatives;
   mVm->addThread(this);
