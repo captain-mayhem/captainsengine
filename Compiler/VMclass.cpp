@@ -310,25 +310,31 @@ unsigned VMClass::getNonStaticFieldOffset(){
 	return mClass.fields_count-mFields.size();
 }
 
-StackData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
-	if (mRCP[constant_ref].ui != 0)
-		return mRCP[constant_ref];
-	StackData ret;
+FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
+	FieldData ret;
+	if (mRCP[constant_ref].ui != 0){
+		ret.ui = mRCP[constant_ref].ui;
+		return ret;
+	}
 	Java::cp_info* info = mClass.constant_pool[constant_ref-1];
 	if (info->tag == CONSTANT_Integer){
 		Java::CONSTANT_Integer_info* intinf = (Java::CONSTANT_Integer_info*)(info);
 		ret.ui = intinf->bytes;
 	}
-	/*else if (info->tag == CONSTANT_Long){
-
-	}*/
+	else if (info->tag == CONSTANT_Long){
+		Java::CONSTANT_Long_info* longinf = (Java::CONSTANT_Long_info*)(info);
+		ret.l = (((int64)longinf->high_bytes) << 32) | longinf->low_bytes;
+		return ret; //do not save in RCP
+	}
 	else if (info->tag == CONSTANT_Float){
 		Java::CONSTANT_Float_info* fltinf = (Java::CONSTANT_Float_info*)(info);
 		ret.f = *((float*)&fltinf->bytes);
 	}
-	/*else if (info->tag == CONSTANT_Double){
-
-	}*/
+	else if (info->tag == CONSTANT_Double){
+		Java::CONSTANT_Double_info* dblinf = (Java::CONSTANT_Double_info*)(info);
+		ret.l = (((int64)dblinf->high_bytes) << 32) | dblinf->low_bytes;
+		return ret; //do not save in RCP
+	}
 	else if (info->tag == CONSTANT_String){
 		Java::CONSTANT_String_info* str = (Java::CONSTANT_String_info*)(info);
 		ret.obj = getConstant(ctx, str->string_index).obj;
@@ -366,7 +372,7 @@ StackData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 	else{
 	  TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unhandled type");
 	}
-	mRCP[constant_ref] = ret;
+	mRCP[constant_ref] = ret.ui;
 	return ret;
 }
 

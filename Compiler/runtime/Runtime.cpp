@@ -43,11 +43,11 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 		VMObject* arrobj = getVM()->createObject(CTX(env), fieldcls);
 		CTX(env)->push(arrobj);
 		CTX(env)->push(obj->getClass()->getClassObject());
-		CTX(env)->push(obj->getClass()->getConstant(CTX(env), info->name_index));
+		CTX(env)->push(obj->getClass()->getConstant(CTX(env), info->name_index).ui);
 		ctx->push(0u); //type class
 		ctx->push(info->access_flags);
 		ctx->push(obj->getClass()->findFieldIndex(name));
-		ctx->push(obj->getClass()->getConstant(ctx, info->descriptor_index));
+		ctx->push(obj->getClass()->getConstant(ctx, info->descriptor_index).ui);
 		ctx->push(0u);
 		VMMethod* mthd = fieldcls->getMethod(fieldcls->findMethodIndex("<init>", "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;IILjava/lang/String;[B)V"));
 		mthd->execute(ctx);
@@ -58,11 +58,31 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 }
 
 jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls, jstring name){
-	return NULL;
+	const char* namestr = env->GetStringUTFChars(name, NULL);
+	VMClass* clazz = NULL;
+	if (strcmp(namestr, "float") == 0){
+		clazz = getVM()->getPrimitiveClass(CTX(env), "F");
+	}
+	else if (strcmp(namestr, "double") == 0){
+		clazz = getVM()->getPrimitiveClass(CTX(env), "D");
+	}
+	else{
+		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "getPrimitiveClass not implemented for this type");
+	}
+	env->ReleaseStringUTFChars(name, namestr);
+	return clazz;
 }
 
 void JNIEXPORT Java_java_lang_ClassLoader_registerNatives(JNIEnv* env, jobject object){
 	return;
+}
+
+jlong JNIEXPORT Java_java_lang_Double_doubleToRawLongBits(JNIEnv* env, jobject object, jdouble value){
+	return *((jlong*)(&value));
+}
+
+jint JNIEXPORT Java_java_lang_Float_floatToRawIntBits(JNIEnv* env, jobject object, jfloat value){
+	return *((jint*)(&value));
 }
 
 void JNIEXPORT Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object){

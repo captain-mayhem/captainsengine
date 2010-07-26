@@ -27,7 +27,7 @@ public:
 	void registerMethod(const std::string& nam, const std::string& signature, nativeMethod mthd);
 	VMClass* getClass(VMContext* ctx, Java::u2 class_ref);
 	VMClass* getSuperclass(VMContext* ctx);
-	StackData getConstant(VMContext* ctx, Java::u2 constant_ref);
+	FieldData getConstant(VMContext* ctx, Java::u2 constant_ref);
 	void initFields(VMContext* ctx);
 	unsigned getNonStaticFieldOffset();
 	void copyMethodData(std::map<std::string,unsigned>& methodresolver, std::vector<VMMethod*>& methods);
