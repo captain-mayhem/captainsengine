@@ -14,7 +14,9 @@ char buffer[BUF_SIZE];
 #define vsnprintf _vsnprintf
 #endif
 
-void internal_trace(int group, int level, const char* file, const char* function, const char* message, ...){
+unsigned internal_groups = 0;
+
+void internal_trace(unsigned group, int level, const char* file, const char* function, const char* message, ...){
   va_list list;
   va_start(list, message);
   vsnprintf(buffer, BUF_SIZE, message, list);

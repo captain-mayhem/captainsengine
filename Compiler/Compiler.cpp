@@ -3,6 +3,7 @@
 #include <system/engine.h>
 #include <system/allocation.h>
 #include <system/winceMain.h>
+#include "Trace.h"
 
 #include "jni.h"
 

@@ -46,6 +46,7 @@ JVM::~JVM(){
 }
 
 void JVM::init(){
+		TRACE_ENABLE(VM_METHODS);
 #ifndef UNDER_CE
   char* tmp = getenv("ProgramFiles");
 #else

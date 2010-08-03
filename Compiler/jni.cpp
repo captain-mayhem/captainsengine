@@ -87,7 +87,10 @@ void VMContext::ReleaseStringUTFChars(JNIEnv *env, jstring str, const char* char
 }
 
 JNIEnv_::JNIEnv_(JavaVM_* vm){
-  m_func = new VMContext(this, (JVM*)vm->m_func);
+  VMContext* ctx = new VMContext(this, (JVM*)vm->m_func);
+	m_func = ctx;
+	VMClass* thrdcls = VM_CTX(vm)->findClass(ctx, "java/lang/Thread");
+	ctx->getThread()->init(ctx, thrdcls);
 	VM_CTX(vm)->initBasicClasses((VMContext*)m_func);
 }
 
