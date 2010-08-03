@@ -12,6 +12,7 @@ public:
 	VMObject(VMContext* ctx, VMClass* cls);
 	virtual ~VMObject();
 	void init(VMContext* ctx, VMClass* cls);
+
 	FieldData* getObjField(unsigned idx);
 	VMMethod* getObjMethod(unsigned idx);
 	void lock() {}

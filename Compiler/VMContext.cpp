@@ -18,6 +18,7 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself){
 	mStack = new StackData[1024];
 	mStackPointer = mStack;
 	mBasePointer = mStack;
+	mThread = vm->createObject(this, NULL);
 }
 
 VMContext::~VMContext(){

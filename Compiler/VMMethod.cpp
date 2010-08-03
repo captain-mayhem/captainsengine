@@ -173,9 +173,15 @@ void BcVMMethod::print(std::ostream& strm){
 	}
 }
 
+static int method_depth = 0;
+
 void BcVMMethod::execute(VMContext* ctx){
-	print(std::cout);
+	if (TRACE_IS_ENABLED(TRACE_JAVA))
+		print(std::cout);
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		++method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	//reserve additional locals
 	for (unsigned i = 0; i < mCode->max_locals - argsize; ++i){
@@ -204,6 +210,9 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					StackData dat = ctx->pop();
 					ctx->popFrame();
+					if (TRACE_IS_ENABLED(VM_METHODS))
+						--method_depth;
+					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
 					ctx->push(dat);
 					return;
 				}
@@ -212,6 +221,9 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					StackData dat = ctx->pop();
 					ctx->popFrame();
+					if (TRACE_IS_ENABLED(VM_METHODS))
+						--method_depth;
+					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
 					ctx->push(dat);
 					return;
 				}
@@ -221,6 +233,9 @@ void BcVMMethod::execute(VMContext* ctx){
 					StackData dat1 = ctx->pop();
 					StackData dat2 = ctx->pop();
 					ctx->popFrame();
+					if (TRACE_IS_ENABLED(VM_METHODS))
+						--method_depth;
+					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
 					ctx->push(dat2);
 					ctx->push(dat1);
 					return;
@@ -278,6 +293,14 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					unsigned i = ctx->pop().ui;
 					ctx->put(3, i);
+				}
+				break;
+			case Java::op_lstore_0:
+				{
+					unsigned i = ctx->pop().ui;
+					unsigned i2 = ctx->pop().ui;
+					ctx->put(1, i);
+					ctx->put(0, i2);
 				}
 				break;
 			case Java::op_lstore_2:
@@ -435,7 +458,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					Java::u1 b1 = mCode->code[++k];
 					Java::u1 b2 = mCode->code[++k];
 					int16 branch = b1 << 8 | b2;
-					if (ctx->pop().ui == 0){
+					if (ctx->pop().i == 0){
 						k += branch-3;
 					}
 				}
@@ -445,7 +468,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					Java::u1 b1 = mCode->code[++k];
 					Java::u1 b2 = mCode->code[++k];
 					int16 branch = b1 << 8 | b2;
-					if (ctx->pop().ui != 0){
+					if (ctx->pop().i != 0){
 						k += branch-3;
 					}
 				}
@@ -455,7 +478,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					Java::u1 b1 = mCode->code[++k];
 					Java::u1 b2 = mCode->code[++k];
 					int16 branch = b1 << 8 | b2;
-					if (ctx->pop().ui < 0){
+					if (ctx->pop().i < 0){
 						k += branch-3;
 					}
 				}
@@ -465,7 +488,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					Java::u1 b1 = mCode->code[++k];
 					Java::u1 b2 = mCode->code[++k];
 					int16 branch = b1 << 8 | b2;
-					if (ctx->pop().ui >= 0){
+					if (ctx->pop().i >= 0){
 						k += branch-3;
 					}
 				}
@@ -478,7 +501,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					Java::u1 b1 = mCode->code[++k];
 					Java::u1 b2 = mCode->code[++k];
 					int16 branch = b1 << 8 | b2;
-					if (ctx->pop().ui <= 0){
+					if (ctx->pop().i <= 0){
 						k += branch-3;
 					}
 				}
@@ -850,6 +873,10 @@ void BcVMMethod::execute(VMContext* ctx){
 				ctx->push(ctx->get(0));
 				ctx->push(ctx->get(1));
 				break;
+			case Java::op_lload_0:
+				ctx->push(ctx->get(0));
+				ctx->push(ctx->get(1));
+				break;
 			case Java::op_lload_2:
 				ctx->push(ctx->get(2));
 				ctx->push(ctx->get(3));
@@ -882,15 +909,23 @@ void BcVMMethod::execute(VMContext* ctx){
 			case Java::op_lcmp:{
 				int64 l1;
 				int64 l2;
-				l1 = (int64)ctx->pop().ui;
-				l1 |= ((int64)ctx->pop().ui) << 32;
 				l2 = (int64)ctx->pop().ui;
 				l2 |= ((int64)ctx->pop().ui) << 32;
-				ctx->push(l1 == l2 ? 0 : -1);
+				l1 = (int64)ctx->pop().ui;
+				l1 |= ((int64)ctx->pop().ui) << 32;
+				if (l1 == l2)
+					ctx->push(0);
+				else if (l1 > l2)
+					ctx->push(1);
+				else
+					ctx->push(-1);
 				break;
 		  }
 			case Java::op_return:{
 				ctx->popFrame();
+				if (TRACE_IS_ENABLED(VM_METHODS))
+						--method_depth;
+					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
 				return;
 				break;
 			}
@@ -911,8 +946,8 @@ void BcVMMethod::execute(VMContext* ctx){
 				break;
 			case Java::op_iushr:
 				{
-					int value2 = ctx->pop().i;
-					int value1 = ctx->pop().i;
+					uint32 value2 = ctx->pop().ui;
+					uint32 value1 = ctx->pop().ui;
 					ctx->push(value1 >> value2);
 				}
 				break;
@@ -957,6 +992,18 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->push((uint32)res);
 				}
 				break;
+			case Java::op_lshl:
+				{
+					int64 l1;
+					uint32 l2;
+					l2 = ctx->pop().ui;
+					l1 = (int64)ctx->pop().ui;
+					l1 |= ((int64)ctx->pop().ui) << 32;
+					int64 res = l1 << l2;
+					ctx->push((uint32)(res >> 32));
+					ctx->push((uint32)res);
+				}
+				break;
 			case Java::op_i2l:
 				{
 					unsigned value = ctx->pop().ui;
@@ -982,6 +1029,9 @@ void BcVMMethod::execute(VMContext* ctx){
     }
   }
 	ctx->popFrame();
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		--method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
 }
 
 void BcVMMethod::executeVoidRet(VMContext* ctx){
@@ -1023,24 +1073,36 @@ void NativeVMMethod::executeVoidRet(VMContext* ctx){
 	if (mFunction == NULL)
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		++method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	uint8* lst = packArguments(ctx);
 	delete [] lst;
 	mFunction(ctx->getJNIEnv(), cls, *lst);
 	ctx->popFrame();
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		--method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
 }
 
 void NativeVMMethod::executeLongRet(VMContext* ctx){
 	if (mFunction == NULL)
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		++method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	uint8* lst = packArguments(ctx);
 	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
 	delete [] lst;
 	ctx->popFrame();
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		--method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
 	ctx->push((uint32)(ret >> 32));
 	ctx->push((uint32)ret);
 }
@@ -1049,12 +1111,18 @@ void NativeVMMethod::executeRefRet(VMContext* ctx){
 	if (mFunction == NULL)
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		++method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMObject* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	uint8* lst = packArguments(ctx);
 	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
 	delete [] lst;
 	ctx->popFrame();
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		--method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
 	ctx->push((VMObject*)ret);
 }
 
@@ -1062,12 +1130,18 @@ void NativeVMMethod::executeBoolRet(VMContext* ctx){
 	if (mFunction == NULL)
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		++method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	uint8* lst = packArguments(ctx);
 	jboolean ret = ((nativeBoolMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
 	delete [] lst;
 	ctx->popFrame();
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		--method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
 	ctx->push(ret);
 }
 

@@ -153,6 +153,10 @@ void JNIEXPORT Java_java_lang_System_arraycopy(JNIEnv* env, jobject object, jobj
 void JNIEXPORT Java_java_lang_Thread_registerNatives(JNIEnv* env, jobject object){
 }
 
+jobject JNIEXPORT Java_java_lang_Thread_currentThread(JNIEnv* env, jclass clazz){
+	return CTX(env)->getThread();
+}
+
 jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, jobject object, jobject action){
 	VMObject* obj = (VMObject*)action;
 	VMMethod* mthd = obj->getObjMethod(obj->getClass()->findMethodIndex("run", "()Ljava/lang/Object;"));

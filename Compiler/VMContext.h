@@ -23,6 +23,7 @@ public:
 	StackData getTop(int idx) {return *(mStackPointer-idx-1);}
 	StackData pop() {return *--mStackPointer;}
 	VMMethod* getFrameMethod(int numFrames);
+	VMObject* getThread() {return mThread;}
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
@@ -38,6 +39,7 @@ protected:
 	StackData* mStack;
 	StackData* mStackPointer;
 	StackData* mBasePointer;
+	VMObject* mThread;
 };
 
 #endif
