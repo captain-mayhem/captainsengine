@@ -89,8 +89,18 @@ void VMContext::ReleaseStringUTFChars(JNIEnv *env, jstring str, const char* char
 JNIEnv_::JNIEnv_(JavaVM_* vm){
   VMContext* ctx = new VMContext(this, (JVM*)vm->m_func);
 	m_func = ctx;
-	VMClass* thrdcls = VM_CTX(vm)->findClass(ctx, "java/lang/Thread");
+	VMClass* thrdgrpcls = VM_CTX(vm)->findClass(ctx, "java/lang/ThreadGroup");
+	VMObject* thrdgrp = VM_CTX(vm)->createObject(ctx, thrdgrpcls);
+	unsigned idx = thrdgrpcls->findMethodIndex("<init>", "()V");
+	ctx->push(thrdgrp);
+	VMMethod* init = thrdgrpcls->getMethod(idx);
+	init->execute(ctx);
+	//object init without class init
+	VMClass* thrdcls = VM_CTX(vm)->defineClass(ctx, "java/lang/Thread");
 	ctx->getThread()->init(ctx, thrdcls);
+	FieldData* grpfld = ctx->getThread()->getObjField(thrdcls->findFieldIndex("group"));
+	grpfld->obj = thrdgrp;
+	VM_CTX(vm)->findClass(ctx, "java/lang/Thread");
 	VM_CTX(vm)->initBasicClasses((VMContext*)m_func);
 }
 

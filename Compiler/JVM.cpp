@@ -73,6 +73,20 @@ void JVM::init(){
 }
 
 VMClass* JVM::findClass(VMContext* ctx, std::string name){
+	std::map<std::string,VMClass*>::iterator iter = mUninitializedClasses.find(name);
+	if (iter != mUninitializedClasses.end()){
+		VMClass* cls = iter->second;
+		mUninitializedClasses.erase(iter);
+		mClassResolver[name] = cls;
+		//delayed class init
+		unsigned idx = cls->findMethodIndex("<clinit>", "()V");
+		VMMethod* mthd = cls->getMethod(idx);
+		if (mthd){
+			TRACE(TRACE_JAVA, TRACE_INFO, "Delayed execution of class init method");
+			mthd->execute(ctx);
+		}
+		return cls;
+	}
   VMClass* entry = mClassResolver[name];
   if (entry == 0){
     //array functions
@@ -104,6 +118,38 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 			TRACE(TRACE_JAVA, TRACE_INFO, "Found class init method");
 			mthd->execute(ctx);
 		}
+  }
+  return entry;
+}
+
+VMClass* JVM::defineClass(VMContext* ctx, const std::string& name){
+	std::map<std::string,VMClass*>::iterator iter = mClassResolver.find(name);
+	if (iter != mClassResolver.end())
+		return iter->second;
+	VMClass* entry = mUninitializedClasses[name];
+  if (entry == 0){
+    //array functions
+    if (name[0] == '['){
+      entry = new VMArrayClass();
+			mClassResolver[name] = entry;
+      return entry;
+    }
+    //Java::ClassFile* clfile = new Java::ClassFile();
+		entry = new VMClass(name);
+		
+		//init superclass first
+		entry->getSuperclass(ctx);
+		
+		mUninitializedClasses[name] = entry;
+		//entry->print(std::cout);
+		
+		entry->initFields(ctx);
+
+		VMClass* cls = findClass(ctx, "java/lang/Class");
+		VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
+		entry->init(ctx, cls);
+		ctx->push((VMObject*)cls);
+		clsmthd->execute(ctx);
   }
   return entry;
 }
