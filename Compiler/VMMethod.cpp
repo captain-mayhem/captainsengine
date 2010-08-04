@@ -114,6 +114,7 @@ void BcVMMethod::print(std::ostream& strm){
 				}
 			case Java::op_if_acmpne:
 			case Java::op_if_icmpge:
+			case Java::op_if_icmpgt:
 			case Java::op_if_icmple:
 			case Java::op_ifeq:
 			case Java::op_ifge:
@@ -132,6 +133,8 @@ void BcVMMethod::print(std::ostream& strm){
 				break;
 			case Java::op_ldc:
 			case Java::op_istore:
+			case Java::op_astore:
+			case Java::op_lload:
 				{
 				Java::u1 operand = mCode->code[++k];
 				strm << " #" << (int)operand;
@@ -325,6 +328,14 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->push(arr->get(idx));
 				}
 				break;
+			case Java::op_aastore:
+				{
+					VMObject* value = ctx->pop().obj;
+					unsigned idx = ctx->pop().ui;
+					VMObjectArray* arr = (VMObjectArray*)ctx->pop().obj;
+					arr->put(value, idx);
+				}
+				break;
 			case Java::op_castore:
 				{
 					jchar value = (jchar)ctx->pop().ui;
@@ -344,6 +355,10 @@ void BcVMMethod::execute(VMContext* ctx){
 			case Java::op_lconst_0:
 				ctx->push(0u);
 				ctx->push(0u);
+				break;
+			case Java::op_lconst_1:
+				ctx->push(0u);
+				ctx->push(1u);
 				break;
 			case Java::op_iconst_0:
 				ctx->push(0u);
@@ -552,7 +567,19 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_if_icmpge:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				{
+					int val2 = ctx->pop().i;
+					int val1 = ctx->pop().i;
+					if (val1 >= val2){
+						Java::u1 b1 = mCode->code[++k];
+						Java::u1 b2 = mCode->code[++k];
+						int16 branch = b1 << 8 | b2;
+						k += branch-3;
+					}
+					else{
+					  k += 2;
+					}
+				}
 				break;
 			case Java::op_if_icmpgt:
 				{
@@ -621,9 +648,11 @@ void BcVMMethod::execute(VMContext* ctx){
 					VMMethod::ReturnType type;
 					FieldData* obj = mClass->getField(ctx, operand, type);
 					if (type == Long || type == Double){
-						TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Type not implemented");
+						ctx->push((uint32)(obj->l >> 32));
+						ctx->push((uint32)obj->l);
 					}
-					ctx->push(obj->obj);
+					else
+						ctx->push(obj->obj);
         }
         break;
       case Java::op_putstatic:
@@ -653,11 +682,13 @@ void BcVMMethod::execute(VMContext* ctx){
 					VMClass* dummy;
 					VMMethod::ReturnType type;
 					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy, type);
-					if (type == Long || type == Double){
-						TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Type not implemented");
-					}
 					FieldData* data = obj->getObjField(idx);
-					ctx->push(data->obj);
+					if (type == Long || type == Double){
+						ctx->push((uint32)(data->l >> 32));
+						ctx->push((uint32)data->l);
+					}
+					else
+						ctx->push(data->obj);
 				}
         break;
       case Java::op_putfield:
@@ -837,6 +868,12 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_lload:
+				{
+					Java::u1 operand = mCode->code[++k];
+					ctx->push(ctx->get(operand));
+					ctx->push(ctx->get(operand+1));
+				}
+				break;
       case Java::op_fload:
       case Java::op_dload:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
@@ -881,8 +918,12 @@ void BcVMMethod::execute(VMContext* ctx){
 				ctx->push(ctx->get(2));
 				ctx->push(ctx->get(3));
 				break;
-      case Java::op_astore:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+			case Java::op_astore:
+				{
+					unsigned idx = mCode->code[++k];
+					VMObject* obj = ctx->pop().obj;
+					ctx->put(idx, obj);
+				}
         break;
       case Java::op_ret:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
@@ -931,6 +972,14 @@ void BcVMMethod::execute(VMContext* ctx){
 			}
 			case Java::op_dup:{
 				ctx->dup();
+				break;
+			}
+			case Java::op_dup_x1:{
+				ctx->insert(ctx->getTop(0), 2);
+				break;
+			}
+			case Java::op_dup2:{
+				ctx->dup2();
 				break;
 			}
 			case Java::op_pop:{
@@ -1000,6 +1049,19 @@ void BcVMMethod::execute(VMContext* ctx){
 					l1 = (int64)ctx->pop().ui;
 					l1 |= ((int64)ctx->pop().ui) << 32;
 					int64 res = l1 << l2;
+					ctx->push((uint32)(res >> 32));
+					ctx->push((uint32)res);
+				}
+				break;
+			case Java::op_ladd:
+				{
+					int64 l1;
+					int64 l2;
+					l2 = (int64)ctx->pop().ui;
+					l2 |= ((int64)ctx->pop().ui) << 32;
+					l1 = (int64)ctx->pop().ui;
+					l1 |= ((int64)ctx->pop().ui) << 32;
+					int64 res = l1 + l2;
 					ctx->push((uint32)(res >> 32));
 					ctx->push((uint32)res);
 				}

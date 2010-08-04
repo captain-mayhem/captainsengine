@@ -364,6 +364,7 @@ FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 		val = obj->getObjField(cls->findFieldIndex("count"));
 		val->ui = utf->length;
 		ret.obj = obj;
+		getVM()->internalizeString(utf->bytes, obj);
 	}
 	else if (info->tag == CONSTANT_Class){
 		VMClass* cls = getClass(ctx, constant_ref);

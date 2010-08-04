@@ -46,7 +46,8 @@ JVM::~JVM(){
 }
 
 void JVM::init(){
-		TRACE_ENABLE(VM_METHODS);
+	TRACE_ENABLE(TRACE_JAVA);
+	TRACE_ENABLE(VM_METHODS);
 #ifndef UNDER_CE
   char* tmp = getenv("ProgramFiles");
 #else
@@ -236,4 +237,13 @@ VMObject* JVM::createString(VMContext* ctx, const char* str){
 	arr->setData((const jbyte*)str);
 	mthd->execute(ctx);
 	return obj;
+}
+
+VMObject* JVM::internalizeString(const std::string& str, VMObject* strobj){
+	std::map<std::string, VMObject*>::iterator iter = mInternalizedStrings.find(str);
+	if (iter != mInternalizedStrings.end()){
+		return iter->second;
+	}
+	mInternalizedStrings[str] = strobj;
+	return strobj;
 }

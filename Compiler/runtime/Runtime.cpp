@@ -31,7 +31,8 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 	}
 	VMContext* ctx = CTX(env);
 	VMObject* obj = (VMObject*)object;
-	Java::ClassFile& cls = obj->getClass()->getClassDefinition();
+	VMClass* objcls = (VMClass*)obj;
+	Java::ClassFile& cls = objcls->getClassDefinition();
 
 	VMClass* fieldcls = getVM()->findClass(CTX(env), "java/lang/reflect/Field");
 	VMObjectArray* arr = getVM()->createObjectArray(cls.fields_count);
@@ -42,12 +43,12 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 		std::string name = ((Java::CONSTANT_Utf8_info*)(cls.constant_pool[info->name_index-1]))->bytes;
 		VMObject* arrobj = getVM()->createObject(CTX(env), fieldcls);
 		CTX(env)->push(arrobj);
-		CTX(env)->push(obj->getClass()->getClassObject());
-		CTX(env)->push(obj->getClass()->getConstant(CTX(env), info->name_index).ui);
+		CTX(env)->push(objcls->getClassObject());
+		CTX(env)->push(objcls->getConstant(CTX(env), info->name_index).ui);
 		ctx->push(0u); //type class
 		ctx->push(info->access_flags);
-		ctx->push(obj->getClass()->findFieldIndex(name));
-		ctx->push(obj->getClass()->getConstant(ctx, info->descriptor_index).ui);
+		ctx->push(objcls->findFieldIndex(name));
+		ctx->push(objcls->getConstant(ctx, info->descriptor_index).ui);
 		ctx->push(0u);
 		VMMethod* mthd = fieldcls->getMethod(fieldcls->findMethodIndex("<init>", "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;IILjava/lang/String;[B)V"));
 		mthd->execute(ctx);
@@ -91,6 +92,13 @@ void JNIEXPORT Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object
 
 jint JNIEXPORT Java_java_lang_Object_hashCode(JNIEnv* env, jobject object){
 	return (jint)object;
+}
+
+jobject JNIEXPORT Java_java_lang_String_intern(JNIEnv* env, jobject object){
+	const char* str = env->GetStringUTFChars((jstring)object, NULL);
+	VMObject* ret = getVM()->internalizeString(str, (VMObject*)object);
+	env->ReleaseStringUTFChars((jstring)object, str);
+	return ret;
 }
 
 void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
@@ -157,6 +165,19 @@ jobject JNIEXPORT Java_java_lang_Thread_currentThread(JNIEnv* env, jclass clazz)
 	return CTX(env)->getThread();
 }
 
+jboolean JNIEXPORT Java_java_lang_Thread_isAlive(JNIEnv* env, jobject object){
+	TRACE(TRACE_JAVA, TRACE_WARNING, "not implemented");
+	return JNI_FALSE;
+}
+
+void JNIEXPORT Java_java_lang_Thread_setPriority0(JNIEnv* env, jobject object, jint priority){
+	TRACE(TRACE_JAVA, TRACE_WARNING, "setPriority0 not implemented");
+}
+
+void JNIEXPORT Java_java_lang_Thread_start0(JNIEnv* env, jobject object){
+	TRACE(TRACE_JAVA, TRACE_WARNING, "not implemented");
+}
+
 jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, jobject object, jobject action){
 	VMObject* obj = (VMObject*)action;
 	VMMethod* mthd = obj->getObjMethod(obj->getClass()->findMethodIndex("run", "()Ljava/lang/Object;"));
@@ -166,8 +187,16 @@ jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, 
 	return obj;
 }
 
+jobject JNIEXPORT Java_java_security_AccessController_getStackAccessControlContext(JNIEnv* env, jclass clazz){
+	return NULL;
+}
+
 void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object){
 	return;
+}
+
+jlong JNIEXPORT Java_sun_misc_Unsafe_objectFieldOffset(JNIEnv* env, jobject object, jobject field){
+	return 0;
 }
 
 jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass(JNIEnv* env, jobject object, jint realFramesToSkip){
