@@ -25,6 +25,7 @@ public:
   void addThread(VMContext* thrd) {mThreads.push_back(thrd);}
 	CGE::MemReader getClassFile(const std::string& filename);
   VMClass* findClass(VMContext* ctx, std::string name);
+	VMClass* defineClass(VMContext* ctx, const std::string& name);
 	VMClass* getPrimitiveClass(VMContext* ctx, std::string name);
 	nativeMethod findNativeMethod(const std::string& name);
 	VMObjectArray* createObjectArray(unsigned size);
@@ -42,6 +43,7 @@ protected:
 	CGE::SOLoader mRuntime;
   std::list<VMContext*> mThreads;
   std::map <std::string,VMClass*> mClassResolver;
+	std::map <std::string,VMClass*> mUninitializedClasses;
 	std::list<VMObject*> mCreatedObjects;
 };
 
