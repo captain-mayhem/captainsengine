@@ -34,6 +34,7 @@ public:
 	VMIntArray* createIntArray(unsigned size);
 	VMObject* createObject(VMContext* ctx, VMClass* cls);
 	VMObject* createString(VMContext* ctx, const char* str);
+	VMObject* internalizeString(const std::string& str, VMObject* strobj);
 protected:
 	void init();
 
@@ -45,6 +46,7 @@ protected:
   std::map <std::string,VMClass*> mClassResolver;
 	std::map <std::string,VMClass*> mUninitializedClasses;
 	std::list<VMObject*> mCreatedObjects;
+	std::map<std::string, VMObject*> mInternalizedStrings;
 };
 
 JVM* getVM();

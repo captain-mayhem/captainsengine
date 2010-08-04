@@ -59,3 +59,15 @@ VMMethod* VMContext::getFrameMethod(int numFrames){
 	}
 	return (base-1)->mthd;
 }
+
+void VMContext::insert(StackData data, int position){
+	memmove(mStackPointer-position+1, mStackPointer-position, position*sizeof(StackData));
+	*(mStackPointer-position) = data;
+	++mStackPointer;
+}
+
+void VMContext::dup2(){
+	*mStackPointer = *(mStackPointer-2);
+	*(mStackPointer+1) = *(mStackPointer-1);
+	mStackPointer += 2;
+}

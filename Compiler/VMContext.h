@@ -17,7 +17,9 @@ public:
 	void pushFrame(VMMethod* method, unsigned argsize);
 	void popFrame();
 	void push(StackData data) {*mStackPointer++ = data;}
+	void insert(StackData data, int position);
 	void dup() {*mStackPointer++ = *(mStackPointer-1);}
+	void dup2();
 	StackData get(int idx) {return mBasePointer[idx];}
 	void put(int idx, StackData data) {mBasePointer[idx] = data;}
 	StackData getTop(int idx) {return *(mStackPointer-idx-1);}

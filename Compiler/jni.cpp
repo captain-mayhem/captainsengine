@@ -100,6 +100,8 @@ JNIEnv_::JNIEnv_(JavaVM_* vm){
 	ctx->getThread()->init(ctx, thrdcls);
 	FieldData* grpfld = ctx->getThread()->getObjField(thrdcls->findFieldIndex("group"));
 	grpfld->obj = thrdgrp;
+	FieldData* prio = ctx->getThread()->getObjField(thrdcls->findFieldIndex("priority"));
+	prio->ui = 5;
 	VM_CTX(vm)->findClass(ctx, "java/lang/Thread");
 	VM_CTX(vm)->initBasicClasses((VMContext*)m_func);
 }
