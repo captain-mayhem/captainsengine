@@ -62,6 +62,11 @@ protected:
 	Java::Code_attribute* mCode;
 };
 
+union bullshit{
+		va_list varargs;
+		uint8* array;
+};
+
 class NativeVMMethod : public VMMethod{
 public:
 	NativeVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, nativeMethod mthd) : VMMethod(name, signature, cls, isStatic) {mFunction = mthd;}
@@ -72,7 +77,7 @@ public:
 	void executeRefRet(VMContext* ctx);
 	void executeBoolRet(VMContext* ctx);
 protected:
-	uint8* packArguments(VMContext* ctx);
+	uint8* packArguments(VMContext* ctx, bullshit fakeArray);
 	nativeMethod mFunction;
 };
 

@@ -32,7 +32,7 @@ public:
 	unsigned getNonStaticFieldOffset();
 	void copyMethodData(std::map<std::string,unsigned>& methodresolver, std::vector<VMMethod*>& methods);
 	Java::ClassFile& getClassDefinition() {return mClass;}
-	VMObject* getClassObject() {return mClassObject;}
+	VMObject* getClassObject() {return this;}
 	std::string getName() {return mFilename;}
 protected:
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);
@@ -46,7 +46,7 @@ protected:
 	VMClass* mSuperclass;
 	std::vector<StackData> mRCP;
 	unsigned mVtableEnd;
-	VMObject* mClassObject;
+	//VMObject* mClassObject;
 };
 
 #endif

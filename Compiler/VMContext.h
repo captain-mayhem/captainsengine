@@ -28,6 +28,10 @@ public:
 	VMObject* getThread() {return mThread;}
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
+	static jclass GetObjectClass(JNIEnv *env, jobject obj);
+	static jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+	static jobject CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
+	static jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static void CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
 	static jstring NewStringUTF(JNIEnv *env, const char *utf);

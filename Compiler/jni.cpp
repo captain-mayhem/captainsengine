@@ -38,6 +38,33 @@ jclass VMContext::FindClass(JNIEnv* env, const char* name){
   return getVM()->findClass(CTX(env), name);
 }
 
+jclass VMContext::GetObjectClass(JNIEnv *env, jobject obj){
+	VMObject* o = (VMObject*)obj;
+	return o->getClass();
+}
+
+jmethodID VMContext::GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
+	VMClass* cls = (VMClass*)clazz;
+	return (jmethodID)cls->findMethodIndex(name, sig);
+}
+
+jobject VMContext::CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args){
+	VMObject* o = (VMObject*)obj;
+	VMMethod* mthd = o->getObjMethod((unsigned)methodID);
+	CTX(env)->push(o);
+	for (unsigned i = 0; i < mthd->getNumArgs(); ++i){
+		VMObject* obj = va_arg(args, VMObject*);
+		CTX(env)->push(obj);
+	}
+	mthd->execute(CTX(env));
+	return (jobject)CTX(env)->pop().obj;
+}
+
+jfieldID VMContext::GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
+	VMClass* cls = (VMClass*)clazz;
+	return (jfieldID)cls->findFieldIndex(name);
+}
+
 jmethodID VMContext::GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
 	VMClass* cls = (VMClass*)clazz;
 	return (jmethodID)cls->findMethodIndex(name, sig);

@@ -18,10 +18,10 @@
 
 #include "JavaBinFileReader.h"
 
-VMClass::VMClass() : mSuperclass(NULL), mClassObject(NULL) {
+VMClass::VMClass() : mSuperclass(NULL)/*, mClassObject(NULL)*/ {
 }
 
-VMClass::VMClass(const std::string& filename) : mSuperclass(NULL), mClassObject(NULL) {
+VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObject(NULL)*/ {
 	 mFilename = filename;
 
   char* buffer = NULL;
