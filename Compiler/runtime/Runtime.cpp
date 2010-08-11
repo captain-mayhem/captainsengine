@@ -47,7 +47,7 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 		CTX(env)->push(objcls->getConstant(CTX(env), info->name_index).ui);
 		ctx->push(0u); //type class
 		ctx->push(info->access_flags);
-		ctx->push(objcls->findFieldIndex(name));
+		ctx->push(objcls/*->findFieldIndex(name)*/);
 		ctx->push(objcls->getConstant(ctx, info->descriptor_index).ui);
 		ctx->push(0u);
 		VMMethod* mthd = fieldcls->getMethod(fieldcls->findMethodIndex("<init>", "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;IILjava/lang/String;[B)V"));
@@ -195,8 +195,20 @@ void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object)
 	return;
 }
 
+jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jint expected, jint update){
+	return JNI_FALSE;
+}
+
 jlong JNIEXPORT Java_sun_misc_Unsafe_objectFieldOffset(JNIEnv* env, jobject object, jobject field){
-	return 0;
+	jclass fieldcls = env->GetObjectClass(field);
+	jmethodID getDeclaringClass = env->GetMethodID(fieldcls, "getDeclaringClass", "()Ljava/lang/Class;");
+	VMClass* cls = (VMClass*)env->CallObjectMethod(field, getDeclaringClass);
+	jmethodID getName = env->GetMethodID(fieldcls, "getName", "()Ljava/lang/String;");
+	jstring fieldname = (jstring)env->CallObjectMethod(field, getName);
+	const char* name = env->GetStringUTFChars(fieldname, NULL);
+	int fieldidx = cls->findFieldIndex(name);
+	env->ReleaseStringUTFChars(fieldname, name);
+	return fieldidx;
 }
 
 jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass(JNIEnv* env, jobject object, jint realFramesToSkip){

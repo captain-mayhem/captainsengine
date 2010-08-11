@@ -1140,9 +1140,11 @@ void NativeVMMethod::executeVoidRet(VMContext* ctx){
 	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	uint8* lst = packArguments(ctx);
-	delete [] lst;
-	mFunction(ctx->getJNIEnv(), cls, *lst);
+	bullshit fakeArray;
+	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
+	uint8* lst = packArguments(ctx, fakeArray);
+	mFunction(ctx->getJNIEnv(), cls, *((jlong*)lst));
+	//delete [] lst;
 	ctx->popFrame();
 	if (TRACE_IS_ENABLED(VM_METHODS))
 		--method_depth;
@@ -1158,9 +1160,11 @@ void NativeVMMethod::executeLongRet(VMContext* ctx){
 	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	uint8* lst = packArguments(ctx);
-	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
-	delete [] lst;
+	bullshit fakeArray;
+	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
+	uint8* lst = packArguments(ctx, fakeArray);
+	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
+	//delete [] lst;
 	ctx->popFrame();
 	if (TRACE_IS_ENABLED(VM_METHODS))
 		--method_depth;
@@ -1178,9 +1182,11 @@ void NativeVMMethod::executeRefRet(VMContext* ctx){
 	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMObject* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	uint8* lst = packArguments(ctx);
-	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
-	delete [] lst;
+	bullshit fakeArray;
+	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
+	uint8* lst = packArguments(ctx, fakeArray);
+	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
+	//delete [] lst;
 	ctx->popFrame();
 	if (TRACE_IS_ENABLED(VM_METHODS))
 		--method_depth;
@@ -1197,9 +1203,11 @@ void NativeVMMethod::executeBoolRet(VMContext* ctx){
 	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	uint8* lst = packArguments(ctx);
-	jboolean ret = ((nativeBoolMethod)mFunction)(ctx->getJNIEnv(), cls, *((int*)lst));
-	delete [] lst;
+	bullshit fakeArray;
+	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
+	uint8* lst = packArguments(ctx, fakeArray);
+	jboolean ret = ((nativeBoolMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
+	//delete [] lst;
 	ctx->popFrame();
 	if (TRACE_IS_ENABLED(VM_METHODS))
 		--method_depth;
@@ -1207,14 +1215,10 @@ void NativeVMMethod::executeBoolRet(VMContext* ctx){
 	ctx->push(ret);
 }
 
-uint8* NativeVMMethod::packArguments(VMContext* ctx){
-	union {
-		va_list varargs;
-		uint8* array;
-	} fakeArray;
-	fakeArray.array = new uint8[mArgSize*sizeof(uint32)];
+uint8* NativeVMMethod::packArguments(VMContext* ctx, bullshit fakeArray){
 	uint8* curr = fakeArray.array;
 	bool count_args = true;
+	int curr_pos = mIsStatic ? 0 : 1;
 	for (unsigned i = 1; i < mSignature.size(); ++i){
 		if (mSignature[i] == ')'){
 			++i;
@@ -1225,22 +1229,25 @@ uint8* NativeVMMethod::packArguments(VMContext* ctx){
 				++i;
 			} while(mSignature[i] != ';');
 			if (count_args){
-				void* p = ctx->pop().obj;
+				void* p = ctx->get(curr_pos++).obj;
 				memcpy(curr, &p, sizeof(p));
+				curr += sizeof(p);
 			}
 			count_args = true;
 		}
 		else if (mSignature[i] == 'I' || mSignature[i] == 'F'){
 			if (count_args){
-				int32 i = ctx->pop().i;
+				int32 i = ctx->get(curr_pos++).i;
 				memcpy(curr, &i, sizeof(i));
+				curr += sizeof(i);
 			}
 			count_args = true;
 		}
 		else if (mSignature[i] == 'Z'){
 			if (count_args){
-				jboolean b = ctx->pop().i;
+				jboolean b = ctx->get(curr_pos++).i;
 				memcpy(curr, &b, sizeof(b));
+				curr += sizeof(b);
 			}
 			count_args = true;
 		}
@@ -1252,14 +1259,15 @@ uint8* NativeVMMethod::packArguments(VMContext* ctx){
 		else if (mSignature[i] == 'J' || mSignature[i] == 'D'){
 			if (count_args){
 				jlong l;
-				l = (int64)ctx->pop().ui;
-				l |= ((int64)ctx->pop().ui) << 32;
+				l = ((int64)ctx->get(curr_pos++).ui) << 32;
+				l |= (int64)ctx->get(curr_pos++).ui;
 				memcpy(curr, &l, sizeof(l));
+				curr += sizeof(l);
 			}
 			count_args = true;
 		}
 		else
 			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected argument type in method signature");
 	}
-	return (uint8*)fakeArray.varargs;
+	return fakeArray.array;
 }

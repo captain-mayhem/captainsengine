@@ -98,11 +98,12 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
     }
     //Java::ClassFile* clfile = new Java::ClassFile();
 		entry = new VMClass(name);
-		
+
+		mClassResolver[name] = entry;
+
 		//init superclass first
 		entry->getSuperclass(ctx);
 		
-		mClassResolver[name] = entry;
 		//entry->print(std::cout);
 		
 		entry->initFields(ctx);
@@ -137,11 +138,12 @@ VMClass* JVM::defineClass(VMContext* ctx, const std::string& name){
     }
     //Java::ClassFile* clfile = new Java::ClassFile();
 		entry = new VMClass(name);
-		
+
+		mUninitializedClasses[name] = entry;
+
 		//init superclass first
 		entry->getSuperclass(ctx);
 		
-		mUninitializedClasses[name] = entry;
 		//entry->print(std::cout);
 		
 		entry->initFields(ctx);

@@ -686,6 +686,10 @@ public:
   JNINativeInterface_* m_func;
   ~JNIEnv_();
   jclass FindClass(const char* name) {return m_func->FindClass(this, name);}
+	jclass GetObjectClass(jobject obj) {return m_func->GetObjectClass(this, obj);}
+	jmethodID GetMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetMethodID(this, clazz, name, sig);}
+	jobject CallObjectMethod(jobject obj, jmethodID methodID, ...) {va_list args; va_start(args, methodID); jobject ret = m_func->CallObjectMethodV(this, obj, methodID, args); va_end(args); return ret;}
+	jfieldID GetFieldID(jclass clazz, const char *name, const char *sig) {return m_func->GetFieldID(this, clazz, name, sig);}
 	jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
 	void CallStaticVoidMethod(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); m_func->CallStaticVoidMethodV(this, clazz, methodID, args); va_end(args);}
 	jstring NewStringUTF(const char* bytes) {return m_func->NewStringUTF(this, bytes);}
