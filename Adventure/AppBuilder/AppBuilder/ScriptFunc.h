@@ -164,6 +164,9 @@ public:
   **/
   static int playSwf(ExecutionContext& ctx, unsigned numArgs);
   /**
+  **/
+  static int quit(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param name the variable to be filled with a random number
   \param limit limits the number to 1 .. limit
   **/

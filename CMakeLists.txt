@@ -1,7 +1,7 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 IF (${OS} STREQUAL "windows")
-PROJECT(CaptainsEngine ASM_MASM C CXX)
+PROJECT(CaptainsEngine C CXX)
 ELSE (${OS} STREQUAL "windows")
 PROJECT(CaptainsEngine C CXX)
 ENDIF (${OS} STREQUAL "windows")

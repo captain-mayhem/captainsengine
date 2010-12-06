@@ -366,7 +366,9 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
   Room* rm = mData->getRoom(name);
   RoomObject* roomobj = new RoomObject(save->base.state, save->base.position, room->size, room->name, rm->depthmap);
   roomobj->setParallaxBackground(room->parallaxbackground, depthoffset-2);
-  roomobj->setBackground(room->background, depthoffset-1);
+  //anywhere room is not allowed to have background
+  if (_stricmp(room->name.c_str(), mData->getProjectSettings()->anywhere_room.c_str()) != 0)
+    roomobj->setBackground(room->background, depthoffset-1);
   roomobj->setLightingColor(save->base.lighting);
   roomobj->setWalkmap(room->walkmap);
   roomobj->setScrollOffset(save->scrolloffset);
