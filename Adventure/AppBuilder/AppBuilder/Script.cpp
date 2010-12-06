@@ -784,10 +784,10 @@ std::istream& operator>>(std::istream& strm, StackData& data){
 
 StackData PcdkScript::getVariable(const std::string& name){
   if (name == "mousex"){
-    DebugBreak();
+    return Engine::instance()->getCursorPos().x;
   }
   else if (name == "mousey"){
-    DebugBreak();
+    return Engine::instance()->getCursorPos().y;
   }
   else if (name == "hour"){
     DebugBreak();

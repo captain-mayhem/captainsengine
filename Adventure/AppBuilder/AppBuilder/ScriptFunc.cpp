@@ -81,6 +81,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("if_string", isStringEqual);
   interpreter->registerFunction("stepto", stepTo);
   interpreter->registerFunction("moveobj", moveObj);
+  interpreter->registerFunction("quit", quit);
   srand(time(NULL));
 }
 
@@ -1041,6 +1042,16 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
     if (wait == "wait")
       hold = true;
   }
+  Object2D* obj = Engine::instance()->getObject(name, false);
+  if (speed == 0){
+    obj->setPosition(newpos);
+    return 0;
+  }
+  DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::quit(ExecutionContext& ctx, unsigned numArgs){
   DebugBreak();
   return 0;
 }
