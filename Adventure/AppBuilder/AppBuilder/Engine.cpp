@@ -207,6 +207,9 @@ GLuint Engine::genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+  /*glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_R,GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);*/
   delete buffer;
   return tex;
 }
@@ -393,7 +396,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
       depth = room->objects[i].wm_depth-1;
     else
       depth = 990;
-    object->setScale(roomobj->getDepthScale(saveobj->position));
+    //object->setScale(roomobj->getDepthScale(saveobj->position));
     for (unsigned j = 0; j < o->states.size(); ++j){
       Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth+depthoffset);
       object->addAnimation(anim);
@@ -419,8 +422,10 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
       }
     }
     CharacterObject* character = loadCharacter(ch.name, ch.character, false);
-    if (character)
+    if (character){
+      character->setScale(roomobj->getDepthScale(character->getPosition()));
       roomobj->addObject(character);
+    }
   };
   //load room script
   Script* script = mData->getScript(Script::ROOM,room->name);
@@ -916,9 +921,9 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   mFonts->loadFont(obj->fontid);
   character->setTextColor(chbase->textcolor);
   character->setRoom(room);
-  RoomObject* ro = Engine::instance()->getRoom(room);
-  if (ro)
-    character->setScale(ro->getDepthScale(obj->base.position));
+  //RoomObject* ro = Engine::instance()->getRoom(room);
+  //if (ro)
+  //  character->setScale(ro->getDepthScale(obj->base.position));
   for (unsigned j = 0; j < chbase->states.size(); ++j){
     int depth = (obj->base.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
     Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);

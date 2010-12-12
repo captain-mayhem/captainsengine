@@ -26,6 +26,7 @@ public:
   void removeSpeaker(CharacterObject* chr);
   std::ostream& save(std::ostream& out);
   std::istream& load(std::istream& in);
+  void setMusicVolume(int volume);
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const DataBuffer& db);
@@ -35,6 +36,7 @@ protected:
   ALCcontext* mContext;
   std::map<std::string, SoundPlayer*> mActiveSounds;
   SoundPlayer* mActiveMusic;
+  int mMusicVolume;
 };
 
 class SoundPlayer{
