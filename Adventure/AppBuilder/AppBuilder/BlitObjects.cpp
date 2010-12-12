@@ -65,10 +65,14 @@ void BlitObject::blit(){
 
   glTranslatef(mPos.x,mPos.y,0.0f);
   Vec2i zoomscaleoffset;
-  zoomscaleoffset.x = (1-abs(mZoomScale.x))*(mSize.x-mSize.x*abs(mZoomScale.x));
-  zoomscaleoffset.y = mMirrorOffset.y-mMirrorOffset.y*mZoomScale.y;//mOffset.y-mOffset.y*mZoomScale.y;
+  zoomscaleoffset.x = mMirrorOffset.x-mMirrorOffset.x*abs(mZoomScale.x);//(1-abs(mZoomScale.x))*(mSize.x-mSize.x*abs(mZoomScale.x));
+  zoomscaleoffset.y = mMirrorOffset.y-mMirrorOffset.y*mZoomScale.y;
   glTranslatef(zoomscaleoffset.x, zoomscaleoffset.y, 0.0f);
   glTranslatef(-mOffset.x, -mOffset.y, 0.0f);
+  //if (mZoomScale.x < 0)
+  //  glScalef(-1.0f, 1.0f*mZoomScale.y, 1.0f);
+  //else
+  //  glScalef(1.0f, 1.0f*mZoomScale.y, 1.0f);
   glScalef(mZoomScale.x, mZoomScale.y, 1.0f);
   glTranslatef(mOffset.x, mOffset.y, 0.0f);
   glScalef(mSize.x,mSize.y,1.0f);

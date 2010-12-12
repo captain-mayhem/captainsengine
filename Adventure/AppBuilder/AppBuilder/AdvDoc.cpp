@@ -779,8 +779,13 @@ Character* AdvDocument::getCharacter(std::string name){
 
 Script* AdvDocument::getScript(Script::Type t, std::string name){
   std::map<std::pair<Script::Type,std::string>, Script>::iterator iter = mScripts.find(std::make_pair(t, name));
-  if (iter == mScripts.end())
+  if (iter == mScripts.end()){
+    for (std::map<std::pair<Script::Type,std::string>,Script>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+      if (_stricmp(name.c_str(), iter->first.second.c_str()) == 0)
+        return &iter->second;
+    }
     return NULL;
+  }
   return &((*iter).second);
 }
 

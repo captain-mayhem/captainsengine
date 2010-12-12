@@ -347,7 +347,7 @@ void RoomObject::setParallaxBackground(const std::string& bg, int depth){
 
 void RoomObject::addObject(Object2D* obj){
   obj->setScrollOffset(mScrollOffset);
-  obj->setScale(getDepthScale(obj->getPosition()));
+  //obj->setScale(getDepthScale(obj->getPosition()));
   mObjects.push_back(obj);
 }
 
@@ -457,7 +457,7 @@ void RoomObject::setPosition(const Vec2i& pos){
   Vec2i move = pos - mPos;
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     (*iter)->setPosition((*iter)->getPosition()+move);
-    (*iter)->setScale(getDepthScale((*iter)->getPosition()));
+    //(*iter)->setScale(getDepthScale((*iter)->getPosition()));
   }
   mPos += move;
   if (mInventroy)
@@ -505,17 +505,17 @@ void RoomObject::skipScripts(){
 }
 
 float RoomObject::getDepthScale(const Vec2i& pos){
-  float factor = (pos.y-mDepthMap.scaleStart)/(mDepthMap.scaleStop-mDepthMap.scaleStart);
+  float factor = (pos.y-mDepthMap.scaleStart)/(float)(mDepthMap.scaleStop-mDepthMap.scaleStart);
   factor = factor < 0 ? 0 : factor;
   factor = factor > 1.0f ? 1.0f : factor;
-  float ret = (factor)*1+(1-factor)*mDepthMap.minVal;
+  float ret = (1-factor)*1+(factor)*mDepthMap.minVal;
   return ret;
 }
 
 RoomObject::DepthMap::DepthMap(Vec2i depthmap){
-  scaleStart = depthmap.x*Engine::instance()->getWalkGridSize();
-  scaleStop = depthmap.y*Engine::instance()->getWalkGridSize();
-  minVal = 1.0f-(depthmap.y-depthmap.x)/100.0f;
+  scaleStart = depthmap.y*Engine::instance()->getWalkGridSize();
+  scaleStop = depthmap.x*Engine::instance()->getWalkGridSize();
+  minVal = 1.0f-(depthmap.y-depthmap.x)/((float)Engine::instance()->getSettings()->resolution.y/Engine::instance()->getWalkGridSize())*1.5;
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
@@ -534,6 +534,11 @@ CharacterObject::~CharacterObject(){
 void CharacterObject::setPosition(const Vec2i& pos){
   Vec2i offset = mBasePoints[mState-1];
   Object2D::setPosition(pos-offset);
+  RoomObject* room = Engine::instance()->getRoom(mRoom);
+  if (room){
+    float scale = room->getDepthScale(pos);
+    setScale(scale);
+  }
 }
 
 Vec2i CharacterObject::getPosition(){

@@ -49,6 +49,8 @@ bool ZipReader::openFile(const std::string& filename){
   mFileFuncs.zwrite_file = write_file_func;
 #ifdef WIN32
   mFile = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  if (mFile == INVALID_HANDLE_VALUE)
+    return false;
   mFmap = CreateFileMapping(mFile, NULL, PAGE_READONLY, 0, 0, NULL);
   void* data = MapViewOfFile(mFmap, FILE_MAP_READ, 0, 0, 0);
   MEMORY_BASIC_INFORMATION meminfo;

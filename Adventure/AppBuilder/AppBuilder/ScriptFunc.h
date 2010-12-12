@@ -134,6 +134,10 @@ public:
   **/
   static int moveObj(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param volume the volume of the music
+  **/
+  static int musicVolume(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param x x-coord of text (middle)
   \param y y-coord of text (bottom)
   \param text the text to be displayed
