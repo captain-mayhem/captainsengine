@@ -27,14 +27,26 @@ namespace StoryDesigner
 
     class AdvData
     {
-        public AdvData()
+        public AdvData(AdvFileReader reader)
         {
             Settings = new ProjectSettings();
             mImages = new Dictionary<string, string>();
+            mReader = reader;
+        }
+
+        public System.Drawing.Bitmap getImage(string filename)
+        {
+            return mReader.getImage(filename);
+        }
+
+        public Dictionary<string, string> Images
+        {
+            get { return mImages; }
+            set { mImages = value; }
         }
 
         public ProjectSettings Settings;
-
         Dictionary<string, string> mImages;
+        AdvFileReader mReader;
     }
 }

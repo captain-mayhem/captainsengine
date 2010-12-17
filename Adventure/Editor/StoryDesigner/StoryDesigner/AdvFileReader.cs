@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Windows.Forms;
+using System.Drawing;
 using ICSharpCode.SharpZipLib.Zip;
 
 namespace StoryDesigner
@@ -11,7 +12,7 @@ namespace StoryDesigner
     {
         public AdvFileReader(string filename, TreeView mediapool, TreeView gamepool)
         {
-            mAdv = new AdvData();
+            mAdv = new AdvData(this);
             mMediaPool = mediapool;
             mGamePool = gamepool;
 
@@ -25,6 +26,7 @@ namespace StoryDesigner
                 }
             }
             zis.Close();
+            mPath = System.IO.Path.GetDirectoryName(filename);
         }
 
         protected bool readSettings(Stream strm)
@@ -97,6 +99,17 @@ namespace StoryDesigner
             root.Nodes.CopyTo(arr, 0);
             mGamePool.Nodes.Clear();
             mGamePool.Nodes.AddRange(arr);
+
+            if (str == "Images :")
+            {
+                str = rdr.ReadLine();
+                while (str != "Sounds :")
+                {
+                    string filename = rdr.ReadLine();
+                    mAdv.Images.Add(str.ToLower(), filename);
+                    str = rdr.ReadLine();
+                }
+            }
             return true;
         }
 
@@ -124,8 +137,45 @@ namespace StoryDesigner
             return node;
         }
 
-        protected AdvData mAdv;
+        public System.Drawing.Bitmap getImage(string filename)
+        {
+            string zipname = mPath + System.IO.Path.DirectorySeparatorChar + "gfx.dat";
+            string imagename = System.IO.Path.GetFileName(filename);
+            ZipInputStream zis = new ZipInputStream(File.OpenRead(zipname));
+            ZipEntry entry;
+            System.Drawing.Bitmap img = null;
+            while ((entry = zis.GetNextEntry()) != null)
+            {
+                if (entry.Name == imagename)
+                {
+                    img = (Bitmap)System.Drawing.Bitmap.FromStream(zis);
+                    if (System.IO.Path.GetExtension(imagename) == ".pnj")
+                    {
+                        System.Drawing.Bitmap alpha = getImage(System.IO.Path.ChangeExtension(filename, ".pna"));
+                        System.Drawing.Bitmap newImage = new System.Drawing.Bitmap(img.Width, img.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                        for (int i = 0; i < img.Width; ++i){
+                            for (int j = 0; j < img.Height; ++j)
+                            {
+                                newImage.SetPixel(i,j,Color.FromArgb(alpha.GetPixel(i,j).R, img.GetPixel(i,j)));
+                            }
+                        }
+                        img = newImage;
+                    }
+                    break;
+                }
+            }
+            zis.Close();
+            return img;
+        }
+
+        private AdvData mAdv;
+
+        public AdvData Data
+        {
+            get { return mAdv; }
+        }
         private TreeView mMediaPool;
         private TreeView mGamePool;
+        private string mPath;
     }
 }

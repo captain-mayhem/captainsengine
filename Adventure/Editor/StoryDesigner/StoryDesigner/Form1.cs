@@ -19,8 +19,17 @@ namespace StoryDesigner
         void mediaPool_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             ResourceID id = (ResourceID)e.Node.Tag;
-            string name = e.Node.Text;
-            Console.WriteLine("Clicked "+ name + " "+id);
+            string name = e.Node.Text.ToLower();
+            switch (id)
+            {
+                case ResourceID.IMAGE:
+                    string filename = mData.Images[name];
+                    System.Drawing.Bitmap bmp = mData.getImage(filename);
+                    break;
+                default:
+                    Console.WriteLine("Clicked " + name + " " + id + "unhandled");
+                    break;
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -47,7 +56,10 @@ namespace StoryDesigner
             if (fod.FileName.Length > 0)
             {
                 AdvFileReader reader = new AdvFileReader(fod.FileName, mediaPool, gamePool);
+                mData = reader.Data;
             }
         }
+
+        private AdvData mData;
     }
 }
