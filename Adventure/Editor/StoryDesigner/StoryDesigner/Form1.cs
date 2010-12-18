@@ -16,6 +16,11 @@ namespace StoryDesigner
             mediaPool.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
         }
 
+        public MainForm(string filename) : this()
+        {
+            loadFile(filename);
+        }
+
         void mediaPool_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             ResourceID id = (ResourceID)e.Node.Tag;
@@ -25,6 +30,8 @@ namespace StoryDesigner
                 case ResourceID.IMAGE:
                     string filename = mData.Images[name];
                     System.Drawing.Bitmap bmp = mData.getImage(filename);
+                    mImageViewer = new ImageViewer(bmp);
+                    mImageViewer.Show(this);
                     break;
                 default:
                     Console.WriteLine("Clicked " + name + " " + id + "unhandled");
@@ -55,11 +62,17 @@ namespace StoryDesigner
             fod.ShowDialog();
             if (fod.FileName.Length > 0)
             {
-                AdvFileReader reader = new AdvFileReader(fod.FileName, mediaPool, gamePool);
-                mData = reader.Data;
+                loadFile(fod.FileName);
             }
         }
 
+        private void loadFile(string filename)
+        {
+            AdvFileReader reader = new AdvFileReader(filename, mediaPool, gamePool);
+            mData = reader.Data;
+        }
+
         private AdvData mData;
+        private ImageViewer mImageViewer;
     }
 }
