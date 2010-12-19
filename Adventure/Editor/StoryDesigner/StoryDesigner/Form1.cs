@@ -74,5 +74,11 @@ namespace StoryDesigner
 
         private AdvData mData;
         private ImageViewer mImageViewer;
+
+        private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Settings settings = new Settings();
+            settings.ShowDialog(this);
+        }
     }
 }
