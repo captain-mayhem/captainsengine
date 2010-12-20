@@ -4,7 +4,7 @@ using System.Text;
 
 namespace StoryDesigner
 {
-    struct Vec2i
+    public struct Vec2i
     {
         public Vec2i(int x, int y)
         {

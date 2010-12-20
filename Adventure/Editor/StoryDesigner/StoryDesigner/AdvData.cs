@@ -17,15 +17,52 @@ namespace StoryDesigner
         CHARACTER = 15,
     }
 
-    struct ProjectSettings
+    public enum ScreenChange
     {
-        public string Directory;
-        public Vec2i Resolution;
-        public string TsBackground;
-        public string Startscript;
+        SC_DIRECT = 0,
+        SC_FADEOUT,
+        SC_RECTANGLE,
+        SC_CIRCLE,
+        SC_SHUTTERS,
+        SC_CLOCK,
+        SC_BLEND,
+        SC_BLEND_SLOW,
     }
 
-    class AdvData
+    public struct ProjectSettings
+    {
+        public string Projectname;
+        public string Directory;
+        public Vec2i Resolution;
+        public string GameIcon;
+        public string TsBackground;
+        public string Startscript;
+        public string Mainscript;
+        public string AnywhereRoom;
+        public ScreenChange ScreenChange;
+        public bool TextOnOff;
+        public bool DrawDraggedItemIcons;
+        public bool ActionText;
+        public bool NotAntialiased;
+        public bool GroupItems;
+        public int TaskHeight;
+        public string TaskRoom;
+        public int TaskPopup;
+        public bool TaskHideCompletely;
+        public int TargaColor;
+        public int BorderColor;
+        public int BackgroundColor;
+        public int TextColor;
+        public int TsStyle;
+        public int TsBorderStyle;
+        public int TsBorderColor;
+        public int TsAreaColor;
+        public int TsSelectionColor;
+        public int TsTextColor;
+        public bool MuteMusicWhenSpeech;
+    }
+
+    public class AdvData
     {
         public AdvData(AdvFileReader reader)
         {
