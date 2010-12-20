@@ -77,7 +77,7 @@ namespace StoryDesigner
 
         private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Settings settings = new Settings();
+            Settings settings = new Settings(mData);
             settings.ShowDialog(this);
         }
     }

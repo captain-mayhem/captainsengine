@@ -8,13 +8,27 @@ using ICSharpCode.SharpZipLib.Zip;
 
 namespace StoryDesigner
 {
-    class AdvFileReader
+    public class AdvFileReader
     {
         public AdvFileReader(string filename, TreeView mediapool, TreeView gamepool)
         {
             mAdv = new AdvData(this);
             mMediaPool = mediapool;
             mGamePool = gamepool;
+
+            if (System.IO.Path.GetExtension(filename) == ".dat")
+            {
+                mAdv.Settings.Projectname = "game";
+                string dir = System.IO.Path.GetDirectoryName(filename);
+                FileInfo[] files = System.IO.Directory.GetParent(dir).GetFiles("*.exe");
+                foreach (FileInfo file in files)
+                {
+                    if (file.Name != "Setup.exe")
+                    {
+                        mAdv.Settings.Projectname = System.IO.Path.GetFileNameWithoutExtension(file.Name);
+                    }
+                }
+            }
 
             ZipInputStream zis = new ZipInputStream(File.OpenRead(filename));
             ZipEntry entry;
@@ -59,6 +73,7 @@ namespace StoryDesigner
             str = rdr.ReadLine();
             str = rdr.ReadLine();
             str = rdr.ReadLine();
+            mAdv.Settings.GameIcon = str.Substring(11);
             str = rdr.ReadLine();
             str = rdr.ReadLine();
             mAdv.Settings.TsBackground = rdr.ReadLine();
@@ -68,6 +83,68 @@ namespace StoryDesigner
                 throw new UnexpectedValueException("expected Startskript : ");
             }
             mAdv.Settings.Startscript = str.Substring(14);
+            mAdv.Settings.Mainscript = rdr.ReadLine();
+            mAdv.Settings.AnywhereRoom = rdr.ReadLine();
+            str = rdr.ReadLine();
+            mAdv.Settings.ScreenChange = (ScreenChange)Convert.ToInt32(str.Substring(15));
+            str = rdr.ReadLine().Substring(9);
+            mAdv.Settings.TextOnOff = str[0] == '1';
+            mAdv.Settings.DrawDraggedItemIcons = str[1] == '1';
+            mAdv.Settings.ActionText = str[2] == '1';
+            mAdv.Settings.NotAntialiased = str[4] == '1';
+            mAdv.Settings.GroupItems = str[6] == '1';
+            rdr.ReadLine();
+            rdr.ReadLine();
+            rdr.ReadLine();
+            str = rdr.ReadLine();
+            mAdv.Settings.TaskHeight = Convert.ToInt32(str.Substring(13));
+            str = rdr.ReadLine();
+            mAdv.Settings.TaskRoom = str.Substring(11);
+            str = rdr.ReadLine();
+            mAdv.Settings.TaskPopup = Convert.ToInt32(str.Substring(12));
+            str = rdr.ReadLine();
+            string taskshow = str.Substring(11, 4);
+            if (taskshow == "hide")
+                mAdv.Settings.TaskHideCompletely = true;
+            else
+                mAdv.Settings.TaskHideCompletely = false;
+            rdr.ReadLine();
+            rdr.ReadLine();
+            rdr.ReadLine();
+            rdr.ReadLine();
+            str = rdr.ReadLine();
+            mAdv.Settings.TargaColor = Convert.ToInt32(str.Substring(13));
+            str = rdr.ReadLine();
+            mAdv.Settings.BorderColor = Convert.ToInt32(str.Substring(14));
+            str = rdr.ReadLine();
+            mAdv.Settings.BackgroundColor = Convert.ToInt32(str.Substring(18));
+            str = rdr.ReadLine();
+            mAdv.Settings.TextColor = Convert.ToInt32(str.Substring(12));
+            rdr.ReadLine(); //offtextcolor
+            str = rdr.ReadLine();
+            mAdv.Settings.TsStyle = Convert.ToInt32(str) - 1;
+            str = rdr.ReadLine();
+            mAdv.Settings.TsBorderStyle = Convert.ToInt32(str);
+            str = rdr.ReadLine();
+            mAdv.Settings.TsBorderColor = Convert.ToInt32(str);
+            str = rdr.ReadLine();
+            mAdv.Settings.TsAreaColor = Convert.ToInt32(str);
+            str = rdr.ReadLine();
+            mAdv.Settings.TsSelectionColor = Convert.ToInt32(str);
+            str = rdr.ReadLine();
+            mAdv.Settings.TsTextColor = Convert.ToInt32(str);
+            if (ver_major >= 3 || (ver_major >= 2 && ver_minor >= 7))
+            {
+                rdr.ReadLine();
+                str = rdr.ReadLine();
+                mAdv.Settings.MuteMusicWhenSpeech = str == "-1";
+                rdr.ReadLine();
+                rdr.ReadLine();
+                rdr.ReadLine();
+                rdr.ReadLine();
+                rdr.ReadLine();
+                rdr.ReadLine();
+            }
             while (str != "Mediapool :")
             {
                 str = rdr.ReadLine();
