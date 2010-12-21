@@ -51,7 +51,13 @@ namespace StoryDesigner
             this.drawDraggedItems.Checked = mData.Settings.NotAntialiased;
             this.groupItems.Checked = mData.Settings.GroupItems;
             this.actionText.Checked = mData.Settings.ActionText;
-            //TODO
+            this.actionTextHeight.Value = mData.Settings.ActionTextHeight;
+            this.silentDelete.Checked = mData.Settings.SilentDelete;
+            this.infoLine.Checked = mData.Settings.InfoLine;
+            this.fitImages.Checked = true; //TODO
+            this.createBackups.Checked = true; //TODO
+            this.protectGamefiles.Checked = mData.Settings.ProtectGameFile;
+            this.loadingImage.Text = mData.Settings.LoadingImage;
             //second page
             this.start_script.Text = mData.Settings.Startscript;
             this.main_script.Text = mData.Settings.Mainscript;
@@ -82,6 +88,37 @@ namespace StoryDesigner
                     this.sc_blend_slow.Checked = true;
                     break;
             }
+            this.taskbar.Checked = mData.Settings.ShowTaskbar;
+            this.taskBarHeight.Value = mData.Settings.TaskHeight;
+            this.taskbar_room.Text = mData.Settings.TaskRoom;
+            switch (mData.Settings.TsStyle)
+            {
+                case 0:
+                    this.ts_always.Checked = true;
+                    break;
+                case 1:
+                    this.ts_popup.Checked = true;
+                    break;
+                case 2:
+                    this.ts_scrolling.Checked = true;
+                    break;
+            }
+            this.hideCompletely.Checked = mData.Settings.TaskHideCompletely;
+            if (mData.Settings.TaskbarFromTop)
+            {
+                ts_appears_top.Checked = true;
+            }
+            else
+            {
+                ts_appear_bottom.Checked = true;
+            }
+            this.anywhere_room.Text = mData.Settings.AnywhereRoom;
+            this.anywhere_transparency.Value = 50;
+            //third page
+            //this.border_color.BackColor = Color.FromArgb((int)(((System.UInt32)mData.Settings.BorderColor >> 8) & 0xffffff | ((System.UInt32)mData.Settings.BorderColor << 24) & 0xff000000));
+            this.border_color.BackColor = Color.FromArgb(convertColor(mData.Settings.BorderColor));
+            this.background_color.BackColor = Color.FromArgb(convertColor(mData.Settings.BackgroundColor));
+            this.text_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TextColor));
         }
 
         private void chooseColor(object sender)
@@ -92,6 +129,15 @@ namespace StoryDesigner
                 Button btn = (Button)sender;
                 btn.BackColor = cd.Color;
             }
+        }
+
+        private int convertColor(System.UInt32 color)
+        {
+            System.UInt32 ret = 0xFF000000;
+            ret |= ((System.UInt32)color & 0xFF) << 16;
+            ret |= (System.UInt32)color & 0xFF00;
+            ret |= ((System.UInt32)color & 0xFF0000) >> 16;
+            return (int)ret;
         }
 
         AdvData mData;
@@ -119,6 +165,20 @@ namespace StoryDesigner
         private void button2_Click(object sender, EventArgs e)
         {
             chooseColor(sender);
+        }
+
+        private void taskbar_CheckedChanged(object sender, EventArgs e)
+        {
+            if (this.taskbar.Checked)
+            {
+                this.taskbar_panel.Enabled = true;
+                this.tsstylebox.Enabled = true;
+            }
+            else
+            {
+                this.taskbar_panel.Enabled = false;
+                this.tsstylebox.Enabled = false;
+            }
         }
     }
 }

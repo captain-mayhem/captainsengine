@@ -74,7 +74,7 @@ namespace StoryDesigner
             str = rdr.ReadLine();
             str = rdr.ReadLine();
             mAdv.Settings.GameIcon = str.Substring(11);
-            str = rdr.ReadLine();
+            mAdv.Settings.LoadingImage = rdr.ReadLine();
             str = rdr.ReadLine();
             mAdv.Settings.TsBackground = rdr.ReadLine();
             str = rdr.ReadLine();
@@ -91,9 +91,13 @@ namespace StoryDesigner
             mAdv.Settings.TextOnOff = str[0] == '1';
             mAdv.Settings.DrawDraggedItemIcons = str[1] == '1';
             mAdv.Settings.ActionText = str[2] == '1';
+            mAdv.Settings.ShowTaskbar = str[3] == '1';
             mAdv.Settings.NotAntialiased = str[4] == '1';
+            mAdv.Settings.TaskbarFromTop = str[5] == '1';
             mAdv.Settings.GroupItems = str[6] == '1';
-            rdr.ReadLine();
+            mAdv.Settings.ProtectGameFile = str[7] == '1';
+            str = rdr.ReadLine();
+            mAdv.Settings.ActionTextHeight = Convert.ToInt32(str);
             rdr.ReadLine();
             rdr.ReadLine();
             str = rdr.ReadLine();
@@ -103,6 +107,9 @@ namespace StoryDesigner
             str = rdr.ReadLine();
             mAdv.Settings.TaskPopup = Convert.ToInt32(str.Substring(12));
             str = rdr.ReadLine();
+            string addBools = str.Substring(8, 2);
+            mAdv.Settings.SilentDelete = addBools[0] == '1';
+            mAdv.Settings.InfoLine = addBools[1] == '1';
             string taskshow = str.Substring(11, 4);
             if (taskshow == "hide")
                 mAdv.Settings.TaskHideCompletely = true;
@@ -113,26 +120,26 @@ namespace StoryDesigner
             rdr.ReadLine();
             rdr.ReadLine();
             str = rdr.ReadLine();
-            mAdv.Settings.TargaColor = Convert.ToInt32(str.Substring(13));
+            mAdv.Settings.TargaColor = Convert.ToUInt32(str.Substring(13));
             str = rdr.ReadLine();
-            mAdv.Settings.BorderColor = Convert.ToInt32(str.Substring(14));
+            mAdv.Settings.BorderColor = Convert.ToUInt32(str.Substring(14));
             str = rdr.ReadLine();
-            mAdv.Settings.BackgroundColor = Convert.ToInt32(str.Substring(18));
+            mAdv.Settings.BackgroundColor = Convert.ToUInt32(str.Substring(18));
             str = rdr.ReadLine();
-            mAdv.Settings.TextColor = Convert.ToInt32(str.Substring(12));
+            mAdv.Settings.TextColor = Convert.ToUInt32(str.Substring(12));
             rdr.ReadLine(); //offtextcolor
             str = rdr.ReadLine();
             mAdv.Settings.TsStyle = Convert.ToInt32(str) - 1;
             str = rdr.ReadLine();
             mAdv.Settings.TsBorderStyle = Convert.ToInt32(str);
             str = rdr.ReadLine();
-            mAdv.Settings.TsBorderColor = Convert.ToInt32(str);
+            mAdv.Settings.TsBorderColor = Convert.ToUInt32(str);
             str = rdr.ReadLine();
-            mAdv.Settings.TsAreaColor = Convert.ToInt32(str);
+            mAdv.Settings.TsAreaColor = Convert.ToUInt32(str);
             str = rdr.ReadLine();
-            mAdv.Settings.TsSelectionColor = Convert.ToInt32(str);
+            mAdv.Settings.TsSelectionColor = Convert.ToUInt32(str);
             str = rdr.ReadLine();
-            mAdv.Settings.TsTextColor = Convert.ToInt32(str);
+            mAdv.Settings.TsTextColor = Convert.ToUInt32(str);
             if (ver_major >= 3 || (ver_major >= 2 && ver_minor >= 7))
             {
                 rdr.ReadLine();

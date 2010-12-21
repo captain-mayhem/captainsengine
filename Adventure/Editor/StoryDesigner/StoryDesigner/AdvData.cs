@@ -35,6 +35,7 @@ namespace StoryDesigner
         public string Directory;
         public Vec2i Resolution;
         public string GameIcon;
+        public string LoadingImage;
         public string TsBackground;
         public string Startscript;
         public string Mainscript;
@@ -43,22 +44,28 @@ namespace StoryDesigner
         public bool TextOnOff;
         public bool DrawDraggedItemIcons;
         public bool ActionText;
+        public bool ShowTaskbar;
+        public bool TaskbarFromTop;
         public bool NotAntialiased;
         public bool GroupItems;
+        public int ActionTextHeight;
         public int TaskHeight;
         public string TaskRoom;
         public int TaskPopup;
+        public bool SilentDelete;
+        public bool InfoLine;
+        public bool ProtectGameFile;
         public bool TaskHideCompletely;
-        public int TargaColor;
-        public int BorderColor;
-        public int BackgroundColor;
-        public int TextColor;
+        public System.UInt32 TargaColor;
+        public System.UInt32 BorderColor;
+        public System.UInt32 BackgroundColor;
+        public System.UInt32 TextColor;
         public int TsStyle;
         public int TsBorderStyle;
-        public int TsBorderColor;
-        public int TsAreaColor;
-        public int TsSelectionColor;
-        public int TsTextColor;
+        public System.UInt32 TsBorderColor;
+        public System.UInt32 TsAreaColor;
+        public System.UInt32 TsSelectionColor;
+        public System.UInt32 TsTextColor;
         public bool MuteMusicWhenSpeech;
     }
 

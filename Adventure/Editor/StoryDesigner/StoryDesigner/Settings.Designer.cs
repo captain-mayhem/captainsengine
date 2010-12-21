@@ -35,7 +35,7 @@ namespace StoryDesigner
             this.fitImages = new System.Windows.Forms.CheckBox();
             this.infoLine = new System.Windows.Forms.CheckBox();
             this.silentDelete = new System.Windows.Forms.CheckBox();
-            this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
+            this.actionTextHeight = new System.Windows.Forms.NumericUpDown();
             this.label5 = new System.Windows.Forms.Label();
             this.actionText = new System.Windows.Forms.CheckBox();
             this.groupItems = new System.Windows.Forms.CheckBox();
@@ -58,18 +58,18 @@ namespace StoryDesigner
             this.label12 = new System.Windows.Forms.Label();
             this.anywhere_room = new System.Windows.Forms.TextBox();
             this.label11 = new System.Windows.Forms.Label();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.tsstylebox = new System.Windows.Forms.GroupBox();
             this.ts_scrolling = new System.Windows.Forms.RadioButton();
             this.ts_popup = new System.Windows.Forms.RadioButton();
             this.ts_always = new System.Windows.Forms.RadioButton();
-            this.panel4 = new System.Windows.Forms.Panel();
+            this.taskbar_panel = new System.Windows.Forms.Panel();
             this.ts_appears_top = new System.Windows.Forms.RadioButton();
             this.ts_appear_bottom = new System.Windows.Forms.RadioButton();
             this.label10 = new System.Windows.Forms.Label();
             this.hideCompletely = new System.Windows.Forms.CheckBox();
             this.taskbar_room = new System.Windows.Forms.TextBox();
             this.label9 = new System.Windows.Forms.Label();
-            this.numericUpDown2 = new System.Windows.Forms.NumericUpDown();
+            this.taskBarHeight = new System.Windows.Forms.NumericUpDown();
             this.label8 = new System.Windows.Forms.Label();
             this.taskbar = new System.Windows.Forms.CheckBox();
             this.panel3 = new System.Windows.Forms.Panel();
@@ -94,23 +94,23 @@ namespace StoryDesigner
             this.tabPage5 = new System.Windows.Forms.TabPage();
             this.OK = new System.Windows.Forms.Button();
             this.label14 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.background_color = new System.Windows.Forms.Button();
             this.label15 = new System.Windows.Forms.Label();
-            this.button2 = new System.Windows.Forms.Button();
+            this.text_color = new System.Windows.Forms.Button();
             this.checkBox1 = new System.Windows.Forms.CheckBox();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.actionTextHeight)).BeginInit();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.symbol)).BeginInit();
             this.panel1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.anywhere_transparency)).BeginInit();
-            this.groupBox1.SuspendLayout();
-            this.panel4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).BeginInit();
+            this.tsstylebox.SuspendLayout();
+            this.taskbar_panel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.taskBarHeight)).BeginInit();
             this.panel3.SuspendLayout();
             this.screenchange.SuspendLayout();
             this.tabPage3.SuspendLayout();
@@ -137,7 +137,7 @@ namespace StoryDesigner
             this.tabPage1.Controls.Add(this.fitImages);
             this.tabPage1.Controls.Add(this.infoLine);
             this.tabPage1.Controls.Add(this.silentDelete);
-            this.tabPage1.Controls.Add(this.numericUpDown1);
+            this.tabPage1.Controls.Add(this.actionTextHeight);
             this.tabPage1.Controls.Add(this.label5);
             this.tabPage1.Controls.Add(this.actionText);
             this.tabPage1.Controls.Add(this.groupItems);
@@ -203,12 +203,12 @@ namespace StoryDesigner
             this.silentDelete.Text = "Silent delete";
             this.silentDelete.UseVisualStyleBackColor = true;
             // 
-            // numericUpDown1
+            // actionTextHeight
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(358, 104);
-            this.numericUpDown1.Name = "numericUpDown1";
-            this.numericUpDown1.Size = new System.Drawing.Size(49, 20);
-            this.numericUpDown1.TabIndex = 7;
+            this.actionTextHeight.Location = new System.Drawing.Point(358, 104);
+            this.actionTextHeight.Name = "actionTextHeight";
+            this.actionTextHeight.Size = new System.Drawing.Size(49, 20);
+            this.actionTextHeight.TabIndex = 7;
             // 
             // label5
             // 
@@ -385,8 +385,8 @@ namespace StoryDesigner
             this.tabPage2.Controls.Add(this.label12);
             this.tabPage2.Controls.Add(this.anywhere_room);
             this.tabPage2.Controls.Add(this.label11);
-            this.tabPage2.Controls.Add(this.groupBox1);
-            this.tabPage2.Controls.Add(this.panel4);
+            this.tabPage2.Controls.Add(this.tsstylebox);
+            this.tabPage2.Controls.Add(this.taskbar_panel);
             this.tabPage2.Controls.Add(this.taskbar);
             this.tabPage2.Controls.Add(this.panel3);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
@@ -429,17 +429,18 @@ namespace StoryDesigner
             this.label11.TabIndex = 5;
             this.label11.Text = "Room for \"anywhere\" objects:";
             // 
-            // groupBox1
+            // tsstylebox
             // 
-            this.groupBox1.Controls.Add(this.ts_scrolling);
-            this.groupBox1.Controls.Add(this.ts_popup);
-            this.groupBox1.Controls.Add(this.ts_always);
-            this.groupBox1.Location = new System.Drawing.Point(261, 111);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(178, 97);
-            this.groupBox1.TabIndex = 4;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Taskbar style";
+            this.tsstylebox.Controls.Add(this.ts_scrolling);
+            this.tsstylebox.Controls.Add(this.ts_popup);
+            this.tsstylebox.Controls.Add(this.ts_always);
+            this.tsstylebox.Enabled = false;
+            this.tsstylebox.Location = new System.Drawing.Point(261, 111);
+            this.tsstylebox.Name = "tsstylebox";
+            this.tsstylebox.Size = new System.Drawing.Size(178, 97);
+            this.tsstylebox.TabIndex = 4;
+            this.tsstylebox.TabStop = false;
+            this.tsstylebox.Text = "Taskbar style";
             // 
             // ts_scrolling
             // 
@@ -474,21 +475,22 @@ namespace StoryDesigner
             this.ts_always.Text = "Always there";
             this.ts_always.UseVisualStyleBackColor = true;
             // 
-            // panel4
+            // taskbar_panel
             // 
-            this.panel4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel4.Controls.Add(this.ts_appears_top);
-            this.panel4.Controls.Add(this.ts_appear_bottom);
-            this.panel4.Controls.Add(this.label10);
-            this.panel4.Controls.Add(this.hideCompletely);
-            this.panel4.Controls.Add(this.taskbar_room);
-            this.panel4.Controls.Add(this.label9);
-            this.panel4.Controls.Add(this.numericUpDown2);
-            this.panel4.Controls.Add(this.label8);
-            this.panel4.Location = new System.Drawing.Point(254, 39);
-            this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(200, 238);
-            this.panel4.TabIndex = 2;
+            this.taskbar_panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.taskbar_panel.Controls.Add(this.ts_appears_top);
+            this.taskbar_panel.Controls.Add(this.ts_appear_bottom);
+            this.taskbar_panel.Controls.Add(this.label10);
+            this.taskbar_panel.Controls.Add(this.hideCompletely);
+            this.taskbar_panel.Controls.Add(this.taskbar_room);
+            this.taskbar_panel.Controls.Add(this.label9);
+            this.taskbar_panel.Controls.Add(this.taskBarHeight);
+            this.taskbar_panel.Controls.Add(this.label8);
+            this.taskbar_panel.Enabled = false;
+            this.taskbar_panel.Location = new System.Drawing.Point(254, 39);
+            this.taskbar_panel.Name = "taskbar_panel";
+            this.taskbar_panel.Size = new System.Drawing.Size(200, 238);
+            this.taskbar_panel.TabIndex = 2;
             // 
             // ts_appears_top
             // 
@@ -547,17 +549,17 @@ namespace StoryDesigner
             this.label9.TabIndex = 2;
             this.label9.Text = "Room with the taskbar:";
             // 
-            // numericUpDown2
+            // taskBarHeight
             // 
-            this.numericUpDown2.Location = new System.Drawing.Point(83, 7);
-            this.numericUpDown2.Maximum = new decimal(new int[] {
+            this.taskBarHeight.Location = new System.Drawing.Point(83, 7);
+            this.taskBarHeight.Maximum = new decimal(new int[] {
             2000,
             0,
             0,
             0});
-            this.numericUpDown2.Name = "numericUpDown2";
-            this.numericUpDown2.Size = new System.Drawing.Size(68, 20);
-            this.numericUpDown2.TabIndex = 1;
+            this.taskBarHeight.Name = "taskBarHeight";
+            this.taskBarHeight.Size = new System.Drawing.Size(68, 20);
+            this.taskBarHeight.TabIndex = 1;
             // 
             // label8
             // 
@@ -577,6 +579,7 @@ namespace StoryDesigner
             this.taskbar.TabIndex = 1;
             this.taskbar.Text = "Taskbar";
             this.taskbar.UseVisualStyleBackColor = true;
+            this.taskbar.CheckedChanged += new System.EventHandler(this.taskbar_CheckedChanged);
             // 
             // panel3
             // 
@@ -744,8 +747,8 @@ namespace StoryDesigner
             this.groupBox2.Controls.Add(this.label16);
             this.groupBox2.Controls.Add(this.textBox2);
             this.groupBox2.Controls.Add(this.checkBox1);
-            this.groupBox2.Controls.Add(this.button2);
-            this.groupBox2.Controls.Add(this.button1);
+            this.groupBox2.Controls.Add(this.text_color);
+            this.groupBox2.Controls.Add(this.background_color);
             this.groupBox2.Controls.Add(this.border_color);
             this.groupBox2.Controls.Add(this.label15);
             this.groupBox2.Controls.Add(this.label14);
@@ -815,15 +818,15 @@ namespace StoryDesigner
             this.label14.TabIndex = 0;
             this.label14.Text = "Backgroundcolor:";
             // 
-            // button1
+            // background_color
             // 
-            this.button1.BackColor = System.Drawing.Color.Lime;
-            this.button1.Location = new System.Drawing.Point(241, 22);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(23, 23);
-            this.button1.TabIndex = 1;
-            this.button1.UseVisualStyleBackColor = false;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.background_color.BackColor = System.Drawing.Color.Lime;
+            this.background_color.Location = new System.Drawing.Point(241, 22);
+            this.background_color.Name = "background_color";
+            this.background_color.Size = new System.Drawing.Size(23, 23);
+            this.background_color.TabIndex = 1;
+            this.background_color.UseVisualStyleBackColor = false;
+            this.background_color.Click += new System.EventHandler(this.button1_Click);
             // 
             // label15
             // 
@@ -834,15 +837,15 @@ namespace StoryDesigner
             this.label15.TabIndex = 0;
             this.label15.Text = "Text color:";
             // 
-            // button2
+            // text_color
             // 
-            this.button2.BackColor = System.Drawing.Color.Lime;
-            this.button2.Location = new System.Drawing.Point(409, 22);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(23, 23);
-            this.button2.TabIndex = 1;
-            this.button2.UseVisualStyleBackColor = false;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
+            this.text_color.BackColor = System.Drawing.Color.Lime;
+            this.text_color.Location = new System.Drawing.Point(409, 22);
+            this.text_color.Name = "text_color";
+            this.text_color.Size = new System.Drawing.Size(23, 23);
+            this.text_color.TabIndex = 1;
+            this.text_color.UseVisualStyleBackColor = false;
+            this.text_color.Click += new System.EventHandler(this.button2_Click);
             // 
             // checkBox1
             // 
@@ -883,7 +886,7 @@ namespace StoryDesigner
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.actionTextHeight)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.symbol)).EndInit();
@@ -892,11 +895,11 @@ namespace StoryDesigner
             this.tabPage2.ResumeLayout(false);
             this.tabPage2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.anywhere_transparency)).EndInit();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            this.panel4.ResumeLayout(false);
-            this.panel4.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numericUpDown2)).EndInit();
+            this.tsstylebox.ResumeLayout(false);
+            this.tsstylebox.PerformLayout();
+            this.taskbar_panel.ResumeLayout(false);
+            this.taskbar_panel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.taskBarHeight)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             this.screenchange.ResumeLayout(false);
@@ -937,7 +940,7 @@ namespace StoryDesigner
         private System.Windows.Forms.CheckBox fitImages;
         private System.Windows.Forms.CheckBox infoLine;
         private System.Windows.Forms.CheckBox silentDelete;
-        private System.Windows.Forms.NumericUpDown numericUpDown1;
+        private System.Windows.Forms.NumericUpDown actionTextHeight;
         private System.Windows.Forms.CheckBox protectGamefiles;
         private System.Windows.Forms.CheckBox createBackups;
         private System.Windows.Forms.Panel panel3;
@@ -954,12 +957,12 @@ namespace StoryDesigner
         private System.Windows.Forms.RadioButton sc_circle;
         private System.Windows.Forms.RadioButton sc_blend_slow;
         private System.Windows.Forms.RadioButton sc_blend;
-        private System.Windows.Forms.Panel panel4;
+        private System.Windows.Forms.Panel taskbar_panel;
         private System.Windows.Forms.CheckBox taskbar;
         private System.Windows.Forms.Label label9;
-        private System.Windows.Forms.NumericUpDown numericUpDown2;
+        private System.Windows.Forms.NumericUpDown taskBarHeight;
         private System.Windows.Forms.Label label8;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox tsstylebox;
         private System.Windows.Forms.RadioButton ts_always;
         private System.Windows.Forms.TextBox taskbar_room;
         private System.Windows.Forms.RadioButton ts_scrolling;
@@ -978,8 +981,8 @@ namespace StoryDesigner
         private System.Windows.Forms.Label label16;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.CheckBox checkBox1;
-        private System.Windows.Forms.Button button2;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button text_color;
+        private System.Windows.Forms.Button background_color;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label14;
     }
