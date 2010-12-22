@@ -38,7 +38,7 @@ int _stricmp(const char* str1, const char* str2){
 
 Engine* Engine::mInstance = NULL;
 
-Engine::Engine() : mData(NULL), mInitialized(false){
+Engine::Engine() : mData(NULL), mInitialized(false), mExitRequested(false){
   mVerts[0] = 0; mVerts[1] = 1;
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
@@ -67,9 +67,11 @@ void Engine::setData(AdvDocument* doc){
   mSaver = new SaveStateProvider(mData);
 }
 
-void Engine::initGame(){
+void Engine::initGame(exit_callback exit_cb){
   if (!mData)
     return;
+  if (exit_cb != NULL)
+    mExitCall = exit_cb;
   //ExecutionContext* ctx = mInterpreter->parseProgram("playswf (snitt ; 106 ;120 ;427 ; 330)");
   //mInterpreter->execute(ctx, true);
   mMainRoomLoaded = false;
@@ -215,6 +217,10 @@ GLuint Engine::genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const
 }
 
 void Engine::render(unsigned time){
+  if (mExitRequested){
+    mExitCall();
+    return;
+  }
   if (!mInitialized)
     return;
   //timing
@@ -1003,4 +1009,8 @@ bool Engine::isKeyDown(int key){
 
 bool Engine::isKeyPressed(int key){
   return mKeysPressed[key];
+}
+
+void Engine::quit(){
+  mExitRequested = true;
 }

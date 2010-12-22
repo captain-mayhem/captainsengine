@@ -46,6 +46,7 @@ Engine::Engine(){
   clear_ = false;
   //guitex_ = Mutex();
   mSimulator = NULL;
+  mShutdownRequested = false;
 #ifdef WIN32
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 #endif
@@ -355,3 +356,7 @@ long GetTickCount(){
   return times(NULL);
 }
 #endif
+
+void Engine::requestShutdown(){
+  mShutdownRequested = true;
+}

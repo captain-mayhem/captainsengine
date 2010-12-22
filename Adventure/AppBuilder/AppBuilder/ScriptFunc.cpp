@@ -645,7 +645,7 @@ int ScriptFunctions::restart(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->setFocus("none");
   Engine::instance()->getSaver()->clear();
   Engine::instance()->exitGame();
-  Engine::instance()->initGame();
+  Engine::instance()->initGame(NULL);
   return 0;
 }
 
@@ -1053,7 +1053,7 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::quit(ExecutionContext& ctx, unsigned numArgs){
-  DebugBreak();
+  Engine::instance()->quit();
   return 0;
 }
 

@@ -113,12 +113,19 @@ namespace StoryDesigner
                 ts_appear_bottom.Checked = true;
             }
             this.anywhere_room.Text = mData.Settings.AnywhereRoom;
-            this.anywhere_transparency.Value = 50;
+            this.anywhere_transparency.Value = mData.Settings.AnywhereTransparency;
             //third page
             //this.border_color.BackColor = Color.FromArgb((int)(((System.UInt32)mData.Settings.BorderColor >> 8) & 0xffffff | ((System.UInt32)mData.Settings.BorderColor << 24) & 0xff000000));
             this.border_color.BackColor = Color.FromArgb(convertColor(mData.Settings.BorderColor));
             this.background_color.BackColor = Color.FromArgb(convertColor(mData.Settings.BackgroundColor));
             this.text_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TextColor));
+            this.useCustomMenu.Checked = mData.Settings.CustomMenu;
+            this.customMenu.Text = mData.Settings.CustomMenuRoom;
+            this.menu_fading.Value = mData.Settings.MenuFading;
+            this.offspeech_color.BackColor = Color.FromArgb(convertColor(mData.Settings.OffspeechColor));
+            this.infotext_color.BackColor = Color.FromArgb(convertColor(mData.Settings.InfotextColor));
+            this.transparent_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TargaColor));
+            //fourth page
         }
 
         private void chooseColor(object sender)
@@ -179,6 +186,48 @@ namespace StoryDesigner
                 this.taskbar_panel.Enabled = false;
                 this.tsstylebox.Enabled = false;
             }
+        }
+
+        private void useCustomMenu_CheckedChanged(object sender, EventArgs e)
+        {
+            if (this.useCustomMenu.Checked)
+                this.customMenu.Enabled = true;
+            else
+                this.customMenu.Enabled = false;
+        }
+
+        private void menu_fading_ValueChanged(object sender, EventArgs e)
+        {
+            setFadingIndicator((NumericUpDown)sender, this.fading_indicator);
+        }
+
+        private void textscene_fading_ValueChanged(object sender, EventArgs e)
+        {
+            setFadingIndicator((NumericUpDown)sender, this.textscene_fading_indicator);
+        }
+
+        private void setFadingIndicator(NumericUpDown num, Label fading_indicator)
+        {
+            if (num.Value > 1600)
+                fading_indicator.Text = "really slow";
+            else if (num.Value > 1200)
+                fading_indicator.Text = "slow";
+            else if (num.Value > 800)
+                fading_indicator.Text = "average";
+            else if (num.Value > 400)
+                fading_indicator.Text = "fast";
+            else if (num.Value > 0)
+                fading_indicator.Text = "very fast";
+            if (num.Value == 0)
+                fading_indicator.Text = "<none>";
+        }
+
+        private void use_background_image_CheckedChanged(object sender, EventArgs e)
+        {
+            if (use_background_image.Checked)
+                ts_background_image.Enabled = true;
+            else
+                ts_background_image.Enabled = false;
         }
     }
 }

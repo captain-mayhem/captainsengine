@@ -152,6 +152,8 @@ class Engine{
     //! get the gui mutex
     Mutex& getGuiMutex() {return guitex_;}
     inline CGE::Simulator* getSimulator() {return mSimulator;}
+    void requestShutdown();
+    inline bool isShutdownRequested() {return mShutdownRequested;}
   private:
     static Engine* eng;
     Engine();
@@ -207,6 +209,7 @@ class Engine{
     ::Gui::Console* console_;
     //! a gui lock mutex
     Mutex guitex_;
+    bool mShutdownRequested;
 };
 }
 
