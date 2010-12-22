@@ -15,6 +15,8 @@
 std::string filename;
 AdvDocument* adoc = NULL;
 
+void quit();
+
 void init(){
   wxInitialize();
   wxInitAllImageHandlers();
@@ -56,7 +58,7 @@ void init(){
 
   glViewport(0, 0, 640, 480);
   
-  Engine::instance()->initGame();
+  Engine::instance()->initGame(quit);
 }
 
 void deinit(){
@@ -68,6 +70,10 @@ void deinit(){
 
   wxFileSystem::CleanUpHandlers();
   wxUninitialize();
+}
+
+void quit(){
+  CGE::Engine::instance()->requestShutdown();
 }
 
 void render(){

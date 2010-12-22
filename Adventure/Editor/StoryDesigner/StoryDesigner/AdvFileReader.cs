@@ -98,8 +98,9 @@ namespace StoryDesigner
             mAdv.Settings.ProtectGameFile = str[7] == '1';
             str = rdr.ReadLine();
             mAdv.Settings.ActionTextHeight = Convert.ToInt32(str);
-            rdr.ReadLine();
-            rdr.ReadLine();
+            str = rdr.ReadLine();
+            mAdv.Settings.CustomMenu = str == "-1";
+            mAdv.Settings.CustomMenuRoom = rdr.ReadLine();
             str = rdr.ReadLine();
             mAdv.Settings.TaskHeight = Convert.ToInt32(str.Substring(13));
             str = rdr.ReadLine();
@@ -116,9 +117,11 @@ namespace StoryDesigner
             else
                 mAdv.Settings.TaskHideCompletely = false;
             rdr.ReadLine();
+            str = rdr.ReadLine();
+            mAdv.Settings.MenuFading = Convert.ToInt32(str);
             rdr.ReadLine();
-            rdr.ReadLine();
-            rdr.ReadLine();
+            str = rdr.ReadLine();
+            mAdv.Settings.AnywhereTransparency = Convert.ToInt32(str);
             str = rdr.ReadLine();
             mAdv.Settings.TargaColor = Convert.ToUInt32(str.Substring(13));
             str = rdr.ReadLine();
@@ -127,7 +130,10 @@ namespace StoryDesigner
             mAdv.Settings.BackgroundColor = Convert.ToUInt32(str.Substring(18));
             str = rdr.ReadLine();
             mAdv.Settings.TextColor = Convert.ToUInt32(str.Substring(12));
-            rdr.ReadLine(); //offtextcolor
+            str = rdr.ReadLine().Substring(15);
+            string[] colors = str.Split(';');
+            mAdv.Settings.OffspeechColor = Convert.ToUInt32(colors[0]);
+            mAdv.Settings.InfotextColor = Convert.ToUInt32(colors[1]);
             str = rdr.ReadLine();
             mAdv.Settings.TsStyle = Convert.ToInt32(str) - 1;
             str = rdr.ReadLine();
@@ -227,9 +233,38 @@ namespace StoryDesigner
             string imagename = System.IO.Path.GetFileName(filename);
             ZipInputStream zis = new ZipInputStream(File.OpenRead(zipname));
             ZipEntry entry;
+            if (imagename.Contains("\x246"))
+            {
+
+            }
+            char[] arr = imagename.ToCharArray();
+            for (int i = 0; i < imagename.Length; ++i)
+            {
+                //if (arr[i] == '\xf6')
+                //    arr[i] = '\xf7';
+                if (arr[i] >= '\x80')
+                    arr[i] = (char)(arr[i] + 1);
+            }
+            imagename = new string(arr);
+            /*Encoder enc = Encoding.GetEncoding("iso-8859-1").GetEncoder();
+            char[] arr = imagename.ToCharArray();
+            byte[] conv = new byte[arr.Length];
+            int charsUsed;
+            int bytesUsed;
+            bool completed;
+            enc.Convert(arr, 0, arr.Length, conv, 0, conv.Length, true, out charsUsed, out bytesUsed, out completed);
+            Decoder dec = new System.Text.UTF8Encoding().GetDecoder();
+            char[] convchars = new char[conv.Length];
+            dec.Convert(conv, 0, conv.Length, convchars, 0, convchars.Length, true, out charsUsed, out bytesUsed, out completed);
+            string convname = new String(convchars);*/
             System.Drawing.Bitmap img = null;
             while ((entry = zis.GetNextEntry()) != null)
             {
+                if (entry.Name[1] == 'f' && entry.Name[2] == 'f')
+                {
+                    char[] tmp = entry.Name.ToCharArray();
+                    //break;
+                }
                 if (entry.Name == imagename)
                 {
                     img = (Bitmap)System.Drawing.Bitmap.FromStream(zis);

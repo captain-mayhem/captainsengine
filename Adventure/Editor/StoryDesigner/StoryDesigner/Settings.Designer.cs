@@ -97,9 +97,44 @@ namespace StoryDesigner
             this.background_color = new System.Windows.Forms.Button();
             this.label15 = new System.Windows.Forms.Label();
             this.text_color = new System.Windows.Forms.Button();
-            this.checkBox1 = new System.Windows.Forms.CheckBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.useCustomMenu = new System.Windows.Forms.CheckBox();
+            this.customMenu = new System.Windows.Forms.TextBox();
             this.label16 = new System.Windows.Forms.Label();
+            this.label17 = new System.Windows.Forms.Label();
+            this.menu_fading = new System.Windows.Forms.NumericUpDown();
+            this.fading_indicator = new System.Windows.Forms.Label();
+            this.label18 = new System.Windows.Forms.Label();
+            this.offspeech_color = new System.Windows.Forms.Button();
+            this.infotext_color = new System.Windows.Forms.Button();
+            this.label19 = new System.Windows.Forms.Label();
+            this.transparent_color = new System.Windows.Forms.Button();
+            this.label20 = new System.Windows.Forms.Label();
+            this.ts_solid = new System.Windows.Forms.GroupBox();
+            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.ts_transparent = new System.Windows.Forms.RadioButton();
+            this.ts_additive = new System.Windows.Forms.RadioButton();
+            this.ts_none = new System.Windows.Forms.RadioButton();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.ts_border_none = new System.Windows.Forms.RadioButton();
+            this.ts_box = new System.Windows.Forms.RadioButton();
+            this.ts_lines = new System.Windows.Forms.RadioButton();
+            this.ts_rectangles = new System.Windows.Forms.RadioButton();
+            this.textscene_fading_indicator = new System.Windows.Forms.Label();
+            this.textscene_fading = new System.Windows.Forms.NumericUpDown();
+            this.label22 = new System.Windows.Forms.Label();
+            this.ts_area_color = new System.Windows.Forms.Button();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
+            this.ts_border_color = new System.Windows.Forms.Button();
+            this.label24 = new System.Windows.Forms.Label();
+            this.ts_text_color = new System.Windows.Forms.Button();
+            this.label25 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.ts_text = new System.Windows.Forms.RadioButton();
+            this.ts_symbol = new System.Windows.Forms.RadioButton();
+            this.use_background_image = new System.Windows.Forms.CheckBox();
+            this.ts_background_image = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.actionTextHeight)).BeginInit();
@@ -115,6 +150,12 @@ namespace StoryDesigner
             this.screenchange.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.tabPage4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.menu_fading)).BeginInit();
+            this.ts_solid.SuspendLayout();
+            this.groupBox1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.textscene_fading)).BeginInit();
+            this.groupBox3.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -733,7 +774,16 @@ namespace StoryDesigner
             // 
             // tabPage3
             // 
+            this.tabPage3.Controls.Add(this.fading_indicator);
+            this.tabPage3.Controls.Add(this.menu_fading);
+            this.tabPage3.Controls.Add(this.label17);
             this.tabPage3.Controls.Add(this.groupBox2);
+            this.tabPage3.Controls.Add(this.label19);
+            this.tabPage3.Controls.Add(this.infotext_color);
+            this.tabPage3.Controls.Add(this.label20);
+            this.tabPage3.Controls.Add(this.transparent_color);
+            this.tabPage3.Controls.Add(this.label18);
+            this.tabPage3.Controls.Add(this.offspeech_color);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
@@ -745,8 +795,8 @@ namespace StoryDesigner
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.label16);
-            this.groupBox2.Controls.Add(this.textBox2);
-            this.groupBox2.Controls.Add(this.checkBox1);
+            this.groupBox2.Controls.Add(this.customMenu);
+            this.groupBox2.Controls.Add(this.useCustomMenu);
             this.groupBox2.Controls.Add(this.text_color);
             this.groupBox2.Controls.Add(this.background_color);
             this.groupBox2.Controls.Add(this.border_color);
@@ -781,6 +831,22 @@ namespace StoryDesigner
             // 
             // tabPage4
             // 
+            this.tabPage4.Controls.Add(this.ts_background_image);
+            this.tabPage4.Controls.Add(this.use_background_image);
+            this.tabPage4.Controls.Add(this.groupBox3);
+            this.tabPage4.Controls.Add(this.ts_text_color);
+            this.tabPage4.Controls.Add(this.ts_border_color);
+            this.tabPage4.Controls.Add(this.button1);
+            this.tabPage4.Controls.Add(this.ts_area_color);
+            this.tabPage4.Controls.Add(this.label24);
+            this.tabPage4.Controls.Add(this.label25);
+            this.tabPage4.Controls.Add(this.label23);
+            this.tabPage4.Controls.Add(this.label21);
+            this.tabPage4.Controls.Add(this.textscene_fading_indicator);
+            this.tabPage4.Controls.Add(this.textscene_fading);
+            this.tabPage4.Controls.Add(this.label22);
+            this.tabPage4.Controls.Add(this.groupBox1);
+            this.tabPage4.Controls.Add(this.ts_solid);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
@@ -847,22 +913,24 @@ namespace StoryDesigner
             this.text_color.UseVisualStyleBackColor = false;
             this.text_color.Click += new System.EventHandler(this.button2_Click);
             // 
-            // checkBox1
+            // useCustomMenu
             // 
-            this.checkBox1.AutoSize = true;
-            this.checkBox1.Location = new System.Drawing.Point(9, 72);
-            this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(109, 17);
-            this.checkBox1.TabIndex = 2;
-            this.checkBox1.Text = "use custom menu";
-            this.checkBox1.UseVisualStyleBackColor = true;
+            this.useCustomMenu.AutoSize = true;
+            this.useCustomMenu.Location = new System.Drawing.Point(9, 72);
+            this.useCustomMenu.Name = "useCustomMenu";
+            this.useCustomMenu.Size = new System.Drawing.Size(109, 17);
+            this.useCustomMenu.TabIndex = 2;
+            this.useCustomMenu.Text = "use custom menu";
+            this.useCustomMenu.UseVisualStyleBackColor = true;
+            this.useCustomMenu.CheckedChanged += new System.EventHandler(this.useCustomMenu_CheckedChanged);
             // 
-            // textBox2
+            // customMenu
             // 
-            this.textBox2.Location = new System.Drawing.Point(179, 72);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(253, 20);
-            this.textBox2.TabIndex = 3;
+            this.customMenu.Enabled = false;
+            this.customMenu.Location = new System.Drawing.Point(179, 72);
+            this.customMenu.Name = "customMenu";
+            this.customMenu.Size = new System.Drawing.Size(253, 20);
+            this.customMenu.TabIndex = 3;
             // 
             // label16
             // 
@@ -872,6 +940,363 @@ namespace StoryDesigner
             this.label16.Size = new System.Drawing.Size(126, 13);
             this.label16.TabIndex = 4;
             this.label16.Text = "Room with custom menu:";
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(15, 145);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(42, 13);
+            this.label17.TabIndex = 1;
+            this.label17.Text = "Fading:";
+            // 
+            // menu_fading
+            // 
+            this.menu_fading.Location = new System.Drawing.Point(63, 143);
+            this.menu_fading.Maximum = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            0});
+            this.menu_fading.Name = "menu_fading";
+            this.menu_fading.Size = new System.Drawing.Size(120, 20);
+            this.menu_fading.TabIndex = 2;
+            this.menu_fading.ValueChanged += new System.EventHandler(this.menu_fading_ValueChanged);
+            // 
+            // fading_indicator
+            // 
+            this.fading_indicator.AutoSize = true;
+            this.fading_indicator.Location = new System.Drawing.Point(189, 145);
+            this.fading_indicator.Name = "fading_indicator";
+            this.fading_indicator.Size = new System.Drawing.Size(43, 13);
+            this.fading_indicator.TabIndex = 3;
+            this.fading_indicator.Text = "<none>";
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(15, 205);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(85, 13);
+            this.label18.TabIndex = 0;
+            this.label18.Text = "Offspeech color:";
+            // 
+            // offspeech_color
+            // 
+            this.offspeech_color.BackColor = System.Drawing.Color.Lime;
+            this.offspeech_color.Location = new System.Drawing.Point(106, 200);
+            this.offspeech_color.Name = "offspeech_color";
+            this.offspeech_color.Size = new System.Drawing.Size(23, 23);
+            this.offspeech_color.TabIndex = 1;
+            this.offspeech_color.UseVisualStyleBackColor = false;
+            this.offspeech_color.Click += new System.EventHandler(this.border_color_Click);
+            // 
+            // infotext_color
+            // 
+            this.infotext_color.BackColor = System.Drawing.Color.Lime;
+            this.infotext_color.Location = new System.Drawing.Point(106, 243);
+            this.infotext_color.Name = "infotext_color";
+            this.infotext_color.Size = new System.Drawing.Size(23, 23);
+            this.infotext_color.TabIndex = 1;
+            this.infotext_color.UseVisualStyleBackColor = false;
+            this.infotext_color.Click += new System.EventHandler(this.border_color_Click);
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(29, 248);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(71, 13);
+            this.label19.TabIndex = 0;
+            this.label19.Text = "Infotext color:";
+            // 
+            // transparent_color
+            // 
+            this.transparent_color.BackColor = System.Drawing.Color.Lime;
+            this.transparent_color.Location = new System.Drawing.Point(418, 200);
+            this.transparent_color.Name = "transparent_color";
+            this.transparent_color.Size = new System.Drawing.Size(23, 23);
+            this.transparent_color.TabIndex = 1;
+            this.transparent_color.UseVisualStyleBackColor = false;
+            this.transparent_color.Click += new System.EventHandler(this.border_color_Click);
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(292, 205);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(120, 13);
+            this.label20.TabIndex = 0;
+            this.label20.Text = "Targa transparent color:";
+            // 
+            // ts_solid
+            // 
+            this.ts_solid.Controls.Add(this.ts_none);
+            this.ts_solid.Controls.Add(this.ts_additive);
+            this.ts_solid.Controls.Add(this.ts_transparent);
+            this.ts_solid.Controls.Add(this.radioButton1);
+            this.ts_solid.Location = new System.Drawing.Point(24, 7);
+            this.ts_solid.Name = "ts_solid";
+            this.ts_solid.Size = new System.Drawing.Size(179, 121);
+            this.ts_solid.TabIndex = 0;
+            this.ts_solid.TabStop = false;
+            this.ts_solid.Text = "Style";
+            // 
+            // radioButton1
+            // 
+            this.radioButton1.AutoSize = true;
+            this.radioButton1.Location = new System.Drawing.Point(6, 19);
+            this.radioButton1.Name = "radioButton1";
+            this.radioButton1.Size = new System.Drawing.Size(48, 17);
+            this.radioButton1.TabIndex = 0;
+            this.radioButton1.TabStop = true;
+            this.radioButton1.Text = "Solid";
+            this.radioButton1.UseVisualStyleBackColor = true;
+            // 
+            // ts_transparent
+            // 
+            this.ts_transparent.AutoSize = true;
+            this.ts_transparent.Location = new System.Drawing.Point(6, 42);
+            this.ts_transparent.Name = "ts_transparent";
+            this.ts_transparent.Size = new System.Drawing.Size(101, 17);
+            this.ts_transparent.TabIndex = 1;
+            this.ts_transparent.TabStop = true;
+            this.ts_transparent.Text = "50% transparent";
+            this.ts_transparent.UseVisualStyleBackColor = true;
+            // 
+            // ts_additive
+            // 
+            this.ts_additive.AutoSize = true;
+            this.ts_additive.Location = new System.Drawing.Point(6, 65);
+            this.ts_additive.Name = "ts_additive";
+            this.ts_additive.Size = new System.Drawing.Size(63, 17);
+            this.ts_additive.TabIndex = 2;
+            this.ts_additive.TabStop = true;
+            this.ts_additive.Text = "Additive";
+            this.ts_additive.UseVisualStyleBackColor = true;
+            // 
+            // ts_none
+            // 
+            this.ts_none.AutoSize = true;
+            this.ts_none.Location = new System.Drawing.Point(6, 88);
+            this.ts_none.Name = "ts_none";
+            this.ts_none.Size = new System.Drawing.Size(51, 17);
+            this.ts_none.TabIndex = 3;
+            this.ts_none.TabStop = true;
+            this.ts_none.Text = "None";
+            this.ts_none.UseVisualStyleBackColor = true;
+            // 
+            // groupBox1
+            // 
+            this.groupBox1.Controls.Add(this.ts_border_none);
+            this.groupBox1.Controls.Add(this.ts_box);
+            this.groupBox1.Controls.Add(this.ts_lines);
+            this.groupBox1.Controls.Add(this.ts_rectangles);
+            this.groupBox1.Location = new System.Drawing.Point(268, 7);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Size = new System.Drawing.Size(179, 121);
+            this.groupBox1.TabIndex = 0;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Border";
+            // 
+            // ts_border_none
+            // 
+            this.ts_border_none.AutoSize = true;
+            this.ts_border_none.Location = new System.Drawing.Point(6, 88);
+            this.ts_border_none.Name = "ts_border_none";
+            this.ts_border_none.Size = new System.Drawing.Size(51, 17);
+            this.ts_border_none.TabIndex = 3;
+            this.ts_border_none.TabStop = true;
+            this.ts_border_none.Text = "None";
+            this.ts_border_none.UseVisualStyleBackColor = true;
+            // 
+            // ts_box
+            // 
+            this.ts_box.AutoSize = true;
+            this.ts_box.Location = new System.Drawing.Point(6, 65);
+            this.ts_box.Name = "ts_box";
+            this.ts_box.Size = new System.Drawing.Size(43, 17);
+            this.ts_box.TabIndex = 2;
+            this.ts_box.TabStop = true;
+            this.ts_box.Text = "Box";
+            this.ts_box.UseVisualStyleBackColor = true;
+            // 
+            // ts_lines
+            // 
+            this.ts_lines.AutoSize = true;
+            this.ts_lines.Location = new System.Drawing.Point(6, 42);
+            this.ts_lines.Name = "ts_lines";
+            this.ts_lines.Size = new System.Drawing.Size(50, 17);
+            this.ts_lines.TabIndex = 1;
+            this.ts_lines.TabStop = true;
+            this.ts_lines.Text = "Lines";
+            this.ts_lines.UseVisualStyleBackColor = true;
+            // 
+            // ts_rectangles
+            // 
+            this.ts_rectangles.AutoSize = true;
+            this.ts_rectangles.Location = new System.Drawing.Point(6, 19);
+            this.ts_rectangles.Name = "ts_rectangles";
+            this.ts_rectangles.Size = new System.Drawing.Size(79, 17);
+            this.ts_rectangles.TabIndex = 0;
+            this.ts_rectangles.TabStop = true;
+            this.ts_rectangles.Text = "Rectangles";
+            this.ts_rectangles.UseVisualStyleBackColor = true;
+            // 
+            // textscene_fading_indicator
+            // 
+            this.textscene_fading_indicator.AutoSize = true;
+            this.textscene_fading_indicator.Location = new System.Drawing.Point(195, 148);
+            this.textscene_fading_indicator.Name = "textscene_fading_indicator";
+            this.textscene_fading_indicator.Size = new System.Drawing.Size(43, 13);
+            this.textscene_fading_indicator.TabIndex = 6;
+            this.textscene_fading_indicator.Text = "<none>";
+            // 
+            // textscene_fading
+            // 
+            this.textscene_fading.Location = new System.Drawing.Point(69, 146);
+            this.textscene_fading.Maximum = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            0});
+            this.textscene_fading.Name = "textscene_fading";
+            this.textscene_fading.Size = new System.Drawing.Size(120, 20);
+            this.textscene_fading.TabIndex = 5;
+            this.textscene_fading.ValueChanged += new System.EventHandler(this.textscene_fading_ValueChanged);
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(21, 148);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(42, 13);
+            this.label22.TabIndex = 4;
+            this.label22.Text = "Fading:";
+            // 
+            // ts_area_color
+            // 
+            this.ts_area_color.BackColor = System.Drawing.Color.Lime;
+            this.ts_area_color.Location = new System.Drawing.Point(107, 203);
+            this.ts_area_color.Name = "ts_area_color";
+            this.ts_area_color.Size = new System.Drawing.Size(23, 23);
+            this.ts_area_color.TabIndex = 8;
+            this.ts_area_color.UseVisualStyleBackColor = false;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(43, 208);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(58, 13);
+            this.label21.TabIndex = 7;
+            this.label21.Text = "Area color:";
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(180, 208);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(67, 13);
+            this.label23.TabIndex = 7;
+            this.label23.Text = "Border color:";
+            // 
+            // ts_border_color
+            // 
+            this.ts_border_color.BackColor = System.Drawing.Color.Lime;
+            this.ts_border_color.Location = new System.Drawing.Point(253, 203);
+            this.ts_border_color.Name = "ts_border_color";
+            this.ts_border_color.Size = new System.Drawing.Size(23, 23);
+            this.ts_border_color.TabIndex = 8;
+            this.ts_border_color.UseVisualStyleBackColor = false;
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(334, 208);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(57, 13);
+            this.label24.TabIndex = 7;
+            this.label24.Text = "Text color:";
+            // 
+            // ts_text_color
+            // 
+            this.ts_text_color.BackColor = System.Drawing.Color.Lime;
+            this.ts_text_color.Location = new System.Drawing.Point(397, 203);
+            this.ts_text_color.Name = "ts_text_color";
+            this.ts_text_color.Size = new System.Drawing.Size(23, 23);
+            this.ts_text_color.TabIndex = 8;
+            this.ts_text_color.UseVisualStyleBackColor = false;
+            // 
+            // label25
+            // 
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(21, 237);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(80, 13);
+            this.label25.TabIndex = 7;
+            this.label25.Text = "Selection color:";
+            // 
+            // button1
+            // 
+            this.button1.BackColor = System.Drawing.Color.Lime;
+            this.button1.Location = new System.Drawing.Point(107, 232);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(23, 23);
+            this.button1.TabIndex = 8;
+            this.button1.UseVisualStyleBackColor = false;
+            // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.ts_symbol);
+            this.groupBox3.Controls.Add(this.ts_text);
+            this.groupBox3.Location = new System.Drawing.Point(24, 281);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(179, 73);
+            this.groupBox3.TabIndex = 9;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Appearence";
+            // 
+            // ts_text
+            // 
+            this.ts_text.AutoSize = true;
+            this.ts_text.Location = new System.Drawing.Point(6, 19);
+            this.ts_text.Name = "ts_text";
+            this.ts_text.Size = new System.Drawing.Size(46, 17);
+            this.ts_text.TabIndex = 0;
+            this.ts_text.TabStop = true;
+            this.ts_text.Text = "Text";
+            this.ts_text.UseVisualStyleBackColor = true;
+            // 
+            // ts_symbol
+            // 
+            this.ts_symbol.AutoSize = true;
+            this.ts_symbol.Location = new System.Drawing.Point(6, 42);
+            this.ts_symbol.Name = "ts_symbol";
+            this.ts_symbol.Size = new System.Drawing.Size(59, 17);
+            this.ts_symbol.TabIndex = 1;
+            this.ts_symbol.TabStop = true;
+            this.ts_symbol.Text = "Symbol";
+            this.ts_symbol.UseVisualStyleBackColor = true;
+            // 
+            // use_background_image
+            // 
+            this.use_background_image.AutoSize = true;
+            this.use_background_image.Location = new System.Drawing.Point(253, 300);
+            this.use_background_image.Name = "use_background_image";
+            this.use_background_image.Size = new System.Drawing.Size(134, 17);
+            this.use_background_image.TabIndex = 10;
+            this.use_background_image.Text = "use background image";
+            this.use_background_image.UseVisualStyleBackColor = true;
+            this.use_background_image.CheckedChanged += new System.EventHandler(this.use_background_image_CheckedChanged);
+            // 
+            // ts_background_image
+            // 
+            this.ts_background_image.Enabled = false;
+            this.ts_background_image.Location = new System.Drawing.Point(253, 323);
+            this.ts_background_image.Name = "ts_background_image";
+            this.ts_background_image.Size = new System.Drawing.Size(134, 20);
+            this.ts_background_image.TabIndex = 11;
             // 
             // Settings
             // 
@@ -905,8 +1330,19 @@ namespace StoryDesigner
             this.screenchange.ResumeLayout(false);
             this.screenchange.PerformLayout();
             this.tabPage3.ResumeLayout(false);
+            this.tabPage3.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.tabPage4.ResumeLayout(false);
+            this.tabPage4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.menu_fading)).EndInit();
+            this.ts_solid.ResumeLayout(false);
+            this.ts_solid.PerformLayout();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.textscene_fading)).EndInit();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -979,11 +1415,46 @@ namespace StoryDesigner
         private System.Windows.Forms.Label label13;
         private System.Windows.Forms.Button border_color;
         private System.Windows.Forms.Label label16;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.CheckBox checkBox1;
+        private System.Windows.Forms.TextBox customMenu;
+        private System.Windows.Forms.CheckBox useCustomMenu;
         private System.Windows.Forms.Button text_color;
         private System.Windows.Forms.Button background_color;
         private System.Windows.Forms.Label label15;
         private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Label fading_indicator;
+        private System.Windows.Forms.NumericUpDown menu_fading;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Button infotext_color;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.Button offspeech_color;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Button transparent_color;
+        private System.Windows.Forms.GroupBox ts_solid;
+        private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.RadioButton ts_border_none;
+        private System.Windows.Forms.RadioButton ts_box;
+        private System.Windows.Forms.RadioButton ts_lines;
+        private System.Windows.Forms.RadioButton ts_rectangles;
+        private System.Windows.Forms.RadioButton ts_none;
+        private System.Windows.Forms.RadioButton ts_additive;
+        private System.Windows.Forms.RadioButton ts_transparent;
+        private System.Windows.Forms.Label textscene_fading_indicator;
+        private System.Windows.Forms.NumericUpDown textscene_fading;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Button ts_border_color;
+        private System.Windows.Forms.Button ts_area_color;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.Button ts_text_color;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label label25;
+        private System.Windows.Forms.TextBox ts_background_image;
+        private System.Windows.Forms.CheckBox use_background_image;
+        private System.Windows.Forms.RadioButton ts_symbol;
+        private System.Windows.Forms.RadioButton ts_text;
     }
 }

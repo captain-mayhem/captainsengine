@@ -8,6 +8,7 @@
 #include <wx/cmdline.h>
 #include <wx/fs_arc.h>
 #include <wx/wfstream.h>
+#include <wx/app.h>
 
 #include "main.h"
 #include "AdvDoc.h"
@@ -66,6 +67,10 @@ Application::~Application(){
 
 }
 
+void quit(){
+  wxGetApp().Exit();
+}
+
 bool Application::OnInit(){
   wxApp::OnInit();
   Engine::init();
@@ -112,7 +117,7 @@ bool Application::OnInit(){
     RenderWindow* rendwin = new RenderWindow(mFrame, attribs, sz.x, sz.y);
     rendwin->init();
     mFrame->SetSize(framesize);
-    Engine::instance()->initGame();
+    Engine::instance()->initGame(quit);
   }
   return true;
 }
@@ -249,5 +254,5 @@ void MainFrame::OnCreateGame(wxCommandEvent& event){
   RenderWindow* rendwin = new RenderWindow(frame, attribs, sz.x, sz.y);
   rendwin->init();
   frame->SetSize(framesize);
-  Engine::instance()->initGame();
+  Engine::instance()->initGame(quit);
 }

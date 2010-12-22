@@ -28,14 +28,14 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
   CGE::Engine::init();
   CGE::Engine::instance()->startup(2, argv);
   //Enter gameloop
-  while(CGE::Engine::instance() != NULL){
+  while(CGE::Engine::instance() != NULL && !CGE::Engine::instance()->isShutdownRequested()){
     while (PeekMessage(&msg,NULL,0,0,PM_REMOVE)){
-      if(msg.message == WM_QUIT)
-        break;
       TranslateMessage(&msg);
       DispatchMessage(&msg);
+      if(msg.message == WM_QUIT)
+        break;
     }
-    if (CGE::Engine::instance()){
+    if (CGE::Engine::instance() && !CGE::Engine::instance()->isShutdownRequested()){
       //Do not use WM_MouseMove-Event, because it causes the cursor to freeze
       POINT p;
       GetCursorPos(&p);
@@ -44,8 +44,9 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
       CGE::Engine::instance()->run();
     }
   }
-  //CGE::Engine::instance()->shutdown();
-  return (int)msg.wParam;
+  if (CGE::Engine::instance()->isShutdownRequested())
+    CGE::Engine::instance()->shutdown();
+  return 0;
 }
 #endif
 

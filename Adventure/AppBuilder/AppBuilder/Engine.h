@@ -18,6 +18,8 @@ int _stricmp(const char* str1, const char* str2);
 class SaveStateProvider;
 class SoundPlayer;
 
+typedef void (*exit_callback)();
+
 class Engine{
   friend class SaveStateProvider;
 public:
@@ -27,7 +29,7 @@ public:
   static Engine* instance() {return mInstance;}
   void setData(AdvDocument* doc);
   void render(unsigned time);
-  void initGame();
+  void initGame(exit_callback exit_cb);
   void exitGame();
   GLuint genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const wxImage* alphaimage=NULL);
   void insertToBlit(BaseBlitObject* obj);
@@ -80,6 +82,7 @@ public:
   int getFontID() {return mFontID;}
   bool isKeyDown(int key);
   bool isKeyPressed(int key);
+  void quit();
 protected:
   Engine();
   static Engine* mInstance;
@@ -141,6 +144,8 @@ protected:
   ExecutionContext* mMainScript;
   bool mKeysDown[256];
   bool mKeysPressed[256];
+  bool mExitRequested;
+  exit_callback mExitCall;
 };
 
 #endif
