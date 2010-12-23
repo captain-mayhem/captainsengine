@@ -180,6 +180,7 @@ namespace StoryDesigner
 
         private void getControls()
         {
+            //first page
             mData.Settings.Projectname = this.projetName.Text;
             switch (this.resolution.SelectedIndex)
             {
@@ -213,6 +214,85 @@ namespace StoryDesigner
             //this.createBackups.Checked = true; //TODO
             mData.Settings.ProtectGameFile = this.protectGamefiles.Checked;
             mData.Settings.LoadingImage = this.loadingImage.Text;
+            //second page
+            mData.Settings.Startscript = this.start_script.Text;
+            mData.Settings.Mainscript = this.main_script.Text;
+            if (sc_direct.Checked)
+                mData.Settings.ScreenChange = ScreenChange.SC_DIRECT;
+            else if (sc_blackfade.Checked)
+                mData.Settings.ScreenChange = ScreenChange.SC_FADEOUT;
+            else if (sc_rectangle.Checked)
+                mData.Settings.ScreenChange = ScreenChange.SC_RECTANGLE;
+            else if (sc_circle.Checked)
+                mData.Settings.ScreenChange = ScreenChange.SC_CIRCLE;
+            else if (sc_clock.Checked)
+                mData.Settings.ScreenChange = ScreenChange.SC_CLOCK;
+            else if (sc_shutters.Checked)
+                mData.Settings.ScreenChange = ScreenChange.SC_SHUTTERS;
+            else if (sc_blend.Checked)
+                mData.Settings.ScreenChange = ScreenChange.SC_BLEND;
+            else if (sc_blend_slow.Checked)
+                mData.Settings.ScreenChange = ScreenChange.SC_BLEND_SLOW;
+            mData.Settings.ShowTaskbar = this.taskbar.Checked;
+            mData.Settings.TaskHeight = (int)this.taskBarHeight.Value;
+            mData.Settings.TaskRoom = this.taskbar_room.Text;
+            if (this.ts_always.Checked)
+                mData.Settings.TaskPopup = 0;
+            else if (this.ts_popup.Checked)
+                mData.Settings.TaskPopup = 1;
+            else if (this.ts_scrolling.Checked)
+                mData.Settings.TaskPopup = 2;
+            mData.Settings.TaskHideCompletely = this.hideCompletely.Checked;
+            if (this.ts_appears_top.Checked)
+                mData.Settings.TaskbarFromTop = true;
+            else
+                mData.Settings.TaskbarFromTop = false;
+            mData.Settings.AnywhereRoom = this.anywhere_room.Text;
+            mData.Settings.AnywhereTransparency = (int)this.anywhere_transparency.Value;
+            //third page
+            mData.Settings.BorderColor = convertColorInverse(this.border_color.BackColor.ToArgb());
+            mData.Settings.BackgroundColor = convertColorInverse(this.background_color.BackColor.ToArgb());
+            mData.Settings.TextColor = convertColorInverse(this.text_color.BackColor.ToArgb());
+            mData.Settings.CustomMenu = this.useCustomMenu.Checked;
+            mData.Settings.CustomMenuRoom = this.customMenu.Text;
+            mData.Settings.MenuFading = (int)this.menu_fading.Value;
+            mData.Settings.OffspeechColor = convertColorInverse(this.offspeech_color.BackColor.ToArgb());
+            mData.Settings.InfotextColor = convertColorInverse(this.infotext_color.BackColor.ToArgb());
+            mData.Settings.TargaColor = convertColorInverse(this.transparent_color.BackColor.ToArgb());
+            //fourth page
+            if (this.ts_solid.Checked)
+                mData.Settings.TsStyle = 0;
+            else if (this.ts_transparent.Checked)
+                mData.Settings.TsStyle = 1;
+            else if (this.ts_additive.Checked)
+                mData.Settings.TsStyle = 2;
+            else if (this.ts_none.Checked)
+                mData.Settings.TsStyle = 3;
+            if (this.ts_rectangles.Checked)
+                mData.Settings.TsBorderStyle = 0;
+            else if (this.ts_lines.Checked)
+                mData.Settings.TsBorderStyle = 1;
+            else if (this.ts_box.Checked)
+                mData.Settings.TsBorderStyle = 2;
+            else if (this.ts_border_none.Checked)
+                mData.Settings.TsBorderStyle = 3;
+            mData.Settings.TextSceneFading = (int)this.textscene_fading.Value;
+            mData.Settings.TsAreaColor = convertColorInverse(this.ts_area_color.BackColor.ToArgb());
+            mData.Settings.TsBorderColor = convertColorInverse(this.ts_border_color.BackColor.ToArgb());
+            mData.Settings.TsTextColor = convertColorInverse(this.ts_text_color.BackColor.ToArgb());
+            mData.Settings.TsSelectionColor = convertColorInverse(this.ts_selection_color.BackColor.ToArgb());
+            if (this.ts_symbol.Checked)
+                mData.Settings.TsUseSymbols = true;
+            else
+                mData.Settings.TsUseSymbols = false;
+            mData.Settings.TsUseBgImage = this.use_background_image.Checked;
+            mData.Settings.TsBackground = this.ts_background_image.Text;
+            //fifth page
+            mData.Settings.CoinActivated = this.coin_interface.Checked;
+            mData.Settings.CoinRoom = this.coin_room.Text;
+            mData.Settings.CoinAutoPopup = this.coin_autopopup.Checked;
+            mData.Settings.CoinFading = (int)this.coin_fading.Value;
+            //TODO crosshair
         }
 
         private void chooseColor(object sender)
@@ -232,6 +312,15 @@ namespace StoryDesigner
             ret |= (System.UInt32)color & 0xFF00;
             ret |= ((System.UInt32)color & 0xFF0000) >> 16;
             return (int)ret;
+        }
+
+        private System.UInt32 convertColorInverse(int color)
+        {
+            System.UInt32 ret = 0;
+            ret |= ((System.UInt32)color & 0xFF) << 16;
+            ret |= (System.UInt32)color & 0xFF00;
+            ret |= ((System.UInt32)color & 0xFF0000) >> 16;
+            return ret;
         }
 
         AdvData mData;
