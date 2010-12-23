@@ -19,7 +19,8 @@ namespace StoryDesigner
 
         private void OK_Click(object sender, EventArgs e)
         {
-            this.Close();
+            getControls();
+            this.DialogResult = DialogResult.OK;
         }
 
         private void setControls()
@@ -40,11 +41,13 @@ namespace StoryDesigner
             this.mute_music.Checked = mData.Settings.MuteMusicWhenSpeech;
             if (mData.Settings.GameIcon.Length != 0)
             {
-                Bitmap bmp = (Bitmap)Bitmap.FromFile(mData.Settings.GameIcon);
+                mIcon = mData.Settings.GameIcon;
+                Bitmap bmp = (Bitmap)Bitmap.FromFile(mIcon);
                 this.symbol.Image = bmp;
             }
             else
             {
+                mIcon = new string('a', 0);
                 this.symbol.Image = null;
             }
             this.text_on.Checked = mData.Settings.TextOnOff;
@@ -91,7 +94,7 @@ namespace StoryDesigner
             this.taskbar.Checked = mData.Settings.ShowTaskbar;
             this.taskBarHeight.Value = mData.Settings.TaskHeight;
             this.taskbar_room.Text = mData.Settings.TaskRoom;
-            switch (mData.Settings.TsStyle)
+            switch (mData.Settings.TaskPopup)
             {
                 case 0:
                     this.ts_always.Checked = true;
@@ -126,6 +129,90 @@ namespace StoryDesigner
             this.infotext_color.BackColor = Color.FromArgb(convertColor(mData.Settings.InfotextColor));
             this.transparent_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TargaColor));
             //fourth page
+            switch (mData.Settings.TsStyle)
+            {
+                case 0:
+                    this.ts_solid.Checked = true;
+                    break;
+                case 1:
+                    this.ts_transparent.Checked = true;
+                    break;
+                case 2:
+                    this.ts_additive.Checked = true;
+                    break;
+                case 3:
+                    this.ts_none.Checked = true;
+                    break;
+            }
+            switch (mData.Settings.TsBorderStyle)
+            {
+                case 0:
+                    this.ts_rectangles.Checked = true;
+                    break;
+                case 1:
+                    this.ts_lines.Checked = true;
+                    break;
+                case 2:
+                    this.ts_box.Checked = true;
+                    break;
+                case 3:
+                    this.ts_border_none.Checked = true;
+                    break;
+            }
+            this.textscene_fading.Value = mData.Settings.TextSceneFading;
+            this.ts_area_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TsAreaColor));
+            this.ts_border_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TsBorderColor));
+            this.ts_text_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TsTextColor));
+            this.ts_selection_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TsSelectionColor));
+            if (mData.Settings.TsUseSymbols)
+                this.ts_symbol.Checked = true;
+            else
+                this.ts_text.Checked = true;
+            this.use_background_image.Checked = mData.Settings.TsUseBgImage;
+            this.ts_background_image.Text = mData.Settings.TsBackground;
+            //fifth page
+            this.coin_interface.Checked = mData.Settings.CoinActivated;
+            this.coin_room.Text = mData.Settings.CoinRoom;
+            this.coin_autopopup.Checked = mData.Settings.CoinAutoPopup;
+            this.coin_fading.Value = mData.Settings.CoinFading;
+            //TODO crosshair
+        }
+
+        private void getControls()
+        {
+            mData.Settings.Projectname = this.projetName.Text;
+            switch (this.resolution.SelectedIndex)
+            {
+                case 0:
+                    mData.Settings.Resolution = new Vec2i(300, 200);
+                    break;
+                case 1:
+                    mData.Settings.Resolution = new Vec2i(300, 240);
+                    break;
+                case 2:
+                    mData.Settings.Resolution = new Vec2i(640, 480);
+                    break;
+                case 3:
+                    mData.Settings.Resolution = new Vec2i(800, 600);
+                    break;
+                case 4:
+                    mData.Settings.Resolution = new Vec2i(1024, 768);
+                    break;
+            }
+            mData.Settings.NotAntialiased = this.no_antialiasing.Checked;
+            mData.Settings.MuteMusicWhenSpeech = this.mute_music.Checked;
+            mData.Settings.GameIcon = mIcon;
+            mData.Settings.TextOnOff = this.text_on.Checked;
+            mData.Settings.NotAntialiased = this.drawDraggedItems.Checked;
+            mData.Settings.GroupItems = this.groupItems.Checked;
+            mData.Settings.ActionText = this.actionText.Checked;
+            mData.Settings.ActionTextHeight = (int)this.actionTextHeight.Value;
+            mData.Settings.SilentDelete = this.silentDelete.Checked;
+            mData.Settings.InfoLine = this.infoLine.Checked;
+            //this.fitImages.Checked = true; //TODO
+            //this.createBackups.Checked = true; //TODO
+            mData.Settings.ProtectGameFile = this.protectGamefiles.Checked;
+            mData.Settings.LoadingImage = this.loadingImage.Text;
         }
 
         private void chooseColor(object sender)
@@ -148,6 +235,7 @@ namespace StoryDesigner
         }
 
         AdvData mData;
+        string mIcon;
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
@@ -156,6 +244,9 @@ namespace StoryDesigner
             fod.ShowDialog();
             if (fod.FileName.Length > 0)
             {
+                mIcon = fod.FileName;
+                Bitmap bmp = (Bitmap)Bitmap.FromFile(mIcon);
+                this.symbol.Image = bmp;
             }
         }
 
@@ -228,6 +319,16 @@ namespace StoryDesigner
                 ts_background_image.Enabled = true;
             else
                 ts_background_image.Enabled = false;
+        }
+
+        private void coin_interface_CheckedChanged(object sender, EventArgs e)
+        {
+            this.coin_interface_panel.Enabled = this.coin_interface.Checked;
+        }
+
+        private void numericUpDown1_ValueChanged(object sender, EventArgs e)
+        {
+            setFadingIndicator((NumericUpDown)sender, this.coin_fading_indicator);
         }
     }
 }
