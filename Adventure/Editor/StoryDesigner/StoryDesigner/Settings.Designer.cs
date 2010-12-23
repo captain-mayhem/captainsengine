@@ -109,8 +109,8 @@ namespace StoryDesigner
             this.label19 = new System.Windows.Forms.Label();
             this.transparent_color = new System.Windows.Forms.Button();
             this.label20 = new System.Windows.Forms.Label();
-            this.ts_solid = new System.Windows.Forms.GroupBox();
-            this.radioButton1 = new System.Windows.Forms.RadioButton();
+            this.ts_stylegroup = new System.Windows.Forms.GroupBox();
+            this.ts_solid = new System.Windows.Forms.RadioButton();
             this.ts_transparent = new System.Windows.Forms.RadioButton();
             this.ts_additive = new System.Windows.Forms.RadioButton();
             this.ts_none = new System.Windows.Forms.RadioButton();
@@ -129,12 +129,22 @@ namespace StoryDesigner
             this.label24 = new System.Windows.Forms.Label();
             this.ts_text_color = new System.Windows.Forms.Button();
             this.label25 = new System.Windows.Forms.Label();
-            this.button1 = new System.Windows.Forms.Button();
+            this.ts_selection_color = new System.Windows.Forms.Button();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.ts_text = new System.Windows.Forms.RadioButton();
             this.ts_symbol = new System.Windows.Forms.RadioButton();
             this.use_background_image = new System.Windows.Forms.CheckBox();
             this.ts_background_image = new System.Windows.Forms.TextBox();
+            this.coin_interface = new System.Windows.Forms.CheckBox();
+            this.coin_interface_panel = new System.Windows.Forms.Panel();
+            this.label26 = new System.Windows.Forms.Label();
+            this.coin_room = new System.Windows.Forms.TextBox();
+            this.coin_autopopup = new System.Windows.Forms.CheckBox();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.label27 = new System.Windows.Forms.Label();
+            this.coin_fading_indicator = new System.Windows.Forms.Label();
+            this.coin_fading = new System.Windows.Forms.NumericUpDown();
+            this.label29 = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.actionTextHeight)).BeginInit();
@@ -151,11 +161,15 @@ namespace StoryDesigner
             this.tabPage3.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.tabPage4.SuspendLayout();
+            this.tabPage5.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.menu_fading)).BeginInit();
-            this.ts_solid.SuspendLayout();
+            this.ts_stylegroup.SuspendLayout();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.textscene_fading)).BeginInit();
             this.groupBox3.SuspendLayout();
+            this.coin_interface_panel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -836,7 +850,7 @@ namespace StoryDesigner
             this.tabPage4.Controls.Add(this.groupBox3);
             this.tabPage4.Controls.Add(this.ts_text_color);
             this.tabPage4.Controls.Add(this.ts_border_color);
-            this.tabPage4.Controls.Add(this.button1);
+            this.tabPage4.Controls.Add(this.ts_selection_color);
             this.tabPage4.Controls.Add(this.ts_area_color);
             this.tabPage4.Controls.Add(this.label24);
             this.tabPage4.Controls.Add(this.label25);
@@ -846,7 +860,7 @@ namespace StoryDesigner
             this.tabPage4.Controls.Add(this.textscene_fading);
             this.tabPage4.Controls.Add(this.label22);
             this.tabPage4.Controls.Add(this.groupBox1);
-            this.tabPage4.Controls.Add(this.ts_solid);
+            this.tabPage4.Controls.Add(this.ts_stylegroup);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
@@ -857,6 +871,8 @@ namespace StoryDesigner
             // 
             // tabPage5
             // 
+            this.tabPage5.Controls.Add(this.coin_interface_panel);
+            this.tabPage5.Controls.Add(this.coin_interface);
             this.tabPage5.Location = new System.Drawing.Point(4, 22);
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
@@ -1029,29 +1045,29 @@ namespace StoryDesigner
             this.label20.TabIndex = 0;
             this.label20.Text = "Targa transparent color:";
             // 
+            // ts_stylegroup
+            // 
+            this.ts_stylegroup.Controls.Add(this.ts_none);
+            this.ts_stylegroup.Controls.Add(this.ts_additive);
+            this.ts_stylegroup.Controls.Add(this.ts_transparent);
+            this.ts_stylegroup.Controls.Add(this.ts_solid);
+            this.ts_stylegroup.Location = new System.Drawing.Point(24, 7);
+            this.ts_stylegroup.Name = "ts_stylegroup";
+            this.ts_stylegroup.Size = new System.Drawing.Size(179, 121);
+            this.ts_stylegroup.TabIndex = 0;
+            this.ts_stylegroup.TabStop = false;
+            this.ts_stylegroup.Text = "Style";
+            // 
             // ts_solid
             // 
-            this.ts_solid.Controls.Add(this.ts_none);
-            this.ts_solid.Controls.Add(this.ts_additive);
-            this.ts_solid.Controls.Add(this.ts_transparent);
-            this.ts_solid.Controls.Add(this.radioButton1);
-            this.ts_solid.Location = new System.Drawing.Point(24, 7);
+            this.ts_solid.AutoSize = true;
+            this.ts_solid.Location = new System.Drawing.Point(6, 19);
             this.ts_solid.Name = "ts_solid";
-            this.ts_solid.Size = new System.Drawing.Size(179, 121);
+            this.ts_solid.Size = new System.Drawing.Size(48, 17);
             this.ts_solid.TabIndex = 0;
-            this.ts_solid.TabStop = false;
-            this.ts_solid.Text = "Style";
-            // 
-            // radioButton1
-            // 
-            this.radioButton1.AutoSize = true;
-            this.radioButton1.Location = new System.Drawing.Point(6, 19);
-            this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(48, 17);
-            this.radioButton1.TabIndex = 0;
-            this.radioButton1.TabStop = true;
-            this.radioButton1.Text = "Solid";
-            this.radioButton1.UseVisualStyleBackColor = true;
+            this.ts_solid.TabStop = true;
+            this.ts_solid.Text = "Solid";
+            this.ts_solid.UseVisualStyleBackColor = true;
             // 
             // ts_transparent
             // 
@@ -1237,14 +1253,14 @@ namespace StoryDesigner
             this.label25.TabIndex = 7;
             this.label25.Text = "Selection color:";
             // 
-            // button1
+            // ts_selection_color
             // 
-            this.button1.BackColor = System.Drawing.Color.Lime;
-            this.button1.Location = new System.Drawing.Point(107, 232);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(23, 23);
-            this.button1.TabIndex = 8;
-            this.button1.UseVisualStyleBackColor = false;
+            this.ts_selection_color.BackColor = System.Drawing.Color.Lime;
+            this.ts_selection_color.Location = new System.Drawing.Point(107, 232);
+            this.ts_selection_color.Name = "ts_selection_color";
+            this.ts_selection_color.Size = new System.Drawing.Size(23, 23);
+            this.ts_selection_color.TabIndex = 8;
+            this.ts_selection_color.UseVisualStyleBackColor = false;
             // 
             // groupBox3
             // 
@@ -1298,6 +1314,109 @@ namespace StoryDesigner
             this.ts_background_image.Size = new System.Drawing.Size(134, 20);
             this.ts_background_image.TabIndex = 11;
             // 
+            // coin_interface
+            // 
+            this.coin_interface.AutoSize = true;
+            this.coin_interface.Location = new System.Drawing.Point(9, 16);
+            this.coin_interface.Name = "coin_interface";
+            this.coin_interface.Size = new System.Drawing.Size(132, 17);
+            this.coin_interface.TabIndex = 0;
+            this.coin_interface.Text = "Activate coin-interface";
+            this.coin_interface.UseVisualStyleBackColor = true;
+            this.coin_interface.CheckedChanged += new System.EventHandler(this.coin_interface_CheckedChanged);
+            // 
+            // coin_interface_panel
+            // 
+            this.coin_interface_panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.coin_interface_panel.Controls.Add(this.coin_fading_indicator);
+            this.coin_interface_panel.Controls.Add(this.coin_fading);
+            this.coin_interface_panel.Controls.Add(this.label29);
+            this.coin_interface_panel.Controls.Add(this.label27);
+            this.coin_interface_panel.Controls.Add(this.pictureBox1);
+            this.coin_interface_panel.Controls.Add(this.coin_autopopup);
+            this.coin_interface_panel.Controls.Add(this.coin_room);
+            this.coin_interface_panel.Controls.Add(this.label26);
+            this.coin_interface_panel.Enabled = false;
+            this.coin_interface_panel.Location = new System.Drawing.Point(9, 39);
+            this.coin_interface_panel.Name = "coin_interface_panel";
+            this.coin_interface_panel.Size = new System.Drawing.Size(460, 328);
+            this.coin_interface_panel.TabIndex = 1;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(3, 11);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(164, 13);
+            this.label26.TabIndex = 0;
+            this.label26.Text = "Room that contains the interface:";
+            // 
+            // coin_room
+            // 
+            this.coin_room.Location = new System.Drawing.Point(6, 36);
+            this.coin_room.Name = "coin_room";
+            this.coin_room.Size = new System.Drawing.Size(161, 20);
+            this.coin_room.TabIndex = 1;
+            // 
+            // coin_autopopup
+            // 
+            this.coin_autopopup.AutoSize = true;
+            this.coin_autopopup.Location = new System.Drawing.Point(241, 38);
+            this.coin_autopopup.Name = "coin_autopopup";
+            this.coin_autopopup.Size = new System.Drawing.Size(184, 17);
+            this.coin_autopopup.TabIndex = 2;
+            this.coin_autopopup.Text = "auto-popup with right mouse click";
+            this.coin_autopopup.UseVisualStyleBackColor = true;
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pictureBox1.Location = new System.Drawing.Point(241, 80);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(205, 169);
+            this.pictureBox1.TabIndex = 3;
+            this.pictureBox1.TabStop = false;
+            // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(48, 167);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(119, 13);
+            this.label27.TabIndex = 4;
+            this.label27.Text = "coin-interface center -->";
+            // 
+            // coin_fading_indicator
+            // 
+            this.coin_fading_indicator.AutoSize = true;
+            this.coin_fading_indicator.Location = new System.Drawing.Point(177, 281);
+            this.coin_fading_indicator.Name = "coin_fading_indicator";
+            this.coin_fading_indicator.Size = new System.Drawing.Size(43, 13);
+            this.coin_fading_indicator.TabIndex = 9;
+            this.coin_fading_indicator.Text = "<none>";
+            // 
+            // coin_fading
+            // 
+            this.coin_fading.Location = new System.Drawing.Point(51, 279);
+            this.coin_fading.Maximum = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            0});
+            this.coin_fading.Name = "coin_fading";
+            this.coin_fading.Size = new System.Drawing.Size(120, 20);
+            this.coin_fading.TabIndex = 8;
+            this.coin_fading.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
+            // 
+            // label29
+            // 
+            this.label29.AutoSize = true;
+            this.label29.Location = new System.Drawing.Point(3, 281);
+            this.label29.Name = "label29";
+            this.label29.Size = new System.Drawing.Size(42, 13);
+            this.label29.TabIndex = 7;
+            this.label29.Text = "Fading:";
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1335,14 +1454,20 @@ namespace StoryDesigner
             this.groupBox2.PerformLayout();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
+            this.tabPage5.ResumeLayout(false);
+            this.tabPage5.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.menu_fading)).EndInit();
-            this.ts_solid.ResumeLayout(false);
-            this.ts_solid.PerformLayout();
+            this.ts_stylegroup.ResumeLayout(false);
+            this.ts_stylegroup.PerformLayout();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.textscene_fading)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            this.coin_interface_panel.ResumeLayout(false);
+            this.coin_interface_panel.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1430,8 +1555,8 @@ namespace StoryDesigner
         private System.Windows.Forms.Button offspeech_color;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.Button transparent_color;
-        private System.Windows.Forms.GroupBox ts_solid;
-        private System.Windows.Forms.RadioButton radioButton1;
+        private System.Windows.Forms.GroupBox ts_stylegroup;
+        private System.Windows.Forms.RadioButton ts_solid;
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.RadioButton ts_border_none;
         private System.Windows.Forms.RadioButton ts_box;
@@ -1449,12 +1574,22 @@ namespace StoryDesigner
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Button ts_text_color;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button ts_selection_color;
         private System.Windows.Forms.Label label24;
         private System.Windows.Forms.Label label25;
         private System.Windows.Forms.TextBox ts_background_image;
         private System.Windows.Forms.CheckBox use_background_image;
         private System.Windows.Forms.RadioButton ts_symbol;
         private System.Windows.Forms.RadioButton ts_text;
+        private System.Windows.Forms.CheckBox coin_interface;
+        private System.Windows.Forms.Panel coin_interface_panel;
+        private System.Windows.Forms.CheckBox coin_autopopup;
+        private System.Windows.Forms.TextBox coin_room;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.Label coin_fading_indicator;
+        private System.Windows.Forms.NumericUpDown coin_fading;
+        private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.Label label27;
+        private System.Windows.Forms.PictureBox pictureBox1;
     }
 }

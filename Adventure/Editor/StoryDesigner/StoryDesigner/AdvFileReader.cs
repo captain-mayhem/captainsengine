@@ -76,6 +76,7 @@ namespace StoryDesigner
             mAdv.Settings.GameIcon = str.Substring(11);
             mAdv.Settings.LoadingImage = rdr.ReadLine();
             str = rdr.ReadLine();
+            mAdv.Settings.TsUseBgImage = str == "-1";
             mAdv.Settings.TsBackground = rdr.ReadLine();
             str = rdr.ReadLine();
             if (str.Substring(0, 14) != "Startskript : ")
@@ -119,7 +120,8 @@ namespace StoryDesigner
             rdr.ReadLine();
             str = rdr.ReadLine();
             mAdv.Settings.MenuFading = Convert.ToInt32(str);
-            rdr.ReadLine();
+            str = rdr.ReadLine();
+            mAdv.Settings.TextSceneFading = Convert.ToInt32(str);
             str = rdr.ReadLine();
             mAdv.Settings.AnywhereTransparency = Convert.ToInt32(str);
             str = rdr.ReadLine();
@@ -137,7 +139,7 @@ namespace StoryDesigner
             str = rdr.ReadLine();
             mAdv.Settings.TsStyle = Convert.ToInt32(str) - 1;
             str = rdr.ReadLine();
-            mAdv.Settings.TsBorderStyle = Convert.ToInt32(str);
+            mAdv.Settings.TsBorderStyle = Convert.ToInt32(str) - 1;
             str = rdr.ReadLine();
             mAdv.Settings.TsBorderColor = Convert.ToUInt32(str);
             str = rdr.ReadLine();
@@ -148,15 +150,21 @@ namespace StoryDesigner
             mAdv.Settings.TsTextColor = Convert.ToUInt32(str);
             if (ver_major >= 3 || (ver_major >= 2 && ver_minor >= 7))
             {
-                rdr.ReadLine();
+                str = rdr.ReadLine();
+                mAdv.Settings.TsUseSymbols = str == "-1";
                 str = rdr.ReadLine();
                 mAdv.Settings.MuteMusicWhenSpeech = str == "-1";
-                rdr.ReadLine();
-                rdr.ReadLine();
-                rdr.ReadLine();
-                rdr.ReadLine();
-                rdr.ReadLine();
-                rdr.ReadLine();
+                str = rdr.ReadLine();
+                mAdv.Settings.CoinActivated = str == "-1";
+                str = rdr.ReadLine();
+                mAdv.Settings.CoinAutoPopup = str == "-1";
+                mAdv.Settings.CoinRoom = rdr.ReadLine();
+                str = rdr.ReadLine();
+                mAdv.Settings.CoinFading = Convert.ToInt32(str);
+                str = rdr.ReadLine();
+                mAdv.Settings.CoinCenter.x = Convert.ToInt32(str);
+                str = rdr.ReadLine();
+                mAdv.Settings.CoinCenter.y = Convert.ToInt32(str);
             }
             while (str != "Mediapool :")
             {
@@ -233,21 +241,19 @@ namespace StoryDesigner
             string imagename = System.IO.Path.GetFileName(filename);
             ZipInputStream zis = new ZipInputStream(File.OpenRead(zipname));
             ZipEntry entry;
-            if (imagename.Contains("\x246"))
-            {
-
-            }
             char[] arr = imagename.ToCharArray();
             for (int i = 0; i < imagename.Length; ++i)
             {
-                //if (arr[i] == '\xf6')
-                //    arr[i] = '\xf7';
-                if (arr[i] >= '\x80')
-                    arr[i] = (char)(arr[i] + 1);
+                if (arr[i] == '\xf6')
+                    arr[i] = '\xf7';
+                else if (arr[i] == 'ü')
+                    arr[i] = '³';
+                else if (arr[i] == 'ß')
+                    arr[i] = '\x2580';
             }
             imagename = new string(arr);
             /*Encoder enc = Encoding.GetEncoding("iso-8859-1").GetEncoder();
-            char[] arr = imagename.ToCharArray();
+            //char[] arr = imagename.ToCharArray();
             byte[] conv = new byte[arr.Length];
             int charsUsed;
             int bytesUsed;
@@ -256,15 +262,19 @@ namespace StoryDesigner
             Decoder dec = new System.Text.UTF8Encoding().GetDecoder();
             char[] convchars = new char[conv.Length];
             dec.Convert(conv, 0, conv.Length, convchars, 0, convchars.Length, true, out charsUsed, out bytesUsed, out completed);
+            for (int i = 0; i < convchars.Length; ++i)
+            {
+                convchars[i] = (char)(convchars[i] % 256);
+            }
             string convname = new String(convchars);*/
             System.Drawing.Bitmap img = null;
             while ((entry = zis.GetNextEntry()) != null)
             {
-                if (entry.Name[1] == 'f' && entry.Name[2] == 'f')
+                /*if (entry.Name[1] == 'c' && entry.Name[2] == 'h')
                 {
                     char[] tmp = entry.Name.ToCharArray();
                     //break;
-                }
+                }*/
                 if (entry.Name == imagename)
                 {
                     img = (Bitmap)System.Drawing.Bitmap.FromStream(zis);

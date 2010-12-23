@@ -36,6 +36,7 @@ namespace StoryDesigner
         public Vec2i Resolution;
         public string GameIcon;
         public string LoadingImage;
+        public bool TsUseBgImage;
         public string TsBackground;
         public string Startscript;
         public string Mainscript;
@@ -58,6 +59,7 @@ namespace StoryDesigner
         public bool InfoLine;
         public bool ProtectGameFile;
         public int MenuFading;
+        public int TextSceneFading;
         public bool TaskHideCompletely;
         public int AnywhereTransparency;
         public System.UInt32 TargaColor;
@@ -72,7 +74,13 @@ namespace StoryDesigner
         public System.UInt32 TsAreaColor;
         public System.UInt32 TsSelectionColor;
         public System.UInt32 TsTextColor;
+        public bool TsUseSymbols;
         public bool MuteMusicWhenSpeech;
+        public bool CoinActivated;
+        public bool CoinAutoPopup;
+        public string CoinRoom;
+        public int CoinFading;
+        public Vec2i CoinCenter;
     }
 
     public class AdvData
