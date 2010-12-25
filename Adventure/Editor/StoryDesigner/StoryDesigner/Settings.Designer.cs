@@ -87,64 +87,64 @@ namespace StoryDesigner
             this.start_script = new System.Windows.Forms.TextBox();
             this.label6 = new System.Windows.Forms.Label();
             this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.border_color = new System.Windows.Forms.Button();
-            this.label13 = new System.Windows.Forms.Label();
-            this.tabPage4 = new System.Windows.Forms.TabPage();
-            this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.OK = new System.Windows.Forms.Button();
-            this.label14 = new System.Windows.Forms.Label();
-            this.background_color = new System.Windows.Forms.Button();
-            this.label15 = new System.Windows.Forms.Label();
-            this.text_color = new System.Windows.Forms.Button();
-            this.useCustomMenu = new System.Windows.Forms.CheckBox();
-            this.customMenu = new System.Windows.Forms.TextBox();
-            this.label16 = new System.Windows.Forms.Label();
-            this.label17 = new System.Windows.Forms.Label();
-            this.menu_fading = new System.Windows.Forms.NumericUpDown();
             this.fading_indicator = new System.Windows.Forms.Label();
+            this.menu_fading = new System.Windows.Forms.NumericUpDown();
+            this.label17 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.label16 = new System.Windows.Forms.Label();
+            this.customMenu = new System.Windows.Forms.TextBox();
+            this.useCustomMenu = new System.Windows.Forms.CheckBox();
+            this.text_color = new System.Windows.Forms.Button();
+            this.background_color = new System.Windows.Forms.Button();
+            this.border_color = new System.Windows.Forms.Button();
+            this.label15 = new System.Windows.Forms.Label();
+            this.label14 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.infotext_color = new System.Windows.Forms.Button();
+            this.label20 = new System.Windows.Forms.Label();
+            this.transparent_color = new System.Windows.Forms.Button();
             this.label18 = new System.Windows.Forms.Label();
             this.offspeech_color = new System.Windows.Forms.Button();
-            this.infotext_color = new System.Windows.Forms.Button();
-            this.label19 = new System.Windows.Forms.Label();
-            this.transparent_color = new System.Windows.Forms.Button();
-            this.label20 = new System.Windows.Forms.Label();
-            this.ts_stylegroup = new System.Windows.Forms.GroupBox();
-            this.ts_solid = new System.Windows.Forms.RadioButton();
-            this.ts_transparent = new System.Windows.Forms.RadioButton();
-            this.ts_additive = new System.Windows.Forms.RadioButton();
-            this.ts_none = new System.Windows.Forms.RadioButton();
+            this.tabPage4 = new System.Windows.Forms.TabPage();
+            this.ts_background_image = new System.Windows.Forms.TextBox();
+            this.use_background_image = new System.Windows.Forms.CheckBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.ts_symbol = new System.Windows.Forms.RadioButton();
+            this.ts_text = new System.Windows.Forms.RadioButton();
+            this.ts_text_color = new System.Windows.Forms.Button();
+            this.ts_border_color = new System.Windows.Forms.Button();
+            this.ts_selection_color = new System.Windows.Forms.Button();
+            this.ts_area_color = new System.Windows.Forms.Button();
+            this.label24 = new System.Windows.Forms.Label();
+            this.label25 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.textscene_fading_indicator = new System.Windows.Forms.Label();
+            this.textscene_fading = new System.Windows.Forms.NumericUpDown();
+            this.label22 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.ts_border_none = new System.Windows.Forms.RadioButton();
             this.ts_box = new System.Windows.Forms.RadioButton();
             this.ts_lines = new System.Windows.Forms.RadioButton();
             this.ts_rectangles = new System.Windows.Forms.RadioButton();
-            this.textscene_fading_indicator = new System.Windows.Forms.Label();
-            this.textscene_fading = new System.Windows.Forms.NumericUpDown();
-            this.label22 = new System.Windows.Forms.Label();
-            this.ts_area_color = new System.Windows.Forms.Button();
-            this.label21 = new System.Windows.Forms.Label();
-            this.label23 = new System.Windows.Forms.Label();
-            this.ts_border_color = new System.Windows.Forms.Button();
-            this.label24 = new System.Windows.Forms.Label();
-            this.ts_text_color = new System.Windows.Forms.Button();
-            this.label25 = new System.Windows.Forms.Label();
-            this.ts_selection_color = new System.Windows.Forms.Button();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.ts_text = new System.Windows.Forms.RadioButton();
-            this.ts_symbol = new System.Windows.Forms.RadioButton();
-            this.use_background_image = new System.Windows.Forms.CheckBox();
-            this.ts_background_image = new System.Windows.Forms.TextBox();
-            this.coin_interface = new System.Windows.Forms.CheckBox();
+            this.ts_stylegroup = new System.Windows.Forms.GroupBox();
+            this.ts_none = new System.Windows.Forms.RadioButton();
+            this.ts_additive = new System.Windows.Forms.RadioButton();
+            this.ts_transparent = new System.Windows.Forms.RadioButton();
+            this.ts_solid = new System.Windows.Forms.RadioButton();
+            this.tabPage5 = new System.Windows.Forms.TabPage();
             this.coin_interface_panel = new System.Windows.Forms.Panel();
-            this.label26 = new System.Windows.Forms.Label();
-            this.coin_room = new System.Windows.Forms.TextBox();
-            this.coin_autopopup = new System.Windows.Forms.CheckBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
-            this.label27 = new System.Windows.Forms.Label();
             this.coin_fading_indicator = new System.Windows.Forms.Label();
             this.coin_fading = new System.Windows.Forms.NumericUpDown();
             this.label29 = new System.Windows.Forms.Label();
+            this.label27 = new System.Windows.Forms.Label();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.coin_autopopup = new System.Windows.Forms.CheckBox();
+            this.coin_room = new System.Windows.Forms.TextBox();
+            this.label26 = new System.Windows.Forms.Label();
+            this.coin_interface = new System.Windows.Forms.CheckBox();
+            this.OK = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.actionTextHeight)).BeginInit();
@@ -159,17 +159,17 @@ namespace StoryDesigner
             this.panel3.SuspendLayout();
             this.screenchange.SuspendLayout();
             this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.menu_fading)).BeginInit();
             this.groupBox2.SuspendLayout();
             this.tabPage4.SuspendLayout();
-            this.tabPage5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.menu_fading)).BeginInit();
-            this.ts_stylegroup.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.textscene_fading)).BeginInit();
             this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.textscene_fading)).BeginInit();
+            this.groupBox1.SuspendLayout();
+            this.ts_stylegroup.SuspendLayout();
+            this.tabPage5.SuspendLayout();
             this.coin_interface_panel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -806,6 +806,37 @@ namespace StoryDesigner
             this.tabPage3.Text = "Menus and Colors";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
+            // fading_indicator
+            // 
+            this.fading_indicator.AutoSize = true;
+            this.fading_indicator.Location = new System.Drawing.Point(189, 145);
+            this.fading_indicator.Name = "fading_indicator";
+            this.fading_indicator.Size = new System.Drawing.Size(43, 13);
+            this.fading_indicator.TabIndex = 3;
+            this.fading_indicator.Text = "<none>";
+            // 
+            // menu_fading
+            // 
+            this.menu_fading.Location = new System.Drawing.Point(63, 143);
+            this.menu_fading.Maximum = new decimal(new int[] {
+            2000,
+            0,
+            0,
+            0});
+            this.menu_fading.Name = "menu_fading";
+            this.menu_fading.Size = new System.Drawing.Size(120, 20);
+            this.menu_fading.TabIndex = 2;
+            this.menu_fading.ValueChanged += new System.EventHandler(this.menu_fading_ValueChanged);
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.Location = new System.Drawing.Point(15, 145);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(42, 13);
+            this.label17.TabIndex = 1;
+            this.label17.Text = "Fading:";
+            // 
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.label16);
@@ -824,6 +855,54 @@ namespace StoryDesigner
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Menu colors";
             // 
+            // label16
+            // 
+            this.label16.AutoSize = true;
+            this.label16.Location = new System.Drawing.Point(176, 56);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(126, 13);
+            this.label16.TabIndex = 4;
+            this.label16.Text = "Room with custom menu:";
+            // 
+            // customMenu
+            // 
+            this.customMenu.Enabled = false;
+            this.customMenu.Location = new System.Drawing.Point(179, 72);
+            this.customMenu.Name = "customMenu";
+            this.customMenu.Size = new System.Drawing.Size(253, 20);
+            this.customMenu.TabIndex = 3;
+            // 
+            // useCustomMenu
+            // 
+            this.useCustomMenu.AutoSize = true;
+            this.useCustomMenu.Location = new System.Drawing.Point(9, 72);
+            this.useCustomMenu.Name = "useCustomMenu";
+            this.useCustomMenu.Size = new System.Drawing.Size(109, 17);
+            this.useCustomMenu.TabIndex = 2;
+            this.useCustomMenu.Text = "use custom menu";
+            this.useCustomMenu.UseVisualStyleBackColor = true;
+            this.useCustomMenu.CheckedChanged += new System.EventHandler(this.useCustomMenu_CheckedChanged);
+            // 
+            // text_color
+            // 
+            this.text_color.BackColor = System.Drawing.Color.Lime;
+            this.text_color.Location = new System.Drawing.Point(409, 22);
+            this.text_color.Name = "text_color";
+            this.text_color.Size = new System.Drawing.Size(23, 23);
+            this.text_color.TabIndex = 1;
+            this.text_color.UseVisualStyleBackColor = false;
+            this.text_color.Click += new System.EventHandler(this.button2_Click);
+            // 
+            // background_color
+            // 
+            this.background_color.BackColor = System.Drawing.Color.Lime;
+            this.background_color.Location = new System.Drawing.Point(241, 22);
+            this.background_color.Name = "background_color";
+            this.background_color.Size = new System.Drawing.Size(23, 23);
+            this.background_color.TabIndex = 1;
+            this.background_color.UseVisualStyleBackColor = false;
+            this.background_color.Click += new System.EventHandler(this.button1_Click);
+            // 
             // border_color
             // 
             this.border_color.BackColor = System.Drawing.Color.Lime;
@@ -834,6 +913,24 @@ namespace StoryDesigner
             this.border_color.UseVisualStyleBackColor = false;
             this.border_color.Click += new System.EventHandler(this.border_color_Click);
             // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.Location = new System.Drawing.Point(346, 27);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(57, 13);
+            this.label15.TabIndex = 0;
+            this.label15.Text = "Text color:";
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(144, 27);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(91, 13);
+            this.label14.TabIndex = 0;
+            this.label14.Text = "Backgroundcolor:";
+            // 
             // label13
             // 
             this.label13.AutoSize = true;
@@ -842,6 +939,63 @@ namespace StoryDesigner
             this.label13.Size = new System.Drawing.Size(41, 13);
             this.label13.TabIndex = 0;
             this.label13.Text = "Border:";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(29, 248);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(71, 13);
+            this.label19.TabIndex = 0;
+            this.label19.Text = "Infotext color:";
+            // 
+            // infotext_color
+            // 
+            this.infotext_color.BackColor = System.Drawing.Color.Lime;
+            this.infotext_color.Location = new System.Drawing.Point(106, 243);
+            this.infotext_color.Name = "infotext_color";
+            this.infotext_color.Size = new System.Drawing.Size(23, 23);
+            this.infotext_color.TabIndex = 1;
+            this.infotext_color.UseVisualStyleBackColor = false;
+            this.infotext_color.Click += new System.EventHandler(this.border_color_Click);
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(292, 205);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(120, 13);
+            this.label20.TabIndex = 0;
+            this.label20.Text = "Targa transparent color:";
+            // 
+            // transparent_color
+            // 
+            this.transparent_color.BackColor = System.Drawing.Color.Lime;
+            this.transparent_color.Location = new System.Drawing.Point(418, 200);
+            this.transparent_color.Name = "transparent_color";
+            this.transparent_color.Size = new System.Drawing.Size(23, 23);
+            this.transparent_color.TabIndex = 1;
+            this.transparent_color.UseVisualStyleBackColor = false;
+            this.transparent_color.Click += new System.EventHandler(this.border_color_Click);
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(15, 205);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(85, 13);
+            this.label18.TabIndex = 0;
+            this.label18.Text = "Offspeech color:";
+            // 
+            // offspeech_color
+            // 
+            this.offspeech_color.BackColor = System.Drawing.Color.Lime;
+            this.offspeech_color.Location = new System.Drawing.Point(106, 200);
+            this.offspeech_color.Name = "offspeech_color";
+            this.offspeech_color.Size = new System.Drawing.Size(23, 23);
+            this.offspeech_color.TabIndex = 1;
+            this.offspeech_color.UseVisualStyleBackColor = false;
+            this.offspeech_color.Click += new System.EventHandler(this.border_color_Click);
             // 
             // tabPage4
             // 
@@ -869,238 +1023,160 @@ namespace StoryDesigner
             this.tabPage4.Text = "Textscene";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
-            // tabPage5
+            // ts_background_image
             // 
-            this.tabPage5.Controls.Add(this.coin_interface_panel);
-            this.tabPage5.Controls.Add(this.coin_interface);
-            this.tabPage5.Location = new System.Drawing.Point(4, 22);
-            this.tabPage5.Name = "tabPage5";
-            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage5.Size = new System.Drawing.Size(478, 383);
-            this.tabPage5.TabIndex = 4;
-            this.tabPage5.Text = "Coin-Interface";
-            this.tabPage5.UseVisualStyleBackColor = true;
+            this.ts_background_image.Enabled = false;
+            this.ts_background_image.Location = new System.Drawing.Point(253, 323);
+            this.ts_background_image.Name = "ts_background_image";
+            this.ts_background_image.Size = new System.Drawing.Size(134, 20);
+            this.ts_background_image.TabIndex = 11;
             // 
-            // OK
+            // use_background_image
             // 
-            this.OK.Location = new System.Drawing.Point(204, 427);
-            this.OK.Name = "OK";
-            this.OK.Size = new System.Drawing.Size(75, 23);
-            this.OK.TabIndex = 1;
-            this.OK.Text = "OK";
-            this.OK.UseVisualStyleBackColor = true;
-            this.OK.Click += new System.EventHandler(this.OK_Click);
+            this.use_background_image.AutoSize = true;
+            this.use_background_image.Location = new System.Drawing.Point(253, 300);
+            this.use_background_image.Name = "use_background_image";
+            this.use_background_image.Size = new System.Drawing.Size(134, 17);
+            this.use_background_image.TabIndex = 10;
+            this.use_background_image.Text = "use background image";
+            this.use_background_image.UseVisualStyleBackColor = true;
+            this.use_background_image.CheckedChanged += new System.EventHandler(this.use_background_image_CheckedChanged);
             // 
-            // label14
+            // groupBox3
             // 
-            this.label14.AutoSize = true;
-            this.label14.Location = new System.Drawing.Point(144, 27);
-            this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(91, 13);
-            this.label14.TabIndex = 0;
-            this.label14.Text = "Backgroundcolor:";
+            this.groupBox3.Controls.Add(this.ts_symbol);
+            this.groupBox3.Controls.Add(this.ts_text);
+            this.groupBox3.Location = new System.Drawing.Point(24, 281);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(179, 73);
+            this.groupBox3.TabIndex = 9;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "Appearence";
             // 
-            // background_color
+            // ts_symbol
             // 
-            this.background_color.BackColor = System.Drawing.Color.Lime;
-            this.background_color.Location = new System.Drawing.Point(241, 22);
-            this.background_color.Name = "background_color";
-            this.background_color.Size = new System.Drawing.Size(23, 23);
-            this.background_color.TabIndex = 1;
-            this.background_color.UseVisualStyleBackColor = false;
-            this.background_color.Click += new System.EventHandler(this.button1_Click);
+            this.ts_symbol.AutoSize = true;
+            this.ts_symbol.Location = new System.Drawing.Point(6, 42);
+            this.ts_symbol.Name = "ts_symbol";
+            this.ts_symbol.Size = new System.Drawing.Size(59, 17);
+            this.ts_symbol.TabIndex = 1;
+            this.ts_symbol.TabStop = true;
+            this.ts_symbol.Text = "Symbol";
+            this.ts_symbol.UseVisualStyleBackColor = true;
             // 
-            // label15
+            // ts_text
             // 
-            this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(346, 27);
-            this.label15.Name = "label15";
-            this.label15.Size = new System.Drawing.Size(57, 13);
-            this.label15.TabIndex = 0;
-            this.label15.Text = "Text color:";
+            this.ts_text.AutoSize = true;
+            this.ts_text.Location = new System.Drawing.Point(6, 19);
+            this.ts_text.Name = "ts_text";
+            this.ts_text.Size = new System.Drawing.Size(46, 17);
+            this.ts_text.TabIndex = 0;
+            this.ts_text.TabStop = true;
+            this.ts_text.Text = "Text";
+            this.ts_text.UseVisualStyleBackColor = true;
             // 
-            // text_color
+            // ts_text_color
             // 
-            this.text_color.BackColor = System.Drawing.Color.Lime;
-            this.text_color.Location = new System.Drawing.Point(409, 22);
-            this.text_color.Name = "text_color";
-            this.text_color.Size = new System.Drawing.Size(23, 23);
-            this.text_color.TabIndex = 1;
-            this.text_color.UseVisualStyleBackColor = false;
-            this.text_color.Click += new System.EventHandler(this.button2_Click);
+            this.ts_text_color.BackColor = System.Drawing.Color.Lime;
+            this.ts_text_color.Location = new System.Drawing.Point(397, 203);
+            this.ts_text_color.Name = "ts_text_color";
+            this.ts_text_color.Size = new System.Drawing.Size(23, 23);
+            this.ts_text_color.TabIndex = 8;
+            this.ts_text_color.UseVisualStyleBackColor = false;
             // 
-            // useCustomMenu
+            // ts_border_color
             // 
-            this.useCustomMenu.AutoSize = true;
-            this.useCustomMenu.Location = new System.Drawing.Point(9, 72);
-            this.useCustomMenu.Name = "useCustomMenu";
-            this.useCustomMenu.Size = new System.Drawing.Size(109, 17);
-            this.useCustomMenu.TabIndex = 2;
-            this.useCustomMenu.Text = "use custom menu";
-            this.useCustomMenu.UseVisualStyleBackColor = true;
-            this.useCustomMenu.CheckedChanged += new System.EventHandler(this.useCustomMenu_CheckedChanged);
+            this.ts_border_color.BackColor = System.Drawing.Color.Lime;
+            this.ts_border_color.Location = new System.Drawing.Point(253, 203);
+            this.ts_border_color.Name = "ts_border_color";
+            this.ts_border_color.Size = new System.Drawing.Size(23, 23);
+            this.ts_border_color.TabIndex = 8;
+            this.ts_border_color.UseVisualStyleBackColor = false;
             // 
-            // customMenu
+            // ts_selection_color
             // 
-            this.customMenu.Enabled = false;
-            this.customMenu.Location = new System.Drawing.Point(179, 72);
-            this.customMenu.Name = "customMenu";
-            this.customMenu.Size = new System.Drawing.Size(253, 20);
-            this.customMenu.TabIndex = 3;
+            this.ts_selection_color.BackColor = System.Drawing.Color.Lime;
+            this.ts_selection_color.Location = new System.Drawing.Point(107, 232);
+            this.ts_selection_color.Name = "ts_selection_color";
+            this.ts_selection_color.Size = new System.Drawing.Size(23, 23);
+            this.ts_selection_color.TabIndex = 8;
+            this.ts_selection_color.UseVisualStyleBackColor = false;
             // 
-            // label16
+            // ts_area_color
             // 
-            this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(176, 56);
-            this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(126, 13);
-            this.label16.TabIndex = 4;
-            this.label16.Text = "Room with custom menu:";
+            this.ts_area_color.BackColor = System.Drawing.Color.Lime;
+            this.ts_area_color.Location = new System.Drawing.Point(107, 203);
+            this.ts_area_color.Name = "ts_area_color";
+            this.ts_area_color.Size = new System.Drawing.Size(23, 23);
+            this.ts_area_color.TabIndex = 8;
+            this.ts_area_color.UseVisualStyleBackColor = false;
             // 
-            // label17
+            // label24
             // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(15, 145);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(42, 13);
-            this.label17.TabIndex = 1;
-            this.label17.Text = "Fading:";
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(334, 208);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(57, 13);
+            this.label24.TabIndex = 7;
+            this.label24.Text = "Text color:";
             // 
-            // menu_fading
+            // label25
             // 
-            this.menu_fading.Location = new System.Drawing.Point(63, 143);
-            this.menu_fading.Maximum = new decimal(new int[] {
+            this.label25.AutoSize = true;
+            this.label25.Location = new System.Drawing.Point(21, 237);
+            this.label25.Name = "label25";
+            this.label25.Size = new System.Drawing.Size(80, 13);
+            this.label25.TabIndex = 7;
+            this.label25.Text = "Selection color:";
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(180, 208);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(67, 13);
+            this.label23.TabIndex = 7;
+            this.label23.Text = "Border color:";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(43, 208);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(58, 13);
+            this.label21.TabIndex = 7;
+            this.label21.Text = "Area color:";
+            // 
+            // textscene_fading_indicator
+            // 
+            this.textscene_fading_indicator.AutoSize = true;
+            this.textscene_fading_indicator.Location = new System.Drawing.Point(195, 148);
+            this.textscene_fading_indicator.Name = "textscene_fading_indicator";
+            this.textscene_fading_indicator.Size = new System.Drawing.Size(43, 13);
+            this.textscene_fading_indicator.TabIndex = 6;
+            this.textscene_fading_indicator.Text = "<none>";
+            // 
+            // textscene_fading
+            // 
+            this.textscene_fading.Location = new System.Drawing.Point(69, 146);
+            this.textscene_fading.Maximum = new decimal(new int[] {
             2000,
             0,
             0,
             0});
-            this.menu_fading.Name = "menu_fading";
-            this.menu_fading.Size = new System.Drawing.Size(120, 20);
-            this.menu_fading.TabIndex = 2;
-            this.menu_fading.ValueChanged += new System.EventHandler(this.menu_fading_ValueChanged);
+            this.textscene_fading.Name = "textscene_fading";
+            this.textscene_fading.Size = new System.Drawing.Size(120, 20);
+            this.textscene_fading.TabIndex = 5;
+            this.textscene_fading.ValueChanged += new System.EventHandler(this.textscene_fading_ValueChanged);
             // 
-            // fading_indicator
+            // label22
             // 
-            this.fading_indicator.AutoSize = true;
-            this.fading_indicator.Location = new System.Drawing.Point(189, 145);
-            this.fading_indicator.Name = "fading_indicator";
-            this.fading_indicator.Size = new System.Drawing.Size(43, 13);
-            this.fading_indicator.TabIndex = 3;
-            this.fading_indicator.Text = "<none>";
-            // 
-            // label18
-            // 
-            this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(15, 205);
-            this.label18.Name = "label18";
-            this.label18.Size = new System.Drawing.Size(85, 13);
-            this.label18.TabIndex = 0;
-            this.label18.Text = "Offspeech color:";
-            // 
-            // offspeech_color
-            // 
-            this.offspeech_color.BackColor = System.Drawing.Color.Lime;
-            this.offspeech_color.Location = new System.Drawing.Point(106, 200);
-            this.offspeech_color.Name = "offspeech_color";
-            this.offspeech_color.Size = new System.Drawing.Size(23, 23);
-            this.offspeech_color.TabIndex = 1;
-            this.offspeech_color.UseVisualStyleBackColor = false;
-            this.offspeech_color.Click += new System.EventHandler(this.border_color_Click);
-            // 
-            // infotext_color
-            // 
-            this.infotext_color.BackColor = System.Drawing.Color.Lime;
-            this.infotext_color.Location = new System.Drawing.Point(106, 243);
-            this.infotext_color.Name = "infotext_color";
-            this.infotext_color.Size = new System.Drawing.Size(23, 23);
-            this.infotext_color.TabIndex = 1;
-            this.infotext_color.UseVisualStyleBackColor = false;
-            this.infotext_color.Click += new System.EventHandler(this.border_color_Click);
-            // 
-            // label19
-            // 
-            this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(29, 248);
-            this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(71, 13);
-            this.label19.TabIndex = 0;
-            this.label19.Text = "Infotext color:";
-            // 
-            // transparent_color
-            // 
-            this.transparent_color.BackColor = System.Drawing.Color.Lime;
-            this.transparent_color.Location = new System.Drawing.Point(418, 200);
-            this.transparent_color.Name = "transparent_color";
-            this.transparent_color.Size = new System.Drawing.Size(23, 23);
-            this.transparent_color.TabIndex = 1;
-            this.transparent_color.UseVisualStyleBackColor = false;
-            this.transparent_color.Click += new System.EventHandler(this.border_color_Click);
-            // 
-            // label20
-            // 
-            this.label20.AutoSize = true;
-            this.label20.Location = new System.Drawing.Point(292, 205);
-            this.label20.Name = "label20";
-            this.label20.Size = new System.Drawing.Size(120, 13);
-            this.label20.TabIndex = 0;
-            this.label20.Text = "Targa transparent color:";
-            // 
-            // ts_stylegroup
-            // 
-            this.ts_stylegroup.Controls.Add(this.ts_none);
-            this.ts_stylegroup.Controls.Add(this.ts_additive);
-            this.ts_stylegroup.Controls.Add(this.ts_transparent);
-            this.ts_stylegroup.Controls.Add(this.ts_solid);
-            this.ts_stylegroup.Location = new System.Drawing.Point(24, 7);
-            this.ts_stylegroup.Name = "ts_stylegroup";
-            this.ts_stylegroup.Size = new System.Drawing.Size(179, 121);
-            this.ts_stylegroup.TabIndex = 0;
-            this.ts_stylegroup.TabStop = false;
-            this.ts_stylegroup.Text = "Style";
-            // 
-            // ts_solid
-            // 
-            this.ts_solid.AutoSize = true;
-            this.ts_solid.Location = new System.Drawing.Point(6, 19);
-            this.ts_solid.Name = "ts_solid";
-            this.ts_solid.Size = new System.Drawing.Size(48, 17);
-            this.ts_solid.TabIndex = 0;
-            this.ts_solid.TabStop = true;
-            this.ts_solid.Text = "Solid";
-            this.ts_solid.UseVisualStyleBackColor = true;
-            // 
-            // ts_transparent
-            // 
-            this.ts_transparent.AutoSize = true;
-            this.ts_transparent.Location = new System.Drawing.Point(6, 42);
-            this.ts_transparent.Name = "ts_transparent";
-            this.ts_transparent.Size = new System.Drawing.Size(101, 17);
-            this.ts_transparent.TabIndex = 1;
-            this.ts_transparent.TabStop = true;
-            this.ts_transparent.Text = "50% transparent";
-            this.ts_transparent.UseVisualStyleBackColor = true;
-            // 
-            // ts_additive
-            // 
-            this.ts_additive.AutoSize = true;
-            this.ts_additive.Location = new System.Drawing.Point(6, 65);
-            this.ts_additive.Name = "ts_additive";
-            this.ts_additive.Size = new System.Drawing.Size(63, 17);
-            this.ts_additive.TabIndex = 2;
-            this.ts_additive.TabStop = true;
-            this.ts_additive.Text = "Additive";
-            this.ts_additive.UseVisualStyleBackColor = true;
-            // 
-            // ts_none
-            // 
-            this.ts_none.AutoSize = true;
-            this.ts_none.Location = new System.Drawing.Point(6, 88);
-            this.ts_none.Name = "ts_none";
-            this.ts_none.Size = new System.Drawing.Size(51, 17);
-            this.ts_none.TabIndex = 3;
-            this.ts_none.TabStop = true;
-            this.ts_none.Text = "None";
-            this.ts_none.UseVisualStyleBackColor = true;
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(21, 148);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(42, 13);
+            this.label22.TabIndex = 4;
+            this.label22.Text = "Fading:";
             // 
             // groupBox1
             // 
@@ -1159,171 +1235,74 @@ namespace StoryDesigner
             this.ts_rectangles.Text = "Rectangles";
             this.ts_rectangles.UseVisualStyleBackColor = true;
             // 
-            // textscene_fading_indicator
+            // ts_stylegroup
             // 
-            this.textscene_fading_indicator.AutoSize = true;
-            this.textscene_fading_indicator.Location = new System.Drawing.Point(195, 148);
-            this.textscene_fading_indicator.Name = "textscene_fading_indicator";
-            this.textscene_fading_indicator.Size = new System.Drawing.Size(43, 13);
-            this.textscene_fading_indicator.TabIndex = 6;
-            this.textscene_fading_indicator.Text = "<none>";
+            this.ts_stylegroup.Controls.Add(this.ts_none);
+            this.ts_stylegroup.Controls.Add(this.ts_additive);
+            this.ts_stylegroup.Controls.Add(this.ts_transparent);
+            this.ts_stylegroup.Controls.Add(this.ts_solid);
+            this.ts_stylegroup.Location = new System.Drawing.Point(24, 7);
+            this.ts_stylegroup.Name = "ts_stylegroup";
+            this.ts_stylegroup.Size = new System.Drawing.Size(179, 121);
+            this.ts_stylegroup.TabIndex = 0;
+            this.ts_stylegroup.TabStop = false;
+            this.ts_stylegroup.Text = "Style";
             // 
-            // textscene_fading
+            // ts_none
             // 
-            this.textscene_fading.Location = new System.Drawing.Point(69, 146);
-            this.textscene_fading.Maximum = new decimal(new int[] {
-            2000,
-            0,
-            0,
-            0});
-            this.textscene_fading.Name = "textscene_fading";
-            this.textscene_fading.Size = new System.Drawing.Size(120, 20);
-            this.textscene_fading.TabIndex = 5;
-            this.textscene_fading.ValueChanged += new System.EventHandler(this.textscene_fading_ValueChanged);
+            this.ts_none.AutoSize = true;
+            this.ts_none.Location = new System.Drawing.Point(6, 88);
+            this.ts_none.Name = "ts_none";
+            this.ts_none.Size = new System.Drawing.Size(51, 17);
+            this.ts_none.TabIndex = 3;
+            this.ts_none.TabStop = true;
+            this.ts_none.Text = "None";
+            this.ts_none.UseVisualStyleBackColor = true;
             // 
-            // label22
+            // ts_additive
             // 
-            this.label22.AutoSize = true;
-            this.label22.Location = new System.Drawing.Point(21, 148);
-            this.label22.Name = "label22";
-            this.label22.Size = new System.Drawing.Size(42, 13);
-            this.label22.TabIndex = 4;
-            this.label22.Text = "Fading:";
+            this.ts_additive.AutoSize = true;
+            this.ts_additive.Location = new System.Drawing.Point(6, 65);
+            this.ts_additive.Name = "ts_additive";
+            this.ts_additive.Size = new System.Drawing.Size(63, 17);
+            this.ts_additive.TabIndex = 2;
+            this.ts_additive.TabStop = true;
+            this.ts_additive.Text = "Additive";
+            this.ts_additive.UseVisualStyleBackColor = true;
             // 
-            // ts_area_color
+            // ts_transparent
             // 
-            this.ts_area_color.BackColor = System.Drawing.Color.Lime;
-            this.ts_area_color.Location = new System.Drawing.Point(107, 203);
-            this.ts_area_color.Name = "ts_area_color";
-            this.ts_area_color.Size = new System.Drawing.Size(23, 23);
-            this.ts_area_color.TabIndex = 8;
-            this.ts_area_color.UseVisualStyleBackColor = false;
+            this.ts_transparent.AutoSize = true;
+            this.ts_transparent.Location = new System.Drawing.Point(6, 42);
+            this.ts_transparent.Name = "ts_transparent";
+            this.ts_transparent.Size = new System.Drawing.Size(101, 17);
+            this.ts_transparent.TabIndex = 1;
+            this.ts_transparent.TabStop = true;
+            this.ts_transparent.Text = "50% transparent";
+            this.ts_transparent.UseVisualStyleBackColor = true;
             // 
-            // label21
+            // ts_solid
             // 
-            this.label21.AutoSize = true;
-            this.label21.Location = new System.Drawing.Point(43, 208);
-            this.label21.Name = "label21";
-            this.label21.Size = new System.Drawing.Size(58, 13);
-            this.label21.TabIndex = 7;
-            this.label21.Text = "Area color:";
+            this.ts_solid.AutoSize = true;
+            this.ts_solid.Location = new System.Drawing.Point(6, 19);
+            this.ts_solid.Name = "ts_solid";
+            this.ts_solid.Size = new System.Drawing.Size(48, 17);
+            this.ts_solid.TabIndex = 0;
+            this.ts_solid.TabStop = true;
+            this.ts_solid.Text = "Solid";
+            this.ts_solid.UseVisualStyleBackColor = true;
             // 
-            // label23
+            // tabPage5
             // 
-            this.label23.AutoSize = true;
-            this.label23.Location = new System.Drawing.Point(180, 208);
-            this.label23.Name = "label23";
-            this.label23.Size = new System.Drawing.Size(67, 13);
-            this.label23.TabIndex = 7;
-            this.label23.Text = "Border color:";
-            // 
-            // ts_border_color
-            // 
-            this.ts_border_color.BackColor = System.Drawing.Color.Lime;
-            this.ts_border_color.Location = new System.Drawing.Point(253, 203);
-            this.ts_border_color.Name = "ts_border_color";
-            this.ts_border_color.Size = new System.Drawing.Size(23, 23);
-            this.ts_border_color.TabIndex = 8;
-            this.ts_border_color.UseVisualStyleBackColor = false;
-            // 
-            // label24
-            // 
-            this.label24.AutoSize = true;
-            this.label24.Location = new System.Drawing.Point(334, 208);
-            this.label24.Name = "label24";
-            this.label24.Size = new System.Drawing.Size(57, 13);
-            this.label24.TabIndex = 7;
-            this.label24.Text = "Text color:";
-            // 
-            // ts_text_color
-            // 
-            this.ts_text_color.BackColor = System.Drawing.Color.Lime;
-            this.ts_text_color.Location = new System.Drawing.Point(397, 203);
-            this.ts_text_color.Name = "ts_text_color";
-            this.ts_text_color.Size = new System.Drawing.Size(23, 23);
-            this.ts_text_color.TabIndex = 8;
-            this.ts_text_color.UseVisualStyleBackColor = false;
-            // 
-            // label25
-            // 
-            this.label25.AutoSize = true;
-            this.label25.Location = new System.Drawing.Point(21, 237);
-            this.label25.Name = "label25";
-            this.label25.Size = new System.Drawing.Size(80, 13);
-            this.label25.TabIndex = 7;
-            this.label25.Text = "Selection color:";
-            // 
-            // ts_selection_color
-            // 
-            this.ts_selection_color.BackColor = System.Drawing.Color.Lime;
-            this.ts_selection_color.Location = new System.Drawing.Point(107, 232);
-            this.ts_selection_color.Name = "ts_selection_color";
-            this.ts_selection_color.Size = new System.Drawing.Size(23, 23);
-            this.ts_selection_color.TabIndex = 8;
-            this.ts_selection_color.UseVisualStyleBackColor = false;
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.ts_symbol);
-            this.groupBox3.Controls.Add(this.ts_text);
-            this.groupBox3.Location = new System.Drawing.Point(24, 281);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(179, 73);
-            this.groupBox3.TabIndex = 9;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Appearence";
-            // 
-            // ts_text
-            // 
-            this.ts_text.AutoSize = true;
-            this.ts_text.Location = new System.Drawing.Point(6, 19);
-            this.ts_text.Name = "ts_text";
-            this.ts_text.Size = new System.Drawing.Size(46, 17);
-            this.ts_text.TabIndex = 0;
-            this.ts_text.TabStop = true;
-            this.ts_text.Text = "Text";
-            this.ts_text.UseVisualStyleBackColor = true;
-            // 
-            // ts_symbol
-            // 
-            this.ts_symbol.AutoSize = true;
-            this.ts_symbol.Location = new System.Drawing.Point(6, 42);
-            this.ts_symbol.Name = "ts_symbol";
-            this.ts_symbol.Size = new System.Drawing.Size(59, 17);
-            this.ts_symbol.TabIndex = 1;
-            this.ts_symbol.TabStop = true;
-            this.ts_symbol.Text = "Symbol";
-            this.ts_symbol.UseVisualStyleBackColor = true;
-            // 
-            // use_background_image
-            // 
-            this.use_background_image.AutoSize = true;
-            this.use_background_image.Location = new System.Drawing.Point(253, 300);
-            this.use_background_image.Name = "use_background_image";
-            this.use_background_image.Size = new System.Drawing.Size(134, 17);
-            this.use_background_image.TabIndex = 10;
-            this.use_background_image.Text = "use background image";
-            this.use_background_image.UseVisualStyleBackColor = true;
-            this.use_background_image.CheckedChanged += new System.EventHandler(this.use_background_image_CheckedChanged);
-            // 
-            // ts_background_image
-            // 
-            this.ts_background_image.Enabled = false;
-            this.ts_background_image.Location = new System.Drawing.Point(253, 323);
-            this.ts_background_image.Name = "ts_background_image";
-            this.ts_background_image.Size = new System.Drawing.Size(134, 20);
-            this.ts_background_image.TabIndex = 11;
-            // 
-            // coin_interface
-            // 
-            this.coin_interface.AutoSize = true;
-            this.coin_interface.Location = new System.Drawing.Point(9, 16);
-            this.coin_interface.Name = "coin_interface";
-            this.coin_interface.Size = new System.Drawing.Size(132, 17);
-            this.coin_interface.TabIndex = 0;
-            this.coin_interface.Text = "Activate coin-interface";
-            this.coin_interface.UseVisualStyleBackColor = true;
-            this.coin_interface.CheckedChanged += new System.EventHandler(this.coin_interface_CheckedChanged);
+            this.tabPage5.Controls.Add(this.coin_interface_panel);
+            this.tabPage5.Controls.Add(this.coin_interface);
+            this.tabPage5.Location = new System.Drawing.Point(4, 22);
+            this.tabPage5.Name = "tabPage5";
+            this.tabPage5.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage5.Size = new System.Drawing.Size(478, 383);
+            this.tabPage5.TabIndex = 4;
+            this.tabPage5.Text = "Coin-Interface";
+            this.tabPage5.UseVisualStyleBackColor = true;
             // 
             // coin_interface_panel
             // 
@@ -1341,50 +1320,6 @@ namespace StoryDesigner
             this.coin_interface_panel.Name = "coin_interface_panel";
             this.coin_interface_panel.Size = new System.Drawing.Size(460, 328);
             this.coin_interface_panel.TabIndex = 1;
-            // 
-            // label26
-            // 
-            this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(3, 11);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(164, 13);
-            this.label26.TabIndex = 0;
-            this.label26.Text = "Room that contains the interface:";
-            // 
-            // coin_room
-            // 
-            this.coin_room.Location = new System.Drawing.Point(6, 36);
-            this.coin_room.Name = "coin_room";
-            this.coin_room.Size = new System.Drawing.Size(161, 20);
-            this.coin_room.TabIndex = 1;
-            // 
-            // coin_autopopup
-            // 
-            this.coin_autopopup.AutoSize = true;
-            this.coin_autopopup.Location = new System.Drawing.Point(241, 38);
-            this.coin_autopopup.Name = "coin_autopopup";
-            this.coin_autopopup.Size = new System.Drawing.Size(184, 17);
-            this.coin_autopopup.TabIndex = 2;
-            this.coin_autopopup.Text = "auto-popup with right mouse click";
-            this.coin_autopopup.UseVisualStyleBackColor = true;
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            this.pictureBox1.Location = new System.Drawing.Point(241, 80);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(205, 169);
-            this.pictureBox1.TabIndex = 3;
-            this.pictureBox1.TabStop = false;
-            // 
-            // label27
-            // 
-            this.label27.AutoSize = true;
-            this.label27.Location = new System.Drawing.Point(48, 167);
-            this.label27.Name = "label27";
-            this.label27.Size = new System.Drawing.Size(119, 13);
-            this.label27.TabIndex = 4;
-            this.label27.Text = "coin-interface center -->";
             // 
             // coin_fading_indicator
             // 
@@ -1417,6 +1352,71 @@ namespace StoryDesigner
             this.label29.TabIndex = 7;
             this.label29.Text = "Fading:";
             // 
+            // label27
+            // 
+            this.label27.AutoSize = true;
+            this.label27.Location = new System.Drawing.Point(48, 167);
+            this.label27.Name = "label27";
+            this.label27.Size = new System.Drawing.Size(119, 13);
+            this.label27.TabIndex = 4;
+            this.label27.Text = "coin-interface center -->";
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.pictureBox1.Location = new System.Drawing.Point(241, 80);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(205, 169);
+            this.pictureBox1.TabIndex = 3;
+            this.pictureBox1.TabStop = false;
+            // 
+            // coin_autopopup
+            // 
+            this.coin_autopopup.AutoSize = true;
+            this.coin_autopopup.Location = new System.Drawing.Point(241, 38);
+            this.coin_autopopup.Name = "coin_autopopup";
+            this.coin_autopopup.Size = new System.Drawing.Size(184, 17);
+            this.coin_autopopup.TabIndex = 2;
+            this.coin_autopopup.Text = "auto-popup with right mouse click";
+            this.coin_autopopup.UseVisualStyleBackColor = true;
+            // 
+            // coin_room
+            // 
+            this.coin_room.Location = new System.Drawing.Point(6, 36);
+            this.coin_room.Name = "coin_room";
+            this.coin_room.Size = new System.Drawing.Size(161, 20);
+            this.coin_room.TabIndex = 1;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(3, 11);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(164, 13);
+            this.label26.TabIndex = 0;
+            this.label26.Text = "Room that contains the interface:";
+            // 
+            // coin_interface
+            // 
+            this.coin_interface.AutoSize = true;
+            this.coin_interface.Location = new System.Drawing.Point(9, 16);
+            this.coin_interface.Name = "coin_interface";
+            this.coin_interface.Size = new System.Drawing.Size(132, 17);
+            this.coin_interface.TabIndex = 0;
+            this.coin_interface.Text = "Activate coin-interface";
+            this.coin_interface.UseVisualStyleBackColor = true;
+            this.coin_interface.CheckedChanged += new System.EventHandler(this.coin_interface_CheckedChanged);
+            // 
+            // OK
+            // 
+            this.OK.Location = new System.Drawing.Point(204, 427);
+            this.OK.Name = "OK";
+            this.OK.Size = new System.Drawing.Size(75, 23);
+            this.OK.TabIndex = 1;
+            this.OK.Text = "OK";
+            this.OK.UseVisualStyleBackColor = true;
+            this.OK.Click += new System.EventHandler(this.OK_Click);
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1424,6 +1424,7 @@ namespace StoryDesigner
             this.ClientSize = new System.Drawing.Size(484, 462);
             this.Controls.Add(this.OK);
             this.Controls.Add(this.tabControl1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
             this.Name = "Settings";
             this.RightToLeftLayout = true;
             this.Text = "Project Setup";
@@ -1450,24 +1451,24 @@ namespace StoryDesigner
             this.screenchange.PerformLayout();
             this.tabPage3.ResumeLayout(false);
             this.tabPage3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.menu_fading)).EndInit();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.tabPage4.ResumeLayout(false);
             this.tabPage4.PerformLayout();
-            this.tabPage5.ResumeLayout(false);
-            this.tabPage5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.menu_fading)).EndInit();
-            this.ts_stylegroup.ResumeLayout(false);
-            this.ts_stylegroup.PerformLayout();
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.textscene_fading)).EndInit();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.textscene_fading)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
+            this.ts_stylegroup.ResumeLayout(false);
+            this.ts_stylegroup.PerformLayout();
+            this.tabPage5.ResumeLayout(false);
+            this.tabPage5.PerformLayout();
             this.coin_interface_panel.ResumeLayout(false);
             this.coin_interface_panel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.ResumeLayout(false);
 
         }

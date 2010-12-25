@@ -80,5 +80,11 @@ namespace StoryDesigner
             Settings settings = new Settings(mData);
             settings.ShowDialog(this);
         }
+
+        private void commandsAndBoolsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CommandsAndBools cabs = new CommandsAndBools(mData);
+            cabs.ShowDialog(this);
+        }
     }
 }

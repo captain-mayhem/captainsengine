@@ -81,6 +81,11 @@ namespace StoryDesigner
         public string CoinRoom;
         public int CoinFading;
         public Vec2i CoinCenter;
+        public string LinkText;
+        public string GiveLink;
+        public string WalkText;
+        public Dictionary<string, bool> Booleans;
+        public Dictionary<string, string> Commands;
     }
 
     public class AdvData
