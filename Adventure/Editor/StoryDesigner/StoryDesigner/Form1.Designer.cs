@@ -336,6 +336,7 @@ namespace StoryDesigner
             this.commandsAndBoolsToolStripMenuItem.Name = "commandsAndBoolsToolStripMenuItem";
             this.commandsAndBoolsToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.commandsAndBoolsToolStripMenuItem.Text = "Commands and Bools";
+            this.commandsAndBoolsToolStripMenuItem.Click += new System.EventHandler(this.commandsAndBoolsToolStripMenuItem_Click);
             // 
             // toolStripSeparator7
             // 

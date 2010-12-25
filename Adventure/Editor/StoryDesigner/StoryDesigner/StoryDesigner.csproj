@@ -42,6 +42,12 @@
   <ItemGroup>
     <Compile Include="AdvData.cs" />
     <Compile Include="AdvFileReader.cs" />
+    <Compile Include="CommandsAndBools.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CommandsAndBools.Designer.cs">
+      <DependentUpon>CommandsAndBools.cs</DependentUpon>
+    </Compile>
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -56,6 +62,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CommandsAndBools.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>CommandsAndBools.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Form1.cs</DependentUpon>

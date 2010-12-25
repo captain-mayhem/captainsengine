@@ -166,9 +166,39 @@ namespace StoryDesigner
                 str = rdr.ReadLine();
                 mAdv.Settings.CoinCenter.y = Convert.ToInt32(str);
             }
-            while (str != "Mediapool :")
+            str = rdr.ReadLine();
+            mAdv.Settings.LinkText = str.Substring(11);
+            str = rdr.ReadLine();
+            mAdv.Settings.GiveLink = str.Substring(11);
+            str = rdr.ReadLine();
+            mAdv.Settings.WalkText = str.Substring(11);
+            str = rdr.ReadLine();
+            if (str == "Booleans :")
             {
+                mAdv.Settings.Booleans = new Dictionary<string, bool>();
                 str = rdr.ReadLine();
+                while (str != "Commands :")
+                {
+                    string name;
+                    string val = str.Substring(str.Length - 1);
+                    if (val == "1")
+                        name = str.Substring(0, str.Length - 2);
+                    else
+                        name = str.Substring(0, str.Length - 1);
+                    mAdv.Settings.Booleans.Add(name, val == "1");
+                    str = rdr.ReadLine();
+                }
+            }
+            if (str == "Commands :")
+            {
+                mAdv.Settings.Commands = new Dictionary<string, string>();
+                str = rdr.ReadLine();
+                while (str != "Mediapool :")
+                {
+                    string pretty_name = rdr.ReadLine();
+                    mAdv.Settings.Commands.Add(str, pretty_name);
+                    str = rdr.ReadLine();
+                }
             }
             str = rdr.ReadLine();
             TreeNode root = new TreeNode("Mediapool");
