@@ -86,5 +86,11 @@ namespace StoryDesigner
             CommandsAndBools cabs = new CommandsAndBools(mData);
             cabs.ShowDialog(this);
         }
+
+        private void fontsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Fonts fnts = new Fonts();
+            fnts.ShowDialog(this);
+        }
     }
 }
