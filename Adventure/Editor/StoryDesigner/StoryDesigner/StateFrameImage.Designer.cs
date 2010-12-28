@@ -178,7 +178,7 @@ namespace StoryDesigner
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Name = "StateFrameImage";
-            this.Size = new System.Drawing.Size(331, 150);
+            this.Size = new System.Drawing.Size(331, 296);
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
