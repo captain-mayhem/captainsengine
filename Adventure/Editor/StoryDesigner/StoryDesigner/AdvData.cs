@@ -88,6 +88,14 @@ namespace StoryDesigner
         public Dictionary<string, string> Commands;
     }
 
+    public struct CursorState
+    {
+        public System.Collections.ArrayList frames;
+        public float fps;
+        public int command;
+        public Vec2i highlight;
+    }
+
     public class AdvData
     {
         public AdvData(AdvFileReader reader)
@@ -95,6 +103,7 @@ namespace StoryDesigner
             Settings = new ProjectSettings();
             mImages = new Dictionary<string, string>();
             mReader = reader;
+            mCursor = new System.Collections.ArrayList();
         }
 
         public System.Drawing.Bitmap getImage(string filename)
@@ -105,11 +114,18 @@ namespace StoryDesigner
         public Dictionary<string, string> Images
         {
             get { return mImages; }
-            set { mImages = value; }
+            //set { mImages = value; }
+        }
+
+        public System.Collections.ArrayList Cursor
+        {
+            get { return mCursor; }
+            //set { mCursor = value; }
         }
 
         public ProjectSettings Settings;
         Dictionary<string, string> mImages;
+        System.Collections.ArrayList mCursor;
         AdvFileReader mReader;
     }
 }

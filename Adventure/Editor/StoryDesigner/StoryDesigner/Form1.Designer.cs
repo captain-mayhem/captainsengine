@@ -348,6 +348,7 @@ namespace StoryDesigner
             this.mouseiconsToolStripMenuItem.Name = "mouseiconsToolStripMenuItem";
             this.mouseiconsToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.mouseiconsToolStripMenuItem.Text = "Mouseicons";
+            this.mouseiconsToolStripMenuItem.Click += new System.EventHandler(this.mouseiconsToolStripMenuItem_Click);
             // 
             // toolStripSeparator8
             // 

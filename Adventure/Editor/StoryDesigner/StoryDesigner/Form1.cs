@@ -92,5 +92,11 @@ namespace StoryDesigner
             Fonts fnts = new Fonts();
             fnts.ShowDialog(this);
         }
+
+        private void mouseiconsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MouseIcons icons = new MouseIcons();
+            icons.ShowDialog(this);
+        }
     }
 }

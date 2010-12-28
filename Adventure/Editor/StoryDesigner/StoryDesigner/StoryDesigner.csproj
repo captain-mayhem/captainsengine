@@ -66,6 +66,12 @@
     <Compile Include="ImageViewer.Designer.cs">
       <DependentUpon>ImageViewer.cs</DependentUpon>
     </Compile>
+    <Compile Include="MouseIcons.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MouseIcons.Designer.cs">
+      <DependentUpon>MouseIcons.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CommandsAndBools.resx">
@@ -83,6 +89,10 @@
     <EmbeddedResource Include="ImageViewer.resx">
       <SubType>Designer</SubType>
       <DependentUpon>ImageViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MouseIcons.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MouseIcons.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

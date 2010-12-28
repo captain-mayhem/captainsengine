@@ -10,6 +10,14 @@ namespace StoryDesigner
 {
     public class AdvFileReader
     {
+        protected readonly float FPS_MAX = 50.0f;
+        protected readonly int STATES_MAX = 10;
+        protected readonly int CHAR_STATES_MAX = 36;
+        protected readonly int FRAMES_MAX = 25;
+        protected readonly int FRAMES2_MAX = 30;
+        protected readonly int PARTS_MAX = 2;
+        protected readonly int FXSHAPES_MAX = 3;
+
         public AdvFileReader(string filename, TreeView mediapool, TreeView gamepool)
         {
             mAdv = new AdvData(this);
@@ -37,6 +45,10 @@ namespace StoryDesigner
                 if (entry.Name == "game.001")
                 {
                     readSettings(zis);
+                }
+                else if (entry.Name == "game.002")
+                {
+                    readObjects(zis);
                 }
             }
             zis.Close();
@@ -237,6 +249,38 @@ namespace StoryDesigner
                     mAdv.Images.Add(str.ToLower(), filename);
                     str = rdr.ReadLine();
                 }
+            }
+            return true;
+        }
+
+        protected bool readObjects(Stream strm)
+        {
+            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+            string str = rdr.ReadLine();
+            int ver_major = Int32.Parse(str.Substring(0, 1));
+            int ver_minor = Int32.Parse(str.Substring(2, 1));
+            if (str.Substring(4) != "Point&Click Project File. DO NOT MODIFY!!")
+                return false;
+            str = rdr.ReadLine();
+            for (int state = 0; state < STATES_MAX; ++state)
+            {
+                CursorState cs;
+                cs.frames = new System.Collections.ArrayList();
+                for (int frames = 0; frames < FRAMES_MAX; ++frames)
+                {
+                    str = rdr.ReadLine();
+                    if (str.Length > 0)
+                        cs.frames.Add(str);
+                }
+                str = rdr.ReadLine();
+                cs.command = Convert.ToInt32(str);
+                str = rdr.ReadLine();
+                cs.fps = FPS_MAX / Convert.ToInt32(str);
+                str = rdr.ReadLine();
+                cs.highlight.x = Convert.ToInt32(str);
+                str = rdr.ReadLine();
+                cs.highlight.y = Convert.ToInt32(str);
+                mAdv.Cursor.Add(cs);
             }
             return true;
         }
