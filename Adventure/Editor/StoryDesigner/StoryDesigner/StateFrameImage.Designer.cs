@@ -41,98 +41,122 @@ namespace StoryDesigner
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.framecontrol = new System.Windows.Forms.PictureBox();
+            this.pictureBox = new System.Windows.Forms.PictureBox();
+            this.trackBar1 = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
             this.SuspendLayout();
             // 
             // button1
             // 
+            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button1.Location = new System.Drawing.Point(3, 16);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(27, 23);
+            this.button1.Size = new System.Drawing.Size(29, 23);
             this.button1.TabIndex = 0;
             this.button1.Text = "1";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
+            this.button2.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button2.Location = new System.Drawing.Point(36, 16);
             this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(27, 23);
+            this.button2.Size = new System.Drawing.Size(29, 23);
             this.button2.TabIndex = 0;
             this.button2.Text = "2";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // button3
             // 
+            this.button3.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button3.Location = new System.Drawing.Point(69, 16);
             this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(27, 23);
+            this.button3.Size = new System.Drawing.Size(29, 23);
             this.button3.TabIndex = 0;
             this.button3.Text = "3";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // button4
             // 
+            this.button4.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button4.Location = new System.Drawing.Point(102, 16);
             this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(27, 23);
+            this.button4.Size = new System.Drawing.Size(29, 23);
             this.button4.TabIndex = 0;
             this.button4.Text = "4";
             this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
             // button5
             // 
+            this.button5.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button5.Location = new System.Drawing.Point(135, 16);
             this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(27, 23);
+            this.button5.Size = new System.Drawing.Size(29, 23);
             this.button5.TabIndex = 0;
             this.button5.Text = "5";
             this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
             // 
             // button6
             // 
+            this.button6.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button6.Location = new System.Drawing.Point(168, 16);
             this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(27, 23);
+            this.button6.Size = new System.Drawing.Size(29, 23);
             this.button6.TabIndex = 0;
             this.button6.Text = "6";
             this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
             // 
             // button7
             // 
+            this.button7.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button7.Location = new System.Drawing.Point(201, 16);
             this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(27, 23);
+            this.button7.Size = new System.Drawing.Size(29, 23);
             this.button7.TabIndex = 0;
             this.button7.Text = "7";
             this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // button8
             // 
+            this.button8.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button8.Location = new System.Drawing.Point(234, 16);
             this.button8.Name = "button8";
-            this.button8.Size = new System.Drawing.Size(27, 23);
+            this.button8.Size = new System.Drawing.Size(29, 23);
             this.button8.TabIndex = 0;
             this.button8.Text = "8";
             this.button8.UseVisualStyleBackColor = true;
+            this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
             // button9
             // 
+            this.button9.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button9.Location = new System.Drawing.Point(267, 16);
             this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(27, 23);
+            this.button9.Size = new System.Drawing.Size(29, 23);
             this.button9.TabIndex = 0;
             this.button9.Text = "9";
             this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // button10
             // 
+            this.button10.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.button10.Location = new System.Drawing.Point(300, 16);
             this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(27, 23);
+            this.button10.Size = new System.Drawing.Size(29, 23);
             this.button10.TabIndex = 0;
             this.button10.Text = "10";
             this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
             // 
             // label1
             // 
@@ -160,10 +184,28 @@ namespace StoryDesigner
             this.framecontrol.TabIndex = 3;
             this.framecontrol.TabStop = false;
             // 
+            // pictureBox
+            // 
+            this.pictureBox.BackColor = System.Drawing.SystemColors.Desktop;
+            this.pictureBox.Location = new System.Drawing.Point(135, 115);
+            this.pictureBox.Name = "pictureBox";
+            this.pictureBox.Size = new System.Drawing.Size(50, 50);
+            this.pictureBox.TabIndex = 4;
+            this.pictureBox.TabStop = false;
+            // 
+            // trackBar1
+            // 
+            this.trackBar1.Location = new System.Drawing.Point(3, 189);
+            this.trackBar1.Name = "trackBar1";
+            this.trackBar1.Size = new System.Drawing.Size(104, 45);
+            this.trackBar1.TabIndex = 5;
+            // 
             // StateFrameImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.trackBar1);
+            this.Controls.Add(this.pictureBox);
             this.Controls.Add(this.framecontrol);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -180,6 +222,8 @@ namespace StoryDesigner
             this.Name = "StateFrameImage";
             this.Size = new System.Drawing.Size(331, 296);
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -200,5 +244,7 @@ namespace StoryDesigner
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.PictureBox framecontrol;
+        private System.Windows.Forms.PictureBox pictureBox;
+        private System.Windows.Forms.TrackBar trackBar1;
     }
 }
