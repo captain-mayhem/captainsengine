@@ -35,7 +35,7 @@ namespace StoryDesigner
             // 
             this.stateFrameImage1.Location = new System.Drawing.Point(12, 12);
             this.stateFrameImage1.Name = "stateFrameImage1";
-            this.stateFrameImage1.Size = new System.Drawing.Size(331, 150);
+            this.stateFrameImage1.Size = new System.Drawing.Size(331, 238);
             this.stateFrameImage1.TabIndex = 0;
             // 
             // MouseIcons

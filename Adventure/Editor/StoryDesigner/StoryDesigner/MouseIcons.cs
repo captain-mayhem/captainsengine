@@ -10,9 +10,13 @@ namespace StoryDesigner
 {
     public partial class MouseIcons : Form
     {
-        public MouseIcons()
+        public MouseIcons(AdvData data)
         {
             InitializeComponent();
+            mData = data;
+            this.stateFrameImage1.Data = mData.Cursor;
         }
+
+        AdvData mData;
     }
 }

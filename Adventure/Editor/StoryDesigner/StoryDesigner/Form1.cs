@@ -28,8 +28,7 @@ namespace StoryDesigner
             switch (id)
             {
                 case ResourceID.IMAGE:
-                    string filename = mData.Images[name];
-                    System.Drawing.Bitmap bmp = mData.getImage(filename);
+                    System.Drawing.Bitmap bmp = mData.getImage(name);
                     mImageViewer = new ImageViewer(bmp);
                     mImageViewer.Show(this);
                     break;
@@ -95,7 +94,7 @@ namespace StoryDesigner
 
         private void mouseiconsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MouseIcons icons = new MouseIcons();
+            MouseIcons icons = new MouseIcons(mData);
             icons.ShowDialog(this);
         }
     }

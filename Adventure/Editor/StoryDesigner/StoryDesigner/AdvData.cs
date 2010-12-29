@@ -88,12 +88,50 @@ namespace StoryDesigner
         public Dictionary<string, string> Commands;
     }
 
+    public interface IStateFrameData{
+        bool frameExists(int state, int frame);
+        string[] getFrame(int state, int frame);
+        System.Drawing.Bitmap getImage(string framepart);
+    };
+
     public struct CursorState
     {
         public System.Collections.ArrayList frames;
         public float fps;
         public int command;
         public Vec2i highlight;
+    }
+
+    public class Cursor : IStateFrameData
+    {
+        public Cursor(AdvData data)
+        {
+            mData = data;
+        }
+        public int Add(CursorState cs)
+        {
+            return mStates.Add(cs);
+        }
+        public bool frameExists(int state, int frame)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            return frame < cs.frames.Count;
+        }
+        public string[] getFrame(int state, int frame)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            if (frame >= cs.frames.Count)
+                return null;
+            string[] ret = new string[1];
+            ret[0] = (string)cs.frames[frame];
+            return ret;
+        }
+        public System.Drawing.Bitmap getImage(string framepart)
+        {
+            return mData.getImage(framepart);
+        }
+        System.Collections.ArrayList mStates = new System.Collections.ArrayList();
+        AdvData mData;
     }
 
     public class AdvData
@@ -103,11 +141,12 @@ namespace StoryDesigner
             Settings = new ProjectSettings();
             mImages = new Dictionary<string, string>();
             mReader = reader;
-            mCursor = new System.Collections.ArrayList();
+            mCursor = new Cursor(this);
         }
 
-        public System.Drawing.Bitmap getImage(string filename)
+        public System.Drawing.Bitmap getImage(string name)
         {
+            string filename = mImages[name];
             return mReader.getImage(filename);
         }
 
@@ -117,7 +156,7 @@ namespace StoryDesigner
             //set { mImages = value; }
         }
 
-        public System.Collections.ArrayList Cursor
+        public Cursor Cursor
         {
             get { return mCursor; }
             //set { mCursor = value; }
@@ -125,7 +164,7 @@ namespace StoryDesigner
 
         public ProjectSettings Settings;
         Dictionary<string, string> mImages;
-        System.Collections.ArrayList mCursor;
+        Cursor mCursor;
         AdvFileReader mReader;
     }
 }
