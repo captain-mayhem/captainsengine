@@ -15,6 +15,7 @@ namespace StoryDesigner
             InitializeComponent();
             mData = data;
             this.stateFrameImage1.Data = mData.Cursor;
+            this.stateFrameImage1.PictureBoxSize = new Size(96, 96);
         }
 
         AdvData mData;
