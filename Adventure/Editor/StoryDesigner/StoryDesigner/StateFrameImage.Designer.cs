@@ -42,10 +42,14 @@ namespace StoryDesigner
             this.label2 = new System.Windows.Forms.Label();
             this.framecontrol = new System.Windows.Forms.PictureBox();
             this.pictureBox = new System.Windows.Forms.PictureBox();
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
+            this.fps = new System.Windows.Forms.TrackBar();
+            this.lower_group = new System.Windows.Forms.Panel();
+            this.picturePanel = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fps)).BeginInit();
+            this.lower_group.SuspendLayout();
+            this.picturePanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -178,6 +182,7 @@ namespace StoryDesigner
             // 
             // framecontrol
             // 
+            this.framecontrol.BackColor = System.Drawing.SystemColors.Control;
             this.framecontrol.Location = new System.Drawing.Point(3, 68);
             this.framecontrol.Name = "framecontrol";
             this.framecontrol.Size = new System.Drawing.Size(324, 23);
@@ -187,25 +192,44 @@ namespace StoryDesigner
             // pictureBox
             // 
             this.pictureBox.BackColor = System.Drawing.SystemColors.Desktop;
-            this.pictureBox.Location = new System.Drawing.Point(135, 115);
+            this.pictureBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pictureBox.Location = new System.Drawing.Point(0, 0);
             this.pictureBox.Name = "pictureBox";
             this.pictureBox.Size = new System.Drawing.Size(50, 50);
             this.pictureBox.TabIndex = 4;
             this.pictureBox.TabStop = false;
             // 
-            // trackBar1
+            // fps
             // 
-            this.trackBar1.Location = new System.Drawing.Point(3, 189);
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(104, 45);
-            this.trackBar1.TabIndex = 5;
+            this.fps.Location = new System.Drawing.Point(3, 21);
+            this.fps.Maximum = 100;
+            this.fps.Name = "fps";
+            this.fps.Size = new System.Drawing.Size(318, 45);
+            this.fps.TabIndex = 5;
+            // 
+            // lower_group
+            // 
+            this.lower_group.Controls.Add(this.fps);
+            this.lower_group.Location = new System.Drawing.Point(3, 171);
+            this.lower_group.Name = "lower_group";
+            this.lower_group.Size = new System.Drawing.Size(324, 100);
+            this.lower_group.TabIndex = 6;
+            // 
+            // picturePanel
+            // 
+            this.picturePanel.AllowDrop = true;
+            this.picturePanel.Controls.Add(this.pictureBox);
+            this.picturePanel.Location = new System.Drawing.Point(135, 115);
+            this.picturePanel.Name = "picturePanel";
+            this.picturePanel.Size = new System.Drawing.Size(50, 50);
+            this.picturePanel.TabIndex = 7;
             // 
             // StateFrameImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Controls.Add(this.trackBar1);
-            this.Controls.Add(this.pictureBox);
+            this.Controls.Add(this.picturePanel);
+            this.Controls.Add(this.lower_group);
             this.Controls.Add(this.framecontrol);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -223,7 +247,10 @@ namespace StoryDesigner
             this.Size = new System.Drawing.Size(331, 296);
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fps)).EndInit();
+            this.lower_group.ResumeLayout(false);
+            this.lower_group.PerformLayout();
+            this.picturePanel.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -245,6 +272,8 @@ namespace StoryDesigner
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.PictureBox framecontrol;
         private System.Windows.Forms.PictureBox pictureBox;
-        private System.Windows.Forms.TrackBar trackBar1;
+        private System.Windows.Forms.TrackBar fps;
+        private System.Windows.Forms.Panel lower_group;
+        private System.Windows.Forms.Panel picturePanel;
     }
 }

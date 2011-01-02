@@ -92,6 +92,7 @@ namespace StoryDesigner
         bool frameExists(int state, int frame);
         string[] getFrame(int state, int frame);
         System.Drawing.Bitmap getImage(string framepart);
+        void setFramePart(int state, int frame, int part, string name);
     };
 
     public struct CursorState
@@ -130,6 +131,13 @@ namespace StoryDesigner
         {
             return mData.getImage(framepart);
         }
+        public void setFramePart(int state, int frame, int part, string name)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            while (frame >= cs.frames.Count)
+                cs.frames.Add("");
+            cs.frames[frame] = name;
+        }
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         AdvData mData;
     }
@@ -146,7 +154,7 @@ namespace StoryDesigner
 
         public System.Drawing.Bitmap getImage(string name)
         {
-            string filename = mImages[name];
+            string filename = mImages[name.ToLower()];
             return mReader.getImage(filename);
         }
 

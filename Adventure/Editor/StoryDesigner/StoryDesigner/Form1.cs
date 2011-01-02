@@ -14,6 +14,19 @@ namespace StoryDesigner
         {
             InitializeComponent();
             mediaPool.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
+            mediaPool.MouseDown += new MouseEventHandler(mediaPool_MouseDown);
+        }
+
+        void mediaPool_MouseDown(object sender, MouseEventArgs e)
+        {
+            TreeNode node = mediaPool.GetNodeAt(e.Location);
+            mediaPool.SelectedNode = node;
+            ResourceID id = (ResourceID)node.Tag;
+            if (id == ResourceID.IMAGE)
+            {
+                string name = node.Text;
+                mediaPool.DoDragDrop(name, DragDropEffects.Copy);
+            }
         }
 
         public MainForm(string filename) : this()
@@ -95,7 +108,15 @@ namespace StoryDesigner
         private void mouseiconsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             MouseIcons icons = new MouseIcons(mData);
-            icons.ShowDialog(this);
+            icons.Show(this);
+        }
+
+        private void imageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fod = new OpenFileDialog();
+            fod.Filter = "Image files|*.jpg;*.png;*.bmp,*.tga;*.gif";
+            fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
+            fod.ShowDialog();
         }
     }
 }

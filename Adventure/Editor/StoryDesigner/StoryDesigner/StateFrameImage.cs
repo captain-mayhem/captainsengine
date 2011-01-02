@@ -26,19 +26,40 @@ namespace StoryDesigner
             this.framecontrol.Paint += new PaintEventHandler(framecontrol_Paint);
             this.framecontrol.MouseClick += new MouseEventHandler(framecontrol_MouseClick);
             this.pictureBox.Paint += new PaintEventHandler(pictureBox_Paint);
+            this.picturePanel.DragOver += new DragEventHandler(picturePanel_DragOver);
+            this.picturePanel.DragDrop += new DragEventHandler(picturePanel_DragDrop);
             mOrigColor = mStateButtons[mState].BackColor;
             mStateButtons[mState].BackColor = Color.Turquoise;
         }
 
+        void picturePanel_DragDrop(object sender, DragEventArgs e)
+        {
+            string name = (string)e.Data.GetData(DataFormats.StringFormat);
+            mData.setFramePart(mState, mFrame, 0, name);
+            this.pictureBox.Invalidate();
+        }
+
+        void picturePanel_DragOver(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(DataFormats.StringFormat))
+                e.Effect = DragDropEffects.None;
+            e.Effect = DragDropEffects.Copy;
+        }
+
         void pictureBox_Paint(object sender, PaintEventArgs e)
         {
+            if (mData == null)
+                return;
             string[] pics = mData.getFrame(mState, mFrame);
             if (pics == null)
                 return;
             for (int i = 0; i < pics.Length; ++i)
             {
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
-                e.Graphics.DrawImage(bmp, 0, 0);
+                if (mScaleImage)
+                    e.Graphics.DrawImage(bmp, 0, 0, PictureBoxSize.Width, PictureBoxSize.Height);
+                else
+                    e.Graphics.DrawImage(bmp, 0, 0);
             }
         }
 
@@ -46,6 +67,24 @@ namespace StoryDesigner
         {
             set { mData = value; }
             get { return mData; }
+        }
+
+        public Size PictureBoxSize
+        {
+            set {
+                int heightDiff = value.Height - picturePanel.Size.Height;
+                lower_group.Location = new Point(lower_group.Location.X, lower_group.Location.Y+heightDiff);
+                int widthDiff = value.Width - picturePanel.Size.Width;
+                picturePanel.Location = new Point(picturePanel.Location.X - widthDiff / 2, picturePanel.Location.Y);
+                picturePanel.Size = value;
+            }
+            get { return picturePanel.Size; }
+        }
+
+        public bool ScaleImageToBox
+        {
+            set { mScaleImage = value; }
+            get { return mScaleImage; }
         }
 
         void framecontrol_MouseClick(object sender, MouseEventArgs e)
@@ -66,7 +105,7 @@ namespace StoryDesigner
                 Rectangle r = new Rectangle(i*(pb.Size.Width/mFrames+1), 0, pb.Size.Width / mFrames - 1, pb.Size.Height - 1);
                 if (i == mFrame)
                     e.Graphics.FillRectangle(b, r);
-                if (mData.frameExists(mState, i))
+                if (mData != null && mData.frameExists(mState, i))
                 {
                     e.Graphics.DrawEllipse(p, r.X+r.Width/4+1, r.Y+r.Height/4, r.Width/2, r.Height/2);
                 }
@@ -90,6 +129,7 @@ namespace StoryDesigner
         private Button[] mStateButtons = new Button[10];
         private IStateFrameData mData;
         private Color mOrigColor;
+        private bool mScaleImage = false;
 
         private void button1_Click(object sender, EventArgs e)
         {
