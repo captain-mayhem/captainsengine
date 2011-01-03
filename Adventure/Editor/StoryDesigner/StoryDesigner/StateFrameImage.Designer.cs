@@ -45,6 +45,7 @@ namespace StoryDesigner
             this.fps = new System.Windows.Forms.TrackBar();
             this.lower_group = new System.Windows.Forms.Panel();
             this.picturePanel = new System.Windows.Forms.Panel();
+            this.fps_label = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fps)).BeginInit();
@@ -201,14 +202,17 @@ namespace StoryDesigner
             // 
             // fps
             // 
-            this.fps.Location = new System.Drawing.Point(3, 21);
+            this.fps.Location = new System.Drawing.Point(3, 3);
             this.fps.Maximum = 100;
+            this.fps.Minimum = 1;
             this.fps.Name = "fps";
             this.fps.Size = new System.Drawing.Size(318, 45);
             this.fps.TabIndex = 5;
+            this.fps.Value = 1;
             // 
             // lower_group
             // 
+            this.lower_group.Controls.Add(this.fps_label);
             this.lower_group.Controls.Add(this.fps);
             this.lower_group.Location = new System.Drawing.Point(3, 171);
             this.lower_group.Name = "lower_group";
@@ -223,6 +227,15 @@ namespace StoryDesigner
             this.picturePanel.Name = "picturePanel";
             this.picturePanel.Size = new System.Drawing.Size(50, 50);
             this.picturePanel.TabIndex = 7;
+            // 
+            // fps_label
+            // 
+            this.fps_label.AutoSize = true;
+            this.fps_label.Location = new System.Drawing.Point(3, 35);
+            this.fps_label.Name = "fps_label";
+            this.fps_label.Size = new System.Drawing.Size(127, 13);
+            this.fps_label.TabIndex = 6;
+            this.fps_label.Text = "Speed 50 frames/second";
             // 
             // StateFrameImage
             // 
@@ -275,5 +288,6 @@ namespace StoryDesigner
         private System.Windows.Forms.TrackBar fps;
         private System.Windows.Forms.Panel lower_group;
         private System.Windows.Forms.Panel picturePanel;
+        private System.Windows.Forms.Label fps_label;
     }
 }
