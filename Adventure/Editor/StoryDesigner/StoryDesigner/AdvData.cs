@@ -92,13 +92,14 @@ namespace StoryDesigner
         bool frameExists(int state, int frame);
         string[] getFrame(int state, int frame);
         System.Drawing.Bitmap getImage(string framepart);
+        int getFPSDivider(int state);
         void setFramePart(int state, int frame, int part, string name);
     };
 
     public struct CursorState
     {
         public System.Collections.ArrayList frames;
-        public float fps;
+        public int fpsDivider;
         public int command;
         public Vec2i highlight;
     }
@@ -137,6 +138,11 @@ namespace StoryDesigner
             while (frame >= cs.frames.Count)
                 cs.frames.Add("");
             cs.frames[frame] = name;
+        }
+        public int getFPSDivider(int state)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            return cs.fpsDivider;
         }
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         AdvData mData;

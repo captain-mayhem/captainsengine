@@ -275,7 +275,7 @@ namespace StoryDesigner
                 str = rdr.ReadLine();
                 cs.command = Convert.ToInt32(str);
                 str = rdr.ReadLine();
-                cs.fps = FPS_MAX / Convert.ToInt32(str);
+                cs.fpsDivider = Convert.ToInt32(str);
                 str = rdr.ReadLine();
                 cs.highlight.x = Convert.ToInt32(str);
                 str = rdr.ReadLine();

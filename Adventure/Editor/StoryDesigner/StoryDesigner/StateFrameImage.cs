@@ -10,6 +10,8 @@ namespace StoryDesigner
 {
     public partial class StateFrameImage : UserControl
     {
+        public event EventHandler PictureChanged;
+
         public StateFrameImage()
         {
             InitializeComponent();
@@ -30,6 +32,13 @@ namespace StoryDesigner
             this.picturePanel.DragDrop += new DragEventHandler(picturePanel_DragDrop);
             mOrigColor = mStateButtons[mState].BackColor;
             mStateButtons[mState].BackColor = Color.Turquoise;
+            this.fps.ValueChanged += new EventHandler(fps_ValueChanged);
+        }
+
+        void fps_ValueChanged(object sender, EventArgs e)
+        {
+            string str = "Speed " + 50.0f / fps.Value + " frames/second";
+            fps_label.Text = str;
         }
 
         void picturePanel_DragDrop(object sender, DragEventArgs e)
@@ -61,11 +70,13 @@ namespace StoryDesigner
                 else
                     e.Graphics.DrawImage(bmp, 0, 0);
             }
+            if (PictureChanged != null)
+                PictureChanged(this, new EventArgs());
         }
 
         public IStateFrameData Data
         {
-            set { mData = value; }
+            set { mData = value; updateStateValues(); }
             get { return mData; }
         }
 
@@ -85,6 +96,14 @@ namespace StoryDesigner
         {
             set { mScaleImage = value; }
             get { return mScaleImage; }
+        }
+
+        public Bitmap getBitmap()
+        {
+            Bitmap bmp = new Bitmap(pictureBox.Width, pictureBox.Height);
+            Rectangle r = new Rectangle(0, 0, pictureBox.Width, pictureBox.Height);
+            pictureBox.DrawToBitmap(bmp, r);
+            return bmp;
         }
 
         void framecontrol_MouseClick(object sender, MouseEventArgs e)
@@ -120,7 +139,15 @@ namespace StoryDesigner
             mState = newState;
             mStateButtons[mState].BackColor = Color.Turquoise;
             mFrame = 0;
+            updateStateValues();
             this.framecontrol.Invalidate();
+        }
+
+        void updateStateValues()
+        {
+            if (mData == null)
+                return;
+            fps.Value = mData.getFPSDivider(mState);
         }
 
         private int mFrames = 25;
