@@ -20,6 +20,8 @@ namespace StoryDesigner
         void mediaPool_MouseDown(object sender, MouseEventArgs e)
         {
             TreeNode node = mediaPool.GetNodeAt(e.Location);
+            if (node == null)
+                return;
             mediaPool.SelectedNode = node;
             ResourceID id = (ResourceID)node.Tag;
             if (id == ResourceID.IMAGE)
@@ -42,6 +44,11 @@ namespace StoryDesigner
             {
                 case ResourceID.IMAGE:
                     System.Drawing.Bitmap bmp = mData.getImage(name);
+                    if (bmp == null)
+                    {
+                        MessageBox.Show("Cannot find image " + name);
+                        return;
+                    }
                     mImageViewer = new ImageViewer(bmp);
                     mImageViewer.Show(this);
                     break;
@@ -116,7 +123,41 @@ namespace StoryDesigner
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp,*.tga;*.gif";
             fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
-            fod.ShowDialog();
+            if (fod.ShowDialog() == DialogResult.OK)
+            {
+                string filename = fod.FileName;
+                string file = System.IO.Path.GetFileNameWithoutExtension(filename);
+                try
+                {
+                    mData.Images.Add(file, filename);
+                }
+                catch (ArgumentException)
+                {
+                    MessageBox.Show("Image with same name already added");
+                    return;
+                }
+                TreeNode node = mediaPool.SelectedNode;
+                if (node == null)
+                    node = mediaPool.Nodes[0];
+                else
+                {
+                    TreeNode parent = node;
+                    while (parent.Parent != null)
+                        parent = parent.Parent;
+                    if (parent != mediaPool.Nodes[0])
+                        node = mediaPool.Nodes[0];
+                }
+                if ((ResourceID)node.Tag != ResourceID.FOLDER)
+                    node = node.Parent;
+                TreeNode newnode = new TreeNode(file);
+                newnode.Tag = ResourceID.IMAGE;
+                node.Nodes.Add(newnode);
+            }
+        }
+
+        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mData = new AdvData();
         }
     }
 }
