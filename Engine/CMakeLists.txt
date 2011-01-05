@@ -1,5 +1,6 @@
 
 INCLUDE(gui/CMakeLists.txt)
+INCLUDE(image/CMakeLists.txt)
 INCLUDE(input/CMakeLists.txt)
 INCLUDE(io/CMakeLists.txt)
 INCLUDE(math/CMakeLists.txt)
@@ -15,6 +16,7 @@ LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
 
 ADD_LIBRARY(Engine STATIC 
 	${Engine_gui_SRCS}
+	${Engine_image_SRCS}
 	${Engine_input_SRCS}
 	${Engine_io_SRCS}
 	${Engine_math_SRCS}
@@ -26,6 +28,7 @@ ADD_LIBRARY(Engine STATIC
 	${Engine_common_SRCS}
 	
 	${Engine_gui_HDRS}
+	${Engine_image_HDRS}
 	${Engine_input_HDRS}
 	${Engine_io_HDRS}
 	${Engine_math_HDRS}
@@ -39,6 +42,8 @@ ADD_LIBRARY(Engine STATIC
 
 SOURCE_GROUP("gui" FILES ${Engine_gui_SRCS})
 SOURCE_GROUP("gui" FILES ${Engine_gui_HDRS})
+SOURCE_GROUP("image" FILES ${Engine_image_SRCS})
+SOURCE_GROUP("image" FILES ${Engine_image_HDRS})
 SOURCE_GROUP("input" FILES ${Engine_input_SRCS})
 SOURCE_GROUP("input" FILES ${Engine_input_HDRS})
 SOURCE_GROUP("io" FILES ${Engine_io_SRCS})

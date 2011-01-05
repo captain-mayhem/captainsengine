@@ -114,7 +114,7 @@ namespace StoryDesigner
         private void imageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog fod = new OpenFileDialog();
-            fod.Filter = "Image files|*.jpg;*.png;*.bmp,*.tga;*.gif";
+            fod.Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp,*.tga;*.gif";
             fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
             fod.ShowDialog();
         }

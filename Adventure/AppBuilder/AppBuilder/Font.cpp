@@ -97,7 +97,7 @@ FontRenderer::Font::Font(const FontData& data){
   mCharwidths = data.charwidths;
   mImages.reserve(data.images.size()/2);
   for (unsigned i = 0; i < data.images.size()/2; ++i){
-    mImages.push_back(Engine::instance()->genTexture(data.images[2*i+1], mTexSize, mScale, &data.images[2*i]));
+    mImages.push_back(Engine::instance()->genTexture(data.images[2*i+1], mTexSize, mScale, data.images[2*i]));
   }
   mScale = Vec2f(mFontsize.x/(float)mTexSize.x, mFontsize.y/(float)mTexSize.y);
 }
@@ -221,6 +221,7 @@ bool FontRenderer::loadFont(unsigned id){
     if (fnt.images.empty())
       return false;
     mFonts[id] = new Font(fnt);
+    fnt.destroyImages();
   }
   return true;
 }

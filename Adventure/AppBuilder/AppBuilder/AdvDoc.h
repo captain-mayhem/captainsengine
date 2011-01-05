@@ -8,6 +8,7 @@
 #include <wx/filename.h>
 #include <wx/filesys.h>
 #include <wx/image.h>
+#include <image/image.h>
 #include "AdvMainTree.h"
 #include "Vector.h"
 
@@ -183,9 +184,14 @@ struct Script{
 };
 
 struct FontData{
+  void destroyImages(){
+    for (unsigned i = 0; i < images.size(); ++i){
+      delete images[i];
+    }
+  }
   Vec2i fontsize;
   Vec2i numChars;
-  std::vector<wxImage> images;
+  std::vector<CGE::Image*> images;
   std::vector<unsigned> charwidths;
 };
 
@@ -213,7 +219,7 @@ public:
   virtual ~AdvDocument();
   virtual wxOutputStream& SaveObject(wxOutputStream& stream);
   virtual wxInputStream& LoadObject(wxInputStream& stream);
-  wxImage getImage(const std::string& name);
+  CGE::Image* getImage(const std::string& name);
   bool getSound(const std::string& name, DataBuffer& db);
   bool getMusic(const std::string& name, DataBuffer& db);
   bool getMovie(const std::string& name, DataBuffer& db);

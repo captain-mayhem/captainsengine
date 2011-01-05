@@ -157,7 +157,7 @@ void Engine::exitGame(){
   mFonts->unloadFont(0);
 }
 
-wxImage Engine::getImage(const std::string& name){
+CGE::Image* Engine::getImage(const std::string& name){
   return mData->getImage(name);
 }
 
@@ -172,30 +172,31 @@ unsigned Engine::roundToPowerOf2(unsigned x){
   return x + 1;
 }
 
-GLuint Engine::genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const wxImage* alphaimage){
+GLuint Engine::genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage){
   GLuint tex;
-  if (!image.IsOk())
+  if (!image)
     return 0;
-  size.x = image.GetWidth();
-  size.y = image.GetHeight();
+  size.x = image->getWidth();
+  size.y = image->getHeight();
   Vec2i pow2(roundToPowerOf2(size.x), roundToPowerOf2(size.y));
   scale.x = ((float)size.x)/pow2.x;
   scale.y = ((float)size.y)/pow2.y;
   unsigned totalsize = size.x*size.y;
-  unsigned char* rgb = image.GetData();
-  unsigned char* alpha = image.GetAlpha();
+  unsigned char* rgb = image->getData();
+  //unsigned char* alpha = image.GetAlpha();
   GLubyte* buffer = new GLubyte[totalsize*4];
+  int channels = image->getNumChannels();
   for (unsigned i = 0; i < totalsize; ++i){
-    buffer[4*i] = rgb[3*i];
-    buffer[4*i+1] = rgb[3*i+1];
-    buffer[4*i+2] = rgb[3*i+2];
-    if (alpha)
-      buffer[4*i+3] = alpha[i];
+    buffer[4*i] = rgb[channels*i];
+    buffer[4*i+1] = rgb[channels*i+1];
+    buffer[4*i+2] = rgb[channels*i+2];
+    if (image->hasAlpha())
+      buffer[4*i+3] = rgb[channels*i+3];
     else if (alphaimage){
-      buffer[4*i+3] = alphaimage->GetRed(i%size.x, i/size.x);
+      buffer[4*i+3] = alphaimage->getPixelChannel(i%size.x, i/size.x, 0);
     }
     else{
-      if (rgb[3*i] == 0xFF && rgb[3*i+1] == 0x0 && rgb[3*i+2] == 0xFF){
+      if (rgb[channels*i] == 0xFF && rgb[channels*i+1] == 0x0 && rgb[channels*i+2] == 0xFF){
         buffer[4*i+3] = 0;
       }
       else{
