@@ -150,6 +150,78 @@ namespace StoryDesigner
 
     public class AdvData
     {
+        public AdvData()
+        {
+            Settings = new ProjectSettings();
+            Settings.ActionText = true;
+            Settings.ActionTextHeight = 0;
+            Settings.AnywhereRoom = "";
+            Settings.AnywhereTransparency = 0;
+            Settings.BackgroundColor = 32768;
+            Settings.Booleans = new Dictionary<string, bool>();
+            Settings.BorderColor = 8421376;
+            Settings.CoinActivated = false;
+            Settings.CoinAutoPopup = true;
+            Settings.CoinCenter = new Vec2i(65, 90);
+            Settings.CoinFading = 0;
+            Settings.CoinRoom = "";
+            Settings.Commands = new Dictionary<string, string>();
+            Settings.CustomMenu = true;
+            Settings.CustomMenuRoom = "";
+            Settings.Directory = "";
+            Settings.DrawDraggedItemIcons = false;
+            Settings.GameIcon = "";
+            Settings.GiveLink = "to";
+            Settings.GroupItems = false;
+            Settings.InfoLine = true;
+            Settings.InfotextColor = 16777215;
+            Settings.LinkText = "with";
+            Settings.LoadingImage = "";
+            Settings.Mainscript = "";
+            Settings.MenuFading = 0;
+            Settings.MuteMusicWhenSpeech = true;
+            Settings.NotAntialiased = false;
+            Settings.OffspeechColor = 16777215;
+            Settings.Projectname = "New Project";
+            Settings.ProtectGameFile = false;
+            Settings.Resolution = new Vec2i(640, 480);
+            Settings.ScreenChange = ScreenChange.SC_DIRECT;
+            Settings.ShowTaskbar = true;
+            Settings.SilentDelete = false;
+            Settings.Startscript = "";
+            Settings.TargaColor = 16711935;
+            Settings.TaskbarFromTop = false;
+            Settings.TaskHeight = 140;
+            Settings.TaskHideCompletely = true;
+            Settings.TaskPopup = 0;
+            Settings.TaskRoom = "";
+            Settings.TextColor = 65280;
+            Settings.TextOnOff = false;
+            Settings.TextSceneFading = 0;
+            Settings.TsAreaColor = 8421504;
+            Settings.TsBackground = "";
+            Settings.TsBorderColor = 0;
+            Settings.TsBorderStyle = 0;
+            Settings.TsSelectionColor = 12632256;
+            Settings.TsStyle = 0;
+            Settings.TsTextColor = 15793151;
+            Settings.TsUseBgImage = false;
+            Settings.TsUseSymbols = false;
+            Settings.WalkText = "Walk to";
+
+            mImages = new Dictionary<string, string>();
+            mReader = null;
+
+            mCursor = new Cursor(this);
+            for (int i = 0; i < 10; ++i)
+            {
+                CursorState cs = new CursorState();
+                cs.fpsDivider = 20;
+                cs.frames = new System.Collections.ArrayList();
+                mCursor.Add(cs);
+            }
+        }
+
         public AdvData(AdvFileReader reader)
         {
             Settings = new ProjectSettings();
