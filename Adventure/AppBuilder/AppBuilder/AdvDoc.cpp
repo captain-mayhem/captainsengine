@@ -595,7 +595,7 @@ bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
   return true;
 }
 
-wxImage AdvDocument::getImage(const std::string& name){
+CGE::Image* AdvDocument::getImage(const std::string& name){
   std::string filename;
   std::map<std::string,std::string>::iterator iter = mImageNames.find(name);
   if (iter != mImageNames.end())
@@ -613,13 +613,14 @@ wxImage AdvDocument::getImage(const std::string& name){
     static CGE::ZipReader zrdr(mPath+"/gfx.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(namepos+1));
     if (!rdr.isWorking())
-      return wxImage();
+      return NULL;
     wxBitmapType type = wxBITMAP_TYPE_ANY;
     int extpos = filename.find_last_of('.');
     if (filename.substr(extpos+1) == "pnj")
       type = wxBITMAP_TYPE_JPEG;
     wxMemoryInputStream mis(rdr.getData(), rdr.getSize());
     wxImage image(mis, type);
+    CGE::Image* img = NULL;
     if (filename.substr(extpos+1) == "pnj"){
       filename[filename.length()-1] = 'a';
       rdr = zrdr.openEntry(filename.substr(namepos+1));
@@ -631,10 +632,16 @@ wxImage AdvDocument::getImage(const std::string& name){
         alphadata[i] = alphaimage.GetData()[3*i];
       }
       image.SetAlpha(alphadata);
+      img = new CGE::Image(3, image.GetWidth(), image.GetHeight(), image.GetData(), alphadata);
     }
-    return image;
+    else{
+      img = new CGE::Image(3, image.GetWidth(), image.GetHeight(), image.GetData());
+    }
+    return img;
   }
-  return wxImage(wxString::FromAscii(filename.c_str()));
+  wxImage tmp(wxString::FromAscii(filename.c_str()));
+  CGE::Image* img = new CGE::Image(3, tmp.GetWidth(), tmp.GetHeight(), tmp.GetData());
+  return img;
 }
 
 bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
@@ -851,7 +858,8 @@ FontData AdvDocument::getFont(int num){
   if (!in.isWorking())
   continue;
   wxMemoryInputStream mis(in.getData(), in.getSize());
-  fnt.images[2*i] = wxImage(mis, wxBITMAP_TYPE_BMP);
+  wxImage tmp(mis, wxBITMAP_TYPE_BMP);
+  fnt.images[2*i] = new CGE::Image(3, tmp.GetWidth(), tmp.GetHeight(), tmp.GetData());
   number.str("");
   number.clear();
   if (num == 0){
@@ -863,7 +871,8 @@ FontData AdvDocument::getFont(int num){
   in = zrdr->openEntry(number.str());
   }
   wxMemoryInputStream mis2(in.getData(), in.getSize());
-  fnt.images[2*i+1] = wxImage(mis2, wxBITMAP_TYPE_BMP);
+  wxImage tmp2(mis2, wxBITMAP_TYPE_BMP);
+  fnt.images[2*i+1] = new CGE::Image(3, tmp.GetWidth(), tmp.GetHeight(), tmp.GetData());
   }
   delete firstzrdr;
   delete zrdr;

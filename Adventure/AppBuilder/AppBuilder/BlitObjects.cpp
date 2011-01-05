@@ -26,8 +26,9 @@ BlitObject::BlitObject(int width, int height) : BaseBlitObject(0, Vec2i(width, h
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
 BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(){
-  wxImage image = Engine::instance()->getImage(texture);
+  CGE::Image* image = Engine::instance()->getImage(texture);
   mTex = Engine::instance()->genTexture(image, mSize, mScale);
+  delete image;
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = true;
 }

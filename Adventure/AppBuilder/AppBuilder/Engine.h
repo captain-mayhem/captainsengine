@@ -4,6 +4,7 @@
 #include <string>
 #include <list>
 #include <wx/stopwatch.h>
+#include <image/image.h>
 #include "AdvDoc.h"
 #include "EngineObjects.h"
 #include "Script.h"
@@ -31,7 +32,7 @@ public:
   void render(unsigned time);
   void initGame(exit_callback exit_cb);
   void exitGame();
-  GLuint genTexture(const wxImage& image, Vec2i& size, Vec2f& scale, const wxImage* alphaimage=NULL);
+  GLuint genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
   void insertToBlit(BaseBlitObject* obj);
   void setCursorPos(Vec2i pos);
   Vec2i getCursorPos();
@@ -41,7 +42,7 @@ public:
   bool loadRoom(std::string name, bool isSubRoom);
   void unloadRoom(RoomObject* room, bool mainroom);
   bool setFocus(std::string charname);
-  wxImage getImage(const std::string& name);
+  CGE::Image* getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
   Object2D* getObjectAt(const Vec2i& pos);
   Object2D* getObject(const std::string& name, bool searchInventoryFirst);
