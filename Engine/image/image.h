@@ -4,8 +4,9 @@
 namespace CGE{
   class Image{
   public:
+    Image();
     Image(int channels, int width, int height, unsigned char* data);
-    Image(int channels, int width, int height, unsigned char* rgbdata, unsigned char* alphadata);
+    Image(int channels, int width, int height, unsigned char* rgbdata, unsigned alphachannels, unsigned char* alphadata);
     ~Image();
     void setFormat(int channels, int width, int height);
     void allocateData();
