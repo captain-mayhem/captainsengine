@@ -9,6 +9,7 @@
 #include <wx/filesys.h>
 #include <wx/mstream.h>
 #include <system/utilities.h>
+#include <image/loader.h>
 #include "GraphNodes.h"
 #include "AdvMainTree.h"
 #include "Sound.h"
@@ -611,30 +612,28 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
   if (mStream){
     int namepos = filename.find_last_of('/');
     static CGE::ZipReader zrdr(mPath+"/gfx.dat");
-    CGE::MemReader rdr = zrdr.openEntry(filename.substr(namepos+1));
+    std::string imagename = filename.substr(namepos+1);
+    CGE::MemReader rdr = zrdr.openEntry(imagename);
     if (!rdr.isWorking())
       return NULL;
-    wxBitmapType type = wxBITMAP_TYPE_ANY;
     int extpos = filename.find_last_of('.');
-    if (filename.substr(extpos+1) == "pnj")
-      type = wxBITMAP_TYPE_JPEG;
-    wxMemoryInputStream mis(rdr.getData(), rdr.getSize());
-    wxImage image(mis, type);
     CGE::Image* img = NULL;
     if (filename.substr(extpos+1) == "pnj"){
+      CGE::Image* rgbimage = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), CGE::ImageLoader::JPG);
       filename[filename.length()-1] = 'a';
       rdr = zrdr.openEntry(filename.substr(namepos+1));
-      wxMemoryInputStream mis(rdr.getData(), rdr.getSize());
-      wxImage alphaimage(mis, wxBITMAP_TYPE_JPEG);
-      int size = alphaimage.GetWidth()*alphaimage.GetHeight();
-      unsigned char* alphadata = (unsigned char*)malloc(size);
-      for (int i = 0; i < size; ++i){
-        alphadata[i] = alphaimage.GetData()[3*i];
-      }
-      image.SetAlpha(alphadata);
-      img = new CGE::Image(3, image.GetWidth(), image.GetHeight(), image.GetData(), alphadata);
+      CGE::Image* alphaimage = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), CGE::ImageLoader::JPG);
+      img = new CGE::Image(rgbimage->getNumChannels(), rgbimage->getWidth(), rgbimage->getHeight(), rgbimage->getData(), alphaimage->getNumChannels(), alphaimage->getData());
+      delete rgbimage;
+      delete alphaimage;
     }
     else{
+      wxBitmapType type = wxBITMAP_TYPE_ANY;
+      CGE::ImageLoader::Type imgtype = CGE::ImageLoader::determineType(imagename);
+      wxMemoryInputStream mis(rdr.getData(), rdr.getSize());
+      wxImage image(mis, type);
+      //img = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), imgtype);
+      //delete img;
       img = new CGE::Image(3, image.GetWidth(), image.GetHeight(), image.GetData());
     }
     return img;
