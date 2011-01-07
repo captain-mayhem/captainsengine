@@ -628,13 +628,13 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
       delete alphaimage;
     }
     else{
-      wxBitmapType type = wxBITMAP_TYPE_ANY;
+      //wxBitmapType type = wxBITMAP_TYPE_ANY;
       CGE::ImageLoader::Type imgtype = CGE::ImageLoader::determineType(imagename);
-      wxMemoryInputStream mis(rdr.getData(), rdr.getSize());
-      wxImage image(mis, type);
-      //img = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), imgtype);
+      //wxMemoryInputStream mis(rdr.getData(), rdr.getSize());
+      //wxImage image(mis, type);
+      img = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), imgtype);
       //delete img;
-      img = new CGE::Image(3, image.GetWidth(), image.GetHeight(), image.GetData());
+      //img = new CGE::Image(3, image.GetWidth(), image.GetHeight(), image.GetData());
     }
     return img;
   }

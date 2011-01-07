@@ -36,3 +36,20 @@ void Image::allocateData(){
 unsigned char Image::getPixelChannel(int x, int y, int channel) const{
   return mData[y*getRowSpan()+x*mChannels+channel];
 }
+
+void Image::debugWrite(const std::string& filename){
+  FILE* f = fopen(filename.c_str(), "wb");
+  fprintf(f, "P%i\n", mChannels == 1 ? 2 : 3);
+  fprintf(f, "%i %i\n", mWidth, mHeight);
+  fprintf(f, "255\n");
+  for (int j = 0; j < mHeight; ++j){
+    for (int i = 0; i < mWidth; ++i){
+      for (int c = 0; c < mChannels; ++c){
+        fprintf(f, "%3i ", mData[j*mWidth*mChannels+i+c]);
+      }
+      fprintf(f, " ");
+    }
+    fprintf(f, "\n");
+  }
+  fclose(f);
+}

@@ -12,6 +12,7 @@
 #endif
 extern "C"{
 #include <jpeglib.h>
+#include <extern/gif/gif_lib.h>
 }
 
 #include "image.h"
@@ -148,6 +149,87 @@ void decodeJPG(jpeg_decompress_struct* cinfo, Image *pImageData){
   jpeg_finish_decompress(cinfo);
 }
 
+static int gif_input_func(GifFileType* giffile, GifByteType* bytes, int length){
+  memcpy(bytes, giffile->UserData, length);
+  unsigned char* data = (unsigned char*)giffile->UserData;
+  data += length;
+  giffile->UserData = data;
+  return length;
+}
+
+Image* ImageLoader::loadGIF(void* memory, unsigned size){
+  GifFileType* giffile = DGifOpen(memory, gif_input_func);
+  GifRecordType recordtype;
+  int extcode;
+  GifByteType* extension;
+  unsigned char transparent;
+  bool hasTransparency;
+  unsigned char* indices = NULL;
+  do{
+    DGifGetRecordType(giffile, &recordtype);
+    switch(recordtype){
+      case EXTENSION_RECORD_TYPE:
+        DGifGetExtension(giffile, &extcode, &extension);
+        if (extcode == GRAPHICS_EXT_FUNC_CODE){
+          hasTransparency = (extension[1] & 0x01) > 0;
+          transparent = extension[4];
+        }
+        while (extension != NULL){
+          DGifGetExtensionNext(giffile, &extension);
+        }
+        break;
+      case IMAGE_DESC_RECORD_TYPE:
+        DGifGetImageDesc(giffile);
+        indices  = new unsigned char[giffile->Image.Width*giffile->Image.Height];
+        if (giffile->Image.Interlace){
+          static int interlacedOffset[] = { 0, 4, 2, 1 };
+          static int interlacedJumps[] = { 8, 8, 4, 2 };
+          for (int i = 0; i < 4; ++i){
+            for (int j = interlacedOffset[i]; j < giffile->Image.Height; j += interlacedJumps[i]){
+              DGifGetLine(giffile, indices+j*giffile->Image.Width, giffile->Image.Width);
+            }
+          }
+        }
+        else{
+          for (int i = 0; i < giffile->Image.Height; ++i){
+            DGifGetLine(giffile, indices+i*giffile->Image.Width, giffile->Image.Width);
+          }
+        }
+        /*{
+        CGE::Image test(1, giffile->Image.Width, giffile->Image.Height, indices);
+        char tmpstr[32];
+        static int imgcount = 1;
+        sprintf(tmpstr, "tmp%i.ppm", ++imgcount);
+        test.debugWrite(tmpstr);
+        }*/
+        {
+        CGE::Image* img = new CGE::Image();
+        int channels = hasTransparency ? 4 : 3;
+        img->setFormat(channels, giffile->Image.Width, giffile->Image.Height);
+        img->allocateData();
+        for (int i = 0; i < giffile->Image.Width*giffile->Image.Height; ++i){
+          unsigned char* color = &giffile->SColorMap->Colors[indices[i]].Red;
+          memcpy(img->getData()+channels*i, color, 3);
+          if (hasTransparency){
+            if (indices[i] == transparent)
+              img->getData()[channels*i+3] = 0x0;
+            else
+              img->getData()[channels*i+3] = 0xFF;
+          }
+        }
+        delete [] indices;
+        DGifCloseFile(giffile);
+        return img;
+        }
+        break;
+      case TERMINATE_RECORD_TYPE:
+        break;
+    }
+  } while (recordtype != TERMINATE_RECORD_TYPE);
+  return NULL;
+}
+
+/*
 #define MEMREAD(into, howmany) memcpy(into, current, howmany); current += howmany;
 int LZWDecoder(unsigned char* in, unsigned char* out, unsigned char initCodeSize, int alignedWidth, int width, int height, bool interlace);
 
@@ -255,6 +337,13 @@ Image* ImageLoader::loadGIF(void* memory, unsigned size){
       }
       unsigned char* out = new unsigned char[img->getWidth()*img->getHeight()];
       LZWDecoder(in, out, initsize, img->getWidth(), img->getWidth(), img->getHeight(), (gifid.packedFields&0x40) > 0);
+      
+      CGE::Image test(1, img->getWidth(), img->getHeight(), out);
+      char tmpstr[32];
+      static int imgcount = 1;
+      sprintf(tmpstr, "tmp%i.ppm", ++imgcount);
+      test.debugWrite(tmpstr);
+
       for (unsigned i = 0; i < img->getWidth()*img->getHeight(); ++i){
         unsigned char* color = colormap+3*out[i];
         memcpy(img->getData()+channels*i, color, 3);
@@ -265,6 +354,7 @@ Image* ImageLoader::loadGIF(void* memory, unsigned size){
             img->getData()[channels*i+3] = 0xFF;
         }
       }
+      delete [] colormap;
       delete [] in;
       delete [] out;
       break;
@@ -401,3 +491,4 @@ int LZWDecoder(unsigned char* in, unsigned char* out, unsigned char initCodeSize
 
 	return whichBit;
 }
+*/

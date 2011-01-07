@@ -1,6 +1,8 @@
 #ifndef CGE_IMAGE_H
 #define CGE_IMAGE_H
 
+#include <string>
+
 namespace CGE{
   class Image{
   public:
@@ -18,6 +20,7 @@ namespace CGE{
     unsigned char getPixelChannel(int x, int y, int channel) const;
     bool hasAlpha() const {return mChannels == 4;}
     unsigned getNumChannels() const {return mChannels;}
+    void debugWrite(const std::string& filename);
   protected:
     //! Number of channels
     //! 3 means RGB, 4 is RGBA

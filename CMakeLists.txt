@@ -31,7 +31,9 @@ SET(ADD_LIB_PATH ${ADD_LIB_PATH} CACHE STRING "additional link library path")
 SET(ADD_LIB ${ADD_LIB} CACHE STRING "additional libraries to be linked against")
 SET(ENGINE_LINK_LIBRARIES "")
 
-INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/extern/jpeg
+INCLUDE_DIRECTORIES(
+    ${CaptainsEngine_SOURCE_DIR}
+    ${CaptainsEngine_SOURCE_DIR}/extern/jpeg
 	${CaptainsEngine_SOURCE_DIR}/extern/lua
 	${CaptainsEngine_SOURCE_DIR}/extern/ode
 	${ADD_INC_PATH}
@@ -105,6 +107,7 @@ ENDIF(PHYSICS_DOUBLE_PRECISION)
 
 SET(ENGINE_LINK_LIBRARIES
 	jpeg
+	gif
 	lua
 	lualib
 	ode
