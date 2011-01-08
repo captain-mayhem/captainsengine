@@ -38,18 +38,30 @@ unsigned char Image::getPixelChannel(int x, int y, int channel) const{
 }
 
 void Image::debugWrite(const std::string& filename){
-  FILE* f = fopen(filename.c_str(), "wb");
+  std::string ext = mChannels == 1 ? ".pgm" : ".ppm";
+  FILE* f = fopen((filename+ext).c_str(), "wb");
   fprintf(f, "P%i\n", mChannels == 1 ? 2 : 3);
   fprintf(f, "%i %i\n", mWidth, mHeight);
   fprintf(f, "255\n");
   for (int j = 0; j < mHeight; ++j){
     for (int i = 0; i < mWidth; ++i){
       for (int c = 0; c < mChannels; ++c){
-        fprintf(f, "%3i ", mData[j*mWidth*mChannels+i+c]);
+        fprintf(f, "%3i ", mData[j*mWidth*mChannels+i*mChannels+c]);
       }
       fprintf(f, " ");
     }
     fprintf(f, "\n");
   }
   fclose(f);
+}
+
+void Image::flipHorizontally(){
+  int rowWidth = getRowSpan();
+  unsigned char* tmp = new unsigned char[rowWidth];
+  for (int i = 0; i < mHeight/2; ++i){
+    memcpy(tmp, mData+i*rowWidth, rowWidth);
+    memcpy(mData+i*rowWidth, mData+(mHeight-i-1)*rowWidth, rowWidth);
+    memcpy(mData+(mHeight-i-1)*rowWidth, tmp, rowWidth);
+  }
+  delete [] tmp;
 }

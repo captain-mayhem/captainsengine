@@ -21,6 +21,7 @@ namespace CGE{
     bool hasAlpha() const {return mChannels == 4;}
     unsigned getNumChannels() const {return mChannels;}
     void debugWrite(const std::string& filename);
+    void flipHorizontally();
   protected:
     //! Number of channels
     //! 3 means RGB, 4 is RGBA

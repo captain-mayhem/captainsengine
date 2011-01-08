@@ -4,6 +4,8 @@
 #include <cstdio>
 
 #include "../system/engine.h"
+#include "../io/BinFileReader.h"
+#include "../io/MemReader.h"
 
 #ifdef WIN32
 #undef FAR
@@ -25,6 +27,8 @@ Image* ImageLoader::load(void* memory, unsigned size, Type t){
       return loadJPG(memory, size);
     case GIF:
       return loadGIF(memory, size);
+    case BMP:
+      return loadBMP(memory, size);
   }
   return NULL;
 }
@@ -36,6 +40,9 @@ ImageLoader::Type ImageLoader::determineType(std::string filename){
     return JPG;
   else if (ext == "gif")
     return GIF;
+  else if (ext == "bmp")
+    return BMP;
+  CGE::Log << "Unknown image type " << filename;
   return UNKNOWN;
 }
 
@@ -149,6 +156,17 @@ void decodeJPG(jpeg_decompress_struct* cinfo, Image *pImageData){
   jpeg_finish_decompress(cinfo);
 }
 
+static CGE::Image* decodeGIF(GifFileType* giffile);
+
+Image* ImageLoader::loadGIF(const char *fileName){
+  GifFileType* giffile = DGifOpenFileName(fileName);
+  if (!giffile){
+    CGE::Log << "Unable to load GIF File!";
+    return NULL;
+  }
+  return decodeGIF(giffile);
+}
+
 static int gif_input_func(GifFileType* giffile, GifByteType* bytes, int length){
   memcpy(bytes, giffile->UserData, length);
   unsigned char* data = (unsigned char*)giffile->UserData;
@@ -159,6 +177,14 @@ static int gif_input_func(GifFileType* giffile, GifByteType* bytes, int length){
 
 Image* ImageLoader::loadGIF(void* memory, unsigned size){
   GifFileType* giffile = DGifOpen(memory, gif_input_func);
+  if (!giffile){
+    CGE::Log << "Unable to load GIF File!";
+    return NULL;
+  }
+  return decodeGIF(giffile);
+}
+
+Image* decodeGIF(GifFileType* giffile){
   GifRecordType recordtype;
   int extcode;
   GifByteType* extension;
@@ -199,7 +225,7 @@ Image* ImageLoader::loadGIF(void* memory, unsigned size){
         CGE::Image test(1, giffile->Image.Width, giffile->Image.Height, indices);
         char tmpstr[32];
         static int imgcount = 1;
-        sprintf(tmpstr, "tmp%i.ppm", ++imgcount);
+        sprintf(tmpstr, "tmp%i", ++imgcount);
         test.debugWrite(tmpstr);
         }*/
         {
@@ -229,266 +255,98 @@ Image* ImageLoader::loadGIF(void* memory, unsigned size){
   return NULL;
 }
 
-/*
-#define MEMREAD(into, howmany) memcpy(into, current, howmany); current += howmany;
-int LZWDecoder(unsigned char* in, unsigned char* out, unsigned char initCodeSize, int alignedWidth, int width, int height, bool interlace);
+static Image* decodeBMP(Reader* rdr);
 
-Image* ImageLoader::loadGIF(void* memory, unsigned size){
-  unsigned char* current = (unsigned char*) memory;
-  char signature[6];
-  MEMREAD(signature, 6);
-  if (memcmp(signature, "GIF", 3) != 0){
-    CGE::Log << "Cannot load gif-file";
+Image* ImageLoader::loadBMP(const char *filename){
+  BinFileReader rdr(filename);
+  if (!rdr.isWorking())
     return NULL;
-  }
-  struct GIFGCEtag{
-    unsigned char blockSize;
-    unsigned char packedFields; //    0: Transparent Color Flag
-										//    1: User Input Flag
-										//  2-4: Disposal Method
-    unsigned short delay;
-    unsigned char transparent;
-  } gifgce;
-  bool hasGCE = false;
-  struct GIFLSDtag{
-    unsigned short screenWidth;
-    unsigned short screenHeight;
-    unsigned char packedFields; //  0-2: Size of Global Color Table
-										            //    3: Sort Flag
-										            //  4-6: Color Resolution
-										            //    7: Global Color Table Flag
-    unsigned char background;
-    unsigned char pixelAspectRatio;
-  } giflsd;
-  MEMREAD(&giflsd, 7);
-  CGE::Image* img = new CGE::Image();
-  unsigned ctsize = (giflsd.packedFields & 0x7)+1;
-  //colormap
-  unsigned char* colormap = new unsigned char[(1<<ctsize)*3];
-  if (giflsd.packedFields & 0x80){
-      MEMREAD(colormap, (1<<ctsize)*3);
-  }
-  else{
-    for (int i = 0; i < 256; ++i){
-      memset(colormap+3*i, i, 3);
-    }
-  }
-  do{
-    unsigned char flag;
-    MEMREAD(&flag, 1);
-    if (flag == 0x21){ //extension block
-      MEMREAD(&flag, 1);
-      if (flag == 0xf9){ //graphic control extension
-        MEMREAD(&gifgce, 5);
-        MEMREAD(&flag, 1);
-        hasGCE = true;
-      }
-      else{
-        unsigned char length;
-        MEMREAD(&length, 1);
-        current += length;
-      }
-    }
-    else if (flag == 0x2c){
-      struct GIFIFtag{
-        unsigned short xPos;
-        unsigned short yPos;
-        unsigned short width;
-        unsigned short height;
-        unsigned char packedFields;//  0-2: Size of Local Color Table
-											//  3-4: (Reserved)
-											//    5: Sort Flag
-											//    6: Interlace Flag
-											//    7: Local Color Table Flag
-      } gifid;
-      MEMREAD(&gifid, 9);
-      bool localColorMap = (gifid.packedFields & 0x80) != 0;
-      bool transparency = false;
-      if (hasGCE){
-        transparency = (gifgce.packedFields & 0x1) > 0;
-      }
-      int channels = transparency ? 4 : 3;
-      img->setFormat(channels, gifid.width, gifid.height);
-      img->allocateData();
-      if (localColorMap){
-        unsigned lctsize = (gifid.packedFields & 0x7)+1;
-        MEMREAD(colormap, (1<<lctsize)*3);
-      }
-      unsigned char initsize;
-      MEMREAD(&initsize, 1);
-
-      unsigned char* img_start, *img_end;
-      img_start = img_end = current;
-      unsigned char data;
-      MEMREAD(&data, 1);
-      while (data){
-        current = img_end+data+1;
-        img_end = current;
-        MEMREAD(&data, 1);
-      }
-      current = img_start;
-      unsigned char* in = new unsigned char[img_end-img_start+4];
-      unsigned char* tmp = in;
-      MEMREAD(&data, 1);
-      while(data){
-        MEMREAD(tmp, data);
-        tmp += data;
-        MEMREAD(&data, 1);
-      }
-      unsigned char* out = new unsigned char[img->getWidth()*img->getHeight()];
-      LZWDecoder(in, out, initsize, img->getWidth(), img->getWidth(), img->getHeight(), (gifid.packedFields&0x40) > 0);
-      
-      CGE::Image test(1, img->getWidth(), img->getHeight(), out);
-      char tmpstr[32];
-      static int imgcount = 1;
-      sprintf(tmpstr, "tmp%i.ppm", ++imgcount);
-      test.debugWrite(tmpstr);
-
-      for (unsigned i = 0; i < img->getWidth()*img->getHeight(); ++i){
-        unsigned char* color = colormap+3*out[i];
-        memcpy(img->getData()+channels*i, color, 3);
-        if (transparency){
-          if (out[i] == gifgce.transparent)
-            img->getData()[channels*i+3] = 0x0;
-          else
-            img->getData()[channels*i+3] = 0xFF;
-        }
-      }
-      delete [] colormap;
-      delete [] in;
-      delete [] out;
-      break;
-    }
-  } while (current-(unsigned char*)memory < (int)size);
-  //img->setFormat(channels, giflsd.screenWidth, giflsd.screenHeight);
-  return img;
+  return decodeBMP(&rdr);
 }
 
-int LZWDecoder(unsigned char* in, unsigned char* out, unsigned char initCodeSize, int alignedWidth, int width, int height, bool interlace){
-  	int n;
-	int row=0,col=0;				// used to point output if Interlaced
-	int nPixels, maxPixels;			// Output pixel counter
-
-	short CodeSize;					// Current CodeSize (size in bits of codes)
-	short ClearCode;				// Clear code : resets decompressor
-	short EndCode;					// End code : marks end of information
-
-	long whichBit;					// Index of next bit in bufIn
-	long LongCode;					// Temp. var. from which Code is retrieved
-	short Code;						// Code extracted
-	short PrevCode;					// Previous Code
-	short OutCode;					// Code to output
-
-	// Translation Table:
-	short Prefix[4096];				// Prefix: index of another Code
-	unsigned char Suffix[4096];		// Suffix: terminating character
-	short FirstEntry;				// Index of first free entry in table
-	short NextEntry;				// Index of next free entry in table
-
-	unsigned char OutStack[4097];	// Output buffer
-	int OutIndex;					// Characters in OutStack
-
-	int RowOffset;					// Offset in output buffer for current row
-
-	// Set up values that depend on InitCodeSize Parameter.
-	CodeSize = initCodeSize+1;
-	ClearCode = (1 << initCodeSize);
-	EndCode = ClearCode + 1;
-	NextEntry = FirstEntry = ClearCode + 2;
-
-	whichBit=0;
-	nPixels = 0;
-	maxPixels = width*height;
-	RowOffset =0;
-
-	while (nPixels<maxPixels) {
-		OutIndex = 0;							// Reset Output Stack
-
-		// GET NEXT CODE FROM bufIn:
-		// LZW compression uses code items longer than a single byte.
-		// For GIF Files, code sizes are variable between 9 and 12 bits 
-		// That's why we must read data (Code) this way:
-		LongCode=*((long*)(in+whichBit/8));	// Get some bytes from bufIn
-		LongCode>>=(whichBit&7);				// Discard too low bits
-		Code =(short)(LongCode & ((1<<CodeSize)-1) );	// Discard too high bits
-		whichBit += CodeSize;					// Increase Bit Offset
-
-		// SWITCH, DIFFERENT POSIBILITIES FOR CODE:
-		if (Code == EndCode)					// END CODE
-			break;								// Exit LZW Decompression loop
-
-		if (Code == ClearCode) {				// CLEAR CODE:
-			CodeSize = initCodeSize+1;			// Reset CodeSize
-			NextEntry = FirstEntry;				// Reset Translation Table
-			PrevCode=Code;				// Prevent next to be added to table.
-			continue;							// restart, to get another code
-		}
-		if (Code < NextEntry)					// CODE IS IN TABLE
-			OutCode = Code;						// Set code to output.
-
-		else {									// CODE IS NOT IN TABLE:
-			OutIndex++;			// Keep "first" character of previous output.
-			OutCode = PrevCode;					// Set PrevCode to be output
-		}
-
-		// EXPAND OutCode IN OutStack
-		// - Elements up to FirstEntry are Raw-Codes and are not expanded
-		// - Table Prefices contain indexes to other codes
-		// - Table Suffices contain the raw codes to be output
-		while (OutCode >= FirstEntry) {
-			if (OutIndex > 4096) return 0;
-			OutStack[OutIndex++] = Suffix[OutCode];	// Add suffix to Output Stack
-			OutCode = Prefix[OutCode];				// Loop with preffix
-		}
-
-		// NOW OutCode IS A RAW CODE, ADD IT TO OUTPUT STACK.
-		if (OutIndex > 4096) return 0;
-		OutStack[OutIndex++] = (unsigned char) OutCode;
-
-		// ADD NEW ENTRY TO TABLE (PrevCode + OutCode)
-		// (EXCEPT IF PREVIOUS CODE WAS A CLEARCODE)
-		if (PrevCode!=ClearCode) {
-			Prefix[NextEntry] = PrevCode;
-			Suffix[NextEntry] = (unsigned char) OutCode;
-			NextEntry++;
-
-			// Prevent Translation table overflow:
-			if (NextEntry>=4096) return 0;
-      
-			// INCREASE CodeSize IF NextEntry IS INVALID WITH CURRENT CodeSize
-			if (NextEntry >= (1<<CodeSize)) {
-				if (CodeSize < 12) CodeSize++;
-				else {}				// Do nothing. Maybe next is Clear Code.
-			}
-		}
-
-		PrevCode = Code;
-
-		// Avoid the possibility of overflow on 'bufOut'.
-		if (nPixels + OutIndex > maxPixels) OutIndex = maxPixels-nPixels;
-
-		// OUTPUT OutStack (LAST-IN FIRST-OUT ORDER)
-		for (n=OutIndex-1; n>=0; n--) {
-			if (col==width)						// Check if new row.
-			{
-				if (interlace) {				// If interlaced::
-					     if ((row&7)==0) {row+=8; if (row>=height) row=4;}
-					else if ((row&3)==0) {row+=8; if (row>=height) row=2;}
-					else if ((row&1)==0) {row+=4; if (row>=height) row=1;}
-					else row+=2;
-				}
-				else							// If not interlaced:
-					row++;
-
-				RowOffset=row*alignedWidth;		// Set new row offset
-				col=0;
-			}
-			out[RowOffset+col]=OutStack[n];	// Write output
-			col++;	nPixels++;					// Increase counters.
-		}
-
-	}	// while (main decompressor loop)
-
-	return whichBit;
+Image* ImageLoader::loadBMP(void* memory, unsigned size){
+  MemReader rdr(memory, size);
+  return decodeBMP(&rdr);
 }
-*/
+
+Image* decodeBMP(Reader* rdr){
+  //FILE *pFile = NULL;
+  Image *pImage = new Image();
+  unsigned short int bfType;
+  long int bfOffBits;
+  short int biPlanes;
+  short int biBitCount;
+  long int biSizeImage;
+  int i;
+  unsigned char temp;
+
+  bfType = rdr->readShort();
+
+  //check if file is a bitmap
+  if (bfType != 19778)
+    EXIT2("Not a Bitmap-File!\n");
+
+  //get the file size
+  rdr->skip(8);
+
+  // get the position of the actual bitmap data
+  bfOffBits = rdr->readInt();
+
+  //skip size of bitmap info header
+  rdr->skip(4);
+
+  // get the width of the bitmap
+  int width = rdr->readInt();
+
+  // get the height of the bitmap
+  int height = rdr->readInt();
+
+  // get the number of planes
+  biPlanes = rdr->readShort();
+
+  if (biPlanes != 1)
+    EXIT2("Number of Planes not 1!\n");
+
+  // get the number of bits per pixel
+  biBitCount = rdr->readShort();
+
+  pImage->setFormat(3, width, height);
+
+  //calculate the size of the image
+  biSizeImage = pImage->getImageSize();
+  pImage->allocateData();
+
+  //seek to the actual data
+  rdr->skip(bfOffBits-30);
+
+  if (biBitCount == 16){
+    //555
+    for (int i = 0; i < width*height; ++i){
+      unsigned short tmp = rdr->readShort();
+      pImage->getData()[3*i+0] = ((tmp >> 10)& 0x1f)<<3;
+      pImage->getData()[3*i+1] = ((tmp >> 5)& 0x1f)<<3;
+      pImage->getData()[3*i+2] = ((tmp >> 0)& 0x1f)<<3;
+    }
+  }
+  else if (biBitCount != 24){
+
+    rdr->readBytes(pImage->getData(), biSizeImage);
+
+    // swap red and blue (bgr -> rgb)
+    for (i = 0; i < biSizeImage; i += 3)
+    {
+      temp = pImage->getData()[i];
+      pImage->getData()[i] = pImage->getData()[i + 2];
+      pImage->getData()[i + 2] = temp;
+    }
+  }
+
+  pImage->flipHorizontally();
+  /*
+  char tmpstr[32];
+  static int imgcount = 1;
+  sprintf(tmpstr, "tmp%i", ++imgcount);
+  pImage->debugWrite(tmpstr);
+  */
+  return pImage;
+}
