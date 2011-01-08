@@ -628,13 +628,8 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
       delete alphaimage;
     }
     else{
-      //wxBitmapType type = wxBITMAP_TYPE_ANY;
       CGE::ImageLoader::Type imgtype = CGE::ImageLoader::determineType(imagename);
-      //wxMemoryInputStream mis(rdr.getData(), rdr.getSize());
-      //wxImage image(mis, type);
       img = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), imgtype);
-      //delete img;
-      //img = new CGE::Image(3, image.GetWidth(), image.GetHeight(), image.GetData());
     }
     return img;
   }
@@ -856,9 +851,7 @@ FontData AdvDocument::getFont(int num){
   }
   if (!in.isWorking())
   continue;
-  wxMemoryInputStream mis(in.getData(), in.getSize());
-  wxImage tmp(mis, wxBITMAP_TYPE_BMP);
-  fnt.images[2*i] = new CGE::Image(3, tmp.GetWidth(), tmp.GetHeight(), tmp.GetData());
+  fnt.images[2*i] = CGE::ImageLoader::load(in.getData(), in.getSize(), CGE::ImageLoader::BMP);
   number.str("");
   number.clear();
   if (num == 0){
@@ -869,9 +862,7 @@ FontData AdvDocument::getFont(int num){
   number << "font" << num << ".bm" << (i+1);
   in = zrdr->openEntry(number.str());
   }
-  wxMemoryInputStream mis2(in.getData(), in.getSize());
-  wxImage tmp2(mis2, wxBITMAP_TYPE_BMP);
-  fnt.images[2*i+1] = new CGE::Image(3, tmp.GetWidth(), tmp.GetHeight(), tmp.GetData());
+  fnt.images[2*i+1] = CGE::ImageLoader::load(in.getData(), in.getSize(), CGE::ImageLoader::BMP);
   }
   delete firstzrdr;
   delete zrdr;
