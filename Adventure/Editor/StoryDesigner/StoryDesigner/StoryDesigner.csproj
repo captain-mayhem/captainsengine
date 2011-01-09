@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="AdvData.cs" />
     <Compile Include="AdvFileReader.cs" />
+    <Compile Include="AdvFileWriter.cs" />
     <Compile Include="CommandsAndBools.cs">
       <SubType>Form</SubType>
     </Compile>

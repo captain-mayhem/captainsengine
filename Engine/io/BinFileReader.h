@@ -6,6 +6,8 @@
 #include <string>
 #include <fstream>
 
+namespace CGE{
+
 class BinFileReader : public Reader{
 public:
   BinFileReader(std::string filename);
@@ -28,5 +30,7 @@ public:
 protected:
   std::ifstream mStream;
 };
+
+}
 
 #endif

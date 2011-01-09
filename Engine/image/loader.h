@@ -16,7 +16,7 @@ public:
     BMP,
   };
   static Image* load(void* memory, unsigned size, Type t);
-  static Image* load(const char* filename, Type t);
+  static Image* load(const char* filename, Type t = UNKNOWN);
   static Type determineType(std::string filename);
 protected:
   //! loads and returns a BMP image

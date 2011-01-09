@@ -19,14 +19,14 @@ void quit();
 
 void init(){
   wxInitialize();
-  wxInitAllImageHandlers();
+  //wxInitAllImageHandlers();
   wxFileSystem::AddHandler(new wxLocalFSHandler);
   wxFileSystem::AddHandler(new wxArchiveFSHandler);
 
   adoc = new AdvDocument();
-  adoc->SetFilename(wxString::FromAscii(filename.c_str()));
-  wxFileInputStream fis(wxString::FromAscii(filename.c_str()));
-  adoc->LoadObject(fis);
+  if (!adoc->loadDocument(filename)){
+    return;
+  }
   Engine::init();
   Engine::instance()->setData(adoc);
   SoundEngine::init();

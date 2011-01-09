@@ -360,3 +360,6 @@ long GetTickCount(){
 void Engine::requestShutdown(){
   mShutdownRequested = true;
 }
+
+void Engine::messageBox(const std::string& message, const std::string& title){
+}

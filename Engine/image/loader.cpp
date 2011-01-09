@@ -21,6 +21,20 @@ extern "C"{
 
 using namespace CGE;
 
+Image* ImageLoader::load(const char* filename, Type t){
+  if (t == UNKNOWN)
+    t = determineType(filename);
+  switch(t){
+    case JPG:
+      return loadJPG(filename);
+    case GIF:
+      return loadGIF(filename);
+    case BMP:
+      return loadBMP(filename);
+  }
+  return NULL;
+}
+
 Image* ImageLoader::load(void* memory, unsigned size, Type t){
   switch(t){
     case JPG:

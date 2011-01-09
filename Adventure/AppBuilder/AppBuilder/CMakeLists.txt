@@ -99,7 +99,7 @@ SET(AB_LINK_LIBS ${AB_LINK_LIBS} avformat avcodec avdevice avutil swscale)
 INCLUDE_DIRECTORIES(../../../Engine)
 SET(AB_LINK_LIBS ${AB_LINK_LIBS} Engine)
 
-###AppBuilder###
+###AaventureBase###
 
 SET(AppBuilder_SRCS
   AdvDoc.cpp
@@ -136,31 +136,11 @@ SET(AppBuilder_SRCS
 
 ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
 
-ADD_EXECUTABLE(AppBuilder
-  AdvMainTree.cpp
-  AdvMainTree.h
-  AdvTreeCtrl.cpp
-  AdvTreeCtrl.h
-  ImageDisplay.cpp
-  ImageDisplay.h
-  main.cpp
-  main.h
-  RenderWindow.cpp
-  RenderWindow.h
-  AppBuilder.rc
-)
-TARGET_LINK_LIBRARIES(AppBuilder AdventureBase ${AB_LINK_LIBS})
-
-SET_TARGET_PROPERTIES(AppBuilder
-PROPERTIES
-WIN32_EXECUTABLE TRUE)
-
 ###Adventure###
 
 ADD_EXECUTABLE(Adventure
   CgeWindow.cpp
   CgeWindow.h
-  AppBuilder.rc
 )
 TARGET_LINK_LIBRARIES(Adventure AdventureBase ${AB_LINK_LIBS} EngineMain)
 

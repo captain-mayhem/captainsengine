@@ -1,6 +1,7 @@
 
 #include "BinFileReader.h"
 
+using namespace CGE;
 
 BinFileReader::BinFileReader(std::string filename){
   mStream.open(filename.c_str(), std::ios::binary);
