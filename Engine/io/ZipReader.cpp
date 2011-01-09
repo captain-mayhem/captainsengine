@@ -2,14 +2,14 @@
 
 using namespace CGE;
 
-ZipReader::ZipReader() : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0){
+ZipReader::ZipReader() : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0), mHandle(NULL){
 }
 
-ZipReader::ZipReader(const std::string& zippath) : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0){
+ZipReader::ZipReader(const std::string& zippath) : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0), mHandle(NULL){
   openFile(zippath);
 }
 
-ZipReader::ZipReader(void* address, uint32 length) : MemReader(address, length), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0){
+ZipReader::ZipReader(void* address, uint32 length) : MemReader(address, length), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0), mHandle(NULL){
 #ifdef WIN32
   mFile = INVALID_HANDLE_VALUE;
 #endif

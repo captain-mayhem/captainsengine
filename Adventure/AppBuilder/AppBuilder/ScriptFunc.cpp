@@ -1,6 +1,7 @@
 #include "ScriptFunc.h"
 
 #include <fstream>
+#include <time.h>
 
 #include "Engine.h"
 #include "Script.h"
@@ -83,7 +84,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("moveobj", moveObj);
   interpreter->registerFunction("quit", quit);
   interpreter->registerFunction("musicvolume", musicVolume);
-  srand(time(NULL));
+  srand((unsigned)time(NULL));
 }
 
 int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
@@ -777,7 +778,7 @@ int ScriptFunctions::jiggle(ExecutionContext& ctx, unsigned numArgs){
       float length = (next-path.back()).length();
       path.push_back(next);
       float time = length*20.0f/power;
-      timecount += time;
+      timecount += (int)time;
     }
     path.push_back(Vec2i());
     Engine::instance()->getAnimator()->add(room, path, power);

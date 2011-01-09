@@ -362,4 +362,5 @@ void Engine::requestShutdown(){
 }
 
 void Engine::messageBox(const std::string& message, const std::string& title){
+  CGE::Log << title << ": " << message << std::endl;
 }

@@ -10,13 +10,13 @@ ENDIF (OS STREQUAL windows)
 
 ###WXWIDGETS###
 
-INCLUDE(FindwxWidgets)
+#INCLUDE(FindwxWidgets)
 
-SET(wxWidgets_USE_LIBS base core gl media)
-FIND_PACKAGE(wxWidgets REQUIRED base core gl media)
-INCLUDE(${wxWidgets_USE_FILE})
-ADD_DEFINITIONS(-DwxUSE_NO_MANIFEST=1)
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} ${wxWidgets_LIBRARIES})
+#SET(wxWidgets_USE_LIBS base core gl media)
+#FIND_PACKAGE(wxWidgets REQUIRED base core gl media)
+#INCLUDE(${wxWidgets_USE_FILE})
+#ADD_DEFINITIONS(-DwxUSE_NO_MANIFEST=1)
+#SET(AB_LINK_LIBS ${AB_LINK_LIBS} ${wxWidgets_LIBRARIES})
 
 ###ANTLR###
 

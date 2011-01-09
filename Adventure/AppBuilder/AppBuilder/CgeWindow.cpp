@@ -4,10 +4,6 @@
 #include "input/mouse.h"
 #include "input/keyboard.h"
 
-#include <wx/app.h>
-#include <wx/wfstream.h>
-#include <wx/fs_arc.h>
-
 #include "AdvDoc.h"
 #include "Engine.h"
 #include "Sound.h"
@@ -18,11 +14,6 @@ AdvDocument* adoc = NULL;
 void quit();
 
 void init(){
-  wxInitialize();
-  //wxInitAllImageHandlers();
-  wxFileSystem::AddHandler(new wxLocalFSHandler);
-  wxFileSystem::AddHandler(new wxArchiveFSHandler);
-
   adoc = new AdvDocument();
   if (!adoc->loadDocument(filename)){
     return;
@@ -33,10 +24,16 @@ void init(){
   SoundEngine::instance()->setData(adoc);
 
   GLenum err = glewInit();
-  if (err != GLEW_OK)
-    assert(false && "Unable to init OpenGL extensions");
-  if (!GLEW_VERSION_2_0)
-    assert(false && "OpenGL 2.0 not available");
+  if (err != GLEW_OK){
+    CGE::Log << "Unable to init OpenGL extensions";
+    CGE::Engine::instance()->requestShutdown();
+    return;
+  }
+  if (!GLEW_VERSION_2_0){
+    CGE::Log << "OpenGL 2.0 not available";
+    CGE::Engine::instance()->requestShutdown();
+    return;
+  }
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(0, 640, 480, 0, -1.0, 1.0);
@@ -67,9 +64,6 @@ void deinit(){
   SoundEngine::deinit();
   Engine::deinit();
   delete adoc;
-
-  wxFileSystem::CleanUpHandlers();
-  wxUninitialize();
 }
 
 void quit(){
@@ -104,7 +98,7 @@ void mouse_move(int x, int y, int button){
 }
 
 void mouse_click(int x, int y, int button){
-  Vec2i pos(x/(float)SCREENWIDTH*640, y/(float)SCREENHEIGHT*480);
+  Vec2i pos((int)(x/(float)SCREENWIDTH*640), (int)(y/(float)SCREENHEIGHT*480));
   if (button == MB_LEFT)
     Engine::instance()->leftClick(pos);
   else if (button == MB_RIGHT)
@@ -112,7 +106,7 @@ void mouse_click(int x, int y, int button){
 }
 
 void double_click(int x, int y, int button){
-  Vec2i pos(x/(float)SCREENWIDTH*640, y/(float)SCREENHEIGHT*480);
+  Vec2i pos((int)(x/(float)SCREENWIDTH*640), (int)(y/(float)SCREENHEIGHT*480));
   Engine::instance()->doubleClick(pos);
 }
 

@@ -2,7 +2,6 @@
 
 #include <cassert>
 #include <string>
-#include <wx/msgdlg.h>
 #include <input/keyboard.h>
 
 #include "Engine.h"
@@ -176,7 +175,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   pcdkAST = parser->prog(parser);
   NodeList* p = pcdkAST.nodes;
   if (parser->pParser->rec->state->errorCount > 0){
-    wxMessageBox(_T("Error parsing script"));
+    CGE::Engine::instance()->messageBox("Error parsing script", "Error");
     return NULL;
   }
   parser->free(parser);

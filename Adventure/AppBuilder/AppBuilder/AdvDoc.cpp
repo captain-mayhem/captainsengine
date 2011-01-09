@@ -1,8 +1,6 @@
 #include "AdvDoc.h"
 #include <iomanip>
 #include <sstream>
-#include <wx/wfstream.h>
-#include <wx/txtstrm.h>
 #include <system/utilities.h>
 #include <system/engine.h>
 #include <image/loader.h>
@@ -21,20 +19,21 @@ const int FRAMES2_MAX = 30;
 const int PARTS_MAX = 2;
 const int FXSHAPES_MAX = 3;
 
-//IMPLEMENT_DYNAMIC_CLASS(AdvDocument, wxDocument);
-
 #include <io/ZipReader.h>
 
-AdvDocument::AdvDocument() : mStream(NULL){
+AdvDocument::AdvDocument() : mUseCompressedData(false){
 }
 
 AdvDocument::~AdvDocument(){
-  delete mStream;
 }
 
 bool AdvDocument::loadDocument(const std::string filename){
   mFilename = filename;
   CGE::ZipReader zrdr(mFilename);
+  if (!zrdr.isWorking()){
+    CGE::Engine::instance()->messageBox("Cannot find adventure file", "Error");
+    return false;
+  }
   CGE::MemReader rdr = zrdr.openEntry("game.001");
   if (!loadFile1(rdr)){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
@@ -50,18 +49,16 @@ bool AdvDocument::loadDocument(const std::string filename){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
-  //if (GetFilename().EndsWith("dat")){
-    wxFileName name(mFilename.c_str());
-    mStream = new wxFileSystem();
-    wxString path = name.GetPath();
-    mStream->ChangePathTo(wxT("file:")+path, true);
-    mPath = mFilename;
-    CGE::Utilities::replaceWith(mPath, '\\', '/');
-    int pos = mPath.find_last_of('/');
-    mPath.erase(pos);
-    mSettings.savedir = mPath+"/../saves";
-  //}
-  //wxMessageBox("Project loaded successfully", "Info");
+
+  if (mFilename.substr(mFilename.size()-4) == ".dat")
+    mUseCompressedData = true;
+  
+  mPath = mFilename;
+  CGE::Utilities::replaceWith(mFilename, '\\', '/');
+  int pos = mPath.find_last_of('/');
+  mPath.erase(pos);
+  mSettings.savedir = mPath+"/../saves";
+
   return true;
 }
 
@@ -79,7 +76,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     mSettings.resolution = Vec2i(640,480);
   }
   else
-    assert(false);
+    DebugBreak();
   std::string font;
   do{
     font = txtstream.readLine();
@@ -94,7 +91,8 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine();
   mSettings.tsbackground = txtstream.readLine();
   str = txtstream.readLine();
-  assert(str.substr(0,14) == "Startskript : ");
+  if(str.substr(0,14) != "Startskript : ")
+    DebugBreak();
   mSettings.startscript = str.substr(14);
   mSettings.mainscript = txtstream.readLine();
   mSettings.anywhere_room = txtstream.readLine();
@@ -414,13 +412,13 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       size_t idx = tmp.find(',');
       if (idx != std::string::npos)
         tmp[idx] = '.';
-      room.invscale.x = atof(tmp.c_str());
+      room.invscale.x = (float)atof(tmp.c_str());
       from = to+1; to = (unsigned)str.find(';', from);
       tmp = str.substr(from, to-from);
       idx = tmp.find(',');
       if (idx != std::string::npos)
         tmp[idx] = '.';
-      room.invscale.y = atof(tmp.c_str());
+      room.invscale.y = (float)atof(tmp.c_str());
       //walkmap
       str = txtstream.readLine();
       int WALKMAP_X = 32;
@@ -438,8 +436,8 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
         room.walkmap[i].resize(WALKMAP_Y);
       }
       for (int i = 0; i < WALKMAP_X*WALKMAP_Y; ++i){
-        wxChar ch = str[2*i];
-        wxChar ch2 = str[2*i+1];
+        char ch = str[2*i];
+        char ch2 = str[2*i+1];
         bool walkable = true;
         bool script = false;
         if (ch == '1')
@@ -553,7 +551,7 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
       }
     }
   }
-  if (mStream){
+  if (mUseCompressedData){
     int namepos = filename.find_last_of('/');
     static CGE::ZipReader zrdr(mPath+"/gfx.dat");
     std::string imagename = filename.substr(namepos+1);
@@ -585,7 +583,7 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
   std::string filename = mSoundNames[name];
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
-  if (mStream){
+  if (mUseCompressedData){
     static CGE::ZipReader zrdr(mPath+"/sfx.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
     if (!rdr.isWorking())
@@ -595,10 +593,10 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
     memcpy(db.data, rdr.getData(), db.length);
   }
   else{
-    wxFileInputStream strm(wxString::FromAscii(filename.c_str()));
-    db.length = strm.GetSize();
+    CGE::BinFileReader strm(filename);
+    db.length = strm.getSize();
     db.data = new char[db.length];
-    strm.Read(db.data, db.length);
+    strm.readBytes((unsigned char*)db.data, db.length);
   }
   return true;
 }
@@ -607,7 +605,7 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
   std::string filename = mMusicNames[name];
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
-  if (mStream){
+  if (mUseCompressedData){
     static CGE::ZipReader zrdr(mPath+"/music.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
     if (!rdr.isWorking())
@@ -617,10 +615,10 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
     memcpy(db.data, rdr.getData(), db.length);
   }
   else{
-    wxFileInputStream strm(wxString::FromAscii(filename.c_str()));
-    db.length = strm.GetSize();
+    CGE::BinFileReader strm(filename);
+    db.length = strm.getSize();
     db.data = new char[db.length];
-    strm.Read(db.data, db.length);
+    strm.readBytes((unsigned char*)db.data, db.length);
   }
   return true;
 }
@@ -629,7 +627,7 @@ bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
   std::string filename = mMovieNames[name];
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
-  if (mStream){
+  if (mUseCompressedData){
     static CGE::ZipReader zrdr(mPath+"/movie.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
     if (!rdr.isWorking())
@@ -639,10 +637,10 @@ bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
     memcpy(db.data, rdr.getData(), db.length);
   }
   else{
-    wxFileInputStream strm(wxString::FromAscii(filename.c_str()));
-    db.length = strm.GetSize();
+    CGE::BinFileReader strm(filename);
+    db.length = strm.getSize();
     db.data = new char[db.length];
-    strm.Read(db.data, db.length);
+    strm.readBytes((unsigned char*)db.data, db.length);
   }
   return true;
 }

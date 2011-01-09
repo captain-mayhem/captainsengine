@@ -1,5 +1,7 @@
 #include "BlitObjects.h"
-#include <wx/image.h>
+
+#include <system/engine.h>
+
 #include "Engine.h"
 
 BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) : 
@@ -64,19 +66,19 @@ void BlitObject::blit(){
     glTranslatef(mMirrorOffset.x*-mZoomScale.x,0.0f,0.0f);
   }
 
-  glTranslatef(mPos.x,mPos.y,0.0f);
-  Vec2i zoomscaleoffset;
+  glTranslatef((GLfloat)mPos.x,(GLfloat)mPos.y,0.0f);
+  Vec2f zoomscaleoffset;
   zoomscaleoffset.x = mMirrorOffset.x-mMirrorOffset.x*abs(mZoomScale.x);//(1-abs(mZoomScale.x))*(mSize.x-mSize.x*abs(mZoomScale.x));
   zoomscaleoffset.y = mMirrorOffset.y-mMirrorOffset.y*mZoomScale.y;
   glTranslatef(zoomscaleoffset.x, zoomscaleoffset.y, 0.0f);
-  glTranslatef(-mOffset.x, -mOffset.y, 0.0f);
+  glTranslatef((float)-mOffset.x, (float)-mOffset.y, 0.0f);
   //if (mZoomScale.x < 0)
   //  glScalef(-1.0f, 1.0f*mZoomScale.y, 1.0f);
   //else
   //  glScalef(1.0f, 1.0f*mZoomScale.y, 1.0f);
   glScalef(mZoomScale.x, mZoomScale.y, 1.0f);
-  glTranslatef(mOffset.x, mOffset.y, 0.0f);
-  glScalef(mSize.x,mSize.y,1.0f);
+  glTranslatef((float)mOffset.x, (float)mOffset.y, 0.0f);
+  glScalef((float)mSize.x,(float)mSize.y,1.0f);
   
   glMatrixMode(GL_TEXTURE);
   glLoadIdentity();
@@ -105,8 +107,8 @@ void LightingBlitObject::blit(){
   //glEnable(GL_BLEND);
   glBlendFunc(GL_DST_COLOR, GL_ZERO);
   glPushMatrix();
-  glTranslatef(mPos.x,mPos.y,0.0f);
-  glScalef(mSize.x,mSize.y,1.0f);
+  glTranslatef((float)mPos.x,(float)mPos.y,0.0f);
+  glScalef((float)mSize.x,(float)mSize.y,1.0f);
   glColor4ub(mColor.r, mColor.g, mColor.b, mColor.a);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   glColor4ub(255, 255, 255, 255);
@@ -125,7 +127,7 @@ ScrollBlitObject::~ScrollBlitObject(){
 void ScrollBlitObject::blit(){
   if (mDepth < 0){
     glPushMatrix();
-    glTranslatef(mPos.x, mPos.y, 0);
+    glTranslatef((float)mPos.x, (float)mPos.y, 0);
   }
   else
     glPopMatrix();
@@ -149,7 +151,8 @@ RenderableBlitObject::RenderableBlitObject(int width, int height) : BlitObject(w
   glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, mRenderBuffer);
   GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
   if (status != GL_FRAMEBUFFER_COMPLETE_EXT){
-    assert(false && "Unable to create framebuffer");
+    CGE::Log <<  "Unable to create framebuffer";
+    DebugBreak();
   }
   glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }

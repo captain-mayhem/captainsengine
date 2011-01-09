@@ -3,7 +3,6 @@
 
 #include <string>
 #include <list>
-#include <wx/stopwatch.h>
 #include <image/image.h>
 #include "AdvDoc.h"
 #include "EngineObjects.h"
