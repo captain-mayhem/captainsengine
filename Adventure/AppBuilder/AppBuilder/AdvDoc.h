@@ -3,10 +3,15 @@
 
 #include <map>
 #include <vector>
+#include <cstring>
 
 #include <image/image.h>
 #include "Ids.h"
 #include "Vector.h"
+
+#ifndef WIN32
+void DebugBreak();
+#endif
 
 class SoundPlayer;
 namespace CGE{

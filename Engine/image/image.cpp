@@ -1,6 +1,7 @@
 #include "image.h"
 
 #include <cstring>
+#include <cstdio>
 
 using namespace CGE;
 

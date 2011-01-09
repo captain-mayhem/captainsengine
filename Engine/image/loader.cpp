@@ -47,9 +47,10 @@ Image* ImageLoader::load(void* memory, unsigned size, Type t){
   return NULL;
 }
 
-ImageLoader::Type ImageLoader::determineType(std::string filename){
+ImageLoader::Type ImageLoader::determineType(const std::string& filename){
   int pos = filename.find_last_of('.');
-  std::string ext = toLower(filename.substr(pos+1));
+  std::string ext = filename.substr(pos+1);
+  ext = toLower(ext);
   if (ext == "jpg" || ext == "jpeg")
     return JPG;
   else if (ext == "gif")
