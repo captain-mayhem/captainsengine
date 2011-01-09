@@ -1,4 +1,7 @@
 #include "Sound.h"
+
+#include <iostream>
+
 #include <AL/alut.h>
 extern "C"{
 #include <libavcodec/avcodec.h>

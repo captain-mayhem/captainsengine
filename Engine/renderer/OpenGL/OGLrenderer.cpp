@@ -6,7 +6,6 @@
 #include "../../window/nativeLinux.h"
 #include "../../system/engine.h"
 #include <GL/gl.h>
-#include <GL/glu.h>
 #include "OGLvertexbuffer.h"
 #include "OGLtexture.h"
 #include "OGLrenderer.h"
@@ -208,22 +207,30 @@ IndexBuffer* OGLRenderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){
 }
 
 void OGLRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
-  //glLoadIdentity();
-  gluLookAt(position.x, position.y, position.z, look.x, look.y, look.z, up.x, up.y, up.z);
+  Vec3f forward = look - position;
+  forward.normalize();
+  Vec3f side = forward.cross(up).normalized();
+  Vec3f up_new = side.cross(forward);
+  Matrix mat = Matrix(side, up_new, forward*-1, Vec3f()/*eye*1*/)*Matrix(Matrix::Translation,position*-1);
+  multiplyMatrix(mat);
 }
 
 //! set projection
 void OGLRenderer::projection(float angle, float aspect, float nearplane, float farplane){
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(angle, aspect, nearplane, farplane);
+  GLfloat ymax = nearplane * (GLfloat)tan(angle * 3.1415962f / 360.0);
+  GLfloat ymin = -ymax;
+  GLfloat xmin = ymin * aspect;
+  GLfloat xmax = ymax * aspect;
+  glFrustum(xmin, xmax, ymin, ymax, nearplane, farplane);
   glMatrixMode(GL_MODELVIEW);
 }
 
 void OGLRenderer::ortho(const int width, const int height){
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluOrtho2D(-width/2.0, width/2.0, -height/2.0, height/2.0);
+  glOrtho(-width/2.0, width/2.0, -height/2.0, height/2.0, -1.f, 1.f);
   glMatrixMode(GL_MODELVIEW);
 }
 
