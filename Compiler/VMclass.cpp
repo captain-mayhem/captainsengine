@@ -25,7 +25,7 @@ VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObjec
 	 mFilename = filename;
 
   char* buffer = NULL;
-	BinFileReader brdr(filename+".class");
+  CGE::BinFileReader brdr(filename+".class");
   Reader* reader = &brdr;
 	CGE::MemReader mrdr;
   JavaBinFileReader in(reader);

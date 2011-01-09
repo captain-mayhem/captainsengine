@@ -154,6 +154,7 @@ class Engine{
     inline CGE::Simulator* getSimulator() {return mSimulator;}
     void requestShutdown();
     inline bool isShutdownRequested() {return mShutdownRequested;}
+    void messageBox(const std::string& message, const std::string& title);
   private:
     static Engine* eng;
     Engine();

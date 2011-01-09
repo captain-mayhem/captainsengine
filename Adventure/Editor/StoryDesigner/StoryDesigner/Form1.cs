@@ -76,7 +76,7 @@ namespace StoryDesigner
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog fod = new OpenFileDialog();
-            fod.Filter = "Adventure game files (game.dat)|game.dat";
+            fod.Filter = "Adventure project file|*.adv|Adventure game file|game.dat";
             fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
             fod.ShowDialog();
             if (fod.FileName.Length > 0)
@@ -158,6 +158,14 @@ namespace StoryDesigner
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mData = new AdvData();
+        }
+
+        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sod = new SaveFileDialog();
+            sod.Filter = "Adventure project files|*.adv";
+            sod.InitialDirectory = mData.Settings.Directory;
+            sod.ShowDialog();
         }
     }
 }

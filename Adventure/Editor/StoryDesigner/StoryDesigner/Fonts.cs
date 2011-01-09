@@ -13,6 +13,11 @@ namespace StoryDesigner
         public Fonts()
         {
             InitializeComponent();
+            System.Drawing.Text.InstalledFontCollection fonts = new System.Drawing.Text.InstalledFontCollection();
+            foreach (FontFamily fam in fonts.Families)
+            {
+                font.Items.Add(fam.Name);
+            }
         }
 
         private void button3_Click(object sender, EventArgs e)

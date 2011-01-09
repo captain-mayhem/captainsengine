@@ -7,9 +7,8 @@
 #include <wx/docview.h>
 #include <wx/filename.h>
 #include <wx/filesys.h>
-#include <wx/image.h>
 #include <image/image.h>
-#include "AdvMainTree.h"
+#include "Ids.h"
 #include "Vector.h"
 
 class SoundPlayer;
@@ -213,12 +212,13 @@ struct DataBuffer{
   unsigned used;
 };
 
-class AdvDocument : public wxDocument{
+class AdvDocument{
 public:
   AdvDocument();
   virtual ~AdvDocument();
-  virtual wxOutputStream& SaveObject(wxOutputStream& stream);
-  virtual wxInputStream& LoadObject(wxInputStream& stream);
+  //virtual wxOutputStream& SaveObject(wxOutputStream& stream);
+  //virtual wxInputStream& LoadObject(wxInputStream& stream);
+  bool loadDocument(const std::string filename);
   CGE::Image* getImage(const std::string& name);
   bool getSound(const std::string& name, DataBuffer& db);
   bool getMusic(const std::string& name, DataBuffer& db);
@@ -235,13 +235,10 @@ public:
   FontData getFont(int num);
   Item* getItem(const std::string& name);
 protected:
-  DECLARE_DYNAMIC_CLASS(AdvDocument)
   bool loadFile1(CGE::MemReader& txtstream);
   bool loadFile2(CGE::MemReader& txtstream);
   bool loadFile3(CGE::MemReader& txtstream);
-  static int insertTreeElement(wxTreeCtrl* tree, const wxString& name, wxTreeItemId* current, int curr_level);
   float readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames& frms);
-  AdvMainTreeView* mView;
   ProjectSettings mSettings;
   std::map<std::string,std::string> mImageNames;
   std::map<std::string,std::string> mSoundNames;
@@ -259,6 +256,7 @@ protected:
   Script* mLastScript;
   wxFileSystem* mStream;
   std::string mPath;
+  std::string mFilename;
 };
 
 #endif
