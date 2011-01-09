@@ -29,8 +29,9 @@ public:
   virtual bool isWorking();
   virtual void skip(int numberOfElements);
 
+  virtual uint32 getSize() {return mEnd-mStart;}
+
   char* getData() {return mStart;}
-  uint32 getSize() {return mEnd-mStart;}
 protected:
   char* mStart;
   char* mEnd;

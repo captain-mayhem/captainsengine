@@ -27,6 +27,8 @@ public:
 
   virtual bool isWorking();
   virtual void skip(int numberOfElements);
+
+  virtual uint32 getSize();
 protected:
   std::ifstream mStream;
 };

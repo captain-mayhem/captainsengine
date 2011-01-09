@@ -4,9 +4,6 @@
 #include <map>
 #include <vector>
 
-#include <wx/docview.h>
-#include <wx/filename.h>
-#include <wx/filesys.h>
 #include <image/image.h>
 #include "Ids.h"
 #include "Vector.h"
@@ -254,9 +251,9 @@ protected:
   std::map<std::string, std::vector<std::pair<Vec2i,Script> > > mWMScripts;
   Room* mLastRoom;
   Script* mLastScript;
-  wxFileSystem* mStream;
   std::string mPath;
   std::string mFilename;
+  bool mUseCompressedData;
 };
 
 #endif

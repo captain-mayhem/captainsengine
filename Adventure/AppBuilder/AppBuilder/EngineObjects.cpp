@@ -1,5 +1,4 @@
 #include "EngineObjects.h"
-#include <wx/image.h>
 #include "Engine.h"
 #include "SaveStateProvider.h"
 #include "Inventory.h"
@@ -124,8 +123,8 @@ bool Object2D::isHit(const Vec2i& point){
   if (mScript == NULL || mState == 0)
     return false;
   Vec2i scaleoffset;
-  scaleoffset.x = (1-abs(mScale))*(getSize().x-getSize().x*abs(mScale));
-  scaleoffset.y = getSize().y-getSize().y*mScale;
+  scaleoffset.x = (int)((1.0f-abs(mScale))*(getSize().x-getSize().x*abs(mScale)));
+  scaleoffset.y = (int)(getSize().y-getSize().y*mScale);
   if (point.x >= mPos.x+scaleoffset.x && point.x <= mPos.x+scaleoffset.x+getSize().x){
     if (point.y >= mPos.y+scaleoffset.y && point.y <= mPos.y+scaleoffset.y+getSize().y)
       return true;
@@ -235,8 +234,8 @@ void ButtonObject::blit(){
     glColor4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a);
   else if (mState == 2)
     glColor4ub(mHighlightColor.r, mHighlightColor.g, mHighlightColor.b, mHighlightColor.a);
-  glTranslatef(BaseBlitObject::mPos.x,BaseBlitObject::mPos.y,0.0f);
-  glScalef(BaseBlitObject::mSize.x,BaseBlitObject::mSize.y,1.0f);
+  glTranslatef((GLfloat)BaseBlitObject::mPos.x,(GLfloat)BaseBlitObject::mPos.y,0.0f);
+  glScalef((GLfloat)BaseBlitObject::mSize.x,(GLfloat)BaseBlitObject::mSize.y,1.0f);
   glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
   glColor4ub(mBorderColor.r, mBorderColor.g, mBorderColor.b, mBorderColor.a);
   short indices[] = {
@@ -515,7 +514,7 @@ float RoomObject::getDepthScale(const Vec2i& pos){
 RoomObject::DepthMap::DepthMap(Vec2i depthmap){
   scaleStart = depthmap.y*Engine::instance()->getWalkGridSize();
   scaleStop = depthmap.x*Engine::instance()->getWalkGridSize();
-  minVal = 1.0f-(depthmap.y-depthmap.x)/((float)Engine::instance()->getSettings()->resolution.y/Engine::instance()->getWalkGridSize())*1.5;
+  minVal = (float)(1.0f-(depthmap.y-depthmap.x)/((float)Engine::instance()->getSettings()->resolution.y/Engine::instance()->getWalkGridSize())*1.5);
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
@@ -633,7 +632,7 @@ void CharacterObject::render(){
 }
 
 Vec2i CharacterObject::getOverheadPos(){
-  return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, (1-mScale)*mSizes[mState-1].y);
+  return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, (int)((1-mScale)*mSizes[mState-1].y));
 }
 
 int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk){

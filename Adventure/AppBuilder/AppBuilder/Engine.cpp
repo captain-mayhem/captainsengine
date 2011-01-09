@@ -5,7 +5,6 @@
 #include <queue>
 
 #include <input/keyboard.h>
-#include <wx/image.h>
 
 #include "AdvDoc.h"
 #include "SaveStateProvider.h"

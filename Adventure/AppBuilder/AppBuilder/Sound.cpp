@@ -355,8 +355,9 @@ unsigned StreamSoundPlayer::decode(){
 
 void StreamSoundPlayer::getNextPacket(){
   AVPacket packet;
+  int read;
   do{
-    int read = av_read_frame(mFormat, &packet);
+    read = av_read_frame(mFormat, &packet);
     if (read < 0){
       if (!mLooping)
         return;
