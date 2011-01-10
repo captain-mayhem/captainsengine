@@ -75,6 +75,7 @@ protected:
   std::list<std::pair<Object2D*, int> > mPrevState;
   std::map<std::string, int> mKeymap;
   std::vector<ObjectGroup*> mGroups;
+  bool mACharacterAtScriptStart;
 };
 
 #endif
