@@ -10,3 +10,7 @@ group (use in setobj/moveobj) | 3
 playswf/stopswf | 2
 saving (sound, timer) | 2
 zooming | 1
+
+D:\pcdk\Sinnlos im Weltraum - The First Adventure\Sinnlos im Weltraum - The First Adventure\data\game.dat
+
+D:\Projects\captainsengine\trunk\Adventure\AppBuilder\test\data\game.dat

@@ -514,7 +514,7 @@ float RoomObject::getDepthScale(const Vec2i& pos){
 RoomObject::DepthMap::DepthMap(Vec2i depthmap){
   scaleStart = depthmap.y*Engine::instance()->getWalkGridSize();
   scaleStop = depthmap.x*Engine::instance()->getWalkGridSize();
-  minVal = (float)(1.0f-(depthmap.y-depthmap.x)/((float)Engine::instance()->getSettings()->resolution.y/Engine::instance()->getWalkGridSize())*1.5);
+  minVal = (float)(1.0f-(depthmap.y-depthmap.x)/((float)Engine::instance()->getSettings()->resolution.y/Engine::instance()->getWalkGridSize())*2);
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
@@ -628,7 +628,8 @@ void CharacterObject::render(){
   Vec2f scale(mScale, mScale);
   if (mMirror)
     scale.x *= -1;
-  mAnimations[mState-1]->render(mScrollOffset+mPos, scale, mSizes[mState-1], mLightingColor);
+  Vec2i renderPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*mScale;
+  mAnimations[mState-1]->render(mScrollOffset+renderPos, scale, mSizes[mState-1], mLightingColor);
 }
 
 Vec2i CharacterObject::getOverheadPos(){
