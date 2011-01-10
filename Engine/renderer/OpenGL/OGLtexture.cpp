@@ -6,6 +6,10 @@ using namespace CGE;
 typedef unsigned char byte;
 typedef unsigned short WORD;
 
+#ifndef GL_GENERATE_MIPMAP
+#define GL_GENERATE_MIPMAP 0x8191
+#endif
+
 OGLTexture::OGLTexture(string filename) : Texture(filename), tex_(0){
   load(filename);
 }
@@ -38,6 +42,8 @@ bool OGLTexture::load(string filename){
   glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP, GL_TRUE);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->sizeX, img->sizeY, 0, GL_RGB, GL_UNSIGNED_BYTE, img->data);
 
   if (img){
     if (img->data){
