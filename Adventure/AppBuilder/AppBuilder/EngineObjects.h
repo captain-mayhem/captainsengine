@@ -56,7 +56,7 @@ public:
   virtual bool animationEnded(Animation* anim);
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
   Animation* getAnimation();
-  bool isHit(const Vec2i& point);
+  virtual bool isHit(const Vec2i& point);
   void setScript(ExecutionContext* script) {mScript = script; if (script) script->setOwner(this);}
   ExecutionContext* getScript() {return mScript;}
   void setSuspensionScript(ExecutionContext* script);
@@ -190,6 +190,7 @@ public:
   virtual Vec2i getSize();
   Inventory* getInventory() {return mInventory;}
   virtual void save();
+  virtual bool isHit(const Vec2i& point);
   bool isMirrored() {return mMirror;}
   void setMirrored(bool mirrored) {mMirror = mirrored;}
   void setRoom(const std::string& room) {mRoom = room;}

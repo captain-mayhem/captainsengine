@@ -122,11 +122,11 @@ Animation* Object2D::getAnimation(){
 bool Object2D::isHit(const Vec2i& point){
   if (mScript == NULL || mState == 0)
     return false;
-  Vec2i scaleoffset;
-  scaleoffset.x = (int)((1.0f-abs(mScale))*(getSize().x-getSize().x*abs(mScale)));
-  scaleoffset.y = (int)(getSize().y-getSize().y*mScale);
-  if (point.x >= mPos.x+scaleoffset.x && point.x <= mPos.x+scaleoffset.x+getSize().x){
-    if (point.y >= mPos.y+scaleoffset.y && point.y <= mPos.y+scaleoffset.y+getSize().y)
+  //Vec2i scaleoffset;
+  //scaleoffset.x = (int)((1.0f-abs(mScale))*(getSize().x-getSize().x*abs(mScale)));
+  //scaleoffset.y = (int)(getSize().y-getSize().y*mScale);
+  if (point.x >= mPos.x/*+scaleoffset.x*/ && point.x <= mPos.x+/*scaleoffset.x*/+getSize().x){
+    if (point.y >= mPos.y/*+scaleoffset.y*/ && point.y <= mPos.y+/*scaleoffset.y*/+getSize().y)
       return true;
   }
   return false;
@@ -677,4 +677,18 @@ void CharacterObject::save(){
     }
     save->fontid = mFontID;
   }
+}
+
+bool CharacterObject::isHit(const Vec2i& point){
+  if (mScript == NULL || mState == 0)
+    return false;
+  //Vec2i scaleoffset;
+  //scaleoffset.x = (int)((1.0f-abs(mScale))*(getSize().x-getSize().x*abs(mScale)));
+  //scaleoffset.y = (int)(getSize().y-getSize().y*mScale);
+  Vec2i startPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*mScale;
+  if (point.x >= startPos.x/*+scaleoffset.x*/ && point.x <= startPos.x+/*scaleoffset.x*/+getSize().x){
+    if (point.y >= startPos.y/*+scaleoffset.y*/ && point.y <= startPos.y+/*scaleoffset.y*/+getSize().y)
+      return true;
+  }
+  return false;
 }

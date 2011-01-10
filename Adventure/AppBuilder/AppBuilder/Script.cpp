@@ -441,6 +441,8 @@ void PcdkScript::registerFunction(std::string name, ScriptFunc func){
 }
 
 void PcdkScript::update(unsigned time){
+  //check if a character becomes current during that script run
+  mACharacterAtScriptStart = Engine::instance()->getCharacter("self") != NULL;
   for (std::list<std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
     iter->first->setState(iter->second);
   }
@@ -676,7 +678,7 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
     if (chr){
       if (evt <= EVT_USER_END){
         ctx.resetEvent(evt);
-        if (ctx.mIsGameObject)
+        if (ctx.mIsGameObject && Engine::instance()->getInterpreter()->mACharacterAtScriptStart)
           chr->getScript()->setEvent(static_cast<EngineEvent>(evt+EVT_USER_RANGE));
       }
     }
