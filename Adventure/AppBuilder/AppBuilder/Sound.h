@@ -3,8 +3,10 @@
 
 #include <string>
 #include <map>
+#ifndef DISABLE_SOUND
 #include <al.h>
 #include <alc.h>
+#endif
 #include "AdvDoc.h"
 
 class SoundPlayer;
@@ -32,8 +34,10 @@ protected:
   SoundPlayer* createPlayer(const DataBuffer& db);
   static SoundEngine* mInstance;
   AdvDocument* mData;
+#ifndef DISABLE_SOUND
   ALCdevice* mDevice;
   ALCcontext* mContext;
+#endif
   std::map<std::string, SoundPlayer*> mActiveSounds;
   SoundPlayer* mActiveMusic;
   int mMusicVolume;
@@ -52,11 +56,15 @@ public:
   void setSuspensionScript(ExecutionContext* ctx) {mSuspensionScript = ctx;}
   void setSpokenString(/*FontRenderer::String*/void* string) {mSpokenString = string;}
 protected:
+#ifndef DISABLE_SOUND
   ALuint mSource;
+#endif
   CharacterObject* mSpeaker;
   ExecutionContext* mSuspensionScript;
   /*FontRenderer::String*/void* mSpokenString;
 };
+
+#ifndef DISABLE_SOUND
 
 class SimpleSoundPlayer : public SoundPlayer{
 public:
@@ -66,7 +74,9 @@ public:
   void stop();
   bool update();
 protected:
+#ifndef DISABLE_SOUND
   ALuint mBuffer;
+#endif
 };
 
 struct AVCodec;
@@ -106,5 +116,7 @@ protected:
   int mVidStreamNum;
   DataBuffer mVidDataBuffer;
 };
+
+#endif
 
 #endif

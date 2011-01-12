@@ -7,6 +7,7 @@
 #include "AdvDoc.h"
 #include "Engine.h"
 #include "Sound.h"
+#include "Renderer.h"
 
 std::string filename;
 AdvDocument* adoc = NULL;
@@ -23,6 +24,8 @@ void init(){
   SoundEngine::init();
   SoundEngine::instance()->setData(adoc);
 
+  AdvRenderer::init();
+
   GLenum err = glewInit();
   if (err != GLEW_OK){
     CGE::Log << "Unable to init OpenGL extensions";
@@ -34,12 +37,12 @@ void init(){
     CGE::Engine::instance()->requestShutdown();
     return;
   }
-  glMatrixMode(GL_PROJECTION);
+  GL()matrixMode(MM_PROJECTION);
   glLoadIdentity();
   glOrtho(0, 640, 480, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
-  glMatrixMode(GL_MODELVIEW);
+  GL()matrixMode(MM_MODELVIEW);
   glClearColor(0.0,0.0,0.0,1.0);
   glColor4ub(255,255,255,255);
 
@@ -61,6 +64,8 @@ void init(){
 void deinit(){
   Engine::instance()->exitGame();
 
+  AdvRenderer::deinit();
+
   SoundEngine::deinit();
   Engine::deinit();
   delete adoc;
@@ -72,12 +77,12 @@ void quit(){
 
 void render(){
   //CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(0, 640, 480, 0, -1.0, 1.0);
+  GL()matrixMode(MM_PROJECTION);
+  GL()loadIdentity();
+  GL()ortho(0, 640, 480, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
-  glMatrixMode(GL_MODELVIEW);
+  GL()matrixMode(MM_MODELVIEW);
   glDisable(GL_DEPTH_TEST);
   //glEnableClientState(GL_VERTEX_ARRAY);
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -86,7 +91,7 @@ void render(){
   glEnable(GL_BLEND);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glLoadIdentity();
+  GL()loadIdentity();
 
   Engine::instance()->render((int)(CGE::Engine::instance()->getFrameInterval()*1000));
 

@@ -105,6 +105,25 @@ Matrix::Matrix(Type t){
 	}
 }
 
+Matrix::Matrix(Type t, float left, float right, float bottom, float top, float neaar, float faar){
+  memset(data_, 0, 16*sizeof(float));
+  if (t == Ortho){
+    float rl = right - left;
+    float tb = top - bottom;
+    float fn = faar - neaar;
+    data_[0] = 2.0f/rl;
+    data_[5] = 2.0f/tb;
+    data_[10] = -2.0f/fn;
+    data_[15] = 1.0f;
+    data_[12] = (right+left)/-rl;
+    data_[13] = (top+bottom)/-tb;
+    data_[14] = (faar+neaar)/-fn;
+  }
+  else{
+    cerr<<"invalid matrix type"<<endl;
+  }
+}
+
 //user defined
 Matrix::Matrix(float entries[16]){
 	for (short i = 0; i < 16; i++){
@@ -187,6 +206,12 @@ Matrix Matrix::operator*(const Matrix& mat) const
 		}
 	}
 	return result;
+}
+
+Matrix& Matrix::operator*=(const CGE::Matrix& mat){
+  Matrix tmp = (*this)*mat;
+  *this = tmp;
+  return *this;
 }
 
 Vector3D Matrix::operator*(const Vector3D& vec) const

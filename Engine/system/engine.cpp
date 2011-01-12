@@ -49,6 +49,7 @@ Engine::Engine(){
   mShutdownRequested = false;
 #ifdef WIN32
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
+  _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_DEBUG );
 #endif
   Log << "Engine instance created\n";
 }
@@ -161,9 +162,6 @@ void Engine::shutdown(){
   Script::kill();
   Log.close();
   SAFE_DELETE(eng);
-#ifdef WIN32
-	_CrtDumpMemoryLeaks();
-#endif
   //exit(0);
 }
 
