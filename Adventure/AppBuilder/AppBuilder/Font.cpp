@@ -16,21 +16,21 @@ BlitObject(texture, size, scale, depth, offset){
 
   }
   virtual void blit(){
-    glPushMatrix();
-    glTranslatef(mPos.x,mPos.y,0.0f);
-    glScalef(mSize.x,mSize.y,1.0f);
+    GL()pushMatrix();
+    GL()translatef(mPos.x,mPos.y,0.0f);
+    GL()scalef(mSize.x,mSize.y,1.0f);
     //if (mMirrorX)
     //  glScalef(-1.,1.,1.);
-    glMatrixMode(GL_TEXTURE);
-    glLoadIdentity();
-    glScalef(mScale.x, mScale.y, 1.0f);
-    glTranslatef(mTexTrans.x, mTexTrans.y, 0);
-    glMatrixMode(GL_MODELVIEW);
+    GL()matrixMode(MM_TEXTURE);
+    GL()loadIdentity();
+    GL()scalef(mScale.x, mScale.y, 1.0f);
+    GL()translatef(mTexTrans.x, mTexTrans.y, 0);
+    GL()matrixMode(MM_MODELVIEW);
     glBindTexture(GL_TEXTURE_2D, mTex);
     glColor4ub(mColor.r,mColor.g,mColor.b,mColor.a);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glColor4ub(255,255,255,255);
-    glPopMatrix();
+    GL()popMatrix();
   }
 protected:
   Vec2f mTexTrans;

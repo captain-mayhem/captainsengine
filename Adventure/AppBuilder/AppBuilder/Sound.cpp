@@ -2,18 +2,21 @@
 
 #include <iostream>
 
+#ifndef DISABLE_SOUND
 #include <AL/alut.h>
 extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
 };
+#endif
 #include "AdvDoc.h"
 #include "Engine.h"
 
 SoundEngine* SoundEngine::mInstance = NULL;
 
 SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(100){
+#ifndef DISABLE_SOUND
   mDevice = alcOpenDevice(NULL);
   if (mDevice){
     mContext = alcCreateContext(mDevice, NULL);
@@ -23,6 +26,7 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(100){
   alutInitWithoutContext(NULL, NULL);
   av_register_all();
   av_log_set_level(AV_LOG_ERROR);
+#endif
 }
 
 SoundEngine::~SoundEngine(){
@@ -31,11 +35,13 @@ SoundEngine::~SoundEngine(){
   }
   mActiveSounds.clear();
   delete mActiveMusic;
+#ifndef DISABLE_SOUND
   alcMakeContextCurrent(NULL);
   alcDestroyContext(mContext);
   alcCloseDevice(mDevice);
   //exit codecs
   alutExit();
+#endif
 }
 
 SoundPlayer* SoundEngine::getSound(const std::string& name){
@@ -76,6 +82,7 @@ SoundPlayer* SoundEngine::getMovie(const std::string& name){
 }
 
 SoundPlayer* SoundEngine::createPlayer(const DataBuffer& db){
+#ifndef DISABLE_SOUND
   char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir
 #ifdef WIN32
@@ -91,6 +98,9 @@ SoundPlayer* SoundEngine::createPlayer(const DataBuffer& db){
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
   SoundPlayer* plyr = new StreamSoundPlayer(filename);
   return plyr;
+#else
+  return NULL;
+#endif
 }
 
 void SoundEngine::update(){
@@ -134,7 +144,9 @@ std::istream& SoundEngine::load(std::istream& in){
 
 
 SoundPlayer::SoundPlayer() : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL){
+#ifndef DISABLE_SOUND
   alGenSources(1, &mSource);
+#endif
 }
 
 SoundPlayer::~SoundPlayer(){
@@ -152,14 +164,18 @@ SoundPlayer::~SoundPlayer(){
     Engine::instance()->getFontRenderer()->removeText((FontRenderer::String*)mSpokenString);
     mSpokenString = NULL;
   }
+#ifndef DISABLE_SOUND
   alDeleteSources(1, &mSource);
+#endif
 }
 
 void SoundPlayer::setVolume(float volume){
+#ifndef DISABLE_SOUND
   alSourcef(mSource, AL_GAIN, volume);
+#endif
 }
 
-
+#ifndef DISABLE_SOUND
 SimpleSoundPlayer::SimpleSoundPlayer(ALuint buffer) : mBuffer(buffer){
   alSourcei(mSource, AL_BUFFER, buffer);
 }
@@ -455,3 +471,5 @@ bool StreamSoundPlayer::update(){
     alSourcePlay(mSource);
   return true;
 }
+
+#endif

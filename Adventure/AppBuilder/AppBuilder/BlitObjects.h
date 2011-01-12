@@ -1,14 +1,10 @@
 #ifndef BLIT_OBJECTS_H
 #define BLIT_OBJECTS_H
 
-#ifdef WIN32
-#include <Windows.h>
-#endif
-#include <GL/glew.h>
-
 #include <string>
 
 #include "Vector.h"
+#include "Renderer.h"
 
 class Inventory;
 class InventoryDisplay;

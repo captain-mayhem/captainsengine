@@ -60,34 +60,34 @@ void BlitObject::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& paren
 }
 
 void BlitObject::blit(){
-  glPushMatrix();
+  GL()pushMatrix();
   
   if (mZoomScale.x < 0){
-    glTranslatef(mMirrorOffset.x*-mZoomScale.x,0.0f,0.0f);
+    GL()translatef(mMirrorOffset.x*-mZoomScale.x,0.0f,0.0f);
   }
 
-  glTranslatef((GLfloat)mPos.x,(GLfloat)mPos.y,0.0f);
+  GL()translatef((GLfloat)mPos.x,(GLfloat)mPos.y,0.0f);
   //Vec2f zoomscaleoffset;
   //zoomscaleoffset.x = (mMirrorOffset.x-mMirrorOffset.x*abs(mZoomScale.x));//(1-abs(mZoomScale.x))*(mSize.x-mSize.x*abs(mZoomScale.x));
   //zoomscaleoffset.y = mMirrorOffset.y-mMirrorOffset.y*mZoomScale.y;
   //glTranslatef(zoomscaleoffset.x, zoomscaleoffset.y, 0.0f);
-  glTranslatef((float)-mOffset.x, (float)-mOffset.y, 0.0f);
+  GL()translatef((float)-mOffset.x, (float)-mOffset.y, 0.0f);
   //if (mZoomScale.x < 0)
   //  glScalef(-1.0f, 1.0f*mZoomScale.y, 1.0f);
   //else
   //  glScalef(1.0f, 1.0f*mZoomScale.y, 1.0f);
-  glScalef(mZoomScale.x, mZoomScale.y, 1.0f);
-  glTranslatef((float)mOffset.x, (float)mOffset.y, 0.0f);
-  glScalef((float)mSize.x,(float)mSize.y,1.0f);
+  GL()scalef(mZoomScale.x, mZoomScale.y, 1.0f);
+  GL()translatef((float)mOffset.x, (float)mOffset.y, 0.0f);
+  GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
   
-  glMatrixMode(GL_TEXTURE);
-  glLoadIdentity();
-  glScalef(mScale.x, mScale.y, 1.0f);
-  glMatrixMode(GL_MODELVIEW);
+  GL()matrixMode(MM_TEXTURE);
+  GL()loadIdentity();
+  GL()scalef(mScale.x, mScale.y, 1.0f);
+  GL()matrixMode(MM_MODELVIEW);
   glBindTexture(GL_TEXTURE_2D, mTex);
   glColor4ub(mColor.r, mColor.g, mColor.b, mColor.a);
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  glPopMatrix();
+  GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  GL()popMatrix();
 }
 
 LightingBlitObject::LightingBlitObject(int depth, const Vec2i& size) : BaseBlitObject(depth, size){
@@ -106,15 +106,15 @@ void LightingBlitObject::blit(){
   glDisable(GL_TEXTURE_2D);
   //glEnable(GL_BLEND);
   glBlendFunc(GL_DST_COLOR, GL_ZERO);
-  glPushMatrix();
-  glTranslatef((float)mPos.x,(float)mPos.y,0.0f);
-  glScalef((float)mSize.x,(float)mSize.y,1.0f);
+  GL()pushMatrix();
+  GL()translatef((float)mPos.x,(float)mPos.y,0.0f);
+  GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
   glColor4ub(mColor.r, mColor.g, mColor.b, mColor.a);
-  glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
   glColor4ub(255, 255, 255, 255);
   //glDisable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glPopMatrix();
+  GL()popMatrix();
   glEnable(GL_TEXTURE_2D);
 }
 
@@ -126,11 +126,11 @@ ScrollBlitObject::~ScrollBlitObject(){
 
 void ScrollBlitObject::blit(){
   if (mDepth < 0){
-    glPushMatrix();
-    glTranslatef((float)mPos.x, (float)mPos.y, 0);
+    GL()pushMatrix();
+    GL()translatef((float)mPos.x, (float)mPos.y, 0);
   }
   else
-    glPopMatrix();
+    GL()popMatrix();
 }
 
 void ScrollBlitObject::render(const Vec2i& pos){

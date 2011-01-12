@@ -1,12 +1,18 @@
 ###OPTIONS###
 SET(OS windows CACHE STRING "the os to compile for")
-SET(ARCH x86 CACHE STRING "the cpu architecture")
+SET(ARCH ${CPU})
+OPTION(DISABLE_SOUND "disables the ffmpeg and openal backends" OFF)
+OPTION(TEGRA_RENDERER "switches the renderer to OpenKode/GLES2 rendering" OFF)
 
 SET(AB_LINK_LIBS)
 
 IF (OS STREQUAL windows)
 ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE)
 ENDIF (OS STREQUAL windows)
+
+IF(TEGRA_RENDERER)
+ADD_DEFINITIONS(-DRENDER_TEGRA)
+ENDIF(TEGRA_RENDERER)
 
 ###WXWIDGETS###
 
@@ -66,6 +72,7 @@ ADD_DEFINITIONS(-DGLEW_STATIC)
 ADD_SUBDIRECTORY(glew)
 SET(AB_LINK_LIBS ${AB_LINK_LIBS} glew)
 
+IF(NOT DISABLE_SOUND)
 ###Open AL###
 INCLUDE(FindOpenAL)
 INCLUDE_DIRECTORIES(${OPENAL_INCLUDE_DIR})
@@ -94,6 +101,9 @@ ADD_LIBRARY(swscale STATIC IMPORTED)
 SET_PROPERTY(TARGET swscale PROPERTY IMPORTED_LOCATION swscale-0.lib)
 ENDIF (OS STREQUAL windows)
 SET(AB_LINK_LIBS ${AB_LINK_LIBS} avformat avcodec avdevice avutil swscale)
+ELSE(NOT DISABLE_SOUND)
+ADD_DEFINITIONS(-DDISABLE_SOUND)
+ENDIF(NOT DISABLE_SOUND)
 
 ###Engine###
 INCLUDE_DIRECTORIES(../../../Engine)
@@ -120,6 +130,8 @@ SET(AppBuilder_SRCS
   Ids.h
   Inventory.cpp
   Inventory.h
+  Renderer.cpp
+  Renderer.h
   SaveStateProvider.cpp
   SaveStateProvider.h
   Script.cpp

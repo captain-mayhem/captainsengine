@@ -30,7 +30,8 @@ public:
 		Rotation,
 		Translation,
 		Scale,
-		Identity
+		Identity,
+    Ortho
 	};
   //! Default constructor
 	Matrix();
@@ -54,6 +55,10 @@ public:
   /* \param t has to be Identity
    */
 	Matrix(Type t);
+  //! orthographic projection matrix
+  /* \param t has to be Ortho
+   */
+  Matrix(Type t, float left, float right, float bottom, float top, float neaar, float faar);
   //! Constructor that initializes the matrix with the given values
 	/*! Be careful: The values must be specified columnwise like in OpenGL
    */
@@ -70,6 +75,8 @@ public:
 	Matrix operator-(const Matrix& mat);
   //! Matrix multiplication
 	Matrix operator*(const Matrix& mat) const;
+  //! Multiply the matrix with a matrix
+  Matrix& operator*=(const CGE::Matrix& mat);
   //! Multiply a vector to a matrix
 	Vector3D operator*(const Vector3D& vec) const;
   //! Multiply the matrix with a scalar
