@@ -27,9 +27,9 @@ BlitObject(texture, size, scale, depth, offset){
     GL()translatef(mTexTrans.x, mTexTrans.y, 0);
     GL()matrixMode(MM_MODELVIEW);
     glBindTexture(GL_TEXTURE_2D, mTex);
-    glColor4ub(mColor.r,mColor.g,mColor.b,mColor.a);
+    GL()color4ub(mColor.r,mColor.g,mColor.b,mColor.a);
     GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glColor4ub(255,255,255,255);
+    GL()color4ub(255,255,255,255);
     GL()popMatrix();
   }
 protected:

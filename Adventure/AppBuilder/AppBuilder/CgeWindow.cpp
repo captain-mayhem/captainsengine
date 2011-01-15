@@ -24,8 +24,6 @@ void init(){
   SoundEngine::init();
   SoundEngine::instance()->setData(adoc);
 
-  AdvRenderer::init();
-
   GLenum err = glewInit();
   if (err != GLEW_OK){
     CGE::Log << "Unable to init OpenGL extensions";
@@ -37,18 +35,21 @@ void init(){
     CGE::Engine::instance()->requestShutdown();
     return;
   }
+
+  AdvRenderer::init();
+
   GL()matrixMode(MM_PROJECTION);
-  glLoadIdentity();
-  glOrtho(0, 640, 480, 0, -1.0, 1.0);
+  GL()loadIdentity();
+  GL()ortho(0, 640, 480, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
   GL()matrixMode(MM_MODELVIEW);
   glClearColor(0.0,0.0,0.0,1.0);
-  glColor4ub(255,255,255,255);
+  GL()color4ub(255,255,255,255);
 
   glDisable(GL_DEPTH_TEST);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  GL()enableClientState(ATTR_VERTEX_ARRAY);
+  GL()enableClientState(ATTR_TEXTURE_COORD_ARRAY);
   glEnable(GL_TEXTURE_2D);
   //glAlphaFunc(GL_GREATER, 0);
   //glEnable(GL_ALPHA_TEST);

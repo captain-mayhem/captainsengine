@@ -15,7 +15,7 @@
 
 // Insert your headers here
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
-
+#include <cstdarg>
 #include "Opcode.h"
 
 //{{AFX_INSERT_LOCATION}}

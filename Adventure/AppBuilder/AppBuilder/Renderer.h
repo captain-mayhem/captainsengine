@@ -17,9 +17,13 @@ class GL2Renderer;
 #include <GL/glew.h>
 
 enum MatrixMode{
-    MM_MODELVIEW = 0,
-    MM_PROJECTION = 1,
-    MM_TEXTURE = 2
+  MM_MODELVIEW = 0,
+  MM_PROJECTION = 1,
+  MM_TEXTURE = 2
+};
+enum AttribType{
+  ATTR_VERTEX_ARRAY = 0,
+  ATTR_TEXTURE_COORD_ARRAY = 1,
 };
 #define RND_CLS GL2Renderer
 #else
@@ -32,6 +36,10 @@ enum MatrixMode{
   MM_MODELVIEW=GL_MODELVIEW,
   MM_PROJECTION=GL_PROJECTION,
   MM_TEXTURE=GL_TEXTURE
+};
+enum AttribType{
+  ATTR_VERTEX_ARRAY = GL_VERTEX_ARRAY,
+  ATTR_TEXTURE_COORD_ARRAY = GL_TEXTURE_COORD_ARRAY,
 };
 #define RND_CLS GL1Renderer
 #endif
@@ -70,6 +78,28 @@ public:
   void popMatrix(){
     glPopMatrix();
   }
+
+  void enable(GLenum cap){
+    glEnable(cap);
+  }
+  void disable(GLenum cap){
+    glDisable(cap);
+  }
+  void enableClientState(GLenum array){
+    glEnableClientState(array);
+  }
+
+  void vertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer){
+    glVertexPointer(size, type, stride, pointer);
+  }
+  void texCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer){
+    glTexCoordPointer(size, type, stride, pointer);
+  }
+
+  void color4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha){
+    glColor4ub(red, green, blue, alpha);
+  }
+
   void drawArrays(GLenum mode, GLint first, GLsizei count){
     glDrawArrays(mode, first, count);
   }
@@ -80,16 +110,34 @@ public:
 
 #else
 
+class GL2Shader{
+public:
+  GL2Shader(){
+    mProgram = glCreateProgram();
+  }
+  ~GL2Shader(){
+    deleteShaders();
+    glDeleteProgram(mProgram);
+  }
+  bool addShader(GLenum shadertype, const char* shaderstring, int stringlen=0);
+  bool linkShaders();
+  void deleteShaders();
+  void activate() {glUseProgram(mProgram);}
+  int getAttribLocation(const char* name) {return glGetAttribLocation(mProgram, name);}
+  int getUniformLocation(const char* name) {return glGetUniformLocation(mProgram, name);}
+  void uniform(int location, int value) {glUniform1i(location, value);}
+  void uniform(int location, float v0, float v1, float v2, float v3) {glUniform4f(location, v0, v1, v2, v3);}
+protected:
+  GLuint mProgram;
+  std::vector<GLuint> mShaders;
+};
+
 #include <stack>
 #include <math/matrix.h>
 
 class GL2Renderer : public AdvRenderer{
 public:
-  GL2Renderer() : mMatrixMode(MM_MODELVIEW){
-    for (int i = 0; i < 3; ++i){
-      mMatrix[i] = CGE::Matrix(CGE::Matrix::Identity);
-    }
-  }
+  GL2Renderer();
   void matrixMode(MatrixMode mode){
     mMatrixMode = mode;
   }
@@ -112,6 +160,30 @@ public:
     mMatrix[mMatrixMode] = mMatrixStack[mMatrixMode].top();
     mMatrixStack[mMatrixMode].pop();
   }
+
+  void enableClientState(GLenum array){
+    glEnableVertexAttribArray(mAttribLocs[array]);
+  }
+  void enable(GLenum cap){
+    if (cap == GL_TEXTURE_2D)
+      mShader.uniform(mTextureEnabledLoc, 1);
+  }
+  void disable(GLenum cap){
+    if (cap == GL_TEXTURE_2D)
+      mShader.uniform(mTextureEnabledLoc, 0);
+  }
+
+  void vertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer){
+    glVertexAttribPointer(mAttribLocs[ATTR_VERTEX_ARRAY], size, type, GL_FALSE, stride, pointer);
+  }
+  void texCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid* pointer){
+    glVertexAttribPointer(mAttribLocs[ATTR_TEXTURE_COORD_ARRAY], size, type, GL_FALSE, stride, pointer);
+  }
+
+  void color4ub(GLubyte red, GLubyte green, GLubyte blue, GLubyte alpha){
+    mShader.uniform(mColorLoc, red/255.0f, green/255.0f, blue/255.0f, alpha/255.0f);
+  }
+
   void drawArrays(GLenum mode, GLint first, GLsizei count){
     applyMatrices();
     glDrawArrays(mode, first, count);
@@ -122,16 +194,18 @@ public:
   }
 protected:
   void applyMatrices(){
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixf(mMatrix[0].getData());
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixf(mMatrix[1].getData());
-    glMatrixMode(GL_TEXTURE);
-    glLoadMatrixf(mMatrix[2].getData());
+    glUniformMatrix4fv(mMatricesLoc, 3, GL_FALSE, mMatrix[0].getData());
   }
+  void initShaders();
   std::stack<CGE::Matrix> mMatrixStack[3];
   CGE::Matrix mMatrix[3];
   MatrixMode mMatrixMode;
+  GL2Shader mShader;
+  int mAttribLocs[2];
+  int mMatricesLoc;
+  int mTextureLoc;
+  int mTextureEnabledLoc;
+  int mColorLoc;
 };
 
 #endif

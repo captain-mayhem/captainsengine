@@ -345,8 +345,8 @@ void Engine::render(unsigned time){
   mFonts->prepareBlit(interval);
 
   //render the stuff
-  glVertexPointer(2, GL_SHORT, 0, mVerts);
-  glTexCoordPointer(2, GL_SHORT, 0, mVerts);
+  GL()vertexPointer(2, GL_SHORT, 0, mVerts);
+  GL()texCoordPointer(2, GL_SHORT, 0, mVerts);
   for (std::list<BaseBlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
     (*iter)->blit();
   }
