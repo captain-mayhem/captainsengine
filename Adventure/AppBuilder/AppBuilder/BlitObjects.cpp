@@ -85,7 +85,7 @@ void BlitObject::blit(){
   GL()scalef(mScale.x, mScale.y, 1.0f);
   GL()matrixMode(MM_MODELVIEW);
   glBindTexture(GL_TEXTURE_2D, mTex);
-  glColor4ub(mColor.r, mColor.g, mColor.b, mColor.a);
+  GL()color4ub(mColor.r, mColor.g, mColor.b, mColor.a);
   GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
   GL()popMatrix();
 }
@@ -103,19 +103,19 @@ void LightingBlitObject::render(const Vec2i& pos){
 }
 
 void LightingBlitObject::blit(){
-  glDisable(GL_TEXTURE_2D);
+  GL()disable(GL_TEXTURE_2D);
   //glEnable(GL_BLEND);
   glBlendFunc(GL_DST_COLOR, GL_ZERO);
   GL()pushMatrix();
   GL()translatef((float)mPos.x,(float)mPos.y,0.0f);
   GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
-  glColor4ub(mColor.r, mColor.g, mColor.b, mColor.a);
+  GL()color4ub(mColor.r, mColor.g, mColor.b, mColor.a);
   GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  glColor4ub(255, 255, 255, 255);
+  GL()color4ub(255, 255, 255, 255);
   //glDisable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   GL()popMatrix();
-  glEnable(GL_TEXTURE_2D);
+  GL()enable(GL_TEXTURE_2D);
 }
 
 ScrollBlitObject::ScrollBlitObject(int depth) : BaseBlitObject(depth, Vec2i(0,0)){

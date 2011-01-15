@@ -229,21 +229,21 @@ void ButtonObject::blit(){
     return;
   }
   GL()pushMatrix();
-  glDisable(GL_TEXTURE_2D);
+  GL()disable(GL_TEXTURE_2D);
   if (mState == 1)
-    glColor4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a);
+    GL()color4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a);
   else if (mState == 2)
-    glColor4ub(mHighlightColor.r, mHighlightColor.g, mHighlightColor.b, mHighlightColor.a);
+    GL()color4ub(mHighlightColor.r, mHighlightColor.g, mHighlightColor.b, mHighlightColor.a);
   GL()translatef((GLfloat)BaseBlitObject::mPos.x,(GLfloat)BaseBlitObject::mPos.y,0.0f);
   GL()scalef((GLfloat)BaseBlitObject::mSize.x,(GLfloat)BaseBlitObject::mSize.y,1.0f);
   GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  glColor4ub(mBorderColor.r, mBorderColor.g, mBorderColor.b, mBorderColor.a);
+  GL()color4ub(mBorderColor.r, mBorderColor.g, mBorderColor.b, mBorderColor.a);
   short indices[] = {
     2, 3, 1, 0
   };
   GL()drawElements(GL_LINE_STRIP, 4, GL_UNSIGNED_SHORT, indices);
-  glEnable(GL_TEXTURE_2D);
-  glColor3ub(255,255,255);
+  GL()enable(GL_TEXTURE_2D);
+  GL()color4ub(255,255,255,255);
   GL()popMatrix();
 }
 
