@@ -55,7 +55,7 @@ void initGame(const std::string& filename){
   Engine::instance()->initGame(quit);
 }
 
-void render(){
+void render(int time){
   //CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   GL()matrixMode(MM_PROJECTION);
   GL()loadIdentity();
@@ -73,7 +73,7 @@ void render(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   GL()loadIdentity();
 
-  Engine::instance()->render(20);
+  Engine::instance()->render(time);
 
   SoundEngine::instance()->update();
 }
@@ -132,11 +132,19 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
   else
     filename = "data/game.dat";
   initGame(filename);
+  KDtime lasttime;
+  kdTime(&lasttime);
+  KDtime newtime;
   while(!shouldQuit){
     const KDEvent* ev = KD_NULL;
     while(ev = kdWaitEvent(0)){
+      if (ev->type == KD_EVENT_WINDOW_CLOSE){
+        shouldQuit = true;
+      }
     }
-    render();
+    kdTime(&newtime);
+    render((int)(newtime-lasttime));
+    lasttime = newtime;
     eglSwapBuffers(theDisplay, theSurface);
   }
 
