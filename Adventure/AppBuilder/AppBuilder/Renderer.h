@@ -10,11 +10,17 @@ class GL2Renderer;
 //#define RENDER_TEGRA
 
 #ifdef RENDER_TEGRA
-//#include <GLES2/gl.h>
+#include <GLES2/gl2.h>
+#define RENDER_GL2
+#else
 #ifdef WIN32
 #include <windows.h>
 #endif
 #include <GL/glew.h>
+#define RENDER_GL2
+#endif
+
+#ifdef RENDER_GL2
 
 enum MatrixMode{
   MM_MODELVIEW = 0,
@@ -27,10 +33,6 @@ enum AttribType{
 };
 #define RND_CLS GL2Renderer
 #else
-#ifdef WIN32
-#include <windows.h>
-#endif
-#include <GL/glew.h>
 
 enum MatrixMode{
   MM_MODELVIEW=GL_MODELVIEW,
@@ -53,7 +55,7 @@ protected:
   static RND_CLS* mInstance;
 };
 
-#ifndef RENDER_TEGRA
+#ifndef RENDER_GL2
 
 class GL1Renderer : public AdvRenderer{
 public:

@@ -29,7 +29,7 @@ unsigned int MemReader::readBytes(unsigned char* array, unsigned int length){
 
 char MemReader::readChar(){
   char ret;
-  unsigned realLength = min(sizeof(char),(long unsigned)(mEnd-mCurrent));
+  unsigned realLength = min((unsigned)sizeof(char),(unsigned)(mEnd-mCurrent));
   memcpy(&ret, mCurrent, realLength);
   mCurrent += realLength;
   return ret;
@@ -37,7 +37,7 @@ char MemReader::readChar(){
 
 unsigned char MemReader::readUChar(){
   unsigned char ret;
-  unsigned realLength = min(sizeof(unsigned char),(long unsigned)(mEnd-mCurrent));
+  unsigned realLength = min((unsigned)sizeof(unsigned char),(unsigned)(mEnd-mCurrent));
   memcpy(&ret, mCurrent, realLength);
   mCurrent += realLength;
   return ret;
@@ -45,7 +45,7 @@ unsigned char MemReader::readUChar(){
 
 short MemReader::readShort(){
   short ret;
-  unsigned realLength = min(sizeof(short),(long unsigned)(mEnd-mCurrent));
+  unsigned realLength = min((unsigned)sizeof(short),(unsigned)(mEnd-mCurrent));
   memcpy(&ret, mCurrent, realLength);
   mCurrent += realLength;
   return ret;
@@ -53,7 +53,7 @@ short MemReader::readShort(){
 
 unsigned short MemReader::readUShort(){
   unsigned short ret;
-  unsigned realLength = min(sizeof(unsigned short),(long unsigned)(mEnd-mCurrent));
+  unsigned realLength = min((unsigned)sizeof(unsigned short),(unsigned)(mEnd-mCurrent));
   memcpy(&ret, mCurrent, realLength);
   mCurrent += realLength;
   return ret;
@@ -61,7 +61,7 @@ unsigned short MemReader::readUShort(){
 
 int MemReader::readInt(){
   int ret;
-  unsigned realLength = min(sizeof(int),(long unsigned)(mEnd-mCurrent));
+  unsigned realLength = min((unsigned)sizeof(int),(unsigned)(mEnd-mCurrent));
   memcpy(&ret, mCurrent, realLength);
   mCurrent += realLength;
   return ret;
@@ -69,7 +69,7 @@ int MemReader::readInt(){
 
 unsigned int MemReader::readUInt(){
   unsigned int ret;
-  unsigned realLength = min(sizeof(unsigned int),(long unsigned)(mEnd-mCurrent));
+  unsigned realLength = min((unsigned)sizeof(unsigned int),(unsigned)(mEnd-mCurrent));
   memcpy(&ret, mCurrent, realLength);
   mCurrent += realLength;
   return ret;
@@ -77,7 +77,7 @@ unsigned int MemReader::readUInt(){
 
 int64 MemReader::readLong(){
   int64 ret;
-  unsigned realLength = min(sizeof(int64),(long unsigned)(mEnd-mCurrent));
+  unsigned realLength = min((unsigned)sizeof(int64),(unsigned)(mEnd-mCurrent));
   memcpy(&ret, mCurrent, realLength);
   mCurrent += realLength;
   return ret;
@@ -85,7 +85,7 @@ int64 MemReader::readLong(){
 
 uint64 MemReader::readULong(){
   uint64 ret;
-  unsigned realLength = min(sizeof(uint64),(long unsigned)(mEnd-mCurrent));
+  unsigned realLength = min((unsigned)sizeof(uint64),(unsigned)(mEnd-mCurrent));
   memcpy(&ret, mCurrent, realLength);
   mCurrent += realLength;
   return ret;

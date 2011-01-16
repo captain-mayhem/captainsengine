@@ -3,7 +3,7 @@
 RND_CLS* AdvRenderer::mInstance = NULL;
 
 void AdvRenderer::init(){
-#ifdef RENDER_TEGRA
+#ifdef RENDER_GL2
   mInstance = new GL2Renderer();
 #else
   mInstance = new GL1Renderer();
@@ -14,7 +14,7 @@ void AdvRenderer::deinit(){
   delete mInstance;
 }
 
-#ifdef RENDER_TEGRA
+#ifdef RENDER_GL2
 
 static const char vertexshadersource[] =
 "attribute vec3 position;\n"

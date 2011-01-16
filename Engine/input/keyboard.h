@@ -66,10 +66,19 @@
 #endif
 #ifdef QNX
 #define KEY_ESCAPE 0
-#define KEY_RETURN 0
-#define KEY_BACKSPACE 0
-#define KEY_UP 0
-#define KEY_DOWN 0
+#define KEY_RETURN 1
+#define KEY_BACKSPACE 2
+#define KEY_UP 3
+#define KEY_DOWN 4
+#define KEY_F1 5
+#define KEY_F2 6
+#define KEY_A 7
+#define KEY_0 8
+#define KEY_LEFT 9
+#define KEY_RIGHT 10
+#define KEY_CTRL 11
+#define KEY_ALT 12
+#define KEY_SPACE 13
 #endif
 
 #include "../system/engine.h"

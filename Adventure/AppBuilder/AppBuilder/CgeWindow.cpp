@@ -50,7 +50,7 @@ void init(){
   glDisable(GL_DEPTH_TEST);
   GL()enableClientState(ATTR_VERTEX_ARRAY);
   GL()enableClientState(ATTR_TEXTURE_COORD_ARRAY);
-  glEnable(GL_TEXTURE_2D);
+  GL()enable(GL_TEXTURE_2D);
   //glAlphaFunc(GL_GREATER, 0);
   //glEnable(GL_ALPHA_TEST);
   //glBlendFunc(GL_ZERO, GL_SRC_COLOR);
@@ -87,7 +87,7 @@ void render(){
   glDisable(GL_DEPTH_TEST);
   //glEnableClientState(GL_VERTEX_ARRAY);
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  glEnable(GL_TEXTURE_2D);
+  GL()enable(GL_TEXTURE_2D);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
