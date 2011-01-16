@@ -140,34 +140,34 @@ void ScrollBlitObject::render(const Vec2i& pos){
 RenderableBlitObject::RenderableBlitObject(int width, int height) : BlitObject(width,height){
   int powx = (int)(width/mScale.x);
   int powy = (int)(height/mScale.y);
-  glGenRenderbuffersEXT(1, &mRenderBuffer);
-  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, mRenderBuffer);
-  glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, (int)(width/mScale.x), (int)(height/mScale.y));
-  glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, 0);
+  glGenRenderbuffers(1, &mRenderBuffer);
+  glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, (int)(width/mScale.x), (int)(height/mScale.y));
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-  glGenFramebuffersEXT(1, &mFrameBuffer);
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFrameBuffer);
-  glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, mTex, 0);
-  glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, mRenderBuffer);
-  GLenum status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-  if (status != GL_FRAMEBUFFER_COMPLETE_EXT){
+  glGenFramebuffers(1, &mFrameBuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTex, 0);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBuffer);
+  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+  if (status != GL_FRAMEBUFFER_COMPLETE){
     CGE::Log <<  "Unable to create framebuffer";
     DebugBreak();
   }
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 RenderableBlitObject::~RenderableBlitObject(){
-  glDeleteFramebuffersEXT(1, &mFrameBuffer);
-  glDeleteRenderbuffersEXT(1, &mRenderBuffer);
+  glDeleteFramebuffers(1, &mFrameBuffer);
+  glDeleteRenderbuffers(1, &mRenderBuffer);
 }
 
 void RenderableBlitObject::bind(){
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, mFrameBuffer);
+  glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
 }
 
 void RenderableBlitObject::unbind(){
-  glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
 DynamicAnimation::DynamicAnimation(){

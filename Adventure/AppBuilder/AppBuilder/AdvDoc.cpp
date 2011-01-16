@@ -53,8 +53,8 @@ bool AdvDocument::loadDocument(const std::string filename){
   if (mFilename.substr(mFilename.size()-4) == ".dat")
     mUseCompressedData = true;
   
-  mPath = mFilename;
   CGE::Utilities::replaceWith(mFilename, '\\', '/');
+  mPath = mFilename;
   int pos = mPath.find_last_of('/');
   mPath.erase(pos);
   mSettings.savedir = mPath+"/../saves";
