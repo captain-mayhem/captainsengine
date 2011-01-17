@@ -61,6 +61,9 @@ ENDIF (${OS} STREQUAL "wince")
 IF (${OS} STREQUAL "windows")
   MESSAGE(STATUS "Compiling for Windows")
   ADD_DEFINITIONS(/D_CRT_SECURE_NO_DEPRECATE)
+  SET(ENGINE_LINK_LIBRARIES
+	wsock32
+  )
 ENDIF (${OS} STREQUAL "windows")
 
 IF (${OS} STREQUAL "linux")
