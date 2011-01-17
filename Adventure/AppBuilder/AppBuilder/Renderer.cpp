@@ -38,7 +38,7 @@ static const char fragmentshadersource[] =
 "uniform vec4 constColor;\n"
 "\n"
 "void main(){\n"
-"  vec4 color = 1.0.xxxx;\n"
+"  vec4 color = vec4(1.0);\n"
 "  if (textureEnabled == 1)\n"
 "    color = texture2D(texture, tex_coord.st);\n"
 "  color*=constColor;\n"

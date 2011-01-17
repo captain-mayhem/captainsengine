@@ -8,9 +8,11 @@
 #include "Engine.h"
 #include "Sound.h"
 #include "Renderer.h"
+#include "CmdReceiver.h"
 
 std::string filename;
 AdvDocument* adoc = NULL;
+CommandReceiver receiver;
 
 void quit();
 
@@ -59,11 +61,13 @@ void init(){
 
   glViewport(0, 0, 640, 480);
   
+  receiver.start();
   Engine::instance()->initGame(quit);
 }
 
 void deinit(){
   Engine::instance()->exitGame();
+  receiver.stop();
 
   AdvRenderer::deinit();
 
@@ -94,6 +98,7 @@ void render(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   GL()loadIdentity();
 
+  receiver.processCommands();
   Engine::instance()->render((int)(CGE::Engine::instance()->getFrameInterval()*1000));
 
   SoundEngine::instance()->update();

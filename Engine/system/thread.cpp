@@ -37,6 +37,27 @@ void Thread::destroy(){
   //_endthread();
 }
 
+void Thread::join(){
+#ifdef WIN32
+  WaitForSingleObject((HANDLE)threadID_, INFINITE);
+#endif
+#ifdef UNIX
+  pthread_join(threadID_, NULL);
+#endif
+}
+
+void Thread::sleep(int milliseconds){
+#ifdef WIN32
+  Sleep(milliseconds);
+#endif
+#ifdef UNIX
+  struct timespec tv;
+  tv.tv_sec = milliseconds/1000;
+  tv.tv_nsec = (milliseconds-tv.tv_sec*1000)*1000000;
+  nanosleep(&tv, NULL);
+#endif
+}
+
 Mutex::Mutex(){
 #ifdef WIN32
   mutex_ = CreateMutex(0, FALSE, 0);

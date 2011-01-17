@@ -15,6 +15,8 @@ class Thread{
 public:
   int create(void (*proc)(void* data), void* data);
   void destroy();
+  void join();
+  static void sleep(int milliseconds);
 private:
   long threadID_;
 };

@@ -7,11 +7,14 @@ ENDIF(${OS} STREQUAL "wince")
 SET(Engine_system_SRCS
 	${PRE}/AtomicCounter.cpp
 	${PRE}/bitset.cpp
+	#${PRE}/clientsocket.cpp
 	${PRE}/engine.cpp
 	${PRE}/event.cpp
 	${PRE}/file.cpp
 	${PRE}/gameobject.cpp
 	${PRE}/script.cpp
+	#${PRE}/serversocket.cpp
+	${PRE}/socket.cpp
 	${PRE}/soloader.cpp
 	${PRE}/thread.cpp
 	${PRE}/utilities.cpp
@@ -20,12 +23,15 @@ SET(Engine_system_SRCS
 
 SET(Engine_system_HDRS
 	${PRE}/AtomicCounter.h
+	#${PRE}/clientsocket.h
 	${PRE}/bitset.h 
 	${PRE}/engine.h
 	${PRE}/event.h
 	${PRE}/file.h 
 	${PRE}/gameobject.h 
-	${PRE}/script.h 
+	${PRE}/script.h
+	#${PRE}/serversocket.h
+	${PRE}/socket.h
 	${PRE}/soloader.h
 	${PRE}/thread.h
 	${PRE}/types.h 

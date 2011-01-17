@@ -167,6 +167,8 @@ ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
 
 ADD_EXECUTABLE(Adventure
   ${ADVENTURE_SRCS}
+  CmdReceiver.h
+  CmdReceiver.cpp
 )
 TARGET_LINK_LIBRARIES(Adventure AdventureBase ${AB_LINK_LIBS})
 
