@@ -17,6 +17,8 @@ public:
 protected:
   enum CommandType{
     MOUSE_MOVE,
+    MOUSE_CLICK,
+    MOUSE_RIGHTCLICK,
   };
   struct Command{
     CommandType type;
