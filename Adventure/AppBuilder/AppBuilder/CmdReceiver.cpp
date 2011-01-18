@@ -28,20 +28,23 @@ void CommandReceiver::threadLoop(){
   mSocket.create();
   mSocket.bind(28406);
   mSocket.listen();
-  mSocket.accept(mConnSocket);
-  //mSocket.set_non_blocking(false);
-  std::string msg;
-  std::string cmd;
   while(!mStopRequested){
-    mConnSocket.recv(msg);
-    if (msg.length() > 0){
-      cmd += msg;
-      if (cmd[cmd.length()-1] == '\n'){
-        parseCommand(cmd);
-        cmd.clear();
+    mSocket.accept(mConnSocket);
+    //mSocket.set_non_blocking(false);
+    std::string msg;
+    std::string cmd;
+    while(!mStopRequested){
+      mConnSocket.recv(msg);
+      if (msg.length() > 0){
+        cmd += msg;
+        if (cmd[cmd.length()-1] == '\n'){
+          parseCommand(cmd);
+          cmd.clear();
+        }
       }
+      CGE::Thread::sleep(10);
     }
-    CGE::Thread::sleep(10);
+    //mConnSocket.close();
   }
 }
 
@@ -57,6 +60,20 @@ void CommandReceiver::parseCommand(const std::string& cmd){
     c.y = y;
     mQueue.push(c);
   }
+  else if (strcmp(cmdid, "mc") == 0){
+    Command c;
+    c.type = MOUSE_CLICK;
+    c.x = x;
+    c.y = y;
+    mQueue.push(c);
+  }
+  else if (strcmp(cmdid, "mr") == 0){
+    Command c;
+    c.type = MOUSE_RIGHTCLICK;
+    c.x = x;
+    c.y = y;
+    mQueue.push(c);
+  }
   return;
 }
 
@@ -67,6 +84,13 @@ void CommandReceiver::processCommands(){
     switch(c.type){
       case MOUSE_MOVE:
         Engine::instance()->setCursorPos(Vec2i(c.x, c.y));
+        break;
+      case MOUSE_CLICK:
+        Engine::instance()->leftClick(Vec2i(c.x, c.y));
+        break;
+      case MOUSE_RIGHTCLICK:
+        Engine::instance()->rightClick(Vec2i(c.x, c.y));
+        break;
     }
   }
 }
