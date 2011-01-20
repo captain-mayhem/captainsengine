@@ -14,14 +14,13 @@ namespace RemoteControl
         {
             InitializeComponent();
             mSettings = new Settings();
-            mSocket = new System.Net.Sockets.TcpClient();
             this.MouseMove += new MouseEventHandler(MainForm_MouseMove);
             this.MouseClick += new MouseEventHandler(MainForm_MouseClick);
         }
 
         void MainForm_MouseClick(object sender, MouseEventArgs e)
         {
-            if (!mSocket.Connected)
+            if (mSocket == null)
                 return;
             if ((e.Button & MouseButtons.Left) != 0)
                 mSockStream.WriteLine("mc {0} {1}", e.X, e.Y);
@@ -32,21 +31,29 @@ namespace RemoteControl
 
         void MainForm_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!mSocket.Connected)
+            if (mSocket == null)
                 return;
-            mSockStream.WriteLine("mp {0} {1}", e.X, e.Y);
-            mSockStream.Flush();
+            try
+            {
+                mSockStream.WriteLine("mp {0} {1}", e.X, e.Y);
+                mSockStream.Flush();
+            }
+            catch (System.IO.IOException)
+            {
+            }
         }
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             try
             {
+                mSocket = new System.Net.Sockets.TcpClient();
                 mSocket.Connect(mSettings.Hostname, mSettings.Port);
                 mSockStream = new System.IO.StreamWriter(mSocket.GetStream());
             }
             catch (System.Net.Sockets.SocketException)
             {
+                mSocket = null;
                 MessageBox.Show("Could not connect to CGE");
             }
         }
@@ -58,6 +65,12 @@ namespace RemoteControl
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mSettings.ShowDialog();
+        }
+
+        private void disconnectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mSocket.Close();
+            mSocket = null;
         }
     }
 }

@@ -28,13 +28,18 @@ void CommandReceiver::threadLoop(){
   mSocket.create();
   mSocket.bind(28406);
   mSocket.listen();
+  mSocket.set_non_blocking(true);
   while(!mStopRequested){
-    mSocket.accept(mConnSocket);
-    //mSocket.set_non_blocking(false);
+    if (!mSocket.accept(mConnSocket)){
+      CGE::Thread::sleep(100);
+      continue;
+    }
+    mConnSocket.set_non_blocking(false);
     std::string msg;
     std::string cmd;
     while(!mStopRequested){
-      mConnSocket.recv(msg);
+      if (mConnSocket.recv(msg) <= 0)
+        break;
       if (msg.length() > 0){
         cmd += msg;
         if (cmd[cmd.length()-1] == '\n'){
