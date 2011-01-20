@@ -102,7 +102,11 @@ bool Socket::accept(Socket& new_socket) const{
 #endif
   new_socket.sock_ = ::accept(sock_, (sockaddr*)&addr_, (socklen_t *)&addr_length);
 
+#ifdef WIN32
+  if (new_socket.sock_ == INVALID_SOCKET)
+#else
   if (new_socket.sock_ <= 0)
+#endif
     return false;
   else
     return true;
@@ -198,7 +202,10 @@ bool Socket::ipconnect(const std::string& host){
 
 //set the socket to non-blocking operation
 void Socket::set_non_blocking (const bool b){
-#ifndef WIN32
+#ifdef WIN32
+  u_long mode = b ? 1 : 0;
+  ioctlsocket(sock_, FIONBIO, &mode);
+#else
   int opts = fcntl(sock_, F_GETFL);
   if (opts < 0){
     return;

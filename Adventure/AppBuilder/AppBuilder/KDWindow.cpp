@@ -5,6 +5,7 @@
 #include "Engine.h"
 #include "Sound.h"
 #include "Renderer.h"
+#include "CmdReceiver.h"
 
 EGLDisplay theDisplay;
 EGLConfig theConfig;
@@ -14,6 +15,7 @@ KDWindow* theWindow;
 
 AdvDocument* adoc;
 static bool shouldQuit = false;
+CommandReceiver receiver;
 
 void quit(){
   shouldQuit = true;
@@ -52,6 +54,7 @@ void initGame(const std::string& filename){
 
   glViewport(0, 0, 640, 480);
   
+  receiver.start();
   Engine::instance()->initGame(quit);
 }
 
@@ -73,6 +76,7 @@ void render(int time){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   GL()loadIdentity();
 
+  receiver.processCommands();
   Engine::instance()->render(time);
 
   SoundEngine::instance()->update();
@@ -132,23 +136,24 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
   else
     filename = "data/game.dat";
   initGame(filename);
-  KDtime lasttime;
-  kdTime(&lasttime);
+  KDust lasttime;
+  lasttime = kdGetTimeUST();
   KDtime newtime;
   while(!shouldQuit){
     const KDEvent* ev = KD_NULL;
-    while(ev = kdWaitEvent(0)){
+    while(ev = kdWaitEvent(1)){
       if (ev->type == KD_EVENT_WINDOW_CLOSE){
         shouldQuit = true;
       }
     }
-    kdTime(&newtime);
-    render((int)(newtime-lasttime));
+    newtime = kdGetTimeUST();
+    render((int)((newtime-lasttime)/1000000));
     lasttime = newtime;
     eglSwapBuffers(theDisplay, theSurface);
   }
 
   Engine::instance()->exitGame();
+  receiver.stop();
 
   AdvRenderer::deinit();
 
