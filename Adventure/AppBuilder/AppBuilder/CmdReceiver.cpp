@@ -4,10 +4,16 @@
 
 #include "Engine.h"
 
-CommandReceiver::CommandReceiver() : mStopRequested(false){
+CommandReceiver::CommandReceiver() : mStopRequested(false), mMultiline(false){
 }
 
 CommandReceiver::~CommandReceiver(){
+  while (!mQueue.empty()){
+    Command c = mQueue.front();
+    if (c.type == SCRIPT)
+      free(c.str);
+    mQueue.pop();
+  }
 }
 
 void CommandReceiver::start(){
@@ -36,16 +42,23 @@ void CommandReceiver::threadLoop(){
     }
     mConnSocket.set_non_blocking(false);
     std::string msg;
+    msg = "cge "+toStr(Engine::instance()->getResolution().x)+" "+toStr(Engine::instance()->getResolution().y)+"\n";
+    mConnSocket.send(msg);
+    msg.clear();
     std::string cmd;
     while(!mStopRequested){
       if (mConnSocket.recv(msg) <= 0)
         break;
       if (msg.length() > 0){
         cmd += msg;
-        if (cmd[cmd.length()-1] == '\n'){
-          parseCommand(cmd);
-          cmd.clear();
+        unsigned pos = cmd.find('\n');
+        while (pos != cmd.npos){
+          std::string begin = cmd.substr(0, pos-1);
+          cmd = cmd.substr(pos+1);
+          pos = cmd.find('\n');
+          parseCommand(begin);
         }
+        cmd.clear();
       }
       CGE::Thread::sleep(10);
     }
@@ -55,29 +68,49 @@ void CommandReceiver::threadLoop(){
 
 void CommandReceiver::parseCommand(const std::string& cmd){
   char cmdid[4];
-  cmdid[2] = '\0';
+  cmdid[3] = '\0';
   int x; int y;
-  sscanf(cmd.c_str(), "%s %i %i", cmdid, &x, &y);
-  if (strcmp(cmdid, "mp") == 0){
-    Command c;
-    c.type = MOUSE_MOVE;
-    c.x = x;
-    c.y = y;
-    mQueue.push(c);
+  if (mMultiline){
+    if (cmd == "***"){
+      mMultiline = false;
+      Command c;
+      c.type = SCRIPT;
+      c.str = strdup(mMsg.c_str());
+      mQueue.push(c);
+    }
+    else{
+      mMsg += cmd+"\n";
+    }
   }
-  else if (strcmp(cmdid, "mc") == 0){
-    Command c;
-    c.type = MOUSE_CLICK;
-    c.x = x;
-    c.y = y;
-    mQueue.push(c);
+  else if (cmd[0] == 'm'){
+    sscanf(cmd.c_str(), "%s %i %i", cmdid, &x, &y);
+    if (strcmp(cmdid, "mps") == 0){
+      Command c;
+      c.type = MOUSE_MOVE;
+      c.x = x;
+      c.y = y;
+      mQueue.push(c);
+    }
+    else if (strcmp(cmdid, "mcl") == 0){
+      Command c;
+      c.type = MOUSE_CLICK;
+      c.x = x;
+      c.y = y;
+      mQueue.push(c);
+    }
+    else if (strcmp(cmdid, "mcr") == 0){
+      Command c;
+      c.type = MOUSE_RIGHTCLICK;
+      c.x = x;
+      c.y = y;
+      mQueue.push(c);
+    }
   }
-  else if (strcmp(cmdid, "mr") == 0){
-    Command c;
-    c.type = MOUSE_RIGHTCLICK;
-    c.x = x;
-    c.y = y;
-    mQueue.push(c);
+  else if (cmd[0] == 's'){
+    sscanf(cmd.c_str(), "%s\n", cmdid);
+    if (strcmp(cmdid, "scr") == 0){
+      mMultiline = true;
+    }
   }
   return;
 }
@@ -96,6 +129,13 @@ void CommandReceiver::processCommands(){
       case MOUSE_RIGHTCLICK:
         Engine::instance()->rightClick(Vec2i(c.x, c.y));
         break;
+      case SCRIPT:{
+        ExecutionContext* ctx = Engine::instance()->getInterpreter()->parseProgram(c.str);
+        if (ctx){
+          Engine::instance()->getInterpreter()->execute(ctx, true);
+        }
+        free(c.str);
+        }
     }
   }
 }

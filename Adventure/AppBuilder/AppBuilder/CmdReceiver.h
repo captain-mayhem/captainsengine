@@ -19,11 +19,17 @@ protected:
     MOUSE_MOVE,
     MOUSE_CLICK,
     MOUSE_RIGHTCLICK,
+    SCRIPT,
   };
   struct Command{
     CommandType type;
-    int x;
-    int y;
+    union{
+      struct{
+        int x;
+        int y;
+      };
+      char* str;
+    };
   };
   static void start_routine(void* data);
   void threadLoop();
@@ -33,6 +39,8 @@ protected:
   CGE::Socket mSocket;
   CGE::Socket mConnSocket;
   std::queue<Command> mQueue;
+  std::string mMsg;
+  bool mMultiline;
 };
 
 #endif
