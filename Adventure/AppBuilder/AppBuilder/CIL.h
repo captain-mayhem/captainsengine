@@ -197,4 +197,17 @@ protected:
   ExecutionContext* mCommands;
 };
 
+class CSTATE : public CCode{
+public:
+  enum State{
+    NORMAL,
+    IDLE,
+  };
+  CSTATE(State state) {mState = state;}
+  virtual ~CSTATE() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+protected:
+  State mState;
+};
+
 #endif

@@ -122,11 +122,12 @@ public:
     mHandler = handler;
   }
   void suspend(int time) {mSuspended = true; mSleepTime = time;}
-  void resume() {mSuspended = false;}
+  void resume();
   void reset(bool clearEvents);
   void setOwner(Object2D* owner) {mOwner = owner;}
   void setExecuteOnce() {mExecuteOnce = true;}
   void setSkip() {mSkip = true; mSuspended = false;}
+  void setIdle(bool idle) {mIdle = idle;}
 protected:
   CodeSegment* mCode;
   bool mIsGameObject;
@@ -140,6 +141,7 @@ protected:
   int mSleepTime;
   Object2D* mOwner;
   bool mSkip;
+  bool mIdle;
 };
 
 

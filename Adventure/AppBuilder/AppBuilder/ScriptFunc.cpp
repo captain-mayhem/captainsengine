@@ -643,10 +643,7 @@ int ScriptFunctions::unloadRoom(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::restart(ExecutionContext& ctx, unsigned numArgs){
-  Engine::instance()->setFocus("none");
-  Engine::instance()->getSaver()->clear();
-  Engine::instance()->exitGame();
-  Engine::instance()->initGame(NULL);
+  Engine::instance()->reset();
   return 0;
 }
 

@@ -91,3 +91,15 @@ unsigned CTIMER::execute(ExecutionContext& ctx, unsigned pc){
   Engine::instance()->getInterpreter()->execute(new ExecutionContext(*mCommands), true);
   return ++pc;
 }
+
+unsigned CSTATE::execute(ExecutionContext& ctx, unsigned pc){
+  switch(mState){
+    case NORMAL:
+      ctx.setIdle(false);
+      break;
+    case IDLE:
+      ctx.setIdle(true);
+      break;
+  }
+  return ++pc;
+}

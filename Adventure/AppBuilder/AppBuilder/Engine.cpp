@@ -37,7 +37,7 @@ int _stricmp(const char* str1, const char* str2){
 
 Engine* Engine::mInstance = NULL;
 
-Engine::Engine() : mData(NULL), mInitialized(false), mExitRequested(false){
+Engine::Engine() : mData(NULL), mInitialized(false), mExitRequested(false), mResetRequested(false){
   mVerts[0] = 0; mVerts[1] = 1;
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
@@ -219,6 +219,14 @@ GLuint Engine::genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, co
 void Engine::render(unsigned time){
   if (mExitRequested){
     mExitCall();
+    return;
+  }
+  if (mResetRequested){
+    Engine::instance()->setFocus("none");
+    Engine::instance()->getSaver()->clear();
+    Engine::instance()->exitGame();
+    Engine::instance()->initGame(NULL);
+    mResetRequested = false;
     return;
   }
   if (!mInitialized)
@@ -1013,4 +1021,8 @@ bool Engine::isKeyPressed(int key){
 
 void Engine::quit(){
   mExitRequested = true;
+}
+
+void Engine::reset(){
+  mResetRequested = true;
 }

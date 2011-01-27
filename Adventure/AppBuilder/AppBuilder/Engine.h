@@ -83,6 +83,7 @@ public:
   bool isKeyDown(int key);
   bool isKeyPressed(int key);
   void quit();
+  void reset();
 protected:
   Engine();
   static Engine* mInstance;
@@ -145,6 +146,7 @@ protected:
   bool mKeysDown[256];
   bool mKeysPressed[256];
   bool mExitRequested;
+  bool mResetRequested;
   exit_callback mExitCall;
 };
 
