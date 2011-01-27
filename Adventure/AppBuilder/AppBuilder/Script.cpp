@@ -279,7 +279,17 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         CBNEEVT* cevt = new CBNEEVT(evtcode);
         codes->addCode(cevt);
         ++count;
+        if (evtcode == EVT_LOOP2){
+          CSTATE* state = new CSTATE(CSTATE::IDLE);
+          codes->addCode(state);
+          ++count;
+        }
         int offset = transform(evt->getBlock(), codes, START);
+        if (evtcode == EVT_LOOP2){
+          CSTATE* state = new CSTATE(CSTATE::NORMAL);
+          codes->addCode(state);
+          ++offset;
+        }
         cevt->setOffset(offset+1);
         count += offset;
       }
@@ -413,7 +423,7 @@ CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
 
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
-mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false){
+mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false){
 
 }
 
@@ -430,6 +440,7 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
   mSleepTime = ctx.mSleepTime;
   mOwner = ctx.mOwner;
   mSkip = ctx.mSkip;
+  mIdle = ctx.mIdle;
 }
 
 ExecutionContext::~ExecutionContext(){
@@ -510,7 +521,7 @@ void PcdkScript::update(ExecutionContext* ctx, unsigned time){
     (ctx->mSleepTime -= time);
     if (ctx->mSleepTime <= 0){
       ctx->mSleepTime = 0;
-      ctx->mSuspended = false;
+      ctx->resume();
     }
   }
   executeImmediately(ctx);
@@ -665,6 +676,12 @@ void ExecutionContext::reset(bool clearEvents){
   mSuspended = false;
   mHandler = NULL;
   mSkip = false;
+}
+
+void ExecutionContext::resume(){
+  mSuspended = false;
+  if (Engine::instance()->getInterpreter()->isBlockingScriptRunning() && mIdle) 
+    reset(true);
 }
 
 void PcdkScript::clickEndHandler(ExecutionContext& ctx){

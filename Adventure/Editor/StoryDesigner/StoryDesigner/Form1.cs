@@ -22,6 +22,12 @@ namespace StoryDesigner
             TreeNode node = mediaPool.GetNodeAt(e.Location);
             if (node == null)
                 return;
+            if (e.Clicks > 1)
+            {
+                TreeNodeMouseClickEventArgs args = new TreeNodeMouseClickEventArgs(node, e.Button, e.Clicks, e.X, e.Y);
+                mediaPool_NodeMouseDoubleClick(sender, args);
+                return;
+            }
             mediaPool.SelectedNode = node;
             ResourceID id = (ResourceID)node.Tag;
             if (id == ResourceID.IMAGE)
@@ -53,7 +59,7 @@ namespace StoryDesigner
                     mImageViewer.Show(this);
                     break;
                 default:
-                    Console.WriteLine("Clicked " + name + " " + id + "unhandled");
+                    Console.WriteLine("Clicked " + name + " " + id + " unhandled");
                     break;
             }
         }

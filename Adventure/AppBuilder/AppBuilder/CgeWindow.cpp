@@ -105,7 +105,8 @@ void render(){
 }
 
 void mouse_move(int x, int y, int button){
-  Engine::instance()->setCursorPos(Vec2i(x,y));
+  if (x >= 0 && x <= 640 && y >= 0 && y <= 480)
+    Engine::instance()->setCursorPos(Vec2i(x,y));
 }
 
 void mouse_click(int x, int y, int button){
