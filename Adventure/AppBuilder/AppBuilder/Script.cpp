@@ -7,6 +7,7 @@
 #include "Engine.h"
 #include "Inventory.h"
 #include "ScriptFunc.h"
+#include <system/allocation.h>
 
 CodeSegment::~CodeSegment(){
   --(*mRefCount);
@@ -178,10 +179,14 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
     CGE::Engine::instance()->messageBox("Error parsing script", "Error");
     return NULL;
   }
+#undef free
   parser->free(parser);
   tokStream->free(tokStream);
   lexer->free(lexer);
   input->free(input);
+#ifdef _CRTDBG_MAP_ALLOC
+#define free _free_dbg
+#endif
   mIsGameObject = false;
   mObjectInfo = "";
   mLastRelation = NULL;
@@ -531,6 +536,11 @@ void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
   if (script == NULL)
     return;
   script->mExecuteOnce = executeOnce;
+  //disallow double add
+  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+    if (*iter == script)
+      return;
+  }
   mScripts.push_back(script);
 }
 
@@ -656,7 +666,7 @@ bool ExecutionContext::isEventSet(EngineEvent evt){
 }
 
 bool ExecutionContext::isRunning(){
-  return mPC > 0;
+  return mPC > 0 && !mIdle;
 }
 
 EngineEvent ExecutionContext::getCommandEvent(){
@@ -676,6 +686,7 @@ void ExecutionContext::reset(bool clearEvents){
   mSuspended = false;
   mHandler = NULL;
   mSkip = false;
+  mIdle = false;
 }
 
 void ExecutionContext::resume(){

@@ -300,26 +300,29 @@ std::string SaveStateProvider::saveSlotToPath(int slot){
   return path.str();
 }
 
-SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::string& name, std::string& room){
+SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::string& name, std::string& room, std::string& realName){
   //check if already present
   for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     for (std::map<std::string,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
       if (_stricmp(chriter->first.c_str(), name.c_str()) == 0){
         room = iter->first;
+        realName = chriter->first;
         return chriter->second;
       }
     }
   }
   for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
-    if (mData->getRoomCharacters()[i].name == name){
+    if (_stricmp(mData->getRoomCharacters()[i].name.c_str(), name.c_str()) == 0){
       //load the room with the character into saving
       room = mData->getRoomCharacters()[i].room;
+      realName = mData->getRoomCharacters()[i].name;
       SaveRoom* saveroom = getRoom(room);
-      std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.find(name);
+      std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.find(realName);
       if (iter != saveroom->characters.end())
         return iter->second;
       for (std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.begin(); iter != saveroom->characters.end(); ++iter){
         if (_stricmp(iter->first.c_str(), name.c_str()) == 0)
+          DebugBreak();
           return iter->second;
       }
     }
