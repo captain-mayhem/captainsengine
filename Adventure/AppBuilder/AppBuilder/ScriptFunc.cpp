@@ -349,7 +349,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
     CharacterObject* obj = Engine::instance()->extractCharacter(charname);
     if (!obj){
       obj = Engine::instance()->loadCharacter(charname, Engine::instance()->getCharacterClass(charname), false);
-      Engine::instance()->getSaver()->removeCharacter(charname);
+      Engine::instance()->getSaver()->removeCharacter(obj->getName());
     }
     if (obj){
       Engine::instance()->getAnimator()->remove(obj);
@@ -920,7 +920,8 @@ int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
   }
   else{
     std::string room;
-    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room);
+    std::string name;
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, name);
     cso->base.lighting = c;
   }
   return 0;
@@ -1167,11 +1168,12 @@ int ScriptFunctions::isCharInRoom(ExecutionContext& ctx, unsigned numArgs){
   std::string roomname = ctx.stack().pop().getString();
   ctx.stack().push(0);
   std::string room;
+  std::string name;
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
   if (chr)
     room = chr->getRoom();
   else{
-    SaveStateProvider::CharSaveObject* chs = Engine::instance()->getSaver()->findCharacter(charname, room);
+    SaveStateProvider::CharSaveObject* chs = Engine::instance()->getSaver()->findCharacter(charname, room, name);
   }
   if (_stricmp(room.c_str(), roomname.c_str()) == 0)
     ctx.stack().push(0);

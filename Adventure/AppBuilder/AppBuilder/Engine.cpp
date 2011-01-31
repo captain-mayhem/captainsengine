@@ -911,11 +911,12 @@ RoomObject* Engine::getContainingRoom(Object2D* object){
 CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom){
   SaveStateProvider::CharSaveObject* obj = NULL;
   std::string room;
+  std::string realName;
   if (loadContainingRoom){
-    obj = mSaver->findCharacter(instanceName, room);
+    obj = mSaver->findCharacter(instanceName, room, realName);
     if (obj){
       loadRoom(room, false);
-      CharacterObject* chr = extractCharacter(instanceName);
+      CharacterObject* chr = extractCharacter(realName);
       if (chr)
         return chr;
     }
@@ -923,12 +924,12 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   if (mFocussedChar && _stricmp(mFocussedChar->getName().c_str(), instanceName.c_str()) == 0)
     return NULL;
   if (!obj){
-    obj = mSaver->findCharacter(instanceName, room);
+    obj = mSaver->findCharacter(instanceName, room, realName);
   }
   Character* chbase = mData->getCharacter(className);
   if (chbase == NULL)
     return NULL;
-  CharacterObject* character = new CharacterObject(obj->base.state, obj->base.position, instanceName);
+  CharacterObject* character = new CharacterObject(obj->base.state, obj->base.position, realName);
   character->setLightingColor(obj->base.lighting);
   character->setMirrored(obj->mirrored);
   character->setFontID(obj->fontid);

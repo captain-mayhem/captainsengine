@@ -116,7 +116,7 @@ arg	returns [ASTNode* value]
 	(exp=rel_expr {$value = exp.exp;}
 		//workaraound for strings that look like expressions first
 		(comp_arg=complex_arg
-			{IdentNode* ident = (IdentNode*)stringify($value); ident->append(((IdentNode*)comp_arg.value)->value().c_str()); delete $value; $value = ident;}
+			{IdentNode* ident = (IdentNode*)stringify($value); ident->append(((IdentNode*)comp_arg.value)->value().c_str()); delete $value; delete comp_arg.value; $value = ident;}
 		)?
 	| ca=complex_arg {$value = ca.value;}
 	)
