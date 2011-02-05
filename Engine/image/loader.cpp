@@ -204,7 +204,7 @@ Image* decodeGIF(GifFileType* giffile){
   int extcode;
   GifByteType* extension;
   unsigned char transparent;
-  bool hasTransparency;
+  bool hasTransparency = false;
   unsigned char* indices = NULL;
   do{
     DGifGetRecordType(giffile, &recordtype);

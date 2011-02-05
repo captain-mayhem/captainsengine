@@ -167,6 +167,8 @@ Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec
 }
 
 void FontRenderer::Font::blit(unsigned interval){
+  if (interval == 0)
+    interval = 1;
   for (std::list<String*>::iterator iter = mRenderQueue.begin(); iter != mRenderQueue.end(); ++iter){
     if ((*iter)->getTime() < 0){
       delete *iter;
