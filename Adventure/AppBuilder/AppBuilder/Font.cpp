@@ -80,6 +80,8 @@ void FontRenderer::String::render(unsigned interval){
     mString[i]->render(pos, Vec2f(1.0f,1.0f), Vec2i());
   }
   mDisplayTime -= interval;
+  if (interval == 0 && mDisplayTime == 0)
+    mDisplayTime = -1;
 }
 
 void FontRenderer::String::setExtent(const Vec2i& extent){
@@ -167,8 +169,6 @@ Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec
 }
 
 void FontRenderer::Font::blit(unsigned interval){
-  if (interval == 0)
-    interval = 1;
   for (std::list<String*>::iterator iter = mRenderQueue.begin(); iter != mRenderQueue.end(); ++iter){
     if ((*iter)->getTime() < 0){
       delete *iter;

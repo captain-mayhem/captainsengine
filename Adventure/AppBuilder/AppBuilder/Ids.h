@@ -29,6 +29,7 @@ enum WindowIds{
 #define DEPTH_GAME_FONT 19500
 #define DEPTH_BUTTON 19750
 #define DEPTH_UI_FONT 19875
+#define DEPTH_SCREENCHANGE 19900
 #define DEPTH_CURSOR 20000
 
 enum TaskPopup{

@@ -49,7 +49,7 @@ protected:
 
 class BlitObject : public BaseBlitObject{
 public:
-  BlitObject(int width, int height);
+  BlitObject(int width, int height, int depth);
   BlitObject(std::string texture, int depth, Vec2i offset);
   BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
   virtual ~BlitObject();
@@ -85,7 +85,7 @@ public:
 
 class RenderableBlitObject : public BlitObject{
 public:
-  RenderableBlitObject(int width, int height);
+  RenderableBlitObject(int width, int height, int depth);
   ~RenderableBlitObject();
   void bind();
   static void unbind();
@@ -98,14 +98,7 @@ class DynamicAnimation{
 public:
   DynamicAnimation();
   virtual ~DynamicAnimation();
-  virtual void update(unsigned interval)=0;
-};
-
-class CircleScreenChange : public RenderableBlitObject, public DynamicAnimation{
-public:
-  CircleScreenChange(int width, int height, int duration);
-  virtual ~CircleScreenChange();
-  virtual void update(unsigned interval);
+  virtual bool update(unsigned interval)=0;
 };
 
 #endif

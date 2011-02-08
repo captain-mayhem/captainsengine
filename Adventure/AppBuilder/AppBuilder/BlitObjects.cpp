@@ -13,7 +13,7 @@ BaseBlitObject::~BaseBlitObject(){
 
 }
 
-BlitObject::BlitObject(int width, int height) : BaseBlitObject(0, Vec2i(width, height)), mOffset(), mMirrorOffset(){
+BlitObject::BlitObject(int width, int height, int depth) : BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
   mScale.y = ((float)mSize.y)/pow2.y;
@@ -137,7 +137,7 @@ void ScrollBlitObject::render(const Vec2i& pos){
   mPos = pos;
 }
 
-RenderableBlitObject::RenderableBlitObject(int width, int height) : BlitObject(width,height){
+RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth){
   int powx = (int)(width/mScale.x);
   int powy = (int)(height/mScale.y);
   glGenRenderbuffers(1, &mRenderBuffer);
@@ -175,17 +175,5 @@ DynamicAnimation::DynamicAnimation(){
 }
 
 DynamicAnimation::~DynamicAnimation(){
-
-}
-
-CircleScreenChange::CircleScreenChange(int width, int height, int duration) : RenderableBlitObject(width, height){
-
-}
-
-CircleScreenChange::~CircleScreenChange(){
-
-}
-
-void CircleScreenChange::update(unsigned interval){
 
 }

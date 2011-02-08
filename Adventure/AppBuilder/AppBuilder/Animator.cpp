@@ -90,6 +90,16 @@ void Animator::update(unsigned interval){
       }
     }
   }
+
+  for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){
+    bool cont = (*iter)->update(interval);
+    if (!cont){
+      delete (*iter);
+      iter = mAnimations.erase(iter);
+      if (iter == mAnimations.end())
+        break;
+    }
+  }
 }
 
 void Animator::clear(){
