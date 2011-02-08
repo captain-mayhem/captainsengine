@@ -149,6 +149,8 @@ SET(AppBuilder_SRCS
   Renderer.h
   SaveStateProvider.cpp
   SaveStateProvider.h
+  Screenchange.cpp
+  Screenchange.h
   Script.cpp
   Script.h
   ScriptDefs.h

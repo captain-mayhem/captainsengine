@@ -8,6 +8,7 @@
 #include "SaveStateProvider.h"
 #include "Inventory.h"
 #include "Sound.h"
+#include "Screenchange.h"
 
 void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("loadroom", loadRoom);
@@ -100,7 +101,7 @@ int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
       DebugBreak();
       break;
     case SC_CIRCLE:{
-      CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, 2000);
+      CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
       Engine::instance()->getAnimator()->add(csc);
       }
       break;
