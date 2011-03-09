@@ -271,7 +271,7 @@ void SaveStateProvider::load(const std::string& name){
   in >> numRooms;
   for (int i = 0; i < numRooms; ++i){
     in >> roomname;
-    Engine::instance()->loadRoom(roomname, i != 0);
+    Engine::instance()->loadRoom(roomname, i != 0, NULL);
   }
   //focussed char
   std::string focussedchar;
@@ -280,7 +280,7 @@ void SaveStateProvider::load(const std::string& name){
   if (Engine::instance()->mLastFocussedChar == "none"){
     Engine::instance()->mLastFocussedChar = "none";
   }
-  Engine::instance()->setFocus(focussedchar);
+  Engine::instance()->setFocus(focussedchar, NULL);
   //data
   int tmp;
   in >> Engine::instance()->mMainRoomLoaded >> Engine::instance()->mSubRoomLoaded;

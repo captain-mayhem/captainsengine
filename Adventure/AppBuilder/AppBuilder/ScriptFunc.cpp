@@ -90,7 +90,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
 
 int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
   std::string room = ctx.stack().pop().getString();
-  Engine::instance()->loadRoom(room, false);
+  Engine::instance()->loadRoom(room, false, &ctx);
   switch(Engine::instance()->getScreenChange()){
     case SC_DIRECT:
       break;
@@ -121,7 +121,7 @@ int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::setFocus(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
-  Engine::instance()->setFocus(character);
+  Engine::instance()->setFocus(character, &ctx);
   return 0;
 }
 
@@ -334,7 +334,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
     dir = (LookDir)(ctx.stack().pop().getInt()-1);
   if (charname == "self"){
     //focussed char, therefore change room
-    Engine::instance()->loadRoom(roomname, false);
+    Engine::instance()->loadRoom(roomname, false, &ctx);
     CharacterObject* obj = Engine::instance()->getCharacter(charname);
     if (obj){
       Engine::instance()->getAnimator()->remove(obj);
@@ -349,7 +349,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   else{
     CharacterObject* obj = Engine::instance()->extractCharacter(charname);
     if (!obj){
-      obj = Engine::instance()->loadCharacter(charname, Engine::instance()->getCharacterClass(charname), false);
+      obj = Engine::instance()->loadCharacter(charname, Engine::instance()->getCharacterClass(charname), false, &ctx);
       Engine::instance()->getSaver()->removeCharacter(obj->getName());
     }
     if (obj){
@@ -550,7 +550,7 @@ int ScriptFunctions::subRoom(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 2){
     fading_time = ctx.stack().pop().getInt();
   }
-  Engine::instance()->loadRoom(roomname, true);
+  Engine::instance()->loadRoom(roomname, true, &ctx);
   return 0;
 }
 

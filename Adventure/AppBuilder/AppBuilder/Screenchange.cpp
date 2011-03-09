@@ -7,8 +7,22 @@
 
 #define NUM_SEGMENTS 64
 
-CircleScreenChange::CircleScreenChange(int width, int height, int depth, int duration) : RenderableBlitObject(width, height, depth), mDuration(duration){
-  generateCircle(200.0f, NUM_SEGMENTS);
+Screenshot::Screenshot(int depth) : RenderableBlitObject(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, depth){
+}
+
+void Screenshot::take(){
+  bind();
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  GL()pushMatrix();
+  GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+  GL()scalef(1.0f,-1.0f,1.0f);
+  Engine::instance()->renderUnloadingRoom();
+  GL()popMatrix();
+  unbind();
+}
+
+CircleScreenChange::CircleScreenChange(int width, int height, int depth, int duration) : RenderableBlitObject(width, height, depth), mDuration(duration/2), mCurrentTime(0), mClosing(true), mShot(depth-1){
+  generateCircle(1.0f, NUM_SEGMENTS);
 }
 
 CircleScreenChange::~CircleScreenChange(){
@@ -16,23 +30,40 @@ CircleScreenChange::~CircleScreenChange(){
 }
 
 bool CircleScreenChange::update(unsigned interval){
+  float scale;
+  if (mClosing)
+    scale = (mDuration-mCurrentTime)/(float)mDuration*Engine::instance()->getResolution().x;
+  else
+    scale = mCurrentTime/(float)mDuration*Engine::instance()->getResolution().x;
+  
+  if (mClosing && mCurrentTime == 0){
+    mShot.take();
+  }
+
   bind();
-  glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   GL()disable(GL_TEXTURE_2D);
   glBlendFunc(GL_DST_COLOR, GL_ZERO);
   GL()color4ub(0, 0, 0, 0);
   GL()pushMatrix();
   GL()translatef(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
+  GL()scalef(scale, scale*Engine::instance()->getResolution().y/Engine::instance()->getResolution().x, 1.0f);
   GL()vertexPointer(2, GL_FLOAT, 0, mVerts);
   GL()drawArrays(GL_TRIANGLE_FAN, 0, NUM_SEGMENTS+2);
   GL()popMatrix();
   GL()enable(GL_TEXTURE_2D);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   unbind();
-  if (mDuration < 0)
+  
+  if (mCurrentTime >= mDuration && !mClosing)
     return false;
-  mDuration -= interval;
+  if (mCurrentTime >= mDuration && mClosing){
+    mCurrentTime = 0;
+    mClosing = false;
+  }
+  mCurrentTime += interval;
+  if (mClosing)
+    mShot.render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
   render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
   return true;
 }
