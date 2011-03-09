@@ -94,7 +94,7 @@ void Engine::initGame(exit_callback exit_cb){
   mPrevActiveCommand = 0;
   //load taskbar room
   if (mData->getProjectSettings()->taskroom != ""){
-    loadRoom(mData->getProjectSettings()->taskroom, true);
+    loadRoom(mData->getProjectSettings()->taskroom, true, NULL);
     if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)
       mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
     else{
@@ -109,7 +109,7 @@ void Engine::initGame(exit_callback exit_cb){
   }
   //load anywhere room
   if (mData->getProjectSettings()->anywhere_room != ""){
-    loadRoom(mData->getProjectSettings()->anywhere_room, true);
+    loadRoom(mData->getProjectSettings()->anywhere_room, true, NULL);
   }
   //load main script
   Script* mainScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->mainscript);
@@ -225,7 +225,7 @@ void Engine::render(unsigned time){
     return;
   }
   if (mResetRequested){
-    Engine::instance()->setFocus("none");
+    Engine::instance()->setFocus("none", NULL);
     Engine::instance()->getSaver()->clear();
     Engine::instance()->exitGame();
     Engine::instance()->initGame(NULL);
@@ -364,7 +364,7 @@ void Engine::render(unsigned time){
   mBlitQueue.clear();
 }
 
-bool Engine::loadRoom(std::string name, bool isSubRoom){
+bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason){
   if (!mData)
     return false;
   //already loaded //TODO subrooms
@@ -438,7 +438,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom){
         break;
       }
     }
-    CharacterObject* character = loadCharacter(ch.name, ch.character, false);
+    CharacterObject* character = loadCharacter(ch.name, ch.character, false, loadreason);
     if (character){
       character->setScale(roomobj->getDepthScale(character->getPosition()));
       roomobj->addObject(character);
@@ -602,7 +602,7 @@ void Engine::doubleClick(const Vec2i& pos){
   }
 }
 
-bool Engine::setFocus(std::string charname){
+bool Engine::setFocus(std::string charname, ExecutionContext* reason){
   if (mFocussedChar){
     mRooms.back()->addObject(mFocussedChar);
   }
@@ -625,7 +625,7 @@ bool Engine::setFocus(std::string charname){
     return true;
   }*/
   //load character
-  res = loadCharacter(charname, getCharacterClass(charname), true);
+  res = loadCharacter(charname, getCharacterClass(charname), true, reason);
   mSaver->removeCharacter(charname);
   if (res){
     mFocussedChar = res;
@@ -911,14 +911,14 @@ RoomObject* Engine::getContainingRoom(Object2D* object){
   return NULL;
 }
 
-CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom){
+CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom, ExecutionContext* loadreason){
   SaveStateProvider::CharSaveObject* obj = NULL;
   std::string room;
   std::string realName;
   if (loadContainingRoom){
     obj = mSaver->findCharacter(instanceName, room, realName);
     if (obj){
-      loadRoom(room, false);
+      loadRoom(room, false, loadreason);
       CharacterObject* chr = extractCharacter(realName);
       if (chr)
         return chr;
@@ -993,7 +993,7 @@ void Engine::keyRelease(int key){
 }
 
 void Engine::unloadRooms(){
-  setFocus("none");
+  setFocus("none", NULL);
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
     mRoomsToUnload.push_back(*iter);
     iter = mRooms.erase(iter);
@@ -1029,4 +1029,19 @@ void Engine::quit(){
 
 void Engine::reset(){
   mResetRequested = true;
+}
+
+void Engine::renderUnloadingRoom(){
+  std::list<BaseBlitObject*> tmp = mBlitQueue;
+  mBlitQueue = std::list<BaseBlitObject*>();
+  for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
+    (*iter)->render();
+  }
+  GL()vertexPointer(2, GL_SHORT, 0, mVerts);
+  GL()texCoordPointer(2, GL_SHORT, 0, mVerts);
+  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
+    (*iter)->blit();
+  }
+  //mBlitQueue.clear();
+  mBlitQueue = tmp;
 }

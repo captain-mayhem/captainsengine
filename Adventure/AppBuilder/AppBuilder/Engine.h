@@ -38,9 +38,9 @@ public:
   void leftClick(const Vec2i& pos);
   void rightClick(const Vec2i& pos);
   void doubleClick(const Vec2i& pos);
-  bool loadRoom(std::string name, bool isSubRoom);
+  bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason);
   void unloadRoom(RoomObject* room, bool mainroom);
-  bool setFocus(std::string charname);
+  bool setFocus(std::string charname, ExecutionContext* reason);
   CGE::Image* getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
   Object2D* getObjectAt(const Vec2i& pos);
@@ -67,7 +67,7 @@ public:
   std::string getActiveCommand();
   void clearGui();
   RoomObject* getContainingRoom(Object2D* object);
-  CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom);
+  CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom, ExecutionContext* loadreason);
   void keyPress(int key);
   void keyRelease(int key);
   void unloadRooms();
@@ -84,6 +84,7 @@ public:
   bool isKeyPressed(int key);
   void quit();
   void reset();
+  void renderUnloadingRoom();
 protected:
   Engine();
   static Engine* mInstance;
