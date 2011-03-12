@@ -23,4 +23,14 @@ protected:
   Screenshot mShot;
 };
 
+class BlendScreenChange : public RenderableBlitObject, public DynamicAnimation{
+public:
+  BlendScreenChange(int width, int height, int depth, int duration);
+  virtual bool update(unsigned interval);
+protected:
+  int mDuration;
+  int mCurrentTime;
+  Screenshot mShot;
+};
+
 #endif

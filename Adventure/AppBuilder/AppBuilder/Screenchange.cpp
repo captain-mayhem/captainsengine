@@ -79,3 +79,43 @@ void CircleScreenChange::generateCircle(float radius, int segments){
     angle += (float)(M_PI*2./segments);
   }
 }
+
+BlendScreenChange::BlendScreenChange(int width, int height, int depth, int duration) : RenderableBlitObject(width, height, depth), mDuration(duration), mCurrentTime(0), mShot(depth-1){
+}
+
+bool BlendScreenChange::update(unsigned interval){
+  if (mCurrentTime == 0){
+    mShot.take();
+  }
+
+  int alpha = (int)((mDuration-mCurrentTime)/(float)mDuration*255);
+
+  bind();
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
+  //render previous room
+  GL()pushMatrix();
+  GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+  GL()scalef(1.0f,-1.0f,1.0f);
+  mShot.blit();
+  GL()popMatrix();
+  
+  //multiply alpha
+  GL()pushMatrix();
+  GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
+  glBlendFunc(GL_DST_COLOR, GL_ZERO);
+  GL()color4ub(255, 255, 255, alpha);
+  GL()disable(GL_TEXTURE_2D);
+  GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  GL()popMatrix();
+  GL()enable(GL_TEXTURE_2D);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  unbind();
+  
+  if (mCurrentTime >= mDuration)
+    return false;
+  mCurrentTime += interval;
+  render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
+  return true;
+}
+
