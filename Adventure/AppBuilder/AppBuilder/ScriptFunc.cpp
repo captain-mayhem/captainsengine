@@ -91,31 +91,6 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
 int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
   std::string room = ctx.stack().pop().getString();
   Engine::instance()->loadRoom(room, false, &ctx);
-  switch(Engine::instance()->getScreenChange()){
-    case SC_DIRECT:
-      break;
-    case SC_FADEOUT:
-      DebugBreak();
-      break;
-    case SC_RECTANGLE:
-      DebugBreak();
-      break;
-    case SC_CIRCLE:{
-      CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-      Engine::instance()->getAnimator()->add(csc);
-      }
-      break;
-    case SC_SHUTTERS:
-      DebugBreak();
-      break;
-    case SC_CLOCK:
-      DebugBreak();
-      break;
-    case SC_BLEND:
-      break;
-    case SC_BLEND_SLOW:
-      break;
-  }
   return 0;
 }
 
