@@ -1,6 +1,6 @@
 Topic | Prio
 -------------
-screenchange | 1
+screenchange (missing variants) | 4
 char positioning / char collision detection (->block walkmap?) | 2
 setchar with names | 4
 bored animation | 1
@@ -9,7 +9,7 @@ textEnabled (use in Engine) | 3
 group (use in setobj/moveobj) | 3
 playswf/stopswf | 2
 saving (sound, timer) | 2
-zooming | 1
+room scrolling when focussing chars | 2
 
 D:\pcdk\Sinnlos im Weltraum - The First Adventure\Sinnlos im Weltraum - The First Adventure\data\game.dat
 

@@ -10,7 +10,19 @@ namespace StoryDesigner
 {
     public partial class StateFrameImage : UserControl
     {
+        public class StateEventArgs : EventArgs
+        {
+            public StateEventArgs(int oldstate, int newstate)
+            {
+                OldState = oldstate;
+                NewState = newstate;
+            }
+            public int OldState;
+            public int NewState;
+        }
+        public delegate void StateEventHandler(object sender, StateEventArgs e);
         public event EventHandler PictureChanged;
+        public event StateEventHandler StateChanged;
 
         public StateFrameImage()
         {
@@ -39,13 +51,15 @@ namespace StoryDesigner
         {
             string str = "Speed " + 50.0f / fps.Value + " frames/second";
             fps_label.Text = str;
+            mData.setFPSDivider(mState, fps.Value);
         }
 
         void picturePanel_DragDrop(object sender, DragEventArgs e)
         {
             string name = (string)e.Data.GetData(DataFormats.StringFormat);
             mData.setFramePart(mState, mFrame, 0, name);
-            this.pictureBox.Invalidate();
+            //this.pictureBox.Invalidate();
+            this.framecontrol.Invalidate();
         }
 
         void picturePanel_DragOver(object sender, DragEventArgs e)
@@ -61,7 +75,11 @@ namespace StoryDesigner
                 return;
             string[] pics = mData.getFrame(mState, mFrame);
             if (pics == null)
+            {
+                if (PictureChanged != null)
+                    PictureChanged(this, new EventArgs());
                 return;
+            }
             for (int i = 0; i < pics.Length; ++i)
             {
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
@@ -76,7 +94,7 @@ namespace StoryDesigner
 
         public IStateFrameData Data
         {
-            set { mData = value; updateStateValues(); }
+            set { mData = value; updateStateValues(mState); }
             get { return mData; }
         }
 
@@ -104,6 +122,19 @@ namespace StoryDesigner
             Rectangle r = new Rectangle(0, 0, pictureBox.Width, pictureBox.Height);
             pictureBox.DrawToBitmap(bmp, r);
             return bmp;
+        }
+
+        public void setStateLables(string[] lables)
+        {
+            for (int i = 0; i < Math.Min(lables.Length, mStateButtons.Length); ++i)
+            {
+                mStateButtons[i].Text = lables[i];
+            }
+        }
+
+        public int State
+        {
+            get { return mState; }
         }
 
         void framecontrol_MouseClick(object sender, MouseEventArgs e)
@@ -136,18 +167,21 @@ namespace StoryDesigner
         void changeState(int newState)
         {
             mStateButtons[mState].BackColor = mOrigColor;
+            int oldstate = mState;
             mState = newState;
             mStateButtons[mState].BackColor = Color.Turquoise;
             mFrame = 0;
-            updateStateValues();
+            updateStateValues(oldstate);
             this.framecontrol.Invalidate();
         }
 
-        void updateStateValues()
+        void updateStateValues(int oldstate)
         {
             if (mData == null)
                 return;
             fps.Value = mData.getFPSDivider(mState);
+            if (StateChanged != null)
+                StateChanged(this, new StateEventArgs(oldstate, mState));
         }
 
         private int mFrames = 25;
