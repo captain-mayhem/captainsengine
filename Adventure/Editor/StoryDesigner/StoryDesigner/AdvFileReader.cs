@@ -129,7 +129,9 @@ namespace StoryDesigner
                 mAdv.Settings.TaskHideCompletely = true;
             else
                 mAdv.Settings.TaskHideCompletely = false;
-            rdr.ReadLine();
+            mAdv.Settings.RightClick = Convert.ToInt32(str.Substring(16));
+            str = rdr.ReadLine();
+            mAdv.Settings.UseMouseWheel = (str == "-1");
             str = rdr.ReadLine();
             mAdv.Settings.MenuFading = Convert.ToInt32(str);
             str = rdr.ReadLine();

@@ -86,6 +86,8 @@ namespace StoryDesigner
         public string WalkText;
         public Dictionary<string, bool> Booleans;
         public Dictionary<string, string> Commands;
+        public int RightClick;
+        public bool UseMouseWheel;
     }
 
     public interface IStateFrameData{
@@ -93,6 +95,7 @@ namespace StoryDesigner
         string[] getFrame(int state, int frame);
         System.Drawing.Bitmap getImage(string framepart);
         int getFPSDivider(int state);
+        void setFPSDivider(int state, int fpsdivider);
         void setFramePart(int state, int frame, int part, string name);
     };
 
@@ -138,12 +141,32 @@ namespace StoryDesigner
             while (frame >= cs.frames.Count)
                 cs.frames.Add("");
             cs.frames[frame] = name;
+            mStates[state] = cs;
         }
         public int getFPSDivider(int state)
         {
             CursorState cs = (CursorState)mStates[state];
             return cs.fpsDivider;
         }
+        public void setFPSDivider(int state, int fpsdivider)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            cs.fpsDivider = fpsdivider;
+            mStates[state] = cs;
+        }
+
+        public void setCommand(int state, int command)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            cs.command = command+1;
+            mStates[state] = cs;
+        }
+        public int getCommand(int state)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            return cs.command-1;
+        }
+
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         AdvData mData;
     }
@@ -208,6 +231,8 @@ namespace StoryDesigner
             Settings.TsUseBgImage = false;
             Settings.TsUseSymbols = false;
             Settings.WalkText = "Walk to";
+            Settings.RightClick = 0;
+            Settings.UseMouseWheel = false;
 
             mImages = new Dictionary<string, string>();
             mReader = null;
