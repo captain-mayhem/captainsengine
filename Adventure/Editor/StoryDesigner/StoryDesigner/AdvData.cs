@@ -97,6 +97,8 @@ namespace StoryDesigner
         int getFPSDivider(int state);
         void setFPSDivider(int state, int fpsdivider);
         void setFramePart(int state, int frame, int part, string name);
+        Vec2i getHotspot(int state);
+        void setHotspot(int state, Vec2i hotspot);
     };
 
     public struct CursorState
@@ -116,6 +118,19 @@ namespace StoryDesigner
         public int Add(CursorState cs)
         {
             return mStates.Add(cs);
+        }
+        public void init()
+        {
+            mStates.Clear();
+            for (int i = 0; i < 10; ++i)
+            {
+                CursorState cs;
+                cs.command = i == 9 ? 2 : 1;
+                cs.fpsDivider = 20;
+                cs.frames = new System.Collections.ArrayList();
+                cs.highlight = new Vec2i(1, 1);
+                mStates.Add(cs);
+            }
         }
         public bool frameExists(int state, int frame)
         {
@@ -154,6 +169,17 @@ namespace StoryDesigner
             cs.fpsDivider = fpsdivider;
             mStates[state] = cs;
         }
+        public Vec2i getHotspot(int state)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            return cs.highlight;
+        }
+        public void setHotspot(int state, Vec2i hotspot)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            cs.highlight = hotspot;
+            mStates[state] = cs;
+        }
 
         public void setCommand(int state, int command)
         {
@@ -168,6 +194,71 @@ namespace StoryDesigner
         }
 
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
+        AdvData mData;
+    }
+
+    public struct ItemState
+    {
+        public System.Collections.ArrayList frames;
+        public int fpsDivider;
+    }
+
+    public class Item : IStateFrameData
+    {
+        public Item(AdvData data)
+        {
+            mData = data;
+        }
+        public int Add(ItemState ist)
+        {
+            return mStates.Add(ist);
+        }
+        public bool frameExists(int state, int frame)
+        {
+            ItemState ist = (ItemState)mStates[state];
+            return frame < ist.frames.Count;
+        }
+        public string[] getFrame(int state, int frame)
+        {
+            ItemState ist = (ItemState)mStates[state];
+            if (frame >= ist.frames.Count)
+                return null;
+            string[] ret = new string[1];
+            ret[0] = (string)ist.frames[frame];
+            return ret;
+        }
+        public System.Drawing.Bitmap getImage(string framepart)
+        {
+            return mData.getImage(framepart);
+        }
+        public void setFramePart(int state, int frame, int part, string name)
+        {
+            ItemState ist = (ItemState)mStates[state];
+            while (frame >= ist.frames.Count)
+                ist.frames.Add("");
+            ist.frames[frame] = name;
+            mStates[state] = ist;
+        }
+        public int getFPSDivider(int state)
+        {
+            ItemState ist = (ItemState)mStates[state];
+            return ist.fpsDivider;
+        }
+        public void setFPSDivider(int state, int fpsdivider)
+        {
+            ItemState ist = (ItemState)mStates[state];
+            ist.fpsDivider = fpsdivider;
+            mStates[state] = ist;
+        }
+        public Vec2i getHotspot(int state)
+        {
+            return new Vec2i();
+        }
+        public void setHotspot(int state, Vec2i hotspot)
+        {
+        }
+        System.Collections.ArrayList mStates = new System.Collections.ArrayList();
+        string mName;
         AdvData mData;
     }
 
@@ -238,13 +329,7 @@ namespace StoryDesigner
             mReader = null;
 
             mCursor = new Cursor(this);
-            for (int i = 0; i < 10; ++i)
-            {
-                CursorState cs = new CursorState();
-                cs.fpsDivider = 20;
-                cs.frames = new System.Collections.ArrayList();
-                mCursor.Add(cs);
-            }
+            mCursor.init();
         }
 
         public AdvData(AdvFileReader reader)

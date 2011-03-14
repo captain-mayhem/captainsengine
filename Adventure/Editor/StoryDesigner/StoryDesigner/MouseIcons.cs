@@ -14,6 +14,8 @@ namespace StoryDesigner
         {
             InitializeComponent();
             mData = data;
+            this.stateFrameImage1.Hotspot = true;
+            this.stateFrameImage1.HotspotCoordScale = 3.0f;
             this.stateFrameImage1.StateChanged += new StateFrameImage.StateEventHandler(stateFrameImage1_StateChanged);
             this.stateFrameImage1.PictureBoxSize = new Size(96, 96);
             this.stateFrameImage1.PictureChanged += new EventHandler(stateFrameImage1_PictureChanged);
