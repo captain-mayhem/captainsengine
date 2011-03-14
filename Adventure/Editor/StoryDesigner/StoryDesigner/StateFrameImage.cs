@@ -45,6 +45,39 @@ namespace StoryDesigner
             mOrigColor = mStateButtons[mState].BackColor;
             mStateButtons[mState].BackColor = Color.Turquoise;
             this.fps.ValueChanged += new EventHandler(fps_ValueChanged);
+            this.pictureBox.MouseDown += new MouseEventHandler(pictureBox_MouseDown);
+            this.pictureBox.MouseMove += new MouseEventHandler(pictureBox_MouseMove);
+            this.pictureBox.MouseUp += new MouseEventHandler(pictureBox_MouseUp);
+        }
+
+        void pictureBox_MouseUp(object sender, MouseEventArgs e)
+        {
+            mPictureDragging = false;
+        }
+
+        void pictureBox_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!mPictureDragging)
+                return;
+            Vec2i mouse = new Vec2i(e.X, e.Y);
+            if (mouse.x < 0)
+                mouse.x = 0;
+            if (mouse.x > pictureBox.Size.Width)
+                mouse.x = pictureBox.Size.Width;
+            if (mouse.y < 0)
+                mouse.y = 0;
+            if (mouse.y > pictureBox.Size.Height)
+                mouse.y = pictureBox.Size.Height;
+            mData.setHotspot(mState, mouse / mHotspotScale);
+            pictureBox.Invalidate();
+        }
+
+        void pictureBox_MouseDown(object sender, MouseEventArgs e)
+        {
+            Vec2i center = mData.getHotspot(mState)*mHotspotScale;
+            Vec2i mouse = new Vec2i(e.X, e.Y);
+            if ((mouse-center).length() < 10)
+                mPictureDragging = true;
         }
 
         void fps_ValueChanged(object sender, EventArgs e)
@@ -76,6 +109,8 @@ namespace StoryDesigner
             string[] pics = mData.getFrame(mState, mFrame);
             if (pics == null)
             {
+                if (mDrawHotspot)
+                    drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
                 if (PictureChanged != null)
                     PictureChanged(this, new EventArgs());
                 return;
@@ -88,6 +123,8 @@ namespace StoryDesigner
                 else
                     e.Graphics.DrawImage(bmp, 0, 0);
             }
+            if (mDrawHotspot)
+                drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
             if (PictureChanged != null)
                 PictureChanged(this, new EventArgs());
         }
@@ -120,7 +157,10 @@ namespace StoryDesigner
         {
             Bitmap bmp = new Bitmap(pictureBox.Width, pictureBox.Height);
             Rectangle r = new Rectangle(0, 0, pictureBox.Width, pictureBox.Height);
+            bool hotspot = mDrawHotspot;
+            mDrawHotspot = false;
             pictureBox.DrawToBitmap(bmp, r);
+            mDrawHotspot = hotspot;
             return bmp;
         }
 
@@ -135,6 +175,18 @@ namespace StoryDesigner
         public int State
         {
             get { return mState; }
+        }
+
+        public bool Hotspot
+        {
+            get { return mDrawHotspot; }
+            set { mDrawHotspot = value; }
+        }
+
+        public float HotspotCoordScale
+        {
+            get { return mHotspotScale; }
+            set { mHotspotScale = value; }
         }
 
         void framecontrol_MouseClick(object sender, MouseEventArgs e)
@@ -184,6 +236,19 @@ namespace StoryDesigner
                 StateChanged(this, new StateEventArgs(oldstate, mState));
         }
 
+        void drawCrosshair(Graphics g, Vec2i pos)
+        {
+            int width = 20;
+            float linewidth = 2.0f;
+            Pen p = new Pen(Color.Red, linewidth);
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            g.DrawEllipse(p, pos.x-width/2, pos.y-width/2, width, width);
+            g.DrawLine(p, pos.x, pos.y - linewidth, pos.x, pos.y - linewidth - width/2 - linewidth);
+            g.DrawLine(p, pos.x, pos.y + linewidth, pos.x, pos.y + linewidth + width / 2 + linewidth);
+            g.DrawLine(p, pos.x - linewidth, pos.y, pos.x - linewidth - width / 2 - linewidth, pos.y);
+            g.DrawLine(p, pos.x + linewidth, pos.y, pos.x + linewidth + width / 2 + linewidth, pos.y);
+        }
+
         private int mFrames = 25;
         private int mState = 0;
         private int mFrame = 0;
@@ -191,6 +256,9 @@ namespace StoryDesigner
         private IStateFrameData mData;
         private Color mOrigColor;
         private bool mScaleImage = false;
+        private bool mDrawHotspot = false;
+        private float mHotspotScale = 1.0f;
+        private bool mPictureDragging = false;
 
         private void button1_Click(object sender, EventArgs e)
         {
