@@ -284,6 +284,47 @@ namespace StoryDesigner
                 cs.highlight.y = Convert.ToInt32(str);
                 mAdv.Cursor.Add(cs);
             }
+            while (!rdr.EndOfStream)
+            {
+                str = rdr.ReadLine();
+                if (rdr.EndOfStream)
+                    return true;
+                if (str.Length < 2)
+                    continue;
+                string rest = str.Substring(2);
+                //TODO check
+                string[] typename = rest.Split(' ');
+                //ITEM
+                if (typename[0] == "Item")
+                {
+                    Item it = new Item(mAdv);
+                    it.Name = typename[1];
+                    int numStates = STATES_MAX;
+                    int delim = 1;
+                    if (ver_major == 2)
+                    {
+                        numStates = 1;
+                        delim = 1;
+                    }
+                    for (int state = 0; state < numStates; ++state)
+                    {
+                        ItemState ist;
+                        ist.frames = new System.Collections.ArrayList();
+                        for (int frames = 0; frames < FRAMES_MAX; ++frames)
+                        {
+                            str = rdr.ReadLine();
+                            if (str != ";" && str.Length > 0)
+                            {
+                                ist.frames.Add(str.Substring(0,str.Length+1-delim));
+                            }
+                        }
+                        str = rdr.ReadLine();
+                        ist.fpsDivider = Convert.ToInt32(str);
+                        it.Add(ist);
+                    }
+                    mAdv.addItem(it);
+                }
+            }
             return true;
         }
 

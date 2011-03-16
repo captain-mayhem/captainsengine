@@ -257,6 +257,13 @@ namespace StoryDesigner
         public void setHotspot(int state, Vec2i hotspot)
         {
         }
+
+        public string Name
+        {
+            get { return mName; }
+            set { mName = value; }
+        }
+
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         string mName;
         AdvData mData;
@@ -330,6 +337,8 @@ namespace StoryDesigner
 
             mCursor = new Cursor(this);
             mCursor.init();
+
+            mItems = new Dictionary<string, Item>();
         }
 
         public AdvData(AdvFileReader reader)
@@ -338,6 +347,7 @@ namespace StoryDesigner
             mImages = new Dictionary<string, string>();
             mReader = reader;
             mCursor = new Cursor(this);
+            mItems = new Dictionary<string, Item>();
         }
 
         public System.Drawing.Bitmap getImage(string name)
@@ -358,9 +368,19 @@ namespace StoryDesigner
             //set { mCursor = value; }
         }
 
+        public Item getItem(string name)
+        {
+            return mItems[name];
+        }
+        public void addItem(Item item)
+        {
+            mItems.Add(item.Name.ToLower(), item);
+        }
+
         public ProjectSettings Settings;
         Dictionary<string, string> mImages;
         Cursor mCursor;
+        Dictionary<string, Item> mItems;
         AdvFileReader mReader;
     }
 }

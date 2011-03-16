@@ -15,6 +15,8 @@ namespace StoryDesigner
             InitializeComponent();
             mediaPool.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             mediaPool.MouseDown += new MouseEventHandler(mediaPool_MouseDown);
+            gamePool.NodeMouseDoubleClick +=new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
+            gamePool.MouseDown +=new MouseEventHandler(mediaPool_MouseDown);
         }
 
         void mediaPool_MouseDown(object sender, MouseEventArgs e)
@@ -58,6 +60,18 @@ namespace StoryDesigner
                     mImageViewer = new ImageViewer(bmp);
                     mImageViewer.Show(this);
                     break;
+                case ResourceID.ITEM:
+                    if (mItemDlg != null)
+                        mItemDlg.Close();
+                    Item it = mData.getItem(name);
+                    if (it == null)
+                    {
+                        MessageBox.Show("Cannot find item " + name);
+                        return;
+                    }
+                    mItemDlg = new ItemDlg(it);
+                    mItemDlg.Show(this);
+                    break;
                 default:
                     Console.WriteLine("Clicked " + name + " " + id + " unhandled");
                     break;
@@ -99,6 +113,8 @@ namespace StoryDesigner
 
         private AdvData mData;
         private ImageViewer mImageViewer;
+        private MouseIcons mMouseIcons;
+        private ItemDlg mItemDlg;
 
         private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -120,8 +136,10 @@ namespace StoryDesigner
 
         private void mouseiconsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            MouseIcons icons = new MouseIcons(mData);
-            icons.Show(this);
+            if (mMouseIcons != null)
+                mMouseIcons.Close();
+            mMouseIcons = new MouseIcons(mData);
+            mMouseIcons.Show(this);
         }
 
         private void imageToolStripMenuItem_Click(object sender, EventArgs e)
