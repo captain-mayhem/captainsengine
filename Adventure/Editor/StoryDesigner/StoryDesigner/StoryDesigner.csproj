@@ -40,7 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AdvData.cs" />
+    <Compile Include="AdvData.cs">
+    </Compile>
     <Compile Include="AdvFileReader.cs" />
     <Compile Include="AdvFileWriter.cs" />
     <Compile Include="CommandsAndBools.cs">
@@ -67,6 +68,12 @@
     <Compile Include="ImageViewer.Designer.cs">
       <DependentUpon>ImageViewer.cs</DependentUpon>
     </Compile>
+    <Compile Include="ItemDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ItemDlg.Designer.cs">
+      <DependentUpon>ItemDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="MouseIcons.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -90,6 +97,10 @@
     <EmbeddedResource Include="ImageViewer.resx">
       <SubType>Designer</SubType>
       <DependentUpon>ImageViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ItemDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ItemDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MouseIcons.resx">
       <SubType>Designer</SubType>

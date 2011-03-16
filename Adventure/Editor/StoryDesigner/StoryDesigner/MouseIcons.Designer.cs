@@ -32,9 +32,9 @@ namespace StoryDesigner
             this.pb_small = new System.Windows.Forms.PictureBox();
             this.label2 = new System.Windows.Forms.Label();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.rc_change = new System.Windows.Forms.RadioButton();
-            this.rc_icon_one = new System.Windows.Forms.RadioButton();
             this.rc_nothing = new System.Windows.Forms.RadioButton();
+            this.rc_icon_one = new System.Windows.Forms.RadioButton();
+            this.rc_change = new System.Windows.Forms.RadioButton();
             this.mouse_wheel = new System.Windows.Forms.CheckBox();
             this.command = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -82,16 +82,16 @@ namespace StoryDesigner
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Right click...";
             // 
-            // rc_change
+            // rc_nothing
             // 
-            this.rc_change.AutoSize = true;
-            this.rc_change.Location = new System.Drawing.Point(6, 19);
-            this.rc_change.Name = "rc_change";
-            this.rc_change.Size = new System.Drawing.Size(165, 17);
-            this.rc_change.TabIndex = 0;
-            this.rc_change.TabStop = true;
-            this.rc_change.Text = "... changes the icons (classic)";
-            this.rc_change.UseVisualStyleBackColor = true;
+            this.rc_nothing.AutoSize = true;
+            this.rc_nothing.Location = new System.Drawing.Point(6, 65);
+            this.rc_nothing.Name = "rc_nothing";
+            this.rc_nothing.Size = new System.Drawing.Size(98, 17);
+            this.rc_nothing.TabIndex = 2;
+            this.rc_nothing.TabStop = true;
+            this.rc_nothing.Text = "... does nothing";
+            this.rc_nothing.UseVisualStyleBackColor = true;
             // 
             // rc_icon_one
             // 
@@ -104,16 +104,16 @@ namespace StoryDesigner
             this.rc_icon_one.Text = "... selects icon 1 (intelligent)";
             this.rc_icon_one.UseVisualStyleBackColor = true;
             // 
-            // rc_nothing
+            // rc_change
             // 
-            this.rc_nothing.AutoSize = true;
-            this.rc_nothing.Location = new System.Drawing.Point(6, 65);
-            this.rc_nothing.Name = "rc_nothing";
-            this.rc_nothing.Size = new System.Drawing.Size(98, 17);
-            this.rc_nothing.TabIndex = 2;
-            this.rc_nothing.TabStop = true;
-            this.rc_nothing.Text = "... does nothing";
-            this.rc_nothing.UseVisualStyleBackColor = true;
+            this.rc_change.AutoSize = true;
+            this.rc_change.Location = new System.Drawing.Point(6, 19);
+            this.rc_change.Name = "rc_change";
+            this.rc_change.Size = new System.Drawing.Size(165, 17);
+            this.rc_change.TabIndex = 0;
+            this.rc_change.TabStop = true;
+            this.rc_change.Text = "... changes the icons (classic)";
+            this.rc_change.UseVisualStyleBackColor = true;
             // 
             // mouse_wheel
             // 
@@ -146,10 +146,13 @@ namespace StoryDesigner
             // stateFrameImage1
             // 
             this.stateFrameImage1.Data = null;
+            this.stateFrameImage1.Hotspot = true;
+            this.stateFrameImage1.HotspotCoordScale = 3F;
             this.stateFrameImage1.Location = new System.Drawing.Point(12, 12);
             this.stateFrameImage1.Name = "stateFrameImage1";
             this.stateFrameImage1.PictureBoxSize = new System.Drawing.Size(96, 96);
             this.stateFrameImage1.ScaleImageToBox = true;
+            this.stateFrameImage1.ShowImageNames = false;
             this.stateFrameImage1.Size = new System.Drawing.Size(331, 305);
             this.stateFrameImage1.TabIndex = 0;
             // 

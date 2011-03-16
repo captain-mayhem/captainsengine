@@ -109,14 +109,17 @@ namespace StoryDesigner
             string[] pics = mData.getFrame(mState, mFrame);
             if (pics == null)
             {
+                imageNames.Text = "none";
                 if (mDrawHotspot)
                     drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
                 if (PictureChanged != null)
                     PictureChanged(this, new EventArgs());
                 return;
             }
+            imageNames.Text = "";
             for (int i = 0; i < pics.Length; ++i)
             {
+                imageNames.Text += pics[i] + " ";
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
                 if (mScaleImage)
                     e.Graphics.DrawImage(bmp, 0, 0, PictureBoxSize.Width, PictureBoxSize.Height);
@@ -143,6 +146,7 @@ namespace StoryDesigner
                 int widthDiff = value.Width - picturePanel.Size.Width;
                 picturePanel.Location = new Point(picturePanel.Location.X - widthDiff / 2, picturePanel.Location.Y);
                 picturePanel.Size = value;
+                imageNames.Location = new Point(imageNames.Location.X + widthDiff / 2, imageNames.Location.Y);
             }
             get { return picturePanel.Size; }
         }
@@ -187,6 +191,12 @@ namespace StoryDesigner
         {
             get { return mHotspotScale; }
             set { mHotspotScale = value; }
+        }
+
+        public bool ShowImageNames
+        {
+            get { return imageNames.Visible; }
+            set { imageNames.Visible = value; }
         }
 
         void framecontrol_MouseClick(object sender, MouseEventArgs e)

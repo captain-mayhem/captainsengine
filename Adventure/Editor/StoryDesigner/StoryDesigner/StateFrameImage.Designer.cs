@@ -44,8 +44,9 @@ namespace StoryDesigner
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.fps = new System.Windows.Forms.TrackBar();
             this.lower_group = new System.Windows.Forms.Panel();
-            this.picturePanel = new System.Windows.Forms.Panel();
             this.fps_label = new System.Windows.Forms.Label();
+            this.picturePanel = new System.Windows.Forms.Panel();
+            this.imageNames = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fps)).BeginInit();
@@ -219,15 +220,6 @@ namespace StoryDesigner
             this.lower_group.Size = new System.Drawing.Size(324, 100);
             this.lower_group.TabIndex = 6;
             // 
-            // picturePanel
-            // 
-            this.picturePanel.AllowDrop = true;
-            this.picturePanel.Controls.Add(this.pictureBox);
-            this.picturePanel.Location = new System.Drawing.Point(135, 115);
-            this.picturePanel.Name = "picturePanel";
-            this.picturePanel.Size = new System.Drawing.Size(50, 50);
-            this.picturePanel.TabIndex = 7;
-            // 
             // fps_label
             // 
             this.fps_label.AutoSize = true;
@@ -237,10 +229,29 @@ namespace StoryDesigner
             this.fps_label.TabIndex = 6;
             this.fps_label.Text = "Speed 50 frames/second";
             // 
+            // picturePanel
+            // 
+            this.picturePanel.AllowDrop = true;
+            this.picturePanel.Controls.Add(this.pictureBox);
+            this.picturePanel.Location = new System.Drawing.Point(135, 115);
+            this.picturePanel.Name = "picturePanel";
+            this.picturePanel.Size = new System.Drawing.Size(50, 50);
+            this.picturePanel.TabIndex = 7;
+            // 
+            // imageNames
+            // 
+            this.imageNames.AutoSize = true;
+            this.imageNames.Location = new System.Drawing.Point(191, 115);
+            this.imageNames.Name = "imageNames";
+            this.imageNames.Size = new System.Drawing.Size(31, 13);
+            this.imageNames.TabIndex = 8;
+            this.imageNames.Text = "none";
+            // 
             // StateFrameImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.imageNames);
             this.Controls.Add(this.picturePanel);
             this.Controls.Add(this.lower_group);
             this.Controls.Add(this.framecontrol);
@@ -289,5 +300,6 @@ namespace StoryDesigner
         private System.Windows.Forms.Panel lower_group;
         private System.Windows.Forms.Panel picturePanel;
         private System.Windows.Forms.Label fps_label;
+        private System.Windows.Forms.Label imageNames;
     }
 }
