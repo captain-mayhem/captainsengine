@@ -19,9 +19,24 @@ namespace StoryDesigner
             gamePool.MouseDown +=new MouseEventHandler(mediaPool_MouseDown);
         }
 
+        public void showScript(Script.Type type, string name)
+        {
+            if (mScriptDlg != null)
+                mScriptDlg.Close();
+            Script scr = mData.getScript(type, name);
+            if (scr == null)
+            {
+                MessageBox.Show("Cannot find script " + name);
+                return;
+            }
+            mScriptDlg = new ScriptDlg(scr);
+            mScriptDlg.Show(this);
+        }
+
         void mediaPool_MouseDown(object sender, MouseEventArgs e)
         {
-            TreeNode node = mediaPool.GetNodeAt(e.Location);
+            TreeView pool = (TreeView)sender;
+            TreeNode node = pool.GetNodeAt(e.Location);
             if (node == null)
                 return;
             if (e.Clicks > 1)
@@ -30,12 +45,12 @@ namespace StoryDesigner
                 mediaPool_NodeMouseDoubleClick(sender, args);
                 return;
             }
-            mediaPool.SelectedNode = node;
+            pool.SelectedNode = node;
             ResourceID id = (ResourceID)node.Tag;
             if (id == ResourceID.IMAGE)
             {
                 string name = node.Text;
-                mediaPool.DoDragDrop(name, DragDropEffects.Copy);
+                pool.DoDragDrop(name, DragDropEffects.Copy);
             }
         }
 
@@ -71,6 +86,9 @@ namespace StoryDesigner
                     }
                     mItemDlg = new ItemDlg(it);
                     mItemDlg.Show(this);
+                    break;
+                case ResourceID.SCRIPT:
+                    showScript(Script.Type.CUTSCENE, name);
                     break;
                 default:
                     Console.WriteLine("Clicked " + name + " " + id + " unhandled");
@@ -115,6 +133,7 @@ namespace StoryDesigner
         private ImageViewer mImageViewer;
         private MouseIcons mMouseIcons;
         private ItemDlg mItemDlg;
+        private ScriptDlg mScriptDlg;
 
         private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {

@@ -111,6 +111,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="ScriptDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ScriptDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Settings.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Settings.cs</DependentUpon>
@@ -131,6 +135,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="ScriptDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ScriptDlg.Designer.cs">
+      <DependentUpon>ScriptDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="Settings.cs">
       <SubType>Form</SubType>

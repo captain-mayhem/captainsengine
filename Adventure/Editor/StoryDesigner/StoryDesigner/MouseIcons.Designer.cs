@@ -152,6 +152,7 @@ namespace StoryDesigner
             this.stateFrameImage1.Name = "stateFrameImage1";
             this.stateFrameImage1.PictureBoxSize = new System.Drawing.Size(96, 96);
             this.stateFrameImage1.ScaleImageToBox = true;
+            this.stateFrameImage1.ShowAnimationButton = false;
             this.stateFrameImage1.ShowImageNames = false;
             this.stateFrameImage1.Size = new System.Drawing.Size(331, 305);
             this.stateFrameImage1.TabIndex = 0;

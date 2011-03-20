@@ -147,6 +147,7 @@ namespace StoryDesigner
                 picturePanel.Location = new Point(picturePanel.Location.X - widthDiff / 2, picturePanel.Location.Y);
                 picturePanel.Size = value;
                 imageNames.Location = new Point(imageNames.Location.X + widthDiff / 2, imageNames.Location.Y);
+                animation.Location = new Point(animation.Location.X + widthDiff / 2, animation.Location.Y);
             }
             get { return picturePanel.Size; }
         }
@@ -197,6 +198,12 @@ namespace StoryDesigner
         {
             get { return imageNames.Visible; }
             set { imageNames.Visible = value; }
+        }
+
+        public bool ShowAnimationButton
+        {
+            get { return animation.Visible; }
+            set { animation.Visible = value; }
         }
 
         void framecontrol_MouseClick(object sender, MouseEventArgs e)

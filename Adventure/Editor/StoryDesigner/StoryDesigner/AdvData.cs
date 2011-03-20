@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Text;
 
 namespace StoryDesigner
@@ -269,6 +270,40 @@ namespace StoryDesigner
         AdvData mData;
     }
 
+    public class Script
+    {
+        public enum Type
+        {
+            CUTSCENE,
+            ITEM,
+            CHARACTER,
+            ROOM,
+            OBJECT,
+            WALKMAP
+        }
+        public Script(Type t)
+        {
+            mType = t;
+        }
+        public string Text
+        {
+            get {return mText;}
+            set { mText = value; }
+        }
+        public string Name
+        {
+            get { return mName; }
+            set { mName = value; }
+        }
+        public Type ScriptType
+        {
+            get { return mType; }
+        }
+        Type mType;
+        string mName;
+        string mText;
+    }
+
     public class AdvData
     {
         public AdvData()
@@ -339,6 +374,8 @@ namespace StoryDesigner
             mCursor.init();
 
             mItems = new Dictionary<string, Item>();
+            mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
+            mWMScripts = new Dictionary<string, ArrayList>();
         }
 
         public AdvData(AdvFileReader reader)
@@ -348,6 +385,8 @@ namespace StoryDesigner
             mReader = reader;
             mCursor = new Cursor(this);
             mItems = new Dictionary<string, Item>();
+            mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
+            mWMScripts = new Dictionary<string, ArrayList>();
         }
 
         public System.Drawing.Bitmap getImage(string name)
@@ -377,10 +416,21 @@ namespace StoryDesigner
             mItems.Add(item.Name.ToLower(), item);
         }
 
+        public void addScript(Script scr)
+        {
+            mScripts.Add(new KeyValuePair<Script.Type, string>(scr.ScriptType, scr.Name.ToLower()), scr);
+        }
+        public Script getScript(Script.Type type, string name)
+        {
+            return mScripts[new KeyValuePair<Script.Type, string>(type, name)];
+        }
+
         public ProjectSettings Settings;
         Dictionary<string, string> mImages;
         Cursor mCursor;
         Dictionary<string, Item> mItems;
+        Dictionary<KeyValuePair<Script.Type, string>, Script> mScripts;
+        Dictionary<string, ArrayList> mWMScripts;
         AdvFileReader mReader;
     }
 }

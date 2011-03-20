@@ -28,9 +28,19 @@ namespace StoryDesigner
         /// </summary>
         private void InitializeComponent()
         {
-            this.stateFrameImage1 = new StoryDesigner.StateFrameImage();
             this.button1 = new System.Windows.Forms.Button();
+            this.stateFrameImage1 = new StoryDesigner.StateFrameImage();
             this.SuspendLayout();
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(138, 264);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 23);
+            this.button1.TabIndex = 1;
+            this.button1.Text = "Edit script";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // stateFrameImage1
             // 
@@ -41,17 +51,10 @@ namespace StoryDesigner
             this.stateFrameImage1.Name = "stateFrameImage1";
             this.stateFrameImage1.PictureBoxSize = new System.Drawing.Size(50, 50);
             this.stateFrameImage1.ScaleImageToBox = true;
+            this.stateFrameImage1.ShowAnimationButton = true;
+            this.stateFrameImage1.ShowImageNames = true;
             this.stateFrameImage1.Size = new System.Drawing.Size(331, 296);
             this.stateFrameImage1.TabIndex = 0;
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(138, 264);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 1;
-            this.button1.Text = "Edit script";
-            this.button1.UseVisualStyleBackColor = true;
             // 
             // ItemDlg
             // 
