@@ -50,6 +50,10 @@ namespace StoryDesigner
                 {
                     readObjects(zis);
                 }
+                else if (entry.Name == "game.003")
+                {
+                    readScripts(zis);
+                }
             }
             zis.Close();
             mPath = System.IO.Path.GetDirectoryName(filename);
@@ -328,6 +332,74 @@ namespace StoryDesigner
             return true;
         }
 
+        protected bool readScripts(Stream strm)
+        {
+            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+            string str = rdr.ReadLine();
+            int ver_major = Int32.Parse(str.Substring(0, 1));
+            int ver_minor = Int32.Parse(str.Substring(2, 1));
+            if (str.Substring(4) != "Point&Click Project File. DO NOT MODIFY!!")
+                return false;
+            str = rdr.ReadLine();
+            mLastScript = null;
+            while (!rdr.EndOfStream)
+            {
+                str = rdr.ReadLine();
+                if (str.Length >= 2 && str.StartsWith("//"))
+                {
+                    string rest = str.Substring(2);
+                    int idx = rest.IndexOf(' ');
+                    string[] typename = new string[2];
+                    typename[0] = rest.Substring(0, idx);
+                    typename[1] = rest.Substring(idx + 1);
+                    Script.Type scrType;
+                    if (typename[0] == "Cutscene")
+                        scrType = Script.Type.CUTSCENE;
+                    else if (typename[0] == "Item")
+                        scrType = Script.Type.ITEM;
+                    else if (typename[0] == "Character")
+                        scrType = Script.Type.CHARACTER;
+                    else if (typename[0] == "Room")
+                        scrType = Script.Type.ROOM;
+                    else if (typename[0] == "Object")
+                        scrType = Script.Type.OBJECT;
+                    else if (typename[0] == "Walkmap")
+                        scrType = Script.Type.WALKMAP;
+                    else
+                        return false;
+                    Script scr = new Script(scrType);
+                    scr.Name = typename[1];
+                    if (scrType == Script.Type.WALKMAP)
+                    {
+                        string roomname;
+                        Vec2i pos;
+                        if (ver_major >= 3)
+                        {
+                            roomname = scr.Name.Substring(7);
+                            pos.x = Convert.ToInt32(scr.Name.Substring(1, 3));
+                            pos.y = Convert.ToInt32(scr.Name.Substring(4, 3));
+                        }
+                        else
+                        {
+                            roomname = scr.Name.Substring(4);
+                            pos.x = Convert.ToInt32(scr.Name.Substring(0, 2));
+                            pos.y = Convert.ToInt32(scr.Name.Substring(2, 2));
+                        }
+                    }
+                    else
+                    {
+                        mAdv.addScript(scr);
+                    }
+                    mLastScript = scr;
+                }
+                else
+                {
+                    mLastScript.Text += str + "\n";
+                }
+            }
+            return true;
+        }
+
         TreeNode insertTreeElement(TreeNodeCollection nodes, string name, TreeNode current, int curr_level)
         {
             int level = 0;
@@ -423,5 +495,6 @@ namespace StoryDesigner
         private TreeView mMediaPool;
         private TreeView mGamePool;
         private string mPath;
+        private Script mLastScript;
     }
 }

@@ -47,6 +47,7 @@ namespace StoryDesigner
             this.fps_label = new System.Windows.Forms.Label();
             this.picturePanel = new System.Windows.Forms.Panel();
             this.imageNames = new System.Windows.Forms.Label();
+            this.animation = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fps)).BeginInit();
@@ -247,10 +248,20 @@ namespace StoryDesigner
             this.imageNames.TabIndex = 8;
             this.imageNames.Text = "none";
             // 
+            // animation
+            // 
+            this.animation.Location = new System.Drawing.Point(191, 142);
+            this.animation.Name = "animation";
+            this.animation.Size = new System.Drawing.Size(27, 23);
+            this.animation.TabIndex = 9;
+            this.animation.Text = "|>";
+            this.animation.UseVisualStyleBackColor = true;
+            // 
             // StateFrameImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.animation);
             this.Controls.Add(this.imageNames);
             this.Controls.Add(this.picturePanel);
             this.Controls.Add(this.lower_group);
@@ -301,5 +312,6 @@ namespace StoryDesigner
         private System.Windows.Forms.Panel picturePanel;
         private System.Windows.Forms.Label fps_label;
         private System.Windows.Forms.Label imageNames;
+        private System.Windows.Forms.Button animation;
     }
 }
