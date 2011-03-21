@@ -328,6 +328,27 @@ namespace StoryDesigner
                     }
                     mAdv.addItem(it);
                 }
+                //OBJECT
+                else if (typename[0] == "Object")
+                {
+                    AdvObject obj = new AdvObject(mAdv);
+                    obj.Name = typename[1];
+                    str = rdr.ReadLine();
+                    int x = Convert.ToInt32(str);
+                    str = rdr.ReadLine();
+                    int y = Convert.ToInt32(str);
+                    obj.setSize(0, new Vec2i(x, y));
+                    str = rdr.ReadLine();
+                    x = Convert.ToInt32(str);
+                    obj.Lighten = x != 0;
+                    for (int state = 0; state < STATES_MAX; ++state)
+                    {
+                        ObjectState os = new ObjectState();
+                        os.fpsDivider = readExtendedFrames(rdr, os.frames);
+                        obj.Add(os);
+                    }
+                    mAdv.addObject(obj);
+                }
             }
             return true;
         }
@@ -385,6 +406,7 @@ namespace StoryDesigner
                             pos.x = Convert.ToInt32(scr.Name.Substring(0, 2));
                             pos.y = Convert.ToInt32(scr.Name.Substring(2, 2));
                         }
+                        mAdv.addWalkmapScript(scr, pos, roomname);
                     }
                     else
                     {
@@ -398,6 +420,37 @@ namespace StoryDesigner
                 }
             }
             return true;
+        }
+
+        protected int readExtendedFrames(StreamReader rdr, System.Collections.ArrayList frames)
+        {
+            string str;
+            for (int frms = 0; frms < FRAMES2_MAX; ++frms)
+            {
+                ExtendedFrame frm = new ExtendedFrame();
+                bool set = false;
+                for (int parts = 0; parts < PARTS_MAX; ++parts)
+                {
+                    str = rdr.ReadLine();
+                    if (str.Length > 0)
+                    {
+                        set = true;
+                        frm.names.Add(str);
+                    }
+                }
+                //read offsets
+                str = rdr.ReadLine();
+                for (int i = 0; i < frm.names.Count; ++i)
+                {
+                    string[] split = str.Split(';');
+                    Vec2i offset = new Vec2i(Convert.ToInt32(split[0]), Convert.ToInt32(split[1]));
+                    frm.offsets.Add(offset);
+                }
+                if (set)
+                    frames.Add(frm);
+            }
+            str = rdr.ReadLine();
+            return Convert.ToInt32(str);
         }
 
         TreeNode insertTreeElement(TreeNodeCollection nodes, string name, TreeNode current, int curr_level)
