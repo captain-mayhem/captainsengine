@@ -100,6 +100,8 @@ namespace StoryDesigner
         void setFramePart(int state, int frame, int part, string name);
         Vec2i getHotspot(int state);
         void setHotspot(int state, Vec2i hotspot);
+        Vec2i getSize(int state);
+        void setSize(int state, Vec2i size);
     };
 
     public struct CursorState
@@ -181,6 +183,13 @@ namespace StoryDesigner
             cs.highlight = hotspot;
             mStates[state] = cs;
         }
+        public Vec2i getSize(int state)
+        {
+            return new Vec2i(32, 32);
+        }
+        public void setSize(int state, Vec2i size)
+        {
+        }
 
         public void setCommand(int state, int command)
         {
@@ -258,6 +267,14 @@ namespace StoryDesigner
         public void setHotspot(int state, Vec2i hotspot)
         {
         }
+        public Vec2i getSize(int state)
+        {
+            return new Vec2i(50, 50);
+        }
+        public void setSize(int state, Vec2i size)
+        {
+        }
+
 
         public string Name
         {
@@ -267,6 +284,109 @@ namespace StoryDesigner
 
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         string mName;
+        AdvData mData;
+    }
+
+    class ExtendedFrame
+    {
+        public ExtendedFrame()
+        {
+            names = new ArrayList();
+            offsets = new ArrayList();
+        }
+        public ArrayList names;
+        public ArrayList offsets;
+    }
+
+    public class ObjectState
+    {
+        public ObjectState()
+        {
+            frames = new ArrayList();
+            fpsDivider = 20;
+        }
+        public System.Collections.ArrayList frames;
+        public int fpsDivider;
+    }
+
+    public class AdvObject : IStateFrameData
+    {
+        public AdvObject(AdvData data)
+        {
+            mData = data;
+        }
+        public int Add(ObjectState os)
+        {
+            return mStates.Add(os);
+        }
+        public bool frameExists(int state, int frame)
+        {
+            ObjectState os = (ObjectState)mStates[state];
+            return frame < os.frames.Count;
+        }
+        public string[] getFrame(int state, int frame)
+        {
+            ObjectState os = (ObjectState)mStates[state];
+            if (frame >= os.frames.Count)
+                return null;
+            ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
+            string[] ret = (string[])extfrm.names.ToArray();
+            return ret;
+        }
+        public System.Drawing.Bitmap getImage(string framepart)
+        {
+            return mData.getImage(framepart);
+        }
+        public void setFramePart(int state, int frame, int part, string name)
+        {
+            ObjectState os = (ObjectState)mStates[state];
+            while (frame >= os.frames.Count)
+                os.frames.Add(new ExtendedFrame());
+            ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
+            extfrm.names[part] = name;
+        }
+        public int getFPSDivider(int state)
+        {
+            ObjectState os = (ObjectState)mStates[state];
+            return os.fpsDivider;
+        }
+        public void setFPSDivider(int state, int fpsdivider)
+        {
+            ObjectState os = (ObjectState)mStates[state];
+            os.fpsDivider = fpsdivider;
+            mStates[state] = os;
+        }
+        public Vec2i getHotspot(int state)
+        {
+            return new Vec2i();
+        }
+        public void setHotspot(int state, Vec2i hotspot)
+        {
+        }
+        public Vec2i getSize(int state)
+        {
+            return mSize;
+        }
+        public void setSize(int state, Vec2i size)
+        {
+            mSize = size;
+        }
+
+        public string Name
+        {
+            get { return mName; }
+            set { mName = value; }
+        }
+        public bool Lighten
+        {
+            get { return mLighten; }
+            set { mLighten = value; }
+        }
+
+        System.Collections.ArrayList mStates = new System.Collections.ArrayList();
+        string mName;
+        Vec2i mSize;
+        bool mLighten;
         AdvData mData;
     }
 
@@ -374,6 +494,7 @@ namespace StoryDesigner
             mCursor.init();
 
             mItems = new Dictionary<string, Item>();
+            mObjects = new Dictionary<string, AdvObject>();
             mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
             mWMScripts = new Dictionary<string, ArrayList>();
         }
@@ -385,6 +506,7 @@ namespace StoryDesigner
             mReader = reader;
             mCursor = new Cursor(this);
             mItems = new Dictionary<string, Item>();
+            mObjects = new Dictionary<string, AdvObject>();
             mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
             mWMScripts = new Dictionary<string, ArrayList>();
         }
@@ -416,6 +538,11 @@ namespace StoryDesigner
             mItems.Add(item.Name.ToLower(), item);
         }
 
+        public void addObject(AdvObject obj)
+        {
+            mObjects.Add(obj.Name.ToLower(), obj);
+        }
+
         public void addScript(Script scr)
         {
             mScripts.Add(new KeyValuePair<Script.Type, string>(scr.ScriptType, scr.Name.ToLower()), scr);
@@ -425,10 +552,15 @@ namespace StoryDesigner
             return mScripts[new KeyValuePair<Script.Type, string>(type, name)];
         }
 
+        public void addWalkmapScript(Script scr, Vec2i pos, string roomname)
+        {
+        }
+
         public ProjectSettings Settings;
         Dictionary<string, string> mImages;
         Cursor mCursor;
         Dictionary<string, Item> mItems;
+        Dictionary<string, AdvObject> mObjects;
         Dictionary<KeyValuePair<Script.Type, string>, Script> mScripts;
         Dictionary<string, ArrayList> mWMScripts;
         AdvFileReader mReader;
