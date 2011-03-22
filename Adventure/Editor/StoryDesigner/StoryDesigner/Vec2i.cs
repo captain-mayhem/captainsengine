@@ -29,9 +29,30 @@ namespace StoryDesigner
             vec.y = (int)(vec.y / val);
             return vec;
         }
+        public static bool operator !=(Vec2i v1, Vec2i v2)
+        {
+            return v1.x != v2.x || v1.y != v2.y;
+        }
+        public static bool operator ==(Vec2i v1, Vec2i v2)
+        {
+            return v1.x == v2.x && v1.y == v2.y;
+        }
         public float length()
         {
             return (float)Math.Sqrt(x * x + y * y);
+        }
+        public override bool Equals(object o)
+        {
+            if (o is Vec2i)
+            {
+                Vec2i v = (Vec2i)o;
+                return v == this;
+            }
+            return false;
+        }
+        public override int GetHashCode()
+        {
+            return 2 * x * x + 3 * y;
         }
         public int x;
         public int y;

@@ -488,6 +488,8 @@ namespace StoryDesigner
             {
                 if (arr[i] == '\xf6')
                     arr[i] = '\xf7';
+                else if (arr[i] == 'ä')
+                    arr[i] = 'õ';
                 else if (arr[i] == 'ü')
                     arr[i] = '³';
                 else if (arr[i] == 'ß')

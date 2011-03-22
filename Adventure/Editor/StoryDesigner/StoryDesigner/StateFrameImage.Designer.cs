@@ -48,6 +48,10 @@ namespace StoryDesigner
             this.picturePanel = new System.Windows.Forms.Panel();
             this.imageNames = new System.Windows.Forms.Label();
             this.animation = new System.Windows.Forms.Button();
+            this.width_label = new System.Windows.Forms.Label();
+            this.picbox_width = new System.Windows.Forms.TextBox();
+            this.height_label = new System.Windows.Forms.Label();
+            this.picbox_height = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fps)).BeginInit();
@@ -257,10 +261,48 @@ namespace StoryDesigner
             this.animation.Text = "|>";
             this.animation.UseVisualStyleBackColor = true;
             // 
+            // width_label
+            // 
+            this.width_label.AutoSize = true;
+            this.width_label.Location = new System.Drawing.Point(51, 121);
+            this.width_label.Name = "width_label";
+            this.width_label.Size = new System.Drawing.Size(32, 13);
+            this.width_label.TabIndex = 10;
+            this.width_label.Text = "width";
+            // 
+            // picbox_width
+            // 
+            this.picbox_width.Location = new System.Drawing.Point(89, 121);
+            this.picbox_width.Name = "picbox_width";
+            this.picbox_width.Size = new System.Drawing.Size(33, 20);
+            this.picbox_width.TabIndex = 11;
+            // 
+            // height_label
+            // 
+            this.height_label.AutoSize = true;
+            this.height_label.Location = new System.Drawing.Point(47, 144);
+            this.height_label.Name = "height_label";
+            this.height_label.Size = new System.Drawing.Size(36, 13);
+            this.height_label.TabIndex = 12;
+            this.height_label.Text = "height";
+            // 
+            // picbox_height
+            // 
+            this.picbox_height.Location = new System.Drawing.Point(89, 144);
+            this.picbox_height.Name = "picbox_height";
+            this.picbox_height.Size = new System.Drawing.Size(33, 20);
+            this.picbox_height.TabIndex = 13;
+            // 
             // StateFrameImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.AutoSize = true;
+            this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.Controls.Add(this.picbox_height);
+            this.Controls.Add(this.height_label);
+            this.Controls.Add(this.picbox_width);
+            this.Controls.Add(this.width_label);
             this.Controls.Add(this.animation);
             this.Controls.Add(this.imageNames);
             this.Controls.Add(this.picturePanel);
@@ -279,7 +321,7 @@ namespace StoryDesigner
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Name = "StateFrameImage";
-            this.Size = new System.Drawing.Size(331, 296);
+            this.Size = new System.Drawing.Size(332, 274);
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.fps)).EndInit();
@@ -313,5 +355,9 @@ namespace StoryDesigner
         private System.Windows.Forms.Label fps_label;
         private System.Windows.Forms.Label imageNames;
         private System.Windows.Forms.Button animation;
+        private System.Windows.Forms.Label width_label;
+        private System.Windows.Forms.TextBox picbox_width;
+        private System.Windows.Forms.Label height_label;
+        private System.Windows.Forms.TextBox picbox_height;
     }
 }
