@@ -330,7 +330,12 @@ namespace StoryDesigner
             if (frame >= os.frames.Count)
                 return null;
             ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
-            string[] ret = (string[])extfrm.names.ToArray();
+            string[] ret = new string[extfrm.names.Count];
+            for (int i = 0; i < extfrm.names.Count; ++i)
+            {
+                ret[i] = (string)extfrm.names[i];
+            }
+            //string[] ret = (string[])extfrm.names.ToArray(typeof(string[]));
             return ret;
         }
         public System.Drawing.Bitmap getImage(string framepart)
@@ -538,6 +543,10 @@ namespace StoryDesigner
             mItems.Add(item.Name.ToLower(), item);
         }
 
+        public AdvObject getObject(string name)
+        {
+            return mObjects[name];
+        }
         public void addObject(AdvObject obj)
         {
             mObjects.Add(obj.Name.ToLower(), obj);

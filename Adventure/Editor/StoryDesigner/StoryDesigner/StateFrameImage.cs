@@ -124,7 +124,7 @@ namespace StoryDesigner
                 if (mScaleImage)
                     e.Graphics.DrawImage(bmp, 0, 0, PictureBoxSize.Width, PictureBoxSize.Height);
                 else
-                    e.Graphics.DrawImage(bmp, 0, 0);
+                    e.Graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
             }
             if (mDrawHotspot)
                 drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
@@ -142,19 +142,47 @@ namespace StoryDesigner
         {
             set {
                 int heightDiff = value.Height - picturePanel.Size.Height;
-                lower_group.Location = new Point(lower_group.Location.X, lower_group.Location.Y+heightDiff);
+                lower_group.Location = new Point(lower_group.Location.X, Math.Max(171, lower_group.Location.Y+heightDiff));
                 int widthDiff = value.Width - picturePanel.Size.Width;
-                picturePanel.Location = new Point(picturePanel.Location.X - widthDiff / 2, picturePanel.Location.Y);
-                picturePanel.Size = value;
-                imageNames.Location = new Point(imageNames.Location.X + widthDiff / 2, imageNames.Location.Y);
-                animation.Location = new Point(animation.Location.X + widthDiff / 2, animation.Location.Y);
+                int leftxmove = 0;
+                if (height_label.Location.X - widthDiff / 2 < 0)
+                    leftxmove = - height_label.Location.X + widthDiff / 2;
+                //int addxsize = 0;
+                //if (animation.Location.X + animation.Size.Width + widthDiff / 2 + leftxmove < value.Width + leftxmove)
+                //    addxsize = -(animation.Location.X + animation.Size.Width + widthDiff / 2 + leftxmove) + (value.Width + leftxmove);
+                
+                picturePanel.Location = new Point(picturePanel.Location.X - widthDiff / 2 + leftxmove, picturePanel.Location.Y);
+                picturePanel.ClientSize = value;
+                imageNames.Location = new Point(imageNames.Location.X + widthDiff / 2 + leftxmove, imageNames.Location.Y);
+                animation.Location = new Point(animation.Location.X + widthDiff / 2 + leftxmove, animation.Location.Y);
+                width_label.Location = new Point(width_label.Location.X - widthDiff / 2 + leftxmove, width_label.Location.Y);
+                height_label.Location = new Point(height_label.Location.X - widthDiff / 2 + leftxmove, height_label.Location.Y);
+                picbox_width.Location = new Point(picbox_width.Location.X - widthDiff / 2 + leftxmove, picbox_width.Location.Y);
+                picbox_height.Location = new Point(picbox_height.Location.X - widthDiff / 2 + leftxmove, picbox_height.Location.Y);
+                picbox_height.Text = value.Height.ToString();
+                picbox_width.Text = value.Width.ToString();
+                //int clientwidth = Math.Max(value.Width+331-50, 331);
+                //int clientheight = Math.Max(value.Height+296-50, 296);
+                //this.ClientSize = new Size(clientwidth, clientheight);
+                /*
+                if (value.Width+leftxmove > this.ClientSize.Width && value.Height > this.ClientSize.Height)
+                    this.ClientSize = new Size(value.Width+Math.Max(imageNames.Width, 40), value.Height);
+                else if (value.Width + leftxmove > this.ClientSize.Width)
+                    this.ClientSize = new Size(value.Width + leftxmove, this.ClientSize.Height);
+                else if (value.Height > this.ClientSize.Height)
+                    this.ClientSize = new Size(this.ClientSize.Width, value.Height);*/
             }
             get { return picturePanel.Size; }
         }
 
         public bool ScaleImageToBox
         {
-            set { mScaleImage = value; }
+            set { mScaleImage = value;
+                width_label.Visible = !mScaleImage;
+                height_label.Visible = !mScaleImage;
+                picbox_width.Visible = !mScaleImage;
+                picbox_height.Visible = !mScaleImage;
+            }
             get { return mScaleImage; }
         }
 
@@ -249,6 +277,12 @@ namespace StoryDesigner
             if (mData == null)
                 return;
             fps.Value = mData.getFPSDivider(mState);
+            Vec2i newsize = mData.getSize(mState) * mHotspotScale;
+            Vec2i oldsize = new Vec2i(pictureBox.Size.Width, pictureBox.Size.Height);
+            if (newsize != oldsize)
+            {
+                PictureBoxSize = new Size(newsize.x, newsize.y);
+            }
             if (StateChanged != null)
                 StateChanged(this, new StateEventArgs(oldstate, mState));
         }

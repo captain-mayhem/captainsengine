@@ -87,6 +87,18 @@ namespace StoryDesigner
                     mItemDlg = new ItemDlg(it);
                     mItemDlg.Show(this);
                     break;
+                case ResourceID.OBJECT:
+                    if (mObjectDlg != null)
+                        mObjectDlg.Close();
+                    AdvObject obj = mData.getObject(name);
+                    if (obj == null)
+                    {
+                        MessageBox.Show("Cannot find object " + name);
+                        return;
+                    }
+                    mObjectDlg = new ObjectDlg(obj);
+                    mObjectDlg.Show(this);
+                    break;
                 case ResourceID.SCRIPT:
                     showScript(Script.Type.CUTSCENE, name);
                     break;
@@ -133,6 +145,7 @@ namespace StoryDesigner
         private ImageViewer mImageViewer;
         private MouseIcons mMouseIcons;
         private ItemDlg mItemDlg;
+        private ObjectDlg mObjectDlg;
         private ScriptDlg mScriptDlg;
 
         private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)

@@ -30,7 +30,7 @@ namespace StoryDesigner
             float scaley = e.ClipRectangle.Height / (float)mImage.Height;
             float scale = System.Math.Min(scalex, scaley);
             e.Graphics.ScaleTransform(scale, scale);
-            e.Graphics.DrawImage(mImage, 0, 0);
+            e.Graphics.DrawImage(mImage, 0, 0, mImage.Width, mImage.Height);
         }
 
         System.Drawing.Bitmap mImage;

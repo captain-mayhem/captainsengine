@@ -80,6 +80,12 @@
     <Compile Include="MouseIcons.Designer.cs">
       <DependentUpon>MouseIcons.cs</DependentUpon>
     </Compile>
+    <Compile Include="ObjectDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ObjectDlg.Designer.cs">
+      <DependentUpon>ObjectDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CommandsAndBools.resx">
@@ -105,6 +111,10 @@
     <EmbeddedResource Include="MouseIcons.resx">
       <SubType>Designer</SubType>
       <DependentUpon>MouseIcons.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObjectDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ObjectDlg.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
