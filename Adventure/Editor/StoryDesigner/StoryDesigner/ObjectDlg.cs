@@ -13,16 +13,25 @@ namespace StoryDesigner
         public ObjectDlg(AdvObject obj)
         {
             InitializeComponent();
-            //this.stateFrameImage1.ClientSizeChanged += new EventHandler(stateFrameImage1_ClientSizeChanged);
+            this.stateFrameImage1.ClientSizeChanged += new EventHandler(stateFrameImage1_ClientSizeChanged);
             this.Text = "Object (" + obj.Name + ")";
             this.stateFrameImage1.Data = obj;
+            this.lighten_object.Checked = obj.Lighten;
+            this.lighten_object.CheckedChanged += new EventHandler(lighten_object_CheckedChanged);
+            mObject = obj;
+        }
+
+        void lighten_object_CheckedChanged(object sender, EventArgs e)
+        {
+            mObject.Lighten = lighten_object.Checked;
         }
 
         void stateFrameImage1_ClientSizeChanged(object sender, EventArgs e)
         {
-            int widthdiff = stateFrameImage1.ClientSize.Width - this.ClientSize.Width;
-            this.ClientSize = stateFrameImage1.ClientSize;
-            //stateFrameImage1.Location = new Point(stateFrameImage1.Location.X + widthdiff / 2, stateFrameImage1.Location.Y);
+            int height = stateFrameImage1.Location.Y+stateFrameImage1.Size.Height - 30;
+            this.lighten_object.Location = new Point(lighten_object.Location.X, height);
         }
+
+        AdvObject mObject;
     }
 }

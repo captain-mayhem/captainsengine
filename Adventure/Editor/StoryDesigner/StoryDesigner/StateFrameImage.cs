@@ -48,6 +48,39 @@ namespace StoryDesigner
             this.pictureBox.MouseDown += new MouseEventHandler(pictureBox_MouseDown);
             this.pictureBox.MouseMove += new MouseEventHandler(pictureBox_MouseMove);
             this.pictureBox.MouseUp += new MouseEventHandler(pictureBox_MouseUp);
+            this.picbox_width.Leave += new EventHandler(picbox_width_Leave);
+            this.picbox_width.KeyPress += new KeyPressEventHandler(picbox_width_KeyPress);
+            this.picbox_height.Leave += new EventHandler(picbox_height_Leave);
+            this.picbox_height.KeyPress += new KeyPressEventHandler(picbox_height_KeyPress);
+            mTimer = new Timer();
+            mTimer.Tick += new EventHandler(mTimer_Tick);
+        }
+
+        void mTimer_Tick(object sender, EventArgs e)
+        {
+            if (!mData.frameExists(mState, ++mFrame))
+                mFrame = 0;
+            pictureBox.Invalidate();
+        }
+
+        void picbox_height_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 0xd)
+                picbox_height_Leave(sender, e);
+        }
+
+        void picbox_width_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == 0xd)
+                picbox_width_Leave(sender, e);
+        }
+
+        void picbox_height_Leave(object sender, EventArgs e)
+        {
+            TextBox tb = (TextBox)sender;
+            int height = Convert.ToInt32(tb.Text);
+            PictureBoxSize = new Size(PictureBoxSize.Width, height);
+            mData.setSize(mState, new Vec2i(PictureBoxSize.Width, height));
         }
 
         void pictureBox_MouseUp(object sender, MouseEventArgs e)
@@ -116,10 +149,12 @@ namespace StoryDesigner
                     PictureChanged(this, new EventArgs());
                 return;
             }
-            imageNames.Text = "";
+            if (!mTimer.Enabled)
+                imageNames.Text = "";
             for (int i = 0; i < pics.Length; ++i)
             {
-                imageNames.Text += pics[i] + " ";
+                if (!mTimer.Enabled)
+                    imageNames.Text += pics[i] + " ";
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
                 if (mScaleImage)
                     e.Graphics.DrawImage(bmp, 0, 0, PictureBoxSize.Width, PictureBoxSize.Height);
@@ -310,6 +345,7 @@ namespace StoryDesigner
         private bool mDrawHotspot = false;
         private float mHotspotScale = 1.0f;
         private bool mPictureDragging = false;
+        private Timer mTimer;
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -359,6 +395,29 @@ namespace StoryDesigner
         private void button10_Click(object sender, EventArgs e)
         {
             changeState(9);
+        }
+
+        private void picbox_width_Leave(object sender, EventArgs e)
+        {
+            TextBox tb = (TextBox)sender;
+            int width = Convert.ToInt32(tb.Text);
+            PictureBoxSize = new Size(width, PictureBoxSize.Height);
+            mData.setSize(mState, new Vec2i(width, PictureBoxSize.Height));
+        }
+
+        private void animation_Click(object sender, EventArgs e)
+        {
+            if (mTimer.Enabled)
+            {
+                mTimer.Stop();
+                animation.Text = "|>";
+            }
+            else
+            {
+                mTimer.Interval = mData.getFPSDivider(mState) * 1000 / 50;
+                mTimer.Start();
+                animation.Text = "| |";
+            }
         }
     }
 }

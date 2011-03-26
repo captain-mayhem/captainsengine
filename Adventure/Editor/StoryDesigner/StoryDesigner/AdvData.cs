@@ -348,6 +348,8 @@ namespace StoryDesigner
             while (frame >= os.frames.Count)
                 os.frames.Add(new ExtendedFrame());
             ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
+            while (part >= extfrm.names.Count)
+                extfrm.names.Add("");
             extfrm.names[part] = name;
         }
         public int getFPSDivider(int state)
@@ -493,6 +495,7 @@ namespace StoryDesigner
             Settings.UseMouseWheel = false;
 
             mImages = new Dictionary<string, string>();
+            mImageCache = new Dictionary<string, System.Drawing.Bitmap>();
             mReader = null;
 
             mCursor = new Cursor(this);
@@ -504,22 +507,26 @@ namespace StoryDesigner
             mWMScripts = new Dictionary<string, ArrayList>();
         }
 
-        public AdvData(AdvFileReader reader)
+        public AdvData(AdvFileReader reader) : this()
         {
-            Settings = new ProjectSettings();
-            mImages = new Dictionary<string, string>();
+            //Settings = new ProjectSettings();
+            //mImages = new Dictionary<string, string>();
             mReader = reader;
-            mCursor = new Cursor(this);
-            mItems = new Dictionary<string, Item>();
-            mObjects = new Dictionary<string, AdvObject>();
-            mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
-            mWMScripts = new Dictionary<string, ArrayList>();
+            //mCursor = new Cursor(this);
+            //mItems = new Dictionary<string, Item>();
+            //mObjects = new Dictionary<string, AdvObject>();
+            //mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
+            //mWMScripts = new Dictionary<string, ArrayList>();
         }
 
         public System.Drawing.Bitmap getImage(string name)
         {
             string filename = mImages[name.ToLower()];
-            return mReader.getImage(filename);
+            if (mImageCache.ContainsKey(filename))
+                return mImageCache[filename];
+            System.Drawing.Bitmap bmp = mReader.getImage(filename);
+            mImageCache[filename] = bmp;
+            return bmp;
         }
 
         public Dictionary<string, string> Images
@@ -567,6 +574,7 @@ namespace StoryDesigner
 
         public ProjectSettings Settings;
         Dictionary<string, string> mImages;
+        Dictionary<string, System.Drawing.Bitmap> mImageCache;
         Cursor mCursor;
         Dictionary<string, Item> mItems;
         Dictionary<string, AdvObject> mObjects;

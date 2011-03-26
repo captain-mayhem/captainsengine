@@ -63,6 +63,9 @@ namespace StoryDesigner
         {
             ResourceID id = (ResourceID)e.Node.Tag;
             string name = e.Node.Text.ToLower();
+            bool sameResource = mLastID == id && mLastName == name;
+            mLastName = name;
+            mLastID = id;
             switch (id)
             {
                 case ResourceID.IMAGE:
@@ -147,6 +150,8 @@ namespace StoryDesigner
         private ItemDlg mItemDlg;
         private ObjectDlg mObjectDlg;
         private ScriptDlg mScriptDlg;
+        private string mLastName;
+        private ResourceID mLastID;
 
         private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {

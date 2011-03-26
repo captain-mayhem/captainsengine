@@ -11,6 +11,11 @@ namespace StoryDesigner
             this.x = x;
             this.y = y;
         }
+        public Vec2i(System.Drawing.Size size)
+        {
+            x = size.Width;
+            y = size.Height;
+        }
         public static Vec2i operator -(Vec2i vec1, Vec2i vec2)
         {
             Vec2i ret;
