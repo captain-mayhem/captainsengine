@@ -260,6 +260,7 @@ namespace StoryDesigner
             this.animation.TabIndex = 9;
             this.animation.Text = "|>";
             this.animation.UseVisualStyleBackColor = true;
+            this.animation.Click += new System.EventHandler(this.animation_Click);
             // 
             // width_label
             // 
