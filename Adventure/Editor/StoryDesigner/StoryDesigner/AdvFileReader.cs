@@ -78,11 +78,23 @@ namespace StoryDesigner
             {
                 throw new UnexpectedValueException("Resolution is invalid");
             }
-            string font;
-            do
+            string font = rdr.ReadLine();
+            while (font.Substring(0, 11) != "GameFont : ")
             {
+                string[] fontparts = font.Split(';');
+                FontInfo info = new FontInfo();
+                info.name = fontparts[0];
+                info.bold = Convert.ToInt32(fontparts[1]) == -1;
+                info.italic = Convert.ToInt32(fontparts[2]) == -1;
+                info.size = Convert.ToInt32(fontparts[3]);
+                info.outline = Convert.ToInt32(fontparts[4]);
+                info.charset = Convert.ToInt32(fontparts[5]);
+                info.shadow = Convert.ToInt32(fontparts[6]);
+                info.fill = Convert.ToInt32(fontparts[7]);
+                info.fading = Convert.ToInt32(fontparts[8]);
+                mAdv.Settings.Fonts.Add(info);
                 font = rdr.ReadLine();
-            } while (font.Substring(0, 11) != "GameFont : ");
+            } 
             str = rdr.ReadLine();
             str = rdr.ReadLine();
             str = rdr.ReadLine();

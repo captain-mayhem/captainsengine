@@ -167,7 +167,7 @@ namespace StoryDesigner
 
         private void fontsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            Fonts fnts = new Fonts();
+            Fonts fnts = new Fonts(mData);
             fnts.ShowDialog(this);
         }
 

@@ -30,6 +30,19 @@ namespace StoryDesigner
         SC_BLEND_SLOW,
     }
 
+    public class FontInfo
+    {
+        public string name;
+        public int charset;
+        public bool bold;
+        public bool italic;
+        public int size;
+        public int outline;
+        public int shadow;
+        public int fill;
+        public int fading;
+    }
+
     public struct ProjectSettings
     {
         public string Projectname;
@@ -89,6 +102,7 @@ namespace StoryDesigner
         public Dictionary<string, string> Commands;
         public int RightClick;
         public bool UseMouseWheel;
+        public ArrayList Fonts;
     }
 
     public interface IStateFrameData{
@@ -493,6 +507,7 @@ namespace StoryDesigner
             Settings.WalkText = "Walk to";
             Settings.RightClick = 0;
             Settings.UseMouseWheel = false;
+            Settings.Fonts = new ArrayList();
 
             mImages = new Dictionary<string, string>();
             mImageCache = new Dictionary<string, System.Drawing.Bitmap>();

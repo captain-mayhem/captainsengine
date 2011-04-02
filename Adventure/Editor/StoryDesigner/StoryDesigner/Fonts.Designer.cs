@@ -28,51 +28,43 @@ namespace StoryDesigner
         /// </summary>
         private void InitializeComponent()
         {
-            this.fontlist = new System.Windows.Forms.ListView();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.preview = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.font = new System.Windows.Forms.ComboBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.ol_none = new System.Windows.Forms.RadioButton();
-            this.ol_shadow_a = new System.Windows.Forms.RadioButton();
-            this.ol_shadow_b = new System.Windows.Forms.RadioButton();
             this.ol_shadow_ab = new System.Windows.Forms.RadioButton();
+            this.ol_shadow_b = new System.Windows.Forms.RadioButton();
+            this.ol_shadow_a = new System.Windows.Forms.RadioButton();
+            this.ol_none = new System.Windows.Forms.RadioButton();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.sh_none = new System.Windows.Forms.RadioButton();
-            this.sh_25 = new System.Windows.Forms.RadioButton();
-            this.sh_50 = new System.Windows.Forms.RadioButton();
             this.sh_75 = new System.Windows.Forms.RadioButton();
+            this.sh_50 = new System.Windows.Forms.RadioButton();
+            this.sh_25 = new System.Windows.Forms.RadioButton();
+            this.sh_none = new System.Windows.Forms.RadioButton();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.fill_scanlines = new System.Windows.Forms.RadioButton();
             this.fill_falloff_2 = new System.Windows.Forms.RadioButton();
             this.fill_falloff_1 = new System.Windows.Forms.RadioButton();
             this.fill_normal = new System.Windows.Forms.RadioButton();
             this.label2 = new System.Windows.Forms.Label();
-            this.comboBox1 = new System.Windows.Forms.ComboBox();
+            this.charset = new System.Windows.Forms.ComboBox();
             this.bold = new System.Windows.Forms.CheckBox();
             this.italic = new System.Windows.Forms.CheckBox();
-            this.comboBox2 = new System.Windows.Forms.ComboBox();
+            this.fontsize = new System.Windows.Forms.ComboBox();
             this.label3 = new System.Windows.Forms.Label();
             this.button3 = new System.Windows.Forms.Button();
-            this.coin_fading_indicator = new System.Windows.Forms.Label();
-            this.coin_fading = new System.Windows.Forms.NumericUpDown();
+            this.fading_indicator = new System.Windows.Forms.Label();
+            this.fading = new System.Windows.Forms.NumericUpDown();
             this.label29 = new System.Windows.Forms.Label();
+            this.fontlist = new System.Windows.Forms.ListBox();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fading)).BeginInit();
             this.SuspendLayout();
-            // 
-            // fontlist
-            // 
-            this.fontlist.Location = new System.Drawing.Point(12, 41);
-            this.fontlist.Name = "fontlist";
-            this.fontlist.Size = new System.Drawing.Size(265, 154);
-            this.fontlist.TabIndex = 0;
-            this.fontlist.UseCompatibleStateImageBehavior = false;
             // 
             // button1
             // 
@@ -97,7 +89,7 @@ namespace StoryDesigner
             this.preview.BackColor = System.Drawing.SystemColors.ControlDarkDark;
             this.preview.Location = new System.Drawing.Point(309, 41);
             this.preview.Name = "preview";
-            this.preview.Size = new System.Drawing.Size(263, 154);
+            this.preview.Size = new System.Drawing.Size(263, 147);
             this.preview.TabIndex = 3;
             this.preview.TabStop = false;
             // 
@@ -131,27 +123,16 @@ namespace StoryDesigner
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Outline";
             // 
-            // ol_none
+            // ol_shadow_ab
             // 
-            this.ol_none.AutoSize = true;
-            this.ol_none.Location = new System.Drawing.Point(6, 19);
-            this.ol_none.Name = "ol_none";
-            this.ol_none.Size = new System.Drawing.Size(51, 17);
-            this.ol_none.TabIndex = 0;
-            this.ol_none.TabStop = true;
-            this.ol_none.Text = "None";
-            this.ol_none.UseVisualStyleBackColor = true;
-            // 
-            // ol_shadow_a
-            // 
-            this.ol_shadow_a.AutoSize = true;
-            this.ol_shadow_a.Location = new System.Drawing.Point(6, 42);
-            this.ol_shadow_a.Name = "ol_shadow_a";
-            this.ol_shadow_a.Size = new System.Drawing.Size(74, 17);
-            this.ol_shadow_a.TabIndex = 1;
-            this.ol_shadow_a.TabStop = true;
-            this.ol_shadow_a.Text = "Shadow A";
-            this.ol_shadow_a.UseVisualStyleBackColor = true;
+            this.ol_shadow_ab.AutoSize = true;
+            this.ol_shadow_ab.Location = new System.Drawing.Point(6, 88);
+            this.ol_shadow_ab.Name = "ol_shadow_ab";
+            this.ol_shadow_ab.Size = new System.Drawing.Size(87, 17);
+            this.ol_shadow_ab.TabIndex = 2;
+            this.ol_shadow_ab.TabStop = true;
+            this.ol_shadow_ab.Text = "Shadow A+B";
+            this.ol_shadow_ab.UseVisualStyleBackColor = true;
             // 
             // ol_shadow_b
             // 
@@ -164,16 +145,27 @@ namespace StoryDesigner
             this.ol_shadow_b.Text = "Shadow B";
             this.ol_shadow_b.UseVisualStyleBackColor = true;
             // 
-            // ol_shadow_ab
+            // ol_shadow_a
             // 
-            this.ol_shadow_ab.AutoSize = true;
-            this.ol_shadow_ab.Location = new System.Drawing.Point(6, 88);
-            this.ol_shadow_ab.Name = "ol_shadow_ab";
-            this.ol_shadow_ab.Size = new System.Drawing.Size(87, 17);
-            this.ol_shadow_ab.TabIndex = 2;
-            this.ol_shadow_ab.TabStop = true;
-            this.ol_shadow_ab.Text = "Shadow A+B";
-            this.ol_shadow_ab.UseVisualStyleBackColor = true;
+            this.ol_shadow_a.AutoSize = true;
+            this.ol_shadow_a.Location = new System.Drawing.Point(6, 42);
+            this.ol_shadow_a.Name = "ol_shadow_a";
+            this.ol_shadow_a.Size = new System.Drawing.Size(74, 17);
+            this.ol_shadow_a.TabIndex = 1;
+            this.ol_shadow_a.TabStop = true;
+            this.ol_shadow_a.Text = "Shadow A";
+            this.ol_shadow_a.UseVisualStyleBackColor = true;
+            // 
+            // ol_none
+            // 
+            this.ol_none.AutoSize = true;
+            this.ol_none.Location = new System.Drawing.Point(6, 19);
+            this.ol_none.Name = "ol_none";
+            this.ol_none.Size = new System.Drawing.Size(51, 17);
+            this.ol_none.TabIndex = 0;
+            this.ol_none.TabStop = true;
+            this.ol_none.Text = "None";
+            this.ol_none.UseVisualStyleBackColor = true;
             // 
             // groupBox2
             // 
@@ -188,27 +180,16 @@ namespace StoryDesigner
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Shadow";
             // 
-            // sh_none
+            // sh_75
             // 
-            this.sh_none.AutoSize = true;
-            this.sh_none.Location = new System.Drawing.Point(6, 19);
-            this.sh_none.Name = "sh_none";
-            this.sh_none.Size = new System.Drawing.Size(51, 17);
-            this.sh_none.TabIndex = 0;
-            this.sh_none.TabStop = true;
-            this.sh_none.Text = "None";
-            this.sh_none.UseVisualStyleBackColor = true;
-            // 
-            // sh_25
-            // 
-            this.sh_25.AutoSize = true;
-            this.sh_25.Location = new System.Drawing.Point(6, 42);
-            this.sh_25.Name = "sh_25";
-            this.sh_25.Size = new System.Drawing.Size(48, 17);
-            this.sh_25.TabIndex = 1;
-            this.sh_25.TabStop = true;
-            this.sh_25.Text = "25 %";
-            this.sh_25.UseVisualStyleBackColor = true;
+            this.sh_75.AutoSize = true;
+            this.sh_75.Location = new System.Drawing.Point(6, 85);
+            this.sh_75.Name = "sh_75";
+            this.sh_75.Size = new System.Drawing.Size(48, 17);
+            this.sh_75.TabIndex = 3;
+            this.sh_75.TabStop = true;
+            this.sh_75.Text = "75 %";
+            this.sh_75.UseVisualStyleBackColor = true;
             // 
             // sh_50
             // 
@@ -221,16 +202,27 @@ namespace StoryDesigner
             this.sh_50.Text = "50 %";
             this.sh_50.UseVisualStyleBackColor = true;
             // 
-            // sh_75
+            // sh_25
             // 
-            this.sh_75.AutoSize = true;
-            this.sh_75.Location = new System.Drawing.Point(6, 85);
-            this.sh_75.Name = "sh_75";
-            this.sh_75.Size = new System.Drawing.Size(48, 17);
-            this.sh_75.TabIndex = 3;
-            this.sh_75.TabStop = true;
-            this.sh_75.Text = "75 %";
-            this.sh_75.UseVisualStyleBackColor = true;
+            this.sh_25.AutoSize = true;
+            this.sh_25.Location = new System.Drawing.Point(6, 42);
+            this.sh_25.Name = "sh_25";
+            this.sh_25.Size = new System.Drawing.Size(48, 17);
+            this.sh_25.TabIndex = 1;
+            this.sh_25.TabStop = true;
+            this.sh_25.Text = "25 %";
+            this.sh_25.UseVisualStyleBackColor = true;
+            // 
+            // sh_none
+            // 
+            this.sh_none.AutoSize = true;
+            this.sh_none.Location = new System.Drawing.Point(6, 19);
+            this.sh_none.Name = "sh_none";
+            this.sh_none.Size = new System.Drawing.Size(51, 17);
+            this.sh_none.TabIndex = 0;
+            this.sh_none.TabStop = true;
+            this.sh_none.Text = "None";
+            this.sh_none.UseVisualStyleBackColor = true;
             // 
             // groupBox3
             // 
@@ -298,13 +290,13 @@ namespace StoryDesigner
             this.label2.TabIndex = 8;
             this.label2.Text = "Charset:";
             // 
-            // comboBox1
+            // charset
             // 
-            this.comboBox1.FormattingEnabled = true;
-            this.comboBox1.Location = new System.Drawing.Point(12, 282);
-            this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(164, 21);
-            this.comboBox1.TabIndex = 5;
+            this.charset.FormattingEnabled = true;
+            this.charset.Location = new System.Drawing.Point(12, 282);
+            this.charset.Name = "charset";
+            this.charset.Size = new System.Drawing.Size(164, 21);
+            this.charset.TabIndex = 5;
             // 
             // bold
             // 
@@ -326,13 +318,13 @@ namespace StoryDesigner
             this.italic.Text = "Italic";
             this.italic.UseVisualStyleBackColor = true;
             // 
-            // comboBox2
+            // fontsize
             // 
-            this.comboBox2.FormattingEnabled = true;
-            this.comboBox2.Location = new System.Drawing.Point(107, 371);
-            this.comboBox2.Name = "comboBox2";
-            this.comboBox2.Size = new System.Drawing.Size(69, 21);
-            this.comboBox2.TabIndex = 11;
+            this.fontsize.FormattingEnabled = true;
+            this.fontsize.Location = new System.Drawing.Point(107, 371);
+            this.fontsize.Name = "fontsize";
+            this.fontsize.Size = new System.Drawing.Size(69, 21);
+            this.fontsize.TabIndex = 11;
             // 
             // label3
             // 
@@ -353,26 +345,27 @@ namespace StoryDesigner
             this.button3.UseVisualStyleBackColor = true;
             this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
-            // coin_fading_indicator
+            // fading_indicator
             // 
-            this.coin_fading_indicator.AutoSize = true;
-            this.coin_fading_indicator.Location = new System.Drawing.Point(53, 438);
-            this.coin_fading_indicator.Name = "coin_fading_indicator";
-            this.coin_fading_indicator.Size = new System.Drawing.Size(43, 13);
-            this.coin_fading_indicator.TabIndex = 16;
-            this.coin_fading_indicator.Text = "<none>";
+            this.fading_indicator.AutoSize = true;
+            this.fading_indicator.Location = new System.Drawing.Point(53, 438);
+            this.fading_indicator.Name = "fading_indicator";
+            this.fading_indicator.Size = new System.Drawing.Size(43, 13);
+            this.fading_indicator.TabIndex = 16;
+            this.fading_indicator.Text = "<none>";
             // 
-            // coin_fading
+            // fading
             // 
-            this.coin_fading.Location = new System.Drawing.Point(56, 415);
-            this.coin_fading.Maximum = new decimal(new int[] {
+            this.fading.Location = new System.Drawing.Point(56, 415);
+            this.fading.Maximum = new decimal(new int[] {
             2000,
             0,
             0,
             0});
-            this.coin_fading.Name = "coin_fading";
-            this.coin_fading.Size = new System.Drawing.Size(120, 20);
-            this.coin_fading.TabIndex = 15;
+            this.fading.Name = "fading";
+            this.fading.Size = new System.Drawing.Size(120, 20);
+            this.fading.TabIndex = 15;
+            this.fading.ValueChanged += new System.EventHandler(this.fading_ValueChanged);
             // 
             // label29
             // 
@@ -383,30 +376,38 @@ namespace StoryDesigner
             this.label29.TabIndex = 14;
             this.label29.Text = "Fading:";
             // 
+            // fontlist
+            // 
+            this.fontlist.FormattingEnabled = true;
+            this.fontlist.Location = new System.Drawing.Point(11, 41);
+            this.fontlist.Name = "fontlist";
+            this.fontlist.Size = new System.Drawing.Size(265, 147);
+            this.fontlist.TabIndex = 17;
+            // 
             // Fonts
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(584, 462);
-            this.Controls.Add(this.coin_fading_indicator);
-            this.Controls.Add(this.coin_fading);
+            this.Controls.Add(this.fontlist);
+            this.Controls.Add(this.fading_indicator);
+            this.Controls.Add(this.fading);
             this.Controls.Add(this.label29);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.comboBox2);
+            this.Controls.Add(this.fontsize);
             this.Controls.Add(this.italic);
             this.Controls.Add(this.bold);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
-            this.Controls.Add(this.comboBox1);
+            this.Controls.Add(this.charset);
             this.Controls.Add(this.font);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.preview);
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.fontlist);
             this.Name = "Fonts";
             this.Text = "Fonts";
             ((System.ComponentModel.ISupportInitialize)(this.preview)).EndInit();
@@ -416,7 +417,7 @@ namespace StoryDesigner
             this.groupBox2.PerformLayout();
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fading)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -424,7 +425,6 @@ namespace StoryDesigner
 
         #endregion
 
-        private System.Windows.Forms.ListView fontlist;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.PictureBox preview;
@@ -446,14 +446,15 @@ namespace StoryDesigner
         private System.Windows.Forms.RadioButton fill_falloff_1;
         private System.Windows.Forms.RadioButton fill_normal;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.ComboBox comboBox1;
+        private System.Windows.Forms.ComboBox charset;
         private System.Windows.Forms.CheckBox bold;
         private System.Windows.Forms.CheckBox italic;
-        private System.Windows.Forms.ComboBox comboBox2;
+        private System.Windows.Forms.ComboBox fontsize;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Label coin_fading_indicator;
-        private System.Windows.Forms.NumericUpDown coin_fading;
+        private System.Windows.Forms.Label fading_indicator;
+        private System.Windows.Forms.NumericUpDown fading;
         private System.Windows.Forms.Label label29;
+        private System.Windows.Forms.ListBox fontlist;
     }
 }
