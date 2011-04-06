@@ -439,14 +439,19 @@ bool StreamSoundPlayer::update(){
   alGetSourcei(mSource, AL_BUFFERS_QUEUED, &queued);
   if (processed == queued){
     //all buffers empty
-    ALint state;
-    alGetSourcei(mSource, AL_SOURCE_STATE, &state);
+    //ALint state;
+    //alGetSourcei(mSource, AL_SOURCE_STATE, &state);
+    unsigned bytes = decode();
+    if (bytes > 0){
+      ALuint curBuf;
+      alSourceUnqueueBuffers(mSource, 1, &curBuf);
+      if (curBuf != 0){
+        alBufferData(curBuf, mPCMFormat, mALBuffer.data, bytes, mCodecContext->sample_rate);
+        alSourceQueueBuffers(mSource, 1, &curBuf);
+      }
+    }
     if (mStop)
       return false;
-    /*else{
-      ALint offset;
-      alGetSourcei(mSource, AL_SAMPLE_OFFSET, &offset);
-    }*/
     return true;
   }
   for (ALint i = 0; i < processed; ++i){

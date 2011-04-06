@@ -886,8 +886,12 @@ int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
   if (chr){
     if (fade && !ctx.mSkip){
-      chr->setSuspensionScript(&ctx);
-      ctx.mSuspended = true;
+      //do not block right now.
+      //be aware that if blocking is done, problems occur
+      //example: Aluehn, Floor, opening lorengs door, walkto sets suspension script, walkmap overrides it with charlight, walk is not unblocked
+      //multiple suspend reasons for one object needed?
+      //chr->setSuspensionScript(&ctx);
+      //ctx.mSuspended = true;
       Engine::instance()->getAnimator()->add(chr, c);
     }
     else{
