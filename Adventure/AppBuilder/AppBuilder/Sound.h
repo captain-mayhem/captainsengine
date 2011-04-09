@@ -31,7 +31,7 @@ public:
   void setMusicVolume(int volume);
 protected:
   SoundEngine();
-  SoundPlayer* createPlayer(const DataBuffer& db);
+  SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
   static SoundEngine* mInstance;
   AdvDocument* mData;
 #ifndef DISABLE_SOUND
@@ -45,7 +45,7 @@ protected:
 
 class SoundPlayer{
 public:
-  SoundPlayer();
+  SoundPlayer(const std::string& name);
   virtual ~SoundPlayer();
   virtual void play(bool looping)=0;
   virtual void stop()=0;
@@ -62,13 +62,14 @@ protected:
   CharacterObject* mSpeaker;
   ExecutionContext* mSuspensionScript;
   /*FontRenderer::String*/void* mSpokenString;
+  std::string mName;
 };
 
 #ifndef DISABLE_SOUND
 
 class SimpleSoundPlayer : public SoundPlayer{
 public:
-  SimpleSoundPlayer(ALuint buffer);
+  SimpleSoundPlayer(const std::string& name, ALuint buffer);
   virtual ~SimpleSoundPlayer();
   void play(bool looping);
   void stop();
@@ -87,7 +88,7 @@ struct SwsContext;
 
 class StreamSoundPlayer : public SoundPlayer{
 public:
-  StreamSoundPlayer(const std::string& filename);
+  StreamSoundPlayer(const std::string& soundname, const std::string& filename);
   virtual ~StreamSoundPlayer();
   void play(bool looping);
   void stop();

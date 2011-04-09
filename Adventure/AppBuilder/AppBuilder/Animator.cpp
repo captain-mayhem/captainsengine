@@ -114,8 +114,33 @@ void Animator::add(DynamicAnimation* anim){
   mAnimations.push_back(anim);
 }
 
+class ColorAnimation : public DynamicAnimation{
+public:
+  ColorAnimation(const Color& src, const Color& target, Object2D* object) : mDuration(500), 
+    mCurrentTime(0), mSrc(src), mTarget(target), mObject(object){
+  }
+  virtual bool update(unsigned interval){
+    float t = (mDuration-mCurrentTime)/(float)mDuration;
+    Color col;
+    col.r = (unsigned char)(t*mSrc.r + (1-t)*mTarget.r);
+    col.g = (unsigned char)(t*mSrc.g + (1-t)*mTarget.g);
+    col.b = (unsigned char)(t*mSrc.b + (1-t)*mTarget.b);
+    col.a = (unsigned char)(t*mSrc.a + (1-t)*mTarget.a);
+    if (mCurrentTime >= mDuration)
+      return false;
+    mCurrentTime += interval;
+    mObject->setLightingColor(col);
+    return true;
+  }
+private:
+  int mDuration;
+  int mCurrentTime;
+  Color mSrc;
+  Color mTarget;
+  Object2D* mObject;
+};
+
 void Animator::add(Object2D* obj, const Color& targetcolor){
-  //TODO Lighting animation
-  obj->setLightingColor(targetcolor);
-  obj->getScript()->resume();
+  ColorAnimation* ca = new ColorAnimation(obj->getLightingColor(), targetcolor, obj);
+  add(ca);
 }

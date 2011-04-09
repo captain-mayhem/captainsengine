@@ -19,6 +19,12 @@ struct Color{
   Color(){
     r = 255; g=255; b=255; a=255;
   }
+  Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
+    this->r = r;
+    this->g = g;
+    this->b = b;
+    this->a = a;
+  }
   Color(unsigned packedcolor){
     r = (packedcolor >> 0) & 0xFF;
     g = (packedcolor >> 8) & 0xFF;

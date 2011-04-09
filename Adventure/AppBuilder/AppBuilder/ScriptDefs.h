@@ -128,6 +128,7 @@ public:
   void setExecuteOnce() {mExecuteOnce = true;}
   void setSkip() {mSkip = true; mSuspended = false;}
   void setIdle(bool idle) {mIdle = idle;}
+  bool isSkipping() {return mSkip;}
 protected:
   CodeSegment* mCode;
   bool mIsGameObject;

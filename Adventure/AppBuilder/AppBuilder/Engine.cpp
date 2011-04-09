@@ -474,36 +474,38 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   if (_stricmp(room->name.c_str(), mData->getProjectSettings()->taskroom.c_str()) == 0)
     mTaskbar = roomobj;
   //animation stuff
-  switch(Engine::instance()->getScreenChange()){
-    case SC_DIRECT:
-      break;
-    case SC_FADEOUT:
-      DebugBreak();
-      break;
-    case SC_RECTANGLE:
-      DebugBreak();
-      break;
-    case SC_CIRCLE:{
-      CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-      Engine::instance()->getAnimator()->add(csc);
-      }
-      break;
-    case SC_SHUTTERS:
-      DebugBreak();
-      break;
-    case SC_CLOCK:
-      DebugBreak();
-      break;
-    case SC_BLEND:{
-      BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 1000);
-      Engine::instance()->getAnimator()->add(bsc);
-      }
-      break;
-    case SC_BLEND_SLOW:{
-      BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-      Engine::instance()->getAnimator()->add(bsc);
-      }
-      break;
+  if (loadreason == NULL || !loadreason->isSkipping()){
+    switch(Engine::instance()->getScreenChange()){
+      case SC_DIRECT:
+        break;
+      case SC_FADEOUT:
+        DebugBreak();
+        break;
+      case SC_RECTANGLE:
+        DebugBreak();
+        break;
+      case SC_CIRCLE:{
+        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
+        Engine::instance()->getAnimator()->add(csc);
+        }
+        break;
+      case SC_SHUTTERS:
+        DebugBreak();
+        break;
+      case SC_CLOCK:
+        DebugBreak();
+        break;
+      case SC_BLEND:{
+        BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 1000);
+        Engine::instance()->getAnimator()->add(bsc);
+        }
+        break;
+      case SC_BLEND_SLOW:{
+        BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
+        Engine::instance()->getAnimator()->add(bsc);
+        }
+        break;
+    }
   }
   return true;
 }

@@ -17,8 +17,8 @@ BlitObject(texture, size, scale, depth, offset){
   }
   virtual void blit(){
     GL()pushMatrix();
-    GL()translatef(mPos.x,mPos.y,0.0f);
-    GL()scalef(mSize.x,mSize.y,1.0f);
+    GL()translatef((float)mPos.x,(float)mPos.y,0.0f);
+    GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
     //if (mMirrorX)
     //  glScalef(-1.,1.,1.);
     GL()matrixMode(MM_TEXTURE);
@@ -128,7 +128,7 @@ FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string
     int rownum = charnum/mNumChars.x;
     charnum %= mNumChars.x;
     BlitObject* obj = new FontBlitObject(mImages[texnum], mImages[texnum], 
-      mFontsize, mScale, depth, Vec2i(xoffset,yoffset), Vec2f(charnum, rownum), color);
+      mFontsize, mScale, depth, Vec2i(xoffset,yoffset), Vec2f(charnum, (float)rownum), color);
     str->append(obj);
     xoffset += chardeviation;
     if (i >= (unsigned)breakinfo[line].x){
