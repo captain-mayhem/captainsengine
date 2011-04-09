@@ -50,7 +50,7 @@ SoundPlayer* SoundEngine::getSound(const std::string& name){
     return plyr;
   DataBuffer db;
   mData->getSound(name, db);
-  plyr = createPlayer(db);
+  plyr = createPlayer(name, db);
   mActiveSounds[name] = plyr;
   return plyr;
 }
@@ -65,7 +65,7 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
     return plyr;
   DataBuffer db;
   mData->getMusic(name, db);
-  plyr = createPlayer(db);
+  plyr = createPlayer(name, db);
   if (mActiveMusic)
     delete mActiveMusic;
   mActiveMusic = plyr;
@@ -77,11 +77,11 @@ SoundPlayer* SoundEngine::getMovie(const std::string& name){
   SoundPlayer* plyr = NULL;
   DataBuffer db;
   mData->getMovie(name, db);
-  plyr = createPlayer(db);
+  plyr = createPlayer(name, db);
   return plyr;
 }
 
-SoundPlayer* SoundEngine::createPlayer(const DataBuffer& db){
+SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer& db){
 #ifndef DISABLE_SOUND
   char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir
@@ -96,7 +96,7 @@ SoundPlayer* SoundEngine::createPlayer(const DataBuffer& db){
   fclose(f);
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
-  SoundPlayer* plyr = new StreamSoundPlayer(filename);
+  SoundPlayer* plyr = new StreamSoundPlayer(name, filename);
   return plyr;
 #else
   return NULL;
@@ -143,7 +143,7 @@ std::istream& SoundEngine::load(std::istream& in){
 }
 
 
-SoundPlayer::SoundPlayer() : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL){
+SoundPlayer::SoundPlayer(const std::string& name) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), mName(name){
 #ifndef DISABLE_SOUND
   alGenSources(1, &mSource);
 #endif
@@ -176,7 +176,7 @@ void SoundPlayer::setVolume(float volume){
 }
 
 #ifndef DISABLE_SOUND
-SimpleSoundPlayer::SimpleSoundPlayer(ALuint buffer) : mBuffer(buffer){
+SimpleSoundPlayer::SimpleSoundPlayer(const std::string& name, ALuint buffer) : SoundPlayer(name), mBuffer(buffer){
   alSourcei(mSource, AL_BUFFER, buffer);
 }
 
@@ -204,8 +204,8 @@ bool SimpleSoundPlayer::update(){
 
 static const int BUFFER_SIZE = 19200;
 
-StreamSoundPlayer::StreamSoundPlayer(const std::string& filename) : 
-SoundPlayer(), mFilename(filename), mLooping(false), mStop(true){
+StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname, const std::string& filename) : 
+SoundPlayer(soundname), mFilename(filename), mLooping(false), mStop(true){
   alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
   alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
   alGenBuffers(3, mBuffers);
