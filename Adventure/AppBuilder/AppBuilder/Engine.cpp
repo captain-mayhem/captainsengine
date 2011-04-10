@@ -351,7 +351,7 @@ void Engine::render(unsigned time){
   }
   std::vector<Vec2i> breakinfo;
   Vec2i offset = mFonts->getTextExtent(text, 1, breakinfo);
-  if (!mInterpreter->isBlockingScriptRunning())
+  if (!mInterpreter->isBlockingScriptRunning() && mFocussedChar != NULL)
     mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1, breakinfo);
 
   mFonts->prepareBlit(interval);
@@ -478,8 +478,10 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
     switch(Engine::instance()->getScreenChange()){
       case SC_DIRECT:
         break;
-      case SC_FADEOUT:
-        DebugBreak();
+      case SC_FADEOUT:{
+        FadeoutScreenChange* fsc = new FadeoutScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
+        Engine::instance()->getAnimator()->add(fsc);
+        }
         break;
       case SC_RECTANGLE:
         DebugBreak();

@@ -85,6 +85,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("moveobj", moveObj);
   interpreter->registerFunction("quit", quit);
   interpreter->registerFunction("musicvolume", musicVolume);
+  interpreter->registerFunction("setparticles", setParticles);
+  interpreter->registerFunction("startparticles", startParticles);
+  interpreter->registerFunction("stopparticles", stopParticles);
   srand((unsigned)time(NULL));
 }
 
@@ -1042,6 +1045,37 @@ int ScriptFunctions::musicVolume(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+int ScriptFunctions::setParticles(ExecutionContext& ctx, unsigned numArgs){
+  std::string object = ctx.stack().pop().getString();
+  int speed = ctx.stack().pop().getInt();
+  int amount = ctx.stack().pop().getInt();
+  int direction = ctx.stack().pop().getInt();
+  int rotation = ctx.stack().pop().getInt();
+  int variation = ctx.stack().pop().getInt();
+  DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::startParticles(ExecutionContext& ctx, unsigned numArgs){
+  bool fast = false;
+  if (numArgs >= 1){
+    std::string arg = ctx.stack().pop().getString();
+    fast = arg == "fast";
+  }
+  DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::stopParticles(ExecutionContext& ctx, unsigned numArgs){
+  bool fast = false;
+  if (numArgs >= 1){
+    std::string arg = ctx.stack().pop().getString();
+    fast = arg == "fast";
+  }
+  DebugBreak();
+  return 0;
+}
+
 
 int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){
   for (unsigned i = 0; i < numArgs; ++i){
@@ -1178,7 +1212,14 @@ int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArg
 }
 
 int ScriptFunctions::isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs){
-  std::string key = ctx.stack().pop().getString();
+  StackData sd = ctx.stack().pop();
+  std::string key = sd.getString();
+  if (key.empty()){
+    char tmp[16];
+    int k = sd.getInt();
+    sprintf(tmp, "%i", k);
+    key = tmp;
+  }
   std::map<std::string,int>::iterator iter = Engine::instance()->getInterpreter()->mKeymap.find(key);
   if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
     DebugBreak();

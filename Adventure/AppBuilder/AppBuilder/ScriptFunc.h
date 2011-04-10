@@ -239,6 +239,15 @@ public:
   **/
   static int setObj(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param object name of the particle object
+  \param speed the speed of the particle
+  \param amount the number of particles
+  \param direction the direction of the particles (0 down, 90 right, ...)
+  \param rotation the rotation angle speed of the particle (clockwise)
+  \param variation the variation in speed of the particles in percent
+  **/
+  static int setParticles(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param change changes style of room changes
   **/
   static int setScreenchange(ExecutionContext& ctx, unsigned numArgs);
@@ -267,10 +276,18 @@ public:
   **/
   static int speech(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param fast [opt] show particles immediately
+  **/
+  static int startParticles(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param character name of the character
   \param direction makes a step into the given direction
   **/
   static int stepTo(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param fast [opt] show particles immediately
+  **/
+  static int stopParticles(ExecutionContext& ctx, unsigned numArgs);
   /*
   */
   static int stopSkip(ExecutionContext& ctx, unsigned numArgs);

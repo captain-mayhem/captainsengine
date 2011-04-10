@@ -33,4 +33,15 @@ protected:
   Screenshot mShot;
 };
 
+class FadeoutScreenChange : public RenderableBlitObject, public DynamicAnimation{
+public:
+  FadeoutScreenChange(int width, int height, int depth, int duration);
+  virtual bool update(unsigned interval);
+protected:
+  int mDuration;
+  int mCurrentTime;
+  Screenshot mShot;
+  bool mClosing;
+};
+
 #endif
