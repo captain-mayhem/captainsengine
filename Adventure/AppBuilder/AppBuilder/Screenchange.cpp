@@ -119,3 +119,54 @@ bool BlendScreenChange::update(unsigned interval){
   return true;
 }
 
+FadeoutScreenChange::FadeoutScreenChange(int width, int height, int depth, int duration) : RenderableBlitObject(width, height, depth), mDuration(duration/2), mCurrentTime(0), mShot(depth-1), mClosing(true){
+}
+
+bool FadeoutScreenChange::update(unsigned interval){
+  if (mCurrentTime == 0 && mClosing){
+    mShot.take();
+  }
+
+  int alpha = (int)((mDuration-mCurrentTime)/(float)mDuration*255);
+  if (alpha > 255)
+    alpha = 255;
+  if (alpha < 0)
+    alpha = 0;
+
+  bind();
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  
+  //render previous room
+  if (mClosing){
+    GL()pushMatrix();
+    GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+    GL()scalef(1.0f,-1.0f,1.0f);
+    mShot.blit();
+    GL()popMatrix();
+  }
+  
+  //multiply alpha
+  GL()pushMatrix();
+  GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
+  glBlendFunc(GL_DST_COLOR, GL_ZERO);
+  if (mClosing)
+    GL()color4ub(alpha, alpha, alpha, 255);
+  else
+    GL()color4ub(255, 255, 255, alpha);
+  GL()disable(GL_TEXTURE_2D);
+  GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  GL()popMatrix();
+  GL()enable(GL_TEXTURE_2D);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  unbind();
+  if (mCurrentTime >= mDuration && !mClosing)
+    return false;
+  if (mCurrentTime >= mDuration && mClosing){
+    mCurrentTime = 0;
+    mClosing = false;
+  }
+  mCurrentTime += interval;
+  render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
+  return true;
+}
+

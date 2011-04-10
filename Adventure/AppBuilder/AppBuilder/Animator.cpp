@@ -116,11 +116,15 @@ void Animator::add(DynamicAnimation* anim){
 
 class ColorAnimation : public DynamicAnimation{
 public:
-  ColorAnimation(const Color& src, const Color& target, Object2D* object) : mDuration(500), 
+  ColorAnimation(const Color& src, const Color& target, Object2D* object) : mDuration(300), 
     mCurrentTime(0), mSrc(src), mTarget(target), mObject(object){
   }
   virtual bool update(unsigned interval){
     float t = (mDuration-mCurrentTime)/(float)mDuration;
+    if (t < 0)
+      t = 0;
+    if (t > 1.0f)
+      t = 1.0f;
     Color col;
     col.r = (unsigned char)(t*mSrc.r + (1-t)*mTarget.r);
     col.g = (unsigned char)(t*mSrc.g + (1-t)*mTarget.g);

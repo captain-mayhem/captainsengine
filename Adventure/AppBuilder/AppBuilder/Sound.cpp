@@ -69,7 +69,8 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
   if (mActiveMusic)
     delete mActiveMusic;
   mActiveMusic = plyr;
-  plyr->setVolume(mMusicVolume/100.0f);
+  if (plyr)
+    plyr->setVolume(mMusicVolume/100.0f);
   return plyr;
 }
 
