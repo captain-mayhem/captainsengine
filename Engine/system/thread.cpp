@@ -10,6 +10,8 @@
 #ifdef UNIX
 #include <pthread.h>
 #endif
+#include <stdlib.h>
+#include <system/engine.h>
 
 using namespace CGE;
 
@@ -32,7 +34,12 @@ void Thread::destroy(){
   TerminateThread(&threadID_, 0);
 #endif
 #ifdef UNIX 
+#ifndef NO_PTHREAD_CANCEL
   pthread_cancel(threadID_);
+#else
+	CGE::Log << "pthread_cancel not supported by this platform";
+	abort();
+#endif
 #endif
   //_endthread();
 }

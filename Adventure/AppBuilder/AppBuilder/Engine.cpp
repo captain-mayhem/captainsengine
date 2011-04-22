@@ -10,6 +10,7 @@
 #include "SaveStateProvider.h"
 #include "Inventory.h"
 #include "Screenchange.h"
+#include "Particles.h"
 
 #ifndef WIN32
 void DebugBreak(){
@@ -46,6 +47,7 @@ Engine::Engine() : mData(NULL), mInitialized(false), mExitRequested(false), mRes
   mAnimator = new Animator();
   mFonts = NULL;
   mInterpreter = NULL;
+  mParticleEngine = NULL;
   for (int i = 0; i < 256; ++i){
     mKeysDown[i] = false;
     mKeysPressed[i] = false;
@@ -53,6 +55,7 @@ Engine::Engine() : mData(NULL), mInitialized(false), mExitRequested(false), mRes
 }
 
 Engine::~Engine(){
+  delete mParticleEngine;
   delete mFonts;
   delete mAnimator;
   delete mInterpreter;
@@ -65,6 +68,7 @@ void Engine::setData(AdvDocument* doc){
   mInterpreter = new PcdkScript(mData);
   mFonts = new FontRenderer(mData);
   mSaver = new SaveStateProvider(mData);
+  mParticleEngine = new ParticleEngine();
 }
 
 void Engine::initGame(exit_callback exit_cb){

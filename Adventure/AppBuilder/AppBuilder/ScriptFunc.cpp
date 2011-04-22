@@ -1052,6 +1052,7 @@ int ScriptFunctions::setParticles(ExecutionContext& ctx, unsigned numArgs){
   int direction = ctx.stack().pop().getInt();
   int rotation = ctx.stack().pop().getInt();
   int variation = ctx.stack().pop().getInt();
+  Object2D* particle = Engine::instance()->getObject(object, false);
   DebugBreak();
   return 0;
 }

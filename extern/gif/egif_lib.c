@@ -82,7 +82,16 @@ static int EGifCompressLine(GifFileType * GifFile, GifPixelType * Line,
 static int EGifCompressOutput(GifFileType * GifFile, int Code);
 static int EGifBufferedOutput(GifFileType * GifFile, GifByteType * Buf,
                               int c);
+							  
+							  
+#ifndef S_IWRITE
+#define S_IWRITE 0
+#endif
 
+#ifndef S_IREAD
+#define S_IREAD 0
+#endif
+							  
 /******************************************************************************
  * Open a new gif file for write, given by its name. If TestExistance then
  * if the file exists this routines fails (returns NULL).
