@@ -17,6 +17,7 @@ int _stricmp(const char* str1, const char* str2);
 
 class SaveStateProvider;
 class SoundPlayer;
+class ParticleEngine;
 
 typedef void (*exit_callback)();
 
@@ -85,6 +86,7 @@ public:
   void quit();
   void reset();
   void renderUnloadingRoom();
+  ParticleEngine* getParticleEngine() {return mParticleEngine;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -117,6 +119,7 @@ protected:
   Animator* mAnimator;
   FontRenderer* mFonts;
   SaveStateProvider* mSaver;
+  ParticleEngine* mParticleEngine;
   //a*-search
   struct AStarData{
     Vec2i pos;

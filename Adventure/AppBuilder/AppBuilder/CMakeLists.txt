@@ -3,6 +3,7 @@ SET(OS windows CACHE STRING "the os to compile for")
 SET(ARCH ${CPU})
 OPTION(DISABLE_SOUND "disables the ffmpeg and openal backends" OFF)
 OPTION(TEGRA_RENDERER "switches the renderer to OpenKode/GLES2 rendering" OFF)
+OPTION(JNI_FRONTEND "enables a JNI frontend for Android" OFF)
 
 SET(AB_LINK_LIBS)
 
@@ -11,21 +12,28 @@ ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE)
 ENDIF (OS STREQUAL windows)
 
 IF(TEGRA_RENDERER)
-ADD_DEFINITIONS(-DRENDER_TEGRA)
-SET(ADVENTURE_SRCS 
-  KDWindow.cpp
-)
-INCLUDE_DIRECTORIES($ENV{NV_WINGL_X86_PLAT}/include)
-LINK_DIRECTORIES($ENV{NV_WINGL_X86_PLAT}/lib/release)
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} libnvkdmain libKD libGLES20)
+  ADD_DEFINITIONS(-DRENDER_TEGRA)
+  IF(JNI_FRONTEND)
+    SET(ADVENTURE_SRCS
+      JNIFrontend.cpp
+    )
+	SET(AB_LINK_LIBS ${AB_LINK_LIBS} GLESv2)
+  ELSE(JNI_FRONTEND)
+    SET(ADVENTURE_SRCS 
+      KDWindow.cpp
+    )
+    INCLUDE_DIRECTORIES($ENV{NV_WINGL_X86_PLAT}/include)
+    LINK_DIRECTORIES($ENV{NV_WINGL_X86_PLAT}/lib/release)
+    SET(AB_LINK_LIBS ${AB_LINK_LIBS} libnvkdmain libKD libGLES20)
+  ENDIF(JNI_FRONTEND)
 
 ELSE(TEGRA_RENDERER)
-INCLUDE(FindOpenGL)
-SET(ADVENTURE_SRCS 
-  CgeWindow.cpp
-  CgeWindow.h
-)
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} EngineMain ${OPENGL_gl_LIBRARY})
+  INCLUDE(FindOpenGL)
+  SET(ADVENTURE_SRCS 
+    CgeWindow.cpp
+    CgeWindow.h
+  )
+  SET(AB_LINK_LIBS ${AB_LINK_LIBS} EngineMain ${OPENGL_gl_LIBRARY})
 ENDIF(TEGRA_RENDERER)
 
 ###WXWIDGETS###
@@ -145,6 +153,8 @@ SET(AppBuilder_SRCS
   Ids.h
   Inventory.cpp
   Inventory.h
+  Particles.cpp
+  Particles.h
   Renderer.cpp
   Renderer.h
   SaveStateProvider.cpp
@@ -167,11 +177,24 @@ ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
 
 ###Adventure###
 
+IF(JNI_FRONTEND)
+
+ADD_LIBRARY(Adventure SHARED
+	${ADVENTURE_SRCS}
+  CmdReceiver.h
+  CmdReceiver.cpp
+)
+
+ELSE(JNI_FRONTEND)
+
 ADD_EXECUTABLE(Adventure
   ${ADVENTURE_SRCS}
   CmdReceiver.h
   CmdReceiver.cpp
 )
+
+ENDIF(JNI_FRONTEND)
+
 TARGET_LINK_LIBRARIES(Adventure AdventureBase ${AB_LINK_LIBS})
 
 IF (NOT TEGRA_RENDERER)

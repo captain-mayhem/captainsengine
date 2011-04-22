@@ -1,3 +1,4 @@
+OPTION (NO_PTHREAD_CANCEL "Platform has no pthread cancel" OFF)
 
 INCLUDE(gui/CMakeLists.txt)
 INCLUDE(image/CMakeLists.txt)
@@ -13,6 +14,10 @@ INCLUDE(common/CMakeLists.txt)
 
 INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
 LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
+
+IF (NO_PTHREAD_CANCEL)
+ADD_DEFINITIONS(-DNO_PTHREAD_CANCEL)
+ENDIF (NO_PTHREAD_CANCEL)
 
 ADD_LIBRARY(Engine STATIC 
 	${Engine_gui_SRCS}
