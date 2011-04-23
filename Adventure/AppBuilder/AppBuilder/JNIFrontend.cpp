@@ -1,6 +1,7 @@
 
 #include <jni.h>
 #include <stdlib.h>
+#include <android/log.h>
 
 #include <system/engine.h>
 
@@ -11,7 +12,7 @@
 #include "CmdReceiver.h"
 
 extern "C"{
-JNIEXPORT void JNICALL Java_de_captain_online_Adventure_init(JNIEnv * env, jobject obj,  jstring filename);
+JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename);
 }
 
 AdvDocument* adoc;
@@ -22,10 +23,12 @@ void quit(){
   shouldQuit = true;
 }
 
-JNIEXPORT void JNICALL Java_de_captain_online_Adventure_init(JNIEnv * env, jobject obj,  jstring filename){
+JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename){
 	const char* str = env->GetStringUTFChars(filename, NULL);
 	if (str == NULL)
 		return;
+		
+	__android_log_print(ANDROID_LOG_INFO, "libadventure", "native lib init");
 	
 	adoc = new AdvDocument();
 	if (!adoc->loadDocument(str)){

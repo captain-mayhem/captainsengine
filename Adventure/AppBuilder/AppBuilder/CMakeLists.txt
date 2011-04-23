@@ -179,11 +179,17 @@ ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
 
 IF(JNI_FRONTEND)
 
+SET(AB_LINK_LIBS ${AB_LINK_LIBS}
+log
+)
+
 ADD_LIBRARY(Adventure SHARED
 	${ADVENTURE_SRCS}
   CmdReceiver.h
   CmdReceiver.cpp
 )
+
+ADD_SUBDIRECTORY(java)
 
 ELSE(JNI_FRONTEND)
 
