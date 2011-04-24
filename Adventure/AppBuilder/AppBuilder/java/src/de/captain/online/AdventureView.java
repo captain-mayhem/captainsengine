@@ -242,6 +242,7 @@ class AdventureView extends GLSurfaceView{
 		super(context);
 		setEGLContextFactory(new ContextFactory());
 		setEGLConfigChooser(new ConfigChooser(8, 8, 8, 8, 16, 0));
+		setRenderer(new Renderer());
 	}
 	
 	private static void checkEglError(String prompt, EGL10 egl) {
