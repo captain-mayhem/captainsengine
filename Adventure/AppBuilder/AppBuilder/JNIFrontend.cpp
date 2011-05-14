@@ -13,11 +13,17 @@
 
 extern "C"{
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename);
+JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time);
+JNIEXPORT jstring JNICALL Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env, jobject thiz );
 }
 
 AdvDocument* adoc;
 static bool shouldQuit = false;
 CommandReceiver receiver;
+
+JNIEXPORT jstring JNICALL Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env, jobject thiz ){
+    return env->NewStringUTF("Hello from C++!");
+}
 
 void quit(){
   shouldQuit = true;
@@ -28,7 +34,7 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jo
 	if (str == NULL)
 		return;
 		
-	__android_log_print(ANDROID_LOG_INFO, "libadventure", "native lib init");
+	__android_log_print(ANDROID_LOG_INFO, "libadventure", "native lib init, trying to load %s", str);
 	
 	adoc = new AdvDocument();
 	if (!adoc->loadDocument(str)){
@@ -66,4 +72,28 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jo
 	Engine::instance()->initGame(quit);
 	
 	env->ReleaseStringUTFChars(filename, str);
+}
+
+JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time){
+	//CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  GL()matrixMode(MM_PROJECTION);
+  GL()loadIdentity();
+  GL()ortho(0, 640, 480, 0, -1.0, 1.0);
+  //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
+
+  GL()matrixMode(MM_MODELVIEW);
+  glDisable(GL_DEPTH_TEST);
+  //glEnableClientState(GL_VERTEX_ARRAY);
+  //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+  GL()enable(GL_TEXTURE_2D);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glEnable(GL_BLEND);
+
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  GL()loadIdentity();
+
+  receiver.processCommands();
+  Engine::instance()->render(time);
+
+  SoundEngine::instance()->update();
 }

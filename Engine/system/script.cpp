@@ -38,15 +38,21 @@ int Script::getNumberSetting(const string& name){
   lua_getglobal(L, name.c_str());
   if (!lua_isnumber(L,-1)){
     Log << "Lua_Error: " << name << " is no number.\n";
+    return 0;
   }
   return (int)lua_tonumber(L,-1);
 }
 
-bool Script::getBoolSetting(const string& name){
+bool Script::getBoolSetting(const string& name, bool* exists){
   lua_getglobal(L, name.c_str());
   if (!lua_isboolean(L,-1)){
     Log << "Lua_Error: " << name << " is no boolean.\n";
+    if (exists)
+      *exists = false;
+    return false;
   }
+  if (exists)
+    *exists = true;
   return lua_toboolean(L,-1) != 0;
 }
 
@@ -54,6 +60,7 @@ string Script::getStringSetting(const string& name){
   lua_getglobal(L, name.c_str());
   if (!lua_isstring(L,-1)){
     Log << "Lua_Error: " << name << " is no string.\n";
+    return "";
   }
   return string(lua_tostring(L,-1));
 }
@@ -62,6 +69,7 @@ float Script::getRealSetting(const string& name){
   lua_getglobal(L, name.c_str());
   if (!lua_isnumber(L,-1)){
     Log << "Lua_Error: " << name << " is no string.\n";
+    return 0;
   }
   return (float)lua_tonumber(L,-1);
 }

@@ -32,7 +32,7 @@ public:
   //! get a setting as integer
   int getNumberSetting(const string& name);
   //! get a setting as boolean
-  bool getBoolSetting(const string& name);
+  bool getBoolSetting(const string& name, bool* exists = NULL);
   //! get a setting as string
   string getStringSetting(const string& name);
   //! get a setting as float
