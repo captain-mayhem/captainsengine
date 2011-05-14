@@ -223,14 +223,15 @@ class AdventureView extends GLSurfaceView{
         private int[] mValue = new int[1];
     }
 	
-	private static class Renderer implements GLSurfaceView.Renderer {
+	private /*static*/ class Renderer implements GLSurfaceView.Renderer {
         public void onDrawFrame(GL10 gl) {
-            //AdventureLib.step();
+            AdventureLib.render(5);
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             //AdventureLib.init(width, height);
-			AdventureLib.init("data/game.dat");
+        	String dir = "/mnt/sdcard/external_sd/adventure/testadv";
+			AdventureLib.init(dir+"/data/game.dat");
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
@@ -241,7 +242,7 @@ class AdventureView extends GLSurfaceView{
 	public AdventureView(Context context){
 		super(context);
 		setEGLContextFactory(new ContextFactory());
-		setEGLConfigChooser(new ConfigChooser(8, 8, 8, 8, 16, 0));
+		setEGLConfigChooser(new ConfigChooser(5, 6, 5, 0, 16, 0));
 		setRenderer(new Renderer());
 	}
 	

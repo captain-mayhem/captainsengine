@@ -1,8 +1,8 @@
 
 SET(JSRCS
-	de/captain/online/AdventureActivity.java
-	de/captain/online/AdventureView.java
-	de/captain/online/AdventureLib.java
+	src/de/captain/online/AdventureActivity.java
+	src/de/captain/online/AdventureView.java
+	src/de/captain/online/AdventureLib.java
 )
 
 MESSAGE(STATUS "using ${PLATFORM_SDK_PATH}/android.jar")

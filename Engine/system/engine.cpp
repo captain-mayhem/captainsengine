@@ -62,8 +62,13 @@ void Engine::startup(int argc, char** argv){
   Script::init();
   Script::instance()->initEnv();
   string type = Script::instance()->getStringSetting("renderer");
+  if (type.empty())
+    type = "OpenGL";
   maxFramerate_ = CGE::Script::instance()->getNumberSetting("timeScheme");
-  graphics_ = Script::instance()->getBoolSetting("graphics");
+  bool exists;
+  graphics_ = Script::instance()->getBoolSetting("graphics", &exists);
+  if (!exists)
+    graphics_ = true;
   physics_ = Script::instance()->getBoolSetting("physics");
 
   if (graphics_){
