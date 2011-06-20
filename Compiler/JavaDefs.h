@@ -2,7 +2,7 @@
 #define JAVADEFS_H
 
 #include <vector>
-#include <system/allocation.h>
+//#include <system/allocation.h>
 
 #include "jni.h"
 

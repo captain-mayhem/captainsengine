@@ -612,7 +612,20 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_if_acmpeq:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				{
+					VMObject* val2 = ctx->pop().obj;
+					VMObject* val1 = ctx->pop().obj;
+					if (val1 == val2){
+						Java::u1 b1 = mCode->code[++k];
+						Java::u1 b2 = mCode->code[++k];
+						int16 branch = b1 << 8 | b2;
+						k += branch-3;
+					}
+					else{
+					  k += 2;
+					}
+				}
+				break;
       case Java::op_if_acmpne:
 				{
 					VMObject* val2 = ctx->pop().obj;
@@ -1203,16 +1216,41 @@ void NativeVMMethod::executeBoolRet(VMContext* ctx){
 	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
+  void* tmp;
+  for(int i = mArgSize-1; i >= 0; --i){
+    tmp = ctx->get(mIsStatic ? i : i+1).obj;
+    __asm{
+      mov eax, tmp;
+      push eax;
+    }
+  }
+  //for(int i = mArgSize-1; i >= 0; --i){
+  //  ctx->pop();
+  //}
+  nativeMethod mthd = mFunction;
+  jboolean retval;
+  int popargs = (mArgSize+2)*sizeof(void*);
+  tmp = ctx->getJNIEnv();
+  __asm{
+    mov eax, cls;
+    push eax;
+    mov ebx, tmp;
+    push ebx;
+    call mthd;
+    add esp, popargs;
+    mov retval, al;
+  }
+  /*
 	bullshit fakeArray;
 	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
 	uint8* lst = packArguments(ctx, fakeArray);
-	jboolean ret = ((nativeBoolMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
+	jboolean ret = ((nativeBoolMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));*/
 	//delete [] lst;
 	ctx->popFrame();
 	if (TRACE_IS_ENABLED(VM_METHODS))
 		--method_depth;
 	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
-	ctx->push(ret);
+	ctx->push(retval);
 }
 
 uint8* NativeVMMethod::packArguments(VMContext* ctx, bullshit fakeArray){

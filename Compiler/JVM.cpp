@@ -48,18 +48,24 @@ JVM::~JVM(){
 void JVM::init(){
 	TRACE_ENABLE(TRACE_JAVA);
 	TRACE_ENABLE(VM_METHODS);
-#ifndef UNDER_CE
-  char* tmp = getenv("ProgramFiles");
-#else
-  char* tmp = NULL;
-#endif
   std::string prefix;
-  if (tmp)
+#ifndef UNDER_CE
+  char* tmp = getenv("JAVA_HOME");
+  if (tmp != NULL){
     prefix = tmp;
-	if (!mRuntimeClasses.openFile(prefix+"/Java/jre6/lib/rt.jar")){
+  }
+  else{
+    tmp = getenv("ProgramFiles");
+    if (tmp != NULL){
+      prefix = tmp;
+      prefix += "/Java/jre6";
+    }
+  }
+#endif
+	if (!mRuntimeClasses.openFile(prefix+"/lib/rt.jar")){
     //hack for my crappy environment
     prefix[0] = 'E';
-    if (!mRuntimeClasses.openFile(prefix+"/Java/jre6/lib/rt.jar")){
+    if (!mRuntimeClasses.openFile(prefix+"/lib/rt.jar")){
       TRACE_ABORT(TRACE_JAVA, "Java runtime classes not found");
     }
   }
@@ -67,7 +73,7 @@ void JVM::init(){
 	//mRuntime.open(prefix+"/Java/jre6/bin/client","jvm");
 	//mRuntime.addSearchPath(prefix+"/Java/jre6/bin;"+prefix+"/Java/jre6/bin/client");
 	//mRuntime.addSearchPath(prefix+"/Java/jre6/bin");
-	if (!mRuntime.open("C:\\Projects\\engine_windows\\Compiler\\Debug","javaruntime")){
+	if (!mRuntime.open("D:\\Projects\\build_windows\\Compiler\\Debug","javaruntime")){
 		TRACE_ABORT(TRACE_JAVA, "Java runtime not found");
 	}
   Opcode::init();
