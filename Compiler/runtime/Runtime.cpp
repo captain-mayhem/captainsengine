@@ -188,15 +188,26 @@ jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, 
 }
 
 jobject JNIEXPORT Java_java_security_AccessController_getStackAccessControlContext(JNIEnv* env, jclass clazz){
-	return NULL;
+	TRACE(TRACE_JAVA, TRACE_WARNING, "getStackAccessControlContext not implemented");
+  return NULL;
 }
 
 void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object){
 	return;
 }
 
+//TODO get long storage right
 jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jint expected, jint update){
-	return JNI_FALSE;
+	TRACE(TRACE_JAVA, TRACE_WARNING, "compareAndSwapInt not implemented");
+  //TODO make atomic
+  VMObject* obj = (VMObject*)object;
+  FieldData* fd = obj->getObjField((int)fieldOffset);
+  if (fd->i == expected){
+    //update
+    fd->i = update;
+    return JNI_TRUE;
+  }
+  return JNI_FALSE;
 }
 
 jlong JNIEXPORT Java_sun_misc_Unsafe_objectFieldOffset(JNIEnv* env, jobject object, jobject field){
