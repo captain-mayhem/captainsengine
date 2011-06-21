@@ -82,6 +82,10 @@ jlong JNIEXPORT Java_java_lang_Double_doubleToRawLongBits(JNIEnv* env, jobject o
 	return *((jlong*)(&value));
 }
 
+jdouble JNIEXPORT Java_java_lang_Double_longBitsToDouble(JNIEnv* env, jobject object, jlong value){
+  return *((jdouble*)(&value));
+}
+
 jint JNIEXPORT Java_java_lang_Float_floatToRawIntBits(JNIEnv* env, jobject object, jfloat value){
 	return *((jint*)(&value));
 }
@@ -196,9 +200,7 @@ void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object)
 	return;
 }
 
-//TODO get long storage right
 jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jint expected, jint update){
-	TRACE(TRACE_JAVA, TRACE_WARNING, "compareAndSwapInt not implemented");
   //TODO make atomic
   VMObject* obj = (VMObject*)object;
   FieldData* fd = obj->getObjField((int)fieldOffset);

@@ -44,5 +44,8 @@ typedef VMArray<VMObject*> VMObjectArray;
 typedef VMArray<jbyte> VMByteArray;
 typedef VMArray<jchar> VMCharArray;
 typedef VMArray<jint> VMIntArray;
+typedef VMArray<jfloat> VMFloatArray;
+typedef VMArray<jdouble> VMDoubleArray;
+typedef VMArray<jlong> VMLongArray;
 
 #endif
