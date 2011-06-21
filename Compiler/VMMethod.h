@@ -76,6 +76,7 @@ public:
 	void executeLongRet(VMContext* ctx);
 	void executeRefRet(VMContext* ctx);
 	void executeBoolRet(VMContext* ctx);
+  void executeDoubleRet(VMContext* ctx);
 protected:
 	uint8* packArguments(VMContext* ctx, bullshit fakeArray);
 	nativeMethod mFunction;

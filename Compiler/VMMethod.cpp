@@ -239,8 +239,21 @@ void BcVMMethod::execute(VMContext* ctx){
 					if (TRACE_IS_ENABLED(VM_METHODS))
 						--method_depth;
 					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
-					ctx->push(dat2);
 					ctx->push(dat1);
+					ctx->push(dat2);
+					return;
+				}
+				break;
+      case Java::op_dreturn:
+				{
+					StackData dat1 = ctx->pop();
+					StackData dat2 = ctx->pop();
+					ctx->popFrame();
+					if (TRACE_IS_ENABLED(VM_METHODS))
+						--method_depth;
+					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+					ctx->push(dat1);
+					ctx->push(dat2);
 					return;
 				}
 				break;
@@ -302,16 +315,16 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					unsigned i = ctx->pop().ui;
 					unsigned i2 = ctx->pop().ui;
-					ctx->put(1, i);
-					ctx->put(0, i2);
+					ctx->put(0, i);
+					ctx->put(1, i2);
 				}
 				break;
 			case Java::op_lstore_2:
 				{
 					unsigned i = ctx->pop().ui;
 					unsigned i2 = ctx->pop().ui;
-					ctx->put(3, i);
-					ctx->put(2, i2);
+					ctx->put(2, i);
+					ctx->put(3, i2);
 				}
 				break;
 			case Java::op_aaload:
@@ -325,6 +338,13 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					unsigned idx = ctx->pop().ui;
 					VMCharArray* arr = (VMCharArray*)ctx->pop().obj;
+					ctx->push(arr->get(idx));
+				}
+				break;
+      case Java::op_iaload:
+				{
+					unsigned idx = ctx->pop().ui;
+					VMIntArray* arr = (VMIntArray*)ctx->pop().obj;
 					ctx->push(arr->get(idx));
 				}
 				break;
@@ -352,14 +372,54 @@ void BcVMMethod::execute(VMContext* ctx){
 					arr->put(value, idx);
 				}
 				break;
+      case Java::op_fastore:
+				{
+					jfloat value = ctx->pop().f;
+					unsigned idx = ctx->pop().ui;
+					VMFloatArray* arr = (VMFloatArray*)ctx->pop().obj;
+					arr->put(value, idx);
+				}
+				break;
+      case Java::op_dastore:
+				{
+          FieldData value;
+          value.l = ((int64)ctx->pop().ui) << 32;
+					value.l |= ((int64)ctx->pop().ui) << 0;
+					unsigned idx = ctx->pop().ui;
+					VMDoubleArray* arr = (VMDoubleArray*)ctx->pop().obj;
+					arr->put(value.d, idx);
+				}
+				break;
+      case Java::op_lastore:
+				{
+          jlong value;
+          value = ((int64)ctx->pop().ui) << 32;
+					value |= ((int64)ctx->pop().ui) << 0;
+					unsigned idx = ctx->pop().ui;
+					VMLongArray* arr = (VMLongArray*)ctx->pop().obj;
+					arr->put(value, idx);
+				}
+				break;
 			case Java::op_lconst_0:
 				ctx->push(0u);
 				ctx->push(0u);
 				break;
 			case Java::op_lconst_1:
-				ctx->push(0u);
 				ctx->push(1u);
+				ctx->push(0u);
 				break;
+      case Java::op_dconst_0:
+        FieldData constant;
+        constant.d = 0.0;
+        ctx->push((uint32)(constant.l >> 0));
+				ctx->push((uint32)(constant.l >> 32));
+        break;
+      case Java::op_dconst_1:
+        /*FieldData constant;*/
+        constant.d = 1.0;
+        ctx->push((uint32)(constant.l >> 0));
+				ctx->push((uint32)(constant.l >> 32));
+        break;
 			case Java::op_iconst_0:
 				ctx->push(0u);
 				break;
@@ -380,6 +440,9 @@ void BcVMMethod::execute(VMContext* ctx){
 				break;
 			case Java::op_fconst_0:
 				ctx->push(0.0f);
+				break;
+      case Java::op_fconst_1:
+				ctx->push(1.0f);
 				break;
       //single byte number
       case Java::op_bipush:
@@ -457,8 +520,8 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
 					FieldData constant = mClass->getConstant(ctx, operand);
+					ctx->push((uint32)(constant.l >> 0));
 					ctx->push((uint32)(constant.l >> 32));
-					ctx->push((uint32)constant.l);
         }
         break;
       case Java::op_iinc:
@@ -661,8 +724,8 @@ void BcVMMethod::execute(VMContext* ctx){
 					VMMethod::ReturnType type;
 					FieldData* obj = mClass->getField(ctx, operand, type);
 					if (type == Long || type == Double){
+						ctx->push((uint32)(obj->l >> 0));
 						ctx->push((uint32)(obj->l >> 32));
-						ctx->push((uint32)obj->l);
 					}
 					else
 						ctx->push(obj->obj);
@@ -677,8 +740,8 @@ void BcVMMethod::execute(VMContext* ctx){
 					FieldData* obj = mClass->getField(ctx, operand, type);
 					FieldData value;
 					if (type == Long || type == Double){
-						value.l = (int64)ctx->pop().ui;
-						value.l |= ((int64)ctx->pop().ui) << 32;
+						value.l = ((int64)ctx->pop().ui) << 32;
+						value.l |= ((int64)ctx->pop().ui) << 0;
 					}
 					else{
 						value.obj = ctx->pop().obj;
@@ -697,8 +760,8 @@ void BcVMMethod::execute(VMContext* ctx){
 					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy, type);
 					FieldData* data = obj->getObjField(idx);
 					if (type == Long || type == Double){
+						ctx->push((uint32)(data->l >> 0));
 						ctx->push((uint32)(data->l >> 32));
-						ctx->push((uint32)data->l);
 					}
 					else
 						ctx->push(data->obj);
@@ -714,8 +777,8 @@ void BcVMMethod::execute(VMContext* ctx){
 					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy, type);
 					FieldData value;
 					if (type == Long || type == Double){
-						value.l = (int64)ctx->pop().ui;
-						value.l |= ((int64)ctx->pop().ui) << 32;
+						value.l = ((int64)ctx->pop().ui) << 32;
+						value.l |= ((int64)ctx->pop().ui) << 0;
 					}
 					else{
 						value.obj = ctx->pop().obj;
@@ -883,12 +946,18 @@ void BcVMMethod::execute(VMContext* ctx){
       case Java::op_lload:
 				{
 					Java::u1 operand = mCode->code[++k];
-					ctx->push(ctx->get(operand));
 					ctx->push(ctx->get(operand+1));
+					ctx->push(ctx->get(operand+0));
+				}
+				break;
+      case Java::op_dload:
+				{
+					Java::u1 operand = mCode->code[++k];
+					ctx->push(ctx->get(operand+1));
+					ctx->push(ctx->get(operand+0));
 				}
 				break;
       case Java::op_fload:
-      case Java::op_dload:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
       case Java::op_aload:
@@ -904,9 +973,17 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->put(idx, i);
 				}
 				break;
+      case Java::op_dstore:
+				{
+					unsigned idx = mCode->code[++k];
+					unsigned i = ctx->pop().ui;
+					unsigned i2 = ctx->pop().ui;
+					ctx->put(idx, i);
+					ctx->put(idx+1, i2);
+				}
+        break;
       case Java::op_lstore:
       case Java::op_fstore:
-      case Java::op_dstore:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
         break;
@@ -920,16 +997,16 @@ void BcVMMethod::execute(VMContext* ctx){
 				ctx->push(ctx->get(2));
 				break;
 			case Java::op_dload_0:
-				ctx->push(ctx->get(0));
 				ctx->push(ctx->get(1));
+				ctx->push(ctx->get(0));
 				break;
 			case Java::op_lload_0:
-				ctx->push(ctx->get(0));
 				ctx->push(ctx->get(1));
+				ctx->push(ctx->get(0));
 				break;
 			case Java::op_lload_2:
-				ctx->push(ctx->get(2));
 				ctx->push(ctx->get(3));
+				ctx->push(ctx->get(2));
 				break;
 			case Java::op_astore:
 				{
@@ -954,6 +1031,15 @@ void BcVMMethod::execute(VMContext* ctx){
 						case Int:
 							arr = getVM()->createIntArray(size);
 							break;
+            case Float:
+              arr = getVM()->createFloatArray(size);
+              break;
+            case Double:
+              arr = getVM()->createDoubleArray(size);
+              break;
+            case Long:
+              arr = getVM()->createLongArray(size);
+              break;
 						default:
 							TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s type unimplemented", Opcode::map_string[opcode].c_str());
 					};
@@ -963,10 +1049,10 @@ void BcVMMethod::execute(VMContext* ctx){
 			case Java::op_lcmp:{
 				int64 l1;
 				int64 l2;
-				l2 = (int64)ctx->pop().ui;
-				l2 |= ((int64)ctx->pop().ui) << 32;
-				l1 = (int64)ctx->pop().ui;
-				l1 |= ((int64)ctx->pop().ui) << 32;
+				l2 = ((int64)ctx->pop().ui) << 32;
+				l2 |= ((int64)ctx->pop().ui) << 0;
+				l1 = ((int64)ctx->pop().ui) << 32;
+				l1 |= ((int64)ctx->pop().ui) << 0;
 				if (l1 == l2)
 					ctx->push(0);
 				else if (l1 > l2)
@@ -1045,13 +1131,26 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					int64 l1;
 					int64 l2;
-					l1 = (int64)ctx->pop().ui;
-					l1 |= ((int64)ctx->pop().ui) << 32;
-					l2 = (int64)ctx->pop().ui;
-					l2 |= ((int64)ctx->pop().ui) << 32;
+					l1 = ((int64)ctx->pop().ui) << 32;
+					l1 |= ((int64)ctx->pop().ui) << 0;
+					l2 = ((int64)ctx->pop().ui) << 32;
+					l2 |= ((int64)ctx->pop().ui) << 0;
 					int64 res = l1 & l2;
+					ctx->push((uint32)(res >> 0));
 					ctx->push((uint32)(res >> 32));
-					ctx->push((uint32)res);
+				}
+				break;
+      case Java::op_lor:
+				{
+					int64 l1;
+					int64 l2;
+					l1 = ((int64)ctx->pop().ui) << 32;
+					l1 |= ((int64)ctx->pop().ui) << 0;
+					l2 = ((int64)ctx->pop().ui) << 32;
+					l2 |= ((int64)ctx->pop().ui) << 0;
+					int64 res = l1 | l2;
+					ctx->push((uint32)(res >> 0));
+					ctx->push((uint32)(res >> 32));
 				}
 				break;
 			case Java::op_lshl:
@@ -1059,31 +1158,115 @@ void BcVMMethod::execute(VMContext* ctx){
 					int64 l1;
 					uint32 l2;
 					l2 = ctx->pop().ui;
-					l1 = (int64)ctx->pop().ui;
-					l1 |= ((int64)ctx->pop().ui) << 32;
+					l1 = ((int64)ctx->pop().ui) << 32;
+					l1 |= ((int64)ctx->pop().ui) << 0;
 					int64 res = l1 << l2;
+					ctx->push((uint32)(res >> 0));
 					ctx->push((uint32)(res >> 32));
-					ctx->push((uint32)res);
+				}
+				break;
+      case Java::op_lshr:
+				{
+					int64 l1;
+					uint32 l2;
+					l2 = ctx->pop().ui;
+					l1 = ((int64)ctx->pop().ui) << 32;
+					l1 |= ((int64)ctx->pop().ui) << 0;
+					int64 res = l1 >> l2;
+					ctx->push((uint32)(res >> 0));
+					ctx->push((uint32)(res >> 32));
 				}
 				break;
 			case Java::op_ladd:
 				{
 					int64 l1;
 					int64 l2;
-					l2 = (int64)ctx->pop().ui;
-					l2 |= ((int64)ctx->pop().ui) << 32;
-					l1 = (int64)ctx->pop().ui;
-					l1 |= ((int64)ctx->pop().ui) << 32;
+					l2 = ((int64)ctx->pop().ui) << 32;
+					l2 |= ((int64)ctx->pop().ui) << 0;
+					l1 = ((int64)ctx->pop().ui) << 32;
+					l1 |= ((int64)ctx->pop().ui) << 0;
 					int64 res = l1 + l2;
+					ctx->push((uint32)(res >> 0));
 					ctx->push((uint32)(res >> 32));
-					ctx->push((uint32)res);
+				}
+				break;
+      case Java::op_lsub:
+				{
+					int64 l1;
+					int64 l2;
+					l2 = ((int64)ctx->pop().ui) << 32;
+					l2 |= ((int64)ctx->pop().ui) << 0;
+					l1 = ((int64)ctx->pop().ui) << 32;
+					l1 |= ((int64)ctx->pop().ui) << 0;
+					int64 res = l1 - l2;
+					ctx->push((uint32)(res >> 0));
+					ctx->push((uint32)(res >> 32));
+				}
+				break;
+      case Java::op_dadd:
+				{
+					FieldData d1;
+					FieldData d2;
+					d2.l = ((int64)ctx->pop().ui) << 32;
+					d2.l |= ((int64)ctx->pop().ui) << 0;
+					d1.l = ((int64)ctx->pop().ui) << 32;
+					d1.l |= ((int64)ctx->pop().ui) << 0;
+          FieldData res;
+					res.d = d1.d + d2.d;
+					ctx->push((uint32)(res.l >> 0));
+					ctx->push((uint32)(res.l >> 32));
+				}
+				break;
+      case Java::op_dsub:
+				{
+					FieldData d1;
+					FieldData d2;
+					d2.l = ((int64)ctx->pop().ui) << 32;
+					d2.l |= ((int64)ctx->pop().ui) << 0;
+					d1.l = ((int64)ctx->pop().ui) << 32;
+					d1.l |= ((int64)ctx->pop().ui) << 0;
+          FieldData res;
+					res.d = d1.d - d2.d;
+					ctx->push((uint32)(res.l >> 0));
+					ctx->push((uint32)(res.l >> 32));
+				}
+				break;
+      case Java::op_dmul:
+				{
+					FieldData d1;
+					FieldData d2;
+					d2.l = ((int64)ctx->pop().ui) << 32;
+					d2.l |= ((int64)ctx->pop().ui) << 0;
+					d1.l = ((int64)ctx->pop().ui) << 32;
+					d1.l |= ((int64)ctx->pop().ui) << 0;
+          FieldData res;
+					res.d = d1.d * d2.d;
+					ctx->push((uint32)(res.l >> 0));
+					ctx->push((uint32)(res.l >> 32));
 				}
 				break;
 			case Java::op_i2l:
 				{
 					unsigned value = ctx->pop().ui;
-					ctx->push(0);
 					ctx->push(value);
+          ctx->push(0);
+					break;
+				}
+      case Java::op_l2i:
+				{
+					jlong value;
+          value = ((int64)ctx->pop().ui) << 32;
+					value |= ((int64)ctx->pop().ui) << 0;
+					ctx->push((unsigned int)value);
+					break;
+				}
+      case Java::op_i2d:
+				{
+					int value = ctx->pop().i;
+          FieldData res;
+          res.d = (double)value;
+					ctx->push((uint32)(res.l >> 0));
+					ctx->push((uint32)(res.l >> 32));
 					break;
 				}
 			case Java::op_monitorenter:
@@ -1130,6 +1313,9 @@ void NativeVMMethod::execute(VMContext* ctx){
 		case Long:
 			executeLongRet(ctx);
 			break;
+    case Double:
+      executeDoubleRet(ctx);
+      break;
 		case Reference:
 		case Array:
 		case Int:
@@ -1182,8 +1368,31 @@ void NativeVMMethod::executeLongRet(VMContext* ctx){
 	if (TRACE_IS_ENABLED(VM_METHODS))
 		--method_depth;
 	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+	ctx->push((uint32)(ret >> 0));
 	ctx->push((uint32)(ret >> 32));
-	ctx->push((uint32)ret);
+}
+
+void NativeVMMethod::executeDoubleRet(VMContext* ctx){
+	if (mFunction == NULL)
+		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
+	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		++method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
+	ctx->pushFrame(this, argsize);
+	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
+	bullshit fakeArray;
+	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
+	uint8* lst = packArguments(ctx, fakeArray);
+  FieldData ret;
+	ret.d = ((nativeDoubleMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
+	//delete [] lst;
+	ctx->popFrame();
+	if (TRACE_IS_ENABLED(VM_METHODS))
+		--method_depth;
+	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+	ctx->push((uint32)(ret.l >> 0));
+	ctx->push((uint32)(ret.l >> 32));
 }
 
 void NativeVMMethod::executeRefRet(VMContext* ctx){
@@ -1297,8 +1506,8 @@ uint8* NativeVMMethod::packArguments(VMContext* ctx, bullshit fakeArray){
 		else if (mSignature[i] == 'J' || mSignature[i] == 'D'){
 			if (count_args){
 				jlong l;
-				l = ((int64)ctx->get(curr_pos++).ui) << 32;
-				l |= (int64)ctx->get(curr_pos++).ui;
+				l = ((int64)ctx->get(curr_pos++).ui) << 0;
+				l |= ((int64)ctx->get(curr_pos++).ui) << 32;
 				memcpy(curr, &l, sizeof(l));
 				curr += sizeof(l);
 			}

@@ -215,6 +215,24 @@ VMIntArray* JVM::createIntArray(unsigned size){
 	return arr;
 }
 
+VMFloatArray* JVM::createFloatArray(unsigned size){
+  VMFloatArray* arr = new VMFloatArray(size);
+  mCreatedObjects.push_back(arr);
+  return arr;
+}
+
+VMDoubleArray* JVM::createDoubleArray(unsigned size){
+  VMDoubleArray* arr = new VMDoubleArray(size);
+  mCreatedObjects.push_back(arr);
+  return arr;
+}
+
+VMLongArray* JVM::createLongArray(unsigned size){
+  VMLongArray* arr = new VMLongArray(size);
+  mCreatedObjects.push_back(arr);
+  return arr;
+}
+
 VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
 	VMObject* obj = new VMObject(ctx, cls);
 	mCreatedObjects.push_back(obj);
