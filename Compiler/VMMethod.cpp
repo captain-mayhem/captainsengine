@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <float.h>
 
 #include "JavaDefs.h"
 #include "VMClass.h"
@@ -179,8 +180,8 @@ void BcVMMethod::print(std::ostream& strm){
 static int method_depth = 0;
 
 void BcVMMethod::execute(VMContext* ctx){
-	if (TRACE_IS_ENABLED(TRACE_JAVA))
-		print(std::cout);
+	//if (TRACE_IS_ENABLED(TRACE_JAVA))
+	//	print(std::cout);
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
 	if (TRACE_IS_ENABLED(VM_METHODS))
 		++method_depth;
@@ -561,6 +562,16 @@ void BcVMMethod::execute(VMContext* ctx){
 					}
 				}
 				break;
+      case Java::op_ifgt:
+				{
+					Java::u1 b1 = mCode->code[++k];
+					Java::u1 b2 = mCode->code[++k];
+					int16 branch = b1 << 8 | b2;
+					if (ctx->pop().i > 0){
+						k += branch-3;
+					}
+				}
+				break;
       case Java::op_ifge:
 				{
 					Java::u1 b1 = mCode->code[++k];
@@ -570,9 +581,6 @@ void BcVMMethod::execute(VMContext* ctx){
 						k += branch-3;
 					}
 				}
-				break;
-      case Java::op_ifgt:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
 				break;
       case Java::op_ifle:
 				{
@@ -758,6 +766,8 @@ void BcVMMethod::execute(VMContext* ctx){
 					VMClass* dummy;
 					VMMethod::ReturnType type;
 					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy, type);
+          if (idx == 0)
+            TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "field %i not existing", (int)operand);
 					FieldData* data = obj->getObjField(idx);
 					if (type == Long || type == Double){
 						ctx->push((uint32)(data->l >> 0));
@@ -827,7 +837,7 @@ void BcVMMethod::execute(VMContext* ctx){
         Java::u2 operand = b1 << 8 | b2;
 				VMClass* arrcls = mClass->getClass(ctx, operand);
 				int arrsize = ctx->pop().ui;
-				VMObjectArray* arr = getVM()->createObjectArray(arrsize);
+				VMObjectArray* arr = getVM()->createObjectArray(ctx, arrcls, arrsize);
 				ctx->push((VMObject*)arr);
 				break;
 				}
@@ -861,6 +871,10 @@ void BcVMMethod::execute(VMContext* ctx){
         Java::u2 operand = b1 << 8 | b2;
 				VMClass* cls = mClass->getClass(ctx, operand);
 				VMObject* instance = ctx->pop().obj;
+        if (instance == NULL){
+          ctx->push(0u);
+          break;
+        }
 				VMClass* instanceClass = instance->getClass();
 				bool found = false;
 				do {
@@ -943,6 +957,34 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->push(v1*v2);
 				}
 				break;
+      case Java::op_idiv:
+				{
+					int v2 = ctx->pop().i;
+					int v1 = ctx->pop().i;
+					ctx->push(v1/v2);
+				}
+				break;
+      case Java::op_irem:
+				{
+					int v2 = ctx->pop().i;
+					int v1 = ctx->pop().i;
+          //(value2 - ((value1 / value2) * value2))
+					ctx->push(v1%v2);
+				}
+				break;
+      case Java::op_ineg:
+        {
+          int v = ctx->pop().i;
+          ctx->push(v*-1);
+        }
+        break;
+      case Java::op_fmul:
+				{
+					float v2 = ctx->pop().f;
+					float v1 = ctx->pop().f;
+					ctx->push(v1*v2);
+				}
+				break;
       case Java::op_lload:
 				{
 					Java::u1 operand = mCode->code[++k];
@@ -983,6 +1025,14 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
         break;
       case Java::op_lstore:
+        {
+					unsigned idx = mCode->code[++k];
+					unsigned i = ctx->pop().ui;
+					unsigned i2 = ctx->pop().ui;
+					ctx->put(idx, i);
+					ctx->put(idx+1, i2);
+				}
+        break;
       case Java::op_fstore:
 				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
@@ -999,6 +1049,10 @@ void BcVMMethod::execute(VMContext* ctx){
 			case Java::op_dload_0:
 				ctx->push(ctx->get(1));
 				ctx->push(ctx->get(0));
+				break;
+      case Java::op_dload_2:
+				ctx->push(ctx->get(3));
+				ctx->push(ctx->get(2));
 				break;
 			case Java::op_lload_0:
 				ctx->push(ctx->get(1));
@@ -1026,19 +1080,19 @@ void BcVMMethod::execute(VMContext* ctx){
 					VMArrayBase* arr;
 					switch (type){
 						case Char:
-							arr = getVM()->createCharArray(size);
+							arr = getVM()->createCharArray(ctx, size);
 							break;
 						case Int:
-							arr = getVM()->createIntArray(size);
+							arr = getVM()->createIntArray(ctx, size);
 							break;
             case Float:
-              arr = getVM()->createFloatArray(size);
+              arr = getVM()->createFloatArray(ctx, size);
               break;
             case Double:
-              arr = getVM()->createDoubleArray(size);
+              arr = getVM()->createDoubleArray(ctx, size);
               break;
             case Long:
-              arr = getVM()->createLongArray(size);
+              arr = getVM()->createLongArray(ctx, size);
               break;
 						default:
 							TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s type unimplemented", Opcode::map_string[opcode].c_str());
@@ -1056,6 +1110,40 @@ void BcVMMethod::execute(VMContext* ctx){
 				if (l1 == l2)
 					ctx->push(0);
 				else if (l1 > l2)
+					ctx->push(1);
+				else
+					ctx->push(-1);
+				break;
+		  }
+      case Java::op_dcmpl:{
+				FieldData d1;
+				FieldData d2;
+				d2.l = ((int64)ctx->pop().ui) << 32;
+				d2.l |= ((int64)ctx->pop().ui) << 0;
+				d1.l = ((int64)ctx->pop().ui) << 32;
+				d1.l |= ((int64)ctx->pop().ui) << 0;
+        if (_isnan(d1.d) || _isnan(d2.d))
+          ctx->push(-1);
+				else if (d1.d == d2.d)
+					ctx->push(0);
+				else if (d1.d > d2.d)
+					ctx->push(1);
+				else
+					ctx->push(-1);
+				break;
+		  }
+      case Java::op_dcmpg:{
+				FieldData d1;
+				FieldData d2;
+				d2.l = ((int64)ctx->pop().ui) << 32;
+				d2.l |= ((int64)ctx->pop().ui) << 0;
+				d1.l = ((int64)ctx->pop().ui) << 32;
+				d1.l |= ((int64)ctx->pop().ui) << 0;
+        if (_isnan(d1.d) || _isnan(d2.d))
+          ctx->push(1);
+				else if (d1.d == d2.d)
+					ctx->push(0);
+				else if (d1.d > d2.d)
 					ctx->push(1);
 				else
 					ctx->push(-1);
@@ -1089,7 +1177,28 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					float val2 = ctx->pop().f;
 					float val1 = ctx->pop().f;
-					ctx->push(val1 > val2 ? 0 : -1);
+          if (_isnan(val1) || _isnan(val2))
+            ctx->push(1);
+				  else if (val1 == val2)
+					  ctx->push(0);
+				  else if (val1 > val2)
+					  ctx->push(1);
+				  else
+					  ctx->push(-1);
+				}
+				break;
+      case Java::op_fcmpl:
+				{
+					float val2 = ctx->pop().f;
+					float val1 = ctx->pop().f;
+          if (_isnan(val1) || _isnan(val2))
+            ctx->push(-1);
+				  else if (val1 == val2)
+					  ctx->push(0);
+				  else if (val1 > val2)
+					  ctx->push(1);
+				  else
+					  ctx->push(-1);
 				}
 				break;
 			case Java::op_iushr:
@@ -1104,6 +1213,13 @@ void BcVMMethod::execute(VMContext* ctx){
 					int value2 = ctx->pop().i;
 					int value1 = ctx->pop().i;
 					ctx->push(value1 >> value2);
+				}
+				break;
+      case Java::op_ishl:
+				{
+					int value2 = ctx->pop().i;
+					int value1 = ctx->pop().i;
+					ctx->push(value1 << value2);
 				}
 				break;
 			case Java::op_ixor:
@@ -1168,6 +1284,18 @@ void BcVMMethod::execute(VMContext* ctx){
       case Java::op_lshr:
 				{
 					int64 l1;
+					uint32 l2;
+					l2 = ctx->pop().ui;
+					l1 = ((int64)ctx->pop().ui) << 32;
+					l1 |= ((int64)ctx->pop().ui) << 0;
+					int64 res = l1 >> l2;
+					ctx->push((uint32)(res >> 0));
+					ctx->push((uint32)(res >> 32));
+				}
+				break;
+      case Java::op_lushr:
+				{
+					uint64 l1;
 					uint32 l2;
 					l2 = ctx->pop().ui;
 					l1 = ((int64)ctx->pop().ui) << 32;
@@ -1257,7 +1385,27 @@ void BcVMMethod::execute(VMContext* ctx){
 					jlong value;
           value = ((int64)ctx->pop().ui) << 32;
 					value |= ((int64)ctx->pop().ui) << 0;
-					ctx->push((unsigned int)value);
+					ctx->push((int)value);
+					break;
+				}
+      case Java::op_i2f:
+				{
+					int value = ctx->pop().i;
+					ctx->push((float)value);
+					break;
+				}
+      case Java::op_f2i:
+				{
+					float value = ctx->pop().f;
+					ctx->push((int)value);
+					break;
+				}
+      case Java::op_d2i:
+				{
+					FieldData value;
+          value.l = ((int64)ctx->pop().ui) << 32;
+					value.l |= ((int64)ctx->pop().ui) << 0;
+					ctx->push((int)value.d);
 					break;
 				}
       case Java::op_i2d:

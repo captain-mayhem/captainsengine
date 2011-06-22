@@ -191,44 +191,50 @@ nativeMethod JVM::findNativeMethod(const std::string& name){
 	return mthd;
 }
 
-VMObjectArray* JVM::createObjectArray(unsigned size){
-	VMObjectArray* arr = new VMObjectArray(size);
+VMObjectArray* JVM::createObjectArray(VMContext* ctx, VMClass* cls, unsigned size){
+	VMObjectArray* arr = new VMObjectArray(ctx, cls, size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }
 
-VMByteArray* JVM::createByteArray(unsigned size){
-	VMByteArray* arr = new VMByteArray(size);
+VMByteArray* JVM::createByteArray(VMContext* ctx, unsigned size){
+  VMClass* cls = findClass(ctx, "[B");
+	VMByteArray* arr = new VMByteArray(ctx, cls, size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }
 
-VMCharArray* JVM::createCharArray(unsigned size){
-	VMCharArray* arr = new VMCharArray(size);
+VMCharArray* JVM::createCharArray(VMContext* ctx, unsigned size){
+  VMClass* cls = findClass(ctx, "[C");
+	VMCharArray* arr = new VMCharArray(ctx, cls, size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }
 
-VMIntArray* JVM::createIntArray(unsigned size){
-	VMIntArray* arr = new VMIntArray(size);
+VMIntArray* JVM::createIntArray(VMContext* ctx, unsigned size){
+  VMClass* cls = findClass(ctx, "[I");
+	VMIntArray* arr = new VMIntArray(ctx, cls, size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }
 
-VMFloatArray* JVM::createFloatArray(unsigned size){
-  VMFloatArray* arr = new VMFloatArray(size);
+VMFloatArray* JVM::createFloatArray(VMContext* ctx, unsigned size){
+  VMClass* cls = findClass(ctx, "[F");
+  VMFloatArray* arr = new VMFloatArray(ctx, cls, size);
   mCreatedObjects.push_back(arr);
   return arr;
 }
 
-VMDoubleArray* JVM::createDoubleArray(unsigned size){
-  VMDoubleArray* arr = new VMDoubleArray(size);
+VMDoubleArray* JVM::createDoubleArray(VMContext* ctx, unsigned size){
+  VMClass* cls = findClass(ctx, "[D");
+  VMDoubleArray* arr = new VMDoubleArray(ctx, cls, size);
   mCreatedObjects.push_back(arr);
   return arr;
 }
 
-VMLongArray* JVM::createLongArray(unsigned size){
-  VMLongArray* arr = new VMLongArray(size);
+VMLongArray* JVM::createLongArray(VMContext* ctx, unsigned size){
+  VMClass* cls = findClass(ctx, "[L");
+  VMLongArray* arr = new VMLongArray(ctx, cls, size);
   mCreatedObjects.push_back(arr);
   return arr;
 }
@@ -258,7 +264,7 @@ VMObject* JVM::createString(VMContext* ctx, const char* str){
 	ctx->push(obj);
 	unsigned idx = cls->findMethodIndex("<init>", "([B)V");
 	VMMethod* mthd = cls->getMethod(idx);
-	VMByteArray* arr = getVM()->createByteArray(strlen(str));
+	VMByteArray* arr = getVM()->createByteArray(ctx, strlen(str));
 	ctx->push(arr);
 	arr->setData((const jbyte*)str);
 	mthd->execute(ctx);

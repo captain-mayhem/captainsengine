@@ -31,6 +31,7 @@ public:
 	void initFields(VMContext* ctx);
 	unsigned getNonStaticFieldOffset();
 	void copyMethodData(std::map<std::string,unsigned>& methodresolver, std::vector<VMMethod*>& methods);
+  void copyFieldData(std::map<std::string,unsigned>& fieldresolver);
 	Java::ClassFile& getClassDefinition() {return mClass;}
 	VMObject* getClassObject() {return this;}
 	std::string getName() {return mFilename;}
