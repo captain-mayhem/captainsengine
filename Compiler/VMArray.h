@@ -11,7 +11,7 @@ class VMArrayClass : public VMClass{
 
 class VMArrayBase : public VMObject{
 public:
-	VMArrayBase() {}
+  VMArrayBase(VMContext* ctx, VMClass* cls) : VMObject(ctx, cls) {}
 	virtual ~VMArrayBase() {}
 	virtual unsigned getLength()=0;
 };
@@ -19,7 +19,7 @@ public:
 template <typename T>
 class VMArray : public VMArrayBase{
 public:
-	VMArray(unsigned size){
+  VMArray(VMContext* ctx, VMClass* cls, unsigned size) : VMArrayBase(ctx, cls){
 		mData.resize(size);
 	}
 	virtual ~VMArray(){

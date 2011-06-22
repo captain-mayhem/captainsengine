@@ -13,6 +13,11 @@
 
 extern "C" {
 
+jobject JNIEXPORT Java_java_io_FileSystem_getFileSystem(JNIEnv* env, jobject object){
+  TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "getFileSystem not implemented");
+  return NULL;
+}
+
 void JNIEXPORT Java_java_lang_Class_registerNatives(JNIEnv* env, jobject object){
 	return;
 }
@@ -35,8 +40,7 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 	Java::ClassFile& cls = objcls->getClassDefinition();
 
 	VMClass* fieldcls = getVM()->findClass(CTX(env), "java/lang/reflect/Field");
-	VMObjectArray* arr = getVM()->createObjectArray(cls.fields_count);
-	arr->init(CTX(env), fieldcls);
+	VMObjectArray* arr = getVM()->createObjectArray(CTX(env), fieldcls, cls.fields_count);
 
 	for (unsigned i = 0; i < cls.fields_count; ++i){
 		Java::field_info* info = cls.fields[i];
@@ -67,6 +71,9 @@ jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls,
 	else if (strcmp(namestr, "double") == 0){
 		clazz = getVM()->getPrimitiveClass(CTX(env), "D");
 	}
+  else if (strcmp(namestr, "int") == 0){
+    clazz = getVM()->getPrimitiveClass(CTX(env), "I");
+  }
 	else{
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "getPrimitiveClass not implemented for this type");
 	}
@@ -103,6 +110,10 @@ jobject JNIEXPORT Java_java_lang_String_intern(JNIEnv* env, jobject object){
 	VMObject* ret = getVM()->internalizeString(str, (VMObject*)object);
 	env->ReleaseStringUTFChars((jstring)object, str);
 	return ret;
+}
+
+jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject object, jobject properties){
+  return properties;
 }
 
 void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
@@ -222,6 +233,9 @@ jlong JNIEXPORT Java_sun_misc_Unsafe_objectFieldOffset(JNIEnv* env, jobject obje
 	int fieldidx = cls->findFieldIndex(name);
 	env->ReleaseStringUTFChars(fieldname, name);
 	return fieldidx;
+}
+
+void JNIEXPORT Java_sun_misc_VM_initialize(JNIEnv* env, jobject object){
 }
 
 jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass(JNIEnv* env, jobject object, jint realFramesToSkip){

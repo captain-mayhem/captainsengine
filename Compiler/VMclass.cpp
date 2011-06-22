@@ -132,7 +132,7 @@ unsigned VMClass::findFieldIndex(const std::string& name){
 	std::map<std::string,unsigned>::iterator iter = mFieldResolver.find(name);
 	if (iter == mFieldResolver.end())
 		return 0;
-	return iter->second+1;
+	return iter->second;
 }
 
 FieldData* VMClass::getField(unsigned fieldid){
@@ -237,6 +237,7 @@ void VMClass::initFields(VMContext* ctx){
 	if (super){
 		nonstatic = super->getNonStaticFieldOffset();
 		super->copyMethodData(mMethodResolver, mMethods);
+    super->copyFieldData(mFieldResolver);
 		methods = mMethods.size();
 	}
 
@@ -245,11 +246,11 @@ void VMClass::initFields(VMContext* ctx){
 		Java::field_info* info = mClass.fields[i];
 		std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[info->name_index-1])->bytes;
 		if ((info->access_flags & ACC_STATIC) != 0){
-			mFieldResolver[fieldname] = mFields.size();
+			mFieldResolver[fieldname] = mFields.size()+1;
 			mFields.resize(mFields.size()+1);
 		}
 		else{
-			mFieldResolver[fieldname] = nonstatic++;
+			mFieldResolver[fieldname] = ++nonstatic;
 		}
 	}
 
@@ -349,7 +350,7 @@ FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 		//cls->print(std::cout);
 		VMObject* obj = getVM()->createObject(ctx, cls);
 		FieldData* val = obj->getObjField(cls->findFieldIndex("value"));
-		VMCharArray* strdata = getVM()->createCharArray(utf->length);
+		VMCharArray* strdata = getVM()->createCharArray(ctx, utf->length);
 		if (utf->length > 0){
 			unsigned short* data = new unsigned short[utf->length];
 			for (int i = 0; i < utf->length; ++i){
@@ -388,4 +389,10 @@ void VMClass::copyMethodData(std::map<std::string,unsigned>& methodresolver, std
 		methodresolver.insert(std::make_pair(id, val));
 		methods[val-1] = mthd;
 	}
+}
+
+void VMClass::copyFieldData(std::map<std::string,unsigned>& fieldresolver){
+  for (std::map<std::string,unsigned>::iterator iter = mFieldResolver.begin(); iter != mFieldResolver.end(); ++iter){
+    fieldresolver.insert(*iter);
+  }
 }

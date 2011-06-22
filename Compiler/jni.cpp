@@ -89,7 +89,8 @@ jint VMContext::RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod
 }
 
 jobjectArray VMContext::NewObjectArray(JNIEnv *env, jsize len, jclass clazz, jobject init){
-	return getVM()->createObjectArray(len);
+  VMClass* cls = (VMClass*)clazz;
+	return getVM()->createObjectArray(CTX(env), cls, len);
 }
 
 jstring VMContext::NewStringUTF(JNIEnv *env, const char *utf){
