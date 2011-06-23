@@ -258,15 +258,21 @@ void JVM::initBasicClasses(VMContext* ctx){
 	return;
 }
 
+#include <windows.h>
+
 VMObject* JVM::createString(VMContext* ctx, const char* str){
-	VMClass* cls = getVM()->findClass(ctx, "java/lang/String");
+	//convert to utf16
+  int size = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+  unsigned short* utf16 = new unsigned short[size];
+  MultiByteToWideChar(CP_UTF8, 0, str, -1, (LPWSTR)utf16, size);
+  VMClass* cls = getVM()->findClass(ctx, "java/lang/String");
 	VMObject* obj = getVM()->createObject(ctx, cls);
 	ctx->push(obj);
-	unsigned idx = cls->findMethodIndex("<init>", "([B)V");
+	unsigned idx = cls->findMethodIndex("<init>", "([C)V");
 	VMMethod* mthd = cls->getMethod(idx);
-	VMByteArray* arr = getVM()->createByteArray(ctx, strlen(str));
+  VMCharArray* arr = getVM()->createCharArray(ctx, size-1);
 	ctx->push(arr);
-	arr->setData((const jbyte*)str);
+	arr->setData(utf16);
 	mthd->execute(ctx);
 	return obj;
 }

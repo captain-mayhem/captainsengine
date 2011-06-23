@@ -14,8 +14,21 @@
 extern "C" {
 
 jobject JNIEXPORT Java_java_io_FileSystem_getFileSystem(JNIEnv* env, jobject object){
-  TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "getFileSystem not implemented");
-  return NULL;
+  jclass fs = env->FindClass("java/io/WinNTFileSystem");
+  jmethodID constr = env->GetMethodID(fs, "<init>", "()V");
+  jobject ret = env->NewObject(fs, constr);
+  return ret;
+}
+
+void JNIEXPORT Java_java_io_Win32FileSystem_initIDs(JNIEnv* env, jobject object){
+}
+
+jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jobject object, jobject file){
+  TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "getBooleanAttributes not implemented");
+  return 0;
+}
+
+void JNIEXPORT Java_java_io_WinNTFileSystem_initIDs(JNIEnv* env, jobject object){
 }
 
 void JNIEXPORT Java_java_lang_Class_registerNatives(JNIEnv* env, jobject object){
@@ -113,11 +126,19 @@ jobject JNIEXPORT Java_java_lang_String_intern(JNIEnv* env, jobject object){
 }
 
 jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject object, jobject properties){
+  jclass cls = env->GetObjectClass(properties);
+  jmethodID mthd = env->GetMethodID(cls, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;");
+  jstring key = env->NewStringUTF("file.separator");
+  jstring value = env->NewStringUTF("\\");
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("path.separator");
+  value = env->NewStringUTF("/");
+  env->CallObjectMethod(properties, mthd, key, value);
   return properties;
 }
 
 void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
-	JNINativeMethod methods[3];
+	/*JNINativeMethod methods[3];
 	methods[0].name = (char*)"currentTimeMillis";
 	methods[0].signature = (char*)"()J";
 	methods[0].fnPtr = (void*)Java_java_lang_System_currentTimeMillis;
@@ -127,7 +148,7 @@ void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
 	methods[2].name = (char*)"arraycopy";
 	methods[2].signature = (char*)"(Ljava/lang/Object;ILjava/lang/Object;II)V";
 	methods[2].fnPtr = (void*)Java_java_lang_System_arraycopy;
-	env->RegisterNatives(object, methods, 3);
+	env->RegisterNatives(object, methods, 3);*/
 }
 
 #ifdef WIN32
@@ -170,7 +191,9 @@ jlong JNIEXPORT Java_java_lang_System_nanoTime(JNIEnv* env, jobject object){
 }
 
 void JNIEXPORT Java_java_lang_System_arraycopy(JNIEnv* env, jobject object, jobject src, int srcPos, jobject dest, int destPos, int length){
-	TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "arraycopy not implemented");
+	VMArrayBase* arrSrc = (VMArrayBase*)src;
+  VMArrayBase* arrDest = (VMArrayBase*)dest;
+  arrSrc->copyTo(srcPos, arrDest, destPos, length);
 }
 
 void JNIEXPORT Java_java_lang_Thread_registerNatives(JNIEnv* env, jobject object){

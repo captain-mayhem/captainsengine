@@ -75,7 +75,7 @@ public:
 	void executeVoidRet(VMContext* ctx);
 	void executeLongRet(VMContext* ctx);
 	void executeRefRet(VMContext* ctx);
-	void executeBoolRet(VMContext* ctx);
+  void executeNative(VMContext* ctx, VMMethod::ReturnType ret);
   void executeDoubleRet(VMContext* ctx);
 protected:
 	uint8* packArguments(VMContext* ctx, bullshit fakeArray);

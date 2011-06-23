@@ -326,6 +326,7 @@ union FieldData{
 	float f;
 	VMObject* obj;
 	VMClass* cls;
+  unsigned char b;
 
 	double d;
 	int64 l;

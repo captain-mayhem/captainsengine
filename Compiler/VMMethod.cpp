@@ -421,6 +421,9 @@ void BcVMMethod::execute(VMContext* ctx){
         ctx->push((uint32)(constant.l >> 0));
 				ctx->push((uint32)(constant.l >> 32));
         break;
+      case Java::op_iconst_m1:
+				ctx->push(-1);
+				break;
 			case Java::op_iconst_0:
 				ctx->push(0u);
 				break;
@@ -1058,6 +1061,10 @@ void BcVMMethod::execute(VMContext* ctx){
 				ctx->push(ctx->get(1));
 				ctx->push(ctx->get(0));
 				break;
+      case Java::op_lload_1:
+				ctx->push(ctx->get(2));
+				ctx->push(ctx->get(1));
+				break;
 			case Java::op_lload_2:
 				ctx->push(ctx->get(3));
 				ctx->push(ctx->get(2));
@@ -1455,9 +1462,6 @@ void NativeVMMethod::print(std::ostream& strm){
 
 void NativeVMMethod::execute(VMContext* ctx){
 	switch (mReturnType){
-		case Void:
-			executeVoidRet(ctx);
-			break;
 		case Long:
 			executeLongRet(ctx);
 			break;
@@ -1470,7 +1474,8 @@ void NativeVMMethod::execute(VMContext* ctx){
 			executeRefRet(ctx);
 			break;
 		case Boolean:
-			executeBoolRet(ctx);
+    case Void:
+			executeNative(ctx, mReturnType);
 			break;
 		default:
 			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unhandled return type called");
@@ -1564,7 +1569,7 @@ void NativeVMMethod::executeRefRet(VMContext* ctx){
 	ctx->push((VMObject*)ret);
 }
 
-void NativeVMMethod::executeBoolRet(VMContext* ctx){
+void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
 	if (mFunction == NULL)
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
@@ -1585,17 +1590,31 @@ void NativeVMMethod::executeBoolRet(VMContext* ctx){
   //  ctx->pop();
   //}
   nativeMethod mthd = mFunction;
-  jboolean retval;
   int popargs = (mArgSize+2)*sizeof(void*);
   tmp = ctx->getJNIEnv();
-  __asm{
-    mov eax, cls;
-    push eax;
-    mov ebx, tmp;
-    push ebx;
-    call mthd;
-    add esp, popargs;
-    mov retval, al;
+  FieldData retval;
+  if (ret == VMMethod::Boolean){
+    jboolean bret;
+    __asm{
+      mov eax, cls;
+      push eax;
+      mov ebx, tmp;
+      push ebx;
+      call mthd;
+      add esp, popargs;
+      mov bret, al;
+    }
+    retval.b = bret;
+  }
+  else if (ret == VMMethod::Void){
+    __asm{
+      mov eax, cls;
+      push eax;
+      mov ebx, tmp;
+      push ebx;
+      call mthd;
+      add esp, popargs;
+    }
   }
   /*
 	bullshit fakeArray;
@@ -1607,7 +1626,8 @@ void NativeVMMethod::executeBoolRet(VMContext* ctx){
 	if (TRACE_IS_ENABLED(VM_METHODS))
 		--method_depth;
 	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
-	ctx->push(retval);
+  if (ret == VMMethod::Boolean)
+	  ctx->push(retval.b);
 }
 
 uint8* NativeVMMethod::packArguments(VMContext* ctx, bullshit fakeArray){

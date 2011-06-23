@@ -14,6 +14,8 @@ public:
   VMArrayBase(VMContext* ctx, VMClass* cls) : VMObject(ctx, cls) {}
 	virtual ~VMArrayBase() {}
 	virtual unsigned getLength()=0;
+  virtual void* getData(int offset)=0;
+  virtual void copyTo(int srcOffset, VMArrayBase* dest, int destOffset, int length)=0;
 };
 
 template <typename T>
@@ -30,6 +32,14 @@ public:
 	virtual unsigned getLength(){
 		return mData.size();
 	}
+  virtual void* getData(int offset){
+    return &mData[offset];
+  }
+  virtual void copyTo(int srcOffset, VMArrayBase* dest, int destOffset, int length){
+    void* src = getData(srcOffset);
+    void* dst = dest->getData(destOffset);
+    memcpy(dst, src, length*sizeof(T));
+  }
 	void put(const T data, unsigned idx){
 		mData[idx] = data;
 	}
