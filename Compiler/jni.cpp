@@ -114,6 +114,15 @@ void VMContext::ReleaseStringUTFChars(JNIEnv *env, jstring str, const char* char
 	delete [] chars;
 }
 
+jobject VMContext::NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args){
+  VMClass* cls = (VMClass*)clazz;
+  VMObject* obj = getVM()->createObject(CTX(env), cls);
+  CTX(env)->push(obj);
+  VMMethod* mthd = cls->getMethod((unsigned)methodID);
+  mthd->execute(CTX(env));
+  return obj;
+}
+
 JNIEnv_::JNIEnv_(JavaVM_* vm){
   VMContext* ctx = new VMContext(this, (JVM*)vm->m_func);
 	m_func = ctx;
