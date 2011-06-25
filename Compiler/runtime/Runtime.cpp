@@ -1,6 +1,8 @@
 
 #include "Runtime.h"
 
+#include <direct.h>
+
 #include <VMContext.h>
 #include <VMMethod.h>
 #include <VMClass.h>
@@ -24,8 +26,23 @@ void JNIEXPORT Java_java_io_Win32FileSystem_initIDs(JNIEnv* env, jobject object)
 }
 
 jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jobject object, jobject file){
-  TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "getBooleanAttributes not implemented");
-  return 0;
+  jclass filecls = env->GetObjectClass(file);
+  jmethodID getAbsPath = env->GetMethodID(filecls, "getAbsolutePath", "()Ljava/lang/String;");
+  jstring path = env->CallObjectMethod(file, getAbsPath);
+  const char* str = env->GetStringUTFChars(path, NULL);
+  DWORD attribs = GetFileAttributes(str);
+  env->ReleaseStringUTFChars(path, str);
+  int jattribs = 0;
+  if (attribs == INVALID_FILE_ATTRIBUTES)
+    return jattribs;
+  jattribs |= 0x01; //exists
+  if (attribs & FILE_ATTRIBUTE_DIRECTORY)
+    jattribs |= 0x04; //directory
+  else
+    jattribs |= 0x02; //regular
+  if (attribs & FILE_ATTRIBUTE_HIDDEN)
+    jattribs |= 0x08; //hidden
+  return jattribs;
 }
 
 void JNIEXPORT Java_java_io_WinNTFileSystem_initIDs(JNIEnv* env, jobject object){
@@ -87,6 +104,9 @@ jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls,
   else if (strcmp(namestr, "int") == 0){
     clazz = getVM()->getPrimitiveClass(CTX(env), "I");
   }
+  else if (strcmp(namestr, "boolean") == 0){
+    clazz = getVM()->getPrimitiveClass(CTX(env), "Z");
+  }
 	else{
 		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "getPrimitiveClass not implemented for this type");
 	}
@@ -132,9 +152,28 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   jstring value = env->NewStringUTF("\\");
   env->CallObjectMethod(properties, mthd, key, value);
   key = env->NewStringUTF("path.separator");
-  value = env->NewStringUTF("/");
+  value = env->NewStringUTF(";");
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("user.dir");
+  char userpath[1024];
+  _getcwd(userpath, 1024);
+  value = env->NewStringUTF(userpath);
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("java.library.path");
+  value = env->NewStringUTF("D:\\Projects\\build_windows\\Compiler\\Debug");
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("sun.boot.library.path");
+  value = env->NewStringUTF("D:\\Projects\\build_windows\\Compiler\\Debug");
   env->CallObjectMethod(properties, mthd, key, value);
   return properties;
+}
+
+jstring JNIEXPORT Java_java_lang_System_mapLibraryName(JNIEnv* env, jobject object, jstring library){
+  const char* str = env->GetStringUTFChars(library, NULL);
+  std::string name = std::string(str)+".dll";
+  jstring ret = env->NewStringUTF(name.c_str());
+	env->ReleaseStringUTFChars(library, str);
+  return ret;
 }
 
 void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){

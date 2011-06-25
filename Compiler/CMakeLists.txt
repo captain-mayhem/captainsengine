@@ -57,4 +57,8 @@ ADD_LIBRARY(javaruntime SHARED
 	VMObject.cpp
 )
 
+ADD_LIBRARY(zip SHARED
+	zip/zip.cpp
+)
+
 TARGET_LINK_LIBRARIES( javaruntime Engine)
