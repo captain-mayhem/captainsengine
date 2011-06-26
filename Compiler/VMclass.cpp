@@ -139,6 +139,10 @@ FieldData* VMClass::getField(unsigned fieldid){
 	return &mFields[fieldid-1];
 }
 
+FieldData* VMClass::getStaticField(unsigned fieldid){
+	return &mFields[fieldid-mSuperFields-1];
+}
+
 unsigned VMClass::getMethodIndex(VMContext* ctx, Java::u2 method_ref, VMClass*& classRet){
 	Java::CONSTANT_Methodref_info* methodref = static_cast<Java::CONSTANT_Methodref_info*>(mClass.constant_pool[method_ref-1]);
 	classRet = getClass(ctx, methodref->class_index);
@@ -164,6 +168,12 @@ FieldData* VMClass::getField(VMContext* ctx, Java::u2 field_ref, VMMethod::Retur
 	return cls->getField(idx);//&mFields[getFieldIndex(ctx, field_ref)-1];
 }
 
+FieldData* VMClass::getStaticField(VMContext* ctx, Java::u2 field_ref, VMMethod::ReturnType& type){
+	VMClass* cls;
+	unsigned idx = getStaticFieldIndex(ctx, field_ref, cls, type);
+	return cls->getStaticField(idx);//&mFields[getFieldIndex(ctx, field_ref)-1];
+}
+
 unsigned VMClass::getFieldIndex(VMContext* ctx,Java::u2 field_ref, VMClass*& classRet, VMMethod::ReturnType& type){
 	Java::CONSTANT_Fieldref_info* fieldref = static_cast<Java::CONSTANT_Fieldref_info*>(mClass.constant_pool[field_ref-1]);
 	classRet = getClass(ctx, fieldref->class_index);
@@ -175,6 +185,23 @@ unsigned VMClass::getFieldIndex(VMContext* ctx,Java::u2 field_ref, VMClass*& cla
 	std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
 	unsigned idx = classRet->findFieldIndex(fieldname);
 	//if (idx != 0)
+	mRCP[field_ref].ui = idx;
+	return idx;
+}
+
+unsigned VMClass::getStaticFieldIndex(VMContext* ctx,Java::u2 field_ref, VMClass*& classRet, VMMethod::ReturnType& type){
+	Java::CONSTANT_Fieldref_info* fieldref = static_cast<Java::CONSTANT_Fieldref_info*>(mClass.constant_pool[field_ref-1]);
+	classRet = getClass(ctx, fieldref->class_index);
+  Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[fieldref->name_and_type_index-1]);
+	std::string typestring = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
+	type = VMMethod::parseType(typestring[0]);
+  if (mRCP[field_ref].ui != 0){
+    classRet = classRet->mStaticFieldResolver[mRCP[field_ref].ui];
+	  return mRCP[field_ref].ui;
+  }
+	std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
+	unsigned idx = classRet->findFieldIndex(fieldname);
+  classRet = classRet->mStaticFieldResolver[idx];//getClass(ctx, fieldref->class_index);
 	mRCP[field_ref].ui = idx;
 	return idx;
 }
@@ -232,22 +259,26 @@ VMClass* VMClass::getClass(VMContext* ctx, Java::u2 class_ref){
 void VMClass::initFields(VMContext* ctx){
 	VMClass* super = getSuperclass(ctx);
 	unsigned nonstatic = 0;
+  unsigned statfields = 0;
 	unsigned methods = 0;
 	//superclass info
 	if (super){
 		nonstatic = super->getNonStaticFieldOffset();
+    statfields = super->getStaticFieldOffset();
 		super->copyMethodData(mMethodResolver, mMethods);
-    super->copyFieldData(mFieldResolver);
+    super->copyFieldData(mFieldResolver, mStaticFieldResolver);
 		methods = mMethods.size();
 	}
+  mSuperFields = statfields;
 
 	//fields
 	for (unsigned i = 0; i < mClass.fields_count; ++i){
 		Java::field_info* info = mClass.fields[i];
 		std::string fieldname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[info->name_index-1])->bytes;
 		if ((info->access_flags & ACC_STATIC) != 0){
-			mFieldResolver[fieldname] = mFields.size()+1;
-			mFields.resize(mFields.size()+1);
+			mFieldResolver[fieldname] = ++statfields;
+			mFields.resize(statfields-mSuperFields);
+      mStaticFieldResolver[statfields] = this;
 		}
 		else{
 			mFieldResolver[fieldname] = ++nonstatic;
@@ -309,6 +340,10 @@ void VMClass::initFields(VMContext* ctx){
 
 unsigned VMClass::getNonStaticFieldOffset(){
 	return mClass.fields_count-mFields.size();
+}
+
+unsigned VMClass::getStaticFieldOffset(){
+  return mFields.size();
 }
 
 FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
@@ -391,8 +426,11 @@ void VMClass::copyMethodData(std::map<std::string,unsigned>& methodresolver, std
 	}
 }
 
-void VMClass::copyFieldData(std::map<std::string,unsigned>& fieldresolver){
+void VMClass::copyFieldData(std::map<std::string,unsigned>& fieldresolver, std::map<unsigned,VMClass*>& staticfieldresolver){
   for (std::map<std::string,unsigned>::iterator iter = mFieldResolver.begin(); iter != mFieldResolver.end(); ++iter){
     fieldresolver.insert(*iter);
+  }
+  for (std::map<unsigned,VMClass*>::iterator iter = mStaticFieldResolver.begin(); iter != mStaticFieldResolver.end(); ++iter){
+    staticfieldresolver.insert(*iter);
   }
 }

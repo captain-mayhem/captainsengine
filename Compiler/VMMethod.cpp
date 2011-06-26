@@ -733,7 +733,7 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
 					VMMethod::ReturnType type;
-					FieldData* obj = mClass->getField(ctx, operand, type);
+					FieldData* obj = mClass->getStaticField(ctx, operand, type);
 					if (type == Long || type == Double){
 						ctx->push((uint32)(obj->l >> 0));
 						ctx->push((uint32)(obj->l >> 32));
@@ -748,7 +748,7 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
 					VMMethod::ReturnType type;
-					FieldData* obj = mClass->getField(ctx, operand, type);
+					FieldData* obj = mClass->getStaticField(ctx, operand, type);
 					FieldData value;
 					if (type == Long || type == Double){
 						value.l = ((int64)ctx->pop().ui) << 32;
