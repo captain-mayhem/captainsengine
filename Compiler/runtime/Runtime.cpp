@@ -25,6 +25,14 @@ jobject JNIEXPORT Java_java_io_FileSystem_getFileSystem(JNIEnv* env, jobject obj
 void JNIEXPORT Java_java_io_Win32FileSystem_initIDs(JNIEnv* env, jobject object){
 }
 
+jstring JNIEXPORT Java_java_io_WinNTFileSystem_canonicalize0(JNIEnv* env, jobject object, jstring filename){
+  const char* str = env->GetStringUTFChars(filename, NULL);
+  std::string name = std::string(str);
+  jstring ret = env->NewStringUTF(name.c_str());
+	env->ReleaseStringUTFChars(filename, str);
+  return ret;
+}
+
 jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jobject object, jobject file){
   jclass filecls = env->GetObjectClass(file);
   jmethodID getAbsPath = env->GetMethodID(filecls, "getAbsolutePath", "()Ljava/lang/String;");
