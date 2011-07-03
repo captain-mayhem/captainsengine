@@ -2,6 +2,8 @@
 
 #include <fstream>
 #include <time.h>
+#define _USE_MATH_DEFINES
+#include <math.h>
 
 #include "Engine.h"
 #include "Script.h"
@@ -9,6 +11,7 @@
 #include "Inventory.h"
 #include "Sound.h"
 #include "Screenchange.h"
+#include "Particles.h"
 
 void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("loadroom", loadRoom);
@@ -1052,8 +1055,16 @@ int ScriptFunctions::setParticles(ExecutionContext& ctx, unsigned numArgs){
   int direction = ctx.stack().pop().getInt();
   int rotation = ctx.stack().pop().getInt();
   int variation = ctx.stack().pop().getInt();
-  Object2D* particle = Engine::instance()->getObject(object, false);
-  DebugBreak();
+  Engine::instance()->getParticleEngine()->setParticleObject(object);
+  float angle = (float)((90.0f-direction)/180.0f*M_PI);
+  Vec2f dir;
+  dir.x = speed*cosf(angle);
+  dir.y = speed*sinf(angle);
+  Engine::instance()->getParticleEngine()->setDirection(dir);
+  Engine::instance()->getParticleEngine()->setMaxParticles(amount);
+  angle = (float)(rotation/180.0f*M_PI);
+  Engine::instance()->getParticleEngine()->setRotation(angle);
+  Engine::instance()->getParticleEngine()->setSpeedVariation(variation/100.0f);
   return 0;
 }
 
@@ -1063,7 +1074,7 @@ int ScriptFunctions::startParticles(ExecutionContext& ctx, unsigned numArgs){
     std::string arg = ctx.stack().pop().getString();
     fast = arg == "fast";
   }
-  DebugBreak();
+  Engine::instance()->getParticleEngine()->activate(true, fast);
   return 0;
 }
 
@@ -1073,7 +1084,7 @@ int ScriptFunctions::stopParticles(ExecutionContext& ctx, unsigned numArgs){
     std::string arg = ctx.stack().pop().getString();
     fast = arg == "fast";
   }
-  DebugBreak();
+  Engine::instance()->getParticleEngine()->activate(false, fast);
   return 0;
 }
 

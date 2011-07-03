@@ -68,7 +68,7 @@ void Engine::setData(AdvDocument* doc){
   mInterpreter = new PcdkScript(mData);
   mFonts = new FontRenderer(mData);
   mSaver = new SaveStateProvider(mData);
-  mParticleEngine = new ParticleEngine();
+  mParticleEngine = new ParticleEngine(mData);
 }
 
 void Engine::initGame(exit_callback exit_cb){
@@ -312,6 +312,7 @@ void Engine::render(unsigned time){
   }
   if (mFocussedChar && mFocussedChar->getAnimation())
     mFocussedChar->getAnimation()->update(interval);
+  mParticleEngine->update(interval);
 
   //build blit queue
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
