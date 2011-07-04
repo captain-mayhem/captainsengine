@@ -135,6 +135,7 @@ public:
   Object2D* getObject(const std::string& name);
   void update(unsigned interval);
   virtual void setLightingColor(const Color& col) {mLighting->setColor(col);}
+  virtual Color getLightingColor() {return mLighting->getColor();}
   void addWalkmapScript(const Vec2i& wmpos, ExecutionContext* script) {mWalkmapScripts[wmpos] = script; script->setOwner(this);}
   void walkTo(const Vec2i& pos);
   virtual void save();

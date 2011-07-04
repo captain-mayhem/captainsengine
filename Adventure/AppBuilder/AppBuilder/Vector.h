@@ -67,6 +67,12 @@ struct Vec2i{
 struct Vec2f{
   Vec2f() : x(0), y(0) {}
   Vec2f(float x, float y) {this->x = x; this->y = y;}
+  Vec2f operator*(float num) const{
+    Vec2f result;
+    result.x = x*num;
+    result.y = y*num;
+    return result;
+  }
   float x;
   float y;
 };

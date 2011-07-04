@@ -252,10 +252,11 @@ int ScriptFunctions::setLight(ExecutionContext& ctx, unsigned numArgs){
     fade = ctx.stack().pop().getString() == "fade";
   RoomObject* roomobj = Engine::instance()->getRoom(room);
   if (roomobj){
-    roomobj->setLightingColor(c);
     if (fade && !ctx.mSkip){
-      DebugBreak();
+      Engine::instance()->getAnimator()->add(roomobj, c);
     }
+    else
+      roomobj->setLightingColor(c);
   }
   else{
     SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(room);

@@ -31,5 +31,8 @@ void ParticleEngine::activate(bool doit, bool immediately){
 void ParticleEngine::update(unsigned time){
   if (!mEnabled)
     return;
+  mParticleObject->getAnimation()->update(time);
+  Vec2i newpos = Vec2i((int)(mDir.x*time*0.05f), (int)(mDir.y*time*0.05f));
+  mParticleObject->setPosition(mParticleObject->getPosition()+newpos);
   mParticleObject->render();
 }

@@ -130,10 +130,10 @@ public:
     col.g = (unsigned char)(t*mSrc.g + (1-t)*mTarget.g);
     col.b = (unsigned char)(t*mSrc.b + (1-t)*mTarget.b);
     col.a = (unsigned char)(t*mSrc.a + (1-t)*mTarget.a);
+    mObject->setLightingColor(col);
     if (mCurrentTime >= mDuration)
       return false;
     mCurrentTime += interval;
-    mObject->setLightingColor(col);
     return true;
   }
 private:
