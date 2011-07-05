@@ -36,6 +36,15 @@ void BlitGroup::setDepth(int depth){
   }
 }
 
+BlitGroup* BlitGroup::clone(){
+  BlitGroup* bltgrp = new BlitGroup();
+  for (unsigned i = 0; i < mBlits.size(); ++i){
+    BlitObject* bltobj = mBlits[i]->clone();
+    bltgrp->mBlits.push_back(bltobj);
+  }
+  return bltgrp;
+}
+
 Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0), mTimeAccu(0), mHandler(NULL){
 
 }
@@ -91,6 +100,15 @@ void Animation::update(unsigned interval){
       mCurrFrame = 0;
     }
   }
+}
+
+Animation* Animation::clone(){
+  Animation* anim = new Animation(1000.0f/mInterval);
+  for (unsigned i = 0; i < mBlits.size(); ++i){
+    BlitGroup* bltgrp = mBlits[i]->clone();
+    anim->mBlits.push_back(bltgrp);
+  }
+  return anim;
 }
 
 Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name)
@@ -168,6 +186,15 @@ void Object2D::activateNextState(){
     return;
   mState = mNextStates.front();
   mNextStates.pop_front();
+}
+
+Object2D* Object2D::clone(){
+  Object2D* ret = new Object2D(mState, mPos, mSize, mName);
+  for (unsigned i = 0; i < mAnimations.size(); ++i){
+    Animation* anim = mAnimations[i]->clone();
+    ret->addAnimation(anim);
+  }
+  return ret;
 }
 
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "#button"),

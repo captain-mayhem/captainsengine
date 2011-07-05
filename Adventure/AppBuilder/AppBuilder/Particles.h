@@ -2,6 +2,7 @@
 #define ADV_PARTICLES_H
 
 #include <string>
+#include <list>
 
 #include "Vector.h"
 
@@ -9,6 +10,10 @@ class Object2D;
 class AdvDocument;
 
 class ParticleEngine{
+  struct Particle{
+    Object2D* object;
+    Vec2f position;
+  };
 public:
   ParticleEngine(AdvDocument* data);
   ~ParticleEngine();
@@ -20,13 +25,17 @@ public:
   void setSpeedVariation(float variation) {mSpeedVariation = variation;}
   void activate(bool doit, bool immediately);
 protected:
+  void addParticle();
   AdvDocument* mData;
   Object2D* mParticleObject;
   Vec2f mDir;
-  int mMaxParticles;
+  unsigned mMaxParticles;
   float mRotAngle;
   float mSpeedVariation;
   bool mEnabled;
+  std::list<Particle> mParticles;
+  unsigned mEmissionInterval;
+  unsigned mTimeCount;
 };
 
 #endif

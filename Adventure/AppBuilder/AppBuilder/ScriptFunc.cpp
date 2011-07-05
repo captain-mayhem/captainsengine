@@ -1056,7 +1056,6 @@ int ScriptFunctions::setParticles(ExecutionContext& ctx, unsigned numArgs){
   int direction = ctx.stack().pop().getInt();
   int rotation = ctx.stack().pop().getInt();
   int variation = ctx.stack().pop().getInt();
-  Engine::instance()->getParticleEngine()->setParticleObject(object);
   float angle = (float)((90.0f-direction)/180.0f*M_PI);
   Vec2f dir;
   dir.x = speed*cosf(angle);
@@ -1066,6 +1065,7 @@ int ScriptFunctions::setParticles(ExecutionContext& ctx, unsigned numArgs){
   angle = (float)(rotation/180.0f*M_PI);
   Engine::instance()->getParticleEngine()->setRotation(angle);
   Engine::instance()->getParticleEngine()->setSpeedVariation(variation/100.0f);
+  Engine::instance()->getParticleEngine()->setParticleObject(object);
   return 0;
 }
 

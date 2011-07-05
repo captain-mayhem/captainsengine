@@ -59,6 +59,7 @@ public:
   BlitObject(std::string texture, int depth, Vec2i offset);
   BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
   virtual ~BlitObject();
+  BlitObject* clone();
   bool operator<(const BlitObject& obj);
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize);
   virtual void blit();

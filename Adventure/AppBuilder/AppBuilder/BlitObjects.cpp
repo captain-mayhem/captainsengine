@@ -90,6 +90,11 @@ void BlitObject::blit(){
   GL()popMatrix();
 }
 
+BlitObject* BlitObject::clone(){
+  BlitObject* obj = new BlitObject(mTex, mSize, mScale, mDepth, mOffset);
+  return obj;
+}
+
 LightingBlitObject::LightingBlitObject(int depth, const Vec2i& size) : BaseBlitObject(depth, size){
 }
 

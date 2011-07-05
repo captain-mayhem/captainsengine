@@ -10,9 +10,11 @@ public:
   BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth);
   BlitGroup(const std::string& texture, const Vec2i& offset, int depth);
   ~BlitGroup();
+  BlitGroup* clone();
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color);
   void setDepth(int depth);
 protected:
+  BlitGroup() {}
   std::vector<BlitObject*> mBlits;
 };
 
@@ -22,6 +24,7 @@ public:
   Animation(ExtendedFrames& frames, float fps, int depth);
   Animation(Frames& frames, float fps, Vec2i offset, int depth);
   ~Animation();
+  Animation* clone();
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color);
   void setDepth(int depth);
   void start();
@@ -46,6 +49,7 @@ public:
   };
   Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name);
   virtual ~Object2D();
+  virtual Object2D* clone();
   virtual void render();
   virtual Type getType() {return OBJECT;}
   virtual void setPosition(const Vec2i& pos) {mPos = pos;}
