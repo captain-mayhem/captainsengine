@@ -30,7 +30,8 @@ void ParticleEngine::setParticleObject(const std::string& name){
     Animation* anim = new Animation(obj->states[j].frames, obj->states[j].fps, DEPTH_PARTICLES);
     mParticleObject->addAnimation(anim);
   }
-  mEmissionInterval = max(mParticleObject->getSize().x, mParticleObject->getSize().y);
+  mEmissionInterval = 20;//max(mParticleObject->getSize().x, mParticleObject->getSize().y);
+  mEmissionInterval = (unsigned)(20*mEmissionInterval/mDir.length());
   return;
 }
 
@@ -41,8 +42,6 @@ void ParticleEngine::activate(bool doit, bool immediately){
 }
 
 void ParticleEngine::update(unsigned time){
-  if (!mEnabled)
-    return;
   mTimeCount += time;
   while (mTimeCount > mEmissionInterval){
     addParticle();
@@ -50,8 +49,9 @@ void ParticleEngine::update(unsigned time){
   }
   for (std::list<Particle>::iterator iter = mParticles.begin(); iter != mParticles.end(); ++iter){
     iter->object->getAnimation()->update(time);
-    iter->position += mDir*(float)time*0.025f;
+    iter->position += iter->speed*(float)time*0.025f;
     iter->object->setPosition(Vec2i((int)iter->position.x, (int)iter->position.y));
+    iter->object->setRotation(iter->object->getRotation()+mRotAngle*time*0.025f);
     //out of image
     if (iter->object->getPosition().x < -iter->object->getSize().x || 
       iter->object->getPosition().x > Engine::instance()->getSettings()->resolution.x ||
@@ -69,7 +69,7 @@ void ParticleEngine::update(unsigned time){
 }
 
 void ParticleEngine::addParticle(){
-  if (mParticles.size() > mMaxParticles)
+  if (!mEnabled || mParticles.size() > mMaxParticles)
     return;
   //calculate start position
   int range = Engine::instance()->getSettings()->resolution.x+Engine::instance()->getSettings()->resolution.y;
@@ -89,6 +89,15 @@ void ParticleEngine::addParticle(){
     p.position.x = (float)(random - mParticleObject->getSize().x/2);
     p.position.y = mDir.y < 0 ? (float)Engine::instance()->getSettings()->resolution.y : (float)(-mParticleObject->getSize().y);
   }
+  //set object
   p.object = mParticleObject->clone();
+  int numStates = p.object->getNumDefinedStates();
+  int state = rand()%numStates;
+  p.object->setState(state+1);
+  //calculate particle speed
+  float speedvar = rand()/(float)RAND_MAX;
+  speedvar *= 2.0f*mSpeedVariation;
+  speedvar += 1.0f-mSpeedVariation;
+  p.speed = mDir*speedvar;
   mParticles.push_back(p);
 }

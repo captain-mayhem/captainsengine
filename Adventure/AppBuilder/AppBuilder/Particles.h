@@ -13,6 +13,7 @@ class ParticleEngine{
   struct Particle{
     Object2D* object;
     Vec2f position;
+    Vec2f speed;
   };
 public:
   ParticleEngine(AdvDocument* data);

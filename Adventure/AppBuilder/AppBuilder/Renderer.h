@@ -71,6 +71,9 @@ public:
   void scalef(float x, float y, float z){
     glScalef(x, y, z);
   }
+  void rotatef(float angle, float x, float y, float z){
+    glRotatf(angle, x, y, z);
+  }
   void ortho(float left, float right, float bottom, float top, float neaar, float faar){
     glOrtho(left, right, bottom, top, neaar, faar);
   }
@@ -151,6 +154,9 @@ public:
   }
   void scalef(float x, float y, float z){
     mMatrix[mMatrixMode] *= CGE::Matrix(CGE::Matrix::Scale, CGE::Vec3f(x,y,z));
+  }
+  void rotatef(float angle, float x, float y, float z){
+    mMatrix[mMatrixMode] *= CGE::Matrix(CGE::Matrix::Rotation, CGE::Vec3f(x,y,z), angle);
   }
   void ortho(float left, float right, float bottom, float top, float neaar, float faar){
     mMatrix[mMatrixMode] *= CGE::Matrix(CGE::Matrix::Ortho, left, right, bottom, top, neaar, faar);

@@ -13,7 +13,8 @@ BaseBlitObject::~BaseBlitObject(){
 
 }
 
-BlitObject::BlitObject(int width, int height, int depth) : BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(){
+BlitObject::BlitObject(int width, int height, int depth) : 
+BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAngle(0.0f){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
   mScale.y = ((float)mSize.y)/pow2.y;
@@ -27,7 +28,7 @@ BlitObject::BlitObject(int width, int height, int depth) : BaseBlitObject(depth,
 }
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
-BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(){
+BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(), mRotAngle(0.0f){
   CGE::Image* image = Engine::instance()->getImage(texture);
   mTex = Engine::instance()->genTexture(image, mSize, mScale);
   delete image;
@@ -36,7 +37,7 @@ BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(){
 }
 
 BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
-BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mMirrorOffset()
+BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mMirrorOffset(), mRotAngle(0)
 {
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = false;
@@ -67,18 +68,16 @@ void BlitObject::blit(){
   }
 
   GL()translatef((GLfloat)mPos.x,(GLfloat)mPos.y,0.0f);
-  //Vec2f zoomscaleoffset;
-  //zoomscaleoffset.x = (mMirrorOffset.x-mMirrorOffset.x*abs(mZoomScale.x));//(1-abs(mZoomScale.x))*(mSize.x-mSize.x*abs(mZoomScale.x));
-  //zoomscaleoffset.y = mMirrorOffset.y-mMirrorOffset.y*mZoomScale.y;
-  //glTranslatef(zoomscaleoffset.x, zoomscaleoffset.y, 0.0f);
+  
   GL()translatef((float)-mOffset.x, (float)-mOffset.y, 0.0f);
-  //if (mZoomScale.x < 0)
-  //  glScalef(-1.0f, 1.0f*mZoomScale.y, 1.0f);
-  //else
-  //  glScalef(1.0f, 1.0f*mZoomScale.y, 1.0f);
   GL()scalef(mZoomScale.x, mZoomScale.y, 1.0f);
   GL()translatef((float)mOffset.x, (float)mOffset.y, 0.0f);
+  
   GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
+  //TODO wrong for compound objects, maybe rotation of mOffset?
+  GL()translatef(0.5f, 0.5f, 0.0f);
+  GL()rotatef(mRotAngle, 0, 0, 1.0f);
+  GL()translatef(-0.5f, -0.5f, 0.0f);
   
   GL()matrixMode(MM_TEXTURE);
   GL()loadIdentity();

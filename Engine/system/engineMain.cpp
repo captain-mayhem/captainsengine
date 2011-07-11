@@ -26,7 +26,10 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
   argv[1] = cmdline;
 #endif
   CGE::Engine::init();
-  CGE::Engine::instance()->startup(2, argv);
+  int numArgs = 2;
+  if (strlen(cmdline) == 0)
+    numArgs = 1;
+  CGE::Engine::instance()->startup(numArgs, argv);
   //Enter gameloop
   while(CGE::Engine::instance() != NULL && !CGE::Engine::instance()->isShutdownRequested()){
     while (PeekMessage(&msg,NULL,0,0,PM_REMOVE)){

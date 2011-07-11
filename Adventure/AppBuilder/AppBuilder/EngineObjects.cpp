@@ -23,9 +23,10 @@ BlitGroup::~BlitGroup(){
   }
 }
 
-void BlitGroup::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color){
+void BlitGroup::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation){
   for (unsigned i = 0; i < mBlits.size(); ++i){
     mBlits[i]->setColor(color);
+    mBlits[i]->setRotation(rotation);
     mBlits[i]->render(pos, scale, parentsize);
   }
 }
@@ -71,9 +72,9 @@ Animation::~Animation(){
   }
 }
 
-void Animation::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color){
+void Animation::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation){
   if (mBlits.size() > mCurrFrame)
-    mBlits[mCurrFrame]->render(pos, scale, parentsize, color);
+    mBlits[mCurrFrame]->render(pos, scale, parentsize, color, rotation);
 }
 
 void Animation::setDepth(int depth){
@@ -113,7 +114,7 @@ Animation* Animation::clone(){
 
 Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name)
 : mState(state), mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL), mName(name),
-mLightingColor(), mScale(1.0f){
+mLightingColor(), mScale(1.0f), mRotAngle(0.0f){
 
 }
 
@@ -128,7 +129,7 @@ Object2D::~Object2D(){
 void Object2D::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  mAnimations[mState-1]->render(mPos+mScrollOffset, Vec2f(mScale,mScale), mSize, mLightingColor);
+  mAnimations[mState-1]->render(mPos+mScrollOffset, Vec2f(mScale,mScale), mSize, mLightingColor, mRotAngle);
 }
 
 Animation* Object2D::getAnimation(){
@@ -195,6 +196,14 @@ Object2D* Object2D::clone(){
     ret->addAnimation(anim);
   }
   return ret;
+}
+
+unsigned Object2D::getNumDefinedStates(){
+  for (unsigned i = 0; i < mAnimations.size(); ++i){
+    if (!mAnimations[i]->exists())
+      return i;
+  }
+  return mAnimations.size();
 }
 
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "#button"),
@@ -342,7 +351,7 @@ RoomObject::~RoomObject(){
 
 void RoomObject::render(){
   if (mParallaxBackground)
-    mParallaxBackground->render(Vec2i(), Vec2f(mScale,mScale), mSize, mLightingColor);
+    mParallaxBackground->render(Vec2i(), Vec2f(mScale,mScale), mSize, mLightingColor, mRotAngle);
   Object2D::render();
   for (int i = mObjects.size()-1; i >= 0; --i){
     mObjects[i]->render();
@@ -656,7 +665,7 @@ void CharacterObject::render(){
   if (mMirror)
     scale.x *= -1;
   Vec2i renderPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*mScale;
-  mAnimations[mState-1]->render(mScrollOffset+renderPos, scale, mSizes[mState-1], mLightingColor);
+  mAnimations[mState-1]->render(mScrollOffset+renderPos, scale, mSizes[mState-1], mLightingColor, mRotAngle);
 }
 
 Vec2i CharacterObject::getOverheadPos(){

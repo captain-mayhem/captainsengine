@@ -65,6 +65,7 @@ public:
   virtual void blit();
   Vec2i getOffset() {return mOffset;}
   void setMirrorOffset(const Vec2i& mirror) {mMirrorOffset = mirror;}
+  void setRotation(float angle) {mRotAngle = angle;}
 protected:
   Vec2i mOffset;
   Vec2f mScale;
@@ -72,6 +73,7 @@ protected:
   Vec2f mZoomScale;
   bool mDeleteTex;
   Vec2i mMirrorOffset;
+  float mRotAngle;
 };
 
 class LightingBlitObject : public BaseBlitObject{

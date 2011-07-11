@@ -78,6 +78,9 @@ struct Vec2f{
     result.y = y*num;
     return result;
   }
+  float length(){
+    return sqrt(x*x+y*y);
+  }
   float x;
   float y;
 };
