@@ -11,7 +11,7 @@ public:
   BlitGroup(const std::string& texture, const Vec2i& offset, int depth);
   ~BlitGroup();
   BlitGroup* clone();
-  void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color);
+  void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation);
   void setDepth(int depth);
 protected:
   BlitGroup() {}
@@ -25,7 +25,7 @@ public:
   Animation(Frames& frames, float fps, Vec2i offset, int depth);
   ~Animation();
   Animation* clone();
-  void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color);
+  void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation);
   void setDepth(int depth);
   void start();
   void update(unsigned interval);
@@ -66,6 +66,7 @@ public:
   void setSuspensionScript(ExecutionContext* script);
   int getState() {return mState;}
   void setState(int state) {mState = state;}
+  unsigned getNumDefinedStates();
   const std::string& getName() {return mName;}
   virtual Vec2i getSize() {return mSize*mScale;}
   virtual void setScrollOffset(const Vec2i& offset) {mScrollOffset = offset;}
@@ -77,6 +78,8 @@ public:
   virtual void setLightingColor(const Color& col) {mLightingColor = col;}
   virtual Color getLightingColor() {return mLightingColor;}
   void setScale(float scale) {mScale = scale;}
+  void setRotation(float angle) {mRotAngle = angle;}
+  float getRotation() {return mRotAngle;}
 protected:
   int mState;
   Vec2i mPos;
@@ -89,6 +92,7 @@ protected:
   std::list<int> mNextStates;
   Color mLightingColor;
   float mScale;
+  float mRotAngle;
 };
 
 class ButtonObject : public Object2D, public BlitObject{
