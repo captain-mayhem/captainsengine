@@ -18,7 +18,7 @@ ParticleEngine::~ParticleEngine(){
   delete mParticleObject;
 }
 
-void ParticleEngine::setParticleObject(const std::string& name){
+void ParticleEngine::setParticleObject(const std::string& name, float initialRotation){
   Object* obj = mData->getObject(name);
   for (std::list<Particle>::iterator iter = mParticles.begin(); iter != mParticles.end(); ++iter){
     delete iter->object;
@@ -30,6 +30,7 @@ void ParticleEngine::setParticleObject(const std::string& name){
     Animation* anim = new Animation(obj->states[j].frames, obj->states[j].fps, DEPTH_PARTICLES);
     mParticleObject->addAnimation(anim);
   }
+  mParticleObject->setRotation(initialRotation);
   mEmissionInterval = 20;//max(mParticleObject->getSize().x, mParticleObject->getSize().y);
   mEmissionInterval = (unsigned)(20*mEmissionInterval/mDir.length());
   return;
@@ -53,10 +54,13 @@ void ParticleEngine::update(unsigned time){
     iter->object->setPosition(Vec2i((int)iter->position.x, (int)iter->position.y));
     iter->object->setRotation(iter->object->getRotation()+mRotAngle*time*0.025f);
     //out of image
-    if (iter->object->getPosition().x < -iter->object->getSize().x || 
-      iter->object->getPosition().x > Engine::instance()->getSettings()->resolution.x ||
-      iter->object->getPosition().y < -iter->object->getSize().y ||
-      iter->object->getPosition().y > Engine::instance()->getSettings()->resolution.y){
+    int xoffset = max(iter->object->getSize().x, iter->object->getSize().y);
+    int yoffset = xoffset;
+    int sizediff = xoffset - min(iter->object->getSize().x, iter->object->getSize().y);
+    if ((iter->object->getPosition().x < -xoffset && iter->speed.x < 0) || 
+      (iter->object->getPosition().x > Engine::instance()->getSettings()->resolution.x+sizediff && iter->speed.x > 0)||
+      (iter->object->getPosition().y < -yoffset && iter->speed.y < 0) ||
+      (iter->object->getPosition().y > Engine::instance()->getSettings()->resolution.y+sizediff && iter->speed.y > 0)){
         delete iter->object;
         iter = mParticles.erase(iter);
         if (iter != mParticles.begin())
@@ -77,17 +81,19 @@ void ParticleEngine::addParticle(){
   Particle p;
   bool xdisallowed = abs(mDir.y) < 0.001f;
   bool ydisallowed = abs(mDir.x) < 0.001f;
+  int xoffset = max(mParticleObject->getSize().x, mParticleObject->getSize().y);
+  int yoffset = xoffset;
   if ((!ydisallowed && random > Engine::instance()->getSettings()->resolution.x) || xdisallowed){
     if (xdisallowed && random < Engine::instance()->getSettings()->resolution.y)
       random += Engine::instance()->getSettings()->resolution.y;
-    p.position.y = (float)(random - Engine::instance()->getSettings()->resolution.x - mParticleObject->getSize().y/2);
-    p.position.x = mDir.x < 0 ? (float)Engine::instance()->getSettings()->resolution.x : (float)(-mParticleObject->getSize().x);
+    p.position.y = (float)(random - Engine::instance()->getSettings()->resolution.x - yoffset/2);
+    p.position.x = mDir.x < 0 ? (float)Engine::instance()->getSettings()->resolution.x : (float)(-xoffset);
   }
   else{
     if (ydisallowed && random > Engine::instance()->getSettings()->resolution.x)
       random = random % Engine::instance()->getSettings()->resolution.x;
-    p.position.x = (float)(random - mParticleObject->getSize().x/2);
-    p.position.y = mDir.y < 0 ? (float)Engine::instance()->getSettings()->resolution.y : (float)(-mParticleObject->getSize().y);
+    p.position.x = (float)(random - xoffset/2);
+    p.position.y = mDir.y < 0 ? (float)Engine::instance()->getSettings()->resolution.y : (float)(-yoffset);
   }
   //set object
   p.object = mParticleObject->clone();

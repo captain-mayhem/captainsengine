@@ -19,7 +19,7 @@ public:
   ParticleEngine(AdvDocument* data);
   ~ParticleEngine();
   void update(unsigned time);
-  void setParticleObject(const std::string& name);
+  void setParticleObject(const std::string& name, float initialRotation);
   void setDirection(Vec2f dir) {mDir = dir;}
   void setMaxParticles(int maxParticles) {mMaxParticles = maxParticles;}
   void setRotation(float angle) {mRotAngle = angle;}
