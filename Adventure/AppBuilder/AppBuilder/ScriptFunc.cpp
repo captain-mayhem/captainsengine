@@ -1062,10 +1062,10 @@ int ScriptFunctions::setParticles(ExecutionContext& ctx, unsigned numArgs){
   dir.y = speed*sinf(angle);
   Engine::instance()->getParticleEngine()->setDirection(dir);
   Engine::instance()->getParticleEngine()->setMaxParticles(amount);
-  angle = (float)(rotation/180.0f*M_PI);
-  Engine::instance()->getParticleEngine()->setRotation(angle);
+  float anglespeed = (float)(rotation/180.0f*M_PI);
+  Engine::instance()->getParticleEngine()->setRotation(anglespeed);
   Engine::instance()->getParticleEngine()->setSpeedVariation(variation/100.0f);
-  Engine::instance()->getParticleEngine()->setParticleObject(object);
+  Engine::instance()->getParticleEngine()->setParticleObject(object, angle-M_PI/2.0f);
   return 0;
 }
 

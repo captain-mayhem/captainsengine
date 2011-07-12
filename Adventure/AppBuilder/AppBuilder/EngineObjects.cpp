@@ -195,6 +195,7 @@ Object2D* Object2D::clone(){
     Animation* anim = mAnimations[i]->clone();
     ret->addAnimation(anim);
   }
+  ret->mRotAngle = mRotAngle;
   return ret;
 }
 

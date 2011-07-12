@@ -73,11 +73,12 @@ void BlitObject::blit(){
   GL()scalef(mZoomScale.x, mZoomScale.y, 1.0f);
   GL()translatef((float)mOffset.x, (float)mOffset.y, 0.0f);
   
-  GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
   //TODO wrong for compound objects, maybe rotation of mOffset?
-  GL()translatef(0.5f, 0.5f, 0.0f);
+  GL()translatef((float)mSize.x/2,(float)mSize.y/2, 0.0f);
   GL()rotatef(mRotAngle, 0, 0, 1.0f);
-  GL()translatef(-0.5f, -0.5f, 0.0f);
+  GL()translatef((float)-mSize.x/2,(float)-mSize.y/2, 0.0f);
+
+  GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
   
   GL()matrixMode(MM_TEXTURE);
   GL()loadIdentity();
