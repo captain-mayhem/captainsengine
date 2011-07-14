@@ -20,6 +20,9 @@ const int PARTS_MAX = 2;
 const int FXSHAPES_MAX = 3;
 
 #include <io/ZipReader.h>
+#include <io/Tracing.h>
+
+TR_CHANNEL(ADV_DATA);
 
 AdvDocument::AdvDocument() : mUseCompressedData(false){
 }
@@ -28,6 +31,8 @@ AdvDocument::~AdvDocument(){
 }
 
 bool AdvDocument::loadDocument(const std::string filename){
+  TR_USE(ADV_DATA);
+  TR_DEBUG("loading filename %s", filename.c_str());
   mFilename = filename;
   CGE::ZipReader zrdr(mFilename);
   if (!zrdr.isWorking()){
