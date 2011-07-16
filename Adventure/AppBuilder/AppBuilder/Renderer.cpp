@@ -1,5 +1,7 @@
 #include "Renderer.h"
 
+TR_CHANNEL(ADV_Renderer)
+
 RND_CLS* AdvRenderer::mInstance = NULL;
 
 void AdvRenderer::init(){
@@ -70,6 +72,7 @@ void GL2Renderer::initShaders(){
 }
 
 bool GL2Shader::addShader(GLenum shadertype, const char* shaderstring, int stringlen){
+  TR_USE(ADV_Renderer);
   if (stringlen == 0)
     stringlen = strlen(shaderstring);
   GLuint shader = glCreateShader(shadertype);
@@ -78,7 +81,7 @@ bool GL2Shader::addShader(GLenum shadertype, const char* shaderstring, int strin
   GLint success = 0;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
   if (!success){
-    CGE::Log << "GL2: " << shaderstring /*<< std::endl*/;
+    TR_ERROR("GL2: %s");
   }
   else
      mShaders.push_back(shader);
@@ -87,13 +90,14 @@ bool GL2Shader::addShader(GLenum shadertype, const char* shaderstring, int strin
   if (len > 0){
     char* log = new char[len];
     glGetShaderInfoLog(shader, len, NULL, log);
-    CGE::Log << "GL2: " << log /*<< std::endl*/;
+    TR_INFO("GL2: %s", log);
     delete [] log;
   }
   return success != 0;
 }
 
 bool GL2Shader::linkShaders(){
+  TR_USE(ADV_Renderer);
   for (unsigned i = 0; i < mShaders.size(); ++i){
     glAttachShader(mProgram, mShaders[i]);
   }
@@ -101,14 +105,14 @@ bool GL2Shader::linkShaders(){
   GLint success = 0;
   glGetProgramiv(mProgram, GL_LINK_STATUS, &success);
   if (!success){
-    CGE::Log << "GL2: linking shader failed: ";
+    TR_ERROR("GL2: linking shader failed: ");
   }
   GLint len;
   glGetProgramiv(mProgram, GL_INFO_LOG_LENGTH, &len);
   if (len > 0){
     char* log = new char[len];
     glGetProgramInfoLog(mProgram, len, NULL, log);
-    CGE::Log << "GL2: " << log;
+    TR_INFO("GL2: %s", log);
     delete [] log;
   }
   return success != 0;

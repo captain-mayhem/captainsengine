@@ -1065,7 +1065,7 @@ int ScriptFunctions::setParticles(ExecutionContext& ctx, unsigned numArgs){
   float anglespeed = (float)(rotation/180.0f*M_PI);
   Engine::instance()->getParticleEngine()->setRotation(anglespeed);
   Engine::instance()->getParticleEngine()->setSpeedVariation(variation/100.0f);
-  Engine::instance()->getParticleEngine()->setParticleObject(object, angle-M_PI/2.0f);
+  Engine::instance()->getParticleEngine()->setParticleObject(object, float(angle-M_PI/2.0f));
   return 0;
 }
 

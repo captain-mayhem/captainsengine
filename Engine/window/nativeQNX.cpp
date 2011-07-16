@@ -5,19 +5,23 @@
 
 namespace Windows{
 
+TR_CHANNEL(CGE_Window_QNX)
+
 QNXWindow::QNXWindow(CGE::Renderer* renderer) : AppWindow(renderer){
   
 }
 
 void QNXWindow::init(const std::string& name){
-  CGE::Log << "Initializing window\n";
+  TR_USE(CGE_Window_QNX);
+  TR_INFO("Initializing window");
 
   renderer_->initContext(this);
   renderer_->resizeScene(width_, height_);
 }
 
 void QNXWindow::kill(){
-  CGE::Log << "Killing window\n";
+  TR_USE(CGE_Window_QNX);
+  TR_INFO("Killing window");
 
   renderer_->killContext();
 }

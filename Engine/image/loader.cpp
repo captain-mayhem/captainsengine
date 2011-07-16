@@ -19,6 +19,8 @@ extern "C"{
 
 #include "image.h"
 
+TR_CHANNEL(CGE_Imageloader);
+
 using namespace CGE;
 
 Image* ImageLoader::load(const char* filename, Type t){
@@ -48,6 +50,7 @@ Image* ImageLoader::load(void* memory, unsigned size, Type t){
 }
 
 ImageLoader::Type ImageLoader::determineType(const std::string& filename){
+  TR_USE(CGE_Imageloader);
   int pos = filename.find_last_of('.');
   std::string ext = filename.substr(pos+1);
   ext = toLower(ext);
@@ -57,7 +60,7 @@ ImageLoader::Type ImageLoader::determineType(const std::string& filename){
     return GIF;
   else if (ext == "bmp")
     return BMP;
-  CGE::Log << "Unknown image type " << filename;
+  TR_WARN("Unknown image type %s", filename.c_str());
   return UNKNOWN;
 }
 
@@ -65,11 +68,12 @@ static void decodeJPG(jpeg_decompress_struct* cinfo, Image *pImageData);
 
 //loads the JPG file and returns it's data in a Image struct
 Image* ImageLoader::loadJPG(const char *strFileName){
+  TR_USE(CGE_Imageloader);
   struct jpeg_decompress_struct cinfo;
   Image *pImageData = NULL;
   FILE *pFile;
   if((pFile = fopen(strFileName, "rb")) == NULL){
-    CGE::Log << "Unable to load JPG File!";
+    TR_ERROR("Unable to load JPG File %s!", strFileName);
     return NULL;
   }
   // Create an error handler
@@ -174,9 +178,10 @@ void decodeJPG(jpeg_decompress_struct* cinfo, Image *pImageData){
 static CGE::Image* decodeGIF(GifFileType* giffile);
 
 Image* ImageLoader::loadGIF(const char *fileName){
+  TR_USE(CGE_Imageloader);
   GifFileType* giffile = DGifOpenFileName(fileName);
   if (!giffile){
-    CGE::Log << "Unable to load GIF File!";
+    TR_ERROR("Unable to load GIF File %s!", fileName);
     return NULL;
   }
   return decodeGIF(giffile);
@@ -191,9 +196,10 @@ static int gif_input_func(GifFileType* giffile, GifByteType* bytes, int length){
 }
 
 Image* ImageLoader::loadGIF(void* memory, unsigned size){
+  TR_USE(CGE_Imageloader);
   GifFileType* giffile = DGifOpen(memory, gif_input_func);
   if (!giffile){
-    CGE::Log << "Unable to load GIF File!";
+    TR_ERROR("Unable to load GIF File from memory!");
     return NULL;
   }
   return decodeGIF(giffile);
@@ -285,6 +291,7 @@ Image* ImageLoader::loadBMP(void* memory, unsigned size){
 }
 
 Image* decodeBMP(Reader* rdr){
+  TR_USE(CGE_Imageloader);
   //FILE *pFile = NULL;
   Image *pImage = new Image();
   unsigned short int bfType;

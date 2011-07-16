@@ -3,12 +3,15 @@
 #include "system/utilities.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
+#include "io/Tracing.h"
 
 #include "AdvDoc.h"
 #include "Engine.h"
 #include "Sound.h"
 #include "Renderer.h"
 #include "CmdReceiver.h"
+
+TR_CHANNEL(ADV_CGE_Window);
 
 std::string filename;
 AdvDocument* adoc = NULL;
@@ -17,6 +20,7 @@ CommandReceiver receiver;
 void quit();
 
 void init(){
+  TR_USE(ADV_CGE_Window);
   adoc = new AdvDocument();
   if (!adoc->loadDocument(filename)){
     return;
@@ -28,12 +32,12 @@ void init(){
 
   GLenum err = glewInit();
   if (err != GLEW_OK){
-    CGE::Log << "Unable to init OpenGL extensions";
+    TR_ERROR("Unable to init OpenGL extensions");
     CGE::Engine::instance()->requestShutdown();
     return;
   }
   if (!GLEW_VERSION_2_0){
-    CGE::Log << "OpenGL 2.0 not available";
+    TR_ERROR("OpenGL 2.0 not available");
     CGE::Engine::instance()->requestShutdown();
     return;
   }
@@ -131,6 +135,8 @@ void key_release(int key){
 }
 
 void engineMain(int argc, char** argv){
+  LogOutputter* putty = new LogOutputter();
+  TraceManager::instance()->setTraceOutputter(putty);
   if (argc > 1)
     filename = argv[1];
   else

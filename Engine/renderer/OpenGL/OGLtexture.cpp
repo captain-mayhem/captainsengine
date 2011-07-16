@@ -10,6 +10,8 @@ typedef unsigned short WORD;
 #define GL_GENERATE_MIPMAP 0x8191
 #endif
 
+TR_CHANNEL(CGE_Texture_OGL);
+
 OGLTexture::OGLTexture(string filename) : Texture(filename), tex_(0){
   load(filename);
 }
@@ -19,6 +21,7 @@ OGLTexture::~OGLTexture(){
 }
 
 bool OGLTexture::load(string filename){
+  TR_USE(CGE_Texture_OGL);
   Image *img = NULL;
   string end;
   end += filename[filename.length()-3];
@@ -31,7 +34,7 @@ bool OGLTexture::load(string filename){
   else if (end == "bmp")
     img = loadBMP(filename.c_str());
   else{
-    EXIT2("Format ."+end+" not supported\n");
+    EXIT2("Format .%s not supported", end.c_str());
   }
 
   if (!img)
@@ -67,6 +70,7 @@ void OGLTexture::deactivate(){
 
 //simple loader for 24bit bitmaps (data has to be in rgb-format)
 Image* OGLTexture::loadBMP(const char *filename){
+  TR_USE(CGE_Texture_OGL);
   FILE *pFile = NULL;
   Image *pImage = (Image*)malloc(sizeof(Image));
   unsigned short int bfType;
@@ -78,7 +82,7 @@ Image* OGLTexture::loadBMP(const char *filename){
   unsigned char temp;
 
   if ((pFile = fopen(filename, "rb")) == NULL){
-    CGE::Log << "File not found.";
+    TR_WARN("File %s not found.", filename);
     free(pImage);
     return NULL;
   }
@@ -142,6 +146,7 @@ Image* OGLTexture::loadBMP(const char *filename){
 
 //loads the TGA file and returns it's data in an Image struct
 Image *OGLTexture::loadTGA(const char *fileName){
+  TR_USE(CGE_Texture_OGL);
   WORD width = 0, height = 0;
   byte length = 0;
   byte imageType = 0;
@@ -152,7 +157,7 @@ Image *OGLTexture::loadTGA(const char *fileName){
   int i = 0;
 
   if((pFile = fopen(fileName, "rb")) == NULL){
-    EXIT2("Unable to load TGA File!");
+    EXIT2("Unable to load TGA File %s!", fileName);
     return NULL;
   }
   Image* pImageData = (Image*)malloc(sizeof(Image));
@@ -314,11 +319,12 @@ void OGLTexture::decodeJPG(jpeg_decompress_struct* cinfo, Image *pImageData){
 
 //loads the JPG file and returns it's data in a Image struct
 Image* OGLTexture::loadJPG(const char *strFileName){
+  TR_USE(CGE_Texture_OGL);
   struct jpeg_decompress_struct cinfo;
   Image *pImageData = NULL;
   FILE *pFile;
   if((pFile = fopen(strFileName, "rb")) == NULL){
-    EXIT2("Unable to load JPG File!");
+    EXIT2("Unable to load JPG File %s!", strFileName);
     return NULL;
   }
   // Create an error handler

@@ -13,6 +13,8 @@
 
 using namespace CGE;
 
+TR_CHANNEL(CGE_Renderer_OGL);
+
 OGLRenderer::OGLRenderer(): Renderer() {
   type_ = OpenGL;
 #ifdef WIN32
@@ -31,7 +33,8 @@ OGLRenderer::~OGLRenderer(){
 }
 
 void OGLRenderer::initContext(::Windows::AppWindow* win){
-  ::CGE::Log << "Initializing OpenGL context\n";
+  TR_USE(CGE_Renderer_OGL);
+  TR_INFO("Initializing OpenGL context");
   win_ = win;
 #if defined(WIN32) && !defined(UNDER_CE)
   static PIXELFORMATDESCRIPTOR pfd ={
@@ -55,28 +58,28 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
 
   HWND wnd = (HWND)dynamic_cast<::Windows::WindowsWindow*>(win)->getHandle();
   if(!(hDC_ = GetDC(wnd))){
-    CGE::Log << "Can't create GL device context\n";
+    TR_ERROR("Can't create GL device context");
     EXIT();
   }
 
   GLuint pixelFormat;
   if(!(pixelFormat = ChoosePixelFormat(hDC_, &pfd))){
-    CGE::Log << "Can't find a suitable PixelFormat\n";
+    TR_ERROR("Can't find a suitable PixelFormat");
     EXIT();
   }
 
   if (!SetPixelFormat(hDC_, pixelFormat, &pfd)){
-    CGE::Log << "Can't set the PixelFormat\n";
+    TR_ERROR("Can't set the PixelFormat");
     EXIT();
   }
 
   if (!(hRC_ = wglCreateContext(hDC_))){
-    CGE::Log << "Can't create GL rendering context\n";
+    TR_ERROR("Can't create GL rendering context");
     EXIT();
   }
 
   if (!wglMakeCurrent(hDC_, hRC_)){
-    CGE::Log << "Cant't activate GL rendering context\n";
+    TR_ERROR("Cant't activate GL rendering context");
     EXIT();
   }
 
@@ -96,20 +99,21 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
 }
 
 void OGLRenderer::killContext(){
+  TR_USE(CGE_Renderer_OGL);
 #if defined(WIN32) && !defined(UNDER_CE)
   if (hRC_){
     if (!wglMakeCurrent(NULL,NULL)){
-      CGE::Log << "Release of GL context failed";
+      TR_ERROR("Release of GL context failed");
     }
     if (!wglDeleteContext(hRC_)){
-      CGE::Log << "Release of rendering context failed";
+      TR_ERROR("Release of rendering context failed");
     }
     hRC_ = NULL;
   }
 
   HWND wnd = (HWND)dynamic_cast<::Windows::WindowsWindow*>(win_)->getHandle();
   if (hDC_ && !ReleaseDC(wnd,hDC_)){
-    CGE::Log << "Release of device context failed";
+    TR_ERROR("Release of device context failed");
     hDC_ = NULL;
   }
 #endif
@@ -126,7 +130,8 @@ void OGLRenderer::killContext(){
 }
 
 void OGLRenderer::initRendering(){
-  CGE::Log << "Initializing Scene\n";
+  TR_USE(CGE_Renderer_OGL);
+  TR_INFO("Initializing Scene");
   //smooth shading
   glShadeModel(GL_SMOOTH);
 
@@ -151,11 +156,12 @@ void OGLRenderer::renderScene(){
 }
 
 void OGLRenderer::resizeScene(int width, int height){
+  TR_USE(CGE_Renderer_OGL);
 #ifdef WIN32
   if (hRC_ == NULL)
     return;
 #endif
-  CGE::Log << "Resizing Scene\n";
+  TR_INFO("Resizing Scene");
   if (height == 0){
     height = 1;
   }

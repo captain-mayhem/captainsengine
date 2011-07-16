@@ -4,6 +4,8 @@
 
 #include "Engine.h"
 
+TR_CHANNEL(ADV_Render_BlitObject);
+
 BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) : 
 mPos(), mSize(size), mDepth(depth){
 
@@ -143,6 +145,7 @@ void ScrollBlitObject::render(const Vec2i& pos){
 }
 
 RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth){
+  TR_USE(ADV_Render_BlitObject);
   int powx = (int)(width/mScale.x);
   int powy = (int)(height/mScale.y);
   glGenRenderbuffers(1, &mRenderBuffer);
@@ -156,7 +159,7 @@ RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : B
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBuffer);
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE){
-    CGE::Log <<  "Unable to create framebuffer";
+    TR_ERROR("Unable to create framebuffer");
     DebugBreak();
   }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);

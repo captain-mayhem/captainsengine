@@ -26,6 +26,8 @@ using CGE::Matrix;
 using CGE::Ray;
 using CGE::Utilities;
 
+TR_CHANNEL(CGE_Scene);
+
 Scene::Scene(){
   version_ = 1;
 }
@@ -143,6 +145,7 @@ void Scene::save(const std::string& filename) const{
 
 //! load the scene
 void Scene::load(const std::string& filename){
+  TR_USE(CGE_Scene);
   ifstream in(filename.c_str(), ios::binary);
   if (!in)
     return;
@@ -165,7 +168,7 @@ void Scene::load(const std::string& filename){
 #endif
     Mesh* msh = new Mesh();
     if (!msh->loadFromFile(cwd+name)){
-      CGE::Log << "cannot load file";
+      TR_ERROR("cannot load file %s", filename.c_str());
       return;
     }
     buffer[length] = -52;
