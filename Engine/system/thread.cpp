@@ -15,6 +15,8 @@
 
 using namespace CGE;
 
+TR_CHANNEL(CGE_Thread)
+
 int Thread::create(void (*proc)(void* data), void* data){
 #ifdef WIN32
   //threadID_ = (int)_beginthread(proc, 8192, data);
@@ -30,6 +32,7 @@ int Thread::create(void (*proc)(void* data), void* data){
 }
 
 void Thread::destroy(){
+  TR_USE(CGE_Thread);
 #ifdef WIN32
   TerminateThread(&threadID_, 0);
 #endif
@@ -37,7 +40,7 @@ void Thread::destroy(){
 #ifndef NO_PTHREAD_CANCEL
   pthread_cancel(threadID_);
 #else
-	CGE::Log << "pthread_cancel not supported by this platform";
+	TR_ERROR("pthread_cancel not supported by this platform");
 	abort();
 #endif
 #endif

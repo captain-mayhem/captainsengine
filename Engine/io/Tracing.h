@@ -3,6 +3,7 @@
 
 #include <cstdarg>
 #include <map>
+#include <fstream>
 
 //Trace levels
 #define TRACE_OFF 0
@@ -38,31 +39,43 @@ void internal_trace(unsigned group, int level, const char* file, const char* fun
 //tracing v2
 
 class TraceOutputter{
+public:
+  virtual bool init()=0;
+  virtual void trace(unsigned channel, int level, const char* function, const char* message)=0;
 };
 
 class TraceManager{
 public:
   ~TraceManager();
   static TraceManager* instance() {if (mManager == NULL) mManager = new TraceManager(); return mManager;}
+  static void deinit() {delete mManager; mManager = NULL;}
   unsigned registerChannel(const char* name);
-  void trace(unsigned channel, int level, const char* file, const char* function, int line, const char* message);
+  void trace(unsigned channel, int level, const char* function, const char* message);
   int getCurrentLevel(unsigned channel);
+  void setTraceOutputter(TraceOutputter* putty);
 protected:
   TraceManager();
   static TraceManager* mManager;
   unsigned mChannelCount;
+  TraceOutputter* mPutty;
 };
 
 class TraceObject{
 public:
   TraceObject(const char* name);
-  void trace(int level, const char* file, const char* function, int line, const char* message, ...);
+  void trace(int level, const char* function, const char* message, ...);
   bool isEnabled(int level);
 protected:
-  //static std::map<std::string, unsigned> mChannels;
-  static unsigned mChannelCount;
-
   unsigned mChannel;
+};
+
+class LogOutputter : public TraceOutputter{
+public:
+  ~LogOutputter();
+  virtual bool init();
+  virtual void trace(unsigned channel, int level, const char* function, const char* message);
+protected:
+  std::ofstream mLog;
 };
 
 #define STRINGIFY(x) INTERNAL_STRINGIFY(x)
@@ -70,7 +83,12 @@ protected:
 
 #define TR_CHANNEL(name) static TraceObject name(STRINGIFY(name));
 #define TR_USE(name) TraceObject tracescopeobject = name
-#define TR_TRACE(level, message, ...) if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FILE__, __FUNCTION__, __LINE__, message, ##__VA_ARGS__)
+#define TR_TRACE(level, message, ...) if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__)
+
+#define TR_ERROR(message, ...) TR_TRACE(TRACE_ERROR, message, ##__VA_ARGS__)
+#define TR_WARN(message, ...) TR_TRACE(TRACE_WARNING, message, ##__VA_ARGS__)
+#define TR_INFO(message, ...) TR_TRACE(TRACE_INFO, message, ##__VA_ARGS__)
 #define TR_DEBUG(message, ...) TR_TRACE(TRACE_DEBUG, message, ##__VA_ARGS__)
+#define TR_DETAIL(message, ...) TR_TRACE(TRACE_DEBUG_DETAIL, message, ##__VA_ARGS__)
 
 #endif

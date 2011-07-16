@@ -8,6 +8,7 @@
 #include <vector>
 #include <cstring>
 #include <cstdlib>
+#include <io/Tracing.h>
 
 using std::string;
 using std::ofstream;
@@ -16,7 +17,7 @@ using std::list;
 using std::vector;
 
 #define EXIT() (CGE::Engine::instance()->shutdown())
-#define EXIT2(msg) {CGE::Log << (msg) << "\n"; CGE::Engine::instance()->shutdown(); }
+#define EXIT2(msg, ...) {TR_ERROR(msg, ##__VA_ARGS__); CGE::Engine::instance()->shutdown(); }
 #define SAFE_DELETE(ptr)       { if(ptr) { delete (ptr); (ptr)=NULL; } }
 #define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=NULL; } }
 #define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=NULL; } }
@@ -103,7 +104,7 @@ long GetTickCount();
 
 namespace CGE{
 
-extern ofstream Log;
+//extern ofstream Log;
 
 class Engine{
   public:

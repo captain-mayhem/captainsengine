@@ -5,6 +5,8 @@
 #include "../input/mouse.h"
 #include "nativeWindows.h"
 
+TR_CHANNEL(CGE_Window);
+
 namespace Windows{
 
 LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
@@ -87,7 +89,8 @@ WindowsWindow::~WindowsWindow(){
 }
 
 void WindowsWindow::init(const std::string& name){
-  CGE::Log << "Initializing window\n";
+  TR_USE(CGE_Window);
+  TR_INFO("Initializing window");
 #ifndef IDI_APPLICATION
 #define IDI_APPLICATION ((LPWSTR)((ULONG_PTR)((WORD)(32512))))
 #endif
@@ -124,7 +127,7 @@ void WindowsWindow::init(const std::string& name){
 #else
   if (!RegisterClassEx(&wndclass)){
 #endif
-    CGE::Log << "Cannot register window\n";
+    TR_ERROR("Cannot register window");
     EXIT();
   }
 
@@ -143,7 +146,7 @@ void WindowsWindow::init(const std::string& name){
       screenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
       if (ChangeDisplaySettings(&screenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL){
-        CGE::Log << "Changing to fullscreen failed\nTrying windowed mode\n";
+        TR_WARN("Changing to fullscreen failed - Trying windowed mode");
         fullscreen_ = false;
       }
 #endif
@@ -184,7 +187,7 @@ void WindowsWindow::init(const std::string& name){
 #endif
     WS_CLIPCHILDREN | WS_CLIPSIBLINGS | style,
     0, 0, width_, height_, NULL, NULL, instance_, NULL))){
-      CGE::Log << "Create Window failed" << "\n";
+      TR_ERROR("Create Window failed");
       EXIT();
   }
 
@@ -206,7 +209,8 @@ void WindowsWindow::init(const std::string& name){
 }
 
 void WindowsWindow::kill(){
-  CGE::Log << "Killing window\n";
+  TR_USE(CGE_Window);
+  TR_INFO("Killing window");
   if (fullscreen_){
 #ifndef UNDER_CE
     ChangeDisplaySettings(NULL, 0);
@@ -217,12 +221,12 @@ void WindowsWindow::kill(){
   renderer_->killContext();
 
   if (handle_ && !DestroyWindow(handle_)){
-    CGE::Log << "Destroying window failed";
+    TR_ERROR("Destroying window failed");
     handle_ = NULL;
   }
 
   if (!UnregisterClass(TEXT(WINDOW_NAME), instance_)){
-    CGE::Log << "Unregistering class failed";
+    TR_ERROR("Unregistering class failed");
     instance_ = NULL;
   }
 

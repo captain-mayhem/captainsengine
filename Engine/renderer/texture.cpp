@@ -9,6 +9,8 @@ using std::ifstream;
 
 using namespace CGE;
 
+TR_CHANNEL(CGE_Texture);
+
 Texture::Texture(std::string filename){
   filename_ = filename;
 }
@@ -17,9 +19,10 @@ Texture::~Texture(){
 }
 
 Texture** Texture::loadFromDat(const string& path, const string& filename, int& number){
+  TR_USE(CGE_Texture);
   ifstream in((path+filename).c_str());
   if (!in){
-    CGE::Log << "Cannot load "+filename;
+    TR_WARN("Cannot load %s", filename.c_str());
     return NULL;
   }
   string name;

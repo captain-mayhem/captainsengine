@@ -12,6 +12,7 @@
 #include "../gui/console.h"
 #include "../renderer/forms.h"
 #include "../physics/Simulator.h"
+#include "../io/Tracing.h"
 
 #ifdef WIN32
 #define TIME_FACTOR 0.001
@@ -25,13 +26,14 @@
 
 using namespace CGE;
 
-void (*internalEngineMain)(int argc, char** argv) = NULL;
+TR_CHANNEL(CGE_Engine);
 
-ofstream CGE::Log("engine.log");
+void (*internalEngineMain)(int argc, char** argv) = NULL;
 
 Engine* Engine::eng = NULL;
 
 Engine::Engine(){
+  TR_USE(CGE_Engine);
   win_ = NULL;
   rend_ = NULL;
   isUp_ = false;
@@ -51,7 +53,7 @@ Engine::Engine(){
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
   _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_DEBUG );
 #endif
-  Log << "Engine instance created\n";
+  TR_INFO("Engine instance created");
 }
 
 void Engine::init(){
@@ -59,6 +61,7 @@ void Engine::init(){
 }
 
 void Engine::startup(int argc, char** argv){
+  TR_USE(CGE_Engine);
   Script::init();
   Script::instance()->initEnv();
   string type = Script::instance()->getStringSetting("renderer");
@@ -143,10 +146,11 @@ void Engine::startup(int argc, char** argv){
 }
 
 void Engine::shutdown(){
+  TR_USE(CGE_Engine);
   if (!isUp_)
     return;
   rend_->deinitRendering();
-  Log << "engine shutting down\n";
+  TR_INFO("engine shutting down");
   isUp_ = false;
   SAFE_DELETE(mSimulator);
   Input::Keyboard::release();
@@ -165,8 +169,8 @@ void Engine::shutdown(){
   SAFE_DELETE(win_);
   SAFE_DELETE(rend_);
   Script::kill();
-  Log.close();
   SAFE_DELETE(eng);
+  TraceManager::deinit();
   //exit(0);
 }
 
@@ -365,5 +369,6 @@ void Engine::requestShutdown(){
 }
 
 void Engine::messageBox(const std::string& message, const std::string& title){
-  CGE::Log << title << ": " << message << std::endl;
+  TR_USE(CGE_Engine);
+  TR_WARN("MsgBox (not yet implemented): %s: %s", title.c_str(), message.c_str());
 }
