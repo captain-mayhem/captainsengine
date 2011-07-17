@@ -54,6 +54,8 @@ using Gui::DropDownButton;
 extern string path;
 extern string home;
 
+TR_CHANNEL(HQ_Client_Message);
+
 //Constructor: init all console commands
 Message::Message(): ss_(0) {
 	toDefend_ = false;
@@ -1510,7 +1512,8 @@ void Message::receiver(void* v){
       }
     }
     catch (SocketException& e){
-      CGE::Log << "Error: " + e.description();
+      TR_USE(HQ_Client_Message);
+      TR_ERROR("Error: %s", e.description().c_str());
     }
   }
 }

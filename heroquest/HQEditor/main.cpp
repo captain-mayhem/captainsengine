@@ -25,9 +25,12 @@ using std::ifstream;
 
 using namespace CGE;
 
+TR_CHANNEL(HQ_Editor);
+
 void engineMain(int argc, char** argv){
+  TR_USE(HQ_Editor);
   if (argc < 2){
-    Log << "Usage: HQEdit <mapfile>" << endl;
+    TR_ERROR("Usage: HQEdit <mapfile>");
     exit(EXIT_FAILURE);
   }
 
@@ -47,7 +50,7 @@ void engineMain(int argc, char** argv){
     string temp;
     ifstream in(argv[mc]);
     if (!(in >> temp)){
-      Log << "map not found" << endl;
+      TR_ERROR("map not found");
       exit(EXIT_FAILURE);
     }
 

@@ -192,7 +192,6 @@ void engineMain(int argc, char** argv){
   
   StreetGenerator strgen(&map);
   strgen.buildStreets(map.getStreets());
-  CGE::Log.flush();
 
   activeCam = &cam;
   followCam.setTarget(car);

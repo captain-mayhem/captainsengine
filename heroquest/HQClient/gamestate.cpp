@@ -32,6 +32,8 @@ using Gui::Button;
 using Gui::DropDownButton;
 using CGE::Font;
 
+TR_CHANNEL(HQ_Client_Gamestate);
+
 //Constructor
 GameState::GameState() : moves_(0){
 }
@@ -198,12 +200,13 @@ Vector2D GameState::getNextCreaturePos(){
 }
 
 void GameState::choosePackage(DropDownButton* pack, DropDownButton* level){
+  TR_USE(HQ_Client_Gamestate);
   ifstream in("levels/levels.dat");
   int number;
   in >> number;
   string name;
   if (!in){
-    CGE::Log << "levels.dat (packages) not found.";
+    TR_ERROR("levels.dat (packages) not found.");
     return;
   }
   for (int i = 0; i < number; i++){
@@ -217,7 +220,7 @@ void GameState::choosePackage(DropDownButton* pack, DropDownButton* level){
   ifstream in2(string("levels/"+pack->getText()+"/levels.dat").c_str());
   in2 >> number;
   if (!in2){
-    CGE::Log << "levels.dat (levels) not found.";
+    TR_ERROR("levels.dat (levels) not found.");
     return;
   }
   for (int i = 0; i < number; i++){

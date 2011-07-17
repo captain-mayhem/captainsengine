@@ -15,6 +15,8 @@ using MeshGeo::Mesh;
 using MeshGeo::Model;
 using namespace CGE;
 
+TR_CHANNEL(CGE_Editor);
+
 Graphic* Graphic::gra_ = NULL;
 
 Graphic::Graphic(){
@@ -90,9 +92,10 @@ void Graphic::init(){
 }
 
 void Graphic::addMesh(std::string filename){
+  TR_USE(CGE_Editor);
   MeshGeo::Mesh* mesh = new MeshGeo::Mesh();
   if (!mesh->loadFromFile(filename)){
-    CGE::Log << "cannot load file";
+    TR_ERROR("cannot load file %s", filename.c_str());
     std::cerr << "cannot load file";
     return;
   }

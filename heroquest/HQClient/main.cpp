@@ -26,7 +26,10 @@ ClientSocket* sock;
 string path;
 string home;
 
+TR_CHANNEL(HQ_Client)
+
 void engineMain(int argc, char** argv){
+  TR_USE(HQ_Client);
   path = "";
   home = "";
 #ifdef WIN32
@@ -44,7 +47,7 @@ void engineMain(int argc, char** argv){
   else
     home = path;
 #endif
-  CGE::Log << home;
+  TR_DEBUG(home.c_str());
   Renderer* rend = Engine::instance()->getRenderer();
   HQRenderer::init(rend);
 
