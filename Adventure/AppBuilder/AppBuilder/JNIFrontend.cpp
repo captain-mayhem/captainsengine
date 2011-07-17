@@ -18,7 +18,6 @@ extern "C"{
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename);
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time);
 JNIEXPORT jstring JNICALL Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env, jobject thiz );
-}
 
 class AndroidLogOutputter : public CGE::TraceOutputter{
   virtual bool init() {}
@@ -136,3 +135,13 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, j
   SoundEngine::instance()->update();
 }
 
+JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_move(JNIEnv* env, jobject obj, int x, int y){
+	if (x >= 0 && x <= 640 && y >= 0 && y <= 480)
+		Engine::instance()->setCursorPos(Vec2i(x,y));
+}
+
+JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_leftclick(JNIEnv* env, jobject obj, int x, int y){
+	Engine::instance()->leftClick(Vec2i(x,y));
+}
+
+}

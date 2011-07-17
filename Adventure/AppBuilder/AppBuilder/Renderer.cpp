@@ -19,6 +19,7 @@ void AdvRenderer::deinit(){
 #ifdef RENDER_GL2
 
 static const char vertexshadersource[] =
+"precision mediump float;\n"
 "attribute vec3 position;\n"
 "attribute vec4 texCoord;\n"
 "\n"
@@ -33,6 +34,7 @@ static const char vertexshadersource[] =
 "";
 
 static const char fragmentshadersource[] =
+"precision mediump float;\n"
 "varying vec4 tex_coord;\n"
 "\n"
 "uniform sampler2D texture;\n"

@@ -3,6 +3,7 @@ package de.captain.online;
 import android.opengl.GLSurfaceView;
 import android.content.Context;
 import android.util.Log;
+import android.view.MotionEvent;
 
 import javax.microedition.khronos.egl.EGL10;
 import javax.microedition.khronos.egl.EGLConfig;
@@ -225,7 +226,9 @@ class AdventureView extends GLSurfaceView{
 	
 	private /*static*/ class Renderer implements GLSurfaceView.Renderer {
         public void onDrawFrame(GL10 gl) {
-            AdventureLib.render(5);
+        	long newtime = System.currentTimeMillis();
+            AdventureLib.render((int)(newtime-mCurrentTime));
+            mCurrentTime = newtime;
         }
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
@@ -236,14 +239,29 @@ class AdventureView extends GLSurfaceView{
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             // Do nothing.
+        	mCurrentTime = System.currentTimeMillis();
         }
+        
+        public void handleMotionEvent(MotionEvent event){
+        	if (event.getAction() == MotionEvent.ACTION_MOVE){
+        		AdventureLib.move((int)event.getX(), (int)event.getY());
+        	}
+        	else if (event.getAction() == MotionEvent.ACTION_DOWN){
+        		AdventureLib.move((int)event.getX(), (int)event.getY());
+        		AdventureLib.leftclick((int)event.getX(), (int)event.getY());
+        	}
+        }
+        
+        private long mCurrentTime;
     }
 	
 	public AdventureView(Context context){
 		super(context);
 		setEGLContextFactory(new ContextFactory());
 		setEGLConfigChooser(new ConfigChooser(5, 6, 5, 0, 16, 0));
-		setRenderer(new Renderer());
+		Renderer rend = new Renderer();
+		setRenderer(rend);
+		mRenderer = rend;
 	}
 	
 	private static void checkEglError(String prompt, EGL10 egl) {
@@ -252,4 +270,18 @@ class AdventureView extends GLSurfaceView{
             Log.e(TAG, String.format("%s: EGL error: 0x%x", prompt, error));
         }
     }
+	
+	public boolean onTouchEvent(final MotionEvent event){
+		if (mRenderer == null)
+			return false;
+		queueEvent(new Runnable(){
+			public void run(){
+				mRenderer.handleMotionEvent(event);
+			}
+		}
+		);
+		return true;		
+	}
+	
+	private Renderer mRenderer;
 }
