@@ -150,7 +150,7 @@ RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : B
   int powy = (int)(height/mScale.y);
   glGenRenderbuffers(1, &mRenderBuffer);
   glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, (int)(width/mScale.x), (int)(height/mScale.y));
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, (int)(width/mScale.x), (int)(height/mScale.y));
   glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
   glGenFramebuffers(1, &mFrameBuffer);
@@ -159,8 +159,8 @@ RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : B
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBuffer);
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE){
-    TR_ERROR("Unable to create framebuffer");
-    DebugBreak();
+    TR_ERROR("Unable to create framebuffer - status %i", status);
+    //DebugBreak();
   }
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
