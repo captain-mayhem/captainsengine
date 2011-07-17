@@ -38,31 +38,18 @@ void internal_trace(unsigned group, int level, const char* file, const char* fun
 
 //tracing v2
 
+namespace CGE{
+
 class TraceOutputter{
 public:
   virtual bool init()=0;
   virtual void trace(unsigned channel, int level, const char* function, const char* message)=0;
 };
 
-class TraceManager{
-public:
-  ~TraceManager();
-  static TraceManager* instance() {if (mManager == NULL) mManager = new TraceManager(); return mManager;}
-  static void deinit() {delete mManager; mManager = NULL;}
-  unsigned registerChannel(const char* name);
-  void trace(unsigned channel, int level, const char* function, const char* message);
-  int getCurrentLevel(unsigned channel);
-  void setTraceOutputter(TraceOutputter* putty);
-protected:
-  TraceManager();
-  static TraceManager* mManager;
-  unsigned mChannelCount;
-  TraceOutputter* mPutty;
-};
-
 class TraceObject{
 public:
   TraceObject(const char* name);
+  TraceObject(const char* name, int level);
   void trace(int level, const char* function, const char* message, ...);
   bool isEnabled(int level);
 protected:
@@ -78,12 +65,15 @@ protected:
   std::ofstream mLog;
 };
 
+}
+
 #define STRINGIFY(x) INTERNAL_STRINGIFY(x)
 #define INTERNAL_STRINGIFY(x) #x
 
-#define TR_CHANNEL(name) static TraceObject name(STRINGIFY(name));
-#define TR_USE(name) TraceObject tracescopeobject = name
-#define TR_TRACE(level, message, ...) if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__)
+#define TR_CHANNEL(name) static CGE::TraceObject name(STRINGIFY(name));
+#define TR_CHANNEL_LVL(name, level) static CGE::TraceObject name(STRINGIFY(name), level);
+#define TR_USE(name) CGE::TraceObject tracescopeobject = name;
+#define TR_TRACE(level, message, ...) if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__);
 
 #define TR_ERROR(message, ...) TR_TRACE(TRACE_ERROR, message, ##__VA_ARGS__)
 #define TR_WARN(message, ...) TR_TRACE(TRACE_WARNING, message, ##__VA_ARGS__)

@@ -5,6 +5,9 @@
 #include <cstdarg>
 #include <iostream>
 #include <system/engine.h>
+#include "TraceManager.h"
+
+using namespace CGE;
 
 #define BUF_SIZE 1024
 
@@ -30,37 +33,12 @@ void internal_trace(unsigned group, int level, const char* file, const char* fun
 	}
 }
 
-TraceManager* TraceManager::mManager;
-
-TraceManager::TraceManager() : mChannelCount(0), mPutty(NULL){
-}
-
-TraceManager::~TraceManager(){
-  delete mPutty;
-}
-
-unsigned TraceManager::registerChannel(const char* name){
-  return ++mChannelCount;
-}
-
-int TraceManager::getCurrentLevel(unsigned channel){
-  return TRACE_CUSTOM;
-}
-
-void TraceManager::trace(unsigned channel, int level, const char* function, const char* message){
-  if (mPutty)
-    mPutty->trace(channel, level, function, message);
-  else
-    std::cout << level << "-" << /*file << " " <<*/ function << ": " << buffer << std::endl;
-}
-
-void TraceManager::setTraceOutputter(TraceOutputter* putty){
-  putty->init();
-  mPutty = putty;
-}
-
 TraceObject::TraceObject(const char* name){
   //std::map<std::string, unsigned>::iterator iter = mChannels.find(name);
+  mChannel = TraceManager::instance()->registerChannel(name);
+}
+
+TraceObject::TraceObject(const char* name, int level){
   mChannel = TraceManager::instance()->registerChannel(name);
 }
 
@@ -89,6 +67,6 @@ bool LogOutputter::init(){
 }
 
 void LogOutputter::trace(unsigned channel, int level, const char* function, const char* message){
-  mLog <<  level << "-" << /*file << " " <<*/ function << ": " << buffer << std::endl;
+  mLog <<  level << "-" << /*file << " " <<*/ function << ": " << message << std::endl;
   mLog.flush();
 }
