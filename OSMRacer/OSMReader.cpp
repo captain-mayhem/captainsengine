@@ -5,6 +5,8 @@
 #include "OSMMapAdapter.h"
 #include "Utilities.h"
 
+TR_CHANNEL(OSM_Reader)
+
 OSMReader::OSMReader(const std::string& filename) : mState(START){
   mDoc.LoadFile(filename.c_str());
 }
@@ -49,6 +51,7 @@ void OSMReader::readNode(TiXmlNode* node){
 }
 
 bool OSMReader::processElement(TiXmlNode* node){
+  TR_USE(OSM_Reader);
   //CGE::Log << node->Value() << "\n";
   TiXmlElement* elem = node->ToElement();
   if (std::strcmp(node->Value(),"osm") == 0){
@@ -97,11 +100,12 @@ bool OSMReader::processElement(TiXmlNode* node){
   if (std::strcmp(node->Value(),"relation") == 0){
     return true;
   }
-  CGE::Log << "Unexpected xml value " << node->Value() << "\n";
+  TR_WARN("Unexpected xml value %s", node->Value());
   return true;
 }
 
 bool OSMReader::processNode(TiXmlNode* node){
+  TR_USE(OSM_Reader);
   TiXmlElement* elem = node->ToElement();
   if (std::strcmp(node->Value(),"tag") == 0){
     std::pair<std::string,std::string> tag = readTag(elem);
@@ -124,11 +128,12 @@ bool OSMReader::processNode(TiXmlNode* node){
     //CGE::Log << "Unexpected tag in xml file: " << tag.first << " - " << tag.second << "\n";
     return true;
   }
-  CGE::Log << "Unexpected xml value " << node->Value() << "\n";
+  TR_WARN("Unexpected xml value %s", node->Value());
   return true;
 }
 
 bool OSMReader::processWay(TiXmlNode* node){
+  TR_USE(OSM_Reader);
   TiXmlElement* elem = node->ToElement();
   if (std::strcmp(node->Value(),"nd") == 0){
     uint64 ref = readULongAttribute(elem, "ref");
@@ -154,7 +159,7 @@ bool OSMReader::processWay(TiXmlNode* node){
         mCurrWay.street.streettype = StreetInfo::MEDIUM_LOCAL_STREET;
       }
       else{
-        CGE::Log << "Unexpected street qualifier: " << tag.first << " - " << tag.second << "\n";
+        TR_WARN("Unexpected street qualifier: %s - %s", tag.first.c_str(), tag.second.c_str());
       }
     }
     else if(tag.first == "name"){
@@ -167,11 +172,11 @@ bool OSMReader::processWay(TiXmlNode* node){
         mCurrWay.street.oneway = false;
     }
     else{
-      CGE::Log << "Unexpected street tag in xml file: " << tag.first << " - " << tag.second << "\n";
+      TR_WARN("Unexpected street tag in xml file: %s - %s", tag.first, tag.second);
     }
     return true;
   }
-  CGE::Log << "Unexpected xml value " << node->Value() << "\n";
+  TR_WARN("Unexpected xml value %s", node->Value());
   return true;
 }
 

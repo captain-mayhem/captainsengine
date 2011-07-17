@@ -13,6 +13,7 @@
 #include <list>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -26,7 +27,8 @@ using MeshGeo::Model;
 using CGE::Matrix;
 using CGE::Vector3D;
 using CGE::Vector2D;
-using CGE::Log;
+
+TR_CHANNEL(HQ_Editor_HQM);
 
 HQMExport::HQMExport(){
   width_ = 0;
@@ -44,6 +46,7 @@ HQMExport::~HQMExport(){
 }
 
 bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
+  TR_USE(HQ_Editor_HQM);
   const list<Model*>& models = scn.getModels();
   //determine size of the map
   list<Model*>::const_iterator iter;
@@ -230,13 +233,14 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
   
   //print out map
   for(int j = 0; j < height_; j++){
+    std::ostringstream Log;
     for (int i = 0; i < width_; i++){
       int tmp = map_[j][i].id;
       if (tmp < 10)
         Log << 0;
       Log << tmp<<" ";
     }
-    Log << std::endl;
+    TR_INFO(Log.str().c_str());
   }
   return false;
 }
