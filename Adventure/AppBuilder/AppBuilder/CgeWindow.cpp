@@ -4,6 +4,7 @@
 #include "input/mouse.h"
 #include "input/keyboard.h"
 #include "io/Tracing.h"
+#include "io/TraceManager.h"
 
 #include "AdvDoc.h"
 #include "Engine.h"
@@ -135,8 +136,8 @@ void key_release(int key){
 }
 
 void engineMain(int argc, char** argv){
-  LogOutputter* putty = new LogOutputter();
-  TraceManager::instance()->setTraceOutputter(putty);
+  CGE::LogOutputter* putty = new CGE::LogOutputter();
+  CGE::TraceManager::instance()->setTraceOutputter(putty);
   if (argc > 1)
     filename = argv[1];
   else

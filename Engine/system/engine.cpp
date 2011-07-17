@@ -13,6 +13,7 @@
 #include "../renderer/forms.h"
 #include "../physics/Simulator.h"
 #include "../io/Tracing.h"
+#include "../io/TraceManager.h"
 
 #ifdef WIN32
 #define TIME_FACTOR 0.001

@@ -4,6 +4,7 @@
 #include <android/log.h>
 
 #include <system/engine.h>
+#include <io/TraceManager.h>
 
 #include "AdvDoc.h"
 #include "Engine.h"
@@ -11,11 +12,38 @@
 #include "Renderer.h"
 #include "CmdReceiver.h"
 
+TR_CHANNEL(ADV_JNIFrontend);
+
 extern "C"{
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename);
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time);
 JNIEXPORT jstring JNICALL Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env, jobject thiz );
 }
+
+class AndroidLogOutputter : public CGE::TraceOutputter{
+  virtual bool init() {}
+  virtual void trace(unsigned channel, int level, const char* function, const char* message){
+	int prio;
+	switch(level){
+		case TRACE_DEBUG_DETAIL:
+			prio = ANDROID_LOG_VERBOSE;
+			break;
+		case TRACE_DEBUG:
+			prio = ANDROID_LOG_DEBUG;
+			break;
+		case TRACE_INFO:
+			prio = ANDROID_LOG_INFO;
+			break;
+		case TRACE_WARNING:
+			prio = ANDROID_LOG_WARN;
+			break;
+		case TRACE_ERROR:
+			prio = ANDROID_LOG_ERROR;
+			break;
+	}
+    __android_log_print(prio, "adventure", "%s (%s)", message, function);
+  }
+};
 
 AdvDocument* adoc;
 static bool shouldQuit = false;
@@ -30,21 +58,28 @@ void quit(){
 }
 
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename){
+	TR_USE(ADV_JNIFrontend);
 	const char* str = env->GetStringUTFChars(filename, NULL);
 	if (str == NULL)
 		return;
-		
-	__android_log_print(ANDROID_LOG_INFO, "libadventure", "native lib init, trying to load %s", str);
+	
+	AndroidLogOutputter* alo = new AndroidLogOutputter();
+	CGE::TraceManager::instance()->setTraceOutputter(alo);
+	TR_INFO("native lib init, trying to load %s", str);
 	
 	adoc = new AdvDocument();
 	if (!adoc->loadDocument(str)){
-	return;
+		TR_ERROR("failed to load adventure");
+		return;
 	}
+	
+	TR_DEBUG("init adventure engine");
 	Engine::init();
 	Engine::instance()->setData(adoc);
 	SoundEngine::init();
 	SoundEngine::instance()->setData(adoc);
 
+	TR_DEBUG("init renderer");
 	AdvRenderer::init();
 
 	GL()matrixMode(MM_PROJECTION);
@@ -68,8 +103,11 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jo
 
 	glViewport(0, 0, 640, 480);
 
+	TR_DEBUG("init remote server");
 	receiver.start();
+	TR_DEBUG("init game");
 	Engine::instance()->initGame(quit);
+	TR_DEBUG("init done");
 	
 	env->ReleaseStringUTFChars(filename, str);
 }
@@ -97,3 +135,4 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, j
 
   SoundEngine::instance()->update();
 }
+
