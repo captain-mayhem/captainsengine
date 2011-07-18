@@ -25,6 +25,8 @@ public:
   void setRotation(float angle) {mRotAngle = angle;}
   void setSpeedVariation(float variation) {mSpeedVariation = variation;}
   void activate(bool doit, bool immediately);
+  std::ostream& save(std::ostream& out);
+  std::istream& load(std::istream& in);
 protected:
   void addParticle();
   AdvDocument* mData;

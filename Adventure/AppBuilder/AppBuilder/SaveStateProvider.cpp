@@ -5,6 +5,7 @@
 
 #include "Engine.h"
 #include "Sound.h"
+#include "Particles.h"
 
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room){
   strm << room.base;
@@ -244,6 +245,7 @@ void SaveStateProvider::save(const std::string& name){
   out << Engine::instance()->mTextEnabled << " " << Engine::instance()->mFontID << std::endl;
   Engine::instance()->getInterpreter()->save(out);
   SoundEngine::instance()->save(out);
+  Engine::instance()->getParticleEngine()->save(out);
   if (Engine::instance()->mFocussedChar)
     removeCharacter(focussedcharname);
   out.close();
@@ -289,6 +291,7 @@ void SaveStateProvider::load(const std::string& name){
   in >> Engine::instance()->mTextEnabled >> Engine::instance()->mFontID;
   Engine::instance()->getInterpreter()->load(in);
   SoundEngine::instance()->load(in);
+  Engine::instance()->getParticleEngine()->load(in);
   allowWrites(false);
   in.close();
 }

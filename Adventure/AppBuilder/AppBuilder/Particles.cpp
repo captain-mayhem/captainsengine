@@ -109,3 +109,24 @@ void ParticleEngine::addParticle(){
   p.speed = mDir*speedvar;
   mParticles.push_back(p);
 }
+
+std::ostream& ParticleEngine::save(std::ostream& out){
+  out << mDir.x << " " << mDir.y << " " << mMaxParticles << " " << mRotAngle << " " << mSpeedVariation << " " << mEnabled << "\n";
+  if (mParticleObject != NULL){
+    out << mParticleObject->getName() << " " << mParticleObject->getRotation();
+  }
+  out << "\n";
+  return out;
+}
+
+std::istream& ParticleEngine::load(std::istream& in){
+  in >> mDir.x >> mDir.y >> mMaxParticles >> mRotAngle >> mSpeedVariation >> mEnabled;
+  std::string name;
+  in >> name;
+  if (!name.empty()){
+    float rot;
+    in >> rot;
+    setParticleObject(name, rot);
+  }
+  return in;
+}
