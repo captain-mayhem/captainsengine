@@ -430,6 +430,8 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
   else{
     std::string char2 = d.getString();
     CharacterObject* chr2 = Engine::instance()->getCharacter(char2);
+    if (chr1 == NULL || chr2 == NULL) //look at another character not possible, they are in different rooms
+      return 0;
     Vec2i dir = chr2->getPosition()-chr1->getPosition();
     chr1->setLookDir(dir);
   }

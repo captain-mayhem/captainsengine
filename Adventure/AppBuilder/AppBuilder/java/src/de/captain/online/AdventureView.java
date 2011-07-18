@@ -233,6 +233,9 @@ class AdventureView extends GLSurfaceView{
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             //AdventureLib.init(width, height);
+        	if (mInitialized)
+        		return;
+        	mInitialized = true;
         	String dir = "/mnt/sdcard/external_sd/adventure/testadv";
 			AdventureLib.init(dir+"/data/game.dat");
         }
@@ -253,6 +256,7 @@ class AdventureView extends GLSurfaceView{
         }
         
         private long mCurrentTime;
+        boolean mInitialized;
     }
 	
 	public AdventureView(Context context){

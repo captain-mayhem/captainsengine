@@ -240,6 +240,7 @@ protected:
   bool loadFile1(CGE::MemReader& txtstream);
   bool loadFile2(CGE::MemReader& txtstream);
   bool loadFile3(CGE::MemReader& txtstream);
+  bool loadFile5(CGE::MemReader& txtstream);
   float readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames& frms);
   ProjectSettings mSettings;
   std::map<std::string,std::string> mImageNames;
@@ -259,6 +260,7 @@ protected:
   std::string mPath;
   std::string mFilename;
   bool mUseCompressedData;
+  std::string mZipPwd;
 };
 
 #endif

@@ -78,14 +78,17 @@ bool ZipReader::openFile(const std::string& filename){
   return true;
 }
 
-MemReader ZipReader::openEntry(const std::string& entry){
+MemReader ZipReader::openEntry(const std::string& entry, const std::string& password){
   if (!mHandle)
     return MemReader(NULL, 0);
   int ret = unzLocateFile(mHandle, entry.c_str(), 0);
   if (ret != 0){
     return MemReader(NULL, 0);
   }
-  unzOpenCurrentFile(mHandle);
+  if (password.empty())
+    unzOpenCurrentFile(mHandle);
+  else
+    unzOpenCurrentFilePassword(mHandle, password.c_str());
   unz_file_info info;
   unzGetCurrentFileInfo(mHandle, &info, NULL, 0, NULL, 0, NULL, 0);
   if (info.uncompressed_size > mBufferSize){

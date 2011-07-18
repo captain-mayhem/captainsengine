@@ -54,6 +54,10 @@ bool AdvDocument::loadDocument(const std::string filename){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
+  rdr = zrdr.openEntry("game.005");
+  if(!loadFile5(rdr)){
+    mZipPwd = "";
+  }
 
   if (mFilename.substr(mFilename.size()-4) == ".dat")
     mUseCompressedData = true;
@@ -280,7 +284,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       it.name = name;
       int numStates = STATES_MAX;
       int delim = 2;
-      if (ver_major == 2){
+      if (ver_major < 3 || (ver_major == 3 && ver_minor == 0)){
         numStates = 1;
         delim = 1;
       }
@@ -328,7 +332,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.textcolor = val1;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.walkspeed = val1;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.notzoom = (val1 != 0);
-      if (ver_major >= 3)
+      if (ver_major > 3 || (ver_major == 3 && ver_minor > 0))
         str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.realleft = (val1 != 0);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.memresistent = (val1 != 0);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.ghost = (val1 != 0);
@@ -543,6 +547,28 @@ bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
   return true;
 }
 
+bool AdvDocument::loadFile5(CGE::MemReader& txtstream){
+  if (!txtstream.isWorking())
+    return false;
+  std::string str = txtstream.readLine();
+  std::string pwd;
+  for (int i = 0; i < 20; ++i){
+    int val = atoi(str.substr(i*3, 3).c_str());
+    char curr;
+    if (i >= 15)
+      curr = val/3;
+    else if (i >= 10)
+      curr = val/6;
+    else if (i >= 5)
+      curr = val/4;
+    else
+      curr = val/5;
+    pwd += curr;
+  }
+  mZipPwd = pwd;
+  return true;
+}
+
 CGE::Image* AdvDocument::getImage(const std::string& name){
   std::string filename;
   std::map<std::string,std::string>::iterator iter = mImageNames.find(name);
@@ -560,7 +586,7 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
     int namepos = filename.find_last_of('/');
     static CGE::ZipReader zrdr(mPath+"/gfx.dat");
     std::string imagename = filename.substr(namepos+1);
-    CGE::MemReader rdr = zrdr.openEntry(imagename);
+    CGE::MemReader rdr = zrdr.openEntry(imagename, mZipPwd);
     if (!rdr.isWorking())
       return NULL;
     int extpos = filename.find_last_of('.');
@@ -568,7 +594,7 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
     if (filename.substr(extpos+1) == "pnj"){
       CGE::Image* rgbimage = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), CGE::ImageLoader::JPG);
       filename[filename.length()-1] = 'a';
-      rdr = zrdr.openEntry(filename.substr(namepos+1));
+      rdr = zrdr.openEntry(filename.substr(namepos+1), mZipPwd);
       CGE::Image* alphaimage = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), CGE::ImageLoader::JPG);
       img = new CGE::Image(rgbimage->getNumChannels(), rgbimage->getWidth(), rgbimage->getHeight(), rgbimage->getData(), alphaimage->getNumChannels(), alphaimage->getData());
       delete rgbimage;
@@ -590,7 +616,7 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
   db.name = filename.substr(pos+1);
   if (mUseCompressedData){
     static CGE::ZipReader zrdr(mPath+"/sfx.dat");
-    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1), mZipPwd);
     if (!rdr.isWorking())
       return false;
     db.length = rdr.getSize();
@@ -612,7 +638,7 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
   db.name = filename.substr(pos+1);
   if (mUseCompressedData){
     static CGE::ZipReader zrdr(mPath+"/music.dat");
-    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1), mZipPwd);
     if (!rdr.isWorking())
       return false;
     db.length = rdr.getSize();
@@ -634,7 +660,7 @@ bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
   db.name = filename.substr(pos+1);
   if (mUseCompressedData){
     static CGE::ZipReader zrdr(mPath+"/movie.dat");
-    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1));
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1), mZipPwd);
     if (!rdr.isWorking())
       return false;
     db.length = rdr.getSize();

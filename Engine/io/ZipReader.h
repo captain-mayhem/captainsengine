@@ -13,7 +13,7 @@ public:
   ZipReader(const std::string& zippath);
   ZipReader(void* address, uint32 length);
 	bool openFile(const std::string& filename);
-  MemReader openEntry(const std::string& entry);
+  MemReader openEntry(const std::string& entry, const std::string& password="");
   virtual ~ZipReader();
 protected:
 #ifdef WIN32
