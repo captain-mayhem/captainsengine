@@ -9,6 +9,8 @@
 #include "ScriptFunc.h"
 #include <system/allocation.h>
 
+TR_CHANNEL(ADV_Script)
+
 CodeSegment::~CodeSegment(){
   --(*mRefCount);
   if (*mRefCount > 0)
@@ -226,6 +228,7 @@ unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mod
 }
 
 unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
+  TR_USE(ADV_Script);
   unsigned count = 0;
   switch(node->getType()){
       case ASTNode::FUNCCALL:{
@@ -393,8 +396,17 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         count += 1;
       }
       break;
+      case ASTNode::CONCATENATION:{
+        ConcatenationNode* concatnode = static_cast<ConcatenationNode*>(node);
+        count += transform(concatnode->left(), codes);
+        count += transform(concatnode->right(), codes);
+        codes->addCode(new CCONCAT());
+        count += 1;
+      }
+      break;
       default:
-        //wxMessageBox("Unhandled AST-Type");
+        TR_ERROR("Unhandled AST-Type");
+        DebugBreak();
         break;
   }
   return count;
@@ -630,6 +642,10 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
     return EVT_LEVEL;
   else if (eventname == "doubleclick")
     return EVT_DBLCLCK;
+  else if (eventname == "mouseout")
+    return EVT_MOUSEOUT;
+  else if (eventname == "release")
+    return EVT_RELEASE;
   std::map<std::string,unsigned>::iterator iter = mData->getProjectSettings()->commands.find(eventname);
   if (iter != mData->getProjectSettings()->commands.end()){
     return static_cast<EngineEvent>(iter->second);

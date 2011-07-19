@@ -11,6 +11,8 @@ options{
 
 @parser::postinclude{
 extern ASTNode* stringify(ASTNode* tree);
+extern ASTNode* concatinateStr(ASTNode* left, const char* right);
+extern ASTNode* concatinateVar(ASTNode* left, VariableNode* right);
 }
 
 prog returns [NodeList* nodes]
@@ -113,12 +115,16 @@ arg_list returns [NodeList* nodes]
 arg	returns [ASTNode* value]
 	:
 	arg_header?
-	(exp=rel_expr {$value = exp.exp;}
+	((rel_expr) => exp=rel_expr {$value = exp.exp;}
 		//workaraound for strings that look like expressions first
 		(comp_arg=complex_arg
 			{IdentNode* ident = (IdentNode*)stringify($value); ident->append(((IdentNode*)comp_arg.value)->value().c_str()); delete $value; delete comp_arg.value; $value = ident;}
 		)?
-	| ca=complex_arg {$value = ca.value;}
+	| (ca=complex_arg {$value = ca.value;}
+		(vari=variable {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}
+		| ca2=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}
+		)*
+	  )
 	)
 ;
 

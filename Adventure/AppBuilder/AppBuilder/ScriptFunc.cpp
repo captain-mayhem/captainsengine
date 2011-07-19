@@ -91,6 +91,11 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setparticles", setParticles);
   interpreter->registerFunction("startparticles", startParticles);
   interpreter->registerFunction("stopparticles", stopParticles);
+  interpreter->registerFunction("function", function);
+  interpreter->registerFunction("stopfunction", stopFunction);
+  interpreter->registerFunction("speechvolume", speechVolume);
+  interpreter->registerFunction("setlanguage", setLanguage);
+  interpreter->registerFunction("if_room", isCurrentRoom);
   srand((unsigned)time(NULL));
 }
 
@@ -1091,6 +1096,38 @@ int ScriptFunctions::stopParticles(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
+  std::string scriptname = ctx.stack().pop().getString();
+  DebugBreak();
+  int numExecutions = 1;
+  if (numArgs > 1){
+    StackData d = ctx.stack().pop();
+    if (d.getInt() == 0){
+    }
+    else
+      numExecutions = atoi(d.getString().c_str());
+  }
+  return 0;
+}
+
+int ScriptFunctions::stopFunction(ExecutionContext& ctx, unsigned numArgs){
+  std::string scriptname = ctx.stack().pop().getString();
+  DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::speechVolume(ExecutionContext& ctx, unsigned numArgs){
+  int volume = ctx.stack().pop().getInt();
+  //DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::setLanguage(ExecutionContext& ctx, unsigned numArgs){
+  std::string language = ctx.stack().pop().getString();
+  DebugBreak();
+  return 0;
+}
+
 
 int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){
   for (unsigned i = 0; i < numArgs; ++i){
@@ -1217,8 +1254,28 @@ int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArg
   std::string itemname = ctx.stack().pop().getString();
   ctx.stack().push(0);
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
-  if (!chr)
-    DebugBreak();
+  if (!chr){
+    if (charname == "self"){ //no focussed char, so he cannot possess it
+      ctx.stack().push(1);
+      return 2;
+    }
+    std::string room;
+    std::string realName;
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, realName);
+    bool found = false;
+    for (std::map<int,std::vector<std::string> >::iterator iter = cso->inventory.items.begin(); iter != cso->inventory.items.end(); ++iter){
+      for (unsigned i = 0; i < iter->second.size(); ++i){
+        if (_stricmp(itemname.c_str(), iter->second[i].c_str()) == 0){
+          found = true;
+          break;
+        }
+      }
+      if (found)
+        break;
+    }
+    ctx.stack().push(found ? 0 : 1);
+    return 2;
+  }
   if (chr->getInventory()->getItem(itemname))
     ctx.stack().push(0);
   else
@@ -1270,3 +1327,14 @@ int ScriptFunctions::isStringEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
+int ScriptFunctions::isCurrentRoom(ExecutionContext& ctx, unsigned numArgs){
+  std::string room = ctx.stack().pop().getString();
+  ctx.stack().push(0);
+  RoomObject* ro = Engine::instance()->getRoom("");
+  if (!ro){
+    ctx.stack().push(1);
+    return 2;
+  }
+  ctx.stack().push(_stricmp(room.c_str(), ro->getName().c_str()));
+  return 2;
+}

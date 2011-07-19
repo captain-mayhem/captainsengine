@@ -20,6 +20,7 @@ public:
     ROWDEF,
     TIMERFUNC,
     ARITHMETIC,
+    CONCATENATION,
   };
   ASTNode(Type t) : mType(t) {}
   virtual ~ASTNode(){}
@@ -261,6 +262,21 @@ public:
   ASTNode*& right() {return mRight;}
 protected:
   Type mType;
+  ASTNode* mLeft;
+  ASTNode* mRight;
+};
+
+class ConcatenationNode : public ASTNode{
+public:
+  ConcatenationNode() : ASTNode(CONCATENATION), mLeft(NULL), mRight(NULL) {}
+  //ArithmeticNode(ASTNode* left, Type t, ASTNode* right) : ASTNode(ARITHMETIC), mLeft(left), mType(t), mRight(right) {}
+  virtual ~ConcatenationNode(){
+    delete mLeft;
+    delete mRight;
+  }
+  ASTNode*& left() {return mLeft;}
+  ASTNode*& right() {return mRight;}
+protected:
   ASTNode* mLeft;
   ASTNode* mRight;
 };

@@ -62,6 +62,11 @@ public:
   **/
   static int follow(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param scriptname name of the script to execute as function
+  \param loops [opt] number of loops to execute (also "*" or "infinity" possible)
+  **/
+  static int function(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param name [opt] name of the object to link for giving
   **/
   static int giveLink(ExecutionContext& ctx, unsigned numArgs);
@@ -220,6 +225,10 @@ public:
   **/
   static int setFont(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param language choose the language for the game
+  **/
+  static int setLanguage(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param room name of the room
   \param r red-component
   \param g green-component
@@ -276,6 +285,10 @@ public:
   **/
   static int speech(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param volume the volume of speech
+  **/
+  static int speechVolume(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param fast [opt] show particles immediately
   **/
   static int startParticles(ExecutionContext& ctx, unsigned numArgs);
@@ -284,6 +297,10 @@ public:
   \param direction makes a step into the given direction
   **/
   static int stepTo(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param scriptname the function to stop
+  **/
+  static int stopFunction(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param fast [opt] show particles immediately
   **/
@@ -344,6 +361,7 @@ public:
   static int isCharPossessingItem(ExecutionContext& ctx, unsigned numArgs);
   static int isCharTriggering(ExecutionContext& ctx, unsigned numArgs);
   static int isCommandSet(ExecutionContext& ctx, unsigned numArgs);
+  static int isCurrentRoom(ExecutionContext& ctx, unsigned numArgs);
   static int isObjectInState(ExecutionContext& ctx, unsigned numArgs);
   static int isLinkedObject(ExecutionContext& ctx, unsigned numArgs);
   static int isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs);
