@@ -52,6 +52,7 @@ public:
   PcdkScript* getInterpreter() {return mInterpreter;}
   FontRenderer* getFontRenderer() {return mFonts;}
   void setObjectString(const std::string info) {mObjectInfo = info;}
+  void setObjectTooltipString(const std::string& info) {mObjectTooltipInfo = info;}
   void walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir);
   Animator* getAnimator() {return mAnimator;}
   SaveStateProvider* getSaver() {return mSaver;}
@@ -141,11 +142,13 @@ protected:
   std::list<Vec2i> reconstruct_path(AStarData node, const std::set<AStarData>& data);
   //engine - script communication
   std::string mObjectInfo;
+  std::string mObjectTooltipInfo;
   unsigned mActiveCommand;
   unsigned mPrevActiveCommand;
   std::string mUseObjectName;
   std::string mGiveObjectName;
   std::string mLinkObjectInfo;
+  Object2D* mCurrentObject;
   ExecutionContext* mMainScript;
   bool mKeysDown[256];
   bool mKeysPressed[256];

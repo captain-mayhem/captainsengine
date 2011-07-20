@@ -97,6 +97,7 @@ void Engine::initGame(exit_callback exit_cb){
   mFonts->loadFont(mFontID);
   mActiveCommand = 0;
   mPrevActiveCommand = 0;
+  mCurrentObject = NULL;
   //load taskbar room
   if (mData->getProjectSettings()->taskroom != ""){
     loadRoom(mData->getProjectSettings()->taskroom, true, NULL);
@@ -142,6 +143,7 @@ void Engine::exitGame(){
   if (!mInitialized)
     return;
   mInitialized = false;
+  mCurrentObject = NULL;
   mInterpreter->stop();
   delete mMainScript;
   mAnimator->clear();
@@ -262,10 +264,24 @@ void Engine::render(unsigned time){
   //do some scripting
   Object2D* obj = getObjectAt(mCursor->getPosition());
   if (obj != NULL){
-    ExecutionContext* script = obj->getScript();
-    if (script != NULL){
-      script->setEvent(EVT_MOUSE);
+    if (mCurrentObject != obj){
+      mCurrentObject = obj;
+      mObjectInfo.clear();
+      mObjectTooltipInfo.clear();
+      ExecutionContext* script = obj->getScript();
+      if (script != NULL){
+        script->setEvent(EVT_MOUSE);
+      }
     }
+  }
+  else{
+    if (mCurrentObject){
+      ExecutionContext* script = mCurrentObject->getScript();
+      script->setEvent(EVT_MOUSEOUT);
+      mCurrentObject = NULL;
+    }
+    mObjectInfo.clear();
+    mObjectTooltipInfo.clear();
   }
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     ExecutionContext* script = (*iter)->getScript();
@@ -286,6 +302,14 @@ void Engine::render(unsigned time){
   clearGui();
 
   mInterpreter->update(interval);
+
+  //display tooltip
+  if (!mObjectTooltipInfo.empty()){
+    std::vector<Vec2i> breakinfo;
+    Vec2i pos = Engine::instance()->getCursorPos();
+    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(mObjectTooltipInfo, 1, breakinfo);
+    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, mObjectTooltipInfo, DEPTH_GAME_FONT, 1, breakinfo);
+  }
 
   //can't all
   if (mFocussedChar){
@@ -348,7 +372,6 @@ void Engine::render(unsigned time){
   }
   if (!mObjectInfo.empty()){
     text += " "+mObjectInfo;
-    mObjectInfo.clear();
   }
   //elevate the action line
   if (mTaskbar && !mInterpreter->isBlockingScriptRunning() && mShowTaskbar){
@@ -527,6 +550,9 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
   }
   mRoomsToUnload.push_back(room);
   room->skipScripts();
+  if (mCurrentObject)
+    mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
+  mCurrentObject = NULL;
   //room->save();
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     if (*iter == room){

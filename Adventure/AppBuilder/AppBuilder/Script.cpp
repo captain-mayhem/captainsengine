@@ -472,7 +472,15 @@ void PcdkScript::update(unsigned time){
   //check if a character becomes current during that script run
   mACharacterAtScriptStart = Engine::instance()->getCharacter("self") != NULL;
   for (std::list<std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
-    iter->first->setState(iter->second);
+    if (iter->first->getScript()->isEventSet(EVT_MOUSEOUT)){
+      iter->first->getScript()->resetEvent(EVT_MOUSEOUT);
+      iter->first->setState(iter->second);
+      iter = mPrevState.erase(iter);
+      if (iter != mPrevState.begin())
+        --iter;
+      if (iter == mPrevState.end())
+        break;
+    }
   }
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ){
     std::set<EngineEvent> events;
