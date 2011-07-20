@@ -96,6 +96,15 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("speechvolume", speechVolume);
   interpreter->registerFunction("setlanguage", setLanguage);
   interpreter->registerFunction("if_room", isCurrentRoom);
+  interpreter->registerFunction("entertext", enterText);
+  interpreter->registerFunction("if_mousewheel", isMouseWheelEqual);
+  interpreter->registerFunction("fadespeed", fadeSpeed);
+  interpreter->registerFunction("seteax", setEAX);
+  interpreter->registerFunction("bindtext", bindText);
+  interpreter->registerFunction("textout", textOut);
+  interpreter->registerFunction("textspeed", textSpeed);
+  interpreter->registerFunction("setpos", setPos);
+  interpreter->registerFunction("minicut", miniCut);
   srand((unsigned)time(NULL));
 }
 
@@ -319,6 +328,11 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   LookDir dir = UNSPECIFIED;
   if (numArgs >= 5)
     dir = (LookDir)(ctx.stack().pop().getInt()-1);
+  CharacterObject* focussedChar = Engine::instance()->getCharacter("self");
+  if (focussedChar){
+     if(_stricmp(charname.c_str(), focussedChar->getName().c_str()) == 0)
+       charname = "self";
+  }
   if (charname == "self"){
     //focussed char, therefore change room
     Engine::instance()->loadRoom(roomname, false, &ctx);
@@ -1041,7 +1055,7 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
     obj->setPosition(newpos);
     return 0;
   }
-  DebugBreak();
+  //DebugBreak();
   return 0;
 }
 
@@ -1124,10 +1138,78 @@ int ScriptFunctions::speechVolume(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::setLanguage(ExecutionContext& ctx, unsigned numArgs){
   std::string language = ctx.stack().pop().getString();
+  //DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
   DebugBreak();
   return 0;
 }
 
+int ScriptFunctions::fadeSpeed(ExecutionContext& ctx, unsigned numArgs){
+  DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::setEAX(ExecutionContext& ctx, unsigned numArgs){
+  std::string effect = ctx.stack().pop().getString();
+  //DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
+  int textnum = ctx.stack().pop().getInt();
+  std::string room = ctx.stack().pop().getString();
+  //DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
+  if (numArgs < 4)
+    DebugBreak();
+  int textnum = ctx.stack().pop().getInt();
+  StackData text = ctx.stack().pop();
+  int x = ctx.stack().pop().getInt();
+  int y = ctx.stack().pop().getInt();
+  int font = -1;
+  if (numArgs >= 5)
+    font = ctx.stack().pop().getInt();
+  if (numArgs >= 6 && numArgs < 8)
+    DebugBreak();
+  if (numArgs == 8){
+    Color col;
+    col.r = ctx.stack().pop().getInt();
+    col.g = ctx.stack().pop().getInt();
+    col.b = ctx.stack().pop().getInt();
+  }
+  //DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
+  std::string speed = ctx.stack().pop().getString();
+  //DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
+  std::string room = ctx.stack().pop().getString();
+  Vec2i pos;
+  pos.x = ctx.stack().pop().getInt();
+  pos.y = ctx.stack().pop().getInt();
+  std::string dir = ctx.stack().pop().getString();
+  if (numArgs > 4)
+    DebugBreak();
+  //DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::miniCut(ExecutionContext& ctx, unsigned numArgs){
+  if (numArgs > 0)
+    DebugBreak();
+  return 0;
+}
 
 int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){
   for (unsigned i = 0; i < numArgs; ++i){
@@ -1336,5 +1418,12 @@ int ScriptFunctions::isCurrentRoom(ExecutionContext& ctx, unsigned numArgs){
     return 2;
   }
   ctx.stack().push(_stricmp(room.c_str(), ro->getName().c_str()));
+  return 2;
+}
+
+int ScriptFunctions::isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs){
+  std::string dir = ctx.stack().pop().getString();
+  ctx.stack().push(0);
+  ctx.stack().push(1);
   return 2;
 }

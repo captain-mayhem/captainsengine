@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <system/engine.h>
 
 class ASTNode{
 public:
@@ -112,6 +113,7 @@ class FuncCallNode : public StmtNode{
 public:
   FuncCallNode(std::string func, NodeList* args) : StmtNode(FUNCCALL) {
     mFunc = func;
+    toLower(mFunc);
     mArgs = args;
   }
   ~FuncCallNode(){
