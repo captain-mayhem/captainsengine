@@ -124,11 +124,10 @@ int ScriptFunctions::showInfo(ExecutionContext& ctx, unsigned numArgs){
   std::string text = ctx.stack().pop().getString();
   bool show = ctx.stack().pop().getBool();
   if (show){
-    std::vector<Vec2i> breakinfo;
-    Vec2i pos = Engine::instance()->getCursorPos();
-    Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, 1, breakinfo);
-    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, text, DEPTH_GAME_FONT, 1, breakinfo);
+    Engine::instance()->setObjectTooltipString(text);
   }
+  else
+    Engine::instance()->setObjectTooltipString("");
   Engine::instance()->setObjectString(text);
   return 0;
 }
