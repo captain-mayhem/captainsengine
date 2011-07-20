@@ -30,6 +30,11 @@ public:
   **/
   static int beamTo(ExecutionContext& ctx, unsigned numArgs);
   /**
+    \param number identifies the textout line
+    \param room the room to which the text should be bound
+  **/
+  static int bindText(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param command name of the command to set
   **/
   static int command(ExecutionContext& ctx, unsigned numArgs);
@@ -55,6 +60,22 @@ public:
   /**
   **/
   static int endScene(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param display the string to display before the prompt
+  \param variable the variable where to save the user's input
+  \param x the x position of the prompt
+  \param y the y position of the prompt
+  \param font [opt] the font to use
+  \param maxletters [opt] the maximum number of characters allowed as input
+  \param red [opt] the red component of the text's color
+  \param green [opt] the green component of the text's color
+  \param blue [opt] the blue component of the text's color
+  **/
+  static int enterText(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param speed 1-15 or time in ms
+  **/
+  static int fadeSpeed(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param char1 name of the character to follow char2
   \param char2 name of the character to be followed by char1
@@ -130,6 +151,10 @@ public:
   \param sound the looping sound name which should be stopped
   **/
   static int loopStop(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param donthide [opt] don't hide the taskbar / anywhere objects
+  **/
+  static int miniCut(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param instance name of the object instance
   \param x the x-position the object should be moved to
@@ -215,6 +240,10 @@ public:
   **/
   static int setCharLight(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param effect sets the eax effect
+  **/
+  static int setEAX(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param character name of the character to focus
   special values none/last
   **/
@@ -256,6 +285,14 @@ public:
   \param variation the variation in speed of the particles in percent
   **/
   static int setParticles(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param room the room where the camera position should be set
+  \param x the x-position of the camera
+  \param y the y-position of the camera
+  \param immediately set the camera position immediately
+  \param dir [opt] up/down/left/right moves the new position graphically to the old one
+  **/
+  static int setPos(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param change changes style of room changes
   **/
@@ -322,6 +359,18 @@ public:
   /**
   **/
   static int stopMusic(ExecutionContext& ctx, unsigned numArgs);
+   /**
+  \param num the number of the text
+  \param text the text to display
+  \param x the x position of the text
+  \param y the y position of the text
+  \param font [opt] the font to use
+  \param red [opt] the red component of the text's color
+  \param green [opt] the green component of the text's color
+  \param blue [opt] the blue component of the text's color
+  **/
+  static int textOut(ExecutionContext& ctx, unsigned numArgs);
+  /**
   /**
   \param textscene name of the textscene to start
   \param posx [opt] x-position of the textscene
@@ -329,6 +378,10 @@ public:
   \param width [opt] width if the textscene
   **/
   static int textScene(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param speed fast/normal/slow
+  **/
+  static int textSpeed(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param show true/false
   **/
@@ -368,6 +421,7 @@ public:
   static int isNumEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs);
+  static int isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isStringEqual(ExecutionContext& ctx, unsigned numArgs);
 };
 
