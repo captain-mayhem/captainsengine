@@ -44,6 +44,7 @@ public:
   bool isBlockingScriptRunning() {return mGlobalSuspend;}
   static void clickEndHandler(ExecutionContext& ctx);
   ExecutionContext* getCutscene() {return mCutScene;}
+  void applyPrevState(Object2D* obj);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode);
   unsigned transform(ASTNode* node, CodeSegment* codes);
@@ -72,7 +73,7 @@ protected:
   std::map<std::string, std::map<int, std::map<int, bool> > > mTSActive;
   bool mGlobalSuspend;
   std::string mPrevActiveCommand;
-  std::list<std::pair<Object2D*, int> > mPrevState;
+  std::map<Object2D*, int> mPrevState;
   std::map<std::string, int> mKeymap;
   std::vector<ObjectGroup*> mGroups;
   bool mACharacterAtScriptStart;

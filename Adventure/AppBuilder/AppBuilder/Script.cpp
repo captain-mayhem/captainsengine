@@ -234,6 +234,9 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       case ASTNode::FUNCCALL:{
         FuncCallNode* fc = static_cast<FuncCallNode*>(node);
         if (fc->getName() == "break"){
+          ScriptFunc f = mFunctions["break"];
+          codes->addCode(new CCALL(f, 0));
+          ++count;
           CBRA* jmp = new CBRA();
           codes->addCode(jmp);
           ++count;
@@ -438,32 +441,6 @@ CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
   return NULL;
 }
 
-ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
-mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
-mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false){
-
-}
-
-ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
-  mCode = new CodeSegment(*ctx.mCode);
-  mIsGameObject = ctx.mIsGameObject;
-  mObjectInfo = ctx.mIsGameObject;
-  mStack = ctx.mStack;
-  mPC = ctx.mPC;
-  mEvents = ctx.mEvents;
-  mExecuteOnce = ctx.mExecuteOnce;
-  mHandler = ctx.mHandler;
-  mSuspended = ctx.mSuspended;
-  mSleepTime = ctx.mSleepTime;
-  mOwner = ctx.mOwner;
-  mSkip = ctx.mSkip;
-  mIdle = ctx.mIdle;
-}
-
-ExecutionContext::~ExecutionContext(){
-  delete mCode;
-}
-
 void PcdkScript::registerFunction(std::string name, ScriptFunc func){
   mFunctions[name] = func;
 }
@@ -471,8 +448,8 @@ void PcdkScript::registerFunction(std::string name, ScriptFunc func){
 void PcdkScript::update(unsigned time){
   //check if a character becomes current during that script run
   mACharacterAtScriptStart = Engine::instance()->getCharacter("self") != NULL;
-  for (std::list<std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
-    if (iter->first->getScript()->isEventSet(EVT_MOUSEOUT)){
+  //for (std::list<std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
+    /*if (iter->first->getScript()->isEventSet(EVT_MOUSEOUT)){
       iter->first->getScript()->resetEvent(EVT_MOUSEOUT);
       iter->first->setState(iter->second);
       iter = mPrevState.erase(iter);
@@ -480,14 +457,14 @@ void PcdkScript::update(unsigned time){
         --iter;
       if (iter == mPrevState.end())
         break;
-    }
-  }
+    }*/
+  //}
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ){
-    std::set<EngineEvent> events;
+    std::list<EngineEvent> events;
     if (mGlobalSuspend){
       //only set loop1 which is always executed
       events = (*iter)->getEvents();
-      (*iter)->resetEvents();
+      (*iter)->resetEvents(false);
       (*iter)->setEvent(EVT_LOOP1);
     }
     update(*iter, time);
@@ -533,7 +510,7 @@ void PcdkScript::update(unsigned time){
         --mTSLevel;
       //goto another level
       if (mNextTSLevel != 0){
-        mCutScene->resetEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
+        //mCutScene->resetEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
         mTSLevel = mNextTSLevel;
         mNextTSLevel = 0;
       }
@@ -565,21 +542,26 @@ void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
 }
 
 void PcdkScript::executeImmediately(ExecutionContext* script){
-  if (script->mSuspended)
-    return;
-  CCode* code = script->mCode->get(script->mPC);
-  while(code){
-    int result = script->mPC = code->execute(*script, script->mPC);
+  do{
     if (script->mSuspended)
-      break;
-    code = script->mCode->get(script->mPC);
-  }
-  //script ran through
-  if (!script->mSuspended && script->mCode && script->mPC >= script->mCode->numInstructions()){
-    if (script->mHandler)
-      script->mHandler(*script);
-    script->reset(false);
-  }
+      return;
+    CCode* code = script->mCode->get(script->mPC);
+    while(code){
+      int result = script->mPC = code->execute(*script, script->mPC);
+      if (script->mSuspended)
+        break;
+      code = script->mCode->get(script->mPC);
+    }
+    //script ran through
+    if (!script->mSuspended && script->mCode && script->mPC >= script->mCode->numInstructions()){
+      //if (script->mHandler)
+      //  script->mHandler(*script);
+      clickEndHandler(*script);
+      script->reset(false);
+      if (!script->getEvents().empty())
+        script->getEvents().pop_front();
+    }
+  } while (!script->getEvents().empty() && !script->mExecuteOnce);
 }
 
 void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
@@ -602,13 +584,14 @@ void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
 }
 
 void PcdkScript::remove(Object2D* object){
-  for (std::list<std::pair<Object2D*, int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ){
+  /*for (std::list<std::pair<Object2D*, int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ){
     if (iter->first == object){
       iter = mPrevState.erase(iter);
     }
     else
       ++iter;
-  }
+  }*/
+  applyPrevState(object);
   remove(object->getScript());
 }
 
@@ -668,25 +651,64 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
   return EVT_NONE;
 }
 
-void ExecutionContext::setEvent(EngineEvent evt){
-  if (!mSuspended)
-    mEvents.insert(evt);
+ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
+mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
+mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false){
+
 }
 
-void ExecutionContext::setEvents(std::set<EngineEvent>& events){
+ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
+  mCode = new CodeSegment(*ctx.mCode);
+  mIsGameObject = ctx.mIsGameObject;
+  mObjectInfo = ctx.mIsGameObject;
+  mStack = ctx.mStack;
+  mPC = ctx.mPC;
+  mEvents = ctx.mEvents;
+  mExecuteOnce = ctx.mExecuteOnce;
+  mHandler = ctx.mHandler;
+  mSuspended = ctx.mSuspended;
+  mSleepTime = ctx.mSleepTime;
+  mOwner = ctx.mOwner;
+  mSkip = ctx.mSkip;
+  mIdle = ctx.mIdle;
+  mEventHandled = ctx.mEventHandled;
+}
+
+ExecutionContext::~ExecutionContext(){
+  delete mCode;
+}
+
+void ExecutionContext::setEvent(EngineEvent evt){
+  if (!mSuspended)
+    mEvents.push_back(evt);
+}
+
+void ExecutionContext::setEvents(std::list<EngineEvent>& events){
   mEvents = events;
 }
 
 void ExecutionContext::resetEvent(EngineEvent evt){
-  mEvents.erase(evt);
+  if (mEvents.front() != evt)
+    DebugBreak();
+  mEvents.pop_front();
+  mEventHandled = false;
 }
 
-void ExecutionContext::resetEvents(){
-  mEvents.clear();
+void ExecutionContext::resetEvents(bool leaveCurrentUntouched){
+  if (leaveCurrentUntouched){
+    while(mEvents.size() > 1)
+      mEvents.pop_back();
+  }
+  else{
+    mEvents.clear();
+    mEventHandled = false;
+  }
 }
 
 bool ExecutionContext::isEventSet(EngineEvent evt){
-  return mEvents.find(evt) != mEvents.end();
+  if (mEvents.empty())
+    return false;
+  return mEvents.front() == evt;
 }
 
 bool ExecutionContext::isRunning(){
@@ -694,7 +716,7 @@ bool ExecutionContext::isRunning(){
 }
 
 EngineEvent ExecutionContext::getCommandEvent(){
-  for (std::set<EngineEvent>::iterator iter = mEvents.begin(); iter != mEvents.end(); ++iter){
+  for (std::list<EngineEvent>::iterator iter = mEvents.begin(); iter != mEvents.end(); ++iter){
     EngineEvent curr = *iter;
     if (curr >= EVT_USER_BEGIN && curr <= EVT_USER_MIRROR_END)
       return curr;
@@ -711,6 +733,7 @@ void ExecutionContext::reset(bool clearEvents){
   mHandler = NULL;
   mSkip = false;
   mIdle = false;
+  mEventHandled = false;
 }
 
 void ExecutionContext::resume(){
@@ -720,37 +743,42 @@ void ExecutionContext::resume(){
 }
 
 void PcdkScript::clickEndHandler(ExecutionContext& ctx){
-  if (ctx.isEventSet(EVT_CLICK)){
-    ctx.resetEvent(EVT_CLICK);
-  }
+  //if (ctx.isEventSet(EVT_CLICK)){
+  //  ctx.resetEvent(EVT_CLICK);
+  //}
   EngineEvent evt = ctx.getCommandEvent();
-  if (evt != EVT_NONE){
+  if (ctx.isEventSet(evt) && !ctx.isEventHandled()){
     //an action remained unhandled
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (chr){
       if (evt <= EVT_USER_END){
-        ctx.resetEvent(evt);
+        //ctx.resetEvent(evt);
         if (ctx.mIsGameObject && Engine::instance()->getInterpreter()->mACharacterAtScriptStart)
           chr->getScript()->setEvent(static_cast<EngineEvent>(evt+EVT_USER_RANGE));
       }
+      else{
+        //if (Engine::instance()->getInterpreter()->mACharacterAtScriptStart)
+          chr->getScript()->setEvent(EVT_CANT_ALL);
+      }
     }
   }
-  if (!mRemoveLinkObject)
+  /*if (!mRemoveLinkObject)
     mRemoveLinkObject = true;
-  else if (ctx.mIsGameObject){
+  else*/
+  if (ctx.mIsGameObject){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (ctx.isEventSet(EVT_LINK)){
-      ctx.resetEvent(EVT_LINK);
-      if (chr)
+      //ctx.resetEvent(EVT_LINK);
+      if (chr  && !ctx.isEventHandled())
         chr->getScript()->setEvent(EVT_CANT_ALL);
+      Engine::instance()->setUseObject("", "");
     }
-    Engine::instance()->setUseObject("", "");
     if (ctx.isEventSet(EVT_GIVE_LINK)){
-      ctx.resetEvent(EVT_GIVE_LINK);
-      if (chr)
+      //ctx.resetEvent(EVT_GIVE_LINK);
+      if (chr  && !ctx.isEventHandled())
         chr->getScript()->setEvent(EVT_CANT_ALL);
+      Engine::instance()->setGiveObject("", "");
     }
-    Engine::instance()->setGiveObject("", "");
   }
 }
 
@@ -922,4 +950,12 @@ void PcdkScript::setVariable(const std::string& name, const StackData& value){
     DebugBreak();
   }
   mVariables[name] = value;
+}
+
+void PcdkScript::applyPrevState(Object2D* obj){
+  std::map<Object2D*, int>::iterator iter = mPrevState.find(obj);
+  if (iter != mPrevState.end()){
+    obj->setState(iter->second);
+    mPrevState.erase(iter);
+  }
 }

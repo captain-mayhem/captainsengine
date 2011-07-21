@@ -65,7 +65,7 @@ public:
   ExecutionContext* getScript() {return mScript;}
   void setSuspensionScript(ExecutionContext* script);
   int getState() {return mState;}
-  void setState(int state) {mState = state;}
+  void setState(int state) {mState = state; mNextStates.clear();}
   unsigned getNumDefinedStates();
   const std::string& getName() {return mName;}
   virtual Vec2i getSize() {return mSize*mScale;}
