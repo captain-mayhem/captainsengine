@@ -13,6 +13,8 @@
 #include "Screenchange.h"
 #include "Particles.h"
 
+TR_CHANNEL(ADV_ScriptFunc);
+
 void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("loadroom", loadRoom);
   interpreter->registerFunction("setfocus", setFocus);
@@ -105,6 +107,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("textspeed", textSpeed);
   interpreter->registerFunction("setpos", setPos);
   interpreter->registerFunction("minicut", miniCut);
+  interpreter->registerFunction("break", breakExec);
   srand((unsigned)time(NULL));
 }
 
@@ -228,13 +231,14 @@ int ScriptFunctions::pickup(ExecutionContext& ctx, unsigned numArgs){
     return 0;
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
-    chr->addNextState(chr->getState());
+    int oldstate = chr->getState();
     LookDir dir = chr->getLookDir();
     if (dir == LEFT || dir == RIGHT)
       chr->setState(16);
     else if (dir == FRONT)
       chr->setState(15);
     chr->getAnimation()->registerAnimationEndHandler(chr);
+    chr->addNextState(oldstate);
   }
   return 0;
 }
@@ -286,7 +290,9 @@ int ScriptFunctions::setBool(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string objname = ctx.stack().pop().getString();
+  //TR_DEBUG("obj: %s", objname.c_str());
   int state = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
   SaveStateProvider::SaveObject* so = NULL;
@@ -681,7 +687,7 @@ int ScriptFunctions::instObj(ExecutionContext& ctx, unsigned numArgs){
   }
   Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
-    Engine::instance()->getInterpreter()->mPrevState.push_back(std::make_pair(obj, obj->getState()));
+    Engine::instance()->getInterpreter()->mPrevState.insert(std::make_pair(obj, obj->getState()));
     obj->setState(state);
   }
   return 0;
@@ -1207,6 +1213,11 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::miniCut(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs > 0)
     DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::breakExec(ExecutionContext& ctx, unsigned numArgs){
+  ctx.resetEvents(true);
   return 0;
 }
 

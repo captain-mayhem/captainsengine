@@ -119,6 +119,7 @@ mLightingColor(), mScale(1.0f), mRotAngle(0.0f){
 }
 
 Object2D::~Object2D(){
+  Engine::instance()->remove(this);
   Engine::instance()->getAnimator()->remove(this);
   Engine::instance()->getInterpreter()->remove(this);
   for (unsigned i = 0; i < mAnimations.size(); ++i){

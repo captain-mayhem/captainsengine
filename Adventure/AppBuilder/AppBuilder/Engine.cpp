@@ -12,6 +12,9 @@
 #include "Screenchange.h"
 #include "Particles.h"
 
+TR_CHANNEL(ADV_Engine);
+TR_CHANNEL(ADV_Events);
+
 #ifndef WIN32
 void DebugBreak(){
 __builtin_trap();
@@ -270,14 +273,20 @@ void Engine::render(unsigned time){
       mObjectTooltipInfo.clear();
       ExecutionContext* script = obj->getScript();
       if (script != NULL){
+        TR_USE(ADV_Events);
+        TR_DEBUG("mouse on %s", obj->getName().c_str());
         script->setEvent(EVT_MOUSE);
       }
     }
   }
   else{
     if (mCurrentObject){
+      TR_USE(ADV_Events);
       ExecutionContext* script = mCurrentObject->getScript();
-      script->setEvent(EVT_MOUSEOUT);
+      if (script)
+        script->setEvent(EVT_MOUSEOUT);
+      mInterpreter->applyPrevState(mCurrentObject);
+      TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
       mCurrentObject = NULL;
     }
     mObjectInfo.clear();
@@ -312,13 +321,13 @@ void Engine::render(unsigned time){
   }
 
   //can't all
-  if (mFocussedChar){
+  /*if (mFocussedChar){
     EngineEvent evt = mFocussedChar->getScript()->getCommandEvent();
     if (evt >= EVT_USER_MIRROR_BEGIN && evt <= EVT_USER_MIRROR_END){
       mFocussedChar->getScript()->resetEvent(evt);
       mFocussedChar->getScript()->setEvent(EVT_CANT_ALL);
     }
-  }
+  }*/
 
   //scrolling
   if (mRooms.size() > 0 && mFocussedChar){
@@ -1110,4 +1119,9 @@ void Engine::renderUnloadingRoom(){
   }
   //mBlitQueue.clear();
   mBlitQueue = tmp;
+}
+
+void Engine::remove(Object2D* obj){
+  if (mCurrentObject == obj)
+    mCurrentObject = NULL;
 }

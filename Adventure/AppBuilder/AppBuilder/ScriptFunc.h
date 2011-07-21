@@ -35,6 +35,9 @@ public:
   **/
   static int bindText(ExecutionContext& ctx, unsigned numArgs);
   /**
+  **/
+  static int breakExec(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param command name of the command to set
   **/
   static int command(ExecutionContext& ctx, unsigned numArgs);

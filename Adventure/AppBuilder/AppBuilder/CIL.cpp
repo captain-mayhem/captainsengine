@@ -4,7 +4,7 @@
 unsigned CBNEEVT::execute(ExecutionContext& ctx, unsigned pc){
   //check if event is set
   if (ctx.isEventSet(mEvent)){
-    ctx.resetEvent(mEvent);
+    ctx.setEventHandled();
     return ++pc;
   }
   return pc+mOffset;

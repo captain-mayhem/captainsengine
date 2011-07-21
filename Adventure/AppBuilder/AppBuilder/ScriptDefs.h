@@ -1,7 +1,7 @@
 #ifndef SCRIPTDEFS_H
 #define SCRIPTDEFS_H
 
-#include <set>
+#include <list>
 
 class CCode;
 class Object2D;
@@ -23,10 +23,10 @@ enum EngineEvent{
   EVT_EXIT=EVT_ENTER+1,
   EVT_LOOP1=EVT_EXIT+1,
   EVT_LOOP2=EVT_LOOP1+1,
-  EVT_LEVEL=EVT_LOOP2+1,
-  EVT_DBLCLCK=EVT_LEVEL+1,
+  EVT_DBLCLCK=EVT_LOOP2+1,
   EVT_MOUSEOUT=EVT_DBLCLCK+1,
   EVT_RELEASE=EVT_MOUSEOUT+1,
+  EVT_LEVEL=EVT_RELEASE+1, //EVT_LEVEL HAS TO BE LAST
 };
 
 class CodeSegment{
@@ -111,11 +111,11 @@ public:
   ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo);
   ExecutionContext(const ExecutionContext& ctx);
   ~ExecutionContext();
-  std::set<EngineEvent> getEvents() {return mEvents;}
+  std::list<EngineEvent>& getEvents() {return mEvents;}
   void setEvent(EngineEvent evt);
-  void setEvents(std::set<EngineEvent>& events);
+  void setEvents(std::list<EngineEvent>& events);
   void resetEvent(EngineEvent evt);
-  void resetEvents();
+  void resetEvents(bool leaveCurrentUntouched);
   bool isEventSet(EngineEvent evt);
   bool isRunning();
   EngineEvent getCommandEvent();
@@ -131,13 +131,15 @@ public:
   void setSkip() {mSkip = true; mSuspended = false;}
   void setIdle(bool idle) {mIdle = idle;}
   bool isSkipping() {return mSkip;}
+  void setEventHandled() {mEventHandled = true;}
+  bool isEventHandled() {return mEventHandled;}
 protected:
   CodeSegment* mCode;
   bool mIsGameObject;
   std::string mObjectInfo;
   Stack mStack;
   unsigned mPC;
-  std::set<EngineEvent> mEvents;
+  std::list<EngineEvent> mEvents;
   bool mExecuteOnce;
   StepEndHandler mHandler;
   bool mSuspended;
@@ -145,6 +147,7 @@ protected:
   Object2D* mOwner;
   bool mSkip;
   bool mIdle;
+  bool mEventHandled;
 };
 
 

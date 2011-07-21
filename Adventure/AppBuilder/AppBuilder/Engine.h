@@ -88,6 +88,7 @@ public:
   void reset();
   void renderUnloadingRoom();
   ParticleEngine* getParticleEngine() {return mParticleEngine;}
+  void remove(Object2D* obj);
 protected:
   Engine();
   static Engine* mInstance;
