@@ -120,9 +120,6 @@ public:
   bool isRunning();
   EngineEvent getCommandEvent();
   Stack& stack() {return mStack;}
-  void setStepEndHandler(StepEndHandler handler){
-    mHandler = handler;
-  }
   void suspend(int time) {mSuspended = true; mSleepTime = time;}
   void resume();
   void reset(bool clearEvents);
@@ -141,7 +138,6 @@ protected:
   unsigned mPC;
   std::list<EngineEvent> mEvents;
   bool mExecuteOnce;
-  StepEndHandler mHandler;
   bool mSuspended;
   int mSleepTime;
   Object2D* mOwner;

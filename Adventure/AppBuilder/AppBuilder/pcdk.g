@@ -152,6 +152,7 @@ stdarg returns [IdentNode* value]
 	| ON {$value = new IdentNode(""); $value->append((char*)$ON.text->chars);}
 	| IF {$value = new IdentNode(""); $value->append((char*)$IF.text->chars);}
 	| LESS {$value = new IdentNode(""); $value->append((char*)$LESS.text->chars);}
+	| RBRACKET {$value = new IdentNode(""); $value->append((char*)$RBRACKET.text->chars);}
 ;
 
 rel_expr returns [ASTNode* exp]

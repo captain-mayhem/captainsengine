@@ -6,6 +6,11 @@
 #include <image/loader.h>
 #include <io/BinFileReader.h>
 #include "Sound.h"
+#ifdef WIN32
+#include <direct.h>
+#else
+#include <sys/stat.h>
+#endif
 
 #ifndef WIN32
 int _stricmp(const char* str1, const char* str2);
@@ -67,6 +72,11 @@ bool AdvDocument::loadDocument(const std::string filename){
   int pos = mPath.find_last_of('/');
   mPath.erase(pos);
   mSettings.savedir = mPath+"/../saves";
+#ifdef WIN32
+  _mkdir((mSettings.savedir+"/tmp").c_str());
+#else
+  mkdir((mSettings.savedir+"/tmp").c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+#endif
 
   return true;
 }
@@ -332,8 +342,9 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.textcolor = val1;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.walkspeed = val1;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.notzoom = (val1 != 0);
-      if (ver_major > 3 || (ver_major == 3 && ver_minor > 0))
+      if (ver_major > 3 || (ver_major == 3 && ver_minor > 0)){
         str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.realleft = (val1 != 0);
+      }
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.memresistent = (val1 != 0);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.ghost = (val1 != 0);
       ch.walksound = txtstream.readLine();

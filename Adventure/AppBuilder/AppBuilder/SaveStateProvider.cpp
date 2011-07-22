@@ -134,7 +134,9 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
         chr->base.position = mData->getRoomCharacters()[i].position;
         chr->mirrored = dummy.isMirrored();
         Character* chbase = mData->getCharacter(mData->getRoomCharacters()[i].character);
-        int fontid = chbase->fontid;
+        int fontid = 0;
+        if (chbase != NULL)
+          fontid = chbase->fontid;
         if (fontid == 0)
           fontid = 1;
         chr->fontid = fontid;

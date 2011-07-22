@@ -54,6 +54,10 @@ namespace StoryDesigner
                 {
                     readScripts(zis);
                 }
+                else if (entry.Name == "game.005")
+                {
+                    readPassword(zis);
+                }
             }
             zis.Close();
             mPath = System.IO.Path.GetDirectoryName(filename);
@@ -317,7 +321,7 @@ namespace StoryDesigner
                     it.Name = typename[1];
                     int numStates = STATES_MAX;
                     int delim = 1;
-                    if (ver_major == 2)
+                    if (ver_major == 2 || (ver_major == 3 && ver_minor == 0))
                     {
                         numStates = 1;
                         delim = 1;
@@ -360,6 +364,48 @@ namespace StoryDesigner
                         obj.Add(os);
                     }
                     mAdv.addObject(obj);
+                }
+                else if (typename[0] == "Character")
+                {
+                    AdvCharacter chr = new AdvCharacter(mAdv);
+                    chr.Name = typename[1];
+                    str = rdr.ReadLine();
+                    chr.TextColor = Convert.ToUInt32(str);
+                    chr.WalkSpeed = Convert.ToInt32(rdr.ReadLine());
+                    int tmp = Convert.ToInt32(rdr.ReadLine());
+                    chr.NoZoom = tmp != 0;
+                    if (ver_major > 3 || (ver_major == 3 && ver_minor > 0))
+                    {
+                        tmp = Convert.ToInt32(rdr.ReadLine());
+                        chr.RealLeftAnimations = tmp != 0;
+                    }
+                    tmp = Convert.ToInt32(rdr.ReadLine());
+                    chr.MemoryReistent = tmp != 0;
+                    tmp = Convert.ToInt32(rdr.ReadLine());
+                    chr.Ghost = tmp != 0;
+                    chr.Walksound = rdr.ReadLine();
+                    if (ver_major >= 3)
+                    {
+                        str = rdr.ReadLine();
+                        string[] names = str.Split(';');
+                        for (int i = 0; i < names.Length-1; ++i)
+                        {
+                            chr.setStateName(16 + i, names[i]);
+                        }
+                    }
+                    chr.Font = Convert.ToInt32(rdr.ReadLine());
+                    chr.Zoom = Convert.ToInt32(rdr.ReadLine());
+                    for (int state = 0; state < CHAR_STATES_MAX; ++state)
+                    {
+                        CharacterState cs = new CharacterState();
+                        cs.size.x = Convert.ToInt32(rdr.ReadLine());
+                        cs.size.y = Convert.ToInt32(rdr.ReadLine());
+                        cs.basepoint.x = Convert.ToInt32(rdr.ReadLine());
+                        cs.basepoint.y = Convert.ToInt32(rdr.ReadLine());
+                        cs.fpsDivider = readExtendedFrames(rdr, cs.frames);
+                        chr.Add(cs);
+                    }
+                    mAdv.addCharacter(chr);
                 }
             }
             return true;
@@ -434,6 +480,27 @@ namespace StoryDesigner
             return true;
         }
 
+        protected bool readPassword(Stream strm){
+          StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+          string str = rdr.ReadLine();
+          string pwd = "";
+          for (int i = 0; i < 20; ++i){
+            int val = Convert.ToInt32(str.Substring(i*3, 3));
+            char curr;
+            if (i >= 15)
+              curr = (char)(val/3);
+            else if (i >= 10)
+              curr = (char)(val/6);
+            else if (i >= 5)
+              curr = (char)(val/4);
+            else
+              curr = (char)(val/5);
+            pwd += curr;
+          }
+          mZipPwd = pwd;
+          return true;
+        }
+
         protected int readExtendedFrames(StreamReader rdr, System.Collections.ArrayList frames)
         {
             string str;
@@ -494,6 +561,8 @@ namespace StoryDesigner
             string zipname = mPath + System.IO.Path.DirectorySeparatorChar + "gfx.dat";
             string imagename = System.IO.Path.GetFileName(filename);
             ZipInputStream zis = new ZipInputStream(File.OpenRead(zipname));
+            if (mZipPwd.Length > 0)
+                zis.Password = mZipPwd;
             ZipEntry entry;
             char[] arr = imagename.ToCharArray();
             for (int i = 0; i < imagename.Length; ++i)
@@ -563,5 +632,6 @@ namespace StoryDesigner
         private TreeView mGamePool;
         private string mPath;
         private Script mLastScript;
+        private string mZipPwd;
     }
 }

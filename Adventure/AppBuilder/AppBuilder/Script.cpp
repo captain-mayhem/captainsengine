@@ -481,6 +481,7 @@ void PcdkScript::update(unsigned time){
   }
   if (mCutScene){
     mTSPos = mTSPosOrig;
+    mCutScene->resetEvents(false);
     mCutScene->setEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
     ExecutionContext* oldcutscene = mCutScene;
     mCutScene = NULL;
@@ -653,7 +654,7 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
 
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
-mStack(), mPC(0), mHandler(NULL), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false){
+mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false){
 
 }
 
@@ -665,7 +666,6 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
   mPC = ctx.mPC;
   mEvents = ctx.mEvents;
   mExecuteOnce = ctx.mExecuteOnce;
-  mHandler = ctx.mHandler;
   mSuspended = ctx.mSuspended;
   mSleepTime = ctx.mSleepTime;
   mOwner = ctx.mOwner;
@@ -730,7 +730,6 @@ void ExecutionContext::reset(bool clearEvents){
     mEvents.clear();
   mPC = 0;
   mSuspended = false;
-  mHandler = NULL;
   mSkip = false;
   mIdle = false;
   mEventHandled = false;
@@ -747,7 +746,7 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
   //  ctx.resetEvent(EVT_CLICK);
   //}
   EngineEvent evt = ctx.getCommandEvent();
-  if (ctx.isEventSet(evt) && !ctx.isEventHandled()){
+  if (evt != EVT_NONE && ctx.isEventSet(evt) && !ctx.isEventHandled()){
     //an action remained unhandled
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (chr){
