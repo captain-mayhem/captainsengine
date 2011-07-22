@@ -268,6 +268,12 @@ void Engine::render(unsigned time){
   Object2D* obj = getObjectAt(mCursor->getPosition());
   if (obj != NULL){
     if (mCurrentObject != obj){
+      if (mCurrentObject != NULL){
+        ExecutionContext* script = mCurrentObject->getScript();
+        if (script)
+          script->setEvent(EVT_MOUSEOUT);
+        mInterpreter->applyPrevState(mCurrentObject);
+      }
       mCurrentObject = obj;
       mObjectInfo.clear();
       mObjectTooltipInfo.clear();
@@ -292,11 +298,13 @@ void Engine::render(unsigned time){
     mObjectInfo.clear();
     mObjectTooltipInfo.clear();
   }
-  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    ExecutionContext* script = (*iter)->getScript();
-    if (script != NULL){
-      script->setEvent(EVT_LOOP1);
-      script->setEvent(EVT_LOOP2);
+  if (!mInterpreter->isBlockingScriptRunning()){
+    for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+      ExecutionContext* script = (*iter)->getScript();
+      if (script != NULL){
+        script->setEvent(EVT_LOOP1);
+        script->setEvent(EVT_LOOP2);
+      }
     }
   }
   if (mRooms.size() > 0 && mFocussedChar && !mInterpreter->isBlockingScriptRunning()){ //walkmap
@@ -636,7 +644,6 @@ void Engine::leftClick(const Vec2i& pos){
         script->setEvent(EVT_GIVE_LINK);
       else
         script->setEvent((EngineEvent)mActiveCommand);
-      script->setStepEndHandler(PcdkScript::clickEndHandler);
     }
     else if (mFocussedChar && !mSubRoomLoaded){
       Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);

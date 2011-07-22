@@ -203,6 +203,8 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     }
     std::vector<Vec2i> breakinfo;
     Vec2i pos = chr->getOverheadPos();
+    if (!Engine::instance()->isTextEnabled())
+      text = "";
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID(), breakinfo);
     str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
       DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : 100*text.length());
@@ -630,6 +632,8 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   }
   std::vector<Vec2i> breakinfo;
   int fontid = Engine::instance()->getFontID();
+  if (!Engine::instance()->isTextEnabled())
+      text = "";
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
   str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
     DEPTH_GAME_FONT, fontid, breakinfo, Color(), plyr ? 100000 : 100*text.length());

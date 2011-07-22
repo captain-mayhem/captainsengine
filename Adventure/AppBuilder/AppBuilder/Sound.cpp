@@ -384,6 +384,8 @@ void StreamSoundPlayer::getNextPacket(){
       //start all over again
       av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY);
       read = av_read_frame(mFormat, &packet);
+      if (read < 0)
+        return;
     }
     if (packet.stream_index == mStreamNum){
       unsigned idx = mDataBuffer.used;

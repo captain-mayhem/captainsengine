@@ -411,6 +411,181 @@ namespace StoryDesigner
         AdvData mData;
     }
 
+    public class CharacterState
+    {
+        public CharacterState()
+        {
+            frames = new ArrayList();
+            fpsDivider = 20;
+            size = new Vec2i(120, 200);
+            basepoint = new Vec2i(60, 199);
+        }
+        public Vec2i size;
+        public Vec2i basepoint;
+        public System.Collections.ArrayList frames;
+        public int fpsDivider;
+    }
+
+    public class AdvCharacter : IStateFrameData
+    {
+        public AdvCharacter(AdvData data)
+        {
+            mData = data;
+        }
+        public int Add(CharacterState os)
+        {
+            return mStates.Add(os);
+        }
+        public bool frameExists(int state, int frame)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            return frame < cs.frames.Count;
+        }
+        public string[] getFrame(int state, int frame)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            if (frame >= cs.frames.Count)
+                return null;
+            ExtendedFrame extfrm = (ExtendedFrame)cs.frames[frame];
+            string[] ret = new string[extfrm.names.Count];
+            for (int i = 0; i < extfrm.names.Count; ++i)
+            {
+                ret[i] = (string)extfrm.names[i];
+            }
+            //string[] ret = (string[])extfrm.names.ToArray(typeof(string[]));
+            return ret;
+        }
+        public System.Drawing.Bitmap getImage(string framepart)
+        {
+            return mData.getImage(framepart);
+        }
+        public void setFramePart(int state, int frame, int part, string name)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            while (frame >= cs.frames.Count)
+                cs.frames.Add(new ExtendedFrame());
+            ExtendedFrame extfrm = (ExtendedFrame)cs.frames[frame];
+            while (part >= extfrm.names.Count)
+                extfrm.names.Add("");
+            extfrm.names[part] = name;
+        }
+        public int getFPSDivider(int state)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            return cs.fpsDivider;
+        }
+        public void setFPSDivider(int state, int fpsdivider)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            cs.fpsDivider = fpsdivider;
+            mStates[state] = cs;
+        }
+        public Vec2i getHotspot(int state)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            return cs.basepoint;
+        }
+        public void setHotspot(int state, Vec2i hotspot)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            cs.basepoint = hotspot;
+            mStates[state] = cs;
+        }
+        public Vec2i getSize(int state)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            return cs.size;
+        }
+        public void setSize(int state, Vec2i size)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            cs.size = size;
+            mStates[state] = cs;
+        }
+        public void setStateName(int state, string name)
+        {
+            while (mExtraStateNames.Count <= state - 16)
+            {
+                mExtraStateNames.Add("");
+            }
+            mExtraStateNames[state-16] = name;
+        }
+
+        public string Name
+        {
+            get { return mName; }
+            set { mName = value; }
+        }
+
+        public System.UInt32 TextColor
+        {
+            get { return mTextColor; }
+            set { mTextColor = value; }
+        }
+
+        public int WalkSpeed
+        {
+            get { return mWalkSpeed; }
+            set { mWalkSpeed = value; }
+        }
+
+        public bool NoZoom
+        {
+            get { return mNotZoom; }
+            set { mNotZoom = value; }
+        }
+
+        public bool RealLeftAnimations
+        {
+            get { return mRealLeft; }
+            set { mRealLeft = value; }
+        }
+
+        public bool MemoryReistent
+        {
+            get { return mMemResistent; }
+            set { mMemResistent = value; }
+        }
+
+        public bool Ghost
+        {
+            get { return mGhost; }
+            set { mGhost = value; }
+        }
+
+        public string Walksound
+        {
+            get { return mWalkSound; }
+            set { mWalkSound = value; }
+        }
+
+        public int Font
+        {
+            get { return mFontID; }
+            set { mFontID = value; }
+        }
+
+        public int Zoom
+        {
+            get { return mZoom; }
+            set { mZoom = value; }
+        }
+
+        System.Collections.ArrayList mStates = new System.Collections.ArrayList();
+        string mName;
+        System.UInt32 mTextColor;
+        int mWalkSpeed;
+        bool mNotZoom;
+        bool mRealLeft;
+        bool mMemResistent;
+        bool mGhost;
+        string mWalkSound;
+        System.Collections.ArrayList mExtraStateNames = new ArrayList();
+        int mFontID;
+        int mZoom;
+        AdvData mData;
+    }
+
     public class Script
     {
         public enum Type
@@ -518,6 +693,7 @@ namespace StoryDesigner
 
             mItems = new Dictionary<string, Item>();
             mObjects = new Dictionary<string, AdvObject>();
+            mCharacters = new Dictionary<string, AdvCharacter>();
             mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
             mWMScripts = new Dictionary<string, ArrayList>();
         }
@@ -574,6 +750,15 @@ namespace StoryDesigner
             mObjects.Add(obj.Name.ToLower(), obj);
         }
 
+        public AdvCharacter getCharacter(string name)
+        {
+            return mCharacters[name];
+        }
+        public void addCharacter(AdvCharacter chr)
+        {
+            mCharacters.Add(chr.Name.ToLower(), chr);
+        }
+
         public void addScript(Script scr)
         {
             mScripts.Add(new KeyValuePair<Script.Type, string>(scr.ScriptType, scr.Name.ToLower()), scr);
@@ -593,6 +778,7 @@ namespace StoryDesigner
         Cursor mCursor;
         Dictionary<string, Item> mItems;
         Dictionary<string, AdvObject> mObjects;
+        Dictionary<string, AdvCharacter> mCharacters;
         Dictionary<KeyValuePair<Script.Type, string>, Script> mScripts;
         Dictionary<string, ArrayList> mWMScripts;
         AdvFileReader mReader;
