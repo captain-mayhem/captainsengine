@@ -178,17 +178,23 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   pcdkAST = parser->prog(parser);
   NodeList* p = pcdkAST.nodes;
   if (parser->pParser->rec->state->errorCount > 0){
+    TR_USE(ADV_Script)
     CGE::Engine::instance()->messageBox("Error parsing script", "Error");
+    TR_ERROR("Error parsing script %s", program.c_str());
+#undef free
+    parser->free(parser);
+    tokStream->free(tokStream);
+    lexer->free(lexer);
+    input->free(input);
+#ifdef _CRTDBG_MAP_ALLOC
+#define free _free_dbg
+#endif
     return NULL;
   }
-#undef free
   parser->free(parser);
   tokStream->free(tokStream);
   lexer->free(lexer);
   input->free(input);
-#ifdef _CRTDBG_MAP_ALLOC
-#define free _free_dbg
-#endif
   mIsGameObject = false;
   mObjectInfo = "";
   mLastRelation = NULL;

@@ -20,6 +20,7 @@ public:
     bool mirrored;
     SaveInventory inventory;
     int fontid;
+    float scale;
   };
   struct SaveRoom{
     SaveObject base;

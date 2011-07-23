@@ -13,6 +13,7 @@ public:
   BlitGroup* clone();
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation);
   void setDepth(int depth);
+  void setBlendAdditive(bool additive);
 protected:
   BlitGroup() {}
   std::vector<BlitObject*> mBlits;
@@ -31,6 +32,7 @@ public:
   void update(unsigned interval);
   bool exists() {return mBlits.size() > 0;}
   void registerAnimationEndHandler(AnimationEndHandler* handler) {mHandler = handler;}
+  void setBlendAdditive(bool additive);
 protected:
   std::vector<BlitGroup*> mBlits;
   unsigned mInterval;
@@ -78,8 +80,10 @@ public:
   virtual void setLightingColor(const Color& col) {mLightingColor = col;}
   virtual Color getLightingColor() {return mLightingColor;}
   void setScale(float scale) {mScale = scale;}
+  void setUserScale(float scale) {mUserScale = scale;}
   void setRotation(float angle) {mRotAngle = angle;}
   float getRotation() {return mRotAngle;}
+  void setLighten(bool lighten);
 protected:
   int mState;
   Vec2i mPos;
@@ -92,6 +96,7 @@ protected:
   std::list<int> mNextStates;
   Color mLightingColor;
   float mScale;
+  float mUserScale;
   float mRotAngle;
 };
 
@@ -154,10 +159,12 @@ public:
   Vec2i getScriptPosition(ExecutionContext* wmscript);
   void skipScripts();
   float getDepthScale(const Vec2i& pos);
+  void setZoomFactor(int factor) {mDepthMap.setZoomFactor(factor);}
 protected:
   class DepthMap {
   public:
     DepthMap(Vec2i depthmap);
+    void setZoomFactor(int factor);
     int scaleStart;
     int scaleStop;
     float minVal;

@@ -438,6 +438,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   roomobj->setLightingColor(save->base.lighting);
   roomobj->setWalkmap(room->walkmap);
   roomobj->setScrollOffset(save->scrolloffset);
+  roomobj->setZoomFactor(rm->zoom);
   //check for walkmap scripts
   std::vector<std::pair<Vec2i,Script*> > wmscripts = mData->getWMScripts(room->name);
   for (unsigned i = 0; i < wmscripts.size(); ++i){
@@ -464,6 +465,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
       Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth+depthoffset);
       object->addAnimation(anim);
     }
+    object->setLighten(o->lighten);
     //check for object scripts
     Script* script = mData->getScript(Script::OBJECT,room->objects[i].name+";"+room->name);
     if (script){
@@ -1019,6 +1021,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   character->setMirrored(obj->mirrored);
   character->setFontID(obj->fontid);
   mFonts->loadFont(obj->fontid);
+  character->setUserScale(obj->scale);
   character->setTextColor(chbase->textcolor);
   character->setRoom(room);
   //RoomObject* ro = Engine::instance()->getRoom(room);

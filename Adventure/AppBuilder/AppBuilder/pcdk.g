@@ -115,11 +115,16 @@ arg_list returns [NodeList* nodes]
 arg	returns [ASTNode* value]
 	:
 	arg_header?
-	((rel_expr) => exp=rel_expr {$value = exp.exp;}
-		//workaraound for strings that look like expressions first
-		(comp_arg=complex_arg
-			{IdentNode* ident = (IdentNode*)stringify($value); ident->append(((IdentNode*)comp_arg.value)->value().c_str()); delete $value; delete comp_arg.value; $value = ident;}
+	((rel_expr) => (exp=rel_expr {$value = exp.exp;}
+		////workaraound for strings that look like expressions first
+		//(comp_arg=complex_arg {IdentNode* ident = (IdentNode*)stringify($value); ident->append(((IdentNode*)comp_arg.value)->value().c_str()); delete $value; delete comp_arg.value; $value = ident;}
+		//)?
+		(ca=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca.value; $value = concat;}
+		(vari=variable {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}
+		 | ca2=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}
+		)*
 		)?
+		)
 	| (ca=complex_arg {$value = ca.value;}
 		(vari=variable {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}
 		| ca2=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}
@@ -153,6 +158,7 @@ stdarg returns [IdentNode* value]
 	| IF {$value = new IdentNode(""); $value->append((char*)$IF.text->chars);}
 	| LESS {$value = new IdentNode(""); $value->append((char*)$LESS.text->chars);}
 	| RBRACKET {$value = new IdentNode(""); $value->append((char*)$RBRACKET.text->chars);}
+	| DIVIDE {$value = new IdentNode(""); $value->append((char*)$DIVIDE.text->chars);}
 ;
 
 rel_expr returns [ASTNode* exp]
@@ -177,7 +183,7 @@ expr returns [ASTNode* exp]
 
 term returns [ASTNode* trm]
 	: lf=factor {$trm = lf.fac;}
-	((
+	((TIMES | DIVIDE) => (
 	TIMES {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_TIMES; an->left() = $trm; $trm = an;}
 	| DIVIDE {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_DIV; an->left() = $trm; $trm = an;}
 	) 
@@ -244,7 +250,7 @@ ROW	:	'r''o''w';
 TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('.'|',')'0'..'9'+;
-IDENT_PART	:	('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|':'|'\''|TIMES)('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|TIMES|':')*;
+IDENT_PART	:	('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|':'|'\''|'\.'|'&'|TIMES)('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|'&'|TIMES|':')*;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}
