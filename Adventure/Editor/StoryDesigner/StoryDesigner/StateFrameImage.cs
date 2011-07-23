@@ -37,6 +37,10 @@ namespace StoryDesigner
             mStateButtons[7] = button8;
             mStateButtons[8] = button9;
             mStateButtons[9] = button10;
+            for (int i = 0; i < 10; ++i)
+            {
+                stateDropDown.Items.Add(i + 1);
+            }
             this.framecontrol.Paint += new PaintEventHandler(framecontrol_Paint);
             this.framecontrol.MouseClick += new MouseEventHandler(framecontrol_MouseClick);
             this.pictureBox.Paint += new PaintEventHandler(pictureBox_Paint);
@@ -156,10 +160,11 @@ namespace StoryDesigner
                 if (!mTimer.Enabled)
                     imageNames.Text += pics[i] + " ";
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
+                Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
                 if (mScaleImage)
                     e.Graphics.DrawImage(bmp, 0, 0, PictureBoxSize.Width, PictureBoxSize.Height);
                 else
-                    e.Graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
+                    e.Graphics.DrawImage(bmp, offset.x, offset.y, bmp.Width, bmp.Height);
             }
             if (mDrawHotspot)
                 drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
@@ -232,12 +237,15 @@ namespace StoryDesigner
             return bmp;
         }
 
-        public void setStateLables(string[] lables)
+        public void setStateLables(string[] labels)
         {
-            for (int i = 0; i < Math.Min(lables.Length, mStateButtons.Length); ++i)
+            for (int i = 0; i < Math.Min(labels.Length, mStateButtons.Length); ++i)
             {
-                mStateButtons[i].Text = lables[i];
+                mStateButtons[i].Text = labels[i];
             }
+            stateDropDown.Items.Clear();
+            stateDropDown.Items.AddRange(labels);
+            stateDropDown.SelectedIndex = mState;
         }
 
         public int State
@@ -269,6 +277,21 @@ namespace StoryDesigner
             set { animation.Visible = value; }
         }
 
+        public bool ShowStateDropDown
+        {
+            get { return mShowStateDropdown; }
+            set
+            {
+                mShowStateDropdown = value;
+                for (int i = 0; i < mStateButtons.Length; ++i)
+                {
+                    mStateButtons[i].Visible = !value;
+                }
+                stateDropDown.Visible = value;
+                stateDropDown.SelectedIndex = mState;
+            }
+        }
+
         void framecontrol_MouseClick(object sender, MouseEventArgs e)
         {
             PictureBox pb = (PictureBox)sender;
@@ -298,10 +321,12 @@ namespace StoryDesigner
 
         void changeState(int newState)
         {
-            mStateButtons[mState].BackColor = mOrigColor;
+            if (mState < 10)
+                mStateButtons[mState].BackColor = mOrigColor;
             int oldstate = mState;
             mState = newState;
-            mStateButtons[mState].BackColor = Color.Turquoise;
+            if (mState < 10)
+                mStateButtons[mState].BackColor = Color.Turquoise;
             mFrame = 0;
             updateStateValues(oldstate);
             this.framecontrol.Invalidate();
@@ -346,6 +371,7 @@ namespace StoryDesigner
         private float mHotspotScale = 1.0f;
         private bool mPictureDragging = false;
         private Timer mTimer;
+        private bool mShowStateDropdown = false;
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -418,6 +444,11 @@ namespace StoryDesigner
                 mTimer.Start();
                 animation.Text = "| |";
             }
+        }
+
+        private void stateDropDown_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            changeState(stateDropDown.SelectedIndex);
         }
     }
 }

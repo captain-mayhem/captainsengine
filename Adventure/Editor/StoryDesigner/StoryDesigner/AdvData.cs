@@ -116,6 +116,8 @@ namespace StoryDesigner
         void setHotspot(int state, Vec2i hotspot);
         Vec2i getSize(int state);
         void setSize(int state, Vec2i size);
+        Vec2i getFramePartOffset(int state, int frame, int part);
+        void setFramePartOffset(int state, int frame, int part, Vec2i offset);
     };
 
     public struct CursorState
@@ -204,6 +206,13 @@ namespace StoryDesigner
         public void setSize(int state, Vec2i size)
         {
         }
+        public Vec2i getFramePartOffset(int state, int frame, int part)
+        {
+            return new Vec2i(0, 0);
+        }
+        public void setFramePartOffset(int state, int frame, int part, Vec2i offset)
+        {
+        }
 
         public void setCommand(int state, int command)
         {
@@ -286,6 +295,13 @@ namespace StoryDesigner
             return new Vec2i(50, 50);
         }
         public void setSize(int state, Vec2i size)
+        {
+        }
+        public Vec2i getFramePartOffset(int state, int frame, int part)
+        {
+            return new Vec2i(0, 0);
+        }
+        public void setFramePartOffset(int state, int frame, int part, Vec2i offset)
         {
         }
 
@@ -391,6 +407,22 @@ namespace StoryDesigner
         public void setSize(int state, Vec2i size)
         {
             mSize = size;
+        }
+        public Vec2i getFramePartOffset(int state, int frame, int part)
+        {
+            ObjectState os = (ObjectState)mStates[state];
+            if (frame >= os.frames.Count)
+                return new Vec2i(0,0);
+            ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
+            if (part >= extfrm.offsets.Count)
+                return new Vec2i(0,0);
+            return (Vec2i)extfrm.offsets[part];
+        }
+        public void setFramePartOffset(int state, int frame, int part, Vec2i offset)
+        {
+            ObjectState os = (ObjectState)mStates[state];
+            ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
+            extfrm.offsets[part] = offset;
         }
 
         public string Name
@@ -502,6 +534,23 @@ namespace StoryDesigner
             cs.size = size;
             mStates[state] = cs;
         }
+        public Vec2i getFramePartOffset(int state, int frame, int part)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            if (frame >= cs.frames.Count)
+                return new Vec2i(0,0);
+            ExtendedFrame extfrm = (ExtendedFrame)cs.frames[frame];
+            if (part >= extfrm.offsets.Count)
+                return new Vec2i(0,0);
+            return (Vec2i)extfrm.offsets[part];
+        }
+        public void setFramePartOffset(int state, int frame, int part, Vec2i offset)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            ExtendedFrame extfrm = (ExtendedFrame)cs.frames[frame];
+            extfrm.offsets[part] = offset;
+        }
+
         public void setStateName(int state, string name)
         {
             while (mExtraStateNames.Count <= state - 16)
@@ -509,6 +558,23 @@ namespace StoryDesigner
                 mExtraStateNames.Add("");
             }
             mExtraStateNames[state-16] = name;
+        }
+        public string getStateName(int state)
+        {
+            string name = (string)mExtraStateNames[state - 16];
+            if (name.Length == 0)
+            {
+                name = "Extra " + Convert.ToString(state - 15);
+                if (state == 32)
+                    name += " (Stand left)";
+                else if (state == 33)
+                    name += " (Walk left)";
+                else if (state == 34)
+                    name += " (Stand, Talk left)";
+                else if (state == 35)
+                    name += " (Walk, Talk left)";
+            }
+            return name;
         }
 
         public string Name

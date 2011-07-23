@@ -44,6 +44,12 @@
     </Compile>
     <Compile Include="AdvFileReader.cs" />
     <Compile Include="AdvFileWriter.cs" />
+    <Compile Include="CharacterDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CharacterDlg.Designer.cs">
+      <DependentUpon>CharacterDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="CommandsAndBools.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -88,6 +94,10 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CharacterDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>CharacterDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="CommandsAndBools.resx">
       <SubType>Designer</SubType>
       <DependentUpon>CommandsAndBools.cs</DependentUpon>
@@ -165,6 +175,7 @@
       <DependentUpon>StateFrameImage.cs</DependentUpon>
     </Compile>
     <Compile Include="UnexpectedValue.cs" />
+    <Compile Include="Utilities.cs" />
     <Compile Include="Vec2i.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

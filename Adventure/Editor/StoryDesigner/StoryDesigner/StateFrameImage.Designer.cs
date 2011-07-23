@@ -52,6 +52,7 @@ namespace StoryDesigner
             this.picbox_width = new System.Windows.Forms.TextBox();
             this.height_label = new System.Windows.Forms.Label();
             this.picbox_height = new System.Windows.Forms.TextBox();
+            this.stateDropDown = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fps)).BeginInit();
@@ -294,12 +295,23 @@ namespace StoryDesigner
             this.picbox_height.Size = new System.Drawing.Size(33, 20);
             this.picbox_height.TabIndex = 13;
             // 
+            // stateDropDown
+            // 
+            this.stateDropDown.FormattingEnabled = true;
+            this.stateDropDown.Location = new System.Drawing.Point(3, 16);
+            this.stateDropDown.Name = "stateDropDown";
+            this.stateDropDown.Size = new System.Drawing.Size(159, 21);
+            this.stateDropDown.TabIndex = 14;
+            this.stateDropDown.Visible = false;
+            this.stateDropDown.SelectedIndexChanged += new System.EventHandler(this.stateDropDown_SelectedIndexChanged);
+            // 
             // StateFrameImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoSize = true;
             this.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.Controls.Add(this.stateDropDown);
             this.Controls.Add(this.picbox_height);
             this.Controls.Add(this.height_label);
             this.Controls.Add(this.picbox_width);
@@ -360,5 +372,6 @@ namespace StoryDesigner
         private System.Windows.Forms.TextBox picbox_width;
         private System.Windows.Forms.Label height_label;
         private System.Windows.Forms.TextBox picbox_height;
+        private System.Windows.Forms.ComboBox stateDropDown;
     }
 }
