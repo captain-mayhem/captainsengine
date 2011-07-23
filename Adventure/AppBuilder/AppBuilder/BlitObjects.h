@@ -66,6 +66,7 @@ public:
   Vec2i getOffset() {return mOffset;}
   void setMirrorOffset(const Vec2i& mirror) {mMirrorOffset = mirror;}
   void setRotation(float angle) {mRotAngle = angle;}
+  void setBlendAdditive(bool additive) {mBlendAdditive = additive;}
 protected:
   Vec2i mOffset;
   Vec2f mScale;
@@ -74,6 +75,7 @@ protected:
   bool mDeleteTex;
   Vec2i mMirrorOffset;
   float mRotAngle;
+  bool mBlendAdditive;
 };
 
 class LightingBlitObject : public BaseBlitObject{

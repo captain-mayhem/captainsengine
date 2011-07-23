@@ -702,6 +702,7 @@ namespace StoryDesigner
         {
             //Settings = new ProjectSettings();
             //mImages = new Dictionary<string, string>();
+            mCursor = new Cursor(this);
             mReader = reader;
             //mCursor = new Cursor(this);
             //mItems = new Dictionary<string, Item>();

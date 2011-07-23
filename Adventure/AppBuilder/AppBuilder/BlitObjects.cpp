@@ -16,7 +16,7 @@ BaseBlitObject::~BaseBlitObject(){
 }
 
 BlitObject::BlitObject(int width, int height, int depth) : 
-BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAngle(0.0f){
+BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAngle(0.0f), mBlendAdditive(false){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
   mScale.y = ((float)mSize.y)/pow2.y;
@@ -30,7 +30,7 @@ BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAng
 }
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
-BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(), mRotAngle(0.0f){
+BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(), mRotAngle(0.0f), mBlendAdditive(false){
   CGE::Image* image = Engine::instance()->getImage(texture);
   mTex = Engine::instance()->genTexture(image, mSize, mScale);
   delete image;
@@ -39,7 +39,7 @@ BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(), mRotAngle(0.0f
 }
 
 BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
-BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mMirrorOffset(), mRotAngle(0)
+BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mMirrorOffset(), mRotAngle(0), mBlendAdditive(false)
 {
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = false;
@@ -63,6 +63,8 @@ void BlitObject::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& paren
 }
 
 void BlitObject::blit(){
+  if (mBlendAdditive)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
   GL()pushMatrix();
   
   if (mZoomScale.x < 0){
@@ -90,6 +92,8 @@ void BlitObject::blit(){
   GL()color4ub(mColor.r, mColor.g, mColor.b, mColor.a);
   GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
   GL()popMatrix();
+  if (mBlendAdditive)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 BlitObject* BlitObject::clone(){

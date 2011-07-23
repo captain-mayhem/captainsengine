@@ -37,6 +37,12 @@ void BlitGroup::setDepth(int depth){
   }
 }
 
+void BlitGroup::setBlendAdditive(bool additive){
+  for (unsigned i = 0; i < mBlits.size(); ++i){
+    mBlits[i]->setBlendAdditive(additive);
+  }
+}
+
 BlitGroup* BlitGroup::clone(){
   BlitGroup* bltgrp = new BlitGroup();
   for (unsigned i = 0; i < mBlits.size(); ++i){
@@ -112,9 +118,15 @@ Animation* Animation::clone(){
   return anim;
 }
 
+void Animation::setBlendAdditive(bool additive){
+  for (unsigned k = 0; k < mBlits.size(); ++k){
+    mBlits[k]->setBlendAdditive(additive);
+  }
+}
+
 Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name)
 : mState(state), mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL), mName(name),
-mLightingColor(), mScale(1.0f), mRotAngle(0.0f){
+mLightingColor(), mScale(1.0f), mUserScale(1.0f), mRotAngle(0.0f){
 
 }
 
@@ -130,7 +142,7 @@ Object2D::~Object2D(){
 void Object2D::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  mAnimations[mState-1]->render(mPos+mScrollOffset, Vec2f(mScale,mScale), mSize, mLightingColor, mRotAngle);
+  mAnimations[mState-1]->render(mPos+mScrollOffset, Vec2f(mScale*mUserScale,mScale*mUserScale), mSize, mLightingColor, mRotAngle);
 }
 
 Animation* Object2D::getAnimation(){
@@ -206,6 +218,12 @@ unsigned Object2D::getNumDefinedStates(){
       return i;
   }
   return mAnimations.size();
+}
+
+void Object2D::setLighten(bool lighten){
+  for (unsigned i = 0; i < mAnimations.size(); ++i){
+    mAnimations[i]->setBlendAdditive(lighten);
+  }
 }
 
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "#button"),
@@ -353,7 +371,7 @@ RoomObject::~RoomObject(){
 
 void RoomObject::render(){
   if (mParallaxBackground)
-    mParallaxBackground->render(Vec2i(), Vec2f(mScale,mScale), mSize, mLightingColor, mRotAngle);
+    mParallaxBackground->render(Vec2i(), Vec2f(mScale*mUserScale,mScale*mUserScale), mSize, mLightingColor, mRotAngle);
   Object2D::render();
   for (int i = mObjects.size()-1; i >= 0; --i){
     mObjects[i]->render();
@@ -552,7 +570,12 @@ float RoomObject::getDepthScale(const Vec2i& pos){
 RoomObject::DepthMap::DepthMap(Vec2i depthmap){
   scaleStart = depthmap.y*Engine::instance()->getWalkGridSize();
   scaleStop = depthmap.x*Engine::instance()->getWalkGridSize();
-  minVal = (float)(1.0f-(depthmap.y-depthmap.x)/((float)Engine::instance()->getSettings()->resolution.y/Engine::instance()->getWalkGridSize())*2);
+  setZoomFactor(3);
+}
+
+void RoomObject::DepthMap::setZoomFactor(int factor){
+  minVal = (float)(1.0f-(scaleStart-scaleStop)/((float)Engine::instance()->getSettings()->resolution.y)*factor*0.3f);
+  //minVal = (float)(1.0f-(depthmap.y-depthmap.x)/((float)Engine::instance()->getSettings()->resolution.y/Engine::instance()->getWalkGridSize())*zoomfactor);
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
@@ -663,15 +686,15 @@ LookDir CharacterObject::getLookDir(){
 void CharacterObject::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  Vec2f scale(mScale, mScale);
+  Vec2f scale(mScale*mUserScale, mScale*mUserScale);
   if (mMirror)
     scale.x *= -1;
-  Vec2i renderPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*mScale;
+  Vec2i renderPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*mScale*mUserScale;
   mAnimations[mState-1]->render(mScrollOffset+renderPos, scale, mSizes[mState-1], mLightingColor, mRotAngle);
 }
 
 Vec2i CharacterObject::getOverheadPos(){
-  return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, (int)((1-mScale)*mSizes[mState-1].y));
+  return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, (int)((1-mScale*mUserScale)*mSizes[mState-1].y));
 }
 
 int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk){
@@ -700,7 +723,7 @@ bool CharacterObject::isTalking(){
 }
 
 Vec2i CharacterObject::getSize(){
-  return mSizes[mState-1]*mScale;
+  return mSizes[mState-1]*mScale*mUserScale;
 }
 
 void CharacterObject::save(){
@@ -723,7 +746,7 @@ bool CharacterObject::isHit(const Vec2i& point){
   //Vec2i scaleoffset;
   //scaleoffset.x = (int)((1.0f-abs(mScale))*(getSize().x-getSize().x*abs(mScale)));
   //scaleoffset.y = (int)(getSize().y-getSize().y*mScale);
-  Vec2i startPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*mScale;
+  Vec2i startPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*mScale*mUserScale;
   if (point.x >= startPos.x/*+scaleoffset.x*/ && point.x <= startPos.x+/*scaleoffset.x*/+getSize().x){
     if (point.y >= startPos.y/*+scaleoffset.y*/ && point.y <= startPos.y+/*scaleoffset.y*/+getSize().y)
       return true;

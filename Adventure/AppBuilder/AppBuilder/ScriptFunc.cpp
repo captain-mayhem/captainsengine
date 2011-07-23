@@ -735,15 +735,18 @@ int ScriptFunctions::setFont(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
   StackData data = ctx.stack().pop();
-  int screenchange = 0;
+  ScreenChange screenchange = SC_DIRECT;
   if (data.getString().size() > 1){
-    //TODO
-    DebugBreak();
+    std::string name = data.getString();
+    if (name == "rectangle")
+      screenchange = SC_RECTANGLE;
+    else
+      DebugBreak();
   }
   else{
-    screenchange = data.getInt();
-    Engine::instance()->setScreenChange((ScreenChange)screenchange);
+    screenchange = (ScreenChange)data.getInt();
   }
+  Engine::instance()->setScreenChange(screenchange);
   return 0;
 }
 
