@@ -119,15 +119,15 @@ namespace StoryDesigner
             this.anywhere_transparency.Value = mData.Settings.AnywhereTransparency;
             //third page
             //this.border_color.BackColor = Color.FromArgb((int)(((System.UInt32)mData.Settings.BorderColor >> 8) & 0xffffff | ((System.UInt32)mData.Settings.BorderColor << 24) & 0xff000000));
-            this.border_color.BackColor = Color.FromArgb(convertColor(mData.Settings.BorderColor));
-            this.background_color.BackColor = Color.FromArgb(convertColor(mData.Settings.BackgroundColor));
-            this.text_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TextColor));
+            this.border_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.BorderColor));
+            this.background_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.BackgroundColor));
+            this.text_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.TextColor));
             this.useCustomMenu.Checked = mData.Settings.CustomMenu;
             this.customMenu.Text = mData.Settings.CustomMenuRoom;
             this.menu_fading.Value = mData.Settings.MenuFading;
-            this.offspeech_color.BackColor = Color.FromArgb(convertColor(mData.Settings.OffspeechColor));
-            this.infotext_color.BackColor = Color.FromArgb(convertColor(mData.Settings.InfotextColor));
-            this.transparent_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TargaColor));
+            this.offspeech_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.OffspeechColor));
+            this.infotext_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.InfotextColor));
+            this.transparent_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.TargaColor));
             //fourth page
             switch (mData.Settings.TsStyle)
             {
@@ -160,10 +160,10 @@ namespace StoryDesigner
                     break;
             }
             this.textscene_fading.Value = mData.Settings.TextSceneFading;
-            this.ts_area_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TsAreaColor));
-            this.ts_border_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TsBorderColor));
-            this.ts_text_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TsTextColor));
-            this.ts_selection_color.BackColor = Color.FromArgb(convertColor(mData.Settings.TsSelectionColor));
+            this.ts_area_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.TsAreaColor));
+            this.ts_border_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.TsBorderColor));
+            this.ts_text_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.TsTextColor));
+            this.ts_selection_color.BackColor = Color.FromArgb(Utilities.convertColor(mData.Settings.TsSelectionColor));
             if (mData.Settings.TsUseSymbols)
                 this.ts_symbol.Checked = true;
             else
@@ -250,15 +250,15 @@ namespace StoryDesigner
             mData.Settings.AnywhereRoom = this.anywhere_room.Text;
             mData.Settings.AnywhereTransparency = (int)this.anywhere_transparency.Value;
             //third page
-            mData.Settings.BorderColor = convertColorInverse(this.border_color.BackColor.ToArgb());
-            mData.Settings.BackgroundColor = convertColorInverse(this.background_color.BackColor.ToArgb());
-            mData.Settings.TextColor = convertColorInverse(this.text_color.BackColor.ToArgb());
+            mData.Settings.BorderColor = Utilities.convertColorInverse(this.border_color.BackColor.ToArgb());
+            mData.Settings.BackgroundColor = Utilities.convertColorInverse(this.background_color.BackColor.ToArgb());
+            mData.Settings.TextColor = Utilities.convertColorInverse(this.text_color.BackColor.ToArgb());
             mData.Settings.CustomMenu = this.useCustomMenu.Checked;
             mData.Settings.CustomMenuRoom = this.customMenu.Text;
             mData.Settings.MenuFading = (int)this.menu_fading.Value;
-            mData.Settings.OffspeechColor = convertColorInverse(this.offspeech_color.BackColor.ToArgb());
-            mData.Settings.InfotextColor = convertColorInverse(this.infotext_color.BackColor.ToArgb());
-            mData.Settings.TargaColor = convertColorInverse(this.transparent_color.BackColor.ToArgb());
+            mData.Settings.OffspeechColor = Utilities.convertColorInverse(this.offspeech_color.BackColor.ToArgb());
+            mData.Settings.InfotextColor = Utilities.convertColorInverse(this.infotext_color.BackColor.ToArgb());
+            mData.Settings.TargaColor = Utilities.convertColorInverse(this.transparent_color.BackColor.ToArgb());
             //fourth page
             if (this.ts_solid.Checked)
                 mData.Settings.TsStyle = 0;
@@ -277,10 +277,10 @@ namespace StoryDesigner
             else if (this.ts_border_none.Checked)
                 mData.Settings.TsBorderStyle = 3;
             mData.Settings.TextSceneFading = (int)this.textscene_fading.Value;
-            mData.Settings.TsAreaColor = convertColorInverse(this.ts_area_color.BackColor.ToArgb());
-            mData.Settings.TsBorderColor = convertColorInverse(this.ts_border_color.BackColor.ToArgb());
-            mData.Settings.TsTextColor = convertColorInverse(this.ts_text_color.BackColor.ToArgb());
-            mData.Settings.TsSelectionColor = convertColorInverse(this.ts_selection_color.BackColor.ToArgb());
+            mData.Settings.TsAreaColor = Utilities.convertColorInverse(this.ts_area_color.BackColor.ToArgb());
+            mData.Settings.TsBorderColor = Utilities.convertColorInverse(this.ts_border_color.BackColor.ToArgb());
+            mData.Settings.TsTextColor = Utilities.convertColorInverse(this.ts_text_color.BackColor.ToArgb());
+            mData.Settings.TsSelectionColor = Utilities.convertColorInverse(this.ts_selection_color.BackColor.ToArgb());
             if (this.ts_symbol.Checked)
                 mData.Settings.TsUseSymbols = true;
             else
@@ -293,34 +293,6 @@ namespace StoryDesigner
             mData.Settings.CoinAutoPopup = this.coin_autopopup.Checked;
             mData.Settings.CoinFading = (int)this.coin_fading.Value;
             //TODO crosshair
-        }
-
-        private void chooseColor(object sender)
-        {
-            ColorDialog cd = new ColorDialog();
-            if (cd.ShowDialog() == DialogResult.OK)
-            {
-                Button btn = (Button)sender;
-                btn.BackColor = cd.Color;
-            }
-        }
-
-        private int convertColor(System.UInt32 color)
-        {
-            System.UInt32 ret = 0xFF000000;
-            ret |= ((System.UInt32)color & 0xFF) << 16;
-            ret |= (System.UInt32)color & 0xFF00;
-            ret |= ((System.UInt32)color & 0xFF0000) >> 16;
-            return (int)ret;
-        }
-
-        private System.UInt32 convertColorInverse(int color)
-        {
-            System.UInt32 ret = 0;
-            ret |= ((System.UInt32)color & 0xFF) << 16;
-            ret |= (System.UInt32)color & 0xFF00;
-            ret |= ((System.UInt32)color & 0xFF0000) >> 16;
-            return ret;
         }
 
         AdvData mData;
@@ -341,17 +313,17 @@ namespace StoryDesigner
 
         private void border_color_Click(object sender, EventArgs e)
         {
-            chooseColor(sender);
+            Utilities.chooseColor(sender);
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            chooseColor(sender);
+            Utilities.chooseColor(sender);
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            chooseColor(sender);
+            Utilities.chooseColor(sender);
         }
 
         private void taskbar_CheckedChanged(object sender, EventArgs e)

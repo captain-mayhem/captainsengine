@@ -102,6 +102,18 @@ namespace StoryDesigner
                     mObjectDlg = new ObjectDlg(obj);
                     mObjectDlg.Show(this);
                     break;
+                case ResourceID.CHARACTER:
+                    if (mCharacterDlg != null)
+                        mCharacterDlg.Close();
+                    AdvCharacter chr = mData.getCharacter(name);
+                    if (chr == null)
+                    {
+                        MessageBox.Show("Cannot find character " + name);
+                        return;
+                    }
+                    mCharacterDlg = new CharacterDlg(chr);
+                    mCharacterDlg.Show(this);
+                    break;
                 case ResourceID.SCRIPT:
                     showScript(Script.Type.CUTSCENE, name);
                     break;
@@ -149,6 +161,7 @@ namespace StoryDesigner
         private MouseIcons mMouseIcons;
         private ItemDlg mItemDlg;
         private ObjectDlg mObjectDlg;
+        private CharacterDlg mCharacterDlg;
         private ScriptDlg mScriptDlg;
         private string mLastName;
         private ResourceID mLastID;

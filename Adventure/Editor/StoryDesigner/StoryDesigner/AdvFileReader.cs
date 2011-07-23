@@ -519,10 +519,10 @@ namespace StoryDesigner
                 }
                 //read offsets
                 str = rdr.ReadLine();
+                string[] split = str.Split(';');
                 for (int i = 0; i < frm.names.Count; ++i)
                 {
-                    string[] split = str.Split(';');
-                    Vec2i offset = new Vec2i(Convert.ToInt32(split[0]), Convert.ToInt32(split[1]));
+                    Vec2i offset = new Vec2i(Convert.ToInt32(split[2*i]), Convert.ToInt32(split[2*i+1]));
                     frm.offsets.Add(offset);
                 }
                 if (set)
