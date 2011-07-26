@@ -29,6 +29,7 @@ public:
   CPUSH(const std::string& s) : mData(s) {}
   CPUSH(const int i) : mData(i) {}
   CPUSH(const float f) : mData(f) {}
+  CPUSH(const ExecutionContext* ec) : mData((ExecutionContext*)ec) {}
   virtual ~CPUSH() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
     ctx.stack().push(mData);

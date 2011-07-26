@@ -5,6 +5,8 @@
 #include <list>
 #include "EngineObjects.h"
 
+class Textout;
+
 class FontRenderer{
 public:
   class String{
@@ -58,9 +60,11 @@ public:
   void prepareBlit(unsigned interval);
   void removeText(CharacterObject* chr);
   void removeText(String* str);
+  Textout* getTextout(int id);
 protected:
   AdvDocument* mData;
   std::vector<Font*> mFonts;
+  std::map<int, Textout*> mTextouts;
 };
 
 #endif

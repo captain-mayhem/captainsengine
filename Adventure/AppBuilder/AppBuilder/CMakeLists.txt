@@ -168,6 +168,8 @@ SET(AppBuilder_SRCS
   ScriptFunc.h
   Sound.cpp
   Sound.h
+  Textout.cpp
+  Textout.h
   Vector.h
   ${PARSER_SRCS}
   pcdk.g
