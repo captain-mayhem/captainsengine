@@ -2,9 +2,12 @@
 #define SCRIPTDEFS_H
 
 #include <list>
+#include <vector>
+#include <string>
 
 class CCode;
 class Object2D;
+class ExecutionContext;
 
 enum EngineEvent{
   EVT_USER_RANGE=0x50,
@@ -41,6 +44,9 @@ public:
   void addCode(CCode* code){
     mCodes.push_back(code);
   }
+  void addEmbeddedContext(ExecutionContext* ctx){
+    mEmbeddedContexts.push_back(ctx);
+  }
   CCode* get(unsigned pc){
     if (this && pc < mCodes.size())
       return mCodes[pc];
@@ -52,6 +58,7 @@ public:
 protected:
   std::vector<CCode*> mCodes;
   int* mRefCount;
+  std::vector<ExecutionContext*> mEmbeddedContexts;
 };
 
 class StackData{
@@ -63,13 +70,16 @@ public:
   StackData(int value) : mType(I) {mInt = value;}
   StackData(bool value) : mType(B) {mBool = value;}
   StackData(float value) : mType(F) {mFloat = value;}
+  StackData(ExecutionContext* ctx) : mType(EC) {mContext = ctx;}
   std::string getString() {return mStr;}
   int getInt() {return mInt;}
   bool getBool() {return mBool;}
   float getFloat() {if (mType == I)return (float)mInt; return mFloat;}
+  ExecutionContext* getEC() {return mContext;}
+  bool isInt() {return mType == I;}
 protected:
   enum Type{
-    S, I, B, F,
+    S, I, B, F, EC
   };
   Type mType;
   std::string mStr;
@@ -77,6 +87,7 @@ protected:
     int mInt;
     bool mBool;
     float mFloat;
+    ExecutionContext* mContext;
   };
 };
 
@@ -122,7 +133,7 @@ public:
   Stack& stack() {return mStack;}
   void suspend(int time) {mSuspended = true; mSleepTime = time;}
   void resume();
-  void reset(bool clearEvents);
+  void reset(bool clearEvents, bool clearStack);
   void setOwner(Object2D* owner) {mOwner = owner;}
   void setExecuteOnce() {mExecuteOnce = true;}
   void setSkip() {mSkip = true; mSuspended = false;}

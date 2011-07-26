@@ -27,7 +27,7 @@ public:
   ExecutionContext* parseProgram(std::string program);
   void registerFunction(std::string name, ScriptFunc func);
   void execute(ExecutionContext* script, bool executeOnce);
-  void executeImmediately(ExecutionContext* script);
+  void executeImmediately(ExecutionContext* script, bool clearStackAfterExec = true);
   void executeCutscene(ExecutionContext* cutscene, bool looping);
   void update(unsigned time);
   void remove(Object2D* object);
@@ -46,7 +46,7 @@ public:
   ExecutionContext* getCutscene() {return mCutScene;}
   void applyPrevState(Object2D* obj);
 protected:
-  unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode);
+  unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
   std::string mObjectInfo;
   bool mIsGameObject;

@@ -19,6 +19,9 @@ CodeSegment::~CodeSegment(){
     delete mCodes[i];
   }
   delete mRefCount;
+  for (unsigned i = 0; i < mEmbeddedContexts.size(); ++i){
+    delete mEmbeddedContexts[i];
+  }
 }
 
 bool PcdkScript::mRemoveLinkObject = false;
@@ -214,13 +217,25 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   return new ExecutionContext(segment, mIsGameObject, mObjectInfo);
 }
 
-unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mode){
+unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext){
   unsigned count = 0;
   if (mode == ARGLIST){
     program->reset(false);
+    unsigned argNum = program->size();
     while(program->hasPrev()){
       ASTNode* ast = program->prev();
-      count += transform(ast, codes);
+      if (argNum == seperateContext){
+        CodeSegment* newcodes = new CodeSegment();
+        transform(ast, newcodes);
+        ExecutionContext* ctx = new ExecutionContext(newcodes, false, "");
+        codes->addEmbeddedContext(ctx);
+        CPUSH* ecp = new CPUSH(ctx);
+        codes->addCode(ecp);
+        ++count;
+      }
+      else
+        count += transform(ast, codes);
+      --argNum;
     }
   }
   else{
@@ -236,6 +251,7 @@ unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mod
 unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
   TR_USE(ADV_Script);
   unsigned count = 0;
+  int seperateArgument = -1;
   switch(node->getType()){
       case ASTNode::FUNCCALL:{
         FuncCallNode* fc = static_cast<FuncCallNode*>(node);
@@ -258,12 +274,15 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           mObjectInfo = id->value();
           nl->reset(true);
         }
+        else if (fc->getName() == "textout"){
+          seperateArgument = 2;
+        }
         ScriptFunc f = mFunctions[fc->getName()];
         if (f == NULL){
           f = ScriptFunctions::dummy;
           DebugBreak();
         }
-        count += transform(fc->getArguments(), codes, ARGLIST);
+        count += transform(fc->getArguments(), codes, ARGLIST, seperateArgument);
         codes->addCode(new CCALL(f, fc->getArguments()->size()));
         ++count;
       }
@@ -548,7 +567,7 @@ void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
   mScripts.push_back(script);
 }
 
-void PcdkScript::executeImmediately(ExecutionContext* script){
+void PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAfterExec){
   do{
     if (script->mSuspended)
       return;
@@ -564,7 +583,7 @@ void PcdkScript::executeImmediately(ExecutionContext* script){
       //if (script->mHandler)
       //  script->mHandler(*script);
       clickEndHandler(*script);
-      script->reset(false);
+      script->reset(false, clearStackAfterExec);
       if (!script->getEvents().empty())
         script->getEvents().pop_front();
     }
@@ -613,7 +632,7 @@ void PcdkScript::remove(ExecutionContext* script){
     if (iter == mScripts.end())
       break;
   }
-  script->reset(true);
+  script->reset(true, true);
   delete script;
 }
 
@@ -730,8 +749,9 @@ EngineEvent ExecutionContext::getCommandEvent(){
   return EVT_NONE;
 }
 
-void ExecutionContext::reset(bool clearEvents){
-  mStack.clear();
+void ExecutionContext::reset(bool clearEvents, bool clearStack){
+  if (clearStack)
+    mStack.clear();
   if (clearEvents)
     mEvents.clear();
   mPC = 0;
@@ -744,7 +764,7 @@ void ExecutionContext::reset(bool clearEvents){
 void ExecutionContext::resume(){
   mSuspended = false;
   if (Engine::instance()->getInterpreter()->isBlockingScriptRunning() && mIdle) 
-    reset(true);
+    reset(true, true);
 }
 
 void PcdkScript::clickEndHandler(ExecutionContext& ctx){

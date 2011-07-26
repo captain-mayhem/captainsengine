@@ -12,6 +12,7 @@
 #include "Sound.h"
 #include "Screenchange.h"
 #include "Particles.h"
+#include "Textout.h"
 
 TR_CHANNEL(ADV_ScriptFunc);
 
@@ -1178,24 +1179,47 @@ int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
-  if (numArgs < 4)
-    DebugBreak();
   int textnum = ctx.stack().pop().getInt();
-  StackData text = ctx.stack().pop();
-  int x = ctx.stack().pop().getInt();
-  int y = ctx.stack().pop().getInt();
-  int font = -1;
-  if (numArgs >= 5)
-    font = ctx.stack().pop().getInt();
-  if (numArgs >= 6 && numArgs < 8)
-    DebugBreak();
-  if (numArgs == 8){
-    Color col;
-    col.r = ctx.stack().pop().getInt();
-    col.g = ctx.stack().pop().getInt();
-    col.b = ctx.stack().pop().getInt();
+  Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
+  txtout->setEnabled(true);
+  if (numArgs >= 2){
+    ExecutionContext* text = ctx.stack().pop().getEC();
+    Engine::instance()->getInterpreter()->executeImmediately(text, false);
+    StackData result = text->stack().pop();
+    if (!result.isInt() || result.getInt() != -1){
+      txtout->setText(text);
+    }
   }
-  //DebugBreak();
+  if (numArgs >= 3){
+    int x = ctx.stack().pop().getInt();
+    if (x != -1)
+      txtout->getPos().x = x;
+  }
+  if (numArgs >= 4){
+    int y = ctx.stack().pop().getInt();
+    if (y != -1)
+      txtout->getPos().y = y;
+  }
+  if (numArgs >= 5){
+    int font = ctx.stack().pop().getInt();
+    if (font != -1)
+      txtout->setFont(font);
+  }
+  if (numArgs >= 6){
+    int col = ctx.stack().pop().getInt();
+    if (col != -1)
+      txtout->getColor().r = col;
+  }
+  if (numArgs >= 7){
+    int col = ctx.stack().pop().getInt();
+    if (col != -1)
+      txtout->getColor().g = col;
+  }
+  if (numArgs >= 8){
+    int col = ctx.stack().pop().getInt();
+    if (col != -1)
+      txtout->getColor().b = col;
+  }
   return 0;
 }
 

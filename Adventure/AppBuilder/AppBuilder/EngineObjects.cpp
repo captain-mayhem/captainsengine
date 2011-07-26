@@ -173,7 +173,7 @@ void Object2D::animationEnd(const Vec2i& prev){
 
 void Object2D::setSuspensionScript(ExecutionContext* script){
   if (mSuspensionScript != NULL){
-    mSuspensionScript->reset(true);
+    mSuspensionScript->reset(true,true);
   }
   mSuspensionScript = script;
 }

@@ -1,6 +1,7 @@
 #include "Font.h"
 #include "AdvDoc.h"
 #include "Engine.h"
+#include "Textout.h"
 
 
 class FontBlitObject : public BlitObject{
@@ -212,6 +213,9 @@ FontRenderer::~FontRenderer(){
   for (unsigned i = 0; i < mFonts.size(); ++i){
     delete mFonts[i];
   }
+  for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+    delete iter->second;
+  }
 }
 
 bool FontRenderer::loadFont(unsigned id){
@@ -242,6 +246,9 @@ Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vect
 }
 
 void FontRenderer::prepareBlit(unsigned interval){
+  for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+    iter->second->render();
+  }
   for (unsigned i = 0; i < mFonts.size(); ++i){
     if (mFonts[i])
       mFonts[i]->blit(interval);
@@ -260,4 +267,14 @@ void FontRenderer::removeText(String* str){
     if (mFonts[i])
       mFonts[i]->removeText(str);
   }
+}
+
+Textout* FontRenderer::getTextout(int id){
+  std::map<int, Textout*>::iterator iter = mTextouts.find(id);
+  if (iter == mTextouts.end()){
+    Textout* text = new Textout();
+    mTextouts[id] = text;
+    return text;
+  }
+  return iter->second;
 }
