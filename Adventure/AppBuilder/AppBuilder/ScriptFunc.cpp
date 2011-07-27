@@ -109,6 +109,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setpos", setPos);
   interpreter->registerFunction("minicut", miniCut);
   interpreter->registerFunction("break", breakExec);
+  interpreter->registerFunction("particleview", particleView);
+  interpreter->registerFunction("texthide", textHide);
   srand((unsigned)time(NULL));
 }
 
@@ -637,7 +639,7 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
       text = "";
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
   str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, fontid, breakinfo, Color(), plyr ? 100000 : 100*text.length());
+    DEPTH_GAME_FONT, fontid, breakinfo, Engine::instance()->getSettings()->offspeechcolor, plyr ? 100000 : 100*text.length());
   if (str && plyr)
     plyr->setSpokenString(str);
   if (hold){
@@ -1145,12 +1147,14 @@ int ScriptFunctions::stopFunction(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::speechVolume(ExecutionContext& ctx, unsigned numArgs){
   int volume = ctx.stack().pop().getInt();
+  //TODO
   //DebugBreak();
   return 0;
 }
 
 int ScriptFunctions::setLanguage(ExecutionContext& ctx, unsigned numArgs){
   std::string language = ctx.stack().pop().getString();
+  //TODO
   //DebugBreak();
   return 0;
 }
@@ -1168,6 +1172,7 @@ int ScriptFunctions::fadeSpeed(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::setEAX(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
   //DebugBreak();
+  //TODO
   return 0;
 }
 
@@ -1175,6 +1180,7 @@ int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
   int textnum = ctx.stack().pop().getInt();
   std::string room = ctx.stack().pop().getString();
   //DebugBreak();
+  //TODO
   return 0;
 }
 
@@ -1225,6 +1231,7 @@ int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
   std::string speed = ctx.stack().pop().getString();
+  //TODO
   //DebugBreak();
   return 0;
 }
@@ -1249,6 +1256,19 @@ int ScriptFunctions::miniCut(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::breakExec(ExecutionContext& ctx, unsigned numArgs){
   ctx.resetEvents(true);
+  return 0;
+}
+
+int ScriptFunctions::particleView(ExecutionContext& ctx, unsigned numArgs){
+  int view = ctx.stack().pop().getInt();
+  //TODO
+  return 0;
+}
+
+int ScriptFunctions::textHide(ExecutionContext& ctx, unsigned numArgs){
+  int textnum = ctx.stack().pop().getInt();
+  Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
+  txtout->setEnabled(false);
   return 0;
 }
 

@@ -71,12 +71,13 @@ public:
   StackData(bool value) : mType(B) {mBool = value;}
   StackData(float value) : mType(F) {mFloat = value;}
   StackData(ExecutionContext* ctx) : mType(EC) {mContext = ctx;}
-  std::string getString() {return mStr;}
-  int getInt() {return mInt;}
-  bool getBool() {return mBool;}
-  float getFloat() {if (mType == I)return (float)mInt; return mFloat;}
-  ExecutionContext* getEC() {return mContext;}
-  bool isInt() {return mType == I;}
+  std::string getString() const {return mStr;}
+  int getInt() const {return mInt;}
+  bool getBool() const {return mBool;}
+  float getFloat() const {if (mType == I)return (float)mInt; return mFloat;}
+  ExecutionContext* getEC() const {return mContext;}
+  bool isInt() const {return mType == I;}
+  bool isString() const {return mType == S;}
 protected:
   enum Type{
     S, I, B, F, EC

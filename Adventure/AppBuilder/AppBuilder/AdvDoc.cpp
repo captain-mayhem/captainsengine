@@ -145,6 +145,11 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine();
   mSettings.textcolor = atoi(str.substr(12).c_str());
   str = txtstream.readLine(); //offtextcolor
+  int pos = str.find(';');
+  std::string color = str.substr(15, pos-15);
+  mSettings.offspeechcolor = atoi(color.c_str());
+  color = str.substr(pos+1);
+  mSettings.infotextcolor = atoi(color.c_str());
   str = txtstream.readLine();
   mSettings.tsstyle = (TsStyle)(atoi(str.c_str())-1);
   str = txtstream.readLine();

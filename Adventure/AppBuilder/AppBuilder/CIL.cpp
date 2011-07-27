@@ -103,3 +103,26 @@ unsigned CSTATE::execute(ExecutionContext& ctx, unsigned pc){
   }
   return ++pc;
 }
+
+static std::string stackDataToStr(const StackData& sd){
+  if (sd.isString())
+    return sd.getString();
+  else if (sd.isInt()){
+    char tmp[32];
+    sprintf(tmp, "%i", sd.getInt());
+    return tmp;
+  }
+  else
+    DebugBreak();
+  return "";
+}
+
+unsigned CCONCAT::execute(ExecutionContext& ctx, unsigned pc){
+  StackData s2 = ctx.stack().pop();
+  StackData s1 = ctx.stack().pop();
+  std::string d1, d2;
+  d1 = stackDataToStr(s1);
+  d2 = stackDataToStr(s2);
+  ctx.stack().push(d1+" "+d2);
+  return ++pc;
+}

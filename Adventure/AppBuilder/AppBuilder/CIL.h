@@ -188,12 +188,7 @@ class CCONCAT : public CCode{
 public:
   CCONCAT() {}
   virtual ~CCONCAT() {}
-  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    std::string d2 = ctx.stack().pop().getString();
-    std::string d1 = ctx.stack().pop().getString();
-    ctx.stack().push(d1+d2);
-    return ++pc;
-  }
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
 };
 
 class CTIMER : public CCode{

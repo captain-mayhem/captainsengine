@@ -888,6 +888,61 @@ std::istream& operator>>(std::istream& strm, StackData& data){
   return strm;
 }
 
+enum TimeVal{
+  TM_HOUR,
+  TM_MINUTE,
+  TM_SECOND,
+  TM_YEAR,
+  TM_MONTH,
+  TM_DAY,
+};
+
+inline int getTime(TimeVal tv){
+#ifdef WIN32
+  SYSTEMTIME time;
+  GetSystemTime(&time);
+  SystemTimeToTzSpecificLocalTime(NULL, &time, &time);
+  switch(tv){
+    case TM_HOUR:
+      return time.wHour;
+    case TM_MINUTE:
+      return time.wMinute;
+    case TM_SECOND:
+      return time.wSecond;
+    case TM_YEAR:
+      return time.wYear;
+    case TM_MONTH:
+      return time.wMonth;
+    case TM_DAY:
+      return time.wDay;
+  }
+#else
+  time_t tim;
+  time(&tim);
+  struct tm* time = localtime(&tim);
+  switch(tv){
+    case TM_HOUR:
+      return time->tm_hour;
+    case TM_MINUTE:
+      return time->tm_min;
+    case TM_SECOND:
+      return time->tm_sec;
+    case TM_YEAR:
+      return time->tm_year+1900;
+    case TM_MONTH:
+      return time->tm_mon+1;
+    case TM_DAY:
+      return time->tm_mday;
+  }
+#endif
+  return 0;
+}
+
+#ifdef WIN32
+#define GETTIME(x) \
+    
+#endif
+
 StackData PcdkScript::getVariable(const std::string& name){
   if (name == "mousex"){
     return Engine::instance()->getCursorPos().x;
@@ -896,22 +951,22 @@ StackData PcdkScript::getVariable(const std::string& name){
     return Engine::instance()->getCursorPos().y;
   }
   else if (name == "hour"){
-    DebugBreak();
+    return getTime(TM_HOUR);
   }
   else if (name == "minute"){
-    DebugBreak();
+    return getTime(TM_MINUTE);
   }
   else if (name == "second"){
-    DebugBreak();
+    return getTime(TM_SECOND);
   }
   else if (name == "year"){
-    DebugBreak();
+    return getTime(TM_YEAR);
   }
   else if (name == "month"){
-    DebugBreak();
+    return getTime(TM_MONTH);
   }
   else if (name == "day"){
-    DebugBreak();
+    return getTime(TM_DAY);
   }
   else if (name == "currentroom"){
     DebugBreak();
