@@ -179,6 +179,10 @@ public:
   **/
   static int offSpeech(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param view 1: in front of all, 2: behind front objects, 3: behind middle objects, 4: behind background
+  **/
+  static int particleView(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param character the name of the character to execute the pickup action
   **/
   static int pickup(ExecutionContext& ctx, unsigned numArgs);
@@ -362,6 +366,10 @@ public:
   /**
   **/
   static int stopMusic(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param num the number of the text
+  **/
+  static int textHide(ExecutionContext& ctx, unsigned numArgs);
    /**
   \param num the number of the text
   \param text the text to display

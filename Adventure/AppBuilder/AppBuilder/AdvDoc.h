@@ -35,7 +35,8 @@ struct ProjectSettings{
   int bordercolor;
   int backgroundcolor;
   int textcolor;
-  int offtextcolor;
+  int offspeechcolor;
+  int infotextcolor;
   TsStyle tsstyle;
   int tsborderstyle;
   int tsareacolor;

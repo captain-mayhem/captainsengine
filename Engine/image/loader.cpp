@@ -290,6 +290,21 @@ Image* ImageLoader::loadBMP(void* memory, unsigned size){
   return decodeBMP(&rdr);
 }
 
+static void determineShift(unsigned mask, unsigned& right, unsigned& left){
+  unsigned zeros = 0;
+  while((mask & 1) == 0){
+    ++zeros;
+    mask >>= 1;
+  }
+  unsigned ones = 0;
+  while((mask & 1) == 1){
+    ++ones;
+    mask >>= 1;
+  }
+  right = zeros;
+  left = 8-ones;
+}
+
 Image* decodeBMP(Reader* rdr){
   TR_USE(CGE_Imageloader);
   //FILE *pFile = NULL;
@@ -315,7 +330,7 @@ Image* decodeBMP(Reader* rdr){
   bfOffBits = rdr->readInt();
 
   //skip size of bitmap info header
-  rdr->skip(4);
+  int bihsize = rdr->readInt();
 
   // get the width of the bitmap
   int width = rdr->readInt();
@@ -332,6 +347,11 @@ Image* decodeBMP(Reader* rdr){
   // get the number of bits per pixel
   biBitCount = rdr->readShort();
 
+  int biCompression = rdr->readInt();
+  int rmask = 0x7c00;
+  int gmask = 0x3e0;
+  int bmask = 0x1f;
+
   pImage->setFormat(3, width, height);
 
   //calculate the size of the image
@@ -339,18 +359,33 @@ Image* decodeBMP(Reader* rdr){
   pImage->allocateData();
 
   //seek to the actual data
-  rdr->skip(bfOffBits-30);
+  if (biCompression == 3){
+    rdr->skip(bihsize-20);
+    rmask = rdr->readInt();
+    gmask = rdr->readInt();
+    bmask = rdr->readInt();
+  }
+  else{
+    TR_WARN("bitmap comression %i unhandled", biCompression);
+    rdr->skip(bfOffBits-34);
+  }
 
+  unsigned rrshift, rlshift;
+  unsigned grshift, glshift;
+  unsigned brshift, blshift;
+  determineShift(rmask, rrshift, rlshift);
+  determineShift(gmask, grshift, glshift);
+  determineShift(bmask, brshift, blshift);
   if (biBitCount == 16){
     //555
     for (int i = 0; i < width*height; ++i){
       unsigned short tmp = rdr->readShort();
-      pImage->getData()[3*i+0] = ((tmp >> 10)& 0x1f)<<3;
-      pImage->getData()[3*i+1] = ((tmp >> 5)& 0x1f)<<3;
-      pImage->getData()[3*i+2] = ((tmp >> 0)& 0x1f)<<3;
+      pImage->getData()[3*i+0] = ((tmp & rmask) >> rrshift) << rlshift;//((tmp >> 10)& 0x1f)<<3;
+      pImage->getData()[3*i+1] = ((tmp & gmask) >> grshift) << glshift;//((tmp >> 5)& 0x1f)<<3;
+      pImage->getData()[3*i+2] = ((tmp & bmask) >> brshift) << blshift;//>> bshift;//((tmp >> 0)& 0x1f)<<3;
     }
   }
-  else if (biBitCount != 24){
+  else if (biBitCount == 24){
 
     rdr->readBytes(pImage->getData(), biSizeImage);
 
@@ -361,6 +396,9 @@ Image* decodeBMP(Reader* rdr){
       pImage->getData()[i] = pImage->getData()[i + 2];
       pImage->getData()[i + 2] = temp;
     }
+  }
+  else{
+    TR_ERROR("Unhandled bit depth %i", biBitCount);
   }
 
   pImage->flipHorizontally();
