@@ -67,7 +67,7 @@ namespace StoryDesigner
                 case 2:
                     ol_shadow_b.Checked = true;
                     break;
-                case 4:
+                case 3:
                     ol_shadow_ab.Checked = true;
                     break;
             }
