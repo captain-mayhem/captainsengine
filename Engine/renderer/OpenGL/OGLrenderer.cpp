@@ -121,7 +121,7 @@ void OGLRenderer::killContext(){
   ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
   if (glx_){
     if (!glXMakeCurrent(x11->getDisplay(), None, NULL)){
-      CGE::Log << "Release of GL context failed";
+      TR_ERROR("Release of GL context failed");
     }
     glXDestroyContext(x11->getDisplay(), glx_);
     glx_ = NULL;
