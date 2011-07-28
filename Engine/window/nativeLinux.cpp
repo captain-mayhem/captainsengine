@@ -5,6 +5,8 @@
 //#include "../input/keyboard.h"
 #include "nativeLinux.h"
 
+TR_CHANNEL(CGE_Window);
+
 namespace Windows{
 
 X11Window::X11Window(CGE::Renderer* renderer) : AppWindow(renderer){
@@ -13,7 +15,8 @@ X11Window::X11Window(CGE::Renderer* renderer) : AppWindow(renderer){
 }
 
 void X11Window::init(const std::string& name){
-  CGE::Log << "Initializing window\n";
+  TR_USE(CGE_Window);
+  TR_INFO("Initializing window");
 
   disp_ = XOpenDisplay(0);
   screen_ = DefaultScreen(disp_);
@@ -95,7 +98,8 @@ void X11Window::init(const std::string& name){
 }
 
 void X11Window::kill(){
-  CGE::Log << "Killing window\n";
+  TR_USE(CGE_Window);
+  TR_INFO("Killing window");
 
   renderer_->killContext();
 
