@@ -530,11 +530,13 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
         Engine::instance()->getAnimator()->add(fsc);
         }
         break;
-      case SC_RECTANGLE:
-        DebugBreak();
+      case SC_RECTANGLE:{
+        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 4);
+        Engine::instance()->getAnimator()->add(csc);
+        }
         break;
       case SC_CIRCLE:{
-        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
+        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
         Engine::instance()->getAnimator()->add(csc);
         }
         break;

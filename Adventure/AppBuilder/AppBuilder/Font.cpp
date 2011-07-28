@@ -41,8 +41,8 @@ protected:
 
 ////////////////////////////////////////////////
 
-FontRenderer::String::String(const Vec2i& pos, unsigned displayTime) : 
-mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mCenterOffset(){
+FontRenderer::String::String(const Vec2i& pos, unsigned displayTime, bool keepOnScreen) : 
+mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mCenterOffset(), mKeepOnScreen(keepOnScreen){
 }
 
 FontRenderer::String::~String(){
@@ -69,14 +69,16 @@ void FontRenderer::String::render(unsigned interval){
   if (mSpeaker){
     pos = mSpeaker->getOverheadPos()-mCenterOffset;
   }
-  if (pos.x+mCenterOffset.x*2 > Engine::instance()->getResolution().x && pos.x+mCenterOffset.x*2 < Engine::instance()->getResolution().x+mCenterOffset.x)
-    pos.x = Engine::instance()->getResolution().x-mCenterOffset.x*2;
-  if (pos.x < 0 && pos.x > -mCenterOffset.x)
-    pos.x = 0;
-  if (pos.y+mCenterOffset.y > Engine::instance()->getResolution().y && pos.y+mCenterOffset.y < Engine::instance()->getResolution().y+mCenterOffset.y/2)
-    pos.y = Engine::instance()->getResolution().y-mCenterOffset.y;
-  if (pos.y < 0 && pos.y > -mCenterOffset.y/3*2)
-    pos.y = 0;
+  if (mKeepOnScreen){
+    if (pos.x+mCenterOffset.x*2 > Engine::instance()->getResolution().x && pos.x+mCenterOffset.x*2 < Engine::instance()->getResolution().x+mCenterOffset.x)
+      pos.x = Engine::instance()->getResolution().x-mCenterOffset.x*2;
+    if (pos.x < 0 && pos.x > -mCenterOffset.x)
+      pos.x = 0;
+    if (pos.y+mCenterOffset.y > Engine::instance()->getResolution().y && pos.y+mCenterOffset.y < Engine::instance()->getResolution().y+mCenterOffset.y/2)
+      pos.y = Engine::instance()->getResolution().y-mCenterOffset.y;
+    if (pos.y < 0 && pos.y > -mCenterOffset.y/3*2)
+      pos.y = 0;
+  }
   for (unsigned i = 0; i < mString.size(); ++i){
     mString[i]->render(pos, Vec2f(1.0f,1.0f), Vec2i());
   }
@@ -112,8 +114,8 @@ FontRenderer::Font::~Font(){
   mRenderQueue.clear();
 }
 
-FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo){
-  String* str = new String(Vec2i(x,y), displayTime);
+FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen){
+  String* str = new String(Vec2i(x,y), displayTime, keepOnScreen);
   unsigned max_len = 0;
   for (unsigned i = 0; i < breakinfo.size(); ++i){
     max_len = breakinfo[i].y > (int)max_len ? breakinfo[i].y : max_len;
@@ -237,8 +239,8 @@ void FontRenderer::unloadFont(unsigned id){
   mFonts[id] = NULL;
 }
 
-FontRenderer::String* FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& color, unsigned displayTime){
-  return mFonts[fontid]->render(x, y, text, depth, color, displayTime, breakinfo);
+FontRenderer::String* FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& color, unsigned displayTime, bool keepOnScreen){
+  return mFonts[fontid]->render(x, y, text, depth, color, displayTime, breakinfo, keepOnScreen);
 }
 
 Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo){
