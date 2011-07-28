@@ -11,7 +11,7 @@ class FontRenderer{
 public:
   class String{
   public:
-    String(const Vec2i& pos, unsigned displayTime);
+    String(const Vec2i& pos, unsigned displayTime, bool keepOnScreen);
     //String(const String& str);
     ~String();
     void append(BlitObject* obj) {mString.push_back(obj);}
@@ -29,13 +29,14 @@ public:
     std::vector<BlitObject*> mString;
     ExecutionContext* mSuspensionScript;
     CharacterObject* mSpeaker;
+    bool mKeepOnScreen;
   };
 protected:
   class Font{
   public:
     Font(const FontData& data);
     ~Font();
-    String* render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo);
+    String* render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen);
     Vec2i getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo);
     void blit(unsigned interval);
     void removeText(CharacterObject* chr);
@@ -55,7 +56,7 @@ public:
   ~FontRenderer();
   bool loadFont(unsigned id);
   void unloadFont(unsigned id);
-  String* render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& col=Color(), unsigned displayTime=0);
+  String* render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& col=Color(), unsigned displayTime=0, bool keepOnScreen=true);
   Vec2i getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo);
   void prepareBlit(unsigned interval);
   void removeText(CharacterObject* chr);

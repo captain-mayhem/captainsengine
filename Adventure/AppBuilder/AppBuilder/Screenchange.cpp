@@ -5,8 +5,6 @@
 #define M_PI       3.14159265358979323846
 #endif
 
-#define NUM_SEGMENTS 64
-
 Screenshot::Screenshot(int depth) : RenderableBlitObject(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, depth){
 }
 
@@ -21,8 +19,8 @@ void Screenshot::take(){
   unbind();
 }
 
-CircleScreenChange::CircleScreenChange(int width, int height, int depth, int duration) : RenderableBlitObject(width, height, depth), mDuration(duration/2), mCurrentTime(0), mClosing(true), mShot(depth-1){
-  generateCircle(1.0f, NUM_SEGMENTS);
+CircleScreenChange::CircleScreenChange(int width, int height, int depth, int duration, int segments) : RenderableBlitObject(width, height, depth), mDuration(duration/2), mCurrentTime(0), mClosing(true), mShot(depth-1), mSegments(segments){
+  generateCircle(1.0f);
 }
 
 CircleScreenChange::~CircleScreenChange(){
@@ -49,7 +47,7 @@ bool CircleScreenChange::update(unsigned interval){
   GL()translatef(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
   GL()scalef(scale, scale*Engine::instance()->getResolution().y/Engine::instance()->getResolution().x, 1.0f);
   GL()vertexPointer(2, GL_FLOAT, 0, mVerts);
-  GL()drawArrays(GL_TRIANGLE_FAN, 0, NUM_SEGMENTS+2);
+  GL()drawArrays(GL_TRIANGLE_FAN, 0, mSegments+2);
   GL()popMatrix();
   GL()enable(GL_TEXTURE_2D);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -68,15 +66,15 @@ bool CircleScreenChange::update(unsigned interval){
   return true;
 }
 
-void CircleScreenChange::generateCircle(float radius, int segments){
-  float angle = 0;
-  mVerts = new float[(segments+1)*2+2];
+void CircleScreenChange::generateCircle(float radius){
+  float angle = (float)M_PI/4.0f;
+  mVerts = new float[(mSegments+1)*2+2];
   mVerts[0] = 0.0f;
   mVerts[1] = 0.0f;
-  for (int i = 1; i < segments+2; ++i){
+  for (int i = 1; i < mSegments+2; ++i){
     mVerts[2*i] = radius*cos(angle);
     mVerts[2*i+1] = radius*sin(angle);
-    angle += (float)(M_PI*2./segments);
+    angle += (float)(M_PI*2./mSegments);
   }
 }
 

@@ -1179,8 +1179,14 @@ int ScriptFunctions::setEAX(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
   int textnum = ctx.stack().pop().getInt();
   std::string room = ctx.stack().pop().getString();
-  //DebugBreak();
-  //TODO
+  if (room == "any")
+    DebugBreak();
+  else if (room == "taskbar")
+    DebugBreak();
+  else if (room == "menu")
+    DebugBreak();
+  Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
+  txtout->setRoom(room);
   return 0;
 }
 

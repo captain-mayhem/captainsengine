@@ -16,12 +16,14 @@ public:
   Vec2i& getPos() {return mPos;}
   void setFont(int fontid);
   Color& getColor() {return mColor;}
+  void setRoom(const std::string& room) {mBoundRoom = room;}
 protected:
   bool mEnabled;
   ExecutionContext* mText;
   Vec2i mPos;
   int mFont;
   Color mColor;
+  std::string mBoundRoom;
 };
 
 #endif
