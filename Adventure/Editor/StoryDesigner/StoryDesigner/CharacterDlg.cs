@@ -10,9 +10,10 @@ namespace StoryDesigner
 {
     public partial class CharacterDlg : Form
     {
-        public CharacterDlg(AdvCharacter chr)
+        public CharacterDlg(AdvCharacter chr, AdvData data)
         {
             InitializeComponent();
+            this.stateFrameImage1.ClientSizeChanged += new EventHandler(stateFrameImage1_ClientSizeChanged);
             this.Text = "Character (" + chr.Name + ")";
             string[] labels = new string[36];
             labels[0] = "Stand front";
@@ -35,12 +36,37 @@ namespace StoryDesigner
             {
                 labels[i] = chr.getStateName(i);
             }
+            this.font.Items.Add("Default");
+            for (int i = 0; i < data.Settings.Fonts.Count; ++i)
+            {
+                FontInfo fi = (FontInfo)data.Settings.Fonts[i];
+                this.font.Items.Add(fi.name+ " ("+fi.size+")");
+            }
+            for (int i = 1; i < 10; ++i)
+            {
+                this.walkspeed.Items.Add(i);
+            }
             this.stateFrameImage1.setStateLables(labels);
             this.stateFrameImage1.Data = chr;
 
             this.text_color.BackColor = Color.FromArgb(Utilities.convertColor(chr.TextColor));
+            this.font.SelectedIndex = chr.Font;
+            this.walksound.Text = chr.Walksound;
+            this.walkspeed.SelectedIndex = chr.WalkSpeed - 1;
+            this.nozoom.Checked = chr.NoZoom;
+            this.leftanim.Checked = chr.RealLeftAnimations;
+            this.memory_resistant.Checked = chr.MemoryReistent;
+            this.ghostmode.Checked = chr.Ghost;
+            this.startzoom.Value = chr.Zoom;
 
             mCharacter = chr;
+        }
+
+        void stateFrameImage1_ClientSizeChanged(object sender, EventArgs e)
+        {
+            int height = stateFrameImage1.Location.Y + stateFrameImage1.Size.Height - 30;
+            this.panel_down.Location = new Point(panel_down.Location.X, height);
+            this.Size = new Size(this.Size.Width, height + this.panel_down.Size.Height+40);
         }
 
         AdvCharacter mCharacter;

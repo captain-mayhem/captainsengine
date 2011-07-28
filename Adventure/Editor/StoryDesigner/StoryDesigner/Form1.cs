@@ -111,7 +111,7 @@ namespace StoryDesigner
                         MessageBox.Show("Cannot find character " + name);
                         return;
                     }
-                    mCharacterDlg = new CharacterDlg(chr);
+                    mCharacterDlg = new CharacterDlg(chr, mData);
                     mCharacterDlg.Show(this);
                     break;
                 case ResourceID.SCRIPT:
