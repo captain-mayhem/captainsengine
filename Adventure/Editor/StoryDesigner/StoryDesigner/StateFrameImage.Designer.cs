@@ -191,9 +191,9 @@ namespace StoryDesigner
             // framecontrol
             // 
             this.framecontrol.BackColor = System.Drawing.SystemColors.Control;
-            this.framecontrol.Location = new System.Drawing.Point(3, 68);
+            this.framecontrol.Location = new System.Drawing.Point(0, 68);
             this.framecontrol.Name = "framecontrol";
-            this.framecontrol.Size = new System.Drawing.Size(324, 23);
+            this.framecontrol.Size = new System.Drawing.Size(336, 23);
             this.framecontrol.TabIndex = 3;
             this.framecontrol.TabStop = false;
             // 
@@ -334,7 +334,7 @@ namespace StoryDesigner
             this.Controls.Add(this.button2);
             this.Controls.Add(this.button1);
             this.Name = "StateFrameImage";
-            this.Size = new System.Drawing.Size(332, 274);
+            this.Size = new System.Drawing.Size(339, 274);
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.fps)).EndInit();

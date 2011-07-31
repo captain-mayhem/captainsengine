@@ -1054,6 +1054,7 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string name = ctx.stack().pop().getString();
   Vec2i newpos;
   newpos.x = ctx.stack().pop().getInt();
@@ -1066,10 +1067,18 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
       hold = true;
   }
   Object2D* obj = Engine::instance()->getObject(name, false);
-  if (speed == 0){
+  if (speed == 0 || ctx.mSkip){
     obj->setPosition(newpos);
     return 0;
   }
+  std::list<Vec2i> path;
+  //path.push_back(obj->getPosition());
+  path.push_back(newpos);
+  if (speed < 1000)
+    speed = 11-speed;
+  else
+    DebugBreak();
+  Engine::instance()->getAnimator()->add(obj, path, speed);
   //DebugBreak();
   return 0;
 }

@@ -28,25 +28,9 @@ namespace StoryDesigner
         /// </summary>
         private void InitializeComponent()
         {
-            this.stateFrameImage1 = new StoryDesigner.StateFrameImage();
             this.lighten_object = new System.Windows.Forms.CheckBox();
+            this.stateFrameImage1 = new StoryDesigner.StateFrameImage();
             this.SuspendLayout();
-            // 
-            // stateFrameImage1
-            // 
-            this.stateFrameImage1.AutoSize = true;
-            this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.stateFrameImage1.Data = null;
-            this.stateFrameImage1.Hotspot = false;
-            this.stateFrameImage1.HotspotCoordScale = 1F;
-            this.stateFrameImage1.Location = new System.Drawing.Point(12, 12);
-            this.stateFrameImage1.Name = "stateFrameImage1";
-            this.stateFrameImage1.PictureBoxSize = new System.Drawing.Size(100, 100);
-            this.stateFrameImage1.ScaleImageToBox = false;
-            this.stateFrameImage1.ShowAnimationButton = true;
-            this.stateFrameImage1.ShowImageNames = true;
-            this.stateFrameImage1.Size = new System.Drawing.Size(332, 324);
-            this.stateFrameImage1.TabIndex = 0;
             // 
             // lighten_object
             // 
@@ -57,6 +41,24 @@ namespace StoryDesigner
             this.lighten_object.TabIndex = 1;
             this.lighten_object.Text = "lighten object";
             this.lighten_object.UseVisualStyleBackColor = true;
+            // 
+            // stateFrameImage1
+            // 
+            this.stateFrameImage1.AutoSize = true;
+            this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.stateFrameImage1.Data = null;
+            this.stateFrameImage1.Frames = 30;
+            this.stateFrameImage1.Hotspot = false;
+            this.stateFrameImage1.HotspotCoordScale = 1F;
+            this.stateFrameImage1.Location = new System.Drawing.Point(12, 12);
+            this.stateFrameImage1.Name = "stateFrameImage1";
+            this.stateFrameImage1.PictureBoxSize = new System.Drawing.Size(100, 100);
+            this.stateFrameImage1.ScaleImageToBox = false;
+            this.stateFrameImage1.ShowAnimationButton = true;
+            this.stateFrameImage1.ShowImageNames = true;
+            this.stateFrameImage1.ShowStateDropDown = false;
+            this.stateFrameImage1.Size = new System.Drawing.Size(342, 324);
+            this.stateFrameImage1.TabIndex = 0;
             // 
             // ObjectDlg
             // 

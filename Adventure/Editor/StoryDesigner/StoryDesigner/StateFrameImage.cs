@@ -8,6 +8,7 @@ using System.Windows.Forms;
 
 namespace StoryDesigner
 {
+
     public partial class StateFrameImage : UserControl
     {
         public class StateEventArgs : EventArgs
@@ -89,12 +90,12 @@ namespace StoryDesigner
 
         void pictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-            mPictureDragging = false;
+            mPictureDragging = 0;
         }
 
         void pictureBox_MouseMove(object sender, MouseEventArgs e)
         {
-            if (!mPictureDragging)
+            if (mPictureDragging == 0)
                 return;
             Vec2i mouse = new Vec2i(e.X, e.Y);
             if (mouse.x < 0)
@@ -105,7 +106,12 @@ namespace StoryDesigner
                 mouse.y = 0;
             if (mouse.y > pictureBox.Size.Height)
                 mouse.y = pictureBox.Size.Height;
-            mData.setHotspot(mState, mouse / mHotspotScale);
+            if (mPictureDragging == 100)
+                mData.setHotspot(mState, (mouse-mDraggingOffset) / mHotspotScale);
+            else
+            {
+                mData.setFramePartOffset(mState, mFrame, mPictureDragging - 1, mouse-mDraggingOffset);
+            }
             pictureBox.Invalidate();
         }
 
@@ -113,8 +119,27 @@ namespace StoryDesigner
         {
             Vec2i center = mData.getHotspot(mState)*mHotspotScale;
             Vec2i mouse = new Vec2i(e.X, e.Y);
-            if ((mouse-center).length() < 10)
-                mPictureDragging = true;
+            if ((mouse - center).length() < 10)
+            {
+                mDraggingOffset = mouse - center;
+                mPictureDragging = 100;
+                return;
+            }
+            string[] pics = mData.getFrame(mState, mFrame);
+            for (int i = 0; i < pics.Length; ++i)
+            {
+                System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
+                Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
+                if (mouse.x >= offset.x && mouse.x <= offset.x + bmp.Width)
+                {
+                    if (mouse.y >= offset.y && mouse.y <= offset.y + bmp.Height)
+                    {
+                        mDraggingOffset = mouse - offset;
+                        mPictureDragging = i + 1;
+                        return;
+                    }
+                }
+            }
         }
 
         void fps_ValueChanged(object sender, EventArgs e)
@@ -292,10 +317,16 @@ namespace StoryDesigner
             }
         }
 
+        public int Frames
+        {
+            get { return mFrames; }
+            set { mFrames = value; this.framecontrol.Invalidate(); }
+        }
+
         void framecontrol_MouseClick(object sender, MouseEventArgs e)
         {
             PictureBox pb = (PictureBox)sender;
-            int field = e.X / (pb.Size.Width / mFrames+1);
+            int field = e.X / (pb.Size.Width / mFrames);
             mFrame = field;
             this.framecontrol.Invalidate();
         }
@@ -307,7 +338,7 @@ namespace StoryDesigner
             Brush b = new SolidBrush(Color.Turquoise);
             for (int i = 0; i < mFrames; ++i)
             {
-                Rectangle r = new Rectangle(i*(pb.Size.Width/mFrames+1), 0, pb.Size.Width / mFrames - 1, pb.Size.Height - 1);
+                Rectangle r = new Rectangle(i*(pb.Size.Width/mFrames+0), 0, pb.Size.Width / (mFrames + 0)-2, pb.Size.Height - 1);
                 if (i == mFrame)
                     e.Graphics.FillRectangle(b, r);
                 if (mData != null && mData.frameExists(mState, i))
@@ -369,7 +400,8 @@ namespace StoryDesigner
         private bool mScaleImage = false;
         private bool mDrawHotspot = false;
         private float mHotspotScale = 1.0f;
-        private bool mPictureDragging = false;
+        private int mPictureDragging = 0;
+        private Vec2i mDraggingOffset = new Vec2i();
         private Timer mTimer;
         private bool mShowStateDropdown = false;
 

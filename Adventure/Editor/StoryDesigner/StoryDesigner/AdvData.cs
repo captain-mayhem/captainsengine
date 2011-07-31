@@ -686,6 +686,24 @@ namespace StoryDesigner
         string mText;
     }
 
+    public class Room
+    {
+        public string Name;
+        public Vec2i Size;
+        public Vec2i ScrollOffset;
+        public Vec2i Depthmap;
+        public int Zoom;
+        public string Background;
+        public string ParallaxBackground;
+        public bool DoubleWalkmap;
+        public ArrayList FXShapes;
+        public bool HasInventory;
+        public Vec2i InvPos;
+        public Vec2i InvSize;
+        public Vec2f InvScale;
+        public ArrayList walkmap;
+    }
+
     public class AdvData
     {
         public AdvData()

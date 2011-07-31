@@ -335,7 +335,7 @@ namespace StoryDesigner
                             str = rdr.ReadLine();
                             if (str != ";" && str.Length > 0)
                             {
-                                ist.frames.Add(str.Substring(0,str.Length+1-delim));
+                                ist.frames.Add(str.Substring(0, str.Length + 1 - delim));
                             }
                         }
                         str = rdr.ReadLine();
@@ -365,6 +365,7 @@ namespace StoryDesigner
                     }
                     mAdv.addObject(obj);
                 }
+                //CHARACTER
                 else if (typename[0] == "Character")
                 {
                     AdvCharacter chr = new AdvCharacter(mAdv);
@@ -388,7 +389,7 @@ namespace StoryDesigner
                     {
                         str = rdr.ReadLine();
                         string[] names = str.Split(';');
-                        for (int i = 0; i < names.Length-1; ++i)
+                        for (int i = 0; i < names.Length - 1; ++i)
                         {
                             chr.setStateName(16 + i, names[i]);
                         }
@@ -406,6 +407,19 @@ namespace StoryDesigner
                         chr.Add(cs);
                     }
                     mAdv.addCharacter(chr);
+                }
+                //CHARACTER INSTANCE
+                else if (typename[0] == "Rcharacter")
+                {
+                }
+                //ROOM
+                else if (typename[0] == "Room")
+                {
+
+                }
+                //OBJECT INSTANCE
+                else if (typename[0] == "Robject")
+                {
                 }
             }
             return true;
