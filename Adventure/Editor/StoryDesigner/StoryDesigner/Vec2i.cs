@@ -62,4 +62,16 @@ namespace StoryDesigner
         public int x;
         public int y;
     }
+
+
+    public struct Vec2f
+    {
+        public Vec2f(float x, float y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+        public float x;
+        public float y;
+    }
 }

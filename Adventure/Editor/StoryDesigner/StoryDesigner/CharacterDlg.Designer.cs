@@ -202,6 +202,7 @@ namespace StoryDesigner
             this.stateFrameImage1.AutoSize = true;
             this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.stateFrameImage1.Data = null;
+            this.stateFrameImage1.Frames = 30;
             this.stateFrameImage1.Hotspot = true;
             this.stateFrameImage1.HotspotCoordScale = 1F;
             this.stateFrameImage1.Location = new System.Drawing.Point(12, 12);
@@ -218,7 +219,7 @@ namespace StoryDesigner
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(355, 534);
+            this.ClientSize = new System.Drawing.Size(356, 534);
             this.Controls.Add(this.panel_down);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.text_color);

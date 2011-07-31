@@ -914,7 +914,10 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
     path.push_back(pos);
   }
   chr->setEndLookDir(dir);
-  mAnimator->add(chr, path, 3);
+  Character* ch = mData->getCharacter(chr->getName());
+  if (!ch)
+    DebugBreak();
+  mAnimator->add(chr, path, 10-ch->walkspeed);
 }
 
 Object2D* Engine::createItem(const std::string& name){
