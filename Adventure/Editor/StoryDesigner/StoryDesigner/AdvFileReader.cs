@@ -415,7 +415,49 @@ namespace StoryDesigner
                 //ROOM
                 else if (typename[0] == "Room")
                 {
-
+                    Room room = new Room();
+                    room.Name = typename[1];
+                    room.Size.x = Convert.ToInt32(rdr.ReadLine());
+                    room.Size.y = Convert.ToInt32(rdr.ReadLine());
+                    room.ScrollOffset.x = Convert.ToInt32(rdr.ReadLine());
+                    room.ScrollOffset.y = Convert.ToInt32(rdr.ReadLine());
+                    room.Depthmap.x = Convert.ToInt32(rdr.ReadLine());
+                    room.Depthmap.y = Convert.ToInt32(rdr.ReadLine());
+                    room.Zoom = Convert.ToInt32(rdr.ReadLine());
+                    room.Background = rdr.ReadLine();
+                    room.ParallaxBackground = rdr.ReadLine();
+                    int tmp = Convert.ToInt32(rdr.ReadLine());
+                    room.DoubleWalkmap = tmp != 0;
+                    if (ver_major >= 3)
+                    {
+                        for (int i = 0; i < FXSHAPES_MAX; ++i)
+                        {
+                            //TODO
+                            rdr.ReadLine();
+                            rdr.ReadLine();
+                            rdr.ReadLine();
+                            rdr.ReadLine();
+                            rdr.ReadLine();
+                            rdr.ReadLine();
+                            rdr.ReadLine();
+                            rdr.ReadLine();
+                        }
+                        //TODO unknown
+                        rdr.ReadLine();
+                    }
+                    //inventory
+                    str = rdr.ReadLine();
+                    string[] inventory = str.Split(';');
+                    room.InvPos.x = Convert.ToInt32(inventory[0]);
+                    room.InvPos.y = Convert.ToInt32(inventory[1]);
+                    room.InvSize.x = Convert.ToInt32(inventory[2]);
+                    room.InvSize.y = Convert.ToInt32(inventory[3]);
+                    room.InvScale.x = (float)Convert.ToDouble(inventory[4]);
+                    room.InvScale.y = (float)Convert.ToDouble(inventory[5]);
+                    //walkmap
+                    str = rdr.ReadLine();
+                    //TODO
+                    mAdv.addRoom(room);
                 }
                 //OBJECT INSTANCE
                 else if (typename[0] == "Robject")
