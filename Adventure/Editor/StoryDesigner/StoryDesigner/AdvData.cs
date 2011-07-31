@@ -778,6 +778,7 @@ namespace StoryDesigner
             mItems = new Dictionary<string, Item>();
             mObjects = new Dictionary<string, AdvObject>();
             mCharacters = new Dictionary<string, AdvCharacter>();
+            mRooms = new Dictionary<string, Room>();
             mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
             mWMScripts = new Dictionary<string, ArrayList>();
         }
@@ -844,6 +845,15 @@ namespace StoryDesigner
             mCharacters.Add(chr.Name.ToLower(), chr);
         }
 
+        public Room getRoom(string name)
+        {
+            return mRooms[name];
+        }
+        public void addRoom(Room room)
+        {
+            mRooms.Add(room.Name.ToLower(), room);
+        }
+
         public void addScript(Script scr)
         {
             mScripts.Add(new KeyValuePair<Script.Type, string>(scr.ScriptType, scr.Name.ToLower()), scr);
@@ -864,6 +874,7 @@ namespace StoryDesigner
         Dictionary<string, Item> mItems;
         Dictionary<string, AdvObject> mObjects;
         Dictionary<string, AdvCharacter> mCharacters;
+        Dictionary<string, Room> mRooms;
         Dictionary<KeyValuePair<Script.Type, string>, Script> mScripts;
         Dictionary<string, ArrayList> mWMScripts;
         AdvFileReader mReader;

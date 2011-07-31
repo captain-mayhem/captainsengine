@@ -114,6 +114,18 @@ namespace StoryDesigner
                     mCharacterDlg = new CharacterDlg(chr, mData);
                     mCharacterDlg.Show(this);
                     break;
+                case ResourceID.ROOM:
+                    if (mRoomDlg != null)
+                        mRoomDlg.Close();
+                    Room room = mData.getRoom(name);
+                    if (room == null)
+                    {
+                        MessageBox.Show("Cannot find room " + name);
+                        return;
+                    }
+                    mRoomDlg = new RoomDlg(room, mData);
+                    mRoomDlg.Show(this);
+                    break;
                 case ResourceID.SCRIPT:
                     showScript(Script.Type.CUTSCENE, name);
                     break;
@@ -163,6 +175,7 @@ namespace StoryDesigner
         private ObjectDlg mObjectDlg;
         private CharacterDlg mCharacterDlg;
         private ScriptDlg mScriptDlg;
+        private RoomDlg mRoomDlg;
         private string mLastName;
         private ResourceID mLastID;
 

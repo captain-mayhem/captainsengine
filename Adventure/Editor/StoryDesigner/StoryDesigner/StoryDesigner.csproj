@@ -131,6 +131,10 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="RoomDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>RoomDlg.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ScriptDlg.resx">
       <SubType>Designer</SubType>
       <DependentUpon>ScriptDlg.cs</DependentUpon>
@@ -156,6 +160,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="RoomDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RoomDlg.Designer.cs">
+      <DependentUpon>RoomDlg.cs</DependentUpon>
     </Compile>
     <Compile Include="ScriptDlg.cs">
       <SubType>Form</SubType>
