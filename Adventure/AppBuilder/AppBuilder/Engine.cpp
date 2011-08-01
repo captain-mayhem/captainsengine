@@ -101,6 +101,7 @@ void Engine::initGame(exit_callback exit_cb){
   mActiveCommand = 0;
   mPrevActiveCommand = 0;
   mCurrentObject = NULL;
+  mClickedObject = NULL;
   //load taskbar room
   if (mData->getProjectSettings()->taskroom != ""){
     loadRoom(mData->getProjectSettings()->taskroom, true, NULL);
@@ -147,6 +148,7 @@ void Engine::exitGame(){
     return;
   mInitialized = false;
   mCurrentObject = NULL;
+  mClickedObject = NULL;
   mInterpreter->stop();
   delete mMainScript;
   mAnimator->clear();
@@ -639,6 +641,7 @@ void Engine::leftClick(const Vec2i& pos){
   ExecutionContext* script = NULL;
   Object2D* obj = getObjectAt(pos);
   if (obj != NULL){
+    mClickedObject = obj;
     script = obj->getScript();
     if (script != NULL){
       script->setEvent(EVT_CLICK);
@@ -663,6 +666,15 @@ void Engine::leftClick(const Vec2i& pos){
     mUseObjectName = "";
     mGiveObjectName = "";
     mLinkObjectInfo = "";
+  }
+}
+
+void Engine::leftRelease(const Vec2i& pos){
+  if (mClickedObject != NULL){
+    ExecutionContext* ctx = mClickedObject->getScript();
+    if (ctx != NULL)
+      ctx->setEvent(EVT_RELEASE);
+    mClickedObject = NULL;
   }
 }
 
@@ -1139,4 +1151,6 @@ void Engine::renderUnloadingRoom(){
 void Engine::remove(Object2D* obj){
   if (mCurrentObject == obj)
     mCurrentObject = NULL;
+  if (mClickedObject == obj)
+    mClickedObject = NULL;
 }

@@ -5,11 +5,11 @@ char positioning / char collision detection (->block walkmap?) | 2
 setchar with names | 4
 bored animation | 1
 module sounds | 5
-textEnabled (use in Engine) | 3
 group (use in setobj/moveobj) | 3
 playswf/stopswf | 2
-saving (sound, timer) | 2
+saving (sound, timer, textout) | 2
 room scrolling when focussing chars | 2
+speechvolume, setlanguage, entertext, fadespeed, seteax, textspeed, setPos, minicut, particleview, isMouseWheel | 3
 
 D:\pcdk\Sinnlos im Weltraum - The First Adventure\Sinnlos im Weltraum - The First Adventure\data\game.dat
 

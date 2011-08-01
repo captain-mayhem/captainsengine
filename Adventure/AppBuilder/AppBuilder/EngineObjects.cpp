@@ -737,6 +737,7 @@ void CharacterObject::save(){
       mInventory->save(save->inventory);
     }
     save->fontid = mFontID;
+    save->scale = mUserScale;
   }
 }
 

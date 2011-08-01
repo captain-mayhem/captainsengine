@@ -85,7 +85,11 @@ void PcdkScript::stop(){
     if ((*iter)->mExecuteOnce && (*iter)->mOwner == NULL)
       delete *iter;
   }
+  for (std::map<std::string,ExecutionContext*>::iterator iter = mScriptFunctions.begin(); iter != mScriptFunctions.end(); ++iter){
+    delete iter->second;
+  }
   mScripts.clear();
+  mScriptFunctions.clear();
   mGlobalSuspend = false;
   delete mCutScene;
   mCutScene = NULL;
@@ -833,6 +837,12 @@ std::ostream& PcdkScript::save(std::ostream& out){
   for (unsigned i = 0; i < mGroups.size(); ++i){
     out << *mGroups[i];
   }
+  out << std::endl;
+  out << mScriptFunctions.size();
+  for (std::map<std::string, ExecutionContext*>::iterator iter = mScriptFunctions.begin(); iter != mScriptFunctions.end(); ++iter){
+    out << " " << iter->first;
+  }
+  out << std::endl;
   return out;
 }
 
@@ -870,6 +880,13 @@ std::istream& PcdkScript::load(std::istream& in){
   for (int i = 0; i < num1; ++i){
     mGroups.push_back(new ObjectGroup(""));
     in >> *mGroups.back();
+  }
+  in >> num1;
+  for (int i = 0; i < num1; ++i){
+    std::string scriptname;
+    in >> scriptname;
+    ExecutionContext* ctx = getScript(scriptname);
+    execute(ctx, false);
   }
   return in;
 }
@@ -1037,5 +1054,23 @@ void PcdkScript::applyPrevState(Object2D* obj){
   if (iter != mPrevState.end()){
     obj->setState(iter->second);
     mPrevState.erase(iter);
+  }
+}
+
+ExecutionContext* PcdkScript::getScript(const std::string& name){
+  std::map<std::string,ExecutionContext*>::iterator iter = mScriptFunctions.find(name);
+  if (iter != mScriptFunctions.end())
+    return iter->second;
+  Script* scr = mData->getScript(Script::CUTSCENE, name);
+  ExecutionContext* ctx = parseProgram(scr->text);
+  mScriptFunctions[name] = ctx;
+  return ctx;
+}
+
+void PcdkScript::removeScript(const std::string& name){
+  std::map<std::string,ExecutionContext*>::iterator iter = mScriptFunctions.find(name);
+  if (iter != mScriptFunctions.end()){
+    remove(iter->second);
+    mScriptFunctions.erase(iter);
   }
 }
