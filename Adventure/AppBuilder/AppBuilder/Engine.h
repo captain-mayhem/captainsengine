@@ -37,6 +37,7 @@ public:
   void setCursorPos(Vec2i pos);
   Vec2i getCursorPos();
   void leftClick(const Vec2i& pos);
+  void leftRelease(const Vec2i& pos);
   void rightClick(const Vec2i& pos);
   void doubleClick(const Vec2i& pos);
   bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason);
@@ -150,6 +151,7 @@ protected:
   std::string mGiveObjectName;
   std::string mLinkObjectInfo;
   Object2D* mCurrentObject;
+  Object2D* mClickedObject;
   ExecutionContext* mMainScript;
   bool mKeysDown[256];
   bool mKeysPressed[256];

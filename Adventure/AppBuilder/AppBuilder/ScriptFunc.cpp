@@ -1136,21 +1136,32 @@ int ScriptFunctions::stopParticles(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
   std::string scriptname = ctx.stack().pop().getString();
-  DebugBreak();
+  ExecutionContext* func = Engine::instance()->getInterpreter()->getScript(scriptname);
   int numExecutions = 1;
   if (numArgs > 1){
     StackData d = ctx.stack().pop();
     if (d.getInt() == 0){
+      std::string txt = d.getString();
+      bool loop = false;
+      if (txt == "inf")
+        loop = true;
+      else
+        DebugBreak();
+      Engine::instance()->getInterpreter()->execute(func, !loop);
     }
-    else
+    else{
       numExecutions = atoi(d.getString().c_str());
+      DebugBreak();
+    }
   }
+  else
+    DebugBreak();
   return 0;
 }
 
 int ScriptFunctions::stopFunction(ExecutionContext& ctx, unsigned numArgs){
   std::string scriptname = ctx.stack().pop().getString();
-  DebugBreak();
+  Engine::instance()->getInterpreter()->removeScript(scriptname);
   return 0;
 }
 

@@ -45,6 +45,8 @@ public:
   static void clickEndHandler(ExecutionContext& ctx);
   ExecutionContext* getCutscene() {return mCutScene;}
   void applyPrevState(Object2D* obj);
+  ExecutionContext* getScript(const std::string& name);
+  void removeScript(const std::string& name);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
@@ -77,6 +79,7 @@ protected:
   std::map<std::string, int> mKeymap;
   std::vector<ObjectGroup*> mGroups;
   bool mACharacterAtScriptStart;
+  std::map<std::string, ExecutionContext*> mScriptFunctions;
 };
 
 #endif
