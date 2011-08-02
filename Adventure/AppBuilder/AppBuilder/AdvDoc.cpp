@@ -133,9 +133,11 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     mSettings.taskHideCompletely = true;
   else
     mSettings.taskHideCompletely = false;
-  for (int i = 0; i < 4; ++i){
+  for (int i = 0; i < 3; ++i){
     str = txtstream.readLine();
   }
+  str = txtstream.readLine();
+  mSettings.anywhere_transparency = atoi(str.c_str());
   str = txtstream.readLine();
   mSettings.targacolor = atoi(str.substr(13).c_str());
   str = txtstream.readLine();

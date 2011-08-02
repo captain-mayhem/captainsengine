@@ -137,6 +137,7 @@ public:
   void reset(bool clearEvents, bool clearStack);
   void setOwner(Object2D* owner) {mOwner = owner;}
   void setExecuteOnce() {mExecuteOnce = true;}
+  bool isExecuteOnce() {return mExecuteOnce;}
   void setSkip() {mSkip = true; mSuspended = false;}
   void setIdle(bool idle) {mIdle = idle;}
   bool isSkipping() {return mSkip;}

@@ -206,6 +206,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   mObjectInfo = "";
   mLastRelation = NULL;
   mUnresolvedLoad = NULL;
+  mUnresolvedBlockEnd = NULL;
   CodeSegment* segment = new CodeSegment;
   transform(p, segment, START);
   for (std::list<std::pair<CBRA*,unsigned> >::iterator iter = mUnresolvedBranches.begin(); iter != mUnresolvedBranches.end(); ++iter){
@@ -281,6 +282,9 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         else if (fc->getName() == "textout"){
           seperateArgument = 2;
         }
+        else if (fc->getName() == "minicut"){
+          mUnresolvedBlockEnd = new CCALL(ScriptFunctions::miniCutEnd, 0);
+        }
         ScriptFunc f = mFunctions[fc->getName()];
         if (f == NULL){
           f = ScriptFunctions::dummy;
@@ -329,6 +333,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           CSTATE* state = new CSTATE(CSTATE::NORMAL);
           codes->addCode(state);
           ++offset;
+        }
+        if (mUnresolvedBlockEnd != NULL){
+          codes->addCode(mUnresolvedBlockEnd);
+          ++offset;
+          mUnresolvedBlockEnd = NULL;
         }
         cevt->setOffset(offset+1);
         count += offset;

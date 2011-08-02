@@ -25,8 +25,9 @@ enum WindowIds{
   ID_AdvTreeCtrl = 1000,
 };
 
+#define DEPTH_ITEM 995
+#define DEPTH_LIGHTING 998
 #define DEPTH_PARTICLES 18500
-#define DEPTH_ITEM 19000
 #define DEPTH_GAME_FONT 19500
 #define DEPTH_BUTTON 19750
 #define DEPTH_UI_FONT 19875
