@@ -75,6 +75,7 @@ public:
   Vec2i getScrollOffset() {return mScrollOffset;}
   virtual void save();
   int getDepth();
+  void setDepth(int depth);
   void addNextState(int state) {mNextStates.push_back(state);}
   void activateNextState();
   virtual void setLightingColor(const Color& col) {mLightingColor = col;}
@@ -160,6 +161,7 @@ public:
   void skipScripts();
   float getDepthScale(const Vec2i& pos);
   void setZoomFactor(int factor) {mDepthMap.setZoomFactor(factor);}
+  void setOpacity(unsigned char opacity);
 protected:
   class DepthMap {
   public:

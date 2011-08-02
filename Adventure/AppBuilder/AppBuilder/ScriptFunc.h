@@ -159,6 +159,10 @@ public:
   **/
   static int miniCut(ExecutionContext& ctx, unsigned numArgs);
   /**
+    Engine internal
+  **/
+  static int miniCutEnd(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param instance name of the object instance
   \param x the x-position the object should be moved to
   \param y the y-position the object should be moved to

@@ -743,6 +743,10 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
     std::string name = data.getString();
     if (name == "rectangle")
       screenchange = SC_RECTANGLE;
+    else if (name == "circle")
+      screenchange = SC_CIRCLE;
+    else if (name == "shutters")
+      screenchange = SC_SHUTTERS;
     else
       DebugBreak();
   }
@@ -1277,6 +1281,12 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::miniCut(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs > 0)
     DebugBreak();
+  Engine::instance()->getInterpreter()->mGlobalSuspend = true;
+  return 0;
+}
+
+int ScriptFunctions::miniCutEnd(ExecutionContext& ctx, unsigned numArgs){
+  Engine::instance()->getInterpreter()->mGlobalSuspend = false;
   return 0;
 }
 

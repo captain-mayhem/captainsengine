@@ -102,9 +102,11 @@ void Engine::initGame(exit_callback exit_cb){
   mPrevActiveCommand = 0;
   mCurrentObject = NULL;
   mClickedObject = NULL;
+  int transparency = mData->getProjectSettings()->anywhere_transparency*255/100;
   //load taskbar room
   if (mData->getProjectSettings()->taskroom != ""){
     loadRoom(mData->getProjectSettings()->taskroom, true, NULL);
+    mRooms.front()->setOpacity(255-transparency);
     if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)
       mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
     else{
@@ -120,6 +122,7 @@ void Engine::initGame(exit_callback exit_cb){
   //load anywhere room
   if (mData->getProjectSettings()->anywhere_room != ""){
     loadRoom(mData->getProjectSettings()->anywhere_room, true, NULL);
+    mRooms.front()->setOpacity(255-transparency);
   }
   //load main script
   Script* mainScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->mainscript);
@@ -369,7 +372,8 @@ void Engine::render(unsigned time){
   }
   if (mFocussedChar && mFocussedChar->getRoom() == mRooms.back()->getName())
     mFocussedChar->render();
-  mCursor->render();
+  if (!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene())
+    mCursor->render();
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
     (*iter)->render();
   }
@@ -507,7 +511,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   }
   //inventory display
   if (room->invsize != Vec2i()){
-    InventoryDisplay* disp = new InventoryDisplay(room->invpos, room->invsize, room->invscale);
+    InventoryDisplay* disp = new InventoryDisplay(room->invpos, room->invsize, room->invscale, DEPTH_ITEM+depthoffset);
     roomobj->setInventory(disp);
   }
 

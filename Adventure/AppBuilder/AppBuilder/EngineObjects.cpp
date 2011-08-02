@@ -190,6 +190,12 @@ int Object2D::getDepth(){
   return mPos.y/Engine::instance()->getWalkGridSize();
 }
 
+void Object2D::setDepth(int depth){
+  for (unsigned i = 0; i < mAnimations.size(); ++i){
+    mAnimations[i]->setDepth(depth);
+  }
+}
+
 bool Object2D::animationEnded(Animation* anim){
   activateNextState();
   return mNextStates.empty();
@@ -353,7 +359,7 @@ void CursorObject::setCommand(int command){
 
 RoomObject::RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap) : 
 Object2D(state, pos, size, name), mInventroy(NULL), mDepthMap(depthmap){
-  mLighting = new LightingBlitObject(1000, size);
+  mLighting = new LightingBlitObject(DEPTH_LIGHTING, size);
   mParallaxBackground = NULL;
 }
 
@@ -576,6 +582,15 @@ RoomObject::DepthMap::DepthMap(Vec2i depthmap){
 void RoomObject::DepthMap::setZoomFactor(int factor){
   minVal = (float)(1.0f-(scaleStart-scaleStop)/((float)Engine::instance()->getSettings()->resolution.y)*factor*0.3f);
   //minVal = (float)(1.0f-(depthmap.y-depthmap.x)/((float)Engine::instance()->getSettings()->resolution.y/Engine::instance()->getWalkGridSize())*zoomfactor);
+}
+
+void RoomObject::setOpacity(unsigned char opacity){
+  mLightingColor.a = opacity;
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    Color c = (*iter)->getLightingColor();
+    c.a = opacity;
+    (*iter)->setLightingColor(c);
+  }
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 

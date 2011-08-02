@@ -59,8 +59,8 @@ void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
 
 ////////////////////////////////////////////
 
-InventoryDisplay::InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale)
-: mPos(pos+Vec2i(32,8)), mSize(size), mScale(scale), mItemOffset(0){
+InventoryDisplay::InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale, int depth)
+: mPos(pos+Vec2i(32,8)), mSize(size), mScale(scale), mItemOffset(0), mDepth(depth){
 
 }
 
@@ -82,6 +82,7 @@ void InventoryDisplay::render(Inventory* inv){
     }
     (*iter)->setPosition(pos);
     (*iter)->render();
+    (*iter)->setDepth(mDepth);
     ++count;
     int xpos = count % mSize.x;
     pos.x = mPos.x+xpos*invitemwidth;

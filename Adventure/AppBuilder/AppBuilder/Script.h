@@ -42,6 +42,7 @@ public:
   std::ostream& save(std::ostream& out);
   std::istream& load(std::istream& in);
   bool isBlockingScriptRunning() {return mGlobalSuspend;}
+  bool isTextScene() {return mCutScene != NULL && !mCutScene->isExecuteOnce();}
   static void clickEndHandler(ExecutionContext& ctx);
   ExecutionContext* getCutscene() {return mCutScene;}
   void applyPrevState(Object2D* obj);
@@ -55,6 +56,7 @@ protected:
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;
   RelationalNode* mLastRelation;
   CLOAD* mUnresolvedLoad;
+  CCALL* mUnresolvedBlockEnd;
 
   EngineEvent getEngineEvent(const std::string eventname);
   void update(ExecutionContext* ctx, unsigned time);
