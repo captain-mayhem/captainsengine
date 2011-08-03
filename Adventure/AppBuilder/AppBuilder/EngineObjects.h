@@ -13,6 +13,7 @@ public:
   BlitGroup* clone();
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation);
   void setDepth(int depth);
+  int getDepth() {if (mBlits.size() == 0) return 0; return mBlits[0]->getDepth();}
   void setBlendAdditive(bool additive);
 protected:
   BlitGroup() {}
@@ -28,6 +29,7 @@ public:
   Animation* clone();
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation);
   void setDepth(int depth);
+  int getDepth() {if (mBlits.empty()) return 0; return mBlits[0]->getDepth();}
   void start();
   void update(unsigned interval);
   bool exists() {return mBlits.size() > 0;}

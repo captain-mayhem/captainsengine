@@ -51,6 +51,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("givelink", giveLink);
   interpreter->registerFunction("if_num", isNumEqual);
   interpreter->registerFunction("setnum", setNum);
+  interpreter->registerRelVar("setnum", 2, "");
   interpreter->registerFunction("offspeech", offSpeech);
   interpreter->registerFunction("unloadroom", unloadRoom);
   interpreter->registerFunction("restart", restart);
@@ -89,6 +90,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("if_string", isStringEqual);
   interpreter->registerFunction("stepto", stepTo);
   interpreter->registerFunction("moveobj", moveObj);
+  interpreter->registerRelVar("moveobj", 2, "objx:");
+  interpreter->registerRelVar("moveobj", 3, "objy:");
   interpreter->registerFunction("quit", quit);
   interpreter->registerFunction("musicvolume", musicVolume);
   interpreter->registerFunction("setparticles", setParticles);

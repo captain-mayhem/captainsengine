@@ -81,8 +81,10 @@ void InventoryDisplay::render(Inventory* inv){
       continue;
     }
     (*iter)->setPosition(pos);
+    int olddepth = (*iter)->getAnimation()->getDepth();
     (*iter)->render();
-    (*iter)->setDepth(mDepth);
+    if (mDepth > olddepth)
+      (*iter)->setDepth(mDepth);
     ++count;
     int xpos = count % mSize.x;
     pos.x = mPos.x+xpos*invitemwidth;
