@@ -26,6 +26,7 @@ public:
   ~PcdkScript();
   ExecutionContext* parseProgram(std::string program);
   void registerFunction(std::string name, ScriptFunc func);
+  void registerRelVar(const std::string& function, int argnum, const std::string& prefix);
   void execute(ExecutionContext* script, bool executeOnce);
   void executeImmediately(ExecutionContext* script, bool clearStackAfterExec = true);
   void executeCutscene(ExecutionContext* cutscene, bool looping);
@@ -55,8 +56,11 @@ protected:
   bool mIsGameObject;
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;
   RelationalNode* mLastRelation;
-  CLOAD* mUnresolvedLoad;
+  std::list<CLOAD*> mUnresolvedLoads;
   CCALL* mUnresolvedBlockEnd;
+  std::string mCurrFunc;
+  unsigned mCurrArg;
+  std::map<std::string, std::map<int, std::string> > mRelVars;
 
   EngineEvent getEngineEvent(const std::string eventname);
   void update(ExecutionContext* ctx, unsigned time);

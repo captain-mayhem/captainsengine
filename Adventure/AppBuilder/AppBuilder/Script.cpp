@@ -205,7 +205,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   mIsGameObject = false;
   mObjectInfo = "";
   mLastRelation = NULL;
-  mUnresolvedLoad = NULL;
+  mUnresolvedLoads.clear();
   mUnresolvedBlockEnd = NULL;
   CodeSegment* segment = new CodeSegment;
   transform(p, segment, START);
@@ -226,21 +226,26 @@ unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mod
   unsigned count = 0;
   if (mode == ARGLIST){
     program->reset(false);
-    unsigned argNum = program->size();
+    mCurrArg = program->size();
     while(program->hasPrev()){
       ASTNode* ast = program->prev();
-      if (argNum == seperateContext){
+      if (mCurrArg == seperateContext){
         CodeSegment* newcodes = new CodeSegment();
+        unsigned oldargs = mCurrArg;
         transform(ast, newcodes);
+        mCurrArg = oldargs;
         ExecutionContext* ctx = new ExecutionContext(newcodes, false, "");
         codes->addEmbeddedContext(ctx);
         CPUSH* ecp = new CPUSH(ctx);
         codes->addCode(ecp);
         ++count;
       }
-      else
+      else{
+        unsigned oldargs = mCurrArg;
         count += transform(ast, codes);
-      --argNum;
+        mCurrArg = oldargs;
+      }
+      --mCurrArg;
     }
   }
   else{
@@ -260,6 +265,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
   switch(node->getType()){
       case ASTNode::FUNCCALL:{
         FuncCallNode* fc = static_cast<FuncCallNode*>(node);
+        mCurrFunc = fc->getName();
         if (fc->getName() == "break"){
           ScriptFunc f = mFunctions["break"];
           codes->addCode(new CCALL(f, 0));
@@ -299,9 +305,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         IdentNode* id = static_cast<IdentNode*>(node);
         codes->addCode(new CPUSH(id->value()));
         ++count;
-        if (mUnresolvedLoad){
-          mUnresolvedLoad->changeVariable(id->value());
-          mUnresolvedLoad = NULL;
+        if (mCurrArg == 1){
+          for (std::list<CLOAD*>::iterator iter = mUnresolvedLoads.begin(); iter != mUnresolvedLoads.end(); ++iter){
+            (*iter)->changeVariable(id->value());
+          }
+          mUnresolvedLoads.clear();
         }
       }
       break;
@@ -345,6 +353,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::CONDITION:{
         CondNode* cond = static_cast<CondNode*>(node);
+        mCurrFunc = cond->getCondFuncName();
         ScriptFunc f = mFunctions[cond->getCondFuncName()];
         if(f == NULL){
           f = ScriptFunctions::dummy;
@@ -370,7 +379,14 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         RelationalNode* relnode = static_cast<RelationalNode*>(node);
         if (relnode->type() == RelationalNode::REL_PLUS || relnode->type() == RelationalNode::REL_MINUS){
           //CLOAD var; visit child; CADD/CSUB
-          CLOAD* ld = new CLOAD("");
+          std::map<std::string, std::map<int, std::string> >::iterator funciter = mRelVars.find(mCurrFunc);
+          if (funciter == mRelVars.end())
+            DebugBreak();
+          std::map<int, std::string>::iterator argiter = funciter->second.find(mCurrArg);
+          if (argiter == funciter->second.end())
+            DebugBreak();
+          std::string prefix = argiter->second;
+          CLOAD* ld = new CLOAD(prefix);
           codes->addCode(ld);
           count += 1;
           count += transform(relnode->child(), codes);
@@ -381,7 +397,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           else
             DebugBreak();
           count += 1;
-          mUnresolvedLoad = ld;
+          mUnresolvedLoads.push_back(ld);
         }
         else{
           mLastRelation = relnode;
@@ -481,6 +497,10 @@ CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
 
 void PcdkScript::registerFunction(std::string name, ScriptFunc func){
   mFunctions[name] = func;
+}
+
+void PcdkScript::registerRelVar(const std::string& function, int argnum, const std::string& prefix){
+  mRelVars[function][argnum] = prefix;
 }
 
 void PcdkScript::update(unsigned time){
@@ -717,8 +737,8 @@ ExecutionContext::~ExecutionContext(){
 }
 
 void ExecutionContext::setEvent(EngineEvent evt){
-  if (!mSuspended)
-    mEvents.push_back(evt);
+  //if (!mSuspended)
+  mEvents.push_back(evt);
 }
 
 void ExecutionContext::setEvents(std::list<EngineEvent>& events){
@@ -1031,7 +1051,10 @@ StackData PcdkScript::getVariable(const std::string& name){
     DebugBreak();
   }
   else if (name.size() > 5 && name.substr(0,5) == "objx:"){
-    DebugBreak();
+    Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
+    if (obj == NULL)
+      DebugBreak();
+    return obj->getPosition().x;
   }
   else if (name.size() > 5 && name.substr(0,5) == "objy:"){
     DebugBreak();

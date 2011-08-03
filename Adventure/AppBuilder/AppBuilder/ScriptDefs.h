@@ -143,6 +143,7 @@ public:
   bool isSkipping() {return mSkip;}
   void setEventHandled() {mEventHandled = true;}
   bool isEventHandled() {return mEventHandled;}
+  bool isSuspended() {return mSuspended;}
 protected:
   CodeSegment* mCode;
   bool mIsGameObject;

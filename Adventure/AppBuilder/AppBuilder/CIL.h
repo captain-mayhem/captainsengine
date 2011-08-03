@@ -131,7 +131,7 @@ public:
   CLOAD(const std::string& s) : mVariable(s) {}
   virtual ~CLOAD() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
-  void changeVariable(const std::string& var) {mVariable = var;}
+  void changeVariable(const std::string& var) {mVariable += var;}
 protected:
   std::string mVariable;
 };
