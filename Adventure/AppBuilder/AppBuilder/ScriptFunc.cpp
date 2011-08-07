@@ -203,6 +203,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     if (sound != ""){
       plyr = SoundEngine::instance()->getSound(sound);
       if (plyr){
+        plyr->setVolume(SoundEngine::instance()->getSpeechVolume());
         plyr->play(false);
         plyr->setSpeaker(chr);
       }
@@ -213,7 +214,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
       text = "";
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID(), breakinfo);
     str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : 100*text.length());
+      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*text.length());
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr);
     str->setSpeaker(chr);
@@ -628,8 +629,10 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   SoundPlayer* plyr = NULL;
   if (sound != ""){
     plyr = SoundEngine::instance()->getSound(sound);
-    if (plyr)
+    if (plyr){
+      plyr->setVolume(SoundEngine::instance()->getSpeechVolume());
       plyr->play(false);
+    }
   }
   //correct the offspeech position
   RoomObject* room = Engine::instance()->getRoom("");
@@ -642,7 +645,7 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
       text = "";
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
   str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, fontid, breakinfo, Engine::instance()->getSettings()->offspeechcolor, plyr ? 100000 : 100*text.length());
+    DEPTH_GAME_FONT, fontid, breakinfo, Engine::instance()->getSettings()->offspeechcolor, plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*text.length());
   if (str && plyr)
     plyr->setSpokenString(str);
   if (hold){
@@ -750,6 +753,8 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
       screenchange = SC_CIRCLE;
     else if (name == "shutters")
       screenchange = SC_SHUTTERS;
+    else if (name == "clock")
+      screenchange = SC_CLOCK;
     else
       DebugBreak();
   }
@@ -1097,7 +1102,7 @@ int ScriptFunctions::quit(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::musicVolume(ExecutionContext& ctx, unsigned numArgs){
   int volume = ctx.stack().pop().getInt();
-  SoundEngine::instance()->setMusicVolume(volume);
+  SoundEngine::instance()->setMusicVolume(volume/100.0f);
   return 0;
 }
 
@@ -1174,8 +1179,7 @@ int ScriptFunctions::stopFunction(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::speechVolume(ExecutionContext& ctx, unsigned numArgs){
   int volume = ctx.stack().pop().getInt();
-  //TODO
-  //DebugBreak();
+  SoundEngine::instance()->setSpeechVolume(volume/100.0f);
   return 0;
 }
 
@@ -1264,8 +1268,16 @@ int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
   std::string speed = ctx.stack().pop().getString();
-  //TODO
-  //DebugBreak();
+  int numspeed = 100;
+  if (speed == "slow")
+    numspeed = 110;
+  else if (speed == "normal")
+    numspeed = 100;
+  else if (speed == "fast")
+    numspeed = 90;
+  else
+    DebugBreak();
+  Engine::instance()->getInterpreter()->setTextSpeed(numspeed);
   return 0;
 }
 

@@ -26,6 +26,7 @@ enum WindowIds{
 };
 
 #define DEPTH_ITEM 995
+#define DEPTH_BOUND_FONT 997
 #define DEPTH_LIGHTING 998
 #define DEPTH_PARTICLES 18500
 #define DEPTH_GAME_FONT 19500

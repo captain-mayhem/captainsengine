@@ -45,7 +45,7 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
   return strm;
 }
 
-PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false) {
+PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100) {
   ScriptFunctions::registerFunctions(this);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
@@ -872,6 +872,7 @@ std::ostream& PcdkScript::save(std::ostream& out){
     out << " " << iter->first;
   }
   out << std::endl;
+  out << mTextSpeed << std::endl;
   return out;
 }
 
@@ -917,6 +918,7 @@ std::istream& PcdkScript::load(std::istream& in){
     ExecutionContext* ctx = getScript(scriptname);
     execute(ctx, false);
   }
+  in >> mTextSpeed;
   return in;
 }
 

@@ -15,7 +15,7 @@ extern "C"{
 
 SoundEngine* SoundEngine::mInstance = NULL;
 
-SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(100){
+SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f){
 #ifndef DISABLE_SOUND
   mDevice = alcOpenDevice(NULL);
   if (mDevice){
@@ -70,7 +70,7 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
     delete mActiveMusic;
   mActiveMusic = plyr;
   if (plyr)
-    plyr->setVolume(mMusicVolume/100.0f);
+    plyr->setVolume(mMusicVolume);
   return plyr;
 }
 
@@ -126,20 +126,24 @@ void SoundEngine::removeSpeaker(CharacterObject* chr){
   }
 }
 
-void SoundEngine::setMusicVolume(int volume){
+void SoundEngine::setMusicVolume(float volume){
   mMusicVolume = volume;
   if (mActiveMusic != NULL){
-    mActiveMusic->setVolume(volume/100.0f);
+    mActiveMusic->setVolume(volume);
   }
 }
 
+void SoundEngine::setSpeechVolume(float volume){
+  mSpeechVolume = volume;
+}
+
 std::ostream& SoundEngine::save(std::ostream& out){
-  out << mMusicVolume << "\n";
+  out << mMusicVolume << " " << mSpeechVolume << "\n";
   return out;
 }
 
 std::istream& SoundEngine::load(std::istream& in){
-  in >> mMusicVolume;
+  in >> mMusicVolume >> mSpeechVolume;
   return in;
 }
 

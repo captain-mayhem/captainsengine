@@ -69,7 +69,7 @@ public:
   ExecutionContext* getScript() {return mScript;}
   void setSuspensionScript(ExecutionContext* script);
   int getState() {return mState;}
-  void setState(int state) {mState = state; mNextStates.clear();}
+  virtual void setState(int state) {mState = state; mNextStates.clear();}
   unsigned getNumDefinedStates();
   const std::string& getName() {return mName;}
   virtual Vec2i getSize() {return mSize*mScale;}
@@ -196,6 +196,7 @@ public:
   virtual void animationBegin(const Vec2i& next);
   virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next);
   virtual void animationEnd(const Vec2i& prev);
+  virtual void setState(int state);
   void setLookDir(LookDir dir);
   void setLookDir(const Vec2i& dir);
   LookDir getLookDir();

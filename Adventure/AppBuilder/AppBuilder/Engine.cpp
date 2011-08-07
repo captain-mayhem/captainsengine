@@ -527,7 +527,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   if (_stricmp(room->name.c_str(), mData->getProjectSettings()->taskroom.c_str()) == 0)
     mTaskbar = roomobj;
   //animation stuff
-  if (loadreason == NULL || !loadreason->isSkipping()){
+  if ((loadreason == NULL || !loadreason->isSkipping()) && !isSubRoom){
     switch(Engine::instance()->getScreenChange()){
       case SC_DIRECT:
         break;
