@@ -27,6 +27,7 @@ struct ProjectSettings{
   std::string mainscript;
   std::string anywhere_room;
   ScreenChange screenchange;
+  std::string menuroom;
   int taskheight;
   std::string taskroom;
   int taskpopup;
