@@ -118,9 +118,10 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine(); //Screenchange
   mSettings.screenchange = (ScreenChange)atoi(str.substr(15).c_str());
   //TODO
-  for (int i = 0; i < 4; ++i){
+  for (int i = 0; i < 3; ++i){
     str = txtstream.readLine();
   }
+  mSettings.menuroom = txtstream.readLine();
   str = txtstream.readLine();
   mSettings.taskheight = atoi(str.substr(13).c_str());
   str = txtstream.readLine();

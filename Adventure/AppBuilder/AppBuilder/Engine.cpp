@@ -42,7 +42,7 @@ int _stricmp(const char* str1, const char* str2){
 
 Engine* Engine::mInstance = NULL;
 
-Engine::Engine() : mData(NULL), mInitialized(false), mExitRequested(false), mResetRequested(false){
+Engine::Engine() : mData(NULL), mInitialized(false), mExitRequested(false), mResetRequested(false), mMenuShown(false){
   mVerts[0] = 0; mVerts[1] = 1;
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
@@ -240,6 +240,7 @@ void Engine::render(unsigned time){
     return;
   }
   if (mResetRequested){
+    mMenuShown = false;
     Engine::instance()->setFocus("none", NULL);
     Engine::instance()->getSaver()->clear();
     Engine::instance()->exitGame();
@@ -449,7 +450,8 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   std::vector<std::pair<Vec2i,Script*> > wmscripts = mData->getWMScripts(room->name);
   for (unsigned i = 0; i < wmscripts.size(); ++i){
     ExecutionContext* scr = mInterpreter->parseProgram(wmscripts[i].second->text);
-    roomobj->addWalkmapScript(wmscripts[i].first-Vec2i(1,1), scr);
+    if (scr != NULL)
+      roomobj->addWalkmapScript(wmscripts[i].first-Vec2i(1,1), scr);
   }
   for (unsigned i = 0; i < room->objects.size(); ++i){
     Object* o = mData->getObject(room->objects[i].object);
@@ -568,6 +570,8 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
 }
 
 void Engine::unloadRoom(RoomObject* room, bool mainroom){
+  if (mRooms.empty())
+    return;
   if (room == NULL){
     if (mainroom){
       room = mRooms.back();
@@ -1087,6 +1091,16 @@ void Engine::keyPress(int key){
         ExecutionContext* ctx = mInterpreter->getCutscene();
         if (ctx){
           ctx->setSkip();
+        }
+        else{
+          if (!mMenuShown){
+            loadRoom(mData->getProjectSettings()->menuroom, true, NULL);
+            mMenuShown = true;
+          }
+          else{
+            unloadRoom(NULL, false);
+            mMenuShown = false;
+          }
         }
       }
       break;

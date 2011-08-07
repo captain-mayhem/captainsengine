@@ -214,6 +214,10 @@ void SaveStateProvider::clear(){
 }
 
 void SaveStateProvider::save(const std::string& name){
+  if (Engine::instance()->mMenuShown){
+    Engine::instance()->unloadRoom(NULL, false);
+    Engine::instance()->mMenuShown = false;
+  }
   std::string focussedcharname;
   if (Engine::instance()->mFocussedChar){
     getRoom(Engine::instance()->mRooms.back()->getName());
@@ -264,6 +268,10 @@ void SaveStateProvider::load(const std::string& name){
   clear();
   Engine::instance()->getInterpreter()->executeCutscene(NULL, false);
   Engine::instance()->unloadRooms();
+  if (Engine::instance()->mMenuShown){
+    Engine::instance()->unloadRoom(NULL, false);
+    Engine::instance()->mMenuShown = false;
+  }
   //load room data
   int numRooms;
   in >> numRooms;

@@ -158,6 +158,7 @@ protected:
   bool mExitRequested;
   bool mResetRequested;
   exit_callback mExitCall;
+  bool mMenuShown;
 };
 
 #endif

@@ -21,6 +21,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setfocus", setFocus);
   interpreter->registerFunction("showinfo", showInfo);
   interpreter->registerFunction("walkto", walkTo);
+  interpreter->registerRelVar("walkto", 2, "charx:");
+  interpreter->registerRelVar("walkto", 3, "chary:");
   interpreter->registerFunction("speech", speech);
   interpreter->registerFunction("pickup", pickup);
   interpreter->registerFunction("playsound", playSound);
@@ -71,6 +73,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("jiggle", jiggle);
   interpreter->registerFunction("randomnum", randomNum);
   interpreter->registerFunction("setchar", setChar);
+  interpreter->registerRelVar("setchar", 2, "char:");
+  interpreter->registerRelVar("setchar", 3, "char:"); //TODO 4, 5 , ..., INF
   interpreter->registerFunction("setstring", setString);
   interpreter->registerFunction("loadnum", loadNum);
   interpreter->registerFunction("savenum", saveNum);
@@ -828,7 +832,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   if (ctx.mSkip)
     return 0;
   int state = 0;
-  if (data.getInt() != 0)
+  if (data.isInt())
     state = data.getInt()+16;
   else{
     std::string statename = data.getString();
