@@ -28,7 +28,9 @@ public:
   void removeSpeaker(CharacterObject* chr);
   std::ostream& save(std::ostream& out);
   std::istream& load(std::istream& in);
-  void setMusicVolume(int volume);
+  void setMusicVolume(float volume);
+  void setSpeechVolume(float volume);
+  float getSpeechVolume() {return mSpeechVolume;}
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
@@ -40,7 +42,8 @@ protected:
 #endif
   std::map<std::string, SoundPlayer*> mActiveSounds;
   SoundPlayer* mActiveMusic;
-  int mMusicVolume;
+  float mMusicVolume;
+  float mSpeechVolume;
 };
 
 class SoundPlayer{

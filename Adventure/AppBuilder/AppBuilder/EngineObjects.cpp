@@ -769,3 +769,11 @@ bool CharacterObject::isHit(const Vec2i& point){
   }
   return false;
 }
+
+void CharacterObject::setState(int state){
+  mState = state;
+  mNextStates.clear();
+  //fallback to lower states when they not exist (walk,talk  back => walk back)
+  if (!getAnimation()->exists() && mState > 3)
+    mState = calculateState(mState, isWalking(), false);
+}

@@ -24,11 +24,13 @@ void Textout::render(){
     return;
   Vec2i pos(0,0);
   bool keepOnScreen = true;
+  int depth = DEPTH_GAME_FONT;
   if (!mBoundRoom.empty()){
     RoomObject* ro = Engine::instance()->getRoom(mBoundRoom);
     if (ro == NULL)
       return;
     pos = ro->getScrollOffset();
+    depth = ro->getAnimation()->getDepth()+DEPTH_BOUND_FONT;
     keepOnScreen = false;
   }
   Engine::instance()->getInterpreter()->executeImmediately(mText, false);
@@ -36,5 +38,5 @@ void Textout::render(){
   std::vector<Vec2i> breakinfo;
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, mFont, breakinfo);
   Engine::instance()->getFontRenderer()->render(mPos.x-(keepOnScreen ? ext.x/2 : 0)+pos.x,mPos.y+pos.y, text, 
-      DEPTH_GAME_FONT, mFont, breakinfo, mColor, 0, keepOnScreen);
+      depth, mFont, breakinfo, mColor, 0, keepOnScreen);
 }
