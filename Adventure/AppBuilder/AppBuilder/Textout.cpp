@@ -6,11 +6,11 @@ Textout::Textout() : mEnabled(false), mText(NULL), mPos(0,0), mFont(1), mColor(E
 }
 
 Textout::~Textout(){
-  delete mText;
+  mText->unref();
 }
 
 void Textout::setText(ExecutionContext* text){
-  delete mText;
+  mText->unref();
   mText = new ExecutionContext(*text);
 }
 

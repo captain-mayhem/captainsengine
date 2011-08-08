@@ -18,7 +18,7 @@ public:
     void clear();
     void render(unsigned interval);
     int getTime() {return mDisplayTime;}
-    void setSuspensionScript(ExecutionContext* ctx) {mSuspensionScript = ctx;}
+    void setSuspensionScript(ExecutionContext* ctx);
     void setSpeaker(CharacterObject* chr) {mSpeaker = chr;}
     CharacterObject* getSpeaker() {return mSpeaker;}
     void setExtent(const Vec2i& extent);

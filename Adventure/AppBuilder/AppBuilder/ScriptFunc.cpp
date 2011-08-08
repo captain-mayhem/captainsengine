@@ -49,6 +49,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("wait", wait);
   interpreter->registerFunction("subroom", subRoom);
   interpreter->registerFunction("return", subRoomReturn);
+  interpreter->registerFunction("realreturn", subRoomReturn);
   interpreter->registerFunction("link", link);
   interpreter->registerFunction("givelink", giveLink);
   interpreter->registerFunction("if_num", isNumEqual);

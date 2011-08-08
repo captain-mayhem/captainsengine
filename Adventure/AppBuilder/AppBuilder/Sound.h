@@ -8,6 +8,7 @@
 #include <alc.h>
 #endif
 #include "AdvDoc.h"
+#include "ExecutionContext.h"
 
 class SoundPlayer;
 class AdvDocument;
@@ -56,7 +57,7 @@ public:
   virtual bool update()=0;
   void setSpeaker(CharacterObject* chr) {mSpeaker = chr;}
   CharacterObject* getSpeaker() {return mSpeaker;}
-  void setSuspensionScript(ExecutionContext* ctx) {mSuspensionScript = ctx;}
+  void setSuspensionScript(ExecutionContext* ctx);
   void setSpokenString(/*FontRenderer::String*/void* string) {mSpokenString = string;}
 protected:
 #ifndef DISABLE_SOUND
