@@ -48,6 +48,7 @@ mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), m
 FontRenderer::String::~String(){
   if (mSuspensionScript){
     mSuspensionScript->resume();
+    mSuspensionScript->unref();
     mSuspensionScript = NULL;
   }
   if (mSpeaker){
@@ -90,6 +91,15 @@ void FontRenderer::String::render(unsigned interval){
 void FontRenderer::String::setExtent(const Vec2i& extent){
   mCenterOffset = extent;
   mCenterOffset.x /= 2;
+}
+
+void FontRenderer::String::setSuspensionScript(ExecutionContext* ctx){
+  if (mSuspensionScript != NULL){
+    mSuspensionScript->reset(true,true);
+    mSuspensionScript->unref();
+  }
+  ctx->ref();
+  mSuspensionScript = ctx;
 }
 
 ////////////////////////////////////////

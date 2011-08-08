@@ -35,6 +35,7 @@ nested_stmt returns [StmtNode* stmt]
 	;
 
 func_call returns [FuncCallNode* func]
+@init{ $func = NULL;}
 	:	id=ident LPAREN args=arg_list RPAREN 
 	{
 		std::string fname = id.id->value(); delete id.id;
@@ -119,11 +120,11 @@ arg	returns [ASTNode* value]
 		////workaraound for strings that look like expressions first
 		//(comp_arg=complex_arg {IdentNode* ident = (IdentNode*)stringify($value); ident->append(((IdentNode*)comp_arg.value)->value().c_str()); delete $value; delete comp_arg.value; $value = ident;}
 		//)?
-		(ca=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca.value; $value = concat;}
+		//(ca=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca.value; $value = concat;}
 		(vari=variable {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}
 		 | ca2=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}
 		)*
-		)?
+		//)?
 		)
 	| (ca=complex_arg {$value = ca.value;}
 		(vari=variable {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}

@@ -148,6 +148,8 @@ SET(AppBuilder_SRCS
   Engine.h
   EngineObjects.cpp
   EngineObjects.h
+  ExecutionContext.cpp
+  ExecutionContext.h
   Font.cpp
   Font.h
   Ids.h

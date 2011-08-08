@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "ScriptDefs.h"
+#include "ExecutionContext.h"
 
 /*
 CADD, CMUL, CSUB, CDIV, CLABEL, CBEQ, CBNE,
@@ -198,7 +199,7 @@ public:
     mCommands->suspend(time);
   }
   ~CTIMER(){
-    delete mCommands;
+    mCommands->unref();
   }
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
 protected:

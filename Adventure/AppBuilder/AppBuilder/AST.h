@@ -39,7 +39,8 @@ public:
     }
   }
   void addNode(ASTNode* node){
-    mNodes.push_back(node);
+    if (node != NULL)
+      mNodes.push_back(node);
   }
   void reset(bool start) {
     if (start)

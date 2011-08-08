@@ -153,7 +153,7 @@ void Engine::exitGame(){
   mCurrentObject = NULL;
   mClickedObject = NULL;
   mInterpreter->stop();
-  delete mMainScript;
+  mMainScript->unref();
   mAnimator->clear();
   for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
     delete *iter;

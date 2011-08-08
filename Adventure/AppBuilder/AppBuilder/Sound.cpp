@@ -157,6 +157,7 @@ SoundPlayer::SoundPlayer(const std::string& name) : mSpeaker(NULL), mSuspensionS
 SoundPlayer::~SoundPlayer(){
   if (mSuspensionScript){
     mSuspensionScript->resume();
+    mSuspensionScript->unref();
     mSuspensionScript = NULL;
   }
   if (mSpeaker){
@@ -178,6 +179,15 @@ void SoundPlayer::setVolume(float volume){
 #ifndef DISABLE_SOUND
   alSourcef(mSource, AL_GAIN, volume);
 #endif
+}
+
+void SoundPlayer::setSuspensionScript(ExecutionContext* ctx){
+  if (mSuspensionScript != NULL){
+    mSuspensionScript->reset(true,true);
+    mSuspensionScript->unref();
+  }
+  ctx->ref();
+  mSuspensionScript = ctx;
 }
 
 #ifndef DISABLE_SOUND

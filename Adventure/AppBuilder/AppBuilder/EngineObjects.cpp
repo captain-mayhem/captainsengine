@@ -167,6 +167,7 @@ bool Object2D::isHit(const Vec2i& point){
 void Object2D::animationEnd(const Vec2i& prev){
   if (mSuspensionScript){
     mSuspensionScript->resume();
+    mSuspensionScript->unref();
     mSuspensionScript = NULL;
   }
 }
@@ -174,7 +175,9 @@ void Object2D::animationEnd(const Vec2i& prev){
 void Object2D::setSuspensionScript(ExecutionContext* script){
   if (mSuspensionScript != NULL){
     mSuspensionScript->reset(true,true);
+    mSuspensionScript->unref();
   }
+  script->ref();
   mSuspensionScript = script;
 }
 
