@@ -15,12 +15,18 @@ TraceManager::~TraceManager(){
   delete mPutty;
 }
 
-unsigned TraceManager::registerChannel(const char* name){
-  return ++mChannelCount;
+unsigned TraceManager::registerChannel(const char* name, int level){
+  unsigned channel = ++mChannelCount;
+  setCurrentLevel(channel, level);
+  return channel;
+}
+
+void TraceManager::setCurrentLevel(unsigned channel, int level){
+  mTraceLevels[channel] = level;
 }
 
 int TraceManager::getCurrentLevel(unsigned channel){
-  return TRACE_CUSTOM;
+  return mTraceLevels[channel];
 }
 
 void TraceManager::trace(unsigned channel, int level, const char* function, const char* message){
