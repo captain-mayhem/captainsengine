@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <list>
 #include <string>
+#include <map>
 
 namespace CGE{
 
@@ -28,8 +29,9 @@ public:
   ~TraceManager();
   static TraceManager* instance() {if (mManager == NULL) mManager = new TraceManager(); return mManager;}
   static void deinit() {delete mManager; mManager = NULL;}
-  unsigned registerChannel(const char* name);
+  unsigned registerChannel(const char* name, int level);
   void trace(unsigned channel, int level, const char* function, const char* message);
+  void setCurrentLevel(unsigned channel, int level);
   int getCurrentLevel(unsigned channel);
   void setTraceOutputter(TraceOutputter* putty);
 protected:
@@ -38,6 +40,7 @@ protected:
   unsigned mChannelCount;
   TraceOutputter* mPutty;
   std::list<Message> mTraceBuffer;
+  std::map<unsigned, int> mTraceLevels;
 };
 
 }

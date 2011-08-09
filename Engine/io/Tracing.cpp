@@ -35,11 +35,11 @@ void internal_trace(unsigned group, int level, const char* file, const char* fun
 
 TraceObject::TraceObject(const char* name){
   //std::map<std::string, unsigned>::iterator iter = mChannels.find(name);
-  mChannel = TraceManager::instance()->registerChannel(name);
+  mChannel = TraceManager::instance()->registerChannel(name, TRACE_INFO);
 }
 
 TraceObject::TraceObject(const char* name, int level){
-  mChannel = TraceManager::instance()->registerChannel(name);
+  mChannel = TraceManager::instance()->registerChannel(name, level);
 }
 
 bool TraceObject::isEnabled(int level){

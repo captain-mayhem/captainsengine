@@ -5,6 +5,8 @@
 #include "ScriptFunc.h"
 #include "Sound.h"
 
+TR_CHANNEL_LVL(ADV_Character, TRACE_INFO);
+
 BlitGroup::BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth){
   for (unsigned l = (unsigned)textures.size(); l > 0; --l){
     BlitObject* obj = new BlitObject(textures[l-1], depth, offsets[l-1]);
@@ -634,7 +636,7 @@ void CharacterObject::setDepth(int depth){
 void CharacterObject::animationBegin(const Vec2i& next){
   Vec2i dir = next-getPosition();
   setLookDir(dir);
-  mState = calculateState(mState, true, isTalking());
+  setState(calculateState(mState, true, isTalking()));
 }
 
 void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
@@ -655,7 +657,7 @@ void CharacterObject::animationEnd(const Vec2i& prev){
     setLookDir(mDesiredDir);
     mDesiredDir = UNSPECIFIED;
   }
-  mState = calculateState(mState, false, isTalking());
+  setState(calculateState(mState, false, isTalking()));
   Object2D::animationEnd(prev);
 }
 
@@ -678,7 +680,7 @@ void CharacterObject::setLookDir(LookDir dir){
     mState = 3;
     mMirror = false;
   }
-  mState = calculateState(mState, walking, talking);
+  setState(calculateState(mState, walking, talking));
 }
 
 void CharacterObject::setLookDir(const Vec2i& dir){
@@ -774,9 +776,11 @@ bool CharacterObject::isHit(const Vec2i& point){
 }
 
 void CharacterObject::setState(int state){
+  TR_USE(ADV_Character);
   mState = state;
   mNextStates.clear();
   //fallback to lower states when they not exist (walk,talk  back => walk back)
   if (!getAnimation()->exists() && mState > 3)
     mState = calculateState(mState, isWalking(), false);
+  TR_DEBUG("state %i", mState);
 }

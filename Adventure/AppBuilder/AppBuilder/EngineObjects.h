@@ -32,7 +32,7 @@ public:
   int getDepth() {if (mBlits.empty()) return 0; return mBlits[0]->getDepth();}
   void start();
   void update(unsigned interval);
-  bool exists() {return mBlits.size() > 0;}
+  bool exists() {return this != NULL && mBlits.size() > 0;}
   void registerAnimationEndHandler(AnimationEndHandler* handler) {mHandler = handler;}
   void setBlendAdditive(bool additive);
 protected:
