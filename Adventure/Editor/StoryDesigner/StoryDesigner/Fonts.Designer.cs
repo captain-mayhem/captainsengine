@@ -86,7 +86,7 @@ namespace StoryDesigner
             // 
             // preview
             // 
-            this.preview.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            this.preview.BackColor = System.Drawing.SystemColors.ControlDark;
             this.preview.Location = new System.Drawing.Point(309, 41);
             this.preview.Name = "preview";
             this.preview.Size = new System.Drawing.Size(263, 147);
@@ -109,6 +109,7 @@ namespace StoryDesigner
             this.font.Name = "font";
             this.font.Size = new System.Drawing.Size(164, 21);
             this.font.TabIndex = 5;
+            this.font.SelectedIndexChanged += new System.EventHandler(this.font_SelectedIndexChanged);
             // 
             // groupBox1
             // 
@@ -133,6 +134,7 @@ namespace StoryDesigner
             this.ol_shadow_ab.TabStop = true;
             this.ol_shadow_ab.Text = "Shadow A+B";
             this.ol_shadow_ab.UseVisualStyleBackColor = true;
+            this.ol_shadow_ab.CheckedChanged += new System.EventHandler(this.ol_shadow_ab_CheckedChanged);
             // 
             // ol_shadow_b
             // 
@@ -144,6 +146,7 @@ namespace StoryDesigner
             this.ol_shadow_b.TabStop = true;
             this.ol_shadow_b.Text = "Shadow B";
             this.ol_shadow_b.UseVisualStyleBackColor = true;
+            this.ol_shadow_b.CheckedChanged += new System.EventHandler(this.ol_shadow_b_CheckedChanged);
             // 
             // ol_shadow_a
             // 
@@ -155,6 +158,7 @@ namespace StoryDesigner
             this.ol_shadow_a.TabStop = true;
             this.ol_shadow_a.Text = "Shadow A";
             this.ol_shadow_a.UseVisualStyleBackColor = true;
+            this.ol_shadow_a.CheckedChanged += new System.EventHandler(this.ol_shadow_a_CheckedChanged);
             // 
             // ol_none
             // 
@@ -166,6 +170,7 @@ namespace StoryDesigner
             this.ol_none.TabStop = true;
             this.ol_none.Text = "None";
             this.ol_none.UseVisualStyleBackColor = true;
+            this.ol_none.CheckedChanged += new System.EventHandler(this.ol_none_CheckedChanged);
             // 
             // groupBox2
             // 
@@ -190,6 +195,7 @@ namespace StoryDesigner
             this.sh_75.TabStop = true;
             this.sh_75.Text = "75 %";
             this.sh_75.UseVisualStyleBackColor = true;
+            this.sh_75.CheckedChanged += new System.EventHandler(this.sh_75_CheckedChanged);
             // 
             // sh_50
             // 
@@ -201,6 +207,7 @@ namespace StoryDesigner
             this.sh_50.TabStop = true;
             this.sh_50.Text = "50 %";
             this.sh_50.UseVisualStyleBackColor = true;
+            this.sh_50.CheckedChanged += new System.EventHandler(this.sh_50_CheckedChanged);
             // 
             // sh_25
             // 
@@ -212,6 +219,7 @@ namespace StoryDesigner
             this.sh_25.TabStop = true;
             this.sh_25.Text = "25 %";
             this.sh_25.UseVisualStyleBackColor = true;
+            this.sh_25.CheckedChanged += new System.EventHandler(this.sh_25_CheckedChanged);
             // 
             // sh_none
             // 
@@ -223,6 +231,7 @@ namespace StoryDesigner
             this.sh_none.TabStop = true;
             this.sh_none.Text = "None";
             this.sh_none.UseVisualStyleBackColor = true;
+            this.sh_none.CheckedChanged += new System.EventHandler(this.sh_none_CheckedChanged);
             // 
             // groupBox3
             // 
@@ -247,6 +256,7 @@ namespace StoryDesigner
             this.fill_scanlines.TabStop = true;
             this.fill_scanlines.Text = "Scanlines";
             this.fill_scanlines.UseVisualStyleBackColor = true;
+            this.fill_scanlines.CheckedChanged += new System.EventHandler(this.fill_scanlines_CheckedChanged);
             // 
             // fill_falloff_2
             // 
@@ -258,6 +268,7 @@ namespace StoryDesigner
             this.fill_falloff_2.TabStop = true;
             this.fill_falloff_2.Text = "Falloff 2";
             this.fill_falloff_2.UseVisualStyleBackColor = true;
+            this.fill_falloff_2.CheckedChanged += new System.EventHandler(this.fill_falloff_2_CheckedChanged);
             // 
             // fill_falloff_1
             // 
@@ -269,6 +280,7 @@ namespace StoryDesigner
             this.fill_falloff_1.TabStop = true;
             this.fill_falloff_1.Text = "Falloff 1";
             this.fill_falloff_1.UseVisualStyleBackColor = true;
+            this.fill_falloff_1.CheckedChanged += new System.EventHandler(this.fill_falloff_1_CheckedChanged);
             // 
             // fill_normal
             // 
@@ -280,6 +292,7 @@ namespace StoryDesigner
             this.fill_normal.TabStop = true;
             this.fill_normal.Text = "Normal";
             this.fill_normal.UseVisualStyleBackColor = true;
+            this.fill_normal.CheckedChanged += new System.EventHandler(this.fill_normal_CheckedChanged);
             // 
             // label2
             // 
@@ -307,6 +320,7 @@ namespace StoryDesigner
             this.bold.TabIndex = 9;
             this.bold.Text = "Bold";
             this.bold.UseVisualStyleBackColor = true;
+            this.bold.CheckedChanged += new System.EventHandler(this.bold_CheckedChanged);
             // 
             // italic
             // 
@@ -317,6 +331,7 @@ namespace StoryDesigner
             this.italic.TabIndex = 10;
             this.italic.Text = "Italic";
             this.italic.UseVisualStyleBackColor = true;
+            this.italic.CheckedChanged += new System.EventHandler(this.italic_CheckedChanged);
             // 
             // fontsize
             // 
@@ -325,6 +340,7 @@ namespace StoryDesigner
             this.fontsize.Name = "fontsize";
             this.fontsize.Size = new System.Drawing.Size(69, 21);
             this.fontsize.TabIndex = 11;
+            this.fontsize.SelectedIndexChanged += new System.EventHandler(this.fontsize_SelectedIndexChanged);
             // 
             // label3
             // 
