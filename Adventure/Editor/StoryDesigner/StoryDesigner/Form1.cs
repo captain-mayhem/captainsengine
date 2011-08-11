@@ -254,5 +254,16 @@ namespace StoryDesigner
             sod.InitialDirectory = mData.Settings.Directory;
             sod.ShowDialog();
         }
+
+        private void createGameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            /*SaveFileDialog sod = new SaveFileDialog();
+            sod.Filter = "Adventure game|*.exe";
+            sod.InitialDirectory = mData.Settings.Directory;
+            sod.ShowDialog();*/
+
+            Fonts fnts = new Fonts(mData);
+            fnts.createBitmapFont(1);
+        }
     }
 }
