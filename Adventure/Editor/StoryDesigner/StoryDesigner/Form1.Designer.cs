@@ -225,6 +225,7 @@ namespace StoryDesigner
             this.createGameToolStripMenuItem.Name = "createGameToolStripMenuItem";
             this.createGameToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.createGameToolStripMenuItem.Text = "Create game...";
+            this.createGameToolStripMenuItem.Click += new System.EventHandler(this.createGameToolStripMenuItem_Click);
             // 
             // toolStripSeparator6
             // 
