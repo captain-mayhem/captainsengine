@@ -262,8 +262,8 @@ namespace StoryDesigner
             sod.InitialDirectory = mData.Settings.Directory;
             sod.ShowDialog();*/
 
-            Fonts fnts = new Fonts(mData);
-            fnts.createBitmapFont(1);
+            AdvFileWriter writer = new AdvFileWriter(mData);
+            writer.writeGame(".");
         }
     }
 }
