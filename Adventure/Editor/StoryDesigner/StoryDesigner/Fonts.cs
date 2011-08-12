@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace StoryDesigner
 {
@@ -51,19 +52,29 @@ namespace StoryDesigner
             fontlist.SelectedIndex = 0;
         }
 
-        public void createBitmapFont(int idx)
+        public int[] createBitmapFont(int idx, out Bitmap[] images, out Bitmap[] alphaimages, out Vec2i dims, out Vec2i numchars)
         {
+            //font setup
             mCurrInfo = (FontInfo)mData.Settings.Fonts[idx - 1];
             mCurrFont = new Font(mCurrInfo.name, mCurrInfo.size);
             if (mCurrInfo.bold)
                 mCurrFont = new Font(mCurrFont, FontStyle.Bold);
             if (mCurrInfo.italic)
                 mCurrFont = new Font(mCurrFont, FontStyle.Italic);
+            int outlinethickness = 0;
+            int shadowthickness = 0;
+            if (mCurrInfo.outline == 1 || mCurrInfo.outline == 2)
+                outlinethickness = 1;
+            else if (mCurrInfo.outline == 3)
+                outlinethickness = 2;
+            if (mCurrInfo.shadow != 0)
+                shadowthickness = 3;
 
+            //character dimension measuring
             Bitmap bmp = new Bitmap(256, 256);
             Graphics g = Graphics.FromImage(bmp);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
             g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-            g.Clear(Color.Blue);
             int maxwidth = 0, maxheight = 0;
             int[] charwidths = new int[224];
             StringFormat fmt = new StringFormat();
@@ -76,32 +87,61 @@ namespace StoryDesigner
                 char ch = (char)(i + 0x20);
                 Region[] reg = g.MeasureCharacterRanges(new string(ch, 1), mCurrFont, new RectangleF(0,0,256,256), fmt);
                 RectangleF rect = reg[0].GetBounds(g);
-                int width = (int)(rect.Width);///*Math.Ceiling(*/ f.Width;//);
+                int width = (int)rect.Width;///*Math.Ceiling(*/ f.Width;//);
                 if (width == 0)
                 {
                     SizeF f = g.MeasureString(new string(ch, 1), mCurrFont);
                     width = (int)f.Width;
                 }
                 int height = (int)(rect.Height);///*Math.Ceiling(*/ f.Height;//);
-                charwidths[i] = width+1;
-                maxwidth = Math.Max(maxwidth, (int)(width+rect.X));
-                maxheight = Math.Max(maxheight, (int)(height+rect.Y));
+                charwidths[i] = width+outlinethickness;
+                maxwidth = Math.Max(maxwidth, (int)(rect.Width+rect.X));
+                maxheight = Math.Max(maxheight, (int)(rect.Height+rect.Y));
             }
-            int charwidth = maxwidth+4;
-            int charheight = maxheight+4+2;
+            int charwidth = maxwidth+outlinethickness+shadowthickness;
+            int charheight = maxheight+2+outlinethickness+shadowthickness;
             int charsperrow = 256 / charwidth;
             int numrows = 256 / charheight;
             int numtextures = (int)Math.Ceiling(224.0 / (charsperrow * numrows));
-            //StringFormat fmt = new StringFormat();
+
+            //allocate bitmaps
+            images = new Bitmap[numtextures];
+            alphaimages = new Bitmap[numtextures];
+            int currtexture = -1;
+            Graphics g2 = null;
+
+            //render bitmap font
             for (int i = 0; i < 224; ++i)
             {
                 char ch = (char)(i+0x20);
-                int row = i / charsperrow;
+                int texture = i / (numrows * charsperrow);
+                if (texture != currtexture)
+                {
+                    images[texture] = new Bitmap(256, 256, PixelFormat.Format16bppRgb565);
+                    g.Dispose();
+                    g = Graphics.FromImage(images[texture]);
+                    g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                    g.SmoothingMode = SmoothingMode.AntiAlias;
+                    g.Clear(Color.Black);
+                    alphaimages[texture] = new Bitmap(256, 256, PixelFormat.Format16bppRgb565);
+                    if (g2 != null)
+                        g2.Dispose();
+                    g2 = Graphics.FromImage(alphaimages[texture]);
+                    g2.TextRenderingHint = System.Drawing.Text.TextRenderingHint.ClearTypeGridFit;
+                    g2.SmoothingMode = SmoothingMode.AntiAlias;
+                    g2.Clear(Color.Black);
+                    currtexture = texture;
+                }
+                int row = i / charsperrow - texture*numrows;
                 int column = i % charsperrow;
-                drawText(g, column * charwidth - 1, row * charheight + 2, new string(ch, 1), fmt); 
+                drawText(g, column * charwidth, row * charheight, new string(ch, 1), fmt);
+                drawText(g2, column * charwidth, row * charheight, new string(ch, 1), fmt, true); 
             }
             g.Dispose();
-            bmp.Save("test.bmp");
+            g2.Dispose();
+            dims = new Vec2i(charwidth, charheight);
+            numchars = new Vec2i(charsperrow, numrows);
+            return charwidths;
         }
 
         void preview_Paint(object sender, PaintEventArgs e)
@@ -116,41 +156,46 @@ namespace StoryDesigner
 
         void drawText(Graphics g, int x, int y, string text, StringFormat fmt)
         {
+            drawText(g, x, y, text, fmt, false);
+        }
+
+        void drawText(Graphics g, int x, int y, string text, StringFormat fmt, bool allwhite)
+        {
             //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
             if (mCurrInfo.outline == 1 || mCurrInfo.outline == 3)
             {
                 g.TranslateTransform(-1.0f, -1.0f);
-                g.DrawString(text, mCurrFont, Brushes.Black, x, y, fmt);
+                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
                 g.ResetTransform();
                 g.TranslateTransform(0.0f, -1.0f);
-                g.DrawString(text, mCurrFont, Brushes.Black, x, y, fmt);
+                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
                 g.ResetTransform();
                 g.TranslateTransform(-1.0f, 0.0f);
-                g.DrawString(text, mCurrFont, Brushes.Black, x, y, fmt);
+                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
                 g.ResetTransform();
             }
             if (mCurrInfo.outline == 2 || mCurrInfo.outline == 3)
             {
                 g.TranslateTransform(1.0f, 1.0f);
-                g.DrawString(text, mCurrFont, Brushes.Black, x, y, fmt);
+                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
                 g.ResetTransform();
                 g.TranslateTransform(0.0f, 1.0f);
-                g.DrawString(text, mCurrFont, Brushes.Black, x, y, fmt);
+                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
                 g.ResetTransform();
                 g.TranslateTransform(1.0f, 0.0f);
-                g.DrawString(text, mCurrFont, Brushes.Black, x, y, fmt);
+                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
                 g.ResetTransform();
             }
             if (mCurrInfo.shadow != 0)
             {
                 g.TranslateTransform(3.0f, 3.0f);
-                SolidBrush b = new SolidBrush(Color.FromArgb((int)(mCurrInfo.shadow * 0.25 * 255), Color.Black));
+                SolidBrush b = new SolidBrush(Color.FromArgb((int)(mCurrInfo.shadow * 0.25 * 255), allwhite ? Color.White : Color.Black));
                 g.DrawString(text, mCurrFont, b, x, y, fmt);
                 g.ResetTransform();
             }
 
             Brush brush = null;
-            if (mCurrInfo.fill == 0)
+            if (mCurrInfo.fill == 0 || allwhite)
                 brush = Brushes.White;
             else if (mCurrInfo.fill == 1)
                 brush = new LinearGradientBrush(new Point(x, y), new Point(x, y+mCurrFont.Height), Color.White, Color.Gray);
