@@ -59,6 +59,8 @@ namespace StoryDesigner
             this.fading = new System.Windows.Forms.NumericUpDown();
             this.label29 = new System.Windows.Forms.Label();
             this.fontlist = new System.Windows.Forms.ListBox();
+            this.font_up = new System.Windows.Forms.Button();
+            this.button_down = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.preview)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -74,6 +76,7 @@ namespace StoryDesigner
             this.button1.TabIndex = 1;
             this.button1.Text = "Add";
             this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // button2
             // 
@@ -83,6 +86,7 @@ namespace StoryDesigner
             this.button2.TabIndex = 2;
             this.button2.Text = "Remove";
             this.button2.UseVisualStyleBackColor = true;
+            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // preview
             // 
@@ -104,6 +108,7 @@ namespace StoryDesigner
             // 
             // font
             // 
+            this.font.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.font.FormattingEnabled = true;
             this.font.Location = new System.Drawing.Point(12, 233);
             this.font.Name = "font";
@@ -310,6 +315,7 @@ namespace StoryDesigner
             this.charset.Name = "charset";
             this.charset.Size = new System.Drawing.Size(164, 21);
             this.charset.TabIndex = 5;
+            this.charset.SelectedIndexChanged += new System.EventHandler(this.charset_SelectedIndexChanged);
             // 
             // bold
             // 
@@ -400,11 +406,33 @@ namespace StoryDesigner
             this.fontlist.Size = new System.Drawing.Size(265, 147);
             this.fontlist.TabIndex = 17;
             // 
+            // font_up
+            // 
+            this.font_up.Location = new System.Drawing.Point(279, 82);
+            this.font_up.Name = "font_up";
+            this.font_up.Size = new System.Drawing.Size(24, 23);
+            this.font_up.TabIndex = 18;
+            this.font_up.Text = "up";
+            this.font_up.UseVisualStyleBackColor = true;
+            this.font_up.Click += new System.EventHandler(this.font_up_Click);
+            // 
+            // button_down
+            // 
+            this.button_down.Location = new System.Drawing.Point(279, 111);
+            this.button_down.Name = "button_down";
+            this.button_down.Size = new System.Drawing.Size(24, 23);
+            this.button_down.TabIndex = 19;
+            this.button_down.Text = "down";
+            this.button_down.UseVisualStyleBackColor = true;
+            this.button_down.Click += new System.EventHandler(this.button_down_Click);
+            // 
             // Fonts
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(584, 462);
+            this.Controls.Add(this.button_down);
+            this.Controls.Add(this.font_up);
             this.Controls.Add(this.fontlist);
             this.Controls.Add(this.fading_indicator);
             this.Controls.Add(this.fading);
@@ -472,5 +500,7 @@ namespace StoryDesigner
         private System.Windows.Forms.NumericUpDown fading;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.ListBox fontlist;
+        private System.Windows.Forms.Button font_up;
+        private System.Windows.Forms.Button button_down;
     }
 }

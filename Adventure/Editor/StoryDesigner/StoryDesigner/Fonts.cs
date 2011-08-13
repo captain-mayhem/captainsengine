@@ -19,15 +19,18 @@ namespace StoryDesigner
             System.Drawing.Text.InstalledFontCollection fonts = new System.Drawing.Text.InstalledFontCollection();
             foreach (FontFamily fam in fonts.Families)
             {
-                font.Items.Add(fam.Name);
+                if (fam.IsStyleAvailable(FontStyle.Regular))
+                    font.Items.Add(fam.Name);
             }
             mFonts = data.Settings.Fonts;
             fontlist.SelectedIndexChanged += new EventHandler(fontlist_SelectedIndexChanged);
             preview.Paint += new PaintEventHandler(preview_Paint);
+            font.DrawItem += new DrawItemEventHandler(font_DrawItem);
 
-            foreach (Object o in mFonts)
+            for (int i = 0; i < mFonts.Count; ++i)
             {
-                fontlist.Items.Add(((FontInfo)o).name);
+                fontlist.Items.Add("");
+                setListName(i, mFonts[i] as FontInfo);
             }
 
             charset.Items.Add("Western");
@@ -49,7 +52,26 @@ namespace StoryDesigner
                 fontsize.Items.Add(Convert.ToString(i));
             }
 
-            fontlist.SelectedIndex = 0;
+            if (fontlist.Items.Count > 0)
+                fontlist.SelectedIndex = 0;
+            else
+            {
+                //TODO disable controls
+            }
+        }
+
+        void font_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            if (e.Index == -1 || e.Index >= font.Items.Count)
+                return;
+            e.DrawBackground();
+            if ((e.State & DrawItemState.Focus) != 0)
+                e.DrawFocusRectangle();
+            string fontname = font.Items[e.Index] as string;
+            Font f = new Font(fontname, font.Font.Size);
+            Brush b = new SolidBrush(e.ForeColor);
+            e.Graphics.DrawString(fontname, f, b, e.Bounds);
+            b.Dispose();
         }
 
         public int[] createBitmapFont(int idx, out Bitmap[] images, out Bitmap[] alphaimages, out Vec2i dims, out Vec2i numchars)
@@ -146,6 +168,8 @@ namespace StoryDesigner
 
         void preview_Paint(object sender, PaintEventArgs e)
         {
+            if (mCurrInfo == null)
+                return;
             PictureBox obj = (PictureBox)sender;
             StringFormat fmt = new StringFormat();
             fmt.Alignment = StringAlignment.Center;
@@ -235,6 +259,8 @@ namespace StoryDesigner
 
         void fontlist_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (fontlist.SelectedIndex == -1)
+                return;
             FontInfo info = (FontInfo)mFonts[fontlist.SelectedIndex];
             mCurrInfo = info;
             mCurrFont = new Font(info.name, info.size);
@@ -321,6 +347,7 @@ namespace StoryDesigner
                 fading_indicator.Text = "very fast";
             if (num.Value == 0)
                 fading_indicator.Text = "<none>";
+            mCurrInfo.fading = (int)num.Value;
         }
 
         private void fontsize_SelectedIndexChanged(object sender, EventArgs e)
@@ -328,6 +355,7 @@ namespace StoryDesigner
             mCurrInfo.size = Convert.ToInt32(fontsize.SelectedItem);
             mCurrFont = new Font(mCurrFont.FontFamily, mCurrInfo.size, mCurrFont.Style);
             preview.Invalidate();
+            setListName(fontlist.SelectedIndex, mCurrInfo);
         }
 
         private void ol_none_CheckedChanged(object sender, EventArgs e)
@@ -435,6 +463,7 @@ namespace StoryDesigner
             mCurrInfo.name = (string)font.SelectedItem;
             mCurrFont = new Font(mCurrInfo.name, mCurrInfo.size, mCurrFont.Style);
             preview.Invalidate();
+            setListName(fontlist.SelectedIndex, mCurrInfo);
         }
 
         private void fill_normal_CheckedChanged(object sender, EventArgs e)
@@ -471,6 +500,73 @@ namespace StoryDesigner
                 mCurrInfo.fill = 3;
                 preview.Invalidate();
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            FontInfo info = new FontInfo();
+            info.name = "Arial";
+            info.size = 12;
+            mFonts.Add(info);
+            fontlist.Items.Add(info.name);
+            fontlist.SelectedIndex = fontlist.Items.Count - 1;
+        }
+
+        private void setListName(int idx, FontInfo info)
+        {
+            fontlist.Items[idx] = (idx+1)+" - "+info.name + " ("+info.size+")";
+        }
+
+        private void charset_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            mCurrInfo.charset = charset.SelectedIndex;
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            int idx = fontlist.SelectedIndex;
+            mFonts.RemoveAt(idx);
+            fontlist.Items.RemoveAt(idx);
+            if (idx >= fontlist.Items.Count)
+            {
+                --idx;
+            }
+            if (idx >= 0)
+            {
+                fontlist.SelectedIndex = idx;
+            }
+        }
+
+        private void font_up_Click(object sender, EventArgs e)
+        {
+            int idx = fontlist.SelectedIndex;
+            if (idx <= 0)
+                return;
+            FontInfo info = mFonts[idx] as FontInfo;
+            mFonts.RemoveAt(idx);
+            --idx;
+            mFonts.Insert(idx, info);
+            for (int i = idx; i < mFonts.Count; ++i)
+            {
+                setListName(i, mFonts[i] as FontInfo);
+            }
+            fontlist.SelectedIndex = idx;
+        }
+
+        private void button_down_Click(object sender, EventArgs e)
+        {
+            int idx = fontlist.SelectedIndex;
+            if (idx >= fontlist.Items.Count-1)
+                return;
+            FontInfo info = mFonts[idx] as FontInfo;
+            mFonts.RemoveAt(idx);
+            ++idx;
+            mFonts.Insert(idx, info);
+            for (int i = idx-1; i < mFonts.Count; ++i)
+            {
+                setListName(i, mFonts[i] as FontInfo);
+            }
+            fontlist.SelectedIndex = idx;
         }
     }
 }

@@ -20,6 +20,7 @@ namespace StoryDesigner
 
         public AdvFileReader(string filename, TreeView mediapool, TreeView gamepool)
         {
+            ZipConstants.DefaultCodePage = 1252;
             mAdv = new AdvData(this);
             mMediaPool = mediapool;
             mGamePool = gamepool;
@@ -28,13 +29,19 @@ namespace StoryDesigner
             {
                 mAdv.Settings.Projectname = "game";
                 string dir = System.IO.Path.GetDirectoryName(filename);
-                FileInfo[] files = System.IO.Directory.GetParent(dir).GetFiles("*.exe");
-                foreach (FileInfo file in files)
-                {
-                    if (file.Name != "Setup.exe")
+                try{
+                    FileInfo[] files = System.IO.Directory.GetParent(dir).GetFiles("*.exe");
+                    foreach (FileInfo file in files)
                     {
-                        mAdv.Settings.Projectname = System.IO.Path.GetFileNameWithoutExtension(file.Name);
+                        if (file.Name != "Setup.exe")
+                        {
+                            mAdv.Settings.Projectname = System.IO.Path.GetFileNameWithoutExtension(file.Name);
+                        }
                     }
+                }
+                catch (DirectoryNotFoundException e)
+                {
+                    throw new FileNotFoundException("cannot load game.dat: Directory not found", e);
                 }
             }
 
@@ -617,10 +624,10 @@ namespace StoryDesigner
             string zipname = mPath + System.IO.Path.DirectorySeparatorChar + "gfx.dat";
             string imagename = System.IO.Path.GetFileName(filename);
             ZipInputStream zis = new ZipInputStream(File.OpenRead(zipname));
-            if (mZipPwd.Length > 0)
+            if (mZipPwd != null && mZipPwd.Length > 0)
                 zis.Password = mZipPwd;
             ZipEntry entry;
-            char[] arr = imagename.ToCharArray();
+            /*char[] arr = imagename.ToCharArray();
             for (int i = 0; i < imagename.Length; ++i)
             {
                 if (arr[i] == '\xf6')
@@ -632,30 +639,11 @@ namespace StoryDesigner
                 else if (arr[i] == 'ß')
                     arr[i] = '\x2580';
             }
-            imagename = new string(arr);
-            /*Encoder enc = Encoding.GetEncoding("iso-8859-1").GetEncoder();
-            //char[] arr = imagename.ToCharArray();
-            byte[] conv = new byte[arr.Length];
-            int charsUsed;
-            int bytesUsed;
-            bool completed;
-            enc.Convert(arr, 0, arr.Length, conv, 0, conv.Length, true, out charsUsed, out bytesUsed, out completed);
-            Decoder dec = new System.Text.UTF8Encoding().GetDecoder();
-            char[] convchars = new char[conv.Length];
-            dec.Convert(conv, 0, conv.Length, convchars, 0, convchars.Length, true, out charsUsed, out bytesUsed, out completed);
-            for (int i = 0; i < convchars.Length; ++i)
-            {
-                convchars[i] = (char)(convchars[i] % 256);
-            }
-            string convname = new String(convchars);*/
+            imagename = new string(arr);*/
+            
             System.Drawing.Bitmap img = null;
             while ((entry = zis.GetNextEntry()) != null)
             {
-                /*if (entry.Name[1] == 'c' && entry.Name[2] == 'h')
-                {
-                    char[] tmp = entry.Name.ToCharArray();
-                    //break;
-                }*/
                 if (entry.Name == imagename)
                 {
                     img = (Bitmap)System.Drawing.Bitmap.FromStream(zis);

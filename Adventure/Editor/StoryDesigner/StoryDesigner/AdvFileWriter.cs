@@ -12,6 +12,7 @@ namespace StoryDesigner
     class AdvFileWriter
     {
         public AdvFileWriter(AdvData data){
+            ZipConstants.DefaultCodePage = 1252;
             mData = data;
         }
 
