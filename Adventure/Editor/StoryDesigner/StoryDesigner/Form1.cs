@@ -17,6 +17,7 @@ namespace StoryDesigner
             mediaPool.MouseDown += new MouseEventHandler(mediaPool_MouseDown);
             gamePool.NodeMouseDoubleClick +=new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             gamePool.MouseDown +=new MouseEventHandler(mediaPool_MouseDown);
+            newToolStripMenuItem_Click(null, null);
         }
 
         public void showScript(Script.Type type, string name)
@@ -164,8 +165,15 @@ namespace StoryDesigner
 
         private void loadFile(string filename)
         {
-            AdvFileReader reader = new AdvFileReader(filename, mediaPool, gamePool);
-            mData = reader.Data;
+            try
+            {
+                AdvFileReader reader = new AdvFileReader(filename, mediaPool, gamePool);
+                mData = reader.Data;
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                MessageBox.Show("Cannot load " + filename);
+            }
         }
 
         private AdvData mData;
@@ -245,6 +253,17 @@ namespace StoryDesigner
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mData = new AdvData();
+            gamePool.Nodes.Clear();
+            gamePool.Nodes.Add("CHARACTER");
+            gamePool.Nodes.Add("SCRIPTS");
+            gamePool.Nodes.Add("ITEMS");
+            gamePool.Nodes.Add("OBJECTS");
+            gamePool.Nodes.Add("ROOMS");
+            mediaPool.Nodes.Clear();
+            mediaPool.Nodes.Add("IMAGES");
+            mediaPool.Nodes.Add("MUSIC");
+            mediaPool.Nodes.Add("SOUNDS");
+            mediaPool.Nodes.Add("VIDEO");
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
