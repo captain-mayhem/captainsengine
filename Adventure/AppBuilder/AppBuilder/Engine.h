@@ -73,6 +73,7 @@ public:
   CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom, ExecutionContext* loadreason);
   void keyPress(int key);
   void keyRelease(int key);
+  void keyAscii(char chr);
   void unloadRooms();
   std::string getCharacterClass(const std::string instanceName);
   void showTaskbar(bool show) {mShowTaskbar = show;}
@@ -90,6 +91,7 @@ public:
   void renderUnloadingRoom();
   ParticleEngine* getParticleEngine() {return mParticleEngine;}
   void remove(Object2D* obj);
+  void enterText(const std::string& variable, int maxcharacters, ExecutionContext* suspensionReason);
 protected:
   Engine();
   static Engine* mInstance;
@@ -159,6 +161,9 @@ protected:
   bool mResetRequested;
   exit_callback mExitCall;
   bool mMenuShown;
+  ExecutionContext* mSuspender;
+  std::string mTextEnter;
+  int mNumCharactersEnter;
 };
 
 #endif

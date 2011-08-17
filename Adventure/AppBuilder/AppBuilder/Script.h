@@ -27,6 +27,7 @@ public:
   ExecutionContext* parseProgram(std::string program);
   void registerFunction(std::string name, ScriptFunc func);
   void registerRelVar(const std::string& function, int argnum, const std::string& prefix);
+  void getArgumentAsExecutionContext(const std::string& function, int argnum) {mArgEC[function] = argnum;}
   void execute(ExecutionContext* script, bool executeOnce);
   void executeImmediately(ExecutionContext* script, bool clearStackAfterExec = true);
   void executeCutscene(ExecutionContext* cutscene, bool looping);
@@ -44,6 +45,7 @@ public:
   std::istream& load(std::istream& in);
   bool isBlockingScriptRunning() {return mGlobalSuspend;}
   bool isTextScene() {return mCutScene != NULL && !mCutScene->isExecuteOnce();}
+  void resumeBlockingScript() {mGlobalSuspend = false;}
   static void clickEndHandler(ExecutionContext& ctx);
   ExecutionContext* getCutscene() {return mCutScene;}
   void applyPrevState(Object2D* obj);
@@ -63,6 +65,7 @@ protected:
   std::string mCurrFunc;
   unsigned mCurrArg;
   std::map<std::string, std::map<int, std::string> > mRelVars;
+  std::map<std::string, int> mArgEC;
 
   EngineEvent getEngineEvent(const std::string eventname);
   void update(ExecutionContext* ctx, unsigned time);

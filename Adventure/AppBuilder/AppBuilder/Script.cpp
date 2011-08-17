@@ -300,9 +300,6 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           }
           nl->reset(true);
         }
-        else if (fc->getName() == "textout"){
-          seperateArgument = 2;
-        }
         else if (fc->getName() == "minicut"){
           mUnresolvedBlockEnd = new CCALL(ScriptFunctions::miniCutEnd, 0);
         }
@@ -311,6 +308,9 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           f = ScriptFunctions::dummy;
           DebugBreak();
         }
+        std::map<std::string,int>::iterator sepiter = mArgEC.find(fc->getName());
+        if (sepiter != mArgEC.end())
+          seperateArgument = sepiter->second;
         count += transform(fc->getArguments(), codes, ARGLIST, seperateArgument);
         codes->addCode(new CCALL(f, fc->getArguments()->size()));
         ++count;
@@ -972,10 +972,17 @@ StackData PcdkScript::getVariable(const std::string& name){
     return chr->getState();
   }
   else if (name.size() > 6 && name.substr(0,6) == "charx:"){
+    CharacterObject* chr = Engine::instance()->getCharacter(name.substr(6));
+    if (!chr)
+      DebugBreak();
+    return chr->getPosition().x;
     DebugBreak();
   }
   else if (name.size() > 6 && name.substr(0,6) == "chary:"){
-    DebugBreak();
+    CharacterObject* chr = Engine::instance()->getCharacter(name.substr(6));
+    if (!chr)
+      DebugBreak();
+    return chr->getPosition().y;
   }
   else if (name.size() > 9 && name.substr(0,9) == "charzoom:"){
     DebugBreak();

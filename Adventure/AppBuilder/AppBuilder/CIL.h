@@ -20,9 +20,31 @@ typedef int (*ScriptFunc) (ExecutionContext&, unsigned numArgs);
 
 class CCode{
 public:
+  enum Type{
+    PUSH,
+    CALL,
+    BRA,
+    BNEEVT,
+    BNEROW,
+    BE,
+    BNE,
+    BLT,
+    BLE,
+    BGT,
+    BGE,
+    LOAD,
+    ADD,
+    SUB,
+    MUL,
+    DIV,
+    CONCAT,
+    CDTIMER,
+    STATE,
+  };
   CCode(){}
   virtual ~CCode(){}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc)=0;
+  virtual Type getType()=0;
 };
 
 class CPUSH : public CCode{
@@ -36,6 +58,7 @@ public:
     ctx.stack().push(mData);
     return ++pc;
   }
+  virtual Type getType(){return PUSH;}
 protected:
   StackData mData;
 };
@@ -48,6 +71,7 @@ public:
     (*mFunc)(ctx, mNumArgs);
     return ++pc;
   }
+  virtual Type getType(){return CALL;}
 protected:
   ScriptFunc mFunc;
   unsigned mNumArgs;
@@ -61,6 +85,7 @@ public:
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
     return pc+mOffset;
   }
+  virtual Type getType(){return BRA;}
 protected:
   int mOffset;
 };
@@ -70,6 +95,7 @@ public:
   CBNEEVT(EngineEvent event) : mEvent(event) {}
   virtual ~CBNEEVT() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return BNEEVT;}
 protected:
   EngineEvent mEvent;
 };
@@ -79,6 +105,7 @@ public:
   CBNEROW(int row, const std::string& text, bool visible) : mRow(row), mText(text), mVisible(visible) {}
   virtual ~CBNEROW() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return BNEROW;}
 protected:
   int mRow;
   std::string mText;
@@ -90,6 +117,7 @@ public:
   CBE() {}
   virtual ~CBE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return BE;}
 };
 
 class CBNE : public CBRA{
@@ -97,6 +125,7 @@ public:
   CBNE() {}
   virtual ~CBNE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return BNE;}
 };
 
 class CBLT : public CBRA{
@@ -104,6 +133,7 @@ public:
   CBLT() {}
   virtual ~CBLT() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return BLT;}
 };
 
 class CBLE : public CBRA{
@@ -111,6 +141,7 @@ public:
   CBLE() {}
   virtual ~CBLE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return BLE;}
 };
 
 class CBGT : public CBRA{
@@ -118,6 +149,7 @@ public:
   CBGT() {}
   virtual ~CBGT() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return BGT;}
 };
 
 class CBGE : public CBRA{
@@ -125,6 +157,7 @@ public:
   CBGE() {}
   virtual ~CBGE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return BGE;}
 };
 
 class CLOAD : public CCode{
@@ -132,7 +165,9 @@ public:
   CLOAD(const std::string& s) : mVariable(s) {}
   virtual ~CLOAD() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return LOAD;}
   void changeVariable(const std::string& var) {mVariable += var;}
+  const std::string& getVarname() {return mVariable;}
 protected:
   std::string mVariable;
 };
@@ -147,6 +182,7 @@ public:
     ctx.stack().push(d1+d2);
     return ++pc;
   }
+  virtual Type getType(){return ADD;}
 };
 
 class CSUB : public CCode{
@@ -159,6 +195,7 @@ public:
     ctx.stack().push(d1-d2);
     return ++pc;
   }
+  virtual Type getType(){return SUB;}
 };
 
 class CMUL : public CCode{
@@ -171,6 +208,7 @@ public:
     ctx.stack().push(d1*d2);
     return ++pc;
   }
+  virtual Type getType(){return MUL;}
 };
 
 class CDIV : public CCode{
@@ -183,6 +221,7 @@ public:
     ctx.stack().push(d1/d2);
     return ++pc;
   }
+  virtual Type getType(){return DIV;}
 };
 
 class CCONCAT : public CCode{
@@ -190,6 +229,7 @@ public:
   CCONCAT() {}
   virtual ~CCONCAT() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return CONCAT;}
 };
 
 class CTIMER : public CCode{
@@ -202,6 +242,7 @@ public:
     mCommands->unref();
   }
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return CDTIMER;}
 protected:
   ExecutionContext* mCommands;
 };
@@ -215,6 +256,7 @@ public:
   CSTATE(State state) {mState = state;}
   virtual ~CSTATE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return STATE;}
 protected:
   State mState;
 };

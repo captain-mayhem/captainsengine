@@ -141,6 +141,10 @@ void key_release(int key){
   Engine::instance()->keyRelease(key);
 }
 
+void key_ascii(unsigned char ascii){
+  Engine::instance()->keyAscii((char)ascii);
+}
+
 void engineMain(int argc, char** argv){
   CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
@@ -158,6 +162,7 @@ void engineMain(int argc, char** argv){
   //input callbacks
   Input::Keyboard::instance()->setKeyDownCB(key_press);
   Input::Keyboard::instance()->setKeyUpCB(key_release);
+  Input::Keyboard::instance()->setAsciiCB(key_ascii);
   Input::Mouse::instance()->setButtonDownCB(mouse_click);
   Input::Mouse::instance()->setButtonUpCB(mouse_release);
   Input::Mouse::instance()->setMouseMoveCB(mouse_move);
