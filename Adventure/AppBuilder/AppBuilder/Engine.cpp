@@ -11,6 +11,7 @@
 #include "Inventory.h"
 #include "Screenchange.h"
 #include "Particles.h"
+#include "Textout.h"
 
 TR_CHANNEL(ADV_Engine);
 TR_CHANNEL(ADV_Events);
@@ -1077,8 +1078,10 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
 }
 
 void Engine::keyPress(int key){
-  mKeysPressed[key] = true;
-  mKeysDown[key] = true;
+  if (mTextEnter.empty()){
+    mKeysPressed[key] = true;
+    mKeysDown[key] = true;
+  }
   switch(key){
     case KEY_F1:
       mSaver->save(SaveStateProvider::saveSlotToPath(1));
@@ -1092,6 +1095,12 @@ void Engine::keyPress(int key){
         if (ctx){
           ctx->setSkip();
         }
+        else if (!mTextEnter.empty()){
+          mInterpreter->resumeBlockingScript();
+          mTextEnter.clear();
+          mSuspender->resume();
+          mFonts->getTextout(-1)->setEnabled(false);
+        }
         else{
           if (!mMenuShown){
             loadRoom(mData->getProjectSettings()->menuroom, true, NULL);
@@ -1103,13 +1112,35 @@ void Engine::keyPress(int key){
           }
         }
       }
+    case KEY_BACKSPACE:
+      if (!mTextEnter.empty()){
+        std::string text = mInterpreter->getVariable(mTextEnter).getString();
+        if (!text.empty())
+          text.erase(text.size()-1);
+        mInterpreter->setVariable(mTextEnter, text);
+      }
       break;
+    case KEY_RETURN:
+      if (!mTextEnter.empty()){
+        mInterpreter->resumeBlockingScript();
+        mTextEnter.clear();
+        mSuspender->resume();
+        mFonts->getTextout(-1)->setEnabled(false);
+      }
   }
 }
 
 void Engine::keyRelease(int key){
   mKeysDown[key] = false;
   mKeysPressed[key] = false;
+}
+
+void Engine::keyAscii(char chr){
+  if (mTextEnter.empty())
+    return;
+  std::string text = mInterpreter->getVariable(mTextEnter).getString();
+  text += chr;
+  mInterpreter->setVariable(mTextEnter, text);
 }
 
 void Engine::unloadRooms(){
@@ -1171,4 +1202,10 @@ void Engine::remove(Object2D* obj){
     mCurrentObject = NULL;
   if (mClickedObject == obj)
     mClickedObject = NULL;
+}
+
+void Engine::enterText(const std::string& variable, int maxcharacters, ExecutionContext* suspensionReason){
+  mSuspender = suspensionReason;
+  mTextEnter = variable;
+  mNumCharactersEnter = maxcharacters;
 }

@@ -108,11 +108,13 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setlanguage", setLanguage);
   interpreter->registerFunction("if_room", isCurrentRoom);
   interpreter->registerFunction("entertext", enterText);
+  interpreter->getArgumentAsExecutionContext("entertext", 1);
   interpreter->registerFunction("if_mousewheel", isMouseWheelEqual);
   interpreter->registerFunction("fadespeed", fadeSpeed);
   interpreter->registerFunction("seteax", setEAX);
   interpreter->registerFunction("bindtext", bindText);
   interpreter->registerFunction("textout", textOut);
+  interpreter->getArgumentAsExecutionContext("textout", 2);
   interpreter->registerFunction("textspeed", textSpeed);
   interpreter->registerFunction("setpos", setPos);
   interpreter->registerFunction("minicut", miniCut);
@@ -1196,7 +1198,65 @@ int ScriptFunctions::setLanguage(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
-  DebugBreak();
+  int textnum = -1;
+  Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
+  txtout->setEnabled(true);
+  std::string varname;
+  int maxchars = 100;
+  if (numArgs >= 1){
+    ExecutionContext* text = ctx.stack().pop().getEC();
+    //get and init the variable
+    CCode* code = text->getCode()->get(text->getCode()->numInstructions()-2);
+    if (code->getType() != CCode::LOAD)
+      DebugBreak();
+    else{
+      CLOAD* load = (CLOAD*)code;
+      varname = load->getVarname();
+      Engine::instance()->getInterpreter()->setVariable(varname, StackData(std::string("")));
+    }
+
+    Engine::instance()->getInterpreter()->executeImmediately(text, false);
+    StackData result = text->stack().pop();
+    if (!result.isInt() || result.getInt() != -1){
+      txtout->setText(text);
+    }
+  }
+  if (numArgs >= 2){
+    int x = ctx.stack().pop().getInt();
+    if (x != -1)
+      txtout->getPos().x = x;
+  }
+  if (numArgs >= 3){
+    int y = ctx.stack().pop().getInt();
+    if (y != -1)
+      txtout->getPos().y = y;
+  }
+  if (numArgs >= 4){
+    int font = ctx.stack().pop().getInt();
+    if (font != -1)
+      txtout->setFont(font);
+  }
+  if (numArgs >= 5){
+    maxchars = ctx.stack().pop().getInt();
+  }
+  if (numArgs >= 6){
+    int col = ctx.stack().pop().getInt();
+    if (col != -1)
+      txtout->getColor().r = col;
+  }
+  if (numArgs >= 7){
+    int col = ctx.stack().pop().getInt();
+    if (col != -1)
+      txtout->getColor().g = col;
+  }
+  if (numArgs >= 8){
+    int col = ctx.stack().pop().getInt();
+    if (col != -1)
+      txtout->getColor().b = col;
+  }
+  Engine::instance()->getInterpreter()->mGlobalSuspend = true;
+  Engine::instance()->enterText(varname, maxchars, &ctx);
+  ctx.mSuspended = true;
   return 0;
 }
 

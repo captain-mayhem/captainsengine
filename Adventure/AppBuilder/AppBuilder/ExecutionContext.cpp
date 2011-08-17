@@ -1,6 +1,11 @@
 #include "ExecutionContext.h"
 #include "Engine.h"
 
+void CodeSegment::removeLast(){
+  delete mCodes.back();
+  mCodes.pop_back();
+}
+
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1){

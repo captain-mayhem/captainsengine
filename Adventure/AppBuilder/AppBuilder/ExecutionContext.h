@@ -56,6 +56,7 @@ public:
   unsigned numInstructions(){
     return (unsigned)mCodes.size();
   }
+  void removeLast();
 protected:
   std::vector<CCode*> mCodes;
   int* mRefCount;
@@ -94,6 +95,7 @@ public:
   bool isSuspended() {return mSuspended;}
   void ref() {++mRefCount;}
   void unref() {if (this == NULL) return; --mRefCount; if (mRefCount == 0) delete this;}
+  CodeSegment* getCode() {return mCode;}
 protected:
   ~ExecutionContext();
   CodeSegment* mCode;
