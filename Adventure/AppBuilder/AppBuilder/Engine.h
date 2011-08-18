@@ -163,7 +163,9 @@ protected:
   bool mMenuShown;
   ExecutionContext* mSuspender;
   std::string mTextEnter;
-  int mNumCharactersEnter;
+  unsigned mNumCharactersEnter;
+  bool mBlinkCursorVisible;
+  unsigned mBlinkTimeAccu;
 };
 
 #endif

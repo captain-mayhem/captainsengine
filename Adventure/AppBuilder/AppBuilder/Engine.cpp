@@ -407,7 +407,25 @@ void Engine::render(unsigned time){
   if (!mInterpreter->isBlockingScriptRunning() && mFocussedChar != NULL)
     mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1, breakinfo, Engine::instance()->getSettings()->infotextcolor);
 
+  if (!mTextEnter.empty()){
+    mBlinkTimeAccu += interval;
+    while (mBlinkTimeAccu > 500){
+      mBlinkTimeAccu -= 500;
+      mBlinkCursorVisible = !mBlinkCursorVisible;
+    }
+    if (mBlinkCursorVisible){
+      std::string text = mInterpreter->getVariable(mTextEnter).getString();
+      mInterpreter->setVariable(mTextEnter, text+"_");
+    }
+  }
+
   mFonts->prepareBlit(interval);
+
+  if (!mTextEnter.empty() && mBlinkCursorVisible){
+    std::string text = mInterpreter->getVariable(mTextEnter).getString();
+    text.erase(text.size()-1);
+    mInterpreter->setVariable(mTextEnter, text);
+  }
 
   //render the stuff
   GL()vertexPointer(2, GL_SHORT, 0, mVerts);
@@ -1139,7 +1157,8 @@ void Engine::keyAscii(char chr){
   if (mTextEnter.empty())
     return;
   std::string text = mInterpreter->getVariable(mTextEnter).getString();
-  text += chr;
+  if (text.size() < mNumCharactersEnter)
+    text += chr;
   mInterpreter->setVariable(mTextEnter, text);
 }
 
@@ -1208,4 +1227,6 @@ void Engine::enterText(const std::string& variable, int maxcharacters, Execution
   mSuspender = suspensionReason;
   mTextEnter = variable;
   mNumCharactersEnter = maxcharacters;
+  mBlinkCursorVisible = true;
+  mBlinkTimeAccu = 0;
 }

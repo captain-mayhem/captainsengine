@@ -93,6 +93,14 @@ inline const string toLower(string& s){
   return s;
 }
 
+inline const string toLower(const string& s){
+  string ret;
+  for (unsigned i = 0; i < s.length(); i++){
+    ret += tolower(s.at(i));
+  }
+  return ret;
+}
+
 #ifdef UNIX
 #include <unistd.h>
 #include <sys/times.h>
