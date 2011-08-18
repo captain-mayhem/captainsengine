@@ -100,6 +100,8 @@ public:
 protected:
   unsigned decode();
   void getNextPacket();
+  void openStream();
+  void closeStream();
   ALuint mBuffers[3];
   ALenum mPCMFormat;
   std::string mFilename;

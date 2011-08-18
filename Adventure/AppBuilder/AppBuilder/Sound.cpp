@@ -221,10 +221,31 @@ static const int BUFFER_SIZE = 19200;
 
 StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname, const std::string& filename) : 
 SoundPlayer(soundname), mFilename(filename), mLooping(false), mStop(true){
+  mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
+  mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
+  mDecodeBuffer.used = 0;
+  mDataBuffer.length = 0;
+  mDataBuffer.data = NULL;
+  mDataBuffer.used = 0;
+  mALBuffer.length = BUFFER_SIZE;
+  mALBuffer.data = new char[mALBuffer.length];
+  mALBuffer.used = 0;
+  openStream();
+}
+
+StreamSoundPlayer::~StreamSoundPlayer(){
+  closeStream();
+  //deallocate this way, as it was allocated by av_malloc
+  av_free(mDecodeBuffer.data);
+  mDecodeBuffer.data = NULL;
+  remove(mFilename.c_str());
+}
+
+void StreamSoundPlayer::openStream(){
   alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
   alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
   alGenBuffers(3, mBuffers);
-  if (av_open_input_file(&mFormat, filename.c_str(), NULL, 0, NULL) != 0)
+  if (av_open_input_file(&mFormat, mFilename.c_str(), NULL, 0, NULL) != 0)
     return;
   unsigned last_nb_streams;
   do{
@@ -240,15 +261,7 @@ SoundPlayer(soundname), mFilename(filename), mLooping(false), mStop(true){
       if (avcodec_open(mCodecContext, mCodec) < 0)
         continue;
       mStreamNum = i;
-      mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
-      mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
-      mDecodeBuffer.used = 0;
-      mDataBuffer.length = 0;
-      mDataBuffer.data = NULL;
-      mDataBuffer.used = 0;
-      mALBuffer.length = BUFFER_SIZE;
-      mALBuffer.data = new char[mALBuffer.length];
-      mALBuffer.used = 0;
+      
       if (mCodecContext->sample_fmt == SAMPLE_FMT_U8){
         if (mCodecContext->channels == 1)
           mPCMFormat = AL_FORMAT_MONO8;
@@ -304,16 +317,18 @@ SoundPlayer(soundname), mFilename(filename), mLooping(false), mStop(true){
   }
 }
 
-StreamSoundPlayer::~StreamSoundPlayer(){
+void StreamSoundPlayer::closeStream(){
   alSourceStop(mSource);
+  ALint queued;
+  alGetSourcei(mSource, AL_BUFFERS_QUEUED, &queued);
+  if (queued > 0){
+    ALuint curBuf;
+    alSourceUnqueueBuffers(mSource, 1, &curBuf);
+  }
   alSourcei(mSource, AL_BUFFER, AL_NONE);
   alDeleteBuffers(3, mBuffers);
   if (mFormat)
     av_close_input_file(mFormat);
-  remove(mFilename.c_str());
-  //deallocate this way, as it was allocated by av_malloc
-  av_free(mDecodeBuffer.data);
-  mDecodeBuffer.data = NULL;
 }
 
 #ifdef WIN32
@@ -398,8 +413,9 @@ void StreamSoundPlayer::getNextPacket(){
       //start all over again
       av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY);
       read = av_read_frame(mFormat, &packet);
-      if (read < 0)
+      if (read < 0){
         return;
+      }
     }
     if (packet.stream_index == mStreamNum){
       unsigned idx = mDataBuffer.used;
@@ -445,6 +461,7 @@ void StreamSoundPlayer::play(bool looping){
 
 void StreamSoundPlayer::stop(){
   mStop = true;
+  mLooping = false;
   alSourceStop(mSource);
   //VHALIGNCALL16(av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY));
 }
@@ -467,8 +484,16 @@ bool StreamSoundPlayer::update(){
         alSourceQueueBuffers(mSource, 1, &curBuf);
       }
     }
-    if (mStop)
+    if (mStop){
+      if (mLooping){
+        //stop was not requested, so restart
+        closeStream();
+        openStream();
+        play(mLooping);
+        return true;
+      }
       return false;
+    }
     return true;
   }
   for (ALint i = 0; i < processed; ++i){

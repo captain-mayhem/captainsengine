@@ -630,7 +630,7 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
 }
 
 bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
-  std::string filename = mSoundNames[name];
+  std::string filename = mSoundNames[toLower(name)];
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
   if (mUseCompressedData){
