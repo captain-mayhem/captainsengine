@@ -32,6 +32,7 @@ public:
   void setMusicVolume(float volume);
   void setSpeechVolume(float volume);
   float getSpeechVolume() {return mSpeechVolume;}
+  void setEAXEffect(const std::string& effect);
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
@@ -40,6 +41,8 @@ protected:
 #ifndef DISABLE_SOUND
   ALCdevice* mDevice;
   ALCcontext* mContext;
+  ALuint mEffectSlot;
+  ALuint mEffect;
 #endif
   std::map<std::string, SoundPlayer*> mActiveSounds;
   SoundPlayer* mActiveMusic;

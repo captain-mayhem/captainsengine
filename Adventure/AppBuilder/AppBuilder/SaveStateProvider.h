@@ -25,6 +25,7 @@ public:
   struct SaveRoom{
     SaveObject base;
     Vec2i scrolloffset;
+    Color overlaylighting;
     std::map<std::string, SaveObject*> objects;
     std::map<std::string, CharSaveObject*> characters;
     //friend std::ostream& operator<<(std::ostream& strm, const SaveRoom& room);

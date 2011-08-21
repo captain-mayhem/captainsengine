@@ -514,6 +514,7 @@ void RoomObject::save(){
   save->base.position = mPos;
   save->base.state = mState;
   save->base.lighting = mLightingColor;
+  save->overlaylighting = mLighting->getColor();
   save->scrolloffset = mScrollOffset;
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->save();

@@ -461,7 +461,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   //anywhere room is not allowed to have background
   if (_stricmp(room->name.c_str(), mData->getProjectSettings()->anywhere_room.c_str()) != 0)
     roomobj->setBackground(room->background, depthoffset-1);
-  roomobj->setLightingColor(save->base.lighting);
+  roomobj->setLightingColor(save->overlaylighting);
   roomobj->setOpacity(save->base.lighting.a);
   roomobj->setWalkmap(room->walkmap);
   roomobj->setScrollOffset(save->scrolloffset);

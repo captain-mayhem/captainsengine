@@ -1091,6 +1091,10 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
       hold = true;
   }
   Object2D* obj = Engine::instance()->getObject(name, false);
+  if (obj == NULL){
+    //DebugBreak();
+    return 0;
+  }
   if (speed == 0 || ctx.mSkip){
     obj->setPosition(newpos);
     return 0;
@@ -1272,8 +1276,7 @@ int ScriptFunctions::fadeSpeed(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::setEAX(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
-  //DebugBreak();
-  //TODO
+  SoundEngine::instance()->setEAXEffect(effect);
   return 0;
 }
 
