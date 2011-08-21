@@ -64,7 +64,7 @@ public:
   void setGiveObject(const std::string& object, const std::string& objectInfo);
   std::string getGiveObjectName() {return mGiveObjectName;}
   ExecutionContext* loadScript(Script::Type type, const std::string& name);
-  void addUIElement(Object2D* elem);
+  void addUIElement(Object2D* elem, int offset);
   ProjectSettings* getSettings() {return mData->getProjectSettings();}
   void setCommand(const std::string& command, bool deleteLinks);
   std::string getActiveCommand();

@@ -462,6 +462,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   if (_stricmp(room->name.c_str(), mData->getProjectSettings()->anywhere_room.c_str()) != 0)
     roomobj->setBackground(room->background, depthoffset-1);
   roomobj->setLightingColor(save->base.lighting);
+  roomobj->setOpacity(save->base.lighting.a);
   roomobj->setWalkmap(room->walkmap);
   roomobj->setScrollOffset(save->scrolloffset);
   roomobj->setZoomFactor(rm->zoom);
@@ -993,7 +994,14 @@ ExecutionContext* Engine::loadScript(Script::Type type, const std::string& name)
   return ctx;
 }
 
-void Engine::addUIElement(Object2D* elem){
+void Engine::addUIElement(Object2D* elem, int offset){
+  if (offset != 0){
+    for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
+      Vec2i pos = (*iter)->getPosition();
+      pos.y += offset;
+      (*iter)->setPosition(pos);
+    }
+  }
   mUI.push_back(elem);
 }
 

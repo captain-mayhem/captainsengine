@@ -483,10 +483,15 @@ int ScriptFunctions::textScene(ExecutionContext& ctx, unsigned numArgs){
   Vec2i pos(0,Engine::instance()->getResolution().y);
   int width = Engine::instance()->getResolution().x;
   if (numArgs > 1){
-    //TODO
     pos.x = ctx.stack().pop().getInt();
-    pos.y = ctx.stack().pop().getInt();
-    width = ctx.stack().pop().getInt();
+    if (numArgs > 2)
+      pos.y = ctx.stack().pop().getInt();
+    if (numArgs > 3)
+      width = ctx.stack().pop().getInt();
+    Engine::instance()->getInterpreter()->mTSTopToBottom = true;
+  }
+  else{
+    Engine::instance()->getInterpreter()->mTSTopToBottom = false;
   }
   Engine::instance()->getInterpreter()->mTSName = scenename;
   Engine::instance()->getInterpreter()->mTSLevel = 1;
