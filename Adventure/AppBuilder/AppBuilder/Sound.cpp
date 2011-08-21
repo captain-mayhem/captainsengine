@@ -4,6 +4,9 @@
 
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
+#include <efx.h>
+#include <efx-creative.h>
+#include <EFX-Util.h>
 extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -13,14 +16,44 @@ extern "C"{
 #include "AdvDoc.h"
 #include "Engine.h"
 
+TR_CHANNEL(ADV_SOUND_ENGINE);
+
 SoundEngine* SoundEngine::mInstance = NULL;
 
+LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots = NULL;
+LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots = NULL;
+LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti = NULL;
+LPALGENEFFECTS alGenEffects = NULL;
+LPALDELETEEFFECTS alDeleteEffects = NULL;
+LPALEFFECTF alEffectf = NULL;
+LPALEFFECTI alEffecti = NULL;
+
 SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f){
+  TR_USE(ADV_SOUND_ENGINE);
 #ifndef DISABLE_SOUND
   mDevice = alcOpenDevice(NULL);
   if (mDevice){
     mContext = alcCreateContext(mDevice, NULL);
     alcMakeContextCurrent(mContext);
+  }
+  if (!alcIsExtensionPresent(mDevice, ALC_EXT_EFX_NAME)){
+    TR_ERROR("EFX exension not present");
+  }
+  else{
+    alGenAuxiliaryEffectSlots = (LPALGENAUXILIARYEFFECTSLOTS)alGetProcAddress("alGenAuxiliaryEffectSlots");
+    alDeleteAuxiliaryEffectSlots = (LPALDELETEAUXILIARYEFFECTSLOTS)alGetProcAddress("alDeleteAuxiliaryEffectSlots");
+    alAuxiliaryEffectSloti = (LPALAUXILIARYEFFECTSLOTI)alGetProcAddress("alAuxiliaryEffectSloti");
+    alGenEffects = (LPALGENEFFECTS)alGetProcAddress("alGenEffects");
+    alDeleteEffects = (LPALDELETEEFFECTS)alGetProcAddress("alDeleteEffects");
+    alEffectf = (LPALEFFECTF)alGetProcAddress("alEffectf");
+    alEffecti = (LPALEFFECTI)alGetProcAddress("alEffecti");
+    alGenAuxiliaryEffectSlots(1, &mEffectSlot);
+    ALenum error = alGetError();
+    if (error != AL_NO_ERROR){
+      TR_ERROR("AL error %i", error);
+    }
+    alGenEffects(1, &mEffect);
+    alEffecti(mEffect, AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
   }
   //init codecs
   alutInitWithoutContext(NULL, NULL);
@@ -36,11 +69,33 @@ SoundEngine::~SoundEngine(){
   mActiveSounds.clear();
   delete mActiveMusic;
 #ifndef DISABLE_SOUND
+  alDeleteEffects(1, &mEffect);
+  alDeleteAuxiliaryEffectSlots(1, &mEffectSlot);
   alcMakeContextCurrent(NULL);
   alcDestroyContext(mContext);
   alcCloseDevice(mDevice);
   //exit codecs
   alutExit();
+#endif
+}
+
+void SoundEngine::setEAXEffect(const std::string& effect){
+#ifndef DISABLE_SOUND
+  if (effect == "off"){
+    alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
+  }
+  else{
+    EFXEAXREVERBPROPERTIES efxReverb;
+    if (effect == "paddedcell"){
+      EAXREVERBPROPERTIES props = REVERB_PRESET_PADDEDCELL;
+      ConvertReverbParameters(&props, &efxReverb);
+    }
+    else
+      DebugBreak();
+    alEffectf(mEffect, AL_EAXREVERB_DENSITY, efxReverb.flDensity);
+    alEffectf(mEffect, AL_EAXREVERB_DIFFUSION, efxReverb.flDiffusion);
+    alEffectf(mEffect, AL_EAXREVERB_GAIN, efxReverb.flGain);
+  }
 #endif
 }
 

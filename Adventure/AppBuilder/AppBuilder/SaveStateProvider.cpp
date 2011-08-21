@@ -10,6 +10,7 @@
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room){
   strm << room.base;
   strm << room.scrolloffset.x << " " << room.scrolloffset.y << std::endl;
+  strm << room.overlaylighting.r << " " << room.overlaylighting.g << " " << room.overlaylighting.b << " " << room.overlaylighting.a << std::endl;
   strm << room.objects.size() << std::endl;
   for (std::map<std::string,SaveStateProvider::SaveObject*>::const_iterator iter = room.objects.begin(); iter != room.objects.end(); ++iter){
     strm << iter->first << std::endl << *iter->second;
@@ -24,6 +25,7 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
   strm >> room.base;
   strm >> room.scrolloffset.x >> room.scrolloffset.y;
+  strm >> room.overlaylighting.r >> room.overlaylighting.g >> room.overlaylighting.b >> room.overlaylighting.a;
   int number;
   strm >> number;
   std::string name;
