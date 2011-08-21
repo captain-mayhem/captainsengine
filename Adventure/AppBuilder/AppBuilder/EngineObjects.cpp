@@ -188,6 +188,7 @@ void Object2D::save(){
   if (save){
     save->position = mPos;
     save->state = mState;
+    save->lighting = mLightingColor;
   }
 }
 
@@ -512,7 +513,7 @@ void RoomObject::save(){
   SaveStateProvider::SaveRoom* save = Engine::instance()->getSaver()->getRoom(mName);
   save->base.position = mPos;
   save->base.state = mState;
-  save->base.lighting = mLighting->getColor();
+  save->base.lighting = mLightingColor;
   save->scrolloffset = mScrollOffset;
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->save();

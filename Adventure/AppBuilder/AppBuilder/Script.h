@@ -40,6 +40,7 @@ public:
   Vec2i& tsPos() {return mTSPos;}
   std::map<int, bool>& tsActive() {return mTSActive[mTSName][mTSLevel];}
   int getTSWidth() {return mTSWidth;}
+  bool isTSTopToBottom() {return mTSTopToBottom;}
   void stop();
   std::ostream& save(std::ostream& out);
   std::istream& load(std::istream& in);
@@ -84,6 +85,7 @@ protected:
   Vec2i mTSPos;
   int mTSWidth;
   std::map<std::string, std::map<int, std::map<int, bool> > > mTSActive;
+  bool mTSTopToBottom;
   bool mGlobalSuspend;
   std::string mPrevActiveCommand;
   std::map<Object2D*, int> mPrevState;

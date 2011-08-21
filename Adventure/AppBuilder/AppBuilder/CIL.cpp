@@ -21,10 +21,14 @@ unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
   std::vector<Vec2i> breakinfo;
   Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(mText, Engine::instance()->getFontID(), breakinfo);
   extent.y /= breakinfo.size();
-  Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
+  if (!Engine::instance()->getInterpreter()->isTSTopToBottom())
+    Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
   Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);
   ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos(), butsize, mText, mRow);
-  Engine::instance()->addUIElement(but);
+  if (Engine::instance()->getInterpreter()->isTSTopToBottom())
+    Engine::instance()->addUIElement(but, extent.y);
+  else
+    Engine::instance()->addUIElement(but, 0);
   int chosenRow = Engine::instance()->getInterpreter()->getVariable("#button").getInt();
   if (chosenRow == mRow){
     Engine::instance()->getInterpreter()->setVariable("#button", 0);

@@ -227,7 +227,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
       while (str != "Music :"){
         std::string filename = txtstream.readLine();
         CGE::Utilities::replaceWith(filename, '\\', '/');
-        mSoundNames[str] = filename;
+        mSoundNames[str] = toLower(filename);
         str = txtstream.readLine();
       }
     }

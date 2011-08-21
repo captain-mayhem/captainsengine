@@ -110,6 +110,7 @@ public:
   virtual void render();
   virtual void blit();
   void setColors(const Color& background, const Color& border, const Color& highlight);
+  virtual void setPosition(const Vec2i& pos) {Object2D::mPos = pos; BaseBlitObject::mPos = pos;}
 protected:
   std::string mText;
   Color mBackgroundColor;
