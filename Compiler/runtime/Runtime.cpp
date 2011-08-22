@@ -1,11 +1,13 @@
 
 #include "Runtime.h"
 
+#ifdef WIN32
 #include <direct.h>
+#endif
 
 #include <VMContext.h>
 #include <VMMethod.h>
-#include <VMClass.h>
+#include <VMclass.h>
 #include <JVM.h>
 #include <Trace.h>
 
@@ -38,9 +40,12 @@ jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jo
   jmethodID getAbsPath = env->GetMethodID(filecls, "getAbsolutePath", "()Ljava/lang/String;");
   jstring path = env->CallObjectMethod(file, getAbsPath);
   const char* str = env->GetStringUTFChars(path, NULL);
+#ifdef WIN32
   DWORD attribs = GetFileAttributes(str);
+#endif
   env->ReleaseStringUTFChars(path, str);
   int jattribs = 0;
+#ifdef WIN32
   if (attribs == INVALID_FILE_ATTRIBUTES)
     return jattribs;
   jattribs |= 0x01; //exists
@@ -50,6 +55,7 @@ jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jo
     jattribs |= 0x02; //regular
   if (attribs & FILE_ATTRIBUTE_HIDDEN)
     jattribs |= 0x08; //hidden
+#endif
   return jattribs;
 }
 
@@ -143,7 +149,7 @@ void JNIEXPORT Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object
 }
 
 jint JNIEXPORT Java_java_lang_Object_hashCode(JNIEnv* env, jobject object){
-	return (jint)object;
+	return (jint)(jlong)object;
 }
 
 jobject JNIEXPORT Java_java_lang_String_intern(JNIEnv* env, jobject object){
@@ -152,6 +158,10 @@ jobject JNIEXPORT Java_java_lang_String_intern(JNIEnv* env, jobject object){
 	env->ReleaseStringUTFChars((jstring)object, str);
 	return ret;
 }
+
+#ifdef UNIX
+#define _getcwd getcwd
+#endif
 
 jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject object, jobject properties){
   jclass cls = env->GetObjectClass(properties);

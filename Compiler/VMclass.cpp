@@ -1,4 +1,4 @@
-#include "VMClass.h"
+#include "VMclass.h"
 
 #include <iostream>
 #include <cstring>

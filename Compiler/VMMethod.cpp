@@ -4,9 +4,11 @@
 #include <string>
 #include <cstring>
 #include <float.h>
+#include <math.h>
+#include <alloca.h>
 
 #include "JavaDefs.h"
-#include "VMClass.h"
+#include "VMclass.h"
 #include "VMContext.h"
 #include "Trace.h"
 #include "JVM.h"
@@ -15,6 +17,10 @@
 #include "Preproc.h"
 #include "JavaOpcodes.h"
 #undef PROC_DECL_MAP_MODE
+
+#ifdef UNIX
+#define _isnan isnan
+#endif
 
 void VMMethod::parseSignature(){
 	mArgSize = 0;
@@ -1581,10 +1587,12 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
   void* tmp;
   for(int i = mArgSize-1; i >= 0; --i){
     tmp = ctx->get(mIsStatic ? i : i+1).obj;
+#ifdef WIN32
     __asm{
       mov eax, tmp;
       push eax;
     }
+#endif
   }
   //for(int i = mArgSize-1; i >= 0; --i){
   //  ctx->pop();
@@ -1595,6 +1603,7 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
   FieldData retval;
   if (ret == VMMethod::Boolean){
     jboolean bret;
+#ifdef WIN32
     __asm{
       mov eax, cls;
       push eax;
@@ -1604,9 +1613,11 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
       add esp, popargs;
       mov bret, al;
     }
+#endif
     retval.b = bret;
   }
   else if (ret == VMMethod::Void){
+#ifdef WIN32
     __asm{
       mov eax, cls;
       push eax;
@@ -1615,6 +1626,7 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
       call mthd;
       add esp, popargs;
     }
+#endif
   }
   /*
 	bullshit fakeArray;

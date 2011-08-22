@@ -2,6 +2,7 @@
 SET(OS windows CACHE STRING "the os to compile for")
 SET(ARCH ${CPU})
 OPTION(DISABLE_SOUND "disables the ffmpeg and openal backends" OFF)
+OPTION(DISABLE_EAX "disable use of eax and efx extensions" OFF)
 OPTION(TEGRA_RENDERER "switches the renderer to OpenKode/GLES2 rendering" OFF)
 OPTION(JNI_FRONTEND "enables a JNI frontend for Android" OFF)
 
@@ -128,6 +129,9 @@ SET(AB_LINK_LIBS ${AB_LINK_LIBS} avformat avcodec avdevice avutil swscale)
 ELSE(NOT DISABLE_SOUND)
 ADD_DEFINITIONS(-DDISABLE_SOUND)
 ENDIF(NOT DISABLE_SOUND)
+IF(DISABLE_EAX)
+ADD_DEFINITIONS(-DDISABLE_EAX)
+ENDIF(DISABLE_EAX)
 
 ###Engine###
 INCLUDE_DIRECTORIES(../../../Engine)
