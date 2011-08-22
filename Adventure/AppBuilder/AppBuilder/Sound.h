@@ -33,6 +33,9 @@ public:
   void setSpeechVolume(float volume);
   float getSpeechVolume() {return mSpeechVolume;}
   void setEAXEffect(const std::string& effect);
+#ifndef DISABLE_SOUND
+  ALuint getEffectSlot() {return mEffectSlot;}
+#endif
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
