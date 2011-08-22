@@ -20,6 +20,9 @@
 #include "renderer/camera.h"
 #include "renderer/font.h"
 
+
+TR_CHANNEL(CGE_Common_Octree)
+
 namespace CGE{
 
 template<typename index, typename value>
@@ -97,13 +100,14 @@ Octree<index,value>::~Octree(){
 
 template<typename index, typename value> 
 void Octree<index,value>::insert(const CGE::Vec3<index>& center, value val){
+  TR_USE(CGE_Common_Octree)
   if((center.x < (mCenter-mSpan).x) ||
     (center.y < (mCenter-mSpan).y) ||
     (center.z < (mCenter-mSpan).z) ||
     (center.x > (mCenter+mSpan).x) ||
     (center.y > (mCenter+mSpan).y) ||
     (center.z > (mCenter+mSpan).z)){
-      CGE::Log << "Octree: tried to add out of bounds object";
+      TR_WARN("Octree: tried to add out of bounds object");
       return;
   }
   Node** nd = recurseCreate(center,&mRoot,mCenter,mSpan,0);

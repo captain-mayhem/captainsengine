@@ -258,10 +258,13 @@ void JVM::initBasicClasses(VMContext* ctx){
 	return;
 }
 
+#ifdef WIN32
 #include <windows.h>
+#endif
 
 VMObject* JVM::createString(VMContext* ctx, const char* str){
 	//convert to utf16
+#ifdef WIN32
   int size = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
   unsigned short* utf16 = new unsigned short[size];
   MultiByteToWideChar(CP_UTF8, 0, str, -1, (LPWSTR)utf16, size);
@@ -275,6 +278,9 @@ VMObject* JVM::createString(VMContext* ctx, const char* str){
 	arr->setData(utf16);
 	mthd->execute(ctx);
 	return obj;
+#else
+	return NULL;
+#endif
 }
 
 VMObject* JVM::internalizeString(const std::string& str, VMObject* strobj){

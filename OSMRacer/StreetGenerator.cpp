@@ -110,6 +110,10 @@ float StreetGenerator::getAngle(const Vec3f& v1, const Vec3f& v2, const Vec3f& n
   return angle;
 }
 
+#ifdef UNIX
+#define _finite finite
+#endif
+
 Vec3f StreetGenerator::intersectLine(const Vec3f& p1, const Vec3f& dir1, const Vec3f& p2, const Vec3f& dir2){
   float my = ((p2.z - p1.z)*dir1.x + (p1.x - p2.x)*dir1.z)/(dir2.x*dir1.z-dir2.z*dir1.x);
   if (!_finite(my)){

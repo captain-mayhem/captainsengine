@@ -2,9 +2,10 @@
 #define VMARRAY_H
 
 #include <vector>
+#include <cstring>
 
 #include "VMObject.h"
-#include "VMClass.h"
+#include "VMclass.h"
 
 class VMArrayClass : public VMClass{
 };

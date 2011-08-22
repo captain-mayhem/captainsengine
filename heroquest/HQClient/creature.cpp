@@ -17,7 +17,6 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
-#include <GL/glu.h>
 #include "gui/console.h"
 #include "renderer.h"
 //#include "texture.hh"

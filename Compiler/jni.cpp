@@ -1,6 +1,6 @@
 #include "JVM.h"
 #include "VMContext.h"
-#include "VMClass.h"
+#include "VMclass.h"
 #include "VMMethod.h"
 
 #define CTX(env) ((VMContext*)env->m_func)
@@ -50,7 +50,7 @@ jmethodID VMContext::GetMethodID(JNIEnv *env, jclass clazz, const char *name, co
 
 jobject VMContext::CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args){
 	VMObject* o = (VMObject*)obj;
-	VMMethod* mthd = o->getObjMethod((unsigned)methodID);
+	VMMethod* mthd = o->getObjMethod((unsigned)(jlong)methodID);
 	CTX(env)->push(o);
 	for (unsigned i = 0; i < mthd->getNumArgs(); ++i){
 		VMObject* obj = va_arg(args, VMObject*);
@@ -72,7 +72,7 @@ jmethodID VMContext::GetStaticMethodID(JNIEnv *env, jclass clazz, const char *na
 
 void VMContext::CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args){
 	VMClass* cls = (VMClass*)clazz;
-	VMMethod* mthd = cls->getMethod((unsigned)methodID);
+	VMMethod* mthd = cls->getMethod((unsigned)(jlong)methodID);
 	for (unsigned i = 0; i < mthd->getNumArgs(); ++i){
 		VMObject* obj = va_arg(args, VMObject*);
 		CTX(env)->push(obj);
@@ -118,7 +118,7 @@ jobject VMContext::NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_
   VMClass* cls = (VMClass*)clazz;
   VMObject* obj = getVM()->createObject(CTX(env), cls);
   CTX(env)->push(obj);
-  VMMethod* mthd = cls->getMethod((unsigned)methodID);
+  VMMethod* mthd = cls->getMethod((unsigned)(jlong)methodID);
   mthd->execute(CTX(env));
   return obj;
 }

@@ -1,6 +1,6 @@
 #include "VMObject.h"
 
-#include "VMClass.h"
+#include "VMclass.h"
 
 VMObject::VMObject() : mClass(NULL){
 }

@@ -25,7 +25,7 @@ using std::ifstream;
 
 Player::Player(ServerSocket* ss){
   sock = ss;
-  name = "guest"+toStr((int)ss);
+  name = "guest"+toStr((int)(int64_t)ss);
   lastCreat_ = NULL;
 }
 

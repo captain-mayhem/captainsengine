@@ -10,7 +10,7 @@ extern "C" {
 #include <stdarg.h>
 #endif
 
-#include <system/Types.h>
+#include <system/types.h>
 
 #define JNICALL
 #ifdef WIN32

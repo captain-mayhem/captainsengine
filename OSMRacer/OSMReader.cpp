@@ -172,7 +172,7 @@ bool OSMReader::processWay(TiXmlNode* node){
         mCurrWay.street.oneway = false;
     }
     else{
-      TR_WARN("Unexpected street tag in xml file: %s - %s", tag.first, tag.second);
+      TR_WARN("Unexpected street tag in xml file: %s - %s", tag.first.c_str(), tag.second.c_str());
     }
     return true;
   }
@@ -187,6 +187,10 @@ double OSMReader::readDoubleAttribute(TiXmlElement* element, const char* name){
   element->Attribute(name, &value);
   return value;
 }
+
+#ifdef UNIX
+#define _atoi64 atoll
+#endif
 
 uint64 OSMReader::readULongAttribute(TiXmlElement* element, const char* name){
   uint64 value = 0;

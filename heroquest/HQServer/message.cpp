@@ -627,7 +627,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
 	      break;
       }
       string msg;
-      msg += toStr(SECRETDOOR)+" "+toStr(secretDoors.size());
+      msg += toStr(SECRETDOOR)+" "+toStr((unsigned)secretDoors.size());
       for (unsigned i = 0; i < secretDoors.size(); i++){
         Door* d = secretDoors[i];
 	      //make door "unsecret";

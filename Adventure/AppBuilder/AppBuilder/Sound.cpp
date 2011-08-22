@@ -4,9 +4,13 @@
 
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
+#ifdef UNIX
+#include <AL/efx.h>
+#else
 #include <efx.h>
 #include <efx-creative.h>
 #include <EFX-Util.h>
+#endif
 extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -83,6 +87,7 @@ SoundEngine::~SoundEngine(){
 
 void SoundEngine::setEAXEffect(const std::string& effect){
 #ifndef DISABLE_SOUND
+#ifndef DISABLE_EAX
   if (effect == "off" || effect == "none"){
     alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
   }
@@ -215,6 +220,7 @@ void SoundEngine::setEAXEffect(const std::string& effect){
 		alEffecti(mEffect, AL_EAXREVERB_DECAY_HFLIMIT, efxReverb.iDecayHFLimit);
     alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, mEffect);
   }
+#endif
 #endif
 }
 
