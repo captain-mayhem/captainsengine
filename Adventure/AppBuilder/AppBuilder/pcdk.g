@@ -146,7 +146,6 @@ complex_arg returns [ASTNode* value]
 	(
 		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
 		| MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$MINUS.text->chars);}
-		| INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$INT.text->chars);}
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| GREATER {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$GREATER.text->chars);}
 	)*)
@@ -160,6 +159,7 @@ stdarg returns [IdentNode* value]
 	| LESS {$value = new IdentNode(""); $value->append((char*)$LESS.text->chars);}
 	| RBRACKET {$value = new IdentNode(""); $value->append((char*)$RBRACKET.text->chars);}
 	| DIVIDE {$value = new IdentNode(""); $value->append((char*)$DIVIDE.text->chars);}
+	| INT {$value = new IdentNode(""); $value->append((char*)$INT.text->chars);}
 ;
 
 rel_expr returns [ASTNode* exp]
@@ -251,7 +251,8 @@ ROW	:	'r''o''w';
 TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('.'|',')'0'..'9'+;
-IDENT_PART	:	('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|':'|'\''|'\.'|'&'|TIMES)('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|'&'|TIMES|':')*;
+IDENT_PART	:	('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|':'|'\''|'\.'|'&'|TIMES)
+				('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|'&'|TIMES|':')*;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}
