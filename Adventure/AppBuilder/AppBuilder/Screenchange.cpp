@@ -168,3 +168,43 @@ bool FadeoutScreenChange::update(unsigned interval){
   return true;
 }
 
+ShuttersScreenChange::ShuttersScreenChange(int width, int height, int depth, int duration) : RenderableBlitObject(width, height, depth), mDuration(duration/2), mCurrentTime(0), mShot(depth-1), mClosing(true){
+}
+
+bool ShuttersScreenChange::update(unsigned interval){
+  if (mCurrentTime == 0 && mClosing){
+    mShot.take();
+  }
+
+  float scale;
+  if (mClosing)
+    scale = (mDuration-mCurrentTime)/(float)mDuration*Engine::instance()->getResolution().y;
+  else
+    scale = mCurrentTime/(float)mDuration*Engine::instance()->getResolution().y;
+
+  bind();
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  GL()disable(GL_TEXTURE_2D);
+  glBlendFunc(GL_DST_COLOR, GL_ZERO);
+  GL()color4ub(0, 0, 0, 0);
+  GL()pushMatrix();
+  //GL()translatef(/*mSize.x/2.0f*/0.0f, mSize.y/2.0f, 0.0f);
+  GL()scalef(Engine::instance()->getResolution().x, scale, 1.0f);
+  GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+  GL()popMatrix();
+  GL()enable(GL_TEXTURE_2D);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  unbind();
+  
+  if (mCurrentTime >= mDuration && !mClosing)
+    return false;
+  if (mCurrentTime >= mDuration && mClosing){
+    mCurrentTime = 0;
+    mClosing = false;
+  }
+  mCurrentTime += interval;
+  if (mClosing)
+    mShot.render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
+  render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
+  return true;
+}

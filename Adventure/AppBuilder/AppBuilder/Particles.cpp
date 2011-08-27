@@ -39,8 +39,16 @@ void ParticleEngine::setParticleObject(const std::string& name, float initialRot
 }
 
 void ParticleEngine::activate(bool doit, bool immediately){
-  if (immediately)
-    DebugBreak();
+  if (immediately){
+    if (doit)
+      DebugBreak();
+    else{
+      for (std::list<Particle>::iterator iter = mParticles.begin(); iter != mParticles.end(); ++iter){
+        delete iter->object;
+      }
+      mParticles.clear();
+    }
+  }
   mEnabled = doit;
 }
 
