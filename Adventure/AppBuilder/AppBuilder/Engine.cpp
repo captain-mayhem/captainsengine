@@ -43,7 +43,7 @@ int _stricmp(const char* str1, const char* str2){
 
 Engine* Engine::mInstance = NULL;
 
-Engine::Engine() : mData(NULL), mInitialized(false), mExitRequested(false), mResetRequested(false), mMenuShown(false){
+Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false){
   mVerts[0] = 0; mVerts[1] = 1;
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
@@ -728,6 +728,10 @@ void Engine::doubleClick(const Vec2i& pos){
       script->setEvent(EVT_DBLCLCK);
     }
   }
+}
+
+void Engine::mouseWheel(int delta){
+  mWheelCount += delta;
 }
 
 bool Engine::setFocus(std::string charname, ExecutionContext* reason){

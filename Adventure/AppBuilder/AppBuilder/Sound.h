@@ -25,14 +25,17 @@ public:
   SoundPlayer* getSound(const std::string& name);
   SoundPlayer* getMusic(const std::string& name);
   SoundPlayer* getMovie(const std::string& name);
-  void update();
+  void update(unsigned time);
   void removeSpeaker(CharacterObject* chr);
   std::ostream& save(std::ostream& out);
   std::istream& load(std::istream& in);
   void setMusicVolume(float volume);
+  float getMusicVolume() {return mMusicVolume;}
   void setSpeechVolume(float volume);
   float getSpeechVolume() {return mSpeechVolume;}
   void setEAXEffect(const std::string& effect);
+  void setFadingTime(unsigned time) {mFadingTime = time;}
+  unsigned getFadingTime() {return mFadingTime;}
 #ifndef DISABLE_SOUND
   ALuint getEffectSlot() {return mEffectSlot;}
 #endif
@@ -53,6 +56,7 @@ protected:
   float mMusicVolume;
   float mSpeechVolume;
   bool mEffectEnabled;
+  unsigned mFadingTime;
 };
 
 class SoundPlayer{
@@ -62,12 +66,16 @@ public:
   virtual void play(bool looping)=0;
   virtual void stop()=0;
   void setVolume(float volume);
-  virtual bool update()=0;
+  virtual bool update(unsigned time)=0;
   void setSpeaker(CharacterObject* chr) {mSpeaker = chr;}
   CharacterObject* getSpeaker() {return mSpeaker;}
   void setSuspensionScript(ExecutionContext* ctx);
   void setSpokenString(/*FontRenderer::String*/void* string) {mSpokenString = string;}
+  void fadeVolume(float from, float to, unsigned time);
+  bool isFading() {return mFadeDuration != 0;}
+  std::string getName() {return mName;}
 protected:
+  bool fadeUpdate(unsigned time);
 #ifndef DISABLE_SOUND
   ALuint mSource;
 #endif
@@ -75,6 +83,10 @@ protected:
   ExecutionContext* mSuspensionScript;
   /*FontRenderer::String*/void* mSpokenString;
   std::string mName;
+  float mStartVolume;
+  float mEndVolume;
+  unsigned mFadeDuration;
+  unsigned mCurrTime;
 };
 
 #ifndef DISABLE_SOUND
@@ -85,7 +97,7 @@ public:
   virtual ~SimpleSoundPlayer();
   void play(bool looping);
   void stop();
-  bool update();
+  bool update(unsigned time);
 protected:
 #ifndef DISABLE_SOUND
   ALuint mBuffer;
@@ -104,7 +116,7 @@ public:
   virtual ~StreamSoundPlayer();
   void play(bool looping);
   void stop();
-  bool update();
+  bool update(unsigned time);
 protected:
   unsigned decode();
   void getNextPacket();

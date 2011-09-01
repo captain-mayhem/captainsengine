@@ -104,9 +104,10 @@ void render(){
   GL()loadIdentity();
 
   receiver.processCommands();
-  Engine::instance()->render((int)(CGE::Engine::instance()->getFrameInterval()*1000));
+  unsigned time = (unsigned)(CGE::Engine::instance()->getFrameInterval()*1000);
+  Engine::instance()->render(time);
 
-  SoundEngine::instance()->update();
+  SoundEngine::instance()->update(time);
 }
 
 void mouse_move(int x, int y, int button){
@@ -131,6 +132,10 @@ void mouse_release(int x, int y, int button){
 void double_click(int x, int y, int button){
   Vec2i pos((int)(x/(float)SCREENWIDTH*640), (int)(y/(float)SCREENHEIGHT*480));
   Engine::instance()->doubleClick(pos);
+}
+
+void mouse_wheel(int x, int y, int delta){
+  Engine::instance()->mouseWheel(delta);
 }
 
 void key_press(int key){
@@ -167,5 +172,6 @@ void engineMain(int argc, char** argv){
   Input::Mouse::instance()->setButtonUpCB(mouse_release);
   Input::Mouse::instance()->setMouseMoveCB(mouse_move);
   Input::Mouse::instance()->setDoubleClickCB(double_click);
+  Input::Mouse::instance()->setWheelTurnCB(mouse_wheel);
   Input::Mouse::instance()->showCursor(false);
 }

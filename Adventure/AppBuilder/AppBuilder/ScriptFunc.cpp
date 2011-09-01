@@ -552,15 +552,17 @@ int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
       DebugBreak();
   }
   SoundPlayer* sp = SoundEngine::instance()->getMusic(music);
-  if (sp)
+  if (sp){
     sp->play(true);
+  }
   return 0;
 }
 
 int ScriptFunctions::stopMusic(ExecutionContext& ctx, unsigned numArgs){
   SoundPlayer* sp = SoundEngine::instance()->getMusic("");
-  if (sp)
-    sp->stop();
+  if (sp){
+    sp->fadeVolume(SoundEngine::instance()->getMusicVolume(), 0.0f, SoundEngine::instance()->getFadingTime());
+  }
   return 0;
 }
 
@@ -1270,7 +1272,11 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::fadeSpeed(ExecutionContext& ctx, unsigned numArgs){
-  DebugBreak();
+  int speed = ctx.stack().pop().getInt();
+  if (speed <= 15){
+    speed = 1500-(speed-1)*100;
+  }
+  SoundEngine::instance()->setFadingTime(speed);
   return 0;
 }
 
@@ -1609,6 +1615,24 @@ int ScriptFunctions::isCurrentRoom(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string dir = ctx.stack().pop().getString();
   ctx.stack().push(0);
-  ctx.stack().push(1);
+  int delta = Engine::instance()->getMouseWheelDelta();
+  if (dir == "up"){
+    if (delta > 0){
+      Engine::instance()->setMouseWheelDelta(delta-1);
+      ctx.stack().push(0);
+    }
+    else
+      ctx.stack().push(1);
+  }
+  else if (dir == "down"){
+    if (delta < 0){
+      Engine::instance()->setMouseWheelDelta(delta+1);
+      ctx.stack().push(0);
+    }
+    else
+      ctx.stack().push(1);
+  }
+  else
+    DebugBreak();
   return 2;
 }
