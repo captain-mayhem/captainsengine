@@ -36,6 +36,7 @@ public:
 #ifndef DISABLE_SOUND
   ALuint getEffectSlot() {return mEffectSlot;}
 #endif
+  bool isEffectEnabled() {return mEffectEnabled;}
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
@@ -51,6 +52,7 @@ protected:
   SoundPlayer* mActiveMusic;
   float mMusicVolume;
   float mSpeechVolume;
+  bool mEffectEnabled;
 };
 
 class SoundPlayer{
