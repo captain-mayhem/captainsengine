@@ -34,7 +34,7 @@ LPALEFFECTF alEffectf = NULL;
 LPALEFFECTFV alEffectfv = NULL;
 LPALEFFECTI alEffecti = NULL;
 
-SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mEffectEnabled(false){
+SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mEffectEnabled(false), mFadingTime(300){
   TR_USE(ADV_SOUND_ENGINE);
 #ifndef DISABLE_SOUND
   mDevice = alcOpenDevice(NULL);
@@ -214,8 +214,9 @@ SoundPlayer* SoundEngine::getSound(const std::string& name){
 
 SoundPlayer* SoundEngine::getMusic(const std::string& name){
   SoundPlayer* plyr = NULL;
-  if (name.empty())
+  if (name.empty()){
     return mActiveMusic;
+  }
   //else
   //  plyr = mActiveSounds[name];
   if (plyr)
@@ -223,11 +224,15 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
   DataBuffer db;
   mData->getMusic(name, db);
   plyr = createPlayer(name, db);
-  if (mActiveMusic)
-    delete mActiveMusic;
+  if (mActiveMusic){
+    //crossfade
+    mActiveMusic->fadeVolume(mMusicVolume, 0.0f, mFadingTime);
+    mActiveSounds[mActiveMusic->getName()] = mActiveMusic;
+  }
   mActiveMusic = plyr;
-  if (plyr)
-    plyr->setVolume(mMusicVolume);
+  if (plyr){
+    plyr->fadeVolume(0.0f, mMusicVolume, mFadingTime);
+  }
   return plyr;
 }
 
@@ -261,14 +266,14 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
 #endif
 }
 
-void SoundEngine::update(){
+void SoundEngine::update(unsigned time){
   for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
-    if (iter->second && !iter->second->update()){
+    if (iter->second && !iter->second->update(time)){
       delete iter->second;
       iter->second = NULL;
     }
   }
-  if (mActiveMusic && !mActiveMusic->update()){
+  if (mActiveMusic && !mActiveMusic->update(time)){
     delete mActiveMusic;
     mActiveMusic = NULL;
   }
@@ -286,7 +291,8 @@ void SoundEngine::removeSpeaker(CharacterObject* chr){
 void SoundEngine::setMusicVolume(float volume){
   mMusicVolume = volume;
   if (mActiveMusic != NULL){
-    mActiveMusic->setVolume(volume);
+    if (!mActiveMusic->isFading())
+      mActiveMusic->setVolume(volume);
   }
 }
 
@@ -296,16 +302,18 @@ void SoundEngine::setSpeechVolume(float volume){
 
 std::ostream& SoundEngine::save(std::ostream& out){
   out << mMusicVolume << " " << mSpeechVolume << "\n";
+  out << mFadingTime << "\n";
   return out;
 }
 
 std::istream& SoundEngine::load(std::istream& in){
   in >> mMusicVolume >> mSpeechVolume;
+  in >> mFadingTime;
   return in;
 }
 
 
-SoundPlayer::SoundPlayer(const std::string& name) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), mName(name){
+SoundPlayer::SoundPlayer(const std::string& name) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), mName(name), mStartVolume(1.0f), mEndVolume(1.0f), mFadeDuration(0), mCurrTime(0){
 #ifndef DISABLE_SOUND
   alGenSources(1, &mSource);
   if (SoundEngine::instance()->isEffectEnabled())
@@ -350,6 +358,32 @@ void SoundPlayer::setSuspensionScript(ExecutionContext* ctx){
   mSuspensionScript = ctx;
 }
 
+void SoundPlayer::fadeVolume(float from, float to, unsigned time){
+  mStartVolume = from;
+  mEndVolume = to;
+  mFadeDuration = time;
+  mCurrTime = 0;
+  setVolume(mStartVolume);
+}
+
+bool SoundPlayer::fadeUpdate(unsigned time){
+  if (mFadeDuration == 0)
+    return true;
+  mCurrTime += time;
+  float factor = mCurrTime/(float)mFadeDuration;
+  if (factor > 1.0f)
+    factor = 1.0f;
+  float volume = (1-factor)*mStartVolume + factor * mEndVolume;
+  setVolume(volume);
+  if (mCurrTime >= mFadeDuration){
+    mFadeDuration = 0;
+    if (mEndVolume == 0.0f)
+      stop();
+    return false;
+  }
+  return true;
+}
+
 #ifndef DISABLE_SOUND
 SimpleSoundPlayer::SimpleSoundPlayer(const std::string& name, ALuint buffer) : SoundPlayer(name), mBuffer(buffer){
   alSourcei(mSource, AL_BUFFER, buffer);
@@ -369,7 +403,8 @@ void SimpleSoundPlayer::stop(){
   alSourceStop(mSource);
 }
 
-bool SimpleSoundPlayer::update(){
+bool SimpleSoundPlayer::update(unsigned time){
+  fadeUpdate(time);
   ALint state;
   alGetSourcei(mSource, AL_SOURCE_STATE, &state);
   if (state == AL_STOPPED)
@@ -626,7 +661,8 @@ void StreamSoundPlayer::stop(){
   //VHALIGNCALL16(av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY));
 }
 
-bool StreamSoundPlayer::update(){
+bool StreamSoundPlayer::update(unsigned time){
+  fadeUpdate(time);
   ALint processed;
   ALint queued;
   alGetSourcei(mSource, AL_BUFFERS_PROCESSED, &processed);

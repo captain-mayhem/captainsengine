@@ -73,6 +73,9 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
     case WM_RBUTTONDBLCLK:
       Input::Mouse::instance()->doubleClick((int)LOWORD(lparam), (int)HIWORD(lparam), MK_RBUTTON);
       return 0;
+    case WM_MOUSEWHEEL:
+      Input::Mouse::instance()->wheel((int)LOWORD(lparam), (int)HIWORD(lparam), GET_WHEEL_DELTA_WPARAM(wparam)/120);
+      return 0;
     default:
       break;
   }

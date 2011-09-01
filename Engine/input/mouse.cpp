@@ -25,6 +25,7 @@ Mouse::Mouse(){
   buttonDownCB_ = NULL;
   buttonUpCB_ = NULL;
   moveCB_ = NULL;
+  wheelCB_ = NULL;
   mousePointer_ = true;
   pressed_[0] = false;
   pressed_[1] = false;
@@ -192,6 +193,18 @@ void Mouse::move(int x, int y, int buttons){
   mousePos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
   if (moveCB_)
     moveCB_(x, y, buttons);
+}
+
+void Mouse::wheel(int x, int y, int delta){
+  if (!CGE::Engine::instance())
+    return;
+  AppWindow* wnd = CGE::Engine::instance()->getWindow();
+  if (!wnd)
+    return;
+  mousePos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
+  mousePos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
+  if (wheelCB_)
+    wheelCB_(x, y, delta);
 }
 
 void Mouse::showCursor(bool visible){

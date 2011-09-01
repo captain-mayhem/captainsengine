@@ -40,6 +40,7 @@ public:
   void leftRelease(const Vec2i& pos);
   void rightClick(const Vec2i& pos);
   void doubleClick(const Vec2i& pos);
+  void mouseWheel(int delta);
   bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason);
   void unloadRoom(RoomObject* room, bool mainroom);
   bool setFocus(std::string charname, ExecutionContext* reason);
@@ -92,6 +93,8 @@ public:
   ParticleEngine* getParticleEngine() {return mParticleEngine;}
   void remove(Object2D* obj);
   void enterText(const std::string& variable, int maxcharacters, ExecutionContext* suspensionReason);
+  int getMouseWheelDelta() {return mWheelCount;}
+  void setMouseWheelDelta(int delta) {mWheelCount = delta;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -157,6 +160,7 @@ protected:
   ExecutionContext* mMainScript;
   bool mKeysDown[256];
   bool mKeysPressed[256];
+  int mWheelCount;
   bool mExitRequested;
   bool mResetRequested;
   exit_callback mExitCall;

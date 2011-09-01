@@ -1,6 +1,7 @@
 #ifndef CGE_ENGINE_H
 #define CGE_ENGINE_H
 
+#define _WIN32_WINNT 0x0500
 #include <iostream>
 #include <fstream>
 #include <string>
