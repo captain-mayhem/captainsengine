@@ -9,8 +9,9 @@
 #else
 #include <efx.h>
 #include <efx-creative.h>
-#include <EFX-Util.h>
+//#include <EFX-Util.h>
 #endif
+#include "EFXeffects.h"
 extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -33,7 +34,7 @@ LPALEFFECTF alEffectf = NULL;
 LPALEFFECTFV alEffectfv = NULL;
 LPALEFFECTI alEffecti = NULL;
 
-SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f){
+SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mEffectEnabled(false){
   TR_USE(ADV_SOUND_ENGINE);
 #ifndef DISABLE_SOUND
   mDevice = alcOpenDevice(NULL);
@@ -89,112 +90,88 @@ void SoundEngine::setEAXEffect(const std::string& effect){
 #ifndef DISABLE_SOUND
 #ifndef DISABLE_EAX
   if (effect == "off" || effect == "none"){
-    alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, AL_EFFECT_NULL);
+    mEffectEnabled = false;
   }
   else{
-    EFXEAXREVERBPROPERTIES efxReverb;
+    EFXREVERBPROPERTIES efxReverb;
     if (effect == "paddedcell"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_PADDEDCELL;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_PADDEDCELL;
     }
     else if (effect == "livingroom"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_LIVINGROOM;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_LIVINGROOM;
     }
     else if (effect == "cave"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_CAVE;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_CAVE;
     }
     else if (effect == "carpetedhallway"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_CARPETTEDHALLWAY;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_CARPETTEDHALLWAY;
     }
     else if (effect == "alley"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_ALLEY;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_ALLEY;
     }
     else if (effect == "mountains"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_MOUNTAINS;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_MOUNTAINS;
     }
     else if (effect == "parkinglot"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_PARKINGLOT;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_PARKINGLOT;
     }
     else if (effect == "drugged"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_DRUGGED;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_DRUGGED;
     }
     else if (effect == "concerthall"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_CONCERTHALL;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_CONCERTHALL;
     }
     else if (effect == "room"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_ROOM;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_ROOM;
     }
     else if (effect == "stoneroom"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_STONEROOM;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_STONEROOM;
     }
     else if (effect == "arena"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_ARENA;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb =  REVERB_PRESET_ARENA;
     }
     else if (effect == "hallway"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_HALLWAY;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_HALLWAY;
     }
     else if (effect == "forest"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_FOREST;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_FOREST;
     }
     else if (effect == "quarry"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_QUARRY;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_QUARRY;
     }
     else if (effect == "sewerpipe"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_SEWERPIPE;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_SEWERPIPE;
     }
     else if (effect == "dizzy"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_DIZZY;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_DIZZY;
     }
     else if (effect == "bathroom"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_BATHROOM;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_BATHROOM;
     }
     else if (effect == "auditorium"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_AUDITORIUM;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_AUDITORIUM;
     }
     else if (effect == "hangar"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_HANGAR;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_HANGAR;
     }
     else if (effect == "stonecorridor"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_STONECORRIDOR;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_STONECORRIDOR;
     }
     else if (effect == "city"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_CITY;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_CITY;
     }
     else if (effect == "plain"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_PLAIN;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_PLAIN;
     }
     else if (effect == "underwater"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_UNDERWATER;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_UNDERWATER;
     }
     else if (effect == "psychotic"){
-      EAXREVERBPROPERTIES props = REVERB_PRESET_PSYCHOTIC;
-      ConvertReverbParameters(&props, &efxReverb);
+      efxReverb = REVERB_PRESET_PSYCHOTIC;
     }
     else
       DebugBreak();
+    mEffectEnabled = true;
     alEffectf(mEffect, AL_EAXREVERB_DENSITY, efxReverb.flDensity);
     alEffectf(mEffect, AL_EAXREVERB_DIFFUSION, efxReverb.flDiffusion);
     alEffectf(mEffect, AL_EAXREVERB_GAIN, efxReverb.flGain);
@@ -331,7 +308,8 @@ std::istream& SoundEngine::load(std::istream& in){
 SoundPlayer::SoundPlayer(const std::string& name) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), mName(name){
 #ifndef DISABLE_SOUND
   alGenSources(1, &mSource);
-  alSource3i(mSource, AL_AUXILIARY_SEND_FILTER, SoundEngine::instance()->getEffectSlot(), 0, AL_FILTER_NULL);
+  if (SoundEngine::instance()->isEffectEnabled())
+    alSource3i(mSource, AL_AUXILIARY_SEND_FILTER, SoundEngine::instance()->getEffectSlot(), 0, AL_FILTER_NULL);
 #endif
 }
 
