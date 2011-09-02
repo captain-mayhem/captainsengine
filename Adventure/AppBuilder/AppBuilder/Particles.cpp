@@ -10,7 +10,8 @@
 using namespace std;
 
 ParticleEngine::ParticleEngine(AdvDocument* data) : mData(data), mParticleObject(NULL), mDir(0,1), 
-mMaxParticles(200), mRotAngle(0), mSpeedVariation(0), mEnabled(false), mEmissionInterval(20), mTimeCount(0){
+mMaxParticles(200), mRotAngle(0), mSpeedVariation(0), mEnabled(false), mEmissionInterval(20), 
+mTimeCount(0), mParticleDepth(DEPTH_PARTICLES_TOP){
 }
 
 ParticleEngine::~ParticleEngine(){
@@ -29,7 +30,7 @@ void ParticleEngine::setParticleObject(const std::string& name, float initialRot
   delete mParticleObject;
   mParticleObject = new Object2D(1, Vec2i(100,100), obj->size, obj->name);
   for (unsigned j = 0; j < obj->states.size(); ++j){
-    Animation* anim = new Animation(obj->states[j].frames, obj->states[j].fps, DEPTH_PARTICLES);
+    Animation* anim = new Animation(obj->states[j].frames, obj->states[j].fps, mParticleDepth);
     mParticleObject->addAnimation(anim);
   }
   mParticleObject->setRotation(initialRotation);
@@ -39,9 +40,13 @@ void ParticleEngine::setParticleObject(const std::string& name, float initialRot
 }
 
 void ParticleEngine::activate(bool doit, bool immediately){
+  mEnabled = doit;
   if (immediately){
-    if (doit)
-      DebugBreak();
+    if (doit){
+      for (int i = 0; i < 100; ++i){
+        update(50, false);
+      }
+    }
     else{
       for (std::list<Particle>::iterator iter = mParticles.begin(); iter != mParticles.end(); ++iter){
         delete iter->object;
@@ -49,10 +54,9 @@ void ParticleEngine::activate(bool doit, bool immediately){
       mParticles.clear();
     }
   }
-  mEnabled = doit;
 }
 
-void ParticleEngine::update(unsigned time){
+void ParticleEngine::update(unsigned time, bool render){
   mTimeCount += time;
   while (mTimeCount > mEmissionInterval){
     addParticle();
@@ -78,7 +82,8 @@ void ParticleEngine::update(unsigned time){
         if (iter == mParticles.end())
           break;
     }
-    iter->object->render();
+    if (render)
+      iter->object->render();
   }
 }
 
@@ -119,7 +124,7 @@ void ParticleEngine::addParticle(){
 }
 
 std::ostream& ParticleEngine::save(std::ostream& out){
-  out << mDir.x << " " << mDir.y << " " << mMaxParticles << " " << mRotAngle << " " << mSpeedVariation << " " << mEnabled << "\n";
+  out << mDir.x << " " << mDir.y << " " << mMaxParticles << " " << mRotAngle << " " << mSpeedVariation << " " << mEnabled << " " << mParticleDepth << "\n";
   if (mParticleObject != NULL){
     out << mParticleObject->getName() << " " << mParticleObject->getRotation();
   }
@@ -128,7 +133,7 @@ std::ostream& ParticleEngine::save(std::ostream& out){
 }
 
 std::istream& ParticleEngine::load(std::istream& in){
-  in >> mDir.x >> mDir.y >> mMaxParticles >> mRotAngle >> mSpeedVariation >> mEnabled;
+  in >> mDir.x >> mDir.y >> mMaxParticles >> mRotAngle >> mSpeedVariation >> mEnabled >> mParticleDepth;
   std::string name;
   in >> name;
   if (!name.empty()){
@@ -137,4 +142,10 @@ std::istream& ParticleEngine::load(std::istream& in){
     setParticleObject(name, rot);
   }
   return in;
+}
+
+void ParticleEngine::setDepth(int depth){
+  mParticleDepth = depth;
+  if (mParticleObject)
+    mParticleObject->setDepth(depth);
 }

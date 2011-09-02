@@ -457,10 +457,10 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   }
   Room* rm = mData->getRoom(name);
   RoomObject* roomobj = new RoomObject(save->base.state, save->base.position, room->size, room->name, rm->depthmap);
-  roomobj->setParallaxBackground(room->parallaxbackground, depthoffset-2);
+  roomobj->setParallaxBackground(room->parallaxbackground, depthoffset+DEPTH_PARALLAX_BACKGROUND);
   //anywhere room is not allowed to have background
   if (_stricmp(room->name.c_str(), mData->getProjectSettings()->anywhere_room.c_str()) != 0)
-    roomobj->setBackground(room->background, depthoffset-1);
+    roomobj->setBackground(room->background, depthoffset+DEPTH_BACKGROUND);
   roomobj->setLightingColor(save->overlaylighting);
   roomobj->setOpacity(save->base.lighting.a);
   roomobj->setWalkmap(room->walkmap);
@@ -483,11 +483,11 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
     //calculate render depth
     int depth;
     if (room->objects[i].layer == 0)
-      depth = 0;
+      depth = DEPTH_BACK_OBJECTS;
     else if (room->objects[i].layer == 1)
       depth = room->objects[i].wm_depth-1;
     else
-      depth = 990;
+      depth = DEPTH_FRONT_OBJECTS;
     //object->setScale(roomobj->getDepthScale(saveobj->position));
     for (unsigned j = 0; j < o->states.size(); ++j){
       Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth+depthoffset);

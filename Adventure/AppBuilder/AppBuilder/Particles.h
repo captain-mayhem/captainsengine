@@ -18,12 +18,13 @@ class ParticleEngine{
 public:
   ParticleEngine(AdvDocument* data);
   ~ParticleEngine();
-  void update(unsigned time);
+  void update(unsigned time, bool render=true);
   void setParticleObject(const std::string& name, float initialRotation);
   void setDirection(Vec2f dir) {mDir = dir;}
   void setMaxParticles(int maxParticles) {mMaxParticles = maxParticles;}
   void setRotation(float angle) {mRotAngle = angle;}
   void setSpeedVariation(float variation) {mSpeedVariation = variation;}
+  void setDepth(int depth);
   void activate(bool doit, bool immediately);
   std::ostream& save(std::ostream& out);
   std::istream& load(std::istream& in);
@@ -39,6 +40,7 @@ protected:
   std::list<Particle> mParticles;
   unsigned mEmissionInterval;
   unsigned mTimeCount;
+  int mParticleDepth;
 };
 
 #endif
