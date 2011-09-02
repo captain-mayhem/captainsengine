@@ -1390,8 +1390,38 @@ int ScriptFunctions::breakExec(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::particleView(ExecutionContext& ctx, unsigned numArgs){
-  int view = ctx.stack().pop().getInt();
-  //TODO
+  StackData view = ctx.stack().pop();
+  int viewnum = 0;
+  if (view.isString()){
+    std::string val = view.getString();
+    if (val == "behindfront")
+      viewnum = 2;
+    else if (val == "back")
+      viewnum = 4;
+    else
+      DebugBreak();
+  }
+  else
+    viewnum = view.getInt();
+  int depth = 0;
+  switch(viewnum){
+    case 1:
+      depth = DEPTH_PARTICLES_TOP;
+      break;
+    case 2:
+      depth = DEPTH_PARTICLES_FRONT;
+      break;
+    case 3:
+      depth = DEPTH_PARTICLES_MIDDLE;
+      break;
+    case 4:
+      depth = DEPTH_PARTICLES_BACK;
+      break;
+    default:
+      DebugBreak();
+      break;
+  }
+  Engine::instance()->getParticleEngine()->setDepth(depth);
   return 0;
 }
 
