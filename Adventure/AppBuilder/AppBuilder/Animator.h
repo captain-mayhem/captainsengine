@@ -6,6 +6,7 @@
 #include "AdvDoc.h"
 
 class Object2D;
+class RoomObject;
 class DynamicAnimation;
 struct Color;
 
@@ -27,6 +28,7 @@ public:
   void clear();
   void add(DynamicAnimation* anim);
   void add(Object2D* obj, const Color& targetcolor);
+  void add(RoomObject* obj, Vec2i scrollpos);
 protected:
   std::map<Object2D*, ObjectAnim> mObjects;
   std::list<DynamicAnimation*> mAnimations;

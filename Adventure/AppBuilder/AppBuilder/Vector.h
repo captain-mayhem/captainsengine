@@ -67,10 +67,17 @@ struct Vec2i{
 struct Vec2f{
   Vec2f() : x(0), y(0) {}
   Vec2f(float x, float y) {this->x = x; this->y = y;}
+  Vec2f(const Vec2i& v) {x = (float)v.x; y = (float)v.y;}
   Vec2f& operator+=(const Vec2f& v){
     x += v.x;
     y += v.y;
     return *this;
+  }
+  Vec2f operator-(const Vec2f& v) const{
+    Vec2f result;
+    result.x = x-v.x;
+    result.y = y-v.y;
+    return result;
   }
   Vec2f operator*(float num) const{
     Vec2f result;
@@ -80,6 +87,11 @@ struct Vec2f{
   }
   float length(){
     return sqrt(x*x+y*y);
+  }
+  void normalize(){
+    float len = length();
+    x /= len;
+    y /= len;
   }
   float x;
   float y;
