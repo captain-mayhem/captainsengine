@@ -507,6 +507,11 @@ void RoomObject::setScrollOffset(const Vec2i& offset){
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     (*iter)->setScrollOffset(mScrollOffset);
   }
+  if (Engine::instance()->getRoom("") == this){
+    CharacterObject* chr = Engine::instance()->getCharacter("self");
+    if (chr)
+      chr->setScrollOffset(mScrollOffset);
+  }
 }
 
 void RoomObject::save(){

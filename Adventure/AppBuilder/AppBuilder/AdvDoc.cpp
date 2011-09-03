@@ -59,6 +59,8 @@ bool AdvDocument::loadDocument(const std::string filename){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
+  rdr = zrdr.openEntry("game.004");
+  loadFile4(rdr);
   rdr = zrdr.openEntry("game.005");
   if(!loadFile5(rdr)){
     mZipPwd = "";
@@ -562,6 +564,52 @@ bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
     else{
       mLastScript->text += str + "\n";
     }
+  }
+  return true;
+}
+
+bool AdvDocument::loadFile4(CGE::MemReader& txtstream){
+  std::string language;
+  Language::Section section;
+  while (txtstream.isWorking()){
+    std::string str = txtstream.readLine();
+    if (str.substr(0, 3) == "*/*"){
+      int idx = str.find(';');
+      language = str.substr(3, idx-3);
+      std::string sectionstr = str.substr(idx+1);
+      if (sectionstr == "speech"){
+        section = Language::SPEECH;
+      }
+      else if (sectionstr == "voicespeech"){
+        section = Language::SPEECH_SOUNDS;
+      }
+      else if (sectionstr == "offspeech"){
+        section = Language::OFFSPEECH;
+      }
+      else if (sectionstr == "voiceoffspeech"){
+        section = Language::OFFSPEECH_SOUNDS;
+      }
+      else if (sectionstr == "showinfo"){
+        section = Language::SHOWINFO;
+      }
+      else if (sectionstr == "textout"){
+        section = Language::TEXTOUT;
+      }
+      else if (sectionstr == "setstring"){
+        section = Language::SETSTRING;
+      }
+      else if (sectionstr == "row"){
+        section = Language::TEXTSCENES;
+      }
+      else if (sectionstr == "kommandos"){
+        section = Language::COMMANDS;
+      }
+      else{
+        DebugBreak();
+      }
+      continue;
+    }
+    mLanguages[language].sections[section].push_back(str);
   }
   return true;
 }

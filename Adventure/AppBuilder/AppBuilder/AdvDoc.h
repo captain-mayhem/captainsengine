@@ -217,6 +217,22 @@ struct DataBuffer{
   unsigned used;
 };
 
+struct Language{
+  enum Section{
+    SPEECH=0,
+    SPEECH_SOUNDS,
+    OFFSPEECH,
+    OFFSPEECH_SOUNDS,
+    SHOWINFO,
+    TEXTOUT,
+    SETSTRING,
+    TEXTSCENES,
+    COMMANDS,
+    NUM_SECTIONS
+  };
+  std::vector<std::string> sections[NUM_SECTIONS];
+};
+
 class AdvDocument{
 public:
   AdvDocument();
@@ -243,6 +259,7 @@ protected:
   bool loadFile1(CGE::MemReader& txtstream);
   bool loadFile2(CGE::MemReader& txtstream);
   bool loadFile3(CGE::MemReader& txtstream);
+  bool loadFile4(CGE::MemReader& txtstream);
   bool loadFile5(CGE::MemReader& txtstream);
   float readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames& frms);
   ProjectSettings mSettings;
@@ -264,6 +281,7 @@ protected:
   std::string mFilename;
   bool mUseCompressedData;
   std::string mZipPwd;
+  std::map<std::string, Language> mLanguages;
 };
 
 #endif

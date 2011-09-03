@@ -148,3 +148,32 @@ void Animator::add(Object2D* obj, const Color& targetcolor){
   ColorAnimation* ca = new ColorAnimation(obj->getLightingColor(), targetcolor, obj);
   add(ca);
 }
+
+class ScrollAnimation : public DynamicAnimation{
+public:
+  ScrollAnimation(RoomObject* room, Vec2i target, float speed) : mRoom(room), 
+    mDir(target-mRoom->getScrollOffset()), mCurrPos(mRoom->getScrollOffset()), 
+    mTarget(target), mSpeed(speed){
+    mDir.normalize();
+  }
+  virtual bool update(unsigned interval){
+    if ((mCurrPos-mTarget).length() < 0.5){
+      mRoom->setScrollOffset(mTarget);
+      return false;
+    }
+    mCurrPos += mDir*interval*mSpeed;
+    mRoom->setScrollOffset(Vec2i((int)mCurrPos.x, (int)mCurrPos.y));
+    return true;
+  }
+private:
+  RoomObject* mRoom;
+  Vec2f mDir;
+  Vec2f mCurrPos;
+  Vec2i mTarget;
+  float mSpeed;
+};
+
+void Animator::add(RoomObject* obj, Vec2i scrollpos){
+  ScrollAnimation* sa = new ScrollAnimation(obj, scrollpos, 0.1f);
+  add(sa);
+}

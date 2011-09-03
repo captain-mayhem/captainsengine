@@ -1361,14 +1361,20 @@ int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
-  std::string room = ctx.stack().pop().getString();
+  std::string roomname = ctx.stack().pop().getString();
   Vec2i pos;
   pos.x = ctx.stack().pop().getInt();
   pos.y = ctx.stack().pop().getInt();
-  std::string dir = ctx.stack().pop().getString();
+  pos = pos * -Engine::instance()->getWalkGridSize();
+  bool dontscroll = ctx.stack().pop().getBool();
   if (numArgs > 4)
     DebugBreak();
-  //DebugBreak();
+  //std::string dir = ctx.stack().pop().getString();
+  RoomObject* room = Engine::instance()->getRoom(roomname);
+  if (dontscroll || ctx.isSkipping())
+    room->setScrollOffset(pos);
+  else
+    Engine::instance()->getAnimator()->add(room, pos);
   return 0;
 }
 
