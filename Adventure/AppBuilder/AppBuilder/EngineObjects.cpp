@@ -370,6 +370,7 @@ Object2D(state, pos, size, name), mInventroy(NULL), mDepthMap(depthmap){
 }
 
 RoomObject::~RoomObject(){
+  Engine::instance()->getAnimator()->remove(this);
   for (unsigned i = 0; i < mObjects.size(); ++i){
     delete mObjects[i];
   }

@@ -1374,7 +1374,7 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
   if (dontscroll || ctx.isSkipping())
     room->setScrollOffset(pos);
   else
-    Engine::instance()->getAnimator()->add(room, pos);
+    Engine::instance()->getAnimator()->add(room, pos, 0.1f);
   return 0;
 }
 

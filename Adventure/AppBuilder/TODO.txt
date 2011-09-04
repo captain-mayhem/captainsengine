@@ -8,7 +8,6 @@ module sounds | 5
 group (use in setobj/moveobj) | 3
 playswf/stopswf | 2
 saving (sound, timer, textout) | 2
-room scrolling when focussing chars | 2
 setlanguage | 3
 
 D:\pcdk\Sinnlos im Weltraum - The First Adventure\Sinnlos im Weltraum - The First Adventure\data\game.dat

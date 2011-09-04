@@ -19,19 +19,27 @@ class Animator{
     float normalization;
     float factor;
   };
+  struct RoomAnim{
+    Vec2f dir;
+    Vec2f currPos;
+    Vec2i target;
+    float speed;
+  };
 public:
   Animator();
   ~Animator();
   void add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedfactor);
   void remove(Object2D* obj);
+  void remove(RoomObject* room);
   void update(unsigned interval);
   void clear();
   void add(DynamicAnimation* anim);
   void add(Object2D* obj, const Color& targetcolor);
-  void add(RoomObject* obj, Vec2i scrollpos);
+  void add(RoomObject* obj, Vec2i scrollpos, float speed);
 protected:
   std::map<Object2D*, ObjectAnim> mObjects;
   std::list<DynamicAnimation*> mAnimations;
+  std::map<RoomObject*, RoomAnim> mRooms;
 };
 
 #endif
