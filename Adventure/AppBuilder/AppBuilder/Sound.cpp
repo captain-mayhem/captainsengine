@@ -246,6 +246,8 @@ SoundPlayer* SoundEngine::getMovie(const std::string& name){
 
 SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer& db){
 #ifndef DISABLE_SOUND
+  if (db.data == NULL)
+    return NULL;
   char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir
 #ifdef WIN32

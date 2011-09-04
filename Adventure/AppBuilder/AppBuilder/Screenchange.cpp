@@ -189,7 +189,7 @@ bool ShuttersScreenChange::update(unsigned interval){
   GL()color4ub(0, 0, 0, 0);
   GL()pushMatrix();
   //GL()translatef(/*mSize.x/2.0f*/0.0f, mSize.y/2.0f, 0.0f);
-  GL()scalef(Engine::instance()->getResolution().x, scale, 1.0f);
+  GL()scalef((float)Engine::instance()->getResolution().x, scale, 1.0f);
   GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
   GL()popMatrix();
   GL()enable(GL_TEXTURE_2D);

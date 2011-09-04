@@ -345,10 +345,11 @@ void Engine::render(unsigned time){
   }*/
 
   //scrolling
-  if (mRooms.size() > 0 && mFocussedChar && mInterpreter->isBlockingScriptRunning()){
+  if (mRooms.size() > 0 && mFocussedChar && !mInterpreter->isBlockingScriptRunning()){
     mScrollOffset = mData->getProjectSettings()->resolution/2-
       (mFocussedChar->getPosition()-Vec2i(0,mFocussedChar->getSize().y/2));
-    mRooms.back()->setScrollOffset(mScrollOffset); //this function limits the scrolling
+    //mRooms.back()->setScrollOffset(mScrollOffset); //this function limits the scrolling
+    mAnimator->add(mRooms.back(), mScrollOffset, 0.25f);
     mScrollOffset = mRooms.back()->getScrollOffset();
     //mFocussedChar->setScrollOffset(mScrollOffset);
   }

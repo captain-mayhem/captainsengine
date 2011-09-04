@@ -56,6 +56,13 @@ void Animator::remove(Object2D* obj){
   }
 }
 
+void Animator::remove(RoomObject* room){
+  std::map<RoomObject*,RoomAnim>::iterator iter = mRooms.find(room);
+  if (iter != mRooms.end()){
+    mRooms.erase(iter);
+  }
+}
+
 void Animator::update(unsigned interval){
   for (std::map<Object2D*, ObjectAnim>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     iter->second.factor += interval*iter->second.speedfactor/20.f;
@@ -99,6 +106,17 @@ void Animator::update(unsigned interval){
       if (iter == mAnimations.end())
         break;
     }
+  }
+
+  for (std::map<RoomObject*, RoomAnim>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    if ((iter->second.currPos-iter->second.target).length() < 0.5){
+      iter->first->setScrollOffset(iter->second.target);
+      iter = mRooms.erase(iter);
+      if (iter == mRooms.end())
+        break;
+    }
+    iter->second.currPos += iter->second.dir*(float)interval*iter->second.speed;
+    iter->first->setScrollOffset(Vec2i((int)iter->second.currPos.x, (int)iter->second.currPos.y));
   }
 }
 
@@ -149,31 +167,12 @@ void Animator::add(Object2D* obj, const Color& targetcolor){
   add(ca);
 }
 
-class ScrollAnimation : public DynamicAnimation{
-public:
-  ScrollAnimation(RoomObject* room, Vec2i target, float speed) : mRoom(room), 
-    mDir(target-mRoom->getScrollOffset()), mCurrPos(mRoom->getScrollOffset()), 
-    mTarget(target), mSpeed(speed){
-    mDir.normalize();
-  }
-  virtual bool update(unsigned interval){
-    if ((mCurrPos-mTarget).length() < 0.5){
-      mRoom->setScrollOffset(mTarget);
-      return false;
-    }
-    mCurrPos += mDir*interval*mSpeed;
-    mRoom->setScrollOffset(Vec2i((int)mCurrPos.x, (int)mCurrPos.y));
-    return true;
-  }
-private:
-  RoomObject* mRoom;
-  Vec2f mDir;
-  Vec2f mCurrPos;
-  Vec2i mTarget;
-  float mSpeed;
-};
-
-void Animator::add(RoomObject* obj, Vec2i scrollpos){
-  ScrollAnimation* sa = new ScrollAnimation(obj, scrollpos, 0.1f);
-  add(sa);
+void Animator::add(RoomObject* obj, Vec2i scrollpos, float speed){
+  RoomAnim anim;
+  anim.dir = scrollpos-obj->getScrollOffset();
+  anim.dir.normalize();
+  anim.currPos = obj->getScrollOffset();
+  anim.target = scrollpos;
+  anim.speed = speed;
+  mRooms[obj] = anim;
 }
