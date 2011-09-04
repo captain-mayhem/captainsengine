@@ -178,20 +178,24 @@ bool ShuttersScreenChange::update(unsigned interval){
 
   float scale;
   if (mClosing)
-    scale = (mDuration-mCurrentTime)/(float)mDuration*Engine::instance()->getResolution().y;
+    scale = (mDuration-mCurrentTime)/(float)mDuration;//*Engine::instance()->getResolution().y;
   else
-    scale = mCurrentTime/(float)mDuration*Engine::instance()->getResolution().y;
+    scale = mCurrentTime/(float)mDuration;//*Engine::instance()->getResolution().y;
 
   bind();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   GL()disable(GL_TEXTURE_2D);
   glBlendFunc(GL_DST_COLOR, GL_ZERO);
   GL()color4ub(0, 0, 0, 0);
-  GL()pushMatrix();
-  //GL()translatef(/*mSize.x/2.0f*/0.0f, mSize.y/2.0f, 0.0f);
-  GL()scalef((float)Engine::instance()->getResolution().x, scale, 1.0f);
-  GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  GL()popMatrix();
+  static const int numshutters = 10;
+  for (int i = 0; i < numshutters; ++i){
+    float posscale = 2-(i/(numshutters-1.0f));
+    GL()pushMatrix();
+    GL()translatef(0.0f, i*mSize.y/(float)numshutters, 0.0f);
+    GL()scalef((float)Engine::instance()->getResolution().x, mSize.y/(float)numshutters*scale*posscale, 1.0f);
+    GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    GL()popMatrix();
+  }
   GL()enable(GL_TEXTURE_2D);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   unbind();

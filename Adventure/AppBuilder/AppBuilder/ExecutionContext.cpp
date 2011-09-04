@@ -1,6 +1,8 @@
 #include "ExecutionContext.h"
 #include "Engine.h"
 
+TR_CHANNEL_LVL(ADV_ExectionContext, TRACE_INFO);
+
 void CodeSegment::removeLast(){
   delete mCodes.back();
   mCodes.pop_back();
@@ -34,6 +36,15 @@ ExecutionContext::~ExecutionContext(){
 }
 
 void ExecutionContext::setEvent(EngineEvent evt){
+  TR_USE(ADV_ExectionContext);
+  if (evt == EVT_LOOP1 || evt == EVT_LOOP2){ //don't add loop events multiple times
+    for (std::list<EngineEvent>::iterator iter = mEvents.begin(); iter != mEvents.end(); ++iter){
+      if (*iter == evt)
+        return;
+    }
+  }
+  if (mEvents.size() > 20)
+    TR_WARN("Event %i added even though %i events remained unhandled", evt, mEvents.size());
   //if (!mSuspended)
   mEvents.push_back(evt);
 }
