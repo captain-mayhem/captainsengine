@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <system/types.h>
 #include "player.h"
 #include "admin.h"
 #include "../HQClient/common.h"
@@ -25,7 +26,7 @@ using std::ifstream;
 
 Player::Player(ServerSocket* ss){
   sock = ss;
-  name = "guest"+toStr((int)(int64_t)ss);
+  name = "guest"+toStr((int)(int64)ss);
   lastCreat_ = NULL;
 }
 

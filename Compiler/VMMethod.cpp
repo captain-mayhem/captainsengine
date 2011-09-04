@@ -5,7 +5,9 @@
 #include <cstring>
 #include <float.h>
 #include <math.h>
+#ifndef WIN32
 #include <alloca.h>
+#endif
 
 #include "JavaDefs.h"
 #include "VMclass.h"
