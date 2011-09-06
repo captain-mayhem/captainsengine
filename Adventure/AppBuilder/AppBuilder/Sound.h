@@ -11,6 +11,7 @@
 #include "ExecutionContext.h"
 
 class SoundPlayer;
+class VideoPlayer;
 class AdvDocument;
 class CharacterObject;
 class ExecutionContext;
@@ -24,7 +25,7 @@ public:
   void setData(AdvDocument* doc){mData = doc;}
   SoundPlayer* getSound(const std::string& name);
   SoundPlayer* getMusic(const std::string& name);
-  SoundPlayer* getMovie(const std::string& name);
+  VideoPlayer* getMovie(const std::string& name);
   void update(unsigned time);
   void removeSpeaker(CharacterObject* chr);
   std::ostream& save(std::ostream& out);
@@ -43,6 +44,7 @@ public:
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
+  VideoPlayer* createVideoPlayer(const std::string& name, const DataBuffer& db);
   static SoundEngine* mInstance;
   AdvDocument* mData;
 #ifndef DISABLE_SOUND
@@ -134,6 +136,40 @@ protected:
   DataBuffer mALBuffer;
   bool mLooping;
   bool mStop;
+
+  /*AVCodecContext* mVidCodecContext;
+  AVCodec* mVidCodec;
+  AVFrame* mFrame;
+  AVFrame* mFrameRGB;
+  SwsContext* mScaler;
+  int mVidStreamNum;
+  DataBuffer mVidDataBuffer;*/
+};
+
+class VideoPlayer : public StreamSoundPlayer{
+public:
+  VideoPlayer(const std::string& videoname, const std::string& filename);
+  virtual ~VideoPlayer();
+  //void play(bool looping);
+  //void stop();
+  //bool update(unsigned time);
+protected:
+  /*unsigned decode();
+  void getNextPacket();
+  void openStream();
+  void closeStream();
+  ALuint mBuffers[3];
+  ALenum mPCMFormat;
+  std::string mFilename;
+  AVFormatContext* mFormat;
+  AVCodecContext* mCodecContext;
+  AVCodec* mCodec;
+  int mStreamNum;
+  DataBuffer mDataBuffer;
+  DataBuffer mDecodeBuffer;
+  DataBuffer mALBuffer;
+  bool mLooping;
+  bool mStop;*/
 
   AVCodecContext* mVidCodecContext;
   AVCodec* mVidCodec;

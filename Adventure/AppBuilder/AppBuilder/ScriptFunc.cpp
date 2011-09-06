@@ -121,6 +121,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("break", breakExec);
   interpreter->registerFunction("particleview", particleView);
   interpreter->registerFunction("texthide", textHide);
+  interpreter->registerFunction("playavi", playVideo);
+  interpreter->registerFunction("moviewait", wait);
+  interpreter->registerFunction("stopavi", stopSwf);
   srand((unsigned)time(NULL));
 }
 
@@ -1018,6 +1021,32 @@ int ScriptFunctions::playSwf(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::stopSwf(ExecutionContext& ctx, unsigned numArgs){
+  return 0;
+}
+
+int ScriptFunctions::playVideo(ExecutionContext& ctx, unsigned numArgs){
+  std::string moviename = ctx.stack().pop().getString();
+  bool suspend = ctx.stack().pop().getBool();
+  int x = 0;
+  int y = 0;
+  int width = Engine::instance()->getSettings()->resolution.x;
+  int height = Engine::instance()->getSettings()->resolution.y;
+  if (numArgs >= 3){
+    x = ctx.stack().pop().getInt();
+  }
+  if (numArgs >= 4){
+    y = ctx.stack().pop().getInt();
+  }
+  if (numArgs >= 5){
+    width = ctx.stack().pop().getInt();
+  }
+  if (numArgs >= 6){
+    height = ctx.stack().pop().getInt();
+  }
+  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename);
+  if (vp){
+    vp->play(false);
+  }
   return 0;
 }
 
