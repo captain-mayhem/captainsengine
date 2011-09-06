@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+#ifndef UINT64_C
+#define UINT64_C(val) val##ui64
+#endif
+
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
 #ifdef UNIX
@@ -236,11 +240,12 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
   return plyr;
 }
 
-SoundPlayer* SoundEngine::getMovie(const std::string& name){
-  SoundPlayer* plyr = NULL;
+VideoPlayer* SoundEngine::getMovie(const std::string& name){
+  VideoPlayer* plyr = NULL;
   DataBuffer db;
   mData->getMovie(name, db);
-  plyr = createPlayer(name, db);
+  plyr = createVideoPlayer(name, db);
+  mActiveSounds[name] = plyr;
   return plyr;
 }
 
@@ -262,6 +267,30 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
   SoundPlayer* plyr = new StreamSoundPlayer(name, filename);
+  return plyr;
+#else
+  return NULL;
+#endif
+}
+
+VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataBuffer& db){
+#ifndef DISABLE_SOUND
+  if (db.data == NULL)
+    return NULL;
+  char* tmp = tmpnam(NULL);
+  std::string filename = mData->getProjectSettings()->savedir
+#ifdef WIN32
++"/tmp"
+#endif
++tmp+db.name;
+  FILE* f = fopen(filename.c_str(), "wb");
+  if (!f)
+    return NULL;
+  fwrite(db.data, 1, db.length, f);
+  fclose(f);
+  //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
+  //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
+  VideoPlayer* plyr = new VideoPlayer(name, filename);
   return plyr;
 #else
   return NULL;
@@ -450,7 +479,7 @@ void StreamSoundPlayer::openStream(){
     av_find_stream_info(mFormat);
   } while(last_nb_streams != mFormat->nb_streams);
   for (unsigned i = 0; i < mFormat->nb_streams; ++i){
-    if (mFormat->streams[i]->codec->codec_type == CODEC_TYPE_AUDIO){
+    if (mFormat->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO){
       mCodecContext = mFormat->streams[i]->codec;
       mCodec = avcodec_find_decoder(mCodecContext->codec_id);
       if (!mCodec)
@@ -573,7 +602,11 @@ unsigned StreamSoundPlayer::decode(){
       }
       int size = AVCODEC_MAX_AUDIO_FRAME_SIZE;
       int length;
-      VHALIGNCALL16(length = avcodec_decode_audio2(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, (uint8_t*)mDataBuffer.data, insize));
+      AVPacket tmppkt;
+      av_init_packet(&tmppkt);
+      tmppkt.data = (uint8_t*)mDataBuffer.data;
+      tmppkt.size = insize;
+      VHALIGNCALL16(length = avcodec_decode_audio3(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, &tmppkt));//(uint8_t*)mDataBuffer.data, insize));
       while(length == 0){
         if (size > 0)
           break;
@@ -582,7 +615,7 @@ unsigned StreamSoundPlayer::decode(){
           break;
         insize = mDataBuffer.used;
         memset(mDataBuffer.data+insize, 0, FF_INPUT_BUFFER_PADDING_SIZE);
-        VHALIGNCALL16(length = avcodec_decode_audio2(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, (uint8_t*)mDataBuffer.data, insize));
+        VHALIGNCALL16(length = avcodec_decode_audio3(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, &tmppkt));//(uint8_t*)mDataBuffer.data, insize));
       }
       if (length < 0)
         break;
@@ -682,6 +715,8 @@ bool StreamSoundPlayer::update(unsigned time){
         alSourceQueueBuffers(mSource, 1, &curBuf);
       }
     }
+    else
+      mStop = true;
     if (mStop){
       if (mLooping){
         //stop was not requested, so restart
@@ -715,6 +750,13 @@ bool StreamSoundPlayer::update(unsigned time){
   if (state != AL_PLAYING)
     alSourcePlay(mSource);
   return true;
+}
+
+VideoPlayer::VideoPlayer(const std::string& soundname, const std::string& filename) : 
+StreamSoundPlayer(soundname, filename){
+}
+
+VideoPlayer::~VideoPlayer(){
 }
 
 #endif

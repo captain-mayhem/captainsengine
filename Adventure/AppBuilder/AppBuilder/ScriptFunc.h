@@ -209,6 +209,15 @@ public:
   **/
   static int playSwf(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param movie name of the swf movie file to play
+  \param suspend suspend script execution
+  \param x [opt] x-position of the movie
+  \param y [opt] y-position of the movie
+  \param width [opt] width of the movie
+  \param height [opt] height of the movie
+  **/
+  static int playVideo(ExecutionContext& ctx, unsigned numArgs);
+  /**
   **/
   static int quit(ExecutionContext& ctx, unsigned numArgs);
   /**
