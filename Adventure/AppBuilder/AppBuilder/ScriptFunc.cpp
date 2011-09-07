@@ -1043,7 +1043,7 @@ int ScriptFunctions::playVideo(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 6){
     height = ctx.stack().pop().getInt();
   }
-  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename);
+  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename, x, y, width, height);
   if (vp){
     vp->play(false);
   }

@@ -25,7 +25,7 @@ public:
   void setData(AdvDocument* doc){mData = doc;}
   SoundPlayer* getSound(const std::string& name);
   SoundPlayer* getMusic(const std::string& name);
-  VideoPlayer* getMovie(const std::string& name);
+  VideoPlayer* getMovie(const std::string& name, int x, int y, int width, int height);
   void update(unsigned time);
   void removeSpeaker(CharacterObject* chr);
   std::ostream& save(std::ostream& out);
@@ -44,7 +44,7 @@ public:
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
-  VideoPlayer* createVideoPlayer(const std::string& name, const DataBuffer& db);
+  VideoPlayer* createVideoPlayer(const std::string& name, const DataBuffer& db, int x, int y, int width, int height);
   static SoundEngine* mInstance;
   AdvDocument* mData;
 #ifndef DISABLE_SOUND
@@ -110,20 +110,23 @@ struct AVCodec;
 struct AVCodecContext;
 struct AVFormatContext;
 struct AVFrame;
+struct AVPacket;
 struct SwsContext;
 
 class StreamSoundPlayer : public SoundPlayer{
 public:
-  StreamSoundPlayer(const std::string& soundname, const std::string& filename);
+  StreamSoundPlayer(const std::string& soundname);
   virtual ~StreamSoundPlayer();
+  bool openStream(const std::string& filename);
   void play(bool looping);
   void stop();
   bool update(unsigned time);
 protected:
   unsigned decode();
   void getNextPacket();
-  void openStream();
   void closeStream();
+  virtual bool openStreamHook(int currStream) {return false;}
+  virtual void getPacketHook(AVPacket& packet) {}
   ALuint mBuffers[3];
   ALenum mPCMFormat;
   std::string mFilename;
@@ -146,14 +149,19 @@ protected:
   DataBuffer mVidDataBuffer;*/
 };
 
+class BlitObject;
+
 class VideoPlayer : public StreamSoundPlayer{
 public:
-  VideoPlayer(const std::string& videoname, const std::string& filename);
+  VideoPlayer(const std::string& videoname);
   virtual ~VideoPlayer();
   //void play(bool looping);
   //void stop();
-  //bool update(unsigned time);
+  bool update(unsigned time);
+  void initLayer(int x, int y, int width, int height);
 protected:
+  virtual bool openStreamHook(int currStream);
+  virtual void getPacketHook(AVPacket& packet);
   /*unsigned decode();
   void getNextPacket();
   void openStream();
@@ -178,6 +186,10 @@ protected:
   SwsContext* mScaler;
   int mVidStreamNum;
   DataBuffer mVidDataBuffer;
+
+  Vec2i mRenderPos;
+  Vec2f mScale;
+  BlitObject* mLayer;
 };
 
 #endif
