@@ -6,6 +6,10 @@
 #define UINT64_C(val) val##ui64
 #endif
 
+#ifdef WIN32
+#pragma warning( disable : 4244 )
+#endif
+
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
 #ifdef UNIX
@@ -240,11 +244,11 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
   return plyr;
 }
 
-VideoPlayer* SoundEngine::getMovie(const std::string& name){
+VideoPlayer* SoundEngine::getMovie(const std::string& name, int x, int y, int width, int height){
   VideoPlayer* plyr = NULL;
   DataBuffer db;
   mData->getMovie(name, db);
-  plyr = createVideoPlayer(name, db);
+  plyr = createVideoPlayer(name, db, x, y, width, height);
   mActiveSounds[name] = plyr;
   return plyr;
 }
@@ -266,14 +270,19 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
   fclose(f);
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
-  SoundPlayer* plyr = new StreamSoundPlayer(name, filename);
-  return plyr;
+  StreamSoundPlayer* plyr = new StreamSoundPlayer(name);
+  if (plyr->openStream(filename))
+    return plyr;
+  else{
+    delete plyr;
+    return NULL;
+  }
 #else
   return NULL;
 #endif
 }
 
-VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataBuffer& db){
+VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataBuffer& db, int x, int y, int width, int height){
 #ifndef DISABLE_SOUND
   if (db.data == NULL)
     return NULL;
@@ -290,8 +299,15 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
   fclose(f);
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
-  VideoPlayer* plyr = new VideoPlayer(name, filename);
-  return plyr;
+  VideoPlayer* plyr = new VideoPlayer(name);
+  if (plyr->openStream(filename)){
+    plyr->initLayer(x, y, width, height);
+    return plyr;
+  }
+  else{
+    delete plyr;
+    return NULL;
+  }
 #else
   return NULL;
 #endif
@@ -445,8 +461,8 @@ bool SimpleSoundPlayer::update(unsigned time){
 
 static const int BUFFER_SIZE = 19200;
 
-StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname, const std::string& filename) : 
-SoundPlayer(soundname), mFilename(filename), mLooping(false), mStop(true){
+StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname) : 
+SoundPlayer(soundname), mLooping(false), mStop(true){
   mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
   mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
   mDecodeBuffer.used = 0;
@@ -456,7 +472,6 @@ SoundPlayer(soundname), mFilename(filename), mLooping(false), mStop(true){
   mALBuffer.length = BUFFER_SIZE;
   mALBuffer.data = new char[mALBuffer.length];
   mALBuffer.used = 0;
-  openStream();
 }
 
 StreamSoundPlayer::~StreamSoundPlayer(){
@@ -467,12 +482,13 @@ StreamSoundPlayer::~StreamSoundPlayer(){
   remove(mFilename.c_str());
 }
 
-void StreamSoundPlayer::openStream(){
+bool StreamSoundPlayer::openStream(const std::string& filename){
+  mFilename = filename;
   alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
   alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
   alGenBuffers(3, mBuffers);
   if (av_open_input_file(&mFormat, mFilename.c_str(), NULL, 0, NULL) != 0)
-    return;
+    return false;
   unsigned last_nb_streams;
   do{
     last_nb_streams = mFormat->nb_streams;
@@ -517,30 +533,16 @@ void StreamSoundPlayer::openStream(){
       }
       if (mPCMFormat == 0)
         continue;
+      mFormat->streams[i]->discard = AVDISCARD_DEFAULT;
+      continue;
     }
-    /*if (mFormat->streams[i]->codec->codec_type == CODEC_TYPE_VIDEO){
-      mVidCodecContext = mFormat->streams[i]->codec;
-      mVidCodec = avcodec_find_decoder(mVidCodecContext->codec_id);
-      if (!mCodec)
-        continue;
-      if (avcodec_open(mVidCodecContext, mVidCodec) < 0){
-        continue;
-      }
-      mVidStreamNum = i;
-      if (mVidCodecContext->time_base.num>1000 && mVidCodecContext->time_base.den == 1)
-        mVidCodecContext->time_base.den = 1000;
-
-      mFrame = avcodec_alloc_frame();
-      mFrameRGB = avcodec_alloc_frame();
-      mVidDataBuffer.length = avpicture_get_size(PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
-      mVidDataBuffer.data = new char[mVidDataBuffer.length];
-      avpicture_fill((AVPicture*)mFrameRGB, (uint8_t*)mVidDataBuffer.data, PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
-    
-      mScaler = sws_getContext(mVidCodecContext->width, mVidCodecContext->height,
-        mVidCodecContext->pix_fmt, mVidCodecContext->width, mVidCodecContext->height,
-        PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
-    }*/
+    if (openStreamHook(i)){
+      mFormat->streams[i]->discard = AVDISCARD_DEFAULT;
+    }
+    else
+      mFormat->streams[i]->discard = AVDISCARD_ALL;
   }
+  return true;
 }
 
 void StreamSoundPlayer::closeStream(){
@@ -661,6 +663,9 @@ void StreamSoundPlayer::getNextPacket(){
       av_free_packet(&packet);
       break;
     }
+    else{
+      getPacketHook(packet);
+    }
     /*else if (packet.stream_index == mVidStreamNum){
       int frame_finished;
       avcodec_decode_video(mVidCodecContext, mFrame, &frame_finished, packet.data, packet.size);
@@ -721,7 +726,7 @@ bool StreamSoundPlayer::update(unsigned time){
       if (mLooping){
         //stop was not requested, so restart
         closeStream();
-        openStream();
+        openStream(mFilename);
         play(mLooping);
         return true;
       }
@@ -752,11 +757,103 @@ bool StreamSoundPlayer::update(unsigned time){
   return true;
 }
 
-VideoPlayer::VideoPlayer(const std::string& soundname, const std::string& filename) : 
-StreamSoundPlayer(soundname, filename){
+VideoPlayer::VideoPlayer(const std::string& soundname) : 
+StreamSoundPlayer(soundname){
 }
 
 VideoPlayer::~VideoPlayer(){
+  av_free(mFrame);
+  av_free(mFrameRGB);
+  avcodec_close(mVidCodecContext);
+  delete mLayer;
+}
+
+bool VideoPlayer::openStreamHook(int i){
+  if (mFormat->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
+    mVidCodecContext = mFormat->streams[i]->codec;
+    mVidCodec = avcodec_find_decoder(mVidCodecContext->codec_id);
+    if (!mVidCodec)
+      return false;
+    if (avcodec_open(mVidCodecContext, mVidCodec) < 0){
+      return false;
+    }
+    mVidStreamNum = i;
+    if (mVidCodecContext->time_base.num>1000 && mVidCodecContext->time_base.den == 1)
+      mVidCodecContext->time_base.den = 1000;
+
+    mFrame = avcodec_alloc_frame();
+    mFrameRGB = avcodec_alloc_frame();
+    mVidDataBuffer.length = avpicture_get_size(PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
+    mVidDataBuffer.data = new char[mVidDataBuffer.length];
+    avpicture_fill((AVPicture*)mFrameRGB, (uint8_t*)mVidDataBuffer.data, PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
+
+    mScaler = sws_getContext(mVidCodecContext->width, mVidCodecContext->height,
+      mVidCodecContext->pix_fmt, mVidCodecContext->width, mVidCodecContext->height,
+      PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+    return true;
+  }
+  return false;
+}
+
+static void saveFrame(AVFrame *pFrame, int width, int height, int iFrame)
+{
+    FILE *pFile;
+    char szFilename[32];
+    int  y;
+
+    // Open file
+    sprintf(szFilename, "frame%d.ppm", iFrame);
+    pFile=fopen(szFilename, "wb");
+    if(pFile==NULL)
+        return;
+
+    // Write header
+    fprintf(pFile, "P6\n%d %d\n255\n", width, height);
+
+    // Write pixel data
+    for(y=0; y<height; y++)
+        fwrite(pFrame->data[0]+y*pFrame->linesize[0], 1, width*3, pFile);
+
+    // Close file
+    fclose(pFile);
+}
+
+
+void VideoPlayer::getPacketHook(AVPacket& packet){
+  if (packet.stream_index == mVidStreamNum){
+    int frame_finished;
+    avcodec_decode_video2(mVidCodecContext, mFrame, &frame_finished, &packet);
+    if (frame_finished){
+      sws_scale(mScaler, mFrame->data, mFrame->linesize, 0, mVidCodecContext->height,
+        mFrameRGB->data, mFrameRGB->linesize);
+      av_free_packet(&packet);
+      
+      /*static int count = 0;
+      if (count < 10){
+        saveFrame(mFrameRGB, mVidCodecContext->width, mVidCodecContext->height, count);
+        ++count;
+      }*/
+      mLayer->updateTexture(mVidCodecContext->width, mVidCodecContext->height, mFrameRGB->data[0]);
+
+      return;
+    }
+    av_free_packet(&packet);
+  }
+}
+
+void VideoPlayer::initLayer(int x, int y, int width, int height){
+  mRenderPos.x = x;
+  mRenderPos.y = y;
+  mScale.x = width/(float)mVidCodecContext->width;
+  mScale.y = height/(float)mVidCodecContext->height;
+  mLayer = new BlitObject(mVidCodecContext->width, mVidCodecContext->height, DEPTH_VIDEO_LAYER, GL_RGB);
+}
+
+bool VideoPlayer::update(unsigned time){
+  bool cont = StreamSoundPlayer::update(time);
+  if (mLayer && cont)
+    mLayer->render(mRenderPos, mScale, Vec2i());
+  return cont;
 }
 
 #endif

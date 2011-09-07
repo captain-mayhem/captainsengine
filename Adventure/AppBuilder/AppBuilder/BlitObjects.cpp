@@ -15,7 +15,7 @@ BaseBlitObject::~BaseBlitObject(){
 
 }
 
-BlitObject::BlitObject(int width, int height, int depth) : 
+BlitObject::BlitObject(int width, int height, int depth, GLenum format) : 
 BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAngle(0.0f), mBlendAdditive(false){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
@@ -24,7 +24,7 @@ BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAng
   mDeleteTex = true;
   glGenTextures(1, &mTex);
   glBindTexture(GL_TEXTURE_2D, mTex);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pow2.x, pow2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+  glTexImage2D(GL_TEXTURE_2D, 0, format, pow2.x, pow2.y, 0, format, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
 }
@@ -99,6 +99,10 @@ void BlitObject::blit(){
 BlitObject* BlitObject::clone(){
   BlitObject* obj = new BlitObject(mTex, mSize, mScale, mDepth, mOffset);
   return obj;
+}
+
+void BlitObject::updateTexture(unsigned width, unsigned height, void* data){
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 }
 
 LightingBlitObject::LightingBlitObject(int depth, const Vec2i& size) : BaseBlitObject(depth, size){

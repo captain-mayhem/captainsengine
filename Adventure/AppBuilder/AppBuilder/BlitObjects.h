@@ -55,7 +55,7 @@ protected:
 
 class BlitObject : public BaseBlitObject{
 public:
-  BlitObject(int width, int height, int depth);
+  BlitObject(int width, int height, int depth, GLenum format=GL_RGBA);
   BlitObject(std::string texture, int depth, Vec2i offset);
   BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
   virtual ~BlitObject();
@@ -67,6 +67,7 @@ public:
   void setMirrorOffset(const Vec2i& mirror) {mMirrorOffset = mirror;}
   void setRotation(float angle) {mRotAngle = angle;}
   void setBlendAdditive(bool additive) {mBlendAdditive = additive;}
+  void updateTexture(unsigned width, unsigned height, void* data);
 protected:
   Vec2i mOffset;
   Vec2f mScale;
