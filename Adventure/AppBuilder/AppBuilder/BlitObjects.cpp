@@ -102,6 +102,7 @@ BlitObject* BlitObject::clone(){
 }
 
 void BlitObject::updateTexture(unsigned width, unsigned height, void* data){
+  glBindTexture(GL_TEXTURE_2D, mTex);
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
 }
 

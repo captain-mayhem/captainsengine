@@ -462,7 +462,7 @@ bool SimpleSoundPlayer::update(unsigned time){
 static const int BUFFER_SIZE = 19200;
 
 StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname) : 
-SoundPlayer(soundname), mLooping(false), mStop(true){
+SoundPlayer(soundname), mCodecContext(NULL), mCodec(NULL), mStreamNum(-1), mLooping(false), mStop(true){
   mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
   mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
   mDecodeBuffer.used = 0;
@@ -634,19 +634,19 @@ unsigned StreamSoundPlayer::decode(){
   return decoded;
 }
 
-void StreamSoundPlayer::getNextPacket(){
+bool StreamSoundPlayer::getNextPacket(){
   AVPacket packet;
   int read;
   do{
     read = av_read_frame(mFormat, &packet);
     if (read < 0){
       if (!mLooping)
-        return;
+        return false;
       //start all over again
       av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY);
       read = av_read_frame(mFormat, &packet);
       if (read < 0){
-        return;
+        return false;
       }
     }
     if (packet.stream_index == mStreamNum){
@@ -664,7 +664,9 @@ void StreamSoundPlayer::getNextPacket(){
       break;
     }
     else{
-      getPacketHook(packet);
+      bool isFinished = getPacketHook(packet);
+      if (isFinished)
+        break;
     }
     /*else if (packet.stream_index == mVidStreamNum){
       int frame_finished;
@@ -678,6 +680,7 @@ void StreamSoundPlayer::getNextPacket(){
       av_free_packet(&packet);
     }*/
   } while(read >= 0);
+  return true;
 }
 
 void StreamSoundPlayer::play(bool looping){
@@ -758,12 +761,14 @@ bool StreamSoundPlayer::update(unsigned time){
 }
 
 VideoPlayer::VideoPlayer(const std::string& soundname) : 
-StreamSoundPlayer(soundname){
+StreamSoundPlayer(soundname), mClock(0){
 }
 
 VideoPlayer::~VideoPlayer(){
   av_free(mFrame);
-  av_free(mFrameRGB);
+  for (std::list<AVFrame*>::iterator iter = mFramesRGB.begin(); iter != mFramesRGB.end(); ++iter){
+    av_free(*iter);
+  }
   avcodec_close(mVidCodecContext);
   delete mLayer;
 }
@@ -782,10 +787,8 @@ bool VideoPlayer::openStreamHook(int i){
       mVidCodecContext->time_base.den = 1000;
 
     mFrame = avcodec_alloc_frame();
-    mFrameRGB = avcodec_alloc_frame();
     mVidDataBuffer.length = avpicture_get_size(PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
     mVidDataBuffer.data = new char[mVidDataBuffer.length];
-    avpicture_fill((AVPicture*)mFrameRGB, (uint8_t*)mVidDataBuffer.data, PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
 
     mScaler = sws_getContext(mVidCodecContext->width, mVidCodecContext->height,
       mVidCodecContext->pix_fmt, mVidCodecContext->width, mVidCodecContext->height,
@@ -795,7 +798,7 @@ bool VideoPlayer::openStreamHook(int i){
   return false;
 }
 
-static void saveFrame(AVFrame *pFrame, int width, int height, int iFrame)
+/*static void saveFrame(AVFrame *pFrame, int width, int height, int iFrame)
 {
     FILE *pFile;
     char szFilename[32];
@@ -816,29 +819,31 @@ static void saveFrame(AVFrame *pFrame, int width, int height, int iFrame)
 
     // Close file
     fclose(pFile);
-}
+}*/
 
 
-void VideoPlayer::getPacketHook(AVPacket& packet){
+bool VideoPlayer::getPacketHook(AVPacket& packet){
   if (packet.stream_index == mVidStreamNum){
     int frame_finished;
     avcodec_decode_video2(mVidCodecContext, mFrame, &frame_finished, &packet);
     if (frame_finished){
+      AVFrame* frameRGB = avcodec_alloc_frame();
+      avpicture_fill((AVPicture*)frameRGB, (uint8_t*)mVidDataBuffer.data, PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
       sws_scale(mScaler, mFrame->data, mFrame->linesize, 0, mVidCodecContext->height,
-        mFrameRGB->data, mFrameRGB->linesize);
+        frameRGB->data, frameRGB->linesize);
+      frameRGB->pts = mFrame->pts;
       av_free_packet(&packet);
-      
+      mFramesRGB.push_back(frameRGB);
       /*static int count = 0;
       if (count < 10){
         saveFrame(mFrameRGB, mVidCodecContext->width, mVidCodecContext->height, count);
         ++count;
       }*/
-      mLayer->updateTexture(mVidCodecContext->width, mVidCodecContext->height, mFrameRGB->data[0]);
-
-      return;
+      return true;
     }
     av_free_packet(&packet);
   }
+  return false;
 }
 
 void VideoPlayer::initLayer(int x, int y, int width, int height){
@@ -850,7 +855,28 @@ void VideoPlayer::initLayer(int x, int y, int width, int height){
 }
 
 bool VideoPlayer::update(unsigned time){
-  bool cont = StreamSoundPlayer::update(time);
+  bool cont = false;
+  mClock += time;
+  if (mCodecContext != NULL){ //we have an audio stream
+    cont = StreamSoundPlayer::update(time);
+  }
+  else{
+    if (mFramesRGB.empty()){
+      cont = getNextPacket();
+    }
+    if (!mFramesRGB.empty()){
+      cont = true;
+    }
+  }
+  if (!mFramesRGB.empty()){
+    AVFrame* frameRGB = mFramesRGB.front();
+    if (mClock >= mVidCodecContext->time_base.num*1000/(float)mVidCodecContext->time_base.den*frameRGB->pts){
+      //get video packets only
+      mFramesRGB.pop_front();
+      mLayer->updateTexture(mVidCodecContext->width, mVidCodecContext->height, frameRGB->data[0]);
+      av_free(frameRGB);
+    }
+  }
   if (mLayer && cont)
     mLayer->render(mRenderPos, mScale, Vec2i());
   return cont;

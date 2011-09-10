@@ -123,10 +123,10 @@ public:
   bool update(unsigned time);
 protected:
   unsigned decode();
-  void getNextPacket();
+  bool getNextPacket();
   void closeStream();
   virtual bool openStreamHook(int currStream) {return false;}
-  virtual void getPacketHook(AVPacket& packet) {}
+  virtual bool getPacketHook(AVPacket& packet) {return false;}
   ALuint mBuffers[3];
   ALenum mPCMFormat;
   std::string mFilename;
@@ -161,7 +161,7 @@ public:
   void initLayer(int x, int y, int width, int height);
 protected:
   virtual bool openStreamHook(int currStream);
-  virtual void getPacketHook(AVPacket& packet);
+  virtual bool getPacketHook(AVPacket& packet);
   /*unsigned decode();
   void getNextPacket();
   void openStream();
@@ -182,10 +182,11 @@ protected:
   AVCodecContext* mVidCodecContext;
   AVCodec* mVidCodec;
   AVFrame* mFrame;
-  AVFrame* mFrameRGB;
+  std::list<AVFrame*> mFramesRGB;
   SwsContext* mScaler;
   int mVidStreamNum;
   DataBuffer mVidDataBuffer;
+  int mClock;
 
   Vec2i mRenderPos;
   Vec2f mScale;
