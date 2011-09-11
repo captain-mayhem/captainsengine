@@ -53,7 +53,7 @@ int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture, int* got_pict
 }
 #endif
 
-SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mEffectEnabled(false), mFadingTime(300){
+SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mEffectEnabled(false), mFadingTime(300){
   TR_USE(ADV_SOUND_ENGINE);
 #ifndef DISABLE_SOUND
   mDevice = alcOpenDevice(NULL);
@@ -94,6 +94,7 @@ SoundEngine::~SoundEngine(){
   }
   mActiveSounds.clear();
   delete mActiveMusic;
+  delete mActiveVideo;
 #ifndef DISABLE_SOUND
   alDeleteEffects(1, &mEffect);
   alDeleteAuxiliaryEffectSlots(1, &mEffectSlot);
@@ -253,12 +254,19 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
   return plyr;
 }
 
-VideoPlayer* SoundEngine::getMovie(const std::string& name, int x, int y, int width, int height){
+VideoPlayer* SoundEngine::getMovie(const std::string& name){
   VideoPlayer* plyr = NULL;
+  if (name.empty()){
+    return mActiveVideo;
+  }
   DataBuffer db;
   mData->getMovie(name, db);
-  plyr = createVideoPlayer(name, db, x, y, width, height);
-  mActiveSounds[name] = plyr;
+  plyr = createVideoPlayer(name, db);
+  if (mActiveVideo){
+    mActiveVideo->stop();
+    delete mActiveVideo;
+  }
+  mActiveVideo = plyr;
   return plyr;
 }
 
@@ -291,7 +299,7 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
 #endif
 }
 
-VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataBuffer& db, int x, int y, int width, int height){
+VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataBuffer& db){
 #ifndef DISABLE_SOUND
   if (db.data == NULL)
     return NULL;
@@ -310,7 +318,6 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
   VideoPlayer* plyr = new VideoPlayer(name);
   if (plyr->openStream(filename)){
-    plyr->initLayer(x, y, width, height);
     return plyr;
   }
   else{
@@ -332,6 +339,10 @@ void SoundEngine::update(unsigned time){
   if (mActiveMusic && !mActiveMusic->update(time)){
     delete mActiveMusic;
     mActiveMusic = NULL;
+  }
+  if (mActiveVideo && !mActiveVideo->update(time)){
+    delete mActiveVideo;
+    mActiveVideo = NULL;
   }
 }
 
@@ -870,6 +881,8 @@ bool VideoPlayer::update(unsigned time){
     cont = StreamSoundPlayer::update(time);
   }
   else{
+    if (mStop)
+      return false;
     if (mFramesRGB.empty()){
       cont = getNextPacket();
     }

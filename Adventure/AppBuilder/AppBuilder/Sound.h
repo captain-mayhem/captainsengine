@@ -25,7 +25,7 @@ public:
   void setData(AdvDocument* doc){mData = doc;}
   SoundPlayer* getSound(const std::string& name);
   SoundPlayer* getMusic(const std::string& name);
-  VideoPlayer* getMovie(const std::string& name, int x, int y, int width, int height);
+  VideoPlayer* getMovie(const std::string& name);
   void update(unsigned time);
   void removeSpeaker(CharacterObject* chr);
   std::ostream& save(std::ostream& out);
@@ -44,7 +44,7 @@ public:
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
-  VideoPlayer* createVideoPlayer(const std::string& name, const DataBuffer& db, int x, int y, int width, int height);
+  VideoPlayer* createVideoPlayer(const std::string& name, const DataBuffer& db);
   static SoundEngine* mInstance;
   AdvDocument* mData;
 #ifndef DISABLE_SOUND
@@ -55,6 +55,7 @@ protected:
 #endif
   std::map<std::string, SoundPlayer*> mActiveSounds;
   SoundPlayer* mActiveMusic;
+  VideoPlayer* mActiveVideo;
   float mMusicVolume;
   float mSpeechVolume;
   bool mEffectEnabled;

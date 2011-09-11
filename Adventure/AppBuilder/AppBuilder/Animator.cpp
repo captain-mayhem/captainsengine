@@ -109,7 +109,7 @@ void Animator::update(unsigned interval){
   }
 
   int pos = 0;
-  for (std::map<RoomObject* const, RoomAnim>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+  for (std::map<RoomObject*, RoomAnim>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     if ((iter->second.currPos-iter->second.target).length() < 0.5){
       iter->first->setScrollOffset(iter->second.target);
       mRooms.erase(iter);

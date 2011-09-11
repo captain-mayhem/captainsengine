@@ -772,6 +772,8 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
       screenchange = SC_SHUTTERS;
     else if (name == "clock")
       screenchange = SC_CLOCK;
+    else if (name == "blend")
+      screenchange = SC_BLEND;
     else
       DebugBreak();
   }
@@ -1013,14 +1015,20 @@ int ScriptFunctions::playSwf(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 5){
     height = ctx.stack().pop().getInt();
   }
-  /*SoundPlayer* mp = SoundEngine::instance()->getMovie(moviename);
-  if (mp){
-    mp->play(false);
+  /*ffmpeg has problems with flash
+  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename);
+  if (vp){
+    vp->initLayer(x, y, width, height);
+    vp->play(false);
   }*/
   return 0;
 }
 
 int ScriptFunctions::stopSwf(ExecutionContext& ctx, unsigned numArgs){
+  VideoPlayer* vp = SoundEngine::instance()->getMovie("");
+  if (vp){
+    vp->stop();
+  }
   return 0;
 }
 
@@ -1043,8 +1051,13 @@ int ScriptFunctions::playVideo(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 6){
     height = ctx.stack().pop().getInt();
   }
-  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename, x, y, width, height);
-  if (vp){
+  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename);
+  if (!ctx.isSkipping() && vp){
+    vp->initLayer(x, y, width, height);
+    if (suspend){
+      vp->setSuspensionScript(&ctx);
+      ctx.suspend(0);
+    }
     vp->play(false);
   }
   return 0;

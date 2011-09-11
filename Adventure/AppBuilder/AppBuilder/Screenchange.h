@@ -56,4 +56,19 @@ protected:
   bool mClosing;
 };
 
+class ClockScreenChange : public RenderableBlitObject, public DynamicAnimation{
+public:
+  ClockScreenChange(int width, int height, int depth, int duration, int segments);
+  virtual ~ClockScreenChange();
+  virtual bool update(unsigned interval);
+protected:
+  void generateCircle(float radius);
+  int mDuration;
+  int mCurrentTime;
+  float* mVerts;
+  bool mClosing;
+  Screenshot mShot;
+  int mSegments;
+};
+
 #endif
