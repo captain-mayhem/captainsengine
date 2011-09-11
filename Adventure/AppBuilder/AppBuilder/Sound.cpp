@@ -42,6 +42,17 @@ LPALEFFECTF alEffectf = NULL;
 LPALEFFECTFV alEffectfv = NULL;
 LPALEFFECTI alEffecti = NULL;
 
+#ifdef FFMPEG_OLD_API
+#define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
+#define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
+int avcodec_decode_audio3(AVCodecContext* avctx, int16_t* samples, int* frame_size_ptr, AVPacket* avpkt){
+  return avcodec_decode_audio2(avctx, samples, frame_size_ptr, avpkt->data, avpkt->size);
+}
+int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture, int* got_picture_ptr, AVPacket* avpkt){
+  return avcodec_decode_video(avctx, picture, got_picture_ptr, avpkt->data, avpkt->size);
+}
+#endif
+
 SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mEffectEnabled(false), mFadingTime(300){
   TR_USE(ADV_SOUND_ENGINE);
 #ifndef DISABLE_SOUND
@@ -96,7 +107,6 @@ SoundEngine::~SoundEngine(){
 
 void SoundEngine::setEAXEffect(const std::string& effect){
 #ifndef DISABLE_SOUND
-#ifndef DISABLE_EAX
   if (effect == "off" || effect == "none"){
     mEffectEnabled = false;
   }
@@ -205,7 +215,6 @@ void SoundEngine::setEAXEffect(const std::string& effect){
 		alEffecti(mEffect, AL_EAXREVERB_DECAY_HFLIMIT, efxReverb.iDecayHFLimit);
     alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, mEffect);
   }
-#endif
 #endif
 }
 
@@ -665,7 +674,7 @@ bool StreamSoundPlayer::getNextPacket(){
     }
     else{
       bool isFinished = getPacketHook(packet);
-      if (isFinished)
+      if (isFinished && mCodecContext == NULL)
         break;
     }
     /*else if (packet.stream_index == mVidStreamNum){

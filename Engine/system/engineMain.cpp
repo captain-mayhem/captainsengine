@@ -105,7 +105,11 @@ int main(int argc, char** argv){
           Input::Keyboard::instance()->keyUp(XLookupKeysym(&event.xkey, 0));
           break;
         case ButtonPress:
-          Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, event.xbutton.button);
+          if (event.xbutton.button > Button3){
+            Input::Mouse::instance()->wheel(event.xbutton.x, event.xbutton.y, event.xbutton.button == Button4 ? 1 : -1);
+          }
+          else
+            Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, event.xbutton.button);
           /*
           if (event.xbutton.button == Button1)
           Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, MK_LBUTTON);
@@ -116,7 +120,8 @@ int main(int argc, char** argv){
           */
           break;
         case ButtonRelease:
-          Input::Mouse::instance()->buttonUp(event.xbutton.x, event.xbutton.y, event.xbutton.button);
+          if (event.xbutton.button <= Button3)
+            Input::Mouse::instance()->buttonUp(event.xbutton.x, event.xbutton.y, event.xbutton.button);
           break;
         case MotionNotify:
           Input::Mouse::instance()->move(event.xmotion.x, event.xmotion.y, event.xmotion.state);
