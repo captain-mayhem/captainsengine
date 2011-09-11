@@ -108,15 +108,21 @@ void Animator::update(unsigned interval){
     }
   }
 
-  for (std::map<RoomObject*, RoomAnim>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+  int pos = 0;
+  for (std::map<RoomObject* const, RoomAnim>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     if ((iter->second.currPos-iter->second.target).length() < 0.5){
       iter->first->setScrollOffset(iter->second.target);
-      iter = mRooms.erase(iter);
+      mRooms.erase(iter);
+      //reposition manually as erase does only return valid iterator on Windows
+      iter = mRooms.begin();
+      for (int i = 0; i < pos; ++i)
+        ++iter;
       if (iter == mRooms.end())
         break;
     }
     iter->second.currPos += iter->second.dir*(float)interval*iter->second.speed;
     iter->first->setScrollOffset(Vec2i((int)iter->second.currPos.x, (int)iter->second.currPos.y));
+    ++pos;
   }
 }
 

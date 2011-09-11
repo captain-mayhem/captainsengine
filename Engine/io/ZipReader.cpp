@@ -81,7 +81,7 @@ bool ZipReader::openFile(const std::string& filename){
 MemReader ZipReader::openEntry(const std::string& entry, const std::string& password){
   if (!mHandle)
     return MemReader(NULL, 0);
-  int ret = unzLocateFile(mHandle, entry.c_str(), 0);
+  int ret = unzLocateFile(mHandle, entry.c_str(), 2);
   if (ret != 0){
     return MemReader(NULL, 0);
   }
