@@ -574,8 +574,10 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
         Engine::instance()->getAnimator()->add(ssc);
         }
         break;
-      case SC_CLOCK:
-        DebugBreak();
+      case SC_CLOCK:{
+        ClockScreenChange* csc = new ClockScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
+        Engine::instance()->getAnimator()->add(csc);
+        }
         break;
       case SC_BLEND:{
         BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 1000);
