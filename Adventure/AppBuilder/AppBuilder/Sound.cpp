@@ -28,6 +28,7 @@ extern "C"{
 #endif
 #include "AdvDoc.h"
 #include "Engine.h"
+#include "SwfPlayer.h"
 
 TR_CHANNEL(ADV_SOUND_ENGINE);
 
@@ -53,7 +54,7 @@ int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture, int* got_pict
 }
 #endif
 
-SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mEffectEnabled(false), mFadingTime(300){
+SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mCurrentEffect("none"), mFadingTime(300){
   TR_USE(ADV_SOUND_ENGINE);
 #ifndef DISABLE_SOUND
   mDevice = alcOpenDevice(NULL);
@@ -109,7 +110,7 @@ SoundEngine::~SoundEngine(){
 void SoundEngine::setEAXEffect(const std::string& effect){
 #ifndef DISABLE_SOUND
   if (effect == "off" || effect == "none"){
-    mEffectEnabled = false;
+    mCurrentEffect = "none";
   }
   else{
     EFXREVERBPROPERTIES efxReverb;
@@ -190,7 +191,7 @@ void SoundEngine::setEAXEffect(const std::string& effect){
     }
     else
       DebugBreak();
-    mEffectEnabled = true;
+    mCurrentEffect = effect;
     alEffectf(mEffect, AL_EAXREVERB_DENSITY, efxReverb.flDensity);
     alEffectf(mEffect, AL_EAXREVERB_DIFFUSION, efxReverb.flDiffusion);
     alEffectf(mEffect, AL_EAXREVERB_GAIN, efxReverb.flGain);
@@ -254,14 +255,14 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
   return plyr;
 }
 
-VideoPlayer* SoundEngine::getMovie(const std::string& name){
+VideoPlayer* SoundEngine::getMovie(const std::string& name, bool isSwf){
   VideoPlayer* plyr = NULL;
   if (name.empty()){
     return mActiveVideo;
   }
   DataBuffer db;
   mData->getMovie(name, db);
-  plyr = createVideoPlayer(name, db);
+  plyr = createVideoPlayer(name, db, isSwf);
   if (mActiveVideo){
     mActiveVideo->stop();
     delete mActiveVideo;
@@ -299,10 +300,14 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
 #endif
 }
 
-VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataBuffer& db){
+VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataBuffer& db, bool isSwf){
 #ifndef DISABLE_SOUND
   if (db.data == NULL)
     return NULL;
+  if (isSwf){
+    SwfPlayer* plyr = new SwfPlayer(name, db);
+    return plyr;
+  }
   char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir
 #ifdef WIN32
@@ -316,7 +321,7 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
   fclose(f);
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
-  VideoPlayer* plyr = new VideoPlayer(name);
+  StreamVideoPlayer* plyr = new StreamVideoPlayer(name);
   if (plyr->openStream(filename)){
     return plyr;
   }
@@ -369,13 +374,14 @@ void SoundEngine::setSpeechVolume(float volume){
 
 std::ostream& SoundEngine::save(std::ostream& out){
   out << mMusicVolume << " " << mSpeechVolume << "\n";
-  out << mFadingTime << "\n";
+  out << mFadingTime << " " << mCurrentEffect << "\n";
   return out;
 }
 
 std::istream& SoundEngine::load(std::istream& in){
   in >> mMusicVolume >> mSpeechVolume;
-  in >> mFadingTime;
+  in >> mFadingTime >> mCurrentEffect;
+  setEAXEffect(mCurrentEffect);
   return in;
 }
 
@@ -780,11 +786,11 @@ bool StreamSoundPlayer::update(unsigned time){
   return true;
 }
 
-VideoPlayer::VideoPlayer(const std::string& soundname) : 
+StreamVideoPlayer::StreamVideoPlayer(const std::string& soundname) : 
 StreamSoundPlayer(soundname), mClock(0){
 }
 
-VideoPlayer::~VideoPlayer(){
+StreamVideoPlayer::~StreamVideoPlayer(){
   av_free(mFrame);
   for (std::list<AVFrame*>::iterator iter = mFramesRGB.begin(); iter != mFramesRGB.end(); ++iter){
     av_free(*iter);
@@ -793,7 +799,7 @@ VideoPlayer::~VideoPlayer(){
   delete mLayer;
 }
 
-bool VideoPlayer::openStreamHook(int i){
+bool StreamVideoPlayer::openStreamHook(int i){
   if (mFormat->streams[i]->codec->codec_type == AVMEDIA_TYPE_VIDEO){
     mVidCodecContext = mFormat->streams[i]->codec;
     mVidCodec = avcodec_find_decoder(mVidCodecContext->codec_id);
@@ -842,7 +848,7 @@ bool VideoPlayer::openStreamHook(int i){
 }*/
 
 
-bool VideoPlayer::getPacketHook(AVPacket& packet){
+bool StreamVideoPlayer::getPacketHook(AVPacket& packet){
   if (packet.stream_index == mVidStreamNum){
     int frame_finished;
     avcodec_decode_video2(mVidCodecContext, mFrame, &frame_finished, &packet);
@@ -866,7 +872,7 @@ bool VideoPlayer::getPacketHook(AVPacket& packet){
   return false;
 }
 
-void VideoPlayer::initLayer(int x, int y, int width, int height){
+void StreamVideoPlayer::initLayer(int x, int y, int width, int height){
   mRenderPos.x = x;
   mRenderPos.y = y;
   mScale.x = width/(float)mVidCodecContext->width;
@@ -874,7 +880,7 @@ void VideoPlayer::initLayer(int x, int y, int width, int height){
   mLayer = new BlitObject(mVidCodecContext->width, mVidCodecContext->height, DEPTH_VIDEO_LAYER, GL_RGB);
 }
 
-bool VideoPlayer::update(unsigned time){
+bool StreamVideoPlayer::update(unsigned time){
   bool cont = false;
   mClock += time;
   if (mCodecContext != NULL){ //we have an audio stream
