@@ -1015,17 +1015,16 @@ int ScriptFunctions::playSwf(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 5){
     height = ctx.stack().pop().getInt();
   }
-  /*ffmpeg has problems with flash
-  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename);
+  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename, true);
   if (vp){
     vp->initLayer(x, y, width, height);
     vp->play(false);
-  }*/
+  }
   return 0;
 }
 
 int ScriptFunctions::stopSwf(ExecutionContext& ctx, unsigned numArgs){
-  VideoPlayer* vp = SoundEngine::instance()->getMovie("");
+  VideoPlayer* vp = SoundEngine::instance()->getMovie("", true);
   if (vp){
     vp->stop();
   }
@@ -1051,7 +1050,7 @@ int ScriptFunctions::playVideo(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 6){
     height = ctx.stack().pop().getInt();
   }
-  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename);
+  VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename, false);
   if (!ctx.isSkipping() && vp){
     vp->initLayer(x, y, width, height);
     if (suspend){

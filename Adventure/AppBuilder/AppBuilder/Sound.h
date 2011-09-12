@@ -25,7 +25,7 @@ public:
   void setData(AdvDocument* doc){mData = doc;}
   SoundPlayer* getSound(const std::string& name);
   SoundPlayer* getMusic(const std::string& name);
-  VideoPlayer* getMovie(const std::string& name);
+  VideoPlayer* getMovie(const std::string& name, bool isSwf);
   void update(unsigned time);
   void removeSpeaker(CharacterObject* chr);
   std::ostream& save(std::ostream& out);
@@ -40,11 +40,11 @@ public:
 #ifndef DISABLE_SOUND
   ALuint getEffectSlot() {return mEffectSlot;}
 #endif
-  bool isEffectEnabled() {return mEffectEnabled;}
+  bool isEffectEnabled() {return mCurrentEffect != "none";}
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
-  VideoPlayer* createVideoPlayer(const std::string& name, const DataBuffer& db);
+  VideoPlayer* createVideoPlayer(const std::string& name, const DataBuffer& db, bool isSwf);
   static SoundEngine* mInstance;
   AdvDocument* mData;
 #ifndef DISABLE_SOUND
@@ -58,7 +58,7 @@ protected:
   VideoPlayer* mActiveVideo;
   float mMusicVolume;
   float mSpeechVolume;
-  bool mEffectEnabled;
+  std::string mCurrentEffect;
   unsigned mFadingTime;
 };
 
@@ -152,12 +152,23 @@ protected:
 
 class BlitObject;
 
-class VideoPlayer : public StreamSoundPlayer{
+class VideoPlayer{
 public:
-  VideoPlayer(const std::string& videoname);
-  virtual ~VideoPlayer();
-  //void play(bool looping);
-  //void stop();
+  virtual ~VideoPlayer() {}
+  virtual void play(bool looping)=0;
+  virtual void stop()=0;
+  virtual bool update(unsigned time)=0;
+  virtual void initLayer(int x, int y, int width, int height)=0;
+  virtual void setSuspensionScript(ExecutionContext* ctx)=0;
+};
+
+class StreamVideoPlayer : public VideoPlayer, public StreamSoundPlayer{
+public:
+  StreamVideoPlayer(const std::string& videoname);
+  virtual ~StreamVideoPlayer();
+  void play(bool looping) {StreamSoundPlayer::play(looping);}
+  void stop() {StreamSoundPlayer::stop();}
+  void setSuspensionScript(ExecutionContext* ctx) {StreamSoundPlayer::setSuspensionScript(ctx);}
   bool update(unsigned time);
   void initLayer(int x, int y, int width, int height);
 protected:
