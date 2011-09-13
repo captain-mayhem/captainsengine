@@ -7,6 +7,8 @@ namespace swf{
   class SwfReader;
 }
 
+class RenderableBlitObject;
+
 class SwfPlayer : public VideoPlayer{
 public:
   SwfPlayer(const std::string& name, const DataBuffer& db);
@@ -19,9 +21,19 @@ public:
 protected:
   bool parseFile();
   bool processTags();
+  void render();
   DataBuffer mData;
   swf::SwfReader* mReader;
+  bool mStop;
+  unsigned mClock;
+  Vec2i mRenderPos;
+  Vec2f mScale;
+  RenderableBlitObject* mLayer;
 
+  unsigned mFrameTime;
+  unsigned mFrameNum;
+  Vec2i mSize;
+  float mClearColor[3];
 };
 
 #endif
