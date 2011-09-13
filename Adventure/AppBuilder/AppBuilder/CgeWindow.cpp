@@ -51,7 +51,6 @@ void init(){
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
   GL()matrixMode(MM_MODELVIEW);
-  glClearColor(0.0,0.0,0.0,1.0);
   GL()color4ub(255,255,255,255);
 
   glDisable(GL_DEPTH_TEST);
@@ -100,6 +99,7 @@ void render(){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
+  glClearColor(0.0,0.0,0.0,1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   GL()loadIdentity();
 

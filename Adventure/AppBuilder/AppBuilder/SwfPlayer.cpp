@@ -3,6 +3,8 @@
 #include <io/MemReader.h>
 #include <io/Tracing.h>
 
+#include "BlitObjects.h"
+
 TR_CHANNEL(ADV_SWF);
 
 namespace swf{
@@ -12,6 +14,7 @@ namespace swf{
     int32 yMin;
     int32 yMax;
   };
+
   struct RGB{
     uint8 red;
     uint8 green;
@@ -20,6 +23,7 @@ namespace swf{
 
   enum Opcode{
     End=0,
+    ShowFrame=1,
     SetBackgroundColor=9,
     DefineBitsLossless2=36,
     SoundStreamHead2=45,
@@ -86,26 +90,40 @@ namespace swf{
   };
 }
 
-SwfPlayer::SwfPlayer(const std::string& name, const DataBuffer& db) : mData(db), mReader(NULL){
+SwfPlayer::SwfPlayer(const std::string& name, const DataBuffer& db) : mData(db), mReader(NULL), mStop(true), mClock(0){
   mReader = new swf::SwfReader(mData.data, mData.length);
   parseFile();
 }
 
 SwfPlayer::~SwfPlayer(){
   delete mReader;
+  delete mLayer;
 }
 
 void SwfPlayer::play(bool looping){
+  mStop = false;
 }
 
 void SwfPlayer::stop(){
+  mStop = true;
 }
 
 bool SwfPlayer::update(unsigned time){
-  return true;
+  mClock += time;
+  if (mClock >= mFrameTime*mFrameNum){
+    processTags();
+  }
+  if (mLayer && !mStop)
+    mLayer->render(mRenderPos, mScale, Vec2i());
+  return !mStop;
 }
 
 void SwfPlayer::initLayer(int x, int y, int width, int height){
+  mRenderPos.x = x;
+  mRenderPos.y = y;
+  mScale.x = width/(float)mSize.x;
+  mScale.y = height/(float)mSize.y;
+  mLayer = new RenderableBlitObject(mSize.x, mSize.y, DEPTH_VIDEO_LAYER);
 }
 
 void SwfPlayer::setSuspensionScript(ExecutionContext* ctx){
@@ -124,9 +142,13 @@ bool SwfPlayer::parseFile(){
   uint8 version = mReader->readUChar();
   uint32 length = mReader->readUInt();
   swf::Rect rect = mReader->readRect();
+  mSize.x = rect.xMax-rect.xMin;
+  mSize.y = rect.yMax-rect.yMin;
   float framerate = mReader->readFixed();
+  mFrameTime = (unsigned)(1000/framerate);
   uint16 numframes = mReader->readUShort();
-  return processTags();
+  mFrameNum = 0;
+  return true;
 }
 
 bool SwfPlayer::processTags(){
@@ -140,10 +162,18 @@ bool SwfPlayer::processTags(){
       length = mReader->readInt();
     switch(tag){
       case swf::End:
+        mStop = true;
+        stop = true;
+        break;
+      case swf::ShowFrame:
+        render();
         stop = true;
         break;
       case swf::SetBackgroundColor:{
         swf::RGB color = mReader->readRGB();
+        mClearColor[0] = color.red/255.0f;
+        mClearColor[1] = color.green/255.0f;
+        mClearColor[2] = color.blue/255.0f;
         break;
       }
       default:
@@ -152,6 +182,14 @@ bool SwfPlayer::processTags(){
         break;
     }
   }
-  return true;
+  return !mStop;
+}
+
+void SwfPlayer::render(){
+  mLayer->bind();
+  glClearColor(mClearColor[0], mClearColor[1], mClearColor[2], 1.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  mLayer->unbind();
+  ++mFrameNum;
 }
 
