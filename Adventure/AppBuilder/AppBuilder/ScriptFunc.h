@@ -346,6 +346,11 @@ public:
   **/
   static int speechVolume(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param effect name of the effect
+  \param args [opt] additional effect parameters
+  **/
+  static int startEffect(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param fast [opt] show particles immediately
   **/
   static int startParticles(ExecutionContext& ctx, unsigned numArgs);
@@ -354,6 +359,10 @@ public:
   \param direction makes a step into the given direction
   **/
   static int stepTo(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param effect the effect to stop
+  **/
+  static int stopEffect(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param scriptname the function to stop
   **/
@@ -447,6 +456,7 @@ public:
   static int isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isStringEqual(ExecutionContext& ctx, unsigned numArgs);
+  static int isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs);
 };
 
 #endif

@@ -124,6 +124,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("playavi", playVideo);
   interpreter->registerFunction("moviewait", wait);
   interpreter->registerFunction("stopavi", stopSwf);
+  interpreter->registerFunction("stopeffect", stopEffect);
+  interpreter->registerFunction("starteffect", startEffect);
+  interpreter->registerFunction("if_xobj", isObjXPosEqual);
   srand((unsigned)time(NULL));
 }
 
@@ -1432,7 +1435,8 @@ int ScriptFunctions::miniCutEnd(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::breakExec(ExecutionContext& ctx, unsigned numArgs){
-  ctx.resetEvents(true);
+  //don't know anymore why this was there, but it is bad => see elevator (room 8) functiondemo
+  //ctx.resetEvents(true);
   return 0;
 }
 
@@ -1476,6 +1480,17 @@ int ScriptFunctions::textHide(ExecutionContext& ctx, unsigned numArgs){
   int textnum = ctx.stack().pop().getInt();
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(false);
+  return 0;
+}
+
+int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
+  std::string effect = ctx.stack().pop().getString();
+  return 0;
+}
+
+int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
+  std::string effect = ctx.stack().pop().getString();
+  DebugBreak();
   return 0;
 }
 
@@ -1711,5 +1726,16 @@ int ScriptFunctions::isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs){
   }
   else
     DebugBreak();
+  return 2;
+}
+
+int ScriptFunctions::isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs){
+  std::string objname = ctx.stack().pop().getString();
+  int xpos = ctx.stack().pop().getInt();
+  Object2D* obj = Engine::instance()->getObject(objname, false);
+  if (obj == NULL)
+    DebugBreak();
+  ctx.stack().push(obj->getPosition().x);
+  ctx.stack().push(xpos);
   return 2;
 }
