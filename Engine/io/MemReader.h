@@ -32,6 +32,7 @@ public:
   virtual uint32 getSize() {return mEnd-mStart;}
 
   char* getData() {return mStart;}
+  char* getCurrentData() {return mCurrent;}
 protected:
   char* mStart;
   char* mEnd;

@@ -1,6 +1,7 @@
 #include "SwfPlayer.h"
 
 #include <io/MemReader.h>
+#include <io/GZipReader.h>
 #include <io/Tracing.h>
 
 #include "BlitObjects.h"
@@ -21,10 +22,32 @@ namespace swf{
     uint8 blue;
   };
 
+  struct RGBA{
+    uint8 red;
+    uint8 green;
+    uint8 blue;
+    uint8 alpha;
+  };
+
+  struct Matrix{
+    float scaleX;
+    float scaleY;
+    float rotateSkew0;
+    float rotateSkew1;
+    float translateX;
+    float translateY;
+  };
+
+  struct ColorTransformAlpha{
+    RGBA mult;
+    RGBA add;
+  };
+
   enum Opcode{
     End=0,
     ShowFrame=1,
     SetBackgroundColor=9,
+    PlaceObject2=26,
     DefineBitsLossless2=36,
     SoundStreamHead2=45,
   };
@@ -43,7 +66,7 @@ namespace swf{
           mCurrByte = readUChar();
           mBitsLeft = 8;
         }
-        uint8 bitmask = (1 << mBitsLeft)-1;
+        uint8 bitmask = (1 << min(mBitsLeft, howmany))-1;
         int rightshift = ((int)mBitsLeft-howmany);
         if (rightshift < 0){
           howmany -= mBitsLeft;
@@ -59,7 +82,18 @@ namespace swf{
       return ret;
     }
     int32 readBits(uint8 howmany){
-      return (int32)readUBits(howmany);
+      int32 ret = (int32)readUBits(howmany);
+      if (ret & (1 << howmany)){
+        //correct the sign
+        DebugBreak();
+      }
+      return ret;
+    }
+    float readFixedBits(uint8 howmany){
+      int32 val = readBits(howmany);
+      float ret = (float)(val >> 8);
+      ret += (val - ((val >> 8) << 8))/(float(1<<8));
+      return ret;
     }
     Rect readRect(){
       Rect ret;
@@ -78,8 +112,44 @@ namespace swf{
       ret.blue = readUChar();
       return ret;
     }
+    void readMatrix(Matrix& mat){
+      uint8 hasScale = readUBits(1);
+      if (hasScale == 1){
+        uint8 numBits = readUBits(5);
+        mat.scaleX = readFixedBits(numBits);
+        mat.scaleY = readFixedBits(numBits);
+      }
+      uint8 hasRotate = readUBits(1);
+      if (hasRotate == 1){
+        uint8 numBits = readUBits(5);
+        mat.rotateSkew0 = readFixedBits(numBits);
+        mat.rotateSkew1 = readFixedBits(numBits);
+      }
+      uint8 numBits = readUBits(5);
+      mat.translateX = readBits(numBits)/20.0f;
+      mat.translateY = readBits(numBits)/20.0f;
+      resetBits();
+    }
+    void read(ColorTransformAlpha& trans){
+      uint8 hasAdd = readUBits(1);
+      uint8 hasMult = readUBits(1);
+      uint8 numBits = readUBits(4);
+      if (hasMult == 1){
+        trans.mult.red = readBits(numBits);
+        trans.mult.green = readBits(numBits);
+        trans.mult.blue = readBits(numBits);
+        trans.mult.alpha = readBits(numBits);
+      }
+      if (hasAdd == 1){
+        trans.add.red = readBits(numBits);
+        trans.add.green = readBits(numBits);
+        trans.add.blue = readBits(numBits);
+        trans.add.alpha = readBits(numBits);
+      }
+      resetBits();
+    }
     float readFixed(){
-      uint16 val = readUShort();
+      int16 val = readShort();
       float ret = (float)(val >> 8);
       ret += (val - ((val >> 8) << 8))/(float(1<<8));
       return ret;
@@ -175,6 +245,59 @@ bool SwfPlayer::processTags(){
         mClearColor[1] = color.green/255.0f;
         mClearColor[2] = color.blue/255.0f;
         break;
+      }
+      case swf::PlaceObject2:
+      {
+        uint8 flags = mReader->readUChar();
+        uint16 depth = mReader->readUShort();
+        if (flags & 0x2){ //has character
+          uint16 character = mReader->readUShort();
+        }
+        if (flags & 0x4){ //has matrix
+          swf::Matrix mat;
+          mReader->readMatrix(mat);
+        }
+        if (flags & 0x8){ //has color transform
+          swf::ColorTransformAlpha cta;
+          mReader->read(cta);
+        }
+        if (flags & 0x10){ //has ratio
+          DebugBreak();
+        }
+        if (flags & 0x20){ //has name
+          DebugBreak();
+        }
+        if (flags & 0x40){ //has clip depth
+        }
+        if (flags & 0x80){ //has clip actions
+        }
+        break;
+      }
+      case swf::DefineBitsLossless2:{
+        uint16 charid = mReader->readUShort();
+        uint8 format = mReader->readUChar();
+        uint16 width = mReader->readUShort();
+        uint16 height = mReader->readUShort();
+        if (format == 3){
+          uint16 colortablesize = ((uint16)mReader->readUChar())+1;
+          uint16 rowsize = ((width+3) >> 2) << 2;
+          uint32 datasize = colortablesize*4+rowsize*height;
+          CGE::GZipReader bmprdr(mReader->getCurrentData(), length-8, datasize);
+          mReader->skip(length-8);
+          uint8* colortable = new uint8[colortablesize*4];
+          bmprdr.readBytes(colortable, colortablesize*4);
+          uint8* pixeldata = new uint8[width*height];
+          for (unsigned i = 0; i < height; ++i){
+            bmprdr.readBytes(pixeldata+i*width, width);
+            bmprdr.skip(rowsize-width);
+          }
+          CGE::Image img(4, width, height, colortable, pixeldata);
+          delete [] pixeldata;
+          delete [] colortable;
+        }
+        else
+          DebugBreak();
+        break;                              
       }
       default:
         TR_WARN("unhandled opcode %i data length %i", tag, length);
