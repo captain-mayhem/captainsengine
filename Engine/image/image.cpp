@@ -20,6 +20,13 @@ Image::Image(int channels, int width, int height, unsigned char* rgbdata, unsign
   }
 }
 
+Image::Image(int channels, int width, int height, unsigned char* palette, unsigned char* indices) : mChannels(channels), mWidth(width), mHeight(height){
+  allocateData();
+  for (int i = 0; i < mWidth*mHeight; ++i){
+    memcpy(mData+i*mChannels, palette+indices[i]*mChannels, mChannels);
+  }
+}
+
 Image::~Image(){
   delete [] mData;
 }
@@ -47,7 +54,8 @@ void Image::debugWrite(const std::string& filename){
   for (int j = 0; j < mHeight; ++j){
     for (int i = 0; i < mWidth; ++i){
       for (int c = 0; c < mChannels; ++c){
-        fprintf(f, "%3i ", mData[j*mWidth*mChannels+i*mChannels+c]);
+        if (c != 3) //skip alpha
+          fprintf(f, "%3i ", mData[j*mWidth*mChannels+i*mChannels+c]);
       }
       fprintf(f, " ");
     }

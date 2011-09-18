@@ -9,6 +9,7 @@ namespace CGE{
     Image();
     Image(int channels, int width, int height, unsigned char* data);
     Image(int channels, int width, int height, unsigned char* rgbdata, unsigned alphachannels, unsigned char* alphadata);
+    Image(int channels, int width, int height, unsigned char* palette, unsigned char* indices);
     ~Image();
     void setFormat(int channels, int width, int height);
     void allocateData();
