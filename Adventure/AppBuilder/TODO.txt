@@ -6,8 +6,9 @@ bored animation | 1
 module sounds | 5
 group (use in setobj/moveobj) | 3
 playing of swf (flash) | 2
-saving (sound, timer, textout) | 2
+saving (timer, textout) | 2
 setlanguage | 3
+special effects | 4
 
 D:\pcdk\Sinnlos im Weltraum - The First Adventure\Sinnlos im Weltraum - The First Adventure\data\game.dat
 D:\pcdk\editor\functiondemo\data\game.dat

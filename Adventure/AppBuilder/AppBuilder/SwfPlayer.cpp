@@ -30,6 +30,7 @@ namespace swf{
   };
 
   struct Matrix{
+    Matrix() : scaleX(1.0f), scaleY(1.0f), rotateSkew0(0), rotateSkew1(0), translateX(0), translateY(0) {}
     float scaleX;
     float scaleY;
     float rotateSkew0;
@@ -158,6 +159,32 @@ namespace swf{
     uint8 mCurrByte;
     uint8 mBitsLeft;
   };
+
+  class Character{
+  public:
+    Character(const CGE::Image& img){
+      glGenTextures(1, &mTexture);
+      glBindTexture(GL_TEXTURE_2D, mTexture);
+      if (img.getNumChannels() != 4)
+        DebugBreak();
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.getWidth(), img.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getData());
+    }
+    ~Character(){
+      glDeleteTextures(1, &mTexture);
+    }
+  protected:
+    GLuint mTexture;
+  };
+
+  class Displayable{
+  public:
+    Displayable(Character* chr) : mChar(chr){
+    }
+    Matrix& getMatrix() {return mMatrix;}
+  protected:
+    Character* mChar;
+    Matrix mMatrix;
+  };
 }
 
 SwfPlayer::SwfPlayer(const std::string& name, const DataBuffer& db) : mData(db), mReader(NULL), mStop(true), mClock(0){
@@ -168,6 +195,12 @@ SwfPlayer::SwfPlayer(const std::string& name, const DataBuffer& db) : mData(db),
 SwfPlayer::~SwfPlayer(){
   delete mReader;
   delete mLayer;
+  for (unsigned i = 0; i < mDisplayList.size(); ++i){
+    delete mDisplayList[i];
+  }
+  for (std::map<uint16,swf::Character*>::iterator iter = mDictionary.begin(); iter != mDictionary.end(); ++iter){
+    delete iter->second;
+  }
 }
 
 void SwfPlayer::play(bool looping){
@@ -252,10 +285,27 @@ bool SwfPlayer::processTags(){
         uint16 depth = mReader->readUShort();
         if (flags & 0x2){ //has character
           uint16 character = mReader->readUShort();
+          swf::Character* chr = getCharacter(character);
+          if (chr == NULL){
+            TR_WARN("trying to place unknown character %i", character);
+          }
+          else{
+            swf::Displayable* disp = new swf::Displayable(chr);
+            setDisplayable(disp, depth);
+          }
+        }
+        swf::Displayable* disp = getDisplayable(depth);
+        if (disp == NULL){
+          TR_WARN("trying to modify unknown displayable %i", depth);
         }
         if (flags & 0x4){ //has matrix
-          swf::Matrix mat;
-          mReader->readMatrix(mat);
+          if (disp){
+            mReader->readMatrix(disp->getMatrix());
+          }
+          else{
+            swf::Matrix mat;
+            mReader->readMatrix(mat);
+          }
         }
         if (flags & 0x8){ //has color transform
           swf::ColorTransformAlpha cta;
@@ -294,6 +344,8 @@ bool SwfPlayer::processTags(){
           CGE::Image img(4, width, height, colortable, pixeldata);
           delete [] pixeldata;
           delete [] colortable;
+          swf::Character* chr = new swf::Character(img);
+          insertCharacter(charid, chr);
         }
         else
           DebugBreak();
@@ -306,6 +358,32 @@ bool SwfPlayer::processTags(){
     }
   }
   return !mStop;
+}
+
+void SwfPlayer::insertCharacter(uint16 id, swf::Character* chr){
+  mDictionary[id] = chr;
+}
+
+swf::Character* SwfPlayer::getCharacter(uint16 id){
+  std::map<uint16,swf::Character*>::iterator iter = mDictionary.find(id);
+  if (iter == mDictionary.end())
+    return NULL;
+  return iter->second;
+}
+
+void SwfPlayer::setDisplayable(swf::Displayable* disp, uint16 depth){
+  while(depth >= mDisplayList.size()){
+    mDisplayList.push_back(NULL);
+  }
+  if (mDisplayList[depth] != NULL)
+    delete mDisplayList[depth];
+  mDisplayList[depth] = disp;
+}
+
+swf::Displayable* SwfPlayer::getDisplayable(uint16 depth){
+  if (depth >= mDisplayList.size())
+    return NULL;
+  return mDisplayList[depth];
 }
 
 void SwfPlayer::render(){
