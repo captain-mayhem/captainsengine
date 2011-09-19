@@ -1,10 +1,16 @@
 #ifndef ADV_SWF_PLAYER_H
 #define ADV_SWF_PLAYER_H
 
+#include <system/types.h>
+
 #include "Sound.h"
 
 namespace swf{
   class SwfReader;
+
+  class Character;
+
+  class Displayable;
 }
 
 class RenderableBlitObject;
@@ -22,6 +28,10 @@ protected:
   bool parseFile();
   bool processTags();
   void render();
+  void insertCharacter(uint16 id, swf::Character* chr);
+  swf::Character* getCharacter(uint16 id);
+  void setDisplayable(swf::Displayable* disp, uint16 depth);
+  swf::Displayable* getDisplayable(uint16 depth);
   DataBuffer mData;
   swf::SwfReader* mReader;
   bool mStop;
@@ -34,6 +44,8 @@ protected:
   unsigned mFrameNum;
   Vec2i mSize;
   float mClearColor[3];
+  std::map<uint16, swf::Character*> mDictionary;
+  std::vector<swf::Displayable*> mDisplayList;
 };
 
 #endif

@@ -24,7 +24,9 @@ public:
   static SoundEngine* instance() {return mInstance;}
   void setData(AdvDocument* doc){mData = doc;}
   SoundPlayer* getSound(const std::string& name);
+  SoundPlayer* getSound(const std::string& name, bool effectEnabled);
   SoundPlayer* getMusic(const std::string& name);
+  SoundPlayer* getMusic(const std::string& name, bool effectEnabled);
   VideoPlayer* getMovie(const std::string& name, bool isSwf);
   void update(unsigned time);
   void removeSpeaker(CharacterObject* chr);
@@ -43,7 +45,7 @@ public:
   bool isEffectEnabled() {return mCurrentEffect != "none";}
 protected:
   SoundEngine();
-  SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db);
+  SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db, bool effectEnabled);
   VideoPlayer* createVideoPlayer(const std::string& name, const DataBuffer& db, bool isSwf);
   static SoundEngine* mInstance;
   AdvDocument* mData;
@@ -64,7 +66,7 @@ protected:
 
 class SoundPlayer{
 public:
-  SoundPlayer(const std::string& name);
+  SoundPlayer(const std::string& name, bool effectEnabled);
   virtual ~SoundPlayer();
   virtual void play(bool looping)=0;
   virtual void stop()=0;
@@ -77,6 +79,8 @@ public:
   void fadeVolume(float from, float to, unsigned time);
   bool isFading() {return mFadeDuration != 0;}
   std::string getName() {return mName;}
+  bool hasEffect() {return mEffectEnabled;}
+  virtual bool isLooping() {return false;}
 protected:
   bool fadeUpdate(unsigned time);
 #ifndef DISABLE_SOUND
@@ -90,13 +94,14 @@ protected:
   float mEndVolume;
   unsigned mFadeDuration;
   unsigned mCurrTime;
+  bool mEffectEnabled;
 };
 
 #ifndef DISABLE_SOUND
 
 class SimpleSoundPlayer : public SoundPlayer{
 public:
-  SimpleSoundPlayer(const std::string& name, ALuint buffer);
+  SimpleSoundPlayer(const std::string& name, ALuint buffer, bool effectEnabled);
   virtual ~SimpleSoundPlayer();
   void play(bool looping);
   void stop();
@@ -116,12 +121,13 @@ struct SwsContext;
 
 class StreamSoundPlayer : public SoundPlayer{
 public:
-  StreamSoundPlayer(const std::string& soundname);
+  StreamSoundPlayer(const std::string& soundname, bool effectEnabled);
   virtual ~StreamSoundPlayer();
   bool openStream(const std::string& filename);
   void play(bool looping);
   void stop();
   bool update(unsigned time);
+  virtual bool isLooping() {return mLooping;}
 protected:
   unsigned decode();
   bool getNextPacket();

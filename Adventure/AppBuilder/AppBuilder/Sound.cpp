@@ -221,17 +221,25 @@ void SoundEngine::setEAXEffect(const std::string& effect){
 }
 
 SoundPlayer* SoundEngine::getSound(const std::string& name){
+  return getSound(name, isEffectEnabled());
+}
+
+SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled){
   SoundPlayer* plyr = mActiveSounds[name];
   if (plyr)
     return plyr;
   DataBuffer db;
   mData->getSound(name, db);
-  plyr = createPlayer(name, db);
+  plyr = createPlayer(name, db, effectEnabled);
   mActiveSounds[name] = plyr;
   return plyr;
 }
 
 SoundPlayer* SoundEngine::getMusic(const std::string& name){
+  return getMusic(name, isEffectEnabled());
+}
+
+SoundPlayer* SoundEngine::getMusic(const std::string& name, bool effectEnabled){
   SoundPlayer* plyr = NULL;
   if (name.empty()){
     return mActiveMusic;
@@ -242,7 +250,7 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
     return plyr;
   DataBuffer db;
   mData->getMusic(name, db);
-  plyr = createPlayer(name, db);
+  plyr = createPlayer(name, db, effectEnabled);
   if (mActiveMusic){
     //crossfade
     mActiveMusic->fadeVolume(mMusicVolume, 0.0f, mFadingTime);
@@ -271,7 +279,7 @@ VideoPlayer* SoundEngine::getMovie(const std::string& name, bool isSwf){
   return plyr;
 }
 
-SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer& db){
+SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer& db, bool effectEnabled){
 #ifndef DISABLE_SOUND
   if (db.data == NULL)
     return NULL;
@@ -288,7 +296,7 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
   fclose(f);
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
-  StreamSoundPlayer* plyr = new StreamSoundPlayer(name);
+  StreamSoundPlayer* plyr = new StreamSoundPlayer(name, effectEnabled);
   if (plyr->openStream(filename))
     return plyr;
   else{
@@ -375,6 +383,25 @@ void SoundEngine::setSpeechVolume(float volume){
 std::ostream& SoundEngine::save(std::ostream& out){
   out << mMusicVolume << " " << mSpeechVolume << "\n";
   out << mFadingTime << " " << mCurrentEffect << "\n";
+  if (mActiveMusic != NULL){
+    out << mActiveMusic->getName() << " " << mActiveMusic->hasEffect();
+  }
+  else{
+    out << "none";
+  }
+  out << "\n";
+  int loopcount = 0;
+  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+    if (iter->second->isLooping())
+      ++loopcount;
+  }
+  out << loopcount;
+  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+    if (iter->second->isLooping()){
+      out << " " << iter->second->getName() << " " << iter->second->hasEffect();
+    }
+  }
+  out << "\n";
   return out;
 }
 
@@ -382,14 +409,32 @@ std::istream& SoundEngine::load(std::istream& in){
   in >> mMusicVolume >> mSpeechVolume;
   in >> mFadingTime >> mCurrentEffect;
   setEAXEffect(mCurrentEffect);
+  std::string music;
+  in >> music;
+  if (music != "none"){
+    bool effect;
+    in >> effect;
+    SoundPlayer* mp = getMusic(music, effect);
+    mp->play(true);
+  }
+  int loopcount;
+  in >> loopcount;
+  for (int i = 0; i < loopcount; ++i){
+    std::string sound;
+    bool effect;
+    in >> sound >> effect;
+    SoundPlayer* sp = getSound(sound, effect);
+    sp->play(true);
+  }
   return in;
 }
 
 
-SoundPlayer::SoundPlayer(const std::string& name) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), mName(name), mStartVolume(1.0f), mEndVolume(1.0f), mFadeDuration(0), mCurrTime(0){
+SoundPlayer::SoundPlayer(const std::string& name, bool effectEnabled) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), 
+mName(name), mStartVolume(1.0f), mEndVolume(1.0f), mFadeDuration(0), mCurrTime(0), mEffectEnabled(effectEnabled){
 #ifndef DISABLE_SOUND
   alGenSources(1, &mSource);
-  if (SoundEngine::instance()->isEffectEnabled())
+  if (effectEnabled)
     alSource3i(mSource, AL_AUXILIARY_SEND_FILTER, SoundEngine::instance()->getEffectSlot(), 0, AL_FILTER_NULL);
 #endif
 }
@@ -458,7 +503,7 @@ bool SoundPlayer::fadeUpdate(unsigned time){
 }
 
 #ifndef DISABLE_SOUND
-SimpleSoundPlayer::SimpleSoundPlayer(const std::string& name, ALuint buffer) : SoundPlayer(name), mBuffer(buffer){
+SimpleSoundPlayer::SimpleSoundPlayer(const std::string& name, ALuint buffer, bool effectEnabled) : SoundPlayer(name, effectEnabled), mBuffer(buffer){
   alSourcei(mSource, AL_BUFFER, buffer);
 }
 
@@ -487,8 +532,8 @@ bool SimpleSoundPlayer::update(unsigned time){
 
 static const int BUFFER_SIZE = 19200;
 
-StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname) : 
-SoundPlayer(soundname), mCodecContext(NULL), mCodec(NULL), mStreamNum(-1), mLooping(false), mStop(true){
+StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname, bool effectEnabled) : 
+SoundPlayer(soundname, effectEnabled), mCodecContext(NULL), mCodec(NULL), mStreamNum(-1), mLooping(false), mStop(true){
   mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
   mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
   mDecodeBuffer.used = 0;
@@ -787,7 +832,7 @@ bool StreamSoundPlayer::update(unsigned time){
 }
 
 StreamVideoPlayer::StreamVideoPlayer(const std::string& soundname) : 
-StreamSoundPlayer(soundname), mClock(0){
+StreamSoundPlayer(soundname, false), mClock(0){
 }
 
 StreamVideoPlayer::~StreamVideoPlayer(){
