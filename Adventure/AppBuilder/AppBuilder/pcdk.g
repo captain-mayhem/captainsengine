@@ -64,7 +64,16 @@ row_stmt returns [RowNode* row]
 	{
 		int rownum = atoi((char*)$INT.text->chars);
 		bool visible = vis.value->value() == "true" ? true : false;
-		$row = new RowNode(rownum, ((IdentNode*)txt.value)->value(), visible, row_blk.nodes);
+		ASTNode* arg = txt.value;
+		IdentNode* text = NULL;
+		if (arg->getType() == ASTNode::IDENTIFIER)
+			text = (IdentNode*)arg;
+		else{
+			text = (IdentNode*)stringify((ASTNode*)txt.value);
+		}
+		$row = new RowNode(rownum, text->value(), visible, row_blk.nodes);
+		if (arg->getType() != ASTNode::IDENTIFIER)
+			delete text;
 		delete txt.value;
 		delete vis.value;
 	}

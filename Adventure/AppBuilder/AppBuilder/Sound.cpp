@@ -406,6 +406,14 @@ std::ostream& SoundEngine::save(std::ostream& out){
 }
 
 std::istream& SoundEngine::load(std::istream& in){
+  //clear previous sounds
+  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+    delete iter->second;
+  }
+  mActiveSounds.clear();
+  delete mActiveMusic;
+  mActiveMusic = NULL;
+  
   in >> mMusicVolume >> mSpeechVolume;
   in >> mFadingTime >> mCurrentEffect;
   setEAXEffect(mCurrentEffect);
