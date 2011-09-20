@@ -368,9 +368,12 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       Engine::instance()->getAnimator()->remove(obj);
       int state = CharacterObject::calculateState(obj->getState(), false, false);
       obj->setState(state);
+      if (dir != UNSPECIFIED)
+        obj->setLookDir(dir);
       RoomObject* ro = Engine::instance()->getRoom(roomname);
       obj->setRoom(ro->getName());
       obj->setPosition((pos*Engine::instance()->getWalkGridSize())+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
+      obj->setScrollOffset(ro->getScrollOffset());
       //obj->setScale(ro->getDepthScale(obj->getPosition()));
     }
   }
@@ -385,6 +388,8 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       obj->setPosition(pos*Engine::instance()->getWalkGridSize()+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
       int state = CharacterObject::calculateState(obj->getState(), false, false);
       obj->setState(state);
+      if (dir != UNSPECIFIED)
+        obj->setLookDir(dir);
       RoomObject* room = Engine::instance()->getRoom(roomname);
       if (room){
         obj->setRoom(room->getName());
