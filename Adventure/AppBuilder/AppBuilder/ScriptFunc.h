@@ -128,6 +128,11 @@ public:
   **/
   static int link(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param character the character to be linked to an object
+  \param object the object to link to
+  **/
+  static int linkChar(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param slot the save slot to be used
   **/
   static int loadGame(ExecutionContext& ctx, unsigned numArgs);
@@ -378,6 +383,11 @@ public:
   **/
   static int stopSwf(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param character character to change zoom behaviour
+  \param doit stop zooming
+  **/
+  static int stopZooming(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param room name of the subroom to load
   \param fadingtime [opt] time in milliseconds for fading effect
   **/
@@ -423,6 +433,10 @@ public:
   \param show true/false
   **/
   static int textEnabled(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param character unlink character
+  **/
+  static int unlinkChar(ExecutionContext& ctx, unsigned numArgs);
   /**
   **/
   static int unloadRoom(ExecutionContext& ctx, unsigned numArgs);

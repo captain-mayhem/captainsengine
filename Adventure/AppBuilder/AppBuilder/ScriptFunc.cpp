@@ -127,6 +127,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("stopeffect", stopEffect);
   interpreter->registerFunction("starteffect", startEffect);
   interpreter->registerFunction("if_xobj", isObjXPosEqual);
+  interpreter->registerFunction("linkchar", linkChar);
+  interpreter->registerFunction("stopzooming", stopZooming);
+  interpreter->registerFunction("unlinkchar", unlinkChar);
   srand((unsigned)time(NULL));
 }
 
@@ -1157,6 +1160,10 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
     speed = 11-speed;
   else
     DebugBreak();
+  if (hold){
+    ctx.suspend(0);
+    obj->setSuspensionScript(&ctx);
+  }
   Engine::instance()->getAnimator()->add(obj, path, speed);
   //DebugBreak();
   return 0;
@@ -1496,6 +1503,24 @@ int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
   DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::linkChar(ExecutionContext& ctx, unsigned numArgs){
+  std::string character = ctx.stack().pop().getString();
+  std::string object = ctx.stack().pop().getString();
+  //DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
+  std::string character = ctx.stack().pop().getString();
+  bool stopzooming = ctx.stack().pop().getBool();
+  return 0;
+}
+
+int ScriptFunctions::unlinkChar(ExecutionContext& ctx, unsigned numArgs){
+  std::string character = ctx.stack().pop().getString();
   return 0;
 }
 
