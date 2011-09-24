@@ -360,7 +360,7 @@ void Engine::render(unsigned time){
     (*iter)->update(interval);
   }
   if (mFocussedChar && mFocussedChar->getAnimation())
-    mFocussedChar->getAnimation()->update(interval);
+    mFocussedChar->update(interval);
   mParticleEngine->update(interval);
 
   //build blit queue

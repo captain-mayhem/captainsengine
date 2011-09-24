@@ -1509,7 +1509,13 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::linkChar(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
   std::string object = ctx.stack().pop().getString();
-  //DebugBreak();
+  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  if (!chr)
+    DebugBreak();
+  Object2D* obj = Engine::instance()->getObject(object, false);
+  if (!obj)
+    DebugBreak();
+  chr->setLinkObject(obj);
   return 0;
 }
 
@@ -1521,6 +1527,10 @@ int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::unlinkChar(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
+  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  if (!chr)
+    DebugBreak();
+  chr->setLinkObject(NULL);
   return 0;
 }
 
