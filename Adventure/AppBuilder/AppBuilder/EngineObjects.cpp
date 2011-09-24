@@ -238,6 +238,12 @@ void Object2D::setLighten(bool lighten){
   }
 }
 
+void Object2D::update(unsigned interval){
+  Animation* anim = getAnimation();
+  if (anim != NULL)
+    anim->update(interval);
+}
+
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "#button"),
 BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i()), mText(text){
   char tmp[16];
@@ -481,9 +487,7 @@ bool RoomObject::isWalkable(const Vec2i& pos){
 
 void RoomObject::update(unsigned interval){
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
-    Animation* anim = (*iter)->getAnimation();
-    if (anim != NULL)
-      anim->update(interval);
+    (*iter)->update(interval);
   }
 }
 
@@ -608,7 +612,7 @@ void RoomObject::setOpacity(unsigned char opacity){
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
-mFontID(0)
+mFontID(0), mLinkObject(NULL)
 {
   mInventory = new Inventory();
 }
@@ -791,4 +795,14 @@ void CharacterObject::setState(int state){
   if (!getAnimation()->exists() && mState > 3)
     mState = calculateState(mState, isWalking(), false);
   TR_DEBUG("state %i", mState);
+}
+
+void CharacterObject::update(unsigned interval){
+  if (mLinkObject != NULL){
+    Vec2i pos = mLinkObject->getPosition()+mLinkObject->getSize()/2;
+    setPosition(pos);
+  }
+  else{
+    Object2D::update(interval);
+  }
 }

@@ -87,6 +87,7 @@ public:
   void setRotation(float angle) {mRotAngle = angle;}
   float getRotation() {return mRotAngle;}
   void setLighten(bool lighten);
+  virtual void update(unsigned interval);
 protected:
   int mState;
   Vec2i mPos;
@@ -150,7 +151,7 @@ public:
   bool isScriptRunning();
   Object2D* getObjectAt(const Vec2i& pos);
   Object2D* getObject(const std::string& name);
-  void update(unsigned interval);
+  virtual void update(unsigned interval);
   virtual void setLightingColor(const Color& col) {mLighting->setColor(col);}
   virtual Color getLightingColor() {return mLighting->getColor();}
   void addWalkmapScript(const Vec2i& wmpos, ExecutionContext* script) {mWalkmapScripts[wmpos] = script; script->setOwner(this);}
@@ -218,6 +219,8 @@ public:
   void setMirrored(bool mirrored) {mMirror = mirrored;}
   void setRoom(const std::string& room) {mRoom = room;}
   std::string getRoom() {return mRoom;}
+  void setLinkObject(Object2D* link) {mLinkObject = link;}
+  virtual void update(unsigned interval);
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
@@ -227,6 +230,7 @@ protected:
   unsigned mFontID;
   Inventory* mInventory;
   std::string mRoom;
+  Object2D* mLinkObject;
 };
 
 class ObjectGroup{
