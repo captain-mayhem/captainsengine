@@ -221,6 +221,7 @@ public:
   std::string getRoom() {return mRoom;}
   void setLinkObject(Object2D* link) {mLinkObject = link;}
   virtual void update(unsigned interval);
+  void setNoZooming(bool nozooming) {mNoZooming = nozooming;}
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
@@ -231,6 +232,7 @@ protected:
   Inventory* mInventory;
   std::string mRoom;
   Object2D* mLinkObject;
+  bool mNoZooming;
 };
 
 class ObjectGroup{

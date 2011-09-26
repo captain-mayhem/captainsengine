@@ -26,6 +26,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("speech", speech);
   interpreter->registerFunction("pickup", pickup);
   interpreter->registerFunction("playsound", playSound);
+  interpreter->registerRelVar("playsound", 2, "_volume");
   interpreter->registerFunction("if_bool", isBoolEqual);
   interpreter->registerFunction("if_obj", isObjectInState);
   interpreter->registerFunction("setlight", setLight);
@@ -1522,6 +1523,10 @@ int ScriptFunctions::linkChar(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
   bool stopzooming = ctx.stack().pop().getBool();
+  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  if (!chr)
+    DebugBreak();
+  chr->setNoZooming(stopzooming);
   return 0;
 }
 
