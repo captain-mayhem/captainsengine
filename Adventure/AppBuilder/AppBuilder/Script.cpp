@@ -7,6 +7,7 @@
 #include "Engine.h"
 #include "Inventory.h"
 #include "ScriptFunc.h"
+#include "Sound.h"
 #include <system/allocation.h>
 
 TR_CHANNEL(ADV_Script)
@@ -917,7 +918,12 @@ inline int getTime(TimeVal tv){
 #endif
 
 StackData PcdkScript::getVariable(const std::string& name){
-  if (name == "mousex"){
+  if (name.size() > 0 && name[0] == '_'){
+    if (name.size() > 6 && name.substr(1, 6) == "volume"){
+      return int(SoundEngine::instance()->getMusicVolume()*100);
+    }
+  }
+  else if (name == "mousex"){
     return Engine::instance()->getCursorPos().x;
   }
   else if (name == "mousey"){
