@@ -116,15 +116,26 @@ namespace StoryDesigner
                     mCharacterDlg.Show(this);
                     break;
                 case ResourceID.ROOM:
-                    if (mRoomDlg != null)
-                        mRoomDlg.Close();
                     Room room = mData.getRoom(name);
                     if (room == null)
                     {
                         MessageBox.Show("Cannot find room " + name);
                         return;
                     }
+                    Point pos = new Point(200, 200);
+                    if (mRoomDlg != null)
+                    {
+                        if (mRoomDlg.Room == room && mRoomDlg.Visible)
+                        {
+                            mRoomDlg.Show();
+                            break;
+                        }
+                        pos = mRoomDlg.Location;
+                        mRoomDlg.Close();
+                    }
                     mRoomDlg = new RoomDlg(room, mData);
+                    mRoomDlg.StartPosition = FormStartPosition.Manual;
+                    mRoomDlg.Location = pos;
                     mRoomDlg.Show(this);
                     break;
                 case ResourceID.SCRIPT:

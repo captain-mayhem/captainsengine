@@ -16,6 +16,13 @@ namespace StoryDesigner
             x = size.Width;
             y = size.Height;
         }
+        public static Vec2i operator +(Vec2i vec1, Vec2i vec2)
+        {
+            Vec2i ret;
+            ret.x = vec1.x + vec2.x;
+            ret.y = vec1.y + vec2.y;
+            return ret;
+        }
         public static Vec2i operator -(Vec2i vec1, Vec2i vec2)
         {
             Vec2i ret;

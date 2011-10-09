@@ -418,6 +418,23 @@ namespace StoryDesigner
                 //CHARACTER INSTANCE
                 else if (typename[0] == "Rcharacter")
                 {
+                    string chr = rdr.ReadLine();
+                    CharacterInstance charinst = new CharacterInstance(mAdv.getCharacter(chr));
+                    if (charinst.Character == null)
+                        throw new UnexpectedValueException("No character for character instance found");
+                    charinst.Name = typename[1];
+                    charinst.Room = rdr.ReadLine();
+                    Vec2i pos;
+                    pos.x = Convert.ToInt32(rdr.ReadLine());
+                    pos.y = Convert.ToInt32(rdr.ReadLine());
+                    charinst.RawPosition = pos;
+                    charinst.LookDir = Convert.ToInt32(rdr.ReadLine());
+                    charinst.Unmovable = Convert.ToInt32(rdr.ReadLine()) == 0;
+                    charinst.Locked = Convert.ToInt32(rdr.ReadLine()) != 0;
+                    if (!mCharacterInstances.ContainsKey(charinst.Room.ToLower())){
+                        mCharacterInstances[charinst.Room.ToLower()] = new System.Collections.ArrayList();
+                    }
+                    mCharacterInstances[charinst.Room.ToLower()].Add(charinst);
                 }
                 //ROOM
                 else if (typename[0] == "Room")
@@ -464,11 +481,26 @@ namespace StoryDesigner
                     //walkmap
                     str = rdr.ReadLine();
                     //TODO
+                    if (mCharacterInstances.ContainsKey(room.Name.ToLower()))
+                        room.Characters = mCharacterInstances[room.Name.ToLower()];
                     mAdv.addRoom(room);
+                    mLastRoom = room;
                 }
                 //OBJECT INSTANCE
-                else if (typename[0] == "Robject")
+                else if (typename[0] == "Roomobject")
                 {
+                    string obj = rdr.ReadLine();
+                    ObjectInstance objinst = new ObjectInstance(mAdv.getObject(obj));
+                    if (objinst.Object == null)
+                        throw new UnexpectedValueException("No object for object instance found");
+                    objinst.Name = typename[1];
+                    objinst.Position.x = Convert.ToInt32(rdr.ReadLine());
+                    objinst.Position.y = Convert.ToInt32(rdr.ReadLine());
+                    objinst.State = Convert.ToInt32(rdr.ReadLine());
+                    objinst.Layer = Convert.ToInt32(rdr.ReadLine());
+                    objinst.Depth = Convert.ToInt32(rdr.ReadLine());
+                    objinst.Locked = Convert.ToInt32(rdr.ReadLine()) != 0;
+                    mLastRoom.Objects.Add(objinst);
                 }
             }
             return true;
@@ -676,6 +708,8 @@ namespace StoryDesigner
         private TreeView mGamePool;
         private string mPath;
         private Script mLastScript;
+        private Room mLastRoom;
         private string mZipPwd;
+        private System.Collections.Generic.Dictionary<string, System.Collections.ArrayList> mCharacterInstances = new Dictionary<string,System.Collections.ArrayList>();
     }
 }
