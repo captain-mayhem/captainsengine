@@ -392,7 +392,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
       rc.position = Vec2i(val1,val2);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.dir = (LookDir)(val1-1);
-      str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.unmovable = (val1 != 0);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.unmovable = (val1 == 0);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.locked = (val1 != 0);
       mRoomCharacters.push_back(rc);
     }

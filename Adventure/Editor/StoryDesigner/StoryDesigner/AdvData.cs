@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
+using System.Drawing;
 
 namespace StoryDesigner
 {
@@ -701,7 +702,88 @@ namespace StoryDesigner
         public Vec2i InvPos;
         public Vec2i InvSize;
         public Vec2f InvScale;
-        public ArrayList walkmap;
+        public ArrayList Walkmap = new ArrayList();
+        public ArrayList Objects = new ArrayList();
+        public ArrayList Characters = new ArrayList();
+    }
+
+    public class Drawable
+    {
+        public Drawable(IStateFrameData obj)
+        {
+            mData = obj;
+        }
+        public void draw(Graphics g, int state, Vec2i position)
+        {
+            if (state == 0)
+            {
+                return;
+            }
+            string[] parts = mData.getFrame(state - 1, 0);
+            if (parts == null)
+            {
+                return;
+            }
+            for (int i = 0; i < parts.Length; ++i)
+            {
+                System.Drawing.Bitmap bmp = mData.getImage(parts[i]);
+                Vec2i offset = mData.getFramePartOffset(state - 1, 0, i);
+                g.DrawImage(bmp, position.x + offset.x, position.y + offset.y, bmp.Width, bmp.Height);
+            }
+        }
+        protected IStateFrameData mData;
+    }
+
+    public abstract class DrawableObject : Drawable{
+        public DrawableObject(IStateFrameData data) : base(data) { }
+        public abstract void draw(Graphics g);
+    }
+
+    public class CharacterInstance : DrawableObject
+    {
+        public CharacterInstance(AdvCharacter chr) : base(chr){
+            Character = chr;
+        }
+        public override void draw(Graphics g)
+        {
+            draw(g, LookDir, RawPosition);
+        }
+        public string Name;
+        public AdvCharacter Character;
+        public string Room;
+        public Vec2i RawPosition
+        {
+            set { position = value; }
+            get { return position; }
+        }
+        public Vec2i Position
+        {
+            set { position = value - mData.getHotspot(LookDir); ; }
+            get { return position+mData.getHotspot(LookDir); }
+        }
+        public int LookDir;
+        public bool Unmovable;
+        public bool Locked;
+
+        private Vec2i position;
+    }
+
+    public class ObjectInstance : DrawableObject
+    {
+        public ObjectInstance(AdvObject obj) : base(obj) {
+            Object = obj;
+        }
+        public override void draw(Graphics g)
+        {
+            draw(g, State, Position);
+        }
+        public string Name;
+        public AdvObject Object;
+        public Vec2i Position;
+        public int State;
+        public int Layer;
+        public int Depth;
+        public bool Locked;
     }
 
     public class AdvData
@@ -829,7 +911,7 @@ namespace StoryDesigner
 
         public AdvObject getObject(string name)
         {
-            return mObjects[name];
+            return mObjects[name.ToLower()];
         }
         public void addObject(AdvObject obj)
         {
@@ -865,6 +947,11 @@ namespace StoryDesigner
 
         public void addWalkmapScript(Script scr, Vec2i pos, string roomname)
         {
+        }
+
+        public int WalkGridSize
+        {
+            get { return Settings.Resolution.x / 32; }
         }
 
         public ProjectSettings Settings;
