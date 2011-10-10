@@ -1,6 +1,6 @@
 namespace StoryDesigner
 {
-    partial class RoomDlg
+    partial class RoomCtrlDlg
     {
         /// <summary>
         /// Required designer variable.
@@ -30,15 +30,15 @@ namespace StoryDesigner
         {
             this.SuspendLayout();
             // 
-            // RoomDlg
+            // RoomCtrlDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackColor = System.Drawing.Color.Black;
-            this.ClientSize = new System.Drawing.Size(284, 262);
-            this.DoubleBuffered = true;
-            this.Name = "RoomDlg";
-            this.Text = "RoomDlg";
+            this.ClientSize = new System.Drawing.Size(284, 369);
+            this.ControlBox = false;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Name = "RoomCtrlDlg";
+            this.Text = "Room Control Panel";
             this.ResumeLayout(false);
 
         }

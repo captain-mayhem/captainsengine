@@ -731,12 +731,24 @@ namespace StoryDesigner
                 g.DrawImage(bmp, position.x + offset.x, position.y + offset.y, bmp.Width, bmp.Height);
             }
         }
+        public bool isHit(int state, Vec2i position)
+        {
+            if (position.x < 0 || position.y < 0)
+                return false;
+            Vec2i size = mData.getSize(state);
+            if (position.x > size.x || position.y > size.y)
+                return false;
+            return true;
+        }
         protected IStateFrameData mData;
     }
 
     public abstract class DrawableObject : Drawable{
         public DrawableObject(IStateFrameData data) : base(data) { }
         public abstract void draw(Graphics g);
+        public abstract bool isHit(Vec2i pos);
+        public abstract Vec2i getPosition();
+        public abstract void setPosition(Vec2i pos);
     }
 
     public class CharacterInstance : DrawableObject
@@ -747,6 +759,18 @@ namespace StoryDesigner
         public override void draw(Graphics g)
         {
             draw(g, LookDir, RawPosition);
+        }
+        public override bool isHit(Vec2i pos)
+        {
+            return isHit(LookDir, pos-RawPosition);
+        }
+        public override Vec2i getPosition()
+        {
+            return Position;
+        }
+        public override void setPosition(Vec2i pos)
+        {
+            Position = pos;
         }
         public string Name;
         public AdvCharacter Character;
@@ -776,6 +800,18 @@ namespace StoryDesigner
         public override void draw(Graphics g)
         {
             draw(g, State, Position);
+        }
+        public override bool isHit(Vec2i pos)
+        {
+            return isHit(State, pos - Position);
+        }
+        public override Vec2i getPosition()
+        {
+            return Position;
+        }
+        public override void setPosition(Vec2i pos)
+        {
+            Position = pos;
         }
         public string Name;
         public AdvObject Object;
