@@ -36,6 +36,7 @@ namespace StoryDesigner
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
             this.ClientSize = new System.Drawing.Size(284, 262);
+            this.DoubleBuffered = true;
             this.Name = "RoomDlg";
             this.Text = "RoomDlg";
             this.ResumeLayout(false);

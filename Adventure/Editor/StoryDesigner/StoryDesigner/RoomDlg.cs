@@ -18,6 +18,43 @@ namespace StoryDesigner
             this.Text = "Room (" + room.Name + ")";
             this.ClientSize = new Size(data.Settings.Resolution.x, data.Settings.Resolution.y);
             this.Paint += new PaintEventHandler(RoomDlg_Paint);
+            this.MouseDown += new MouseEventHandler(RoomDlg_MouseDown);
+            this.MouseMove += new MouseEventHandler(RoomDlg_MouseMove);
+            this.MouseUp += new MouseEventHandler(RoomDlg_MouseUp);
+            this.FormClosed += new FormClosedEventHandler(RoomDlg_FormClosed);
+            mControl = new RoomCtrlDlg();
+            mControl.Location = new Point(this.Location.X + this.Size.Width, this.Location.Y);
+            mControl.StartPosition = FormStartPosition.Manual;
+            mControl.Show(this);
+        }
+
+        void RoomDlg_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            mControl.Dispose();
+        }
+
+        void RoomDlg_MouseUp(object sender, MouseEventArgs e)
+        {
+            mDragObject = null;
+        }
+
+        void RoomDlg_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (mDragObject == null)
+                return;
+            Vec2i pos = new Vec2i(e.X, e.Y);
+            mDragObject.setPosition(pos + mDragOffset);
+            this.Invalidate();
+        }
+
+        void RoomDlg_MouseDown(object sender, MouseEventArgs e)
+        {
+            Vec2i pos = new Vec2i(e.X, e.Y);
+            mDragObject = getObjectAt(pos);
+            if (mDragObject != null)
+            {
+                mDragOffset = mDragObject.getPosition() - pos;
+            }
         }
 
         void RoomDlg_Paint(object sender, PaintEventArgs e)
@@ -36,19 +73,13 @@ namespace StoryDesigner
             System.Collections.Generic.LinkedList<System.Collections.Generic.KeyValuePair<int, DrawableObject> > blitqueue = new LinkedList<KeyValuePair<int,DrawableObject>>();
             foreach (ObjectInstance obj in mRoom.Objects)
             {
-                int depth;
-                if (obj.Layer == 0) //back
-                    depth = 0;
-                else if (obj.Layer == 1)
-                    depth = obj.Depth;
-                else
-                    depth = 999;
+                int depth = getDepth(obj);
                 KeyValuePair<int, DrawableObject> pair = new KeyValuePair<int, DrawableObject>(depth, obj);
                 insetQueue(blitqueue, pair);
             }
             foreach (CharacterInstance chr in mRoom.Characters)
             {
-                int depth = chr.Position.y / mData.WalkGridSize;
+                int depth = getDepth(chr);
                 KeyValuePair<int, DrawableObject> pair = new KeyValuePair<int, DrawableObject>(depth, chr);
                 insetQueue(blitqueue, pair);
             }
@@ -82,7 +113,58 @@ namespace StoryDesigner
                 blitqueue.AddLast(pair);
         }
 
+        private DrawableObject getObjectAt(Vec2i pos)
+        {
+            DrawableObject ret = null;
+            int retdepth = -1;
+            foreach (ObjectInstance obj in mRoom.Objects)
+            {
+                if (obj.isHit(pos))
+                {
+                    int depth = getDepth(obj);
+                    if (depth > retdepth)
+                    {
+                        retdepth = depth;
+                        ret = obj;
+                    }
+                }
+            }
+            foreach (CharacterInstance chr in mRoom.Characters)
+            {
+                if (chr.isHit(pos))
+                {
+                    int depth = getDepth(chr);
+                    if (depth > retdepth)
+                    {
+                        retdepth = depth;
+                        ret = chr;
+                    }
+                }
+            }
+            return ret;
+        }
+
+        private int getDepth(ObjectInstance obj)
+        {
+            int depth;
+            if (obj.Layer == 0) //back
+                depth = 0;
+            else if (obj.Layer == 1)
+                depth = obj.Depth;
+            else
+                depth = 999;
+            return depth;
+        }
+
+        private int getDepth(CharacterInstance chr)
+        {
+            return chr.Position.y / mData.WalkGridSize;
+        }
+
         private Room mRoom;
         private AdvData mData;
+        private DrawableObject mDragObject;
+        private Vec2i mDragOffset;
+        private RoomCtrlDlg mControl;
     }
 }
