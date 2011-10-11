@@ -22,8 +22,8 @@ namespace StoryDesigner
             this.MouseMove += new MouseEventHandler(RoomDlg_MouseMove);
             this.MouseUp += new MouseEventHandler(RoomDlg_MouseUp);
             this.FormClosed += new FormClosedEventHandler(RoomDlg_FormClosed);
-            mControl = new RoomCtrlDlg();
-            mControl.Location = new Point(this.Location.X + this.Size.Width, this.Location.Y);
+            mControl = new RoomCtrlDlg(room, data);
+            mControl.Location = new Point(Screen.GetWorkingArea(this).Width-mControl.Width, 0);
             mControl.StartPosition = FormStartPosition.Manual;
             mControl.Show(this);
         }
@@ -51,6 +51,7 @@ namespace StoryDesigner
         {
             Vec2i pos = new Vec2i(e.X, e.Y);
             mDragObject = getObjectAt(pos);
+            mControl.SelectedObject = mDragObject;
             if (mDragObject != null)
             {
                 mDragOffset = mDragObject.getPosition() - pos;
