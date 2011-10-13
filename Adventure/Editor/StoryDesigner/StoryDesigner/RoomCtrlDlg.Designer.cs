@@ -71,7 +71,6 @@ namespace StoryDesigner
             // scroller
             // 
             this.scroller.BackColor = System.Drawing.SystemColors.ControlDark;
-            this.scroller.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.scroller.Location = new System.Drawing.Point(12, 12);
             this.scroller.Name = "scroller";
             this.scroller.Size = new System.Drawing.Size(130, 65);
