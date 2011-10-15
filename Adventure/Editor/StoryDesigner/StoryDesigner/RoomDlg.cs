@@ -26,6 +26,12 @@ namespace StoryDesigner
             mControl.Location = new Point(Screen.GetWorkingArea(this).Width-mControl.Width, 0);
             mControl.StartPosition = FormStartPosition.Manual;
             mControl.Show(this);
+            mControl.RedrawRoom += new RoomCtrlDlg.RedrawEventHandler(mControl_RedrawRoom);
+        }
+
+        void mControl_RedrawRoom(object sender, RoomCtrlDlg.RedrawEventArgs e)
+        {
+            this.Invalidate();
         }
 
         void RoomDlg_FormClosed(object sender, FormClosedEventArgs e)
@@ -60,6 +66,7 @@ namespace StoryDesigner
 
         void RoomDlg_Paint(object sender, PaintEventArgs e)
         {
+            e.Graphics.TranslateTransform(-mRoom.ScrollOffset.x, -mRoom.ScrollOffset.y);
             if (mRoom.ParallaxBackground.Length > 0)
             {
                 Bitmap bmp = mData.getImage(mRoom.ParallaxBackground);

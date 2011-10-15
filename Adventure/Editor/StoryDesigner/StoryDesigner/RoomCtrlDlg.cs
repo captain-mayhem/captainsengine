@@ -10,6 +10,12 @@ namespace StoryDesigner
 {
     public partial class RoomCtrlDlg : Form
     {
+        public class RedrawEventArgs : EventArgs
+        {
+        }
+        public delegate void RedrawEventHandler(object sender, RedrawEventArgs e);
+        public event RedrawEventHandler RedrawRoom;
+
         public RoomCtrlDlg(Room room, AdvData data)
         {
             InitializeComponent();
@@ -25,7 +31,9 @@ namespace StoryDesigner
             }
             zoomfactor.SelectedItem = mRoom.Zoom;
             doublewalkmap.Checked = mRoom.DoubleWalkmap;
+            roomwidth.Minimum = data.Settings.Resolution.x;
             roomwidth.Maximum = data.Settings.Resolution.x * 3;
+            roomheight.Minimum = data.Settings.Resolution.y;
             roomheight.Maximum = data.Settings.Resolution.y * 2;
             roomwidth.Value = mRoom.Size.x;
             roomheight.Value = mRoom.Size.y;
@@ -34,6 +42,8 @@ namespace StoryDesigner
             scroller.MouseDown += new MouseEventHandler(scroller_MouseDown);
             scroller.MouseMove += new MouseEventHandler(scroller_MouseMove);
             scroller.MouseUp += new MouseEventHandler(scroller_MouseUp);
+            roomwidth.ValueChanged += new EventHandler(roomwidth_ValueChanged);
+            roomheight.ValueChanged += new EventHandler(roomheight_ValueChanged);
         }
 
         void scroller_MouseUp(object sender, MouseEventArgs e)
@@ -56,11 +66,12 @@ namespace StoryDesigner
                 realy = 0;
             mRoom.ScrollOffset.x = (int)(realx * 3.0f / scroller.Width * mData.Settings.Resolution.x);
             mRoom.ScrollOffset.y = (int)(realy * 2.0f / scroller.Height * mData.Settings.Resolution.y);
-            if (mRoom.ScrollOffset.x > mRoom.Size.x - mData.Settings.Resolution.x+3)
-                mRoom.ScrollOffset.x = mRoom.Size.x - mData.Settings.Resolution.x+3;
-            if (mRoom.ScrollOffset.y > mRoom.Size.y - mData.Settings.Resolution.y + 7)
-                mRoom.ScrollOffset.y = mRoom.Size.y - mData.Settings.Resolution.y + 7;
+            if (mRoom.ScrollOffset.x > mRoom.Size.x - mData.Settings.Resolution.x)
+                mRoom.ScrollOffset.x = mRoom.Size.x - mData.Settings.Resolution.x;
+            if (mRoom.ScrollOffset.y > mRoom.Size.y - mData.Settings.Resolution.y)
+                mRoom.ScrollOffset.y = mRoom.Size.y - mData.Settings.Resolution.y;
             scroller.Invalidate();
+            redrawRoom();
         }
 
         void scroller_MouseDown(object sender, MouseEventArgs e)
@@ -148,5 +159,123 @@ namespace StoryDesigner
         private DrawableObject mObject;
         private Vec2i mDragOffset;
         private Vec2f mScrollOffset;
+
+        private void roomwidth_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown ctrl = (NumericUpDown)sender;
+            mRoom.Size.x = (int)ctrl.Value;
+            scroller.Invalidate();
+        }
+
+        private void roomheight_ValueChanged(object sender, EventArgs e)
+        {
+            NumericUpDown ctrl = (NumericUpDown)sender;
+            mRoom.Size.y = (int)ctrl.Value;
+            scroller.Invalidate();
+        }
+
+        private void zoomfactor_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            mRoom.Zoom = Convert.ToInt32(zoomfactor.Text);
+        }
+
+        private void doublewalkmap_CheckedChanged(object sender, EventArgs e)
+        {
+            mRoom.DoubleWalkmap = doublewalkmap.Checked;
+        }
+
+        private void redrawRoom()
+        {
+            if (RedrawRoom != null)
+                RedrawRoom(this, new RedrawEventArgs());
+        }
+
+        private void look_up_CheckedChanged(object sender, EventArgs e)
+        {
+            CharacterInstance chr = (CharacterInstance)mObject;
+            chr.LookDir = 2;
+            redrawRoom();
+        }
+
+        private void look_right_CheckedChanged(object sender, EventArgs e)
+        {
+            CharacterInstance chr = (CharacterInstance)mObject;
+            chr.LookDir = 3;
+            redrawRoom();
+        }
+
+        private void look_down_CheckedChanged(object sender, EventArgs e)
+        {
+            CharacterInstance chr = (CharacterInstance)mObject;
+            chr.LookDir = 1;
+            redrawRoom();
+        }
+
+        private void look_left_CheckedChanged(object sender, EventArgs e)
+        {
+            CharacterInstance chr = (CharacterInstance)mObject;
+            chr.LookDir = 4;
+            redrawRoom();
+        }
+
+        private void chr_locked_CheckedChanged(object sender, EventArgs e)
+        {
+            CharacterInstance chr = (CharacterInstance)mObject;
+            chr.Locked = chr_locked.Checked;
+        }
+
+        private void chr_unmovable_CheckedChanged(object sender, EventArgs e)
+        {
+            CharacterInstance chr = (CharacterInstance)mObject;
+            chr.Unmovable = chr_unmovable.Checked;
+        }
+
+        private void obj_locked_CheckedChanged(object sender, EventArgs e)
+        {
+            ObjectInstance obj = (ObjectInstance)mObject;
+            obj.Locked = obj_locked.Checked;
+        }
+
+        private void obj_state_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ObjectInstance obj = (ObjectInstance)mObject;
+            obj.State = Convert.ToInt32(obj_state.Text);
+            redrawRoom();
+        }
+
+        private void draw_back_CheckedChanged(object sender, EventArgs e)
+        {
+            ObjectInstance obj = (ObjectInstance)mObject;
+            obj.Layer = 0;
+            redrawRoom();
+        }
+
+        private void draw_middle_CheckedChanged(object sender, EventArgs e)
+        {
+            ObjectInstance obj = (ObjectInstance)mObject;
+            obj.Layer = 1;
+            redrawRoom();
+        }
+
+        private void draw_front_CheckedChanged(object sender, EventArgs e)
+        {
+            ObjectInstance obj = (ObjectInstance)mObject;
+            obj.Layer = 2;
+            redrawRoom();
+        }
+
+        private void chr_editscript_Click(object sender, EventArgs e)
+        {
+            CharacterInstance chr = (CharacterInstance)mObject;
+            MainForm form = (MainForm)this.Owner.Owner;
+            form.showScript(Script.Type.CHARACTER, chr.Name.ToLower());
+        }
+
+        private void obj_editscript_Click(object sender, EventArgs e)
+        {
+            ObjectInstance obj = (ObjectInstance)mObject;
+            MainForm form = (MainForm)this.Owner.Owner;
+            form.showScript(Script.Type.OBJECT, obj.Name.ToLower()+";"+mRoom.Name.ToLower());
+        }
     }
 }

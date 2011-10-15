@@ -758,7 +758,16 @@ namespace StoryDesigner
         }
         public override void draw(Graphics g)
         {
-            draw(g, LookDir, RawPosition);
+            int state = LookDir;
+            if (LookDir == 4)
+                state = 3;
+            Vec2i size = mData.getSize(state);
+            Bitmap bmp = new Bitmap(size.x, size.y);
+            Graphics gbmp = Graphics.FromImage(bmp);
+            draw(gbmp, state, new Vec2i(0,0));
+            if (LookDir == 4)
+                bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
+            g.DrawImage(bmp, RawPosition.x, RawPosition.y);
         }
         public override bool isHit(Vec2i pos)
         {
