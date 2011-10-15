@@ -23,7 +23,11 @@ namespace StoryDesigner
                     text = "Item";
                     break;
             }
-            this.Text = "Script (" + scr.Name + " / " + text + ")";
+            string name = scr.Name;
+            if (name.Contains(";")){
+                name = name.Substring(0, name.IndexOf(';'));
+            }
+            this.Text = "Script (" + name + " / " + text + ")";
             scripttext.Text = scr.Text;
         }
     }
