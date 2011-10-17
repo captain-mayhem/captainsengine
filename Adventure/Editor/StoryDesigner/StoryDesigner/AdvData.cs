@@ -740,23 +740,41 @@ namespace StoryDesigner
                 return false;
             return true;
         }
+        public void drawBoundary(Graphics g, int state, Vec2i position)
+        {
+            Pen p = Pens.Red;
+            const int span = 4;
+            g.DrawLine(p, position.x - 1, position.y - 1, position.x + span, position.y - 1);
+            g.DrawLine(p, position.x - 1, position.y - 1, position.x - 1, position.y + span);
+            Vec2i size = mData.getSize(state);
+            g.DrawLine(p, position.x + size.x, position.y - 1, position.x + size.x - span -1 , position.y - 1);
+            g.DrawLine(p, position.x + size.x, position.y - 1, position.x + size.x, position.y + span);
+
+            g.DrawLine(p, position.x - 1, position.y + size.y, position.x + span, position.y + size.y);
+            g.DrawLine(p, position.x - 1, position.y + size.y, position.x - 1, position.y + size.y - span-1);
+
+            g.DrawLine(p, position.x +size.x, position.y + size.y, position.x + size.x -span - 1, position.y + size.y);
+            g.DrawLine(p, position.x +size.x, position.y + size.y, position.x + size.x, position.y + size.y - span - 1);
+        }
         protected IStateFrameData mData;
     }
 
     public abstract class DrawableObject : Drawable{
         public DrawableObject(IStateFrameData data) : base(data) { }
-        public abstract void draw(Graphics g);
+        public abstract void draw(Graphics g, bool boundary);
         public abstract bool isHit(Vec2i pos);
         public abstract Vec2i getPosition();
         public abstract void setPosition(Vec2i pos);
+        public abstract Vec2i getSize();
+        public abstract bool isLocked();
     }
 
     public class CharacterInstance : DrawableObject
     {
-        public CharacterInstance(AdvCharacter chr) : base(chr){
+        public CharacterInstance(AdvCharacter chr, AdvData data) : base(chr){
             Character = chr;
         }
-        public override void draw(Graphics g)
+        public override void draw(Graphics g, bool boundary)
         {
             int state = LookDir;
             if (LookDir == 4)
@@ -768,6 +786,8 @@ namespace StoryDesigner
             if (LookDir == 4)
                 bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
             g.DrawImage(bmp, RawPosition.x, RawPosition.y);
+            if (boundary)
+                drawBoundary(g, state, RawPosition);
         }
         public override bool isHit(Vec2i pos)
         {
@@ -780,6 +800,17 @@ namespace StoryDesigner
         public override void setPosition(Vec2i pos)
         {
             Position = pos;
+        }
+        public override Vec2i getSize()
+        {
+            int state = LookDir;
+            if (LookDir == 4)
+                state = 3;
+            return mData.getSize(state);
+        }
+        public override bool isLocked()
+        {
+            return Locked;
         }
         public string Name;
         public AdvCharacter Character;
@@ -803,12 +834,24 @@ namespace StoryDesigner
 
     public class ObjectInstance : DrawableObject
     {
-        public ObjectInstance(AdvObject obj) : base(obj) {
+        public ObjectInstance(AdvObject obj, AdvData data) : base(obj) {
             Object = obj;
+            mAdvData = data;
         }
-        public override void draw(Graphics g)
+        public override void draw(Graphics g, bool boundary)
         {
             draw(g, State, Position);
+            if (boundary)
+            {
+                drawBoundary(g, State, Position);
+                if (Layer == 1)
+                {
+                    int ycenter = Depth * mAdvData.WalkGridSize - mAdvData.WalkGridSize/2;
+                    g.DrawLine(Pens.Blue, Position.x, Position.y, Position.x, ycenter);
+                    g.FillRectangle(Brushes.Blue, Position.x - 2, ycenter - 2, 5, 5);
+                    g.DrawRectangle(Pens.Blue, Position.x - 5, ycenter - 5, 10, 10);
+                }
+            }
         }
         public override bool isHit(Vec2i pos)
         {
@@ -822,6 +865,14 @@ namespace StoryDesigner
         {
             Position = pos;
         }
+        public override Vec2i getSize()
+        {
+            return mData.getSize(State);
+        }
+        public override bool isLocked()
+        {
+            return Locked;
+        }
         public string Name;
         public AdvObject Object;
         public Vec2i Position;
@@ -829,6 +880,7 @@ namespace StoryDesigner
         public int Layer;
         public int Depth;
         public bool Locked;
+        private AdvData mAdvData;
     }
 
     public class AdvData

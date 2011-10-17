@@ -48,6 +48,8 @@ namespace StoryDesigner
         {
             if (mDragObject == null)
                 return;
+            if (mDragObject.isLocked())
+                return;
             Vec2i pos = new Vec2i(e.X, e.Y);
             mDragObject.setPosition(pos + mDragOffset);
             this.Invalidate();
@@ -56,7 +58,7 @@ namespace StoryDesigner
         void RoomDlg_MouseDown(object sender, MouseEventArgs e)
         {
             Vec2i pos = new Vec2i(e.X, e.Y);
-            mDragObject = getObjectAt(pos);
+            mDragObject = getObjectAt(pos+mRoom.ScrollOffset);
             mControl.SelectedObject = mDragObject;
             if (mDragObject != null)
             {
@@ -94,7 +96,7 @@ namespace StoryDesigner
 
             foreach (System.Collections.Generic.KeyValuePair<int,DrawableObject> pair in blitqueue)
             {
-                pair.Value.draw(e.Graphics);
+                pair.Value.draw(e.Graphics, true);
             }
         }
 

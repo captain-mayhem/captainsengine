@@ -419,7 +419,7 @@ namespace StoryDesigner
                 else if (typename[0] == "Rcharacter")
                 {
                     string chr = rdr.ReadLine();
-                    CharacterInstance charinst = new CharacterInstance(mAdv.getCharacter(chr));
+                    CharacterInstance charinst = new CharacterInstance(mAdv.getCharacter(chr), mAdv);
                     if (charinst.Character == null)
                         throw new UnexpectedValueException("No character for character instance found");
                     charinst.Name = typename[1];
@@ -490,7 +490,7 @@ namespace StoryDesigner
                 else if (typename[0] == "Roomobject")
                 {
                     string obj = rdr.ReadLine();
-                    ObjectInstance objinst = new ObjectInstance(mAdv.getObject(obj));
+                    ObjectInstance objinst = new ObjectInstance(mAdv.getObject(obj), mAdv);
                     if (objinst.Object == null)
                         throw new UnexpectedValueException("No object for object instance found");
                     objinst.Name = typename[1];
