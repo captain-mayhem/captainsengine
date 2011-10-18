@@ -46,18 +46,48 @@ namespace StoryDesigner
 
         void RoomDlg_MouseMove(object sender, MouseEventArgs e)
         {
+            mMousePos.x = e.X;
+            mMousePos.y = e.Y;
+            Invalidate();
             if (mDragObject == null)
                 return;
-            if (mDragObject.isLocked())
+            if (mDragObject.isLocked() && !mDragDepth)
                 return;
             Vec2i pos = new Vec2i(e.X, e.Y);
-            mDragObject.setPosition(pos + mDragOffset);
-            this.Invalidate();
+            if (mDragDepth)
+            {
+                ObjectInstance obj = (ObjectInstance)mDragObject;
+                obj.Depth = (e.Y + 5 + mDragOffset.y + mData.WalkGridSize / 2) / mData.WalkGridSize;
+                if (obj.Depth < 1)
+                    obj.Depth = 1;
+                if (obj.Depth > mRoom.Size.y / mData.WalkGridSize)
+                    obj.Depth = mRoom.Size.y / mData.WalkGridSize;
+                Console.WriteLine(obj.Depth);
+            }
+            else
+            {
+                mDragObject.setPosition(pos + mDragOffset);
+            }
+            //this.Invalidate();
         }
 
         void RoomDlg_MouseDown(object sender, MouseEventArgs e)
         {
             Vec2i pos = new Vec2i(e.X, e.Y);
+            foreach (ObjectInstance obj in mRoom.Objects)
+            {
+                if (obj.Layer != 1)
+                    continue;
+                Vec2i depthcenter = new Vec2i(obj.Position.x, obj.Depth * mData.WalkGridSize - mData.WalkGridSize / 2);
+                if ((depthcenter - pos-mRoom.ScrollOffset).length() <= 5)
+                {
+                    mDragObject = obj;
+                    mDragOffset = depthcenter - pos;
+                    mDragDepth = true;
+                    return;
+                }
+            }
+            mDragDepth = false;
             mDragObject = getObjectAt(pos+mRoom.ScrollOffset);
             mControl.SelectedObject = mDragObject;
             if (mDragObject != null)
@@ -98,6 +128,23 @@ namespace StoryDesigner
             {
                 pair.Value.draw(e.Graphics, true);
             }
+            Vec2i mp = mMousePos + mRoom.ScrollOffset;
+            string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x/mData.WalkGridSize, mRoom.ScrollOffset.y/mData.WalkGridSize, mp.x/mData.WalkGridSize+1, mp.y/mData.WalkGridSize+1, 'F', mp.x, mp.y);
+            Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
+            e.Graphics.DrawString(s, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y);
+            string s2 = "Object:";
+            DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset);
+            if (drob is ObjectInstance)
+            {
+                ObjectInstance obj = (ObjectInstance)drob;
+                s2 = String.Format("Object: {0} (PixelPos: {1},{2})", obj.Name, obj.Position.x, obj.Position.y);
+            }
+            else if (drob is CharacterInstance)
+            {
+                CharacterInstance chr = (CharacterInstance)drob;
+                s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, chr.Position.x/mData.WalkGridSize+1, chr.Position.y/mData.WalkGridSize+1);
+            }
+            e.Graphics.DrawString(s2, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y+f.Height);
         }
 
         public Room Room
@@ -175,6 +222,8 @@ namespace StoryDesigner
         private AdvData mData;
         private DrawableObject mDragObject;
         private Vec2i mDragOffset;
+        private bool mDragDepth;
         private RoomCtrlDlg mControl;
+        private Vec2i mMousePos;
     }
 }
