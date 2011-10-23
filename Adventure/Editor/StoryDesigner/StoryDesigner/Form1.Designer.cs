@@ -376,6 +376,7 @@ namespace StoryDesigner
             this.walkmapOnToolStripMenuItem.Name = "walkmapOnToolStripMenuItem";
             this.walkmapOnToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.walkmapOnToolStripMenuItem.Text = "Walkmap on";
+            this.walkmapOnToolStripMenuItem.Click += new System.EventHandler(this.walkmapOnToolStripMenuItem_Click);
             // 
             // deepmapOnToolStripMenuItem
             // 

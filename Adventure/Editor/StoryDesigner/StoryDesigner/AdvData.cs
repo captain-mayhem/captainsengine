@@ -702,9 +702,14 @@ namespace StoryDesigner
         public Vec2i InvPos;
         public Vec2i InvSize;
         public Vec2f InvScale;
-        public ArrayList Walkmap = new ArrayList();
         public ArrayList Objects = new ArrayList();
         public ArrayList Characters = new ArrayList();
+        public struct WalkMapEntry
+        {
+            public bool isFree;
+            public bool hasScript;
+        }
+        public WalkMapEntry[,] Walkmap = null;
     }
 
     public class Drawable

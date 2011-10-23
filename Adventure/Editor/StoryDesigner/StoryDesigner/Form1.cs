@@ -133,7 +133,7 @@ namespace StoryDesigner
                         pos = mRoomDlg.Location;
                         mRoomDlg.Close();
                     }
-                    mRoomDlg = new RoomDlg(room, mData);
+                    mRoomDlg = new RoomDlg(room, mData, mRoomView);
                     mRoomDlg.StartPosition = FormStartPosition.Manual;
                     mRoomDlg.Location = pos;
                     mRoomDlg.Show(this);
@@ -197,6 +197,7 @@ namespace StoryDesigner
         private RoomDlg mRoomDlg;
         private string mLastName;
         private ResourceID mLastID;
+        private RoomDlg.ViewMode mRoomView = RoomDlg.ViewMode.Objects;
 
         private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -294,6 +295,23 @@ namespace StoryDesigner
 
             AdvFileWriter writer = new AdvFileWriter(mData);
             writer.writeGame(".");
+        }
+
+        private void walkmapOnToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripDropDownItem item = (ToolStripDropDownItem)sender;
+            if (mRoomView != RoomDlg.ViewMode.Walkmap)
+            {
+                item.Text = "Walkmap off";
+                mRoomView = RoomDlg.ViewMode.Walkmap;
+            }
+            else
+            {
+                item.Text = "Walkmap on";
+                mRoomView = RoomDlg.ViewMode.Objects;
+            }
+            if (mRoomDlg != null)
+                mRoomDlg.Viewmode = mRoomView;
         }
     }
 }
