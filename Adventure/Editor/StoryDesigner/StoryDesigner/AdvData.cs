@@ -1044,11 +1044,15 @@ namespace StoryDesigner
         }
         public Script getScript(Script.Type type, string name)
         {
-            return mScripts[new KeyValuePair<Script.Type, string>(type, name)];
+            KeyValuePair<Script.Type, string> pair = new KeyValuePair<Script.Type, string>(type, name);
+            if (mScripts.ContainsKey(pair))
+                return mScripts[pair];
+            return null;
         }
 
         public void addWalkmapScript(Script scr, Vec2i pos, string roomname)
         {
+            addScript(scr);
         }
 
         public int WalkGridSize
