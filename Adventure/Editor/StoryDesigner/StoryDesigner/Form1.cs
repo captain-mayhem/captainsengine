@@ -27,8 +27,9 @@ namespace StoryDesigner
             Script scr = mData.getScript(type, name);
             if (scr == null)
             {
-                MessageBox.Show("Cannot find script " + name);
-                return;
+                scr = new Script(type);
+                scr.Name = name;
+                mData.addScript(scr);
             }
             mScriptDlg = new ScriptDlg(scr);
             mScriptDlg.Show(this);

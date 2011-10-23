@@ -30,12 +30,26 @@ namespace StoryDesigner
             this.MouseDown += new MouseEventHandler(RoomDlg_MouseDown);
             this.MouseMove += new MouseEventHandler(RoomDlg_MouseMove);
             this.MouseUp += new MouseEventHandler(RoomDlg_MouseUp);
+            this.DoubleClick += new EventHandler(RoomDlg_DoubleClick);
             this.FormClosed += new FormClosedEventHandler(RoomDlg_FormClosed);
             mControl = new RoomCtrlDlg(room, data);
             mControl.Location = new Point(Screen.GetWorkingArea(this).Width-mControl.Width, 0);
             mControl.StartPosition = FormStartPosition.Manual;
             mControl.Show(this);
             mControl.RedrawRoom += new RoomCtrlDlg.RedrawEventHandler(mControl_RedrawRoom);
+        }
+
+        void RoomDlg_DoubleClick(object sender, EventArgs e)
+        {
+            if (mMode != ViewMode.Walkmap)
+                return;
+            Vec2i mp = mMousePos + mRoom.ScrollOffset;
+            int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
+            int wmx = wmscale * mp.x / mData.WalkGridSize;
+            int wmy = wmscale * mp.y / mData.WalkGridSize;
+            MainForm form = (MainForm)this.Owner;
+            string scrname = String.Format("#{0:D3}{1:D3}{2}", wmx+1, wmy+1, mRoom.Name.ToLower());
+            form.showScript(Script.Type.WALKMAP, scrname);
         }
 
         void mControl_RedrawRoom(object sender, RoomCtrlDlg.RedrawEventArgs e)
@@ -81,6 +95,18 @@ namespace StoryDesigner
 
         void RoomDlg_MouseDown(object sender, MouseEventArgs e)
         {
+            Point click = new Point(e.X, e.Y);
+            if (e.Button == MouseButtons.Right)
+            {
+                if (mMode == ViewMode.Objects)
+                {
+                    menuRemoveBackground.Show(this, click);
+                }
+                else if (mMode == ViewMode.Walkmap)
+                {
+                    menuWalkmap.Show(this, click);
+                }
+            }
             Vec2i pos = new Vec2i(e.X, e.Y);
             foreach (ObjectInstance obj in mRoom.Objects)
             {
@@ -137,6 +163,12 @@ namespace StoryDesigner
                 pair.Value.draw(e.Graphics, mMode == ViewMode.Objects);
             }
 
+            //draw view specific stuff
+            Vec2i mp = mMousePos + mRoom.ScrollOffset;
+            int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
+            int wmx = wmscale * mp.x / mData.WalkGridSize;
+            int wmy = wmscale * mp.y / mData.WalkGridSize;
+            bool wmfree = mRoom.Walkmap[wmx, wmy].isFree;
             if (mMode == ViewMode.Walkmap)
             {
                 float scale = mRoom.DoubleWalkmap ? 0.5f : 1;
@@ -170,18 +202,19 @@ namespace StoryDesigner
                 {
                     e.Graphics.DrawLine(Pens.Brown, 0, i, mRoom.Size.x, i);
                 }
+                //draw cursor
+                e.Graphics.DrawEllipse(Pens.Black, (wmx * mData.WalkGridSize + 2) * scale,
+                                (wmy * mData.WalkGridSize + 2) * scale,
+                                (mData.WalkGridSize - 4) * scale, (mData.WalkGridSize - 4) * scale);
+                e.Graphics.DrawEllipse(Pens.LightGray, (wmx * mData.WalkGridSize + 1) * scale,
+                                (wmy * mData.WalkGridSize + 1) * scale,
+                                (mData.WalkGridSize - 2) * scale, (mData.WalkGridSize - 2) * scale);
             }
 
             //draw information
-
+            Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
             if (mMode == ViewMode.Objects){
-                Vec2i mp = mMousePos + mRoom.ScrollOffset;
-                int scale = mRoom.DoubleWalkmap ? 2 : 1;
-                int wmx = scale*mp.x/mData.WalkGridSize;
-                int wmy = scale*mp.y/mData.WalkGridSize;
-                bool wmfree = mRoom.Walkmap[wmx, wmy].isFree;
                 string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x/mData.WalkGridSize, mRoom.ScrollOffset.y/mData.WalkGridSize, wmx+1, wmy+1, wmfree ? 'F' : 'B', mp.x, mp.y);
-                Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
                 e.Graphics.DrawString(s, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y);
                 string s2 = "Object:";
                 DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset);
@@ -193,9 +226,14 @@ namespace StoryDesigner
                 else if (drob is CharacterInstance)
                 {
                     CharacterInstance chr = (CharacterInstance)drob;
-                    s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, scale*chr.Position.x/mData.WalkGridSize+1, scale*chr.Position.y/mData.WalkGridSize+1);
+                    s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, wmscale*chr.Position.x/mData.WalkGridSize+1, wmscale*chr.Position.y/mData.WalkGridSize+1);
                 }
                 e.Graphics.DrawString(s2, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y+f.Height);
+            }
+            else if (mMode == ViewMode.Walkmap)
+            {
+                string s = String.Format("{0} ({1},{2})", wmfree ? "Free" : "Blocked", wmx + 1, wmy + 1);
+                e.Graphics.DrawString(s, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y);
             }
         }
 
