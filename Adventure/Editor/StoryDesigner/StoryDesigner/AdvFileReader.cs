@@ -480,7 +480,24 @@ namespace StoryDesigner
                     room.InvScale.y = (float)Convert.ToDouble(inventory[5]);
                     //walkmap
                     str = rdr.ReadLine();
-                    //TODO
+                    int walkmapX = 32;
+                    int walkGridSize = mAdv.Settings.Resolution.x / walkmapX;
+                    int walkmapY = mAdv.Settings.Resolution.y / walkGridSize;
+                    walkmapX *= 3;
+                    walkmapY *= 2;
+                    if (ver_major >= 3)
+                    {
+                        walkmapX *= 2;
+                        walkmapY *= 2;
+                    }
+                    room.Walkmap = new Room.WalkMapEntry[walkmapX,walkmapY];
+                    for (int i = 0; i < walkmapX * walkmapY; ++i)
+                    {
+                        int x = i / walkmapY;
+                        int y = i % walkmapY;
+                        room.Walkmap[x, y].isFree = str[2 * i] != '1';
+                        room.Walkmap[x, y].hasScript = str[2 * i + 1] == '1';
+                    }
                     if (mCharacterInstances.ContainsKey(room.Name.ToLower()))
                         room.Characters = mCharacterInstances[room.Name.ToLower()];
                     mAdv.addRoom(room);

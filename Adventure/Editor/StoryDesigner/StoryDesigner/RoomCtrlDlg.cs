@@ -182,6 +182,7 @@ namespace StoryDesigner
         private void doublewalkmap_CheckedChanged(object sender, EventArgs e)
         {
             mRoom.DoubleWalkmap = doublewalkmap.Checked;
+            redrawRoom();
         }
 
         private void redrawRoom()

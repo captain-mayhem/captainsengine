@@ -10,11 +10,20 @@ namespace StoryDesigner
 {
     public partial class RoomDlg : Form
     {
-        public RoomDlg(Room room, AdvData data)
+        public enum ViewMode
+        {
+            Objects,
+            Walkmap,
+            Deepmap,
+            Specialfx
+        };
+
+        public RoomDlg(Room room, AdvData data, ViewMode mode)
         {
             InitializeComponent();
             mRoom = room;
             mData = data;
+            mMode = mode;
             this.Text = "Room (" + room.Name + ")";
             this.ClientSize = new Size(data.Settings.Resolution.x, data.Settings.Resolution.y);
             this.Paint += new PaintEventHandler(RoomDlg_Paint);
@@ -62,7 +71,6 @@ namespace StoryDesigner
                     obj.Depth = 1;
                 if (obj.Depth > mRoom.Size.y / mData.WalkGridSize)
                     obj.Depth = mRoom.Size.y / mData.WalkGridSize;
-                Console.WriteLine(obj.Depth);
             }
             else
             {
@@ -126,25 +134,69 @@ namespace StoryDesigner
 
             foreach (System.Collections.Generic.KeyValuePair<int,DrawableObject> pair in blitqueue)
             {
-                pair.Value.draw(e.Graphics, true);
+                pair.Value.draw(e.Graphics, mMode == ViewMode.Objects);
             }
-            Vec2i mp = mMousePos + mRoom.ScrollOffset;
-            string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x/mData.WalkGridSize, mRoom.ScrollOffset.y/mData.WalkGridSize, mp.x/mData.WalkGridSize+1, mp.y/mData.WalkGridSize+1, 'F', mp.x, mp.y);
-            Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
-            e.Graphics.DrawString(s, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y);
-            string s2 = "Object:";
-            DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset);
-            if (drob is ObjectInstance)
+
+            if (mMode == ViewMode.Walkmap)
             {
-                ObjectInstance obj = (ObjectInstance)drob;
-                s2 = String.Format("Object: {0} (PixelPos: {1},{2})", obj.Name, obj.Position.x, obj.Position.y);
+                float scale = mRoom.DoubleWalkmap ? 0.5f : 1;
+                SolidBrush b = new SolidBrush(Color.FromArgb(100, Color.Blue));
+                for (int x = 0; x < mRoom.Walkmap.GetLength(0); ++x)
+                {
+                    for (int y = 0; y < mRoom.Walkmap.GetLength(1); ++y)
+                    {
+                        if (!mRoom.Walkmap[x, y].isFree)
+                        {
+                            e.Graphics.FillRectangle(b, x * mData.WalkGridSize * scale, y * mData.WalkGridSize * scale,
+                                mData.WalkGridSize * scale, mData.WalkGridSize * scale);
+                        }
+                        if (mRoom.Walkmap[x, y].hasScript)
+                        {
+                            e.Graphics.DrawRectangle(Pens.Black, (x * mData.WalkGridSize + 4) * scale,
+                                (y * mData.WalkGridSize + 4) * scale,
+                                (mData.WalkGridSize - 8) * scale, (mData.WalkGridSize - 8) * scale);
+                            e.Graphics.DrawRectangle(Pens.Yellow, (x * mData.WalkGridSize + 4) * scale + 1,
+                                (y * mData.WalkGridSize + 4) * scale + 1,
+                                (mData.WalkGridSize - 8) * scale, (mData.WalkGridSize - 8) * scale);
+                        }
+                    }
+                }
+                //draw grid
+                for (float i = mData.WalkGridSize*scale; i < mRoom.Size.x; i += mData.WalkGridSize*scale)
+                {
+                    e.Graphics.DrawLine(Pens.Brown, i, 0, i, mRoom.Size.y);
+                }
+                for (float i = mData.WalkGridSize*scale; i < mRoom.Size.y; i += mData.WalkGridSize*scale)
+                {
+                    e.Graphics.DrawLine(Pens.Brown, 0, i, mRoom.Size.x, i);
+                }
             }
-            else if (drob is CharacterInstance)
-            {
-                CharacterInstance chr = (CharacterInstance)drob;
-                s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, chr.Position.x/mData.WalkGridSize+1, chr.Position.y/mData.WalkGridSize+1);
+
+            //draw information
+
+            if (mMode == ViewMode.Objects){
+                Vec2i mp = mMousePos + mRoom.ScrollOffset;
+                int scale = mRoom.DoubleWalkmap ? 2 : 1;
+                int wmx = scale*mp.x/mData.WalkGridSize;
+                int wmy = scale*mp.y/mData.WalkGridSize;
+                bool wmfree = mRoom.Walkmap[wmx, wmy].isFree;
+                string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x/mData.WalkGridSize, mRoom.ScrollOffset.y/mData.WalkGridSize, wmx+1, wmy+1, wmfree ? 'F' : 'B', mp.x, mp.y);
+                Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
+                e.Graphics.DrawString(s, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y);
+                string s2 = "Object:";
+                DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset);
+                if (drob is ObjectInstance)
+                {
+                    ObjectInstance obj = (ObjectInstance)drob;
+                    s2 = String.Format("Object: {0} (PixelPos: {1},{2})", obj.Name, obj.Position.x, obj.Position.y);
+                }
+                else if (drob is CharacterInstance)
+                {
+                    CharacterInstance chr = (CharacterInstance)drob;
+                    s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, scale*chr.Position.x/mData.WalkGridSize+1, scale*chr.Position.y/mData.WalkGridSize+1);
+                }
+                e.Graphics.DrawString(s2, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y+f.Height);
             }
-            e.Graphics.DrawString(s2, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y+f.Height);
         }
 
         public Room Room
@@ -218,6 +270,11 @@ namespace StoryDesigner
             return chr.Position.y / mData.WalkGridSize;
         }
 
+        public ViewMode Viewmode
+        {
+            set { mMode = value; Invalidate(); }
+        }
+
         private Room mRoom;
         private AdvData mData;
         private DrawableObject mDragObject;
@@ -225,5 +282,6 @@ namespace StoryDesigner
         private bool mDragDepth;
         private RoomCtrlDlg mControl;
         private Vec2i mMousePos;
+        private ViewMode mMode;
     }
 }
