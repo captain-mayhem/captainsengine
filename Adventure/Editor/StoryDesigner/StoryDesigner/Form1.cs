@@ -15,9 +15,34 @@ namespace StoryDesigner
             InitializeComponent();
             mediaPool.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             mediaPool.MouseDown += new MouseEventHandler(mediaPool_MouseDown);
+            mediaPool.AfterLabelEdit += new NodeLabelEditEventHandler(gamePool_AfterLabelEdit);
             gamePool.NodeMouseDoubleClick +=new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             gamePool.MouseDown +=new MouseEventHandler(mediaPool_MouseDown);
+            gamePool.AfterLabelEdit += new NodeLabelEditEventHandler(gamePool_AfterLabelEdit);
             newToolStripMenuItem_Click(null, null);
+        }
+
+        void gamePool_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
+        {
+            if (e.Label.Length <= 0)
+            {
+                e.CancelEdit = true;
+                return;
+            }
+            e.Node.EndEdit(false);
+            TreeView view = (TreeView)sender;
+            view.LabelEdit = false;
+            ResourceID id = (ResourceID)e.Node.Tag;
+            switch (id)
+            {
+                case ResourceID.ITEM:
+                    {
+                        Item it = mData.removeItem(e.Node.Text);
+                        it.Name = e.Label;
+                        mData.addItem(it);
+                    }
+                    break;
+            }
         }
 
         public void showScript(Script.Type type, string name)
@@ -41,6 +66,12 @@ namespace StoryDesigner
             TreeNode node = pool.GetNodeAt(e.Location);
             if (node == null)
                 return;
+            mSelectedView = pool;
+            mSelectedNode = node;
+            if (e.Button == MouseButtons.Right)
+            {
+                menuPool.Show(pool, e.X, e.Y);
+            }
             if (e.Clicks > 1)
             {
                 TreeNodeMouseClickEventArgs args = new TreeNodeMouseClickEventArgs(node, e.Button, e.Clicks, e.X, e.Y);
@@ -199,6 +230,8 @@ namespace StoryDesigner
         private string mLastName;
         private ResourceID mLastID;
         private RoomDlg.ViewMode mRoomView = RoomDlg.ViewMode.Objects;
+        private TreeView mSelectedView;
+        private TreeNode mSelectedNode;
 
         private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -244,22 +277,13 @@ namespace StoryDesigner
                     MessageBox.Show("Image with same name already added");
                     return;
                 }
-                TreeNode node = mediaPool.SelectedNode;
-                if (node == null)
-                    node = mediaPool.Nodes[0];
-                else
-                {
-                    TreeNode parent = node;
-                    while (parent.Parent != null)
-                        parent = parent.Parent;
-                    if (parent != mediaPool.Nodes[0])
-                        node = mediaPool.Nodes[0];
-                }
-                if ((ResourceID)node.Tag != ResourceID.FOLDER)
-                    node = node.Parent;
+                TreeNode parent;
+                ResourceID res = determineTypeAndFolder(mediaPool, out parent);
+                if (res != ResourceID.IMAGE)
+                    parent = mediaPool.Nodes[0];
                 TreeNode newnode = new TreeNode(file);
                 newnode.Tag = ResourceID.IMAGE;
-                node.Nodes.Add(newnode);
+                parent.Nodes.Add(newnode);
             }
         }
 
@@ -313,6 +337,68 @@ namespace StoryDesigner
             }
             if (mRoomDlg != null)
                 mRoomDlg.Viewmode = mRoomView;
+        }
+
+        private void gamepool_add_Click(object sender, EventArgs e)
+        {
+            TreeNode parent;
+            ResourceID id = determineTypeAndFolder(gamePool, out parent);
+            switch (id)
+            {
+                case ResourceID.ITEM:
+                    Item it = new Item(mData, 10);
+                    mData.addItem(it);
+                    TreeNode node = new TreeNode(it.Name);
+                    node.Tag = id;
+                    parent.Nodes.Add(node);
+                    break;
+            }
+        }
+
+        private ResourceID determineTypeAndFolder(TreeView view, out TreeNode parent)
+        {
+            TreeNode node = view.SelectedNode;
+            if (node == null)
+                node = view.Nodes[0];
+
+            parent = node;
+            if ((ResourceID)parent.Tag != ResourceID.FOLDER)
+                parent = node.Parent;
+
+            while (node.Parent != null)
+                node = node.Parent;
+            
+            if (view == gamePool)
+            {
+                if (node == gamePool.Nodes[0])
+                    return ResourceID.CHARACTER;
+                else if (node == gamePool.Nodes[1])
+                    return ResourceID.SCRIPT;
+                else if (node == gamePool.Nodes[2])
+                    return ResourceID.ITEM;
+                else if (node == gamePool.Nodes[3])
+                    return ResourceID.OBJECT;
+                else if (node == gamePool.Nodes[4])
+                    return ResourceID.ROOM;
+            }
+            else if (view == mediaPool)
+            {
+                if (node == mediaPool.Nodes[0])
+                    return ResourceID.IMAGE;
+                else if (node == mediaPool.Nodes[1])
+                    return ResourceID.MUSIC;
+                else if (node == mediaPool.Nodes[2])
+                    return ResourceID.SOUND;
+                else if (node == mediaPool.Nodes[3])
+                    return ResourceID.VIDEO;
+            }
+            return ResourceID.INVALID;
+        }
+
+        private void renameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mSelectedView.LabelEdit = true;
+            mSelectedNode.BeginEdit();
         }
     }
 }

@@ -17,6 +17,8 @@ namespace StoryDesigner
         SOUND = 6,
         FOLDER = 11,
         CHARACTER = 15,
+        VIDEO = 20,
+        INVALID = 100,
     }
 
     public enum ScreenChange
@@ -242,6 +244,18 @@ namespace StoryDesigner
         public Item(AdvData data)
         {
             mData = data;
+        }
+        public Item(AdvData data, int numStates)
+        {
+            mData = data;
+            Name = "Item" + 1;
+            for (int state = 0; state < numStates; ++state)
+            {
+                ItemState ist;
+                ist.frames = new System.Collections.ArrayList();
+                ist.fpsDivider = 20;
+                Add(ist);
+            }
         }
         public int Add(ItemState ist)
         {
@@ -1009,6 +1023,12 @@ namespace StoryDesigner
         public void addItem(Item item)
         {
             mItems.Add(item.Name.ToLower(), item);
+        }
+        public Item removeItem(string name)
+        {
+            Item it = getItem(name);
+            mItems.Remove(name);
+            return it;
         }
 
         public AdvObject getObject(string name)
