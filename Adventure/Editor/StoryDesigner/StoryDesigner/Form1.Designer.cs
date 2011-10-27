@@ -28,6 +28,7 @@ namespace StoryDesigner
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.dateiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -91,10 +92,14 @@ namespace StoryDesigner
             this.englishToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deutschToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.gamepool_add = new System.Windows.Forms.Button();
             this.mediaPool = new System.Windows.Forms.TreeView();
             this.gamePool = new System.Windows.Forms.TreeView();
+            this.menuPool = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.menuPool.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -541,6 +546,7 @@ namespace StoryDesigner
             // 
             this.panel1.AutoSize = true;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.gamepool_add);
             this.panel1.Controls.Add(this.mediaPool);
             this.panel1.Controls.Add(this.gamePool);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -549,12 +555,22 @@ namespace StoryDesigner
             this.panel1.Size = new System.Drawing.Size(343, 538);
             this.panel1.TabIndex = 1;
             // 
+            // gamepool_add
+            // 
+            this.gamepool_add.Location = new System.Drawing.Point(3, 255);
+            this.gamepool_add.Name = "gamepool_add";
+            this.gamepool_add.Size = new System.Drawing.Size(26, 23);
+            this.gamepool_add.TabIndex = 2;
+            this.gamepool_add.Text = "+";
+            this.gamepool_add.UseVisualStyleBackColor = true;
+            this.gamepool_add.Click += new System.EventHandler(this.gamepool_add_Click);
+            // 
             // mediaPool
             // 
             this.mediaPool.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.mediaPool.Location = new System.Drawing.Point(0, 275);
+            this.mediaPool.Location = new System.Drawing.Point(0, 284);
             this.mediaPool.Name = "mediaPool";
-            this.mediaPool.Size = new System.Drawing.Size(341, 261);
+            this.mediaPool.Size = new System.Drawing.Size(341, 252);
             this.mediaPool.TabIndex = 1;
             // 
             // gamePool
@@ -562,8 +578,22 @@ namespace StoryDesigner
             this.gamePool.Dock = System.Windows.Forms.DockStyle.Top;
             this.gamePool.Location = new System.Drawing.Point(0, 0);
             this.gamePool.Name = "gamePool";
-            this.gamePool.Size = new System.Drawing.Size(341, 269);
+            this.gamePool.Size = new System.Drawing.Size(341, 256);
             this.gamePool.TabIndex = 0;
+            // 
+            // menuPool
+            // 
+            this.menuPool.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.renameToolStripMenuItem});
+            this.menuPool.Name = "menuPool";
+            this.menuPool.Size = new System.Drawing.Size(153, 48);
+            // 
+            // renameToolStripMenuItem
+            // 
+            this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.renameToolStripMenuItem.Text = "Rename";
+            this.renameToolStripMenuItem.Click += new System.EventHandler(this.renameToolStripMenuItem_Click);
             // 
             // MainForm
             // 
@@ -582,6 +612,7 @@ namespace StoryDesigner
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.panel1.ResumeLayout(false);
+            this.menuPool.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -654,6 +685,9 @@ namespace StoryDesigner
         private System.Windows.Forms.ToolStripMenuItem showMousewindowToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator14;
         private System.Windows.Forms.ToolStripMenuItem toolbarOnToolStripMenuItem;
+        private System.Windows.Forms.Button gamepool_add;
+        private System.Windows.Forms.ContextMenuStrip menuPool;
+        private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
     }
 }
 
