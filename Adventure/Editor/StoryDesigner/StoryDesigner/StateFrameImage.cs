@@ -126,6 +126,8 @@ namespace StoryDesigner
                 return;
             }
             string[] pics = mData.getFrame(mState, mFrame);
+            if (pics == null)
+                return;
             for (int i = 0; i < pics.Length; ++i)
             {
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);

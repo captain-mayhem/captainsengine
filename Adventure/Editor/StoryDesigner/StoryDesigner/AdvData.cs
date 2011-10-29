@@ -479,6 +479,27 @@ namespace StoryDesigner
         {
             mData = data;
         }
+        public AdvCharacter(AdvData data, int numStates)
+        {
+            mData = data;
+            Name = "Character" + 1;
+            mWalkSpeed = 5;
+            mZoom = 100;
+            mTextColor = (UInt32)(mRand.Next(255) << 16 | mRand.Next(255) << 8 | mRand.Next(255));
+            for (int i = 1; i <= numStates - 16; ++i)
+            {
+                mExtraStateNames.Add("");
+            }
+            for (int state = 0; state < numStates; ++state)
+            {
+                CharacterState cst = new CharacterState();
+                cst.frames = new System.Collections.ArrayList();
+                cst.size = new Vec2i(120, 200);
+                cst.basepoint = new Vec2i(60, 198);
+                cst.fpsDivider = 20;
+                Add(cst);
+            }
+        }
         public int Add(CharacterState os)
         {
             return mStates.Add(os);
@@ -665,6 +686,7 @@ namespace StoryDesigner
         int mFontID;
         int mZoom;
         AdvData mData;
+        static Random mRand = new Random();
     }
 
     public class Script
@@ -1018,7 +1040,7 @@ namespace StoryDesigner
 
         public Item getItem(string name)
         {
-            return mItems[name];
+            return mItems[name.ToLower()];
         }
         public void addItem(Item item)
         {
@@ -1027,7 +1049,7 @@ namespace StoryDesigner
         public Item removeItem(string name)
         {
             Item it = getItem(name);
-            mItems.Remove(name);
+            mItems.Remove(name.ToLower());
             return it;
         }
 
@@ -1042,11 +1064,17 @@ namespace StoryDesigner
 
         public AdvCharacter getCharacter(string name)
         {
-            return mCharacters[name];
+            return mCharacters[name.ToLower()];
         }
         public void addCharacter(AdvCharacter chr)
         {
             mCharacters.Add(chr.Name.ToLower(), chr);
+        }
+        public AdvCharacter removeCharacter(string name)
+        {
+            AdvCharacter chr = getCharacter(name);
+            mCharacters.Remove(name.ToLower());
+            return chr;
         }
 
         public Room getRoom(string name)

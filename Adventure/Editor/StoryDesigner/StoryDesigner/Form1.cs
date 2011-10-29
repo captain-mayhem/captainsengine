@@ -24,14 +24,14 @@ namespace StoryDesigner
 
         void gamePool_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
-            if (e.Label.Length <= 0)
+            TreeView view = (TreeView)sender;
+            view.LabelEdit = false;
+            if (e.Label == null || e.Label.Length <= 0)
             {
                 e.CancelEdit = true;
                 return;
             }
             e.Node.EndEdit(false);
-            TreeView view = (TreeView)sender;
-            view.LabelEdit = false;
             ResourceID id = (ResourceID)e.Node.Tag;
             switch (id)
             {
@@ -42,7 +42,17 @@ namespace StoryDesigner
                         mData.addItem(it);
                     }
                     break;
+                case ResourceID.CHARACTER:
+                    {
+                        AdvCharacter chr = mData.removeCharacter(e.Node.Text);
+                        chr.Name = e.Label;
+                        mData.addCharacter(chr);
+                    }
+                    break;
             }
+            e.Node.Text = e.Label;
+            view.Sort();
+            view.SelectedNode = e.Node;
         }
 
         public void showScript(Script.Type type, string name)
@@ -346,11 +356,7 @@ namespace StoryDesigner
             switch (id)
             {
                 case ResourceID.ITEM:
-                    Item it = new Item(mData, 10);
-                    mData.addItem(it);
-                    TreeNode node = new TreeNode(it.Name);
-                    node.Tag = id;
-                    parent.Nodes.Add(node);
+                    itemToolStripMenuItem_Click(null, null);
                     break;
             }
         }
@@ -399,6 +405,40 @@ namespace StoryDesigner
         {
             mSelectedView.LabelEdit = true;
             mSelectedNode.BeginEdit();
+        }
+
+        private void itemToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode parent;
+            ResourceID res = determineTypeAndFolder(gamePool, out parent);
+            if (res != ResourceID.ITEM)
+                parent = gamePool.Nodes[2];
+            Item it = new Item(mData, 10);
+            mData.addItem(it);
+            TreeNode node = new TreeNode(it.Name);
+            node.Tag = ResourceID.ITEM;
+            parent.Nodes.Add(node);
+            gamePool.Sort();
+            gamePool.SelectedNode = node;
+            gamePool.LabelEdit = true;
+            node.BeginEdit();
+        }
+
+        private void characterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode parent;
+            ResourceID res = determineTypeAndFolder(gamePool, out parent);
+            if (res != ResourceID.CHARACTER)
+                parent = gamePool.Nodes[0];
+            AdvCharacter chr = new AdvCharacter(mData, 36);
+            mData.addCharacter(chr);
+            TreeNode node = new TreeNode(chr.Name);
+            node.Tag = ResourceID.CHARACTER;
+            parent.Nodes.Add(node);
+            gamePool.Sort();
+            gamePool.SelectedNode = node;
+            gamePool.LabelEdit = true;
+            node.BeginEdit();
         }
     }
 }
