@@ -248,7 +248,7 @@ namespace StoryDesigner
         public Item(AdvData data, int numStates)
         {
             mData = data;
-            Name = "Item" + 1;
+            Name = "Item" + (mData.NumItems+1);
             for (int state = 0; state < numStates; ++state)
             {
                 ItemState ist;
@@ -359,6 +359,19 @@ namespace StoryDesigner
         public AdvObject(AdvData data)
         {
             mData = data;
+        }
+        public AdvObject(AdvData data, int numStates)
+        {
+            mData = data;
+            Name = "Object" + (mData.NumObjects + 1);
+            mSize = new Vec2i(100, 100);
+            for (int state = 0; state < numStates; ++state)
+            {
+                ObjectState ost = new ObjectState();
+                ost.frames = new System.Collections.ArrayList();
+                ost.fpsDivider = 20;
+                Add(ost);
+            }
         }
         public int Add(ObjectState os)
         {
@@ -482,7 +495,7 @@ namespace StoryDesigner
         public AdvCharacter(AdvData data, int numStates)
         {
             mData = data;
-            Name = "Character" + 1;
+            Name = "Character" + (mData.NumCharacters+1);
             mWalkSpeed = 5;
             mZoom = 100;
             mTextColor = (UInt32)(mRand.Next(255) << 16 | mRand.Next(255) << 8 | mRand.Next(255));
@@ -725,6 +738,22 @@ namespace StoryDesigner
 
     public class Room
     {
+        public Room()
+        {
+        }
+        public Room(AdvData data)
+        {
+            Name = "Room" + (data.NumRooms + 1);
+            Size = data.Settings.Resolution;
+            Depthmap = new Vec2i(5, 10);
+            Zoom = 3;
+            Background = "";
+            ParallaxBackground = "";
+            Vec2i wmsize = data.Settings.Resolution/data.WalkGridSize;
+            wmsize.x *= 3*2;
+            wmsize.y *= 2*2;
+            Walkmap = new WalkMapEntry[wmsize.x, wmsize.y];
+        }
         public string Name;
         public Vec2i Size;
         public Vec2i ScrollOffset;
@@ -1052,6 +1081,10 @@ namespace StoryDesigner
             mItems.Remove(name.ToLower());
             return it;
         }
+        public int NumItems
+        {
+            get { return mItems.Count; }
+        }
 
         public AdvObject getObject(string name)
         {
@@ -1060,6 +1093,16 @@ namespace StoryDesigner
         public void addObject(AdvObject obj)
         {
             mObjects.Add(obj.Name.ToLower(), obj);
+        }
+        public AdvObject removeObject(string name)
+        {
+            AdvObject obj = getObject(name);
+            mObjects.Remove(name.ToLower());
+            return obj;
+        }
+        public int NumObjects
+        {
+            get { return mObjects.Count; }
         }
 
         public AdvCharacter getCharacter(string name)
@@ -1076,14 +1119,28 @@ namespace StoryDesigner
             mCharacters.Remove(name.ToLower());
             return chr;
         }
+        public int NumCharacters
+        {
+            get { return mCharacters.Count; }
+        }
 
         public Room getRoom(string name)
         {
-            return mRooms[name];
+            return mRooms[name.ToLower()];
         }
         public void addRoom(Room room)
         {
             mRooms.Add(room.Name.ToLower(), room);
+        }
+        public Room removeRoom(string name)
+        {
+            Room rm = getRoom(name);
+            mRooms.Remove(name.ToLower());
+            return rm;
+        }
+        public int NumRooms
+        {
+            get { return mRooms.Count; }
         }
 
         public void addScript(Script scr)
@@ -1092,15 +1149,33 @@ namespace StoryDesigner
         }
         public Script getScript(Script.Type type, string name)
         {
-            KeyValuePair<Script.Type, string> pair = new KeyValuePair<Script.Type, string>(type, name);
+            KeyValuePair<Script.Type, string> pair = new KeyValuePair<Script.Type, string>(type, name.ToLower());
             if (mScripts.ContainsKey(pair))
                 return mScripts[pair];
             return null;
+        }
+        public Script removeScript(Script.Type type, string name)
+        {
+            Script scr = getScript(type, name);
+            KeyValuePair<Script.Type, string> pair = new KeyValuePair<Script.Type, string>(type, name.ToLower());
+            mScripts.Remove(pair);
+            return scr;
         }
 
         public void addWalkmapScript(Script scr, Vec2i pos, string roomname)
         {
             addScript(scr);
+        }
+        public int NumCutscenes
+        {
+            get {
+                int count = 0;
+                foreach (KeyValuePair<KeyValuePair<Script.Type,string>,Script> pair in mScripts){
+                    if (pair.Key.Key == Script.Type.CUTSCENE)
+                        ++count;
+                }
+                return count;
+            }
         }
 
         public int WalkGridSize
