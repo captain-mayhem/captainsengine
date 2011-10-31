@@ -274,18 +274,21 @@ namespace StoryDesigner
             this.soundeffectToolStripMenuItem.Name = "soundeffectToolStripMenuItem";
             this.soundeffectToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.soundeffectToolStripMenuItem.Text = "Soundeffect...";
+            this.soundeffectToolStripMenuItem.Click += new System.EventHandler(this.soundeffectToolStripMenuItem_Click);
             // 
             // musicfileToolStripMenuItem
             // 
             this.musicfileToolStripMenuItem.Name = "musicfileToolStripMenuItem";
             this.musicfileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.musicfileToolStripMenuItem.Text = "Musicfile...";
+            this.musicfileToolStripMenuItem.Click += new System.EventHandler(this.musicfileToolStripMenuItem_Click);
             // 
             // videoToolStripMenuItem
             // 
             this.videoToolStripMenuItem.Name = "videoToolStripMenuItem";
             this.videoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.videoToolStripMenuItem.Text = "Video...";
+            this.videoToolStripMenuItem.Click += new System.EventHandler(this.videoToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
@@ -563,7 +566,7 @@ namespace StoryDesigner
             // 
             // gamepool_add
             // 
-            this.gamepool_add.Location = new System.Drawing.Point(3, 255);
+            this.gamepool_add.Location = new System.Drawing.Point(3, 262);
             this.gamepool_add.Name = "gamepool_add";
             this.gamepool_add.Size = new System.Drawing.Size(26, 23);
             this.gamepool_add.TabIndex = 2;
@@ -574,9 +577,9 @@ namespace StoryDesigner
             // mediaPool
             // 
             this.mediaPool.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.mediaPool.Location = new System.Drawing.Point(0, 284);
+            this.mediaPool.Location = new System.Drawing.Point(0, 291);
             this.mediaPool.Name = "mediaPool";
-            this.mediaPool.Size = new System.Drawing.Size(341, 252);
+            this.mediaPool.Size = new System.Drawing.Size(341, 245);
             this.mediaPool.TabIndex = 1;
             // 
             // gamePool
@@ -593,7 +596,7 @@ namespace StoryDesigner
             this.renameToolStripMenuItem,
             this.newSubdirectoryToolStripMenuItem});
             this.menuPool.Name = "menuPool";
-            this.menuPool.Size = new System.Drawing.Size(169, 70);
+            this.menuPool.Size = new System.Drawing.Size(169, 48);
             // 
             // renameToolStripMenuItem
             // 
