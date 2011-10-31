@@ -20,6 +20,8 @@ namespace StoryDesigner
             gamePool.MouseDown +=new MouseEventHandler(mediaPool_MouseDown);
             gamePool.AfterLabelEdit += new NodeLabelEditEventHandler(gamePool_AfterLabelEdit);
             newToolStripMenuItem_Click(null, null);
+            mSelectedView = gamePool;
+            mSelectedNode = gamePool.Nodes[0];
         }
 
         void gamePool_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
@@ -548,6 +550,90 @@ namespace StoryDesigner
             mSelectedView.SelectedNode = node;
             mSelectedView.LabelEdit = true;
             node.BeginEdit();
+        }
+
+        private void soundeffectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fod = new OpenFileDialog();
+            fod.Filter = "Sound files|*.wav;*.ogg;*.mp3;*.mp2;*.mp1";
+            fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
+            if (fod.ShowDialog() == DialogResult.OK)
+            {
+                string filename = fod.FileName;
+                string file = System.IO.Path.GetFileNameWithoutExtension(filename);
+                try
+                {
+                    //mData.Add(file, filename);
+                }
+                catch (ArgumentException)
+                {
+                    MessageBox.Show("Image with same name already added");
+                    return;
+                }
+                TreeNode parent;
+                ResourceID res = determineTypeAndFolder(mediaPool, out parent);
+                if (res != ResourceID.SOUND)
+                    parent = mediaPool.Nodes[2];
+                TreeNode newnode = new TreeNode(file);
+                newnode.Tag = ResourceID.SOUND;
+                parent.Nodes.Add(newnode);
+            }
+        }
+
+        private void musicfileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fod = new OpenFileDialog();
+            fod.Filter = "Music files|*.wav;*.ogg;*.mp3;*.mp2;*.mp1;*.it;*.xm;*.mod;*.s3m;*.mo3;*.umx";
+            fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
+            if (fod.ShowDialog() == DialogResult.OK)
+            {
+                string filename = fod.FileName;
+                string file = System.IO.Path.GetFileNameWithoutExtension(filename);
+                try
+                {
+                    //mData.Add(file, filename);
+                }
+                catch (ArgumentException)
+                {
+                    MessageBox.Show("Image with same name already added");
+                    return;
+                }
+                TreeNode parent;
+                ResourceID res = determineTypeAndFolder(mediaPool, out parent);
+                if (res != ResourceID.MUSIC)
+                    parent = mediaPool.Nodes[1];
+                TreeNode newnode = new TreeNode(file);
+                newnode.Tag = ResourceID.MUSIC;
+                parent.Nodes.Add(newnode);
+            }
+        }
+
+        private void videoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fod = new OpenFileDialog();
+            fod.Filter = "Video files|*.avi;*.swf;*.mpeg;*.mpg;*.wmv";
+            fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
+            if (fod.ShowDialog() == DialogResult.OK)
+            {
+                string filename = fod.FileName;
+                string file = System.IO.Path.GetFileNameWithoutExtension(filename);
+                try
+                {
+                    //mData.Add(file, filename);
+                }
+                catch (ArgumentException)
+                {
+                    MessageBox.Show("Image with same name already added");
+                    return;
+                }
+                TreeNode parent;
+                ResourceID res = determineTypeAndFolder(mediaPool, out parent);
+                if (res != ResourceID.VIDEO)
+                    parent = mediaPool.Nodes[3];
+                TreeNode newnode = new TreeNode(file);
+                newnode.Tag = ResourceID.VIDEO;
+                parent.Nodes.Add(newnode);
+            }
         }
     }
 }
