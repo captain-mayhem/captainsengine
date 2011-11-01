@@ -6,14 +6,17 @@ using System.Drawing.Imaging;
 using System.IO;
 using ICSharpCode.SharpZipLib.Zip;
 using ICSharpCode.SharpZipLib.Core;
+using System.Windows.Forms;
 
 namespace StoryDesigner
 {
     class AdvFileWriter
     {
-        public AdvFileWriter(AdvData data){
+        public AdvFileWriter(AdvData data, TreeView gamepool, TreeView mediapool){
             ZipConstants.DefaultCodePage = 1252;
             mData = data;
+            mGamepool = gamepool;
+            mMediapool = mediapool;
         }
 
         public void writeGame(string path)
@@ -30,6 +33,10 @@ namespace StoryDesigner
             ZipEntry ze1 = new ZipEntry("game.001");
             zs.PutNextEntry(ze1);
             writeSettings(zs);
+            zs.CloseEntry();
+            ZipEntry ze2 = new ZipEntry("game.002");
+            zs.PutNextEntry(ze2);
+            writeObjects(zs);
             zs.CloseEntry();
             zs.Finish();
             fs.Close();
@@ -79,6 +86,111 @@ namespace StoryDesigner
             swr.WriteLine(mData.Settings.ProtectGameFile ? 1 : 0);
             swr.WriteLine(mData.Settings.ActionTextHeight);
             swr.WriteLine(mData.Settings.CustomMenu ? -1 : 0);
+            swr.WriteLine(mData.Settings.CustomMenuRoom);
+            swr.WriteLine("Taskheight : " + mData.Settings.TaskHeight);
+            swr.WriteLine("Taskroom : " + mData.Settings.TaskRoom);
+            swr.WriteLine("Taskpopup : " + mData.Settings.TaskPopup);
+            swr.Write("Setup : ");
+            swr.Write(mData.Settings.SilentDelete ? 1 : 0);
+            swr.Write(mData.Settings.InfoLine ? 1 : 0);
+            swr.Write(mData.Settings.TaskHideCompletely ? ";hide;" : ";show;");
+            swr.WriteLine(mData.Settings.RightClick);
+            swr.WriteLine(mData.Settings.UseMouseWheel ? -1 : 0);
+            swr.WriteLine(mData.Settings.MenuFading);
+            swr.WriteLine(mData.Settings.TextSceneFading);
+            swr.WriteLine(mData.Settings.AnywhereTransparency);
+            swr.Write("Targacolor : ");
+            swr.WriteLine(mData.Settings.TargaColor);
+            swr.Write("Bordercolor : ");
+            swr.WriteLine(mData.Settings.BorderColor);
+            swr.Write("Backgroundcolor : ");
+            swr.WriteLine(mData.Settings.BackgroundColor);
+            swr.Write("Textcolor : ");
+            swr.WriteLine(mData.Settings.TextColor);
+            swr.Write("Offtextcolor : ");
+            swr.Write(mData.Settings.OffspeechColor);
+            swr.Write(';');
+            swr.WriteLine(mData.Settings.InfotextColor);
+            swr.WriteLine(mData.Settings.TsStyle + 1);
+            swr.WriteLine(mData.Settings.TsBorderStyle + 1);
+            swr.WriteLine(mData.Settings.TsBorderColor);
+            swr.WriteLine(mData.Settings.TsAreaColor);
+            swr.WriteLine(mData.Settings.TsSelectionColor);
+            swr.WriteLine(mData.Settings.TsTextColor);
+            swr.WriteLine(mData.Settings.TsUseSymbols ? -1 : 0);
+            swr.WriteLine(mData.Settings.MuteMusicWhenSpeech ? -1 : 0);
+            swr.WriteLine(mData.Settings.CoinActivated ? -1 : 0);
+            swr.WriteLine(mData.Settings.CoinAutoPopup ? -1 : 0);
+            swr.WriteLine(mData.Settings.CoinRoom);
+            swr.WriteLine(mData.Settings.CoinFading);
+            swr.WriteLine(mData.Settings.CoinCenter.x);
+            swr.WriteLine(mData.Settings.CoinCenter.y);
+            swr.Write("Linktext : ");
+            swr.WriteLine(mData.Settings.LinkText);
+            swr.Write("Givelink : ");
+            swr.WriteLine(mData.Settings.GiveLink);
+            swr.Write("Walktext : ");
+            swr.WriteLine(mData.Settings.WalkText);
+            swr.WriteLine("Booleans :");
+            foreach (KeyValuePair<string, bool> boolvar in mData.Settings.Booleans)
+            {
+                swr.Write(boolvar.Key);
+                swr.WriteLine(boolvar.Value ? -1 : 0);
+            }
+            swr.WriteLine("Commands :");
+            foreach (KeyValuePair<string, string> cmd in mData.Settings.Commands)
+            {
+                swr.WriteLine(cmd.Key);
+                swr.WriteLine(cmd.Value);
+            }
+            swr.WriteLine("Mediapool :");
+            writeTreeEntry(swr, mMediapool.Nodes, 0);
+            swr.WriteLine("Gamepool :");
+            writeTreeEntry(swr, mGamepool.Nodes, 0);
+            swr.WriteLine("Images :");
+            foreach (KeyValuePair<string, string> image in mData.Images)
+            {
+                swr.WriteLine(image.Key);
+                swr.WriteLine(image.Value);
+            }
+            swr.WriteLine("Sounds :");
+            foreach (KeyValuePair<string, string> sound in mData.Sounds)
+            {
+                swr.WriteLine(sound.Key);
+                swr.WriteLine(sound.Value);
+            }
+            swr.WriteLine("Music :");
+            foreach (KeyValuePair<string, string> music in mData.Music)
+            {
+                swr.WriteLine(music.Key);
+                swr.WriteLine(music.Value);
+            }
+            swr.WriteLine("Movie :");
+            foreach (KeyValuePair<string, string> video in mData.Videos)
+            {
+                swr.WriteLine(video.Key);
+                swr.WriteLine(video.Value);
+            }
+            swr.Flush();
+        }
+
+        void writeTreeEntry(StreamWriter swr, TreeNodeCollection nodes, int level)
+        {
+            foreach (TreeNode node in nodes)
+            {
+                for (int i = 0; i < level; ++i)
+                    swr.Write('"');
+                swr.Write(String.Format("{0:D2}",(int)node.Tag));
+                swr.WriteLine(node.Text);
+                writeTreeEntry(swr, node.Nodes, level + 1);
+            }
+        }
+
+        void writeObjects(Stream strm)
+        {
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
+            swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
+            swr.WriteLine();
             swr.Flush();
         }
 
@@ -138,5 +250,7 @@ namespace StoryDesigner
         }
 
         protected AdvData mData;
+        TreeView mGamepool;
+        TreeView mMediapool;
     }
 }

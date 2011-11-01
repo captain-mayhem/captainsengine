@@ -279,6 +279,39 @@ namespace StoryDesigner
                     str = rdr.ReadLine();
                 }
             }
+
+            if (str == "Sounds :")
+            {
+                str = rdr.ReadLine();
+                while (str != "Music :")
+                {
+                    string filename = rdr.ReadLine();
+                    mAdv.Sounds.Add(str.ToLower(), filename);
+                    str = rdr.ReadLine();
+                }
+            }
+
+            if (str == "Music :")
+            {
+                str = rdr.ReadLine();
+                while (str != "Movie :")
+                {
+                    string filename = rdr.ReadLine();
+                    mAdv.Music.Add(str.ToLower(), filename);
+                    str = rdr.ReadLine();
+                }
+            }
+
+            if (str == "Movie :")
+            {
+                str = rdr.ReadLine();
+                while (!rdr.EndOfStream)
+                {
+                    string filename = rdr.ReadLine();
+                    mAdv.Videos.Add(str.ToLower(), filename);
+                    str = rdr.ReadLine();
+                }
+            }
             return true;
         }
 

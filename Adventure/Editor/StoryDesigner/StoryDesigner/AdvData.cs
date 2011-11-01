@@ -1018,6 +1018,9 @@ namespace StoryDesigner
             Settings.Fonts = new ArrayList();
 
             mImages = new Dictionary<string, string>();
+            mSounds = new Dictionary<string, string>();
+            mMusic = new Dictionary<string, string>();
+            mVideos = new Dictionary<string, string>();
             mImageCache = new Dictionary<string, System.Drawing.Bitmap>();
             mReader = null;
 
@@ -1059,6 +1062,21 @@ namespace StoryDesigner
         {
             get { return mImages; }
             //set { mImages = value; }
+        }
+
+        public Dictionary<string, string> Sounds
+        {
+            get { return mSounds; }
+        }
+
+        public Dictionary<string, string> Music
+        {
+            get { return mMusic; }
+        }
+
+        public Dictionary<string, string> Videos
+        {
+            get { return mVideos; }
         }
 
         public Cursor Cursor
@@ -1185,6 +1203,9 @@ namespace StoryDesigner
 
         public ProjectSettings Settings;
         Dictionary<string, string> mImages;
+        Dictionary<string, string> mSounds;
+        Dictionary<string, string> mMusic;
+        Dictionary<string, string> mVideos;
         Dictionary<string, System.Drawing.Bitmap> mImageCache;
         Cursor mCursor;
         Dictionary<string, Item> mItems;
