@@ -351,7 +351,7 @@ namespace StoryDesigner
             sod.InitialDirectory = mData.Settings.Directory;
             sod.ShowDialog();*/
 
-            AdvFileWriter writer = new AdvFileWriter(mData);
+            AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool);
             writer.writeGame(".");
         }
 
