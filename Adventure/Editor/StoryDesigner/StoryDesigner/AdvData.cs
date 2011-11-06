@@ -610,8 +610,12 @@ namespace StoryDesigner
         }
         public string getStateName(int state)
         {
+            return getStateName(state, true);
+        }
+        public string getStateName(int state, bool defaultNames)
+        {
             string name = (string)mExtraStateNames[state - 16];
-            if (name.Length == 0)
+            if (name.Length == 0 && defaultNames)
             {
                 name = "Extra " + Convert.ToString(state - 15);
                 if (state == 32)
@@ -736,6 +740,24 @@ namespace StoryDesigner
         string mText;
     }
 
+    public class FxShape
+    {
+        public enum FxEffect
+        {
+            FLOOR_MIRROR = 0,
+            WALL_MIRROR = 1,
+            PARTICLE_BARRIER = 2
+        };
+        public bool Active;
+        public bool DependingOnRoomPosition;
+        public FxEffect Effect;
+        public string Room;
+        public int Depth;
+        public Vec2i MirrorOffset;
+        public int Strength;
+        public Vec2i[] Positions = new Vec2i[4];
+    }
+
     public class Room
     {
         public Room()
@@ -749,6 +771,12 @@ namespace StoryDesigner
             Zoom = 3;
             Background = "";
             ParallaxBackground = "";
+            FXShapes = new ArrayList();
+            for (int i = 0; i < 3; ++i)
+            {
+                FxShape fs = new FxShape();
+                FXShapes.Add(fs);
+            }
             Vec2i wmsize = data.Settings.Resolution/data.WalkGridSize;
             wmsize.x *= 3*2;
             wmsize.y *= 2*2;
@@ -1030,6 +1058,7 @@ namespace StoryDesigner
             mItems = new Dictionary<string, Item>();
             mObjects = new Dictionary<string, AdvObject>();
             mCharacters = new Dictionary<string, AdvCharacter>();
+            mCharacterInstances = new Dictionary<string, ArrayList>();
             mRooms = new Dictionary<string, Room>();
             mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
             mWMScripts = new Dictionary<string, ArrayList>();
@@ -1103,6 +1132,10 @@ namespace StoryDesigner
         {
             get { return mItems.Count; }
         }
+        public Dictionary<string, Item> Items
+        {
+            get { return mItems; }
+        }
 
         public AdvObject getObject(string name)
         {
@@ -1121,6 +1154,10 @@ namespace StoryDesigner
         public int NumObjects
         {
             get { return mObjects.Count; }
+        }
+        public Dictionary<string, AdvObject> Objects
+        {
+            get { return mObjects; }
         }
 
         public AdvCharacter getCharacter(string name)
@@ -1141,6 +1178,14 @@ namespace StoryDesigner
         {
             get { return mCharacters.Count; }
         }
+        public Dictionary<string, AdvCharacter> Characters
+        {
+            get { return mCharacters; }
+        }
+        public Dictionary<string, ArrayList> CharacterInstances
+        {
+            get { return mCharacterInstances; }
+        }
 
         public Room getRoom(string name)
         {
@@ -1159,6 +1204,10 @@ namespace StoryDesigner
         public int NumRooms
         {
             get { return mRooms.Count; }
+        }
+        public Dictionary<string, Room> Rooms
+        {
+            get { return mRooms; }
         }
 
         public void addScript(Script scr)
@@ -1211,6 +1260,7 @@ namespace StoryDesigner
         Dictionary<string, Item> mItems;
         Dictionary<string, AdvObject> mObjects;
         Dictionary<string, AdvCharacter> mCharacters;
+        Dictionary<string, ArrayList> mCharacterInstances;
         Dictionary<string, Room> mRooms;
         Dictionary<KeyValuePair<Script.Type, string>, Script> mScripts;
         Dictionary<string, ArrayList> mWMScripts;

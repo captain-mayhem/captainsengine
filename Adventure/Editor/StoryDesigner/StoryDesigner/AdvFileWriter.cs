@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 using System.Drawing;
@@ -12,6 +13,14 @@ namespace StoryDesigner
 {
     class AdvFileWriter
     {
+        protected readonly float FPS_MAX = 50.0f;
+        protected readonly int STATES_MAX = 10;
+        protected readonly int CHAR_STATES_MAX = 36;
+        protected readonly int FRAMES_MAX = 25;
+        protected readonly int FRAMES2_MAX = 30;
+        protected readonly int PARTS_MAX = 2;
+        protected readonly int FXSHAPES_MAX = 3;
+
         public AdvFileWriter(AdvData data, TreeView gamepool, TreeView mediapool){
             ZipConstants.DefaultCodePage = 1252;
             mData = data;
@@ -27,19 +36,34 @@ namespace StoryDesigner
 
         void writeGameFile()
         {
-            FileStream fs = new FileStream("game.dat", FileMode.Create);
-            ZipOutputStream zs = new ZipOutputStream(fs);
-            zs.UseZip64 = UseZip64.Off;
-            ZipEntry ze1 = new ZipEntry("game.001");
-            zs.PutNextEntry(ze1);
-            writeSettings(zs);
-            zs.CloseEntry();
-            ZipEntry ze2 = new ZipEntry("game.002");
-            zs.PutNextEntry(ze2);
-            writeObjects(zs);
-            zs.CloseEntry();
-            zs.Finish();
-            fs.Close();
+            try
+            {
+                FileStream fs = new FileStream("game.dat", FileMode.Create);
+                ZipOutputStream zs = new ZipOutputStream(fs);
+                zs.UseZip64 = UseZip64.Off;
+
+                ZipEntry ze1 = new ZipEntry("game.001");
+                zs.PutNextEntry(ze1);
+                writeSettings(zs);
+                zs.CloseEntry();
+
+                ZipEntry ze2 = new ZipEntry("game.002");
+                zs.PutNextEntry(ze2);
+                writeObjects(zs);
+                zs.CloseEntry();
+
+                ZipEntry ze3 = new ZipEntry("game.003");
+                zs.PutNextEntry(ze3);
+                writeScripts(zs);
+                zs.CloseEntry();
+
+                zs.Finish();
+                fs.Close();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Failed to write game.dat. Please make sure that it is a writable file.");
+            }
         }
 
         void writeSettings(Stream strm)
@@ -187,6 +211,224 @@ namespace StoryDesigner
         }
 
         void writeObjects(Stream strm)
+        {
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
+            swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
+            swr.WriteLine();
+            for (int i = 0; i < STATES_MAX; ++i)
+            {
+                for (int frames = 0; frames < FRAMES_MAX; ++frames)
+                {
+                    string[] data = mData.Cursor.getFrame(i, frames);
+                    if (data != null)
+                        swr.WriteLine(data[0]);
+                    else
+                        swr.WriteLine();
+                }
+                swr.WriteLine(mData.Cursor.getCommand(i)+1);
+                swr.WriteLine(mData.Cursor.getFPSDivider(i));
+                swr.WriteLine(mData.Cursor.getHotspot(i).x);
+                swr.WriteLine(mData.Cursor.getHotspot(i).y);
+            }
+            foreach (KeyValuePair<string,Item> item in mData.Items){
+                swr.Write("//Item ");
+                swr.WriteLine(item.Value.Name);
+                for (int i = 0; i < STATES_MAX; ++i)
+                {
+                    for (int frames = 0; frames < FRAMES_MAX; ++frames)
+                    {
+                        string[] data = item.Value.getFrame(i, frames);
+                        if (data != null)
+                            swr.Write(data[0]);
+                        //else
+                        //    swr.Write();
+                        swr.WriteLine(';');
+                    }
+                    swr.WriteLine(item.Value.getFPSDivider(i));
+                }
+            }
+            foreach (KeyValuePair<string, AdvObject> obj in mData.Objects)
+            {
+                swr.Write("//Object ");
+                swr.WriteLine(obj.Value.Name);
+                swr.WriteLine(obj.Value.getSize(0).x);
+                swr.WriteLine(obj.Value.getSize(0).y);
+                swr.WriteLine(obj.Value.Lighten ? -1 : 0);
+                for (int i = 0; i < STATES_MAX; ++i)
+                {
+                    for (int frames = 0; frames < FRAMES2_MAX; ++frames)
+                    {
+                        string[] data = obj.Value.getFrame(i, frames);
+                        if (data == null)
+                        {
+                            swr.WriteLine();
+                            swr.WriteLine();
+                        }
+                        else if (data.Length == 1)
+                        {
+                            swr.WriteLine(data[0]);
+                            swr.WriteLine();
+                        }
+                        else
+                        {
+                            swr.WriteLine(data[0]);
+                            swr.WriteLine(data[1]);
+                        }
+                        swr.Write(obj.Value.getFramePartOffset(i, frames, 0).x);
+                        swr.Write(';');
+                        swr.Write(obj.Value.getFramePartOffset(i, frames, 0).y);
+                        swr.Write(';');
+                        swr.Write(obj.Value.getFramePartOffset(i, frames, 1).x);
+                        swr.Write(';');
+                        swr.WriteLine(obj.Value.getFramePartOffset(i, frames, 1).y);
+                    }
+                    swr.WriteLine(obj.Value.getFPSDivider(i));
+                }
+            }
+            foreach (KeyValuePair<string, AdvCharacter> charact in mData.Characters)
+            {
+                AdvCharacter chr = charact.Value;
+                swr.Write("//Character ");
+                swr.WriteLine(chr.Name);
+                swr.WriteLine(chr.TextColor);
+                swr.WriteLine(chr.WalkSpeed);
+                swr.WriteLine(chr.NoZoom ? -1 : 0);
+                swr.WriteLine(chr.RealLeftAnimations ? -1 : 0);
+                swr.WriteLine(chr.MemoryReistent ? -1 : 0);
+                swr.WriteLine(chr.Ghost ? -1 : 0);
+                swr.WriteLine(chr.Walksound);
+                for (int i = 0; i < 20; ++i)
+                {
+                    swr.Write(chr.getStateName(16 + i, false));
+                    swr.Write(';');
+                }
+                swr.WriteLine();
+                swr.WriteLine(chr.Font);
+                swr.WriteLine(chr.Zoom);
+                for (int i = 0; i < CHAR_STATES_MAX; ++i)
+                {
+                    swr.WriteLine(chr.getSize(i).x);
+                    swr.WriteLine(chr.getSize(i).y);
+                    swr.WriteLine(chr.getHotspot(i).x);
+                    swr.WriteLine(chr.getHotspot(i).y);
+                    for (int frames = 0; frames < FRAMES2_MAX; ++frames)
+                    {
+                        string[] data = chr.getFrame(i, frames);
+                        if (data == null)
+                        {
+                            swr.WriteLine();
+                            swr.WriteLine();
+                        }
+                        else if (data.Length == 1)
+                        {
+                            swr.WriteLine(data[0]);
+                            swr.WriteLine();
+                        }
+                        else
+                        {
+                            swr.WriteLine(data[0]);
+                            swr.WriteLine(data[1]);
+                        }
+                        swr.Write(chr.getFramePartOffset(i, frames, 0).x);
+                        swr.Write(';');
+                        swr.Write(chr.getFramePartOffset(i, frames, 0).y);
+                        swr.Write(';');
+                        swr.Write(chr.getFramePartOffset(i, frames, 1).x);
+                        swr.Write(';');
+                        swr.WriteLine(chr.getFramePartOffset(i, frames, 1).y);
+                    }
+                    swr.WriteLine(chr.getFPSDivider(i));
+                }
+            }
+            foreach (KeyValuePair<string, ArrayList> charact in mData.CharacterInstances)
+            {
+                foreach (CharacterInstance chr in charact.Value)
+                {
+                    swr.Write("//Rcharacter ");
+                    swr.WriteLine(chr.Name);
+                    swr.WriteLine(chr.Character.Name);
+                    swr.WriteLine(chr.Room);
+                    swr.WriteLine(chr.RawPosition.x);
+                    swr.WriteLine(chr.RawPosition.y);
+                    swr.WriteLine(chr.LookDir);
+                    swr.WriteLine(chr.Unmovable ? 0 : -1);
+                    swr.WriteLine(chr.Locked ? -1 : 0);
+                }
+            }
+            foreach (KeyValuePair<string, Room> rom in mData.Rooms)
+            {
+                Room room = rom.Value;
+                swr.Write("//Room ");
+                swr.WriteLine(room.Name);
+                swr.WriteLine(room.Size.x);
+                swr.WriteLine(room.Size.y);
+                swr.WriteLine(room.ScrollOffset.x);
+                swr.WriteLine(room.ScrollOffset.y);
+                swr.WriteLine(room.Depthmap.x);
+                swr.WriteLine(room.Depthmap.y);
+                swr.WriteLine(room.Zoom);
+                swr.WriteLine(room.Background);
+                swr.WriteLine(room.ParallaxBackground);
+                swr.WriteLine(room.DoubleWalkmap ? -1 : 0);
+                for (int i = 0; i < FXSHAPES_MAX; ++i)
+                {
+                    FxShape shape = (FxShape)room.FXShapes[i];
+                    swr.Write(shape.Active ? -1 : 0);
+                    swr.Write(';');
+                    swr.WriteLine(shape.DependingOnRoomPosition ? -1 : 0);
+                    swr.WriteLine((int)shape.Effect);
+                    swr.WriteLine(shape.Room);
+                    swr.WriteLine(shape.Depth);
+                    swr.WriteLine(shape.MirrorOffset.x);
+                    swr.WriteLine(shape.MirrorOffset.y);
+                    swr.WriteLine(shape.Strength);
+                    for (int pos = 0; pos < 4; ++pos)
+                    {
+                        swr.Write(shape.Positions[pos].x);
+                        swr.Write(';');
+                        swr.Write(shape.Positions[pos].y);
+                        swr.Write(';');
+                    }
+                    swr.WriteLine();
+                }
+                //Inventory
+                swr.WriteLine(room.HasInventory ? -1 : 0);
+                swr.Write(room.InvPos.x); swr.Write(';');
+                swr.Write(room.InvPos.y); swr.Write(';');
+                swr.Write(room.InvSize.x); swr.Write(';');
+                swr.Write(room.InvSize.y); swr.Write(';');
+                System.Globalization.NumberFormatInfo info = System.Globalization.NumberFormatInfo.InvariantInfo;
+                swr.Write(String.Format(info, "{0:0.##############}",room.InvScale.x)); swr.Write(';');
+                swr.WriteLine(String.Format(info, "{0:0.##############}", room.InvScale.y));
+                //walkmap
+                for (int i = 0; i < room.Walkmap.GetUpperBound(0); ++i)
+                {
+                    for (int j = 0; j < room.Walkmap.GetUpperBound(1); ++j)
+                    {
+                        Room.WalkMapEntry entry = room.Walkmap[i, j];
+                        swr.Write(entry.isFree ? 0 : 1);
+                        swr.Write(entry.hasScript ? 1 : 0);
+                    }
+                }
+                swr.WriteLine();
+                //objects
+                foreach (ObjectInstance obj in room.Objects)
+                {
+                    swr.Write(";;Roomobject ");
+                    swr.WriteLine(obj.Name);
+                    swr.WriteLine(obj.Object.Name);
+                    swr.WriteLine(obj.Position.x);
+                    swr.WriteLine(obj.Position.y);
+                    swr.WriteLine(obj.State);
+                    swr.WriteLine(obj.Layer);
+                    swr.WriteLine(obj.Depth);
+                    swr.WriteLine(obj.Locked ? -1 : 0);
+                }
+            }
+            swr.Flush();
+        }
+
+        void writeScripts(Stream strm)
         {
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
             swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");

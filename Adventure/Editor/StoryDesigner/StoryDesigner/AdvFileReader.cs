@@ -382,6 +382,16 @@ namespace StoryDesigner
                         ist.fpsDivider = Convert.ToInt32(str);
                         it.Add(ist);
                     }
+                    if (ver_major == 2 || (ver_major == 3 && ver_minor == 0))
+                    {
+                        for (int i = 1; i < STATES_MAX; ++i)
+                        {
+                            ItemState ist;
+                            ist.frames = new System.Collections.ArrayList();
+                            ist.fpsDivider = 20;
+                            it.Add(ist);
+                        }
+                    }
                     mAdv.addItem(it);
                 }
                 //OBJECT
@@ -464,10 +474,10 @@ namespace StoryDesigner
                     charinst.LookDir = Convert.ToInt32(rdr.ReadLine());
                     charinst.Unmovable = Convert.ToInt32(rdr.ReadLine()) == 0;
                     charinst.Locked = Convert.ToInt32(rdr.ReadLine()) != 0;
-                    if (!mCharacterInstances.ContainsKey(charinst.Room.ToLower())){
-                        mCharacterInstances[charinst.Room.ToLower()] = new System.Collections.ArrayList();
+                    if (!mAdv.CharacterInstances.ContainsKey(charinst.Room.ToLower())){
+                        mAdv.CharacterInstances[charinst.Room.ToLower()] = new System.Collections.ArrayList();
                     }
-                    mCharacterInstances[charinst.Room.ToLower()].Add(charinst);
+                    mAdv.CharacterInstances[charinst.Room.ToLower()].Add(charinst);
                 }
                 //ROOM
                 else if (typename[0] == "Room")
@@ -485,32 +495,51 @@ namespace StoryDesigner
                     room.ParallaxBackground = rdr.ReadLine();
                     int tmp = Convert.ToInt32(rdr.ReadLine());
                     room.DoubleWalkmap = tmp != 0;
+                    room.FXShapes = new System.Collections.ArrayList();
                     if (ver_major >= 3)
                     {
                         for (int i = 0; i < FXSHAPES_MAX; ++i)
                         {
-                            //TODO
-                            rdr.ReadLine();
-                            rdr.ReadLine();
-                            rdr.ReadLine();
-                            rdr.ReadLine();
-                            rdr.ReadLine();
-                            rdr.ReadLine();
-                            rdr.ReadLine();
-                            rdr.ReadLine();
+                            FxShape shape = new FxShape();
+                            str = rdr.ReadLine();
+                            string[] split = str.Split(';');
+                            shape.Active = Convert.ToInt32(split[0]) != 0;
+                            shape.DependingOnRoomPosition = Convert.ToInt32(split[1]) != 0;
+                            shape.Effect = (FxShape.FxEffect)Convert.ToInt32(rdr.ReadLine());
+                            shape.Room = rdr.ReadLine();
+                            shape.Depth = Convert.ToInt32(rdr.ReadLine());
+                            shape.MirrorOffset.x = Convert.ToInt32(rdr.ReadLine());
+                            shape.MirrorOffset.y = Convert.ToInt32(rdr.ReadLine());
+                            shape.Strength = Convert.ToInt32(rdr.ReadLine());
+                            str = rdr.ReadLine();
+                            split = str.Split(';');
+                            for (int pos = 0; pos < 4; ++pos)
+                            {
+                                shape.Positions[pos].x = Convert.ToInt32(split[2 * pos]);
+                                shape.Positions[pos].y = Convert.ToInt32(split[2 * pos + 1]);
+                            }
+                            room.FXShapes.Add(shape);
                         }
-                        //TODO unknown
-                        rdr.ReadLine();
+                    }
+                    else
+                    {
+                        for (int i = 0; i < FXSHAPES_MAX; ++i)
+                        {
+                            FxShape fs = new FxShape();
+                            room.FXShapes.Add(fs);
+                        }
                     }
                     //inventory
+                    room.HasInventory = Convert.ToInt32(rdr.ReadLine()) != 0;
                     str = rdr.ReadLine();
                     string[] inventory = str.Split(';');
                     room.InvPos.x = Convert.ToInt32(inventory[0]);
                     room.InvPos.y = Convert.ToInt32(inventory[1]);
                     room.InvSize.x = Convert.ToInt32(inventory[2]);
                     room.InvSize.y = Convert.ToInt32(inventory[3]);
-                    room.InvScale.x = (float)Convert.ToDouble(inventory[4]);
-                    room.InvScale.y = (float)Convert.ToDouble(inventory[5]);
+                    System.Globalization.NumberFormatInfo info = System.Globalization.NumberFormatInfo.InvariantInfo;
+                    room.InvScale.x = Single.Parse(inventory[4], info); ;
+                    room.InvScale.y = Single.Parse(inventory[5], info);
                     //walkmap
                     str = rdr.ReadLine();
                     int walkmapX = 32;
@@ -531,8 +560,8 @@ namespace StoryDesigner
                         room.Walkmap[x, y].isFree = str[2 * i] != '1';
                         room.Walkmap[x, y].hasScript = str[2 * i + 1] == '1';
                     }
-                    if (mCharacterInstances.ContainsKey(room.Name.ToLower()))
-                        room.Characters = mCharacterInstances[room.Name.ToLower()];
+                    if (mAdv.CharacterInstances.ContainsKey(room.Name.ToLower()))
+                        room.Characters = mAdv.CharacterInstances[room.Name.ToLower()];
                     mAdv.addRoom(room);
                     mLastRoom = room;
                 }
@@ -760,6 +789,5 @@ namespace StoryDesigner
         private Script mLastScript;
         private Room mLastRoom;
         private string mZipPwd;
-        private System.Collections.Generic.Dictionary<string, System.Collections.ArrayList> mCharacterInstances = new Dictionary<string,System.Collections.ArrayList>();
     }
 }
