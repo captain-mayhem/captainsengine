@@ -18,18 +18,20 @@ namespace StoryDesigner
         protected readonly int PARTS_MAX = 2;
         protected readonly int FXSHAPES_MAX = 3;
 
-        public AdvFileReader(string filename, TreeView mediapool, TreeView gamepool)
+        public AdvFileReader(string filename, TreeView mediapool, TreeView gamepool, Persistence persistence)
         {
             ZipConstants.DefaultCodePage = 1252;
-            mAdv = new AdvData(this);
+            mAdv = new AdvData(this, persistence);
             mMediaPool = mediapool;
             mGamePool = gamepool;
 
             if (System.IO.Path.GetExtension(filename) == ".dat")
             {
+                mIsAdv = false;
                 mAdv.Settings.Projectname = "game";
                 string dir = System.IO.Path.GetDirectoryName(filename);
-                try{
+                try
+                {
                     FileInfo[] files = System.IO.Directory.GetParent(dir).GetFiles("*.exe");
                     foreach (FileInfo file in files)
                     {
@@ -44,24 +46,29 @@ namespace StoryDesigner
                     throw new FileNotFoundException("cannot load game.dat: Directory not found", e);
                 }
             }
+            else
+            {
+                mIsAdv = true;
+                mAdv.Settings.Projectname = Path.GetFileNameWithoutExtension(filename);
+            }
 
             ZipInputStream zis = new ZipInputStream(File.OpenRead(filename));
             ZipEntry entry;
             while ((entry = zis.GetNextEntry()) != null)
             {
-                if (entry.Name == "game.001")
+                if (Path.GetExtension(entry.Name) == ".001")
                 {
                     readSettings(zis);
                 }
-                else if (entry.Name == "game.002")
+                else if (Path.GetExtension(entry.Name) == ".002")
                 {
                     readObjects(zis);
                 }
-                else if (entry.Name == "game.003")
+                else if (Path.GetExtension(entry.Name) == ".003")
                 {
                     readScripts(zis);
                 }
-                else if (entry.Name == "game.005")
+                else if (Path.GetExtension(entry.Name) == ".005")
                 {
                     readPassword(zis);
                 }
@@ -648,7 +655,10 @@ namespace StoryDesigner
                 }
                 else
                 {
-                    mLastScript.Text += str + "\n";
+                    if (mLastScript.Text == null)
+                        mLastScript.Text += str;
+                    else
+                        mLastScript.Text += "\n" + str;
                 }
             }
             return true;
@@ -732,6 +742,8 @@ namespace StoryDesigner
 
         public System.Drawing.Bitmap getImage(string filename)
         {
+            if (mIsAdv)
+                return (Bitmap)Bitmap.FromFile(filename);
             string zipname = mPath + System.IO.Path.DirectorySeparatorChar + "gfx.dat";
             string imagename = System.IO.Path.GetFileName(filename);
             ZipInputStream zis = new ZipInputStream(File.OpenRead(zipname));
@@ -789,5 +801,6 @@ namespace StoryDesigner
         private Script mLastScript;
         private Room mLastRoom;
         private string mZipPwd;
+        private bool mIsAdv;
     }
 }

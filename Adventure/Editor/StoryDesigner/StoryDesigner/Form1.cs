@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace StoryDesigner
 {
@@ -13,15 +14,22 @@ namespace StoryDesigner
         public MainForm()
         {
             InitializeComponent();
+            mPersistence = Persistence.load();
             mediaPool.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             mediaPool.MouseDown += new MouseEventHandler(mediaPool_MouseDown);
             mediaPool.AfterLabelEdit += new NodeLabelEditEventHandler(gamePool_AfterLabelEdit);
             gamePool.NodeMouseDoubleClick +=new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             gamePool.MouseDown +=new MouseEventHandler(mediaPool_MouseDown);
             gamePool.AfterLabelEdit += new NodeLabelEditEventHandler(gamePool_AfterLabelEdit);
+            this.FormClosing += new FormClosingEventHandler(MainForm_FormClosing);
             newToolStripMenuItem_Click(null, null);
             mSelectedView = gamePool;
             mSelectedNode = gamePool.Nodes[0];
+        }
+
+        void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            mPersistence.save();
         }
 
         void gamePool_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
@@ -231,10 +239,12 @@ namespace StoryDesigner
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Adventure project file|*.adv|Adventure game file|game.dat";
-            fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
-            fod.ShowDialog();
-            if (fod.FileName.Length > 0)
+            fod.InitialDirectory = mPersistence.LastOpenPath;
+            DialogResult dr = fod.ShowDialog();
+            if (dr == DialogResult.OK)
             {
+                string dir = Path.GetDirectoryName(fod.FileName);
+                mPersistence.LastOpenPath = dir;
                 loadFile(fod.FileName);
             }
         }
@@ -243,7 +253,7 @@ namespace StoryDesigner
         {
             try
             {
-                AdvFileReader reader = new AdvFileReader(filename, mediaPool, gamePool);
+                AdvFileReader reader = new AdvFileReader(filename, mediaPool, gamePool, mPersistence);
                 mData = reader.Data;
             }
             catch (System.IO.FileNotFoundException)
@@ -265,6 +275,7 @@ namespace StoryDesigner
         private RoomDlg.ViewMode mRoomView = RoomDlg.ViewMode.Objects;
         private TreeView mSelectedView;
         private TreeNode mSelectedNode;
+        private Persistence mPersistence;
 
         private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -296,10 +307,12 @@ namespace StoryDesigner
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp,*.tga;*.gif";
-            fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
+            fod.InitialDirectory = mPersistence.ImageLoadPath;
             if (fod.ShowDialog() == DialogResult.OK)
             {
                 string filename = fod.FileName;
+                string path = System.IO.Path.GetDirectoryName(filename);
+                mPersistence.ImageLoadPath = path;
                 string file = System.IO.Path.GetFileNameWithoutExtension(filename);
                 try
                 {
@@ -322,18 +335,26 @@ namespace StoryDesigner
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            mData = new AdvData();
+            mData = new AdvData(mPersistence);
             gamePool.Nodes.Clear();
             gamePool.Nodes.Add("CHARACTER");
             gamePool.Nodes.Add("SCRIPTS");
             gamePool.Nodes.Add("ITEMS");
             gamePool.Nodes.Add("OBJECTS");
             gamePool.Nodes.Add("ROOMS");
+            foreach (TreeNode node in gamePool.Nodes)
+            {
+                node.Tag = ResourceID.FOLDER;
+            }
             mediaPool.Nodes.Clear();
             mediaPool.Nodes.Add("IMAGES");
             mediaPool.Nodes.Add("MUSIC");
             mediaPool.Nodes.Add("SOUNDS");
             mediaPool.Nodes.Add("VIDEO");
+            foreach (TreeNode node in mediaPool.Nodes)
+            {
+                node.Tag = ResourceID.FOLDER;
+            }
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
