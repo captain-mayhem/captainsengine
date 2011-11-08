@@ -23,7 +23,7 @@ namespace StoryDesigner
             }
             catch (Exception e)
             {
-                MessageBox.Show(e.StackTrace, "Unhandled exception");
+                MessageBox.Show(e.Message+"\n"+e.StackTrace, e.ToString());
             }
         }
     }

@@ -433,6 +433,56 @@ namespace StoryDesigner
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
             swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
+            foreach (KeyValuePair<string,Script> script in mData.getScripts(Script.Type.CUTSCENE)){
+                swr.Write("//Cutscene ");
+                swr.WriteLine(script.Value.Name);
+                swr.WriteLine(script.Value.Text);
+            }
+            foreach (KeyValuePair<string, Script> script in mData.getScripts(Script.Type.ITEM))
+            {
+                swr.Write("//Item ");
+                swr.WriteLine(script.Value.Name);
+                swr.WriteLine(script.Value.Text);
+            }
+            foreach (KeyValuePair<string, Script> script in mData.getScripts(Script.Type.CHARACTER))
+            {
+                swr.Write("//Character ");
+                swr.WriteLine(script.Value.Name);
+                swr.WriteLine(script.Value.Text);
+            }
+            foreach (KeyValuePair<string, Room> room in mData.Rooms){
+                Script scr = mData.getScript(Script.Type.ROOM, room.Value.Name);
+                if (scr != null)
+                {
+                    swr.Write("//Room ");
+                    swr.WriteLine(scr.Name);
+                    swr.WriteLine(scr.Text);
+                }
+                foreach (ObjectInstance obj in room.Value.Objects)
+                {
+                    Script oscr = mData.getScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, room.Value.Name));
+                    if (oscr != null)
+                    {
+                        swr.Write("//Object ");
+                        swr.WriteLine(oscr.Name);
+                        if (oscr.Text != null)
+                            swr.WriteLine(oscr.Text);
+                    }
+                }
+                for (int x = 0; x < room.Value.Walkmap.GetUpperBound(0); ++x)
+                {
+                    for (int y = 0; y < room.Value.Walkmap.GetUpperBound(1); ++y)
+                    {
+                        if (room.Value.Walkmap[x, y].hasScript)
+                        {
+                            Script wms = mData.getScript(Script.Type.WALKMAP, Script.toScriptName(x, y, room.Value.Name));
+                            swr.Write("//Walkmap ");
+                            swr.WriteLine(wms.Name);
+                            swr.WriteLine(wms.Text);
+                        }
+                    }
+                }
+            }
             swr.Flush();
         }
 

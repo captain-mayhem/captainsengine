@@ -715,7 +715,8 @@ namespace StoryDesigner
             CHARACTER,
             ROOM,
             OBJECT,
-            WALKMAP
+            WALKMAP,
+            MAX
         }
         public Script(Type t)
         {
@@ -734,6 +735,14 @@ namespace StoryDesigner
         public Type ScriptType
         {
             get { return mType; }
+        }
+        static public string toScriptName(string obj, string room)
+        {
+            return obj + ";" + room;
+        }
+        static public string toScriptName(int x, int y, string room)
+        {
+            return String.Format("#{0:D3}{1:D3}{2}", x + 1, y + 1, room);
         }
         Type mType;
         string mName;
@@ -983,7 +992,7 @@ namespace StoryDesigner
 
     public class AdvData
     {
-        public AdvData()
+        public AdvData(Persistence persist)
         {
             Settings = new ProjectSettings();
             Settings.ActionText = true;
@@ -1060,11 +1069,16 @@ namespace StoryDesigner
             mCharacters = new Dictionary<string, AdvCharacter>();
             mCharacterInstances = new Dictionary<string, ArrayList>();
             mRooms = new Dictionary<string, Room>();
-            mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
+            mScripts = new Dictionary<string, Script>[(int)Script.Type.MAX];
+            for (int i = 0; i < (int)Script.Type.MAX; ++i)
+            {
+                mScripts[i] = new Dictionary<string, Script>();
+            }
             mWMScripts = new Dictionary<string, ArrayList>();
         }
 
-        public AdvData(AdvFileReader reader) : this()
+        public AdvData(AdvFileReader reader, Persistence persist)
+            : this(persist)
         {
             //Settings = new ProjectSettings();
             //mImages = new Dictionary<string, string>();
@@ -1212,21 +1226,23 @@ namespace StoryDesigner
 
         public void addScript(Script scr)
         {
-            mScripts.Add(new KeyValuePair<Script.Type, string>(scr.ScriptType, scr.Name.ToLower()), scr);
+            getScripts(scr.ScriptType).Add(scr.Name.ToLower(), scr);
         }
         public Script getScript(Script.Type type, string name)
         {
-            KeyValuePair<Script.Type, string> pair = new KeyValuePair<Script.Type, string>(type, name.ToLower());
-            if (mScripts.ContainsKey(pair))
-                return mScripts[pair];
+            if (getScripts(type).ContainsKey(name.ToLower()))
+                return getScripts(type)[name.ToLower()];
             return null;
         }
         public Script removeScript(Script.Type type, string name)
         {
             Script scr = getScript(type, name);
-            KeyValuePair<Script.Type, string> pair = new KeyValuePair<Script.Type, string>(type, name.ToLower());
-            mScripts.Remove(pair);
+            getScripts(type).Remove(name.ToLower());
             return scr;
+        }
+        public Dictionary<string, Script> getScripts(Script.Type type)
+        {
+            return mScripts[(int)type];
         }
 
         public void addWalkmapScript(Script scr, Vec2i pos, string roomname)
@@ -1236,12 +1252,7 @@ namespace StoryDesigner
         public int NumCutscenes
         {
             get {
-                int count = 0;
-                foreach (KeyValuePair<KeyValuePair<Script.Type,string>,Script> pair in mScripts){
-                    if (pair.Key.Key == Script.Type.CUTSCENE)
-                        ++count;
-                }
-                return count;
+                return mScripts[(int)Script.Type.CUTSCENE].Count;
             }
         }
 
@@ -1251,6 +1262,7 @@ namespace StoryDesigner
         }
 
         public ProjectSettings Settings;
+        public Persistence Persistence;
         Dictionary<string, string> mImages;
         Dictionary<string, string> mSounds;
         Dictionary<string, string> mMusic;
@@ -1262,7 +1274,7 @@ namespace StoryDesigner
         Dictionary<string, AdvCharacter> mCharacters;
         Dictionary<string, ArrayList> mCharacterInstances;
         Dictionary<string, Room> mRooms;
-        Dictionary<KeyValuePair<Script.Type, string>, Script> mScripts;
+        Dictionary<string, Script>[] mScripts;
         Dictionary<string, ArrayList> mWMScripts;
         AdvFileReader mReader;
     }

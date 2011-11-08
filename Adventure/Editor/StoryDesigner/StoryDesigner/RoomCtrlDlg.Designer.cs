@@ -59,6 +59,7 @@ namespace StoryDesigner
             this.chr_editscript = new System.Windows.Forms.Button();
             this.chr_instancename = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.room_editscript = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.scroller)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.roomwidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.roomheight)).BeginInit();
@@ -109,7 +110,7 @@ namespace StoryDesigner
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(12, 90);
+            this.label2.Location = new System.Drawing.Point(80, 90);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(38, 13);
             this.label2.TabIndex = 4;
@@ -122,7 +123,7 @@ namespace StoryDesigner
             0,
             0,
             0});
-            this.roomwidth.Location = new System.Drawing.Point(56, 88);
+            this.roomwidth.Location = new System.Drawing.Point(118, 88);
             this.roomwidth.Name = "roomwidth";
             this.roomwidth.Size = new System.Drawing.Size(55, 20);
             this.roomwidth.TabIndex = 5;
@@ -130,7 +131,7 @@ namespace StoryDesigner
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(129, 90);
+            this.label3.Location = new System.Drawing.Point(179, 90);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(41, 13);
             this.label3.TabIndex = 6;
@@ -143,7 +144,7 @@ namespace StoryDesigner
             0,
             0,
             0});
-            this.roomheight.Location = new System.Drawing.Point(176, 88);
+            this.roomheight.Location = new System.Drawing.Point(224, 88);
             this.roomheight.Name = "roomheight";
             this.roomheight.Size = new System.Drawing.Size(55, 20);
             this.roomheight.TabIndex = 5;
@@ -415,12 +416,24 @@ namespace StoryDesigner
             this.label6.TabIndex = 0;
             this.label6.Text = "Instancename:";
             // 
+            // room_editscript
+            // 
+            this.room_editscript.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.room_editscript.Location = new System.Drawing.Point(12, 88);
+            this.room_editscript.Name = "room_editscript";
+            this.room_editscript.Size = new System.Drawing.Size(62, 23);
+            this.room_editscript.TabIndex = 8;
+            this.room_editscript.Text = "Edit script";
+            this.room_editscript.UseVisualStyleBackColor = true;
+            this.room_editscript.Click += new System.EventHandler(this.room_editscript_Click);
+            // 
             // RoomCtrlDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 409);
             this.ControlBox = false;
+            this.Controls.Add(this.room_editscript);
             this.Controls.Add(this.charactergroup);
             this.Controls.Add(this.objectgroup);
             this.Controls.Add(this.label3);
@@ -483,5 +496,6 @@ namespace StoryDesigner
         private System.Windows.Forms.ComboBox obj_state;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.CheckBox doublewalkmap;
+        private System.Windows.Forms.Button room_editscript;
     }
 }

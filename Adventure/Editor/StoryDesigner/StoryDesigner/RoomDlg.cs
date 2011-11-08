@@ -48,8 +48,8 @@ namespace StoryDesigner
             int wmx = wmscale * mp.x / mData.WalkGridSize;
             int wmy = wmscale * mp.y / mData.WalkGridSize;
             MainForm form = (MainForm)this.Owner;
-            string scrname = String.Format("#{0:D3}{1:D3}{2}", wmx+1, wmy+1, mRoom.Name.ToLower());
-            form.showScript(Script.Type.WALKMAP, scrname);
+            string scrname = Script.toScriptName(wmx, wmy, mRoom.Name);
+            form.showScript(Script.Type.WALKMAP, scrname.ToLower());
         }
 
         void mControl_RedrawRoom(object sender, RoomCtrlDlg.RedrawEventArgs e)
