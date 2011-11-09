@@ -30,31 +30,42 @@ namespace StoryDesigner
 
         public void writeGame(string path)
         {
-            writeGameFile();
-            writeFonts();
+            string dir = Path.GetDirectoryName(path);
+            string datadir = dir + Path.DirectorySeparatorChar + "data";
+            if (!Directory.Exists(datadir))
+                Directory.CreateDirectory(datadir);
+            datadir += Path.DirectorySeparatorChar;
+            writeProjectFile(datadir+"game.dat");
+            writeFonts(datadir);
         }
 
-        void writeGameFile()
+        public void writeProjectFile(string path)
         {
             try
             {
-                FileStream fs = new FileStream("game.dat", FileMode.Create);
+                string entry = Path.GetFileNameWithoutExtension(path);
+                FileStream fs = new FileStream(path, FileMode.Create);
                 ZipOutputStream zs = new ZipOutputStream(fs);
                 zs.UseZip64 = UseZip64.Off;
 
-                ZipEntry ze1 = new ZipEntry("game.001");
+                ZipEntry ze1 = new ZipEntry(entry+".001");
                 zs.PutNextEntry(ze1);
                 writeSettings(zs);
                 zs.CloseEntry();
 
-                ZipEntry ze2 = new ZipEntry("game.002");
+                ZipEntry ze2 = new ZipEntry(entry+".002");
                 zs.PutNextEntry(ze2);
                 writeObjects(zs);
                 zs.CloseEntry();
 
-                ZipEntry ze3 = new ZipEntry("game.003");
+                ZipEntry ze3 = new ZipEntry(entry+".003");
                 zs.PutNextEntry(ze3);
                 writeScripts(zs);
+                zs.CloseEntry();
+
+                ZipEntry ze4 = new ZipEntry(entry+".004");
+                zs.PutNextEntry(ze4);
+                writeLanguages(zs);
                 zs.CloseEntry();
 
                 zs.Finish();
@@ -401,9 +412,9 @@ namespace StoryDesigner
                 swr.Write(String.Format(info, "{0:0.##############}",room.InvScale.x)); swr.Write(';');
                 swr.WriteLine(String.Format(info, "{0:0.##############}", room.InvScale.y));
                 //walkmap
-                for (int i = 0; i < room.Walkmap.GetUpperBound(0); ++i)
+                for (int i = 0; i <= room.Walkmap.GetUpperBound(0); ++i)
                 {
-                    for (int j = 0; j < room.Walkmap.GetUpperBound(1); ++j)
+                    for (int j = 0; j <= room.Walkmap.GetUpperBound(1); ++j)
                     {
                         Room.WalkMapEntry entry = room.Walkmap[i, j];
                         swr.Write(entry.isFree ? 0 : 1);
@@ -469,9 +480,9 @@ namespace StoryDesigner
                             swr.WriteLine(oscr.Text);
                     }
                 }
-                for (int x = 0; x < room.Value.Walkmap.GetUpperBound(0); ++x)
+                for (int x = 0; x <= room.Value.Walkmap.GetUpperBound(0); ++x)
                 {
-                    for (int y = 0; y < room.Value.Walkmap.GetUpperBound(1); ++y)
+                    for (int y = 0; y <= room.Value.Walkmap.GetUpperBound(1); ++y)
                     {
                         if (room.Value.Walkmap[x, y].hasScript)
                         {
@@ -486,9 +497,45 @@ namespace StoryDesigner
             swr.Flush();
         }
 
-        void writeFonts()
+        void writeLanguages(Stream strm)
         {
-            FileStream fs = new FileStream("fonts.dat", FileMode.Create);
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
+            foreach (KeyValuePair<string,Language> language in mData.Languages){
+                string lang = "*/*"+language.Value.Name+';';
+                swr.WriteLine(lang+"speech");
+                foreach(string str in language.Value.getWords(Language.Section.Speech))
+                    swr.WriteLine(str);
+                swr.WriteLine(lang + "voicespeech");
+                foreach (string str in language.Value.getWords(Language.Section.Speech_Sounds))
+                    swr.WriteLine(str);
+                swr.WriteLine(lang + "offspeech");
+                foreach (string str in language.Value.getWords(Language.Section.Offspeech))
+                    swr.WriteLine(str);
+                swr.WriteLine(lang + "voiceoffspeech");
+                foreach (string str in language.Value.getWords(Language.Section.Offspeech_Sounds))
+                    swr.WriteLine(str);
+                swr.WriteLine(lang + "showinfo");
+                foreach (string str in language.Value.getWords(Language.Section.Showinfo))
+                    swr.WriteLine(str);
+                swr.WriteLine(lang + "textout");
+                foreach (string str in language.Value.getWords(Language.Section.Textout))
+                    swr.WriteLine(str);
+                swr.WriteLine(lang + "setstring");
+                foreach (string str in language.Value.getWords(Language.Section.Setstring))
+                    swr.WriteLine(str);
+                swr.WriteLine(lang + "row");
+                foreach (string str in language.Value.getWords(Language.Section.Textscenes))
+                    swr.WriteLine(str);
+                swr.WriteLine(lang + "kommandos");
+                foreach (string str in language.Value.getWords(Language.Section.Commands))
+                    swr.WriteLine(str);
+            }
+            swr.Flush();
+        }
+
+        void writeFonts(string datadir)
+        {
+            FileStream fs = new FileStream(datadir+"fonts.dat", FileMode.Create);
             ZipOutputStream masterz = new ZipOutputStream(fs);
             masterz.UseZip64 = UseZip64.Off;
             for (int font = 1; font <= mData.Settings.Fonts.Count; ++font){

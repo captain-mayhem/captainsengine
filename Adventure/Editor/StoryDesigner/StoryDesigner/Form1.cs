@@ -361,8 +361,15 @@ namespace StoryDesigner
         {
             SaveFileDialog sod = new SaveFileDialog();
             sod.Filter = "Adventure project files|*.adv";
-            sod.InitialDirectory = mData.Settings.Directory;
-            sod.ShowDialog();
+            sod.InitialDirectory = mPersistence.LastOpenPath;
+            sod.FileName = mData.Settings.Projectname;
+            DialogResult dr = sod.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                mPersistence.LastOpenPath = Path.GetDirectoryName(sod.FileName);
+                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
+                afw.writeProjectFile(sod.FileName);
+            }
         }
 
         private void createGameToolStripMenuItem_Click(object sender, EventArgs e)
@@ -373,7 +380,7 @@ namespace StoryDesigner
             sod.ShowDialog();*/
 
             AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool);
-            writer.writeGame(".");
+            writer.writeGame(Directory.GetCurrentDirectory()+"\\test.exe");
         }
 
         private void walkmapOnToolStripMenuItem_Click(object sender, EventArgs e)
