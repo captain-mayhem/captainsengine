@@ -990,6 +990,48 @@ namespace StoryDesigner
         private AdvData mAdvData;
     }
 
+    public class Language
+    {
+        public enum Section
+        {
+            Speech=0,
+            Speech_Sounds,
+            Offspeech,
+            Offspeech_Sounds,
+            Showinfo,
+            Textout,
+            Setstring,
+            Textscenes,
+            Commands,
+            NumSections
+        }
+
+        public Language()
+        {
+            for (int i = 0; i < (int)Section.NumSections; ++i)
+            {
+                mSections[i] = new ArrayList();
+                mInvsec[i] = new Dictionary<string, int>();
+            }
+        }
+
+        public string Name;
+
+        public void addWord(Section section, string text)
+        {
+            mSections[(int)section].Add(text);
+            mInvsec[(int)section][text] = mSections[(int)section].Count-1;
+        }
+
+        public ArrayList getWords(Section section)
+        {
+            return mSections[(int)section];
+        }
+
+        ArrayList[] mSections = new ArrayList[(int)Section.NumSections];
+        Dictionary<string, int>[] mInvsec = new Dictionary<string, int>[(int)Section.NumSections];
+    }
+
     public class AdvData
     {
         public AdvData(Persistence persist)
@@ -1070,11 +1112,13 @@ namespace StoryDesigner
             mCharacterInstances = new Dictionary<string, ArrayList>();
             mRooms = new Dictionary<string, Room>();
             mScripts = new Dictionary<string, Script>[(int)Script.Type.MAX];
+            mLanguages = new Dictionary<string, Language>();
             for (int i = 0; i < (int)Script.Type.MAX; ++i)
             {
                 mScripts[i] = new Dictionary<string, Script>();
             }
             mWMScripts = new Dictionary<string, ArrayList>();
+            Persistence = persist;   
         }
 
         public AdvData(AdvFileReader reader, Persistence persist)
@@ -1261,6 +1305,25 @@ namespace StoryDesigner
             get { return Settings.Resolution.x / 32; }
         }
 
+        public void addLanguage(string language, Language.Section section, string text)
+        {
+            Language lang;
+            if (mLanguages.ContainsKey(language.ToLower()))
+                lang = mLanguages[language.ToLower()];
+            else
+            {
+                lang = new Language();
+                lang.Name = language;
+                mLanguages.Add(language.ToLower(), lang);
+            }
+            lang.addWord(section, text);
+        }
+
+        public Dictionary<string, Language> Languages
+        {
+            get { return mLanguages; }
+        }
+
         public ProjectSettings Settings;
         public Persistence Persistence;
         Dictionary<string, string> mImages;
@@ -1276,6 +1339,7 @@ namespace StoryDesigner
         Dictionary<string, Room> mRooms;
         Dictionary<string, Script>[] mScripts;
         Dictionary<string, ArrayList> mWMScripts;
+        Dictionary<string, Language> mLanguages;
         AdvFileReader mReader;
     }
 }

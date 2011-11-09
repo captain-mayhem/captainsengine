@@ -68,6 +68,10 @@ namespace StoryDesigner
                 {
                     readScripts(zis);
                 }
+                else if (Path.GetExtension(entry.Name) == ".004")
+                {
+                    readLanguages(zis);
+                }
                 else if (Path.GetExtension(entry.Name) == ".005")
                 {
                     readPassword(zis);
@@ -683,6 +687,54 @@ namespace StoryDesigner
           }
           mZipPwd = pwd;
           return true;
+        }
+
+        protected bool readLanguages(Stream strm)
+        {
+            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+            string language = null;
+            Language.Section section = Language.Section.NumSections;
+            while (!rdr.EndOfStream)
+            {
+                string str = rdr.ReadLine();
+                if (str.StartsWith("*/*")){
+                    string[] parts = str.Split(';');
+                    language = parts[0].Substring(3);
+                    switch (parts[1])
+                    {
+                        case "speech":
+                            section = Language.Section.Speech;
+                            break;
+                        case "voicespeech":
+                            section = Language.Section.Speech_Sounds;
+                            break;
+                        case "offspeech":
+                            section = Language.Section.Offspeech;
+                            break;
+                        case "voiceoffspeech":
+                            section = Language.Section.Offspeech_Sounds;
+                            break;
+                        case "showinfo":
+                            section = Language.Section.Showinfo;
+                            break;
+                        case "textout":
+                            section = Language.Section.Textout;
+                            break;
+                        case "setstring":
+                            section = Language.Section.Setstring;
+                            break;
+                        case "row":
+                            section = Language.Section.Textscenes;
+                            break;
+                        case "kommandos":
+                            section = Language.Section.Commands;
+                            break;
+                    }
+                    continue;
+                }
+                mAdv.addLanguage(language, section, str);
+            }
+            return true;
         }
 
         protected int readExtendedFrames(StreamReader rdr, System.Collections.ArrayList frames)
