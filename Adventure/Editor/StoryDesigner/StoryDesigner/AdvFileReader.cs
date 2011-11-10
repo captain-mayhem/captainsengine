@@ -90,6 +90,10 @@ namespace StoryDesigner
             if (str.Substring(4) != "Point&Click Project File. DO NOT MODIFY!!")
                 return false;
             str = rdr.ReadLine();
+			
+			PlatformID pid = Environment.OSVersion.Platform;
+			bool onUnix = (int)pid == 4 || (int)pid == 128;
+			
             mAdv.Settings.Directory = rdr.ReadLine();
             str = rdr.ReadLine();
             if (str == "Resolution X : 640")
@@ -286,6 +290,11 @@ namespace StoryDesigner
                 while (str != "Sounds :")
                 {
                     string filename = rdr.ReadLine();
+					if (onUnix){
+						filename = filename.Replace("\\", "/");
+						if (filename[1] == ':')
+							filename = filename.Remove(0, 2);
+					}
                     mAdv.Images.Add(str.ToLower(), filename);
                     str = rdr.ReadLine();
                 }

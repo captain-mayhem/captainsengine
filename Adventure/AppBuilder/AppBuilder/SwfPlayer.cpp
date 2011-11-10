@@ -6,6 +6,8 @@
 
 #include "BlitObjects.h"
 
+using namespace std;
+
 TR_CHANNEL(ADV_SWF);
 
 namespace swf{
