@@ -37,6 +37,10 @@ namespace StoryDesigner
             datadir += Path.DirectorySeparatorChar;
             writeProjectFile(datadir+"game.dat");
             writeFonts(datadir);
+            packGraphics(datadir);
+            packData(datadir, mData.Sounds, "sfx.dat");
+            packData(datadir, mData.Music, "music.dat");
+            packData(datadir, mData.Videos, "movie.dat");
         }
 
         public void writeProjectFile(string path)
@@ -585,6 +589,83 @@ namespace StoryDesigner
                 masterz.CloseEntry();
             }
             masterz.Finish();
+            fs.Close();
+        }
+
+        void packGraphics(string datadir)
+        {
+            FileStream fs = new FileStream(datadir + "gfx.dat", FileMode.Create);
+            ZipOutputStream zos = new ZipOutputStream(fs);
+            zos.UseZip64 = UseZip64.Off;
+
+            foreach (KeyValuePair<string,string> entry in mData.Images){
+                Bitmap bmp = (Bitmap)Bitmap.FromFile(entry.Value);
+                string name = Path.GetFileName(entry.Value);
+                ImageFormat fmt = bmp.RawFormat;
+                if (fmt.Equals(ImageFormat.Png))
+                {
+                    //special handling for pngs
+                    Bitmap rgb = new Bitmap(bmp.Width, bmp.Height);
+                    Bitmap alpha = new Bitmap(bmp.Width, bmp.Height);
+                    for (int x = 0; x < bmp.Width; ++x)
+                    {
+                        for (int y = 0; y < bmp.Height; ++y)
+                        {
+                            Color c = bmp.GetPixel(x, y);
+                            rgb.SetPixel(x, y, Color.FromArgb(c.R, c.G, c.B));
+                            alpha.SetPixel(x, y, Color.FromArgb(c.A, c.A, c.A));
+                        }
+                    }
+                    string basename = Path.GetFileNameWithoutExtension(name);
+                    EncoderParameters param = new EncoderParameters(1);
+                    param.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
+                    ZipEntry ze1 = new ZipEntry(basename + ".pnj");
+                    zos.PutNextEntry(ze1);
+                    rgb.Save(zos, ImageFormat.Jpeg);
+                    zos.CloseEntry();
+                    ZipEntry ze2 = new ZipEntry(basename + ".pna");
+                    zos.PutNextEntry(ze2);
+                    alpha.Save(zos, ImageFormat.Jpeg);
+                    zos.CloseEntry();
+                }
+                else
+                {
+                    ZipEntry ze = new ZipEntry(name);
+                    zos.PutNextEntry(ze);
+                    bmp.Save(zos, fmt);
+                    zos.CloseEntry();
+                }
+            }
+
+            zos.Finish();
+            fs.Close();
+        }
+
+        void packData(string datadir, Dictionary<string, string> files, string output)
+        {
+            FileStream fs = new FileStream(datadir + output, FileMode.Create);
+            ZipOutputStream zos = new ZipOutputStream(fs);
+            zos.UseZip64 = UseZip64.Off;
+
+            foreach (KeyValuePair<string, string> entry in files)
+            {
+                string name = Path.GetFileName(entry.Value);
+                FileStream source = new FileStream(entry.Value, FileMode.Open);
+                int length = (int)source.Length;
+                byte [] buffer = new byte[length];
+                int count;
+                int sum = 0;
+                while((count = source.Read(buffer, sum, length-sum)) > 0)
+                    sum += count;
+                source.Close();
+                
+                ZipEntry ze = new ZipEntry(name);
+                zos.PutNextEntry(ze);
+                zos.Write(buffer, 0, length);
+                zos.CloseEntry();
+            }
+
+            zos.Finish();
             fs.Close();
         }
 

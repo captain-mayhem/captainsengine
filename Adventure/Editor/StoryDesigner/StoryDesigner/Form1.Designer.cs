@@ -162,6 +162,7 @@ namespace StoryDesigner
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
             this.saveToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.saveToolStripMenuItem.Text = "Save";
+            this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveAsToolStripMenuItem
             // 
@@ -265,68 +266,68 @@ namespace StoryDesigner
             // imageToolStripMenuItem
             // 
             this.imageToolStripMenuItem.Name = "imageToolStripMenuItem";
-            this.imageToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.imageToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.imageToolStripMenuItem.Text = "Image...";
             this.imageToolStripMenuItem.Click += new System.EventHandler(this.imageToolStripMenuItem_Click);
             // 
             // soundeffectToolStripMenuItem
             // 
             this.soundeffectToolStripMenuItem.Name = "soundeffectToolStripMenuItem";
-            this.soundeffectToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.soundeffectToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.soundeffectToolStripMenuItem.Text = "Soundeffect...";
             this.soundeffectToolStripMenuItem.Click += new System.EventHandler(this.soundeffectToolStripMenuItem_Click);
             // 
             // musicfileToolStripMenuItem
             // 
             this.musicfileToolStripMenuItem.Name = "musicfileToolStripMenuItem";
-            this.musicfileToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.musicfileToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.musicfileToolStripMenuItem.Text = "Musicfile...";
             this.musicfileToolStripMenuItem.Click += new System.EventHandler(this.musicfileToolStripMenuItem_Click);
             // 
             // videoToolStripMenuItem
             // 
             this.videoToolStripMenuItem.Name = "videoToolStripMenuItem";
-            this.videoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.videoToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.videoToolStripMenuItem.Text = "Video...";
             this.videoToolStripMenuItem.Click += new System.EventHandler(this.videoToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(144, 6);
             // 
             // roomToolStripMenuItem
             // 
             this.roomToolStripMenuItem.Name = "roomToolStripMenuItem";
-            this.roomToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.roomToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.roomToolStripMenuItem.Text = "Room";
             this.roomToolStripMenuItem.Click += new System.EventHandler(this.roomToolStripMenuItem_Click);
             // 
             // objectToolStripMenuItem
             // 
             this.objectToolStripMenuItem.Name = "objectToolStripMenuItem";
-            this.objectToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.objectToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.objectToolStripMenuItem.Text = "Object";
             this.objectToolStripMenuItem.Click += new System.EventHandler(this.objectToolStripMenuItem_Click);
             // 
             // characterToolStripMenuItem
             // 
             this.characterToolStripMenuItem.Name = "characterToolStripMenuItem";
-            this.characterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.characterToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.characterToolStripMenuItem.Text = "Character";
             this.characterToolStripMenuItem.Click += new System.EventHandler(this.characterToolStripMenuItem_Click);
             // 
             // itemToolStripMenuItem
             // 
             this.itemToolStripMenuItem.Name = "itemToolStripMenuItem";
-            this.itemToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.itemToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.itemToolStripMenuItem.Text = "Item";
             this.itemToolStripMenuItem.Click += new System.EventHandler(this.itemToolStripMenuItem_Click);
             // 
             // scriptToolStripMenuItem
             // 
             this.scriptToolStripMenuItem.Name = "scriptToolStripMenuItem";
-            this.scriptToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.scriptToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.scriptToolStripMenuItem.Text = "Script";
             this.scriptToolStripMenuItem.Click += new System.EventHandler(this.scriptToolStripMenuItem_Click);
             // 
@@ -601,7 +602,7 @@ namespace StoryDesigner
             // renameToolStripMenuItem
             // 
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.renameToolStripMenuItem.Text = "Rename";
             this.renameToolStripMenuItem.Click += new System.EventHandler(this.renameToolStripMenuItem_Click);
             // 

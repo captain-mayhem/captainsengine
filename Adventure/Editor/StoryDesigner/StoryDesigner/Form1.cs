@@ -255,6 +255,8 @@ namespace StoryDesigner
             {
                 AdvFileReader reader = new AdvFileReader(filename, mediaPool, gamePool, mPersistence);
                 mData = reader.Data;
+                if (Path.GetExtension(filename) == ".adv")
+                    mSavePath = filename;
             }
             catch (System.IO.FileNotFoundException)
             {
@@ -276,6 +278,7 @@ namespace StoryDesigner
         private TreeView mSelectedView;
         private TreeNode mSelectedNode;
         private Persistence mPersistence;
+        private string mSavePath = null;
 
         private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -355,6 +358,7 @@ namespace StoryDesigner
             {
                 node.Tag = ResourceID.FOLDER;
             }
+            mSavePath = null;
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -369,6 +373,7 @@ namespace StoryDesigner
                 mPersistence.LastOpenPath = Path.GetDirectoryName(sod.FileName);
                 AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
                 afw.writeProjectFile(sod.FileName);
+                mSavePath = sod.FileName;
             }
         }
 
@@ -662,6 +667,17 @@ namespace StoryDesigner
                 newnode.Tag = ResourceID.VIDEO;
                 parent.Nodes.Add(newnode);
             }
+        }
+
+        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (mSavePath != null)
+            {
+                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
+                afw.writeProjectFile(mSavePath);
+            }
+            else //open save as
+                saveAsToolStripMenuItem_Click(sender, e);
         }
     }
 }
