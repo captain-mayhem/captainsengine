@@ -407,7 +407,10 @@ namespace StoryDesigner
                 os.frames.Add(new ExtendedFrame());
             ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
             while (part >= extfrm.names.Count)
+            {
                 extfrm.names.Add("");
+                extfrm.offsets.Add(new Vec2i());
+            }
             extfrm.names[part] = name;
         }
         public int getFPSDivider(int state)
@@ -547,7 +550,10 @@ namespace StoryDesigner
                 cs.frames.Add(new ExtendedFrame());
             ExtendedFrame extfrm = (ExtendedFrame)cs.frames[frame];
             while (part >= extfrm.names.Count)
+            {
                 extfrm.names.Add("");
+                extfrm.offsets.Add(new Vec2i());
+            }
             extfrm.names[part] = name;
         }
         public int getFPSDivider(int state)
@@ -1101,7 +1107,7 @@ namespace StoryDesigner
             mMusic = new Dictionary<string, string>();
             mVideos = new Dictionary<string, string>();
             mImageCache = new Dictionary<string, System.Drawing.Bitmap>();
-            mReader = null;
+            mReader = new AdvFileReader(persist);
 
             mCursor = new Cursor(this);
             mCursor.init();

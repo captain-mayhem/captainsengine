@@ -18,7 +18,12 @@ namespace StoryDesigner
         protected readonly int PARTS_MAX = 2;
         protected readonly int FXSHAPES_MAX = 3;
 
-        public AdvFileReader(string filename, TreeView mediapool, TreeView gamepool, Persistence persistence)
+        public AdvFileReader(Persistence persistence)
+        {
+            mIsAdv = true;
+        }
+
+        public AdvFileReader(string filename, TreeView mediapool, TreeView gamepool, Persistence persistence) : this(persistence)
         {
             ZipConstants.DefaultCodePage = 1252;
             mAdv = new AdvData(this, persistence);
@@ -380,7 +385,7 @@ namespace StoryDesigner
                     Item it = new Item(mAdv);
                     it.Name = typename[1];
                     int numStates = STATES_MAX;
-                    int delim = 1;
+                    int delim = 2;
                     if (ver_major == 2 || (ver_major == 3 && ver_minor == 0))
                     {
                         numStates = 1;

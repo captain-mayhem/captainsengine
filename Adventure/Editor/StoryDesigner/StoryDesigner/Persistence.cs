@@ -11,6 +11,8 @@ namespace StoryDesigner
     {
         public string LastOpenPath = "";
         public string ImageLoadPath = "";
+        public bool FitImages = true;
+        public bool CreateBackups = true;
 
         protected Persistence()
         {
