@@ -59,7 +59,6 @@ namespace StoryDesigner
                 return;
             int realx = (int)((e.X/divider - mDragOffset.x) + mScrollOffset.x);
             int realy = (int)((e.Y/divider - mDragOffset.y)+ mScrollOffset.y);
-            Console.WriteLine(realx);
             if (realx < 0)
                 realx = 0;
             if (realy < 0)

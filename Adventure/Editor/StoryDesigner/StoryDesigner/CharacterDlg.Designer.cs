@@ -31,6 +31,7 @@ namespace StoryDesigner
             this.text_color = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.panel_down = new System.Windows.Forms.Panel();
+            this.label5 = new System.Windows.Forms.Label();
             this.startzoom = new System.Windows.Forms.NumericUpDown();
             this.ghostmode = new System.Windows.Forms.CheckBox();
             this.memory_resistant = new System.Windows.Forms.CheckBox();
@@ -42,7 +43,6 @@ namespace StoryDesigner
             this.label3 = new System.Windows.Forms.Label();
             this.font = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.label5 = new System.Windows.Forms.Label();
             this.stateFrameImage1 = new StoryDesigner.StateFrameImage();
             this.panel_down.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.startzoom)).BeginInit();
@@ -85,6 +85,15 @@ namespace StoryDesigner
             this.panel_down.Name = "panel_down";
             this.panel_down.Size = new System.Drawing.Size(330, 127);
             this.panel_down.TabIndex = 4;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(207, 104);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(74, 13);
+            this.label5.TabIndex = 11;
+            this.label5.Text = "Start zoom (%)";
             // 
             // startzoom
             // 
@@ -188,20 +197,12 @@ namespace StoryDesigner
             this.label2.TabIndex = 0;
             this.label2.Text = "Font:";
             // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(207, 104);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(74, 13);
-            this.label5.TabIndex = 11;
-            this.label5.Text = "Start zoom (%)";
-            // 
             // stateFrameImage1
             // 
             this.stateFrameImage1.AutoSize = true;
             this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.stateFrameImage1.Data = null;
+            this.stateFrameImage1.FrameParts = 2;
             this.stateFrameImage1.Frames = 30;
             this.stateFrameImage1.Hotspot = true;
             this.stateFrameImage1.HotspotCoordScale = 1F;
@@ -212,7 +213,7 @@ namespace StoryDesigner
             this.stateFrameImage1.ShowAnimationButton = true;
             this.stateFrameImage1.ShowImageNames = true;
             this.stateFrameImage1.ShowStateDropDown = true;
-            this.stateFrameImage1.Size = new System.Drawing.Size(330, 424);
+            this.stateFrameImage1.Size = new System.Drawing.Size(339, 424);
             this.stateFrameImage1.TabIndex = 0;
             // 
             // CharacterDlg

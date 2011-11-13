@@ -128,7 +128,7 @@ namespace StoryDesigner
             string[] pics = mData.getFrame(mState, mFrame);
             if (pics == null)
                 return;
-            for (int i = 0; i < pics.Length; ++i)
+            for (int i = pics.Length-1; i >= 0; --i)
             {
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
                 Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
@@ -154,8 +154,30 @@ namespace StoryDesigner
         void picturePanel_DragDrop(object sender, DragEventArgs e)
         {
             string name = (string)e.Data.GetData(DataFormats.StringFormat);
-            mData.setFramePart(mState, mFrame, 0, name);
-            //this.pictureBox.Invalidate();
+            Point p = pictureBox.PointToClient(new Point(e.X, e.Y));
+            string[] frames = mData.getFrame(mState, mFrame);
+            int part = 0;
+            if (frames != null && frames.Length < mFrameParts)
+            {
+                part = frames.Length;
+            }
+            else if (frames != null)
+            {
+                for (int i = 0; i < frames.Length; ++i)
+                {
+                    System.Drawing.Bitmap bmp = mData.getImage(frames[i]);
+                    Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
+                    if (p.X >= offset.x && p.X <= offset.x + bmp.Width)
+                    {
+                        if (p.Y >= offset.y && p.Y <= offset.y + bmp.Height)
+                        {
+                            part = i;
+                        }
+                    }
+                }
+            }
+            mData.setFramePart(mState, mFrame, part, name);
+            mData.setFramePartOffset(mState, mFrame, part, new Vec2i(p.X, p.Y));
             this.framecontrol.Invalidate();
         }
 
@@ -188,10 +210,20 @@ namespace StoryDesigner
                     imageNames.Text += pics[i] + " ";
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
                 Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
+                Pen pen = new Pen(Color.Red);
+                pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Custom;
+                pen.DashPattern = new float[] { 3, 3 };
+                pen.DashOffset = 3.0f;
                 if (mScaleImage)
+                {
                     e.Graphics.DrawImage(bmp, 0, 0, PictureBoxSize.Width, PictureBoxSize.Height);
+                    e.Graphics.DrawRectangle(pen, -1, -1, PictureBoxSize.Width+1, PictureBoxSize.Height+1);
+                }
                 else
+                {
                     e.Graphics.DrawImage(bmp, offset.x, offset.y, bmp.Width, bmp.Height);
+                    e.Graphics.DrawRectangle(pen, offset.x-1, offset.y-1, bmp.Width+1, bmp.Height+1);
+                }
             }
             if (mDrawHotspot)
                 drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
@@ -396,6 +428,7 @@ namespace StoryDesigner
         private int mFrames = 25;
         private int mState = 0;
         private int mFrame = 0;
+        private int mFrameParts = 1;
         private Button[] mStateButtons = new Button[10];
         private IStateFrameData mData;
         private Color mOrigColor;
@@ -483,6 +516,12 @@ namespace StoryDesigner
         private void stateDropDown_SelectedIndexChanged(object sender, EventArgs e)
         {
             changeState(stateDropDown.SelectedIndex);
+        }
+
+        public int FrameParts
+        {
+            get { return mFrameParts; }
+            set { mFrameParts = value; }
         }
     }
 }

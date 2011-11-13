@@ -57,8 +57,8 @@ namespace StoryDesigner
             this.actionTextHeight.Value = mData.Settings.ActionTextHeight;
             this.silentDelete.Checked = mData.Settings.SilentDelete;
             this.infoLine.Checked = mData.Settings.InfoLine;
-            this.fitImages.Checked = true; //TODO
-            this.createBackups.Checked = true; //TODO
+            this.fitImages.Checked = mData.Persistence.FitImages;
+            this.createBackups.Checked = mData.Persistence.CreateBackups;
             this.protectGamefiles.Checked = mData.Settings.ProtectGameFile;
             this.loadingImage.Text = mData.Settings.LoadingImage;
             //second page
@@ -210,8 +210,8 @@ namespace StoryDesigner
             mData.Settings.ActionTextHeight = (int)this.actionTextHeight.Value;
             mData.Settings.SilentDelete = this.silentDelete.Checked;
             mData.Settings.InfoLine = this.infoLine.Checked;
-            //this.fitImages.Checked = true; //TODO
-            //this.createBackups.Checked = true; //TODO
+            mData.Persistence.FitImages = this.fitImages.Checked;
+            mData.Persistence.CreateBackups = this.createBackups.Checked;
             mData.Settings.ProtectGameFile = this.protectGamefiles.Checked;
             mData.Settings.LoadingImage = this.loadingImage.Text;
             //second page

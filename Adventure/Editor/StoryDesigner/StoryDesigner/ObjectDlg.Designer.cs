@@ -47,6 +47,7 @@ namespace StoryDesigner
             this.stateFrameImage1.AutoSize = true;
             this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.stateFrameImage1.Data = null;
+            this.stateFrameImage1.FrameParts = 2;
             this.stateFrameImage1.Frames = 30;
             this.stateFrameImage1.Hotspot = false;
             this.stateFrameImage1.HotspotCoordScale = 1F;
@@ -57,7 +58,7 @@ namespace StoryDesigner
             this.stateFrameImage1.ShowAnimationButton = true;
             this.stateFrameImage1.ShowImageNames = true;
             this.stateFrameImage1.ShowStateDropDown = false;
-            this.stateFrameImage1.Size = new System.Drawing.Size(342, 324);
+            this.stateFrameImage1.Size = new System.Drawing.Size(339, 324);
             this.stateFrameImage1.TabIndex = 0;
             // 
             // ObjectDlg
