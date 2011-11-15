@@ -32,11 +32,84 @@ namespace StoryDesigner
             this.MouseUp += new MouseEventHandler(RoomDlg_MouseUp);
             this.DoubleClick += new EventHandler(RoomDlg_DoubleClick);
             this.FormClosed += new FormClosedEventHandler(RoomDlg_FormClosed);
+            this.DragOver += new DragEventHandler(RoomDlg_DragOver);
+            this.DragDrop += new DragEventHandler(RoomDlg_DragDrop);
             mControl = new RoomCtrlDlg(room, data);
             mControl.Location = new Point(Screen.GetWorkingArea(this).Width-mControl.Width, 0);
             mControl.StartPosition = FormStartPosition.Manual;
             mControl.Show(this);
             mControl.RedrawRoom += new RoomCtrlDlg.RedrawEventHandler(mControl_RedrawRoom);
+        }
+
+        void RoomDlg_DragDrop(object sender, DragEventArgs e)
+        {
+            AdvObject obj = (AdvObject)e.Data.GetData(typeof(AdvObject));
+            if (obj != null)
+            {
+                ObjectInstance inst = new ObjectInstance(obj, mData);
+                Point p = PointToClient(new Point(e.X, e.Y));
+                inst.Name = obj.Name;
+                int count = 0;
+                foreach (ObjectInstance objiter in mRoom.Objects)
+                {
+                    if (objiter.Object == obj)
+                        ++count;
+                }
+                if (count != 0)
+                    inst.Name += count;
+                inst.Depth = p.Y / mData.WalkGridSize + 1;
+                inst.Layer = 2;
+                inst.Object = obj;
+                inst.State = 1;
+                inst.Locked = false;
+                inst.setPosition(new Vec2i(p.X, p.Y));
+                mRoom.Objects.Add(inst);
+                return;
+            }
+            AdvCharacter chr = (AdvCharacter)e.Data.GetData(typeof(AdvCharacter));
+            if (chr != null)
+            {
+                CharacterInstance inst = new CharacterInstance(chr, mData);
+                Point p = PointToClient(new Point(e.X, e.Y));
+                inst.Name = chr.Name;
+                int count = 0;
+                foreach (KeyValuePair<string, System.Collections.ArrayList> kvp in mData.CharacterInstances)
+                {
+                    foreach (CharacterInstance ci in kvp.Value)
+                    {
+                        if (ci.Character == chr)
+                            ++count;
+                    }
+                }
+                if (count > 0)
+                    inst.Name += count;
+                inst.Character = chr;
+                inst.Locked = false;
+                inst.Unmovable = false;
+                inst.LookDir = 1;
+                inst.Room = mRoom.Name;
+                inst.RawPosition = new Vec2i(p.X, p.Y);
+                if (!mData.CharacterInstances.ContainsKey(mRoom.Name.ToLower()))
+                    mData.CharacterInstances.Add(mRoom.Name.ToLower(), new System.Collections.ArrayList());
+                mData.CharacterInstances[mRoom.Name.ToLower()].Add(inst);
+                mRoom.Characters.Add(inst);
+                return;
+            }
+            string image = (string)e.Data.GetData(DataFormats.StringFormat);
+            if (image != null)
+            {
+                return;
+            }
+        }
+
+        void RoomDlg_DragOver(object sender, DragEventArgs e)
+        {
+            if (mMode != ViewMode.Objects)
+                e.Effect = DragDropEffects.None;
+            else
+            {
+                e.Effect = DragDropEffects.Copy;
+            }
         }
 
         void RoomDlg_DoubleClick(object sender, EventArgs e)

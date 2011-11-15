@@ -126,6 +126,18 @@ namespace StoryDesigner
                 string name = node.Text;
                 pool.DoDragDrop(name, DragDropEffects.Copy);
             }
+            else if (id == ResourceID.OBJECT)
+            {
+                string name = node.Text;
+                AdvObject obj = mData.getObject(name);
+                pool.DoDragDrop(obj, DragDropEffects.Copy);
+            }
+            else if (id == ResourceID.CHARACTER)
+            {
+                string name = node.Text;
+                AdvCharacter chr = mData.getCharacter(name);
+                pool.DoDragDrop(chr, DragDropEffects.Copy);
+            }
         }
 
         public MainForm(string filename) : this()

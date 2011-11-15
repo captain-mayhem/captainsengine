@@ -85,7 +85,7 @@ namespace StoryDesigner
             this.pasteWalkmapScriptToolStripMenuItem,
             this.editScriptToolStripMenuItem});
             this.menuWalkmap.Name = "menuWalkmap";
-            this.menuWalkmap.Size = new System.Drawing.Size(189, 258);
+            this.menuWalkmap.Size = new System.Drawing.Size(189, 236);
             // 
             // freeToolStripMenuItem
             // 
@@ -98,13 +98,13 @@ namespace StoryDesigner
             // blockToolStripMenuItem
             // 
             this.blockToolStripMenuItem.Name = "blockToolStripMenuItem";
-            this.blockToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.blockToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.blockToolStripMenuItem.Text = "Block";
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(185, 6);
             // 
             // penSize1ToolStripMenuItem
             // 
@@ -117,25 +117,25 @@ namespace StoryDesigner
             // penSize2ToolStripMenuItem
             // 
             this.penSize2ToolStripMenuItem.Name = "penSize2ToolStripMenuItem";
-            this.penSize2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.penSize2ToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.penSize2ToolStripMenuItem.Text = "Pen Size 2";
             // 
             // penSize3ToolStripMenuItem
             // 
             this.penSize3ToolStripMenuItem.Name = "penSize3ToolStripMenuItem";
-            this.penSize3ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.penSize3ToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.penSize3ToolStripMenuItem.Text = "Pen Size 3";
             // 
             // scriptPasterToolStripMenuItem
             // 
             this.scriptPasterToolStripMenuItem.Name = "scriptPasterToolStripMenuItem";
-            this.scriptPasterToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.scriptPasterToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.scriptPasterToolStripMenuItem.Text = "Script Paster";
             // 
             // scriptEraserToolStripMenuItem
             // 
             this.scriptEraserToolStripMenuItem.Name = "scriptEraserToolStripMenuItem";
-            this.scriptEraserToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.scriptEraserToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.scriptEraserToolStripMenuItem.Text = "Script Eraser";
             // 
             // toolStripSeparator2
@@ -163,6 +163,7 @@ namespace StoryDesigner
             // 
             // RoomDlg
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.Black;
