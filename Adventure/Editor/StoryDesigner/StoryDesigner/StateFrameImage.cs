@@ -185,7 +185,8 @@ namespace StoryDesigner
         {
             if (!e.Data.GetDataPresent(DataFormats.StringFormat))
                 e.Effect = DragDropEffects.None;
-            e.Effect = DragDropEffects.Copy;
+            else
+                e.Effect = DragDropEffects.Copy;
         }
 
         void pictureBox_Paint(object sender, PaintEventArgs e)
@@ -202,11 +203,11 @@ namespace StoryDesigner
                     PictureChanged(this, new EventArgs());
                 return;
             }
-            if (!mTimer.Enabled)
+            if (!mTimer.Enabled && mPictureDragging == 0)
                 imageNames.Text = "";
             for (int i = 0; i < pics.Length; ++i)
             {
-                if (!mTimer.Enabled)
+                if (!mTimer.Enabled && mPictureDragging == 0)
                     imageNames.Text += pics[i] + " ";
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
                 Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
