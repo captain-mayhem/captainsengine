@@ -48,6 +48,8 @@ namespace StoryDesigner
             {
                 ObjectInstance inst = new ObjectInstance(obj, mData);
                 Point p = PointToClient(new Point(e.X, e.Y));
+                p.X += mRoom.ScrollOffset.x;
+                p.Y += mRoom.ScrollOffset.y;
                 inst.Name = obj.Name;
                 int count = 0;
                 foreach (ObjectInstance objiter in mRoom.Objects)
@@ -88,7 +90,7 @@ namespace StoryDesigner
                 inst.Unmovable = false;
                 inst.LookDir = 1;
                 inst.Room = mRoom.Name;
-                inst.RawPosition = new Vec2i(p.X, p.Y);
+                inst.RawPosition = new Vec2i(p.X, p.Y)+mRoom.ScrollOffset;
                 if (!mData.CharacterInstances.ContainsKey(mRoom.Name.ToLower()))
                     mData.CharacterInstances.Add(mRoom.Name.ToLower(), new System.Collections.ArrayList());
                 mData.CharacterInstances[mRoom.Name.ToLower()].Add(inst);
@@ -98,6 +100,8 @@ namespace StoryDesigner
             string image = (string)e.Data.GetData(DataFormats.StringFormat);
             if (image != null)
             {
+                mPendingImage = image;
+                menuAddBackground.Show(e.X, e.Y);
                 return;
             }
         }
@@ -138,6 +142,7 @@ namespace StoryDesigner
         void RoomDlg_MouseUp(object sender, MouseEventArgs e)
         {
             mDragObject = null;
+            mDragDepth = false;
         }
 
         void RoomDlg_MouseMove(object sender, MouseEventArgs e)
@@ -145,25 +150,36 @@ namespace StoryDesigner
             mMousePos.x = e.X;
             mMousePos.y = e.Y;
             Invalidate();
-            if (mDragObject == null)
-                return;
-            if (mDragObject.isLocked() && !mDragDepth)
-                return;
-            Vec2i pos = new Vec2i(e.X, e.Y);
-            if (mDragDepth)
+            if (mMode == ViewMode.Objects)
             {
-                ObjectInstance obj = (ObjectInstance)mDragObject;
-                obj.Depth = (e.Y + 5 + mDragOffset.y + mData.WalkGridSize / 2) / mData.WalkGridSize;
-                if (obj.Depth < 1)
-                    obj.Depth = 1;
-                if (obj.Depth > mRoom.Size.y / mData.WalkGridSize)
-                    obj.Depth = mRoom.Size.y / mData.WalkGridSize;
+                if (mDragObject == null)
+                    return;
+                if (mDragObject.isLocked() && !mDragDepth)
+                    return;
+                Vec2i pos = new Vec2i(e.X, e.Y);
+                if (mDragDepth)
+                {
+                    ObjectInstance obj = (ObjectInstance)mDragObject;
+                    obj.Depth = (e.Y + 5 + mDragOffset.y + mData.WalkGridSize / 2) / mData.WalkGridSize;
+                    if (obj.Depth < 1)
+                        obj.Depth = 1;
+                    if (obj.Depth > mRoom.Size.y / mData.WalkGridSize)
+                        obj.Depth = mRoom.Size.y / mData.WalkGridSize;
+                }
+                else
+                {
+                    mDragObject.setPosition(pos + mDragOffset);
+                }
             }
-            else
+            else if (mMode == ViewMode.Walkmap)
             {
-                mDragObject.setPosition(pos + mDragOffset);
+                if (!mDragDepth)
+                    return;
+                int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
+                int wmx = wmscale * e.X / mData.WalkGridSize;
+                int wmy = wmscale * e.Y / mData.WalkGridSize;
+                mRoom.Walkmap[wmx, wmy].isFree = true;
             }
-            //this.Invalidate();
         }
 
         void RoomDlg_MouseDown(object sender, MouseEventArgs e)
@@ -178,28 +194,40 @@ namespace StoryDesigner
                 else if (mMode == ViewMode.Walkmap)
                 {
                     menuWalkmap.Show(this, click);
-                }
-            }
-            Vec2i pos = new Vec2i(e.X, e.Y);
-            foreach (ObjectInstance obj in mRoom.Objects)
-            {
-                if (obj.Layer != 1)
-                    continue;
-                Vec2i depthcenter = new Vec2i(obj.Position.x, obj.Depth * mData.WalkGridSize - mData.WalkGridSize / 2);
-                if ((depthcenter - pos-mRoom.ScrollOffset).length() <= 5)
-                {
-                    mDragObject = obj;
-                    mDragOffset = depthcenter - pos;
-                    mDragDepth = true;
                     return;
                 }
             }
-            mDragDepth = false;
-            mDragObject = getObjectAt(pos+mRoom.ScrollOffset);
-            mControl.SelectedObject = mDragObject;
-            if (mDragObject != null)
+            Vec2i pos = new Vec2i(e.X, e.Y);
+            if (mMode == ViewMode.Objects)
             {
-                mDragOffset = mDragObject.getPosition() - pos;
+                foreach (ObjectInstance obj in mRoom.Objects)
+                {
+                    if (obj.Layer != 1)
+                        continue;
+                    Vec2i depthcenter = new Vec2i(obj.Position.x, obj.Depth * mData.WalkGridSize - mData.WalkGridSize / 2);
+                    if ((depthcenter - pos - mRoom.ScrollOffset).length() <= 5)
+                    {
+                        mDragObject = obj;
+                        mDragOffset = depthcenter - pos;
+                        mDragDepth = true;
+                        return;
+                    }
+                }
+                mDragDepth = false;
+                mDragObject = getObjectAt(pos + mRoom.ScrollOffset);
+                mControl.SelectedObject = mDragObject;
+                if (mDragObject != null)
+                {
+                    mDragOffset = mDragObject.getPosition() - pos;
+                }
+            }
+            else if (mMode == ViewMode.Walkmap)
+            {
+                int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
+                int wmx = wmscale * pos.x / mData.WalkGridSize;
+                int wmy = wmscale * pos.y / mData.WalkGridSize;
+                mRoom.Walkmap[wmx, wmy].isFree = true;
+                mDragDepth = true;
             }
         }
 
@@ -394,5 +422,26 @@ namespace StoryDesigner
         private RoomCtrlDlg mControl;
         private Vec2i mMousePos;
         private ViewMode mMode;
+        private string mPendingImage;
+
+        private void addAsBackgroundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mRoom.Background = mPendingImage;
+        }
+
+        private void addAsPaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mRoom.ParallaxBackground = mPendingImage;
+        }
+
+        private void removeBackgroundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mRoom.Background = "";
+        }
+
+        private void removeParallaxBackgroundToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mRoom.ParallaxBackground = "";
+        }
     }
 }
