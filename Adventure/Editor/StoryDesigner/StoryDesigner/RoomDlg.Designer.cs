@@ -45,8 +45,12 @@ namespace StoryDesigner
             this.copyWalkmapScriptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteWalkmapScriptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editScriptToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuAddBackground = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.addAsBackgroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.addAsPaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRemoveBackground.SuspendLayout();
             this.menuWalkmap.SuspendLayout();
+            this.menuAddBackground.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuRemoveBackground
@@ -55,19 +59,21 @@ namespace StoryDesigner
             this.removeBackgroundToolStripMenuItem,
             this.removeParallaxBackgroundToolStripMenuItem});
             this.menuRemoveBackground.Name = "menuRemoveBackground";
-            this.menuRemoveBackground.Size = new System.Drawing.Size(228, 48);
+            this.menuRemoveBackground.Size = new System.Drawing.Size(228, 70);
             // 
             // removeBackgroundToolStripMenuItem
             // 
             this.removeBackgroundToolStripMenuItem.Name = "removeBackgroundToolStripMenuItem";
             this.removeBackgroundToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
             this.removeBackgroundToolStripMenuItem.Text = "Remove Background";
+            this.removeBackgroundToolStripMenuItem.Click += new System.EventHandler(this.removeBackgroundToolStripMenuItem_Click);
             // 
             // removeParallaxBackgroundToolStripMenuItem
             // 
             this.removeParallaxBackgroundToolStripMenuItem.Name = "removeParallaxBackgroundToolStripMenuItem";
             this.removeParallaxBackgroundToolStripMenuItem.Size = new System.Drawing.Size(227, 22);
             this.removeParallaxBackgroundToolStripMenuItem.Text = "Remove Parallax Background";
+            this.removeParallaxBackgroundToolStripMenuItem.Click += new System.EventHandler(this.removeParallaxBackgroundToolStripMenuItem_Click);
             // 
             // menuWalkmap
             // 
@@ -161,6 +167,28 @@ namespace StoryDesigner
             this.editScriptToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.editScriptToolStripMenuItem.Text = "Edit Script";
             // 
+            // menuAddBackground
+            // 
+            this.menuAddBackground.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.addAsBackgroundToolStripMenuItem,
+            this.addAsPaToolStripMenuItem});
+            this.menuAddBackground.Name = "menuAddBackground";
+            this.menuAddBackground.Size = new System.Drawing.Size(221, 48);
+            // 
+            // addAsBackgroundToolStripMenuItem
+            // 
+            this.addAsBackgroundToolStripMenuItem.Name = "addAsBackgroundToolStripMenuItem";
+            this.addAsBackgroundToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.addAsBackgroundToolStripMenuItem.Text = "Add as Background";
+            this.addAsBackgroundToolStripMenuItem.Click += new System.EventHandler(this.addAsBackgroundToolStripMenuItem_Click);
+            // 
+            // addAsPaToolStripMenuItem
+            // 
+            this.addAsPaToolStripMenuItem.Name = "addAsPaToolStripMenuItem";
+            this.addAsPaToolStripMenuItem.Size = new System.Drawing.Size(220, 22);
+            this.addAsPaToolStripMenuItem.Text = "Add as Parallax Background";
+            this.addAsPaToolStripMenuItem.Click += new System.EventHandler(this.addAsPaToolStripMenuItem_Click);
+            // 
             // RoomDlg
             // 
             this.AllowDrop = true;
@@ -173,6 +201,7 @@ namespace StoryDesigner
             this.Text = "RoomDlg";
             this.menuRemoveBackground.ResumeLayout(false);
             this.menuWalkmap.ResumeLayout(false);
+            this.menuAddBackground.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -195,5 +224,8 @@ namespace StoryDesigner
         private System.Windows.Forms.ToolStripMenuItem copyWalkmapScriptToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pasteWalkmapScriptToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editScriptToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip menuAddBackground;
+        private System.Windows.Forms.ToolStripMenuItem addAsBackgroundToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem addAsPaToolStripMenuItem;
     }
 }
