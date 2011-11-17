@@ -175,10 +175,7 @@ namespace StoryDesigner
             {
                 if (!mDragDepth)
                     return;
-                int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
-                int wmx = wmscale * e.X / mData.WalkGridSize;
-                int wmy = wmscale * e.Y / mData.WalkGridSize;
-                mRoom.Walkmap[wmx, wmy].isFree = true;
+                modifyWalkmap(e.X, e.Y);
             }
         }
 
@@ -223,10 +220,7 @@ namespace StoryDesigner
             }
             else if (mMode == ViewMode.Walkmap)
             {
-                int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
-                int wmx = wmscale * pos.x / mData.WalkGridSize;
-                int wmy = wmscale * pos.y / mData.WalkGridSize;
-                mRoom.Walkmap[wmx, wmy].isFree = true;
+                modifyWalkmap(pos.x, pos.y);
                 mDragDepth = true;
             }
         }
@@ -274,9 +268,9 @@ namespace StoryDesigner
             {
                 float scale = mRoom.DoubleWalkmap ? 0.5f : 1;
                 SolidBrush b = new SolidBrush(Color.FromArgb(100, Color.Blue));
-                for (int x = 0; x < mRoom.Walkmap.GetLength(0); ++x)
+                for (int x = 0; x <= mRoom.Walkmap.GetUpperBound(0); ++x)
                 {
-                    for (int y = 0; y < mRoom.Walkmap.GetLength(1); ++y)
+                    for (int y = 0; y <= mRoom.Walkmap.GetUpperBound(1); ++y)
                     {
                         if (!mRoom.Walkmap[x, y].isFree)
                         {
@@ -304,12 +298,16 @@ namespace StoryDesigner
                     e.Graphics.DrawLine(Pens.Brown, 0, i, mRoom.Size.x, i);
                 }
                 //draw cursor
-                e.Graphics.DrawEllipse(Pens.Black, (wmx * mData.WalkGridSize + 2) * scale,
-                                (wmy * mData.WalkGridSize + 2) * scale,
-                                (mData.WalkGridSize - 4) * scale, (mData.WalkGridSize - 4) * scale);
-                e.Graphics.DrawEllipse(Pens.LightGray, (wmx * mData.WalkGridSize + 1) * scale,
-                                (wmy * mData.WalkGridSize + 1) * scale,
-                                (mData.WalkGridSize - 2) * scale, (mData.WalkGridSize - 2) * scale);
+                if (mWalkmapPaintMode >= 0 && mWalkmapPaintMode < 3)
+                {
+                    int size = 2 * mWalkmapPaintMode + 1;
+                    e.Graphics.DrawEllipse(Pens.Black, ((wmx-mWalkmapPaintMode) * mData.WalkGridSize + 2) * scale,
+                                    ((wmy-mWalkmapPaintMode) * mData.WalkGridSize + 2) * scale,
+                                    (size * mData.WalkGridSize - 4) * scale, (size * mData.WalkGridSize - 4) * scale);
+                    e.Graphics.DrawEllipse(Pens.LightGray, ((wmx-mWalkmapPaintMode) * mData.WalkGridSize + 1) * scale,
+                                    ((wmy-mWalkmapPaintMode) * mData.WalkGridSize + 1) * scale,
+                                    (size * mData.WalkGridSize - 2) * scale, (size * mData.WalkGridSize - 2) * scale);
+                }
             }
 
             //draw information
@@ -414,6 +412,44 @@ namespace StoryDesigner
             set { mMode = value; Invalidate(); }
         }
 
+        void modifyWalkmap(int x, int y)
+        {
+            x += mRoom.ScrollOffset.x;
+            y += mRoom.ScrollOffset.y;
+            int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
+            int wmx = wmscale * x / mData.WalkGridSize;
+            int wmy = wmscale * y / mData.WalkGridSize;
+            ToolStripMenuItem it = menuWalkmap.Items[0] as ToolStripMenuItem;
+            mRoom.Walkmap[wmx, wmy].isFree = it.Checked;
+            if (mWalkmapPaintMode > 0)
+            {
+                setWalkmapPoint(wmx + 1, wmy, it.Checked);
+                setWalkmapPoint(wmx - 1, wmy, it.Checked);
+                setWalkmapPoint(wmx, wmy + 1, it.Checked);
+                setWalkmapPoint(wmx, wmy - 1, it.Checked);
+            }
+            if (mWalkmapPaintMode > 1)
+            {
+                setWalkmapPoint(wmx + 1, wmy - 1, it.Checked);
+                setWalkmapPoint(wmx - 1, wmy + 1, it.Checked);
+                setWalkmapPoint(wmx - 1, wmy - 1, it.Checked);
+                setWalkmapPoint(wmx + 1, wmy + 1, it.Checked);
+                setWalkmapPoint(wmx + 2, wmy, it.Checked);
+                setWalkmapPoint(wmx - 2, wmy, it.Checked);
+                setWalkmapPoint(wmx, wmy + 2, it.Checked);
+                setWalkmapPoint(wmx, wmy - 2, it.Checked);
+            }
+        }
+
+        void setWalkmapPoint(int x, int y, bool value)
+        {
+            if (x < mRoom.Walkmap.GetLowerBound(0) || x > mRoom.Walkmap.GetUpperBound(0))
+                return;
+            if (y < mRoom.Walkmap.GetLowerBound(1) || y > mRoom.Walkmap.GetUpperBound(1))
+                return;
+            mRoom.Walkmap[x, y].isFree = value;
+        }
+
         private Room mRoom;
         private AdvData mData;
         private DrawableObject mDragObject;
@@ -423,6 +459,7 @@ namespace StoryDesigner
         private Vec2i mMousePos;
         private ViewMode mMode;
         private string mPendingImage;
+        private int mWalkmapPaintMode = 0;
 
         private void addAsBackgroundToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -442,6 +479,57 @@ namespace StoryDesigner
         private void removeParallaxBackgroundToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mRoom.ParallaxBackground = "";
+        }
+
+        private void freeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem free = menuWalkmap.Items[0] as ToolStripMenuItem;
+            ToolStripMenuItem blocked = menuWalkmap.Items[1] as ToolStripMenuItem;
+            free.Checked = true;
+            blocked.Checked = false;
+        }
+
+        private void blockToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem free = menuWalkmap.Items[0] as ToolStripMenuItem;
+            ToolStripMenuItem blocked = menuWalkmap.Items[1] as ToolStripMenuItem;
+            free.Checked = false;
+            blocked.Checked = true;
+        }
+
+        private void walkmapMenuSelect(int select)
+        {
+            for (int i = 0; i < 5; ++i)
+            {
+                ToolStripMenuItem item = menuWalkmap.Items[i + 3] as ToolStripMenuItem;
+                item.Checked = i == select;
+            }
+            mWalkmapPaintMode = select;
+        }
+
+        private void penSize1ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            walkmapMenuSelect(0);
+        }
+
+        private void penSize2ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            walkmapMenuSelect(1);
+        }
+
+        private void penSize3ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            walkmapMenuSelect(2);
+        }
+
+        private void scriptPasterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            walkmapMenuSelect(3);
+        }
+
+        private void scriptEraserToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            walkmapMenuSelect(4);
         }
     }
 }
