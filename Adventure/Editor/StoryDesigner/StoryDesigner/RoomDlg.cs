@@ -12,9 +12,10 @@ namespace StoryDesigner
     {
         public enum ViewMode
         {
-            Objects,
+            Objects = 0,
             Walkmap,
             Deepmap,
+            Inventory,
             Specialfx
         };
 
@@ -31,6 +32,7 @@ namespace StoryDesigner
             this.MouseMove += new MouseEventHandler(RoomDlg_MouseMove);
             this.MouseUp += new MouseEventHandler(RoomDlg_MouseUp);
             this.DoubleClick += new EventHandler(RoomDlg_DoubleClick);
+            this.KeyPress += new KeyPressEventHandler(RoomDlg_KeyPress);
             this.FormClosed += new FormClosedEventHandler(RoomDlg_FormClosed);
             this.DragOver += new DragEventHandler(RoomDlg_DragOver);
             this.DragDrop += new DragEventHandler(RoomDlg_DragDrop);
@@ -39,6 +41,16 @@ namespace StoryDesigner
             mControl.StartPosition = FormStartPosition.Manual;
             mControl.Show(this);
             mControl.RedrawRoom += new RoomCtrlDlg.RedrawEventHandler(mControl_RedrawRoom);
+        }
+
+        void RoomDlg_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            MainForm form = (MainForm)this.Owner;
+            if (e.KeyChar >= '1' && e.KeyChar <= '5')
+            {
+                int num = Convert.ToInt32(e.KeyChar+"");
+                form.setRoomViewMode((ViewMode)(num - 1));
+            }
         }
 
         void RoomDlg_DragDrop(object sender, DragEventArgs e)
@@ -124,6 +136,7 @@ namespace StoryDesigner
             int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
             int wmx = wmscale * mp.x / mData.WalkGridSize;
             int wmy = wmscale * mp.y / mData.WalkGridSize;
+            mRoom.Walkmap[wmx, wmy].hasScript = true;
             MainForm form = (MainForm)this.Owner;
             string scrname = Script.toScriptName(wmx, wmy, mRoom.Name);
             form.showScript(Script.Type.WALKMAP, scrname.ToLower());
@@ -182,21 +195,14 @@ namespace StoryDesigner
         void RoomDlg_MouseDown(object sender, MouseEventArgs e)
         {
             Point click = new Point(e.X, e.Y);
-            if (e.Button == MouseButtons.Right)
+            Vec2i pos = new Vec2i(e.X, e.Y);
+            mMousePos = pos;
+            if (mMode == ViewMode.Objects)
             {
-                if (mMode == ViewMode.Objects)
+                if (e.Button == MouseButtons.Right)
                 {
                     menuRemoveBackground.Show(this, click);
                 }
-                else if (mMode == ViewMode.Walkmap)
-                {
-                    menuWalkmap.Show(this, click);
-                    return;
-                }
-            }
-            Vec2i pos = new Vec2i(e.X, e.Y);
-            if (mMode == ViewMode.Objects)
-            {
                 foreach (ObjectInstance obj in mRoom.Objects)
                 {
                     if (obj.Layer != 1)
@@ -220,6 +226,11 @@ namespace StoryDesigner
             }
             else if (mMode == ViewMode.Walkmap)
             {
+                if (e.Button == MouseButtons.Right)
+                {
+                    menuWalkmap.Show(this, click);
+                    return;
+                }
                 modifyWalkmap(pos.x, pos.y);
                 mDragDepth = true;
             }
@@ -530,6 +541,15 @@ namespace StoryDesigner
         private void scriptEraserToolStripMenuItem_Click(object sender, EventArgs e)
         {
             walkmapMenuSelect(4);
+        }
+
+        private void editScriptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Vec2i pos = new Vec2i(mMousePos.x /mData.WalkGridSize, mMousePos.y / mData.WalkGridSize);
+            mRoom.Walkmap[pos.x, pos.y].hasScript = true;
+            MainForm form = (MainForm)this.Owner;
+            string scrname = Script.toScriptName(pos.x, pos.y, mRoom.Name);
+            form.showScript(Script.Type.WALKMAP, scrname.ToLower());
         }
     }
 }

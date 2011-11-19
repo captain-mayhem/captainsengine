@@ -400,21 +400,32 @@ namespace StoryDesigner
             writer.writeGame(Directory.GetCurrentDirectory()+"\\test.exe");
         }
 
+        public void setRoomViewMode(RoomDlg.ViewMode mode)
+        {
+            int num = (int)mode;
+            ToolStripDropDownItem setup = MainMenuStrip.Items[2] as ToolStripDropDownItem;
+            string[] names = { "Walkmap ", "Deepmap ", "Inventoryfield ", "FX Shapes " };
+            for (int i = 0; i < 4; ++i)
+            {
+                ToolStripMenuItem item = setup.DropDownItems[i + 6] as ToolStripMenuItem;
+                item.Text = names[i] + ((i+1) == num ? "off" : "on");
+            }
+            mRoomView = mode;
+            if (mRoomDlg != null)
+                mRoomDlg.Viewmode = mRoomView;
+        }
+
         private void walkmapOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ToolStripDropDownItem item = (ToolStripDropDownItem)sender;
             if (mRoomView != RoomDlg.ViewMode.Walkmap)
             {
-                item.Text = "Walkmap off";
-                mRoomView = RoomDlg.ViewMode.Walkmap;
+                setRoomViewMode(RoomDlg.ViewMode.Walkmap);
             }
             else
             {
-                item.Text = "Walkmap on";
-                mRoomView = RoomDlg.ViewMode.Objects;
+                setRoomViewMode(RoomDlg.ViewMode.Objects);
             }
-            if (mRoomDlg != null)
-                mRoomDlg.Viewmode = mRoomView;
         }
 
         private void gamepool_add_Click(object sender, EventArgs e)
@@ -612,7 +623,7 @@ namespace StoryDesigner
                 }
                 catch (ArgumentException)
                 {
-                    MessageBox.Show("Image with same name already added");
+                    MessageBox.Show("Sound effect with same name already added");
                     return;
                 }
                 TreeNode parent;
@@ -640,7 +651,7 @@ namespace StoryDesigner
                 }
                 catch (ArgumentException)
                 {
-                    MessageBox.Show("Image with same name already added");
+                    MessageBox.Show("Music with same name already added");
                     return;
                 }
                 TreeNode parent;
@@ -668,7 +679,7 @@ namespace StoryDesigner
                 }
                 catch (ArgumentException)
                 {
-                    MessageBox.Show("Image with same name already added");
+                    MessageBox.Show("Video with same name already added");
                     return;
                 }
                 TreeNode parent;
@@ -690,6 +701,45 @@ namespace StoryDesigner
             }
             else //open save as
                 saveAsToolStripMenuItem_Click(sender, e);
+        }
+
+        private void deepmapOnToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripDropDownItem item = (ToolStripDropDownItem)sender;
+            if (mRoomView != RoomDlg.ViewMode.Deepmap)
+            {
+                setRoomViewMode(RoomDlg.ViewMode.Deepmap);
+            }
+            else
+            {
+                setRoomViewMode(RoomDlg.ViewMode.Objects);
+            }
+        }
+
+        private void inventoryfieldOnToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripDropDownItem item = (ToolStripDropDownItem)sender;
+            if (mRoomView != RoomDlg.ViewMode.Inventory)
+            {
+                setRoomViewMode(RoomDlg.ViewMode.Inventory);
+            }
+            else
+            {
+                setRoomViewMode(RoomDlg.ViewMode.Objects);
+            }
+        }
+
+        private void fXShapesOnToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripDropDownItem item = (ToolStripDropDownItem)sender;
+            if (mRoomView != RoomDlg.ViewMode.Specialfx)
+            {
+                setRoomViewMode(RoomDlg.ViewMode.Specialfx);
+            }
+            else
+            {
+                setRoomViewMode(RoomDlg.ViewMode.Objects);
+            }
         }
     }
 }
