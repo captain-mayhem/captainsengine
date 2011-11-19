@@ -398,18 +398,21 @@ namespace StoryDesigner
             this.deepmapOnToolStripMenuItem.Name = "deepmapOnToolStripMenuItem";
             this.deepmapOnToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.deepmapOnToolStripMenuItem.Text = "Deepmap on";
+            this.deepmapOnToolStripMenuItem.Click += new System.EventHandler(this.deepmapOnToolStripMenuItem_Click);
             // 
             // inventoryfieldOnToolStripMenuItem
             // 
             this.inventoryfieldOnToolStripMenuItem.Name = "inventoryfieldOnToolStripMenuItem";
             this.inventoryfieldOnToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.inventoryfieldOnToolStripMenuItem.Text = "Inventoryfield on";
+            this.inventoryfieldOnToolStripMenuItem.Click += new System.EventHandler(this.inventoryfieldOnToolStripMenuItem_Click);
             // 
             // fXShapesOnToolStripMenuItem
             // 
             this.fXShapesOnToolStripMenuItem.Name = "fXShapesOnToolStripMenuItem";
             this.fXShapesOnToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
             this.fXShapesOnToolStripMenuItem.Text = "FX Shapes on";
+            this.fXShapesOnToolStripMenuItem.Click += new System.EventHandler(this.fXShapesOnToolStripMenuItem_Click);
             // 
             // toolStripSeparator10
             // 

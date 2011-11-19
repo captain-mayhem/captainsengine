@@ -173,6 +173,7 @@ namespace StoryDesigner
             this.editScriptToolStripMenuItem.Name = "editScriptToolStripMenuItem";
             this.editScriptToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.editScriptToolStripMenuItem.Text = "Edit Script";
+            this.editScriptToolStripMenuItem.Click += new System.EventHandler(this.editScriptToolStripMenuItem_Click);
             // 
             // menuAddBackground
             // 
