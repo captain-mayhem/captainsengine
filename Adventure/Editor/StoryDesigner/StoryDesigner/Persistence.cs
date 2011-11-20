@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 using System.Xml.Serialization;
+using System.Drawing;
 
 namespace StoryDesigner
 {
@@ -13,6 +14,8 @@ namespace StoryDesigner
         public string ImageLoadPath = "";
         public bool FitImages = true;
         public bool CreateBackups = true;
+        public Point MainFormPosition = new Point(0, 100);
+        public Point RoomDlgPosition = new Point(250, 200);
 
         protected Persistence()
         {

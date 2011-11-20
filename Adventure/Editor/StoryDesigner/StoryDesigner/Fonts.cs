@@ -185,49 +185,7 @@ namespace StoryDesigner
 
         void drawText(Graphics g, int x, int y, string text, StringFormat fmt, bool allwhite)
         {
-            //g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            if (mCurrInfo.outline == 1 || mCurrInfo.outline == 3)
-            {
-                g.TranslateTransform(-1.0f, -1.0f);
-                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
-                g.ResetTransform();
-                g.TranslateTransform(0.0f, -1.0f);
-                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
-                g.ResetTransform();
-                g.TranslateTransform(-1.0f, 0.0f);
-                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
-                g.ResetTransform();
-            }
-            if (mCurrInfo.outline == 2 || mCurrInfo.outline == 3)
-            {
-                g.TranslateTransform(1.0f, 1.0f);
-                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
-                g.ResetTransform();
-                g.TranslateTransform(0.0f, 1.0f);
-                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
-                g.ResetTransform();
-                g.TranslateTransform(1.0f, 0.0f);
-                g.DrawString(text, mCurrFont, allwhite ? Brushes.White : Brushes.Black, x, y, fmt);
-                g.ResetTransform();
-            }
-            if (mCurrInfo.shadow != 0)
-            {
-                g.TranslateTransform(3.0f, 3.0f);
-                SolidBrush b = new SolidBrush(Color.FromArgb((int)(mCurrInfo.shadow * 0.25 * 255), allwhite ? Color.White : Color.Black));
-                g.DrawString(text, mCurrFont, b, x, y, fmt);
-                g.ResetTransform();
-            }
-
-            Brush brush = null;
-            if (mCurrInfo.fill == 0 || allwhite)
-                brush = Brushes.White;
-            else if (mCurrInfo.fill == 1)
-                brush = new LinearGradientBrush(new Point(x, y), new Point(x, y+mCurrFont.Height), Color.White, Color.Gray);
-            else if (mCurrInfo.fill == 2)
-                brush = new LinearGradientBrush(new Point(x, y), new Point(x, y+mCurrFont.Height), Color.Gray, Color.White);
-            else if (mCurrInfo.fill == 3)
-                brush = new HatchBrush(HatchStyle.NarrowHorizontal, Color.LightGray, Color.White);
-            g.DrawString(text, mCurrFont, brush, x, y, fmt);
+            Utilities.drawText(g, x, y, text, mCurrFont, mCurrInfo, fmt, allwhite);
         }
 
         void drawPreview(Graphics g, int width, int height, Brush brush)
