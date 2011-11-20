@@ -15,6 +15,8 @@ namespace StoryDesigner
         {
             InitializeComponent();
             mPersistence = Persistence.load();
+            this.Location = mPersistence.MainFormPosition;
+            this.StartPosition = FormStartPosition.Manual;
             mediaPool.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             mediaPool.MouseDown += new MouseEventHandler(mediaPool_MouseDown);
             mediaPool.AfterLabelEdit += new NodeLabelEditEventHandler(gamePool_AfterLabelEdit);
@@ -29,6 +31,9 @@ namespace StoryDesigner
 
         void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            if (mRoomDlg != null)
+                mPersistence.RoomDlgPosition = mRoomDlg.Location;
+            mPersistence.MainFormPosition = this.Location;
             mPersistence.save();
         }
 
@@ -207,7 +212,7 @@ namespace StoryDesigner
                         MessageBox.Show("Cannot find room " + name);
                         return;
                     }
-                    Point pos = new Point(200, 200);
+                    Point pos = mPersistence.RoomDlgPosition;
                     if (mRoomDlg != null)
                     {
                         if (mRoomDlg.Room == room && mRoomDlg.Visible)
@@ -215,7 +220,6 @@ namespace StoryDesigner
                             mRoomDlg.Show();
                             break;
                         }
-                        pos = mRoomDlg.Location;
                         mRoomDlg.Close();
                     }
                     mRoomDlg = new RoomDlg(room, mData, mRoomView);

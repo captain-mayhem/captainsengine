@@ -228,6 +228,14 @@ namespace StoryDesigner
             {
                 if (e.Button == MouseButtons.Right)
                 {
+                    Vec2i cp = clickToWalkmap(e.X, e.Y);
+                    ToolStripMenuItem it = menuWalkmap.Items[9] as ToolStripMenuItem;
+                    if (mRoom.Walkmap[cp.x, cp.y].hasScript)
+                    {
+                        it.Enabled = true;
+                    }
+                    else
+                        it.Enabled = false;
                     menuWalkmap.Show(this, click);
                     return;
                 }
@@ -312,12 +320,22 @@ namespace StoryDesigner
                 if (mWalkmapPaintMode >= 0 && mWalkmapPaintMode < 3)
                 {
                     int size = 2 * mWalkmapPaintMode + 1;
-                    e.Graphics.DrawEllipse(Pens.Black, ((wmx-mWalkmapPaintMode) * mData.WalkGridSize + 2) * scale,
-                                    ((wmy-mWalkmapPaintMode) * mData.WalkGridSize + 2) * scale,
+                    e.Graphics.DrawEllipse(Pens.Black, ((wmx - mWalkmapPaintMode) * mData.WalkGridSize + 2) * scale,
+                                    ((wmy - mWalkmapPaintMode) * mData.WalkGridSize + 2) * scale,
                                     (size * mData.WalkGridSize - 4) * scale, (size * mData.WalkGridSize - 4) * scale);
-                    e.Graphics.DrawEllipse(Pens.LightGray, ((wmx-mWalkmapPaintMode) * mData.WalkGridSize + 1) * scale,
-                                    ((wmy-mWalkmapPaintMode) * mData.WalkGridSize + 1) * scale,
+                    e.Graphics.DrawEllipse(Pens.LightGray, ((wmx - mWalkmapPaintMode) * mData.WalkGridSize + 1) * scale,
+                                    ((wmy - mWalkmapPaintMode) * mData.WalkGridSize + 1) * scale,
                                     (size * mData.WalkGridSize - 2) * scale, (size * mData.WalkGridSize - 2) * scale);
+                }
+                else
+                {
+                    SolidBrush br = null;
+                    if (mWalkmapPaintMode == 3)
+                        br = new SolidBrush(Color.FromArgb(100, Color.Yellow));
+                    else
+                        br = new SolidBrush(Color.FromArgb(100, Color.Red));
+                    e.Graphics.FillRectangle(br, wmx * mData.WalkGridSize * scale, wmy * mData.WalkGridSize * scale,
+                                mData.WalkGridSize * scale, mData.WalkGridSize * scale);
                 }
             }
 
@@ -325,7 +343,7 @@ namespace StoryDesigner
             Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
             if (mMode == ViewMode.Objects){
                 string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x/mData.WalkGridSize, mRoom.ScrollOffset.y/mData.WalkGridSize, wmx+1, wmy+1, wmfree ? 'F' : 'B', mp.x, mp.y);
-                e.Graphics.DrawString(s, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y);
+                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
                 string s2 = "Object:";
                 DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset);
                 if (drob is ObjectInstance)
@@ -338,12 +356,12 @@ namespace StoryDesigner
                     CharacterInstance chr = (CharacterInstance)drob;
                     s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, wmscale*chr.Position.x/mData.WalkGridSize+1, wmscale*chr.Position.y/mData.WalkGridSize+1);
                 }
-                e.Graphics.DrawString(s2, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y+f.Height);
+                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y + f.Height, s2, f);
             }
             else if (mMode == ViewMode.Walkmap)
             {
                 string s = String.Format("{0} ({1},{2})", wmfree ? "Free" : "Blocked", wmx + 1, wmy + 1);
-                e.Graphics.DrawString(s, f, Brushes.Gray, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y);
+                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
             }
         }
 
@@ -423,32 +441,39 @@ namespace StoryDesigner
             set { mMode = value; Invalidate(); }
         }
 
+        Vec2i clickToWalkmap(int x, int y)
+        {
+            Vec2i ret = new Vec2i(x, y);
+            ret.x += mRoom.ScrollOffset.x;
+            ret.y += mRoom.ScrollOffset.y;
+            int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
+            ret.x = wmscale * ret.x / mData.WalkGridSize;
+            ret.y = wmscale * ret.y / mData.WalkGridSize;
+            return ret;
+        }
+
         void modifyWalkmap(int x, int y)
         {
-            x += mRoom.ScrollOffset.x;
-            y += mRoom.ScrollOffset.y;
-            int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
-            int wmx = wmscale * x / mData.WalkGridSize;
-            int wmy = wmscale * y / mData.WalkGridSize;
+            Vec2i wm = clickToWalkmap(x, y);
             ToolStripMenuItem it = menuWalkmap.Items[0] as ToolStripMenuItem;
-            mRoom.Walkmap[wmx, wmy].isFree = it.Checked;
+            mRoom.Walkmap[wm.x, wm.y].isFree = it.Checked;
             if (mWalkmapPaintMode > 0)
             {
-                setWalkmapPoint(wmx + 1, wmy, it.Checked);
-                setWalkmapPoint(wmx - 1, wmy, it.Checked);
-                setWalkmapPoint(wmx, wmy + 1, it.Checked);
-                setWalkmapPoint(wmx, wmy - 1, it.Checked);
+                setWalkmapPoint(wm.x + 1, wm.y, it.Checked);
+                setWalkmapPoint(wm.x - 1, wm.y, it.Checked);
+                setWalkmapPoint(wm.x, wm.y + 1, it.Checked);
+                setWalkmapPoint(wm.x, wm.y - 1, it.Checked);
             }
             if (mWalkmapPaintMode > 1)
             {
-                setWalkmapPoint(wmx + 1, wmy - 1, it.Checked);
-                setWalkmapPoint(wmx - 1, wmy + 1, it.Checked);
-                setWalkmapPoint(wmx - 1, wmy - 1, it.Checked);
-                setWalkmapPoint(wmx + 1, wmy + 1, it.Checked);
-                setWalkmapPoint(wmx + 2, wmy, it.Checked);
-                setWalkmapPoint(wmx - 2, wmy, it.Checked);
-                setWalkmapPoint(wmx, wmy + 2, it.Checked);
-                setWalkmapPoint(wmx, wmy - 2, it.Checked);
+                setWalkmapPoint(wm.x + 1, wm.y - 1, it.Checked);
+                setWalkmapPoint(wm.x - 1, wm.y + 1, it.Checked);
+                setWalkmapPoint(wm.x - 1, wm.y - 1, it.Checked);
+                setWalkmapPoint(wm.x + 1, wm.y + 1, it.Checked);
+                setWalkmapPoint(wm.x + 2, wm.y, it.Checked);
+                setWalkmapPoint(wm.x - 2, wm.y, it.Checked);
+                setWalkmapPoint(wm.x, wm.y + 2, it.Checked);
+                setWalkmapPoint(wm.x, wm.y - 2, it.Checked);
             }
         }
 

@@ -139,6 +139,7 @@ namespace StoryDesigner
             // 
             // scriptPasterToolStripMenuItem
             // 
+            this.scriptPasterToolStripMenuItem.Enabled = false;
             this.scriptPasterToolStripMenuItem.Name = "scriptPasterToolStripMenuItem";
             this.scriptPasterToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.scriptPasterToolStripMenuItem.Text = "Script Paster";
@@ -158,12 +159,14 @@ namespace StoryDesigner
             // 
             // copyWalkmapScriptToolStripMenuItem
             // 
+            this.copyWalkmapScriptToolStripMenuItem.Enabled = false;
             this.copyWalkmapScriptToolStripMenuItem.Name = "copyWalkmapScriptToolStripMenuItem";
             this.copyWalkmapScriptToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.copyWalkmapScriptToolStripMenuItem.Text = "Copy Walkmap Script";
             // 
             // pasteWalkmapScriptToolStripMenuItem
             // 
+            this.pasteWalkmapScriptToolStripMenuItem.Enabled = false;
             this.pasteWalkmapScriptToolStripMenuItem.Name = "pasteWalkmapScriptToolStripMenuItem";
             this.pasteWalkmapScriptToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.pasteWalkmapScriptToolStripMenuItem.Text = "Paste Walkmap Script";
