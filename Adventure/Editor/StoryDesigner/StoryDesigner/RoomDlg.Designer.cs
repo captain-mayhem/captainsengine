@@ -163,6 +163,7 @@ namespace StoryDesigner
             this.copyWalkmapScriptToolStripMenuItem.Name = "copyWalkmapScriptToolStripMenuItem";
             this.copyWalkmapScriptToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.copyWalkmapScriptToolStripMenuItem.Text = "Copy Walkmap Script";
+            this.copyWalkmapScriptToolStripMenuItem.Click += new System.EventHandler(this.copyWalkmapScriptToolStripMenuItem_Click);
             // 
             // pasteWalkmapScriptToolStripMenuItem
             // 
@@ -170,6 +171,7 @@ namespace StoryDesigner
             this.pasteWalkmapScriptToolStripMenuItem.Name = "pasteWalkmapScriptToolStripMenuItem";
             this.pasteWalkmapScriptToolStripMenuItem.Size = new System.Drawing.Size(188, 22);
             this.pasteWalkmapScriptToolStripMenuItem.Text = "Paste Walkmap Script";
+            this.pasteWalkmapScriptToolStripMenuItem.Click += new System.EventHandler(this.pasteWalkmapScriptToolStripMenuItem_Click);
             // 
             // editScriptToolStripMenuItem
             // 

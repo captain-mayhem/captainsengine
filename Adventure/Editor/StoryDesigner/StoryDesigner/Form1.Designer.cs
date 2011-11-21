@@ -29,6 +29,7 @@ namespace StoryDesigner
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.dateiToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -98,6 +99,7 @@ namespace StoryDesigner
             this.menuPool = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newSubdirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.iconList = new System.Windows.Forms.ImageList(this.components);
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.menuPool.SuspendLayout();
@@ -581,16 +583,22 @@ namespace StoryDesigner
             // mediaPool
             // 
             this.mediaPool.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.mediaPool.ImageIndex = 0;
+            this.mediaPool.ImageList = this.iconList;
             this.mediaPool.Location = new System.Drawing.Point(0, 291);
             this.mediaPool.Name = "mediaPool";
+            this.mediaPool.SelectedImageIndex = 0;
             this.mediaPool.Size = new System.Drawing.Size(341, 245);
             this.mediaPool.TabIndex = 1;
             // 
             // gamePool
             // 
             this.gamePool.Dock = System.Windows.Forms.DockStyle.Top;
+            this.gamePool.ImageIndex = 0;
+            this.gamePool.ImageList = this.iconList;
             this.gamePool.Location = new System.Drawing.Point(0, 0);
             this.gamePool.Name = "gamePool";
+            this.gamePool.SelectedImageIndex = 0;
             this.gamePool.Size = new System.Drawing.Size(341, 256);
             this.gamePool.TabIndex = 0;
             // 
@@ -615,6 +623,12 @@ namespace StoryDesigner
             this.newSubdirectoryToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.newSubdirectoryToolStripMenuItem.Text = "New Subdirectory";
             this.newSubdirectoryToolStripMenuItem.Click += new System.EventHandler(this.newSubdirectoryToolStripMenuItem_Click);
+            // 
+            // iconList
+            // 
+            this.iconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconList.ImageStream")));
+            this.iconList.TransparentColor = System.Drawing.Color.Transparent;
+            this.iconList.Images.SetKeyName(0, "Folder.ico");
             // 
             // MainForm
             // 
@@ -710,6 +724,7 @@ namespace StoryDesigner
         private System.Windows.Forms.ContextMenuStrip menuPool;
         private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newSubdirectoryToolStripMenuItem;
+        private System.Windows.Forms.ImageList iconList;
     }
 }
 
