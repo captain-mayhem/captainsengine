@@ -283,7 +283,25 @@ namespace StoryDesigner
             int wmx = wmscale * mp.x / mData.WalkGridSize;
             int wmy = wmscale * mp.y / mData.WalkGridSize;
             bool wmfree = mRoom.Walkmap[wmx, wmy].isFree;
-            if (mMode == ViewMode.Walkmap)
+            Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
+            if (mMode == ViewMode.Objects){
+                string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x/mData.WalkGridSize, mRoom.ScrollOffset.y/mData.WalkGridSize, wmx+1, wmy+1, wmfree ? 'F' : 'B', mp.x, mp.y);
+                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
+                string s2 = "Object:";
+                DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset);
+                if (drob is ObjectInstance)
+                {
+                    ObjectInstance obj = (ObjectInstance)drob;
+                    s2 = String.Format("Object: {0} (PixelPos: {1},{2})", obj.Name, obj.Position.x, obj.Position.y);
+                }
+                else if (drob is CharacterInstance)
+                {
+                    CharacterInstance chr = (CharacterInstance)drob;
+                    s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, wmscale*chr.Position.x/mData.WalkGridSize+1, wmscale*chr.Position.y/mData.WalkGridSize+1);
+                }
+                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y + f.Height, s2, f);
+            }
+            else if (mMode == ViewMode.Walkmap)
             {
                 float scale = mRoom.DoubleWalkmap ? 0.5f : 1;
                 SolidBrush b = new SolidBrush(Color.FromArgb(100, Color.Blue));
@@ -337,31 +355,23 @@ namespace StoryDesigner
                     e.Graphics.FillRectangle(br, wmx * mData.WalkGridSize * scale, wmy * mData.WalkGridSize * scale,
                                 mData.WalkGridSize * scale, mData.WalkGridSize * scale);
                 }
-            }
-
-            //draw information
-            Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
-            if (mMode == ViewMode.Objects){
-                string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x/mData.WalkGridSize, mRoom.ScrollOffset.y/mData.WalkGridSize, wmx+1, wmy+1, wmfree ? 'F' : 'B', mp.x, mp.y);
-                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
-                string s2 = "Object:";
-                DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset);
-                if (drob is ObjectInstance)
-                {
-                    ObjectInstance obj = (ObjectInstance)drob;
-                    s2 = String.Format("Object: {0} (PixelPos: {1},{2})", obj.Name, obj.Position.x, obj.Position.y);
-                }
-                else if (drob is CharacterInstance)
-                {
-                    CharacterInstance chr = (CharacterInstance)drob;
-                    s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, wmscale*chr.Position.x/mData.WalkGridSize+1, wmscale*chr.Position.y/mData.WalkGridSize+1);
-                }
-                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y + f.Height, s2, f);
-            }
-            else if (mMode == ViewMode.Walkmap)
-            {
+                //draw information
                 string s = String.Format("{0} ({1},{2})", wmfree ? "Free" : "Blocked", wmx + 1, wmy + 1);
                 Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
+            }
+            else if (mMode == ViewMode.Deepmap)
+            {
+                int y1 = mRoom.Depthmap.x * mData.WalkGridSize;
+                int y2 = mRoom.Depthmap.y * mData.WalkGridSize;
+                SolidBrush blue1 = new SolidBrush(Color.FromArgb(100, Color.Blue));
+                e.Graphics.FillRectangle(blue1, 0, 0, mData.Settings.Resolution.x * 3, y1);
+                SolidBrush blue2 = new SolidBrush(Color.FromArgb(40, Color.Blue));
+                e.Graphics.FillRectangle(blue2, 0, y1, mData.Settings.Resolution.x * 3, y2-y1);
+                Pen bluepen = new Pen(Color.Blue, 3.0f);
+                e.Graphics.DrawLine(bluepen, 0, y1, mData.Settings.Resolution.x * 3, y1);
+                e.Graphics.DrawLine(bluepen, 0, y2, mData.Settings.Resolution.x * 3, y2);
+                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, y1-f.Height, "Depth 1: "+mRoom.Depthmap.x+" (Pull me)", f);
+                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, y2 - f.Height, "Depth 2: " + mRoom.Depthmap.y + " (Pull me)", f);
             }
         }
 
@@ -455,25 +465,56 @@ namespace StoryDesigner
         void modifyWalkmap(int x, int y)
         {
             Vec2i wm = clickToWalkmap(x, y);
-            ToolStripMenuItem it = menuWalkmap.Items[0] as ToolStripMenuItem;
-            mRoom.Walkmap[wm.x, wm.y].isFree = it.Checked;
-            if (mWalkmapPaintMode > 0)
+            if (mWalkmapPaintMode <= 2)
             {
-                setWalkmapPoint(wm.x + 1, wm.y, it.Checked);
-                setWalkmapPoint(wm.x - 1, wm.y, it.Checked);
-                setWalkmapPoint(wm.x, wm.y + 1, it.Checked);
-                setWalkmapPoint(wm.x, wm.y - 1, it.Checked);
+                ToolStripMenuItem it = menuWalkmap.Items[0] as ToolStripMenuItem;
+                mRoom.Walkmap[wm.x, wm.y].isFree = it.Checked;
+                if (mWalkmapPaintMode > 0)
+                {
+                    setWalkmapPoint(wm.x + 1, wm.y, it.Checked);
+                    setWalkmapPoint(wm.x - 1, wm.y, it.Checked);
+                    setWalkmapPoint(wm.x, wm.y + 1, it.Checked);
+                    setWalkmapPoint(wm.x, wm.y - 1, it.Checked);
+                }
+                if (mWalkmapPaintMode > 1)
+                {
+                    setWalkmapPoint(wm.x + 1, wm.y - 1, it.Checked);
+                    setWalkmapPoint(wm.x - 1, wm.y + 1, it.Checked);
+                    setWalkmapPoint(wm.x - 1, wm.y - 1, it.Checked);
+                    setWalkmapPoint(wm.x + 1, wm.y + 1, it.Checked);
+                    setWalkmapPoint(wm.x + 2, wm.y, it.Checked);
+                    setWalkmapPoint(wm.x - 2, wm.y, it.Checked);
+                    setWalkmapPoint(wm.x, wm.y + 2, it.Checked);
+                    setWalkmapPoint(wm.x, wm.y - 2, it.Checked);
+                }
             }
-            if (mWalkmapPaintMode > 1)
+            else if (mWalkmapPaintMode == 3)
             {
-                setWalkmapPoint(wm.x + 1, wm.y - 1, it.Checked);
-                setWalkmapPoint(wm.x - 1, wm.y + 1, it.Checked);
-                setWalkmapPoint(wm.x - 1, wm.y - 1, it.Checked);
-                setWalkmapPoint(wm.x + 1, wm.y + 1, it.Checked);
-                setWalkmapPoint(wm.x + 2, wm.y, it.Checked);
-                setWalkmapPoint(wm.x - 2, wm.y, it.Checked);
-                setWalkmapPoint(wm.x, wm.y + 2, it.Checked);
-                setWalkmapPoint(wm.x, wm.y - 2, it.Checked);
+                //script paster
+                Script scr;
+                string name = Script.toScriptName(wm.x, wm.y, mRoom.Name);
+                if (mRoom.Walkmap[wm.x, wm.y].hasScript)
+                {
+                    scr = mData.getScript(Script.Type.WALKMAP, name);
+                }
+                else
+                {
+                    scr = new Script(Script.Type.WALKMAP);
+                    scr.Name = name;
+                    mData.addScript(scr);
+                    mRoom.Walkmap[wm.x, wm.y].hasScript = true;
+                }
+                scr.Text = (string)mCopiedWMScript.Clone();
+            }
+            else if (mWalkmapPaintMode == 4)
+            {
+                //script eraser
+                string name = Script.toScriptName(wm.x, wm.y, mRoom.Name);
+                if (mRoom.Walkmap[wm.x, wm.y].hasScript)
+                {
+                    mData.removeScript(Script.Type.WALKMAP, name);
+                    mRoom.Walkmap[wm.x, wm.y].hasScript = false;
+                }
             }
         }
 
@@ -496,6 +537,7 @@ namespace StoryDesigner
         private ViewMode mMode;
         private string mPendingImage;
         private int mWalkmapPaintMode = 0;
+        private string mCopiedWMScript = null;
 
         private void addAsBackgroundToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -575,6 +617,26 @@ namespace StoryDesigner
             MainForm form = (MainForm)this.Owner;
             string scrname = Script.toScriptName(pos.x, pos.y, mRoom.Name);
             form.showScript(Script.Type.WALKMAP, scrname.ToLower());
+        }
+
+        private void copyWalkmapScriptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToolStripMenuItem item1 = menuWalkmap.Items[6] as ToolStripMenuItem;
+            ToolStripMenuItem item2 = menuWalkmap.Items[10] as ToolStripMenuItem;
+            item1.Enabled = true;
+            item2.Enabled = true;
+            Vec2i pos = new Vec2i(mMousePos.x / mData.WalkGridSize, mMousePos.y / mData.WalkGridSize);
+            string scrname = Script.toScriptName(pos.x, pos.y, mRoom.Name);
+            Script scr = mData.getScript(Script.Type.WALKMAP, scrname);
+            mCopiedWMScript = scr.Text;
+        }
+
+        private void pasteWalkmapScriptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            int oldmode = mWalkmapPaintMode;
+            mWalkmapPaintMode = 3;
+            modifyWalkmap(mMousePos.x, mMousePos.y);
+            mWalkmapPaintMode = oldmode;
         }
     }
 }
