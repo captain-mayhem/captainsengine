@@ -93,5 +93,15 @@ namespace StoryDesigner
                 brush = new HatchBrush(HatchStyle.NarrowHorizontal, Color.LightGray, Color.White);
             g.DrawString(text, font, brush, x, y, fmt);
         }
+
+        public static int ResourceIDToImageIndex(ResourceID id)
+        {
+            switch (id)
+            {
+                case ResourceID.FOLDER:
+                    return 1;
+            }
+            return 0;
+        }
     }
 }

@@ -628,7 +628,8 @@ namespace StoryDesigner
             // 
             this.iconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconList.ImageStream")));
             this.iconList.TransparentColor = System.Drawing.Color.Transparent;
-            this.iconList.Images.SetKeyName(0, "Folder.ico");
+            this.iconList.Images.SetKeyName(0, "Empty.ico");
+            this.iconList.Images.SetKeyName(1, "Folder.ico");
             // 
             // MainForm
             // 

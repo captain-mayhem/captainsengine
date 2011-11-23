@@ -364,6 +364,8 @@ namespace StoryDesigner
             foreach (TreeNode node in gamePool.Nodes)
             {
                 node.Tag = ResourceID.FOLDER;
+                node.SelectedImageIndex = Utilities.ResourceIDToImageIndex(ResourceID.FOLDER);
+                node.ImageIndex = node.SelectedImageIndex;
             }
             mediaPool.Nodes.Clear();
             mediaPool.Nodes.Add("IMAGES");
@@ -373,6 +375,8 @@ namespace StoryDesigner
             foreach (TreeNode node in mediaPool.Nodes)
             {
                 node.Tag = ResourceID.FOLDER;
+                node.SelectedImageIndex = Utilities.ResourceIDToImageIndex(ResourceID.FOLDER);
+                node.ImageIndex = node.SelectedImageIndex;
             }
             mSavePath = null;
         }
@@ -605,6 +609,8 @@ namespace StoryDesigner
             }
             TreeNode node = new TreeNode("Folder"+(count+1));
             node.Tag = ResourceID.FOLDER;
+            node.SelectedImageIndex = Utilities.ResourceIDToImageIndex(ResourceID.FOLDER);
+            node.ImageIndex = node.SelectedImageIndex;
             parent.Nodes.Add(node);
             mSelectedView.Sort();
             mSelectedView.SelectedNode = node;
