@@ -47,6 +47,8 @@ namespace StoryDesigner
         {
             try
             {
+                string ext = Path.GetExtension(path);
+                bool writeDat = ext == ".dat";
                 string entry = Path.GetFileNameWithoutExtension(path);
                 FileStream fs = new FileStream(path, FileMode.Create);
                 ZipOutputStream zs = new ZipOutputStream(fs);
@@ -54,7 +56,7 @@ namespace StoryDesigner
 
                 ZipEntry ze1 = new ZipEntry(entry+".001");
                 zs.PutNextEntry(ze1);
-                writeSettings(zs);
+                writeSettings(zs, writeDat);
                 zs.CloseEntry();
 
                 ZipEntry ze2 = new ZipEntry(entry+".002");
@@ -81,7 +83,7 @@ namespace StoryDesigner
             }
         }
 
-        void writeSettings(Stream strm)
+        void writeSettings(Stream strm, bool convertPngs)
         {
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
             swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
@@ -190,7 +192,14 @@ namespace StoryDesigner
             foreach (KeyValuePair<string, string> image in mData.Images)
             {
                 swr.WriteLine(image.Key);
-                swr.WriteLine(image.Value);
+                if (convertPngs && Path.GetExtension(image.Value) == ".png")
+                {
+                    string towrite = image.Value.Substring(0, image.Value.Length - 1);
+                    towrite += 'j';
+                    swr.WriteLine(towrite);
+                }
+                else
+                    swr.WriteLine(image.Value);
             }
             swr.WriteLine("Sounds :");
             foreach (KeyValuePair<string, string> sound in mData.Sounds)
@@ -590,6 +599,16 @@ namespace StoryDesigner
             }
             masterz.Finish();
             fs.Close();
+            //write system font
+            System.Reflection.Assembly assy = System.Reflection.Assembly.GetExecutingAssembly();
+            Stream fontstr = assy.GetManifestResourceStream("StoryDesigner.Resources.font.dat");
+            int length = (int)fontstr.Length;
+            byte[] fontdat = new byte[length];
+            fontstr.Read(fontdat, 0, length);
+            fontstr.Close();
+            FileStream fontout = new FileStream(datadir + "font.dat", FileMode.Create);
+            fontout.Write(fontdat, 0, length);
+            fontout.Close();
         }
 
         void packGraphics(string datadir)

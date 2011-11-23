@@ -802,6 +802,8 @@ namespace StoryDesigner
             }
             TreeNode node = new TreeNode(label);
             node.Tag =  (ResourceID)Convert.ToInt32(idstr);
+            node.ImageIndex = Utilities.ResourceIDToImageIndex((ResourceID)node.Tag);
+            node.SelectedImageIndex = node.ImageIndex;
             current.Nodes.Add(node);
             return node;
         }
