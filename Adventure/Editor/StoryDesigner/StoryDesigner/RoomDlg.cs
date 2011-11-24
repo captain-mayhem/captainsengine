@@ -156,6 +156,7 @@ namespace StoryDesigner
         {
             mDragObject = null;
             mDragDepth = false;
+            mDragDepthBottom = false;
         }
 
         void RoomDlg_MouseMove(object sender, MouseEventArgs e)
@@ -189,6 +190,26 @@ namespace StoryDesigner
                 if (!mDragDepth)
                     return;
                 modifyWalkmap(e.X, e.Y);
+            }
+            else if (mMode == ViewMode.Deepmap)
+            {
+                int depth = (e.Y + mData.WalkGridSize / 2 + mRoom.ScrollOffset.y) / mData.WalkGridSize;
+                if (mDragDepth)
+                {
+                    if (depth < 1)
+                        depth = 1;
+                    if (depth >= mRoom.Depthmap.y)
+                        depth = mRoom.Depthmap.y - 1;
+                    mRoom.Depthmap.x = depth;
+                }
+                if (mDragDepthBottom)
+                {
+                    if (depth <= mRoom.Depthmap.x)
+                        depth = mRoom.Depthmap.x + 1;
+                    if (depth >= mRoom.Size.y/mData.WalkGridSize)
+                        depth = mRoom.Size.y/mData.WalkGridSize-1;
+                    mRoom.Depthmap.y = depth;
+                }
             }
         }
 
@@ -242,6 +263,14 @@ namespace StoryDesigner
                 modifyWalkmap(pos.x, pos.y);
                 mDragDepth = true;
             }
+            else if (mMode == ViewMode.Deepmap)
+            {
+                int depth = (e.Y+mData.WalkGridSize/2+mRoom.ScrollOffset.y) / mData.WalkGridSize;
+                if (depth == mRoom.Depthmap.x)
+                    mDragDepth = true;
+                if (depth == mRoom.Depthmap.y)
+                    mDragDepthBottom = true;
+            }
         }
 
         void RoomDlg_Paint(object sender, PaintEventArgs e)
@@ -282,6 +311,14 @@ namespace StoryDesigner
             int wmscale = mRoom.DoubleWalkmap ? 2 : 1;
             int wmx = wmscale * mp.x / mData.WalkGridSize;
             int wmy = wmscale * mp.y / mData.WalkGridSize;
+            if (wmx < 0)
+                wmx = 0;
+            if (wmy < 0)
+                wmy = 0;
+            if (wmx > mRoom.Walkmap.GetUpperBound(0))
+                wmx = mRoom.Walkmap.GetUpperBound(0);
+            if (wmy > mRoom.Walkmap.GetUpperBound(1))
+                wmy = mRoom.Walkmap.GetUpperBound(1);
             bool wmfree = mRoom.Walkmap[wmx, wmy].isFree;
             Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
             if (mMode == ViewMode.Objects){
@@ -527,6 +564,7 @@ namespace StoryDesigner
             mRoom.Walkmap[x, y].isFree = value;
         }
 
+        //general
         private Room mRoom;
         private AdvData mData;
         private DrawableObject mDragObject;
@@ -535,9 +573,12 @@ namespace StoryDesigner
         private RoomCtrlDlg mControl;
         private Vec2i mMousePos;
         private ViewMode mMode;
+        //walkmap
         private string mPendingImage;
         private int mWalkmapPaintMode = 0;
         private string mCopiedWMScript = null;
+        //deepmap
+        bool mDragDepthBottom;
 
         private void addAsBackgroundToolStripMenuItem_Click(object sender, EventArgs e)
         {
