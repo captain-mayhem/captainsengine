@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Drawing.Drawing2D;
 
 namespace StoryDesigner
 {
@@ -211,6 +212,39 @@ namespace StoryDesigner
                     mRoom.Depthmap.y = depth;
                 }
             }
+            else if (mMode == ViewMode.Inventory)
+            {
+                int sizex = (int)((mRoom.InvSize.x * 61) * mRoom.InvScale.x) + 30;
+                int sizey = (int)((mRoom.InvSize.y * 59) * mRoom.InvScale.y) + 5;
+                int ydown = -mRoom.ScrollOffset.y + mRoom.InvPos.y + sizey;
+                int xmiddle = -mRoom.ScrollOffset.x + mRoom.InvPos.x + sizex / 2;
+                //e.Graphics.DrawLine(tbp, xmiddle - 15, ydown - 3, xmiddle + 15, ydown - 3);
+                int ymiddle = -mRoom.ScrollOffset.y + mRoom.InvPos.y + sizey / 2;
+                int xright = -mRoom.ScrollOffset.x + mRoom.InvPos.x + sizex;
+                if (e.X >= xmiddle - 15 && e.X <= xmiddle + 15)
+                {
+                    if (e.Y <= ydown + 3 && e.Y >= ydown-5-3)
+                        this.Cursor = Cursors.SizeNS;
+                    else
+                        this.Cursor = Cursors.Default;
+                }
+                else if (e.Y >= ymiddle - 15 && e.Y <= ymiddle + 15)
+                {
+                    if (e.X <= xright + 3 && e.X >= xright - 5 - 3)
+                        this.Cursor = Cursors.SizeWE;
+                    else
+                        this.Cursor = Cursors.Default;
+                }
+                else if (e.X >= xright - 11 - 3 && e.X <= xright + 3)
+                {
+                    if (e.Y >= ydown - 11 - 3 && e.Y <= ydown + 3)
+                        this.Cursor = Cursors.SizeNWSE;
+                    else
+                        this.Cursor = Cursors.Default;
+                }
+                else
+                    this.Cursor = Cursors.Default;
+            }
         }
 
         void RoomDlg_MouseDown(object sender, MouseEventArgs e)
@@ -409,6 +443,45 @@ namespace StoryDesigner
                 e.Graphics.DrawLine(bluepen, 0, y2, mData.Settings.Resolution.x * 3, y2);
                 Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, y1-f.Height, "Depth 1: "+mRoom.Depthmap.x+" (Pull me)", f);
                 Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, y2 - f.Height, "Depth 2: " + mRoom.Depthmap.y + " (Pull me)", f);
+            }
+            else if (mMode == ViewMode.Inventory)
+            {
+                if (!mRoom.HasInventory)
+                {
+                    Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, "Draw an inventoryfield into the room.", f);
+                    return;
+                }
+                SolidBrush blue = new SolidBrush(Color.FromArgb(50, Color.Blue));
+                int sizex = (int)((mRoom.InvSize.x * 61) * mRoom.InvScale.x) + 30;
+                int sizey = (int)((mRoom.InvSize.y * 59) * mRoom.InvScale.y) + 5;
+                e.Graphics.FillRectangle(blue, mRoom.InvPos.x, mRoom.InvPos.y, sizex, sizey);
+                e.Graphics.DrawRectangle(Pens.DarkBlue, mRoom.InvPos.x, mRoom.InvPos.y, sizex, sizey);
+                for (int x = 0; x < mRoom.InvSize.x; ++x)
+                {
+                    for (int y = 0; y < mRoom.InvSize.y; ++y)
+                    {
+                        float posx = x * ((int)(61 * mRoom.InvScale.x)) + 30 + mRoom.InvPos.x;
+                        float posy = y * ((int)(59 * mRoom.InvScale.y)) + 5 + mRoom.InvPos.y;
+                        e.Graphics.DrawRectangle(Pens.Blue, posx, posy, 52, 48);
+                    }
+                }
+                Pen tbp = new Pen(Color.DarkBlue, 5.0f);
+                int ydown = mRoom.InvPos.y+sizey;
+                int xmiddle = mRoom.InvPos.x + sizex / 2;
+                e.Graphics.DrawLine(tbp, xmiddle - 15, ydown - 3, xmiddle + 15, ydown - 3);
+                int ymiddle = mRoom.InvPos.y + sizey / 2;
+                int xright = mRoom.InvPos.x + sizex;
+                e.Graphics.DrawLine(tbp, xright - 3, ymiddle - 15, xright - 3, ymiddle + 15);
+      
+                Point[] points = new Point[4];
+                points[0] = new Point(xright-11, ydown);
+                points[1] = new Point(xright-5, ydown);
+                points[2] = new Point(xright, ydown - 5);
+                points[3] = new Point(xright, ydown - 11);
+                LinearGradientBrush lgb = new LinearGradientBrush(new Point(xright - 8, ydown), new Point(xright, ydown - 8), Color.DarkBlue, Color.Blue);
+                e.Graphics.FillPolygon(lgb, points);
+                string s = String.Format("Inventory field: {0}x{1} fields", mRoom.InvSize.x, mRoom.InvSize.y);
+                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
             }
         }
 
