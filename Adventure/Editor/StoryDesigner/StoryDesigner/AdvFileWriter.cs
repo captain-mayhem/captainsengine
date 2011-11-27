@@ -421,7 +421,8 @@ namespace StoryDesigner
                 swr.Write(room.InvPos.y); swr.Write(';');
                 swr.Write(room.InvSize.x); swr.Write(';');
                 swr.Write(room.InvSize.y); swr.Write(';');
-                System.Globalization.NumberFormatInfo info = System.Globalization.NumberFormatInfo.InvariantInfo;
+                System.Globalization.NumberFormatInfo info = new System.Globalization.NumberFormatInfo();
+                info.NumberDecimalSeparator = ",";
                 swr.Write(String.Format(info, "{0:0.##############}",room.InvScale.x)); swr.Write(';');
                 swr.WriteLine(String.Format(info, "{0:0.##############}", room.InvScale.y));
                 //walkmap
