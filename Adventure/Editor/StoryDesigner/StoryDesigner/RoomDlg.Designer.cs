@@ -48,9 +48,12 @@ namespace StoryDesigner
             this.menuAddBackground = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.addAsBackgroundToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addAsPaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuInventory = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.removeFieldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRemoveBackground.SuspendLayout();
             this.menuWalkmap.SuspendLayout();
             this.menuAddBackground.SuspendLayout();
+            this.menuInventory.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuRemoveBackground
@@ -202,6 +205,20 @@ namespace StoryDesigner
             this.addAsPaToolStripMenuItem.Text = "Add as Parallax Background";
             this.addAsPaToolStripMenuItem.Click += new System.EventHandler(this.addAsPaToolStripMenuItem_Click);
             // 
+            // menuInventory
+            // 
+            this.menuInventory.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeFieldToolStripMenuItem});
+            this.menuInventory.Name = "menuInventory";
+            this.menuInventory.Size = new System.Drawing.Size(153, 48);
+            // 
+            // removeFieldToolStripMenuItem
+            // 
+            this.removeFieldToolStripMenuItem.Name = "removeFieldToolStripMenuItem";
+            this.removeFieldToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeFieldToolStripMenuItem.Text = " Remove Field";
+            this.removeFieldToolStripMenuItem.Click += new System.EventHandler(this.removeFieldToolStripMenuItem_Click);
+            // 
             // RoomDlg
             // 
             this.AllowDrop = true;
@@ -216,6 +233,7 @@ namespace StoryDesigner
             this.menuRemoveBackground.ResumeLayout(false);
             this.menuWalkmap.ResumeLayout(false);
             this.menuAddBackground.ResumeLayout(false);
+            this.menuInventory.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -241,5 +259,7 @@ namespace StoryDesigner
         private System.Windows.Forms.ContextMenuStrip menuAddBackground;
         private System.Windows.Forms.ToolStripMenuItem addAsBackgroundToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addAsPaToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip menuInventory;
+        private System.Windows.Forms.ToolStripMenuItem removeFieldToolStripMenuItem;
     }
 }

@@ -126,4 +126,7 @@
   <metadata name="menuAddBackground.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>24, 44</value>
   </metadata>
+  <metadata name="menuInventory.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>210, 46</value>
+  </metadata>
 </root>
