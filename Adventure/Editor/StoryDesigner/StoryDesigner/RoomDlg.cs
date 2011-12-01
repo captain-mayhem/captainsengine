@@ -433,7 +433,7 @@ namespace StoryDesigner
                     {
                         return;
                     }
-                    mRoom.InvPos = new Vec2i(e.X, e.Y);
+                    mRoom.InvPos = new Vec2i(e.X + mRoom.ScrollOffset.x, e.Y + mRoom.ScrollOffset.y);
                     mRoom.InvScale = new Vec2f(1.0f, 1.0f);
                     mRoom.HasInventory = true;
                     mDragMode = DragMode.DragCorner;
