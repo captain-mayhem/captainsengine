@@ -228,9 +228,9 @@ SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled){
   SoundPlayer* plyr = mActiveSounds[name];
   if (plyr)
     return plyr;
-  DataBuffer db;
-  mData->getSound(name, db);
-  plyr = createPlayer(name, db, effectEnabled);
+  DataBuffer* db = new DataBuffer();
+  mData->getSound(name, *db);
+  plyr = createPlayer(name, *db, effectEnabled);
   mActiveSounds[name] = plyr;
   return plyr;
 }
@@ -248,9 +248,9 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name, bool effectEnabled){
   //  plyr = mActiveSounds[name];
   if (plyr)
     return plyr;
-  DataBuffer db;
-  mData->getMusic(name, db);
-  plyr = createPlayer(name, db, effectEnabled);
+  DataBuffer* db = new DataBuffer();
+  mData->getMusic(name, *db);
+  plyr = createPlayer(name, *db, effectEnabled);
   if (mActiveMusic){
     //crossfade
     mActiveMusic->fadeVolume(mMusicVolume, 0.0f, mFadingTime);
@@ -268,9 +268,9 @@ VideoPlayer* SoundEngine::getMovie(const std::string& name, bool isSwf){
   if (name.empty()){
     return mActiveVideo;
   }
-  DataBuffer db;
-  mData->getMovie(name, db);
-  plyr = createVideoPlayer(name, db, isSwf);
+  DataBuffer* db = new DataBuffer();
+  mData->getMovie(name, *db);
+  plyr = createVideoPlayer(name, *db, isSwf);
   if (mActiveVideo){
     mActiveVideo->stop();
     delete mActiveVideo;
@@ -283,7 +283,7 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
 #ifndef DISABLE_SOUND
   if (db.data == NULL)
     return NULL;
-  char* tmp = tmpnam(NULL);
+  /*char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir
 #ifdef WIN32
 +"/tmp"
@@ -293,11 +293,11 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
   if (!f)
     return NULL;
   fwrite(db.data, 1, db.length, f);
-  fclose(f);
+  fclose(f);*/
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
   StreamSoundPlayer* plyr = new StreamSoundPlayer(name, effectEnabled);
-  if (plyr->openStream(filename))
+  if (plyr->openStream(db))
     return plyr;
   else{
     delete plyr;
@@ -316,7 +316,7 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
     SwfPlayer* plyr = new SwfPlayer(name, db);
     return plyr;
   }
-  char* tmp = tmpnam(NULL);
+  /*char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir
 #ifdef WIN32
 +"/tmp"
@@ -326,11 +326,11 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
   if (!f)
     return NULL;
   fwrite(db.data, 1, db.length, f);
-  fclose(f);
+  fclose(f);*/
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
   StreamVideoPlayer* plyr = new StreamVideoPlayer(name);
-  if (plyr->openStream(filename)){
+  if (plyr->openStream(db)){
     return plyr;
   }
   else{
@@ -563,11 +563,59 @@ StreamSoundPlayer::~StreamSoundPlayer(){
 
 bool StreamSoundPlayer::openStream(const std::string& filename){
   mFilename = filename;
+  mMemoryBuffer = NULL;
+  mMemoryStream = NULL;
   alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
   alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
   alGenBuffers(3, mBuffers);
+
   if (av_open_input_file(&mFormat, mFilename.c_str(), NULL, 0, NULL) != 0)
     return false;
+  return openStreamInternal();
+}
+
+static int readMemStream(void* opaque, uint8_t* buf, int buf_size){
+  DataBuffer* db = (DataBuffer*)opaque;
+  int dbsize = db->length-db->used;
+  int size = buf_size < dbsize ? buf_size : dbsize;
+  memcpy(buf, db->data+db->used, size);
+  db->used += size;
+  return size;
+}
+
+static int64_t seekMemStream(void* opaque, int64_t offset, int whence){
+  DataBuffer* db = (DataBuffer*)opaque;
+  if (whence == AVSEEK_SIZE){
+    return db->length;
+  }
+  whence &= ~AVSEEK_FORCE;
+  if (whence == SEEK_SET){
+    db->used = offset;
+    return offset;
+  }
+  else{
+    DebugBreak();
+  }
+  return 0;
+}
+
+bool StreamSoundPlayer::openStream(const DataBuffer& buffer){
+  mFilename = buffer.name;
+  alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
+  alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
+  alGenBuffers(3, mBuffers);
+
+  mMemoryBuffer = (unsigned char*)av_malloc(BUFFER_SIZE+FF_INPUT_BUFFER_PADDING_SIZE);
+  ByteIOContext* ctx = new ByteIOContext();
+  init_put_byte(ctx, mMemoryBuffer, BUFFER_SIZE, 0, (void*)&buffer, readMemStream, NULL, seekMemStream);
+  mMemoryStream = ctx;
+  if (av_open_input_stream(&mFormat, ctx, mFilename.c_str(), NULL, NULL) != 0){
+    return false;
+  }
+  return openStreamInternal();
+}
+
+bool StreamSoundPlayer::openStreamInternal(){
   unsigned last_nb_streams;
   do{
     last_nb_streams = mFormat->nb_streams;
@@ -634,8 +682,19 @@ void StreamSoundPlayer::closeStream(){
   }
   alSourcei(mSource, AL_BUFFER, AL_NONE);
   alDeleteBuffers(3, mBuffers);
-  if (mFormat)
-    av_close_input_file(mFormat);
+  if (mFormat){
+    if (mMemoryStream != NULL){
+      av_close_input_stream(mFormat);
+      ByteIOContext* ctx = (ByteIOContext*)mMemoryStream;
+      DataBuffer* db = (DataBuffer*)ctx->opaque;
+      delete ctx;
+      av_free(mMemoryBuffer);
+      delete db;
+      mMemoryStream = NULL;
+    }
+    else
+      av_close_input_file(mFormat);
+  }
 }
 
 #ifdef WIN32

@@ -124,6 +124,7 @@ public:
   StreamSoundPlayer(const std::string& soundname, bool effectEnabled);
   virtual ~StreamSoundPlayer();
   bool openStream(const std::string& filename);
+  bool openStream(const DataBuffer& buffer);
   void play(bool looping);
   void stop();
   bool update(unsigned time);
@@ -132,6 +133,7 @@ protected:
   unsigned decode();
   bool getNextPacket();
   void closeStream();
+  bool openStreamInternal();
   virtual bool openStreamHook(int currStream) {return false;}
   virtual bool getPacketHook(AVPacket& packet) {return false;}
   ALuint mBuffers[3];
@@ -147,13 +149,8 @@ protected:
   bool mLooping;
   bool mStop;
 
-  /*AVCodecContext* mVidCodecContext;
-  AVCodec* mVidCodec;
-  AVFrame* mFrame;
-  AVFrame* mFrameRGB;
-  SwsContext* mScaler;
-  int mVidStreamNum;
-  DataBuffer mVidDataBuffer;*/
+  unsigned char* mMemoryBuffer;
+  void* mMemoryStream;
 };
 
 class BlitObject;
