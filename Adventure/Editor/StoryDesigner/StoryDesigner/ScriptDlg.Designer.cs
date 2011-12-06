@@ -33,6 +33,8 @@ namespace StoryDesigner
             this.undo = new System.Windows.Forms.Button();
             this.brackets = new System.Windows.Forms.Button();
             this.add = new System.Windows.Forms.Button();
+            this.linenumberbox = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.linenumberbox)).BeginInit();
             this.SuspendLayout();
             // 
             // scripttext
@@ -42,9 +44,9 @@ namespace StoryDesigner
                         | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.scripttext.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.scripttext.Location = new System.Drawing.Point(12, 41);
+            this.scripttext.Location = new System.Drawing.Point(39, 41);
             this.scripttext.Name = "scripttext";
-            this.scripttext.Size = new System.Drawing.Size(461, 309);
+            this.scripttext.Size = new System.Drawing.Size(434, 309);
             this.scripttext.TabIndex = 0;
             this.scripttext.Text = "";
             this.scripttext.WordWrap = false;
@@ -85,11 +87,23 @@ namespace StoryDesigner
             this.add.Text = "Add";
             this.add.UseVisualStyleBackColor = true;
             // 
+            // linenumberbox
+            // 
+            this.linenumberbox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)));
+            this.linenumberbox.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.linenumberbox.Location = new System.Drawing.Point(1, 41);
+            this.linenumberbox.Name = "linenumberbox";
+            this.linenumberbox.Size = new System.Drawing.Size(38, 309);
+            this.linenumberbox.TabIndex = 5;
+            this.linenumberbox.TabStop = false;
+            // 
             // ScriptDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(485, 362);
+            this.Controls.Add(this.linenumberbox);
             this.Controls.Add(this.add);
             this.Controls.Add(this.brackets);
             this.Controls.Add(this.undo);
@@ -97,6 +111,7 @@ namespace StoryDesigner
             this.Controls.Add(this.scripttext);
             this.Name = "ScriptDlg";
             this.Text = "ScriptDlg";
+            ((System.ComponentModel.ISupportInitialize)(this.linenumberbox)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -108,5 +123,6 @@ namespace StoryDesigner
         private System.Windows.Forms.Button undo;
         private System.Windows.Forms.Button brackets;
         private System.Windows.Forms.Button add;
+        private System.Windows.Forms.PictureBox linenumberbox;
     }
 }

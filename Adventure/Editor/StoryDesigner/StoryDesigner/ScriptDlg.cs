@@ -13,6 +13,8 @@ namespace StoryDesigner
         public ScriptDlg(Script scr)
         {
             InitializeComponent();
+            linenumberbox.Paint += new PaintEventHandler(linenumberbox_Paint);
+            scripttext.VScroll += new EventHandler(scripttext_VScroll);
             string text = scr.ScriptType.ToString();
             switch (scr.ScriptType)
             {
@@ -46,6 +48,35 @@ namespace StoryDesigner
             initSyntax();
             mKeywordFont = new Font(scripttext.Font, FontStyle.Bold);
             parseText();
+        }
+
+        void scripttext_VScroll(object sender, EventArgs e)
+        {
+            linenumberbox.Invalidate();
+        }
+
+        void linenumberbox_Paint(object sender, PaintEventArgs e)
+        {
+            //as c# 2.0 has no way to determine scroll offset without p/invoke, do the following workaround
+            int y = 1;
+            int idx = 0;
+            int idx2 = scripttext.GetCharIndexFromPosition(new Point(1, 1));
+            for (int i = 2; i < scripttext.Font.Height; ++i){
+                idx = scripttext.GetCharIndexFromPosition(new Point(2, i));
+                if (idx != idx2){
+                    y = i;
+                    break;
+                }
+            }
+            int line = scripttext.GetLineFromCharIndex(idx);
+            y -= scripttext.Font.Height;
+            //workaround end
+            while (y < linenumberbox.Size.Height)
+            {
+                e.Graphics.DrawString(line.ToString(), scripttext.Font, Brushes.Black, 0, y);
+                ++line;
+                y += scripttext.Font.Height;
+            }
         }
 
         //syntax definition

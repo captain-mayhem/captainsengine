@@ -75,9 +75,9 @@ bool AdvDocument::loadDocument(const std::string filename){
   mPath.erase(pos);
   mSettings.savedir = mPath+"/../saves";
 #ifdef WIN32
-  _mkdir((mSettings.savedir+"/tmp").c_str());
+  _mkdir(mSettings.savedir.c_str());
 #else
-  mkdir((mSettings.savedir+"/tmp").c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+  mkdir(mSettings.savedir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
 #endif
 
   return true;
