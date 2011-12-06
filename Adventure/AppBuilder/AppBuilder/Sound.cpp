@@ -558,7 +558,7 @@ StreamSoundPlayer::~StreamSoundPlayer(){
   //deallocate this way, as it was allocated by av_malloc
   av_free(mDecodeBuffer.data);
   mDecodeBuffer.data = NULL;
-  remove(mFilename.c_str());
+  //remove(mFilename.c_str());
 }
 
 bool StreamSoundPlayer::openStream(const std::string& filename){
