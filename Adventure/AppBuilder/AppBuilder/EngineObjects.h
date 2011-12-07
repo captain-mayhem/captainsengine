@@ -83,6 +83,7 @@ public:
   virtual void setLightingColor(const Color& col) {mLightingColor = col;}
   virtual Color getLightingColor() {return mLightingColor;}
   void setScale(float scale) {mScale = scale;}
+  float getScale() {return mScale;}
   void setUserScale(float scale) {mUserScale = scale;}
   void setRotation(float angle) {mRotAngle = angle;}
   float getRotation() {return mRotAngle;}
@@ -219,9 +220,11 @@ public:
   void setMirrored(bool mirrored) {mMirror = mirrored;}
   void setRoom(const std::string& room) {mRoom = room;}
   std::string getRoom() {return mRoom;}
-  void setLinkObject(Object2D* link) {mLinkObject = link;}
+  void setLinkObject(Object2D* link);
   virtual void update(unsigned interval);
-  void setNoZooming(bool nozooming) {mNoZooming = nozooming;}
+  void setNoZooming(bool nozooming, bool force = false);
+  void setFrozenScale(float scale) {mFrozenScale = scale;}
+  float getScaleFactor();
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
@@ -232,7 +235,9 @@ protected:
   Inventory* mInventory;
   std::string mRoom;
   Object2D* mLinkObject;
+  Vec2i mLinkOffset;
   bool mNoZooming;
+  float mFrozenScale;
 };
 
 class ObjectGroup{

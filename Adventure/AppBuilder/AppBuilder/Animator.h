@@ -8,6 +8,7 @@
 class Object2D;
 class RoomObject;
 class DynamicAnimation;
+class CharacterObject;
 struct Color;
 
 class Animator{
@@ -36,6 +37,7 @@ public:
   void add(DynamicAnimation* anim);
   void add(Object2D* obj, const Color& targetcolor);
   void add(RoomObject* obj, Vec2i scrollpos, float speed);
+  void add(CharacterObject* obj, float sourcescale, float targetscale);
 protected:
   std::map<Object2D*, ObjectAnim> mObjects;
   std::list<DynamicAnimation*> mAnimations;
