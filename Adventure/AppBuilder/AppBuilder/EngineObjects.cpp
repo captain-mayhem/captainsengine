@@ -718,17 +718,15 @@ LookDir CharacterObject::getLookDir(){
 void CharacterObject::render(){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
-  Vec2f scale(mScale*mUserScale, mScale*mUserScale);
-  if (mNoZooming)
-    scale = Vec2f(mUserScale,mUserScale);
+  Vec2f scale(getScaleFactor(), getScaleFactor());
   if (mMirror)
     scale.x *= -1;
-  Vec2i renderPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*(mNoZooming? mUserScale : mScale*mUserScale);
+  Vec2i renderPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*getScaleFactor();
   mAnimations[mState-1]->render(mScrollOffset+renderPos, scale, mSizes[mState-1], mLightingColor, mRotAngle);
 }
 
 Vec2i CharacterObject::getOverheadPos(){
-  return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, (int)((1-(mNoZooming?mUserScale:mScale*mUserScale))*mSizes[mState-1].y));
+  return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, (int)((1-getScaleFactor())*mSizes[mState-1].y));
 }
 
 int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk){
@@ -781,7 +779,7 @@ bool CharacterObject::isHit(const Vec2i& point){
   //Vec2i scaleoffset;
   //scaleoffset.x = (int)((1.0f-abs(mScale))*(getSize().x-getSize().x*abs(mScale)));
   //scaleoffset.y = (int)(getSize().y-getSize().y*mScale);
-  Vec2i startPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*(mNoZooming?mUserScale:mScale*mUserScale);
+  Vec2i startPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*getScaleFactor();
   if (point.x >= startPos.x/*+scaleoffset.x*/ && point.x <= startPos.x+/*scaleoffset.x*/+getSize().x){
     if (point.y >= startPos.y/*+scaleoffset.y*/ && point.y <= startPos.y+/*scaleoffset.y*/+getSize().y)
       return true;
@@ -802,9 +800,35 @@ void CharacterObject::setState(int state){
 void CharacterObject::update(unsigned interval){
   if (mLinkObject != NULL){
     Vec2i pos = mLinkObject->getPosition()+mLinkObject->getSize()/2;
-    setPosition(pos);
+    setPosition(pos-mLinkOffset);
   }
   else{
     Object2D::update(interval);
+  }
+}
+
+float CharacterObject::getScaleFactor(){
+  if (mNoZooming)
+    return mFrozenScale*mUserScale;
+  return mScale*mUserScale;
+}
+
+void CharacterObject::setNoZooming(bool nozooming, bool force){
+  if (nozooming){
+    mNoZooming = nozooming;
+    mFrozenScale = mScale;
+  }
+  else{
+    if (force)
+      mNoZooming = nozooming;
+    else
+      Engine::instance()->getAnimator()->add(this, mFrozenScale, mScale);
+  }
+}
+
+void CharacterObject::setLinkObject(Object2D* link){
+  mLinkObject = link;
+  if (link){
+    mLinkOffset = mLinkObject->getPosition()+mLinkObject->getSize()/2-getPosition();
   }
 }

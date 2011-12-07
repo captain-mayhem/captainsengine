@@ -392,12 +392,12 @@ std::ostream& SoundEngine::save(std::ostream& out){
   out << "\n";
   int loopcount = 0;
   for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
-    if (iter->second->isLooping())
+    if (iter->second && iter->second->isLooping())
       ++loopcount;
   }
   out << loopcount;
   for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
-    if (iter->second->isLooping()){
+    if (iter->second && iter->second->isLooping()){
       out << " " << iter->second->getName() << " " << iter->second->hasEffect();
     }
   }
@@ -608,10 +608,14 @@ bool StreamSoundPlayer::openStream(const DataBuffer& buffer){
   mMemoryBuffer = (unsigned char*)av_malloc(BUFFER_SIZE+FF_INPUT_BUFFER_PADDING_SIZE);
   ByteIOContext* ctx = new ByteIOContext();
   init_put_byte(ctx, mMemoryBuffer, BUFFER_SIZE, 0, (void*)&buffer, readMemStream, NULL, seekMemStream);
-  mMemoryStream = ctx;
   if (av_open_input_stream(&mFormat, ctx, mFilename.c_str(), NULL, NULL) != 0){
+    delete ctx;
+    av_free(mMemoryBuffer);
+    delete &buffer;
+    mFormat = NULL;
     return false;
   }
+  mMemoryStream = ctx;
   return openStreamInternal();
 }
 
