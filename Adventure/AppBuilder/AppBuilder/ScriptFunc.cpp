@@ -1526,7 +1526,7 @@ int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (!chr)
     DebugBreak();
-  chr->setNoZooming(stopzooming);
+  chr->setNoZooming(stopzooming, stopzooming && ctx.isSkipping());
   return 0;
 }
 

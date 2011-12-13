@@ -17,6 +17,8 @@ public:
   void setFont(int fontid);
   Color& getColor() {return mColor;}
   void setRoom(const std::string& room) {mBoundRoom = room;}
+  void save(std::ostream& out);
+  void load(std::istream& in);
 protected:
   bool mEnabled;
   ExecutionContext* mText;

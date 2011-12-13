@@ -849,16 +849,37 @@ std::istream& PcdkScript::load(std::istream& in){
 }
 
 std::ostream& operator<<(std::ostream& strm, const StackData& data){
-  strm << data.mType << " " << (data.mStr.empty() ? "none" : data.mStr) << " " << data.mInt;
+  strm << data.mType << " "; 
+  if (data.mType == StackData::S){
+    if (data.mStr.empty())
+       strm << "4 none";
+    else 
+      strm << data.mStr.size() << " " << data.mStr;
+  }
+  else
+    strm << data.mInt;
   return strm;
 }
 
 std::istream& operator>>(std::istream& strm, StackData& data){
   int tmp;
-  strm >> tmp >> data.mStr >> data.mInt;
+  strm >> tmp;
   data.mType = (StackData::Type)tmp;
-  if (data.mStr == "none")
-    data.mStr = "";
+  if (data.mType == StackData::S){
+    unsigned size;
+    strm >> size;
+    data.mStr.resize(size);
+    char ch;
+    do {
+      ch = strm.get();
+    } while (ch == ' ');
+    strm.unget();
+    strm.read((char*)data.mStr.data(), size);
+    if (data.mStr == "none")
+      data.mStr = "";
+  }
+  else
+    strm >> data.mInt;
   return strm;
 }
 

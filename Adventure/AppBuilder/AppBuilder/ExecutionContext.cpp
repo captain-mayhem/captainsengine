@@ -8,6 +8,24 @@ void CodeSegment::removeLast(){
   mCodes.pop_back();
 }
 
+void CodeSegment::save(std::ostream& out){
+  out << mCodes.size() << " ";
+  for (unsigned i = 0; i < mCodes.size(); ++i){
+    mCodes[i]->save(out);
+    out << "\n";
+  }
+}
+
+void CodeSegment::load(std::istream& in){
+  unsigned size;
+  in >> size;
+  mCodes.reserve(size);
+  for (unsigned i = 0; i < size; ++i){
+    CCode* code = CCode::load(in);
+    mCodes.push_back(code);
+  }
+}
+
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1){
@@ -17,7 +35,7 @@ mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), 
 ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
   mCode = new CodeSegment(*ctx.mCode);
   mIsGameObject = ctx.mIsGameObject;
-  mObjectInfo = ctx.mIsGameObject;
+  mObjectInfo = ctx.mObjectInfo;
   mStack = ctx.mStack;
   mPC = ctx.mPC;
   mEvents = ctx.mEvents;
@@ -29,6 +47,16 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
   mIdle = ctx.mIdle;
   mEventHandled = ctx.mEventHandled;
   mRefCount = 1;
+}
+
+ExecutionContext::ExecutionContext(std::istream& in) : 
+mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1)
+{
+  in >> mIsGameObject >> mObjectInfo;
+  if (mObjectInfo == "none")
+    mObjectInfo = "";
+  mCode = new CodeSegment();
+  mCode->load(in);
 }
 
 ExecutionContext::~ExecutionContext(){
@@ -106,4 +134,9 @@ void ExecutionContext::resume(){
   mSuspended = false;
   if (Engine::instance()->getInterpreter()->isBlockingScriptRunning() && mIdle) 
     reset(true, true);
+}
+
+void ExecutionContext::save(std::ostream& out){
+  out << mIsGameObject << " " << (mObjectInfo.empty() ? "none" : mObjectInfo) << " ";
+  mCode->save(out);
 }
