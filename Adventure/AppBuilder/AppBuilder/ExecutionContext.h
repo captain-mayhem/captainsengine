@@ -57,6 +57,8 @@ public:
     return (unsigned)mCodes.size();
   }
   void removeLast();
+  void save(std::ostream& out);
+  void load(std::istream& in);
 protected:
   std::vector<CCode*> mCodes;
   int* mRefCount;
@@ -72,6 +74,7 @@ class ExecutionContext{
 public:
   ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo);
   ExecutionContext(const ExecutionContext& ctx);
+  ExecutionContext(std::istream& in);
   std::list<EngineEvent>& getEvents() {return mEvents;}
   void setEvent(EngineEvent evt);
   void setEvents(std::list<EngineEvent>& events);
@@ -96,6 +99,7 @@ public:
   void ref() {++mRefCount;}
   void unref() {if (this == NULL) return; --mRefCount; if (mRefCount == 0) delete this;}
   CodeSegment* getCode() {return mCode;}
+  void save(std::ostream& out);
 protected:
   ~ExecutionContext();
   CodeSegment* mCode;

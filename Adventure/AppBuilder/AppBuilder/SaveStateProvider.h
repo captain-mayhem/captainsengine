@@ -21,6 +21,7 @@ public:
     SaveInventory inventory;
     int fontid;
     float scale;
+    bool nozooming;
   };
   struct SaveRoom{
     SaveObject base;

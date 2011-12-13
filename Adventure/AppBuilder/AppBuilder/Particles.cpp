@@ -128,6 +128,9 @@ std::ostream& ParticleEngine::save(std::ostream& out){
   if (mParticleObject != NULL){
     out << mParticleObject->getName() << " " << mParticleObject->getRotation();
   }
+  else{
+    out << "none";
+  }
   out << "\n";
   return out;
 }
@@ -136,10 +139,13 @@ std::istream& ParticleEngine::load(std::istream& in){
   in >> mDir.x >> mDir.y >> mMaxParticles >> mRotAngle >> mSpeedVariation >> mEnabled >> mParticleDepth;
   std::string name;
   in >> name;
-  if (!name.empty()){
+  if (name != "none"){
     float rot;
     in >> rot;
     setParticleObject(name, rot);
+  }
+  else{
+    name = "";
   }
   return in;
 }

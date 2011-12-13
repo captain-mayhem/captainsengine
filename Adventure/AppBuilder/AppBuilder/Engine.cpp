@@ -1085,6 +1085,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   character->setUserScale(obj->scale);
   character->setTextColor(chbase->textcolor);
   character->setRoom(room);
+  character->setNoZooming(obj->nozooming, true);
   //RoomObject* ro = Engine::instance()->getRoom(room);
   //if (ro)
   //  character->setScale(ro->getDepthScale(obj->base.position));

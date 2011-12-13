@@ -40,3 +40,20 @@ void Textout::render(){
   Engine::instance()->getFontRenderer()->render(mPos.x/*-(keepOnScreen ? ext.x/2 : 0)*/+pos.x,mPos.y+pos.y, text, 
       depth, mFont, breakinfo, mColor, 0, false);
 }
+
+void Textout::save(std::ostream& out){
+  out << mEnabled << " " << mPos.x << " " << mPos.y << " " << mFont << " ";
+  out << mColor.r << " " << mColor.g << " " << mColor.b << " " << mColor.a << " ";
+  out << (mBoundRoom.empty() ? "none" : mBoundRoom);
+  out << "\n";
+  mText->save(out);
+}
+
+void Textout::load(std::istream& in){
+  in >> mEnabled >> mPos.x >> mPos.y >> mFont;
+  in >> mColor.r >> mColor.g >> mColor.b >> mColor.a;
+  in >> mBoundRoom;
+  if (mBoundRoom == "none")
+    mBoundRoom = "";
+  mText = new ExecutionContext(in);
+}

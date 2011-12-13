@@ -61,14 +61,14 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::CharSaveOb
   strm << chr.base;
   strm << chr.mirrored << std::endl;
   strm << chr.inventory;
-  strm << chr.fontid << " " << chr.scale << std::endl;
+  strm << chr.fontid << " " << chr.scale << " " << chr.nozooming << std::endl;
   return strm;
 }
 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::CharSaveObject& chr){
   strm >> chr.base >> chr.mirrored;
   strm >> chr.inventory;
-  strm >> chr.fontid >> chr.scale;
+  strm >> chr.fontid >> chr.scale >> chr.nozooming;
   return strm;
 }
 
@@ -145,6 +145,7 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
         if (fontid == 0)
           fontid = 1;
         chr->fontid = fontid;
+        chr->nozooming = chbase->notzoom;
         save->characters[mData->getRoomCharacters()[i].name] = chr;
       }
     }
@@ -254,9 +255,14 @@ void SaveStateProvider::save(const std::string& name){
   out << Engine::instance()->mMainRoomLoaded << " " << Engine::instance()->mSubRoomLoaded << std::endl;
   out << Engine::instance()->mShowTaskbar << " " << Engine::instance()->mScreenChange << std::endl;
   out << Engine::instance()->mTextEnabled << " " << Engine::instance()->mFontID << std::endl;
+  //scripts
   Engine::instance()->getInterpreter()->save(out);
+  //sounds
   SoundEngine::instance()->save(out);
+  //particles
   Engine::instance()->getParticleEngine()->save(out);
+  //textscenes
+  Engine::instance()->getFontRenderer()->save(out);
   if (Engine::instance()->mFocussedChar)
     removeCharacter(focussedcharname);
   out.close();
@@ -307,6 +313,7 @@ void SaveStateProvider::load(const std::string& name){
   Engine::instance()->getInterpreter()->load(in);
   SoundEngine::instance()->load(in);
   Engine::instance()->getParticleEngine()->load(in);
+  Engine::instance()->getFontRenderer()->load(in);
   allowWrites(false);
   in.close();
 }

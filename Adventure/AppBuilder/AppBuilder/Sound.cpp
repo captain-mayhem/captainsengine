@@ -423,7 +423,8 @@ std::istream& SoundEngine::load(std::istream& in){
     bool effect;
     in >> effect;
     SoundPlayer* mp = getMusic(music, effect);
-    mp->play(true);
+    if (mp)
+      mp->play(true);
   }
   int loopcount;
   in >> loopcount;

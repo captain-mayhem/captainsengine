@@ -130,3 +130,34 @@ unsigned CCONCAT::execute(ExecutionContext& ctx, unsigned pc){
   ctx.stack().push(d1+" "+d2);
   return ++pc;
 }
+
+
+
+void CCode::save(std::ostream& out){
+  Type t = getType();
+  out << (int)t;
+}
+
+CCode* CCode::load(std::istream& in){
+  Type t;
+  int tmp;
+  in >> tmp;
+  t = (Type)tmp;
+  switch(t){
+    case PUSH:
+      return new CPUSH(in);
+      break;
+    default:
+      DebugBreak();
+  }
+  return NULL;
+}
+
+void CPUSH::save(std::ostream& out){
+  CCode::save(out);
+  out << " " << mData;
+}
+
+CPUSH::CPUSH(std::istream& in){
+  in >> mData;
+}

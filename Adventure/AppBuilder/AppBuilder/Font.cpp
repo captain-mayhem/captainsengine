@@ -290,3 +290,27 @@ Textout* FontRenderer::getTextout(int id){
   }
   return iter->second;
 }
+
+void FontRenderer::save(std::ostream& out){
+  out << mTextouts.size() << "\n";
+  for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+    out << iter->first << " ";
+    iter->second->save(out);
+  }
+}
+
+void FontRenderer::load(std::istream& in){
+  unsigned numTextouts;
+  in >> numTextouts;
+  for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+    delete iter->second;
+  }
+  mTextouts.clear();
+  for (unsigned i = 0; i < numTextouts; ++i){
+    int id;
+    in >> id;
+    Textout* to = new Textout();
+    to->load(in);
+    mTextouts[id] = to;
+  }
+}

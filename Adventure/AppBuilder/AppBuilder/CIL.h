@@ -45,6 +45,8 @@ public:
   virtual ~CCode(){}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc)=0;
   virtual Type getType()=0;
+  virtual void save(std::ostream& out);
+  static CCode* load(std::istream& in);
 };
 
 class CPUSH : public CCode{
@@ -53,12 +55,14 @@ public:
   CPUSH(const int i) : mData(i) {}
   CPUSH(const float f) : mData(f) {}
   CPUSH(const ExecutionContext* ec) : mData((ExecutionContext*)ec) {}
+  CPUSH(std::istream& in);
   virtual ~CPUSH() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
     ctx.stack().push(mData);
     return ++pc;
   }
   virtual Type getType(){return PUSH;}
+  virtual void save(std::ostream& out);
 protected:
   StackData mData;
 };

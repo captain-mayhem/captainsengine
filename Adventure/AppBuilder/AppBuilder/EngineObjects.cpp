@@ -770,6 +770,7 @@ void CharacterObject::save(){
     }
     save->fontid = mFontID;
     save->scale = mUserScale;
+    save->nozooming = mNoZooming;
   }
 }
 
