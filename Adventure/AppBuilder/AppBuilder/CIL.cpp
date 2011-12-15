@@ -146,7 +146,42 @@ CCode* CCode::load(std::istream& in){
   switch(t){
     case PUSH:
       return new CPUSH(in);
-      break;
+    case CALL:
+      return new CCALL(in);
+    case BRA:
+      return new CBRA(in);
+    case BNEEVT:
+      return new CBNEEVT(in);
+    case BNEROW:
+      return new CBNEROW(in);
+    case BE:
+      return new CBE(in);
+    case BNE:
+      return new CBNE(in);
+    case BLT:
+      return new CBLT(in);
+    case BLE:
+      return new CBLE(in);
+    case BGT:
+      return new CBGT(in);
+    case BGE:
+      return new CBGE(in);
+    case LOAD:
+      return new CLOAD(in);
+    case ADD:
+      return new CADD();
+    case SUB:
+      return new CSUB();
+    case MUL:
+      return new CMUL();
+    case DIV:
+      return new CDIV();
+    case CONCAT:
+      return new CCONCAT();
+    case CDTIMER:
+      return new CTIMER(in);
+    case STATE:
+      return new CSTATE(in);
     default:
       DebugBreak();
   }
@@ -160,4 +195,74 @@ void CPUSH::save(std::ostream& out){
 
 CPUSH::CPUSH(std::istream& in){
   in >> mData;
+}
+
+void CCALL::save(std::ostream& out){
+  CCode::save(out);
+  out << " " << mName << " " << mNumArgs;
+}
+
+CCALL::CCALL(std::istream& in){
+  in >> mName >> mNumArgs;
+  mFunc = Engine::instance()->getInterpreter()->getFunction(mName);
+}
+
+void CBRA::save(std::ostream& out){
+  CCode::save(out);
+  out << " " << mOffset;
+}
+
+CBRA::CBRA(std::istream& in){
+  in >> mOffset;
+}
+
+void CBNEEVT::save(std::ostream& out){
+  CBRA::save(out);
+  out << " " << (int)mEvent;
+}
+
+CBNEEVT::CBNEEVT(std::istream& in) : CBRA(in){
+  int tmp;
+  in >> tmp;
+  mEvent = (EngineEvent)tmp;
+}
+
+void CBNEROW::save(std::ostream& out){
+  CBRA::save(out);
+  StackData txt(mText);
+  out << " " << mRow << " " << mVisible << " " << txt;
+}
+
+CBNEROW::CBNEROW(std::istream& in) : CBRA(in){
+  in >> mRow >> mVisible;
+  StackData tmp;
+  in >> tmp;
+  mText = tmp.getString();
+}
+
+void CLOAD::save(std::ostream& out){
+  out << " " << mVariable;
+}
+
+CLOAD::CLOAD(std::istream& in){
+  in >> mVariable;
+}
+
+void CTIMER::save(std::ostream& out){
+  out << " ";
+  mCommands->save(out);
+}
+
+CTIMER::CTIMER(std::istream& in){
+  mCommands = new ExecutionContext(in);
+}
+
+void CSTATE::save(std::ostream& out){
+  out << " " << (int)mState;
+}
+
+CSTATE::CSTATE(std::istream& in){
+  int tmp;
+  in >> tmp;
+  mState = (State)tmp;
 }

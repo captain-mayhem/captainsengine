@@ -268,14 +268,14 @@ BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i(
   code->addCode(click);
   code->addCode(new CPUSH(id));
   code->addCode(new CPUSH("#button"));
-  code->addCode(new CCALL(ScriptFunctions::setNum, 2));
+  code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
   click->setOffset(4);
   CBNEEVT* mouse = new CBNEEVT(EVT_MOUSE);
   mScript = new ExecutionContext(code, false, "");
   code->addCode(mouse);
   code->addCode(new CPUSH(2));
   code->addCode(new CPUSH(mName));
-  code->addCode(new CCALL(ScriptFunctions::setNum, 2));
+  code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
   mouse->setOffset(4);
 }
 
