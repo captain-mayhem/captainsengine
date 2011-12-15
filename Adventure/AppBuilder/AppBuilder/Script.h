@@ -26,6 +26,7 @@ public:
   ~PcdkScript();
   ExecutionContext* parseProgram(std::string program);
   void registerFunction(std::string name, ScriptFunc func);
+  ScriptFunc getFunction(const std::string name) {return mFunctions[name];}
   void registerRelVar(const std::string& function, int argnum, const std::string& prefix);
   void getArgumentAsExecutionContext(const std::string& function, int argnum) {mArgEC[function] = argnum;}
   void execute(ExecutionContext* script, bool executeOnce);

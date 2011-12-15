@@ -270,7 +270,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         mCurrFunc = fc->getName();
         if (fc->getName() == "break"){
           ScriptFunc f = mFunctions["break"];
-          codes->addCode(new CCALL(f, 0));
+          codes->addCode(new CCALL(f, "break", 0));
           ++count;
           CBRA* jmp = new CBRA();
           codes->addCode(jmp);
@@ -302,7 +302,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           nl->reset(true);
         }
         else if (fc->getName() == "minicut"){
-          mUnresolvedBlockEnd = new CCALL(ScriptFunctions::miniCutEnd, 0);
+          mUnresolvedBlockEnd = new CCALL(ScriptFunctions::miniCutEnd, "minicut", 0);
         }
         ScriptFunc f = mFunctions[fc->getName()];
         if (f == NULL){
@@ -313,7 +313,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         if (sepiter != mArgEC.end())
           seperateArgument = sepiter->second;
         count += transform(fc->getArguments(), codes, ARGLIST, seperateArgument);
-        codes->addCode(new CCALL(f, fc->getArguments()->size()));
+        codes->addCode(new CCALL(f, fc->getName(), fc->getArguments()->size()));
         ++count;
       }
       break;
@@ -376,7 +376,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           DebugBreak();
         }
         count += transform(cond->getArguments(), codes, ARGLIST);
-        codes->addCode(new CCALL(f, cond->getArguments()->size()));
+        codes->addCode(new CCALL(f, cond->getCondFuncName(), cond->getArguments()->size()));
         CBRA* cez = getBranchInstr(mLastRelation, cond->isNegated());
         codes->addCode(cez);
         count += 2;

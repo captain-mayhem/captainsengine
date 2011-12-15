@@ -69,27 +69,32 @@ protected:
 
 class CCALL : public CCode{
 public:
-  CCALL(ScriptFunc func, unsigned numArgs) : mFunc(func), mNumArgs(numArgs) {}
+  CCALL(ScriptFunc func, const std::string& funcname, unsigned numArgs) : mFunc(func), mName(funcname), mNumArgs(numArgs) {}
+  CCALL(std::istream& in);
   virtual ~CCALL(){}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
     (*mFunc)(ctx, mNumArgs);
     return ++pc;
   }
   virtual Type getType(){return CALL;}
+  virtual void save(std::ostream& out);
 protected:
   ScriptFunc mFunc;
+  std::string mName;
   unsigned mNumArgs;
 };
 
 class CBRA : public CCode{
 public:
   CBRA() : mOffset(1) {}
+  CBRA(std::istream& in);
   virtual ~CBRA() {}
   virtual void setOffset(int offset) {mOffset = offset;}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
     return pc+mOffset;
   }
   virtual Type getType(){return BRA;}
+  virtual void save(std::ostream& out);
 protected:
   int mOffset;
 };
@@ -97,9 +102,11 @@ protected:
 class CBNEEVT : public CBRA{
 public:
   CBNEEVT(EngineEvent event) : mEvent(event) {}
+  CBNEEVT(std::istream& in);
   virtual ~CBNEEVT() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return BNEEVT;}
+  virtual void save(std::ostream& out);
 protected:
   EngineEvent mEvent;
 };
@@ -107,9 +114,11 @@ protected:
 class CBNEROW : public CBRA{
 public:
   CBNEROW(int row, const std::string& text, bool visible) : mRow(row), mText(text), mVisible(visible) {}
+  CBNEROW(std::istream& in);
   virtual ~CBNEROW() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return BNEROW;}
+  virtual void save(std::ostream& out);
 protected:
   int mRow;
   std::string mText;
@@ -119,6 +128,7 @@ protected:
 class CBE : public CBRA{
 public:
   CBE() {}
+  CBE(std::istream& in) : CBRA(in){}
   virtual ~CBE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return BE;}
@@ -127,6 +137,7 @@ public:
 class CBNE : public CBRA{
 public:
   CBNE() {}
+  CBNE(std::istream& in) : CBRA(in){}
   virtual ~CBNE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return BNE;}
@@ -135,6 +146,7 @@ public:
 class CBLT : public CBRA{
 public:
   CBLT() {}
+  CBLT(std::istream& in) : CBRA(in){}
   virtual ~CBLT() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return BLT;}
@@ -143,6 +155,7 @@ public:
 class CBLE : public CBRA{
 public:
   CBLE() {}
+  CBLE(std::istream& in) : CBRA(in){}
   virtual ~CBLE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return BLE;}
@@ -151,6 +164,7 @@ public:
 class CBGT : public CBRA{
 public:
   CBGT() {}
+  CBGT(std::istream& in) : CBRA(in){}
   virtual ~CBGT() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return BGT;}
@@ -159,6 +173,7 @@ public:
 class CBGE : public CBRA{
 public:
   CBGE() {}
+  CBGE(std::istream& in) : CBRA(in){}
   virtual ~CBGE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return BGE;}
@@ -167,11 +182,13 @@ public:
 class CLOAD : public CCode{
 public:
   CLOAD(const std::string& s) : mVariable(s) {}
+  CLOAD(std::istream& in);
   virtual ~CLOAD() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return LOAD;}
   void changeVariable(const std::string& var) {mVariable += var;}
   const std::string& getVarname() {return mVariable;}
+  virtual void save(std::ostream& out);
 protected:
   std::string mVariable;
 };
@@ -242,11 +259,13 @@ public:
     mCommands = ctx;
     mCommands->suspend(time);
   }
+  CTIMER(std::istream& in);
   ~CTIMER(){
     mCommands->unref();
   }
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return CDTIMER;}
+  virtual void save(std::ostream& out);
 protected:
   ExecutionContext* mCommands;
 };
@@ -258,9 +277,11 @@ public:
     IDLE,
   };
   CSTATE(State state) {mState = state;}
+  CSTATE(std::istream& in);
   virtual ~CSTATE() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return STATE;}
+  virtual void save(std::ostream& out);
 protected:
   State mState;
 };
