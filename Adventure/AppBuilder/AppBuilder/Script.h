@@ -55,6 +55,7 @@ public:
   void removeScript(const std::string& name);
   int getTextSpeed() {return mTextSpeed;}
   void setTextSpeed(int speed) {mTextSpeed = speed;}
+  void addTimer(ExecutionContext* timer);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
@@ -94,6 +95,7 @@ protected:
   std::vector<ObjectGroup*> mGroups;
   bool mACharacterAtScriptStart;
   std::map<std::string, ExecutionContext*> mScriptFunctions;
+  std::set<ExecutionContext*> mTimers;
   int mTextSpeed;
 };
 

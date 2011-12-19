@@ -119,10 +119,10 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   mSettings.anywhere_room = txtstream.readLine();
   str = txtstream.readLine(); //Screenchange
   mSettings.screenchange = (ScreenChange)atoi(str.substr(15).c_str());
-  //TODO
-  for (int i = 0; i < 3; ++i){
-    str = txtstream.readLine();
-  }
+  str = txtstream.readLine(); //flags
+  str = txtstream.readLine(); //action text height
+  str = txtstream.readLine();
+  mSettings.has_menuroom = str == "-1";
   mSettings.menuroom = txtstream.readLine();
   str = txtstream.readLine();
   mSettings.taskheight = atoi(str.substr(13).c_str());
