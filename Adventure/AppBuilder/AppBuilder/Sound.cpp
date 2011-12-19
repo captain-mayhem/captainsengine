@@ -589,7 +589,9 @@ static int64_t seekMemStream(void* opaque, int64_t offset, int whence){
   if (whence == AVSEEK_SIZE){
     return db->length;
   }
+#ifndef FFMPEG_OLD_API
   whence &= ~AVSEEK_FORCE;
+#endif
   if (whence == SEEK_SET){
     db->used = offset;
     return offset;
@@ -609,7 +611,12 @@ bool StreamSoundPlayer::openStream(const DataBuffer& buffer){
   mMemoryBuffer = (unsigned char*)av_malloc(BUFFER_SIZE+FF_INPUT_BUFFER_PADDING_SIZE);
   ByteIOContext* ctx = new ByteIOContext();
   init_put_byte(ctx, mMemoryBuffer, BUFFER_SIZE, 0, (void*)&buffer, readMemStream, NULL, seekMemStream);
-  if (av_open_input_stream(&mFormat, ctx, mFilename.c_str(), NULL, NULL) != 0){
+  AVProbeData probe;
+  probe.filename = mFilename.c_str();
+  probe.buf_size = buffer.length;
+  probe.buf = (unsigned char*)buffer.data;
+  AVInputFormat* fmt = av_probe_input_format(&probe, 1);
+  if (av_open_input_stream(&mFormat, ctx, mFilename.c_str(), fmt, NULL) != 0){
     delete ctx;
     av_free(mMemoryBuffer);
     delete &buffer;
