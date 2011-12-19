@@ -1139,8 +1139,10 @@ void Engine::keyPress(int key){
         }
         else{
           if (!mMenuShown){
-            loadRoom(mData->getProjectSettings()->menuroom, true, NULL);
-            mMenuShown = true;
+            if (mData->getProjectSettings()->has_menuroom){
+              loadRoom(mData->getProjectSettings()->menuroom, true, NULL);
+              mMenuShown = true;
+            }
           }
           else{
             unloadRoom(NULL, false);

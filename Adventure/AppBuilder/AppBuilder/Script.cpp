@@ -90,6 +90,7 @@ void PcdkScript::stop(){
     iter->second->unref();
   }
   mScripts.clear();
+  mTimers.clear(); //no need to destroy them, destroyed above
   mScriptFunctions.clear();
   mGlobalSuspend = false;
   mCutScene->unref();
@@ -546,8 +547,10 @@ void PcdkScript::update(unsigned time){
       (*iter)->setEvents(events);
     }
     if ((*iter)->mExecuteOnce && !(*iter)->mSuspended){
-      if ((*iter)->mOwner == NULL)
+      if ((*iter)->mOwner == NULL){
+        mTimers.erase(*iter);
         (*iter)->unref();
+      }
       iter = mScripts.erase(iter);
     }
     else
@@ -682,6 +685,7 @@ void PcdkScript::remove(ExecutionContext* script){
       break;
   }
   script->reset(true, true);
+  mTimers.erase(script);
   script->unref();
 }
 
@@ -799,6 +803,11 @@ std::ostream& PcdkScript::save(std::ostream& out){
   }
   out << std::endl;
   out << mTextSpeed << std::endl;
+  out << mTimers.size() << " ";
+  for (std::set<ExecutionContext*>::iterator iter = mTimers.begin(); iter != mTimers.end(); ++iter){
+    (*iter)->save(out);
+    out << std::endl;
+  }
   return out;
 }
 
@@ -845,6 +854,16 @@ std::istream& PcdkScript::load(std::istream& in){
     execute(ctx, false);
   }
   in >> mTextSpeed;
+  //timers
+  while(!mTimers.empty()){
+    remove(*mTimers.begin());
+  }
+  unsigned numtimers;
+  in >> numtimers;
+  for (unsigned i = 0; i < numtimers; ++i){
+    ExecutionContext* ctx = new ExecutionContext(in);
+    addTimer(ctx);
+  }
   return in;
 }
 
@@ -1075,4 +1094,9 @@ void PcdkScript::removeScript(const std::string& name){
     remove(iter->second);
     mScriptFunctions.erase(iter);
   }
+}
+
+void PcdkScript::addTimer(ExecutionContext* timer){
+  mTimers.insert(timer);
+  execute(timer, true);
 }

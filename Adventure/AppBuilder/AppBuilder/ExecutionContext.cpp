@@ -55,6 +55,7 @@ mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), 
   in >> mIsGameObject >> mObjectInfo;
   if (mObjectInfo == "none")
     mObjectInfo = "";
+  in >> mSleepTime >> mSuspended;
   mCode = new CodeSegment();
   mCode->load(in);
 }
@@ -138,5 +139,6 @@ void ExecutionContext::resume(){
 
 void ExecutionContext::save(std::ostream& out){
   out << mIsGameObject << " " << (mObjectInfo.empty() ? "none" : mObjectInfo) << " ";
+  out << mSleepTime << " " << mSuspended << " ";
   mCode->save(out);
 }

@@ -92,7 +92,7 @@ unsigned CLOAD::execute(ExecutionContext& ctx, unsigned pc){
 }
 
 unsigned CTIMER::execute(ExecutionContext& ctx, unsigned pc){
-  Engine::instance()->getInterpreter()->execute(new ExecutionContext(*mCommands), true);
+  Engine::instance()->getInterpreter()->addTimer(new ExecutionContext(*mCommands));
   return ++pc;
 }
 
