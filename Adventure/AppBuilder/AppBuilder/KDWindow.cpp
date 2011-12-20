@@ -7,6 +7,8 @@
 #include "Renderer.h"
 #include "CmdReceiver.h"
 
+TR_CHANNEL(ADV_KDWindow)
+
 EGLDisplay theDisplay;
 EGLConfig theConfig;
 EGLSurface theSurface;
@@ -79,16 +81,17 @@ void render(int time){
   receiver.processCommands();
   Engine::instance()->render(time);
 
-  SoundEngine::instance()->update();
+  SoundEngine::instance()->update(time);
 }
 
 KDint kdMain (KDint argc, const KDchar *const *argv){
+  TR_USE(ADV_KDWindow);
   theDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   if (theDisplay == EGL_NO_DISPLAY){
-    CGE::Log << "unable to get display" << std::endl;
+    TR_ERROR("unable to get display");
   }
   if (!eglInitialize(theDisplay, NULL, NULL)){
-    CGE::Log << "eglInitialize failed" << std::endl;
+    TR_ERROR("eglInitialize failed");
   }
 
   EGLint configAttribs[13];
@@ -104,12 +107,16 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
   configAttribs[++i] = EGL_ALPHA_SIZE;
   configAttribs[++i] = 8;
   configAttribs[++i] = EGL_DEPTH_SIZE;
+#ifdef WIN32
   configAttribs[++i] = 24;
+#else
+  configAttribs[++i] = 16;
+#endif
   configAttribs[++i] = EGL_NONE;
 
   EGLint numConfigs;
   if (!eglChooseConfig(theDisplay, configAttribs, &theConfig, 1, &numConfigs)){
-    CGE::Log << "eglChooseConfig failed" << std::endl;
+    TR_ERROR("eglChooseConfig failed");
   }
 
   theWindow = kdCreateWindow(theDisplay, theConfig, KD_NULL);
@@ -119,11 +126,11 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
 
   EGLNativeWindowType nativeWindow;
   if (kdRealizeWindow(theWindow, &nativeWindow))
-    CGE::Log << "realizeWindow failed" << std::endl;
+    TR_ERROR("realizeWindow failed");
 
   theSurface = eglCreateWindowSurface(theDisplay, theConfig, nativeWindow, NULL);
   if (theSurface == EGL_NO_SURFACE)
-    CGE::Log << "eglCreateWindowSurface failed" << std::endl;
+    TR_ERROR("eglCreateWindowSurface failed");
 
   EGLint contextAttrs[] = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL_NONE};
   theContext = eglCreateContext(theDisplay, theConfig, EGL_NO_CONTEXT, contextAttrs);
