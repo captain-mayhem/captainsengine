@@ -97,6 +97,17 @@ protected:
   bool mEffectEnabled;
 };
 
+class VideoPlayer{
+public:
+  virtual ~VideoPlayer() {}
+  virtual void play(bool looping)=0;
+  virtual void stop()=0;
+  virtual bool update(unsigned time)=0;
+  virtual void initLayer(int x, int y, int width, int height)=0;
+  virtual void setSuspensionScript(ExecutionContext* ctx)=0;
+};
+
+
 #ifndef DISABLE_SOUND
 
 class SimpleSoundPlayer : public SoundPlayer{
@@ -154,16 +165,6 @@ protected:
 };
 
 class BlitObject;
-
-class VideoPlayer{
-public:
-  virtual ~VideoPlayer() {}
-  virtual void play(bool looping)=0;
-  virtual void stop()=0;
-  virtual bool update(unsigned time)=0;
-  virtual void initLayer(int x, int y, int width, int height)=0;
-  virtual void setSuspensionScript(ExecutionContext* ctx)=0;
-};
 
 class StreamVideoPlayer : public VideoPlayer, public StreamSoundPlayer{
 public:
