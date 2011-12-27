@@ -92,6 +92,7 @@
     <Compile Include="ObjectDlg.Designer.cs">
       <DependentUpon>ObjectDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="PcdkParser.cs" />
     <Compile Include="Persistence.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
