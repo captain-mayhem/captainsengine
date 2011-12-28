@@ -15,6 +15,7 @@ namespace StoryDesigner
             InitializeComponent();
             linenumberbox.Paint += new PaintEventHandler(linenumberbox_Paint);
             scripttext.VScroll += new EventHandler(scripttext_VScroll);
+            scripttext.TextChanged += new EventHandler(scripttext_TextChanged);
             string text = scr.ScriptType.ToString();
             switch (scr.ScriptType)
             {
@@ -50,8 +51,16 @@ namespace StoryDesigner
             mParser.initSyntax();
             mParser.Comment += new PcdkParser.commentCB(colorComment);
             mParser.Function += new PcdkParser.functionCB(colorFunction);
+            mParser.ParseError += new PcdkParser.parseError(mParser_ParseError);
             mKeywordFont = new Font(scripttext.Font, FontStyle.Bold);
-            mParser.parseText(scripttext);
+            parseScript();
+        }
+
+        void scripttext_TextChanged(object sender, EventArgs e)
+        {
+            int charidx = scripttext.GetFirstCharIndexOfCurrentLine();
+            int line = scripttext.GetLineFromCharIndex(charidx);
+            parseLine(line);
         }
 
         void scripttext_VScroll(object sender, EventArgs e)
@@ -83,6 +92,40 @@ namespace StoryDesigner
             }
         }
 
+        void parseScript()
+        {
+            if (mLayoutPerformed)
+                return;
+            mLayoutPerformed = true;
+            scripttext.SuspendLayout();
+            int oldoffset = scripttext.SelectionStart;
+            int oldlength = scripttext.SelectionLength;
+            mParser.parseText(scripttext);
+            scripttext.SelectionStart = oldoffset;
+            scripttext.SelectionLength = oldlength;
+            scripttext.SelectionFont = scripttext.Font;
+            scripttext.SelectionColor = Color.Black;
+            scripttext.ResumeLayout();
+            mLayoutPerformed = false;
+        }
+
+        void parseLine(int line)
+        {
+            if (mLayoutPerformed)
+                return;
+            mLayoutPerformed = true;
+            scripttext.SuspendLayout();
+            int oldoffset = scripttext.SelectionStart;
+            int oldlength = scripttext.SelectionLength;
+            mParser.parseLine(line, scripttext);
+            scripttext.SelectionStart = oldoffset;
+            scripttext.SelectionLength = oldlength;
+            scripttext.SelectionFont = scripttext.Font;
+            scripttext.SelectionColor = Color.Black;
+            scripttext.ResumeLayout();
+            mLayoutPerformed = false;
+        }
+
         void colorComment(int charpos, int length)
         {
             scripttext.SelectionStart = charpos;
@@ -92,18 +135,30 @@ namespace StoryDesigner
 
         void colorFunction(PcdkParser.Argument funcname, Object[] args, int startidx)
         {
-            scripttext.SelectionStart = startidx+funcname.startidx;
-            scripttext.SelectionLength = funcname.stopidx-funcname.startidx;
-            //scripttext.SelectionFont = new Font(this.Font, FontStyle.Bold);
-            //scripttext.SelectionColor = Color.Brown;
+            scripttext.SelectionStart = startidx+funcname.Startidx;
+            scripttext.SelectionLength = funcname.Stopidx-funcname.Startidx;
             scripttext.SelectionFont = mKeywordFont;
             if (mParser.IsKeyword(funcname))
                 scripttext.SelectionColor = Color.Blue;
-            //else
-            //    scripttext.SelectionFont = mKeywordFont;
+            else
+                scripttext.SelectionColor = Color.Black;
+            foreach (PcdkParser.Argument arg in args){
+                scripttext.SelectionStart = startidx + arg.Startidx;
+                scripttext.SelectionLength = arg.Stopidx - arg.Startidx;
+                scripttext.SelectionFont = scripttext.Font;
+                scripttext.SelectionColor = Color.Brown;
+            }
+        }
+
+        void mParser_ParseError(int charpos, int length, string text, PcdkParser.Error error)
+        {
+            scripttext.SelectionStart = charpos;
+            scripttext.SelectionLength = length;
+            scripttext.SelectionColor = Color.Black;
         }
 
         PcdkParser mParser;
         Font mKeywordFont;
+        bool mLayoutPerformed;
     }
 }
