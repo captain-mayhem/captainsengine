@@ -109,6 +109,7 @@ namespace StoryDesigner
             this.matches.Location = new System.Drawing.Point(580, 60);
             this.matches.Name = "matches";
             this.matches.Size = new System.Drawing.Size(124, 290);
+            this.matches.Sorted = true;
             this.matches.TabIndex = 6;
             // 
             // label1

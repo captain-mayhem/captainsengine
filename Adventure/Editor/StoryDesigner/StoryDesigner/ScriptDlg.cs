@@ -5,18 +5,21 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace StoryDesigner
 {
     public partial class ScriptDlg : Form
     {
-        public ScriptDlg(Script scr)
+        public ScriptDlg(Script scr, AdvData data)
         {
+            mData = data;
             InitializeComponent();
             linenumberbox.Paint += new PaintEventHandler(linenumberbox_Paint);
             scripttext.VScroll += new EventHandler(scripttext_VScroll);
             scripttext.TextChanged += new EventHandler(scripttext_TextChanged);
             scripttext.MouseDown += new MouseEventHandler(scripttext_MouseDown);
+            scripttext.KeyUp += new KeyEventHandler(scripttext_KeyUp);
             //scripttext
             string text = scr.ScriptType.ToString();
             switch (scr.ScriptType)
@@ -56,6 +59,32 @@ namespace StoryDesigner
             mParser.ParseError += new PcdkParser.parseError(mParser_ParseError);
             mKeywordFont = new Font(scripttext.Font, FontStyle.Bold);
             parseScript();
+        }
+
+        void scripttext_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up || e.KeyCode == Keys.Down || e.KeyCode == Keys.Left || e.KeyCode == Keys.Right)
+            {
+                int line = scripttext.GetLineFromCharIndex(scripttext.SelectionStart);
+                parseLine(line);
+            }
+            else if (e.KeyCode == Keys.Enter)
+            {
+                int line = scripttext.GetLineFromCharIndex(scripttext.SelectionStart);
+                string prevline = scripttext.Lines[line - 1];
+                int oldidx = scripttext.SelectionStart;
+                int i;
+                for (i = 0; i < prevline.Length; ++i)
+                {
+                    if (!Char.IsWhiteSpace(prevline[i]))
+                        break;
+                }
+                scripttext.Select(scripttext.GetFirstCharIndexFromLine(line-1), i);
+                scripttext.Copy();
+                scripttext.SelectionStart = oldidx;
+                scripttext.SelectionLength = 0;
+                scripttext.Paste();
+            }
         }
 
         void scripttext_MouseDown(object sender, MouseEventArgs e)
@@ -171,23 +200,74 @@ namespace StoryDesigner
             scripttext.SelectionLength = length;
             scripttext.SelectionColor = Color.Black;
             if (error == PcdkParser.Error.LINE_NOT_RECOGINZED)
-                info.Text = "Command";
+            {
+                PcdkParser.Argument arg = new PcdkParser.Argument(charpos, charpos + length, text.Trim(),
+                new PcdkParser.ArgDef("Command", PcdkParser.ArgType.Function));
+                if (mParser.IsKeyword(arg))
+                    scripttext.SelectionColor = Color.Blue;
+                scripttext.SelectionFont = mKeywordFont;
+                fillMatchList(arg);
+            }
         }
 
         void fillMatchList(PcdkParser.Argument arg)
         {
             info.Text = arg.Definition.Name;
-            string match = scripttext.Text.Substring(scripttext.SelectionStart, mCursorPos - scripttext.SelectionStart);
+            string match = scripttext.Text.Substring(scripttext.SelectionStart, mCursorPos - scripttext.SelectionStart).Trim();
+            matches.Items.Clear();
+            if (arg.Definition.AdditionalValues != null)
+            {
+                foreach (string val in arg.Definition.AdditionalValues)
+                {
+                    addMatch(val, match);
+                }
+            }
             switch (arg.Definition.Type)
             {
+                case PcdkParser.ArgType.Boolean:
+                    addMatch("true", match);
+                    addMatch("false", match);
+                    break;
+                case PcdkParser.ArgType.Character:
+                    addMatch("self", match);
+                    foreach (KeyValuePair<string, ArrayList> pair in mData.CharacterInstances)
+                    {
+                        foreach (CharacterInstance chr in pair.Value){
+                            addMatch(chr.Name, match);
+                        }
+                    }
+                    break;
+                case PcdkParser.ArgType.Command:
+                    foreach (KeyValuePair<string, string> pair in mData.Settings.Commands)
+                    {
+                        addMatch(pair.Key, match);
+                    }
+                    break;
+                case PcdkParser.ArgType.Event:
+                    {
+                        foreach (KeyValuePair<string, string> pair in mData.Settings.Commands)
+                        {
+                            addMatch(pair.Key, match);
+                            addMatch("cant" + pair.Key, match);
+                        }
+                        break;
+                    }
                 case PcdkParser.ArgType.Function:
-                    //mParser.Functions
+                    foreach (KeyValuePair<string, PcdkParser.ArgDef[]> func in mParser.Functions)
+                    {
+                        addMatch(func.Key, match);
+                    }
                     break;
             }
-            matches.Items.Clear();
-            matches.Items.Add(match);
         }
 
+        void addMatch(string str, string match)
+        {
+            if (str.StartsWith(match, StringComparison.OrdinalIgnoreCase))
+                matches.Items.Add(str);
+        }
+
+        AdvData mData;
         PcdkParser mParser;
         Font mKeywordFont;
         bool mLayoutPerformed;
