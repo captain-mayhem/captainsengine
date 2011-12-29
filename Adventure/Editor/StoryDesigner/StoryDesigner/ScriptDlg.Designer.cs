@@ -34,6 +34,9 @@ namespace StoryDesigner
             this.brackets = new System.Windows.Forms.Button();
             this.add = new System.Windows.Forms.Button();
             this.linenumberbox = new System.Windows.Forms.PictureBox();
+            this.matches = new System.Windows.Forms.ListBox();
+            this.label1 = new System.Windows.Forms.Label();
+            this.info = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.linenumberbox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -46,7 +49,7 @@ namespace StoryDesigner
             this.scripttext.Font = new System.Drawing.Font("Courier New", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.scripttext.Location = new System.Drawing.Point(39, 41);
             this.scripttext.Name = "scripttext";
-            this.scripttext.Size = new System.Drawing.Size(434, 309);
+            this.scripttext.Size = new System.Drawing.Size(535, 309);
             this.scripttext.TabIndex = 0;
             this.scripttext.Text = "";
             this.scripttext.WordWrap = false;
@@ -98,11 +101,47 @@ namespace StoryDesigner
             this.linenumberbox.TabIndex = 5;
             this.linenumberbox.TabStop = false;
             // 
+            // matches
+            // 
+            this.matches.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.matches.FormattingEnabled = true;
+            this.matches.Location = new System.Drawing.Point(580, 60);
+            this.matches.Name = "matches";
+            this.matches.Size = new System.Drawing.Size(124, 290);
+            this.matches.TabIndex = 6;
+            // 
+            // label1
+            // 
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(580, 41);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(28, 13);
+            this.label1.TabIndex = 7;
+            this.label1.Text = "Info:";
+            // 
+            // info
+            // 
+            this.info.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.info.AutoSize = true;
+            this.info.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.info.Location = new System.Drawing.Point(614, 41);
+            this.info.Name = "info";
+            this.info.Size = new System.Drawing.Size(61, 13);
+            this.info.TabIndex = 8;
+            this.info.Text = "Command";
+            // 
             // ScriptDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(485, 362);
+            this.ClientSize = new System.Drawing.Size(716, 362);
+            this.Controls.Add(this.info);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.matches);
             this.Controls.Add(this.linenumberbox);
             this.Controls.Add(this.add);
             this.Controls.Add(this.brackets);
@@ -113,6 +152,7 @@ namespace StoryDesigner
             this.Text = "ScriptDlg";
             ((System.ComponentModel.ISupportInitialize)(this.linenumberbox)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -124,5 +164,8 @@ namespace StoryDesigner
         private System.Windows.Forms.Button brackets;
         private System.Windows.Forms.Button add;
         private System.Windows.Forms.PictureBox linenumberbox;
+        private System.Windows.Forms.ListBox matches;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label info;
     }
 }

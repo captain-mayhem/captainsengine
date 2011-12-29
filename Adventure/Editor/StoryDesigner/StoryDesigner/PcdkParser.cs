@@ -16,13 +16,18 @@ namespace StoryDesigner
         public enum ArgType{
             Unknown,
             Function,
+            Command,
             Event,
             String,
             Number,
             Integer,
+            Boolean,
+            Variable,
             Object,
             Character,
             Item,
+            Script,
+            Room,
         }
 
         public class ArgDef
@@ -38,20 +43,20 @@ namespace StoryDesigner
 
         public class Argument
         {
-            public Argument(int startidx, int stopidx, string text, ArgType type)
+            public Argument(int startidx, int stopidx, string text, ArgDef def)
             {
                 this.Startidx = startidx;
                 this.Stopidx = stopidx;
                 this.Text = text;
-                this.Type = type;
+                this.Definition = def;
             }
-            public Argument(int startidx, int stopidx, string text) : this(startidx, stopidx, text, ArgType.Unknown)
+            public Argument(int startidx, int stopidx, string text) : this(startidx, stopidx, text, new ArgDef("", ArgType.Unknown))
             {
             }
             public int Startidx;
             public int Stopidx;
             public string Text;
-            public ArgType Type;
+            public ArgDef Definition;
         }
 
         public delegate void commentCB(int charpos, int length);
@@ -82,10 +87,70 @@ namespace StoryDesigner
             args[0] = new ArgDef("Object", ArgType.Object);
             args[1] = new ArgDef("Y (pixel)", ArgType.Integer);
             addConditional("yobj", args);
-            addConditional("num", null);
-            addConditional("hasitem", null);
-            addConditional("room", null);
-            addConditional("keydown", null);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            addConditional("focus", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Room", ArgType.Room);
+            addConditional("charin", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            addConditional("ischar", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Item", ArgType.Item);
+            addConditional("hasitem", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Variable Name", ArgType.Variable);
+            args[1] = new ArgDef("Number Value", ArgType.Number);
+            addConditional("num", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("String Name", ArgType.Variable);
+            args[1] = new ArgDef("Textline", ArgType.String);
+            addConditional("string", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Bool Name", ArgType.Variable);
+            args[1] = new ArgDef("true/false", ArgType.Boolean);
+            addConditional("bool", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Key", ArgType.String);
+            addConditional("keydown", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Key", ArgType.String);
+            addConditional("keypressed", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("up OR down", ArgType.String);
+            addConditional("mousewheel", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Gamecommand", ArgType.Command);
+            addConditional("command", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Linkname", ArgType.String);
+            addConditional("link", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Item", ArgType.Item);
+            addConditional("givelink", args);
+            args = new ArgDef[4];
+            args[0] = new ArgDef("Script", ArgType.Script);
+            args[1] = new ArgDef("Level 1-9", ArgType.Integer);
+            args[2] = new ArgDef("Row 1-9", ArgType.Integer);
+            args[3] = new ArgDef("Activate (true/false)", ArgType.Boolean);
+            addConditional("textscene", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Room", ArgType.Room);
+            addConditional("room", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Item", ArgType.Item);
+            args[1] = new ArgDef("State 0-10", ArgType.Integer);
+            addConditional("item", args);
+            //set commands
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Gamecommand", ArgType.Command);
+            addFunction("command", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Mouseicons (1-8)", ArgType.Integer);
+            addFunction("instmouse", args);
         }
 
         public void addConditional(string name, ArgDef[] arguments)
@@ -138,7 +203,7 @@ namespace StoryDesigner
                 }
                 else
                 {
-                    Argument func = new Argument(0, idx, result, ArgType.Function);
+                    Argument func = new Argument(0, idx, result, new ArgDef("Command", ArgType.Function));
                     int lastidx = idx + 1;
                     //arguments
                     System.Collections.ArrayList arguments = new System.Collections.ArrayList();
@@ -219,11 +284,16 @@ namespace StoryDesigner
             if (!mFunctions.ContainsKey(func.Text))
                 return false;
             ArgDef[] args = mFunctions[func.Text];
-            if (args == null || args.Length <= arguments.Count)
+            if (args == null || args.Length <= arguments.Count-1)
                 return false;
-            ArgDef curr = args[arguments.Count];
-            arg.Type = curr.Type;
+            ArgDef curr = args[arguments.Count-1];
+            arg.Definition = curr;
             return true;
+        }
+
+        public Dictionary<string, ArgDef[]> Functions
+        {
+            get {return mFunctions;}
         }
 
         System.Collections.Specialized.StringCollection mKeywords = new System.Collections.Specialized.StringCollection();
