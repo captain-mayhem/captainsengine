@@ -102,7 +102,7 @@ namespace StoryDesigner
                 scr.Name = name;
                 mData.addScript(scr);
             }
-            mScriptDlg = new ScriptDlg(scr);
+            mScriptDlg = new ScriptDlg(scr, mData);
             mScriptDlg.Show(this);
         }
 

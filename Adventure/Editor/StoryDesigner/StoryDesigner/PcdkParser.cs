@@ -39,6 +39,7 @@ namespace StoryDesigner
             }
             public string Name;
             public ArgType Type;
+            public string[] AdditionalValues;
         }
 
         public class Argument
@@ -73,6 +74,9 @@ namespace StoryDesigner
             //events
             ArgDef[] args = new ArgDef[1];
             args[0] = new ArgDef("Event", ArgType.Event);
+            args[0].AdditionalValues = new string[] { "mouse", "mouseout", "click", "release", 
+            "rightclick", "doubleclick", "enter", "exit", "loop1", "loop2", "link", "givelink",
+            "cantall"};
             addFunction("on", args, true);
             //conditionals
             args = new ArgDef[2];
@@ -279,7 +283,7 @@ namespace StoryDesigner
         bool addArgument(Argument func, Argument arg, System.Collections.ArrayList arguments)
         {
             if (arg.Stopidx == -1)
-                arg.Stopidx = arg.Startidx;
+                arg.Stopidx = arg.Startidx+arg.Text.Length;
             arguments.Add(arg);
             if (!mFunctions.ContainsKey(func.Text))
                 return false;
