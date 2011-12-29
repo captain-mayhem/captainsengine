@@ -16,6 +16,8 @@ namespace StoryDesigner
             linenumberbox.Paint += new PaintEventHandler(linenumberbox_Paint);
             scripttext.VScroll += new EventHandler(scripttext_VScroll);
             scripttext.TextChanged += new EventHandler(scripttext_TextChanged);
+            scripttext.MouseDown += new MouseEventHandler(scripttext_MouseDown);
+            //scripttext
             string text = scr.ScriptType.ToString();
             switch (scr.ScriptType)
             {
@@ -54,6 +56,13 @@ namespace StoryDesigner
             mParser.ParseError += new PcdkParser.parseError(mParser_ParseError);
             mKeywordFont = new Font(scripttext.Font, FontStyle.Bold);
             parseScript();
+        }
+
+        void scripttext_MouseDown(object sender, MouseEventArgs e)
+        {
+            int charidx = scripttext.GetCharIndexFromPosition(new Point(e.X, e.Y));
+            int line = scripttext.GetLineFromCharIndex(charidx);
+            parseLine(line);
         }
 
         void scripttext_TextChanged(object sender, EventArgs e)
@@ -99,6 +108,7 @@ namespace StoryDesigner
             mLayoutPerformed = true;
             scripttext.SuspendLayout();
             int oldoffset = scripttext.SelectionStart;
+            mCursorPos = oldoffset;
             int oldlength = scripttext.SelectionLength;
             mParser.parseText(scripttext);
             scripttext.SelectionStart = oldoffset;
@@ -116,6 +126,7 @@ namespace StoryDesigner
             mLayoutPerformed = true;
             scripttext.SuspendLayout();
             int oldoffset = scripttext.SelectionStart;
+            mCursorPos = oldoffset;
             int oldlength = scripttext.SelectionLength;
             mParser.parseLine(line, scripttext);
             scripttext.SelectionStart = oldoffset;
@@ -142,11 +153,15 @@ namespace StoryDesigner
                 scripttext.SelectionColor = Color.Blue;
             else
                 scripttext.SelectionColor = Color.Black;
+            if (scripttext.SelectionStart <= mCursorPos && scripttext.SelectionStart + scripttext.SelectionLength >= mCursorPos)
+                fillMatchList(funcname);
             foreach (PcdkParser.Argument arg in args){
                 scripttext.SelectionStart = startidx + arg.Startidx;
                 scripttext.SelectionLength = arg.Stopidx - arg.Startidx;
                 scripttext.SelectionFont = scripttext.Font;
                 scripttext.SelectionColor = Color.Brown;
+                if (scripttext.SelectionStart <= mCursorPos && scripttext.SelectionStart + scripttext.SelectionLength >= mCursorPos)
+                    fillMatchList(arg);
             }
         }
 
@@ -155,10 +170,27 @@ namespace StoryDesigner
             scripttext.SelectionStart = charpos;
             scripttext.SelectionLength = length;
             scripttext.SelectionColor = Color.Black;
+            if (error == PcdkParser.Error.LINE_NOT_RECOGINZED)
+                info.Text = "Command";
+        }
+
+        void fillMatchList(PcdkParser.Argument arg)
+        {
+            info.Text = arg.Definition.Name;
+            string match = scripttext.Text.Substring(scripttext.SelectionStart, mCursorPos - scripttext.SelectionStart);
+            switch (arg.Definition.Type)
+            {
+                case PcdkParser.ArgType.Function:
+                    //mParser.Functions
+                    break;
+            }
+            matches.Items.Clear();
+            matches.Items.Add(match);
         }
 
         PcdkParser mParser;
         Font mKeywordFont;
         bool mLayoutPerformed;
+        int mCursorPos;
     }
 }
