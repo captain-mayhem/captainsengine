@@ -23,6 +23,7 @@ namespace StoryDesigner
             Integer,
             Boolean,
             Variable,
+            PresetVariable,
             Object,
             Character,
             Item,
@@ -155,6 +156,48 @@ namespace StoryDesigner
             args = new ArgDef[1];
             args[0] = new ArgDef("Mouseicons (1-8)", ArgType.Integer);
             addFunction("instmouse", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[0].AdditionalValues = new string[] { "none", "last" };
+            addFunction("setfocus", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Bool Name", ArgType.PresetVariable);
+            args[1] = new ArgDef("true / false", ArgType.Boolean);
+            addFunction("setbool", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Variable Name", ArgType.Variable);
+            args[1] = new ArgDef("Number Value", ArgType.Number);
+            addFunction("setnum", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("String Name", ArgType.Variable);
+            args[1] = new ArgDef("Textline", ArgType.String);
+            addFunction("setstring", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Variable Name", ArgType.Variable);
+            args[1] = new ArgDef("Range", ArgType.Integer);
+            addFunction("randomnum", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Variable Name", ArgType.Variable);
+            addFunction("savenum", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Variable Name", ArgType.Variable);
+            addFunction("loadnum", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("String Name", ArgType.Variable);
+            addFunction("savestring", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("String Name", ArgType.Variable);
+            addFunction("loadstring", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Color Value (0-255)", ArgType.Integer);
+            args[1] = new ArgDef("Color Value (0-255)", ArgType.Integer);
+            args[2] = new ArgDef("Color Value (0-255)", ArgType.Integer);
+            addFunction("offtextcolor", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Color Value (0-255)", ArgType.Integer);
+            args[1] = new ArgDef("Color Value (0-255)", ArgType.Integer);
+            args[2] = new ArgDef("Color Value (0-255)", ArgType.Integer);
+            addFunction("infotextcolor", args);
         }
 
         public void addConditional(string name, ArgDef[] arguments)

@@ -20,6 +20,7 @@ namespace StoryDesigner
             scripttext.TextChanged += new EventHandler(scripttext_TextChanged);
             scripttext.MouseDown += new MouseEventHandler(scripttext_MouseDown);
             scripttext.KeyUp += new KeyEventHandler(scripttext_KeyUp);
+            matches.SelectedIndexChanged += new EventHandler(matches_SelectedIndexChanged);
             //scripttext
             string text = scr.ScriptType.ToString();
             switch (scr.ScriptType)
@@ -59,6 +60,34 @@ namespace StoryDesigner
             mParser.ParseError += new PcdkParser.parseError(mParser_ParseError);
             mKeywordFont = new Font(scripttext.Font, FontStyle.Bold);
             parseScript();
+        }
+
+        void matches_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (matches.SelectedIndex == -1)
+                return;
+            string value = matches.SelectedItem as string;
+            matches.SelectedIndex = -1;
+            Clipboard.SetText(value);
+            int startidx = scripttext.SelectionStart-1;
+            char ch = scripttext.Text[startidx];
+            while (!Char.IsWhiteSpace(ch) && ch != ';' && ch != '(' && ch != ')')
+            {
+                --startidx;
+                ch = scripttext.Text[startidx];
+            }
+            int stopidx = scripttext.SelectionStart;
+            ch = scripttext.Text[stopidx];
+            while (!Char.IsWhiteSpace(ch) && ch != ';' && ch != '(' && ch != ')')
+            {
+                ++stopidx;
+                ch = scripttext.Text[stopidx];
+            }
+            ++startidx;
+            scripttext.SelectionStart = startidx;
+            scripttext.SelectionLength = stopidx-startidx;
+            scripttext.Paste();
+            scripttext.Focus();
         }
 
         void scripttext_KeyUp(object sender, KeyEventArgs e)
@@ -256,6 +285,39 @@ namespace StoryDesigner
                     foreach (KeyValuePair<string, PcdkParser.ArgDef[]> func in mParser.Functions)
                     {
                         addMatch(func.Key, match);
+                    }
+                    break;
+                case PcdkParser.ArgType.Item:
+                    foreach (KeyValuePair<string, Item> it in mData.Items)
+                    {
+                        addMatch(it.Value.Name, match);
+                    }
+                    break;
+                case PcdkParser.ArgType.Object:
+                    foreach (KeyValuePair<string, Room> room in mData.Rooms)
+                    {
+                        foreach (ObjectInstance obj in room.Value.Objects)
+                        {
+                            addMatch(obj.Name, match);
+                        }
+                    }
+                    break;
+                case PcdkParser.ArgType.PresetVariable:
+                    foreach (KeyValuePair<string, bool> bov in mData.Settings.Booleans)
+                    {
+                        addMatch(bov.Key, match);
+                    }
+                    break;
+                case PcdkParser.ArgType.Room:
+                    foreach (KeyValuePair<string, Room> room in mData.Rooms)
+                    {
+                        addMatch(room.Value.Name, match);
+                    }
+                    break;
+                case PcdkParser.ArgType.Script:
+                    foreach (KeyValuePair<string, Script> scr in mData.getScripts(Script.Type.CUTSCENE))
+                    {
+                        addMatch(scr.Value.Name, match);
                     }
                     break;
             }
