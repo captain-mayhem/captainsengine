@@ -29,18 +29,25 @@ namespace StoryDesigner
             Item,
             Script,
             Room,
+            Sound,
+            Music,
+            Video,
+            VideoSwf,
         }
 
         public class ArgDef
         {
-            public ArgDef(string name, ArgType type)
+            public ArgDef(string name, ArgType type) : this(name, type, false) { }
+            public ArgDef(string name, ArgType type, bool optional)
             {
                 Name = name;
                 Type = type;
+                Optional = optional;
             }
             public string Name;
             public ArgType Type;
             public string[] AdditionalValues;
+            public bool Optional;
         }
 
         public class Argument
@@ -79,6 +86,7 @@ namespace StoryDesigner
             "rightclick", "doubleclick", "enter", "exit", "loop1", "loop2", "link", "givelink",
             "cantall"};
             addFunction("on", args, true);
+
             //conditionals
             args = new ArgDef[2];
             args[0] = new ArgDef("Object", ArgType.Object);
@@ -149,6 +157,7 @@ namespace StoryDesigner
             args[0] = new ArgDef("Item", ArgType.Item);
             args[1] = new ArgDef("State 0-10", ArgType.Integer);
             addConditional("item", args);
+
             //set commands
             args = new ArgDef[1];
             args[0] = new ArgDef("Gamecommand", ArgType.Command);
@@ -198,6 +207,95 @@ namespace StoryDesigner
             args[1] = new ArgDef("Color Value (0-255)", ArgType.Integer);
             args[2] = new ArgDef("Color Value (0-255)", ArgType.Integer);
             addFunction("infotextcolor", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Transparency (0-100)", ArgType.Integer);
+            addFunction("settransparency", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Font (1-99)", ArgType.Integer);
+            addFunction("setfont", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Screenchange", ArgType.String);
+            args[0].AdditionalValues = new string[] {"direct", "fadeblack", "rectangle", "circle",
+                "shutters", "clock", "blend", "blendslow"};
+            addFunction("setscreenchange", args);
+            args = new ArgDef[4];
+            args[0] = new ArgDef("Room", ArgType.Room);
+            args[1] = new ArgDef("X (walkmap)", ArgType.Integer);
+            args[2] = new ArgDef("Y (walkmap)", ArgType.Integer);
+            args[3] = new ArgDef("Free to Walk (true/false)", ArgType.Boolean);
+            addFunction("setwalkmap", args);
+            args = new ArgDef[6];
+            args[0] = new ArgDef("Room", ArgType.Room);
+            args[1] = new ArgDef("X1 (walkmap)", ArgType.Integer);
+            args[2] = new ArgDef("Y1 (walkmap)", ArgType.Integer);
+            args[3] = new ArgDef("X2 (walkmap)", ArgType.Integer);
+            args[4] = new ArgDef("Y2 (walkmap)", ArgType.Integer);
+            args[5] = new ArgDef("Free to Walk (true/false)", ArgType.Boolean);
+            addFunction("set_rect_walkmap", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Variable name", ArgType.Variable);
+            addFunction("sqrt", args);
+
+            //sound and movie commands
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Soundeffect...", ArgType.Sound);
+            args[1] = new ArgDef("Volume (0-100)", ArgType.Integer, true);
+            addFunction("playsound", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Musicfile...", ArgType.Music);
+            args[1] = new ArgDef("Pattern", ArgType.String, true);
+            addFunction("playmusic", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Volume 0-100", ArgType.Integer);
+            addFunction("musicvolume", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Volume 0-100", ArgType.Integer);
+            addFunction("speechvolume", args);
+            args = new ArgDef[0];
+            addFunction("stopmusic", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("1=Slow - 15=Fast OR Time in ms", ArgType.Integer);
+            addFunction("fadespeed", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("EAX Preset", ArgType.String);
+            args[0].AdditionalValues = new string[] {"paddedcell", "livingroom", "cave",
+                "carpetedhallway", "alley", "mountains", "parkinglot", "drugged", "concerthall",
+                "room", "stoneroom", "arena", "hallway", "forest", "quarry", "sewerpipe", "dizzy",
+                "none", "bathroom", "auditorium", "hangar", "stonecorridor", "city", "plain",
+                "underwater", "psychotic", "off"};
+            addFunction("seteax", args);
+            args = new ArgDef[6];
+            args[0] = new ArgDef("Video...", ArgType.Video);
+            args[1] = new ArgDef("pause script (true/false)", ArgType.Boolean);
+            args[2] = new ArgDef("X (pixel)", ArgType.Integer, true);
+            args[3] = new ArgDef("Y (pixel)", ArgType.Integer, true);
+            args[4] = new ArgDef("Width (pixel)", ArgType.Integer, true);
+            args[5] = new ArgDef("Height (pixel)", ArgType.Integer, true);
+            addFunction("playvideo", args);
+            addFunction("playavi", args);
+            args = new ArgDef[0];
+            addFunction("stopvideo", args);
+            args = new ArgDef[5];
+            args[0] = new ArgDef("Video...", ArgType.VideoSwf);
+            args[1] = new ArgDef("X (pixel)", ArgType.Integer, true);
+            args[2] = new ArgDef("Y (pixel)", ArgType.Integer, true);
+            args[3] = new ArgDef("Width (pixel)", ArgType.Integer, true);
+            args[4] = new ArgDef("Height (pixel)", ArgType.Integer, true);
+            addFunction("playswf", args);
+            args = new ArgDef[0];
+            addFunction("stopswf", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Seconds", ArgType.Integer);
+            addFunction("moviewait", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Soundeffect...", ArgType.Sound);
+            args[1] = new ArgDef("Volume (0-100)", ArgType.Integer, true);
+            addFunction("loopsound", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Soundeffect...", ArgType.Sound);
+            addFunction("loopstop", args);
+
+            //object commands
         }
 
         public void addConditional(string name, ArgDef[] arguments)
