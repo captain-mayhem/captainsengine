@@ -129,7 +129,7 @@ namespace StoryDesigner
                         | System.Windows.Forms.AnchorStyles.Right)));
             this.info.AutoSize = true;
             this.info.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.info.Location = new System.Drawing.Point(614, 41);
+            this.info.Location = new System.Drawing.Point(605, 41);
             this.info.Name = "info";
             this.info.Size = new System.Drawing.Size(61, 13);
             this.info.TabIndex = 8;

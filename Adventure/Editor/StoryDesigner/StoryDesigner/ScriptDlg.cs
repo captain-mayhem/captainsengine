@@ -293,6 +293,12 @@ namespace StoryDesigner
                         addMatch(it.Value.Name, match);
                     }
                     break;
+                case PcdkParser.ArgType.Music:
+                    foreach (KeyValuePair<string, string> music in mData.Music)
+                    {
+                        addMatch(music.Key, match);
+                    }
+                    break;
                 case PcdkParser.ArgType.Object:
                     foreach (KeyValuePair<string, Room> room in mData.Rooms)
                     {
@@ -318,6 +324,26 @@ namespace StoryDesigner
                     foreach (KeyValuePair<string, Script> scr in mData.getScripts(Script.Type.CUTSCENE))
                     {
                         addMatch(scr.Value.Name, match);
+                    }
+                    break;
+                case PcdkParser.ArgType.Sound:
+                    foreach (KeyValuePair<string, string> snd in mData.Sounds)
+                    {
+                        addMatch(snd.Key, match);
+                    }
+                    break;
+                case PcdkParser.ArgType.Video:
+                    foreach (KeyValuePair<string, string> video in mData.Videos)
+                    {
+                        if (System.IO.Path.GetExtension(video.Value) != ".swf")
+                            addMatch(video.Key, match);
+                    }
+                    break;
+                case PcdkParser.ArgType.VideoSwf:
+                    foreach (KeyValuePair<string, string> video in mData.Videos)
+                    {
+                        if (System.IO.Path.GetExtension(video.Value) == ".swf")
+                            addMatch(video.Key, match);
                     }
                     break;
             }
