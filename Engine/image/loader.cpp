@@ -15,6 +15,7 @@
 extern "C"{
 #include <jpeglib.h>
 #include <extern/gif/gif_lib.h>
+#include <extern/png/png.h>
 }
 
 #include "image.h"
@@ -33,6 +34,8 @@ Image* ImageLoader::load(const char* filename, Type t){
       return loadGIF(filename);
     case BMP:
       return loadBMP(filename);
+    case PNG:
+      return loadPNG(filename);
   }
   return NULL;
 }
@@ -45,6 +48,8 @@ Image* ImageLoader::load(void* memory, unsigned size, Type t){
       return loadGIF(memory, size);
     case BMP:
       return loadBMP(memory, size);
+    case PNG:
+      return loadPNG(memory, size);
   }
   return NULL;
 }
@@ -60,6 +65,8 @@ ImageLoader::Type ImageLoader::determineType(const std::string& filename){
     return GIF;
   else if (ext == "bmp")
     return BMP;
+  else if (ext == "png")
+    return PNG;
   TR_WARN("Unknown image type %s", filename.c_str());
   return UNKNOWN;
 }
@@ -409,4 +416,80 @@ Image* decodeBMP(Reader* rdr){
   pImage->debugWrite(tmpstr);
   */
   return pImage;
+}
+
+Image* ImageLoader::loadPNG(const char *fileName){
+  TR_USE(CGE_Imageloader);
+  FILE* fp = fopen(fileName, "rb");
+  if (fp == NULL)
+    return NULL;
+
+  png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  png_infop info_ptr = png_create_info_struct(png_ptr);
+  setjmp(png_jmpbuf(png_ptr));
+
+  png_init_io(png_ptr, fp);
+
+  png_read_info(png_ptr, info_ptr);
+
+  unsigned width = 0;
+  unsigned height = 0;
+  int bitdepth = 0;
+  int colortype = 0;
+  int dummy;
+  png_get_IHDR(png_ptr, info_ptr, &width, &height, &bitdepth, &colortype, &dummy, NULL, NULL);
+
+  int channels = 0;
+  if (colortype == PNG_COLOR_TYPE_GRAY){
+    if (bitdepth < 8)
+      png_set_expand_gray_1_2_4_to_8(png_ptr);
+    channels = 1;
+  }
+  else if (colortype == PNG_COLOR_TYPE_GA)
+    channels = 2;
+  else if (colortype == PNG_COLOR_TYPE_PALETTE){
+    png_set_palette_to_rgb(png_ptr);
+    channels = 3;
+  }
+  else if (colortype == PNG_COLOR_TYPE_RGB)
+    channels = 3;
+  else if (colortype == PNG_COLOR_TYPE_RGBA)
+    channels = 4;
+
+  if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)){
+    png_set_tRNS_to_alpha(png_ptr);
+    channels = 4;
+  }
+
+  png_set_strip_16(png_ptr);
+  png_set_packing(png_ptr);
+
+  Image* image = new Image();
+  image->setFormat(channels, width, height);
+  image->allocateData();
+
+  png_bytep* row_pointers = new png_bytep[height];
+  for (unsigned row = 0; row < height; ++row){
+    row_pointers[row] = (png_bytep)png_malloc(png_ptr, png_get_rowbytes(png_ptr, info_ptr));
+  }
+
+  png_read_image(png_ptr, row_pointers);
+
+  for (unsigned row = 0; row < height; ++row){
+    memcpy(image->getData()+row*width*channels, row_pointers[row], width*channels);
+    png_free(png_ptr, row_pointers[row]);
+  }
+  delete [] row_pointers;
+
+  png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+
+  fclose(fp);
+
+  return image;
+}
+
+Image* ImageLoader::loadPNG(void* memory, unsigned size){
+  TR_USE(CGE_Imageloader);
+  TR_ERROR("Png: load from memory not yet implemented");
+  return NULL;
 }

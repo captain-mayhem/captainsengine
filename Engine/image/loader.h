@@ -14,6 +14,7 @@ public:
     JPG,
     GIF,
     BMP,
+    PNG,
   };
   static Image* load(void* memory, unsigned size, Type t);
   static Image* load(const char* filename, Type t = UNKNOWN);
@@ -30,6 +31,9 @@ protected:
    //! loads and returns a GIF image
   static Image* loadGIF(const char *fileName);
   static Image* loadGIF(void* memory, unsigned size);
+  //! loads and returns a PNG image
+  static Image* loadPNG(const char *fileName);
+  static Image* loadPNG(void* memory, unsigned size);
 };
 
 }
