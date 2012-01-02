@@ -198,14 +198,14 @@ namespace StoryDesigner
             args[0] = new ArgDef("String Name", ArgType.Variable);
             addFunction("loadstring", args);
             args = new ArgDef[3];
-            args[0] = new ArgDef("Color Value (0-255)", ArgType.Integer);
-            args[1] = new ArgDef("Color Value (0-255)", ArgType.Integer);
-            args[2] = new ArgDef("Color Value (0-255)", ArgType.Integer);
+            args[0] = new ArgDef("Red Color Value (0-255)", ArgType.Integer);
+            args[1] = new ArgDef("Green Color Value (0-255)", ArgType.Integer);
+            args[2] = new ArgDef("Blue Color Value (0-255)", ArgType.Integer);
             addFunction("offtextcolor", args);
             args = new ArgDef[3];
-            args[0] = new ArgDef("Color Value (0-255)", ArgType.Integer);
-            args[1] = new ArgDef("Color Value (0-255)", ArgType.Integer);
-            args[2] = new ArgDef("Color Value (0-255)", ArgType.Integer);
+            args[0] = new ArgDef("Red Color Value (0-255)", ArgType.Integer);
+            args[1] = new ArgDef("Green Color Value (0-255)", ArgType.Integer);
+            args[2] = new ArgDef("Blue Color Value (0-255)", ArgType.Integer);
             addFunction("infotextcolor", args);
             args = new ArgDef[1];
             args[0] = new ArgDef("Transparency (0-100)", ArgType.Integer);
@@ -215,8 +215,9 @@ namespace StoryDesigner
             addFunction("setfont", args);
             args = new ArgDef[1];
             args[0] = new ArgDef("Screenchange", ArgType.String);
-            args[0].AdditionalValues = new string[] {"direct", "fadeblack", "rectangle", "circle",
+            string[] screenchanges = new string[] {"direct", "fadeblack", "rectangle", "circle",
                 "shutters", "clock", "blend", "blendslow"};
+            args[0].AdditionalValues = screenchanges;
             addFunction("setscreenchange", args);
             args = new ArgDef[4];
             args[0] = new ArgDef("Room", ArgType.Room);
@@ -296,6 +297,81 @@ namespace StoryDesigner
             addFunction("loopstop", args);
 
             //object commands
+            args = new ArgDef[12];
+            args[0] = new ArgDef("Object", ArgType.Object);
+            args[1] = new ArgDef("State 0-10", ArgType.Integer);
+            for (int i = 0; i < 10; ++i)
+            {
+                args[i+2] = new ArgDef("State 0-10", ArgType.Integer, true);
+            }
+            addFunction("setobj", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Object", ArgType.Object);
+            args[1] = new ArgDef("State 0-10", ArgType.Integer);
+            addFunction("instobj", args);
+            args = new ArgDef[5];
+            args[0] = new ArgDef("Object", ArgType.Object);
+            args[1] = new ArgDef("X (pixel)", ArgType.Integer);
+            args[2] = new ArgDef("Y (pixel)", ArgType.Integer);
+            args[3] = new ArgDef("Speed 0=Immediately 9=Slow OR Time in ms", ArgType.Integer);
+            args[4] = new ArgDef("Optional: wait", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "wait" };
+            addFunction("moveobj", args);
+            args = new ArgDef[21];
+            args[0] = new ArgDef("Groupname", ArgType.String);
+            for (int i = 0; i < 10; ++i)
+            {
+                args[i + 1] = new ArgDef("Object", ArgType.Object, true);
+            }
+            addFunction("group", args);
+            args = new ArgDef[5];
+            args[0] = new ArgDef("Object", ArgType.Object);
+            args[1] = new ArgDef("Red Color Value (0-255)", ArgType.Integer);
+            args[2] = new ArgDef("Green Color Value (0-255)", ArgType.Integer);
+            args[3] = new ArgDef("Blue Color Value (0-255)", ArgType.Integer);
+            args[4] = new ArgDef("fade (Optional)", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "fade" };
+            addFunction("setobjlight", args);
+
+            //room commands
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Room", ArgType.Room);
+            args[1] = new ArgDef("Screenchange (Optional)", ArgType.String, true);
+            args[1].AdditionalValues = screenchanges;
+            addFunction("loadroom", args);
+            args = new ArgDef[0];
+            addFunction("unloadroom", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Room", ArgType.Room);
+            args[1] = new ArgDef("Time in ms (Optional)", ArgType.Integer, true);
+            addFunction("subroom", args);
+            args = new ArgDef[0];
+            addFunction("return", args);
+            args = new ArgDef[5];
+            args[0] = new ArgDef("Room", ArgType.Room);
+            args[1] = new ArgDef("Red Color Value (0-255)", ArgType.Integer);
+            args[2] = new ArgDef("Green Color Value (0-255)", ArgType.Integer);
+            args[3] = new ArgDef("Blue Color Value (0-255)", ArgType.Integer);
+            args[4] = new ArgDef("fade (Optional)", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "fade" };
+            addFunction("setlight", args);
+            args = new ArgDef[5];
+            args[0] = new ArgDef("Room", ArgType.Room);
+            args[1] = new ArgDef("X (walkmap)", ArgType.Integer);
+            args[2] = new ArgDef("Y (walkmap)", ArgType.Integer);
+            args[3] = new ArgDef("Don't scroll (true/false)", ArgType.Boolean);
+            args[4] = new ArgDef("Optional: up/down/left/right", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "up", "down", "left", "right" };
+            addFunction("setpos", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("1-20 (4 = Default) (+100 don't follow)", ArgType.Integer);
+            addFunction("scrollspeed", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Seconds", ArgType.Integer);
+            args[1] = new ArgDef("Strength of Vibration", ArgType.Integer);
+            addFunction("jiggle", args);
+
+            //character commands
         }
 
         public void addConditional(string name, ArgDef[] arguments)

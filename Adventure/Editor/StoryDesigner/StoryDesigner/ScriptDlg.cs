@@ -14,6 +14,7 @@ namespace StoryDesigner
         public ScriptDlg(Script scr, AdvData data)
         {
             mData = data;
+            mScript = scr;
             InitializeComponent();
             linenumberbox.Paint += new PaintEventHandler(linenumberbox_Paint);
             scripttext.VScroll += new EventHandler(scripttext_VScroll);
@@ -21,6 +22,7 @@ namespace StoryDesigner
             scripttext.MouseDown += new MouseEventHandler(scripttext_MouseDown);
             scripttext.KeyUp += new KeyEventHandler(scripttext_KeyUp);
             matches.SelectedIndexChanged += new EventHandler(matches_SelectedIndexChanged);
+            this.FormClosed += new FormClosedEventHandler(ScriptDlg_FormClosed);
             //scripttext
             string text = scr.ScriptType.ToString();
             switch (scr.ScriptType)
@@ -60,6 +62,11 @@ namespace StoryDesigner
             mParser.ParseError += new PcdkParser.parseError(mParser_ParseError);
             mKeywordFont = new Font(scripttext.Font, FontStyle.Bold);
             parseScript();
+        }
+
+        void ScriptDlg_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            mScript.Text = scripttext.Text;
         }
 
         void matches_SelectedIndexChanged(object sender, EventArgs e)
@@ -360,5 +367,6 @@ namespace StoryDesigner
         Font mKeywordFont;
         bool mLayoutPerformed;
         int mCursorPos;
+        Script mScript;
     }
 }
