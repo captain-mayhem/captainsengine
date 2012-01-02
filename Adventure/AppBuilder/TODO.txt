@@ -16,3 +16,4 @@ D:\pcdk\editor\functiondemo\data\game.dat
 D:\Projects\captainsengine\trunk\Adventure\AppBuilder\test\data\game.dat
 D:\pcdk\aluehnfinal\Alühn\data\game.dat
 D:\pcdk\testadv\TestAdventure\data\game.dat
+D:\pcdk\editor\functiondemo_adz\FunctionDemo\FunctionDemo.adv

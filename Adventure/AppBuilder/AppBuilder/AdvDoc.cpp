@@ -44,24 +44,29 @@ bool AdvDocument::loadDocument(const std::string filename){
     CGE::Engine::instance()->messageBox("Cannot find adventure file", "Error");
     return false;
   }
-  CGE::MemReader rdr = zrdr.openEntry("game.001");
+  string entry = "game";
+  if (filename.substr(filename.size()-4) == ".adv"){
+    int idx = filename.find_last_of("/");
+    entry = filename.substr(idx+1, filename.size()-(idx+1)-4);
+  }
+  CGE::MemReader rdr = zrdr.openEntry(entry+".001");
   if (!loadFile1(rdr)){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
-  rdr = zrdr.openEntry("game.002");
+  rdr = zrdr.openEntry(entry+".002");
   if(!loadFile2(rdr)){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
-  rdr = zrdr.openEntry("game.003");
+  rdr = zrdr.openEntry(entry+".003");
   if(!loadFile3(rdr)){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
-  rdr = zrdr.openEntry("game.004");
+  rdr = zrdr.openEntry(entry+".004");
   loadFile4(rdr);
-  rdr = zrdr.openEntry("game.005");
+  rdr = zrdr.openEntry(entry+".005");
   if(!loadFile5(rdr)){
     mZipPwd = "";
   }

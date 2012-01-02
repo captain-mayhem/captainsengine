@@ -250,10 +250,14 @@ void FontRenderer::unloadFont(unsigned id){
 }
 
 FontRenderer::String* FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& color, unsigned displayTime, bool keepOnScreen){
+  if (mFonts[fontid] == NULL)
+    return NULL;
   return mFonts[fontid]->render(x, y, text, depth, color, displayTime, breakinfo, keepOnScreen);
 }
 
 Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo){
+  if (mFonts[fontid] == NULL)
+    return Vec2i(0, 0);
   return mFonts[fontid]->getTextExtent(text, breakinfo);
 }
 

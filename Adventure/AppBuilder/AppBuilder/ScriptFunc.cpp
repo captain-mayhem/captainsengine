@@ -234,7 +234,8 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
       DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*text.length());
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr);
-    str->setSpeaker(chr);
+    if (str)
+      str->setSpeaker(chr);
     int currState = chr->getState();
     chr->addNextState(currState);
     chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));

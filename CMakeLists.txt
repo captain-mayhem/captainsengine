@@ -115,6 +115,7 @@ SET(ENGINE_LINK_LIBRARIES
 	lualib
 	ode
 	zlib
+	png
 	${ENGINE_LINK_LIBRARIES}
 )
 
