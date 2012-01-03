@@ -56,6 +56,8 @@ public:
   int getTextSpeed() {return mTextSpeed;}
   void setTextSpeed(int speed) {mTextSpeed = speed;}
   void addTimer(ExecutionContext* timer);
+  ASTNode* parseLangArg(const char* funcname, int argnum, int strindex);
+  void setLanguage(const std::string& lang) {mLanguage = lang;}
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
@@ -97,6 +99,7 @@ protected:
   std::map<std::string, ExecutionContext*> mScriptFunctions;
   std::set<ExecutionContext*> mTimers;
   int mTextSpeed;
+  std::string mLanguage;
 };
 
 #endif
