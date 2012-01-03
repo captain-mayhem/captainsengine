@@ -1261,8 +1261,7 @@ int ScriptFunctions::speechVolume(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::setLanguage(ExecutionContext& ctx, unsigned numArgs){
   std::string language = ctx.stack().pop().getString();
-  //TODO
-  //DebugBreak();
+  Engine::instance()->getInterpreter()->setLanguage(language);
   return 0;
 }
 

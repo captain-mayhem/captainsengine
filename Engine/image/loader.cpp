@@ -418,17 +418,13 @@ Image* decodeBMP(Reader* rdr){
   return pImage;
 }
 
-Image* ImageLoader::loadPNG(const char *fileName){
+static void png_read_data(png_structp png_ptr, png_bytep data, png_size_t length){
+  png_voidp source = png_get_io_ptr(png_ptr);
+  memcpy(data, source, length);
+}
+
+static Image* loadPNGinternal(png_structp png_ptr, png_infop info_ptr){
   TR_USE(CGE_Imageloader);
-  FILE* fp = fopen(fileName, "rb");
-  if (fp == NULL)
-    return NULL;
-
-  png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-  png_infop info_ptr = png_create_info_struct(png_ptr);
-  setjmp(png_jmpbuf(png_ptr));
-
-  png_init_io(png_ptr, fp);
 
   png_read_info(png_ptr, info_ptr);
 
@@ -481,15 +477,40 @@ Image* ImageLoader::loadPNG(const char *fileName){
   }
   delete [] row_pointers;
 
+  return image;
+}
+
+Image* ImageLoader::loadPNG(const char *fileName){
+  FILE* fp = fopen(fileName, "rb");
+  if (fp == NULL)
+    return NULL;
+
+  png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  png_infop info_ptr = png_create_info_struct(png_ptr);
+  setjmp(png_jmpbuf(png_ptr));
+
+  png_init_io(png_ptr, fp);
+
+  Image* img = loadPNGinternal(png_ptr, info_ptr);
+
   png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
 
   fclose(fp);
 
-  return image;
+  return img;
 }
 
 Image* ImageLoader::loadPNG(void* memory, unsigned size){
   TR_USE(CGE_Imageloader);
-  TR_ERROR("Png: load from memory not yet implemented");
-  return NULL;
+  
+  png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  png_infop info_ptr = png_create_info_struct(png_ptr);
+  setjmp(png_jmpbuf(png_ptr));
+
+  png_set_read_fn(png_ptr, memory, png_read_data);
+
+  Image* img = loadPNGinternal(png_ptr, info_ptr);
+
+  png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+  return img;
 }

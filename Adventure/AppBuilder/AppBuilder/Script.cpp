@@ -75,6 +75,8 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
   mKeymap["space"] = KEY_SPACE;
   mKeymap["enter"] = KEY_RETURN;
   mKeymap["backspace"] = KEY_BACKSPACE;
+
+  mLanguage = "origin";
 }
 
 PcdkScript::~PcdkScript(){
@@ -1099,4 +1101,52 @@ void PcdkScript::removeScript(const std::string& name){
 void PcdkScript::addTimer(ExecutionContext* timer){
   mTimers.insert(timer);
   execute(timer, true);
+}
+
+ASTNode* parseLangArg(const char* funcname, int argnum, int strindex){
+  ASTNode* node = Engine::instance()->getInterpreter()->parseLangArg(funcname, argnum, strindex);
+  return node;
+}
+
+ASTNode* PcdkScript::parseLangArg(const char* funcname, int argnum, int strindex){
+  Language::Section sec = mData->getLanguageSection(funcname, argnum);
+  std::string text = mData->getLanguageString(mLanguage, sec, strindex);
+  if (text.size() == 1 && text[0] == ' ')
+    return NULL;
+  text += ";";
+
+  pANTLR3_INPUT_STREAM input;
+  ppcdkLexer lexer;
+  pANTLR3_COMMON_TOKEN_STREAM tokStream;
+  ppcdkParser parser;
+  pcdkParser_arg_return pcdkAST;
+  input = antlr3NewAsciiStringInPlaceStream(((pANTLR3_UINT8)text.c_str()), (ANTLR3_UINT32)text.size(), (pANTLR3_UINT8)"Script");
+  lexer = pcdkLexerNew(input);
+  tokStream = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lexer));
+  parser = pcdkParserNew(tokStream);
+  parser->pParser->super = parser;
+  //parser->pParser->rec->reportError = myreportError;
+  parser->pParser->rec->recoverFromMismatchedToken = recoverFromMismatchedToken;
+  pcdkAST = parser->arg(parser);
+  ASTNode* node = pcdkAST.value;
+  if (parser->pParser->rec->state->errorCount > 0){
+    TR_USE(ADV_Script)
+    CGE::Engine::instance()->messageBox("Error parsing argument", "Error");
+    TR_ERROR("Error parsing argument %s", text.c_str());
+#undef free
+    parser->free(parser);
+    tokStream->free(tokStream);
+    lexer->free(lexer);
+    input->free(input);
+#ifdef _CRTDBG_MAP_ALLOC
+#define free _free_dbg
+#endif
+    delete node;
+    return NULL;
+  }
+  parser->free(parser);
+  tokStream->free(tokStream);
+  lexer->free(lexer);
+  input->free(input);
+  return node;
 }

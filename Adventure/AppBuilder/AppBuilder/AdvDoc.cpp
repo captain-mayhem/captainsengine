@@ -936,3 +936,34 @@ Room* AdvDocument::getRoom(Object* obj){
   return NULL;
 }
 
+Language::Section AdvDocument::getLanguageSection(const std::string& funcname, int argnum){
+  if (funcname == "speech"){
+    if (argnum == 1)
+      return Language::SPEECH;
+    else if (argnum == 2)
+      return Language::SPEECH_SOUNDS;
+  }
+  else if (funcname == "offspeech"){
+    if (argnum == 2)
+      return Language::OFFSPEECH;
+    else if (argnum == 3)
+      return Language::OFFSPEECH_SOUNDS;
+  }
+  else if (funcname == "showinfo")
+    return Language::SHOWINFO;
+  else if (funcname == "textout")
+    return Language::TEXTOUT;
+  else if (funcname == "setstring")
+    return Language::SETSTRING;
+  else if (funcname == "row")
+    return Language::TEXTSCENES;
+  else{
+    DebugBreak();
+  }
+  return Language::NUM_SECTIONS;
+}
+
+std::string AdvDocument::getLanguageString(const std::string& language, Language::Section section, int strindex){
+  return mLanguages[language].sections[section][strindex];
+}
+

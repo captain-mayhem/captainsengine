@@ -11,8 +11,11 @@ options{
 
 @parser::postinclude{
 extern ASTNode* stringify(ASTNode* tree);
-extern ASTNode* concatinateStr(ASTNode* left, const char* right);
-extern ASTNode* concatinateVar(ASTNode* left, VariableNode* right);
+//extern ASTNode* concatinateStr(ASTNode* left, const char* right);
+//extern ASTNode* concatinateVar(ASTNode* left, VariableNode* right);
+extern ASTNode* parseLangArg(const char* funcname, int argnum, int strindex);
+std::string currentFunc;
+int currentArg;
 }
 
 prog returns [NodeList* nodes]
@@ -36,7 +39,8 @@ nested_stmt returns [StmtNode* stmt]
 
 func_call returns [FuncCallNode* func]
 @init{ $func = NULL;}
-	:	id=ident LPAREN args=arg_list RPAREN 
+	:	id=ident {currentFunc = id.id->value();}
+	LPAREN args=arg_list RPAREN 
 	{
 		std::string fname = id.id->value(); delete id.id;
 		$func = new FuncCallNode(fname,args.nodes);
@@ -115,36 +119,35 @@ block returns [NodeList* nodes]
 	;
 	
 arg_list returns [NodeList* nodes]
-	:	node=arg {$nodes = new NodeList(); $nodes->addNode(node.value);}
+@init {currentArg = 0;}
+	:	node=arg {++currentArg; $nodes = new NodeList(); $nodes->addNode(node.value);}
 		(SEMICOLON 
-		node=arg {$nodes->addNode(node.value);}
+		node=arg {++currentArg; $nodes->addNode(node.value);}
 		)*
 	|	{$nodes = new NodeList();}
 ;
 
 arg	returns [ASTNode* value]
+@init{ bool internalArgument = true;}
 	:
-	arg_header?
-	((rel_expr) => (exp=rel_expr {$value = exp.exp;}
-		////workaraound for strings that look like expressions first
-		//(comp_arg=complex_arg {IdentNode* ident = (IdentNode*)stringify($value); ident->append(((IdentNode*)comp_arg.value)->value().c_str()); delete $value; delete comp_arg.value; $value = ident;}
-		//)?
-		//(ca=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca.value; $value = concat;}
-		(vari=variable {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}
-		 | ca2=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}
+	(ahdr=arg_header {internalArgument = false; $value = parseLangArg(currentFunc.c_str(), currentArg, ahdr.number->value()); delete ahdr.number;})?
+	((rel_expr) => (exp=rel_expr {if (internalArgument){$value = exp.exp;}else{delete exp.exp;}}
+		(vari=variable {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}else{delete vari.var;}}
+		 | ca2=complex_arg {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}else{delete ca2.value;}}
 		)*
-		//)?
 		)
-	| (ca=complex_arg {$value = ca.value;}
-		(vari=variable {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}
-		| ca2=complex_arg {ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}
+	| (ca=complex_arg {if (internalArgument){$value = ca.value;}else{delete ca.value;}}
+		(vari=variable {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}else{delete vari.var;}}
+		| ca2=complex_arg {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}else{delete ca2.value;}}
 		)*
 	  )
 	)
 ;
 
-arg_header
-	: INFO_BEG INT INFO_END;
+arg_header returns [IntNode* number]
+	: INFO_BEG 
+	INT {$number = new IntNode(atoi((char*)$INT.text->chars));}
+	INFO_END;
 	
 complex_arg returns [ASTNode* value]
 	:

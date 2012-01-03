@@ -256,6 +256,8 @@ public:
   std::vector<std::pair<Vec2i,Script*> > getWMScripts(std::string roomname);
   FontData getFont(int num);
   Item* getItem(const std::string& name);
+  Language::Section getLanguageSection(const std::string& funcname, int argnum);
+  std::string getLanguageString(const std::string& language, Language::Section section, int strindex);
 protected:
   bool loadFile1(CGE::MemReader& txtstream);
   bool loadFile2(CGE::MemReader& txtstream);
