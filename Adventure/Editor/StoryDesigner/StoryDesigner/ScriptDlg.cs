@@ -21,6 +21,7 @@ namespace StoryDesigner
             scripttext.TextChanged += new EventHandler(scripttext_TextChanged);
             scripttext.MouseDown += new MouseEventHandler(scripttext_MouseDown);
             scripttext.KeyUp += new KeyEventHandler(scripttext_KeyUp);
+            scripttext.KeyDown += new KeyEventHandler(scripttext_KeyDown);
             matches.SelectedIndexChanged += new EventHandler(matches_SelectedIndexChanged);
             this.FormClosed += new FormClosedEventHandler(ScriptDlg_FormClosed);
             //scripttext
@@ -62,6 +63,13 @@ namespace StoryDesigner
             mParser.ParseError += new PcdkParser.parseError(mParser_ParseError);
             mKeywordFont = new Font(scripttext.Font, FontStyle.Bold);
             parseScript();
+        }
+
+        void scripttext_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (mUndo.Count > 100)
+                mUndo.RemoveAt(0);
+            mUndo.Add(scripttext.Rtf);
         }
 
         void ScriptDlg_FormClosed(object sender, FormClosedEventArgs e)
@@ -368,5 +376,48 @@ namespace StoryDesigner
         bool mLayoutPerformed;
         int mCursorPos;
         Script mScript;
+        ArrayList mUndo = new ArrayList();
+
+        private void font_Click(object sender, EventArgs e)
+        {
+            FontDialog fd = new FontDialog();
+            fd.Font = scripttext.Font;
+            if (fd.ShowDialog() == DialogResult.OK)
+            {
+                scripttext.Font = fd.Font;
+                mKeywordFont = new Font(scripttext.Font, FontStyle.Bold);
+                parseScript();
+            }
+        }
+
+        private void undo_Click(object sender, EventArgs e)
+        {
+            if (mUndo.Count > 0)
+            {
+                scripttext.Rtf = (string)mUndo[mUndo.Count-1];
+                mUndo.RemoveAt(mUndo.Count-1);
+            }
+        }
+
+        private void brackets_Click(object sender, EventArgs e)
+        {
+            int line = scripttext.GetLineFromCharIndex(scripttext.SelectionStart);
+            string indent = getIndent(line);
+            string insert = "{\n"+indent+" \n"+indent+"}";
+            Clipboard.SetText(insert);
+            scripttext.Paste();
+        }
+
+        string getIndent(int line)
+        {
+            string prevline = scripttext.Lines[line];
+            int i;
+            for (i = 0; i < prevline.Length; ++i)
+            {
+                if (!Char.IsWhiteSpace(prevline[i]))
+                    break;
+            }
+            return prevline.Substring(0, i);
+        }
     }
 }

@@ -372,6 +372,42 @@ namespace StoryDesigner
             addFunction("jiggle", args);
 
             //character commands
+            args = new ArgDef[5];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("X (walkmap)", ArgType.Integer);
+            args[2] = new ArgDef("Y (walkmap)", ArgType.Integer);
+            args[3] = new ArgDef("Viewing Direction (1-4) OR 'dontwait'", ArgType.String, true);
+            args[3].AdditionalValues = new string[] { "1", "2", "3", "4", "dontwait" };
+            args[4] = new ArgDef("Optional: dontwait", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "dontwait" };
+            addFunction("walkto", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Soundeffect...", ArgType.Sound);
+            addFunction("setwalksound", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("up/down/right/left", ArgType.String);
+            args[1].AdditionalValues = new string[] { "up", "down", "right", "left" };
+            addFunction("stepto", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Character", ArgType.Character);
+            args[2] = new ArgDef("Optional: dontwait", ArgType.String, true);
+            args[2].AdditionalValues = new string[] { "dontwait" };
+            addFunction("follow", args);
+            args = new ArgDef[4];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("X (walkmap)", ArgType.Integer);
+            args[2] = new ArgDef("Y (walkmap)", ArgType.Integer);
+            args[3] = new ArgDef("Viewing Direction (1-4)", ArgType.Integer, true);
+            args[3].AdditionalValues = new string[] { "1", "2", "3", "4" };
+            addFunction("beamto", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Viewing Direction (1-4) OR Character", ArgType.Character, true);
+            args[1].AdditionalValues = new string[] { "1", "2", "3", "4" };
+            addFunction("lookto", args);
         }
 
         public void addConditional(string name, ArgDef[] arguments)
