@@ -231,6 +231,7 @@ void SaveStateProvider::save(const std::string& name){
     (*iter)->save();
   }
   std::ofstream out(name.c_str());
+  out << Engine::instance()->getInterpreter()->getLanguage() << std::endl;
   //save room data
   out << mRooms.size() << std::endl;
   for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
@@ -281,6 +282,9 @@ void SaveStateProvider::load(const std::string& name){
     Engine::instance()->mMenuShown = false;
   }
   //load room data
+  std::string language;
+  in >> language;
+  Engine::instance()->getInterpreter()->setLanguage(language);
   int numRooms;
   in >> numRooms;
   std::string roomname;

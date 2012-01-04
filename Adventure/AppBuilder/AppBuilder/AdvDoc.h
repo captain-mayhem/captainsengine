@@ -258,6 +258,7 @@ public:
   Item* getItem(const std::string& name);
   Language::Section getLanguageSection(const std::string& funcname, int argnum);
   std::string getLanguageString(const std::string& language, Language::Section section, int strindex);
+  bool hasLanguageInfo() {return mLanguages.size() > 0;}
 protected:
   bool loadFile1(CGE::MemReader& txtstream);
   bool loadFile2(CGE::MemReader& txtstream);

@@ -64,7 +64,8 @@ level_stmt returns [LevelNode* lvl]
 	;
 
 row_stmt returns [RowNode* row]	
-	:	ROW LPAREN INT SEMICOLON txt=arg SEMICOLON vis=stdarg RPAREN row_blk=block
+	:	ROW {currentFunc = "row";}
+	LPAREN INT SEMICOLON txt=arg SEMICOLON vis=stdarg RPAREN row_blk=block
 	{
 		int rownum = atoi((char*)$INT.text->chars);
 		bool visible = vis.value->value() == "true" ? true : false;
