@@ -62,6 +62,7 @@ namespace StoryDesigner
             this.font.TabIndex = 1;
             this.font.Text = "Font";
             this.font.UseVisualStyleBackColor = true;
+            this.font.Click += new System.EventHandler(this.font_Click);
             // 
             // undo
             // 
@@ -71,6 +72,7 @@ namespace StoryDesigner
             this.undo.TabIndex = 2;
             this.undo.Text = "Undo";
             this.undo.UseVisualStyleBackColor = true;
+            this.undo.Click += new System.EventHandler(this.undo_Click);
             // 
             // brackets
             // 
@@ -80,6 +82,7 @@ namespace StoryDesigner
             this.brackets.TabIndex = 3;
             this.brackets.Text = "{ }";
             this.brackets.UseVisualStyleBackColor = true;
+            this.brackets.Click += new System.EventHandler(this.brackets_Click);
             // 
             // add
             // 
