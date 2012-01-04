@@ -384,17 +384,31 @@ void Engine::render(unsigned time){
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
   std::string text;
+  int cmdidx;
   if ((mUseObjectName.empty() && mGiveObjectName.empty()) || mPrevActiveCommand == 0)
-    text = mData->getProjectSettings()->pretty_commands[mActiveCommand];
+    cmdidx = mActiveCommand;
   else
-    text = mData->getProjectSettings()->pretty_commands[mPrevActiveCommand];
+    cmdidx = mPrevActiveCommand;
+  int langcmdidx = cmdidx;
+  if (langcmdidx > 0)
+    langcmdidx += 1;
+  if (mData->hasLanguageInfo())
+    text = mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, langcmdidx);
+  else
+    text = mData->getProjectSettings()->pretty_commands[cmdidx];
   if (!mUseObjectName.empty()){
     text += " "+mLinkObjectInfo;
-    text += " "+mData->getProjectSettings()->linktext;
+    if (mData->hasLanguageInfo())
+      text += " "+mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, 1);
+    else
+      text += " "+mData->getProjectSettings()->linktext;
   }
   if (!mGiveObjectName.empty()){
     text += " "+mLinkObjectInfo;
-    text += " "+mData->getProjectSettings()->givelink;
+    if (mData->hasLanguageInfo())
+      text += " "+mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, 2);
+    else
+      text += " "+mData->getProjectSettings()->givelink;
   }
   if (!mObjectInfo.empty()){
     text += " "+mObjectInfo;

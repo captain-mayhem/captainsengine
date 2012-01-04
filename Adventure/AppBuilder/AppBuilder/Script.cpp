@@ -102,6 +102,7 @@ void PcdkScript::stop(){
     delete mGroups[i];
   }
   mGroups.clear();
+  mLanguage = "origin";
 }
 
 void myreportError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){

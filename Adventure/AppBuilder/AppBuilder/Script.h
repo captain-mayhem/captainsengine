@@ -58,6 +58,7 @@ public:
   void addTimer(ExecutionContext* timer);
   ASTNode* parseLangArg(const char* funcname, int argnum, int strindex);
   void setLanguage(const std::string& lang) {mLanguage = lang;}
+  const std::string& getLanguage() {return mLanguage;}
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);

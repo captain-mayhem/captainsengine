@@ -241,6 +241,7 @@ CBNEROW::CBNEROW(std::istream& in) : CBRA(in){
 }
 
 void CLOAD::save(std::ostream& out){
+  CCode::save(out);
   out << " " << mVariable;
 }
 
@@ -249,6 +250,7 @@ CLOAD::CLOAD(std::istream& in){
 }
 
 void CTIMER::save(std::ostream& out){
+  CCode::save(out);
   out << " ";
   mCommands->save(out);
 }
@@ -258,6 +260,7 @@ CTIMER::CTIMER(std::istream& in){
 }
 
 void CSTATE::save(std::ostream& out){
+  CCode::save(out);
   out << " " << (int)mState;
 }
 
