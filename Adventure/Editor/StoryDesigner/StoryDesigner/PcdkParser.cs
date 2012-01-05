@@ -408,6 +408,117 @@ namespace StoryDesigner
             args[1] = new ArgDef("Viewing Direction (1-4) OR Character", ArgType.Character, true);
             args[1].AdditionalValues = new string[] { "1", "2", "3", "4" };
             addFunction("lookto", args);
+            args = new ArgDef[4];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Speech Text", ArgType.String);
+            args[2] = new ArgDef("Speech Soundfile OR 'dontwait')", ArgType.Sound, true);
+            args[2].AdditionalValues = new string[] { "dontwait" };
+            args[3] = new ArgDef("Optional: dontwait", ArgType.String, true);
+            args[3].AdditionalValues = new string[] { "dontwait" };
+            addFunction("speech", args);
+            args = new ArgDef[5];
+            args[0] = new ArgDef("X (walkmap)", ArgType.Integer);
+            args[1] = new ArgDef("X (walkmap)", ArgType.Integer);
+            args[2] = new ArgDef("Speech Text", ArgType.String);
+            args[3] = new ArgDef("Speech Soundfile OR 'dontwait')", ArgType.Sound, true);
+            args[3].AdditionalValues = new string[] { "dontwait" };
+            args[4] = new ArgDef("Optional: dontwait", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "dontwait" };
+            addFunction("offspeech", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            addFunction("pickup", args);
+            args = new ArgDef[22];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Action (1-20)(Extraname)", ArgType.String);
+            for (int i = 0; i < 20; ++i)
+            {
+                args[i + 2] = new ArgDef("Action (1-20)(Extraname)", ArgType.String, true);
+            }
+            addFunction("setchar", args);
+            args = new ArgDef[5];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("X (walkmap)", ArgType.Integer);
+            args[2] = new ArgDef("Y (walkmap)", ArgType.Integer);
+            args[3] = new ArgDef("Viewing Direction (1-4) OR 'dontwait'", ArgType.String, true);
+            args[3].AdditionalValues = new string[] { "1", "2", "3", "4", "dontwait" };
+            args[4] = new ArgDef("Optional: dontwait", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "dontwait" };
+            addFunction("runto", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Runspeed in per cent (50%-300%)", ArgType.Integer);
+            addFunction("runspeed", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            addFunction("loadchar", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Character", ArgType.Character);
+            addFunction("switchchar", args);
+            args = new ArgDef[5];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Red Color Value (0-255)", ArgType.Integer);
+            args[2] = new ArgDef("Green Color Value (0-255)", ArgType.Integer);
+            args[3] = new ArgDef("Blue Color Value (0-255)", ArgType.Integer);
+            args[4] = new ArgDef("fade (Optional)", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "fade" };
+            addFunction("setcharlight", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Size in per cent", ArgType.Integer);
+            args[2] = new ArgDef("fade (Optional)", ArgType.String, true);
+            args[2].AdditionalValues = new string[] { "fade" };
+            addFunction("charzoom", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("true / false", ArgType.Boolean);
+            addFunction("stopzooming", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Object", ArgType.Object);
+            addFunction("linkchar", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            addFunction("unlinkchar", args);
+
+            //item commands
+            args = new ArgDef[12];
+            args[0] = new ArgDef("Item", ArgType.Object);
+            args[1] = new ArgDef("State 0-10", ArgType.Integer);
+            for (int i = 0; i < 10; ++i)
+            {
+                args[i + 2] = new ArgDef("State 0-10", ArgType.Integer, true);
+            }
+            addFunction("setitem", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[0].AdditionalValues = new string[] { "off" };
+            args[1] = new ArgDef("Item", ArgType.Item);
+            args[1].AdditionalValues = new string[] { "givelink" };
+            args[2] = new ArgDef("Inventory (1-5)", ArgType.Integer, true);
+            addFunction("additem", args);
+            addFunction("delitem", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Inventory (1-5)", ArgType.Integer);
+            addFunction("showinventory", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Character", ArgType.Character);
+            addFunction("exchange", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Amount of Steps", ArgType.Integer);
+            addFunction("inv_up", args);
+            addFunction("inv_down", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Linkname", ArgType.String);
+            addFunction("link", args);
+            args = new ArgDef[0];
+            addFunction("givelink", args);
+
+            //special effects
+            args = new ArgDef[1];
+            args[0] = new ArgDef("true / false", ArgType.Boolean);
+            addFunction("enablefxshape", args);
         }
 
         public void addConditional(string name, ArgDef[] arguments)
@@ -439,6 +550,8 @@ namespace StoryDesigner
 
         public void parseLine(int line, RichTextBox scripttext)
         {
+            if (line < 0)
+                return;
             string linetext = scripttext.Lines[line];
             if (linetext.Trim().Length == 0)
                 return;
