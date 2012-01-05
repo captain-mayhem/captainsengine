@@ -123,6 +123,8 @@ namespace StoryDesigner
                     if (!Char.IsWhiteSpace(prevline[i]))
                         break;
                 }
+                if (i == 0)
+                    return;
                 scripttext.Select(scripttext.GetFirstCharIndexFromLine(line-1), i);
                 scripttext.Copy();
                 scripttext.SelectionStart = oldidx;
@@ -418,6 +420,36 @@ namespace StoryDesigner
                     break;
             }
             return prevline.Substring(0, i);
+        }
+
+        private void add_Click(object sender, EventArgs e)
+        {
+            addMenu.Show(Control.MousePosition.X, Control.MousePosition.Y);
+        }
+
+        private void textsceneLToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertText("level( ){\n  row(1; ; true){\n    \n  }\n}");
+        }
+
+        void insertText(string text)
+        {
+            Clipboard.SetText(text);
+            int numlines = text.Split('\n').Length-1;
+            scripttext.Paste();
+            int line = scripttext.GetLineFromCharIndex(scripttext.SelectionStart);
+            for (int i = line; i >= line - numlines; --i)
+                parseLine(i);
+        }
+
+        private void itemToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertText("on(mouse)\n  showinfo( ; )\n\non(pickup)\n  break()\n\non(use)\n  link( )\n\non(give)\n  givelink()");
+        }
+
+        private void characterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertText("on(mouse)\n  showinfo( ; )\n\non(click)\n  follow(self; )\n\non(givelink){\n  delitem(self; givelink)\n  additem( ; givelink)\n  lookto( ; self)\n  playsound( )\n  pickup(self)\n  pickup()\n}\n\non(cantall){\n  \n}");
         }
     }
 }

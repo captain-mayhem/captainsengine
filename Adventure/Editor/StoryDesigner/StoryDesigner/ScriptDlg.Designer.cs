@@ -28,6 +28,7 @@ namespace StoryDesigner
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.scripttext = new System.Windows.Forms.RichTextBox();
             this.font = new System.Windows.Forms.Button();
             this.undo = new System.Windows.Forms.Button();
@@ -37,7 +38,28 @@ namespace StoryDesigner
             this.matches = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
             this.info = new System.Windows.Forms.Label();
+            this.addMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.pRESETSToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.onToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.customPresetsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.itemToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.characterToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.objectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.roomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.textsceneLToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textsceneLevel2RowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textsceneLevel3RowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textsceneLevel4RowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textsceneLevel5RowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textsceneLevel6RowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textsceneLevel7RowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textsceneLevel8RowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.textsceneLevel9RowsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.linenumberbox)).BeginInit();
+            this.addMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // scripttext
@@ -92,6 +114,7 @@ namespace StoryDesigner
             this.add.TabIndex = 4;
             this.add.Text = "Add";
             this.add.UseVisualStyleBackColor = true;
+            this.add.Click += new System.EventHandler(this.add_Click);
             // 
             // linenumberbox
             // 
@@ -139,6 +162,147 @@ namespace StoryDesigner
             this.info.TabIndex = 8;
             this.info.Text = "Command";
             // 
+            // addMenu
+            // 
+            this.addMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.pRESETSToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.onToolStripMenuItem});
+            this.addMenu.Name = "contextMenuStrip1";
+            this.addMenu.Size = new System.Drawing.Size(153, 76);
+            // 
+            // pRESETSToolStripMenuItem
+            // 
+            this.pRESETSToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.customPresetsToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.itemToolStripMenuItem,
+            this.characterToolStripMenuItem,
+            this.objectToolStripMenuItem,
+            this.roomToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.textsceneLToolStripMenuItem,
+            this.textsceneLevel2RowsToolStripMenuItem,
+            this.textsceneLevel3RowsToolStripMenuItem,
+            this.textsceneLevel4RowsToolStripMenuItem,
+            this.textsceneLevel5RowsToolStripMenuItem,
+            this.textsceneLevel6RowsToolStripMenuItem,
+            this.textsceneLevel7RowsToolStripMenuItem,
+            this.textsceneLevel8RowsToolStripMenuItem,
+            this.textsceneLevel9RowsToolStripMenuItem});
+            this.pRESETSToolStripMenuItem.Name = "pRESETSToolStripMenuItem";
+            this.pRESETSToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.pRESETSToolStripMenuItem.Text = "PRESETS";
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(149, 6);
+            // 
+            // onToolStripMenuItem
+            // 
+            this.onToolStripMenuItem.Name = "onToolStripMenuItem";
+            this.onToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.onToolStripMenuItem.Text = "On";
+            // 
+            // customPresetsToolStripMenuItem
+            // 
+            this.customPresetsToolStripMenuItem.Enabled = false;
+            this.customPresetsToolStripMenuItem.Name = "customPresetsToolStripMenuItem";
+            this.customPresetsToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.customPresetsToolStripMenuItem.Text = "Custom Presets";
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(153, 6);
+            // 
+            // itemToolStripMenuItem
+            // 
+            this.itemToolStripMenuItem.Name = "itemToolStripMenuItem";
+            this.itemToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.itemToolStripMenuItem.Text = "Item";
+            this.itemToolStripMenuItem.Click += new System.EventHandler(this.itemToolStripMenuItem_Click);
+            // 
+            // characterToolStripMenuItem
+            // 
+            this.characterToolStripMenuItem.Name = "characterToolStripMenuItem";
+            this.characterToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.characterToolStripMenuItem.Text = "Character";
+            this.characterToolStripMenuItem.Click += new System.EventHandler(this.characterToolStripMenuItem_Click);
+            // 
+            // objectToolStripMenuItem
+            // 
+            this.objectToolStripMenuItem.Name = "objectToolStripMenuItem";
+            this.objectToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.objectToolStripMenuItem.Text = "Object";
+            // 
+            // roomToolStripMenuItem
+            // 
+            this.roomToolStripMenuItem.Name = "roomToolStripMenuItem";
+            this.roomToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.roomToolStripMenuItem.Text = "Room";
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(153, 6);
+            // 
+            // textsceneLToolStripMenuItem
+            // 
+            this.textsceneLToolStripMenuItem.Name = "textsceneLToolStripMenuItem";
+            this.textsceneLToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.textsceneLToolStripMenuItem.Text = "Textscene Level, 1 Row";
+            this.textsceneLToolStripMenuItem.Click += new System.EventHandler(this.textsceneLToolStripMenuItem_Click);
+            // 
+            // textsceneLevel2RowsToolStripMenuItem
+            // 
+            this.textsceneLevel2RowsToolStripMenuItem.Name = "textsceneLevel2RowsToolStripMenuItem";
+            this.textsceneLevel2RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.textsceneLevel2RowsToolStripMenuItem.Text = "Textscene Level, 2 Rows";
+            // 
+            // textsceneLevel3RowsToolStripMenuItem
+            // 
+            this.textsceneLevel3RowsToolStripMenuItem.Name = "textsceneLevel3RowsToolStripMenuItem";
+            this.textsceneLevel3RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.textsceneLevel3RowsToolStripMenuItem.Text = "Textscene Level, 3 Rows";
+            // 
+            // textsceneLevel4RowsToolStripMenuItem
+            // 
+            this.textsceneLevel4RowsToolStripMenuItem.Name = "textsceneLevel4RowsToolStripMenuItem";
+            this.textsceneLevel4RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.textsceneLevel4RowsToolStripMenuItem.Text = "Textscene Level, 4 Rows";
+            // 
+            // textsceneLevel5RowsToolStripMenuItem
+            // 
+            this.textsceneLevel5RowsToolStripMenuItem.Name = "textsceneLevel5RowsToolStripMenuItem";
+            this.textsceneLevel5RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.textsceneLevel5RowsToolStripMenuItem.Text = "Textscene Level, 5 Rows";
+            // 
+            // textsceneLevel6RowsToolStripMenuItem
+            // 
+            this.textsceneLevel6RowsToolStripMenuItem.Name = "textsceneLevel6RowsToolStripMenuItem";
+            this.textsceneLevel6RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.textsceneLevel6RowsToolStripMenuItem.Text = "Textscene Level, 6 Rows";
+            // 
+            // textsceneLevel7RowsToolStripMenuItem
+            // 
+            this.textsceneLevel7RowsToolStripMenuItem.Name = "textsceneLevel7RowsToolStripMenuItem";
+            this.textsceneLevel7RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.textsceneLevel7RowsToolStripMenuItem.Text = "Textscene Level, 7 Rows";
+            // 
+            // textsceneLevel8RowsToolStripMenuItem
+            // 
+            this.textsceneLevel8RowsToolStripMenuItem.Name = "textsceneLevel8RowsToolStripMenuItem";
+            this.textsceneLevel8RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.textsceneLevel8RowsToolStripMenuItem.Text = "Textscene Level, 8 Rows";
+            // 
+            // textsceneLevel9RowsToolStripMenuItem
+            // 
+            this.textsceneLevel9RowsToolStripMenuItem.Name = "textsceneLevel9RowsToolStripMenuItem";
+            this.textsceneLevel9RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
+            this.textsceneLevel9RowsToolStripMenuItem.Text = "Textscene Level, 9 Rows";
+            // 
             // ScriptDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -156,6 +320,7 @@ namespace StoryDesigner
             this.Name = "ScriptDlg";
             this.Text = "ScriptDlg";
             ((System.ComponentModel.ISupportInitialize)(this.linenumberbox)).EndInit();
+            this.addMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -172,5 +337,25 @@ namespace StoryDesigner
         private System.Windows.Forms.ListBox matches;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label info;
+        private System.Windows.Forms.ContextMenuStrip addMenu;
+        private System.Windows.Forms.ToolStripMenuItem pRESETSToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem onToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem customPresetsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem itemToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem characterToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem objectToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem roomToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem textsceneLToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textsceneLevel2RowsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textsceneLevel3RowsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textsceneLevel4RowsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textsceneLevel5RowsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textsceneLevel6RowsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textsceneLevel7RowsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textsceneLevel8RowsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem textsceneLevel9RowsToolStripMenuItem;
     }
 }
