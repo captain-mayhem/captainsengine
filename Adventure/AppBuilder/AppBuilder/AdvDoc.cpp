@@ -418,15 +418,34 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       str = txtstream.readLine(); val1 = atoi(str.c_str()); room.doublewalkmap = (val1 != 0);
       if (ver_major >= 3){
         for (int i = 0; i < FXSHAPES_MAX; ++i){
-          //TODO
-          txtstream.readLine();
-          txtstream.readLine();
-          txtstream.readLine();
-          txtstream.readLine();
-          txtstream.readLine();
-          txtstream.readLine();
-          txtstream.readLine();
-          txtstream.readLine();
+          FXShape shape;
+          str = txtstream.readLine();
+          int split = str.find(";");
+          shape.active = str.substr(0, split) != "0";
+          shape.dependingOnRoomPosition = str.substr(split+1) != "0";
+          str = txtstream.readLine();
+          shape.effect = (FXShape::FxEffect)atoi(str.c_str());
+          shape.room = txtstream.readLine();
+          str = txtstream.readLine();
+          shape.depth = atoi(str.c_str());
+          str = txtstream.readLine();
+          shape.mirrorOffset.x = atoi(str.c_str());
+          str = txtstream.readLine();
+          shape.mirrorOffset.y = atoi(str.c_str());
+          str = txtstream.readLine();
+          shape.strength = atoi(str.c_str());
+          str = txtstream.readLine();
+          split = -1;
+          for (int i = 0; i < 8; ++i){
+            int idx = str.find(";", split+1);
+            std::string tmp = str.substr(split+1, idx-split-1);
+            if (i % 2 == 0)
+              shape.points[i/2].x = atoi(tmp.c_str());
+            else
+              shape.points[i/2].y = atoi(tmp.c_str());
+            split = idx;
+          }
+          room.fxshapes.push_back(shape);
         }
         //TODO unknown
         txtstream.readLine();

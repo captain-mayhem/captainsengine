@@ -234,14 +234,16 @@ namespace StoryDesigner
             // objectToolStripMenuItem
             // 
             this.objectToolStripMenuItem.Name = "objectToolStripMenuItem";
-            this.objectToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.objectToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.objectToolStripMenuItem.Text = "Object";
+            this.objectToolStripMenuItem.Click += new System.EventHandler(this.objectToolStripMenuItem_Click);
             // 
             // roomToolStripMenuItem
             // 
             this.roomToolStripMenuItem.Name = "roomToolStripMenuItem";
-            this.roomToolStripMenuItem.Size = new System.Drawing.Size(156, 22);
+            this.roomToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.roomToolStripMenuItem.Text = "Room";
+            this.roomToolStripMenuItem.Click += new System.EventHandler(this.roomToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
