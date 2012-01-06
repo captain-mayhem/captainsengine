@@ -519,6 +519,26 @@ namespace StoryDesigner
             args = new ArgDef[1];
             args[0] = new ArgDef("true / false", ArgType.Boolean);
             addFunction("enablefxshape", args);
+            args = new ArgDef[1];
+            string[] effects = new string[] {"mirror", "flip", "slowmotion", "scanlines",
+                "fog", "noise", "colornoise", "monitor", "super8", "blur", "pixelate",
+                "motionblur", "drugged", "bloom", "darkbloom", "whoosh", "art", "hell",
+                "heat", "underwater", "classicdark", "whiteflash", "zoom", "lightning" };
+            args[0] = new ArgDef("Special FX", ArgType.String);
+            string[] stopeffects = new string[effects.Length + 1];
+            Array.Copy(effects, stopeffects, effects.Length);
+            stopeffects[effects.Length] = "all";
+            args[0].AdditionalValues = stopeffects;
+            addFunction("stopeffect", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Special FX", ArgType.String);
+            args[0].AdditionalValues = effects;
+            args[1] = new ArgDef("Effect Value", ArgType.String);
+            args[2] = new ArgDef("fade (Optional)", ArgType.String);
+            addFunction("starteffect", args);
+
+            //text commands
+
         }
 
         public void addConditional(string name, ArgDef[] arguments)

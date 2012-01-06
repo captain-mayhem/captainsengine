@@ -131,6 +131,18 @@ struct Rcharacter{
 };
 
 struct FXShape{
+  enum FxEffect{
+    FLOOR_MIRROR = 0,
+    WALL_MIRROR = 1,
+  PARTICLE_BARRIER = 2,
+  };
+  bool active;
+  bool dependingOnRoomPosition;
+  FxEffect effect;
+  std::string room;
+  int depth;
+  Vec2i mirrorOffset;
+  int strength;
   Vec2i points[4];
 };
 

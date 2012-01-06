@@ -451,5 +451,15 @@ namespace StoryDesigner
         {
             insertText("on(mouse)\n  showinfo( ; )\n\non(click)\n  follow(self; )\n\non(givelink){\n  delitem(self; givelink)\n  additem( ; givelink)\n  lookto( ; self)\n  playsound( )\n  pickup(self)\n  pickup()\n}\n\non(cantall){\n  \n}");
         }
+
+        private void objectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertText("on(mouse)\n  showinfo( ; )\n\non(click)\n  walkto( ; ; ; )");
+        }
+
+        private void roomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertText("on(enter){\n  \n}\n\non(loop1){\n  \n}\n\non(loop2){\n  \n}\n\non(exit){\n  \n}");
+        }
     }
 }
