@@ -564,8 +564,17 @@ namespace StoryDesigner
                     room.InvSize.y = Convert.ToInt32(inventory[3]);
                     System.Globalization.NumberFormatInfo info = new System.Globalization.NumberFormatInfo();
                     info.NumberDecimalSeparator = ",";
-                    room.InvScale.x = Single.Parse(inventory[4], info); ;
-                    room.InvScale.y = Single.Parse(inventory[5], info);
+                    try
+                    {
+                        room.InvScale.x = Single.Parse(inventory[4], info);
+                        room.InvScale.y = Single.Parse(inventory[5], info);
+                    }
+                    catch (Exception)
+                    {
+                        info.NumberDecimalSeparator = ".";
+                        room.InvScale.x = Single.Parse(inventory[4], info);
+                        room.InvScale.y = Single.Parse(inventory[5], info);
+                    }
                     //walkmap
                     str = rdr.ReadLine();
                     int walkmapX = 32;

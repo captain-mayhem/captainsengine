@@ -194,3 +194,39 @@ DynamicAnimation::DynamicAnimation(){
 DynamicAnimation::~DynamicAnimation(){
 
 }
+
+MirrorObject::MirrorObject(int width, int height, int depth) : RenderableBlitObject(width, height, depth){
+}
+
+bool MirrorObject::update(unsigned interval){
+  bind();
+  GL()matrixMode(MM_PROJECTION);
+  GL()pushMatrix();
+  GL()loadIdentity();
+  GL()ortho(0, 640, 0, 480, -1.0, 1.0);
+  GL()disable(GL_TEXTURE_2D);
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  GL()color4ub(255, 255, 0, 128);
+  GL()matrixMode(MM_MODELVIEW);
+  GL()pushMatrix();
+  GL()translatef((float)mRoom->getScrollOffset().x, (float)mRoom->getScrollOffset().y, 0.0f);
+  //GL()loadIdentity();
+  GL()vertexPointer(2, GL_FLOAT, 0, mPolygon);
+  GL()drawArrays(GL_TRIANGLE_FAN, 0, 4);
+  GL()popMatrix();
+  GL()matrixMode(MM_PROJECTION);
+  GL()popMatrix();
+  GL()matrixMode(MM_MODELVIEW);
+  GL()enable(GL_TEXTURE_2D);
+  unbind();
+  return true;
+}
+
+void MirrorObject::setMirrorArea(Vec2i points[4], RoomObject* room){
+  mRoom = room;
+  for (int i = 0; i < 4; ++i){
+    mPolygon[2*i] = (float)points[i].x;
+    mPolygon[2*i+1] = (float)points[i].y;
+  }
+}
