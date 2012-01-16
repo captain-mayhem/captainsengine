@@ -377,6 +377,9 @@ Object2D(state, pos, size, name), mInventroy(NULL), mDepthMap(depthmap){
 
 RoomObject::~RoomObject(){
   Engine::instance()->getAnimator()->remove(this);
+  for (unsigned i = 0; i < mMirrors.size(); ++i){
+    delete mMirrors[i];
+  }
   for (unsigned i = 0; i < mObjects.size(); ++i){
     delete mObjects[i];
   }
@@ -400,6 +403,10 @@ void RoomObject::render(){
     mInventroy->render(currChar->getInventory());
   }
   mLighting->render(Vec2i());
+  for (unsigned i = 0; i < mMirrors.size(); ++i){
+    mMirrors[i]->update(0);
+    mMirrors[i]->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
+  }
 }
 
 void RoomObject::setBackground(std::string bg, int depth){

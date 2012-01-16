@@ -113,4 +113,16 @@ public:
   virtual bool update(unsigned interval)=0;
 };
 
+class RoomObject;
+
+class MirrorObject : public RenderableBlitObject{
+public:
+  MirrorObject(int width, int height, int depth);
+  virtual bool update(unsigned interval);
+  void setMirrorArea(Vec2i points[4], RoomObject* room);
+protected:
+  GLfloat mPolygon[8];
+  RoomObject* mRoom;
+};
+
 #endif

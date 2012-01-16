@@ -535,6 +535,14 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
       roomobj->addObject(character);
     }
   };
+  //load mirror objects
+  for (unsigned i = 0; i < rm->fxshapes.size(); ++i){
+    if (rm->fxshapes[i].active){
+      MirrorObject* mirror = new MirrorObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 900000);
+      mirror->setMirrorArea(rm->fxshapes[i].points, roomobj);
+      roomobj->addMirror(mirror);
+    }
+  }
   //load room script
   Script* script = mData->getScript(Script::ROOM,room->name);
   if (script){

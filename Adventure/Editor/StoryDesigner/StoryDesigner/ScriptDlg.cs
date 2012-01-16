@@ -92,11 +92,14 @@ namespace StoryDesigner
                 ch = scripttext.Text[startidx];
             }
             int stopidx = scripttext.SelectionStart;
-            ch = scripttext.Text[stopidx];
-            while (!Char.IsWhiteSpace(ch) && ch != ';' && ch != '(' && ch != ')')
+            if (stopidx < scripttext.Text.Length)
             {
-                ++stopidx;
                 ch = scripttext.Text[stopidx];
+                while (!Char.IsWhiteSpace(ch) && ch != ';' && ch != '(' && ch != ')')
+                {
+                    ++stopidx;
+                    ch = scripttext.Text[stopidx];
+                }
             }
             ++startidx;
             scripttext.SelectionStart = startidx;

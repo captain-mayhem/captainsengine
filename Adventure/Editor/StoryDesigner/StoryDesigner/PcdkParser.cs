@@ -396,12 +396,13 @@ namespace StoryDesigner
             args[2] = new ArgDef("Optional: dontwait", ArgType.String, true);
             args[2].AdditionalValues = new string[] { "dontwait" };
             addFunction("follow", args);
-            args = new ArgDef[4];
+            args = new ArgDef[5];
             args[0] = new ArgDef("Character", ArgType.Character);
-            args[1] = new ArgDef("X (walkmap)", ArgType.Integer);
-            args[2] = new ArgDef("Y (walkmap)", ArgType.Integer);
-            args[3] = new ArgDef("Viewing Direction (1-4)", ArgType.Integer, true);
-            args[3].AdditionalValues = new string[] { "1", "2", "3", "4" };
+            args[1] = new ArgDef("Room", ArgType.Room);
+            args[2] = new ArgDef("X (walkmap)", ArgType.Integer);
+            args[3] = new ArgDef("Y (walkmap)", ArgType.Integer);
+            args[4] = new ArgDef("Viewing Direction (1-4)", ArgType.Integer, true);
+            args[4].AdditionalValues = new string[] { "1", "2", "3", "4" };
             addFunction("beamto", args);
             args = new ArgDef[2];
             args[0] = new ArgDef("Character", ArgType.Character);

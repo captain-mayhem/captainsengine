@@ -167,6 +167,7 @@ public:
   float getDepthScale(const Vec2i& pos);
   void setZoomFactor(int factor) {mDepthMap.setZoomFactor(factor);}
   void setOpacity(unsigned char opacity);
+  void addMirror(MirrorObject* mirror) {mMirrors.push_back(mirror);}
 protected:
   class DepthMap {
   public:
@@ -183,6 +184,7 @@ protected:
   InventoryDisplay* mInventroy;
   Animation* mParallaxBackground;
   DepthMap mDepthMap;
+  std::vector<MirrorObject*> mMirrors;
 };
 
 class CharacterObject : public Object2D{
