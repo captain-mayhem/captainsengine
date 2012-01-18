@@ -145,6 +145,7 @@ void Engine::initGame(exit_callback exit_cb){
   mShowTaskbar = true;
   mScreenChange = mData->getProjectSettings()->screenchange;
   mTextEnabled = true;
+  mUnloadedRoom = NULL;
 }
 
 void Engine::exitGame(){
@@ -156,6 +157,7 @@ void Engine::exitGame(){
   mInterpreter->stop();
   mMainScript->unref();
   mAnimator->clear();
+  delete mUnloadedRoom;
   for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
     delete *iter;
   }
@@ -254,6 +256,7 @@ void Engine::render(unsigned time){
   //timing
   unsigned interval = time;
   
+  beginRendering();
   //unload rooms
   while (!mRoomsToUnload.empty()){
     //do not unload when a script is in progress
@@ -266,7 +269,9 @@ void Engine::render(unsigned time){
     }
     if (mSaver->isWriteAllowed())
       mRoomsToUnload.front()->save();
-    delete mRoomsToUnload.front();
+    if (mUnloadedRoom)
+      delete mUnloadedRoom;
+    mUnloadedRoom = mRoomsToUnload.front();
     mRoomsToUnload.pop_front();
   }
   mSaver->allowWrites(true);
@@ -445,10 +450,10 @@ void Engine::render(unsigned time){
   //render the stuff
   GL()vertexPointer(2, GL_SHORT, 0, mVerts);
   GL()texCoordPointer(2, GL_SHORT, 0, mVerts);
-  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
+  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueues.back().begin(); iter != mBlitQueues.back().end(); ++iter){ 
     (*iter)->blit();
   }
-  mBlitQueue.clear();
+  endRendering();
 }
 
 bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason){
@@ -646,17 +651,25 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
   }
 }
 
+void Engine::beginRendering(){
+  mBlitQueues.push_back(std::list<BaseBlitObject*>());
+}
+
+void Engine::endRendering(){
+  mBlitQueues.pop_back();
+}
+
 void Engine::insertToBlit(BaseBlitObject* obj){
   bool placenotfound = true;
-  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){
+  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueues.back().begin(); iter != mBlitQueues.back().end(); ++iter){
     if (obj->getDepth() <= (*iter)->getDepth()){
-      mBlitQueue.insert(iter, obj);
+      mBlitQueues.back().insert(iter, obj);
       placenotfound = false;
       break;
     }
   }
   if (placenotfound)
-    mBlitQueue.push_back(obj);
+    mBlitQueues.back().push_back(obj);
 }
 
 void Engine::setCursorPos(Vec2i pos){
@@ -1208,6 +1221,8 @@ void Engine::unloadRooms(){
   setFocus("none", NULL);
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
     mRoomsToUnload.push_back(*iter);
+    if ((*iter)->getScript())
+      (*iter)->getScript()->resume(); //bulk unload, do unblock scripts
     iter = mRooms.erase(iter);
   }
   mMainRoomLoaded = false;
@@ -1244,18 +1259,19 @@ void Engine::reset(){
 }
 
 void Engine::renderUnloadingRoom(){
-  std::list<BaseBlitObject*> tmp = mBlitQueue;
-  mBlitQueue = std::list<BaseBlitObject*>();
-  for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
-    (*iter)->render();
+  beginRendering();
+  if (mRoomsToUnload.size() == 0 && mUnloadedRoom)
+    mUnloadedRoom->render();
+  else{
+    for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
+      (*iter)->render();
+    }
   }
-  GL()vertexPointer(2, GL_SHORT, 0, mVerts);
-  GL()texCoordPointer(2, GL_SHORT, 0, mVerts);
-  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueue.begin(); iter != mBlitQueue.end(); ++iter){ 
+  restoreRenderDefaults();
+  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueues.back().begin(); iter != mBlitQueues.back().end(); ++iter){ 
     (*iter)->blit();
   }
-  //mBlitQueue.clear();
-  mBlitQueue = tmp;
+  endRendering();
 }
 
 void Engine::remove(Object2D* obj){
@@ -1271,4 +1287,9 @@ void Engine::enterText(const std::string& variable, int maxcharacters, Execution
   mNumCharactersEnter = maxcharacters;
   mBlinkCursorVisible = true;
   mBlinkTimeAccu = 0;
+}
+
+void Engine::restoreRenderDefaults(){
+  GL()vertexPointer(2, GL_SHORT, 0, mVerts);
+  GL()texCoordPointer(2, GL_SHORT, 0, mVerts);
 }
