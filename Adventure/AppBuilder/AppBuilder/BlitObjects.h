@@ -100,10 +100,11 @@ public:
   RenderableBlitObject(int width, int height, int depth);
   ~RenderableBlitObject();
   void bind();
-  static void unbind();
+  void unbind();
 protected:
   GLuint mRenderBuffer;
   GLuint mFrameBuffer;
+  GLint mOldFrameBuffer;
 };
 
 class DynamicAnimation{

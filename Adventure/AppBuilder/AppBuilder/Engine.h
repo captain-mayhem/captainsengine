@@ -33,6 +33,8 @@ public:
   void initGame(exit_callback exit_cb);
   void exitGame();
   GLuint genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
+  void beginRendering();
+  void endRendering();
   void insertToBlit(BaseBlitObject* obj);
   void setCursorPos(Vec2i pos);
   Vec2i getCursorPos();
@@ -95,18 +97,20 @@ public:
   void enterText(const std::string& variable, int maxcharacters, ExecutionContext* suspensionReason);
   int getMouseWheelDelta() {return mWheelCount;}
   void setMouseWheelDelta(int delta) {mWheelCount = delta;}
+  void restoreRenderDefaults();
 protected:
   Engine();
   static Engine* mInstance;
   AdvDocument* mData;
   //rendering
-  std::list<BaseBlitObject*> mBlitQueue;
+  std::vector<std::list<BaseBlitObject*> > mBlitQueues;
   short mVerts[8];
   bool mInitialized;
   Vec2i mScrollOffset;
   //data
   std::list<RoomObject*> mRooms;
   std::list<RoomObject*> mRoomsToUnload;
+  RoomObject* mUnloadedRoom;
   CursorObject* mCursor;
   CharacterObject* mFocussedChar;
   std::string mLastFocussedChar;
