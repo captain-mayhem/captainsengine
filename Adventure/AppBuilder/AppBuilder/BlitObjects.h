@@ -115,15 +115,22 @@ public:
 };
 
 class RoomObject;
+class CharacterObject;
 
 class MirrorObject : public RenderableBlitObject{
 public:
-  MirrorObject(int width, int height, int depth);
+  MirrorObject(int width, int height, int depth, unsigned char strength);
   virtual bool update(unsigned interval);
   void setMirrorArea(Vec2i points[4], RoomObject* room);
+  void setWallMirror(Vec2i offset, bool positionDependent);
 protected:
-  GLfloat mPolygon[8];
+  void renderCharacter(CharacterObject* chr);
+  GLfloat mPolygon[12];
   RoomObject* mRoom;
+  Vec2i mMirrorOffset;
+  bool mPositionDependent;
+  unsigned char mOpacity;
+  int mMirrorCenter;
 };
 
 #endif
