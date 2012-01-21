@@ -448,11 +448,6 @@ void Engine::render(unsigned time){
   }
 
   //render the stuff
-  GL()vertexPointer(2, GL_SHORT, 0, mVerts);
-  GL()texCoordPointer(2, GL_SHORT, 0, mVerts);
-  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueues.back().begin(); iter != mBlitQueues.back().end(); ++iter){ 
-    (*iter)->blit();
-  }
   endRendering();
 }
 
@@ -543,9 +538,14 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   //load mirror objects
   for (unsigned i = 0; i < rm->fxshapes.size(); ++i){
     if (rm->fxshapes[i].active){
-      MirrorObject* mirror = new MirrorObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 900000);
-      mirror->setMirrorArea(rm->fxshapes[i].points, roomobj);
-      roomobj->addMirror(mirror);
+      if (rm->fxshapes[i].effect == FXShape::WALL_MIRROR/* || rm->fxshapes[i].effect == FXShape::FLOOR_MIRROR*/){
+        MirrorObject* mirror = new MirrorObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, rm->fxshapes[i].depth, rm->fxshapes[i].strength);
+        mirror->setMirrorArea(rm->fxshapes[i].points, roomobj);
+        if (rm->fxshapes[i].effect == FXShape::WALL_MIRROR){
+          mirror->setWallMirror(rm->fxshapes[i].mirrorOffset, rm->fxshapes[i].dependingOnRoomPosition);
+        }
+        roomobj->addMirror(mirror);
+      }
     }
   }
   //load room script
@@ -656,6 +656,10 @@ void Engine::beginRendering(){
 }
 
 void Engine::endRendering(){
+  restoreRenderDefaults();
+  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueues.back().begin(); iter != mBlitQueues.back().end(); ++iter){ 
+    (*iter)->blit();
+  }
   mBlitQueues.pop_back();
 }
 
@@ -1266,10 +1270,6 @@ void Engine::renderUnloadingRoom(){
     for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
       (*iter)->render();
     }
-  }
-  restoreRenderDefaults();
-  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueues.back().begin(); iter != mBlitQueues.back().end(); ++iter){ 
-    (*iter)->blit();
   }
   endRendering();
 }
