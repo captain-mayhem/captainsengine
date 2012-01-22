@@ -76,7 +76,7 @@ public:
   virtual void setScrollOffset(const Vec2i& offset) {mScrollOffset = offset;}
   Vec2i getScrollOffset() {return mScrollOffset;}
   virtual void save();
-  int getDepth();
+  virtual int getDepth();
   void setDepth(int depth);
   void addNextState(int state) {mNextStates.push_back(state);}
   void activateNextState();
@@ -227,6 +227,7 @@ public:
   void setNoZooming(bool nozooming, bool force = false);
   void setFrozenScale(float scale) {mFrozenScale = scale;}
   float getScaleFactor();
+  virtual int getDepth();
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;

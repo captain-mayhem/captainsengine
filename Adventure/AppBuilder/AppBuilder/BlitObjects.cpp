@@ -196,33 +196,37 @@ DynamicAnimation::~DynamicAnimation(){
 
 }
 
-MirrorObject::MirrorObject(int width, int height, int depth, unsigned char strength) : RenderableBlitObject(width, height, depth), mOpacity(strength){
+MirrorObject::MirrorObject(int width, int height, int depth, unsigned char strength) : RenderableBlitObject(width, height, depth-1), mOpacity(strength){
 }
 
 bool MirrorObject::update(unsigned interval){
   bind();
+  //setup
   GL()disable(GL_TEXTURE_2D);
   glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
   glClearDepth(0.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  GL()color4ub(255, 255, 0, 128);
-  //GL()matrixMode(MM_MODELVIEW);
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_GEQUAL);
+  
+  //draw mirror surface
+  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  GL()color4ub(255, 255, 0, 255);
   GL()pushMatrix();
   GL()loadIdentity();
   GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
   GL()scalef(1.0f,-1.0f,1.0f);
   GL()pushMatrix();
   GL()translatef((float)mRoom->getScrollOffset().x, (float)mRoom->getScrollOffset().y, 0.0f);
-  //GL()loadIdentity();
   GL()vertexPointer(3, GL_FLOAT, 0, mPolygon);
   GL()drawArrays(GL_TRIANGLE_FAN, 0, 4);
   GL()popMatrix();
-  //GL()matrixMode(MM_PROJECTION);
-  //GL()popMatrix();
-  //GL()matrixMode(MM_MODELVIEW);
+  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  
+  //render characters
   glDepthMask(GL_FALSE);
-  glDepthFunc(GL_GEQUAL);
-  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_EQUAL);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   GL()enable(GL_TEXTURE_2D);
   Engine::instance()->beginRendering();
   CharacterObject* self = Engine::instance()->getCharacter("self");
@@ -233,17 +237,7 @@ bool MirrorObject::update(unsigned interval){
   glDepthMask(GL_TRUE);
   glDisable(GL_DEPTH_TEST);
 
-  /*glBlendFunc(GL_DST_COLOR, GL_ZERO);
-  GL()disable(GL_TEXTURE_2D);
-  GL()color4ub(255, 255, 255, 0);
-  GL()translatef((float)mRoom->getScrollOffset().x, (float)mRoom->getScrollOffset().y, 0.0f);
-  GL()vertexPointer(2, GL_FLOAT, 0, mPolygon);
-  GL()drawArrays(GL_TRIANGLE_FAN, 0, 4);
-  GL()popMatrix();
-  GL()enable(GL_TEXTURE_2D);*/
   //multiply alpha
-  //GL()pushMatrix();
-  //GL()loadIdentity();
   GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
   glBlendFunc(GL_DST_COLOR, GL_ZERO);
   GL()color4ub(255, 255, 255, mOpacity);
@@ -252,6 +246,7 @@ bool MirrorObject::update(unsigned interval){
   GL()popMatrix();
   GL()enable(GL_TEXTURE_2D);
 
+  //restore
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   Engine::instance()->restoreRenderDefaults();
   unbind();
@@ -268,21 +263,25 @@ void MirrorObject::setMirrorArea(Vec2i points[4], RoomObject* room){
       xmin = points[i].x;
     mPolygon[3*i] = (float)points[i].x;
     mPolygon[3*i+1] = (float)points[i].y;
-    mPolygon[3*i+2] = -1.0f;
+    mPolygon[3*i+2] = 0.0f;
   }
   mMirrorCenter = (xmin+xmax)/2;
 }
 
 void MirrorObject::renderCharacter(CharacterObject* chr){
+  if (chr->getDepth() <= mDepth)
+    return;
   Vec2i oldpos = chr->getPosition();
   Vec2i newpos = oldpos;
-  int mirrorbase = mDepth*Engine::instance()->getWalkGridSize();
+  int mirrorbase = (mDepth+1)*Engine::instance()->getWalkGridSize();
   newpos.y = mirrorbase + mMirrorOffset.y;
   int diff = newpos.y-oldpos.y;
   newpos.y += diff;
   if (mPositionDependent){
     int xdiff = mMirrorCenter-newpos.x;
-    int diffadapt = mDepth-chr->getDepth();
+    float diffadapt = float(chr->getPosition().y-(mDepth+1)*Engine::instance()->getWalkGridSize());
+    diffadapt /= Engine::instance()->getWalkGridSize();
+    diffadapt = 10 - diffadapt;
     if (diffadapt <= 2)
       diffadapt = 2;
     newpos.x += (int)(xdiff/diffadapt);
