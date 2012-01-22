@@ -211,7 +211,7 @@ public:
   const Color& getTextColor() {return mTextColor;}
   void setFontID(unsigned id) {mFontID = id;}
   unsigned getFontID() {return mFontID;}
-  static int calculateState(int currState, bool shouldWalk, bool shouldTalk);
+  static int calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror=false);
   bool isWalking();
   bool isTalking();
   virtual Vec2i getSize();

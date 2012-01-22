@@ -196,7 +196,7 @@ DynamicAnimation::~DynamicAnimation(){
 
 }
 
-MirrorObject::MirrorObject(int width, int height, int depth, unsigned char strength) : RenderableBlitObject(width, height, depth-1), mOpacity(strength){
+MirrorObject::MirrorObject(int width, int height, int depth, unsigned char strength) : RenderableBlitObject(width, height, depth), mOpacity(strength){
 }
 
 bool MirrorObject::update(unsigned interval){
@@ -269,8 +269,11 @@ void MirrorObject::setMirrorArea(Vec2i points[4], RoomObject* room){
 }
 
 void MirrorObject::renderCharacter(CharacterObject* chr){
-  if (chr->getDepth() <= mDepth)
+  if (chr->getDepth() < mDepth)
     return;
+  int oldstate = chr->getState();
+  int newstate = chr->calculateState(oldstate, chr->isWalking(), chr->isTalking(), true);
+  chr->setState(newstate);
   Vec2i oldpos = chr->getPosition();
   Vec2i newpos = oldpos;
   int mirrorbase = (mDepth+1)*Engine::instance()->getWalkGridSize();
@@ -279,7 +282,7 @@ void MirrorObject::renderCharacter(CharacterObject* chr){
   newpos.y += diff;
   if (mPositionDependent){
     int xdiff = mMirrorCenter-newpos.x;
-    float diffadapt = float(chr->getPosition().y-(mDepth+1)*Engine::instance()->getWalkGridSize());
+    float diffadapt = float(chr->getPosition().y-mDepth*Engine::instance()->getWalkGridSize());
     diffadapt /= Engine::instance()->getWalkGridSize();
     diffadapt = 10 - diffadapt;
     if (diffadapt <= 2)
@@ -292,6 +295,7 @@ void MirrorObject::renderCharacter(CharacterObject* chr){
   chr->setPosition(newpos);
   chr->render();
   chr->setPosition(oldpos);
+  chr->setState(oldstate);
 }
 
 void MirrorObject::setWallMirror(Vec2i offset, bool positionDependent){

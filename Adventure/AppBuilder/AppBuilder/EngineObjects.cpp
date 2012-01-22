@@ -736,8 +736,15 @@ Vec2i CharacterObject::getOverheadPos(){
   return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, (int)((1-getScaleFactor())*mSizes[mState-1].y));
 }
 
-int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk){
+int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror){
   int stateoffset = (currState-1)%3;
+  if (mirror){
+    //swap lokking front and back
+    if (stateoffset == 0)
+      stateoffset = 1;
+    else if (stateoffset == 1)
+      stateoffset = 0;
+  }
   if (shouldWalk && shouldTalk){
     return stateoffset+10;
   }
