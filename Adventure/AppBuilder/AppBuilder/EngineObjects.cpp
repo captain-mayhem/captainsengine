@@ -840,3 +840,7 @@ void CharacterObject::setLinkObject(Object2D* link){
     mLinkOffset = mLinkObject->getPosition()+mLinkObject->getSize()/2-getPosition();
   }
 }
+
+int CharacterObject::getDepth(){
+  return getPosition().y/Engine::instance()->getWalkGridSize();
+}
