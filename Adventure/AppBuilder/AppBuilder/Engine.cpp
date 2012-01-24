@@ -538,8 +538,9 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   //load mirror objects
   for (unsigned i = 0; i < rm->fxshapes.size(); ++i){
     if (rm->fxshapes[i].active){
-      if (rm->fxshapes[i].effect == FXShape::WALL_MIRROR/* || rm->fxshapes[i].effect == FXShape::FLOOR_MIRROR*/){
-        MirrorObject* mirror = new MirrorObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, rm->fxshapes[i].depth-1+depthoffset, rm->fxshapes[i].strength);
+      if (rm->fxshapes[i].effect == FXShape::WALL_MIRROR || rm->fxshapes[i].effect == FXShape::FLOOR_MIRROR){
+        int depth = rm->fxshapes[i].effect == FXShape::FLOOR_MIRROR ? DEPTH_MIRROR_BACK : rm->fxshapes[i].depth-1+depthoffset;
+        MirrorObject* mirror = new MirrorObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, depth, rm->fxshapes[i].strength);
         mirror->setMirrorArea(rm->fxshapes[i].points, roomobj);
         if (rm->fxshapes[i].effect == FXShape::WALL_MIRROR){
           mirror->setWallMirror(rm->fxshapes[i].mirrorOffset, rm->fxshapes[i].dependingOnRoomPosition);

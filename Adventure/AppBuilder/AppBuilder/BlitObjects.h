@@ -131,6 +131,7 @@ protected:
   bool mPositionDependent;
   unsigned char mOpacity;
   int mMirrorCenter;
+  bool mIsWallMirror;
 };
 
 #endif
