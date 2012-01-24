@@ -722,13 +722,17 @@ LookDir CharacterObject::getLookDir(){
   return (LookDir)((mState-1)%3);
 }
 
-void CharacterObject::render(){
+void CharacterObject::render(bool mirrorY){
   if (mState <= 0 || (unsigned)mState > mAnimations.size())
     return;
   Vec2f scale(getScaleFactor(), getScaleFactor());
   if (mMirror)
     scale.x *= -1;
-  Vec2i renderPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*getScaleFactor();
+  if (mirrorY)
+    scale.y *= -1;
+  Vec2i renderPos = renderPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*getScaleFactor();
+  if (mirrorY)
+    renderPos.y += (int)(mBasePoints[mState-1].y*getScaleFactor()-2);
   mAnimations[mState-1]->render(mScrollOffset+renderPos, scale, mSizes[mState-1], mLightingColor, mRotAngle);
 }
 
@@ -739,7 +743,7 @@ Vec2i CharacterObject::getOverheadPos(){
 int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror){
   int stateoffset = (currState-1)%3;
   if (mirror){
-    //swap lokking front and back
+    //swap looking front and back
     if (stateoffset == 0)
       stateoffset = 1;
     else if (stateoffset == 1)

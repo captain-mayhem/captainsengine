@@ -70,6 +70,9 @@ void BlitObject::blit(){
   if (mZoomScale.x < 0){
     GL()translatef(mMirrorOffset.x*-mZoomScale.x,0.0f,0.0f);
   }
+  if (mZoomScale.y < 0){
+    GL()translatef(0.0f,mMirrorOffset.y*-mZoomScale.y,0.0f);
+  }
 
   GL()translatef((GLfloat)mPos.x,(GLfloat)mPos.y,0.0f);
   
@@ -196,7 +199,8 @@ DynamicAnimation::~DynamicAnimation(){
 
 }
 
-MirrorObject::MirrorObject(int width, int height, int depth, unsigned char strength) : RenderableBlitObject(width, height, depth), mOpacity(strength){
+MirrorObject::MirrorObject(int width, int height, int depth, unsigned char strength) : 
+RenderableBlitObject(width, height, depth), mOpacity(strength), mIsWallMirror(false){
 }
 
 bool MirrorObject::update(unsigned interval){
@@ -269,36 +273,42 @@ void MirrorObject::setMirrorArea(Vec2i points[4], RoomObject* room){
 }
 
 void MirrorObject::renderCharacter(CharacterObject* chr){
-  if (chr->getDepth() < mDepth)
-    return;
-  int oldstate = chr->getState();
-  int newstate = chr->calculateState(oldstate, chr->isWalking(), chr->isTalking(), true);
-  chr->setState(newstate);
-  Vec2i oldpos = chr->getPosition();
-  Vec2i newpos = oldpos;
-  int mirrorbase = (mDepth+1)*Engine::instance()->getWalkGridSize();
-  newpos.y = mirrorbase + mMirrorOffset.y;
-  int diff = newpos.y-oldpos.y;
-  newpos.y += diff;
-  if (mPositionDependent){
-    int xdiff = mMirrorCenter-newpos.x;
-    float diffadapt = float(chr->getPosition().y-mDepth*Engine::instance()->getWalkGridSize());
-    diffadapt /= Engine::instance()->getWalkGridSize();
-    diffadapt = 10 - diffadapt;
-    if (diffadapt <= 2)
-      diffadapt = 2;
-    newpos.x += (int)(xdiff/diffadapt);
+  if (mIsWallMirror){
+    if (chr->getDepth() < mDepth)
+      return;
+    int oldstate = chr->getState();
+    int newstate = chr->calculateState(oldstate, chr->isWalking(), chr->isTalking(), true);
+    chr->setState(newstate);
+    Vec2i oldpos = chr->getPosition();
+    Vec2i newpos = oldpos;
+    int mirrorbase = (mDepth+1)*Engine::instance()->getWalkGridSize();
+    newpos.y = mirrorbase + mMirrorOffset.y;
+    int diff = newpos.y-oldpos.y;
+    newpos.y += diff;
+    if (mPositionDependent){
+      int xdiff = mMirrorCenter-newpos.x;
+      float diffadapt = float(chr->getPosition().y-mDepth*Engine::instance()->getWalkGridSize());
+      diffadapt /= Engine::instance()->getWalkGridSize();
+      diffadapt = 10 - diffadapt;
+      if (diffadapt <= 2)
+        diffadapt = 2;
+      newpos.x += (int)(xdiff/diffadapt);
+    }
+    else{
+      newpos.x += mMirrorOffset.x;
+    }
+    chr->setPosition(newpos);
+    chr->render();
+    chr->setPosition(oldpos);
+    chr->setState(oldstate);
   }
   else{
-    newpos.x += mMirrorOffset.x;
+    chr->render(true);
   }
-  chr->setPosition(newpos);
-  chr->render();
-  chr->setPosition(oldpos);
-  chr->setState(oldstate);
 }
 
 void MirrorObject::setWallMirror(Vec2i offset, bool positionDependent){
   mMirrorOffset = offset;
   mPositionDependent = positionDependent;
+  mIsWallMirror = true;
 }
