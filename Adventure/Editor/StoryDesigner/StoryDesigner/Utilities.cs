@@ -94,6 +94,30 @@ namespace StoryDesigner
             g.DrawString(text, font, brush, x, y, fmt);
         }
 
+        public static void drawCircle(Graphics g, Pen p, int radius, Vec2i center)
+        {
+            Vec2i start = center-new Vec2i(radius, radius);
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            g.DrawEllipse(p, start.x, start.y, 2 * radius, 2 * radius);
+        }
+
+        public static void drawCrosshair(Graphics g, Vec2i pos)
+        {
+            drawCrosshair(g, pos, Color.Red, 2.0f);
+        }
+
+        public static void drawCrosshair(Graphics g, Vec2i pos, Color color, float linewidth)
+        {
+            int width = 20;
+            Pen p = new Pen(color, linewidth);
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
+            g.DrawEllipse(p, pos.x - width / 2, pos.y - width / 2, width, width);
+            g.DrawLine(p, pos.x, pos.y - linewidth, pos.x, pos.y - linewidth - width / 2 - linewidth);
+            g.DrawLine(p, pos.x, pos.y + linewidth, pos.x, pos.y + linewidth + width / 2 + linewidth);
+            g.DrawLine(p, pos.x - linewidth, pos.y, pos.x - linewidth - width / 2 - linewidth, pos.y);
+            g.DrawLine(p, pos.x + linewidth, pos.y, pos.x + linewidth + width / 2 + linewidth, pos.y);
+        }
+
         public static int ResourceIDToImageIndex(ResourceID id)
         {
             switch (id)
