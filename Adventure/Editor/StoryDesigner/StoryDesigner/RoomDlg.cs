@@ -618,6 +618,44 @@ namespace StoryDesigner
                 string s = String.Format("Inventory field: {0}x{1} fields", mRoom.InvSize.x, mRoom.InvSize.y);
                 Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
             }
+            else if (mMode == ViewMode.Specialfx)
+            {
+                for (int coloridx = 0; coloridx < mRoom.FXShapes.Count; ++coloridx)
+                {
+                    FxShape shape = (FxShape)mRoom.FXShapes[coloridx];
+                    Color basecol = Color.Black;
+                    switch (coloridx)
+                    {
+                        case 2:
+                            basecol = Color.Red;
+                            break;
+                        case 1:
+                            basecol = Color.Green;
+                            break;
+                        case 0:
+                            basecol = Color.Blue;
+                            break;
+                    }
+                    SolidBrush b = new SolidBrush(Color.FromArgb(75, basecol));
+                    GraphicsPath path = new GraphicsPath();
+                    for (int i = 0; i < shape.Positions.Length - 1; ++i)
+                    {
+                        path.AddLine(shape.Positions[i].x, shape.Positions[i].y, shape.Positions[i + 1].x, shape.Positions[i + 1].y);
+                    }
+                    path.AddLine(shape.Positions[shape.Positions.Length - 1].x, shape.Positions[shape.Positions.Length - 1].y, shape.Positions[0].x, shape.Positions[0].y);
+                    e.Graphics.FillPath(b, path);
+                    Pen p = new Pen(basecol);
+                    e.Graphics.DrawPath(p, path);
+                    Vec2i center = new Vec2i();
+                    for (int i = 0; i < shape.Positions.Length; ++i)
+                    {
+                        Utilities.drawCircle(e.Graphics, p, 4, shape.Positions[i]);
+                        center += shape.Positions[i];
+                    }
+                    center /= shape.Positions.Length;
+                    Utilities.drawCrosshair(e.Graphics, center, basecol, 1.0f);
+                }
+            }
         }
 
         public Room Room

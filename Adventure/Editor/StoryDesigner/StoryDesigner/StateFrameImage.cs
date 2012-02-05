@@ -198,7 +198,7 @@ namespace StoryDesigner
             {
                 imageNames.Text = "none";
                 if (mDrawHotspot)
-                    drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
+                    Utilities.drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
                 if (PictureChanged != null)
                     PictureChanged(this, new EventArgs());
                 return;
@@ -227,7 +227,7 @@ namespace StoryDesigner
                 }
             }
             if (mDrawHotspot)
-                drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
+                Utilities.drawCrosshair(e.Graphics, mData.getHotspot(mState)*mHotspotScale);
             if (PictureChanged != null)
                 PictureChanged(this, new EventArgs());
         }
@@ -411,19 +411,6 @@ namespace StoryDesigner
             }
             if (StateChanged != null)
                 StateChanged(this, new StateEventArgs(oldstate, mState));
-        }
-
-        void drawCrosshair(Graphics g, Vec2i pos)
-        {
-            int width = 20;
-            float linewidth = 2.0f;
-            Pen p = new Pen(Color.Red, linewidth);
-            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-            g.DrawEllipse(p, pos.x-width/2, pos.y-width/2, width, width);
-            g.DrawLine(p, pos.x, pos.y - linewidth, pos.x, pos.y - linewidth - width/2 - linewidth);
-            g.DrawLine(p, pos.x, pos.y + linewidth, pos.x, pos.y + linewidth + width / 2 + linewidth);
-            g.DrawLine(p, pos.x - linewidth, pos.y, pos.x - linewidth - width / 2 - linewidth, pos.y);
-            g.DrawLine(p, pos.x + linewidth, pos.y, pos.x + linewidth + width / 2 + linewidth, pos.y);
         }
 
         private int mFrames = 25;
