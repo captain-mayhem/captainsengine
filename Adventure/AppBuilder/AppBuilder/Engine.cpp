@@ -547,6 +547,9 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
         }
         roomobj->addMirror(mirror);
       }
+      else if (rm->fxshapes[i].effect == FXShape::PARTICLE_BARRIER){
+        roomobj->addBarrier(rm->fxshapes[i].points);
+      }
     }
   }
   //load room script

@@ -617,6 +617,14 @@ void RoomObject::setOpacity(unsigned char opacity){
   }
 }
 
+bool RoomObject::hitsBarriers(const ParticleEngine::Particle& particle){
+  for (unsigned i = 0; i < mBarriers.size(); ++i){
+    if (mBarriers[i].isHit(particle, mScrollOffset))
+      return true;
+  }
+  return false;
+}
+
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0), mLinkObject(NULL), mNoZooming(false)

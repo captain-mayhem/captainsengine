@@ -82,6 +82,16 @@ void ParticleEngine::update(unsigned time, bool render){
         if (iter == mParticles.end())
           break;
     }
+    //barriers
+    RoomObject* room = Engine::instance()->getRoom("");
+    if (room->hitsBarriers(*iter)){
+      delete iter->object;
+      iter = mParticles.erase(iter);
+      if (iter != mParticles.begin())
+        --iter;
+      if (iter == mParticles.end())
+        break;
+    }
     if (render)
       iter->object->render();
   }
@@ -154,4 +164,53 @@ void ParticleEngine::setDepth(int depth){
   mParticleDepth = depth;
   if (mParticleObject)
     mParticleObject->setDepth(depth);
+}
+
+bool ParticleEngine::Barrier::isHit(const Particle& particle, const Vec2f& offset){
+  return intersectsLine(points[0], points[1], particle.position-offset, particle.object->getSize())
+    || intersectsLine(points[1], points[2], particle.position-offset, particle.object->getSize())
+    || intersectsLine(points[2], points[3], particle.position-offset, particle.object->getSize())
+    || intersectsLine(points[3], points[0], particle.position-offset, particle.object->getSize());
+}
+
+bool ParticleEngine::Barrier::intersectsLine(Vec2f lineStart, Vec2f lineEnd, Vec2f rectPos, Vec2i size){
+  int out1, out2;
+  if ((out2 = outcode(lineEnd, rectPos, size)) == 0)
+    return true;
+  while((out1 = outcode(lineStart, rectPos, size)) != 0){
+    if ((out1 & out2) != 0)
+      return false;
+    if ((out1 & (OUT_LEFT | OUT_RIGHT)) != 0){
+      float x = (float)rectPos.x;
+      if ((out1 & OUT_RIGHT) != 0)
+        x += size.x;
+      lineStart.y = lineStart.y + (x - lineStart.x) * (lineEnd.y - lineStart.y) / (lineEnd.x - lineStart.x);
+      lineStart.x = x;
+    }
+    else{
+      float y = (float)rectPos.y;
+      if ((out1 & OUT_BOTTOM) != 0)
+        y += size.y;
+      lineStart.x = lineStart.x + (y - lineStart.y) * (lineEnd.x - lineStart.x) / (lineEnd.y - lineStart.y);
+      lineStart.y = y;
+    }
+  }
+  return true;
+}
+
+int ParticleEngine::Barrier::outcode(Vec2f point, Vec2f rectPos, Vec2i size){
+  int out = 0;
+  if (size.x <= 0)
+    out |= OUT_LEFT | OUT_RIGHT;
+  else if (point.x < rectPos.x)
+    out |= OUT_LEFT;
+  else if (point.x > rectPos.x + size.x)
+    out |= OUT_RIGHT;
+  if (size.y <= 0)
+    out |= OUT_TOP | OUT_BOTTOM;
+  else if (point.y < rectPos.y)
+    out |= OUT_TOP;
+  else if (point.y > rectPos.y + size.y)
+    out |= OUT_BOTTOM;
+  return out;
 }

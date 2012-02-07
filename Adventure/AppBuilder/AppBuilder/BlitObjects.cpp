@@ -236,7 +236,11 @@ bool MirrorObject::update(unsigned interval){
   CharacterObject* self = Engine::instance()->getCharacter("self");
   if (self)
     renderCharacter(self);
-  //mRoom->getCharacters();
+  for (int i = (int)mRoom->getObjects().size()-1; i >= 0; --i){
+    if (mRoom->getObjects()[i]->getType() == Object2D::CHARACTER){
+      renderCharacter((CharacterObject*)mRoom->getObjects()[i]);
+    }
+  }
   Engine::instance()->endRendering();
   glDepthMask(GL_TRUE);
   glDisable(GL_DEPTH_TEST);
