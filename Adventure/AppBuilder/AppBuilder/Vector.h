@@ -73,6 +73,12 @@ struct Vec2f{
     y += v.y;
     return *this;
   }
+  Vec2f operator+(const Vec2f& v) const{
+    Vec2f result;
+    result.x = x+v.x;
+    result.y = y+v.y;
+    return result;
+  }
   Vec2f operator-(const Vec2f& v) const{
     Vec2f result;
     result.x = x-v.x;

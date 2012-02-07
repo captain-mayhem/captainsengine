@@ -4,6 +4,7 @@
 #include "AdvDoc.h"
 #include "Script.h"
 #include "BlitObjects.h"
+#include "Particles.h"
 
 class BlitGroup{
 public:
@@ -168,6 +169,9 @@ public:
   void setZoomFactor(int factor) {mDepthMap.setZoomFactor(factor);}
   void setOpacity(unsigned char opacity);
   void addMirror(MirrorObject* mirror) {mMirrors.push_back(mirror);}
+  void addBarrier(const Vec2i box[4]) {mBarriers.push_back(box);}
+  const std::vector<Object2D*>& getObjects() {return mObjects;}
+  bool hitsBarriers(const ParticleEngine::Particle& particle);
 protected:
   class DepthMap {
   public:
@@ -185,6 +189,7 @@ protected:
   Animation* mParallaxBackground;
   DepthMap mDepthMap;
   std::vector<MirrorObject*> mMirrors;
+  std::vector<ParticleEngine::Barrier> mBarriers;
 };
 
 class CharacterObject : public Object2D{
