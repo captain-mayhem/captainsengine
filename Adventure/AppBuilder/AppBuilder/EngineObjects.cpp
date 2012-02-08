@@ -627,9 +627,10 @@ bool RoomObject::hitsBarriers(const ParticleEngine::Particle& particle){
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
-mFontID(0), mLinkObject(NULL), mNoZooming(false)
+mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0)
 {
   mInventory = new Inventory();
+  mIdleTimeout = (int(rand()/(float)RAND_MAX*10)+10)*1000;
 }
 
 CharacterObject::~CharacterObject(){
@@ -821,6 +822,7 @@ void CharacterObject::setState(int state){
   //fallback to lower states when they not exist (walk,talk  back => walk back)
   if (!getAnimation()->exists() && mState > 3)
     mState = calculateState(mState, isWalking(), false);
+  mIdleTime = 0; //reset idle timer
   TR_DEBUG("state %i", mState);
 }
 
@@ -831,6 +833,25 @@ void CharacterObject::update(unsigned interval){
   }
   else{
     Object2D::update(interval);
+    mIdleTime += interval;
+    //trigger idle animation
+    if (mIdleTime >= mIdleTimeout){
+      int oldstate = getState();
+      float rnd = rand()/(float)RAND_MAX;
+      int nextbored = (int)(rnd+0.5f);
+      if (!mAnimations[13-1+nextbored]->exists()){
+        nextbored = 1 - nextbored;
+      }
+      if (mAnimations[13-1+nextbored]->exists()){
+        setState(13+nextbored);
+        getAnimation()->registerAnimationEndHandler(this);
+        addNextState(oldstate);
+      }
+      mIdleTime = 0;
+      mIdleTimeout = (int(rand()/(float)RAND_MAX*10)+10)*1000;
+    }
+    if (isWalking() || isTalking() || Engine::instance()->getInterpreter()->isBlockingScriptRunning()) //also not idle when taking or walking and no state change occurs
+      mIdleTime = 0;
   }
 }
 
