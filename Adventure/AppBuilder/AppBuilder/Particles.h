@@ -15,6 +15,7 @@ public:
     Object2D* object;
     Vec2f position;
     Vec2f speed;
+    Vec2i scrolloffset;
   };
   class Barrier{
   public:

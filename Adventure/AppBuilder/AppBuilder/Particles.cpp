@@ -63,9 +63,14 @@ void ParticleEngine::update(unsigned time, bool render){
     mTimeCount -= mEmissionInterval;
   }
   for (std::list<Particle>::iterator iter = mParticles.begin(); iter != mParticles.end(); ++iter){
+    RoomObject* room = Engine::instance()->getRoom("");
     iter->object->getAnimation()->update(time);
     iter->position += iter->speed*(float)time*0.025f;
     iter->object->setPosition(Vec2i((int)iter->position.x, (int)iter->position.y));
+    if (room){
+      iter->position += room->getScrollOffset()-iter->scrolloffset;
+      iter->scrolloffset = room->getScrollOffset();
+    }
     iter->object->setRotation(iter->object->getRotation()+mRotAngle*time*0.025f);
     //out of image
     int xoffset = max(iter->object->getSize().x, iter->object->getSize().y);
@@ -83,8 +88,7 @@ void ParticleEngine::update(unsigned time, bool render){
           break;
     }
     //barriers
-    RoomObject* room = Engine::instance()->getRoom("");
-    if (room->hitsBarriers(*iter)){
+    if (room && room->hitsBarriers(*iter)){
       delete iter->object;
       iter = mParticles.erase(iter);
       if (iter != mParticles.begin())
@@ -130,6 +134,10 @@ void ParticleEngine::addParticle(){
   speedvar *= 2.0f*mSpeedVariation;
   speedvar += 1.0f-mSpeedVariation;
   p.speed = mDir*speedvar;
+  p.scrolloffset = Vec2i();
+  RoomObject* room = Engine::instance()->getRoom("");
+  if (room)
+    p.scrolloffset = room->getScrollOffset();
   mParticles.push_back(p);
 }
 

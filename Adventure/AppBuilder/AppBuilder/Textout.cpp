@@ -55,5 +55,6 @@ void Textout::load(std::istream& in){
   in >> mBoundRoom;
   if (mBoundRoom == "none")
     mBoundRoom = "";
+  Engine::instance()->getFontRenderer()->loadFont(mFont);
   mText = new ExecutionContext(in);
 }
