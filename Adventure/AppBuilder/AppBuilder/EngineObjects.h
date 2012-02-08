@@ -246,6 +246,8 @@ protected:
   Vec2i mLinkOffset;
   bool mNoZooming;
   float mFrozenScale;
+  int mIdleTime;
+  int mIdleTimeout;
 };
 
 class ObjectGroup{

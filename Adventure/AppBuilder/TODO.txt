@@ -1,14 +1,22 @@
 Topic | Prio
 -------------
+Engine
+------
 char positioning / char collision detection (->block walkmap?) | 2
 setchar with names | 4
-bored animation | 1
 module sounds | 5
 group (use in setobj/moveobj) | 3
 playing of swf (flash) | 2
 special effects | 4
-mirroring | 2
+particle barriers: bounding box calculation of particles when rotated | 5
 
+Editor
+------
+FxShapes | 2
+Script-Autocompletion | 3
+
+Tests
+-----
 D:\pcdk\Sinnlos im Weltraum - The First Adventure\Sinnlos im Weltraum - The First Adventure\data\game.dat
 D:\pcdk\editor\functiondemo\data\game.dat
 D:\Projects\captainsengine\trunk\Adventure\AppBuilder\test\data\game.dat
