@@ -154,8 +154,15 @@ namespace StoryDesigner
             mAdv.Settings.ShowTaskbar = str[3] == '1';
             mAdv.Settings.NotAntialiased = str[4] == '1';
             mAdv.Settings.TaskbarFromTop = str[5] == '1';
-            mAdv.Settings.GroupItems = str[6] == '1';
-            mAdv.Settings.ProtectGameFile = str[7] == '1';
+            if (ver_major >= 3)
+            {
+                mAdv.Settings.GroupItems = str[6] == '1';
+                mAdv.Settings.ProtectGameFile = str[7] == '1';
+            }
+            else{
+                mAdv.Settings.GroupItems = false;
+                mAdv.Settings.ProtectGameFile = false;
+            }
             str = rdr.ReadLine();
             mAdv.Settings.ActionTextHeight = Convert.ToInt32(str);
             str = rdr.ReadLine();
@@ -438,7 +445,13 @@ namespace StoryDesigner
                         os.fpsDivider = readExtendedFrames(rdr, os.frames);
                         obj.Add(os);
                     }
-                    mAdv.addObject(obj);
+                    try
+                    {
+                        mAdv.addObject(obj);
+                    }
+                    catch(Exception){
+                        Console.WriteLine("WARNING: Duplicate Object "+obj.Name+" found!");
+                    }
                 }
                 //CHARACTER
                 else if (typename[0] == "Character")
@@ -545,6 +558,7 @@ namespace StoryDesigner
                             }
                             room.FXShapes.Add(shape);
                         }
+                        room.HasInventory = Convert.ToInt32(rdr.ReadLine()) != 0;
                     }
                     else
                     {
@@ -555,13 +569,18 @@ namespace StoryDesigner
                         }
                     }
                     //inventory
-                    room.HasInventory = Convert.ToInt32(rdr.ReadLine()) != 0;
                     str = rdr.ReadLine();
                     string[] inventory = str.Split(';');
                     room.InvPos.x = Convert.ToInt32(inventory[0]);
                     room.InvPos.y = Convert.ToInt32(inventory[1]);
                     room.InvSize.x = Convert.ToInt32(inventory[2]);
                     room.InvSize.y = Convert.ToInt32(inventory[3]);
+                    if (ver_major < 3){
+                        if (room.InvSize.x == 0 || room.InvSize.y == 0)
+                            room.HasInventory = false;
+                        else
+                            room.HasInventory = true;
+                    }
                     System.Globalization.NumberFormatInfo info = new System.Globalization.NumberFormatInfo();
                     info.NumberDecimalSeparator = ",";
                     try

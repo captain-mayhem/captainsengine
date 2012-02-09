@@ -560,7 +560,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
       roomobj->setScript(scr);
       mInterpreter->execute(scr, false);
       scr->setEvent(EVT_ENTER);
-      mInterpreter->executeImmediately(scr);
+      //mInterpreter->executeImmediately(scr);
     }
   }
   //inventory display
@@ -632,8 +632,10 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
     if (mainroom){
       room = mRooms.back();
     }
-    else
+    else{
+      mMenuShown = false; //resets the menu shown flag when subroom is unloaded
       room = mRooms.front();
+    }
   }
   mRoomsToUnload.push_back(room);
   room->skipScripts();
@@ -1183,8 +1185,8 @@ void Engine::keyPress(int key){
         else{
           if (!mMenuShown){
             if (mData->getProjectSettings()->has_menuroom){
-              loadRoom(mData->getProjectSettings()->menuroom, true, NULL);
               mMenuShown = true;
+              loadRoom(mData->getProjectSettings()->menuroom, true, NULL);
             }
           }
           else{
