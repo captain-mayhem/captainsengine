@@ -131,6 +131,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("linkchar", linkChar);
   interpreter->registerFunction("stopzooming", stopZooming);
   interpreter->registerFunction("unlinkchar", unlinkChar);
+  interpreter->registerFunction("savestring", saveString);
+  interpreter->registerFunction("showmouse", showMouse);
+  interpreter->registerFunction("loadstring", saveString);
   srand((unsigned)time(NULL));
 }
 
@@ -1536,6 +1539,59 @@ int ScriptFunctions::unlinkChar(ExecutionContext& ctx, unsigned numArgs){
   if (!chr)
     DebugBreak();
   chr->setLinkObject(NULL);
+  return 0;
+}
+
+int ScriptFunctions::saveString(ExecutionContext& ctx, unsigned numArgs){
+  std::string varname = ctx.stack().pop().getString();
+  StackData val = Engine::instance()->getInterpreter()->getVariable(varname);
+  std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
+  //load old content
+  std::ifstream in(file.c_str());
+  std::map<std::string, StackData> data;
+  while (in){
+    std::string name;
+    StackData value;
+    in >> name >> value;
+    if (!in)
+      break;
+    data[name] = value;
+  }
+  in.close();
+  //insert new content
+  data[varname] = val;
+  //save content
+  std::ofstream out(file.c_str());
+  for (std::map<std::string,StackData>::iterator iter = data.begin(); iter != data.end(); ++iter){
+    out << iter->first << " " << iter->second << std::endl;
+  }
+  out.close();
+  return 0;
+}
+
+int ScriptFunctions::loadString(ExecutionContext& ctx, unsigned numArgs){
+  std::string varname = ctx.stack().pop().getString();
+  StackData val;
+  std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
+  std::ifstream in(file.c_str());
+  while(in){
+    std::string name;
+    StackData value;
+    in >> name >> value;
+    if (name == varname){
+      val = value;
+      break;
+    }
+  }
+  in.close();
+  Engine::instance()->getInterpreter()->setVariable(varname, val);
+  return 0;
+}
+
+int ScriptFunctions::showMouse(ExecutionContext& ctx, unsigned numArgs){
+  bool show = ctx.stack().pop().getBool();
+  if (!show)
+    DebugBreak();
   return 0;
 }
 

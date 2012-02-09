@@ -146,6 +146,10 @@ public:
   **/
   static int loadRoom(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param name the name of the variable to load
+  **/
+  static int loadString(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param char name of the character to change look direction
   \param dir direction number or character name
   **/
@@ -246,6 +250,10 @@ public:
   **/
   static int saveNum(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param name of the variable to be saved
+  **/
+  static int saveString(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param bool name of the boolean
   \param value true/false
   **/
@@ -339,6 +347,10 @@ public:
   \param show boolean if the text should be displayed on the mouse cursor
   **/
   static int showInfo(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param show show the mouse cursor
+  **/
+  static int showMouse(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param character name of the character to speak
   \param text the text to be displayed

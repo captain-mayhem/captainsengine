@@ -991,7 +991,10 @@ StackData PcdkScript::getVariable(const std::string& name){
     return getTime(TM_DAY);
   }
   else if (name == "currentroom"){
-    DebugBreak();
+    RoomObject* room = Engine::instance()->getRoom("");
+    if (!room)
+      DebugBreak();
+    return room->getName();
   }
   else if (name == "roomx"){
     DebugBreak();
