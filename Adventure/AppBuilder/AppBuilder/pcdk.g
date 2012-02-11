@@ -16,6 +16,7 @@ extern ASTNode* stringify(ASTNode* tree);
 extern ASTNode* parseLangArg(const char* funcname, int argnum, int strindex);
 std::string currentFunc;
 int currentArg;
+ASTNode* incompleteAlloc = NULL;
 }
 
 prog returns [NodeList* nodes]
@@ -34,16 +35,17 @@ nested_stmt returns [StmtNode* stmt]
 	|       lvl=level_stmt {$stmt = lvl.lvl;}
 	|	row=row_stmt {$stmt = row.row;}
 	|	timer=timer_stmt {$stmt = timer.timer;}
-	|	fc=func_call {$stmt = fc.func;}
+	|	fc=func_call {if (incompleteAlloc) delete incompleteAlloc; $stmt = fc.func;}
 	;
 
 func_call returns [FuncCallNode* func]
 @init{ $func = NULL;}
-	:	id=ident {currentFunc = id.id->value();}
+	:	id=ident {currentFunc = id.id->value(); incompleteAlloc=id.id;}
 	LPAREN args=arg_list RPAREN 
 	{
 		std::string fname = id.id->value(); delete id.id;
 		$func = new FuncCallNode(fname,args.nodes);
+		incompleteAlloc = NULL;
 	}
 ;
 	

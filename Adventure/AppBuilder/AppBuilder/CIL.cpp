@@ -127,7 +127,15 @@ unsigned CCONCAT::execute(ExecutionContext& ctx, unsigned pc){
   std::string d1, d2;
   d1 = stackDataToStr(s1);
   d2 = stackDataToStr(s2);
-  ctx.stack().push(d1+" "+d2);
+  std::string space = " ";
+  if (d2.size() > 0 && (d2[0] == '.' || d2[0] == ':'))
+    space = "";
+  if (d1.size() > 0 && d2.size() > 0){
+    char lastch = d1[d1.size()-1];
+    if ((lastch == '.' || lastch == ':') && isdigit(d2[0]))
+      space = "";
+  }
+  ctx.stack().push(d1+space+d2);
   return ++pc;
 }
 

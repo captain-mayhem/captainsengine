@@ -197,7 +197,8 @@ class CharacterObject : public Object2D{
 public:
   CharacterObject(int state, Vec2i pos, const std::string& name);
   ~CharacterObject();
-  virtual void render(bool mirrorY = false);
+  void render(bool mirrorY);
+  virtual void render() {render(false);}
   virtual Type getType() {return CHARACTER;}
   void addBasepoint(Vec2i p, Vec2i size) {mBasePoints.push_back(p); mSizes.push_back(size);}
   virtual void setPosition(const Vec2i& pos);

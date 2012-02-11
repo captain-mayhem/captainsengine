@@ -133,7 +133,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("unlinkchar", unlinkChar);
   interpreter->registerFunction("savestring", saveString);
   interpreter->registerFunction("showmouse", showMouse);
-  interpreter->registerFunction("loadstring", saveString);
+  interpreter->registerFunction("loadstring", loadString);
   srand((unsigned)time(NULL));
 }
 
@@ -1571,7 +1571,7 @@ int ScriptFunctions::saveString(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::loadString(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
-  StackData val;
+  StackData val(std::string("none"));
   std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
   std::ifstream in(file.c_str());
   while(in){

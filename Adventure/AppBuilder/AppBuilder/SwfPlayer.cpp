@@ -5,6 +5,7 @@
 #include <io/Tracing.h>
 
 #include "BlitObjects.h"
+#include "Engine.h"
 
 using namespace std;
 
@@ -218,8 +219,11 @@ bool SwfPlayer::update(unsigned time){
   if (mClock >= mFrameTime*mFrameNum){
     processTags();
   }
-  if (mLayer && !mStop)
+  if (mLayer && !mStop){
+    Engine::instance()->beginRendering();
     mLayer->render(mRenderPos, mScale, Vec2i());
+    Engine::instance()->endRendering();
+  }
   return !mStop;
 }
 
