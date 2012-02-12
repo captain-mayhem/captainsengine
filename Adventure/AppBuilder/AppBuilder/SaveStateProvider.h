@@ -29,6 +29,7 @@ public:
     Color overlaylighting;
     std::map<std::string, SaveObject*> objects;
     std::map<std::string, CharSaveObject*> characters;
+    std::map<Vec2i, bool> walkmap;
     //friend std::ostream& operator<<(std::ostream& strm, const SaveRoom& room);
   };
 

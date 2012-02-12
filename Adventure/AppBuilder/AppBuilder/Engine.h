@@ -98,6 +98,7 @@ public:
   int getMouseWheelDelta() {return mWheelCount;}
   void setMouseWheelDelta(int delta) {mWheelCount = delta;}
   void restoreRenderDefaults();
+  void forceNotToRenderUnloadingRoom() {mForceNotToRenderUnloadingRoom = true;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -174,6 +175,7 @@ protected:
   unsigned mNumCharactersEnter;
   bool mBlinkCursorVisible;
   unsigned mBlinkTimeAccu;
+  bool mForceNotToRenderUnloadingRoom;
 };
 
 #endif

@@ -19,6 +19,10 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& 
   for (std::map<std::string,SaveStateProvider::CharSaveObject*>::const_iterator iter = room.characters.begin(); iter != room.characters.end(); ++iter){
     strm << iter->first << std::endl << *iter->second;
   }
+  strm << room.walkmap.size() << std::endl;
+  for (std::map<Vec2i, bool>::const_iterator iter = room.walkmap.begin(); iter != room.walkmap.end(); ++iter){
+    strm << iter->first.x << " " << iter->first.y << " " << iter->second << std::endl;
+  }
   return strm;
 }
 
@@ -41,6 +45,14 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
     SaveStateProvider::CharSaveObject* chr = new SaveStateProvider::CharSaveObject;
     strm >> *chr;
     room.characters[name] = chr;
+  }
+  strm >> number;
+  for (int i = 0; i < number; ++i){
+    Vec2i pos;
+    strm >> pos.x >> pos.y;
+    bool walkable;
+    strm >> walkable;
+    room.walkmap[pos] = walkable;
   }
   return strm;
 }
@@ -91,9 +103,10 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& i
   strm >> numInvs;
   for (int i = 0; i < numInvs; ++i){
     strm >> invnum >> number;
-    for (int j = 0; j < number; ++j){
+    inv.items[invnum].resize(number);
+    for (int j = number-1; j >= 0; --j){
       strm >> itemName;
-      inv.items[invnum].push_back(itemName);
+      inv.items[invnum][j] = itemName;
     }
   }
   return strm;
