@@ -6,6 +6,10 @@
 
 TR_CHANNEL(ADV_Render_BlitObject);
 
+#ifdef RENDER_TEGRA
+#define glClearDepth glClearDepthf
+#endif
+
 BaseBlitObject::BaseBlitObject(int depth, const Vec2i& size) : 
 mPos(), mSize(size), mDepth(depth){
 
