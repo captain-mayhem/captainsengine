@@ -190,8 +190,8 @@ namespace swf{
   };
 }
 
-SwfPlayer::SwfPlayer(const std::string& name, const DataBuffer& db) : mData(db), mReader(NULL), mStop(true), mClock(0){
-  mReader = new swf::SwfReader(mData.data, mData.length);
+SwfPlayer::SwfPlayer(const std::string& name, const DataBuffer* db) : mData(db), mReader(NULL), mStop(true), mClock(0){
+  mReader = new swf::SwfReader(mData->data, mData->length);
   parseFile();
 }
 
@@ -204,6 +204,7 @@ SwfPlayer::~SwfPlayer(){
   for (std::map<uint16,swf::Character*>::iterator iter = mDictionary.begin(); iter != mDictionary.end(); ++iter){
     delete iter->second;
   }
+  delete mData;
 }
 
 void SwfPlayer::play(bool looping){

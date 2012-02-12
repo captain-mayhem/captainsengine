@@ -17,7 +17,7 @@ class RenderableBlitObject;
 
 class SwfPlayer : public VideoPlayer{
 public:
-  SwfPlayer(const std::string& name, const DataBuffer& db);
+  SwfPlayer(const std::string& name, const DataBuffer* db);
   ~SwfPlayer();
   void play(bool looping);
   void stop();
@@ -32,7 +32,7 @@ protected:
   swf::Character* getCharacter(uint16 id);
   void setDisplayable(swf::Displayable* disp, uint16 depth);
   swf::Displayable* getDisplayable(uint16 depth);
-  DataBuffer mData;
+  const DataBuffer* mData;
   swf::SwfReader* mReader;
   bool mStop;
   unsigned mClock;

@@ -146,6 +146,7 @@ void Engine::initGame(exit_callback exit_cb){
   mScreenChange = mData->getProjectSettings()->screenchange;
   mTextEnabled = true;
   mUnloadedRoom = NULL;
+  mForceNotToRenderUnloadingRoom = false;
 }
 
 void Engine::exitGame(){
@@ -271,7 +272,13 @@ void Engine::render(unsigned time){
       mRoomsToUnload.front()->save();
     if (mUnloadedRoom)
       delete mUnloadedRoom;
-    mUnloadedRoom = mRoomsToUnload.front();
+    if (mForceNotToRenderUnloadingRoom){
+      mUnloadedRoom = NULL;
+      mForceNotToRenderUnloadingRoom = false;
+      delete mRoomsToUnload.front();
+    }
+    else
+      mUnloadedRoom = mRoomsToUnload.front();
     mRoomsToUnload.pop_front();
   }
   mSaver->allowWrites(true);
@@ -939,6 +946,13 @@ Object2D* Engine::getObject(const std::string& name, bool searchInventoryFirst){
     if (ret != NULL)
       return ret;
   }
+  //also rooms to unload need check
+  //no, this leads to invalid objects
+  for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
+    Object2D* ret = (*iter)->getObject(name);
+    if (ret != NULL)
+      return ret;
+  }
   if (mFocussedChar && !searchInventoryFirst){
     Object2D* ret = mFocussedChar->getInventory()->getItem(name);
     if (ret != NULL)
@@ -1269,6 +1283,9 @@ void Engine::reset(){
 }
 
 void Engine::renderUnloadingRoom(){
+  if (mForceNotToRenderUnloadingRoom){
+    return;
+  }
   beginRendering();
   if (mRoomsToUnload.size() == 0 && mUnloadedRoom)
     mUnloadedRoom->render();

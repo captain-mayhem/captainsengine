@@ -256,6 +256,10 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name, bool effectEnabled){
   if (mActiveMusic){
     //crossfade
     mActiveMusic->fadeVolume(mMusicVolume, 0.0f, mFadingTime);
+    if (mActiveSounds[mActiveMusic->getName()] != NULL){
+      mActiveSounds[mActiveMusic->getName()]->stop();
+      delete mActiveSounds[mActiveMusic->getName()];
+    }
     mActiveSounds[mActiveMusic->getName()] = mActiveMusic;
   }
   mActiveMusic = plyr;
@@ -315,7 +319,7 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
   if (db.data == NULL)
     return NULL;
   if (isSwf){
-    SwfPlayer* plyr = new SwfPlayer(name, db);
+    SwfPlayer* plyr = new SwfPlayer(name, &db);
     return plyr;
   }
   /*char* tmp = tmpnam(NULL);
@@ -1031,8 +1035,11 @@ bool StreamVideoPlayer::update(unsigned time){
       av_free(frameRGB);
     }
   }
-  if (mLayer && cont)
+  if (mLayer && cont){
+    Engine::instance()->beginRendering();
     mLayer->render(mRenderPos, mScale, Vec2i());
+    Engine::instance()->endRendering();
+  }
   return cont;
 }
 

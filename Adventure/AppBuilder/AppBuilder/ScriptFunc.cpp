@@ -694,6 +694,7 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::unloadRoom(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->unloadRoom(NULL, true);
+  Engine::instance()->forceNotToRenderUnloadingRoom();
   return 0;
 }
 
