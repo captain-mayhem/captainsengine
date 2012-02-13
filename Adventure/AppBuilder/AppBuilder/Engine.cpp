@@ -18,6 +18,7 @@ using namespace adv;
 TR_CHANNEL(ADV_Engine);
 TR_CHANNEL(ADV_Events);
 
+namespace adv{
 #ifndef WIN32
 void DebugBreak(){
 __builtin_trap();
@@ -42,6 +43,7 @@ int _stricmp(const char* str1, const char* str2){
 }
 
 #endif
+}
 
 Engine* Engine::mInstance = NULL;
 

@@ -1,11 +1,8 @@
 #include "Inventory.h"
 #include "EngineObjects.h"
+#include "Engine.h"
 
 using namespace adv;
-
-#ifndef WIN32
-int _stricmp(const char* str1, const char* str2);
-#endif
 
 Inventory::Inventory(){
 

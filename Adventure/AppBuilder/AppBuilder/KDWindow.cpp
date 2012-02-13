@@ -7,6 +7,8 @@
 #include "Renderer.h"
 #include "CmdReceiver.h"
 
+using namespace adv;
+
 TR_CHANNEL(ADV_KDWindow)
 
 EGLDisplay theDisplay;

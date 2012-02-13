@@ -11,10 +11,7 @@
 #else
 #include <sys/stat.h>
 #endif
-
-#ifndef WIN32
-int _stricmp(const char* str1, const char* str2);
-#endif
+#include "Engine.h"
 
 const float FPS_MAX = 50.0f;
 const int STATES_MAX = 10;
