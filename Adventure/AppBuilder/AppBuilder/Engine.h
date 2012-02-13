@@ -10,12 +10,12 @@
 #include "Animator.h"
 #include "Font.h"
 
+namespace adv{
+
 #ifndef WIN32
 void DebugBreak();
 int _stricmp(const char* str1, const char* str2);
 #endif
-
-namespace adv{
 
 class SaveStateProvider;
 class SoundPlayer;
