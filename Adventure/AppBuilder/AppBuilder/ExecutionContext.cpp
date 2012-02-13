@@ -1,6 +1,8 @@
 #include "ExecutionContext.h"
 #include "Engine.h"
 
+using namespace adv;
+
 TR_CHANNEL_LVL(ADV_ExectionContext, TRACE_INFO);
 
 void CodeSegment::removeLast(){

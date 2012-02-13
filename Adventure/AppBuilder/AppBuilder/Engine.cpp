@@ -13,6 +13,8 @@
 #include "Particles.h"
 #include "Textout.h"
 
+using namespace adv;
+
 TR_CHANNEL(ADV_Engine);
 TR_CHANNEL(ADV_Events);
 

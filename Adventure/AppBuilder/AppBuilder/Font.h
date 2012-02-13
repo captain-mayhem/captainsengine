@@ -5,6 +5,8 @@
 #include <list>
 #include "EngineObjects.h"
 
+namespace adv{
+
 class Textout;
 
 class FontRenderer{
@@ -69,5 +71,7 @@ protected:
   std::vector<Font*> mFonts;
   std::map<int, Textout*> mTextouts;
 };
+
+}
 
 #endif

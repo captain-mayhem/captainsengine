@@ -5,6 +5,8 @@
 #include <map>
 #include "AdvDoc.h"
 
+namespace adv{
+
 class Object2D;
 class RoomObject;
 class DynamicAnimation;
@@ -43,5 +45,7 @@ protected:
   std::list<DynamicAnimation*> mAnimations;
   std::map<RoomObject*, RoomAnim> mRooms;
 };
+
+}
 
 #endif

@@ -15,6 +15,8 @@ void DebugBreak();
 int _stricmp(const char* str1, const char* str2);
 #endif
 
+namespace adv{
+
 class SaveStateProvider;
 class SoundPlayer;
 class ParticleEngine;
@@ -177,5 +179,7 @@ protected:
   unsigned mBlinkTimeAccu;
   bool mForceNotToRenderUnloadingRoom;
 };
+
+}
 
 #endif

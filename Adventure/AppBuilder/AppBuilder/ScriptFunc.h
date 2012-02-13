@@ -1,6 +1,8 @@
 #ifndef SCRIPT_FUNC_H
 #define SCRIPT_FUNC_H
 
+namespace adv{
+
 class ExecutionContext;
 class PcdkScript;
 
@@ -484,5 +486,7 @@ public:
   static int isStringEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs);
 };
+
+}
 
 #endif

@@ -5,6 +5,8 @@
 #include "EngineObjects.h"
 #include "Engine.h"
 
+using namespace adv;
+
 Animator::Animator(){
 
 }

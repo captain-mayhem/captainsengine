@@ -8,9 +8,11 @@
 #include "Engine.h"
 
 using namespace std;
+using namespace adv;
 
 TR_CHANNEL(ADV_SWF);
 
+namespace adv{
 namespace swf{
   struct Rect{
     int32 xMin;
@@ -188,6 +190,7 @@ namespace swf{
     Character* mChar;
     Matrix mMatrix;
   };
+}
 }
 
 SwfPlayer::SwfPlayer(const std::string& name, const DataBuffer* db) : mData(db), mReader(NULL), mStop(true), mClock(0){

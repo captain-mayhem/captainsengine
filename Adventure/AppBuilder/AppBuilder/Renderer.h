@@ -4,8 +4,12 @@
 #include <cstdlib>
 #include <system/engine.h>
 
+namespace adv{
+
 class GL1Renderer;
 class GL2Renderer;
+
+}
 
 //#define RENDER_TEGRA
 
@@ -19,6 +23,8 @@ class GL2Renderer;
 #include <GL/glew.h>
 #define RENDER_GL2
 #endif
+
+namespace adv{
 
 #ifdef RENDER_GL2
 
@@ -137,8 +143,12 @@ protected:
   std::vector<GLuint> mShaders;
 };
 
+}
+
 #include <stack>
 #include <math/matrix.h>
+
+namespace adv{
 
 class GL2Renderer : public AdvRenderer{
 public:
@@ -217,6 +227,8 @@ protected:
 };
 
 #endif
+
+}
 
 #define GL() AdvRenderer::instance()->
 

@@ -2,6 +2,8 @@
 #include "ScriptDefs.h"
 #include "Engine.h"
 
+using namespace adv;
+
 Textout::Textout() : mEnabled(false), mText(NULL), mPos(0,0), mFont(1), mColor(Engine::instance()->getSettings()->infotextcolor){
 }
 

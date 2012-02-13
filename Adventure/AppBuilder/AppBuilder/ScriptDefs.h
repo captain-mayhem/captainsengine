@@ -1,6 +1,8 @@
 #ifndef SCRIPTDEFS_H
 #define SCRIPTDEFS_H
 
+namespace adv{
+
 class ExecutionContext;
 
 class StackData{
@@ -54,5 +56,7 @@ public:
 protected:
   std::vector<StackData> mVariables;
 };
+
+}
 
 #endif

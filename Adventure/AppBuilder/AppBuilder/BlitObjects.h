@@ -6,6 +6,8 @@
 #include "Vector.h"
 #include "Renderer.h"
 
+namespace adv{
+
 class Inventory;
 class InventoryDisplay;
 class Animation;
@@ -133,5 +135,7 @@ protected:
   int mMirrorCenter;
   bool mIsWallMirror;
 };
+
+}
 
 #endif

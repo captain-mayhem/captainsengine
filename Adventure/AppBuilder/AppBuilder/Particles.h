@@ -7,6 +7,8 @@
 
 #include "Vector.h"
 
+namespace adv{
+
 class Object2D;
 class AdvDocument;
 
@@ -61,5 +63,7 @@ protected:
   unsigned mTimeCount;
   int mParticleDepth;
 };
+
+}
 
 #endif

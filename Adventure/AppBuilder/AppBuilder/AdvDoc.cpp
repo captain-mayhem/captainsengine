@@ -27,6 +27,8 @@ const int FXSHAPES_MAX = 3;
 #include <io/ZipReader.h>
 #include <io/Tracing.h>
 
+using namespace adv;
+
 TR_CHANNEL(ADV_DATA);
 
 AdvDocument::AdvDocument() : mUseCompressedData(false){

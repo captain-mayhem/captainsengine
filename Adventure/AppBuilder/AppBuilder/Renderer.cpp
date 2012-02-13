@@ -1,5 +1,7 @@
 #include "Renderer.h"
 
+using namespace adv;
+
 TR_CHANNEL(ADV_Renderer)
 
 RND_CLS* AdvRenderer::mInstance = NULL;
