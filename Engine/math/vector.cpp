@@ -15,7 +15,7 @@
 
 namespace CGE{
 
-float Epsilon = 1.0e-5;
+float Epsilon = (float)1.0e-5;
 /*  
 //Constructor
 Vector3D::Vector3D() : x(0), y(0), z(0){
@@ -138,7 +138,7 @@ float Vec2f::lengthSquared() const{
 }
 
 
-ostream& operator<<(ostream& stream, const Vector2D& vec){
+std::ostream& operator<<(std::ostream& stream, const Vector2D& vec){
   stream << "( " << vec.x << " / " << vec.y << " )";
   return stream;
 }

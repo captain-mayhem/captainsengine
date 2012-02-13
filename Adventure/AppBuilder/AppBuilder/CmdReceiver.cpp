@@ -4,6 +4,8 @@
 
 #include "Engine.h"
 
+using namespace adv;
+
 CommandReceiver::CommandReceiver() : mStopRequested(false), mMultiline(false){
 }
 

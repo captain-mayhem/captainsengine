@@ -9,14 +9,17 @@
 #include "Ids.h"
 #include "Vector.h"
 
+namespace CGE{
+  class MemReader;
+}
+
+namespace adv{
+
 #ifndef WIN32
 void DebugBreak();
 #endif
 
 class SoundPlayer;
-namespace CGE{
-class MemReader;
-}
 
 struct ProjectSettings{
   std::string dir;
@@ -208,7 +211,7 @@ struct FontData{
   }
   Vec2i fontsize;
   Vec2i numChars;
-  std::vector<CGE::Image*> images;
+  std::vector<::CGE::Image*> images;
   std::vector<unsigned> charwidths;
 };
 
@@ -253,7 +256,7 @@ public:
   //virtual wxOutputStream& SaveObject(wxOutputStream& stream);
   //virtual wxInputStream& LoadObject(wxInputStream& stream);
   bool loadDocument(const std::string filename);
-  CGE::Image* getImage(const std::string& name);
+  ::CGE::Image* getImage(const std::string& name);
   bool getSound(const std::string& name, DataBuffer& db);
   bool getMusic(const std::string& name, DataBuffer& db);
   bool getMovie(const std::string& name, DataBuffer& db);
@@ -299,5 +302,7 @@ protected:
   std::string mZipPwd;
   std::map<std::string, Language> mLanguages;
 };
+
+}
 
 #endif

@@ -10,6 +10,8 @@
 #include "Sound.h"
 #include <system/allocation.h>
 
+using namespace adv;
+
 TR_CHANNEL(ADV_Script)
 
 CodeSegment::~CodeSegment(){
@@ -26,6 +28,8 @@ CodeSegment::~CodeSegment(){
 }
 
 bool PcdkScript::mRemoveLinkObject = false;
+
+namespace adv{
 
 std::ostream& operator<<(std::ostream& strm, const ObjectGroup& group){
   strm << group.mName << " " << group.mObjects.size();
@@ -44,6 +48,8 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
     data.mObjects.push_back(obj);
   }
   return strm;
+}
+
 }
 
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100) {
@@ -870,6 +876,8 @@ std::istream& PcdkScript::load(std::istream& in){
   return in;
 }
 
+namespace adv{
+
 std::ostream& operator<<(std::ostream& strm, const StackData& data){
   strm << data.mType << " "; 
   if (data.mType == StackData::S){
@@ -903,6 +911,8 @@ std::istream& operator>>(std::istream& strm, StackData& data){
   else
     strm >> data.mInt;
   return strm;
+}
+
 }
 
 enum TimeVal{

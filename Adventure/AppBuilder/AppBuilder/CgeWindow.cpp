@@ -12,6 +12,8 @@
 #include "Renderer.h"
 #include "CmdReceiver.h"
 
+using namespace adv;
+
 TR_CHANNEL(ADV_CGE_Window);
 
 std::string filename;

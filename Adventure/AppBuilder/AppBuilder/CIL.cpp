@@ -1,6 +1,8 @@
 #include "CIL.h"
 #include "Engine.h"
 
+using namespace adv;
+
 unsigned CBNEEVT::execute(ExecutionContext& ctx, unsigned pc){
   //check if event is set
   if (ctx.isEventSet(mEvent)){

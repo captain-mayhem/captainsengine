@@ -3,6 +3,7 @@
 #include "Engine.h"
 #include "Textout.h"
 
+using namespace adv;
 
 class FontBlitObject : public BlitObject{
 public:

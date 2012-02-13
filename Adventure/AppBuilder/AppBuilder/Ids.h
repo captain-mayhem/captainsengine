@@ -1,6 +1,8 @@
 #ifndef IDS_H
 #define IDS_H
 
+namespace adv{
+
 enum ResourceID{
   SCRIPT=0,
   ITEM=1,
@@ -110,5 +112,7 @@ land1_mc.onEnterFrame = function()
 scroller(this, speed1);
 }
 */
+
+}
 
 #endif

@@ -7,6 +7,8 @@
 #include "AdvDoc.h"
 #include "SaveStateProvider.h"
 
+namespace adv{
+
 class Object2D;
 
 class Inventory{
@@ -39,5 +41,7 @@ protected:
   int mItemOffset;
   int mDepth;
 };
+
+}
 
 #endif

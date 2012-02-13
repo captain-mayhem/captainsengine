@@ -6,6 +6,8 @@
 #include <string>
 #include "ScriptDefs.h"
 
+namespace adv{
+
 class CCode;
 class Object2D;
 class ExecutionContext;
@@ -117,5 +119,7 @@ protected:
   bool mEventHandled;
   int mRefCount;
 };
+
+}
 
 #endif

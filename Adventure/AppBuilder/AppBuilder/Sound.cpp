@@ -30,6 +30,8 @@ extern "C"{
 #include "Engine.h"
 #include "SwfPlayer.h"
 
+using namespace adv;
+
 TR_CHANNEL(ADV_SOUND_ENGINE);
 
 SoundEngine* SoundEngine::mInstance = NULL;

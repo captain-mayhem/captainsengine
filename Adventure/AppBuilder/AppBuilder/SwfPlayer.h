@@ -5,6 +5,8 @@
 
 #include "Sound.h"
 
+namespace adv{
+
 namespace swf{
   class SwfReader;
 
@@ -47,5 +49,7 @@ protected:
   std::map<uint16, swf::Character*> mDictionary;
   std::vector<swf::Displayable*> mDisplayList;
 };
+
+}
 
 #endif

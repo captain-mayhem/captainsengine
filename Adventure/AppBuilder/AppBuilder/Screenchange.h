@@ -3,6 +3,8 @@
 
 #include "BlitObjects.h"
 
+namespace adv{
+
 class Screenshot : public RenderableBlitObject{
 public:
   Screenshot(int depth);
@@ -70,5 +72,7 @@ protected:
   Screenshot mShot;
   int mSegments;
 };
+
+}
 
 #endif

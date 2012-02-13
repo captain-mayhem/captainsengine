@@ -4,6 +4,8 @@
 #include "Vector.h"
 #include "BlitObjects.h"
 
+namespace adv{
+
 class ExecutionContext;
 
 class Textout{
@@ -27,5 +29,7 @@ protected:
   Color mColor;
   std::string mBoundRoom;
 };
+
+}
 
 #endif

@@ -16,8 +16,6 @@
 #include <math.h>
 #include <float.h>
 
-using std::ostream;
-
 namespace CGE{
 
 extern float Epsilon;
@@ -46,7 +44,7 @@ public:
     return (v.x == x && v.y == y);
   }
   //! write vector to a stream
-	friend ostream& operator<<(ostream& stream, const Vector2D& mat);
+  friend std::ostream& operator<<(std::ostream& stream, const Vector2D& mat);
   //! the components
   short x, y;
 };
@@ -55,7 +53,7 @@ inline bool operator<(Vector2D a, Vector2D b){
   return a.x < b.x && a.y < b.y;
 }
 
-ostream& operator<<(ostream& stream, const Vector2D& vec);
+std::ostream& operator<<(std::ostream& stream, const Vector2D& vec);
 
 /*
 //! A 3D-Vector with float precision
@@ -282,7 +280,7 @@ public:
   //! returns the angle (in radians) between two vectors
   double angle(Vec3 v);
   //! write matrix to a stream
-  template <typename S> friend ostream& operator<<(ostream& stream, const Vec3& vec);
+  template <typename S> friend std::ostream& operator<<(std::ostream& stream, const Vec3& vec);
   //! the three conponents of the vector
   union{
     struct{
@@ -296,7 +294,7 @@ public:
 };
 
 template <typename T>
-ostream& operator<<(ostream& stream, const Vec3<T>& vec);
+std::ostream& operator<<(std::ostream& stream, const Vec3<T>& vec);
 
 template <typename T>
 Vec3<T>::Vec3(): x(0), y(0), z(0) {}
@@ -384,7 +382,7 @@ double Vec3<T>::angle(Vec3<T> v) {
 }
 
 template <typename T>
-ostream& operator<<(ostream& stream, const Vec3<T>& vec){
+std::ostream& operator<<(std::ostream& stream, const Vec3<T>& vec){
   stream << "( " << vec.x << " / " << vec.y << " / " << vec.z << " )";
   return stream;
 }

@@ -6,6 +6,8 @@
 #include "BlitObjects.h"
 #include "Particles.h"
 
+namespace adv{
+
 class BlitGroup{
 public:
   BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth);
@@ -262,5 +264,7 @@ protected:
   std::string mName;
   std::vector<std::string> mObjects;
 };
+
+}
 
 #endif

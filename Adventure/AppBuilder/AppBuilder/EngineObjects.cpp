@@ -5,6 +5,8 @@
 #include "ScriptFunc.h"
 #include "Sound.h"
 
+using namespace adv;
+
 TR_CHANNEL_LVL(ADV_Character, TRACE_INFO);
 
 BlitGroup::BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth){

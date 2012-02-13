@@ -3,6 +3,8 @@
 
 #include "EngineObjects.h"
 
+namespace adv{
+
 class SaveStateProvider{
 public:
   struct SaveObject{
@@ -66,5 +68,7 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room);
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveObject& object);
 std::istream& operator>>(std::istream& strm, SaveStateProvider::CharSaveObject& chr);
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& inv);
+
+}
 
 #endif

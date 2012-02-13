@@ -14,6 +14,8 @@ CRET, CASSGN, CLOAD, CSTORE, CPUSH, CCALL,
 CVAR
 */
 
+namespace adv{
+
 class Stack;
 
 typedef int (*ScriptFunc) (ExecutionContext&, unsigned numArgs);
@@ -285,5 +287,7 @@ public:
 protected:
   State mState;
 };
+
+}
 
 #endif

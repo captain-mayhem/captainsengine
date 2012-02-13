@@ -7,6 +7,10 @@
 #include "Sound.h"
 #include "Particles.h"
 
+using namespace adv;
+
+namespace adv{
+
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room){
   strm << room.base;
   strm << room.scrolloffset.x << " " << room.scrolloffset.y << std::endl;
@@ -110,6 +114,8 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& i
     }
   }
   return strm;
+}
+
 }
 
 SaveStateProvider::SaveStateProvider(AdvDocument* data) : mData(data), mAllowWrites(true) {

@@ -10,6 +10,8 @@
 #include "AdvDoc.h"
 #include "ExecutionContext.h"
 
+namespace adv{
+
 class SoundPlayer;
 class VideoPlayer;
 class AdvDocument;
@@ -107,8 +109,12 @@ public:
   virtual void setSuspensionScript(ExecutionContext* ctx)=0;
 };
 
+}
+
 
 #ifndef DISABLE_SOUND
+
+namespace adv{
 
 class SimpleSoundPlayer : public SoundPlayer{
 public:
@@ -123,12 +129,16 @@ protected:
 #endif
 };
 
+}
+
 struct AVCodec;
 struct AVCodecContext;
 struct AVFormatContext;
 struct AVFrame;
 struct AVPacket;
 struct SwsContext;
+
+namespace adv{
 
 class StreamSoundPlayer : public SoundPlayer{
 public:
@@ -208,6 +218,8 @@ protected:
   Vec2f mScale;
   BlitObject* mLayer;
 };
+
+}
 
 #endif
 

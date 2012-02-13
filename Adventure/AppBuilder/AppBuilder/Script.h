@@ -11,6 +11,8 @@
 
 #include "CIL.h"
 
+namespace adv{
+
 class Object2D;
 class ObjectGroup;
 
@@ -102,5 +104,7 @@ protected:
   int mTextSpeed;
   std::string mLanguage;
 };
+
+}
 
 #endif
