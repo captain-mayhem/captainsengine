@@ -174,6 +174,7 @@ public:
   void addBarrier(const Vec2i box[4]) {mBarriers.push_back(box);}
   const std::vector<Object2D*>& getObjects() {return mObjects;}
   bool hitsBarriers(const ParticleEngine::Particle& particle);
+  void modifyWalkmap(const Vec2i& pos, bool walkable);
 protected:
   class DepthMap {
   public:
@@ -192,6 +193,7 @@ protected:
   DepthMap mDepthMap;
   std::vector<MirrorObject*> mMirrors;
   std::vector<ParticleEngine::Barrier> mBarriers;
+  std::map<Vec2i,bool> mModifiedWalkmap;
 };
 
 class CharacterObject : public Object2D{
