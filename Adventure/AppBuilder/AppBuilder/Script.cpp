@@ -803,9 +803,8 @@ std::ostream& PcdkScript::save(std::ostream& out){
   }
   out << mGroups.size() << std::endl;
   for (unsigned i = 0; i < mGroups.size(); ++i){
-    out << *mGroups[i];
+    out << *mGroups[i] << std::endl;
   }
-  out << std::endl;
   out << mScriptFunctions.size();
   for (std::map<std::string, ExecutionContext*>::iterator iter = mScriptFunctions.begin(); iter != mScriptFunctions.end(); ++iter){
     out << " " << iter->first;
@@ -824,6 +823,10 @@ std::istream& PcdkScript::load(std::istream& in){
   mBooleans.clear();
   mVariables.clear();
   mTSActive.clear();
+  for (std::vector<ObjectGroup*>::iterator iter = mGroups.begin(); iter != mGroups.end(); ++iter){
+    delete *iter;
+  }
+  mGroups.clear();
   int num1, num2, num3;
   in >> num1;
   std::string name;

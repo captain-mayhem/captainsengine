@@ -490,6 +490,9 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   roomobj->setLightingColor(save->overlaylighting);
   roomobj->setOpacity(save->base.lighting.a);
   roomobj->setWalkmap(room->walkmap);
+  for (std::map<Vec2i,bool>::iterator iter = save->walkmap.begin(); iter != save->walkmap.end(); ++iter){
+    roomobj->modifyWalkmap(iter->first, iter->second);
+  }
   roomobj->setScrollOffset(save->scrolloffset);
   roomobj->setZoomFactor(rm->zoom);
   //check for walkmap scripts

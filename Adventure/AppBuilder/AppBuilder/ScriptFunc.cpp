@@ -1087,7 +1087,11 @@ int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
   pos.x = ctx.stack().pop().getInt();
   pos.y = ctx.stack().pop().getInt();
   bool walkable = ctx.stack().pop().getBool();
-  DebugBreak();
+  RoomObject* rm = Engine::instance()->getRoom(room);
+  if (rm)
+    rm->modifyWalkmap(pos, walkable);
+  else
+    DebugBreak();
   return 0;
 }
 

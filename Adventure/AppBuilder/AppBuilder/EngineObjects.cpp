@@ -535,6 +535,7 @@ void RoomObject::save(){
   save->base.lighting = mLightingColor;
   save->overlaylighting = mLighting->getColor();
   save->scrolloffset = mScrollOffset;
+  save->walkmap = mModifiedWalkmap;
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->save();
   }
@@ -625,6 +626,11 @@ bool RoomObject::hitsBarriers(const ParticleEngine::Particle& particle){
       return true;
   }
   return false;
+}
+
+void RoomObject::modifyWalkmap(const Vec2i& pos, bool walkable){
+  mWalkmap[pos.x-1][pos.y-1].walkable = walkable;
+  mModifiedWalkmap[pos] = walkable;
 }
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
