@@ -92,6 +92,8 @@ namespace StoryDesigner
             string str = rdr.ReadLine();
             int ver_major = Int32.Parse(str.Substring(0, 1));
             int ver_minor = Int32.Parse(str.Substring(2, 1));
+            mVerMajor = ver_major;
+            mVerMinor = ver_minor;
             if (str.Substring(4) != "Point&Click Project File. DO NOT MODIFY!!")
                 return false;
             str = rdr.ReadLine();
@@ -892,6 +894,17 @@ namespace StoryDesigner
         {
             get { return mAdv; }
         }
+
+        public int MajorVersion
+        {
+            get { return mVerMajor; }
+        }
+
+        public int MinorVersion
+        {
+            get { return mVerMinor; }
+        }
+
         private TreeView mMediaPool;
         private TreeView mGamePool;
         private string mPath;
@@ -899,5 +912,7 @@ namespace StoryDesigner
         private Room mLastRoom;
         private string mZipPwd;
         private bool mIsAdv;
+        private int mVerMajor;
+        private int mVerMinor;
     }
 }
