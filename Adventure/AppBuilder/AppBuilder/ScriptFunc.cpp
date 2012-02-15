@@ -486,7 +486,15 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
   CharacterObject* chr1 = Engine::instance()->getCharacter(character);
   if (d.getInt() != 0){
     dir = (LookDir)(d.getInt()-1);
-    chr1->setLookDir(dir);
+    if (chr1)
+      chr1->setLookDir(dir);
+    else{
+      std::string dummy;
+      SaveStateProvider::CharSaveObject* chs = Engine::instance()->getSaver()->findCharacter(character, dummy, dummy);
+      if (!chs)
+        DebugBreak();
+      chs->base.state = CharacterObject::calculateState(chs->base.state, false, false);
+    }
   }
   else{
     std::string char2 = d.getString();
@@ -1647,7 +1655,7 @@ int ScriptFunctions::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   std::string linkname = Engine::instance()->getUseObjectName();
   ctx.stack().push(0);
-  ctx.stack().push(strcmp(linkname.c_str(), objname.c_str()));
+  ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()));
   return 2;
 }
 
@@ -1655,7 +1663,7 @@ int ScriptFunctions::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs)
   std::string objname = ctx.stack().pop().getString();
   std::string linkname = Engine::instance()->getGiveObjectName();
   ctx.stack().push(0);
-  ctx.stack().push(strcmp(linkname.c_str(), objname.c_str()));
+  ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()));
   return 2;
 }
 
@@ -1683,8 +1691,12 @@ int ScriptFunctions::isCharTriggering(ExecutionContext& ctx, unsigned numArgs){
   std::string name = ctx.stack().pop().getString();
   ctx.stack().push(0);
   CharacterObject* chr = Engine::instance()->getCharacter(name);
+  if (!chr){ //when the character is not found, he or she is not in the current room, so no triggering possible
+    ctx.stack().push(3);
+    return 2;
+  }
   RoomObject* room = Engine::instance()->getRoom("");
-  if (chr && room){
+  if (room){
     //find the position of the script
     Vec2i pos = room->getScriptPosition(&ctx);
     Vec2i charpos = chr->getPosition();

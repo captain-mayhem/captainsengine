@@ -148,7 +148,7 @@ namespace StoryDesigner
             int wmy = wmscale * mp.y / mData.WalkGridSize;
             mRoom.Walkmap[wmx, wmy].hasScript = true;
             MainForm form = (MainForm)this.Owner;
-            string scrname = Script.toScriptName(wmx, wmy, mRoom.Name);
+            string scrname = Script.toScriptName(wmx, wmy, mRoom.Name, mData);
             form.showScript(Script.Type.WALKMAP, scrname.ToLower());
         }
 
@@ -690,7 +690,7 @@ namespace StoryDesigner
                 if (obj.isHit(pos))
                 {
                     int depth = getDepth(obj);
-                    if (depth > retdepth)
+                    if (depth >= retdepth)
                     {
                         retdepth = depth;
                         ret = obj;
@@ -775,7 +775,7 @@ namespace StoryDesigner
             {
                 //script paster
                 Script scr;
-                string name = Script.toScriptName(wm.x, wm.y, mRoom.Name);
+                string name = Script.toScriptName(wm.x, wm.y, mRoom.Name, mData);
                 if (mRoom.Walkmap[wm.x, wm.y].hasScript)
                 {
                     scr = mData.getScript(Script.Type.WALKMAP, name);
@@ -792,7 +792,7 @@ namespace StoryDesigner
             else if (mWalkmapPaintMode == 4)
             {
                 //script eraser
-                string name = Script.toScriptName(wm.x, wm.y, mRoom.Name);
+                string name = Script.toScriptName(wm.x, wm.y, mRoom.Name, mData);
                 if (mRoom.Walkmap[wm.x, wm.y].hasScript)
                 {
                     mData.removeScript(Script.Type.WALKMAP, name);
@@ -904,7 +904,7 @@ namespace StoryDesigner
             Vec2i pos = new Vec2i(mMousePos.x /mData.WalkGridSize, mMousePos.y / mData.WalkGridSize);
             mRoom.Walkmap[pos.x, pos.y].hasScript = true;
             MainForm form = (MainForm)this.Owner;
-            string scrname = Script.toScriptName(pos.x, pos.y, mRoom.Name);
+            string scrname = Script.toScriptName(pos.x, pos.y, mRoom.Name, mData);
             form.showScript(Script.Type.WALKMAP, scrname.ToLower());
         }
 
@@ -915,7 +915,7 @@ namespace StoryDesigner
             item1.Enabled = true;
             item2.Enabled = true;
             Vec2i pos = new Vec2i(mMousePos.x / mData.WalkGridSize, mMousePos.y / mData.WalkGridSize);
-            string scrname = Script.toScriptName(pos.x, pos.y, mRoom.Name);
+            string scrname = Script.toScriptName(pos.x, pos.y, mRoom.Name, mData);
             Script scr = mData.getScript(Script.Type.WALKMAP, scrname);
             mCopiedWMScript = scr.Text;
         }

@@ -746,9 +746,12 @@ namespace StoryDesigner
         {
             return obj + ";" + room;
         }
-        static public string toScriptName(int x, int y, string room)
+        static public string toScriptName(int x, int y, string room, AdvData data)
         {
-            return String.Format("#{0:D3}{1:D3}{2}", x + 1, y + 1, room);
+            if (data != null && data.Reader.MajorVersion < 3)
+                return String.Format("{0:D2}{1:D2}{2}", x + 1, y + 1, room);
+            else
+                return String.Format("#{0:D3}{1:D3}{2}", x + 1, y + 1, room);
         }
         Type mType;
         string mName;
@@ -1328,6 +1331,11 @@ namespace StoryDesigner
         public Dictionary<string, Language> Languages
         {
             get { return mLanguages; }
+        }
+
+        public AdvFileReader Reader
+        {
+            get { return mReader; }
         }
 
         public ProjectSettings Settings;

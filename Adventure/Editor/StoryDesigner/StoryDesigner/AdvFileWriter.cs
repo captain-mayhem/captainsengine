@@ -500,7 +500,7 @@ namespace StoryDesigner
                     {
                         if (room.Value.Walkmap[x, y].hasScript)
                         {
-                            Script wms = mData.getScript(Script.Type.WALKMAP, Script.toScriptName(x, y, room.Value.Name));
+                            Script wms = mData.getScript(Script.Type.WALKMAP, Script.toScriptName(x, y, room.Value.Name, null));
                             swr.Write("//Walkmap ");
                             swr.WriteLine(wms.Name);
                             swr.WriteLine(wms.Text);
