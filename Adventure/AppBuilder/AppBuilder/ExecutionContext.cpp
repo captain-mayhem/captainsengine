@@ -109,7 +109,7 @@ bool ExecutionContext::isEventSet(EngineEvent evt){
 }
 
 bool ExecutionContext::isRunning(){
-  return mPC > 0 && !mIdle;
+  return (mPC > 0 && !mIdle) || !mEvents.empty();
 }
 
 EngineEvent ExecutionContext::getCommandEvent(){

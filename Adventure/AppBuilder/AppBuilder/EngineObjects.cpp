@@ -583,13 +583,19 @@ Vec2i RoomObject::getScriptPosition(ExecutionContext* wmscript){
   return Vec2i(-1,-1);
 }
 
-void RoomObject::skipScripts(){
+void RoomObject::skipScripts(bool execute){
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
-    if ((*iter)->getScript() != NULL)
+    if ((*iter)->getScript() != NULL){
       (*iter)->getScript()->setSkip();
+      if (execute)
+        Engine::instance()->getInterpreter()->executeImmediately((*iter)->getScript());
+    }
   }
-  if (mScript != NULL && mScript->isRunning())
+  if (mScript != NULL/* && mScript->isRunning()*/){
     mScript->setSkip();
+    if (execute)
+      Engine::instance()->getInterpreter()->executeImmediately(mScript);
+  }
 }
 
 float RoomObject::getDepthScale(const Vec2i& pos){

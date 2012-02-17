@@ -265,13 +265,16 @@ void Engine::render(unsigned time){
   //unload rooms
   while (!mRoomsToUnload.empty()){
     //do not unload when a script is in progress
-    if (mRoomsToUnload.front()->isScriptRunning())
+    if (mRoomsToUnload.front()->isScriptRunning()){
+      if (mInterpreter->isBlockingScriptRunning())
+        mRoomsToUnload.front()->skipScripts(true);
       break;
-    ExecutionContext* ctx = mRoomsToUnload.front()->getScript();
+    }
+    /*ExecutionContext* ctx = mRoomsToUnload.front()->getScript();
     if (ctx){
       ctx->setEvent(EVT_EXIT);
       mInterpreter->executeImmediately(ctx);
-    }
+    }*/
     if (mSaver->isWriteAllowed())
       mRoomsToUnload.front()->save();
     if (mUnloadedRoom)
@@ -652,10 +655,13 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
     }
   }
   mRoomsToUnload.push_back(room);
-  room->skipScripts();
+  room->skipScripts(false);
   if (mCurrentObject)
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
   mCurrentObject = NULL;
+  ExecutionContext* script = room->getScript();
+  if (script)
+    script->setEvent(EVT_EXIT);
   //room->save();
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     if (*iter == room){
