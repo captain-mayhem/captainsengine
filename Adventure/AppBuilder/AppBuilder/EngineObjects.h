@@ -166,7 +166,7 @@ public:
   virtual void setPosition(const Vec2i& pos);
   bool containsObject(Object2D* object);
   Vec2i getScriptPosition(ExecutionContext* wmscript);
-  void skipScripts();
+  void skipScripts(bool execute);
   float getDepthScale(const Vec2i& pos);
   void setZoomFactor(int factor) {mDepthMap.setZoomFactor(factor);}
   void setOpacity(unsigned char opacity);
