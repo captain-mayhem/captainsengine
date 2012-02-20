@@ -333,7 +333,7 @@ void Engine::render(unsigned time){
       }
     }
   }
-  if (mRooms.size() > 0 && mFocussedChar && !mInterpreter->isBlockingScriptRunning()){ //walkmap
+  if (mRooms.size() > 0 && mFocussedChar/* && !mInterpreter->isBlockingScriptRunning()*/){ //walkmap
     Vec2i pos = mFocussedChar->getPosition()/mWalkGridSize;
     mRooms.back()->walkTo(pos);
   }

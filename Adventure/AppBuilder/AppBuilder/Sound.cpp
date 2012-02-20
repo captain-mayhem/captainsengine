@@ -268,6 +268,9 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name, bool effectEnabled){
   if (plyr){
     plyr->fadeVolume(0.0f, mMusicVolume, mFadingTime);
   }
+  else{
+    delete db;
+  }
   return plyr;
 }
 
