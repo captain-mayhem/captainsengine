@@ -40,6 +40,7 @@ public:
   void add(Object2D* obj, const Color& targetcolor);
   void add(RoomObject* obj, Vec2i scrollpos, float speed);
   void add(CharacterObject* obj, float sourcescale, float targetscale);
+  Vec2i getTargetPoisition(Object2D* obj);
 protected:
   std::map<Object2D*, ObjectAnim> mObjects;
   std::list<DynamicAnimation*> mAnimations;

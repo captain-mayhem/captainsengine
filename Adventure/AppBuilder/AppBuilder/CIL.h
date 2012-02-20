@@ -259,7 +259,7 @@ class CTIMER : public CCode{
 public:
   CTIMER(int time, ExecutionContext* ctx){
     mCommands = ctx;
-    mCommands->suspend(time);
+    mCommands->suspend(time, NULL);
   }
   CTIMER(std::istream& in);
   ~CTIMER(){

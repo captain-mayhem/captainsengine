@@ -1067,6 +1067,18 @@ StackData PcdkScript::getVariable(const std::string& name){
       DebugBreak();
     return obj->getPosition().y;
   }
+  else if (name.size() > 8 && name.substr(0,8) == "tgtobjx:"){
+    Object2D* obj = Engine::instance()->getObject(name.substr(8), false);
+    if (obj == NULL)
+      DebugBreak();
+    return Engine::instance()->getAnimator()->getTargetPoisition(obj).x;
+  }
+  else if (name.size() > 8 && name.substr(0,8) == "tgtobjy:"){
+    Object2D* obj = Engine::instance()->getObject(name.substr(8), false);
+    if (obj == NULL)
+      DebugBreak();
+    return Engine::instance()->getAnimator()->getTargetPoisition(obj).y;
+  }
   else if (name == "actiontext"){
     DebugBreak();
   }

@@ -98,8 +98,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("if_string", isStringEqual);
   interpreter->registerFunction("stepto", stepTo);
   interpreter->registerFunction("moveobj", moveObj);
-  interpreter->registerRelVar("moveobj", 2, "objx:");
-  interpreter->registerRelVar("moveobj", 3, "objy:");
+  interpreter->registerRelVar("moveobj", 2, "tgtobjx:");
+  interpreter->registerRelVar("moveobj", 3, "tgtobjy:");
   interpreter->registerFunction("quit", quit);
   interpreter->registerFunction("musicvolume", musicVolume);
   interpreter->registerFunction("setparticles", setParticles);
@@ -1058,6 +1058,18 @@ int ScriptFunctions::stopSwf(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+class VideoSuspender : Suspender{
+public:
+  VideoSuspender(VideoPlayer* player) : mPlayer(player){
+
+  }
+  virtual void forceResume(){
+    mPlayer->stop();
+  }
+protected:
+  VideoPlayer* mPlayer;
+};
+
 int ScriptFunctions::playVideo(ExecutionContext& ctx, unsigned numArgs){
   std::string moviename = ctx.stack().pop().getString();
   bool suspend = ctx.stack().pop().getBool();
@@ -1082,7 +1094,7 @@ int ScriptFunctions::playVideo(ExecutionContext& ctx, unsigned numArgs){
     vp->initLayer(x, y, width, height);
     if (suspend){
       vp->setSuspensionScript(&ctx);
-      ctx.suspend(0);
+      ctx.suspend(0, NULL);
     }
     vp->play(false);
   }
@@ -1151,6 +1163,19 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+class PositionSuspender : public Suspender{
+public:
+  PositionSuspender(Object2D* obj, const Vec2i& pos) : mObject(obj), mPosition(pos) {
+  }
+  virtual void forceResume(){
+    Engine::instance()->getAnimator()->remove(mObject);
+    mObject->setPosition(mPosition);
+  }
+private:
+  Object2D* mObject;
+  Vec2i mPosition;
+};
+
 int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   std::string name = ctx.stack().pop().getString();
@@ -1181,7 +1206,7 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
   else
     DebugBreak();
   if (hold){
-    ctx.suspend(0);
+    ctx.suspend(0, NULL/*new PositionSuspender(obj, newpos)*/);
     obj->setSuspensionScript(&ctx);
   }
   Engine::instance()->getAnimator()->add(obj, path, speed);
@@ -1468,6 +1493,7 @@ int ScriptFunctions::miniCutEnd(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::breakExec(ExecutionContext& ctx, unsigned numArgs){
   //don't know anymore why this was there, but it is bad => see elevator (room 8) functiondemo
   //ctx.resetEvents(true);
+  //it was there because of this: pickup keycard and use machine (simple test adventure)
   return 0;
 }
 

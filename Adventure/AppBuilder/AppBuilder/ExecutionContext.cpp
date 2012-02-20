@@ -30,7 +30,8 @@ void CodeSegment::load(std::istream& in){
 
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
-mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1){
+mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
+mSuspender(NULL){
 
 }
 
@@ -49,10 +50,12 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
   mIdle = ctx.mIdle;
   mEventHandled = ctx.mEventHandled;
   mRefCount = 1;
+  mSuspender = ctx.mSuspender;
 }
 
 ExecutionContext::ExecutionContext(std::istream& in) : 
-mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1)
+mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), 
+mEventHandled(false), mRefCount(1), mSuspender(NULL)
 {
   in >> mIsGameObject >> mObjectInfo;
   if (mObjectInfo == "none")
@@ -89,6 +92,14 @@ void ExecutionContext::resetEvent(EngineEvent evt){
     DebugBreak();
   mEvents.pop_front();
   mEventHandled = false;
+}
+
+void ExecutionContext::resetNextEvent(){
+  if (mEvents.size() < 2)
+    return;
+  std::list<EngineEvent>::iterator iter = mEvents.begin();
+  ++iter;
+  mEvents.erase(iter);
 }
 
 void ExecutionContext::resetEvents(bool leaveCurrentUntouched){
@@ -135,6 +146,8 @@ void ExecutionContext::reset(bool clearEvents, bool clearStack){
 
 void ExecutionContext::resume(){
   mSuspended = false;
+  if (mSuspender)
+    mSuspender->forceResume();
   if (Engine::instance()->getInterpreter()->isBlockingScriptRunning() && mIdle) 
     reset(true, true);
 }

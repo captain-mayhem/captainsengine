@@ -220,3 +220,10 @@ void Animator::add(CharacterObject* obj, float sourcescale, float targetscale){
   ScaleAnimation* sa = new ScaleAnimation(sourcescale, targetscale, obj);
   add(sa);
 }
+
+Vec2i Animator::getTargetPoisition(Object2D* obj){
+  std::map<Object2D*,ObjectAnim>::iterator iter = mObjects.find(obj);
+  if (iter == mObjects.end())
+    return obj->getPosition();
+  return iter->second.path.back();
+}

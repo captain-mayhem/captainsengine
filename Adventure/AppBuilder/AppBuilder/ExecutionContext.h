@@ -70,6 +70,15 @@ protected:
 class ExecutionContext;
 typedef void (*StepEndHandler) (ExecutionContext& ctx);
 
+class Suspender{
+public:
+  virtual void forceResume()=0;
+};
+
+class NoopSuspender : public Suspender{
+  virtual void forceResume() {}
+};
+
 class ExecutionContext{
   friend class PcdkScript;
   friend class ScriptFunctions;
@@ -81,12 +90,13 @@ public:
   void setEvent(EngineEvent evt);
   void setEvents(std::list<EngineEvent>& events);
   void resetEvent(EngineEvent evt);
+  void resetNextEvent();
   void resetEvents(bool leaveCurrentUntouched);
   bool isEventSet(EngineEvent evt);
   bool isRunning();
   EngineEvent getCommandEvent();
   Stack& stack() {return mStack;}
-  void suspend(int time) {mSuspended = true; mSleepTime = time;}
+  void suspend(int time, Suspender* suspender) {mSuspended = true; mSleepTime = time; mSuspender = suspender;}
   void resume();
   void reset(bool clearEvents, bool clearStack);
   void setOwner(Object2D* owner) {mOwner = owner;}
@@ -118,6 +128,7 @@ protected:
   bool mIdle;
   bool mEventHandled;
   int mRefCount;
+  Suspender* mSuspender;
 };
 
 }
