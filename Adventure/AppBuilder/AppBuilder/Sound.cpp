@@ -630,7 +630,7 @@ bool StreamSoundPlayer::openStream(const DataBuffer& buffer){
   if (av_open_input_stream(&mFormat, ctx, mFilename.c_str(), fmt, NULL) != 0){
     delete ctx;
     av_free(mMemoryBuffer);
-    delete &buffer;
+    //delete &buffer; //is deleted outside
     mFormat = NULL;
     return false;
   }

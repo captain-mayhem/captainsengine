@@ -641,7 +641,7 @@ void RoomObject::modifyWalkmap(const Vec2i& pos, bool walkable){
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
-mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0)
+mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0), mSpawnPos(-1,-1)
 {
   mInventory = new Inventory();
   mIdleTimeout = (int(rand()/(float)RAND_MAX*10)+10)*1000;
@@ -654,8 +654,14 @@ CharacterObject::~CharacterObject(){
 }
 
 void CharacterObject::setPosition(const Vec2i& pos){
+  setPosition(pos, false);
+}
+
+void CharacterObject::setPosition(const Vec2i& pos, bool isSpawnPos){
   Vec2i offset = mBasePoints[mState-1];
   Object2D::setPosition(pos-offset);
+  if (isSpawnPos)
+    mSpawnPos = getPosition();
   RoomObject* room = Engine::instance()->getRoom(mRoom);
   if (room){
     float scale = room->getDepthScale(pos);
@@ -897,4 +903,11 @@ void CharacterObject::setLinkObject(Object2D* link){
 
 int CharacterObject::getDepth(){
   return getPosition().y/Engine::instance()->getWalkGridSize();
+}
+
+bool CharacterObject::isSpawnPos(){
+  if (getPosition()/Engine::instance()->getWalkGridSize() == mSpawnPos/Engine::instance()->getWalkGridSize())
+    return true;
+  mSpawnPos = Vec2i(-1,-1);
+  return false;
 }

@@ -206,6 +206,7 @@ public:
   virtual Type getType() {return CHARACTER;}
   void addBasepoint(Vec2i p, Vec2i size) {mBasePoints.push_back(p); mSizes.push_back(size);}
   virtual void setPosition(const Vec2i& pos);
+  void setPosition(const Vec2i& pos, bool isSpawnPos);
   virtual Vec2i getPosition();
   void setDepth(int depth);
   virtual void animationBegin(const Vec2i& next);
@@ -238,6 +239,7 @@ public:
   void setFrozenScale(float scale) {mFrozenScale = scale;}
   float getScaleFactor();
   virtual int getDepth();
+  bool isSpawnPos();
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
@@ -253,6 +255,7 @@ protected:
   float mFrozenScale;
   int mIdleTime;
   int mIdleTimeout;
+  Vec2i mSpawnPos;
 };
 
 class ObjectGroup{

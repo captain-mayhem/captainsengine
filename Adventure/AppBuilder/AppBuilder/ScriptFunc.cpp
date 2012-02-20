@@ -382,7 +382,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
         obj->setLookDir(dir);
       RoomObject* ro = Engine::instance()->getRoom(roomname);
       obj->setRoom(ro->getName());
-      obj->setPosition((pos*Engine::instance()->getWalkGridSize())+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
+      obj->setPosition((pos*Engine::instance()->getWalkGridSize())+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2), true);
       obj->setScrollOffset(ro->getScrollOffset());
       //obj->setScale(ro->getDepthScale(obj->getPosition()));
     }
