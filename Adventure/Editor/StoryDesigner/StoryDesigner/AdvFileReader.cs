@@ -484,6 +484,11 @@ namespace StoryDesigner
                             chr.setStateName(16 + i, names[i]);
                         }
                     }
+                    else
+                    {
+                        for (int i = 0; i < 20; ++i)
+                            chr.setStateName(16 + i, "");
+                    }
                     chr.Font = Convert.ToInt32(rdr.ReadLine());
                     chr.Zoom = Convert.ToInt32(rdr.ReadLine());
                     for (int state = 0; state < CHAR_STATES_MAX; ++state)

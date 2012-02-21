@@ -62,13 +62,13 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
 }
 
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveObject& object){
-  strm << object.position.x << " " << object.position.y << " " << object.state << std::endl;
+  strm << object.position.x << " " << object.position.y << " " << object.state << " " << object.name << std::endl;
   strm << object.lighting.r << " " << object.lighting.g << " " << object.lighting.b << " " << object.lighting.a << std::endl;
   return strm;
 }
 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveObject& object){
-  strm >> object.position.x >> object.position.y >> object.state;
+  strm >> object.position.x >> object.position.y >> object.state >> object.name;
   strm >> object.lighting.r >> object.lighting.g >> object.lighting.b >> object.lighting.a;
   return strm;
 }
@@ -128,7 +128,8 @@ SaveStateProvider::~SaveStateProvider(){
 
 SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
   mLastRoom = NULL;
-  std::map<std::string,SaveRoom*>::iterator iter = mRooms.find(name);
+  std::string idxname = toLower(name);
+  std::map<std::string,SaveRoom*>::iterator iter = mRooms.find(idxname);
   if (mRooms.empty() || iter == mRooms.end()){
     //let's see if we find the room in the original
     Room* orig = mData->getRoom(name);
@@ -137,22 +138,25 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
     SaveRoom* save = new SaveRoom();
     save->base.position = Vec2i();
     save->base.lighting = Color();
+    save->base.name = orig->name;
     save->scrolloffset = orig->scrolloffset*-1;
     for (unsigned i = 0; i < orig->objects.size(); ++i){
       SaveObject* object = new SaveObject();
       object->lighting = Color();
       object->state = orig->objects[i].state;
       object->position = orig->objects[i].position;
+      object->name = orig->objects[i].name;
       save->objects[orig->objects[i].name] = object;
     }
     for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
-      if (mData->getRoomCharacters()[i].room == name){
+      if (toLower(mData->getRoomCharacters()[i].room) == idxname){
         CharacterObject dummy(0, Vec2i(), "");
         dummy.setLookDir(mData->getRoomCharacters()[i].dir);
         CharSaveObject* chr = new CharSaveObject();
         chr->base.lighting = Color();
         chr->base.state = dummy.getState();
         chr->base.position = mData->getRoomCharacters()[i].position;
+        chr->base.name = mData->getRoomCharacters()[i].name;
         chr->mirrored = dummy.isMirrored();
         chr->scale = 1.0f;
         Character* chbase = mData->getCharacter(mData->getRoomCharacters()[i].character);
@@ -168,7 +172,7 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
         save->characters[mData->getRoomCharacters()[i].name] = chr;
       }
     }
-    mRooms[name] = save;
+    mRooms[idxname] = save;
     mLastRoom = save;
     return save;
   }
@@ -237,7 +241,7 @@ void SaveStateProvider::clear(){
 
 void SaveStateProvider::save(const std::string& name){
   if (Engine::instance()->mMenuShown){
-    Engine::instance()->unloadRoom(NULL, false);
+    Engine::instance()->unloadRoom(NULL, false, true);
     Engine::instance()->mMenuShown = false;
   }
   std::string focussedcharname;
@@ -353,7 +357,7 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::s
   for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     for (std::map<std::string,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
       if (_stricmp(chriter->first.c_str(), name.c_str()) == 0){
-        room = iter->first;
+        room = iter->second->base.name;
         realName = chriter->first;
         return chriter->second;
       }
@@ -383,7 +387,7 @@ SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& 
   for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     for (std::map<std::string,SaveObject*>::iterator objiter = iter->second->objects.begin(); objiter != iter->second->objects.end(); ++objiter){
       if (_stricmp(objiter->first.c_str(), name.c_str()) == 0){
-        room = iter->first;
+        room = iter->second->base.name;
         return objiter->second;
       }
     }

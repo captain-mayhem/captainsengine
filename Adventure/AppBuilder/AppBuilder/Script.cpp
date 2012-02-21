@@ -1032,8 +1032,12 @@ StackData PcdkScript::getVariable(const std::string& name){
   }
   else if (name.size() > 5 && name.substr(0,5) == "char:"){
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(5));
-    if (!chr)
-      DebugBreak();
+    if (!chr){
+      SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(name.substr(5));
+      if (!cso)
+        DebugBreak();
+      return cso->base.state;
+    }
     return chr->getState();
   }
   else if (name.size() > 6 && name.substr(0,6) == "charx:"){

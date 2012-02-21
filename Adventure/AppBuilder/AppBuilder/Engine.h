@@ -46,7 +46,7 @@ public:
   void doubleClick(const Vec2i& pos);
   void mouseWheel(int delta);
   bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason);
-  void unloadRoom(RoomObject* room, bool mainroom);
+  void unloadRoom(RoomObject* room, bool mainroom, bool immedately=false);
   bool setFocus(std::string charname, ExecutionContext* reason);
   CGE::Image* getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
@@ -178,6 +178,8 @@ protected:
   bool mBlinkCursorVisible;
   unsigned mBlinkTimeAccu;
   bool mForceNotToRenderUnloadingRoom;
+  std::string mPendingLoadRoom;
+  ExecutionContext* mPendingLoadReason;
 };
 
 }
