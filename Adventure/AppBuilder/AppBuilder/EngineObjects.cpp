@@ -191,6 +191,7 @@ void Object2D::save(){
     save->position = mPos;
     save->state = mState;
     save->lighting = mLightingColor;
+    save->name = mName;
   }
 }
 
@@ -810,6 +811,7 @@ void CharacterObject::save(){
   if (save){
     save->base.position = mPos;
     save->base.state = mState;
+    save->base.name = mName;
     save->mirrored = mMirror;
     save->inventory.items.clear();
     if (mInventory){

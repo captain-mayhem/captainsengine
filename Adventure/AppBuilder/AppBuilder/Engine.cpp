@@ -151,6 +151,7 @@ void Engine::initGame(exit_callback exit_cb){
   mTextEnabled = true;
   mUnloadedRoom = NULL;
   mForceNotToRenderUnloadingRoom = false;
+  mPendingLoadRoom = "";
 }
 
 void Engine::exitGame(){
@@ -275,6 +276,14 @@ void Engine::render(unsigned time){
       ctx->setEvent(EVT_EXIT);
       mInterpreter->executeImmediately(ctx);
     }*/
+    if (mRoomsToUnload.front() == mRooms.back()){
+      mMainRoomLoaded = false;
+    }
+    if (mRoomsToUnload.front() == mRooms.front()){
+      mSubRoomLoaded = false;
+    }
+    mRooms.remove(mRoomsToUnload.front());
+
     if (mSaver->isWriteAllowed())
       mRoomsToUnload.front()->save();
     if (mUnloadedRoom)
@@ -287,6 +296,13 @@ void Engine::render(unsigned time){
     else
       mUnloadedRoom = mRoomsToUnload.front();
     mRoomsToUnload.pop_front();
+    if (mRoomsToUnload.empty() && !mPendingLoadRoom.empty()){
+      //delayed load
+      loadRoom(mPendingLoadRoom, false, mPendingLoadReason);
+      //if (mPendingLoadReason)
+      //  mPendingLoadReason->resume();
+      mPendingLoadRoom = "";
+    }
   }
   mSaver->allowWrites(true);
 
@@ -471,13 +487,18 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   //already loaded //TODO subrooms
   if (mMainRoomLoaded && _stricmp(mRooms.back()->getName().c_str(), name.c_str()) == 0)
     return true;
+  if (mMainRoomLoaded && !isSubRoom){
+    unloadRoom(mRooms.back(), true);
+    //if (loadreason)
+    //  loadreason->suspend(0, NULL);
+    mPendingLoadRoom = name;
+    mPendingLoadReason = loadreason;
+    return false;
+  }
   Room* room = mData->getRoom(name);
   SaveStateProvider::SaveRoom* save = mSaver->getRoom(room->name);
   if (!room || !save)
     return false;
-  if (mMainRoomLoaded && !isSubRoom){
-    unloadRoom(mRooms.back(), true);
-  }
   int depthoffset = 0;
   if (isSubRoom){
     depthoffset = (int)mRooms.size()*1000;
@@ -597,6 +618,9 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   }
   if (_stricmp(room->name.c_str(), mData->getProjectSettings()->taskroom.c_str()) == 0)
     mTaskbar = roomobj;
+  if (mFocussedChar && mFocussedChar->getRoom() == roomobj->getName()){
+    mFocussedChar->setScale(roomobj->getDepthScale(mFocussedChar->getPosition()));
+  }
   //animation stuff
   if ((loadreason == NULL || !loadreason->isSkipping()) && !isSubRoom){
     switch(Engine::instance()->getScreenChange()){
@@ -642,7 +666,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   return true;
 }
 
-void Engine::unloadRoom(RoomObject* room, bool mainroom){
+void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately){
   if (mRooms.empty())
     return;
   if (room == NULL){
@@ -654,6 +678,10 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
       room = mRooms.front();
     }
   }
+  for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
+    if (*iter == room)
+      return; //unload already in progress
+  }
   mRoomsToUnload.push_back(room);
   room->skipScripts(false);
   if (mCurrentObject)
@@ -663,16 +691,18 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom){
   if (script)
     script->setEvent(EVT_EXIT);
   //room->save();
-  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    if (*iter == room){
-      if (room == mRooms.back()){
-        mMainRoomLoaded = false;
+  if (immediately){
+    for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+      if (*iter == room){
+        if (room == mRooms.back()){
+          mMainRoomLoaded = false;
+        }
+        if (room == mRooms.front()){
+          mSubRoomLoaded = false;
+        }
+        mRooms.erase(iter);
+        break;
       }
-      if (room == mRooms.front()){
-        mSubRoomLoaded = false;
-      }
-      mRooms.erase(iter);
-      break;
     }
   }
 }
@@ -1217,7 +1247,7 @@ void Engine::keyPress(int key){
             }
           }
           else{
-            unloadRoom(NULL, false);
+            unloadRoom(NULL, false, true);
             mMenuShown = false;
           }
         }

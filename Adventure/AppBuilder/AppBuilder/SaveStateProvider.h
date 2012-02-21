@@ -8,10 +8,11 @@ namespace adv{
 class SaveStateProvider{
 public:
   struct SaveObject{
-    SaveObject() : position(-1000,-1000), state(1), lighting() {}
+    SaveObject() : position(-1000,-1000), state(1), lighting(), name("none") {}
     Vec2i position;
     int state;
     Color lighting;
+    std::string name;
   };
   struct SaveInventory{
     std::map<int, std::vector<std::string> > items;
@@ -44,6 +45,7 @@ public:
   void removeObject(const std::string& name);
   CharSaveObject* getCharacter(const std::string& name);
   CharSaveObject* getOrAddCharacter(const std::string& name);
+  CharSaveObject* findCharacter(const std::string& name) {std::string dummy; return findCharacter(name, dummy, dummy);}
   CharSaveObject* findCharacter(const std::string& name, std::string& room, std::string& realName);
   void removeCharacter(const std::string& name);
   void clear();

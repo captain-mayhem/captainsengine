@@ -136,6 +136,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("savestring", saveString);
   interpreter->registerFunction("showmouse", showMouse);
   interpreter->registerFunction("loadstring", loadString);
+  interpreter->registerFunction("charzoom", charZoom);
+  interpreter->registerFunction("setwalksound", setWalkSound);
   srand((unsigned)time(NULL));
 }
 
@@ -381,9 +383,20 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       if (dir != UNSPECIFIED)
         obj->setLookDir(dir);
       RoomObject* ro = Engine::instance()->getRoom(roomname);
-      obj->setRoom(ro->getName());
+      std::string realname;
+      Vec2i scrolloffset;
+      if (ro == NULL){
+        SaveStateProvider::SaveRoom* sro = Engine::instance()->getSaver()->getRoom(roomname);
+        realname = sro->base.name;
+        scrolloffset = sro->scrolloffset;
+      }
+      else{
+        realname = ro->getName();
+        scrolloffset = ro->getScrollOffset();
+      }
+      obj->setRoom(realname);
       obj->setPosition((pos*Engine::instance()->getWalkGridSize())+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2), true);
-      obj->setScrollOffset(ro->getScrollOffset());
+      obj->setScrollOffset(scrolloffset);
       //obj->setScale(ro->getDepthScale(obj->getPosition()));
     }
   }
@@ -428,9 +441,16 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 3)
     inventory = ctx.stack().pop().getInt();
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  Object2D* item = Engine::instance()->createItem(itemname);
   if (chr){
-    Object2D* item = Engine::instance()->createItem(itemname);
     chr->getInventory()->addItem(item, inventory);
+  }
+  else{
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
+    if (!cso)
+      DebugBreak();
+    cso->inventory.items[inventory].push_back(item->getName());
+    delete item;
   }
   return 0;
 }
@@ -1471,10 +1491,16 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
     DebugBreak();
   //std::string dir = ctx.stack().pop().getString();
   RoomObject* room = Engine::instance()->getRoom(roomname);
-  if (dontscroll || ctx.isSkipping())
-    room->setScrollOffset(pos);
-  else
-    Engine::instance()->getAnimator()->add(room, pos, 0.1f);
+  if (room){
+    if (dontscroll || ctx.isSkipping())
+      room->setScrollOffset(pos);
+    else
+      Engine::instance()->getAnimator()->add(room, pos, 0.1f);
+  }
+  else{
+    SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(roomname);
+    sr->scrolloffset = pos;
+  }
   return 0;
 }
 
@@ -1633,6 +1659,24 @@ int ScriptFunctions::showMouse(ExecutionContext& ctx, unsigned numArgs){
   bool show = ctx.stack().pop().getBool();
   if (!show)
     DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
+  std::string charname = ctx.stack().pop().getString();
+  int size = ctx.stack().pop().getInt();
+  DebugBreak();
+  if (numArgs >= 3)
+    DebugBreak();
+  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  chr->setUserScale(size/100.0f);
+  return 0;
+}
+
+int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
+  std::string charname = ctx.stack().pop().getString();
+  std::string soundname = ctx.stack().pop().getString();
+  DebugBreak();
   return 0;
 }
 

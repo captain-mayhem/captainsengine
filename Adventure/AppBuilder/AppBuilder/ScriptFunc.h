@@ -40,6 +40,12 @@ public:
   **/
   static int breakExec(ExecutionContext& ctx, unsigned numArgs);
   /**
+    \param character the character whose zoom should be changed
+    \param size the size of the character
+    \param fade [opt] fade to the new size
+  **/
+  static int charZoom(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param command name of the command to set
   **/
   static int command(ExecutionContext& ctx, unsigned numArgs);
@@ -344,6 +350,11 @@ public:
   \param walkable if the field should be made walkable
   **/
   static int setWalkmap(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param character the name of the character
+  \param soundname the name of the new walk sound
+  **/
+  static int setWalkSound(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param text information about the object
   \param show boolean if the text should be displayed on the mouse cursor
