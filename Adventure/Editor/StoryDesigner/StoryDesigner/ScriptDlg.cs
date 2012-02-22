@@ -265,7 +265,10 @@ namespace StoryDesigner
         void fillMatchList(PcdkParser.Argument arg)
         {
             info.Text = arg.Definition.Name;
-            string match = scripttext.Text.Substring(scripttext.SelectionStart, mCursorPos - scripttext.SelectionStart).Trim();
+            int length = mCursorPos - scripttext.SelectionStart;
+            if (length < 0)
+                length = 0;
+            string match = scripttext.Text.Substring(scripttext.SelectionStart, length).Trim();
             matches.Items.Clear();
             if (arg.Definition.AdditionalValues != null)
             {

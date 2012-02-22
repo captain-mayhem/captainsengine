@@ -183,20 +183,20 @@ int ScriptFunctions::walkTo(ExecutionContext& ctx, unsigned numArgs){
   }
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
-    if (ctx.mSkip){
-      chr->setPosition(pos);
-      chr->setLookDir(dir);
+    //if (ctx.mSkip){
+      //chr->setPosition(pos);
+      //chr->setLookDir(dir);
       //RoomObject* ro = Engine::instance()->getContainingRoom(chr);
       //if (ro)
       //  chr->setScale(ro->getDepthScale(pos));
-    }
-    else{
-      if (hold){
+    //}
+    //else{
+      if (!ctx.isSkipping() && hold){
         chr->setSuspensionScript(&ctx);
         ctx.mSuspended = true;
       }
       Engine::instance()->walkTo(chr, pos, dir);
-    }
+    //}
   }
   return 0;
 }
@@ -404,6 +404,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
     CharacterObject* obj = Engine::instance()->extractCharacter(charname);
     if (!obj){
       obj = Engine::instance()->loadCharacter(charname, Engine::instance()->getCharacterClass(charname), false, &ctx);
+      Engine::instance()->getSaver()->getRoom(obj->getRoom());
       Engine::instance()->getSaver()->removeCharacter(obj->getName());
     }
     if (obj){
@@ -1703,8 +1704,13 @@ int ScriptFunctions::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
   if (obj){
     ctx.stack().push(obj->getState());
   }
-  else
-    ctx.stack().push(0);
+  else{
+    std::string room;
+    SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, room);
+    if (!so)
+      DebugBreak();
+    ctx.stack().push(so->state);
+  }
   ctx.stack().push(checkstate);
   return 2;
 }
