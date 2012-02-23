@@ -607,6 +607,16 @@ float RoomObject::getDepthScale(const Vec2i& pos){
   return ret;
 }
 
+float RoomObject::getDepthScale(const Vec2i& pos, int depthStart, int depthEnd, int zoomfactor){
+  float minVal = (float)(1.0f-(depthStart-depthEnd)/((float)Engine::instance()->getSettings()->resolution.y)*zoomfactor*0.3f);
+
+  float factor = (pos.y-depthStart)/(float)(depthEnd-depthStart);
+  factor = factor < 0 ? 0 : factor;
+  factor = factor > 1.0f ? 1.0f : factor;
+  float ret = (1-factor)*1+(factor)*minVal;
+  return ret;
+}
+
 RoomObject::DepthMap::DepthMap(Vec2i depthmap){
   scaleStart = depthmap.y*Engine::instance()->getWalkGridSize();
   scaleStop = depthmap.x*Engine::instance()->getWalkGridSize();
@@ -666,6 +676,11 @@ void CharacterObject::setPosition(const Vec2i& pos, bool isSpawnPos){
   RoomObject* room = Engine::instance()->getRoom(mRoom);
   if (room){
     float scale = room->getDepthScale(pos);
+    setScale(scale);
+  }
+  else{
+    Room* rm = Engine::instance()->getData()->getRoom(mRoom);
+    float scale = RoomObject::getDepthScale(pos, rm->depthmap.x, rm->depthmap.y, rm->zoom);
     setScale(scale);
   }
 }

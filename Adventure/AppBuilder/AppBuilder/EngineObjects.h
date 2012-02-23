@@ -168,6 +168,7 @@ public:
   Vec2i getScriptPosition(ExecutionContext* wmscript);
   void skipScripts(bool execute);
   float getDepthScale(const Vec2i& pos);
+  static float getDepthScale(const Vec2i& pos, int depthStart, int depthEnd, int zoomfactor);
   void setZoomFactor(int factor) {mDepthMap.setZoomFactor(factor);}
   void setOpacity(unsigned char opacity);
   void addMirror(MirrorObject* mirror) {mMirrors.push_back(mirror);}
