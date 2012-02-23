@@ -101,6 +101,7 @@ public:
   void setMouseWheelDelta(int delta) {mWheelCount = delta;}
   void restoreRenderDefaults();
   void forceNotToRenderUnloadingRoom() {mForceNotToRenderUnloadingRoom = true;}
+  AdvDocument* getData() {return mData;}
 protected:
   Engine();
   static Engine* mInstance;

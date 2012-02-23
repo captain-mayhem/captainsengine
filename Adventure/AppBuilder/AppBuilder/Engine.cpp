@@ -165,6 +165,7 @@ void Engine::exitGame(){
   mAnimator->clear();
   delete mUnloadedRoom;
   for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
+    mRooms.remove(*iter);
     delete *iter;
   }
   mRoomsToUnload.clear();
@@ -856,11 +857,15 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
   }*/
   //load character
   res = loadCharacter(charname, getCharacterClass(charname), true, reason);
-  mSaver->removeCharacter(charname);
   if (res){
+    SaveStateProvider::SaveRoom* rm = getSaver()->getRoom(res->getRoom());
+    mSaver->removeCharacter(charname);
+    res->setScrollOffset(rm->scrolloffset);
     mFocussedChar = res;
     return true;
   }
+  else
+    DebugBreak();
   //mCharOutOfFocus = true;
   return false;
 }
