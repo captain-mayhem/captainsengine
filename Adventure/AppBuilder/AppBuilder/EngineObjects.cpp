@@ -491,6 +491,10 @@ CharacterObject* RoomObject::findCharacter(const std::string& name){
 }
 
 bool RoomObject::isWalkable(const Vec2i& pos){
+  if (pos.x < 0 || pos.y < 0){
+    DebugBreak();
+    return false;
+  }
   WMField field = mWalkmap[pos.x][pos.y];
   return field.walkable;
 }
@@ -588,14 +592,20 @@ void RoomObject::skipScripts(bool execute){
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     if ((*iter)->getScript() != NULL){
       (*iter)->getScript()->setSkip();
-      if (execute)
+      if (execute && (*iter)->getScript()->isRunning()){
+        //(*iter)->getScript()->resume();
         Engine::instance()->getInterpreter()->executeImmediately((*iter)->getScript());
+      }
     }
   }
   if (mScript != NULL/* && mScript->isRunning()*/){
+    //mScript->resetEvent(EVT_LOOP1);
+    //mScript->resetEvent(EVT_LOOP2);
     mScript->setSkip();
-    if (execute)
+    if (execute && mScript->isRunning()){
+      //mScript->resume();
       Engine::instance()->getInterpreter()->executeImmediately(mScript);
+    }
   }
 }
 

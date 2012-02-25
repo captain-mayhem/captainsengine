@@ -152,6 +152,7 @@ void Engine::initGame(exit_callback exit_cb){
   mUnloadedRoom = NULL;
   mForceNotToRenderUnloadingRoom = false;
   mPendingLoadRoom = "";
+  mPendingLoadReason = NULL;
 }
 
 void Engine::exitGame(){
@@ -268,8 +269,8 @@ void Engine::render(unsigned time){
   while (!mRoomsToUnload.empty()){
     //do not unload when a script is in progress
     if (mRoomsToUnload.front()->isScriptRunning()){
-      if (mInterpreter->isBlockingScriptRunning())
-        mRoomsToUnload.front()->skipScripts(true);
+      //if (mInterpreter->isBlockingScriptRunning())
+      mRoomsToUnload.front()->skipScripts(true);
       break;
     }
     /*ExecutionContext* ctx = mRoomsToUnload.front()->getScript();
@@ -300,8 +301,10 @@ void Engine::render(unsigned time){
     if (mRoomsToUnload.empty() && !mPendingLoadRoom.empty()){
       //delayed load
       loadRoom(mPendingLoadRoom, false, mPendingLoadReason);
-      //if (mPendingLoadReason)
-      //  mPendingLoadReason->resume();
+      if (mPendingLoadReason){
+        mPendingLoadReason->resume();
+        mPendingLoadReason = NULL;
+      }
       mPendingLoadRoom = "";
     }
   }
@@ -343,8 +346,15 @@ void Engine::render(unsigned time){
   }
   if (!mInterpreter->isBlockingScriptRunning()){
     for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+      bool isUnloading = false;
+      for (std::list<RoomObject*>::iterator iter2 = mRoomsToUnload.begin(); iter2 != mRoomsToUnload.end(); ++iter2){
+        if (*iter2 == *iter){
+          isUnloading = true;
+          break;
+        }
+      }
       ExecutionContext* script = (*iter)->getScript();
-      if (script != NULL){
+      if (script != NULL && !isUnloading){
         script->setEvent(EVT_LOOP1);
         script->setEvent(EVT_LOOP2);
       }
@@ -490,8 +500,11 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
     return true;
   if (mMainRoomLoaded && !isSubRoom){
     unloadRoom(mRooms.back(), true);
-    //if (loadreason)
-    //  loadreason->suspend(0, NULL);
+    if (mPendingLoadReason != NULL){
+      mPendingLoadReason->resume();
+    }
+    if (loadreason)
+      loadreason->suspend(0, NULL);
     mPendingLoadRoom = name;
     mPendingLoadReason = loadreason;
     return false;
@@ -621,6 +634,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
     mTaskbar = roomobj;
   if (mFocussedChar && mFocussedChar->getRoom() == roomobj->getName()){
     mFocussedChar->setScale(roomobj->getDepthScale(mFocussedChar->getPosition()));
+    mFocussedChar->setScrollOffset(roomobj->getScrollOffset());
   }
   //animation stuff
   if ((loadreason == NULL || !loadreason->isSkipping()) && !isSubRoom){
