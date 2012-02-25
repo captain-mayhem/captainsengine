@@ -72,6 +72,8 @@ ExecutionContext::~ExecutionContext(){
 void ExecutionContext::setEvent(EngineEvent evt){
   TR_USE(ADV_ExectionContext);
   if (evt == EVT_LOOP1 || evt == EVT_LOOP2){ //don't add loop events multiple times
+    if (mSkip) //don't add loop events when the script is skipping
+      return;
     for (std::list<EngineEvent>::iterator iter = mEvents.begin(); iter != mEvents.end(); ++iter){
       if (*iter == evt)
         return;
@@ -88,9 +90,7 @@ void ExecutionContext::setEvents(std::list<EngineEvent>& events){
 }
 
 void ExecutionContext::resetEvent(EngineEvent evt){
-  if (mEvents.front() != evt)
-    DebugBreak();
-  mEvents.pop_front();
+  mEvents.remove(evt);
   mEventHandled = false;
 }
 
