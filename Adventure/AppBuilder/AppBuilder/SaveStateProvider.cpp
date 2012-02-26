@@ -108,7 +108,7 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& i
   for (int i = 0; i < numInvs; ++i){
     strm >> invnum >> number;
     inv.items[invnum].resize(number);
-    for (int j = number-1; j >= 0; --j){
+    for (int j = 0; j < number; ++j){
       strm >> itemName;
       inv.items[invnum][j] = itemName;
     }

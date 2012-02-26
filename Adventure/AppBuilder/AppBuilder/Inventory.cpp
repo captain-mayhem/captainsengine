@@ -50,7 +50,7 @@ Object2D* Inventory::getItem(const std::string& name){
 
 void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
   for (std::map<int, SingleInv>::const_iterator iter = mInventory.begin(); iter != mInventory.end(); ++iter){
-    for (SingleInv::const_iterator inviter = iter->second.begin(); inviter != iter->second.end(); ++inviter){
+    for (SingleInv::const_reverse_iterator inviter = iter->second.rbegin(); inviter != iter->second.rend(); ++inviter){
       inv.items[iter->first].push_back((*inviter)->getName());
     }
   }
