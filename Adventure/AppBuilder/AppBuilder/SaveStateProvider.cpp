@@ -159,16 +159,17 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
         chr->base.name = mData->getRoomCharacters()[i].name;
         chr->mirrored = dummy.isMirrored();
         chr->scale = 1.0f;
+        chr->nozooming = false;
         Character* chbase = mData->getCharacter(mData->getRoomCharacters()[i].character);
         int fontid = 0;
         if (chbase != NULL){
           fontid = chbase->fontid;
           chr->scale = chbase->zoom/100.0f;
+          chr->nozooming = chbase->notzoom;
         }
         if (fontid == 0)
           fontid = 1;
         chr->fontid = fontid;
-        chr->nozooming = chbase->notzoom;
         save->characters[mData->getRoomCharacters()[i].name] = chr;
       }
     }

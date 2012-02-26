@@ -183,6 +183,8 @@ void Engine::exitGame(){
 }
 
 CGE::Image* Engine::getImage(const std::string& name){
+  if (name.empty())
+    return NULL;
   return mData->getImage(name);
 }
 
@@ -1086,7 +1088,7 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
     path.push_back(pos);
   }
   chr->setEndLookDir(dir);
-  Character* ch = mData->getCharacter(chr->getName());
+  Character* ch = mData->getCharacter(getCharacterClass(chr->getName()));
   if (!ch)
     DebugBreak();
   mAnimator->add(chr, path, 10-ch->walkspeed);
