@@ -125,7 +125,8 @@ arg_list returns [NodeList* nodes]
 @init {currentArg = 0;}
 	:	node=arg {++currentArg; $nodes = new NodeList(); $nodes->addNode(node.value);}
 		(SEMICOLON 
-		node=arg {++currentArg; $nodes->addNode(node.value);}
+		(node=arg {++currentArg; $nodes->addNode(node.value);}
+		)?
 		)*
 	|	{$nodes = new NodeList();}
 ;
