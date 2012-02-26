@@ -6,6 +6,7 @@
 #include <cstring>
 
 #include <image/image.h>
+#include <system/types.h>
 #include "Ids.h"
 #include "Vector.h"
 

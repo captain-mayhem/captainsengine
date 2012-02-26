@@ -223,7 +223,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
       while (str != "Sounds :"){
         std::string filename = txtstream.readLine();
         CGE::Utilities::replaceWith(filename, '\\', '/');
-        mImageNames[str] = filename;
+        mImageNames[str] = toLower(filename);
         str = txtstream.readLine();
       }
     }
@@ -660,17 +660,13 @@ bool AdvDocument::loadFile5(CGE::MemReader& txtstream){
 }
 
 CGE::Image* AdvDocument::getImage(const std::string& name){
+  std::string idxname = toLower(name);
   std::string filename;
-  std::map<std::string,std::string>::iterator iter = mImageNames.find(name);
+  std::map<std::string,std::string>::iterator iter = mImageNames.find(idxname);
   if (iter != mImageNames.end())
     filename = iter->second;
   else{
-    for (iter = mImageNames.begin(); iter != mImageNames.end(); ++iter){
-      if (_stricmp(name.c_str(), iter->first.c_str()) == 0){
-        filename = iter->second;
-        break;
-      }
-    }
+    DebugBreak();
   }
   if (mUseCompressedData){
     int namepos = filename.find_last_of('/');

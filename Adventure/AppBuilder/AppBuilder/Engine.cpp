@@ -1047,6 +1047,8 @@ CharacterObject* Engine::extractCharacter(const std::string& name){
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     res = (*iter)->extractCharacter(name);
     if (res){
+      SaveStateProvider::SaveRoom* srm = mSaver->getRoom((*iter)->getName());
+      mSaver->removeCharacter(res->getName());
       return res;
     }
   }
