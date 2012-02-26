@@ -399,7 +399,12 @@ void RoomObject::render(){
     mParallaxBackground->render(Vec2i(), Vec2f(mScale*mUserScale,mScale*mUserScale), mSize, mLightingColor, mRotAngle);
   Object2D::render();
   for (int i = mObjects.size()-1; i >= 0; --i){
-    mObjects[i]->render();
+    if (mObjects[i]->getType() != CHARACTER)
+      mObjects[i]->render();
+  }
+  for (int i = mObjects.size()-1; i >= 0; --i){
+    if (mObjects[i]->getType() == CHARACTER)
+      mObjects[i]->render();
   }
   CharacterObject* currChar = Engine::instance()->getCharacter("self");
   if (mInventroy && currChar){
@@ -492,7 +497,6 @@ CharacterObject* RoomObject::findCharacter(const std::string& name){
 
 bool RoomObject::isWalkable(const Vec2i& pos){
   if (pos.x < 0 || pos.y < 0){
-    DebugBreak();
     return false;
   }
   WMField field = mWalkmap[pos.x][pos.y];

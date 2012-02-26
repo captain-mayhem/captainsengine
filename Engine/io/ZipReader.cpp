@@ -81,9 +81,18 @@ bool ZipReader::openFile(const std::string& filename){
 MemReader ZipReader::openEntry(const std::string& entry, const std::string& password){
   if (!mHandle)
     return MemReader(NULL, 0);
-  int ret = unzLocateFile(mHandle, entry.c_str(), 2);
-  if (ret != 0){
-    return MemReader(NULL, 0);
+  std::map<std::string, unz_file_pos>::iterator iter = mOffsets.find(entry);
+  if (iter == mOffsets.end()){
+    int ret = unzLocateFile(mHandle, entry.c_str(), 2);
+    unz_file_pos pos;
+    unzGetFilePos(mHandle, &pos);
+    mOffsets[entry] = pos;
+    if (ret != 0){
+      return MemReader(NULL, 0);
+    }
+  }
+  else{
+    unzGoToFilePos(mHandle, &iter->second);
   }
   if (password.empty())
     unzOpenCurrentFile(mHandle);
@@ -139,4 +148,19 @@ int ZipReader::close_file_func(voidpf opaque, voidpf stream){
 
 int ZipReader::testerror_file_func(voidpf opaque, voidpf stream){
   return 0;
+}
+
+uint64 ZipReader::getPos(){
+  unz_file_pos pos;
+  unzGetFilePos(mHandle, &pos);
+  uint64 ret = pos.pos_in_zip_directory;
+  ret |= ((uint64)pos.num_of_file << 32);
+  return ret;
+}
+
+void ZipReader::setPos(uint64 pos){
+  unz_file_pos seekpos;
+  seekpos.pos_in_zip_directory = (uint32)(pos & 0xffffffff);
+  seekpos.num_of_file = (uint32)((pos >> 32) & 0xffffffff);
+  unzGoToFilePos(mHandle, &seekpos);
 }

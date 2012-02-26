@@ -33,6 +33,17 @@ public:
     std::map<std::string, SaveObject*> objects;
     std::map<std::string, CharSaveObject*> characters;
     std::map<Vec2i, bool> walkmap;
+    void clear(){
+      for (std::map<std::string, SaveObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter){
+        delete iter->second;
+      }
+      objects.clear();
+      for (std::map<std::string, CharSaveObject*>::iterator iter = characters.begin(); iter != characters.end(); ++iter){
+        delete iter->second;
+      }
+      characters.clear();
+      walkmap.clear();
+    }
     //friend std::ostream& operator<<(std::ostream& strm, const SaveRoom& room);
   };
 
