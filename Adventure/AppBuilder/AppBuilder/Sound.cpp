@@ -449,6 +449,11 @@ std::istream& SoundEngine::load(std::istream& in){
   return in;
 }
 
+void SoundEngine::removeSoundPlayer(SoundPlayer* plyr){
+  mActiveSounds.erase(plyr->getName());
+  delete plyr;
+}
+
 
 SoundPlayer::SoundPlayer(const std::string& name, bool effectEnabled) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), 
 mName(name), mStartVolume(1.0f), mEndVolume(1.0f), mFadeDuration(0), mCurrTime(0), mEffectEnabled(effectEnabled){
@@ -553,7 +558,8 @@ bool SimpleSoundPlayer::update(unsigned time){
 static const int BUFFER_SIZE = 19200;
 
 StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname, bool effectEnabled) : 
-SoundPlayer(soundname, effectEnabled), mCodecContext(NULL), mCodec(NULL), mStreamNum(-1), mLooping(false), mStop(true){
+SoundPlayer(soundname, effectEnabled), mCodecContext(NULL), mCodec(NULL), mStreamNum(-1), 
+mLooping(false), mStop(true), mAutoDelete(true) {
   mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
   mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
   mDecodeBuffer.used = 0;
@@ -887,11 +893,23 @@ bool StreamSoundPlayer::update(unsigned time){
     else
       mStop = true;
     if (mStop){
-      if (mLooping){
+      if (mLooping || !mAutoDelete){
         //stop was not requested, so restart
+        bool inmemory = mMemoryStream != NULL;
+        DataBuffer* db = NULL;
+        if (inmemory){
+          ByteIOContext* ctx = (ByteIOContext*)mMemoryStream;
+          db = (DataBuffer*)ctx->opaque;
+          db->used = 0;
+          ctx->opaque = NULL;
+        }
         closeStream();
-        openStream(mFilename);
-        play(mLooping);
+        if (inmemory)
+          openStream(*db);
+        else
+          openStream(mFilename);
+        if (mLooping)
+          play(mLooping);
         return true;
       }
       return false;

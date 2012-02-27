@@ -666,7 +666,8 @@ void RoomObject::modifyWalkmap(const Vec2i& pos, bool walkable){
 
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
-mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0), mSpawnPos(-1,-1)
+mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0), mSpawnPos(-1,-1),
+mWalkSound(NULL)
 {
   mInventory = new Inventory();
   mIdleTimeout = (int(rand()/(float)RAND_MAX*10)+10)*1000;
@@ -675,6 +676,8 @@ mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0), mSpawnPos(-1,-1)
 CharacterObject::~CharacterObject(){
   Engine::instance()->getFontRenderer()->removeText(this);
   SoundEngine::instance()->removeSpeaker(this);
+  //if (mWalkSound) TODO multimap in sound engine
+  //  SoundEngine::instance()->removeSoundPlayer(mWalkSound);
   delete mInventory;
 }
 
@@ -692,11 +695,11 @@ void CharacterObject::setPosition(const Vec2i& pos, bool isSpawnPos){
     float scale = room->getDepthScale(pos);
     setScale(scale);
   }
-  else{
+  /*else{
     Room* rm = Engine::instance()->getData()->getRoom(mRoom);
     float scale = RoomObject::getDepthScale(pos, rm->depthmap.x, rm->depthmap.y, rm->zoom);
     setScale(scale);
-  }
+  }*/
 }
 
 Vec2i CharacterObject::getPosition(){
@@ -849,6 +852,10 @@ void CharacterObject::save(){
     save->fontid = mFontID;
     save->scale = mUserScale;
     save->nozooming = mNoZooming;
+    if (mWalkSound == NULL)
+      save->walksound = "";
+    else
+      save->walksound = mWalkSound->getName();
   }
 }
 

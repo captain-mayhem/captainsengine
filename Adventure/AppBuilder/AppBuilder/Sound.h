@@ -45,6 +45,7 @@ public:
   ALuint getEffectSlot() {return mEffectSlot;}
 #endif
   bool isEffectEnabled() {return mCurrentEffect != "none";}
+  void removeSoundPlayer(SoundPlayer* plyr);
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db, bool effectEnabled);
@@ -83,6 +84,7 @@ public:
   std::string getName() {return mName;}
   bool hasEffect() {return mEffectEnabled;}
   virtual bool isLooping() {return false;}
+  virtual void setAutoDelete(bool del) {}
 protected:
   bool fadeUpdate(unsigned time);
 #ifndef DISABLE_SOUND
@@ -150,6 +152,7 @@ public:
   void stop();
   bool update(unsigned time);
   virtual bool isLooping() {return mLooping;}
+  virtual void setAutoDelete(bool del) {mAutoDelete = del;}
 protected:
   unsigned decode();
   bool getNextPacket();
@@ -169,7 +172,7 @@ protected:
   DataBuffer mALBuffer;
   bool mLooping;
   bool mStop;
-
+  bool mAutoDelete;
   unsigned char* mMemoryBuffer;
   void* mMemoryStream;
 };

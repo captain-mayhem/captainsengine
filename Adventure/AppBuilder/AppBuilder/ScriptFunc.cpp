@@ -417,7 +417,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       RoomObject* room = Engine::instance()->getRoom(roomname);
       if (room){
         obj->setRoom(room->getName());
-        //obj->setScale(room->getDepthScale(obj->getPosition()));
+        obj->setScale(room->getDepthScale(obj->getPosition()));
         Engine::instance()->getSaver()->removeCharacter(obj->getName());
         room->addObject(obj);
       }

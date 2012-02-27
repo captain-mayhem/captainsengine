@@ -12,6 +12,7 @@
 #include "Screenchange.h"
 #include "Particles.h"
 #include "Textout.h"
+#include "Sound.h"
 
 using namespace adv;
 
@@ -1211,6 +1212,11 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   character->setTextColor(chbase->textcolor);
   character->setRoom(room);
   character->setNoZooming(obj->nozooming, true);
+  if (!obj->walksound.empty()){
+    /*SoundPlayer* plyr = SoundEngine::instance()->getSound(obj->walksound);
+    plyr->setAutoDelete(false);
+    character->setWalkSound(plyr);*/
+  }
   //RoomObject* ro = Engine::instance()->getRoom(room);
   //if (ro)
   //  character->setScale(ro->getDepthScale(obj->base.position));

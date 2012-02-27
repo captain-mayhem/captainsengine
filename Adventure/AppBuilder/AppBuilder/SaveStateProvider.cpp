@@ -85,6 +85,8 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::CharSaveObject& 
   strm >> chr.base >> chr.mirrored;
   strm >> chr.inventory;
   strm >> chr.fontid >> chr.scale >> chr.nozooming;
+  Character* ch = Engine::instance()->getData()->getCharacter(chr.base.name);
+  chr.walksound = ch->walksound;
   return strm;
 }
 
@@ -158,14 +160,18 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
         chr->base.position = mData->getRoomCharacters()[i].position;
         chr->base.name = mData->getRoomCharacters()[i].name;
         chr->mirrored = dummy.isMirrored();
-        chr->scale = 1.0f;
-        chr->nozooming = false;
         Character* chbase = mData->getCharacter(mData->getRoomCharacters()[i].character);
         int fontid = 0;
         if (chbase != NULL){
           fontid = chbase->fontid;
           chr->scale = chbase->zoom/100.0f;
           chr->nozooming = chbase->notzoom;
+          chr->walksound = chbase->walksound;
+        }
+        else{
+          chr->scale = 1.0f;
+          chr->nozooming = false;
+          chr->walksound = "";
         }
         if (fontid == 0)
           fontid = 1;
