@@ -25,6 +25,7 @@ public:
     int fontid;
     float scale;
     bool nozooming;
+    std::string walksound;
   };
   struct SaveRoom{
     SaveObject base;

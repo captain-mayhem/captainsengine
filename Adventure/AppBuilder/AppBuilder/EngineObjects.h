@@ -241,6 +241,7 @@ public:
   float getScaleFactor();
   virtual int getDepth();
   bool isSpawnPos();
+  void setWalkSound(SoundPlayer* plyr) {mWalkSound = plyr;}
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
@@ -257,6 +258,7 @@ protected:
   int mIdleTime;
   int mIdleTimeout;
   Vec2i mSpawnPos;
+  SoundPlayer* mWalkSound;
 };
 
 class ObjectGroup{
