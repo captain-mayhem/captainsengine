@@ -94,7 +94,7 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
 }
 
 SoundEngine::~SoundEngine(){
-  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+  for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     delete iter->second;
   }
   mActiveSounds.clear();
@@ -224,18 +224,22 @@ void SoundEngine::setEAXEffect(const std::string& effect){
 #endif
 }
 
-SoundPlayer* SoundEngine::getSound(const std::string& name){
-  return getSound(name, isEffectEnabled());
+SoundPlayer* SoundEngine::getSound(const std::string& name, int flags){
+  return getSound(name, isEffectEnabled(), flags);
 }
 
-SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled){
-  SoundPlayer* plyr = mActiveSounds[name];
-  if (plyr)
-    return plyr;
+SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled, int flags){
+  if (!(flags & PLAYER_CREATE_ALWAYS)){
+    std::multimap<std::string,SoundPlayer*>::iterator lowerit = mActiveSounds.find(name);
+    if (lowerit != mActiveSounds.end())
+      return lowerit->second;
+  }
   DataBuffer* db = new DataBuffer();
   mData->getSound(name, *db);
-  plyr = createPlayer(name, *db, effectEnabled);
-  mActiveSounds[name] = plyr;
+  SoundPlayer* plyr = createPlayer(name, *db, effectEnabled);
+  if (flags & PLAYER_UNMANAGED)
+    plyr->setAutoDelete(false);
+  mActiveSounds.insert(std::make_pair(name, plyr));
   return plyr;
 }
 
@@ -258,11 +262,15 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name, bool effectEnabled){
   if (mActiveMusic){
     //crossfade
     mActiveMusic->fadeVolume(mMusicVolume, 0.0f, mFadingTime);
-    if (mActiveSounds[mActiveMusic->getName()] != NULL){
-      mActiveSounds[mActiveMusic->getName()]->stop();
-      delete mActiveSounds[mActiveMusic->getName()];
+    std::multimap<std::string, SoundPlayer*>::iterator oldplayer = mActiveSounds.find(mActiveMusic->getName());
+    if (oldplayer != mActiveSounds.end()){
+      if (oldplayer->second){
+        oldplayer->second->stop();
+        delete oldplayer->second;
+      }
+      mActiveSounds.erase(oldplayer);
     }
-    mActiveSounds[mActiveMusic->getName()] = mActiveMusic;
+    mActiveSounds.insert(std::make_pair(mActiveMusic->getName(), mActiveMusic));
   }
   mActiveMusic = plyr;
   if (plyr){
@@ -354,7 +362,7 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
 }
 
 void SoundEngine::update(unsigned time){
-  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+  for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && !iter->second->update(time)){
       delete iter->second;
       iter->second = NULL;
@@ -371,7 +379,7 @@ void SoundEngine::update(unsigned time){
 }
 
 void SoundEngine::removeSpeaker(CharacterObject* chr){
-  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+  for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && iter->second->getSpeaker() == chr){
       delete iter->second;
       iter->second = NULL;
@@ -402,12 +410,12 @@ std::ostream& SoundEngine::save(std::ostream& out){
   }
   out << "\n";
   int loopcount = 0;
-  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+  for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && iter->second->isLooping())
       ++loopcount;
   }
   out << loopcount;
-  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+  for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && iter->second->isLooping()){
       out << " " << iter->second->getName() << " " << iter->second->hasEffect();
     }
@@ -418,7 +426,7 @@ std::ostream& SoundEngine::save(std::ostream& out){
 
 std::istream& SoundEngine::load(std::istream& in){
   //clear previous sounds
-  for (std::map<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+  for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     delete iter->second;
   }
   mActiveSounds.clear();
@@ -443,15 +451,24 @@ std::istream& SoundEngine::load(std::istream& in){
     std::string sound;
     bool effect;
     in >> sound >> effect;
-    SoundPlayer* sp = getSound(sound, effect);
+    SoundPlayer* sp = getSound(sound, effect, PLAYER_DEFAULT);
     sp->play(true);
   }
   return in;
 }
 
 void SoundEngine::removeSoundPlayer(SoundPlayer* plyr){
-  mActiveSounds.erase(plyr->getName());
-  delete plyr;
+  std::multimap<std::string, SoundPlayer*>::iterator lower = mActiveSounds.lower_bound(plyr->getName());
+  std::multimap<std::string, SoundPlayer*>::iterator upper = mActiveSounds.upper_bound(plyr->getName());
+  while(lower != upper){
+    if (lower->second == plyr){
+      lower->second->stop();
+      delete lower->second;
+      mActiveSounds.erase(lower);
+      break;
+    }
+    ++lower;
+  }
 }
 
 
@@ -559,7 +576,7 @@ static const int BUFFER_SIZE = 19200;
 
 StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname, bool effectEnabled) : 
 SoundPlayer(soundname, effectEnabled), mCodecContext(NULL), mCodec(NULL), mStreamNum(-1), 
-mLooping(false), mStop(true), mAutoDelete(true) {
+mLooping(false), mStop(true), mPlay(false), mAutoDelete(true) {
   mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
   mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
   mDecodeBuffer.used = 0;
@@ -853,6 +870,7 @@ bool StreamSoundPlayer::getNextPacket(){
 void StreamSoundPlayer::play(bool looping){
   mLooping = looping;
   mStop = false;
+  mPlay = true;
   unsigned bytes;
   for (int i = 0; i < 3; ++i){
     bytes = decode();
@@ -871,7 +889,16 @@ void StreamSoundPlayer::stop(){
   //VHALIGNCALL16(av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY));
 }
 
+void StreamSoundPlayer::seek(int time){
+  av_seek_frame(mFormat, 0, 0, AVSEEK_FLAG_BACKWARD | AVSEEK_FLAG_ANY);
+  for (int i = 0; i < 3; ++i){
+    alSourceUnqueueBuffers(mSource, 1, &mBuffers[i]);
+  }
+}
+
 bool StreamSoundPlayer::update(unsigned time){
+  if (!mPlay)
+    return true;
   fadeUpdate(time);
   ALint processed;
   ALint queued;
@@ -893,7 +920,7 @@ bool StreamSoundPlayer::update(unsigned time){
     else
       mStop = true;
     if (mStop){
-      if (mLooping || !mAutoDelete){
+      if (mLooping){
         //stop was not requested, so restart
         bool inmemory = mMemoryStream != NULL;
         DataBuffer* db = NULL;
@@ -908,11 +935,11 @@ bool StreamSoundPlayer::update(unsigned time){
           openStream(*db);
         else
           openStream(mFilename);
-        if (mLooping)
-          play(mLooping);
+        play(mLooping);
         return true;
       }
-      return false;
+      mPlay = false;
+      return !mAutoDelete;
     }
     return true;
   }

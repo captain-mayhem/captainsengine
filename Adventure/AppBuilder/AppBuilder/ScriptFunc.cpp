@@ -225,7 +225,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
   SoundPlayer* plyr = NULL;
   if (chr){
     if (sound != ""){
-      plyr = SoundEngine::instance()->getSound(sound);
+      plyr = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_CREATE_ALWAYS);
       if (plyr){
         plyr->setVolume(SoundEngine::instance()->getSpeechVolume());
         plyr->play(false);
@@ -284,7 +284,7 @@ int ScriptFunctions::playSound(ExecutionContext& ctx, unsigned numArgs){
     volume = ctx.stack().pop().getInt();
   if (ctx.mSkip)
     return 0;
-  SoundPlayer* sp = SoundEngine::instance()->getSound(sound);
+  SoundPlayer* sp = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_CREATE_ALWAYS);
   if (sp){
     sp->setVolume(volume/100.0f);
     sp->play(false);
@@ -577,7 +577,7 @@ int ScriptFunctions::loopSound(ExecutionContext& ctx, unsigned numArgs){
   int volume = 100;
   if (numArgs >= 2)
     volume = ctx.stack().pop().getInt();
-  SoundPlayer* sp = SoundEngine::instance()->getSound(sound);
+  SoundPlayer* sp = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_DEFAULT);
   if (sp){
     sp->setVolume(volume/100.0f);
     sp->play(true);
@@ -587,7 +587,7 @@ int ScriptFunctions::loopSound(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::loopStop(ExecutionContext& ctx, unsigned numArgs){
   std::string sound = ctx.stack().pop().getString();
-  SoundPlayer* sp = SoundEngine::instance()->getSound(sound);
+  SoundPlayer* sp = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_DEFAULT);
   if (sp)
     sp->stop();
   return 0;
@@ -692,7 +692,7 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   FontRenderer::String* str = NULL;
   SoundPlayer* plyr = NULL;
   if (sound != ""){
-    plyr = SoundEngine::instance()->getSound(sound);
+    plyr = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_CREATE_ALWAYS);
     if (plyr){
       plyr->setVolume(SoundEngine::instance()->getSpeechVolume());
       plyr->play(false);

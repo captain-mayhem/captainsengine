@@ -676,8 +676,8 @@ mWalkSound(NULL)
 CharacterObject::~CharacterObject(){
   Engine::instance()->getFontRenderer()->removeText(this);
   SoundEngine::instance()->removeSpeaker(this);
-  //if (mWalkSound) TODO multimap in sound engine
-  //  SoundEngine::instance()->removeSoundPlayer(mWalkSound);
+  if (mWalkSound)
+    SoundEngine::instance()->removeSoundPlayer(mWalkSound);
   delete mInventory;
 }
 
@@ -718,6 +718,8 @@ void CharacterObject::animationBegin(const Vec2i& next){
   Vec2i dir = next-getPosition();
   setLookDir(dir);
   setState(calculateState(mState, true, isTalking()));
+  if (mWalkSound)
+    mWalkSound->play(true);
 }
 
 void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
@@ -740,6 +742,10 @@ void CharacterObject::animationEnd(const Vec2i& prev){
   }
   setState(calculateState(mState, false, isTalking()));
   Object2D::animationEnd(prev);
+  if (mWalkSound){
+    mWalkSound->stop();
+    mWalkSound->seek(0);
+  }
 }
 
 void CharacterObject::setLookDir(LookDir dir){
