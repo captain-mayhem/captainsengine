@@ -20,13 +20,18 @@ class ExecutionContext;
 
 class SoundEngine{
 public:
+  enum PlayerFlags{
+    PLAYER_DEFAULT=0,
+    PLAYER_CREATE_ALWAYS=1,
+    PLAYER_UNMANAGED=2,
+  };
   ~SoundEngine();
   static void init() {mInstance = new SoundEngine();}
   static void deinit() {delete mInstance;}
   static SoundEngine* instance() {return mInstance;}
   void setData(AdvDocument* doc){mData = doc;}
-  SoundPlayer* getSound(const std::string& name);
-  SoundPlayer* getSound(const std::string& name, bool effectEnabled);
+  SoundPlayer* getSound(const std::string& name, int flags);
+  SoundPlayer* getSound(const std::string& name, bool effectEnabled, int flags);
   SoundPlayer* getMusic(const std::string& name);
   SoundPlayer* getMusic(const std::string& name, bool effectEnabled);
   VideoPlayer* getMovie(const std::string& name, bool isSwf);
@@ -58,7 +63,7 @@ protected:
   ALuint mEffectSlot;
   ALuint mEffect;
 #endif
-  std::map<std::string, SoundPlayer*> mActiveSounds;
+  std::multimap<std::string, SoundPlayer*> mActiveSounds;
   SoundPlayer* mActiveMusic;
   VideoPlayer* mActiveVideo;
   float mMusicVolume;
@@ -73,6 +78,7 @@ public:
   virtual ~SoundPlayer();
   virtual void play(bool looping)=0;
   virtual void stop()=0;
+  virtual void seek(int time)=0;
   void setVolume(float volume);
   virtual bool update(unsigned time)=0;
   void setSpeaker(CharacterObject* chr) {mSpeaker = chr;}
@@ -125,6 +131,7 @@ public:
   void play(bool looping);
   void stop();
   bool update(unsigned time);
+  void seek(int time) {}
 protected:
 #ifndef DISABLE_SOUND
   ALuint mBuffer;
@@ -151,6 +158,7 @@ public:
   void play(bool looping);
   void stop();
   bool update(unsigned time);
+  virtual void seek(int time);
   virtual bool isLooping() {return mLooping;}
   virtual void setAutoDelete(bool del) {mAutoDelete = del;}
 protected:
@@ -172,6 +180,7 @@ protected:
   DataBuffer mALBuffer;
   bool mLooping;
   bool mStop;
+  bool mPlay;
   bool mAutoDelete;
   unsigned char* mMemoryBuffer;
   void* mMemoryStream;

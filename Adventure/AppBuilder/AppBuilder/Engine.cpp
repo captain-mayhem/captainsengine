@@ -1213,9 +1213,8 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   character->setRoom(room);
   character->setNoZooming(obj->nozooming, true);
   if (!obj->walksound.empty()){
-    /*SoundPlayer* plyr = SoundEngine::instance()->getSound(obj->walksound);
-    plyr->setAutoDelete(false);
-    character->setWalkSound(plyr);*/
+    SoundPlayer* plyr = SoundEngine::instance()->getSound(obj->walksound, SoundEngine::PLAYER_CREATE_ALWAYS | SoundEngine::PLAYER_UNMANAGED);
+    character->setWalkSound(plyr);
   }
   //RoomObject* ro = Engine::instance()->getRoom(room);
   //if (ro)
