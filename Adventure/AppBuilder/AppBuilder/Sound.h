@@ -91,6 +91,7 @@ public:
   bool hasEffect() {return mEffectEnabled;}
   virtual bool isLooping() {return false;}
   virtual void setAutoDelete(bool del) {}
+  virtual bool hasAutoDeletion() {return true;}
 protected:
   bool fadeUpdate(unsigned time);
 #ifndef DISABLE_SOUND
@@ -161,6 +162,7 @@ public:
   virtual void seek(int time);
   virtual bool isLooping() {return mLooping;}
   virtual void setAutoDelete(bool del) {mAutoDelete = del;}
+  bool hasAutoDeletion() {return mAutoDelete;}
 protected:
   unsigned decode();
   bool getNextPacket();

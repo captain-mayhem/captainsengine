@@ -362,11 +362,18 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
 }
 
 void SoundEngine::update(unsigned time){
+  std::multimap<std::string, SoundPlayer*>::iterator garbage = mActiveSounds.end();
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && !iter->second->update(time)){
       delete iter->second;
       iter->second = NULL;
     }
+    if (iter->second == NULL)
+      garbage = iter;
+  }
+  if (garbage != mActiveSounds.end()){ //a little cleanup to get rid of old sounds
+    mActiveSounds.erase(garbage);
+    garbage = mActiveSounds.end();
   }
   if (mActiveMusic && !mActiveMusic->update(time)){
     delete mActiveMusic;
@@ -427,9 +434,12 @@ std::ostream& SoundEngine::save(std::ostream& out){
 std::istream& SoundEngine::load(std::istream& in){
   //clear previous sounds
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
-    delete iter->second;
+    if (iter->second->hasAutoDeletion()){
+      delete iter->second;
+      iter->second = NULL;
+    }
   }
-  mActiveSounds.clear();
+  //mActiveSounds.clear(); //that does not work anymore with unmanaged sounds. Let the sound garbage collector do the work
   delete mActiveMusic;
   mActiveMusic = NULL;
   
@@ -462,13 +472,13 @@ void SoundEngine::removeSoundPlayer(SoundPlayer* plyr){
   std::multimap<std::string, SoundPlayer*>::iterator upper = mActiveSounds.upper_bound(plyr->getName());
   while(lower != upper){
     if (lower->second == plyr){
-      lower->second->stop();
-      delete lower->second;
       mActiveSounds.erase(lower);
       break;
     }
     ++lower;
   }
+  plyr->stop();
+  delete plyr;
 }
 
 
