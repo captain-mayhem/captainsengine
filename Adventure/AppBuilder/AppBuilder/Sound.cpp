@@ -237,7 +237,7 @@ SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled, 
   DataBuffer* db = new DataBuffer();
   mData->getSound(name, *db);
   SoundPlayer* plyr = createPlayer(name, *db, effectEnabled);
-  if (flags & PLAYER_UNMANAGED)
+  if (plyr && (flags & PLAYER_UNMANAGED))
     plyr->setAutoDelete(false);
   mActiveSounds.insert(std::make_pair(name, plyr));
   return plyr;

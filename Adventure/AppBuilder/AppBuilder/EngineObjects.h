@@ -241,7 +241,7 @@ public:
   float getScaleFactor();
   virtual int getDepth();
   bool isSpawnPos();
-  void setWalkSound(SoundPlayer* plyr) {mWalkSound = plyr;}
+  void setWalkSound(SoundPlayer* plyr);
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;

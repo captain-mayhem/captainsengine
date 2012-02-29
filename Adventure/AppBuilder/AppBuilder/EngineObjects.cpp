@@ -848,7 +848,10 @@ void CharacterObject::save(){
   SaveStateProvider::CharSaveObject* save = Engine::instance()->getSaver()->getOrAddCharacter(mName);
   if (save){
     save->base.position = mPos;
-    save->base.state = mState;
+    if (isWalking() || isTalking()) //do not save walking or talking states as they are temorary only
+      save->base.state = calculateState(mState, false, false, false);
+    else
+      save->base.state = mState;
     save->base.name = mName;
     save->mirrored = mMirror;
     save->inventory.items.clear();
@@ -954,4 +957,10 @@ bool CharacterObject::isSpawnPos(){
     return true;
   mSpawnPos = Vec2i(-1,-1);
   return false;
+}
+
+void CharacterObject::setWalkSound(SoundPlayer* plyr){
+  if (mWalkSound != NULL)
+    SoundEngine::instance()->removeSoundPlayer(mWalkSound);
+  mWalkSound = plyr;
 }

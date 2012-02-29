@@ -1677,7 +1677,15 @@ int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   std::string soundname = ctx.stack().pop().getString();
-  DebugBreak();
+  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  if (chr){
+    SoundPlayer* plyr = SoundEngine::instance()->getSound(soundname, SoundEngine::PLAYER_CREATE_ALWAYS | SoundEngine::PLAYER_UNMANAGED);
+    chr->setWalkSound(plyr);
+  }
+  else{
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
+    cso->walksound = soundname;
+  }
   return 0;
 }
 

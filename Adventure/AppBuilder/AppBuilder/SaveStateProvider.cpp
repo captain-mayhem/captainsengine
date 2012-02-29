@@ -78,6 +78,11 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::CharSaveOb
   strm << chr.mirrored << std::endl;
   strm << chr.inventory;
   strm << chr.fontid << " " << chr.scale << " " << chr.nozooming << std::endl;
+  if (chr.walksound.empty())
+    strm << "none";
+  else
+    strm << chr.walksound;
+  strm << std::endl;
   return strm;
 }
 
@@ -85,8 +90,9 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::CharSaveObject& 
   strm >> chr.base >> chr.mirrored;
   strm >> chr.inventory;
   strm >> chr.fontid >> chr.scale >> chr.nozooming;
-  Character* ch = Engine::instance()->getData()->getCharacter(chr.base.name);
-  chr.walksound = ch->walksound;
+  strm >> chr.walksound;
+  if (chr.walksound == "none")
+    chr.walksound = "";
   return strm;
 }
 
