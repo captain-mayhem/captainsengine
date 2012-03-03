@@ -165,6 +165,8 @@ SET(AppBuilder_SRCS
   Inventory.h
   Particles.cpp
   Particles.h
+  PostProcessing.cpp
+  PostProcessing.h
   Renderer.cpp
   Renderer.h
   SaveStateProvider.cpp
