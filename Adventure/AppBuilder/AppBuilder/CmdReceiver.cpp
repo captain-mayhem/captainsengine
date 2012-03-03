@@ -42,14 +42,14 @@ void CommandReceiver::threadLoop(){
       CGE::Thread::sleep(100);
       continue;
     }
-    mConnSocket.set_non_blocking(false);
+    mConnSocket.set_non_blocking(true);
     std::string msg;
     msg = "cge "+toStr(Engine::instance()->getResolution().x+32)+" "+toStr(Engine::instance()->getResolution().y+32)+"\n";
     mConnSocket.send(msg);
     msg.clear();
     std::string cmd;
     while(!mStopRequested){
-      if (mConnSocket.recv(msg) <= 0)
+      if (mConnSocket.recv(msg) < 0)
         break;
       if (msg.length() > 0){
         cmd += msg;
@@ -62,7 +62,7 @@ void CommandReceiver::threadLoop(){
         }
         cmd.clear();
       }
-      CGE::Thread::sleep(10);
+      CGE::Thread::sleep(20);
     }
     //mConnSocket.close();
   }
@@ -79,6 +79,7 @@ void CommandReceiver::parseCommand(const std::string& cmd){
       c.type = SCRIPT;
       c.str = strdup(mMsg.c_str());
       mQueue.push(c);
+      mMsg.clear();
     }
     else{
       mMsg += cmd+"\n";

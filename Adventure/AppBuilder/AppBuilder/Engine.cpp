@@ -154,6 +154,7 @@ void Engine::initGame(exit_callback exit_cb){
   mForceNotToRenderUnloadingRoom = false;
   mPendingLoadRoom = "";
   mPendingLoadReason = NULL;
+  mRenderedMain = new RenderableBlitObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
 }
 
 void Engine::exitGame(){
@@ -181,6 +182,7 @@ void Engine::exitGame(){
   delete mFocussedChar;
   mFonts->unloadFont(mFontID);
   mFonts->unloadFont(0);
+  delete mRenderedMain;
 }
 
 CGE::Image* Engine::getImage(const std::string& name){
@@ -418,12 +420,26 @@ void Engine::render(unsigned time){
       if (!mShowTaskbar)
         continue;
     }
+    if (mMainRoomLoaded && iter == mRooms.rbegin()){
+      mRenderedMain->bind();
+      beginRendering();
+      GL()pushMatrix();
+      GL()loadIdentity();
+      GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+      GL()scalef(1.0f,-1.0f,1.0f);
+    }
     (*iter)->render();
+    if (mMainRoomLoaded && iter == mRooms.rbegin()){
+      if (mFocussedChar && mFocussedChar->getRoom() == (*iter)->getName())
+        mFocussedChar->render();
+      endRendering();
+      GL()popMatrix();
+      mRenderedMain->unbind();
+      mRenderedMain->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
+    }
     if (mInterpreter->isBlockingScriptRunning())
       break;
   }
-  if (mFocussedChar && mFocussedChar->getRoom() == mRooms.back()->getName())
-    mFocussedChar->render();
   if (!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene())
     mCursor->render();
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){

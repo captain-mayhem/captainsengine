@@ -1574,6 +1574,24 @@ int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
+  if (effect == "noise"){
+    int strength = ctx.stack().pop().getInt();
+    bool fade = false;
+    if (numArgs > 2){
+      std::string fadestr = ctx.stack().pop().getString();
+      if (fadestr == "fade")
+        fade = true;
+    }
+  }
+  else if (effect == "darkbloom"){
+    int strength = ctx.stack().pop().getInt();
+    bool fade = false;
+    if (numArgs > 2){
+      std::string fadestr = ctx.stack().pop().getString();
+      if (fadestr == "fade")
+        fade = true;
+    }
+  }
   DebugBreak();
   return 0;
 }

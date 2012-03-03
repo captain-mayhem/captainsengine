@@ -181,6 +181,7 @@ protected:
   bool mForceNotToRenderUnloadingRoom;
   std::string mPendingLoadRoom;
   ExecutionContext* mPendingLoadReason;
+  RenderableBlitObject* mRenderedMain;
 };
 
 }
