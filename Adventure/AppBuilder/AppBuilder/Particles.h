@@ -46,6 +46,7 @@ public:
   void setRotation(float angle) {mRotAngle = angle;}
   void setSpeedVariation(float variation) {mSpeedVariation = variation;}
   void setDepth(int depth);
+  int getDepth() {return mParticleDepth;}
   void activate(bool doit, bool immediately);
   std::ostream& save(std::ostream& out);
   std::istream& load(std::istream& in);

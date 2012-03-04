@@ -17,7 +17,7 @@ public:
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation);
   void setDepth(int depth);
   int getDepth() {if (mBlits.size() == 0) return 0; return mBlits[0]->getDepth();}
-  void setBlendAdditive(bool additive);
+  void setBlendMode(BlitObject::BlendMode mode);
 protected:
   BlitGroup() {}
   std::vector<BlitObject*> mBlits;
@@ -37,7 +37,7 @@ public:
   void update(unsigned interval);
   bool exists() {return this != NULL && mBlits.size() > 0;}
   void registerAnimationEndHandler(AnimationEndHandler* handler) {mHandler = handler;}
-  void setBlendAdditive(bool additive);
+  void setBlendMode(BlitObject::BlendMode mode);
 protected:
   std::vector<BlitGroup*> mBlits;
   unsigned mInterval;

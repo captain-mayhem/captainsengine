@@ -13,6 +13,7 @@
 #include "Particles.h"
 #include "Textout.h"
 #include "Sound.h"
+#include "PostProcessing.h"
 
 using namespace adv;
 
@@ -155,6 +156,8 @@ void Engine::initGame(exit_callback exit_cb){
   mPendingLoadRoom = "";
   mPendingLoadReason = NULL;
   mRenderedMain = new RenderableBlitObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
+  mRenderedMain->setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
+  mPostProc = new PostProcessor(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
 }
 
 void Engine::exitGame(){
@@ -183,6 +186,7 @@ void Engine::exitGame(){
   mFonts->unloadFont(mFontID);
   mFonts->unloadFont(0);
   delete mRenderedMain;
+  delete mPostProc;
 }
 
 CGE::Image* Engine::getImage(const std::string& name){
@@ -412,7 +416,8 @@ void Engine::render(unsigned time){
   }
   if (mFocussedChar && mFocussedChar->getAnimation())
     mFocussedChar->update(interval);
-  mParticleEngine->update(interval);
+  if (mParticleEngine->getDepth() == DEPTH_PARTICLES_TOP)
+    mParticleEngine->update(interval);
 
   //build blit queue
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
@@ -423,6 +428,8 @@ void Engine::render(unsigned time){
     if (mMainRoomLoaded && iter == mRooms.rbegin()){
       mRenderedMain->bind();
       beginRendering();
+      //glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       GL()pushMatrix();
       GL()loadIdentity();
       GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
@@ -432,10 +439,13 @@ void Engine::render(unsigned time){
     if (mMainRoomLoaded && iter == mRooms.rbegin()){
       if (mFocussedChar && mFocussedChar->getRoom() == (*iter)->getName())
         mFocussedChar->render();
+      if (mParticleEngine->getDepth() != DEPTH_PARTICLES_TOP) //render the particles now if they belong to the main room
+        mParticleEngine->update(interval);
       endRendering();
       GL()popMatrix();
       mRenderedMain->unbind();
-      mRenderedMain->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
+      BlitObject* result = mPostProc->process(mRenderedMain);
+      result->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
     }
     if (mInterpreter->isBlockingScriptRunning())
       break;
