@@ -22,7 +22,7 @@ BaseBlitObject::~BaseBlitObject(){
 }
 
 BlitObject::BlitObject(int width, int height, int depth, GLenum format) : 
-BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAngle(0.0f), mBlendAdditive(false){
+BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
   mScale.y = ((float)mSize.y)/pow2.y;
@@ -36,7 +36,7 @@ BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAng
 }
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
-BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(), mRotAngle(0.0f), mBlendAdditive(false){
+BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
   CGE::Image* image = Engine::instance()->getImage(texture);
   mTex = Engine::instance()->genTexture(image, mSize, mScale);
   delete image;
@@ -45,7 +45,7 @@ BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(), mRotAngle(0.0f
 }
 
 BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
-BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mMirrorOffset(), mRotAngle(0), mBlendAdditive(false)
+BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mMirrorOffset(), mRotAngle(0), mBlendMode(BLEND_ALPHA)
 {
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = false;
@@ -69,8 +69,10 @@ void BlitObject::render(const Vec2i& pos, const Vec2f& scale, const Vec2i& paren
 }
 
 void BlitObject::blit(){
-  if (mBlendAdditive)
+  if (mBlendMode == BLEND_ADDITIVE)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  else if (mBlendMode == BLEND_PREMULT_ALPHA)
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
   GL()pushMatrix();
   
   if (mZoomScale.x < 0){
@@ -101,7 +103,7 @@ void BlitObject::blit(){
   GL()color4ub(mColor.r, mColor.g, mColor.b, mColor.a);
   GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
   GL()popMatrix();
-  if (mBlendAdditive)
+  if (mBlendMode != BLEND_ALPHA)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 

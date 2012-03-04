@@ -41,9 +41,9 @@ void BlitGroup::setDepth(int depth){
   }
 }
 
-void BlitGroup::setBlendAdditive(bool additive){
+void BlitGroup::setBlendMode(BlitObject::BlendMode mode){
   for (unsigned i = 0; i < mBlits.size(); ++i){
-    mBlits[i]->setBlendAdditive(additive);
+    mBlits[i]->setBlendMode(mode);
   }
 }
 
@@ -122,9 +122,9 @@ Animation* Animation::clone(){
   return anim;
 }
 
-void Animation::setBlendAdditive(bool additive){
+void Animation::setBlendMode(BlitObject::BlendMode mode){
   for (unsigned k = 0; k < mBlits.size(); ++k){
-    mBlits[k]->setBlendAdditive(additive);
+    mBlits[k]->setBlendMode(mode);
   }
 }
 
@@ -237,7 +237,7 @@ unsigned Object2D::getNumDefinedStates(){
 
 void Object2D::setLighten(bool lighten){
   for (unsigned i = 0; i < mAnimations.size(); ++i){
-    mAnimations[i]->setBlendAdditive(lighten);
+    mAnimations[i]->setBlendMode(lighten ? BlitObject::BLEND_ADDITIVE : BlitObject::BLEND_ALPHA);
   }
 }
 

@@ -20,6 +20,7 @@ int _stricmp(const char* str1, const char* str2);
 class SaveStateProvider;
 class SoundPlayer;
 class ParticleEngine;
+class PostProcessor;
 
 typedef void (*exit_callback)();
 
@@ -182,6 +183,7 @@ protected:
   std::string mPendingLoadRoom;
   ExecutionContext* mPendingLoadReason;
   RenderableBlitObject* mRenderedMain;
+  PostProcessor* mPostProc;
 };
 
 }
