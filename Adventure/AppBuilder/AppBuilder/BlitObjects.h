@@ -75,6 +75,7 @@ public:
   void setRotation(float angle) {mRotAngle = angle;}
   void setBlendMode(BlendMode mode) {mBlendMode = mode;}
   void updateTexture(unsigned width, unsigned height, void* data);
+  GLuint getTexture() {return mTex;}
 protected:
   Vec2i mOffset;
   Vec2f mScale;
