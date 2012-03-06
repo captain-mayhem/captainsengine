@@ -133,13 +133,15 @@ public:
   bool addShader(GLenum shadertype, const char* shaderstring, int stringlen=0);
   bool linkShaders();
   void deleteShaders();
-  void activate() {glUseProgram(mProgram);}
+  void activate() {glGetIntegerv(GL_CURRENT_PROGRAM, &mOldProg); glUseProgram(mProgram);}
+  void deactivate() {glUseProgram(mOldProg);}
   int getAttribLocation(const char* name) {return glGetAttribLocation(mProgram, name);}
   int getUniformLocation(const char* name) {return glGetUniformLocation(mProgram, name);}
   void uniform(int location, int value) {glUniform1i(location, value);}
   void uniform(int location, float v0, float v1, float v2, float v3) {glUniform4f(location, v0, v1, v2, v3);}
 protected:
   GLuint mProgram;
+  GLint mOldProg;
   std::vector<GLuint> mShaders;
 };
 
