@@ -103,6 +103,7 @@ public:
   void restoreRenderDefaults();
   void forceNotToRenderUnloadingRoom() {mForceNotToRenderUnloadingRoom = true;}
   AdvDocument* getData() {return mData;}
+  PostProcessor* getPostProcessor() {return mPostProc;}
 protected:
   Engine();
   static Engine* mInstance;
