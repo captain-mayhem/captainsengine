@@ -13,6 +13,7 @@
 #include "Screenchange.h"
 #include "Particles.h"
 #include "Textout.h"
+#include "PostProcessing.h"
 
 using namespace adv;
 
@@ -1574,7 +1575,7 @@ int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
-  if (effect == "noise"){
+  if (effect == "noise" || effect == "darkbloom"){
     int strength = ctx.stack().pop().getInt();
     bool fade = false;
     if (numArgs > 2){
@@ -1582,17 +1583,11 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
       if (fadestr == "fade")
         fade = true;
     }
+    PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
+    ef->activate(fade, strength/50.0f, fade);
   }
-  else if (effect == "darkbloom"){
-    int strength = ctx.stack().pop().getInt();
-    bool fade = false;
-    if (numArgs > 2){
-      std::string fadestr = ctx.stack().pop().getString();
-      if (fadestr == "fade")
-        fade = true;
-    }
-  }
-  DebugBreak();
+  else
+    DebugBreak();
   return 0;
 }
 

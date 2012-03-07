@@ -444,7 +444,7 @@ void Engine::render(unsigned time){
       endRendering();
       GL()popMatrix();
       mRenderedMain->unbind();
-      BlitObject* result = mPostProc->process(mRenderedMain);
+      BlitObject* result = mPostProc->process(mRenderedMain, interval);
       result->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
     }
     if (mInterpreter->isBlockingScriptRunning())
