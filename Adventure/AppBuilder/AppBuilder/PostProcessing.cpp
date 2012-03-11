@@ -8,14 +8,14 @@ using namespace adv;
 class Interpolator{
 public:
   Interpolator() : mSource(0), mTarget(0), mCurrent(0), mTime(0), mTimeAccu(0){}
-  Interpolator(float from, float to, int time) :
-  mSource(from), mTarget(to), mCurrent(from), mTime((float)time), mTimeAccu(0){
+  Interpolator(float from, float to, float time) :
+  mSource(from), mTarget(to), mCurrent(from), mTime(time), mTimeAccu(0){
   }
-  void set(float from, float to, int time){
+  void set(float from, float to, float time){
     mSource = from;
     mTarget = to;
     mCurrent = from;
-    mTime = (float)time;
+    mTime = time;
     mTimeAccu = 0;
   }
   bool update(int time){
@@ -32,6 +32,7 @@ public:
   float source() {return mSource;}
   float target() {return mTarget;}
   float time() {return mTime;}
+  float currTime() {return (float)mTimeAccu;}
   void reset() {mCurrent = mSource; mTimeAccu = 0;}
 private:
   float mSource;
@@ -41,7 +42,7 @@ private:
   int mTimeAccu;
 };
 
-PostProcessor::Effect::Effect(const char* vertexsource, const char* fragmentsource){
+PostProcessor::Effect::Effect(const char* vertexsource, const char* fragmentsource) : mFade(false){
   mShader.addShader(GL_VERTEX_SHADER, vertexsource);
   mShader.addShader(GL_FRAGMENT_SHADER, fragmentsource);
 }
@@ -50,7 +51,24 @@ PostProcessor::Effect::~Effect(){
 }
 
 void PostProcessor::Effect::activate(bool fade, ...){
-  Engine::instance()->getPostProcessor()->mActiveEffects.insert(std::make_pair("bla", this));
+  std::list<Effect*>& activeEffects = Engine::instance()->getPostProcessor()->mActiveEffects;
+  bool found = false;
+  for (std::list<Effect*>::iterator iter = activeEffects.begin(); iter != activeEffects.end(); ++iter){
+    if (*iter == this){
+      found = true;
+      break;
+    }
+  }
+  if (!found){
+    init();
+    Engine::instance()->getPostProcessor()->mActiveEffects.push_back(this);
+  }
+  mFade = fade;
+}
+
+void PostProcessor::Effect::deactivate(){
+  deinit();
+  Engine::instance()->getPostProcessor()->mActiveEffects.remove(this);
 }
 
 static const char vertexshadersource[] =
@@ -97,9 +115,10 @@ static const char fragmentshadersource[] =
 class DarkBloomEffect : public PostProcessor::Effect{
 public:
   DarkBloomEffect() : Effect(vertexshadersource, fragmentshadersource){
+    mName = "darkbloom";
   }
   virtual void init(){
-    mShader.linkShaders();
+    Effect::init();
     mShader.activate();
     GLint tex = mShader.getUniformLocation("texture");
     mShader.uniform(tex, 0);
@@ -112,13 +131,39 @@ public:
     float strength = (float)va_arg(args,double);
     bool animate = va_arg(args,bool);
     va_end(args);
-    mInterpolator.set(0, strength, 5000);
+    if (fade){
+      mInterpolator.set(0, strength, 2000);
+      mState = FADEIN;
+    }
+    else{
+      mInterpolator.set(strength, strength/2, 1000);
+      mState = ANIMATE;
+    }
     Effect::activate(fade);
+  }
+  virtual void deactivate(){
+    if (mFade){
+      mInterpolator.set(mInterpolator.current(), 0, mInterpolator.currTime()*2);
+      mState = FADEOUT;
+    }
+    else
+      Effect::deactivate();
   }
   virtual bool update(unsigned time) {
     if (!mInterpolator.update(time)){
-      mInterpolator.set(mInterpolator.current(), mInterpolator.source(), (int)mInterpolator.time());
-      mInterpolator.reset();
+      if (mState == FADEIN){
+        mInterpolator.set(mInterpolator.current(), mInterpolator.current()/2, mInterpolator.time());
+        mInterpolator.reset();
+        mState = ANIMATE;
+      }
+      else if (mState == FADEOUT){
+        Effect::deactivate();
+        return false;
+      }
+      else{
+        mInterpolator.set(mInterpolator.current(), mInterpolator.source(), mInterpolator.time());
+        mInterpolator.reset();
+      }
     }
     return true;
   }
@@ -133,8 +178,14 @@ public:
     mShader.deactivate();
   }
 private:
+  enum State{
+    FADEIN,
+    ANIMATE,
+    FADEOUT
+  };
   GLint mIntensityLoc;
   Interpolator mInterpolator;
+  State mState;
 };
 
 
@@ -151,27 +202,37 @@ PostProcessor::~PostProcessor(){
 }
 
 BlitObject* PostProcessor::process(BlitObject* input, unsigned time){
-  static bool first = true;
-  if (first){
-    mEffects["darkbloom"]->init();
-    mEffects["darkbloom"]->activate(true, 1.0f, true);
-    first = false;
-  }
+  if (mActiveEffects.empty())
+    return input;
   mResult.bind();
-  mEffects["darkbloom"]->update(time);
-  mEffects["darkbloom"]->apply(input);
+  for (std::list<Effect*>::iterator iter = mActiveEffects.begin(); iter != mActiveEffects.end(); ){
+    std::list<Effect*>::iterator iter2 = iter;
+    ++iter2;
+    if ((*iter)->update(time))
+      (*iter)->apply(input);
+    iter = iter2;
+  }
   mResult.unbind();
-  //return &mResult;
-  return input;
+  return &mResult;
 }
 
 PostProcessor::Effect* PostProcessor::getEffect(const std::string& effect){
-  std::map<std::string,Effect*>::iterator iter = mActiveEffects.find(effect);
-  if (iter != mActiveEffects.end())
-    return iter->second;
-  iter = mEffects.find(effect);
+  for (std::list<Effect*>::iterator iter = mActiveEffects.begin(); iter != mActiveEffects.end(); ++iter){
+    if ((*iter)->getName() == effect)
+      return *iter;
+  }
+  std::map<std::string,Effect*>::iterator iter = mEffects.find(effect);
   if (iter != mEffects.end()){
     return iter->second;
   }
   return NULL;
+}
+
+void PostProcessor::stopEffects(){
+  for (std::list<Effect*>::iterator iter = mActiveEffects.begin(); iter != mActiveEffects.end(); ){
+    std::list<Effect*>::iterator iter2 = iter;
+    ++iter2;
+    (*iter)->deactivate();
+    iter = iter2;
+  }
 }

@@ -1570,6 +1570,12 @@ int ScriptFunctions::textHide(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
+  if (effect == "all"){
+    Engine::instance()->getPostProcessor()->stopEffects();
+  }
+  else{
+    DebugBreak();
+  }
   return 0;
 }
 
