@@ -139,6 +139,7 @@ public:
   int getUniformLocation(const char* name) {return glGetUniformLocation(mProgram, name);}
   void uniform(int location, int value) {glUniform1i(location, value);}
   void uniform(int location, float value) {glUniform1f(location, value);}
+  void uniform(int location, float v0, float v1) {glUniform2f(location, v0, v1);}
   void uniform(int location, float v0, float v1, float v2, float v3) {glUniform4f(location, v0, v1, v2, v3);}
 protected:
   GLuint mProgram;

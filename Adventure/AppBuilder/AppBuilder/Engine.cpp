@@ -215,42 +215,55 @@ GLuint Engine::genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, co
   Vec2i pow2(roundToPowerOf2(size.x), roundToPowerOf2(size.y));
   scale.x = ((float)size.x)/pow2.x;
   scale.y = ((float)size.y)/pow2.y;
-  unsigned totalsize = size.x*size.y;
-  unsigned char* rgb = image->getData();
-  //unsigned char* alpha = image.GetAlpha();
-  GLubyte* buffer = new GLubyte[totalsize*4];
-  int channels = image->getNumChannels();
-  for (unsigned i = 0; i < totalsize; ++i){
-    buffer[4*i] = rgb[channels*i];
-    buffer[4*i+1] = rgb[channels*i+1];
-    buffer[4*i+2] = rgb[channels*i+2];
-    if (image->hasAlpha())
-      buffer[4*i+3] = rgb[channels*i+3];
-    else if (alphaimage){
-      buffer[4*i+3] = alphaimage->getPixelChannel(i%size.x, i/size.x, 0);
-    }
-    else{
-      if (rgb[channels*i] == 0xFF && rgb[channels*i+1] == 0x0 && rgb[channels*i+2] == 0xFF){
-        buffer[4*i+3] = 0;
+  GLint format = GL_RGBA;
+  GLubyte* buffer;
+  bool deleteBuffer = true;
+  int numchannels = 4;
+  if (image->getNumChannels() == 1){
+    format = GL_ALPHA;
+    buffer = image->getData();
+    deleteBuffer = false;
+    numchannels = 1;
+  }
+  else{
+    unsigned totalsize = size.x*size.y;
+    unsigned char* rgb = image->getData();
+    //unsigned char* alpha = image.GetAlpha();
+    buffer = new GLubyte[totalsize*4];
+    int channels = image->getNumChannels();
+    for (unsigned i = 0; i < totalsize; ++i){
+      buffer[4*i] = rgb[channels*i];
+      buffer[4*i+1] = rgb[channels*i+1];
+      buffer[4*i+2] = rgb[channels*i+2];
+      if (image->hasAlpha())
+        buffer[4*i+3] = rgb[channels*i+3];
+      else if (alphaimage){
+        buffer[4*i+3] = alphaimage->getPixelChannel(i%size.x, i/size.x, 0);
       }
       else{
-        buffer[4*i+3] = 255;
+        if (rgb[channels*i] == 0xFF && rgb[channels*i+1] == 0x0 && rgb[channels*i+2] == 0xFF){
+          buffer[4*i+3] = 0;
+        }
+        else{
+          buffer[4*i+3] = 255;
+        }
       }
     }
   }
   glGenTextures(1,&tex);
   glBindTexture(GL_TEXTURE_2D, tex);
-  char* init = new char[pow2.x*pow2.y*4];
-  memset(init, 0, pow2.x*pow2.y*4);
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, pow2.x, pow2.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, init);
+  char* init = new char[pow2.x*pow2.y*numchannels];
+  memset(init, 0, pow2.x*pow2.y*numchannels);
+  glTexImage2D(GL_TEXTURE_2D, 0, format, pow2.x, pow2.y, 0, format, GL_UNSIGNED_BYTE, init);
   delete [] init;
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, format, GL_UNSIGNED_BYTE, buffer);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
   /*glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_R,GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);*/
-  delete buffer;
+  if (deleteBuffer)
+    delete buffer;
   return tex;
 }
 
