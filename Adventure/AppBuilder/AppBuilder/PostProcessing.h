@@ -12,7 +12,7 @@ public:
   public:
     Effect(const char* vertexsource, const char* fragmentsource);
     virtual ~Effect();
-    virtual void init() {mShader.linkShaders();}
+    virtual void init(const Vec2f& size) {mShader.linkShaders();}
     virtual void deinit() {mShader.deleteShaders();}
     virtual bool update(unsigned time) {return true;}
     virtual void apply(BlitObject* input)=0;

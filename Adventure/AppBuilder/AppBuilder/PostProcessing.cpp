@@ -60,7 +60,7 @@ void PostProcessor::Effect::activate(bool fade, ...){
     }
   }
   if (!found){
-    init();
+    init(Vec2f((float)Engine::instance()->getResolution().x, (float)Engine::instance()->getResolution().y));
     Engine::instance()->getPostProcessor()->mActiveEffects.push_back(this);
   }
   mFade = fade;
@@ -71,24 +71,27 @@ void PostProcessor::Effect::deactivate(){
   Engine::instance()->getPostProcessor()->mActiveEffects.remove(this);
 }
 
-static const char vertexshadersource[] =
+/*dark bloom*/
+
+static const char bloomvs[] =
 "precision mediump float;\n"
 "attribute vec3 position;\n"
 "attribute vec4 texCoord;\n"
 "\n"
-"uniform mat4 matrices[3];\n"
+"uniform vec2 tex_scale;\n"
+"uniform vec2 pixel_offset;\n"
 "\n"
 "varying vec2 tex_coord;\n"
 "varying vec2 tex_coord2;\n"
 "\n"
 "void main(){\n"
-"  tex_coord = vec2(position.x*0.625, (0.0+position.y)*0.9375);\n"
-"  tex_coord2 = vec2(position.x*2.0-1.0, (0.0+position.y)*2.0-1.0)*vec2(0.0015625*2, 0.002083*2);\n"
+"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
+"  tex_coord2 = vec2(position.x*2.0-1.0, (0.0+position.y)*2.0-1.0)*pixel_offset*2;\n"
 "  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
 "}\n"
 "";
 
-static const char fragmentshadersource[] =
+static const char darkbloomfs[] =
 "precision mediump float;\n"
 "varying vec2 tex_coord;\n"
 "varying vec2 tex_coord2;\n"
@@ -114,14 +117,20 @@ static const char fragmentshadersource[] =
 
 class DarkBloomEffect : public PostProcessor::Effect{
 public:
-  DarkBloomEffect() : Effect(vertexshadersource, fragmentshadersource){
+  DarkBloomEffect() : Effect(bloomvs, darkbloomfs){
     mName = "darkbloom";
   }
-  virtual void init(){
-    Effect::init();
+  virtual void init(const Vec2f& size){
+    Effect::init(size);
     mShader.activate();
     GLint tex = mShader.getUniformLocation("texture");
     mShader.uniform(tex, 0);
+    GLint scale = mShader.getUniformLocation("tex_scale");
+    float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
+    float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.uniform(scale, size.x/powx, size.y/powy);
+    GLint pixeloffset = mShader.getUniformLocation("pixel_offset");
+    mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
     mIntensityLoc = mShader.getUniformLocation("strength");
     mShader.deactivate();
   }
@@ -129,14 +138,14 @@ public:
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
-    bool animate = va_arg(args,bool);
+    mAnimate = va_arg(args,bool);
     va_end(args);
     if (fade){
       mInterpolator.set(0, strength, 2000);
       mState = FADEIN;
     }
     else{
-      mInterpolator.set(strength, strength/2, 1000);
+      mInterpolator.set(strength, fade ? strength/2 : strength, 1000);
       mState = ANIMATE;
     }
     Effect::activate(fade);
@@ -160,7 +169,7 @@ public:
         Effect::deactivate();
         return false;
       }
-      else{
+      else if (mAnimate){
         mInterpolator.set(mInterpolator.current(), mInterpolator.source(), mInterpolator.time());
         mInterpolator.reset();
       }
@@ -172,8 +181,6 @@ public:
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
     mShader.uniform(mIntensityLoc, mInterpolator.current());
-    //GLint pos = mEffects["darkbloom"]->getShader().getAttribLocation("position");
-    //glVertexAttribPointer(pos, size, type, GL_FALSE, 0, Engine::instance()->getVertices());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     mShader.deactivate();
   }
@@ -183,16 +190,151 @@ private:
     ANIMATE,
     FADEOUT
   };
+  bool mAnimate;
   GLint mIntensityLoc;
   Interpolator mInterpolator;
   State mState;
 };
 
+/*noise*/
 
+static const char noisevs[] =
+"precision mediump float;\n"
+"attribute vec3 position;\n"
+"attribute vec4 texCoord;\n"
+"\n"
+"uniform vec2 tex_scale;\n"
+"uniform vec2 pixel_offset;\n"
+"\n"
+"varying vec2 tex_coord;\n"
+"\n"
+"void main(){\n"
+"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
+"  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
+"}\n"
+"";
+
+static const char noisefs[] =
+"precision mediump float;\n"
+"varying vec2 tex_coord;\n"
+"\n"
+"uniform sampler2D texture;\n"
+"uniform sampler2D blendtex;\n"
+"uniform float strength;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = vec4(1.0);\n"
+"  color = texture2D(texture, tex_coord.st);\n"
+"  vec4 blendcol = vec4(1.0);\n"
+"  blendcol.rgb = texture2D(blendtex, tex_coord.st).aaa;\n"
+"  color = mix(color, blendcol, 0.5);\n"
+"  gl_FragColor = color;\n"
+"  gl_FragDepth = gl_FragCoord.z;\n"
+"}\n"
+"";
+
+class NoiseEffect : public PostProcessor::Effect{
+public:
+  NoiseEffect() : Effect(noisevs, noisefs){
+    mName = "noise";
+  }
+  virtual void init(const Vec2f& size){
+    CGE::Image img;
+    img.setFormat(1, (int)size.x/2, (int)size.y/2);
+    img.allocateData();
+    for (unsigned i = 0; i < img.getImageSize(); ++i){
+      img.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
+    }
+    Vec2i imgsize;
+    Vec2f imgscale;
+    glActiveTexture(GL_TEXTURE1);
+    mBlendTex = Engine::instance()->genTexture(&img, imgsize, imgscale);
+    glActiveTexture(GL_TEXTURE0);
+    Effect::init(size);
+    mShader.activate();
+    GLint tex = mShader.getUniformLocation("texture");
+    mShader.uniform(tex, 0);
+    GLint blendtex = mShader.getUniformLocation("blendtex");
+    mShader.uniform(blendtex, 1);
+    GLint scale = mShader.getUniformLocation("tex_scale");
+    float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
+    float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.uniform(scale, size.x/powx, size.y/powy);
+    GLint pixeloffset = mShader.getUniformLocation("pixel_offset");
+    mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
+    mIntensityLoc = mShader.getUniformLocation("strength");
+    mShader.deactivate();
+  }
+  virtual void activate(bool fade, ...){
+    va_list args;
+    va_start(args, fade);
+    float strength = (float)va_arg(args,double);
+    mAnimate = va_arg(args,bool);
+    va_end(args);
+    if (fade){
+      mInterpolator.set(0, strength, 2000);
+      mState = FADEIN;
+    }
+    else{
+      mInterpolator.set(strength, fade ? strength/2 : strength, 1000);
+      mState = ANIMATE;
+    }
+    Effect::activate(fade);
+  }
+  virtual void deactivate(){
+    if (mFade){
+      mInterpolator.set(mInterpolator.current(), 0, mInterpolator.currTime()*2);
+      mState = FADEOUT;
+    }
+    else
+      Effect::deactivate();
+  }
+  virtual bool update(unsigned time) {
+    if (!mInterpolator.update(time)){
+      if (mState == FADEIN){
+        mInterpolator.set(mInterpolator.current(), mInterpolator.current()/2, mInterpolator.time());
+        mInterpolator.reset();
+        mState = ANIMATE;
+      }
+      else if (mState == FADEOUT){
+        Effect::deactivate();
+        return false;
+      }
+      else if (mAnimate){
+        mInterpolator.set(mInterpolator.current(), mInterpolator.source(), mInterpolator.time());
+        mInterpolator.reset();
+      }
+    }
+    return true;
+  }
+  virtual void apply(BlitObject* input){
+    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    mShader.activate();
+    mShader.uniform(mIntensityLoc, mInterpolator.current());
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    mShader.deactivate();
+  }
+private:
+  enum State{
+    FADEIN,
+    ANIMATE,
+    FADEOUT
+  };
+  bool mAnimate;
+  GLint mIntensityLoc;
+  Interpolator mInterpolator;
+  State mState;
+  GLuint mBlendTex;
+};
+
+/* Postprocessor */
+
+#define REGISTER_EFFECT(effect, class) class* effect = new class(); mEffects[effect->getName()] = effect;
 
 PostProcessor::PostProcessor(int width, int height, int depth) : mResult(width, height, depth){
-  DarkBloomEffect* darkbloom = new DarkBloomEffect();
-  mEffects["darkbloom"] = darkbloom;
+  REGISTER_EFFECT(darkbloom, DarkBloomEffect);
+  REGISTER_EFFECT(noise, NoiseEffect);
 }
 
 PostProcessor::~PostProcessor(){
