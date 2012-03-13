@@ -19,6 +19,8 @@ public:
     mTimeAccu = 0;
   }
   bool update(int time){
+    if (mTimeAccu > mTime)
+      return false;
     mTimeAccu += time;
     float alpha = mTimeAccu/mTime;
     if (alpha > 1.0f)
@@ -220,14 +222,14 @@ static const char noisefs[] =
 "\n"
 "uniform sampler2D texture;\n"
 "uniform sampler2D blendtex;\n"
-"uniform float strength;\n"
+"uniform float opacity;\n"
 "\n"
 "void main(){\n"
 "  vec4 color = vec4(1.0);\n"
 "  color = texture2D(texture, tex_coord.st);\n"
 "  vec4 blendcol = vec4(1.0);\n"
-"  blendcol.rgb = texture2D(blendtex, tex_coord.st).aaa;\n"
-"  color = mix(color, blendcol, 0.5);\n"
+"  blendcol.rgb = texture2D(blendtex, tex_coord.st).rrr;\n"
+"  color = mix(color, blendcol, opacity);\n"
 "  gl_FragColor = color;\n"
 "  gl_FragDepth = gl_FragCoord.z;\n"
 "}\n"
@@ -239,16 +241,15 @@ public:
     mName = "noise";
   }
   virtual void init(const Vec2f& size){
-    CGE::Image img;
-    img.setFormat(1, (int)size.x/2, (int)size.y/2);
-    img.allocateData();
-    for (unsigned i = 0; i < img.getImageSize(); ++i){
-      img.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
+    mImage.setFormat(1, (int)size.x/2, (int)size.y/2);
+    mImage.allocateData();
+    for (unsigned i = 0; i < mImage.getImageSize(); ++i){
+      mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
     }
     Vec2i imgsize;
     Vec2f imgscale;
     glActiveTexture(GL_TEXTURE1);
-    mBlendTex = Engine::instance()->genTexture(&img, imgsize, imgscale);
+    mBlendTex = Engine::instance()->genTexture(&mImage, imgsize, imgscale);
     glActiveTexture(GL_TEXTURE0);
     Effect::init(size);
     mShader.activate();
@@ -262,49 +263,48 @@ public:
     mShader.uniform(scale, size.x/powx, size.y/powy);
     GLint pixeloffset = mShader.getUniformLocation("pixel_offset");
     mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
-    mIntensityLoc = mShader.getUniformLocation("strength");
+    mIntensityLoc = mShader.getUniformLocation("opacity");
     mShader.deactivate();
+  }
+  virtual void deinit(){
+    glDeleteTextures(1, &mBlendTex);
   }
   virtual void activate(bool fade, ...){
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
-    mAnimate = va_arg(args,bool);
     va_end(args);
     if (fade){
-      mInterpolator.set(0, strength, 2000);
-      mState = FADEIN;
+      mInterpolator.set(0, strength, 1000);
     }
     else{
-      mInterpolator.set(strength, fade ? strength/2 : strength, 1000);
-      mState = ANIMATE;
+      mInterpolator.set(strength, strength, 1000);
     }
+    mFadeout = false;
     Effect::activate(fade);
   }
   virtual void deactivate(){
     if (mFade){
-      mInterpolator.set(mInterpolator.current(), 0, mInterpolator.currTime()*2);
-      mState = FADEOUT;
+      mInterpolator.set(mInterpolator.current(), 0, mInterpolator.currTime());
+      mFadeout = true;
     }
     else
       Effect::deactivate();
   }
   virtual bool update(unsigned time) {
     if (!mInterpolator.update(time)){
-      if (mState == FADEIN){
-        mInterpolator.set(mInterpolator.current(), mInterpolator.current()/2, mInterpolator.time());
-        mInterpolator.reset();
-        mState = ANIMATE;
-      }
-      else if (mState == FADEOUT){
+      if (mFadeout){
         Effect::deactivate();
         return false;
       }
-      else if (mAnimate){
-        mInterpolator.set(mInterpolator.current(), mInterpolator.source(), mInterpolator.time());
-        mInterpolator.reset();
-      }
     }
+    for (unsigned i = 0; i < mImage.getImageSize(); ++i){
+      mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
+    }
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mBlendTex);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mImage.getWidth(), mImage.getHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, mImage.getData());
+    glActiveTexture(GL_TEXTURE0);
     return true;
   }
   virtual void apply(BlitObject* input){
@@ -316,23 +316,18 @@ public:
     mShader.deactivate();
   }
 private:
-  enum State{
-    FADEIN,
-    ANIMATE,
-    FADEOUT
-  };
-  bool mAnimate;
   GLint mIntensityLoc;
   Interpolator mInterpolator;
-  State mState;
+  bool mFadeout;
   GLuint mBlendTex;
+  CGE::Image mImage;
 };
 
 /* Postprocessor */
 
 #define REGISTER_EFFECT(effect, class) class* effect = new class(); mEffects[effect->getName()] = effect;
 
-PostProcessor::PostProcessor(int width, int height, int depth) : mResult(width, height, depth){
+PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width, height, depth), mResult2(width, height, depth){
   REGISTER_EFFECT(darkbloom, DarkBloomEffect);
   REGISTER_EFFECT(noise, NoiseEffect);
 }
@@ -346,16 +341,28 @@ PostProcessor::~PostProcessor(){
 BlitObject* PostProcessor::process(BlitObject* input, unsigned time){
   if (mActiveEffects.empty())
     return input;
-  mResult.bind();
+  RenderableBlitObject* target = &mResult1;
+  BlitObject* source = input;
   for (std::list<Effect*>::iterator iter = mActiveEffects.begin(); iter != mActiveEffects.end(); ){
     std::list<Effect*>::iterator iter2 = iter;
     ++iter2;
-    if ((*iter)->update(time))
-      (*iter)->apply(input);
+    if ((*iter)->update(time)){
+      target->bind();
+      (*iter)->apply(source);
+      target->unbind();
+      //swap source and target buffers for next pass
+      if (iter2 != mActiveEffects.end()){
+        RenderableBlitObject* tmp = target;
+        if (source == input)
+          target = &mResult2;
+        else
+          target = (RenderableBlitObject*)source;
+        source = tmp;
+      }
+    }
     iter = iter2;
   }
-  mResult.unbind();
-  return &mResult;
+  return target;
 }
 
 PostProcessor::Effect* PostProcessor::getEffect(const std::string& effect){

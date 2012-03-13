@@ -1590,7 +1590,10 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
         fade = true;
     }
     PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
-    ef->activate(fade, strength/50.0f, fade);
+    if (effect == "darkbloom")
+      ef->activate(fade, strength/50.0f, fade);
+    else if (effect == "noise")
+      ef->activate(fade, strength/99.0f);
   }
   else
     DebugBreak();
