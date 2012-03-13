@@ -220,7 +220,7 @@ GLuint Engine::genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, co
   bool deleteBuffer = true;
   int numchannels = 4;
   if (image->getNumChannels() == 1){
-    format = GL_ALPHA;
+    format = GL_LUMINANCE;
     buffer = image->getData();
     deleteBuffer = false;
     numchannels = 1;

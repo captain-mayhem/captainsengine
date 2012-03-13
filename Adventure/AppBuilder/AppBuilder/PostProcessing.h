@@ -33,7 +33,8 @@ public:
 
   friend class Effect;
 private:
-  RenderableBlitObject mResult;
+  RenderableBlitObject mResult1;
+  RenderableBlitObject mResult2;
   std::map<std::string, Effect*> mEffects;
   std::list<Effect*> mActiveEffects;
 };
