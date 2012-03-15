@@ -1396,6 +1396,11 @@ void Engine::renderUnloadingRoom(){
   if (mForceNotToRenderUnloadingRoom){
     return;
   }
+  
+  RenderableBlitObject mainroom(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
+  mainroom.setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
+  mainroom.bind();
+
   beginRendering();
   if (mRoomsToUnload.size() == 0 && mUnloadedRoom)
     mUnloadedRoom->render();
@@ -1405,6 +1410,12 @@ void Engine::renderUnloadingRoom(){
     }
   }
   endRendering();
+  
+  mainroom.unbind();
+  BlitObject* result = mPostProc->process(&mainroom, 0);
+  beginRendering();
+  result->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
+  endRendering(); 
 }
 
 void Engine::remove(Object2D* obj){

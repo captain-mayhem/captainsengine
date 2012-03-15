@@ -7,12 +7,12 @@ using namespace CGE;
 
 Image::Image() : mChannels(0), mWidth(0), mHeight(0), mData(NULL) {}
 
-Image::Image(int channels, int width, int height, unsigned char* data) : mChannels(channels), mWidth(width), mHeight(height){
+Image::Image(int channels, int width, int height, unsigned char* data) : mChannels(channels), mWidth(width), mHeight(height), mData(NULL){
   allocateData();
   memcpy(mData, data, getImageSize());
 }
 
-Image::Image(int channels, int width, int height, unsigned char* rgbdata, unsigned alphachannels, unsigned char* alphadata) : mChannels(channels+1), mWidth(width), mHeight(height){
+Image::Image(int channels, int width, int height, unsigned char* rgbdata, unsigned alphachannels, unsigned char* alphadata) : mChannels(channels+1), mWidth(width), mHeight(height), mData(NULL){
   allocateData();
   for (int i = 0; i < mWidth*mHeight; ++i){
     memcpy(mData+i*mChannels, rgbdata+i*channels, channels);
@@ -20,7 +20,7 @@ Image::Image(int channels, int width, int height, unsigned char* rgbdata, unsign
   }
 }
 
-Image::Image(int channels, int width, int height, unsigned char* palette, unsigned char* indices) : mChannels(channels), mWidth(width), mHeight(height){
+Image::Image(int channels, int width, int height, unsigned char* palette, unsigned char* indices) : mChannels(channels), mWidth(width), mHeight(height), mData(NULL){
   allocateData();
   for (int i = 0; i < mWidth*mHeight; ++i){
     memcpy(mData+i*mChannels, palette+indices[i]*mChannels, mChannels);
@@ -38,6 +38,8 @@ void Image::setFormat(int channels, int width, int height){
 }
 
 void Image::allocateData(){
+  if (mData)
+    delete [] mData;
   mData = new unsigned char[sizeof(unsigned char)*getRowSpan()*mHeight];
 }
 
