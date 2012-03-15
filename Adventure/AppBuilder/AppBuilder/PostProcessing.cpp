@@ -117,10 +117,29 @@ static const char darkbloomfs[] =
 "}\n"
 "";
 
+static const char hellfs[] =
+"precision mediump float;\n"
+"varying vec2 tex_coord;\n"
+"varying vec2 tex_coord2;\n"
+"\n"
+"uniform sampler2D texture;\n"
+"uniform float strength;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = vec4(1.0);\n"
+"  color = texture2D(texture, tex_coord.st);\n"
+"  vec3 intensity = vec3(1.0)-vec3(strength.xxx);\n"
+"  color.rgb = color.rgb*texture2D(texture, tex_coord.st-tex_coord2.st).rgb/**intensity*/;\n"
+"  color.rgb = color.rgb*texture2D(texture, tex_coord.st-tex_coord2.st*vec2(2.0)).rgb/**intensity*/;\n"
+"  gl_FragColor = color;\n"
+"  gl_FragDepth = gl_FragCoord.z;\n"
+"}\n"
+"";
+
 class DarkBloomEffect : public PostProcessor::Effect{
 public:
-  DarkBloomEffect() : Effect(bloomvs, darkbloomfs){
-    mName = "darkbloom";
+  DarkBloomEffect(const char* name, const char* fragmentshader) : Effect(bloomvs, fragmentshader){
+    mName = name;
   }
   virtual void init(const Vec2f& size){
     Effect::init(size);
@@ -325,11 +344,12 @@ private:
 
 /* Postprocessor */
 
-#define REGISTER_EFFECT(effect, class) class* effect = new class(); mEffects[effect->getName()] = effect;
+#define REGISTER_EFFECT(effect, class, ...) class* effect = new class(__VA_ARGS__); mEffects[effect->getName()] = effect;
 
 PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width, height, depth), mResult2(width, height, depth){
-  REGISTER_EFFECT(darkbloom, DarkBloomEffect);
+  REGISTER_EFFECT(darkbloom, DarkBloomEffect, "darkbloom", darkbloomfs);
   REGISTER_EFFECT(noise, NoiseEffect);
+  REGISTER_EFFECT(hell, DarkBloomEffect, "hell", hellfs);
 }
 
 PostProcessor::~PostProcessor(){

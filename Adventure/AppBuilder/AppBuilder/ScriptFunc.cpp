@@ -1581,6 +1581,7 @@ int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
+  PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
   if (effect == "noise" || effect == "darkbloom"){
     int strength = ctx.stack().pop().getInt();
     bool fade = false;
@@ -1589,11 +1590,13 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
       if (fadestr == "fade")
         fade = true;
     }
-    PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
     if (effect == "darkbloom")
       ef->activate(fade, strength/50.0f, fade);
     else if (effect == "noise")
       ef->activate(fade, strength/99.0f);
+  }
+  else if (effect == "hell"){
+    ef->activate(false, 1.0, false);
   }
   else
     DebugBreak();

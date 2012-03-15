@@ -174,6 +174,7 @@ RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : B
   glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
   glGenFramebuffers(1, &mFrameBuffer);
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mOldFrameBuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
   glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTex, 0);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBuffer);
@@ -182,7 +183,7 @@ RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : B
     TR_ERROR("Unable to create framebuffer - status %i", status);
     //DebugBreak();
   }
-  glBindFramebuffer(GL_FRAMEBUFFER, 0);
+  glBindFramebuffer(GL_FRAMEBUFFER, mOldFrameBuffer);
 }
 
 RenderableBlitObject::~RenderableBlitObject(){

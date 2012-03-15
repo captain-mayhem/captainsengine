@@ -9,6 +9,7 @@ group (use in setobj/moveobj) | 3
 playing of swf (flash) | 2
 special effects | 4
 particle barriers: bounding box calculation of particles when rotated | 5
+walkmap: other characters should also trigger | 2
 
 Editor
 ------
