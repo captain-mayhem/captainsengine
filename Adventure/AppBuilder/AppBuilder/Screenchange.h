@@ -16,6 +16,8 @@ public:
   CircleScreenChange(int width, int height, int depth, int duration, int segments);
   virtual ~CircleScreenChange();
   virtual bool update(unsigned interval);
+  virtual Object2D* getTarget() {return NULL;}
+  virtual Type getType() {return SCREEN;}
 protected:
   void generateCircle(float radius);
   int mDuration;
@@ -30,6 +32,8 @@ class BlendScreenChange : public RenderableBlitObject, public DynamicAnimation{
 public:
   BlendScreenChange(int width, int height, int depth, int duration);
   virtual bool update(unsigned interval);
+  virtual Object2D* getTarget() {return NULL;}
+  virtual Type getType() {return SCREEN;}
 protected:
   int mDuration;
   int mCurrentTime;
@@ -40,6 +44,8 @@ class FadeoutScreenChange : public RenderableBlitObject, public DynamicAnimation
 public:
   FadeoutScreenChange(int width, int height, int depth, int duration);
   virtual bool update(unsigned interval);
+  virtual Object2D* getTarget() {return NULL;}
+  virtual Type getType() {return SCREEN;}
 protected:
   int mDuration;
   int mCurrentTime;
@@ -51,6 +57,8 @@ class ShuttersScreenChange : public RenderableBlitObject, public DynamicAnimatio
 public:
   ShuttersScreenChange(int width, int height, int depth, int duration);
   virtual bool update(unsigned interval);
+  virtual Object2D* getTarget() {return NULL;}
+  virtual Type getType() {return SCREEN;}
 protected:
   int mDuration;
   int mCurrentTime;
@@ -63,6 +71,8 @@ public:
   ClockScreenChange(int width, int height, int depth, int duration, int segments);
   virtual ~ClockScreenChange();
   virtual bool update(unsigned interval);
+  virtual Object2D* getTarget() {return NULL;}
+  virtual Type getType() {return SCREEN;}
 protected:
   void generateCircle(float radius);
   int mDuration;

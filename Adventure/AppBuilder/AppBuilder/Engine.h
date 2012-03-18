@@ -104,6 +104,7 @@ public:
   void forceNotToRenderUnloadingRoom() {mForceNotToRenderUnloadingRoom = true;}
   AdvDocument* getData() {return mData;}
   PostProcessor* getPostProcessor() {return mPostProc;}
+  RoomObject* getMainRoom();
 protected:
   Engine();
   static Engine* mInstance;

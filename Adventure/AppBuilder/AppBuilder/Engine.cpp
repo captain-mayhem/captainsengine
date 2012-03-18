@@ -1437,3 +1437,9 @@ void Engine::restoreRenderDefaults(){
   GL()vertexPointer(2, GL_SHORT, 0, mVerts);
   GL()texCoordPointer(2, GL_SHORT, 0, mVerts);
 }
+
+RoomObject* Engine::getMainRoom(){
+  if (!mMainRoomLoaded)
+    return NULL;
+  return mRooms.back();
+}
