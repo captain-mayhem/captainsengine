@@ -1691,7 +1691,6 @@ int ScriptFunctions::showMouse(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   int size = ctx.stack().pop().getInt();
-  DebugBreak();
   if (numArgs >= 3)
     DebugBreak();
   CharacterObject* chr = Engine::instance()->getCharacter(charname);

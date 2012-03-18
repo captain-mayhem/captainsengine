@@ -162,6 +162,9 @@ public:
     mCurrentTime += interval;
     return true;
   }
+  virtual Object2D* getTarget() {return mObject;}
+  virtual Type getType() {return COLOR;}
+  const Color& getTargetColor() {return mTarget;}
 private:
   int mDuration;
   int mCurrentTime;
@@ -171,6 +174,16 @@ private:
 };
 
 void Animator::add(Object2D* obj, const Color& targetcolor){
+  //remove previous animation
+  for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){
+    if ((*iter)->getType() == DynamicAnimation::COLOR && (*iter)->getTarget() == obj){
+      ColorAnimation* ca = (ColorAnimation*)*iter;
+      obj->setLightingColor(ca->getTargetColor());
+      delete *iter;
+      mAnimations.erase(iter);
+      break;
+    }
+  }
   ColorAnimation* ca = new ColorAnimation(obj->getLightingColor(), targetcolor, obj);
   add(ca);
 }
@@ -208,6 +221,9 @@ public:
     mCurrentTime += interval;
     return true;
   }
+  virtual Object2D* getTarget() {return mObject;}
+  virtual Type getType() {return SCALE;}
+  float getTargetScale() {return mTarget;}
 private:
   int mDuration;
   int mCurrentTime;
@@ -217,6 +233,15 @@ private:
 };
 
 void Animator::add(CharacterObject* obj, float sourcescale, float targetscale){
+  //remove previous animation
+  for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){
+    if ((*iter)->getType() == DynamicAnimation::SCALE && (*iter)->getTarget() == obj){
+      ScaleAnimation* sa = (ScaleAnimation*)*iter;
+      delete *iter;
+      mAnimations.erase(iter);
+      break;
+    }
+  }
   ScaleAnimation* sa = new ScaleAnimation(sourcescale, targetscale, obj);
   add(sa);
 }

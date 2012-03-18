@@ -407,7 +407,7 @@ void RoomObject::render(){
       mObjects[i]->render();
   }
   CharacterObject* currChar = Engine::instance()->getCharacter("self");
-  if (mInventroy && currChar){
+  if (mInventroy && currChar && Engine::instance()->getMainRoom() != this){
     mInventroy->render(currChar->getInventory());
   }
   mLighting->render(Vec2i());

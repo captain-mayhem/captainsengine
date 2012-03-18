@@ -115,11 +115,20 @@ protected:
   GLint mOldFrameBuffer;
 };
 
+class Object2D;
+
 class DynamicAnimation{
 public:
+  enum Type{
+    COLOR,
+    SCALE,
+    SCREEN,
+  };
   DynamicAnimation();
   virtual ~DynamicAnimation();
   virtual bool update(unsigned interval)=0;
+  virtual Object2D* getTarget()=0;
+  virtual Type getType()=0;
 };
 
 class RoomObject;
