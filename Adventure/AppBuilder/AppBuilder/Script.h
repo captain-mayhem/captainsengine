@@ -34,7 +34,7 @@ public:
   void execute(ExecutionContext* script, bool executeOnce);
   void executeImmediately(ExecutionContext* script, bool clearStackAfterExec = true);
   void executeCutscene(ExecutionContext* cutscene, bool looping);
-  void update(unsigned time);
+  bool update(unsigned time);
   void remove(Object2D* object);
   void remove(ExecutionContext* script);
   StackData getVariable(const std::string& name);
@@ -61,6 +61,7 @@ public:
   ASTNode* parseLangArg(const char* funcname, int argnum, int strindex);
   void setLanguage(const std::string& lang) {mLanguage = lang;}
   const std::string& getLanguage() {return mLanguage;}
+  bool willUpdate(unsigned interval);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
@@ -103,6 +104,7 @@ protected:
   std::set<ExecutionContext*> mTimers;
   int mTextSpeed;
   std::string mLanguage;
+  unsigned mTimeAccu;
 };
 
 }
