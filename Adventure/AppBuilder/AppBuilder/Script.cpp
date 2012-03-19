@@ -52,7 +52,7 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
 
 }
 
-PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100) {
+PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0) {
   ScriptFunctions::registerFunctions(this);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
@@ -529,7 +529,13 @@ void PcdkScript::registerRelVar(const std::string& function, int argnum, const s
   mRelVars[function][argnum] = prefix;
 }
 
-void PcdkScript::update(unsigned time){
+bool PcdkScript::update(unsigned time){
+  mTimeAccu += time;
+  if (mTimeAccu < 20){ //limit hertz of script execution
+    return false;
+  }
+  mTimeAccu -= 20;
+  time = 20;
   //check if a character becomes current during that script run
   mACharacterAtScriptStart = Engine::instance()->getCharacter("self") != NULL;
   //for (std::list<std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
@@ -603,6 +609,11 @@ void PcdkScript::update(unsigned time){
       }
     }
   }
+  return true;
+}
+
+bool PcdkScript::willUpdate(unsigned interval){
+  return mTimeAccu + interval >= 20;
 }
 
 void PcdkScript::update(ExecutionContext* ctx, unsigned time){

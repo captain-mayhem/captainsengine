@@ -387,11 +387,16 @@ void Engine::render(unsigned time){
     mRooms.back()->walkTo(pos);
   }
 
+  static bool scriptupdated = true;
+
   //ui update
-  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-    mInterpreter->executeImmediately((*iter)->getScript());
+  bool scriptupdate = mInterpreter->willUpdate(interval);
+  if (scriptupdate){
+    for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
+      mInterpreter->executeImmediately((*iter)->getScript());
+    }
+    clearGui();
   }
-  clearGui();
 
   mInterpreter->update(interval);
 

@@ -66,6 +66,8 @@ void Animator::remove(RoomObject* room){
 }
 
 void Animator::update(unsigned interval){
+  if (interval == 0)
+    return;
   for (std::map<Object2D*, ObjectAnim>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     iter->second.factor += interval*iter->second.speedfactor/20.f;
     if (iter->second.factor > iter->second.normalization)
@@ -93,6 +95,8 @@ void Animator::update(unsigned interval){
       else{
         Vec2i tmp = iter->second.startpos;
         iter->second.startpos = reachedpos;
+        while(iter->second.path.front() == iter->second.startpos)
+          iter->second.path.pop_front();
         iter->second.normalization = (iter->second.path.front()-iter->second.startpos).length();
         iter->second.factor = 0;
         iter->first->animationWaypoint(tmp, iter->second.path.front());

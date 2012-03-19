@@ -16,13 +16,10 @@
 #include "../io/TraceManager.h"
 
 #ifdef WIN32
-#define TIME_FACTOR 0.001
 #define _CRTDBG_MAP_ALLOC
+#include <mmsystem.h>
 #include <stdlib.h>
 #include <crtdbg.h>
-#endif
-#ifdef UNIX
-#define TIME_FACTOR 0.01
 #endif
 
 using namespace CGE;
@@ -142,7 +139,7 @@ void Engine::startup(int argc, char** argv){
   console_ = new ::Gui::Console();
   isUp_ = true;
   rend_->initRendering();
-  frameTime_ = GetTickCount()*TIME_FACTOR;
+  frameTime_ = getTime();
   //isUp_ = true;
 }
 
@@ -232,13 +229,13 @@ void Engine::run(){
   //calculate frame rate
   double currentTime;
   if (maxFramerate_ == 0){
-    currentTime = GetTickCount()*TIME_FACTOR;
+    currentTime = getTime();
     //cerr << currentTime;
     frameInterval_ = currentTime-frameTime_;
     frameTime_ = currentTime;
   }
   else{
-    while(((currentTime = GetTickCount()*TIME_FACTOR)-frameTime_) <= 1.0/maxFramerate_);
+    while(((currentTime = getTime())-frameTime_) <= 1.0/maxFramerate_);
     frameInterval_ = currentTime-frameTime_;
     frameTime_ = currentTime;
   }
@@ -358,10 +355,14 @@ void Engine::removeGuiListeners(int idx){
 }
 
 #ifdef UNIX
-long GetTickCount(){
+double getTime(){
   //return clock_gettime(CLOCK_MONOTONIC, NULL);
   //long factor = sysconf(_SC_CLK_TCK);
-  return times(NULL);
+  return times(NULL)*0.01;
+}
+#else
+double getTime(){
+  return timeGetTime()*0.001;
 }
 #endif
 

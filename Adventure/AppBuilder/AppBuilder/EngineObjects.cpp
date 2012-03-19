@@ -551,6 +551,8 @@ void RoomObject::save(){
 }
 
 void RoomObject::setPosition(const Vec2i& pos){
+  if (pos.x < -1000 || pos.x > 1000)
+    DebugBreak();
   Vec2i move = pos - mPos;
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     (*iter)->setPosition((*iter)->getPosition()+move);

@@ -108,8 +108,8 @@ inline const string toLower(const string& s){
 #include <unistd.h>
 #include <sys/times.h>
 
-long GetTickCount();
 #endif
+double getTime();
 
 #include "thread.h"
 
