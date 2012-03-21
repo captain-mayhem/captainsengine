@@ -536,6 +536,7 @@ bool PcdkScript::update(unsigned time){
   }
   mTimeAccu -= 20;
   time = 20;
+  applyPrevState(NULL);
   //check if a character becomes current during that script run
   mACharacterAtScriptStart = Engine::instance()->getCharacter("self") != NULL;
   //for (std::list<std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
@@ -1117,6 +1118,22 @@ void PcdkScript::setVariable(const std::string& name, const StackData& value){
 }
 
 void PcdkScript::applyPrevState(Object2D* obj){
+  if (obj == NULL){
+    std::map<Object2D*, int>::iterator deliter = mPrevState.end();
+    for (std::map<Object2D*, int>::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
+      if (iter->second == NULL){
+        deliter = iter;
+        continue;
+      }
+      if (!iter->first->isHit(Engine::instance()->getCursorPos())){
+        iter->first->setState(iter->second);
+        iter->second = NULL;
+        deliter = iter;
+      }
+    }
+    if (deliter != mPrevState.end())
+      mPrevState.erase(deliter);
+  }
   std::map<Object2D*, int>::iterator iter = mPrevState.find(obj);
   if (iter != mPrevState.end()){
     obj->setState(iter->second);

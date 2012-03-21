@@ -33,6 +33,13 @@ struct Color{
     b = (packedcolor >> 16) & 0xFF;
     a = 255;
   }
+  Color& operator*=(const Color& color){
+    r = (unsigned char)((r/255.0f*color.r/255.0)*255.0);
+    g = (unsigned char)((g/255.0f*color.g/255.0)*255.0);
+    b = (unsigned char)((b/255.0f*color.b/255.0)*255.0);
+    a = (unsigned char)((a/255.0f*color.a/255.0)*255.0);
+    return *this;
+  }
   unsigned char r;
   unsigned char g;
   unsigned char b;

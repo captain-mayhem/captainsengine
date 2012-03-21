@@ -48,6 +48,7 @@ int _stricmp(const char* str1, const char* str2){
 }
 
 Engine* Engine::mInstance = NULL;
+static CGE::Mutex trymtx;
 
 Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false){
   mVerts[0] = 0; mVerts[1] = 1;
@@ -285,7 +286,7 @@ void Engine::render(unsigned time){
     return;
   //timing
   unsigned interval = time;
-  
+  trymtx.lock();
   beginRendering();
   //unload rooms
   while (!mRoomsToUnload.empty()){
@@ -333,67 +334,67 @@ void Engine::render(unsigned time){
   mSaver->allowWrites(true);
 
   //do some scripting
-  Object2D* obj = getObjectAt(mCursor->getPosition());
-  if (obj != NULL){
-    if (mCurrentObject != obj){
-      if (mCurrentObject != NULL){
+  bool scriptupdate = mInterpreter->willUpdate(interval);
+  if (scriptupdate){
+    Object2D* obj = getObjectAt(mCursor->getPosition());
+    if (obj != NULL){
+      if (mCurrentObject != obj){
+        if (mCurrentObject != NULL){
+          ExecutionContext* script = mCurrentObject->getScript();
+          if (script)
+            script->setEvent(EVT_MOUSEOUT);
+          TR_USE(ADV_Events);
+          TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
+        }
+        mCurrentObject = obj;
+        mObjectInfo.clear();
+        mObjectTooltipInfo.clear();
+        ExecutionContext* script = obj->getScript();
+        if (script != NULL){
+          TR_USE(ADV_Events);
+          TR_DEBUG("mouse on %s", obj->getName().c_str());
+          script->setEvent(EVT_MOUSE);
+        }
+      }
+    }
+    else{
+      if (mCurrentObject){
+        TR_USE(ADV_Events);
         ExecutionContext* script = mCurrentObject->getScript();
         if (script)
           script->setEvent(EVT_MOUSEOUT);
-        mInterpreter->applyPrevState(mCurrentObject);
+        TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
+        mCurrentObject = NULL;
       }
-      mCurrentObject = obj;
       mObjectInfo.clear();
       mObjectTooltipInfo.clear();
-      ExecutionContext* script = obj->getScript();
-      if (script != NULL){
-        TR_USE(ADV_Events);
-        TR_DEBUG("mouse on %s", obj->getName().c_str());
-        script->setEvent(EVT_MOUSE);
-      }
     }
-  }
-  else{
-    if (mCurrentObject){
-      TR_USE(ADV_Events);
-      ExecutionContext* script = mCurrentObject->getScript();
-      if (script)
-        script->setEvent(EVT_MOUSEOUT);
-      mInterpreter->applyPrevState(mCurrentObject);
-      TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
-      mCurrentObject = NULL;
-    }
-    mObjectInfo.clear();
-    mObjectTooltipInfo.clear();
-  }
-  if (!mInterpreter->isBlockingScriptRunning()){
-    for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-      bool isUnloading = false;
-      for (std::list<RoomObject*>::iterator iter2 = mRoomsToUnload.begin(); iter2 != mRoomsToUnload.end(); ++iter2){
-        if (*iter2 == *iter){
-          isUnloading = true;
-          break;
+
+    if (!mInterpreter->isBlockingScriptRunning()){
+      for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+        bool isUnloading = false;
+        for (std::list<RoomObject*>::iterator iter2 = mRoomsToUnload.begin(); iter2 != mRoomsToUnload.end(); ++iter2){
+          if (*iter2 == *iter){
+            isUnloading = true;
+            break;
+          }
+        }
+        ExecutionContext* script = (*iter)->getScript();
+        if (script != NULL && !isUnloading){
+          script->setEvent(EVT_LOOP1);
+          script->setEvent(EVT_LOOP2);
         }
       }
-      ExecutionContext* script = (*iter)->getScript();
-      if (script != NULL && !isUnloading){
-        script->setEvent(EVT_LOOP1);
-        script->setEvent(EVT_LOOP2);
-      }
     }
-  }
-  if (mRooms.size() > 0 && mFocussedChar && !mFocussedChar->isSpawnPos()/* && !mInterpreter->isBlockingScriptRunning()*/){ //walkmap
-    Vec2i pos = mFocussedChar->getPosition()/mWalkGridSize;
-    mRooms.back()->walkTo(pos);
-  }
+    if (mRooms.size() > 0 && mFocussedChar && !mFocussedChar->isSpawnPos()/* && !mInterpreter->isBlockingScriptRunning()*/){ //walkmap
+      Vec2i pos = mFocussedChar->getPosition()/mWalkGridSize;
+      mRooms.back()->walkTo(pos);
+    }
 
-  static bool scriptupdated = true;
-
-  //ui update
-  bool scriptupdate = mInterpreter->willUpdate(interval);
-  if (scriptupdate){
+    //ui update
     for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-      mInterpreter->executeImmediately((*iter)->getScript());
+      while(!(*iter)->getScript()->getEvents().empty())
+        mInterpreter->executeImmediately((*iter)->getScript());
     }
     clearGui();
   }
@@ -537,6 +538,7 @@ void Engine::render(unsigned time){
 
   //render the stuff
   endRendering();
+  trymtx.unlock();
 }
 
 bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason){
@@ -795,6 +797,7 @@ void Engine::insertToBlit(BaseBlitObject* obj){
 }
 
 void Engine::setCursorPos(Vec2i pos){
+  trymtx.lock();
   mCursor->setPosition(pos);
   //triggered scrolling
   if (mTaskbar && pos.y < mData->getProjectSettings()->resolution.y - mData->getProjectSettings()->taskheight - 16){
@@ -821,6 +824,7 @@ void Engine::setCursorPos(Vec2i pos){
       mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
     }
   }
+  trymtx.unlock();
 }
 
 Vec2i Engine::getCursorPos(){
@@ -828,6 +832,7 @@ Vec2i Engine::getCursorPos(){
 }
 
 void Engine::leftClick(const Vec2i& pos){
+  trymtx.lock();
   ExecutionContext* script = NULL;
   Object2D* obj = getObjectAt(pos);
   if (obj != NULL){
@@ -857,15 +862,18 @@ void Engine::leftClick(const Vec2i& pos){
     mGiveObjectName = "";
     mLinkObjectInfo = "";
   }
+  trymtx.unlock();
 }
 
 void Engine::leftRelease(const Vec2i& pos){
+  trymtx.lock();
   if (mClickedObject != NULL){
     ExecutionContext* ctx = mClickedObject->getScript();
     if (ctx != NULL)
       ctx->setEvent(EVT_RELEASE);
     mClickedObject = NULL;
   }
+  trymtx.unlock();
 }
 
 void Engine::rightClick(const Vec2i& pos){
@@ -1213,6 +1221,12 @@ std::string Engine::getActiveCommand(){
 
 void Engine::clearGui(){
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
+    /*Object2D* obj = *iter;
+    ExecutionContext* ctx = obj->getScript();
+    if (ctx){
+      if (!ctx->getEvents().empty())
+        DebugBreak();
+    }*/
     delete (*iter);
   }
   mUI.clear();
