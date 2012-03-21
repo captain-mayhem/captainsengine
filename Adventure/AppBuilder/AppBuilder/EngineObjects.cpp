@@ -296,7 +296,14 @@ void ButtonObject::render(){
   std::vector<Vec2i> breakinfo;
   breakinfo.push_back(Vec2i(mText.size(), 0)); //fake break
   //Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
-  FontRenderer::String* str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, Engine::instance()->getFontID(), breakinfo, mTextColor);
+  Color textcol = mTextColor;
+  if (mTex != 0){
+    if (mState == 1)
+      textcol *= mBackgroundColor;
+    else if (mState == 2)
+      textcol *= mHighlightColor;
+  }
+  FontRenderer::String* str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, Engine::instance()->getFontID(), breakinfo, textcol);
   Engine::instance()->insertToBlit(this);
 }
 

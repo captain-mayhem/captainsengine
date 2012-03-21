@@ -42,8 +42,16 @@ namespace StoryDesigner
             if (mData.Settings.GameIcon.Length != 0)
             {
                 mIcon = mData.Settings.GameIcon;
-                Bitmap bmp = (Bitmap)Bitmap.FromFile(mIcon);
-                this.symbol.Image = bmp;
+                try
+                {
+                    Bitmap bmp = (Bitmap)Bitmap.FromFile(mIcon);
+                    this.symbol.Image = bmp;
+                }
+                catch (System.IO.FileNotFoundException)
+                {
+                    MessageBox.Show("Cannot find icon " + mIcon);
+                    this.symbol.Image = null;
+                }
             }
             else
             {

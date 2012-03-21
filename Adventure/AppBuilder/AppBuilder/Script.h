@@ -52,7 +52,6 @@ public:
   void resumeBlockingScript() {mGlobalSuspend = false;}
   static void clickEndHandler(ExecutionContext& ctx);
   ExecutionContext* getCutscene() {return mCutScene;}
-  void applyPrevState(Object2D* obj);
   ExecutionContext* getScript(const std::string& name);
   void removeScript(const std::string& name);
   int getTextSpeed() {return mTextSpeed;}
@@ -63,6 +62,7 @@ public:
   const std::string& getLanguage() {return mLanguage;}
   bool willUpdate(unsigned interval);
 protected:
+  void applyPrevState(Object2D* obj);
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
   std::string mObjectInfo;
