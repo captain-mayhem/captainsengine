@@ -1053,17 +1053,23 @@ StackData PcdkScript::getVariable(const std::string& name){
     return chr->getState();
   }
   else if (name.size() > 6 && name.substr(0,6) == "charx:"){
-    CharacterObject* chr = Engine::instance()->getCharacter(name.substr(6));
+    int idx = 6;
+    if (name[6] == '_')
+      idx = 7;
+    CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
     if (!chr)
       DebugBreak();
-    return chr->getPosition().x;
+    return chr->getPosition().x/(idx == 7 ? Engine::instance()->getWalkGridSize() : 1);
     DebugBreak();
   }
   else if (name.size() > 6 && name.substr(0,6) == "chary:"){
-    CharacterObject* chr = Engine::instance()->getCharacter(name.substr(6));
+    int idx = 6;
+    if (name[6] == '_')
+      idx = 7;
+    CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
     if (!chr)
       DebugBreak();
-    return chr->getPosition().y;
+    return chr->getPosition().y/(idx == 7 ? Engine::instance()->getWalkGridSize() : 1);
   }
   else if (name.size() > 9 && name.substr(0,9) == "charzoom:"){
     DebugBreak();
