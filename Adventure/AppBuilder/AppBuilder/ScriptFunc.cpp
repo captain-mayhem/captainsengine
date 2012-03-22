@@ -24,8 +24,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setfocus", setFocus);
   interpreter->registerFunction("showinfo", showInfo);
   interpreter->registerFunction("walkto", walkTo);
-  interpreter->registerRelVar("walkto", 2, "charx:");
-  interpreter->registerRelVar("walkto", 3, "chary:");
+  interpreter->registerRelVar("walkto", 2, "charx:_");
+  interpreter->registerRelVar("walkto", 3, "chary:_");
   interpreter->registerFunction("speech", speech);
   interpreter->registerFunction("pickup", pickup);
   interpreter->registerFunction("playsound", playSound);
@@ -174,9 +174,16 @@ int ScriptFunctions::walkTo(ExecutionContext& ctx, unsigned numArgs){
   pos = pos * Engine::instance()->getWalkGridSize() + 
     Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2);
   LookDir dir = UNSPECIFIED;
-  if (numArgs >= 4)
-    dir = (LookDir)(ctx.stack().pop().getInt()-1);
   bool hold = true;
+  if (numArgs >= 4){
+    StackData sd = ctx.stack().pop();
+    if (sd.isString()){
+      if (sd.getString() == "dontwait")
+        hold = false;
+    }
+    else
+      dir = (LookDir)(sd.getInt()-1);
+  }
   if (numArgs >= 5){
     std::string dw = ctx.stack().pop().getString();
     if (dw == "dontwait")
@@ -566,10 +573,10 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
     inventory = ctx.stack().pop().getInt();
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
   if (chr){
-    //ctx.mExecuteOnce = true;
-    //ctx.mOwner = NULL;
     chr->getInventory()->removeItem(itemname, inventory, &ctx);
   }
+  else
+    DebugBreak();
   return 0;
 }
 
