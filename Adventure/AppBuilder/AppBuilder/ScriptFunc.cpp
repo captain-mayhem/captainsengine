@@ -1605,6 +1605,10 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
   else if (effect == "hell"){
     ef->activate(false, 1.0, false);
   }
+  else if (effect == "motionblur"){
+    int strength = ctx.stack().pop().getInt();
+    ef->activate(false, strength/50.0f);
+  }
   else
     DebugBreak();
   return 0;
