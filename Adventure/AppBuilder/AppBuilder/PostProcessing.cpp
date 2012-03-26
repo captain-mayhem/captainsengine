@@ -371,13 +371,14 @@ static const char motionblurfs[] =
 "\n"
 "void main(){\n"
 "  vec4 color = vec4(1.0);\n"
-"  color = texture2D(texture, tex_coord.st);\n"
 "  vec4 blendcol = vec4(1.0);\n"
-"  blendcol.rgb = texture2D(motion1, tex_coord.st).rgb;\n"
-"  color = mix(color, blendcol, 0.5);\n"
+"  color.rgb = texture2D(motion3, tex_coord.st).rgb;\n"
+//"  color = mix(color, blendcol, 0.5);\n"
 "  blendcol.rgb = texture2D(motion2, tex_coord.st).rgb;\n"
 "  color = mix(color, blendcol, 0.5);\n"
-"  blendcol.rgb = texture2D(motion3, tex_coord.st).rgb;\n"
+"  blendcol.rgb = texture2D(motion1, tex_coord.st).rgb;\n"
+"  color = mix(color, blendcol, 0.5);\n"
+"  blendcol.rgb = texture2D(texture, tex_coord.st).rgb;\n"
 "  color = mix(color, blendcol, 0.5);\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
@@ -397,20 +398,21 @@ public:
     for (std::list<RenderableBlitObject*>::iterator iter = mPrevFrames.begin(); iter != mPrevFrames.end(); ++iter){
       delete *iter;
     }
+    for (std::list<RenderableBlitObject*>::iterator iter = mGenFrames.begin(); iter != mGenFrames.end(); ++iter){
+      delete *iter;
+    }
     mPrevFrames.clear();
+    mGenFrames.clear();
   }
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
     GLint tex = mShader.getUniformLocation("texture");
     mShader.uniform(tex, 0);
-    GLint blendtex = mShader.getUniformLocation("blendtex");
-    mShader.uniform(blendtex, 1);
     GLint scale = mShader.getUniformLocation("tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    mIntensityLoc = mShader.getUniformLocation("opacity");
     GLint motion = mShader.getUniformLocation("motion1");
     mShader.uniform(motion, 1);
     motion = mShader.getUniformLocation("motion2");
@@ -424,10 +426,14 @@ public:
     scale = mStdShader.getUniformLocation("tex_scale");
     mStdShader.uniform(scale, size.x/powx, size.y/powy);
     mStdShader.deactivate();
+    for (int i = 0; i < 3; ++i){
+      RenderableBlitObject* rbo = new RenderableBlitObject(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, 0);
+      mGenFrames.push_back(rbo);
+    }
   }
   virtual void deinit(){
     for (std::list<RenderableBlitObject*>::iterator iter = mPrevFrames.begin(); iter != mPrevFrames.end(); ++iter){
-      delete *iter;
+      mGenFrames.push_back(*iter);
     }
     mPrevFrames.clear();
   }
@@ -436,39 +442,23 @@ public:
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
     va_end(args);
-    if (fade){
-      mInterpolator.set(0, strength, 1000);
-    }
-    else{
-      mInterpolator.set(strength, strength, 1000);
-    }
-    mFadeout = false;
     mTakeFrame = (int)(strength*5);
-    mTakeCount = 0;
+    mTakeCount = mTakeFrame;
     Effect::activate(fade);
   }
   virtual void deactivate(){
-    if (mFade){
-      mInterpolator.set(mInterpolator.current(), 0, mInterpolator.currTime());
-      mFadeout = true;
-    }
-    else
-      Effect::deactivate();
+    Effect::deactivate();
   }
   virtual bool update(unsigned time) {
-    if (!mInterpolator.update(time)){
-      if (mFadeout){
-        Effect::deactivate();
-        return false;
-      }
-    }
     return true;
   }
   virtual void apply(BlitObject* input){
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, input->getTexture());
     if (mTakeCount >= mTakeFrame){
       if (mPrevFrames.size() < 3){
-        RenderableBlitObject* rbo = new RenderableBlitObject(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, 0);
+        RenderableBlitObject* rbo = mGenFrames.front();
+        mGenFrames.pop_front();
         mPrevFrames.push_front(rbo);
       }
       else{
@@ -486,7 +476,10 @@ public:
     }
     mTakeCount++;
 
-    mShader.activate();
+    if (mPrevFrames.size() < 3)
+      mStdShader.activate();
+    else
+      mShader.activate();
     int count = 0;
     for (std::list<RenderableBlitObject*>::iterator iter = mPrevFrames.begin(); iter != mPrevFrames.end(); ++iter){
       glActiveTexture(GL_TEXTURE1+count);
@@ -494,17 +487,17 @@ public:
       ++count;
     }
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    mShader.uniform(mIntensityLoc, mInterpolator.current());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     glActiveTexture(GL_TEXTURE0);
-    mShader.deactivate();
+    if (mPrevFrames.size() < 3)
+      mStdShader.deactivate();
+    else
+      mShader.deactivate();
   }
 private:
-  GLint mIntensityLoc;
-  Interpolator mInterpolator;
-  bool mFadeout;
   GL2Shader mStdShader;
   std::list<RenderableBlitObject*> mPrevFrames;
+  std::list<RenderableBlitObject*> mGenFrames;
   int mTakeFrame;
   int mTakeCount;
 };
