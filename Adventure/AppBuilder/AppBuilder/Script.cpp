@@ -1127,13 +1127,13 @@ void PcdkScript::applyPrevState(Object2D* obj){
   if (obj == NULL){
     std::map<Object2D*, int>::iterator deliter = mPrevState.end();
     for (std::map<Object2D*, int>::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
-      if (iter->second == NULL){
+      if (iter->second == -1){
         deliter = iter;
         continue;
       }
       if (!iter->first->isHit(Engine::instance()->getCursorPos())){
         iter->first->setState(iter->second);
-        iter->second = NULL;
+        iter->second = -1;
         deliter = iter;
       }
     }

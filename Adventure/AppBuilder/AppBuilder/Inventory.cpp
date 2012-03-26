@@ -23,7 +23,7 @@ void Inventory::addItem(Object2D* item, int invnumber){
 
 void Inventory::removeItem(const std::string& item, int invnumber, ExecutionContext* del_script){
   for (SingleInv::iterator iter = mInventory[invnumber].begin(); iter != mInventory[invnumber].end(); ++iter){
-    if (stricmp((*iter)->getName().c_str(), item.c_str()) == 0){
+    if (_stricmp((*iter)->getName().c_str(), item.c_str()) == 0){
       if (del_script == (*iter)->getScript()){
         //do not delete as it is currently running
         (*iter)->setScript(NULL);

@@ -29,10 +29,13 @@ BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAng
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = true;
   glGenTextures(1, &mTex);
+  GLint mOldTex;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &mOldTex);
   glBindTexture(GL_TEXTURE_2D, mTex);
   glTexImage2D(GL_TEXTURE_2D, 0, format, pow2.x, pow2.y, 0, format, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+  glBindTexture(GL_TEXTURE_2D, mOldTex);
 }
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 

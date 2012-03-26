@@ -161,7 +161,7 @@ public:
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
-    mAnimate = va_arg(args,bool);
+    mAnimate = (bool)va_arg(args,int);
     va_end(args);
     if (fade){
       mInterpolator.set(0, strength, 2000);

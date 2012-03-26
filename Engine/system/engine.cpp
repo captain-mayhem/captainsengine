@@ -356,9 +356,12 @@ void Engine::removeGuiListeners(int idx){
 
 #ifdef UNIX
 double getTime(){
-  //return clock_gettime(CLOCK_MONOTONIC, NULL);
+  struct timespec tv;
+  clock_gettime(CLOCK_MONOTONIC, &tv);
+  float msec = tv.tv_sec*1000+tv.tv_nsec/1000000.0;
+  return msec*0.001;
   //long factor = sysconf(_SC_CLK_TCK);
-  return times(NULL)*0.01;
+  //return times(NULL)*0.01;
 }
 #else
 double getTime(){
