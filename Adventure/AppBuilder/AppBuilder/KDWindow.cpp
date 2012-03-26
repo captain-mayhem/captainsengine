@@ -1,5 +1,6 @@
 #include <KD/kd.h>
 #include <system/engine.h>
+#include <io/TraceManager.h>
 
 #include "AdvDoc.h"
 #include "Engine.h"
@@ -87,6 +88,8 @@ void render(int time){
 }
 
 KDint kdMain (KDint argc, const KDchar *const *argv){
+  CGE::LogOutputter* putty = new CGE::LogOutputter();
+  CGE::TraceManager::instance()->setTraceOutputter(putty);
   TR_USE(ADV_KDWindow);
   theDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   if (theDisplay == EGL_NO_DISPLAY){
@@ -150,7 +153,7 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
   KDtime newtime;
   while(!shouldQuit){
     const KDEvent* ev = KD_NULL;
-    while(ev = kdWaitEvent(1)){
+    while(ev = kdWaitEvent(5)){
       if (ev->type == KD_EVENT_WINDOW_CLOSE){
         shouldQuit = true;
       }

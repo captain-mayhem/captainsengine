@@ -114,7 +114,6 @@ static const char darkbloomfs[] =
 "  color = color-texture2D(texture, tex_coord.st-tex_coord2.st*vec2(6.0))*intensity;\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
-"  gl_FragDepth = gl_FragCoord.z;\n"
 "}\n"
 "";
 
@@ -134,7 +133,6 @@ static const char hellfs[] =
 "  color.rgb = color.rgb*texture2D(texture, tex_coord.st-tex_coord2.st*vec2(2.0)).rgb/**intensity*/;\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
-"  gl_FragDepth = gl_FragCoord.z;\n"
 "}\n"
 "";
 
@@ -247,7 +245,6 @@ static const char stdfs[] =
 "  color = texture2D(texture, tex_coord.st);\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
-"  gl_FragDepth = gl_FragCoord.z;\n"
 "}\n"
 "";
 
@@ -267,7 +264,6 @@ static const char noisefs[] =
 "  color = mix(color, blendcol, opacity);\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
-"  gl_FragDepth = gl_FragCoord.z;\n"
 "}\n"
 "";
 
@@ -382,7 +378,6 @@ static const char motionblurfs[] =
 "  color = mix(color, blendcol, 0.5);\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
-"  gl_FragDepth = gl_FragCoord.z;\n"
 "}\n"
 "";
 

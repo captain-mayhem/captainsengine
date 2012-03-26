@@ -49,7 +49,6 @@ static const char fragmentshadersource[] =
 "    color = texture2D(texture, tex_coord.st);\n"
 "  color*=constColor;\n"
 "  gl_FragColor = color;\n"
-"  gl_FragDepth = gl_FragCoord.z;\n"
 "}\n"
 "";
 
