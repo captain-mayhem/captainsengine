@@ -47,9 +47,11 @@ private:
 PostProcessor::Effect::Effect(const char* vertexsource, const char* fragmentsource) : mFade(false){
   mShader.addShader(GL_VERTEX_SHADER, vertexsource);
   mShader.addShader(GL_FRAGMENT_SHADER, fragmentsource);
+  mShader.linkShaders();
 }
 
 PostProcessor::Effect::~Effect(){
+  mShader.deleteShaders();
 }
 
 void PostProcessor::Effect::activate(bool fade, ...){
@@ -159,7 +161,7 @@ public:
     va_list args;
     va_start(args, fade);
     float strength = (float)va_arg(args,double);
-    mAnimate = (bool)va_arg(args,int);
+    mAnimate = va_arg(args,int) != 0;
     va_end(args);
     if (fade){
       mInterpolator.set(0, strength, 2000);
@@ -269,7 +271,7 @@ static const char noisefs[] =
 
 class NoiseEffect : public PostProcessor::Effect{
 public:
-  NoiseEffect() : Effect(stdvs, noisefs){
+  NoiseEffect() : Effect(stdvs, noisefs), mBlendTex(0){
     mName = "noise";
   }
   virtual void init(const Vec2f& size){
@@ -297,7 +299,8 @@ public:
     mShader.deactivate();
   }
   virtual void deinit(){
-    glDeleteTextures(1, &mBlendTex);
+    if (mBlendTex != 0)
+      glDeleteTextures(1, &mBlendTex);
   }
   virtual void activate(bool fade, ...){
     va_list args;

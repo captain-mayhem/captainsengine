@@ -12,8 +12,8 @@ public:
   public:
     Effect(const char* vertexsource, const char* fragmentsource);
     virtual ~Effect();
-    virtual void init(const Vec2f& size) {mShader.linkShaders();}
-    virtual void deinit() {mShader.deleteShaders();}
+    virtual void init(const Vec2f& size) {}
+    virtual void deinit() {}
     virtual bool update(unsigned time) {return true;}
     virtual void apply(BlitObject* input)=0;
     virtual void activate(bool fade, ...);

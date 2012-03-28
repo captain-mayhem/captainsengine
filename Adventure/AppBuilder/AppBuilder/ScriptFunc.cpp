@@ -1586,6 +1586,12 @@ int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+static void disableMainEffect(){
+  Engine::instance()->getPostProcessor()->getEffect("darkbloom")->deactivate();
+  Engine::instance()->getPostProcessor()->getEffect("hell")->deactivate();
+  Engine::instance()->getPostProcessor()->getEffect("motionblur")->deactivate();
+}
+
 int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
   PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
@@ -1597,16 +1603,20 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
       if (fadestr == "fade")
         fade = true;
     }
-    if (effect == "darkbloom")
+    if (effect == "darkbloom"){
+      disableMainEffect();
       ef->activate(fade, strength/50.0f, fade);
+    }
     else if (effect == "noise")
       ef->activate(fade, strength/99.0f);
   }
   else if (effect == "hell"){
+    disableMainEffect();
     ef->activate(false, 1.0, false);
   }
   else if (effect == "motionblur"){
     int strength = ctx.stack().pop().getInt();
+    disableMainEffect();
     ef->activate(false, strength/50.0f);
   }
   else
