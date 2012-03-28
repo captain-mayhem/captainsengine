@@ -151,17 +151,47 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
   KDust lasttime;
   lasttime = kdGetTimeUST();
   KDtime newtime;
+  kdSetTimer(10000000, KD_TIMER_PERIODIC_AVERAGE, NULL);
   while(!shouldQuit){
     const KDEvent* ev = KD_NULL;
     while(ev = kdWaitEvent(5)){
-      if (ev->type == KD_EVENT_WINDOW_CLOSE){
-        shouldQuit = true;
+      switch(ev->type){
+        case KD_EVENT_WINDOW_CLOSE:
+          shouldQuit = true;
+          break;
+        case KD_EVENT_INPUT_POINTER:{
+          Vec2i pos;
+          pos.x = ev->data.inputpointer.x;
+          pos.y = ev->data.inputpointer.y;
+          if (ev->data.inputpointer.index == KD_INPUT_POINTER_X){
+            Engine::instance()->setCursorPos(pos);
+          }
+          else if (ev->data.inputpointer.index == KD_INPUT_POINTER_SELECT){
+            if (ev->data.inputpointer.select == 1)
+              Engine::instance()->leftClick(pos);
+          }
+          else
+            TR_ERROR("pointer: index %i select %i unhandled", ev->data.inputpointer.index, ev->data.inputpointer.select);
+          break;
+        }
+        case KD_EVENT_WINDOW_FOCUS:
+          kdSetWindowPropertyiv(theWindow, KD_WINDOWPROPERTY_FOCUS, &ev->data.windowfocus.focusstate);
+          //kdSetWindowPropertyiv(theWindow, KD_WINDOWPROPERTY_VISIBILITY, &ev->data.windowfocus.focusstate);
+          break;
+        case KD_EVENT_WINDOW_REDRAW:
+        case KD_EVENT_WINDOWPROPERTY_CHANGE:
+          kdDefaultEvent(ev);
+          break;
+        case KD_EVENT_TIMER:
+          newtime = kdGetTimeUST();
+          render((int)((newtime-lasttime)/1000000));
+          lasttime = newtime;
+          eglSwapBuffers(theDisplay, theSurface);
+          break;
+        default:
+          kdDefaultEvent(ev);
       }
     }
-    newtime = kdGetTimeUST();
-    render((int)((newtime-lasttime)/1000000));
-    lasttime = newtime;
-    eglSwapBuffers(theDisplay, theSurface);
   }
 
   Engine::instance()->exitGame();
