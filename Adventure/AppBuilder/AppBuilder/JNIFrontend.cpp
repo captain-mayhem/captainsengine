@@ -12,6 +12,8 @@
 #include "Renderer.h"
 #include "CmdReceiver.h"
 
+using namespace adv;
+
 TR_CHANNEL(ADV_JNIFrontend);
 
 extern "C"{
@@ -132,7 +134,7 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, j
   receiver.processCommands();
   Engine::instance()->render(time);
 
-  SoundEngine::instance()->update();
+  SoundEngine::instance()->update(time);
 }
 
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_move(JNIEnv* env, jobject obj, int x, int y){
