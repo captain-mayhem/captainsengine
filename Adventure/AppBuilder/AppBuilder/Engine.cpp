@@ -87,6 +87,7 @@ void Engine::initGame(exit_callback exit_cb){
     return;
   if (exit_cb != NULL)
     mExitCall = exit_cb;
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   //ExecutionContext* ctx = mInterpreter->parseProgram("playswf (snitt ; 106 ;120 ;427 ; 330)");
   //mInterpreter->execute(ctx, true);
   mMainRoomLoaded = false;
