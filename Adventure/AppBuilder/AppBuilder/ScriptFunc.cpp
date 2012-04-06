@@ -1580,6 +1580,9 @@ int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
   if (effect == "all"){
     Engine::instance()->getPostProcessor()->stopEffects();
   }
+  else if (effect == "underwater"){
+    //TODO
+  }
   else{
     DebugBreak();
   }
@@ -1618,6 +1621,16 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
     int strength = ctx.stack().pop().getInt();
     disableMainEffect();
     ef->activate(false, strength/50.0f);
+  }
+  else if (effect == "heat"){
+    bool fade = false;
+    if (numArgs > 1){
+      std::string fadestr = ctx.stack().pop().getString();
+      if (fadestr == "fade")
+        fade = true;
+    }
+    disableMainEffect();
+    ef->activate(fade);
   }
   else
     DebugBreak();

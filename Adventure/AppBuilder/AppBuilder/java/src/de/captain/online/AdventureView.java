@@ -236,7 +236,9 @@ class AdventureView extends GLSurfaceView{
         	if (mInitialized)
         		return;
         	mInitialized = true;
-        	String dir = "/mnt/sdcard/external_sd/adventure/testadv";
+        	String extdir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+        	String dir = extdir+"/adventure/testadv";
+        	Log.i(TAG, "Trying to load  adventure from "+ dir);
 			AdventureLib.init(dir+"/data/game.dat");
         }
 
