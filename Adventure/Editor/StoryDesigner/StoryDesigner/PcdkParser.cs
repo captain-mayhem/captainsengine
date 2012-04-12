@@ -33,6 +33,7 @@ namespace StoryDesigner
             Music,
             Video,
             VideoSwf,
+            Language,
         }
 
         public class ArgDef
@@ -539,7 +540,175 @@ namespace StoryDesigner
             addFunction("starteffect", args);
 
             //text commands
+            args = new ArgDef[8];
+            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            args[1] = new ArgDef("Textline", ArgType.String, true);
+            args[2] = new ArgDef("X (pixel)", ArgType.Integer, true);
+            args[3] = new ArgDef("Y (pixel)", ArgType.Integer, true);
+            args[4] = new ArgDef("Font (1-99)", ArgType.Integer, true);
+            args[5] = new ArgDef("Red Color Value (0-255)", ArgType.Integer, true);
+            args[6] = new ArgDef("Green Color Value (0-255)", ArgType.Integer, true);
+            args[7] = new ArgDef("Blue Color Value (0-255)", ArgType.Integer, true);
+            addFunction("textout", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            addFunction("texthide", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            args[1] = new ArgDef("Room (or any / taskbar / menu)", ArgType.Room);
+            args[1].AdditionalValues = new string[] { "any", "taskbar", "menu" };
+            addFunction("bindtext", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            args[1] = new ArgDef("left / center / right", ArgType.String);
+            args[1].AdditionalValues = new string[] { "left", "center", "right" };
+            addFunction("textalign", args);
+            args = new ArgDef[0];
+            addFunction("showalltext", args);
+            args = new ArgDef[0];
+            addFunction("hidealltext", args);
+            args = new ArgDef[5];
+            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            args[1] = new ArgDef("X (pixel)", ArgType.Integer);
+            args[2] = new ArgDef("Y (pixel)", ArgType.Integer);
+            args[3] = new ArgDef("Speed 0=Immediately 9=Slow OR time in ms", ArgType.Integer);
+            args[4] = new ArgDef("Optional: wait", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "wait" };
+            addFunction("movetext", args);
+            args = new ArgDef[8];
+            args[0] = new ArgDef("String name", ArgType.String);
+            args[1] = new ArgDef("X (pixel)", ArgType.Integer);
+            args[2] = new ArgDef("Y (pixel)", ArgType.Integer);
+            args[3] = new ArgDef("Font (1-99)", ArgType.Integer, true);
+            args[4] = new ArgDef("Max length", ArgType.Integer, true);
+            args[5] = new ArgDef("Red Color Value (0-255)", ArgType.Integer, true);
+            args[6] = new ArgDef("Green Color Value (0-255)", ArgType.Integer, true);
+            args[7] = new ArgDef("Blue Color Value (0-255)", ArgType.Integer, true);
+            addFunction("entertext", args);
 
+            //scene & game commands
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Script", ArgType.Script);
+            addFunction("cutscene", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Script", ArgType.Script);
+            args[1] = new ArgDef("loop count / infinitly / * / loop2", ArgType.String, true);
+            args[1].AdditionalValues = new string[] { "infinitly", "*", "loop2" };
+            addFunction("function", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Script", ArgType.Script);
+            addFunction("stopfunction", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Optional: donthide", ArgType.String, true);
+            args[0].AdditionalValues = new string[] { "donthide" };
+            addFunction("minicut", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Seconds", ArgType.Number);
+            addFunction("wait", args);
+            args = new ArgDef[0];
+            addFunction("stopskip", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("Textline", ArgType.String);
+            args[1] = new ArgDef("Visible (true/false)", ArgType.Boolean, true);
+            addFunction("showinfo", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("true / false", ArgType.Boolean);
+            addFunction("showmouse", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("true / false", ArgType.Boolean);
+            addFunction("enablemouse", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("true / false", ArgType.Boolean);
+            addFunction("taskbar", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("true / false", ArgType.Boolean);
+            addFunction("enablemenu", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("true / false", ArgType.Boolean);
+            addFunction("realtime", args);
+            args = new ArgDef[0];
+            addFunction("popupcoin", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Language", ArgType.Language);
+            addFunction("setlanguage", args);
+            args = new ArgDef[4];
+            args[0] = new ArgDef("Script", ArgType.Script);
+            args[1] = new ArgDef("X (pixel)", ArgType.Integer, true);
+            args[2] = new ArgDef("Y (pixel)", ArgType.Integer, true);
+            args[3] = new ArgDef("Width in pixels", ArgType.Integer, true);
+            addFunction("textscene", args);
+            args = new ArgDef[0];
+            addFunction("endscene", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Script", ArgType.Script);
+            args[1] = new ArgDef("Level 1-9", ArgType.Integer);
+            args[1].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            args[2] = new ArgDef("Row 1-9", ArgType.Integer);
+            args[2].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            addFunction("activate", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Script", ArgType.Script);
+            args[1] = new ArgDef("Level 1-9", ArgType.Integer);
+            args[1].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            args[2] = new ArgDef("Row 1-9", ArgType.Integer);
+            args[2].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            addFunction("deactivate", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Level 1-9", ArgType.Integer);
+            args[0].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            addFunction("gotolevel", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Style (usetext / useitem)", ArgType.String);
+            args[0].AdditionalValues = new string[] { "usetext", "useitem" };
+            addFunction("textscenestyle", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Seconds", ArgType.Number);
+            addFunction("timer", args);
+            args = new ArgDef[0];
+            addFunction("break", args);
+
+            //save & load menu
+            args = new ArgDef[0];
+            addFunction("restart", args);
+            args = new ArgDef[0];
+            addFunction("quit", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Gamesave slot 1-10", ArgType.Integer);
+            args[0].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+            addFunction("savegame", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Gamesave slot 1-10", ArgType.Integer);
+            args[0].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+            addFunction("loadgame", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("true / false", ArgType.Boolean);
+            addFunction("textenabled", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Textspeed (fast / normal / slow)", ArgType.String);
+            args[0].AdditionalValues = new string[] { "fast", "normal", "slow" };
+            addFunction("textspeed", args);
+
+            //particles
+            args = new ArgDef[6];
+            args[0] = new ArgDef("Object", ArgType.Object);
+            args[1] = new ArgDef("Speed", ArgType.Integer);
+            args[2] = new ArgDef("Amount (1-151)", ArgType.Integer);
+            args[3] = new ArgDef("Direction (0-360 degrees)", ArgType.Integer);
+            args[4] = new ArgDef("Rotation (0-360 degrees)", ArgType.Integer);
+            args[5] = new ArgDef("Variation in per cent", ArgType.Integer);
+            addFunction("setparticles", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("View (1-4)", ArgType.String);
+            args[0].AdditionalValues = new string[] { "front", "behindfront", "behindmiddle", "back" };
+            addFunction("particleview", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Optional: fast", ArgType.String, true);
+            args[0].AdditionalValues = new string[] { "fast" };
+            addFunction("startparticles", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Optional: fast", ArgType.String, true);
+            args[0].AdditionalValues = new string[] { "fast" };
+            addFunction("stopparticles", args);
         }
 
         public void addConditional(string name, ArgDef[] arguments)
