@@ -1580,11 +1580,10 @@ int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
   if (effect == "all"){
     Engine::instance()->getPostProcessor()->stopEffects();
   }
-  else if (effect == "underwater"){
-    //TODO
-  }
   else{
-    DebugBreak();
+    PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
+    if (ef)
+      ef->deactivate();
   }
   return 0;
 }
@@ -1593,6 +1592,7 @@ static void disableMainEffect(){
   Engine::instance()->getPostProcessor()->getEffect("darkbloom")->deactivate();
   Engine::instance()->getPostProcessor()->getEffect("hell")->deactivate();
   Engine::instance()->getPostProcessor()->getEffect("motionblur")->deactivate();
+  Engine::instance()->getPostProcessor()->getEffect("heat")->deactivate();
 }
 
 int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){

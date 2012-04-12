@@ -88,10 +88,16 @@ namespace StoryDesigner
             matches.SelectedIndex = -1;
             Clipboard.SetText(value);
             int startidx = scripttext.SelectionStart-1;
-            char ch = scripttext.Text[startidx];
+            char ch = ' ';
+            if (startidx >= 0)
+                ch = scripttext.Text[startidx];
             while (!Char.IsWhiteSpace(ch) && ch != ';' && ch != '(' && ch != ')')
             {
                 --startidx;
+                if (startidx < 0)
+                {
+                    break;
+                }
                 ch = scripttext.Text[startidx];
             }
             int stopidx = scripttext.SelectionStart;
@@ -370,6 +376,12 @@ namespace StoryDesigner
                     {
                         if (System.IO.Path.GetExtension(video.Value) == ".swf")
                             addMatch(video.Key, match);
+                    }
+                    break;
+                case PcdkParser.ArgType.Language:
+                    foreach (KeyValuePair<string, Language> lang in mData.Languages)
+                    {
+                        addMatch(lang.Key, match);
                     }
                     break;
             }
