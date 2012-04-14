@@ -107,6 +107,10 @@ namespace StoryDesigner
             {
                 mAdv.Settings.Resolution = new Vec2i(640, 480);
             }
+            else if (str == "Resolution X : 800")
+            {
+                mAdv.Settings.Resolution = new Vec2i(800, 600);
+            }
             else
             {
                 throw new UnexpectedValueException("Resolution is invalid");

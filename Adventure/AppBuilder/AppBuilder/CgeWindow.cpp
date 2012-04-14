@@ -1,5 +1,6 @@
 #include "system/engine.h"
 #include "renderer/renderer.h"
+#include "window/window.h"
 #include "system/utilities.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
@@ -20,6 +21,8 @@ std::string filename;
 AdvDocument* adoc = NULL;
 CommandReceiver receiver;
 
+Vec2i windowsize(640,480);
+
 void quit();
 
 void init(){
@@ -28,6 +31,9 @@ void init(){
   if (!adoc->loadDocument(filename)){
     return;
   }
+  windowsize = adoc->getProjectSettings()->resolution;
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->getWindow()->changeSize(windowsize.x, windowsize.y);
   Engine::init();
   Engine::instance()->setData(adoc);
   SoundEngine::init();
@@ -49,7 +55,7 @@ void init(){
 
   GL()matrixMode(MM_PROJECTION);
   GL()loadIdentity();
-  GL()ortho(0, 640, 480, 0, -1.0, 1.0);
+  GL()ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
   GL()matrixMode(MM_MODELVIEW);
@@ -65,7 +71,7 @@ void init(){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
-  glViewport(0, 0, 640, 480);
+  glViewport(0, 0, windowsize.x, windowsize.y);
   
   receiver.start();
   Engine::instance()->initGame(quit);
@@ -90,7 +96,7 @@ void render(){
   //CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   GL()matrixMode(MM_PROJECTION);
   GL()loadIdentity();
-  GL()ortho(0, 640, 480, 0, -1.0, 1.0);
+  GL()ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
   GL()matrixMode(MM_MODELVIEW);
@@ -114,12 +120,12 @@ void render(){
 }
 
 void mouse_move(int x, int y, int button){
-  if (x >= 0 && x <= 640 && y >= 0 && y <= 480)
+  if (x >= 0 && x <= windowsize.x && y >= 0 && y <= windowsize.y)
     Engine::instance()->setCursorPos(Vec2i(x,y));
 }
 
 void mouse_click(int x, int y, int button){
-  Vec2i pos((int)(x/(float)SCREENWIDTH*640), (int)(y/(float)SCREENHEIGHT*480));
+  Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
   if (button == MB_LEFT)
     Engine::instance()->leftClick(pos);
   else if (button == MB_RIGHT)
@@ -127,13 +133,13 @@ void mouse_click(int x, int y, int button){
 }
 
 void mouse_release(int x, int y, int button){
-  Vec2i pos((int)(x/(float)SCREENWIDTH*640), (int)(y/(float)SCREENHEIGHT*480));
+  Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
   if (button == MB_LEFT)
     Engine::instance()->leftRelease(pos);
 }
 
 void double_click(int x, int y, int button){
-  Vec2i pos((int)(x/(float)SCREENWIDTH*640), (int)(y/(float)SCREENHEIGHT*480));
+  Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
   Engine::instance()->doubleClick(pos);
 }
 

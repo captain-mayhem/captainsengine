@@ -100,6 +100,9 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   if (str == "Resolution X : 640"){
     mSettings.resolution = Vec2i(640,480);
   }
+  else if (str == "Resolution X : 800"){
+    mSettings.resolution = Vec2i(800,600);
+  }
   else
     DebugBreak();
   std::string font;

@@ -126,6 +126,8 @@ public:
   virtual void swapBuffers()=0;
   //! switch from view to model matrix
   virtual void switchFromViewToModelTransform()=0;
+  //! get the window
+  Windows::AppWindow* getWindow() {return win_;}
 protected:
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/

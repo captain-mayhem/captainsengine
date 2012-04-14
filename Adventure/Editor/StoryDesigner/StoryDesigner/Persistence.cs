@@ -4,6 +4,7 @@ using System.Text;
 using System.IO;
 using System.Xml.Serialization;
 using System.Drawing;
+using System.Windows.Forms;
 
 namespace StoryDesigner
 {
@@ -23,10 +24,17 @@ namespace StoryDesigner
 
         public void save()
         {
-            FileStream fs = new FileStream(getSavepath(true), FileMode.Create);
-            XmlSerializer serializer = new XmlSerializer(typeof(Persistence));
-            serializer.Serialize(fs, this);
-            fs.Close();
+            try
+            {
+                FileStream fs = new FileStream(getSavepath(true), FileMode.Create);
+                XmlSerializer serializer = new XmlSerializer(typeof(Persistence));
+                serializer.Serialize(fs, this);
+                fs.Close();
+            }
+            catch (IOException)
+            {
+                MessageBox.Show("Failed to write StoryDesigner.xml. Is another process accesing the file?");
+            }
         }
 
         public static Persistence load()
@@ -36,6 +44,7 @@ namespace StoryDesigner
                 XmlSerializer serializer = new XmlSerializer(typeof(Persistence));
                 FileStream fs = new FileStream(getSavepath(false), FileMode.Open);
                 Persistence p = (Persistence)serializer.Deserialize(fs);
+                fs.Close();
                 return p;
             }
             catch (Exception)
