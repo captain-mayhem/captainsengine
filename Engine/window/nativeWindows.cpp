@@ -235,5 +235,10 @@ void WindowsWindow::kill(){
 
 }
 
+void WindowsWindow::changeSize(int width, int height){
+  AppWindow::changeSize(width, height);
+  SetWindowPos(handle_, NULL, 0, 0, width, height, SWP_NOMOVE);
+}
+
 }
 #endif

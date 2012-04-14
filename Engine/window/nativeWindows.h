@@ -19,6 +19,7 @@ public:
   inline void* getHandle(){return handle_;}
   //! kill the window
   void kill();
+  virtual void changeSize(int width, int height);
 protected:
   HWND handle_;
   HINSTANCE instance_;

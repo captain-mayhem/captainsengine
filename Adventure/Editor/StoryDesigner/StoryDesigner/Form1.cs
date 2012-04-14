@@ -37,6 +37,8 @@ namespace StoryDesigner
             mPersistence.save();
         }
 
+        delegate void sort();
+
         void gamePool_AfterLabelEdit(object sender, NodeLabelEditEventArgs e)
         {
             TreeView view = (TreeView)sender;
@@ -86,9 +88,10 @@ namespace StoryDesigner
                     }
                     break;
             }
-            e.Node.Text = e.Label;
-            view.Sort();
+            //e.Node.Text = e.Label;
+            //view.Sort(); does not work, use BeginInvoke instead
             view.SelectedNode = e.Node;
+            view.BeginInvoke(new sort(view.Sort));
         }
 
         public void showScript(Script.Type type, string name)
@@ -356,11 +359,11 @@ namespace StoryDesigner
         {
             mData = new AdvData(mPersistence);
             gamePool.Nodes.Clear();
-            gamePool.Nodes.Add("CHARACTER");
-            gamePool.Nodes.Add("SCRIPTS");
-            gamePool.Nodes.Add("ITEMS");
-            gamePool.Nodes.Add("OBJECTS");
-            gamePool.Nodes.Add("ROOMS");
+            gamePool.Nodes.Add("1) CHARACTER");
+            gamePool.Nodes.Add("2) SCRIPTS");
+            gamePool.Nodes.Add("3) ITEMS");
+            gamePool.Nodes.Add("4) OBJECTS");
+            gamePool.Nodes.Add("5) ROOMS");
             foreach (TreeNode node in gamePool.Nodes)
             {
                 node.Tag = ResourceID.FOLDER;
@@ -399,13 +402,16 @@ namespace StoryDesigner
 
         private void createGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            /*SaveFileDialog sod = new SaveFileDialog();
+            SaveFileDialog sod = new SaveFileDialog();
             sod.Filter = "Adventure game|*.exe";
+            sod.FileName = mData.Settings.Projectname;
             sod.InitialDirectory = mData.Settings.Directory;
-            sod.ShowDialog();*/
-
-            AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool);
-            writer.writeGame(Directory.GetCurrentDirectory()+"\\test.exe");
+            if (sod.ShowDialog() == DialogResult.OK)
+            {
+                AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool);
+                writer.writeGame(sod.FileName);
+                mData.Settings.Directory = Path.GetDirectoryName(sod.FileName);
+            }
         }
 
         public void setRoomViewMode(RoomDlg.ViewMode mode)
