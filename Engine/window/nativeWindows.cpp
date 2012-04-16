@@ -237,7 +237,13 @@ void WindowsWindow::kill(){
 
 void WindowsWindow::changeSize(int width, int height){
   AppWindow::changeSize(width, height);
-  SetWindowPos(handle_, NULL, 0, 0, width, height, SWP_NOMOVE);
+  RECT rectWin;
+  RECT rectClient;
+  GetWindowRect(handle_, &rectWin);
+  GetClientRect(handle_, &rectClient);
+  int xoffset = (rectWin.right-rectWin.left)-(rectClient.right-rectClient.left);
+  int yoffset = (rectWin.bottom-rectWin.top)-(rectClient.bottom-rectClient.top);
+  SetWindowPos(handle_, NULL, 0, 0, width+xoffset, height+yoffset, SWP_NOMOVE);
 }
 
 }

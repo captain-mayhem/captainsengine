@@ -400,6 +400,18 @@ namespace StoryDesigner
             }
         }
 
+        WaitForm m_wait;
+
+        void showWhile(System.Threading.ThreadStart method)
+        {
+            Application.UseWaitCursor = true;
+            m_wait = new WaitForm();
+            m_wait.Show(this);
+            MethodInvoker callback = delegate { Application.UseWaitCursor = false; m_wait.Dispose(); };
+            AsyncCallback invoke = delegate { this.Invoke(callback); };
+            method.BeginInvoke(invoke, null);
+        }
+
         private void createGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFileDialog sod = new SaveFileDialog();
@@ -408,9 +420,12 @@ namespace StoryDesigner
             sod.InitialDirectory = mData.Settings.Directory;
             if (sod.ShowDialog() == DialogResult.OK)
             {
-                AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool);
-                writer.writeGame(sod.FileName);
-                mData.Settings.Directory = Path.GetDirectoryName(sod.FileName);
+                showWhile(delegate
+                {
+                    AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool);
+                    writer.writeGame(sod.FileName);
+                    mData.Settings.Directory = Path.GetDirectoryName(sod.FileName);
+                });
             }
         }
 

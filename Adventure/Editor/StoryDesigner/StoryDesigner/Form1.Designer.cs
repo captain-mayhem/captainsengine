@@ -95,11 +95,11 @@ namespace StoryDesigner
             this.panel1 = new System.Windows.Forms.Panel();
             this.gamepool_add = new System.Windows.Forms.Button();
             this.mediaPool = new System.Windows.Forms.TreeView();
+            this.iconList = new System.Windows.Forms.ImageList(this.components);
             this.gamePool = new System.Windows.Forms.TreeView();
             this.menuPool = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newSubdirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.iconList = new System.Windows.Forms.ImageList(this.components);
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.menuPool.SuspendLayout();
@@ -591,6 +591,13 @@ namespace StoryDesigner
             this.mediaPool.Size = new System.Drawing.Size(341, 245);
             this.mediaPool.TabIndex = 1;
             // 
+            // iconList
+            // 
+            this.iconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconList.ImageStream")));
+            this.iconList.TransparentColor = System.Drawing.Color.Transparent;
+            this.iconList.Images.SetKeyName(0, "Empty.ico");
+            this.iconList.Images.SetKeyName(1, "Folder.ico");
+            // 
             // gamePool
             // 
             this.gamePool.Dock = System.Windows.Forms.DockStyle.Top;
@@ -623,13 +630,6 @@ namespace StoryDesigner
             this.newSubdirectoryToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
             this.newSubdirectoryToolStripMenuItem.Text = "New Subdirectory";
             this.newSubdirectoryToolStripMenuItem.Click += new System.EventHandler(this.newSubdirectoryToolStripMenuItem_Click);
-            // 
-            // iconList
-            // 
-            this.iconList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("iconList.ImageStream")));
-            this.iconList.TransparentColor = System.Drawing.Color.Transparent;
-            this.iconList.Images.SetKeyName(0, "Empty.ico");
-            this.iconList.Images.SetKeyName(1, "Folder.ico");
             // 
             // MainForm
             // 
