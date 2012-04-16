@@ -508,11 +508,14 @@ static const char heatfs[] =
 "uniform sampler2D texture;\n"
 "uniform sampler2D blendtex;\n"
 "uniform float opacity;\n"
+"uniform vec2 tex_scale;\n"
+"uniform vec2 pixel_offset;\n"
 "\n"
 "void main(){\n"
-"  float xoffset = texture2D(blendtex, vec2(0.5, tex_coord.t)).r;\n"
+"  float xoffset = texture2D(blendtex, vec2(0.5, tex_coord.t)).r*2.0-1.0;\n"
 "  vec4 color = vec4(1.0);\n"
-"  color = texture2D(texture, vec2(tex_coord.s+xoffset/480,tex_coord.t));\n"
+"  float xcoord = clamp(tex_coord.s+xoffset*pixel_offset.x, 0.0, tex_scale.x-pixel_offset.x/2);"
+"  color = texture2D(texture, vec2(xcoord,tex_coord.t));\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
@@ -520,11 +523,11 @@ static const char heatfs[] =
 
 class HeatEffect : public PostProcessor::Effect{
 public:
-  HeatEffect() : Effect(stdvs, heatfs), mBlendTex(0){
+  HeatEffect() : Effect(stdvs, heatfs), mBlendTex(0), mTimeAccu(0){
     mName = "heat";
   }
   virtual void init(const Vec2f& size){
-    mImage.setFormat(1, 1, (int)size.y);
+    mImage.setFormat(1, 1, (int)size.y/2);
     mImage.allocateData();
     for (unsigned i = 0; i < mImage.getImageSize(); ++i){
       mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
@@ -544,7 +547,8 @@ public:
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    mIntensityLoc = mShader.getUniformLocation("opacity");
+    GLint pixeloffset = mShader.getUniformLocation("pixel_offset");
+    mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
     mShader.deactivate();
   }
   virtual void deinit(){
@@ -552,54 +556,59 @@ public:
       glDeleteTextures(1, &mBlendTex);
   }
   virtual void activate(bool fade, ...){
-    float strength = 0.5f;
+    Effect::activate(fade);
     if (fade){
-      mInterpolator.set(0, strength, 1000);
-    }
-    else{
-      mInterpolator.set(strength, strength, 1000);
+      memset(mImage.getData(), 127, mImage.getImageSize());
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, mBlendTex);
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mImage.getWidth(), mImage.getHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, mImage.getData());
+      glActiveTexture(GL_TEXTURE0);
     }
     mFadeout = false;
-    Effect::activate(fade);
   }
   virtual void deactivate(){
     if (mFade){
-      mInterpolator.set(mInterpolator.current(), 0, mInterpolator.currTime());
       mFadeout = true;
+      mFadeoutPixels = mImage.getHeight();
     }
     else
       Effect::deactivate();
   }
   virtual bool update(unsigned time) {
-    if (!mInterpolator.update(time)){
-      if (mFadeout){
-        Effect::deactivate();
-        return false;
+    if (mFadeout && mFadeoutPixels <= 0){
+      Effect::deactivate();
+      return false;
+    }
+    mTimeAccu += time;
+    if (mTimeAccu > 50){
+      time = 1;
+      memmove(mImage.getData(), mImage.getData()+time, mImage.getImageSize()-time);
+      for (unsigned i = mImage.getImageSize()-time; i < mImage.getImageSize(); ++i){
+        mImage.getData()[i] = mFadeout ? 127 : (unsigned char)((rand()/(float)RAND_MAX)*255);
       }
+      glActiveTexture(GL_TEXTURE1);
+      glBindTexture(GL_TEXTURE_2D, mBlendTex);
+      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mImage.getWidth(), mImage.getHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, mImage.getData());
+      glActiveTexture(GL_TEXTURE0);
+      mTimeAccu -= 50;
+      if (mFadeout)
+        mFadeoutPixels -= time;
     }
-    for (unsigned i = 0; i < mImage.getImageSize(); ++i){
-      mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
-    }
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mBlendTex);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mImage.getWidth(), mImage.getHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, mImage.getData());
-    glActiveTexture(GL_TEXTURE0);
     return true;
   }
   virtual void apply(BlitObject* input){
     glBindTexture(GL_TEXTURE_2D, input->getTexture());
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
-    mShader.uniform(mIntensityLoc, mInterpolator.current());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     mShader.deactivate();
   }
 private:
-  GLint mIntensityLoc;
-  Interpolator mInterpolator;
   bool mFadeout;
   GLuint mBlendTex;
   CGE::Image mImage;
+  int mTimeAccu;
+  int mFadeoutPixels;
 };
 
 
