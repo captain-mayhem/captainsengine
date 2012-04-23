@@ -17,8 +17,11 @@ public:
     virtual bool update(unsigned time) {return true;}
     virtual void apply(BlitObject* input)=0;
     virtual void activate(bool fade, ...);
+    void activate() {Effect::activate(mFade);}
     virtual void deactivate();
     const std::string& getName() {return mName;}
+    virtual std::ostream& save(std::ostream& out);
+    virtual std::istream& load(std::istream& in);
   protected:
     GL2Shader mShader;
     std::string mName;
@@ -30,6 +33,8 @@ public:
   BlitObject* process(BlitObject* input, unsigned time);
   Effect* getEffect(const std::string& effect);
   void stopEffects();
+  std::ostream& save(std::ostream& out);
+  std::istream& load(std::istream& in);
 
   friend class Effect;
 private:

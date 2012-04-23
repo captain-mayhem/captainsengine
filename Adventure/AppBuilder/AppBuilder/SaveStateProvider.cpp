@@ -6,6 +6,7 @@
 #include "Engine.h"
 #include "Sound.h"
 #include "Particles.h"
+#include "PostProcessing.h"
 
 using namespace adv;
 
@@ -267,6 +268,8 @@ void SaveStateProvider::save(const std::string& name){
     (*iter)->save();
   }
   std::ofstream out(name.c_str());
+  int version = 1;
+  out << version << std::endl;
   out << Engine::instance()->getInterpreter()->getLanguage() << std::endl;
   //save room data
   out << mRooms.size() << std::endl;
@@ -289,6 +292,8 @@ void SaveStateProvider::save(const std::string& name){
     out << Engine::instance()->mLastFocussedChar << std::endl;
   else
     out << "none" << std::endl;
+  if (Engine::instance()->mFocussedChar)
+    removeCharacter(focussedcharname);
   out << Engine::instance()->mMainRoomLoaded << " " << Engine::instance()->mSubRoomLoaded << std::endl;
   out << Engine::instance()->mShowTaskbar << " " << Engine::instance()->mScreenChange << std::endl;
   out << Engine::instance()->mTextEnabled << " " << Engine::instance()->mFontID << std::endl;
@@ -300,8 +305,8 @@ void SaveStateProvider::save(const std::string& name){
   Engine::instance()->getParticleEngine()->save(out);
   //textscenes
   Engine::instance()->getFontRenderer()->save(out);
-  if (Engine::instance()->mFocussedChar)
-    removeCharacter(focussedcharname);
+  //postproc
+  Engine::instance()->getPostProcessor()->save(out);
   out.close();
 }
 
@@ -319,6 +324,8 @@ void SaveStateProvider::load(const std::string& name){
   }
   //load room data
   std::string language;
+  int version;
+  in >> version;
   in >> language;
   Engine::instance()->getInterpreter()->setLanguage(language);
   int numRooms;
@@ -354,6 +361,7 @@ void SaveStateProvider::load(const std::string& name){
   SoundEngine::instance()->load(in);
   Engine::instance()->getParticleEngine()->load(in);
   Engine::instance()->getFontRenderer()->load(in);
+  Engine::instance()->getPostProcessor()->load(in);
   allowWrites(false);
   in.close();
 }

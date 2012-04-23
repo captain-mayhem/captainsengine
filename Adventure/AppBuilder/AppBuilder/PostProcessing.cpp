@@ -36,6 +36,14 @@ public:
   float time() {return mTime;}
   float currTime() {return (float)mTimeAccu;}
   void reset() {mCurrent = mSource; mTimeAccu = 0;}
+  std::ostream& save(std::ostream& out){
+    out << mSource << " " << mTarget << " " << mCurrent << " " << mTime << " " << mTimeAccu;
+    return out;
+  }
+  std::istream& load(std::istream& in){
+    in >> mSource >> mTarget >> mCurrent >> mTime >> mTimeAccu;
+    return in;
+  }
 private:
   float mSource;
   float mTarget;
@@ -73,6 +81,16 @@ void PostProcessor::Effect::activate(bool fade, ...){
 void PostProcessor::Effect::deactivate(){
   deinit();
   Engine::instance()->getPostProcessor()->mActiveEffects.remove(this);
+}
+
+std::ostream& PostProcessor::Effect::save(std::ostream& out){
+  out << mName << " " << mFade << " ";
+  return out;
+}
+
+std::istream& PostProcessor::Effect::load(std::istream& in){
+  in >> mFade;
+  return in;
 }
 
 /*dark bloom*/
@@ -207,6 +225,21 @@ public:
     mShader.uniform(mIntensityLoc, mInterpolator.current());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     mShader.deactivate();
+  }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mAnimate << " " << mState << " ";
+    mInterpolator.save(out);
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mAnimate;
+    int tmp;
+    in >> tmp;
+    mState = (State)tmp;
+    mInterpolator.load(in);
+    return in;
   }
 private:
   enum State{
@@ -348,6 +381,18 @@ public:
     mShader.uniform(mIntensityLoc, mInterpolator.current());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     mShader.deactivate();
+  }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mFadeout << " ";
+    mInterpolator.save(out);
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mFadeout;
+    mInterpolator.load(in);
+    return in;
   }
 private:
   GLint mIntensityLoc;
@@ -493,6 +538,17 @@ public:
     else
       mShader.deactivate();
   }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mTakeFrame;
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mTakeFrame;
+    mTakeCount = mTakeFrame;
+    return in;
+  }
 private:
   GL2Shader mStdShader;
   std::list<RenderableBlitObject*> mPrevFrames;
@@ -603,6 +659,16 @@ public:
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     mShader.deactivate();
   }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mFadeout << " " << mTimeAccu << " " << mFadeoutPixels;
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mFadeout >> mTimeAccu >> mFadeoutPixels;
+    return in;
+  }
 private:
   bool mFadeout;
   GLuint mBlendTex;
@@ -676,4 +742,27 @@ void PostProcessor::stopEffects(){
     (*iter)->deactivate();
     iter = iter2;
   }
+}
+
+std::ostream& PostProcessor::save(std::ostream& out){
+  out << mActiveEffects.size() << "\n";
+  for (std::list<Effect*>::iterator iter = mActiveEffects.begin(); iter != mActiveEffects.end(); ++iter){
+    (*iter)->save(out);
+    out << std::endl;
+  }
+  return out;
+}
+
+std::istream& PostProcessor::load(std::istream& in){
+  stopEffects();
+  int size;
+  in >> size;
+  std::string name;
+  for (int i = 0; i < size; ++i){
+    in >> name;
+    PostProcessor::Effect* ef = getEffect(name);
+    ef->load(in);
+    ef->activate();
+  }
+  return in;
 }
