@@ -9,4 +9,5 @@ public class AdventureLib{
 	public static native void render(int time);
 	public static native void move(int x, int y);
 	public static native void leftclick(int x, int y);
+	public static native void setWindowDims(int x, int y);
 }

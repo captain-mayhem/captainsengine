@@ -195,12 +195,15 @@ RenderableBlitObject::~RenderableBlitObject(){
 }
 
 void RenderableBlitObject::bind(){
+  glGetIntegerv(GL_VIEWPORT, mOldViewport);
+  glViewport(0, 0, mSize.x, mSize.y);
   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mOldFrameBuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
 }
 
 void RenderableBlitObject::unbind(){
   glBindFramebuffer(GL_FRAMEBUFFER, mOldFrameBuffer);
+  glViewport(mOldViewport[0], mOldViewport[1], mOldViewport[2], mOldViewport[3]);
 }
 
 DynamicAnimation::DynamicAnimation(){

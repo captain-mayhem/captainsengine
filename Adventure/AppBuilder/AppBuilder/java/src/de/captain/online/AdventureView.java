@@ -3,6 +3,7 @@ package de.captain.online;
 import android.opengl.GLSurfaceView;
 import android.content.Context;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 
 import javax.microedition.khronos.egl.EGL10;
@@ -233,12 +234,15 @@ class AdventureView extends GLSurfaceView{
 
         public void onSurfaceChanged(GL10 gl, int width, int height) {
             //AdventureLib.init(width, height);
+        	AdventureLib.setWindowDims(width, height);
         	if (mInitialized)
         		return;
+        	mWindowWidth = width;
+        	mWindowHeight = height;
         	mInitialized = true;
         	String extdir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
         	String dir = extdir+"/adventure/testadv";
-        	Log.i(TAG, "Trying to load  adventure from "+ dir);
+        	Log.i(TAG, "Trying to load adventure from "+ dir);
 			AdventureLib.init(dir+"/data/game.dat");
         }
 
@@ -248,17 +252,27 @@ class AdventureView extends GLSurfaceView{
         }
         
         public void handleMotionEvent(MotionEvent event){
-        	if (event.getAction() == MotionEvent.ACTION_MOVE){
-        		AdventureLib.move((int)event.getX(), (int)event.getY());
+        	int realx = (int)(event.getX()/mWindowWidth*mAdvWidth);
+        	int realy = (int)(event.getY()/mWindowHeight*mAdvHeight);
+        	if (event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN){
+        		AdventureLib.move(realx, realy);
         	}
-        	else if (event.getAction() == MotionEvent.ACTION_DOWN){
-        		AdventureLib.move((int)event.getX(), (int)event.getY());
-        		AdventureLib.leftclick((int)event.getX(), (int)event.getY());
+        	else if (event.getAction() == MotionEvent.ACTION_UP){
+        		AdventureLib.move(realx, realy);
+        		AdventureLib.leftclick(realx, realy);
         	}
+        }
+        
+        public void handleKeyDown(int keycode){
+        	Log.i(TAG, "Key pressed:"+keycode);
         }
         
         private long mCurrentTime;
         boolean mInitialized;
+        private int mAdvWidth = 640;
+    	private int mAdvHeight = 480;
+    	private int mWindowWidth;
+    	private int mWindowHeight;
     }
 	
 	public AdventureView(Context context){
@@ -287,6 +301,32 @@ class AdventureView extends GLSurfaceView{
 		}
 		);
 		return true;		
+	}
+	
+	public boolean onKeyDown(int keyCode, KeyEvent event){
+		Log.i(TAG, "Key pressed:"+keyCode);
+		if (mRenderer != null){
+			queueEvent(new Runnable(){
+				public void run(){
+					//mRenderer.handleKeyDown(keyCode);
+				}
+			});
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+	
+	public boolean onKeyMultiple(final int keyCode, KeyEvent event){
+		Log.i(TAG, "Key pressed:"+keyCode);
+		if (mRenderer != null){
+			queueEvent(new Runnable(){
+				public void run(){
+					mRenderer.handleKeyDown(keyCode);
+				}
+			});
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
 	}
 	
 	private Renderer mRenderer;

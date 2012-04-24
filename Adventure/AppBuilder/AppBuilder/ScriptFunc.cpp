@@ -1728,7 +1728,13 @@ int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 3)
     DebugBreak();
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
-  chr->setUserScale(size/100.0f);
+  if (chr)
+    chr->setUserScale(size/100.0f);
+  else{
+    std::string dummy;
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, dummy, dummy);
+    cso->scale = size/100.0f;
+  }
   return 0;
 }
 
