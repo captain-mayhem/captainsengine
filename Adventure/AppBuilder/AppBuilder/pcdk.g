@@ -232,6 +232,7 @@ ident returns [IdentNode* id]
 	IDENT_PART {$id = new IdentNode((char*)$IDENT_PART.text->chars);}
 	(UNDERSCORE (secid=ident {$id->append("_"); $id->append(secid.id->value().c_str()); delete secid.id;}
 		| INT {$id->append("_"); $id->append((char*)$INT.text->chars);}
+		| LEVEL {$id->append("_"); $id->append((char*)$LEVEL.text->chars);}
 		)
 	)*
 	;

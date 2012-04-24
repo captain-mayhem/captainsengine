@@ -108,7 +108,7 @@ static const char bloomvs[] =
 "\n"
 "void main(){\n"
 "  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
-"  tex_coord2 = vec2(position.x*2.0-1.0, (0.0+position.y)*2.0-1.0)*pixel_offset*2;\n"
+"  tex_coord2 = vec2(position.x*2.0-1.0, (0.0+position.y)*2.0-1.0)*pixel_offset*2.0;\n"
 "  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
 "}\n"
 "";
@@ -570,7 +570,7 @@ static const char heatfs[] =
 "void main(){\n"
 "  float xoffset = texture2D(blendtex, vec2(0.5, tex_coord.t)).r*2.0-1.0;\n"
 "  vec4 color = vec4(1.0);\n"
-"  float xcoord = clamp(tex_coord.s+xoffset*pixel_offset.x, 0.0, tex_scale.x-pixel_offset.x/2);"
+"  float xcoord = clamp(tex_coord.s+xoffset*pixel_offset.x, 0.0, tex_scale.x-pixel_offset.x/2.0);"
 "  color = texture2D(texture, vec2(xcoord,tex_coord.t));\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"

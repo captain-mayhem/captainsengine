@@ -16,6 +16,9 @@ using namespace adv;
 
 TR_CHANNEL(ADV_JNIFrontend);
 
+static int winwidth = 640;
+static int winheight = 480;
+
 extern "C"{
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename);
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time);
@@ -102,7 +105,8 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jo
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
-	glViewport(0, 0, 640, 480);
+	TR_INFO("Setting viewort to %i x %i", winwidth, winheight);
+	glViewport(0, 0, winwidth, winheight);
 
 	TR_DEBUG("init remote server");
 	receiver.start();
@@ -144,6 +148,11 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_move(JNIEnv* env, job
 
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_leftclick(JNIEnv* env, jobject obj, int x, int y){
 	Engine::instance()->leftClick(Vec2i(x,y));
+}
+
+JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_setWindowDims(JNIEnv* env, jobject obj, int x, int y){
+	winwidth = x;
+	winheight = y;
 }
 
 }
