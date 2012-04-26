@@ -19,13 +19,19 @@
 -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="de.captain.online">
+    package="de.captain.online" android:versionName="@string/adventure_activity">
     <application
             android:label="@string/adventure_activity">
-        <activity android:name="AdventureActivity"
+        
+        <activity android:name="ListAdventuresActivity"
                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
             	android:launchMode="singleTask"
             	android:configChanges="orientation|keyboardHidden">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity><activity android:name="AdventureActivity" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:launchMode="singleTask" android:configChanges="orientation|keyboardHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

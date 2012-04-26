@@ -226,6 +226,10 @@ class AdventureView extends GLSurfaceView{
     }
 	
 	private /*static*/ class Renderer implements GLSurfaceView.Renderer {
+		public Renderer(String adventure){
+			mAdventure = adventure;
+		}
+		
         public void onDrawFrame(GL10 gl) {
         	long newtime = System.currentTimeMillis();
             AdventureLib.render((int)(newtime-mCurrentTime));
@@ -241,7 +245,7 @@ class AdventureView extends GLSurfaceView{
         	mWindowHeight = height;
         	mInitialized = true;
         	String extdir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-        	String dir = extdir+"/adventure/testadv";
+        	String dir = extdir+"/adventure/"+mAdventure;
         	Log.i(TAG, "Trying to load adventure from "+ dir);
 			AdventureLib.init(dir+"/data/game.dat");
         }
@@ -265,6 +269,7 @@ class AdventureView extends GLSurfaceView{
         
         public void handleKeyDown(int keycode){
         	Log.i(TAG, "Key pressed:"+keycode);
+        	AdventureLib.keydown(0);
         }
         
         private long mCurrentTime;
@@ -273,13 +278,15 @@ class AdventureView extends GLSurfaceView{
     	private int mAdvHeight = 480;
     	private int mWindowWidth;
     	private int mWindowHeight;
+    	private String mAdventure;
     }
 	
-	public AdventureView(Context context){
+	public AdventureView(Context context, String adventure){
 		super(context);
+		Log.w(TAG, adventure);
 		setEGLContextFactory(new ContextFactory());
 		setEGLConfigChooser(new ConfigChooser(5, 6, 5, 0, 16, 0));
-		Renderer rend = new Renderer();
+		Renderer rend = new Renderer(adventure);
 		setRenderer(rend);
 		mRenderer = rend;
 	}
@@ -303,22 +310,8 @@ class AdventureView extends GLSurfaceView{
 		return true;		
 	}
 	
-	public boolean onKeyDown(int keyCode, KeyEvent event){
-		Log.i(TAG, "Key pressed:"+keyCode);
-		if (mRenderer != null){
-			queueEvent(new Runnable(){
-				public void run(){
-					//mRenderer.handleKeyDown(keyCode);
-				}
-			});
-			return true;
-		}
-		return super.onKeyDown(keyCode, event);
-	}
-	
-	public boolean onKeyMultiple(final int keyCode, KeyEvent event){
-		Log.i(TAG, "Key pressed:"+keyCode);
-		if (mRenderer != null){
+	public boolean onKeyDown(final int keyCode, KeyEvent event){
+		if (mRenderer != null && keyCode == KeyEvent.KEYCODE_MENU){
 			queueEvent(new Runnable(){
 				public void run(){
 					mRenderer.handleKeyDown(keyCode);

@@ -10,7 +10,11 @@ public class AdventureActivity extends Activity {
 
 	@Override protected void onCreate(Bundle icicle){
 		super.onCreate(icicle);
-		mView = new AdventureView(getApplication());
+		Bundle arguments = getIntent().getExtras();
+		String adventure = arguments.getString("adventure");
+		mView = new AdventureView(getApplication(), adventure);
+		mView.setFocusableInTouchMode(true);
+		mView.requestFocus();
 		setContentView(mView);
 	}
 	
