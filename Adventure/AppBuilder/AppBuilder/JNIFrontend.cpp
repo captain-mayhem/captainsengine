@@ -155,4 +155,9 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_setWindowDims(JNIEnv*
 	winheight = y;
 }
 
+JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_keydown(JNIEnv* env, jobject obj, int keycode){
+	Engine::instance()->keyPress(keycode);
+	Engine::instance()->keyRelease(keycode);
+}
+
 }
