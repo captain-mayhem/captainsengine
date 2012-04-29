@@ -16,13 +16,17 @@ using namespace adv;
 
 TR_CHANNEL(ADV_JNIFrontend);
 
-static int winwidth = 640;
-static int winheight = 480;
+static int winwidth = 0;
+static int winheight = 0;
+static int advwidth = 0;
+static int advheight = 0;
+static int realwidth = 0;
+static int realheight = 0;
 
 extern "C"{
-JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename);
-JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time);
-JNIEXPORT jstring JNICALL Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env, jobject thiz );
+//JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename);
+//JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time);
+//JNIEXPORT jstring JNICALL Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env, jobject thiz );
 
 class AndroidLogOutputter : public CGE::TraceOutputter{
   virtual bool init() {}
@@ -45,7 +49,7 @@ class AndroidLogOutputter : public CGE::TraceOutputter{
 			prio = ANDROID_LOG_ERROR;
 			break;
 	}
-    __android_log_print(prio, "adventure", "%s (%s)", message, function);
+    __android_log_print(prio, function, "%s (channel %i)", message, channel);
   }
 };
 
@@ -53,19 +57,30 @@ AdvDocument* adoc;
 static bool shouldQuit = false;
 CommandReceiver receiver;
 
-JNIEXPORT jstring JNICALL Java_com_example_hellojni_HelloJni_stringFromJNI( JNIEnv* env, jobject thiz ){
-    return env->NewStringUTF("Hello from C++!");
-}
-
 void quit(){
   shouldQuit = true;
 }
 
-JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename){
+void setAdventureDims(JNIEnv* env, int x, int y){
+	TR_USE(ADV_JNIFrontend);
+	jclass cls = env->FindClass("de.captain.online.AdventureLib");
+	if (cls == NULL){
+		TR_ERROR("class de.captain.online.AdventureLib not found");
+		return;
+	}
+	jmethodID func = env->GetStaticMethodID(cls, "adventureSize", "(II)V");
+	if (func == 0){
+		TR_ERROR("method adventureSize not found");
+	}
+	else
+		env->CallStaticVoidMethod(cls, func, x, y);
+}
+
+JNIEXPORT jboolean JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename){
 	TR_USE(ADV_JNIFrontend);
 	const char* str = env->GetStringUTFChars(filename, NULL);
 	if (str == NULL)
-		return;
+		return JNI_FALSE;
 	
 	AndroidLogOutputter* alo = new AndroidLogOutputter();
 	CGE::TraceManager::instance()->setTraceOutputter(alo);
@@ -74,8 +89,11 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jo
 	adoc = new AdvDocument();
 	if (!adoc->loadDocument(str)){
 		TR_ERROR("failed to load adventure");
-		return;
+		return JNI_FALSE;
 	}
+	advwidth = adoc->getProjectSettings()->resolution.x;
+	advheight = adoc->getProjectSettings()->resolution.y;
+	setAdventureDims(env, advwidth, advheight);
 	
 	TR_DEBUG("init adventure engine");
 	Engine::init();
@@ -88,7 +106,7 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jo
 
 	GL()matrixMode(MM_PROJECTION);
 	GL()loadIdentity();
-	GL()ortho(0, 640, 480, 0, -1.0, 1.0);
+	GL()ortho(0, advwidth, advheight, 0, -1.0, 1.0);
 	//glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
 	GL()matrixMode(MM_MODELVIEW);
@@ -105,8 +123,25 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jo
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
 
-	TR_INFO("Setting viewort to %i x %i", winwidth, winheight);
-	glViewport(0, 0, winwidth, winheight);
+	realwidth = winwidth;
+	realheight = winheight;
+	float aspect = advwidth/(float)advheight;
+	if (aspect > 1.0f){
+		realheight = winwidth/aspect;
+		if (realheight > winheight){
+			realheight = winheight;
+			realwidth = winheight*aspect;
+		}
+	}
+	else if (aspect < 1.0f){
+		realwidth = winheight*aspect;
+		if (realwidth > winwidth){
+			realwidth = winwidth;
+			realheight = winwidth*aspect;
+		}
+	}
+	TR_INFO("Setting viewort to %i x %i", realwidth, realheight);
+	glViewport(0, 0, realwidth, realheight);
 
 	TR_DEBUG("init remote server");
 	receiver.start();
@@ -115,13 +150,14 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jo
 	TR_DEBUG("init done");
 	
 	env->ReleaseStringUTFChars(filename, str);
+	return JNI_TRUE;
 }
 
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time){
 	//CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   GL()matrixMode(MM_PROJECTION);
   GL()loadIdentity();
-  GL()ortho(0, 640, 480, 0, -1.0, 1.0);
+  GL()ortho(0, advwidth, advheight, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
   GL()matrixMode(MM_MODELVIEW);
@@ -136,18 +172,23 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, j
   GL()loadIdentity();
 
   receiver.processCommands();
+  //time = (unsigned)(CGE::Engine::instance()->getFrameInterval()*1000);
   Engine::instance()->render(time);
 
   SoundEngine::instance()->update(time);
 }
 
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_move(JNIEnv* env, jobject obj, int x, int y){
-	if (x >= 0 && x <= 640 && y >= 0 && y <= 480)
+	if (x >= 0 && x <= advwidth && y >= 0 && y <= advheight)
 		Engine::instance()->setCursorPos(Vec2i(x,y));
 }
 
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_leftclick(JNIEnv* env, jobject obj, int x, int y){
 	Engine::instance()->leftClick(Vec2i(x,y));
+}
+
+JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_leftrelease(JNIEnv* env, jobject obj, int x, int y){
+	Engine::instance()->leftRelease(Vec2i(x,y));
 }
 
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_setWindowDims(JNIEnv* env, jobject obj, int x, int y){

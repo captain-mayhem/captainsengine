@@ -22,6 +22,8 @@ public class ListAdventuresActivity extends ListActivity{
 		String item = (String) getListAdapter().getItem(position);
 		Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
 		Intent i = new Intent(this, AdventureActivity.class);
+		//Intent i = new Intent();
+		//i.setAction("de.captain.online.AdventureActivity.START");
 		Bundle bundle = new Bundle();
 		bundle.putString("adventure", item);
 		i.putExtras(bundle);
