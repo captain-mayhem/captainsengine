@@ -225,13 +225,15 @@ class AdventureView extends GLSurfaceView{
         private int[] mValue = new int[1];
     }
 	
-	private /*static*/ class Renderer implements GLSurfaceView.Renderer {
+	/*private static*/ class Renderer implements GLSurfaceView.Renderer {
 		public Renderer(String adventure){
 			mAdventure = adventure;
+			AdventureLib.setView(this);
 		}
 		
         public void onDrawFrame(GL10 gl) {
         	long newtime = System.currentTimeMillis();
+        	gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
             AdventureLib.render((int)(newtime-mCurrentTime));
             mCurrentTime = newtime;
         }
@@ -256,14 +258,22 @@ class AdventureView extends GLSurfaceView{
         }
         
         public void handleMotionEvent(MotionEvent event){
-        	int realx = (int)(event.getX()/mWindowWidth*mAdvWidth);
-        	int realy = (int)(event.getY()/mWindowHeight*mAdvHeight);
-        	if (event.getAction() == MotionEvent.ACTION_MOVE || event.getAction() == MotionEvent.ACTION_DOWN){
+        	int realx = (int)(event.getX()/mRealWidth*mAdvWidth);
+        	int realy = (int)(event.getY()/mRealHeight*mAdvHeight);
+        	if (event.getAction() == MotionEvent.ACTION_MOVE){
         		AdventureLib.move(realx, realy);
         	}
+        	else if (event.getAction() == MotionEvent.ACTION_DOWN){
+        		AdventureLib.move(realx, realy);
+        		
+        	}
         	else if (event.getAction() == MotionEvent.ACTION_UP){
+        		//if (event.getDownTime() < 500){
+        		//	AdventureLib.leftclick(mXDown, mYDown);
+        		//}
         		AdventureLib.move(realx, realy);
         		AdventureLib.leftclick(realx, realy);
+        		AdventureLib.leftrelease(realx, realy);
         	}
         }
         
@@ -272,13 +282,39 @@ class AdventureView extends GLSurfaceView{
         	AdventureLib.keydown(0);
         }
         
+        public void setAdventureDims(int x, int y){
+        	mAdvWidth = x;
+        	mAdvHeight = y;
+        	mRealWidth = mWindowWidth;
+        	mRealHeight = mWindowHeight;
+        	float aspect = mAdvWidth/(float)mAdvHeight;
+        	if (aspect > 1.0f){
+        		mRealHeight = (int)(mWindowWidth/aspect);
+        		if (mRealHeight > mWindowHeight){
+        			mRealHeight = mWindowHeight;
+        			mRealWidth = (int)(mWindowHeight*aspect);
+        		}
+        	}
+        	else if (aspect < 1.0f){
+        		mRealWidth = (int)(mWindowHeight*aspect);
+        		if (mRealWidth > mWindowWidth){
+        			mRealWidth = mWindowWidth;
+        			mRealHeight = (int)(mWindowWidth*aspect);
+        		}
+        	}
+        }
+        
         private long mCurrentTime;
         boolean mInitialized;
         private int mAdvWidth = 640;
     	private int mAdvHeight = 480;
     	private int mWindowWidth;
     	private int mWindowHeight;
+    	private int mRealWidth;
+    	private int mRealHeight;
     	private String mAdventure;
+    	private int mXDown;
+    	private int mYDown;
     }
 	
 	public AdventureView(Context context, String adventure){
