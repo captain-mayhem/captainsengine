@@ -63,7 +63,7 @@ void quit(){
 
 void setAdventureDims(JNIEnv* env, int x, int y){
 	TR_USE(ADV_JNIFrontend);
-	jclass cls = env->FindClass("de.captain.online.AdventureLib");
+	jclass cls = env->FindClass("de/captain/online/AdventureLib");
 	if (cls == NULL){
 		TR_ERROR("class de.captain.online.AdventureLib not found");
 		return;
@@ -199,6 +199,10 @@ JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_setWindowDims(JNIEnv*
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_keydown(JNIEnv* env, jobject obj, int keycode){
 	Engine::instance()->keyPress(keycode);
 	Engine::instance()->keyRelease(keycode);
+}
+
+JNIEXPORT jlong JNICALL Java_de_captain_online_AdventureLib_getTime(JNIEnv* env, jobject obj){
+	return (jlong)(getTime()*1000);
 }
 
 }

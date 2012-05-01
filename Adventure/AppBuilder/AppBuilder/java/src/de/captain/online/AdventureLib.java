@@ -2,6 +2,7 @@ package de.captain.online;
 
 public class AdventureLib{
 	static{
+		System.loadLibrary("gnustl_shared");
 		System.loadLibrary("Adventure");
 	}
 	
@@ -13,6 +14,8 @@ public class AdventureLib{
 	public static native void leftclick(int x, int y);
 	public static native void leftrelease(int x, int y);
 	public static native void keydown(int keycode);
+	
+	public static native long getTime();
 	
 	public static void setView(AdventureView.Renderer view){
 		mView = view;

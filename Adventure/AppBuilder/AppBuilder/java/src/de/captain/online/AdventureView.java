@@ -19,7 +19,7 @@ class AdventureView extends GLSurfaceView{
 	private static class ContextFactory implements GLSurfaceView.EGLContextFactory {
 		private static int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
         public EGLContext createContext(EGL10 egl, EGLDisplay display, EGLConfig eglConfig) {
-            Log.w(TAG, "creating OpenGL ES 2.0 context");
+            Log.i(TAG, "creating OpenGL ES 2.0 context");
             checkEglError("Before eglCreateContext", egl);
             int[] attrib_list = {EGL_CONTEXT_CLIENT_VERSION, 2, EGL10.EGL_NONE };
             EGLContext context = egl.eglCreateContext(display, eglConfig, EGL10.EGL_NO_CONTEXT, attrib_list);
@@ -232,8 +232,7 @@ class AdventureView extends GLSurfaceView{
 		}
 		
         public void onDrawFrame(GL10 gl) {
-        	long newtime = System.currentTimeMillis();
-        	gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
+        	long newtime = AdventureLib.getTime();
             AdventureLib.render((int)(newtime-mCurrentTime));
             mCurrentTime = newtime;
         }
@@ -254,7 +253,7 @@ class AdventureView extends GLSurfaceView{
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
             // Do nothing.
-        	mCurrentTime = System.currentTimeMillis();
+        	mCurrentTime = AdventureLib.getTime();
         }
         
         public void handleMotionEvent(MotionEvent event){
@@ -265,6 +264,7 @@ class AdventureView extends GLSurfaceView{
         	}
         	else if (event.getAction() == MotionEvent.ACTION_DOWN){
         		AdventureLib.move(realx, realy);
+        		AdventureLib.leftclick(realx, realy);
         		
         	}
         	else if (event.getAction() == MotionEvent.ACTION_UP){
@@ -272,7 +272,6 @@ class AdventureView extends GLSurfaceView{
         		//	AdventureLib.leftclick(mXDown, mYDown);
         		//}
         		AdventureLib.move(realx, realy);
-        		AdventureLib.leftclick(realx, realy);
         		AdventureLib.leftrelease(realx, realy);
         	}
         }
