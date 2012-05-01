@@ -1420,6 +1420,7 @@ void Engine::renderUnloadingRoom(){
   RenderableBlitObject mainroom(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
   mainroom.setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
   mainroom.bind();
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   beginRendering();
   if (mRoomsToUnload.size() == 0 && mUnloadedRoom)
