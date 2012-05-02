@@ -65,6 +65,16 @@ void Animator::remove(RoomObject* room){
   }
 }
 
+bool Animator::isPointOnLine(Vec2f from, Vec2f to, Vec2f pt, double epsilon)
+{
+  double segmentLengthSqr = (to.x - from.x) * (to.x - from.x) + (to.y - from.y) * (to.y - from.y);
+  double r = ((pt.x - from.x) * (to.x - from.x) + (pt.y - from.y) * (to.y - from.y)) / segmentLengthSqr;
+  if(r<0 || r>1) return false;
+  double sl = ((from.y - pt.y) * (to.x - from.x) - (from.x - pt.x) * (to.y - from.y)) / sqrt(segmentLengthSqr);
+  return -epsilon <= sl && sl <= epsilon;
+}
+
+
 void Animator::update(unsigned interval){
   if (interval == 0)
     return;
@@ -116,7 +126,7 @@ void Animator::update(unsigned interval){
 
   int pos = 0;
   for (std::map<RoomObject*, RoomAnim>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    if ((iter->second.currPos-iter->second.target).length() < 0.5){
+    if ((iter->second.currPos-iter->second.target).length() <= 0.1){
       iter->first->setScrollOffset(iter->second.target);
       mRooms.erase(iter);
       //reposition manually as erase does only return valid iterator on Windows
@@ -126,7 +136,10 @@ void Animator::update(unsigned interval){
       if (iter == mRooms.end())
         break;
     }
+    Vec2f oldpos = iter->second.currPos;
     iter->second.currPos += iter->second.dir*(float)interval*iter->second.speed;
+    if (!isPointOnLine(oldpos, iter->second.target, iter->second.currPos, 0.1))
+      iter->second.currPos = iter->second.target;
     iter->first->setScrollOffset(Vec2i((int)iter->second.currPos.x, (int)iter->second.currPos.y));
     ++pos;
   }
