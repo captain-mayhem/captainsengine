@@ -111,7 +111,9 @@ void PcdkScript::stop(){
   mLanguage = "origin";
 }
 
-void myreportError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
+void reportParseError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
+  TR_USE(ADV_Script);
+
   if	(recognizer->state->errorRecovery == ANTLR3_TRUE)
   {
     // Already in error recovery so don't display another error while doing so
@@ -119,11 +121,11 @@ void myreportError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
     return;
   }
 
-  ANTLR3_PARSER_struct* parser = (ANTLR3_PARSER_struct*)(recognizer->super);
-  recognizer->state->error = ANTLR3_FALSE;
-  parser->tstream->istream->rewindLast(parser->tstream->istream);
-  ppcdkParser pcdk = (ppcdkParser)parser->super;
-  pcdkParser_complex_arg_return ret = pcdk->complex_arg(pcdk);
+  //ANTLR3_PARSER_struct* parser = (ANTLR3_PARSER_struct*)(recognizer->super);
+  //recognizer->state->error = ANTLR3_FALSE;
+  //parser->tstream->istream->rewindLast(parser->tstream->istream);
+  //ppcdkParser pcdk = (ppcdkParser)parser->super;
+  //pcdkParser_complex_arg_return ret = pcdk->complex_arg(pcdk);
 
   // Signal we are in error recovery now
   //
@@ -132,6 +134,9 @@ void myreportError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
   // Indicate this recognizer had an error while processing.
   //
   recognizer->state->errorCount++;
+
+  //pANTLR3_COMMON_TOKEN token = recognizer->state->exception->token;
+  TR_ERROR("Parse error at line %i, position %i", recognizer->state->exception->line, recognizer->state->exception->charPositionInLine);
 
   // Call the error display routine
   //
@@ -191,7 +196,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   tokStream = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lexer));
   parser = pcdkParserNew(tokStream);
   parser->pParser->super = parser;
-  //parser->pParser->rec->reportError = myreportError;
+  parser->pParser->rec->reportError = reportParseError;
   parser->pParser->rec->recoverFromMismatchedToken = recoverFromMismatchedToken;
   pcdkAST = parser->prog(parser);
   NodeList* p = pcdkAST.nodes;
@@ -1192,7 +1197,7 @@ ASTNode* PcdkScript::parseLangArg(const char* funcname, int argnum, int strindex
   tokStream = antlr3CommonTokenStreamSourceNew(ANTLR3_SIZE_HINT, TOKENSOURCE(lexer));
   parser = pcdkParserNew(tokStream);
   parser->pParser->super = parser;
-  //parser->pParser->rec->reportError = myreportError;
+  parser->pParser->rec->reportError = reportParseError;
   parser->pParser->rec->recoverFromMismatchedToken = recoverFromMismatchedToken;
   pcdkAST = parser->arg(parser);
   ASTNode* node = pcdkAST.value;

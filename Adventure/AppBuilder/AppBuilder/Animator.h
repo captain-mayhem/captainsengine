@@ -42,6 +42,7 @@ public:
   void add(CharacterObject* obj, float sourcescale, float targetscale);
   Vec2i getTargetPoisition(Object2D* obj);
 protected:
+  bool isPointOnLine(Vec2f from, Vec2f to, Vec2f pt, double epsilon);
   std::map<Object2D*, ObjectAnim> mObjects;
   std::list<DynamicAnimation*> mAnimations;
   std::map<RoomObject*, RoomAnim> mRooms;
