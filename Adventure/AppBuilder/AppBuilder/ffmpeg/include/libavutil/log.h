@@ -23,7 +23,6 @@
 
 #include <stdarg.h>
 #include "avutil.h"
-#include "attributes.h"
 
 /**
  * Describe the class of an AVClass context structure. That is an
@@ -71,13 +70,6 @@ typedef struct {
      * can be NULL of course
      */
     int parent_log_context_offset;
-
-    /**
-     * A function for extended searching, e.g. in possible
-     * children objects.
-     */
-    const struct AVOption* (*opt_find)(void *obj, const char *name, const char *unit,
-                                       int opt_flags, int search_flags);
 } AVClass;
 
 /* av_log API */
@@ -130,7 +122,11 @@ typedef struct {
  * subsequent arguments are converted to output.
  * @see av_vlog
  */
-void av_log(void *avcl, int level, const char *fmt, ...) av_printf_format(3, 4);
+#ifdef __GNUC__
+void av_log(void *avcl, int level, const char *fmt, ...) __attribute__ ((__format__ (__printf__, 3, 4)));
+#else
+void av_log(void *avcl, int level, const char *fmt, ...);
+#endif
 
 void av_vlog(void *avcl, int level, const char *fmt, va_list);
 int av_log_get_level(void);
@@ -140,23 +136,12 @@ void av_log_default_callback(void* ptr, int level, const char* fmt, va_list vl);
 const char* av_default_item_name(void* ctx);
 
 /**
- * av_dlog macros
- * Useful to print debug messages that shouldn't get compiled in normally.
- */
-
-#ifdef DEBUG
-#    define av_dlog(pctx, ...) av_log(pctx, AV_LOG_DEBUG, __VA_ARGS__)
-#else
-#    define av_dlog(pctx, ...) do { if (0) av_log(pctx, AV_LOG_DEBUG, __VA_ARGS__); } while (0)
-#endif
-
-/**
  * Skip repeated messages, this requires the user app to use av_log() instead of
  * (f)printf as the 2 would otherwise interfere and lead to
  * "Last message repeated x times" messages below (f)printf messages with some
  * bad luck.
  * Also to receive the last, "last repeated" line if any, the user app must
- * call av_log(NULL, AV_LOG_QUIET, "%s", ""); at the end
+ * call av_log(NULL, AV_LOG_QUIET, ""); at the end
  */
 #define AV_LOG_SKIP_REPEATED 1
 void av_log_set_flags(int arg);

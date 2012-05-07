@@ -2,6 +2,9 @@
 
 #include <iostream>
 
+#ifdef QNX
+#define UINT64_C(val) (uint64_t)val
+#endif
 #ifndef UINT64_C
 #define UINT64_C(val) val##ui64
 #endif
