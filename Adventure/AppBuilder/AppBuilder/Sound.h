@@ -4,8 +4,13 @@
 #include <string>
 #include <map>
 #ifndef DISABLE_SOUND
+#ifdef WIN32
 #include <al.h>
 #include <alc.h>
+#else
+#include <AL/al.h>
+#include <AL/alc.h>
+#endif
 #endif
 #include "AdvDoc.h"
 #include "ExecutionContext.h"

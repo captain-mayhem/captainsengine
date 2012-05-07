@@ -3,6 +3,15 @@ package de.captain.online;
 public class AdventureLib{
 	static{
 		System.loadLibrary("gnustl_shared");
+		
+		System.loadLibrary("avutil");
+		System.loadLibrary("avcore");
+		System.loadLibrary("avcodec");
+		System.loadLibrary("avformat");
+		System.loadLibrary("swscale");
+		
+		System.loadLibrary("openal");
+		
 		System.loadLibrary("Adventure");
 	}
 	
