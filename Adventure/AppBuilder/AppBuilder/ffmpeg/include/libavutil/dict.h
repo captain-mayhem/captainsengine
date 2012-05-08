@@ -32,7 +32,11 @@
 #define AVUTIL_DICT_H
 
 /**
- * @defgroup dict_api Public Dictionary API
+ * @addtogroup lavu_dict AVDictionary
+ * @ingroup lavu_data
+ *
+ * @brief Simple key:value store
+ *
  * @{
  * Dictionaries are used for storing key:value pairs. To create
  * an AVDictionary, simply pass an address of a NULL pointer to
@@ -58,7 +62,6 @@
  * av_dict_free(&d);
  * @endcode
  *
- * @}
  */
 
 #define AV_DICT_MATCH_CASE      1
@@ -96,7 +99,7 @@ av_dict_get(AVDictionary *m, const char *key, const AVDictionaryEntry *prev, int
  * a dictionary struct is allocated and put in *pm.
  * @param key entry key to add to *pm (will be av_strduped depending on flags)
  * @param value entry value to add to *pm (will be av_strduped depending on flags).
- *        Passing a NULL value will cause an existing tag to be deleted.
+ *        Passing a NULL value will cause an existing entry to be deleted.
  * @return >= 0 on success otherwise an error code <0
  */
 int av_dict_set(AVDictionary **pm, const char *key, const char *value, int flags);
@@ -116,5 +119,9 @@ void av_dict_copy(AVDictionary **dst, AVDictionary *src, int flags);
  * and all keys and values.
  */
 void av_dict_free(AVDictionary **m);
+
+/**
+ * @}
+ */
 
 #endif // AVUTIL_DICT_H

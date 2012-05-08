@@ -18,10 +18,13 @@
 
 #include "JavaBinFileReader.h"
 
+TR_CHANNEL(Java_Class);
+
 VMClass::VMClass() : mSuperclass(NULL)/*, mClassObject(NULL)*/ {
 }
 
 VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObject(NULL)*/ {
+  TR_USE(Java_Class);
 	 mFilename = filename;
 
   char* buffer = NULL;
@@ -31,19 +34,19 @@ VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObjec
   JavaBinFileReader in(reader);
   if (!in.isWorking()){
     //try to load runtime jar
-    TRACE(TRACE_JAVA,TRACE_DEBUG, "using jar mode");
+    TR_DEBUG("using jar mode");
 		mrdr = getVM()->getClassFile(filename+".class");
 		if (!mrdr.isWorking()){
-      TRACE_ABORT(TRACE_JAVA, "Class %s not found in jar", filename.c_str());
+      TR_BREAK("Class %s not found in jar", filename.c_str());
     }
     reader = &mrdr;
     in.setReader(reader);
   }
   int ret = in.readClassFile(mClass);
   if (ret != 0)
-    TRACE_ABORT(TRACE_JAVA, "Malformed classfile found - aborting...");
+    TR_BREAK("Malformed classfile found - aborting...");
 
-  TRACE(TRACE_JAVA, TRACE_INFO, "%s parsed successfully", filename.c_str());
+  TR_INFO("%s parsed successfully", filename.c_str());
 
 	mRCP.resize(mClass.constant_pool_count+1);
 	memset(&mRCP[0], 0, (mClass.constant_pool_count+1)*sizeof(StackData));
@@ -57,6 +60,7 @@ VMClass::~VMClass(){
 }
 
 void VMClass::print(std::ostream& strm){
+  TR_USE(Java_Class);
   strm << "Constant pool:\n";
   for (int i = 0; i < mClass.constant_pool_count-1; ++i){
     Java::cp_info* cpinfo = mClass.constant_pool[i];
@@ -92,12 +96,12 @@ void VMClass::print(std::ostream& strm){
     Java::cp_info* cpinfo = mClass.constant_pool[mi->name_index-1];
     Java::CONSTANT_Utf8_info* utf = dynamic_cast<Java::CONSTANT_Utf8_info*>(cpinfo);
     if (!utf)
-      TRACE_ABORT(TRACE_JAVA, "Method resolution invalid");
+      TR_BREAK("Method resolution invalid");
     strm << utf->bytes;
     cpinfo = mClass.constant_pool[mi->descriptor_index-1];
     utf = dynamic_cast<Java::CONSTANT_Utf8_info*>(cpinfo);
     if (!utf){
-      TRACE(TRACE_JAVA, TRACE_ERROR, "Method resolution invalid");
+      TR_ERROR("Method resolution invalid");
       cpinfo = mClass.constant_pool[mi->descriptor_index-2];
       utf = dynamic_cast<Java::CONSTANT_Utf8_info*>(cpinfo);
     }
@@ -257,6 +261,7 @@ VMClass* VMClass::getClass(VMContext* ctx, Java::u2 class_ref){
 }
 
 void VMClass::initFields(VMContext* ctx){
+  TR_USE(Java_Class);
 	VMClass* super = getSuperclass(ctx);
 	unsigned nonstatic = 0;
   unsigned statfields = 0;
@@ -304,11 +309,11 @@ void VMClass::initFields(VMContext* ctx){
 			}
 		}
 		if (mthd == NULL){
-			TRACE(TRACE_JAVA, TRACE_INFO, "No code attribute found");
+			TR_INFO("No code attribute found");
 			nativeMethod m = getVM()->findNativeMethod(buildNativeMethodName(methodname, sig));
 			mthd = new NativeVMMethod(methodname, sig, this, (mi->access_flags & ACC_STATIC) != 0, m);
 			if (mthd == NULL){
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Cannot resolve native method");
+				TR_BREAK("Cannot resolve native method");
 			}
 		}
 		//is vtable method?
@@ -347,6 +352,7 @@ unsigned VMClass::getStaticFieldOffset(){
 }
 
 FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
+  TR_USE(Java_Class);
 	FieldData ret;
 	if (mRCP[constant_ref].ui != 0){
 		ret.ui = mRCP[constant_ref].ui;
@@ -407,7 +413,7 @@ FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 		ret.cls = cls;
 	}
 	else{
-	  TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unhandled type");
+	  TR_BREAK("Unhandled type");
 	}
 	mRCP[constant_ref] = ret.ui;
 	return ret;

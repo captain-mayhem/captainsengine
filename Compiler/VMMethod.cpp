@@ -24,10 +24,13 @@
 #define _isnan isnan
 #endif
 
+TR_CHANNEL(Java_Method);
+
 void VMMethod::parseSignature(){
+  TR_USE(Java_Method);
 	mArgSize = 0;
 	if (mSignature[0] != '(')
-		TRACE(TRACE_JAVA, TRACE_ERROR, "Unexpected method signature");
+		TR_ERROR("Unexpected method signature");
 	unsigned i;
 	bool count_args = true;
 	for (i = 1; i < mSignature.size(); ++i){
@@ -59,13 +62,14 @@ void VMMethod::parseSignature(){
 			count_args = true;
 		}
 		else
-			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected argument type in method signature");
+			TR_ERROR("Unexpected argument type in method signature");
 	}
 	//parse return
 	mReturnType = parseType(mSignature[i]);
 }
 
 VMMethod::ReturnType VMMethod::parseType(const char type){
+  TR_USE(Java_Method);
 	if (type == 'V')
 		return Void;
 	else if (type == 'J')
@@ -89,7 +93,7 @@ VMMethod::ReturnType VMMethod::parseType(const char type){
 	else if (type == 'S')
 		return Short;
 	else
-		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected return type in method signature");
+		TR_BREAK("Unexpected return type in method signature");
 	return Void;
 }
 
@@ -188,12 +192,13 @@ void BcVMMethod::print(std::ostream& strm){
 static int method_depth = 0;
 
 void BcVMMethod::execute(VMContext* ctx){
+  TR_USE(Java_Method);
 	//if (TRACE_IS_ENABLED(TRACE_JAVA))
 	//	print(std::cout);
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		++method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
+	TR_DEBUG("%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	//reserve additional locals
 	for (unsigned i = 0; i < mCode->max_locals - argsize; ++i){
@@ -201,7 +206,7 @@ void BcVMMethod::execute(VMContext* ctx){
 	}
 	for (unsigned k = 0; k < mCode->code_length; ++k){
     Java::u1 opcode = mCode->code[k];
-		TRACE(TRACE_JAVA, TRACE_DEBUG, Opcode::map_string[opcode].c_str());
+		TR_DEBUG(Opcode::map_string[opcode].c_str());
     switch (opcode){
 			case Java::op_aconst_null:
 				ctx->push((VMObject*)NULL);
@@ -222,9 +227,9 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					StackData dat = ctx->pop();
 					ctx->popFrame();
-					if (TRACE_IS_ENABLED(VM_METHODS))
+					if (TR_IS_ENABLED(TRACE_DEBUG))
 						--method_depth;
-					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+					TR_DEBUG("<- %s", mName.c_str());
 					ctx->push(dat);
 					return;
 				}
@@ -233,9 +238,9 @@ void BcVMMethod::execute(VMContext* ctx){
 				{
 					StackData dat = ctx->pop();
 					ctx->popFrame();
-					if (TRACE_IS_ENABLED(VM_METHODS))
+					if (TR_IS_ENABLED(TRACE_DEBUG))
 						--method_depth;
-					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+					TR_DEBUG("<- %s", mName.c_str());
 					ctx->push(dat);
 					return;
 				}
@@ -245,9 +250,9 @@ void BcVMMethod::execute(VMContext* ctx){
 					StackData dat1 = ctx->pop();
 					StackData dat2 = ctx->pop();
 					ctx->popFrame();
-					if (TRACE_IS_ENABLED(VM_METHODS))
-						--method_depth;
-					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+          if (TR_IS_ENABLED(TRACE_DEBUG))
+            --method_depth;
+          TR_DEBUG("<- %s", mName.c_str());
 					ctx->push(dat1);
 					ctx->push(dat2);
 					return;
@@ -258,9 +263,9 @@ void BcVMMethod::execute(VMContext* ctx){
 					StackData dat1 = ctx->pop();
 					StackData dat2 = ctx->pop();
 					ctx->popFrame();
-					if (TRACE_IS_ENABLED(VM_METHODS))
-						--method_depth;
-					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+          if (TR_IS_ENABLED(TRACE_DEBUG))
+            --method_depth;
+          TR_DEBUG("<- %s", mName.c_str());
 					ctx->push(dat1);
 					ctx->push(dat2);
 					return;
@@ -491,7 +496,7 @@ void BcVMMethod::execute(VMContext* ctx){
       case Java::op_lookupswitch:
       case Java::op_tableswitch:
         k+=98;
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_invokeinterface:
         {
@@ -511,11 +516,11 @@ void BcVMMethod::execute(VMContext* ctx){
       case Java::op_jsr_w:
       case Java::op_goto_w:
         k+=4;
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_multianewarray:
         k+=3;
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_ldc_w:
 				{
@@ -733,7 +738,7 @@ void BcVMMethod::execute(VMContext* ctx){
 				break;
       case Java::op_jsr:
         k+=2;
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
         break;
       case Java::op_getstatic:
         {
@@ -778,7 +783,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					VMMethod::ReturnType type;
 					unsigned idx = mClass->getFieldIndex(ctx, operand, dummy, type);
           if (idx == 0)
-            TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "field %i not existing", (int)operand);
+            TR_BREAK("field %i not existing", (int)operand);
 					FieldData* data = obj->getObjField(idx);
 					if (type == Long || type == Double){
 						ctx->push((uint32)(data->l >> 0));
@@ -871,7 +876,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					instanceClass = instanceClass->getSuperclass(ctx);
 				} while (instanceClass != NULL);
 				if (!found){
-					TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s check failed", Opcode::map_string[opcode].c_str());
+					TR_BREAK("%s check failed", Opcode::map_string[opcode].c_str());
 				}
 				}
         break;
@@ -1011,7 +1016,7 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_fload:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
       case Java::op_aload:
 				{
@@ -1045,7 +1050,7 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
         break;
       case Java::op_fstore:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
         break;
 			case Java::op_fload_0:
@@ -1085,7 +1090,7 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
         break;
       case Java::op_ret:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
         k+=1;
         break;
       case Java::op_newarray:
@@ -1110,7 +1115,7 @@ void BcVMMethod::execute(VMContext* ctx){
               arr = getVM()->createLongArray(ctx, size);
               break;
 						default:
-							TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s type unimplemented", Opcode::map_string[opcode].c_str());
+							TR_BREAK("%s type unimplemented", Opcode::map_string[opcode].c_str());
 					};
 					ctx->push(arr);
 				}
@@ -1166,9 +1171,9 @@ void BcVMMethod::execute(VMContext* ctx){
 		  }
 			case Java::op_return:{
 				ctx->popFrame();
-				if (TRACE_IS_ENABLED(VM_METHODS))
+				if (TR_IS_ENABLED(TRACE_DEBUG))
 						--method_depth;
-					TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+					TR_DEBUG("<- %s", mName.c_str());
 				return;
 				break;
 			}
@@ -1445,14 +1450,14 @@ void BcVMMethod::execute(VMContext* ctx){
 					break;
 				}
 			default:
-				TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "%s unimplemented", Opcode::map_string[opcode].c_str());
+				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
 				break;
     }
   }
 	ctx->popFrame();
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+	TR_DEBUG("<- %s", mName.c_str());
 }
 
 void BcVMMethod::executeVoidRet(VMContext* ctx){
@@ -1469,6 +1474,7 @@ void NativeVMMethod::print(std::ostream& strm){
 }
 
 void NativeVMMethod::execute(VMContext* ctx){
+  TR_USE(Java_Method);
 	switch (mReturnType){
 		case Long:
 			executeLongRet(ctx);
@@ -1486,18 +1492,19 @@ void NativeVMMethod::execute(VMContext* ctx){
 			executeNative(ctx, mReturnType);
 			break;
 		default:
-			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unhandled return type called");
+			TR_BREAK("Unhandled return type called");
 			break;
 	}
 }
 
 void NativeVMMethod::executeVoidRet(VMContext* ctx){
+  TR_USE(Java_Method);
 	if (mFunction == NULL)
-		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
+		TR_BREAK("Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		++method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
+	TR_DEBUG("%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	bullshit fakeArray;
@@ -1506,18 +1513,19 @@ void NativeVMMethod::executeVoidRet(VMContext* ctx){
 	mFunction(ctx->getJNIEnv(), cls, *((jlong*)lst));
 	//delete [] lst;
 	ctx->popFrame();
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+	TR_DEBUG("<- %s", mName.c_str());
 }
 
 void NativeVMMethod::executeLongRet(VMContext* ctx){
+  TR_USE(Java_Method);
 	if (mFunction == NULL)
-		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
+		TR_BREAK("Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		++method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
+	TR_DEBUG("%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	bullshit fakeArray;
@@ -1526,20 +1534,21 @@ void NativeVMMethod::executeLongRet(VMContext* ctx){
 	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
 	//delete [] lst;
 	ctx->popFrame();
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+	TR_DEBUG("<- %s", mName.c_str());
 	ctx->push((uint32)(ret >> 0));
 	ctx->push((uint32)(ret >> 32));
 }
 
 void NativeVMMethod::executeDoubleRet(VMContext* ctx){
+  TR_USE(Java_Method);
 	if (mFunction == NULL)
-		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
+		TR_BREAK("Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		++method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
+	TR_DEBUG("%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	bullshit fakeArray;
@@ -1549,20 +1558,21 @@ void NativeVMMethod::executeDoubleRet(VMContext* ctx){
 	ret.d = ((nativeDoubleMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
 	//delete [] lst;
 	ctx->popFrame();
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+	TR_DEBUG("<- %s", mName.c_str());
 	ctx->push((uint32)(ret.l >> 0));
 	ctx->push((uint32)(ret.l >> 32));
 }
 
 void NativeVMMethod::executeRefRet(VMContext* ctx){
+  TR_USE(Java_Method);
 	if (mFunction == NULL)
-		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
+		TR_BREAK("Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		++method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
+	TR_DEBUG("%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMObject* cls = mIsStatic ? mClass : ctx->get(0).cls;
 	bullshit fakeArray;
@@ -1571,19 +1581,20 @@ void NativeVMMethod::executeRefRet(VMContext* ctx){
 	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
 	//delete [] lst;
 	ctx->popFrame();
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+	TR_DEBUG("<- %s", mName.c_str());
 	ctx->push((VMObject*)ret);
 }
 
 void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
+  TR_USE(Java_Method);
 	if (mFunction == NULL)
-		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Could not resolve native method");
+		TR_BREAK("Could not resolve native method");
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		++method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "%i: %s", method_depth, mName.c_str());
+	TR_DEBUG("%i: %s", method_depth, mName.c_str());
 	ctx->pushFrame(this, argsize);
 	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
   void* tmp;
@@ -1637,14 +1648,15 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
 	jboolean ret = ((nativeBoolMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));*/
 	//delete [] lst;
 	ctx->popFrame();
-	if (TRACE_IS_ENABLED(VM_METHODS))
+	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TRACE(VM_METHODS, TRACE_DEBUG, "<- %s", mName.c_str());
+	TR_DEBUG("<- %s", mName.c_str());
   if (ret == VMMethod::Boolean)
 	  ctx->push(retval.b);
 }
 
 uint8* NativeVMMethod::packArguments(VMContext* ctx, bullshit fakeArray){
+  TR_USE(Java_Method);
 	uint8* curr = fakeArray.array;
 	bool count_args = true;
 	int curr_pos = mIsStatic ? 0 : 1;
@@ -1696,7 +1708,7 @@ uint8* NativeVMMethod::packArguments(VMContext* ctx, bullshit fakeArray){
 			count_args = true;
 		}
 		else
-			TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "Unexpected argument type in method signature");
+			TR_BREAK("Unexpected argument type in method signature");
 	}
 	return fakeArray.array;
 }

@@ -4,6 +4,8 @@
 #include <string>
 #include "Trace.h"
 
+TR_CHANNEL(Java_File);
+
 JavaBinFileReader::JavaBinFileReader(Reader* reader){
   mReader = reader;
 }
@@ -159,7 +161,8 @@ Java::u2 JavaBinFileReader::readConstantPool(std::vector<Java::cp_info*>& consta
         }
         break;
       default:
-        TRACE(TRACE_JAVA,TRACE_ERROR,"Unknown Constant type in class file %i", (int)tag);
+        TR_USE(Java_File);
+        TR_ERROR("Unknown Constant type in class file %i", (int)tag);
         mReader->skip(-1);
         --numEntries;
         constant_pool.resize(numEntries);
@@ -267,8 +270,9 @@ void JavaBinFileReader::readAttributes(std::vector<Java::attribute_info*>& attri
       attributes[i] = attr;
 		}
     else{
+      TR_USE(Java_File);
       mReader->skip(attribute_length);
-      TRACE(TRACE_JAVA, TRACE_WARNING, "Unknown Attribute: %s", name.c_str());
+      TR_WARN("Unknown Attribute: %s", name.c_str());
     }
   }
 }

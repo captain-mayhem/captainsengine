@@ -15,29 +15,6 @@
 #define TRACE_DEBUG_DETAIL 6
 #define TRACE_CUSTOM 7
 
-//Trace groups
-#define TRACE_GROUP_NONE 0x0
-#define TRACE_GROUP_ALL 0xFFFFFFFF
-#define TRACE_GROUP_USER_FIRST 1 << 11
-#define TRACE_GROUP_USER_LAST 1 << 31
-
-extern unsigned internal_groups;
-
-#ifdef ENABLE_TRACING
-#define TRACE(group, level, message, ...) if (group & internal_groups) internal_trace(group, level, __FILE__, __FUNCTION__, message, ##__VA_ARGS__)
-#define TRACE_ABORT(group, message, ...) internal_trace(group, TRACE_FATAL_ERROR, __FILE__, __FUNCTION__, message, ##__VA_ARGS__)
-#else
-#define TRACE(group, level, message, ...)
-#define TRACE_ABORT(group, message, ...) EXIT2(message)
-#endif
-#define TRACE_ENABLE(group) internal_groups |= group;
-#define TRACE_DISABLE(group) internal_groups &= ~group;
-#define TRACE_IS_ENABLED(group) (internal_groups & group)
-
-void internal_trace(unsigned group, int level, const char* file, const char* function, const char* message, ...);
-
-//tracing v2
-
 namespace CGE{
 
 class TraceOutputter{
@@ -74,7 +51,9 @@ protected:
 #define TR_CHANNEL_LVL(name, level) static CGE::TraceObject name(STRINGIFY(name), level);
 #define TR_USE(name) CGE::TraceObject tracescopeobject = name;
 #define TR_TRACE(level, message, ...) if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__);
+#define TR_IS_ENABLED(level) tracescopeobject.isEnabled(level)
 
+#define TR_BREAK TR_ERROR
 #define TR_ERROR(message, ...) TR_TRACE(TRACE_ERROR, message, ##__VA_ARGS__)
 #define TR_WARN(message, ...) TR_TRACE(TRACE_WARNING, message, ##__VA_ARGS__)
 #define TR_INFO(message, ...) TR_TRACE(TRACE_INFO, message, ##__VA_ARGS__)
