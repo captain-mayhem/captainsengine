@@ -16,6 +16,8 @@
 #include "JavaOpcodes.h"
 #undef PROC_MAP_MODE
 
+TR_CHANNEL(Java_JVM);
+
 static JVM* globalVM = NULL;
 
 JVM* getVM(){
@@ -46,8 +48,7 @@ JVM::~JVM(){
 }
 
 void JVM::init(){
-	TRACE_ENABLE(TRACE_JAVA);
-	TRACE_ENABLE(VM_METHODS);
+  TR_USE(Java_JVM);
   std::string prefix;
 #ifndef UNDER_CE
   char* tmp = getenv("JAVA_HOME");
@@ -64,9 +65,9 @@ void JVM::init(){
 #endif
 	if (!mRuntimeClasses.openFile(prefix+"/lib/rt.jar")){
     //hack for my crappy environment
-    prefix[0] = 'E';
+    //prefix[0] = 'E';
     if (!mRuntimeClasses.openFile(prefix+"/lib/rt.jar")){
-      TRACE_ABORT(TRACE_JAVA, "Java runtime classes not found");
+      TR_BREAK("Java runtime classes not found");
     }
   }
 	//TODO temporary hack to be able to load java.dll
@@ -74,12 +75,13 @@ void JVM::init(){
 	//mRuntime.addSearchPath(prefix+"/Java/jre6/bin;"+prefix+"/Java/jre6/bin/client");
 	//mRuntime.addSearchPath(prefix+"/Java/jre6/bin");
 	if (!mRuntime.open("D:\\Projects\\build_windows\\Compiler\\Debug","javaruntime")){
-		TRACE_ABORT(TRACE_JAVA, "Java runtime not found");
+		TR_BREAK("Java runtime not found");
 	}
   Opcode::init();
 }
 
 VMClass* JVM::findClass(VMContext* ctx, std::string name){
+  TR_USE(Java_JVM);
 	std::map<std::string,VMClass*>::iterator iter = mUninitializedClasses.find(name);
 	if (iter != mUninitializedClasses.end()){
 		VMClass* cls = iter->second;
@@ -89,7 +91,7 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 		unsigned idx = cls->findMethodIndex("<clinit>", "()V");
 		VMMethod* mthd = cls->getMethod(idx);
 		if (mthd){
-			TRACE(TRACE_JAVA, TRACE_INFO, "Delayed execution of class init method");
+			TR_INFO("Delayed execution of class init method");
 			mthd->execute(ctx);
 		}
 		return cls;
@@ -123,7 +125,7 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 		unsigned idx = entry->findMethodIndex("<clinit>", "()V");
 		VMMethod* mthd = entry->getMethod(idx);
 		if (mthd){
-			TRACE(TRACE_JAVA, TRACE_INFO, "Found class init method");
+			TR_INFO("Found class init method");
 			mthd->execute(ctx);
 		}
   }

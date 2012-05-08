@@ -13,6 +13,8 @@
 
 #include <iostream>
 
+TR_CHANNEL(Java_Runtime);
+
 #define CTX(env) ((VMContext*)env->m_func)
 
 extern "C" {
@@ -76,7 +78,8 @@ jobject JNIEXPORT Java_java_lang_Class_getClassLoader0(JNIEnv* env, jobject obje
 
 jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobject object, jboolean publicOnly){
 	if (publicOnly){
-		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "publicOnly not implemented");
+    TR_USE(Java_Runtime);
+		TR_BREAK("publicOnly not implemented");
 	}
 	VMContext* ctx = CTX(env);
 	VMObject* obj = (VMObject*)object;
@@ -122,7 +125,8 @@ jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls,
     clazz = getVM()->getPrimitiveClass(CTX(env), "Z");
   }
 	else{
-		TRACE(TRACE_JAVA, TRACE_FATAL_ERROR, "getPrimitiveClass not implemented for this type");
+    TR_USE(Java_Runtime);
+		TR_BREAK("getPrimitiveClass not implemented for this type");
 	}
 	env->ReleaseStringUTFChars(name, namestr);
 	return clazz;
@@ -261,16 +265,19 @@ jobject JNIEXPORT Java_java_lang_Thread_currentThread(JNIEnv* env, jclass clazz)
 }
 
 jboolean JNIEXPORT Java_java_lang_Thread_isAlive(JNIEnv* env, jobject object){
-	TRACE(TRACE_JAVA, TRACE_WARNING, "not implemented");
+  TR_USE(Java_Runtime);
+	TR_WARN("not implemented");
 	return JNI_FALSE;
 }
 
 void JNIEXPORT Java_java_lang_Thread_setPriority0(JNIEnv* env, jobject object, jint priority){
-	TRACE(TRACE_JAVA, TRACE_WARNING, "setPriority0 not implemented");
+  TR_USE(Java_Runtime);
+	TR_WARN("setPriority0 not implemented");
 }
 
 void JNIEXPORT Java_java_lang_Thread_start0(JNIEnv* env, jobject object){
-	TRACE(TRACE_JAVA, TRACE_WARNING, "not implemented");
+  TR_USE(Java_Runtime);
+	TR_WARN("not implemented");
 }
 
 jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, jobject object, jobject action){
@@ -283,7 +290,8 @@ jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, 
 }
 
 jobject JNIEXPORT Java_java_security_AccessController_getStackAccessControlContext(JNIEnv* env, jclass clazz){
-	TRACE(TRACE_JAVA, TRACE_WARNING, "getStackAccessControlContext not implemented");
+	TR_USE(Java_Runtime);
+  TR_WARN("getStackAccessControlContext not implemented");
   return NULL;
 }
 

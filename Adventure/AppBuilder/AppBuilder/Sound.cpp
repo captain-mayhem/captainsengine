@@ -53,6 +53,7 @@ LPALEFFECTI alEffecti = NULL;
 #ifdef FFMPEG_OLD_API
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
 #define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
+#define AV_SAMPLE_FMT_
 int avcodec_decode_audio3(AVCodecContext* avctx, int16_t* samples, int* frame_size_ptr, AVPacket* avpkt){
   return avcodec_decode_audio2(avctx, samples, frame_size_ptr, avpkt->data, avpkt->size);
 }
@@ -585,11 +586,16 @@ bool SimpleSoundPlayer::update(unsigned time){
   return true;
 }
 
+//TR_CHANNEL_LVL(ADV_Sound_Player, TRACE_DEBUG_DETAIL);
+TR_CHANNEL(ADV_Sound_Player);
+
 static const int BUFFER_SIZE = 19200;
 
 StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname, bool effectEnabled) : 
 SoundPlayer(soundname, effectEnabled), mCodecContext(NULL), mCodec(NULL), mStreamNum(-1), 
 mLooping(false), mStop(true), mPlay(false), mAutoDelete(true) {
+  TR_USE(ADV_Sound_Player);
+  TR_DEBUG("Creating sound player %s", soundname.c_str());
   mDecodeBuffer.length = AVCODEC_MAX_AUDIO_FRAME_SIZE;
   mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
   mDecodeBuffer.used = 0;
@@ -617,12 +623,14 @@ bool StreamSoundPlayer::openStream(const std::string& filename){
   alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
   alGenBuffers(3, mBuffers);
 
-  if (av_open_input_file(&mFormat, mFilename.c_str(), NULL, 0, NULL) != 0)
+  if (avformat_open_input(&mFormat, mFilename.c_str(), NULL, NULL) != 0)
     return false;
   return openStreamInternal();
 }
 
 static int readMemStream(void* opaque, uint8_t* buf, int buf_size){
+  TR_USE(ADV_Sound_Player);
+  TR_DETAIL("read %i bytes", buf_size);
   DataBuffer* db = (DataBuffer*)opaque;
   int dbsize = db->length-db->used;
   int size = buf_size < dbsize ? buf_size : dbsize;
@@ -632,6 +640,8 @@ static int readMemStream(void* opaque, uint8_t* buf, int buf_size){
 }
 
 static int64_t seekMemStream(void* opaque, int64_t offset, int whence){
+  TR_USE(ADV_Sound_Player);
+  TR_DETAIL("seek offset %i, whence %i", offset, whence);
   DataBuffer* db = (DataBuffer*)opaque;
   if (whence == AVSEEK_SIZE){
     return db->length;
@@ -650,26 +660,33 @@ static int64_t seekMemStream(void* opaque, int64_t offset, int whence){
 }
 
 bool StreamSoundPlayer::openStream(const DataBuffer& buffer){
+  TR_USE(ADV_Sound_Player);
   mFilename = buffer.name;
   alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
   alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
   alGenBuffers(3, mBuffers);
 
   mMemoryBuffer = (unsigned char*)av_malloc(BUFFER_SIZE+FF_INPUT_BUFFER_PADDING_SIZE);
-  ByteIOContext* ctx = new ByteIOContext();
-  init_put_byte(ctx, mMemoryBuffer, BUFFER_SIZE, 0, (void*)&buffer, readMemStream, NULL, seekMemStream);
+  AVIOContext* ctx = avio_alloc_context(mMemoryBuffer, BUFFER_SIZE, 0, (void*)&buffer, readMemStream, NULL, seekMemStream);
   AVProbeData probe;
   probe.filename = mFilename.c_str();
-  probe.buf_size = buffer.length;
+  probe.buf_size = buffer.length-AVPROBE_PADDING_SIZE;
   probe.buf = (unsigned char*)buffer.data;
   AVInputFormat* fmt = av_probe_input_format(&probe, 1);
-  if (av_open_input_stream(&mFormat, ctx, mFilename.c_str(), fmt, NULL) != 0){
+  if (fmt){
+    TR_DEBUG("format %s", fmt->long_name);
+  }
+  mFormat = avformat_alloc_context();
+  mFormat->pb = ctx;
+  if (avformat_open_input(&mFormat, mFilename.c_str(), fmt, NULL) != 0){
+    TR_WARN("open stream failed for %s", mFilename.c_str());
     delete ctx;
     av_free(mMemoryBuffer);
     //delete &buffer; //is deleted outside
     mFormat = NULL;
     return false;
   }
+  TR_DEBUG("stream opened successfully");
   mMemoryStream = ctx;
   return openStreamInternal();
 }
@@ -690,7 +707,7 @@ bool StreamSoundPlayer::openStreamInternal(){
         continue;
       mStreamNum = i;
       
-      if (mCodecContext->sample_fmt == SAMPLE_FMT_U8){
+      if (mCodecContext->sample_fmt == AV_SAMPLE_FMT_U8){
         if (mCodecContext->channels == 1)
           mPCMFormat = AL_FORMAT_MONO8;
         if (mCodecContext->channels == 2)
@@ -702,7 +719,7 @@ bool StreamSoundPlayer::openStreamInternal(){
             mPCMFormat = alGetEnumValue("AL_FORMAT_51CHN8");
         }
       }
-      else if (mCodecContext->sample_fmt == SAMPLE_FMT_S16){
+      else if (mCodecContext->sample_fmt == AV_SAMPLE_FMT_S16){
         if (mCodecContext->channels == 1)
           mPCMFormat = AL_FORMAT_MONO16;
         if (mCodecContext->channels == 2)
@@ -743,10 +760,10 @@ void StreamSoundPlayer::closeStream(){
   alDeleteBuffers(3, mBuffers);
   if (mFormat){
     if (mMemoryStream != NULL){
-      av_close_input_stream(mFormat);
-      ByteIOContext* ctx = (ByteIOContext*)mMemoryStream;
+      avformat_close_input(&mFormat);
+      AVIOContext* ctx = (AVIOContext*)mMemoryStream;
       DataBuffer* db = (DataBuffer*)ctx->opaque;
-      delete ctx;
+      av_free(ctx);
       av_free(mMemoryBuffer);
       delete db;
       mMemoryStream = NULL;
@@ -910,6 +927,8 @@ void StreamSoundPlayer::seek(int time){
 }
 
 bool StreamSoundPlayer::update(unsigned time){
+  TR_USE(ADV_Sound_Player);
+  TR_DETAIL("updating with time %i", time);
   if (!mPlay)
     return true;
   fadeUpdate(time);
@@ -938,7 +957,7 @@ bool StreamSoundPlayer::update(unsigned time){
         bool inmemory = mMemoryStream != NULL;
         DataBuffer* db = NULL;
         if (inmemory){
-          ByteIOContext* ctx = (ByteIOContext*)mMemoryStream;
+          AVIOContext* ctx = (AVIOContext*)mMemoryStream;
           db = (DataBuffer*)ctx->opaque;
           db->used = 0;
           ctx->opaque = NULL;

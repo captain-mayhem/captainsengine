@@ -5,7 +5,7 @@ public class AdventureLib{
 		System.loadLibrary("gnustl_shared");
 		
 		System.loadLibrary("avutil");
-		System.loadLibrary("avcore");
+		//System.loadLibrary("avcore");
 		System.loadLibrary("avcodec");
 		System.loadLibrary("avformat");
 		System.loadLibrary("swscale");

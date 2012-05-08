@@ -5,10 +5,13 @@
 #include <system/winceMain.h>
 #include "Trace.h"
 
+
 #include "jni.h"
 
 int main(int argc, char* argv[])
 {
+  CGE::LogOutputter* putty = new CGE::LogOutputter();
+  CGE::TraceManager::instance()->setTraceOutputter(putty);
 	CGE::Engine::instance()->init();
   char* filename = "test/Test";
 	//char* filename = "java/lang/Object";

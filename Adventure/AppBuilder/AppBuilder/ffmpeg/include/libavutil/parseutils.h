@@ -19,12 +19,38 @@
 #ifndef AVUTIL_PARSEUTILS_H
 #define AVUTIL_PARSEUTILS_H
 
+#include <time.h>
+
 #include "rational.h"
 
 /**
  * @file
  * misc parsing utilities
  */
+
+/**
+ * Parse str and store the parsed ratio in q.
+ *
+ * Note that a ratio with infinite (1/0) or negative value is
+ * considered valid, so you should check on the returned value if you
+ * want to exclude those values.
+ *
+ * The undefined value can be expressed using the "0:0" string.
+ *
+ * @param[in,out] q pointer to the AVRational which will contain the ratio
+ * @param[in] str the string to parse: it has to be a string in the format
+ * num:den, a float number or an expression
+ * @param[in] max the maximum allowed numerator and denominator
+ * @param[in] log_offset log level offset which is applied to the log
+ * level of log_ctx
+ * @param[in] log_ctx parent logging context
+ * @return >= 0 on success, a negative error code otherwise
+ */
+int av_parse_ratio(AVRational *q, const char *str, int max,
+                   int log_offset, void *log_ctx);
+
+#define av_parse_ratio_quiet(rate, str, max) \
+    av_parse_ratio(rate, str, max, AV_LOG_MAX_OFFSET, NULL)
 
 /**
  * Parse str and put in width_ptr and height_ptr the detected values.
@@ -73,7 +99,7 @@ int av_parse_color(uint8_t *rgba_color, const char *color_string, int slen,
                    void *log_ctx);
 
 /**
- * Parses timestr and returns in *time a corresponding number of
+ * Parse timestr and return in *time a corresponding number of
  * microseconds.
  *
  * @param timeval puts here the number of microseconds corresponding
@@ -113,5 +139,10 @@ int av_parse_time(int64_t *timeval, const char *timestr, int duration);
  * Return 1 if found.
  */
 int av_find_info_tag(char *arg, int arg_size, const char *tag1, const char *info);
+
+/**
+ * Convert the decomposed UTC time in tm to a time_t value.
+ */
+time_t av_timegm(struct tm *tm);
 
 #endif /* AVUTIL_PARSEUTILS_H */
