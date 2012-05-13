@@ -257,9 +257,8 @@ public:
 
 class CTIMER : public CCode{
 public:
-  CTIMER(int time, ExecutionContext* ctx){
+  CTIMER(ExecutionContext* ctx){
     mCommands = ctx;
-    mCommands->suspend(time, NULL);
   }
   CTIMER(std::istream& in);
   ~CTIMER(){
