@@ -459,10 +459,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::TIMERFUNC:{
         TimerNode* timer = static_cast<TimerNode*>(node);
+        count += transform(timer->getTime(), codes, ARGLIST);
         CodeSegment* seg = new CodeSegment();
         transform(timer->getCommands(), seg, START);
         ExecutionContext* ctx = new ExecutionContext(seg, false, "");
-        CTIMER* timercode = new CTIMER((int)(timer->getTime()*1000), ctx);
+        CTIMER* timercode = new CTIMER(ctx);
         codes->addCode(timercode);
         count += 1;
       }
@@ -1102,8 +1103,13 @@ StackData PcdkScript::getVariable(const std::string& name){
   }
   else if (name.size() > 8 && name.substr(0,8) == "tgtobjy:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(8), false);
-    if (obj == NULL)
-      DebugBreak();
+    if (obj == NULL){
+      std::string dummy;
+      SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(name.substr(8), dummy);
+      if (so == NULL)
+        DebugBreak();
+      return so->position.y;
+    }
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).y;
   }
   else if (name == "actiontext"){

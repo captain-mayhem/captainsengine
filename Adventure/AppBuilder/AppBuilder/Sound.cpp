@@ -680,7 +680,7 @@ bool StreamSoundPlayer::openStream(const DataBuffer& buffer){
   mFormat->pb = ctx;
   if (avformat_open_input(&mFormat, mFilename.c_str(), fmt, NULL) != 0){
     TR_WARN("open stream failed for %s", mFilename.c_str());
-    delete ctx;
+    av_free(ctx);
     av_free(mMemoryBuffer);
     //delete &buffer; //is deleted outside
     mFormat = NULL;

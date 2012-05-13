@@ -94,6 +94,8 @@ unsigned CLOAD::execute(ExecutionContext& ctx, unsigned pc){
 }
 
 unsigned CTIMER::execute(ExecutionContext& ctx, unsigned pc){
+  float time = ctx.stack().pop().getFloat();
+  mCommands->suspend((int)(time*1000), NULL);
   Engine::instance()->getInterpreter()->addTimer(new ExecutionContext(*mCommands));
   return ++pc;
 }
