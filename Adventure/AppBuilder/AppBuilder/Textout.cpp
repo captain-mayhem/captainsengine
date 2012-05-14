@@ -36,7 +36,15 @@ void Textout::render(){
     //keepOnScreen = false;
   }
   Engine::instance()->getInterpreter()->executeImmediately(mText, false);
-  std::string text = mText->stack().pop().getString();
+  StackData sd = mText->stack().pop();
+  std::string text;
+  if (sd.isInt()){
+    char tmp[32];
+    sprintf(tmp, "%i", sd.getInt());
+    text = tmp;
+  }
+  else
+    text = sd.getString();
   std::vector<Vec2i> breakinfo;
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, mFont, breakinfo);
   Engine::instance()->getFontRenderer()->render(mPos.x/*-(keepOnScreen ? ext.x/2 : 0)*/+pos.x,mPos.y+pos.y, text, 

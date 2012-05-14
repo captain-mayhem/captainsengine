@@ -53,6 +53,7 @@ public:
   void clear(){
     mVariables.clear();
   }
+  StackData& top() {return mVariables.back();}
 protected:
   std::vector<StackData> mVariables;
 };

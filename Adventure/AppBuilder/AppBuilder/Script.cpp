@@ -493,6 +493,18 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         count += 1;
       }
       break;
+      case ASTNode::UNARY_ARITH:{
+        UnaryArithNode* unari = static_cast<UnaryArithNode*>(node);
+        count += transform(unari->node(), codes);
+        if (unari->type() == UnaryArithNode::UA_DEC_SHIFT)
+          codes->addCode(new CDecShift());
+        else if (unari->type() == UnaryArithNode::UA_I2R)
+          codes->addCode(new CI2R());
+        else
+          DebugBreak();
+        count += 1;
+      }
+      break;
       default:
         TR_ERROR("Unhandled AST-Type");
         DebugBreak();
@@ -1097,8 +1109,13 @@ StackData PcdkScript::getVariable(const std::string& name){
   }
   else if (name.size() > 8 && name.substr(0,8) == "tgtobjx:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(8), false);
-    if (obj == NULL)
-      DebugBreak();
+    if (obj == NULL){
+      std::string dummy;
+      SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(name.substr(8), dummy);
+      if (so == NULL)
+        DebugBreak();
+      return so->position.x;
+    }
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).x;
   }
   else if (name.size() > 8 && name.substr(0,8) == "tgtobjy:"){

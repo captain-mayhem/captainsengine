@@ -211,9 +211,11 @@ term returns [ASTNode* trm]
 
 factor returns [ASTNode* fac]
 	: var=variable {$fac = var.var;} (',' var2=variable {
-		ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_PLUS; an->left() = $fac;
-		ArithmeticNode* mul = new ArithmeticNode(); mul->type() = ArithmeticNode::AR_TIMES; mul->left() = var2.var; an->right() = mul;
-		mul->right() = new RealNode(0.1f); //TODO how to make generic
+		UnaryArithNode* i2r = new UnaryArithNode(); i2r->type() = UnaryArithNode::UA_I2R; i2r->node() = $fac;
+		ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_PLUS; an->left() = i2r;
+		UnaryArithNode* shift = new UnaryArithNode(); shift->type() = UnaryArithNode::UA_DEC_SHIFT; shift->node() = var2.var; an->right() = shift;
+		//ArithmeticNode* mul = new ArithmeticNode(); mul->type() = ArithmeticNode::AR_TIMES; mul->left() = var2.var; an->right() = mul;
+		//mul->right() = new RealNode(0.1f); //TODO how to make generic
 		$fac = an;
 	}
 	)?
