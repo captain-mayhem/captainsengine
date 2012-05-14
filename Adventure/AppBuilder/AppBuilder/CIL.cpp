@@ -194,6 +194,10 @@ CCode* CCode::load(std::istream& in){
       return new CTIMER(in);
     case STATE:
       return new CSTATE(in);
+    case DECSHIFT:
+      return new CDecShift();
+    case I2R:
+      return new CI2R();
     default:
       DebugBreak();
   }

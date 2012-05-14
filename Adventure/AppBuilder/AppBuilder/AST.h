@@ -21,6 +21,7 @@ public:
     ROWDEF,
     TIMERFUNC,
     ARITHMETIC,
+    UNARY_ARITH,
     CONCATENATION,
   };
   ASTNode(Type t) : mType(t) {}
@@ -270,6 +271,23 @@ protected:
   Type mType;
   ASTNode* mLeft;
   ASTNode* mRight;
+};
+
+class UnaryArithNode : public ASTNode{
+public:
+  enum Type{
+    UA_DEC_SHIFT,
+    UA_I2R,
+  };
+  UnaryArithNode() : ASTNode(UNARY_ARITH), mType(UA_DEC_SHIFT), mNode(NULL) {}
+  virtual ~UnaryArithNode(){
+    delete mNode;
+  }
+  Type& type() {return mType;}
+  ASTNode*& node() {return mNode;}
+protected:
+  Type mType;
+  ASTNode* mNode;
 };
 
 class ConcatenationNode : public ASTNode{

@@ -2001,9 +2001,15 @@ int ScriptFunctions::isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   int xpos = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
-  if (obj == NULL)
-    DebugBreak();
-  ctx.stack().push(obj->getPosition().x);
+  if (obj == NULL){
+    std::string dummy;
+    SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
+    if (so == NULL)
+      DebugBreak();
+    ctx.stack().push(so->position.x);
+  }
+  else
+    ctx.stack().push(obj->getPosition().x);
   ctx.stack().push(xpos);
   return 2;
 }

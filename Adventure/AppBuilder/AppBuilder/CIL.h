@@ -42,6 +42,8 @@ public:
     CONCAT,
     CDTIMER,
     STATE,
+    DECSHIFT,
+    I2R,
   };
   CCode(){}
   virtual ~CCode(){}
@@ -200,9 +202,16 @@ public:
   CADD() {}
   virtual ~CADD() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    int d2 = ctx.stack().pop().getInt();
-    int d1 = ctx.stack().pop().getInt();
-    ctx.stack().push(d1+d2);
+    if (ctx.stack().top().isInt()){
+      int d2 = ctx.stack().pop().getInt();
+      int d1 = ctx.stack().pop().getInt();
+      ctx.stack().push(d1+d2);
+    }
+    else{
+      float d2 = ctx.stack().pop().getFloat();
+      float d1 = ctx.stack().pop().getFloat();
+      ctx.stack().push(d1+d2);
+    }
     return ++pc;
   }
   virtual Type getType(){return ADD;}
@@ -286,6 +295,34 @@ public:
 protected:
   State mState;
 };
+
+class CDecShift : public CCode{
+public:
+  CDecShift() {}
+  virtual ~CDecShift() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    int val = ctx.stack().pop().getInt();
+    float shifted = (float)val;
+    while (shifted > 1.0f)
+      shifted *= 0.1f;
+    ctx.stack().push(shifted);
+    return ++pc;
+  }
+  virtual Type getType(){return DECSHIFT;}
+};
+
+class CI2R : public CCode{
+public:
+  CI2R() {}
+  virtual ~CI2R() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    int val = ctx.stack().pop().getInt();
+    ctx.stack().push((float)val);
+    return ++pc;
+  }
+  virtual Type getType(){return I2R;}
+};
+
 
 }
 
