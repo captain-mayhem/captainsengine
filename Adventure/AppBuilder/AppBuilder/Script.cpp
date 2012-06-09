@@ -725,6 +725,7 @@ void PcdkScript::remove(ExecutionContext* script){
   }
   script->reset(true, true);
   mTimers.erase(script);
+  Engine::instance()->removeScript(script);
   script->unref();
 }
 

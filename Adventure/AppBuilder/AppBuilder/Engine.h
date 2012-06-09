@@ -105,6 +105,7 @@ public:
   AdvDocument* getData() {return mData;}
   PostProcessor* getPostProcessor() {return mPostProc;}
   RoomObject* getMainRoom();
+  void removeScript(ExecutionContext* ctx);
 protected:
   Engine();
   static Engine* mInstance;

@@ -17,7 +17,8 @@
 
 using namespace adv;
 
-TR_CHANNEL(ADV_Engine);
+TR_CHANNEL_LVL(ADV_Engine, TRACE_INFO);
+//TR_CHANNEL_LVL(ADV_Engine_Room, TRACE_DEBUG);
 TR_CHANNEL(ADV_Events);
 
 namespace adv{
@@ -543,11 +544,13 @@ void Engine::render(unsigned time){
 }
 
 bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason){
+  TR_USE(ADV_Engine);
   if (!mData)
     return false;
   //already loaded //TODO subrooms
   if (mMainRoomLoaded && _stricmp(mRooms.back()->getName().c_str(), name.c_str()) == 0)
     return true;
+  TR_INFO("loading room %s", name.c_str());
   if (mMainRoomLoaded && !isSubRoom){
     unloadRoom(mRooms.back(), true);
     if (mPendingLoadReason != NULL){
@@ -1463,4 +1466,9 @@ RoomObject* Engine::getMainRoom(){
   if (!mMainRoomLoaded)
     return NULL;
   return mRooms.back();
+}
+
+void Engine::removeScript(ExecutionContext* ctx){
+  if (ctx == mPendingLoadReason)
+    mPendingLoadReason = NULL;
 }
