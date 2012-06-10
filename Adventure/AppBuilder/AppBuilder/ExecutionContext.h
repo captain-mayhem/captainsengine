@@ -37,12 +37,8 @@ enum EngineEvent{
 
 class CodeSegment{
 public:
-  CodeSegment(){mRefCount = new int(1);}
-  CodeSegment(const CodeSegment& cs){
-    mCodes = cs.mCodes;
-    mRefCount = cs.mRefCount;
-    ++(*mRefCount);
-  }
+  CodeSegment() : mLoop1(NULL) {mRefCount = new int(1);}
+  CodeSegment(const CodeSegment& cs);
   ~CodeSegment();
   void addCode(CCode* code){
     mCodes.push_back(code);
@@ -61,10 +57,13 @@ public:
   void removeLast();
   void save(std::ostream& out);
   void load(std::istream& in);
+  void setLoop1(ExecutionContext* ctx) {mLoop1 = ctx;}
+  ExecutionContext* getLoop1() {return mLoop1;}
 protected:
   std::vector<CCode*> mCodes;
   int* mRefCount;
   std::vector<ExecutionContext*> mEmbeddedContexts;
+  ExecutionContext* mLoop1;
 };
 
 class ExecutionContext;
@@ -112,6 +111,7 @@ public:
   void unref() {if (this == NULL) return; --mRefCount; if (mRefCount == 0) delete this;}
   CodeSegment* getCode() {return mCode;}
   void save(std::ostream& out);
+  ExecutionContext* getLoop1() {return mCode->getLoop1();}
 protected:
   ~ExecutionContext();
   CodeSegment* mCode;
