@@ -25,6 +25,7 @@ CodeSegment::~CodeSegment(){
   for (unsigned i = 0; i < mEmbeddedContexts.size(); ++i){
     mEmbeddedContexts[i]->unref();
   }
+  mLoop1->unref();
 }
 
 bool PcdkScript::mRemoveLinkObject = false;
@@ -359,6 +360,13 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       case ASTNode::EVENT:{
         EventNode* evt = static_cast<EventNode*>(node);
         EngineEvent evtcode = getEngineEvent(evt->getEvent());
+        CodeSegment* oldcodes = codes;
+        if (evtcode == EVT_LOOP1){
+          CodeSegment* cs = new CodeSegment;
+          ExecutionContext* loop1 = new ExecutionContext(cs, false, "");
+          codes->setLoop1(loop1); //loop1 as seperate execution context
+          codes = cs;
+        }
         CBNEEVT* cevt = new CBNEEVT(evtcode);
         codes->addCode(cevt);
         ++count;
@@ -379,7 +387,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           mUnresolvedBlockEnd = NULL;
         }
         cevt->setOffset(offset+1);
-        count += offset;
+        if (evtcode == EVT_LOOP1){
+          codes = oldcodes;
+        }
+        else
+          count += offset;
       }
       break;
       case ASTNode::CONDITION:{
@@ -576,7 +588,8 @@ bool PcdkScript::update(unsigned time){
       (*iter)->resetEvents(false);
       (*iter)->setEvent(EVT_LOOP1);
     }
-    update(*iter, time);
+    if (events.empty() || events.front() != EVT_ENTER) //execute only if it is not EVT_ENTER that is pending when being in global suspend
+      update(*iter, time);
     if (mGlobalSuspend){
       (*iter)->setEvents(events);
     }
@@ -659,6 +672,11 @@ void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
 }
 
 void PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAfterExec){
+  if (script->getLoop1() != NULL){
+    if (!(!script->getEvents().empty() && script->getEvents().front() == EVT_ENTER)) //loop events only after enter
+      script->getLoop1()->setEvent(EVT_LOOP1);
+    executeImmediately(script->getLoop1(), clearStackAfterExec);
+  }
   do{
     if (script->mSuspended)
       return;

@@ -5,6 +5,15 @@ using namespace adv;
 
 TR_CHANNEL_LVL(ADV_ExectionContext, TRACE_INFO);
 
+CodeSegment::CodeSegment(const CodeSegment& cs){
+  mCodes = cs.mCodes;
+  mRefCount = cs.mRefCount;
+  ++(*mRefCount);
+  mLoop1 = cs.mLoop1;
+  if (mLoop1)
+    mLoop1->ref();
+}
+
 void CodeSegment::removeLast(){
   delete mCodes.back();
   mCodes.pop_back();
@@ -16,6 +25,18 @@ void CodeSegment::save(std::ostream& out){
     mCodes[i]->save(out);
     out << "\n";
   }
+  out << mEmbeddedContexts.size() << std::endl;
+  for (unsigned i = 0; i < mEmbeddedContexts.size(); ++i){
+    mEmbeddedContexts[i]->save(out);
+  }
+  out << " ";
+  if (mLoop1 == NULL)
+    out << "none\n";
+  else{
+    out << "loop1\n";
+    mLoop1->save(out);
+  }
+  out << "\n";
 }
 
 void CodeSegment::load(std::istream& in){
@@ -26,6 +47,15 @@ void CodeSegment::load(std::istream& in){
     CCode* code = CCode::load(in);
     mCodes.push_back(code);
   }
+  in >> size;
+  mEmbeddedContexts.resize(size);
+  for (unsigned i = 0; i < size; ++i){
+    mEmbeddedContexts[i] = new ExecutionContext(in);
+  }
+  std::string tag;
+  in >> tag;
+  if (tag == "loop1")
+    mLoop1 = new ExecutionContext(in);
 }
 
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
