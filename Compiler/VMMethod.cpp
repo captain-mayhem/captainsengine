@@ -1103,6 +1103,9 @@ void BcVMMethod::execute(VMContext* ctx){
 						case Char:
 							arr = getVM()->createCharArray(ctx, size);
 							break;
+            case Byte:
+              arr = getVM()->createByteArray(ctx, size);
+              break;
 						case Int:
 							arr = getVM()->createIntArray(ctx, size);
 							break;

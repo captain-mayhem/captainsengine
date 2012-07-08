@@ -691,7 +691,8 @@ public:
 	jobject CallObjectMethod(jobject obj, jmethodID methodID, ...) {va_list args; va_start(args, methodID); jobject ret = m_func->CallObjectMethodV(this, obj, methodID, args); va_end(args); return ret;}
 	jobject NewObject(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); jobject ret = m_func->NewObjectV(this, clazz, methodID, args); va_end(args); return ret;}
   jfieldID GetFieldID(jclass clazz, const char *name, const char *sig) {return m_func->GetFieldID(this, clazz, name, sig);}
-	jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
+  void SetLongField(jobject obj, jfieldID fieldID, jlong value) {m_func->SetLongField(this, obj, fieldID, value);}
+  jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
 	void CallStaticVoidMethod(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); m_func->CallStaticVoidMethodV(this, clazz, methodID, args); va_end(args);}
 	jstring NewStringUTF(const char* bytes) {return m_func->NewStringUTF(this, bytes);}
 	const char* GetStringUTFChars(jstring str, jboolean *isCopy) {return m_func->GetStringUTFChars(this, str, isCopy); }
