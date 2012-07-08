@@ -25,6 +25,8 @@ JVM* getVM(){
 }
 
 JVM::JVM(){
+  CGE::LogOutputter* putty = new CGE::LogOutputter();
+  CGE::TraceManager::instance()->setTraceOutputter(putty);
 	globalVM = this;
   JNIInvokeInterface_::reserved0 = NULL;
   JNIInvokeInterface_::DestroyJavaVM = DestroyJavaVM;

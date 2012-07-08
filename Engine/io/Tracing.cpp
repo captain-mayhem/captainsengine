@@ -52,6 +52,13 @@ void TraceObject::trace(int level, const char* function, const char* message, ..
   vsnprintf(buffer, BUF_SIZE, message, list);
   va_end(list);
   TraceManager::instance()->trace(mChannel, level, function, buffer);
+  if (level == TRACE_FATAL_ERROR){
+#ifdef WIN32
+    DebugBreak();
+#else
+    __builtin_trap();
+#endif
+  }
   //internal_trace(mChannel, level, file, function, message);
 }
 

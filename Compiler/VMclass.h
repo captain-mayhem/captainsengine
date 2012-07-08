@@ -53,6 +53,7 @@ protected:
 	std::vector<StackData> mRCP;
 	unsigned mVtableEnd;
   unsigned mSuperFields;
+  unsigned mNonStaticFieldOffset;
 	//VMObject* mClassObject;
 };
 

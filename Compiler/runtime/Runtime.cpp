@@ -136,6 +136,16 @@ void JNIEXPORT Java_java_lang_ClassLoader_registerNatives(JNIEnv* env, jobject o
 	return;
 }
 
+void JNIEXPORT Java_java_lang_ClassLoader_00024NativeLibrary_load(JNIEnv* env, jobject object, jstring library){
+  TR_USE(Java_Runtime);
+  const char* libname = env->GetStringUTFChars(library, NULL);
+  //TR_BREAK("Implement me");
+  //TODO set field 'long handle'
+  env->ReleaseStringUTFChars(library, libname);
+  return;
+}
+
+
 jlong JNIEXPORT Java_java_lang_Double_doubleToRawLongBits(JNIEnv* env, jobject object, jdouble value){
 	return *((jlong*)(&value));
 }
