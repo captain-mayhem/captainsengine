@@ -20,7 +20,7 @@
 
 TR_CHANNEL(Java_Class);
 
-VMClass::VMClass() : mSuperclass(NULL)/*, mClassObject(NULL)*/ {
+VMClass::VMClass() : mSuperclass(NULL) , mNonStaticFieldOffset(0) {
 }
 
 VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObject(NULL)*/ {
@@ -213,6 +213,7 @@ unsigned VMClass::getStaticFieldIndex(VMContext* ctx,Java::u2 field_ref, VMClass
 std::string VMClass::buildNativeMethodName(const std::string& functionname, const std::string& signature){
 	std::string result = mFilename;
 	CGE::Utilities::replaceWith(result, '/', '_');
+  CGE::Utilities::replaceWith(result, "$", "_00024");
 	result = "Java_"+result+"_"+functionname;
 #ifdef WIN32
 	/*std::string params;
@@ -289,6 +290,7 @@ void VMClass::initFields(VMContext* ctx){
 			mFieldResolver[fieldname] = ++nonstatic;
 		}
 	}
+  mNonStaticFieldOffset = nonstatic;
 
 	//methods
 	int offset = mMethods.size()+1;
@@ -344,7 +346,8 @@ void VMClass::initFields(VMContext* ctx){
 }
 
 unsigned VMClass::getNonStaticFieldOffset(){
-	return mClass.fields_count-mFields.size();
+  return mNonStaticFieldOffset;
+	//return mClass.fields_count-mFields.size();
 }
 
 unsigned VMClass::getStaticFieldOffset(){

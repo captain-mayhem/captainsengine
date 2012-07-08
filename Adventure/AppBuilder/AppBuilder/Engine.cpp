@@ -421,7 +421,7 @@ void Engine::render(unsigned time){
   }*/
 
   //scrolling
-  if (mRooms.size() > 0 && mFocussedChar && !mInterpreter->isBlockingScriptRunning()){
+  if (mRooms.size() > 0 && mFocussedChar && !mInterpreter->isBlockingScriptRunning() && mFocussedChar->getRoom() == mRooms.back()->getName()){
     mScrollOffset = mData->getProjectSettings()->resolution/2-
       (mFocussedChar->getPosition()-Vec2i(0,mFocussedChar->getSize().y/2));
     //mRooms.back()->setScrollOffset(mScrollOffset); //this function limits the scrolling

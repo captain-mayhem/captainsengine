@@ -25,6 +25,7 @@
 #endif
 
 TR_CHANNEL(Java_Method);
+//TR_CHANNEL_LVL(Java_Method, TRACE_DEBUG);
 
 void VMMethod::parseSignature(){
   TR_USE(Java_Method);
@@ -198,7 +199,7 @@ void BcVMMethod::execute(VMContext* ctx){
 	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
 	if (TR_IS_ENABLED(TRACE_DEBUG))
 		++method_depth;
-	TR_DEBUG("%i: %s", method_depth, mName.c_str());
+	TR_DEBUG("%i: %s (%s)", method_depth, mName.c_str(), mClass->getName().c_str());
 	ctx->pushFrame(this, argsize);
 	//reserve additional locals
 	for (unsigned i = 0; i < mCode->max_locals - argsize; ++i){
@@ -229,7 +230,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->popFrame();
 					if (TR_IS_ENABLED(TRACE_DEBUG))
 						--method_depth;
-					TR_DEBUG("<- %s", mName.c_str());
+					TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 					ctx->push(dat);
 					return;
 				}
@@ -240,7 +241,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->popFrame();
 					if (TR_IS_ENABLED(TRACE_DEBUG))
 						--method_depth;
-					TR_DEBUG("<- %s", mName.c_str());
+					TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 					ctx->push(dat);
 					return;
 				}
@@ -252,7 +253,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->popFrame();
           if (TR_IS_ENABLED(TRACE_DEBUG))
             --method_depth;
-          TR_DEBUG("<- %s", mName.c_str());
+          TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 					ctx->push(dat1);
 					ctx->push(dat2);
 					return;
@@ -265,7 +266,7 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->popFrame();
           if (TR_IS_ENABLED(TRACE_DEBUG))
             --method_depth;
-          TR_DEBUG("<- %s", mName.c_str());
+          TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 					ctx->push(dat1);
 					ctx->push(dat2);
 					return;
@@ -1173,7 +1174,7 @@ void BcVMMethod::execute(VMContext* ctx){
 				ctx->popFrame();
 				if (TR_IS_ENABLED(TRACE_DEBUG))
 						--method_depth;
-					TR_DEBUG("<- %s", mName.c_str());
+					TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 				return;
 				break;
 			}
@@ -1457,7 +1458,7 @@ void BcVMMethod::execute(VMContext* ctx){
 	ctx->popFrame();
 	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TR_DEBUG("<- %s", mName.c_str());
+	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 }
 
 void BcVMMethod::executeVoidRet(VMContext* ctx){
@@ -1515,7 +1516,7 @@ void NativeVMMethod::executeVoidRet(VMContext* ctx){
 	ctx->popFrame();
 	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TR_DEBUG("<- %s", mName.c_str());
+	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 }
 
 void NativeVMMethod::executeLongRet(VMContext* ctx){
@@ -1536,7 +1537,7 @@ void NativeVMMethod::executeLongRet(VMContext* ctx){
 	ctx->popFrame();
 	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TR_DEBUG("<- %s", mName.c_str());
+	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 	ctx->push((uint32)(ret >> 0));
 	ctx->push((uint32)(ret >> 32));
 }
@@ -1560,7 +1561,7 @@ void NativeVMMethod::executeDoubleRet(VMContext* ctx){
 	ctx->popFrame();
 	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TR_DEBUG("<- %s", mName.c_str());
+	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 	ctx->push((uint32)(ret.l >> 0));
 	ctx->push((uint32)(ret.l >> 32));
 }
@@ -1583,7 +1584,7 @@ void NativeVMMethod::executeRefRet(VMContext* ctx){
 	ctx->popFrame();
 	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TR_DEBUG("<- %s", mName.c_str());
+	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 	ctx->push((VMObject*)ret);
 }
 
@@ -1650,7 +1651,7 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
 	ctx->popFrame();
 	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
-	TR_DEBUG("<- %s", mName.c_str());
+	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
   if (ret == VMMethod::Boolean)
 	  ctx->push(retval.b);
 }

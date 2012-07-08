@@ -50,10 +50,10 @@ protected:
 #define TR_CHANNEL(name) static CGE::TraceObject name(STRINGIFY(name));
 #define TR_CHANNEL_LVL(name, level) static CGE::TraceObject name(STRINGIFY(name), level);
 #define TR_USE(name) CGE::TraceObject tracescopeobject = name;
-#define TR_TRACE(level, message, ...) if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__);
+#define TR_TRACE(level, message, ...) {if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__);}
 #define TR_IS_ENABLED(level) tracescopeobject.isEnabled(level)
 
-#define TR_BREAK TR_ERROR
+#define TR_BREAK(message, ...) TR_TRACE(TRACE_FATAL_ERROR, message, ##__VA_ARGS__)
 #define TR_ERROR(message, ...) TR_TRACE(TRACE_ERROR, message, ##__VA_ARGS__)
 #define TR_WARN(message, ...) TR_TRACE(TRACE_WARNING, message, ##__VA_ARGS__)
 #define TR_INFO(message, ...) TR_TRACE(TRACE_INFO, message, ##__VA_ARGS__)
