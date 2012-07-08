@@ -33,6 +33,7 @@ protected:
 	static jobject CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
 	static jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
   static jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+  static void SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static void CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
 	static jstring NewStringUTF(JNIEnv *env, const char *utf);

@@ -106,6 +106,10 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 			mClassResolver[name] = entry;
       return entry;
     }
+    else if (name.size() == 1){
+      //primitive types
+      return getPrimitiveClass(ctx, name);
+    }
     //Java::ClassFile* clfile = new Java::ClassFile();
 		entry = new VMClass(name);
 
@@ -132,6 +136,15 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 		}
   }
   return entry;
+}
+
+std::string JVM::findClass(VMContext* ctx, VMClass* clazz){
+  for (std::map<std::string,VMClass*>::iterator iter = mClassResolver.begin();
+    iter != mClassResolver.end(); ++iter){
+    if (iter->second == clazz)
+      return iter->first;
+  }
+  return "";
 }
 
 VMClass* JVM::defineClass(VMContext* ctx, const std::string& name){

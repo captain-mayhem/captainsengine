@@ -25,6 +25,7 @@ public:
   void addThread(VMContext* thrd) {mThreads.push_back(thrd);}
 	CGE::MemReader getClassFile(const std::string& filename);
   VMClass* findClass(VMContext* ctx, std::string name);
+  std::string findClass(VMContext* ctx, VMClass* clazz);
 	VMClass* defineClass(VMContext* ctx, const std::string& name);
 	VMClass* getPrimitiveClass(VMContext* ctx, std::string name);
 	nativeMethod findNativeMethod(const std::string& name);

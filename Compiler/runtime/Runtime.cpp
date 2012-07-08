@@ -10,6 +10,7 @@
 #include <VMclass.h>
 #include <JVM.h>
 #include <Trace.h>
+#include <system/utilities.h>
 
 #include <iostream>
 
@@ -18,6 +19,29 @@ TR_CHANNEL(Java_Runtime);
 #define CTX(env) ((VMContext*)env->m_func)
 
 extern "C" {
+
+void JNIEXPORT Java_java_io_FileDescriptor_initIDs(JNIEnv* env, jobject object){
+  return;
+}
+
+jlong JNIEXPORT Java_java_io_FileDescriptor_set(JNIEnv* env, jobject object, jint fd){
+  FILE* handle = NULL;
+  if (fd == 0)
+    handle = stdin;
+  else if (fd == 1)
+    handle = stdout;
+  else if (fd == 2)
+    handle = stderr;
+  return (jlong)handle;
+}
+
+void JNIEXPORT Java_java_io_FileInputStream_initIDs(JNIEnv* env, jobject object){
+  return;
+}
+
+void JNIEXPORT Java_java_io_FileOutputStream_initIDs(JNIEnv* env, jobject object){
+  return;
+}
 
 jobject JNIEXPORT Java_java_io_FileSystem_getFileSystem(JNIEnv* env, jobject object){
   jclass fs = env->FindClass("java/io/WinNTFileSystem");
@@ -96,10 +120,20 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 		CTX(env)->push(arrobj);
 		CTX(env)->push(objcls->getClassObject());
 		CTX(env)->push(objcls->getConstant(CTX(env), info->name_index).ui);
-		ctx->push(0u); //type class
+    //objcls->getinfo->descriptor_index
+    VMObject* signature = objcls->getConstant(ctx, info->descriptor_index).obj;
+    const char* sig = env->GetStringUTFChars(signature, NULL);
+    std::string signat = sig;
+    if (signat[0] == 'L'){
+      signat.erase(0, 1);
+      signat.erase(signat.size()-1);
+    }
+    VMClass* typeclass = getVM()->findClass(ctx, signat);
+    env->ReleaseStringUTFChars(signature, sig);
+		ctx->push(typeclass); //type class
 		ctx->push(info->access_flags);
 		ctx->push(objcls/*->findFieldIndex(name)*/);
-		ctx->push(objcls->getConstant(ctx, info->descriptor_index).ui);
+		ctx->push(signature);
 		ctx->push(0u);
 		VMMethod* mthd = fieldcls->getMethod(fieldcls->findMethodIndex("<init>", "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;IILjava/lang/String;[B)V"));
 		mthd->execute(ctx);
@@ -107,6 +141,19 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 	}
 	
 	return arr;
+}
+
+jstring JNIEXPORT Java_java_lang_Class_getName0(JNIEnv* env, jobject object){
+  TR_USE(Java_Runtime);
+  VMClass* cls = (VMClass*)object;
+  std::string name = getVM()->findClass(CTX(env), cls);
+  if (name.empty()){
+    TR_BREAK("Class not found");
+    return NULL;
+  }
+  CGE::Utilities::replaceWith(name, '/', '.');
+  jstring str = env->NewStringUTF(name.c_str());
+  return str;
 }
 
 jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls, jstring name){
@@ -139,9 +186,16 @@ void JNIEXPORT Java_java_lang_ClassLoader_registerNatives(JNIEnv* env, jobject o
 void JNIEXPORT Java_java_lang_ClassLoader_00024NativeLibrary_load(JNIEnv* env, jobject object, jstring library){
   TR_USE(Java_Runtime);
   const char* libname = env->GetStringUTFChars(library, NULL);
-  //TR_BREAK("Implement me");
-  //TODO set field 'long handle'
+  jlong handle = 0;
+#ifdef WIN32
+  HMODULE module = LoadLibrary(libname);
+  handle = (jlong)module;
+#endif
+  //TODO
   env->ReleaseStringUTFChars(library, libname);
+  jclass cls = env->FindClass("java/lang/ClassLoader$NativeLibrary");
+  jfieldID handle_field = env->GetFieldID(cls, "handle", "J");
+  env->SetLongField(object, handle_field, handle);
   return;
 }
 

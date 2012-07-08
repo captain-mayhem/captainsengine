@@ -65,6 +65,12 @@ jfieldID VMContext::GetFieldID(JNIEnv *env, jclass clazz, const char *name, cons
 	return (jfieldID)cls->findFieldIndex(name);
 }
 
+void VMContext::SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value){
+  VMObject* object = (VMObject*)obj;
+  FieldData* data = object->getObjField((unsigned)fieldID);
+  data->l = value;
+}
+
 jmethodID VMContext::GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
 	VMClass* cls = (VMClass*)clazz;
 	return (jmethodID)cls->findMethodIndex(name, sig);
