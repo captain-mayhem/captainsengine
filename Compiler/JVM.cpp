@@ -102,7 +102,7 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
   if (entry == 0){
     //array functions
     if (name[0] == '['){
-      entry = new VMArrayClass();
+      entry = new VMArrayClass(name);
 			mClassResolver[name] = entry;
       return entry;
     }
@@ -155,7 +155,7 @@ VMClass* JVM::defineClass(VMContext* ctx, const std::string& name){
   if (entry == 0){
     //array functions
     if (name[0] == '['){
-      entry = new VMArrayClass();
+      entry = new VMArrayClass(name);
 			mClassResolver[name] = entry;
       return entry;
     }
@@ -209,7 +209,11 @@ nativeMethod JVM::findNativeMethod(const std::string& name){
 }
 
 VMObjectArray* JVM::createObjectArray(VMContext* ctx, VMClass* cls, unsigned size){
-	VMObjectArray* arr = new VMObjectArray(ctx, cls, size);
+  std::string objecttype = findClass(ctx, cls);
+  objecttype.insert(0, "[L");
+  objecttype.append(1, ';');
+  VMClass* arrayclass = findClass(ctx, objecttype);
+	VMObjectArray* arr = new VMObjectArray(ctx, arrayclass, size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }
