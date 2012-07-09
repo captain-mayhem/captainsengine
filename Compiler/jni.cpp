@@ -94,6 +94,18 @@ jint VMContext::RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod
 	return 0;
 }
 
+jfieldID VMContext::GetStaticFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
+  VMClass* cls = (VMClass*)clazz;
+  return (jfieldID)cls->findFieldIndex(name);
+}
+
+void VMContext::SetStaticObjectField(JNIEnv *env, jclass clazz, jfieldID fieldID, jobject value){
+  VMClass* cls = (VMClass*)clazz;
+  FieldData* field = cls->getStaticField((unsigned)fieldID);
+  VMObject* obj = (VMObject*)value;
+  field->obj = obj;
+}
+
 jobjectArray VMContext::NewObjectArray(JNIEnv *env, jsize len, jclass clazz, jobject init){
   VMClass* cls = (VMClass*)clazz;
 	return getVM()->createObjectArray(CTX(env), cls, len);

@@ -694,7 +694,9 @@ public:
   void SetLongField(jobject obj, jfieldID fieldID, jlong value) {m_func->SetLongField(this, obj, fieldID, value);}
   jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
 	void CallStaticVoidMethod(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); m_func->CallStaticVoidMethodV(this, clazz, methodID, args); va_end(args);}
-	jstring NewStringUTF(const char* bytes) {return m_func->NewStringUTF(this, bytes);}
+  jfieldID GetStaticFieldID(jclass clazz, const char *name, const char *sig) {return m_func->GetStaticFieldID(this, clazz, name, sig);}
+  void SetStaticObjectField(jclass clazz, jfieldID fieldID, jobject value) {m_func->SetStaticObjectField(this, clazz, fieldID, value);}
+  jstring NewStringUTF(const char* bytes) {return m_func->NewStringUTF(this, bytes);}
 	const char* GetStringUTFChars(jstring str, jboolean *isCopy) {return m_func->GetStringUTFChars(this, str, isCopy); }
 	void ReleaseStringUTFChars(jstring str, const char* chars) {return m_func->ReleaseStringUTFChars(this, str, chars); }
 	jobjectArray NewObjectArray(jsize len, jclass clazz, jobject init) {return m_func->NewObjectArray(this, len, clazz, init);}

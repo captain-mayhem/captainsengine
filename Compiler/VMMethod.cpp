@@ -1418,6 +1418,12 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->push((float)value);
 					break;
 				}
+      case Java::op_i2c:
+        {
+          unsigned value = ctx->pop().i;
+          ctx->push(value & 0xffff);
+          break;
+        }
       case Java::op_f2i:
 				{
 					float value = ctx->pop().f;

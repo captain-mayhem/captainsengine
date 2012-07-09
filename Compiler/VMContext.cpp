@@ -14,6 +14,8 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself){
   JNINativeInterface_::SetLongField = SetLongField;
 	JNINativeInterface_::GetStaticMethodID = GetStaticMethodID;
 	JNINativeInterface_::CallStaticVoidMethodV = CallStaticVoidMethodV;
+  JNINativeInterface_::GetStaticFieldID = GetStaticFieldID;
+  JNINativeInterface_::SetStaticObjectField = SetStaticObjectField;
 	JNINativeInterface_::NewStringUTF = NewStringUTF;
 	JNINativeInterface_::GetStringUTFChars = GetStringUTFChars;
 	JNINativeInterface_::ReleaseStringUTFChars = ReleaseStringUTFChars;

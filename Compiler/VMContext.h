@@ -36,7 +36,9 @@ protected:
   static void SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static void CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
-	static jstring NewStringUTF(JNIEnv *env, const char *utf);
+	static jfieldID GetStaticFieldID(JNIEnv* env, jclass clazz, const char *name, const char *sig);
+  static void SetStaticObjectField(JNIEnv *env, jclass clazz, jfieldID fieldID, jobject value);
+  static jstring NewStringUTF(JNIEnv *env, const char *utf);
 	static const char* GetStringUTFChars(JNIEnv *env, jstring str, jboolean *isCopy);
   static void ReleaseStringUTFChars(JNIEnv *env, jstring str, const char* chars);
 	static jobjectArray NewObjectArray(JNIEnv *env, jsize len, jclass clazz, jobject init);

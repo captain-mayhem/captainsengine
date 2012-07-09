@@ -251,6 +251,9 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   key = env->NewStringUTF("sun.boot.library.path");
   value = env->NewStringUTF("D:\\Projects\\build_windows\\Compiler\\Debug");
   env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("file.encoding");
+  value = env->NewStringUTF("UTF-8");
+  env->CallObjectMethod(properties, mthd, key, value);
   return properties;
 }
 
@@ -319,6 +322,11 @@ void JNIEXPORT Java_java_lang_System_arraycopy(JNIEnv* env, jobject object, jobj
 	VMArrayBase* arrSrc = (VMArrayBase*)src;
   VMArrayBase* arrDest = (VMArrayBase*)dest;
   arrSrc->copyTo(srcPos, arrDest, destPos, length);
+}
+
+void JNIEXPORT Java_java_lang_System_setIn0(JNIEnv* env, jclass clazz, jobject in){
+  jfieldID field = env->GetStaticFieldID(clazz, "in", "Ljava/io/InputStream;");
+  env->SetStaticObjectField(clazz, field, in);
 }
 
 void JNIEXPORT Java_java_lang_Thread_registerNatives(JNIEnv* env, jobject object){

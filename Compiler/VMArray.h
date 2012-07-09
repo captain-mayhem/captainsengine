@@ -8,6 +8,10 @@
 #include "VMclass.h"
 
 class VMArrayClass : public VMClass{
+public:
+  VMArrayClass(const std::string& name){
+    mFilename = name;
+  }
 };
 
 class VMArrayBase : public VMObject{
