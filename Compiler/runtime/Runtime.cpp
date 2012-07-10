@@ -92,12 +92,83 @@ void JNIEXPORT Java_java_lang_Class_registerNatives(JNIEnv* env, jobject object)
 	return;
 }
 
+jclass JNIEXPORT Java_java_lang_Class_forName0(JNIEnv* env, jclass clazz, jstring name, jboolean initialize, jobject classloader){
+  const char* namestr = env->GetStringUTFChars(name, NULL);
+  std::string str = namestr;
+  CGE::Utilities::replaceWith(str, '.', '/');
+  jclass retclass = NULL;
+  if (initialize == JNI_TRUE){
+    retclass = env->FindClass(str.c_str());
+  }
+  else{
+    retclass = getVM()->defineClass(CTX(env), str);
+  }
+  env->ReleaseStringUTFChars(name, namestr);
+  return retclass;
+}
+
 jboolean JNIEXPORT Java_java_lang_Class_desiredAssertionStatus0(JNIEnv* env, jobject object, jobject cls){
 	return 0;
 }
 
 jobject JNIEXPORT Java_java_lang_Class_getClassLoader0(JNIEnv* env, jobject object){
 	return NULL;
+}
+
+jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredConstructors0(JNIEnv* env, jobject object, jboolean publicOnly){
+  TR_USE(Java_Runtime);
+  if (publicOnly){
+    TR_BREAK("publicOnly not implemented");
+  }
+  //VMContext* ctx = CTX(env);
+  //VMObject* obj = (VMObject*)object;
+  VMClass* objcls = (VMClass*)object;
+  Java::ClassFile& cls = objcls->getClassDefinition();
+
+  int constructorcount = 0;
+  for (int i = 0; i < cls.methods_count; ++i){
+    Java::method_info* info = cls.methods[i];
+    std::string name = ((Java::CONSTANT_Utf8_info*)(cls.constant_pool[info->name_index-1]))->bytes;
+    if (name == "<init>")
+      ++constructorcount;
+    //std::string  sig = ((Java::CONSTANT_Utf8_info*)(cls.constant_pool[info->descriptor_index-1]))->bytes;
+    //continue;
+  }
+
+  jclass constructorcls = env->FindClass("java/lang/reflect/Constructor");
+  jmethodID constr = env->GetMethodID(constructorcls, "<init>", "(Ljava/lang/Class;[Ljava/lang/Class;[Ljava/lang/Class;IILjava/lang/String;[B[B)V");
+  jobjectArray ret = env->NewObjectArray(constructorcount, constructorcls, NULL);
+
+  constructorcount = 0;
+  for (int i = 0; i < cls.methods_count; ++i){
+    Java::method_info* info = cls.methods[i];
+    std::string name = ((Java::CONSTANT_Utf8_info*)(cls.constant_pool[info->name_index-1]))->bytes;
+    if (name != "<init>")
+      continue;
+    std::string  sig = ((Java::CONSTANT_Utf8_info*)(cls.constant_pool[info->descriptor_index-1]))->bytes;
+    unsigned id = objcls->findMethodIndex(name, sig);
+    VMMethod* mthd = objcls->getMethod(id);
+    jclass theobjectclass = env->FindClass("java/lang/Class");
+    jobjectArray parametertypes = env->NewObjectArray(mthd->getNumArgs(), theobjectclass, NULL);
+    for (unsigned i = 0; i < mthd->getNumArgs(); ++i){
+      TR_BREAK("Parameters unimplemented");
+    }
+    //TODO
+    jobjectArray checkedExceptions = env->NewObjectArray(0, theobjectclass, NULL);
+    jobject constrobj = env->NewObject(constructorcls, constr, objcls->getClassObject(), //declaring class
+          parametertypes, //parameterTypes
+          checkedExceptions, //checkedExceptions
+          info->access_flags, //modifiers
+          objcls->findMethodIndex(name, sig), //slot
+          objcls->getConstant(CTX(env), info->descriptor_index).obj, //signature
+          NULL, //annotations
+          NULL //parameterAnnotations
+      );
+    env->SetObjectArrayElement(ret, constructorcount, constrobj);
+    ++constructorcount;
+  }
+
+  return ret;
 }
 
 jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobject object, jboolean publicOnly){
@@ -179,6 +250,11 @@ jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls,
 	return clazz;
 }
 
+jboolean JNIEXPORT Java_java_lang_Class_isInterface(JNIEnv* env, jobject object){
+  VMClass* cls = (VMClass*)object;
+  return cls->getClassDefinition().access_flags & ACC_INTERFACE ? JNI_TRUE : JNI_FALSE;
+}
+
 void JNIEXPORT Java_java_lang_ClassLoader_registerNatives(JNIEnv* env, jobject object){
 	return;
 }
@@ -214,6 +290,11 @@ jint JNIEXPORT Java_java_lang_Float_floatToRawIntBits(JNIEnv* env, jobject objec
 
 void JNIEXPORT Java_java_lang_Object_registerNatives(JNIEnv* env, jobject object){
 	return;
+}
+
+jclass JNIEXPORT Java_java_lang_Object_getClass(JNIEnv* env, jobject object){
+  jclass clazz = env->GetObjectClass(object);
+  return clazz;
 }
 
 jint JNIEXPORT Java_java_lang_Object_hashCode(JNIEnv* env, jobject object){

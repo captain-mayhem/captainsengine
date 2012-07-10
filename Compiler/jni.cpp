@@ -111,6 +111,11 @@ jobjectArray VMContext::NewObjectArray(JNIEnv *env, jsize len, jclass clazz, job
 	return getVM()->createObjectArray(CTX(env), cls, len);
 }
 
+void VMContext::SetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize index, jobject val){
+  VMObjectArray* oarray = (VMObjectArray*)array;
+  oarray->put((VMObject*)val, index);
+}
+
 jstring VMContext::NewStringUTF(JNIEnv *env, const char *utf){
 	return getVM()->createString(CTX(env), utf);
 }
@@ -137,6 +142,11 @@ jobject VMContext::NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_
   VMObject* obj = getVM()->createObject(CTX(env), cls);
   CTX(env)->push(obj);
   VMMethod* mthd = cls->getMethod((unsigned)(jlong)methodID);
+  for (unsigned i = 0; i < mthd->getNumArgs(); ++i){
+    StackData tmp;
+    tmp.obj = va_arg(args, VMObject*);
+    CTX(env)->push(tmp);
+  }
   mthd->execute(CTX(env));
   return obj;
 }

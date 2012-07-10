@@ -42,6 +42,7 @@ protected:
 	static const char* GetStringUTFChars(JNIEnv *env, jstring str, jboolean *isCopy);
   static void ReleaseStringUTFChars(JNIEnv *env, jstring str, const char* chars);
 	static jobjectArray NewObjectArray(JNIEnv *env, jsize len, jclass clazz, jobject init);
+  static void SetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize index, jobject val);
 	static jint RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods);
 
   JVM* mVm;
