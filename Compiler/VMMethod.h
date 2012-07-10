@@ -32,6 +32,7 @@ public:
 	virtual void execute(VMContext* ctx)=0;
 	virtual void print(std::ostream& strm)=0;
 	unsigned getNumArgs() {return mArgSize;}
+  const std::string& getArgument(int argnum) {return mSplitSignature[argnum];}
 	const std::string& getName() const {return mName;}
 	const std::string& getSignature() const {return mSignature;}
 	VMClass* getClass() {return mClass;}
@@ -44,6 +45,7 @@ protected:
 
 	std::string mName;
 	std::string mSignature;
+  std::vector<std::string> mSplitSignature;
 	ReturnType mReturnType;
 	unsigned mArgSize;
 	bool mIsStatic;
@@ -72,7 +74,6 @@ public:
 	NativeVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, nativeMethod mthd) : VMMethod(name, signature, cls, isStatic) {mFunction = mthd;}
 	void print(std::ostream& strm);
 	void execute(VMContext* ctx);
-	void executeVoidRet(VMContext* ctx);
 	void executeLongRet(VMContext* ctx);
 	void executeRefRet(VMContext* ctx);
   void executeNative(VMContext* ctx, VMMethod::ReturnType ret);

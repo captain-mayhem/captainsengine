@@ -700,7 +700,8 @@ public:
 	const char* GetStringUTFChars(jstring str, jboolean *isCopy) {return m_func->GetStringUTFChars(this, str, isCopy); }
 	void ReleaseStringUTFChars(jstring str, const char* chars) {return m_func->ReleaseStringUTFChars(this, str, chars); }
 	jobjectArray NewObjectArray(jsize len, jclass clazz, jobject init) {return m_func->NewObjectArray(this, len, clazz, init);}
-	jint RegisterNatives(jclass clazz, const JNINativeMethod *methods, jint nMethods) {return m_func->RegisterNatives(this, clazz, methods, nMethods);}
+  void SetObjectArrayElement(jobjectArray array, jsize index, jobject val) {m_func->SetObjectArrayElement(this, array, index, val);}
+  jint RegisterNatives(jclass clazz, const JNINativeMethod *methods, jint nMethods) {return m_func->RegisterNatives(this, clazz, methods, nMethods);}
 protected:
   JNIEnv_(JavaVM_* vm);
 };

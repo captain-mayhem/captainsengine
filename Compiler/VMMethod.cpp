@@ -34,6 +34,7 @@ void VMMethod::parseSignature(){
 		TR_ERROR("Unexpected method signature");
 	unsigned i;
 	bool count_args = true;
+  std::string currArg;
 	for (i = 1; i < mSignature.size(); ++i){
 		if (mSignature[i] == ')'){
 			++i;
@@ -42,24 +43,39 @@ void VMMethod::parseSignature(){
 		else if (mSignature[i] == 'L'){
 			do{
 				++i;
+        currArg.append(1, mSignature[i]);
 			} while(mSignature[i] != ';');
-			if (count_args)
+      currArg.erase(currArg.size()-1);
+      if (count_args){
 				++mArgSize;
+      }
 			count_args = true;
+      mSplitSignature.push_back(currArg);
+      currArg.clear();
 		}
 		else if (mSignature[i] == 'I' || mSignature[i] == 'B' || mSignature[i] == 'C'|| mSignature[i] == 'Z' || mSignature[i] == 'F'  || mSignature[i] == 'S'){
-			if (count_args)
-				++mArgSize;
+			currArg.append(1, mSignature[i]);
+      if (count_args){
+        ++mArgSize;
+      }
+      mSplitSignature.push_back(currArg);
+      currArg.clear();
 			count_args = true;
 		}
 		else if (mSignature[i] == '['){
-			if (count_args)
-				++mArgSize;
+      if (count_args){
+        ++mArgSize;
+      }
 			count_args = false;
+      currArg.append(1, mSignature[i]);
 		}
 		else if (mSignature[i] == 'J' || mSignature[i] == 'D'){
-			if (count_args)
-				mArgSize += 2;
+      currArg.append(1, mSignature[i]);
+      if (count_args){
+        mSplitSignature.push_back(currArg);
+        currArg.clear();
+        mArgSize += 2;
+      }
 			count_args = true;
 		}
 		else
@@ -833,6 +849,8 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u2 operand = b1 << 8 | b2;
 					VMClass* execCls;
 					unsigned idx = mClass->getMethodIndex(ctx, operand, execCls);
+          if (idx == 0)
+            TR_BREAK("Cannot resolve method");
 					VMMethod* temp = execCls->getMethod(idx); //TODO not very efficient
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
 					VMMethod* mthd = obj->getObjMethod(idx);
@@ -1492,11 +1510,11 @@ void NativeVMMethod::execute(VMContext* ctx){
     case Double:
       executeDoubleRet(ctx);
       break;
-		case Reference:
 		case Array:
 		case Int:
 			executeRefRet(ctx);
 			break;
+    case Reference:
 		case Boolean:
     case Void:
 			executeNative(ctx, mReturnType);
@@ -1505,27 +1523,6 @@ void NativeVMMethod::execute(VMContext* ctx){
 			TR_BREAK("Unhandled return type called");
 			break;
 	}
-}
-
-void NativeVMMethod::executeVoidRet(VMContext* ctx){
-  TR_USE(Java_Method);
-	if (mFunction == NULL)
-		TR_BREAK("Could not resolve native method");
-	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		++method_depth;
-	TR_DEBUG("%i: %s", method_depth, mName.c_str());
-	ctx->pushFrame(this, argsize);
-	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	bullshit fakeArray;
-	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
-	uint8* lst = packArguments(ctx, fakeArray);
-	mFunction(ctx->getJNIEnv(), cls, *((jlong*)lst));
-	//delete [] lst;
-	ctx->popFrame();
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		--method_depth;
-	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 }
 
 void NativeVMMethod::executeLongRet(VMContext* ctx){
@@ -1651,6 +1648,21 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
     }
 #endif
   }
+  else if (ret == VMMethod::Reference){
+    VMObject* objret;
+#ifdef WIN32
+    __asm{
+      mov eax, cls;
+      push eax;
+      mov ebx, tmp;
+      push ebx;
+      call mthd;
+      add esp, popargs;
+      mov objret, eax;
+    }
+#endif
+    retval.obj = objret;
+  }
   /*
 	bullshit fakeArray;
 	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
@@ -1663,6 +1675,8 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
 	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
   if (ret == VMMethod::Boolean)
 	  ctx->push(retval.b);
+  else if (ret == VMMethod::Reference)
+    ctx->push(retval.obj);
 }
 
 uint8* NativeVMMethod::packArguments(VMContext* ctx, bullshit fakeArray){

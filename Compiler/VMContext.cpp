@@ -20,6 +20,7 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself){
 	JNINativeInterface_::GetStringUTFChars = GetStringUTFChars;
 	JNINativeInterface_::ReleaseStringUTFChars = ReleaseStringUTFChars;
 	JNINativeInterface_::NewObjectArray = NewObjectArray;
+  JNINativeInterface_::SetObjectArrayElement = SetObjectArrayElement;
 	JNINativeInterface_::RegisterNatives = RegisterNatives;
   JNINativeInterface_::NewObjectV = NewObjectV;
   mVm->addThread(this);
