@@ -13,7 +13,7 @@ VMArrayClass::VMArrayClass(const std::string& name){
 
 jobjectArray VMArrayClass::cloneFunc(JNIEnv* env, jobjectArray array){
   VMArrayBase* ab = (VMArrayBase*)array;
-  VMArrayBase* newab = ab->deepCopy(CTX(env));
+  VMArrayBase* newab = ab->copy(CTX(env));
   return newab;
 }
 

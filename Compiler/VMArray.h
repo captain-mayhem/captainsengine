@@ -24,7 +24,7 @@ public:
 	virtual unsigned getLength()=0;
   virtual void* getData(int offset)=0;
   virtual void copyTo(int srcOffset, VMArrayBase* dest, int destOffset, int length)=0;
-  virtual VMArrayBase* deepCopy(VMContext* ctx)=0;
+  virtual VMArrayBase* copy(VMContext* ctx)=0;
 };
 
 template <typename T>
@@ -51,8 +51,9 @@ public:
     void* dst = dest->getData(destOffset);
     memcpy(dst, src, length*sizeof(T));
   }
-  virtual VMArrayBase* deepCopy(VMContext* ctx){
+  virtual VMArrayBase* copy(VMContext* ctx){
     VMArray* newone = new VMArray<T>(ctx, mClass, mData.size());
+    getVM()->registerObject(newone);
     copyTo(0, newone, 0, mData.size());
     return newone;
   }
@@ -66,6 +67,7 @@ protected:
 	std::vector<T> mData;
 };
 
+/* no, no deep copy
 template<> VMArrayBase* VMArray<VMObject*>::deepCopy(VMContext* ctx){
   TR_USE(Java_Array);
   VMArray* newone = new VMArray<VMObject*>(ctx, mClass, mData.size());
@@ -73,6 +75,7 @@ template<> VMArrayBase* VMArray<VMObject*>::deepCopy(VMContext* ctx){
     TR_BREAK("Implement deep copy");
   return newone; 
 }
+*/
 
 typedef VMArray<VMObject*> VMObjectArray;
 typedef VMArray<jbyte> VMByteArray;
