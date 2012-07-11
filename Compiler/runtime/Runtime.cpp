@@ -214,6 +214,11 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 	return arr;
 }
 
+jint JNIEXPORT Java_java_lang_Class_getModifiers(JNIEnv* env, jclass clazz){
+  VMClass* cls = (VMClass*)clazz;
+  return cls->getClassDefinition().access_flags;
+}
+
 jstring JNIEXPORT Java_java_lang_Class_getName0(JNIEnv* env, jobject object){
   TR_USE(Java_Runtime);
   VMClass* cls = (VMClass*)object;
@@ -248,6 +253,11 @@ jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls,
 	}
 	env->ReleaseStringUTFChars(name, namestr);
 	return clazz;
+}
+
+jclass JNIEXPORT Java_java_lang_Class_getSuperclass(JNIEnv* env, jclass clazz){
+  jclass super = env->GetSuperclass(clazz);
+  return super;
 }
 
 jboolean JNIEXPORT Java_java_lang_Class_isInterface(JNIEnv* env, jobject object){
@@ -479,10 +489,23 @@ jlong JNIEXPORT Java_sun_misc_Unsafe_objectFieldOffset(JNIEnv* env, jobject obje
 void JNIEXPORT Java_sun_misc_VM_initialize(JNIEnv* env, jobject object){
 }
 
+jobject JNIEXPORT Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0
+(JNIEnv* env, jobject object, jobject constructor, jobjectArray arguments){
+  VMObject* constr = (VMObject*)constructor;
+  VMArrayBase* arr = (VMArrayBase*)arguments;
+  return NULL;
+}
+
 jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass(JNIEnv* env, jobject object, jint realFramesToSkip){
 	VMContext* ctx = CTX(env);
 	VMMethod* mthd = ctx->getFrameMethod(realFramesToSkip);
 	return (VMObject*)mthd->getClass();
+}
+
+jint JNIEXPORT Java_sun_reflect_Reflection_getClassAccessFlags(JNIEnv* env, jobject object, jclass clazz){
+  VMClass* cls = (VMClass*)clazz;
+  int access = cls->getClassDefinition().access_flags;
+  return access;
 }
 
 }

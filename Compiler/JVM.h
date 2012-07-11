@@ -39,6 +39,7 @@ public:
 	VMObject* createObject(VMContext* ctx, VMClass* cls);
 	VMObject* createString(VMContext* ctx, const char* str);
 	VMObject* internalizeString(const std::string& str, VMObject* strobj);
+  void registerObject(VMObject* obj);
 protected:
 	void init();
 

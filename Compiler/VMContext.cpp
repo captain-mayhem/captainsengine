@@ -7,6 +7,7 @@
 VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself){
   JNINativeInterface_::reserved0 = NULL;
   JNINativeInterface_::FindClass = FindClass;
+  JNINativeInterface_::GetSuperclass = GetSuperclass;
 	JNINativeInterface_::GetObjectClass = GetObjectClass;
 	JNINativeInterface_::GetMethodID = GetMethodID;
 	JNINativeInterface_::CallObjectMethodV = CallObjectMethodV;

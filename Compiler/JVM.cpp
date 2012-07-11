@@ -312,3 +312,7 @@ VMObject* JVM::internalizeString(const std::string& str, VMObject* strobj){
 	mInternalizedStrings[str] = strobj;
 	return strobj;
 }
+
+void JVM::registerObject(VMObject* obj){
+  mCreatedObjects.push_back(obj);
+}

@@ -38,6 +38,12 @@ jclass VMContext::FindClass(JNIEnv* env, const char* name){
   return getVM()->findClass(CTX(env), name);
 }
 
+jclass VMContext::GetSuperclass(JNIEnv *env, jclass sub){
+  VMClass* subclass = (VMClass*)sub;
+  VMClass* super = subclass->getSuperclass(CTX(env));
+  return super;
+}
+
 jclass VMContext::GetObjectClass(JNIEnv *env, jobject obj){
 	VMObject* o = (VMObject*)obj;
 	return o->getClass();

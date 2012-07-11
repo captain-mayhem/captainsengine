@@ -28,6 +28,7 @@ public:
 	VMObject* getThread() {return mThread;}
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
+  static jclass GetSuperclass(JNIEnv *env, jclass sub);
 	static jclass GetObjectClass(JNIEnv *env, jobject obj);
 	static jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static jobject CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
