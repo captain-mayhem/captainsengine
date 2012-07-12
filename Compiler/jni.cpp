@@ -66,6 +66,18 @@ jobject VMContext::CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodI
 	return (jobject)CTX(env)->pop().obj;
 }
 
+jint VMContext::CallIntMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args){
+  VMObject* o = (VMObject*)obj;
+  VMMethod* mthd = o->getObjMethod((unsigned)(jlong)methodID);
+  CTX(env)->push(o);
+  for (unsigned i = 0; i < mthd->getNumArgs(); ++i){
+    VMObject* obj = va_arg(args, VMObject*);
+    CTX(env)->push(obj);
+  }
+  mthd->execute(CTX(env));
+  return CTX(env)->pop().i;
+}
+
 jfieldID VMContext::GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
 	VMClass* cls = (VMClass*)clazz;
 	return (jfieldID)cls->findFieldIndex(name);
