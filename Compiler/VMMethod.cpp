@@ -365,6 +365,13 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->push(arr->get(idx));
 				}
 				break;
+      case Java::op_baload:
+        {
+          unsigned idx = ctx->pop().ui;
+          VMByteArray* arr = (VMByteArray*)ctx->pop().obj;
+          ctx->push(arr->get(idx));
+        }
+        break;
 			case Java::op_caload:
 				{
 					unsigned idx = ctx->pop().ui;
@@ -387,6 +394,14 @@ void BcVMMethod::execute(VMContext* ctx){
 					arr->put(value, idx);
 				}
 				break;
+      case Java::op_bastore:
+        {
+          jbyte value = (jbyte)ctx->pop().ui;
+          unsigned idx = ctx->pop().ui;
+          VMByteArray* arr = (VMByteArray*)ctx->pop().obj;
+          arr->put(value, idx);
+        }
+        break;
 			case Java::op_castore:
 				{
 					jchar value = (jchar)ctx->pop().ui;
@@ -1081,6 +1096,9 @@ void BcVMMethod::execute(VMContext* ctx){
 			case Java::op_fload_2:
 				ctx->push(ctx->get(2));
 				break;
+      case Java::op_fload_3:
+        ctx->push(ctx->get(3));
+        break;
 			case Java::op_dload_0:
 				ctx->push(ctx->get(1));
 				ctx->push(ctx->get(0));
@@ -1516,6 +1534,7 @@ void NativeVMMethod::execute(VMContext* ctx){
 			break;
     case Reference:
 		case Boolean:
+    case Byte:
     case Void:
 			executeNative(ctx, mReturnType);
 			break;
@@ -1621,7 +1640,7 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
   int popargs = (mArgSize+2)*sizeof(void*);
   tmp = ctx->getJNIEnv();
   FieldData retval;
-  if (ret == VMMethod::Boolean){
+  if (ret == VMMethod::Boolean || ret == VMMethod::Byte){
     jboolean bret;
 #ifdef WIN32
     __asm{
@@ -1673,7 +1692,7 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
 	if (TR_IS_ENABLED(TRACE_DEBUG))
 		--method_depth;
 	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
-  if (ret == VMMethod::Boolean)
+  if (ret == VMMethod::Boolean || ret == VMMethod::Byte)
 	  ctx->push(retval.b);
   else if (ret == VMMethod::Reference)
     ctx->push(retval.obj);

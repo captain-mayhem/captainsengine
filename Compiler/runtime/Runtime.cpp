@@ -462,6 +462,11 @@ void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object)
 	return;
 }
 
+jlong JNIEXPORT Java_sun_misc_Unsafe_allocateMemory(JNIEnv* env, jobject unsafe, jlong size){
+  void* memory = malloc((size_t)size);
+  return (jlong)memory;
+}
+
 jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jint expected, jint update){
   //TODO make atomic
   VMObject* obj = (VMObject*)object;
@@ -472,6 +477,11 @@ jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject u
     return JNI_TRUE;
   }
   return JNI_FALSE;
+}
+
+jbyte JNIEXPORT Java_sun_misc_Unsafe_getByte(JNIEnv* env, jobject object, jlong address){
+  jbyte* data = (jbyte*)address;
+  return *data;
 }
 
 jlong JNIEXPORT Java_sun_misc_Unsafe_objectFieldOffset(JNIEnv* env, jobject object, jobject field){
@@ -486,14 +496,27 @@ jlong JNIEXPORT Java_sun_misc_Unsafe_objectFieldOffset(JNIEnv* env, jobject obje
 	return fieldidx;
 }
 
+void JNIEXPORT Java_sun_misc_Unsafe_putLong(JNIEnv* env, jobject object, jlong address, jlong x){
+  jlong* data = (jlong*)address;
+  *data = x;
+}
+
 void JNIEXPORT Java_sun_misc_VM_initialize(JNIEnv* env, jobject object){
 }
 
 jobject JNIEXPORT Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0
 (JNIEnv* env, jobject object, jobject constructor, jobjectArray arguments){
-  VMObject* constr = (VMObject*)constructor;
-  VMArrayBase* arr = (VMArrayBase*)arguments;
-  return NULL;
+  TR_USE(Java_Runtime);
+  jclass constclass = env->GetObjectClass(constructor);
+  jmethodID getDeclaringClass = env->GetMethodID(constclass, "getDeclaringClass", "()Ljava/lang/Class;");
+  jclass instanceclass = env->CallObjectMethod(constructor, getDeclaringClass);
+  jmethodID getSlot = env->GetMethodID(constclass, "getSlot", "()I");
+  jint slot = env->CallIntMethod(constructor, getSlot);
+  //int numargs = env->GetArrayLength(arguments);
+  if (arguments != NULL)
+    TR_BREAK("Constructor arguments need to be implemented");
+  jobject instance = env->NewObject(instanceclass, (jmethodID)slot);
+  return instance;
 }
 
 jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass(JNIEnv* env, jobject object, jint realFramesToSkip){
