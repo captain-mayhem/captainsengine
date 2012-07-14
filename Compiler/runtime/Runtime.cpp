@@ -479,6 +479,10 @@ jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject u
   return JNI_FALSE;
 }
 
+void JNIEXPORT Java_sun_misc_Unsafe_freeMemory(JNIEnv* env, jobject object, jlong address){
+  free((void*)address);
+}
+
 jbyte JNIEXPORT Java_sun_misc_Unsafe_getByte(JNIEnv* env, jobject object, jlong address){
   jbyte* data = (jbyte*)address;
   return *data;

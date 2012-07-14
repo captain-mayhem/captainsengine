@@ -208,6 +208,15 @@ void BcVMMethod::print(std::ostream& strm){
 
 static int method_depth = 0;
 
+inline static Java::u4 byteOrder(unsigned val){
+  Java::u4 ret = 0;
+  ret |= (val << 24)&0xFF000000;
+  ret |= (val << 8)&0x00FF0000;
+  ret |= (val >> 8)&0x0000FF00;
+  ret |= (val >> 24)&0x000000FF;
+  return ret;
+}
+
 void BcVMMethod::execute(VMContext* ctx){
   TR_USE(Java_Method);
 	//if (TRACE_IS_ENABLED(TRACE_JAVA))
@@ -526,6 +535,29 @@ void BcVMMethod::execute(VMContext* ctx){
           break;
         }
       case Java::op_lookupswitch:
+        {
+          unsigned kaligned = (k+4)/4*4; //padding
+          if (kaligned-k != 1)
+            TR_BREAK("Check if correct (boundaries)");
+          unsigned* address = (unsigned*)&mCode->code[kaligned];
+          Java::u4 default_offset = byteOrder(*address++);
+          Java::u4 n = byteOrder(*address++);
+          int item = ctx->pop().i;
+          for (unsigned i = 0; i < n; ++i){
+            int key = byteOrder(*address++);
+            int value = byteOrder(*address++);
+            if (key == item){
+              k += value;
+              goto skipdefault;
+            }
+            else if (key > item) //table is sorted, no need to go further
+              break;
+          }
+          k += default_offset;
+skipdefault:
+          k -= 1;
+          break;
+        }
       case Java::op_tableswitch:
         k+=98;
 				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
@@ -769,8 +801,13 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
 				break;
       case Java::op_jsr:
-        k+=2;
-				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
+        {
+          ctx->push(k+3-1);
+          Java::u1 b1 = mCode->code[++k];
+          Java::u1 b2 = mCode->code[++k];
+          int16 branch = b1 << 8 | b2;
+          k += branch-3;
+        }
         break;
       case Java::op_getstatic:
         {
@@ -1127,8 +1164,11 @@ void BcVMMethod::execute(VMContext* ctx){
 				}
         break;
       case Java::op_ret:
-				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
-        k+=1;
+        {
+          unsigned idx = mCode->code[++k];
+          int ret = ctx->get(idx).i;
+          k = ret;
+        }
         break;
       case Java::op_newarray:
 				{
