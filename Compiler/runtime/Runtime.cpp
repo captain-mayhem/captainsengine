@@ -13,6 +13,7 @@
 #include <system/utilities.h>
 
 #include <iostream>
+#include <signal.h>
 
 TR_CHANNEL(Java_Runtime);
 
@@ -415,9 +416,19 @@ void JNIEXPORT Java_java_lang_System_arraycopy(JNIEnv* env, jobject object, jobj
   arrSrc->copyTo(srcPos, arrDest, destPos, length);
 }
 
+void JNIEXPORT Java_java_lang_System_setErr0(JNIEnv* env, jclass clazz, jobject err){
+  jfieldID field = env->GetStaticFieldID(clazz, "err", "Ljava/io/PrintStream;");
+  env->SetStaticObjectField(clazz, field, err);
+}
+
 void JNIEXPORT Java_java_lang_System_setIn0(JNIEnv* env, jclass clazz, jobject in){
   jfieldID field = env->GetStaticFieldID(clazz, "in", "Ljava/io/InputStream;");
   env->SetStaticObjectField(clazz, field, in);
+}
+
+void JNIEXPORT Java_java_lang_System_setOut0(JNIEnv* env, jclass clazz, jobject out){
+  jfieldID field = env->GetStaticFieldID(clazz, "out", "Ljava/io/PrintStream;");
+  env->SetStaticObjectField(clazz, field, out);
 }
 
 void JNIEXPORT Java_java_lang_Thread_registerNatives(JNIEnv* env, jobject object){
@@ -456,6 +467,23 @@ jobject JNIEXPORT Java_java_security_AccessController_getStackAccessControlConte
 	TR_USE(Java_Runtime);
   TR_WARN("getStackAccessControlContext not implemented");
   return NULL;
+}
+
+jint JNIEXPORT Java_sun_misc_Signal_findSignal(JNIEnv* env, jobject object, jstring signal){
+  TR_USE(Java_Runtime);
+  jint ret = -1;
+  const char* sig = env->GetStringUTFChars(signal, NULL);
+  if (strcmp(sig, "INT") == 0){
+    ret = SIGINT;
+  }
+  else
+    TR_BREAK("Unknown signal %s", sig);
+  env->ReleaseStringUTFChars(signal, sig);
+  return ret;
+}
+
+jlong JNIEXPORT Java_sun_misc_Signal_handle0(JNIEnv* env, jobject object, jint sig, jlong nativeH){
+  return 0;
 }
 
 void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object){

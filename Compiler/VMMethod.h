@@ -37,9 +37,6 @@ public:
 	const std::string& getSignature() const {return mSignature;}
 	VMClass* getClass() {return mClass;}
 	static ReturnType parseType(const char type);
-	//virtual void executeVoidRet(VMContext* ctx, VMClass* cls)=0;
-	//virtual void executeLongRet(VMContext* ctx, VMClass* cls)=0;
-	//virtual void executeRefRet(VMContext* ctx, VMClass* cls)=0;
 protected:
 	void parseSignature();
 
@@ -57,9 +54,7 @@ public:
 	BcVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, Java::Code_attribute* code) : VMMethod(name, signature, cls, isStatic) {mCode = code;}
 	void print(std::ostream& strm);
 	void execute(VMContext* ctx);
-	void executeVoidRet(VMContext* ctx);
 	void executeLongRet(VMContext* ctx);
-	void executeRefRet(VMContext* ctx);
 protected:
 	Java::Code_attribute* mCode;
 };
