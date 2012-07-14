@@ -1546,13 +1546,7 @@ skipdefault:
 	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
 }
 
-void BcVMMethod::executeVoidRet(VMContext* ctx){
-}
-
 void BcVMMethod::executeLongRet(VMContext* ctx){
-}
-
-void BcVMMethod::executeRefRet(VMContext* ctx){
 }
 
 void NativeVMMethod::print(std::ostream& strm){
@@ -1562,16 +1556,12 @@ void NativeVMMethod::print(std::ostream& strm){
 void NativeVMMethod::execute(VMContext* ctx){
   TR_USE(Java_Method);
 	switch (mReturnType){
-		case Long:
-			executeLongRet(ctx);
-			break;
     case Double:
       executeDoubleRet(ctx);
       break;
+    case Long:
 		case Array:
 		case Int:
-			executeRefRet(ctx);
-			break;
     case Reference:
 		case Boolean:
     case Byte:
@@ -1631,28 +1621,6 @@ void NativeVMMethod::executeDoubleRet(VMContext* ctx){
 	ctx->push((uint32)(ret.l >> 32));
 }
 
-void NativeVMMethod::executeRefRet(VMContext* ctx){
-  TR_USE(Java_Method);
-	if (mFunction == NULL)
-		TR_BREAK("Could not resolve native method");
-	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		++method_depth;
-	TR_DEBUG("%i: %s", method_depth, mName.c_str());
-	ctx->pushFrame(this, argsize);
-	VMObject* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	bullshit fakeArray;
-	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
-	uint8* lst = packArguments(ctx, fakeArray);
-	void* ret = ((nativeRefMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
-	//delete [] lst;
-	ctx->popFrame();
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		--method_depth;
-	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
-	ctx->push((VMObject*)ret);
-}
-
 void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
   TR_USE(Java_Method);
 	if (mFunction == NULL)
@@ -1707,7 +1675,7 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
     }
 #endif
   }
-  else if (ret == VMMethod::Reference){
+  else if (ret == VMMethod::Reference || ret == VMMethod::Array || ret == VMMethod::Int){
     VMObject* objret;
 #ifdef WIN32
     __asm{
@@ -1722,6 +1690,22 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
 #endif
     retval.obj = objret;
   }
+  else if (ret == VMMethod::Long){
+    jlong longret;
+#ifdef WIN32
+    __asm{
+      mov eax, cls;
+      push eax;
+      mov ebx, tmp;
+      push ebx;
+      call mthd;
+      add esp, popargs;
+      mov DWORD PTR longret[4], edx;
+      mov DWORD PTR longret[0], eax;
+    }
+#endif
+    retval.l = longret;
+  }
   /*
 	bullshit fakeArray;
 	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
@@ -1734,8 +1718,12 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
 	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
   if (ret == VMMethod::Boolean || ret == VMMethod::Byte)
 	  ctx->push(retval.b);
-  else if (ret == VMMethod::Reference)
+  else if (ret == VMMethod::Reference || ret == VMMethod::Int || ret == VMMethod::Array)
     ctx->push(retval.obj);
+  else if (ret == VMMethod::Long){
+    ctx->push((unsigned)(retval.l >> 0));
+    ctx->push((unsigned)(retval.l >> 32));
+  }
 }
 
 uint8* NativeVMMethod::packArguments(VMContext* ctx, bullshit fakeArray){
