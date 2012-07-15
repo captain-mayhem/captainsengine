@@ -10,9 +10,9 @@
 
 int main(int argc, char* argv[])
 {
-  CGE::LogOutputter* putty = new CGE::LogOutputter();
+  /*CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
-	CGE::Engine::instance()->init();
+	CGE::Engine::instance()->init();*/
   char* filename = "test/Test";
 	//char* filename = "java/lang/Object";
   if (argc > 1){
@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 	env->CallStaticVoidMethod(cls, mainfunc, args);
   
   jvm->DestroyJavaVM();
-	CGE::Engine::instance()->shutdown();
+	//CGE::Engine::instance()->shutdown();
   return 0;
 }
 

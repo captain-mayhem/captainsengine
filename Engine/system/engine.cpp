@@ -145,28 +145,28 @@ void Engine::startup(int argc, char** argv){
 
 void Engine::shutdown(){
   TR_USE(CGE_Engine);
-  if (!isUp_)
-    return;
-  rend_->deinitRendering();
-  TR_INFO("engine shutting down");
-  isUp_ = false;
-  SAFE_DELETE(mSimulator);
-  Input::Keyboard::release();
-  Input::Mouse::release();
-  SAFE_DELETE(console_);
-  fnt_[0]->killFont();
-  for (int i = 0; i < 3; i++){
-    if (i != 0)
-      fnt_[i]->setVB(NULL);
-    SAFE_DELETE(fnt_[i]);
+  if (isUp_){
+    rend_->deinitRendering();
+    TR_INFO("engine shutting down");
+    isUp_ = false;
+    SAFE_DELETE(mSimulator);
+    Input::Keyboard::release();
+    Input::Mouse::release();
+    SAFE_DELETE(console_);
+    fnt_[0]->killFont();
+    for (int i = 0; i < 3; i++){
+      if (i != 0)
+        fnt_[i]->setVB(NULL);
+      SAFE_DELETE(fnt_[i]);
+    }
+    SAFE_DELETE_ARRAY(fnt_);
+    SAFE_DELETE(forms_);
+    if (win_)
+      win_->kill();
+    SAFE_DELETE(win_);
+    SAFE_DELETE(rend_);
+    Script::kill();
   }
-  SAFE_DELETE_ARRAY(fnt_);
-  SAFE_DELETE(forms_);
-  if (win_)
-    win_->kill();
-  SAFE_DELETE(win_);
-  SAFE_DELETE(rend_);
-  Script::kill();
   SAFE_DELETE(eng);
   TraceManager::deinit();
   //exit(0);

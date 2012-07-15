@@ -28,7 +28,9 @@ public:
 		Double=7,
 		Short=9
 	};
-	VMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic) : mName(name), mSignature(signature), mIsStatic(isStatic), mClass(cls) {parseSignature();}
+	VMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic) : 
+    mName(name), mSignature(signature), mIsStatic(isStatic), mClass(cls), mRefCount(1) {parseSignature();}
+  //virtual ~VMMethod();
 	virtual void execute(VMContext* ctx)=0;
 	virtual void print(std::ostream& strm)=0;
 	unsigned getNumArgs() {return mArgSize;}
@@ -37,7 +39,10 @@ public:
 	const std::string& getSignature() const {return mSignature;}
 	VMClass* getClass() {return mClass;}
 	static ReturnType parseType(const char type);
+  void ref() {++mRefCount;}
+  void unref() {--mRefCount; if (mRefCount <= 0) delete this;}
 protected:
+  virtual ~VMMethod();
 	void parseSignature();
 
 	std::string mName;
@@ -47,6 +52,7 @@ protected:
 	unsigned mArgSize;
 	bool mIsStatic;
 	VMClass* mClass;
+  int mRefCount;
 };
 
 class BcVMMethod : public VMMethod{

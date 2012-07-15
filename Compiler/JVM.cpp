@@ -5,6 +5,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include <system/engine.h>
+
 #include "VMContext.h"
 #include "VMclass.h"
 #include "Trace.h"
@@ -27,6 +29,7 @@ JVM* getVM(){
 JVM::JVM(){
   CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
+  CGE::Engine::instance()->init();
 	globalVM = this;
   JNIInvokeInterface_::reserved0 = NULL;
   JNIInvokeInterface_::DestroyJavaVM = DestroyJavaVM;
@@ -43,10 +46,11 @@ JVM::~JVM(){
     delete *iter;
   }
   mThreads.clear();
-	for (std::map<std::string,VMClass*>::reverse_iterator iter = mClassResolver.rbegin(); iter != mClassResolver.rend(); ++iter){
+	for (std::map<std::string,VMClass*>::iterator iter = mClassResolver.begin(); iter != mClassResolver.end(); ++iter){
 		delete iter->second;
 	}
 	mClassResolver.clear();
+  CGE::Engine::instance()->shutdown();
 }
 
 void JVM::init(){
@@ -298,6 +302,7 @@ VMObject* JVM::createString(VMContext* ctx, const char* str){
 	ctx->push(arr);
 	arr->setData(utf16);
 	mthd->execute(ctx);
+  delete [] utf16;
 	return obj;
 #else
 	return NULL;

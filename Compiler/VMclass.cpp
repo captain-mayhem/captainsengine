@@ -54,8 +54,7 @@ VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObjec
 
 VMClass::~VMClass(){
 	for (std::vector<VMMethod*>::iterator iter = mMethods.begin(); iter != mMethods.end(); ++iter){
-		if ((*iter)->getClass() == this)
-			delete *iter;
+	  (*iter)->unref();
 	}
 }
 
@@ -329,6 +328,7 @@ void VMClass::initFields(VMContext* ctx){
 			}
 			else{
 				idx = iter->second;
+        mMethods[idx-1]->unref();
 			}
 			mMethods[idx-1] = mthd;
 		}
@@ -428,6 +428,7 @@ void VMClass::copyMethodData(std::map<std::string,unsigned>& methodresolver, std
 	methods.resize(mVtableEnd);
 	for (unsigned i = 0; i < mVtableEnd; ++i){
 		VMMethod* mthd = mMethods[i];
+    mthd->ref();
 		std::string id = mthd->getName()+mthd->getSignature();
 		unsigned val = mMethodResolver[id];
 		methodresolver.insert(std::make_pair(id, val));
