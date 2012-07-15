@@ -359,6 +359,14 @@ void BcVMMethod::execute(VMContext* ctx){
 					ctx->put(1, i2);
 				}
 				break;
+      case Java::op_lstore_1:
+        {
+          unsigned i = ctx->pop().ui;
+          unsigned i2 = ctx->pop().ui;
+          ctx->put(1, i);
+          ctx->put(2, i2);
+        }
+        break;
 			case Java::op_lstore_2:
 				{
 					unsigned i = ctx->pop().ui;
@@ -1273,6 +1281,11 @@ skipdefault:
 				ctx->pop();
 				break;
 			}
+      case Java::op_pop2:{
+        ctx->pop();
+        ctx->pop();
+        break;
+      }
 			case Java::op_fcmpg:
 				{
 					float val2 = ctx->pop().f;
@@ -1494,6 +1507,12 @@ skipdefault:
 					ctx->push((float)value);
 					break;
 				}
+      case Java::op_i2b:
+        {
+          unsigned value = ctx->pop().i;
+          ctx->push(value & 0xff);
+          break;
+        }
       case Java::op_i2c:
         {
           unsigned value = ctx->pop().i;

@@ -271,11 +271,11 @@ void JVM::initBasicClasses(VMContext* ctx){
 	VMMethod* sysinit = sys->getMethod(sys->findMethodIndex("initializeSystemClass", "()V"));
 	sysinit->execute(ctx);
 	//createString(ctx, "teststring");
-	VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
+	/*VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
 	VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("<init>", "()V"));
 	VMObject* ldr = createObject(ctx, ldrcls);
 	ctx->push(ldr);
-	mthd->execute(ctx);
+	mthd->execute(ctx);*/
 	return;
 }
 
