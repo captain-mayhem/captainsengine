@@ -27,6 +27,10 @@
 TR_CHANNEL(Java_Method);
 //TR_CHANNEL_LVL(Java_Method, TRACE_DEBUG);
 
+VMMethod::~VMMethod(){
+
+}
+
 void VMMethod::parseSignature(){
   TR_USE(Java_Method);
 	mArgSize = 0;
