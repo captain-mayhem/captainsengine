@@ -35,6 +35,7 @@ protected:
   static jint CallIntMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
 	static jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
   static jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+  static jlong GetLongField(JNIEnv *env, jobject obj, jfieldID fieldID);
   static void SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static void CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
@@ -45,6 +46,8 @@ protected:
   static void ReleaseStringUTFChars(JNIEnv *env, jstring str, const char* chars);
 	static jobjectArray NewObjectArray(JNIEnv *env, jsize len, jclass clazz, jobject init);
   static void SetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize index, jobject val);
+  static jbyte * GetByteArrayElements(JNIEnv *env, jbyteArray array, jboolean *isCopy);
+  static void ReleaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *elems, jint mode);
 	static jint RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods);
 
   JVM* mVm;

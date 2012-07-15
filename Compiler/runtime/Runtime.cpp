@@ -44,6 +44,20 @@ void JNIEXPORT Java_java_io_FileOutputStream_initIDs(JNIEnv* env, jobject object
   return;
 }
 
+void JNIEXPORT Java_java_io_FileOutputStream_writeBytes(JNIEnv* env, jobject object, jbyteArray bytes, int off, int len){
+  jclass fileoutputstream = env->GetObjectClass(object);
+  jmethodID getFD = env->GetMethodID(fileoutputstream, "getFD", "()Ljava/io/FileDescriptor;");
+  jobject filedescriptor = env->CallObjectMethod(object, getFD);
+  jclass fdclass = env->GetObjectClass(filedescriptor);
+  jfieldID handlefield = env->GetFieldID(fdclass, "handle", "J");
+  jlong handle = env->GetLongField(filedescriptor, handlefield);
+  FILE* file = (FILE*)handle;
+  jbyte* buffer = env->GetByteArrayElements(bytes, NULL);
+  fwrite(buffer, 1, len, file);
+  env->ReleaseByteArrayElements(bytes, buffer, 0);
+  return;
+}
+
 jobject JNIEXPORT Java_java_io_FileSystem_getFileSystem(JNIEnv* env, jobject object){
   jclass fs = env->FindClass("java/io/WinNTFileSystem");
   jmethodID constr = env->GetMethodID(fs, "<init>", "()V");
@@ -332,6 +346,9 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   key = env->NewStringUTF("path.separator");
   value = env->NewStringUTF(";");
   env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("line.separator");
+  value = env->NewStringUTF("\n");
+  env->CallObjectMethod(properties, mthd, key, value);
   key = env->NewStringUTF("user.dir");
   char userpath[1024];
   _getcwd(userpath, 1024);
@@ -469,6 +486,12 @@ jobject JNIEXPORT Java_java_security_AccessController_getStackAccessControlConte
   return NULL;
 }
 
+jlong JNIEXPORT Java_sun_io_Win32ErrorMode_setErrorMode(JNIEnv* env, jclass clazz, jlong mode){
+#ifdef WIN32
+  return SetErrorMode((UINT)mode);
+#endif
+}
+
 jint JNIEXPORT Java_sun_misc_Signal_findSignal(JNIEnv* env, jobject object, jstring signal){
   TR_USE(Java_Runtime);
   jint ret = -1;
@@ -476,14 +499,37 @@ jint JNIEXPORT Java_sun_misc_Signal_findSignal(JNIEnv* env, jobject object, jstr
   if (strcmp(sig, "INT") == 0){
     ret = SIGINT;
   }
+  else if (strcmp(sig, "TERM") == 0){
+    ret = SIGTERM;
+  }
   else
     TR_BREAK("Unknown signal %s", sig);
   env->ReleaseStringUTFChars(signal, sig);
   return ret;
 }
 
+typedef void (*pfnSignalHandler)(int);
+static JNIEnv* mainThreadEnv = NULL;
+
+void callbackSignalHandler(int signal){
+  TR_USE(Java_Runtime);
+  //call signal dispatch
+  jclass cls = mainThreadEnv->FindClass("Java/sun/misc/Signal");
+  jmethodID dispatch = mainThreadEnv->GetStaticMethodID(cls, "dispatch", "(I)V");
+  mainThreadEnv->CallStaticVoidMethod(cls, dispatch, signal);
+  TR_BREAK("Should callback signal dispatch - how to get a JNIEnv?")
+}
+
 jlong JNIEXPORT Java_sun_misc_Signal_handle0(JNIEnv* env, jobject object, jint sig, jlong nativeH){
-  return 0;
+  TR_USE(Java_Runtime);
+  if (mainThreadEnv == NULL)
+    mainThreadEnv = env;
+  pfnSignalHandler prev;
+  if (nativeH == 2) //call signal dispatch
+    prev = signal(sig, callbackSignalHandler);
+  else
+    TR_BREAK("Unknown native handle");
+  return (jlong)prev;
 }
 
 void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object){

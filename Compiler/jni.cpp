@@ -83,6 +83,12 @@ jfieldID VMContext::GetFieldID(JNIEnv *env, jclass clazz, const char *name, cons
 	return (jfieldID)cls->findFieldIndex(name);
 }
 
+jlong VMContext::GetLongField(JNIEnv *env, jobject obj, jfieldID fieldID){
+  VMObject* object = (VMObject*)obj;
+  FieldData* data = object->getObjField((unsigned)fieldID);
+  return data->l;
+}
+
 void VMContext::SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value){
   VMObject* object = (VMObject*)obj;
   FieldData* data = object->getObjField((unsigned)fieldID);
@@ -167,6 +173,18 @@ jobject VMContext::NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_
   }
   mthd->execute(CTX(env));
   return obj;
+}
+
+jbyte * VMContext::GetByteArrayElements(JNIEnv *env, jbyteArray array, jboolean *isCopy){
+  if (isCopy)
+    *isCopy = JNI_FALSE;
+  VMByteArray* bytearray = (VMByteArray*)array;
+  jbyte* bytes = (jbyte*)bytearray->getData(0);
+  return bytes;
+}
+
+void VMContext::ReleaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *elems, jint mode){
+  /*nothing to do*/
 }
 
 JNIEnv_::JNIEnv_(JavaVM_* vm){

@@ -693,6 +693,7 @@ public:
   jint CallIntMethod(jobject obj, jmethodID methodID, ...) {va_list args; va_start(args, methodID); jint ret = m_func->CallIntMethodV(this, obj, methodID, args); va_end(args); return ret;}
   jobject NewObject(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); jobject ret = m_func->NewObjectV(this, clazz, methodID, args); va_end(args); return ret;}
   jfieldID GetFieldID(jclass clazz, const char *name, const char *sig) {return m_func->GetFieldID(this, clazz, name, sig);}
+  jlong GetLongField(jobject obj, jfieldID fieldID) {return m_func->GetLongField(this, obj, fieldID);}
   void SetLongField(jobject obj, jfieldID fieldID, jlong value) {m_func->SetLongField(this, obj, fieldID, value);}
   jmethodID GetStaticMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetStaticMethodID(this, clazz, name, sig);}
 	void CallStaticVoidMethod(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); m_func->CallStaticVoidMethodV(this, clazz, methodID, args); va_end(args);}
@@ -703,6 +704,8 @@ public:
 	void ReleaseStringUTFChars(jstring str, const char* chars) {return m_func->ReleaseStringUTFChars(this, str, chars); }
 	jobjectArray NewObjectArray(jsize len, jclass clazz, jobject init) {return m_func->NewObjectArray(this, len, clazz, init);}
   void SetObjectArrayElement(jobjectArray array, jsize index, jobject val) {m_func->SetObjectArrayElement(this, array, index, val);}
+  jbyte * GetByteArrayElements(jbyteArray array, jboolean *isCopy) {return m_func->GetByteArrayElements(this, array, isCopy);}
+  void ReleaseByteArrayElements(jbyteArray array, jbyte *elems, jint mode) {m_func->ReleaseByteArrayElements(this, array, elems, mode);}
   jint RegisterNatives(jclass clazz, const JNINativeMethod *methods, jint nMethods) {return m_func->RegisterNatives(this, clazz, methods, nMethods);}
 protected:
   JNIEnv_(JavaVM_* vm);
