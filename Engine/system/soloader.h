@@ -19,6 +19,7 @@ public:
 	SOLoader();
 	SOLoader(const std::string& path, const std::string& library);
 	~SOLoader();
+  bool open(const std::string& library) {return open("", library);}
 	bool open(std::string path, std::string library);
 	void addSearchPath(const std::string& path);
 	loadedFunc getFunction(const char* name);

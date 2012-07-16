@@ -26,9 +26,12 @@ public:
 	StackData pop() {return *--mStackPointer;}
 	VMMethod* getFrameMethod(int numFrames);
 	VMObject* getThread() {return mThread;}
+  void throwException(VMObject* exception) {mException = exception;}
+  VMObject* getException() {return mException;}
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
   static jclass GetSuperclass(JNIEnv *env, jclass sub);
+  static jthrowable ExceptionOccurred(JNIEnv *env);
 	static jclass GetObjectClass(JNIEnv *env, jobject obj);
 	static jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static jobject CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
@@ -36,6 +39,7 @@ protected:
 	static jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
   static jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
   static jlong GetLongField(JNIEnv *env, jobject obj, jfieldID fieldID);
+  static void SetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID, jobject val);
   static void SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value);
 	static jmethodID GetStaticMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static void CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
@@ -56,6 +60,7 @@ protected:
 	StackData* mStackPointer;
 	StackData* mBasePointer;
 	VMObject* mThread;
+  VMObject* mException;
 };
 
 #endif

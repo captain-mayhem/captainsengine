@@ -471,6 +471,31 @@ void JNIEXPORT Java_java_lang_Thread_start0(JNIEnv* env, jobject object){
 	TR_WARN("not implemented");
 }
 
+jobject JNIEXPORT Java_java_lang_Throwable_fillInStackTrace(JNIEnv* env, jobject object){
+  jclass throwable = env->GetObjectClass(object);
+  jfieldID backtrace = env->GetFieldID(throwable, "backtrace", "Ljava/lang/Object;");
+  VMContext* ctx = CTX(env);
+  int frame = 0; //take 5: this is the exception stack - hide that stuff
+  VMMethod* mthd = NULL;
+  std::vector<VMMethod*> stack;
+  do{
+    mthd = ctx->getFrameMethod(frame);
+    ++frame;
+    if (mthd){
+      stack.push_back(mthd);
+    }
+  } while(mthd != NULL);
+  jobjectArray trace = env->NewObjectArray(stack.size(), "java/lang/Object", NULL);
+  for (unsigned i = 0; i < stack.size(); ++i){
+    env->SetObjectArrayElement(trace, i, stack[i]);
+  }
+  env->SetObjectField(object, backtrace, trace);
+  //null stackTrace
+  jfieldID sttrace = env->GetFieldID(throwable, "stackTrace", "[Ljava/lang/StackTraceElement;");
+  env->SetObjectField(object, sttrace, NULL);
+  return object;
+}
+
 jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, jobject object, jobject action){
 	VMObject* obj = (VMObject*)action;
 	VMMethod* mthd = obj->getObjMethod(obj->getClass()->findMethodIndex("run", "()Ljava/lang/Object;"));

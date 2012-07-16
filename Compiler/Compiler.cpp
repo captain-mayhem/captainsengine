@@ -43,6 +43,10 @@ int main(int argc, char* argv[])
 	jobjectArray args = env->NewObjectArray(1, string, NULL);
 	//jstring test = env->NewStringUTF("teststring");
 	env->CallStaticVoidMethod(cls, mainfunc, args);
+
+  jthrowable exception = env->ExceptionOccurred();
+  if (exception != NULL)
+    printf("Uncaught exception occurred!\n");
   
   jvm->DestroyJavaVM();
 	//CGE::Engine::instance()->shutdown();
