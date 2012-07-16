@@ -41,6 +41,7 @@ public:
 	static ReturnType parseType(const char type);
   void ref() {++mRefCount;}
   void unref() {--mRefCount; if (mRefCount <= 0) delete this;}
+  bool handleException(VMContext* ctx);
 protected:
   virtual ~VMMethod();
 	void parseSignature();

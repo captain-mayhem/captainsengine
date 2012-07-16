@@ -4,16 +4,18 @@
 
 #include "JVM.h"
 
-VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself){
+VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself), mException(NULL){
   JNINativeInterface_::reserved0 = NULL;
   JNINativeInterface_::FindClass = FindClass;
   JNINativeInterface_::GetSuperclass = GetSuperclass;
+  JNINativeInterface_::ExceptionOccurred = ExceptionOccurred;
 	JNINativeInterface_::GetObjectClass = GetObjectClass;
 	JNINativeInterface_::GetMethodID = GetMethodID;
 	JNINativeInterface_::CallObjectMethodV = CallObjectMethodV;
   JNINativeInterface_::CallIntMethodV = CallIntMethodV;
 	JNINativeInterface_::GetFieldID = GetFieldID;
   JNINativeInterface_::GetLongField = GetLongField;
+  JNINativeInterface_::SetObjectField = SetObjectField;
   JNINativeInterface_::SetLongField = SetLongField;
 	JNINativeInterface_::GetStaticMethodID = GetStaticMethodID;
 	JNINativeInterface_::CallStaticVoidMethodV = CallStaticVoidMethodV;
@@ -68,9 +70,13 @@ VMMethod* VMContext::getFrameMethod(int numFrames){
 	StackData* base = mBasePointer;
 	while(numFrames > 0){
 		base -= 2;
+    if (base <= mStack)
+      return NULL;
 		base = base->stp;
 		--numFrames;
 	}
+  //if (base-1 < mStack)
+  //  return 0;
 	return (base-1)->mthd;
 }
 

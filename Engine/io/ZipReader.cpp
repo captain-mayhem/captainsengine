@@ -75,6 +75,16 @@ bool ZipReader::openFile(const std::string& filename){
   fclose(f);
 #endif
   mHandle = unzOpen2("memory", &mFileFuncs);
+  //a try to speed up things
+  char tmpname[1024];
+  int ret = unzGoToFirstFile(mHandle);
+  do {
+    unzGetCurrentFileInfo(mHandle, NULL, tmpname, 1024, NULL, 0, NULL, 0);
+    unz_file_pos pos;
+    unzGetFilePos(mHandle, &pos);
+    mOffsets[tmpname] = pos;
+    ret = unzGoToNextFile(mHandle);
+  } while (ret == UNZ_OK);
   return true;
 }
 

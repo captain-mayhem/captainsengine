@@ -44,6 +44,10 @@ jclass VMContext::GetSuperclass(JNIEnv *env, jclass sub){
   return super;
 }
 
+jthrowable VMContext::ExceptionOccurred(JNIEnv *env){
+  return CTX(env)->getException();
+}
+
 jclass VMContext::GetObjectClass(JNIEnv *env, jobject obj){
 	VMObject* o = (VMObject*)obj;
 	return o->getClass();
@@ -87,6 +91,12 @@ jlong VMContext::GetLongField(JNIEnv *env, jobject obj, jfieldID fieldID){
   VMObject* object = (VMObject*)obj;
   FieldData* data = object->getObjField((unsigned)fieldID);
   return data->l;
+}
+
+void VMContext::SetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID, jobject val){
+  VMObject* object = (VMObject*)obj;
+  FieldData* data = object->getObjField((unsigned)fieldID);
+  data->obj = (VMObject*)val;
 }
 
 void VMContext::SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value){

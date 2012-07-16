@@ -29,11 +29,14 @@ bool SOLoader::open(std::string path, std::string library){
 #ifdef WIN32
 	library += ".dll";
 	CGE::Utilities::replaceWith(path, '/', '\\');
-	library = path+"\\"+library;
+  if (!path.empty())
+	  library = path+"\\"+library;
 	mLibrary = LoadLibraryEx(library.c_str(), NULL, 0);
 #endif
 #ifdef UNIX
-	library = path+"/lib"+library+".so";
+	library += "lib"+library+".so";
+  if (!path.empty())
+    library = path+"/"+library;
 	mLibrary = dlopen(library.c_str(), RTLD_LAZY | RTLD_LOCAL);
 #endif
 	return mLibrary != NULL;

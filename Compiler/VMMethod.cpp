@@ -27,8 +27,19 @@
 TR_CHANNEL(Java_Method);
 //TR_CHANNEL_LVL(Java_Method, TRACE_DEBUG);
 
+#define HANDLE_EXCEPTION() \
+  {if (!handleException(ctx)) \
+    return;}
+
 VMMethod::~VMMethod(){
 
+}
+
+bool VMMethod::handleException(VMContext* ctx){
+  if (ctx->getException() == NULL)
+    return true; //no exception, everything is alright
+  ctx->popFrame();
+  return false;
 }
 
 void VMMethod::parseSignature(){
@@ -544,6 +555,7 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u2 operand = b1 << 8 | b2;
 					VMMethod* mthd = mClass->getMethod(ctx, operand);
 					mthd->execute(ctx);
+          HANDLE_EXCEPTION();
           break;
         }
       case Java::op_lookupswitch:
@@ -587,6 +599,7 @@ skipdefault:
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
 					VMMethod* mthd = obj->getObjMethod(idx);
 					mthd->execute(ctx);
+          HANDLE_EXCEPTION();
         }
         break;
       case Java::op_jsr_w:
@@ -903,6 +916,7 @@ skipdefault:
           Java::u2 operand = b1 << 8 | b2;
 					VMMethod* mthd = mClass->getMethod(ctx, operand);
 					mthd->execute(ctx);
+          HANDLE_EXCEPTION();
           break;
         }
         break;
@@ -919,6 +933,7 @@ skipdefault:
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
 					VMMethod* mthd = obj->getObjMethod(idx);
 					mthd->execute(ctx);
+          HANDLE_EXCEPTION();
         }
         break;
 			case Java::op_new:{
@@ -1558,6 +1573,13 @@ skipdefault:
 					obj->unlock();
 					break;
 				}
+      case Java::op_athrow:
+        {
+          VMObject* exception = ctx->pop().obj;
+          ctx->throwException(exception);
+          HANDLE_EXCEPTION();
+          break;
+        }
 			default:
 				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
 				break;
