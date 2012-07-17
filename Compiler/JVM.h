@@ -10,12 +10,19 @@
 #include <system/soloader.h>
 
 #include "JavaDefs.h"
-#include "VMArray.h"
 
 class VMClass;
 class VMContext;
 class VMMethod;
 class VMObject;
+template<typename T> class VMArray;
+typedef VMArray<VMObject*> VMObjectArray;
+typedef VMArray<jbyte> VMByteArray;
+typedef VMArray<jchar> VMCharArray;
+typedef VMArray<jint> VMIntArray;
+typedef VMArray<jfloat> VMFloatArray;
+typedef VMArray<jdouble> VMDoubleArray;
+typedef VMArray<jlong> VMLongArray;
 
 class JVM : public JNIInvokeInterface_{
 public:

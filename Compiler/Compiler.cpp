@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
   /*CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
 	CGE::Engine::instance()->init();*/
-  char* filename = "test/Test";
+  const char* filename = "test/Test";
 	//char* filename = "java/lang/Object";
   if (argc > 1){
     filename = argv[1];

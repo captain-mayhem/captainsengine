@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-#ifdef QNX
+#ifdef UNIX
 #define UINT64_C(val) (uint64_t)val
 #endif
 #ifndef UINT64_C
