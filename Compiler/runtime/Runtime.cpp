@@ -9,6 +9,7 @@
 #include <VMMethod.h>
 #include <VMclass.h>
 #include <JVM.h>
+#include <VMArray.h>
 #include <Trace.h>
 #include <system/utilities.h>
 
@@ -509,7 +510,8 @@ jobject JNIEXPORT Java_java_lang_Throwable_fillInStackTrace(JNIEnv* env, jobject
       stack.push_back(mthd);
     }
   } while(mthd != NULL);
-  jobjectArray trace = env->NewObjectArray(stack.size(), "java/lang/Object", NULL);
+  jclass objcls = env->FindClass("java/lang/Object");
+  jobjectArray trace = env->NewObjectArray(stack.size(), objcls, NULL);
   for (unsigned i = 0; i < stack.size(); ++i){
     env->SetObjectArrayElement(trace, i, stack[i]);
   }

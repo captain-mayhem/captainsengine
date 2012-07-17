@@ -9,6 +9,7 @@
 
 #include "Trace.h"
 #include "JVM.h"
+#include "VMArray.h"
 #include "VMMethod.h"
 
 #define PROC_DECL_MAP_MODE

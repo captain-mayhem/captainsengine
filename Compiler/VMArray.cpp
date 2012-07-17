@@ -1,3 +1,4 @@
+#include "JVM.h"
 #include "VMArray.h"
 
 #define CTX(env) ((VMContext*)env->m_func)

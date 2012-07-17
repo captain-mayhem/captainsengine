@@ -10,6 +10,9 @@
 
 TR_CHANNEL_EXT(Java_Array);
 
+class JVM;
+JVM* getVM();
+
 class VMArrayClass : public VMClass{
 public:
   VMArrayClass(const std::string& name);
@@ -53,7 +56,7 @@ public:
   }
   virtual VMArrayBase* copy(VMContext* ctx){
     VMArray* newone = new VMArray<T>(ctx, mClass, mData.size());
-    getVM()->registerObject(newone);
+    ::getVM()->registerObject(newone);
     copyTo(0, newone, 0, mData.size());
     return newone;
   }

@@ -14,6 +14,7 @@
 #include "VMContext.h"
 #include "Trace.h"
 #include "JVM.h"
+#include "VMArray.h"
 
 #define PROC_DECL_MAP_MODE
 #include "Preproc.h"

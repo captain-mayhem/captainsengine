@@ -26,6 +26,11 @@ IF (NOT CPU)
 ENDIF (NOT CPU)
 SET(CPU ${CPU} CACHE STRING "the current processor architecture")
 
+IF (ARCH STREQUAL x64)
+SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fPIC)
+SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fPIC)
+ENDIF()
+
 SET(ADD_INC_PATH ${ADD_INC_PATH} CACHE STRING "additional include path")
 SET(ADD_LIB_PATH ${ADD_LIB_PATH} CACHE STRING "additional link library path")
 SET(ADD_LIB ${ADD_LIB} CACHE STRING "additional libraries to be linked against")
@@ -75,6 +80,7 @@ IF (${OS} STREQUAL "linux")
     X11
     Xxf86vm
     pthread
+    rt
     ${ENGINE_LINK_LIBRARIES}
   )
 ENDIF (${OS} STREQUAL "linux")

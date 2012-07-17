@@ -2,6 +2,7 @@
 #include "VMContext.h"
 #include "VMclass.h"
 #include "VMMethod.h"
+#include "VMArray.h"
 
 #define CTX(env) ((VMContext*)env->m_func)
 #define VM_CTX(vm) ((JVM*)vm->m_func)
@@ -118,25 +119,25 @@ jfieldID VMContext::GetFieldID(JNIEnv *env, jclass clazz, const char *name, cons
 
 jobject VMContext::GetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID){
   VMObject* object = (VMObject*)obj;
-  FieldData* data = object->getObjField((unsigned)fieldID);
+  FieldData* data = object->getObjField((intptr_t)fieldID);
   return data->obj;
 }
 
 jlong VMContext::GetLongField(JNIEnv *env, jobject obj, jfieldID fieldID){
   VMObject* object = (VMObject*)obj;
-  FieldData* data = object->getObjField((unsigned)fieldID);
+  FieldData* data = object->getObjField((intptr_t)fieldID);
   return data->l;
 }
 
 void VMContext::SetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID, jobject val){
   VMObject* object = (VMObject*)obj;
-  FieldData* data = object->getObjField((unsigned)fieldID);
+  FieldData* data = object->getObjField((intptr_t)fieldID);
   data->obj = (VMObject*)val;
 }
 
 void VMContext::SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value){
   VMObject* object = (VMObject*)obj;
-  FieldData* data = object->getObjField((unsigned)fieldID);
+  FieldData* data = object->getObjField((intptr_t)fieldID);
   data->l = value;
 }
 
@@ -170,7 +171,7 @@ jfieldID VMContext::GetStaticFieldID(JNIEnv *env, jclass clazz, const char *name
 
 void VMContext::SetStaticObjectField(JNIEnv *env, jclass clazz, jfieldID fieldID, jobject value){
   VMClass* cls = (VMClass*)clazz;
-  FieldData* field = cls->getStaticField((unsigned)fieldID);
+  FieldData* field = cls->getStaticField((intptr_t)fieldID);
   VMObject* obj = (VMObject*)value;
   field->obj = obj;
 }
