@@ -687,13 +687,18 @@ public:
   ~JNIEnv_();
   jclass FindClass(const char* name) {return m_func->FindClass(this, name);}
   jclass GetSuperclass(jclass sub) {return m_func->GetSuperclass(this, sub);}
+  jint Throw(jthrowable obj) {return m_func->Throw(this, obj);}
   jthrowable ExceptionOccurred() {return m_func->ExceptionOccurred(this);}
+  void ExceptionDescribe() {m_func->ExceptionDescribe(this);}
+  void ExceptionClear() {m_func->ExceptionClear(this);}
 	jclass GetObjectClass(jobject obj) {return m_func->GetObjectClass(this, obj);}
 	jmethodID GetMethodID(jclass clazz, const char* name, const char* sig) {return m_func->GetMethodID(this, clazz, name, sig);}
 	jobject CallObjectMethod(jobject obj, jmethodID methodID, ...) {va_list args; va_start(args, methodID); jobject ret = m_func->CallObjectMethodV(this, obj, methodID, args); va_end(args); return ret;}
   jint CallIntMethod(jobject obj, jmethodID methodID, ...) {va_list args; va_start(args, methodID); jint ret = m_func->CallIntMethodV(this, obj, methodID, args); va_end(args); return ret;}
+  void CallVoidMethod(jobject obj, jmethodID methodID, ...) {va_list args; va_start(args, methodID); m_func->CallVoidMethodV(this, obj, methodID, args); va_end(args);}
   jobject NewObject(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); jobject ret = m_func->NewObjectV(this, clazz, methodID, args); va_end(args); return ret;}
   jfieldID GetFieldID(jclass clazz, const char *name, const char *sig) {return m_func->GetFieldID(this, clazz, name, sig);}
+  jobject GetObjectField(jobject obj, jfieldID fieldID) {return m_func->GetObjectField(this, obj, fieldID);}
   jlong GetLongField(jobject obj, jfieldID fieldID) {return m_func->GetLongField(this, obj, fieldID);}
   void SetObjectField(jobject obj, jfieldID fieldID, jobject val) {return m_func->SetObjectField(this, obj, fieldID, val);}
   void SetLongField(jobject obj, jfieldID fieldID, jlong value) {m_func->SetLongField(this, obj, fieldID, value);}
@@ -704,7 +709,9 @@ public:
   jstring NewStringUTF(const char* bytes) {return m_func->NewStringUTF(this, bytes);}
 	const char* GetStringUTFChars(jstring str, jboolean *isCopy) {return m_func->GetStringUTFChars(this, str, isCopy); }
 	void ReleaseStringUTFChars(jstring str, const char* chars) {return m_func->ReleaseStringUTFChars(this, str, chars); }
-	jobjectArray NewObjectArray(jsize len, jclass clazz, jobject init) {return m_func->NewObjectArray(this, len, clazz, init);}
+  jsize GetArrayLength(jarray array) {return m_func->GetArrayLength(this, array);}
+  jobjectArray NewObjectArray(jsize len, jclass clazz, jobject init) {return m_func->NewObjectArray(this, len, clazz, init);}
+  jobject GetObjectArrayElement(jobjectArray array, jsize index) {return m_func->GetObjectArrayElement(this, array, index);}
   void SetObjectArrayElement(jobjectArray array, jsize index, jobject val) {m_func->SetObjectArrayElement(this, array, index, val);}
   jbyte * GetByteArrayElements(jbyteArray array, jboolean *isCopy) {return m_func->GetByteArrayElements(this, array, isCopy);}
   void ReleaseByteArrayElements(jbyteArray array, jbyte *elems, jint mode) {m_func->ReleaseByteArrayElements(this, array, elems, mode);}

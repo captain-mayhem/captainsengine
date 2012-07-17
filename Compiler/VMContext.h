@@ -31,13 +31,18 @@ public:
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
   static jclass GetSuperclass(JNIEnv *env, jclass sub);
+  static jint Throw(JNIEnv *env, jthrowable obj);
   static jthrowable ExceptionOccurred(JNIEnv *env);
+  static void ExceptionDescribe(JNIEnv *env);
+  static void ExceptionClear(JNIEnv *env);
 	static jclass GetObjectClass(JNIEnv *env, jobject obj);
 	static jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static jobject CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
   static jint CallIntMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
+  static void CallVoidMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args); 
 	static jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
   static jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
+  static jobject GetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID);
   static jlong GetLongField(JNIEnv *env, jobject obj, jfieldID fieldID);
   static void SetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID, jobject val);
   static void SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value);
@@ -48,7 +53,9 @@ protected:
   static jstring NewStringUTF(JNIEnv *env, const char *utf);
 	static const char* GetStringUTFChars(JNIEnv *env, jstring str, jboolean *isCopy);
   static void ReleaseStringUTFChars(JNIEnv *env, jstring str, const char* chars);
+  static jsize GetArrayLength(JNIEnv *env, jarray array);
 	static jobjectArray NewObjectArray(JNIEnv *env, jsize len, jclass clazz, jobject init);
+  static jobject GetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize index);
   static void SetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize index, jobject val);
   static jbyte * GetByteArrayElements(JNIEnv *env, jbyteArray array, jboolean *isCopy);
   static void ReleaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *elems, jint mode);
