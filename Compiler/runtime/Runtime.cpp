@@ -471,6 +471,30 @@ void JNIEXPORT Java_java_lang_Thread_start0(JNIEnv* env, jobject object){
 	TR_WARN("not implemented");
 }
 
+jint JNIEXPORT Java_java_lang_Throwable_getStackTraceDepth(JNIEnv* env, jobject object){
+  jclass throwable = env->GetObjectClass(object);
+  jfieldID backtrace = env->GetFieldID(throwable, "backtrace", "Ljava/lang/Object;");
+  jobjectArray stack = env->GetObjectField(object, backtrace);
+  jsize size = env->GetArrayLength(stack);
+  return (jint)size;
+}
+
+jobject JNIEXPORT Java_java_lang_Throwable_getStackTraceElement(JNIEnv* env, jobject object, jint index){
+  jclass throwable = env->GetObjectClass(object);
+  jfieldID backtrace = env->GetFieldID(throwable, "backtrace", "Ljava/lang/Object;");
+  jobjectArray stack = env->GetObjectField(object, backtrace);
+  VMMethod* mthd = (VMMethod*) env->GetObjectArrayElement(stack, index);
+  
+  jclass StackTraceElement = env->FindClass("java/lang/StackTraceElement");
+  jmethodID steconstr = env->GetMethodID(StackTraceElement, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
+  jstring clsname = env->NewStringUTF(mthd->getClass()->getName().c_str());
+  jstring methodname = env->NewStringUTF(mthd->getName().c_str());
+  jstring filename = NULL;
+  jint linenumber = -1;
+  jobject elem = env->NewObject(StackTraceElement, steconstr, clsname, methodname, filename, linenumber);
+  return elem;
+}
+
 jobject JNIEXPORT Java_java_lang_Throwable_fillInStackTrace(JNIEnv* env, jobject object){
   jclass throwable = env->GetObjectClass(object);
   jfieldID backtrace = env->GetFieldID(throwable, "backtrace", "Ljava/lang/Object;");

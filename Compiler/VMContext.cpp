@@ -8,12 +8,17 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself), mExcepti
   JNINativeInterface_::reserved0 = NULL;
   JNINativeInterface_::FindClass = FindClass;
   JNINativeInterface_::GetSuperclass = GetSuperclass;
+  JNINativeInterface_::Throw = Throw;
+  JNINativeInterface_::ExceptionDescribe = ExceptionDescribe;
   JNINativeInterface_::ExceptionOccurred = ExceptionOccurred;
+  JNINativeInterface_::ExceptionClear = ExceptionClear;
 	JNINativeInterface_::GetObjectClass = GetObjectClass;
 	JNINativeInterface_::GetMethodID = GetMethodID;
 	JNINativeInterface_::CallObjectMethodV = CallObjectMethodV;
   JNINativeInterface_::CallIntMethodV = CallIntMethodV;
+  JNINativeInterface_::CallVoidMethodV = CallVoidMethodV;
 	JNINativeInterface_::GetFieldID = GetFieldID;
+  JNINativeInterface_::GetObjectField = GetObjectField;
   JNINativeInterface_::GetLongField = GetLongField;
   JNINativeInterface_::SetObjectField = SetObjectField;
   JNINativeInterface_::SetLongField = SetLongField;
@@ -24,7 +29,9 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself), mExcepti
 	JNINativeInterface_::NewStringUTF = NewStringUTF;
 	JNINativeInterface_::GetStringUTFChars = GetStringUTFChars;
 	JNINativeInterface_::ReleaseStringUTFChars = ReleaseStringUTFChars;
+  JNINativeInterface_::GetArrayLength = GetArrayLength;
 	JNINativeInterface_::NewObjectArray = NewObjectArray;
+  JNINativeInterface_::GetObjectArrayElement = GetObjectArrayElement;
   JNINativeInterface_::SetObjectArrayElement = SetObjectArrayElement;
   JNINativeInterface_::GetByteArrayElements = GetByteArrayElements;
   JNINativeInterface_::ReleaseByteArrayElements = ReleaseByteArrayElements;

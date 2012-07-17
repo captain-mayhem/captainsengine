@@ -45,8 +45,10 @@ int main(int argc, char* argv[])
 	env->CallStaticVoidMethod(cls, mainfunc, args);
 
   jthrowable exception = env->ExceptionOccurred();
-  if (exception != NULL)
+  if (exception != NULL){
     printf("Uncaught exception occurred!\n");
+    env->ExceptionDescribe();
+  }
   
   jvm->DestroyJavaVM();
 	//CGE::Engine::instance()->shutdown();

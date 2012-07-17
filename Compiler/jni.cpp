@@ -44,8 +44,26 @@ jclass VMContext::GetSuperclass(JNIEnv *env, jclass sub){
   return super;
 }
 
+jint VMContext::Throw(JNIEnv *env, jthrowable obj){
+  CTX(env)->throwException((VMObject*)obj);
+  return 0;
+}
+
 jthrowable VMContext::ExceptionOccurred(JNIEnv *env){
   return CTX(env)->getException();
+}
+
+void VMContext::ExceptionDescribe(JNIEnv *env){
+  jthrowable exception = env->ExceptionOccurred();
+  env->ExceptionClear();
+  jclass exceptionClass = env->GetObjectClass(exception);
+  jmethodID printStackTrace = env->GetMethodID(exceptionClass, "printStackTrace", "()V");
+  env->CallVoidMethod(exception, printStackTrace);
+  env->Throw(exception);
+}
+
+void VMContext::ExceptionClear(JNIEnv *env){
+  CTX(env)->throwException(NULL);
 }
 
 jclass VMContext::GetObjectClass(JNIEnv *env, jobject obj){
@@ -82,9 +100,26 @@ jint VMContext::CallIntMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_
   return CTX(env)->pop().i;
 }
 
+void VMContext::CallVoidMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args){
+  VMObject* o = (VMObject*)obj;
+  VMMethod* mthd = o->getObjMethod((unsigned)(jlong)methodID);
+  CTX(env)->push(o);
+  for (unsigned i = 0; i < mthd->getNumArgs(); ++i){
+    VMObject* obj = va_arg(args, VMObject*);
+    CTX(env)->push(obj);
+  }
+  mthd->execute(CTX(env));
+}
+
 jfieldID VMContext::GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
 	VMClass* cls = (VMClass*)clazz;
 	return (jfieldID)cls->findFieldIndex(name);
+}
+
+jobject VMContext::GetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID){
+  VMObject* object = (VMObject*)obj;
+  FieldData* data = object->getObjField((unsigned)fieldID);
+  return data->obj;
 }
 
 jlong VMContext::GetLongField(JNIEnv *env, jobject obj, jfieldID fieldID){
@@ -145,6 +180,11 @@ jobjectArray VMContext::NewObjectArray(JNIEnv *env, jsize len, jclass clazz, job
 	return getVM()->createObjectArray(CTX(env), cls, len);
 }
 
+jobject VMContext::GetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize index){
+  VMObjectArray* oarray = (VMObjectArray*)array;
+  return oarray->get(index);
+}
+
 void VMContext::SetObjectArrayElement(JNIEnv *env, jobjectArray array, jsize index, jobject val){
   VMObjectArray* oarray = (VMObjectArray*)array;
   oarray->put((VMObject*)val, index);
@@ -183,6 +223,11 @@ jobject VMContext::NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_
   }
   mthd->execute(CTX(env));
   return obj;
+}
+
+jsize VMContext::GetArrayLength(JNIEnv *env, jarray array){
+  VMArrayBase* arr = (VMArrayBase*)array;
+  return arr->getLength();
 }
 
 jbyte * VMContext::GetByteArrayElements(JNIEnv *env, jbyteArray array, jboolean *isCopy){
