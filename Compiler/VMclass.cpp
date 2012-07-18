@@ -445,3 +445,19 @@ void VMClass::copyFieldData(std::map<std::string,unsigned>& fieldresolver, std::
     staticfieldresolver.insert(*iter);
   }
 }
+
+std::string VMClass::getSourceFileName(){
+  for (int i = 0; i < mClass.attributes_count; ++i){
+    if (mClass.attributes[i]->attribute_type == Java::ATTR_SourceFile){
+      Java::SourceFile_attribute* sa = (Java::SourceFile_attribute*)mClass.attributes[i];
+      Java::cp_info* cpinfo = mClass.constant_pool[sa->sourcefile_index-1];
+      Java::CONSTANT_Utf8_info* utf = dynamic_cast<Java::CONSTANT_Utf8_info*>(cpinfo);
+      return utf->bytes;
+    }
+  }
+  return "";
+}
+
+int VMClass::getLineNumber(unsigned ip){
+  return -1;
+}

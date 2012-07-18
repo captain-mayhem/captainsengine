@@ -39,6 +39,8 @@ public:
 	Java::ClassFile& getClassDefinition() {return mClass;}
 	VMObject* getClassObject() {return this;}
 	std::string getName() {return mFilename;}
+  std::string getSourceFileName();
+  int getLineNumber(unsigned ip);
 protected:
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);
 	Java::ClassFile mClass;
