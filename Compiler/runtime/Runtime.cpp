@@ -491,6 +491,9 @@ jobject JNIEXPORT Java_java_lang_Throwable_getStackTraceElement(JNIEnv* env, job
   jstring clsname = env->NewStringUTF(mthd->getClass()->getName().c_str());
   jstring methodname = env->NewStringUTF(mthd->getName().c_str());
   jstring filename = NULL;
+  std::string sourceFile = mthd->getClass()->getSourceFileName();
+  if (!sourceFile.empty())
+    filename = env->NewStringUTF(sourceFile.c_str());
   jint linenumber = -1;
   jobject elem = env->NewObject(StackTraceElement, steconstr, clsname, methodname, filename, linenumber);
   return elem;
