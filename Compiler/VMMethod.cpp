@@ -1595,6 +1595,12 @@ skipdefault:
 void BcVMMethod::executeLongRet(VMContext* ctx){
 }
 
+#ifdef ARCH_X64
+extern "C"{
+  void CallFunction(void* env, jobject object, nativeMethod mthd);
+}
+#endif
+
 void NativeVMMethod::print(std::ostream& strm){
 	strm << "Native method\n";
 }
@@ -1681,10 +1687,12 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
   for(int i = mArgSize-1; i >= 0; --i){
     tmp = ctx->get(mIsStatic ? i : i+1).obj;
 #ifdef WIN32
+#ifndef ARCH_X64
     __asm{
       mov eax, tmp;
       push eax;
     }
+#endif
 #endif
   }
   //for(int i = mArgSize-1; i >= 0; --i){
@@ -1697,6 +1705,7 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
   if (ret == VMMethod::Boolean || ret == VMMethod::Byte){
     jboolean bret;
 #ifdef WIN32
+#ifndef ARCH_X64
     __asm{
       mov eax, cls;
       push eax;
@@ -1707,10 +1716,12 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
       mov bret, al;
     }
 #endif
+#endif
     retval.b = bret;
   }
   else if (ret == VMMethod::Void){
 #ifdef WIN32
+#ifndef ARCH_X64
     __asm{
       mov eax, cls;
       push eax;
@@ -1719,11 +1730,15 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
       call mthd;
       add esp, popargs;
     }
+#else
+    CallFunction(tmp, cls, mthd);
+#endif
 #endif
   }
   else if (ret == VMMethod::Reference || ret == VMMethod::Array || ret == VMMethod::Int){
     VMObject* objret;
 #ifdef WIN32
+#ifndef ARCH_X64
     __asm{
       mov eax, cls;
       push eax;
@@ -1734,11 +1749,13 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
       mov objret, eax;
     }
 #endif
+#endif
     retval.obj = objret;
   }
   else if (ret == VMMethod::Long){
     jlong longret;
 #ifdef WIN32
+#ifndef ARCH_X64
     __asm{
       mov eax, cls;
       push eax;
@@ -1749,6 +1766,7 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
       mov DWORD PTR longret[4], edx;
       mov DWORD PTR longret[0], eax;
     }
+#endif
 #endif
     retval.l = longret;
   }
