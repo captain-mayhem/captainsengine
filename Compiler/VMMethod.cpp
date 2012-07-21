@@ -546,7 +546,7 @@ void BcVMMethod::execute(VMContext* ctx){
         {
 					Java::u1 operand = mCode->code[++k];
 					FieldData constant = mClass->getConstant(ctx, operand);
-					ctx->push(constant.ui);
+					ctx->push(constant.obj);
         }
         break;
       case Java::op_invokespecial:
@@ -1595,94 +1595,46 @@ skipdefault:
 void BcVMMethod::executeLongRet(VMContext* ctx){
 }
 
-#ifdef ARCH_X64
-extern "C"{
-  void CallFunction(void* env, jobject object, nativeMethod mthd);
-}
-#endif
-
 void NativeVMMethod::print(std::ostream& strm){
 	strm << "Native method\n";
 }
 
 void NativeVMMethod::execute(VMContext* ctx){
   TR_USE(Java_Method);
-	switch (mReturnType){
-    case Double:
-      executeDoubleRet(ctx);
-      break;
-    case Long:
-		case Array:
-		case Int:
-    case Reference:
-		case Boolean:
-    case Byte:
-    case Void:
-			executeNative(ctx, mReturnType);
-			break;
-		default:
-			TR_BREAK("Unhandled return type called");
-			break;
-	}
+  if (mReturnType == Double)
+    TR_BREAK("Implement me");
+  if (mFunction == NULL)
+    TR_BREAK("Could not resolve native method");
+  unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
+  if (TR_IS_ENABLED(TRACE_DEBUG))
+    ++method_depth;
+  TR_DEBUG("%i: %s", method_depth, mName.c_str());
+  ctx->pushFrame(this, argsize);
+  VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
+
+#ifdef WIN32
+#ifdef ARCH_X64
+  FieldData retval = executeX64(ctx, mReturnType, cls);
+#else
+  FieldData retval = executeNative(ctx, mReturnType, cls);
+#endif
+#endif
+  ctx->popFrame();
+  if (TR_IS_ENABLED(TRACE_DEBUG))
+    --method_depth;
+  TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
+  if (mReturnType == VMMethod::Boolean || mReturnType == VMMethod::Byte)
+    ctx->push(retval.b);
+  else if (mReturnType == VMMethod::Reference || mReturnType == VMMethod::Int || mReturnType == VMMethod::Array)
+    ctx->push(retval.obj);
+  else if (mReturnType == VMMethod::Long){
+    ctx->push((unsigned)(retval.l >> 0));
+    ctx->push((unsigned)(retval.l >> 32));
+  }
 }
 
-void NativeVMMethod::executeLongRet(VMContext* ctx){
+FieldData NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret, VMClass* cls){
   TR_USE(Java_Method);
-	if (mFunction == NULL)
-		TR_BREAK("Could not resolve native method");
-	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		++method_depth;
-	TR_DEBUG("%i: %s", method_depth, mName.c_str());
-	ctx->pushFrame(this, argsize);
-	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	bullshit fakeArray;
-	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
-	uint8* lst = packArguments(ctx, fakeArray);
-	int64 ret = ((nativeLongMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
-	//delete [] lst;
-	ctx->popFrame();
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		--method_depth;
-	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
-	ctx->push((uint32)(ret >> 0));
-	ctx->push((uint32)(ret >> 32));
-}
-
-void NativeVMMethod::executeDoubleRet(VMContext* ctx){
-  TR_USE(Java_Method);
-	if (mFunction == NULL)
-		TR_BREAK("Could not resolve native method");
-	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		++method_depth;
-	TR_DEBUG("%i: %s", method_depth, mName.c_str());
-	ctx->pushFrame(this, argsize);
-	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
-	bullshit fakeArray;
-	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
-	uint8* lst = packArguments(ctx, fakeArray);
-  FieldData ret;
-	ret.d = ((nativeDoubleMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));
-	//delete [] lst;
-	ctx->popFrame();
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		--method_depth;
-	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
-	ctx->push((uint32)(ret.l >> 0));
-	ctx->push((uint32)(ret.l >> 32));
-}
-
-void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
-  TR_USE(Java_Method);
-	if (mFunction == NULL)
-		TR_BREAK("Could not resolve native method");
-	unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		++method_depth;
-	TR_DEBUG("%i: %s", method_depth, mName.c_str());
-	ctx->pushFrame(this, argsize);
-	VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
   void* tmp;
   for(int i = mArgSize-1; i >= 0; --i){
     tmp = ctx->get(mIsStatic ? i : i+1).obj;
@@ -1730,10 +1682,9 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
       call mthd;
       add esp, popargs;
     }
-#else
-    CallFunction(tmp, cls, mthd);
 #endif
 #endif
+    retval.obj = NULL;
   }
   else if (ret == VMMethod::Reference || ret == VMMethod::Array || ret == VMMethod::Int){
     VMObject* objret;
@@ -1770,80 +1721,67 @@ void NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret){
 #endif
     retval.l = longret;
   }
-  /*
-	bullshit fakeArray;
-	fakeArray.array = (uint8*)alloca(mArgSize*sizeof(uint32));
-	uint8* lst = packArguments(ctx, fakeArray);
-	jboolean ret = ((nativeBoolMethod)mFunction)(ctx->getJNIEnv(), cls, *((jlong*)lst));*/
-	//delete [] lst;
-	ctx->popFrame();
-	if (TR_IS_ENABLED(TRACE_DEBUG))
-		--method_depth;
-	TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
-  if (ret == VMMethod::Boolean || ret == VMMethod::Byte)
-	  ctx->push(retval.b);
-  else if (ret == VMMethod::Reference || ret == VMMethod::Int || ret == VMMethod::Array)
-    ctx->push(retval.obj);
-  else if (ret == VMMethod::Long){
-    ctx->push((unsigned)(retval.l >> 0));
-    ctx->push((unsigned)(retval.l >> 32));
-  }
+	return retval;
 }
 
-uint8* NativeVMMethod::packArguments(VMContext* ctx, bullshit fakeArray){
+#ifdef ARCH_X64
+extern "C"{
+  jlong CallFunction(JNIEnv* env, jobject object, jlong r8, jlong r9, nativeMethod mthd, jdouble xmm0, jdouble xmm1);
+}
+#else
+jlong CallFunction(JNIEnv* env, jobject object, jlong r8, jlong r9, nativeMethod mthd, jdouble xmm0, jdouble xmm1){
+  return 0;
+}
+#endif
+
+FieldData NativeVMMethod::executeX64(VMContext* ctx, VMMethod::ReturnType ret, VMClass* cls){
   TR_USE(Java_Method);
-	uint8* curr = fakeArray.array;
-	bool count_args = true;
-	int curr_pos = mIsStatic ? 0 : 1;
-	for (unsigned i = 1; i < mSignature.size(); ++i){
-		if (mSignature[i] == ')'){
-			++i;
-			break;
-		}
-		else if (mSignature[i] == 'L'){
-			do{
-				++i;
-			} while(mSignature[i] != ';');
-			if (count_args){
-				void* p = ctx->get(curr_pos++).obj;
-				memcpy(curr, &p, sizeof(p));
-				curr += sizeof(p);
-			}
-			count_args = true;
-		}
-		else if (mSignature[i] == 'I' || mSignature[i] == 'F'){
-			if (count_args){
-				int32 i = ctx->get(curr_pos++).i;
-				memcpy(curr, &i, sizeof(i));
-				curr += sizeof(i);
-			}
-			count_args = true;
-		}
-		else if (mSignature[i] == 'Z'){
-			if (count_args){
-				jboolean b = ctx->get(curr_pos++).i;
-				memcpy(curr, &b, sizeof(b));
-				curr += sizeof(b);
-			}
-			count_args = true;
-		}
-		/*else if (mSignature[i] == '['){
-			if (count_args)
-				++mArgSize;
-			count_args = false;
-		}*/
-		else if (mSignature[i] == 'J' || mSignature[i] == 'D'){
-			if (count_args){
-				jlong l;
-				l = ((int64)ctx->get(curr_pos++).ui) << 0;
-				l |= ((int64)ctx->get(curr_pos++).ui) << 32;
-				memcpy(curr, &l, sizeof(l));
-				curr += sizeof(l);
-			}
-			count_args = true;
-		}
-		else
-			TR_BREAK("Unexpected argument type in method signature");
-	}
-	return fakeArray.array;
+  nativeMethod mthd = mFunction;
+  JNIEnv* env = ctx->getJNIEnv();
+  jlong r8 = 0;
+  jlong r9 = 0;
+  double xmm0 = 0;
+  double xmm1 = 0;
+  int regsize = min(2, mSplitSignature.size());
+  int base = mIsStatic ? 0 : 1;
+  for (int i = 0; i < regsize; ++i){
+    //if (mSplitSignature[i] == "F" || mSplitSignature[i] == "D")
+    //  TR_BREAK("Implement me");
+    if (mSplitSignature[i].size() > 1 || mSplitSignature[i] == "I"){ //reference
+      StackData sd = ctx->get(base++);
+      if (i == 0)
+        r8 = (jlong)sd.obj;
+      else
+        r9 = (jlong)sd.obj;
+    }
+    else if (mSplitSignature[i] == "F"){
+      StackData sd = ctx->get(base++);
+      if (i == 0)
+        xmm0 = sd.f;
+      else
+        xmm1 = sd.f;
+    }
+    else if (mSplitSignature[i] == "D"){
+      jdouble d;
+      StackData sd1 = ctx->get(base++);
+      StackData sd2 = ctx->get(base++);
+      FieldData value;
+      value.l = ((int64)sd1.ui) << 32;
+      value.l |= ((int64)sd2.ui) << 0;
+      d = value.d;
+      if (i == 0)
+        xmm0 = d;
+      else
+        xmm1 = d;
+    }
+    else{
+      TR_BREAK("Implement me");
+    }
+  }
+  for (int i = mSplitSignature.size(); i >= 2; --i){
+    TR_BREAK("Implement me");
+  }
+  FieldData data;
+  data.obj = (VMObject*)CallFunction(env, cls, r8, r9, mthd, xmm0, xmm1);
+  return data;
 }
