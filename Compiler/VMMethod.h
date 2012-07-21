@@ -66,22 +66,14 @@ protected:
 	Java::Code_attribute* mCode;
 };
 
-union bullshit{
-		va_list varargs;
-		uint8* array;
-};
-
 class NativeVMMethod : public VMMethod{
 public:
 	NativeVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, nativeMethod mthd) : VMMethod(name, signature, cls, isStatic) {mFunction = mthd;}
 	void print(std::ostream& strm);
 	void execute(VMContext* ctx);
-	void executeLongRet(VMContext* ctx);
-	void executeRefRet(VMContext* ctx);
-  void executeNative(VMContext* ctx, VMMethod::ReturnType ret);
-  void executeDoubleRet(VMContext* ctx);
 protected:
-	uint8* packArguments(VMContext* ctx, bullshit fakeArray);
+  FieldData executeNative(VMContext* ctx, VMMethod::ReturnType ret, VMClass* cls);
+  FieldData executeX64(VMContext* ctx, VMMethod::ReturnType ret, VMClass* cls);
 	nativeMethod mFunction;
 };
 
