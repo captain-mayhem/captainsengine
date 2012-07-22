@@ -358,8 +358,8 @@ unsigned VMClass::getStaticFieldOffset(){
 FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
   TR_USE(Java_Class);
 	FieldData ret;
-	if (mRCP[constant_ref].ui != 0){
-		ret.ui = mRCP[constant_ref].ui;
+	if (mRCP[constant_ref].obj != 0){
+		ret.obj = mRCP[constant_ref].obj;
 		return ret;
 	}
 	Java::cp_info* info = mClass.constant_pool[constant_ref-1];
@@ -419,7 +419,7 @@ FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 	else{
 	  TR_BREAK("Unhandled type");
 	}
-	mRCP[constant_ref] = ret.ui;
+	mRCP[constant_ref] = ret.obj;
 	return ret;
 }
 
