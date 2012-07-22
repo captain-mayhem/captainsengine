@@ -85,7 +85,7 @@ jobject VMContext::CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodI
 		VMObject* obj = va_arg(args, VMObject*);
 		CTX(env)->push(obj);
 	}
-	mthd->execute(CTX(env));
+	mthd->execute(CTX(env), -2);
 	return (jobject)CTX(env)->pop().obj;
 }
 
@@ -97,7 +97,7 @@ jint VMContext::CallIntMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_
     VMObject* obj = va_arg(args, VMObject*);
     CTX(env)->push(obj);
   }
-  mthd->execute(CTX(env));
+  mthd->execute(CTX(env), -2);
   return CTX(env)->pop().i;
 }
 
@@ -109,7 +109,7 @@ void VMContext::CallVoidMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va
     VMObject* obj = va_arg(args, VMObject*);
     CTX(env)->push(obj);
   }
-  mthd->execute(CTX(env));
+  mthd->execute(CTX(env), -2);
 }
 
 jfieldID VMContext::GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig){
@@ -153,7 +153,7 @@ void VMContext::CallStaticVoidMethodV(JNIEnv *env, jclass clazz, jmethodID metho
 		VMObject* obj = va_arg(args, VMObject*);
 		CTX(env)->push(obj);
 	}
-	mthd->execute(CTX(env));
+	mthd->execute(CTX(env), -2);
 }
 
 jint VMContext::RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods){
@@ -222,7 +222,7 @@ jobject VMContext::NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_
     tmp.obj = va_arg(args, VMObject*);
     CTX(env)->push(tmp);
   }
-  mthd->execute(CTX(env));
+  mthd->execute(CTX(env), -2);
   return obj;
 }
 
@@ -251,7 +251,7 @@ JNIEnv_::JNIEnv_(JavaVM_* vm){
 	unsigned idx = thrdgrpcls->findMethodIndex("<init>", "()V");
 	ctx->push(thrdgrp);
 	VMMethod* init = thrdgrpcls->getMethod(idx);
-	init->execute(ctx);
+	init->execute(ctx, -2);
 	//object init without class init
 	VMClass* thrdcls = VM_CTX(vm)->defineClass(ctx, "java/lang/Thread");
 	ctx->getThread()->init(ctx, thrdcls);

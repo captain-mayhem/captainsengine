@@ -11,10 +11,22 @@ class VMObject;
 
 class VMContext : public JNINativeInterface_{
 public:
+  class StackIterator{
+    friend class VMContext;
+  public:
+    bool hasNext();
+    StackIterator& next();
+    VMMethod* getMethod();
+    unsigned getReturnIP();
+  private:
+    StackIterator(VMContext* ctx, StackData* data) : mCtx(ctx), mCurrBasePointer(data) {}
+    VMContext* mCtx;
+    StackData* mCurrBasePointer;
+  };
   VMContext(JNIEnv* myself, JVM* vm);
   ~VMContext();
 	JNIEnv* getJNIEnv() {return mSelf;}
-	void pushFrame(VMMethod* method, unsigned argsize);
+	void pushFrame(VMMethod* method, unsigned ip, unsigned argsize);
 	void popFrame();
 	void push(StackData data) {*mStackPointer++ = data;}
 	void insert(StackData data, int position);
@@ -25,6 +37,7 @@ public:
 	StackData getTop(int idx) {return *(mStackPointer-idx-1);}
 	StackData pop() {return *--mStackPointer;}
 	VMMethod* getFrameMethod(int numFrames);
+  StackIterator getTopFrame();
 	VMObject* getThread() {return mThread;}
   void throwException(VMObject* exception) {mException = exception;}
   VMObject* getException() {return mException;}

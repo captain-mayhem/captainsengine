@@ -94,7 +94,7 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 		VMMethod* mthd = cls->getMethod(idx);
 		if (mthd){
 			TR_INFO("Delayed execution of class init method");
-			mthd->execute(ctx);
+			mthd->execute(ctx, -1);
 		}
 		return cls;
 	}
@@ -126,13 +126,13 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
 		VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
 		entry->init(ctx, cls);
 		ctx->push((VMObject*)cls);
-		clsmthd->execute(ctx);
+		clsmthd->execute(ctx, -1);
 
 		unsigned idx = entry->findMethodIndex("<clinit>", "()V");
 		VMMethod* mthd = entry->getMethod(idx);
 		if (mthd){
 			TR_INFO("Found class init method");
-			mthd->execute(ctx);
+			mthd->execute(ctx, -1);
 		}
   }
   return entry;
@@ -175,7 +175,7 @@ VMClass* JVM::defineClass(VMContext* ctx, const std::string& name){
 		VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
 		entry->init(ctx, cls);
 		ctx->push((VMObject*)cls);
-		clsmthd->execute(ctx);
+		clsmthd->execute(ctx, -1);
   }
   return entry;
 }
@@ -194,7 +194,7 @@ VMClass* JVM::getPrimitiveClass(VMContext* ctx, std::string name){
 		VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
 		entry->init(ctx, cls);
 		ctx->push((VMObject*)cls);
-		clsmthd->execute(ctx);
+		clsmthd->execute(ctx, -1);
   }
   return entry;
 }
@@ -269,7 +269,7 @@ VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
 void JVM::initBasicClasses(VMContext* ctx){
 	VMClass* sys = findClass(ctx, "java/lang/System");
 	VMMethod* sysinit = sys->getMethod(sys->findMethodIndex("initializeSystemClass", "()V"));
-	sysinit->execute(ctx);
+	sysinit->execute(ctx, -2);
 	//createString(ctx, "teststring");
 	/*VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
 	VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("<init>", "()V"));
@@ -297,7 +297,7 @@ VMObject* JVM::createString(VMContext* ctx, const char* str){
   VMCharArray* arr = getVM()->createCharArray(ctx, size-1);
 	ctx->push(arr);
 	arr->setData(utf16);
-	mthd->execute(ctx);
+	mthd->execute(ctx, -1);
   delete [] utf16;
 	return obj;
 #else
