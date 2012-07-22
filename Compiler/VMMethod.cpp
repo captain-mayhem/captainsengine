@@ -618,7 +618,7 @@ skipdefault:
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
 					FieldData constant = mClass->getConstant(ctx, operand);
-					ctx->push(constant.ui);
+					ctx->push(constant.obj);
         }
         break;
       case Java::op_ldc2_w:
@@ -1726,10 +1726,10 @@ FieldData NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret
 
 #ifdef ARCH_X64
 extern "C"{
-  jlong CallFunction(JNIEnv* env, jobject object, jlong r8, jlong r9, nativeMethod mthd, jdouble xmm0, jdouble xmm1);
+  jlong CallFunction(JNIEnv* env, jobject object, jlong r8, jlong r9, nativeMethod mthd, jdouble xmm0, jdouble xmm1, int stacksize, void* stack);
 }
 #else
-jlong CallFunction(JNIEnv* env, jobject object, jlong r8, jlong r9, nativeMethod mthd, jdouble xmm0, jdouble xmm1){
+jlong CallFunction(JNIEnv* env, jobject object, jlong r8, jlong r9, nativeMethod mthd, jdouble xmm0, jdouble xmm1, int stacksize, void* stack){
   return 0;
 }
 #endif
@@ -1747,7 +1747,7 @@ FieldData NativeVMMethod::executeX64(VMContext* ctx, VMMethod::ReturnType ret, V
   for (int i = 0; i < regsize; ++i){
     //if (mSplitSignature[i] == "F" || mSplitSignature[i] == "D")
     //  TR_BREAK("Implement me");
-    if (mSplitSignature[i].size() > 1 || mSplitSignature[i] == "I"){ //reference
+    if (mSplitSignature[i].size() > 1 || mSplitSignature[i] == "I" || mSplitSignature[i] == "Z"){ //reference
       StackData sd = ctx->get(base++);
       if (i == 0)
         r8 = (jlong)sd.obj;
@@ -1774,14 +1774,49 @@ FieldData NativeVMMethod::executeX64(VMContext* ctx, VMMethod::ReturnType ret, V
       else
         xmm1 = d;
     }
+    else if (mSplitSignature[i] == "J"){
+      jlong l;
+      StackData sd1 = ctx->get(base++);
+      StackData sd2 = ctx->get(base++);
+      FieldData value;
+      value.l = ((int64)sd2.ui) << 32;
+      value.l |= ((int64)sd1.ui) << 0;
+      l = value.l;
+      if (i == 0)
+        r8 = l;
+      else
+        r9 = l;
+    }
     else{
       TR_BREAK("Implement me");
     }
   }
-  for (int i = mSplitSignature.size(); i >= 2; --i){
-    TR_BREAK("Implement me");
+  std::vector<jlong> stack;
+  int used = 8;
+  //TODO apparently no packing: optimize for it
+  for (unsigned i = 2; i < mSplitSignature.size(); ++i){
+    int size = 0;
+    if (mSplitSignature[i].size() > 1)
+      size = 8;
+    else if (mSplitSignature[i] == "I")
+      size = 4;
+    else
+      TR_BREAK("Implement me");
+    //if (8-used < size){
+      stack.push_back(0);
+      used = 0;
+    //}
+    used += size;
+    jlong tmp = (jlong)ctx->get(base++).obj;
+    char* copy = (char*)&stack[stack.size()-1];
+    char* src = (char*)&tmp;
+    memcpy(copy+used-size, &tmp/*+8-size*/, size);
   }
   FieldData data;
-  data.obj = (VMObject*)CallFunction(env, cls, r8, r9, mthd, xmm0, xmm1);
+  data.obj = (VMObject*)CallFunction(env, cls, r8, r9, mthd, xmm0, xmm1, 32+stack.size()*8, stack.empty() ? NULL : &stack[0]);
+  int mysize = 32+stack.size()*8;
+  for (int i = mysize; i >= 0x20; i -= 8){
+
+  }
   return data;
 }

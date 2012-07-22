@@ -206,7 +206,7 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 		VMObject* arrobj = getVM()->createObject(CTX(env), fieldcls);
 		CTX(env)->push(arrobj);
 		CTX(env)->push(objcls->getClassObject());
-		CTX(env)->push(objcls->getConstant(CTX(env), info->name_index).ui);
+		CTX(env)->push(objcls->getConstant(CTX(env), info->name_index).obj);
     //objcls->getinfo->descriptor_index
     VMObject* signature = objcls->getConstant(ctx, info->descriptor_index).obj;
     const char* sig = env->GetStringUTFChars(signature, NULL);
@@ -355,11 +355,17 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   _getcwd(userpath, 1024);
   value = env->NewStringUTF(userpath);
   env->CallObjectMethod(properties, mthd, key, value);
+#ifdef WIN32
+  char filename[1024];
+  GetModuleFileName(GetModuleHandle(NULL), filename, 1024);
+  const char* tmp = strrchr(filename, '\\');
+  filename[tmp-filename] = '\0';
+#endif
   key = env->NewStringUTF("java.library.path");
-  value = env->NewStringUTF("D:\\Projects\\build_windows\\Compiler\\Debug");
+  value = env->NewStringUTF(filename);
   env->CallObjectMethod(properties, mthd, key, value);
   key = env->NewStringUTF("sun.boot.library.path");
-  value = env->NewStringUTF("D:\\Projects\\build_windows\\Compiler\\Debug");
+  value = env->NewStringUTF(filename);
   env->CallObjectMethod(properties, mthd, key, value);
   key = env->NewStringUTF("file.encoding");
   value = env->NewStringUTF("UTF-8");
