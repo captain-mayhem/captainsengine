@@ -233,7 +233,7 @@ inline static Java::u4 byteOrder(unsigned val){
   return ret;
 }
 
-void BcVMMethod::execute(VMContext* ctx){
+void BcVMMethod::execute(VMContext* ctx, unsigned ret){
   TR_USE(Java_Method);
 	//if (TRACE_IS_ENABLED(TRACE_JAVA))
 	//	print(std::cout);
@@ -241,7 +241,7 @@ void BcVMMethod::execute(VMContext* ctx){
 	if (TR_IS_ENABLED(TRACE_DEBUG))
 		++method_depth;
 	TR_DEBUG("%i: %s (%s)", method_depth, mName.c_str(), mClass->getName().c_str());
-	ctx->pushFrame(this, argsize);
+	ctx->pushFrame(this, ret, argsize);
 	//reserve additional locals
 	for (unsigned i = 0; i < mCode->max_locals - argsize; ++i){
 		ctx->push(0u);
@@ -555,7 +555,7 @@ void BcVMMethod::execute(VMContext* ctx){
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
 					VMMethod* mthd = mClass->getMethod(ctx, operand);
-					mthd->execute(ctx);
+					mthd->execute(ctx, k);
           HANDLE_EXCEPTION();
           break;
         }
@@ -599,7 +599,7 @@ skipdefault:
 					VMMethod* temp = execCls->getMethod(idx); //TODO not very efficient
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
 					VMMethod* mthd = obj->getObjMethod(idx);
-					mthd->execute(ctx);
+					mthd->execute(ctx, k);
           HANDLE_EXCEPTION();
         }
         break;
@@ -916,7 +916,7 @@ skipdefault:
           Java::u1 b2 = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
 					VMMethod* mthd = mClass->getMethod(ctx, operand);
-					mthd->execute(ctx);
+					mthd->execute(ctx, k);
           HANDLE_EXCEPTION();
           break;
         }
@@ -933,7 +933,7 @@ skipdefault:
 					VMMethod* temp = execCls->getMethod(idx); //TODO not very efficient
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
 					VMMethod* mthd = obj->getObjMethod(idx);
-					mthd->execute(ctx);
+					mthd->execute(ctx, k);
           HANDLE_EXCEPTION();
         }
         break;
@@ -1599,7 +1599,7 @@ void NativeVMMethod::print(std::ostream& strm){
 	strm << "Native method\n";
 }
 
-void NativeVMMethod::execute(VMContext* ctx){
+void NativeVMMethod::execute(VMContext* ctx, unsigned ret){
   TR_USE(Java_Method);
   if (mReturnType == Double)
     TR_BREAK("Implement me");
@@ -1609,7 +1609,7 @@ void NativeVMMethod::execute(VMContext* ctx){
   if (TR_IS_ENABLED(TRACE_DEBUG))
     ++method_depth;
   TR_DEBUG("%i: %s", method_depth, mName.c_str());
-  ctx->pushFrame(this, argsize);
+  ctx->pushFrame(this, ret, argsize);
   VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 
 #ifdef WIN32
@@ -1766,8 +1766,8 @@ FieldData NativeVMMethod::executeX64(VMContext* ctx, VMMethod::ReturnType ret, V
       StackData sd1 = ctx->get(base++);
       StackData sd2 = ctx->get(base++);
       FieldData value;
-      value.l = ((int64)sd1.ui) << 32;
-      value.l |= ((int64)sd2.ui) << 0;
+      value.l = ((int64)sd2.ui) << 32;
+      value.l |= ((int64)sd1.ui) << 0;
       d = value.d;
       if (i == 0)
         xmm0 = d;
@@ -1814,9 +1814,5 @@ FieldData NativeVMMethod::executeX64(VMContext* ctx, VMMethod::ReturnType ret, V
   }
   FieldData data;
   data.obj = (VMObject*)CallFunction(env, cls, r8, r9, mthd, xmm0, xmm1, 32+stack.size()*8, stack.empty() ? NULL : &stack[0]);
-  int mysize = 32+stack.size()*8;
-  for (int i = mysize; i >= 0x20; i -= 8){
-
-  }
   return data;
 }

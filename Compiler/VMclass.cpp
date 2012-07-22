@@ -458,6 +458,8 @@ std::string VMClass::getSourceFileName(){
   return "";
 }
 
-int VMClass::getLineNumber(unsigned ip){
+int VMClass::getLineNumber(int ip){
+  if (ip < 0)
+    return ip;
   return -1;
 }

@@ -49,15 +49,18 @@ VMContext::~VMContext(){
 	delete [] mStack;
 }
 
-void VMContext::pushFrame(VMMethod* method, unsigned argsize){
+#define FRAME_METADATA 3
+
+void VMContext::pushFrame(VMMethod* method, unsigned ip, unsigned argsize){
 	StackData* oldBase = mBasePointer;
 	
 	//copy arguments to new frame
 	mStackPointer -= argsize;
-	memmove(mStackPointer+2, mStackPointer, argsize*sizeof(StackData));
+	memmove(mStackPointer+FRAME_METADATA, mStackPointer, argsize*sizeof(StackData));
 
 	//setup frame data structure
 	*mStackPointer++ = oldBase;
+  *mStackPointer++ = ip;
 	*mStackPointer++ = method;
 	mBasePointer = mStackPointer;
 
@@ -67,7 +70,7 @@ void VMContext::pushFrame(VMMethod* method, unsigned argsize){
 
 void VMContext::popFrame(){
 	//jump down the frame data structure
-	mBasePointer -= 2;
+	mBasePointer -= FRAME_METADATA;
 	StackData* oldBase = mBasePointer->stp;
 	mStackPointer = mBasePointer;
 	mBasePointer = oldBase;
@@ -76,7 +79,7 @@ void VMContext::popFrame(){
 VMMethod* VMContext::getFrameMethod(int numFrames){
 	StackData* base = mBasePointer;
 	while(numFrames > 0){
-		base -= 2;
+		base -= FRAME_METADATA;
     if (base <= mStack)
       return NULL;
 		base = base->stp;
@@ -85,6 +88,28 @@ VMMethod* VMContext::getFrameMethod(int numFrames){
   //if (base-1 < mStack)
   //  return 0;
 	return (base-1)->mthd;
+}
+
+VMContext::StackIterator VMContext::getTopFrame(){
+  return StackIterator(this, mBasePointer);
+}
+
+bool VMContext::StackIterator::hasNext(){
+  return mCurrBasePointer - FRAME_METADATA > mCtx->mStack;
+}
+
+VMContext::StackIterator& VMContext::StackIterator::next(){
+  mCurrBasePointer -= FRAME_METADATA;
+  mCurrBasePointer = mCurrBasePointer->stp;
+  return *this;
+}
+
+VMMethod* VMContext::StackIterator::getMethod(){
+  return (mCurrBasePointer-1)->mthd;
+}
+
+unsigned VMContext::StackIterator::getReturnIP(){
+  return (mCurrBasePointer-2)->ui;
 }
 
 void VMContext::insert(StackData data, int position){

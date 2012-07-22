@@ -31,7 +31,7 @@ public:
 	VMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic) : 
     mName(name), mSignature(signature), mIsStatic(isStatic), mClass(cls), mRefCount(1) {parseSignature();}
   //virtual ~VMMethod();
-	virtual void execute(VMContext* ctx)=0;
+	virtual void execute(VMContext* ctx, unsigned ret)=0;
 	virtual void print(std::ostream& strm)=0;
 	unsigned getNumArgs() {return mArgSize;}
   const std::string& getArgument(int argnum) {return mSplitSignature[argnum];}
@@ -60,7 +60,7 @@ class BcVMMethod : public VMMethod{
 public:
 	BcVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, Java::Code_attribute* code) : VMMethod(name, signature, cls, isStatic) {mCode = code;}
 	void print(std::ostream& strm);
-	void execute(VMContext* ctx);
+	void execute(VMContext* ctx, unsigned ret);
 	void executeLongRet(VMContext* ctx);
 protected:
 	Java::Code_attribute* mCode;
@@ -70,7 +70,7 @@ class NativeVMMethod : public VMMethod{
 public:
 	NativeVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, nativeMethod mthd) : VMMethod(name, signature, cls, isStatic) {mFunction = mthd;}
 	void print(std::ostream& strm);
-	void execute(VMContext* ctx);
+	void execute(VMContext* ctx, unsigned ret);
 protected:
   FieldData executeNative(VMContext* ctx, VMMethod::ReturnType ret, VMClass* cls);
   FieldData executeX64(VMContext* ctx, VMMethod::ReturnType ret, VMClass* cls);

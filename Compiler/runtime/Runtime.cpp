@@ -223,7 +223,7 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 		ctx->push(signature);
 		ctx->push(0u);
 		VMMethod* mthd = fieldcls->getMethod(fieldcls->findMethodIndex("<init>", "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;IILjava/lang/String;[B)V"));
-		mthd->execute(ctx);
+		mthd->execute(ctx, -2);
 		arr->put(arrobj, i);
 	}
 	
@@ -482,7 +482,7 @@ jint JNIEXPORT Java_java_lang_Throwable_getStackTraceDepth(JNIEnv* env, jobject 
   jclass throwable = env->GetObjectClass(object);
   jfieldID backtrace = env->GetFieldID(throwable, "backtrace", "Ljava/lang/Object;");
   jobjectArray stack = env->GetObjectField(object, backtrace);
-  jsize size = env->GetArrayLength(stack);
+  jsize size = env->GetArrayLength(stack)/2;
   return (jint)size;
 }
 
@@ -490,7 +490,8 @@ jobject JNIEXPORT Java_java_lang_Throwable_getStackTraceElement(JNIEnv* env, job
   jclass throwable = env->GetObjectClass(object);
   jfieldID backtrace = env->GetFieldID(throwable, "backtrace", "Ljava/lang/Object;");
   jobjectArray stack = env->GetObjectField(object, backtrace);
-  VMMethod* mthd = (VMMethod*) env->GetObjectArrayElement(stack, index);
+  VMMethod* mthd = (VMMethod*) env->GetObjectArrayElement(stack, 2*index);
+  int ip = (int) env->GetObjectArrayElement(stack, 2*index+1);
   
   jclass StackTraceElement = env->FindClass("java/lang/StackTraceElement");
   jmethodID steconstr = env->GetMethodID(StackTraceElement, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
@@ -500,7 +501,7 @@ jobject JNIEXPORT Java_java_lang_Throwable_getStackTraceElement(JNIEnv* env, job
   std::string sourceFile = mthd->getClass()->getSourceFileName();
   if (!sourceFile.empty())
     filename = env->NewStringUTF(sourceFile.c_str());
-  jint linenumber = -1;
+  unsigned linenumber = mthd->getClass()->getLineNumber(ip);
   jobject elem = env->NewObject(StackTraceElement, steconstr, clsname, methodname, filename, linenumber);
   return elem;
 }
@@ -509,20 +510,28 @@ jobject JNIEXPORT Java_java_lang_Throwable_fillInStackTrace(JNIEnv* env, jobject
   jclass throwable = env->GetObjectClass(object);
   jfieldID backtrace = env->GetFieldID(throwable, "backtrace", "Ljava/lang/Object;");
   VMContext* ctx = CTX(env);
-  int frame = 0; //take 5: this is the exception stack - hide that stuff
   VMMethod* mthd = NULL;
   std::vector<VMMethod*> stack;
+  std::vector<unsigned> ips;
+  unsigned lastIp = -1;
+  VMContext::StackIterator iter = ctx->getTopFrame();
+  bool doNext = false;
   do{
-    mthd = ctx->getFrameMethod(frame);
-    ++frame;
-    if (mthd){
-      stack.push_back(mthd);
-    }
-  } while(mthd != NULL);
+    if (doNext)
+      iter.next();
+    else
+      doNext = true;
+    mthd = iter.getMethod();
+    unsigned returnaddr = iter.getReturnIP();
+    stack.push_back(mthd);
+    ips.push_back(lastIp);
+    lastIp = returnaddr;
+  } while(iter.hasNext());
   jclass objcls = env->FindClass("java/lang/Object");
-  jobjectArray trace = env->NewObjectArray(stack.size(), objcls, NULL);
+  jobjectArray trace = env->NewObjectArray(stack.size()*2, objcls, NULL);
   for (unsigned i = 0; i < stack.size(); ++i){
-    env->SetObjectArrayElement(trace, i, stack[i]);
+    env->SetObjectArrayElement(trace, 2*i, stack[i]);
+    env->SetObjectArrayElement(trace, 2*i+1, (jobject)ips[i]);
   }
   env->SetObjectField(object, backtrace, trace);
   //null stackTrace
@@ -535,7 +544,7 @@ jobject JNIEXPORT Java_java_security_AccessController_doPrivileged(JNIEnv* env, 
 	VMObject* obj = (VMObject*)action;
 	VMMethod* mthd = obj->getObjMethod(obj->getClass()->findMethodIndex("run", "()Ljava/lang/Object;"));
 	CTX(env)->push(obj);
-	mthd->execute(CTX(env));
+	mthd->execute(CTX(env), -2);
 	obj = CTX(env)->pop().obj;
 	return obj;
 }
