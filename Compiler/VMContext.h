@@ -44,6 +44,7 @@ public:
 protected:
   static jclass FindClass(JNIEnv* env, const char* name);
   static jclass GetSuperclass(JNIEnv *env, jclass sub);
+  static jboolean IsAssignableFrom(JNIEnv *env, jclass sub, jclass sup);
   static jint Throw(JNIEnv *env, jthrowable obj);
   static jthrowable ExceptionOccurred(JNIEnv *env);
   static void ExceptionDescribe(JNIEnv *env);

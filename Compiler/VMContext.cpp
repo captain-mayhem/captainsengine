@@ -8,6 +8,7 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself), mExcepti
   JNINativeInterface_::reserved0 = NULL;
   JNINativeInterface_::FindClass = FindClass;
   JNINativeInterface_::GetSuperclass = GetSuperclass;
+  JNINativeInterface_::IsAssignableFrom = IsAssignableFrom;
   JNINativeInterface_::Throw = Throw;
   JNINativeInterface_::ExceptionDescribe = ExceptionDescribe;
   JNINativeInterface_::ExceptionOccurred = ExceptionOccurred;

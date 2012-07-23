@@ -51,6 +51,9 @@ VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObjec
 
 	mRCP.resize(mClass.constant_pool_count+1);
 	memset(&mRCP[0], 0, (mClass.constant_pool_count+1)*sizeof(StackData));
+  Java::CONSTANT_Class_info* clinfo = (Java::CONSTANT_Class_info*)mClass.constant_pool[mClass.this_class-1];
+  Java::CONSTANT_Utf8_info* utf = (Java::CONSTANT_Utf8_info*)(mClass.constant_pool[clinfo->name_index-1]);
+  mFilename = utf->bytes;
 }
 
 VMClass::~VMClass(){
@@ -242,7 +245,7 @@ void VMClass::registerMethod(const std::string& name, const std::string& signatu
 		break;
 	}
 	unsigned idx = findMethodIndex(name, signature);
-	mMethods[idx] = new NativeVMMethod(name, signature, this, (minfo->access_flags & ACC_STATIC) != 0, mthd);
+	mMethods[idx] = new NativeVMMethod(name, signature, this, (minfo->access_flags & ACC_STATIC) != 0, -1, mthd);
 }
 
 VMClass* VMClass::getSuperclass(VMContext* ctx){
@@ -306,14 +309,14 @@ void VMClass::initFields(VMContext* ctx){
     for (int j = 0; j < mi->attributes_count; ++j){
 			if (mi->attributes[j] && mi->attributes[j]->attribute_type == Java::ATTR_Code){
 				Java::Code_attribute* code = static_cast<Java::Code_attribute*>(mi->attributes[j]);
-				mthd = new BcVMMethod(methodname, sig, this, (mi->access_flags & ACC_STATIC) != 0, code);
+				mthd = new BcVMMethod(methodname, sig, this, (mi->access_flags & ACC_STATIC) != 0, i, code);
 				break;
 			}
 		}
 		if (mthd == NULL){
 			TR_INFO("No code attribute found");
 			nativeMethod m = getVM()->findNativeMethod(buildNativeMethodName(methodname, sig));
-			mthd = new NativeVMMethod(methodname, sig, this, (mi->access_flags & ACC_STATIC) != 0, m);
+			mthd = new NativeVMMethod(methodname, sig, this, (mi->access_flags & ACC_STATIC) != 0, i, m);
 			if (mthd == NULL){
 				TR_BREAK("Cannot resolve native method");
 			}
@@ -458,8 +461,27 @@ std::string VMClass::getSourceFileName(){
   return "";
 }
 
-int VMClass::getLineNumber(int ip){
-  if (ip < 0)
+int VMClass::getLineNumber(int ip, int methodIndex){
+  if (ip < 0 || methodIndex < 0)
     return ip;
+  Java::method_info* info = mClass.methods[methodIndex];
+  for (int i = 0; i < info->attributes_count; ++i){
+    if (info->attributes[i]->attribute_type == Java::ATTR_Code){
+      Java::Code_attribute* ca = (Java::Code_attribute*)info->attributes[i];
+      for (int j = 0; j < ca->attributes_count; ++j){
+        if (ca->attributes[j]->attribute_type == Java::ATTR_LineNumberTable){
+          int lineNumber = -1;
+          Java::LineNumberTable_attribute* lna = (Java::LineNumberTable_attribute*)ca->attributes[j];
+          for (int k = 0; k < lna->line_number_table_length; ++k){
+            if (lna->line_number_table[k].start_pc <= ip)
+              lineNumber = lna->line_number_table[k].line_number;
+            else
+              return lineNumber;
+          }
+          return lineNumber;
+        }
+      }
+    }
+  }
   return -1;
 }

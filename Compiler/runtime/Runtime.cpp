@@ -501,7 +501,7 @@ jobject JNIEXPORT Java_java_lang_Throwable_getStackTraceElement(JNIEnv* env, job
   std::string sourceFile = mthd->getClass()->getSourceFileName();
   if (!sourceFile.empty())
     filename = env->NewStringUTF(sourceFile.c_str());
-  unsigned linenumber = mthd->getClass()->getLineNumber(ip);
+  unsigned linenumber = mthd->getClass()->getLineNumber(ip, mthd->getMethodIndex());
   jobject elem = env->NewObject(StackTraceElement, steconstr, clsname, methodname, filename, linenumber);
   return elem;
 }
@@ -523,8 +523,11 @@ jobject JNIEXPORT Java_java_lang_Throwable_fillInStackTrace(JNIEnv* env, jobject
       doNext = true;
     mthd = iter.getMethod();
     unsigned returnaddr = iter.getReturnIP();
-    stack.push_back(mthd);
-    ips.push_back(lastIp);
+    jclass realthrowable = env->FindClass("java/lang/Throwable");
+    if (!env->IsAssignableFrom(mthd->getClass(), realthrowable)){ //hide the stack trace caused by exception itself
+      stack.push_back(mthd);
+      ips.push_back(lastIp);
+    }
     lastIp = returnaddr;
   } while(iter.hasNext());
   jclass objcls = env->FindClass("java/lang/Object");

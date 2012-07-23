@@ -54,7 +54,7 @@ bool ZipReader::openFile(const std::string& filename){
   mFmap = CreateFileMapping(mFile, NULL, PAGE_READONLY, 0, 0, NULL);
   void* data = MapViewOfFile(mFmap, FILE_MAP_READ, 0, 0, 0);
   MEMORY_BASIC_INFORMATION meminfo;
-  uint32 size = VirtualQuery(data, &meminfo, sizeof(meminfo));
+  uint32 size = (uint32)VirtualQuery(data, &meminfo, sizeof(meminfo));
   mStart = (char*)data;
   mCurrent = mStart;
   mEnd = mStart+meminfo.RegionSize;
@@ -138,7 +138,7 @@ uLong ZipReader::write_file_func(voidpf opaque, voidpf stream, const void* buf, 
 
 long ZipReader::tell_file_func(voidpf opaque, voidpf stream){
   ZipReader* rdr = static_cast<ZipReader*>(stream);
-  return rdr->mCurrent-rdr->mStart;
+  return (long)(rdr->mCurrent-rdr->mStart);
 }
 
 long ZipReader::seek_file_func(voidpf opaque, voidpf stream, uLong offset, int origin){

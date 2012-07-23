@@ -8,7 +8,7 @@ TR_CHANNEL(Java_Array);
 VMArrayClass::VMArrayClass(const std::string& name){
   mFilename = name;
   mMethodResolver.insert(std::make_pair("clone()Ljava/lang/Object;", 1));
-  NativeVMMethod* nvmm = new NativeVMMethod("clone", "()Ljava/lang/Obejct;", this, false, (nativeMethod)cloneFunc);
+  NativeVMMethod* nvmm = new NativeVMMethod("clone", "()Ljava/lang/Obejct;", this, false, -1, (nativeMethod)cloneFunc);
   mMethods.push_back(nvmm);
 }
 
