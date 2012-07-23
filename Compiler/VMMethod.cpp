@@ -32,6 +32,8 @@ TR_CHANNEL(Java_Method);
   {if (!handleException(ctx)) \
     return;}
 
+using namespace std;
+
 VMMethod::~VMMethod(){
 
 }
@@ -1612,12 +1614,10 @@ void NativeVMMethod::execute(VMContext* ctx, unsigned ret){
   ctx->pushFrame(this, ret, argsize);
   VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 
-#ifdef WIN32
 #ifdef ARCH_X64
   FieldData retval = executeX64(ctx, mReturnType, cls);
 #else
   FieldData retval = executeNative(ctx, mReturnType, cls);
-#endif
 #endif
   ctx->popFrame();
   if (TR_IS_ENABLED(TRACE_DEBUG))
@@ -1742,7 +1742,7 @@ FieldData NativeVMMethod::executeX64(VMContext* ctx, VMMethod::ReturnType ret, V
   jlong r9 = 0;
   double xmm0 = 0;
   double xmm1 = 0;
-  int regsize = min(2, (unsigned)mSplitSignature.size());
+  int regsize = min(2, (int)mSplitSignature.size());
   int base = mIsStatic ? 0 : 1;
   for (int i = 0; i < regsize; ++i){
     //if (mSplitSignature[i] == "F" || mSplitSignature[i] == "D")
