@@ -360,6 +360,8 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   GetModuleFileName(GetModuleHandle(NULL), filename, 1024);
   const char* tmp = strrchr(filename, '\\');
   filename[tmp-filename] = '\0';
+#else
+  const char* filename = "";
 #endif
   key = env->NewStringUTF("java.library.path");
   value = env->NewStringUTF(filename);
@@ -491,7 +493,7 @@ jobject JNIEXPORT Java_java_lang_Throwable_getStackTraceElement(JNIEnv* env, job
   jfieldID backtrace = env->GetFieldID(throwable, "backtrace", "Ljava/lang/Object;");
   jobjectArray stack = env->GetObjectField(object, backtrace);
   VMMethod* mthd = (VMMethod*) env->GetObjectArrayElement(stack, 2*index);
-  int ip = (int) env->GetObjectArrayElement(stack, 2*index+1);
+  int ip = (int)(intptr_t) env->GetObjectArrayElement(stack, 2*index+1);
   
   jclass StackTraceElement = env->FindClass("java/lang/StackTraceElement");
   jmethodID steconstr = env->GetMethodID(StackTraceElement, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;I)V");
