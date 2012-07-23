@@ -28,8 +28,9 @@ public:
 		Double=7,
 		Short=9
 	};
-	VMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic) : 
-    mName(name), mSignature(signature), mIsStatic(isStatic), mClass(cls), mRefCount(1) {parseSignature();}
+	VMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, int methodIndex) : 
+    mName(name), mSignature(signature), mIsStatic(isStatic), mClass(cls), mRefCount(1),
+    mMethodIndex(methodIndex){parseSignature();}
   //virtual ~VMMethod();
 	virtual void execute(VMContext* ctx, unsigned ret)=0;
 	virtual void print(std::ostream& strm)=0;
@@ -42,6 +43,7 @@ public:
   void ref() {++mRefCount;}
   void unref() {--mRefCount; if (mRefCount <= 0) delete this;}
   bool handleException(VMContext* ctx);
+  int getMethodIndex() {return mMethodIndex;}
 protected:
   virtual ~VMMethod();
 	void parseSignature();
@@ -54,11 +56,13 @@ protected:
 	bool mIsStatic;
 	VMClass* mClass;
   int mRefCount;
+  int mMethodIndex;
 };
 
 class BcVMMethod : public VMMethod{
 public:
-	BcVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, Java::Code_attribute* code) : VMMethod(name, signature, cls, isStatic) {mCode = code;}
+	BcVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, 
+    int methodIndex, Java::Code_attribute* code) : VMMethod(name, signature, cls, isStatic, methodIndex) {mCode = code;}
 	void print(std::ostream& strm);
 	void execute(VMContext* ctx, unsigned ret);
 	void executeLongRet(VMContext* ctx);
@@ -68,7 +72,8 @@ protected:
 
 class NativeVMMethod : public VMMethod{
 public:
-	NativeVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, nativeMethod mthd) : VMMethod(name, signature, cls, isStatic) {mFunction = mthd;}
+	NativeVMMethod(const std::string& name, const std::string& signature, VMClass* cls, bool isStatic, 
+    int methodIndex, nativeMethod mthd) : VMMethod(name, signature, cls, isStatic, methodIndex) {mFunction = mthd;}
 	void print(std::ostream& strm);
 	void execute(VMContext* ctx, unsigned ret);
 protected:

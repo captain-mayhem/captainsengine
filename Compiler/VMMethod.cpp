@@ -1655,7 +1655,7 @@ FieldData NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret
   tmp = ctx->getJNIEnv();
   FieldData retval;
   if (ret == VMMethod::Boolean || ret == VMMethod::Byte){
-    jboolean bret;
+    jboolean bret = 0;
 #ifdef WIN32
 #ifndef ARCH_X64
     __asm{
@@ -1687,7 +1687,7 @@ FieldData NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret
     retval.obj = NULL;
   }
   else if (ret == VMMethod::Reference || ret == VMMethod::Array || ret == VMMethod::Int){
-    VMObject* objret;
+    VMObject* objret = NULL;
 #ifdef WIN32
 #ifndef ARCH_X64
     __asm{
@@ -1704,7 +1704,7 @@ FieldData NativeVMMethod::executeNative(VMContext* ctx, VMMethod::ReturnType ret
     retval.obj = objret;
   }
   else if (ret == VMMethod::Long){
-    jlong longret;
+    jlong longret = 0;
 #ifdef WIN32
 #ifndef ARCH_X64
     __asm{
@@ -1742,7 +1742,7 @@ FieldData NativeVMMethod::executeX64(VMContext* ctx, VMMethod::ReturnType ret, V
   jlong r9 = 0;
   double xmm0 = 0;
   double xmm1 = 0;
-  int regsize = min(2, mSplitSignature.size());
+  int regsize = min(2, (unsigned)mSplitSignature.size());
   int base = mIsStatic ? 0 : 1;
   for (int i = 0; i < regsize; ++i){
     //if (mSplitSignature[i] == "F" || mSplitSignature[i] == "D")
@@ -1813,6 +1813,6 @@ FieldData NativeVMMethod::executeX64(VMContext* ctx, VMMethod::ReturnType ret, V
     memcpy(copy+used-size, &tmp/*+8-size*/, size);
   }
   FieldData data;
-  data.obj = (VMObject*)CallFunction(env, cls, r8, r9, mthd, xmm0, xmm1, 32+stack.size()*8, stack.empty() ? NULL : &stack[0]);
+  data.obj = (VMObject*)CallFunction(env, cls, r8, r9, mthd, xmm0, xmm1, 32+(int)stack.size()*8, stack.empty() ? NULL : &stack[0]);
   return data;
 }

@@ -42,7 +42,7 @@ public:
 		memcpy(&mData[0], data, mData.size()*sizeof(T));
 	}
 	virtual unsigned getLength(){
-		return mData.size();
+		return (unsigned)mData.size();
 	}
   virtual void* getData(int offset){
     if (mData.empty())
@@ -55,9 +55,9 @@ public:
     memcpy(dst, src, length*sizeof(T));
   }
   virtual VMArrayBase* copy(VMContext* ctx){
-    VMArray* newone = new VMArray<T>(ctx, mClass, mData.size());
+    VMArray* newone = new VMArray<T>(ctx, mClass, (unsigned)mData.size());
     ::getVM()->registerObject(newone);
-    copyTo(0, newone, 0, mData.size());
+    copyTo(0, newone, 0, (unsigned)mData.size());
     return newone;
   }
 	void put(const T data, unsigned idx){

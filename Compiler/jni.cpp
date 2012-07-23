@@ -45,6 +45,16 @@ jclass VMContext::GetSuperclass(JNIEnv *env, jclass sub){
   return super;
 }
 
+jboolean VMContext::IsAssignableFrom(JNIEnv *env, jclass sub, jclass sup){
+  VMClass* subclass = (VMClass*)sub;
+  while (subclass){
+    if (subclass == sup)
+      return JNI_TRUE;
+    subclass = subclass->getSuperclass(CTX(env));
+  }
+  return JNI_FALSE;
+}
+
 jint VMContext::Throw(JNIEnv *env, jthrowable obj){
   CTX(env)->throwException((VMObject*)obj);
   return 0;
