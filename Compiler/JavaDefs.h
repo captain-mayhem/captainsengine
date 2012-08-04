@@ -182,7 +182,7 @@ struct ConstantValue_attribute : public attribute_info{
 };
 
 struct Code_attribute  : public attribute_info{
-  struct Exexception_table{
+  struct Exception_table{
     u2 start_pc;
     u2 end_pc;
     u2 handler_pc;
@@ -195,7 +195,7 @@ struct Code_attribute  : public attribute_info{
   u4 code_length;
   u1* code;
   u2 exception_table_length;
-  std::vector<Exexception_table> exception_table;
+  std::vector<Exception_table> exception_table;
   u2 attributes_count;
   std::vector<attribute_info*> attributes;
 };
