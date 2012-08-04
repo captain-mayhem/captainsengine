@@ -485,3 +485,31 @@ int VMClass::getLineNumber(int ip, int methodIndex){
   }
   return -1;
 }
+
+int VMClass::getCatchIP(int ip, VMContext* ctx, VMObject* exception, int methodIndex){
+  if (methodIndex < 0)
+    return -1;
+  Java::method_info* info = mClass.methods[methodIndex];
+  for (int i = 0; i < info->attributes_count; ++i){
+    if (info->attributes[i]->attribute_type == Java::ATTR_Code){
+      Java::Code_attribute* ca = (Java::Code_attribute*)info->attributes[i];
+      for (int j = 0; j < ca->exception_table_length; ++j){
+        Java::Code_attribute::Exception_table extab = ca->exception_table[j];
+        //does the ip range fit
+        if (ip >= extab.start_pc && ip < extab.end_pc){
+          if (extab.catch_type == 0)
+            return extab.handler_pc;
+          //check if catch type fits
+          VMClass* handledtype = getClass(ctx, extab.catch_type);
+          VMClass* exceptiontype = exception->getClass();
+          while (exceptiontype != NULL){
+            if (exceptiontype == handledtype)
+              return extab.handler_pc;
+            exceptiontype = exceptiontype->getSuperclass(ctx);
+          }
+        }
+      }
+    }
+  }
+  return -1;
+}

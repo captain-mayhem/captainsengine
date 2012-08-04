@@ -41,6 +41,7 @@ public:
 	std::string getName() {return mFilename;}
   std::string getSourceFileName();
   int getLineNumber(int ip, int methodIndex);
+  int getCatchIP(int ip, VMContext* ctx, VMObject* exception, int methodIndex);
 protected:
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);
 	Java::ClassFile mClass;

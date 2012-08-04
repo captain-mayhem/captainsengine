@@ -28,8 +28,8 @@
 TR_CHANNEL(Java_Method);
 //TR_CHANNEL_LVL(Java_Method, TRACE_DEBUG);
 
-#define HANDLE_EXCEPTION() \
-  {if (!handleException(ctx)) \
+#define HANDLE_EXCEPTION(__ip__) \
+  {if (!handleException(__ip__, ctx)) \
     return;}
 
 using namespace std;
@@ -38,9 +38,10 @@ VMMethod::~VMMethod(){
 
 }
 
-bool VMMethod::handleException(VMContext* ctx){
+bool VMMethod::handleException(int ip, VMContext* ctx){
   if (ctx->getException() == NULL)
     return true; //no exception, everything is alright
+  int catchip = getClass()->getCatchIP(ip, ctx, ctx->getException(), mMethodIndex);
   ctx->popFrame();
   return false;
 }
@@ -558,7 +559,7 @@ void BcVMMethod::execute(VMContext* ctx, unsigned ret){
           Java::u2 operand = b1 << 8 | b2;
 					VMMethod* mthd = mClass->getMethod(ctx, operand);
 					mthd->execute(ctx, k);
-          HANDLE_EXCEPTION();
+          HANDLE_EXCEPTION(k);
           break;
         }
       case Java::op_lookupswitch:
@@ -602,7 +603,7 @@ skipdefault:
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
 					VMMethod* mthd = obj->getObjMethod(idx);
 					mthd->execute(ctx, k);
-          HANDLE_EXCEPTION();
+          HANDLE_EXCEPTION(k);
         }
         break;
       case Java::op_jsr_w:
@@ -919,7 +920,7 @@ skipdefault:
           Java::u2 operand = b1 << 8 | b2;
 					VMMethod* mthd = mClass->getMethod(ctx, operand);
 					mthd->execute(ctx, k);
-          HANDLE_EXCEPTION();
+          HANDLE_EXCEPTION(k);
           break;
         }
         break;
@@ -936,7 +937,7 @@ skipdefault:
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
 					VMMethod* mthd = obj->getObjMethod(idx);
 					mthd->execute(ctx, k);
-          HANDLE_EXCEPTION();
+          HANDLE_EXCEPTION(k);
         }
         break;
 			case Java::op_new:{
@@ -1580,7 +1581,7 @@ skipdefault:
         {
           VMObject* exception = ctx->pop().obj;
           ctx->throwException(exception);
-          HANDLE_EXCEPTION();
+          HANDLE_EXCEPTION(k);
           break;
         }
 			default:
@@ -1614,8 +1615,9 @@ void NativeVMMethod::execute(VMContext* ctx, unsigned ret){
   ctx->pushFrame(this, ret, argsize);
   VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 
+  FieldData retval = executeNoASM(ctx, mReturnType, cls);
 #ifdef ARCH_X64
-  FieldData retval = executeX64(ctx, mReturnType, cls);
+  //FieldData retval = executeX64(ctx, mReturnType, cls);
 #else
   FieldData retval = executeNative(ctx, mReturnType, cls);
 #endif

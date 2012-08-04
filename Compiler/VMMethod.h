@@ -42,7 +42,7 @@ public:
 	static ReturnType parseType(const char type);
   void ref() {++mRefCount;}
   void unref() {--mRefCount; if (mRefCount <= 0) delete this;}
-  bool handleException(VMContext* ctx);
+  bool handleException(int ip, VMContext* ctx);
   int getMethodIndex() {return mMethodIndex;}
 protected:
   virtual ~VMMethod();
@@ -79,6 +79,7 @@ public:
 protected:
   FieldData executeNative(VMContext* ctx, VMMethod::ReturnType ret, VMClass* cls);
   FieldData executeX64(VMContext* ctx, VMMethod::ReturnType ret, VMClass* cls);
+  FieldData executeNoASM(VMContext* ctx, VMMethod::ReturnType ret, VMClass* cls);
 	nativeMethod mFunction;
 };
 

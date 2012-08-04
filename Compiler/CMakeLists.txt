@@ -77,6 +77,8 @@ ADD_LIBRARY(javaruntime SHARED
 	VMMethod.cpp
 	VMObject.cpp
 	
+	CallNoASM.cpp
+	
 	${ASM_FILES}
 	${ASM_OBJS}
 )
