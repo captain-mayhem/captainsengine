@@ -8,15 +8,43 @@
 
 #include "jni.h"
 
+enum ArgType{
+  ArgNone,
+  ArgClass,
+  ArgCp,
+  ArgCpPath,
+};
+
+ArgType parseArgument(ArgType prevArg, const char* arg){
+  if (prevArg == ArgCp)
+    return ArgCpPath;
+  if (strcmp(arg, "-cp") == 0 || strcmp(arg, "-classpath") == 0)
+    return ArgCp;
+  return ArgClass;
+}
+
 int main(int argc, char* argv[])
 {
   /*CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
 	CGE::Engine::instance()->init();*/
-  const char* filename = "test/Test";
+  JDK1_1InitArgs vm_args;
+  vm_args.version = 0x00010001;
+  vm_args.classpath = ".";
+  const char* filename = "Test";
 	//char* filename = "java/lang/Object";
-  if (argc > 1){
-    filename = argv[1];
+  ArgType prev = ArgNone;
+  for (int i = 0; i < argc; ++i){
+    ArgType type = parseArgument(prev, argv[i]);
+    switch(type){
+      case ArgClass:
+        filename = argv[i];
+        break;
+      case ArgCpPath:
+        vm_args.classpath = argv[i];
+        break;
+    }
+    prev = type;
   }
   
   //Interpreter interp;
@@ -24,9 +52,7 @@ int main(int argc, char* argv[])
 	
   JavaVM* jvm;
   JNIEnv* env;
-  JDK1_1InitArgs vm_args;
 
-  vm_args.version = 0x00010001;
   JNI_GetDefaultJavaVMInitArgs(&vm_args);
   //vm_args.classpath = "";
   JNI_CreateJavaVM(&jvm, &env, &vm_args);

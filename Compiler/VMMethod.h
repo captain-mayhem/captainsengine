@@ -42,7 +42,7 @@ public:
 	static ReturnType parseType(const char type);
   void ref() {++mRefCount;}
   void unref() {--mRefCount; if (mRefCount <= 0) delete this;}
-  bool handleException(int ip, VMContext* ctx);
+  bool handleException(unsigned* ip, VMContext* ctx);
   int getMethodIndex() {return mMethodIndex;}
 protected:
   virtual ~VMMethod();

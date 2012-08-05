@@ -29,7 +29,7 @@ TR_CHANNEL(Java_Method);
 //TR_CHANNEL_LVL(Java_Method, TRACE_DEBUG);
 
 #define HANDLE_EXCEPTION(__ip__) \
-  {if (!handleException(__ip__, ctx)) \
+  {if (!handleException(&__ip__, ctx)) \
     return;}
 
 using namespace std;
@@ -38,10 +38,16 @@ VMMethod::~VMMethod(){
 
 }
 
-bool VMMethod::handleException(int ip, VMContext* ctx){
+bool VMMethod::handleException(unsigned *ip, VMContext* ctx){
   if (ctx->getException() == NULL)
     return true; //no exception, everything is alright
-  int catchip = getClass()->getCatchIP(ip, ctx, ctx->getException(), mMethodIndex);
+  int catchip = getClass()->getCatchIP(*ip, ctx, ctx->getException(), mMethodIndex);
+  if (catchip >= 0){
+    ctx->push(ctx->getException());
+    ctx->throwException(NULL);
+    *ip = catchip-1;
+    return true;
+  }
   ctx->popFrame();
   return false;
 }
