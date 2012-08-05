@@ -26,7 +26,7 @@ JVM* getVM(){
 	return globalVM;
 }
 
-JVM::JVM(){
+JVM::JVM(VMArgs* args) : mArgs(args){
   CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
   CGE::Engine::instance()->init();
@@ -80,6 +80,9 @@ void JVM::init(){
 		TR_BREAK("Java runtime not found");
 	}
   Opcode::init();
+
+  //TODO parse class path correctly
+  mFilePaths.push_back(mArgs->classpath);
 }
 
 VMClass* JVM::findClass(VMContext* ctx, std::string name){

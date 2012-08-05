@@ -29,11 +29,21 @@ VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObjec
 	 mFilename = filename;
 
   char* buffer = NULL;
-  CGE::BinFileReader brdr(filename+".class");
-  Reader* reader = &brdr;
+  std::vector<std::string>& filepaths = getVM()->getFilePaths();
+  bool classFound = false;
+  Reader* reader = NULL;
+  for (unsigned i = 0; i < filepaths.size(); ++i){
+    CGE::BinFileReader* brdr = new CGE::BinFileReader(filepaths[i]+"/"+filename+".class");
+    if (brdr->isWorking()){
+      classFound = true;
+      reader = brdr;
+      break;
+    }
+    delete brdr;
+  }
 	CGE::MemReader mrdr;
   JavaBinFileReader in(reader);
-  if (!in.isWorking()){
+  if (!classFound){
     //try to load runtime jar
     TR_DEBUG("using jar mode");
 		mrdr = getVM()->getClassFile(filename+".class");
@@ -54,6 +64,8 @@ VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObjec
   Java::CONSTANT_Class_info* clinfo = (Java::CONSTANT_Class_info*)mClass.constant_pool[mClass.this_class-1];
   Java::CONSTANT_Utf8_info* utf = (Java::CONSTANT_Utf8_info*)(mClass.constant_pool[clinfo->name_index-1]);
   mFilename = utf->bytes;
+  if (classFound)
+    delete reader;
 }
 
 VMClass::~VMClass(){

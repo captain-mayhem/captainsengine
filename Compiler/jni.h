@@ -677,7 +677,7 @@ public:
   ~JavaVM_();
   jint DestroyJavaVM() {return m_func->DestroyJavaVM(this);}
 protected:
-  JavaVM_();
+  JavaVM_(void* args);
 };
 
 class JNIEnv_{

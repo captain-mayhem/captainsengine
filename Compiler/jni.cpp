@@ -15,7 +15,7 @@ jint JNI_GetDefaultJavaVMInitArgs(void *vm_args){
 }
 
 jint JNI_CreateJavaVM(JavaVM **p_vm, JNIEnv **p_env, void *vm_args){
-  *p_vm = new JavaVM();
+  *p_vm = new JavaVM(vm_args);
   *p_env = new JNIEnv(*p_vm);
   return 0;
 }
@@ -27,8 +27,9 @@ jint JVM::DestroyJavaVM(JavaVM* vm){
   return 0;
 }
 
-JavaVM_::JavaVM_(){
-  m_func = new JVM();
+JavaVM_::JavaVM_(void* vm_args){
+  VMArgs* args = (VMArgs*)vm_args;
+  m_func = new JVM(args);
 }
 
 JavaVM_::~JavaVM_(){

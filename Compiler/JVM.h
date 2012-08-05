@@ -24,9 +24,13 @@ typedef VMArray<jfloat> VMFloatArray;
 typedef VMArray<jdouble> VMDoubleArray;
 typedef VMArray<jlong> VMLongArray;
 
+struct VMArgs : public JDK1_1InitArgs{
+
+};
+
 class JVM : public JNIInvokeInterface_{
 public:
-  JVM();
+  JVM(VMArgs* args);
   ~JVM();
 	void initBasicClasses(VMContext* ctx);
   void addThread(VMContext* thrd) {mThreads.push_back(thrd);}
@@ -47,12 +51,16 @@ public:
 	VMObject* createString(VMContext* ctx, const char* str);
 	VMObject* internalizeString(const std::string& str, VMObject* strobj);
   void registerObject(VMObject* obj);
+  std::vector<std::string>& getFilePaths() {return mFilePaths;}
 protected:
 	void init();
 
   static jint DestroyJavaVM(JavaVM* vm);
 
+  VMArgs* mArgs;
+
 	CGE::ZipReader mRuntimeClasses;
+  std::vector<std::string> mFilePaths;
 	CGE::SOLoader mRuntime;
   std::list<VMContext*> mThreads;
   std::map <std::string,VMClass*> mClassResolver;
