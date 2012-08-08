@@ -341,6 +341,31 @@ jobject JNIEXPORT Java_java_lang_String_intern(JNIEnv* env, jobject object){
 jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject object, jobject properties){
   jclass cls = env->GetObjectClass(properties);
   jmethodID mthd = env->GetMethodID(cls, "setProperty", "(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/Object;");
+  VMArgs* args = getVM()->getArguments();
+
+  /*jstring key = env->NewStringUTF("java.version");
+  jstring value = env->NewStringUTF("1.6.0");
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("java.vendor");
+  value = env->NewStringUTF("Captain");
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("java.vendor.url");
+  value = env->NewStringUTF("www.captain-online.de");
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("java.home");
+  const char* java_home = getenv("JAVA_HOME");
+  value = env->NewStringUTF(java_home);
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("java.vm.specification.version");
+  value = env->NewStringUTF("1.6");
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("java.vm.specification.vendor");
+  value = env->NewStringUTF("Captain");
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("java.vm.specification.name");
+  value = env->NewStringUTF("Virtual Machine Specifications");
+  env->CallObjectMethod(properties, mthd, key, value);*/
+
   jstring key = env->NewStringUTF("file.separator");
   jstring value = env->NewStringUTF("\\");
   env->CallObjectMethod(properties, mthd, key, value);
@@ -363,14 +388,17 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
 #else
   const char* filename = "";
 #endif
-  key = env->NewStringUTF("java.library.path");
+  /*key = env->NewStringUTF("java.library.path");
   value = env->NewStringUTF(filename);
-  env->CallObjectMethod(properties, mthd, key, value);
+  env->CallObjectMethod(properties, mthd, key, value);*/
   key = env->NewStringUTF("sun.boot.library.path");
   value = env->NewStringUTF(filename);
   env->CallObjectMethod(properties, mthd, key, value);
   key = env->NewStringUTF("file.encoding");
   value = env->NewStringUTF("UTF-8");
+  env->CallObjectMethod(properties, mthd, key, value);
+  key = env->NewStringUTF("java.class.path");
+  value = env->NewStringUTF(args->classpath);
   env->CallObjectMethod(properties, mthd, key, value);
   return properties;
 }
@@ -475,9 +503,25 @@ void JNIEXPORT Java_java_lang_Thread_setPriority0(JNIEnv* env, jobject object, j
 	TR_WARN("setPriority0 not implemented");
 }
 
+DWORD threadRoutine(void* parameter){
+  VMObject* thrd = (VMObject*)parameter;
+  VMContext* ctx = getVM()->createContext(thrd);
+  JNIEnv* env = ctx->getJNIEnv();
+  getVM()->destroyContext(ctx);
+  return 0;
+}
+
 void JNIEXPORT Java_java_lang_Thread_start0(JNIEnv* env, jobject object){
   TR_USE(Java_Runtime);
+  jclass thread = env->GetObjectClass(object);
+  jfieldID eetop = env->GetFieldID(thread, "eetop", "J");
+#ifdef WIN32
+  HANDLE newthrd = CreateThread(NULL, 0, threadRoutine, object, 0, NULL);
+  //SetThreadPriority(newthrd, );
+  env->SetLongField(object, eetop, (jlong)newthrd);
+#else
 	TR_WARN("not implemented");
+#endif
 }
 
 jint JNIEXPORT Java_java_lang_Throwable_getStackTraceDepth(JNIEnv* env, jobject object){

@@ -682,6 +682,7 @@ protected:
 
 class JNIEnv_{
   friend jint JNI_CreateJavaVM(JavaVM **p_vm, JNIEnv **p_env, void *vm_args);
+  friend class JVM;
 public:
   JNINativeInterface_* m_func;
   ~JNIEnv_();
@@ -719,6 +720,7 @@ public:
   jint RegisterNatives(jclass clazz, const JNINativeMethod *methods, jint nMethods) {return m_func->RegisterNatives(this, clazz, methods, nMethods);}
 protected:
   JNIEnv_(JavaVM_* vm);
+  JNIEnv_(JNINativeInterface_* iface);
 };
 #endif
 

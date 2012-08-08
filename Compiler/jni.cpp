@@ -255,7 +255,7 @@ void VMContext::ReleaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *e
 }
 
 JNIEnv_::JNIEnv_(JavaVM_* vm){
-  VMContext* ctx = new VMContext(this, (JVM*)vm->m_func);
+  VMContext* ctx = new VMContext(this, (JVM*)vm->m_func, NULL);
 	m_func = ctx;
 	VMClass* thrdgrpcls = VM_CTX(vm)->findClass(ctx, "java/lang/ThreadGroup");
 	VMObject* thrdgrp = VM_CTX(vm)->createObject(ctx, thrdgrpcls);
@@ -270,8 +270,14 @@ JNIEnv_::JNIEnv_(JavaVM_* vm){
 	grpfld->obj = thrdgrp;
 	FieldData* prio = ctx->getThread()->getObjField(thrdcls->findFieldIndex("priority"));
 	prio->ui = 5;
+  FieldData* eetop = ctx->getThread()->getObjField(thrdcls->findFieldIndex("eetop"));
+  eetop->l = (jlong)GetCurrentThread();
 	VM_CTX(vm)->findClass(ctx, "java/lang/Thread");
 	VM_CTX(vm)->initBasicClasses((VMContext*)m_func);
+}
+
+JNIEnv_::JNIEnv_(JNINativeInterface_* iface) : m_func(iface){
+
 }
 
 JNIEnv_::~JNIEnv_(){

@@ -320,3 +320,15 @@ VMObject* JVM::internalizeString(const std::string& str, VMObject* strobj){
 void JVM::registerObject(VMObject* obj){
   mCreatedObjects.push_back(obj);
 }
+
+VMContext* JVM::createContext(VMObject* thrd){
+  VMContext* ctx = new VMContext(NULL, this, thrd);
+  JNIEnv_* env = new JNIEnv_(ctx);
+  ctx->setJNIEnv(env);
+  return ctx;
+}
+
+void JVM::destroyContext(VMContext* ctx){
+  mThreads.remove(ctx);
+  delete ctx;
+}

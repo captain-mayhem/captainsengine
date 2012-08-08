@@ -34,6 +34,8 @@ public:
   ~JVM();
 	void initBasicClasses(VMContext* ctx);
   void addThread(VMContext* thrd) {mThreads.push_back(thrd);}
+  VMContext* createContext(VMObject* thrd);
+  void destroyContext(VMContext* ctx);
 	CGE::MemReader getClassFile(const std::string& filename);
   VMClass* findClass(VMContext* ctx, std::string name);
   std::string findClass(VMContext* ctx, VMClass* clazz);
@@ -52,6 +54,7 @@ public:
 	VMObject* internalizeString(const std::string& str, VMObject* strobj);
   void registerObject(VMObject* obj);
   std::vector<std::string>& getFilePaths() {return mFilePaths;}
+  VMArgs* getArguments() {return mArgs;}
 protected:
 	void init();
 
