@@ -23,8 +23,9 @@ public:
     VMContext* mCtx;
     StackData* mCurrBasePointer;
   };
-  VMContext(JNIEnv* myself, JVM* vm);
+  VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd);
   ~VMContext();
+  void setJNIEnv(JNIEnv* env) {mSelf = env;}
 	JNIEnv* getJNIEnv() {return mSelf;}
 	void pushFrame(VMMethod* method, unsigned ip, unsigned argsize);
 	void popFrame();

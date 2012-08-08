@@ -4,7 +4,7 @@
 
 #include "JVM.h"
 
-VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself), mException(NULL){
+VMContext::VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd) : mVm(vm), mSelf(myself), mException(NULL){
   JNINativeInterface_::reserved0 = NULL;
   JNINativeInterface_::FindClass = FindClass;
   JNINativeInterface_::GetSuperclass = GetSuperclass;
@@ -42,7 +42,10 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm) : mVm(vm), mSelf(myself), mExcepti
 	mStack = new StackData[1024];
 	mStackPointer = mStack;
 	mBasePointer = mStack;
-	mThread = vm->createObject(this, NULL);
+  if (thrd == NULL)
+    mThread = vm->createObject(this, NULL);
+  else
+	  mThread = thrd;
 }
 
 VMContext::~VMContext(){
