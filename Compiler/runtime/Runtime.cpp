@@ -327,6 +327,15 @@ jint JNIEXPORT Java_java_lang_Object_hashCode(JNIEnv* env, jobject object){
 	return (jint)(jlong)object;
 }
 
+void JNIEXPORT Java_java_lang_Object_wait(JNIEnv* env, jobject object, jlong timeout){
+  TR_USE(Java_Runtime);
+  VMObject* obj = (VMObject*)object;
+  if (timeout == 0)
+    obj->wait();
+  else
+    TR_BREAK("Implement me");
+}
+
 jobject JNIEXPORT Java_java_lang_String_intern(JNIEnv* env, jobject object){
 	const char* str = env->GetStringUTFChars((jstring)object, NULL);
 	VMObject* ret = getVM()->internalizeString(str, (VMObject*)object);
@@ -494,19 +503,40 @@ jobject JNIEXPORT Java_java_lang_Thread_currentThread(JNIEnv* env, jclass clazz)
 
 jboolean JNIEXPORT Java_java_lang_Thread_isAlive(JNIEnv* env, jobject object){
   TR_USE(Java_Runtime);
-	TR_WARN("not implemented");
+  jclass thread = env->GetObjectClass(object);
+  jfieldID eetop = env->GetFieldID(thread, "eetop", "J");
+  jlong theThread = env->GetLongField(object, eetop);
+  if (theThread == 0)
+    return JNI_FALSE;
+  TR_BREAK("Implement me");
 	return JNI_FALSE;
 }
 
 void JNIEXPORT Java_java_lang_Thread_setPriority0(JNIEnv* env, jobject object, jint priority){
   TR_USE(Java_Runtime);
-	TR_WARN("setPriority0 not implemented");
+  jclass thread = env->GetObjectClass(object);
+  jfieldID eetop = env->GetFieldID(thread, "eetop", "J");
+  jlong theThread = env->GetLongField(object, eetop);
+  if (theThread == 0)
+    return;
+	TR_BREAK("setPriority0 not implemented");
 }
 
 DWORD threadRoutine(void* parameter){
   VMObject* thrd = (VMObject*)parameter;
   VMContext* ctx = getVM()->createContext(thrd);
   JNIEnv* env = ctx->getJNIEnv();
+
+  jclass cls = env->GetObjectClass(thrd);
+  jmethodID run = env->GetMethodID(cls, "run", "()V");
+  env->CallVoidMethod(thrd, run);
+
+  jthrowable exception = env->ExceptionOccurred();
+  if (exception != NULL){
+    printf("Uncaught exception occurred!\n");
+    env->ExceptionDescribe();
+  }
+
   getVM()->destroyContext(ctx);
   return 0;
 }

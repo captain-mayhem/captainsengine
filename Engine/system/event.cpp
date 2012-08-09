@@ -32,6 +32,22 @@ void Event::wait(){
   reset();
 }
 
+void Event::waitTimeout(int milliseconds){
+#ifdef WIN32
+  WaitForSingleObject(mEvent, milliseconds);
+#endif
+  mMutex.lock();
+#ifdef UNIX
+  struct timespec tv;
+  clock_gettime(CLOCK_REALTIME, &tv);
+  int seconds = milliseconds/1000;
+  tv.tv_sec += seconds;
+  tv_tv_nsec += (milliseconds-(seconds*1000))*1000000;
+  pthread_cond_timedwait(&mEvent, mMutex, tv);
+#endif
+  reset();
+}
+
 void Event::signal(){
 #ifdef WIN32
   SetEvent(mEvent);
