@@ -18,6 +18,7 @@ public:
   Event();
   ~Event();
   void wait();
+  void waitTimeout(int milliseconds);
   void signal();
   void reset();
 protected:

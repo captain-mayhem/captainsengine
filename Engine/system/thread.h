@@ -44,6 +44,22 @@ private:
 #endif
 };
 
+class Condition{
+public:
+  Condition();
+  ~Condition();
+  void wait(Mutex& mutex);
+  void waitTimeout(Mutex& mutex, int milliseconds);
+  void signal();
+protected:
+#ifdef WIN32
+  HANDLE mCond;
+#endif
+#ifdef UNIX
+  pthread_cond_t mCond;
+#endif
+};
+
 }
 
 #endif

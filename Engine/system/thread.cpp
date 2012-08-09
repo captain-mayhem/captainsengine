@@ -103,3 +103,57 @@ void Mutex::unlock(){
   pthread_mutex_unlock(&mutex_);
 #endif
 }
+
+Condition::Condition(){
+#ifdef WIN32
+  mCond = CreateEvent(NULL,FALSE,FALSE,NULL);
+#endif
+#ifdef UNIX
+  pthread_cond_init(&mCond,NULL);
+#endif
+}
+
+Condition::~Condition(){
+#ifdef WIN32
+  CloseHandle(mCond);
+#endif
+#ifdef UNIX
+  pthread_cond_destroy(&mCond);
+#endif
+}
+
+void Condition::wait(Mutex& mutex){
+#ifdef WIN32
+  mutex.unlock();
+  WaitForSingleObject(mCond, INFINITE);
+  mutex.lock();
+#endif
+#ifdef UNIX
+  pthread_cond_wait(&mCond, mutex);
+#endif
+}
+
+void Condition::waitTimeout(Mutex& mutex, int milliseconds){
+#ifdef WIN32
+  mutex.unlock();
+  WaitForSingleObject(mCond, milliseconds);
+  mutex.lock();
+#endif
+#ifdef UNIX
+  struct timespec tv;
+  clock_gettime(CLOCK_REALTIME, &tv);
+  int seconds = milliseconds/1000;
+  tv.tv_sec += seconds;
+  tv_tv_nsec += (milliseconds-(seconds*1000))*1000000;
+  pthread_cond_timedwait(&mCond, mutex, tv);
+#endif
+}
+
+void Condition::signal(){
+#ifdef WIN32
+  SetEvent(mCond);
+#endif
+#ifdef UNIX
+  pthread_cond_signal(&mCond);
+#endif
+}
