@@ -68,12 +68,22 @@ void Thread::sleep(int milliseconds){
 #endif
 }
 
-Mutex::Mutex(){
+Mutex::Mutex(bool recursive){
 #ifdef WIN32
   mutex_ = CreateMutex(0, FALSE, 0);
 #endif
 #ifdef UNIX
-  pthread_mutex_init(&mutex_, NULL);
+  if (!recursive)
+    pthread_mutex_init(&mutex_, NULL);
+  else{
+    pthread_mutexattr_t mta;
+    pthread_mutexattr_init(&mta);
+    pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&mutex_, &mta);
+    pthread_mutex_lock(&mutex_);
+    pthread_mutex_lock(&mutex_);
+    pthread_mutexattr_destroy(&mta);
+  }
 #endif
 }
 
@@ -144,8 +154,8 @@ void Condition::waitTimeout(Mutex& mutex, int milliseconds){
   clock_gettime(CLOCK_REALTIME, &tv);
   int seconds = milliseconds/1000;
   tv.tv_sec += seconds;
-  tv_tv_nsec += (milliseconds-(seconds*1000))*1000000;
-  pthread_cond_timedwait(&mCond, mutex, tv);
+  tv.tv_nsec += (milliseconds-(seconds*1000))*1000000;
+  pthread_cond_timedwait(&mCond, mutex, &tv);
 #endif
 }
 

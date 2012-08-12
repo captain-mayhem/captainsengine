@@ -286,12 +286,70 @@ void JVM::initBasicClasses(VMContext* ctx){
 #include <windows.h>
 #endif
 
+/*
+unction utf16to8(str) {
+    var out, i, len, c;
+
+    out = "";
+    len = str.length;
+    for(i = 0; i < len; i++) {
+	c = str.charCodeAt(i);
+	if ((c >= 0x0001) && (c <= 0x007F)) {
+	    out += str.charAt(i);
+	} else if (c > 0x07FF) {
+	    out += String.fromCharCode(0xE0 | ((c >> 12) & 0x0F));
+	    out += String.fromCharCode(0x80 | ((c >>  6) & 0x3F));
+	    out += String.fromCharCode(0x80 | ((c >>  0) & 0x3F));
+	} else {
+	    out += String.fromCharCode(0xC0 | ((c >>  6) & 0x1F));
+	    out += String.fromCharCode(0x80 | ((c >>  0) & 0x3F));
+	}
+    }
+    return out;
+}
+*/
+
+static int utf8to16(const char* in, unsigned short* out, unsigned outsize){
+  unsigned len = strlen(in);
+  int i = 0;
+  int outcount = 0;
+  while (i < len){
+    unsigned c = in[i++];
+    switch (c >> 4){
+      case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
+        if (out)
+          out[outcount] = c;
+        outcount++;
+        break;
+      case 12: case 13:{
+        unsigned char2 = in[i++];
+        if (out){
+          out[outcount] = ((c & 0x1f) << 6) | (char2 & 0x3f);
+        }
+        outcount++;
+        break;}
+      case 14:{
+        unsigned char2 = in[i++];
+        unsigned char3 = in[i++];
+        if (out){
+          out[outcount] = ((c & 0x0f) << 12) | ((char2 & 0x3f) << 6) | (char3 & 0x3f);
+        }
+        outcount++;
+        break;}
+    }
+  }
+  if (out)
+    out[outcount] = 0;
+  return outcount+1;
+}
+
 VMObject* JVM::createString(VMContext* ctx, const char* str){
 	//convert to utf16
-#ifdef WIN32
-  int size = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+  //int size = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0);
+  int size = utf8to16(str, NULL, 0);
   unsigned short* utf16 = new unsigned short[size];
-  MultiByteToWideChar(CP_UTF8, 0, str, -1, (LPWSTR)utf16, size);
+  //MultiByteToWideChar(CP_UTF8, 0, str, -1, (LPWSTR)utf16, size);
+  utf8to16(str, utf16, size);
   VMClass* cls = getVM()->findClass(ctx, "java/lang/String");
 	VMObject* obj = getVM()->createObject(ctx, cls);
 	ctx->push(obj);
@@ -303,9 +361,6 @@ VMObject* JVM::createString(VMContext* ctx, const char* str){
 	mthd->execute(ctx, -1);
   delete [] utf16;
 	return obj;
-#else
-	return NULL;
-#endif
 }
 
 VMObject* JVM::internalizeString(const std::string& str, VMObject* strobj){

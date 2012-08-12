@@ -34,7 +34,7 @@ bool SOLoader::open(std::string path, std::string library){
 	mLibrary = LoadLibraryEx(library.c_str(), NULL, 0);
 #endif
 #ifdef UNIX
-	library += "lib"+library+".so";
+	library = "lib"+library+".so";
   if (!path.empty())
     library = path+"/"+library;
 	mLibrary = dlopen(library.c_str(), RTLD_LAZY | RTLD_LOCAL);

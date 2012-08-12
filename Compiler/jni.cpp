@@ -271,7 +271,11 @@ JNIEnv_::JNIEnv_(JavaVM_* vm){
 	FieldData* prio = ctx->getThread()->getObjField(thrdcls->findFieldIndex("priority"));
 	prio->ui = 5;
   FieldData* eetop = ctx->getThread()->getObjField(thrdcls->findFieldIndex("eetop"));
+#ifdef WIN32
   eetop->l = (jlong)GetCurrentThread();
+#else
+	eetop->l = (jlong)pthread_self();
+#endif
 	VM_CTX(vm)->findClass(ctx, "java/lang/Thread");
 	VM_CTX(vm)->initBasicClasses((VMContext*)m_func);
 }

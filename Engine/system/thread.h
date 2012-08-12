@@ -25,7 +25,7 @@ private:
 
 class Mutex{
 public:
-  Mutex();
+  Mutex(bool recursive=false);
   ~Mutex();
   void lock();
   void unlock();

@@ -2,13 +2,13 @@
 
 #include "VMclass.h"
 
-VMObject::VMObject() : mClass(NULL){
+VMObject::VMObject() : mClass(NULL), mMuty(true){
 }
 
 VMObject::~VMObject(){
 }
 
-VMObject::VMObject(VMContext* ctx, VMClass* cls) : mClass(cls){
+VMObject::VMObject(VMContext* ctx, VMClass* cls) : mClass(cls), mMuty(true){
 	init(ctx, cls);
 }
 
