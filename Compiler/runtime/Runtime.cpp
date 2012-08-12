@@ -3,6 +3,9 @@
 
 #ifdef WIN32
 #include <direct.h>
+#else
+#include <sys/stat.h>
+#include <dlfcn.h>
 #endif
 
 #include <VMContext.h>
@@ -60,7 +63,11 @@ void JNIEXPORT Java_java_io_FileOutputStream_writeBytes(JNIEnv* env, jobject obj
 }
 
 jobject JNIEXPORT Java_java_io_FileSystem_getFileSystem(JNIEnv* env, jobject object){
+//#ifdef WIN32
   jclass fs = env->FindClass("java/io/WinNTFileSystem");
+//#else
+//  jclass fs = env->FindClass("java/io/UnixFileSystem");
+//#endif
   jmethodID constr = env->GetMethodID(fs, "<init>", "()V");
   jobject ret = env->NewObject(fs, constr);
   return ret;
@@ -84,6 +91,9 @@ jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jo
   const char* str = env->GetStringUTFChars(path, NULL);
 #ifdef WIN32
   DWORD attribs = GetFileAttributes(str);
+#else
+  struct stat st;
+  int ret = stat(str, &st);
 #endif
   env->ReleaseStringUTFChars(path, str);
   int jattribs = 0;
@@ -96,6 +106,16 @@ jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jo
   else
     jattribs |= 0x02; //regular
   if (attribs & FILE_ATTRIBUTE_HIDDEN)
+    jattribs |= 0x08; //hidden
+#else
+  if (ret != 0)
+    return jattribs;
+  jattribs |= 0x01; //exists
+  if (S_ISDIR(st.st_mode))
+    jattribs |= 0x04; //directory
+  else if (S_ISREG(st.st_mode))
+    jattribs |= 0x02; //regular
+  if (str[0] != '\0' && str[0] == '.')
     jattribs |= 0x08; //hidden
 #endif
   return jattribs;
@@ -291,8 +311,12 @@ void JNIEXPORT Java_java_lang_ClassLoader_00024NativeLibrary_load(JNIEnv* env, j
   jlong handle = 0;
 #ifdef WIN32
   HMODULE module = LoadLibrary(libname);
-  handle = (jlong)module;
+#else
+  void* module = dlopen(libname, RTLD_GLOBAL | RTLD_NOW);
+  if (module == NULL)
+    printf("dlerror: %s", dlerror());
 #endif
+  handle = (jlong)module;
   //TODO
   env->ReleaseStringUTFChars(library, libname);
   jclass cls = env->FindClass("java/lang/ClassLoader$NativeLibrary");
@@ -376,17 +400,29 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   env->CallObjectMethod(properties, mthd, key, value);*/
 
   jstring key = env->NewStringUTF("file.separator");
+#ifdef WIN32
   jstring value = env->NewStringUTF("\\");
+#else
+  jstring value = env->NewStringUTF("/");
+#endif
   env->CallObjectMethod(properties, mthd, key, value);
   key = env->NewStringUTF("path.separator");
+#ifdef WIN32
   value = env->NewStringUTF(";");
+#else
+  value = env->NewStringUTF(":");
+#endif
   env->CallObjectMethod(properties, mthd, key, value);
   key = env->NewStringUTF("line.separator");
   value = env->NewStringUTF("\n");
   env->CallObjectMethod(properties, mthd, key, value);
   key = env->NewStringUTF("user.dir");
   char userpath[1024];
+#ifdef WIN32
   _getcwd(userpath, 1024);
+#else
+  userpath[0] = '\0';
+#endif
   value = env->NewStringUTF(userpath);
   env->CallObjectMethod(properties, mthd, key, value);
 #ifdef WIN32
@@ -395,7 +431,9 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   const char* tmp = strrchr(filename, '\\');
   filename[tmp-filename] = '\0';
 #else
-  const char* filename = "";
+  char filename[1024];
+  readlink("/proc/self/exe", filename, 1024);
+  *strrchr(filename, '/') = '\0';
 #endif
   /*key = env->NewStringUTF("java.library.path");
   value = env->NewStringUTF(filename);
@@ -414,7 +452,11 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
 
 jstring JNIEXPORT Java_java_lang_System_mapLibraryName(JNIEnv* env, jobject object, jstring library){
   const char* str = env->GetStringUTFChars(library, NULL);
+#ifdef WIN32
   std::string name = std::string(str)+".dll";
+#else
+  std::string name = "lib"+std::string(str)+".so";
+#endif
   jstring ret = env->NewStringUTF(name.c_str());
 	env->ReleaseStringUTFChars(library, str);
   return ret;
@@ -458,8 +500,11 @@ jlong JNIEXPORT Java_java_lang_System_currentTimeMillis(JNIEnv* env, jobject obj
 	SystemTimeToFileTime(&systime, &filetime);
 	int64 time = (int64)filetime.dwHighDateTime << 32 | filetime.dwLowDateTime;
 	return (time - time1970)/10000;
+#else
+	struct timespec tv;
+	clock_gettime(CLOCK_REALTIME, &tv);
+	return tv.tv_sec*1000+tv.tv_nsec/1000000;
 #endif
-	return 0;
 }
 
 jlong JNIEXPORT Java_java_lang_System_nanoTime(JNIEnv* env, jobject object){
@@ -469,8 +514,11 @@ jlong JNIEXPORT Java_java_lang_System_nanoTime(JNIEnv* env, jobject object){
 	QueryPerformanceFrequency(&frequency);
 	QueryPerformanceCounter(&counter);
 	return (jlong)(counter.QuadPart*1000000000/(double)frequency.QuadPart);
+#else
+	struct timespec tv;
+        clock_gettime(CLOCK_REALTIME, &tv);
+        return tv.tv_sec*1000+tv.tv_nsec/1000000;
 #endif
-	return 0;
 }
 
 void JNIEXPORT Java_java_lang_System_arraycopy(JNIEnv* env, jobject object, jobject src, int srcPos, jobject dest, int destPos, int length){
@@ -522,7 +570,7 @@ void JNIEXPORT Java_java_lang_Thread_setPriority0(JNIEnv* env, jobject object, j
 	TR_BREAK("setPriority0 not implemented");
 }
 
-DWORD threadRoutine(void* parameter){
+int threadRoutine(void* parameter){
   VMObject* thrd = (VMObject*)parameter;
   VMContext* ctx = getVM()->createContext(thrd);
   JNIEnv* env = ctx->getJNIEnv();
@@ -662,7 +710,7 @@ static JNIEnv* mainThreadEnv = NULL;
 void callbackSignalHandler(int signal){
   TR_USE(Java_Runtime);
   //call signal dispatch
-  jclass cls = mainThreadEnv->FindClass("Java/sun/misc/Signal");
+  jclass cls = mainThreadEnv->FindClass("sun/misc/Signal");
   jmethodID dispatch = mainThreadEnv->GetStaticMethodID(cls, "dispatch", "(I)V");
   mainThreadEnv->CallStaticVoidMethod(cls, dispatch, signal);
   TR_BREAK("Should callback signal dispatch - how to get a JNIEnv?")
