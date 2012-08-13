@@ -594,7 +594,7 @@ void JNIEXPORT Java_java_lang_Thread_start0(JNIEnv* env, jobject object){
   jclass thread = env->GetObjectClass(object);
   jfieldID eetop = env->GetFieldID(thread, "eetop", "J");
 #ifdef WIN32
-  HANDLE newthrd = CreateThread(NULL, 0, threadRoutine, object, 0, NULL);
+  HANDLE newthrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)threadRoutine, object, 0, NULL);
   //SetThreadPriority(newthrd, );
   env->SetLongField(object, eetop, (jlong)newthrd);
 #else

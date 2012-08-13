@@ -16,11 +16,16 @@ namespace CGE {
 class Thread{
 public:
   int create(void (*proc)(void* data), void* data);
+  void createSelf();
   void destroy();
   void join();
   static void sleep(int milliseconds);
 private:
-  long threadID_;
+#ifdef WIN32
+  HANDLE thread_;
+#else
+  pthread_t thread_;
+#endif
 };
 
 class Mutex{
@@ -38,6 +43,7 @@ public:
 private:
 #ifdef WIN32
   HANDLE mutex_;
+  bool recursive_;
 #endif
 #ifdef UNIX
   pthread_mutex_t mutex_;

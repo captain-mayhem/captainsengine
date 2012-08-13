@@ -18,27 +18,36 @@ using namespace CGE;
 TR_CHANNEL(CGE_Thread)
 
 int Thread::create(void (*proc)(void* data), void* data){
+  int threadID = 0;
 #ifdef WIN32
-  //threadID_ = (int)_beginthread(proc, 8192, data);
-  threadID_ = (int)CreateThread(NULL, 8192, (LPTHREAD_START_ROUTINE)proc, data, 0, NULL);
+  thread_ = CreateThread(NULL, 8192, (LPTHREAD_START_ROUTINE)proc, data, 0, (LPDWORD)&threadID);
 #endif
 #ifdef UNIX 
   pthread_attr_t attr;
   pthread_attr_init(&attr);
   pthread_attr_setstacksize(&attr, 8192);
-  pthread_create((pthread_t*)&threadID_, &attr, (void* (*)(void*))proc, data);
+  pthread_create(&thread_, &attr, (void* (*)(void*))proc, data);
+  threadID = (int)thread_;
 #endif
-  return threadID_;
+  return threadID;
+}
+
+void Thread::createSelf(){
+#ifdef WIN32
+  thread_ = GetCurrentThread();
+#else
+  thread_ = pthread_self();
+#endif
 }
 
 void Thread::destroy(){
   TR_USE(CGE_Thread);
 #ifdef WIN32
-  TerminateThread(&threadID_, 0);
+  TerminateThread(&thread_, 0);
 #endif
 #ifdef UNIX 
 #ifndef NO_PTHREAD_CANCEL
-  pthread_cancel(threadID_);
+  pthread_cancel(thread_);
 #else
 	TR_ERROR("pthread_cancel not supported by this platform");
 	abort();
@@ -49,10 +58,10 @@ void Thread::destroy(){
 
 void Thread::join(){
 #ifdef WIN32
-  WaitForSingleObject((HANDLE)threadID_, INFINITE);
+  WaitForSingleObject(thread_, INFINITE);
 #endif
 #ifdef UNIX
-  pthread_join(threadID_, NULL);
+  pthread_join(thread_, NULL);
 #endif
 }
 
@@ -68,9 +77,12 @@ void Thread::sleep(int milliseconds){
 #endif
 }
 
-Mutex::Mutex(bool recursive){
+Mutex::Mutex(bool recursive) : recursive_(recursive){
 #ifdef WIN32
-  mutex_ = CreateMutex(0, FALSE, 0);
+  if (recursive)
+    mutex_ = CreateMutex(0, FALSE, 0);
+  else
+    mutex_ = CreateSemaphore(NULL, 1, 1, NULL);
 #endif
 #ifdef UNIX
   if (!recursive)
@@ -80,8 +92,6 @@ Mutex::Mutex(bool recursive){
     pthread_mutexattr_init(&mta);
     pthread_mutexattr_settype(&mta, PTHREAD_MUTEX_RECURSIVE);
     pthread_mutex_init(&mutex_, &mta);
-    pthread_mutex_lock(&mutex_);
-    pthread_mutex_lock(&mutex_);
     pthread_mutexattr_destroy(&mta);
   }
 #endif
@@ -107,7 +117,10 @@ void Mutex::lock(){
 
 void Mutex::unlock(){
 #ifdef WIN32
-  ReleaseMutex(mutex_);
+  if (recursive_)
+    ReleaseMutex(mutex_);
+  else
+    ReleaseSemaphore(mutex_, 1, NULL);
 #endif
 #ifdef UNIX
   pthread_mutex_unlock(&mutex_);
