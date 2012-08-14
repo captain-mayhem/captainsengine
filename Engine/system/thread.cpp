@@ -77,6 +77,38 @@ void Thread::sleep(int milliseconds){
 #endif
 }
 
+void Thread::setPriority(Priority priority){
+#ifdef WIN32
+  int winprio = 0;
+  switch(priority){
+    case EXTREMELY_HIGH:
+      winprio = THREAD_PRIORITY_TIME_CRITICAL;
+      break;
+    case VERY_HIGH:
+      winprio = THREAD_PRIORITY_HIGHEST;
+      break;
+    case HIGH:
+      winprio = THREAD_PRIORITY_ABOVE_NORMAL;
+      break;
+    case NORMAL:
+      winprio = THREAD_PRIORITY_NORMAL;
+      break;
+    case LOW:
+      winprio = THREAD_PRIORITY_BELOW_NORMAL;
+      break;
+    case VERY_LOW:
+      winprio = THREAD_PRIORITY_LOWEST;
+      break;
+    case EXTREMELY_LOW:
+      winprio = THREAD_PRIORITY_IDLE;
+      break;
+  }
+  SetThreadPriority(thread_, winprio);
+#else
+  pthread_setschedprio(thread_, 10+((int)priority)-3));
+#endif
+}
+
 Mutex::Mutex(bool recursive) : recursive_(recursive){
 #ifdef WIN32
   if (recursive)

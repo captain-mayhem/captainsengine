@@ -570,7 +570,7 @@ void JNIEXPORT Java_java_lang_Thread_setPriority0(JNIEnv* env, jobject object, j
 	TR_BREAK("setPriority0 not implemented");
 }
 
-int threadRoutine(void* parameter){
+void threadRoutine(void* parameter){
   VMObject* thrd = (VMObject*)parameter;
   VMContext* ctx = getVM()->createContext(thrd);
   JNIEnv* env = ctx->getJNIEnv();
@@ -586,20 +586,42 @@ int threadRoutine(void* parameter){
   }
 
   getVM()->destroyContext(ctx);
-  return 0;
+}
+
+static CGE::Thread::Priority javaToCGEThreadPrio(int prio){
+  switch (prio){
+    case 5:
+      return CGE::Thread::NORMAL;
+    case 4:
+    case 3:
+      return CGE::Thread::LOW;
+    case 6:
+    case 7:
+      return CGE::Thread::HIGH;
+    case 2:
+      return CGE::Thread::VERY_LOW;
+    case 1:
+      return CGE::Thread::EXTREMELY_LOW;
+    case 8:
+    case 9:
+      return CGE::Thread::VERY_HIGH;
+    case 10:
+      return CGE::Thread::EXTREMELY_HIGH;
+    default:
+      return CGE::Thread::NORMAL;
+  }
 }
 
 void JNIEXPORT Java_java_lang_Thread_start0(JNIEnv* env, jobject object){
   TR_USE(Java_Runtime);
   jclass thread = env->GetObjectClass(object);
   jfieldID eetop = env->GetFieldID(thread, "eetop", "J");
-#ifdef WIN32
-  HANDLE newthrd = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)threadRoutine, object, 0, NULL);
-  //SetThreadPriority(newthrd, );
+  CGE::Thread* newthrd = new CGE::Thread;
+  jfieldID prio = env->GetFieldID(thread, "priority", "I");
+  int priority = env->GetIntField(object, prio);
+  newthrd->create(threadRoutine, object);
+  newthrd->setPriority(javaToCGEThreadPrio(priority));
   env->SetLongField(object, eetop, (jlong)newthrd);
-#else
-	TR_WARN("not implemented");
-#endif
 }
 
 jint JNIEXPORT Java_java_lang_Throwable_getStackTraceDepth(JNIEnv* env, jobject object){
@@ -655,7 +677,7 @@ jobject JNIEXPORT Java_java_lang_Throwable_fillInStackTrace(JNIEnv* env, jobject
     lastIp = returnaddr;
   } while(iter.hasNext());
   jclass objcls = env->FindClass("java/lang/Object");
-  jobjectArray trace = env->NewObjectArray(stack.size()*2, objcls, NULL);
+  jobjectArray trace = env->NewObjectArray((jsize)stack.size()*2, objcls, NULL);
   for (unsigned i = 0; i < stack.size(); ++i){
     env->SetObjectArrayElement(trace, 2*i, stack[i]);
     env->SetObjectArrayElement(trace, 2*i+1, (jobject)ips[i]);

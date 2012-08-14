@@ -701,6 +701,7 @@ public:
   jobject NewObject(jclass clazz, jmethodID methodID, ...) {va_list args; va_start(args, methodID); jobject ret = m_func->NewObjectV(this, clazz, methodID, args); va_end(args); return ret;}
   jfieldID GetFieldID(jclass clazz, const char *name, const char *sig) {return m_func->GetFieldID(this, clazz, name, sig);}
   jobject GetObjectField(jobject obj, jfieldID fieldID) {return m_func->GetObjectField(this, obj, fieldID);}
+  jint GetIntField(jobject obj, jfieldID fieldID) {return m_func->GetIntField(this, obj, fieldID);}
   jlong GetLongField(jobject obj, jfieldID fieldID) {return m_func->GetLongField(this, obj, fieldID);}
   void SetObjectField(jobject obj, jfieldID fieldID, jobject val) {return m_func->SetObjectField(this, obj, fieldID, val);}
   void SetLongField(jobject obj, jfieldID fieldID, jlong value) {m_func->SetLongField(this, obj, fieldID, value);}
