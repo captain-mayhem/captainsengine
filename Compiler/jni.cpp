@@ -130,25 +130,31 @@ jfieldID VMContext::GetFieldID(JNIEnv *env, jclass clazz, const char *name, cons
 
 jobject VMContext::GetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID){
   VMObject* object = (VMObject*)obj;
-  FieldData* data = object->getObjField((intptr_t)fieldID);
+  FieldData* data = object->getObjField((unsigned)(intptr_t)fieldID);
   return data->obj;
+}
+
+jint VMContext::GetIntField(JNIEnv *env, jobject obj, jfieldID fieldID){
+  VMObject* object = (VMObject*)obj;
+  FieldData* data = object->getObjField((unsigned)(intptr_t)fieldID);
+  return data->i;
 }
 
 jlong VMContext::GetLongField(JNIEnv *env, jobject obj, jfieldID fieldID){
   VMObject* object = (VMObject*)obj;
-  FieldData* data = object->getObjField((intptr_t)fieldID);
+  FieldData* data = object->getObjField((unsigned)(intptr_t)fieldID);
   return data->l;
 }
 
 void VMContext::SetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID, jobject val){
   VMObject* object = (VMObject*)obj;
-  FieldData* data = object->getObjField((intptr_t)fieldID);
+  FieldData* data = object->getObjField((unsigned)(intptr_t)fieldID);
   data->obj = (VMObject*)val;
 }
 
 void VMContext::SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value){
   VMObject* object = (VMObject*)obj;
-  FieldData* data = object->getObjField((intptr_t)fieldID);
+  FieldData* data = object->getObjField((unsigned)(intptr_t)fieldID);
   data->l = value;
 }
 
@@ -182,7 +188,7 @@ jfieldID VMContext::GetStaticFieldID(JNIEnv *env, jclass clazz, const char *name
 
 void VMContext::SetStaticObjectField(JNIEnv *env, jclass clazz, jfieldID fieldID, jobject value){
   VMClass* cls = (VMClass*)clazz;
-  FieldData* field = cls->getStaticField((intptr_t)fieldID);
+  FieldData* field = cls->getStaticField((unsigned)(intptr_t)fieldID);
   VMObject* obj = (VMObject*)value;
   field->obj = obj;
 }
@@ -271,11 +277,10 @@ JNIEnv_::JNIEnv_(JavaVM_* vm){
 	FieldData* prio = ctx->getThread()->getObjField(thrdcls->findFieldIndex("priority"));
 	prio->ui = 5;
   FieldData* eetop = ctx->getThread()->getObjField(thrdcls->findFieldIndex("eetop"));
-#ifdef WIN32
-  eetop->l = (jlong)GetCurrentThread();
-#else
-	eetop->l = (jlong)pthread_self();
-#endif
+  CGE::Thread* self = new CGE::Thread();
+  self->createSelf();
+  self->setPriority(CGE::Thread::NORMAL);
+  eetop->l = (jlong)self;
 	VM_CTX(vm)->findClass(ctx, "java/lang/Thread");
 	VM_CTX(vm)->initBasicClasses((VMContext*)m_func);
 }

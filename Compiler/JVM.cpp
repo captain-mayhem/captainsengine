@@ -37,15 +37,15 @@ JVM::JVM(VMArgs* args) : mArgs(args){
 }
 
 JVM::~JVM(){
+  for (std::list<VMContext*>::iterator iter = mThreads.begin(); iter != mThreads.end(); ++iter){
+    delete *iter;
+  }
+  mThreads.clear();
 	for (std::list<VMObject*>::iterator iter = mCreatedObjects.begin(); iter != mCreatedObjects.end(); ++iter){
 		delete *iter;
 	}
 	mCreatedObjects.clear();
 	globalVM = NULL;
-  for (std::list<VMContext*>::iterator iter = mThreads.begin(); iter != mThreads.end(); ++iter){
-    delete *iter;
-  }
-  mThreads.clear();
 	for (std::map<std::string,VMClass*>::iterator iter = mClassResolver.begin(); iter != mClassResolver.end(); ++iter){
 		delete iter->second;
 	}
@@ -310,8 +310,8 @@ unction utf16to8(str) {
 */
 
 static int utf8to16(const char* in, unsigned short* out, unsigned outsize){
-  unsigned len = strlen(in);
-  int i = 0;
+  unsigned len = (unsigned)strlen(in);
+  unsigned i = 0;
   int outcount = 0;
   while (i < len){
     unsigned c = in[i++];

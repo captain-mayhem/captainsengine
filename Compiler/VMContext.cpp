@@ -3,6 +3,8 @@
 #include <cstring>
 
 #include "JVM.h"
+#include "VMObject.h"
+#include "VMclass.h"
 
 VMContext::VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd) : mVm(vm), mSelf(myself), mException(NULL){
   JNINativeInterface_::reserved0 = NULL;
@@ -20,6 +22,7 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd) : mVm(vm), mSelf(m
   JNINativeInterface_::CallVoidMethodV = CallVoidMethodV;
 	JNINativeInterface_::GetFieldID = GetFieldID;
   JNINativeInterface_::GetObjectField = GetObjectField;
+  JNINativeInterface_::GetIntField = GetIntField;
   JNINativeInterface_::GetLongField = GetLongField;
   JNINativeInterface_::SetObjectField = SetObjectField;
   JNINativeInterface_::SetLongField = SetLongField;
@@ -49,6 +52,10 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd) : mVm(vm), mSelf(m
 }
 
 VMContext::~VMContext(){
+  VMClass* thrdcls = mVm->findClass(this, "java/lang/Thread");
+  FieldData* eetop = mThread->getObjField(thrdcls->findFieldIndex("eetop"));
+  CGE::Thread* thrd = (CGE::Thread*)eetop->l;
+  delete thrd;
   delete mSelf;
 	delete [] mStack;
 }

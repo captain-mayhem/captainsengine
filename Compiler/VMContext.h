@@ -58,6 +58,7 @@ protected:
 	static jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
   static jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
   static jobject GetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID);
+  static jint GetIntField(JNIEnv *env, jobject obj, jfieldID fieldID);
   static jlong GetLongField(JNIEnv *env, jobject obj, jfieldID fieldID);
   static void SetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID, jobject val);
   static void SetLongField(JNIEnv *env, jobject obj, jfieldID fieldID, jlong value);

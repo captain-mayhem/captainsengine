@@ -15,11 +15,21 @@ namespace CGE {
   
 class Thread{
 public:
+  enum Priority{
+    EXTREMELY_LOW,
+    VERY_LOW,
+    LOW,
+    NORMAL,
+    HIGH,
+    VERY_HIGH,
+    EXTREMELY_HIGH
+  };
   int create(void (*proc)(void* data), void* data);
   void createSelf();
   void destroy();
   void join();
   static void sleep(int milliseconds);
+  void setPriority(Priority priority);
 private:
 #ifdef WIN32
   HANDLE thread_;
