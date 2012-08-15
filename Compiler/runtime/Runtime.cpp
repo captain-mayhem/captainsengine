@@ -447,6 +447,23 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   key = env->NewStringUTF("java.class.path");
   value = env->NewStringUTF(args->classpath);
   env->CallObjectMethod(properties, mthd, key, value);
+
+  //init user properties
+  char** props = args->properties;
+  while (props != NULL && *props != NULL){
+    char* prop = *props;
+    char* val = strchr(prop, '=');
+    if (val != NULL){
+      *val = '\0';
+      ++val;
+      value = env->NewStringUTF(val);
+    }
+    else
+      value = env->NewStringUTF("true");
+    key = env->NewStringUTF(prop);
+    env->CallObjectMethod(properties, mthd, key, value);
+    ++props;
+  }
   return properties;
 }
 

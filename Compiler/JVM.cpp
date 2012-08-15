@@ -387,3 +387,13 @@ void JVM::destroyContext(VMContext* ctx){
   mThreads.remove(ctx);
   delete ctx;
 }
+
+std::string JVM::stringToString(VMObject* str){
+  VMObject* obj = str;
+  VMCharArray* ca = (VMCharArray*)obj->getObjField(1)->obj;
+  std::string data;
+  for (unsigned i = 0; i < ca->getLength(); ++i){
+    data.append(1, (char)ca->get(i));
+  }
+  return data;
+}

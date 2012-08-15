@@ -288,7 +288,7 @@ void VMClass::initFields(VMContext* ctx){
     statfields = super->getStaticFieldOffset();
 		super->copyMethodData(mMethodResolver, mMethods);
     super->copyFieldData(mFieldResolver, mStaticFieldResolver);
-		methods = mMethods.size();
+		methods = (unsigned)mMethods.size();
 	}
   mSuperFields = statfields;
 
@@ -308,7 +308,7 @@ void VMClass::initFields(VMContext* ctx){
   mNonStaticFieldOffset = nonstatic;
 
 	//methods
-	int offset = mMethods.size()+1;
+	int offset = (int)mMethods.size()+1;
 	std::vector<VMMethod*> plainMethods;
 	for (int i = 0; i < mClass.methods_count; ++i){
     Java::method_info* mi = mClass.methods[i];
@@ -353,7 +353,7 @@ void VMClass::initFields(VMContext* ctx){
 		}
 	}
 	//add plain methods
-	mVtableEnd = mMethods.size();
+	mVtableEnd = (unsigned)mMethods.size();
 	mMethods.resize(mVtableEnd+plainMethods.size());
 	for (unsigned i = 0; i < plainMethods.size(); ++i){
 		mMethodResolver[plainMethods[i]->getName()+plainMethods[i]->getSignature()] = ++methods;
@@ -367,7 +367,7 @@ unsigned VMClass::getNonStaticFieldOffset(){
 }
 
 unsigned VMClass::getStaticFieldOffset(){
-  return mFields.size();
+  return (unsigned)mFields.size();
 }
 
 FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){

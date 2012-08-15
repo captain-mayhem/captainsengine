@@ -27,6 +27,7 @@
 
 TR_CHANNEL(Java_Method);
 //TR_CHANNEL_LVL(Java_Method, TRACE_DEBUG);
+TR_CHANNEL(Java_Properties);
 
 #define HANDLE_EXCEPTION(__ip__) \
   {if (!handleException(&__ip__, ctx)) \
@@ -255,6 +256,17 @@ void BcVMMethod::execute(VMContext* ctx, unsigned ret){
 	for (unsigned i = 0; i < mCode->max_locals - argsize; ++i){
 		ctx->push(0u);
 	}
+  if (mName == "getProperty" && mClass->getName() == "java/util/Properties"){
+    TR_USE(Java_Properties);
+    std::string data = JVM::stringToString(ctx->get(1).obj);
+    TR_INFO("property %s requested", data.c_str());
+  }
+  if (mName == "setProperty" && mClass->getName() == "java/util/Properties"){
+    TR_USE(Java_Properties);
+    std::string data = JVM::stringToString(ctx->get(1).obj);
+    std::string data2 = JVM::stringToString(ctx->get(2).obj);
+    TR_INFO("property %s is set to %s", data.c_str(), data2.c_str());
+  }
 	for (unsigned k = 0; k < mCode->code_length; ++k){
     Java::u1 opcode = mCode->code[k];
 		TR_DEBUG(Opcode::map_string[opcode].c_str());

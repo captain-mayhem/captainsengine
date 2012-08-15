@@ -13,21 +13,34 @@ enum ArgType{
   ArgClass,
   ArgCp,
   ArgCpPath,
+  ArgProp,
+  ArgPropProperty,
+  ArgProperty,
 };
 
 ArgType parseArgument(ArgType prevArg, const char* arg){
   if (prevArg == ArgCp)
     return ArgCpPath;
+  if (prevArg == ArgProp)
+    return ArgPropProperty;
+  if (strcmp(arg, "-D") == 0)
+    return ArgProp;
+  if (strncmp(arg, "-D", 2) == 0)
+    return ArgProperty;
   if (strcmp(arg, "-cp") == 0 || strcmp(arg, "-classpath") == 0)
     return ArgCp;
   return ArgClass;
 }
+
+
 
 int main(int argc, char* argv[])
 {
   /*CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
 	CGE::Engine::instance()->init();*/
+  std::vector<char*> properties;
+
   JDK1_1InitArgs vm_args;
   vm_args.version = 0x00010001;
   vm_args.classpath = ".";
@@ -43,9 +56,18 @@ int main(int argc, char* argv[])
       case ArgCpPath:
         vm_args.classpath = argv[i];
         break;
+      case ArgProperty:
+        properties.push_back(argv[i]+2);
+        break;
+      case ArgPropProperty:
+        properties.push_back(argv[i]);
+        break;
     }
     prev = type;
   }
+
+  properties.push_back(NULL);
+  vm_args.properties = properties.empty() ? NULL : &properties[0];
   
   //Interpreter interp;
   //interp.execute(filename);

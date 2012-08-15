@@ -55,6 +55,7 @@ public:
   void registerObject(VMObject* obj);
   std::vector<std::string>& getFilePaths() {return mFilePaths;}
   VMArgs* getArguments() {return mArgs;}
+  static std::string stringToString(VMObject* str);
 protected:
 	void init();
 
