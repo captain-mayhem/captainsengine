@@ -44,6 +44,8 @@ public:
   void unref() {--mRefCount; if (mRefCount <= 0) delete this;}
   bool handleException(unsigned* ip, VMContext* ctx);
   int getMethodIndex() {return mMethodIndex;}
+  unsigned getNumParameters() {return (unsigned)mSplitSignature.size();}
+  VMClass* getParameterClass(VMContext* ctx, int idx);
 protected:
   virtual ~VMMethod();
 	void parseSignature();
@@ -51,6 +53,7 @@ protected:
 	std::string mName;
 	std::string mSignature;
   std::vector<std::string> mSplitSignature;
+  std::string mReturnSignature;
 	ReturnType mReturnType;
 	unsigned mArgSize;
 	bool mIsStatic;

@@ -2,7 +2,8 @@
 
 #include "VMclass.h"
 
-VMObject::VMObject() : mClass(NULL), mMuty(true){
+VMObject::VMObject(VMClass* cls) : mClass(cls), mMuty(true){
+
 }
 
 VMObject::~VMObject(){

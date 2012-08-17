@@ -9,7 +9,7 @@ class VMContext;
 
 class VMObject{
 public:
-	VMObject();
+	VMObject(VMClass* cls);
 	VMObject(VMContext* ctx, VMClass* cls);
 	virtual ~VMObject();
 	void init(VMContext* ctx, VMClass* cls);

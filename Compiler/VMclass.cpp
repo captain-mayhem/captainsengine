@@ -19,12 +19,16 @@
 
 #include "JavaBinFileReader.h"
 
+#ifdef WIN32
+#pragma warning (disable: 4355) //this used in base member initializer list
+#endif
+
 TR_CHANNEL(Java_Class);
 
-VMClass::VMClass() : mSuperclass(NULL) , mNonStaticFieldOffset(0) {
+VMClass::VMClass() : VMObject(this), mSuperclass(NULL) , mNonStaticFieldOffset(0) {
 }
 
-VMClass::VMClass(const std::string& filename) : mSuperclass(NULL)/*, mClassObject(NULL)*/ {
+VMClass::VMClass(const std::string& filename) : VMObject(this), mSuperclass(NULL)/*, mClassObject(NULL)*/ {
   TR_USE(Java_Class);
 	 mFilename = filename;
 
