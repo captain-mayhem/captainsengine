@@ -17,7 +17,9 @@ class VMArrayClass : public VMClass{
 public:
   VMArrayClass(const std::string& name);
 private:
-  static jobjectArray cloneFunc(JNIEnv* env, jobjectArray array);
+  static jobjectArray cloneFunc(JNIEnv* env, jarray array);
+  static jboolean isArrayFunc(JNIEnv* env, jarray array);
+  static jclass getComponentTypeFunc(JNIEnv* env, jarray array);
 };
 
 class VMArrayBase : public VMObject{

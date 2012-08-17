@@ -257,7 +257,7 @@ VMDoubleArray* JVM::createDoubleArray(VMContext* ctx, unsigned size){
 }
 
 VMLongArray* JVM::createLongArray(VMContext* ctx, unsigned size){
-  VMClass* cls = findClass(ctx, "[L");
+  VMClass* cls = findClass(ctx, "[J");
   VMLongArray* arr = new VMLongArray(ctx, cls, size);
   mCreatedObjects.push_back(arr);
   return arr;
@@ -274,11 +274,11 @@ void JVM::initBasicClasses(VMContext* ctx){
 	VMMethod* sysinit = sys->getMethod(sys->findMethodIndex("initializeSystemClass", "()V"));
 	sysinit->execute(ctx, -2);
 	//createString(ctx, "teststring");
-	/*VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
+	VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
 	VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("<init>", "()V"));
 	VMObject* ldr = createObject(ctx, ldrcls);
 	ctx->push(ldr);
-	mthd->execute(ctx);*/
+	mthd->execute(ctx, -1);
 	return;
 }
 

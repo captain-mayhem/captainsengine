@@ -51,6 +51,7 @@ ELSEIF (${OS} STREQUAL "linux")
 ENDIF (${OS} STREQUAL "windows")
 
 ADD_LIBRARY(javaruntime SHARED
+	runtime/Java_io.cpp
 	runtime/Runtime.cpp
 	runtime/Runtime.h
 

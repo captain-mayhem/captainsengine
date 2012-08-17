@@ -109,6 +109,11 @@ void VMMethod::parseSignature(){
 	}
 	//parse return
 	mReturnType = parseType(mSignature[i]);
+  mReturnSignature = mSignature.substr(i);
+  if (mReturnSignature[0] == 'L'){
+    mReturnSignature.erase(0, 1);
+    mReturnSignature.erase(mReturnSignature.size()-1);
+  }
 }
 
 VMMethod::ReturnType VMMethod::parseType(const char type){
@@ -138,6 +143,12 @@ VMMethod::ReturnType VMMethod::parseType(const char type){
 	else
 		TR_BREAK("Unexpected return type in method signature");
 	return Void;
+}
+
+VMClass* VMMethod::getParameterClass(VMContext* ctx, int idx){
+  if (idx < 0)
+    return getVM()->findClass(ctx, mReturnSignature);
+  return getVM()->findClass(ctx, mSplitSignature[idx]);
 }
 
 void BcVMMethod::print(std::ostream& strm){
@@ -1599,6 +1610,7 @@ skipdefault:
         {
           VMObject* exception = ctx->pop().obj;
           ctx->throwException(exception);
+          ctx->getJNIEnv()->ExceptionDescribe();
           HANDLE_EXCEPTION(k);
           break;
         }
