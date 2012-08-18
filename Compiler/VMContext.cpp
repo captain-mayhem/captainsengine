@@ -12,6 +12,7 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd) : mVm(vm), mSelf(m
   JNINativeInterface_::GetSuperclass = GetSuperclass;
   JNINativeInterface_::IsAssignableFrom = IsAssignableFrom;
   JNINativeInterface_::Throw = Throw;
+  JNINativeInterface_::ThrowNew = ThrowNew;
   JNINativeInterface_::ExceptionDescribe = ExceptionDescribe;
   JNINativeInterface_::ExceptionOccurred = ExceptionOccurred;
   JNINativeInterface_::ExceptionClear = ExceptionClear;
@@ -20,6 +21,7 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd) : mVm(vm), mSelf(m
 	JNINativeInterface_::CallObjectMethodV = CallObjectMethodV;
   JNINativeInterface_::CallIntMethodV = CallIntMethodV;
   JNINativeInterface_::CallVoidMethodV = CallVoidMethodV;
+  JNINativeInterface_::NewObject = NewObject;
 	JNINativeInterface_::GetFieldID = GetFieldID;
   JNINativeInterface_::GetObjectField = GetObjectField;
   JNINativeInterface_::GetIntField = GetIntField;

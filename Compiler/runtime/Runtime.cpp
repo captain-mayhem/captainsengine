@@ -127,7 +127,9 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 		VMObject* arrobj = getVM()->createObject(CTX(env), fieldcls);
 		CTX(env)->push(arrobj);
 		CTX(env)->push(objcls->getClassObject());
-		CTX(env)->push(objcls->getConstant(CTX(env), info->name_index).obj);
+    VMObject* nameobj = objcls->getConstant(CTX(env), info->name_index).obj;
+    nameobj = getVM()->internalizeString(name, nameobj);
+		CTX(env)->push(nameobj);
     //objcls->getinfo->descriptor_index
     VMObject* signature = objcls->getConstant(ctx, info->descriptor_index).obj;
     const char* sig = env->GetStringUTFChars(signature, NULL);
@@ -140,7 +142,7 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
     env->ReleaseStringUTFChars(signature, sig);
 		ctx->push(typeclass); //type class
 		ctx->push(info->access_flags);
-		ctx->push(objcls/*->findFieldIndex(name)*/);
+		ctx->push(objcls->findFieldIndex(name));
 		ctx->push(signature);
 		ctx->push(0u);
 		VMMethod* mthd = fieldcls->getMethod(fieldcls->findMethodIndex("<init>", "(Ljava/lang/Class;Ljava/lang/String;Ljava/lang/Class;IILjava/lang/String;[B)V"));
@@ -247,6 +249,15 @@ jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls,
   else if (strcmp(namestr, "void") == 0){
     clazz = getVM()->getPrimitiveClass(CTX(env), "V");
   }
+  else if (strcmp(namestr, "byte") == 0){
+    clazz = getVM()->getPrimitiveClass(CTX(env), "B");
+  }
+  else if (strcmp(namestr, "long") == 0){
+    clazz = getVM()->getPrimitiveClass(CTX(env), "J");
+  }
+  else if (strcmp(namestr, "char") == 0){
+    clazz = getVM()->getPrimitiveClass(CTX(env), "C");
+  }
 	else{
     TR_USE(Java_Runtime);
 		TR_BREAK("getPrimitiveClass not implemented for this type");
@@ -260,9 +271,20 @@ jclass JNIEXPORT Java_java_lang_Class_getSuperclass(JNIEnv* env, jclass clazz){
   return super;
 }
 
+jboolean JNIEXPORT Java_java_lang_Class_isArray(JNIEnv* env, jclass cls){
+  return JNI_FALSE; //Arrays are handled separately
+}
+
 jboolean JNIEXPORT Java_java_lang_Class_isInterface(JNIEnv* env, jobject object){
   VMClass* cls = (VMClass*)object;
   return cls->getClassDefinition().access_flags & ACC_INTERFACE ? JNI_TRUE : JNI_FALSE;
+}
+
+jboolean JNIEXPORT Java_java_lang_Class_isPrimitive(JNIEnv* env, jclass cls){
+  VMClass* clazz = (VMClass*)cls;
+  if (clazz->getName().size() == 1)
+    return JNI_TRUE;
+  return JNI_FALSE;
 }
 
 void JNIEXPORT Java_java_lang_ClassLoader_registerNatives(JNIEnv* env, jobject object){
@@ -405,9 +427,15 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   key = env->NewStringUTF("sun.boot.library.path");
   value = env->NewStringUTF(filename);
   env->CallObjectMethod(properties, mthd, key, value);
+  
   key = env->NewStringUTF("file.encoding");
   value = env->NewStringUTF("UTF-8");
   env->CallObjectMethod(properties, mthd, key, value);
+  
+  /*key = env->NewStringUTF("java.protocol.handler.pkgs");
+  value = env->NewStringUTF("");
+  env->CallObjectMethod(properties, mthd, key, value);*/
+  
   key = env->NewStringUTF("java.class.path");
   value = env->NewStringUTF(args->classpath);
   env->CallObjectMethod(properties, mthd, key, value);

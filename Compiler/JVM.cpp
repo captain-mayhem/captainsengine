@@ -114,7 +114,9 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
       return getPrimitiveClass(ctx, name);
     }
     //Java::ClassFile* clfile = new Java::ClassFile();
-		entry = new VMClass(name);
+		entry = new VMClass(ctx, name);
+    if (ctx->getException() != NULL)
+      return NULL;
 
 		mClassResolver[name] = entry;
 
@@ -163,7 +165,9 @@ VMClass* JVM::defineClass(VMContext* ctx, const std::string& name){
       return entry;
     }
     //Java::ClassFile* clfile = new Java::ClassFile();
-		entry = new VMClass(name);
+		entry = new VMClass(ctx, name);
+    if (ctx->getException() != NULL)
+      return NULL;
 
 		mUninitializedClasses[name] = entry;
 
@@ -187,6 +191,7 @@ VMClass* JVM::getPrimitiveClass(VMContext* ctx, std::string name){
 	 VMClass* entry = mClassResolver[name];
   if (entry == 0){
 		entry = new VMClass();
+    entry->setName(name);
 		
 		mClassResolver[name] = entry;
 		//entry->print(std::cout);
@@ -309,7 +314,7 @@ unction utf16to8(str) {
 }
 */
 
-static int utf8to16(const char* in, unsigned short* out, unsigned outsize){
+int JVM::utf8to16(const char* in, unsigned short* out, unsigned outsize){
   unsigned len = (unsigned)strlen(in);
   unsigned i = 0;
   int outcount = 0;
@@ -357,7 +362,8 @@ VMObject* JVM::createString(VMContext* ctx, const char* str){
 	VMMethod* mthd = cls->getMethod(idx);
   VMCharArray* arr = getVM()->createCharArray(ctx, size-1);
 	ctx->push(arr);
-	arr->setData(utf16);
+  if (size > 1)
+	  arr->setData(utf16);
 	mthd->execute(ctx, -1);
   delete [] utf16;
 	return obj;

@@ -13,7 +13,7 @@ class VMContext;
 class VMClass : public VMObject{
 public:
 	VMClass();
-	VMClass(const std::string& filename);
+	VMClass(VMContext* ctx, const std::string& filename);
 	virtual ~VMClass();
 	unsigned findMethodIndex(const std::string& name, const std::string& signature);
 	unsigned findFieldIndex(const std::string& name);
@@ -39,6 +39,7 @@ public:
 	Java::ClassFile& getClassDefinition() {return mClass;}
 	VMObject* getClassObject() {return this;}
 	std::string getName() {return mFilename;}
+  void setName(const std::string& str) {mFilename = str;}
   std::string getSourceFileName();
   int getLineNumber(int ip, int methodIndex);
   int getCatchIP(int ip, VMContext* ctx, VMObject* exception, int methodIndex);
