@@ -61,6 +61,13 @@ jint VMContext::Throw(JNIEnv *env, jthrowable obj){
   return 0;
 }
 
+jint VMContext::ThrowNew(JNIEnv *env, jclass clazz, const char *msg){
+  jmethodID mid = GetMethodID(env, clazz, "<init>", "(Ljava/lang/String;)V");
+  jstring str = NewStringUTF(env, msg);
+  jobject ex = NewObject(env, clazz, mid, str);
+  return Throw(env, ex);
+}
+
 jthrowable VMContext::ExceptionOccurred(JNIEnv *env){
   return CTX(env)->getException();
 }
@@ -121,6 +128,14 @@ void VMContext::CallVoidMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va
     CTX(env)->push(obj);
   }
   mthd->execute(CTX(env), -2);
+}
+
+jobject VMContext::NewObject(JNIEnv *env, jclass clazz, jmethodID methodID, ...){
+  va_list args;
+  va_start(args, methodID);
+  jobject ret = NewObjectV(env, clazz, methodID, args);
+  va_end(args);
+  return ret;
 }
 
 jfieldID VMContext::GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig){

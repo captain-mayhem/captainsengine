@@ -47,6 +47,7 @@ protected:
   static jclass GetSuperclass(JNIEnv *env, jclass sub);
   static jboolean IsAssignableFrom(JNIEnv *env, jclass sub, jclass sup);
   static jint Throw(JNIEnv *env, jthrowable obj);
+  static jint ThrowNew(JNIEnv *env, jclass clazz, const char *msg);
   static jthrowable ExceptionOccurred(JNIEnv *env);
   static void ExceptionDescribe(JNIEnv *env);
   static void ExceptionClear(JNIEnv *env);
@@ -54,7 +55,8 @@ protected:
 	static jmethodID GetMethodID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
 	static jobject CallObjectMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
   static jint CallIntMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
-  static void CallVoidMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args); 
+  static void CallVoidMethodV(JNIEnv *env, jobject obj, jmethodID methodID, va_list args);
+  static jobject NewObject(JNIEnv *env, jclass clazz, jmethodID methodID, ...);
 	static jobject NewObjectV(JNIEnv *env, jclass clazz, jmethodID methodID, va_list args);
   static jfieldID GetFieldID(JNIEnv *env, jclass clazz, const char *name, const char *sig);
   static jobject GetObjectField(JNIEnv *env, jobject obj, jfieldID fieldID);

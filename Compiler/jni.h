@@ -690,6 +690,7 @@ public:
   jclass GetSuperclass(jclass sub) {return m_func->GetSuperclass(this, sub);}
   jboolean IsAssignableFrom(jclass sub, jclass sup) {return m_func->IsAssignableFrom(this, sub, sup);}
   jint Throw(jthrowable obj) {return m_func->Throw(this, obj);}
+  jint ThrowNew(jclass clazz, const char *msg) {return m_func->ThrowNew(this, clazz, msg);}
   jthrowable ExceptionOccurred() {return m_func->ExceptionOccurred(this);}
   void ExceptionDescribe() {m_func->ExceptionDescribe(this);}
   void ExceptionClear() {m_func->ExceptionClear(this);}

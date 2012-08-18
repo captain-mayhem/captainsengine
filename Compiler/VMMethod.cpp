@@ -451,6 +451,15 @@ void BcVMMethod::execute(VMContext* ctx, unsigned ret){
 					ctx->push(arr->get(idx));
 				}
 				break;
+      case Java::op_laload:
+        {
+          unsigned idx = ctx->pop().ui;
+          VMLongArray* arr = (VMLongArray*)ctx->pop().obj;
+          jlong l = arr->get(idx);
+          ctx->push((uint32)(l >> 0));
+          ctx->push((uint32)(l >> 32));
+        }
+        break;
 			case Java::op_aastore:
 				{
 					VMObject* value = ctx->pop().obj;

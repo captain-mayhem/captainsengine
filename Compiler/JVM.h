@@ -56,6 +56,7 @@ public:
   std::vector<std::string>& getFilePaths() {return mFilePaths;}
   VMArgs* getArguments() {return mArgs;}
   static std::string stringToString(VMObject* str);
+  static int utf8to16(const char* in, unsigned short* out, unsigned outsize);
 protected:
 	void init();
 

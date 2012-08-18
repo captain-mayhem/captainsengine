@@ -11,6 +11,7 @@
 #include "JVM.h"
 #include "VMArray.h"
 #include "VMMethod.h"
+#include "VMContext.h"
 
 #define PROC_DECL_MAP_MODE
 #include "Preproc.h"
@@ -28,7 +29,7 @@ TR_CHANNEL(Java_Class);
 VMClass::VMClass() : VMObject(this), mSuperclass(NULL) , mNonStaticFieldOffset(0) {
 }
 
-VMClass::VMClass(const std::string& filename) : VMObject(this), mSuperclass(NULL)/*, mClassObject(NULL)*/ {
+VMClass::VMClass(VMContext* ctx, const std::string& filename) : VMObject(this), mSuperclass(NULL)/*, mClassObject(NULL)*/ {
   TR_USE(Java_Class);
 	 mFilename = filename;
 
@@ -52,7 +53,11 @@ VMClass::VMClass(const std::string& filename) : VMObject(this), mSuperclass(NULL
     TR_DEBUG("using jar mode");
 		mrdr = getVM()->getClassFile(filename+".class");
 		if (!mrdr.isWorking()){
-      TR_BREAK("Class %s not found in jar", filename.c_str());
+      TR_WARN("Class %s not found in jar", filename.c_str());
+      JNIEnv* env = ctx->getJNIEnv();
+      jclass exception = env->FindClass("java/lang/ClassNotFoundException");
+      env->ThrowNew(exception, ("Class "+filename+" could not be found").c_str());
+      return;
     }
     reader = &mrdr;
     in.setReader(reader);
@@ -74,7 +79,8 @@ VMClass::VMClass(const std::string& filename) : VMObject(this), mSuperclass(NULL
 
 VMClass::~VMClass(){
 	for (std::vector<VMMethod*>::iterator iter = mMethods.begin(); iter != mMethods.end(); ++iter){
-	  (*iter)->unref();
+    if (*iter != NULL)
+	    (*iter)->unref();
 	}
 }
 
@@ -414,14 +420,13 @@ FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 		//cls->print(std::cout);
 		VMObject* obj = getVM()->createObject(ctx, cls);
 		FieldData* val = obj->getObjField(cls->findFieldIndex("value"));
-		VMCharArray* strdata = getVM()->createCharArray(ctx, utf->length);
-		if (utf->length > 0){
-			unsigned short* data = new unsigned short[utf->length];
-			for (int i = 0; i < utf->length; ++i){
-				data[i] = utf->bytes[i];
-			}
-			strdata->setData(data);
-			delete [] data;
+    int size = JVM::utf8to16(utf->bytes.c_str(), NULL, 0);
+		VMCharArray* strdata = getVM()->createCharArray(ctx, size);
+		if (size > 1){
+      unsigned short* utf16 = new unsigned short[size];
+      JVM::utf8to16(utf->bytes.c_str(), utf16, size);
+			strdata->setData(utf16);
+			delete [] utf16;
 		}
 		val->obj = strdata;
 		val = obj->getObjField(cls->findFieldIndex("offset"));
