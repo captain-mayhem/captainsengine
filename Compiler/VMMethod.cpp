@@ -278,6 +278,8 @@ void BcVMMethod::execute(VMContext* ctx, unsigned ret){
     std::string data2 = JVM::stringToString(ctx->get(2).obj);
     TR_INFO("property %s is set to %s", data.c_str(), data2.c_str());
   }
+  /*if (mClass->getName() == "java/lang/CharacterDataLatin1" && mName == "toLowerCase")
+    TR_BREAK("Test");*/
 	for (unsigned k = 0; k < mCode->code_length; ++k){
     Java::u1 opcode = mCode->code[k];
 		TR_DEBUG(Opcode::map_string[opcode].c_str());
@@ -423,6 +425,14 @@ void BcVMMethod::execute(VMContext* ctx, unsigned ret){
 					ctx->put(3, i2);
 				}
 				break;
+      case Java::op_lstore_3:
+        {
+          unsigned i = ctx->pop().ui;
+          unsigned i2 = ctx->pop().ui;
+          ctx->put(3, i);
+          ctx->put(4, i2);
+        }
+        break;
 			case Java::op_aaload:
 				{
 					unsigned idx = ctx->pop().ui;
@@ -1225,6 +1235,10 @@ skipdefault:
 				ctx->push(ctx->get(3));
 				ctx->push(ctx->get(2));
 				break;
+      case Java::op_lload_3:
+        ctx->push(ctx->get(4));
+        ctx->push(ctx->get(3));
+        break;
 			case Java::op_astore:
 				{
 					unsigned idx = mCode->code[++k];
@@ -1619,7 +1633,7 @@ skipdefault:
         {
           VMObject* exception = ctx->pop().obj;
           ctx->throwException(exception);
-          ctx->getJNIEnv()->ExceptionDescribe();
+          //ctx->getJNIEnv()->ExceptionDescribe();
           HANDLE_EXCEPTION(k);
           break;
         }

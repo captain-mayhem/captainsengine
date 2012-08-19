@@ -32,6 +32,7 @@ typedef jint (*CallF_I)(JNIEnv* env, jobject object, jfloat f);
 typedef jlong (*CallD_J)(JNIEnv* env, jobject object, jdouble d);
 
 typedef jobject (*CallZ_P)(JNIEnv* env, jobject object, jboolean b);
+typedef jboolean (*CallZ_Z)(JNIEnv* env, jobject object, jboolean b);
 
 typedef jlong (*CallJ_J)(JNIEnv* env, jobject object, jlong l);
 typedef jboolean (*CallJ_Z)(JNIEnv* env, jobject object, jlong l);
@@ -265,6 +266,11 @@ FieldData NativeVMMethod::executeNoASM(VMContext* ctx, VMMethod::ReturnType ret,
     if (ret == VMMethod::Array){
       CallZ_P mthd = (CallZ_P)mFunction;
       retval.obj = (VMObject*)mthd(env, cls, b);
+      return retval;
+    }
+    else if (ret == VMMethod::Boolean){
+      CallZ_Z mthd = (CallZ_Z)mFunction;
+      retval.b = mthd(env, cls, b);
       return retval;
     }
     TR_BREAK("Cannot call method signature");

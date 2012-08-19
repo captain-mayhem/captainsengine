@@ -1,9 +1,12 @@
 #include "Runtime.h"
+#include <io/Tracing.h>
 
 #ifdef WIN32
 #else
 #include <sys/stat.h>
 #endif
+
+TR_CHANNEL(Java_Runtime_IO);
 
 extern "C"{
 
@@ -22,8 +25,39 @@ jlong JNIEXPORT Java_java_io_FileDescriptor_set(JNIEnv* env, jobject object, jin
   return (jlong)handle;
 }
 
+void JNIEXPORT Java_java_io_FileInputStream_close0(JNIEnv* env, jobject object){
+  TR_USE(Java_Runtime_IO);
+  jclass fileinputstream = env->GetObjectClass(object);
+  jfieldID fdfield = env->GetFieldID(fileinputstream, "fd", "Ljava/io/FileDescriptor;");
+  jobject fd = env->GetObjectField(object, fdfield);
+
+  jclass fileDescriptor = env->GetObjectClass(fd);
+  jfieldID handlefield = env->GetFieldID(fileDescriptor, "handle", "J");
+  FILE* f = (FILE*)env->GetLongField(fd, handlefield);
+  int ret = fclose(f);
+  if (ret != 0)
+    TR_BREAK("Implement: Throw IOException");
+  env->SetLongField(fd, handlefield, -1);
+}
+
 void JNIEXPORT Java_java_io_FileInputStream_initIDs(JNIEnv* env, jobject object){
   return;
+}
+
+void JNIEXPORT Java_java_io_FileInputStream_open(JNIEnv* env, jobject object, jstring filename){
+  TR_USE(Java_Runtime_IO);
+  const char* name = env->GetStringUTFChars(filename, NULL);
+  FILE* f = fopen(name, "r");
+  if (f == NULL)
+    TR_BREAK("Implement me: Throw FileNotFoundException");
+  env->ReleaseStringUTFChars(filename, name);
+  jclass fileinputstream = env->GetObjectClass(object);
+  jfieldID fdfield = env->GetFieldID(fileinputstream, "fd", "Ljava/io/FileDescriptor;");
+  jobject fd = env->GetObjectField(object, fdfield);
+  
+  jclass fileDescriptor = env->GetObjectClass(fd);
+  jfieldID handlefield = env->GetFieldID(fileDescriptor, "handle", "J");
+  env->SetLongField(fd, handlefield, (jlong)f);
 }
 
 void JNIEXPORT Java_java_io_FileOutputStream_initIDs(JNIEnv* env, jobject object){
@@ -107,7 +141,21 @@ jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jo
   return jattribs;
 }
 
+jlong JNIEXPORT Java_java_io_WinNTFileSystem_getLength(JNIEnv* env, jobject object, jobject file){
+  jclass filecls = env->GetObjectClass(file);
+  jmethodID getAbsPath = env->GetMethodID(filecls, "getAbsolutePath", "()Ljava/lang/String;");
+  jstring path = env->CallObjectMethod(file, getAbsPath);
+  const char* str = env->GetStringUTFChars(path, NULL);
+  FILE* f = fopen(str, "r");
+  fseek(f, 0, SEEK_END);
+  jlong size = ftell(f);
+  fclose(f);
+  env->ReleaseStringUTFChars(path, str);
+  return size;
+}
+
 void JNIEXPORT Java_java_io_WinNTFileSystem_initIDs(JNIEnv* env, jobject object){
+
 }
 
 }
