@@ -1,5 +1,10 @@
 #include "Runtime.h"
 
+#ifdef WIN32
+#else
+#include <sys/stat.h>
+#endif
+
 extern "C"{
 
 void JNIEXPORT Java_java_io_FileDescriptor_initIDs(JNIEnv* env, jobject object){

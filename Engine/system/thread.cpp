@@ -105,11 +105,15 @@ void Thread::setPriority(Priority priority){
   }
   SetThreadPriority(thread_, winprio);
 #else
-  pthread_setschedprio(thread_, 10+((int)priority)-3));
+  pthread_setschedprio(thread_, 10+((int)priority)-3);
 #endif
 }
 
-Mutex::Mutex(bool recursive) : recursive_(recursive){
+Mutex::Mutex(bool recursive)
+#ifdef WIN32
+: recursive_(recursive)
+#endif
+{
 #ifdef WIN32
   if (recursive)
     mutex_ = CreateMutex(0, FALSE, 0);
