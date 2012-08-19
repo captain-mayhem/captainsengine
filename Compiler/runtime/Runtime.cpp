@@ -48,6 +48,7 @@ jboolean JNIEXPORT Java_java_lang_Class_desiredAssertionStatus0(JNIEnv* env, job
 }
 
 jobject JNIEXPORT Java_java_lang_Class_getClassLoader0(JNIEnv* env, jobject object){
+  VMClass* cls = (VMClass*)object;
 	return NULL;
 }
 
@@ -257,6 +258,9 @@ jclass JNIEXPORT Java_java_lang_Class_getPrimitiveClass(JNIEnv* env, jclass cls,
   else if (strcmp(namestr, "char") == 0){
     clazz = getVM()->getPrimitiveClass(CTX(env), "C");
   }
+  else if (strcmp(namestr, "short") == 0){
+    clazz = getVM()->getPrimitiveClass(CTX(env), "S");
+  }
 	else{
     TR_USE(Java_Runtime);
 		TR_BREAK("getPrimitiveClass not implemented for this type");
@@ -308,6 +312,18 @@ void JNIEXPORT Java_java_lang_ClassLoader_00024NativeLibrary_load(JNIEnv* env, j
   jfieldID handle_field = env->GetFieldID(cls, "handle", "J");
   env->SetLongField(object, handle_field, handle);
   return;
+}
+
+jobject JNIEXPORT Java_java_lang_ClassLoader_findBootstrapClass(JNIEnv* env, jobject object, jstring name){
+  const char* clsname = env->GetStringUTFChars(name, NULL);
+  env->ReleaseStringUTFChars(name, clsname);
+  return NULL;
+}
+
+jobject JNIEXPORT Java_java_lang_ClassLoader_findLoadedClass0(JNIEnv* env, jobject object, jstring name){
+  const char* clsname = env->GetStringUTFChars(name, NULL);
+  env->ReleaseStringUTFChars(name, clsname);
+  return NULL;
 }
 
 
@@ -566,6 +582,10 @@ jboolean JNIEXPORT Java_java_lang_Thread_isAlive(JNIEnv* env, jobject object){
     return JNI_FALSE;
   TR_BREAK("Implement me");
 	return JNI_FALSE;
+}
+
+jboolean JNIEXPORT Java_java_lang_Thread_isInterrupted(JNIEnv* env, jobject object, jboolean clearInterrupted){
+  return JNI_FALSE;
 }
 
 void JNIEXPORT Java_java_lang_Thread_setPriority0(JNIEnv* env, jobject object, jint priority){

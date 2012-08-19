@@ -278,12 +278,16 @@ void JVM::initBasicClasses(VMContext* ctx){
 	VMClass* sys = findClass(ctx, "java/lang/System");
 	VMMethod* sysinit = sys->getMethod(sys->findMethodIndex("initializeSystemClass", "()V"));
 	sysinit->execute(ctx, -2);
-	//createString(ctx, "teststring");
+
 	VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
-	VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("<init>", "()V"));
-	VMObject* ldr = createObject(ctx, ldrcls);
-	ctx->push(ldr);
-	mthd->execute(ctx, -1);
+  VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("getSystemClassLoader", "()Ljava/lang/ClassLoader;"));
+  mthd->execute(ctx, -2);
+  VMObject* clsldr = ctx->pop().obj;
+
+  /*JNIEnv* env = ctx->getJNIEnv();
+  jstring str = env->NewStringUTF("Test");
+  jmethodID findClass = env->GetMethodID(ldrcls, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
+  VMClass* test = (VMClass*)env->CallObjectMethod(clsldr, findClass, str);*/
 	return;
 }
 
@@ -319,7 +323,7 @@ int JVM::utf8to16(const char* in, unsigned short* out, unsigned outsize){
   unsigned i = 0;
   int outcount = 0;
   while (i < len){
-    unsigned c = in[i++];
+    unsigned c = (in[i++])&0x000000ff;
     switch (c >> 4){
       case 0: case 1: case 2: case 3: case 4: case 5: case 6: case 7:
         if (out)
@@ -327,15 +331,15 @@ int JVM::utf8to16(const char* in, unsigned short* out, unsigned outsize){
         outcount++;
         break;
       case 12: case 13:{
-        unsigned char2 = in[i++];
+        unsigned char2 = in[i++]&0x000000ff;
         if (out){
           out[outcount] = ((c & 0x1f) << 6) | (char2 & 0x3f);
         }
         outcount++;
         break;}
       case 14:{
-        unsigned char2 = in[i++];
-        unsigned char3 = in[i++];
+        unsigned char2 = in[i++]&0x000000ff;
+        unsigned char3 = in[i++]&0x000000ff;
         if (out){
           out[outcount] = ((c & 0x0f) << 12) | ((char2 & 0x3f) << 6) | (char3 & 0x3f);
         }
