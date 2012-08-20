@@ -47,7 +47,7 @@ void JNIEXPORT Java_java_io_FileInputStream_initIDs(JNIEnv* env, jobject object)
 void JNIEXPORT Java_java_io_FileInputStream_open(JNIEnv* env, jobject object, jstring filename){
   TR_USE(Java_Runtime_IO);
   const char* name = env->GetStringUTFChars(filename, NULL);
-  FILE* f = fopen(name, "r");
+  FILE* f = fopen(name, "rb");
   if (f == NULL)
     TR_BREAK("Implement me: Throw FileNotFoundException");
   env->ReleaseStringUTFChars(filename, name);
@@ -58,6 +58,21 @@ void JNIEXPORT Java_java_io_FileInputStream_open(JNIEnv* env, jobject object, js
   jclass fileDescriptor = env->GetObjectClass(fd);
   jfieldID handlefield = env->GetFieldID(fileDescriptor, "handle", "J");
   env->SetLongField(fd, handlefield, (jlong)f);
+}
+
+jint JNIEXPORT Java_java_io_FileInputStream_readBytes(JNIEnv* env, jobject object, jbyteArray b, int off, int len){
+  jclass fileinputstream = env->GetObjectClass(object);
+  jfieldID fdfield = env->GetFieldID(fileinputstream, "fd", "Ljava/io/FileDescriptor;");
+  jobject fd = env->GetObjectField(object, fdfield);
+
+  jclass fileDescriptor = env->GetObjectClass(fd);
+  jfieldID handlefield = env->GetFieldID(fileDescriptor, "handle", "J");
+  FILE* f = (FILE*)env->GetLongField(fd, handlefield);
+
+  jbyte* tmp = env->GetByteArrayElements(b, NULL);
+  int ret = (int)fread(tmp+off, 1, len, f);
+  env->ReleaseByteArrayElements(b, tmp, 0);
+  return ret;
 }
 
 void JNIEXPORT Java_java_io_FileOutputStream_initIDs(JNIEnv* env, jobject object){
@@ -146,7 +161,7 @@ jlong JNIEXPORT Java_java_io_WinNTFileSystem_getLength(JNIEnv* env, jobject obje
   jmethodID getAbsPath = env->GetMethodID(filecls, "getAbsolutePath", "()Ljava/lang/String;");
   jstring path = env->CallObjectMethod(file, getAbsPath);
   const char* str = env->GetStringUTFChars(path, NULL);
-  FILE* f = fopen(str, "r");
+  FILE* f = fopen(str, "rb");
   fseek(f, 0, SEEK_END);
   jlong size = ftell(f);
   fclose(f);

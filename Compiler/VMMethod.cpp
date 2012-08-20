@@ -649,7 +649,9 @@ skipdefault:
 					unsigned idx = mClass->getMethodIndex(ctx, operand, execCls);
 					VMMethod* temp = execCls->getMethod(idx); //TODO not very efficient
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
-					VMMethod* mthd = obj->getObjMethod(idx);
+          VMClass* realclass = obj->getClass();
+          unsigned realidx = realclass->findMethodIndex(temp->getName(), temp->getSignature());
+					VMMethod* mthd = obj->getObjMethod(realidx);
 					mthd->execute(ctx, k);
           HANDLE_EXCEPTION(k);
         }
@@ -1571,8 +1573,8 @@ skipdefault:
       case Java::op_l2i:
 				{
 					jlong value;
-          value = ((int64)ctx->pop().ui) << 32;
-					value |= ((int64)ctx->pop().ui) << 0;
+          value = ((int64)ctx->pop().ui) << 0;
+					value |= ((int64)ctx->pop().ui) << 32;
 					ctx->push((int)value);
 					break;
 				}
