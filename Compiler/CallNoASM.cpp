@@ -19,6 +19,7 @@ typedef void (*CallP_V)(JNIEnv* env, jobject object, jobject o2);
 typedef jobject (*CallPP_P)(JNIEnv* env, jobject object, jobject o2, jobject o3);
 typedef jobject (*CallPZP_P)(JNIEnv* env, jobject object, jobject o2, jboolean b1, jobject o3);
 typedef void (*CallPII_V)(JNIEnv* env, jobject object, jobject o2, jint i1, jint i2);
+typedef jint (*CallPII_I)(JNIEnv* env, jobject object, jobject o2, jint i1, jint i2);
 typedef jboolean (*CallPJII_Z)(JNIEnv* env, jobject object, jobject o2, jlong l1, jint i1, jint i2);
 typedef jobject (*CallPIPII_V)(JNIEnv* env, jobject object, jobject o2, jint i1, jobject o3, jint i2, jint i3);
 
@@ -109,6 +110,11 @@ FieldData NativeVMMethod::executeNoASM(VMContext* ctx, VMMethod::ReturnType ret,
             if (ret == VMMethod::Void){
               CallPII_V mthd = (CallPII_V)mFunction;
               mthd(env, cls, o1, i1, i2);
+              return retval;
+            }
+            else if (ret == VMMethod::Int){
+              CallPII_I mthd = (CallPII_I)mFunction;
+              retval.i = mthd(env, cls, o1, i1, i2);
               return retval;
             }
             TR_BREAK("Cannot call method signature");
