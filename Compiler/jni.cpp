@@ -3,6 +3,7 @@
 #include "VMclass.h"
 #include "VMMethod.h"
 #include "VMArray.h"
+#include "VMLoader.h"
 
 #define CTX(env) ((VMContext*)env->m_func)
 #define VM_CTX(vm) ((JVM*)vm->m_func)
@@ -278,14 +279,15 @@ void VMContext::ReleaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *e
 JNIEnv_::JNIEnv_(JavaVM_* vm){
   VMContext* ctx = new VMContext(this, (JVM*)vm->m_func, NULL);
 	m_func = ctx;
-	VMClass* thrdgrpcls = VM_CTX(vm)->findClass(ctx, "java/lang/ThreadGroup");
+  BootstrapLoader* ldr = (BootstrapLoader*)getVM()->getLoader(NULL);
+	VMClass* thrdgrpcls = ldr->find(ctx, "java/lang/ThreadGroup");
 	VMObject* thrdgrp = VM_CTX(vm)->createObject(ctx, thrdgrpcls);
 	unsigned idx = thrdgrpcls->findMethodIndex("<init>", "()V");
 	ctx->push(thrdgrp);
 	VMMethod* init = thrdgrpcls->getMethod(idx);
 	init->execute(ctx, -2);
 	//object init without class init
-	VMClass* thrdcls = VM_CTX(vm)->defineClass(ctx, "java/lang/Thread");
+	VMClass* thrdcls = ldr->loadWithoutInit(ctx, "java/lang/Thread");
 	ctx->getThread()->init(ctx, thrdcls);
 	FieldData* grpfld = ctx->getThread()->getObjField(thrdcls->findFieldIndex("group"));
 	grpfld->obj = thrdgrp;
@@ -296,7 +298,7 @@ JNIEnv_::JNIEnv_(JavaVM_* vm){
   self->createSelf();
   self->setPriority(CGE::Thread::NORMAL);
   eetop->l = (jlong)self;
-	VM_CTX(vm)->findClass(ctx, "java/lang/Thread");
+	ldr->find(ctx, "java/lang/Thread");
 	VM_CTX(vm)->initBasicClasses((VMContext*)m_func);
 }
 
