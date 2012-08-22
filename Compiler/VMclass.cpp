@@ -3,8 +3,6 @@
 #include <iostream>
 #include <cstring>
 
-#include <io/BinFileReader.h>
-#include <io/ZipReader.h>
 #include <system/utilities.h>
 
 #include "Trace.h"
@@ -26,55 +24,23 @@
 
 TR_CHANNEL(Java_Class);
 
-VMClass::VMClass() : VMObject(this), mSuperclass(NULL) , mNonStaticFieldOffset(0) {
+VMClass::VMClass() : VMObject(this), /*mSuperclass(NULL) ,*/ mNonStaticFieldOffset(0) {
 }
 
-VMClass::VMClass(VMContext* ctx, const std::string& filename) : VMObject(this), mSuperclass(NULL)/*, mClassObject(NULL)*/ {
+VMClass::VMClass(VMContext* ctx, CGE::Reader& reader) : VMObject(this)/*, mSuperclass(NULL), mClassObject(NULL)*/ {
   TR_USE(Java_Class);
-	 mFilename = filename;
-
-  char* buffer = NULL;
-  std::vector<std::string>& filepaths = getVM()->getFilePaths();
-  bool classFound = false;
-  Reader* reader = NULL;
-  for (unsigned i = 0; i < filepaths.size(); ++i){
-    CGE::BinFileReader* brdr = new CGE::BinFileReader(filepaths[i]+"/"+filename+".class");
-    if (brdr->isWorking()){
-      classFound = true;
-      reader = brdr;
-      break;
-    }
-    delete brdr;
-  }
-	CGE::MemReader mrdr;
-  JavaBinFileReader in(reader);
-  if (!classFound){
-    //try to load runtime jar
-    TR_DEBUG("using jar mode");
-		mrdr = getVM()->getClassFile(filename+".class");
-		if (!mrdr.isWorking()){
-      TR_WARN("Class %s not found in jar", filename.c_str());
-      JNIEnv* env = ctx->getJNIEnv();
-      jclass exception = env->FindClass("java/lang/ClassNotFoundException");
-      env->ThrowNew(exception, ("Class "+filename+" could not be found").c_str());
-      return;
-    }
-    reader = &mrdr;
-    in.setReader(reader);
-  }
+  JavaBinFileReader in(&reader);
   int ret = in.readClassFile(mClass);
   if (ret != 0)
     TR_BREAK("Malformed classfile found - aborting...");
-
-  TR_INFO("%s parsed successfully", filename.c_str());
 
 	mRCP.resize(mClass.constant_pool_count+1);
 	memset(&mRCP[0], 0, (mClass.constant_pool_count+1)*sizeof(StackData));
   Java::CONSTANT_Class_info* clinfo = (Java::CONSTANT_Class_info*)mClass.constant_pool[mClass.this_class-1];
   Java::CONSTANT_Utf8_info* utf = (Java::CONSTANT_Utf8_info*)(mClass.constant_pool[clinfo->name_index-1]);
   mFilename = utf->bytes;
-  if (classFound)
-    delete reader;
+
+  TR_INFO("%s parsed successfully", mFilename.c_str());
 }
 
 VMClass::~VMClass(){
@@ -82,6 +48,32 @@ VMClass::~VMClass(){
     if (*iter != NULL)
 	    (*iter)->unref();
 	}
+}
+
+void VMClass::initClass(VMContext* ctx, bool execClassInit){
+  TR_USE(Java_Class);
+
+  //init superclass first
+  getSuperclass(ctx);
+
+  //entry->print(std::cout);
+
+  initFields(ctx);
+
+  VMClass* cls = getVM()->findClass(ctx, "java/lang/Class");
+  VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
+  init(ctx, cls);
+  ctx->push((VMObject*)cls);
+  clsmthd->execute(ctx, -1);
+
+  if (execClassInit){
+    unsigned idx = findMethodIndex("<clinit>", "()V");
+    VMMethod* mthd = getMethod(idx);
+    if (mthd){
+      TR_INFO("Found class init method");
+      mthd->execute(ctx, -1);
+    }
+  }
 }
 
 void VMClass::print(std::ostream& strm){

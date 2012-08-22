@@ -42,13 +42,15 @@ VMMethod::~VMMethod(){
 bool VMMethod::handleException(unsigned *ip, VMContext* ctx){
   if (ctx->getException() == NULL)
     return true; //no exception, everything is alright
-  int catchip = getClass()->getCatchIP(*ip, ctx, ctx->getException(), mMethodIndex);
+  VMObject* exception = ctx->getException();
+  ctx->throwException(NULL);
+  int catchip = getClass()->getCatchIP(*ip, ctx, exception, mMethodIndex);
   if (catchip >= 0){
-    ctx->push(ctx->getException());
-    ctx->throwException(NULL);
+    ctx->push(exception);
     *ip = catchip-1;
     return true;
   }
+  ctx->throwException(exception);
   ctx->popFrame();
   return false;
 }

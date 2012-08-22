@@ -65,6 +65,7 @@ ADD_LIBRARY(javaruntime SHARED
 	VMArray.h
 	VMclass.h
 	VMContext.h
+	VMLoader.h
 	VMMethod.h
 	VMObject.h
 
@@ -75,6 +76,7 @@ ADD_LIBRARY(javaruntime SHARED
 	VMArray.cpp
 	VMclass.cpp
 	VMContext.cpp
+	VMLoader.cpp
 	VMMethod.cpp
 	VMObject.cpp
 	

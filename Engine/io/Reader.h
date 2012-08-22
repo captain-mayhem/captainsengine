@@ -4,6 +4,8 @@
 #include <system/types.h>
 #include <string>
 
+namespace CGE{
+
 class Reader{
 public:
   virtual uint32 readBytes(uint8* array, uint32 length) = 0;
@@ -24,6 +26,8 @@ public:
 
   virtual uint32 getSize() = 0;
 };
+
+}
 
 
 #endif

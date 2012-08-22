@@ -22,6 +22,7 @@ typedef void (*CallPII_V)(JNIEnv* env, jobject object, jobject o2, jint i1, jint
 typedef jint (*CallPII_I)(JNIEnv* env, jobject object, jobject o2, jint i1, jint i2);
 typedef jboolean (*CallPJII_Z)(JNIEnv* env, jobject object, jobject o2, jlong l1, jint i1, jint i2);
 typedef jobject (*CallPIPII_V)(JNIEnv* env, jobject object, jobject o2, jint i1, jobject o3, jint i2, jint i3);
+typedef jobject (*CallPPIIPPZ_P)(JNIEnv* env, jobject object, jobject o1, jobject o2, jint i3, jint i4, jobject o5, jobject o6, jboolean b7);
 
 typedef jobject (*CallI_P)(JNIEnv* env, jobject object, jint i);
 typedef void (*CallI_V)(JNIEnv* env, jobject object, jint i);
@@ -163,6 +164,37 @@ FieldData NativeVMMethod::executeNoASM(VMContext* ctx, VMMethod::ReturnType ret,
       else if (mSplitSignature[1].size() > 1){
         jobject o2 = ctx->get(base++).obj;
         if (mSplitSignature.size() > 2){
+          if (mSplitSignature[2] == "I"){
+            jint i3 = ctx->get(base++).i;
+            if (mSplitSignature.size() > 3){
+              if (mSplitSignature[3] == "I"){
+                jint i4 = ctx->get(base++).i;
+                if (mSplitSignature.size() > 4){
+                  if (mSplitSignature[4].size() > 1){
+                    jobject o5 = ctx->get(base++).obj;
+                    if (mSplitSignature.size() > 5){
+                      if (mSplitSignature[5].size() > 1){
+                        jobject o6 = ctx->get(base++).obj;
+                        if (mSplitSignature.size() > 6){
+                          if (mSplitSignature[6] == "Z"){
+                            jboolean b7 = (jboolean)ctx->get(base++).i;
+                            if (mSplitSignature.size() > 7){
+                              TR_BREAK("Cannot call method signature");
+                            }
+                            if (ret == VMMethod::Reference){
+                              CallPPIIPPZ_P mthd = (CallPPIIPPZ_P)mFunction;
+                              retval.obj = (VMObject*)mthd(env, cls, o1, o2, i3, i4, o5, o6, b7);
+                              return retval;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
           TR_BREAK("Cannot call method signature");
         }
         if (ret == VMMethod::Reference){
