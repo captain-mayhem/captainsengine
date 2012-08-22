@@ -15,6 +15,7 @@ class VMClass;
 class VMContext;
 class VMMethod;
 class VMObject;
+class VMLoader;
 template<typename T> class VMArray;
 typedef VMArray<VMObject*> VMObjectArray;
 typedef VMArray<jbyte> VMByteArray;
@@ -57,6 +58,7 @@ public:
   VMArgs* getArguments() {return mArgs;}
   static std::string stringToString(VMObject* str);
   static int utf8to16(const char* in, unsigned short* out, unsigned outsize);
+  VMLoader* getLoader(VMObject* loader);
 protected:
 	void init();
 
@@ -70,6 +72,7 @@ protected:
   std::list<VMContext*> mThreads;
   std::map <std::string,VMClass*> mClassResolver;
 	std::map <std::string,VMClass*> mUninitializedClasses;
+  std::map <VMObject*,VMLoader*> mLoaders;
 	std::list<VMObject*> mCreatedObjects;
 	std::map<std::string, VMObject*> mInternalizedStrings;
 };

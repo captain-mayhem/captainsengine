@@ -6,7 +6,7 @@
 
 TR_CHANNEL(Java_File);
 
-JavaBinFileReader::JavaBinFileReader(Reader* reader){
+JavaBinFileReader::JavaBinFileReader(CGE::Reader* reader){
   mReader = reader;
 }
 

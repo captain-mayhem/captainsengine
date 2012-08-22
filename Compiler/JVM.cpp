@@ -12,6 +12,7 @@
 #include "Trace.h"
 #include "VMMethod.h"
 #include "VMArray.h"
+#include "VMLoader.h"
 
 #define PROC_MAP_MODE
 #include "Preproc.h"
@@ -44,12 +45,16 @@ JVM::~JVM(){
 	for (std::list<VMObject*>::iterator iter = mCreatedObjects.begin(); iter != mCreatedObjects.end(); ++iter){
 		delete *iter;
 	}
-	mCreatedObjects.clear();
-	globalVM = NULL;
+  mCreatedObjects.clear();
+  for (std::map<VMObject*,VMLoader*>::iterator iter = mLoaders.begin(); iter != mLoaders.end(); ++iter){
+    delete iter->second;
+  }
+  mLoaders.clear();
 	for (std::map<std::string,VMClass*>::iterator iter = mClassResolver.begin(); iter != mClassResolver.end(); ++iter){
 		delete iter->second;
 	}
 	mClassResolver.clear();
+  globalVM = NULL;
   CGE::Engine::instance()->shutdown();
 }
 
@@ -85,6 +90,40 @@ void JVM::init(){
   mFilePaths.push_back(mArgs->classpath);
 }
 
+#include <io/BinFileReader.h>
+#include <io/ZipReader.h>
+static CGE::Reader* filenameToReader(const std::string& filename){
+  TR_USE(Java_JVM);
+
+  char* buffer = NULL;
+  std::vector<std::string>& filepaths = getVM()->getFilePaths();
+  bool classFound = false;
+  CGE::Reader* reader = NULL;
+  for (unsigned i = 0; i < filepaths.size(); ++i){
+    CGE::BinFileReader* brdr = new CGE::BinFileReader(filepaths[i]+"/"+filename+".class");
+    if (brdr->isWorking()){
+      classFound = true;
+      reader = brdr;
+      break;
+    }
+    delete brdr;
+  }
+  if (!classFound){
+    //try to load runtime jar
+    TR_DEBUG("using jar mode");
+    CGE::MemReader mrdr = getVM()->getClassFile(filename+".class");
+    if (!mrdr.isWorking()){
+      TR_WARN("Class %s not found in jar", filename.c_str());
+      /*JNIEnv* env = ctx->getJNIEnv();
+      jclass exception = env->FindClass("java/lang/ClassNotFoundException");
+      env->ThrowNew(exception, ("Class "+filename+" could not be found").c_str());*/
+      return NULL;
+    }
+    reader = new CGE::MemReader(mrdr);
+  }
+  return reader;
+}
+
 VMClass* JVM::findClass(VMContext* ctx, std::string name){
   TR_USE(Java_JVM);
 	std::map<std::string,VMClass*>::iterator iter = mUninitializedClasses.find(name);
@@ -114,31 +153,20 @@ VMClass* JVM::findClass(VMContext* ctx, std::string name){
       return getPrimitiveClass(ctx, name);
     }
     //Java::ClassFile* clfile = new Java::ClassFile();
-		entry = new VMClass(ctx, name);
-    if (ctx->getException() != NULL)
+    CGE::Reader* rdr = filenameToReader(name);
+    if (!rdr)
       return NULL;
+		entry = new VMClass(ctx, *rdr);
+    delete rdr;
+
+    if (ctx->getException() != NULL){
+      delete entry;
+      return NULL;
+    }
 
 		mClassResolver[name] = entry;
 
-		//init superclass first
-		entry->getSuperclass(ctx);
-		
-		//entry->print(std::cout);
-		
-		entry->initFields(ctx);
-
-		VMClass* cls = findClass(ctx, "java/lang/Class");
-		VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
-		entry->init(ctx, cls);
-		ctx->push((VMObject*)cls);
-		clsmthd->execute(ctx, -1);
-
-		unsigned idx = entry->findMethodIndex("<clinit>", "()V");
-		VMMethod* mthd = entry->getMethod(idx);
-		if (mthd){
-			TR_INFO("Found class init method");
-			mthd->execute(ctx, -1);
-		}
+		entry->initClass(ctx, true);
   }
   return entry;
 }
@@ -165,24 +193,17 @@ VMClass* JVM::defineClass(VMContext* ctx, const std::string& name){
       return entry;
     }
     //Java::ClassFile* clfile = new Java::ClassFile();
-		entry = new VMClass(ctx, name);
+    CGE::Reader* rdr = filenameToReader(name);
+    if (!rdr)
+      return NULL;
+		entry = new VMClass(ctx, *rdr);
+    delete rdr;
     if (ctx->getException() != NULL)
       return NULL;
 
 		mUninitializedClasses[name] = entry;
 
-		//init superclass first
-		entry->getSuperclass(ctx);
-		
-		//entry->print(std::cout);
-		
-		entry->initFields(ctx);
-
-		VMClass* cls = findClass(ctx, "java/lang/Class");
-		VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
-		entry->init(ctx, cls);
-		ctx->push((VMObject*)cls);
-		clsmthd->execute(ctx, -1);
+		entry->initClass(ctx, false);
   }
   return entry;
 }
@@ -284,10 +305,10 @@ void JVM::initBasicClasses(VMContext* ctx){
   mthd->execute(ctx, -2);
   VMObject* clsldr = ctx->pop().obj;
 
-  /*JNIEnv* env = ctx->getJNIEnv();
+  JNIEnv* env = ctx->getJNIEnv();
   jstring str = env->NewStringUTF("Test");
   jmethodID findClass = env->GetMethodID(ldrcls, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
-  VMClass* test = (VMClass*)env->CallObjectMethod(clsldr, findClass, str);*/
+  VMClass* test = (VMClass*)env->CallObjectMethod(clsldr, findClass, str);
 	return;
 }
 
@@ -406,4 +427,13 @@ std::string JVM::stringToString(VMObject* str){
     data.append(1, (char)ca->get(i));
   }
   return data;
+}
+
+VMLoader* JVM::getLoader(VMObject* loader){
+  VMLoader* ldr = mLoaders[loader];
+  if (ldr == NULL){
+    ldr = new VMLoader(loader);
+    mLoaders[loader] = ldr;
+  }
+  return ldr;
 }

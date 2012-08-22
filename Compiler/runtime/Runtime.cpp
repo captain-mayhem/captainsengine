@@ -14,6 +14,7 @@
 #include <VMArray.h>
 #include <Trace.h>
 #include <system/utilities.h>
+#include <VMLoader.h>
 
 #include <iostream>
 #include <signal.h>
@@ -314,6 +315,19 @@ void JNIEXPORT Java_java_lang_ClassLoader_00024NativeLibrary_load(JNIEnv* env, j
   return;
 }
 
+jclass JNIEXPORT Java_java_lang_ClassLoader_defineClass1(JNIEnv* env, jobject object, jstring name, jbyteArray b, int off, int len,
+                                                         jobject pd, jstring source, jboolean verify){
+  jbyte* clsdata = env->GetByteArrayElements(b, NULL);
+  CGE::MemReader rdr(clsdata+off, len);
+  VMObject* ldrobj = (VMObject*)object;
+  VMLoader* ldr = getVM()->getLoader(ldrobj);
+  const char* namestr = env->GetStringUTFChars(name, NULL);
+  VMClass* cls = ldr->load(CTX(env), namestr, rdr);
+  env->ReleaseStringUTFChars(name, namestr);
+  env->ReleaseByteArrayElements(b, clsdata, 0);
+  return cls;
+}
+
 jobject JNIEXPORT Java_java_lang_ClassLoader_findBootstrapClass(JNIEnv* env, jobject object, jstring name){
   const char* clsname = env->GetStringUTFChars(name, NULL);
   env->ReleaseStringUTFChars(name, clsname);
@@ -321,9 +335,11 @@ jobject JNIEXPORT Java_java_lang_ClassLoader_findBootstrapClass(JNIEnv* env, job
 }
 
 jobject JNIEXPORT Java_java_lang_ClassLoader_findLoadedClass0(JNIEnv* env, jobject object, jstring name){
+  VMLoader* ldr = getVM()->getLoader((VMObject*)object);
   const char* clsname = env->GetStringUTFChars(name, NULL);
+  VMClass* cls = ldr->find(clsname);
   env->ReleaseStringUTFChars(name, clsname);
-  return NULL;
+  return cls;
 }
 
 
