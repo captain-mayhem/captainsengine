@@ -34,7 +34,9 @@ JVM::JVM(VMArgs* args) : mArgs(args){
 	globalVM = this;
   JNIInvokeInterface_::reserved0 = NULL;
   JNIInvokeInterface_::DestroyJavaVM = DestroyJavaVM;
-	init();
+	Opcode::init();
+  BootstrapLoader* ldr = new BootstrapLoader(args);
+  mLoaders[NULL] = ldr;
 }
 
 JVM::~JVM(){
@@ -50,195 +52,27 @@ JVM::~JVM(){
     delete iter->second;
   }
   mLoaders.clear();
-	for (std::map<std::string,VMClass*>::iterator iter = mClassResolver.begin(); iter != mClassResolver.end(); ++iter){
-		delete iter->second;
-	}
-	mClassResolver.clear();
   globalVM = NULL;
   CGE::Engine::instance()->shutdown();
 }
 
 void JVM::init(){
-  TR_USE(Java_JVM);
-  std::string prefix;
-#ifndef UNDER_CE
-  char* tmp = getenv("JAVA_HOME");
-  if (tmp != NULL){
-    prefix = tmp;
-  }
-  else{
-    tmp = getenv("ProgramFiles");
-    if (tmp != NULL){
-      prefix = tmp;
-      prefix += "/Java/jre6";
-    }
-  }
-#endif
-	if (!mRuntimeClasses.openFile(prefix+"/lib/rt.jar")){
-    //hack for my crappy environment
-    //prefix[0] = 'E';
-    if (!mRuntimeClasses.openFile(prefix+"/lib/rt.jar")){
-      TR_BREAK("Java runtime classes not found");
-    }
-  }
-	if (!mRuntime.open("javaruntime")){
-		TR_BREAK("Java runtime not found");
-	}
-  Opcode::init();
-
-  //TODO parse class path correctly
-  mFilePaths.push_back(mArgs->classpath);
-}
-
-#include <io/BinFileReader.h>
-#include <io/ZipReader.h>
-static CGE::Reader* filenameToReader(const std::string& filename){
-  TR_USE(Java_JVM);
-
-  char* buffer = NULL;
-  std::vector<std::string>& filepaths = getVM()->getFilePaths();
-  bool classFound = false;
-  CGE::Reader* reader = NULL;
-  for (unsigned i = 0; i < filepaths.size(); ++i){
-    CGE::BinFileReader* brdr = new CGE::BinFileReader(filepaths[i]+"/"+filename+".class");
-    if (brdr->isWorking()){
-      classFound = true;
-      reader = brdr;
-      break;
-    }
-    delete brdr;
-  }
-  if (!classFound){
-    //try to load runtime jar
-    TR_DEBUG("using jar mode");
-    CGE::MemReader mrdr = getVM()->getClassFile(filename+".class");
-    if (!mrdr.isWorking()){
-      TR_WARN("Class %s not found in jar", filename.c_str());
-      /*JNIEnv* env = ctx->getJNIEnv();
-      jclass exception = env->FindClass("java/lang/ClassNotFoundException");
-      env->ThrowNew(exception, ("Class "+filename+" could not be found").c_str());*/
-      return NULL;
-    }
-    reader = new CGE::MemReader(mrdr);
-  }
-  return reader;
 }
 
 VMClass* JVM::findClass(VMContext* ctx, std::string name){
-  TR_USE(Java_JVM);
-	std::map<std::string,VMClass*>::iterator iter = mUninitializedClasses.find(name);
-	if (iter != mUninitializedClasses.end()){
-		VMClass* cls = iter->second;
-		mUninitializedClasses.erase(iter);
-		mClassResolver[name] = cls;
-		//delayed class init
-		unsigned idx = cls->findMethodIndex("<clinit>", "()V");
-		VMMethod* mthd = cls->getMethod(idx);
-		if (mthd){
-			TR_INFO("Delayed execution of class init method");
-			mthd->execute(ctx, -1);
-		}
-		return cls;
-	}
-  VMClass* entry = mClassResolver[name];
-  if (entry == 0){
-    //array functions
-    if (name[0] == '['){
-      entry = new VMArrayClass(name);
-			mClassResolver[name] = entry;
-      return entry;
-    }
-    else if (name.size() == 1){
-      //primitive types
-      return getPrimitiveClass(ctx, name);
-    }
-    //Java::ClassFile* clfile = new Java::ClassFile();
-    CGE::Reader* rdr = filenameToReader(name);
-    if (!rdr)
-      return NULL;
-		entry = new VMClass(ctx, *rdr);
-    delete rdr;
-
-    if (ctx->getException() != NULL){
-      delete entry;
-      return NULL;
-    }
-
-		mClassResolver[name] = entry;
-
-		entry->initClass(ctx, true);
-  }
-  return entry;
-}
-
-std::string JVM::findClass(VMContext* ctx, VMClass* clazz){
-  for (std::map<std::string,VMClass*>::iterator iter = mClassResolver.begin();
-    iter != mClassResolver.end(); ++iter){
-    if (iter->second == clazz)
-      return iter->first;
-  }
-  return "";
-}
-
-VMClass* JVM::defineClass(VMContext* ctx, const std::string& name){
-	std::map<std::string,VMClass*>::iterator iter = mClassResolver.find(name);
-	if (iter != mClassResolver.end())
-		return iter->second;
-	VMClass* entry = mUninitializedClasses[name];
-  if (entry == 0){
-    //array functions
-    if (name[0] == '['){
-      entry = new VMArrayClass(name);
-			mClassResolver[name] = entry;
-      return entry;
-    }
-    //Java::ClassFile* clfile = new Java::ClassFile();
-    CGE::Reader* rdr = filenameToReader(name);
-    if (!rdr)
-      return NULL;
-		entry = new VMClass(ctx, *rdr);
-    delete rdr;
-    if (ctx->getException() != NULL)
-      return NULL;
-
-		mUninitializedClasses[name] = entry;
-
-		entry->initClass(ctx, false);
-  }
-  return entry;
-}
-
-VMClass* JVM::getPrimitiveClass(VMContext* ctx, std::string name){
-	 VMClass* entry = mClassResolver[name];
-  if (entry == 0){
-		entry = new VMClass();
-    entry->setName(name);
-		
-		mClassResolver[name] = entry;
-		//entry->print(std::cout);
-		
-		//entry->initFields(ctx);
-
-		VMClass* cls = findClass(ctx, "java/lang/Class");
-		VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
-		entry->init(ctx, cls);
-		ctx->push((VMObject*)cls);
-		clsmthd->execute(ctx, -1);
-  }
-  return entry;
-}
-
-CGE::MemReader JVM::getClassFile(const std::string& filename){
-	return mRuntimeClasses.openEntry(filename);
+  return mLoaders[NULL]->find(ctx, name);
 }
 
 nativeMethod JVM::findNativeMethod(const std::string& name){
-	nativeMethod mthd = (nativeMethod)mRuntime.getFunction(name.c_str());
-	return mthd;
+  return ((BootstrapLoader*)mLoaders[NULL])->findNativeMethod(name);
+}
+
+VMClass* JVM::getPrimitiveClass(VMContext* ctx, std::string name){
+	 return ((BootstrapLoader*)mLoaders[NULL])->getPrimitiveClass(ctx, name);
 }
 
 VMObjectArray* JVM::createObjectArray(VMContext* ctx, VMClass* cls, unsigned size){
-  std::string objecttype = findClass(ctx, cls);
+  std::string objecttype = cls->getName();
   objecttype.insert(0, "[L");
   objecttype.append(1, ';');
   VMClass* arrayclass = findClass(ctx, objecttype);

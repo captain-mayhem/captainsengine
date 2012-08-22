@@ -37,10 +37,8 @@ public:
   void addThread(VMContext* thrd) {mThreads.push_back(thrd);}
   VMContext* createContext(VMObject* thrd);
   void destroyContext(VMContext* ctx);
-	CGE::MemReader getClassFile(const std::string& filename);
   VMClass* findClass(VMContext* ctx, std::string name);
-  std::string findClass(VMContext* ctx, VMClass* clazz);
-	VMClass* defineClass(VMContext* ctx, const std::string& name);
+  //std::string findClass(VMContext* ctx, VMClass* clazz);
 	VMClass* getPrimitiveClass(VMContext* ctx, std::string name);
 	nativeMethod findNativeMethod(const std::string& name);
 	VMObjectArray* createObjectArray(VMContext* ctx, VMClass* cls, unsigned size);
@@ -54,7 +52,6 @@ public:
 	VMObject* createString(VMContext* ctx, const char* str);
 	VMObject* internalizeString(const std::string& str, VMObject* strobj);
   void registerObject(VMObject* obj);
-  std::vector<std::string>& getFilePaths() {return mFilePaths;}
   VMArgs* getArguments() {return mArgs;}
   static std::string stringToString(VMObject* str);
   static int utf8to16(const char* in, unsigned short* out, unsigned outsize);
@@ -66,12 +63,7 @@ protected:
 
   VMArgs* mArgs;
 
-	CGE::ZipReader mRuntimeClasses;
-  std::vector<std::string> mFilePaths;
-	CGE::SOLoader mRuntime;
   std::list<VMContext*> mThreads;
-  std::map <std::string,VMClass*> mClassResolver;
-	std::map <std::string,VMClass*> mUninitializedClasses;
   std::map <VMObject*,VMLoader*> mLoaders;
 	std::list<VMObject*> mCreatedObjects;
 	std::map<std::string, VMObject*> mInternalizedStrings;

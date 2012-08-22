@@ -30,6 +30,7 @@ void JNIEXPORT Java_java_lang_Class_registerNatives(JNIEnv* env, jobject object)
 }
 
 jclass JNIEXPORT Java_java_lang_Class_forName0(JNIEnv* env, jclass clazz, jstring name, jboolean initialize, jobject classloader){
+  TR_USE(Java_Runtime);
   const char* namestr = env->GetStringUTFChars(name, NULL);
   std::string str = namestr;
   CGE::Utilities::replaceWith(str, '.', '/');
@@ -38,7 +39,8 @@ jclass JNIEXPORT Java_java_lang_Class_forName0(JNIEnv* env, jclass clazz, jstrin
     retclass = env->FindClass(str.c_str());
   }
   else{
-    retclass = getVM()->defineClass(CTX(env), str);
+    TR_BREAK("Implement me");
+    //retclass = getVM()->defineClass(CTX(env), str);
   }
   env->ReleaseStringUTFChars(name, namestr);
   return retclass;
@@ -222,7 +224,7 @@ jint JNIEXPORT Java_java_lang_Class_getModifiers(JNIEnv* env, jclass clazz){
 jstring JNIEXPORT Java_java_lang_Class_getName0(JNIEnv* env, jobject object){
   TR_USE(Java_Runtime);
   VMClass* cls = (VMClass*)object;
-  std::string name = getVM()->findClass(CTX(env), cls);
+  std::string name = cls->getName();
   if (name.empty()){
     TR_BREAK("Class not found");
     return NULL;
@@ -337,7 +339,7 @@ jobject JNIEXPORT Java_java_lang_ClassLoader_findBootstrapClass(JNIEnv* env, job
 jobject JNIEXPORT Java_java_lang_ClassLoader_findLoadedClass0(JNIEnv* env, jobject object, jstring name){
   VMLoader* ldr = getVM()->getLoader((VMObject*)object);
   const char* clsname = env->GetStringUTFChars(name, NULL);
-  VMClass* cls = ldr->find(clsname);
+  VMClass* cls = ldr->find(CTX(env), clsname);
   env->ReleaseStringUTFChars(name, clsname);
   return cls;
 }
