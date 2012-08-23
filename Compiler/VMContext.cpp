@@ -5,6 +5,7 @@
 #include "JVM.h"
 #include "VMObject.h"
 #include "VMclass.h"
+#include "VMLoader.h"
 
 VMContext::VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd) : mVm(vm), mSelf(myself), mException(NULL){
   JNINativeInterface_::reserved0 = NULL;
@@ -51,10 +52,11 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd) : mVm(vm), mSelf(m
     mThread = vm->createObject(this, NULL);
   else
 	  mThread = thrd;
+  mCurrentLoader = NULL;
 }
 
 VMContext::~VMContext(){
-  VMClass* thrdcls = mVm->findClass(this, "java/lang/Thread");
+  VMClass* thrdcls = mVm->getLoader(NULL)->find(this, "java/lang/Thread");
   FieldData* eetop = mThread->getObjField(thrdcls->findFieldIndex("eetop"));
   CGE::Thread* thrd = (CGE::Thread*)eetop->l;
   delete thrd;
@@ -118,6 +120,8 @@ VMContext::StackIterator& VMContext::StackIterator::next(){
 }
 
 VMMethod* VMContext::StackIterator::getMethod(){
+  if (mCurrBasePointer == mCtx->mStack)
+    return NULL;
   return (mCurrBasePointer-1)->mthd;
 }
 

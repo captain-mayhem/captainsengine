@@ -37,7 +37,7 @@ public:
   void addThread(VMContext* thrd) {mThreads.push_back(thrd);}
   VMContext* createContext(VMObject* thrd);
   void destroyContext(VMContext* ctx);
-  VMClass* findClass(VMContext* ctx, std::string name);
+  //VMClass* findClass(VMContext* ctx, std::string name);
   //std::string findClass(VMContext* ctx, VMClass* clazz);
 	VMClass* getPrimitiveClass(VMContext* ctx, std::string name);
 	nativeMethod findNativeMethod(const std::string& name);

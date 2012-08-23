@@ -10,11 +10,12 @@
 
 class VMMethod;
 class VMContext;
+class VMLoader;
 
 class VMClass : public VMObject{
 public:
-	VMClass();
-  VMClass(VMContext* ctx, CGE::Reader& reader);
+	VMClass(VMLoader* loader);
+  VMClass(VMContext* ctx, VMLoader* loader, CGE::Reader& reader);
 	virtual ~VMClass();
   void initClass(VMContext* ctx, bool execClassInit);
 	unsigned findMethodIndex(const std::string& name, const std::string& signature);
@@ -44,6 +45,7 @@ public:
   std::string getSourceFileName();
   int getLineNumber(int ip, int methodIndex);
   int getCatchIP(int ip, VMContext* ctx, VMObject* exception, int methodIndex);
+  VMLoader* getLoader() {return mLoader;}
 protected:
   void initFields(VMContext* ctx);
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);
@@ -54,13 +56,11 @@ protected:
 	std::map<std::string,unsigned> mFieldResolver;
   std::map<unsigned, VMClass*> mStaticFieldResolver;
 	std::vector<FieldData> mFields;
-	//std::vector<VMMethod::ReturnType> mFieldTypes;
-	//VMClass* mSuperclass;
 	std::vector<StackData> mRCP;
 	unsigned mVtableEnd;
   unsigned mSuperFields;
   unsigned mNonStaticFieldOffset;
-	//VMObject* mClassObject;
+	VMLoader* mLoader;
 };
 
 #endif

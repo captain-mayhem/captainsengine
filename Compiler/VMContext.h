@@ -8,6 +8,7 @@ class JVM;
 class VMClass;
 class VMMethod;
 class VMObject;
+class VMLoader;
 
 class VMContext : public JNINativeInterface_{
 public:
@@ -86,6 +87,7 @@ protected:
 	StackData* mBasePointer;
 	VMObject* mThread;
   VMObject* mException;
+  VMLoader* mCurrentLoader;
 };
 
 #endif

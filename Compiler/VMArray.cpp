@@ -1,11 +1,12 @@
 #include "JVM.h"
 #include "VMArray.h"
+#include "VMLoader.h"
 
 #define CTX(env) ((VMContext*)env->m_func)
 
 TR_CHANNEL(Java_Array);
 
-VMArrayClass::VMArrayClass(const std::string& name){
+VMArrayClass::VMArrayClass(VMLoader* loader, const std::string& name) : VMClass(loader){
   mFilename = name;
   mMethodResolver.insert(std::make_pair("clone()Ljava/lang/Object;", 1));
   mMethodResolver.insert(std::make_pair("isArray()Z", 21));
@@ -37,7 +38,7 @@ jclass VMArrayClass::getComponentTypeFunc(JNIEnv* env, jarray array){
     arrtype.erase(0, 1);
     arrtype.erase(arrtype.size()-1);
   }
-  VMClass* cls = getVM()->findClass(CTX(env), arrtype);
+  VMClass* cls = ab->getClass()->getLoader()->find(CTX(env), arrtype);
   return cls;
 }
 

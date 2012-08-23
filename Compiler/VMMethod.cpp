@@ -15,6 +15,7 @@
 #include "Trace.h"
 #include "JVM.h"
 #include "VMArray.h"
+#include "VMLoader.h"
 
 #define PROC_DECL_MAP_MODE
 #include "Preproc.h"
@@ -149,8 +150,8 @@ VMMethod::ReturnType VMMethod::parseType(const char type){
 
 VMClass* VMMethod::getParameterClass(VMContext* ctx, int idx){
   if (idx < 0)
-    return getVM()->findClass(ctx, mReturnSignature);
-  return getVM()->findClass(ctx, mSplitSignature[idx]);
+    return mClass->getLoader()->find(ctx, mReturnSignature);
+  return mClass->getLoader()->find(ctx, mSplitSignature[idx]);
 }
 
 void BcVMMethod::print(std::ostream& strm){

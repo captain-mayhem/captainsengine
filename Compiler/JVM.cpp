@@ -59,9 +59,9 @@ JVM::~JVM(){
 void JVM::init(){
 }
 
-VMClass* JVM::findClass(VMContext* ctx, std::string name){
+/*VMClass* JVM::findClass(VMContext* ctx, std::string name){
   return mLoaders[NULL]->find(ctx, name);
-}
+}*/
 
 nativeMethod JVM::findNativeMethod(const std::string& name){
   return ((BootstrapLoader*)mLoaders[NULL])->findNativeMethod(name);
@@ -75,49 +75,49 @@ VMObjectArray* JVM::createObjectArray(VMContext* ctx, VMClass* cls, unsigned siz
   std::string objecttype = cls->getName();
   objecttype.insert(0, "[L");
   objecttype.append(1, ';');
-  VMClass* arrayclass = findClass(ctx, objecttype);
+  VMClass* arrayclass = cls->getLoader()->find(ctx, objecttype);
 	VMObjectArray* arr = new VMObjectArray(ctx, arrayclass, size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }
 
 VMByteArray* JVM::createByteArray(VMContext* ctx, unsigned size){
-  VMClass* cls = findClass(ctx, "[B");
+  VMClass* cls = getLoader(NULL)->find(ctx, "[B");
 	VMByteArray* arr = new VMByteArray(ctx, cls, size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }
 
 VMCharArray* JVM::createCharArray(VMContext* ctx, unsigned size){
-  VMClass* cls = findClass(ctx, "[C");
+  VMClass* cls = getLoader(NULL)->find(ctx, "[C");
 	VMCharArray* arr = new VMCharArray(ctx, cls, size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }
 
 VMIntArray* JVM::createIntArray(VMContext* ctx, unsigned size){
-  VMClass* cls = findClass(ctx, "[I");
+  VMClass* cls = getLoader(NULL)->find(ctx, "[I");
 	VMIntArray* arr = new VMIntArray(ctx, cls, size);
 	mCreatedObjects.push_back(arr);
 	return arr;
 }
 
 VMFloatArray* JVM::createFloatArray(VMContext* ctx, unsigned size){
-  VMClass* cls = findClass(ctx, "[F");
+  VMClass* cls = getLoader(NULL)->find(ctx, "[F");
   VMFloatArray* arr = new VMFloatArray(ctx, cls, size);
   mCreatedObjects.push_back(arr);
   return arr;
 }
 
 VMDoubleArray* JVM::createDoubleArray(VMContext* ctx, unsigned size){
-  VMClass* cls = findClass(ctx, "[D");
+  VMClass* cls = getLoader(NULL)->find(ctx, "[D");
   VMDoubleArray* arr = new VMDoubleArray(ctx, cls, size);
   mCreatedObjects.push_back(arr);
   return arr;
 }
 
 VMLongArray* JVM::createLongArray(VMContext* ctx, unsigned size){
-  VMClass* cls = findClass(ctx, "[J");
+  VMClass* cls = getLoader(NULL)->find(ctx, "[J");
   VMLongArray* arr = new VMLongArray(ctx, cls, size);
   mCreatedObjects.push_back(arr);
   return arr;
@@ -130,19 +130,9 @@ VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
 }
 
 void JVM::initBasicClasses(VMContext* ctx){
-	VMClass* sys = findClass(ctx, "java/lang/System");
+	VMClass* sys = getLoader(NULL)->find(ctx, "java/lang/System");
 	VMMethod* sysinit = sys->getMethod(sys->findMethodIndex("initializeSystemClass", "()V"));
 	sysinit->execute(ctx, -2);
-
-	VMClass* ldrcls = findClass(ctx, "java/lang/ClassLoader");
-  VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("getSystemClassLoader", "()Ljava/lang/ClassLoader;"));
-  mthd->execute(ctx, -2);
-  VMObject* clsldr = ctx->pop().obj;
-
-  JNIEnv* env = ctx->getJNIEnv();
-  jstring str = env->NewStringUTF("Test");
-  jmethodID findClass = env->GetMethodID(ldrcls, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
-  VMClass* test = (VMClass*)env->CallObjectMethod(clsldr, findClass, str);
 	return;
 }
 
@@ -214,7 +204,7 @@ VMObject* JVM::createString(VMContext* ctx, const char* str){
   unsigned short* utf16 = new unsigned short[size];
   //MultiByteToWideChar(CP_UTF8, 0, str, -1, (LPWSTR)utf16, size);
   utf8to16(str, utf16, size);
-  VMClass* cls = getVM()->findClass(ctx, "java/lang/String");
+  VMClass* cls = getVM()->getLoader(NULL)->find(ctx, "java/lang/String");
 	VMObject* obj = getVM()->createObject(ctx, cls);
 	ctx->push(obj);
 	unsigned idx = cls->findMethodIndex("<init>", "([C)V");
