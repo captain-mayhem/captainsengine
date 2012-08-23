@@ -17,6 +17,7 @@
 #undef PROC_DECL_MAP_MODE
 
 #include "JavaBinFileReader.h"
+#include "VMLoader.h"
 
 #ifdef WIN32
 #pragma warning (disable: 4355) //this used in base member initializer list
@@ -24,10 +25,10 @@
 
 TR_CHANNEL(Java_Class);
 
-VMClass::VMClass() : VMObject(this), /*mSuperclass(NULL) ,*/ mNonStaticFieldOffset(0) {
+VMClass::VMClass(VMLoader* loader) : VMObject(this), mNonStaticFieldOffset(0), mLoader(loader) {
 }
 
-VMClass::VMClass(VMContext* ctx, CGE::Reader& reader) : VMObject(this)/*, mSuperclass(NULL), mClassObject(NULL)*/ {
+VMClass::VMClass(VMContext* ctx, VMLoader* loader, CGE::Reader& reader) : VMObject(this), mLoader(loader) {
   TR_USE(Java_Class);
   JavaBinFileReader in(&reader);
   int ret = in.readClassFile(mClass);
@@ -60,7 +61,7 @@ void VMClass::initClass(VMContext* ctx, bool execClassInit){
 
   initFields(ctx);
 
-  VMClass* cls = getVM()->findClass(ctx, "java/lang/Class");
+  VMClass* cls = getVM()->getLoader(NULL)->find(ctx, "java/lang/Class");
   VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
   init(ctx, cls);
   ctx->push((VMObject*)cls);
@@ -273,7 +274,7 @@ VMClass* VMClass::getClass(VMContext* ctx, Java::u2 class_ref){
 		return mRCP[class_ref].cls;
 	Java::CONSTANT_Class_info* classinfo = static_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[class_ref-1]);
 	std::string classname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[classinfo->name_index-1])->bytes;
-	VMClass* cls = getVM()->findClass(ctx, classname);
+	VMClass* cls = mLoader->find(ctx, classname);
 	mRCP[class_ref] = cls;
 	return cls;
 }
@@ -405,7 +406,7 @@ FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 	else if (info->tag == CONSTANT_Utf8){
 		Java::CONSTANT_Utf8_info* utf = (Java::CONSTANT_Utf8_info*)(info);
 		//VMObject* obj = getVM()->create(ctx, utf->bytes.c_str());
-		VMClass* cls = getVM()->findClass(ctx, "java/lang/String");
+		VMClass* cls = mLoader->find(ctx, "java/lang/String");
 
 		//VMClass* chcls = getVM()->findClass(ctx, "java/lang/Character");
 

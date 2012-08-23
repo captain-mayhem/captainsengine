@@ -1,6 +1,7 @@
 #include "VMLoader.h"
 #include "VMclass.h"
 #include <io/Tracing.h>
+#include "VMContext.h"
 
 TR_CHANNEL(Java_Loader);
 
@@ -16,13 +17,23 @@ VMLoader::~VMLoader(){
 }
 
 VMClass* VMLoader::load(VMContext* ctx, const std::string& name, CGE::Reader& rdr){
-  VMClass* cls = new VMClass(ctx, rdr);
+  VMClass* cls = new VMClass(ctx, this, rdr);
   cls->initClass(ctx, true);
   mClasses[name] = cls;
   return cls;
 }
 
 VMClass* VMLoader::find(VMContext* ctx, const std::string& name){
+  JNIEnv* env = ctx->getJNIEnv();
+  jstring str = env->NewStringUTF(name.c_str());
+  VMClass* ldrcls = ((VMObject*)mLoader)->getClass();
+  jmethodID findClass = env->GetMethodID(ldrcls, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
+  VMClass* ret = (VMClass*)env->CallObjectMethod(mLoader, findClass, str);
+  return ret;
+}
+
+
+VMClass* VMLoader::get(const std::string& name){
   std::map<std::string,VMClass*>::iterator iter = mClasses.find(name);
   if (iter == mClasses.end())
     return NULL;
@@ -116,7 +127,7 @@ VMClass* BootstrapLoader::find(VMContext* ctx, const std::string& name, bool ini
   if (entry == 0){
     //array functions
     if (name[0] == '['){
-      entry = new VMArrayClass(name);
+      entry = new VMArrayClass(this, name);
       mClasses[name] = entry;
       return entry;
     }
@@ -128,7 +139,7 @@ VMClass* BootstrapLoader::find(VMContext* ctx, const std::string& name, bool ini
     CGE::Reader* rdr = filenameToReader(name);
     if (!rdr)
       return NULL;
-    entry = new VMClass(ctx, *rdr);
+    entry = new VMClass(ctx, this, *rdr);
     delete rdr;
 
     if (ctx->getException() != NULL){
@@ -149,7 +160,7 @@ VMClass* BootstrapLoader::find(VMContext* ctx, const std::string& name, bool ini
 VMClass* BootstrapLoader::getPrimitiveClass(VMContext* ctx, std::string name){
   VMClass* entry = mClasses[name];
   if (entry == 0){
-    entry = new VMClass();
+    entry = new VMClass(this);
     entry->setName(name);
 
     mClasses[name] = entry;

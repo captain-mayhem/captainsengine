@@ -47,12 +47,12 @@ jclass JNIEXPORT Java_java_lang_Class_forName0(JNIEnv* env, jclass clazz, jstrin
 }
 
 jboolean JNIEXPORT Java_java_lang_Class_desiredAssertionStatus0(JNIEnv* env, jobject object, jobject cls){
-	return 0;
+	return JNI_FALSE;
 }
 
 jobject JNIEXPORT Java_java_lang_Class_getClassLoader0(JNIEnv* env, jobject object){
   VMClass* cls = (VMClass*)object;
-	return NULL;
+	return cls->getLoader()->getLoaderObject();
 }
 
 jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredConstructors0(JNIEnv* env, jobject object, jboolean publicOnly){
@@ -121,7 +121,7 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
 	VMClass* objcls = (VMClass*)obj;
 	Java::ClassFile& cls = objcls->getClassDefinition();
 
-	VMClass* fieldcls = getVM()->findClass(CTX(env), "java/lang/reflect/Field");
+	VMClass* fieldcls = getVM()->getLoader(NULL)->find(CTX(env), "java/lang/reflect/Field");
 	VMObjectArray* arr = getVM()->createObjectArray(CTX(env), fieldcls, cls.fields_count);
 
 	for (unsigned i = 0; i < cls.fields_count; ++i){
@@ -141,7 +141,7 @@ jobjectArray JNIEXPORT Java_java_lang_Class_getDeclaredFields0(JNIEnv* env, jobj
       signat.erase(0, 1);
       signat.erase(signat.size()-1);
     }
-    VMClass* typeclass = getVM()->findClass(ctx, signat);
+    VMClass* typeclass = objcls->getLoader()->find(ctx, signat);
     env->ReleaseStringUTFChars(signature, sig);
 		ctx->push(typeclass); //type class
 		ctx->push(info->access_flags);
@@ -339,7 +339,7 @@ jobject JNIEXPORT Java_java_lang_ClassLoader_findBootstrapClass(JNIEnv* env, job
 jobject JNIEXPORT Java_java_lang_ClassLoader_findLoadedClass0(JNIEnv* env, jobject object, jstring name){
   VMLoader* ldr = getVM()->getLoader((VMObject*)object);
   const char* clsname = env->GetStringUTFChars(name, NULL);
-  VMClass* cls = ldr->find(CTX(env), clsname);
+  VMClass* cls = ldr->get(clsname);
   env->ReleaseStringUTFChars(name, clsname);
   return cls;
 }

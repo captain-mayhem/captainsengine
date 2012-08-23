@@ -16,6 +16,8 @@ public:
   virtual ~VMLoader();
   VMClass* load(VMContext* ctx, const std::string& name, CGE::Reader& rdr);
   virtual VMClass* find(VMContext* ctx, const std::string& name);
+  VMClass* get(const std::string& name);
+  VMObject* getLoaderObject() {return mLoader;}
 protected:
   VMObject* mLoader;
   std::map<std::string, VMClass*> mClasses;

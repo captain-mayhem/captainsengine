@@ -38,7 +38,18 @@ JavaVM_::~JavaVM_(){
 }
 
 jclass VMContext::FindClass(JNIEnv* env, const char* name){
-  return getVM()->findClass(CTX(env), name);
+  VMContext* ctx = CTX(env);
+  VMMethod* mthd = ctx->getTopFrame().getMethod();
+  if (mthd == NULL){
+    //return getVM()->getLoader(NULL)->find(ctx, name);
+    VMClass* ldrcls = getVM()->getLoader(NULL)->find(ctx, "java/lang/ClassLoader");
+    VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("getSystemClassLoader", "()Ljava/lang/ClassLoader;"));
+    mthd->execute(ctx, -2);
+    VMObject* clsldr = ctx->pop().obj;
+    //return getVM()->getLoader(clsldr)->find(ctx, name);
+    return getVM()->getLoader(NULL)->find(ctx, name);
+  }
+  return mthd->getClass()->getLoader()->find(ctx, name);
 }
 
 jclass VMContext::GetSuperclass(JNIEnv *env, jclass sub){
