@@ -57,7 +57,9 @@ void VMClass::initClass(VMContext* ctx, bool execClassInit){
   //init superclass first
   getSuperclass(ctx);
 
-  //entry->print(std::cout);
+  //if there is a problem with the super class
+  if (ctx->getException() != NULL)
+    return;
 
   initFields(ctx);
 

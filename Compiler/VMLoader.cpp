@@ -2,6 +2,7 @@
 #include "VMclass.h"
 #include <io/Tracing.h>
 #include "VMContext.h"
+#include <system/utilities.h>
 
 TR_CHANNEL(Java_Loader);
 
@@ -19,13 +20,19 @@ VMLoader::~VMLoader(){
 VMClass* VMLoader::load(VMContext* ctx, const std::string& name, CGE::Reader& rdr){
   VMClass* cls = new VMClass(ctx, this, rdr);
   cls->initClass(ctx, true);
+  if (ctx->getException() != NULL){
+    delete cls;
+    return NULL;
+  }
   mClasses[name] = cls;
   return cls;
 }
 
 VMClass* VMLoader::find(VMContext* ctx, const std::string& name){
   JNIEnv* env = ctx->getJNIEnv();
-  jstring str = env->NewStringUTF(name.c_str());
+  std::string binName = name;
+  CGE::Utilities::replaceWith(binName, '/', '.');
+  jstring str = env->NewStringUTF(binName.c_str());
   VMClass* ldrcls = ((VMObject*)mLoader)->getClass();
   jmethodID findClass = env->GetMethodID(ldrcls, "loadClass", "(Ljava/lang/String;)Ljava/lang/Class;");
   VMClass* ret = (VMClass*)env->CallObjectMethod(mLoader, findClass, str);
@@ -73,7 +80,7 @@ BootstrapLoader::BootstrapLoader(VMArgs* args) : VMLoader(NULL){
   }
 
   //TODO parse class path correctly
-  mFilePaths.push_back(args->classpath);
+  //mFilePaths.push_back(args->classpath);
 }
 
 CGE::Reader* BootstrapLoader::filenameToReader(const std::string& filename){
