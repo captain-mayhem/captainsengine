@@ -46,8 +46,8 @@ jclass VMContext::FindClass(JNIEnv* env, const char* name){
     VMMethod* mthd = ldrcls->getMethod(ldrcls->findMethodIndex("getSystemClassLoader", "()Ljava/lang/ClassLoader;"));
     mthd->execute(ctx, -2);
     VMObject* clsldr = ctx->pop().obj;
-    //return getVM()->getLoader(clsldr)->find(ctx, name);
-    return getVM()->getLoader(NULL)->find(ctx, name);
+    return getVM()->getLoader(clsldr)->find(ctx, name);
+    //return getVM()->getLoader(NULL)->find(ctx, name);
   }
   return mthd->getClass()->getLoader()->find(ctx, name);
 }

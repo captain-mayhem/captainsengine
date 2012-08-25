@@ -319,12 +319,15 @@ void JNIEXPORT Java_java_lang_ClassLoader_00024NativeLibrary_load(JNIEnv* env, j
 
 jclass JNIEXPORT Java_java_lang_ClassLoader_defineClass1(JNIEnv* env, jobject object, jstring name, jbyteArray b, int off, int len,
                                                          jobject pd, jstring source, jboolean verify){
+  TR_USE(Java_Runtime);
   jbyte* clsdata = env->GetByteArrayElements(b, NULL);
   CGE::MemReader rdr(clsdata+off, len);
   VMObject* ldrobj = (VMObject*)object;
   VMLoader* ldr = getVM()->getLoader(ldrobj);
   const char* namestr = env->GetStringUTFChars(name, NULL);
   VMClass* cls = ldr->load(CTX(env), namestr, rdr);
+  if (cls == NULL)
+    TR_BREAK("Error defining class");
   env->ReleaseStringUTFChars(name, namestr);
   env->ReleaseByteArrayElements(b, clsdata, 0);
   return cls;
@@ -332,8 +335,11 @@ jclass JNIEXPORT Java_java_lang_ClassLoader_defineClass1(JNIEnv* env, jobject ob
 
 jobject JNIEXPORT Java_java_lang_ClassLoader_findBootstrapClass(JNIEnv* env, jobject object, jstring name){
   const char* clsname = env->GetStringUTFChars(name, NULL);
+  std::string realname = clsname;
+  CGE::Utilities::replaceWith(realname, '.', '/');
+  VMClass* cls = getVM()->getLoader(NULL)->find(CTX(env), realname);
   env->ReleaseStringUTFChars(name, clsname);
-  return NULL;
+  return cls;
 }
 
 jobject JNIEXPORT Java_java_lang_ClassLoader_findLoadedClass0(JNIEnv* env, jobject object, jstring name){
@@ -714,6 +720,8 @@ jobject JNIEXPORT Java_java_lang_Throwable_fillInStackTrace(JNIEnv* env, jobject
     else
       doNext = true;
     mthd = iter.getMethod();
+    if (mthd == NULL)
+      break;
     unsigned returnaddr = iter.getReturnIP();
     jclass realthrowable = env->FindClass("java/lang/Throwable");
     if (!env->IsAssignableFrom(mthd->getClass(), realthrowable)){ //hide the stack trace caused by exception itself
