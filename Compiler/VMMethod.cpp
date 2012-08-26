@@ -1665,7 +1665,7 @@ void NativeVMMethod::execute(VMContext* ctx, unsigned ret){
   if (mReturnType == Double)
     TR_BREAK("Implement me");
   if (mFunction == NULL)
-    TR_BREAK("Could not resolve native method");
+    TR_BREAK("Could not resolve native method %s%s", mName.c_str(), mSignature.c_str());
   unsigned argsize = mIsStatic ? mArgSize : mArgSize+1;
   if (TR_IS_ENABLED(TRACE_DEBUG))
     ++method_depth;

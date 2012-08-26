@@ -25,18 +25,22 @@ SOLoader::~SOLoader(){
 #endif
 }
 
-bool SOLoader::open(std::string path, std::string library){
+bool SOLoader::open(std::string path, std::string library, bool buildLibName){
 #ifdef WIN32
-	library += ".dll";
-	CGE::Utilities::replaceWith(path, '/', '\\');
-  if (!path.empty())
-	  library = path+"\\"+library;
+  if (buildLibName){
+	  library += ".dll";
+	  CGE::Utilities::replaceWith(path, '/', '\\');
+    if (!path.empty())
+	    library = path+"\\"+library;
+  }
 	mLibrary = LoadLibraryEx(library.c_str(), NULL, 0);
 #endif
 #ifdef UNIX
-	library = "lib"+library+".so";
-  if (!path.empty())
-    library = path+"/"+library;
+  if (buildLibName){
+	  library = "lib"+library+".so";
+    if (!path.empty())
+      library = path+"/"+library;
+  }
 	mLibrary = dlopen(library.c_str(), RTLD_LAZY | RTLD_LOCAL);
 #endif
 	return mLibrary != NULL;
