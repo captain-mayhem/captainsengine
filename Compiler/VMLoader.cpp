@@ -15,6 +15,9 @@ VMLoader::~VMLoader(){
     delete iter->second;
   }
   mClasses.clear();
+  for (std::list<CGE::SOLoader*>::iterator iter = mLibs.begin(); iter != mLibs.end(); ++iter){
+    delete *iter;
+  }
 }
 
 VMClass* VMLoader::load(VMContext* ctx, const std::string& name, CGE::Reader& rdr){
@@ -45,6 +48,26 @@ VMClass* VMLoader::get(const std::string& name){
   if (iter == mClasses.end())
     return NULL;
   return iter->second;
+}
+
+nativeMethod VMLoader::findNativeMethod(const std::string& name){
+  for (std::list<CGE::SOLoader*>::iterator iter = mLibs.begin(); iter != mLibs.end(); ++iter){
+    nativeMethod mthd = (nativeMethod)(*iter)->getFunction(name.c_str());
+    if (mthd != NULL)
+      return mthd;
+  }
+  return NULL;
+}
+
+jlong VMLoader::addLibrary(const std::string& name){
+  CGE::SOLoader* ldr = new CGE::SOLoader;
+  if (!ldr->open(name, false)){
+    //cannot load library
+    delete ldr;
+    return 0;
+  }
+  mLibs.push_back(ldr);
+  return (jlong)ldr;
 }
 
 #include <io/BinFileReader.h>
@@ -190,5 +213,7 @@ CGE::MemReader BootstrapLoader::getClassFile(const std::string& filename){
 
 nativeMethod BootstrapLoader::findNativeMethod(const std::string& name){
   nativeMethod mthd = (nativeMethod)mRuntime.getFunction(name.c_str());
+  if (mthd == NULL)
+    return VMLoader::findNativeMethod(name);
   return mthd;
 }

@@ -2,12 +2,16 @@
 #define VM_LOADER_H
 
 #include <map>
+#include <list>
+
+#include "JavaDefs.h"
 
 class VMClass;
 class VMContext;
 class VMObject;
 namespace CGE{
   class Reader;
+  class SOLoader;
 }
 
 class VMLoader{
@@ -16,19 +20,20 @@ public:
   virtual ~VMLoader();
   VMClass* load(VMContext* ctx, const std::string& name, CGE::Reader& rdr);
   virtual VMClass* find(VMContext* ctx, const std::string& name);
+  virtual nativeMethod findNativeMethod(const std::string& name);
   VMClass* get(const std::string& name);
   VMObject* getLoaderObject() {return mLoader;}
+  jlong addLibrary(const std::string& name);
 protected:
   VMObject* mLoader;
   std::map<std::string, VMClass*> mClasses;
+  std::list<CGE::SOLoader*> mLibs;
 };
 
 #include <vector>
 
 #include <io/ZipReader.h>
 #include <system/soloader.h>
-
-#include "JavaDefs.h"
 
 struct VMArgs;
 
@@ -38,10 +43,10 @@ public:
   virtual VMClass* find(VMContext* ctx, const std::string& name){
     return find(ctx, name, true);
   }
+  virtual nativeMethod findNativeMethod(const std::string& name);
   VMClass* loadWithoutInit(VMContext* ctx, const std::string& name){
     return find(ctx, name, false);
   }
-  nativeMethod findNativeMethod(const std::string& name);
   VMClass* getPrimitiveClass(VMContext* ctx, std::string name);
 private:
   VMClass* find(VMContext* ctx, const std::string& name, bool initClass);

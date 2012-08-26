@@ -332,7 +332,7 @@ void VMClass::initFields(VMContext* ctx){
 		}
 		if (mthd == NULL){
 			TR_INFO("No code attribute found");
-			nativeMethod m = getVM()->findNativeMethod(buildNativeMethodName(methodname, sig));
+			nativeMethod m = mLoader->findNativeMethod(buildNativeMethodName(methodname, sig));
 			mthd = new NativeVMMethod(methodname, sig, this, (mi->access_flags & ACC_STATIC) != 0, i, m);
 			if (mthd == NULL){
 				TR_BREAK("Cannot resolve native method");

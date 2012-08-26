@@ -59,14 +59,6 @@ JVM::~JVM(){
 void JVM::init(){
 }
 
-/*VMClass* JVM::findClass(VMContext* ctx, std::string name){
-  return mLoaders[NULL]->find(ctx, name);
-}*/
-
-nativeMethod JVM::findNativeMethod(const std::string& name){
-  return ((BootstrapLoader*)mLoaders[NULL])->findNativeMethod(name);
-}
-
 VMClass* JVM::getPrimitiveClass(VMContext* ctx, std::string name){
 	 return ((BootstrapLoader*)mLoaders[NULL])->getPrimitiveClass(ctx, name);
 }

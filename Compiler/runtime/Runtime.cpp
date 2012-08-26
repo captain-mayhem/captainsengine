@@ -299,20 +299,16 @@ void JNIEXPORT Java_java_lang_ClassLoader_registerNatives(JNIEnv* env, jobject o
 
 void JNIEXPORT Java_java_lang_ClassLoader_00024NativeLibrary_load(JNIEnv* env, jobject object, jstring library){
   TR_USE(Java_Runtime);
+  jclass nl = env->GetObjectClass(object);
+  //jmethodID getFromClass = env->GetMethodID(nl, "getFromClass", "()Ljava/lang/Class;");
+  //jclass fromClass = env->CallStaticObjectMethod(nl, getFromClass);
+  jfieldID fromClassField = env->GetStaticFieldID(nl, "fromClass", "Ljava/lang/Class;");
+  jclass fromClass = env->GetObjectField(object, fromClassField);
+  VMLoader* ldr = ((VMClass*)fromClass)->getLoader();
   const char* libname = env->GetStringUTFChars(library, NULL);
-  jlong handle = 0;
-#ifdef WIN32
-  HMODULE module = LoadLibrary(libname);
-#else
-  void* module = dlopen(libname, RTLD_GLOBAL | RTLD_NOW);
-  if (module == NULL)
-    printf("dlerror: %s", dlerror());
-#endif
-  handle = (jlong)module;
-  //TODO
+  jlong handle = ldr->addLibrary(libname);
   env->ReleaseStringUTFChars(library, libname);
-  jclass cls = env->FindClass("java/lang/ClassLoader$NativeLibrary");
-  jfieldID handle_field = env->GetFieldID(cls, "handle", "J");
+  jfieldID handle_field = env->GetFieldID(nl, "handle", "J");
   env->SetLongField(object, handle_field, handle);
   return;
 }
