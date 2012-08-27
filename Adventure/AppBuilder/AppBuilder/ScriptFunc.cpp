@@ -1717,8 +1717,7 @@ int ScriptFunctions::loadString(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::showMouse(ExecutionContext& ctx, unsigned numArgs){
   bool show = ctx.stack().pop().getBool();
-  if (!show)
-    DebugBreak();
+  Engine::instance()->showMouse(show);
   return 0;
 }
 

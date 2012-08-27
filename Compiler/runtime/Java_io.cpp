@@ -113,7 +113,22 @@ void JNIEXPORT Java_java_io_Win32FileSystem_initIDs(JNIEnv* env, jobject object)
 
 jstring JNIEXPORT Java_java_io_WinNTFileSystem_canonicalize0(JNIEnv* env, jobject object, jstring filename){
   const char* str = env->GetStringUTFChars(filename, NULL);
-  std::string name = std::string(str);
+#ifdef WIN32
+  char tmp[1024];
+  char tmp2[1024];
+  GetFullPathName(str, 1024, tmp2, NULL);
+  HANDLE file = CreateFile(str, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  FILE_NAME_INFO* nameinfo = (FILE_NAME_INFO*)tmp;
+  GetFileInformationByHandleEx(file, FileNameInfo, nameinfo, 1024);
+  CloseHandle(file);
+  int len = WideCharToMultiByte(CP_UTF8, 0, nameinfo->FileName, nameinfo->FileNameLength/2, tmp2+2, 1024, NULL, NULL);
+  tmp2[0] = toupper(tmp2[0]);
+  std::string name = tmp2;
+#else
+  char tmp[1024];
+  realpath(str, tmp);
+  std::string name = tmp;
+#endif
   jstring ret = env->NewStringUTF(name.c_str());
   env->ReleaseStringUTFChars(filename, str);
   return ret;
@@ -121,7 +136,7 @@ jstring JNIEXPORT Java_java_io_WinNTFileSystem_canonicalize0(JNIEnv* env, jobjec
 
 jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jobject object, jobject file){
   jclass filecls = env->GetObjectClass(file);
-  jmethodID getAbsPath = env->GetMethodID(filecls, "getAbsolutePath", "()Ljava/lang/String;");
+  jmethodID getAbsPath = env->GetMethodID(filecls, "getPath", "()Ljava/lang/String;");
   jstring path = env->CallObjectMethod(file, getAbsPath);
   const char* str = env->GetStringUTFChars(path, NULL);
 #ifdef WIN32
@@ -156,9 +171,26 @@ jint JNIEXPORT Java_java_io_WinNTFileSystem_getBooleanAttributes(JNIEnv* env, jo
   return jattribs;
 }
 
+JNIEXPORT jlong Java_java_io_WinNTFileSystem_getLastModifiedTime(JNIEnv* env, jobject object, jobject file){
+  jclass filecls = env->GetObjectClass(file);
+  jmethodID getAbsPath = env->GetMethodID(filecls, "getPath", "()Ljava/lang/String;");
+  jstring path = env->CallObjectMethod(file, getAbsPath);
+  jlong time = 0;
+  const char* str = env->GetStringUTFChars(path, NULL);
+#ifdef WIN32
+  HANDLE fileh = CreateFile(str, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  FILETIME ft;
+  GetFileTime(fileh, NULL, NULL, &ft);
+  CloseHandle(fileh);
+  time = (int64)ft.dwHighDateTime << 32 | ft.dwLowDateTime;
+#endif
+  env->ReleaseStringUTFChars(path, str);
+  return time;
+}
+
 jlong JNIEXPORT Java_java_io_WinNTFileSystem_getLength(JNIEnv* env, jobject object, jobject file){
   jclass filecls = env->GetObjectClass(file);
-  jmethodID getAbsPath = env->GetMethodID(filecls, "getAbsolutePath", "()Ljava/lang/String;");
+  jmethodID getAbsPath = env->GetMethodID(filecls, "getPath", "()Ljava/lang/String;");
   jstring path = env->CallObjectMethod(file, getAbsPath);
   const char* str = env->GetStringUTFChars(path, NULL);
   FILE* f = fopen(str, "rb");

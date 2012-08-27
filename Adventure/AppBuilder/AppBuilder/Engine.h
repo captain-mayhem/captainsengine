@@ -106,6 +106,7 @@ public:
   PostProcessor* getPostProcessor() {return mPostProc;}
   RoomObject* getMainRoom();
   void removeScript(ExecutionContext* ctx);
+  void showMouse(bool doIt) {mMouseShown = doIt;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -187,6 +188,7 @@ protected:
   ExecutionContext* mPendingLoadReason;
   RenderableBlitObject* mRenderedMain;
   PostProcessor* mPostProc;
+  bool mMouseShown;
 };
 
 }

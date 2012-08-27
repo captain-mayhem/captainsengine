@@ -85,9 +85,13 @@ void Animator::update(unsigned interval){
     Vec2i oldpos = iter->second.startpos;
     Vec2i newpos = iter->second.path.front();
     Vec2i dir = newpos-oldpos;
-    //float factor = iter->factor/iter->normalization;
-    float newx = oldpos.x+dir.x/iter->second.normalization*iter->second.factor;
-    float newy = oldpos.y+dir.y/iter->second.normalization*iter->second.factor;
+    float factor = iter->second.factor;
+    if (iter->first->getType() == Object2D::CHARACTER){
+      CharacterObject* obj = (CharacterObject*)iter->first; //slow down for smaller characters
+      factor *= (((obj->getScaleFactor()-1.0f)*0.5f)+1.0f);
+    }
+    float newx = oldpos.x+dir.x/iter->second.normalization*factor;
+    float newy = oldpos.y+dir.y/iter->second.normalization*factor;
     Vec2i reachedpos((int)newx,(int)newy);
     iter->first->setPosition(reachedpos);
     //RoomObject* ro = Engine::instance()->getContainingRoom(iter->first);
