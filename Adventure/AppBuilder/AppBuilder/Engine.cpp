@@ -161,6 +161,7 @@ void Engine::initGame(exit_callback exit_cb){
   mRenderedMain = new RenderableBlitObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
   mRenderedMain->setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
   mPostProc = new PostProcessor(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
+  mMouseShown = true;
 }
 
 void Engine::exitGame(){
@@ -471,7 +472,7 @@ void Engine::render(unsigned time){
     if (mInterpreter->isBlockingScriptRunning())
       break;
   }
-  if (!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene())
+  if ((!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown)
     mCursor->render();
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
     (*iter)->render();
@@ -907,13 +908,22 @@ void Engine::mouseWheel(int delta){
 }
 
 bool Engine::setFocus(std::string charname, ExecutionContext* reason){
+  CharacterObject* deletionChar = NULL;
   if (mFocussedChar){
-    mRooms.back()->addObject(mFocussedChar);
+    if (mFocussedChar->getRoom() == mRooms.back()->getName())
+      mRooms.back()->addObject(mFocussedChar);
+    else{
+      //just store the character as it is in another room
+      mSaver->getRoom(mFocussedChar->getRoom());
+      mFocussedChar->save();
+      deletionChar = mFocussedChar;
+    }
   }
   if (charname == "none"){
     if (mFocussedChar)
       mLastFocussedChar = mFocussedChar->getName();
     mFocussedChar = NULL;
+    delete deletionChar;
     return true;
   }
   if (charname == "last"){
@@ -922,6 +932,7 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
   CharacterObject* res = extractCharacter(charname);
   if (res){
     mFocussedChar = res;
+    delete deletionChar;
     return true;
   }
   /*if (!mLastFocussedChar.empty() && mLastFocussedChar != "none"){
@@ -935,6 +946,7 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
     mSaver->removeCharacter(charname);
     res->setScrollOffset(rm->scrolloffset);
     mFocussedChar = res;
+    delete deletionChar;
     return true;
   }
   else
