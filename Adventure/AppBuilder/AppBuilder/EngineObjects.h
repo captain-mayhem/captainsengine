@@ -242,6 +242,7 @@ public:
   virtual int getDepth();
   bool isSpawnPos();
   void setWalkSound(SoundPlayer* plyr);
+  void abortClick();
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;

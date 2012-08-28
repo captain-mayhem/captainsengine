@@ -551,6 +551,10 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   //already loaded //TODO subrooms
   if (mMainRoomLoaded && _stricmp(mRooms.back()->getName().c_str(), name.c_str()) == 0)
     return true;
+  for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0)
+      return true;
+  }
   TR_INFO("loading room %s", name.c_str());
   if (mMainRoomLoaded && !isSubRoom){
     unloadRoom(mRooms.back(), true);

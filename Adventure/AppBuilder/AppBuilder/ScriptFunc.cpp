@@ -385,7 +385,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
     Engine::instance()->loadRoom(roomname, false, &ctx);
     CharacterObject* obj = Engine::instance()->getCharacter(charname);
     if (obj){
-      Engine::instance()->getAnimator()->remove(obj);
+      obj->abortClick();
       int state = CharacterObject::calculateState(obj->getState(), false, false);
       obj->setState(state);
       if (dir != UNSPECIFIED)
@@ -416,7 +416,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       Engine::instance()->getSaver()->removeCharacter(obj->getName());
     }
     if (obj){
-      Engine::instance()->getAnimator()->remove(obj);
+      obj->abortClick();
       obj->setPosition(pos*Engine::instance()->getWalkGridSize()+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
       int state = CharacterObject::calculateState(obj->getState(), false, false);
       obj->setState(state);
