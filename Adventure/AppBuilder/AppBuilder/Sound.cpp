@@ -235,7 +235,7 @@ SoundPlayer* SoundEngine::getSound(const std::string& name, int flags){
 SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled, int flags){
   if (!(flags & PLAYER_CREATE_ALWAYS)){
     std::multimap<std::string,SoundPlayer*>::iterator lowerit = mActiveSounds.find(name);
-    if (lowerit != mActiveSounds.end())
+    if (lowerit != mActiveSounds.end() && lowerit->second != NULL)
       return lowerit->second;
   }
   DataBuffer* db = new DataBuffer();

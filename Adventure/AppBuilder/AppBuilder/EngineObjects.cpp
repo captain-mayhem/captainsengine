@@ -973,3 +973,13 @@ void CharacterObject::setWalkSound(SoundPlayer* plyr){
     SoundEngine::instance()->removeSoundPlayer(mWalkSound);
   mWalkSound = plyr;
 }
+
+void CharacterObject::abortClick(){
+  if (mSuspensionScript != NULL){
+    if (mSuspensionScript->getEvents().front() == EVT_CLICK){
+      mSuspensionScript->getEvents().pop_front();
+      Object2D::animationEnd(Vec2i());
+    }
+  }
+  Engine::instance()->getAnimator()->remove(this);
+}
