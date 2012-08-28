@@ -150,10 +150,16 @@ recoverFromMismatchedToken  (pANTLR3_BASE_RECOGNIZER recognizer, ANTLR3_UINT32 t
   return NULL;
 }
 
-static std::string internal_stringify(ASTNode* node){
+std::string PcdkScript::internal_stringify(ASTNode* node){
   std::string ret;
   switch(node->getType())
   {
+  case ASTNode::IDENTIFIER:
+    {
+      IdentNode* id = static_cast<IdentNode*>(node);
+      ret += id->value();
+    }
+    break;
   case ASTNode::RELATIONAL:
     {
       RelationalNode* rel = (RelationalNode*)node;
@@ -175,6 +181,21 @@ static std::string internal_stringify(ASTNode* node){
       ret += tmp;
     }
     break;
+  case ASTNode::VARIABLE:
+    {
+      VariableNode* var = static_cast<VariableNode*>(node);
+      StackData s = getVariable(var->name());
+      ret += s.getString();
+    }
+    break;
+  case ASTNode::CONCATENATION:
+    {
+      ConcatenationNode* concat = static_cast<ConcatenationNode*>(node);
+      ret += internal_stringify(concat->left());
+      ret += " ";
+      ret += internal_stringify(concat->right());
+    }
+    break;
   default:
     DebugBreak();
   }
@@ -182,7 +203,7 @@ static std::string internal_stringify(ASTNode* node){
 }
 
 ASTNode* stringify(ASTNode* node){
-  IdentNode* ret = new IdentNode(internal_stringify(node)+" ");
+  IdentNode* ret = new IdentNode(Engine::instance()->getInterpreter()->internal_stringify(node)+" ");
   return ret;
 }
 
@@ -298,7 +319,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           mIsGameObject = true;
           NodeList* nl = fc->getArguments();
           ASTNode* node = nl->next();
-          if(node->getType() == ASTNode::IDENTIFIER){
+          /*if(node->getType() == ASTNode::IDENTIFIER){
             IdentNode* id = static_cast<IdentNode*>(node);
             mObjectInfo = id->value();
           }
@@ -312,9 +333,14 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
             StackData s = getVariable(var->name());
             mObjectInfo = s.getString();
           }
-          else{
+          else if (node->getType() == ASTNode::CONCATENATION){
+            ConcatenationNode* concat = static_cast<ConcatenationNode*>(node);
             DebugBreak();
           }
+          else{
+            DebugBreak();
+          }*/
+          mObjectInfo = internal_stringify(node);
           nl->reset(true);
         }
         else if (fc->getName() == "minicut"){

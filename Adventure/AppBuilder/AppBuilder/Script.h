@@ -11,6 +11,8 @@
 
 #include "CIL.h"
 
+extern ASTNode* stringify(ASTNode* tree);
+
 namespace adv{
 
 class Object2D;
@@ -18,6 +20,7 @@ class ObjectGroup;
 
 class PcdkScript{
   friend class ScriptFunctions;
+  friend ASTNode* ::stringify(ASTNode* tree);
 public:
   enum TrMode{
     START,
@@ -65,6 +68,7 @@ protected:
   void applyPrevState(Object2D* obj);
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
+  std::string internal_stringify(ASTNode* node);
   std::string mObjectInfo;
   bool mIsGameObject;
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;
