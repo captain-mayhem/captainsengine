@@ -1139,8 +1139,10 @@ int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
   RoomObject* rm = Engine::instance()->getRoom(room);
   if (rm)
     rm->modifyWalkmap(pos, walkable);
-  else
-    DebugBreak();
+  else{
+    SaveStateProvider::SaveRoom* srm = Engine::instance()->getSaver()->getRoom(room);
+    srm->walkmap[pos] = walkable;
+  }
   return 0;
 }
 
