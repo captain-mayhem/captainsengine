@@ -112,6 +112,7 @@ public:
   CodeSegment* getCode() {return mCode;}
   void save(std::ostream& out);
   ExecutionContext* getLoop1() {return mCode->getLoop1();}
+  bool isGameObject() {return mIsGameObject;}
 protected:
   ~ExecutionContext();
   CodeSegment* mCode;

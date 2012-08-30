@@ -611,6 +611,12 @@ bool PcdkScript::update(unsigned time){
     if (mGlobalSuspend){
       //only set loop1 which is always executed
       events = (*iter)->getEvents();
+      if (!events.empty()){
+        if (events.front() == EVT_CLICK){ //the cutscene should stop the current click
+          events.pop_front(); //stop click
+          events.pop_front(); //stop user event
+        }
+      }
       (*iter)->resetEvents(false);
       (*iter)->setEvent(EVT_LOOP1);
     }

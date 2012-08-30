@@ -693,6 +693,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   if (mFocussedChar && mFocussedChar->getRoom() == roomobj->getName()){
     mFocussedChar->setScale(roomobj->getDepthScale(mFocussedChar->getPosition()));
     mFocussedChar->setScrollOffset(roomobj->getScrollOffset());
+    mFocussedChar->setDepth(mFocussedChar->getPosition().y/Engine::instance()->getWalkGridSize());
   }
   //animation stuff
   if ((loadreason == NULL || !loadreason->isSkipping()) && !isSubRoom){
@@ -844,7 +845,10 @@ void Engine::leftClick(const Vec2i& pos){
   trymtx.lock();
   ExecutionContext* script = NULL;
   Object2D* obj = getObjectAt(pos);
+  bool keepCommand = false;
   if (obj != NULL){
+    if (obj->getScript() != NULL && !obj->getScript()->isGameObject())
+      keepCommand = true;
     mClickedObject = obj;
     script = obj->getScript();
     if (script != NULL){
@@ -863,13 +867,15 @@ void Engine::leftClick(const Vec2i& pos){
   else if (mFocussedChar && !mSubRoomLoaded && !mInterpreter->isBlockingScriptRunning()){
     Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
   }
-  int curCmd = mCursor->getCurrentCommand();
-  if (curCmd != mActiveCommand && mLinkObjectInfo.empty()){
-    mPrevActiveCommand = mActiveCommand;
-    mActiveCommand = curCmd;
-    mUseObjectName = "";
-    mGiveObjectName = "";
-    mLinkObjectInfo = "";
+  if (!keepCommand){
+    int curCmd = mCursor->getCurrentCommand();
+    if (curCmd != mActiveCommand && mLinkObjectInfo.empty()){
+      mPrevActiveCommand = mActiveCommand;
+      mActiveCommand = curCmd;
+      mUseObjectName = "";
+      mGiveObjectName = "";
+      mLinkObjectInfo = "";
+    }
   }
   trymtx.unlock();
 }

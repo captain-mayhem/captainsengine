@@ -405,6 +405,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       obj->setRoom(realname);
       obj->setPosition((pos*Engine::instance()->getWalkGridSize())+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2), true);
       obj->setScrollOffset(scrolloffset);
+      obj->setDepth(obj->getPosition().y/Engine::instance()->getWalkGridSize());
       //obj->setScale(ro->getDepthScale(obj->getPosition()));
     }
   }
@@ -426,6 +427,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       if (room){
         obj->setRoom(room->getName());
         obj->setScale(room->getDepthScale(obj->getPosition()));
+        obj->setDepth(obj->getPosition().y/Engine::instance()->getWalkGridSize());
         Engine::instance()->getSaver()->removeCharacter(obj->getName());
         room->addObject(obj);
       }
