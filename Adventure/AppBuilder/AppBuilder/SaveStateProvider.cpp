@@ -127,7 +127,7 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& i
 
 }
 
-SaveStateProvider::SaveStateProvider(AdvDocument* data) : mData(data), mAllowWrites(true) {
+SaveStateProvider::SaveStateProvider(AdvDocument* data) : mData(data), mNoWrites(0) {
 
 }
 
@@ -318,7 +318,7 @@ void SaveStateProvider::load(const std::string& name){
   //clear the current save state;
   clear();
   Engine::instance()->getInterpreter()->executeCutscene(NULL, false);
-  Engine::instance()->unloadRooms();
+  mNoWrites = Engine::instance()->unloadRooms();
   if (Engine::instance()->mMenuShown){
     Engine::instance()->unloadRoom(NULL, false);
     Engine::instance()->mMenuShown = false;
@@ -364,7 +364,6 @@ void SaveStateProvider::load(const std::string& name){
   Engine::instance()->getParticleEngine()->load(in);
   Engine::instance()->getFontRenderer()->load(in);
   Engine::instance()->getPostProcessor()->load(in);
-  allowWrites(false);
   in.close();
 }
 

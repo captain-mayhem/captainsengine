@@ -63,14 +63,14 @@ public:
   void clear();
   void save(const std::string& name);
   void load(const std::string& name);
-  void allowWrites(bool allow) {mAllowWrites = allow;}
-  bool isWriteAllowed() {return mAllowWrites;}
+  void allowWrites() {--mNoWrites;}
+  bool isWriteAllowed() {return mNoWrites == 0;}
   static std::string saveSlotToPath(int slot);
 protected:
   AdvDocument* mData;
   std::map<std::string, SaveRoom*> mRooms;
   SaveRoom* mLastRoom;
-  bool mAllowWrites;
+  int mNoWrites;
 };
 
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room);
