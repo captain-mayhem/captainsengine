@@ -314,6 +314,8 @@ void Engine::render(unsigned time){
 
     if (mSaver->isWriteAllowed())
       mRoomsToUnload.front()->save();
+    else
+      mSaver->allowWrites();
     if (mUnloadedRoom)
       delete mUnloadedRoom;
     if (mForceNotToRenderUnloadingRoom){
@@ -334,7 +336,6 @@ void Engine::render(unsigned time){
       mPendingLoadRoom = "";
     }
   }
-  mSaver->allowWrites(true);
 
   //do some scripting
   bool scriptupdate = mInterpreter->willUpdate(interval);
@@ -1396,7 +1397,7 @@ void Engine::keyAscii(char chr){
   mInterpreter->setVariable(mTextEnter, text);
 }
 
-void Engine::unloadRooms(){
+int Engine::unloadRooms(){
   setFocus("none", NULL);
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
     mRoomsToUnload.push_back(*iter);
@@ -1407,6 +1408,7 @@ void Engine::unloadRooms(){
   mMainRoomLoaded = false;
   mSubRoomLoaded = false;
   mTaskbar = NULL;
+  return mRoomsToUnload.size();
 }
 
 std::string Engine::getCharacterClass(const std::string instanceName){

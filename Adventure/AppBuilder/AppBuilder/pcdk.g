@@ -221,7 +221,14 @@ factor returns [ASTNode* fac]
 	}
 	)?
 	| REAL {char tmp[64]; strcpy(tmp, (char*)$REAL.text->chars); char* tst = strchr(tmp, ','); if (tst != NULL) *tst = '.'; $fac = new RealNode((float)atof(tmp));}
-	| INT  {$fac = new IntNode(atoi((char*)$INT.text->chars));}
+	| INT {$fac = new IntNode(atoi((char*)$INT.text->chars));}
+	| (REAL_INT  {$fac = new IntNode(atoi((char*)$REAL_INT.text->chars));} var2=variable{
+		UnaryArithNode* i2r = new UnaryArithNode(); i2r->type() = UnaryArithNode::UA_I2R; i2r->node() = $fac;
+		ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_PLUS; an->left() = i2r;
+		UnaryArithNode* shift = new UnaryArithNode(); shift->type() = UnaryArithNode::UA_DEC_SHIFT; shift->node() = var2.var; an->right() = shift;
+		$fac = an;
+	}
+	)
 ;
 
 variable returns [ASTNode* var]
@@ -272,6 +279,7 @@ ROW	:	'r''o''w';
 TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('.'|',')'0'..'9'+;
+REAL_INT:	INT',';
 IDENT_PART	:	/*('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|':'|'\''|'\.'|'!'|','|'&'|TIMES)*/
 				('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|'&'|TIMES|':'|'|')+;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
