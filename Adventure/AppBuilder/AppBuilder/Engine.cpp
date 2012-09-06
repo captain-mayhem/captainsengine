@@ -579,7 +579,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
       depthoffset += 1000;
   }
   Room* rm = mData->getRoom(name);
-  RoomObject* roomobj = new RoomObject(save->base.state, save->base.position, room->size, room->name, rm->depthmap);
+  RoomObject* roomobj = new RoomObject(save->base.state, /*save->base.position*/Vec2i(0,0), room->size, room->name, rm->depthmap);
   roomobj->setParallaxBackground(room->parallaxbackground, depthoffset+DEPTH_PARALLAX_BACKGROUND);
   //anywhere room is not allowed to have background
   if (_stricmp(room->name.c_str(), mData->getProjectSettings()->anywhere_room.c_str()) != 0)
@@ -663,6 +663,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
       }
     }
   }
+  roomobj->Object2D::setPosition(save->base.position); //correct room position only now
   //load room script
   Script* script = mData->getScript(Script::ROOM,room->name);
   if (script){
@@ -1335,10 +1336,10 @@ void Engine::keyPress(int key){
   }
   switch(key){
     case KEY_F1:
-      mSaver->save(SaveStateProvider::saveSlotToPath(1));
+      mSaver->save(SaveStateProvider::saveSlotToPath(0));
       break;
     case KEY_F2:
-      mSaver->load(SaveStateProvider::saveSlotToPath(1));
+      mSaver->load(SaveStateProvider::saveSlotToPath(0));
       break;
     case KEY_ESCAPE:
       {
