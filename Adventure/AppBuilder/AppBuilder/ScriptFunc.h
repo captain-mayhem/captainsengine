@@ -496,6 +496,7 @@ public:
   static int isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isStringEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs);
+  static int isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs);
 };
 
 }

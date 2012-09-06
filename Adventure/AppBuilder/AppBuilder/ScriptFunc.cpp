@@ -139,6 +139,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("loadstring", loadString);
   interpreter->registerFunction("charzoom", charZoom);
   interpreter->registerFunction("setwalksound", setWalkSound);
+  interpreter->registerFunction("if_yobj", isObjYPosEqual);
   srand((unsigned)time(NULL));
 }
 
@@ -2014,5 +2015,22 @@ int ScriptFunctions::isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs){
   else
     ctx.stack().push(obj->getPosition().x);
   ctx.stack().push(xpos);
+  return 2;
+}
+
+int ScriptFunctions::isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs){
+  std::string objname = ctx.stack().pop().getString();
+  int ypos = ctx.stack().pop().getInt();
+  Object2D* obj = Engine::instance()->getObject(objname, false);
+  if (obj == NULL){
+    std::string dummy;
+    SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
+    if (so == NULL)
+      DebugBreak();
+    ctx.stack().push(so->position.y);
+  }
+  else
+    ctx.stack().push(obj->getPosition().y);
+  ctx.stack().push(ypos);
   return 2;
 }

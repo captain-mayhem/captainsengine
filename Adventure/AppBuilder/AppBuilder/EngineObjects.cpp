@@ -442,6 +442,7 @@ void RoomObject::setParallaxBackground(const std::string& bg, int depth){
 }
 
 void RoomObject::addObject(Object2D* obj){
+  obj->setPosition(obj->getPosition()+mPos);
   obj->setScrollOffset(mScrollOffset);
   //obj->setScale(getDepthScale(obj->getPosition()));
   mObjects.push_back(obj);
