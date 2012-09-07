@@ -157,6 +157,29 @@ static const char hellfs[] =
 "}\n"
 "";
 
+static const char whooshfs[] =
+"precision mediump float;\n"
+"varying vec2 tex_coord;\n"
+"varying vec2 tex_coord2;\n"
+"\n"
+"uniform sampler2D texture;\n"
+"uniform float strength;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = vec4(1.0);\n"
+"  color = texture2D(texture, tex_coord.st);\n"
+"  float intensity = strength/6.0;\n"
+"  color = mix(color, texture2D(texture, tex_coord.st-tex_coord2.st), intensity);\n"
+"  color = mix(color, texture2D(texture, tex_coord.st-tex_coord2.st*vec2(2.0)), intensity);\n"
+"  color = mix(color, texture2D(texture, tex_coord.st-tex_coord2.st*vec2(3.0)), intensity);\n"
+"  color = mix(color, texture2D(texture, tex_coord.st-tex_coord2.st*vec2(4.0)), intensity);\n"
+"  color = mix(color, texture2D(texture, tex_coord.st-tex_coord2.st*vec2(5.0)), intensity);\n"
+"  color = mix(color, texture2D(texture, tex_coord.st-tex_coord2.st*vec2(6.0)), intensity);\n"
+"  gl_FragColor = color;\n"
+"  gl_FragColor.a = 1.0;\n"
+"}\n"
+"";
+
 class DarkBloomEffect : public PostProcessor::Effect{
 public:
   DarkBloomEffect(const char* name, const char* fragmentshader) : Effect(bloomvs, fragmentshader){
@@ -688,6 +711,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(hell, DarkBloomEffect, "hell", hellfs);
   REGISTER_EFFECT(motionblur, MotionBlurEffect);
   REGISTER_EFFECT(heat, HeatEffect);
+  REGISTER_EFFECT(whoosh, DarkBloomEffect, "whoosh", whooshfs);
 }
 
 PostProcessor::~PostProcessor(){

@@ -1598,12 +1598,23 @@ static void disableMainEffect(){
   Engine::instance()->getPostProcessor()->getEffect("hell")->deactivate();
   Engine::instance()->getPostProcessor()->getEffect("motionblur")->deactivate();
   Engine::instance()->getPostProcessor()->getEffect("heat")->deactivate();
+  Engine::instance()->getPostProcessor()->getEffect("whoosh")->deactivate();
 }
 
 int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
+  if (effect == "slowmotion"){
+    int speed = ctx.stack().pop().getInt();
+    bool fade = false;
+    if (numArgs > 2){
+      std::string fadestr = ctx.stack().pop().getString();
+      if (fadestr == "fade")
+        fade = true;
+    }
+    return 0;
+  }
   PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
-  if (effect == "noise" || effect == "darkbloom"){
+  if (effect == "noise" || effect == "darkbloom" || effect == "whoosh"){
     int strength = ctx.stack().pop().getInt();
     bool fade = false;
     if (numArgs > 2){
@@ -1611,7 +1622,7 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
       if (fadestr == "fade")
         fade = true;
     }
-    if (effect == "darkbloom"){
+    if (effect == "darkbloom" || effect == "whoosh"){
       disableMainEffect();
       ef->activate(fade, strength/50.0f, fade);
     }
