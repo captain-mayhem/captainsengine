@@ -2,6 +2,7 @@
 #define CGE_REFCOUNTED_OBJECT_H
 
 #include <cassert>
+#include <cstdlib>
 #include <system/AtomicCounter.h>
 
 namespace CGE{
