@@ -51,7 +51,7 @@ int _stricmp(const char* str1, const char* str2){
 Engine* Engine::mInstance = NULL;
 static CGE::Mutex trymtx;
 
-Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false){
+Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f){
   mVerts[0] = 0; mVerts[1] = 1;
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
@@ -162,6 +162,7 @@ void Engine::initGame(exit_callback exit_cb){
   mRenderedMain->setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
   mPostProc = new PostProcessor(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
   mMouseShown = true;
+  mTimeFactor = 1.0f;
 }
 
 void Engine::exitGame(){
@@ -288,7 +289,7 @@ void Engine::render(unsigned time){
   if (!mInitialized)
     return;
   //timing
-  unsigned interval = time;
+  unsigned interval = (unsigned)(time*mTimeFactor);
   trymtx.lock();
   beginRendering();
   //unload rooms

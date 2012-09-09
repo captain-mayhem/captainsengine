@@ -62,7 +62,7 @@ int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture, int* got_pict
 }
 #endif
 
-SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mCurrentEffect("none"), mFadingTime(300){
+SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mCurrentEffect("none"), mFadingTime(300), mSpeedFactor(1.0){
   TR_USE(ADV_SOUND_ENGINE);
 #ifndef DISABLE_SOUND
   mDevice = alcOpenDevice(NULL);
@@ -320,8 +320,10 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
   StreamSoundPlayer* plyr = new StreamSoundPlayer(name, effectEnabled);
-  if (plyr->openStream(db))
+  if (plyr->openStream(db)){
+    plyr->setSpeed(mSpeedFactor);
     return plyr;
+  }
   else{
     delete plyr;
     return NULL;
@@ -485,6 +487,17 @@ void SoundEngine::removeSoundPlayer(SoundPlayer* plyr){
   delete plyr;
 }
 
+void SoundEngine::setSpeedFactor(float speed){
+  mSpeedFactor = speed;
+  for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+    if (iter->second == NULL)
+      continue;
+    iter->second->setSpeed(speed);
+  }
+  if (mActiveMusic != NULL)
+    mActiveMusic->setSpeed(speed);
+}
+
 
 SoundPlayer::SoundPlayer(const std::string& name, bool effectEnabled) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), 
 mName(name), mStartVolume(1.0f), mEndVolume(1.0f), mFadeDuration(0), mCurrTime(0), mEffectEnabled(effectEnabled){
@@ -556,6 +569,12 @@ bool SoundPlayer::fadeUpdate(unsigned time){
     return false;
   }
   return true;
+}
+
+void SoundPlayer::setSpeed(float factor){
+#ifndef DISABLE_SOUND
+  alSourcef(mSource, AL_PITCH, factor);
+#endif
 }
 
 #ifndef DISABLE_SOUND
