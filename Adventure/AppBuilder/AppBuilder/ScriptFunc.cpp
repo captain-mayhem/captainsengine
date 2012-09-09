@@ -1580,10 +1580,54 @@ int ScriptFunctions::textHide(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+class TimeAnimation : public DynamicAnimation{
+public:
+  TimeAnimation(const float src, const float target) : mDuration(2000), 
+    mCurrentTime(0), mSrc(src), mTarget(target){
+      mDuration = (int)(abs(mSrc-mTarget)*mDuration);
+  }
+  virtual bool update(unsigned interval){
+    float t = (mDuration-mCurrentTime)/(float)mDuration;
+    if (t < 0)
+      t = 0;
+    if (t > 1.0f)
+      t = 1.0f;
+    float factor = t*mSrc + (1-t)*mTarget;
+    Engine::instance()->setTimeFactor(factor, true);
+    SoundEngine::instance()->setSpeedFactor(factor);
+    if (mCurrentTime >= mDuration){
+      return false;
+    }
+    mCurrentTime += interval;
+    return true;
+  }
+  virtual Object2D* getTarget() {return NULL;}
+  virtual Type getType() {return TIME;}
+private:
+  int mDuration;
+  int mCurrentTime;
+  float mSrc;
+  float mTarget;
+};
+
 int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
   if (effect == "all"){
     Engine::instance()->getPostProcessor()->stopEffects();
+  }
+  if (effect == "slowmotion" || effect == "all"){
+    bool isFaded;
+    float currFactor = Engine::instance()->getTimeFactor(&isFaded);
+    if (isFaded){
+      if (currFactor != 1.0f){
+        TimeAnimation* ta = new TimeAnimation(currFactor, 1.0f);
+        Engine::instance()->getAnimator()->add(ta);
+      }
+    }
+    else{
+      Engine::instance()->setTimeFactor(1.0f, false);
+      SoundEngine::instance()->setSpeedFactor(1.0f);
+    }
   }
   else{
     PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
@@ -1610,6 +1654,18 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
       std::string fadestr = ctx.stack().pop().getString();
       if (fadestr == "fade")
         fade = true;
+    }
+    float factor = speed/100.0f;
+    if (fade){
+      float currFactor = Engine::instance()->getTimeFactor();
+      if (factor != currFactor){
+        TimeAnimation* ta = new TimeAnimation(currFactor, factor);
+        Engine::instance()->getAnimator()->add(ta);
+      }
+    }
+    else{
+      Engine::instance()->setTimeFactor(factor, false);
+      SoundEngine::instance()->setSpeedFactor(factor);
     }
     return 0;
   }

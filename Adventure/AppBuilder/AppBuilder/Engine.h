@@ -107,6 +107,8 @@ public:
   RoomObject* getMainRoom();
   void removeScript(ExecutionContext* ctx);
   void showMouse(bool doIt) {mMouseShown = doIt;}
+  void setTimeFactor(float factor, bool isFaded) {mTimeFactor = factor; mTimeFactorFaded = isFaded;}
+  float getTimeFactor(bool* isFaded=NULL) {if (isFaded != NULL) *isFaded = mTimeFactorFaded; return mTimeFactor;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -189,6 +191,8 @@ protected:
   RenderableBlitObject* mRenderedMain;
   PostProcessor* mPostProc;
   bool mMouseShown;
+  float mTimeFactor;
+  bool mTimeFactorFaded;
 };
 
 }

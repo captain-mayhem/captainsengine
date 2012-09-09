@@ -56,6 +56,7 @@ public:
 #endif
   bool isEffectEnabled() {return mCurrentEffect != "none";}
   void removeSoundPlayer(SoundPlayer* plyr);
+  void setSpeedFactor(float speed);
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db, bool effectEnabled);
@@ -75,6 +76,7 @@ protected:
   float mSpeechVolume;
   std::string mCurrentEffect;
   unsigned mFadingTime;
+  float mSpeedFactor;
 };
 
 class SoundPlayer{
@@ -97,6 +99,7 @@ public:
   virtual bool isLooping() {return false;}
   virtual void setAutoDelete(bool del) {}
   virtual bool hasAutoDeletion() {return true;}
+  void setSpeed(float factor);
 protected:
   bool fadeUpdate(unsigned time);
 #ifndef DISABLE_SOUND

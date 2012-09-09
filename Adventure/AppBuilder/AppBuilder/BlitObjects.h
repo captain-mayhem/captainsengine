@@ -131,6 +131,7 @@ public:
     COLOR,
     SCALE,
     SCREEN,
+    TIME,
   };
   DynamicAnimation();
   virtual ~DynamicAnimation();
