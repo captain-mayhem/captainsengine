@@ -226,9 +226,7 @@ FontRenderer::~FontRenderer(){
   for (unsigned i = 0; i < mFonts.size(); ++i){
     delete mFonts[i];
   }
-  for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
-    delete iter->second;
-  }
+  clearTextouts();
 }
 
 bool FontRenderer::loadFont(unsigned id){
@@ -294,6 +292,13 @@ Textout* FontRenderer::getTextout(int id){
     return text;
   }
   return iter->second;
+}
+
+void FontRenderer::clearTextouts(){
+  for (std::map<int, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+    delete iter->second;
+  }
+  mTextouts.clear();
 }
 
 void FontRenderer::save(std::ostream& out){

@@ -98,12 +98,7 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
 }
 
 SoundEngine::~SoundEngine(){
-  for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
-    delete iter->second;
-  }
-  mActiveSounds.clear();
-  delete mActiveMusic;
-  delete mActiveVideo;
+  reset();
 #ifndef DISABLE_SOUND
   alDeleteEffects(1, &mEffect);
   alDeleteAuxiliaryEffectSlots(1, &mEffectSlot);
@@ -113,6 +108,22 @@ SoundEngine::~SoundEngine(){
   //exit codecs
   alutExit();
 #endif
+}
+
+void SoundEngine::reset(){
+  for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
+    delete iter->second;
+  }
+  mActiveSounds.clear();
+  delete mActiveMusic;
+  mActiveMusic = NULL;
+  delete mActiveVideo;
+  mActiveVideo = NULL;
+  mMusicVolume = 1.0f;
+  mSpeechVolume = 1.0f;
+  mCurrentEffect = "none";
+  mFadingTime = 300;
+  mSpeedFactor = 1.0f;
 }
 
 void SoundEngine::setEAXEffect(const std::string& effect){
@@ -415,6 +426,7 @@ void SoundEngine::setSpeechVolume(float volume){
 std::ostream& SoundEngine::save(std::ostream& out){
   out << mMusicVolume << " " << mSpeechVolume << "\n";
   out << mFadingTime << " " << mCurrentEffect << "\n";
+  out << mSpeedFactor << std::endl;
   if (mActiveMusic != NULL){
     out << mActiveMusic->getName() << " " << mActiveMusic->hasEffect();
   }
@@ -452,6 +464,7 @@ std::istream& SoundEngine::load(std::istream& in){
   in >> mMusicVolume >> mSpeechVolume;
   in >> mFadingTime >> mCurrentEffect;
   setEAXEffect(mCurrentEffect);
+  in >> mSpeedFactor;
   std::string music;
   in >> music;
   if (music != "none"){
