@@ -64,6 +64,7 @@ public:
   void removeText(CharacterObject* chr);
   void removeText(String* str);
   Textout* getTextout(int id);
+  void clearTextouts();
   void save(std::ostream& out);
   void load(std::istream& in);
 protected:

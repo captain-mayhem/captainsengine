@@ -57,6 +57,7 @@ public:
   bool isEffectEnabled() {return mCurrentEffect != "none";}
   void removeSoundPlayer(SoundPlayer* plyr);
   void setSpeedFactor(float speed);
+  void reset();
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db, bool effectEnabled);
