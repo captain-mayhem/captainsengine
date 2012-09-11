@@ -173,6 +173,10 @@ namespace StoryDesigner
                 mDragMode = DragMode.DragNone;
                 this.Cursor = Cursors.Default;
             }
+            if (mMode == ViewMode.Specialfx)
+            {
+                mDragMode = DragMode.DragNone;
+            }
         }
 
         void RoomDlg_MouseMove(object sender, MouseEventArgs e)
@@ -309,6 +313,38 @@ namespace StoryDesigner
                         mRoom.InvScale.x = 0.65f;
                 }
             }
+            else if (mMode == ViewMode.Specialfx)
+            {
+                if (mDragMode == DragMode.DragCorner)
+                {
+                    mDraggingShape.Positions[mShapeIndex] = mMousePos + mRoom.ScrollOffset;
+                    if (mDraggingShape.Positions[mShapeIndex].x < 0)
+                        mDraggingShape.Positions[mShapeIndex].x = 0;
+                    if (mDraggingShape.Positions[mShapeIndex].x > mRoom.Size.x)
+                        mDraggingShape.Positions[mShapeIndex].x = mRoom.Size.x;
+                    if (mDraggingShape.Positions[mShapeIndex].y < 0)
+                        mDraggingShape.Positions[mShapeIndex].y = 0;
+                    if (mDraggingShape.Positions[mShapeIndex].y > mRoom.Size.y)
+                        mDraggingShape.Positions[mShapeIndex].y = mRoom.Size.y;
+                }
+                else if (mDragMode == DragMode.DragPosition)
+                {
+                    Vec2i diff = mMousePos - mDragOffset;
+                    for (int i = 0; i < mDraggingShape.Positions.Length; ++i)
+                    {
+                        mDraggingShape.Positions[i] += diff;
+                        if (mDraggingShape.Positions[i].x < 0)
+                            correctShapeBoundary(i, new Vec2i(-mDraggingShape.Positions[i].x, 0), ref diff);
+                        if (mDraggingShape.Positions[i].x > mRoom.Size.x)
+                            correctShapeBoundary(i, new Vec2i(mRoom.Size.x - mDraggingShape.Positions[i].x, 0), ref diff);
+                        if (mDraggingShape.Positions[i].y < 0)
+                            correctShapeBoundary(i, new Vec2i(0, -mDraggingShape.Positions[i].y), ref diff);
+                        if (mDraggingShape.Positions[i].y > mRoom.Size.y)
+                            correctShapeBoundary(i, new Vec2i(0, mRoom.Size.y - mDraggingShape.Positions[i].y), ref diff);
+                    }
+                    mDragOffset = mMousePos;
+                }
+            }
         }
 
         void RoomDlg_MouseDown(object sender, MouseEventArgs e)
@@ -438,6 +474,36 @@ namespace StoryDesigner
                     mRoom.HasInventory = true;
                     mDragMode = DragMode.DragCorner;
                     this.Cursor = Cursors.SizeNWSE;
+                }
+            }
+            else if (mMode == ViewMode.Specialfx)
+            {
+                Vec2i clickpos = pos;
+                clickpos += mRoom.ScrollOffset;
+                for (int shapeidx = 0; shapeidx < mRoom.FXShapes.Count; ++shapeidx)
+                {
+                    FxShape shape = (FxShape)mRoom.FXShapes[shapeidx];
+                    Vec2i center = new Vec2i();
+                    for (int i = 0; i < shape.Positions.Length; ++i)
+                    {
+                        if ((shape.Positions[i] - clickpos).length() <= 4)
+                        {
+                            mDragMode = DragMode.DragCorner;
+                            mDraggingShape = shape;
+                            mShapeIndex = i;
+                            mDragOffset = clickpos - center;
+                            return;
+                        }
+                        center += shape.Positions[i];
+                    }
+                    center /= shape.Positions.Length;
+                    if ((center - clickpos).length() <= 10)
+                    {
+                        mDragMode = DragMode.DragPosition;
+                        mDraggingShape = shape;
+                        mDragOffset = pos;
+                        break;
+                    }
                 }
             }
         }
@@ -825,8 +891,11 @@ namespace StoryDesigner
         private string mCopiedWMScript = null;
         //deepmap
         bool mDragDepthBottom;
-        //inventory
+        //inventory and fxshapes
         DragMode mDragMode = DragMode.DragNone;
+        //fxshapes
+        private FxShape mDraggingShape;
+        private int mShapeIndex;
 
         private void addAsBackgroundToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -931,6 +1000,15 @@ namespace StoryDesigner
         private void removeFieldToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mRoom.HasInventory = false;
+        }
+
+        private void correctShapeBoundary(int index, Vec2i correctingDiff, ref Vec2i diff)
+        {
+            for (int j = 0; j <= index; ++j)
+            {
+                mDraggingShape.Positions[j] += correctingDiff;
+            }
+            diff += correctingDiff;
         }
     }
 }
