@@ -12,7 +12,7 @@ using namespace adv;
 
 ParticleEngine::ParticleEngine(AdvDocument* data) : mData(data), mParticleObject(NULL), mDir(0,1), 
 mMaxParticles(200), mRotAngle(0), mSpeedVariation(0), mEnabled(false), mEmissionInterval(20), 
-mTimeCount(0), mParticleDepth(DEPTH_PARTICLES_TOP){
+mTimeCount(0), mParticleDepth(DEPTH_PARTICLES_FRONT){
 }
 
 ParticleEngine::~ParticleEngine(){

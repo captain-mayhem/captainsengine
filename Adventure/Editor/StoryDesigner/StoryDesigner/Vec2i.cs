@@ -41,6 +41,12 @@ namespace StoryDesigner
             vec.y = (int)(vec.y / val);
             return vec;
         }
+        public static Vec2i operator -(Vec2i vec)
+        {
+            vec.x = -vec.x;
+            vec.y = -vec.y;
+            return vec;
+        }
         public static bool operator !=(Vec2i v1, Vec2i v2)
         {
             return v1.x != v2.x || v1.y != v2.y;

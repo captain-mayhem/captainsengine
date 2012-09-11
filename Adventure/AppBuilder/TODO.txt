@@ -20,6 +20,7 @@ Tests
 -----
 D:\pcdk\Sinnlos im Weltraum - The First Adventure\Sinnlos im Weltraum - The First Adventure\data\game.dat
 D:\pcdk\editor\functiondemo\data\game.dat
+D:\pcdk\editor\particles\data\game.dat
 D:\Projects\captainsengine\trunk\Adventure\AppBuilder\test\data\game.dat
 D:\pcdk\aluehnfinal\Alühn\data\game.dat
 D:\pcdk\testadv\TestAdventure\data\game.dat
