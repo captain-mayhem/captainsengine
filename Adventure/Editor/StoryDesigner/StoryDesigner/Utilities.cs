@@ -118,6 +118,15 @@ namespace StoryDesigner
             g.DrawLine(p, pos.x + linewidth, pos.y, pos.x + linewidth + width / 2 + linewidth, pos.y);
         }
 
+        public static void drawDepthHandle(Graphics g, AdvData data, Vec2i position, float depth, Color color)
+        {
+            int ycenter = (int)(depth * data.WalkGridSize - data.WalkGridSize / 2);
+            Pen cp = new Pen(color);
+            g.DrawLine(cp, position.x, position.y, position.x, ycenter);
+            g.FillRectangle(new SolidBrush(color), position.x - 2, ycenter - 2, 5, 5);
+            g.DrawRectangle(cp, position.x - 5, ycenter - 5, 10, 10);
+        }
+
         public static int ResourceIDToImageIndex(ResourceID id)
         {
             switch (id)

@@ -105,7 +105,12 @@ void Thread::setPriority(Priority priority){
   }
   SetThreadPriority(thread_, winprio);
 #else
+#ifndef NO_PTHREAD_CANCEL
   pthread_setschedprio(thread_, 10+((int)priority)-3);
+#else
+  TR_USE(CGE_Thread);
+  TR_ERROR("pthread_setschedprio not supported by this platform");
+#endif
 #endif
 }
 
