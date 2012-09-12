@@ -962,10 +962,7 @@ namespace StoryDesigner
                 drawBoundary(g, State, Position);
                 if (Layer == 1)
                 {
-                    int ycenter = Depth * mAdvData.WalkGridSize - mAdvData.WalkGridSize/2;
-                    g.DrawLine(Pens.Blue, Position.x, Position.y, Position.x, ycenter);
-                    g.FillRectangle(Brushes.Blue, Position.x - 2, ycenter - 2, 5, 5);
-                    g.DrawRectangle(Pens.Blue, Position.x - 5, ycenter - 5, 10, 10);
+                    Utilities.drawDepthHandle(g, mAdvData, Position, Depth, Color.Blue);
                 }
             }
         }

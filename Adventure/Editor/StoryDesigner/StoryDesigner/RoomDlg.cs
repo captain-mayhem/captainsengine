@@ -344,6 +344,14 @@ namespace StoryDesigner
                     }
                     mDragOffset = mMousePos;
                 }
+                else if (mDragMode == DragMode.DragBottom)
+                {
+                    mDraggingShape.Depth = (e.Y + 5 + mDragOffset.y + mData.WalkGridSize / 2) / mData.WalkGridSize;
+                    if (mDraggingShape.Depth < 1)
+                        mDraggingShape.Depth = 1;
+                    if (mDraggingShape.Depth > mRoom.Size.y / mData.WalkGridSize)
+                        mDraggingShape.Depth = mRoom.Size.y / mData.WalkGridSize;
+                }
             }
         }
 
@@ -483,6 +491,8 @@ namespace StoryDesigner
                 for (int shapeidx = 0; shapeidx < mRoom.FXShapes.Count; ++shapeidx)
                 {
                     FxShape shape = (FxShape)mRoom.FXShapes[shapeidx];
+                    if (!shape.Active)
+                        continue;
                     Vec2i center = new Vec2i();
                     for (int i = 0; i < shape.Positions.Length; ++i)
                     {
@@ -503,6 +513,14 @@ namespace StoryDesigner
                         mDraggingShape = shape;
                         mDragOffset = pos;
                         break;
+                    }
+                    Vec2i depthcenter = new Vec2i(center.x, (int)((shape.Depth + 0.5f) * mData.WalkGridSize - mData.WalkGridSize / 2));
+                    if ((depthcenter - clickpos).length() <= 5)
+                    {
+                        mDragMode = DragMode.DragBottom;
+                        mDraggingShape = shape;
+                        mDragOffset = depthcenter - pos;
+                        return;
                     }
                 }
             }
@@ -689,6 +707,8 @@ namespace StoryDesigner
                 for (int coloridx = 0; coloridx < mRoom.FXShapes.Count; ++coloridx)
                 {
                     FxShape shape = (FxShape)mRoom.FXShapes[coloridx];
+                    if (!shape.Active)
+                        continue;
                     Color basecol = Color.Black;
                     switch (coloridx)
                     {
@@ -720,6 +740,17 @@ namespace StoryDesigner
                     }
                     center /= shape.Positions.Length;
                     Utilities.drawCrosshair(e.Graphics, center, basecol, 1.0f);
+                    string s = "";
+                    if (shape.Effect == FxShape.FxEffect.WALL_MIRROR)
+                    {
+                        Utilities.drawDepthHandle(e.Graphics, mData, center, shape.Depth + 0.5f, basecol);
+                        s = "Wall-Mirror";
+                    }
+                    else if (shape.Effect == FxShape.FxEffect.FLOOR_MIRROR)
+                        s = "Floor-Mirror";
+                    else if (shape.Effect == FxShape.FxEffect.PARTICLE_BARRIER)
+                        s = "Particle-Barrier";
+                    Utilities.drawText(e.Graphics, shape.Positions[0].x, shape.Positions[0].y, s, f);
                 }
             }
         }
