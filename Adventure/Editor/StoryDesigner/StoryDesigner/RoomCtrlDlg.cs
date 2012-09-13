@@ -44,6 +44,10 @@ namespace StoryDesigner
             scroller.MouseUp += new MouseEventHandler(scroller_MouseUp);
             roomwidth.ValueChanged += new EventHandler(roomwidth_ValueChanged);
             roomheight.ValueChanged += new EventHandler(roomheight_ValueChanged);
+            mFxShapes = new FxShapeTabCtrl();
+            mFxShapes.Visible = false;
+            mFxShapes.Location = objectgroup.Location;
+            this.Controls.Add(mFxShapes);
         }
 
         void scroller_MouseUp(object sender, MouseEventArgs e)
@@ -153,11 +157,31 @@ namespace StoryDesigner
             }
         }
 
+        public RoomDlg.ViewMode ViewMode
+        {
+            set
+            {
+                if (value == RoomDlg.ViewMode.Specialfx)
+                {
+                    objectgroup.Visible = false;
+                    charactergroup.Visible = false;
+                    mFxShapes.Visible = true;
+                }
+                else
+                {
+                    objectgroup.Visible = true;
+                    charactergroup.Visible = true;
+                    mFxShapes.Visible = false;
+                }
+            }
+        }
+
         private Room mRoom;
         private AdvData mData;
         private DrawableObject mObject;
         private Vec2i mDragOffset;
         private Vec2f mScrollOffset;
+        private FxShapeTabCtrl mFxShapes;
 
         private void roomwidth_ValueChanged(object sender, EventArgs e)
         {

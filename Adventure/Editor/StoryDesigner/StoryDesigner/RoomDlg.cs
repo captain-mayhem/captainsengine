@@ -828,7 +828,7 @@ namespace StoryDesigner
 
         public ViewMode Viewmode
         {
-            set { mMode = value; Invalidate(); }
+            set { mMode = value; Invalidate(); mControl.ViewMode = value; }
         }
 
         Vec2i clickToWalkmap(int x, int y)
