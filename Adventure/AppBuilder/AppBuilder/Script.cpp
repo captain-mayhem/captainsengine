@@ -449,8 +449,20 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         if (relnode->type() == RelationalNode::REL_PLUS || relnode->type() == RelationalNode::REL_MINUS){
           //CLOAD var; visit child; CADD/CSUB
           std::map<std::string, std::map<int, std::string> >::iterator funciter = mRelVars.find(mCurrFunc);
-          if (funciter == mRelVars.end())
-            DebugBreak();
+          if (funciter == mRelVars.end()){
+            if (mCurrFunc == "offspeech" && mCurrArg == 3){
+              //allow strings that look like relative numbers / variables
+              CPUSH* push = new CPUSH(relnode->getType() == RelationalNode::REL_PLUS ? "+" : "-");
+              codes->addCode(push);
+              count += 1;
+              count += transform(relnode->child(), codes);
+              codes->addCode(new CCONCAT());
+              count += 1;
+              break;
+            }
+            else
+              DebugBreak();
+          }
           std::map<int, std::string>::iterator argiter = funciter->second.find(mCurrArg);
           if (argiter == funciter->second.end())
             DebugBreak();
