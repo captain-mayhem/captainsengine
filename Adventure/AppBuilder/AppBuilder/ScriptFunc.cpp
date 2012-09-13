@@ -1796,8 +1796,10 @@ int ScriptFunctions::showMouse(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   int size = ctx.stack().pop().getInt();
-  if (numArgs >= 3)
+  if (numArgs >= 3){
+    std::string fade = ctx.stack().pop().getString();
     DebugBreak();
+  }
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
   if (chr)
     chr->setUserScale(size/100.0f);
