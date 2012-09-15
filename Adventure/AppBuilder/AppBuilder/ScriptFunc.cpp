@@ -140,6 +140,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("charzoom", charZoom);
   interpreter->registerFunction("setwalksound", setWalkSound);
   interpreter->registerFunction("if_yobj", isObjYPosEqual);
+  interpreter->registerFunction("hidealltext", hideAllTexts);
   srand((unsigned)time(NULL));
 }
 
@@ -1796,13 +1797,20 @@ int ScriptFunctions::showMouse(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   int size = ctx.stack().pop().getInt();
+  bool fade = false;
   if (numArgs >= 3){
-    std::string fade = ctx.stack().pop().getString();
-    DebugBreak();
+    std::string fadestr = ctx.stack().pop().getString();
+    if (fadestr != "fade")
+      DebugBreak();
+    fade = true;
   }
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
-  if (chr)
-    chr->setUserScale(size/100.0f);
+  if (chr){
+    if (fade && !ctx.isSkipping())
+      Engine::instance()->getAnimator()->add(chr, chr->getUserScale(), size/100.0f, true);
+    else
+      chr->setUserScale(size/100.0f);
+  }
   else{
     std::string dummy;
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, dummy, dummy);
@@ -1823,6 +1831,11 @@ int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
     cso->walksound = soundname;
   }
+  return 0;
+}
+
+int ScriptFunctions::hideAllTexts(ExecutionContext& ctx, unsigned numArgs){
+  Engine::instance()->getFontRenderer()->disableTextouts();
   return 0;
 }
 

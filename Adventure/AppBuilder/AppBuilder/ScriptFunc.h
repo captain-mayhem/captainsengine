@@ -112,6 +112,9 @@ public:
   \param ... [opt] additional objects to group
   **/
   static int group(ExecutionContext& ctx, unsigned numArgs);
+  /*
+  */
+  static int hideAllTexts(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param object name of the object instance
   \param state state of the object

@@ -692,7 +692,7 @@ bool PcdkScript::willUpdate(unsigned interval){
   return mTimeAccu + interval >= 20;
 }
 
-void PcdkScript::update(ExecutionContext* ctx, unsigned time){
+void PcdkScript::update(ExecutionContext* ctx, unsigned time, bool execute){
   if (ctx->mSleepTime > 0 && ctx->mSuspended){
     (ctx->mSleepTime -= time);
     if (ctx->mSleepTime <= 0){
@@ -700,7 +700,11 @@ void PcdkScript::update(ExecutionContext* ctx, unsigned time){
       ctx->resume();
     }
   }
-  executeImmediately(ctx);
+  if (ctx->getLoop1() != NULL){ //update timer of loop1 scripts
+    update(ctx->getLoop1(), time, false);
+  }
+  if (execute)
+    executeImmediately(ctx);
 }
 
 void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
