@@ -301,6 +301,12 @@ void FontRenderer::clearTextouts(){
   mTextouts.clear();
 }
 
+void FontRenderer::disableTextouts(){
+  for (std::map<int, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+    iter->second->setEnabled(false);
+  }
+}
+
 void FontRenderer::save(std::ostream& out){
   out << mTextouts.size() << "\n";
   for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){

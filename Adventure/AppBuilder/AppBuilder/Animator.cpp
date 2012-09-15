@@ -221,8 +221,8 @@ void Animator::add(RoomObject* obj, Vec2i scrollpos, float speed){
 
 class ScaleAnimation : public DynamicAnimation{
 public:
-  ScaleAnimation(const float src, const float target, CharacterObject* object) : mDuration(1000), 
-    mCurrentTime(0), mSrc(src), mTarget(target), mObject(object){
+  ScaleAnimation(const float src, const float target, CharacterObject* object, bool scaleUserScale) : mDuration(1000), 
+    mCurrentTime(0), mSrc(src), mTarget(target), mObject(object), mScaleUserScale(scaleUserScale){
       mDuration = (int)(abs(mSrc-mTarget)*mDuration);
   }
   virtual bool update(unsigned interval){
@@ -231,12 +231,19 @@ public:
       t = 0;
     if (t > 1.0f)
       t = 1.0f;
-    mTarget = mObject->getScale();
+    if (!mScaleUserScale)
+      mTarget = mObject->getScale();
+    //else
+    //  mTarget = mObject->getUserScale();
     float scale = t*mSrc + (1-t)*mTarget;
-    mObject->setFrozenScale(scale);
+    if (!mScaleUserScale)
+      mObject->setFrozenScale(scale);
+    else
+      mObject->setUserScale(scale);
     if (mCurrentTime >= mDuration){
       //TODO: scripting (charzoom): nozooming has to remain on
-      mObject->setNoZooming(false, true);
+      if (!mScaleUserScale)
+        mObject->setNoZooming(false, true);
       return false;
     }
     mCurrentTime += interval;
@@ -251,9 +258,10 @@ private:
   float mSrc;
   float mTarget;
   CharacterObject* mObject;
+  bool mScaleUserScale;
 };
 
-void Animator::add(CharacterObject* obj, float sourcescale, float targetscale){
+void Animator::add(CharacterObject* obj, float sourcescale, float targetscale, bool isUserScale){
   //remove previous animation
   for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){
     if ((*iter)->getType() == DynamicAnimation::SCALE && (*iter)->getTarget() == obj){
@@ -263,7 +271,7 @@ void Animator::add(CharacterObject* obj, float sourcescale, float targetscale){
       break;
     }
   }
-  ScaleAnimation* sa = new ScaleAnimation(sourcescale, targetscale, obj);
+  ScaleAnimation* sa = new ScaleAnimation(sourcescale, targetscale, obj, isUserScale);
   add(sa);
 }
 

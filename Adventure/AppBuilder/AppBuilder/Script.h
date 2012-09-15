@@ -81,7 +81,7 @@ protected:
   std::map<std::string, int> mArgEC;
 
   EngineEvent getEngineEvent(const std::string eventname);
-  void update(ExecutionContext* ctx, unsigned time);
+  void update(ExecutionContext* ctx, unsigned time, bool execute=true);
   std::map<std::string, ScriptFunc> mFunctions;
   AdvDocument* mData;
   std::list<ExecutionContext*> mScripts;

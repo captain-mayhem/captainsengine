@@ -39,7 +39,7 @@ public:
   void add(DynamicAnimation* anim);
   void add(Object2D* obj, const Color& targetcolor);
   void add(RoomObject* obj, Vec2i scrollpos, float speed);
-  void add(CharacterObject* obj, float sourcescale, float targetscale);
+  void add(CharacterObject* obj, float sourcescale, float targetscale, bool isUserScale);
   Vec2i getTargetPoisition(Object2D* obj);
 protected:
   bool isPointOnLine(Vec2f from, Vec2f to, Vec2f pt, double epsilon);

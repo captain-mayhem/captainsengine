@@ -696,7 +696,9 @@ void CharacterObject::setPosition(const Vec2i& pos){
 }
 
 void CharacterObject::setPosition(const Vec2i& pos, bool isSpawnPos){
-  Vec2i offset = mBasePoints[mState-1];
+  Vec2i offset;
+  if (mState != 0)
+    offset = mBasePoints[mState-1];
   Object2D::setPosition(pos-offset);
   if (isSpawnPos)
     mSpawnPos = getPosition();
@@ -947,7 +949,7 @@ void CharacterObject::setNoZooming(bool nozooming, bool force){
     if (force)
       mNoZooming = nozooming;
     else
-      Engine::instance()->getAnimator()->add(this, mFrozenScale, mScale);
+      Engine::instance()->getAnimator()->add(this, mFrozenScale, mScale, false);
   }
 }
 

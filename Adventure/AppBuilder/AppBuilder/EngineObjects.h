@@ -88,6 +88,7 @@ public:
   void setScale(float scale) {mScale = scale;}
   float getScale() {return mScale;}
   void setUserScale(float scale) {mUserScale = scale;}
+  float getUserScale() {return mUserScale;}
   void setRotation(float angle) {mRotAngle = angle;}
   float getRotation() {return mRotAngle;}
   void setLighten(bool lighten);
