@@ -470,6 +470,8 @@ Object2D* RoomObject::getObjectAt(const Vec2i& pos){
 
 Object2D* RoomObject::getObject(const std::string& name){
   for (unsigned i = 0; i < mObjects.size(); ++i){
+    if (mObjects[i]->getType() != Object2D::OBJECT) //find only 'real' objects
+      continue;
     if(_stricmp(mObjects[i]->getName().c_str(), name.c_str()) == 0)
       return mObjects[i];
   }
@@ -602,10 +604,10 @@ Vec2i RoomObject::getScriptPosition(ExecutionContext* wmscript){
   return Vec2i(-1,-1);
 }
 
-void RoomObject::skipScripts(bool execute){
+void RoomObject::finishScripts(bool execute){
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     if ((*iter)->getScript() != NULL){
-      (*iter)->getScript()->setSkip();
+      (*iter)->getScript()->finish();
       if (execute && (*iter)->getScript()->isRunning()){
         //(*iter)->getScript()->resume();
         Engine::instance()->getInterpreter()->executeImmediately((*iter)->getScript());
@@ -615,7 +617,7 @@ void RoomObject::skipScripts(bool execute){
   if (mScript != NULL/* && mScript->isRunning()*/){
     //mScript->resetEvent(EVT_LOOP1);
     //mScript->resetEvent(EVT_LOOP2);
-    mScript->setSkip();
+    mScript->finish();
     if (execute && mScript->isRunning()){
       //mScript->resume();
       Engine::instance()->getInterpreter()->executeImmediately(mScript);

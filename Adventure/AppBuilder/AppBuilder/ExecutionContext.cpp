@@ -61,7 +61,7 @@ void CodeSegment::load(std::istream& in){
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
-mSuspender(NULL){
+mSuspender(NULL), mShouldFinish(false){
 
 }
 
@@ -81,11 +81,12 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
   mEventHandled = ctx.mEventHandled;
   mRefCount = 1;
   mSuspender = ctx.mSuspender;
+  mShouldFinish = ctx.mShouldFinish;
 }
 
 ExecutionContext::ExecutionContext(std::istream& in) : 
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), 
-mEventHandled(false), mRefCount(1), mSuspender(NULL)
+mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false)
 {
   in >> mIsGameObject >> mObjectInfo;
   if (mObjectInfo == "none")
@@ -101,6 +102,8 @@ ExecutionContext::~ExecutionContext(){
 
 void ExecutionContext::setEvent(EngineEvent evt){
   TR_USE(ADV_ExectionContext);
+  if (mShouldFinish) //do not add new events
+    return;
   if (evt == EVT_LOOP1 || evt == EVT_LOOP2){ //don't add loop events multiple times
     if (mSkip) //don't add loop events when the script is skipping
       return;
@@ -150,7 +153,11 @@ bool ExecutionContext::isEventSet(EngineEvent evt){
 }
 
 bool ExecutionContext::isRunning(){
-  return (mPC > 0 && !mIdle) || !mEvents.empty();
+  bool running = (mPC > 0 && !mIdle) || !mEvents.empty();
+  if (!running){
+    running = mCode->getLoop1() ? mCode->getLoop1()->isRunning() : false;
+  }
+  return running;
 }
 
 EngineEvent ExecutionContext::getCommandEvent(){

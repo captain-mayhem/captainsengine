@@ -167,7 +167,7 @@ public:
   virtual void setPosition(const Vec2i& pos);
   bool containsObject(Object2D* object);
   Vec2i getScriptPosition(ExecutionContext* wmscript);
-  void skipScripts(bool execute);
+  void finishScripts(bool execute);
   float getDepthScale(const Vec2i& pos);
   static float getDepthScale(const Vec2i& pos, int depthStart, int depthEnd, int zoomfactor);
   void setZoomFactor(int factor) {mDepthMap.setZoomFactor(factor);}
