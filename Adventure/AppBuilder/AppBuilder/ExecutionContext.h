@@ -113,6 +113,7 @@ public:
   void save(std::ostream& out);
   ExecutionContext* getLoop1() {return mCode->getLoop1();}
   bool isGameObject() {return mIsGameObject;}
+  void finish() {mShouldFinish = true; setSkip(); if (mCode->getLoop1() != NULL)mCode->getLoop1()->finish();}
 protected:
   ~ExecutionContext();
   CodeSegment* mCode;
@@ -130,6 +131,7 @@ protected:
   bool mEventHandled;
   int mRefCount;
   Suspender* mSuspender;
+  bool mShouldFinish;
 };
 
 }

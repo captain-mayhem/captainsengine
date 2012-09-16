@@ -202,16 +202,9 @@ public:
   CADD() {}
   virtual ~CADD() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    if (ctx.stack().top().isInt()){
-      int d2 = ctx.stack().pop().getInt();
-      int d1 = ctx.stack().pop().getInt();
-      ctx.stack().push(d1+d2);
-    }
-    else{
-      float d2 = ctx.stack().pop().getFloat();
-      float d1 = ctx.stack().pop().getFloat();
-      ctx.stack().push(d1+d2);
-    }
+    float d2 = ctx.stack().pop().getFloat();
+    float d1 = ctx.stack().pop().getFloat();
+    ctx.stack().push(d1+d2);
     return ++pc;
   }
   virtual Type getType(){return ADD;}
@@ -222,8 +215,8 @@ public:
   CSUB() {}
   virtual ~CSUB() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    int d2 = ctx.stack().pop().getInt();
-    int d1 = ctx.stack().pop().getInt();
+    float d2 = ctx.stack().pop().getFloat();
+    float d1 = ctx.stack().pop().getFloat();
     ctx.stack().push(d1-d2);
     return ++pc;
   }
@@ -235,8 +228,8 @@ public:
   CMUL() {}
   virtual ~CMUL() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    int d2 = ctx.stack().pop().getInt();
-    int d1 = ctx.stack().pop().getInt();
+    float d2 = ctx.stack().pop().getFloat();
+    float d1 = ctx.stack().pop().getFloat();
     ctx.stack().push(d1*d2);
     return ++pc;
   }
@@ -248,8 +241,8 @@ public:
   CDIV() {}
   virtual ~CDIV() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    int d2 = ctx.stack().pop().getInt();
-    int d1 = ctx.stack().pop().getInt();
+    float d2 = ctx.stack().pop().getFloat();
+    float d1 = ctx.stack().pop().getFloat();
     ctx.stack().push(d1/d2);
     return ++pc;
   }

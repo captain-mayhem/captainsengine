@@ -299,7 +299,7 @@ void Engine::render(unsigned time){
     //do not unload when a script is in progress
     if (mRoomsToUnload.front()->isScriptRunning()){
       //if (mInterpreter->isBlockingScriptRunning())
-      mRoomsToUnload.front()->skipScripts(true);
+      mRoomsToUnload.front()->finishScripts(true);
       break;
     }
     /*ExecutionContext* ctx = mRoomsToUnload.front()->getScript();
@@ -762,7 +762,7 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately){
       return; //unload already in progress
   }
   mRoomsToUnload.push_back(room);
-  room->skipScripts(false);
+  room->finishScripts(false);
   if (mCurrentObject)
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
   mCurrentObject = NULL;
@@ -958,7 +958,7 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
   res = loadCharacter(charname, getCharacterClass(charname), true, reason);
   if (res){
     SaveStateProvider::SaveRoom* rm = getSaver()->getRoom(res->getRoom());
-    mSaver->removeCharacter(charname);
+    mSaver->removeCharacter(res->getName());
     res->setScrollOffset(rm->scrolloffset);
     mFocussedChar = res;
     delete deletionChar;
@@ -1405,8 +1405,9 @@ int Engine::unloadRooms(){
   setFocus("none", NULL);
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
     mRoomsToUnload.push_back(*iter);
-    if ((*iter)->getScript())
-      (*iter)->getScript()->resume(); //bulk unload, do unblock scripts
+    //if ((*iter)->getScript())
+    //  (*iter)->getScript()->resume(); //bulk unload, do unblock scripts
+    (*iter)->finishScripts(false);
     iter = mRooms.erase(iter);
   }
   mMainRoomLoaded = false;

@@ -1226,7 +1226,9 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
   }
   Object2D* obj = Engine::instance()->getObject(name, false);
   if (obj == NULL){
-    //DebugBreak();
+    std::string room;
+    SaveStateProvider::SaveObject* obj = Engine::instance()->getSaver()->findObject(name, room);
+    obj->position = newpos;
     return 0;
   }
   if (speed == 0 || ctx.mSkip){
@@ -1245,7 +1247,6 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
     obj->setSuspensionScript(&ctx);
   }
   Engine::instance()->getAnimator()->add(obj, path, speed);
-  //DebugBreak();
   return 0;
 }
 
