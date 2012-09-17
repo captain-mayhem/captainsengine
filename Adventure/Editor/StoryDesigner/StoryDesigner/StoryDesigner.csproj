@@ -68,6 +68,12 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="FxShapeCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FxShapeCtrl.Designer.cs">
+      <DependentUpon>FxShapeCtrl.cs</DependentUpon>
+    </Compile>
     <Compile Include="FxShapeTabCtrl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -117,6 +123,10 @@
     <EmbeddedResource Include="Form1.resx">
       <SubType>Designer</SubType>
       <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FxShapeCtrl.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FxShapeCtrl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FxShapeTabCtrl.resx">
       <SubType>Designer</SubType>

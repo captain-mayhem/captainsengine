@@ -79,11 +79,7 @@ class IdentNode : public ASTNode{
 public:
   IdentNode(const std::string& value) : ASTNode(IDENTIFIER) {append(value.c_str());}
   virtual ~IdentNode(){}
-  void append(const char* str) {
-    std::string tmp(str);
-    if (!mValue.empty() || tmp != " ")
-      mValue += str;
-  }
+  void append(const char* str);
   std::string& value() {return mValue;}
 protected:
   std::string mValue;

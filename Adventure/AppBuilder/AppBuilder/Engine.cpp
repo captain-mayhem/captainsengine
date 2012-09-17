@@ -1180,6 +1180,8 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
 
 Object2D* Engine::createItem(const std::string& name){
   Item* it = mData->getItem(name);
+  if (it == NULL)
+    DebugBreak();
   Object2D* object = new Object2D(1, Vec2i(), Vec2i(50,50), it->name);
   int depth = DEPTH_ITEM;
   for (unsigned j = 0; j < it->states.size(); ++j){
