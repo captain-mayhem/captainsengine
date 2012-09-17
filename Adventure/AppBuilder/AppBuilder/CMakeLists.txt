@@ -158,6 +158,7 @@ SET(AppBuilder_SRCS
   AdvDoc.h
   Animator.cpp
   Animator.h
+  AST.cpp
   AST.h
   BlitObjects.cpp
   BlitObjects.h

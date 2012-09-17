@@ -44,7 +44,7 @@ namespace StoryDesigner
             scroller.MouseUp += new MouseEventHandler(scroller_MouseUp);
             roomwidth.ValueChanged += new EventHandler(roomwidth_ValueChanged);
             roomheight.ValueChanged += new EventHandler(roomheight_ValueChanged);
-            mFxShapes = new FxShapeTabCtrl();
+            mFxShapes = new FxShapeTabCtrl(mRoom.FXShapes);
             mFxShapes.Visible = false;
             mFxShapes.Location = objectgroup.Location;
             this.Controls.Add(mFxShapes);

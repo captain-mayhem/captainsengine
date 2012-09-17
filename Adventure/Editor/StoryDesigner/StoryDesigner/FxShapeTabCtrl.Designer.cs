@@ -35,6 +35,9 @@ namespace StoryDesigner
             this.colorlabel1 = new System.Windows.Forms.PictureBox();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.fxShapeCtrl1 = new StoryDesigner.FxShapeCtrl();
+            this.fxShapeCtrl2 = new StoryDesigner.FxShapeCtrl();
+            this.fxShapeCtrl3 = new StoryDesigner.FxShapeCtrl();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -58,6 +61,7 @@ namespace StoryDesigner
             // tabPage1
             // 
             this.tabPage1.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage1.Controls.Add(this.fxShapeCtrl1);
             this.tabPage1.Controls.Add(this.colorlabel1);
             this.tabPage1.ForeColor = System.Drawing.SystemColors.ControlText;
             this.tabPage1.Location = new System.Drawing.Point(4, 22);
@@ -70,6 +74,7 @@ namespace StoryDesigner
             // tabPage2
             // 
             this.tabPage2.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage2.Controls.Add(this.fxShapeCtrl2);
             this.tabPage2.Controls.Add(this.pictureBox1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
@@ -81,6 +86,7 @@ namespace StoryDesigner
             // tabPage3
             // 
             this.tabPage3.BackColor = System.Drawing.SystemColors.Control;
+            this.tabPage3.Controls.Add(this.fxShapeCtrl3);
             this.tabPage3.Controls.Add(this.pictureBox2);
             this.tabPage3.Location = new System.Drawing.Point(4, 22);
             this.tabPage3.Name = "tabPage3";
@@ -116,6 +122,27 @@ namespace StoryDesigner
             this.pictureBox2.TabIndex = 1;
             this.pictureBox2.TabStop = false;
             // 
+            // fxShapeCtrl1
+            // 
+            this.fxShapeCtrl1.Location = new System.Drawing.Point(6, 27);
+            this.fxShapeCtrl1.Name = "fxShapeCtrl1";
+            this.fxShapeCtrl1.Size = new System.Drawing.Size(246, 208);
+            this.fxShapeCtrl1.TabIndex = 1;
+            // 
+            // fxShapeCtrl2
+            // 
+            this.fxShapeCtrl2.Location = new System.Drawing.Point(6, 27);
+            this.fxShapeCtrl2.Name = "fxShapeCtrl2";
+            this.fxShapeCtrl2.Size = new System.Drawing.Size(246, 208);
+            this.fxShapeCtrl2.TabIndex = 2;
+            // 
+            // fxShapeCtrl3
+            // 
+            this.fxShapeCtrl3.Location = new System.Drawing.Point(6, 27);
+            this.fxShapeCtrl3.Name = "fxShapeCtrl3";
+            this.fxShapeCtrl3.Size = new System.Drawing.Size(246, 208);
+            this.fxShapeCtrl3.TabIndex = 2;
+            // 
             // FxShapeTabCtrl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -143,5 +170,8 @@ namespace StoryDesigner
         private System.Windows.Forms.PictureBox colorlabel1;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.PictureBox pictureBox2;
+        private FxShapeCtrl fxShapeCtrl1;
+        private FxShapeCtrl fxShapeCtrl2;
+        private FxShapeCtrl fxShapeCtrl3;
     }
 }

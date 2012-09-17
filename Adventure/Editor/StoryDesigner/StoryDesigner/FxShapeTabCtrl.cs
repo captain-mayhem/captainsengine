@@ -10,9 +10,12 @@ namespace StoryDesigner
 {
     public partial class FxShapeTabCtrl : UserControl
     {
-        public FxShapeTabCtrl()
+        public FxShapeTabCtrl(System.Collections.ArrayList shapes)
         {
             InitializeComponent();
+            this.fxShapeCtrl1.setShape((FxShape)shapes[0]);
+            this.fxShapeCtrl2.setShape((FxShape)shapes[1]);
+            this.fxShapeCtrl3.setShape((FxShape)shapes[2]);
         }
     }
 }
