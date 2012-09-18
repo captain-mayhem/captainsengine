@@ -136,7 +136,10 @@ unsigned CCONCAT::execute(ExecutionContext& ctx, unsigned pc){
     space = "";
   if (d1.size() > 0 && d2.size() > 0){
     char lastch = d1[d1.size()-1];
-    if ((lastch == '.' || lastch == ':') && isdigit(d2[0]))
+    char prelastch = 'x';
+    if (d1.size() > 1)
+      prelastch = d1[d1.size()-2];
+    if ((lastch == '.' || lastch == ':') && isdigit(d2[0]) && isdigit(prelastch))
       space = "";
   }
   ctx.stack().push(d1+space+d2);
