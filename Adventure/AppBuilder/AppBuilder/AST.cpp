@@ -6,7 +6,7 @@ void IdentNode::append(const char* str) {
     if (!mValue.empty()){
       char test = mValue[mValue.size()-1];
       //erase trailing whitespace
-      if (tmp == "-" && test == ' '){
+      if ((tmp == "-" || tmp == ":") && test == ' '){
         mValue.erase(mValue.size()-1);
         if (mValue.empty()){
           mValue = tmp;
