@@ -130,7 +130,7 @@ void Animation::setBlendMode(BlitObject::BlendMode mode){
 
 Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name)
 : mState(state), mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL), mName(name),
-mLightingColor(), mScale(1.0f), mUserScale(1.0f), mRotAngle(0.0f){
+mLightingColor(), mScale(1.0f), mUserScale(1.0f), mRotAngle(0.0f), mDepth(0){
 
 }
 
@@ -196,10 +196,12 @@ void Object2D::save(){
 }
 
 int Object2D::getDepth(){
-  return mPos.y/Engine::instance()->getWalkGridSize();
+  //return mPos.y/Engine::instance()->getWalkGridSize();
+  return mDepth;
 }
 
 void Object2D::setDepth(int depth){
+  mDepth = depth;
   for (unsigned i = 0; i < mAnimations.size(); ++i){
     mAnimations[i]->setDepth(depth);
   }
@@ -453,7 +455,7 @@ Object2D* RoomObject::getObjectAt(const Vec2i& pos){
   int currdepth = -10000;
   for (unsigned i = 0; i < mObjects.size(); ++i){
     if(mObjects[i]->isHit(pos-mScrollOffset)){
-      if (mObjects[i]->getDepth() > currdepth){
+      if (mObjects[i]->getDepth() >= currdepth){
         curr = mObjects[i];
         currdepth = curr->getDepth();
       }

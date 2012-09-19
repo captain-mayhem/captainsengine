@@ -107,6 +107,7 @@ protected:
   float mScale;
   float mUserScale;
   float mRotAngle;
+  int mDepth;
 };
 
 class ButtonObject : public Object2D, public BlitObject{
