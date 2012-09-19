@@ -194,3 +194,13 @@ void ExecutionContext::save(std::ostream& out){
   out << mSleepTime << " " << mSuspended << " ";
   mCode->save(out);
 }
+
+bool ExecutionContext::isLoop1(){
+  CCode* code = mCode->get(0);
+  if (code == NULL)
+    return false;
+  if (code->getType() != CCode::BNEEVT)
+    return false;
+  CBNEEVT* evt = (CBNEEVT*)code;
+  return evt->getEvent() == EVT_LOOP1;
+}

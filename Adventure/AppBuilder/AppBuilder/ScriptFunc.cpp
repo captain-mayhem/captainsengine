@@ -215,7 +215,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
   std::string text = ctx.stack().pop().getString();
   std::string sound = "";
-  bool hold = true;
+  bool hold = Engine::instance()->getInterpreter()->isBlockingScriptRunning() || ctx.isLoop1() || ctx.isIdle();
   if (numArgs >= 3){ //TODO SOUND
     sound = ctx.stack().pop().getString();
     if (sound == "dontwait"){
@@ -395,17 +395,22 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       RoomObject* ro = Engine::instance()->getRoom(roomname);
       std::string realname;
       Vec2i scrolloffset;
+      Vec2i roomoffset;
       if (ro == NULL){
         SaveStateProvider::SaveRoom* sro = Engine::instance()->getSaver()->getRoom(roomname);
         realname = sro->base.name;
         scrolloffset = sro->scrolloffset;
+        roomoffset = sro->base.position;
       }
       else{
         realname = ro->getName();
         scrolloffset = ro->getScrollOffset();
+        roomoffset = ro->getPosition();
       }
       obj->setRoom(realname);
-      obj->setPosition((pos*Engine::instance()->getWalkGridSize())+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2), true);
+      obj->setPosition((pos*Engine::instance()->getWalkGridSize())
+        +Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2)
+        +roomoffset, true);
       obj->setScrollOffset(scrolloffset);
       obj->setDepth(obj->getPosition().y/Engine::instance()->getWalkGridSize());
       //obj->setScale(ro->getDepthScale(obj->getPosition()));
@@ -686,7 +691,7 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   pos.y = ctx.stack().pop().getInt()*Engine::instance()->getWalkGridSize();
   std::string text = ctx.stack().pop().getString();
   std::string sound = "";
-  bool hold = true;
+  bool hold = Engine::instance()->getInterpreter()->isBlockingScriptRunning() || ctx.isLoop1() || ctx.isIdle();
   if (numArgs >= 4){
     sound = ctx.stack().pop().getString();
     if (sound == "dontwait"){
@@ -1497,6 +1502,7 @@ int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc)
   std::string roomname = ctx.stack().pop().getString();
   Vec2i pos;
   pos.x = ctx.stack().pop().getInt();
@@ -1515,6 +1521,10 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
   }
   else{
     SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(roomname);
+    if (sr == NULL){
+      TR_ERROR("setPos called on room %s that does not exist", roomname.c_str());
+      return 0;
+    }
     sr->scrolloffset = pos;
   }
   return 0;

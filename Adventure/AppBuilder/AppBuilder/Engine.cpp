@@ -617,6 +617,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
       depth = room->objects[i].wm_depth-1;
     else
       depth = DEPTH_FRONT_OBJECTS;
+    object->setDepth(depth+depthoffset);
     //object->setScale(roomobj->getDepthScale(saveobj->position));
     for (unsigned j = 0; j < o->states.size(); ++j){
       Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth+depthoffset);
@@ -762,13 +763,13 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately){
       return; //unload already in progress
   }
   mRoomsToUnload.push_back(room);
-  room->finishScripts(false);
   if (mCurrentObject)
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
   mCurrentObject = NULL;
   ExecutionContext* script = room->getScript();
   if (script)
     script->setEvent(EVT_EXIT);
+  room->finishScripts(false);
   //room->save();
   if (immediately){
     for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
@@ -1405,8 +1406,14 @@ void Engine::keyAscii(char chr){
 
 int Engine::unloadRooms(){
   setFocus("none", NULL);
+  if (mCurrentObject)
+    mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
+  mCurrentObject = NULL;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
     mRoomsToUnload.push_back(*iter);
+    ExecutionContext* script = (*iter)->getScript();
+    if (script)
+      script->setEvent(EVT_EXIT);
     //if ((*iter)->getScript())
     //  (*iter)->getScript()->resume(); //bulk unload, do unblock scripts
     (*iter)->finishScripts(false);

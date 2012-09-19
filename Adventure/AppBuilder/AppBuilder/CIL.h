@@ -111,6 +111,7 @@ public:
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return BNEEVT;}
   virtual void save(std::ostream& out);
+  EngineEvent getEvent() {return mEvent;}
 protected:
   EngineEvent mEvent;
 };

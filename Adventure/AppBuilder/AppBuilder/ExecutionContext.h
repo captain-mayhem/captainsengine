@@ -102,8 +102,9 @@ public:
   void setExecuteOnce() {mExecuteOnce = true;}
   bool isExecuteOnce() {return mExecuteOnce;}
   void setSkip() {mSkip = true; mSuspended = false;}
-  void setIdle(bool idle) {mIdle = idle;}
   bool isSkipping() {return mSkip;}
+  void setIdle(bool idle) {mIdle = idle;}
+  bool isIdle() {return mIdle;}
   void setEventHandled() {mEventHandled = true;}
   bool isEventHandled() {return mEventHandled;}
   bool isSuspended() {return mSuspended;}
@@ -114,6 +115,7 @@ public:
   ExecutionContext* getLoop1() {return mCode->getLoop1();}
   bool isGameObject() {return mIsGameObject;}
   void finish() {mShouldFinish = true; setSkip(); if (mCode->getLoop1() != NULL)mCode->getLoop1()->finish();}
+  bool isLoop1();
 protected:
   ~ExecutionContext();
   CodeSegment* mCode;
