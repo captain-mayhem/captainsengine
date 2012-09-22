@@ -44,7 +44,7 @@ namespace StoryDesigner
             scroller.MouseUp += new MouseEventHandler(scroller_MouseUp);
             roomwidth.ValueChanged += new EventHandler(roomwidth_ValueChanged);
             roomheight.ValueChanged += new EventHandler(roomheight_ValueChanged);
-            mFxShapes = new FxShapeTabCtrl(mRoom.FXShapes);
+            mFxShapes = new FxShapeTabCtrl(mRoom.FXShapes, this);
             mFxShapes.Visible = false;
             mFxShapes.Location = objectgroup.Location;
             this.Controls.Add(mFxShapes);
@@ -208,7 +208,7 @@ namespace StoryDesigner
             redrawRoom();
         }
 
-        private void redrawRoom()
+        public void redrawRoom()
         {
             if (RedrawRoom != null)
                 RedrawRoom(this, new RedrawEventArgs());
