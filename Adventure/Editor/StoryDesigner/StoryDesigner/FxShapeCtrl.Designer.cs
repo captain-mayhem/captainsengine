@@ -34,10 +34,10 @@ namespace StoryDesigner
             this.strength = new System.Windows.Forms.TrackBar();
             this.label2 = new System.Windows.Forms.Label();
             this.depOnRP = new System.Windows.Forms.CheckBox();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.position = new System.Windows.Forms.PictureBox();
             this.label3 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.strength)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.position)).BeginInit();
             this.SuspendLayout();
             // 
             // activate
@@ -49,6 +49,7 @@ namespace StoryDesigner
             this.activate.TabIndex = 0;
             this.activate.Text = "Activate";
             this.activate.UseVisualStyleBackColor = true;
+            this.activate.CheckedChanged += new System.EventHandler(this.activate_CheckedChanged);
             // 
             // effect
             // 
@@ -61,6 +62,7 @@ namespace StoryDesigner
             this.effect.Name = "effect";
             this.effect.Size = new System.Drawing.Size(99, 21);
             this.effect.TabIndex = 1;
+            this.effect.SelectedIndexChanged += new System.EventHandler(this.effect_SelectedIndexChanged);
             // 
             // label1
             // 
@@ -74,9 +76,12 @@ namespace StoryDesigner
             // strength
             // 
             this.strength.Location = new System.Drawing.Point(3, 79);
+            this.strength.Maximum = 255;
             this.strength.Name = "strength";
             this.strength.Size = new System.Drawing.Size(99, 45);
             this.strength.TabIndex = 3;
+            this.strength.TickFrequency = 10;
+            this.strength.Scroll += new System.EventHandler(this.strength_Scroll);
             // 
             // label2
             // 
@@ -96,20 +101,21 @@ namespace StoryDesigner
             this.depOnRP.TabIndex = 5;
             this.depOnRP.Text = "Depending on room position";
             this.depOnRP.UseVisualStyleBackColor = true;
+            this.depOnRP.CheckedChanged += new System.EventHandler(this.depOnRP_CheckedChanged);
             // 
-            // pictureBox1
+            // position
             // 
-            this.pictureBox1.BackColor = System.Drawing.SystemColors.ControlLight;
-            this.pictureBox1.Location = new System.Drawing.Point(117, 20);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(100, 92);
-            this.pictureBox1.TabIndex = 6;
-            this.pictureBox1.TabStop = false;
+            this.position.BackColor = System.Drawing.Color.Silver;
+            this.position.Location = new System.Drawing.Point(117, 37);
+            this.position.Name = "position";
+            this.position.Size = new System.Drawing.Size(100, 75);
+            this.position.TabIndex = 6;
+            this.position.TabStop = false;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(114, 4);
+            this.label3.Location = new System.Drawing.Point(114, 21);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(47, 13);
             this.label3.TabIndex = 7;
@@ -120,7 +126,7 @@ namespace StoryDesigner
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.pictureBox1);
+            this.Controls.Add(this.position);
             this.Controls.Add(this.depOnRP);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.strength);
@@ -130,7 +136,7 @@ namespace StoryDesigner
             this.Name = "FxShapeCtrl";
             this.Size = new System.Drawing.Size(246, 200);
             ((System.ComponentModel.ISupportInitialize)(this.strength)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.position)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -144,7 +150,7 @@ namespace StoryDesigner
         private System.Windows.Forms.TrackBar strength;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.CheckBox depOnRP;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox position;
         private System.Windows.Forms.Label label3;
     }
 }
