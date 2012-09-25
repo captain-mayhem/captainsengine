@@ -764,25 +764,31 @@ void CharacterObject::animationEnd(const Vec2i& prev){
   }
 }
 
+int CharacterObject::calculateState(LookDir dir, bool& mirror){
+  int state = 0;
+  if (dir == FRONT){
+    state = 1;
+    mirror = false;
+  }
+  else if (dir == BACK){
+    state = 2;
+    mirror = false;
+  }
+  else if (dir == LEFT){
+    state = 3;
+    mirror = true;
+  }
+  else if (dir == RIGHT){
+    state = 3;
+    mirror = false;
+  }
+  return state;
+}
+
 void CharacterObject::setLookDir(LookDir dir){
   bool walking = isWalking();
   bool talking = isTalking();
-  if (dir == FRONT){
-    mState = 1;
-    mMirror = false;
-  }
-  else if (dir == BACK){
-    mState = 2;
-    mMirror = false;
-  }
-  else if (dir == LEFT){
-    mState = 3;
-    mMirror = true;
-  }
-  else if (dir == RIGHT){
-    mState = 3;
-    mMirror = false;
-  }
+  mState = calculateState(dir, mMirror);
   setState(calculateState(mState, walking, talking));
 }
 
@@ -825,7 +831,12 @@ Vec2i CharacterObject::getOverheadPos(){
 }
 
 int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror){
-  int stateoffset = (currState-1)%3;
+  int stateoffset = 0;
+  if (currState <= 12) //take offset only from 'normal' states
+    stateoffset = (currState-1)%3;
+  else
+    return currState;
+  //TODO handle real left anims and special states like pickup
   if (mirror){
     //swap looking front and back
     if (stateoffset == 0)
@@ -901,10 +912,12 @@ bool CharacterObject::isHit(const Vec2i& point){
 void CharacterObject::setState(int state){
   TR_USE(ADV_Character);
   mState = state;
-  mNextStates.clear();
+  //mNextStates.clear();
   //fallback to lower states when they not exist (walk,talk  back => walk back)
-  if (!getAnimation()->exists() && mState > 3)
-    mState = calculateState(mState, isWalking(), false);
+  if (!getAnimation()->exists()){
+    if (mState > 3)
+      mState = calculateState(mState, isWalking(), false);
+  }
   mIdleTime = 0; //reset idle timer
   TR_DEBUG("state %i", mState);
 }

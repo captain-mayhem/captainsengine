@@ -575,7 +575,7 @@ namespace StoryDesigner
                     {
                         for (int i = 0; i < FXSHAPES_MAX; ++i)
                         {
-                            FxShape fs = new FxShape();
+                            FxShape fs = new FxShape(i);
                             room.FXShapes.Add(fs);
                         }
                     }

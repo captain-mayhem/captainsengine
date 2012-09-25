@@ -217,6 +217,7 @@ public:
   virtual void animationEnd(const Vec2i& prev);
   virtual void setState(int state);
   void setLookDir(LookDir dir);
+  static int calculateState(LookDir dir, bool& mirror);
   void setLookDir(const Vec2i& dir);
   LookDir getLookDir();
   void setEndLookDir(LookDir dir) {mDesiredDir = dir;}

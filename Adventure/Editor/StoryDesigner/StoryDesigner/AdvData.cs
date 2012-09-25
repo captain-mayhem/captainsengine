@@ -760,6 +760,20 @@ namespace StoryDesigner
 
     public class FxShape
     {
+        public FxShape() { }
+        public FxShape(int num)
+        {
+            Active = false;
+            DependingOnRoomPosition = true;
+            Effect = FxEffect.FLOOR_MIRROR;
+            Depth = 15;
+            MirrorOffset = new Vec2i(-10, -7);
+            Strength = 125;
+            Positions[0] = new Vec2i(105 * (num+1), 100);
+            Positions[1] = new Vec2i(Positions[0].x + 100, 100);
+            Positions[2] = new Vec2i(Positions[1].x, 200);
+            Positions[3] = new Vec2i(Positions[0].x, 200);
+        }
         public enum FxEffect
         {
             FLOOR_MIRROR = 0,
@@ -792,7 +806,7 @@ namespace StoryDesigner
             FXShapes = new ArrayList();
             for (int i = 0; i < 3; ++i)
             {
-                FxShape fs = new FxShape();
+                FxShape fs = new FxShape(i);
                 FXShapes.Add(fs);
             }
             Vec2i wmsize = data.Settings.Resolution/data.WalkGridSize;

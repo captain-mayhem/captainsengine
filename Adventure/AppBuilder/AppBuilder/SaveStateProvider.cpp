@@ -159,14 +159,15 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
     }
     for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
       if (toLower(mData->getRoomCharacters()[i].room) == idxname){
-        CharacterObject dummy(0, Vec2i(), "");
-        dummy.setLookDir(mData->getRoomCharacters()[i].dir);
+        bool mirror;
+        int state = CharacterObject::calculateState(mData->getRoomCharacters()[i].dir, mirror);
+        state = CharacterObject::calculateState(state, false, false, false);
         CharSaveObject* chr = new CharSaveObject();
         chr->base.lighting = Color();
-        chr->base.state = dummy.getState();
+        chr->base.state = state;
         chr->base.position = mData->getRoomCharacters()[i].position;
         chr->base.name = mData->getRoomCharacters()[i].name;
-        chr->mirrored = dummy.isMirrored();
+        chr->mirrored = mirror;
         Character* chbase = mData->getCharacter(mData->getRoomCharacters()[i].character);
         int fontid = 0;
         if (chbase != NULL){
