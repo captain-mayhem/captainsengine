@@ -797,25 +797,27 @@ namespace StoryDesigner
             for (int frms = 0; frms < FRAMES2_MAX; ++frms)
             {
                 ExtendedFrame frm = new ExtendedFrame();
-                bool set = false;
+                bool[] set = new bool[PARTS_MAX];
                 for (int parts = 0; parts < PARTS_MAX; ++parts)
                 {
                     str = rdr.ReadLine();
                     if (str.Length > 0)
                     {
-                        set = true;
+                        set[parts] = true;
                         frm.names.Add(str);
                     }
                 }
                 //read offsets
                 str = rdr.ReadLine();
                 string[] split = str.Split(';');
-                for (int i = 0; i < frm.names.Count; ++i)
+                for (int i = 0; i < PARTS_MAX; ++i)
                 {
+                    if (!set[i])
+                        continue;
                     Vec2i offset = new Vec2i(Convert.ToInt32(split[2*i]), Convert.ToInt32(split[2*i+1]));
                     frm.offsets.Add(offset);
                 }
-                if (set)
+                if (set[0] || set[1])
                     frames.Add(frm);
             }
             str = rdr.ReadLine();

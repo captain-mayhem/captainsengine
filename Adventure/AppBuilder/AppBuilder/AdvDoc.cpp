@@ -770,17 +770,19 @@ float AdvDocument::readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames&
   long val1, val2;
   for (int frames = 0; frames < FRAMES2_MAX; ++frames){
     ExtendedFrame frm;
-    bool set = false;
+    bool set[PARTS_MAX];
     for (int parts = 0; parts < PARTS_MAX; ++parts){
       str = txtstream.readLine();
       if (str.length() > 0){
-        set = true;
+        set[parts] = true;
         frm.names.push_back(std::string(str.c_str()));
       }
+      else
+        set[parts] = false;
     }
     //read offsets
     str = txtstream.readLine();
-    for (unsigned i = 0; i < frm.names.size(); ++i){
+    for (unsigned i = 0; i < PARTS_MAX; ++i){
       int pos = str.find(";");
       std::string num = str.substr(0, pos);
       str = str.substr(pos+1);
@@ -789,9 +791,10 @@ float AdvDocument::readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames&
       num = str.substr(0, pos);
       str = str.substr(pos+1);
       val2 = atoi(num.c_str());
-      frm.offsets.push_back(Vec2i(val1,val2));
+      if (set[i])
+        frm.offsets.push_back(Vec2i(val1,val2));
     }
-    if (set)
+    if (set[0] || set[1])
       frms.push_back(frm);
   }
   str = txtstream.readLine();

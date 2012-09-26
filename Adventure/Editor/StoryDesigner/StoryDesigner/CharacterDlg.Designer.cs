@@ -28,6 +28,7 @@ namespace StoryDesigner
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.text_color = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
             this.panel_down = new System.Windows.Forms.Panel();
@@ -43,15 +44,28 @@ namespace StoryDesigner
             this.label3 = new System.Windows.Forms.Label();
             this.font = new System.Windows.Forms.ComboBox();
             this.label2 = new System.Windows.Forms.Label();
+            this.customize = new System.Windows.Forms.Button();
+            this.customizeMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.copyActionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pasteActionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteActionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stateFrameImage1 = new StoryDesigner.StateFrameImage();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.renameActionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.equalizeAllSizesAndFootprintsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.equalizeAllActionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.backgroundColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel_down.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.startzoom)).BeginInit();
+            this.customizeMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // text_color
             // 
             this.text_color.BackColor = System.Drawing.Color.Lime;
-            this.text_color.Location = new System.Drawing.Point(308, 26);
+            this.text_color.Location = new System.Drawing.Point(319, 26);
             this.text_color.Name = "text_color";
             this.text_color.Size = new System.Drawing.Size(23, 23);
             this.text_color.TabIndex = 2;
@@ -61,7 +75,7 @@ namespace StoryDesigner
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(250, 31);
+            this.label1.Location = new System.Drawing.Point(261, 31);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(52, 13);
             this.label1.TabIndex = 3;
@@ -197,6 +211,52 @@ namespace StoryDesigner
             this.label2.TabIndex = 0;
             this.label2.Text = "Font:";
             // 
+            // customize
+            // 
+            this.customize.Location = new System.Drawing.Point(180, 26);
+            this.customize.Name = "customize";
+            this.customize.Size = new System.Drawing.Size(75, 23);
+            this.customize.TabIndex = 5;
+            this.customize.Text = "Customize";
+            this.customize.UseVisualStyleBackColor = true;
+            this.customize.Click += new System.EventHandler(this.customize_Click);
+            // 
+            // customizeMenu
+            // 
+            this.customizeMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyActionToolStripMenuItem,
+            this.pasteActionToolStripMenuItem,
+            this.deleteActionToolStripMenuItem,
+            this.toolStripSeparator1,
+            this.renameActionToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.equalizeAllSizesAndFootprintsToolStripMenuItem,
+            this.equalizeAllActionsToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.backgroundColorToolStripMenuItem});
+            this.customizeMenu.Name = "customizeMenu";
+            this.customizeMenu.Size = new System.Drawing.Size(249, 198);
+            this.customizeMenu.Opening += new System.ComponentModel.CancelEventHandler(this.customizeMenu_Opening);
+            // 
+            // copyActionToolStripMenuItem
+            // 
+            this.copyActionToolStripMenuItem.Name = "copyActionToolStripMenuItem";
+            this.copyActionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.copyActionToolStripMenuItem.Text = "Copy Action";
+            // 
+            // pasteActionToolStripMenuItem
+            // 
+            this.pasteActionToolStripMenuItem.Enabled = false;
+            this.pasteActionToolStripMenuItem.Name = "pasteActionToolStripMenuItem";
+            this.pasteActionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.pasteActionToolStripMenuItem.Text = "Paste Action";
+            // 
+            // deleteActionToolStripMenuItem
+            // 
+            this.deleteActionToolStripMenuItem.Name = "deleteActionToolStripMenuItem";
+            this.deleteActionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.deleteActionToolStripMenuItem.Text = "Delete Action";
+            // 
             // stateFrameImage1
             // 
             this.stateFrameImage1.AutoSize = true;
@@ -216,11 +276,52 @@ namespace StoryDesigner
             this.stateFrameImage1.Size = new System.Drawing.Size(339, 424);
             this.stateFrameImage1.TabIndex = 0;
             // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(245, 6);
+            // 
+            // renameActionToolStripMenuItem
+            // 
+            this.renameActionToolStripMenuItem.Enabled = false;
+            this.renameActionToolStripMenuItem.Name = "renameActionToolStripMenuItem";
+            this.renameActionToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.renameActionToolStripMenuItem.Text = "Rename Action";
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(245, 6);
+            // 
+            // equalizeAllSizesAndFootprintsToolStripMenuItem
+            // 
+            this.equalizeAllSizesAndFootprintsToolStripMenuItem.Name = "equalizeAllSizesAndFootprintsToolStripMenuItem";
+            this.equalizeAllSizesAndFootprintsToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.equalizeAllSizesAndFootprintsToolStripMenuItem.Text = "Equalize all sizes and footprints";
+            // 
+            // equalizeAllActionsToolStripMenuItem
+            // 
+            this.equalizeAllActionsToolStripMenuItem.Name = "equalizeAllActionsToolStripMenuItem";
+            this.equalizeAllActionsToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.equalizeAllActionsToolStripMenuItem.Text = "Equalize all actions (like selected)";
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(245, 6);
+            // 
+            // backgroundColorToolStripMenuItem
+            // 
+            this.backgroundColorToolStripMenuItem.Name = "backgroundColorToolStripMenuItem";
+            this.backgroundColorToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
+            this.backgroundColorToolStripMenuItem.Text = "Background color...";
+            // 
             // CharacterDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(356, 534);
+            this.Controls.Add(this.customize);
             this.Controls.Add(this.panel_down);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.text_color);
@@ -230,6 +331,7 @@ namespace StoryDesigner
             this.panel_down.ResumeLayout(false);
             this.panel_down.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.startzoom)).EndInit();
+            this.customizeMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -253,5 +355,17 @@ namespace StoryDesigner
         private System.Windows.Forms.CheckBox memory_resistant;
         private System.Windows.Forms.CheckBox leftanim;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Button customize;
+        private System.Windows.Forms.ContextMenuStrip customizeMenu;
+        private System.Windows.Forms.ToolStripMenuItem copyActionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem pasteActionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteActionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripMenuItem renameActionToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem equalizeAllSizesAndFootprintsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem equalizeAllActionsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem backgroundColorToolStripMenuItem;
     }
 }
