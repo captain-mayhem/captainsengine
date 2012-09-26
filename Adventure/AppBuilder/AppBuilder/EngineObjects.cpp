@@ -877,6 +877,8 @@ void CharacterObject::save(){
     save->base.position = mPos;
     if (isWalking() || isTalking()) //do not save walking or talking states as they are temorary only
       save->base.state = calculateState(mState, false, false, false);
+    else if (mState > 12)
+      save->base.state = 1; //no special states
     else
       save->base.state = mState;
     save->base.name = mName;

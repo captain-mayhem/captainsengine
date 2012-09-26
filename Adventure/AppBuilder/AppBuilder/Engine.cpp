@@ -191,6 +191,7 @@ void Engine::exitGame(){
   mFonts->unloadFont(mFontID);
   mFonts->unloadFont(0);
   mFonts->clearTextouts();
+  mParticleEngine->activate(false, true);
   delete mRenderedMain;
   delete mPostProc;
 }

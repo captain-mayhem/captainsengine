@@ -75,5 +75,15 @@ namespace StoryDesigner
         {
             Utilities.chooseColor(sender);
         }
+
+        private void customize_Click(object sender, EventArgs e)
+        {
+            customizeMenu.Show(this, customize.Location.X, customize.Location.Y + customize.Size.Height);
+        }
+
+        private void customizeMenu_Opening(object sender, CancelEventArgs e)
+        {
+
+        }
     }
 }
