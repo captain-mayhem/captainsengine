@@ -511,5 +511,11 @@ namespace StoryDesigner
             get { return mFrameParts; }
             set { mFrameParts = value; }
         }
+
+        public Color BackgroundColor
+        {
+            get { return pictureBox.BackColor; }
+            set { pictureBox.BackColor = value; }
+        }
     }
 }

@@ -5,6 +5,7 @@ using System.IO;
 using System.Xml.Serialization;
 using System.Drawing;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace StoryDesigner
 {
@@ -17,6 +18,14 @@ namespace StoryDesigner
         public bool CreateBackups = true;
         public Point MainFormPosition = new Point(0, 100);
         public Point RoomDlgPosition = new Point(250, 200);
+        [XmlIgnore]
+        public Color CharBackColor = Color.Black;
+        [EditorBrowsable(EditorBrowsableState.Never), XmlElement("CharBackColor")]
+        public string CharBackColorXml
+        {
+            get { return ColorTranslator.ToHtml(CharBackColor); }
+            set { CharBackColor = ColorTranslator.FromHtml(value); }
+        }
 
         protected Persistence()
         {
