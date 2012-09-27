@@ -48,6 +48,7 @@ namespace StoryDesigner
             }
             this.stateFrameImage1.setStateLables(labels);
             this.stateFrameImage1.Data = chr;
+            this.stateFrameImage1.BackgroundColor = data.Persistence.CharBackColor;
 
             this.text_color.BackColor = Color.FromArgb(Utilities.convertColor(chr.TextColor));
             this.font.SelectedIndex = chr.Font;
@@ -60,6 +61,7 @@ namespace StoryDesigner
             this.startzoom.Value = chr.Zoom;
 
             mCharacter = chr;
+            mData = data;
         }
 
         void stateFrameImage1_ClientSizeChanged(object sender, EventArgs e)
@@ -70,6 +72,7 @@ namespace StoryDesigner
         }
 
         AdvCharacter mCharacter;
+        AdvData mData;
 
         private void text_color_Click(object sender, EventArgs e)
         {
@@ -84,6 +87,16 @@ namespace StoryDesigner
         private void customizeMenu_Opening(object sender, CancelEventArgs e)
         {
 
+        }
+
+        private void backgroundColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ColorDialog cd = new ColorDialog();
+            if (cd.ShowDialog() == DialogResult.OK)
+            {
+                mData.Persistence.CharBackColor = cd.Color;
+                stateFrameImage1.BackgroundColor = cd.Color;
+            }
         }
     }
 }

@@ -49,7 +49,6 @@ namespace StoryDesigner
             this.copyActionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteActionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteActionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.stateFrameImage1 = new StoryDesigner.StateFrameImage();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.renameActionToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
@@ -57,6 +56,7 @@ namespace StoryDesigner
             this.equalizeAllActionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.backgroundColorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stateFrameImage1 = new StoryDesigner.StateFrameImage();
             this.panel_down.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.startzoom)).BeginInit();
             this.customizeMenu.SuspendLayout();
@@ -241,40 +241,21 @@ namespace StoryDesigner
             // copyActionToolStripMenuItem
             // 
             this.copyActionToolStripMenuItem.Name = "copyActionToolStripMenuItem";
-            this.copyActionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.copyActionToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.copyActionToolStripMenuItem.Text = "Copy Action";
             // 
             // pasteActionToolStripMenuItem
             // 
             this.pasteActionToolStripMenuItem.Enabled = false;
             this.pasteActionToolStripMenuItem.Name = "pasteActionToolStripMenuItem";
-            this.pasteActionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.pasteActionToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.pasteActionToolStripMenuItem.Text = "Paste Action";
             // 
             // deleteActionToolStripMenuItem
             // 
             this.deleteActionToolStripMenuItem.Name = "deleteActionToolStripMenuItem";
-            this.deleteActionToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.deleteActionToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.deleteActionToolStripMenuItem.Text = "Delete Action";
-            // 
-            // stateFrameImage1
-            // 
-            this.stateFrameImage1.AutoSize = true;
-            this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.stateFrameImage1.Data = null;
-            this.stateFrameImage1.FrameParts = 2;
-            this.stateFrameImage1.Frames = 30;
-            this.stateFrameImage1.Hotspot = true;
-            this.stateFrameImage1.HotspotCoordScale = 1F;
-            this.stateFrameImage1.Location = new System.Drawing.Point(12, 12);
-            this.stateFrameImage1.Name = "stateFrameImage1";
-            this.stateFrameImage1.PictureBoxSize = new System.Drawing.Size(120, 200);
-            this.stateFrameImage1.ScaleImageToBox = false;
-            this.stateFrameImage1.ShowAnimationButton = true;
-            this.stateFrameImage1.ShowImageNames = true;
-            this.stateFrameImage1.ShowStateDropDown = true;
-            this.stateFrameImage1.Size = new System.Drawing.Size(339, 424);
-            this.stateFrameImage1.TabIndex = 0;
             // 
             // toolStripSeparator1
             // 
@@ -315,6 +296,26 @@ namespace StoryDesigner
             this.backgroundColorToolStripMenuItem.Name = "backgroundColorToolStripMenuItem";
             this.backgroundColorToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.backgroundColorToolStripMenuItem.Text = "Background color...";
+            this.backgroundColorToolStripMenuItem.Click += new System.EventHandler(this.backgroundColorToolStripMenuItem_Click);
+            // 
+            // stateFrameImage1
+            // 
+            this.stateFrameImage1.AutoSize = true;
+            this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.stateFrameImage1.Data = null;
+            this.stateFrameImage1.FrameParts = 2;
+            this.stateFrameImage1.Frames = 30;
+            this.stateFrameImage1.Hotspot = true;
+            this.stateFrameImage1.HotspotCoordScale = 1F;
+            this.stateFrameImage1.Location = new System.Drawing.Point(12, 12);
+            this.stateFrameImage1.Name = "stateFrameImage1";
+            this.stateFrameImage1.PictureBoxSize = new System.Drawing.Size(120, 200);
+            this.stateFrameImage1.ScaleImageToBox = false;
+            this.stateFrameImage1.ShowAnimationButton = true;
+            this.stateFrameImage1.ShowImageNames = true;
+            this.stateFrameImage1.ShowStateDropDown = true;
+            this.stateFrameImage1.Size = new System.Drawing.Size(339, 424);
+            this.stateFrameImage1.TabIndex = 0;
             // 
             // CharacterDlg
             // 
