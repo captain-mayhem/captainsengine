@@ -157,7 +157,11 @@ namespace StoryDesigner
         public bool frameExists(int state, int frame)
         {
             CursorState cs = (CursorState)mStates[state];
-            return frame < cs.frames.Count;
+            if (frame < cs.frames.Count)
+            {
+                return cs.frames[frame] != null;
+            }
+            return false;
         }
         public string[] getFrame(int state, int frame)
         {
@@ -523,7 +527,16 @@ namespace StoryDesigner
         public bool frameExists(int state, int frame)
         {
             CharacterState cs = (CharacterState)mStates[state];
-            return frame < cs.frames.Count;
+            if (frame < cs.frames.Count)
+            {
+                ExtendedFrame frm = (ExtendedFrame)cs.frames[frame];
+                for (int i = 0; i < frm.names.Count; ++i)
+                {
+                    if (frm.names[i] != null)
+                        return true;
+                }
+            }
+            return false;
         }
         public string[] getFrame(int state, int frame)
         {

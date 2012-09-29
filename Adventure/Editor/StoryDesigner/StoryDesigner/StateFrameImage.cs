@@ -130,6 +130,8 @@ namespace StoryDesigner
                 return;
             for (int i = pics.Length-1; i >= 0; --i)
             {
+                if (pics[i] == null)
+                    continue;
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
                 Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
                 if (mouse.x >= offset.x && mouse.x <= offset.x + bmp.Width)
@@ -165,6 +167,11 @@ namespace StoryDesigner
             {
                 for (int i = 0; i < frames.Length; ++i)
                 {
+                    if (frames[i] == null)
+                    {
+                        part = i;
+                        continue;
+                    }
                     System.Drawing.Bitmap bmp = mData.getImage(frames[i]);
                     Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
                     if (p.X >= offset.x && p.X <= offset.x + bmp.Width)
@@ -207,6 +214,8 @@ namespace StoryDesigner
                 imageNames.Text = "";
             for (int i = 0; i < pics.Length; ++i)
             {
+                if (pics[i] == null)
+                    continue;
                 if (!mTimer.Enabled && mPictureDragging == 0)
                     imageNames.Text += pics[i] + " ";
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
