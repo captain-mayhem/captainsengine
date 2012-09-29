@@ -243,6 +243,7 @@ namespace StoryDesigner
             this.copyActionToolStripMenuItem.Name = "copyActionToolStripMenuItem";
             this.copyActionToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.copyActionToolStripMenuItem.Text = "Copy Action";
+            this.copyActionToolStripMenuItem.Click += new System.EventHandler(this.copyActionToolStripMenuItem_Click);
             // 
             // pasteActionToolStripMenuItem
             // 
@@ -250,12 +251,14 @@ namespace StoryDesigner
             this.pasteActionToolStripMenuItem.Name = "pasteActionToolStripMenuItem";
             this.pasteActionToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.pasteActionToolStripMenuItem.Text = "Paste Action";
+            this.pasteActionToolStripMenuItem.Click += new System.EventHandler(this.pasteActionToolStripMenuItem_Click);
             // 
             // deleteActionToolStripMenuItem
             // 
             this.deleteActionToolStripMenuItem.Name = "deleteActionToolStripMenuItem";
             this.deleteActionToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.deleteActionToolStripMenuItem.Text = "Delete Action";
+            this.deleteActionToolStripMenuItem.Click += new System.EventHandler(this.deleteActionToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
@@ -302,6 +305,7 @@ namespace StoryDesigner
             // 
             this.stateFrameImage1.AutoSize = true;
             this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.stateFrameImage1.BackgroundColor = System.Drawing.Color.Black;
             this.stateFrameImage1.Data = null;
             this.stateFrameImage1.FrameParts = 2;
             this.stateFrameImage1.Frames = 30;

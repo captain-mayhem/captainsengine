@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
+using System.Collections;
 
 namespace StoryDesigner
 {
@@ -73,6 +74,10 @@ namespace StoryDesigner
 
         AdvCharacter mCharacter;
         AdvData mData;
+        Dictionary<int,string[]> mCopiedFrames;
+        Dictionary<int, ArrayList> mCopiedOffsets;
+        Vec2i mCopiedSize;
+        Vec2i mCopiedHotspot;
 
         private void text_color_Click(object sender, EventArgs e)
         {
@@ -97,6 +102,61 @@ namespace StoryDesigner
                 mData.Persistence.CharBackColor = cd.Color;
                 stateFrameImage1.BackgroundColor = cd.Color;
             }
+        }
+
+        private void copyActionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            IStateFrameData data = stateFrameImage1.Data;
+            int currState = stateFrameImage1.State;
+            mCopiedFrames = new Dictionary<int, string[]>();
+            mCopiedOffsets = new Dictionary<int, ArrayList>();
+            for (int i = 0; i < stateFrameImage1.Frames; ++i)
+            {
+                if (data.frameExists(currState, i))
+                {
+                    mCopiedFrames[i] = (string[])data.getFrame(currState, i).Clone();
+                    mCopiedOffsets[i] = new ArrayList();
+                    for (int j = 0; j < stateFrameImage1.FrameParts; ++j)
+                    {
+                        Vec2i offset = data.getFramePartOffset(currState, i, j);
+                        mCopiedOffsets[i].Add(offset);
+                    }
+                }
+            }
+            mCopiedSize = data.getSize(currState);
+            mCopiedHotspot = data.getHotspot(currState);
+            pasteActionToolStripMenuItem.Enabled = true;
+        }
+
+        private void pasteActionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            IStateFrameData data = stateFrameImage1.Data;
+            int currState = stateFrameImage1.State;
+            data.setSize(currState, mCopiedSize);
+            data.setHotspot(currState, mCopiedHotspot);
+            foreach (KeyValuePair<int, string[]> frames in mCopiedFrames)
+            {
+                for (int i = 0; i < frames.Value.Length; ++i)
+                {
+                    data.setFramePart(currState, frames.Key, i, frames.Value[i]);
+                    data.setFramePartOffset(currState, frames.Key, i, (Vec2i)mCopiedOffsets[frames.Key][i]);
+                }
+            }
+            stateFrameImage1.Invalidate(true);
+        }
+
+        private void deleteActionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            IStateFrameData data = stateFrameImage1.Data;
+            int currState = stateFrameImage1.State;
+            for (int i = 0; i < stateFrameImage1.Frames; ++i)
+            {
+                for (int j = 0; j < stateFrameImage1.FrameParts; ++j)
+                {
+                    data.setFramePart(currState, i, j, null);
+                }
+            }
+            stateFrameImage1.Invalidate(true);
         }
     }
 }
