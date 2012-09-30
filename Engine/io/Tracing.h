@@ -44,12 +44,12 @@ protected:
 
 }
 
-#define STRINGIFY(x) INTERNAL_STRINGIFY(x)
+#define CGE_STRINGIFY(x) INTERNAL_STRINGIFY(x)
 #define INTERNAL_STRINGIFY(x) #x
 
-#define TR_CHANNEL(name) CGE::TraceObject name(STRINGIFY(name));
+#define TR_CHANNEL(name) CGE::TraceObject name(CGE_STRINGIFY(name));
 #define TR_CHANNEL_EXT(name) extern CGE::TraceObject name;
-#define TR_CHANNEL_LVL(name, level) CGE::TraceObject name(STRINGIFY(name), level);
+#define TR_CHANNEL_LVL(name, level) CGE::TraceObject name(CGE_STRINGIFY(name), level);
 #define TR_USE(name) CGE::TraceObject tracescopeobject = name;
 #define TR_TRACE(level, message, ...) {if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__);}
 #define TR_IS_ENABLED(level) tracescopeobject.isEnabled(level)

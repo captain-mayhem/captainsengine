@@ -1,7 +1,7 @@
 #ifndef NATIVE_QNX_H
 #define NATIVE_QNX_H
 
-#ifdef QNX
+#if defined(QNX) || defined(NO_X11)
 
 #include "window.h"
 
