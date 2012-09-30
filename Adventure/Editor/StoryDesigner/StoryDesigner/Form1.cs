@@ -233,6 +233,8 @@ namespace StoryDesigner
                 case ResourceID.SCRIPT:
                     showScript(Script.Type.CUTSCENE, name);
                     break;
+                case ResourceID.FOLDER:
+                    break;
                 default:
                     Console.WriteLine("Clicked " + name + " " + id + " unhandled");
                     break;

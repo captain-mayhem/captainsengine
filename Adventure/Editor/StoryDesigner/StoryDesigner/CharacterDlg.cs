@@ -72,6 +72,19 @@ namespace StoryDesigner
             this.Size = new Size(this.Size.Width, height + this.panel_down.Size.Height+40);
         }
 
+        void deleteState()
+        {
+            IStateFrameData data = stateFrameImage1.Data;
+            int currState = stateFrameImage1.State;
+            for (int i = 0; i < stateFrameImage1.Frames; ++i)
+            {
+                for (int j = 0; j < stateFrameImage1.FrameParts; ++j)
+                {
+                    data.setFramePart(currState, i, j, null);
+                }
+            }
+        }
+
         AdvCharacter mCharacter;
         AdvData mData;
         Dictionary<int,string[]> mCopiedFrames;
@@ -86,6 +99,10 @@ namespace StoryDesigner
 
         private void customize_Click(object sender, EventArgs e)
         {
+            if (stateFrameImage1.State >= 16)
+                renameActionToolStripMenuItem.Enabled = true;
+            else
+                renameActionToolStripMenuItem.Enabled = false;
             customizeMenu.Show(this, customize.Location.X, customize.Location.Y + customize.Size.Height);
         }
 
@@ -130,6 +147,7 @@ namespace StoryDesigner
 
         private void pasteActionToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            deleteState();
             IStateFrameData data = stateFrameImage1.Data;
             int currState = stateFrameImage1.State;
             data.setSize(currState, mCopiedSize);
@@ -147,16 +165,23 @@ namespace StoryDesigner
 
         private void deleteActionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            IStateFrameData data = stateFrameImage1.Data;
-            int currState = stateFrameImage1.State;
-            for (int i = 0; i < stateFrameImage1.Frames; ++i)
-            {
-                for (int j = 0; j < stateFrameImage1.FrameParts; ++j)
-                {
-                    data.setFramePart(currState, i, j, null);
-                }
-            }
+            deleteState();
             stateFrameImage1.Invalidate(true);
+        }
+
+        private void renameActionToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            stateFrameImage1.renameState();
+        }
+
+        private void equalizeAllSizesAndFootprintsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void equalizeAllActionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

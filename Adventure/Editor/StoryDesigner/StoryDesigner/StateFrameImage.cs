@@ -59,6 +59,22 @@ namespace StoryDesigner
             this.picbox_height.KeyPress += new KeyPressEventHandler(picbox_height_KeyPress);
             mTimer = new Timer();
             mTimer.Tick += new EventHandler(mTimer_Tick);
+            this.stateDropDown.KeyDown += new KeyEventHandler(stateDropDown_KeyDown);
+        }
+
+        void stateDropDown_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (!mEditStateText)
+                return;
+            if (e.KeyCode == Keys.Enter)
+            {
+                string text = stateDropDown.Text;
+                mEditStateText = false;
+                stateDropDown.DropDownStyle = ComboBoxStyle.DropDownList;
+                mData.setStateName(mState, text);
+                stateDropDown.Items[mState] = text;
+                stateDropDown.SelectedItem = text;
+            }
         }
 
         void mTimer_Tick(object sender, EventArgs e)
@@ -436,6 +452,7 @@ namespace StoryDesigner
         private Vec2i mDraggingOffset = new Vec2i();
         private Timer mTimer;
         private bool mShowStateDropdown = false;
+        private bool mEditStateText = false;
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -525,6 +542,13 @@ namespace StoryDesigner
         {
             get { return pictureBox.BackColor; }
             set { pictureBox.BackColor = value; }
+        }
+
+        public void renameState()
+        {
+            stateDropDown.DropDownStyle = ComboBoxStyle.Simple;
+            mEditStateText = true;
+            stateDropDown.Focus();
         }
     }
 }

@@ -271,6 +271,7 @@ namespace StoryDesigner
             this.renameActionToolStripMenuItem.Name = "renameActionToolStripMenuItem";
             this.renameActionToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.renameActionToolStripMenuItem.Text = "Rename Action";
+            this.renameActionToolStripMenuItem.Click += new System.EventHandler(this.renameActionToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
@@ -282,12 +283,14 @@ namespace StoryDesigner
             this.equalizeAllSizesAndFootprintsToolStripMenuItem.Name = "equalizeAllSizesAndFootprintsToolStripMenuItem";
             this.equalizeAllSizesAndFootprintsToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.equalizeAllSizesAndFootprintsToolStripMenuItem.Text = "Equalize all sizes and footprints";
+            this.equalizeAllSizesAndFootprintsToolStripMenuItem.Click += new System.EventHandler(this.equalizeAllSizesAndFootprintsToolStripMenuItem_Click);
             // 
             // equalizeAllActionsToolStripMenuItem
             // 
             this.equalizeAllActionsToolStripMenuItem.Name = "equalizeAllActionsToolStripMenuItem";
             this.equalizeAllActionsToolStripMenuItem.Size = new System.Drawing.Size(248, 22);
             this.equalizeAllActionsToolStripMenuItem.Text = "Equalize all actions (like selected)";
+            this.equalizeAllActionsToolStripMenuItem.Click += new System.EventHandler(this.equalizeAllActionsToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
