@@ -1,4 +1,4 @@
-#ifdef QNX
+#if defined(QNX) || defined(NO_X11)
 #include "../system/engine.h"
 #include "../renderer/GLES/GLESrenderer.h"
 #include "nativeQNX.h"

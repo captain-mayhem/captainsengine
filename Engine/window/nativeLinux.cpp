@@ -1,4 +1,4 @@
-#ifdef LINUX
+#if defined(LINUX) && !defined(NO_X11)
 #include <GL/glx.h>
 #include "../system/engine.h"
 #include "../renderer/OpenGL/OGLrenderer.h"

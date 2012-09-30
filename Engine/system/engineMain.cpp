@@ -59,7 +59,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
 #include "../renderer/font.h"
 #include "../gui/gui.h"
 
-#ifdef LINUX
+#if defined(LINUX) && !defined(NO_X11)
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 

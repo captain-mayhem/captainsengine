@@ -1,4 +1,7 @@
+#ifndef RASPBERRY_PI
 #include <KD/kd.h>
+#endif
+#include <EGL/egl.h>
 #include <system/engine.h>
 #include <io/TraceManager.h>
 
