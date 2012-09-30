@@ -121,6 +121,7 @@ namespace StoryDesigner
         void setSize(int state, Vec2i size);
         Vec2i getFramePartOffset(int state, int frame, int part);
         void setFramePartOffset(int state, int frame, int part, Vec2i offset);
+        void setStateName(int state, string name);
     };
 
     public struct CursorState
@@ -233,6 +234,8 @@ namespace StoryDesigner
             return cs.command-1;
         }
 
+        public void setStateName(int state, string name) { }
+
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         AdvData mData;
     }
@@ -330,6 +333,7 @@ namespace StoryDesigner
             get { return mName; }
             set { mName = value; }
         }
+        public void setStateName(int state, string name) { }
 
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         string mName;
@@ -470,6 +474,8 @@ namespace StoryDesigner
             get { return mLighten; }
             set { mLighten = value; }
         }
+
+        public void setStateName(int state, string name) { }
 
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         string mName;

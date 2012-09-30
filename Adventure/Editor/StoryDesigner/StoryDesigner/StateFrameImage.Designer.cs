@@ -297,6 +297,7 @@ namespace StoryDesigner
             // 
             // stateDropDown
             // 
+            this.stateDropDown.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.stateDropDown.FormattingEnabled = true;
             this.stateDropDown.Location = new System.Drawing.Point(3, 16);
             this.stateDropDown.Name = "stateDropDown";
