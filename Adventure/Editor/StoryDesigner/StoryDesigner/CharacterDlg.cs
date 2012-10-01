@@ -72,15 +72,53 @@ namespace StoryDesigner
             this.Size = new Size(this.Size.Width, height + this.panel_down.Size.Height+40);
         }
 
-        void deleteState()
+        void deleteState(int state)
         {
             IStateFrameData data = stateFrameImage1.Data;
-            int currState = stateFrameImage1.State;
             for (int i = 0; i < stateFrameImage1.Frames; ++i)
             {
                 for (int j = 0; j < stateFrameImage1.FrameParts; ++j)
                 {
-                    data.setFramePart(currState, i, j, null);
+                    data.setFramePart(state, i, j, null);
+                }
+            }
+        }
+
+        void copyState()
+        {
+            IStateFrameData data = stateFrameImage1.Data;
+            int currState = stateFrameImage1.State;
+            mCopiedFrames = new Dictionary<int, string[]>();
+            mCopiedOffsets = new Dictionary<int, ArrayList>();
+            for (int i = 0; i < stateFrameImage1.Frames; ++i)
+            {
+                if (data.frameExists(currState, i))
+                {
+                    mCopiedFrames[i] = (string[])data.getFrame(currState, i).Clone();
+                    mCopiedOffsets[i] = new ArrayList();
+                    for (int j = 0; j < stateFrameImage1.FrameParts; ++j)
+                    {
+                        Vec2i offset = data.getFramePartOffset(currState, i, j);
+                        mCopiedOffsets[i].Add(offset);
+                    }
+                }
+            }
+            mCopiedSize = data.getSize(currState);
+            mCopiedHotspot = data.getHotspot(currState);
+        }
+
+        void pasteState(int state)
+        {
+            deleteState(state);
+            IStateFrameData data = stateFrameImage1.Data;
+            data.setSize(state, mCopiedSize);
+            data.setHotspot(state, mCopiedHotspot);
+            foreach (KeyValuePair<int, string[]> frames in mCopiedFrames)
+            {
+                for (int i = 0; i < frames.Value.Length; ++i)
+                {
+                    data.setFramePart(state, frames.Key, i, frames.Value[i]);
+                    data.setFramePartOffset(state, frames.Key, i, (Vec2i)mCopiedOffsets[frames.Key][i]);
                 }
             }
         }
@@ -123,49 +161,19 @@ namespace StoryDesigner
 
         private void copyActionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            IStateFrameData data = stateFrameImage1.Data;
-            int currState = stateFrameImage1.State;
-            mCopiedFrames = new Dictionary<int, string[]>();
-            mCopiedOffsets = new Dictionary<int, ArrayList>();
-            for (int i = 0; i < stateFrameImage1.Frames; ++i)
-            {
-                if (data.frameExists(currState, i))
-                {
-                    mCopiedFrames[i] = (string[])data.getFrame(currState, i).Clone();
-                    mCopiedOffsets[i] = new ArrayList();
-                    for (int j = 0; j < stateFrameImage1.FrameParts; ++j)
-                    {
-                        Vec2i offset = data.getFramePartOffset(currState, i, j);
-                        mCopiedOffsets[i].Add(offset);
-                    }
-                }
-            }
-            mCopiedSize = data.getSize(currState);
-            mCopiedHotspot = data.getHotspot(currState);
+            copyState();
             pasteActionToolStripMenuItem.Enabled = true;
         }
 
         private void pasteActionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            deleteState();
-            IStateFrameData data = stateFrameImage1.Data;
-            int currState = stateFrameImage1.State;
-            data.setSize(currState, mCopiedSize);
-            data.setHotspot(currState, mCopiedHotspot);
-            foreach (KeyValuePair<int, string[]> frames in mCopiedFrames)
-            {
-                for (int i = 0; i < frames.Value.Length; ++i)
-                {
-                    data.setFramePart(currState, frames.Key, i, frames.Value[i]);
-                    data.setFramePartOffset(currState, frames.Key, i, (Vec2i)mCopiedOffsets[frames.Key][i]);
-                }
-            }
+            pasteState(stateFrameImage1.State);
             stateFrameImage1.Invalidate(true);
         }
 
         private void deleteActionToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            deleteState();
+            deleteState(stateFrameImage1.State);
             stateFrameImage1.Invalidate(true);
         }
 
@@ -176,12 +184,23 @@ namespace StoryDesigner
 
         private void equalizeAllSizesAndFootprintsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            IStateFrameData data = stateFrameImage1.Data;
+            Vec2i size = data.getSize(stateFrameImage1.State);
+            Vec2i spot = data.getHotspot(stateFrameImage1.State);
+            for (int i = 0; i < 36; ++i)
+            {
+                data.setSize(i, size);
+                data.setHotspot(i, spot);
+            }
         }
 
         private void equalizeAllActionsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            copyState();
+            for (int i = 0; i < 36; ++i)
+            {
+                pasteState(i);
+            }
         }
     }
 }

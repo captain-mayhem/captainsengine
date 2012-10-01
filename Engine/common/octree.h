@@ -21,7 +21,7 @@
 #include "renderer/font.h"
 
 
-TR_CHANNEL(CGE_Common_Octree)
+TR_CHANNEL_EXT(CGE_Common_Octree)
 
 namespace CGE{
 

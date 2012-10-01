@@ -1673,9 +1673,9 @@ void NativeVMMethod::execute(VMContext* ctx, unsigned ret){
   ctx->pushFrame(this, ret, argsize);
   VMClass* cls = mIsStatic ? mClass : ctx->get(0).cls;
 
-  FieldData retval = executeNoASM(ctx, mReturnType, cls);
 #ifdef ARCH_X64
   //FieldData retval = executeX64(ctx, mReturnType, cls);
+  FieldData retval = executeNoASM(ctx, mReturnType, cls);
 #else
   FieldData retval = executeNative(ctx, mReturnType, cls);
 #endif
