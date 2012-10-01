@@ -17,7 +17,7 @@ SET(editor_HDRS
 
 ADD_EXECUTABLE(editor ${editor_SRCS} ${editor_HDRS})
 
-TARGET_LINK_LIBRARIES(editor EngineMain)
+TARGET_LINK_LIBRARIES(editor EngineMain ${ENGINE_LINK_LIBRARIES})
 
 IF (${OS} STREQUAL "windows")
   SET_TARGET_PROPERTIES(editor PROPERTIES LINK_FLAGS " /STACK:10000000 /machine:I386 /debug /SUBSYSTEM:Windows")

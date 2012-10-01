@@ -108,4 +108,4 @@ ADD_LIBRARY(zip SHARED
 	zip/zip.cpp
 )
 
-TARGET_LINK_LIBRARIES( javaruntime Engine)
+TARGET_LINK_LIBRARIES( javaruntime Engine ${ENGINE_LINK_LIBRARIES})
