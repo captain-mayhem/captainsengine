@@ -28,6 +28,8 @@ EGL_DISPMANX_WINDOW_T theWindow;
 AdvDocument* adoc;
 static bool shouldQuit = false;
 CommandReceiver receiver;
+int gamewidth = 640;
+int gameheight = 480;
 
 void quit(){
   shouldQuit = true;
@@ -93,6 +95,66 @@ void render(int time){
 
   SoundEngine::instance()->update(time);
 }
+
+#ifdef RASPBERRY_PI
+#include <fcntl.h>
+
+struct mouse{
+  char buttons;
+  char dx;
+  char dy;
+};
+
+struct inState{
+  int mouseFD;
+  mouse mouseEvt;
+  int xPos;
+  int yPos;
+};
+
+int initInput(inState* state){
+  TR_USE(ADV_KDWindow);
+  state->mouseFD = open("/dev/input/mouse0",O_RDONLY|O_NONBLOCK);
+  if (state->mouseFD < 0)
+    TR_ERROR("Mouse open failed");
+  state->xPos = gamewidth;
+  state->yPos = gameheight;
+}
+
+int getMouse(inState* state, int* x, int* y){
+  int ret = 0;
+  while(1){
+    int bytes = read(state->mouseFD, &state->mouseEvt, sizeof(mouse));
+    if (bytes < (int)sizeof(mouse))
+      goto end;
+    if (state->mouseEvt.buttons&8)
+      break;
+    read(state->mouseFD, &state->mouseEvt, 1); //resync
+  }
+  if (state->mouseEvt.buttons&3){
+    ret = state->mouseEvt.buttons&3;
+    goto end;
+  }
+  state->xPos += state->mouseEvt.dx;
+  state->yPos += state->mouseEvt.dy;
+  if (state->mouseEvt.buttons&(1<<4))
+    state->xPos -= 256;
+  if (state->mouseEvt.buttons&(1<<5))
+    state->yPos -= 256;
+  if (state->xPos < 0)
+    state->xPos = 0;
+  if (state->yPos < 0)
+    state->yPos = 0;
+  if (state->xPos > gamewidth)
+    state->xPos = gamewidth;
+  if (state->yPos > gameheight)
+    state->yPos = gameheight;
+end:
+  *x = state->xPos;
+  *y = gameheight-state->yPos;
+  return ret;
+}
+#endif
 
 #ifndef RASPBERRY_PI
 KDint kdMain (KDint argc, const KDchar *const *argv){
@@ -161,8 +223,8 @@ int main(int argc, char** argv){
   dstRect.height = screen_height;
   srcRect.x = 0;
   srcRect.y = 0;
-  srcRect.width = screen_width << 16;
-  srcRect.height = screen_height << 16;
+  srcRect.width = gamewidth << 16;
+  srcRect.height = gameheight << 16;
   DISPMANX_DISPLAY_HANDLE_T dispman_display = vc_dispmanx_display_open(0);
   DISPMANX_UPDATE_HANDLE_T dispman_update = vc_dispmanx_update_start(0);
   DISPMANX_ELEMENT_HANDLE_T dispman_element = vc_dispmanx_element_add(dispman_update, dispman_display, 0, &dstRect, 0, &srcRect, DISPMANX_PROTECTION_NONE,
@@ -235,9 +297,18 @@ int main(int argc, char** argv){
     }
   }
 #else
+  inState input;
+  initInput(&input);
+  int buttons;
+  Vec2i cursor;
   while(!shouldQuit){
     render(10);
     eglSwapBuffers(theDisplay, theSurface);
+    buttons = getMouse(&input, &cursor.x, &cursor.y);
+    Engine::instance()->setCursorPos(cursor);
+    if (buttons != 0){
+      Engine::instance()->leftClick(cursor);
+    }
   }
 #endif
   Engine::instance()->exitGame();
