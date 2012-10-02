@@ -152,7 +152,7 @@ ENDIF(FFMPEG_OLD_API)
 
 ###Engine###
 INCLUDE_DIRECTORIES(../../../Engine)
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} Engine)
+SET(AB_LINK_LIBS ${AB_LINK_LIBS} Engine ${ADD_LIB})
 
 ###AaventureBase###
 

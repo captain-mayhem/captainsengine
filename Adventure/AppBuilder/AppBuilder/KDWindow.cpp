@@ -19,7 +19,11 @@ EGLDisplay theDisplay;
 EGLConfig theConfig;
 EGLSurface theSurface;
 EGLContext theContext;
+#ifndef RASPBERRY_PI
 KDWindow* theWindow;
+#else
+EGL_DISPMANX_WINDOW_T theWindow;
+#endif
 
 AdvDocument* adoc;
 static bool shouldQuit = false;
@@ -90,10 +94,17 @@ void render(int time){
   SoundEngine::instance()->update(time);
 }
 
+#ifndef RASPBERRY_PI
 KDint kdMain (KDint argc, const KDchar *const *argv){
+#else
+int main(int argc, char** argv){
+#endif
   CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
   TR_USE(ADV_KDWindow);
+#ifdef RASPBERRY_PI
+  bcm_host_init();
+#endif
   theDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
   if (theDisplay == EGL_NO_DISPLAY){
     TR_ERROR("unable to get display");
@@ -102,10 +113,12 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
     TR_ERROR("eglInitialize failed");
   }
 
-  EGLint configAttribs[13];
+  EGLint configAttribs[15];
   EGLint i = -1;
   configAttribs[++i] = EGL_RENDERABLE_TYPE;
   configAttribs[++i] = EGL_OPENGL_ES2_BIT;
+  configAttribs[++i] = EGL_SURFACE_TYPE;
+  configAttribs[++i] = EGL_WINDOW_BIT;
   configAttribs[++i] = EGL_RED_SIZE;
   configAttribs[++i] = 8;
   configAttribs[++i] = EGL_GREEN_SIZE;
@@ -127,6 +140,9 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
     TR_ERROR("eglChooseConfig failed");
   }
 
+  eglBindAPI(EGL_OPENGL_ES_API);
+
+#ifndef RASPBERRY_PI
   theWindow = kdCreateWindow(theDisplay, theConfig, KD_NULL);
   KDint32 winsize[] = {800, 480};
   kdSetWindowPropertyiv(theWindow, KD_WINDOWPROPERTY_SIZE, winsize);
@@ -135,7 +151,28 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
   EGLNativeWindowType nativeWindow;
   if (kdRealizeWindow(theWindow, &nativeWindow))
     TR_ERROR("realizeWindow failed");
-
+#else
+  unsigned screen_width, screen_height;
+  int success = graphics_get_display_size(0, &screen_width, &screen_height);
+  VC_RECT_T dstRect, srcRect;
+  dstRect.x = 0;
+  dstRect.y = 0;
+  dstRect.width = screen_width;
+  dstRect.height = screen_height;
+  srcRect.x = 0;
+  srcRect.y = 0;
+  srcRect.width = screen_width << 16;
+  srcRect.height = screen_height << 16;
+  DISPMANX_DISPLAY_HANDLE_T dispman_display = vc_dispmanx_display_open(0);
+  DISPMANX_UPDATE_HANDLE_T dispman_update = vc_dispmanx_update_start(0);
+  DISPMANX_ELEMENT_HANDLE_T dispman_element = vc_dispmanx_element_add(dispman_update, dispman_display, 0, &dstRect, 0, &srcRect, DISPMANX_PROTECTION_NONE,
+      0, 0, (DISPMANX_TRANSFORM_T)0);
+  theWindow.element = dispman_element;
+  theWindow.width = screen_width;
+  theWindow.height = screen_height;
+  vc_dispmanx_update_submit_sync(dispman_update);
+  EGL_DISPMANX_WINDOW_T* nativeWindow = &theWindow;
+#endif
   theSurface = eglCreateWindowSurface(theDisplay, theConfig, nativeWindow, NULL);
   if (theSurface == EGL_NO_SURFACE)
     TR_ERROR("eglCreateWindowSurface failed");
@@ -151,6 +188,7 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
   else
     filename = "data/game.dat";
   initGame(filename);
+#ifndef RASPBERRY_PI
   KDust lasttime;
   lasttime = kdGetTimeUST();
   KDtime newtime;
@@ -196,7 +234,12 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
       }
     }
   }
-
+#else
+  while(!shouldQuit){
+    render(10);
+    eglSwapBuffers(theDisplay, theSurface);
+  }
+#endif
   Engine::instance()->exitGame();
   receiver.stop();
 
@@ -210,8 +253,8 @@ KDint kdMain (KDint argc, const KDchar *const *argv){
   eglDestroyContext(theDisplay, theContext);
   eglDestroySurface(theDisplay, theSurface);
   eglTerminate(theDisplay);
-
+#ifndef RASPBERRY_PI
   kdDestroyWindow(theWindow);
-
+#endif
   return 0;
 }
