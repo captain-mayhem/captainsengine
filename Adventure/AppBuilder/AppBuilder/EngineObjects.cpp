@@ -212,6 +212,17 @@ bool Object2D::animationEnded(Animation* anim){
   return mNextStates.empty();
 }
 
+int Object2D::removeLastNextState(){ 
+  int ret;
+  if (!mNextStates.empty()){
+    ret = mNextStates.back();
+    mNextStates.pop_back();
+  }
+  else
+    ret = getState();
+  return ret;
+}
+
 void Object2D::activateNextState(){
   if (mNextStates.empty())
     return;
@@ -453,8 +464,9 @@ void RoomObject::addObject(Object2D* obj){
 Object2D* RoomObject::getObjectAt(const Vec2i& pos){
   Object2D* curr = NULL;
   int currdepth = -10000;
+  //first check only objects, then characters
   for (unsigned i = 0; i < mObjects.size(); ++i){
-    if(mObjects[i]->isHit(pos-mScrollOffset)){
+    if(mObjects[i]->getType() == Object2D::OBJECT && mObjects[i]->isHit(pos-mScrollOffset)){
       if (mObjects[i]->getDepth() >= currdepth){
         curr = mObjects[i];
         currdepth = curr->getDepth();
@@ -463,6 +475,14 @@ Object2D* RoomObject::getObjectAt(const Vec2i& pos){
   }
   if (curr)
     return curr;
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    if(mObjects[i]->getType() == Object2D::CHARACTER && mObjects[i]->isHit(pos-mScrollOffset)){
+      if (mObjects[i]->getDepth() >= currdepth){
+        curr = mObjects[i];
+        currdepth = curr->getDepth();
+      }
+    }
+  }
   CharacterObject* currChar = Engine::instance()->getCharacter("self");
   if (mInventroy && currChar){
     curr = mInventroy->getObjectAt(pos, currChar->getInventory());

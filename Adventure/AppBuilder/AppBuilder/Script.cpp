@@ -452,7 +452,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           if (funciter == mRelVars.end()){
             if (mCurrFunc == "offspeech" && mCurrArg == 3){
               //allow strings that look like relative numbers / variables
-              CPUSH* push = new CPUSH(relnode->getType() == RelationalNode::REL_PLUS ? "+" : "-");
+              CPUSH* push = new CPUSH(relnode->type() == RelationalNode::REL_PLUS ? "+" : "-");
               codes->addCode(push);
               count += 1;
               count += transform(relnode->child(), codes);
@@ -1074,6 +1074,9 @@ StackData PcdkScript::getVariable(const std::string& name){
   if (name.size() > 0 && name[0] == '_'){
     if (name.size() > 6 && name.substr(1, 6) == "volume"){
       return int(SoundEngine::instance()->getMusicVolume()*100);
+    }
+    else if (name.size() > 9 && name.substr(1, 9) == "charstate"){
+      return 0;
     }
   }
   else if (name == "mousex"){

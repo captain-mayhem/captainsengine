@@ -21,6 +21,7 @@ public:
   float getFloat() const {if (mType == I)return (float)mInt; return mFloat;}
   ExecutionContext* getEC() const {return mContext;}
   bool isInt() const {return mType == I;}
+  bool isFloat() const {return mType == F;}
   bool isString() const {return mType == S;}
 protected:
   enum Type{
