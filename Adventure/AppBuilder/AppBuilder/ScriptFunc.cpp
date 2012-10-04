@@ -78,8 +78,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("jiggle", jiggle);
   interpreter->registerFunction("randomnum", randomNum);
   interpreter->registerFunction("setchar", setChar);
-  interpreter->registerRelVar("setchar", 2, "char:");
-  interpreter->registerRelVar("setchar", 3, "char:"); //TODO 4, 5 , ..., INF
+  for (int i = 2; i < 20; ++i){
+    interpreter->registerRelVar("setchar", i, "_charstate");
+  }
   interpreter->registerFunction("setstring", setString);
   interpreter->registerFunction("loadnum", loadNum);
   interpreter->registerFunction("savenum", saveNum);
@@ -912,7 +913,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   if (ctx.mSkip)
     return 0;
   int state = 0;
-  if (data.isInt())
+  if (data.isInt() || data.isFloat())
     state = data.getInt()+16;
   else{
     std::string statename = data.getString();
@@ -922,12 +923,12 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   CharacterObject* obj = Engine::instance()->getCharacter(chrname);
   int oldstate;
   if (obj){
-    oldstate = obj->getState();
+    oldstate = obj->removeLastNextState();
     obj->setState(state);
   }
   for (unsigned i = 2; i < numArgs; ++i){
     data = ctx.stack().pop();
-    if (data.getInt() != 0)
+    if (data.isInt() || data.isFloat())
       state = data.getInt()+16;
     else{
       std::string statename = data.getString();

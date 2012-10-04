@@ -82,6 +82,7 @@ public:
   virtual int getDepth();
   void setDepth(int depth);
   void addNextState(int state) {mNextStates.push_back(state);}
+  int removeLastNextState();
   void activateNextState();
   virtual void setLightingColor(const Color& col) {mLightingColor = col;}
   virtual Color getLightingColor() {return mLightingColor;}
