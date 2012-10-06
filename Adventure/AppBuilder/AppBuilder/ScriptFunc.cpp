@@ -142,6 +142,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setwalksound", setWalkSound);
   interpreter->registerFunction("if_yobj", isObjYPosEqual);
   interpreter->registerFunction("hidealltext", hideAllTexts);
+  interpreter->registerFunction("enablemouse", enableMouse);
   srand((unsigned)time(NULL));
 }
 
@@ -477,6 +478,10 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::cutScene(ExecutionContext& ctx, unsigned numArgs){
   std::string scriptname = ctx.stack().pop().getString();
   Engine::instance()->getInterpreter()->mGlobalSuspend = true;
+  if (!ctx.getEvents().empty() && ctx.getEvents().front() == EVT_CLICK){ //the cutscene should stop the current click
+    ctx.getEvents().pop_front(); //stop click
+    ctx.getEvents().pop_front(); //stop user event
+  }
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scriptname);
   Engine::instance()->getInterpreter()->executeCutscene(context, false);
   return 0;
@@ -1849,6 +1854,13 @@ int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::hideAllTexts(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getFontRenderer()->disableTextouts();
+  return 0;
+}
+
+int ScriptFunctions::enableMouse(ExecutionContext& ctx, unsigned numArgs){
+  bool enable = ctx.stack().pop().getBool();
+  if (!enable)
+    DebugBreak();
   return 0;
 }
 
