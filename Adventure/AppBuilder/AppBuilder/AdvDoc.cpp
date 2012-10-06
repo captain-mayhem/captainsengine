@@ -635,6 +635,8 @@ bool AdvDocument::loadFile4(CGE::MemReader& txtstream){
       }
       continue;
     }
+    if (str.size() >= 5 && str.substr(0, 5) == "*NEU*")
+      str.erase(0, 5);
     mLanguages[language].sections[section].push_back(str);
   }
   return true;

@@ -69,6 +69,10 @@ public:
   **/
   static int delItem(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param show enable the mouse
+  **/
+  static int enableMouse(ExecutionContext& ctx, unsigned numArgs);
+  /**
   **/
   static int endScene(ExecutionContext& ctx, unsigned numArgs);
   /**
