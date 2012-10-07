@@ -64,6 +64,7 @@ public:
   void setLanguage(const std::string& lang) {mLanguage = lang;}
   const std::string& getLanguage() {return mLanguage;}
   bool willUpdate(unsigned interval);
+  ObjectGroup* getGroup(const std::string& name);
 protected:
   void applyPrevState(Object2D* obj);
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);

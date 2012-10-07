@@ -1,6 +1,8 @@
 #ifndef SCRIPT_FUNC_H
 #define SCRIPT_FUNC_H
 
+#include <vector>
+
 namespace adv{
 
 class ExecutionContext;
@@ -342,6 +344,15 @@ public:
   **/
   static int setPos(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param room the room for which its walkmap should be modified
+  \param x1 start x-position of the walkmap rectangle
+  \param y1 start y-position of the walkmap rectangle
+  \param x2 end x-position of the walkmap rectangle
+  \param y2 end y-position of the walkmap rectangle
+  \param walkable if the field should be made walkable
+  **/
+  static int setRectWalkmap(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param change changes style of room changes
   **/
   static int setScreenchange(ExecutionContext& ctx, unsigned numArgs);
@@ -504,6 +515,8 @@ public:
   static int isStringEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs);
+ private:
+  static void setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip);
 };
 
 }
