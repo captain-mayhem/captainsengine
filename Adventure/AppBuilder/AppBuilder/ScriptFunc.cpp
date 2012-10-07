@@ -143,6 +143,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("if_yobj", isObjYPosEqual);
   interpreter->registerFunction("hidealltext", hideAllTexts);
   interpreter->registerFunction("enablemouse", enableMouse);
+  interpreter->registerFunction("set_rect_walkmap", setRectWalkmap);
   srand((unsigned)time(NULL));
 }
 
@@ -335,38 +336,56 @@ int ScriptFunctions::setBool(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+void ScriptFunctions::setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip){
+  for (unsigned objiter = 0; objiter < objects.size(); ++objiter){
+    Object2D* obj = Engine::instance()->getObject(objects[objiter], false);
+    SaveStateProvider::SaveObject* so = NULL;
+    if (obj){
+      obj->setState(states[0]);
+    }
+    else{
+      std::string room;
+      so = Engine::instance()->getSaver()->findObject(objects[objiter], room);
+      if (so)
+        so->state = states[0];
+      else
+        DebugBreak();
+    }
+    for (unsigned i = 1; i < states.size(); ++i){
+      int state = states[i];
+      if (obj){
+        if (skip)
+          obj->setState(state);
+        else{
+          obj->addNextState(state);
+          obj->getAnimation()->registerAnimationEndHandler(obj);
+        }
+      }
+      else{
+        so->state = state;
+      }
+    }
+  }
+}
+
 int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   std::string objname = ctx.stack().pop().getString();
   //TR_DEBUG("obj: %s", objname.c_str());
   int state = ctx.stack().pop().getInt();
-  Object2D* obj = Engine::instance()->getObject(objname, false);
-  SaveStateProvider::SaveObject* so = NULL;
-  if (obj){
-    obj->setState(state);
-  }
-  else{
-    std::string room;
-    so = Engine::instance()->getSaver()->findObject(objname, room);
-    if (so)
-      so->state = state;
-    else
-      DebugBreak();
-  }
+  ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(objname);
+  std::vector<std::string> objects;
+  if (grp)
+    objects = grp->getObjects();
+  else
+    objects.push_back(objname);
+  std::vector<int> states;
+  states.push_back(state);
   for (unsigned i = 2; i < numArgs; ++i){
     state = ctx.stack().pop().getInt();
-    if (obj){
-      if (ctx.mSkip)
-        obj->setState(state);
-      else{
-        obj->addNextState(state);
-        obj->getAnimation()->registerAnimationEndHandler(obj);
-      }
-    }
-    else{
-      so->state = state;
-    }
+    states.push_back(state);
   }
+  setObjInternal(objects, states, ctx.isSkipping());
   return 0;
 }
 
@@ -1861,6 +1880,39 @@ int ScriptFunctions::enableMouse(ExecutionContext& ctx, unsigned numArgs){
   bool enable = ctx.stack().pop().getBool();
   if (!enable)
     DebugBreak();
+  return 0;
+}
+
+int ScriptFunctions::setRectWalkmap(ExecutionContext& ctx, unsigned numArgs){
+  std::string room = ctx.stack().pop().getString();
+  Vec2i pos1;
+  Vec2i pos2;
+  pos1.x = ctx.stack().pop().getInt();
+  pos1.y = ctx.stack().pop().getInt();
+  pos2.x = ctx.stack().pop().getInt();
+  pos2.y = ctx.stack().pop().getInt();
+  bool walkable = ctx.stack().pop().getBool();
+  Vec2i pos;
+  RoomObject* rm = Engine::instance()->getRoom(room);
+  if (rm){
+    for (int j = pos1.y; j <= pos2.y; ++j){
+      pos.y = j;
+      for (int i = pos1.x; i <= pos2.x; ++i){
+        pos.x = i;
+        rm->modifyWalkmap(pos, walkable);
+      }
+    }
+  }
+  else{
+    SaveStateProvider::SaveRoom* srm = Engine::instance()->getSaver()->getRoom(room);
+    for (int j = pos1.y; j <= pos2.y; ++j){
+      pos.y = j;
+      for (int i = pos1.x; i <= pos2.x; ++i){
+        pos.x = i;
+        srm->walkmap[pos] = walkable;
+      }
+    }
+  }
   return 0;
 }
 

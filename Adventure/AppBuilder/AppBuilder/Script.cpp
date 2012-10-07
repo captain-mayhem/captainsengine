@@ -1315,3 +1315,11 @@ ASTNode* PcdkScript::parseLangArg(const char* funcname, int argnum, int strindex
   input->free(input);
   return node;
 }
+
+ObjectGroup* PcdkScript::getGroup(const std::string& name){
+  for (std::vector<ObjectGroup*>::iterator iter = mGroups.begin(); iter != mGroups.end(); ++iter){
+    if ((*iter)->getName() == name)
+      return *iter;
+  }
+  return NULL;
+}

@@ -273,6 +273,8 @@ public:
   ObjectGroup(const std::string& name) {mName = name;}
   ~ObjectGroup() {}
   void add(const std::string& obj) {mObjects.push_back(obj);}
+  std::string getName() {return mName;}
+  std::vector<std::string> getObjects() {return mObjects;}
 protected:
   std::string mName;
   std::vector<std::string> mObjects;
