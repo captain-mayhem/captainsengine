@@ -27,3 +27,9 @@ D:\Projects\adventure\dark_mystery\bin\data\game.dat
 
 D:\pcdk\editor\functiondemo_adz\FunctionDemo\FunctionDemo.adv
 D:\Projects\adventure\dark_mystery\dark_mystery.adv
+
+Script-Bugs in Alühn
+--------------
+Textscene gogglen: Level 2:  row (3 ;Zurück; true): row 3 existiert schon, sollte hier wohl 4 sein
+Cutscene Zwischensequenz2: setpos (oraniering ; 4 ; 0 ; false): oraniering soll wahrscheinlich oranierring heißen
+Room Wcs, Object zwitschirften1: setobj(kette; 0): kette ist kein Objekt

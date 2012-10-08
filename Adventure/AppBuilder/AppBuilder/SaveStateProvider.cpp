@@ -418,6 +418,8 @@ SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& 
   }
   //load the room with the object into saving
   Object* obj = mData->getObject(name);
+  if (obj == NULL)
+    return NULL;
   Room* rm = mData->getRoom(obj);
   room = rm->name;
   SaveRoom* saveroom = getRoom(room);

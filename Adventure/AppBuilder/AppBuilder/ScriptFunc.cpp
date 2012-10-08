@@ -337,6 +337,7 @@ int ScriptFunctions::setBool(ExecutionContext& ctx, unsigned numArgs){
 }
 
 void ScriptFunctions::setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip){
+  TR_USE(ADV_ScriptFunc);
   for (unsigned objiter = 0; objiter < objects.size(); ++objiter){
     Object2D* obj = Engine::instance()->getObject(objects[objiter], false);
     SaveStateProvider::SaveObject* so = NULL;
@@ -349,7 +350,7 @@ void ScriptFunctions::setObjInternal(std::vector<std::string> objects, std::vect
       if (so)
         so->state = states[0];
       else
-        DebugBreak();
+        TR_ERROR("Object %s does not exist", objects[objiter].c_str());
     }
     for (unsigned i = 1; i < states.size(); ++i){
       int state = states[i];
@@ -609,8 +610,21 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
   if (chr){
     chr->getInventory()->removeItem(itemname, inventory, &ctx);
   }
-  else
-    DebugBreak();
+  else{
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
+    if (!cso)
+      DebugBreak();
+    bool deleted = false;
+    for (std::vector<std::string>::iterator iter = cso->inventory.items[inventory].begin(); iter != cso->inventory.items[inventory].end(); ++iter){
+      if (stricmp(iter->c_str(), itemname.c_str()) == 0){
+        cso->inventory.items[inventory].erase(iter);
+        deleted = true;
+        break;
+      }
+    }
+    if (!deleted)
+      DebugBreak();
+  }
   return 0;
 }
 
