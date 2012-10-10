@@ -135,6 +135,7 @@ public:
   void deleteShaders();
   void activate() {glGetIntegerv(GL_CURRENT_PROGRAM, &mOldProg); glUseProgram(mProgram);}
   void deactivate() {glUseProgram(mOldProg);}
+  void bindAttribLocation(int location, const char* name) { glBindAttribLocation(mProgram, location, name);}
   int getAttribLocation(const char* name) {return glGetAttribLocation(mProgram, name);}
   int getUniformLocation(const char* name) {return glGetUniformLocation(mProgram, name);}
   void uniform(int location, int value) {glUniform1i(location, value);}

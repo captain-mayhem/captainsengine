@@ -1756,6 +1756,10 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
     disableMainEffect();
     ef->activate(fade);
   }
+  else if (effect == "drugged"){
+    int strength = ctx.stack().pop().getInt();
+    ef->activate(false, strength/500.0f);
+  }
   else
     DebugBreak();
   return 0;
