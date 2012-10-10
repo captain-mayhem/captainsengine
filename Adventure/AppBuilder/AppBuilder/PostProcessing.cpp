@@ -53,6 +53,8 @@ private:
 };
 
 PostProcessor::Effect::Effect(const char* vertexsource, const char* fragmentsource) : mFade(false){
+  mShader.bindAttribLocation(0, "position");
+  mShader.bindAttribLocation(1, "texCoord");
   mShader.addShader(GL_VERTEX_SHADER, vertexsource);
   mShader.addShader(GL_FRAGMENT_SHADER, fragmentsource);
   mShader.linkShaders();
@@ -725,6 +727,107 @@ private:
   int mFadeoutPixels;
 };
 
+static const char druggedvs[] =
+"precision mediump float;\n"
+"attribute vec3 position;\n"
+"attribute vec4 texCoord;\n"
+"attribute vec2 offset;\n"
+"\n"
+"uniform vec2 tex_scale;\n"
+"\n"
+"varying vec2 tex_coord;\n"
+"\n"
+"void main(){\n"
+"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
+"  gl_Position = vec4(position.x*2.0-1.0+offset.x, position.y*2.0-1.0+offset.y, 0.0, 1.0);\n"
+"}\n"
+"";
+
+class DruggedEffect : public PostProcessor::Effect{
+public:
+  DruggedEffect() : Effect(druggedvs, stdfs){
+    mName = "drugged";
+  }
+  virtual void init(const Vec2f& size){
+    Effect::init(size);
+    mShader.activate();
+    GLint scale = mShader.getUniformLocation("tex_scale");
+    float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
+    float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.uniform(scale, size.x/powx, size.y/powy);
+    mOffsetIndex = mShader.getAttribLocation("offset");
+    mShader.deactivate();
+  }
+  virtual void deinit(){
+  }
+  virtual void activate(bool fade, ...){
+    va_list args;
+    va_start(args, fade);
+    float strength = (float)va_arg(args,double);
+    mStrength = strength*0.25f;
+    va_end(args);
+    Effect::activate(fade);
+    mFadeout = false;
+    for (int i = 0; i < 8; ++i){
+      float time;
+      float tmp = newPos(time);
+      mVerts[i].set(0, tmp, 1000);
+    }
+  }
+  virtual void deactivate(){
+     mFadeout = true;
+  }
+  virtual bool update(unsigned time) {
+    if (mFadeout){
+      Effect::deactivate();
+      return false;
+    }
+    int finishCount = 0;
+    for (int i = 0; i < 8; ++i){
+      if (!mVerts[i].update(time)){
+        float time;
+        float tmp = newPos(time);
+        mVerts[i].set(mVerts[i].current(), tmp, time);
+      }
+    }
+    return true;
+  }
+  virtual void apply(BlitObject* input){
+    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    mShader.activate();
+    float tmp[8];
+    for (int i = 0; i < 8; ++i){
+      tmp[i] = mVerts[i].current();
+      if (i == 0 || i == 2 || i == 3 || i == 7)
+        tmp[i] *= -1;
+    }
+    glVertexAttribPointer(mOffsetIndex, 2, GL_FLOAT, GL_FALSE, 0, tmp);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    mShader.deactivate();
+    Engine::instance()->restoreRenderDefaults();
+  }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    //out << mFadeout << " " << mTimeAccu << " " << mFadeoutPixels;
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    //in >> mFadeout >> mTimeAccu >> mFadeoutPixels;
+    return in;
+  }
+private:
+  float newPos(float& time){
+    time = (rand()/(float)RAND_MAX)*1000+100;
+    return ((rand()/(float)RAND_MAX)*2-0.5f)*mStrength;
+  }
+  GLuint mOffsetIndex;
+  bool mFadeout;
+  Interpolator mVerts[8];
+  float mStrength;
+};
+
 
 /* Postprocessor */
 
@@ -738,6 +841,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(heat, HeatEffect);
   REGISTER_EFFECT(whoosh, BloomEffect, "whoosh", whooshfs);
   REGISTER_EFFECT(bloom, BloomEffect, "bloom", bloomfs)
+  REGISTER_EFFECT(drugged, DruggedEffect);
 }
 
 PostProcessor::~PostProcessor(){
