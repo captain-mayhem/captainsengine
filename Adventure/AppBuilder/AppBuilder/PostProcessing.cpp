@@ -758,8 +758,6 @@ public:
     mOffsetIndex = mShader.getAttribLocation("offset");
     mShader.deactivate();
   }
-  virtual void deinit(){
-  }
   virtual void activate(bool fade, ...){
     va_list args;
     va_start(args, fade);
@@ -776,19 +774,26 @@ public:
   }
   virtual void deactivate(){
      mFadeout = true;
+     for (int i = 0; i < 8; ++i){
+       mVerts[i].set(mVerts[i].current(), 0, 1000);
+     }
   }
   virtual bool update(unsigned time) {
-    if (mFadeout){
-      Effect::deactivate();
-      return false;
-    }
     int finishCount = 0;
     for (int i = 0; i < 8; ++i){
       if (!mVerts[i].update(time)){
-        float time;
-        float tmp = newPos(time);
-        mVerts[i].set(mVerts[i].current(), tmp, time);
+        if (mFadeout)
+          ++finishCount;
+        else{
+          float time;
+          float tmp = newPos(time);
+          mVerts[i].set(mVerts[i].current(), tmp, time);
+        }
       }
+    }
+    if (finishCount >= 8){
+      Effect::deactivate();
+      return false;
     }
     return true;
   }
@@ -809,12 +814,25 @@ public:
   }
   virtual std::ostream& save(std::ostream& out){
     Effect::save(out);
-    //out << mFadeout << " " << mTimeAccu << " " << mFadeoutPixels;
+    out << mFadeout << " " << mStrength;
     return out;
   }
   virtual std::istream& load(std::istream& in){
     Effect::load(in);
-    //in >> mFadeout >> mTimeAccu >> mFadeoutPixels;
+    in >> mFadeout >> mStrength;
+    if (mFadeout)
+      for (int i = 0; i < 8; ++i){
+        float time;
+        float tmp = newPos(time);
+        mVerts[i].set(tmp, 0, 1000);
+      }
+    else
+      for (int i = 0; i < 8; ++i){
+        float time;
+        float tmp = newPos(time);
+        float tmp2 = newPos(time);
+        mVerts[i].set(tmp, tmp2, time);
+      }
     return in;
   }
 private:
