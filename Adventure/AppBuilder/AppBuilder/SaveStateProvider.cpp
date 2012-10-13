@@ -321,7 +321,7 @@ void SaveStateProvider::load(const std::string& name){
   Engine::instance()->getInterpreter()->executeCutscene(NULL, false);
   mNoWrites = Engine::instance()->unloadRooms();
   if (Engine::instance()->mMenuShown){
-    Engine::instance()->unloadRoom(NULL, false);
+    Engine::instance()->unloadRoom(NULL, false, false);
     Engine::instance()->mMenuShown = false;
   }
   //load room data
