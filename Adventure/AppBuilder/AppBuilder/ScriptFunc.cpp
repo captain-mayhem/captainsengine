@@ -324,7 +324,7 @@ int ScriptFunctions::setLight(ExecutionContext& ctx, unsigned numArgs){
   }
   else{
     SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(room);
-    sr->base.lighting = c;
+    sr->overlaylighting = c;
   }
   return 0;
 }
@@ -692,7 +692,7 @@ int ScriptFunctions::subRoom(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::subRoomReturn(ExecutionContext& ctx, unsigned numArgs){
-  Engine::instance()->unloadRoom(NULL, false);
+  Engine::instance()->unloadRoom(NULL, false, false);
   return 0;
 }
 
@@ -780,7 +780,9 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::unloadRoom(ExecutionContext& ctx, unsigned numArgs){
-  Engine::instance()->unloadRoom(NULL, true);
+  Engine::instance()->unloadRoom(NULL, true, false);
+  //TODO make unloads smoother. triggerScreenchange, add finished callback to screenchanges, call ForceNot... in callback
+  //Engine::instance()->triggerScreenchange(&ctx);
   Engine::instance()->forceNotToRenderUnloadingRoom();
   return 0;
 }
@@ -1088,7 +1090,7 @@ int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::group(ExecutionContext& ctx, unsigned numArgs){
   std::string groupname = ctx.stack().pop().getString();
   ObjectGroup* grp = new ObjectGroup(groupname);
-  for (unsigned i = 2; i < numArgs; ++i){
+  for (unsigned i = 1; i < numArgs; ++i){
     std::string object = ctx.stack().pop().getString();
     grp->add(object);
   }

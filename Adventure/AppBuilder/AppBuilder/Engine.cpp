@@ -553,16 +553,22 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   TR_USE(ADV_Engine);
   if (!mData)
     return false;
-  //already loaded //TODO subrooms
-  if (mMainRoomLoaded && _stricmp(mRooms.back()->getName().c_str(), name.c_str()) == 0)
-    return true;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0)
-      return true;
+    if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0){
+      bool isUnloading = false;
+      for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
+        if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0){
+          isUnloading = true;
+          break;
+        }
+      }
+      if (!isUnloading)
+        return true;
+    }
   }
   TR_INFO("loading room %s", name.c_str());
   if (mMainRoomLoaded && !isSubRoom){
-    unloadRoom(mRooms.back(), true);
+    unloadRoom(mRooms.back(), true, false);
     if (mPendingLoadReason != NULL){
       mPendingLoadReason->resume();
     }
@@ -703,47 +709,8 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
     mFocussedChar->setDepth(mFocussedChar->getPosition().y/Engine::instance()->getWalkGridSize());
   }
   //animation stuff
-  if ((loadreason == NULL || !loadreason->isSkipping()) && !isSubRoom){
-    switch(Engine::instance()->getScreenChange()){
-      case SC_DIRECT:
-        break;
-      case SC_FADEOUT:{
-        FadeoutScreenChange* fsc = new FadeoutScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-        Engine::instance()->getAnimator()->add(fsc);
-        }
-        break;
-      case SC_RECTANGLE:{
-        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 4);
-        Engine::instance()->getAnimator()->add(csc);
-        }
-        break;
-      case SC_CIRCLE:{
-        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
-        Engine::instance()->getAnimator()->add(csc);
-        }
-        break;
-      case SC_SHUTTERS:{
-        ShuttersScreenChange* ssc = new ShuttersScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-        Engine::instance()->getAnimator()->add(ssc);
-        }
-        break;
-      case SC_CLOCK:{
-        ClockScreenChange* csc = new ClockScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
-        Engine::instance()->getAnimator()->add(csc);
-        }
-        break;
-      case SC_BLEND:{
-        BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 1000);
-        Engine::instance()->getAnimator()->add(bsc);
-        }
-        break;
-      case SC_BLEND_SLOW:{
-        BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-        Engine::instance()->getAnimator()->add(bsc);
-        }
-        break;
-    }
-  }
+  if (!isSubRoom)
+    triggerScreenchange(loadreason);
   return true;
 }
 
@@ -1510,4 +1477,48 @@ RoomObject* Engine::getMainRoom(){
 void Engine::removeScript(ExecutionContext* ctx){
   if (ctx == mPendingLoadReason)
     mPendingLoadReason = NULL;
+}
+
+void Engine::triggerScreenchange(ExecutionContext* loadreason){
+  if (loadreason == NULL || !loadreason->isSkipping()){
+    switch(Engine::instance()->getScreenChange()){
+      case SC_DIRECT:
+        break;
+      case SC_FADEOUT:{
+        FadeoutScreenChange* fsc = new FadeoutScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
+        Engine::instance()->getAnimator()->add(fsc);
+                      }
+                      break;
+      case SC_RECTANGLE:{
+        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 4);
+        Engine::instance()->getAnimator()->add(csc);
+                        }
+                        break;
+      case SC_CIRCLE:{
+        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
+        Engine::instance()->getAnimator()->add(csc);
+                     }
+                     break;
+      case SC_SHUTTERS:{
+        ShuttersScreenChange* ssc = new ShuttersScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
+        Engine::instance()->getAnimator()->add(ssc);
+                       }
+                       break;
+      case SC_CLOCK:{
+        ClockScreenChange* csc = new ClockScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
+        Engine::instance()->getAnimator()->add(csc);
+                    }
+                    break;
+      case SC_BLEND:{
+        BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 1000);
+        Engine::instance()->getAnimator()->add(bsc);
+                    }
+                    break;
+      case SC_BLEND_SLOW:{
+        BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
+        Engine::instance()->getAnimator()->add(bsc);
+                         }
+                         break;
+    }
+  }
 }

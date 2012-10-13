@@ -47,7 +47,7 @@ public:
   void doubleClick(const Vec2i& pos);
   void mouseWheel(int delta);
   bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason);
-  void unloadRoom(RoomObject* room, bool mainroom, bool immedately=false);
+  void unloadRoom(RoomObject* room, bool mainroom, bool immedately);
   bool setFocus(std::string charname, ExecutionContext* reason);
   CGE::Image* getImage(const std::string& name);
   int getWalkGridSize() {return mWalkGridSize;}
@@ -109,6 +109,7 @@ public:
   void showMouse(bool doIt) {mMouseShown = doIt;}
   void setTimeFactor(float factor, bool isFaded) {mTimeFactor = factor; mTimeFactorFaded = isFaded;}
   float getTimeFactor(bool* isFaded=NULL) {if (isFaded != NULL) *isFaded = mTimeFactorFaded; return mTimeFactor;}
+  void triggerScreenchange(ExecutionContext* loadreason);
 protected:
   Engine();
   static Engine* mInstance;
