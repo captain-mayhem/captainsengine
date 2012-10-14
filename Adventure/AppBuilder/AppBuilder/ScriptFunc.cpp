@@ -616,7 +616,7 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
       DebugBreak();
     bool deleted = false;
     for (std::vector<std::string>::iterator iter = cso->inventory.items[inventory].begin(); iter != cso->inventory.items[inventory].end(); ++iter){
-      if (stricmp(iter->c_str(), itemname.c_str()) == 0){
+      if (_stricmp(iter->c_str(), itemname.c_str()) == 0){
         cso->inventory.items[inventory].erase(iter);
         deleted = true;
         break;
