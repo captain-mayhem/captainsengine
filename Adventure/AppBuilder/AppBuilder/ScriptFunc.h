@@ -2,6 +2,7 @@
 #define SCRIPT_FUNC_H
 
 #include <vector>
+#include <string>
 
 namespace adv{
 
