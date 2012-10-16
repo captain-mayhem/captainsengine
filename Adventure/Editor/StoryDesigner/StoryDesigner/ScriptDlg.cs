@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Collections;
+using System.Runtime.InteropServices;
 
 namespace StoryDesigner
 {
@@ -211,6 +212,7 @@ namespace StoryDesigner
             if (mLayoutPerformed)
                 return;
             mLayoutPerformed = true;
+            LockWindowUpdate(scripttext.Handle);
             scripttext.SuspendLayout();
             int oldoffset = scripttext.SelectionStart;
             mCursorPos = oldoffset;
@@ -221,6 +223,7 @@ namespace StoryDesigner
             scripttext.SelectionFont = scripttext.Font;
             scripttext.SelectionColor = Color.Black;
             scripttext.ResumeLayout();
+            LockWindowUpdate(IntPtr.Zero);
             mLayoutPerformed = false;
         }
 
@@ -482,5 +485,8 @@ namespace StoryDesigner
         {
             insertText("on(enter){\n  \n}\n\non(loop1){\n  \n}\n\non(loop2){\n  \n}\n\non(exit){\n  \n}");
         }
+
+        [DllImport("user32.dll")] // import lockwindow to remove flashing
+	    public static extern bool LockWindowUpdate (IntPtr hWndLock);
     }
 }
