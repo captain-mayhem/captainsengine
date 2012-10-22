@@ -168,6 +168,7 @@ complex_arg returns [ASTNode* value]
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| GREATER {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$GREATER.text->chars);}
 		| REAL_INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL_INT.text->chars);}
+		| COMMA {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$COMMA.text->chars);}
 	)*)
 	;
 
@@ -214,7 +215,7 @@ term returns [ASTNode* trm]
 ;
 
 factor returns [ASTNode* fac]
-	: var=variable {$fac = var.var;} (',' var2=variable {
+	: var=variable {$fac = var.var;} (COMMA var2=variable {
 		UnaryArithNode* i2r = new UnaryArithNode(); i2r->type() = UnaryArithNode::UA_I2R; i2r->node() = $fac;
 		ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_PLUS; an->left() = i2r;
 		UnaryArithNode* shift = new UnaryArithNode(); shift->type() = UnaryArithNode::UA_DEC_SHIFT; shift->node() = var2.var; an->right() = shift;
@@ -264,6 +265,7 @@ LBRACKET:	'[';
 RBRACKET:	']';
 SEMICOLON
 	:	';';
+COMMA : ',';
 UNDERSCORE
 	:	'_';
 PLUS	:	'+';
@@ -281,10 +283,10 @@ LEVEL	:	'l''e''v''e''l';
 ROW	:	'r''o''w';
 TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
-REAL:	'0'..'9'+('.'|',')'0'..'9'+;
-REAL_INT:	INT',';
-IDENT_PART	:	/*('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|':'|'\''|'\.'|'!'|','|'&'|TIMES)*/
-				('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|','|'&'|':'|'|'|'%'|'\u0080'..'\u00ff')+;
+REAL:	'0'..'9'+('.'|COMMA)'0'..'9'+;
+REAL_INT:	INT COMMA;
+IDENT_PART	:	/*('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|':'|'\''|'\.'|'!'|COMMA|'&'|TIMES)*/
+				('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|COMMA|'&'|':'|'|'|'%'|'\u0080'..'\u00ff')+;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}

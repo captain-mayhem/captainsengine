@@ -392,7 +392,13 @@ int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
-  std::string roomname = ctx.stack().pop().getString();
+  StackData arg = ctx.stack().top();
+  std::string roomname;
+  if (!arg.isString()){
+    ++numArgs;
+  }
+  else
+    roomname = ctx.stack().pop().getString();
   Vec2i pos;
   pos.x = ctx.stack().pop().getInt()-1;
   pos.y = ctx.stack().pop().getInt()-1;
@@ -406,7 +412,8 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   }
   if (charname == "self"){
     //focussed char, therefore change room
-    Engine::instance()->loadRoom(roomname, false, &ctx);
+    if (!roomname.empty())
+      Engine::instance()->loadRoom(roomname, false, &ctx);
     CharacterObject* obj = Engine::instance()->getCharacter(charname);
     if (obj){
       obj->abortClick();
@@ -414,6 +421,8 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       obj->setState(state);
       if (dir != UNSPECIFIED)
         obj->setLookDir(dir);
+      if (roomname.empty())
+        roomname = obj->getRoom();
       RoomObject* ro = Engine::instance()->getRoom(roomname);
       std::string realname;
       Vec2i scrolloffset;
@@ -452,6 +461,8 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       obj->setState(state);
       if (dir != UNSPECIFIED)
         obj->setLookDir(dir);
+      if (roomname.empty())
+        roomname = obj->getRoom();
       RoomObject* room = Engine::instance()->getRoom(roomname);
       if (room){
         obj->setRoom(room->getName());
