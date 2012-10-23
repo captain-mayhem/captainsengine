@@ -91,6 +91,11 @@ public:
   **/
   static int enterText(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param char1 the first character whose inventories should be exchanged
+  \param char2 the second character
+  **/
+  static int exchange(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param speed 1-15 or time in ms
   **/
   static int fadeSpeed(ExecutionContext& ctx, unsigned numArgs);
