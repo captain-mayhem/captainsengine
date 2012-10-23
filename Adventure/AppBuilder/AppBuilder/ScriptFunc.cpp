@@ -144,6 +144,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("hidealltext", hideAllTexts);
   interpreter->registerFunction("enablemouse", enableMouse);
   interpreter->registerFunction("set_rect_walkmap", setRectWalkmap);
+  interpreter->registerFunction("exchange", exchange);
   srand((unsigned)time(NULL));
 }
 
@@ -1944,6 +1945,19 @@ int ScriptFunctions::setRectWalkmap(ExecutionContext& ctx, unsigned numArgs){
       }
     }
   }
+  return 0;
+}
+
+int ScriptFunctions::exchange(ExecutionContext& ctx, unsigned numArgs){
+  std::string char1 = ctx.stack().pop().getString();
+  std::string char2 = ctx.stack().pop().getString();
+  CharacterObject* c1 = Engine::instance()->getCharacter(char1);
+  CharacterObject* c2 = Engine::instance()->getCharacter(char2);
+  if (c1 == NULL || c2 == NULL)
+    DebugBreak();
+  Inventory* inv = c1->getInventory();
+  c1->setInventory(c2->getInventory());
+  c2->setInventory(inv);
   return 0;
 }
 

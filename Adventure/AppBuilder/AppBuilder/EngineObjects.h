@@ -232,6 +232,7 @@ public:
   bool isTalking();
   virtual Vec2i getSize();
   Inventory* getInventory() {return mInventory;}
+  void setInventory(Inventory* inventory) {mInventory = inventory;}
   virtual void save();
   virtual bool isHit(const Vec2i& point);
   bool isMirrored() {return mMirror;}

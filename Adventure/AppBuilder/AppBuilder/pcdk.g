@@ -133,7 +133,7 @@ arg_list returns [NodeList* nodes]
 ;
 
 arg	returns [ASTNode* value]
-@init{ bool internalArgument = true;}
+@init{ bool internalArgument = true; $value = NULL;}
 	:
 	(ahdr=arg_header {internalArgument = false; $value = parseLangArg(currentFunc.c_str(), currentArg, ahdr.number->value()); delete ahdr.number;})?
 	((rel_expr) => (exp=rel_expr {if (internalArgument){$value = exp.exp;}else{delete exp.exp;}}
@@ -141,7 +141,22 @@ arg	returns [ASTNode* value]
 		 | ca2=complex_arg {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}else{delete ca2.value;}}
 		)*
 		)
-	| (ca=complex_arg {if (internalArgument){$value = ca.value;}else{delete ca.value;}}
+	| (MINUS {if (internalArgument){$value = new IdentNode("-");} } )?
+	  (ca=complex_arg {
+			if (internalArgument){
+				if ($value == NULL)
+					$value = ca.value;
+				else{
+					ConcatenationNode* concat = new ConcatenationNode();
+					concat->left() = $value;
+					concat->right() = ca.value;
+					$value = concat;
+				}
+			}
+			else{
+				delete ca.value;
+			}
+		}
 		(vari=variable {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}else{delete vari.var;}}
 		| ca2=complex_arg {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}else{delete ca2.value;}}
 		)*
@@ -160,6 +175,7 @@ complex_arg returns [ASTNode* value]
 	(
 		first=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(first.value->value().c_str()); delete first.value;}
 		| t1=TIMES {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t1.text->chars);}
+		| t3=UNDERSCORE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t3.text->chars);}
 	)
 	(
 		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
@@ -169,6 +185,7 @@ complex_arg returns [ASTNode* value]
 		| GREATER {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$GREATER.text->chars);}
 		| REAL_INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL_INT.text->chars);}
 		| COMMA {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$COMMA.text->chars);}
+		| t4=UNDERSCORE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t4.text->chars);}
 	)*)
 	;
 
