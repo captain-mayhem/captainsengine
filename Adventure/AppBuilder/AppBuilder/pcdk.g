@@ -159,6 +159,7 @@ arg	returns [ASTNode* value]
 		}
 		(vari=variable {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}else{delete vari.var;}}
 		| ca2=complex_arg {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}else{delete ca2.value;}}
+		| COMMA {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = new IdentNode(","); $value = concat;}}
 		)*
 	  )
 	)
@@ -182,7 +183,6 @@ complex_arg returns [ASTNode* value]
 		| MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$MINUS.text->chars);}
 		| t2=TIMES {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t2.text->chars);}
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
-		| GREATER {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$GREATER.text->chars);}
 		| REAL_INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL_INT.text->chars);}
 		| COMMA {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$COMMA.text->chars);}
 		| t4=UNDERSCORE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t4.text->chars);}
@@ -195,6 +195,7 @@ stdarg returns [IdentNode* value]
 	| ON {$value = new IdentNode(""); $value->append((char*)$ON.text->chars);}
 	| IF {$value = new IdentNode(""); $value->append((char*)$IF.text->chars);}
 	| LESS {$value = new IdentNode(""); $value->append((char*)$LESS.text->chars);}
+	| GREATER {$value = new IdentNode(""); $value->append((char*)$GREATER.text->chars);}
 	| RBRACKET {$value = new IdentNode(""); $value->append((char*)$RBRACKET.text->chars);}
 	| DIVIDE {$value = new IdentNode(""); $value->append((char*)$DIVIDE.text->chars);}
 	| INT {$value = new IdentNode(""); $value->append((char*)$INT.text->chars);}

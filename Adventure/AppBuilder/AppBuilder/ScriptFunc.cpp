@@ -892,6 +892,8 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
       screenchange = SC_CLOCK;
     else if (name == "blend")
       screenchange = SC_BLEND;
+    else if (name == "blendslow")
+      screenchange = SC_BLEND_SLOW;
     else
       DebugBreak();
   }
