@@ -254,7 +254,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   }
   mUnresolvedBranches.clear();
   delete p;
-  if (segment->numInstructions() == 0){
+  if (segment->numInstructions() == 0 && segment->getLoop1() == NULL){
     delete segment;
     return NULL;
   }
@@ -632,8 +632,14 @@ bool PcdkScript::update(unsigned time){
       (*iter)->resetEvents(false);
       (*iter)->setEvent(EVT_LOOP1);
     }
-    if (events.empty() || events.front() != EVT_ENTER) //execute only if it is not EVT_ENTER that is pending when being in global suspend
-      update(*iter, time);
+    //don't delay enter when it exists
+    if (!events.empty() && events.front() == EVT_ENTER){
+      events.pop_front();
+      (*iter)->getEvents().push_front(EVT_ENTER);
+    }
+    //this was the previous handling, but does not work for alühn cutscene realending, scrolling part
+    //if (events.empty() || events.front() != EVT_ENTER) //execute only if it is not EVT_ENTER that is pending when being in global suspend
+    update(*iter, time);
     if (mGlobalSuspend){
       (*iter)->setEvents(events);
     }
@@ -1203,7 +1209,13 @@ StackData PcdkScript::getVariable(const std::string& name){
     DebugBreak();
   }
   else if (name == "empty"){
-    return "";
+    return std::string();
+  }
+  else if (name == "leftbracket"){
+    return std::string("(");
+  }
+  else if (name == "rightbracket"){
+    return std::string(")");
   }
   std::map<std::string, StackData>::iterator iter = mVariables.find(name);
   if (iter != mVariables.end())
