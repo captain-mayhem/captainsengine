@@ -8,6 +8,7 @@
 using namespace adv;
 
 TR_CHANNEL_LVL(ADV_Character, TRACE_INFO);
+TR_CHANNEL(ADV_Room);
 
 BlitGroup::BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth){
   for (unsigned l = (unsigned)textures.size(); l > 0; --l){
@@ -575,8 +576,10 @@ void RoomObject::save(){
 }
 
 void RoomObject::setPosition(const Vec2i& pos){
-  if (pos.x < -1000 || pos.x > 1000)
-    DebugBreak();
+  if (pos.x < -1000 || pos.x > 1000){
+    TR_USE(ADV_Room);
+    TR_BREAK("Invalid room position %i/%i", pos.x, pos.y);
+  }
   Vec2i move = pos - mPos;
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     (*iter)->setPosition((*iter)->getPosition()+move);

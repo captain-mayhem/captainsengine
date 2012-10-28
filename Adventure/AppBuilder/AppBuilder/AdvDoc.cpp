@@ -88,6 +88,7 @@ bool AdvDocument::loadDocument(const std::string filename){
 }
 
 bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
+  TR_USE(ADV_DATA);
   std::string str = txtstream.readLine();
   int ver_major = atoi(str.substr(0, 1).c_str());
   int ver_minor = atoi(str.substr(2, 1).c_str());
@@ -104,7 +105,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     mSettings.resolution = Vec2i(800,600);
   }
   else
-    DebugBreak();
+    TR_BREAK("Unknown resolution");
   std::string font;
   do{
     font = txtstream.readLine();
@@ -120,7 +121,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   mSettings.tsbackground = txtstream.readLine();
   str = txtstream.readLine();
   if(str.substr(0,14) != "Startskript : ")
-    DebugBreak();
+    TR_BREAK("Invalid content %s", str.c_str());
   mSettings.startscript = str.substr(14);
   mSettings.mainscript = txtstream.readLine();
   mSettings.anywhere_room = txtstream.readLine();
@@ -595,6 +596,7 @@ bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
 }
 
 bool AdvDocument::loadFile4(CGE::MemReader& txtstream){
+  TR_USE(ADV_DATA);
   std::string language;
   Language::Section section;
   while (txtstream.isWorking()){
@@ -631,7 +633,7 @@ bool AdvDocument::loadFile4(CGE::MemReader& txtstream){
         section = Language::COMMANDS;
       }
       else{
-        DebugBreak();
+        TR_BREAK("Unknown section %s", sectionstr.c_str());
       }
       continue;
     }
@@ -665,13 +667,14 @@ bool AdvDocument::loadFile5(CGE::MemReader& txtstream){
 }
 
 CGE::Image* AdvDocument::getImage(const std::string& name){
+  TR_USE(ADV_DATA);
   std::string idxname = toLower(name);
   std::string filename;
   std::map<std::string,std::string>::iterator iter = mImageNames.find(idxname);
   if (iter != mImageNames.end())
     filename = iter->second;
   else{
-    DebugBreak();
+    TR_BREAK("Image %s not found", name.c_str());
   }
   if (mUseCompressedData){
     int namepos = filename.find_last_of('/');
@@ -954,7 +957,8 @@ Room* AdvDocument::getRoom(Object* obj){
         return &iter->second;
     }
   }
-  DebugBreak();
+  TR_USE(ADV_DATA)
+  TR_BREAK("Room not found");
   return NULL;
 }
 
@@ -980,7 +984,8 @@ Language::Section AdvDocument::getLanguageSection(const std::string& funcname, i
   else if (funcname == "row")
     return Language::TEXTSCENES;
   else{
-    DebugBreak();
+    TR_USE(ADV_DATA);
+    TR_BREAK("Unknown function %s", funcname.c_str());
   }
   return Language::NUM_SECTIONS;
 }

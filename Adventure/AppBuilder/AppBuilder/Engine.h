@@ -13,7 +13,7 @@
 namespace adv{
 
 #ifndef WIN32
-void DebugBreak();
+void TR_BREAK();
 int _stricmp(const char* str1, const char* str2);
 #endif
 

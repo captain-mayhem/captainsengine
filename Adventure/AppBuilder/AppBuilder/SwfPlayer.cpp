@@ -91,7 +91,8 @@ namespace swf{
       int32 ret = (int32)readUBits(howmany);
       if (ret & (1 << howmany)){
         //correct the sign
-        DebugBreak();
+        TR_USE(ADV_SWF);
+        TR_BREAK("Implement me - correct the sign");
       }
       return ret;
     }
@@ -170,8 +171,10 @@ namespace swf{
     Character(const CGE::Image& img){
       glGenTextures(1, &mTexture);
       glBindTexture(GL_TEXTURE_2D, mTexture);
-      if (img.getNumChannels() != 4)
-        DebugBreak();
+      if (img.getNumChannels() != 4){
+        TR_USE(ADV_SWF);
+        TR_BREAK("Implement me");
+      }
       glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.getWidth(), img.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getData());
     }
     ~Character(){
@@ -246,8 +249,10 @@ bool SwfPlayer::parseFile(){
   unsigned char signature[3];
   mReader->readBytes(signature, 3);
   if (signature[0] != 'F'){
-    if (signature[0] == 'C')
-      DebugBreak(); //compressed stream
+    if (signature[0] == 'C'){
+      TR_USE(ADV_SWF);
+      TR_BREAK("compressed stream - implement me"); //compressed stream
+    }
     return false;
   }
   if (signature[1] != 'W' || signature[2] != 'S')
@@ -322,10 +327,10 @@ bool SwfPlayer::processTags(){
           mReader->read(cta);
         }
         if (flags & 0x10){ //has ratio
-          DebugBreak();
+          TR_BREAK("has ratio");
         }
         if (flags & 0x20){ //has name
-          DebugBreak();
+          TR_BREAK("has name");
         }
         if (flags & 0x40){ //has clip depth
         }
@@ -358,7 +363,7 @@ bool SwfPlayer::processTags(){
           insertCharacter(charid, chr);
         }
         else
-          DebugBreak();
+          TR_BREAK("Unknown format %i", format);
         break;                              
       }
       default:
