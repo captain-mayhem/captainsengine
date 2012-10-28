@@ -184,7 +184,7 @@ RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : B
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE){
     TR_ERROR("Unable to create framebuffer - status %i", status);
-    //DebugBreak();
+    //TR_BREAK();
   }
   glBindFramebuffer(GL_FRAMEBUFFER, mOldFrameBuffer);
 }

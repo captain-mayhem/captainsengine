@@ -23,7 +23,7 @@ TR_CHANNEL(ADV_Events);
 
 namespace adv{
 #ifndef WIN32
-void DebugBreak(){
+void TR_BREAK(){
 __builtin_trap();
 }
 
@@ -933,8 +933,10 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
     delete deletionChar;
     return true;
   }
-  else
-    DebugBreak();
+  else{
+    TR_USE(ADV_Engine);
+    TR_BREAK("Character %s not found", charname.c_str());
+  }
   //mCharOutOfFocus = true;
   return false;
 }
@@ -1142,15 +1144,19 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
   }
   chr->setEndLookDir(dir);
   Character* ch = mData->getCharacter(getCharacterClass(chr->getName()));
-  if (!ch)
-    DebugBreak();
+  if (!ch){
+    TR_USE(ADV_Engine);
+    TR_BREAK("Character not found");
+  }
   mAnimator->add(chr, path, 10-ch->walkspeed);
 }
 
 Object2D* Engine::createItem(const std::string& name){
   Item* it = mData->getItem(name);
-  if (it == NULL)
-    DebugBreak();
+  if (it == NULL){
+    TR_USE(ADV_Engine);
+    TR_BREAK("Item %s not found", name.c_str());
+  }
   Object2D* object = new Object2D(1, Vec2i(), Vec2i(50,50), it->name);
   int depth = DEPTH_ITEM;
   for (unsigned j = 0; j < it->states.size(); ++j){
@@ -1227,7 +1233,7 @@ void Engine::clearGui(){
     ExecutionContext* ctx = obj->getScript();
     if (ctx){
       if (!ctx->getEvents().empty())
-        DebugBreak();
+        TR_BREAK();
     }*/
     delete (*iter);
   }

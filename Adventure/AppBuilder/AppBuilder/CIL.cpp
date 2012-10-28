@@ -3,6 +3,8 @@
 
 using namespace adv;
 
+TR_CHANNEL(ADV_CIL);
+
 unsigned CBNEEVT::execute(ExecutionContext& ctx, unsigned pc){
   //check if event is set
   if (ctx.isEventSet(mEvent)){
@@ -120,8 +122,10 @@ static std::string stackDataToStr(const StackData& sd){
     sprintf(tmp, "%i", sd.getInt());
     return tmp;
   }
-  else
-    DebugBreak();
+  else{
+    TR_USE(ADV_CIL);
+    TR_BREAK("Unsupported conversion");
+  }
   return "";
 }
 
@@ -154,6 +158,7 @@ void CCode::save(std::ostream& out){
 }
 
 CCode* CCode::load(std::istream& in){
+  TR_USE(ADV_CIL);
   Type t;
   int tmp;
   in >> tmp;
@@ -202,7 +207,7 @@ CCode* CCode::load(std::istream& in){
     case I2R:
       return new CI2R();
     default:
-      DebugBreak();
+      TR_BREAK("Input stream corrupted?");
   }
   return NULL;
 }

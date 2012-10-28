@@ -208,8 +208,10 @@ void SoundEngine::setEAXEffect(const std::string& effect){
     else if (effect == "psychotic"){
       efxReverb = REVERB_PRESET_PSYCHOTIC;
     }
-    else
-      DebugBreak();
+    else{
+      TR_USE(ADV_SOUND_ENGINE);
+      TR_BREAK("Unknown effect %s", effect.c_str());
+    }
     mCurrentEffect = effect;
     alEffectf(mEffect, AL_EAXREVERB_DENSITY, efxReverb.flDensity);
     alEffectf(mEffect, AL_EAXREVERB_DIFFUSION, efxReverb.flDiffusion);
@@ -686,7 +688,7 @@ static int64_t seekMemStream(void* opaque, int64_t offset, int whence){
     return offset;
   }
   else{
-    DebugBreak();
+    TR_BREAK("whence value (%i) unepected", whence);
   }
   return 0;
 }
@@ -764,7 +766,8 @@ bool StreamSoundPlayer::openStreamInternal(){
         }
       }
       else{
-        DebugBreak();
+        TR_USE(ADV_Sound_Player);
+        TR_BREAK("Sample format %i unexpected", mCodecContext->sample_fmt);
       }
       if (mPCMFormat == 0)
         continue;

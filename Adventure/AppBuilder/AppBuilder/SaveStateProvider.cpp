@@ -12,6 +12,8 @@ using namespace adv;
 
 namespace adv{
 
+TR_CHANNEL(ADV_SaveState);
+
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room){
   strm << room.base;
   strm << room.scrolloffset.x << " " << room.scrolloffset.y << std::endl;
@@ -398,7 +400,6 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::s
         return iter->second;
       for (std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.begin(); iter != saveroom->characters.end(); ++iter){
         if (_stricmp(iter->first.c_str(), name.c_str()) == 0)
-          DebugBreak();
           return iter->second;
       }
     }
@@ -426,6 +427,7 @@ SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& 
   std::map<std::string,SaveObject*>::iterator iter = saveroom->objects.find(obj->name);
   if (iter != saveroom->objects.end())
     return iter->second;
-  DebugBreak();
+  TR_USE(ADV_SaveState);
+  TR_BREAK("Object %s not found in %s", name.c_str(), room.c_str());
   return NULL;
 }

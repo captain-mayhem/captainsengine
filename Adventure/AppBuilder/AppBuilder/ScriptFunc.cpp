@@ -499,8 +499,10 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
   }
   else{
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
-    if (!cso)
-      DebugBreak();
+    if (!cso){
+      TR_USE(ADV_ScriptFunc);
+      TR_BREAK("Character %s not found", charname);
+    }
     cso->inventory.items[inventory].push_back(item->getName());
     delete item;
   }
@@ -567,8 +569,10 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
     else{
       std::string dummy;
       SaveStateProvider::CharSaveObject* chs = Engine::instance()->getSaver()->findCharacter(character, dummy, dummy);
-      if (!chs)
-        DebugBreak();
+      if (!chs){
+        TR_USE(ADV_ScriptFunc);
+        TR_BREAK("Character %s not found", character.c_str());
+      }
       chs->base.state = CharacterObject::calculateState(chs->base.state, false, false);
     }
   }
@@ -624,8 +628,10 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
   }
   else{
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
-    if (!cso)
-      DebugBreak();
+    if (!cso){
+      TR_USE(ADV_ScriptFunc);
+      TR_BREAK("Character %s not found", charname.c_str());
+    }
     bool deleted = false;
     for (std::vector<std::string>::iterator iter = cso->inventory.items[inventory].begin(); iter != cso->inventory.items[inventory].end(); ++iter){
       if (_stricmp(iter->c_str(), itemname.c_str()) == 0){
@@ -634,8 +640,10 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
         break;
       }
     }
-    if (!deleted)
-      DebugBreak();
+    if (!deleted){
+      TR_USE(ADV_ScriptFunc);
+      TR_BREAK("Unable to delete item %s from %s", itemname.c_str(), charname.c_str());
+    }
   }
   return 0;
 }
@@ -666,8 +674,10 @@ int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
   std::string pattern;
   if (numArgs >= 2){
     pattern = ctx.stack().pop().getString();
-    if (!pattern.empty())
-      DebugBreak();
+    if (!pattern.empty()){
+      TR_USE(ADV_ScriptFunc);
+      TR_BREAK("patterns in playMusic need to be implemented %s", pattern.c_str());
+    }
   }
   SoundPlayer* sp = SoundEngine::instance()->getMusic(music);
   if (sp){
@@ -830,7 +840,8 @@ int ScriptFunctions::instObj(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   int state = ctx.stack().pop().getInt();
   for (unsigned i = 2; i < numArgs; ++i){
-    DebugBreak(); //TODO state lists
+    TR_USE(ADV_ScriptFunc);
+    TR_BREAK("state lists - implement me"); //TODO state lists
     state = ctx.stack().pop().getInt();
   }
   Object2D* obj = Engine::instance()->getObject(objname, false);
@@ -867,8 +878,10 @@ int ScriptFunctions::setFont(ExecutionContext& ctx, unsigned numArgs){
     return 0;
   if (numArgs >= 2){
     CharacterObject* chr = Engine::instance()->getCharacter(ctx.stack().pop().getString());
-    if (!chr)
-      DebugBreak();
+    if (!chr){
+      TR_USE(ADV_ScriptFunc);
+      TR_BREAK("Character not found");
+    }
     chr->setFontID(fontid);
   }
   else{
@@ -894,8 +907,10 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
       screenchange = SC_BLEND;
     else if (name == "blendslow")
       screenchange = SC_BLEND_SLOW;
-    else
-      DebugBreak();
+    else{
+      TR_USE(ADV_ScriptFunc);
+      TR_BREAK("Unknown screenchange %s", name.c_str());
+    }
   }
   else{
     screenchange = (ScreenChange)data.getInt();
@@ -971,8 +986,9 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     state = data.getInt()+16;
   else{
     std::string statename = data.getString();
-    //TODO 
-    DebugBreak();
+    //TODO
+    TR_USE(ADV_ScriptFunc);
+    TR_BREAK("Implement me: names %s", statename.c_str());
   }
   CharacterObject* obj = Engine::instance()->getCharacter(chrname);
   int oldstate;
@@ -987,7 +1003,8 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     else{
       std::string statename = data.getString();
       //TODO
-      DebugBreak();
+      TR_USE(ADV_ScriptFunc);
+      TR_BREAK("Implement me: names %s", statename.c_str());
     }
     if (obj){
       obj->addNextState(state);
@@ -1211,6 +1228,7 @@ int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string name = ctx.stack().pop().getString();
   std::string dirname = ctx.stack().pop().getString();
   LookDir dir = UNSPECIFIED;
@@ -1222,8 +1240,9 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
     dir = LEFT;
   else if (_stricmp(dirname.c_str(), "RIGHT") == 0)
     dir = RIGHT;
-  else
-    DebugBreak();
+  else{
+    TR_BREAK("Unknown direction %s", dirname.c_str());
+  }
   CharacterObject* chr = Engine::instance()->getCharacter(name);
   if (chr){
     int step = 3;
@@ -1253,7 +1272,7 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
     //  chr->setScale(ro->getDepthScale(pos));
   }
   else{
-    DebugBreak();
+    TR_BREAK("Character %s not found", name.c_str());
   }
   return 0;
 }
@@ -1301,7 +1320,7 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
   if (speed < 1000)
     speed = 11-speed;
   else
-    DebugBreak();
+    TR_BREAK("Unhandled speed value");
   if (hold){
     ctx.suspend(0, NULL/*new PositionSuspender(obj, newpos)*/);
     obj->setSuspensionScript(&ctx);
@@ -1362,6 +1381,7 @@ int ScriptFunctions::stopParticles(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string scriptname = ctx.stack().pop().getString();
   ExecutionContext* func = Engine::instance()->getInterpreter()->getScript(scriptname);
   int numExecutions = 1;
@@ -1373,16 +1393,16 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
       if (txt == "inf")
         loop = true;
       else
-        DebugBreak();
+        TR_BREAK("Unhandled repeat %s", txt.c_str());
       Engine::instance()->getInterpreter()->execute(func, !loop);
     }
     else{
       numExecutions = atoi(d.getString().c_str());
-      DebugBreak();
+      TR_BREAK("Check this");
     }
   }
   else
-    DebugBreak();
+    TR_BREAK("Is this possible?");
   return 0;
 }
 
@@ -1414,8 +1434,10 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
     ExecutionContext* text = ctx.stack().pop().getEC();
     //get and init the variable
     CCode* code = text->getCode()->get(text->getCode()->numInstructions()-2);
-    if (code->getType() != CCode::LOAD)
-      DebugBreak();
+    if (code->getType() != CCode::LOAD){
+      TR_USE(ADV_ScriptFunc);
+      TR_BREAK("Something's wrong");
+    }
     else{
       CLOAD* load = (CLOAD*)code;
       varname = load->getVarname();
@@ -1483,14 +1505,18 @@ int ScriptFunctions::setEAX(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   int textnum = ctx.stack().pop().getInt();
   std::string room = ctx.stack().pop().getString();
-  if (room == "any")
-    DebugBreak();
-  else if (room == "taskbar")
-    DebugBreak();
-  else if (room == "menu")
-    DebugBreak();
+  if (room == "any"){
+    TR_BREAK("Implement me");
+  }
+  else if (room == "taskbar"){
+    TR_BREAK("Implement me");
+  }
+  else if (room == "menu"){
+    TR_BREAK("Implement me");
+  }
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setRoom(room);
   return 0;
@@ -1542,6 +1568,7 @@ int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string speed = ctx.stack().pop().getString();
   int numspeed = 100;
   if (speed == "slow")
@@ -1551,7 +1578,7 @@ int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
   else if (speed == "fast")
     numspeed = 90;
   else
-    DebugBreak();
+    TR_BREAK("Unhandled speed %s", speed.c_str());
   Engine::instance()->getInterpreter()->setTextSpeed(numspeed);
   return 0;
 }
@@ -1565,7 +1592,7 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
   pos = pos * -Engine::instance()->getWalkGridSize();
   bool dontscroll = ctx.stack().pop().getBool();
   if (numArgs > 4)
-    DebugBreak();
+    TR_BREAK("Implement me");
   //std::string dir = ctx.stack().pop().getString();
   RoomObject* room = Engine::instance()->getRoom(roomname);
   if (room){
@@ -1586,8 +1613,9 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::miniCut(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   if (numArgs > 0)
-    DebugBreak();
+    TR_BREAK("Implement me");
   Engine::instance()->getInterpreter()->mGlobalSuspend = true;
   return 0;
 }
@@ -1605,6 +1633,7 @@ int ScriptFunctions::breakExec(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::particleView(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   StackData view = ctx.stack().pop();
   int viewnum = 0;
   if (view.isString()){
@@ -1614,7 +1643,7 @@ int ScriptFunctions::particleView(ExecutionContext& ctx, unsigned numArgs){
     else if (val == "back")
       viewnum = 4;
     else
-      DebugBreak();
+      TR_BREAK("Unhandled view %s", val.c_str());
   }
   else
     viewnum = view.getInt();
@@ -1633,7 +1662,7 @@ int ScriptFunctions::particleView(ExecutionContext& ctx, unsigned numArgs){
       depth = DEPTH_PARTICLES_BACK;
       break;
     default:
-      DebugBreak();
+      TR_BREAK("Unhandled depth %i", depth);
       break;
   }
   Engine::instance()->getParticleEngine()->setDepth(depth);
@@ -1776,39 +1805,44 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
     int strength = ctx.stack().pop().getInt();
     ef->activate(false, strength/500.0f);
   }
-  else
-    DebugBreak();
+  else{
+    TR_USE(ADV_ScriptFunc);
+    TR_BREAK("Unknown effect %s", effect.c_str());
+  }
   return 0;
 }
 
 int ScriptFunctions::linkChar(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string character = ctx.stack().pop().getString();
   std::string object = ctx.stack().pop().getString();
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (!chr)
-    DebugBreak();
+    TR_BREAK("Unknown character %s", character.c_str());
   Object2D* obj = Engine::instance()->getObject(object, false);
   if (!obj)
-    DebugBreak();
+    TR_BREAK("Unknown object %s", object.c_str());
   chr->setLinkObject(obj);
   return 0;
 }
 
 int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string character = ctx.stack().pop().getString();
   bool stopzooming = ctx.stack().pop().getBool();
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (!chr)
-    DebugBreak();
+    TR_BREAK("Unknown character %s", character.c_str());
   chr->setNoZooming(stopzooming, stopzooming && ctx.isSkipping());
   return 0;
 }
 
 int ScriptFunctions::unlinkChar(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string character = ctx.stack().pop().getString();
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (!chr)
-    DebugBreak();
+    TR_BREAK("Unknown character %s", character.c_str());
   chr->setLinkObject(NULL);
   return 0;
 }
@@ -1866,13 +1900,14 @@ int ScriptFunctions::showMouse(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string charname = ctx.stack().pop().getString();
   int size = ctx.stack().pop().getInt();
   bool fade = false;
   if (numArgs >= 3){
     std::string fadestr = ctx.stack().pop().getString();
     if (fadestr != "fade")
-      DebugBreak();
+      TR_BREAK("fade is %s", fadestr.c_str());
     fade = true;
   }
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
@@ -1911,9 +1946,10 @@ int ScriptFunctions::hideAllTexts(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::enableMouse(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   bool enable = ctx.stack().pop().getBool();
   if (!enable)
-    DebugBreak();
+    TR_BREAK("Implement me");
   return 0;
 }
 
@@ -1951,12 +1987,13 @@ int ScriptFunctions::setRectWalkmap(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::exchange(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string char1 = ctx.stack().pop().getString();
   std::string char2 = ctx.stack().pop().getString();
   CharacterObject* c1 = Engine::instance()->getCharacter(char1);
   CharacterObject* c2 = Engine::instance()->getCharacter(char2);
   if (c1 == NULL || c2 == NULL)
-    DebugBreak();
+    TR_BREAK("Character %s or %s is unknown", char1.c_str(), char2.c_str());
   Inventory* inv = c1->getInventory();
   c1->setInventory(c2->getInventory());
   c2->setInventory(inv);
@@ -1980,6 +2017,7 @@ int ScriptFunctions::isBoolEqual(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string objname = ctx.stack().pop().getString();
   int checkstate = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
@@ -1990,7 +2028,7 @@ int ScriptFunctions::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
     std::string room;
     SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, room);
     if (!so)
-      DebugBreak();
+      TR_BREAK("Unknown object %s", objname.c_str());
     ctx.stack().push(so->state);
   }
   ctx.stack().push(checkstate);
@@ -2066,8 +2104,9 @@ int ScriptFunctions::isCharTriggering(ExecutionContext& ctx, unsigned numArgs){
       ctx.stack().push(1);
   }
   else{
+    TR_USE(ADV_ScriptFunc);
     ctx.stack().push(2);
-    DebugBreak();
+    TR_BREAK("Room not found");
   }
   return 2;
 }
@@ -2127,6 +2166,7 @@ int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArg
 }
 
 int ScriptFunctions::isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   StackData sd = ctx.stack().pop();
   std::string key = sd.getString();
   if (key.empty()){
@@ -2137,7 +2177,7 @@ int ScriptFunctions::isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs){
   }
   std::map<std::string,int>::iterator iter = Engine::instance()->getInterpreter()->mKeymap.find(key);
   if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
-    DebugBreak();
+    TR_BREAK("Unknown key %s", key.c_str());
   int keycode = iter->second;
   ctx.stack().push(0);
   if (Engine::instance()->isKeyDown(keycode))
@@ -2148,10 +2188,11 @@ int ScriptFunctions::isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string key = ctx.stack().pop().getString();
   std::map<std::string,int>::iterator iter = Engine::instance()->getInterpreter()->mKeymap.find(key);
   if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
-    DebugBreak();
+    TR_BREAK("Unknown key %s", key.c_str());
   int keycode = iter->second;
   ctx.stack().push(0);
   if (Engine::instance()->isKeyPressed(keycode))
@@ -2183,6 +2224,7 @@ int ScriptFunctions::isCurrentRoom(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string dir = ctx.stack().pop().getString();
   ctx.stack().push(0);
   int delta = Engine::instance()->getMouseWheelDelta();
@@ -2203,11 +2245,12 @@ int ScriptFunctions::isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs){
       ctx.stack().push(1);
   }
   else
-    DebugBreak();
+    TR_BREAK("Unknown direction %s", dir.c_str());
   return 2;
 }
 
 int ScriptFunctions::isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string objname = ctx.stack().pop().getString();
   int xpos = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
@@ -2215,7 +2258,7 @@ int ScriptFunctions::isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs){
     std::string dummy;
     SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
     if (so == NULL)
-      DebugBreak();
+      TR_BREAK("Unknown object %s", objname.c_str());
     ctx.stack().push(so->position.x);
   }
   else
@@ -2225,6 +2268,7 @@ int ScriptFunctions::isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
   std::string objname = ctx.stack().pop().getString();
   int ypos = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
@@ -2232,7 +2276,7 @@ int ScriptFunctions::isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs){
     std::string dummy;
     SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
     if (so == NULL)
-      DebugBreak();
+      TR_BREAK("Unknown object %s", objname.c_str());
     ctx.stack().push(so->position.y);
   }
   else

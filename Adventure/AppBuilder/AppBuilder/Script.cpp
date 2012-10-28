@@ -151,6 +151,7 @@ recoverFromMismatchedToken  (pANTLR3_BASE_RECOGNIZER recognizer, ANTLR3_UINT32 t
 }
 
 std::string PcdkScript::internal_stringify(ASTNode* node){
+  TR_USE(ADV_Script);
   std::string ret;
   switch(node->getType())
   {
@@ -167,7 +168,7 @@ std::string PcdkScript::internal_stringify(ASTNode* node){
         //do nothing
       }
       else{
-        DebugBreak();
+        TR_BREAK("Unhandled type");
       }
       ret += internal_stringify(rel->child());
     }
@@ -197,7 +198,7 @@ std::string PcdkScript::internal_stringify(ASTNode* node){
     }
     break;
   default:
-    DebugBreak();
+    TR_BREAK("Unknown node type");
   }
   return ret;
 }
@@ -326,19 +327,19 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           else if (node->getType() == ASTNode::RELATIONAL){
             RelationalNode* rel = static_cast<RelationalNode*>(node);
             if (rel->type() != RelationalNode::REL_EQUAL)
-              DebugBreak();
+              TR_BREAK();
             if (rel->child()->getType() != ASTNode::VARIABLE)
-              DebugBreak();
+              TR_BREAK();
             VariableNode* var = static_cast<VariableNode*>(rel->child());
             StackData s = getVariable(var->name());
             mObjectInfo = s.getString();
           }
           else if (node->getType() == ASTNode::CONCATENATION){
             ConcatenationNode* concat = static_cast<ConcatenationNode*>(node);
-            DebugBreak();
+            TR_BREAK();
           }
           else{
-            DebugBreak();
+            TR_BREAK();
           }*/
           mObjectInfo = internal_stringify(node);
           nl->reset(true);
@@ -349,7 +350,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         ScriptFunc f = mFunctions[fc->getName()];
         if (f == NULL){
           f = ScriptFunctions::dummy;
-          DebugBreak();
+          TR_BREAK("script function %s does not exist", fc->getName().c_str());
         }
         std::map<std::string,int>::iterator sepiter = mArgEC.find(fc->getName());
         if (sepiter != mArgEC.end())
@@ -426,7 +427,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         ScriptFunc f = mFunctions[cond->getCondFuncName()];
         if(f == NULL){
           f = ScriptFunctions::dummy;
-          DebugBreak();
+          TR_BREAK("conditional script function %s does not exist", cond->getCondFuncName().c_str());
         }
         count += transform(cond->getArguments(), codes, ARGLIST);
         codes->addCode(new CCALL(f, cond->getCondFuncName(), cond->getArguments()->size()));
@@ -461,11 +462,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
               break;
             }
             else
-              DebugBreak();
+              TR_BREAK("special handling needed");
           }
           std::map<int, std::string>::iterator argiter = funciter->second.find(mCurrArg);
           if (argiter == funciter->second.end())
-            DebugBreak();
+            TR_BREAK("Unknown argument");
           std::string prefix = argiter->second;
           CLOAD* ld = new CLOAD(prefix);
           codes->addCode(ld);
@@ -476,7 +477,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           else if (relnode->type() == RelationalNode::REL_MINUS)
             codes->addCode(new CSUB());
           else
-            DebugBreak();
+            TR_BREAK("Unknown type");
           count += 1;
           mUnresolvedLoads.push_back(ld);
         }
@@ -531,7 +532,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         else if (arnode->type() == ArithmeticNode::AR_DIV)
           codes->addCode(new CDIV());
         else
-          DebugBreak();
+          TR_BREAK("Unknown type");
         count += 1;
       }
       break;
@@ -551,13 +552,12 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         else if (unari->type() == UnaryArithNode::UA_I2R)
           codes->addCode(new CI2R());
         else
-          DebugBreak();
+          TR_BREAK("Unknown type");
         count += 1;
       }
       break;
       default:
-        TR_ERROR("Unhandled AST-Type");
-        DebugBreak();
+        TR_BREAK("Unhandled AST-Type");
         break;
   }
   return count;
@@ -838,7 +838,8 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
       return static_cast<EngineEvent>(iter->second+EVT_USER_RANGE);
     }
   }
-  DebugBreak();
+  TR_USE(ADV_Script);
+  TR_BREAK("Unknown event %s", eventname.c_str());
   return EVT_NONE;
 }
 
@@ -1077,6 +1078,7 @@ inline int getTime(TimeVal tv){
 #endif
 
 StackData PcdkScript::getVariable(const std::string& name){
+  TR_USE(ADV_Script);
   if (name.size() > 0 && name[0] == '_'){
     if (name.size() > 6 && name.substr(1, 6) == "volume"){
       return int(SoundEngine::instance()->getMusicVolume()*100);
@@ -1112,14 +1114,14 @@ StackData PcdkScript::getVariable(const std::string& name){
   else if (name == "currentroom"){
     RoomObject* room = Engine::instance()->getRoom("");
     if (!room)
-      DebugBreak();
+      TR_BREAK("Room not found");
     return room->getName();
   }
   else if (name == "roomx"){
-    DebugBreak();
+    TR_BREAK("Implement me");
   }
   else if (name == "roomy"){
-    DebugBreak();
+    TR_BREAK("Implement me");
   }
   else if (name == "charx"){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
@@ -1134,14 +1136,14 @@ StackData PcdkScript::getVariable(const std::string& name){
     return chr->getPosition().y;
   }
   else if (name == "charzoom"){
-    DebugBreak();
+    TR_BREAK("Implement me");
   }
   else if (name.size() > 5 && name.substr(0,5) == "char:"){
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(5));
     if (!chr){
       SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(name.substr(5));
       if (!cso)
-        DebugBreak();
+        TR_BREAK("Character %s not found", name.substr(5).c_str());
       return cso->base.state;
     }
     return chr->getState();
@@ -1152,9 +1154,8 @@ StackData PcdkScript::getVariable(const std::string& name){
       idx = 7;
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
     if (!chr)
-      DebugBreak();
+      TR_BREAK("Character %s not found", name.substr(idx).c_str());
     return chr->getPosition().x/(idx == 7 ? Engine::instance()->getWalkGridSize() : 1);
-    DebugBreak();
   }
   else if (name.size() > 6 && name.substr(0,6) == "chary:"){
     int idx = 6;
@@ -1162,25 +1163,25 @@ StackData PcdkScript::getVariable(const std::string& name){
       idx = 7;
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
     if (!chr)
-      DebugBreak();
+      TR_BREAK("Character %s not found", name.substr(idx).c_str());
     return chr->getPosition().y/(idx == 7 ? Engine::instance()->getWalkGridSize() : 1);
   }
   else if (name.size() > 9 && name.substr(0,9) == "charzoom:"){
-    DebugBreak();
+    TR_BREAK("Implement me");
   }
   else if (name.size() > 4 && name.substr(0,4) == "obj:"){
-    DebugBreak();
+    TR_BREAK("Implement me");
   }
   else if (name.size() > 5 && name.substr(0,5) == "objx:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
     if (obj == NULL)
-      DebugBreak();
+      TR_BREAK("Object %s not found", name.substr(5).c_str());
     return obj->getPosition().x;
   }
   else if (name.size() > 5 && name.substr(0,5) == "objy:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
     if (obj == NULL)
-      DebugBreak();
+      TR_BREAK("Object %s not found", name.substr(5).c_str());
     return obj->getPosition().y;
   }
   else if (name.size() > 8 && name.substr(0,8) == "tgtobjx:"){
@@ -1189,7 +1190,7 @@ StackData PcdkScript::getVariable(const std::string& name){
       std::string dummy;
       SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(name.substr(8), dummy);
       if (so == NULL)
-        DebugBreak();
+        TR_BREAK("Object %s not found", name.substr(8).c_str());
       return so->position.x;
     }
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).x;
@@ -1200,13 +1201,13 @@ StackData PcdkScript::getVariable(const std::string& name){
       std::string dummy;
       SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(name.substr(8), dummy);
       if (so == NULL)
-        DebugBreak();
+        TR_BREAK("Object %s not found", name.substr(8).c_str());
       return so->position.y;
     }
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).y;
   }
   else if (name == "actiontext"){
-    DebugBreak();
+    TR_BREAK("actiontext unimplemented");
   }
   else if (name == "empty"){
     return std::string();
@@ -1224,11 +1225,12 @@ StackData PcdkScript::getVariable(const std::string& name){
 }
 
 void PcdkScript::setVariable(const std::string& name, const StackData& value){
+  TR_USE(ADV_Script);
   if (name == "mousex"){
-    DebugBreak();
+    TR_BREAK("setting mousex is not allowed");
   }
   else if (name == "mousey"){
-    DebugBreak();
+    TR_BREAK("setting mousey is not allowed");
   }
   mVariables[name] = value;
 }

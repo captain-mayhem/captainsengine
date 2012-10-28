@@ -17,7 +17,7 @@ namespace CGE{
 namespace adv{
 
 #ifndef WIN32
-void DebugBreak();
+void TR_BREAK();
 #endif
 
 class SoundPlayer;
