@@ -27,6 +27,7 @@ D:\Projects\adventure\dark_mystery\bin\data\game.dat
 
 D:\pcdk\editor\functiondemo_adz\FunctionDemo\FunctionDemo.adv
 D:\Projects\adventure\dark_mystery\dark_mystery.adv
+D:\pcdk\tutorials\My First Adventure.adv
 
 Script-Bugs in Alühn
 --------------
