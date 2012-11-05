@@ -46,7 +46,7 @@ void Textout::render(){
   else
     text = sd.getString();
   std::vector<Vec2i> breakinfo;
-  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, mFont, breakinfo);
+  Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, mFont, breakinfo, Engine::instance()->getData()->getProjectSettings()->resolution.x);
   Engine::instance()->getFontRenderer()->render(mPos.x/*-(keepOnScreen ? ext.x/2 : 0)*/+pos.x,mPos.y+pos.y, text, 
       depth, mFont, breakinfo, mColor, 0, false);
 }

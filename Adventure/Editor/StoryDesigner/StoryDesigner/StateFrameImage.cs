@@ -87,13 +87,19 @@ namespace StoryDesigner
         void picbox_height_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 0xd)
+            {
                 picbox_height_Leave(sender, e);
+                e.Handled = true;
+            }
         }
 
         void picbox_width_KeyPress(object sender, KeyPressEventArgs e)
         {
             if (e.KeyChar == 0xd)
+            {
                 picbox_width_Leave(sender, e);
+                e.Handled = true;
+            }
         }
 
         void picbox_height_Leave(object sender, EventArgs e)
@@ -102,6 +108,9 @@ namespace StoryDesigner
             int height = Convert.ToInt32(tb.Text);
             PictureBoxSize = new Size(PictureBoxSize.Width, height);
             mData.setSize(mState, new Vec2i(PictureBoxSize.Width, height));
+            if (mData.getHotspot(mState).y > height)
+                mData.setHotspot(mState, new Vec2i(mData.getHotspot(mState).x, height));
+            pictureBox.Invalidate();
         }
 
         void pictureBox_MouseUp(object sender, MouseEventArgs e)
@@ -510,6 +519,9 @@ namespace StoryDesigner
             int width = Convert.ToInt32(tb.Text);
             PictureBoxSize = new Size(width, PictureBoxSize.Height);
             mData.setSize(mState, new Vec2i(width, PictureBoxSize.Height));
+            if (mData.getHotspot(mState).x > width)
+                mData.setHotspot(mState, new Vec2i(width, mData.getHotspot(mState).y));
+            pictureBox.Invalidate();
         }
 
         private void animation_Click(object sender, EventArgs e)

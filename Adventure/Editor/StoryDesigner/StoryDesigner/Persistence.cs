@@ -14,6 +14,9 @@ namespace StoryDesigner
     {
         public string LastOpenPath = "";
         public string ImageLoadPath = "";
+        public string MusicLoadPath = "";
+        public string SoundLoadPath = "";
+        public string VideoLoadPath = "";
         public bool FitImages = true;
         public bool CreateBackups = true;
         public Point MainFormPosition = new Point(0, 100);

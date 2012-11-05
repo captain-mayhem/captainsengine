@@ -105,8 +105,6 @@ void FontRenderer::String::setSuspensionScript(ExecutionContext* ctx){
 
 ////////////////////////////////////////
 
-static const int max_string_width = 300;
-
 FontRenderer::Font::Font(const FontData& data){
   mFontsize = data.fontsize;
   mNumChars = data.numChars;
@@ -157,7 +155,7 @@ FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string
   return str;
 }
 
-Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo){
+Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo, unsigned maxStringWidth){
   unsigned accu = 0;
   unsigned wordaccu = 0;
   unsigned max_line = 0;
@@ -166,7 +164,7 @@ Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec
     unsigned char charnum = ((unsigned char)text[i])-0x20;
     wordaccu += mCharwidths[charnum];
     if (text[i] == ' '){
-      if (accu + wordaccu > max_string_width){
+      if (accu + wordaccu > maxStringWidth){
         breakinfo.push_back(Vec2i(last_idx, accu));
         max_line = accu > max_line ? accu : max_line;
         accu = 0;
@@ -254,10 +252,10 @@ FontRenderer::String* FontRenderer::render(int x, int y, const std::string& text
   return mFonts[fontid]->render(x, y, text, depth, color, displayTime, breakinfo, keepOnScreen);
 }
 
-Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo){
+Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo, int maxStringWidth){
   if (mFonts[fontid] == NULL)
     return Vec2i(0, 0);
-  return mFonts[fontid]->getTextExtent(text, breakinfo);
+  return mFonts[fontid]->getTextExtent(text, breakinfo, maxStringWidth);
 }
 
 void FontRenderer::prepareBlit(unsigned interval){

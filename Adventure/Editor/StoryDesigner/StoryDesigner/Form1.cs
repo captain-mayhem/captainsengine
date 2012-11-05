@@ -332,28 +332,31 @@ namespace StoryDesigner
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp,*.tga;*.gif";
             fod.InitialDirectory = mPersistence.ImageLoadPath;
+            fod.Multiselect = true;
             if (fod.ShowDialog() == DialogResult.OK)
             {
-                string filename = fod.FileName;
-                string path = System.IO.Path.GetDirectoryName(filename);
+                string path = System.IO.Path.GetDirectoryName(fod.FileName);
                 mPersistence.ImageLoadPath = path;
-                string file = System.IO.Path.GetFileNameWithoutExtension(filename);
-                try
+                foreach (string filename in fod.FileNames)
                 {
-                    mData.Images.Add(file, filename);
+                    string file = System.IO.Path.GetFileNameWithoutExtension(filename);
+                    try
+                    {
+                        mData.Images.Add(file, filename);
+                    }
+                    catch (ArgumentException)
+                    {
+                        MessageBox.Show("Image with same name already added");
+                        return;
+                    }
+                    TreeNode parent;
+                    ResourceID res = determineTypeAndFolder(mediaPool, out parent);
+                    if (res != ResourceID.IMAGE)
+                        parent = mediaPool.Nodes[0];
+                    TreeNode newnode = new TreeNode(file);
+                    newnode.Tag = ResourceID.IMAGE;
+                    parent.Nodes.Add(newnode);
                 }
-                catch (ArgumentException)
-                {
-                    MessageBox.Show("Image with same name already added");
-                    return;
-                }
-                TreeNode parent;
-                ResourceID res = determineTypeAndFolder(mediaPool, out parent);
-                if (res != ResourceID.IMAGE)
-                    parent = mediaPool.Nodes[0];
-                TreeNode newnode = new TreeNode(file);
-                newnode.Tag = ResourceID.IMAGE;
-                parent.Nodes.Add(newnode);
             }
         }
 
@@ -645,27 +648,32 @@ namespace StoryDesigner
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Sound files|*.wav;*.ogg;*.mp3;*.mp2;*.mp1";
-            fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
+            fod.InitialDirectory = mPersistence.SoundLoadPath;
+            fod.Multiselect = true;
             if (fod.ShowDialog() == DialogResult.OK)
             {
-                string filename = fod.FileName;
-                string file = System.IO.Path.GetFileNameWithoutExtension(filename);
-                try
+                string path = System.IO.Path.GetDirectoryName(fod.FileName);
+                mPersistence.SoundLoadPath = path;
+                foreach (string filename in fod.FileNames)
                 {
-                    //mData.Add(file, filename);
+                    string file = System.IO.Path.GetFileNameWithoutExtension(filename);
+                    try
+                    {
+                        mData.Sounds.Add(file, filename);
+                    }
+                    catch (ArgumentException)
+                    {
+                        MessageBox.Show("Sound effect with same name already added");
+                        return;
+                    }
+                    TreeNode parent;
+                    ResourceID res = determineTypeAndFolder(mediaPool, out parent);
+                    if (res != ResourceID.SOUND)
+                        parent = mediaPool.Nodes[2];
+                    TreeNode newnode = new TreeNode(file);
+                    newnode.Tag = ResourceID.SOUND;
+                    parent.Nodes.Add(newnode);
                 }
-                catch (ArgumentException)
-                {
-                    MessageBox.Show("Sound effect with same name already added");
-                    return;
-                }
-                TreeNode parent;
-                ResourceID res = determineTypeAndFolder(mediaPool, out parent);
-                if (res != ResourceID.SOUND)
-                    parent = mediaPool.Nodes[2];
-                TreeNode newnode = new TreeNode(file);
-                newnode.Tag = ResourceID.SOUND;
-                parent.Nodes.Add(newnode);
             }
         }
 
@@ -673,27 +681,34 @@ namespace StoryDesigner
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Music files|*.wav;*.ogg;*.mp3;*.mp2;*.mp1;*.it;*.xm;*.mod;*.s3m;*.mo3;*.umx";
-            fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
+            fod.InitialDirectory = mPersistence.MusicLoadPath;
+            fod.Multiselect = true;
+
             if (fod.ShowDialog() == DialogResult.OK)
             {
-                string filename = fod.FileName;
-                string file = System.IO.Path.GetFileNameWithoutExtension(filename);
-                try
+                string path = System.IO.Path.GetDirectoryName(fod.FileName);
+                mPersistence.MusicLoadPath = path;
+
+                foreach (string filename in fod.FileNames)
                 {
-                    //mData.Add(file, filename);
+                    string file = System.IO.Path.GetFileNameWithoutExtension(filename);
+                    try
+                    {
+                        mData.Music.Add(file, filename);
+                    }
+                    catch (ArgumentException)
+                    {
+                        MessageBox.Show("Music with same name already added");
+                        return;
+                    }
+                    TreeNode parent;
+                    ResourceID res = determineTypeAndFolder(mediaPool, out parent);
+                    if (res != ResourceID.MUSIC)
+                        parent = mediaPool.Nodes[1];
+                    TreeNode newnode = new TreeNode(file);
+                    newnode.Tag = ResourceID.MUSIC;
+                    parent.Nodes.Add(newnode);
                 }
-                catch (ArgumentException)
-                {
-                    MessageBox.Show("Music with same name already added");
-                    return;
-                }
-                TreeNode parent;
-                ResourceID res = determineTypeAndFolder(mediaPool, out parent);
-                if (res != ResourceID.MUSIC)
-                    parent = mediaPool.Nodes[1];
-                TreeNode newnode = new TreeNode(file);
-                newnode.Tag = ResourceID.MUSIC;
-                parent.Nodes.Add(newnode);
             }
         }
 
@@ -701,27 +716,34 @@ namespace StoryDesigner
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Video files|*.avi;*.swf;*.mpeg;*.mpg;*.wmv";
-            fod.InitialDirectory = "D:\\pcdk\\Sinnlos im Weltraum - The First Adventure\\Sinnlos im Weltraum - The First Adventure\\data";
+            fod.InitialDirectory = mPersistence.VideoLoadPath;
+            fod.Multiselect = true;
+
             if (fod.ShowDialog() == DialogResult.OK)
             {
-                string filename = fod.FileName;
-                string file = System.IO.Path.GetFileNameWithoutExtension(filename);
-                try
+                string path = System.IO.Path.GetDirectoryName(fod.FileName);
+                mPersistence.VideoLoadPath = path;
+
+                foreach (string filename in fod.FileNames)
                 {
-                    //mData.Add(file, filename);
+                    string file = System.IO.Path.GetFileNameWithoutExtension(filename);
+                    try
+                    {
+                        mData.Videos.Add(file, filename);
+                    }
+                    catch (ArgumentException)
+                    {
+                        MessageBox.Show("Video with same name already added");
+                        return;
+                    }
+                    TreeNode parent;
+                    ResourceID res = determineTypeAndFolder(mediaPool, out parent);
+                    if (res != ResourceID.VIDEO)
+                        parent = mediaPool.Nodes[3];
+                    TreeNode newnode = new TreeNode(file);
+                    newnode.Tag = ResourceID.VIDEO;
+                    parent.Nodes.Add(newnode);
                 }
-                catch (ArgumentException)
-                {
-                    MessageBox.Show("Video with same name already added");
-                    return;
-                }
-                TreeNode parent;
-                ResourceID res = determineTypeAndFolder(mediaPool, out parent);
-                if (res != ResourceID.VIDEO)
-                    parent = mediaPool.Nodes[3];
-                TreeNode newnode = new TreeNode(file);
-                newnode.Tag = ResourceID.VIDEO;
-                parent.Nodes.Add(newnode);
             }
         }
 
