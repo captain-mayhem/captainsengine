@@ -27,7 +27,7 @@ namespace StoryDesigner
             return ret;
         }
 
-        public static void chooseColor(object sender)
+        public static Color chooseColor(object sender)
         {
             ColorDialog cd = new ColorDialog();
             if (cd.ShowDialog() == DialogResult.OK)
@@ -35,6 +35,7 @@ namespace StoryDesigner
                 Button btn = (Button)sender;
                 btn.BackColor = cd.Color;
             }
+            return ((Button)sender).BackColor;
         }
 
         public static void drawText(Graphics g, int x, int y, string text, Font font)

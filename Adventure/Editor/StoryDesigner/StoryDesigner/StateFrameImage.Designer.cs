@@ -28,6 +28,7 @@ namespace StoryDesigner
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -53,11 +54,15 @@ namespace StoryDesigner
             this.height_label = new System.Windows.Forms.Label();
             this.picbox_height = new System.Windows.Forms.TextBox();
             this.stateDropDown = new System.Windows.Forms.ComboBox();
+            this.copyMoveMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.moveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.framecontrol)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.fps)).BeginInit();
             this.lower_group.SuspendLayout();
             this.picturePanel.SuspendLayout();
+            this.copyMoveMenu.SuspendLayout();
             this.SuspendLayout();
             // 
             // button1
@@ -306,6 +311,28 @@ namespace StoryDesigner
             this.stateDropDown.Visible = false;
             this.stateDropDown.SelectedIndexChanged += new System.EventHandler(this.stateDropDown_SelectedIndexChanged);
             // 
+            // copyMoveMenu
+            // 
+            this.copyMoveMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.copyToolStripMenuItem,
+            this.moveToolStripMenuItem});
+            this.copyMoveMenu.Name = "copyMoveMenu";
+            this.copyMoveMenu.Size = new System.Drawing.Size(153, 70);
+            // 
+            // copyToolStripMenuItem
+            // 
+            this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.copyToolStripMenuItem.Text = "Copy";
+            this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
+            // 
+            // moveToolStripMenuItem
+            // 
+            this.moveToolStripMenuItem.Name = "moveToolStripMenuItem";
+            this.moveToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.moveToolStripMenuItem.Text = "Move";
+            this.moveToolStripMenuItem.Click += new System.EventHandler(this.moveToolStripMenuItem_Click);
+            // 
             // StateFrameImage
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -342,6 +369,7 @@ namespace StoryDesigner
             this.lower_group.ResumeLayout(false);
             this.lower_group.PerformLayout();
             this.picturePanel.ResumeLayout(false);
+            this.copyMoveMenu.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -374,5 +402,8 @@ namespace StoryDesigner
         private System.Windows.Forms.Label height_label;
         private System.Windows.Forms.TextBox picbox_height;
         private System.Windows.Forms.ComboBox stateDropDown;
+        private System.Windows.Forms.ContextMenuStrip copyMoveMenu;
+        private System.Windows.Forms.ToolStripMenuItem copyToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem moveToolStripMenuItem;
     }
 }
