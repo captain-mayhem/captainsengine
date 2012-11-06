@@ -53,6 +53,7 @@ namespace StoryDesigner
             this.pictureBox.MouseDown += new MouseEventHandler(pictureBox_MouseDown);
             this.pictureBox.MouseMove += new MouseEventHandler(pictureBox_MouseMove);
             this.pictureBox.MouseUp += new MouseEventHandler(pictureBox_MouseUp);
+            this.pictureBox.KeyDown += new KeyEventHandler(StateFrameImage_KeyDown);
             this.picbox_width.Leave += new EventHandler(picbox_width_Leave);
             this.picbox_width.KeyPress += new KeyPressEventHandler(picbox_width_KeyPress);
             this.picbox_height.Leave += new EventHandler(picbox_height_Leave);
@@ -66,6 +67,15 @@ namespace StoryDesigner
             this.framecontrol.MouseMove += new MouseEventHandler(framecontrol_MouseMove);
             this.framecontrol.DragOver += new DragEventHandler(framecontrol_DragOver);
             this.framecontrol.DragDrop += new DragEventHandler(framecontrol_DragDrop);
+        }
+
+        void StateFrameImage_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Delete && mSelectedPart != -1)
+            {
+                removeToolStripMenuItem_Click(null, null);
+                e.Handled = true;
+            }
         }
 
         void framecontrol_MouseMove(object sender, MouseEventArgs e)
@@ -202,6 +212,7 @@ namespace StoryDesigner
 
         void pictureBox_MouseDown(object sender, MouseEventArgs e)
         {
+            pictureBox.Focus();
             Vec2i center = mData.getHotspot(mState)*mHotspotScale;
             Vec2i mouse = new Vec2i(e.X, e.Y);
             if ((mouse - center).length() < 10)
@@ -227,6 +238,11 @@ namespace StoryDesigner
                         mPictureDragging = i + 1;
                         mSelectedPart = i;
                         pictureBox.Invalidate();
+                        if (e.Button == MouseButtons.Right)
+                        {
+                            Point p = pictureBox.PointToScreen(e.Location);
+                            removeMenu.Show(p);
+                        }
                         return;
                     }
                 }
@@ -248,6 +264,7 @@ namespace StoryDesigner
             Point p = pictureBox.PointToClient(new Point(e.X, e.Y));
             string[] frames = mData.getFrame(mState, mFrame);
             int part = 0;
+            bool keep_offset = false;
             if (frames != null && frames.Length < mFrameParts)
             {
                 part = frames.Length;
@@ -268,12 +285,14 @@ namespace StoryDesigner
                         if (p.Y >= offset.y && p.Y <= offset.y + bmp.Height)
                         {
                             part = i;
+                            keep_offset = true;
                         }
                     }
                 }
             }
             mData.setFramePart(mState, mFrame, part, name);
-            mData.setFramePartOffset(mState, mFrame, part, new Vec2i(p.X, p.Y));
+            if (!keep_offset)
+                mData.setFramePartOffset(mState, mFrame, part, new Vec2i(p.X, p.Y));
             this.framecontrol.Invalidate();
         }
 
@@ -465,6 +484,7 @@ namespace StoryDesigner
             PictureBox pb = (PictureBox)sender;
             int field = e.X / (pb.Size.Width / mFrames);
             mFrame = field;
+            mSelectedPart = -1;
             this.framecontrol.Invalidate();
         }
 
@@ -496,6 +516,7 @@ namespace StoryDesigner
             if (mState < 10)
                 mStateButtons[mState].BackColor = Color.Turquoise;
             mFrame = 0;
+            mSelectedPart = -1;
             updateStateValues(oldstate);
             this.framecontrol.Invalidate();
         }
@@ -602,6 +623,8 @@ namespace StoryDesigner
             {
                 mTimer.Stop();
                 animation.Text = "|>";
+                mFrame = 0;
+                pictureBox.Invalidate();
             }
             else
             {
@@ -644,6 +667,7 @@ namespace StoryDesigner
                 Vec2i offset = mData.getFramePartOffset(mState, mFromFrame, i);
                 mData.setFramePartOffset(mState, mToFrame, i, offset);
             }
+            mFrame = mToFrame;
             framecontrol.Invalidate();
         }
 
@@ -657,6 +681,13 @@ namespace StoryDesigner
                 mData.setFramePartOffset(mState, mToFrame, i, offset);
                 mData.setFramePart(mState, mFromFrame, i, null);
             }
+            mFrame = mToFrame;
+            framecontrol.Invalidate();
+        }
+
+        private void removeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mData.setFramePart(mState, mFrame, mSelectedPart, null);
             framecontrol.Invalidate();
         }
     }
