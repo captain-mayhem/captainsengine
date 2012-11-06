@@ -60,6 +60,66 @@ namespace StoryDesigner
             mTimer = new Timer();
             mTimer.Tick += new EventHandler(mTimer_Tick);
             this.stateDropDown.KeyDown += new KeyEventHandler(stateDropDown_KeyDown);
+            this.framecontrol.AllowDrop = true;
+            this.framecontrol.MouseDown += new MouseEventHandler(framecontrol_MouseDown);
+            this.framecontrol.MouseUp += new MouseEventHandler(framecontrol_MouseUp);
+            this.framecontrol.MouseMove += new MouseEventHandler(framecontrol_MouseMove);
+            this.framecontrol.DragOver += new DragEventHandler(framecontrol_DragOver);
+            this.framecontrol.DragDrop += new DragEventHandler(framecontrol_DragDrop);
+        }
+
+        void framecontrol_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (mMouseDown && e.Button == MouseButtons.Left)
+            {
+                mMouseDown = false;
+                PictureBox pb = (PictureBox)sender;
+                int field = e.X / (pb.Size.Width / mFrames);
+                pb.DoDragDrop(field, DragDropEffects.Copy);
+            }
+        }
+
+        void framecontrol_MouseUp(object sender, MouseEventArgs e)
+        {
+            mMouseDown = false;
+        }
+
+        void framecontrol_MouseDown(object sender, MouseEventArgs e)
+        {
+            mMouseDown = true;
+        }
+
+        void framecontrol_DragDrop(object sender, DragEventArgs e)
+        {
+            mFromFrame = (int)e.Data.GetData(typeof(int));
+            PictureBox pb = (PictureBox)sender;
+            Point p = pb.PointToClient(new Point(e.X, e.Y));
+            mToFrame = p.X / (pb.Size.Width / mFrames);
+            copyMoveMenu.Show(new Point(e.X, e.Y));
+        }
+
+        void framecontrol_DragOver(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(typeof(int)))
+                e.Effect = DragDropEffects.None;
+            else
+            {
+                PictureBox pb = (PictureBox)sender;
+                Point p = pb.PointToClient(new Point(e.X, e.Y));
+                int toFrame = p.X / (pb.Size.Width / mFrames);
+                string[] images = mData.getFrame(mState, toFrame);
+                if (images == null){
+                    e.Effect = DragDropEffects.Copy;
+                    return;
+                }
+                for (int i = images.Length-1; i >= 0; --i){
+                    if (images[i] != null){
+                        e.Effect = DragDropEffects.None;
+                        return;
+                    }
+                }
+                e.Effect = DragDropEffects.Copy;
+            }
         }
 
         void stateDropDown_KeyDown(object sender, KeyEventArgs e)
@@ -165,10 +225,14 @@ namespace StoryDesigner
                     {
                         mDraggingOffset = mouse - offset;
                         mPictureDragging = i + 1;
+                        mSelectedPart = i;
+                        pictureBox.Invalidate();
                         return;
                     }
                 }
             }
+            mSelectedPart = -1;
+            pictureBox.Invalidate();
         }
 
         void fps_ValueChanged(object sender, EventArgs e)
@@ -245,7 +309,11 @@ namespace StoryDesigner
                     imageNames.Text += pics[i] + " ";
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
                 Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
-                Pen pen = new Pen(Color.Red);
+                Pen pen;
+                if (i == mSelectedPart)
+                    pen = new Pen(Color.Yellow);
+                else
+                    pen = new Pen(Color.Red);
                 pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Custom;
                 pen.DashPattern = new float[] { 3, 3 };
                 pen.DashOffset = 3.0f;
@@ -451,6 +519,7 @@ namespace StoryDesigner
         private int mState = 0;
         private int mFrame = 0;
         private int mFrameParts = 1;
+        private int mSelectedPart = -1;
         private Button[] mStateButtons = new Button[10];
         private IStateFrameData mData;
         private Color mOrigColor;
@@ -462,6 +531,9 @@ namespace StoryDesigner
         private Timer mTimer;
         private bool mShowStateDropdown = false;
         private bool mEditStateText = false;
+        private bool mMouseDown = false;
+        private int mFromFrame = 0;
+        private int mToFrame = 0;
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -561,6 +633,31 @@ namespace StoryDesigner
             stateDropDown.DropDownStyle = ComboBoxStyle.Simple;
             mEditStateText = true;
             stateDropDown.Focus();
+        }
+
+        private void copyToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string[] from = mData.getFrame(mState, mFromFrame);
+            for (int i = 0; i < from.Length; ++i)
+            {
+                mData.setFramePart(mState, mToFrame, i, from[i]);
+                Vec2i offset = mData.getFramePartOffset(mState, mFromFrame, i);
+                mData.setFramePartOffset(mState, mToFrame, i, offset);
+            }
+            framecontrol.Invalidate();
+        }
+
+        private void moveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string[] from = mData.getFrame(mState, mFromFrame);
+            for (int i = 0; i < from.Length; ++i)
+            {
+                mData.setFramePart(mState, mToFrame, i, from[i]);
+                Vec2i offset = mData.getFramePartOffset(mState, mFromFrame, i);
+                mData.setFramePartOffset(mState, mToFrame, i, offset);
+                mData.setFramePart(mState, mFromFrame, i, null);
+            }
+            framecontrol.Invalidate();
         }
     }
 }

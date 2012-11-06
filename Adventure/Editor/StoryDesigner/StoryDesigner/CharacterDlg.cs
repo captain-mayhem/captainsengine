@@ -132,7 +132,7 @@ namespace StoryDesigner
 
         private void text_color_Click(object sender, EventArgs e)
         {
-            Utilities.chooseColor(sender);
+            mCharacter.TextColor = Utilities.convertColorInverse(Utilities.chooseColor(sender).ToArgb());
         }
 
         private void customize_Click(object sender, EventArgs e)
