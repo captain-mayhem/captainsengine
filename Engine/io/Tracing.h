@@ -30,6 +30,8 @@ public:
   void trace(int level, const char* function, const char* message, ...);
   bool isEnabled(int level);
 protected:
+  const char* mName;
+  int mLevel;
   unsigned mChannel;
 };
 
