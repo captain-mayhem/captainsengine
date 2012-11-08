@@ -33,7 +33,6 @@ void Script::initEnv(){
 
   if (luaL_loadfile(L, (Filesystem::getCwd()+"/engine.ini").c_str()) || lua_pcall(L,0,0,0)){
     TR_WARN("Cannot load engine.ini: %s", lua_tostring(L, -1));
-    EXIT();
 	}
 }
 

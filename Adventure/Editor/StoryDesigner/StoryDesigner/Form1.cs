@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using System.Diagnostics;
 
 namespace StoryDesigner
 {
@@ -406,25 +407,52 @@ namespace StoryDesigner
         }
 
         WaitForm m_wait;
+        string m_runtime_name;
 
         void showWhile(System.Threading.ThreadStart method)
         {
             Application.UseWaitCursor = true;
             m_wait = new WaitForm();
             m_wait.Show(this);
-            MethodInvoker callback = delegate { Application.UseWaitCursor = false; m_wait.Dispose(); };
+            MethodInvoker callback = delegate { 
+                Application.UseWaitCursor = false;
+                m_wait.Dispose();
+                DialogResult start = MessageBox.Show("Game was created under " + m_runtime_name + ".\n Start now?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (start == DialogResult.Yes)
+                {
+                    ProcessStartInfo info = new ProcessStartInfo(m_runtime_name);
+                    info.WorkingDirectory = Path.GetDirectoryName(m_runtime_name);
+                    Process.Start(info);
+                }
+
+            };
             AsyncCallback invoke = delegate { this.Invoke(callback); };
             method.BeginInvoke(invoke, null);
         }
 
         private void createGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            bool showSave = true;
+            if (mData.Settings.Directory.Length > 0)
+            {
+                DialogResult update = MessageBox.Show("Update previously created game?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (update == DialogResult.Yes)
+                    showSave = false;
+            }
             SaveFileDialog sod = new SaveFileDialog();
             sod.Filter = "Adventure game|*.exe";
             sod.FileName = mData.Settings.Projectname;
             sod.InitialDirectory = mData.Settings.Directory;
-            if (sod.ShowDialog() == DialogResult.OK)
+            bool create = !showSave;
+            if (showSave)
             {
+                create = sod.ShowDialog() == DialogResult.OK;
+            }
+            else
+                sod.FileName = Path.Combine(sod.InitialDirectory,sod.FileName)+".exe";
+            if (create)
+            {
+                m_runtime_name = sod.FileName;
                 showWhile(delegate
                 {
                     AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool);

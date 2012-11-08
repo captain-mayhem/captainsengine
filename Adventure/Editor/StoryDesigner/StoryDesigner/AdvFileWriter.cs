@@ -31,6 +31,7 @@ namespace StoryDesigner
         public void writeGame(string path)
         {
             string dir = Path.GetDirectoryName(path);
+            string name = Path.GetFileName(path);
             string datadir = dir + Path.DirectorySeparatorChar + "data";
             if (!Directory.Exists(datadir))
                 Directory.CreateDirectory(datadir);
@@ -41,6 +42,7 @@ namespace StoryDesigner
             packData(datadir, mData.Sounds, "sfx.dat");
             packData(datadir, mData.Music, "music.dat");
             packData(datadir, mData.Videos, "movie.dat");
+            writeRuntime(dir, name);
         }
 
         public void writeProjectFile(string path)
@@ -687,6 +689,36 @@ namespace StoryDesigner
 
             zos.Finish();
             fs.Close();
+        }
+
+        private void writeRuntime(string datadir, string runtimeName)
+        {
+            string path = Path.GetDirectoryName(Application.ExecutablePath);
+            FileStream engine = new FileStream(Path.Combine(path,"engine.dat"), FileMode.Open); ;
+            ZipInputStream zis = new ZipInputStream(engine);
+            ZipEntry entry = zis.GetNextEntry();
+            while (entry != null)
+            {
+                string name = entry.Name;
+                if (name == "Adventure.exe")
+                    name = runtimeName;
+                writeFile(zis, Path.Combine(datadir, name));
+                entry = zis.GetNextEntry();
+            }
+            zis.Close();
+        }
+
+        private void writeFile(Stream input, string outfile)
+        {
+            FileStream output = File.Create(outfile);
+            byte[] buf = new byte[8192];
+            while(true){
+                int read = input.Read(buf, 0, buf.Length);
+                if (read == 0)
+                    break;
+                output.Write(buf, 0, read);
+            }
+            output.Close();
         }
 
         protected AdvData mData;
