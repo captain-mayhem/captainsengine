@@ -875,6 +875,8 @@ namespace StoryDesigner
             }
             for (int i = 0; i < parts.Length; ++i)
             {
+                if (parts[i] == null)
+                    continue;
                 System.Drawing.Bitmap bmp = mData.getImage(parts[i]);
                 Vec2i offset = mData.getFramePartOffset(state - 1, 0, i);
                 g.DrawImage(bmp, position.x + offset.x, position.y + offset.y, bmp.Width, bmp.Height);

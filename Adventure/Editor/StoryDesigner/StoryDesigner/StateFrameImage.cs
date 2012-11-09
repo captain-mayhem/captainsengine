@@ -290,10 +290,33 @@ namespace StoryDesigner
                     }
                 }
             }
+            if (mAdaptFirstDrop && isFrameEmpty())
+            {
+                System.Drawing.Bitmap dropimg = mData.getImage(name);
+                picbox_width.Text = dropimg.Size.Width.ToString();
+                picbox_width_Leave(picbox_width, null);
+                picbox_height.Text = dropimg.Size.Height.ToString();
+                picbox_height_Leave(picbox_height, null);
+                p.X = 0;
+                p.Y = 0;
+            }
             mData.setFramePart(mState, mFrame, part, name);
             if (!keep_offset)
                 mData.setFramePartOffset(mState, mFrame, part, new Vec2i(p.X, p.Y));
             this.framecontrol.Invalidate();
+        }
+
+        private bool isFrameEmpty()
+        {
+            string[] frames = mData.getFrame(mState, mFrame);
+            if (frames == null)
+                return true;
+            foreach (string frame in frames)
+            {
+                if (frame != null)
+                    return false;
+            }
+            return true;
         }
 
         void picturePanel_DragOver(object sender, DragEventArgs e)
@@ -536,6 +559,12 @@ namespace StoryDesigner
                 StateChanged(this, new StateEventArgs(oldstate, mState));
         }
 
+        public bool AdaptFirstDrop
+        {
+            get { return mAdaptFirstDrop; }
+            set { mAdaptFirstDrop = value; }
+        }
+
         private int mFrames = 25;
         private int mState = 0;
         private int mFrame = 0;
@@ -555,6 +584,7 @@ namespace StoryDesigner
         private bool mMouseDown = false;
         private int mFromFrame = 0;
         private int mToFrame = 0;
+        private bool mAdaptFirstDrop = false;
 
         private void button1_Click(object sender, EventArgs e)
         {

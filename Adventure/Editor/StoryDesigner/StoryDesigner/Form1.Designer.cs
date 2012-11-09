@@ -93,6 +93,10 @@ namespace StoryDesigner
             this.englishToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deutschToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.hideAll = new System.Windows.Forms.Button();
+            this.showAll = new System.Windows.Forms.Button();
+            this.gp_newFolder = new System.Windows.Forms.Button();
+            this.gamepool_delete = new System.Windows.Forms.Button();
             this.gamepool_add = new System.Windows.Forms.Button();
             this.mediaPool = new System.Windows.Forms.TreeView();
             this.iconList = new System.Windows.Forms.ImageList(this.components);
@@ -561,6 +565,10 @@ namespace StoryDesigner
             // 
             this.panel1.AutoSize = true;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.hideAll);
+            this.panel1.Controls.Add(this.showAll);
+            this.panel1.Controls.Add(this.gp_newFolder);
+            this.panel1.Controls.Add(this.gamepool_delete);
             this.panel1.Controls.Add(this.gamepool_add);
             this.panel1.Controls.Add(this.mediaPool);
             this.panel1.Controls.Add(this.gamePool);
@@ -569,6 +577,44 @@ namespace StoryDesigner
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(343, 538);
             this.panel1.TabIndex = 1;
+            // 
+            // hideAll
+            // 
+            this.hideAll.Location = new System.Drawing.Point(131, 262);
+            this.hideAll.Name = "hideAll";
+            this.hideAll.Size = new System.Drawing.Size(26, 23);
+            this.hideAll.TabIndex = 6;
+            this.hideAll.Text = "|--|";
+            this.hideAll.UseVisualStyleBackColor = true;
+            this.hideAll.Click += new System.EventHandler(this.hideAll_Click);
+            // 
+            // showAll
+            // 
+            this.showAll.Location = new System.Drawing.Point(99, 262);
+            this.showAll.Name = "showAll";
+            this.showAll.Size = new System.Drawing.Size(26, 23);
+            this.showAll.TabIndex = 5;
+            this.showAll.Text = "|+|";
+            this.showAll.UseVisualStyleBackColor = true;
+            this.showAll.Click += new System.EventHandler(this.button3_Click);
+            // 
+            // gp_newFolder
+            // 
+            this.gp_newFolder.Location = new System.Drawing.Point(67, 262);
+            this.gp_newFolder.Name = "gp_newFolder";
+            this.gp_newFolder.Size = new System.Drawing.Size(26, 23);
+            this.gp_newFolder.TabIndex = 4;
+            this.gp_newFolder.Text = "N";
+            this.gp_newFolder.UseVisualStyleBackColor = true;
+            // 
+            // gamepool_delete
+            // 
+            this.gamepool_delete.Location = new System.Drawing.Point(35, 262);
+            this.gamepool_delete.Name = "gamepool_delete";
+            this.gamepool_delete.Size = new System.Drawing.Size(26, 23);
+            this.gamepool_delete.TabIndex = 3;
+            this.gamepool_delete.Text = "-";
+            this.gamepool_delete.UseVisualStyleBackColor = true;
             // 
             // gamepool_add
             // 
@@ -726,6 +772,10 @@ namespace StoryDesigner
         private System.Windows.Forms.ToolStripMenuItem renameToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newSubdirectoryToolStripMenuItem;
         private System.Windows.Forms.ImageList iconList;
+        private System.Windows.Forms.Button gamepool_delete;
+        private System.Windows.Forms.Button hideAll;
+        private System.Windows.Forms.Button showAll;
+        private System.Windows.Forms.Button gp_newFolder;
     }
 }
 
