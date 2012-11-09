@@ -44,8 +44,10 @@ namespace StoryDesigner
             // 
             // stateFrameImage1
             // 
+            this.stateFrameImage1.AdaptFirstDrop = true;
             this.stateFrameImage1.AutoSize = true;
             this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.stateFrameImage1.BackgroundColor = System.Drawing.SystemColors.Desktop;
             this.stateFrameImage1.Data = null;
             this.stateFrameImage1.FrameParts = 2;
             this.stateFrameImage1.Frames = 30;

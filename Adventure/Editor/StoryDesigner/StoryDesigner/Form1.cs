@@ -158,6 +158,10 @@ namespace StoryDesigner
         {
             ResourceID id = (ResourceID)e.Node.Tag;
             string name = e.Node.Text.ToLower();
+            openResource(id, name);
+        }
+
+        private void openResource(ResourceID id, string name){
             bool sameResource = mLastID == id && mLastName == name;
             mLastName = name;
             mLastID = id;
@@ -576,6 +580,7 @@ namespace StoryDesigner
             parent.Nodes.Add(node);
             gamePool.Sort();
             gamePool.SelectedNode = node;
+            openResource(ResourceID.ITEM, it.Name);
             gamePool.LabelEdit = true;
             node.BeginEdit();
         }
@@ -593,6 +598,7 @@ namespace StoryDesigner
             parent.Nodes.Add(node);
             gamePool.Sort();
             gamePool.SelectedNode = node;
+            openResource(ResourceID.CHARACTER, chr.Name);
             gamePool.LabelEdit = true;
             node.BeginEdit();
         }
@@ -611,6 +617,7 @@ namespace StoryDesigner
             parent.Nodes.Add(node);
             gamePool.Sort();
             gamePool.SelectedNode = node;
+            openResource(ResourceID.SCRIPT, scr.Name);
             gamePool.LabelEdit = true;
             node.BeginEdit();
         }
@@ -628,6 +635,9 @@ namespace StoryDesigner
             parent.Nodes.Add(node);
             gamePool.Sort();
             gamePool.SelectedNode = node;
+            //open object window
+            openResource(ResourceID.OBJECT, obj.Name);
+            //edit name
             gamePool.LabelEdit = true;
             node.BeginEdit();
         }
@@ -645,6 +655,7 @@ namespace StoryDesigner
             parent.Nodes.Add(node);
             gamePool.Sort();
             gamePool.SelectedNode = node;
+            openResource(ResourceID.ROOM, rm.Name);
             gamePool.LabelEdit = true;
             node.BeginEdit();
         }
@@ -823,6 +834,16 @@ namespace StoryDesigner
             {
                 setRoomViewMode(RoomDlg.ViewMode.Objects);
             }
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            mSelectedView.ExpandAll();
+        }
+
+        private void hideAll_Click(object sender, EventArgs e)
+        {
+            mSelectedView.CollapseAll();
         }
     }
 }
