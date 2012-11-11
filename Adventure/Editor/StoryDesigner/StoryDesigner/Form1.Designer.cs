@@ -606,6 +606,7 @@ namespace StoryDesigner
             this.gp_newFolder.TabIndex = 4;
             this.gp_newFolder.Text = "N";
             this.gp_newFolder.UseVisualStyleBackColor = true;
+            this.gp_newFolder.Click += new System.EventHandler(this.gp_newFolder_Click);
             // 
             // gamepool_delete
             // 
@@ -615,6 +616,7 @@ namespace StoryDesigner
             this.gamepool_delete.TabIndex = 3;
             this.gamepool_delete.Text = "-";
             this.gamepool_delete.UseVisualStyleBackColor = true;
+            this.gamepool_delete.Click += new System.EventHandler(this.gamepool_delete_Click);
             // 
             // gamepool_add
             // 

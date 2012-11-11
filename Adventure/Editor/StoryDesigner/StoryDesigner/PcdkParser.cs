@@ -124,7 +124,7 @@ namespace StoryDesigner
             args[1] = new ArgDef("Textline", ArgType.String);
             addConditional("string", args);
             args = new ArgDef[2];
-            args[0] = new ArgDef("Bool Name", ArgType.Variable);
+            args[0] = new ArgDef("Bool Name", ArgType.PresetVariable);
             args[1] = new ArgDef("true/false", ArgType.Boolean);
             addConditional("bool", args);
             args = new ArgDef[1];
