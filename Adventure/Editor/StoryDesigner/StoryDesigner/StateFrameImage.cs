@@ -389,11 +389,9 @@ namespace StoryDesigner
                 lower_group.Location = new Point(lower_group.Location.X, Math.Max(171, lower_group.Location.Y+heightDiff));
                 int widthDiff = value.Width - picturePanel.Size.Width;
                 int leftxmove = 0;
-                if (height_label.Location.X - widthDiff / 2 < 0)
-                    leftxmove = - height_label.Location.X + widthDiff / 2;
-                //int addxsize = 0;
-                //if (animation.Location.X + animation.Size.Width + widthDiff / 2 + leftxmove < value.Width + leftxmove)
-                //    addxsize = -(animation.Location.X + animation.Size.Width + widthDiff / 2 + leftxmove) + (value.Width + leftxmove);
+                int val = height_label.Location.X - widthDiff / 2;
+                if (val < 0 || val > 10)
+                    leftxmove = - val;
                 
                 picturePanel.Location = new Point(picturePanel.Location.X - widthDiff / 2 + leftxmove, picturePanel.Location.Y);
                 picturePanel.ClientSize = value;
@@ -405,16 +403,6 @@ namespace StoryDesigner
                 picbox_height.Location = new Point(picbox_height.Location.X - widthDiff / 2 + leftxmove, picbox_height.Location.Y);
                 picbox_height.Text = value.Height.ToString();
                 picbox_width.Text = value.Width.ToString();
-                //int clientwidth = Math.Max(value.Width+331-50, 331);
-                //int clientheight = Math.Max(value.Height+296-50, 296);
-                //this.ClientSize = new Size(clientwidth, clientheight);
-                /*
-                if (value.Width+leftxmove > this.ClientSize.Width && value.Height > this.ClientSize.Height)
-                    this.ClientSize = new Size(value.Width+Math.Max(imageNames.Width, 40), value.Height);
-                else if (value.Width + leftxmove > this.ClientSize.Width)
-                    this.ClientSize = new Size(value.Width + leftxmove, this.ClientSize.Height);
-                else if (value.Height > this.ClientSize.Height)
-                    this.ClientSize = new Size(this.ClientSize.Width, value.Height);*/
             }
             get { return picturePanel.Size; }
         }

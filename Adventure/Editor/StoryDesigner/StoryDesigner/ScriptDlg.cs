@@ -17,6 +17,8 @@ namespace StoryDesigner
             mData = data;
             mScript = scr;
             InitializeComponent();
+            int[] tabs = { 20, 40, 60, 80, 100, 120, 140 };
+            scripttext.SelectionTabs = tabs;
             linenumberbox.Paint += new PaintEventHandler(linenumberbox_Paint);
             scripttext.VScroll += new EventHandler(scripttext_VScroll);
             scripttext.TextChanged += new EventHandler(scripttext_TextChanged);
@@ -138,11 +140,13 @@ namespace StoryDesigner
                 }
                 if (i == 0)
                     return;
+                LockWindowUpdate(scripttext.Handle);
                 scripttext.Select(scripttext.GetFirstCharIndexFromLine(line-1), i);
                 scripttext.Copy();
                 scripttext.SelectionStart = oldidx;
                 scripttext.SelectionLength = 0;
                 scripttext.Paste();
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
 
@@ -209,7 +213,7 @@ namespace StoryDesigner
 
         void parseLine(int line)
         {
-            if (mLayoutPerformed)
+            if (mLayoutPerformed || mParser == null)
                 return;
             mLayoutPerformed = true;
             LockWindowUpdate(scripttext.Handle);

@@ -845,5 +845,70 @@ namespace StoryDesigner
         {
             mSelectedView.CollapseAll();
         }
+
+        private void gp_newFolder_Click(object sender, EventArgs e)
+        {
+            newSubdirectoryToolStripMenuItem_Click(null, null);
+        }
+
+        private void gamepool_delete_Click(object sender, EventArgs e)
+        {
+            if (mSelectedView.SelectedNode.Parent == null)
+                return; //do not delete root folders
+            string entry = mSelectedView.SelectedNode.Text;
+            string text;
+            ResourceID res = (ResourceID)mSelectedView.SelectedNode.Tag;
+            if (res == ResourceID.FOLDER)
+                text = "Delete subdirectory " + entry + " and all its entries?";
+            else
+                text = "Delete " + entry + "?";
+            DialogResult result = MessageBox.Show(text, "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.Yes)
+            {
+                removeResource(mSelectedView.SelectedNode);
+                mSelectedView.SelectedNode.Remove();
+            }
+        }
+
+        private void removeResource(TreeNode node){
+            ResourceID res = (ResourceID)node.Tag;
+            string entry = node.Text;
+            switch (res)
+            {
+                case ResourceID.IMAGE:
+                    mData.Images.Remove(entry);
+                    break;
+                case ResourceID.SOUND:
+                    mData.Sounds.Remove(entry);
+                    break;
+                case ResourceID.MUSIC:
+                    mData.Music.Remove(entry);
+                    break;
+                case ResourceID.VIDEO:
+                    mData.Videos.Remove(entry);
+                    break;
+                case ResourceID.ITEM:
+                    mData.removeItem(entry);
+                    break;
+                case ResourceID.CHARACTER:
+                    mData.removeCharacter(entry);
+                    break;
+                case ResourceID.OBJECT:
+                    mData.removeObject(entry);
+                    break;
+                case ResourceID.ROOM:
+                    mData.removeRoom(entry);
+                    break;
+                case ResourceID.SCRIPT:
+                    mData.removeScript(Script.Type.CUTSCENE, entry);
+                    break;
+                case ResourceID.FOLDER:
+                    foreach (TreeNode child in node.Nodes)
+                    {
+                        removeResource(child);
+                    }
+                    break;
+            }
+        }
     }
 }
