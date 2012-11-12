@@ -51,6 +51,15 @@ namespace StoryDesigner
             mControl.StartPosition = FormStartPosition.Manual;
             mControl.Show(this);
             mControl.RedrawRoom += new RoomCtrlDlg.RedrawEventHandler(mControl_RedrawRoom);
+            mTimer = new Timer();
+            mTimer.Tick += new EventHandler(mTimer_Tick);
+            mTimer.Interval = 100;
+            mTimer.Start();
+        }
+
+        void mTimer_Tick(object sender, EventArgs e)
+        {
+            this.Invalidate();
         }
 
         void RoomDlg_KeyPress(object sender, KeyPressEventArgs e)
@@ -921,6 +930,7 @@ namespace StoryDesigner
         private RoomCtrlDlg mControl;
         private Vec2i mMousePos;
         private ViewMode mMode;
+        private Timer mTimer;
         //walkmap
         private string mPendingImage;
         private int mWalkmapPaintMode = 0;

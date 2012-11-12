@@ -34,6 +34,8 @@ namespace StoryDesigner
         {
             if (mRoomDlg != null)
                 mPersistence.RoomDlgPosition = mRoomDlg.Location;
+            if (mObjectDlg != null)
+                mPersistence.ObjectDlgPosition = mObjectDlg.Location;
             mPersistence.MainFormPosition = this.Location;
             mPersistence.save();
         }
@@ -179,15 +181,25 @@ namespace StoryDesigner
                     mItemDlg.Show(this);
                     break;
                 case ResourceID.OBJECT:
-                    if (mObjectDlg != null)
-                        mObjectDlg.Close();
                     AdvObject obj = mData.getObject(name);
                     if (obj == null)
                     {
                         MessageBox.Show("Cannot find object " + name);
                         return;
                     }
+                    if (mObjectDlg != null)
+                    {
+                        if (mObjectDlg.Object == obj && mObjectDlg.Visible)
+                        {
+                            mObjectDlg.Show();
+                            break;
+                        }
+                        mPersistence.ObjectDlgPosition = mObjectDlg.Location;
+                        mObjectDlg.Close();
+                    }
                     mObjectDlg = new ObjectDlg(obj);
+                    mObjectDlg.StartPosition = FormStartPosition.Manual;
+                    mObjectDlg.Location = mPersistence.ObjectDlgPosition;
                     mObjectDlg.Show(this);
                     break;
                 case ResourceID.CHARACTER:
@@ -217,6 +229,7 @@ namespace StoryDesigner
                             mRoomDlg.Show();
                             break;
                         }
+                        mPersistence.RoomDlgPosition = mRoomDlg.Location;
                         mRoomDlg.Close();
                     }
                     mRoomDlg = new RoomDlg(room, mData, mRoomView);

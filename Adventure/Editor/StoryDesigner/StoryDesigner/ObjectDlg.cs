@@ -32,6 +32,11 @@ namespace StoryDesigner
             this.lighten_object.Location = new Point(lighten_object.Location.X, height);
         }
 
+        public AdvObject Object
+        {
+            get { return mObject; }
+        }
+
         AdvObject mObject;
     }
 }
