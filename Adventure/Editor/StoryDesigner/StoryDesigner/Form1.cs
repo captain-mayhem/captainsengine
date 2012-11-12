@@ -129,24 +129,8 @@ namespace StoryDesigner
                 return;
             }
             pool.SelectedNode = node;
-            ResourceID id = (ResourceID)node.Tag;
-            if (id == ResourceID.IMAGE)
-            {
-                string name = node.Text;
-                pool.DoDragDrop(name, DragDropEffects.Copy);
-            }
-            else if (id == ResourceID.OBJECT)
-            {
-                string name = node.Text;
-                AdvObject obj = mData.getObject(name);
-                pool.DoDragDrop(obj, DragDropEffects.Copy);
-            }
-            else if (id == ResourceID.CHARACTER)
-            {
-                string name = node.Text;
-                AdvCharacter chr = mData.getCharacter(name);
-                pool.DoDragDrop(chr, DragDropEffects.Copy);
-            }
+            Resource res = new Resource(node);
+            pool.DoDragDrop(res, DragDropEffects.Copy);
         }
 
         public MainForm(string filename) : this()
@@ -176,6 +160,11 @@ namespace StoryDesigner
                     }
                     mImageViewer = new ImageViewer(bmp);
                     mImageViewer.Show(this);
+                    break;
+                case ResourceID.SOUND:
+                    string sound = mData.Sounds[name];
+                    MediaPlyr plyr = new MediaPlyr(sound);
+                    plyr.Show(this);
                     break;
                 case ResourceID.ITEM:
                     if (mItemDlg != null)

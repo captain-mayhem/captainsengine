@@ -65,9 +65,10 @@ namespace StoryDesigner
 
         void RoomDlg_DragDrop(object sender, DragEventArgs e)
         {
-            AdvObject obj = (AdvObject)e.Data.GetData(typeof(AdvObject));
-            if (obj != null)
+            Resource res = (Resource)e.Data.GetData(typeof(Resource));
+            if (res.ID == ResourceID.OBJECT)
             {
+                AdvObject obj = mData.getObject(res.Name);
                 ObjectInstance inst = new ObjectInstance(obj, mData);
                 Point p = PointToClient(new Point(e.X, e.Y));
                 p.X += mRoom.ScrollOffset.x;
@@ -90,9 +91,9 @@ namespace StoryDesigner
                 mRoom.Objects.Add(inst);
                 return;
             }
-            AdvCharacter chr = (AdvCharacter)e.Data.GetData(typeof(AdvCharacter));
-            if (chr != null)
+            else if (res.ID == ResourceID.CHARACTER)
             {
+                AdvCharacter chr = mData.getCharacter(res.Name);
                 CharacterInstance inst = new CharacterInstance(chr, mData);
                 Point p = PointToClient(new Point(e.X, e.Y));
                 inst.Name = chr.Name;
@@ -119,9 +120,9 @@ namespace StoryDesigner
                 mRoom.Characters.Add(inst);
                 return;
             }
-            string image = (string)e.Data.GetData(DataFormats.StringFormat);
-            if (image != null)
+            else if (res.ID == ResourceID.IMAGE)
             {
+                string image = res.Name;
                 mPendingImage = image;
                 menuAddBackground.Show(e.X, e.Y);
                 return;
@@ -130,11 +131,15 @@ namespace StoryDesigner
 
         void RoomDlg_DragOver(object sender, DragEventArgs e)
         {
-            if (mMode != ViewMode.Objects)
+            if (mMode != ViewMode.Objects || !e.Data.GetDataPresent(typeof(Resource)))
                 e.Effect = DragDropEffects.None;
             else
             {
-                e.Effect = DragDropEffects.Copy;
+                Resource res = (Resource)e.Data.GetData(typeof(Resource));
+                if (res.ID == ResourceID.IMAGE || res.ID == ResourceID.CHARACTER || res.ID == ResourceID.OBJECT)
+                    e.Effect = DragDropEffects.Copy;
+                else
+                    e.Effect = DragDropEffects.None;
             }
         }
 

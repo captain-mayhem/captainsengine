@@ -260,7 +260,8 @@ namespace StoryDesigner
 
         void picturePanel_DragDrop(object sender, DragEventArgs e)
         {
-            string name = (string)e.Data.GetData(DataFormats.StringFormat);
+            Resource res = (Resource)e.Data.GetData(typeof(Resource));
+            string name = res.Name;
             Point p = pictureBox.PointToClient(new Point(e.X, e.Y));
             string[] frames = mData.getFrame(mState, mFrame);
             int part = 0;
@@ -321,10 +322,16 @@ namespace StoryDesigner
 
         void picturePanel_DragOver(object sender, DragEventArgs e)
         {
-            if (!e.Data.GetDataPresent(DataFormats.StringFormat))
+            if (!e.Data.GetDataPresent(typeof(Resource)))
                 e.Effect = DragDropEffects.None;
             else
-                e.Effect = DragDropEffects.Copy;
+            {
+                Resource res = (Resource)e.Data.GetData(typeof(Resource));
+                if (res.ID != ResourceID.IMAGE)
+                    e.Effect = DragDropEffects.None;
+                else
+                    e.Effect = DragDropEffects.Copy;
+            }
         }
 
         void pictureBox_Paint(object sender, PaintEventArgs e)
