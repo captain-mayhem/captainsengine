@@ -291,7 +291,7 @@ namespace StoryDesigner
                     }
                 }
             }
-            if (mAdaptFirstDrop && isFrameEmpty())
+            if (mAdaptFirstDrop && isObjectEmpty())
             {
                 System.Drawing.Bitmap dropimg = mData.getImage(name);
                 picbox_width.Text = dropimg.Size.Width.ToString();
@@ -307,9 +307,22 @@ namespace StoryDesigner
             this.framecontrol.Invalidate();
         }
 
-        private bool isFrameEmpty()
+        private bool isObjectEmpty()
         {
-            string[] frames = mData.getFrame(mState, mFrame);
+            for (int i = 0; i < 10; ++i)
+            {
+                for (int j = 0; j < Frames; ++j)
+                {
+                    if (!isFrameEmpty(i, j))
+                        return false;
+                }
+            }
+            return true;
+        }
+
+        private bool isFrameEmpty(int state, int frameNum)
+        {
+            string[] frames = mData.getFrame(state, frameNum);
             if (frames == null)
                 return true;
             foreach (string frame in frames)
@@ -516,7 +529,7 @@ namespace StoryDesigner
                 Rectangle r = new Rectangle(i*(pb.Size.Width/mFrames+0), 0, pb.Size.Width / (mFrames + 0)-2, pb.Size.Height - 1);
                 if (i == mFrame)
                     e.Graphics.FillRectangle(b, r);
-                if (mData != null && mData.frameExists(mState, i))
+                if (mData != null && mData.frameExists(mState, i) && !isFrameEmpty(mState, i))
                 {
                     e.Graphics.DrawEllipse(p, r.X+r.Width/4+1, r.Y+r.Height/4, r.Width/2, r.Height/2);
                 }
