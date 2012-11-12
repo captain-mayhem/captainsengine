@@ -138,4 +138,26 @@ namespace StoryDesigner
             return 0;
         }
     }
+
+    class Resource
+    {
+        public Resource(TreeNode node)
+        {
+            mID = (ResourceID)node.Tag;
+            mName = node.Text;
+        }
+
+        public ResourceID ID
+        {
+            get { return mID; }
+        }
+
+        public string Name
+        {
+            get { return mName; }
+        }
+
+        private ResourceID mID;
+        private string mName;
+    }
 }
