@@ -292,20 +292,20 @@ namespace StoryDesigner
         {
             CharacterInstance chr = (CharacterInstance)mObject;
             MainForm form = (MainForm)this.Owner.Owner;
-            form.showScript(Script.Type.CHARACTER, chr.Name.ToLower());
+            form.showScript(Script.Type.CHARACTER, chr.Name);
         }
 
         private void obj_editscript_Click(object sender, EventArgs e)
         {
             ObjectInstance obj = (ObjectInstance)mObject;
             MainForm form = (MainForm)this.Owner.Owner;
-            form.showScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, mRoom.Name).ToLower());
+            form.showScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, mRoom.Name));
         }
 
         private void room_editscript_Click(object sender, EventArgs e)
         {
             MainForm form = (MainForm)this.Owner.Owner;
-            form.showScript(Script.Type.ROOM, mRoom.Name.ToLower());
+            form.showScript(Script.Type.ROOM, mRoom.Name);
         }
     }
 }

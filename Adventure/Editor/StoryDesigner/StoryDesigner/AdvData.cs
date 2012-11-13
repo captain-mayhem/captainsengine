@@ -891,9 +891,9 @@ namespace StoryDesigner
                 return false;
             return true;
         }
-        public void drawBoundary(Graphics g, int state, Vec2i position)
+        public void drawBoundary(Graphics g, int state, Vec2i position, Color bordercolor)
         {
-            Pen p = Pens.Red;
+            Pen p = new Pen(bordercolor);
             const int span = 4;
             g.DrawLine(p, position.x - 1, position.y - 1, position.x + span, position.y - 1);
             g.DrawLine(p, position.x - 1, position.y - 1, position.x - 1, position.y + span);
@@ -912,7 +912,7 @@ namespace StoryDesigner
 
     public abstract class DrawableObject : Drawable{
         public DrawableObject(IStateFrameData data) : base(data) { }
-        public abstract void draw(Graphics g, bool boundary);
+        public abstract void draw(Graphics g, bool boundary, Color bordercolor);
         public abstract bool isHit(Vec2i pos);
         public abstract Vec2i getPosition();
         public abstract void setPosition(Vec2i pos);
@@ -925,7 +925,7 @@ namespace StoryDesigner
         public CharacterInstance(AdvCharacter chr, AdvData data) : base(chr){
             Character = chr;
         }
-        public override void draw(Graphics g, bool boundary)
+        public override void draw(Graphics g, bool boundary, Color bordercolor)
         {
             int state = LookDir;
             if (LookDir == 4)
@@ -938,7 +938,7 @@ namespace StoryDesigner
                 bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
             g.DrawImage(bmp, RawPosition.x, RawPosition.y);
             if (boundary)
-                drawBoundary(g, state, RawPosition);
+                drawBoundary(g, state, RawPosition, bordercolor);
         }
         public override bool isHit(Vec2i pos)
         {
@@ -989,12 +989,12 @@ namespace StoryDesigner
             Object = obj;
             mAdvData = data;
         }
-        public override void draw(Graphics g, bool boundary)
+        public override void draw(Graphics g, bool boundary, Color bordercolor)
         {
             draw(g, State, Position);
             if (boundary)
             {
-                drawBoundary(g, State, Position);
+                drawBoundary(g, State, Position, bordercolor);
                 if (Layer == 1)
                 {
                     Utilities.drawDepthHandle(g, mAdvData, Position, Depth, Color.Blue);
