@@ -53,12 +53,15 @@ namespace StoryDesigner
             mControl.RedrawRoom += new RoomCtrlDlg.RedrawEventHandler(mControl_RedrawRoom);
             mTimer = new Timer();
             mTimer.Tick += new EventHandler(mTimer_Tick);
-            mTimer.Interval = 100;
+            mTimer.Interval = 50;
             mTimer.Start();
         }
 
         void mTimer_Tick(object sender, EventArgs e)
         {
+            ++mFramecount;
+            if (mFramecount >= 10)
+                mFramecount = 0;
             this.Invalidate();
         }
 
@@ -163,7 +166,7 @@ namespace StoryDesigner
             mRoom.Walkmap[wmx, wmy].hasScript = true;
             MainForm form = (MainForm)this.Owner;
             string scrname = Script.toScriptName(wmx, wmy, mRoom.Name, mData);
-            form.showScript(Script.Type.WALKMAP, scrname.ToLower());
+            form.showScript(Script.Type.WALKMAP, scrname);
         }
 
         void mControl_RedrawRoom(object sender, RoomCtrlDlg.RedrawEventArgs e)
@@ -568,9 +571,13 @@ namespace StoryDesigner
                 insetQueue(blitqueue, pair);
             }
 
+            Color bordercolor = Color.Red;
+            if (mFramecount < 5 || (mFramecount >= 10 && mFramecount < 15))
+                bordercolor = Color.Yellow;
             foreach (System.Collections.Generic.KeyValuePair<int,DrawableObject> pair in blitqueue)
             {
-                pair.Value.draw(e.Graphics, mMode == ViewMode.Objects);
+                bool isSelected = mControl.SelectedObject == pair.Value;
+                pair.Value.draw(e.Graphics, mMode == ViewMode.Objects, isSelected ? bordercolor : Color.Red);
             }
 
             //draw view specific stuff
@@ -837,7 +844,7 @@ namespace StoryDesigner
 
         private int getDepth(CharacterInstance chr)
         {
-            return chr.Position.y / mData.WalkGridSize;
+            return (chr.Position.y / mData.WalkGridSize)+1;
         }
 
         public ViewMode Viewmode
@@ -931,6 +938,8 @@ namespace StoryDesigner
         private Vec2i mMousePos;
         private ViewMode mMode;
         private Timer mTimer;
+        //objects
+        private int mFramecount;
         //walkmap
         private string mPendingImage;
         private int mWalkmapPaintMode = 0;
@@ -1020,7 +1029,7 @@ namespace StoryDesigner
             mRoom.Walkmap[pos.x, pos.y].hasScript = true;
             MainForm form = (MainForm)this.Owner;
             string scrname = Script.toScriptName(pos.x, pos.y, mRoom.Name, mData);
-            form.showScript(Script.Type.WALKMAP, scrname.ToLower());
+            form.showScript(Script.Type.WALKMAP, scrname);
         }
 
         private void copyWalkmapScriptToolStripMenuItem_Click(object sender, EventArgs e)

@@ -101,7 +101,7 @@ namespace StoryDesigner
         {
             if (mScriptDlg != null)
                 mScriptDlg.Close();
-            Script scr = mData.getScript(type, name);
+            Script scr = mData.getScript(type, name.ToLower());
             if (scr == null)
             {
                 scr = new Script(type);
