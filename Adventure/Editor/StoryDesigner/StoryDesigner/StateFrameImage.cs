@@ -301,6 +301,11 @@ namespace StoryDesigner
                 p.X = 0;
                 p.Y = 0;
             }
+            else if (mAdaptFirstDrop && isFrameEmpty(mState, mFrame))
+            {
+                p.X = 0;
+                p.Y = 0;
+            }
             mData.setFramePart(mState, mFrame, part, name);
             if (!keep_offset)
                 mData.setFramePartOffset(mState, mFrame, part, new Vec2i(p.X, p.Y));

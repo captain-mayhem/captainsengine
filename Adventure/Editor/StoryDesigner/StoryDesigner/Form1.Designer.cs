@@ -630,6 +630,7 @@ namespace StoryDesigner
             // 
             // mediaPool
             // 
+            this.mediaPool.AllowDrop = true;
             this.mediaPool.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.mediaPool.ImageIndex = 0;
             this.mediaPool.ImageList = this.iconList;
@@ -648,6 +649,7 @@ namespace StoryDesigner
             // 
             // gamePool
             // 
+            this.gamePool.AllowDrop = true;
             this.gamePool.Dock = System.Windows.Forms.DockStyle.Top;
             this.gamePool.ImageIndex = 0;
             this.gamePool.ImageList = this.iconList;

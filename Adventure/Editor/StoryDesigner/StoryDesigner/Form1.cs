@@ -21,13 +21,65 @@ namespace StoryDesigner
             mediaPool.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             mediaPool.MouseDown += new MouseEventHandler(mediaPool_MouseDown);
             mediaPool.AfterLabelEdit += new NodeLabelEditEventHandler(gamePool_AfterLabelEdit);
+            mediaPool.DragOver += new DragEventHandler(mediaPool_DragOver);
+            mediaPool.DragDrop += new DragEventHandler(mediaPool_DragDrop);
             gamePool.NodeMouseDoubleClick +=new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             gamePool.MouseDown +=new MouseEventHandler(mediaPool_MouseDown);
             gamePool.AfterLabelEdit += new NodeLabelEditEventHandler(gamePool_AfterLabelEdit);
+            gamePool.DragOver += new DragEventHandler(mediaPool_DragOver);
+            gamePool.DragDrop += new DragEventHandler(mediaPool_DragDrop);
             this.FormClosing += new FormClosingEventHandler(MainForm_FormClosing);
             newToolStripMenuItem_Click(null, null);
             mSelectedView = gamePool;
             mSelectedNode = gamePool.Nodes[0];
+        }
+
+        void mediaPool_DragDrop(object sender, DragEventArgs e)
+        {
+            Resource from = (Resource)e.Data.GetData(typeof(Resource));
+            TreeView view = (TreeView)sender;
+            Point p = view.PointToClient(new Point(e.X, e.Y));
+            TreeNode node = view.GetNodeAt(p.X, p.Y);
+            TreeNode toParent;
+            ResourceID toID = determineTypeAndFolder(view, node, out toParent, true);
+            from.Node.Remove();
+            toParent.Nodes.Add(from.Node);
+            view.Sort();
+            view.SelectedNode = from.Node;
+        }
+
+        void mediaPool_DragOver(object sender, DragEventArgs e)
+        {
+            if (!e.Data.GetDataPresent(typeof(Resource)))
+                e.Effect = DragDropEffects.None;
+            else
+            {
+                Resource from = (Resource)e.Data.GetData(typeof(Resource));
+                TreeView toview = (TreeView)sender;
+                Point p = toview.PointToClient(new Point(e.X, e.Y));
+                TreeNode node = toview.GetNodeAt(p.X, p.Y);
+                TreeNode fromParent;
+                ResourceID fromID = determineTypeAndFolder(from.Node.TreeView, from.Node, out fromParent, false);
+                TreeNode toParent;
+                ResourceID toID = determineTypeAndFolder(toview, node, out toParent, true);
+                if (fromID != toID || fromParent == toParent)
+                {
+                    e.Effect = DragDropEffects.None;
+                    return;
+                }
+                //check if to is under from
+                TreeNode curr = node;
+                while (curr != null)
+                {
+                    if (curr == from.Node)
+                    {
+                        e.Effect = DragDropEffects.None;
+                        return;
+                    }
+                    curr = curr.Parent;
+                }
+                e.Effect = DragDropEffects.Copy;
+            }
         }
 
         void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -526,11 +578,16 @@ namespace StoryDesigner
         private ResourceID determineTypeAndFolder(TreeView view, out TreeNode parent)
         {
             TreeNode node = view.SelectedNode;
+            return determineTypeAndFolder(view, node, out parent, true);
+        }
+
+        private ResourceID determineTypeAndFolder(TreeView view, TreeNode node, out TreeNode parent, bool folderIsParentHimself)
+        {
             if (node == null)
                 node = view.Nodes[0];
 
             parent = node;
-            if ((ResourceID)parent.Tag != ResourceID.FOLDER)
+            if ((ResourceID)parent.Tag != ResourceID.FOLDER || !folderIsParentHimself)
                 parent = node.Parent;
 
             while (node.Parent != null)

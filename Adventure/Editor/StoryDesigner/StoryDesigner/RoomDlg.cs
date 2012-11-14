@@ -101,6 +101,7 @@ namespace StoryDesigner
                 inst.Locked = false;
                 inst.setPosition(new Vec2i(p.X, p.Y));
                 mRoom.Objects.Add(inst);
+                mControl.SelectedObject = inst;
                 return;
             }
             else if (res.ID == ResourceID.CHARACTER)
@@ -130,6 +131,7 @@ namespace StoryDesigner
                     mData.CharacterInstances.Add(mRoom.Name.ToLower(), new System.Collections.ArrayList());
                 mData.CharacterInstances[mRoom.Name.ToLower()].Add(inst);
                 mRoom.Characters.Add(inst);
+                mControl.SelectedObject = inst;
                 return;
             }
             else if (res.ID == ResourceID.IMAGE)
@@ -787,7 +789,7 @@ namespace StoryDesigner
             bool found = false;
             while (iter != null)
             {
-                if (pair.Key <= iter.Value.Key)
+                if (pair.Key < iter.Value.Key)
                 {
                     blitqueue.AddBefore(iter, pair);
                     found = true;
@@ -844,7 +846,7 @@ namespace StoryDesigner
 
         private int getDepth(CharacterInstance chr)
         {
-            return (chr.Position.y / mData.WalkGridSize)+1;
+            return (chr.Position.y / mData.WalkGridSize);
         }
 
         public ViewMode Viewmode
