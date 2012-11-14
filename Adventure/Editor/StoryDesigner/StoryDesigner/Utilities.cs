@@ -143,21 +143,24 @@ namespace StoryDesigner
     {
         public Resource(TreeNode node)
         {
-            mID = (ResourceID)node.Tag;
-            mName = node.Text;
+            mNode = node;
         }
 
         public ResourceID ID
         {
-            get { return mID; }
+            get { return (ResourceID)mNode.Tag; }
         }
 
         public string Name
         {
-            get { return mName; }
+            get { return mNode.Text; }
         }
 
-        private ResourceID mID;
-        private string mName;
+        public TreeNode Node
+        {
+            get { return mNode; }
+        }
+
+        private TreeNode mNode;
     }
 }
