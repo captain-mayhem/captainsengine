@@ -174,6 +174,16 @@ namespace StoryDesigner
             mSelectedNode = node;
             if (e.Button == MouseButtons.Right)
             {
+                ResourceID resID = (ResourceID)node.Tag;
+                //Rename
+                menuPool.Items[0].Visible = node.Parent != null && (pool != mediaPool || resID == ResourceID.FOLDER);
+                //Duplicate
+                menuPool.Items[2].Visible = pool != mediaPool && resID != ResourceID.FOLDER;
+                //Delete
+                menuPool.Items[3].Visible = node.Parent != null;
+                //Export
+                menuPool.Items[4].Visible = resID == ResourceID.CHARACTER || resID == ResourceID.ROOM;
+                
                 menuPool.Show(pool, e.X, e.Y);
             }
             if (e.Clicks > 1)
@@ -968,6 +978,11 @@ namespace StoryDesigner
                     }
                     break;
             }
+        }
+
+        private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            gamepool_delete_Click(null, null);
         }
     }
 }
