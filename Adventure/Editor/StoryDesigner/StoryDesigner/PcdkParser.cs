@@ -740,7 +740,7 @@ namespace StoryDesigner
 
         public void parseLine(int line, RichTextBox scripttext)
         {
-            if (line < 0)
+            if (line < 0 || scripttext.Text.Length == 0)
                 return;
             string linetext = scripttext.Lines[line];
             if (linetext.Trim().Length == 0)

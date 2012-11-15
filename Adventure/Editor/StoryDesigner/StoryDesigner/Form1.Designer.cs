@@ -104,6 +104,9 @@ namespace StoryDesigner
             this.menuPool = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newSubdirectoryToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.duplicateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exportToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.menuPool.SuspendLayout();
@@ -631,7 +634,9 @@ namespace StoryDesigner
             // mediaPool
             // 
             this.mediaPool.AllowDrop = true;
-            this.mediaPool.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.mediaPool.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+                        | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.mediaPool.ImageIndex = 0;
             this.mediaPool.ImageList = this.iconList;
             this.mediaPool.Location = new System.Drawing.Point(0, 291);
@@ -650,7 +655,8 @@ namespace StoryDesigner
             // gamePool
             // 
             this.gamePool.AllowDrop = true;
-            this.gamePool.Dock = System.Windows.Forms.DockStyle.Top;
+            this.gamePool.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
             this.gamePool.ImageIndex = 0;
             this.gamePool.ImageList = this.iconList;
             this.gamePool.Location = new System.Drawing.Point(0, 0);
@@ -663,9 +669,12 @@ namespace StoryDesigner
             // 
             this.menuPool.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.renameToolStripMenuItem,
-            this.newSubdirectoryToolStripMenuItem});
+            this.newSubdirectoryToolStripMenuItem,
+            this.duplicateToolStripMenuItem,
+            this.deleteToolStripMenuItem,
+            this.exportToolStripMenuItem1});
             this.menuPool.Name = "menuPool";
-            this.menuPool.Size = new System.Drawing.Size(169, 48);
+            this.menuPool.Size = new System.Drawing.Size(153, 136);
             // 
             // renameToolStripMenuItem
             // 
@@ -677,9 +686,28 @@ namespace StoryDesigner
             // newSubdirectoryToolStripMenuItem
             // 
             this.newSubdirectoryToolStripMenuItem.Name = "newSubdirectoryToolStripMenuItem";
-            this.newSubdirectoryToolStripMenuItem.Size = new System.Drawing.Size(168, 22);
-            this.newSubdirectoryToolStripMenuItem.Text = "New Subdirectory";
+            this.newSubdirectoryToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newSubdirectoryToolStripMenuItem.Text = "New Subfolder";
             this.newSubdirectoryToolStripMenuItem.Click += new System.EventHandler(this.newSubdirectoryToolStripMenuItem_Click);
+            // 
+            // duplicateToolStripMenuItem
+            // 
+            this.duplicateToolStripMenuItem.Name = "duplicateToolStripMenuItem";
+            this.duplicateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.duplicateToolStripMenuItem.Text = "Duplicate";
+            // 
+            // deleteToolStripMenuItem
+            // 
+            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.deleteToolStripMenuItem.Text = "Delete";
+            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            // 
+            // exportToolStripMenuItem1
+            // 
+            this.exportToolStripMenuItem1.Name = "exportToolStripMenuItem1";
+            this.exportToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.exportToolStripMenuItem1.Text = "Export";
             // 
             // MainForm
             // 
@@ -780,6 +808,9 @@ namespace StoryDesigner
         private System.Windows.Forms.Button hideAll;
         private System.Windows.Forms.Button showAll;
         private System.Windows.Forms.Button gp_newFolder;
+        private System.Windows.Forms.ToolStripMenuItem duplicateToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem1;
     }
 }
 
