@@ -21,7 +21,8 @@ namespace StoryDesigner
         public bool CreateBackups = true;
         public Point MainFormPosition = new Point(0, 100);
         public Point RoomDlgPosition = new Point(250, 200);
-        public Point ObjectDlgPosition = new Point(300, 300);
+        public Point ObjectDlgPosition = new Point(300, 250);
+        public Point ScriptDlgPosition = new Point(250, 300);
         [XmlIgnore]
         public Color CharBackColor = Color.Black;
         [EditorBrowsable(EditorBrowsableState.Never), XmlElement("CharBackColor")]

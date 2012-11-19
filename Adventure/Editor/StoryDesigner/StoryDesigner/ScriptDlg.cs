@@ -28,38 +28,7 @@ namespace StoryDesigner
             matches.SelectedIndexChanged += new EventHandler(matches_SelectedIndexChanged);
             this.FormClosed += new FormClosedEventHandler(ScriptDlg_FormClosed);
             //scripttext
-            string text = scr.ScriptType.ToString();
-            switch (scr.ScriptType)
-            {
-                case Script.Type.CUTSCENE:
-                    text = "Script";
-                    break;
-                case Script.Type.ITEM:
-                    text = "Item";
-                    break;
-                case Script.Type.CHARACTER:
-                    text = "Character";
-                    break;
-                case Script.Type.ROOM:
-                    text = "Room";
-                    break;
-                case Script.Type.WALKMAP:
-                    text = "Walkmap";
-                    break;
-            }
-            string name = scr.Name;
-            if (name.Contains(";")){
-                name = name.Substring(0, name.IndexOf(';'));
-            }
-            if (scr.ScriptType == Script.Type.WALKMAP)
-            {
-                if (name.StartsWith("#"))
-                    Text = String.Format("Script ({0} [{1}-{2}] / {3})", name.Substring(7), Convert.ToInt32(name.Substring(1,3)), Convert.ToInt32(name.Substring(4, 3)), text);
-                else
-                    Text = String.Format("Script ({0} [{1}-{2}] / {3})", name.Substring(4), Convert.ToInt32(name.Substring(0, 2)), Convert.ToInt32(name.Substring(2, 2)), text);
-            }
-            else
-                this.Text = "Script (" + name + " / " + text + ")";
+            updateScript();
             scripttext.Text = scr.Text;
             //parsing stuff
             mParser = new PcdkParser();
@@ -89,6 +58,7 @@ namespace StoryDesigner
                 return;
             string value = matches.SelectedItem as string;
             matches.SelectedIndex = -1;
+            string old = Clipboard.GetText();
             Clipboard.SetText(value);
             int startidx = scripttext.SelectionStart-1;
             char ch = ' ';
@@ -117,6 +87,7 @@ namespace StoryDesigner
             scripttext.SelectionStart = startidx;
             scripttext.SelectionLength = stopidx-startidx;
             scripttext.Paste();
+            Clipboard.SetText(old);
             scripttext.Focus();
         }
 
@@ -142,10 +113,12 @@ namespace StoryDesigner
                     return;
                 LockWindowUpdate(scripttext.Handle);
                 scripttext.Select(scripttext.GetFirstCharIndexFromLine(line-1), i);
+                string old = Clipboard.GetText();
                 scripttext.Copy();
                 scripttext.SelectionStart = oldidx;
                 scripttext.SelectionLength = 0;
                 scripttext.Paste();
+                Clipboard.SetText(old);
                 LockWindowUpdate(IntPtr.Zero);
             }
         }
@@ -434,8 +407,10 @@ namespace StoryDesigner
             int line = scripttext.GetLineFromCharIndex(scripttext.SelectionStart);
             string indent = getIndent(line);
             string insert = "{\n"+indent+" \n"+indent+"}";
+            string old = Clipboard.GetText();
             Clipboard.SetText(insert);
             scripttext.Paste();
+            Clipboard.SetText(old);
         }
 
         string getIndent(int line)
@@ -462,9 +437,11 @@ namespace StoryDesigner
 
         void insertText(string text)
         {
+            string old = Clipboard.GetText();
             Clipboard.SetText(text);
             int numlines = text.Split('\n').Length-1;
             scripttext.Paste();
+            Clipboard.SetText(old);
             int line = scripttext.GetLineFromCharIndex(scripttext.SelectionStart);
             for (int i = line; i >= line - numlines; --i)
                 parseLine(i);
@@ -488,6 +465,49 @@ namespace StoryDesigner
         private void roomToolStripMenuItem_Click(object sender, EventArgs e)
         {
             insertText("on(enter){\n  \n}\n\non(loop1){\n  \n}\n\non(loop2){\n  \n}\n\non(exit){\n  \n}");
+        }
+
+        public Script Script
+        {
+            get { return mScript; }
+        }
+
+        public void updateScript()
+        {
+            Script scr = mScript;
+            string text = scr.ScriptType.ToString();
+            switch (scr.ScriptType)
+            {
+                case Script.Type.CUTSCENE:
+                    text = "Script";
+                    break;
+                case Script.Type.ITEM:
+                    text = "Item";
+                    break;
+                case Script.Type.CHARACTER:
+                    text = "Character";
+                    break;
+                case Script.Type.ROOM:
+                    text = "Room";
+                    break;
+                case Script.Type.WALKMAP:
+                    text = "Walkmap";
+                    break;
+            }
+            string name = scr.Name;
+            if (name.Contains(";"))
+            {
+                name = name.Substring(0, name.IndexOf(';'));
+            }
+            if (scr.ScriptType == Script.Type.WALKMAP)
+            {
+                if (name.StartsWith("#"))
+                    Text = String.Format("Script ({0} [{1}-{2}] / {3})", name.Substring(7), Convert.ToInt32(name.Substring(1, 3)), Convert.ToInt32(name.Substring(4, 3)), text);
+                else
+                    Text = String.Format("Script ({0} [{1}-{2}] / {3})", name.Substring(4), Convert.ToInt32(name.Substring(0, 2)), Convert.ToInt32(name.Substring(2, 2)), text);
+            }
+            else
+                this.Text = "Script (" + name + " / " + text + ")";
         }
 
         [DllImport("user32.dll")] // import lockwindow to remove flashing

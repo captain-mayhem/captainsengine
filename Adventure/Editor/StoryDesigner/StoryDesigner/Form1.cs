@@ -88,6 +88,8 @@ namespace StoryDesigner
                 mPersistence.RoomDlgPosition = mRoomDlg.Location;
             if (mObjectDlg != null)
                 mPersistence.ObjectDlgPosition = mObjectDlg.Location;
+            if (mScriptDlg != null)
+                mPersistence.ScriptDlgPosition = mScriptDlg.Location;
             mPersistence.MainFormPosition = this.Location;
             mPersistence.save();
         }
@@ -126,6 +128,8 @@ namespace StoryDesigner
                         Script scr = mData.removeScript(Script.Type.CUTSCENE, e.Node.Text);
                         scr.Name = e.Label;
                         mData.addScript(scr);
+                        if (mScriptDlg != null && mScriptDlg.Script == scr)
+                            mScriptDlg.updateScript();
                     }
                     break;
                 case ResourceID.OBJECT:
@@ -152,7 +156,10 @@ namespace StoryDesigner
         public void showScript(Script.Type type, string name)
         {
             if (mScriptDlg != null)
+            {
+                mPersistence.ScriptDlgPosition = mScriptDlg.Location;
                 mScriptDlg.Close();
+            }
             Script scr = mData.getScript(type, name.ToLower());
             if (scr == null)
             {
@@ -161,6 +168,8 @@ namespace StoryDesigner
                 mData.addScript(scr);
             }
             mScriptDlg = new ScriptDlg(scr, mData);
+            mScriptDlg.StartPosition = FormStartPosition.Manual;
+            mScriptDlg.Location = mPersistence.ScriptDlgPosition;
             mScriptDlg.Show(this);
         }
 
@@ -229,6 +238,11 @@ namespace StoryDesigner
                     string sound = mData.Sounds[name];
                     MediaPlyr plyr = new MediaPlyr(sound);
                     plyr.Show(this);
+                    break;
+                case ResourceID.MUSIC:
+                    string music = mData.Music[name];
+                    MediaPlyr plyr2 = new MediaPlyr(music);
+                    plyr2.Show(this);
                     break;
                 case ResourceID.ITEM:
                     if (mItemDlg != null)
@@ -581,6 +595,15 @@ namespace StoryDesigner
                     break;
                 case ResourceID.IMAGE:
                     imageToolStripMenuItem_Click(null, null);
+                    break;
+                case ResourceID.SOUND:
+                    soundeffectToolStripMenuItem_Click(null, null);
+                    break;
+                case ResourceID.MUSIC:
+                    musicfileToolStripMenuItem_Click(null, null);
+                    break;
+                case ResourceID.VIDEO:
+                    videoToolStripMenuItem_Click(null, null);
                     break;
             }
         }
