@@ -14,14 +14,24 @@ namespace StoryDesigner
         {
             InitializeComponent();
             stateFrameImage1.Data = it;
-            this.Text = "Item ("+it.Name+")";
             mItem = it;
+            updateItem();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             MainForm form = (MainForm)this.Owner;
             form.showScript(Script.Type.ITEM, mItem.Name.ToLower());
+        }
+
+        public Item Item
+        {
+            get { return mItem; }
+        }
+
+        public void updateItem()
+        {
+            this.Text = "Item (" + mItem.Name + ")";
         }
 
         Item mItem;

@@ -114,6 +114,8 @@ namespace StoryDesigner
                         Item it = mData.removeItem(e.Node.Text);
                         it.Name = e.Label;
                         mData.addItem(it);
+                        if (mItemDlg != null && mItemDlg.Item == it)
+                            mItemDlg.updateItem();
                     }
                     break;
                 case ResourceID.CHARACTER:
@@ -121,6 +123,8 @@ namespace StoryDesigner
                         AdvCharacter chr = mData.removeCharacter(e.Node.Text);
                         chr.Name = e.Label;
                         mData.addCharacter(chr);
+                        if (mCharacterDlg != null && mCharacterDlg.Character == chr)
+                            mCharacterDlg.updateCharacter();
                     }
                     break;
                 case ResourceID.SCRIPT:
@@ -137,6 +141,8 @@ namespace StoryDesigner
                         AdvObject obj = mData.removeObject(e.Node.Text);
                         obj.Name = e.Label;
                         mData.addObject(obj);
+                        if (mObjectDlg != null && mObjectDlg.Object == obj)
+                            mObjectDlg.updateObject();
                     }
                     break;
                 case ResourceID.ROOM:
@@ -144,6 +150,8 @@ namespace StoryDesigner
                         Room rm = mData.removeRoom(e.Node.Text);
                         rm.Name = e.Label;
                         mData.addRoom(rm);
+                        if (mRoomDlg != null && mRoomDlg.Room == rm)
+                            mRoomDlg.updateRoom();
                     }
                     break;
             }

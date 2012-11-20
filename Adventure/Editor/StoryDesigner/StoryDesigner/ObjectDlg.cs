@@ -14,11 +14,11 @@ namespace StoryDesigner
         {
             InitializeComponent();
             this.stateFrameImage1.ClientSizeChanged += new EventHandler(stateFrameImage1_ClientSizeChanged);
-            this.Text = "Object (" + obj.Name + ")";
+            mObject = obj;
+            updateObject();
             this.stateFrameImage1.Data = obj;
             this.lighten_object.Checked = obj.Lighten;
             this.lighten_object.CheckedChanged += new EventHandler(lighten_object_CheckedChanged);
-            mObject = obj;
         }
 
         void lighten_object_CheckedChanged(object sender, EventArgs e)
@@ -38,5 +38,10 @@ namespace StoryDesigner
         }
 
         AdvObject mObject;
+
+        public void updateObject()
+        {
+            this.Text = "Object (" + mObject.Name + ")";
+        }
     }
 }

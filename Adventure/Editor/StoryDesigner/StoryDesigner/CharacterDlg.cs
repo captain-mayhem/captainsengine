@@ -15,7 +15,7 @@ namespace StoryDesigner
         {
             InitializeComponent();
             this.stateFrameImage1.ClientSizeChanged += new EventHandler(stateFrameImage1_ClientSizeChanged);
-            this.Text = "Character (" + chr.Name + ")";
+            mCharacter = chr;
             string[] labels = new string[36];
             labels[0] = "Stand front";
             labels[1] = "Stand back";
@@ -61,7 +61,6 @@ namespace StoryDesigner
             this.ghostmode.Checked = chr.Ghost;
             this.startzoom.Value = chr.Zoom;
 
-            mCharacter = chr;
             mData = data;
         }
 
@@ -201,6 +200,16 @@ namespace StoryDesigner
             {
                 pasteState(i);
             }
+        }
+
+        public AdvCharacter Character
+        {
+            get { return mCharacter; }
+        }
+
+        public void updateCharacter()
+        {
+            this.Text = "Character (" + mCharacter.Name + ")";
         }
     }
 }
