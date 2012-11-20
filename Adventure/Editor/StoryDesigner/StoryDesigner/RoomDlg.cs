@@ -35,7 +35,7 @@ namespace StoryDesigner
             mRoom = room;
             mData = data;
             mMode = mode;
-            this.Text = "Room (" + room.Name + ")";
+            updateRoom();
             this.ClientSize = new Size(data.Settings.Resolution.x, data.Settings.Resolution.y);
             this.Paint += new PaintEventHandler(RoomDlg_Paint);
             this.MouseDown += new MouseEventHandler(RoomDlg_MouseDown);
@@ -1066,6 +1066,11 @@ namespace StoryDesigner
                 mDraggingShape.Positions[j] += correctingDiff;
             }
             diff += correctingDiff;
+        }
+
+        public void updateRoom()
+        {
+            this.Text = "Room (" + mRoom.Name + ")";
         }
     }
 }

@@ -12,8 +12,8 @@ void Utilities::replaceWith(std::string& text, char oldCh, char newCh){
 void Utilities::replaceWith(std::string& text, const std::string& oldSub, const std::string& newSub){
   for (size_t i = 0; i < text.size(); i++){
     size_t cmp;
-    for (cmp = 0; cmp < text.size(); ++cmp){
-      if (text[i] != oldSub[cmp])
+    for (cmp = 0; cmp < oldSub.size(); ++cmp){
+      if (text[i+cmp] != oldSub[cmp])
         break;
     }
     if (cmp == oldSub.size()){

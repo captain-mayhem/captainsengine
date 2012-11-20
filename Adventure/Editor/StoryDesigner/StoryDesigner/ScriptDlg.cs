@@ -432,7 +432,7 @@ namespace StoryDesigner
 
         private void textsceneLToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("level( ){\n  row(1; ; true){\n    \n  }\n}");
+            insertText("level(){\n\trow(1; ; true){\n\t\t\n\t}\n}");
         }
 
         void insertText(string text)
@@ -449,22 +449,22 @@ namespace StoryDesigner
 
         private void itemToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("on(mouse)\n  showinfo( ; )\n\non(pickup)\n  break()\n\non(use)\n  link( )\n\non(give)\n  givelink()");
+            insertText("on(mouse)\n\tshowinfo( ; )\n\non(pickup)\n\tbreak()\n\non(use)\n\tlink()\n\non(give)\n\tgivelink()");
         }
 
         private void characterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("on(mouse)\n  showinfo( ; )\n\non(click)\n  follow(self; )\n\non(givelink){\n  delitem(self; givelink)\n  additem( ; givelink)\n  lookto( ; self)\n  playsound( )\n  pickup(self)\n  pickup()\n}\n\non(cantall){\n  \n}");
+            insertText("on(mouse)\n\tshowinfo( ; )\n\non(click)\n\tfollow(self; )\n\non(givelink){\n\tdelitem(self; givelink)\n\tadditem( ; givelink)\n\tlookto( ; self)\n\tplaysound( )\n\tpickup(self)\n\tpickup()\n}\n\non(cantall){\n\t\n}");
         }
 
         private void objectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("on(mouse)\n  showinfo( ; )\n\non(click)\n  walkto( ; ; ; )");
+            insertText("on(mouse)\n\tshowinfo( ; )\n\non(click)\n\twalkto( ; ; ; )");
         }
 
         private void roomToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("on(enter){\n  \n}\n\non(loop1){\n  \n}\n\non(loop2){\n  \n}\n\non(exit){\n  \n}");
+            insertText("on(enter){\n\t\n}\n\non(loop1){\n\t\n}\n\non(loop2){\n\t\n}\n\non(exit){\n\t\n}");
         }
 
         public Script Script
@@ -512,5 +512,15 @@ namespace StoryDesigner
 
         [DllImport("user32.dll")] // import lockwindow to remove flashing
 	    public static extern bool LockWindowUpdate (IntPtr hWndLock);
+
+        private void textsceneLevel2RowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertText("level(){\n\trow(1; ; true){\n\t\t\n\t}\n\trow(2; ; true){\n\t\t\n\t}\n}");
+        }
+
+        private void textsceneLevel3RowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertText("level(){\n\trow(1; ; true){\n\t\t\n\t}\n\trow(2; ; true){\n\t\t\n\t}\n\trow(3; ; true){\n\t\t\n\t}\n}");
+        }
     }
 }

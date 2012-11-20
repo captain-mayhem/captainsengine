@@ -247,6 +247,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
       while (str != "Movie :"){
         std::string filename = txtstream.readLine();
         CGE::Utilities::replaceWith(filename, '\\', '/');
+        CGE::Utilities::replaceWith(str, " - ", "-"); //a hack to transform the names in a way that the script execution is transforming them
         mMusicNames[str] = filename;
         str = txtstream.readLine();
       }
