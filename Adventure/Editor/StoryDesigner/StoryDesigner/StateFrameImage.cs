@@ -415,7 +415,7 @@ namespace StoryDesigner
                 int widthDiff = value.Width - picturePanel.Size.Width;
                 int leftxmove = 0;
                 int val = height_label.Location.X - widthDiff / 2;
-                if (val < 0 || val > 10)
+                if (mFrameParts>1 && (val < 0 || val > 10))
                     leftxmove = - val;
                 
                 picturePanel.Location = new Point(picturePanel.Location.X - widthDiff / 2 + leftxmove, picturePanel.Location.Y);
