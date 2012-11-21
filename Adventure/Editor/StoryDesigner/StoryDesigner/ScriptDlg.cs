@@ -432,7 +432,7 @@ namespace StoryDesigner
 
         private void textsceneLToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("level(){\n\trow(1; ; true){\n\t\t\n\t}\n}");
+            insertTextScene(1);
         }
 
         void insertText(string text)
@@ -460,6 +460,17 @@ namespace StoryDesigner
         private void objectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             insertText("on(mouse)\n\tshowinfo( ; )\n\non(click)\n\twalkto( ; ; ; )");
+        }
+
+        private void insertTextScene(int rows)
+        {
+            string text = "level(){\n";
+            for (int i = 1; i <= rows; ++i)
+            {
+                text += "\trow(" + i + "; ; true){\n\t\t\n\t}\n";
+            }
+            text += "}";
+            insertText(text);
         }
 
         private void roomToolStripMenuItem_Click(object sender, EventArgs e)
@@ -515,12 +526,42 @@ namespace StoryDesigner
 
         private void textsceneLevel2RowsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("level(){\n\trow(1; ; true){\n\t\t\n\t}\n\trow(2; ; true){\n\t\t\n\t}\n}");
+            insertTextScene(2);
         }
 
         private void textsceneLevel3RowsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("level(){\n\trow(1; ; true){\n\t\t\n\t}\n\trow(2; ; true){\n\t\t\n\t}\n\trow(3; ; true){\n\t\t\n\t}\n}");
+            insertTextScene(3);
+        }
+
+        private void textsceneLevel4RowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertTextScene(4);
+        }
+
+        private void textsceneLevel5RowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertTextScene(5);
+        }
+
+        private void textsceneLevel6RowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertTextScene(6);
+        }
+
+        private void textsceneLevel7RowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertTextScene(7);
+        }
+
+        private void textsceneLevel8RowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertTextScene(8);
+        }
+
+        private void textsceneLevel9RowsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            insertTextScene(9);
         }
     }
 }

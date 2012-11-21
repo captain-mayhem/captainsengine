@@ -265,36 +265,42 @@ namespace StoryDesigner
             this.textsceneLevel4RowsToolStripMenuItem.Name = "textsceneLevel4RowsToolStripMenuItem";
             this.textsceneLevel4RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.textsceneLevel4RowsToolStripMenuItem.Text = "Textscene Level, 4 Rows";
+            this.textsceneLevel4RowsToolStripMenuItem.Click += new System.EventHandler(this.textsceneLevel4RowsToolStripMenuItem_Click);
             // 
             // textsceneLevel5RowsToolStripMenuItem
             // 
             this.textsceneLevel5RowsToolStripMenuItem.Name = "textsceneLevel5RowsToolStripMenuItem";
             this.textsceneLevel5RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.textsceneLevel5RowsToolStripMenuItem.Text = "Textscene Level, 5 Rows";
+            this.textsceneLevel5RowsToolStripMenuItem.Click += new System.EventHandler(this.textsceneLevel5RowsToolStripMenuItem_Click);
             // 
             // textsceneLevel6RowsToolStripMenuItem
             // 
             this.textsceneLevel6RowsToolStripMenuItem.Name = "textsceneLevel6RowsToolStripMenuItem";
             this.textsceneLevel6RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.textsceneLevel6RowsToolStripMenuItem.Text = "Textscene Level, 6 Rows";
+            this.textsceneLevel6RowsToolStripMenuItem.Click += new System.EventHandler(this.textsceneLevel6RowsToolStripMenuItem_Click);
             // 
             // textsceneLevel7RowsToolStripMenuItem
             // 
             this.textsceneLevel7RowsToolStripMenuItem.Name = "textsceneLevel7RowsToolStripMenuItem";
             this.textsceneLevel7RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.textsceneLevel7RowsToolStripMenuItem.Text = "Textscene Level, 7 Rows";
+            this.textsceneLevel7RowsToolStripMenuItem.Click += new System.EventHandler(this.textsceneLevel7RowsToolStripMenuItem_Click);
             // 
             // textsceneLevel8RowsToolStripMenuItem
             // 
             this.textsceneLevel8RowsToolStripMenuItem.Name = "textsceneLevel8RowsToolStripMenuItem";
             this.textsceneLevel8RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.textsceneLevel8RowsToolStripMenuItem.Text = "Textscene Level, 8 Rows";
+            this.textsceneLevel8RowsToolStripMenuItem.Click += new System.EventHandler(this.textsceneLevel8RowsToolStripMenuItem_Click);
             // 
             // textsceneLevel9RowsToolStripMenuItem
             // 
             this.textsceneLevel9RowsToolStripMenuItem.Name = "textsceneLevel9RowsToolStripMenuItem";
             this.textsceneLevel9RowsToolStripMenuItem.Size = new System.Drawing.Size(199, 22);
             this.textsceneLevel9RowsToolStripMenuItem.Text = "Textscene Level, 9 Rows";
+            this.textsceneLevel9RowsToolStripMenuItem.Click += new System.EventHandler(this.textsceneLevel9RowsToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
