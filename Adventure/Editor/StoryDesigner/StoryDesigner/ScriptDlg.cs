@@ -87,7 +87,8 @@ namespace StoryDesigner
             scripttext.SelectionStart = startidx;
             scripttext.SelectionLength = stopidx-startidx;
             scripttext.Paste();
-            Clipboard.SetText(old);
+            if (old != null)
+                Clipboard.SetText(old);
             scripttext.Focus();
         }
 
@@ -118,7 +119,8 @@ namespace StoryDesigner
                 scripttext.SelectionStart = oldidx;
                 scripttext.SelectionLength = 0;
                 scripttext.Paste();
-                Clipboard.SetText(old);
+                if (old != null)
+                    Clipboard.SetText(old);
                 LockWindowUpdate(IntPtr.Zero);
             }
         }
@@ -410,7 +412,8 @@ namespace StoryDesigner
             string old = Clipboard.GetText();
             Clipboard.SetText(insert);
             scripttext.Paste();
-            Clipboard.SetText(old);
+            if (old != null)
+                Clipboard.SetText(old);
         }
 
         string getIndent(int line)
@@ -441,7 +444,8 @@ namespace StoryDesigner
             Clipboard.SetText(text);
             int numlines = text.Split('\n').Length-1;
             scripttext.Paste();
-            Clipboard.SetText(old);
+            if (old != null)
+                Clipboard.SetText(old);
             int line = scripttext.GetLineFromCharIndex(scripttext.SelectionStart);
             for (int i = line; i >= line - numlines; --i)
                 parseLine(i);

@@ -90,6 +90,10 @@ namespace StoryDesigner
                 mPersistence.ObjectDlgPosition = mObjectDlg.Location;
             if (mScriptDlg != null)
                 mPersistence.ScriptDlgPosition = mScriptDlg.Location;
+            if (mCharacterDlg != null)
+                mPersistence.CharacterDlgPosition = mCharacterDlg.Location;
+            if (mItemDlg != null)
+                mPersistence.ItemDlgPosition = mItemDlg.Location;
             mPersistence.MainFormPosition = this.Location;
             mPersistence.save();
         }
@@ -253,15 +257,25 @@ namespace StoryDesigner
                     plyr2.Show(this);
                     break;
                 case ResourceID.ITEM:
-                    if (mItemDlg != null)
-                        mItemDlg.Close();
                     Item it = mData.getItem(name);
                     if (it == null)
                     {
                         MessageBox.Show("Cannot find item " + name);
                         return;
                     }
+                    if (mItemDlg != null)
+                    {
+                        if (mItemDlg.Item == it && mItemDlg.Visible)
+                        {
+                            mItemDlg.Show();
+                            break;
+                        }
+                        mPersistence.ItemDlgPosition = mItemDlg.Location;
+                        mItemDlg.Close();
+                    }
                     mItemDlg = new ItemDlg(it);
+                    mItemDlg.StartPosition = FormStartPosition.Manual;
+                    mItemDlg.Location = mPersistence.ItemDlgPosition;
                     mItemDlg.Show(this);
                     break;
                 case ResourceID.OBJECT:
@@ -287,15 +301,25 @@ namespace StoryDesigner
                     mObjectDlg.Show(this);
                     break;
                 case ResourceID.CHARACTER:
-                    if (mCharacterDlg != null)
-                        mCharacterDlg.Close();
                     AdvCharacter chr = mData.getCharacter(name);
                     if (chr == null)
                     {
                         MessageBox.Show("Cannot find character " + name);
                         return;
                     }
+                    if (mCharacterDlg != null)
+                    {
+                        if (mCharacterDlg.Character == chr && mCharacterDlg.Visible)
+                        {
+                            mCharacterDlg.Show();
+                            break;
+                        }
+                        mPersistence.CharacterDlgPosition = mCharacterDlg.Location;
+                        mCharacterDlg.Close();
+                    }
                     mCharacterDlg = new CharacterDlg(chr, mData);
+                    mCharacterDlg.StartPosition = FormStartPosition.Manual;
+                    mCharacterDlg.Location = mPersistence.CharacterDlgPosition;
                     mCharacterDlg.Show(this);
                     break;
                 case ResourceID.ROOM:
@@ -523,23 +547,25 @@ namespace StoryDesigner
         private void createGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             bool showSave = true;
-            if (mData.Settings.Directory.Length > 0)
+            SaveFileDialog sod = new SaveFileDialog();
+            if (m_runtime_name != null && m_runtime_name.Length > 0)
             {
+                sod.FileName = m_runtime_name;
                 DialogResult update = MessageBox.Show("Update previously created game?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (update == DialogResult.Yes)
                     showSave = false;
             }
-            SaveFileDialog sod = new SaveFileDialog();
+            else
+            {
+                sod.FileName = mData.Settings.Projectname;
+            }
             sod.Filter = "Adventure game|*.exe";
-            sod.FileName = mData.Settings.Projectname;
             sod.InitialDirectory = mData.Settings.Directory;
             bool create = !showSave;
             if (showSave)
             {
                 create = sod.ShowDialog() == DialogResult.OK;
             }
-            else
-                sod.FileName = Path.Combine(sod.InitialDirectory,sod.FileName)+".exe";
             if (create)
             {
                 m_runtime_name = sod.FileName;

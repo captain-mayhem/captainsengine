@@ -50,10 +50,18 @@ namespace StoryDesigner
             this.addAsPaToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuInventory = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.removeFieldToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.menuObject = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.removeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+            this.showInToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.setToBackToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.setToFrontToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuRemoveBackground.SuspendLayout();
             this.menuWalkmap.SuspendLayout();
             this.menuAddBackground.SuspendLayout();
             this.menuInventory.SuspendLayout();
+            this.menuObject.SuspendLayout();
             this.SuspendLayout();
             // 
             // menuRemoveBackground
@@ -210,14 +218,61 @@ namespace StoryDesigner
             this.menuInventory.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.removeFieldToolStripMenuItem});
             this.menuInventory.Name = "menuInventory";
-            this.menuInventory.Size = new System.Drawing.Size(153, 48);
+            this.menuInventory.Size = new System.Drawing.Size(149, 26);
             // 
             // removeFieldToolStripMenuItem
             // 
             this.removeFieldToolStripMenuItem.Name = "removeFieldToolStripMenuItem";
-            this.removeFieldToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeFieldToolStripMenuItem.Size = new System.Drawing.Size(148, 22);
             this.removeFieldToolStripMenuItem.Text = " Remove Field";
             this.removeFieldToolStripMenuItem.Click += new System.EventHandler(this.removeFieldToolStripMenuItem_Click);
+            // 
+            // menuObject
+            // 
+            this.menuObject.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.removeToolStripMenuItem,
+            this.toolStripSeparator3,
+            this.showInToolStripMenuItem,
+            this.toolStripSeparator4,
+            this.setToBackToolStripMenuItem,
+            this.setToFrontToolStripMenuItem});
+            this.menuObject.Name = "menuObject";
+            this.menuObject.Size = new System.Drawing.Size(153, 126);
+            // 
+            // removeToolStripMenuItem
+            // 
+            this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeToolStripMenuItem.Text = "Remove";
+            this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
+            // 
+            // showInToolStripMenuItem
+            // 
+            this.showInToolStripMenuItem.Name = "showInToolStripMenuItem";
+            this.showInToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showInToolStripMenuItem.Text = "Show in";
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(149, 6);
+            // 
+            // setToBackToolStripMenuItem
+            // 
+            this.setToBackToolStripMenuItem.Name = "setToBackToolStripMenuItem";
+            this.setToBackToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.setToBackToolStripMenuItem.Text = "Set to back";
+            // 
+            // setToFrontToolStripMenuItem
+            // 
+            this.setToFrontToolStripMenuItem.Name = "setToFrontToolStripMenuItem";
+            this.setToFrontToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.setToFrontToolStripMenuItem.Text = "Set to front";
             // 
             // RoomDlg
             // 
@@ -234,6 +289,7 @@ namespace StoryDesigner
             this.menuWalkmap.ResumeLayout(false);
             this.menuAddBackground.ResumeLayout(false);
             this.menuInventory.ResumeLayout(false);
+            this.menuObject.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -261,5 +317,12 @@ namespace StoryDesigner
         private System.Windows.Forms.ToolStripMenuItem addAsPaToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip menuInventory;
         private System.Windows.Forms.ToolStripMenuItem removeFieldToolStripMenuItem;
+        private System.Windows.Forms.ContextMenuStrip menuObject;
+        private System.Windows.Forms.ToolStripMenuItem removeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem showInToolStripMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem setToBackToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem setToFrontToolStripMenuItem;
     }
 }
