@@ -381,10 +381,7 @@ namespace StoryDesigner
             mMousePos = pos;
             if (mMode == ViewMode.Objects)
             {
-                if (e.Button == MouseButtons.Right)
-                {
-                    menuRemoveBackground.Show(this, click);
-                }
+                bool dragDepthFound = false;
                 foreach (ObjectInstance obj in mRoom.Objects)
                 {
                     if (obj.Layer != 1)
@@ -395,15 +392,32 @@ namespace StoryDesigner
                         mDragObject = obj;
                         mDragOffset = depthcenter - pos;
                         mDragDepth = true;
-                        return;
+                        dragDepthFound = true;
+                        break;
                     }
                 }
-                mDragDepth = false;
-                mDragObject = getObjectAt(pos + mRoom.ScrollOffset);
-                mControl.SelectedObject = mDragObject;
-                if (mDragObject != null)
+                if (!dragDepthFound)
                 {
-                    mDragOffset = mDragObject.getPosition() - pos;
+                    mDragDepth = false;
+                    mDragObject = getObjectAt(pos + mRoom.ScrollOffset);
+                    mControl.SelectedObject = mDragObject;
+                    if (mDragObject != null)
+                    {
+                        mDragOffset = mDragObject.getPosition() - pos;
+                    }
+                }
+                if (e.Button == MouseButtons.Right)
+                {
+                    if (mDragObject != null)
+                    {
+                        if (mDragObject.GetType() == typeof(ObjectInstance))
+                            menuObject.Items[2].Text = "Show in Object window";
+                        else
+                            menuObject.Items[2].Text = "Show in Character window";
+                        menuObject.Show(this, click);
+                    }
+                    else
+                        menuRemoveBackground.Show(this, click);
                 }
             }
             else if (mMode == ViewMode.Walkmap)
@@ -1071,6 +1085,16 @@ namespace StoryDesigner
         public void updateRoom()
         {
             this.Text = "Room (" + mRoom.Name + ")";
+        }
+
+        private void removeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DrawableObject obj = mControl.SelectedObject;
+            if (obj.GetType() == typeof(ObjectInstance))
+                mRoom.Objects.Remove(obj);
+            else
+                mRoom.Characters.Remove(obj);
+            mControl.SelectedObject = null;
         }
     }
 }
