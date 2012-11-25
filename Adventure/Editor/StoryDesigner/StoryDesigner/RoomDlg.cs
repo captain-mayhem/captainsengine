@@ -1090,10 +1090,16 @@ namespace StoryDesigner
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DrawableObject obj = mControl.SelectedObject;
-            if (obj.GetType() == typeof(ObjectInstance))
-                mRoom.Objects.Remove(obj);
+            if (obj is ObjectInstance)
+            {
+                ObjectInstance inst = (ObjectInstance)obj;
+                mRoom.removeObject(inst);
+            }
             else
-                mRoom.Characters.Remove(obj);
+            {
+                CharacterInstance inst = (CharacterInstance)obj;
+                mRoom.removeCharacter(inst);
+            }
             mControl.SelectedObject = null;
         }
     }

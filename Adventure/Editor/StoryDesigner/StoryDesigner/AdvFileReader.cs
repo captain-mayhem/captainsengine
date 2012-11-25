@@ -532,6 +532,7 @@ namespace StoryDesigner
                 else if (typename[0] == "Room")
                 {
                     Room room = new Room();
+                    room.Data = mAdv;
                     room.Name = typename[1];
                     room.Size.x = Convert.ToInt32(rdr.ReadLine());
                     room.Size.y = Convert.ToInt32(rdr.ReadLine());

@@ -816,6 +816,7 @@ namespace StoryDesigner
         }
         public Room(AdvData data)
         {
+            mData = data;
             Name = "Room" + (data.NumRooms + 1);
             Size = data.Settings.Resolution;
             Depthmap = new Vec2i(5, 10);
@@ -854,6 +855,37 @@ namespace StoryDesigner
             public bool hasScript;
         }
         public WalkMapEntry[,] Walkmap = null;
+        private AdvData mData;
+        public AdvData Data
+        {
+            set { mData = value; }
+        }
+
+        public void removeObject(ObjectInstance obj){
+            mData.removeScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, Name));
+            Objects.Remove(obj);
+        }
+
+        public void removeCharacter(CharacterInstance chr)
+        {
+            mData.removeScript(Script.Type.CHARACTER, chr.Name);
+            Characters.Remove(chr);
+            mData.CharacterInstances[Name.ToLower()].Remove(chr);
+        }
+
+        public void removeWalkmapScripts()
+        {
+            for (int x = 0; x <= Walkmap.GetUpperBound(0); ++x)
+            {
+                for (int y = 0; y <= Walkmap.GetUpperBound(1); ++y)
+                {
+                    if (Walkmap[x, y].hasScript)
+                    {
+                        mData.removeScript(Script.Type.WALKMAP, Script.toScriptName(x, y, Name, mData));
+                    }
+                }
+            }
+        }
     }
 
     public class Drawable
@@ -1224,6 +1256,7 @@ namespace StoryDesigner
         public Item removeItem(string name)
         {
             Item it = getItem(name);
+            removeScript(Script.Type.ITEM, it.Name);
             mItems.Remove(name.ToLower());
             return it;
         }
@@ -1297,6 +1330,16 @@ namespace StoryDesigner
         public Room removeRoom(string name)
         {
             Room rm = getRoom(name);
+            while (rm.Objects.Count > 0)
+            {
+                rm.removeObject((ObjectInstance)rm.Objects[0]);
+            }
+            while (rm.Characters.Count > 0)
+            {
+                rm.removeCharacter((CharacterInstance)rm.Characters[0]);
+            }
+            rm.removeWalkmapScripts();
+            removeScript(Script.Type.ROOM, rm.Name);
             mRooms.Remove(name.ToLower());
             return rm;
         }
