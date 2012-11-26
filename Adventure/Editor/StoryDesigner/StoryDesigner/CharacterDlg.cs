@@ -16,6 +16,7 @@ namespace StoryDesigner
             InitializeComponent();
             this.stateFrameImage1.ClientSizeChanged += new EventHandler(stateFrameImage1_ClientSizeChanged);
             mCharacter = chr;
+            updateCharacter();
             string[] labels = new string[36];
             labels[0] = "Stand front";
             labels[1] = "Stand back";

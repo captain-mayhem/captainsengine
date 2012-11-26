@@ -886,6 +886,49 @@ namespace StoryDesigner
                 }
             }
         }
+
+        public void rename(string name)
+        {
+            Script scr = mData.getScript(Script.Type.ROOM, Name);
+            scr.Name = name;
+            mData.addScript(scr);
+            //rename object scripts
+            foreach (ObjectInstance obj in Objects)
+            {
+                Script objscr = mData.removeScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, Name));
+                if (objscr != null)
+                {
+                    objscr.Name = Script.toScriptName(obj.Name, name);
+                    mData.addScript(objscr);
+                }
+            }
+            //rename character instances
+            mData.CharacterInstances[name.ToLower()] = new ArrayList();
+            foreach (CharacterInstance chr in mData.CharacterInstances[Name.ToLower()]){
+                chr.Room = name;
+                mData.CharacterInstances[name.ToLower()].Add(chr);
+            }
+            mData.CharacterInstances.Remove(Name.ToLower());
+            //rename walkmap scripts
+            for (int x = 0; x <= Walkmap.GetUpperBound(0); ++x)
+            {
+                for (int y = 0; y <= Walkmap.GetUpperBound(1); ++y)
+                {
+                    if (Walkmap[x, y].hasScript)
+                    {
+                        Script wmscr = mData.removeScript(Script.Type.WALKMAP, Script.toScriptName(x, y, Name, mData));
+                        wmscr.Name = Script.toScriptName(x, y, name, mData);
+                        mData.addScript(wmscr);
+                    }
+                }
+            }
+
+            mData.removeScript(Script.Type.ROOM, Name);
+            
+            mData.Rooms.Remove(Name.ToLower());
+            Name = name;
+            mData.addRoom(this);
+        }
     }
 
     public class Drawable
@@ -1338,6 +1381,7 @@ namespace StoryDesigner
             {
                 rm.removeCharacter((CharacterInstance)rm.Characters[0]);
             }
+            CharacterInstances.Remove(rm.Name.ToLower());
             rm.removeWalkmapScripts();
             removeScript(Script.Type.ROOM, rm.Name);
             mRooms.Remove(name.ToLower());
