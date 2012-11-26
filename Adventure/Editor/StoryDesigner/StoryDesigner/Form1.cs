@@ -115,6 +115,9 @@ namespace StoryDesigner
             {
                 case ResourceID.ITEM:
                     {
+                        Script scr = mData.removeScript(Script.Type.ITEM, e.Node.Text);
+                        scr.Name = e.Label;
+                        mData.addScript(scr);
                         Item it = mData.removeItem(e.Node.Text);
                         it.Name = e.Label;
                         mData.addItem(it);
@@ -151,9 +154,8 @@ namespace StoryDesigner
                     break;
                 case ResourceID.ROOM:
                     {
-                        Room rm = mData.removeRoom(e.Node.Text);
-                        rm.Name = e.Label;
-                        mData.addRoom(rm);
+                        Room rm = mData.getRoom(e.Node.Text);
+                        rm.rename(e.Label);
                         if (mRoomDlg != null && mRoomDlg.Room == rm)
                             mRoomDlg.updateRoom();
                     }
@@ -279,48 +281,10 @@ namespace StoryDesigner
                     mItemDlg.Show(this);
                     break;
                 case ResourceID.OBJECT:
-                    AdvObject obj = mData.getObject(name);
-                    if (obj == null)
-                    {
-                        MessageBox.Show("Cannot find object " + name);
-                        return;
-                    }
-                    if (mObjectDlg != null)
-                    {
-                        if (mObjectDlg.Object == obj && mObjectDlg.Visible)
-                        {
-                            mObjectDlg.Show();
-                            break;
-                        }
-                        mPersistence.ObjectDlgPosition = mObjectDlg.Location;
-                        mObjectDlg.Close();
-                    }
-                    mObjectDlg = new ObjectDlg(obj);
-                    mObjectDlg.StartPosition = FormStartPosition.Manual;
-                    mObjectDlg.Location = mPersistence.ObjectDlgPosition;
-                    mObjectDlg.Show(this);
+                    showObject(name);
                     break;
                 case ResourceID.CHARACTER:
-                    AdvCharacter chr = mData.getCharacter(name);
-                    if (chr == null)
-                    {
-                        MessageBox.Show("Cannot find character " + name);
-                        return;
-                    }
-                    if (mCharacterDlg != null)
-                    {
-                        if (mCharacterDlg.Character == chr && mCharacterDlg.Visible)
-                        {
-                            mCharacterDlg.Show();
-                            break;
-                        }
-                        mPersistence.CharacterDlgPosition = mCharacterDlg.Location;
-                        mCharacterDlg.Close();
-                    }
-                    mCharacterDlg = new CharacterDlg(chr, mData);
-                    mCharacterDlg.StartPosition = FormStartPosition.Manual;
-                    mCharacterDlg.Location = mPersistence.CharacterDlgPosition;
-                    mCharacterDlg.Show(this);
+                    showCharacter(name);
                     break;
                 case ResourceID.ROOM:
                     Room room = mData.getRoom(name);
@@ -354,6 +318,54 @@ namespace StoryDesigner
                     Console.WriteLine("Clicked " + name + " " + id + " unhandled");
                     break;
             }
+        }
+
+        public void showObject(string name)
+        {
+            AdvObject obj = mData.getObject(name);
+            if (obj == null)
+            {
+                MessageBox.Show("Cannot find object " + name);
+                return;
+            }
+            if (mObjectDlg != null)
+            {
+                if (mObjectDlg.Object == obj && mObjectDlg.Visible)
+                {
+                    mObjectDlg.Show();
+                    return;
+                }
+                mPersistence.ObjectDlgPosition = mObjectDlg.Location;
+                mObjectDlg.Close();
+            }
+            mObjectDlg = new ObjectDlg(obj);
+            mObjectDlg.StartPosition = FormStartPosition.Manual;
+            mObjectDlg.Location = mPersistence.ObjectDlgPosition;
+            mObjectDlg.Show(this);
+        }
+
+        public void showCharacter(string name)
+        {
+            AdvCharacter chr = mData.getCharacter(name);
+            if (chr == null)
+            {
+                MessageBox.Show("Cannot find character " + name);
+                return;
+            }
+            if (mCharacterDlg != null)
+            {
+                if (mCharacterDlg.Character == chr && mCharacterDlg.Visible)
+                {
+                    mCharacterDlg.Show();
+                    return;
+                }
+                mPersistence.CharacterDlgPosition = mCharacterDlg.Location;
+                mCharacterDlg.Close();
+            }
+            mCharacterDlg = new CharacterDlg(chr, mData);
+            mCharacterDlg.StartPosition = FormStartPosition.Manual;
+            mCharacterDlg.Location = mPersistence.CharacterDlgPosition;
+            mCharacterDlg.Show(this);
         }
 
         private void MainForm_Load(object sender, EventArgs e)

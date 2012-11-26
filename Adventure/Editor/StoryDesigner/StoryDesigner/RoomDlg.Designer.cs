@@ -256,6 +256,7 @@ namespace StoryDesigner
             this.showInToolStripMenuItem.Name = "showInToolStripMenuItem";
             this.showInToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.showInToolStripMenuItem.Text = "Show in";
+            this.showInToolStripMenuItem.Click += new System.EventHandler(this.showInToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 

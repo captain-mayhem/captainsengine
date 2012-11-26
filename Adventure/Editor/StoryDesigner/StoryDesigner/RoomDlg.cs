@@ -1093,14 +1093,34 @@ namespace StoryDesigner
             if (obj is ObjectInstance)
             {
                 ObjectInstance inst = (ObjectInstance)obj;
-                mRoom.removeObject(inst);
+                DialogResult res = MessageBox.Show("Delete the Object \"" + inst.Name + "\" from your room?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (res == DialogResult.Yes)
+                    mRoom.removeObject(inst);
             }
             else
             {
                 CharacterInstance inst = (CharacterInstance)obj;
-                mRoom.removeCharacter(inst);
+                DialogResult res = MessageBox.Show("Delete the Character \"" + inst.Name + "\" from your room?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (res == DialogResult.Yes)
+                    mRoom.removeCharacter(inst);
             }
             mControl.SelectedObject = null;
+        }
+
+        private void showInToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DrawableObject obj = mControl.SelectedObject;
+            MainForm form = (MainForm)this.Owner;
+            if (obj is ObjectInstance)
+            {
+                ObjectInstance inst = (ObjectInstance)obj;
+                form.showObject(inst.Object.Name);
+            }
+            else
+            {
+                CharacterInstance inst = (CharacterInstance)obj;
+                form.showCharacter(inst.Character.Name);
+            }
         }
     }
 }
