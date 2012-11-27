@@ -268,12 +268,14 @@ namespace StoryDesigner
             this.setToBackToolStripMenuItem.Name = "setToBackToolStripMenuItem";
             this.setToBackToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.setToBackToolStripMenuItem.Text = "Set to back";
+            this.setToBackToolStripMenuItem.Click += new System.EventHandler(this.setToBackToolStripMenuItem_Click);
             // 
             // setToFrontToolStripMenuItem
             // 
             this.setToFrontToolStripMenuItem.Name = "setToFrontToolStripMenuItem";
             this.setToFrontToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.setToFrontToolStripMenuItem.Text = "Set to front";
+            this.setToFrontToolStripMenuItem.Click += new System.EventHandler(this.setToFrontToolStripMenuItem_Click);
             // 
             // RoomDlg
             // 

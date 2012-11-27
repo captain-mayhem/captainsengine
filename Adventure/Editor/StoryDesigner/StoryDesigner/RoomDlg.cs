@@ -399,7 +399,8 @@ namespace StoryDesigner
                 if (!dragDepthFound)
                 {
                     mDragDepth = false;
-                    mDragObject = getObjectAt(pos + mRoom.ScrollOffset);
+                    bool dragSecond = e.Button == MouseButtons.Middle;
+                    mDragObject = getObjectAt(pos + mRoom.ScrollOffset, dragSecond);
                     mControl.SelectedObject = mDragObject;
                     if (mDragObject != null)
                     {
@@ -615,7 +616,7 @@ namespace StoryDesigner
                 string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x/mData.WalkGridSize, mRoom.ScrollOffset.y/mData.WalkGridSize, wmx+1, wmy+1, wmfree ? 'F' : 'B', mp.x, mp.y);
                 Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
                 string s2 = "Object:";
-                DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset);
+                DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset, false);
                 if (drob is ObjectInstance)
                 {
                     ObjectInstance obj = (ObjectInstance)drob;
@@ -815,10 +816,12 @@ namespace StoryDesigner
                 blitqueue.AddLast(pair);
         }
 
-        private DrawableObject getObjectAt(Vec2i pos)
+        private DrawableObject getObjectAt(Vec2i pos, bool secondObject)
         {
             DrawableObject ret = null;
+            DrawableObject ret2 = null;
             int retdepth = -1;
+            int retdepth2 = -1;
             foreach (ObjectInstance obj in mRoom.Objects)
             {
                 if (obj.isHit(pos))
@@ -826,7 +829,9 @@ namespace StoryDesigner
                     int depth = getDepth(obj);
                     if (depth >= retdepth)
                     {
+                        retdepth2 = retdepth;
                         retdepth = depth;
+                        ret2 = ret;
                         ret = obj;
                     }
                 }
@@ -838,12 +843,14 @@ namespace StoryDesigner
                     int depth = getDepth(chr);
                     if (depth > retdepth)
                     {
+                        retdepth2 = retdepth;
                         retdepth = depth;
+                        ret2 = ret;
                         ret = chr;
                     }
                 }
             }
-            return ret;
+            return secondObject ? ret2 : ret;
         }
 
         private int getDepth(ObjectInstance obj)
@@ -1120,6 +1127,36 @@ namespace StoryDesigner
             {
                 CharacterInstance inst = (CharacterInstance)obj;
                 form.showCharacter(inst.Character.Name);
+            }
+        }
+
+        private void setToBackToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DrawableObject obj = mControl.SelectedObject;
+            if (obj is ObjectInstance)
+            {
+                mRoom.Objects.Remove(obj);
+                mRoom.Objects.Insert(0, obj);
+            }
+            else
+            {
+                mRoom.Characters.Remove(obj);
+                mRoom.Characters.Insert(0, obj);
+            }
+        }
+
+        private void setToFrontToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            DrawableObject obj = mControl.SelectedObject;
+            if (obj is ObjectInstance)
+            {
+                mRoom.Objects.Remove(obj);
+                mRoom.Objects.Add(obj);
+            }
+            else
+            {
+                mRoom.Characters.Remove(obj);
+                mRoom.Characters.Add(obj);
             }
         }
     }

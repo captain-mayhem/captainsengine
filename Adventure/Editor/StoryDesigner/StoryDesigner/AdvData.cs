@@ -866,11 +866,39 @@ namespace StoryDesigner
             Objects.Remove(obj);
         }
 
+        public void removeObject(AdvObject obj)
+        {
+            ArrayList removes = new ArrayList();
+            foreach (ObjectInstance inst in Objects)
+            {
+                if (inst.Object == obj)
+                    removes.Add(inst);
+            }
+            foreach (ObjectInstance inst in removes)
+            {
+                removeObject(inst);
+            }
+        }
+
         public void removeCharacter(CharacterInstance chr)
         {
             mData.removeScript(Script.Type.CHARACTER, chr.Name);
             Characters.Remove(chr);
             mData.CharacterInstances[Name.ToLower()].Remove(chr);
+        }
+
+        public void removeCharacter(AdvCharacter chr)
+        {
+            ArrayList removes = new ArrayList();
+            foreach (CharacterInstance inst in Characters)
+            {
+                if (inst.Character == chr)
+                    removes.Add(inst);
+            }
+            foreach (CharacterInstance inst in removes)
+            {
+                removeCharacter(inst);
+            }
         }
 
         public void removeWalkmapScripts()
@@ -1323,6 +1351,10 @@ namespace StoryDesigner
         public AdvObject removeObject(string name)
         {
             AdvObject obj = getObject(name);
+            foreach (KeyValuePair<string,Room> pair in Rooms)
+            {
+                pair.Value.removeObject(obj);
+            }
             mObjects.Remove(name.ToLower());
             return obj;
         }
@@ -1346,6 +1378,10 @@ namespace StoryDesigner
         public AdvCharacter removeCharacter(string name)
         {
             AdvCharacter chr = getCharacter(name);
+            foreach (KeyValuePair<string, Room> pair in Rooms)
+            {
+                pair.Value.removeCharacter(chr);
+            }
             mCharacters.Remove(name.ToLower());
             return chr;
         }
