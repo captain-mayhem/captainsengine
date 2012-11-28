@@ -724,12 +724,17 @@ namespace StoryDesigner
         }
 
         private void characterToolStripMenuItem_Click(object sender, EventArgs e)
+        {       
+            AdvCharacter chr = new AdvCharacter(mData, 36);
+            addCharacter(chr);
+        }
+
+        private void addCharacter(AdvCharacter chr)
         {
             TreeNode parent;
             ResourceID res = determineTypeAndFolder(gamePool, out parent);
             if (res != ResourceID.CHARACTER)
                 parent = gamePool.Nodes[0];
-            AdvCharacter chr = new AdvCharacter(mData, 36);
             mData.addCharacter(chr);
             TreeNode node = new TreeNode(chr.Name);
             node.Tag = ResourceID.CHARACTER;
@@ -743,12 +748,16 @@ namespace StoryDesigner
 
         private void scriptToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Script scr = new Script(Script.Type.CUTSCENE);
+            scr.Name = "Script" + (mData.NumCutscenes + 1);
+        }
+
+        private void addScript(Script scr)
+        {
             TreeNode parent;
             ResourceID res = determineTypeAndFolder(gamePool, out parent);
             if (res != ResourceID.SCRIPT)
                 parent = gamePool.Nodes[1];
-            Script scr = new Script(Script.Type.CUTSCENE);
-            scr.Name = "Script" + (mData.NumCutscenes + 1);
             mData.addScript(scr);
             TreeNode node = new TreeNode(scr.Name);
             node.Tag = ResourceID.SCRIPT;
@@ -1052,6 +1061,38 @@ namespace StoryDesigner
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             gamepool_delete_Click(null, null);
+        }
+
+        private static string findFreeName<T>(Dictionary<string, T> dict, string basename) where T: class
+        {
+            int count = 1;
+            while (true)
+            {
+                string test = basename + count;
+                if (!dict.ContainsKey(test))
+                    return test;
+                ++count;
+            }
+        }
+
+        private void duplicateToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            TreeNode node = mSelectedView.SelectedNode;
+            switch ((ResourceID)node.Tag)
+            {
+                case ResourceID.CHARACTER:
+                    AdvCharacter chr = mData.getCharacter(node.Text);
+                    string newname = findFreeName(mData.Characters, chr.Name);
+                    AdvCharacter newchr = chr.duplicate(newname);
+                    addCharacter(newchr);
+                    break;
+                case ResourceID.SCRIPT:
+                    Script scr = mData.getScript(Script.Type.CUTSCENE, node.Text);
+                    newname = findFreeName(mData.getScripts(Script.Type.CUTSCENE), scr.Name);
+                    Script newscr = scr.duplicate(newname);
+                    addScript(newscr);
+                    break;
+            }
         }
     }
 }
