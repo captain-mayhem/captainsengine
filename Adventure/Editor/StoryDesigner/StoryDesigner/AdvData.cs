@@ -340,12 +340,18 @@ namespace StoryDesigner
         AdvData mData;
     }
 
-    class ExtendedFrame
+    class ExtendedFrame : ICloneable
     {
         public ExtendedFrame()
         {
             names = new ArrayList();
             offsets = new ArrayList();
+        }
+        public Object Clone(){
+            ExtendedFrame frm = new ExtendedFrame();
+            frm.names = (ArrayList)names.Clone();
+            frm.offsets = (ArrayList)offsets.Clone();
+            return frm;
         }
         public ArrayList names;
         public ArrayList offsets;
@@ -484,7 +490,7 @@ namespace StoryDesigner
         AdvData mData;
     }
 
-    public class CharacterState
+    public class CharacterState : ICloneable
     {
         public CharacterState()
         {
@@ -492,6 +498,21 @@ namespace StoryDesigner
             fpsDivider = 20;
             size = new Vec2i(120, 200);
             basepoint = new Vec2i(60, 199);
+        }
+
+        public Object Clone()
+        {
+            CharacterState cs = new CharacterState();
+            cs.size = size;
+            cs.basepoint = basepoint;
+            cs.frames = new ArrayList(frames.Count);
+            for (int i = 0; i < frames.Count; ++i)
+            {
+                ExtendedFrame frm = (ExtendedFrame)frames[i];
+                cs.frames.Add(frm.Clone());
+            }
+            cs.fpsDivider = fpsDivider;
+            return cs;
         }
         public Vec2i size;
         public Vec2i basepoint;
@@ -715,6 +736,29 @@ namespace StoryDesigner
             set { mZoom = value; }
         }
 
+        public AdvCharacter duplicate(string name)
+        {
+            AdvCharacter ret = new AdvCharacter(mData);
+            ret.mStates = new ArrayList(mStates.Count);
+            for (int i = 0; i < mStates.Count; ++i)
+            {
+                CharacterState cs = (CharacterState)mStates[i];
+                ret.mStates.Add(cs.Clone());
+            }
+            ret.mName = name;
+            ret.mTextColor = mTextColor;
+            ret.mWalkSpeed = mWalkSpeed;
+            ret.mNotZoom = mNotZoom;
+            ret.mRealLeft = mRealLeft;
+            ret.mMemResistent = mMemResistent;
+            ret.mGhost = mGhost;
+            ret.mWalkSound = mWalkSound;
+            ret.mExtraStateNames = (ArrayList)mExtraStateNames.Clone();
+            ret.mFontID = mFontID;
+            ret.mZoom = mZoom;
+            return ret;
+        }
+
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         string mName;
         System.UInt32 mTextColor;
@@ -771,6 +815,13 @@ namespace StoryDesigner
                 return String.Format("{0:D2}{1:D2}{2}", x + 1, y + 1, room);
             else
                 return String.Format("#{0:D3}{1:D3}{2}", x + 1, y + 1, room);
+        }
+        public Script duplicate(string name)
+        {
+            Script ret = new Script(mType);
+            ret.mName = name;
+            ret.mText = mText;
+            return ret;
         }
         Type mType;
         string mName;
