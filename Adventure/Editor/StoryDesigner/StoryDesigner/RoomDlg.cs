@@ -109,18 +109,6 @@ namespace StoryDesigner
                 AdvCharacter chr = mData.getCharacter(res.Name);
                 CharacterInstance inst = new CharacterInstance(chr, mData);
                 Point p = PointToClient(new Point(e.X, e.Y));
-                inst.Name = chr.Name;
-                int count = 0;
-                foreach (KeyValuePair<string, System.Collections.ArrayList> kvp in mData.CharacterInstances)
-                {
-                    foreach (CharacterInstance ci in kvp.Value)
-                    {
-                        if (ci.Character == chr)
-                            ++count;
-                    }
-                }
-                if (count > 0)
-                    inst.Name += count;
                 inst.Character = chr;
                 inst.Locked = false;
                 inst.Unmovable = false;

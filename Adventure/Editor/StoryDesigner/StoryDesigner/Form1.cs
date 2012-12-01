@@ -707,11 +707,15 @@ namespace StoryDesigner
 
         private void itemToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Item it = new Item(mData, 10);
+            addItem(it);
+        }
+
+        private void addItem(Item it){
             TreeNode parent;
             ResourceID res = determineTypeAndFolder(gamePool, out parent);
             if (res != ResourceID.ITEM)
                 parent = gamePool.Nodes[2];
-            Item it = new Item(mData, 10);
             mData.addItem(it);
             TreeNode node = new TreeNode(it.Name);
             node.Tag = ResourceID.ITEM;
@@ -771,11 +775,15 @@ namespace StoryDesigner
 
         private void objectToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            AdvObject obj = new AdvObject(mData, 10);
+            addObject(obj);
+        }
+
+        private void addObject(AdvObject obj){
             TreeNode parent;
             ResourceID res = determineTypeAndFolder(gamePool, out parent);
             if (res != ResourceID.OBJECT)
                 parent = gamePool.Nodes[3];
-            AdvObject obj = new AdvObject(mData, 10);
             mData.addObject(obj);
             TreeNode node = new TreeNode(obj.Name);
             node.Tag = ResourceID.OBJECT;
@@ -791,11 +799,15 @@ namespace StoryDesigner
 
         private void roomToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            Room rm = new Room(mData);
+            addRoom(rm);
+        }
+
+        private void addRoom(Room rm){
             TreeNode parent;
             ResourceID res = determineTypeAndFolder(gamePool, out parent);
             if (res != ResourceID.ROOM)
                 parent = gamePool.Nodes[4];
-            Room rm = new Room(mData);
             mData.addRoom(rm);
             TreeNode node = new TreeNode(rm.Name);
             node.Tag = ResourceID.ROOM;
@@ -1091,6 +1103,24 @@ namespace StoryDesigner
                     newname = findFreeName(mData.getScripts(Script.Type.CUTSCENE), scr.Name);
                     Script newscr = scr.duplicate(newname);
                     addScript(newscr);
+                    break;
+                case ResourceID.ITEM:
+                    Item it = mData.getItem(node.Text);
+                    newname = findFreeName(mData.Items, it.Name);
+                    Item newitem = it.duplicate(newname);
+                    addItem(newitem);
+                    break;
+                case ResourceID.OBJECT:
+                    AdvObject obj = mData.getObject(node.Text);
+                    newname = findFreeName(mData.Objects, obj.Name);
+                    AdvObject newobject = obj.duplicate(newname);
+                    addObject(newobject);
+                    break;
+                case ResourceID.ROOM:
+                    Room rm = mData.getRoom(node.Text);
+                    newname = findFreeName(mData.Rooms, rm.Name);
+                    Room newroom = rm.duplicate(newname);
+                    addRoom(newroom);
                     break;
             }
         }
