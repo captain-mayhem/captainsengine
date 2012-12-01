@@ -240,10 +240,18 @@ namespace StoryDesigner
         AdvData mData;
     }
 
-    public struct ItemState
+    public struct ItemState : ICloneable
     {
         public System.Collections.ArrayList frames;
         public int fpsDivider;
+
+        public Object Clone()
+        {
+            ItemState state = new ItemState();
+            state.fpsDivider = fpsDivider;
+            state.frames = (ArrayList)frames.Clone();
+            return state;
+        }
     }
 
     public class Item : IStateFrameData
@@ -335,6 +343,22 @@ namespace StoryDesigner
         }
         public void setStateName(int state, string name) { }
 
+        public Item duplicate(string name)
+        {
+            Item ret = new Item(mData);
+            ret.mName = name;
+            for (int i = 0; i < mStates.Count; ++i)
+            {
+                ItemState state = (ItemState)mStates[i];
+                ret.mStates.Add(state.Clone());
+            }
+            //duplicate script
+            Script scr = mData.getScript(Script.Type.ITEM, mName);
+            Script newscr = scr.duplicate(name);
+            mData.addScript(newscr);
+            return ret;
+        }
+
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         string mName;
         AdvData mData;
@@ -357,12 +381,24 @@ namespace StoryDesigner
         public ArrayList offsets;
     }
 
-    public class ObjectState
+    public class ObjectState : ICloneable
     {
         public ObjectState()
         {
             frames = new ArrayList();
             fpsDivider = 20;
+        }
+        public Object Clone()
+        {
+            ObjectState state = new ObjectState();
+            state.fpsDivider = fpsDivider;
+            state.frames = new ArrayList(frames.Count);
+            for (int i = 0; i < frames.Count; ++i)
+            {
+                ExtendedFrame frm = (ExtendedFrame)frames[i];
+                state.frames.Add(frm.Clone());
+            }
+            return state;
         }
         public System.Collections.ArrayList frames;
         public int fpsDivider;
@@ -482,6 +518,20 @@ namespace StoryDesigner
         }
 
         public void setStateName(int state, string name) { }
+
+        public AdvObject duplicate(string name)
+        {
+            AdvObject ret = new AdvObject(mData);
+            ret.mName = name;
+            ret.mSize = mSize;
+            ret.mLighten = mLighten;
+            for (int i = 0; i < mStates.Count; ++i)
+            {
+                ObjectState state = (ObjectState)mStates[i];
+                ret.mStates.Add(state.Clone());
+            }
+            return ret;
+        }
 
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         string mName;
@@ -828,188 +878,6 @@ namespace StoryDesigner
         string mText;
     }
 
-    public class FxShape
-    {
-        public FxShape() { }
-        public FxShape(int num)
-        {
-            Active = false;
-            DependingOnRoomPosition = true;
-            Effect = FxEffect.FLOOR_MIRROR;
-            Depth = 15;
-            MirrorOffset = new Vec2i(-10, -7);
-            Strength = 125;
-            Positions[0] = new Vec2i(105 * (num+1), 100);
-            Positions[1] = new Vec2i(Positions[0].x + 100, 100);
-            Positions[2] = new Vec2i(Positions[1].x, 200);
-            Positions[3] = new Vec2i(Positions[0].x, 200);
-        }
-        public enum FxEffect
-        {
-            FLOOR_MIRROR = 0,
-            WALL_MIRROR = 1,
-            PARTICLE_BARRIER = 2
-        };
-        public bool Active;
-        public bool DependingOnRoomPosition;
-        public FxEffect Effect;
-        public string Room;
-        public int Depth;
-        public Vec2i MirrorOffset;
-        public int Strength;
-        public Vec2i[] Positions = new Vec2i[4];
-    }
-
-    public class Room
-    {
-        public Room()
-        {
-        }
-        public Room(AdvData data)
-        {
-            mData = data;
-            Name = "Room" + (data.NumRooms + 1);
-            Size = data.Settings.Resolution;
-            Depthmap = new Vec2i(5, 10);
-            Zoom = 3;
-            Background = "";
-            ParallaxBackground = "";
-            FXShapes = new ArrayList();
-            for (int i = 0; i < 3; ++i)
-            {
-                FxShape fs = new FxShape(i);
-                FXShapes.Add(fs);
-            }
-            Vec2i wmsize = data.Settings.Resolution/data.WalkGridSize;
-            wmsize.x *= 3*2;
-            wmsize.y *= 2*2;
-            Walkmap = new WalkMapEntry[wmsize.x, wmsize.y];
-        }
-        public string Name;
-        public Vec2i Size;
-        public Vec2i ScrollOffset;
-        public Vec2i Depthmap;
-        public int Zoom;
-        public string Background;
-        public string ParallaxBackground;
-        public bool DoubleWalkmap;
-        public ArrayList FXShapes;
-        public bool HasInventory;
-        public Vec2i InvPos;
-        public Vec2i InvSize;
-        public Vec2f InvScale;
-        public ArrayList Objects = new ArrayList();
-        public ArrayList Characters = new ArrayList();
-        public struct WalkMapEntry
-        {
-            public bool isFree;
-            public bool hasScript;
-        }
-        public WalkMapEntry[,] Walkmap = null;
-        private AdvData mData;
-        public AdvData Data
-        {
-            set { mData = value; }
-        }
-
-        public void removeObject(ObjectInstance obj){
-            mData.removeScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, Name));
-            Objects.Remove(obj);
-        }
-
-        public void removeObject(AdvObject obj)
-        {
-            ArrayList removes = new ArrayList();
-            foreach (ObjectInstance inst in Objects)
-            {
-                if (inst.Object == obj)
-                    removes.Add(inst);
-            }
-            foreach (ObjectInstance inst in removes)
-            {
-                removeObject(inst);
-            }
-        }
-
-        public void removeCharacter(CharacterInstance chr)
-        {
-            mData.removeScript(Script.Type.CHARACTER, chr.Name);
-            Characters.Remove(chr);
-            mData.CharacterInstances[Name.ToLower()].Remove(chr);
-        }
-
-        public void removeCharacter(AdvCharacter chr)
-        {
-            ArrayList removes = new ArrayList();
-            foreach (CharacterInstance inst in Characters)
-            {
-                if (inst.Character == chr)
-                    removes.Add(inst);
-            }
-            foreach (CharacterInstance inst in removes)
-            {
-                removeCharacter(inst);
-            }
-        }
-
-        public void removeWalkmapScripts()
-        {
-            for (int x = 0; x <= Walkmap.GetUpperBound(0); ++x)
-            {
-                for (int y = 0; y <= Walkmap.GetUpperBound(1); ++y)
-                {
-                    if (Walkmap[x, y].hasScript)
-                    {
-                        mData.removeScript(Script.Type.WALKMAP, Script.toScriptName(x, y, Name, mData));
-                    }
-                }
-            }
-        }
-
-        public void rename(string name)
-        {
-            Script scr = mData.getScript(Script.Type.ROOM, Name);
-            scr.Name = name;
-            mData.addScript(scr);
-            //rename object scripts
-            foreach (ObjectInstance obj in Objects)
-            {
-                Script objscr = mData.removeScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, Name));
-                if (objscr != null)
-                {
-                    objscr.Name = Script.toScriptName(obj.Name, name);
-                    mData.addScript(objscr);
-                }
-            }
-            //rename character instances
-            mData.CharacterInstances[name.ToLower()] = new ArrayList();
-            foreach (CharacterInstance chr in mData.CharacterInstances[Name.ToLower()]){
-                chr.Room = name;
-                mData.CharacterInstances[name.ToLower()].Add(chr);
-            }
-            mData.CharacterInstances.Remove(Name.ToLower());
-            //rename walkmap scripts
-            for (int x = 0; x <= Walkmap.GetUpperBound(0); ++x)
-            {
-                for (int y = 0; y <= Walkmap.GetUpperBound(1); ++y)
-                {
-                    if (Walkmap[x, y].hasScript)
-                    {
-                        Script wmscr = mData.removeScript(Script.Type.WALKMAP, Script.toScriptName(x, y, Name, mData));
-                        wmscr.Name = Script.toScriptName(x, y, name, mData);
-                        mData.addScript(wmscr);
-                    }
-                }
-            }
-
-            mData.removeScript(Script.Type.ROOM, Name);
-            
-            mData.Rooms.Remove(Name.ToLower());
-            Name = name;
-            mData.addRoom(this);
-        }
-    }
-
     public class Drawable
     {
         public Drawable(IStateFrameData obj)
@@ -1062,127 +930,6 @@ namespace StoryDesigner
             g.DrawLine(p, position.x +size.x, position.y + size.y, position.x + size.x, position.y + size.y - span - 1);
         }
         protected IStateFrameData mData;
-    }
-
-    public abstract class DrawableObject : Drawable{
-        public DrawableObject(IStateFrameData data) : base(data) { }
-        public abstract void draw(Graphics g, bool boundary, Color bordercolor);
-        public abstract bool isHit(Vec2i pos);
-        public abstract Vec2i getPosition();
-        public abstract void setPosition(Vec2i pos);
-        public abstract Vec2i getSize();
-        public abstract bool isLocked();
-    }
-
-    public class CharacterInstance : DrawableObject
-    {
-        public CharacterInstance(AdvCharacter chr, AdvData data) : base(chr){
-            Character = chr;
-        }
-        public override void draw(Graphics g, bool boundary, Color bordercolor)
-        {
-            int state = LookDir;
-            if (LookDir == 4)
-                state = 3;
-            Vec2i size = mData.getSize(state);
-            Bitmap bmp = new Bitmap(size.x, size.y);
-            Graphics gbmp = Graphics.FromImage(bmp);
-            draw(gbmp, state, new Vec2i(0,0));
-            if (LookDir == 4)
-                bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            g.DrawImage(bmp, RawPosition.x, RawPosition.y);
-            if (boundary)
-                drawBoundary(g, state, RawPosition, bordercolor);
-        }
-        public override bool isHit(Vec2i pos)
-        {
-            return isHit(LookDir, pos-RawPosition);
-        }
-        public override Vec2i getPosition()
-        {
-            return Position;
-        }
-        public override void setPosition(Vec2i pos)
-        {
-            Position = pos;
-        }
-        public override Vec2i getSize()
-        {
-            int state = LookDir;
-            if (LookDir == 4)
-                state = 3;
-            return mData.getSize(state);
-        }
-        public override bool isLocked()
-        {
-            return Locked;
-        }
-        public string Name;
-        public AdvCharacter Character;
-        public string Room;
-        public Vec2i RawPosition
-        {
-            set { position = value; }
-            get { return position; }
-        }
-        public Vec2i Position
-        {
-            set { position = value - mData.getHotspot(LookDir); ; }
-            get { return position+mData.getHotspot(LookDir); }
-        }
-        public int LookDir;
-        public bool Unmovable;
-        public bool Locked;
-
-        private Vec2i position;
-    }
-
-    public class ObjectInstance : DrawableObject
-    {
-        public ObjectInstance(AdvObject obj, AdvData data) : base(obj) {
-            Object = obj;
-            mAdvData = data;
-        }
-        public override void draw(Graphics g, bool boundary, Color bordercolor)
-        {
-            draw(g, State, Position);
-            if (boundary)
-            {
-                drawBoundary(g, State, Position, bordercolor);
-                if (Layer == 1)
-                {
-                    Utilities.drawDepthHandle(g, mAdvData, Position, Depth, Color.Blue);
-                }
-            }
-        }
-        public override bool isHit(Vec2i pos)
-        {
-            return isHit(State, pos - Position);
-        }
-        public override Vec2i getPosition()
-        {
-            return Position;
-        }
-        public override void setPosition(Vec2i pos)
-        {
-            Position = pos;
-        }
-        public override Vec2i getSize()
-        {
-            return mData.getSize(State);
-        }
-        public override bool isLocked()
-        {
-            return Locked;
-        }
-        public string Name;
-        public AdvObject Object;
-        public Vec2i Position;
-        public int State;
-        public int Layer;
-        public int Depth;
-        public bool Locked;
-        private AdvData mAdvData;
     }
 
     public class Language

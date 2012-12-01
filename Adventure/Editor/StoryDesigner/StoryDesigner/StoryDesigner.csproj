@@ -222,6 +222,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Room.cs" />
     <Compile Include="RoomCtrlDlg.cs">
       <SubType>Form</SubType>
     </Compile>
