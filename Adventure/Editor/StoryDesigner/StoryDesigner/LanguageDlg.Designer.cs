@@ -39,7 +39,7 @@
             this.tabControl2 = new System.Windows.Forms.TabControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
             this.tabPage5 = new System.Windows.Forms.TabPage();
-            this.commandGrid = new System.Windows.Forms.DataGridView();
+            this.speechGrid = new System.Windows.Forms.DataGridView();
             this.command = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.text = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Separator = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -49,7 +49,7 @@
             this.tabPage2.SuspendLayout();
             this.tabControl2.SuspendLayout();
             this.tabPage4.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.commandGrid)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.speechGrid)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -149,7 +149,7 @@
             // tabPage4
             // 
             this.tabPage4.BackColor = System.Drawing.SystemColors.Control;
-            this.tabPage4.Controls.Add(this.commandGrid);
+            this.tabPage4.Controls.Add(this.speechGrid);
             this.tabPage4.Location = new System.Drawing.Point(4, 22);
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.Padding = new System.Windows.Forms.Padding(3);
@@ -167,21 +167,21 @@
             this.tabPage5.TabIndex = 1;
             this.tabPage5.Text = "Offspeech";
             // 
-            // commandGrid
+            // speechGrid
             // 
-            this.commandGrid.AllowUserToResizeColumns = false;
-            this.commandGrid.AllowUserToResizeRows = false;
-            this.commandGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.commandGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.speechGrid.AllowUserToResizeColumns = false;
+            this.speechGrid.AllowUserToResizeRows = false;
+            this.speechGrid.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.speechGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.command,
             this.text,
             this.Separator,
             this.Voicefile_translated,
             this.text_translated});
-            this.commandGrid.Location = new System.Drawing.Point(0, 0);
-            this.commandGrid.Name = "commandGrid";
-            this.commandGrid.Size = new System.Drawing.Size(868, 327);
-            this.commandGrid.TabIndex = 1;
+            this.speechGrid.Location = new System.Drawing.Point(0, 0);
+            this.speechGrid.Name = "speechGrid";
+            this.speechGrid.Size = new System.Drawing.Size(854, 327);
+            this.speechGrid.TabIndex = 1;
             // 
             // command
             // 
@@ -201,7 +201,7 @@
             this.Separator.HeaderText = "";
             this.Separator.Name = "Separator";
             this.Separator.ReadOnly = true;
-            this.Separator.Width = 20;
+            this.Separator.Width = 10;
             // 
             // Voicefile_translated
             // 
@@ -227,7 +227,7 @@
             this.tabPage2.PerformLayout();
             this.tabControl2.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.commandGrid)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.speechGrid)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -245,7 +245,7 @@
         private System.Windows.Forms.TabControl tabControl2;
         private System.Windows.Forms.TabPage tabPage4;
         private System.Windows.Forms.TabPage tabPage5;
-        private System.Windows.Forms.DataGridView commandGrid;
+        private System.Windows.Forms.DataGridView speechGrid;
         private System.Windows.Forms.DataGridViewTextBoxColumn command;
         private System.Windows.Forms.DataGridViewTextBoxColumn text;
         private System.Windows.Forms.DataGridViewTextBoxColumn Separator;

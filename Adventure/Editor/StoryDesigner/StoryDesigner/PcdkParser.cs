@@ -732,6 +732,8 @@ namespace StoryDesigner
         //parser
         public void parseText(string scripttext)
         {
+            if (scripttext == null)
+                return;
             string[] lines = scripttext.Split('\n');
             int charidx = 0;
             for (int i = 0; i < lines.Length; ++i)
@@ -834,7 +836,7 @@ namespace StoryDesigner
             {
                 if (text[i] == stopchar)
                 {
-                    result = builder.ToString();
+                    result = builder.ToString().Trim();
                     return i;
                 }
                 //if (!Char.IsWhiteSpace(text[i]))
