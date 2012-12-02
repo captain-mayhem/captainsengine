@@ -1124,5 +1124,12 @@ namespace StoryDesigner
                     break;
             }
         }
+
+        private void languageAndSoundToolsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mData.updateLanguageList();
+            LanguageDlg dlg = new LanguageDlg(mData);
+            dlg.Show(this);
+        }
     }
 }
