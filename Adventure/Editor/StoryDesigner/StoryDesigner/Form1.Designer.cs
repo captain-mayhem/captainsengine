@@ -224,6 +224,7 @@ namespace StoryDesigner
             this.languageAndSoundToolsToolStripMenuItem.Name = "languageAndSoundToolsToolStripMenuItem";
             this.languageAndSoundToolsToolStripMenuItem.Size = new System.Drawing.Size(225, 22);
             this.languageAndSoundToolsToolStripMenuItem.Text = "Language- and Sound-Tools";
+            this.languageAndSoundToolsToolStripMenuItem.Click += new System.EventHandler(this.languageAndSoundToolsToolStripMenuItem_Click);
             // 
             // toolStripSeparator5
             // 
@@ -674,7 +675,7 @@ namespace StoryDesigner
             this.deleteToolStripMenuItem,
             this.exportToolStripMenuItem1});
             this.menuPool.Name = "menuPool";
-            this.menuPool.Size = new System.Drawing.Size(153, 136);
+            this.menuPool.Size = new System.Drawing.Size(153, 114);
             // 
             // renameToolStripMenuItem
             // 

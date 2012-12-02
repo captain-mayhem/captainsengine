@@ -116,6 +116,12 @@
     <Compile Include="ItemDlg.Designer.cs">
       <DependentUpon>ItemDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="LanguageDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LanguageDlg.Designer.cs">
+      <DependentUpon>LanguageDlg.cs</DependentUpon>
+    </Compile>
     <Compile Include="MediaPlyr.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -268,6 +274,10 @@
     <Content Include="Icons\Folder.ico" />
     <EmbeddedResource Include="Images\FxshapeManDark.png" />
     <EmbeddedResource Include="Images\FxshapeManLight.png" />
+    <EmbeddedResource Include="LanguageDlg.resx">
+      <DependentUpon>LanguageDlg.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="MediaPlyr.resx">
       <DependentUpon>MediaPlyr.cs</DependentUpon>
       <SubType>Designer</SubType>

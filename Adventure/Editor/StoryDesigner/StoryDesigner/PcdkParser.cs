@@ -730,12 +730,30 @@ namespace StoryDesigner
         }
 
         //parser
+        public void parseText(string scripttext)
+        {
+            string[] lines = scripttext.Split('\n');
+            int charidx = 0;
+            for (int i = 0; i < lines.Length; ++i)
+            {
+                parseLine(i, charidx, lines[i]);
+                charidx += lines[i].Length;
+            }
+        }
+
         public void parseText(RichTextBox scripttext)
         {
             for (int i = 0; i < scripttext.Lines.Length; ++i)
             {
                 parseLine(i, scripttext);
             }
+        }
+
+        public void parseLine(int line, int charidx, string scripttext)
+        {
+            if (scripttext.Length == 0)
+                return;
+            parseFunction(charidx, scripttext);
         }
 
         public void parseLine(int line, RichTextBox scripttext)
@@ -819,10 +837,10 @@ namespace StoryDesigner
                     result = builder.ToString();
                     return i;
                 }
-                if (!Char.IsWhiteSpace(text[i]))
+                //if (!Char.IsWhiteSpace(text[i]))
                     builder.Append(text[i]);
             }
-            result = builder.ToString();
+            result = builder.ToString().Trim();
             return -1;
         }
 

@@ -87,7 +87,7 @@ namespace StoryDesigner
             scripttext.SelectionStart = startidx;
             scripttext.SelectionLength = stopidx-startidx;
             scripttext.Paste();
-            if (old != null)
+            if (old != null && old.Length != 0)
                 Clipboard.SetText(old);
             scripttext.Focus();
         }

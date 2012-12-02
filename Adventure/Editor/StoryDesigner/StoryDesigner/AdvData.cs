@@ -1291,6 +1291,28 @@ namespace StoryDesigner
             get { return mReader; }
         }
 
+        public void updateLanguageList()
+        {
+            PcdkParser parser = new PcdkParser();
+            parser.initSyntax();
+            parser.Function += new PcdkParser.functionCB(parser_Function);
+            foreach (Dictionary<string, Script> scripts in mScripts)
+            {
+                foreach (KeyValuePair<string, Script> pair in scripts)
+                {
+                    parser.parseText(pair.Value.Text);
+                }
+            }
+        }
+
+        void parser_Function(PcdkParser.Argument funcname, object[] args, int startidx)
+        {
+            if (funcname.Text == "speech")
+            {
+                return;
+            }
+        }
+
         public ProjectSettings Settings;
         public Persistence Persistence;
         Dictionary<string, string> mImages;
