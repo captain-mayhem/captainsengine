@@ -789,6 +789,7 @@ namespace StoryDesigner
                 }
                 mAdv.addLanguage(language, section, str);
             }
+            mAdv.buildLanguageIndex();
             return true;
         }
 
