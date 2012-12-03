@@ -983,6 +983,8 @@ namespace StoryDesigner
         public void addWord(Section section, string text, string voice)
         {
             Key k = new Key(text, voice);
+            if (mInvsec[(int)section].ContainsKey(k))
+                return;
             int sect2 = -1;
             if (section == Section.Speech)
                 sect2 = (int)Section.Speech_Sounds;
@@ -1382,6 +1384,12 @@ namespace StoryDesigner
                     parser.parseText(pair.Value.Text);
                 }
             }
+            mLanguages["origin"].addWord(Language.Section.Commands, Settings.WalkText, null);
+            mLanguages["origin"].addWord(Language.Section.Commands, Settings.LinkText, null);
+            mLanguages["origin"].addWord(Language.Section.Commands, Settings.GiveLink, null);
+            foreach (KeyValuePair<string,string> pair in Settings.Commands){
+                mLanguages["origin"].addWord(Language.Section.Commands, pair.Value, null);
+            }
         }
 
         void parser_Function(PcdkParser.Argument funcname, object[] args, int startidx)
@@ -1398,6 +1406,39 @@ namespace StoryDesigner
                 }
                 mLanguages["origin"].addWord(Language.Section.Speech, text.Text, voice);
                 return;
+            }
+            else if (funcname.Text == "offspeech")
+            {
+                PcdkParser.Argument text = (PcdkParser.Argument)args[2];
+                string voice = "";
+                if (args.Length > 3)
+                {
+                    PcdkParser.Argument voicearg = (PcdkParser.Argument)args[3];
+                    if (voicearg.Text != "dontwait")
+                        voice = voicearg.Text;
+                }
+                mLanguages["origin"].addWord(Language.Section.Offspeech, text.Text, voice);
+                return;
+            }
+            else if (funcname.Text == "showinfo")
+            {
+                PcdkParser.Argument text = (PcdkParser.Argument)args[0];
+                mLanguages["origin"].addWord(Language.Section.Showinfo, text.Text, null);
+            }
+            else if (funcname.Text == "textout")
+            {
+                PcdkParser.Argument text = (PcdkParser.Argument)args[1];
+                mLanguages["origin"].addWord(Language.Section.Textout, text.Text, null);
+            }
+            else if (funcname.Text == "setstring")
+            {
+                PcdkParser.Argument text = (PcdkParser.Argument)args[1];
+                mLanguages["origin"].addWord(Language.Section.Setstring, text.Text, null);
+            }
+            else if (funcname.Text == "row")
+            {
+                PcdkParser.Argument text = (PcdkParser.Argument)args[1];
+                mLanguages["origin"].addWord(Language.Section.Textscenes, text.Text, null);
             }
         }
 

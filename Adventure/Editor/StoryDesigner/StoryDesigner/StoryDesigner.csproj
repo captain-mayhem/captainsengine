@@ -122,6 +122,12 @@
     <Compile Include="LanguageDlg.Designer.cs">
       <DependentUpon>LanguageDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="LanguageTable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="LanguageTable.Designer.cs">
+      <DependentUpon>LanguageTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="MediaPlyr.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -276,6 +282,10 @@
     <EmbeddedResource Include="Images\FxshapeManLight.png" />
     <EmbeddedResource Include="LanguageDlg.resx">
       <DependentUpon>LanguageDlg.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LanguageTable.resx">
+      <DependentUpon>LanguageTable.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="MediaPlyr.resx">
