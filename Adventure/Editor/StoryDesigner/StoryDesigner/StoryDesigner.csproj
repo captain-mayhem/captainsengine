@@ -116,6 +116,7 @@
     <Compile Include="ItemDlg.Designer.cs">
       <DependentUpon>ItemDlg.cs</DependentUpon>
     </Compile>
+    <Compile Include="Language.cs" />
     <Compile Include="LanguageDlg.cs">
       <SubType>Form</SubType>
     </Compile>
