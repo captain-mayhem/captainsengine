@@ -932,119 +932,6 @@ namespace StoryDesigner
         protected IStateFrameData mData;
     }
 
-    public class Language
-    {
-        public enum Section
-        {
-            Speech=0,
-            Speech_Sounds,
-            Offspeech,
-            Offspeech_Sounds,
-            Showinfo,
-            Textout,
-            Setstring,
-            Textscenes,
-            Commands,
-            NumSections
-        }
-
-        public struct Key
-        {
-            public Key(string text, string voice)
-            {
-                Text = text;
-                Voice = voice;
-            }
-            public Key(string text)
-            {
-                Text = text;
-                Voice = null;
-            }
-            public string Text;
-            public string Voice;
-        }
-
-        public Language()
-        {
-            for (int i = 0; i < (int)Section.NumSections; ++i)
-            {
-                mSections[i] = new ArrayList();
-                mInvsec[i] = new Dictionary<Key, int>();
-            }
-        }
-
-        public string Name;
-
-        public void addWordWithoutIndex(Section section, string text)
-        {
-            mSections[(int)section].Add(text);
-        }
-
-        public void addWord(Section section, string text, string voice)
-        {
-            Key k = new Key(text, voice);
-            if (mInvsec[(int)section].ContainsKey(k))
-                return;
-            int sect2 = -1;
-            if (section == Section.Speech)
-                sect2 = (int)Section.Speech_Sounds;
-            else if (section == Section.Offspeech)
-                sect2 = (int)Section.Offspeech_Sounds;
-            mSections[(int)section].Add(text);
-            mInvsec[(int)section][k] = mSections[(int)section].Count - 1;
-            if (sect2 != -1)
-            {
-                mSections[sect2].Add(voice);
-                mInvsec[sect2][k] = mSections[sect2].Count - 1;
-            }
-        }
-
-        public ArrayList getWords(Section section)
-        {
-            return mSections[(int)section];
-        }
-
-        public void buildIndex()
-        {
-            for (int i = 0; i < (int)Language.Section.NumSections; ++i)
-            {
-                Language.Section sect = (Language.Section)i;
-                if (sect == Language.Section.Speech_Sounds || sect == Language.Section.Offspeech_Sounds)
-                    continue;
-                ArrayList list = mSections[i];
-                int sect2 = -1;
-                if (sect == Language.Section.Speech)
-                    sect2 = (int)Language.Section.Speech_Sounds;
-                if (sect == Language.Section.Offspeech)
-                    sect2 = (int)Language.Section.Offspeech_Sounds;
-                if (sect2 != -1)
-                {
-                    ArrayList list2 = mSections[sect2];
-                    for (int j = 0; j < list.Count; ++j)
-                    {
-                        string text = (string)list[j];
-                        string voice = (string)list2[j];
-                        Key k = new Key(text, voice);
-                        mInvsec[i][k] = j;
-                        mInvsec[sect2][k] = j;
-                    }
-                }
-                else
-                {
-                    for (int j = 0; j < list.Count; ++j)
-                    {
-                        string text = (string)list[j];
-                        Key k = new Key(text);
-                        mInvsec[i][k] = j;
-                    }
-                }
-            }
-        }
-
-        ArrayList[] mSections = new ArrayList[(int)Section.NumSections];
-        Dictionary<Key, int>[] mInvsec = new Dictionary<Key, int>[(int)Section.NumSections];
-    }
-
     public class AdvData
     {
         public AdvData(Persistence persist)
@@ -1354,10 +1241,12 @@ namespace StoryDesigner
 
         public void buildLanguageIndex()
         {
-            foreach (KeyValuePair<string, Language> langpair in mLanguages)
+            if (mLanguages.Count == 0)
             {
-                langpair.Value.buildIndex();
+                mLanguages["origin"] = new Language();
+                mLanguages["origin"].Name = "origin";
             }
+            mLanguages["origin"].buildIndex();
         }
 
         public Dictionary<string, Language> Languages
@@ -1372,11 +1261,11 @@ namespace StoryDesigner
 
         public void updateLanguageList()
         {
-            if (mLanguages.Count == 0)
-                mLanguages.Add("origin", new Language());
             PcdkParser parser = new PcdkParser();
             parser.initSyntax();
             parser.Function += new PcdkParser.functionCB(parser_Function);
+
+            Language.beginRefresh();
             foreach (Dictionary<string, Script> scripts in mScripts)
             {
                 foreach (KeyValuePair<string, Script> pair in scripts)
@@ -1390,6 +1279,7 @@ namespace StoryDesigner
             foreach (KeyValuePair<string,string> pair in Settings.Commands){
                 mLanguages["origin"].addWord(Language.Section.Commands, pair.Value, null);
             }
+            Language.endRefresh(this);
         }
 
         void parser_Function(PcdkParser.Argument funcname, object[] args, int startidx)
