@@ -16,10 +16,6 @@ namespace CGE{
 
 namespace adv{
 
-#ifndef WIN32
-void TR_BREAK();
-#endif
-
 class SoundPlayer;
 
 struct ProjectSettings{
