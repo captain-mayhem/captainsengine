@@ -501,7 +501,7 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
     if (!cso){
       TR_USE(ADV_ScriptFunc);
-      TR_BREAK("Character %s not found", charname);
+      TR_BREAK("Character %s not found", charname.c_str());
     }
     cso->inventory.items[inventory].push_back(item->getName());
     delete item;

@@ -23,9 +23,6 @@ TR_CHANNEL(ADV_Events);
 
 namespace adv{
 #ifndef WIN32
-void TR_BREAK(){
-__builtin_trap();
-}
 
 int _stricmp(const char* str1, const char* str2){
   int len1 = strlen(str1);
