@@ -1017,7 +1017,6 @@ namespace StoryDesigner
             {
                 mScripts[i] = new Dictionary<string, Script>();
             }
-            mWMScripts = new Dictionary<string, ArrayList>();
             Persistence = persist;   
         }
 
@@ -1346,7 +1345,6 @@ namespace StoryDesigner
         Dictionary<string, ArrayList> mCharacterInstances;
         Dictionary<string, Room> mRooms;
         Dictionary<string, Script>[] mScripts;
-        Dictionary<string, ArrayList> mWMScripts;
         Dictionary<string, Language> mLanguages;
         AdvFileReader mReader;
     }

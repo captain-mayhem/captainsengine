@@ -115,7 +115,6 @@ namespace StoryDesigner
                     SizeF f = g.MeasureString(new string(ch, 1), mCurrFont);
                     width = (int)f.Width;
                 }
-                int height = (int)(rect.Height);///*Math.Ceiling(*/ f.Height;//);
                 charwidths[i] = width+outlinethickness;
                 maxwidth = Math.Max(maxwidth, (int)(rect.Width+rect.X));
                 maxheight = Math.Max(maxheight, (int)(rect.Height+rect.Y));

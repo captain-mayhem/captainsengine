@@ -809,7 +809,6 @@ namespace StoryDesigner
             DrawableObject ret = null;
             DrawableObject ret2 = null;
             int retdepth = -1;
-            int retdepth2 = -1;
             foreach (ObjectInstance obj in mRoom.Objects)
             {
                 if (obj.isHit(pos))
@@ -817,7 +816,6 @@ namespace StoryDesigner
                     int depth = getDepth(obj);
                     if (depth >= retdepth)
                     {
-                        retdepth2 = retdepth;
                         retdepth = depth;
                         ret2 = ret;
                         ret = obj;
@@ -831,7 +829,6 @@ namespace StoryDesigner
                     int depth = getDepth(chr);
                     if (depth > retdepth)
                     {
-                        retdepth2 = retdepth;
                         retdepth = depth;
                         ret2 = ret;
                         ret = chr;

@@ -112,7 +112,7 @@ namespace StoryDesigner
                 }
                 if (i == 0)
                     return;
-                LockWindowUpdate(scripttext.Handle);
+                lockUpdate();
                 scripttext.Select(scripttext.GetFirstCharIndexFromLine(line-1), i);
                 string old = Clipboard.GetText();
                 scripttext.Copy();
@@ -121,7 +121,7 @@ namespace StoryDesigner
                 scripttext.Paste();
                 if (old != null)
                     Clipboard.SetText(old);
-                LockWindowUpdate(IntPtr.Zero);
+                unlockUpdate();
             }
         }
 
@@ -191,7 +191,7 @@ namespace StoryDesigner
             if (mLayoutPerformed || mParser == null)
                 return;
             mLayoutPerformed = true;
-            LockWindowUpdate(scripttext.Handle);
+            lockUpdate();
             scripttext.SuspendLayout();
             int oldoffset = scripttext.SelectionStart;
             mCursorPos = oldoffset;
@@ -202,7 +202,7 @@ namespace StoryDesigner
             scripttext.SelectionFont = scripttext.Font;
             scripttext.SelectionColor = Color.Black;
             scripttext.ResumeLayout();
-            LockWindowUpdate(IntPtr.Zero);
+            unlockUpdate();
             mLayoutPerformed = false;
         }
 
@@ -525,8 +525,22 @@ namespace StoryDesigner
                 this.Text = "Script (" + name + " / " + text + ")";
         }
 
+#if !MONO
         [DllImport("user32.dll")] // import lockwindow to remove flashing
 	    public static extern bool LockWindowUpdate (IntPtr hWndLock);
+#endif
+		
+		private void lockUpdate(){
+#if !MONO
+			LockWindowUpdate(scripttext.Handle);
+#endif
+		}
+		
+		private void unlockUpdate(){
+#if !MONO
+			LockWindowUpdate(IntPtr.Zero);
+#endif
+		}
 
         private void textsceneLevel2RowsToolStripMenuItem_Click(object sender, EventArgs e)
         {

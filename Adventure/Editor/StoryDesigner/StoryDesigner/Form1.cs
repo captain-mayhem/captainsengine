@@ -41,7 +41,7 @@ namespace StoryDesigner
             Point p = view.PointToClient(new Point(e.X, e.Y));
             TreeNode node = view.GetNodeAt(p.X, p.Y);
             TreeNode toParent;
-            ResourceID toID = determineTypeAndFolder(view, node, out toParent, true);
+            determineTypeAndFolder(view, node, out toParent, true);
             from.Node.Remove();
             toParent.Nodes.Add(from.Node);
             view.Sort();
@@ -233,9 +233,6 @@ namespace StoryDesigner
         }
 
         private void openResource(ResourceID id, string name){
-            bool sameResource = mLastID == id && mLastName == name;
-            mLastName = name;
-            mLastID = id;
             switch (id)
             {
                 case ResourceID.IMAGE:
@@ -420,8 +417,6 @@ namespace StoryDesigner
         private CharacterDlg mCharacterDlg;
         private ScriptDlg mScriptDlg;
         private RoomDlg mRoomDlg;
-        private string mLastName;
-        private ResourceID mLastID;
         private RoomDlg.ViewMode mRoomView = RoomDlg.ViewMode.Objects;
         private TreeView mSelectedView;
         private TreeNode mSelectedNode;
@@ -607,7 +602,6 @@ namespace StoryDesigner
 
         private void walkmapOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToolStripDropDownItem item = (ToolStripDropDownItem)sender;
             if (mRoomView != RoomDlg.ViewMode.Walkmap)
             {
                 setRoomViewMode(RoomDlg.ViewMode.Walkmap);
@@ -958,7 +952,6 @@ namespace StoryDesigner
 
         private void deepmapOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToolStripDropDownItem item = (ToolStripDropDownItem)sender;
             if (mRoomView != RoomDlg.ViewMode.Deepmap)
             {
                 setRoomViewMode(RoomDlg.ViewMode.Deepmap);
@@ -971,7 +964,6 @@ namespace StoryDesigner
 
         private void inventoryfieldOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToolStripDropDownItem item = (ToolStripDropDownItem)sender;
             if (mRoomView != RoomDlg.ViewMode.Inventory)
             {
                 setRoomViewMode(RoomDlg.ViewMode.Inventory);
@@ -984,7 +976,6 @@ namespace StoryDesigner
 
         private void fXShapesOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ToolStripDropDownItem item = (ToolStripDropDownItem)sender;
             if (mRoomView != RoomDlg.ViewMode.Specialfx)
             {
                 setRoomViewMode(RoomDlg.ViewMode.Specialfx);

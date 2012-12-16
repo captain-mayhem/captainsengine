@@ -1,0 +1,109 @@
+<Project name="StoryDesigner" fileversion="2.0" DefaultNamespace="StoryDesigner" language="C#" Configuration="Debug" Platform="AnyCPU" AppDesignerFolder="Properties" AssemblyName="StoryDesigner" FileUpgradeFlags="" OldToolsVersion="2.0" UpgradeBackupLocation="" TargetFrameworkVersion="v3.5" PublishUrl="publish\" Install="true" InstallFrom="Disk" UpdateEnabled="false" UpdateMode="Foreground" UpdateInterval="7" UpdateIntervalUnits="Days" UpdatePeriodically="false" UpdateRequired="false" MapFileExtensions="true" ApplicationRevision="0" ApplicationVersion="1.0.0.%2a" IsWebBootstrapper="false" UseApplicationTrust="false" BootstrapperEnabled="true" targetFramework="4.0" ctype="DotNetProject">
+  <Configurations active="Debug">
+    <Configuration name="Debug" Optimize="false" DefineConstants="DEBUG;TRACE" WarningLevel="4" ctype="DotNetProjectConfiguration">
+      <Output directory="bin/Debug/" assembly="StoryDesigner" />
+      <Build debugmode="True" target="WinExe" />
+      <Execution consolepause="True" runwithwarnings="True" runtime="MsNet" />
+      <CodeGeneration compiler="Mcs" warninglevel="4" optimize="False" unsafecodeallowed="False" generateoverflowchecks="False" definesymbols="DEBUG;TRACE;MONO" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+    <Configuration name="Release" Optimize="true" DefineConstants="TRACE" WarningLevel="4" ctype="DotNetProjectConfiguration">
+      <Output directory="bin/Release/" assembly="StoryDesigner" />
+      <Build debugmode="False" target="WinExe" />
+      <Execution consolepause="True" runwithwarnings="True" runtime="MsNet" />
+      <CodeGeneration compiler="Mcs" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="False" definesymbols="TRACE" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+  </Configurations>
+  <Contents>
+    <File subtype="Code" buildaction="Compile" name="AdvData.cs" />
+    <File subtype="Code" buildaction="Compile" name="AdvFileReader.cs" />
+    <File subtype="Code" buildaction="Compile" name="AdvFileWriter.cs" />
+    <File subtype="Code" buildaction="Compile" name="CharacterDlg.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="CharacterDlg.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/CharacterDlg.cs" />
+    <File subtype="Code" buildaction="Compile" name="CommandsAndBools.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="CommandsAndBools.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/CommandsAndBools.cs" />
+    <File subtype="Code" buildaction="Compile" name="Fonts.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="Fonts.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/Fonts.cs" />
+    <File subtype="Code" buildaction="Compile" name="Form1.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="Form1.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/Form1.cs" />
+    <File subtype="Code" buildaction="Compile" name="FxShapeCtrl.cs" contentType="UserControl" />
+    <File subtype="Code" buildaction="Compile" name="FxShapeCtrl.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/FxShapeCtrl.cs" />
+    <File subtype="Code" buildaction="Compile" name="FxShapeTabCtrl.cs" contentType="UserControl" />
+    <File subtype="Code" buildaction="Compile" name="FxShapeTabCtrl.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/FxShapeTabCtrl.cs" />
+    <File subtype="Code" buildaction="Compile" name="ImageViewer.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="ImageViewer.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/ImageViewer.cs" />
+    <File subtype="Code" buildaction="Compile" name="ItemDlg.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="ItemDlg.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/ItemDlg.cs" />
+    <File subtype="Code" buildaction="Compile" name="Language.cs" />
+    <File subtype="Code" buildaction="Compile" name="LanguageDlg.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="LanguageDlg.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/LanguageDlg.cs" />
+    <File subtype="Code" buildaction="Compile" name="LanguageTable.cs" contentType="UserControl" />
+    <File subtype="Code" buildaction="Compile" name="LanguageTable.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/LanguageTable.cs" />
+    <File subtype="Code" buildaction="Compile" name="MediaPlyr.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="MediaPlyr.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/MediaPlyr.cs" />
+    <File subtype="Code" buildaction="Compile" name="MouseIcons.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="MouseIcons.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/MouseIcons.cs" />
+    <File subtype="Code" buildaction="Compile" name="ObjectDlg.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="ObjectDlg.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/ObjectDlg.cs" />
+    <File subtype="Code" buildaction="Compile" name="PcdkParser.cs" />
+    <File subtype="Code" buildaction="Compile" name="Persistence.cs" />
+    <File subtype="Code" buildaction="Compile" name="Program.cs" />
+    <File subtype="Code" buildaction="Compile" name="Properties/AssemblyInfo.cs" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="CharacterDlg.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/CharacterDlg.cs" resource_id="StoryDesigner.CharacterDlg.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="CommandsAndBools.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/CommandsAndBools.cs" resource_id="StoryDesigner.CommandsAndBools.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Fonts.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/Fonts.cs" resource_id="StoryDesigner.Fonts.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Form1.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/Form1.cs" resource_id="StoryDesigner.MainForm.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="FxShapeCtrl.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/FxShapeCtrl.cs" resource_id="StoryDesigner.FxShapeCtrl.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="FxShapeTabCtrl.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/FxShapeTabCtrl.cs" resource_id="StoryDesigner.FxShapeTabCtrl.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="ImageViewer.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/ImageViewer.cs" resource_id="StoryDesigner.ImageViewer.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="ItemDlg.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/ItemDlg.cs" resource_id="StoryDesigner.ItemDlg.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="MouseIcons.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/MouseIcons.cs" resource_id="StoryDesigner.MouseIcons.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="ObjectDlg.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/ObjectDlg.cs" resource_id="StoryDesigner.ObjectDlg.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Properties/Resources.resx" contentType="Designer" generator="ResXFileCodeGenerator" resource_id="StoryDesigner.Properties.Resources.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="RoomCtrlDlg.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/RoomCtrlDlg.cs" resource_id="StoryDesigner.RoomCtrlDlg.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="RoomDlg.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/RoomDlg.cs" resource_id="StoryDesigner.RoomDlg.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="ScriptDlg.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/ScriptDlg.cs" resource_id="StoryDesigner.ScriptDlg.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Settings.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/Settings.cs" resource_id="StoryDesigner.Settings.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="StateFrameImage.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/StateFrameImage.cs" resource_id="StoryDesigner.StateFrameImage.resources" />
+    <File subtype="Code" buildaction="Compile" name="Properties/Resources.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/Properties/Resources.resx" />
+    <File subtype="Code" buildaction="Nothing" name="Properties/Settings.settings" generator="SettingsSingleFileGenerator" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Resources/font.dat" resource_id="StoryDesigner.Resources.font.dat" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="WaitForm.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/WaitForm.cs" resource_id="StoryDesigner.WaitForm.resources" />
+    <File subtype="Code" buildaction="Compile" name="Properties/Settings.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/Properties/Settings.settings" />
+    <File subtype="Code" buildaction="Compile" name="Room.cs" />
+    <File subtype="Code" buildaction="Compile" name="RoomCtrlDlg.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="RoomCtrlDlg.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/RoomCtrlDlg.cs" />
+    <File subtype="Code" buildaction="Compile" name="RoomDlg.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="RoomDlg.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/RoomDlg.cs" />
+    <File subtype="Code" buildaction="Compile" name="ScriptDlg.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="ScriptDlg.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/ScriptDlg.cs" />
+    <File subtype="Code" buildaction="Compile" name="Settings.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="Settings.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/Settings.cs" />
+    <File subtype="Code" buildaction="Compile" name="StateFrameImage.cs" contentType="UserControl" />
+    <File subtype="Code" buildaction="Compile" name="StateFrameImage.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/StateFrameImage.cs" />
+    <File subtype="Code" buildaction="Compile" name="UnexpectedValue.cs" />
+    <File subtype="Code" buildaction="Compile" name="Utilities.cs" />
+    <File subtype="Code" buildaction="Compile" name="Vec2i.cs" />
+    <File subtype="Code" buildaction="Compile" name="WaitForm.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="WaitForm.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/WaitForm.cs" />
+    <File subtype="Code" buildaction="Exclude" name="Icons/Empty.ico" />
+    <File subtype="Code" buildaction="Exclude" name="Icons/Folder.ico" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Images/FxshapeManDark.png" resource_id="StoryDesigner.Images.FxshapeManDark.png" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Images/FxshapeManLight.png" resource_id="StoryDesigner.Images.FxshapeManLight.png" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="LanguageDlg.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/LanguageDlg.cs" resource_id="StoryDesigner.LanguageDlg.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="LanguageTable.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/LanguageTable.cs" resource_id="StoryDesigner.LanguageTable.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="MediaPlyr.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/StoryDesigner/MediaPlyr.cs" resource_id="StoryDesigner.MediaPlyr.resources" />
+    <File subtype="Code" buildaction="BootstrapperPackage" name="Microsoft.Net.Framework.2.0" visible="False" />
+    <File subtype="Code" buildaction="BootstrapperPackage" name="Microsoft.Net.Framework.3.0" visible="False" />
+    <File subtype="Code" buildaction="BootstrapperPackage" name="Microsoft.Net.Framework.3.5" visible="False" />
+  </Contents>
+  <References>
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Deployment" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference specificVersion="False" type="Assembly" localcopy="True" refto="../../sharpzip/SrcSamples/bin/ICSharpCode.SharpZipLib.dll" />
+  </References>
+</Project>

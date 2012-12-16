@@ -80,7 +80,6 @@ namespace StoryDesigner
         {
             for (int i = 0; i < (int)Language.Section.NumSections; ++i)
             {
-                Language.Section sect = (Language.Section)i;
                 ArrayList list = mSections[i];
                 mEncountered[i] = new ArrayList(mSections[i].Count);
                 for (int j = 0; j < list.Count; ++j)
