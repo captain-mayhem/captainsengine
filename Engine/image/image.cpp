@@ -7,6 +7,10 @@ using namespace CGE;
 
 Image::Image() : mChannels(0), mWidth(0), mHeight(0), mData(NULL) {}
 
+Image::Image(int channels, int width, int height) : mChannels(channels), mWidth(width), mHeight(height), mData(NULL){
+  allocateData();
+}
+
 Image::Image(int channels, int width, int height, unsigned char* data) : mChannels(channels), mWidth(width), mHeight(height), mData(NULL){
   allocateData();
   memcpy(mData, data, getImageSize());

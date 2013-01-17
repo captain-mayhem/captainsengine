@@ -72,6 +72,10 @@ void BinFileReader::skip(int numberOfElements){
   mStream.seekg(numberOfElements, std::ios::cur);
 }
 
+void BinFileReader::gotoEnd(){
+  mStream.seekg(0, std::ios::end);
+}
+
 std::string BinFileReader::readString(){
   return "";
 }
