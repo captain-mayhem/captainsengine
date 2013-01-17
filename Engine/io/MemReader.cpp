@@ -104,6 +104,10 @@ void MemReader::skip(int numberOfElements){
   mCurrent += realLength;
 }
 
+void MemReader::gotoEnd(){
+  mCurrent = mEnd;
+}
+
 std::string MemReader::readString(){
   return "";
 }
