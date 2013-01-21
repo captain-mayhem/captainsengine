@@ -11,14 +11,16 @@ int main(int argc, char** argv){
     0, 1, 0, 1,
     0, 0, 1, 1
   };
+  GouraudShader shader;
+  FlatShader shader2;
+  context.setShader(&shader);
   Triangle tri(coord1);
   tri.setVarying(0, color);
   float coord2[] = {100, 120, 50, 190, 150, 190};
   Triangle tri2(coord2);
   tri2.setVarying(0, color);
   //context.enableVertexAttribArray(0, true);
-  tri.raster(&context, 4);
-  tri2.raster(&context, 4);
-  tri2.setVarying(0, color);
+  tri.raster(&context, 1);
+  tri2.raster(&context, 1);
   surface.debugWrite("\\tmp\\test");
 }

@@ -12,6 +12,7 @@ public:
   void setSurface(VRSurface* surface) {mSurface = surface;}
   VRSurface* getCurrentSurface() {return mSurface;}
   void setShader(VRShader* shader) {mShader = shader;}
+  VRShader* getActiveShader() {return mShader;}
   void enableVertexAttribArray(unsigned idx, bool enable){
     mVertexAttribArrays[idx] = enable;
   }
