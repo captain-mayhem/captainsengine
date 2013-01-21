@@ -4,6 +4,7 @@
 
 #include "state.h"
 #include "framebuffer.h"
+#include "shader.h"
 
 using namespace std;
 
@@ -126,12 +127,19 @@ void Triangle::raster(VRState* state, int numInterpolations){
   //24.8
   int fAlpha = C2 + DX23 * Y1 - DY23 * X1;
 
+  int CY1 = C1 + DX12 * (miny << 4) - DY12 * (minx << 4);
+  int CY2 = C2 + DX23 * (miny << 4) - DY23 * (minx << 4);
+  int CY3 = C3 + DX31 * (miny << 4) - DY31 * (minx << 4);
+
   int interp_dx[NUM_VARYING*4];
   int interp_dy[NUM_VARYING*4];
+  int interp_starts[NUM_VARYING*4];
+
   //for (int i = 0; i < NUM_VARYING; ++i){
   for (int i = 0; i < 4; ++i){
     interp_dx[i] = (int)(FDY23*mVarying[0][mIdx0*4+i])+(int)(FDY31*mVarying[0][mIdx1*4+i])+(int)(FDY12*mVarying[0][mIdx2*4+i]);
     interp_dy[i] = (int)(FDX23*mVarying[0][mIdx0*4+i])+(int)(FDX31*mVarying[0][mIdx1*4+i])+(int)(FDX12*mVarying[0][mIdx2*4+i]);
+    interp_starts[i] = (int)(CY2*mVarying[0][mIdx0*4+i])+(int)(CY3*mVarying[0][mIdx1*4+i])+(int)(CY1*mVarying[0][mIdx2*4+i]);
   }
   //}
 
@@ -172,16 +180,38 @@ void Triangle::raster(VRState* state, int numInterpolations){
       int ypos = cbypos;
 
       //accept whole block when totally covered
-      //TODO
-      /*if(a == 0xF && b == 0xF && c == 0xF){
+      if(a == 0xF && b == 0xF && c == 0xF){
+        int interp_values[NUM_VARYING*4];
+        for (int i = 0; i < 4; ++i){
+          interp_values[i] = interp_starts[i]+(y-miny)*interp_dy[i]-(x-minx)*interp_dx[i];
+        }
         for(int iy = 0; iy < q; iy++){
+          
+          int interp_res[NUM_VARYING*4];
+          for (int i = 0; i < 4; ++i){
+            interp_res[i] = interp_values[i];
+          }
+
           for(int ix = x; ix < x + q; ix++){
-            state->getCurrentSurface()->setPixel(ix, ypos, 0, 255, 0, 255);
+            float res[4];
+            for (int i = 0; i < 4; ++i){
+              res[i] = interp_res[i]/(float)fAlpha;
+            }
+            state->getActiveShader()->setVarying(0, res);
+            state->getActiveShader()->shade(state->getCurrentSurface(), ix, ypos);
+            //state->getCurrentSurface()->setPixel(ix, ypos, (interp_res[0]/(float)fAlpha)*255, (interp_res[1]/(float)fAlpha)*255, (interp_res[2]/(float)fAlpha)*255, (interp_res[3]/(float)fAlpha)*255);
+            
+            for (int i = 0; i < 4; ++i){
+              interp_res[i] -= interp_dx[i];
+            }
+          }
+          for (int i = 0; i < 4; ++i){
+            interp_values[i] += interp_dy[i];
           }
           ypos++;
         }
       }
-      else{*/ //partially covered block
+      else{ //partially covered block
         int CY1 = C1 + DX12 * y0 - DY12 * x0;
         int CY2 = C2 + DX23 * y0 - DY23 * x0;
         int CY3 = C3 + DX31 * y0 - DY31 * x0;
@@ -189,7 +219,8 @@ void Triangle::raster(VRState* state, int numInterpolations){
         int interp_values[NUM_VARYING*4];
         
         for (int i = 0; i < 4; ++i){
-          interp_values[i] = (int)(CY2*mVarying[0][mIdx0*4+i])+(int)(CY3*mVarying[0][mIdx1*4+i])+(int)(CY1*mVarying[0][mIdx2*4+i]);
+          //interp_values[i] = (int)(CY2*mVarying[0][mIdx0*4+i])+(int)(CY3*mVarying[0][mIdx1*4+i])+(int)(CY1*mVarying[0][mIdx2*4+i]);
+          interp_values[i] = interp_starts[i]+(y-miny)*interp_dy[i]-(x-minx)*interp_dx[i];
         }
 
         for(int iy = y; iy < y + q; iy++){
@@ -204,7 +235,13 @@ void Triangle::raster(VRState* state, int numInterpolations){
 
           for(int ix = x; ix < x + q; ix++){
             if(CX1 > 0 && CX2 > 0 && CX3 > 0){
-              state->getCurrentSurface()->setPixel(ix, ypos, (interp_res[0]/(float)fAlpha)*255, (interp_res[1]/(float)fAlpha)*255, (interp_res[2]/(float)fAlpha)*255, (interp_res[3]/(float)fAlpha)*255);
+              float res[4];
+              for (int i = 0; i < 4; ++i){
+                res[i] = interp_res[i]/(float)fAlpha;
+              }
+              state->getActiveShader()->setVarying(0, res);
+              state->getActiveShader()->shade(state->getCurrentSurface(), ix, ypos);
+              //state->getCurrentSurface()->setPixel(ix, ypos, (interp_res[0]/(float)fAlpha)*255, (interp_res[1]/(float)fAlpha)*255, (interp_res[2]/(float)fAlpha)*255, (interp_res[3]/(float)fAlpha)*255);
             }
             CX1 -= FDY12;
             CX2 -= FDY23;
@@ -221,7 +258,7 @@ void Triangle::raster(VRState* state, int numInterpolations){
           }
           ++ypos;
         }
-     // }
+      }
     }
     cbypos += q;
   }
