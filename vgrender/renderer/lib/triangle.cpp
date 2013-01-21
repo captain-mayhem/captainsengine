@@ -69,6 +69,7 @@ void Triangle::raster(VRState* state, int numInterpolations){
 }
 #else
 
+#define fl2fp(val, shift) ((int)((float)(1 << shift) * val + 0.5f))
 #define fmul(a, b) ((a*b) >> 4)
 
 void Triangle::raster(VRState* state, int numInterpolations){
@@ -124,33 +125,15 @@ void Triangle::raster(VRState* state, int numInterpolations){
   //interpolation setup
   //24.8
   int fAlpha = C2 + DX23 * Y1 - DY23 * X1;
-  int fBeta = C3 + DX31 * Y2 - DY31 * X2;
-  int fGamma = C1 + DX12 * Y3 - DY12 * X3;
-  /*
-  //32.0
-  //float alpha = (C2 + DX23 * miny - DY23 * minx)/(float)fAlpha;
-  //float beta = (C3 + DX31 * miny - DY31 * minx)/(float)fBeta;
-  //float gamma = (C1 + DX12 * miny - DY12 * minx)/(float)fGamma;
 
-  float alphaincx = FDY23/(float)fAlpha;
-  float betaincx = FDY31/(float)fBeta;
-  float gammaincx = FDY12/(float)fGamma;
-
-  float alphaincy = FDX23/(float)fAlpha;
-  float betaincy = FDX31/(float)fBeta;
-  float gammaincy = FDX12/(float)fGamma;
-*/
-  float interp_values[NUM_VARYING*4];
-  float interp_res[NUM_VARYING*4];
-  float interp_dx[NUM_VARYING*4];
-  float interp_dy[NUM_VARYING*4];/*
+  int interp_dx[NUM_VARYING*4];
+  int interp_dy[NUM_VARYING*4];
   //for (int i = 0; i < NUM_VARYING; ++i){
   for (int i = 0; i < 4; ++i){
-    //interp_values[i] = alpha*mVarying[0][mIdx0*4+i]+beta*mVarying[0][mIdx1*4+i]+gamma*mVarying[0][mIdx2*4+i];
-    interp_dx[i] = alphaincx*mVarying[0][mIdx0*4+i]+betaincx*mVarying[0][mIdx1*4+i]+gammaincx*mVarying[0][mIdx2*4+i];
-    interp_dy[i] = alphaincy*mVarying[0][mIdx0*4+i]+betaincy*mVarying[0][mIdx1*4+i]+gammaincy*mVarying[0][mIdx2*4+i];
+    interp_dx[i] = (int)(FDY23*mVarying[0][mIdx0*4+i])+(int)(FDY31*mVarying[0][mIdx1*4+i])+(int)(FDY12*mVarying[0][mIdx2*4+i]);
+    interp_dy[i] = (int)(FDX23*mVarying[0][mIdx0*4+i])+(int)(FDX31*mVarying[0][mIdx1*4+i])+(int)(FDX12*mVarying[0][mIdx2*4+i]);
   }
-  //}*/
+  //}
 
   //interpolation setup end
 
@@ -203,46 +186,39 @@ void Triangle::raster(VRState* state, int numInterpolations){
         int CY2 = C2 + DX23 * y0 - DY23 * x0;
         int CY3 = C3 + DX31 * y0 - DY31 * x0;
 
-        float alpha = ((float)CY2)/fAlpha;
-        float beta = ((float)CY3)/fBeta;
-        float gamma = ((float)CY1)/fGamma;
-
-        /*for (int i = 0; i < 4; ++i){
-          interp_values[i] = alpha*mVarying[0][mIdx0*4+i]+beta*mVarying[0][mIdx1*4+i]+gamma*mVarying[0][mIdx2*4+i];
-        }*/
+        int interp_values[NUM_VARYING*4];
+        
+        for (int i = 0; i < 4; ++i){
+          interp_values[i] = (int)(CY2*mVarying[0][mIdx0*4+i])+(int)(CY3*mVarying[0][mIdx1*4+i])+(int)(CY1*mVarying[0][mIdx2*4+i]);
+        }
 
         for(int iy = y; iy < y + q; iy++){
           int CX1 = CY1;
           int CX2 = CY2;
           int CX3 = CY3;
-          /*for (int i = 0; i < 4; ++i){
+          int interp_res[NUM_VARYING*4];
+
+          for (int i = 0; i < 4; ++i){
             interp_res[i] = interp_values[i];
-          }*/
+          }
 
           for(int ix = x; ix < x + q; ix++){
             if(CX1 > 0 && CX2 > 0 && CX3 > 0){
-              float alpha = ((float)CX2)/fAlpha;
-              float beta = ((float)CX3)/fBeta;
-              float gamma = ((float)CX1)/fGamma;
-              //float r = interp_res[0];
-              for (int i = 0; i < 4; ++i){
-                interp_res[i] = alpha*mVarying[0][mIdx0*4+i]+beta*mVarying[0][mIdx1*4+i]+gamma*mVarying[0][mIdx2*4+i];
-              }
-              state->getCurrentSurface()->setPixel(ix, ypos, interp_res[0]*255, interp_res[1]*255, interp_res[2]*255, interp_res[3]*255);
+              state->getCurrentSurface()->setPixel(ix, ypos, (interp_res[0]/(float)fAlpha)*255, (interp_res[1]/(float)fAlpha)*255, (interp_res[2]/(float)fAlpha)*255, (interp_res[3]/(float)fAlpha)*255);
             }
             CX1 -= FDY12;
             CX2 -= FDY23;
             CX3 -= FDY31;
-            /*for (int i = 0; i < 4; ++i){
-              interp_res[i] += interp_dx[i];
-            }*/
+            for (int i = 0; i < 4; ++i){
+              interp_res[i] -= interp_dx[i];
+            }
           }
           CY1 += FDX12;
           CY2 += FDX23;
           CY3 += FDX31;
-          /*for (int i = 0; i < 4; ++i){
+          for (int i = 0; i < 4; ++i){
             interp_values[i] += interp_dy[i];
-          }*/
+          }
           ++ypos;
         }
      // }
