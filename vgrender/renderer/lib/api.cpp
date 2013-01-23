@@ -1,19 +1,27 @@
-
+#include <GLES3/gl3.h>
+#undef GL_APICALL
+#define GL_APICALL /*__declspec(dllexport)*/
 #include "api.h"
 
-VRSurface::VRSurface(int width, int height) : mBuffer(4, width, height){
-  
+GL_APICALL void GL_APIENTRY GL(ClearColor) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){
+  VR_CONTEXT->setClearColor((unsigned char)(red*255), 
+    (unsigned char)(green*255), 
+    (unsigned char)(blue*255), 
+    (unsigned char)(alpha*255));
 }
 
-void VRSurface::clear(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
-  unsigned char* data = mBuffer.getData();
-  for (unsigned j = 0; j < mBuffer.getHeight(); ++j){
-    for (unsigned i = 0; i < mBuffer.getWidth(); ++i){
-      data[0] = r;
-      data[1] = g;
-      data[2] = b;
-      data[3] = a;
-      data += 4;
-    }
+GL_APICALL void GL_APIENTRY GL(Clear) (GLbitfield mask){
+  if (mask & GL_COLOR_BUFFER_BIT)
+    VR_CONTEXT->getCurrentSurface()->clear();
+}
+
+GL_APICALL void GL_APIENTRY GL(VertexAttribPointer) (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr){
+  if (indx == 0)
+    VR_CONTEXT->setVertices((float*)ptr);
+}
+
+GL_APICALL void GL_APIENTRY GL(DrawArrays) (GLenum mode, GLint first, GLsizei count){
+  if (mode == GL_TRIANGLES){
+    VR_CONTEXT->drawTriangles(first, count);
   }
 }

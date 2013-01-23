@@ -1,29 +1,15 @@
 #ifndef PDF_READER_H
 #define PDF_READER_H
 
-#include <system/types.h>
-
-namespace pdf{
-
-struct Reference{
-  Reference() : object(0), generation(0) {}
-  uint32 object;
-  uint16 generation;
-};
-
-}
-
-class PdfDocument{
-
-};
-
 #include <string>
 #include <io/Reader.h>
+#include "pdfdocument.h"
 
 class PdfReader{
 public:
   PdfReader(const std::string& file);
   PdfDocument* readDocument();
+  void readCrt(unsigned crtOffset, pdf::CrossReferenceTable& crt);
 protected:
   void findBackwards(const std::string what);
   

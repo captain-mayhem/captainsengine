@@ -36,8 +36,9 @@ PdfDocument* PdfReader::readDocument(){
   }
   ASSERT_TOKEN("startxref");
   unsigned crtOffset = (unsigned)getNextInt();
-  ASSERT_TOKEN("%%EOF");
-  return NULL;
+  //ASSERT_TOKEN("%%EOF");
+  PdfDocument* doc = new PdfDocument(this, root, numObjects, crtOffset);
+  return doc;
 }
 
 #define CHUNKSIZE 512
@@ -107,4 +108,11 @@ pdf::Reference PdfReader::getNextReference(){
   ret.generation = getNextInt();
   ASSERT_TOKEN("R");
   return ret;
+}
+
+void PdfReader::readCrt(unsigned crtOffset, pdf::CrossReferenceTable& crt){
+  TR_USE(PDF_Reader);
+  mReader->jumpTo(crtOffset);
+  ASSERT_TOKEN("xref");
+  return;
 }
