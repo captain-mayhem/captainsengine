@@ -3,6 +3,20 @@
 #define GL_APICALL
 #include "../lib/api.h"
 
+GLuint loadShader(VRShader* vrs){
+  GLuint prog = GL(CreateProgram)();
+  GLuint shader[2];
+  shader[0] = GL(CreateShader)(GL_VERTEX_SHADER);
+  shader[1] = GL(CreateShader)(GL_FRAGMENT_SHADER);
+  GL(ShaderBinary)(2, shader, VR_SHADER_BINARY_FORMAT, vrs, sizeof(vrs));
+  GL(AttachShader)(prog, shader[0]);
+  GL(AttachShader)(prog, shader[1]);
+  GL(DeleteShader)(shader[0]);
+  GL(DeleteShader)(shader[1]);
+  GL(LinkProgram)(prog);
+  return prog;
+}
+
 int main(int argc, char** argv){
   VRSurface surface(200, 200);
   VRState context;
@@ -24,17 +38,20 @@ int main(int argc, char** argv){
     0, 1, 0, 1,
     0, 0, 1, 1
   };
+
   GouraudShader shader;
   FlatShader shader2;
-  context.setShader(&shader);
+  GLuint gouraud = loadShader(&shader);
+  GLuint flat = loadShader(&shader2);
+  
+  GL(UseProgram)(gouraud);
+  //GL(UseProgram)(flat);
+
+  GL(EnableVertexAttribArray)(0);
+  GL(EnableVertexAttribArray)(1);
   GL(VertexAttribPointer)(0, 2, GL_FLOAT, GL_FALSE, 0, coord);
   GL(VertexAttribPointer)(1, 4, GL_FLOAT, GL_FALSE, 0, color);
-  Triangle tri(coord);
-  tri.setVarying(0, color);
-  Triangle tri2(coord+2*3);
-  tri2.setVarying(0, color);
-  //context.enableVertexAttribArray(0, true);
-  tri.raster(&context, 1);
-  tri2.raster(&context, 1);
+  GL(DrawArrays)(GL_TRIANGLES, 0, 6);
+
   surface.debugWrite("\\tmp\\test");
 }

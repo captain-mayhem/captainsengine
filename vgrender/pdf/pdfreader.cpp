@@ -16,28 +16,11 @@ PdfDocument* PdfReader::readDocument(){
   uint8 version[9];
   mReader->readBytes(version, 8);
   mReader->gotoEnd();
-  //read trailer section
-  int numObjects = 0;
-  pdf::Reference root;
-  findBackwards("trailer");
-  ASSERT_TOKEN("trailer");
-  ASSERT_TOKEN("<<");
-  const char* key = getNextDictEntry();
-  while(key != NULL){
-    if (strcmp(key, "Size") == 0){
-      numObjects = getNextInt();
-    }
-    else if (strcmp(key, "Root") == 0){
-      root = getNextReference();
-    }
-    else
-      TR_WARN("%s unexpected in trailer", key);
-    key = getNextDictEntry();
-  }
+  findBackwards("startxref");
   ASSERT_TOKEN("startxref");
   unsigned crtOffset = (unsigned)getNextInt();
   //ASSERT_TOKEN("%%EOF");
-  PdfDocument* doc = new PdfDocument(this, root, numObjects, crtOffset);
+  PdfDocument* doc = new PdfDocument(this, crtOffset);
   return doc;
 }
 
@@ -110,9 +93,58 @@ pdf::Reference PdfReader::getNextReference(){
   return ret;
 }
 
-void PdfReader::readCrt(unsigned crtOffset, pdf::CrossReferenceTable& crt){
+pdf::Reference PdfReader::readCrt(unsigned crtOffset, pdf::CrossReferenceTable& crt){
   TR_USE(PDF_Reader);
   mReader->jumpTo(crtOffset);
   ASSERT_TOKEN("xref");
-  return;
+  crt.sections.push_back(pdf::CrossReferenceSection());
+  pdf::CrossReferenceSection& sect = crt.sections.back();
+  sect.object = getNextInt();
+  sect.numObjects = getNextInt();
+  for (unsigned i = 0; i < sect.numObjects; ++i){
+    sect.entries.push_back(pdf::CrtEntry());
+    pdf::CrtEntry& entry = sect.entries.back();
+    entry.offset = getNextInt();
+    entry.generation = getNextInt();
+    const char* tok = getNextToken();
+    entry.used = strcmp(tok, "n") == 0;
+    crt.entries.push_back(entry);
+  }
+  //read trailer section
+  int numObjects = 0;
+  pdf::Reference root;
+  ASSERT_TOKEN("trailer");
+  ASSERT_TOKEN("<<");
+  const char* key = getNextDictEntry();
+  while(key != NULL){
+    if (strcmp(key, "Size") == 0){
+      numObjects = getNextInt();
+    }
+    else if (strcmp(key, "Root") == 0){
+      root = getNextReference();
+    }
+    else
+      TR_WARN("%s unexpected in trailer", key);
+    key = getNextDictEntry();
+  }
+  return root;
+}
+
+pdf::Object* PdfReader::readObject(unsigned offset, pdf::Reference& refr){
+  TR_USE(PDF_Reader);
+  mReader->jumpTo(offset);
+  int obj = getNextInt();
+  if (obj != refr.object)
+    TR_ERROR("expected to find %i at offset %i", refr.object, offset);
+  int gen = getNextInt();
+  if (gen != refr.generation)
+    TR_ERROR("expected to find generation %i", refr.generation);
+  ASSERT_TOKEN("obj");
+  ASSERT_TOKEN("<<");
+  const char* key = getNextDictEntry();
+  while(key != NULL){
+    key = getNextDictEntry();
+  }
+  ASSERT_TOKEN("endobj");
+  return NULL;
 }

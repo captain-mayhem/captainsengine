@@ -76,6 +76,10 @@ void BinFileReader::gotoEnd(){
   mStream.seekg(0, std::ios::end);
 }
 
+void BinFileReader::jumpTo(unsigned offset){
+  mStream.seekg(offset, std::ios::beg);
+}
+
 std::string BinFileReader::readString(){
   return "";
 }

@@ -3,11 +3,17 @@
 
 #include <system/types.h>
 #include <vector>
+#include <map>
 
 namespace pdf{
 
   struct Reference{
     Reference() : object(0), generation(0) {}
+    bool operator<(const Reference& ref) const{
+      if (object == ref.object)
+        return generation < ref.generation;
+      return object < ref.object;
+    }
     uint32 object;
     uint16 generation;
   };
@@ -26,6 +32,11 @@ namespace pdf{
 
   struct CrossReferenceTable{
     std::vector<CrossReferenceSection> sections;
+    std::vector<CrtEntry> entries;
+  };
+
+  class Object{
+
   };
 }
 
@@ -33,10 +44,13 @@ class PdfReader;
 
 class PdfDocument{
 public:
-  PdfDocument(PdfReader* rdr, pdf::Reference& root, unsigned numObjects, unsigned crtOffset);
+  PdfDocument(PdfReader* rdr, unsigned crtOffset);
 private:
+  unsigned getOffset(pdf::Reference& ref);
+  pdf::Object* getObject(pdf::Reference& ref);
   PdfReader* mReader;
   pdf::CrossReferenceTable mCrt;
+  std::map<pdf::Reference,pdf::Object*> mObjects;
 };
 
 #endif

@@ -16,7 +16,8 @@ VRState::VRState() : mSurface(NULL), mShader(NULL){
 void VRState::drawTriangles(int first, int count){
   int numTris = count/3;
   for (int i = 0; i < numTris; ++i){
-    Triangle t(mVertices);
+    Triangle t(mVertices+i*2*3);
+    t.setVarying(0, mVertexAttribPointers[0]+i*4*3);
     t.raster(this, 1);
   }
 }

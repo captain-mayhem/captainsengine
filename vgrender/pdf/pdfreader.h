@@ -9,7 +9,8 @@ class PdfReader{
 public:
   PdfReader(const std::string& file);
   PdfDocument* readDocument();
-  void readCrt(unsigned crtOffset, pdf::CrossReferenceTable& crt);
+  pdf::Reference readCrt(unsigned crtOffset, pdf::CrossReferenceTable& crt);
+  pdf::Object* readObject(unsigned offset, pdf::Reference& refr);
 protected:
   void findBackwards(const std::string what);
   
