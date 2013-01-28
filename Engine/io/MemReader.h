@@ -29,6 +29,7 @@ public:
   virtual bool isWorking();
   virtual void skip(int numberOfElements);
   virtual void gotoEnd();
+  virtual void jumpTo(unsigned offset);
 
   virtual uint32 getSize() {return (uint32)(mEnd-mStart);}
 

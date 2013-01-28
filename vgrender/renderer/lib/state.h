@@ -1,6 +1,8 @@
 #ifndef VR_STATE_H
 #define VR_STATE_H
 
+#include <vector>
+
 #include "common.h"
 
 class VRSurface;
@@ -15,21 +17,33 @@ public:
   unsigned char* getClearColor() {return mClearColor;}
   void setSurface(VRSurface* surface) {mSurface = surface;}
   VRSurface* getCurrentSurface() {return mSurface;}
-  void setShader(VRShader* shader) {mShader = shader;}
+  void setProgram(VRShader* shader) {mShader = shader;}
   VRShader* getActiveShader() {return mShader;}
   void enableVertexAttribArray(unsigned idx, bool enable){
     mVertexAttribArrays[idx] = enable;
   }
   bool isVertexAttribArrayEnabled(unsigned idx){ return mVertexAttribArrays[idx];}
+  void setVertexArribPointer(unsigned idx, float* attribs, int numComponents){
+    mVertexAttribPointers[idx] = attribs;
+  }
   void setVertices(float* verts) {mVertices = verts;}
   float* getVertices() {return mVertices;}
   void drawTriangles(int first, int count);
+  unsigned makeShaderSlot() {mShaders.push_back(NULL); return mShaders.size()-1;}
+  unsigned makeProgramSlot() {mPrograms.push_back(NULL); return mPrograms.size()-1;}
+  void setShader(unsigned idx, VRShader* shader) {mShaders[idx] = shader;}
+  VRShader* getShader(unsigned idx) {return mShaders[idx];}
+  void addToProgram(unsigned idx, VRShader* shader) {mPrograms[idx] = shader;}
+  VRShader* getProgram(unsigned idx) {return mPrograms[idx];}
 private:
   VRSurface* mSurface;
   VRShader* mShader;
   bool mVertexAttribArrays[NUM_VARYING];
+  float* mVertexAttribPointers[NUM_VARYING];
   unsigned char mClearColor[4];
   float* mVertices;
+  std::vector<VRShader*> mShaders;
+  std::vector<VRShader*> mPrograms;
 };
 
 extern VRState* vrGlobalState;

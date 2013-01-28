@@ -3,9 +3,20 @@
 #include "framebuffer.h"
 #include "shader.h"
 
-#define GL(a) mygl##a
+#define GL(a) vrgl##a
+
+#define VR_SHADER_BINARY_FORMAT 0x666
 
 GL_APICALL void GL_APIENTRY GL(ClearColor) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 GL_APICALL void GL_APIENTRY GL(Clear) (GLbitfield mask);
+GL_APICALL void GL_APIENTRY GL(EnableVertexAttribArray) (GLuint index);
 GL_APICALL void GL_APIENTRY GL(VertexAttribPointer) (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr);
 GL_APICALL void GL_APIENTRY GL(DrawArrays) (GLenum mode, GLint first, GLsizei count);
+
+GL_APICALL GLuint GL_APIENTRY GL(CreateProgram) (void);
+GL_APICALL GLuint GL_APIENTRY GL(CreateShader) (GLenum type);
+GL_APICALL void GL_APIENTRY GL(DeleteShader) (GLuint shader);
+GL_APICALL void GL_APIENTRY GL(ShaderBinary) (GLsizei n, const GLuint* shaders, GLenum binaryformat, const GLvoid* binary, GLsizei length);
+GL_APICALL void GL_APIENTRY GL(AttachShader) (GLuint program, GLuint shader);
+GL_APICALL void GL_APIENTRY GL(LinkProgram) (GLuint program);
+GL_APICALL void GL_APIENTRY GL(UseProgram) (GLuint program);

@@ -108,6 +108,12 @@ void MemReader::gotoEnd(){
   mCurrent = mEnd;
 }
 
+void MemReader::jumpTo(unsigned offset){
+  mCurrent = mStart+offset;
+  if (mCurrent > mEnd)
+    mCurrent = mEnd;
+}
+
 std::string MemReader::readString(){
   return "";
 }
