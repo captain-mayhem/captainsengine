@@ -16,11 +16,19 @@ GL_APICALL void GL_APIENTRY GL(Clear) (GLbitfield mask){
 }
 
 GL_APICALL void GL_APIENTRY GL(EnableVertexAttribArray) (GLuint index){
+  if (index > NUM_VARYING){
+    VR_CONTEXT->setError(GL_INVALID_VALUE);
+    return;
+  }
   if (index != 0)
   VR_CONTEXT->enableVertexAttribArray(index-1, true);
 }
 
 GL_APICALL void GL_APIENTRY GL(VertexAttribPointer) (GLuint indx, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid* ptr){
+  if (indx > NUM_VARYING){
+    VR_CONTEXT->setError(GL_INVALID_VALUE);
+    return;
+  }
   if (indx == 0)
     VR_CONTEXT->setVertices((float*)ptr);
   else
@@ -68,4 +76,13 @@ GL_APICALL void GL_APIENTRY GL(LinkProgram) (GLuint program){
 
 GL_APICALL void GL_APIENTRY GL(UseProgram) (GLuint program){
   VR_CONTEXT->setProgram(VR_CONTEXT->getProgram(program));
+}
+
+GL_APICALL int GL_APIENTRY GL(GetAttribLocation) (GLuint program, const GLchar* name){
+  if (strcmp(name, "position") == 0)
+    return 0;
+  int pos = VR_CONTEXT->getProgram(program)->getVarying(name);
+  if (pos < 0)
+    return pos;
+  return pos+1;
 }

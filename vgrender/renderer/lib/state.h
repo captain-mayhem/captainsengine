@@ -35,6 +35,7 @@ public:
   VRShader* getShader(unsigned idx) {return mShaders[idx];}
   void addToProgram(unsigned idx, VRShader* shader) {mPrograms[idx] = shader;}
   VRShader* getProgram(unsigned idx) {return mPrograms[idx];}
+  void setError(int error) {mError = error;}
 private:
   VRSurface* mSurface;
   VRShader* mShader;
@@ -44,6 +45,7 @@ private:
   float* mVertices;
   std::vector<VRShader*> mShaders;
   std::vector<VRShader*> mPrograms;
+  int mError;
 };
 
 extern VRState* vrGlobalState;

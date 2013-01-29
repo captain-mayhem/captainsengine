@@ -22,3 +22,13 @@ void GouraudShader::execute(){
   mColor[2] = mVarying[0][2];
   mColor[3] = mVarying[0][3];
 }
+
+int GouraudShader::getVarying(const char* name){
+  if (strcmp(name, "color") == 0)
+    return 0;
+  return -1;
+}
+
+unsigned GouraudShader::getNumVaryings(){
+  return 1;
+}
