@@ -53,10 +53,14 @@ void Triangle::raster(VRState* state, int numInterpolations){
     for (float x = xMin; x < xMax; ++x){
       if (alpha >= 0 && beta >= 0 && gamma >= 0){
         if ((alpha > 0 || boundAlpha) && (beta > 0 || boundBeta) && (gamma > 0 || boundGamma)){
-          unsigned char red = alpha*255;
-          unsigned char green = beta*255;
-          unsigned char blue = gamma*255;
-          state->getCurrentSurface()->setPixel(int(x+0.5f), int(y+0.5f), red, green, blue, 255);
+          float interp_values[NUM_VARYING*4];
+          for (int slot = 0; slot < numInterpolations; ++slot){
+            for (int i = 0; i < 4; ++i){
+              interp_values[slot*4+i] = alpha*mVarying[slot][mIdx0*4+i]+beta*mVarying[slot][mIdx1*4+i]+gamma*mVarying[slot][mIdx2*4+i];
+            }
+            state->getActiveShader()->setVarying(slot, interp_values+slot*4);
+          }
+          state->getActiveShader()->shade(state->getCurrentSurface(), int(x+0.5f), int(y+0.5f));
         }
       }
       alpha += alphaIncX;
@@ -135,13 +139,13 @@ void Triangle::raster(VRState* state, int numInterpolations){
   int interp_dy[NUM_VARYING*4];
   int interp_starts[NUM_VARYING*4];
 
-  //for (int i = 0; i < NUM_VARYING; ++i){
-  for (int i = 0; i < 4; ++i){
-    interp_dx[i] = (int)(FDY23*mVarying[0][mIdx0*4+i])+(int)(FDY31*mVarying[0][mIdx1*4+i])+(int)(FDY12*mVarying[0][mIdx2*4+i]);
-    interp_dy[i] = (int)(FDX23*mVarying[0][mIdx0*4+i])+(int)(FDX31*mVarying[0][mIdx1*4+i])+(int)(FDX12*mVarying[0][mIdx2*4+i]);
-    interp_starts[i] = (int)(CY2*mVarying[0][mIdx0*4+i])+(int)(CY3*mVarying[0][mIdx1*4+i])+(int)(CY1*mVarying[0][mIdx2*4+i]);
+  for (int slot = 0; slot < numInterpolations; ++slot){
+    for (int i = 0; i < 4; ++i){
+      interp_dx[slot*4+i] = (int)(FDY23*mVarying[slot][mIdx0*4+i])+(int)(FDY31*mVarying[slot][mIdx1*4+i])+(int)(FDY12*mVarying[slot][mIdx2*4+i]);
+      interp_dy[slot*4+i] = (int)(FDX23*mVarying[slot][mIdx0*4+i])+(int)(FDX31*mVarying[slot][mIdx1*4+i])+(int)(FDX12*mVarying[slot][mIdx2*4+i]);
+      interp_starts[slot*4+i] = (int)(CY2*mVarying[slot][mIdx0*4+i])+(int)(CY3*mVarying[slot][mIdx1*4+i])+(int)(CY1*mVarying[slot][mIdx2*4+i]);
+    }
   }
-  //}
 
   //interpolation setup end
 
@@ -182,31 +186,41 @@ void Triangle::raster(VRState* state, int numInterpolations){
       //accept whole block when totally covered
       if(a == 0xF && b == 0xF && c == 0xF){
         int interp_values[NUM_VARYING*4];
-        for (int i = 0; i < 4; ++i){
-          interp_values[i] = interp_starts[i]+(y-miny)*interp_dy[i]-(x-minx)*interp_dx[i];
+        for (int slot = 0; slot < numInterpolations; ++slot){
+          for (int i = 0; i < 4; ++i){
+            interp_values[slot*4+i] = interp_starts[slot*4+i]+(y-miny)*interp_dy[slot*4+i]-(x-minx)*interp_dx[slot*4+i];
+          }
         }
         for(int iy = 0; iy < q; iy++){
           
           int interp_res[NUM_VARYING*4];
-          for (int i = 0; i < 4; ++i){
-            interp_res[i] = interp_values[i];
+          for (int slot = 0; slot < numInterpolations; ++slot){
+            for (int i = 0; i < 4; ++i){
+              interp_res[slot*4+i] = interp_values[slot*4+i];
+            }
           }
 
           for(int ix = x; ix < x + q; ix++){
-            float res[4];
-            for (int i = 0; i < 4; ++i){
-              res[i] = interp_res[i]/(float)fAlpha;
+            float res[NUM_VARYING*4];
+            for (int slot = 0; slot < numInterpolations; ++slot){
+              for (int i = 0; i < 4; ++i){
+                res[slot*4+i] = interp_res[slot*4+i]/(float)fAlpha;
+              }
+              state->getActiveShader()->setVarying(slot, res+slot*4);
             }
-            state->getActiveShader()->setVarying(0, res);
             state->getActiveShader()->shade(state->getCurrentSurface(), ix, ypos);
             //state->getCurrentSurface()->setPixel(ix, ypos, (interp_res[0]/(float)fAlpha)*255, (interp_res[1]/(float)fAlpha)*255, (interp_res[2]/(float)fAlpha)*255, (interp_res[3]/(float)fAlpha)*255);
             
-            for (int i = 0; i < 4; ++i){
-              interp_res[i] -= interp_dx[i];
+            for (int slot = 0; slot < numInterpolations; ++slot){
+              for (int i = 0; i < 4; ++i){
+                interp_res[slot*4+i] -= interp_dx[slot*4+i];
+              }
             }
           }
-          for (int i = 0; i < 4; ++i){
-            interp_values[i] += interp_dy[i];
+          for (int slot = 0; slot < numInterpolations; ++slot){
+            for (int i = 0; i < 4; ++i){
+              interp_values[slot*4+i] += interp_dy[slot*4+i];
+            }
           }
           ypos++;
         }
@@ -218,9 +232,10 @@ void Triangle::raster(VRState* state, int numInterpolations){
 
         int interp_values[NUM_VARYING*4];
         
-        for (int i = 0; i < 4; ++i){
-          //interp_values[i] = (int)(CY2*mVarying[0][mIdx0*4+i])+(int)(CY3*mVarying[0][mIdx1*4+i])+(int)(CY1*mVarying[0][mIdx2*4+i]);
-          interp_values[i] = interp_starts[i]+(y-miny)*interp_dy[i]-(x-minx)*interp_dx[i];
+        for (int slot = 0; slot < numInterpolations; ++slot){
+          for (int i = 0; i < 4; ++i){
+            interp_values[slot*4+i] = interp_starts[slot*4+i]+(y-miny)*interp_dy[slot*4+i]-(x-minx)*interp_dx[slot*4+i];
+          }
         }
 
         for(int iy = y; iy < y + q; iy++){
@@ -229,32 +244,40 @@ void Triangle::raster(VRState* state, int numInterpolations){
           int CX3 = CY3;
           int interp_res[NUM_VARYING*4];
 
-          for (int i = 0; i < 4; ++i){
-            interp_res[i] = interp_values[i];
+          for (int slot = 0; slot < numInterpolations; ++slot){
+            for (int i = 0; i < 4; ++i){
+              interp_res[slot*4+i] = interp_values[slot*4+i];
+            }
           }
 
           for(int ix = x; ix < x + q; ix++){
             if(CX1 > 0 && CX2 > 0 && CX3 > 0){
-              float res[4];
-              for (int i = 0; i < 4; ++i){
-                res[i] = interp_res[i]/(float)fAlpha;
+              float res[NUM_VARYING*4];
+              for (int slot = 0; slot < numInterpolations; ++slot){
+                for (int i = 0; i < 4; ++i){
+                  res[slot*4+i] = interp_res[slot*4+i]/(float)fAlpha;
+                }
+                state->getActiveShader()->setVarying(slot, res+slot*4);
               }
-              state->getActiveShader()->setVarying(0, res);
               state->getActiveShader()->shade(state->getCurrentSurface(), ix, ypos);
               //state->getCurrentSurface()->setPixel(ix, ypos, (interp_res[0]/(float)fAlpha)*255, (interp_res[1]/(float)fAlpha)*255, (interp_res[2]/(float)fAlpha)*255, (interp_res[3]/(float)fAlpha)*255);
             }
             CX1 -= FDY12;
             CX2 -= FDY23;
             CX3 -= FDY31;
-            for (int i = 0; i < 4; ++i){
-              interp_res[i] -= interp_dx[i];
+            for (int slot = 0; slot < numInterpolations; ++slot){
+              for (int i = 0; i < 4; ++i){
+                interp_res[slot*4+i] -= interp_dx[slot*4+i];
+              }
             }
           }
           CY1 += FDX12;
           CY2 += FDX23;
           CY3 += FDX31;
-          for (int i = 0; i < 4; ++i){
-            interp_values[i] += interp_dy[i];
+          for (int slot = 0; slot < numInterpolations; ++slot){
+            for (int i = 0; i < 4; ++i){
+              interp_values[slot*4+i] += interp_dy[slot*4+i];
+            }
           }
           ++ypos;
         }

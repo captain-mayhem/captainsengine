@@ -20,3 +20,4 @@ GL_APICALL void GL_APIENTRY GL(ShaderBinary) (GLsizei n, const GLuint* shaders, 
 GL_APICALL void GL_APIENTRY GL(AttachShader) (GLuint program, GLuint shader);
 GL_APICALL void GL_APIENTRY GL(LinkProgram) (GLuint program);
 GL_APICALL void GL_APIENTRY GL(UseProgram) (GLuint program);
+GL_APICALL int GL_APIENTRY GL(GetAttribLocation) (GLuint program, const GLchar* name);

@@ -43,15 +43,23 @@ int main(int argc, char** argv){
   FlatShader shader2;
   GLuint gouraud = loadShader(&shader);
   GLuint flat = loadShader(&shader2);
-  
-  GL(UseProgram)(gouraud);
-  //GL(UseProgram)(flat);
 
-  GL(EnableVertexAttribArray)(0);
-  GL(EnableVertexAttribArray)(1);
-  GL(VertexAttribPointer)(0, 2, GL_FLOAT, GL_FALSE, 0, coord);
-  GL(VertexAttribPointer)(1, 4, GL_FLOAT, GL_FALSE, 0, color);
-  GL(DrawArrays)(GL_TRIANGLES, 0, 6);
+  GLuint program = gouraud;
+  //GLuint program = flat;
+  
+  GL(UseProgram)(program);
+
+  int vpos = GL(GetAttribLocation)(program, "position");
+  int vcol = GL(GetAttribLocation)(program, "color");
+
+  GL(EnableVertexAttribArray)(vpos);
+  GL(EnableVertexAttribArray)(vcol);
+  GL(VertexAttribPointer)(vpos, 2, GL_FLOAT, GL_FALSE, 0, coord);
+  GL(VertexAttribPointer)(vcol, 4, GL_FLOAT, GL_FALSE, 0, color);
+
+  for (int i = 0; i < 10000; ++i){
+    GL(DrawArrays)(GL_TRIANGLES, 0, 6);
+  }
 
   surface.debugWrite("\\tmp\\test");
 }
