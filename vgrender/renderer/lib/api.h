@@ -3,6 +3,36 @@
 #include "framebuffer.h"
 #include "shader.h"
 
+#define GL_APICALL
+#ifdef WIN32
+#define GL_APIENTRY __stdcall
+#else
+#define GL_APIENTRY
+#endif
+
+typedef void GLvoid;
+typedef char GLchar;
+typedef float GLfloat;
+typedef unsigned int GLbitfield;
+typedef unsigned int GLuint;
+typedef int GLint;
+typedef unsigned int GLenum;
+typedef unsigned char GLboolean;
+typedef int GLsizei;
+
+#define GL_COLOR_BUFFER_BIT                              0x00004000
+
+#define GL_FALSE                                         0
+
+#define GL_TRIANGLES                                     0x0004
+
+#define GL_INVALID_VALUE                                 0x0501
+
+#define GL_FLOAT                                         0x1406
+
+#define GL_FRAGMENT_SHADER                               0x8B30
+#define GL_VERTEX_SHADER                                 0x8B31
+
 #define GL(a) vrgl##a
 
 #define VR_SHADER_BINARY_FORMAT 0x666

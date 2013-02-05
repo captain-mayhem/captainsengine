@@ -1,6 +1,6 @@
-#include <GLES3/gl3.h>
-#undef GL_APICALL
-#define GL_APICALL
+//#include <GLES3/gl3.h>
+//#undef GL_APICALL
+//#define GL_APICALL
 #include "../lib/api.h"
 
 GLuint loadShader(VRShader* vrs){

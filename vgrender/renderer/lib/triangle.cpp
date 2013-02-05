@@ -76,97 +76,8 @@ void Triangle::raster(VRState* state, int numInterpolations){
 
 #define fl2fp(val, shift) ((int)((float)(1 << shift) * val + 0.5f))
 #define fmul(a, b) ((a*b) >> 4)
-#include <Windows.h>
-
-#define NUM_THREADS 16
-struct workCtx{
-  workCtx() {}
-  bool mInUse;
-  Triangle* mTri;
-  VRState* mState;
-  int mNumInterpolations;
-  int mX;
-  int mY;
-  int mCbypos;
-  VRShader* mShader;
-  HANDLE mThread;
-  HANDLE mEvent;
-};
-//TP_CALLBACK_ENVIRON envir;
-//TP_WORK* last_work;
-workCtx wctx[NUM_THREADS];
-workCtx* freeList[NUM_THREADS];
-int freeCount = NUM_THREADS;
-static bool firstRun = true;
-HANDLE mutex;
-HANDLE semaphore;
-
-void WorkFunction(void* data){
-  workCtx* ctx = (workCtx*)data;
-  //SetThreadPriority(ctx->mThread, THREAD_PRIORITY_BELOW_NORMAL);
-  while(true){
-    WaitForSingleObject(ctx->mEvent, INFINITE);
-    
-    ctx->mTri->rasterBlock(ctx->mState, ctx->mShader, ctx->mNumInterpolations, ctx->mX, ctx->mY, ctx->mCbypos);
-    WaitForSingleObject(mutex, INFINITE);
-    freeList[freeCount] = ctx;
-    ++freeCount;
-    ReleaseSemaphore(semaphore, 1, NULL);
-    ReleaseMutex(mutex);
-  }
-}
-
-void WorkCallback(TP_CALLBACK_INSTANCE* inst, void* context, TP_WORK* work){
-  //CallbackMayRunLong(inst);
-  workCtx* ctx = (workCtx*)context;
-  ctx->mTri->rasterBlock(ctx->mState, ctx->mShader, ctx->mNumInterpolations, ctx->mX, ctx->mY, ctx->mCbypos);
-  //delete ctx->mShader;
-  //delete ctx;
-  WaitForSingleObject(mutex, INFINITE);
-  freeList[freeCount] = ctx;
-  //printf("free %i \n", freeCount);
-  ++freeCount;
-  ReleaseSemaphore(semaphore, 1, NULL);
-  ReleaseMutex(mutex);
-}
-
-void initPool(VRState* state){
-  //TP_POOL* pool = CreateThreadpool(NULL);
-  //SetThreadpoolThreadMaximum(pool, NUM_THREADS);
-  //SetThreadpoolThreadMinimum(pool, NUM_THREADS);
-  //InitializeThreadpoolEnvironment(&envir);
-  //SetThreadpoolCallbackPool(&envir, pool);
-  for (int i = 0; i < NUM_THREADS; ++i){
-    wctx[i].mShader = state->getActiveShader()->clone();
-    wctx[i].mThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)WorkFunction, &wctx[i], 0, NULL);
-    wctx[i].mEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-    freeList[i] = &wctx[i];
-  }
-  mutex = CreateMutex(NULL, FALSE, NULL);
-  semaphore = CreateSemaphore(NULL, NUM_THREADS, NUM_THREADS, NULL);
-}
-
-void submitWork(Triangle* tri, VRState* state, int numInterpolations, const int x, const int y, const int cbypos){
-  //workCtx* ctx = new workCtx(tri, state, numInterpolations, x, y, cbypos);
-  //ctx->mShader = state->getActiveShader()->clone();
-  //printf("want one, free %i", freeCount);
-  WaitForSingleObject(semaphore, INFINITE);
-  WaitForSingleObject(mutex, INFINITE);
-  workCtx* ctx = freeList[freeCount-1];
-  ctx->mTri = tri; ctx->mState = state; ctx->mNumInterpolations = numInterpolations; ctx->mX = x; ctx->mY = y; ctx->mCbypos = cbypos;
-  freeCount--;
-  SetEvent(ctx->mEvent);
-  ReleaseMutex(mutex);
-  //TP_WORK* work = CreateThreadpoolWork((PTP_WORK_CALLBACK)WorkCallback, ctx, &envir);
-  //last_work = work;
-  //SubmitThreadpoolWork(work);
-}
 
 void Triangle::raster(VRState* state, int numInterpolations){
-  if (firstRun){
-    firstRun = false;
-    initPool(state);
-  }
   //28.4 fixed-point
   const int Y1 = (int)(16.0f * mCoords[mIdx0*2+1] +0.5);
   const int Y2 = (int)(16.0f * mCoords[mIdx1*2+1] +0.5);
@@ -235,14 +146,11 @@ void Triangle::raster(VRState* state, int numInterpolations){
   for(int y = miny; y < maxy; y += q){
     for(int x = minx; x < maxx; x += q){
       //rasterBlock(state, state->getActiveShader(), numInterpolations, x, y, cbypos);
-      submitWork(this, state, numInterpolations, x, y, cbypos);
+      state->getPipeline()->rasterTriangle(this, state, numInterpolations, x, y, cbypos);
     }
     cbypos += q;
   }
-  //WaitForThreadpoolWorkCallbacks(last_work, FALSE);
-  for (int i = 0; i < NUM_THREADS; ++i)
-    WaitForSingleObject(semaphore, INFINITE);
-  ReleaseSemaphore(semaphore, NUM_THREADS, NULL);
+  state->getPipeline()->waitForRasterIdle();
 }
 
 #endif

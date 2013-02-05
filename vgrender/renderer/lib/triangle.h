@@ -8,10 +8,10 @@ class VRShader;
 
 class Triangle{
 public:
-  Triangle(float* coords) : mCoords(coords), mIdx0(0), mIdx1(1), mIdx2(2), q(32){
+  Triangle(float* coords) : mCoords(coords), mIdx0(0), mIdx1(1), mIdx2(2), q(RASTER_BLOCK_SIZE){
   }
   Triangle(float* coords, unsigned idx1, unsigned idx2, unsigned idx3) : mCoords(coords), 
-    mIdx0(idx1), mIdx1(idx2), mIdx2(idx3), q(32){
+    mIdx0(idx1), mIdx1(idx2), mIdx2(idx3), q(RASTER_BLOCK_SIZE){
   }
   void setVarying(unsigned pos, float* var){
     mVarying[pos] = var;

@@ -162,8 +162,11 @@ namespace StoryDesigner
         public void rename(string name)
         {
             Script scr = mData.getScript(Script.Type.ROOM, Name);
-            scr.Name = name;
-            mData.addScript(scr);
+            if (scr != null)
+            {
+                scr.Name = name;
+                mData.addScript(scr);
+            }
             //rename object scripts
             foreach (ObjectInstance obj in Objects)
             {
@@ -176,12 +179,15 @@ namespace StoryDesigner
             }
             //rename character instances
             mData.CharacterInstances[name.ToLower()] = new ArrayList();
-            foreach (CharacterInstance chr in mData.CharacterInstances[Name.ToLower()])
+            if (mData.CharacterInstances.ContainsKey(Name.ToLower()))
             {
-                chr.Room = name;
-                mData.CharacterInstances[name.ToLower()].Add(chr);
+                foreach (CharacterInstance chr in mData.CharacterInstances[Name.ToLower()])
+                {
+                    chr.Room = name;
+                    mData.CharacterInstances[name.ToLower()].Add(chr);
+                }
+                mData.CharacterInstances.Remove(Name.ToLower());
             }
-            mData.CharacterInstances.Remove(Name.ToLower());
             //rename walkmap scripts
             for (int x = 0; x <= Walkmap.GetUpperBound(0); ++x)
             {

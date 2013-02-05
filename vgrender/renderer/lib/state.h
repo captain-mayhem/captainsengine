@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "common.h"
+#include "pipeline.h"
 
 class VRSurface;
 class VRShader;
@@ -11,13 +12,14 @@ class VRShader;
 class VRState{
 public:
   VRState();
+  ~VRState();
   void setClearColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
     mClearColor[0] = r; mClearColor[1] = g; mClearColor[2] = b; mClearColor[3] = a;
   }
   unsigned char* getClearColor() {return mClearColor;}
   void setSurface(VRSurface* surface) {mSurface = surface;}
   VRSurface* getCurrentSurface() {return mSurface;}
-  void setProgram(VRShader* shader) {mShader = shader;}
+  void setProgram(VRShader* shader) {mShader = shader; mPipeline->setShader(shader);}
   VRShader* getActiveShader() {return mShader;}
   void enableVertexAttribArray(unsigned idx, bool enable){
     mVertexAttribArrays[idx] = enable;
@@ -36,7 +38,9 @@ public:
   void addToProgram(unsigned idx, VRShader* shader) {mPrograms[idx] = shader;}
   VRShader* getProgram(unsigned idx) {return mPrograms[idx];}
   void setError(int error) {mError = error;}
+  VRPipeline* getPipeline() {return mPipeline;}
 private:
+  VRPipeline* mPipeline;
   VRSurface* mSurface;
   VRShader* mShader;
   bool mVertexAttribArrays[NUM_VARYING];

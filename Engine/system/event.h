@@ -20,15 +20,15 @@ public:
   void wait();
   void waitTimeout(int milliseconds);
   void signal();
-  void reset();
+  //void reset();
 protected:
 #ifdef WIN32
   HANDLE mEvent;
 #endif
 #ifdef UNIX
   pthread_cond_t mEvent;
-#endif
   Mutex mMutex;
+#endif
 };
 
 }

@@ -9,6 +9,7 @@
 #endif
 #ifdef UNIX
 #include <pthread.h>
+#include <semaphore.h>
 #endif
 
 namespace CGE {
@@ -73,6 +74,21 @@ protected:
 #endif
 #ifdef UNIX
   pthread_cond_t mCond;
+#endif
+};
+
+class Semaphore{
+public:
+  Semaphore(int count);
+  ~Semaphore();
+  void inc();
+  void dec();
+protected:
+#ifdef WIN32
+  HANDLE mSem;
+#endif
+#ifdef UNIX
+  sem_t mSem;
 #endif
 };
 
