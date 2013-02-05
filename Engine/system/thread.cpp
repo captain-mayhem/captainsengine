@@ -221,3 +221,39 @@ void Condition::signal(){
   pthread_cond_signal(&mCond);
 #endif
 }
+
+Semaphore::Semaphore(int count){
+#ifdef WIN32
+  mSem = CreateSemaphore(NULL, count, count, NULL);
+#endif
+#ifdef UNIX
+  sem_init(&mSem, 0, count);
+#endif
+}
+
+Semaphore::~Semaphore(){
+#ifdef WIN32
+  CloseHandle(mSem);
+#endif
+#ifdef UNIX
+  sem_destroy(&mSem);
+#endif
+}
+
+void Semaphore::dec(){
+#ifdef WIN32
+  WaitForSingleObject(mSem, INFINITE);
+#endif
+#ifdef UNIX
+  sem_wait(&mSem);
+#endif
+}
+
+void Semaphore::inc(){
+#ifdef WIN32
+  ReleaseSemaphore(mSem, 1, NULL);
+#endif
+#ifdef UNIX
+  sem_post(&mSem);
+#endif
+}

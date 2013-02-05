@@ -12,6 +12,8 @@ ADD_LIBRARY(vgrender STATIC
 	framebuffer.cpp
 	line.h
 	line.cpp
+	pipeline.cpp
+	pipeline.h
 	shader.cpp
 	shader.h
 	state.cpp

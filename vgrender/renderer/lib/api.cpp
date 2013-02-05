@@ -1,6 +1,3 @@
-#include <GLES3/gl3.h>
-#undef GL_APICALL
-#define GL_APICALL /*__declspec(dllexport)*/
 #include "api.h"
 
 GL_APICALL void GL_APIENTRY GL(ClearColor) (GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha){
