@@ -92,6 +92,7 @@ namespace StoryDesigner
             this.languageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.englishToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deutschToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.pluginsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.hideAll = new System.Windows.Forms.Button();
             this.showAll = new System.Windows.Forms.Button();
@@ -118,12 +119,13 @@ namespace StoryDesigner
             this.dateiToolStripMenuItem,
             this.insertToolStripMenuItem,
             this.setupToolStripMenuItem,
-            this.windowToolStripMenuItem,
+            this.pluginsToolStripMenuItem,
             this.helpToolStripMenuItem,
+            this.windowToolStripMenuItem,
             this.languageToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(343, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(278, 24);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "mainMenu";
             this.menuStrip1.ItemClicked += new System.Windows.Forms.ToolStripItemClickedEventHandler(this.menuStrip1_ItemClicked);
@@ -556,14 +558,20 @@ namespace StoryDesigner
             // englishToolStripMenuItem
             // 
             this.englishToolStripMenuItem.Name = "englishToolStripMenuItem";
-            this.englishToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.englishToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.englishToolStripMenuItem.Text = "English";
             // 
             // deutschToolStripMenuItem
             // 
             this.deutschToolStripMenuItem.Name = "deutschToolStripMenuItem";
-            this.deutschToolStripMenuItem.Size = new System.Drawing.Size(117, 22);
+            this.deutschToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.deutschToolStripMenuItem.Text = "Deutsch";
+            // 
+            // pluginsToolStripMenuItem
+            // 
+            this.pluginsToolStripMenuItem.Name = "pluginsToolStripMenuItem";
+            this.pluginsToolStripMenuItem.Size = new System.Drawing.Size(58, 20);
+            this.pluginsToolStripMenuItem.Text = "Plugins";
             // 
             // panel1
             // 
@@ -579,7 +587,7 @@ namespace StoryDesigner
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 24);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(343, 538);
+            this.panel1.Size = new System.Drawing.Size(278, 538);
             this.panel1.TabIndex = 1;
             // 
             // hideAll
@@ -643,7 +651,7 @@ namespace StoryDesigner
             this.mediaPool.Location = new System.Drawing.Point(0, 291);
             this.mediaPool.Name = "mediaPool";
             this.mediaPool.SelectedImageIndex = 0;
-            this.mediaPool.Size = new System.Drawing.Size(341, 245);
+            this.mediaPool.Size = new System.Drawing.Size(276, 245);
             this.mediaPool.TabIndex = 1;
             // 
             // iconList
@@ -663,7 +671,7 @@ namespace StoryDesigner
             this.gamePool.Location = new System.Drawing.Point(0, 0);
             this.gamePool.Name = "gamePool";
             this.gamePool.SelectedImageIndex = 0;
-            this.gamePool.Size = new System.Drawing.Size(341, 256);
+            this.gamePool.Size = new System.Drawing.Size(276, 256);
             this.gamePool.TabIndex = 0;
             // 
             // menuPool
@@ -716,7 +724,7 @@ namespace StoryDesigner
             this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(343, 562);
+            this.ClientSize = new System.Drawing.Size(278, 562);
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.menuStrip1);
             this.DoubleBuffered = true;
@@ -813,6 +821,7 @@ namespace StoryDesigner
         private System.Windows.Forms.ToolStripMenuItem duplicateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem deleteToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportToolStripMenuItem1;
+        private System.Windows.Forms.ToolStripMenuItem pluginsToolStripMenuItem;
     }
 }
 
