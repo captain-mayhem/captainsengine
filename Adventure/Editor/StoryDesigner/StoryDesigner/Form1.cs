@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace StoryDesigner
 {
-    public partial class MainForm : Form
+    public partial class MainForm : Form, PluginHost
     {
         public MainForm()
         {
@@ -363,11 +363,6 @@ namespace StoryDesigner
             mCharacterDlg.StartPosition = FormStartPosition.Manual;
             mCharacterDlg.Location = mPersistence.CharacterDlgPosition;
             mCharacterDlg.Show(this);
-        }
-
-        private void MainForm_Load(object sender, EventArgs e)
-        {
-
         }
 
         private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)

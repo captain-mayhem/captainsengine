@@ -149,6 +149,9 @@
     </Compile>
     <Compile Include="PcdkParser.cs" />
     <Compile Include="Persistence.cs" />
+    <Compile Include="Plugin.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CharacterDlg.resx">
