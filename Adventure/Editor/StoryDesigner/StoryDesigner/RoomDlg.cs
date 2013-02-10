@@ -29,7 +29,7 @@ namespace StoryDesigner
             DragPosition
         };
 
-        public RoomDlg(Room room, AdvData data, ViewMode mode)
+        public RoomDlg(Room room, AdvData data, ViewMode mode, Form parent)
         {
             InitializeComponent();
             mRoom = room;
@@ -47,9 +47,10 @@ namespace StoryDesigner
             this.DragOver += new DragEventHandler(RoomDlg_DragOver);
             this.DragDrop += new DragEventHandler(RoomDlg_DragDrop);
             mControl = new RoomCtrlDlg(room, data);
+            mControl.MdiParent = parent;
             mControl.Location = new Point(Screen.GetWorkingArea(this).Width-mControl.Width, 0);
             mControl.StartPosition = FormStartPosition.Manual;
-            mControl.Show(this);
+            mControl.Show();
             mControl.RedrawRoom += new RoomCtrlDlg.RedrawEventHandler(mControl_RedrawRoom);
             mTimer = new Timer();
             mTimer.Tick += new EventHandler(mTimer_Tick);

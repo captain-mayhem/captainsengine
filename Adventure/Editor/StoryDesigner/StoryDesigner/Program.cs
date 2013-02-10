@@ -20,9 +20,9 @@ namespace StoryDesigner
             Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             if (args.Length > 0)
-                Application.Run(new MainForm(args[0]));
+                Application.Run(new MDIMain(args[0]));
             else
-                Application.Run(new MainForm());
+                Application.Run(new MDIMain());
         }
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
