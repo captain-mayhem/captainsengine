@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace StoryDesigner
 {
-    public partial class MainForm : Form, PluginHost
+    public partial class MainForm : Form
     {
         public MainForm()
         {
@@ -301,10 +301,11 @@ namespace StoryDesigner
                         mPersistence.RoomDlgPosition = mRoomDlg.Location;
                         mRoomDlg.Close();
                     }
-                    mRoomDlg = new RoomDlg(room, mData, mRoomView);
+                    mRoomDlg = new RoomDlg(room, mData, mRoomView, this.MdiParent);
+                    mRoomDlg.MdiParent = this.MdiParent;
                     mRoomDlg.StartPosition = FormStartPosition.Manual;
                     mRoomDlg.Location = pos;
-                    mRoomDlg.Show(this);
+                    mRoomDlg.Show();
                     break;
                 case ResourceID.SCRIPT:
                     showScript(Script.Type.CUTSCENE, name);
@@ -375,7 +376,7 @@ namespace StoryDesigner
             Application.Exit();
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Adventure project file|*.adv|Adventure game file|game.dat";
@@ -418,25 +419,25 @@ namespace StoryDesigner
         private Persistence mPersistence;
         private string mSavePath = null;
 
-        private void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Settings settings = new Settings(mData);
             settings.ShowDialog(this);
         }
 
-        private void commandsAndBoolsToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void commandsAndBoolsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             CommandsAndBools cabs = new CommandsAndBools(mData);
             cabs.ShowDialog(this);
         }
 
-        private void fontsToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void fontsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Fonts fnts = new Fonts(mData);
             fnts.ShowDialog(this);
         }
 
-        private void mouseiconsToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void mouseiconsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (mMouseIcons != null)
                 mMouseIcons.Close();
@@ -444,7 +445,7 @@ namespace StoryDesigner
             mMouseIcons.Show(this);
         }
 
-        private void imageToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void imageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Image files|*.jpg;*.jpeg;*.png;*.bmp,*.tga;*.gif";
@@ -477,7 +478,7 @@ namespace StoryDesigner
             }
         }
 
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mData = new AdvData(mPersistence);
             gamePool.Nodes.Clear();
@@ -506,7 +507,7 @@ namespace StoryDesigner
             mSavePath = null;
         }
 
-        private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SaveFileDialog sod = new SaveFileDialog();
             sod.Filter = "Adventure project files|*.adv";
@@ -546,7 +547,7 @@ namespace StoryDesigner
             method.BeginInvoke(invoke, null);
         }
 
-        private void createGameToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void createGameToolStripMenuItem_Click(object sender, EventArgs e)
         {
             bool showSave = true;
             SaveFileDialog sod = new SaveFileDialog();
@@ -595,7 +596,7 @@ namespace StoryDesigner
                 mRoomDlg.Viewmode = mRoomView;
         }
 
-        private void walkmapOnToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void walkmapOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (mRoomView != RoomDlg.ViewMode.Walkmap)
             {
@@ -694,7 +695,7 @@ namespace StoryDesigner
             mSelectedNode.BeginEdit();
         }
 
-        private void itemToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void itemToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Item it = new Item(mData, 10);
             addItem(it);
@@ -716,7 +717,7 @@ namespace StoryDesigner
             node.BeginEdit();
         }
 
-        private void characterToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void characterToolStripMenuItem_Click(object sender, EventArgs e)
         {       
             AdvCharacter chr = new AdvCharacter(mData, 36);
             addCharacter(chr);
@@ -739,7 +740,7 @@ namespace StoryDesigner
             node.BeginEdit();
         }
 
-        private void scriptToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void scriptToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Script scr = new Script(Script.Type.CUTSCENE);
             scr.Name = "Script" + (mData.NumCutscenes + 1);
@@ -762,7 +763,7 @@ namespace StoryDesigner
             node.BeginEdit();
         }
 
-        private void objectToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void objectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             AdvObject obj = new AdvObject(mData, 10);
             addObject(obj);
@@ -786,7 +787,7 @@ namespace StoryDesigner
             node.BeginEdit();
         }
 
-        private void roomToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void roomToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Room rm = new Room(mData);
             addRoom(rm);
@@ -831,7 +832,7 @@ namespace StoryDesigner
             node.BeginEdit();
         }
 
-        private void soundeffectToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void soundeffectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Sound files|*.wav;*.ogg;*.mp3;*.mp2;*.mp1";
@@ -864,7 +865,7 @@ namespace StoryDesigner
             }
         }
 
-        private void musicfileToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void musicfileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Music files|*.wav;*.ogg;*.mp3;*.mp2;*.mp1;*.it;*.xm;*.mod;*.s3m;*.mo3;*.umx";
@@ -899,7 +900,7 @@ namespace StoryDesigner
             }
         }
 
-        private void videoToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void videoToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog fod = new OpenFileDialog();
             fod.Filter = "Video files|*.avi;*.swf;*.mpeg;*.mpg;*.wmv";
@@ -934,7 +935,7 @@ namespace StoryDesigner
             }
         }
 
-        private void saveToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (mSavePath != null)
             {
@@ -945,7 +946,7 @@ namespace StoryDesigner
                 saveAsToolStripMenuItem_Click(sender, e);
         }
 
-        private void deepmapOnToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void deepmapOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (mRoomView != RoomDlg.ViewMode.Deepmap)
             {
@@ -957,7 +958,7 @@ namespace StoryDesigner
             }
         }
 
-        private void inventoryfieldOnToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void inventoryfieldOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (mRoomView != RoomDlg.ViewMode.Inventory)
             {
@@ -969,7 +970,7 @@ namespace StoryDesigner
             }
         }
 
-        private void fXShapesOnToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void fXShapesOnToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (mRoomView != RoomDlg.ViewMode.Specialfx)
             {
@@ -1111,7 +1112,7 @@ namespace StoryDesigner
             }
         }
 
-        private void languageAndSoundToolsToolStripMenuItem_Click(object sender, EventArgs e)
+        internal void languageAndSoundToolsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mData.updateLanguageList();
             LanguageDlg dlg = new LanguageDlg(mData);

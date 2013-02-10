@@ -18,7 +18,8 @@ namespace Painter
             this.ClientSize = new Size(width, height);
             mBitmap = new Bitmap(width, height);
             mGraphics = Graphics.FromImage(mBitmap);
-            mPen = new Pen(Color.Yellow);
+            mPen = new Pen(Color.White);
+            mColorDlg = new ColorDialog();
         }
 
         private void initialize()
@@ -75,5 +76,15 @@ namespace Painter
         private bool mIsDrawing;
         private Point mLastPoint;
         private Pen mPen;
+
+        private void chooseColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (mColorDlg.ShowDialog(this) == DialogResult.OK)
+            {
+                mPen = new Pen(mColorDlg.Color);
+            }
+        }
+
+        private ColorDialog mColorDlg;
     }
 }

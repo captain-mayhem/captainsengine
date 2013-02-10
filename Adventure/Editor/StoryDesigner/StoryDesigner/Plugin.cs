@@ -20,9 +20,9 @@ namespace StoryDesigner
         bool registerPlugin(Plugin plug);
     }
 
-    public partial class MainForm
+    public partial class MDIMain
     {
-        private void MainForm_Load(object sender, EventArgs e)
+        private void MDIMain_Load(object sender, EventArgs e)
         {
             string path = Application.StartupPath;
             string[] plugins = Directory.GetFiles(path, "*.dll");
