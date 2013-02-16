@@ -20,6 +20,11 @@ namespace StoryDesigner
         bool registerPlugin(Plugin plug);
     }
 
+    public interface SDWindow
+    {
+
+    }
+
     public partial class MDIMain
     {
         private void MDIMain_Load(object sender, EventArgs e)

@@ -582,6 +582,7 @@
             this.Controls.Add(this.menuStrip1);
             this.Controls.Add(this.statusStrip);
             this.IsMdiContainer = true;
+            this.KeyPreview = true;
             this.MainMenuStrip = this.menuStrip1;
             this.Name = "MDIMain";
             this.Text = "Story Designer";

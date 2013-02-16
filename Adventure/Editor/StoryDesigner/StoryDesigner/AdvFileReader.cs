@@ -81,6 +81,10 @@ namespace StoryDesigner
                 {
                     readPassword(zis);
                 }
+                else if (Path.GetExtension(entry.Name) == ".010")
+                {
+                    readAdvancedSettings(zis);
+                }
             }
             zis.Close();
             mPath = System.IO.Path.GetDirectoryName(filename);
@@ -899,6 +903,20 @@ namespace StoryDesigner
             }
             zis.Close();
             return img;
+        }
+
+        protected bool readAdvancedSettings(Stream strm)
+        {
+            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+            string str = rdr.ReadLine();
+            int ver_major = Int32.Parse(str.Substring(0, 1));
+            int ver_minor = Int32.Parse(str.Substring(2, 1));
+            mVerMajor = ver_major;
+            mVerMinor = ver_minor;
+            if (str.Substring(4) != "Point&Click Project File. DO NOT MODIFY!!")
+                return false;
+            str = rdr.ReadLine();
+            return true;
         }
 
         private AdvData mAdv;

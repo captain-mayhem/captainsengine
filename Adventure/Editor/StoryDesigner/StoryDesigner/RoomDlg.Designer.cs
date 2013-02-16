@@ -237,43 +237,43 @@ namespace StoryDesigner
             this.setToBackToolStripMenuItem,
             this.setToFrontToolStripMenuItem});
             this.menuObject.Name = "menuObject";
-            this.menuObject.Size = new System.Drawing.Size(153, 126);
+            this.menuObject.Size = new System.Drawing.Size(134, 104);
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.removeToolStripMenuItem.Text = "Remove";
             this.removeToolStripMenuItem.Click += new System.EventHandler(this.removeToolStripMenuItem_Click);
             // 
             // toolStripSeparator3
             // 
             this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator3.Size = new System.Drawing.Size(130, 6);
             // 
             // showInToolStripMenuItem
             // 
             this.showInToolStripMenuItem.Name = "showInToolStripMenuItem";
-            this.showInToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.showInToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.showInToolStripMenuItem.Text = "Show in";
             this.showInToolStripMenuItem.Click += new System.EventHandler(this.showInToolStripMenuItem_Click);
             // 
             // toolStripSeparator4
             // 
             this.toolStripSeparator4.Name = "toolStripSeparator4";
-            this.toolStripSeparator4.Size = new System.Drawing.Size(149, 6);
+            this.toolStripSeparator4.Size = new System.Drawing.Size(130, 6);
             // 
             // setToBackToolStripMenuItem
             // 
             this.setToBackToolStripMenuItem.Name = "setToBackToolStripMenuItem";
-            this.setToBackToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.setToBackToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.setToBackToolStripMenuItem.Text = "Set to back";
             this.setToBackToolStripMenuItem.Click += new System.EventHandler(this.setToBackToolStripMenuItem_Click);
             // 
             // setToFrontToolStripMenuItem
             // 
             this.setToFrontToolStripMenuItem.Name = "setToFrontToolStripMenuItem";
-            this.setToFrontToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.setToFrontToolStripMenuItem.Size = new System.Drawing.Size(133, 22);
             this.setToFrontToolStripMenuItem.Text = "Set to front";
             this.setToFrontToolStripMenuItem.Click += new System.EventHandler(this.setToFrontToolStripMenuItem_Click);
             // 

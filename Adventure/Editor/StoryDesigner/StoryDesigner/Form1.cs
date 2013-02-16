@@ -182,9 +182,10 @@ namespace StoryDesigner
                 mData.addScript(scr);
             }
             mScriptDlg = new ScriptDlg(scr, mData);
+            mScriptDlg.MdiParent = this.MdiParent;
             mScriptDlg.StartPosition = FormStartPosition.Manual;
             mScriptDlg.Location = mPersistence.ScriptDlgPosition;
-            mScriptDlg.Show(this);
+            mScriptDlg.Show();
         }
 
         void mediaPool_MouseDown(object sender, MouseEventArgs e)
@@ -243,17 +244,20 @@ namespace StoryDesigner
                         return;
                     }
                     mImageViewer = new ImageViewer(bmp);
-                    mImageViewer.Show(this);
+                    mImageViewer.MdiParent = this.MdiParent;
+                    mImageViewer.Show();
                     break;
                 case ResourceID.SOUND:
                     string sound = mData.Sounds[name];
                     MediaPlyr plyr = new MediaPlyr(sound);
-                    plyr.Show(this);
+                    plyr.MdiParent = this.MdiParent;
+                    plyr.Show();
                     break;
                 case ResourceID.MUSIC:
                     string music = mData.Music[name];
                     MediaPlyr plyr2 = new MediaPlyr(music);
-                    plyr2.Show(this);
+                    plyr2.MdiParent = this.MdiParent;
+                    plyr2.Show();
                     break;
                 case ResourceID.ITEM:
                     Item it = mData.getItem(name);
@@ -301,7 +305,7 @@ namespace StoryDesigner
                         mPersistence.RoomDlgPosition = mRoomDlg.Location;
                         mRoomDlg.Close();
                     }
-                    mRoomDlg = new RoomDlg(room, mData, mRoomView, this.MdiParent);
+                    mRoomDlg = new RoomDlg(room, mData, mRoomView, this, this.MdiParent);
                     mRoomDlg.MdiParent = this.MdiParent;
                     mRoomDlg.StartPosition = FormStartPosition.Manual;
                     mRoomDlg.Location = pos;
@@ -337,9 +341,10 @@ namespace StoryDesigner
                 mObjectDlg.Close();
             }
             mObjectDlg = new ObjectDlg(obj);
+            mObjectDlg.MdiParent = this.MdiParent;
             mObjectDlg.StartPosition = FormStartPosition.Manual;
             mObjectDlg.Location = mPersistence.ObjectDlgPosition;
-            mObjectDlg.Show(this);
+            mObjectDlg.Show();
         }
 
         public void showCharacter(string name)
@@ -361,9 +366,10 @@ namespace StoryDesigner
                 mCharacterDlg.Close();
             }
             mCharacterDlg = new CharacterDlg(chr, mData);
+            mCharacterDlg.MdiParent = this.MdiParent;
             mCharacterDlg.StartPosition = FormStartPosition.Manual;
             mCharacterDlg.Location = mPersistence.CharacterDlgPosition;
-            mCharacterDlg.Show(this);
+            mCharacterDlg.Show();
         }
 
         private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
@@ -442,7 +448,8 @@ namespace StoryDesigner
             if (mMouseIcons != null)
                 mMouseIcons.Close();
             mMouseIcons = new MouseIcons(mData);
-            mMouseIcons.Show(this);
+            mMouseIcons.MdiParent = this.MdiParent;
+            mMouseIcons.Show();
         }
 
         internal void imageToolStripMenuItem_Click(object sender, EventArgs e)

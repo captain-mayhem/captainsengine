@@ -184,6 +184,8 @@ namespace StoryDesigner
             this.coin_autopopup.Checked = mData.Settings.CoinAutoPopup;
             this.coin_fading.Value = mData.Settings.CoinFading;
             //TODO crosshair
+            //sixth page
+            this.noPngToJpeg.Checked = mData.Settings.NoPngToJpeg;
         }
 
         private void getControls()
@@ -301,6 +303,8 @@ namespace StoryDesigner
             mData.Settings.CoinAutoPopup = this.coin_autopopup.Checked;
             mData.Settings.CoinFading = (int)this.coin_fading.Value;
             //TODO crosshair
+            //sixth page
+            mData.Settings.NoPngToJpeg = this.noPngToJpeg.Checked;
         }
 
         AdvData mData;

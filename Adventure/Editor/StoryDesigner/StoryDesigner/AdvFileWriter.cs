@@ -76,6 +76,11 @@ namespace StoryDesigner
                 writeLanguages(zs);
                 zs.CloseEntry();
 
+                ZipEntry ze10 = new ZipEntry(entry + ".010");
+                zs.PutNextEntry(ze10);
+                writeAdvancedSettings(zs);
+                zs.CloseEntry();
+
                 zs.Finish();
                 fs.Close();
             }
@@ -719,6 +724,16 @@ namespace StoryDesigner
                 output.Write(buf, 0, read);
             }
             output.Close();
+        }
+
+        void writeAdvancedSettings(Stream strm)
+        {
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
+            swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
+            swr.WriteLine();
+            swr.Write(mData.Settings.NoPngToJpeg ? -1 : 0);
+            swr.WriteLine("");
+            swr.Flush();
         }
 
         protected AdvData mData;

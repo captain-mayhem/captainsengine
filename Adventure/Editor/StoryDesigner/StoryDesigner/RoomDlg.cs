@@ -29,7 +29,7 @@ namespace StoryDesigner
             DragPosition
         };
 
-        public RoomDlg(Room room, AdvData data, ViewMode mode, Form parent)
+        public RoomDlg(Room room, AdvData data, ViewMode mode, MainForm parent, Form mdiParent)
         {
             InitializeComponent();
             mRoom = room;
@@ -47,7 +47,7 @@ namespace StoryDesigner
             this.DragOver += new DragEventHandler(RoomDlg_DragOver);
             this.DragDrop += new DragEventHandler(RoomDlg_DragDrop);
             mControl = new RoomCtrlDlg(room, data);
-            mControl.MdiParent = parent;
+            mControl.MdiParent = mdiParent;
             mControl.Location = new Point(Screen.GetWorkingArea(this).Width-mControl.Width, 0);
             mControl.StartPosition = FormStartPosition.Manual;
             mControl.Show();
@@ -56,6 +56,7 @@ namespace StoryDesigner
             mTimer.Tick += new EventHandler(mTimer_Tick);
             mTimer.Interval = 50;
             mTimer.Start();
+            mOwner = parent;
         }
 
         void mTimer_Tick(object sender, EventArgs e)
@@ -66,9 +67,9 @@ namespace StoryDesigner
             this.Invalidate();
         }
 
-        void RoomDlg_KeyPress(object sender, KeyPressEventArgs e)
+        internal void RoomDlg_KeyPress(object sender, KeyPressEventArgs e)
         {
-            MainForm form = (MainForm)this.Owner;
+            MainForm form = mOwner;
             if (e.KeyChar >= '1' && e.KeyChar <= '5')
             {
                 int num = Convert.ToInt32(e.KeyChar+"");
@@ -155,7 +156,7 @@ namespace StoryDesigner
             int wmx = wmscale * mp.x / mData.WalkGridSize;
             int wmy = wmscale * mp.y / mData.WalkGridSize;
             mRoom.Walkmap[wmx, wmy].hasScript = true;
-            MainForm form = (MainForm)this.Owner;
+            MainForm form = mOwner;
             string scrname = Script.toScriptName(wmx, wmy, mRoom.Name, mData);
             form.showScript(Script.Type.WALKMAP, scrname);
         }
@@ -947,6 +948,7 @@ namespace StoryDesigner
         private Vec2i mMousePos;
         private ViewMode mMode;
         private Timer mTimer;
+        private MainForm mOwner;
         //objects
         private int mFramecount;
         //walkmap
@@ -1036,7 +1038,7 @@ namespace StoryDesigner
         {
             Vec2i pos = new Vec2i(mMousePos.x /mData.WalkGridSize, mMousePos.y / mData.WalkGridSize);
             mRoom.Walkmap[pos.x, pos.y].hasScript = true;
-            MainForm form = (MainForm)this.Owner;
+            MainForm form = mOwner;
             string scrname = Script.toScriptName(pos.x, pos.y, mRoom.Name, mData);
             form.showScript(Script.Type.WALKMAP, scrname);
         }
@@ -1103,7 +1105,7 @@ namespace StoryDesigner
         private void showInToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DrawableObject obj = mControl.SelectedObject;
-            MainForm form = (MainForm)this.Owner;
+            MainForm form = mOwner;
             if (obj is ObjectInstance)
             {
                 ObjectInstance inst = (ObjectInstance)obj;

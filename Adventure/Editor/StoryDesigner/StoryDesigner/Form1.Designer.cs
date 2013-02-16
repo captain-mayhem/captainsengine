@@ -201,11 +201,12 @@ namespace StoryDesigner
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(278, 562);
+            this.ControlBox = false;
             this.Controls.Add(this.panel1);
             this.DoubleBuffered = true;
             this.ForeColor = System.Drawing.SystemColors.ControlText;
             this.Name = "MainForm";
-            this.Text = "StoryDesigner";
+            this.Text = "Game / Media Pool";
             this.panel1.ResumeLayout(false);
             this.menuPool.ResumeLayout(false);
             this.ResumeLayout(false);
