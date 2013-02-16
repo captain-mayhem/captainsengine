@@ -106,6 +106,8 @@ namespace StoryDesigner
         public int RightClick;
         public bool UseMouseWheel;
         public ArrayList Fonts;
+
+        public bool NoPngToJpeg;
     }
 
     public interface IStateFrameData{
@@ -995,6 +997,8 @@ namespace StoryDesigner
             Settings.RightClick = 0;
             Settings.UseMouseWheel = false;
             Settings.Fonts = new ArrayList();
+
+            Settings.NoPngToJpeg = true;
 
             mImages = new Dictionary<string, string>();
             mSounds = new Dictionary<string, string>();

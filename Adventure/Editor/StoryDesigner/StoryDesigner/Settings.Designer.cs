@@ -145,6 +145,8 @@ namespace StoryDesigner
             this.label26 = new System.Windows.Forms.Label();
             this.coin_interface = new System.Windows.Forms.CheckBox();
             this.OK = new System.Windows.Forms.Button();
+            this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.noPngToJpeg = new System.Windows.Forms.CheckBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.actionTextHeight)).BeginInit();
@@ -170,6 +172,7 @@ namespace StoryDesigner
             this.coin_interface_panel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            this.tabPage6.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -179,6 +182,7 @@ namespace StoryDesigner
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage5);
+            this.tabControl1.Controls.Add(this.tabPage6);
             this.tabControl1.Location = new System.Drawing.Point(-1, -1);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -1417,6 +1421,27 @@ namespace StoryDesigner
             this.OK.UseVisualStyleBackColor = true;
             this.OK.Click += new System.EventHandler(this.OK_Click);
             // 
+            // tabPage6
+            // 
+            this.tabPage6.Controls.Add(this.noPngToJpeg);
+            this.tabPage6.Location = new System.Drawing.Point(4, 22);
+            this.tabPage6.Name = "tabPage6";
+            this.tabPage6.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage6.Size = new System.Drawing.Size(478, 383);
+            this.tabPage6.TabIndex = 5;
+            this.tabPage6.Text = "Advanced";
+            this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // noPngToJpeg
+            // 
+            this.noPngToJpeg.AutoSize = true;
+            this.noPngToJpeg.Location = new System.Drawing.Point(9, 16);
+            this.noPngToJpeg.Name = "noPngToJpeg";
+            this.noPngToJpeg.Size = new System.Drawing.Size(159, 17);
+            this.noPngToJpeg.TabIndex = 0;
+            this.noPngToJpeg.Text = "No Png To Jpeg conversion";
+            this.noPngToJpeg.UseVisualStyleBackColor = true;
+            // 
             // Settings
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1469,6 +1494,8 @@ namespace StoryDesigner
             this.coin_interface_panel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            this.tabPage6.ResumeLayout(false);
+            this.tabPage6.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1592,5 +1619,7 @@ namespace StoryDesigner
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.TabPage tabPage6;
+        private System.Windows.Forms.CheckBox noPngToJpeg;
     }
 }

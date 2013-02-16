@@ -13,20 +13,36 @@ namespace StoryDesigner
     {
         public MDIMain()
         {
-            InitializeComponent();
             mMainForm = new MainForm();
-            mMainForm.MainMenuStrip = this.MainMenuStrip;
-            mMainForm.MdiParent = this;
-            mMainForm.Show();
+            initialize();
         }
 
         public MDIMain(string filename)
         {
-            InitializeComponent();
             mMainForm = new MainForm(filename);
+            initialize();
+        }
+
+        private void initialize()
+        {
+            InitializeComponent();
             mMainForm.MainMenuStrip = this.MainMenuStrip;
             mMainForm.MdiParent = this;
             mMainForm.Show();
+            this.KeyPress += new KeyPressEventHandler(MDIMain_KeyPress);
+        }
+
+        void MDIMain_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            if (this.ActiveMdiChild != null)
+            {
+                //a workaround to pass key events more reliably
+                if(this.ActiveMdiChild is RoomDlg){
+                    RoomDlg room = this.ActiveMdiChild as RoomDlg;
+                    room.RoomDlg_KeyPress(sender, e);
+                    e.Handled = true;
+                }
+            }
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
