@@ -69,6 +69,12 @@ bool AdvDocument::loadDocument(const std::string filename){
   if(!loadFile5(rdr)){
     mZipPwd = "";
   }
+  rdr = zrdr.openEntry(entry+".010");
+  if (rdr.isWorking())
+    loadFile10(rdr);
+  else{
+    mSettings.noPngToJpeg = false;
+  }
 
   if (mFilename.substr(mFilename.size()-4) == ".dat")
     mUseCompressedData = true;
@@ -993,5 +999,18 @@ Language::Section AdvDocument::getLanguageSection(const std::string& funcname, i
 
 std::string AdvDocument::getLanguageString(const std::string& language, Language::Section section, int strindex){
   return mLanguages[language].sections[section][strindex];
+}
+
+bool AdvDocument::loadFile10(CGE::MemReader& txtstream){
+  std::string str = txtstream.readLine();
+  int ver_major = atoi(str.substr(0, 1).c_str());
+  int ver_minor = atoi(str.substr(2, 1).c_str());
+  if (str.substr(4) != "Point&Click Project File. DO NOT MODIFY!!"){
+    return false;
+  }
+  txtstream.readLine();
+  str = txtstream.readLine();
+  mSettings.noPngToJpeg = str == "-1";
+  return true;
 }
 

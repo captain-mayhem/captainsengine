@@ -58,7 +58,7 @@ namespace StoryDesigner
 
                 ZipEntry ze1 = new ZipEntry(entry+".001");
                 zs.PutNextEntry(ze1);
-                writeSettings(zs, writeDat);
+                writeSettings(zs, writeDat && !mData.Settings.NoPngToJpeg);
                 zs.CloseEntry();
 
                 ZipEntry ze2 = new ZipEntry(entry+".002");
@@ -629,7 +629,7 @@ namespace StoryDesigner
                 Bitmap bmp = (Bitmap)Bitmap.FromFile(entry.Value);
                 string name = Path.GetFileName(entry.Value);
                 ImageFormat fmt = bmp.RawFormat;
-                if (fmt.Equals(ImageFormat.Png))
+                if (!mData.Settings.NoPngToJpeg && fmt.Equals(ImageFormat.Png))
                 {
                     //special handling for pngs
                     Bitmap rgb = new Bitmap(bmp.Width, bmp.Height);
