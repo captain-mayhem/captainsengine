@@ -54,6 +54,7 @@ struct ProjectSettings{
   std::map<std::string, unsigned> commands;
   std::vector<std::string> pretty_commands;
 
+  bool noPngToJpeg;
 };
 
 
@@ -277,6 +278,7 @@ protected:
   bool loadFile3(CGE::MemReader& txtstream);
   bool loadFile4(CGE::MemReader& txtstream);
   bool loadFile5(CGE::MemReader& txtstream);
+  bool loadFile10(CGE::MemReader& txtstream);
   float readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames& frms);
   ProjectSettings mSettings;
   std::map<std::string,std::string> mImageNames;

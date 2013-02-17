@@ -916,6 +916,8 @@ namespace StoryDesigner
             if (str.Substring(4) != "Point&Click Project File. DO NOT MODIFY!!")
                 return false;
             str = rdr.ReadLine();
+            str = rdr.ReadLine();
+            mAdv.Settings.NoPngToJpeg = str == "-1";
             return true;
         }
 

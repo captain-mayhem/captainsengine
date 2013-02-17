@@ -1027,15 +1027,9 @@ namespace StoryDesigner
         public AdvData(AdvFileReader reader, Persistence persist)
             : this(persist)
         {
-            //Settings = new ProjectSettings();
-            //mImages = new Dictionary<string, string>();
             mCursor = new Cursor(this);
             mReader = reader;
-            //mCursor = new Cursor(this);
-            //mItems = new Dictionary<string, Item>();
-            //mObjects = new Dictionary<string, AdvObject>();
-            //mScripts = new Dictionary<KeyValuePair<Script.Type, string>, Script>();
-            //mWMScripts = new Dictionary<string, ArrayList>();
+            Settings.NoPngToJpeg = false;
         }
 
         public System.Drawing.Bitmap getImage(string name)

@@ -418,9 +418,14 @@ Image* decodeBMP(Reader* rdr){
   return pImage;
 }
 
+struct pngReadStruct{
+  unsigned char* data;
+};
+
 static void png_read_data(png_structp png_ptr, png_bytep data, png_size_t length){
-  png_voidp source = png_get_io_ptr(png_ptr);
-  memcpy(data, source, length);
+  pngReadStruct* source = (pngReadStruct*)png_get_io_ptr(png_ptr);
+  memcpy(data, source->data, length);
+  source->data += length;
 }
 
 static Image* loadPNGinternal(png_structp png_ptr, png_infop info_ptr){
@@ -466,15 +471,11 @@ static Image* loadPNGinternal(png_structp png_ptr, png_infop info_ptr){
 
   png_bytep* row_pointers = new png_bytep[height];
   for (unsigned row = 0; row < height; ++row){
-    row_pointers[row] = (png_bytep)png_malloc(png_ptr, png_get_rowbytes(png_ptr, info_ptr));
+    row_pointers[row] = (png_bytep)image->getData()+row*width*channels;
   }
 
   png_read_image(png_ptr, row_pointers);
 
-  for (unsigned row = 0; row < height; ++row){
-    memcpy(image->getData()+row*width*channels, row_pointers[row], width*channels);
-    png_free(png_ptr, row_pointers[row]);
-  }
   delete [] row_pointers;
 
   return image;
@@ -507,7 +508,9 @@ Image* ImageLoader::loadPNG(void* memory, unsigned size){
   png_infop info_ptr = png_create_info_struct(png_ptr);
   setjmp(png_jmpbuf(png_ptr));
 
-  png_set_read_fn(png_ptr, memory, png_read_data);
+  pngReadStruct rs;
+  rs.data = (unsigned char*)memory;
+  png_set_read_fn(png_ptr, &rs, png_read_data);
 
   Image* img = loadPNGinternal(png_ptr, info_ptr);
 

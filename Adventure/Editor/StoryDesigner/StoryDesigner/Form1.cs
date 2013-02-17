@@ -751,6 +751,7 @@ namespace StoryDesigner
         {
             Script scr = new Script(Script.Type.CUTSCENE);
             scr.Name = "Script" + (mData.NumCutscenes + 1);
+            addScript(scr);
         }
 
         private void addScript(Script scr)
