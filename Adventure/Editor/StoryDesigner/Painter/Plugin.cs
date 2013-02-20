@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace Painter
 {
@@ -26,7 +27,17 @@ namespace Painter
 
         public void show()
         {
-            Canvas c = new Canvas(800, 480);
+            Form frm = mHost.getActiveWindow();
+            Canvas c;
+            if (frm is StoryDesigner.ImageViewer)
+            {
+                StoryDesigner.ImageViewer imgv = (StoryDesigner.ImageViewer)frm;
+                c = new Canvas(imgv.Image);
+            }
+            else
+            {
+                c = new Canvas(800, 480);
+            }
             c.Show();
             return;
         }

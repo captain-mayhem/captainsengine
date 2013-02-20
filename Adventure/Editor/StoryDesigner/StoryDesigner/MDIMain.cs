@@ -166,5 +166,10 @@ namespace StoryDesigner
         {
             mMainForm.fontsToolStripMenuItem_Click(sender, e);
         }
+
+        public Form getActiveWindow()
+        {
+            return this.ActiveMdiChild;
+        }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Reflection;
+using System.Drawing;
 
 namespace StoryDesigner
 {
@@ -18,11 +19,7 @@ namespace StoryDesigner
     public interface PluginHost
     {
         bool registerPlugin(Plugin plug);
-    }
-
-    public interface SDWindow
-    {
-
+        Form getActiveWindow();
     }
 
     public partial class MDIMain

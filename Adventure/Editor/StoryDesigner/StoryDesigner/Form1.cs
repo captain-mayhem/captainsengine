@@ -403,12 +403,120 @@ namespace StoryDesigner
                 AdvFileReader reader = new AdvFileReader(filename, mediaPool, gamePool, mPersistence);
                 mData = reader.Data;
                 if (Path.GetExtension(filename) == ".adv")
+                {
                     mSavePath = filename;
+
+                    //check if media path is ok
+                    Dictionary<string, string> missingImages = new Dictionary<string, string>();
+                    foreach (KeyValuePair<string, string> pair in mData.Images)
+                    {
+                        if (!File.Exists(pair.Value))
+                            missingImages.Add(pair.Key, Path.GetFileName(pair.Value));
+                    }
+                    Dictionary<string, string> missingSounds = new Dictionary<string, string>();
+                    foreach (KeyValuePair<string, string> pair in mData.Sounds)
+                    {
+                        if (!File.Exists(pair.Value))
+                            missingSounds.Add(pair.Key, Path.GetFileName(pair.Value));
+                    }
+                    Dictionary<string, string> missingMusic = new Dictionary<string, string>();
+                    foreach (KeyValuePair<string, string> pair in mData.Music)
+                    {
+                        if (!File.Exists(pair.Value))
+                            missingMusic.Add(pair.Key, Path.GetFileName(pair.Value));
+                    }
+                    Dictionary<string, string> missingVideos = new Dictionary<string, string>();
+                    foreach (KeyValuePair<string, string> pair in mData.Videos)
+                    {
+                        if (!File.Exists(pair.Value))
+                            missingVideos.Add(pair.Key, Path.GetFileName(pair.Value));
+                    }
+                    if (missingImages.Count == 0 && missingSounds.Count == 0 && missingMusic.Count == 0 && missingVideos.Count == 0)
+                        return;
+                    if (!resolveMedia(Path.GetDirectoryName(filename), ref missingImages, ref missingSounds, ref missingMusic, ref missingVideos))
+                        MessageBox.Show("Not all media files were found. Project cannot work correctly.", "Error");
+                }
             }
-            catch (System.IO.FileNotFoundException)
+            catch (Exception)
             {
                 MessageBox.Show("Cannot load " + filename);
             }
+        }
+
+        bool resolveMedia(string searchpath, ref Dictionary<string, string> images, ref Dictionary<string, string> sounds, ref Dictionary<string, string> music, ref Dictionary<string, string> videos)
+        {
+            DirectoryInfo dir = new DirectoryInfo(searchpath);
+            FileInfo[] files = null;
+            try
+            {
+                files = dir.GetFiles();
+            }
+            catch (Exception)
+            {
+
+            }
+            DirectoryInfo[] subdirs = dir.GetDirectories();
+            foreach (DirectoryInfo subdir in subdirs)
+            {
+                if (resolveMedia(subdir.FullName, ref images, ref sounds, ref music, ref videos))
+                    return true;
+            }
+            foreach (FileInfo file in files)
+            {
+                Dictionary<string, string> stillMissing = new Dictionary<string, string>();
+                foreach (KeyValuePair<string, string> pair in images)
+                {
+                    if (file.Name == pair.Value)
+                    {
+                        mData.Images[pair.Key] = file.FullName;
+                    }
+                    else
+                    {
+                        stillMissing[pair.Key] = pair.Value;
+                    }
+                }
+                images = stillMissing;
+                stillMissing = new Dictionary<string, string>();
+                foreach (KeyValuePair<string, string> pair in sounds)
+                {
+                    if (file.Name == pair.Value)
+                    {
+                        mData.Sounds[pair.Key] = file.FullName;
+                    }
+                    else
+                    {
+                        stillMissing[pair.Key] = pair.Value;
+                    }
+                }
+                sounds = stillMissing;
+                stillMissing = new Dictionary<string, string>();
+                foreach (KeyValuePair<string, string> pair in music)
+                {
+                    if (file.Name == pair.Value)
+                    {
+                        mData.Music[pair.Key] = file.FullName;
+                    }
+                    else
+                    {
+                        stillMissing[pair.Key] = pair.Value;
+                    }
+                }
+                music = stillMissing;
+                stillMissing = new Dictionary<string, string>();
+                foreach (KeyValuePair<string, string> pair in videos)
+                {
+                    if (file.Name == pair.Value)
+                    {
+                        mData.Videos[pair.Key] = file.FullName;
+                    }
+                    else
+                    {
+                        stillMissing[pair.Key] = pair.Value;
+                    }
+                }
+                videos = stillMissing;
+            }
+            return images.Count == 0 && sounds.Count == 0 && music.Count == 0 && videos.Count == 0;
         }
 
         private AdvData mData;
