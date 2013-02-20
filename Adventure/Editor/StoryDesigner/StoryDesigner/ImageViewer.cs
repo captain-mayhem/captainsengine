@@ -33,6 +33,12 @@ namespace StoryDesigner
             e.Graphics.DrawImage(mImage, 0, 0, mImage.Width, mImage.Height);
         }
 
+        public Bitmap Image
+        {
+            get { return mImage; }
+            set { mImage = value; Invalidate(); }
+        }
+
         System.Drawing.Bitmap mImage;
     }
 }

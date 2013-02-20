@@ -11,15 +11,20 @@ namespace Painter
 {
     public partial class Canvas : Form
     {
+        public Canvas(Bitmap bmp)
+        {
+            InitializeComponent();
+            this.ClientSize = bmp.Size;
+            mBitmap = new Bitmap(bmp);
+            initialize();
+        }
+
         public Canvas(int width, int height)
         {
             InitializeComponent();
-            initialize();
             this.ClientSize = new Size(width, height);
             mBitmap = new Bitmap(width, height);
-            mGraphics = Graphics.FromImage(mBitmap);
-            mPen = new Pen(Color.White);
-            mColorDlg = new ColorDialog();
+            initialize();
         }
 
         private void initialize()
@@ -29,6 +34,9 @@ namespace Painter
             this.MouseUp += new MouseEventHandler(Canvas_MouseUp);
             this.Paint += new PaintEventHandler(Canvas_Paint);
             this.MouseMove += new MouseEventHandler(Canvas_MouseMove);
+            mGraphics = Graphics.FromImage(mBitmap);
+            mPen = new Pen(Color.White);
+            mColorDlg = new ColorDialog();
         }
 
         void Canvas_MouseMove(object sender, MouseEventArgs e)
