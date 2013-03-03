@@ -6,20 +6,23 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace StoryDesigner
 {
     public partial class MDIMain : Form, PluginHost
     {
-        public MDIMain()
+        public MDIMain(Persistence pers)
         {
-            mMainForm = new MainForm();
+            mPersistence = pers;
+            mMainForm = new MainForm(pers);
             initialize();
         }
 
-        public MDIMain(string filename)
+        public MDIMain(string filename, Persistence pers)
         {
-            mMainForm = new MainForm(filename);
+            mPersistence = pers;
+            mMainForm = new MainForm(filename, pers);
             initialize();
         }
 
@@ -28,6 +31,10 @@ namespace StoryDesigner
             InitializeComponent();
             mMainForm.MainMenuStrip = this.MainMenuStrip;
             mMainForm.MdiParent = this;
+            if (System.Threading.Thread.CurrentThread.CurrentUICulture.Name == "de-DE")
+                deutschToolStripMenuItem.Checked = true;
+            else
+                englishToolStripMenuItem.Checked = true;
             mMainForm.Show();
             this.KeyPress += new KeyPressEventHandler(MDIMain_KeyPress);
         }
@@ -171,5 +178,31 @@ namespace StoryDesigner
         {
             return this.ActiveMdiChild;
         }
+
+        private void englishToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+            deutschToolStripMenuItem.Checked = false;
+            englishToolStripMenuItem.Checked = true;
+            finishLangChange();
+        }
+
+        private void deutschToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            deutschToolStripMenuItem.Checked = true;
+            englishToolStripMenuItem.Checked = false;
+            Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("de-DE");
+            finishLangChange();
+        }
+
+        void finishLangChange()
+        {
+            mPersistence.LCID = Thread.CurrentThread.CurrentUICulture.LCID;
+            mMainForm.Data.setLanguage(mPersistence.LCID);
+            string message = mMainForm.Data.getLocalizedString("languageSwitch");
+            MessageBox.Show(message, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        Persistence mPersistence;
     }
 }

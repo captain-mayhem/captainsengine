@@ -144,9 +144,9 @@ namespace StoryDesigner
             this.coin_room = new System.Windows.Forms.TextBox();
             this.label26 = new System.Windows.Forms.Label();
             this.coin_interface = new System.Windows.Forms.CheckBox();
-            this.OK = new System.Windows.Forms.Button();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.noPngToJpeg = new System.Windows.Forms.CheckBox();
+            this.OK = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.actionTextHeight)).BeginInit();
@@ -1087,6 +1087,7 @@ namespace StoryDesigner
             this.ts_text_color.Size = new System.Drawing.Size(23, 23);
             this.ts_text_color.TabIndex = 8;
             this.ts_text_color.UseVisualStyleBackColor = false;
+            this.ts_text_color.Click += new System.EventHandler(this.ts_text_color_Click);
             // 
             // ts_border_color
             // 
@@ -1096,6 +1097,7 @@ namespace StoryDesigner
             this.ts_border_color.Size = new System.Drawing.Size(23, 23);
             this.ts_border_color.TabIndex = 8;
             this.ts_border_color.UseVisualStyleBackColor = false;
+            this.ts_border_color.Click += new System.EventHandler(this.ts_border_color_Click);
             // 
             // ts_selection_color
             // 
@@ -1105,6 +1107,7 @@ namespace StoryDesigner
             this.ts_selection_color.Size = new System.Drawing.Size(23, 23);
             this.ts_selection_color.TabIndex = 8;
             this.ts_selection_color.UseVisualStyleBackColor = false;
+            this.ts_selection_color.Click += new System.EventHandler(this.ts_selection_color_Click);
             // 
             // ts_area_color
             // 
@@ -1114,6 +1117,7 @@ namespace StoryDesigner
             this.ts_area_color.Size = new System.Drawing.Size(23, 23);
             this.ts_area_color.TabIndex = 8;
             this.ts_area_color.UseVisualStyleBackColor = false;
+            this.ts_area_color.Click += new System.EventHandler(this.ts_area_color_Click);
             // 
             // label24
             // 
@@ -1411,16 +1415,6 @@ namespace StoryDesigner
             this.coin_interface.UseVisualStyleBackColor = true;
             this.coin_interface.CheckedChanged += new System.EventHandler(this.coin_interface_CheckedChanged);
             // 
-            // OK
-            // 
-            this.OK.Location = new System.Drawing.Point(204, 427);
-            this.OK.Name = "OK";
-            this.OK.Size = new System.Drawing.Size(75, 23);
-            this.OK.TabIndex = 1;
-            this.OK.Text = "OK";
-            this.OK.UseVisualStyleBackColor = true;
-            this.OK.Click += new System.EventHandler(this.OK_Click);
-            // 
             // tabPage6
             // 
             this.tabPage6.Controls.Add(this.noPngToJpeg);
@@ -1441,6 +1435,16 @@ namespace StoryDesigner
             this.noPngToJpeg.TabIndex = 0;
             this.noPngToJpeg.Text = "No Png To Jpeg conversion";
             this.noPngToJpeg.UseVisualStyleBackColor = true;
+            // 
+            // OK
+            // 
+            this.OK.Location = new System.Drawing.Point(204, 427);
+            this.OK.Name = "OK";
+            this.OK.Size = new System.Drawing.Size(75, 23);
+            this.OK.TabIndex = 1;
+            this.OK.Text = "OK";
+            this.OK.UseVisualStyleBackColor = true;
+            this.OK.Click += new System.EventHandler(this.OK_Click);
             // 
             // Settings
             // 

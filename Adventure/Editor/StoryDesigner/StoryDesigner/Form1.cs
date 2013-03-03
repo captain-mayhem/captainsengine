@@ -12,10 +12,10 @@ namespace StoryDesigner
 {
     public partial class MainForm : Form
     {
-        public MainForm()
+        public MainForm(Persistence persistence)
         {
             InitializeComponent();
-            mPersistence = Persistence.load();
+            mPersistence = persistence;
             this.Location = mPersistence.MainFormPosition;
             this.StartPosition = FormStartPosition.Manual;
             mediaPool.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
@@ -221,7 +221,7 @@ namespace StoryDesigner
             pool.DoDragDrop(res, DragDropEffects.Copy);
         }
 
-        public MainForm(string filename) : this()
+        public MainForm(string filename, Persistence pers) : this(pers)
         {
             loadFile(filename);
         }
@@ -1233,6 +1233,11 @@ namespace StoryDesigner
             mData.updateLanguageList();
             LanguageDlg dlg = new LanguageDlg(mData);
             dlg.Show(this);
+        }
+
+        internal AdvData Data
+        {
+            get { return mData; }
         }
     }
 }

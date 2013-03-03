@@ -33,6 +33,7 @@ namespace StoryDesigner
             get { return ColorTranslator.ToHtml(CharBackColor); }
             set { CharBackColor = ColorTranslator.FromHtml(value); }
         }
+        public int LCID = System.Threading.Thread.CurrentThread.CurrentUICulture.LCID;
 
         protected Persistence()
         {
