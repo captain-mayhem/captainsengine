@@ -938,6 +938,7 @@ namespace StoryDesigner
     {
         public AdvData(Persistence persist)
         {
+            setLanguage(persist.LCID);
             Settings = new ProjectSettings();
             Settings.ActionText = true;
             Settings.ActionTextHeight = 0;
@@ -1027,6 +1028,7 @@ namespace StoryDesigner
         public AdvData(AdvFileReader reader, Persistence persist)
             : this(persist)
         {
+            setLanguage(persist.LCID);
             mCursor = new Cursor(this);
             mReader = reader;
             Settings.NoPngToJpeg = false;
@@ -1329,6 +1331,16 @@ namespace StoryDesigner
             }
         }
 
+        public void setLanguage(int LCID)
+        {
+            mLocalizedStrings = new System.Resources.ResourceManager("StoryDesigner.Strings", typeof(MDIMain).Assembly);
+        }
+
+        public string getLocalizedString(string key)
+        {
+            return mLocalizedStrings.GetString(key);
+        }
+
         public ProjectSettings Settings;
         public Persistence Persistence;
         Dictionary<string, string> mImages;
@@ -1345,5 +1357,6 @@ namespace StoryDesigner
         Dictionary<string, Script>[] mScripts;
         Dictionary<string, Language> mLanguages;
         AdvFileReader mReader;
+        System.Resources.ResourceManager mLocalizedStrings;
     }
 }

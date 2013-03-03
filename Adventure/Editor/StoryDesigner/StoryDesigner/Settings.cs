@@ -403,5 +403,25 @@ namespace StoryDesigner
         {
             setFadingIndicator((NumericUpDown)sender, this.coin_fading_indicator);
         }
+
+        private void ts_area_color_Click(object sender, EventArgs e)
+        {
+            Utilities.chooseColor(sender);
+        }
+
+        private void ts_border_color_Click(object sender, EventArgs e)
+        {
+            Utilities.chooseColor(sender);
+        }
+
+        private void ts_text_color_Click(object sender, EventArgs e)
+        {
+            Utilities.chooseColor(sender);
+        }
+
+        private void ts_selection_color_Click(object sender, EventArgs e)
+        {
+            Utilities.chooseColor(sender);
+        }
     }
 }
