@@ -120,6 +120,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("bindtext", bindText);
   interpreter->registerFunction("textout", textOut);
   interpreter->getArgumentAsExecutionContext("textout", 2);
+  for (int i = 2; i < 6; ++i){
+    interpreter->registerRelVar("textout", i, "_charstate");
+  }
   interpreter->registerFunction("textspeed", textSpeed);
   interpreter->registerFunction("setpos", setPos);
   interpreter->registerFunction("minicut", miniCut);
@@ -982,7 +985,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   if (ctx.mSkip)
     return 0;
   int state = 0;
-  if (data.isInt() || data.isFloat())
+  if (data.isNumber())
     state = data.getInt()+16;
   else{
     std::string statename = data.getString();
@@ -998,7 +1001,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   }
   for (unsigned i = 2; i < numArgs; ++i){
     data = ctx.stack().pop();
-    if (data.isInt() || data.isFloat())
+    if (data.isNumber())
       state = data.getInt()+16;
     else{
       std::string statename = data.getString();
@@ -1390,7 +1393,7 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
     if (d.getInt() == 0){
       std::string txt = d.getString();
       bool loop = false;
-      if (txt == "inf")
+      if (txt == "inf" || txt == "infinitly")
         loop = true;
       else
         TR_BREAK("Unhandled repeat %s", txt.c_str());
@@ -1402,7 +1405,7 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
     }
   }
   else
-    TR_BREAK("Is this possible?");
+    Engine::instance()->getInterpreter()->execute(func, true);
   return 0;
 }
 
@@ -1446,7 +1449,7 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
 
     Engine::instance()->getInterpreter()->executeImmediately(text, false);
     StackData result = text->stack().pop();
-    if (!result.isInt() || result.getInt() != -1){
+    if (!result.isNumber() || result.getInt() != -1){
       txtout->setText(text);
     }
   }
@@ -1512,7 +1515,7 @@ int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Implement me");
   }
   else if (room == "taskbar"){
-    TR_BREAK("Implement me");
+    room = Engine::instance()->getData()->getProjectSettings()->taskroom;
   }
   else if (room == "menu"){
     TR_BREAK("Implement me");
@@ -1530,7 +1533,7 @@ int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
     ExecutionContext* text = ctx.stack().pop().getEC();
     Engine::instance()->getInterpreter()->executeImmediately(text, false);
     StackData result = text->stack().pop();
-    if (!result.isInt() || result.getInt() != -1){
+    if (!result.isNumber() || result.getInt() != -1){
       txtout->setText(text);
     }
   }

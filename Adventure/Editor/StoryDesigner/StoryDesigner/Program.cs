@@ -21,6 +21,8 @@ namespace StoryDesigner
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             Persistence pers = Persistence.load();
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(pers.LCID);
+            Update update = new Update();
+            update.checkForUpdates();
             if (args.Length > 0)
                 Application.Run(new MDIMain(args[0], pers));
             else

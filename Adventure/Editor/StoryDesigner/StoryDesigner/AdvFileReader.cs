@@ -938,6 +938,33 @@ namespace StoryDesigner
             get { return mVerMinor; }
         }
 
+        public static string unpackAdz(string filename)
+        {
+            string unpackpath = Path.GetDirectoryName(filename);
+            unpackpath = Path.Combine(unpackpath, Path.GetFileNameWithoutExtension(filename));
+            Directory.CreateDirectory(unpackpath);
+            ZipInputStream zis = new ZipInputStream(File.OpenRead(filename));
+            ZipEntry entry;
+            string advname = null;
+            while ((entry = zis.GetNextEntry()) != null)
+            {
+                if (Path.GetExtension(entry.Name) == ".adv")
+                {
+                    advname = Path.Combine(unpackpath, entry.Name);
+                    AdvFileWriter.writeFile(zis, Path.Combine(unpackpath, entry.Name));
+                }
+                else if (Path.GetExtension(entry.Name) == ".dat")
+                {
+                    ZipInputStream input = new ZipInputStream(zis);
+                    input.IsStreamOwner = false;
+                    AdvFileWriter.writeFileRecursive(input, unpackpath);
+                    input.Close();
+                }
+            }
+            zis.Close();
+            return advname;
+        }
+
         private TreeView mMediaPool;
         private TreeView mGamePool;
         private string mPath;

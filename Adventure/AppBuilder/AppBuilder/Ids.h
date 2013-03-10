@@ -27,6 +27,7 @@ enum WindowIds{
   ID_AdvTreeCtrl = 1000,
 };
 
+#define DEPTH_ROOM_RANGE 1000
 #define DEPTH_PARALLAX_BACKGROUND -5
 #define DEPTH_PARTICLES_BACK -4
 #define DEPTH_BACKGROUND -3

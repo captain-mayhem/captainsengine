@@ -23,6 +23,7 @@ public:
   bool isInt() const {return mType == I;}
   bool isFloat() const {return mType == F;}
   bool isString() const {return mType == S;}
+  bool isNumber() const {return mType == I || mType == F;}
 protected:
   enum Type{
     S, I, B, F, EC

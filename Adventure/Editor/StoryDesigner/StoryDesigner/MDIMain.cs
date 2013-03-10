@@ -204,5 +204,10 @@ namespace StoryDesigner
         }
 
         Persistence mPersistence;
+
+        private void importToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mMainForm.importToolStripMenuItem_Click(sender, e);
+        }
     }
 }

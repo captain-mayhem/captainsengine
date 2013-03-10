@@ -31,14 +31,14 @@ void Textout::render(){
     RoomObject* ro = Engine::instance()->getRoom(mBoundRoom);
     if (ro == NULL)
       return;
-    pos = ro->getScrollOffset();
-    depth = ro->getAnimation()->getDepth()+DEPTH_BOUND_FONT;
+    pos = ro->getScrollOffset()+ro->getPosition();
+    depth = ro->getDepth()+DEPTH_BOUND_FONT;
     //keepOnScreen = false;
   }
   Engine::instance()->getInterpreter()->executeImmediately(mText, false);
   StackData sd = mText->stack().pop();
   std::string text;
-  if (sd.isInt()){
+  if (sd.isNumber()){
     char tmp[32];
     sprintf(tmp, "%i", sd.getInt());
     text = tmp;

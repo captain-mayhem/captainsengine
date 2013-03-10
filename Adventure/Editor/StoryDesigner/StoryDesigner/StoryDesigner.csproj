@@ -281,6 +281,7 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
     <Compile Include="UnexpectedValue.cs" />
+    <Compile Include="Update.cs" />
     <Compile Include="Utilities.cs" />
     <Compile Include="Vec2i.cs" />
     <Compile Include="WaitForm.cs">
@@ -293,6 +294,10 @@
   <ItemGroup>
     <Content Include="Icons\Empty.ico" />
     <Content Include="Icons\Folder.ico" />
+    <EmbeddedResource Include="Form1.de.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Images\FxshapeManDark.png" />
     <EmbeddedResource Include="Images\FxshapeManLight.png" />
     <EmbeddedResource Include="LanguageDlg.resx">
