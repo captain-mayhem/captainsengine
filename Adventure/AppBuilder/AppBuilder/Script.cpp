@@ -1079,66 +1079,67 @@ inline int getTime(TimeVal tv){
 
 StackData PcdkScript::getVariable(const std::string& name){
   TR_USE(ADV_Script);
+  string lname = toLower(name);
   if (name.size() > 0 && name[0] == '_'){
-    if (name.size() > 6 && name.substr(1, 6) == "volume"){
+    if (name.size() > 6 && lname.substr(1, 6) == "volume"){
       return int(SoundEngine::instance()->getMusicVolume()*100);
     }
-    else if (name.size() > 9 && name.substr(1, 9) == "charstate"){
+    else if (name.size() > 9 && lname.substr(1, 9) == "charstate"){
       return 0;
     }
   }
-  else if (name == "mousex"){
+  else if (lname == "mousex"){
     return Engine::instance()->getCursorPos().x;
   }
-  else if (name == "mousey"){
+  else if (lname == "mousey"){
     return Engine::instance()->getCursorPos().y;
   }
-  else if (name == "hour"){
+  else if (lname == "hour"){
     return getTime(TM_HOUR);
   }
-  else if (name == "minute"){
+  else if (lname == "minute"){
     return getTime(TM_MINUTE);
   }
-  else if (name == "second"){
+  else if (lname == "second"){
     return getTime(TM_SECOND);
   }
-  else if (name == "year"){
+  else if (lname == "year"){
     return getTime(TM_YEAR);
   }
-  else if (name == "month"){
+  else if (lname == "month"){
     return getTime(TM_MONTH);
   }
-  else if (name == "day"){
+  else if (lname == "day"){
     return getTime(TM_DAY);
   }
-  else if (name == "currentroom"){
+  else if (lname == "currentroom"){
     RoomObject* room = Engine::instance()->getRoom("");
     if (!room)
       TR_BREAK("Room not found");
     return room->getName();
   }
-  else if (name == "roomx"){
+  else if (lname == "roomx"){
     TR_BREAK("Implement me");
   }
-  else if (name == "roomy"){
+  else if (lname == "roomy"){
     TR_BREAK("Implement me");
   }
-  else if (name == "charx"){
+  else if (lname == "charx"){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (!chr)
       return 0;
     return chr->getPosition().x;
   }
-  else if (name == "chary"){
+  else if (lname == "chary"){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (!chr)
       return 0;
     return chr->getPosition().y;
   }
-  else if (name == "charzoom"){
+  else if (lname == "charzoom"){
     TR_BREAK("Implement me");
   }
-  else if (name.size() > 5 && name.substr(0,5) == "char:"){
+  else if (name.size() > 5 && lname.substr(0,5) == "char:"){
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(5));
     if (!chr){
       SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(name.substr(5));
@@ -1148,7 +1149,7 @@ StackData PcdkScript::getVariable(const std::string& name){
     }
     return chr->getState();
   }
-  else if (name.size() > 6 && name.substr(0,6) == "charx:"){
+  else if (name.size() > 6 && lname.substr(0,6) == "charx:"){
     int idx = 6;
     if (name[6] == '_')
       idx = 7;
@@ -1157,7 +1158,7 @@ StackData PcdkScript::getVariable(const std::string& name){
       TR_BREAK("Character %s not found", name.substr(idx).c_str());
     return chr->getPosition().x/(idx == 7 ? Engine::instance()->getWalkGridSize() : 1);
   }
-  else if (name.size() > 6 && name.substr(0,6) == "chary:"){
+  else if (name.size() > 6 && lname.substr(0,6) == "chary:"){
     int idx = 6;
     if (name[6] == '_')
       idx = 7;
@@ -1166,25 +1167,25 @@ StackData PcdkScript::getVariable(const std::string& name){
       TR_BREAK("Character %s not found", name.substr(idx).c_str());
     return chr->getPosition().y/(idx == 7 ? Engine::instance()->getWalkGridSize() : 1);
   }
-  else if (name.size() > 9 && name.substr(0,9) == "charzoom:"){
+  else if (name.size() > 9 && lname.substr(0,9) == "charzoom:"){
     TR_BREAK("Implement me");
   }
-  else if (name.size() > 4 && name.substr(0,4) == "obj:"){
+  else if (name.size() > 4 && lname.substr(0,4) == "obj:"){
     TR_BREAK("Implement me");
   }
-  else if (name.size() > 5 && name.substr(0,5) == "objx:"){
+  else if (name.size() > 5 && lname.substr(0,5) == "objx:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
     if (obj == NULL)
       TR_BREAK("Object %s not found", name.substr(5).c_str());
     return obj->getPosition().x;
   }
-  else if (name.size() > 5 && name.substr(0,5) == "objy:"){
+  else if (name.size() > 5 && lname.substr(0,5) == "objy:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
     if (obj == NULL)
       TR_BREAK("Object %s not found", name.substr(5).c_str());
     return obj->getPosition().y;
   }
-  else if (name.size() > 8 && name.substr(0,8) == "tgtobjx:"){
+  else if (name.size() > 8 && lname.substr(0,8) == "tgtobjx:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(8), false);
     if (obj == NULL){
       std::string dummy;
@@ -1195,7 +1196,7 @@ StackData PcdkScript::getVariable(const std::string& name){
     }
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).x;
   }
-  else if (name.size() > 8 && name.substr(0,8) == "tgtobjy:"){
+  else if (name.size() > 8 && lname.substr(0,8) == "tgtobjy:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(8), false);
     if (obj == NULL){
       std::string dummy;
@@ -1206,16 +1207,16 @@ StackData PcdkScript::getVariable(const std::string& name){
     }
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).y;
   }
-  else if (name == "actiontext"){
+  else if (lname == "actiontext"){
     TR_BREAK("actiontext unimplemented");
   }
-  else if (name == "empty"){
+  else if (lname == "empty"){
     return std::string();
   }
-  else if (name == "leftbracket"){
+  else if (lname == "leftbracket"){
     return std::string("(");
   }
-  else if (name == "rightbracket"){
+  else if (lname == "rightbracket"){
     return std::string(")");
   }
   std::map<std::string, StackData>::iterator iter = mVariables.find(name);

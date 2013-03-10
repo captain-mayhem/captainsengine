@@ -61,6 +61,15 @@ namespace StoryDesigner {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Project was imported to {0}..
+        /// </summary>
+        internal static string importAdz {
+            get {
+                return ResourceManager.GetString("importAdz", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please restart Story Designer.
         /// </summary>
         internal static string languageSwitch {

@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="importAdz" xml:space="preserve">
+    <value>Projekt wurde nach {0} importiert.</value>
+  </data>
   <data name="languageSwitch" xml:space="preserve">
     <value>Für diese Änderung bitte Story Designer neustarten</value>
   </data>

@@ -311,7 +311,8 @@ namespace StoryDesigner
                         swr.Write(';');
                         swr.Write(obj.Value.getFramePartOffset(i, frames, 1).x);
                         swr.Write(';');
-                        swr.WriteLine(obj.Value.getFramePartOffset(i, frames, 1).y);
+                        swr.Write(obj.Value.getFramePartOffset(i, frames, 1).y);
+                        swr.WriteLine(';');
                     }
                     swr.WriteLine(obj.Value.getFPSDivider(i));
                 }
@@ -366,7 +367,8 @@ namespace StoryDesigner
                         swr.Write(';');
                         swr.Write(chr.getFramePartOffset(i, frames, 1).x);
                         swr.Write(';');
-                        swr.WriteLine(chr.getFramePartOffset(i, frames, 1).y);
+                        swr.Write(chr.getFramePartOffset(i, frames, 1).y);
+                        swr.WriteLine(';');
                     }
                     swr.WriteLine(chr.getFPSDivider(i));
                 }
@@ -713,7 +715,7 @@ namespace StoryDesigner
             zis.Close();
         }
 
-        private void writeFile(Stream input, string outfile)
+        internal static void writeFile(Stream input, string outfile)
         {
             FileStream output = File.Create(outfile);
             byte[] buf = new byte[8192];
@@ -724,6 +726,25 @@ namespace StoryDesigner
                 output.Write(buf, 0, read);
             }
             output.Close();
+        }
+
+        internal static void writeFileRecursive(ZipInputStream input, string outdir)
+        {
+            ZipEntry entry;
+            while ((entry = input.GetNextEntry()) != null)
+            {
+                if (Path.GetExtension(entry.Name) == ".zip")
+                {
+                    string newdir = Path.Combine(outdir, Path.GetFileNameWithoutExtension(entry.Name));
+                    Directory.CreateDirectory(newdir);
+                    ZipInputStream str = new ZipInputStream(input);
+                    str.IsStreamOwner = false;
+                    writeFileRecursive(str, newdir);
+                    str.Close();
+                }
+                else
+                    writeFile(input, Path.Combine(outdir, entry.Name));
+            }
         }
 
         void writeAdvancedSettings(Stream strm)

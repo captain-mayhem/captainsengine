@@ -444,7 +444,10 @@ void Engine::render(unsigned time){
     mParticleEngine->update(interval);
 
   //build blit queue
+  int roomdepth = 0;
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
+    (*iter)->setDepth(roomdepth);
+    roomdepth += DEPTH_ROOM_RANGE;
     if ((*iter) == mTaskbar){
       if (!mShowTaskbar)
         continue;

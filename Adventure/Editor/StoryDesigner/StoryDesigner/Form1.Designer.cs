@@ -51,7 +51,10 @@ namespace StoryDesigner
             // 
             // panel1
             // 
-            this.panel1.AutoSize = true;
+            this.panel1.AccessibleDescription = null;
+            this.panel1.AccessibleName = null;
+            resources.ApplyResources(this.panel1, "panel1");
+            this.panel1.BackgroundImage = null;
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.hideAll);
             this.panel1.Controls.Add(this.showAll);
@@ -60,75 +63,74 @@ namespace StoryDesigner
             this.panel1.Controls.Add(this.gamepool_add);
             this.panel1.Controls.Add(this.mediaPool);
             this.panel1.Controls.Add(this.gamePool);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Font = null;
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(278, 562);
-            this.panel1.TabIndex = 1;
             // 
             // hideAll
             // 
-            this.hideAll.Location = new System.Drawing.Point(131, 262);
+            this.hideAll.AccessibleDescription = null;
+            this.hideAll.AccessibleName = null;
+            resources.ApplyResources(this.hideAll, "hideAll");
+            this.hideAll.BackgroundImage = null;
+            this.hideAll.Font = null;
             this.hideAll.Name = "hideAll";
-            this.hideAll.Size = new System.Drawing.Size(26, 23);
-            this.hideAll.TabIndex = 6;
-            this.hideAll.Text = "|--|";
             this.hideAll.UseVisualStyleBackColor = true;
             this.hideAll.Click += new System.EventHandler(this.hideAll_Click);
             // 
             // showAll
             // 
-            this.showAll.Location = new System.Drawing.Point(99, 262);
+            this.showAll.AccessibleDescription = null;
+            this.showAll.AccessibleName = null;
+            resources.ApplyResources(this.showAll, "showAll");
+            this.showAll.BackgroundImage = null;
+            this.showAll.Font = null;
             this.showAll.Name = "showAll";
-            this.showAll.Size = new System.Drawing.Size(26, 23);
-            this.showAll.TabIndex = 5;
-            this.showAll.Text = "|+|";
             this.showAll.UseVisualStyleBackColor = true;
             this.showAll.Click += new System.EventHandler(this.button3_Click);
             // 
             // gp_newFolder
             // 
-            this.gp_newFolder.Location = new System.Drawing.Point(67, 262);
+            this.gp_newFolder.AccessibleDescription = null;
+            this.gp_newFolder.AccessibleName = null;
+            resources.ApplyResources(this.gp_newFolder, "gp_newFolder");
+            this.gp_newFolder.BackgroundImage = null;
+            this.gp_newFolder.Font = null;
             this.gp_newFolder.Name = "gp_newFolder";
-            this.gp_newFolder.Size = new System.Drawing.Size(26, 23);
-            this.gp_newFolder.TabIndex = 4;
-            this.gp_newFolder.Text = "N";
             this.gp_newFolder.UseVisualStyleBackColor = true;
             this.gp_newFolder.Click += new System.EventHandler(this.gp_newFolder_Click);
             // 
             // gamepool_delete
             // 
-            this.gamepool_delete.Location = new System.Drawing.Point(35, 262);
+            this.gamepool_delete.AccessibleDescription = null;
+            this.gamepool_delete.AccessibleName = null;
+            resources.ApplyResources(this.gamepool_delete, "gamepool_delete");
+            this.gamepool_delete.BackgroundImage = null;
+            this.gamepool_delete.Font = null;
             this.gamepool_delete.Name = "gamepool_delete";
-            this.gamepool_delete.Size = new System.Drawing.Size(26, 23);
-            this.gamepool_delete.TabIndex = 3;
-            this.gamepool_delete.Text = "-";
             this.gamepool_delete.UseVisualStyleBackColor = true;
             this.gamepool_delete.Click += new System.EventHandler(this.gamepool_delete_Click);
             // 
             // gamepool_add
             // 
-            this.gamepool_add.Location = new System.Drawing.Point(3, 262);
+            this.gamepool_add.AccessibleDescription = null;
+            this.gamepool_add.AccessibleName = null;
+            resources.ApplyResources(this.gamepool_add, "gamepool_add");
+            this.gamepool_add.BackgroundImage = null;
+            this.gamepool_add.Font = null;
             this.gamepool_add.Name = "gamepool_add";
-            this.gamepool_add.Size = new System.Drawing.Size(26, 23);
-            this.gamepool_add.TabIndex = 2;
-            this.gamepool_add.Text = "+";
             this.gamepool_add.UseVisualStyleBackColor = true;
             this.gamepool_add.Click += new System.EventHandler(this.gamepool_add_Click);
             // 
             // mediaPool
             // 
+            this.mediaPool.AccessibleDescription = null;
+            this.mediaPool.AccessibleName = null;
             this.mediaPool.AllowDrop = true;
-            this.mediaPool.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-                        | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.mediaPool.ImageIndex = 0;
+            resources.ApplyResources(this.mediaPool, "mediaPool");
+            this.mediaPool.BackgroundImage = null;
+            this.mediaPool.Font = null;
             this.mediaPool.ImageList = this.iconList;
-            this.mediaPool.Location = new System.Drawing.Point(0, 291);
             this.mediaPool.Name = "mediaPool";
-            this.mediaPool.SelectedImageIndex = 0;
-            this.mediaPool.Size = new System.Drawing.Size(276, 269);
-            this.mediaPool.TabIndex = 1;
             // 
             // iconList
             // 
@@ -139,19 +141,22 @@ namespace StoryDesigner
             // 
             // gamePool
             // 
+            this.gamePool.AccessibleDescription = null;
+            this.gamePool.AccessibleName = null;
             this.gamePool.AllowDrop = true;
-            this.gamePool.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.gamePool.ImageIndex = 0;
+            resources.ApplyResources(this.gamePool, "gamePool");
+            this.gamePool.BackgroundImage = null;
+            this.gamePool.Font = null;
             this.gamePool.ImageList = this.iconList;
-            this.gamePool.Location = new System.Drawing.Point(0, 0);
             this.gamePool.Name = "gamePool";
-            this.gamePool.SelectedImageIndex = 0;
-            this.gamePool.Size = new System.Drawing.Size(276, 256);
-            this.gamePool.TabIndex = 0;
             // 
             // menuPool
             // 
+            this.menuPool.AccessibleDescription = null;
+            this.menuPool.AccessibleName = null;
+            resources.ApplyResources(this.menuPool, "menuPool");
+            this.menuPool.BackgroundImage = null;
+            this.menuPool.Font = null;
             this.menuPool.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.renameToolStripMenuItem,
             this.newSubdirectoryToolStripMenuItem,
@@ -159,54 +164,71 @@ namespace StoryDesigner
             this.deleteToolStripMenuItem,
             this.exportToolStripMenuItem1});
             this.menuPool.Name = "menuPool";
-            this.menuPool.Size = new System.Drawing.Size(153, 114);
             // 
             // renameToolStripMenuItem
             // 
+            this.renameToolStripMenuItem.AccessibleDescription = null;
+            this.renameToolStripMenuItem.AccessibleName = null;
+            resources.ApplyResources(this.renameToolStripMenuItem, "renameToolStripMenuItem");
+            this.renameToolStripMenuItem.BackgroundImage = null;
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.renameToolStripMenuItem.Text = "Rename";
+            this.renameToolStripMenuItem.ShortcutKeyDisplayString = null;
             this.renameToolStripMenuItem.Click += new System.EventHandler(this.renameToolStripMenuItem_Click);
             // 
             // newSubdirectoryToolStripMenuItem
             // 
+            this.newSubdirectoryToolStripMenuItem.AccessibleDescription = null;
+            this.newSubdirectoryToolStripMenuItem.AccessibleName = null;
+            resources.ApplyResources(this.newSubdirectoryToolStripMenuItem, "newSubdirectoryToolStripMenuItem");
+            this.newSubdirectoryToolStripMenuItem.BackgroundImage = null;
             this.newSubdirectoryToolStripMenuItem.Name = "newSubdirectoryToolStripMenuItem";
-            this.newSubdirectoryToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.newSubdirectoryToolStripMenuItem.Text = "New Subfolder";
+            this.newSubdirectoryToolStripMenuItem.ShortcutKeyDisplayString = null;
             this.newSubdirectoryToolStripMenuItem.Click += new System.EventHandler(this.newSubdirectoryToolStripMenuItem_Click);
             // 
             // duplicateToolStripMenuItem
             // 
+            this.duplicateToolStripMenuItem.AccessibleDescription = null;
+            this.duplicateToolStripMenuItem.AccessibleName = null;
+            resources.ApplyResources(this.duplicateToolStripMenuItem, "duplicateToolStripMenuItem");
+            this.duplicateToolStripMenuItem.BackgroundImage = null;
             this.duplicateToolStripMenuItem.Name = "duplicateToolStripMenuItem";
-            this.duplicateToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.duplicateToolStripMenuItem.Text = "Duplicate";
+            this.duplicateToolStripMenuItem.ShortcutKeyDisplayString = null;
             this.duplicateToolStripMenuItem.Click += new System.EventHandler(this.duplicateToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
+            this.deleteToolStripMenuItem.AccessibleDescription = null;
+            this.deleteToolStripMenuItem.AccessibleName = null;
+            resources.ApplyResources(this.deleteToolStripMenuItem, "deleteToolStripMenuItem");
+            this.deleteToolStripMenuItem.BackgroundImage = null;
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.deleteToolStripMenuItem.Text = "Delete";
+            this.deleteToolStripMenuItem.ShortcutKeyDisplayString = null;
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // exportToolStripMenuItem1
             // 
+            this.exportToolStripMenuItem1.AccessibleDescription = null;
+            this.exportToolStripMenuItem1.AccessibleName = null;
+            resources.ApplyResources(this.exportToolStripMenuItem1, "exportToolStripMenuItem1");
+            this.exportToolStripMenuItem1.BackgroundImage = null;
             this.exportToolStripMenuItem1.Name = "exportToolStripMenuItem1";
-            this.exportToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
-            this.exportToolStripMenuItem1.Text = "Export";
+            this.exportToolStripMenuItem1.ShortcutKeyDisplayString = null;
             // 
             // MainForm
             // 
+            this.AccessibleDescription = null;
+            this.AccessibleName = null;
             this.AllowDrop = true;
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(278, 562);
+            this.BackgroundImage = null;
             this.ControlBox = false;
             this.Controls.Add(this.panel1);
             this.DoubleBuffered = true;
+            this.Font = null;
             this.ForeColor = System.Drawing.SystemColors.ControlText;
+            this.Icon = null;
             this.Name = "MainForm";
-            this.Text = "Game / Media Pool";
             this.panel1.ResumeLayout(false);
             this.menuPool.ResumeLayout(false);
             this.ResumeLayout(false);

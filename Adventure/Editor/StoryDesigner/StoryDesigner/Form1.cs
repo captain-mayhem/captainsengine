@@ -1235,6 +1235,24 @@ namespace StoryDesigner
             dlg.Show(this);
         }
 
+        internal void importToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fod = new OpenFileDialog();
+            fod.Filter = "Adventure export file|*.adz";
+            fod.InitialDirectory = mPersistence.LastOpenPath;
+            DialogResult dr = fod.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                string dir = Path.GetDirectoryName(fod.FileName);
+                mPersistence.LastOpenPath = dir;
+                string advfile = AdvFileReader.unpackAdz(fod.FileName);
+                loadFile(advfile);
+                string import = mData.getLocalizedString("importAdz");
+                import = String.Format(import, Path.GetDirectoryName(advfile));
+                MessageBox.Show(import, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
         internal AdvData Data
         {
             get { return mData; }

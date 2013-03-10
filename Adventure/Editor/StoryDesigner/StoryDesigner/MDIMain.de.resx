@@ -117,96 +117,54 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="dateiToolStripMenuItem.Text" xml:space="preserve">
-    <value>Projekt</value>
+  <data name="statusStrip.ToolTip" xml:space="preserve">
+    <value />
   </data>
   <assembly alias="System.Drawing" name="System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-  <data name="insertToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>66, 20</value>
-  </data>
-  <data name="insertToolStripMenuItem.Text" xml:space="preserve">
-    <value>Einfügen</value>
-  </data>
-  <data name="helpToolStripMenuItem.Text" xml:space="preserve">
-    <value>Hilfe</value>
-  </data>
-  <data name="showRoomwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>197, 22</value>
-  </data>
-  <data name="showRoomwindowToolStripMenuItem.Text" xml:space="preserve">
-    <value>Raumfenster ein</value>
-  </data>
-  <data name="showObjectwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>197, 22</value>
-  </data>
-  <data name="showObjectwindowToolStripMenuItem.Text" xml:space="preserve">
-    <value>Objektfenster ein</value>
-  </data>
-  <data name="showCharacterwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>197, 22</value>
-  </data>
-  <data name="showCharacterwindowToolStripMenuItem.Text" xml:space="preserve">
-    <value>Charakterfenster ein</value>
-  </data>
-  <data name="showItemwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>197, 22</value>
-  </data>
-  <data name="showItemwindowToolStripMenuItem.Text" xml:space="preserve">
-    <value>Gegenstandsfenster ein</value>
-  </data>
-  <data name="showPreviewToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>197, 22</value>
-  </data>
-  <data name="showPreviewToolStripMenuItem.Text" xml:space="preserve">
-    <value>Vorschau ein</value>
-  </data>
-  <data name="showScriptwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>197, 22</value>
-  </data>
-  <data name="showScriptwindowToolStripMenuItem.Text" xml:space="preserve">
-    <value>Skriptfenster ein</value>
-  </data>
-  <data name="showMousewindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>197, 22</value>
-  </data>
-  <data name="showMousewindowToolStripMenuItem.Text" xml:space="preserve">
-    <value>Mauszeiger ein</value>
-  </data>
-  <data name="toolbarOnToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>197, 22</value>
-  </data>
-  <data name="toolbarOnToolStripMenuItem.Text" xml:space="preserve">
-    <value>Toolbar aus</value>
-  </data>
-  <data name="windowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>57, 20</value>
-  </data>
-  <data name="windowToolStripMenuItem.Text" xml:space="preserve">
-    <value>Fenster</value>
-  </data>
-  <data name="languageToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>61, 20</value>
-  </data>
-  <data name="languageToolStripMenuItem.Text" xml:space="preserve">
-    <value>Sprache</value>
+  <data name="newToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>202, 22</value>
   </data>
   <data name="newToolStripMenuItem.Text" xml:space="preserve">
     <value>Neu</value>
   </data>
+  <data name="openToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>202, 22</value>
+  </data>
   <data name="openToolStripMenuItem.Text" xml:space="preserve">
     <value>Öffnen...</value>
+  </data>
+  <data name="saveToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>202, 22</value>
   </data>
   <data name="saveToolStripMenuItem.Text" xml:space="preserve">
     <value>Speichern</value>
   </data>
+  <data name="saveAsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>202, 22</value>
+  </data>
   <data name="saveAsToolStripMenuItem.Text" xml:space="preserve">
     <value>Speichern unter...</value>
+  </data>
+  <data name="toolStripSeparator9.Size" type="System.Drawing.Size, System.Drawing">
+    <value>199, 6</value>
+  </data>
+  <data name="importToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>202, 22</value>
   </data>
   <data name="importToolStripMenuItem.Text" xml:space="preserve">
     <value>Importieren</value>
   </data>
+  <data name="exportToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>202, 22</value>
+  </data>
   <data name="exportToolStripMenuItem.Text" xml:space="preserve">
     <value>Exportieren</value>
+  </data>
+  <data name="toolStripSeparator10.Size" type="System.Drawing.Size, System.Drawing">
+    <value>199, 6</value>
+  </data>
+  <data name="importCharacterToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>202, 22</value>
   </data>
   <data name="importCharacterToolStripMenuItem.Text" xml:space="preserve">
     <value>Charakter importieren</value>
@@ -217,11 +175,17 @@
   <data name="importRoomToolStripMenuItem.Text" xml:space="preserve">
     <value>Raum importieren</value>
   </data>
+  <data name="toolStripSeparator11.Size" type="System.Drawing.Size, System.Drawing">
+    <value>199, 6</value>
+  </data>
   <data name="languageAndSoundToolsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>202, 22</value>
   </data>
   <data name="languageAndSoundToolsToolStripMenuItem.Text" xml:space="preserve">
     <value>Sprach- und Soundtools</value>
+  </data>
+  <data name="toolStripSeparator12.Size" type="System.Drawing.Size, System.Drawing">
+    <value>199, 6</value>
   </data>
   <data name="scriptCheckToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>202, 22</value>
@@ -235,59 +199,47 @@
   <data name="createGameToolStripMenuItem.Text" xml:space="preserve">
     <value>Spiel erstellen...</value>
   </data>
+  <data name="toolStripSeparator13.Size" type="System.Drawing.Size, System.Drawing">
+    <value>199, 6</value>
+  </data>
   <data name="beendenToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>202, 22</value>
   </data>
   <data name="beendenToolStripMenuItem.Text" xml:space="preserve">
     <value>Beenden</value>
   </data>
-  <data name="imageToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
+  <data name="dateiToolStripMenuItem.Text" xml:space="preserve">
+    <value>Projekt</value>
   </data>
   <data name="imageToolStripMenuItem.Text" xml:space="preserve">
     <value>Bild...</value>
   </data>
-  <data name="soundeffectToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
-  </data>
   <data name="soundeffectToolStripMenuItem.Text" xml:space="preserve">
     <value>Soundeffekt...</value>
-  </data>
-  <data name="musicfileToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
   </data>
   <data name="musicfileToolStripMenuItem.Text" xml:space="preserve">
     <value>Musikstück...</value>
   </data>
-  <data name="roomToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
-  </data>
   <data name="roomToolStripMenuItem.Text" xml:space="preserve">
     <value>Raum</value>
-  </data>
-  <data name="objectToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
   </data>
   <data name="objectToolStripMenuItem.Text" xml:space="preserve">
     <value>Objekt</value>
   </data>
-  <data name="characterToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
-  </data>
   <data name="characterToolStripMenuItem.Text" xml:space="preserve">
     <value>Charakter</value>
-  </data>
-  <data name="itemToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
   </data>
   <data name="itemToolStripMenuItem.Text" xml:space="preserve">
     <value>Gegenstand</value>
   </data>
-  <data name="scriptToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
-  </data>
   <data name="scriptToolStripMenuItem.Text" xml:space="preserve">
     <value>Skript</value>
+  </data>
+  <data name="insertToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>66, 20</value>
+  </data>
+  <data name="insertToolStripMenuItem.Text" xml:space="preserve">
+    <value>Einfügen</value>
   </data>
   <data name="commandsAndBoolsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>198, 22</value>
@@ -295,17 +247,26 @@
   <data name="commandsAndBoolsToolStripMenuItem.Text" xml:space="preserve">
     <value>Kommandos und Bools</value>
   </data>
+  <data name="toolStripSeparator15.Size" type="System.Drawing.Size, System.Drawing">
+    <value>195, 6</value>
+  </data>
   <data name="mouseiconsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>198, 22</value>
   </data>
   <data name="mouseiconsToolStripMenuItem.Text" xml:space="preserve">
     <value>Mauszeiger</value>
   </data>
+  <data name="toolStripSeparator16.Size" type="System.Drawing.Size, System.Drawing">
+    <value>195, 6</value>
+  </data>
   <data name="projectSetupToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>198, 22</value>
   </data>
   <data name="projectSetupToolStripMenuItem.Text" xml:space="preserve">
     <value>Grundeinstellungen</value>
+  </data>
+  <data name="toolStripSeparator17.Size" type="System.Drawing.Size, System.Drawing">
+    <value>195, 6</value>
   </data>
   <data name="walkmapOnToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>198, 22</value>
@@ -331,28 +292,106 @@
   <data name="fXShapesOnToolStripMenuItem.Text" xml:space="preserve">
     <value>FX Shapes ein</value>
   </data>
+  <data name="toolStripSeparator18.Size" type="System.Drawing.Size, System.Drawing">
+    <value>195, 6</value>
+  </data>
   <data name="fontsToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
     <value>198, 22</value>
   </data>
   <data name="fontsToolStripMenuItem.Text" xml:space="preserve">
     <value>Schriftarten</value>
   </data>
+  <data name="showRoomwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>197, 22</value>
+  </data>
+  <data name="showRoomwindowToolStripMenuItem.Text" xml:space="preserve">
+    <value>Raumfenster ein</value>
+  </data>
+  <data name="showObjectwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>197, 22</value>
+  </data>
+  <data name="showObjectwindowToolStripMenuItem.Text" xml:space="preserve">
+    <value>Objektfenster ein</value>
+  </data>
+  <data name="showCharacterwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>197, 22</value>
+  </data>
+  <data name="showCharacterwindowToolStripMenuItem.Text" xml:space="preserve">
+    <value>Charakterfenster ein</value>
+  </data>
+  <data name="showItemwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>197, 22</value>
+  </data>
+  <data name="showItemwindowToolStripMenuItem.Text" xml:space="preserve">
+    <value>Gegenstandsfenster ein</value>
+  </data>
+  <data name="toolStripSeparator20.Size" type="System.Drawing.Size, System.Drawing">
+    <value>194, 6</value>
+  </data>
+  <data name="showPreviewToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>197, 22</value>
+  </data>
+  <data name="showPreviewToolStripMenuItem.Text" xml:space="preserve">
+    <value>Vorschau ein</value>
+  </data>
+  <data name="toolStripSeparator21.Size" type="System.Drawing.Size, System.Drawing">
+    <value>194, 6</value>
+  </data>
+  <data name="showScriptwindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>197, 22</value>
+  </data>
+  <data name="showScriptwindowToolStripMenuItem.Text" xml:space="preserve">
+    <value>Skriptfenster ein</value>
+  </data>
+  <data name="showMousewindowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>197, 22</value>
+  </data>
+  <data name="showMousewindowToolStripMenuItem.Text" xml:space="preserve">
+    <value>Mauszeiger ein</value>
+  </data>
+  <data name="toolStripSeparator22.Size" type="System.Drawing.Size, System.Drawing">
+    <value>194, 6</value>
+  </data>
+  <data name="toolbarOnToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>197, 22</value>
+  </data>
+  <data name="toolbarOnToolStripMenuItem.Text" xml:space="preserve">
+    <value>Toolbar aus</value>
+  </data>
+  <data name="windowToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>57, 20</value>
+  </data>
+  <data name="windowToolStripMenuItem.Text" xml:space="preserve">
+    <value>Fenster</value>
+  </data>
   <data name="manualToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
+    <value>126, 22</value>
   </data>
   <data name="manualToolStripMenuItem.Text" xml:space="preserve">
     <value>Anleitung</value>
   </data>
+  <data name="toolStripSeparator19.Size" type="System.Drawing.Size, System.Drawing">
+    <value>123, 6</value>
+  </data>
   <data name="toolStripMenuItem5.Size" type="System.Drawing.Size, System.Drawing">
-    <value>152, 22</value>
+    <value>126, 22</value>
   </data>
   <data name="toolStripMenuItem5.Text" xml:space="preserve">
     <value>Über...</value>
   </data>
-  <data name="englishToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>117, 22</value>
+  <data name="helpToolStripMenuItem.Text" xml:space="preserve">
+    <value>Hilfe</value>
   </data>
-  <data name="deutschToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
-    <value>117, 22</value>
+  <data name="languageToolStripMenuItem.Size" type="System.Drawing.Size, System.Drawing">
+    <value>61, 20</value>
+  </data>
+  <data name="languageToolStripMenuItem.Text" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
+  <data name="menuStrip1.ToolTip" xml:space="preserve">
+    <value />
+  </data>
+  <data name="$this.ToolTip" xml:space="preserve">
+    <value />
   </data>
 </root>
