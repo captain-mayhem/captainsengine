@@ -179,6 +179,7 @@ public:
   const std::vector<Object2D*>& getObjects() {return mObjects;}
   bool hitsBarriers(const ParticleEngine::Particle& particle);
   void modifyWalkmap(const Vec2i& pos, bool walkable);
+  void setDepth(int depth);
 protected:
   class DepthMap {
   public:

@@ -693,6 +693,10 @@ void RoomObject::modifyWalkmap(const Vec2i& pos, bool walkable){
   mModifiedWalkmap[pos] = walkable;
 }
 
+void RoomObject::setDepth(int depth){
+  mDepth = depth;
+}
+
 CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0), mSpawnPos(-1,-1),
