@@ -159,7 +159,23 @@ void key_ascii(unsigned char ascii){
   Engine::instance()->keyAscii((char)ascii);
 }
 
+void cleanup(){
+#ifdef WIN32
+#ifdef _DEBUG
+  fclose(stdout);
+  FreeConsole();
+#endif
+#endif
+}
+
 void engineMain(int argc, char** argv){
+  atexit(cleanup);
+#ifdef WIN32
+#ifdef _DEBUG
+  AllocConsole();
+  freopen("CONOUT$", "wb", stdout);
+#endif
+#endif
   CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
   if (argc > 1)

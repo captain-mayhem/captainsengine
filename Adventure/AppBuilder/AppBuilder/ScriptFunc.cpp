@@ -1405,7 +1405,7 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
     }
   }
   else
-    Engine::instance()->getInterpreter()->execute(func, true);
+    Engine::instance()->getInterpreter()->executeImmediately(func);
   return 0;
 }
 
@@ -1512,13 +1512,16 @@ int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
   int textnum = ctx.stack().pop().getInt();
   std::string room = ctx.stack().pop().getString();
   if (room == "any"){
-    TR_BREAK("Implement me");
+    room = Engine::instance()->getData()->getProjectSettings()->anywhere_room;
   }
   else if (room == "taskbar"){
     room = Engine::instance()->getData()->getProjectSettings()->taskroom;
   }
   else if (room == "menu"){
-    TR_BREAK("Implement me");
+    if (Engine::instance()->getData()->getProjectSettings()->has_menuroom)
+      room = Engine::instance()->getData()->getProjectSettings()->menuroom;
+    else
+      TR_BREAK("Implement me");
   }
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setRoom(room);
