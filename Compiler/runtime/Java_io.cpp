@@ -125,9 +125,10 @@ jstring JNIEXPORT Java_java_io_WinNTFileSystem_canonicalize0(JNIEnv* env, jobjec
   tmp2[0] = toupper(tmp2[0]);
   std::string name = tmp2;
 #else
-  char tmp[1024];
-  realpath(str, tmp);
-  std::string name = tmp;
+  //char tmp[1024];
+  //realpath(str, tmp);
+  //TODO
+  std::string name = str;
 #endif
   jstring ret = env->NewStringUTF(name.c_str());
   env->ReleaseStringUTFChars(filename, str);

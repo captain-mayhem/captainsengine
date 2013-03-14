@@ -70,6 +70,7 @@ jlong VMLoader::addLibrary(const std::string& name){
   return (jlong)ldr;
 }
 
+#include <stdlib.h>
 #include <io/BinFileReader.h>
 #include "JVM.h"
 #include "VMArray.h"
