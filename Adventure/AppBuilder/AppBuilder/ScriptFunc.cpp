@@ -1437,6 +1437,8 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
     ExecutionContext* text = ctx.stack().pop().getEC();
     //get and init the variable
     CCode* code = text->getCode()->get(text->getCode()->numInstructions()-2);
+    if (code == NULL) //no string prepended to variable
+      code = text->getCode()->get(text->getCode()->numInstructions()-1);
     if (code->getType() != CCode::LOAD){
       TR_USE(ADV_ScriptFunc);
       TR_BREAK("Something's wrong");

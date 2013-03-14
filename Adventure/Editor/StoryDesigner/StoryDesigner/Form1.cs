@@ -392,6 +392,7 @@ namespace StoryDesigner
             {
                 string dir = Path.GetDirectoryName(fod.FileName);
                 mPersistence.LastOpenPath = dir;
+                newToolStripMenuItem_Click(null, null);
                 loadFile(fod.FileName);
             }
         }
@@ -1246,6 +1247,7 @@ namespace StoryDesigner
                 string dir = Path.GetDirectoryName(fod.FileName);
                 mPersistence.LastOpenPath = dir;
                 string advfile = AdvFileReader.unpackAdz(fod.FileName);
+                newToolStripMenuItem_Click(null, null);
                 loadFile(advfile);
                 string import = mData.getLocalizedString("importAdz");
                 import = String.Format(import, Path.GetDirectoryName(advfile));

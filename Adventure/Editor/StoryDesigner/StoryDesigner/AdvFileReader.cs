@@ -547,11 +547,16 @@ namespace StoryDesigner
                     room.Zoom = Convert.ToInt32(rdr.ReadLine());
                     room.Background = rdr.ReadLine();
                     room.ParallaxBackground = rdr.ReadLine();
-                    int tmp = Convert.ToInt32(rdr.ReadLine());
-                    room.DoubleWalkmap = tmp != 0;
                     room.FXShapes = new System.Collections.ArrayList();
                     if (ver_major >= 3)
                     {
+                        int tmp = Convert.ToInt32(rdr.ReadLine());
+                        room.DoubleWalkmap = tmp != 0;
+                    }
+                    else{
+                        room.DoubleWalkmap = false;
+                    }
+                    if (ver_major >= 3 || (ver_major == 2 && ver_minor >= 8)){
                         for (int i = 0; i < FXSHAPES_MAX; ++i)
                         {
                             FxShape shape = new FxShape();
@@ -574,7 +579,6 @@ namespace StoryDesigner
                             }
                             room.FXShapes.Add(shape);
                         }
-                        room.HasInventory = Convert.ToInt32(rdr.ReadLine()) != 0;
                     }
                     else
                     {
@@ -585,6 +589,7 @@ namespace StoryDesigner
                         }
                     }
                     //inventory
+                    room.HasInventory = Convert.ToInt32(rdr.ReadLine()) != 0;
                     str = rdr.ReadLine();
                     string[] inventory = str.Split(';');
                     room.InvPos.x = Convert.ToInt32(inventory[0]);
@@ -617,12 +622,14 @@ namespace StoryDesigner
                     int walkmapY = mAdv.Settings.Resolution.y / walkGridSize;
                     walkmapX *= 3;
                     walkmapY *= 2;
+                    int walkmapXOut = walkmapX * 2;
+                    int walkmapYOut = walkmapY * 2;
                     if (ver_major >= 3)
                     {
                         walkmapX *= 2;
                         walkmapY *= 2;
                     }
-                    room.Walkmap = new Room.WalkMapEntry[walkmapX,walkmapY];
+                    room.Walkmap = new Room.WalkMapEntry[walkmapXOut,walkmapYOut];
                     for (int i = 0; i < walkmapX * walkmapY; ++i)
                     {
                         int x = i / walkmapY;

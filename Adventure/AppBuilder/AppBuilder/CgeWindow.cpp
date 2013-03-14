@@ -163,6 +163,7 @@ void cleanup(){
 #ifdef WIN32
 #ifdef _DEBUG
   fclose(stdout);
+  fclose(stderr);
   FreeConsole();
 #endif
 #endif
@@ -174,6 +175,7 @@ void engineMain(int argc, char** argv){
 #ifdef _DEBUG
   AllocConsole();
   freopen("CONOUT$", "wb", stdout);
+  freopen("CONOUT$", "wb", stderr);
 #endif
 #endif
   CGE::LogOutputter* putty = new CGE::LogOutputter();

@@ -16,11 +16,12 @@ namespace StoryDesigner
         public delegate void RedrawEventHandler(object sender, RedrawEventArgs e);
         public event RedrawEventHandler RedrawRoom;
 
-        public RoomCtrlDlg(Room room, AdvData data)
+        public RoomCtrlDlg(Room room, AdvData data, MainForm mf)
         {
             InitializeComponent();
             mRoom = room;
             mData = data;
+            mParent = mf;
             for (int i = 1; i <= 9; ++i)
             {
                 zoomfactor.Items.Add(i);
@@ -178,6 +179,7 @@ namespace StoryDesigner
 
         private Room mRoom;
         private AdvData mData;
+        private MainForm mParent;
         private DrawableObject mObject;
         private Vec2i mDragOffset;
         private Vec2f mScrollOffset;
@@ -291,21 +293,18 @@ namespace StoryDesigner
         private void chr_editscript_Click(object sender, EventArgs e)
         {
             CharacterInstance chr = (CharacterInstance)mObject;
-            MainForm form = (MainForm)this.Owner.Owner;
-            form.showScript(Script.Type.CHARACTER, chr.Name);
+            mParent.showScript(Script.Type.CHARACTER, chr.Name);
         }
 
         private void obj_editscript_Click(object sender, EventArgs e)
         {
             ObjectInstance obj = (ObjectInstance)mObject;
-            MainForm form = (MainForm)this.Owner.Owner;
-            form.showScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, mRoom.Name));
+            mParent.showScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, mRoom.Name));
         }
 
         private void room_editscript_Click(object sender, EventArgs e)
         {
-            MainForm form = (MainForm)this.Owner.Owner;
-            form.showScript(Script.Type.ROOM, mRoom.Name);
+            mParent.showScript(Script.Type.ROOM, mRoom.Name);
         }
     }
 }
