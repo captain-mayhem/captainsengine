@@ -425,8 +425,12 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       str = txtstream.readLine(); val1 = atoi(str.c_str()); room.zoom = val1;
       room.background = txtstream.readLine();
       room.parallaxbackground = txtstream.readLine();
-      str = txtstream.readLine(); val1 = atoi(str.c_str()); room.doublewalkmap = (val1 != 0);
       if (ver_major >= 3){
+        str = txtstream.readLine(); val1 = atoi(str.c_str()); room.doublewalkmap = (val1 != 0);
+      } else{
+        room.doublewalkmap = false;
+      }
+      if (ver_major >= 3 || (ver_major == 2 && ver_minor >= 8)){
         for (int i = 0; i < FXSHAPES_MAX; ++i){
           FXShape shape;
           str = txtstream.readLine();
@@ -457,10 +461,10 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
           }
           room.fxshapes.push_back(shape);
         }
-        //TODO unknown
-        txtstream.readLine();
       }
       //inventory
+      //has inventory TODO use
+      txtstream.readLine();
       str = txtstream.readLine();
       unsigned from = 0;
       unsigned to = (unsigned)str.find(';', from);

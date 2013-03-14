@@ -46,7 +46,7 @@ namespace StoryDesigner
             this.FormClosed += new FormClosedEventHandler(RoomDlg_FormClosed);
             this.DragOver += new DragEventHandler(RoomDlg_DragOver);
             this.DragDrop += new DragEventHandler(RoomDlg_DragDrop);
-            mControl = new RoomCtrlDlg(room, data);
+            mControl = new RoomCtrlDlg(room, data, parent);
             mControl.MdiParent = mdiParent;
             mControl.Location = new Point(Screen.GetWorkingArea(this).Width-mControl.Width, 0);
             mControl.StartPosition = FormStartPosition.Manual;
