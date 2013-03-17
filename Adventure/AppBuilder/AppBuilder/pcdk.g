@@ -198,6 +198,7 @@ stdarg returns [IdentNode* value]
 	| GREATER {$value = new IdentNode(""); $value->append((char*)$GREATER.text->chars);}
 	| RBRACKET {$value = new IdentNode(""); $value->append((char*)$RBRACKET.text->chars);}
 	| DIVIDE {$value = new IdentNode(""); $value->append((char*)$DIVIDE.text->chars);}
+	| IDIV {$value = new IdentNode(""); $value->append((char*)$IDIV.text->chars);}
 	| INT {$value = new IdentNode(""); $value->append((char*)$INT.text->chars);}
 	| ' , ' {$value = new IdentNode(",");}
 ;
@@ -224,9 +225,10 @@ expr returns [ASTNode* exp]
 
 term returns [ASTNode* trm]
 	: lf=factor {$trm = lf.fac;}
-	((TIMES | DIVIDE) => (
+	((TIMES | DIVIDE | IDIV) => (
 	TIMES {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_TIMES; an->left() = $trm; $trm = an;}
 	| DIVIDE {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_DIV; an->left() = $trm; $trm = an;}
+	| IDIV {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_IDIV; an->left() = $trm; $trm = an;}
 	) 
 	rf=factor {((ArithmeticNode*)$trm)->right() = rf.fac;}
 	)*
@@ -290,6 +292,7 @@ PLUS	:	'+';
 MINUS	:	'-';
 TIMES	:	'*';
 DIVIDE	:	'/';
+IDIV    :   ':';
 GREATER	:	'>';
 LESS	:	'<';
 INFO_BEG	:	'|''#';
@@ -303,8 +306,8 @@ TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('.'|COMMA)'0'..'9'+;
 REAL_INT:	INT COMMA;
-IDENT_PART	:	/*('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|':'|'\''|'\.'|'!'|COMMA|'&'|TIMES)*/
-				('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|COMMA|'&'|':'|'|'|'%'|'\u0080'..'\u00ff')+;
+IDENT_PART	:	/*('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|'\''|'\.'|'!'|COMMA|'&'|TIMES)*/
+				('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|COMMA|'&'|'|'|'%'|'\u0080'..'\u00ff')+;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}

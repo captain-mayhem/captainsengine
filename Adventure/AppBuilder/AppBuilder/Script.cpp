@@ -531,6 +531,8 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           codes->addCode(new CMUL());
         else if (arnode->type() == ArithmeticNode::AR_DIV)
           codes->addCode(new CDIV());
+        else if (arnode->type() == ArithmeticNode::AR_IDIV)
+          codes->addCode(new CIDIV());
         else
           TR_BREAK("Unknown type");
         count += 1;
