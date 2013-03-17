@@ -39,6 +39,7 @@ public:
     SUB,
     MUL,
     DIV,
+    INTDIV,
     CONCAT,
     CDTIMER,
     STATE,
@@ -248,6 +249,20 @@ public:
     return ++pc;
   }
   virtual Type getType(){return DIV;}
+};
+
+class CIDIV : public CCode{
+public:
+  CIDIV() {}
+  virtual ~CIDIV() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    float d2 = ctx.stack().pop().getFloat();
+    float d1 = ctx.stack().pop().getFloat();
+    int ret = (int)((d1/d2)+0.5f);
+    ctx.stack().push(ret);
+    return ++pc;
+  }
+  virtual Type getType(){return INTDIV;}
 };
 
 class CCONCAT : public CCode{

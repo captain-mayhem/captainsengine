@@ -744,7 +744,7 @@ int ScriptFunctions::giveLink(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::setNum(ExecutionContext& ctx, unsigned numArgs){
   std::string varname = ctx.stack().pop().getString();
-  int val = ctx.stack().pop().getInt();
+  float val = ctx.stack().pop().getFloat();
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }

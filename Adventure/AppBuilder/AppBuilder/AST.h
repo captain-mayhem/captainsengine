@@ -253,6 +253,7 @@ public:
     AR_MINUS,
     AR_TIMES,
     AR_DIV,
+    AR_IDIV,
   };
   ArithmeticNode() : ASTNode(ARITHMETIC), mType(AR_PLUS), mLeft(NULL), mRight(NULL) {}
   //ArithmeticNode(ASTNode* left, Type t, ASTNode* right) : ASTNode(ARITHMETIC), mLeft(left), mType(t), mRight(right) {}
