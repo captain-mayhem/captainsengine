@@ -846,6 +846,127 @@ private:
   float mStrength;
 };
 
+class LightningEffect : public PostProcessor::Effect{
+public:
+  LightningEffect() : Effect(stdvs, noisefs), mBlendTex(0){
+    mName = "lightning";
+  }
+  virtual void init(const Vec2f& size){
+    mImage.setFormat(1, (int)size.x/2, (int)size.y/2);
+    mImage.allocateData();
+    for (unsigned i = 0; i < mImage.getImageSize(); ++i){
+      mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
+    }
+    Vec2i imgsize;
+    Vec2f imgscale;
+    glActiveTexture(GL_TEXTURE1);
+    mBlendTex = Engine::instance()->genTexture(&mImage, imgsize, imgscale);
+    glActiveTexture(GL_TEXTURE0);
+    Effect::init(size);
+    mShader.activate();
+    GLint tex = mShader.getUniformLocation("texture");
+    mShader.uniform(tex, 0);
+    GLint blendtex = mShader.getUniformLocation("blendtex");
+    mShader.uniform(blendtex, 1);
+    GLint scale = mShader.getUniformLocation("tex_scale");
+    float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
+    float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.uniform(scale, size.x/powx, size.y/powy);
+    mIntensityLoc = mShader.getUniformLocation("opacity");
+    mShader.deactivate();
+  }
+  virtual void deinit(){
+    if (mBlendTex != 0)
+      glDeleteTextures(1, &mBlendTex);
+  }
+  virtual void activate(bool fade, ...){
+    Lightning ltn;
+    va_list args;
+    va_start(args, fade);
+    int slot = va_arg(args,int);
+    ltn.x1 = va_arg(args, int);
+    ltn.y1 = va_arg(args, int);
+    ltn.x2 = va_arg(args, int);
+    ltn.y2 = va_arg(args, int);
+    ltn.color.r = (unsigned char)va_arg(args, int);
+    ltn.color.g = (unsigned char)va_arg(args, int);
+    ltn.color.b = (unsigned char)va_arg(args, int);
+    ltn.numSpikes = va_arg(args, int);
+    ltn.height = va_arg(args, int);
+    ltn.delay = va_arg(args, int);
+    va_end(args);
+    float strength = 0.5f;
+    if (fade){
+      mInterpolator.set(0, strength, 1000);
+    }
+    else{
+      mInterpolator.set(strength, strength, 1000);
+    }
+    mFadeout = false;
+    Effect::activate(fade);
+  }
+  virtual void deactivate(){
+    if (mFade){
+      mInterpolator.set(mInterpolator.current(), 0, mInterpolator.currTime());
+      mFadeout = true;
+    }
+    else
+      Effect::deactivate();
+  }
+  virtual bool update(unsigned time) {
+    if (!mInterpolator.update(time)){
+      if (mFadeout){
+        Effect::deactivate();
+        return false;
+      }
+    }
+    for (unsigned i = 0; i < mImage.getImageSize(); ++i){
+      mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
+    }
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, mBlendTex);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mImage.getWidth(), mImage.getHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, mImage.getData());
+    glActiveTexture(GL_TEXTURE0);
+    return true;
+  }
+  virtual void apply(BlitObject* input){
+    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    mShader.activate();
+    mShader.uniform(mIntensityLoc, mInterpolator.current());
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    mShader.deactivate();
+  }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mFadeout << " ";
+    mInterpolator.save(out);
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mFadeout;
+    mInterpolator.load(in);
+    return in;
+  }
+private:
+  struct Lightning{
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+    Color color;
+    int numSpikes;
+    int height;
+    int delay;
+  };
+  GLint mIntensityLoc;
+  Interpolator mInterpolator;
+  bool mFadeout;
+  GLuint mBlendTex;
+  CGE::Image mImage;
+};
+
 
 /* Postprocessor */
 
@@ -860,6 +981,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(whoosh, BloomEffect, "whoosh", whooshfs);
   REGISTER_EFFECT(bloom, BloomEffect, "bloom", bloomfs)
   REGISTER_EFFECT(drugged, DruggedEffect);
+  REGISTER_EFFECT(lightning, LightningEffect);
 }
 
 PostProcessor::~PostProcessor(){

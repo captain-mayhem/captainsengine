@@ -41,7 +41,7 @@ nested_stmt returns [StmtNode* stmt]
 func_call returns [FuncCallNode* func]
 @init{ $func = NULL;}
 	:	id=ident {currentFunc = id.id->value(); incompleteAlloc=id.id;}
-	LPAREN args=arg_list RPAREN 
+	LPAREN args=arg_list RPAREN SEMICOLON?
 	{
 		std::string fname = id.id->value(); delete id.id;
 		$func = new FuncCallNode(fname,args.nodes);

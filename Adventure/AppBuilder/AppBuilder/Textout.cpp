@@ -27,12 +27,13 @@ void Textout::render(){
   Vec2i pos(0,0);
   //bool keepOnScreen = true;
   int depth = DEPTH_GAME_FONT;
+  RoomObject* boundRoom = NULL;
   if (!mBoundRoom.empty()){
-    RoomObject* ro = Engine::instance()->getRoom(mBoundRoom);
-    if (ro == NULL)
+    boundRoom = Engine::instance()->getRoom(mBoundRoom);
+    if (boundRoom == NULL)
       return;
-    pos = ro->getScrollOffset()+ro->getPosition();
-    depth = ro->getDepth()+DEPTH_BOUND_FONT;
+    pos = boundRoom->getScrollOffset()+boundRoom->getPosition();
+    depth = boundRoom->getDepth()+DEPTH_BOUND_FONT;
     //keepOnScreen = false;
   }
   Engine::instance()->getInterpreter()->executeImmediately(mText, false);
@@ -47,8 +48,9 @@ void Textout::render(){
     text = sd.getString();
   std::vector<Vec2i> breakinfo;
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, mFont, breakinfo, Engine::instance()->getData()->getProjectSettings()->resolution.x);
-  Engine::instance()->getFontRenderer()->render(mPos.x/*-(keepOnScreen ? ext.x/2 : 0)*/+pos.x,mPos.y+pos.y, text, 
+  FontRenderer::String* result = Engine::instance()->getFontRenderer()->render(mPos.x/*-(keepOnScreen ? ext.x/2 : 0)*/+pos.x,mPos.y+pos.y, text, 
       depth, mFont, breakinfo, mColor, 0, false);
+  result->setBoundRoom(boundRoom);
 }
 
 void Textout::save(std::ostream& out){
