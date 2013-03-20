@@ -1813,6 +1813,21 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
     int strength = ctx.stack().pop().getInt();
     ef->activate(false, strength/500.0f);
   }
+  else if (effect == "lightning"){
+    int slot = ctx.stack().pop().getInt();
+    int x1 = ctx.stack().pop().getInt();
+    int y1 = ctx.stack().pop().getInt();
+    int x2 = ctx.stack().pop().getInt();
+    int y2 = ctx.stack().pop().getInt();
+    Color c;
+    c.r = (unsigned char)ctx.stack().pop().getInt();
+    c.g = (unsigned char)ctx.stack().pop().getInt();
+    c.b = (unsigned char)ctx.stack().pop().getInt();
+    int spikes = ctx.stack().pop().getInt();
+    int height = ctx.stack().pop().getInt();
+    int speed = ctx.stack().pop().getInt();
+    ef->activate(false, slot, x1, x2, y1, y2, c.r, c.g, c.b, spikes, height, speed);
+  }
   else{
     TR_USE(ADV_ScriptFunc);
     TR_BREAK("Unknown effect %s", effect.c_str());

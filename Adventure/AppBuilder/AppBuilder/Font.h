@@ -24,6 +24,8 @@ public:
     void setSpeaker(CharacterObject* chr) {mSpeaker = chr;}
     CharacterObject* getSpeaker() {return mSpeaker;}
     void setExtent(const Vec2i& extent);
+    void setBoundRoom(RoomObject* room) {mBoundRoom = room;}
+    RoomObject* getRoom() {return mBoundRoom;}
   protected:
     Vec2i mPos;
     Vec2i mCenterOffset;
@@ -32,6 +34,7 @@ public:
     ExecutionContext* mSuspensionScript;
     CharacterObject* mSpeaker;
     bool mKeepOnScreen;
+    RoomObject* mBoundRoom;
   };
 protected:
   class Font{
@@ -40,7 +43,7 @@ protected:
     ~Font();
     String* render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen);
     Vec2i getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo, unsigned maxStringWidth);
-    void blit(unsigned interval);
+    void blit(unsigned interval,  RoomObject* mainroom, bool renderBoundText);
     void removeText(CharacterObject* chr);
     void removeText(String* str);
   protected:
@@ -60,7 +63,8 @@ public:
   void unloadFont(unsigned id);
   String* render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& col=Color(), unsigned displayTime=0, bool keepOnScreen=true);
   Vec2i getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo, int maxStringWidth=300);
-  void prepareBlit(unsigned interval);
+  void prepareTextouts();
+  void prepareBlit(unsigned interval, RoomObject* mainroom, bool renderBoundText);
   void removeText(CharacterObject* chr);
   void removeText(String* str);
   Textout* getTextout(int id);

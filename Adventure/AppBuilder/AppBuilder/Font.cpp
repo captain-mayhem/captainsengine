@@ -43,7 +43,7 @@ protected:
 ////////////////////////////////////////////////
 
 FontRenderer::String::String(const Vec2i& pos, unsigned displayTime, bool keepOnScreen) : 
-mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mCenterOffset(), mKeepOnScreen(keepOnScreen){
+mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mCenterOffset(), mKeepOnScreen(keepOnScreen), mBoundRoom(NULL){
 }
 
 FontRenderer::String::~String(){
@@ -180,8 +180,16 @@ Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec
   return Vec2i(max_line, mFontsize.y*breakinfo.size());
 }
 
-void FontRenderer::Font::blit(unsigned interval){
+void FontRenderer::Font::blit(unsigned interval, RoomObject* mainroom, bool renderBoundText){
   for (std::list<String*>::iterator iter = mRenderQueue.begin(); iter != mRenderQueue.end(); ){
+    if (!renderBoundText && mainroom != NULL && (*iter)->getRoom() == mainroom){
+      ++iter;
+      continue;
+    }
+    if (renderBoundText && (mainroom == NULL || (*iter)->getRoom() != mainroom)){
+      ++iter;
+      continue;
+    }
     if ((*iter)->getTime() < 0){
       delete *iter;
       iter = mRenderQueue.erase(iter);
@@ -259,13 +267,16 @@ Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vect
   return mFonts[fontid]->getTextExtent(text, breakinfo, maxStringWidth);
 }
 
-void FontRenderer::prepareBlit(unsigned interval){
+void FontRenderer::prepareTextouts(){
   for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
     iter->second->render();
   }
+}
+
+void FontRenderer::prepareBlit(unsigned interval, RoomObject* mainroom, bool renderBoundText){
   for (unsigned i = 0; i < mFonts.size(); ++i){
     if (mFonts[i])
-      mFonts[i]->blit(interval);
+      mFonts[i]->blit(interval, mainroom, renderBoundText);
   }
 }
 

@@ -443,8 +443,11 @@ void Engine::render(unsigned time){
   if (mParticleEngine->getDepth() == DEPTH_PARTICLES_TOP)
     mParticleEngine->update(interval);
 
+  mFonts->prepareTextouts();
+
   //build blit queue
   int roomdepth = 0;
+  RoomObject* mainroom = NULL;
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
     (*iter)->setDepth(roomdepth);
     roomdepth += DEPTH_ROOM_RANGE;
@@ -453,8 +456,10 @@ void Engine::render(unsigned time){
         continue;
     }
     if (mMainRoomLoaded && iter == mRooms.rbegin()){
+      mainroom = (*iter);
       mRenderedMain->bind();
       beginRendering();
+      mFonts->prepareBlit(interval, mainroom, true);
       //glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       GL()pushMatrix();
@@ -536,7 +541,7 @@ void Engine::render(unsigned time){
     }
   }
 
-  mFonts->prepareBlit(interval);
+  mFonts->prepareBlit(interval, mainroom, false);
 
   if (!mTextEnter.empty() && mBlinkCursorVisible){
     std::string text = mInterpreter->getVariable(mTextEnter).getString();
