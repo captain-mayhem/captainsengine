@@ -846,21 +846,68 @@ private:
   float mStrength;
 };
 
+static const char lightningfs[] =
+"precision mediump float;\n"
+"varying vec2 tex_coord;\n"
+"\n"
+"uniform sampler2D texture;\n"
+"uniform sampler2D blendtex;\n"
+"uniform float opacity;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = vec4(1.0);\n"
+"  color = texture2D(texture, tex_coord.st);\n"
+"  vec4 blendcol = vec4(1.0);\n"
+"  blendcol = texture2D(blendtex, tex_coord.st);\n"
+"  color = mix(color, blendcol, blendcol.a);\n"
+"  gl_FragColor = color;\n"
+"  gl_FragColor.a = 1.0;\n"
+"}\n"
+"";
+
+static const char drawvs[] =
+"precision mediump float;\n"
+"attribute vec3 position;\n"
+"attribute vec4 texCoord;\n"
+"\n"
+"uniform vec2 tex_scale;\n"
+"\n"
+"varying vec2 tex_coord;\n"
+"\n"
+"void main(){\n"
+//"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
+//"  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
+"  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
+"}\n"
+"";
+
+static const char drawfs[] =
+"precision mediump float;\n"
+"varying vec2 tex_coord;\n"
+"\n"
+"uniform sampler2D texture;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = vec4(1.0);\n"
+//"  color = texture2D(texture, tex_coord.st);\n"
+"  gl_FragColor = color;\n"
+"  gl_FragColor.a = 1.0;\n"
+"}\n"
+"";
+
 class LightningEffect : public PostProcessor::Effect{
 public:
-  LightningEffect() : Effect(stdvs, noisefs), mBlendTex(0){
+  LightningEffect() : Effect(stdvs, lightningfs), mFBO(NULL){
     mName = "lightning";
   }
+  ~LightningEffect(){
+    deinit();
+  }
   virtual void init(const Vec2f& size){
-    mImage.setFormat(1, (int)size.x/2, (int)size.y/2);
-    mImage.allocateData();
-    for (unsigned i = 0; i < mImage.getImageSize(); ++i){
-      mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
-    }
+    glActiveTexture(GL_TEXTURE1);
+    mFBO = new RenderableBlitObject((int)size.x, (int)size.y, 0);
     Vec2i imgsize;
     Vec2f imgscale;
-    glActiveTexture(GL_TEXTURE1);
-    mBlendTex = Engine::instance()->genTexture(&mImage, imgsize, imgscale);
     glActiveTexture(GL_TEXTURE0);
     Effect::init(size);
     mShader.activate();
@@ -872,22 +919,24 @@ public:
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    mIntensityLoc = mShader.getUniformLocation("opacity");
     mShader.deactivate();
+    mDrawShader.addShader(GL_VERTEX_SHADER, drawvs);
+    mDrawShader.addShader(GL_FRAGMENT_SHADER, drawfs);
+    mDrawShader.linkShaders();
   }
   virtual void deinit(){
-    if (mBlendTex != 0)
-      glDeleteTextures(1, &mBlendTex);
+    delete mFBO;
+    mFBO = NULL;
   }
   virtual void activate(bool fade, ...){
     Lightning ltn;
     va_list args;
     va_start(args, fade);
     int slot = va_arg(args,int);
-    ltn.x1 = va_arg(args, int);
-    ltn.y1 = va_arg(args, int);
-    ltn.x2 = va_arg(args, int);
-    ltn.y2 = va_arg(args, int);
+    ltn.start.x = (float)va_arg(args, double);
+    ltn.start.y = (float)va_arg(args, double);
+    ltn.end.x = (float)va_arg(args, double);
+    ltn.end.y = (float)va_arg(args, double);
     ltn.color.r = (unsigned char)va_arg(args, int);
     ltn.color.g = (unsigned char)va_arg(args, int);
     ltn.color.b = (unsigned char)va_arg(args, int);
@@ -895,37 +944,33 @@ public:
     ltn.height = va_arg(args, int);
     ltn.delay = va_arg(args, int);
     va_end(args);
-    float strength = 0.5f;
-    if (fade){
-      mInterpolator.set(0, strength, 1000);
-    }
-    else{
-      mInterpolator.set(strength, strength, 1000);
-    }
-    mFadeout = false;
+    mLigthnings[slot] = ltn;
     Effect::activate(fade);
   }
   virtual void deactivate(){
-    if (mFade){
-      mInterpolator.set(mInterpolator.current(), 0, mInterpolator.currTime());
-      mFadeout = true;
-    }
-    else
-      Effect::deactivate();
+    Effect::deactivate();
   }
   virtual bool update(unsigned time) {
-    if (!mInterpolator.update(time)){
-      if (mFadeout){
-        Effect::deactivate();
-        return false;
-      }
-    }
-    for (unsigned i = 0; i < mImage.getImageSize(); ++i){
-      mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
-    }
     glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mBlendTex);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mImage.getWidth(), mImage.getHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, mImage.getData());
+    
+    mFBO->bind();
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    mDrawShader.activate();
+    float verts[4];
+    for (std::map<int,Lightning>::iterator iter = mLigthnings.begin(); iter != mLigthnings.end(); ++iter){
+      //float verts[] = {0.1f, 0.1f, 0.9f, 0.9f};
+      verts[0] = iter->second.start.x; verts[1] = iter->second.start.y;
+      verts[2] = iter->second.end.x; verts[3] = iter->second.end.y;
+      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, verts);
+      glDrawArrays(GL_LINE_STRIP, 0, 2);
+    }
+    mDrawShader.deactivate();
+    Engine::instance()->restoreRenderDefaults();
+    glDrawArrays(GL_LINE_STRIP, 0, 2);
+    mFBO->unbind();
+    
+    glBindTexture(GL_TEXTURE_2D, mFBO->getTexture());
     glActiveTexture(GL_TEXTURE0);
     return true;
   }
@@ -933,38 +978,32 @@ public:
     glBindTexture(GL_TEXTURE_2D, input->getTexture());
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
-    mShader.uniform(mIntensityLoc, mInterpolator.current());
+    //mShader.uniform(mIntensityLoc, mInterpolator.current());
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
     mShader.deactivate();
   }
   virtual std::ostream& save(std::ostream& out){
     Effect::save(out);
-    out << mFadeout << " ";
-    mInterpolator.save(out);
+    //out << mFadeout << " ";
     return out;
   }
   virtual std::istream& load(std::istream& in){
     Effect::load(in);
-    in >> mFadeout;
-    mInterpolator.load(in);
+    //in >> mFadeout;
     return in;
   }
 private:
   struct Lightning{
-    int x1;
-    int y1;
-    int x2;
-    int y2;
+    Vec2f start;
+    Vec2f end;
     Color color;
     int numSpikes;
     int height;
     int delay;
   };
-  GLint mIntensityLoc;
-  Interpolator mInterpolator;
-  bool mFadeout;
-  GLuint mBlendTex;
-  CGE::Image mImage;
+  RenderableBlitObject* mFBO;
+  GL2Shader mDrawShader;
+  std::map<int,Lightning> mLigthnings;
 };
 
 

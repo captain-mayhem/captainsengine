@@ -1815,10 +1815,14 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
   }
   else if (effect == "lightning"){
     int slot = ctx.stack().pop().getInt();
-    int x1 = ctx.stack().pop().getInt();
-    int y1 = ctx.stack().pop().getInt();
-    int x2 = ctx.stack().pop().getInt();
-    int y2 = ctx.stack().pop().getInt();
+    double x1 = (double)ctx.stack().pop().getInt();
+    double y1 = (double)ctx.stack().pop().getInt();
+    double x2 = (double)ctx.stack().pop().getInt();
+    double y2 = (double)ctx.stack().pop().getInt();
+    x1 /= (double)Engine::instance()->getSettings()->resolution.x;
+    y1 /= (double)Engine::instance()->getSettings()->resolution.y;
+    x2 /= (double)Engine::instance()->getSettings()->resolution.x;
+    y2 /= (double)Engine::instance()->getSettings()->resolution.y;
     Color c;
     c.r = (unsigned char)ctx.stack().pop().getInt();
     c.g = (unsigned char)ctx.stack().pop().getInt();
@@ -1826,7 +1830,7 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
     int spikes = ctx.stack().pop().getInt();
     int height = ctx.stack().pop().getInt();
     int speed = ctx.stack().pop().getInt();
-    ef->activate(false, slot, x1, x2, y1, y2, c.r, c.g, c.b, spikes, height, speed);
+    ef->activate(false, slot, x1, y1, x2, y2, c.r, c.g, c.b, spikes, height, speed);
   }
   else{
     TR_USE(ADV_ScriptFunc);
