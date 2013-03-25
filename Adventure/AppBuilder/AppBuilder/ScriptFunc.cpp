@@ -1828,8 +1828,10 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
     c.g = (unsigned char)ctx.stack().pop().getInt();
     c.b = (unsigned char)ctx.stack().pop().getInt();
     int spikes = ctx.stack().pop().getInt();
-    int height = ctx.stack().pop().getInt();
+    double heightfactor = Engine::instance()->getSettings()->resolution.x+Engine::instance()->getSettings()->resolution.y/2.0;
+    double height = ctx.stack().pop().getInt()/heightfactor;
     int speed = ctx.stack().pop().getInt();
+    speed = (speed+1)*25;
     ef->activate(false, slot, x1, y1, x2, y2, c.r, c.g, c.b, spikes, height, speed);
   }
   else{
