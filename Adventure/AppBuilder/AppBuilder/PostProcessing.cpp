@@ -868,28 +868,22 @@ static const char lightningfs[] =
 static const char drawvs[] =
 "precision mediump float;\n"
 "attribute vec3 position;\n"
-"attribute vec4 texCoord;\n"
+"attribute vec4 color;\n"
 "\n"
-"uniform vec2 tex_scale;\n"
-"\n"
-"varying vec2 tex_coord;\n"
+"varying vec4 vert_color;\n"
 "\n"
 "void main(){\n"
-//"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
-//"  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
+"  vert_color = color;\n"
 "  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
 "}\n"
 "";
 
 static const char drawfs[] =
 "precision mediump float;\n"
-"varying vec2 tex_coord;\n"
-"\n"
-"uniform sampler2D texture;\n"
+"varying vec4 vert_color;\n"
 "\n"
 "void main(){\n"
-"  vec4 color = vec4(1.0);\n"
-//"  color = texture2D(texture, tex_coord.st);\n"
+"  vec4 color = vert_color;\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
@@ -922,6 +916,8 @@ public:
     mShader.deactivate();
     mDrawShader.addShader(GL_VERTEX_SHADER, drawvs);
     mDrawShader.addShader(GL_FRAGMENT_SHADER, drawfs);
+    mDrawShader.bindAttribLocation(0, "position");
+    mDrawShader.bindAttribLocation(1, "color");
     mDrawShader.linkShaders();
   }
   virtual void deinit(){
@@ -957,17 +953,41 @@ public:
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     mDrawShader.activate();
-    float verts[4];
     for (std::map<int,Lightning>::iterator iter = mLigthnings.begin(); iter != mLigthnings.end(); ++iter){
-      //float verts[] = {0.1f, 0.1f, 0.9f, 0.9f};
+      int numVerts = iter->second.numSpikes+2;
+      float* verts = new float[numVerts*2];
+      float* color = new float[numVerts*4];
+      Vec2f dir = iter->second.end-iter->second.start;
+      float length = dir.length();
+      float* knots = new float[iter->second.numSpikes];
+      for (int i = 0; i < iter->second.numSpikes; ++i){
+        knots[i] = rand()/(float)RAND_MAX*length;
+      }
+      qsort(knots, iter->second.numSpikes, sizeof(float), compare);
+      dir.normalize();
+      Vec2f ortho(dir.y, -dir.x);
+      for (int i = 0; i < iter->second.numSpikes; ++i){
+        Vec2f vert = iter->second.start+dir*knots[i];
+        float tmp = rand()/(float)RAND_MAX;
+        float height = iter->second.height/800.0f;
+        float spikeheight = tmp*height*2-height;
+        verts[2*(i+1)] = vert.x+ortho.x*spikeheight;
+        verts[2*(i+1)+1] = vert.y+ortho.y*spikeheight;
+        color[4*(i+1)] = iter->second.color.r/255.0f; color[4*(i+1)+1] = iter->second.color.g/255.0f; color[4*(i+1)+2] = iter->second.color.b/255.0f; color[4*(i+1)+3] = iter->second.color.a/255.0f;
+      }
+      delete knots;
       verts[0] = iter->second.start.x; verts[1] = iter->second.start.y;
-      verts[2] = iter->second.end.x; verts[3] = iter->second.end.y;
+      verts[2*numVerts-2] = iter->second.end.x; verts[2*numVerts-1] = iter->second.end.y;
+      color[0] = iter->second.color.r/255.0f; color[1] = iter->second.color.g/255.0f; color[2] = iter->second.color.b/255.0f; color[3] = iter->second.color.a/255.0f;
+      color[4*numVerts-4] = iter->second.color.r/255.0f; color[4*numVerts-3] = iter->second.color.g/255.0f; color[4*numVerts-2] = iter->second.color.b/255.0f; color[4*numVerts-1] = iter->second.color.a/255.0f;
       glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, verts);
-      glDrawArrays(GL_LINE_STRIP, 0, 2);
+      glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, color);
+      glDrawArrays(GL_LINE_STRIP, 0, numVerts);
+      delete verts;
+      delete color;
     }
     mDrawShader.deactivate();
     Engine::instance()->restoreRenderDefaults();
-    glDrawArrays(GL_LINE_STRIP, 0, 2);
     mFBO->unbind();
     
     glBindTexture(GL_TEXTURE_2D, mFBO->getTexture());
@@ -993,6 +1013,13 @@ public:
     return in;
   }
 private:
+  static int compare(const void* a, const void* b){
+    float fa = *(float*)a;
+    float fb = *(float*)b;
+    if (fa == fb)
+      return 0;
+    return fa < fb ? -1 : 1;
+  }
   struct Lightning{
     Vec2f start;
     Vec2f end;
