@@ -885,7 +885,7 @@ static const char drawfs[] =
 "void main(){\n"
 "  vec4 color = vert_color;\n"
 "  gl_FragColor = color;\n"
-"  gl_FragColor.a = 1.0;\n"
+//"  gl_FragColor.a = 1.0;\n"
 "}\n"
 "";
 
@@ -895,7 +895,7 @@ public:
     mName = "lightning";
   }
   ~LightningEffect(){
-    deinit();
+    deactivate();
   }
   virtual void init(const Vec2f& size){
     glActiveTexture(GL_TEXTURE1);
@@ -925,7 +925,8 @@ public:
     mFBO = NULL;
   }
   virtual void activate(bool fade, ...){
-    Lightning ltn;
+    Lightning* lightning = new Lightning;
+    Lightning& ltn = *lightning;
     va_list args;
     va_start(args, fade);
     int slot = va_arg(args,int);
@@ -937,13 +938,27 @@ public:
     ltn.color.g = (unsigned char)va_arg(args, int);
     ltn.color.b = (unsigned char)va_arg(args, int);
     ltn.numSpikes = va_arg(args, int);
-    ltn.height = va_arg(args, int);
+    ltn.height = (float)va_arg(args, double);
     ltn.delay = va_arg(args, int);
     va_end(args);
-    mLigthnings[slot] = ltn;
+    ltn.timeaccu = ltn.delay;
+    ltn.verts = NULL;
+    ltn.colorAttrib = NULL;
+    ltn.timeaccu2 = (int)(ltn.delay*1.5f);
+    ltn.verts2 = NULL;
+    ltn.colorAttrib2 = NULL;
+    mLigthnings[slot] = lightning;
     Effect::activate(fade);
   }
   virtual void deactivate(){
+    for (std::map<int,Lightning*>::iterator iter = mLigthnings.begin(); iter != mLigthnings.end(); ++iter){
+      delete [] iter->second->verts;
+      delete [] iter->second->colorAttrib;
+      delete [] iter->second->verts2;
+      delete [] iter->second->colorAttrib2;
+      delete iter->second;
+    }
+    mLigthnings.clear();
     Effect::deactivate();
   }
   virtual bool update(unsigned time) {
@@ -953,38 +968,34 @@ public:
     glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     mDrawShader.activate();
-    for (std::map<int,Lightning>::iterator iter = mLigthnings.begin(); iter != mLigthnings.end(); ++iter){
-      int numVerts = iter->second.numSpikes+2;
-      float* verts = new float[numVerts*2];
-      float* color = new float[numVerts*4];
-      Vec2f dir = iter->second.end-iter->second.start;
-      float length = dir.length();
-      float* knots = new float[iter->second.numSpikes];
-      for (int i = 0; i < iter->second.numSpikes; ++i){
-        knots[i] = rand()/(float)RAND_MAX*length;
+    for (std::map<int,Lightning*>::iterator iter = mLigthnings.begin(); iter != mLigthnings.end(); ++iter){
+      iter->second->timeaccu += time;
+      iter->second->timeaccu2 += time;
+      bool renderNew = false;
+      bool renderNew2 = false;
+      if (iter->second->timeaccu >= iter->second->delay){
+        iter->second->timeaccu -= iter->second->delay;
+        renderNew = true;
       }
-      qsort(knots, iter->second.numSpikes, sizeof(float), compare);
-      dir.normalize();
-      Vec2f ortho(dir.y, -dir.x);
-      for (int i = 0; i < iter->second.numSpikes; ++i){
-        Vec2f vert = iter->second.start+dir*knots[i];
-        float tmp = rand()/(float)RAND_MAX;
-        float height = iter->second.height/800.0f;
-        float spikeheight = tmp*height*2-height;
-        verts[2*(i+1)] = vert.x+ortho.x*spikeheight;
-        verts[2*(i+1)+1] = vert.y+ortho.y*spikeheight;
-        color[4*(i+1)] = iter->second.color.r/255.0f; color[4*(i+1)+1] = iter->second.color.g/255.0f; color[4*(i+1)+2] = iter->second.color.b/255.0f; color[4*(i+1)+3] = iter->second.color.a/255.0f;
+      if (iter->second->timeaccu2 >= iter->second->delay){
+        iter->second->timeaccu2 -= iter->second->delay;
+        renderNew2 = true;
       }
-      delete knots;
-      verts[0] = iter->second.start.x; verts[1] = iter->second.start.y;
-      verts[2*numVerts-2] = iter->second.end.x; verts[2*numVerts-1] = iter->second.end.y;
-      color[0] = iter->second.color.r/255.0f; color[1] = iter->second.color.g/255.0f; color[2] = iter->second.color.b/255.0f; color[3] = iter->second.color.a/255.0f;
-      color[4*numVerts-4] = iter->second.color.r/255.0f; color[4*numVerts-3] = iter->second.color.g/255.0f; color[4*numVerts-2] = iter->second.color.b/255.0f; color[4*numVerts-1] = iter->second.color.a/255.0f;
-      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, verts);
-      glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, color);
+      int numVerts = iter->second->numSpikes+2;
+      if (renderNew){
+        renderNew = false;
+        drawFlash(numVerts, iter->second, false);
+      }
+      if (renderNew2){
+        renderNew2 = false;
+        drawFlash(numVerts, iter->second, true);
+      }
+      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, iter->second->verts);
+      glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, iter->second->colorAttrib);
       glDrawArrays(GL_LINE_STRIP, 0, numVerts);
-      delete verts;
-      delete color;
+      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, iter->second->verts2);
+      glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, iter->second->colorAttrib2);
+      glDrawArrays(GL_LINE_STRIP, 0, numVerts);
     }
     mDrawShader.deactivate();
     Engine::instance()->restoreRenderDefaults();
@@ -1013,6 +1024,21 @@ public:
     return in;
   }
 private:
+  struct Lightning{
+    Vec2f start;
+    Vec2f end;
+    Color color;
+    int numSpikes;
+    float height;
+    int delay;
+
+    int timeaccu;
+    float* verts;
+    float* colorAttrib;
+    int timeaccu2;
+    float* verts2;
+    float* colorAttrib2;
+  };
   static int compare(const void* a, const void* b){
     float fa = *(float*)a;
     float fb = *(float*)b;
@@ -1020,17 +1046,54 @@ private:
       return 0;
     return fa < fb ? -1 : 1;
   }
-  struct Lightning{
-    Vec2f start;
-    Vec2f end;
-    Color color;
-    int numSpikes;
-    int height;
-    int delay;
-  };
+  void drawFlash(int numVerts, Lightning* ltn, bool secondFlash){
+    float* verts = new float[numVerts*2];
+    float* color = new float[numVerts*4];
+    Vec2f dir = ltn->end-ltn->start;
+    float length = dir.length();
+    float* knots = new float[ltn->numSpikes];
+    for (int i = 0; i < ltn->numSpikes; ++i){
+      knots[i] = rand()/(float)RAND_MAX*length;
+    }
+    qsort(knots, ltn->numSpikes, sizeof(float), compare);
+    dir.normalize();
+    Vec2f ortho(dir.y, -dir.x);
+    for (int i = 0; i < ltn->numSpikes; ++i){
+      Vec2f vert = ltn->start+dir*knots[i];
+      float tmp = rand()/(float)RAND_MAX;
+      float height = ltn->height;
+      float spikeheight = tmp*height*2-height;
+      verts[2*(i+1)] = vert.x+ortho.x*spikeheight;
+      verts[2*(i+1)+1] = vert.y+ortho.y*spikeheight;
+      color[4*(i+1)] = ltn->color.r/255.0f; color[4*(i+1)+1] = ltn->color.g/255.0f; color[4*(i+1)+2] = ltn->color.b/255.0f; color[4*(i+1)+3] = ltn->color.a/255.0f;
+      if (secondFlash)
+        color[4*(i+1)+3] *= 0.75f;
+    }
+    delete [] knots;
+    verts[0] = ltn->start.x; verts[1] = ltn->start.y;
+    verts[2*numVerts-2] = ltn->end.x; verts[2*numVerts-1] = ltn->end.y;
+    color[0] = ltn->color.r/255.0f; color[1] = ltn->color.g/255.0f; color[2] = ltn->color.b/255.0f; color[3] = ltn->color.a/255.0f;
+    if (secondFlash)
+      color[3] = 0.25f;
+    color[4*numVerts-4] = ltn->color.r/255.0f; color[4*numVerts-3] = ltn->color.g/255.0f; color[4*numVerts-2] = ltn->color.b/255.0f; color[4*numVerts-1] = ltn->color.a/255.0f;
+    if (secondFlash)
+      color[4*numVerts-1] = 0.25f;
+    if (secondFlash){
+      delete [] ltn->verts2;
+      delete [] ltn->colorAttrib2;
+      ltn->verts2 = verts;
+      ltn->colorAttrib2 = color;
+    }
+    else{
+      delete [] ltn->verts;
+      delete [] ltn->colorAttrib;
+      ltn->verts = verts;
+      ltn->colorAttrib = color;
+    }
+  }
   RenderableBlitObject* mFBO;
   GL2Shader mDrawShader;
-  std::map<int,Lightning> mLigthnings;
+  std::map<int,Lightning*> mLigthnings;
 };
 
 
