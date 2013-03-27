@@ -893,6 +893,11 @@ class LightningEffect : public PostProcessor::Effect{
 public:
   LightningEffect() : Effect(stdvs, lightningfs), mFBO(NULL){
     mName = "lightning";
+    mDrawShader.addShader(GL_VERTEX_SHADER, drawvs);
+    mDrawShader.addShader(GL_FRAGMENT_SHADER, drawfs);
+    mDrawShader.bindAttribLocation(0, "position");
+    mDrawShader.bindAttribLocation(1, "color");
+    mDrawShader.linkShaders();
   }
   ~LightningEffect(){
     deactivate();
@@ -914,11 +919,6 @@ public:
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
     mShader.deactivate();
-    mDrawShader.addShader(GL_VERTEX_SHADER, drawvs);
-    mDrawShader.addShader(GL_FRAGMENT_SHADER, drawfs);
-    mDrawShader.bindAttribLocation(0, "position");
-    mDrawShader.bindAttribLocation(1, "color");
-    mDrawShader.linkShaders();
   }
   virtual void deinit(){
     delete mFBO;
@@ -947,15 +947,12 @@ public:
     ltn.timeaccu2 = (int)(ltn.delay*1.5f);
     ltn.verts2 = NULL;
     ltn.colorAttrib2 = NULL;
+    delete mLigthnings[slot];
     mLigthnings[slot] = lightning;
     Effect::activate(fade);
   }
   virtual void deactivate(){
     for (std::map<int,Lightning*>::iterator iter = mLigthnings.begin(); iter != mLigthnings.end(); ++iter){
-      delete [] iter->second->verts;
-      delete [] iter->second->colorAttrib;
-      delete [] iter->second->verts2;
-      delete [] iter->second->colorAttrib2;
       delete iter->second;
     }
     mLigthnings.clear();
@@ -1015,12 +1012,25 @@ public:
   }
   virtual std::ostream& save(std::ostream& out){
     Effect::save(out);
-    //out << mFadeout << " ";
+    out << mLigthnings.size() << "\n";
+    for (std::map<int,Lightning*>::iterator iter = mLigthnings.begin(); iter != mLigthnings.end(); ++iter){
+      out << iter->first << " ";
+      iter->second->save(out);
+      out << "\n";
+    }
     return out;
   }
   virtual std::istream& load(std::istream& in){
     Effect::load(in);
-    //in >> mFadeout;
+    int numFlashes;
+    in >> numFlashes;
+    for (int i = 0; i < numFlashes; ++i){
+      int num;
+      in >> num;
+      Lightning* ltn = new Lightning;
+      ltn->load(in);
+      mLigthnings[num] = ltn;
+    }
     return in;
   }
 private:
@@ -1038,6 +1048,34 @@ private:
     int timeaccu2;
     float* verts2;
     float* colorAttrib2;
+
+    ~Lightning(){
+      delete [] verts;
+      delete [] colorAttrib;
+      delete [] verts2;
+      delete [] colorAttrib2;
+    }
+
+    std::ostream& save(std::ostream& out){
+      out << start.x << " " << start.y << " " << end.x << " " << end.y << " ";
+      out << color.r << " " << color.g << " " << color.b << " " << color.a << " ";
+      out << numSpikes << " " << height << " " << delay;
+      return out;
+    }
+    
+    std::istream& load(std::istream& in){
+      in >> start.x >> start.y >> end.x >> end.y;
+      in >> color.r >> color.g >> color.b >> color.a;
+      in >> numSpikes >> height >> delay;
+      timeaccu = delay;
+      verts = NULL;
+      colorAttrib = NULL;
+      timeaccu2 = (int)(delay*1.5f);
+      verts2 = NULL;
+      colorAttrib2 = NULL;
+      return in;
+    }
+
   };
   static int compare(const void* a, const void* b){
     float fa = *(float*)a;
