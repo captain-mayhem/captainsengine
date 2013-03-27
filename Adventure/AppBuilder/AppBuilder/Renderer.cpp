@@ -126,7 +126,7 @@ void GL2Shader::deleteShaders(){
   for (unsigned i = 0; i < mShaders.size(); ++i){
     glDeleteShader(mShaders[i]);
   }
-  mShaders.clear();
+  //mShaders.clear();
 }
 
 #endif
