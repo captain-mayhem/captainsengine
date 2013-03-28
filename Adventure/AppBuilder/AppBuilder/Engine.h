@@ -109,6 +109,7 @@ public:
   void setTimeFactor(float factor, bool isFaded) {mTimeFactor = factor; mTimeFactorFaded = isFaded;}
   float getTimeFactor(bool* isFaded=NULL) {if (isFaded != NULL) *isFaded = mTimeFactorFaded; return mTimeFactor;}
   void triggerScreenchange(ExecutionContext* loadreason);
+  void enableMenu(bool doIt) {mMenuEnabled = doIt;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -193,6 +194,7 @@ protected:
   bool mMouseShown;
   float mTimeFactor;
   bool mTimeFactorFaded;
+  bool mMenuEnabled;
 };
 
 }

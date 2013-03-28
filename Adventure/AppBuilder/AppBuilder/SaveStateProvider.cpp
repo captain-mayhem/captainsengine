@@ -300,7 +300,8 @@ void SaveStateProvider::save(const std::string& name){
   out << Engine::instance()->mMainRoomLoaded << " " << Engine::instance()->mSubRoomLoaded << std::endl;
   out << Engine::instance()->mShowTaskbar << " " << Engine::instance()->mScreenChange << std::endl;
   out << Engine::instance()->mTextEnabled << " " << Engine::instance()->mFontID << std::endl;
-  out << Engine::instance()->mMouseShown << " " << Engine::instance()->mTimeFactor << " " << Engine::instance()->mTimeFactorFaded << std::endl;
+  out << Engine::instance()->mMouseShown << " " << Engine::instance()->mTimeFactor << " " << Engine::instance()->mTimeFactorFaded << 
+    " " << Engine::instance()->mMenuEnabled << std::endl;
   //scripts
   Engine::instance()->getInterpreter()->save(out);
   //sounds
@@ -363,6 +364,7 @@ void SaveStateProvider::load(const std::string& name){
   in >> Engine::instance()->mTextEnabled >> Engine::instance()->mFontID;
   in >> Engine::instance()->mMouseShown;
   in >> Engine::instance()->mTimeFactor >> Engine::instance()->mTimeFactorFaded;
+  in >> Engine::instance()->mMenuEnabled;
   Engine::instance()->getInterpreter()->load(in);
   SoundEngine::instance()->load(in);
   Engine::instance()->getParticleEngine()->load(in);

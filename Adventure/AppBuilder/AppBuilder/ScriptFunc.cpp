@@ -1317,10 +1317,15 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
   if (obj == NULL){
     std::string room;
     SaveStateProvider::SaveObject* obj = Engine::instance()->getSaver()->findObject(name, room);
-    obj->position = newpos;
+    if (obj)
+      obj->position = newpos;
+    else
+      TR_ERROR("moveObj: Object %s does not exist", name.c_str());
     return 0;
   }
   if (speed == 0 || ctx.mSkip){
+    TR_DETAIL("object %s positioned to %i %i", name.c_str(), newpos.x, newpos.y);
+    Engine::instance()->getAnimator()->remove(obj);
     obj->setPosition(newpos);
     return 0;
   }
@@ -2038,11 +2043,25 @@ int ScriptFunctions::exchange(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::enableMenu(ExecutionContext& ctx, unsigned numArgs){
   bool enable = ctx.stack().pop().getBool();
+  Engine::instance()->enableMenu(enable);
   return 0;
 }
 
 int ScriptFunctions::setTransparency(ExecutionContext& ctx, unsigned numArgs){
   int transparency = ctx.stack().pop().getInt();
+  int opacity = 255-transparency*255/100;
+  std::string roomname = Engine::instance()->getData()->getProjectSettings()->anywhere_room;
+  if (!roomname.empty()){
+    RoomObject* room = Engine::instance()->getRoom(roomname);
+    if (room)
+      room->setOpacity(opacity);
+  }
+  roomname = Engine::instance()->getData()->getProjectSettings()->taskroom;
+  if (!roomname.empty()){
+    RoomObject* room = Engine::instance()->getRoom(roomname);
+    if (room)
+      room->setOpacity(opacity);
+  }
   return 0;
 }
 
@@ -2300,6 +2319,7 @@ int ScriptFunctions::isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   int xpos = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
+  TR_DETAIL("eval if: object %s is at x %i", objname.c_str(), obj->getPosition().x);
   if (obj == NULL){
     std::string dummy;
     SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
@@ -2318,6 +2338,7 @@ int ScriptFunctions::isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
   int ypos = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
+  TR_DETAIL("eval if: object %s is at y %i", objname.c_str(), obj->getPosition().y);
   if (obj == NULL){
     std::string dummy;
     SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);

@@ -160,6 +160,7 @@ void Engine::initGame(exit_callback exit_cb){
   mPostProc = new PostProcessor(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
   mMouseShown = true;
   mTimeFactor = 1.0f;
+  mMenuEnabled = true;
 }
 
 void Engine::exitGame(){
@@ -1338,7 +1339,7 @@ void Engine::keyPress(int key){
           mSuspender->resume();
           mFonts->getTextout(-1)->setEnabled(false);
         }
-        else{
+        else if (mMenuEnabled){
           if (!mMenuShown){
             if (mData->getProjectSettings()->has_menuroom){
               mMenuShown = true;
