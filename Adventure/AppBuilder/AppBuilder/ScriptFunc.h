@@ -72,6 +72,10 @@ public:
   **/
   static int delItem(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param enable if menu is enabled
+  **/
+  static int enableMenu(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param show enable the mouse
   **/
   static int enableMouse(ExecutionContext& ctx, unsigned numArgs);
@@ -367,6 +371,10 @@ public:
   \param value the value to set
   **/
   static int setString(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param transparency the transparency of overall and taskbar room
+  **/
+  static int setTransparency(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param room the room for which its walkmap should be modified
   \param x x-position of the walkmap field

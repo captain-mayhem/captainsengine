@@ -148,6 +148,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("enablemouse", enableMouse);
   interpreter->registerFunction("set_rect_walkmap", setRectWalkmap);
   interpreter->registerFunction("exchange", exchange);
+  interpreter->registerFunction("enablemenu", enableMenu);
+  interpreter->registerFunction("settransparency", setTransparency);
   srand((unsigned)time(NULL));
 }
 
@@ -1296,6 +1298,11 @@ private:
 int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   std::string name = ctx.stack().pop().getString();
+  //remove whitespaces in object names
+  for(int size = name.size()-1; size >= 0; --size){
+    if (name[size] == ' ')
+      name.erase(size, 1);
+  }
   Vec2i newpos;
   newpos.x = ctx.stack().pop().getInt();
   newpos.y = ctx.stack().pop().getInt();
@@ -2026,6 +2033,16 @@ int ScriptFunctions::exchange(ExecutionContext& ctx, unsigned numArgs){
   Inventory* inv = c1->getInventory();
   c1->setInventory(c2->getInventory());
   c2->setInventory(inv);
+  return 0;
+}
+
+int ScriptFunctions::enableMenu(ExecutionContext& ctx, unsigned numArgs){
+  bool enable = ctx.stack().pop().getBool();
+  return 0;
+}
+
+int ScriptFunctions::setTransparency(ExecutionContext& ctx, unsigned numArgs){
+  int transparency = ctx.stack().pop().getInt();
   return 0;
 }
 
