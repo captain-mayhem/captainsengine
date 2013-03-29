@@ -118,15 +118,33 @@ static std::string stackDataToStr(const StackData& sd){
   if (sd.isString())
     return sd.getString();
   else if (sd.isNumber()){
-    char tmp[32];
-    sprintf(tmp, "%i", sd.getInt());
-    return tmp;
+    if (sd.getFloat() == (float)sd.getInt()){
+      char tmp[32];
+      sprintf(tmp, "%i", sd.getInt());
+      return tmp;
+    }
+    else{
+      char tmp[32];
+      sprintf(tmp, "%.2f", sd.getFloat());
+      int pos = 0;
+      while (tmp[pos] != '\0'){
+        if (tmp[pos] == '.'){
+          tmp[pos] = ',';
+        }
+        ++pos;
+      }
+      return tmp;
+    }
   }
   else{
     TR_USE(ADV_CIL);
     TR_BREAK("Unsupported conversion");
   }
   return "";
+}
+
+static bool isDigit(char ch){
+  return ch >= '0' && ch <= '9';
 }
 
 unsigned CCONCAT::execute(ExecutionContext& ctx, unsigned pc){
@@ -143,9 +161,11 @@ unsigned CCONCAT::execute(ExecutionContext& ctx, unsigned pc){
     char prelastch = 'x';
     if (d1.size() > 1)
       prelastch = d1[d1.size()-2];
-    if ((lastch == '.' || lastch == ':') && isdigit(d2[0]) && isdigit(prelastch))
+    if ((lastch == '.' || lastch == ':') && isDigit(d2[0]) && isDigit(prelastch))
       space = "";
     if (lastch == '(')
+      space = "";
+    if (lastch == '0' && isDigit(d2[0]))
       space = "";
   }
   ctx.stack().push(d1+space+d2);

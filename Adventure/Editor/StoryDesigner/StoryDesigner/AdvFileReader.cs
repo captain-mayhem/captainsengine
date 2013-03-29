@@ -92,7 +92,7 @@ namespace StoryDesigner
 
         protected bool readSettings(Stream strm)
         {
-            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding(1252));
             string str = rdr.ReadLine();
             int ver_major = Int32.Parse(str.Substring(0, 1));
             int ver_minor = Int32.Parse(str.Substring(2, 1));
@@ -359,7 +359,7 @@ namespace StoryDesigner
 
         protected bool readObjects(Stream strm)
         {
-            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding(1252));
             string str = rdr.ReadLine();
             int ver_major = Int32.Parse(str.Substring(0, 1));
             int ver_minor = Int32.Parse(str.Substring(2, 1));
@@ -664,7 +664,7 @@ namespace StoryDesigner
 
         protected bool readScripts(Stream strm)
         {
-            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding(1252));
             string str = rdr.ReadLine();
             int ver_major = Int32.Parse(str.Substring(0, 1));
             int ver_minor = Int32.Parse(str.Substring(2, 1));
@@ -735,7 +735,7 @@ namespace StoryDesigner
         }
 
         protected bool readPassword(Stream strm){
-          StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+          StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding(1252));
           string str = rdr.ReadLine();
           string pwd = "";
           for (int i = 0; i < 20; ++i){
@@ -757,7 +757,7 @@ namespace StoryDesigner
 
         protected bool readLanguages(Stream strm)
         {
-            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding(1252));
             string language = null;
             Language.Section section = Language.Section.NumSections;
             while (!rdr.EndOfStream)
@@ -914,7 +914,7 @@ namespace StoryDesigner
 
         protected bool readAdvancedSettings(Stream strm)
         {
-            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding(1252));
             string str = rdr.ReadLine();
             int ver_major = Int32.Parse(str.Substring(0, 1));
             int ver_minor = Int32.Parse(str.Substring(2, 1));

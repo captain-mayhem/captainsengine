@@ -104,9 +104,13 @@ namespace StoryDesigner
             CharacterRange[] range = new CharacterRange[1];
             range[0] = new CharacterRange(0,1);
             fmt.SetMeasurableCharacterRanges(range);
+            Encoding enc = Encoding.GetEncoding(1252);
+            byte [] b = new byte[1];
             for (int i = 0; i < 224; ++i)
             {
-                char ch = (char)(i + 0x20);
+                b[0] = (byte)(i + 0x20);
+                char[] chs = enc.GetChars(b);
+                char ch = chs[0];
                 Region[] reg = g.MeasureCharacterRanges(new string(ch, 1), mCurrFont, new RectangleF(0,0,256,256), fmt);
                 RectangleF rect = reg[0].GetBounds(g);
                 int width = (int)rect.Width;///*Math.Ceiling(*/ f.Width;//);
@@ -134,7 +138,9 @@ namespace StoryDesigner
             //render bitmap font
             for (int i = 0; i < 224; ++i)
             {
-                char ch = (char)(i+0x20);
+                b[0] = (byte)(i + 0x20);
+                char[] chs = enc.GetChars(b);
+                char ch = chs[0];
                 int texture = i / (numrows * charsperrow);
                 if (texture != currtexture)
                 {

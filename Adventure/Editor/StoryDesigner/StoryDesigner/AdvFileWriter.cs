@@ -92,7 +92,7 @@ namespace StoryDesigner
 
         void writeSettings(Stream strm, bool convertPngs)
         {
-            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
             swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             swr.WriteLine(mData.Settings.Directory);
@@ -243,7 +243,7 @@ namespace StoryDesigner
 
         void writeObjects(Stream strm)
         {
-            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
             swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             for (int i = 0; i < STATES_MAX; ++i)
@@ -464,7 +464,7 @@ namespace StoryDesigner
 
         void writeScripts(Stream strm)
         {
-            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
             swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             foreach (KeyValuePair<string,Script> script in mData.getScripts(Script.Type.CUTSCENE)){
@@ -522,7 +522,7 @@ namespace StoryDesigner
 
         void writeLanguages(Stream strm)
         {
-            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
             foreach (KeyValuePair<string,Language> language in mData.Languages){
                 string lang = "*/*"+language.Value.Name+';';
                 swr.WriteLine(lang+"speech");
@@ -591,7 +591,7 @@ namespace StoryDesigner
                 ZipEntry zippe = new ZipEntry(dataname);
                 zos.PutNextEntry(zippe);
                 
-                StreamWriter swr = new StreamWriter(zos, Encoding.GetEncoding("iso-8859-1"));
+                StreamWriter swr = new StreamWriter(zos, Encoding.GetEncoding(1252));
                 swr.WriteLine(images.Length);
                 swr.WriteLine(dims.x);
                 swr.WriteLine(dims.y);
@@ -749,7 +749,7 @@ namespace StoryDesigner
 
         void writeAdvancedSettings(Stream strm)
         {
-            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding("iso-8859-1"));
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
             swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             swr.Write(mData.Settings.NoPngToJpeg ? -1 : 0);
