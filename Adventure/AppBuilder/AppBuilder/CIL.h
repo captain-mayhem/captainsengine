@@ -312,7 +312,7 @@ public:
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
     int val = ctx.stack().pop().getInt();
     float shifted = (float)val;
-    while (shifted > 1.0f)
+    while (shifted >= 1.0f)
       shifted *= 0.1f;
     ctx.stack().push(shifted);
     return ++pc;
