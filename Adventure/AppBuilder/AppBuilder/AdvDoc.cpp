@@ -102,13 +102,19 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     return false;
   }
   str = txtstream.readLine();
-  mSettings.dir = txtstream.readLine();
+  if (ver_major > 1)
+    mSettings.dir = txtstream.readLine();
+  else
+    mSettings.dir = "";
   str = txtstream.readLine();
   if (str == "Resolution X : 640"){
     mSettings.resolution = Vec2i(640,480);
   }
   else if (str == "Resolution X : 800"){
     mSettings.resolution = Vec2i(800,600);
+  }
+  else if (str == "Resolution X : 320"){
+    mSettings.resolution = Vec2i(320,240);
   }
   else
     TR_BREAK("Unknown resolution");
@@ -122,9 +128,14 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine();
   str = txtstream.readLine();
   str = txtstream.readLine();
-  str = txtstream.readLine();
-  str = txtstream.readLine();
-  mSettings.tsbackground = txtstream.readLine();
+  if (ver_major > 1){
+    str = txtstream.readLine();
+    str = txtstream.readLine();
+    mSettings.tsbackground = txtstream.readLine();
+  }
+  else{
+    mSettings.tsbackground = "";
+  }
   str = txtstream.readLine();
   if(str.substr(0,14) != "Startskript : ")
     TR_BREAK("Invalid content %s", str.c_str());
@@ -134,7 +145,9 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine(); //Screenchange
   mSettings.screenchange = (ScreenChange)atoi(str.substr(15).c_str());
   str = txtstream.readLine(); //flags
-  str = txtstream.readLine(); //action text height
+  if (ver_major > 1){
+    str = txtstream.readLine(); //action text height
+  }
   str = txtstream.readLine();
   mSettings.has_menuroom = str == "-1";
   mSettings.menuroom = txtstream.readLine();
@@ -145,16 +158,22 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine();
   mSettings.taskpopup = atoi(str.substr(12).c_str());
   str = txtstream.readLine();
-  std::string taskshow = str.substr(11, 4).c_str();
-  if (taskshow == "hide")
-    mSettings.taskHideCompletely = true;
-  else
-    mSettings.taskHideCompletely = false;
-  for (int i = 0; i < 3; ++i){
+  if (ver_major > 1){
+    std::string taskshow = str.substr(11, 4).c_str();
+    if (taskshow == "hide")
+      mSettings.taskHideCompletely = true;
+    else
+      mSettings.taskHideCompletely = false;
+    for (int i = 0; i < 3; ++i){
+      str = txtstream.readLine();
+    }
     str = txtstream.readLine();
+    mSettings.anywhere_transparency = atoi(str.c_str());
   }
-  str = txtstream.readLine();
-  mSettings.anywhere_transparency = atoi(str.c_str());
+  else{
+    mSettings.taskHideCompletely = false;
+    mSettings.anywhere_transparency = 0;
+  }
   str = txtstream.readLine();
   mSettings.targacolor = atoi(str.substr(13).c_str());
   str = txtstream.readLine();
@@ -164,11 +183,18 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine();
   mSettings.textcolor = atoi(str.substr(12).c_str());
   str = txtstream.readLine(); //offtextcolor
-  int pos = str.find(';');
-  std::string color = str.substr(15, pos-15);
-  mSettings.offspeechcolor = atoi(color.c_str());
-  color = str.substr(pos+1);
-  mSettings.infotextcolor = atoi(color.c_str());
+  if (ver_major > 1){
+    int pos = str.find(';');
+    std::string color = str.substr(15, pos-15);
+    mSettings.offspeechcolor = atoi(color.c_str());
+    color = str.substr(pos+1);
+    mSettings.infotextcolor = atoi(color.c_str());
+  }
+  else{
+    std::string color = str.substr(15);
+    mSettings.offspeechcolor = atoi(color.c_str());
+    mSettings.infotextcolor = 0xffffff;
+  }
   str = txtstream.readLine();
   mSettings.tsstyle = (TsStyle)(atoi(str.c_str())-1);
   str = txtstream.readLine();

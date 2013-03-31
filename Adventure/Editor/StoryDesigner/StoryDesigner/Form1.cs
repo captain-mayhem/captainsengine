@@ -397,7 +397,7 @@ namespace StoryDesigner
             }
         }
 
-        private void loadFile(string filename)
+        private bool loadFile(string filename)
         {
             try
             {
@@ -433,14 +433,19 @@ namespace StoryDesigner
                             missingVideos.Add(pair.Key, Path.GetFileName(pair.Value));
                     }
                     if (missingImages.Count == 0 && missingSounds.Count == 0 && missingMusic.Count == 0 && missingVideos.Count == 0)
-                        return;
+                        return true;
                     if (!resolveMedia(Path.GetDirectoryName(filename), ref missingImages, ref missingSounds, ref missingMusic, ref missingVideos))
+                    {
                         MessageBox.Show("Not all media files were found. Project cannot work correctly.", "Error");
+                        return false;
+                    }
                 }
+                return true;
             }
             catch (Exception)
             {
                 MessageBox.Show("Cannot load " + filename);
+                return false;
             }
         }
 
@@ -1248,10 +1253,16 @@ namespace StoryDesigner
                 mPersistence.LastOpenPath = dir;
                 string advfile = AdvFileReader.unpackAdz(fod.FileName);
                 newToolStripMenuItem_Click(null, null);
-                loadFile(advfile);
-                string import = mData.getLocalizedString("importAdz");
-                import = String.Format(import, Path.GetDirectoryName(advfile));
-                MessageBox.Show(import, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                if (!loadFile(advfile))
+                {
+                    
+                }
+                else
+                {
+                    string import = mData.getLocalizedString("importAdz");
+                    import = String.Format(import, Path.GetDirectoryName(advfile));
+                    MessageBox.Show(import, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
             }
         }
 

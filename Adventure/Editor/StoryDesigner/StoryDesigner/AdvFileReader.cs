@@ -104,8 +104,12 @@ namespace StoryDesigner
 			
 			PlatformID pid = Environment.OSVersion.Platform;
 			bool onUnix = (int)pid == 4 || (int)pid == 128;
-			
-            mAdv.Settings.Directory = rdr.ReadLine();
+
+            if (ver_major > 1)
+                mAdv.Settings.Directory = rdr.ReadLine();
+            else
+                mAdv.Settings.Directory = "";
+
             str = rdr.ReadLine();
             if (str == "Resolution X : 640")
             {
@@ -114,6 +118,10 @@ namespace StoryDesigner
             else if (str == "Resolution X : 800")
             {
                 mAdv.Settings.Resolution = new Vec2i(800, 600);
+            }
+            else if (str == "Resolution X : 320")
+            {
+                mAdv.Settings.Resolution = new Vec2i(320, 240);
             }
             else
             {
@@ -129,10 +137,20 @@ namespace StoryDesigner
                 info.italic = Convert.ToInt32(fontparts[2]) == -1;
                 info.size = Convert.ToInt32(fontparts[3]);
                 info.outline = Convert.ToInt32(fontparts[4]);
-                info.charset = Convert.ToInt32(fontparts[5]);
-                info.shadow = Convert.ToInt32(fontparts[6]);
-                info.fill = Convert.ToInt32(fontparts[7]);
-                info.fading = Convert.ToInt32(fontparts[8]);
+                if (ver_major > 1)
+                {
+                    info.charset = Convert.ToInt32(fontparts[5]);
+                    info.shadow = Convert.ToInt32(fontparts[6]);
+                    info.fill = Convert.ToInt32(fontparts[7]);
+                    info.fading = Convert.ToInt32(fontparts[8]);
+                }
+                else
+                {
+                    info.charset = 0;
+                    info.shadow = 0;
+                    info.fill = 0;
+                    info.fading = 0;
+                }
                 mAdv.Settings.Fonts.Add(info);
                 font = rdr.ReadLine();
             } 
@@ -142,11 +160,21 @@ namespace StoryDesigner
             str = rdr.ReadLine();
             str = rdr.ReadLine();
             str = rdr.ReadLine();
-            mAdv.Settings.GameIcon = str.Substring(11);
-            mAdv.Settings.LoadingImage = rdr.ReadLine();
-            str = rdr.ReadLine();
-            mAdv.Settings.TsUseBgImage = str == "-1";
-            mAdv.Settings.TsBackground = rdr.ReadLine();
+            if (ver_major > 1)
+            {
+                mAdv.Settings.GameIcon = str.Substring(11);
+                mAdv.Settings.LoadingImage = rdr.ReadLine();
+                str = rdr.ReadLine();
+                mAdv.Settings.TsUseBgImage = str == "-1";
+                mAdv.Settings.TsBackground = rdr.ReadLine();
+            }
+            else
+            {
+                mAdv.Settings.GameIcon = "";
+                mAdv.Settings.LoadingImage = "";
+                mAdv.Settings.TsUseBgImage = false;
+                mAdv.Settings.TsBackground = "";
+            }
             str = rdr.ReadLine();
             if (str.Substring(0, 14) != "Startskript : ")
             {
@@ -162,8 +190,16 @@ namespace StoryDesigner
             mAdv.Settings.DrawDraggedItemIcons = str[1] == '1';
             mAdv.Settings.ActionText = str[2] == '1';
             mAdv.Settings.ShowTaskbar = str[3] == '1';
-            mAdv.Settings.NotAntialiased = str[4] == '1';
-            mAdv.Settings.TaskbarFromTop = str[5] == '1';
+            if (ver_major > 1)
+            {
+                mAdv.Settings.NotAntialiased = str[4] == '1';
+                mAdv.Settings.TaskbarFromTop = str[5] == '1';
+            }
+            else
+            {
+                mAdv.Settings.NotAntialiased = false;
+                mAdv.Settings.TaskbarFromTop = false;
+            }
             if (ver_major >= 3)
             {
                 mAdv.Settings.GroupItems = str[6] == '1';
@@ -173,8 +209,15 @@ namespace StoryDesigner
                 mAdv.Settings.GroupItems = false;
                 mAdv.Settings.ProtectGameFile = false;
             }
-            str = rdr.ReadLine();
-            mAdv.Settings.ActionTextHeight = Convert.ToInt32(str);
+            if (ver_major > 1)
+            {
+                str = rdr.ReadLine();
+                mAdv.Settings.ActionTextHeight = Convert.ToInt32(str);
+            }
+            else
+            {
+                mAdv.Settings.ActionTextHeight = 0;
+            }
             str = rdr.ReadLine();
             mAdv.Settings.CustomMenu = str == "-1";
             mAdv.Settings.CustomMenuRoom = rdr.ReadLine();
@@ -188,20 +231,32 @@ namespace StoryDesigner
             string addBools = str.Substring(8, 2);
             mAdv.Settings.SilentDelete = addBools[0] == '1';
             mAdv.Settings.InfoLine = addBools[1] == '1';
-            string taskshow = str.Substring(11, 4);
-            if (taskshow == "hide")
-                mAdv.Settings.TaskHideCompletely = true;
+            if (ver_major > 1)
+            {
+                string taskshow = str.Substring(11, 4);
+                if (taskshow == "hide")
+                    mAdv.Settings.TaskHideCompletely = true;
+                else
+                    mAdv.Settings.TaskHideCompletely = false;
+                mAdv.Settings.RightClick = Convert.ToInt32(str.Substring(16));
+                str = rdr.ReadLine();
+                mAdv.Settings.UseMouseWheel = (str == "-1");
+                str = rdr.ReadLine();
+                mAdv.Settings.MenuFading = Convert.ToInt32(str);
+                str = rdr.ReadLine();
+                mAdv.Settings.TextSceneFading = Convert.ToInt32(str);
+                str = rdr.ReadLine();
+                mAdv.Settings.AnywhereTransparency = Convert.ToInt32(str);
+            }
             else
+            {
                 mAdv.Settings.TaskHideCompletely = false;
-            mAdv.Settings.RightClick = Convert.ToInt32(str.Substring(16));
-            str = rdr.ReadLine();
-            mAdv.Settings.UseMouseWheel = (str == "-1");
-            str = rdr.ReadLine();
-            mAdv.Settings.MenuFading = Convert.ToInt32(str);
-            str = rdr.ReadLine();
-            mAdv.Settings.TextSceneFading = Convert.ToInt32(str);
-            str = rdr.ReadLine();
-            mAdv.Settings.AnywhereTransparency = Convert.ToInt32(str);
+                mAdv.Settings.RightClick = 0;
+                mAdv.Settings.UseMouseWheel = false;
+                mAdv.Settings.MenuFading = 0;
+                mAdv.Settings.TextSceneFading = 0;
+                mAdv.Settings.AnywhereTransparency = 0;
+            }
             str = rdr.ReadLine();
             mAdv.Settings.TargaColor = Convert.ToUInt32(str.Substring(13));
             str = rdr.ReadLine();
@@ -213,7 +268,10 @@ namespace StoryDesigner
             str = rdr.ReadLine().Substring(15);
             string[] colors = str.Split(';');
             mAdv.Settings.OffspeechColor = Convert.ToUInt32(colors[0]);
-            mAdv.Settings.InfotextColor = Convert.ToUInt32(colors[1]);
+            if (ver_major > 1)
+                mAdv.Settings.InfotextColor = Convert.ToUInt32(colors[1]);
+            else
+                mAdv.Settings.InfotextColor = 16777215;
             str = rdr.ReadLine();
             mAdv.Settings.TsStyle = Convert.ToInt32(str) - 1;
             str = rdr.ReadLine();

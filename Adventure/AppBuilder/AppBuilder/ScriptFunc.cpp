@@ -365,7 +365,7 @@ void ScriptFunctions::setObjInternal(std::vector<std::string> objects, std::vect
           obj->setState(state);
         else{
           obj->addNextState(state);
-          obj->getAnimation()->registerAnimationEndHandler(obj);
+          obj->getAnimation(states[i-1])->registerAnimationEndHandler(obj);
         }
       }
       else{
