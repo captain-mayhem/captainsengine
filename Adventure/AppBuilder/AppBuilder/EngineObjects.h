@@ -67,6 +67,7 @@ public:
   virtual bool animationEnded(Animation* anim);
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
   Animation* getAnimation();
+  Animation* getAnimation(int state);
   virtual bool isHit(const Vec2i& point);
   void setScript(ExecutionContext* script) {mScript = script; if (script) script->setOwner(this);}
   ExecutionContext* getScript() {return mScript;}

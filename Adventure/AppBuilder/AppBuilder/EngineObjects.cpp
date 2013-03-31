@@ -151,9 +151,13 @@ void Object2D::render(){
 }
 
 Animation* Object2D::getAnimation(){
-  if (mState <= 0 || (unsigned)mState > mAnimations.size())
+  return getAnimation(mState);
+}
+
+Animation* Object2D::getAnimation(int state){
+  if (state <= 0 || (unsigned)state > mAnimations.size())
     return NULL;
-  return mAnimations[mState-1];
+  return mAnimations[state-1];
 }
 
 bool Object2D::isHit(const Vec2i& point){
