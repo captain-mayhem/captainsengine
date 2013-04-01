@@ -447,13 +447,20 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::RELATIONAL:{
         RelationalNode* relnode = static_cast<RelationalNode*>(node);
-        if (relnode->type() == RelationalNode::REL_PLUS || relnode->type() == RelationalNode::REL_MINUS){
+        if (relnode->type() == RelationalNode::REL_PLUS || relnode->type() == RelationalNode::REL_MINUS || relnode->type() == RelationalNode::REL_TIMES){
           //CLOAD var; visit child; CADD/CSUB
           std::map<std::string, std::map<int, std::string> >::iterator funciter = mRelVars.find(mCurrFunc);
           if (funciter == mRelVars.end()){
             if (mCurrFunc == "offspeech" && mCurrArg == 3){
               //allow strings that look like relative numbers / variables
-              CPUSH* push = new CPUSH(relnode->type() == RelationalNode::REL_PLUS ? "+" : "-");
+              char* tmp = " ";
+              if (relnode->type() == RelationalNode::REL_PLUS)
+                tmp = "+";
+              else if (relnode->type() == RelationalNode::REL_MINUS)
+                tmp = "-";
+              else if (relnode->type() == RelationalNode::REL_TIMES)
+                tmp = "*";
+              CPUSH* push = new CPUSH(tmp);
               codes->addCode(push);
               count += 1;
               count += transform(relnode->child(), codes);
@@ -476,15 +483,30 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
             codes->addCode(new CADD());
           else if (relnode->type() == RelationalNode::REL_MINUS)
             codes->addCode(new CSUB());
+          else if (relnode->type() == RelationalNode::REL_TIMES){
+            if (relnode->negated()){
+              codes->addCode(new CPUSH(-1));
+              codes->addCode(new CMUL());
+              count += 2;
+            }
+            codes->addCode(new CMUL());
+          }
           else
             TR_BREAK("Unknown type");
           count += 1;
           mUnresolvedLoads.push_back(ld);
         }
-        else{
+        else if (relnode->type() == RelationalNode::REL_EQUAL || relnode->type() == RelationalNode::REL_LESS || relnode->type() == RelationalNode::REL_GREATER){
           mLastRelation = relnode;
           count += transform(relnode->child(), codes);
+          if (relnode->negated()){
+            codes->addCode(new CPUSH(-1));
+            codes->addCode(new CMUL());
+            count += 2;
+          }
         }
+        else
+          TR_BREAK("Unhandled rel type");
       }
       break;
       case ASTNode::LEVELDEF:{

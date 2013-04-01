@@ -205,10 +205,11 @@ stdarg returns [IdentNode* value]
 
 rel_expr returns [ASTNode* exp]
 	: {$exp = new RelationalNode();}
-	( LESS {((RelationalNode*)$exp)->type() = RelationalNode::REL_LESS;}
-	| GREATER {((RelationalNode*)$exp)->type() = RelationalNode::REL_GREATER;}
+	( (LESS {((RelationalNode*)$exp)->type() = RelationalNode::REL_LESS;} (MINUS {((RelationalNode*)$exp)->negated() = true;})?)
+	| (GREATER {((RelationalNode*)$exp)->type() = RelationalNode::REL_GREATER;} (MINUS {((RelationalNode*)$exp)->negated() = true;})?)
 	| PLUS {((RelationalNode*)$exp)->type() = RelationalNode::REL_PLUS;}
 	| MINUS {((RelationalNode*)$exp)->type() = RelationalNode::REL_MINUS;}
+	| (TIMES {((RelationalNode*)$exp)->type() = RelationalNode::REL_TIMES;} (MINUS {((RelationalNode*)$exp)->negated() = true;})?)
 	)?
 	ex=expr {((RelationalNode*)$exp)->child() = ex.exp;}
 ;

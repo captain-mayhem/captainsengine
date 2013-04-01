@@ -179,16 +179,19 @@ public:
     REL_GREATER,
     REL_PLUS,
     REL_MINUS,
+    REL_TIMES,
   };
-  RelationalNode() : ASTNode(RELATIONAL), mType(REL_EQUAL), mChild(NULL){}
+  RelationalNode() : ASTNode(RELATIONAL), mType(REL_EQUAL), mChild(NULL), mNegated(false){}
   virtual ~RelationalNode(){
     delete mChild;
   }
   Type& type() {return mType;}
   ASTNode*& child() {return mChild;}
+  bool& negated() {return mNegated;}
 protected:
   Type mType;
   ASTNode* mChild;
+  bool mNegated;
 };
 
 class LevelNode : public StmtNode{
