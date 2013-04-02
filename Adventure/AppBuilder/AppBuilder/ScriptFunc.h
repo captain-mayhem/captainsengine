@@ -388,6 +388,9 @@ public:
   **/
   static int setWalkSound(ExecutionContext& ctx, unsigned numArgs);
   /**
+  **/
+  static int showAllText(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param text information about the object
   \param show boolean if the text should be displayed on the mouse cursor
   **/

@@ -366,7 +366,10 @@ Image* decodeBMP(Reader* rdr){
   pImage->allocateData();
 
   //seek to the actual data
-  if (biCompression == 3){
+  if (biCompression == 0){
+    rdr->skip(bihsize-20);
+  }
+  else if (biCompression == 3){
     rdr->skip(bihsize-20);
     rmask = rdr->readInt();
     gmask = rdr->readInt();
@@ -394,7 +397,14 @@ Image* decodeBMP(Reader* rdr){
   }
   else if (biBitCount == 24){
 
-    rdr->readBytes(pImage->getData(), biSizeImage);
+    //calculate the stride
+    int stuffedsize = width*3;
+    stuffedsize = ((stuffedsize+3)/4)*4;
+    int toskip = stuffedsize-width*3;
+    for (i = 0; i < height; ++i){
+      rdr->readBytes(pImage->getData()+i*width*3, width*3);
+      rdr->skip(toskip);
+    }
 
     // swap red and blue (bgr -> rgb)
     for (i = 0; i < biSizeImage; i += 3)
