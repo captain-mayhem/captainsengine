@@ -150,6 +150,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("exchange", exchange);
   interpreter->registerFunction("enablemenu", enableMenu);
   interpreter->registerFunction("settransparency", setTransparency);
+  interpreter->registerFunction("showalltext", showAllText);
   srand((unsigned)time(NULL));
 }
 
@@ -1517,7 +1518,7 @@ int ScriptFunctions::fadeSpeed(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::setEAX(ExecutionContext& ctx, unsigned numArgs){
   std::string effect = ctx.stack().pop().getString();
-  SoundEngine::instance()->setEAXEffect(effect);
+  SoundEngine::instance()->setEAXEffect(toLower(effect));
   return 0;
 }
 
@@ -1982,7 +1983,7 @@ int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::hideAllTexts(ExecutionContext& ctx, unsigned numArgs){
-  Engine::instance()->getFontRenderer()->disableTextouts();
+  Engine::instance()->getFontRenderer()->enableTextouts(false);
   return 0;
 }
 
@@ -2062,6 +2063,11 @@ int ScriptFunctions::setTransparency(ExecutionContext& ctx, unsigned numArgs){
     if (room)
       room->setOpacity(opacity);
   }
+  return 0;
+}
+
+int ScriptFunctions::showAllText(ExecutionContext& ctx, unsigned numArgs){
+  Engine::instance()->getFontRenderer()->enableTextouts(true);
   return 0;
 }
 

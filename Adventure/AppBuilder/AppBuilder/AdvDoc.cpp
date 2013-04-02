@@ -145,7 +145,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine(); //Screenchange
   mSettings.screenchange = (ScreenChange)atoi(str.substr(15).c_str());
   str = txtstream.readLine(); //flags
-  if (ver_major > 1){
+  if (ver_major > 2 || (ver_major == 2 && ver_minor > 0)){
     str = txtstream.readLine(); //action text height
   }
   str = txtstream.readLine();
@@ -164,6 +164,11 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
       mSettings.taskHideCompletely = true;
     else
       mSettings.taskHideCompletely = false;
+  }
+  else{
+    mSettings.taskHideCompletely = false;
+  }
+  if (ver_major > 2 || (ver_major == 2 && ver_minor > 0)){
     for (int i = 0; i < 3; ++i){
       str = txtstream.readLine();
     }
@@ -171,7 +176,6 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     mSettings.anywhere_transparency = atoi(str.c_str());
   }
   else{
-    mSettings.taskHideCompletely = false;
     mSettings.anywhere_transparency = 0;
   }
   str = txtstream.readLine();

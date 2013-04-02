@@ -69,7 +69,7 @@ public:
   void removeText(String* str);
   Textout* getTextout(int id);
   void clearTextouts();
-  void disableTextouts();
+  void enableTextouts(bool enable);
   void save(std::ostream& out);
   void load(std::istream& in);
 protected:

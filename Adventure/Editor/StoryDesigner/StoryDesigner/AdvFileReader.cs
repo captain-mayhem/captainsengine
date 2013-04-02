@@ -138,15 +138,17 @@ namespace StoryDesigner
                 info.size = Convert.ToInt32(fontparts[3]);
                 info.outline = Convert.ToInt32(fontparts[4]);
                 if (ver_major > 1)
-                {
                     info.charset = Convert.ToInt32(fontparts[5]);
+                else
+                    info.charset = 0;
+                if (ver_major > 2 || (ver_major == 2 && ver_minor > 0))
+                {
                     info.shadow = Convert.ToInt32(fontparts[6]);
                     info.fill = Convert.ToInt32(fontparts[7]);
                     info.fading = Convert.ToInt32(fontparts[8]);
                 }
                 else
-                {
-                    info.charset = 0;
+                {                  
                     info.shadow = 0;
                     info.fill = 0;
                     info.fading = 0;
@@ -190,7 +192,7 @@ namespace StoryDesigner
             mAdv.Settings.DrawDraggedItemIcons = str[1] == '1';
             mAdv.Settings.ActionText = str[2] == '1';
             mAdv.Settings.ShowTaskbar = str[3] == '1';
-            if (ver_major > 1)
+            if (ver_major > 2 || (ver_major == 2 && ver_minor > 0))
             {
                 mAdv.Settings.NotAntialiased = str[4] == '1';
                 mAdv.Settings.TaskbarFromTop = str[5] == '1';
@@ -209,7 +211,7 @@ namespace StoryDesigner
                 mAdv.Settings.GroupItems = false;
                 mAdv.Settings.ProtectGameFile = false;
             }
-            if (ver_major > 1)
+            if (ver_major > 2 || (ver_major == 2 && ver_minor > 0))
             {
                 str = rdr.ReadLine();
                 mAdv.Settings.ActionTextHeight = Convert.ToInt32(str);
@@ -239,6 +241,13 @@ namespace StoryDesigner
                 else
                     mAdv.Settings.TaskHideCompletely = false;
                 mAdv.Settings.RightClick = Convert.ToInt32(str.Substring(16));
+            }
+            else{
+                mAdv.Settings.TaskHideCompletely = false;
+                mAdv.Settings.RightClick = 0;
+            }
+            if (ver_major > 2 || (ver_major == 2 && ver_minor > 0))
+            {
                 str = rdr.ReadLine();
                 mAdv.Settings.UseMouseWheel = (str == "-1");
                 str = rdr.ReadLine();
@@ -250,8 +259,6 @@ namespace StoryDesigner
             }
             else
             {
-                mAdv.Settings.TaskHideCompletely = false;
-                mAdv.Settings.RightClick = 0;
                 mAdv.Settings.UseMouseWheel = false;
                 mAdv.Settings.MenuFading = 0;
                 mAdv.Settings.TextSceneFading = 0;

@@ -311,9 +311,9 @@ void FontRenderer::clearTextouts(){
   mTextouts.clear();
 }
 
-void FontRenderer::disableTextouts(){
+void FontRenderer::enableTextouts(bool enable){
   for (std::map<int, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
-    iter->second->setEnabled(false);
+    iter->second->setEnabled(enable);
   }
 }
 

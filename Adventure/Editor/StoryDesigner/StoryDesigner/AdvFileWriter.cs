@@ -656,12 +656,15 @@ namespace StoryDesigner
                     zos.PutNextEntry(ze2);
                     alpha.Save(zos, ImageFormat.Jpeg);
                     zos.CloseEntry();
+                    bmp.Dispose();
                 }
                 else
                 {
+                    bmp.Dispose();
                     ZipEntry ze = new ZipEntry(name);
                     zos.PutNextEntry(ze);
-                    bmp.Save(zos, fmt);
+                    //bmp.Save(zos, fmt);
+                    writeFile(entry.Value, zos);
                     zos.CloseEntry();
                 }
             }
@@ -726,6 +729,20 @@ namespace StoryDesigner
                 output.Write(buf, 0, read);
             }
             output.Close();
+        }
+
+        internal static void writeFile(string infile, Stream output)
+        {
+            FileStream input = File.Open(infile, FileMode.Open);
+            byte[] buf = new byte[8192];
+            while (true)
+            {
+                int read = input.Read(buf, 0, buf.Length);
+                if (read == 0)
+                    break;
+                output.Write(buf, 0, read);
+            }
+            input.Close();
         }
 
         internal static void writeFileRecursive(ZipInputStream input, string outdir)
