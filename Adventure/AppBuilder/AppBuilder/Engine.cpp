@@ -14,6 +14,7 @@
 #include "Textout.h"
 #include "Sound.h"
 #include "PostProcessing.h"
+#include "Menu.h"
 
 using namespace adv;
 
@@ -197,7 +198,15 @@ void Engine::exitGame(){
 CGE::Image* Engine::getImage(const std::string& name){
   if (name.empty())
     return NULL;
-  return mData->getImage(name);
+  if (name[0] == '#'){
+    //get special images
+    if (name == "#menu_bg"){
+      return Menu::getBackground();
+    }
+    return NULL;
+  }
+  else
+    return mData->getImage(name);
 }
 
 //TODO move into utility
@@ -1344,6 +1353,13 @@ void Engine::keyPress(int key){
             if (mData->getProjectSettings()->has_menuroom){
               mMenuShown = true;
               loadRoom(mData->getProjectSettings()->menuroom, true, NULL);
+            }
+            else{
+              //use internal menu
+              Menu* menu = new Menu();
+              mRooms.push_front(menu);
+              mSubRoomLoaded = true;
+              mMenuShown = true;
             }
           }
           else{
