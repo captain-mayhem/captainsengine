@@ -28,14 +28,14 @@ unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
   if (!Engine::instance()->getInterpreter()->isTSTopToBottom())
     Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
   Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);
-  ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos(), butsize, mText, mRow);
+  ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos(), butsize, mText, mRow, false);
   if (Engine::instance()->getInterpreter()->isTSTopToBottom())
     Engine::instance()->addUIElement(but, extent.y);
   else
     Engine::instance()->addUIElement(but, 0);
-  int chosenRow = Engine::instance()->getInterpreter()->getVariable("#button").getInt();
+  int chosenRow = Engine::instance()->getInterpreter()->getVariable("!button").getInt();
   if (chosenRow == mRow){
-    Engine::instance()->getInterpreter()->setVariable("#button", 0);
+    Engine::instance()->getInterpreter()->setVariable("!button", 0);
     return ++pc;
   }
   return pc+mOffset;

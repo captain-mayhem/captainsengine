@@ -265,8 +265,8 @@ void Object2D::update(unsigned interval){
     anim->update(interval);
 }
 
-ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "#button"),
-BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i()), mText(text){
+ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id, bool persistent) : Object2D(1, pos, size, "!button"),
+BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i()), mText(text), mPersistent(persistent){
   char tmp[16];
   sprintf(tmp, "%i", id);
   mName += tmp;
@@ -285,43 +285,63 @@ BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i(
     mHighlightColor.a = 127;
   }
   CodeSegment* code = new CodeSegment();
+  mScript = new ExecutionContext(code, false, "");
   CBNEEVT* click = new CBNEEVT(EVT_CLICK);
   code->addCode(click);
   code->addCode(new CPUSH(id));
-  code->addCode(new CPUSH("#button"));
+  code->addCode(new CPUSH("!button"));
   code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
   click->setOffset(4);
   CBNEEVT* mouse = new CBNEEVT(EVT_MOUSE);
-  mScript = new ExecutionContext(code, false, "");
   code->addCode(mouse);
   code->addCode(new CPUSH(2));
   code->addCode(new CPUSH(mName));
   code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
   mouse->setOffset(4);
+  if (mPersistent){
+    CBNEEVT* mouseout = new CBNEEVT(EVT_MOUSEOUT);
+    code->addCode(mouseout);
+    code->addCode(new CPUSH(1));
+    code->addCode(new CPUSH(mName));
+    code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
+    mouseout->setOffset(4);
+  }
+  mFont = Engine::instance()->getFontID();
+  mHighlightText = mTex != 0;
+  mOldHighlighting = true;
 }
 
 ButtonObject::~ButtonObject(){
 }
 
-void ButtonObject::setColors(const Color& background, const Color& border, const Color& highlight){
+void ButtonObject::setColors(const Color& background, const Color& border, const Color& highlight, const Color& text){
   mBackgroundColor = background;
   mBorderColor = border;
   mHighlightColor = highlight;
-  mTextColor = Engine::instance()->getSettings()->tstextcolor;
+  mTextColor = text;
 }
 
 void ButtonObject::render(){
+  if (mPersistent){
+    mState = Engine::instance()->getInterpreter()->getVariable(mName).getInt();
+    if (mState == 0)
+      mState = 1;
+  }
   std::vector<Vec2i> breakinfo;
   breakinfo.push_back(Vec2i(mText.size(), 0)); //fake break
   //Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
   Color textcol = mTextColor;
-  if (mTex != 0){
+  if (mHighlightText && mOldHighlighting){
     if (mState == 1)
       textcol *= mBackgroundColor;
     else if (mState == 2)
       textcol *= mHighlightColor;
   }
-  FontRenderer::String* str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, Engine::instance()->getFontID(), breakinfo, textcol);
+  else if (mHighlightText){
+    if (mState == 2)
+      textcol = mHighlightColor;
+  }
+  FontRenderer::String* str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, mFont, breakinfo, textcol);
   Engine::instance()->insertToBlit(this);
 }
 
@@ -332,7 +352,7 @@ void ButtonObject::blit(){
   }
   GL()pushMatrix();
   GL()disable(GL_TEXTURE_2D);
-  if (mState == 1)
+  if (mState == 1 || mHighlightText)
     GL()color4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a);
   else if (mState == 2)
     GL()color4ub(mHighlightColor.r, mHighlightColor.g, mHighlightColor.b, mHighlightColor.a);
@@ -343,7 +363,7 @@ void ButtonObject::blit(){
   short indices[] = {
     2, 3, 1, 0
   };
-  GL()drawElements(GL_LINE_STRIP, 4, GL_UNSIGNED_SHORT, indices);
+  GL()drawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, indices);
   GL()enable(GL_TEXTURE_2D);
   GL()color4ub(255,255,255,255);
   GL()popMatrix();

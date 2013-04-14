@@ -114,11 +114,12 @@ protected:
 
 class ButtonObject : public Object2D, public BlitObject{
 public:
-  ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id);
+  ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id, bool persistent);
   ~ButtonObject();
   virtual void render();
   virtual void blit();
-  void setColors(const Color& background, const Color& border, const Color& highlight);
+  void setColors(const Color& background, const Color& border, const Color& highlight, const Color& text);
+  void setFont(int id, bool highlightText) {mFont = id; mHighlightText = highlightText; mOldHighlighting = false;}
   virtual void setPosition(const Vec2i& pos) {Object2D::mPos = pos; BaseBlitObject::mPos = pos;}
 protected:
   std::string mText;
@@ -126,6 +127,10 @@ protected:
   Color mBorderColor;
   Color mHighlightColor;
   Color mTextColor;
+  bool mPersistent;
+  int mFont;
+  bool mHighlightText;
+  bool mOldHighlighting;
 };
 
 class CursorObject : public Object2D{
