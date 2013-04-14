@@ -568,6 +568,8 @@ void RoomObject::setScrollOffset(const Vec2i& offset){
 
 void RoomObject::save(){
   SaveStateProvider::SaveRoom* save = Engine::instance()->getSaver()->getRoom(mName);
+  if (!save)
+    return;
   save->base.position = mPos;
   save->base.state = mState;
   save->base.lighting = mLightingColor;

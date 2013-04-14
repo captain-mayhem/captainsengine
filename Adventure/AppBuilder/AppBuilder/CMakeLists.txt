@@ -178,6 +178,8 @@ SET(AppBuilder_SRCS
   Ids.h
   Inventory.cpp
   Inventory.h
+  Menu.cpp
+  Menu.h
   Particles.cpp
   Particles.h
   PostProcessing.cpp
