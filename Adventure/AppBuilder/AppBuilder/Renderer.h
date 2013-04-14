@@ -213,7 +213,7 @@ public:
   }
   void drawElements(GLenum mode, GLsizei count, GLenum type, const GLvoid* indices){
     applyMatrices();
-    glDrawElements(GL_LINE_STRIP, 4, GL_UNSIGNED_SHORT, indices);
+    glDrawElements(mode, count, type, indices);
   }
 protected:
   void applyMatrices(){

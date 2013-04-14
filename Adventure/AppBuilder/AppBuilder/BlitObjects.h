@@ -40,6 +40,13 @@ struct Color{
     a = (unsigned char)((a/255.0f*color.a/255.0)*255.0);
     return *this;
   }
+  Color& operator+=(const int factor){
+    int tmp = r+factor; if (tmp > 255) tmp = 255; r = (unsigned char)tmp;
+    tmp = g+factor; if (tmp > 255) tmp = 255; g = (unsigned char)tmp;
+    tmp = b+factor; if (tmp > 255) tmp = 255; b = (unsigned char)tmp;
+    tmp = a+factor; if (tmp > 255) tmp = 255; a = (unsigned char)tmp;
+    return *this;
+  }
   unsigned char r;
   unsigned char g;
   unsigned char b;
