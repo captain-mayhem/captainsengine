@@ -1451,6 +1451,7 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
   txtout->setEnabled(true);
   std::string varname;
   int maxchars = 100;
+  std::string initalContent;
   if (numArgs >= 1){
     ExecutionContext* text = ctx.stack().pop().getEC();
     //get and init the variable
@@ -1464,7 +1465,6 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
     else{
       CLOAD* load = (CLOAD*)code;
       varname = load->getVarname();
-      Engine::instance()->getInterpreter()->setVariable(varname, StackData(std::string("")));
     }
 
     Engine::instance()->getInterpreter()->executeImmediately(text, false);
@@ -1506,6 +1506,10 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
     if (col != -1)
       txtout->getColor().b = col;
   }
+  if (numArgs >= 9){
+    initalContent = ctx.stack().pop().getString();
+  }
+  Engine::instance()->getInterpreter()->setVariable(varname, StackData(initalContent));
   Engine::instance()->getInterpreter()->mGlobalSuspend = true;
   Engine::instance()->enterText(varname, maxchars, &ctx);
   ctx.mSuspended = true;
