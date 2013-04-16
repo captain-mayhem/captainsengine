@@ -453,7 +453,25 @@ void Engine::render(unsigned time){
   if (mParticleEngine->getDepth() == DEPTH_PARTICLES_TOP)
     mParticleEngine->update(interval);
 
-  mFonts->prepareTextouts();
+  if (!mTextEnter.empty()){
+    mBlinkTimeAccu += interval;
+    while (mBlinkTimeAccu > 500){
+      mBlinkTimeAccu -= 500;
+      mBlinkCursorVisible = !mBlinkCursorVisible;
+    }
+    if (mBlinkCursorVisible){
+      std::string text = mInterpreter->getVariable(mTextEnter).getString();
+      mInterpreter->setVariable(mTextEnter, text+"_");
+    }
+  }
+
+   mFonts->prepareTextouts();
+
+  if (!mTextEnter.empty() && mBlinkCursorVisible){
+    std::string text = mInterpreter->getVariable(mTextEnter).getString();
+    text.erase(text.size()-1);
+    mInterpreter->setVariable(mTextEnter, text);
+  }
 
   //build blit queue
   int roomdepth = 0;
@@ -462,7 +480,11 @@ void Engine::render(unsigned time){
     (*iter)->setDepth(roomdepth);
     roomdepth += DEPTH_ROOM_RANGE;
     if ((*iter) == mTaskbar){
-      if (!mShowTaskbar)
+      if (!mShowTaskbar || mInterpreter->isBlockingScriptRunning())
+        continue;
+    }
+    if ((*iter)->getName() == mData->getProjectSettings()->anywhere_room){
+      if (mInterpreter->isBlockingScriptRunning())
         continue;
     }
     if (mMainRoomLoaded && iter == mRooms.rbegin()){
@@ -489,8 +511,9 @@ void Engine::render(unsigned time){
       BlitObject* result = mPostProc->process(mRenderedMain, interval);
       result->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
     }
-    if (mInterpreter->isBlockingScriptRunning())
-      break;
+    //This was here to hide taskbar and anywhere room. Replaced by continue statements above, so that other subrooms remain.
+    //if (mInterpreter->isBlockingScriptRunning())
+    //  break;
   }
   if ((!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown)
     mCursor->render();
@@ -539,25 +562,7 @@ void Engine::render(unsigned time){
   if (!mInterpreter->isBlockingScriptRunning() && mFocussedChar != NULL)
     mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1, breakinfo, Engine::instance()->getSettings()->infotextcolor);
 
-  if (!mTextEnter.empty()){
-    mBlinkTimeAccu += interval;
-    while (mBlinkTimeAccu > 500){
-      mBlinkTimeAccu -= 500;
-      mBlinkCursorVisible = !mBlinkCursorVisible;
-    }
-    if (mBlinkCursorVisible){
-      std::string text = mInterpreter->getVariable(mTextEnter).getString();
-      mInterpreter->setVariable(mTextEnter, text+"_");
-    }
-  }
-
   mFonts->prepareBlit(interval, mainroom, false);
-
-  if (!mTextEnter.empty() && mBlinkCursorVisible){
-    std::string text = mInterpreter->getVariable(mTextEnter).getString();
-    text.erase(text.size()-1);
-    mInterpreter->setVariable(mTextEnter, text);
-  }
 
   //render the stuff
   endRendering();

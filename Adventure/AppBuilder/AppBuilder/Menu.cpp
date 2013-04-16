@@ -16,20 +16,32 @@ Menu::Menu() : RoomObject(1,
   Color text(Engine::instance()->getSettings()->textcolor);
   setBackground("#menu_bg", DEPTH_MENU+DEPTH_BACKGROUND);
 
-  char tmp[256];
+  char tmp[512];
   const char* slotscript = 
     "on(click){\n"
     "  setobj(!button[!saveSlot]; 1)\n"
     "  setnum(!saveSlot; %i)\n"
     "  setobj(!button[!saveSlot]; 2)\n"
+    "}\n"
+    "\n"
+    "on(doubleclick){\n"
+    "  setobj(!button[!saveSlot]; 1)\n"
+    "  setnum(!saveSlot; %i)\n"
+    "  setobj(!button[!saveSlot]; 2)\n"
+    "  entertext([!saveLabel] ; %i; %i; 0; 18; %i; %i; %i; save%i)\n"
     "}\n";
   Vec2i slotpos(3, 4);
   for (int i = 1; i <= 10; ++i){
     sprintf(tmp, "save%i", i);
     ButtonObject* slot = new ButtonObject(slotpos, Vec2i(170,20), tmp, i);
+    slot->BlitObject::setDepth(DEPTH_MENU);
     slot->setColors(bg, line, line, text);
     slot->setFont(0, true);
-    sprintf(tmp, slotscript, i);
+    sprintf(tmp, slotscript, i, i,
+      Engine::instance()->getSettings()->resolution.x/2-MENU_WIDTH/2+slotpos.x,
+      Engine::instance()->getSettings()->resolution.y/2-MENU_HEIGHT/2+slotpos.y,
+      line.r, line.g, line.b,
+      i);
     ExecutionContext* slotscr = Engine::instance()->getInterpreter()->parseProgram(tmp);
     slot->getScript()->unref();
     slot->setScript(slotscr);
@@ -71,6 +83,7 @@ Menu::Menu() : RoomObject(1,
     "\n"
     "on(loop1){\n"
     "  if_num(!button; 11){\n"
+    "    setnum(!button; 0)\n"
     "    loadgame([!saveSlot])\n"
     "  }\n"
     "  if_num(!button; 12){\n"
