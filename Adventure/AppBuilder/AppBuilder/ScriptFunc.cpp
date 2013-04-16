@@ -379,6 +379,11 @@ void ScriptFunctions::setObjInternal(std::vector<std::string> objects, std::vect
 int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   std::string objname = ctx.stack().pop().getString();
+  //remove whitespaces in object names
+  for(int size = objname.size()-1; size >= 0; --size){
+    if (objname[size] == ' ')
+      objname.erase(size, 1);
+  }
   //TR_DEBUG("obj: %s", objname.c_str());
   int state = ctx.stack().pop().getInt();
   ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(objname);
