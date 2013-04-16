@@ -265,8 +265,8 @@ void Object2D::update(unsigned interval){
     anim->update(interval);
 }
 
-ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id, bool persistent) : Object2D(1, pos, size, "!button"),
-BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i()), mText(text), mPersistent(persistent){
+ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "!button"),
+BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i()), mText(text){
   char tmp[16];
   sprintf(tmp, "%i", id);
   mName += tmp;
@@ -297,15 +297,19 @@ BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i(
   code->addCode(new CPUSH(2));
   code->addCode(new CPUSH(mName));
   code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
-  mouse->setOffset(4);
-  if (mPersistent){
-    CBNEEVT* mouseout = new CBNEEVT(EVT_MOUSEOUT);
-    code->addCode(mouseout);
-    code->addCode(new CPUSH(1));
-    code->addCode(new CPUSH(mName));
-    code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
-    mouseout->setOffset(4);
-  }
+  code->addCode(new CPUSH(2));
+  code->addCode(new CPUSH(mName));
+  code->addCode(new CCALL(ScriptFunctions::setObj, "setobj", 2));
+  mouse->setOffset(7);
+  CBNEEVT* mouseout = new CBNEEVT(EVT_MOUSEOUT);
+  code->addCode(mouseout);
+  code->addCode(new CPUSH(1));
+  code->addCode(new CPUSH(mName));
+  code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
+  code->addCode(new CPUSH(1));
+  code->addCode(new CPUSH(mName));
+  code->addCode(new CCALL(ScriptFunctions::setObj, "setobj", 2));
+  mouseout->setOffset(7);
   mFont = Engine::instance()->getFontID();
   mHighlightText = mTex != 0;
   mOldHighlighting = true;
@@ -322,11 +326,6 @@ void ButtonObject::setColors(const Color& background, const Color& border, const
 }
 
 void ButtonObject::render(){
-  if (mPersistent){
-    mState = Engine::instance()->getInterpreter()->getVariable(mName).getInt();
-    if (mState == 0)
-      mState = 1;
-  }
   std::vector<Vec2i> breakinfo;
   breakinfo.push_back(Vec2i(mText.size(), 0)); //fake break
   //Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);

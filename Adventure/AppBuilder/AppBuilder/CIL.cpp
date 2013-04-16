@@ -28,7 +28,7 @@ unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
   if (!Engine::instance()->getInterpreter()->isTSTopToBottom())
     Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
   Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);
-  ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos(), butsize, mText, mRow, false);
+  ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos(), butsize, mText, mRow);
   if (Engine::instance()->getInterpreter()->isTSTopToBottom())
     Engine::instance()->addUIElement(but, extent.y);
   else

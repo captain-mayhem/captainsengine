@@ -16,25 +16,47 @@ Menu::Menu() : RoomObject(1,
   Color text(Engine::instance()->getSettings()->textcolor);
   setBackground("#menu_bg", DEPTH_MENU+DEPTH_BACKGROUND);
 
-  ButtonObject* loadBut = new ButtonObject(Vec2i(183,20), Vec2i(51,20), "LOAD", 11, true);
+  char tmp[256];
+  const char* slotscript = 
+    "on(click){\n"
+    "  setobj(!button[!saveSlot]; 1)\n"
+    "  setnum(!saveSlot; %i)\n"
+    "  setobj(!button[!saveSlot]; 2)\n"
+    "}\n";
+  Vec2i slotpos(3, 4);
+  for (int i = 1; i <= 10; ++i){
+    sprintf(tmp, "save%i", i);
+    ButtonObject* slot = new ButtonObject(slotpos, Vec2i(170,20), tmp, i);
+    slot->setColors(bg, line, line, text);
+    slot->setFont(0, true);
+    sprintf(tmp, slotscript, i);
+    ExecutionContext* slotscr = Engine::instance()->getInterpreter()->parseProgram(tmp);
+    slot->getScript()->unref();
+    slot->setScript(slotscr);
+    addObject(slot);
+    Engine::instance()->getInterpreter()->execute(slot->getScript(), false);
+    slotpos.y += 18;
+  }
+
+  ButtonObject* loadBut = new ButtonObject(Vec2i(183,20), Vec2i(51,20), "LOAD", 11);
   loadBut->setColors(bg, line, line, text);
   loadBut->setFont(0, true);
   addObject(loadBut);
   Engine::instance()->getInterpreter()->execute(loadBut->getScript(), false);
 
-  ButtonObject* saveBut = new ButtonObject(Vec2i(183,50), Vec2i(51,20), "SAVE", 12, true);
+  ButtonObject* saveBut = new ButtonObject(Vec2i(183,50), Vec2i(51,20), "SAVE", 12);
   saveBut->setColors(bg, line, line, text);
   saveBut->setFont(0, true);
   addObject(saveBut);
   Engine::instance()->getInterpreter()->execute(saveBut->getScript(), false);
 
-  ButtonObject* newBut = new ButtonObject(Vec2i(183,100), Vec2i(51,20), "NEW", 13, true);
+  ButtonObject* newBut = new ButtonObject(Vec2i(183,100), Vec2i(51,20), "NEW", 13);
   newBut->setColors(bg, line, line, text);
   newBut->setFont(0, true);
   addObject(newBut);
   Engine::instance()->getInterpreter()->execute(newBut->getScript(), false);
 
-  ButtonObject* quit = new ButtonObject(Vec2i(183,130), Vec2i(51,20), "QUIT", 14, true);
+  ButtonObject* quit = new ButtonObject(Vec2i(183,130), Vec2i(51,20), "QUIT", 14);
   quit->setColors(bg, line, line, text);
   quit->setFont(0, true);
   addObject(quit);
@@ -43,14 +65,17 @@ Menu::Menu() : RoomObject(1,
   const char* script = 
     "on(enter){\n"
     "  setnum(!button; 0)\n"
+    "  setnum(!saveSlot; 1)\n"
+    "  setobj(!button[!saveSlot]; 2)\n"
     "}\n"
     "\n"
     "on(loop1){\n"
     "  if_num(!button; 11){\n"
-    "    loadgame(1)\n"
+    "    loadgame([!saveSlot])\n"
     "  }\n"
-    "  if_num(!button; 11){\n"
-    "    savegame(1)\n"
+    "  if_num(!button; 12){\n"
+    "    setnum(!button; 0)\n"
+    "    savegame([!saveSlot])\n"
     "  }\n"
     "  if_num(!button; 13)\n"
     "    restart()\n"

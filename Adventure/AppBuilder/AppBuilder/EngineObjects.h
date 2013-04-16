@@ -114,7 +114,7 @@ protected:
 
 class ButtonObject : public Object2D, public BlitObject{
 public:
-  ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id, bool persistent);
+  ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id);
   ~ButtonObject();
   virtual void render();
   virtual void blit();
@@ -127,7 +127,6 @@ protected:
   Color mBorderColor;
   Color mHighlightColor;
   Color mTextColor;
-  bool mPersistent;
   int mFont;
   bool mHighlightText;
   bool mOldHighlighting;
