@@ -1260,6 +1260,14 @@ void PcdkScript::setVariable(const std::string& name, const StackData& value){
   mVariables[name] = value;
 }
 
+bool PcdkScript::isVariable(const std::string& name){
+  return mVariables.find(name) != mVariables.end();
+}
+
+void PcdkScript::deleteVariable(const std::string& name){
+  mVariables.erase(name);
+}
+
 void PcdkScript::applyPrevState(Object2D* obj){
   if (obj == NULL){
     std::map<Object2D*, int>::iterator deliter = mPrevState.end();

@@ -42,6 +42,8 @@ public:
   void remove(ExecutionContext* script);
   StackData getVariable(const std::string& name);
   void setVariable(const std::string& name, const StackData& value);
+  bool isVariable(const std::string& name);
+  void deleteVariable(const std::string& name);
   CBRA* getBranchInstr(RelationalNode* relnode, bool negated);
   Vec2i& tsPos() {return mTSPos;}
   std::map<int, bool>& tsActive() {return mTSActive[mTSName][mTSLevel];}

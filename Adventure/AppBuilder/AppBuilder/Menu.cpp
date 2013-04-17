@@ -28,7 +28,10 @@ Menu::Menu() : RoomObject(1,
     "  setobj(!button[!saveSlot]; 1)\n"
     "  setnum(!saveSlot; %i)\n"
     "  setobj(!button[!saveSlot]; 2)\n"
-    "  entertext([!saveLabel] ; %i; %i; 0; 18; %i; %i; %i; save%i)\n"
+    "  setstring(!button%iLabel; [empty])\n"
+    "  entertext([!saveLabel] ; %i; %i; 0; 18; %i; %i; %i; [!saveName%i])\n"
+    "  setstring(!button%iLabel; [!saveLabel])\n"
+    "  setstring(!saveName%i; [!saveLabel])\n"
     "}\n";
   Vec2i slotpos(3, 4);
   for (int i = 1; i <= 10; ++i){
@@ -37,11 +40,11 @@ Menu::Menu() : RoomObject(1,
     slot->BlitObject::setDepth(DEPTH_MENU);
     slot->setColors(bg, line, line, text);
     slot->setFont(0, true);
-    sprintf(tmp, slotscript, i, i,
+    sprintf(tmp, slotscript, i, i, i,
       Engine::instance()->getSettings()->resolution.x/2-MENU_WIDTH/2+slotpos.x,
       Engine::instance()->getSettings()->resolution.y/2-MENU_HEIGHT/2+slotpos.y,
       line.r, line.g, line.b,
-      i);
+      i, i, i);
     ExecutionContext* slotscr = Engine::instance()->getInterpreter()->parseProgram(tmp);
     slot->getScript()->unref();
     slot->setScript(slotscr);
@@ -77,8 +80,41 @@ Menu::Menu() : RoomObject(1,
   const char* script = 
     "on(enter){\n"
     "  setnum(!button; 0)\n"
-    "  setnum(!saveSlot; 1)\n"
+    "  loadstring(!saveName1)\n"
+    "  loadstring(!saveName2)\n"
+    "  loadstring(!saveName3)\n"
+    "  loadstring(!saveName4)\n"
+    "  loadstring(!saveName5)\n"
+    "  loadstring(!saveName6)\n"
+    "  loadstring(!saveName7)\n"
+    "  loadstring(!saveName8)\n"
+    "  loadstring(!saveName9)\n"
+    "  loadstring(!saveName10)\n"
+    "  if_num(!saveSlot; 0)\n"
+    "    setnum(!saveSlot; 1)\n"
+    "  if_string(saveName1; none){\n"
+    "    setstring(!saveName1; save1)\n"
+    "    setstring(!saveName2; save2)\n"
+    "    setstring(!saveName3; save3)\n"
+    "    setstring(!saveName4; save4)\n"
+    "    setstring(!saveName5; save5)\n"
+    "    setstring(!saveName6; save6)\n"
+    "    setstring(!saveName7; save7)\n"
+    "    setstring(!saveName8; save8)\n"
+    "    setstring(!saveName9; save9)\n"
+    "    setstring(!saveName10; save10)\n"
+    "  }\n"
     "  setobj(!button[!saveSlot]; 2)\n"
+    "  setstring(!button1Label; [!saveName1])\n"
+    "  setstring(!button2Label; [!saveName2])\n"
+    "  setstring(!button3Label; [!saveName3])\n"
+    "  setstring(!button4Label; [!saveName4])\n"
+    "  setstring(!button5Label; [!saveName5])\n"
+    "  setstring(!button6Label; [!saveName6])\n"
+    "  setstring(!button7Label; [!saveName7])\n"
+    "  setstring(!button8Label; [!saveName8])\n"
+    "  setstring(!button9Label; [!saveName9])\n"
+    "  setstring(!button10Label; [!saveName10])\n"
     "}\n"
     "\n"
     "on(loop1){\n"
@@ -88,6 +124,16 @@ Menu::Menu() : RoomObject(1,
     "  }\n"
     "  if_num(!button; 12){\n"
     "    setnum(!button; 0)\n"
+    "    savestring(!saveName1)\n"
+    "    savestring(!saveName2)\n"
+    "    savestring(!saveName3)\n"
+    "    savestring(!saveName4)\n"
+    "    savestring(!saveName5)\n"
+    "    savestring(!saveName6)\n"
+    "    savestring(!saveName7)\n"
+    "    savestring(!saveName8)\n"
+    "    savestring(!saveName9)\n"
+    "    savestring(!saveName10)\n"
     "    savegame([!saveSlot])\n"
     "  }\n"
     "  if_num(!button; 13)\n"

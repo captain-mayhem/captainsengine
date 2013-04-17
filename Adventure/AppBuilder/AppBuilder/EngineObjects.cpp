@@ -326,6 +326,11 @@ void ButtonObject::setColors(const Color& background, const Color& border, const
 }
 
 void ButtonObject::render(){
+  string labelVar = mName+"Label";
+  if (Engine::instance()->getInterpreter()->isVariable(labelVar)){
+    mText = Engine::instance()->getInterpreter()->getVariable(labelVar).getString();
+    Engine::instance()->getInterpreter()->deleteVariable(labelVar);
+  }
   std::vector<Vec2i> breakinfo;
   breakinfo.push_back(Vec2i(mText.size(), 0)); //fake break
   //Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
