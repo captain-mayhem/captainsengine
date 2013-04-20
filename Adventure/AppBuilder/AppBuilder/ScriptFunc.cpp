@@ -1600,6 +1600,7 @@ int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   std::string speed = ctx.stack().pop().getString();
+  toLower(speed);
   int numspeed = 100;
   if (speed == "slow")
     numspeed = 110;

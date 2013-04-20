@@ -10,6 +10,7 @@ using namespace adv;
 Menu::Menu() : RoomObject(1, 
       Vec2i(Engine::instance()->getSettings()->resolution.x/2-MENU_WIDTH/2, Engine::instance()->getSettings()->resolution.y/2-MENU_HEIGHT/2), 
       Vec2i(MENU_WIDTH, MENU_HEIGHT), "#menu", Vec2i()) {
+  Color bgorig(Engine::instance()->getSettings()->backgroundcolor);
   Color bg(Engine::instance()->getSettings()->backgroundcolor);
   bg += 16;
   Color line(Engine::instance()->getSettings()->bordercolor);
@@ -77,6 +78,12 @@ Menu::Menu() : RoomObject(1,
   addObject(quit);
   Engine::instance()->getInterpreter()->execute(quit->getScript(), false);
 
+  ButtonObject* speed = new ButtonObject(Vec2i(45,187), Vec2i(MENU_WIDTH-45-8,20), "Textspeed: Normal", 15);
+  speed->setColors(bgorig, bgorig, line, text);
+  speed->setFont(0, true);
+  addObject(speed);
+  Engine::instance()->getInterpreter()->execute(speed->getScript(), false);
+
   const char* script = 
     "on(enter){\n"
     "  setnum(!button; 0)\n"
@@ -90,8 +97,10 @@ Menu::Menu() : RoomObject(1,
     "  loadstring(!saveName8)\n"
     "  loadstring(!saveName9)\n"
     "  loadstring(!saveName10)\n"
-    "  if_num(!saveSlot; 0)\n"
+    "  if_num(!saveSlot; 0){\n"
     "    setnum(!saveSlot; 1)\n"
+    "    setstring(!textSpeed; Normal)\n"
+    "  }\n"
     "  if_string(saveName1; none){\n"
     "    setstring(!saveName1; save1)\n"
     "    setstring(!saveName2; save2)\n"
@@ -115,6 +124,7 @@ Menu::Menu() : RoomObject(1,
     "  setstring(!button8Label; [!saveName8])\n"
     "  setstring(!button9Label; [!saveName9])\n"
     "  setstring(!button10Label; [!saveName10])\n"
+    "  setstring(!button15Label; Textspeed: [!textSpeed])\n"
     "}\n"
     "\n"
     "on(loop1){\n"
@@ -140,6 +150,18 @@ Menu::Menu() : RoomObject(1,
     "    restart()\n"
     "  if_num(!button; 14)\n"
     "    quit()\n"
+    "  if_num(!button; 15){\n"
+    "    setnum(!button; 0)\n"
+    "    if_string(!textSpeed; Normal)\n"
+    "      setstring(!tmp; Fast)\n"
+    "    if_string(!textSpeed; Fast)\n"
+    "      setstring(!tmp; Slow)\n"
+    "    if_string(!textSpeed; Slow)\n"
+    "      setstring(!tmp; Normal)\n"
+    "    setstring(!textSpeed; [!tmp])\n"
+    "    setstring(!button15Label; Textspeed: [!textSpeed])\n"
+    "    textspeed([!textSpeed])\n"
+    "  }\n"
     "}\n";
   ExecutionContext* scr = Engine::instance()->getInterpreter()->parseProgram(script);
   setScript(scr);
