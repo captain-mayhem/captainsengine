@@ -28,6 +28,11 @@ namespace StoryDesigner
             mMediapool = mediapool;
         }
 
+        public void writeExport(string path)
+        {
+
+        }
+
         public void writeGame(string path)
         {
             string dir = Path.GetDirectoryName(path);
