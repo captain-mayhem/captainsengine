@@ -101,7 +101,7 @@ Menu::Menu() : RoomObject(1,
     "    setnum(!saveSlot; 1)\n"
     "    setstring(!textSpeed; Normal)\n"
     "  }\n"
-    "  if_string(saveName1; none){\n"
+    "  if_string(!saveName1; none){\n"
     "    setstring(!saveName1; save1)\n"
     "    setstring(!saveName2; save2)\n"
     "    setstring(!saveName3; save3)\n"

@@ -1355,7 +1355,7 @@ void Engine::keyPress(int key){
         }
         else if (mMenuEnabled){
           if (!mMenuShown){
-            if (mData->getProjectSettings()->has_menuroom){
+            if (mData->getProjectSettings()->has_menuroom && !mData->getProjectSettings()->menuroom.empty()){
               mMenuShown = true;
               loadRoom(mData->getProjectSettings()->menuroom, true, NULL);
             }

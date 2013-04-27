@@ -953,7 +953,7 @@ namespace StoryDesigner
             Settings.CoinFading = 0;
             Settings.CoinRoom = "";
             Settings.Commands = new Dictionary<string, string>();
-            Settings.CustomMenu = true;
+            Settings.CustomMenu = false;
             Settings.CustomMenuRoom = "";
             Settings.Directory = "";
             Settings.DrawDraggedItemIcons = false;

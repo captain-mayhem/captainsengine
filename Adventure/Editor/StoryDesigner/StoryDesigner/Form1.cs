@@ -1266,6 +1266,19 @@ namespace StoryDesigner
             }
         }
 
+        internal void exportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            SaveFileDialog sfd = new SaveFileDialog();
+            sfd.Filter = "Adventure export file|*.adz";
+            sfd.InitialDirectory = mPersistence.LastOpenPath;
+            DialogResult dr = sfd.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
+                afw.writeExport(sfd.FileName);
+            }
+        }
+
         internal AdvData Data
         {
             get { return mData; }
