@@ -34,7 +34,7 @@ Menu::Menu() : RoomObject(1,
     "  setstring(!button%iLabel; [!saveLabel])\n"
     "  setstring(!saveName%i; [!saveLabel])\n"
     "}\n";
-  Vec2i slotpos(3, 4);
+  Vec2i slotpos(4, 4);
   for (int i = 1; i <= 10; ++i){
     sprintf(tmp, "save%i", i);
     ButtonObject* slot = new ButtonObject(slotpos, Vec2i(170,20), tmp, i);
