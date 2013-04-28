@@ -30,7 +30,82 @@ namespace StoryDesigner
 
         public void writeExport(string path)
         {
+            try
+            {
+                FileStream fs = new FileStream(path, FileMode.Create);
+                ZipOutputStream zs = new ZipOutputStream(fs);
+                zs.UseZip64 = UseZip64.Off;
+                string entry = mData.Settings.Projectname;
 
+                if (mData.Images.Count > 0)
+                {
+                    ZipEntry ze1 = new ZipEntry("gfx.dat");
+                    zs.PutNextEntry(ze1);
+                    ZipOutputStream zos = new ZipOutputStream(zs);
+                    zos.IsStreamOwner = false;
+                    zos.UseZip64 = UseZip64.Off;
+                    writeFileRecursive(mMediapool.Nodes[0], mData.Images, zos);
+                    zos.Finish();
+                    zs.CloseEntry();
+                }
+
+                if (mData.Music.Count > 0)
+                {
+                    ZipEntry ze1 = new ZipEntry("music.dat");
+                    zs.PutNextEntry(ze1);
+                    ZipOutputStream zos = new ZipOutputStream(zs);
+                    zos.IsStreamOwner = false;
+                    zos.UseZip64 = UseZip64.Off;
+                    writeFileRecursive(mMediapool.Nodes[1], mData.Music, zos);
+                    zos.Finish();
+                    zs.CloseEntry();
+                }
+
+                if (mData.Sounds.Count > 0)
+                {
+                    ZipEntry ze1 = new ZipEntry("sfx.dat");
+                    zs.PutNextEntry(ze1);
+                    ZipOutputStream zos = new ZipOutputStream(zs);
+                    zos.IsStreamOwner = false;
+                    zos.UseZip64 = UseZip64.Off;
+                    writeFileRecursive(mMediapool.Nodes[2], mData.Sounds, zos);
+                    zos.Finish();
+                    zs.CloseEntry();
+                }
+
+                if (mData.Videos.Count > 0)
+                {
+                    ZipEntry ze1 = new ZipEntry("movie.dat");
+                    zs.PutNextEntry(ze1);
+                    ZipOutputStream zos = new ZipOutputStream(zs);
+                    zos.IsStreamOwner = false;
+                    zos.UseZip64 = UseZip64.Off;
+                    writeFileRecursive(mMediapool.Nodes[3], mData.Videos, zos);
+                    zos.Finish();
+                    zs.CloseEntry();
+                }
+
+                ZipEntry ze5 = new ZipEntry(entry + ".adv");
+                zs.PutNextEntry(ze5);
+                writeProjectFile(zs, entry, false);
+                zs.CloseEntry();
+
+                if (mData.Settings.GameIcon.Length > 0)
+                {
+                    entry = Path.GetFileName(mData.Settings.GameIcon);
+                    ZipEntry ze6 = new ZipEntry(entry);
+                    zs.PutNextEntry(ze6);
+                    writeFile(mData.Settings.GameIcon, zs);
+                    zs.CloseEntry();
+                }
+
+                zs.Finish();
+                fs.Close();
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Failed to write export file "+path+". Please make sure that it is a writable file.");
+            }
         }
 
         public void writeGame(string path)
@@ -58,41 +133,46 @@ namespace StoryDesigner
                 bool writeDat = ext == ".dat";
                 string entry = Path.GetFileNameWithoutExtension(path);
                 FileStream fs = new FileStream(path, FileMode.Create);
-                ZipOutputStream zs = new ZipOutputStream(fs);
-                zs.UseZip64 = UseZip64.Off;
-
-                ZipEntry ze1 = new ZipEntry(entry+".001");
-                zs.PutNextEntry(ze1);
-                writeSettings(zs, writeDat && !mData.Settings.NoPngToJpeg);
-                zs.CloseEntry();
-
-                ZipEntry ze2 = new ZipEntry(entry+".002");
-                zs.PutNextEntry(ze2);
-                writeObjects(zs);
-                zs.CloseEntry();
-
-                ZipEntry ze3 = new ZipEntry(entry+".003");
-                zs.PutNextEntry(ze3);
-                writeScripts(zs);
-                zs.CloseEntry();
-
-                ZipEntry ze4 = new ZipEntry(entry+".004");
-                zs.PutNextEntry(ze4);
-                writeLanguages(zs);
-                zs.CloseEntry();
-
-                ZipEntry ze10 = new ZipEntry(entry + ".010");
-                zs.PutNextEntry(ze10);
-                writeAdvancedSettings(zs);
-                zs.CloseEntry();
-
-                zs.Finish();
+                writeProjectFile(fs, entry, writeDat);
                 fs.Close();
             }
             catch (Exception)
             {
                 MessageBox.Show("Failed to write game.dat. Please make sure that it is a writable file.");
             }
+        }
+
+        private void writeProjectFile(Stream stream, string entry, bool writeDat)
+        {        
+            ZipOutputStream zs = new ZipOutputStream(stream);
+            zs.UseZip64 = UseZip64.Off;
+
+            ZipEntry ze1 = new ZipEntry(entry+".001");
+            zs.PutNextEntry(ze1);
+            writeSettings(zs, writeDat && !mData.Settings.NoPngToJpeg);
+            zs.CloseEntry();
+
+            ZipEntry ze2 = new ZipEntry(entry+".002");
+            zs.PutNextEntry(ze2);
+            writeObjects(zs);
+            zs.CloseEntry();
+
+            ZipEntry ze3 = new ZipEntry(entry+".003");
+            zs.PutNextEntry(ze3);
+            writeScripts(zs);
+            zs.CloseEntry();
+
+            ZipEntry ze4 = new ZipEntry(entry+".004");
+            zs.PutNextEntry(ze4);
+            writeLanguages(zs);
+            zs.CloseEntry();
+
+            ZipEntry ze10 = new ZipEntry(entry + ".010");
+            zs.PutNextEntry(ze10);
+            writeAdvancedSettings(zs);
+            zs.CloseEntry();
+
+            zs.Finish();
         }
 
         void writeSettings(Stream strm, bool convertPngs)
@@ -766,6 +846,42 @@ namespace StoryDesigner
                 }
                 else
                     writeFile(input, Path.Combine(outdir, entry.Name));
+            }
+        }
+
+        private void writeFileRecursive(TreeNode node, Dictionary<string,string> filemap, ZipOutputStream stream)
+        {
+            bool hasData = false;
+            foreach (TreeNode child in node.Nodes)
+            {
+                ResourceID res = (ResourceID)child.Tag;
+                if (res == ResourceID.FOLDER)
+                    writeFileRecursive(child, filemap, stream);
+                else
+                    hasData = true;
+            }
+            if (hasData)
+            {
+
+                ZipEntry ze = new ZipEntry(node.Text + ".zip");
+                stream.PutNextEntry(ze);
+                ZipOutputStream files = new ZipOutputStream(stream);
+                files.UseZip64 = UseZip64.Off;
+                files.IsStreamOwner = false;
+                foreach (TreeNode child in node.Nodes)
+                {
+                    ResourceID res = (ResourceID)child.Tag;
+                    if (res == ResourceID.FOLDER)
+                        continue;
+                    string filename = filemap[child.Text.ToLower()];
+                    string entryname = Path.GetFileName(filename);
+                    ZipEntry file = new ZipEntry(entryname);
+                    files.PutNextEntry(file);
+                    writeFile(filename, files);
+                    files.CloseEntry();
+                }
+                files.Finish();
+                stream.CloseEntry();
             }
         }
 
