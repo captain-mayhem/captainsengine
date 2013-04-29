@@ -23,6 +23,15 @@ namespace StoryDesigner
             mIsAdv = true;
         }
 
+        public AdvFileReader(AdvData data, TreeView mediapool, TreeView gamepool, Persistence persistence, string path)
+        {
+            ZipConstants.DefaultCodePage = 1252;
+            mAdv = data;
+            mMediaPool = mediapool;
+            mGamePool = gamepool;
+            mPath = path;
+        }
+
         public AdvFileReader(string filename, TreeView mediapool, TreeView gamepool, Persistence persistence) : this(persistence)
         {
             ZipConstants.DefaultCodePage = 1252;
@@ -451,6 +460,12 @@ namespace StoryDesigner
                 cs.highlight.y = Convert.ToInt32(str);
                 mAdv.Cursor.Add(cs);
             }
+            return readObjectsLoop(rdr, ver_major, ver_minor);
+        }
+
+        protected bool readObjectsLoop(StreamReader rdr, int ver_major, int ver_minor)
+        {
+            string str;
             while (!rdr.EndOfStream)
             {
                 str = rdr.ReadLine();
@@ -524,8 +539,9 @@ namespace StoryDesigner
                     {
                         mAdv.addObject(obj);
                     }
-                    catch(Exception){
-                        Console.WriteLine("WARNING: Duplicate Object "+obj.Name+" found!");
+                    catch (Exception)
+                    {
+                        Console.WriteLine("WARNING: Duplicate Object " + obj.Name + " found!");
                     }
                 }
                 //CHARACTER
@@ -536,18 +552,21 @@ namespace StoryDesigner
                     str = rdr.ReadLine();
                     chr.TextColor = Convert.ToUInt32(str);
                     chr.WalkSpeed = Convert.ToInt32(rdr.ReadLine());
-                    int tmp = Convert.ToInt32(rdr.ReadLine());
-                    chr.NoZoom = tmp != 0;
-                    if (ver_major > 3 || (ver_major == 3 && ver_minor > 0))
+                    if (ver_major > 0)
                     {
+                        int tmp = Convert.ToInt32(rdr.ReadLine());
+                        chr.NoZoom = tmp != 0;
+                        if (ver_major > 3 || (ver_major == 3 && ver_minor > 0))
+                        {
+                            tmp = Convert.ToInt32(rdr.ReadLine());
+                            chr.RealLeftAnimations = tmp != 0;
+                        }
                         tmp = Convert.ToInt32(rdr.ReadLine());
-                        chr.RealLeftAnimations = tmp != 0;
+                        chr.MemoryReistent = tmp != 0;
+                        tmp = Convert.ToInt32(rdr.ReadLine());
+                        chr.Ghost = tmp != 0;
+                        chr.Walksound = rdr.ReadLine();
                     }
-                    tmp = Convert.ToInt32(rdr.ReadLine());
-                    chr.MemoryReistent = tmp != 0;
-                    tmp = Convert.ToInt32(rdr.ReadLine());
-                    chr.Ghost = tmp != 0;
-                    chr.Walksound = rdr.ReadLine();
                     if (ver_major >= 3)
                     {
                         str = rdr.ReadLine();
@@ -562,8 +581,13 @@ namespace StoryDesigner
                         for (int i = 0; i < 20; ++i)
                             chr.setStateName(16 + i, "");
                     }
-                    chr.Font = Convert.ToInt32(rdr.ReadLine());
-                    chr.Zoom = Convert.ToInt32(rdr.ReadLine());
+                    if (ver_major > 0)
+                    {
+                        chr.Font = Convert.ToInt32(rdr.ReadLine());
+                        chr.Zoom = Convert.ToInt32(rdr.ReadLine());
+                    }
+                    else
+                        chr.Zoom = 100;
                     for (int state = 0; state < CHAR_STATES_MAX; ++state)
                     {
                         CharacterState cs = new CharacterState();
@@ -592,7 +616,8 @@ namespace StoryDesigner
                     charinst.LookDir = Convert.ToInt32(rdr.ReadLine());
                     charinst.Unmovable = Convert.ToInt32(rdr.ReadLine()) == 0;
                     charinst.Locked = Convert.ToInt32(rdr.ReadLine()) != 0;
-                    if (!mAdv.CharacterInstances.ContainsKey(charinst.Room.ToLower())){
+                    if (!mAdv.CharacterInstances.ContainsKey(charinst.Room.ToLower()))
+                    {
                         mAdv.CharacterInstances[charinst.Room.ToLower()] = new System.Collections.ArrayList();
                     }
                     mAdv.CharacterInstances[charinst.Room.ToLower()].Add(charinst);
@@ -618,10 +643,12 @@ namespace StoryDesigner
                         int tmp = Convert.ToInt32(rdr.ReadLine());
                         room.DoubleWalkmap = tmp != 0;
                     }
-                    else{
+                    else
+                    {
                         room.DoubleWalkmap = false;
                     }
-                    if (ver_major >= 3 || (ver_major == 2 && ver_minor >= 8)){
+                    if (ver_major >= 3 || (ver_major == 2 && ver_minor >= 8))
+                    {
                         for (int i = 0; i < FXSHAPES_MAX; ++i)
                         {
                             FxShape shape = new FxShape();
@@ -661,7 +688,8 @@ namespace StoryDesigner
                     room.InvPos.y = Convert.ToInt32(inventory[1]);
                     room.InvSize.x = Convert.ToInt32(inventory[2]);
                     room.InvSize.y = Convert.ToInt32(inventory[3]);
-                    if (ver_major < 3){
+                    if (ver_major < 3)
+                    {
                         if (room.InvSize.x == 0 || room.InvSize.y == 0)
                             room.HasInventory = false;
                         else
@@ -694,7 +722,7 @@ namespace StoryDesigner
                         walkmapX *= 2;
                         walkmapY *= 2;
                     }
-                    room.Walkmap = new Room.WalkMapEntry[walkmapXOut,walkmapYOut];
+                    room.Walkmap = new Room.WalkMapEntry[walkmapXOut, walkmapYOut];
                     for (int i = 0; i < walkmapX * walkmapY; ++i)
                     {
                         int x = i / walkmapY;
@@ -1035,6 +1063,75 @@ namespace StoryDesigner
             }
             zis.Close();
             return advname;
+        }
+
+        public void importCharacter(string filename)
+        {
+            ZipInputStream zis = new ZipInputStream(File.OpenRead(filename));
+            ZipEntry entry;
+            string dirname = Path.GetFileNameWithoutExtension(filename);
+            string mediaDir = Path.Combine(mPath, dirname);
+            while ((entry = zis.GetNextEntry()) != null)
+            {
+                if (entry.Name == "char.dat")
+                {
+                    StreamReader rdr = new StreamReader(zis, Encoding.GetEncoding(1252));
+                    readObjectsLoop(rdr, 0, 0);
+                    TreeNode chr = new TreeNode(dirname);
+                    chr.Tag = ResourceID.CHARACTER;
+                    chr.ImageIndex = Utilities.ResourceIDToImageIndex((ResourceID)chr.Tag);
+                    chr.SelectedImageIndex = chr.ImageIndex;
+                    mGamePool.Nodes[0].Nodes.Add(chr);
+                    
+                }
+                else if (entry.Name == "gfx.chr")
+                {
+                    Directory.CreateDirectory(mediaDir);
+                    ZipInputStream input = new ZipInputStream(zis);
+                    input.IsStreamOwner = false;
+                    AdvFileWriter.writeFileRecursive(input, mediaDir);
+                    input.Close();
+                }
+                else if (entry.Name == "list.gfx")
+                {
+                    TreeNode dir = null;
+                    foreach (TreeNode node in mMediaPool.Nodes[0].Nodes)
+                    {
+                        if (node.Text == dirname)
+                        {
+                            dir = node;
+                            break;
+                        }
+                    }
+                    if (dir == null)
+                    {
+                        dir = new TreeNode(dirname);
+                        dir.Tag = ResourceID.FOLDER;
+                        dir.SelectedImageIndex = Utilities.ResourceIDToImageIndex(ResourceID.FOLDER);
+                        dir.ImageIndex = dir.SelectedImageIndex;
+                        mMediaPool.Nodes[0].Nodes.Add(dir);
+                    }
+
+                    StreamReader rdr = new StreamReader(zis, Encoding.GetEncoding(1252));
+                    while (!rdr.EndOfStream)
+                    {
+                        string file = rdr.ReadLine();
+                        string key = Path.GetFileNameWithoutExtension(file);
+                        if (!mAdv.Images.ContainsKey(key))
+                        {
+                            string value = Path.Combine(mediaDir, Path.GetFileName(file));
+                            mAdv.Images.Add(key.ToLower(), value);
+                            TreeNode image = new TreeNode(key);
+                            image.Tag = ResourceID.IMAGE;
+                            image.ImageIndex = Utilities.ResourceIDToImageIndex((ResourceID)image.Tag);
+                            image.SelectedImageIndex = image.ImageIndex;
+                            dir.Nodes.Add(image);
+                        }
+                    }
+                    mMediaPool.Sort();
+                }
+            }
+            zis.Close();
         }
 
         private TreeView mMediaPool;

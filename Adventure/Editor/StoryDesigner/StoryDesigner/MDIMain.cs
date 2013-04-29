@@ -214,5 +214,10 @@ namespace StoryDesigner
         {
             mMainForm.exportToolStripMenuItem_Click(sender, e);
         }
+
+        private void importCharacterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mMainForm.importCharacterToolStripMenuItem_Click(sender, e);
+        }
     }
 }

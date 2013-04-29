@@ -160,6 +160,18 @@ namespace StoryDesigner
                             mRoomDlg.updateRoom();
                     }
                     break;
+                case ResourceID.FOLDER:
+                    {
+                        foreach (TreeNode node in e.Node.Parent.Nodes)
+                        {
+                            if (e.Label == node.Text)
+                            {
+                                e.CancelEdit = true;
+                                return;
+                            }
+                        }
+                    }
+                    break;
             }
             //e.Node.Text = e.Label;
             //view.Sort(); does not work, use BeginInvoke instead
@@ -706,11 +718,11 @@ namespace StoryDesigner
         {
             int num = (int)mode;
             ToolStripDropDownItem setup = MainMenuStrip.Items[2] as ToolStripDropDownItem;
-            string[] names = { "Walkmap ", "Deepmap ", "Inventoryfield ", "FX Shapes " };
+            string[] names = { Strings.Walkmap, Strings.Deepmap, Strings.Inventoryfield, Strings.FXShapes };
             for (int i = 0; i < 4; ++i)
             {
                 ToolStripMenuItem item = setup.DropDownItems[i + 6] as ToolStripMenuItem;
-                item.Text = names[i] + ((i+1) == num ? "off" : "on");
+                item.Text = names[i] + " "+ ((i+1) == num ? Strings.off : Strings.on);
             }
             mRoomView = mode;
             if (mRoomDlg != null)
@@ -1276,6 +1288,20 @@ namespace StoryDesigner
             {
                 AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
                 afw.writeExport(sfd.FileName);
+            }
+        }
+
+        internal void importCharacterToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fod = new OpenFileDialog();
+            fod.Filter = "Character export file|*.adc";
+            fod.InitialDirectory = mPersistence.LastOpenPath;
+            DialogResult dr = fod.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                AdvFileReader rdr = new AdvFileReader(mData, mediaPool, gamePool, mPersistence, Path.GetDirectoryName(mSavePath));
+                rdr.importCharacter(fod.FileName);
+                MessageBox.Show(Strings.done, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 

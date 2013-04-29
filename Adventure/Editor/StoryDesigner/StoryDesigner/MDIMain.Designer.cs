@@ -198,6 +198,7 @@
             // 
             this.importCharacterToolStripMenuItem.Name = "importCharacterToolStripMenuItem";
             resources.ApplyResources(this.importCharacterToolStripMenuItem, "importCharacterToolStripMenuItem");
+            this.importCharacterToolStripMenuItem.Click += new System.EventHandler(this.importCharacterToolStripMenuItem_Click);
             // 
             // importRoomToolStripMenuItem
             // 
