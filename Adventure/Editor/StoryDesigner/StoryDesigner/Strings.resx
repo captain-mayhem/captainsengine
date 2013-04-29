@@ -117,10 +117,31 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Deepmap" xml:space="preserve">
+    <value>Deepmap</value>
+  </data>
+  <data name="done" xml:space="preserve">
+    <value>Done.</value>
+  </data>
+  <data name="FXShapes" xml:space="preserve">
+    <value>FX Shapes</value>
+  </data>
   <data name="importAdz" xml:space="preserve">
     <value>Project was imported to {0}.</value>
   </data>
+  <data name="Inventoryfield" xml:space="preserve">
+    <value>Inventoryfield</value>
+  </data>
   <data name="languageSwitch" xml:space="preserve">
-    <value>Please restart Story Designer</value>
+    <value>Please restart Story Designer.</value>
+  </data>
+  <data name="off" xml:space="preserve">
+    <value>off</value>
+  </data>
+  <data name="on" xml:space="preserve">
+    <value>on</value>
+  </data>
+  <data name="Walkmap" xml:space="preserve">
+    <value>Walkmap</value>
   </data>
 </root>

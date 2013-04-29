@@ -61,6 +61,33 @@ namespace StoryDesigner {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Deepmap.
+        /// </summary>
+        internal static string Deepmap {
+            get {
+                return ResourceManager.GetString("Deepmap", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Done..
+        /// </summary>
+        internal static string done {
+            get {
+                return ResourceManager.GetString("done", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to FX Shapes.
+        /// </summary>
+        internal static string FXShapes {
+            get {
+                return ResourceManager.GetString("FXShapes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Project was imported to {0}..
         /// </summary>
         internal static string importAdz {
@@ -70,11 +97,47 @@ namespace StoryDesigner {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please restart Story Designer.
+        ///   Looks up a localized string similar to Inventoryfield.
+        /// </summary>
+        internal static string Inventoryfield {
+            get {
+                return ResourceManager.GetString("Inventoryfield", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Please restart Story Designer..
         /// </summary>
         internal static string languageSwitch {
             get {
                 return ResourceManager.GetString("languageSwitch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to off.
+        /// </summary>
+        internal static string off {
+            get {
+                return ResourceManager.GetString("off", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to on.
+        /// </summary>
+        internal static string on {
+            get {
+                return ResourceManager.GetString("on", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Walkmap.
+        /// </summary>
+        internal static string Walkmap {
+            get {
+                return ResourceManager.GetString("Walkmap", resourceCulture);
             }
         }
     }
