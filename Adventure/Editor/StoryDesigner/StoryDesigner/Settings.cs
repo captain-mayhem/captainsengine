@@ -59,7 +59,7 @@ namespace StoryDesigner
                 this.symbol.Image = null;
             }
             this.text_on.Checked = mData.Settings.TextOnOff;
-            this.drawDraggedItems.Checked = mData.Settings.NotAntialiased;
+            this.drawDraggedItems.Checked = mData.Settings.DrawDraggedItemIcons;
             this.groupItems.Checked = mData.Settings.GroupItems;
             this.actionText.Checked = mData.Settings.ActionText;
             this.actionTextHeight.Value = mData.Settings.ActionTextHeight;
@@ -214,7 +214,7 @@ namespace StoryDesigner
             mData.Settings.MuteMusicWhenSpeech = this.mute_music.Checked;
             mData.Settings.GameIcon = mIcon;
             mData.Settings.TextOnOff = this.text_on.Checked;
-            mData.Settings.NotAntialiased = this.drawDraggedItems.Checked;
+            mData.Settings.DrawDraggedItemIcons = this.drawDraggedItems.Checked;
             mData.Settings.GroupItems = this.groupItems.Checked;
             mData.Settings.ActionText = this.actionText.Checked;
             mData.Settings.ActionTextHeight = (int)this.actionTextHeight.Value;

@@ -27,6 +27,8 @@ struct ProjectSettings{
   std::string mainscript;
   std::string anywhere_room;
   ScreenChange screenchange;
+  bool draw_dragged_items;
+  bool show_actiontext;
   bool has_menuroom;
   std::string menuroom;
   int taskheight;
