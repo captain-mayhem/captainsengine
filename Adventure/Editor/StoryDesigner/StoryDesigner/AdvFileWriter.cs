@@ -577,6 +577,11 @@ namespace StoryDesigner
                     swr.WriteLine(scr.Name);
                     swr.WriteLine(scr.Text);
                 }
+                else
+                {
+                    swr.Write("//Room ");
+                    swr.WriteLine(room.Value.Name);
+                }
                 foreach (ObjectInstance obj in room.Value.Objects)
                 {
                     Script oscr = mData.getScript(Script.Type.OBJECT, Script.toScriptName(obj.Name, room.Value.Name));
@@ -587,6 +592,15 @@ namespace StoryDesigner
                         if (oscr.Text != null)
                             swr.WriteLine(oscr.Text);
                     }
+                }
+                foreach (CharacterInstance chr in room.Value.Characters)
+                {
+                    if (!mData.getScripts(Script.Type.CHARACTER).ContainsKey(chr.Name.ToLower()))
+                    {
+                        swr.Write("//Character ");
+                        swr.WriteLine(chr.Name);
+                    }
+
                 }
                 for (int x = 0; x <= room.Value.Walkmap.GetUpperBound(0); ++x)
                 {

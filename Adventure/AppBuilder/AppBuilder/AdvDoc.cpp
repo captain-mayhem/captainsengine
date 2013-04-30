@@ -144,7 +144,9 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   mSettings.anywhere_room = txtstream.readLine();
   str = txtstream.readLine(); //Screenchange
   mSettings.screenchange = (ScreenChange)atoi(str.substr(15).c_str());
-  str = txtstream.readLine(); //flags
+  str = txtstream.readLine().substr(9); //flags
+  mSettings.draw_dragged_items = str[1] == '1';
+  mSettings.show_actiontext = str[2] == '1';
   if (ver_major > 2 || (ver_major == 2 && ver_minor > 0)){
     str = txtstream.readLine(); //action text height
   }

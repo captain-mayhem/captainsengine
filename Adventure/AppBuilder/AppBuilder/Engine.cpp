@@ -553,14 +553,16 @@ void Engine::render(unsigned time){
   if (!mObjectInfo.empty()){
     text += " "+mObjectInfo;
   }
-  //elevate the action line
-  if (mTaskbar && !mInterpreter->isBlockingScriptRunning() && mShowTaskbar){
-    res.y = mTaskbar->getPosition().y;
+  if (mData->getProjectSettings()->show_actiontext){
+    //elevate the action line
+    if (mTaskbar && !mInterpreter->isBlockingScriptRunning() && mShowTaskbar){
+      res.y = mTaskbar->getPosition().y;
+    }
+    std::vector<Vec2i> breakinfo;
+    Vec2i offset = mFonts->getTextExtent(text, 1, breakinfo);
+    if (!mInterpreter->isBlockingScriptRunning() && mFocussedChar != NULL)
+      mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1, breakinfo, Engine::instance()->getSettings()->infotextcolor);
   }
-  std::vector<Vec2i> breakinfo;
-  Vec2i offset = mFonts->getTextExtent(text, 1, breakinfo);
-  if (!mInterpreter->isBlockingScriptRunning() && mFocussedChar != NULL)
-    mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1, breakinfo, Engine::instance()->getSettings()->infotextcolor);
 
   mFonts->prepareBlit(interval, mainroom, false);
 
