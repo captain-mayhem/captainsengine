@@ -44,7 +44,13 @@ namespace StoryDesigner
             // 
             // stateFrameImage1
             // 
+            this.stateFrameImage1.AdaptFirstDrop = false;
+            this.stateFrameImage1.AutoSize = true;
+            this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.stateFrameImage1.BackgroundColor = System.Drawing.SystemColors.Desktop;
             this.stateFrameImage1.Data = null;
+            this.stateFrameImage1.FrameParts = 1;
+            this.stateFrameImage1.Frames = 25;
             this.stateFrameImage1.Hotspot = false;
             this.stateFrameImage1.HotspotCoordScale = 1F;
             this.stateFrameImage1.Location = new System.Drawing.Point(12, 12);
@@ -53,7 +59,8 @@ namespace StoryDesigner
             this.stateFrameImage1.ScaleImageToBox = true;
             this.stateFrameImage1.ShowAnimationButton = true;
             this.stateFrameImage1.ShowImageNames = true;
-            this.stateFrameImage1.Size = new System.Drawing.Size(331, 296);
+            this.stateFrameImage1.ShowStateDropDown = false;
+            this.stateFrameImage1.Size = new System.Drawing.Size(339, 274);
             this.stateFrameImage1.TabIndex = 0;
             // 
             // ItemDlg
@@ -64,9 +71,9 @@ namespace StoryDesigner
             this.Controls.Add(this.button1);
             this.Controls.Add(this.stateFrameImage1);
             this.Name = "ItemDlg";
-            this.RightToLeftLayout = true;
             this.Text = "Item (none)";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 

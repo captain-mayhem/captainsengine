@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace StoryDesigner
 {
-    public partial class ObjectDlg : Form
+    public partial class ObjectDlg : ChildForm
     {
         public ObjectDlg(AdvObject obj)
         {

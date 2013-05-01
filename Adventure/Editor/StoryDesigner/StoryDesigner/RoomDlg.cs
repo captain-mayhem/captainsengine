@@ -9,7 +9,7 @@ using System.Drawing.Drawing2D;
 
 namespace StoryDesigner
 {
-    public partial class RoomDlg : Form
+    public partial class RoomDlg : ChildForm
     {
         public enum ViewMode
         {

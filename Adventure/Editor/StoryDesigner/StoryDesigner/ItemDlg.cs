@@ -8,20 +8,20 @@ using System.Windows.Forms;
 
 namespace StoryDesigner
 {
-    public partial class ItemDlg : Form
+    public partial class ItemDlg : ChildForm
     {
-        public ItemDlg(Item it)
+        public ItemDlg(Item it, MainForm parent)
         {
             InitializeComponent();
             stateFrameImage1.Data = it;
             mItem = it;
+            mParent = parent;
             updateItem();
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            MainForm form = (MainForm)this.Owner;
-            form.showScript(Script.Type.ITEM, mItem.Name.ToLower());
+            mParent.showScript(Script.Type.ITEM, mItem.Name.ToLower());
         }
 
         public Item Item
@@ -35,5 +35,6 @@ namespace StoryDesigner
         }
 
         Item mItem;
+        MainForm mParent;
     }
 }

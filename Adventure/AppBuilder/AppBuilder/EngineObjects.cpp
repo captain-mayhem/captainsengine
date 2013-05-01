@@ -386,7 +386,7 @@ void CursorObject::addAnimation(Animation* anim, int command){
   mCommands.push_back(command);
 }
 
-int CursorObject::getNextCommand(bool& leftClickRequired){
+int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
   if (mState == 0)
     return 0;
   //right click does nothing
@@ -395,7 +395,8 @@ int CursorObject::getNextCommand(bool& leftClickRequired){
   }
   //right click changes to icon 1
   else if (Engine::instance()->getSettings()->right_click == 1){
-    mState = 2;
+    if (Engine::instance()->getObjectAt(pos) != NULL)
+      mState = 2;
     leftClickRequired = false;
   }
   //classic mode

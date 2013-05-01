@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 
 namespace StoryDesigner
 {
-    public partial class ScriptDlg : Form
+    public partial class ScriptDlg : ChildForm
     {
         public ScriptDlg(Script scr, AdvData data)
         {
@@ -29,7 +29,8 @@ namespace StoryDesigner
             this.FormClosed += new FormClosedEventHandler(ScriptDlg_FormClosed);
             //scripttext
             updateScript();
-            scripttext.Text = scr.Text.Replace("  ", "\t");
+            if (scr.Text != null)
+                scripttext.Text = scr.Text.Replace("  ", "\t");
             //parsing stuff
             mParser = new PcdkParser();
             mParser.initSyntax();

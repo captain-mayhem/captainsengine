@@ -137,7 +137,7 @@ public:
   CursorObject(const Vec2i& pos);
   ~CursorObject();
   void addAnimation(Animation* anim, int command);
-  int getNextCommand(bool& leftClickRequired);
+  int getNextCommand(bool& leftClickRequired, const Vec2i& pos);
   int getCurrentCommand();
   void setCommand(int command);
   virtual bool isHit(const Vec2i& point) {return true; /*the cursor always hits itself*/}
