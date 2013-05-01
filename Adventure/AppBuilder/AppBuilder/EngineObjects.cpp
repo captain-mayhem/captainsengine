@@ -389,17 +389,29 @@ void CursorObject::addAnimation(Animation* anim, int command){
 int CursorObject::getNextCommand(bool& leftClickRequired){
   if (mState == 0)
     return 0;
-  ++mState;
-  if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){
-    if (mState == 2){
-      mState = 1;
-      leftClickRequired = true;
-      return mCommands[mState]; //take the next action
-    }
-    else
-      mState = 1;
+  //right click does nothing
+  if (Engine::instance()->getSettings()->right_click == 2){
+    leftClickRequired = false;
   }
-  leftClickRequired = false;
+  //right click changes to icon 1
+  else if (Engine::instance()->getSettings()->right_click == 1){
+    mState = 2;
+    leftClickRequired = false;
+  }
+  //classic mode
+  else{
+    ++mState;
+    if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){
+      if (mState == 2){
+        mState = 1;
+        leftClickRequired = true;
+        return mCommands[mState]; //take the next action
+      }
+      else
+        mState = 1;
+    }
+    leftClickRequired = false;
+  }
   return mCommands[mState-1];
 }
 

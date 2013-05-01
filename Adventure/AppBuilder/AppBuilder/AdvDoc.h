@@ -35,6 +35,7 @@ struct ProjectSettings{
   std::string taskroom;
   int taskpopup;
   bool taskHideCompletely;
+  int right_click;
   int anywhere_transparency;
   int targacolor;
   int bordercolor;

@@ -132,6 +132,10 @@ public:
   */
   static int hideAllTexts(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param icon mouse icon number
+  **/
+  static int instMouse(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param object name of the object instance
   \param state state of the object
   \param ... [opt] additional states TODO

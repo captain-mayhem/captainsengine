@@ -140,6 +140,7 @@ public:
   int getNextCommand(bool& leftClickRequired);
   int getCurrentCommand();
   void setCommand(int command);
+  virtual bool isHit(const Vec2i& point) {return true; /*the cursor always hits itself*/}
 protected:
   std::vector<int> mCommands;
 };

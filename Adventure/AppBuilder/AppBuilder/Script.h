@@ -67,8 +67,8 @@ public:
   const std::string& getLanguage() {return mLanguage;}
   bool willUpdate(unsigned interval);
   ObjectGroup* getGroup(const std::string& name);
-protected:
   void applyPrevState(Object2D* obj);
+protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
   std::string internal_stringify(ASTNode* node);
