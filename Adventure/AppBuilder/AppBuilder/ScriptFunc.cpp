@@ -151,6 +151,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("enablemenu", enableMenu);
   interpreter->registerFunction("settransparency", setTransparency);
   interpreter->registerFunction("showalltext", showAllText);
+  interpreter->registerFunction("instmouse", instMouse);
   srand((unsigned)time(NULL));
 }
 
@@ -2078,6 +2079,14 @@ int ScriptFunctions::setTransparency(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::showAllText(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getFontRenderer()->enableTextouts(true);
+  return 0;
+}
+
+int ScriptFunctions::instMouse(ExecutionContext& ctx, unsigned numArgs){
+  int state = ctx.stack().pop().getInt();
+  CursorObject* cursor = Engine::instance()->getCursor();
+  Engine::instance()->getInterpreter()->mPrevState.insert(std::make_pair(cursor, cursor->getState()));
+  cursor->setState(state+1);
   return 0;
 }
 

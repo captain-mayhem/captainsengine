@@ -169,6 +169,7 @@ void Engine::exitGame(){
     return;
   mInitialized = false;
   mCurrentObject = NULL;
+  mInterpreter->applyPrevState(mCursor);
   mClickedObject = NULL;
   mInterpreter->stop();
   mMainScript->unref();
@@ -360,6 +361,7 @@ void Engine::render(unsigned time){
             script->setEvent(EVT_MOUSEOUT);
           TR_USE(ADV_Events);
           TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
+          mInterpreter->applyPrevState(mCursor);
         }
         mCurrentObject = obj;
         mObjectInfo.clear();
@@ -379,6 +381,7 @@ void Engine::render(unsigned time){
         if (script)
           script->setEvent(EVT_MOUSEOUT);
         TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
+        mInterpreter->applyPrevState(mCursor);
         mCurrentObject = NULL;
       }
       mObjectInfo.clear();
@@ -444,6 +447,7 @@ void Engine::render(unsigned time){
   }
 
   //some animation stuff
+  mCursor->update(interval);
   mAnimator->update(interval);
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     (*iter)->update(interval);
@@ -753,8 +757,10 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately){
       return; //unload already in progress
   }
   mRoomsToUnload.push_back(room);
-  if (mCurrentObject)
+  if (mCurrentObject){
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
+    mInterpreter->applyPrevState(mCursor);
+  }
   mCurrentObject = NULL;
   ExecutionContext* script = room->getScript();
   if (script)
@@ -1409,8 +1415,10 @@ void Engine::keyAscii(char chr){
 
 int Engine::unloadRooms(){
   setFocus("none", NULL);
-  if (mCurrentObject)
+  if (mCurrentObject){
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
+    mInterpreter->applyPrevState(mCursor);
+  }
   mCurrentObject = NULL;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
     mRoomsToUnload.push_back(*iter);

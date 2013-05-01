@@ -959,7 +959,12 @@ namespace StoryDesigner
         public System.Drawing.Bitmap getImage(string filename)
         {
             if (mIsAdv)
-                return (Bitmap)Bitmap.FromFile(filename);
+            {
+                Bitmap file = (Bitmap)Bitmap.FromFile(filename);
+                Bitmap ret = new Bitmap(file);
+                file.Dispose();
+                return ret;
+            }
             string zipname = mPath + System.IO.Path.DirectorySeparatorChar + "gfx.dat";
             string imagename = System.IO.Path.GetFileName(filename);
             ZipInputStream zis = new ZipInputStream(File.OpenRead(zipname));

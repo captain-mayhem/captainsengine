@@ -110,6 +110,7 @@ public:
   float getTimeFactor(bool* isFaded=NULL) {if (isFaded != NULL) *isFaded = mTimeFactorFaded; return mTimeFactor;}
   void triggerScreenchange(ExecutionContext* loadreason);
   void enableMenu(bool doIt) {mMenuEnabled = doIt;}
+  CursorObject* getCursor() {return mCursor;}
 protected:
   Engine();
   static Engine* mInstance;

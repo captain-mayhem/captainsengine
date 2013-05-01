@@ -166,9 +166,11 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
       mSettings.taskHideCompletely = true;
     else
       mSettings.taskHideCompletely = false;
+    mSettings.right_click = atoi(str.substr(16).c_str());
   }
   else{
     mSettings.taskHideCompletely = false;
+    mSettings.right_click = 0;
   }
   if (ver_major > 2 || (ver_major == 2 && ver_minor > 0)){
     for (int i = 0; i < 3; ++i){

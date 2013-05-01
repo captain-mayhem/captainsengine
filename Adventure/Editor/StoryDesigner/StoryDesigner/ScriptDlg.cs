@@ -29,7 +29,7 @@ namespace StoryDesigner
             this.FormClosed += new FormClosedEventHandler(ScriptDlg_FormClosed);
             //scripttext
             updateScript();
-            scripttext.Text = scr.Text;
+            scripttext.Text = scr.Text.Replace("  ", "\t");
             //parsing stuff
             mParser = new PcdkParser();
             mParser.initSyntax();
@@ -49,7 +49,7 @@ namespace StoryDesigner
 
         void ScriptDlg_FormClosed(object sender, FormClosedEventArgs e)
         {
-            mScript.Text = scripttext.Text;
+            mScript.Text = scripttext.Text.Replace("\t", "  ");
         }
 
         void matches_SelectedIndexChanged(object sender, EventArgs e)
