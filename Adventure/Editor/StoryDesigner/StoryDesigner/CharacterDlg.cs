@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace StoryDesigner
 {
-    public partial class CharacterDlg : Form
+    public partial class CharacterDlg : ChildForm
     {
         public CharacterDlg(AdvCharacter chr, AdvData data)
         {

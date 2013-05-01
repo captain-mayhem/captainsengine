@@ -10,7 +10,7 @@ using System.IO;
 
 namespace StoryDesigner
 {
-    public partial class MediaPlyr : Form
+    public partial class MediaPlyr : ChildForm
     {
         public MediaPlyr(string file)
         {

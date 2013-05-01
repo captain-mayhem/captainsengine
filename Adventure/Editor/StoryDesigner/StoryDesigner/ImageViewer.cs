@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace StoryDesigner
 {
-    public partial class ImageViewer : Form
+    public partial class ImageViewer : ChildForm
     {
         public ImageViewer(System.Drawing.Bitmap bmp)
         {

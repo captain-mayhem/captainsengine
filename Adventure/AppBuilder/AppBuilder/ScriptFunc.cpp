@@ -506,6 +506,8 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
     inventory = ctx.stack().pop().getInt();
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
   Object2D* item = Engine::instance()->createItem(itemname);
+  if (item == NULL)
+    return 0;
   if (chr){
     chr->getInventory()->addItem(item, inventory);
   }

@@ -894,13 +894,13 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (ctx.isEventSet(EVT_LINK)){
       //ctx.resetEvent(EVT_LINK);
-      if (chr  && !ctx.isEventHandled())
+      if (chr  && !ctx.isEventHandled() && chr->getScript())
         chr->getScript()->setEvent(EVT_CANT_ALL);
       Engine::instance()->setUseObject("", "");
     }
     if (ctx.isEventSet(EVT_GIVE_LINK)){
       //ctx.resetEvent(EVT_GIVE_LINK);
-      if (chr  && !ctx.isEventHandled())
+      if (chr  && !ctx.isEventHandled() && chr->getScript())
         chr->getScript()->setEvent(EVT_CANT_ALL);
       Engine::instance()->setGiveObject("", "");
     }

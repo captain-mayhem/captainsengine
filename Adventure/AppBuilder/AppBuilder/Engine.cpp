@@ -895,7 +895,7 @@ void Engine::leftRelease(const Vec2i& pos){
 
 void Engine::rightClick(const Vec2i& pos){
   bool leftClickRequired;
-  int cmd = mCursor->getNextCommand(leftClickRequired);
+  int cmd = mCursor->getNextCommand(leftClickRequired, pos);
   mActiveCommand = cmd;
   mUseObjectName = "";
   mGiveObjectName = "";
@@ -1184,6 +1184,7 @@ Object2D* Engine::createItem(const std::string& name){
   if (it == NULL){
     TR_USE(ADV_Engine);
     TR_BREAK("Item %s not found", name.c_str());
+    return NULL;
   }
   Object2D* object = new Object2D(1, Vec2i(), Vec2i(50,50), it->name);
   int depth = DEPTH_ITEM;

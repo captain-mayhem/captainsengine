@@ -10,7 +10,7 @@ using System.Diagnostics;
 
 namespace StoryDesigner
 {
-    public partial class MainForm : Form
+    public partial class MainForm : ChildForm
     {
         public MainForm(Persistence persistence)
         {
@@ -18,6 +18,7 @@ namespace StoryDesigner
             mPersistence = persistence;
             this.Location = mPersistence.MainFormPosition;
             this.StartPosition = FormStartPosition.Manual;
+            this.WindowState = FormWindowState.Normal;
             mediaPool.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(mediaPool_NodeMouseDoubleClick);
             mediaPool.MouseDown += new MouseEventHandler(mediaPool_MouseDown);
             mediaPool.AfterLabelEdit += new NodeLabelEditEventHandler(gamePool_AfterLabelEdit);
@@ -116,8 +117,11 @@ namespace StoryDesigner
                 case ResourceID.ITEM:
                     {
                         Script scr = mData.removeScript(Script.Type.ITEM, e.Node.Text);
-                        scr.Name = e.Label;
-                        mData.addScript(scr);
+                        if (scr != null)
+                        {
+                            scr.Name = e.Label;
+                            mData.addScript(scr);
+                        }
                         Item it = mData.removeItem(e.Node.Text);
                         it.Name = e.Label;
                         mData.addItem(it);
@@ -288,10 +292,11 @@ namespace StoryDesigner
                         mPersistence.ItemDlgPosition = mItemDlg.Location;
                         mItemDlg.Close();
                     }
-                    mItemDlg = new ItemDlg(it);
+                    mItemDlg = new ItemDlg(it, this);
+                    mItemDlg.MdiParent = this.MdiParent;
                     mItemDlg.StartPosition = FormStartPosition.Manual;
                     mItemDlg.Location = mPersistence.ItemDlgPosition;
-                    mItemDlg.Show(this);
+                    mItemDlg.Show();
                     break;
                 case ResourceID.OBJECT:
                     showObject(name);
