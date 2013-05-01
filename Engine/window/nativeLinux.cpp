@@ -111,5 +111,11 @@ void X11Window::kill(){
   XCloseDisplay(disp_);
 }
 
+
+void X11Window::changeSize(int width, int height){
+  AppWindow::changeSize(width, height);
+  XResizeWindow(disp_, win_, width, height);
+}
+
 }
 #endif

@@ -23,6 +23,8 @@ public:
   inline int getScreen() const {return screen_;}
   //! kill the window
   void kill();
+  
+  virtual void changeSize(int width, int height);
 protected:
   //! the window handle
   Window win_;
