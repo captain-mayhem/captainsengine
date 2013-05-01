@@ -74,7 +74,8 @@ int main(int argc, char** argv){
   Display* disp = win->getDisplay();
   XSynchronize(disp, true);
 
-  while(running){
+  double lastClick = 0;
+  while(running && CGE::Engine::instance() != NULL && !CGE::Engine::instance()->isShutdownRequested()){
     int x = XPending(disp);
     while(x > 0){
       x--;
@@ -108,8 +109,17 @@ int main(int argc, char** argv){
           if (event.xbutton.button > Button3){
             Input::Mouse::instance()->wheel(event.xbutton.x, event.xbutton.y, event.xbutton.button == Button4 ? 1 : -1);
           }
-          else
-            Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, event.xbutton.button);
+          else{
+            double newClick = getTime();
+            if (newClick - lastClick < 0.5){
+              Input::Mouse::instance()->doubleClick(event.xbutton.x, event.xbutton.y, event.xbutton.button);
+              lastClick = 0;
+            }
+            else{
+              lastClick = getTime();
+              Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, event.xbutton.button);
+            }
+          }
           /*
           if (event.xbutton.button == Button1)
           Input::Mouse::instance()->buttonDown(event.xbutton.x, event.xbutton.y, MK_LBUTTON);
@@ -120,7 +130,7 @@ int main(int argc, char** argv){
           */
           break;
         case ButtonRelease:
-          if (event.xbutton.button <= Button3)
+          if (event.xbutton.button <= Button3 && lastClick != 0)
             Input::Mouse::instance()->buttonUp(event.xbutton.x, event.xbutton.y, event.xbutton.button);
           break;
         case MotionNotify:
