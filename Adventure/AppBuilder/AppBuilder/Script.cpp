@@ -1268,7 +1268,7 @@ void PcdkScript::deleteVariable(const std::string& name){
   mVariables.erase(name);
 }
 
-void PcdkScript::applyPrevState(Object2D* obj){
+bool PcdkScript::applyPrevState(Object2D* obj){
   if (obj == NULL){
     std::map<Object2D*, int>::iterator deliter = mPrevState.end();
     for (std::map<Object2D*, int>::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
@@ -1289,7 +1289,9 @@ void PcdkScript::applyPrevState(Object2D* obj){
   if (iter != mPrevState.end()){
     obj->setState(iter->second);
     mPrevState.erase(iter);
+    return true;
   }
+  return false;
 }
 
 ExecutionContext* PcdkScript::getScript(const std::string& name){
