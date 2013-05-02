@@ -111,6 +111,7 @@ public:
   void triggerScreenchange(ExecutionContext* loadreason);
   void enableMenu(bool doIt) {mMenuEnabled = doIt;}
   CursorObject* getCursor() {return mCursor;}
+  void resetCursor(bool resetInstMouse, bool resetDragging);
 protected:
   Engine();
   static Engine* mInstance;
@@ -196,6 +197,7 @@ protected:
   float mTimeFactor;
   bool mTimeFactorFaded;
   bool mMenuEnabled;
+  Object2D* mDraggingObject;
 };
 
 }

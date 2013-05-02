@@ -162,6 +162,7 @@ void Engine::initGame(exit_callback exit_cb){
   mMouseShown = true;
   mTimeFactor = 1.0f;
   mMenuEnabled = true;
+  mDraggingObject = NULL;
 }
 
 void Engine::exitGame(){
@@ -169,7 +170,6 @@ void Engine::exitGame(){
     return;
   mInitialized = false;
   mCurrentObject = NULL;
-  mInterpreter->applyPrevState(mCursor);
   mClickedObject = NULL;
   mInterpreter->stop();
   mMainScript->unref();
@@ -186,6 +186,7 @@ void Engine::exitGame(){
   mRooms.clear();
   clearGui();
   mMainRoomLoaded = false;
+  resetCursor(true, false);
   delete mCursor;
   delete mFocussedChar;
   mFonts->unloadFont(mFontID);
@@ -194,6 +195,8 @@ void Engine::exitGame(){
   mParticleEngine->activate(false, true);
   delete mRenderedMain;
   delete mPostProc;
+  delete mDraggingObject;
+  mDraggingObject = NULL;
 }
 
 CGE::Image* Engine::getImage(const std::string& name){
@@ -361,7 +364,8 @@ void Engine::render(unsigned time){
             script->setEvent(EVT_MOUSEOUT);
           TR_USE(ADV_Events);
           TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
-          mInterpreter->applyPrevState(mCursor);
+          if (mDraggingObject == NULL)
+            resetCursor(true, false);
         }
         mCurrentObject = obj;
         mObjectInfo.clear();
@@ -381,7 +385,8 @@ void Engine::render(unsigned time){
         if (script)
           script->setEvent(EVT_MOUSEOUT);
         TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
-        mInterpreter->applyPrevState(mCursor);
+        if (mDraggingObject == NULL)
+          resetCursor(true, false);
         mCurrentObject = NULL;
       }
       mObjectInfo.clear();
@@ -519,8 +524,13 @@ void Engine::render(unsigned time){
     //if (mInterpreter->isBlockingScriptRunning())
     //  break;
   }
-  if ((!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown)
+  if ((!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown){
     mCursor->render();
+    if (mDraggingObject != NULL){
+      mDraggingObject->setPosition(mCursor->getPosition()+mCursor->getSize()/2);
+      mDraggingObject->render();
+    }
+  }
   for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
     (*iter)->render();
   }
@@ -759,7 +769,9 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately){
   mRoomsToUnload.push_back(room);
   if (mCurrentObject){
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
-    mInterpreter->applyPrevState(mCursor);
+    delete mDraggingObject;
+    mDraggingObject = NULL;
+    resetCursor(true, false);
   }
   mCurrentObject = NULL;
   ExecutionContext* script = room->getScript();
@@ -877,6 +889,7 @@ void Engine::leftClick(const Vec2i& pos){
       mUseObjectName = "";
       mGiveObjectName = "";
       mLinkObjectInfo = "";
+      resetCursor(true, true);
     }
   }
   trymtx.unlock();
@@ -1205,6 +1218,11 @@ Object2D* Engine::createItem(const std::string& name){
 void Engine::setUseObject(const std::string& object, const std::string& objectInfo){
   mLinkObjectInfo = objectInfo;
   mUseObjectName = object;
+  if (mData->getProjectSettings()->draw_dragged_items){
+    delete mDraggingObject;
+    mDraggingObject = createItem(mClickedObject->getName());
+    mDraggingObject->setDepth(DEPTH_CURSOR-1);
+  }
 }
 
 void Engine::setGiveObject(const std::string& object, const std::string& objectInfo){
@@ -1233,7 +1251,7 @@ void Engine::setCommand(const std::string& command, bool deleteLinks){
   if (command == "none"){
     int cmd = mData->getProjectSettings()->commands["walkto"];
     mActiveCommand = cmd;
-    mCursor->setState(0);
+    mCursor->setState(1);
   }
   else{
     int cmd = mData->getProjectSettings()->commands[command];
@@ -1244,6 +1262,7 @@ void Engine::setCommand(const std::string& command, bool deleteLinks){
     mUseObjectName = "";
     mGiveObjectName = "";
     mLinkObjectInfo = "";
+    resetCursor(true, true);
   }
 }
 
@@ -1418,7 +1437,9 @@ int Engine::unloadRooms(){
   setFocus("none", NULL);
   if (mCurrentObject){
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
-    mInterpreter->applyPrevState(mCursor);
+    delete mDraggingObject;
+    mDraggingObject = NULL;
+    resetCursor(true, true);
   }
   mCurrentObject = NULL;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
@@ -1563,6 +1584,20 @@ void Engine::triggerScreenchange(ExecutionContext* loadreason){
         Engine::instance()->getAnimator()->add(bsc);
                          }
                          break;
+    }
+  }
+}
+
+void Engine::resetCursor(bool resetInstMouse, bool resetDragging){
+  if (resetDragging){
+    if (mDraggingObject != NULL){
+      delete mDraggingObject;
+      mDraggingObject = NULL;
+    }
+  }
+  if (resetInstMouse){
+    if (mInterpreter->applyPrevState(mCursor)){
+      setCommand("none", false);
     }
   }
 }

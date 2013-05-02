@@ -16,20 +16,35 @@ extern void (*internalEngineMain)(int argc, char** argv);
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, int cmdShow){
   internalEngineMain = engineMain;
   MSG msg;
-  char* argv[2];
-  argv[0] = "Captains Game Engine";
+  std::vector<std::string> args;
+  std::vector<const char*> argv;
+  args.push_back("Captains Game Engine");
 #ifdef UNDER_CE
   char tmp[1024];
   wcstombs(tmp, cmdline, 1024);
-  argv[1] = tmp;
+  args.push_back(tmp);
 #else
-  argv[1] = cmdline;
+  int len = strlen(cmdline);
+  std::string curr;
+  for (int i = 0; i < len; ++i){
+    if (cmdline[i] == ' ' && !curr.empty()){
+      args.push_back(curr);
+      curr.clear();
+    }
+    else
+      curr.append(1, cmdline[i]);
+  }
+  if (!curr.empty()){
+    args.push_back(curr);
+    curr.clear();
+  }
 #endif
+  argv.resize(args.size());
+  for (unsigned i = 0; i < args.size(); ++i){
+    argv[i] = args[i].c_str();
+  }
   CGE::Engine::init();
-  int numArgs = 2;
-  if (strlen(cmdline) == 0)
-    numArgs = 1;
-  CGE::Engine::instance()->startup(numArgs, argv);
+  CGE::Engine::instance()->startup(argv.size(), (char**)&argv[0]);
   //Enter gameloop
   while(CGE::Engine::instance() != NULL && !CGE::Engine::instance()->isShutdownRequested()){
     while (PeekMessage(&msg,NULL,0,0,PM_REMOVE)){

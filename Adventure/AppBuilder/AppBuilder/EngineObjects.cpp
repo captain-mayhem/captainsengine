@@ -395,8 +395,12 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
   }
   //right click changes to icon 1
   else if (Engine::instance()->getSettings()->right_click == 1){
-    if (Engine::instance()->getObjectAt(pos) != NULL)
+    if (Engine::instance()->getObjectAt(pos) != NULL){
+      Engine::instance()->resetCursor(false, true);
       mState = 2;
+    }
+    else
+      Engine::instance()->resetCursor(true, true);
     leftClickRequired = false;
   }
   //classic mode
