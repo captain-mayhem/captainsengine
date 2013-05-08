@@ -398,6 +398,7 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
     if (Engine::instance()->getObjectAt(pos) != NULL){
       Engine::instance()->resetCursor(false, true);
       mState = 2;
+      Engine::instance()->getInterpreter()->setPrevState(this);
     }
     else
       Engine::instance()->resetCursor(true, true);

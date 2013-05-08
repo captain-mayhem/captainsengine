@@ -29,8 +29,6 @@ namespace StoryDesigner
             this.FormClosed += new FormClosedEventHandler(ScriptDlg_FormClosed);
             //scripttext
             updateScript();
-            if (scr.Text != null)
-                scripttext.Text = scr.Text.Replace("  ", "\t");
             //parsing stuff
             mParser = new PcdkParser();
             mParser.initSyntax();
@@ -39,6 +37,17 @@ namespace StoryDesigner
             mParser.ParseError += new PcdkParser.parseError(mParser_ParseError);
             mKeywordFont = new Font(scripttext.Font, FontStyle.Bold);
             parseScript();
+            if (!mHistory.Contains(scr))
+            {
+                if (mHistory.Count > 4)
+                    mHistory.RemoveAt(4);
+                mHistory.Insert(0, scr);
+            }
+            else
+            {
+                mHistory.Remove(scr);
+                mHistory.Insert(0, scr);
+            }
         }
 
         void scripttext_KeyDown(object sender, KeyEventArgs e)
@@ -49,6 +58,11 @@ namespace StoryDesigner
         }
 
         void ScriptDlg_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            saveScript();
+        }
+
+        void saveScript()
         {
             mScript.Text = scripttext.Text.Replace("\t", "  ");
         }
@@ -383,6 +397,7 @@ namespace StoryDesigner
         int mCursorPos;
         Script mScript;
         ArrayList mUndo = new ArrayList();
+        static ArrayList mHistory = new ArrayList();
 
         private void font_Click(object sender, EventArgs e)
         {
@@ -488,9 +503,9 @@ namespace StoryDesigner
             get { return mScript; }
         }
 
-        public void updateScript()
+        private static string getDisplayName(Script scr)
         {
-            Script scr = mScript;
+            string ret;
             string text = scr.ScriptType.ToString();
             switch (scr.ScriptType)
             {
@@ -518,12 +533,20 @@ namespace StoryDesigner
             if (scr.ScriptType == Script.Type.WALKMAP)
             {
                 if (name.StartsWith("#"))
-                    Text = String.Format("Script ({0} [{1}-{2}] / {3})", name.Substring(7), Convert.ToInt32(name.Substring(1, 3)), Convert.ToInt32(name.Substring(4, 3)), text);
+                    ret = String.Format("0} [{1}-{2}] / {3}", name.Substring(7), Convert.ToInt32(name.Substring(1, 3)), Convert.ToInt32(name.Substring(4, 3)), text);
                 else
-                    Text = String.Format("Script ({0} [{1}-{2}] / {3})", name.Substring(4), Convert.ToInt32(name.Substring(0, 2)), Convert.ToInt32(name.Substring(2, 2)), text);
+                    ret = String.Format("{0} [{1}-{2}] / {3}", name.Substring(4), Convert.ToInt32(name.Substring(0, 2)), Convert.ToInt32(name.Substring(2, 2)), text);
             }
             else
-                this.Text = "Script (" + name + " / " + text + ")";
+                ret = name + " / " + text;
+            return ret;
+        }
+
+        public void updateScript()
+        {
+            this.Text = "Script ("+getDisplayName(mScript)+")";
+            if (mScript.Text != null)
+                scripttext.Text = mScript.Text.Replace("  ", "\t");
         }
 
 #if !MONO
@@ -581,6 +604,33 @@ namespace StoryDesigner
         private void textsceneLevel9RowsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             insertTextScene(9);
+        }
+
+        private void history_Click(object sender, EventArgs e)
+        {
+            ContextMenu menu = new ContextMenu();
+            foreach (Script scr in mHistory){
+                MenuItem mi = new MenuItem(getDisplayName(scr));
+                mi.Tag = scr;
+                mi.Click += new EventHandler(mi_Click);
+                menu.MenuItems.Add(mi);
+            }
+            Point pos = new Point(history.Location.X, history.Location.Y + history.Size.Height);
+            menu.Show(this, pos);
+        }
+
+        void mi_Click(object sender, EventArgs e)
+        {
+            MenuItem item = (MenuItem)sender;
+            Script scr = (Script)item.Tag;
+            if (scr == mScript)
+                return;
+            saveScript();
+            mScript = scr;
+            updateScript();
+            parseScript();
+            mHistory.Remove(scr);
+            mHistory.Insert(0, scr);
         }
     }
 }

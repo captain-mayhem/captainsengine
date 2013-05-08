@@ -2087,7 +2087,7 @@ int ScriptFunctions::showAllText(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::instMouse(ExecutionContext& ctx, unsigned numArgs){
   int state = ctx.stack().pop().getInt();
   CursorObject* cursor = Engine::instance()->getCursor();
-  Engine::instance()->getInterpreter()->mPrevState.insert(std::make_pair(cursor, cursor->getState()));
+  Engine::instance()->getInterpreter()->setPrevState(cursor);
   cursor->setState(state+1);
   return 0;
 }

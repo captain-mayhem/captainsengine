@@ -875,7 +875,7 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
   if (evt != EVT_NONE && ctx.isEventSet(evt) && !ctx.isEventHandled()){
     //an action remained unhandled
     CharacterObject* chr = Engine::instance()->getCharacter("self");
-    if (chr){
+    if (chr && chr->getScript() != NULL){
       if (evt <= EVT_USER_END){
         //ctx.resetEvent(evt);
         if (ctx.mIsGameObject && Engine::instance()->getInterpreter()->mACharacterAtScriptStart)
@@ -1266,6 +1266,10 @@ bool PcdkScript::isVariable(const std::string& name){
 
 void PcdkScript::deleteVariable(const std::string& name){
   mVariables.erase(name);
+}
+
+void PcdkScript::setPrevState(Object2D* obj){
+  mPrevState.insert(std::make_pair(obj, obj->getState()));
 }
 
 bool PcdkScript::applyPrevState(Object2D* obj){

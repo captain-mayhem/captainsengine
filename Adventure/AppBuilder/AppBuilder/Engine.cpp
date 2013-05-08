@@ -1220,8 +1220,12 @@ void Engine::setUseObject(const std::string& object, const std::string& objectIn
   mUseObjectName = object;
   if (mData->getProjectSettings()->draw_dragged_items){
     delete mDraggingObject;
-    mDraggingObject = createItem(mClickedObject->getName());
-    mDraggingObject->setDepth(DEPTH_CURSOR-1);
+    if (object.empty())
+      mDraggingObject = NULL;
+    else{
+      mDraggingObject = createItem(mClickedObject->getName());
+      mDraggingObject->setDepth(DEPTH_CURSOR-1);
+    }
   }
 }
 
