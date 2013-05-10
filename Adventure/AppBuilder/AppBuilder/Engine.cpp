@@ -112,7 +112,7 @@ void Engine::initGame(exit_callback exit_cb){
   mClickedObject = NULL;
   int transparency = mData->getProjectSettings()->anywhere_transparency*255/100;
   //load taskbar room
-  if (mData->getProjectSettings()->taskroom != ""){
+  if (mData->getProjectSettings()->show_taskbar && mData->getProjectSettings()->taskroom != ""){
     loadRoom(mData->getProjectSettings()->taskroom, true, NULL);
     mRooms.front()->setOpacity(255-transparency);
     if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)

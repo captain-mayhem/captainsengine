@@ -620,11 +620,11 @@ namespace StoryDesigner
         {
             mData = new AdvData(mPersistence);
             gamePool.Nodes.Clear();
-            gamePool.Nodes.Add("1) CHARACTER");
-            gamePool.Nodes.Add("2) SCRIPTS");
-            gamePool.Nodes.Add("3) ITEMS");
-            gamePool.Nodes.Add("4) OBJECTS");
-            gamePool.Nodes.Add("5) ROOMS");
+            gamePool.Nodes.Add("1) "+Strings.Characters.ToUpper());
+            gamePool.Nodes.Add("2) "+Strings.Scripts.ToUpper());
+            gamePool.Nodes.Add("3) "+Strings.Items.ToUpper());
+            gamePool.Nodes.Add("4) "+Strings.Objects.ToUpper());
+            gamePool.Nodes.Add("5) "+Strings.Rooms.ToUpper());
             foreach (TreeNode node in gamePool.Nodes)
             {
                 node.Tag = ResourceID.FOLDER;
@@ -632,10 +632,10 @@ namespace StoryDesigner
                 node.ImageIndex = node.SelectedImageIndex;
             }
             mediaPool.Nodes.Clear();
-            mediaPool.Nodes.Add("IMAGES");
-            mediaPool.Nodes.Add("MUSIC");
-            mediaPool.Nodes.Add("SOUNDS");
-            mediaPool.Nodes.Add("VIDEO");
+            mediaPool.Nodes.Add(Strings.Images.ToUpper());
+            mediaPool.Nodes.Add(Strings.Music.ToUpper());
+            mediaPool.Nodes.Add(Strings.Sounds.ToUpper());
+            mediaPool.Nodes.Add(Strings.Videos.ToUpper());
             foreach (TreeNode node in mediaPool.Nodes)
             {
                 node.Tag = ResourceID.FOLDER;

@@ -29,6 +29,7 @@ struct ProjectSettings{
   ScreenChange screenchange;
   bool draw_dragged_items;
   bool show_actiontext;
+  bool show_taskbar;
   bool has_menuroom;
   std::string menuroom;
   int taskheight;
