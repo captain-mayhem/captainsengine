@@ -61,6 +61,15 @@ namespace StoryDesigner {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Characters.
+        /// </summary>
+        internal static string Characters {
+            get {
+                return ResourceManager.GetString("Characters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Deepmap.
         /// </summary>
         internal static string Deepmap {
@@ -88,6 +97,15 @@ namespace StoryDesigner {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Images.
+        /// </summary>
+        internal static string Images {
+            get {
+                return ResourceManager.GetString("Images", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Project was imported to {0}..
         /// </summary>
         internal static string importAdz {
@@ -106,11 +124,38 @@ namespace StoryDesigner {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Items.
+        /// </summary>
+        internal static string Items {
+            get {
+                return ResourceManager.GetString("Items", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Please restart Story Designer..
         /// </summary>
         internal static string languageSwitch {
             get {
                 return ResourceManager.GetString("languageSwitch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Music.
+        /// </summary>
+        internal static string Music {
+            get {
+                return ResourceManager.GetString("Music", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Objects.
+        /// </summary>
+        internal static string Objects {
+            get {
+                return ResourceManager.GetString("Objects", resourceCulture);
             }
         }
         
@@ -129,6 +174,42 @@ namespace StoryDesigner {
         internal static string on {
             get {
                 return ResourceManager.GetString("on", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rooms.
+        /// </summary>
+        internal static string Rooms {
+            get {
+                return ResourceManager.GetString("Rooms", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Scripts.
+        /// </summary>
+        internal static string Scripts {
+            get {
+                return ResourceManager.GetString("Scripts", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sounds.
+        /// </summary>
+        internal static string Sounds {
+            get {
+                return ResourceManager.GetString("Sounds", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Videos.
+        /// </summary>
+        internal static string Videos {
+            get {
+                return ResourceManager.GetString("Videos", resourceCulture);
             }
         }
         

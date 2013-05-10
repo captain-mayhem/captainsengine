@@ -27,9 +27,9 @@ namespace StoryDesigner
         {
             //first page
             this.projetName.Text = mData.Settings.Projectname;
-            if (mData.Settings.Resolution.y == 300)
+            if (mData.Settings.Resolution.y == 200)
                 this.resolution.SelectedIndex = 0;
-            else if (mData.Settings.Resolution.y == 320)
+            else if (mData.Settings.Resolution.y == 240)
                 this.resolution.SelectedIndex = 1;
             else if (mData.Settings.Resolution.x == 640)
                 this.resolution.SelectedIndex = 2;
@@ -195,10 +195,10 @@ namespace StoryDesigner
             switch (this.resolution.SelectedIndex)
             {
                 case 0:
-                    mData.Settings.Resolution = new Vec2i(300, 200);
+                    mData.Settings.Resolution = new Vec2i(320, 200);
                     break;
                 case 1:
-                    mData.Settings.Resolution = new Vec2i(300, 240);
+                    mData.Settings.Resolution = new Vec2i(320, 240);
                     break;
                 case 2:
                     mData.Settings.Resolution = new Vec2i(640, 480);

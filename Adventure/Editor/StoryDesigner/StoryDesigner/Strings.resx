@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Characters" xml:space="preserve">
+    <value>Characters</value>
+  </data>
   <data name="Deepmap" xml:space="preserve">
     <value>Deepmap</value>
   </data>
@@ -126,20 +129,44 @@
   <data name="FXShapes" xml:space="preserve">
     <value>FX Shapes</value>
   </data>
+  <data name="Images" xml:space="preserve">
+    <value>Images</value>
+  </data>
   <data name="importAdz" xml:space="preserve">
     <value>Project was imported to {0}.</value>
   </data>
   <data name="Inventoryfield" xml:space="preserve">
     <value>Inventoryfield</value>
   </data>
+  <data name="Items" xml:space="preserve">
+    <value>Items</value>
+  </data>
   <data name="languageSwitch" xml:space="preserve">
     <value>Please restart Story Designer.</value>
+  </data>
+  <data name="Music" xml:space="preserve">
+    <value>Music</value>
+  </data>
+  <data name="Objects" xml:space="preserve">
+    <value>Objects</value>
   </data>
   <data name="off" xml:space="preserve">
     <value>off</value>
   </data>
   <data name="on" xml:space="preserve">
     <value>on</value>
+  </data>
+  <data name="Rooms" xml:space="preserve">
+    <value>Rooms</value>
+  </data>
+  <data name="Scripts" xml:space="preserve">
+    <value>Scripts</value>
+  </data>
+  <data name="Sounds" xml:space="preserve">
+    <value>Sounds</value>
+  </data>
+  <data name="Videos" xml:space="preserve">
+    <value>Videos</value>
   </data>
   <data name="Walkmap" xml:space="preserve">
     <value>Walkmap</value>
