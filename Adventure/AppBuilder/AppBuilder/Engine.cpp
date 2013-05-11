@@ -483,6 +483,7 @@ void Engine::render(unsigned time){
   }
 
   //build blit queue
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   int roomdepth = 0;
   RoomObject* mainroom = NULL;
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){

@@ -147,6 +147,21 @@ void Animator::update(unsigned interval){
     iter->first->setScrollOffset(Vec2i((int)iter->second.currPos.x, (int)iter->second.currPos.y));
     ++pos;
   }
+
+  if (mCamera.active){
+    Vec2i dims = Engine::instance()->getSettings()->resolution;
+    mCamera.currPos = mCamera.currPos+mCamera.dir*(float)interval;
+    glViewport((int)mCamera.currPos.x, (int)mCamera.currPos.y, dims.x, dims.y);
+    glScissor((int)mCamera.currPos.x, (int)mCamera.currPos.y, dims.x, dims.y);
+    if (mCamera.dir.x > 0 && mCamera.currPos.x > mCamera.target.x
+      || mCamera.dir.x < 0 && mCamera.currPos.x < mCamera.target.x
+      || mCamera.dir.y > 0 && mCamera.currPos.y > mCamera.target.y
+      || mCamera.dir.y < 0 && mCamera.currPos.y < mCamera.target.y){
+        glViewport(0, 0, dims.x, dims.y);
+        glDisable(GL_SCISSOR_TEST);
+        mCamera.active = false;
+    }
+  }
 }
 
 void Animator::clear(){
@@ -280,4 +295,31 @@ Vec2i Animator::getTargetPoisition(Object2D* obj){
   if (iter == mObjects.end())
     return obj->getPosition();
   return iter->second.path.back();
+}
+
+void Animator::moveCameraViewport(LookDir dir){
+  Vec2i dims = Engine::instance()->getSettings()->resolution;
+  if (dir == LEFT){
+    mCamera.currPos = Vec2f((float)-dims.x, 0);
+    mCamera.dir = Vec2f(1, 0);
+    mCamera.target = Vec2f(0, 0);
+  }
+  else if (dir == RIGHT){
+    mCamera.currPos = Vec2f((float)dims.x, 0);
+    mCamera.dir = Vec2f(-1, 0);
+    mCamera.target = Vec2f(0, 0);
+  }
+  else if (dir == BACK){
+    mCamera.currPos = Vec2f(0, (float)-dims.y);
+    mCamera.dir = Vec2f(0, 1);
+    mCamera.target = Vec2f(0, 0);
+  }
+  else if (dir == FRONT){
+    mCamera.currPos = Vec2f(0, (float)dims.y);
+    mCamera.dir = Vec2f(0, -1);
+    mCamera.target = Vec2f(0, 0);
+  }
+  mCamera.active = true;
+  glEnable(GL_SCISSOR_TEST);
+  glScissor((int)mCamera.currPos.x, (int)mCamera.currPos.y, dims.x, dims.y);
 }
