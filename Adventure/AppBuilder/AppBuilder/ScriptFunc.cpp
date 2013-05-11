@@ -1625,9 +1625,21 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
   pos.y = ctx.stack().pop().getInt();
   pos = pos * -Engine::instance()->getWalkGridSize();
   bool dontscroll = ctx.stack().pop().getBool();
-  if (numArgs > 4)
-    TR_BREAK("Implement me");
-  //std::string dir = ctx.stack().pop().getString();
+  if (numArgs > 4){
+    LookDir blenddir = UNSPECIFIED;
+    string dir = ctx.stack().pop().getString();
+    if (dir == "right")
+      blenddir = RIGHT;
+    else if (dir == "left")
+      blenddir = LEFT;
+    else if (dir == "up")
+      blenddir = BACK;
+    else if (dir == "down")
+      blenddir = FRONT;
+    else
+      TR_BREAK("Unknown direction %s", dir.c_str());
+    Engine::instance()->getAnimator()->moveCameraViewport(blenddir);
+  }
   RoomObject* room = Engine::instance()->getRoom(roomname);
   if (room){
     if (dontscroll || ctx.isSkipping())

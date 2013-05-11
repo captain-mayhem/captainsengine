@@ -28,6 +28,14 @@ class Animator{
     Vec2i target;
     float speed;
   };
+  struct CamAnim{
+    CamAnim() : active(false){
+    }
+    bool active;
+    Vec2f dir;
+    Vec2f currPos;
+    Vec2f target;
+  };
 public:
   Animator();
   ~Animator();
@@ -41,11 +49,13 @@ public:
   void add(RoomObject* obj, Vec2i scrollpos, float speed);
   void add(CharacterObject* obj, float sourcescale, float targetscale, bool isUserScale);
   Vec2i getTargetPoisition(Object2D* obj);
+  void moveCameraViewport(LookDir dir);
 protected:
   bool isPointOnLine(Vec2f from, Vec2f to, Vec2f pt, double epsilon);
   std::map<Object2D*, ObjectAnim> mObjects;
   std::list<DynamicAnimation*> mAnimations;
   std::map<RoomObject*, RoomAnim> mRooms;
+  CamAnim mCamera;
 };
 
 }
