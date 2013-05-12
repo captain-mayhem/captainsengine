@@ -797,13 +797,6 @@ void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
 }
 
 void PcdkScript::remove(Object2D* object){
-  /*for (std::list<std::pair<Object2D*, int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ){
-    if (iter->first == object){
-      iter = mPrevState.erase(iter);
-    }
-    else
-      ++iter;
-  }*/
   applyPrevState(object);
   remove(object->getScript());
 }
@@ -1268,30 +1261,31 @@ void PcdkScript::deleteVariable(const std::string& name){
   mVariables.erase(name);
 }
 
-void PcdkScript::setPrevState(Object2D* obj){
-  mPrevState.insert(std::make_pair(obj, obj->getState()));
+void PcdkScript::setPrevState(Object2D* trigger, Object2D* target){
+  mPrevState.insert(std::make_pair(trigger, std::make_pair(target,target->getState())));
 }
 
 bool PcdkScript::applyPrevState(Object2D* obj){
   if (obj == NULL){
-    std::map<Object2D*, int>::iterator deliter = mPrevState.end();
-    for (std::map<Object2D*, int>::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
-      if (iter->second == -1){
+    std::map<Object2D*, std::pair<Object2D*,int> >::iterator deliter = mPrevState.end();
+    Vec2i cursor = Engine::instance()->getCursorPos();
+    for (std::map<Object2D*, std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
+      if (iter->second.second == -1){
         deliter = iter;
         continue;
       }
-      if (!iter->first->isHit(Engine::instance()->getCursorPos())){
-        iter->first->setState(iter->second);
-        iter->second = -1;
+      if (!iter->first->isHit(cursor-iter->first->getScrollOffset())){
+        iter->second.first->setState(iter->second.second);
+        iter->second.second = -1;
         deliter = iter;
       }
     }
     if (deliter != mPrevState.end())
       mPrevState.erase(deliter);
   }
-  std::map<Object2D*, int>::iterator iter = mPrevState.find(obj);
+  std::map<Object2D*, std::pair<Object2D*,int> >::iterator iter = mPrevState.find(obj);
   if (iter != mPrevState.end()){
-    obj->setState(iter->second);
+    iter->second.first->setState(iter->second.second);
     mPrevState.erase(iter);
     return true;
   }

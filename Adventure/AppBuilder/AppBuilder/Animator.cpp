@@ -309,12 +309,12 @@ void Animator::moveCameraViewport(LookDir dir){
     mCamera.dir = Vec2f(-1, 0);
     mCamera.target = Vec2f(0, 0);
   }
-  else if (dir == BACK){
+  else if (dir == FRONT){
     mCamera.currPos = Vec2f(0, (float)-dims.y);
     mCamera.dir = Vec2f(0, 1);
     mCamera.target = Vec2f(0, 0);
   }
-  else if (dir == FRONT){
+  else if (dir == BACK){
     mCamera.currPos = Vec2f(0, (float)dims.y);
     mCamera.dir = Vec2f(0, -1);
     mCamera.target = Vec2f(0, 0);

@@ -67,7 +67,7 @@ public:
   const std::string& getLanguage() {return mLanguage;}
   bool willUpdate(unsigned interval);
   ObjectGroup* getGroup(const std::string& name);
-  void setPrevState(Object2D* obj);
+  void setPrevState(Object2D* trigger, Object2D* target);
   bool applyPrevState(Object2D* obj);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
@@ -104,7 +104,7 @@ protected:
   bool mTSTopToBottom;
   bool mGlobalSuspend;
   std::string mPrevActiveCommand;
-  std::map<Object2D*, int> mPrevState;
+  std::map<Object2D*, std::pair<Object2D*,int> > mPrevState;
   std::map<std::string, int> mKeymap;
   std::vector<ObjectGroup*> mGroups;
   bool mACharacterAtScriptStart;

@@ -860,7 +860,10 @@ int ScriptFunctions::instObj(ExecutionContext& ctx, unsigned numArgs){
   }
   Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
-    Engine::instance()->getInterpreter()->mPrevState.insert(std::make_pair(obj, obj->getState()));
+    Object2D* owner = obj;
+    if (ctx.mOwner != NULL)
+      owner = ctx.mOwner;
+    Engine::instance()->getInterpreter()->setPrevState(owner, obj);
     obj->setState(state);
   }
   return 0;
@@ -2099,7 +2102,7 @@ int ScriptFunctions::showAllText(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::instMouse(ExecutionContext& ctx, unsigned numArgs){
   int state = ctx.stack().pop().getInt();
   CursorObject* cursor = Engine::instance()->getCursor();
-  Engine::instance()->getInterpreter()->setPrevState(cursor);
+  Engine::instance()->getInterpreter()->setPrevState(cursor, cursor);
   cursor->setState(state+1);
   return 0;
 }
