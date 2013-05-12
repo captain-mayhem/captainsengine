@@ -375,7 +375,7 @@ namespace StoryDesigner
                     for (int frames = 0; frames < FRAMES2_MAX; ++frames)
                     {
                         string[] data = obj.Value.getFrame(i, frames);
-                        if (data == null)
+                        if (data == null || data.Length == 0)
                         {
                             swr.WriteLine();
                             swr.WriteLine();
@@ -431,7 +431,7 @@ namespace StoryDesigner
                     for (int frames = 0; frames < FRAMES2_MAX; ++frames)
                     {
                         string[] data = chr.getFrame(i, frames);
-                        if (data == null)
+                        if (data == null || data.Length == 0)
                         {
                             swr.WriteLine();
                             swr.WriteLine();

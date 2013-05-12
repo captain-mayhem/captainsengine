@@ -819,6 +819,7 @@ bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
 float AdvDocument::readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames& frms){
   std::string str;
   long val1, val2;
+  int realFrames = 0;
   for (int frames = 0; frames < FRAMES2_MAX; ++frames){
     ExtendedFrame frm;
     bool set[PARTS_MAX];
@@ -846,8 +847,10 @@ float AdvDocument::readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames&
         frm.offsets.push_back(Vec2i(val1,val2));
     }
     if (set[0] || set[1])
-      frms.push_back(frm);
+      realFrames = frames+1;
+    frms.push_back(frm);
   }
+  frms.resize(realFrames);
   str = txtstream.readLine();
   val1 = atoi(str.c_str());
   float fps = FPS_MAX/val1;
