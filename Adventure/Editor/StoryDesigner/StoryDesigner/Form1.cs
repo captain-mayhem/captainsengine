@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
+using System.Globalization;
 
 namespace StoryDesigner
 {
@@ -33,6 +34,45 @@ namespace StoryDesigner
             newToolStripMenuItem_Click(null, null);
             mSelectedView = gamePool;
             mSelectedNode = gamePool.Nodes[0];
+            mBackupTimer.Tick += new EventHandler(mBackupTimer_Tick);
+            mBackupTimer.Interval = 1000*60*5;
+        }
+
+        void mBackupTimer_Tick(object sender, EventArgs e)
+        {
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"StoryDesigner");
+            dir = Path.Combine(dir, "backups");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            DateTime dt = DateTime.Now;
+            dir = Path.Combine(dir, dt.Year + " " + DateTimeFormatInfo.GetInstance(null).GetMonthName(dt.Month));
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            dir = Path.Combine(dir, dt.Day.ToString());
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            //Get number
+            DirectoryInfo dirinfo = new DirectoryInfo(dir);
+            FileInfo[] files = null;
+            int instanceCount = 1;
+            try
+            {
+                files = dirinfo.GetFiles();
+                foreach (FileInfo info in files)
+                {
+                    if (info.Name.StartsWith(mData.Settings.Projectname))
+                        ++instanceCount;
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+            //write backup
+            string filename = mData.Settings.Projectname + " " + instanceCount + ".adv";
+            dir = Path.Combine(dir, filename);
+            AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
+            afw.writeProjectFile(dir);
         }
 
         void mediaPool_DragDrop(object sender, DragEventArgs e)
@@ -423,6 +463,7 @@ namespace StoryDesigner
                 if (Path.GetExtension(filename) == ".adv")
                 {
                     mSavePath = filename;
+                    mBackupTimer.Start();
 
                     //check if media path is ok
                     Dictionary<string, string> missingImages = new Dictionary<string, string>();
@@ -555,6 +596,7 @@ namespace StoryDesigner
         private TreeNode mSelectedNode;
         private Persistence mPersistence;
         private string mSavePath = null;
+        private Timer mBackupTimer = new Timer();
 
         internal void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -618,6 +660,7 @@ namespace StoryDesigner
 
         internal void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            mBackupTimer.Stop();
             mData = new AdvData(mPersistence);
             gamePool.Nodes.Clear();
             gamePool.Nodes.Add("1) "+Strings.Characters.ToUpper());
@@ -658,6 +701,8 @@ namespace StoryDesigner
                 AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
                 afw.writeProjectFile(sod.FileName);
                 mSavePath = sod.FileName;
+                if (!mBackupTimer.Enabled)
+                    mBackupTimer.Start();
             }
         }
 

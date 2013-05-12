@@ -900,6 +900,7 @@ namespace StoryDesigner
         protected int readExtendedFrames(StreamReader rdr, System.Collections.ArrayList frames)
         {
             string str;
+            int realFrames = 0;
             for (int frms = 0; frms < FRAMES2_MAX; ++frms)
             {
                 ExtendedFrame frm = new ExtendedFrame();
@@ -924,8 +925,10 @@ namespace StoryDesigner
                     frm.offsets.Add(offset);
                 }
                 if (set[0] || set[1])
-                    frames.Add(frm);
+                    realFrames = frms+1;
+                frames.Add(frm);
             }
+            frames.RemoveRange(realFrames, FRAMES2_MAX - realFrames);
             str = rdr.ReadLine();
             return Convert.ToInt32(str);
         }
