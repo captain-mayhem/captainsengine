@@ -324,6 +324,17 @@ void BcVMMethod::execute(VMContext* ctx, unsigned ret){
 					return;
 				}
 				break;
+			case Java::op_freturn:
+				{
+					StackData dat = ctx->pop();
+					ctx->popFrame();
+					if (TR_IS_ENABLED(TRACE_DEBUG))
+						--method_depth;
+					TR_DEBUG("<- %s (%s)", mName.c_str(), mClass->getName().c_str());
+					ctx->push(dat);
+					return;
+				}
+				break;
 			case Java::op_lreturn:
 				{
 					StackData dat1 = ctx->pop();
@@ -1154,6 +1165,13 @@ skipdefault:
 					float v2 = ctx->pop().f;
 					float v1 = ctx->pop().f;
 					ctx->push(v1*v2);
+				}
+				break;
+			case Java::op_fdiv:
+				{
+					float v2 = ctx->pop().f;
+					float v1 = ctx->pop().f;
+					ctx->push(v1/v2);
 				}
 				break;
       case Java::op_lload:

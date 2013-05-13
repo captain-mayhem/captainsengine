@@ -381,11 +381,20 @@ void JNIEXPORT Java_java_lang_Object_wait(JNIEnv* env, jobject object, jlong tim
     TR_BREAK("Implement me");
 }
 
+jlong JNIEXPORT Java_java_lang_Runtime_freeMemory(JNIEnv* env, jobject object){
+	//TODO
+	return 1024*1024*1000;
+}
+
 jobject JNIEXPORT Java_java_lang_String_intern(JNIEnv* env, jobject object){
 	const char* str = env->GetStringUTFChars((jstring)object, NULL);
 	VMObject* ret = getVM()->internalizeString(str, (VMObject*)object);
 	env->ReleaseStringUTFChars((jstring)object, str);
 	return ret;
+}
+
+jint JNIEXPORT Java_java_lang_System_identityHashCode(JNIEnv* env, jclass unused, jobject object){
+	return (jint)(jlong)object;
 }
 
 #ifdef UNIX
@@ -804,9 +813,21 @@ void JNIEXPORT Java_sun_misc_Unsafe_registerNatives(JNIEnv* env, jobject object)
 	return;
 }
 
+jint JNIEXPORT Java_sun_misc_Unsafe_addressSize(JNIEnv* env, jobject unsafe, jclass arrayClass){
+	return sizeof(void*);
+}
+
 jlong JNIEXPORT Java_sun_misc_Unsafe_allocateMemory(JNIEnv* env, jobject unsafe, jlong size){
   void* memory = malloc((size_t)size);
   return (jlong)memory;
+}
+
+jint JNIEXPORT Java_sun_misc_Unsafe_arrayBaseOffset(JNIEnv* env, jobject unsafe, jclass arrayClass){
+	return 0;
+}
+
+jint JNIEXPORT Java_sun_misc_Unsafe_arrayIndexScale(JNIEnv* env, jobject unsafe, jclass arrayClass){
+	return 0;
 }
 
 jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jint expected, jint update){

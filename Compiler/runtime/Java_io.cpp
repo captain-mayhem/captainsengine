@@ -118,12 +118,16 @@ jstring JNIEXPORT Java_java_io_WinNTFileSystem_canonicalize0(JNIEnv* env, jobjec
   char tmp2[1024];
   GetFullPathName(str, 1024, tmp2, NULL);
   HANDLE file = CreateFile(str, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-  FILE_NAME_INFO* nameinfo = (FILE_NAME_INFO*)tmp;
-  GetFileInformationByHandleEx(file, FileNameInfo, nameinfo, 1024);
-  CloseHandle(file);
-  int len = WideCharToMultiByte(CP_UTF8, 0, nameinfo->FileName, nameinfo->FileNameLength/2, tmp2+2, 1024, NULL, NULL);
-  tmp2[0] = toupper(tmp2[0]);
-  std::string name = tmp2;
+	if (file == INVALID_HANDLE_VALUE)
+		strcpy(tmp2, str);
+	else{
+		FILE_NAME_INFO* nameinfo = (FILE_NAME_INFO*)tmp;
+		GetFileInformationByHandleEx(file, FileNameInfo, nameinfo, 1024);
+		CloseHandle(file);
+		int len = WideCharToMultiByte(CP_UTF8, 0, nameinfo->FileName, nameinfo->FileNameLength/2, tmp2+2, 1024, NULL, NULL);
+		tmp2[0] = toupper(tmp2[0]);
+	}
+	std::string name = tmp2;
 #else
   //char tmp[1024];
   //realpath(str, tmp);
