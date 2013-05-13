@@ -424,10 +424,16 @@ FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 			delete [] utf16;
 		}
 		val->obj = strdata;
-		val = obj->getObjField(cls->findFieldIndex("offset"));
-		val->ui = 0;
-		val = obj->getObjField(cls->findFieldIndex("count"));
-		val->ui = utf->length;
+		unsigned idx = cls->findFieldIndex("offset");
+		if (idx > 0){
+			val = obj->getObjField(idx);
+			val->ui = 0;
+		}
+		idx = cls->findFieldIndex("count");
+		if (idx > 0){
+			val = obj->getObjField(idx);
+			val->ui = utf->length;
+		}
 		ret.obj = obj;
 		getVM()->internalizeString(utf->bytes, obj);
 	}

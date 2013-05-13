@@ -122,6 +122,8 @@ VMObject* JVM::createObject(VMContext* ctx, VMClass* cls){
 }
 
 void JVM::initBasicClasses(VMContext* ctx){
+	BootstrapLoader* ldr = (BootstrapLoader*)getLoader(NULL);
+	ldr->find(ctx, "java/util/Hashtable");
 	VMClass* sys = getLoader(NULL)->find(ctx, "java/lang/System");
 	VMMethod* sysinit = sys->getMethod(sys->findMethodIndex("initializeSystemClass", "()V"));
 	sysinit->execute(ctx, -2);
