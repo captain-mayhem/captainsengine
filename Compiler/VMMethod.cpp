@@ -627,8 +627,6 @@ void BcVMMethod::execute(VMContext* ctx, unsigned ret){
       case Java::op_lookupswitch:
         {
           unsigned kaligned = (k+4)/4*4; //padding
-          if (kaligned-k != 1)
-            TR_BREAK("Check if correct (boundaries)");
           unsigned* address = (unsigned*)&mCode->code[kaligned];
           Java::u4 default_offset = byteOrder(*address++);
           Java::u4 n = byteOrder(*address++);
@@ -661,6 +659,8 @@ skipdefault:
           Java::u2 operand = b1 << 8 | b2;
 					VMClass* execCls;
 					unsigned idx = mClass->getMethodIndex(ctx, operand, execCls);
+          if (idx == 0)
+            TR_BREAK("Something went wrong")
 					VMMethod* temp = execCls->getMethod(idx); //TODO not very efficient
 					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
           VMClass* realclass = obj->getClass();
@@ -1042,7 +1042,7 @@ skipdefault:
 					instanceClass = instanceClass->getSuperclass(ctx);
 				} while (instanceClass != NULL);
 				if (!found){
-					TR_BREAK("%s check failed", Opcode::map_string[opcode].c_str());
+					TR_ERROR("%s check failed", Opcode::map_string[opcode].c_str());
 				}
 				}
         break;
@@ -1480,6 +1480,19 @@ skipdefault:
 					ctx->push((uint32)(res >> 32));
 				}
 				break;
+      case Java::op_lxor:
+        {
+          int64 l1;
+          int64 l2;
+          l1 = ((int64)ctx->pop().ui) << 32;
+          l1 |= ((int64)ctx->pop().ui) << 0;
+          l2 = ((int64)ctx->pop().ui) << 32;
+          l2 |= ((int64)ctx->pop().ui) << 0;
+          int64 res = l1 ^ l2;
+          ctx->push((uint32)(res >> 0));
+          ctx->push((uint32)(res >> 32));
+        }
+        break;
 			case Java::op_lshl:
 				{
 					int64 l1;
@@ -1542,6 +1555,19 @@ skipdefault:
 					ctx->push((uint32)(res >> 32));
 				}
 				break;
+      case Java::op_lmul:
+        {
+          int64 l1;
+          int64 l2;
+          l2 = ((int64)ctx->pop().ui) << 32;
+          l2 |= ((int64)ctx->pop().ui) << 0;
+          l1 = ((int64)ctx->pop().ui) << 32;
+          l1 |= ((int64)ctx->pop().ui) << 0;
+          int64 res = l1 * l2;
+          ctx->push((uint32)(res >> 0));
+          ctx->push((uint32)(res >> 32));
+        }
+        break;
       case Java::op_dadd:
 				{
 					FieldData d1;
@@ -1584,6 +1610,20 @@ skipdefault:
 					ctx->push((uint32)(res.l >> 32));
 				}
 				break;
+      case Java::op_ddiv:
+        {
+          FieldData d1;
+          FieldData d2;
+          d2.l = ((int64)ctx->pop().ui) << 32;
+          d2.l |= ((int64)ctx->pop().ui) << 0;
+          d1.l = ((int64)ctx->pop().ui) << 32;
+          d1.l |= ((int64)ctx->pop().ui) << 0;
+          FieldData res;
+          res.d = d1.d / d2.d;
+          ctx->push((uint32)(res.l >> 0));
+          ctx->push((uint32)(res.l >> 32));
+        }
+        break;
 			case Java::op_i2l:
 				{
 					unsigned value = ctx->pop().ui;
@@ -1599,6 +1639,17 @@ skipdefault:
 					ctx->push((int)value);
 					break;
 				}
+      case Java::op_l2d:
+        {
+          jlong value;
+          value = ((int64)ctx->pop().ui) << 0;
+          value |= ((int64)ctx->pop().ui) << 32;
+          FieldData res; 
+          res.d = (double)value;
+          ctx->push((uint32)(res.l >> 0));
+          ctx->push((uint32)(res.l >> 32));
+          break;
+        }
       case Java::op_i2f:
 				{
 					int value = ctx->pop().i;

@@ -346,6 +346,13 @@ jobject JNIEXPORT Java_java_lang_ClassLoader_findLoadedClass0(JNIEnv* env, jobje
   return cls;
 }
 
+jclass JNIEXPORT Java_java_lang_ClassLoader_getCaller(JNIEnv* env, jclass clazz, jint index){
+  TR_USE(Java_Runtime);
+  VMContext* ctx = CTX(env);
+  VMMethod* mthd = ctx->getFrameMethod(index+1);
+  return (VMObject*)mthd->getClass();
+}
+
 
 jlong JNIEXPORT Java_java_lang_Double_doubleToRawLongBits(JNIEnv* env, jobject object, jdouble value){
 	return *((jlong*)(&value));
@@ -379,6 +386,10 @@ void JNIEXPORT Java_java_lang_Object_wait(JNIEnv* env, jobject object, jlong tim
     obj->wait();
   else
     TR_BREAK("Implement me");
+}
+
+jint JNIEXPORT Java_java_lang_Runtime_availableProcessors(JNIEnv* env, jobject object){
+  return 1;
 }
 
 jlong JNIEXPORT Java_java_lang_Runtime_freeMemory(JNIEnv* env, jobject object){
@@ -763,6 +774,10 @@ jobject JNIEXPORT Java_java_security_AccessController_getStackAccessControlConte
   return NULL;
 }
 
+jboolean JNIEXPORT Java_java_util_concurrent_atomic_AtomicLong_VMSupportsCS8(JNIEnv* env, jclass clazz){
+  return JNI_FALSE;
+}
+
 jlong JNIEXPORT Java_sun_io_Win32ErrorMode_setErrorMode(JNIEnv* env, jclass clazz, jlong mode){
 #ifdef WIN32
   return SetErrorMode((UINT)mode);
@@ -842,6 +857,18 @@ jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject u
   return JNI_FALSE;
 }
 
+jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapLong(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jlong expected, jlong update){
+  //TODO make atomic
+  VMObject* obj = (VMObject*)object;
+  FieldData* fd = obj->getObjField((int)fieldOffset);
+  if (fd->l == expected){
+    //update
+    fd->l = update;
+    return JNI_TRUE;
+  }
+  return JNI_FALSE;
+}
+
 void JNIEXPORT Java_sun_misc_Unsafe_freeMemory(JNIEnv* env, jobject object, jlong address){
   free((void*)address);
 }
@@ -866,6 +893,12 @@ jlong JNIEXPORT Java_sun_misc_Unsafe_objectFieldOffset(JNIEnv* env, jobject obje
 void JNIEXPORT Java_sun_misc_Unsafe_putLong(JNIEnv* env, jobject object, jlong address, jlong x){
   jlong* data = (jlong*)address;
   *data = x;
+}
+
+void JNIEXPORT Java_sun_misc_Unsafe_putOrderedObject(JNIEnv* env, jobject object, jobject o, jlong offset, jobject x){
+  VMObjectArray* arr = (VMObjectArray*)o;
+  VMObject* obj = (VMObject*)x;
+  arr->put(obj, (unsigned)offset);
 }
 
 void JNIEXPORT Java_sun_misc_VM_initialize(JNIEnv* env, jobject object){

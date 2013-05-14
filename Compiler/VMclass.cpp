@@ -67,7 +67,8 @@ void VMClass::initClass(VMContext* ctx, bool execClassInit){
   VMMethod* clsmthd = cls->getMethod(cls->findMethodIndex("<init>", "()V"));
   init(ctx, cls);
   ctx->push((VMObject*)cls);
-  clsmthd->execute(ctx, -1);
+  if (clsmthd)
+    clsmthd->execute(ctx, -1);
 
   if (execClassInit){
     unsigned idx = findMethodIndex("<clinit>", "()V");
@@ -364,6 +365,15 @@ void VMClass::initFields(VMContext* ctx){
 		mMethodResolver[plainMethods[i]->getName()+plainMethods[i]->getSignature()] = ++methods;
 		mMethods[methods-1] = plainMethods[i];
 	}
+
+  //interfaces
+  /*for (int i = 0; i < mClass.interfaces_count; ++i){
+    VMClass* itfcls = getClass(ctx, mClass.interfaces[i]);
+    for (std::map<std::string, unsigned>::iterator iter = itfcls->mMethodResolver.begin(); iter != itfcls->mMethodResolver.end(); ++iter){
+      if (mMethodResolver.find(iter->first) == mMethodResolver.end())
+        mMethodResolver[iter->first] = 10000+iter->second;
+    }
+  }*/
 }
 
 unsigned VMClass::getNonStaticFieldOffset(){
@@ -416,10 +426,10 @@ FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
 		VMObject* obj = getVM()->createObject(ctx, cls);
 		FieldData* val = obj->getObjField(cls->findFieldIndex("value"));
     int size = JVM::utf8to16(utf->bytes.c_str(), NULL, 0);
-		VMCharArray* strdata = getVM()->createCharArray(ctx, size);
+		VMCharArray* strdata = getVM()->createCharArray(ctx, size-1);
 		if (size > 1){
-      unsigned short* utf16 = new unsigned short[size];
-      JVM::utf8to16(utf->bytes.c_str(), utf16, size);
+      unsigned short* utf16 = new unsigned short[size-1];
+      JVM::utf8to16(utf->bytes.c_str(), utf16, size-1);
 			strdata->setData(utf16);
 			delete [] utf16;
 		}
