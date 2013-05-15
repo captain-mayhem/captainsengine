@@ -27,12 +27,14 @@ public:
 	unsigned getFieldIndex(VMContext* ctx, Java::u2 field_ref, VMClass*& classRet, VMMethod::ReturnType& type);
   unsigned getStaticFieldIndex(VMContext* ctx, Java::u2 field_ref, VMClass*& classRet, VMMethod::ReturnType& type);
 	unsigned getMethodIndex(VMContext* ctx, Java::u2 method_ref, VMClass*& classRet);
+  unsigned getMethodSignature(VMContext* ctx, Java::u2 method_ref, std::string& name, std::string& sig);
 	VMMethod* getMethod(VMContext* ctx, Java::u2 method_ref);
 	VMMethod* getMethod(unsigned methodid);
 	void print(std::ostream& strm);
 	void registerMethod(const std::string& nam, const std::string& signature, nativeMethod mthd);
 	VMClass* getClass(VMContext* ctx, Java::u2 class_ref);
 	VMClass* getSuperclass(VMContext* ctx);
+  //VMClass* getInterface(VMContext* ctx, Java::u2 class_ref);
 	FieldData getConstant(VMContext* ctx, Java::u2 constant_ref);
 	unsigned getNonStaticFieldOffset();
   unsigned getStaticFieldOffset();
@@ -46,6 +48,7 @@ public:
   int getLineNumber(int ip, int methodIndex);
   int getCatchIP(int ip, VMContext* ctx, VMObject* exception, int methodIndex);
   VMLoader* getLoader() {return mLoader;}
+  virtual bool isArray() {return false;}
 protected:
   void initFields(VMContext* ctx);
 	std::string buildNativeMethodName(const std::string& functionname, const std::string& signature);

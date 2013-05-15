@@ -16,6 +16,7 @@ JVM* getVM();
 class VMArrayClass : public VMClass{
 public:
   VMArrayClass(VMLoader* loader, const std::string& name);
+  virtual bool isArray() {return true;}
 private:
   static jobjectArray cloneFunc(JNIEnv* env, jarray array);
   static jboolean isArrayFunc(JNIEnv* env, jarray array);

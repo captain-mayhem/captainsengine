@@ -586,6 +586,8 @@ jlong JNIEXPORT Java_java_lang_System_nanoTime(JNIEnv* env, jobject object){
 }
 
 void JNIEXPORT Java_java_lang_System_arraycopy(JNIEnv* env, jobject object, jobject src, int srcPos, jobject dest, int destPos, int length){
+  if (length == 0)
+    return;
 	VMArrayBase* arrSrc = (VMArrayBase*)src;
   VMArrayBase* arrDest = (VMArrayBase*)dest;
   arrSrc->copyTo(srcPos, arrDest, destPos, length);
@@ -784,6 +786,10 @@ jlong JNIEXPORT Java_sun_io_Win32ErrorMode_setErrorMode(JNIEnv* env, jclass claz
 #endif
 }
 
+void JNIEXPORT Java_sun_misc_Perf_registerNatives(JNIEnv* env, jobject object){
+
+}
+
 jint JNIEXPORT Java_sun_misc_Signal_findSignal(JNIEnv* env, jobject object, jstring signal){
   TR_USE(Java_Runtime);
   jint ret = -1;
@@ -842,12 +848,14 @@ jint JNIEXPORT Java_sun_misc_Unsafe_arrayBaseOffset(JNIEnv* env, jobject unsafe,
 }
 
 jint JNIEXPORT Java_sun_misc_Unsafe_arrayIndexScale(JNIEnv* env, jobject unsafe, jclass arrayClass){
-	return 0;
+	return 1;
 }
 
 jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jint expected, jint update){
   //TODO make atomic
   VMObject* obj = (VMObject*)object;
+  if (obj->getClass()->isArray())
+    DebugBreak();
   FieldData* fd = obj->getObjField((int)fieldOffset);
   if (fd->i == expected){
     //update
@@ -860,6 +868,8 @@ jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject u
 jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapLong(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jlong expected, jlong update){
   //TODO make atomic
   VMObject* obj = (VMObject*)object;
+  if (obj->getClass()->isArray())
+    DebugBreak();
   FieldData* fd = obj->getObjField((int)fieldOffset);
   if (fd->l == expected){
     //update
@@ -869,6 +879,29 @@ jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapLong(JNIEnv* env, jobject 
   return JNI_FALSE;
 }
 
+jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapObject(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jobject expected, jobject update){
+  //TODO make atomic
+  VMObject* obj = (VMObject*)object;
+  if (obj->getClass()->isArray()){
+    VMObjectArray* oa = (VMObjectArray*)obj;
+    if (oa->get((unsigned)fieldOffset) == expected){
+      //update
+      oa->put((VMObject*)update, (unsigned)fieldOffset);
+      return JNI_TRUE;
+    }
+    return JNI_FALSE;
+  }
+  else{
+    FieldData* fd = obj->getObjField((int)fieldOffset);
+    if (fd->obj == expected){
+      //update
+      fd->obj = (VMObject*)update;
+      return JNI_TRUE;
+    }
+    return JNI_FALSE;
+  }
+}
+
 void JNIEXPORT Java_sun_misc_Unsafe_freeMemory(JNIEnv* env, jobject object, jlong address){
   free((void*)address);
 }
@@ -876,6 +909,24 @@ void JNIEXPORT Java_sun_misc_Unsafe_freeMemory(JNIEnv* env, jobject object, jlon
 jbyte JNIEXPORT Java_sun_misc_Unsafe_getByte(JNIEnv* env, jobject object, jlong address){
   jbyte* data = (jbyte*)address;
   return *data;
+}
+
+jobject JNIEXPORT Java_sun_misc_Unsafe_getObject(JNIEnv* env, jobject object, jobject o, jlong offset){
+  VMObject* obj = (VMObject*)o;
+  if (!obj->getClass()->isArray())
+    DebugBreak();
+  VMObjectArray* oa = (VMObjectArray*)o;
+  VMObject* ret = oa->get((int)offset);
+  return ret;
+}
+
+jobject JNIEXPORT Java_sun_misc_Unsafe_getObjectVolatile(JNIEnv* env, jobject object, jobject o, jlong offset){
+  VMObject* obj = (VMObject*)o;
+  if (!obj->getClass()->isArray())
+    DebugBreak();
+  VMObjectArray* oa = (VMObjectArray*)o;
+  VMObject* ret = oa->get((int)offset);
+  return ret;
 }
 
 jlong JNIEXPORT Java_sun_misc_Unsafe_objectFieldOffset(JNIEnv* env, jobject object, jobject field){
@@ -896,9 +947,16 @@ void JNIEXPORT Java_sun_misc_Unsafe_putLong(JNIEnv* env, jobject object, jlong a
 }
 
 void JNIEXPORT Java_sun_misc_Unsafe_putOrderedObject(JNIEnv* env, jobject object, jobject o, jlong offset, jobject x){
-  VMObjectArray* arr = (VMObjectArray*)o;
-  VMObject* obj = (VMObject*)x;
-  arr->put(obj, (unsigned)offset);
+  VMObject* store = (VMObject*)o;
+  if (store->getClass()->isArray()){
+    VMObjectArray* arr = (VMObjectArray*)o;
+    VMObject* obj = (VMObject*)x;
+    arr->put(obj, (unsigned)offset);
+  }
+  else{
+    FieldData* field = store->getObjField((unsigned)offset);
+    field->obj = (VMObject*)x;
+  }
 }
 
 void JNIEXPORT Java_sun_misc_VM_initialize(JNIEnv* env, jobject object){

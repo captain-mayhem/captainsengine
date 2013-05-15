@@ -181,6 +181,15 @@ unsigned VMClass::getMethodIndex(VMContext* ctx, Java::u2 method_ref, VMClass*& 
 	return idx;
 }
 
+unsigned VMClass::getMethodSignature(VMContext* ctx, Java::u2 method_ref, std::string& name, std::string& sig){
+  Java::CONSTANT_Methodref_info* methodref = static_cast<Java::CONSTANT_Methodref_info*>(mClass.constant_pool[method_ref-1]);
+  Java::CONSTANT_NameAndType_info* nameandtypeinfo = static_cast<Java::CONSTANT_NameAndType_info*>(mClass.constant_pool[methodref->name_and_type_index-1]);
+  name = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->name_index-1])->bytes;
+  sig = dynamic_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[nameandtypeinfo->descriptor_index-1])->bytes;
+  BcVMMethod tmp(name, sig, NULL, false, 0, NULL);
+  return tmp.getNumArgs();
+}
+
 VMMethod* VMClass::getMethod(VMContext* ctx, Java::u2 method_ref){
 	VMClass* cls;
 	unsigned idx = getMethodIndex(ctx, method_ref, cls);
@@ -368,7 +377,7 @@ void VMClass::initFields(VMContext* ctx){
 
   //interfaces
   /*for (int i = 0; i < mClass.interfaces_count; ++i){
-    VMClass* itfcls = getClass(ctx, mClass.interfaces[i]);
+    VMClass* itfcls = getInterface(ctx, mClass.interfaces[i]);
     for (std::map<std::string, unsigned>::iterator iter = itfcls->mMethodResolver.begin(); iter != itfcls->mMethodResolver.end(); ++iter){
       if (mMethodResolver.find(iter->first) == mMethodResolver.end())
         mMethodResolver[iter->first] = 10000+iter->second;
@@ -480,7 +489,18 @@ void VMClass::copyFieldData(std::map<std::string,unsigned>& fieldresolver, std::
     staticfieldresolver.insert(*iter);
   }
 }
-
+/*
+VMClass* VMClass::getInterface(VMContext* ctx, Java::u2 class_ref){
+  if (mRCP[class_ref].cls != NULL)
+    return mRCP[class_ref].cls;
+  Java::CONSTANT_Class_info* classinfo = static_cast<Java::CONSTANT_Class_info*>(mClass.constant_pool[class_ref-1]);
+  std::string classname = static_cast<Java::CONSTANT_Utf8_info*>(mClass.constant_pool[classinfo->name_index-1])->bytes;
+  VMClass* cls = mLoader->find(ctx, classname);
+  mRCP[class_ref] = cls;
+  return cls;
+  return NULL;
+}
+*/
 std::string VMClass::getSourceFileName(){
   for (int i = 0; i < mClass.attributes_count; ++i){
     if (mClass.attributes[i]->attribute_type == Java::ATTR_SourceFile){
