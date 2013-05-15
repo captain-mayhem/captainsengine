@@ -657,14 +657,17 @@ skipdefault:
 					Java::u1 count = mCode->code[++k];
 					Java::u1 null = mCode->code[++k];
           Java::u2 operand = b1 << 8 | b2;
-					VMClass* execCls;
+					/*VMClass* execCls;
 					unsigned idx = mClass->getMethodIndex(ctx, operand, execCls);
           if (idx == 0)
             TR_BREAK("Something went wrong")
-					VMMethod* temp = execCls->getMethod(idx); //TODO not very efficient
-					VMObject* obj = ctx->getTop(temp->getNumArgs()).obj;
+					VMMethod* temp = execCls->getMethod(idx); //TODO not very efficient*/
+          std::string name;
+          std::string sig;
+          unsigned numArgs = mClass->getMethodSignature(ctx, operand, name, sig);
+					VMObject* obj = ctx->getTop(numArgs).obj;
           VMClass* realclass = obj->getClass();
-          unsigned realidx = realclass->findMethodIndex(temp->getName(), temp->getSignature());
+          unsigned realidx = realclass->findMethodIndex(name, sig);
 					VMMethod* mthd = obj->getObjMethod(realidx);
 					mthd->execute(ctx, k);
           HANDLE_EXCEPTION(k);
@@ -1189,8 +1192,11 @@ skipdefault:
 				}
 				break;
       case Java::op_fload:
-				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
-        k+=1;
+        {
+          Java::u1 idx = mCode->code[++k];
+          ctx->push(ctx->get(idx));
+        }
+        break;
       case Java::op_aload:
 				{
 					Java::u1 operand = mCode->code[++k];
@@ -1223,8 +1229,11 @@ skipdefault:
 				}
         break;
       case Java::op_fstore:
-				TR_BREAK("%s unimplemented", Opcode::map_string[opcode].c_str());
-        k+=1;
+        {
+          unsigned idx = mCode->code[++k];
+          float f = ctx->pop().f;
+          ctx->put(idx, f);
+        }
         break;
 			case Java::op_fload_0:
 				ctx->push(ctx->get(0));
