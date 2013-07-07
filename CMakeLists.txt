@@ -11,6 +11,7 @@ OPTION(PROJECT_ADVENTURE "compile adventure projects" ON)
 OPTION(PROJECT_OSMRACER "compile osm racer projects" ON)
 OPTION(PROJECT_COMPILER "compile compiler project" OFF)
 OPTION(PROJECT_VGRENDER "compile vector graphics render projects" OFF)
+OPTION(PROJECT_SCENERY "compile scenery generator" OFF)
 
 SET(VC_DIR "$ENV{VCINSTALLDIR}")
 
@@ -35,6 +36,7 @@ SET(ENGINE_LINK_LIBRARIES "")
 
 INCLUDE_DIRECTORIES(
     ${CaptainsEngine_SOURCE_DIR}
+	${CaptainsEngine_SOURCE_DIR}/Engine
     ${CaptainsEngine_SOURCE_DIR}/extern/jpeg
 	${CaptainsEngine_SOURCE_DIR}/extern/lua
 	${CaptainsEngine_SOURCE_DIR}/extern/ode
@@ -143,3 +145,6 @@ ENDIF(PROJECT_COMPILER)
 IF(PROJECT_VGRENDER)
 	ADD_SUBDIRECTORY(vgrender)
 ENDIF(PROJECT_VGRENDER)
+IF(PROJECT_SCENERY)
+	ADD_SUBDIRECTORY(scenery)
+ENDIF(PROJECT_SCENERY)

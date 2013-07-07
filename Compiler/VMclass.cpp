@@ -437,7 +437,7 @@ FieldData VMClass::getConstant(VMContext* ctx, Java::u2 constant_ref){
     int size = JVM::utf8to16(utf->bytes.c_str(), NULL, 0);
 		VMCharArray* strdata = getVM()->createCharArray(ctx, size-1);
 		if (size > 1){
-      unsigned short* utf16 = new unsigned short[size-1];
+      unsigned short* utf16 = new unsigned short[size];
       JVM::utf8to16(utf->bytes.c_str(), utf16, size-1);
 			strdata->setData(utf16);
 			delete [] utf16;
