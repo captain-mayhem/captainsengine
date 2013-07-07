@@ -640,7 +640,7 @@ namespace StoryDesigner
                     string file = System.IO.Path.GetFileNameWithoutExtension(filename);
                     try
                     {
-                        mData.Images.Add(file, filename);
+                        mData.Images.Add(file.ToLower(), filename);
                     }
                     catch (ArgumentException)
                     {
@@ -1031,7 +1031,7 @@ namespace StoryDesigner
                     string file = System.IO.Path.GetFileNameWithoutExtension(filename);
                     try
                     {
-                        mData.Sounds.Add(file, filename);
+                        mData.Sounds.Add(file.ToLower(), filename);
                     }
                     catch (ArgumentException)
                     {
@@ -1066,7 +1066,7 @@ namespace StoryDesigner
                     string file = System.IO.Path.GetFileNameWithoutExtension(filename);
                     try
                     {
-                        mData.Music.Add(file, filename);
+                        mData.Music.Add(file.ToLower(), filename);
                     }
                     catch (ArgumentException)
                     {
@@ -1101,7 +1101,7 @@ namespace StoryDesigner
                     string file = System.IO.Path.GetFileNameWithoutExtension(filename);
                     try
                     {
-                        mData.Videos.Add(file, filename);
+                        mData.Videos.Add(file.ToLower(), filename);
                     }
                     catch (ArgumentException)
                     {
