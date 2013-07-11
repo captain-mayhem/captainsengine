@@ -66,7 +66,7 @@ Vec3f Body::getPosition(){
 }
 
 void Body::setOrientation(const Matrix& orientation){
-  Matrix tmp(Matrix::Rotation, Vec3f(1,0,0), M_PI/2);
+  Matrix tmp(Matrix::Rotation, Vec3f(1,0,0), (float)(M_PI/2));
   Matrix orientatio = orientation*tmp;
   dMatrix3 mat;
   mat[0] = orientatio.at(0);
@@ -99,7 +99,7 @@ Matrix Body::getOrientation(){
   mat.at(6) = (float)tmp[9];
   mat.at(10) = (float)tmp[10];
   mat.at(14) = (float)tmp[11];
-  Matrix rot(Matrix::Rotation, Vec3f(1,0,0), -M_PI/2);
+  Matrix rot(Matrix::Rotation, Vec3f(1,0,0), (float)(-M_PI/2));
   return mat*rot;
 }
 

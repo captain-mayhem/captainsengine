@@ -42,17 +42,17 @@ Matrix::Matrix(Type t, Vector3D axis, float angle){
 		double s = sin(angle);
 		double i = 1 - c;
 		
-		data_[0] = i*axis.x*axis.x + c;
-		data_[1] = i*axis.x*axis.y + s*axis.z;
-		data_[2] = i*axis.x*axis.z - s*axis.y;
+		data_[0] = (float)(i*axis.x*axis.x + c);
+		data_[1] = (float)(i*axis.x*axis.y + s*axis.z);
+		data_[2] = (float)(i*axis.x*axis.z - s*axis.y);
 		
-		data_[4] = i*axis.x*axis.y - s*axis.z;
-		data_[5] = i*axis.y*axis.y + c;
-		data_[6] = i*axis.y*axis.z + s*axis.x;
+		data_[4] = (float)(i*axis.x*axis.y - s*axis.z);
+		data_[5] = (float)(i*axis.y*axis.y + c);
+		data_[6] = (float)(i*axis.y*axis.z + s*axis.x);
 
-		data_[8] = i*axis.x*axis.z + s*axis.y;
-		data_[9] = i*axis.y*axis.z - s*axis.x;
-		data_[10]= i*axis.z*axis.z + c;
+		data_[8] = (float)(i*axis.x*axis.z + s*axis.y);
+		data_[9] = (float)(i*axis.y*axis.z - s*axis.x);
+		data_[10]= (float)(i*axis.z*axis.z + c);
 
 		data_[15]= 1;
 	}
@@ -388,11 +388,11 @@ Matrix Matrix::inverse() const {
 
   //back substitution
   //row 3
-  s = 1.0/r3[3];
+  s = 1.0f/r3[3];
   r3[4] *= s; r3[5] *= s; r3[6] *= s; r3[7] *= s;
   //row 2
   m2 = r2[3];
-  s = 1.0/r2[2];
+  s = 1.0f/r2[2];
   r2[4] = s*(r2[4]-r3[4]*m2); r2[5] = s*(r2[5]-r3[5]*m2);
   r2[6] = s*(r2[6]-r3[6]*m2); r2[7] = s*(r2[7]-r3[7]*m2);
   m1 = r1[3];
@@ -403,7 +403,7 @@ Matrix Matrix::inverse() const {
   r0[6] -= r3[6]*m0; r0[7] -= r3[7]*m0;
   //row 1
   m1 = r1[2];
-  s = 1.0/r1[1];
+  s = 1.0f/r1[1];
   r1[4] = s*(r1[4]-r2[4]*m1); r1[5] = s*(r1[5]-r2[5]*m1);
   r1[6] = s*(r1[6]-r2[6]*m1); r1[7] = s*(r1[7]-r2[7]*m1);
   m0 = r0[2];
@@ -411,7 +411,7 @@ Matrix Matrix::inverse() const {
   r0[6] -= r2[6]*m0; r0[7] -= r2[7]*m0;
   //row 0
   m0 = r0[1];
-  s = 1.0/r0[0];
+  s = 1.0f/r0[0];
   r0[4] = s*(r0[4]-r1[4]*m0); r0[5] = s*(r0[5]-r1[5]*m0);
   r0[6] = s*(r0[6]-r1[6]*m0); r0[7] = s*(r0[7]-r1[7]*m0);
 

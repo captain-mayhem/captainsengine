@@ -19,8 +19,8 @@ using std::cerr;
 using std::list;
 using std::vector;
 
-#define EXIT() (CGE::Engine::instance()->shutdown())
-#define EXIT2(msg, ...) {TR_ERROR(msg, ##__VA_ARGS__); CGE::Engine::instance()->shutdown(); }
+#define EXIT() (CGE::Engine::instance()->requestShutdown())
+#define EXIT2(msg, ...) {TR_ERROR(msg, ##__VA_ARGS__); CGE::Engine::instance()->requestShutdown(); }
 #define SAFE_DELETE(ptr)       { if(ptr) { delete (ptr); (ptr)=NULL; } }
 #define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=NULL; } }
 #define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=NULL; } }
