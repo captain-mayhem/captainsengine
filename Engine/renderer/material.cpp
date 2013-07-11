@@ -3,10 +3,10 @@
 using namespace CGE;
 
 Material::Material(){
-  mAmbient = Color(0.2,0.2,0.2,1.0);
-  mDiffuse = Color(0.8,0.8,0.8,1.0);
-  mSpecular = Color(0.0,0.0,0.0,1.0);
-  mEmissive = Color(0.0,0.0,0.0,1.0);
+  mAmbient = Color(0.2f,0.2f,0.2f,1.0f);
+  mDiffuse = Color(0.8f,0.8f,0.8f,1.0f);
+  mSpecular = Color(0.0f,0.0f,0.0f,1.0f);
+  mEmissive = Color(0.0f,0.0f,0.0f,1.0f);
   mPower = 0.0f;
 }
 

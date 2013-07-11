@@ -19,7 +19,7 @@ void Ray::buildPickingRay(float x, float y, float width, float height, float nww
   float px = (((2.0f*x)/width)-1.0f)/nww;
   float py = (((-2.0f*y)/height)+1.0f)/nwh;
   origin_ = Vector3D();
-  direction_ = Vector3D(px,py,1.0/nwd);
+  direction_ = Vector3D(px,py,1.0f/nwd);
 }
 
 //! transform a ray
