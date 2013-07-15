@@ -20,7 +20,8 @@ namespace CGE{
 enum RenderType{
   OpenGL,
   DirectX,
-  OpenGL_ES
+  OpenGL_ES,
+  OpenGL2,
 };
 
 enum BlendType{

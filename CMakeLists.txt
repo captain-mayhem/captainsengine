@@ -40,6 +40,7 @@ INCLUDE_DIRECTORIES(
     ${CaptainsEngine_SOURCE_DIR}/extern/jpeg
 	${CaptainsEngine_SOURCE_DIR}/extern/lua
 	${CaptainsEngine_SOURCE_DIR}/extern/ode
+	${CaptainsEngine_SOURCE_DIR}/extern/glew/include
 	${ADD_INC_PATH}
 )
 

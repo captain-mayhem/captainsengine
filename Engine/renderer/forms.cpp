@@ -13,6 +13,9 @@ using namespace CGE;
 Forms::Forms(){
   quad_ = NULL;
   cylinder_ = NULL;
+  for (int i = 0; i < 3; ++i){
+    mCylinderInds[i] = NULL;
+  }
   constructVBOs();
 }
 
@@ -28,6 +31,8 @@ void Forms::constructVBOs(){
   Renderer* rend = CGE::Engine::instance()->getRenderer();
   //generate textured quad
   quad_ = rend->createVertexBuffer();
+  if (quad_ == NULL)
+    return;
   quad_->create(VB_POSITION | VB_TEXCOORD, 4);
   quad_->lockVertexPointer();
   quad_->setPosition(3, Vector3D(0.5,0.5,0));

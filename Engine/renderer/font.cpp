@@ -50,6 +50,8 @@ void Font::buildFont(){
   float	cx;
   float	cy;
 
+  if (tex_ == NULL)
+    return;
   tex_->activate();
   buffer_->create(VB_POSITION | VB_TEXCOORD, 4*256);
   buffer_->lockVertexPointer();
@@ -113,6 +115,9 @@ void Font::setColor(Color& c){
 void Font::render(){
   Renderer* rend = CGE::Engine::instance()->getRenderer();
   queue<font_data> temp;
+
+  if (tex_ == NULL)
+    return;
 
   tex_->activate();
   buffer_->activate();
