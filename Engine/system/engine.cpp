@@ -2,6 +2,7 @@
 #include "../renderer/OpenGL/OGLrenderer.h"
 #include "../renderer/DirectX/DXrenderer.h"
 #include "../renderer/GLES/GLESrenderer.h"
+#include "../renderer/GL2/GL2Renderer.h"
 #include "../renderer/dummyrenderer.h"
 #include "../input/mouse.h"
 #include "../input/keyboard.h"
@@ -75,7 +76,11 @@ void Engine::startup(int argc, char** argv){
   if (graphics_){
     if (type == "OpenGL"){
 #ifdef OPENGL
+#ifdef OPENGL2
+      rend_ = new CGE::GL2Renderer();
+#else
         rend_ = new CGE::OGLRenderer();
+#endif
 #else
         EXIT2("OpenGL support is not compiled in\n");
 #endif

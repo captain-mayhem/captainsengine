@@ -22,6 +22,8 @@ extern float Epsilon;
 
 template<typename T>
 class Vec2{
+  template <typename S>
+  friend std::ostream& operator<<(std::ostream& stream, const Vec2<S>& vec);
 public:
   //! Constructor
   Vec2() : x(0), y(0){}
@@ -87,8 +89,6 @@ public:
       return y > v.y;
     return x > v.x;
   }
-  //! write vector to a stream
-  friend std::ostream& operator<<(std::ostream& stream, const Vec2& mat);
 
   Vec2& normalize(){
     float len = length();
@@ -121,7 +121,12 @@ typedef Vec2<int> Vec2i;
   return a.x < b.x && a.y < b.y;
 }*/
 
-std::ostream& operator<<(std::ostream& stream, const Vector2D& vec);
+//std::ostream& operator<<(std::ostream& stream, const Vector2D& vec);
+template <typename T>
+std::ostream& operator<<(std::ostream& stream, const Vec2<T>& vec){
+  stream << "( " << vec.x << " / " << vec.y << " )";
+  return stream;
+}
 
 template <typename T>
 class Vec3{

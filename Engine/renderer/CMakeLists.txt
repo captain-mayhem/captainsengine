@@ -48,6 +48,16 @@ IF(RENDER_GLES)
 		${RENDERER_HDRS}
 	)
 ENDIF(RENDER_GLES)
+IF(RENDER_GL2)
+	SET(RENDERER_SRCS
+		${PRE}/GL2/GL2Renderer.cpp
+		${PRE}/GL2/GL2Shader.cpp
+	)
+	SET(RENDERER_HDRS
+		${PRE}/GL2/GL2Renderer.h
+		${PRE}/GL2/GL2Shader.h
+	)
+ENDIF(RENDER_GL2)
 
 SET(Engine_renderer_SRCS
 	${PRE}/camera.cpp

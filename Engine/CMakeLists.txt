@@ -1,6 +1,7 @@
 OPTION(RENDER_OPENGL "compile renderer with OpenGL support" ON)
 OPTION(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
 OPTION(RENDER_GLES "compile renderer with OpenGL ES support" OFF)
+OPTION(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
 OPTION (NO_PTHREAD_CANCEL "Platform has no pthread cancel" OFF)
 IF (OS STREQUAL linux)
 OPTION (NO_X11 "Disable X11 for embedded systems" OFF)
@@ -15,13 +16,24 @@ IF(RENDER_DIRECTX)
 	)
 ENDIF(RENDER_DIRECTX)
 IF(RENDER_OPENGL)
-	MESSAGE(STATUS "with OpenGL renderer")
+	IF (NOT RENDER_GL2)
+		MESSAGE(STATUS "with OpenGL renderer")
+	ELSE ()
+		MESSAGE(STATUS "with OpenGL (ES) 2 renderer")
+	ENDIF()
 	INCLUDE(FindOpenGL)
 	ADD_DEFINITIONS(-DOPENGL)
 	SET(ENGINE_LINK_LIBRARIES
 		${OPENGL_LIBRARIES}
 		${ENGINE_LINK_LIBRARIES}
 	)
+	IF(RENDER_GL2)
+	ADD_DEFINITIONS(-DOPENGL2)
+	SET(ENGINE_LINK_LIBRARIES
+		${ENGINE_LINK_LIBRARIES}
+		glew
+	)
+	ENDIF()
 ENDIF(RENDER_OPENGL)
 IF(RENDER_GLES)
 	ADD_DEFINITIONS(-DGLES)
