@@ -6,6 +6,14 @@ TR_CHANNEL(CGE_Shader)
 
 using namespace CGE;
 
+GL2Shader::GL2Shader(){
+  mProgram = glCreateProgram();
+}
+
+GL2Shader::~GL2Shader(){
+  glDeleteProgram(mProgram);
+}
+
 bool GL2Shader::addShader(GLenum shadertype, const char* shaderstring, int stringlen){
   TR_USE(CGE_Shader);
   if (stringlen == 0)
@@ -18,8 +26,9 @@ bool GL2Shader::addShader(GLenum shadertype, const char* shaderstring, int strin
   if (!success){
     TR_ERROR("GL2: %s");
   }
-  else
-    mShaders.push_back(shader);
+  else{
+    glAttachShader(mProgram, shader);
+  }
   GLint len;
   glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
   if (len > 0){
@@ -28,14 +37,12 @@ bool GL2Shader::addShader(GLenum shadertype, const char* shaderstring, int strin
     TR_INFO("GL2: %s", log);
     delete [] log;
   }
+  glDeleteShader(shader);
   return success != 0;
 }
 
 bool GL2Shader::linkShaders(){
   TR_USE(CGE_Shader);
-  for (unsigned i = 0; i < mShaders.size(); ++i){
-    glAttachShader(mProgram, mShaders[i]);
-  }
   glLinkProgram(mProgram);
   GLint success = 0;
   glGetProgramiv(mProgram, GL_LINK_STATUS, &success);
@@ -51,11 +58,4 @@ bool GL2Shader::linkShaders(){
     delete [] log;
   }
   return success != 0;
-}
-
-void GL2Shader::deleteShaders(){
-  for (unsigned i = 0; i < mShaders.size(); ++i){
-    glDeleteShader(mShaders[i]);
-  }
-  //mShaders.clear();
 }

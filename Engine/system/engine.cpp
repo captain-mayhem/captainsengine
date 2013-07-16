@@ -65,7 +65,7 @@ void Engine::startup(int argc, char** argv){
   Script::instance()->initEnv();
   string type = Script::instance()->getStringSetting("renderer");
   if (type.empty())
-    type = "OpenGL";
+    type = "GL2";
   maxFramerate_ = CGE::Script::instance()->getNumberSetting("timeScheme");
   bool exists;
   graphics_ = Script::instance()->getBoolSetting("graphics", &exists);
@@ -76,11 +76,7 @@ void Engine::startup(int argc, char** argv){
   if (graphics_){
     if (type == "OpenGL"){
 #ifdef OPENGL
-#ifdef OPENGL2
-      rend_ = new CGE::GL2Renderer();
-#else
         rend_ = new CGE::OGLRenderer();
-#endif
 #else
         EXIT2("OpenGL support is not compiled in\n");
 #endif
@@ -97,6 +93,13 @@ void Engine::startup(int argc, char** argv){
       rend_ = new CGE::GLESRenderer();
 #else
       EXIT2("OpenGL ES support is not compiled in\n");
+#endif
+    }
+    else if (type == "GL2"){
+#ifdef OPENGL2
+      rend_ = new CGE::GL2Renderer();
+#else
+      EXIT2("OpenGL (ES) 2 support is not compiled in\n");
 #endif
     }
     else{
