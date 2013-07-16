@@ -5,7 +5,8 @@
 #include "../../window/nativeWindows.h"
 #include "../../window/nativeLinux.h"
 #include "../../system/engine.h"
-#include <GL/gl.h>
+#include <GL/glew.h>
+//#include <GL/gl.h>
 #include "GL2Renderer.h"
 /*#include "OGLvertexbuffer.h"
 #include "OGLtexture.h"
@@ -14,7 +15,7 @@
 
 using namespace CGE;
 
-TR_CHANNEL(CGE_Renderer_OGL);
+TR_CHANNEL(CGE_Renderer_GL2);
 
 GL2Renderer::GL2Renderer(): Renderer() {
   type_ = OpenGL2;
@@ -34,7 +35,7 @@ GL2Renderer::~GL2Renderer(){
 }
 
 void GL2Renderer::initContext(::Windows::AppWindow* win){
-  TR_USE(CGE_Renderer_OGL);
+  TR_USE(CGE_Renderer_GL2);
   TR_INFO("Initializing OpenGL context");
   win_ = win;
 #if defined(WIN32) && !defined(UNDER_CE)
@@ -100,7 +101,7 @@ void GL2Renderer::initContext(::Windows::AppWindow* win){
 }
 
 void GL2Renderer::killContext(){
-  TR_USE(CGE_Renderer_OGL);
+  TR_USE(CGE_Renderer_GL2);
 #if defined(WIN32) && !defined(UNDER_CE)
   if (hRC_){
     if (!wglMakeCurrent(NULL,NULL)){
@@ -131,8 +132,9 @@ void GL2Renderer::killContext(){
 }
 
 void GL2Renderer::initRendering(){
-  TR_USE(CGE_Renderer_OGL);
+  TR_USE(CGE_Renderer_GL2);
   TR_INFO("Initializing Scene");
+  glewInit();
   //smooth shading
   glShadeModel(GL_SMOOTH);
 
@@ -157,7 +159,7 @@ void GL2Renderer::renderScene(){
 }
 
 void GL2Renderer::resizeScene(int width, int height){
-  TR_USE(CGE_Renderer_OGL);
+  TR_USE(CGE_Renderer_GL2);
 #ifdef WIN32
   if (hRC_ == NULL)
     return;
