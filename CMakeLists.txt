@@ -107,6 +107,12 @@ IF (${OS} STREQUAL "qnx")
   ADD_DEFINITIONS(-DQNX)
 ENDIF (${OS} STREQUAL "qnx")
 
+IF (${OS} STREQUAL "android")
+	MESSAGE(STATUS "Compiling for Android")
+	ADD_DEFINITIONS(-DUNIX)
+	ADD_DEFINITIONS(-DQNX)
+ENDIF(${OS} STREQUAL "android")
+
 OPTION(PHYSICS_DOUBLE_PRECISION "enable double precision physics calculations" ON)
 
 IF(PHYSICS_DOUBLE_PRECISION)

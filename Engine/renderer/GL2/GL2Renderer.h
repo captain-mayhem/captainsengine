@@ -1,7 +1,7 @@
 #ifndef GL2RENDERER_H
 #define GL2RENDERER_H
 
-#ifndef OPENGL
+#ifndef OPENGL2
 #define Dummy OGL
 #include "../dummyrenderer.h"
 #undef Dummy
@@ -10,7 +10,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#ifdef UNIX
+#if defined UNIX && !defined QNX
 #include <GL/glx.h>
 #endif
 #include "../renderer.h"
@@ -29,7 +29,7 @@ public:
   //! get the device context
   inline HDC getDevice() {return hDC_;}
 #endif
-#ifdef UNIX
+#if defined UNIX && !defined QNX
   //set glx context
   inline void setGLX(GLXContext glx){glx_ = glx;}
   //get glx context
@@ -108,7 +108,7 @@ protected:
   //! GL rendering context
   HGLRC hRC_;
 #endif
-#ifdef UNIX
+#if defined UNIX && !defined QNX
   GLXContext glx_;
 #endif
 };
