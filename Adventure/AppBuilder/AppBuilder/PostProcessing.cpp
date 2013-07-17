@@ -61,7 +61,7 @@ PostProcessor::Effect::Effect(const char* vertexsource, const char* fragmentsour
 }
 
 PostProcessor::Effect::~Effect(){
-  mShader.deleteShaders();
+  
 }
 
 void PostProcessor::Effect::activate(bool fade, ...){

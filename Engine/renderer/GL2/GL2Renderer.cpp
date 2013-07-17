@@ -5,7 +5,12 @@
 #include "../../window/nativeWindows.h"
 #include "../../window/nativeLinux.h"
 #include "../../system/engine.h"
+#ifdef QNX
+#include <GLES2/gl2.h>
+#define glClearDepth glClearDepthf
+#else
 #include <GL/glew.h>
+#endif
 //#include <GL/gl.h>
 #include "GL2Renderer.h"
 /*#include "OGLvertexbuffer.h"
@@ -23,7 +28,7 @@ GL2Renderer::GL2Renderer(): Renderer() {
   hDC_ = NULL;
   hRC_ = NULL;
 #endif
-#ifdef UNIX
+#if defined UNIX && !defined QNX
   glx_ = NULL;
 #endif
 }
@@ -89,7 +94,7 @@ void GL2Renderer::initContext(::Windows::AppWindow* win){
   SetForegroundWindow(wnd);
   SetFocus(wnd);
 #endif
-#ifdef UNIX
+#if defined UNIX && !defined QNX
   ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
   glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
 #endif
@@ -119,7 +124,7 @@ void GL2Renderer::killContext(){
     hDC_ = NULL;
   }
 #endif
-#ifdef UNIX
+#if defined UNIX && !defined QNX
   ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
   if (glx_){
     if (!glXMakeCurrent(x11->getDisplay(), None, NULL)){
@@ -134,9 +139,9 @@ void GL2Renderer::killContext(){
 void GL2Renderer::initRendering(){
   TR_USE(CGE_Renderer_GL2);
   TR_INFO("Initializing Scene");
+#ifndef QNX
   glewInit();
-  //smooth shading
-  glShadeModel(GL_SMOOTH);
+#endif
 
   //background color black
   //glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
@@ -145,9 +150,6 @@ void GL2Renderer::initRendering(){
   glClearDepth(1.0f);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
-
-  //better perspective calculations
-  glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
   Renderer::initRendering();
 }
@@ -229,46 +231,46 @@ void GL2Renderer::lookAt(const Vector3D& position, const Vector3D& look, const V
 
 //! set projection
 void GL2Renderer::projection(float angle, float aspect, float nearplane, float farplane){
-  glMatrixMode(GL_PROJECTION);
+  /*glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   GLfloat ymax = nearplane * (GLfloat)tan(angle * 3.1415962f / 360.0);
   GLfloat ymin = -ymax;
   GLfloat xmin = ymin * aspect;
   GLfloat xmax = ymax * aspect;
   glFrustum(xmin, xmax, ymin, ymax, nearplane, farplane);
-  glMatrixMode(GL_MODELVIEW);
+  glMatrixMode(GL_MODELVIEW);*/
 }
 
 void GL2Renderer::ortho(const int width, const int height){
-  glMatrixMode(GL_PROJECTION);
+  /*glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glOrtho(-width/2.0, width/2.0, -height/2.0, height/2.0, -1.f, 1.f);
-  glMatrixMode(GL_MODELVIEW);
+  glMatrixMode(GL_MODELVIEW);*/
 }
 
 //! reset modelview matrix
 void GL2Renderer::resetModelView(){
-  glLoadIdentity();
+  //glLoadIdentity();
 }
 
 //! translate
 void GL2Renderer::translate(float x, float y, float z){
-  glTranslatef(x,y,z);
+  //glTranslatef(x,y,z);
 }
 
 //! scale
 void GL2Renderer::scale(float x, float y, float z){
-  glScalef(x,y,z);
+  //glScalef(x,y,z);
 }
 
 //! set rendermode
 void GL2Renderer::renderMode(RendMode rm){
-  if (rm == Filled){
+  /*if (rm == Filled){
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
   else if(rm == Wireframe){
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-  }
+  }*/
 }
 
 //! set blending mode
@@ -323,44 +325,44 @@ void GL2Renderer::enableTexturing(const bool flag){
 
 // enable lighting
 void GL2Renderer::enableLighting(const bool flag){
-  if (flag)
+  /*if (flag)
     glEnable(GL_LIGHTING);
   else
-    glDisable(GL_LIGHTING);
+    glDisable(GL_LIGHTING);*/
 }
 
 //! set color
 void GL2Renderer::setColor(float r, float g, float b, float a){
-  glColor4f(r,g,b,a);
+  //glColor4f(r,g,b,a);
 }
 
 //! set color
 void GL2Renderer::setColor(const Color* c){
-  glColor4fv(c->array);
+  //glColor4fv(c->array);
 }
 
 //! push matrix
 void GL2Renderer::pushMatrix(){
-  glPushMatrix();
+  //glPushMatrix();
 }
 
 //! pop matrix
 void GL2Renderer::popMatrix(){
-  glPopMatrix();
+  //glPopMatrix();
 }
 
 //! multiply matrix
 void GL2Renderer::multiplyMatrix(const CGE::Matrix& mat){
-  glMultMatrixf(mat.getData());
+  //glMultMatrixf(mat.getData());
 }
 
 //! set material
 void GL2Renderer::setMaterial(const Material& mat){
-  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.getAmbient().array);
+  /*glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.getAmbient().array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat.getDiffuse().array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat.getSpecular().array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat.getEmissive().array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.getPower());
+  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.getPower());*/
 }
 
 //! get the viewport
@@ -370,7 +372,7 @@ void GL2Renderer::getViewport(int view[4]){
 
 //! get a matrix
 Matrix GL2Renderer::getMatrix(MatrixType mt){
-  float tmp[16];
+  /*float tmp[16];
   if (mt == Modelview){
     glGetFloatv(GL_MODELVIEW_MATRIX, tmp);
     return Matrix(tmp);
@@ -378,7 +380,7 @@ Matrix GL2Renderer::getMatrix(MatrixType mt){
   if (mt == Projection){
     glGetFloatv(GL_PROJECTION_MATRIX, tmp);
     return Matrix(tmp);
-  }
+  }*/
   return Matrix(Matrix::Identity);
 }
 
@@ -386,27 +388,27 @@ void GL2Renderer::swapBuffers(){
 #ifdef WIN32
   SwapBuffers(hDC_);
 #endif
-#ifdef UNIX
+#if defined UNIX && !defined QNX
   Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(win_);
   glXSwapBuffers(win->getDisplay(), win->getWindow());
 #endif
 }
 
 void GL2Renderer::enableLight(short number, bool flag){
-  if (flag)
+  /*if (flag)
     glEnable(GL_LIGHT0+number);
   else
-    glDisable(GL_LIGHT0+number);
+    glDisable(GL_LIGHT0+number);*/
 }
 
 void GL2Renderer::setLight(int number, const Light& lit){
-  Vec3f dir = lit.getDirection()*-1;
+  /*Vec3f dir = lit.getDirection()*-1;
   float tmp[4];
   tmp[0] = dir.x;
   tmp[1] = dir.y;
   tmp[2] = dir.z;
   tmp[3] = 0;
-  glLightfv(GL_LIGHT0, GL_POSITION, tmp);
+  glLightfv(GL_LIGHT0, GL_POSITION, tmp);*/
 }
 
 void GL2Renderer::switchFromViewToModelTransform(){

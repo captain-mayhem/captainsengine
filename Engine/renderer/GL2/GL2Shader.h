@@ -1,7 +1,11 @@
 #ifndef GL2_SHADER_H
 #define GL2_SHADER_H
 
+#ifndef QNX
 #include <GL/glew.h>
+#else
+#include <GLES2/gl2.h>
+#endif
 #include <math/matrix.h>
 
 namespace CGE{
