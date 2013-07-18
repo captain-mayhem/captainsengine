@@ -245,10 +245,8 @@ class AdventureView extends GLSurfaceView{
         	mWindowWidth = width;
         	mWindowHeight = height;
         	mInitialized = true;
-        	String extdir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-        	String dir = extdir+"/adventure/"+mAdventure;
-        	Log.i(TAG, "Trying to load adventure from "+ dir);
-			AdventureLib.init(dir+"/data/game.dat");
+        	Log.i(TAG, "Trying to load adventure from "+ mAdventure);
+			AdventureLib.init(mAdventure+"/data/game.dat");
         }
 
         public void onSurfaceCreated(GL10 gl, EGLConfig config) {
