@@ -26,8 +26,13 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
 #else
   int len = strlen(cmdline);
   std::string curr;
+  bool acceptWs = false;
   for (int i = 0; i < len; ++i){
-    if (cmdline[i] == ' ' && !curr.empty()){
+    if (cmdline[i] == '"'){
+      acceptWs = !acceptWs;
+      continue;
+    }
+    if (!acceptWs && cmdline[i] == ' ' && !curr.empty()){
       args.push_back(curr);
       curr.clear();
     }

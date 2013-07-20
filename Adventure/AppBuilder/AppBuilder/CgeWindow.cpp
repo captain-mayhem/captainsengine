@@ -27,29 +27,19 @@ void quit();
 
 void init(){
   TR_USE(ADV_CGE_Window);
+  Engine::init();
   adoc = new AdvDocument();
   if (!adoc->loadDocument(filename)){
+    TR_ERROR("Cannot load %s", filename.c_str());
+    CGE::Engine::instance()->requestShutdown();
     return;
   }
   windowsize = adoc->getProjectSettings()->resolution;
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->getWindow()->changeSize(windowsize.x, windowsize.y);
-  Engine::init();
   Engine::instance()->setData(adoc);
   SoundEngine::init();
   SoundEngine::instance()->setData(adoc);
-
-  GLenum err = glewInit();
-  if (err != GLEW_OK){
-    TR_ERROR("Unable to init OpenGL extensions");
-    CGE::Engine::instance()->requestShutdown();
-    return;
-  }
-  if (!GLEW_VERSION_2_0){
-    TR_ERROR("OpenGL 2.0 not available");
-    CGE::Engine::instance()->requestShutdown();
-    return;
-  }
 
   AdvRenderer::init();
 
