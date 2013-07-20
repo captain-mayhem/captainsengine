@@ -49,7 +49,8 @@ int _stricmp(const char* str1, const char* str2){
 Engine* Engine::mInstance = NULL;
 static CGE::Mutex trymtx;
 
-Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false){
+Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false),
+  mSaver(NULL){
   mVerts[0] = 0; mVerts[1] = 1;
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;

@@ -140,7 +140,17 @@ void GL2Renderer::initRendering(){
   TR_USE(CGE_Renderer_GL2);
   TR_INFO("Initializing Scene");
 #ifndef QNX
-  glewInit();
+  GLenum err = glewInit();
+  if (err != GLEW_OK){
+    TR_ERROR("Unable to init OpenGL extensions");
+    CGE::Engine::instance()->requestShutdown();
+    return;
+  }
+  if (!GLEW_VERSION_2_0){
+    TR_ERROR("OpenGL 2.0 not available");
+    CGE::Engine::instance()->requestShutdown();
+    return;
+  }
 #endif
 
   //background color black
