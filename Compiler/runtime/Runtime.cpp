@@ -728,7 +728,7 @@ jobject JNIEXPORT Java_java_lang_Throwable_fillInStackTrace(JNIEnv* env, jobject
   VMContext* ctx = CTX(env);
   VMMethod* mthd = NULL;
   std::vector<VMMethod*> stack;
-  std::vector<unsigned> ips;
+  std::vector<uint64> ips;
   unsigned lastIp = -1;
   VMContext::StackIterator iter = ctx->getTopFrame();
   bool doNext = false;
@@ -852,10 +852,11 @@ jint JNIEXPORT Java_sun_misc_Unsafe_arrayIndexScale(JNIEnv* env, jobject unsafe,
 }
 
 jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jint expected, jint update){
+  TR_USE(Java_Runtime)
   //TODO make atomic
   VMObject* obj = (VMObject*)object;
   if (obj->getClass()->isArray())
-    DebugBreak();
+    TR_BREAK("is Array");
   FieldData* fd = obj->getObjField((int)fieldOffset);
   if (fd->i == expected){
     //update
@@ -866,10 +867,11 @@ jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapInt(JNIEnv* env, jobject u
 }
 
 jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapLong(JNIEnv* env, jobject unsafe, jobject object, jlong fieldOffset, jlong expected, jlong update){
+  TR_USE(Java_Runtime)
   //TODO make atomic
   VMObject* obj = (VMObject*)object;
   if (obj->getClass()->isArray())
-    DebugBreak();
+    TR_BREAK("is Array");
   FieldData* fd = obj->getObjField((int)fieldOffset);
   if (fd->l == expected){
     //update
@@ -912,18 +914,20 @@ jbyte JNIEXPORT Java_sun_misc_Unsafe_getByte(JNIEnv* env, jobject object, jlong 
 }
 
 jobject JNIEXPORT Java_sun_misc_Unsafe_getObject(JNIEnv* env, jobject object, jobject o, jlong offset){
+  TR_USE(Java_Runtime)
   VMObject* obj = (VMObject*)o;
   if (!obj->getClass()->isArray())
-    DebugBreak();
+    TR_BREAK("no Array");
   VMObjectArray* oa = (VMObjectArray*)o;
   VMObject* ret = oa->get((int)offset);
   return ret;
 }
 
 jobject JNIEXPORT Java_sun_misc_Unsafe_getObjectVolatile(JNIEnv* env, jobject object, jobject o, jlong offset){
+  TR_USE(Java_Runtime)
   VMObject* obj = (VMObject*)o;
   if (!obj->getClass()->isArray())
-    DebugBreak();
+    TR_BREAK("no Array");
   VMObjectArray* oa = (VMObjectArray*)o;
   VMObject* ret = oa->get((int)offset);
   return ret;
