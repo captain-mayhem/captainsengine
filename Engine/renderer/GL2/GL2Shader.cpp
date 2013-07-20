@@ -1,5 +1,7 @@
 #include "GL2Shader.h"
 
+#include <cstring>
+
 #include "io/Tracing.h"
 
 TR_CHANNEL(CGE_Shader)
