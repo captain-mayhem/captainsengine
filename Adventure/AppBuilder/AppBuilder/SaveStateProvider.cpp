@@ -109,6 +109,7 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveInvent
     }
     strm << std::endl;
   }
+  strm << inv.current << std::endl;
   return strm;
 }
 
@@ -124,6 +125,7 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& i
       inv.items[invnum][j] = itemName;
     }
   }
+  strm >> inv.current;
   return strm;
 }
 

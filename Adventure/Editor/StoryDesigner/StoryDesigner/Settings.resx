@@ -124,14 +124,8 @@
   <data name="fading_indicator.Location" type="System.Drawing.Point, System.Drawing">
     <value>189, 145</value>
   </data>
-  <data name="coin_autopopup.Size" type="System.Drawing.Size, System.Drawing">
-    <value>184, 17</value>
-  </data>
   <data name="&gt;&gt;sc_circle.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="symbol.Size" type="System.Drawing.Size, System.Drawing">
-    <value>50, 50</value>
   </data>
   <data name="&gt;&gt;ts_box.Name" xml:space="preserve">
     <value>ts_box</value>
@@ -139,6 +133,9 @@
   <assembly alias="mscorlib" name="mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="ts_appear_bottom.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
+  </data>
+  <data name="&gt;&gt;sc_circle.Name" xml:space="preserve">
+    <value>sc_circle</value>
   </data>
   <data name="coin_fading.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
@@ -164,9 +161,6 @@
   <data name="&gt;&gt;ts_lines.Parent" xml:space="preserve">
     <value>groupBox1</value>
   </data>
-  <data name="label23.Size" type="System.Drawing.Size, System.Drawing">
-    <value>67, 13</value>
-  </data>
   <data name="label8.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
@@ -182,11 +176,8 @@
   <data name="label19.Size" type="System.Drawing.Size, System.Drawing">
     <value>71, 13</value>
   </data>
-  <data name="&gt;&gt;coin_interface_panel.Name" xml:space="preserve">
-    <value>coin_interface_panel</value>
-  </data>
-  <data name="&gt;&gt;ts_additive.ZOrder" xml:space="preserve">
-    <value>1</value>
+  <data name="protectGamefiles.Size" type="System.Drawing.Size, System.Drawing">
+    <value>110, 17</value>
   </data>
   <data name="label19.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -278,11 +269,17 @@
   <data name="&gt;&gt;tabPage4.Parent" xml:space="preserve">
     <value>tabControl1</value>
   </data>
+  <data name="&gt;&gt;drawDraggedItems.Parent" xml:space="preserve">
+    <value>tabPage1</value>
+  </data>
   <data name="ts_appear_bottom.Text" xml:space="preserve">
     <value>Bottom</value>
   </data>
   <data name="&gt;&gt;infoLine.Name" xml:space="preserve">
     <value>infoLine</value>
+  </data>
+  <data name="label10.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 194</value>
   </data>
   <data name="groupBox2.Location" type="System.Drawing.Point, System.Drawing">
     <value>9, 19</value>
@@ -290,17 +287,17 @@
   <data name="pictureBox1.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
   </data>
-  <data name="anywhere_transparency.Size" type="System.Drawing.Size, System.Drawing">
-    <value>120, 20</value>
-  </data>
   <data name="tabPage2.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>
+  </data>
+  <data name="&gt;&gt;menu_fading.Type" xml:space="preserve">
+    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="createBackups.Size" type="System.Drawing.Size, System.Drawing">
     <value>101, 17</value>
   </data>
-  <data name="ts_appears_top.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <data name="&gt;&gt;panel2.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;start_script.Parent" xml:space="preserve">
     <value>panel3</value>
@@ -319,6 +316,9 @@
   </data>
   <data name="OK.Size" type="System.Drawing.Size, System.Drawing">
     <value>75, 23</value>
+  </data>
+  <data name="actionTextHeight.Location" type="System.Drawing.Point, System.Drawing">
+    <value>358, 104</value>
   </data>
   <data name="ts_text_color.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
@@ -341,8 +341,8 @@
   <data name="&gt;&gt;tabPage3.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
-  <data name="&gt;&gt;label7.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="offspeech_color.Location" type="System.Drawing.Point, System.Drawing">
+    <value>106, 200</value>
   </data>
   <data name="&gt;&gt;ts_appears_top.Parent" xml:space="preserve">
     <value>taskbar_panel</value>
@@ -355,9 +355,6 @@
   </data>
   <data name="tabPage6.Size" type="System.Drawing.Size, System.Drawing">
     <value>478, 383</value>
-  </data>
-  <data name="ts_box.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 65</value>
   </data>
   <data name="ts_scrolling.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -380,9 +377,6 @@
   <data name="&gt;&gt;main_script.Parent" xml:space="preserve">
     <value>panel3</value>
   </data>
-  <data name="no_antialiasing.Location" type="System.Drawing.Point, System.Drawing">
-    <value>15, 133</value>
-  </data>
   <data name="&gt;&gt;offspeech_color.Name" xml:space="preserve">
     <value>offspeech_color</value>
   </data>
@@ -391,9 +385,6 @@
   </data>
   <data name="&gt;&gt;label24.Name" xml:space="preserve">
     <value>label24</value>
-  </data>
-  <data name="&gt;&gt;text_color.Name" xml:space="preserve">
-    <value>text_color</value>
   </data>
   <data name="label20.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -464,6 +455,9 @@
   <data name="&gt;&gt;label4.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
+  <data name="&gt;&gt;main_script.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
     <value>61, 13</value>
   </data>
@@ -491,6 +485,9 @@
   <data name="sc_circle.Text" xml:space="preserve">
     <value>Circle</value>
   </data>
+  <data name="tabPage1.Location" type="System.Drawing.Point, System.Drawing">
+    <value>4, 22</value>
+  </data>
   <data name="&gt;&gt;offspeech_color.Parent" xml:space="preserve">
     <value>tabPage3</value>
   </data>
@@ -505,6 +502,9 @@
   </data>
   <data name="anywhere_transparency.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
+  </data>
+  <data name="panel1.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
   </data>
   <data name="ts_box.Size" type="System.Drawing.Size, System.Drawing">
     <value>43, 17</value>
@@ -543,6 +543,9 @@
   <data name="symbol.Location" type="System.Drawing.Point, System.Drawing">
     <value>62, 229</value>
   </data>
+  <data name="groupBox1.Text" xml:space="preserve">
+    <value>Border</value>
+  </data>
   <data name="&gt;&gt;taskBarHeight.Name" xml:space="preserve">
     <value>taskBarHeight</value>
   </data>
@@ -576,9 +579,6 @@
   <data name="screenchange.Location" type="System.Drawing.Point, System.Drawing">
     <value>11, 157</value>
   </data>
-  <data name="ts_solid.Text" xml:space="preserve">
-    <value>Solid</value>
-  </data>
   <data name="tabPage2.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 3, 3, 3</value>
   </data>
@@ -597,14 +597,14 @@
   <data name="&gt;&gt;label26.Name" xml:space="preserve">
     <value>label26</value>
   </data>
+  <data name="taskbar.Location" type="System.Drawing.Point, System.Drawing">
+    <value>244, 16</value>
+  </data>
   <data name="menu_fading.Size" type="System.Drawing.Size, System.Drawing">
     <value>120, 20</value>
   </data>
   <data name="label12.Size" type="System.Drawing.Size, System.Drawing">
     <value>75, 13</value>
-  </data>
-  <data name="tabPage6.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
-    <value>3, 3, 3, 3</value>
   </data>
   <data name="label11.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -636,9 +636,6 @@
   <data name="label29.TabIndex" type="System.Int32, mscorlib">
     <value>7</value>
   </data>
-  <data name="tabPage6.Text" xml:space="preserve">
-    <value>Advanced</value>
-  </data>
   <data name="&gt;&gt;fading_indicator.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -647,9 +644,6 @@
   </data>
   <data name="label2.Location" type="System.Drawing.Point, System.Drawing">
     <value>12, 24</value>
-  </data>
-  <data name="&gt;&gt;sc_shutters.ZOrder" xml:space="preserve">
-    <value>3</value>
   </data>
   <data name="groupBox1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -665,6 +659,9 @@
   </data>
   <data name="label16.Location" type="System.Drawing.Point, System.Drawing">
     <value>176, 56</value>
+  </data>
+  <data name="&gt;&gt;sc_blend.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
   <data name="&gt;&gt;ts_text_color.Type" xml:space="preserve">
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -684,11 +681,14 @@
   <data name="use_background_image.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
+  <data name="sc_blend.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
+  </data>
   <data name="ts_symbol.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 42</value>
   </data>
-  <data name="mute_music.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <data name="label3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>83, 13</value>
   </data>
   <data name="&gt;&gt;taskbar_panel.Parent" xml:space="preserve">
     <value>tabPage2</value>
@@ -708,17 +708,11 @@
   <data name="&gt;&gt;coin_room.Parent" xml:space="preserve">
     <value>coin_interface_panel</value>
   </data>
-  <data name="OK.Location" type="System.Drawing.Point, System.Drawing">
-    <value>204, 427</value>
-  </data>
   <data name="&gt;&gt;groupBox2.Parent" xml:space="preserve">
     <value>tabPage3</value>
   </data>
   <data name="&gt;&gt;resolution.Name" xml:space="preserve">
     <value>resolution</value>
-  </data>
-  <data name="&gt;&gt;tabPage2.Parent" xml:space="preserve">
-    <value>tabControl1</value>
   </data>
   <data name="sc_direct.Text" xml:space="preserve">
     <value>Direct</value>
@@ -813,9 +807,6 @@
   <data name="no_antialiasing.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
   </data>
-  <data name="panel2.Location" type="System.Drawing.Point, System.Drawing">
-    <value>-4, -9</value>
-  </data>
   <data name="label23.TabIndex" type="System.Int32, mscorlib">
     <value>7</value>
   </data>
@@ -885,14 +876,11 @@
   <data name="actionText.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
   </data>
-  <data name="&gt;&gt;label11.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
   <data name="&gt;&gt;label25.Name" xml:space="preserve">
     <value>label25</value>
   </data>
-  <data name="&gt;&gt;ts_selection_color.Parent" xml:space="preserve">
-    <value>tabPage4</value>
+  <data name="&gt;&gt;label7.ZOrder" xml:space="preserve">
+    <value>2</value>
   </data>
   <data name="&gt;&gt;text_on.ZOrder" xml:space="preserve">
     <value>10</value>
@@ -902,6 +890,9 @@
   </data>
   <data name="&gt;&gt;taskbar_room.Type" xml:space="preserve">
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;groupBox1.Type" xml:space="preserve">
+    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;mute_music.Name" xml:space="preserve">
     <value>mute_music</value>
@@ -932,6 +923,9 @@
   </data>
   <data name="textscene_fading.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
+  </data>
+  <data name="&gt;&gt;label16.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="no_antialiasing.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -993,9 +987,6 @@
   <data name="&gt;&gt;label17.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;taskbar_panel.ZOrder" xml:space="preserve">
-    <value>5</value>
-  </data>
   <data name="label29.Text" xml:space="preserve">
     <value>Fading:</value>
   </data>
@@ -1011,11 +1002,17 @@
   <data name="&gt;&gt;tabPage4.Type" xml:space="preserve">
     <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="label4.TabIndex" type="System.Int32, mscorlib">
+    <value>6</value>
+  </data>
   <data name="&gt;&gt;label14.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
   <data name="&gt;&gt;ts_always.Parent" xml:space="preserve">
     <value>tsstylebox</value>
+  </data>
+  <data name="&gt;&gt;anywhere_room.ZOrder" xml:space="preserve">
+    <value>2</value>
   </data>
   <data name="screenchange.Size" type="System.Drawing.Size, System.Drawing">
     <value>200, 209</value>
@@ -1071,14 +1068,14 @@
   <data name="ts_background_image.Enabled" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
+  <data name="&gt;&gt;ts_selection_color.ZOrder" xml:space="preserve">
+    <value>5</value>
+  </data>
   <data name="label29.Location" type="System.Drawing.Point, System.Drawing">
     <value>3, 281</value>
   </data>
   <data name="&gt;&gt;tabPage1.Name" xml:space="preserve">
     <value>tabPage1</value>
-  </data>
-  <data name="&gt;&gt;ts_solid.Name" xml:space="preserve">
-    <value>ts_solid</value>
   </data>
   <data name="label25.Text" xml:space="preserve">
     <value>Selection color:</value>
@@ -1094,6 +1091,9 @@
   </data>
   <data name="&gt;&gt;taskbar.Parent" xml:space="preserve">
     <value>tabPage2</value>
+  </data>
+  <data name="&gt;&gt;label12.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="tsstylebox.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
@@ -1116,8 +1116,8 @@
   <data name="&gt;&gt;groupItems.Name" xml:space="preserve">
     <value>groupItems</value>
   </data>
-  <data name="&gt;&gt;tsstylebox.Parent" xml:space="preserve">
-    <value>tabPage2</value>
+  <data name="&gt;&gt;noPngToJpeg.Parent" xml:space="preserve">
+    <value>tabPage6</value>
   </data>
   <data name="&gt;&gt;coin_autopopup.Type" xml:space="preserve">
     <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -1125,11 +1125,14 @@
   <data name="ts_symbol.Text" xml:space="preserve">
     <value>Symbol</value>
   </data>
+  <data name="&gt;&gt;label1.Parent" xml:space="preserve">
+    <value>panel1</value>
+  </data>
+  <data name="&gt;&gt;fitImages.Parent" xml:space="preserve">
+    <value>tabPage1</value>
+  </data>
   <data name="&gt;&gt;ts_symbol.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;label13.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;panel2.Name" xml:space="preserve">
     <value>panel2</value>
@@ -1142,6 +1145,9 @@
   </data>
   <data name="sc_blackfade.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 42</value>
+  </data>
+  <data name="label8.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
   <data name="&gt;&gt;groupBox1.ZOrder" xml:space="preserve">
     <value>14</value>
@@ -1164,8 +1170,8 @@
   <data name="label15.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="&gt;&gt;useCustomMenu.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="tabPage6.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
+    <value>3, 3, 3, 3</value>
   </data>
   <data name="&gt;&gt;ts_text.Parent" xml:space="preserve">
     <value>groupBox3</value>
@@ -1175,9 +1181,6 @@
   </data>
   <data name="tabPage4.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
-  </data>
-  <data name="&gt;&gt;tabPage6.ZOrder" xml:space="preserve">
-    <value>5</value>
   </data>
   <data name="&gt;&gt;drawDraggedItems.ZOrder" xml:space="preserve">
     <value>9</value>
@@ -1218,6 +1221,9 @@
   <data name="label2.Text" xml:space="preserve">
     <value>Projectname:</value>
   </data>
+  <data name="&gt;&gt;ts_selection_color.Parent" xml:space="preserve">
+    <value>tabPage4</value>
+  </data>
   <data name="noPngToJpeg.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -1244,9 +1250,6 @@
   </data>
   <data name="&gt;&gt;border_color.ZOrder" xml:space="preserve">
     <value>5</value>
-  </data>
-  <data name="label15.Location" type="System.Drawing.Point, System.Drawing">
-    <value>346, 27</value>
   </data>
   <data name="loadingImage.Location" type="System.Drawing.Point, System.Drawing">
     <value>140, 25</value>
@@ -1281,8 +1284,8 @@
   <data name="&gt;&gt;groupItems.Parent" xml:space="preserve">
     <value>tabPage1</value>
   </data>
-  <data name="label8.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <data name="&gt;&gt;sc_blend.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;screenchange.Name" xml:space="preserve">
     <value>screenchange</value>
@@ -1335,9 +1338,6 @@
   <data name="&gt;&gt;text_on.Type" xml:space="preserve">
     <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="coin_autopopup.Location" type="System.Drawing.Point, System.Drawing">
-    <value>241, 38</value>
-  </data>
   <data name="noPngToJpeg.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
@@ -1370,9 +1370,6 @@
   </data>
   <data name="sc_blend.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 157</value>
-  </data>
-  <data name="taskBarHeight.TabIndex" type="System.Int32, mscorlib">
-    <value>1</value>
   </data>
   <data name="&gt;&gt;pictureBox1.Type" xml:space="preserve">
     <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -1461,9 +1458,6 @@
   <data name="anywhere_room.Location" type="System.Drawing.Point, System.Drawing">
     <value>254, 302</value>
   </data>
-  <data name="label29.Size" type="System.Drawing.Size, System.Drawing">
-    <value>42, 13</value>
-  </data>
   <data name="tabPage5.Padding" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>3, 3, 3, 3</value>
   </data>
@@ -1476,8 +1470,8 @@
   <data name="&gt;&gt;label8.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="createBackups.Location" type="System.Drawing.Point, System.Drawing">
-    <value>242, 236</value>
+  <data name="&gt;&gt;actionText.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;actionTextHeight.Parent" xml:space="preserve">
     <value>tabPage1</value>
@@ -1560,6 +1554,9 @@
   <data name="tabPage4.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>
   </data>
+  <data name="&gt;&gt;sc_blackfade.Parent" xml:space="preserve">
+    <value>screenchange</value>
+  </data>
   <data name="coin_interface.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -1584,14 +1581,17 @@
   <data name="&gt;&gt;sc_clock.ZOrder" xml:space="preserve">
     <value>2</value>
   </data>
+  <data name="sc_direct.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
+  </data>
+  <data name="&gt;&gt;label3.Parent" xml:space="preserve">
+    <value>panel2</value>
+  </data>
   <data name="&gt;&gt;coin_interface.Parent" xml:space="preserve">
     <value>tabPage5</value>
   </data>
-  <data name="label10.TabIndex" type="System.Int32, mscorlib">
-    <value>5</value>
-  </data>
-  <data name="protectGamefiles.Size" type="System.Drawing.Size, System.Drawing">
-    <value>110, 17</value>
+  <data name="anywhere_transparency.Size" type="System.Drawing.Size, System.Drawing">
+    <value>120, 20</value>
   </data>
   <data name="tabPage3.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
@@ -1614,14 +1614,8 @@
   <data name="&gt;&gt;coin_fading.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
-  <data name="screenchange.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
-  </data>
   <data name="&gt;&gt;label5.Parent" xml:space="preserve">
     <value>tabPage1</value>
-  </data>
-  <data name="label26.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 11</value>
   </data>
   <data name="label26.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -1649,9 +1643,6 @@
   </data>
   <data name="&gt;&gt;ts_scrolling.Name" xml:space="preserve">
     <value>ts_scrolling</value>
-  </data>
-  <data name="&gt;&gt;hideCompletely.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;coin_interface.ZOrder" xml:space="preserve">
     <value>1</value>
@@ -1701,8 +1692,14 @@
   <data name="&gt;&gt;sc_clock.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="&gt;&gt;customMenu.Parent" xml:space="preserve">
+    <value>groupBox2</value>
+  </data>
   <data name="&gt;&gt;groupBox1.Name" xml:space="preserve">
     <value>groupBox1</value>
+  </data>
+  <data name="&gt;&gt;useCustomMenu.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="label7.Location" type="System.Drawing.Point, System.Drawing">
     <value>8, 76</value>
@@ -1731,9 +1728,6 @@
   <data name="actionText.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="&gt;&gt;label7.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
   <data name="&gt;&gt;start_script.Type" xml:space="preserve">
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -1749,17 +1743,14 @@
   <data name="&gt;&gt;sc_blend_slow.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;label22.Name" xml:space="preserve">
-    <value>label22</value>
-  </data>
   <data name="&gt;&gt;ts_transparent.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;label10.Parent" xml:space="preserve">
     <value>taskbar_panel</value>
   </data>
-  <data name="&gt;&gt;sc_blend.Type" xml:space="preserve">
-    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="&gt;&gt;coin_interface.Name" xml:space="preserve">
+    <value>coin_interface</value>
   </data>
   <data name="&gt;&gt;pictureBox1.Parent" xml:space="preserve">
     <value>coin_interface_panel</value>
@@ -1842,8 +1833,8 @@
   <data name="coin_fading.Size" type="System.Drawing.Size, System.Drawing">
     <value>120, 20</value>
   </data>
-  <data name="sc_blend.TabIndex" type="System.Int32, mscorlib">
-    <value>5</value>
+  <data name="panel2.Location" type="System.Drawing.Point, System.Drawing">
+    <value>-4, -9</value>
   </data>
   <data name="label10.Size" type="System.Drawing.Size, System.Drawing">
     <value>72, 13</value>
@@ -1872,8 +1863,8 @@
   <data name="&gt;&gt;coin_interface_panel.Type" xml:space="preserve">
     <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;noPngToJpeg.Parent" xml:space="preserve">
-    <value>tabPage6</value>
+  <data name="sc_shutters.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
   <data name="&gt;&gt;sc_blend_slow.ZOrder" xml:space="preserve">
     <value>0</value>
@@ -1898,9 +1889,6 @@
   </data>
   <data name="&gt;&gt;no_antialiasing.Parent" xml:space="preserve">
     <value>panel2</value>
-  </data>
-  <data name="mute_music.Size" type="System.Drawing.Size, System.Drawing">
-    <value>147, 17</value>
   </data>
   <data name="&gt;&gt;ts_appears_top.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -1974,6 +1962,9 @@
   <data name="&gt;&gt;label24.ZOrder" xml:space="preserve">
     <value>7</value>
   </data>
+  <data name="ts_box.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
   <data name="main_script.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
   </data>
@@ -1985,9 +1976,6 @@
   </data>
   <data name="&gt;&gt;ts_border_none.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
-  </data>
-  <data name="&gt;&gt;actionText.Type" xml:space="preserve">
-    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="tabPage5.Size" type="System.Drawing.Size, System.Drawing">
     <value>478, 383</value>
@@ -2034,6 +2022,9 @@
   <data name="pictureBox1.Location" type="System.Drawing.Point, System.Drawing">
     <value>241, 80</value>
   </data>
+  <data name="&gt;&gt;label10.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="silentDelete.Size" type="System.Drawing.Size, System.Drawing">
     <value>84, 17</value>
   </data>
@@ -2072,6 +2063,9 @@
   </data>
   <data name="&gt;&gt;label19.ZOrder" xml:space="preserve">
     <value>4</value>
+  </data>
+  <data name="sc_direct.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 17</value>
   </data>
   <data name="&gt;&gt;tsstylebox.Name" xml:space="preserve">
     <value>tsstylebox</value>
@@ -2121,14 +2115,17 @@
   <data name="&gt;&gt;label18.Parent" xml:space="preserve">
     <value>tabPage3</value>
   </data>
-  <data name="label3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>83, 13</value>
+  <data name="&gt;&gt;label7.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ts_additive.Name" xml:space="preserve">
     <value>ts_additive</value>
   </data>
   <data name="&gt;&gt;label25.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;tsstylebox.Parent" xml:space="preserve">
+    <value>tabPage2</value>
   </data>
   <data name="&gt;&gt;ts_none.ZOrder" xml:space="preserve">
     <value>0</value>
@@ -2157,9 +2154,6 @@
   <data name="&gt;&gt;ts_rectangles.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="groupBox2.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
-  </data>
   <data name="tabPage3.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 22</value>
   </data>
@@ -2177,9 +2171,6 @@
   </data>
   <data name="tabPage2.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
-  </data>
-  <data name="tabPage4.Text" xml:space="preserve">
-    <value>Textscene</value>
   </data>
   <data name="&gt;&gt;tabPage2.Name" xml:space="preserve">
     <value>tabPage2</value>
@@ -2217,14 +2208,17 @@
   <data name="panel2.Size" type="System.Drawing.Size, System.Drawing">
     <value>240, 342</value>
   </data>
-  <data name="&gt;&gt;ts_stylegroup.Parent" xml:space="preserve">
-    <value>tabPage4</value>
+  <data name="mute_music.Text" xml:space="preserve">
+    <value>Mute music when speech</value>
   </data>
   <data name="customMenu.Size" type="System.Drawing.Size, System.Drawing">
     <value>253, 20</value>
   </data>
   <data name="&gt;&gt;label12.Name" xml:space="preserve">
     <value>label12</value>
+  </data>
+  <data name="label9.Size" type="System.Drawing.Size, System.Drawing">
+    <value>116, 13</value>
   </data>
   <data name="tabPage1.Text" xml:space="preserve">
     <value>General</value>
@@ -2274,6 +2268,9 @@
   <data name="&gt;&gt;label13.Name" xml:space="preserve">
     <value>label13</value>
   </data>
+  <data name="label20.Text" xml:space="preserve">
+    <value>Targa transparent color:</value>
+  </data>
   <data name="&gt;&gt;label27.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
@@ -2283,8 +2280,8 @@
   <data name="label21.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="&gt;&gt;tabControl1.Name" xml:space="preserve">
-    <value>tabControl1</value>
+  <data name="tabPage2.Text" xml:space="preserve">
+    <value>Script and Taskbar</value>
   </data>
   <data name="label9.Text" xml:space="preserve">
     <value>Room with the taskbar:</value>
@@ -2297,6 +2294,9 @@
   </data>
   <data name="label11.TabIndex" type="System.Int32, mscorlib">
     <value>5</value>
+  </data>
+  <data name="ts_lines.Text" xml:space="preserve">
+    <value>Lines</value>
   </data>
   <data name="ts_always.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
@@ -2322,6 +2322,9 @@
   <data name="textscene_fading_indicator.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
   </data>
+  <data name="label20.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
   <data name="&gt;&gt;label21.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -2337,8 +2340,8 @@
   <data name="&gt;&gt;label20.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="mute_music.Text" xml:space="preserve">
-    <value>Mute music when speech</value>
+  <data name="ts_transparent.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
   <data name="ts_background_image.Size" type="System.Drawing.Size, System.Drawing">
     <value>134, 20</value>
@@ -2361,8 +2364,8 @@
   <data name="sc_blend_slow.TabIndex" type="System.Int32, mscorlib">
     <value>6</value>
   </data>
-  <data name="&gt;&gt;sc_circle.ZOrder" xml:space="preserve">
-    <value>4</value>
+  <data name="main_script.Location" type="System.Drawing.Point, System.Drawing">
+    <value>11, 93</value>
   </data>
   <data name="&gt;&gt;ts_border_color.ZOrder" xml:space="preserve">
     <value>4</value>
@@ -2376,11 +2379,11 @@
   <data name="&gt;&gt;label13.Parent" xml:space="preserve">
     <value>groupBox2</value>
   </data>
-  <data name="label18.Location" type="System.Drawing.Point, System.Drawing">
-    <value>15, 205</value>
-  </data>
   <data name="&gt;&gt;ts_background_image.Parent" xml:space="preserve">
     <value>tabPage4</value>
+  </data>
+  <data name="label11.Size" type="System.Drawing.Size, System.Drawing">
+    <value>149, 13</value>
   </data>
   <data name="label8.Size" type="System.Drawing.Size, System.Drawing">
     <value>41, 13</value>
@@ -2412,20 +2415,17 @@
   <data name="resolution.Size" type="System.Drawing.Size, System.Drawing">
     <value>212, 21</value>
   </data>
-  <data name="&gt;&gt;label29.ZOrder" xml:space="preserve">
-    <value>2</value>
-  </data>
   <data name="&gt;&gt;ts_area_color.Type" xml:space="preserve">
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;loadingImage.Type" xml:space="preserve">
-    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="no_antialiasing.Location" type="System.Drawing.Point, System.Drawing">
+    <value>15, 133</value>
+  </data>
+  <data name="label10.TabIndex" type="System.Int32, mscorlib">
+    <value>5</value>
   </data>
   <data name="&gt;&gt;label22.ZOrder" xml:space="preserve">
     <value>13</value>
-  </data>
-  <data name="ts_transparent.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
   </data>
   <data name="sc_clock.Text" xml:space="preserve">
     <value>Clock</value>
@@ -2436,11 +2436,17 @@
   <data name="coin_autopopup.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
+  <data name="&gt;&gt;sc_direct.Type" xml:space="preserve">
+    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="sc_circle.TabIndex" type="System.Int32, mscorlib">
     <value>2</value>
   </data>
   <data name="ts_lines.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
+  </data>
+  <data name="coin_fading_indicator.Size" type="System.Drawing.Size, System.Drawing">
+    <value>43, 13</value>
   </data>
   <data name="hideCompletely.Size" type="System.Drawing.Size, System.Drawing">
     <value>163, 17</value>
@@ -2451,6 +2457,9 @@
   <data name="ts_rectangles.Text" xml:space="preserve">
     <value>Rectangles</value>
   </data>
+  <data name="&gt;&gt;ts_additive.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <data name="projetName.Size" type="System.Drawing.Size, System.Drawing">
     <value>215, 20</value>
   </data>
@@ -2459,9 +2468,6 @@
   </data>
   <data name="fitImages.Text" xml:space="preserve">
     <value>Fit images</value>
-  </data>
-  <data name="sc_shutters.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
   </data>
   <data name="&gt;&gt;menu_fading.Parent" xml:space="preserve">
     <value>tabPage3</value>
@@ -2493,14 +2499,11 @@
   <data name="&gt;&gt;label2.Parent" xml:space="preserve">
     <value>panel2</value>
   </data>
-  <data name="ts_lines.Location" type="System.Drawing.Point, System.Drawing">
-    <value>6, 42</value>
-  </data>
   <data name="label12.Location" type="System.Drawing.Point, System.Drawing">
     <value>251, 325</value>
   </data>
-  <data name="ts_additive.Text" xml:space="preserve">
-    <value>Additive</value>
+  <data name="main_script.Size" type="System.Drawing.Size, System.Drawing">
+    <value>201, 20</value>
   </data>
   <data name="label26.Size" type="System.Drawing.Size, System.Drawing">
     <value>164, 13</value>
@@ -2514,8 +2517,8 @@
   <data name="coin_fading_indicator.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="&gt;&gt;coin_interface.Name" xml:space="preserve">
-    <value>coin_interface</value>
+  <data name="&gt;&gt;label22.Name" xml:space="preserve">
+    <value>label22</value>
   </data>
   <data name="label27.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
@@ -2550,8 +2553,8 @@
   <data name="ts_always.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 19</value>
   </data>
-  <data name="&gt;&gt;drawDraggedItems.Parent" xml:space="preserve">
-    <value>tabPage1</value>
+  <data name="&gt;&gt;label29.ZOrder" xml:space="preserve">
+    <value>2</value>
   </data>
   <data name="coin_interface.Size" type="System.Drawing.Size, System.Drawing">
     <value>132, 17</value>
@@ -2562,17 +2565,20 @@
   <data name="&gt;&gt;ts_area_color.Parent" xml:space="preserve">
     <value>tabPage4</value>
   </data>
-  <data name="&gt;&gt;sc_blackfade.Parent" xml:space="preserve">
-    <value>screenchange</value>
+  <data name="&gt;&gt;sc_circle.ZOrder" xml:space="preserve">
+    <value>4</value>
   </data>
   <data name="label5.Location" type="System.Drawing.Point, System.Drawing">
     <value>260, 106</value>
   </data>
+  <data name="sc_clock.Size" type="System.Drawing.Size, System.Drawing">
+    <value>52, 17</value>
+  </data>
   <data name="&gt;&gt;ts_appear_bottom.Type" xml:space="preserve">
     <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="sc_direct.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
+  <data name="screenchange.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
   </data>
   <data name="anywhere_room.Size" type="System.Drawing.Size, System.Drawing">
     <value>200, 20</value>
@@ -2580,17 +2586,14 @@
   <data name="&gt;&gt;label3.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="hideCompletely.TabIndex" type="System.Int32, mscorlib">
+    <value>4</value>
+  </data>
   <data name="sc_blend.Text" xml:space="preserve">
     <value>Blend</value>
   </data>
-  <data name="&gt;&gt;ts_popup.Name" xml:space="preserve">
-    <value>ts_popup</value>
-  </data>
   <data name="&gt;&gt;tabPage3.Name" xml:space="preserve">
     <value>tabPage3</value>
-  </data>
-  <data name="ts_additive.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
   </data>
   <data name="&gt;&gt;label24.Parent" xml:space="preserve">
     <value>tabPage4</value>
@@ -2604,14 +2607,17 @@
   <data name="&gt;&gt;border_color.Type" xml:space="preserve">
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="&gt;&gt;loadingImage.Type" xml:space="preserve">
+    <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="ts_scrolling.Text" xml:space="preserve">
     <value>Scrolling popup</value>
   </data>
   <data name="&gt;&gt;label22.Parent" xml:space="preserve">
     <value>tabPage4</value>
   </data>
-  <data name="&gt;&gt;sc_direct.Type" xml:space="preserve">
-    <value>System.Windows.Forms.RadioButton, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="&gt;&gt;tabPage2.Parent" xml:space="preserve">
+    <value>tabControl1</value>
   </data>
   <data name="OK.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -2658,11 +2664,11 @@
   <data name="&gt;&gt;label23.Parent" xml:space="preserve">
     <value>tabPage4</value>
   </data>
-  <data name="taskbar.Location" type="System.Drawing.Point, System.Drawing">
-    <value>244, 16</value>
+  <data name="label26.Location" type="System.Drawing.Point, System.Drawing">
+    <value>3, 11</value>
   </data>
-  <data name="&gt;&gt;label10.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="label23.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 13</value>
   </data>
   <data name="&gt;&gt;ts_transparent.Parent" xml:space="preserve">
     <value>ts_stylegroup</value>
@@ -2679,8 +2685,8 @@
   <data name="&gt;&gt;createBackups.Type" xml:space="preserve">
     <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;anywhere_room.ZOrder" xml:space="preserve">
-    <value>2</value>
+  <data name="&gt;&gt;text_color.Name" xml:space="preserve">
+    <value>text_color</value>
   </data>
   <data name="&gt;&gt;label29.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -2688,8 +2694,8 @@
   <data name="&gt;&gt;mute_music.Type" xml:space="preserve">
     <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="label20.Text" xml:space="preserve">
-    <value>Targa transparent color:</value>
+  <data name="label15.Location" type="System.Drawing.Point, System.Drawing">
+    <value>346, 27</value>
   </data>
   <data name="&gt;&gt;textscene_fading_indicator.ZOrder" xml:space="preserve">
     <value>11</value>
@@ -2697,11 +2703,8 @@
   <data name="tabControl1.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
   </data>
-  <data name="groupBox1.Text" xml:space="preserve">
-    <value>Border</value>
-  </data>
-  <data name="&gt;&gt;tabPage5.Parent" xml:space="preserve">
-    <value>tabControl1</value>
+  <data name="createBackups.Location" type="System.Drawing.Point, System.Drawing">
+    <value>242, 236</value>
   </data>
   <data name="infotext_color.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -2712,20 +2715,20 @@
   <data name="&gt;&gt;tabPage3.Type" xml:space="preserve">
     <value>System.Windows.Forms.TabPage, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;sc_blend.ZOrder" xml:space="preserve">
+  <data name="taskBarHeight.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
   </data>
-  <data name="&gt;&gt;sc_circle.Name" xml:space="preserve">
-    <value>sc_circle</value>
+  <data name="&gt;&gt;sc_shutters.ZOrder" xml:space="preserve">
+    <value>3</value>
   </data>
-  <data name="sc_direct.Size" type="System.Drawing.Size, System.Drawing">
-    <value>53, 17</value>
+  <data name="&gt;&gt;label11.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="actionTextHeight.Size" type="System.Drawing.Size, System.Drawing">
     <value>49, 20</value>
   </data>
-  <data name="&gt;&gt;fitImages.Parent" xml:space="preserve">
-    <value>tabPage1</value>
+  <data name="&gt;&gt;tabPage6.ZOrder" xml:space="preserve">
+    <value>5</value>
   </data>
   <data name="&gt;&gt;ts_text.ZOrder" xml:space="preserve">
     <value>1</value>
@@ -2769,8 +2772,8 @@
   <data name="ts_text_color.Size" type="System.Drawing.Size, System.Drawing">
     <value>23, 23</value>
   </data>
-  <data name="&gt;&gt;label16.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="ts_additive.Text" xml:space="preserve">
+    <value>Additive</value>
   </data>
   <data name="ts_additive.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 65</value>
@@ -2811,8 +2814,8 @@
   <data name="panel1.Size" type="System.Drawing.Size, System.Drawing">
     <value>486, 55</value>
   </data>
-  <data name="panel1.TabIndex" type="System.Int32, mscorlib">
-    <value>0</value>
+  <data name="ts_box.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 65</value>
   </data>
   <data name="&gt;&gt;infotext_color.ZOrder" xml:space="preserve">
     <value>5</value>
@@ -2820,8 +2823,8 @@
   <data name="ts_appear_bottom.Size" type="System.Drawing.Size, System.Drawing">
     <value>58, 17</value>
   </data>
-  <data name="ts_box.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <data name="mute_music.Size" type="System.Drawing.Size, System.Drawing">
+    <value>147, 17</value>
   </data>
   <data name="ts_lines.Size" type="System.Drawing.Size, System.Drawing">
     <value>50, 17</value>
@@ -2832,8 +2835,8 @@
   <data name="createBackups.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="&gt;&gt;ts_selection_color.ZOrder" xml:space="preserve">
-    <value>5</value>
+  <data name="ts_lines.Location" type="System.Drawing.Point, System.Drawing">
+    <value>6, 42</value>
   </data>
   <data name="label27.Text" xml:space="preserve">
     <value>coin-interface center --&gt;</value>
@@ -2859,14 +2862,14 @@
   <data name="&gt;&gt;textscene_fading_indicator.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="label4.TabIndex" type="System.Int32, mscorlib">
-    <value>6</value>
+  <data name="groupBox2.TabIndex" type="System.Int32, mscorlib">
+    <value>0</value>
   </data>
   <data name="ts_border_none.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 88</value>
   </data>
-  <data name="&gt;&gt;main_script.ZOrder" xml:space="preserve">
-    <value>1</value>
+  <data name="&gt;&gt;tabControl1.Name" xml:space="preserve">
+    <value>tabControl1</value>
   </data>
   <data name="&gt;&gt;main_script.Type" xml:space="preserve">
     <value>System.Windows.Forms.TextBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -2895,8 +2898,8 @@
   <data name="sc_blend_slow.Size" type="System.Drawing.Size, System.Drawing">
     <value>76, 17</value>
   </data>
-  <data name="&gt;&gt;panel2.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Panel, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="tabPage4.Text" xml:space="preserve">
+    <value>Textscene</value>
   </data>
   <data name="sc_blackfade.Text" xml:space="preserve">
     <value>Fade out to black</value>
@@ -2909,9 +2912,6 @@
   </data>
   <data name="label14.TabIndex" type="System.Int32, mscorlib">
     <value>0</value>
-  </data>
-  <data name="&gt;&gt;tabPage6.Name" xml:space="preserve">
-    <value>tabPage6</value>
   </data>
   <data name="coin_interface_panel.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -2931,14 +2931,17 @@
   <data name="&gt;&gt;ts_appear_bottom.ZOrder" xml:space="preserve">
     <value>1</value>
   </data>
+  <data name="&gt;&gt;border_color.Parent" xml:space="preserve">
+    <value>groupBox2</value>
+  </data>
   <data name="label25.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
   <data name="&gt;&gt;taskbar.ZOrder" xml:space="preserve">
     <value>6</value>
   </data>
-  <data name="&gt;&gt;groupBox1.Type" xml:space="preserve">
-    <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="tabPage6.Text" xml:space="preserve">
+    <value>Advanced</value>
   </data>
   <data name="&gt;&gt;textscene_fading_indicator.Name" xml:space="preserve">
     <value>textscene_fading_indicator</value>
@@ -2946,17 +2949,17 @@
   <data name="label20.Size" type="System.Drawing.Size, System.Drawing">
     <value>120, 13</value>
   </data>
-  <data name="&gt;&gt;label3.Parent" xml:space="preserve">
-    <value>panel2</value>
+  <data name="mute_music.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
   <data name="label24.Location" type="System.Drawing.Point, System.Drawing">
     <value>334, 208</value>
   </data>
-  <data name="tabPage1.Location" type="System.Drawing.Point, System.Drawing">
-    <value>4, 22</value>
+  <data name="&gt;&gt;ts_solid.Name" xml:space="preserve">
+    <value>ts_solid</value>
   </data>
-  <data name="label20.AutoSize" type="System.Boolean, mscorlib">
-    <value>True</value>
+  <data name="label29.Size" type="System.Drawing.Size, System.Drawing">
+    <value>42, 13</value>
   </data>
   <data name="sc_clock.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 134</value>
@@ -2982,8 +2985,8 @@
   <data name="groupItems.Text" xml:space="preserve">
     <value>Group items</value>
   </data>
-  <data name="&gt;&gt;label12.Type" xml:space="preserve">
-    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="ts_additive.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
   <data name="sc_direct.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -2997,17 +3000,14 @@
   <data name="ts_area_color.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
   </data>
-  <data name="&gt;&gt;tabControl1.ZOrder" xml:space="preserve">
-    <value>1</value>
-  </data>
-  <data name="coin_fading_indicator.Size" type="System.Drawing.Size, System.Drawing">
-    <value>43, 13</value>
+  <data name="&gt;&gt;coin_interface_panel.Name" xml:space="preserve">
+    <value>coin_interface_panel</value>
   </data>
   <data name="label2.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
-  <data name="offspeech_color.Location" type="System.Drawing.Point, System.Drawing">
-    <value>106, 200</value>
+  <data name="&gt;&gt;ts_stylegroup.Parent" xml:space="preserve">
+    <value>tabPage4</value>
   </data>
   <data name="&gt;&gt;fading_indicator.Name" xml:space="preserve">
     <value>fading_indicator</value>
@@ -3027,8 +3027,8 @@
   <data name="ts_appear_bottom.Location" type="System.Drawing.Point, System.Drawing">
     <value>6, 210</value>
   </data>
-  <data name="label9.Size" type="System.Drawing.Size, System.Drawing">
-    <value>116, 13</value>
+  <data name="&gt;&gt;label13.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;ts_area_color.Name" xml:space="preserve">
     <value>ts_area_color</value>
@@ -3054,8 +3054,8 @@
   <data name="&gt;&gt;sc_circle.Parent" xml:space="preserve">
     <value>screenchange</value>
   </data>
-  <data name="main_script.Size" type="System.Drawing.Size, System.Drawing">
-    <value>201, 20</value>
+  <data name="coin_autopopup.Size" type="System.Drawing.Size, System.Drawing">
+    <value>184, 17</value>
   </data>
   <data name="&gt;&gt;OK.Type" xml:space="preserve">
     <value>System.Windows.Forms.Button, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -3063,14 +3063,14 @@
   <data name="label16.TabIndex" type="System.Int32, mscorlib">
     <value>4</value>
   </data>
-  <data name="main_script.Location" type="System.Drawing.Point, System.Drawing">
-    <value>11, 93</value>
+  <data name="ts_solid.Text" xml:space="preserve">
+    <value>Solid</value>
   </data>
   <data name="drawDraggedItems.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
   </data>
-  <data name="&gt;&gt;customMenu.Parent" xml:space="preserve">
-    <value>groupBox2</value>
+  <data name="&gt;&gt;taskbar_panel.ZOrder" xml:space="preserve">
+    <value>5</value>
   </data>
   <data name="&gt;&gt;ts_lines.ZOrder" xml:space="preserve">
     <value>2</value>
@@ -3078,8 +3078,8 @@
   <data name="ts_selection_color.TabIndex" type="System.Int32, mscorlib">
     <value>8</value>
   </data>
-  <data name="&gt;&gt;label1.Parent" xml:space="preserve">
-    <value>panel1</value>
+  <data name="label18.Location" type="System.Drawing.Point, System.Drawing">
+    <value>15, 205</value>
   </data>
   <data name="&gt;&gt;infotext_color.Parent" xml:space="preserve">
     <value>tabPage3</value>
@@ -3087,8 +3087,8 @@
   <data name="&gt;&gt;label18.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="sc_clock.Size" type="System.Drawing.Size, System.Drawing">
-    <value>52, 17</value>
+  <data name="symbol.Size" type="System.Drawing.Size, System.Drawing">
+    <value>50, 50</value>
   </data>
   <data name="text_color.TabIndex" type="System.Int32, mscorlib">
     <value>1</value>
@@ -3096,8 +3096,8 @@
   <data name="noPngToJpeg.Text" xml:space="preserve">
     <value>No Png To Jpeg conversion</value>
   </data>
-  <data name="label10.Location" type="System.Drawing.Point, System.Drawing">
-    <value>3, 194</value>
+  <data name="ts_appears_top.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
   </data>
   <data name="&gt;&gt;loadingImage.Name" xml:space="preserve">
     <value>loadingImage</value>
@@ -3108,26 +3108,26 @@
   <data name="customMenu.Enabled" type="System.Boolean, mscorlib">
     <value>False</value>
   </data>
-  <data name="actionTextHeight.Location" type="System.Drawing.Point, System.Drawing">
-    <value>358, 104</value>
+  <data name="&gt;&gt;tabPage6.Name" xml:space="preserve">
+    <value>tabPage6</value>
   </data>
-  <data name="hideCompletely.TabIndex" type="System.Int32, mscorlib">
-    <value>4</value>
+  <data name="&gt;&gt;hideCompletely.Type" xml:space="preserve">
+    <value>System.Windows.Forms.CheckBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="&gt;&gt;label2.Name" xml:space="preserve">
     <value>label2</value>
   </data>
-  <data name="&gt;&gt;border_color.Parent" xml:space="preserve">
-    <value>groupBox2</value>
+  <data name="&gt;&gt;tabControl1.ZOrder" xml:space="preserve">
+    <value>1</value>
   </data>
   <data name="&gt;&gt;groupBox2.Type" xml:space="preserve">
     <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="tabPage2.Text" xml:space="preserve">
-    <value>Script and Taskbar</value>
+  <data name="&gt;&gt;tabPage5.Parent" xml:space="preserve">
+    <value>tabControl1</value>
   </data>
-  <data name="&gt;&gt;menu_fading.Type" xml:space="preserve">
-    <value>System.Windows.Forms.NumericUpDown, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  <data name="coin_autopopup.Location" type="System.Drawing.Point, System.Drawing">
+    <value>241, 38</value>
   </data>
   <data name="&gt;&gt;tsstylebox.Type" xml:space="preserve">
     <value>System.Windows.Forms.GroupBox, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
@@ -3141,11 +3141,11 @@
   <data name="&gt;&gt;label19.Type" xml:space="preserve">
     <value>System.Windows.Forms.Label, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="label11.Size" type="System.Drawing.Size, System.Drawing">
-    <value>149, 13</value>
+  <data name="&gt;&gt;ts_popup.Name" xml:space="preserve">
+    <value>ts_popup</value>
   </data>
-  <data name="ts_lines.Text" xml:space="preserve">
-    <value>Lines</value>
+  <data name="OK.Location" type="System.Drawing.Point, System.Drawing">
+    <value>204, 427</value>
   </data>
   <data name="&gt;&gt;taskbar.Name" xml:space="preserve">
     <value>taskbar</value>

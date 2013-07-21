@@ -152,6 +152,10 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("settransparency", setTransparency);
   interpreter->registerFunction("showalltext", showAllText);
   interpreter->registerFunction("instmouse", instMouse);
+  interpreter->registerFunction("showinventory", showInventory);
+  interpreter->registerFunction("if_item", isItemInState);
+  interpreter->registerFunction("setobjlight", setObjLight);
+  interpreter->registerFunction("textalign", textAlign);
   srand((unsigned)time(NULL));
 }
 
@@ -2107,6 +2111,58 @@ int ScriptFunctions::instMouse(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+int ScriptFunctions::showInventory(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  int inventory = ctx.stack().pop().getInt();
+  CharacterObject* chr = Engine::instance()->getCharacter("self");
+  if (chr == NULL){
+    TR_WARN("No character focussed");
+    return 0;
+  }
+  Inventory* inv = chr->getInventory();
+  inv->setCurrent(inventory);
+  return 0;
+}
+
+int ScriptFunctions::setObjLight(ExecutionContext& ctx, unsigned numArgs){
+  std::string objname = ctx.stack().pop().getString();
+  Color c;
+  c.r = (unsigned char)ctx.stack().pop().getInt();
+  c.g = (unsigned char)ctx.stack().pop().getInt();
+  c.b = (unsigned char)ctx.stack().pop().getInt();
+  bool fade = false;
+  if (numArgs >= 5){
+    std::string fading = ctx.stack().pop().getString();
+    if (fading == "fade")
+      fade = true;
+  }
+  Object2D* obj = Engine::instance()->getObject(objname, false);
+  if (obj){
+    if (fade && !ctx.mSkip){
+      //do not block right now.
+      //ctx.mSuspended = true;
+      Engine::instance()->getAnimator()->add(obj, c);
+    }
+    else{
+      obj->setLightingColor(c);
+    }
+  }
+  else{
+    std::string room;
+    SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, room);
+    so->lighting = c;
+  }
+  return 0;
+}
+
+int ScriptFunctions::textAlign(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  int num = ctx.stack().pop().getInt();
+  std::string align = ctx.stack().pop().getString();
+  TR_BREAK("Implement me");
+  return 0;
+}
+
 int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){
   for (unsigned i = 0; i < numArgs; ++i){
     ctx.stack().pop();
@@ -2391,5 +2447,21 @@ int ScriptFunctions::isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs){
   else
     ctx.stack().push(obj->getPosition().y);
   ctx.stack().push(ypos);
+  return 2;
+}
+
+int ScriptFunctions::isItemInState(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  std::string itemname = ctx.stack().pop().getString();
+  int checkstate = ctx.stack().pop().getInt();
+  Object2D* item = Engine::instance()->getObject(itemname, true);
+  if (item){
+    ctx.stack().push(item->getState());
+  }
+  else{
+    TR_BREAK("Unknown item %s", itemname.c_str());
+    ctx.stack().push(0);
+  }
+  ctx.stack().push(checkstate);
   return 2;
 }

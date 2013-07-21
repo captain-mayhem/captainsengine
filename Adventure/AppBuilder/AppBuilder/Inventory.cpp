@@ -4,7 +4,7 @@
 
 using namespace adv;
 
-Inventory::Inventory(){
+Inventory::Inventory() : mCurrentInv(1){
 
 }
 
@@ -54,6 +54,7 @@ void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
       inv.items[iter->first].push_back((*inviter)->getName());
     }
   }
+  inv.current = mCurrentInv;
 }
 
 ////////////////////////////////////////////
@@ -68,7 +69,7 @@ InventoryDisplay::~InventoryDisplay(){
 }
 
 void InventoryDisplay::render(Inventory* inv){
-  Inventory::SingleInv tmp = inv->mInventory[1];
+  Inventory::SingleInv tmp = inv->mInventory[inv->mCurrentInv];
   Vec2i pos = mPos;
   int precount = 0;
   int count = 0;
@@ -96,7 +97,7 @@ void InventoryDisplay::render(Inventory* inv){
 }
 
 Object2D* InventoryDisplay::getObjectAt(const Vec2i& pos, Inventory* inv){
-  Inventory::SingleInv tmp = inv->mInventory[1];
+  Inventory::SingleInv tmp = inv->mInventory[inv->mCurrentInv];
   int precount = 0;
   int count = 0;
   for (std::list<Object2D*>::iterator iter = tmp.begin(); iter != tmp.end(); ++iter){

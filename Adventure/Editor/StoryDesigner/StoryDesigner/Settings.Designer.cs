@@ -271,6 +271,16 @@ namespace StoryDesigner
             this.actionTextHeight.AccessibleName = null;
             resources.ApplyResources(this.actionTextHeight, "actionTextHeight");
             this.actionTextHeight.Font = null;
+            this.actionTextHeight.Maximum = new decimal(new int[] {
+            999,
+            0,
+            0,
+            0});
+            this.actionTextHeight.Minimum = new decimal(new int[] {
+            99,
+            0,
+            0,
+            -2147483648});
             this.actionTextHeight.Name = "actionTextHeight";
             // 
             // label5
