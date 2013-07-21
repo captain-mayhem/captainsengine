@@ -475,7 +475,10 @@ namespace StoryDesigner
                     continue;
                 string rest = str.Substring(2);
                 //TODO check
-                string[] typename = rest.Split(' ');
+                string[] typename = new string[2];
+                int idx = rest.IndexOf(' ');
+                typename[0] = rest.Substring(0, idx);
+                typename[1] = rest.Substring(idx+1);
                 //ITEM
                 if (typename[0] == "Item")
                 {

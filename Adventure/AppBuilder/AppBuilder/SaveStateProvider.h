@@ -15,7 +15,9 @@ public:
     std::string name;
   };
   struct SaveInventory{
+    SaveInventory() {current = 1;}
     std::map<int, std::vector<std::string> > items;
+    int current;
   };
   struct CharSaveObject{
     CharSaveObject() : mirrored(false), fontid(-1) {}

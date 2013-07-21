@@ -304,6 +304,10 @@ public:
   **/
   static int setCharLight(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param inventory intentory to show (1-5)
+  **/
+  static int showInventory(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param effect sets the eax effect
   **/
   static int setEAX(ExecutionContext& ctx, unsigned numArgs);
@@ -340,6 +344,14 @@ public:
   \param ... [opt] additional states
   **/
   static int setObj(ExecutionContext& ctx, unsigned numArgs);
+    /**
+  \param obj name of the object instance
+  \param r red component
+  \param g green component
+  \param b blue component
+  \param fade [opt] do a fading to the color
+  **/
+  static int setObjLight(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param object name of the particle object
   \param speed the speed of the particle
@@ -464,6 +476,11 @@ public:
   static int stopMusic(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param num the number of the text
+  \param alignment left, right, middle
+  **/
+  static int textAlign(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param num the number of the text
   **/
   static int textHide(ExecutionContext& ctx, unsigned numArgs);
    /**
@@ -536,6 +553,7 @@ public:
   static int isStringEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs);
   static int isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs);
+  static int isItemInState(ExecutionContext& ctx, unsigned numArgs);
  private:
   static void setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip);
 };

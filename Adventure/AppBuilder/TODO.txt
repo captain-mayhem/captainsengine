@@ -23,6 +23,7 @@ D:\pcdk\editor\particles\data\game.dat
 D:\Projects\captainsengine\trunk\Adventure\AppBuilder\test\data\game.dat
 D:\pcdk\aluehnfinal\Alühn\data\game.dat
 D:\pcdk\testadv\TestAdventure\data\game.dat
+"D:\Program Files (x86)\Alühn 2\data\game.dat"
 D:\Projects\adventure\dark_mystery\bin\data\game.dat
 
 D:\pcdk\editor\functiondemo_adz\FunctionDemo\FunctionDemo.adv

@@ -20,9 +20,11 @@ public:
   void removeItem(const std::string& item, int invnumber, ExecutionContext* del_script);
   Object2D* getItem(const std::string& name);
   void save(SaveStateProvider::SaveInventory& inv) const;
+  void setCurrent(int invNum) {mCurrentInv = invNum;}
 protected:
   typedef std::list<Object2D*> SingleInv;
   std::map<int, SingleInv> mInventory;
+  int mCurrentInv;
 };
 
 class InventoryDisplay{

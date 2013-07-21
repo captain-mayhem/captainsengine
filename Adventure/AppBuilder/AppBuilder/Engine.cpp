@@ -1360,6 +1360,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
         character->getInventory()->addItem(item, inviter->first);
       }
   }
+  character->getInventory()->setCurrent(obj->inventory.current);
   return character;
 }
 
