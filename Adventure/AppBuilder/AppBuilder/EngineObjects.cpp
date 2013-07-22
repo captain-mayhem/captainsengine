@@ -962,6 +962,10 @@ void CharacterObject::save(){
       save->walksound = "";
     else
       save->walksound = mWalkSound->getName();
+    if (mLinkObject == NULL)
+      save->linkedObject = "";
+    else
+      save->linkedObject = mLinkObject->getName();
   }
 }
 

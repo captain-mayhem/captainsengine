@@ -260,6 +260,8 @@ variable returns [ASTNode* var]
 	:
 	LBRACKET
 	id=ident {$var = new VariableNode(id.id->value()); delete id.id;}
+	/* names with : are allowed here */
+	(IDIV id2=ident {VariableNode* node = (VariableNode*)$var; node->name().append(":"+id2.id->value()); delete id2.id;} )?
 	RBRACKET
 ;
 
@@ -269,6 +271,7 @@ ident returns [IdentNode* id]
 	(UNDERSCORE (secid=ident {$id->append("_"); $id->append(secid.id->value().c_str()); delete secid.id;}
 		| INT {$id->append("_"); $id->append((char*)$INT.text->chars);}
 		| LEVEL {$id->append("_"); $id->append((char*)$LEVEL.text->chars);}
+		| ON {$id->append("_"); $id->append((char*)$ON.text->chars);}
 		)
 	)*
 	;

@@ -1336,6 +1336,10 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
     SoundPlayer* plyr = SoundEngine::instance()->getSound(obj->walksound, SoundEngine::PLAYER_CREATE_ALWAYS | SoundEngine::PLAYER_UNMANAGED);
     character->setWalkSound(plyr);
   }
+  if (!obj->linkedObject.empty()){
+    Object2D* link = getObject(obj->linkedObject, false);
+    character->setLinkObject(link);
+  }
   //RoomObject* ro = Engine::instance()->getRoom(room);
   //if (ro)
   //  character->setScale(ro->getDepthScale(obj->base.position));

@@ -1891,8 +1891,14 @@ int ScriptFunctions::linkChar(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
   std::string object = ctx.stack().pop().getString();
   CharacterObject* chr = Engine::instance()->getCharacter(character);
-  if (!chr)
-    TR_BREAK("Unknown character %s", character.c_str());
+  if (!chr){
+    //just save link information for later use
+    std::string room;
+    std::string name;
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(character, room, name);
+    cso->linkedObject = object;
+    return 0;
+  }
   Object2D* obj = Engine::instance()->getObject(object, false);
   if (!obj)
     TR_BREAK("Unknown object %s", object.c_str());
