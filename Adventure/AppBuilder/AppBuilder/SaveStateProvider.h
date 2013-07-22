@@ -28,6 +28,7 @@ public:
     float scale;
     bool nozooming;
     std::string walksound;
+    std::string linkedObject;
   };
   struct SaveRoom{
     SaveObject base;

@@ -86,6 +86,11 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::CharSaveOb
   else
     strm << chr.walksound;
   strm << std::endl;
+  if (chr.linkedObject.empty())
+    strm << "none";
+  else
+    strm << chr.linkedObject;
+  strm << std::endl;
   return strm;
 }
 
@@ -96,6 +101,9 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::CharSaveObject& 
   strm >> chr.walksound;
   if (chr.walksound == "none")
     chr.walksound = "";
+  strm >> chr.linkedObject;
+  if (chr.linkedObject == "none")
+    chr.linkedObject = "";
   return strm;
 }
 
