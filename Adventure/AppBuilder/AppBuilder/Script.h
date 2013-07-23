@@ -69,6 +69,8 @@ public:
   ObjectGroup* getGroup(const std::string& name);
   void setPrevState(Object2D* trigger, Object2D* target);
   bool applyPrevState(Object2D* obj);
+  void setRunSpeed(float speed) {mRunSpeed = speed;}
+  float getRunSpeed() {return mRunSpeed;}
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
@@ -113,6 +115,7 @@ protected:
   int mTextSpeed;
   std::string mLanguage;
   unsigned mTimeAccu;
+  float mRunSpeed;
 };
 
 }
