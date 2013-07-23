@@ -53,7 +53,7 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
 
 }
 
-PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0) {
+PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f) {
   ScriptFunctions::registerFunctions(this);
   mBooleans = data->getProjectSettings()->booleans;
   mCutScene = NULL;
@@ -110,6 +110,7 @@ void PcdkScript::stop(){
   }
   mGroups.clear();
   mLanguage = "origin";
+  mRunSpeed = 1.0f;
 }
 
 void reportParseError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
@@ -931,7 +932,7 @@ std::ostream& PcdkScript::save(std::ostream& out){
     out << " " << iter->first;
   }
   out << std::endl;
-  out << mTextSpeed << std::endl;
+  out << mTextSpeed << " " << mRunSpeed << std::endl;
   out << mTimers.size() << " ";
   for (std::set<ExecutionContext*>::iterator iter = mTimers.begin(); iter != mTimers.end(); ++iter){
     (*iter)->save(out);
@@ -986,7 +987,7 @@ std::istream& PcdkScript::load(std::istream& in){
     ExecutionContext* ctx = getScript(scriptname);
     execute(ctx, false);
   }
-  in >> mTextSpeed;
+  in >> mTextSpeed >> mRunSpeed;
   //timers
   while(!mTimers.empty()){
     remove(*mTimers.begin());

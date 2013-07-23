@@ -273,6 +273,10 @@ public:
   **/
   static int restart(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param speed 50 - 300 %
+  **/
+  static int runSpeed(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param slot the save slot to be used
   **/
   static int saveGame(ExecutionContext& ctx, unsigned numArgs);
