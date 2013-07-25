@@ -59,7 +59,7 @@ public:
   FontRenderer* getFontRenderer() {return mFonts;}
   void setObjectString(const std::string info) {mObjectInfo = info;}
   void setObjectTooltipString(const std::string& info) {mObjectTooltipInfo = info;}
-  void walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir);
+  void walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor);
   Animator* getAnimator() {return mAnimator;}
   SaveStateProvider* getSaver() {return mSaver;}
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
@@ -106,12 +106,14 @@ public:
   RoomObject* getMainRoom();
   void removeScript(ExecutionContext* ctx);
   void showMouse(bool doIt) {mMouseShown = doIt;}
+  void enableMouse(bool doIt) {mMouseEnabled = doIt;}
   void setTimeFactor(float factor, bool isFaded) {mTimeFactor = factor; mTimeFactorFaded = isFaded;}
   float getTimeFactor(bool* isFaded=NULL) {if (isFaded != NULL) *isFaded = mTimeFactorFaded; return mTimeFactor;}
   void triggerScreenchange(ExecutionContext* loadreason);
   void enableMenu(bool doIt) {mMenuEnabled = doIt;}
   CursorObject* getCursor() {return mCursor;}
   void resetCursor(bool resetInstMouse, bool resetDragging);
+  std::string getActionText() {return mActionText;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -194,10 +196,12 @@ protected:
   RenderableBlitObject* mRenderedMain;
   PostProcessor* mPostProc;
   bool mMouseShown;
+  bool mMouseEnabled;
   float mTimeFactor;
   bool mTimeFactorFaded;
   bool mMenuEnabled;
   Object2D* mDraggingObject;
+  std::string mActionText;
 };
 
 }

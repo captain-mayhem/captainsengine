@@ -157,6 +157,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setobjlight", setObjLight);
   interpreter->registerFunction("textalign", textAlign);
   interpreter->registerFunction("runspeed", runSpeed);
+  interpreter->registerFunction("runto", runTo);
   srand((unsigned)time(NULL));
 }
 
@@ -194,6 +195,10 @@ int ScriptFunctions::showInfo(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::walkTo(ExecutionContext& ctx, unsigned numArgs){
+  return moveTo(ctx, numArgs, 1.0f);
+}
+
+int ScriptFunctions::moveTo(ExecutionContext& ctx, unsigned numArgs, float speedFactor){
   TR_USE(ADV_ScriptFunc);
   if (numArgs < 3 || numArgs > 5)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
@@ -233,7 +238,7 @@ int ScriptFunctions::walkTo(ExecutionContext& ctx, unsigned numArgs){
         chr->setSuspensionScript(&ctx);
         ctx.mSuspended = true;
       }
-      Engine::instance()->walkTo(chr, pos, dir);
+      Engine::instance()->walkTo(chr, pos, dir, speedFactor);
     //}
   }
   return 0;
@@ -613,7 +618,7 @@ int ScriptFunctions::follow(ExecutionContext& ctx, unsigned numArgs){
         chr1->setSuspensionScript(&ctx);
         ctx.mSuspended = true;
       }
-      Engine::instance()->walkTo(chr1, chr2->getPosition(), UNSPECIFIED);
+      Engine::instance()->walkTo(chr1, chr2->getPosition(), UNSPECIFIED, 1.0f);
     }
   }
   return 0;
@@ -1115,7 +1120,7 @@ int ScriptFunctions::jiggle(ExecutionContext& ctx, unsigned numArgs){
       timecount += (int)time;
     }
     path.push_back(Vec2i());
-    Engine::instance()->getAnimator()->add(room, path, power);
+    Engine::instance()->getAnimator()->add(room, path, (float)power);
   }
   return 0;
 }
@@ -1537,7 +1542,7 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
     ctx.suspend(0, NULL/*new PositionSuspender(obj, newpos)*/);
     obj->setSuspensionScript(&ctx);
   }
-  Engine::instance()->getAnimator()->add(obj, path, speed);
+  Engine::instance()->getAnimator()->add(obj, path, (float)speed);
   return 0;
 }
 
@@ -2295,8 +2300,7 @@ int ScriptFunctions::enableMouse(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   bool enable = ctx.stack().pop().getBool();
-  if (!enable)
-    TR_BREAK("Implement me");
+  Engine::instance()->enableMouse(enable);
   return 0;
 }
 
@@ -2456,7 +2460,7 @@ int ScriptFunctions::textAlign(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   int num = ctx.stack().pop().getInt();
   std::string align = ctx.stack().pop().getString();
-  TR_BREAK("Implement me");
+  TR_WARN("Implement me");
   return 0;
 }
 
@@ -2467,6 +2471,10 @@ int ScriptFunctions::runSpeed(ExecutionContext& ctx, unsigned numArgs){
   float speed = ctx.stack().pop().getInt()/100.0f;
   Engine::instance()->getInterpreter()->setRunSpeed(speed);
   return 0;
+}
+
+int ScriptFunctions::runTo(ExecutionContext& ctx, unsigned numArgs){
+  return moveTo(ctx, numArgs, Engine::instance()->getInterpreter()->getRunSpeed());
 }
 
 int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){

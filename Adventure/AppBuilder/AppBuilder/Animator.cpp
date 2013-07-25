@@ -15,7 +15,7 @@ Animator::~Animator(){
 
 }
 
-void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedfactor){
+void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, float speedfactor){
   std::map<Object2D*,ObjectAnim>::iterator iter = mObjects.find(obj);
   if (iter != mObjects.end()){
     if (!targetpath.empty())

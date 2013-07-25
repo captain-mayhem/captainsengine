@@ -1226,7 +1226,7 @@ StackData PcdkScript::getVariable(const std::string& name){
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).y;
   }
   else if (lname == "actiontext"){
-    TR_BREAK("actiontext unimplemented");
+    return Engine::instance()->getActionText();
   }
   else if (lname == "empty"){
     return std::string();
