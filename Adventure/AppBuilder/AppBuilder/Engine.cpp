@@ -161,6 +161,7 @@ void Engine::initGame(exit_callback exit_cb){
   mRenderedMain->setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
   mPostProc = new PostProcessor(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
   mMouseShown = true;
+  mMouseEnabled = true;
   mTimeFactor = 1.0f;
   mMenuEnabled = true;
   mDraggingObject = NULL;
@@ -526,7 +527,7 @@ void Engine::render(unsigned time){
     //if (mInterpreter->isBlockingScriptRunning())
     //  break;
   }
-  if ((!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown){
+  if ((!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown && mMouseEnabled){
     mCursor->render();
     if (mDraggingObject != NULL){
       mDraggingObject->setPosition(mCursor->getPosition()+mCursor->getSize()/2);
@@ -569,6 +570,7 @@ void Engine::render(unsigned time){
   if (!mObjectInfo.empty()){
     text += " "+mObjectInfo;
   }
+  mActionText = text;
   if (mData->getProjectSettings()->show_actiontext){
     //elevate the action line
     if (mTaskbar && !mInterpreter->isBlockingScriptRunning() && mShowTaskbar){
@@ -858,6 +860,8 @@ Vec2i Engine::getCursorPos(){
 }
 
 void Engine::leftClick(const Vec2i& pos){
+  if (!mMouseEnabled)
+    return;
   trymtx.lock();
   ExecutionContext* script = NULL;
   Object2D* obj = getObjectAt(pos);
@@ -877,11 +881,11 @@ void Engine::leftClick(const Vec2i& pos){
         script->setEvent((EngineEvent)mActiveCommand);
     }
     else if (mFocussedChar && !mSubRoomLoaded){
-      Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
+      Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED, 1.0f);
     }
   }
   else if (mFocussedChar && !mSubRoomLoaded && !mInterpreter->isBlockingScriptRunning()){
-    Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED);
+    Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED, 1.0f);
   }
   if (!keepCommand){
     int curCmd = mCursor->getCurrentCommand();
@@ -898,6 +902,8 @@ void Engine::leftClick(const Vec2i& pos){
 }
 
 void Engine::leftRelease(const Vec2i& pos){
+  if (!mMouseEnabled)
+    return;
   trymtx.lock();
   if (mClickedObject != NULL){
     ExecutionContext* ctx = mClickedObject->getScript();
@@ -909,6 +915,8 @@ void Engine::leftRelease(const Vec2i& pos){
 }
 
 void Engine::rightClick(const Vec2i& pos){
+  if (!mMouseEnabled)
+    return;
   bool leftClickRequired;
   int cmd = mCursor->getNextCommand(leftClickRequired, pos);
   mActiveCommand = cmd;
@@ -920,6 +928,8 @@ void Engine::rightClick(const Vec2i& pos){
 }
 
 void Engine::doubleClick(const Vec2i& pos){
+  if (!mMouseEnabled)
+    return;
   ExecutionContext* script = NULL;
   Object2D* obj = getObjectAt(pos);
   if (obj != NULL){
@@ -931,6 +941,8 @@ void Engine::doubleClick(const Vec2i& pos){
 }
 
 void Engine::mouseWheel(int delta){
+  if (!mMouseEnabled)
+    return;
   mWheelCount += delta;
 }
 
@@ -1169,7 +1181,7 @@ RoomObject* Engine::getRoom(const std::string& name){
   return NULL;
 }
 
-void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
+void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor){
   Vec2i oldwmpos = chr->getPosition()/mWalkGridSize;
   Vec2i newwmpos = pos/mWalkGridSize;
   std::list<Vec2i> path;
@@ -1191,7 +1203,7 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir){
     TR_USE(ADV_Engine);
     TR_BREAK("Character not found");
   }
-  mAnimator->add(chr, path, 10-ch->walkspeed);
+  mAnimator->add(chr, path, (10-ch->walkspeed)*speedFactor);
 }
 
 Object2D* Engine::createItem(const std::string& name){

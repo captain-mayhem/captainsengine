@@ -18,7 +18,7 @@ class Animator{
     //Object2D* object;
     Vec2i startpos;
     std::list<Vec2i> path;
-    int speedfactor;
+    float speedfactor;
     float normalization;
     float factor;
   };
@@ -39,7 +39,7 @@ class Animator{
 public:
   Animator();
   ~Animator();
-  void add(Object2D* obj, const std::list<Vec2i>& targetpath, int speedfactor);
+  void add(Object2D* obj, const std::list<Vec2i>& targetpath, float speedfactor);
   void remove(Object2D* obj);
   void remove(RoomObject* room);
   void update(unsigned interval);

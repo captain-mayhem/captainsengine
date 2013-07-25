@@ -277,6 +277,14 @@ public:
   **/
   static int runSpeed(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param character name of the character to walk
+  \param x x-position to walk to
+  \param y y-position to walk to
+  \param dir [opt] look direction
+  \param dontwait [opt] continue script execution immediately
+  **/
+  static int runTo(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param slot the save slot to be used
   **/
   static int saveGame(ExecutionContext& ctx, unsigned numArgs);
@@ -560,6 +568,7 @@ public:
   static int isItemInState(ExecutionContext& ctx, unsigned numArgs);
  private:
   static void setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip);
+  static int ScriptFunctions::moveTo(ExecutionContext& ctx, unsigned numArgs, float speedFactor);
 };
 
 }
