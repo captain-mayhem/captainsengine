@@ -158,6 +158,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("textalign", textAlign);
   interpreter->registerFunction("runspeed", runSpeed);
   interpreter->registerFunction("runto", runTo);
+  interpreter->registerFunction("enablefxshape", enableFXShape);
+  interpreter->registerFunction("scrollspeed", scrollSpeed);
   srand((unsigned)time(NULL));
 }
 
@@ -1882,7 +1884,7 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
     if (dontscroll || ctx.isSkipping())
       room->setScrollOffset(pos);
     else
-      Engine::instance()->getAnimator()->add(room, pos, 0.1f);
+      Engine::instance()->getAnimator()->add(room, pos, Engine::instance()->getScrollSpeed());
   }
   else{
     SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(roomname);
@@ -2475,6 +2477,29 @@ int ScriptFunctions::runSpeed(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::runTo(ExecutionContext& ctx, unsigned numArgs){
   return moveTo(ctx, numArgs, Engine::instance()->getInterpreter()->getRunSpeed());
+}
+
+int ScriptFunctions::enableFXShape(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  if (numArgs != 1)
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  bool enable = ctx.stack().pop().getBool();
+  Engine::instance()->enableFXShapes(enable);
+  return 0;
+}
+
+int ScriptFunctions::scrollSpeed(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  if (numArgs != 1)
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  int speed = ctx.stack().pop().getInt();
+  bool follow = true;
+  if (speed > 100){
+    follow = false;
+    speed -= 100;
+  }
+  Engine::instance()->setScrollSpeed(speed*0.0375f, follow);
+  return 0;
 }
 
 int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){

@@ -141,12 +141,7 @@ void Engine::initGame(exit_callback exit_cb){
   }
   else
     mMainScript = NULL;
-  //load and execute start script
-  Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
-  if (startScript){
-    ExecutionContext* initScript = mInterpreter->parseProgram(startScript->text);
-    mInterpreter->executeCutscene(initScript, false);
-  }
+  //init some variables
   mUseObjectName = "";
   mGiveObjectName = "";
   mInitialized = true;
@@ -164,7 +159,16 @@ void Engine::initGame(exit_callback exit_cb){
   mMouseEnabled = true;
   mTimeFactor = 1.0f;
   mMenuEnabled = true;
+  mFxShapesEnabled = true;
   mDraggingObject = NULL;
+  mScrollSpeed = 0.0375f*4;
+  mCamFollowChar = true;
+  //load and execute start script
+  Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
+  if (startScript){
+    ExecutionContext* initScript = mInterpreter->parseProgram(startScript->text);
+    mInterpreter->executeCutscene(initScript, false);
+  }
 }
 
 void Engine::exitGame(){
@@ -448,7 +452,7 @@ void Engine::render(unsigned time){
     mScrollOffset = mData->getProjectSettings()->resolution/2-
       (mFocussedChar->getPosition()-Vec2i(0,mFocussedChar->getSize().y/2));
     //mRooms.back()->setScrollOffset(mScrollOffset); //this function limits the scrolling
-    mAnimator->add(mRooms.back(), mScrollOffset, 0.25f);
+    mAnimator->add(mRooms.back(), mScrollOffset, mScrollSpeed);
     mScrollOffset = mRooms.back()->getScrollOffset();
     //mFocussedChar->setScrollOffset(mScrollOffset);
   }

@@ -5,6 +5,8 @@
 #include "EngineObjects.h"
 #include "Engine.h"
 
+TR_CHANNEL(ADV_Animator);
+
 using namespace adv;
 
 Animator::Animator(){
@@ -76,6 +78,7 @@ bool Animator::isPointOnLine(Vec2f from, Vec2f to, Vec2f pt, double epsilon)
 
 
 void Animator::update(unsigned interval){
+  TR_USE(ADV_Animator);
   if (interval == 0)
     return;
   for (std::map<Object2D*, ObjectAnim>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
@@ -142,7 +145,8 @@ void Animator::update(unsigned interval){
     }
     Vec2f oldpos = iter->second.currPos;
     iter->second.currPos += iter->second.dir*(float)interval*iter->second.speed;
-    if (!isPointOnLine(oldpos, iter->second.target, iter->second.currPos, 0.1))
+    TR_DEBUG("Scroll offset: move from %f %f to %f %f (interval %i)", oldpos.x, oldpos.y, iter->second.currPos.x, iter->second.currPos.y, interval);
+    if (!isPointOnLine(oldpos, iter->second.target, iter->second.currPos, 0.5f))
       iter->second.currPos = iter->second.target;
     iter->first->setScrollOffset(Vec2i((int)iter->second.currPos.x, (int)iter->second.currPos.y));
     ++pos;
@@ -225,10 +229,16 @@ void Animator::add(Object2D* obj, const Color& targetcolor){
 }
 
 void Animator::add(RoomObject* obj, Vec2i scrollpos, float speed){
+  std::map<RoomObject*,RoomAnim>::iterator iter = mRooms.find(obj);
+  Vec2f currPos;
+  if (iter != mRooms.end()) //get exact current position of a running animation
+    currPos = iter->second.currPos;
+  else
+    currPos = obj->getScrollOffset();
   RoomAnim anim;
-  anim.dir = scrollpos-obj->getScrollOffset();
+  anim.dir = scrollpos-currPos;
   anim.dir.normalize();
-  anim.currPos = obj->getScrollOffset();
+  anim.currPos = currPos;
   anim.target = scrollpos;
   anim.speed = speed;
   mRooms[obj] = anim;

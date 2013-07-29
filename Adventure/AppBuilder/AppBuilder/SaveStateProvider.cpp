@@ -312,6 +312,7 @@ void SaveStateProvider::save(const std::string& name){
   out << Engine::instance()->mTextEnabled << " " << Engine::instance()->mFontID << std::endl;
   out << Engine::instance()->mMouseShown << " " << Engine::instance()->mMouseEnabled << " " << Engine::instance()->mTimeFactor << " " << Engine::instance()->mTimeFactorFaded << 
     " " << Engine::instance()->mMenuEnabled << std::endl;
+  out << Engine::instance()->mFxShapesEnabled << " " << Engine::instance()->mScrollSpeed << " " << Engine::instance()->mCamFollowChar <<std::endl;
   //scripts
   Engine::instance()->getInterpreter()->save(out);
   //sounds
@@ -375,6 +376,7 @@ void SaveStateProvider::load(const std::string& name){
   in >> Engine::instance()->mMouseShown >> Engine::instance()->mMouseEnabled;
   in >> Engine::instance()->mTimeFactor >> Engine::instance()->mTimeFactorFaded;
   in >> Engine::instance()->mMenuEnabled;
+  in >> Engine::instance()->mFxShapesEnabled >> Engine::instance()->mScrollSpeed >> Engine::instance()->mCamFollowChar;
   Engine::instance()->getInterpreter()->load(in);
   SoundEngine::instance()->load(in);
   Engine::instance()->getParticleEngine()->load(in);

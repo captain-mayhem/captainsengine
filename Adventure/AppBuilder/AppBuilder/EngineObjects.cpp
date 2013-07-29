@@ -478,9 +478,11 @@ void RoomObject::render(){
     mInventroy->render(currChar->getInventory());
   }
   mLighting->render(Vec2i());
-  for (unsigned i = 0; i < mMirrors.size(); ++i){
-    mMirrors[i]->update(0);
-    mMirrors[i]->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
+  if (Engine::instance()->areFXShapesEnabled()){
+    for (unsigned i = 0; i < mMirrors.size(); ++i){
+      mMirrors[i]->update(0);
+      mMirrors[i]->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
+    }
   }
 }
 

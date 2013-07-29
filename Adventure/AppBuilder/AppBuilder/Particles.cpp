@@ -89,7 +89,7 @@ void ParticleEngine::update(unsigned time, bool render){
           break;
     }
     //barriers
-    if (room && room->hitsBarriers(*iter)){
+    if (Engine::instance()->areFXShapesEnabled() && room && room->hitsBarriers(*iter)){
       delete iter->object;
       iter = mParticles.erase(iter);
       if (iter != mParticles.begin())
