@@ -71,6 +71,10 @@ public:
   \param num [opt] the inventory number
   **/
   static int delItem(ExecutionContext& ctx, unsigned numArgs);
+    /**
+  \param enable if FX shapes are enabled
+  **/
+  static int enableFXShape(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param enable if menu is enabled
   **/
@@ -296,6 +300,10 @@ public:
   \param name of the variable to be saved
   **/
   static int saveString(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param speed the scroll speed 1-20 (+100 for don't follow)
+  **/
+  static int scrollSpeed(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param bool name of the boolean
   \param value true/false

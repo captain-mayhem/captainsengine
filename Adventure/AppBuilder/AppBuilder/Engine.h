@@ -114,6 +114,10 @@ public:
   CursorObject* getCursor() {return mCursor;}
   void resetCursor(bool resetInstMouse, bool resetDragging);
   std::string getActionText() {return mActionText;}
+  void enableFXShapes(bool doIt) {mFxShapesEnabled = doIt;}
+  bool areFXShapesEnabled() {return mFxShapesEnabled;}
+  void setScrollSpeed(float speed, bool followChar)  {mScrollSpeed = speed; mCamFollowChar = followChar;}
+  float getScrollSpeed() {return mScrollSpeed;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -200,8 +204,11 @@ protected:
   float mTimeFactor;
   bool mTimeFactorFaded;
   bool mMenuEnabled;
+  bool mFxShapesEnabled;
   Object2D* mDraggingObject;
   std::string mActionText;
+  float mScrollSpeed;
+  bool mCamFollowChar;
 };
 
 }
