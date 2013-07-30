@@ -929,6 +929,14 @@ void Engine::rightClick(const Vec2i& pos){
   mLinkObjectInfo = "";
   if (leftClickRequired)
     leftClick(pos);
+  else{
+    Object2D* obj = getObjectAt(pos);
+    if (obj != NULL){
+      ExecutionContext* script = obj->getScript();
+      if (script != NULL)
+        script->setEvent(EVT_RIGHTCLICK);
+    }
+  }
 }
 
 void Engine::doubleClick(const Vec2i& pos){
