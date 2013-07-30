@@ -82,6 +82,7 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
   mKeymap["space"] = KEY_SPACE;
   mKeymap["enter"] = KEY_RETURN;
   mKeymap["backspace"] = KEY_BACKSPACE;
+  mKeymap["esc"] = KEY_ESCAPE;
 
   mLanguage = "origin";
 }
@@ -664,19 +665,23 @@ bool PcdkScript::update(unsigned time){
     }
     //this was the previous handling, but does not work for alühn cutscene realending, scrolling part
     //if (events.empty() || events.front() != EVT_ENTER) //execute only if it is not EVT_ENTER that is pending when being in global suspend
-    update(*iter, time);
+    
+    ExecutionContext* current = *iter;
+    ++iter;
+    current->ref(); //to prevent self deletion while executing the script
+    update(current, time);
     if (mGlobalSuspend){
-      (*iter)->setEvents(events);
+      current->setEvents(events);
     }
-    if ((*iter)->mExecuteOnce && !(*iter)->mSuspended){
-      if ((*iter)->mOwner == NULL){
-        mTimers.erase(*iter);
-        (*iter)->unref();
+    if (current->mExecuteOnce && !current->mSuspended){
+      if (current->mOwner == NULL){
+        mTimers.erase(current);
+        current->unref();
       }
-      iter = mScripts.erase(iter);
+      mScripts.remove(current);
     }
-    else
-      ++iter;
+    current->unref();//now it's safe to delete oneself
+    //TODO what if ++iter from above is the script that is being deleted?
   }
   if (mCutScene){
     mTSPos = mTSPosOrig;
@@ -846,6 +851,8 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
     return EVT_MOUSEOUT;
   else if (eventname == "release")
     return EVT_RELEASE;
+  else if (eventname == "rightclick")
+    return EVT_RIGHTCLICK;
   std::map<std::string,unsigned>::iterator iter = mData->getProjectSettings()->commands.find(eventname);
   if (iter != mData->getProjectSettings()->commands.end()){
     return static_cast<EngineEvent>(iter->second);

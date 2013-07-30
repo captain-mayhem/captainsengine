@@ -1134,6 +1134,99 @@ private:
   std::map<int,Lightning*> mLigthnings;
 };
 
+static const char fogfs[] =
+"precision mediump float;\n"
+"varying vec2 tex_coord;\n"
+"\n"
+"uniform sampler2D texture;\n"
+"uniform float opacity;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = vec4(1.0);\n"
+"  color = texture2D(texture, tex_coord.st);\n"
+"  vec4 blendcol = vec4(0.5, 0.5, 0.5, 1.0);\n"
+"  color = mix(color, blendcol, opacity);\n"
+"  gl_FragColor = color;\n"
+"  gl_FragColor.a = 1.0;\n"
+"}\n"
+"";
+
+class FogEffect : public PostProcessor::Effect{
+public:
+  FogEffect() : Effect(stdvs, fogfs){
+    mName = "fog";
+  }
+  virtual void init(const Vec2f& size){
+    Effect::init(size);
+    mShader.activate();
+    GLint tex = mShader.getUniformLocation("texture");
+    mShader.uniform(tex, 0);
+    GLint scale = mShader.getUniformLocation("tex_scale");
+    float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
+    float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.uniform(scale, size.x/powx, size.y/powy);
+    mIntensityLoc = mShader.getUniformLocation("opacity");
+    mShader.deactivate();
+  }
+  virtual void deinit(){
+  }
+  virtual void activate(bool fade, ...){
+    va_list args;
+    va_start(args, fade);
+    float strength = (float)va_arg(args,double);
+    va_end(args);
+    if (fade){
+      mInterpolator.set(0, strength, 1000);
+    }
+    else{
+      mInterpolator.set(strength, strength, 1000);
+    }
+    mFadeout = false;
+    Effect::activate(fade);
+  }
+  virtual void deactivate(){
+    if (mFade){
+      mInterpolator.set(mInterpolator.current(), 0, mInterpolator.currTime());
+      mFadeout = true;
+    }
+    else
+      Effect::deactivate();
+  }
+  virtual bool update(unsigned time) {
+    if (!mInterpolator.update(time)){
+      if (mFadeout){
+        Effect::deactivate();
+        return false;
+      }
+    }
+    return true;
+  }
+  virtual void apply(BlitObject* input){
+    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    mShader.activate();
+    mShader.uniform(mIntensityLoc, mInterpolator.current());
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    mShader.deactivate();
+  }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mFadeout << " ";
+    mInterpolator.save(out);
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mFadeout;
+    mInterpolator.load(in);
+    return in;
+  }
+private:
+  GLint mIntensityLoc;
+  Interpolator mInterpolator;
+  bool mFadeout;
+};
+
 
 /* Postprocessor */
 
@@ -1149,6 +1242,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(bloom, BloomEffect, "bloom", bloomfs)
   REGISTER_EFFECT(drugged, DruggedEffect);
   REGISTER_EFFECT(lightning, LightningEffect);
+  REGISTER_EFFECT(fog, FogEffect);
 }
 
 PostProcessor::~PostProcessor(){

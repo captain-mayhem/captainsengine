@@ -804,6 +804,7 @@ int ScriptFunctions::subRoom(ExecutionContext& ctx, unsigned numArgs){
   int fading_time = 0;
   if (numArgs >= 2){
     fading_time = ctx.stack().pop().getInt();
+    TR_WARN("subroom fading not yet implemented.");
   }
   Engine::instance()->loadRoom(roomname, true, &ctx);
   return 0;
@@ -2069,7 +2070,7 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
     return 0;
   }
   PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
-  if (effect == "noise" || effect == "darkbloom" || effect == "whoosh" || effect == "bloom"){
+  if (effect == "noise" || effect == "darkbloom" || effect == "whoosh" || effect == "bloom" || effect == "fog"){
     int strength = ctx.stack().pop().getInt();
     bool fade = false;
     if (numArgs > 2){
@@ -2081,7 +2082,7 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
       disableMainEffect();
       ef->activate(fade, strength/50.0f, fade);
     }
-    else if (effect == "noise")
+    else if (effect == "noise" || effect == "fog")
       ef->activate(fade, strength/99.0f);
   }
   else if (effect == "hell"){
@@ -2728,6 +2729,7 @@ int ScriptFunctions::isCurrentRoom(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   std::string dir = ctx.stack().pop().getString();
+  dir = toLower(dir);
   ctx.stack().push(0);
   int delta = Engine::instance()->getMouseWheelDelta();
   if (dir == "up"){
