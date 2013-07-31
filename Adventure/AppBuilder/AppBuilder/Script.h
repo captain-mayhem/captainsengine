@@ -58,7 +58,7 @@ public:
   static void clickEndHandler(ExecutionContext& ctx);
   ExecutionContext* getCutscene() {return mCutScene;}
   ExecutionContext* getScript(const std::string& name);
-  void removeScript(const std::string& name);
+  ExecutionContext* removeScript(const std::string& name);
   int getTextSpeed() {return mTextSpeed;}
   void setTextSpeed(int speed) {mTextSpeed = speed;}
   void addTimer(ExecutionContext* timer);

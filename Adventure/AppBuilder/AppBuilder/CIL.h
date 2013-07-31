@@ -78,8 +78,9 @@ public:
   CCALL(std::istream& in);
   virtual ~CCALL(){}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    ctx.mPC = ++pc;
     (*mFunc)(ctx, mNumArgs);
-    return ++pc;
+    return ctx.mPC;
   }
   virtual Type getType(){return CALL;}
   virtual void save(std::ostream& out);

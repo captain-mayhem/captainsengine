@@ -91,6 +91,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("stopskip", stopSkip);
   interpreter->registerFunction("playswf", playSwf);
   interpreter->registerFunction("stopswf", stopSwf);
+  interpreter->registerFunction("stopvideo", stopSwf);
+  interpreter->registerFunction("stopavi", stopSwf);
   interpreter->registerFunction("if_ischar", isCharTriggering);
   interpreter->registerFunction("if_charin", isCharInRoom);
   interpreter->registerFunction("if_hasitem", isCharPossessingItem);
@@ -130,6 +132,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("particleview", particleView);
   interpreter->registerFunction("texthide", textHide);
   interpreter->registerFunction("playavi", playVideo);
+  interpreter->registerFunction("playvideo", playVideo);
   interpreter->registerFunction("moviewait", wait);
   interpreter->registerFunction("stopavi", stopSwf);
   interpreter->registerFunction("stopeffect", stopEffect);
@@ -806,6 +809,8 @@ int ScriptFunctions::subRoom(ExecutionContext& ctx, unsigned numArgs){
     fading_time = ctx.stack().pop().getInt();
     TR_WARN("subroom fading not yet implemented.");
   }
+  if (Engine::instance()->isSubRoomLoaded())
+    Engine::instance()->unloadRoom(NULL, false, false);
   Engine::instance()->loadRoom(roomname, true, &ctx);
   return 0;
 }
@@ -1620,6 +1625,7 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs < 1 || numArgs > 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string scriptname = ctx.stack().pop().getString();
+  TR_DEBUG("Function %s started", scriptname.c_str());
   ExecutionContext* func = Engine::instance()->getInterpreter()->getScript(scriptname);
   int numExecutions = 1;
   if (numArgs > 1){
@@ -1648,7 +1654,12 @@ int ScriptFunctions::stopFunction(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string scriptname = ctx.stack().pop().getString();
-  Engine::instance()->getInterpreter()->removeScript(scriptname);
+  TR_DEBUG("Function %s stopped", scriptname.c_str());
+  ExecutionContext* stopped = Engine::instance()->getInterpreter()->removeScript(scriptname);
+  if (stopped == &ctx){
+    //script removes itself, skip remaining instructions
+    ctx.mPC = 1000000;
+  }
   return 0;
 }
 
@@ -2462,8 +2473,16 @@ int ScriptFunctions::textAlign(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   int num = ctx.stack().pop().getInt();
-  std::string align = ctx.stack().pop().getString();
-  TR_WARN("Implement me");
+  std::string alignstr = ctx.stack().pop().getString();
+  Textout::Alignment align;
+  if (alignstr == "left")
+    align = Textout::LEFT;
+  else if (alignstr == "center")
+    align = Textout::CENTER;
+  else if (alignstr == "right")
+    align = Textout::RIGHT;
+  Textout* text = Engine::instance()->getFontRenderer()->getTextout(num);
+  text->setAlignment(align);
   return 0;
 }
 

@@ -33,7 +33,7 @@ enum EngineEvent{
   EVT_MOUSEOUT=EVT_DBLCLCK+1,
   EVT_RELEASE=EVT_MOUSEOUT+1,
   EVT_RIGHTCLICK=EVT_RELEASE+1,
-  EVT_LEVEL=EVT_RELEASE+1, //EVT_LEVEL HAS TO BE LAST
+  EVT_LEVEL=EVT_RIGHTCLICK+1, //EVT_LEVEL HAS TO BE LAST
 };
 
 class CodeSegment{
@@ -82,6 +82,7 @@ class NoopSuspender : public Suspender{
 class ExecutionContext{
   friend class PcdkScript;
   friend class ScriptFunctions;
+  friend class CCALL;
 public:
   ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo);
   ExecutionContext(const ExecutionContext& ctx);
@@ -110,7 +111,7 @@ public:
   bool isEventHandled() {return mEventHandled;}
   bool isSuspended() {return mSuspended;}
   void ref() {++mRefCount;}
-  void unref() {if (this == NULL) return; --mRefCount; if (mRefCount == 0) delete this;}
+  bool unref() {if (this == NULL) return false; --mRefCount; if (mRefCount == 0){ delete this; return true;} return false; }
   CodeSegment* getCode() {return mCode;}
   void save(std::ostream& out);
   ExecutionContext* getLoop1() {return mCode->getLoop1();}
