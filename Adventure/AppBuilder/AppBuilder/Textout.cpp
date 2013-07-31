@@ -4,7 +4,8 @@
 
 using namespace adv;
 
-Textout::Textout() : mEnabled(false), mText(NULL), mPos(0,0), mFont(1), mColor(Engine::instance()->getSettings()->infotextcolor){
+Textout::Textout() : mEnabled(false), mText(NULL), mPos(0,0), mFont(1), mColor(Engine::instance()->getSettings()->infotextcolor),
+  mAlignment(LEFT){
 }
 
 Textout::~Textout(){
@@ -48,7 +49,12 @@ void Textout::render(){
     text = sd.getString();
   std::vector<Vec2i> breakinfo;
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, mFont, breakinfo, Engine::instance()->getData()->getProjectSettings()->resolution.x);
-  FontRenderer::String* result = Engine::instance()->getFontRenderer()->render(mPos.x/*-(keepOnScreen ? ext.x/2 : 0)*/+pos.x,mPos.y+pos.y, text, 
+  int alignoffset = 0;
+  if (mAlignment == CENTER)
+    alignoffset = ext.x/2;
+  else if (mAlignment == RIGHT)
+    alignoffset = ext.x;
+  FontRenderer::String* result = Engine::instance()->getFontRenderer()->render(mPos.x/*-(keepOnScreen ? ext.x/2 : 0)*/+pos.x-alignoffset,mPos.y+pos.y, text, 
       depth, mFont, breakinfo, mColor, 0, false);
   result->setBoundRoom(boundRoom);
 }
@@ -58,6 +64,7 @@ void Textout::save(std::ostream& out){
   out << mColor.r << " " << mColor.g << " " << mColor.b << " " << mColor.a << " ";
   out << (mBoundRoom.empty() ? "none" : mBoundRoom);
   out << "\n";
+  out << (int)mAlignment << "\n";
   mText->save(out);
 }
 
@@ -67,6 +74,8 @@ void Textout::load(std::istream& in){
   in >> mBoundRoom;
   if (mBoundRoom == "none")
     mBoundRoom = "";
+  int tmp;
+  in >> tmp; mAlignment = (Alignment)tmp;
   Engine::instance()->getFontRenderer()->loadFont(mFont);
   mText = new ExecutionContext(in);
 }

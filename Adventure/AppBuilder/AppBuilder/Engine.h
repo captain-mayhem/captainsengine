@@ -118,6 +118,7 @@ public:
   bool areFXShapesEnabled() {return mFxShapesEnabled;}
   void setScrollSpeed(float speed, bool followChar)  {mScrollSpeed = speed; mCamFollowChar = followChar;}
   float getScrollSpeed() {return mScrollSpeed;}
+  bool isSubRoomLoaded() {return mSubRoomLoaded;}
 protected:
   Engine();
   static Engine* mInstance;

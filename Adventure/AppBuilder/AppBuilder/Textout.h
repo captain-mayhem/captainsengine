@@ -10,6 +10,11 @@ class ExecutionContext;
 
 class Textout{
 public:
+  enum Alignment{
+    LEFT,
+    CENTER,
+    RIGHT,
+  };
   Textout();
   ~Textout();
   void render();
@@ -21,6 +26,7 @@ public:
   void setRoom(const std::string& room) {mBoundRoom = room;}
   void save(std::ostream& out);
   void load(std::istream& in);
+  void setAlignment(Alignment alignment) {mAlignment = alignment;}
 protected:
   bool mEnabled;
   ExecutionContext* mText;
@@ -28,6 +34,7 @@ protected:
   int mFont;
   Color mColor;
   std::string mBoundRoom;
+  Alignment mAlignment;
 };
 
 }

@@ -667,9 +667,15 @@ bool PcdkScript::update(unsigned time){
     //if (events.empty() || events.front() != EVT_ENTER) //execute only if it is not EVT_ENTER that is pending when being in global suspend
     
     ExecutionContext* current = *iter;
-    ++iter;
-    current->ref(); //to prevent self deletion while executing the script
+    std::list<ExecutionContext*>::iterator olditer = iter;
+    std::list<ExecutionContext*>::iterator next = ++iter;
+    iter = olditer;
+    current->ref(); //to prevent self deletion
     update(current, time);
+    if (current->unref()){ //now it's safe to delete oneself
+      iter = next;
+      continue;
+    }
     if (mGlobalSuspend){
       current->setEvents(events);
     }
@@ -678,10 +684,10 @@ bool PcdkScript::update(unsigned time){
         mTimers.erase(current);
         current->unref();
       }
-      mScripts.remove(current);
+      iter = mScripts.erase(iter);
     }
-    current->unref();//now it's safe to delete oneself
-    //TODO what if ++iter from above is the script that is being deleted?
+    else
+      ++iter;
   }
   if (mCutScene){
     mTSPos = mTSPosOrig;
@@ -1310,12 +1316,15 @@ ExecutionContext* PcdkScript::getScript(const std::string& name){
   return ctx;
 }
 
-void PcdkScript::removeScript(const std::string& name){
+ExecutionContext* PcdkScript::removeScript(const std::string& name){
   std::map<std::string,ExecutionContext*>::iterator iter = mScriptFunctions.find(name);
   if (iter != mScriptFunctions.end()){
-    remove(iter->second);
+    ExecutionContext* scr = iter->second;
+    remove(scr);
     mScriptFunctions.erase(iter);
+    return scr;
   }
+  return NULL;
 }
 
 void PcdkScript::addTimer(ExecutionContext* timer){
