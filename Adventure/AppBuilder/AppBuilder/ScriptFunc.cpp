@@ -163,6 +163,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("runto", runTo);
   interpreter->registerFunction("enablefxshape", enableFXShape);
   interpreter->registerFunction("scrollspeed", scrollSpeed);
+  interpreter->registerFunction("loadchar", loadChar);
+  interpreter->registerFunction("offtextcolor", offTextColor);
   srand((unsigned)time(NULL));
 }
 
@@ -1060,6 +1062,10 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
       screenchange = SC_BLEND;
     else if (name == "blendslow")
       screenchange = SC_BLEND_SLOW;
+    else if (name == "direct")
+      screenchange = SC_DIRECT;
+    else if (name == "fadeblack")
+      screenchange = SC_FADEOUT;
     else{
       TR_USE(ADV_ScriptFunc);
       TR_BREAK("Unknown screenchange %s", name.c_str());
@@ -2016,9 +2022,11 @@ private:
 
 int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
+  if (numArgs < 1 || numArgs > 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string effect = ctx.stack().pop().getString();
+  if (numArgs == 2 && effect != "lightning")
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   if (effect == "all"){
     Engine::instance()->getPostProcessor()->stopEffects();
   }
@@ -2035,6 +2043,12 @@ int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
       Engine::instance()->setTimeFactor(1.0f, false);
       SoundEngine::instance()->setSpeedFactor(1.0f);
     }
+  }
+  else if (effect == "lightning" && numArgs == 2){
+    int idx = ctx.stack().pop().getInt();
+    PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
+    if (ef)
+      ef->deactivate(idx);
   }
   else{
     PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
@@ -2519,6 +2533,28 @@ int ScriptFunctions::scrollSpeed(ExecutionContext& ctx, unsigned numArgs){
     speed -= 100;
   }
   Engine::instance()->setScrollSpeed(speed*0.0375f, follow);
+  return 0;
+}
+
+int ScriptFunctions::loadChar(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  if (numArgs != 1)
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  std::string name = ctx.stack().pop().getString();
+  std::string dummy;
+  CharacterObject* ch = Engine::instance()->loadCharacter(name, Engine::instance()->getCharacterClass(name), false, &ctx);
+  delete ch;
+  return 0;
+}
+
+int ScriptFunctions::offTextColor(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  if (numArgs != 3)
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  Color col;
+  col.r = ctx.stack().pop().getInt();
+  col.g = ctx.stack().pop().getInt();
+  col.b = ctx.stack().pop().getInt();
   return 0;
 }
 

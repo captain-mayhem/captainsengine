@@ -19,6 +19,7 @@ public:
     virtual void activate(bool fade, ...);
     void activate() {Effect::activate(mFade);}
     virtual void deactivate();
+    virtual void deactivate(int data);
     const std::string& getName() {return mName;}
     virtual std::ostream& save(std::ostream& out);
     virtual std::istream& load(std::istream& in);
