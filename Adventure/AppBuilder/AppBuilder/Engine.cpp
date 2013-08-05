@@ -545,34 +545,36 @@ void Engine::render(unsigned time){
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
   std::string text;
-  int cmdidx;
-  if ((mUseObjectName.empty() && mGiveObjectName.empty()) || mPrevActiveCommand == 0)
-    cmdidx = mActiveCommand;
-  else
-    cmdidx = mPrevActiveCommand;
-  int langcmdidx = cmdidx;
-  if (langcmdidx > 0)
-    langcmdidx += 1;
-  if (mData->hasLanguageInfo())
-    text = mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, langcmdidx);
-  else
-    text = mData->getProjectSettings()->pretty_commands[cmdidx];
-  if (!mUseObjectName.empty()){
-    text += " "+mLinkObjectInfo;
-    if (mData->hasLanguageInfo())
-      text += " "+mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, 1);
+  if (mFocussedChar){
+    int cmdidx;
+    if ((mUseObjectName.empty() && mGiveObjectName.empty()) || mPrevActiveCommand == 0)
+      cmdidx = mActiveCommand;
     else
-      text += " "+mData->getProjectSettings()->linktext;
-  }
-  if (!mGiveObjectName.empty()){
-    text += " "+mLinkObjectInfo;
+      cmdidx = mPrevActiveCommand;
+    int langcmdidx = cmdidx;
+    if (langcmdidx > 0)
+      langcmdidx += 1;
     if (mData->hasLanguageInfo())
-      text += " "+mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, 2);
+      text = mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, langcmdidx);
     else
-      text += " "+mData->getProjectSettings()->givelink;
-  }
-  if (!mObjectInfo.empty()){
-    text += " "+mObjectInfo;
+      text = mData->getProjectSettings()->pretty_commands[cmdidx];
+    if (!mUseObjectName.empty()){
+      text += " "+mLinkObjectInfo;
+      if (mData->hasLanguageInfo())
+        text += " "+mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, 1);
+      else
+        text += " "+mData->getProjectSettings()->linktext;
+    }
+    if (!mGiveObjectName.empty()){
+      text += " "+mLinkObjectInfo;
+      if (mData->hasLanguageInfo())
+        text += " "+mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, 2);
+      else
+        text += " "+mData->getProjectSettings()->givelink;
+    }
+    if (!mObjectInfo.empty()){
+      text += " "+mObjectInfo;
+    }
   }
   mActionText = text;
   if (mData->getProjectSettings()->show_actiontext){

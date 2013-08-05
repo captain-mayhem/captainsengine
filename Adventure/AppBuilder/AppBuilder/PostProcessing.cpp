@@ -85,6 +85,10 @@ void PostProcessor::Effect::deactivate(){
   Engine::instance()->getPostProcessor()->mActiveEffects.remove(this);
 }
 
+void PostProcessor::Effect::deactivate(int data){
+  deactivate();
+}
+
 std::ostream& PostProcessor::Effect::save(std::ostream& out){
   out << mName << " " << mFade << " ";
   return out;
@@ -957,6 +961,13 @@ public:
     }
     mLigthnings.clear();
     Effect::deactivate();
+  }
+  virtual void deactivate(int data){
+    std::map<int,Lightning*>::iterator iter = mLigthnings.find(data);
+    if (iter != mLigthnings.end())
+      mLigthnings.erase(iter);
+    if (mLigthnings.empty())
+      Effect::deactivate();
   }
   virtual bool update(unsigned time) {
     glActiveTexture(GL_TEXTURE1);

@@ -168,6 +168,10 @@ public:
   **/
   static int linkChar(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param character preload the character character
+  **/
+  static int loadChar(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param slot the save slot to be used
   **/
   static int loadGame(ExecutionContext& ctx, unsigned numArgs);
@@ -226,6 +230,12 @@ public:
   \param dontwait [opt] continue script execution immediately
   **/
   static int offSpeech(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  \param red
+  \param green
+  \param blue
+  **/
+  static int offTextColor(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param view 1: in front of all, 2: behind front objects, 3: behind middle objects, 4: behind background
   **/
