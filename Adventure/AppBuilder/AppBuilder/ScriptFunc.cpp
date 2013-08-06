@@ -2154,6 +2154,23 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
     speed = (speed+1)*25;
     ef->activate(false, slot, x1, y1, x2, y2, c.r, c.g, c.b, spikes, height, speed);
   }
+  else if (effect == "zoom"){
+    Vec2i pos;
+    pos.x = ctx.stack().pop().getInt();
+    pos.y = ctx.stack().pop().getInt();
+    double factor = ctx.stack().pop().getFloat()/100.0f;
+    int fading = 0;
+    if (numArgs > 4){
+      std::string fadestr = ctx.stack().pop().getString();
+      if (fadestr == "fade")
+        fading = 1000;
+      else if (fadestr == "fadeslow")
+        fading = 2000;
+      else
+        TR_BREAK("Unknown fading %s", fadestr.c_str());
+    }
+    ef->activate(fading != 0, pos.x, pos.y, factor, fading);
+  }
   else{
     TR_USE(ADV_ScriptFunc);
     TR_BREAK("Unknown effect %s", effect.c_str());
