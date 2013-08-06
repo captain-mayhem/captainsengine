@@ -1238,6 +1238,129 @@ private:
   bool mFadeout;
 };
 
+static const char zoomvs[] =
+"precision mediump float;\n"
+"attribute vec3 position;\n"
+"attribute vec4 texCoord;\n"
+"attribute vec2 offset;\n"
+"\n"
+"uniform vec2 tex_scale;\n"
+"\n"
+"varying vec2 tex_coord;\n"
+"\n"
+"void main(){\n"
+"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
+"  gl_Position = vec4(position.x*2.0-1.0+offset.x, position.y*2.0-1.0+offset.y, 0.0, 1.0);\n"
+"}\n"
+"";
+
+class ZoomEffect : public PostProcessor::Effect{
+public:
+  ZoomEffect() : Effect(zoomvs, stdfs){
+    mName = "zoom";
+  }
+  virtual void init(const Vec2f& size){
+    Effect::init(size);
+    mShader.activate();
+    GLint scale = mShader.getUniformLocation("tex_scale");
+    float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
+    float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.uniform(scale, size.x/powx, size.y/powy);
+    mOffsetIndex = mShader.getAttribLocation("offset");
+    mShader.deactivate();
+  }
+  virtual void activate(bool fade, ...){
+    va_list args;
+    va_start(args, fade);
+    mPos.x = va_arg(args, int);
+    mPos.y = va_arg(args, int);
+    mScale = (float)va_arg(args, double);
+    mFadetime = va_arg(args, int);
+    va_end(args);
+    Effect::activate(fade);
+    mFadeout = false;
+    setupZoom();
+  }
+  virtual void deactivate(){
+    mFadeout = true;
+    for (int i = 0; i < 8; ++i){
+      mVerts[i].set(mVerts[i].current(), 0, (float)mFadetime);
+    }
+  }
+  virtual bool update(unsigned time) {
+    int finishCount = 0;
+    for (int i = 0; i < 8; ++i){
+      if (!mVerts[i].update(time)){
+        if (mFadeout)
+          ++finishCount;
+      }
+    }
+    if (finishCount >= 8){
+      Effect::deactivate();
+      return false;
+    }
+    return true;
+  }
+  virtual void apply(BlitObject* input){
+    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    mShader.activate();
+    float tmp[8];
+    for (int i = 0; i < 8; ++i){
+      tmp[i] = mVerts[i].current();
+      if (i == 0 || i == 2 || i == 3 || i == 7)
+        tmp[i] *= -1;
+    }
+    glVertexAttribPointer(mOffsetIndex, 2, GL_FLOAT, GL_FALSE, 0, tmp);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    mShader.deactivate();
+    Engine::instance()->restoreRenderDefaults();
+  }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mFadeout << " " << mPos.x << " " << mPos.y << " " << mScale << " " << mFadetime;
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mFadeout >> mPos.x >> mPos.y >> mScale >> mFadetime;
+    int old = mFadetime;
+    mFadetime = 0;
+    setupZoom();
+    mFadetime = old;
+    return in;
+  }
+private:
+  void setupZoom(){
+    float xres = (float)Engine::instance()->getResolution().x;
+    float sx = ((mPos.x-xres/2)/xres)*2;
+    float yres = (float)Engine::instance()->getResolution().y;
+    float sy = ((mPos.y-yres/2)/yres)*2;
+    float scale = mScale;
+    float transx = sx*(1-scale);
+    float transy = sy*(1-scale);
+    for (int i = 0; i < 8; ++i){
+      float time = (float)mFadetime;
+      float tmp = scale-1;
+      if (i == 0 || i == 2)
+        tmp -= transx;
+      if (i == 1 || i == 5)
+        tmp += transy;
+      if (i == 3 || i == 7)
+        tmp -= transy;
+      if (i == 4 || i == 6)
+        tmp += transx;
+      mVerts[i].set(0, tmp, time);
+    }
+  }
+  GLuint mOffsetIndex;
+  bool mFadeout;
+  Interpolator mVerts[8];
+  Vec2i mPos;
+  float mScale;
+  int mFadetime;
+};
+
 
 /* Postprocessor */
 
@@ -1254,6 +1377,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(drugged, DruggedEffect);
   REGISTER_EFFECT(lightning, LightningEffect);
   REGISTER_EFFECT(fog, FogEffect);
+  REGISTER_EFFECT(zoom, ZoomEffect);
 }
 
 PostProcessor::~PostProcessor(){

@@ -25,19 +25,18 @@ bool GL2Shader::addShader(GLenum shadertype, const char* shaderstring, int strin
   glCompileShader(shader);
   GLint success = 0;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-  if (!success){
-    TR_ERROR("GL2: %s");
-  }
-  else{
+  if (success){
     glAttachShader(mProgram, shader);
   }
-  GLint len;
-  glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
-  if (len > 0){
-    char* log = new char[len];
-    glGetShaderInfoLog(shader, len, NULL, log);
-    TR_INFO("GL2: %s", log);
-    delete [] log;
+  else{
+    GLint len;
+    glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
+    if (len > 0){
+      char* log = new char[len];
+      glGetShaderInfoLog(shader, len, NULL, log);
+      TR_ERROR("GL2: %s", log);
+      delete [] log;
+    }
   }
   glDeleteShader(shader);
   return success != 0;
@@ -50,14 +49,14 @@ bool GL2Shader::linkShaders(){
   glGetProgramiv(mProgram, GL_LINK_STATUS, &success);
   if (!success){
     TR_ERROR("GL2: linking shader failed: ");
-  }
-  GLint len;
-  glGetProgramiv(mProgram, GL_INFO_LOG_LENGTH, &len);
-  if (len > 0){
-    char* log = new char[len];
-    glGetProgramInfoLog(mProgram, len, NULL, log);
-    TR_INFO("GL2: %s", log);
-    delete [] log;
+    GLint len;
+    glGetProgramiv(mProgram, GL_INFO_LOG_LENGTH, &len);
+    if (len > 0){
+      char* log = new char[len];
+      glGetProgramInfoLog(mProgram, len, NULL, log);
+      TR_ERROR("GL2: %s", log);
+      delete [] log;
+    }
   }
   return success != 0;
 }
