@@ -48,6 +48,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("delitem", delItem);
   interpreter->registerFunction("loopsound", loopSound);
   interpreter->registerFunction("loopstop", loopStop);
+  interpreter->registerFunction("stopsound", loopStop);
   interpreter->registerFunction("playmusic", playMusic);
   interpreter->registerFunction("stopmusic", stopMusic);
   interpreter->registerFunction("wait", wait);

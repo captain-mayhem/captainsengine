@@ -8,6 +8,9 @@
 #ifndef UINT64_C
 #define UINT64_C(val) val##ui64
 #endif
+#ifndef INT64_C
+#define INT64_C(val) val##i64
+#endif
 
 #ifdef WIN32
 #pragma warning( disable : 4244 )
@@ -1033,17 +1036,23 @@ bool StreamSoundPlayer::update(unsigned time){
   return true;
 }
 
+TR_CHANNEL(ADV_Video);
+
 StreamVideoPlayer::StreamVideoPlayer(const std::string& soundname) : 
-StreamSoundPlayer(soundname, false), mClock(0){
+StreamSoundPlayer(soundname, false), mClock(0)/*, mLayer(NULL)*/, mFirstFrame(true){
+  for (int i = 0; i < NUM_LAYERS; ++i)
+    mLayer[i] = NULL;
 }
 
 StreamVideoPlayer::~StreamVideoPlayer(){
   av_free(mFrame);
   for (std::list<AVFrame*>::iterator iter = mFramesRGB.begin(); iter != mFramesRGB.end(); ++iter){
+    delete [] (*iter)->data[0];
     av_free(*iter);
   }
   avcodec_close(mVidCodecContext);
-  delete mLayer;
+  for (int i = 0; i < NUM_LAYERS; ++i)
+    delete mLayer[i];
 }
 
 bool StreamVideoPlayer::openStreamHook(int i){
@@ -1060,8 +1069,7 @@ bool StreamVideoPlayer::openStreamHook(int i){
       mVidCodecContext->time_base.den = 1000;
 
     mFrame = avcodec_alloc_frame();
-    mVidDataBuffer.length = avpicture_get_size(PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
-    mVidDataBuffer.data = new char[mVidDataBuffer.length];
+    mVidDataBufferLength = avpicture_get_size(PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
 
     mScaler = sws_getContext(mVidCodecContext->width, mVidCodecContext->height,
       mVidCodecContext->pix_fmt, mVidCodecContext->width, mVidCodecContext->height,
@@ -1101,11 +1109,16 @@ bool StreamVideoPlayer::getPacketHook(AVPacket& packet){
     avcodec_decode_video2(mVidCodecContext, mFrame, &frame_finished, &packet);
     if (frame_finished){
       AVFrame* frameRGB = avcodec_alloc_frame();
-      avpicture_fill((AVPicture*)frameRGB, (uint8_t*)mVidDataBuffer.data, PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
+      uint8_t* data = new uint8_t[mVidDataBufferLength];
+      avpicture_fill((AVPicture*)frameRGB, data, PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
       sws_scale(mScaler, mFrame->data, mFrame->linesize, 0, mVidCodecContext->height,
         frameRGB->data, frameRGB->linesize);
-      frameRGB->pts = mFrame->pts;
+      if (mFrame->pts == AV_NOPTS_VALUE)
+        frameRGB->pts = mFrame->best_effort_timestamp;
+      else
+        frameRGB->pts = mFrame->pts;
       av_free_packet(&packet);
+
       mFramesRGB.push_back(frameRGB);
       /*static int count = 0;
       if (count < 10){
@@ -1124,14 +1137,22 @@ void StreamVideoPlayer::initLayer(int x, int y, int width, int height){
   mRenderPos.y = y;
   mScale.x = width/(float)mVidCodecContext->width;
   mScale.y = height/(float)mVidCodecContext->height;
-  mLayer = new BlitObject(mVidCodecContext->width, mVidCodecContext->height, DEPTH_VIDEO_LAYER, GL_RGB);
+  for (int i = 0; i < NUM_LAYERS; ++i){
+    mLayer[i] = new BlitObject(mVidCodecContext->width, mVidCodecContext->height, DEPTH_VIDEO_LAYER, GL_RGB);
+  }
+  mCurrLayer = 0;
 }
 
 bool StreamVideoPlayer::update(unsigned time){
+  TR_USE(ADV_Video);
+  //static int frameNum = 0;
+  //static int frameTime = 0;
+  //frameTime += time;
   bool cont = false;
-  mClock += time;
+  if (!mFirstFrame)
+    mClock += time;
   if (mCodecContext != NULL){ //we have an audio stream
-    cont = StreamSoundPlayer::update(time);
+      cont = StreamSoundPlayer::update(time);
   }
   else{
     if (mStop)
@@ -1143,18 +1164,35 @@ bool StreamVideoPlayer::update(unsigned time){
       cont = true;
     }
   }
+  TR_DETAIL("Time is %i clock %i, there are %i frames queued", time, mClock, mFramesRGB.size());
   if (!mFramesRGB.empty()){
+    mFirstFrame = false;
     AVFrame* frameRGB = mFramesRGB.front();
+    bool firstLoop = true;
     if (mClock >= mVidCodecContext->time_base.num*1000/(float)mVidCodecContext->time_base.den*frameRGB->pts){
       //get video packets only
       mFramesRGB.pop_front();
-      mLayer->updateTexture(mVidCodecContext->width, mVidCodecContext->height, frameRGB->data[0]);
+      if (firstLoop){
+        //TR_INFO("Frame %i was displayed %i ms", frameNum, frameTime);
+        mCurrLayer = (mCurrLayer+1)%NUM_LAYERS;
+        firstLoop = false;
+      }
+      //++frameNum;
+      //frameTime = 0;
+      mLayer[mCurrLayer]->updateTexture(mVidCodecContext->width, mVidCodecContext->height, frameRGB->data[0]);
+      delete [] frameRGB->data[0];
       av_free(frameRGB);
+      if (mFramesRGB.empty()){
+        TR_WARN("Video queue ran empty");
+        //break;
+      }
+      //frameRGB = mFramesRGB.front();
     }
   }
   if (mLayer && cont){
+    //TR_INFO("Rendering frame %i buffer %i", frameNum, mCurrLayer);
     Engine::instance()->beginRendering();
-    mLayer->render(mRenderPos, mScale, Vec2i());
+    mLayer[mCurrLayer]->render(mRenderPos, mScale, Vec2i());
     Engine::instance()->endRendering();
   }
   return cont;
