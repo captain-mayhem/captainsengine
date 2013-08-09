@@ -234,12 +234,15 @@ protected:
   std::list<AVFrame*> mFramesRGB;
   SwsContext* mScaler;
   int mVidStreamNum;
-  DataBuffer mVidDataBuffer;
+  unsigned mVidDataBufferLength;
   int mClock;
 
   Vec2i mRenderPos;
   Vec2f mScale;
-  BlitObject* mLayer;
+#define NUM_LAYERS 3
+  BlitObject* mLayer[NUM_LAYERS];
+  int mCurrLayer;
+  bool mFirstFrame;
 };
 
 }
