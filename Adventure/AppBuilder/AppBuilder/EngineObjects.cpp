@@ -4,6 +4,7 @@
 #include "Inventory.h"
 #include "ScriptFunc.h"
 #include "Sound.h"
+#include "SoundPlayer.h"
 
 using namespace adv;
 

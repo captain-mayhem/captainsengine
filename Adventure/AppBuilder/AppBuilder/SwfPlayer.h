@@ -3,7 +3,7 @@
 
 #include <system/types.h>
 
-#include "Sound.h"
+#include "SoundPlayer.h"
 
 namespace adv{
 
@@ -20,10 +20,11 @@ class RenderableBlitObject;
 class SwfPlayer : public VideoPlayer{
 public:
   SwfPlayer(const std::string& name, const DataBuffer* db);
-  ~SwfPlayer();
+  virtual ~SwfPlayer();
   void play(bool looping);
   void stop();
-  bool update(unsigned time);
+  virtual bool update(unsigned time);
+  virtual void render(unsigned time);
   void initLayer(int x, int y, int width, int height);
   void setSuspensionScript(ExecutionContext* ctx);
 protected:

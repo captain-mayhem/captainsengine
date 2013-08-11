@@ -226,12 +226,15 @@ bool SwfPlayer::update(unsigned time){
   if (mClock >= mFrameTime*mFrameNum){
     processTags();
   }
+  return !mStop;
+}
+
+void SwfPlayer::render(unsigned time){
   if (mLayer && !mStop){
     Engine::instance()->beginRendering();
     mLayer->render(mRenderPos, mScale, Vec2i());
     Engine::instance()->endRendering();
   }
-  return !mStop;
 }
 
 void SwfPlayer::initLayer(int x, int y, int width, int height){
