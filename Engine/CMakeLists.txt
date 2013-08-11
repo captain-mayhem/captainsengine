@@ -85,6 +85,7 @@ INCLUDE(renderer/CMakeLists.txt)
 INCLUDE(system/CMakeLists.txt)
 INCLUDE(window/CMakeLists.txt)
 INCLUDE(common/CMakeLists.txt)
+INCLUDE(util/CMakeLists.txt)
 
 INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
 LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
@@ -107,6 +108,7 @@ ADD_LIBRARY(Engine STATIC
 	${Engine_system_SRCS}
 	${Engine_window_SRCS}
 	${Engine_common_SRCS}
+	${Engine_util_SRCS}
 	
 	${Engine_gui_HDRS}
 	${Engine_image_HDRS}
@@ -119,6 +121,7 @@ ADD_LIBRARY(Engine STATIC
 	${Engine_system_HDRS}
 	${Engine_window_HDRS}
 	${Engine_common_HDRS}
+	${Engine_util_HDRS}
 )
 
 TARGET_LINK_LIBRARIES(Engine ${ENGINE_LINK_LIBRARIES})
@@ -145,6 +148,8 @@ SOURCE_GROUP("window" FILES ${Engine_window_SRCS})
 SOURCE_GROUP("window" FILES ${Engine_window_HDRS})
 SOURCE_GROUP("common" FILES ${Engine_common_SRCS})
 SOURCE_GROUP("common" FILES ${Engine_common_HDRS})
+SOURCE_GROUP("util" FILES ${Engine_util_SRCS})
+SOURCE_GROUP("util" FILES ${Engine_util_HDRS})
 
 TARGET_LINK_LIBRARIES(Engine ${ENGINE_LINK_LIBRARIES})
 

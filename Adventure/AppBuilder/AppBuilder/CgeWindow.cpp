@@ -83,6 +83,7 @@ void quit(){
 }
 
 void render(){
+  double start = getTime();
   //CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   GL()matrixMode(MM_PROJECTION);
   GL()loadIdentity();
@@ -106,7 +107,13 @@ void render(){
   Engine::instance()->render(time);
 
   SoundEngine::instance()->update(time);
-  CGE::Thread::sleep(5); //just a little sleep to avoid frame times < 1ms.
+
+  double diff = getTime()-start;
+  int sleeptime = 5 - (int)(diff*1000);
+  if (sleeptime < 0)
+    sleeptime = 0;
+
+  CGE::Thread::sleep(sleeptime); //just a little sleep to avoid frame times < 5ms.
 }
 
 void mouse_move(int x, int y, int button){

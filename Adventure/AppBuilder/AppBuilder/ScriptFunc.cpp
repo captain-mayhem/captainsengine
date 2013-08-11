@@ -10,6 +10,7 @@
 #include "SaveStateProvider.h"
 #include "Inventory.h"
 #include "Sound.h"
+#include "SoundPlayer.h"
 #include "Screenchange.h"
 #include "Particles.h"
 #include "Textout.h"
