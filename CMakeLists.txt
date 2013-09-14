@@ -1,10 +1,23 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
-IF (${OS} STREQUAL "windows")
 PROJECT(CaptainsEngine C CXX)
-ELSE (${OS} STREQUAL "windows")
-PROJECT(CaptainsEngine C CXX)
-ENDIF (${OS} STREQUAL "windows")
+
+IF (NOT DEFINED OS)
+  IF(CMAKE_HOST_UNIX)
+    SET(OS "linux")
+  ELSEIF(CMAKE_HOST_WIN32)
+    SET(OS "windows")
+  ELSE()
+    MESSAGE(FATAL " OS must be set to the desired operating system")
+  ENDIF()
+ENDIF (NOT DEFINED OS)
+SET(OS ${OS} CACHE STRING "the current operating system")
+
+IF (NOT CPU)
+  SET(CPU "x86")
+  #MESSAGE(ERROR " CPU must be set to the desired processor architecture")
+ENDIF (NOT CPU)
+SET(CPU ${CPU} CACHE STRING "the current processor architecture")
 
 OPTION(PROJECT_HEROQUEST "compile heroquest projects" ON)
 OPTION(PROJECT_ADVENTURE "compile adventure projects" ON)
@@ -15,14 +28,6 @@ OPTION(PROJECT_SCENERY "compile scenery generator" OFF)
 
 SET(VC_DIR "$ENV{VCINSTALLDIR}")
 
-IF (NOT OS)
-  MESSAGE(ERROR "OS must be set to the desired operating system")
-ENDIF (NOT OS)
-SET(OS ${OS} CACHE STRING "the current operating system")
-IF (NOT CPU)
-  MESSAGE(ERROR "CPU must be set to the desired processor architecture")
-ENDIF (NOT CPU)
-SET(CPU ${CPU} CACHE STRING "the current processor architecture")
 
 IF (ARCH STREQUAL x64)
 SET(CMAKE_C_FLAGS ${CMAKE_C_FLAGS} -fPIC)

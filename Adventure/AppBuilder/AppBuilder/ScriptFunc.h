@@ -586,7 +586,7 @@ public:
   static int isItemInState(ExecutionContext& ctx, unsigned numArgs);
  private:
   static void setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip);
-  static int ScriptFunctions::moveTo(ExecutionContext& ctx, unsigned numArgs, float speedFactor);
+  static int moveTo(ExecutionContext& ctx, unsigned numArgs, float speedFactor);
 };
 
 }

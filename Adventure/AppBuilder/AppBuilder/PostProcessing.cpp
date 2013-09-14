@@ -102,7 +102,9 @@ std::istream& PostProcessor::Effect::load(std::istream& in){
 /*dark bloom*/
 
 static const char bloomvs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "attribute vec3 position;\n"
 "attribute vec4 texCoord;\n"
 "\n"
@@ -120,7 +122,9 @@ static const char bloomvs[] =
 "";
 
 static const char darkbloomfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "varying vec2 tex_coord2;\n"
 "\n"
@@ -145,7 +149,9 @@ static const char darkbloomfs[] =
 "";
 
 static const char hellfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "varying vec2 tex_coord2;\n"
 "\n"
@@ -164,7 +170,9 @@ static const char hellfs[] =
 "";
 
 static const char whooshfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "varying vec2 tex_coord2;\n"
 "\n"
@@ -187,7 +195,9 @@ static const char whooshfs[] =
 "";
 
 static const char bloomfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "varying vec2 tex_coord2;\n"
 "\n"
@@ -310,7 +320,9 @@ private:
 /*noise*/
 
 static const char stdvs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "attribute vec3 position;\n"
 "attribute vec4 texCoord;\n"
 "\n"
@@ -325,7 +337,9 @@ static const char stdvs[] =
 "";
 
 static const char stdfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "\n"
 "uniform sampler2D texture;\n"
@@ -339,7 +353,9 @@ static const char stdfs[] =
 "";
 
 static const char noisefs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "\n"
 "uniform sampler2D texture;\n"
@@ -457,7 +473,9 @@ private:
 };
 
 static const char motionblurfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "\n"
 "uniform sampler2D texture;\n"
@@ -612,7 +630,9 @@ private:
 };
 
 static const char heatfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "\n"
 "uniform sampler2D texture;\n"
@@ -732,7 +752,9 @@ private:
 };
 
 static const char druggedvs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "attribute vec3 position;\n"
 "attribute vec4 texCoord;\n"
 "attribute vec2 offset;\n"
@@ -851,7 +873,9 @@ private:
 };
 
 static const char lightningfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "\n"
 "uniform sampler2D texture;\n"
@@ -870,7 +894,9 @@ static const char lightningfs[] =
 "";
 
 static const char drawvs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "attribute vec3 position;\n"
 "attribute vec4 color;\n"
 "\n"
@@ -883,7 +909,9 @@ static const char drawvs[] =
 "";
 
 static const char drawfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec4 vert_color;\n"
 "\n"
 "void main(){\n"
@@ -1146,7 +1174,9 @@ private:
 };
 
 static const char fogfs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "varying vec2 tex_coord;\n"
 "\n"
 "uniform sampler2D texture;\n"
@@ -1239,7 +1269,9 @@ private:
 };
 
 static const char zoomvs[] =
+#ifdef RENDER_TEGRA
 "precision mediump float;\n"
+#endif
 "attribute vec3 position;\n"
 "attribute vec4 texCoord;\n"
 "attribute vec2 offset;\n"
