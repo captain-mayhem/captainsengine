@@ -2,6 +2,7 @@
 #include <GL/glx.h>
 #include "../system/engine.h"
 #include "../renderer/OpenGL/OGLrenderer.h"
+#include "../renderer/GL2/GL2Renderer.h"
 //#include "../input/keyboard.h"
 #include "nativeLinux.h"
 
@@ -54,7 +55,12 @@ void X11Window::init(const std::string& name){
   
   XSetWindowAttributes attr;
   GLXContext glx = glXCreateContext(disp_, vi, 0, GL_TRUE);
-  dynamic_cast< CGE::OGLRenderer* >(renderer_)->setGLX(glx);
+  if (renderer_->getRenderType() == CGE::OpenGL)
+    static_cast< CGE::OGLRenderer* >(renderer_)->setGLX(glx);
+  else if (renderer_->getRenderType() == CGE::OpenGL2)
+    static_cast< CGE::GL2Renderer* >(renderer_)->setGLX(glx);
+  else
+    TR_ERROR("Unsupported renderer");
   Colormap color = XCreateColormap(disp_, RootWindow(disp_, vi->screen),
       vi->visual, AllocNone);
   attr.colormap = color;

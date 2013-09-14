@@ -9,6 +9,9 @@
 #ifndef UINT64_C
 #define UINT64_C(val) val##ui64
 #endif
+#ifdef UNIX
+#define INT64_C(val) (int64_t)val
+#endif
 #ifndef INT64_C
 #define INT64_C(val) val##i64
 #endif
@@ -631,7 +634,8 @@ bool StreamVideoPlayer::getPacketHook(AVPacket& packet){
       sws_scale(mScaler, mFrame->data, mFrame->linesize, 0, mVidCodecContext->height,
         frameRGB->data, frameRGB->linesize);
       if (mFrame->pts == AV_NOPTS_VALUE)
-        frameRGB->pts = mFrame->best_effort_timestamp;
+        frameRGB->pts = mFrame->pkt_pts;
+        //frameRGB->pts = mFrame->best_effort_timestamp;
       else
         frameRGB->pts = mFrame->pts;
       av_free_packet(&packet);
