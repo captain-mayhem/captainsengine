@@ -996,7 +996,7 @@ void CharacterObject::setState(int state){
       mState = calculateState(mState, isWalking(), false);
   }
   mIdleTime = 0; //reset idle timer
-  TR_DEBUG("state %i", mState);
+  TR_DEBUG("%s state %i", mClass->name.c_str(), mState);
 }
 
 void CharacterObject::update(unsigned interval){

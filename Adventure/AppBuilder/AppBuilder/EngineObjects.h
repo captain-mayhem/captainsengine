@@ -235,6 +235,7 @@ public:
   void setFontID(unsigned id) {mFontID = id;}
   unsigned getFontID() {return mFontID;}
   static int calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror=false);
+  static int isSpecialState(int currState) {return currState > 12;}
   bool isWalking();
   bool isTalking();
   virtual Vec2i getSize();

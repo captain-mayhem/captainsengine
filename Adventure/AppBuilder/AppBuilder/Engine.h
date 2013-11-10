@@ -45,7 +45,7 @@ public:
   void rightClick(const Vec2i& pos);
   void doubleClick(const Vec2i& pos);
   void mouseWheel(int delta);
-  bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason);
+  bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change=Engine::instance()->getScreenChange());
   void unloadRoom(RoomObject* room, bool mainroom, bool immedately);
   bool setFocus(std::string charname, ExecutionContext* reason);
   CGE::Image* getImage(const std::string& name);
@@ -109,7 +109,7 @@ public:
   void enableMouse(bool doIt) {mMouseEnabled = doIt;}
   void setTimeFactor(float factor, bool isFaded) {mTimeFactor = factor; mTimeFactorFaded = isFaded;}
   float getTimeFactor(bool* isFaded=NULL) {if (isFaded != NULL) *isFaded = mTimeFactorFaded; return mTimeFactor;}
-  void triggerScreenchange(ExecutionContext* loadreason);
+  void triggerScreenchange(ExecutionContext* loadreason, ScreenChange change);
   void enableMenu(bool doIt) {mMenuEnabled = doIt;}
   CursorObject* getCursor() {return mCursor;}
   void resetCursor(bool resetInstMouse, bool resetDragging);
