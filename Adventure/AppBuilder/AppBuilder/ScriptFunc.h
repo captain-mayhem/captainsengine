@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 
+#include "Ids.h"
+
 namespace adv{
 
 class ExecutionContext;
@@ -596,6 +598,7 @@ public:
   static void setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip);
   static int moveTo(ExecutionContext& ctx, unsigned numArgs, float speedFactor);
   static int getRequestedState(Character* cclass, const StackData& data);
+  static ScreenChange getScreenChange(const std::string& name);
 };
 
 }

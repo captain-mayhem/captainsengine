@@ -1181,11 +1181,11 @@ static const char fogfs[] =
 "\n"
 "uniform sampler2D texture;\n"
 "uniform float opacity;\n"
+"uniform vec4 blendcol;\n"
 "\n"
 "void main(){\n"
 "  vec4 color = vec4(1.0);\n"
 "  color = texture2D(texture, tex_coord.st);\n"
-"  vec4 blendcol = vec4(0.5, 0.5, 0.5, 1.0);\n"
 "  color = mix(color, blendcol, opacity);\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
@@ -1207,6 +1207,8 @@ public:
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
     mIntensityLoc = mShader.getUniformLocation("opacity");
+    GLint blendcol = mShader.getUniformLocation("blendcol");
+    mShader.uniform(blendcol, 0.5, 0.5, 0.5, 1.0);
     mShader.deactivate();
   }
   virtual void deinit(){
@@ -1393,6 +1395,78 @@ private:
   int mFadetime;
 };
 
+class FlashEffect : public PostProcessor::Effect{
+public:
+  FlashEffect() : Effect(stdvs, fogfs){
+    mName = "whiteflash";
+  }
+  virtual void init(const Vec2f& size){
+    Effect::init(size);
+    mShader.activate();
+    GLint tex = mShader.getUniformLocation("texture");
+    mShader.uniform(tex, 0);
+    GLint scale = mShader.getUniformLocation("tex_scale");
+    float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
+    float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.uniform(scale, size.x/powx, size.y/powy);
+    mIntensityLoc = mShader.getUniformLocation("opacity");
+    GLint blendcol = mShader.getUniformLocation("blendcol");
+    mShader.uniform(blendcol, 1.0, 1.0, 1.0, 1.0);
+    mShader.deactivate();
+  }
+  virtual void deinit(){
+  }
+  virtual void activate(bool fade, ...){
+    va_list args;
+    va_start(args, fade);
+    int fadein = va_arg(args, int);
+    int fadeout = va_arg(args, int);
+    va_end(args);
+    mInterpolator.set(0, 1.0f, (float)fadein);
+    mFadeout = false;
+    mFadeoutTime = fadeout;
+    Effect::activate(fade);
+  }
+  virtual void deactivate(){
+    mInterpolator.set(mInterpolator.current(), 0, (float)mFadeoutTime);
+    mFadeout = true;
+  }
+  virtual bool update(unsigned time) {
+    if (!mInterpolator.update(time)){
+      if (mFadeout){
+        Effect::deactivate();
+        return false;
+      }
+    }
+    return true;
+  }
+  virtual void apply(BlitObject* input){
+    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    mShader.activate();
+    mShader.uniform(mIntensityLoc, mInterpolator.current());
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    mShader.deactivate();
+  }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mFadeout << " " << mFadeoutTime << " ";
+    mInterpolator.save(out);
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mFadeout >> mFadeoutTime;
+    mInterpolator.load(in);
+    return in;
+  }
+private:
+  GLint mIntensityLoc;
+  Interpolator mInterpolator;
+  bool mFadeout;
+  int mFadeoutTime;
+};
+
 
 /* Postprocessor */
 
@@ -1410,6 +1484,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(lightning, LightningEffect);
   REGISTER_EFFECT(fog, FogEffect);
   REGISTER_EFFECT(zoom, ZoomEffect);
+  REGISTER_EFFECT(flash, FlashEffect);
 }
 
 PostProcessor::~PostProcessor(){

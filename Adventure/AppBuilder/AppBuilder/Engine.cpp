@@ -595,7 +595,7 @@ void Engine::render(unsigned time){
   trymtx.unlock();
 }
 
-bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason){
+bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change){
   TR_USE(ADV_Engine);
   if (!mData)
     return false;
@@ -756,7 +756,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   }
   //animation stuff
   if (!isSubRoom)
-    triggerScreenchange(loadreason);
+    triggerScreenchange(loadreason, change);
   return true;
 }
 
@@ -1581,9 +1581,9 @@ void Engine::removeScript(ExecutionContext* ctx){
     mPendingLoadReason = NULL;
 }
 
-void Engine::triggerScreenchange(ExecutionContext* loadreason){
+void Engine::triggerScreenchange(ExecutionContext* loadreason, ScreenChange change){
   if (loadreason == NULL || !loadreason->isSkipping()){
-    switch(Engine::instance()->getScreenChange()){
+    switch(change){
       case SC_DIRECT:
         break;
       case SC_FADEOUT:{

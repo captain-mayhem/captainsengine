@@ -173,10 +173,15 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
 
 int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
+  if (numArgs < 1 || numArgs > 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string room = ctx.stack().pop().getString();
-  Engine::instance()->loadRoom(room, false, &ctx);
+  ScreenChange change = Engine::instance()->getScreenChange();
+  if (numArgs == 2){
+    std::string changename = ctx.stack().pop().getString();
+    change = getScreenChange(changename);
+  }
+  Engine::instance()->loadRoom(room, false, &ctx, change);
   return 0;
 }
 
@@ -1045,6 +1050,31 @@ int ScriptFunctions::setFont(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+ScreenChange ScriptFunctions::getScreenChange(const std::string& name){
+  ScreenChange screenchange = SC_DIRECT;
+  if (name == "rectangle")
+    screenchange = SC_RECTANGLE;
+  else if (name == "circle")
+    screenchange = SC_CIRCLE;
+  else if (name == "shutters")
+    screenchange = SC_SHUTTERS;
+  else if (name == "clock")
+    screenchange = SC_CLOCK;
+  else if (name == "blend")
+    screenchange = SC_BLEND;
+  else if (name == "blendslow")
+    screenchange = SC_BLEND_SLOW;
+  else if (name == "direct")
+    screenchange = SC_DIRECT;
+  else if (name == "fadeblack")
+    screenchange = SC_FADEOUT;
+  else{
+    TR_USE(ADV_ScriptFunc);
+    TR_BREAK("Unknown screenchange %s", name.c_str());
+  }
+  return screenchange;
+}
+
 int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 1)
@@ -1053,26 +1083,7 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
   ScreenChange screenchange = SC_DIRECT;
   if (data.getString().size() > 1){
     std::string name = data.getString();
-    if (name == "rectangle")
-      screenchange = SC_RECTANGLE;
-    else if (name == "circle")
-      screenchange = SC_CIRCLE;
-    else if (name == "shutters")
-      screenchange = SC_SHUTTERS;
-    else if (name == "clock")
-      screenchange = SC_CLOCK;
-    else if (name == "blend")
-      screenchange = SC_BLEND;
-    else if (name == "blendslow")
-      screenchange = SC_BLEND_SLOW;
-    else if (name == "direct")
-      screenchange = SC_DIRECT;
-    else if (name == "fadeblack")
-      screenchange = SC_FADEOUT;
-    else{
-      TR_USE(ADV_ScriptFunc);
-      TR_BREAK("Unknown screenchange %s", name.c_str());
-    }
+    screenchange = getScreenChange(name);
   }
   else{
     screenchange = (ScreenChange)data.getInt();
@@ -1164,7 +1175,7 @@ int ScriptFunctions::getRequestedState(Character* cclass, const StackData& data)
     for (unsigned i = 0; i < cclass->extrastatenames.size(); ++i){
       if (stricmp(cclass->extrastatenames[i].c_str(), statename.c_str()) == 0){
         found = true;
-        state = i + 16;
+        state = i + 17;
         break;
       }
     }
@@ -1197,6 +1208,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   int oldstate;
   if (obj){
     oldstate = obj->removeLastNextState();
+    TR_DEBUG("setting new state %i for char %s, old state is %i", state, chrname.c_str(), oldstate);
     obj->setState(state);
   }
   for (unsigned i = 2; i < numArgs; ++i){
@@ -1204,6 +1216,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     if (obj){
       state = getRequestedState(obj->getClass(), data);
       obj->addNextState(state);
+      TR_DEBUG("adding intermediate state %i", state);
     }
   }
   if (obj){
@@ -2185,6 +2198,15 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
         TR_BREAK("Unknown fading %s", fadestr.c_str());
     }
     ef->activate(fading != 0, pos.x, pos.y, factor, fading);
+  }
+  else if (effect == "whiteflash"){
+    int fadein = 0;
+    if (numArgs > 1)
+      fadein = ctx.stack().pop().getInt();
+    int fadeout = 0;
+    if (numArgs > 2)
+      ctx.stack().pop().getInt();
+    ef->activate(true, fadein, fadeout);
   }
   else{
     TR_USE(ADV_ScriptFunc);
