@@ -749,10 +749,10 @@ void RoomObject::setDepth(int depth){
   mDepth = depth;
 }
 
-CharacterObject::CharacterObject(int state, Vec2i pos, const std::string& name) 
+CharacterObject::CharacterObject(Character* chrclass, int state, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
 mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0), mSpawnPos(-1,-1),
-mWalkSound(NULL)
+mWalkSound(NULL), mClass(chrclass)
 {
   mInventory = new Inventory();
   mIdleTimeout = (int(rand()/(float)RAND_MAX*10)+10)*1000;

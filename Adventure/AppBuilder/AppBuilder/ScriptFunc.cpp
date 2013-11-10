@@ -167,6 +167,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("scrollspeed", scrollSpeed);
   interpreter->registerFunction("loadchar", loadChar);
   interpreter->registerFunction("offtextcolor", offTextColor);
+  interpreter->registerFunction("setitem", setItem);
   srand((unsigned)time(NULL));
 }
 
@@ -1152,6 +1153,27 @@ int ScriptFunctions::randomNum(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
+int ScriptFunctions::getRequestedState(Character* cclass, const StackData& data){
+  TR_USE(ADV_ScriptFunc);
+  int state = 0;
+  if (data.isNumber())
+    state = data.getInt()+16;
+  else{
+    std::string statename = data.getString();
+    bool found = false;
+    for (unsigned i = 0; i < cclass->extrastatenames.size(); ++i){
+      if (stricmp(cclass->extrastatenames[i].c_str(), statename.c_str()) == 0){
+        found = true;
+        state = i + 16;
+        break;
+      }
+    }
+    if (!found)
+      TR_ERROR("setChar: state %s not found", statename.c_str());
+  }
+  return state;
+}
+
 int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs < 2)
@@ -1165,15 +1187,13 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     return 0;
   }
   int state = 0;
-  if (data.isNumber())
-    state = data.getInt()+16;
-  else{
-    std::string statename = data.getString();
-    //TODO
-    TR_USE(ADV_ScriptFunc);
-    TR_BREAK("Implement me: names %s", statename.c_str());
-  }
   CharacterObject* obj = Engine::instance()->getCharacter(chrname);
+  if (obj == NULL){
+    TR_WARN("setChar: Character %s not found", chrname.c_str());
+  }
+  else{
+    state = getRequestedState(obj->getClass(), data);
+  }
   int oldstate;
   if (obj){
     oldstate = obj->removeLastNextState();
@@ -1181,15 +1201,8 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   }
   for (unsigned i = 2; i < numArgs; ++i){
     data = ctx.stack().pop();
-    if (data.isNumber())
-      state = data.getInt()+16;
-    else{
-      std::string statename = data.getString();
-      //TODO
-      TR_USE(ADV_ScriptFunc);
-      TR_BREAK("Implement me: names %s", statename.c_str());
-    }
     if (obj){
+      state = getRequestedState(obj->getClass(), data);
       obj->addNextState(state);
     }
   }
@@ -2574,6 +2587,17 @@ int ScriptFunctions::offTextColor(ExecutionContext& ctx, unsigned numArgs){
   col.r = ctx.stack().pop().getInt();
   col.g = ctx.stack().pop().getInt();
   col.b = ctx.stack().pop().getInt();
+  TR_BREAK("Implement me");
+  return 0;
+}
+
+int ScriptFunctions::setItem(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  if (numArgs < 2)
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  std::string itemname = ctx.stack().pop().getString();
+  int state = ctx.stack().pop().getInt();
+  TR_BREAK("Implement me");
   return 0;
 }
 

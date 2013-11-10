@@ -3,7 +3,6 @@ Topic | Prio
 Engine
 ------
 char positioning / char collision detection (->block walkmap?) | 2
-setchar with names | 4
 module sounds | 5
 group (use in setobj/moveobj) | 3
 playing of swf (flash) | 2

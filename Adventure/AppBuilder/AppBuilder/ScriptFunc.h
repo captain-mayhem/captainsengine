@@ -8,6 +8,8 @@ namespace adv{
 
 class ExecutionContext;
 class PcdkScript;
+struct Character;
+class StackData;
 
 class ScriptFunctions{
 public:
@@ -334,13 +336,19 @@ public:
   **/
   static int setCharLight(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param effect sets the eax effect
+  **/
+  static int setEAX(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param inventory intentory to show (1-5)
   **/
   static int showInventory(ExecutionContext& ctx, unsigned numArgs);
   /**
-  \param effect sets the eax effect
+  \param item the item
+  \param state the new state
+  \param ... [opt] additional states
   **/
-  static int setEAX(ExecutionContext& ctx, unsigned numArgs);
+  static int setItem(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param character name of the character to focus
   special values none/last
@@ -587,6 +595,7 @@ public:
  private:
   static void setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip);
   static int moveTo(ExecutionContext& ctx, unsigned numArgs, float speedFactor);
+  static int getRequestedState(Character* cclass, const StackData& data);
 };
 
 }

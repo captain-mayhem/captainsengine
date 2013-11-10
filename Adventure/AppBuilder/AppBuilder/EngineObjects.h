@@ -210,7 +210,7 @@ protected:
 class CharacterObject : public Object2D{
   friend class SaveStateProvider;
 public:
-  CharacterObject(int state, Vec2i pos, const std::string& name);
+  CharacterObject(Character* chrclass, int state, Vec2i pos, const std::string& name);
   ~CharacterObject();
   void render(bool mirrorY);
   virtual void render() {render(false);}
@@ -255,6 +255,7 @@ public:
   bool isSpawnPos();
   void setWalkSound(SoundPlayer* plyr);
   void abortClick();
+  Character* getClass() {return mClass;}
 protected:
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
@@ -272,6 +273,7 @@ protected:
   int mIdleTimeout;
   Vec2i mSpawnPos;
   SoundPlayer* mWalkSound;
+  Character* mClass;
 };
 
 class ObjectGroup{
