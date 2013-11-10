@@ -706,7 +706,7 @@ void StreamVideoPlayer::render(unsigned time){
         //make sure minimum display time
         if (frameTime < 20/*ptsNew-ptsTime*/)
           break;
-        TR_INFO("Frame %i was displayed %i ms, queue %i", frameNum, frameTime, mFramesRGB.size());
+        //TR_INFO("Frame %i was displayed %i ms, queue %i", frameNum, frameTime, mFramesRGB.size());
         mCurrLayer = (mCurrLayer+1)%NUM_LAYERS;
         firstLoop = false;
       }
