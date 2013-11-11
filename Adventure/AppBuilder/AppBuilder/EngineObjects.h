@@ -210,7 +210,7 @@ protected:
 class CharacterObject : public Object2D{
   friend class SaveStateProvider;
 public:
-  CharacterObject(Character* chrclass, int state, Vec2i pos, const std::string& name);
+  CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name);
   ~CharacterObject();
   void render(bool mirrorY);
   virtual void render() {render(false);}
@@ -225,7 +225,6 @@ public:
   virtual void animationEnd(const Vec2i& prev);
   virtual void setState(int state);
   void setLookDir(LookDir dir);
-  static int calculateState(LookDir dir, bool& mirror);
   void setLookDir(const Vec2i& dir);
   LookDir getLookDir();
   void setEndLookDir(LookDir dir) {mDesiredDir = dir;}
@@ -234,8 +233,6 @@ public:
   const Color& getTextColor() {return mTextColor;}
   void setFontID(unsigned id) {mFontID = id;}
   unsigned getFontID() {return mFontID;}
-  static int calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror=false);
-  static int isSpecialState(int currState) {return currState > 12;}
   bool isWalking();
   bool isTalking();
   virtual Vec2i getSize();
@@ -244,7 +241,6 @@ public:
   virtual void save();
   virtual bool isHit(const Vec2i& point);
   bool isMirrored() {return mMirror;}
-  void setMirrored(bool mirrored) {mMirror = mirrored;}
   void setRoom(const std::string& room) {mRoom = room;}
   std::string getRoom() {return mRoom;}
   void setLinkObject(Object2D* link);
@@ -257,7 +253,13 @@ public:
   void setWalkSound(SoundPlayer* plyr);
   void abortClick();
   Character* getClass() {return mClass;}
+  void setTalking(bool doit) {mTalking = doit; updateState(false, false);}
+  void setWalking(bool doit) {mWalking = doit; updateState(false, true);}
+  void updateState(bool mirror, bool force);
+  virtual bool animationEnded(Animation* anim);
 protected:
+  static int calculateState(LookDir dir, bool& mirror);
+  static int calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror=false);
   std::vector<Vec2i> mBasePoints;
   std::vector<Vec2i> mSizes;
   bool mMirror;
@@ -275,6 +277,9 @@ protected:
   Vec2i mSpawnPos;
   SoundPlayer* mWalkSound;
   Character* mClass;
+  bool mWalking;
+  bool mTalking;
+  LookDir mLookDir;
 };
 
 class ObjectGroup{

@@ -53,7 +53,7 @@ FontRenderer::String::~String(){
     mSuspensionScript = NULL;
   }
   if (mSpeaker){
-    mSpeaker->setState(CharacterObject::calculateState(mSpeaker->getState(), mSpeaker->isWalking(), false));
+    mSpeaker->setTalking(false);
     mSpeaker = NULL;
   }
   clear();

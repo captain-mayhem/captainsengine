@@ -296,8 +296,7 @@ void MirrorObject::renderCharacter(CharacterObject* chr){
     if (chr->getDepth() < mDepth)
       return;
     int oldstate = chr->getState();
-    int newstate = chr->calculateState(oldstate, chr->isWalking(), chr->isTalking(), true);
-    chr->setState(newstate);
+    chr->updateState(true, false);
     Vec2i oldpos = chr->getPosition();
     Vec2i newpos = oldpos;
     int mirrorbase = (mDepth+1)*Engine::instance()->getWalkGridSize();

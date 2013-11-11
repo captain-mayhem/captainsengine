@@ -55,7 +55,7 @@ SoundPlayer::~SoundPlayer(){
   if (mSpeaker){
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(mSpeaker);
-    mSpeaker->setState(CharacterObject::calculateState(mSpeaker->getState(), mSpeaker->isWalking(), false));
+    mSpeaker->setTalking(false);
     mSpeaker = NULL;
   }
   if (mSpokenString){

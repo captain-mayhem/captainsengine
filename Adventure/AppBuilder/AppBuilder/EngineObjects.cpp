@@ -749,13 +749,31 @@ void RoomObject::setDepth(int depth){
   mDepth = depth;
 }
 
-CharacterObject::CharacterObject(Character* chrclass, int state, Vec2i pos, const std::string& name) 
-: Object2D(state, pos, Vec2i(0,0), name), mMirror(false), mTextColor(), 
+CharacterObject::CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name) 
+: Object2D(state, pos, Vec2i(0,0), name), mMirror(mirror), mTextColor(), 
 mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0), mSpawnPos(-1,-1),
-mWalkSound(NULL), mClass(chrclass)
+mWalkSound(NULL), mClass(chrclass), mWalking(false), mTalking(false)
 {
+  TR_USE(ADV_Character);
   mInventory = new Inventory();
   mIdleTimeout = (int(rand()/(float)RAND_MAX*10)+10)*1000;
+  mLookDir = (LookDir)((mState-1)%3);
+  switch(state){
+    case 1:
+      mLookDir = FRONT;
+      break;
+    case 2:
+      mLookDir = BACK;
+      break;
+    case 3:
+      if (mMirror)
+        mLookDir = LEFT;
+      else
+        mLookDir = RIGHT;
+      break;
+    default:
+      TR_BREAK("Unexpected state: %i", mState);
+  }
 }
 
 CharacterObject::~CharacterObject(){
@@ -804,7 +822,7 @@ void CharacterObject::setDepth(int depth){
 void CharacterObject::animationBegin(const Vec2i& next){
   Vec2i dir = next-getPosition();
   setLookDir(dir);
-  setState(calculateState(mState, true, isTalking()));
+  setWalking(true);
   if (mWalkSound)
     mWalkSound->play(true);
 }
@@ -827,7 +845,7 @@ void CharacterObject::animationEnd(const Vec2i& prev){
     setLookDir(mDesiredDir);
     mDesiredDir = UNSPECIFIED;
   }
-  setState(calculateState(mState, false, isTalking()));
+  setWalking(false);
   Object2D::animationEnd(prev);
   if (mWalkSound){
     mWalkSound->stop();
@@ -857,10 +875,8 @@ int CharacterObject::calculateState(LookDir dir, bool& mirror){
 }
 
 void CharacterObject::setLookDir(LookDir dir){
-  bool walking = isWalking();
-  bool talking = isTalking();
-  mState = calculateState(dir, mMirror);
-  setState(calculateState(mState, walking, talking));
+  mLookDir = dir;
+  updateState(false, false);
 }
 
 void CharacterObject::setLookDir(const Vec2i& dir){
@@ -879,8 +895,7 @@ void CharacterObject::setLookDir(const Vec2i& dir){
 }
 
 LookDir CharacterObject::getLookDir(){
-  //TODO check if contains bug
-  return (LookDir)((mState-1)%3);
+  return mLookDir;
 }
 
 void CharacterObject::render(bool mirrorY){
@@ -899,6 +914,14 @@ void CharacterObject::render(bool mirrorY){
 
 Vec2i CharacterObject::getOverheadPos(){
   return mPos+mScrollOffset+Vec2i(mSizes[mState-1].x/2, (int)((1-getScaleFactor())*mSizes[mState-1].y));
+}
+
+void CharacterObject::updateState(bool mirror, bool force){
+  if (mState > 12 && !force)
+    return;
+  int state = calculateState(mLookDir, mMirror);
+  state = calculateState(state, mWalking, mTalking, mirror);
+  setState(state);
 }
 
 int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror){
@@ -931,11 +954,13 @@ int CharacterObject::calculateState(int currState, bool shouldWalk, bool shouldT
 }
 
 bool CharacterObject::isWalking(){
-  return (mState >= 4 && mState <= 6) || (mState >= 10 && mState <= 12);
+  //return (mState >= 4 && mState <= 6) || (mState >= 10 && mState <= 12);
+  return mWalking;
 }
 
 bool CharacterObject::isTalking(){
-  return (mState >= 7 && mState <= 12);
+  //return (mState >= 7 && mState <= 12);
+  return mTalking;
 }
 
 Vec2i CharacterObject::getSize(){
@@ -946,14 +971,15 @@ void CharacterObject::save(){
   SaveStateProvider::CharSaveObject* save = Engine::instance()->getSaver()->getOrAddCharacter(mName);
   if (save){
     save->base.position = mPos;
-    if (isWalking() || isTalking()) //do not save walking or talking states as they are temorary only
+    /*if (isWalking() || isTalking()) //do not save walking or talking states as they are temorary only
       save->base.state = calculateState(mState, false, false, false);
     else if (mState > 12)
       save->base.state = 1; //no special states
     else
-      save->base.state = mState;
+      save->base.state = mState;*/
+    save->base.state = calculateState(mLookDir, save->mirrored);
     save->base.name = mName;
-    save->mirrored = mMirror;
+    //save->mirrored = mMirror;
     save->inventory.items.clear();
     if (mInventory){
       mInventory->save(save->inventory);
@@ -993,7 +1019,7 @@ void CharacterObject::setState(int state){
   //fallback to lower states when they not exist (walk,talk  back => walk back)
   if (!getAnimation()->exists()){
     if (mState > 3)
-      mState = calculateState(mState, isWalking(), false);
+      setTalking(false);
   }
   mIdleTime = 0; //reset idle timer
   TR_DEBUG("%s state %i", mClass->name.c_str(), mState);
@@ -1009,7 +1035,7 @@ void CharacterObject::update(unsigned interval){
     mIdleTime += interval;
     //trigger idle animation
     if (mIdleTime >= mIdleTimeout){
-      int oldstate = getState();
+      //int oldstate = getState();
       float rnd = rand()/(float)RAND_MAX;
       int nextbored = (int)(rnd+0.5f);
       if (!mAnimations[13-1+nextbored]->exists()){
@@ -1018,7 +1044,7 @@ void CharacterObject::update(unsigned interval){
       if (mAnimations[13-1+nextbored]->exists()){
         setState(13+nextbored);
         getAnimation()->registerAnimationEndHandler(this);
-        addNextState(oldstate);
+        addNextState(0);
       }
       mIdleTime = 0;
       mIdleTimeout = (int(rand()/(float)RAND_MAX*10)+10)*1000;
@@ -1079,4 +1105,12 @@ void CharacterObject::abortClick(){
     }
   }
   Engine::instance()->getAnimator()->remove(this);
+}
+
+bool CharacterObject::animationEnded(Animation* anim){
+  bool ret = Object2D::animationEnded(anim);
+  if (mState == 0){
+    updateState(false, false);
+  }
+  return ret;
 }
