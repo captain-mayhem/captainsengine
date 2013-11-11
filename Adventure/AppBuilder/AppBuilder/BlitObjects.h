@@ -5,6 +5,7 @@
 
 #include "Vector.h"
 #include "Renderer.h"
+#include "Ids.h"
 
 namespace adv{
 
@@ -15,42 +16,6 @@ class Animation;
 class AnimationEndHandler{
 public:
   virtual bool animationEnded(Animation* anim)=0;
-};
-
-struct Color{
-  Color(){
-    r = 255; g=255; b=255; a=255;
-  }
-  Color(unsigned char r, unsigned char g, unsigned char b, unsigned char a){
-    this->r = r;
-    this->g = g;
-    this->b = b;
-    this->a = a;
-  }
-  Color(unsigned packedcolor){
-    r = (packedcolor >> 0) & 0xFF;
-    g = (packedcolor >> 8) & 0xFF;
-    b = (packedcolor >> 16) & 0xFF;
-    a = 255;
-  }
-  Color& operator*=(const Color& color){
-    r = (unsigned char)((r/255.0f*color.r/255.0)*255.0);
-    g = (unsigned char)((g/255.0f*color.g/255.0)*255.0);
-    b = (unsigned char)((b/255.0f*color.b/255.0)*255.0);
-    a = (unsigned char)((a/255.0f*color.a/255.0)*255.0);
-    return *this;
-  }
-  Color& operator+=(const int factor){
-    int tmp = r+factor; if (tmp > 255) tmp = 255; r = (unsigned char)tmp;
-    tmp = g+factor; if (tmp > 255) tmp = 255; g = (unsigned char)tmp;
-    tmp = b+factor; if (tmp > 255) tmp = 255; b = (unsigned char)tmp;
-    tmp = a+factor; if (tmp > 255) tmp = 255; a = (unsigned char)tmp;
-    return *this;
-  }
-  unsigned char r;
-  unsigned char g;
-  unsigned char b;
-  unsigned char a;
 };
 
 class BaseBlitObject{

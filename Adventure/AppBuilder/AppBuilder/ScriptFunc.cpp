@@ -911,7 +911,7 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
       text = "";
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
   str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, fontid, breakinfo, Engine::instance()->getSettings()->offspeechcolor, plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*text.length());
+    DEPTH_GAME_FONT, fontid, breakinfo, Engine::instance()->getInterpreter()->getOfftextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*text.length());
   if (str && plyr)
     plyr->setSpokenString(str);
   if (hold){
@@ -2605,7 +2605,7 @@ int ScriptFunctions::offTextColor(ExecutionContext& ctx, unsigned numArgs){
   col.r = ctx.stack().pop().getInt();
   col.g = ctx.stack().pop().getInt();
   col.b = ctx.stack().pop().getInt();
-  TR_BREAK("Implement me");
+  Engine::instance()->getInterpreter()->setOfftextColor(col);
   return 0;
 }
 

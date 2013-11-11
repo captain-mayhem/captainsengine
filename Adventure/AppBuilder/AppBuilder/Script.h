@@ -71,6 +71,8 @@ public:
   bool applyPrevState(Object2D* obj);
   void setRunSpeed(float speed) {mRunSpeed = speed;}
   float getRunSpeed() {return mRunSpeed;}
+  const Color& getOfftextColor() {return mOfftextColor;}
+  void setOfftextColor(const Color& color) {mOfftextColor = color;}
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
@@ -116,6 +118,7 @@ protected:
   std::string mLanguage;
   unsigned mTimeAccu;
   float mRunSpeed;
+  Color mOfftextColor;
 };
 
 }
