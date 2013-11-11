@@ -56,6 +56,7 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f) {
   ScriptFunctions::registerFunctions(this);
   mBooleans = data->getProjectSettings()->booleans;
+  mOfftextColor = data->getProjectSettings()->offspeechcolor;
   mCutScene = NULL;
   mTSLevel = 1;
   mNextTSLevel = 0;
@@ -112,6 +113,7 @@ void PcdkScript::stop(){
   mGroups.clear();
   mLanguage = "origin";
   mRunSpeed = 1.0f;
+  mOfftextColor = mData->getProjectSettings()->offspeechcolor;
 }
 
 void reportParseError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
@@ -946,6 +948,7 @@ std::ostream& PcdkScript::save(std::ostream& out){
   }
   out << std::endl;
   out << mTextSpeed << " " << mRunSpeed << std::endl;
+  out << mOfftextColor << std::endl;
   out << mTimers.size() << " ";
   for (std::set<ExecutionContext*>::iterator iter = mTimers.begin(); iter != mTimers.end(); ++iter){
     (*iter)->save(out);
@@ -1001,6 +1004,7 @@ std::istream& PcdkScript::load(std::istream& in){
     execute(ctx, false);
   }
   in >> mTextSpeed >> mRunSpeed;
+  in >> mOfftextColor;
   //timers
   while(!mTimers.empty()){
     remove(*mTimers.begin());

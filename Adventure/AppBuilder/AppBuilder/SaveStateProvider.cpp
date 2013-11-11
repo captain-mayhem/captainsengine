@@ -137,6 +137,16 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& i
   return strm;
 }
 
+std::ostream& operator<<(std::ostream& strm, const Color& color){
+  strm << color.r << " " << color.g << " " << color.b << " " << color.a;
+  return strm;
+}
+
+std::istream& operator>>(std::istream& strm, Color& color){
+  strm >> color.r >> color.g >> color.b >> color.a;
+  return strm;
+}
+
 }
 
 SaveStateProvider::SaveStateProvider(AdvDocument* data) : mData(data), mNoWrites(0) {
