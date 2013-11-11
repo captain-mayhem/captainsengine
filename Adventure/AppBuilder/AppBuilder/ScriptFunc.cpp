@@ -304,9 +304,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     Engine::instance()->getFontRenderer()->removeText(chr);
     if (str)
       str->setSpeaker(chr);
-    int currState = chr->getState();
-    chr->addNextState(currState);
-    chr->setState(CharacterObject::calculateState(currState, chr->isWalking(), true));
+    chr->setTalking(true);
   }
   if (hold){
     if (plyr){
@@ -329,14 +327,13 @@ int ScriptFunctions::pickup(ExecutionContext& ctx, unsigned numArgs){
     return 0;
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
-    int oldstate = chr->getState();
     LookDir dir = chr->getLookDir();
     if (dir == LEFT || dir == RIGHT)
       chr->setState(16);
     else if (dir == FRONT)
       chr->setState(15);
     chr->getAnimation()->registerAnimationEndHandler(chr);
-    chr->addNextState(oldstate);
+    chr->addNextState(0);
   }
   return 0;
 }
@@ -487,8 +484,8 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
     CharacterObject* obj = Engine::instance()->getCharacter(charname);
     if (obj){
       obj->abortClick();
-      int state = CharacterObject::calculateState(obj->getState(), false, false);
-      obj->setState(state);
+      obj->setTalking(false);
+      obj->setWalking(false);
       if (dir != UNSPECIFIED)
         obj->setLookDir(dir);
       if (roomname.empty())
@@ -527,8 +524,8 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
     if (obj){
       obj->abortClick();
       obj->setPosition(pos*Engine::instance()->getWalkGridSize()+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
-      int state = CharacterObject::calculateState(obj->getState(), false, false);
-      obj->setState(state);
+      obj->setTalking(false);
+      obj->setWalking(false);
       if (dir != UNSPECIFIED)
         obj->setLookDir(dir);
       if (roomname.empty())
@@ -658,7 +655,7 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
         TR_USE(ADV_ScriptFunc);
         TR_BREAK("Character %s not found", character.c_str());
       }
-      chs->base.state = CharacterObject::calculateState(chs->base.state, false, false);
+      //chs->base.state = CharacterObject::calculateState(chs->base.state, false, false);
     }
   }
   else{
@@ -1205,10 +1202,9 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   else{
     state = getRequestedState(obj->getClass(), data);
   }
-  int oldstate;
   if (obj){
-    oldstate = obj->removeLastNextState();
-    TR_DEBUG("setting new state %i for char %s, old state is %i", state, chrname.c_str(), oldstate);
+    obj->removeLastNextState();
+    TR_DEBUG("setting new state %i for char %s", state, chrname.c_str());
     obj->setState(state);
   }
   for (unsigned i = 2; i < numArgs; ++i){
@@ -1220,7 +1216,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     }
   }
   if (obj){
-    obj->addNextState(oldstate);
+    obj->addNextState(0);
     obj->getAnimation()->registerAnimationEndHandler(obj);
   }
   return 0;

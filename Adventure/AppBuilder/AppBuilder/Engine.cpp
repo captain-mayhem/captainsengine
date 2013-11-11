@@ -1349,9 +1349,8 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   Character* chbase = mData->getCharacter(className);
   if (chbase == NULL)
     return NULL;
-  CharacterObject* character = new CharacterObject(chbase, obj->base.state, obj->base.position, realName);
+  CharacterObject* character = new CharacterObject(chbase, obj->base.state, obj->mirrored, obj->base.position, realName);
   character->setLightingColor(obj->base.lighting);
-  character->setMirrored(obj->mirrored);
   character->setFontID(obj->fontid);
   mFonts->loadFont(obj->fontid);
   character->setUserScale(obj->scale);
