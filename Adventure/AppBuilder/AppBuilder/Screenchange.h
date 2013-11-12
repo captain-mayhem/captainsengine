@@ -18,6 +18,7 @@ public:
   virtual bool update(unsigned interval);
   virtual Object2D* getTarget() {return NULL;}
   virtual Type getType() {return SCREEN;}
+  virtual void finish() {}
 protected:
   void generateCircle(float radius);
   int mDuration;
@@ -34,6 +35,7 @@ public:
   virtual bool update(unsigned interval);
   virtual Object2D* getTarget() {return NULL;}
   virtual Type getType() {return SCREEN;}
+  virtual void finish() {}
 protected:
   int mDuration;
   int mCurrentTime;
@@ -46,6 +48,7 @@ public:
   virtual bool update(unsigned interval);
   virtual Object2D* getTarget() {return NULL;}
   virtual Type getType() {return SCREEN;}
+  virtual void finish() {}
 protected:
   int mDuration;
   int mCurrentTime;
@@ -59,6 +62,7 @@ public:
   virtual bool update(unsigned interval);
   virtual Object2D* getTarget() {return NULL;}
   virtual Type getType() {return SCREEN;}
+  virtual void finish() {}
 protected:
   int mDuration;
   int mCurrentTime;
@@ -73,6 +77,7 @@ public:
   virtual bool update(unsigned interval);
   virtual Object2D* getTarget() {return NULL;}
   virtual Type getType() {return SCREEN;}
+  virtual void finish() {}
 protected:
   void generateCircle(float radius);
   int mDuration;

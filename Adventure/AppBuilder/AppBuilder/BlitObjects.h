@@ -110,6 +110,7 @@ public:
   virtual bool update(unsigned interval)=0;
   virtual Object2D* getTarget()=0;
   virtual Type getType()=0;
+  virtual void finish()=0;
 };
 
 class RoomObject;

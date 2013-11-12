@@ -45,7 +45,7 @@ public:
   void rightClick(const Vec2i& pos);
   void doubleClick(const Vec2i& pos);
   void mouseWheel(int delta);
-  bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change=Engine::instance()->getScreenChange());
+  bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change);
   void unloadRoom(RoomObject* room, bool mainroom, bool immedately);
   bool setFocus(std::string charname, ExecutionContext* reason);
   CGE::Image* getImage(const std::string& name);
@@ -169,6 +169,11 @@ protected:
       return f_score > asd.f_score;
     }
   };
+  struct LoadRoom{
+    std::string roomName;
+    ExecutionContext* reason;
+    ScreenChange screenchange;
+  };
   bool aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path);
   float distance(const Vec2i& x, const Vec2i& y);
   std::list<Vec2i> reconstruct_path(AStarData node, const std::set<AStarData>& data);
@@ -196,8 +201,7 @@ protected:
   bool mBlinkCursorVisible;
   unsigned mBlinkTimeAccu;
   bool mForceNotToRenderUnloadingRoom;
-  std::string mPendingLoadRoom;
-  ExecutionContext* mPendingLoadReason;
+  LoadRoom mPendingLoadRoom;
   RenderableBlitObject* mRenderedMain;
   PostProcessor* mPostProc;
   bool mMouseShown;
