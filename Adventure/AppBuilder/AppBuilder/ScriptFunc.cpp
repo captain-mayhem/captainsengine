@@ -55,7 +55,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("wait", wait);
   interpreter->registerFunction("subroom", subRoom);
   interpreter->registerFunction("return", subRoomReturn);
-  interpreter->registerFunction("realreturn", subRoomReturn);
+  interpreter->registerFunction("realreturn", subRoomReturnImmediate);
   interpreter->registerFunction("link", link);
   interpreter->registerFunction("givelink", giveLink);
   interpreter->registerFunction("if_num", isNumEqual);
@@ -827,6 +827,14 @@ int ScriptFunctions::subRoomReturn(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 0)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   Engine::instance()->unloadRoom(NULL, false, false);
+  return 0;
+}
+
+int ScriptFunctions::subRoomReturnImmediate(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  if (numArgs != 0)
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  Engine::instance()->unloadRoom(NULL, false, true);
   return 0;
 }
 

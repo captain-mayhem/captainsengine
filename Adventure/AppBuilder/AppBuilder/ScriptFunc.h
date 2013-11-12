@@ -185,7 +185,7 @@ public:
   static int loadNum(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param room name of the room
-  \param effect [opt] blending effect TODO
+  \param effect [opt] blending effect
   **/
   static int loadRoom(ExecutionContext& ctx, unsigned numArgs);
   /**
@@ -511,6 +511,9 @@ public:
   /**
   **/
   static int subRoomReturn(ExecutionContext& ctx, unsigned numArgs);
+  /**
+  **/
+  static int subRoomReturnImmediate(ExecutionContext& ctx, unsigned numArgs);
   /**
   **/
   static int stopMusic(ExecutionContext& ctx, unsigned numArgs);
