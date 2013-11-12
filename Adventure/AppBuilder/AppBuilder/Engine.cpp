@@ -114,7 +114,7 @@ void Engine::initGame(exit_callback exit_cb){
   int transparency = mData->getProjectSettings()->anywhere_transparency*255/100;
   //load taskbar room
   if (mData->getProjectSettings()->show_taskbar && mData->getProjectSettings()->taskroom != ""){
-    loadRoom(mData->getProjectSettings()->taskroom, true, NULL);
+    loadRoom(mData->getProjectSettings()->taskroom, true, NULL, SC_DIRECT);
     mRooms.front()->setOpacity(255-transparency);
     if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)
       mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
@@ -130,7 +130,7 @@ void Engine::initGame(exit_callback exit_cb){
   }
   //load anywhere room
   if (mData->getProjectSettings()->anywhere_room != ""){
-    loadRoom(mData->getProjectSettings()->anywhere_room, true, NULL);
+    loadRoom(mData->getProjectSettings()->anywhere_room, true, NULL, SC_DIRECT);
     mRooms.front()->setOpacity(255-transparency);
   }
   //load main script
@@ -150,8 +150,9 @@ void Engine::initGame(exit_callback exit_cb){
   mTextEnabled = true;
   mUnloadedRoom = NULL;
   mForceNotToRenderUnloadingRoom = false;
-  mPendingLoadRoom = "";
-  mPendingLoadReason = NULL;
+  mPendingLoadRoom.roomName = "";
+  mPendingLoadRoom.reason = NULL;
+  mPendingLoadRoom.screenchange = SC_DIRECT;
   mRenderedMain = new RenderableBlitObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
   mRenderedMain->setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
   mPostProc = new PostProcessor(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
@@ -347,14 +348,14 @@ void Engine::render(unsigned time){
     else
       mUnloadedRoom = mRoomsToUnload.front();
     mRoomsToUnload.pop_front();
-    if (mRoomsToUnload.empty() && !mPendingLoadRoom.empty()){
+    if (mRoomsToUnload.empty() && !mPendingLoadRoom.roomName.empty()){
       //delayed load
-      loadRoom(mPendingLoadRoom, false, mPendingLoadReason);
-      if (mPendingLoadReason){
-        mPendingLoadReason->resume();
-        mPendingLoadReason = NULL;
+      loadRoom(mPendingLoadRoom.roomName, false, mPendingLoadRoom.reason, mPendingLoadRoom.screenchange);
+      if (mPendingLoadRoom.reason){
+        mPendingLoadRoom.reason->resume();
+        mPendingLoadRoom.reason = NULL;
       }
-      mPendingLoadRoom = "";
+      mPendingLoadRoom.roomName = "";
     }
   }
 
@@ -612,18 +613,20 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
         return true;
     }
   }
-  TR_INFO("loading room %s", name.c_str());
   if (mMainRoomLoaded && !isSubRoom){
+    TR_INFO("requested loading of room %s", name.c_str());
     unloadRoom(mRooms.back(), true, false);
-    if (mPendingLoadReason != NULL){
-      mPendingLoadReason->resume();
+    if (mPendingLoadRoom.reason != NULL){
+      mPendingLoadRoom.reason->resume();
     }
     if (loadreason)
       loadreason->suspend(0, NULL);
-    mPendingLoadRoom = name;
-    mPendingLoadReason = loadreason;
+    mPendingLoadRoom.roomName = name;
+    mPendingLoadRoom.reason = loadreason;
+    mPendingLoadRoom.screenchange = change;
     return false;
   }
+  TR_INFO("loading room %s with screenchange %i", name.c_str(), change);
   Room* room = mData->getRoom(name);
   SaveStateProvider::SaveRoom* save = mSaver->getRoom(room->name);
   if (!room || !save)
@@ -1335,7 +1338,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   if (loadContainingRoom){
     obj = mSaver->findCharacter(instanceName, room, realName);
     if (obj){
-      loadRoom(room, false, loadreason);
+      loadRoom(room, false, loadreason, Engine::instance()->getScreenChange());
       CharacterObject* chr = extractCharacter(realName);
       if (chr)
         return chr;
@@ -1421,7 +1424,7 @@ void Engine::keyPress(int key){
           if (!mMenuShown){
             if (mData->getProjectSettings()->has_menuroom && !mData->getProjectSettings()->menuroom.empty()){
               mMenuShown = true;
-              loadRoom(mData->getProjectSettings()->menuroom, true, NULL);
+              loadRoom(mData->getProjectSettings()->menuroom, true, NULL, Engine::instance()->getScreenChange());
             }
             else{
               //use internal menu
@@ -1576,8 +1579,8 @@ RoomObject* Engine::getMainRoom(){
 }
 
 void Engine::removeScript(ExecutionContext* ctx){
-  if (ctx == mPendingLoadReason)
-    mPendingLoadReason = NULL;
+  if (ctx == mPendingLoadRoom.reason)
+    mPendingLoadRoom.reason = NULL;
 }
 
 void Engine::triggerScreenchange(ExecutionContext* loadreason, ScreenChange change){

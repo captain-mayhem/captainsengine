@@ -480,7 +480,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   if (charname == "self"){
     //focussed char, therefore change room
     if (!roomname.empty())
-      Engine::instance()->loadRoom(roomname, false, &ctx);
+      Engine::instance()->loadRoom(roomname, false, &ctx, Engine::instance()->getScreenChange());
     CharacterObject* obj = Engine::instance()->getCharacter(charname);
     if (obj){
       obj->abortClick();
@@ -818,7 +818,7 @@ int ScriptFunctions::subRoom(ExecutionContext& ctx, unsigned numArgs){
   }
   if (Engine::instance()->isSubRoomLoaded())
     Engine::instance()->unloadRoom(NULL, false, false);
-  Engine::instance()->loadRoom(roomname, true, &ctx);
+  Engine::instance()->loadRoom(roomname, true, &ctx, Engine::instance()->getScreenChange());
   return 0;
 }
 
@@ -2042,6 +2042,10 @@ public:
     }
     mCurrentTime += interval;
     return true;
+  }
+  virtual void finish(){
+    Engine::instance()->setTimeFactor(mTarget, true);
+    SoundEngine::instance()->setSpeedFactor(mTarget);
   }
   virtual Object2D* getTarget() {return NULL;}
   virtual Type getType() {return TIME;}

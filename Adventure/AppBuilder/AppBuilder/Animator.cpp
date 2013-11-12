@@ -58,12 +58,30 @@ void Animator::remove(Object2D* obj){
     obj->animationEnd(obj->getPosition());
     mObjects.erase(iter);
   }
+  for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){
+    if ((*iter)->getTarget() == obj){
+      (*iter)->finish();
+      delete *iter;
+      iter = mAnimations.erase(iter);
+      if (iter == mAnimations.end())
+        break;
+    }
+  }
 }
 
 void Animator::remove(RoomObject* room){
   std::map<RoomObject*,RoomAnim>::iterator iter = mRooms.find(room);
   if (iter != mRooms.end()){
     mRooms.erase(iter);
+  }
+  for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){
+    if ((*iter)->getTarget() == room){
+      (*iter)->finish();
+      delete *iter;
+      iter = mAnimations.erase(iter);
+      if (iter == mAnimations.end())
+        break;
+    }
   }
 }
 
@@ -202,6 +220,9 @@ public:
     mCurrentTime += interval;
     return true;
   }
+  virtual void finish(){
+    mObject->setLightingColor(mTarget);
+  }
   virtual Object2D* getTarget() {return mObject;}
   virtual Type getType() {return COLOR;}
   const Color& getTargetColor() {return mTarget;}
@@ -217,8 +238,7 @@ void Animator::add(Object2D* obj, const Color& targetcolor){
   //remove previous animation
   for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){
     if ((*iter)->getType() == DynamicAnimation::COLOR && (*iter)->getTarget() == obj){
-      ColorAnimation* ca = (ColorAnimation*)*iter;
-      obj->setLightingColor(ca->getTargetColor());
+      (*iter)->finish();
       delete *iter;
       mAnimations.erase(iter);
       break;
@@ -273,6 +293,14 @@ public:
     }
     mCurrentTime += interval;
     return true;
+  }
+  virtual void finish(){
+    if (!mScaleUserScale){
+      mObject->setFrozenScale(mTarget);
+      mObject->setNoZooming(false, true);
+    }
+    else
+      mObject->setUserScale(mTarget);
   }
   virtual Object2D* getTarget() {return mObject;}
   virtual Type getType() {return SCALE;}
