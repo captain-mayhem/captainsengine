@@ -72,11 +72,11 @@ void FontRenderer::String::render(unsigned interval){
     pos = mSpeaker->getOverheadPos()-mCenterOffset;
   }
   if (mKeepOnScreen){
-    if (pos.x+mCenterOffset.x*2 > Engine::instance()->getResolution().x && pos.x+mCenterOffset.x*2 < Engine::instance()->getResolution().x+mCenterOffset.x)
+    if (pos.x+mCenterOffset.x*2 > Engine::instance()->getResolution().x && pos.x+mCenterOffset.x*2 < Engine::instance()->getResolution().x+mCenterOffset.x*2)
       pos.x = Engine::instance()->getResolution().x-mCenterOffset.x*2;
-    if (pos.x < 0 && pos.x > -mCenterOffset.x)
+    if (pos.x < 0 && pos.x > -mCenterOffset.x*2)
       pos.x = 0;
-    if (pos.y+mCenterOffset.y > Engine::instance()->getResolution().y && pos.y+mCenterOffset.y < Engine::instance()->getResolution().y+mCenterOffset.y/2)
+    if (pos.y+mCenterOffset.y > Engine::instance()->getResolution().y && pos.y+mCenterOffset.y < Engine::instance()->getResolution().y+mCenterOffset.y)
       pos.y = Engine::instance()->getResolution().y-mCenterOffset.y;
     if (pos.y < 0 && pos.y > -mCenterOffset.y/3*2)
       pos.y = 0;
