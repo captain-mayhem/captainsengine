@@ -181,7 +181,7 @@ int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
     std::string changename = ctx.stack().pop().getString();
     change = getScreenChange(changename);
   }
-  Engine::instance()->loadRoom(room, false, &ctx, change);
+  Engine::instance()->loadMainRoom(room, &ctx, change);
   return 0;
 }
 
@@ -480,7 +480,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   if (charname == "self"){
     //focussed char, therefore change room
     if (!roomname.empty())
-      Engine::instance()->loadRoom(roomname, false, &ctx, Engine::instance()->getScreenChange());
+      Engine::instance()->loadMainRoom(roomname, &ctx, Engine::instance()->getScreenChange());
     CharacterObject* obj = Engine::instance()->getCharacter(charname);
     if (obj){
       obj->abortClick();
@@ -814,11 +814,10 @@ int ScriptFunctions::subRoom(ExecutionContext& ctx, unsigned numArgs){
   int fading_time = 0;
   if (numArgs >= 2){
     fading_time = ctx.stack().pop().getInt();
-    TR_WARN("subroom fading not yet implemented.");
   }
   if (Engine::instance()->isSubRoomLoaded())
     Engine::instance()->unloadRoom(NULL, false, false);
-  Engine::instance()->loadRoom(roomname, true, &ctx, Engine::instance()->getScreenChange());
+  Engine::instance()->loadSubRoom(roomname, &ctx, fading_time);
   return 0;
 }
 
@@ -937,10 +936,15 @@ int ScriptFunctions::unloadRoom(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 0)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  bool animate = !ctx.isSkipping();
   Engine::instance()->unloadRoom(NULL, true, false);
-  //TODO make unloads smoother. triggerScreenchange, add finished callback to screenchanges, call ForceNot... in callback
-  //Engine::instance()->triggerScreenchange(&ctx);
-  Engine::instance()->forceNotToRenderUnloadingRoom();
+  //make unloads smoother. triggerScreenchange, add finished callback to screenchanges, call ForceNot... in callback
+  if (animate){
+    //Engine::instance()->getRoom("")->setFadeout(1);
+    Engine::instance()->triggerScreenchange(NULL, Engine::instance()->getScreenChange(), true);
+  }
+  else
+    Engine::instance()->forceNotToRenderUnloadingRoom();
   return 0;
 }
 
@@ -1264,7 +1268,7 @@ int ScriptFunctions::loadNum(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
+  if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string varname = ctx.stack().pop().getString();
   int val = Engine::instance()->getInterpreter()->getVariable(varname).getInt();
