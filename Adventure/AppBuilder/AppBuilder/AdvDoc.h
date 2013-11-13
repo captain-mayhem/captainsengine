@@ -37,6 +37,7 @@ struct ProjectSettings{
   int taskpopup;
   bool taskHideCompletely;
   int right_click;
+  int menu_fading;
   int anywhere_transparency;
   int targacolor;
   int bordercolor;

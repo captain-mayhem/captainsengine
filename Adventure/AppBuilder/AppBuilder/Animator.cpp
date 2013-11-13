@@ -248,6 +248,48 @@ void Animator::add(Object2D* obj, const Color& targetcolor){
   add(ca);
 }
 
+class OpacityAnimation : public DynamicAnimation{
+public:
+  OpacityAnimation(int from, int to, int duration, RoomObject* object, bool reset) : mDuration(duration), 
+    mCurrentTime(0), mSrc(from), mTarget(to), mRoom(object), mReset(reset){
+  }
+  virtual bool update(unsigned interval){
+    float t = (mDuration-mCurrentTime)/(float)mDuration;
+    if (t < 0)
+      t = 0;
+    if (t > 1.0f)
+      t = 1.0f;
+    unsigned char opacity = (unsigned char)(t*mSrc + (1-t)*mTarget);
+    mRoom->setOpacity(opacity);
+    if (mCurrentTime >= mDuration){
+      if (mReset)
+        mRoom->setFadeout(0);
+      return false;
+    }
+    mCurrentTime += interval;
+    return true;
+  }
+  virtual void finish(){
+    mRoom->setOpacity(mTarget);
+    if (mReset)
+      mRoom->setFadeout(0);
+  }
+  virtual Object2D* getTarget() {return mRoom;}
+  virtual Type getType() {return OPACITY;}
+private:
+  int mDuration;
+  int mCurrentTime;
+  int mSrc;
+  int mTarget;
+  RoomObject* mRoom;
+  bool mReset;
+};
+
+void Animator::add(RoomObject* obj, int fade_duration, bool fadein){
+  OpacityAnimation* oa = new OpacityAnimation(fadein ? 0 : 255, fadein ? 255 : 0, fade_duration, obj, !fadein);
+  add(oa);
+}
+
 void Animator::add(RoomObject* obj, Vec2i scrollpos, float speed){
   std::map<RoomObject*,RoomAnim>::iterator iter = mRooms.find(obj);
   Vec2f currPos;

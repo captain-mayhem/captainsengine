@@ -104,6 +104,7 @@ public:
     SCALE,
     SCREEN,
     TIME,
+    OPACITY,
   };
   DynamicAnimation();
   virtual ~DynamicAnimation();

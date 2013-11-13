@@ -1,11 +1,18 @@
 #include "Screenchange.h"
 #include "Engine.h"
 
+TR_CHANNEL(ADV_Screenchange);
+
 using namespace adv;
 
 #ifndef M_PI
 #define M_PI       3.14159265358979323846
 #endif
+
+void ScreenChangeBase::screenChangeSwitch(){
+  if (mUnload)
+    Engine::instance()->forceNotToRenderUnloadingRoom();
+}
 
 Screenshot::Screenshot(int depth) : RenderableBlitObject(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, depth){
 }
@@ -21,7 +28,7 @@ void Screenshot::take(){
   unbind();
 }
 
-CircleScreenChange::CircleScreenChange(int width, int height, int depth, int duration, int segments) : RenderableBlitObject(width, height, depth), mDuration(duration/2), mCurrentTime(0), mClosing(true), mShot(depth-1), mSegments(segments){
+CircleScreenChange::CircleScreenChange(int width, int height, int depth, int duration, int segments) : ScreenChangeBase(width, height, depth), mDuration(duration/2), mCurrentTime(0), mClosing(true), mShot(depth-1), mSegments(segments){
   generateCircle(1.0f);
 }
 
@@ -38,6 +45,7 @@ bool CircleScreenChange::update(unsigned interval){
   
   if (mClosing && mCurrentTime == 0){
     mShot.take();
+    screenChangeSwitch();
   }
 
   bind();
@@ -55,8 +63,9 @@ bool CircleScreenChange::update(unsigned interval){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   unbind();
   
-  if (mCurrentTime >= mDuration && !mClosing)
+  if (mCurrentTime >= mDuration && !mClosing){
     return false;
+  }
   if (mCurrentTime >= mDuration && mClosing){
     mCurrentTime = 0;
     mClosing = false;
@@ -80,12 +89,13 @@ void CircleScreenChange::generateCircle(float radius){
   }
 }
 
-BlendScreenChange::BlendScreenChange(int width, int height, int depth, int duration) : RenderableBlitObject(width, height, depth), mDuration(duration), mCurrentTime(0), mShot(depth-1){
+BlendScreenChange::BlendScreenChange(int width, int height, int depth, int duration) : ScreenChangeBase(width, height, depth), mDuration(duration), mCurrentTime(0), mShot(depth-1){
 }
 
 bool BlendScreenChange::update(unsigned interval){
   if (mCurrentTime == 0){
     mShot.take();
+    screenChangeSwitch();
   }
 
   int alpha = (int)((mDuration-mCurrentTime)/(float)mDuration*255);
@@ -112,19 +122,21 @@ bool BlendScreenChange::update(unsigned interval){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   unbind();
   
-  if (mCurrentTime >= mDuration)
+  if (mCurrentTime >= mDuration){
     return false;
+  }
   mCurrentTime += interval;
   render(Vec2i(0,0), Vec2f(1.0f,1.0f), Vec2i(0,0));
   return true;
 }
 
-FadeoutScreenChange::FadeoutScreenChange(int width, int height, int depth, int duration) : RenderableBlitObject(width, height, depth), mDuration(duration/2), mCurrentTime(0), mShot(depth-1), mClosing(true){
+FadeoutScreenChange::FadeoutScreenChange(int width, int height, int depth, int duration) : ScreenChangeBase(width, height, depth), mDuration(duration/2), mCurrentTime(0), mShot(depth-1), mClosing(true){
 }
 
 bool FadeoutScreenChange::update(unsigned interval){
   if (mCurrentTime == 0 && mClosing){
     mShot.take();
+    screenChangeSwitch();
   }
 
   int alpha = (int)((mDuration-mCurrentTime)/(float)mDuration*255);
@@ -159,8 +171,9 @@ bool FadeoutScreenChange::update(unsigned interval){
   GL()enable(GL_TEXTURE_2D);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   unbind();
-  if (mCurrentTime >= mDuration && !mClosing)
+  if (mCurrentTime >= mDuration && !mClosing){
     return false;
+  }
   if (mCurrentTime >= mDuration && mClosing){
     mCurrentTime = 0;
     mClosing = false;
@@ -170,12 +183,13 @@ bool FadeoutScreenChange::update(unsigned interval){
   return true;
 }
 
-ShuttersScreenChange::ShuttersScreenChange(int width, int height, int depth, int duration) : RenderableBlitObject(width, height, depth), mDuration(duration/2), mCurrentTime(0), mShot(depth-1), mClosing(true){
+ShuttersScreenChange::ShuttersScreenChange(int width, int height, int depth, int duration) : ScreenChangeBase(width, height, depth), mDuration(duration/2), mCurrentTime(0), mShot(depth-1), mClosing(true){
 }
 
 bool ShuttersScreenChange::update(unsigned interval){
   if (mCurrentTime == 0 && mClosing){
     mShot.take();
+    screenChangeSwitch();
   }
 
   float scale;
@@ -202,8 +216,9 @@ bool ShuttersScreenChange::update(unsigned interval){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   unbind();
   
-  if (mCurrentTime >= mDuration && !mClosing)
+  if (mCurrentTime >= mDuration && !mClosing){
     return false;
+  }
   if (mCurrentTime >= mDuration && mClosing){
     mCurrentTime = 0;
     mClosing = false;
@@ -215,7 +230,7 @@ bool ShuttersScreenChange::update(unsigned interval){
   return true;
 }
 
-ClockScreenChange::ClockScreenChange(int width, int height, int depth, int duration, int segments) : RenderableBlitObject(width, height, depth), mDuration(duration/2), mCurrentTime(0), mClosing(true), mShot(depth-1), mSegments(segments){
+ClockScreenChange::ClockScreenChange(int width, int height, int depth, int duration, int segments) : ScreenChangeBase(width, height, depth), mDuration(duration/2), mCurrentTime(0), mClosing(true), mShot(depth-1), mSegments(segments){
   generateCircle(1.0f);
 }
 
@@ -232,6 +247,7 @@ bool ClockScreenChange::update(unsigned interval){
   
   if (mClosing && mCurrentTime == 0){
     mShot.take();
+    screenChangeSwitch();
   }
 
   bind();
@@ -249,8 +265,9 @@ bool ClockScreenChange::update(unsigned interval){
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   unbind();
   
-  if (mCurrentTime >= mDuration && !mClosing)
+  if (mCurrentTime >= mDuration && !mClosing){
     return false;
+  }
   if (mCurrentTime >= mDuration && mClosing){
     mCurrentTime = 0;
     mClosing = false;

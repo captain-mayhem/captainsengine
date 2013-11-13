@@ -710,7 +710,7 @@ bool PcdkScript::update(unsigned time){
       //reload room if changed through cutscene
       CharacterObject* chr = Engine::instance()->getCharacter("self");
       if (chr)
-        Engine::instance()->loadRoom(chr->getRoom(), false, NULL, Engine::instance()->getScreenChange());
+        Engine::instance()->loadMainRoom(chr->getRoom(), NULL, Engine::instance()->getScreenChange());
     }
     if (mCutScene && !mCutScene->mSuspended && mCutScene == oldcutscene){
       int count = 0;

@@ -5,20 +5,29 @@
 
 namespace adv{
 
+class ScreenChangeBase : public RenderableBlitObject, public DynamicAnimation{
+public:
+  ScreenChangeBase(int width, int height, int depth) : RenderableBlitObject(width, height, depth), mUnload(false) {}
+  virtual Object2D* getTarget() {return NULL;}
+  virtual Type getType() {return SCREEN;}
+  virtual void finish() {}
+  void setUnload(bool unload) {mUnload = unload;}
+  void screenChangeSwitch();
+protected:
+  bool mUnload;
+};
+
 class Screenshot : public RenderableBlitObject{
 public:
   Screenshot(int depth);
   void take();
 };
 
-class CircleScreenChange : public RenderableBlitObject, public DynamicAnimation{
+class CircleScreenChange : public ScreenChangeBase{
 public:
   CircleScreenChange(int width, int height, int depth, int duration, int segments);
   virtual ~CircleScreenChange();
   virtual bool update(unsigned interval);
-  virtual Object2D* getTarget() {return NULL;}
-  virtual Type getType() {return SCREEN;}
-  virtual void finish() {}
 protected:
   void generateCircle(float radius);
   int mDuration;
@@ -29,26 +38,20 @@ protected:
   int mSegments;
 };
 
-class BlendScreenChange : public RenderableBlitObject, public DynamicAnimation{
+class BlendScreenChange : public ScreenChangeBase{
 public:
   BlendScreenChange(int width, int height, int depth, int duration);
   virtual bool update(unsigned interval);
-  virtual Object2D* getTarget() {return NULL;}
-  virtual Type getType() {return SCREEN;}
-  virtual void finish() {}
 protected:
   int mDuration;
   int mCurrentTime;
   Screenshot mShot;
 };
 
-class FadeoutScreenChange : public RenderableBlitObject, public DynamicAnimation{
+class FadeoutScreenChange : public ScreenChangeBase{
 public:
   FadeoutScreenChange(int width, int height, int depth, int duration);
   virtual bool update(unsigned interval);
-  virtual Object2D* getTarget() {return NULL;}
-  virtual Type getType() {return SCREEN;}
-  virtual void finish() {}
 protected:
   int mDuration;
   int mCurrentTime;
@@ -56,13 +59,10 @@ protected:
   bool mClosing;
 };
 
-class ShuttersScreenChange : public RenderableBlitObject, public DynamicAnimation{
+class ShuttersScreenChange : public ScreenChangeBase{
 public:
   ShuttersScreenChange(int width, int height, int depth, int duration);
   virtual bool update(unsigned interval);
-  virtual Object2D* getTarget() {return NULL;}
-  virtual Type getType() {return SCREEN;}
-  virtual void finish() {}
 protected:
   int mDuration;
   int mCurrentTime;
@@ -70,14 +70,11 @@ protected:
   bool mClosing;
 };
 
-class ClockScreenChange : public RenderableBlitObject, public DynamicAnimation{
+class ClockScreenChange : public ScreenChangeBase{
 public:
   ClockScreenChange(int width, int height, int depth, int duration, int segments);
   virtual ~ClockScreenChange();
   virtual bool update(unsigned interval);
-  virtual Object2D* getTarget() {return NULL;}
-  virtual Type getType() {return SCREEN;}
-  virtual void finish() {}
 protected:
   void generateCircle(float radius);
   int mDuration;

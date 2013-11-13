@@ -174,9 +174,10 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     mSettings.right_click = 0;
   }
   if (ver_major > 2 || (ver_major == 2 && ver_minor > 0)){
-    for (int i = 0; i < 3; ++i){
-      str = txtstream.readLine();
-    }
+    str = txtstream.readLine();
+    str = txtstream.readLine();
+    mSettings.menu_fading = atoi(str.c_str());
+    str = txtstream.readLine();
     str = txtstream.readLine();
     mSettings.anywhere_transparency = atoi(str.c_str());
   }

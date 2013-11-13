@@ -114,7 +114,7 @@ void Engine::initGame(exit_callback exit_cb){
   int transparency = mData->getProjectSettings()->anywhere_transparency*255/100;
   //load taskbar room
   if (mData->getProjectSettings()->show_taskbar && mData->getProjectSettings()->taskroom != ""){
-    loadRoom(mData->getProjectSettings()->taskroom, true, NULL, SC_DIRECT);
+    loadSubRoom(mData->getProjectSettings()->taskroom, NULL, 0);
     mRooms.front()->setOpacity(255-transparency);
     if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)
       mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
@@ -130,7 +130,7 @@ void Engine::initGame(exit_callback exit_cb){
   }
   //load anywhere room
   if (mData->getProjectSettings()->anywhere_room != ""){
-    loadRoom(mData->getProjectSettings()->anywhere_room, true, NULL, SC_DIRECT);
+    loadSubRoom(mData->getProjectSettings()->anywhere_room, NULL, 0);
     mRooms.front()->setOpacity(255-transparency);
   }
   //load main script
@@ -350,7 +350,7 @@ void Engine::render(unsigned time){
     mRoomsToUnload.pop_front();
     if (mRoomsToUnload.empty() && !mPendingLoadRoom.roomName.empty()){
       //delayed load
-      loadRoom(mPendingLoadRoom.roomName, false, mPendingLoadRoom.reason, mPendingLoadRoom.screenchange);
+      loadMainRoom(mPendingLoadRoom.roomName, mPendingLoadRoom.reason, mPendingLoadRoom.screenchange);
       if (mPendingLoadRoom.reason){
         mPendingLoadRoom.reason->resume();
         mPendingLoadRoom.reason = NULL;
@@ -596,7 +596,7 @@ void Engine::render(unsigned time){
   trymtx.unlock();
 }
 
-bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change){
+bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading){
   TR_USE(ADV_Engine);
   if (!mData)
     return false;
@@ -759,7 +759,11 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   }
   //animation stuff
   if (!isSubRoom)
-    triggerScreenchange(loadreason, change);
+    triggerScreenchange(loadreason, change, false);
+  else if (fading != 0){
+    roomobj->setFadeout(fading);
+    mAnimator->add(roomobj, fading, true);
+  }
   return true;
 }
 
@@ -793,6 +797,7 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately){
   room->finishScripts(false);
   //room->save();
   if (immediately){
+    room->setFadeout(0);
     for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
       if (*iter == room){
         if (room == mRooms.back()){
@@ -803,6 +808,13 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately){
         }
         mRooms.erase(iter);
         break;
+      }
+    }
+  }
+  else{
+    if (!mainroom){
+      if (room->getFadeout() > 0){
+        mAnimator->add(room, room->getFadeout(), false);
       }
     }
   }
@@ -1338,7 +1350,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   if (loadContainingRoom){
     obj = mSaver->findCharacter(instanceName, room, realName);
     if (obj){
-      loadRoom(room, false, loadreason, Engine::instance()->getScreenChange());
+      loadMainRoom(room, loadreason, Engine::instance()->getScreenChange());
       CharacterObject* chr = extractCharacter(realName);
       if (chr)
         return chr;
@@ -1424,7 +1436,7 @@ void Engine::keyPress(int key){
           if (!mMenuShown){
             if (mData->getProjectSettings()->has_menuroom && !mData->getProjectSettings()->menuroom.empty()){
               mMenuShown = true;
-              loadRoom(mData->getProjectSettings()->menuroom, true, NULL, Engine::instance()->getScreenChange());
+              loadSubRoom(mData->getProjectSettings()->menuroom, NULL, mData->getProjectSettings()->menu_fading);
             }
             else{
               //use internal menu
@@ -1432,10 +1444,12 @@ void Engine::keyPress(int key){
               mRooms.push_front(menu);
               mSubRoomLoaded = true;
               mMenuShown = true;
+              menu->setFadeout(mData->getProjectSettings()->menu_fading);
+              mAnimator->add(menu, mData->getProjectSettings()->menu_fading, true);
             }
           }
           else{
-            unloadRoom(NULL, false, true);
+            unloadRoom(NULL, false, false);
             mMenuShown = false;
           }
         }
@@ -1583,46 +1597,44 @@ void Engine::removeScript(ExecutionContext* ctx){
     mPendingLoadRoom.reason = NULL;
 }
 
-void Engine::triggerScreenchange(ExecutionContext* loadreason, ScreenChange change){
+void Engine::triggerScreenchange(ExecutionContext* loadreason, ScreenChange change, bool unload){
   if (loadreason == NULL || !loadreason->isSkipping()){
+    ScreenChangeBase* scb = NULL;
     switch(change){
       case SC_DIRECT:
         break;
       case SC_FADEOUT:{
-        FadeoutScreenChange* fsc = new FadeoutScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-        Engine::instance()->getAnimator()->add(fsc);
+        scb = new FadeoutScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
                       }
                       break;
       case SC_RECTANGLE:{
-        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 4);
-        Engine::instance()->getAnimator()->add(csc);
+        scb = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 4);
                         }
                         break;
       case SC_CIRCLE:{
-        CircleScreenChange* csc = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
-        Engine::instance()->getAnimator()->add(csc);
+        scb = new CircleScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
                      }
                      break;
       case SC_SHUTTERS:{
-        ShuttersScreenChange* ssc = new ShuttersScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-        Engine::instance()->getAnimator()->add(ssc);
+        scb = new ShuttersScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
                        }
                        break;
       case SC_CLOCK:{
-        ClockScreenChange* csc = new ClockScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
-        Engine::instance()->getAnimator()->add(csc);
+        scb = new ClockScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000, 64);
                     }
                     break;
       case SC_BLEND:{
-        BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 1000);
-        Engine::instance()->getAnimator()->add(bsc);
+        scb = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 1000);
                     }
                     break;
       case SC_BLEND_SLOW:{
-        BlendScreenChange* bsc = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
-        Engine::instance()->getAnimator()->add(bsc);
+        scb = new BlendScreenChange(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, DEPTH_SCREENCHANGE, 2000);
                          }
                          break;
+    }
+    if (scb != NULL){
+      scb->setUnload(unload);
+      Engine::instance()->getAnimator()->add(scb);
     }
   }
 }

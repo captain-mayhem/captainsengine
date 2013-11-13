@@ -47,6 +47,7 @@ public:
   void add(DynamicAnimation* anim);
   void add(Object2D* obj, const Color& targetcolor);
   void add(RoomObject* obj, Vec2i scrollpos, float speed);
+  void add(RoomObject* obj, int fade_duration, bool fadein);
   void add(CharacterObject* obj, float sourcescale, float targetscale, bool isUserScale);
   Vec2i getTargetPoisition(Object2D* obj);
   void moveCameraViewport(LookDir dir);

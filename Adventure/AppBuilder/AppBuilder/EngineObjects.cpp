@@ -441,7 +441,7 @@ void CursorObject::setCommand(int command){
 }
 
 RoomObject::RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap) : 
-Object2D(state, pos, size, name), mInventroy(NULL), mDepthMap(depthmap){
+Object2D(state, pos, size, name), mInventroy(NULL), mDepthMap(depthmap), mFadeout(0){
   mLighting = new LightingBlitObject(DEPTH_LIGHTING, size);
   mParallaxBackground = NULL;
 }
@@ -655,6 +655,8 @@ void RoomObject::setInventory(InventoryDisplay* disp){
 }
 
 bool RoomObject::isScriptRunning(){
+  if (mFadeout > 0)
+    return true;
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     if ((*iter)->getScript() != NULL && (*iter)->getScript()->isRunning())
       return true;

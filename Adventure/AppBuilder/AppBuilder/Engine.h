@@ -45,7 +45,8 @@ public:
   void rightClick(const Vec2i& pos);
   void doubleClick(const Vec2i& pos);
   void mouseWheel(int delta);
-  bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change);
+  bool loadMainRoom(const std::string& name, ExecutionContext* loadreason, ScreenChange change) {return loadRoom(name, false, loadreason, change, 0);}
+  bool loadSubRoom(const std::string& name, ExecutionContext* loadreason, int fading) {return loadRoom(name, true, loadreason, SC_DIRECT, fading);}
   void unloadRoom(RoomObject* room, bool mainroom, bool immedately);
   bool setFocus(std::string charname, ExecutionContext* reason);
   CGE::Image* getImage(const std::string& name);
@@ -109,7 +110,7 @@ public:
   void enableMouse(bool doIt) {mMouseEnabled = doIt;}
   void setTimeFactor(float factor, bool isFaded) {mTimeFactor = factor; mTimeFactorFaded = isFaded;}
   float getTimeFactor(bool* isFaded=NULL) {if (isFaded != NULL) *isFaded = mTimeFactorFaded; return mTimeFactor;}
-  void triggerScreenchange(ExecutionContext* loadreason, ScreenChange change);
+  void triggerScreenchange(ExecutionContext* loadreason, ScreenChange change, bool unload);
   void enableMenu(bool doIt) {mMenuEnabled = doIt;}
   CursorObject* getCursor() {return mCursor;}
   void resetCursor(bool resetInstMouse, bool resetDragging);
@@ -177,6 +178,7 @@ protected:
   bool aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path);
   float distance(const Vec2i& x, const Vec2i& y);
   std::list<Vec2i> reconstruct_path(AStarData node, const std::set<AStarData>& data);
+  bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading);
   //engine - script communication
   std::string mObjectInfo;
   std::string mObjectTooltipInfo;

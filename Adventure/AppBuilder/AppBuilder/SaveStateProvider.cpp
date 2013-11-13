@@ -367,7 +367,10 @@ void SaveStateProvider::load(const std::string& name){
   in >> numRooms;
   for (int i = 0; i < numRooms; ++i){
     in >> roomname;
-    Engine::instance()->loadRoom(roomname, i != 0, NULL, Engine::instance()->getScreenChange());
+    if (i == 0)
+      Engine::instance()->loadMainRoom(roomname, NULL, Engine::instance()->getScreenChange());
+    else
+      Engine::instance()->loadSubRoom(roomname, NULL, 0);
   }
   //focussed char
   std::string focussedchar;

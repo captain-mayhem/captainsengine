@@ -186,6 +186,8 @@ public:
   bool hitsBarriers(const ParticleEngine::Particle& particle);
   void modifyWalkmap(const Vec2i& pos, bool walkable);
   void setDepth(int depth);
+  void setFadeout(int time) {mFadeout = time;}
+  int getFadeout() {return mFadeout;}
 protected:
   class DepthMap {
   public:
@@ -205,6 +207,7 @@ protected:
   std::vector<MirrorObject*> mMirrors;
   std::vector<ParticleEngine::Barrier> mBarriers;
   std::map<Vec2i,bool> mModifiedWalkmap;
+  int mFadeout;
 };
 
 class CharacterObject : public Object2D{
