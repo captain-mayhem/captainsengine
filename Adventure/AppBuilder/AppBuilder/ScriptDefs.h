@@ -16,7 +16,7 @@ public:
   StackData(float value) : mType(F) {mFloat = value;}
   StackData(ExecutionContext* ctx) : mType(EC) {mContext = ctx;}
   std::string getString() const {return mStr;}
-  int getInt() const {if (mType == F) return (int)mFloat; return mInt;}
+  int getInt() const {if (mType == F) return (int)mFloat; else if (mType == S) return atoi(mStr.c_str()); return mInt;}
   bool getBool() const {return mBool;}
   float getFloat() const {if (mType == I)return (float)mInt; return mFloat;}
   ExecutionContext* getEC() const {return mContext;}
