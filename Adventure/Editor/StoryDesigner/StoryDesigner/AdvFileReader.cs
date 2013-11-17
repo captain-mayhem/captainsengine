@@ -495,12 +495,23 @@ namespace StoryDesigner
                     {
                         ItemState ist;
                         ist.frames = new System.Collections.ArrayList();
+                        ist.scripts = new System.Collections.ArrayList();
                         for (int frames = 0; frames < FRAMES_MAX; ++frames)
                         {
                             str = rdr.ReadLine();
-                            if (str != ";" && str.Length > 0)
+                            if (str.Length > 0)
                             {
-                                ist.frames.Add(str.Substring(0, str.Length + 1 - delim));
+                                if (delim == 2)
+                                {
+                                    string[] split = str.Split(';');
+                                    ist.frames.Add(split[0]);
+                                    ist.scripts.Add(split[1]);
+                                }
+                                else
+                                {
+                                    ist.frames.Add(str.Substring(0, str.Length + 1 - delim));
+                                    ist.scripts.Add("");
+                                }
                             }
                         }
                         str = rdr.ReadLine();
@@ -513,6 +524,7 @@ namespace StoryDesigner
                         {
                             ItemState ist;
                             ist.frames = new System.Collections.ArrayList();
+                            ist.scripts = new System.Collections.ArrayList();
                             ist.fpsDivider = 20;
                             it.Add(ist);
                         }
@@ -929,6 +941,8 @@ namespace StoryDesigner
                 }
                 if (set[0] || set[1])
                     realFrames = frms+1;
+                if (split.Length > PARTS_MAX * 2)
+                    frm.script = split[PARTS_MAX * 2];
                 frames.Add(frm);
             }
             frames.RemoveRange(realFrames, FRAMES2_MAX - realFrames);

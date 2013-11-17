@@ -123,6 +123,8 @@ namespace StoryDesigner
         void setSize(int state, Vec2i size);
         Vec2i getFramePartOffset(int state, int frame, int part);
         void setFramePartOffset(int state, int frame, int part, Vec2i offset);
+        string getScript(int state, int frame);
+        void setScript(int state, int frame, string text);
         void setStateName(int state, string name);
     };
 
@@ -223,6 +225,14 @@ namespace StoryDesigner
         public void setFramePartOffset(int state, int frame, int part, Vec2i offset)
         {
         }
+        public string getScript(int state, int frame)
+        {
+            return "";
+        }
+        public void setScript(int state, int frame, string text)
+        {
+
+        }
 
         public void setCommand(int state, int command)
         {
@@ -245,6 +255,7 @@ namespace StoryDesigner
     public struct ItemState : ICloneable
     {
         public System.Collections.ArrayList frames;
+        public System.Collections.ArrayList scripts;
         public int fpsDivider;
 
         public Object Clone()
@@ -252,6 +263,7 @@ namespace StoryDesigner
             ItemState state = new ItemState();
             state.fpsDivider = fpsDivider;
             state.frames = (ArrayList)frames.Clone();
+            state.scripts = (ArrayList)scripts.Clone();
             return state;
         }
     }
@@ -270,6 +282,7 @@ namespace StoryDesigner
             {
                 ItemState ist;
                 ist.frames = new System.Collections.ArrayList();
+                ist.scripts = new System.Collections.ArrayList();
                 ist.fpsDivider = 20;
                 Add(ist);
             }
@@ -290,6 +303,8 @@ namespace StoryDesigner
                 return null;
             string[] ret = new string[1];
             ret[0] = (string)ist.frames[frame];
+            if (ret[0].Length == 0)
+                return null;
             return ret;
         }
         public System.Drawing.Bitmap getImage(string framepart)
@@ -336,6 +351,21 @@ namespace StoryDesigner
         public void setFramePartOffset(int state, int frame, int part, Vec2i offset)
         {
         }
+        public string getScript(int state, int frame)
+        {
+            ItemState ist = (ItemState)mStates[state];
+            if (frame >= ist.scripts.Count)
+                return "";  
+            return (string)ist.scripts[frame];
+        }
+        public void setScript(int state, int frame, string text)
+        {
+            ItemState ist = (ItemState)mStates[state];
+            while (frame >= ist.scripts.Count)
+                ist.scripts.Add("");
+            ist.scripts[frame] = text;
+            mStates[state] = ist;
+        }
 
 
         public string Name
@@ -377,10 +407,12 @@ namespace StoryDesigner
             ExtendedFrame frm = new ExtendedFrame();
             frm.names = (ArrayList)names.Clone();
             frm.offsets = (ArrayList)offsets.Clone();
+            frm.script = script;
             return frm;
         }
         public ArrayList names;
         public ArrayList offsets;
+        public string script;
     }
 
     public class ObjectState : ICloneable
@@ -506,6 +538,22 @@ namespace StoryDesigner
             ObjectState os = (ObjectState)mStates[state];
             ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
             extfrm.offsets[part] = offset;
+        }
+        public string getScript(int state, int frame)
+        {
+            ObjectState os = (ObjectState)mStates[state];
+            if (frame >= os.frames.Count)
+                return "";
+            ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
+            return extfrm.script;
+        }
+        public void setScript(int state, int frame, string text)
+        {
+            ObjectState os = (ObjectState)mStates[state];
+            while (frame >= os.frames.Count)
+                os.frames.Add(new ExtendedFrame());
+            ExtendedFrame extfrm = (ExtendedFrame)os.frames[frame];
+            extfrm.script = text;
         }
 
         public string Name
@@ -696,6 +744,22 @@ namespace StoryDesigner
             CharacterState cs = (CharacterState)mStates[state];
             ExtendedFrame extfrm = (ExtendedFrame)cs.frames[frame];
             extfrm.offsets[part] = offset;
+        }
+        public string getScript(int state, int frame)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            if (frame >= cs.frames.Count)
+                return "";
+            ExtendedFrame extfrm = (ExtendedFrame)cs.frames[frame];
+            return extfrm.script;
+        }
+        public void setScript(int state, int frame, string text)
+        {
+            CharacterState cs = (CharacterState)mStates[state];
+            while (frame >= cs.frames.Count)
+                cs.frames.Add(new ExtendedFrame());
+            ExtendedFrame extfrm = (ExtendedFrame)cs.frames[frame];
+            extfrm.script = text;
         }
 
         public void setStateName(int state, string name)
