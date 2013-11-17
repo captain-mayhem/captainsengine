@@ -44,6 +44,7 @@ namespace StoryDesigner
             }
             this.framecontrol.Paint += new PaintEventHandler(framecontrol_Paint);
             this.framecontrol.MouseClick += new MouseEventHandler(framecontrol_MouseClick);
+            this.framecontrol.DoubleClick += new EventHandler(framecontrol_DoubleClick);
             this.pictureBox.Paint += new PaintEventHandler(pictureBox_Paint);
             this.picturePanel.DragOver += new DragEventHandler(picturePanel_DragOver);
             this.picturePanel.DragDrop += new DragEventHandler(picturePanel_DragDrop);
@@ -67,6 +68,21 @@ namespace StoryDesigner
             this.framecontrol.MouseMove += new MouseEventHandler(framecontrol_MouseMove);
             this.framecontrol.DragOver += new DragEventHandler(framecontrol_DragOver);
             this.framecontrol.DragDrop += new DragEventHandler(framecontrol_DragDrop);
+        }
+
+        void framecontrol_DoubleClick(object sender, EventArgs e)
+        {
+            if (!mAddScripts)
+                return;
+            string title = String.Format("Script for {0}/{1} ({2})", stateDropDown.Items[mState], mFrame+1, "Test");
+            InputField script = new InputField(title);
+            script.Input = mData.getScript(mState, mFrame);
+            script.ShowDialog(this);
+            if (script.DialogResult == DialogResult.OK)
+            {
+                mData.setScript(mState, mFrame, script.Input);
+            }
+            this.framecontrol.Invalidate();
         }
 
         void StateFrameImage_KeyDown(object sender, KeyEventArgs e)
@@ -534,9 +550,12 @@ namespace StoryDesigner
                 Rectangle r = new Rectangle(i*(pb.Size.Width/mFrames+0), 0, pb.Size.Width / (mFrames + 0)-2, pb.Size.Height - 1);
                 if (i == mFrame)
                     e.Graphics.FillRectangle(b, r);
-                if (mData != null && mData.frameExists(mState, i) && !isFrameEmpty(mState, i))
+                if (mData != null)
                 {
-                    e.Graphics.DrawEllipse(p, r.X+r.Width/4+1, r.Y+r.Height/4, r.Width/2, r.Height/2);
+                    if (mData.frameExists(mState, i) && !isFrameEmpty(mState, i))
+                        e.Graphics.DrawEllipse(p, r.X+r.Width/4+1, r.Y+r.Height/2-2, r.Width/2, r.Height/2);
+                    if (mData.getScript(mState, i).Length > 0)
+                        e.Graphics.DrawEllipse(p, r.X + r.Width / 4 + 1, r.Y + 2, r.Width / 2, r.Width / 2);
                 }
                 e.Graphics.DrawRectangle(p, r);
             }
@@ -598,6 +617,7 @@ namespace StoryDesigner
         private int mFromFrame = 0;
         private int mToFrame = 0;
         private bool mAdaptFirstDrop = false;
+        private bool mAddScripts = true;
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -699,6 +719,12 @@ namespace StoryDesigner
             stateDropDown.DropDownStyle = ComboBoxStyle.Simple;
             mEditStateText = true;
             stateDropDown.Focus();
+        }
+
+        public bool AddScripts
+        {
+            get {return mAddScripts;}
+            set {mAddScripts = value;}
         }
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)

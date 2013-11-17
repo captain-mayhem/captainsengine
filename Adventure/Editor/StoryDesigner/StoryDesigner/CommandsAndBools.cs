@@ -10,38 +10,6 @@ namespace StoryDesigner
 {
     public partial class CommandsAndBools : Form
     {
-        private class BoolAdder : Form
-        {
-            public BoolAdder()
-            {
-                this.Size = new Size(200,100);
-                this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
-                this.Text = "Enter Name";
-                box = new TextBox();
-                box.Location = new Point(30, 10);
-                box.Size = new Size(120, 20);
-                this.Controls.Add(box);
-                button = new Button();
-                button.Text = "Enter";
-                button.Location = new Point(50, 35);
-                button.Click += new EventHandler(button_Click);
-                this.Controls.Add(button);
-            }
-
-            void button_Click(object sender, EventArgs e)
-            {
-                this.DialogResult = DialogResult.OK;
-            }
-
-            public string BoolName
-            {
-                get { return this.box.Text; }
-            }
-
-            private TextBox box;
-            private Button button;
-        }
-
         public CommandsAndBools(AdvData data)
         {
             InitializeComponent();
@@ -101,11 +69,11 @@ namespace StoryDesigner
 
         private void add_bool_Click(object sender, EventArgs e)
         {
-            BoolAdder ba = new BoolAdder();
+            InputField ba = new InputField("Enter Text");
             ba.ShowDialog(this);
-            if (ba.DialogResult == DialogResult.OK && ba.BoolName.Length > 0)
+            if (ba.DialogResult == DialogResult.OK && ba.Input.Length > 0)
             {
-                this.bools.Items.Add(ba.BoolName);
+                this.bools.Items.Add(ba.Input);
             }
         }
     }

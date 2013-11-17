@@ -145,7 +145,14 @@ namespace StoryDesigner
             // 
             // stateFrameImage1
             // 
+            this.stateFrameImage1.AdaptFirstDrop = false;
+            this.stateFrameImage1.AddScripts = false;
+            this.stateFrameImage1.AutoSize = true;
+            this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.stateFrameImage1.BackgroundColor = System.Drawing.SystemColors.Desktop;
             this.stateFrameImage1.Data = null;
+            this.stateFrameImage1.FrameParts = 1;
+            this.stateFrameImage1.Frames = 25;
             this.stateFrameImage1.Hotspot = true;
             this.stateFrameImage1.HotspotCoordScale = 3F;
             this.stateFrameImage1.Location = new System.Drawing.Point(12, 12);
@@ -154,7 +161,8 @@ namespace StoryDesigner
             this.stateFrameImage1.ScaleImageToBox = true;
             this.stateFrameImage1.ShowAnimationButton = false;
             this.stateFrameImage1.ShowImageNames = false;
-            this.stateFrameImage1.Size = new System.Drawing.Size(331, 305);
+            this.stateFrameImage1.ShowStateDropDown = false;
+            this.stateFrameImage1.Size = new System.Drawing.Size(339, 320);
             this.stateFrameImage1.TabIndex = 0;
             // 
             // MouseIcons

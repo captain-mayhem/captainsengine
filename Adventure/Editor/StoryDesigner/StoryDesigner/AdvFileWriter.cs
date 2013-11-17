@@ -358,7 +358,8 @@ namespace StoryDesigner
                             swr.Write(data[0]);
                         //else
                         //    swr.Write();
-                        swr.WriteLine(';');
+                        swr.Write(';');
+                        swr.WriteLine(item.Value.getScript(i, frames));
                     }
                     swr.WriteLine(item.Value.getFPSDivider(i));
                 }
@@ -397,7 +398,8 @@ namespace StoryDesigner
                         swr.Write(obj.Value.getFramePartOffset(i, frames, 1).x);
                         swr.Write(';');
                         swr.Write(obj.Value.getFramePartOffset(i, frames, 1).y);
-                        swr.WriteLine(';');
+                        swr.Write(';');
+                        swr.WriteLine(obj.Value.getScript(i, frames));
                     }
                     swr.WriteLine(obj.Value.getFPSDivider(i));
                 }
@@ -453,7 +455,8 @@ namespace StoryDesigner
                         swr.Write(chr.getFramePartOffset(i, frames, 1).x);
                         swr.Write(';');
                         swr.Write(chr.getFramePartOffset(i, frames, 1).y);
-                        swr.WriteLine(';');
+                        swr.Write(';');
+                        swr.WriteLine(chr.getScript(i, frames));
                     }
                     swr.WriteLine(chr.getFPSDivider(i));
                 }
