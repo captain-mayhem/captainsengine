@@ -37,6 +37,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setbool", setBool);
   interpreter->registerFunction("if_command", isCommandSet);
   interpreter->registerFunction("setobj", setObj);
+  interpreter->registerRelVar("setobj", 2, "_objstate");
   interpreter->registerFunction("beamto", beamTo);
   interpreter->registerFunction("additem", addItem);
   interpreter->registerFunction("cutscene", cutScene);
@@ -1215,7 +1216,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     state = getRequestedState(obj->getClass(), data);
   }
   if (obj){
-    obj->removeLastNextState();
+    obj->clearNextStates();
     TR_DEBUG("setting new state %i for char %s", state, chrname.c_str());
     obj->setState(state);
   }
@@ -1584,15 +1585,18 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
   std::list<Vec2i> path;
   //path.push_back(obj->getPosition());
   path.push_back(newpos);
-  if (speed < 1000)
-    speed = 11-speed;
-  else
-    TR_BREAK("Unhandled speed value");
+  float factor;
+  if (speed <= 10)
+    factor = (float)(11-speed);
+  else{
+    //we have ms => calculate speedfactor
+    factor = (newpos-obj->getPosition()).length()*20.0f/speed;
+  }
   if (hold){
     ctx.suspend(0, NULL/*new PositionSuspender(obj, newpos)*/);
     obj->setSuspensionScript(&ctx);
   }
-  Engine::instance()->getAnimator()->add(obj, path, (float)speed);
+  Engine::instance()->getAnimator()->add(obj, path, factor);
   return 0;
 }
 
@@ -1687,7 +1691,12 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
     }
   }
   else
-    Engine::instance()->getInterpreter()->executeImmediately(func);
+    if (!Engine::instance()->getInterpreter()->executeImmediately(func)){
+      //makes it inaccessible for stopfunction, but prevents function to find the already running/destroyed function
+      Engine::instance()->getInterpreter()->removeScript(scriptname, true);
+      //blocking stuff prevents immediate execution, so enqueue the script
+      Engine::instance()->getInterpreter()->execute(func, true);
+    }
   return 0;
 }
 
@@ -1697,7 +1706,7 @@ int ScriptFunctions::stopFunction(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string scriptname = ctx.stack().pop().getString();
   TR_DEBUG("Function %s stopped", scriptname.c_str());
-  ExecutionContext* stopped = Engine::instance()->getInterpreter()->removeScript(scriptname);
+  ExecutionContext* stopped = Engine::instance()->getInterpreter()->removeScript(scriptname, false);
   if (stopped == &ctx){
     //script removes itself, skip remaining instructions
     ctx.mPC = 1000000;
@@ -2837,12 +2846,21 @@ int ScriptFunctions::isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
+std::string stripWS(const std::string& input){
+  std::string ret;
+  for (unsigned i = 0; i < input.size(); ++i){
+    if (input[i] != ' ')
+      ret.append(1, input[i]);
+  }
+  return ret;
+}
+
 int ScriptFunctions::isStringEqual(ExecutionContext& ctx, unsigned numArgs){
   std::string name = ctx.stack().pop().getString();
   std::string text = ctx.stack().pop().getString();
   std::string val = Engine::instance()->getInterpreter()->getVariable(name).getString();
   ctx.stack().push(0);
-  ctx.stack().push(_stricmp(val.c_str(), text.c_str()));
+  ctx.stack().push(_stricmp(stripWS(val).c_str(), stripWS(text).c_str()));
   return 2;
 }
 

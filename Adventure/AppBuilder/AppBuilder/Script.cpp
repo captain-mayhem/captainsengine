@@ -763,7 +763,7 @@ void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
   mScripts.push_back(script);
 }
 
-void PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAfterExec){
+bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAfterExec){
   if (script->getLoop1() != NULL){
     if (!(!script->getEvents().empty() && script->getEvents().front() == EVT_ENTER)) //loop events only after enter
       script->getLoop1()->setEvent(EVT_LOOP1);
@@ -771,12 +771,12 @@ void PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
   }
   do{
     if (script->mSuspended)
-      return;
+      return false;
     CCode* code = script->mCode->get(script->mPC);
     while(code){
       int result = script->mPC = code->execute(*script, script->mPC);
       if (script->mSuspended)
-        break;
+        return false;
       code = script->mCode->get(script->mPC);
     }
     //script ran through
@@ -789,6 +789,7 @@ void PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
         script->getEvents().pop_front();
     }
   } while (!script->getEvents().empty() && !script->mExecuteOnce);
+  return true;
 }
 
 void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
@@ -1122,6 +1123,9 @@ StackData PcdkScript::getVariable(const std::string& name){
     else if (name.size() > 9 && lname.substr(1, 9) == "charstate"){
       return 0;
     }
+    else if (name.size() > 8 && lname.substr(1, 8) == "objstate"){
+      TR_BREAK("Implement me");
+    }
   }
   else if (lname == "mousex"){
     return Engine::instance()->getCursorPos().x;
@@ -1320,11 +1324,12 @@ ExecutionContext* PcdkScript::getScript(const std::string& name){
   return ctx;
 }
 
-ExecutionContext* PcdkScript::removeScript(const std::string& name){
+ExecutionContext* PcdkScript::removeScript(const std::string& name, bool onlyFromFunctions){
   std::map<std::string,ExecutionContext*>::iterator iter = mScriptFunctions.find(name);
   if (iter != mScriptFunctions.end()){
     ExecutionContext* scr = iter->second;
-    remove(scr);
+    if (!onlyFromFunctions)
+      remove(scr);
     mScriptFunctions.erase(iter);
     return scr;
   }

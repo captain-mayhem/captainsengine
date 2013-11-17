@@ -63,7 +63,7 @@ namespace RemoteControl
                 string[] data = hello.Split(' ');
                 mCGEResX = Convert.ToInt32(data[1]);
                 mCGEResY = Convert.ToInt32(data[2]);
-                mSockStream = new System.IO.StreamWriter(mSocket.GetStream());
+                mSockStream = new System.IO.StreamWriter(mSocket.GetStream(), Encoding.GetEncoding(1252));
             }
             catch (System.Net.Sockets.SocketException)
             {

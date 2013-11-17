@@ -35,7 +35,7 @@ public:
   void registerRelVar(const std::string& function, int argnum, const std::string& prefix);
   void getArgumentAsExecutionContext(const std::string& function, int argnum) {mArgEC[function] = argnum;}
   void execute(ExecutionContext* script, bool executeOnce);
-  void executeImmediately(ExecutionContext* script, bool clearStackAfterExec = true);
+  bool executeImmediately(ExecutionContext* script, bool clearStackAfterExec = true);
   void executeCutscene(ExecutionContext* cutscene, bool looping);
   bool update(unsigned time);
   void remove(Object2D* object);
@@ -58,7 +58,7 @@ public:
   static void clickEndHandler(ExecutionContext& ctx);
   ExecutionContext* getCutscene() {return mCutScene;}
   ExecutionContext* getScript(const std::string& name);
-  ExecutionContext* removeScript(const std::string& name);
+  ExecutionContext* removeScript(const std::string& name, bool onlyFromFunctions);
   int getTextSpeed() {return mTextSpeed;}
   void setTextSpeed(int speed) {mTextSpeed = speed;}
   void addTimer(ExecutionContext* timer);

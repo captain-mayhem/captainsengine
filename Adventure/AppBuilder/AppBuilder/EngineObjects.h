@@ -85,6 +85,7 @@ public:
   void addNextState(int state) {mNextStates.push_back(state);}
   int removeLastNextState();
   void activateNextState();
+  void clearNextStates() {mNextStates.clear();}
   virtual void setLightingColor(const Color& col) {mLightingColor = col;}
   virtual Color getLightingColor() {return mLightingColor;}
   void setScale(float scale) {mScale = scale;}
