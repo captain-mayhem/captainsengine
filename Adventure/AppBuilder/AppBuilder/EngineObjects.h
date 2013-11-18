@@ -28,6 +28,7 @@ public:
   Animation(float fps);
   Animation(ExtendedFrames& frames, float fps, int depth);
   Animation(Frames& frames, float fps, Vec2i offset, int depth);
+  Animation(SimpleFrames& frames, float fps, Vec2i offset, int depth);
   ~Animation();
   Animation* clone();
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation);
@@ -39,7 +40,9 @@ public:
   void registerAnimationEndHandler(AnimationEndHandler* handler) {mHandler = handler;}
   void setBlendMode(BlitObject::BlendMode mode);
 protected:
+  void executeScript();
   std::vector<BlitGroup*> mBlits;
+  std::vector<ExecutionContext*> mScripts;
   unsigned mInterval;
   unsigned mTimeAccu;
   unsigned mCurrFrame;

@@ -63,16 +63,23 @@ struct ProjectSettings{
 };
 
 
-typedef std::vector<std::string> Frames;
+typedef std::vector<std::string> SimpleFrames;
 
 struct CursorState{
-  Frames frames;
+  SimpleFrames frames;
   float fps;
   int command;
   Vec2i highlight;
 };
 
 typedef std::vector<CursorState> MouseCursor;
+
+struct Frame{
+  std::string name;
+  std::string script;
+};
+
+typedef std::vector<Frame> Frames;
 
 struct ItemState{
   Frames frames;
@@ -87,6 +94,7 @@ struct Item{
 struct ExtendedFrame{
   std::vector<std::string> names;
   std::vector<Vec2i> offsets;
+  std::string script;
 };
 
 typedef std::vector<ExtendedFrame> ExtendedFrames;
@@ -285,6 +293,7 @@ protected:
   bool loadFile5(CGE::MemReader& txtstream);
   bool loadFile10(CGE::MemReader& txtstream);
   float readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames& frms);
+  std::string animationScript(const std::string& input);
   ProjectSettings mSettings;
   std::map<std::string,std::string> mImageNames;
   std::map<std::string,std::string> mSoundNames;

@@ -505,7 +505,7 @@ namespace StoryDesigner
                                 {
                                     string[] split = str.Split(';');
                                     ist.frames.Add(split[0]);
-                                    ist.scripts.Add(split[1]);
+                                    ist.scripts.Add(split[1].Replace('\xaf', ';'));
                                 }
                                 else
                                 {
@@ -942,7 +942,7 @@ namespace StoryDesigner
                 if (set[0] || set[1])
                     realFrames = frms+1;
                 if (split.Length > PARTS_MAX * 2)
-                    frm.script = split[PARTS_MAX * 2];
+                    frm.script = split[PARTS_MAX * 2].Replace('\xaf', ';');
                 frames.Add(frm);
             }
             frames.RemoveRange(realFrames, FRAMES2_MAX - realFrames);
