@@ -58,6 +58,8 @@ BlitGroup* BlitGroup::clone(){
   return bltgrp;
 }
 
+TR_CHANNEL(ADV_Animation);
+
 Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0), mTimeAccu(0), mHandler(NULL){
 
 }
@@ -67,20 +69,45 @@ mCurrFrame(0), mHandler(NULL){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k].names, frames[k].offsets, depth);
     mBlits.push_back(group);
+    if (!frames[k].script.empty()){
+      ExecutionContext* scr = Engine::instance()->getInterpreter()->parseProgram(frames[k].script);
+      mScripts.push_back(scr);
+    }
+    else{
+      mScripts.push_back(NULL);
+    }
   }
 }
 
 Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mInterval((unsigned)(1000.0f/fps)), 
 mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
   for (unsigned k = 0; k < frames.size(); ++k){
+    BlitGroup* group = new BlitGroup(frames[k].name, offset, depth);
+    mBlits.push_back(group);
+    if (!frames[k].script.empty()){
+      ExecutionContext* scr = Engine::instance()->getInterpreter()->parseProgram(frames[k].script);
+      mScripts.push_back(scr);
+    }
+    else{
+      mScripts.push_back(NULL);
+    }
+  }
+}
+
+Animation::Animation(SimpleFrames& frames, float fps, Vec2i offset, int depth) : mInterval((unsigned)(1000.0f/fps)), 
+mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
+  for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k], offset, depth);
     mBlits.push_back(group);
+    mScripts.push_back(NULL);
   }
 }
 
 Animation::~Animation(){
   for (unsigned k = 0; k < mBlits.size(); ++k){
     delete mBlits[k];
+    if (mScripts[k] != NULL)
+      Engine::instance()->getInterpreter()->remove(mScripts[k]);
   }
 }
 
@@ -112,6 +139,7 @@ void Animation::update(unsigned interval){
       }
       mCurrFrame = 0;
     }
+    executeScript();
   }
 }
 
@@ -127,6 +155,18 @@ Animation* Animation::clone(){
 void Animation::setBlendMode(BlitObject::BlendMode mode){
   for (unsigned k = 0; k < mBlits.size(); ++k){
     mBlits[k]->setBlendMode(mode);
+  }
+}
+
+void Animation::executeScript(){
+  if (mCurrFrame >= mScripts.size())
+    return;
+  ExecutionContext* ctx = mScripts[mCurrFrame];
+  if (ctx == NULL)
+    return;
+  if (!Engine::instance()->getInterpreter()->executeImmediately(ctx)){
+    TR_USE(ADV_Animation);
+    TR_BREAK("Animation::executeScript script contains blocking commands");
   }
 }
 
@@ -490,7 +530,7 @@ void RoomObject::render(){
 void RoomObject::setBackground(std::string bg, int depth){
   if (bg.empty())
     return;
-  Frames f;
+  SimpleFrames f;
   f.push_back(bg);
   Animation* anim = new Animation(f, 2.5f, Vec2i(0,0), depth);
   addAnimation(anim);
@@ -499,7 +539,7 @@ void RoomObject::setBackground(std::string bg, int depth){
 void RoomObject::setParallaxBackground(const std::string& bg, int depth){
   if (bg.empty())
     return;
-  Frames f;
+  SimpleFrames f;
   f.push_back(bg);
   mParallaxBackground = new Animation(f, 2.5f, Vec2i(), depth);
 }

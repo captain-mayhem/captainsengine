@@ -363,9 +363,11 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
         ItemState is;
         for (int frames = 0; frames < FRAMES_MAX; ++frames){
           str = txtstream.readLine();
-          if (str != ";" && str.length() > 0){
-            is.frames.push_back(std::string(str.substr(0,str.length()+1-delim).c_str()));
-          }
+          int pos = str.find(";");
+          Frame frm;
+          frm.name = str.substr(0, pos);
+          frm.script = animationScript(str.substr(pos+1));
+          is.frames.push_back(frm);
         }
         str = txtstream.readLine();
         long val1;
@@ -835,8 +837,9 @@ float AdvDocument::readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames&
     }
     //read offsets
     str = txtstream.readLine();
+    int pos = 0;
     for (unsigned i = 0; i < PARTS_MAX; ++i){
-      int pos = str.find(";");
+      pos = str.find(";");
       std::string num = str.substr(0, pos);
       str = str.substr(pos+1);
       val1 = atoi(num.c_str());
@@ -849,6 +852,7 @@ float AdvDocument::readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames&
     }
     if (set[0] || set[1])
       realFrames = frames+1;
+    frm.script = animationScript(str);
     frms.push_back(frm);
   }
   frms.resize(realFrames);
@@ -1055,5 +1059,16 @@ bool AdvDocument::loadFile10(CGE::MemReader& txtstream){
   str = txtstream.readLine();
   mSettings.noPngToJpeg = str == "-1";
   return true;
+}
+
+std::string AdvDocument::animationScript(const std::string& input){
+  std::string ret;
+  for (unsigned i = 0; i < input.size(); ++i){
+    if (input[i] == '\xaf')
+      ret.append(1, ';');
+    else
+      ret.append(1, input[i]);
+  }
+  return ret;
 }
 
