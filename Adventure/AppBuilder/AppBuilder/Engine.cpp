@@ -417,7 +417,7 @@ void Engine::render(unsigned time){
       }
     }
     if (mRooms.size() > 0 && mFocussedChar && !mFocussedChar->isSpawnPos()/* && !mInterpreter->isBlockingScriptRunning()*/){ //walkmap
-      Vec2i pos = mFocussedChar->getPosition()/mWalkGridSize;
+      Vec2i pos = mFocussedChar->getPosition()/mFocussedChar->getWalkGridSize();
       mRooms.back()->walkTo(pos);
     }
 
@@ -638,7 +638,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
       depthoffset += 1000;
   }
   Room* rm = mData->getRoom(name);
-  RoomObject* roomobj = new RoomObject(save->base.state, /*save->base.position*/Vec2i(0,0), room->size, room->name, rm->depthmap);
+  RoomObject* roomobj = new RoomObject(save->base.state, /*save->base.position*/Vec2i(0,0), room->size, room->name, rm->depthmap, rm->doublewalkmap);
   roomobj->setParallaxBackground(room->parallaxbackground, depthoffset+DEPTH_PARALLAX_BACKGROUND);
   //anywhere room is not allowed to have background
   if (_stricmp(room->name.c_str(), mData->getProjectSettings()->anywhere_room.c_str()) != 0)
@@ -755,7 +755,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   if (mFocussedChar && mFocussedChar->getRoom() == roomobj->getName()){
     mFocussedChar->setScale(roomobj->getDepthScale(mFocussedChar->getPosition()));
     mFocussedChar->setScrollOffset(roomobj->getScrollOffset());
-    mFocussedChar->setDepth(mFocussedChar->getPosition().y/Engine::instance()->getWalkGridSize());
+    mFocussedChar->setDepth(mFocussedChar->getPosition().y/Engine::instance()->getWalkGridSize(false));
   }
   //animation stuff
   if (!isSubRoom)
@@ -1211,14 +1211,15 @@ RoomObject* Engine::getRoom(const std::string& name){
 }
 
 void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor){
-  Vec2i oldwmpos = chr->getPosition()/mWalkGridSize;
-  Vec2i newwmpos = pos/mWalkGridSize;
+  int walkgridsize = chr->getWalkGridSize();
+  Vec2i oldwmpos = chr->getPosition()/walkgridsize;
+  Vec2i newwmpos = pos/walkgridsize;
   std::list<Vec2i> path;
   bool couldReach = aStarSearch(oldwmpos,newwmpos,path); 
   //remove first entry as we are already on that field
   path.pop_front();
   for (std::list<Vec2i>::iterator iter = path.begin(); iter != path.end(); ++iter){
-    *iter = *iter*mWalkGridSize+Vec2i(mWalkGridSize/2,mWalkGridSize/2);
+    *iter = *iter*walkgridsize+Vec2i(walkgridsize/2,walkgridsize/2);
   }
   //replace last entry
   if (couldReach){
@@ -1384,7 +1385,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   //if (ro)
   //  character->setScale(ro->getDepthScale(obj->base.position));
   for (unsigned j = 0; j < chbase->states.size(); ++j){
-    int depth = (obj->base.position.y+chbase->states[j].basepoint.y)/mWalkGridSize;
+    int depth = (obj->base.position.y+chbase->states[j].basepoint.y)/Engine::instance()->getWalkGridSize(false);
     Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
     character->addAnimation(anim);
     character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);

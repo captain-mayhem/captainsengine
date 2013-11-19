@@ -299,14 +299,14 @@ void MirrorObject::renderCharacter(CharacterObject* chr){
     chr->updateState(true, false);
     Vec2i oldpos = chr->getPosition();
     Vec2i newpos = oldpos;
-    int mirrorbase = (mDepth+1)*Engine::instance()->getWalkGridSize();
+    int mirrorbase = (mDepth+1)*Engine::instance()->getWalkGridSize(false);
     newpos.y = mirrorbase + mMirrorOffset.y;
     int diff = newpos.y-oldpos.y;
     newpos.y += diff;
     if (mPositionDependent){
       int xdiff = mMirrorCenter-newpos.x;
-      float diffadapt = float(chr->getPosition().y-mDepth*Engine::instance()->getWalkGridSize());
-      diffadapt /= Engine::instance()->getWalkGridSize();
+      float diffadapt = float(chr->getPosition().y-mDepth*Engine::instance()->getWalkGridSize(false));
+      diffadapt /= chr->getWalkGridSize();
       diffadapt = 10 - diffadapt;
       if (diffadapt <= 2)
         diffadapt = 2;

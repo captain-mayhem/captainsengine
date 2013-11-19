@@ -480,10 +480,11 @@ void CursorObject::setCommand(int command){
   }
 }
 
-RoomObject::RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap) : 
-Object2D(state, pos, size, name), mInventroy(NULL), mDepthMap(depthmap), mFadeout(0){
+RoomObject::RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap, bool doublewalkmap) : 
+Object2D(state, pos, size, name), mInventroy(NULL), mDepthMap(), mFadeout(0), mDoubleWalkmap(doublewalkmap){
   mLighting = new LightingBlitObject(DEPTH_LIGHTING, size);
   mParallaxBackground = NULL;
+  mDepthMap.init(depthmap, Engine::instance()->getWalkGridSize(false));
 }
 
 RoomObject::~RoomObject(){
@@ -754,9 +755,11 @@ float RoomObject::getDepthScale(const Vec2i& pos, int depthStart, int depthEnd, 
   return ret;
 }
 
-RoomObject::DepthMap::DepthMap(Vec2i depthmap){
-  scaleStart = depthmap.y*Engine::instance()->getWalkGridSize();
-  scaleStop = depthmap.x*Engine::instance()->getWalkGridSize();
+RoomObject::DepthMap::DepthMap(){}
+
+void RoomObject::DepthMap::init(Vec2i depthmap, int walkgridsize){
+  scaleStart = depthmap.y*walkgridsize;
+  scaleStop = depthmap.x*walkgridsize;
   setZoomFactor(3);
 }
 
@@ -789,6 +792,10 @@ void RoomObject::modifyWalkmap(const Vec2i& pos, bool walkable){
 
 void RoomObject::setDepth(int depth){
   mDepth = depth;
+}
+
+int RoomObject::getWalkGridSize(){
+  return Engine::instance()->getWalkGridSize(mDoubleWalkmap);
 }
 
 CharacterObject::CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name) 
@@ -872,7 +879,7 @@ void CharacterObject::animationBegin(const Vec2i& next){
 void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
   int ycoord = getPosition().y;
   if (prev.y-ycoord != 0){
-    setDepth(ycoord/Engine::instance()->getWalkGridSize());
+    setDepth(ycoord/Engine::instance()->getWalkGridSize(false));
   }
   Vec2i dir = next-getPosition();
   setLookDir(dir);
@@ -881,7 +888,7 @@ void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
 void CharacterObject::animationEnd(const Vec2i& prev){
   int ycoord = getPosition().y;
   if (prev.y-ycoord != 0){
-    setDepth(ycoord/Engine::instance()->getWalkGridSize());
+    setDepth(ycoord/Engine::instance()->getWalkGridSize(false));
   }
   if (mDesiredDir != UNSPECIFIED){
     setLookDir(mDesiredDir);
@@ -1123,11 +1130,11 @@ void CharacterObject::setLinkObject(Object2D* link){
 }
 
 int CharacterObject::getDepth(){
-  return getPosition().y/Engine::instance()->getWalkGridSize();
+  return getPosition().y/Engine::instance()->getWalkGridSize(false);
 }
 
 bool CharacterObject::isSpawnPos(){
-  if (getPosition()/Engine::instance()->getWalkGridSize() == mSpawnPos/Engine::instance()->getWalkGridSize())
+  if (getPosition()/getWalkGridSize() == mSpawnPos/getWalkGridSize())
     return true;
   mSpawnPos = Vec2i(-1,-1);
   return false;
@@ -1155,4 +1162,16 @@ bool CharacterObject::animationEnded(Animation* anim){
     updateState(false, false);
   }
   return ret;
+}
+
+int CharacterObject::getWalkGridSize(){
+  int walkgridsize;
+  RoomObject* room = Engine::instance()->getRoom(mRoom);
+  if (room)
+    walkgridsize = room->getWalkGridSize();
+  else{
+    SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(mRoom);
+    walkgridsize = sr->getWalkGridSize();
+  }
+  return walkgridsize;
 }
