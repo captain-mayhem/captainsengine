@@ -222,8 +222,6 @@ int ScriptFunctions::moveTo(ExecutionContext& ctx, unsigned numArgs, float speed
   Vec2i pos;
   pos.x = ctx.stack().pop().getInt()-1;
   pos.y = ctx.stack().pop().getInt()-1;
-  pos = pos * Engine::instance()->getWalkGridSize() + 
-    Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2);
   LookDir dir = UNSPECIFIED;
   bool hold = true;
   if (numArgs >= 4){
@@ -242,20 +240,13 @@ int ScriptFunctions::moveTo(ExecutionContext& ctx, unsigned numArgs, float speed
   }
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
-    //if (ctx.mSkip){
-      //chr->setPosition(pos);
-      //chr->setLookDir(dir);
-      //RoomObject* ro = Engine::instance()->getContainingRoom(chr);
-      //if (ro)
-      //  chr->setScale(ro->getDepthScale(pos));
-    //}
-    //else{
-      if (!ctx.isSkipping() && hold){
-        chr->setSuspensionScript(&ctx);
-        ctx.mSuspended = true;
-      }
-      Engine::instance()->walkTo(chr, pos, dir, speedFactor);
-    //}
+    pos = pos * chr->getWalkGridSize() + 
+      Vec2i(chr->getWalkGridSize()/2, chr->getWalkGridSize()/2);
+    if (!ctx.isSkipping() && hold){
+      chr->setSuspensionScript(&ctx);
+      ctx.mSuspended = true;
+    }
+    Engine::instance()->walkTo(chr, pos, dir, speedFactor);
   }
   return 0;
 }
@@ -495,23 +486,26 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       std::string realname;
       Vec2i scrolloffset;
       Vec2i roomoffset;
+      int walkgridsize;
       if (ro == NULL){
         SaveStateProvider::SaveRoom* sro = Engine::instance()->getSaver()->getRoom(roomname);
         realname = sro->base.name;
         scrolloffset = sro->scrolloffset;
         roomoffset = sro->base.position;
+        walkgridsize = sro->getWalkGridSize();
       }
       else{
         realname = ro->getName();
         scrolloffset = ro->getScrollOffset();
         roomoffset = ro->getPosition();
+        walkgridsize = ro->getWalkGridSize();
       }
       obj->setRoom(realname);
-      obj->setPosition((pos*Engine::instance()->getWalkGridSize())
-        +Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2)
+      obj->setPosition((pos*walkgridsize)
+        +Vec2i(walkgridsize/2, walkgridsize/2)
         +roomoffset, true);
       obj->setScrollOffset(scrolloffset);
-      obj->setDepth(obj->getPosition().y/Engine::instance()->getWalkGridSize());
+      obj->setDepth(obj->getPosition().y/Engine::instance()->getWalkGridSize(false));
       //obj->setScale(ro->getDepthScale(obj->getPosition()));
     }
   }
@@ -523,8 +517,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       Engine::instance()->getSaver()->removeCharacter(obj->getName());
     }
     if (obj){
-      obj->abortClick();
-      obj->setPosition(pos*Engine::instance()->getWalkGridSize()+Vec2i(Engine::instance()->getWalkGridSize()/2, Engine::instance()->getWalkGridSize()/2));
+      obj->abortClick();   
       obj->setTalking(false);
       obj->setWalking(false);
       if (dir != UNSPECIFIED)
@@ -534,15 +527,17 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       RoomObject* room = Engine::instance()->getRoom(roomname);
       if (room){
         obj->setRoom(room->getName());
+        obj->setPosition(pos*room->getWalkGridSize()+Vec2i(room->getWalkGridSize()/2, room->getWalkGridSize()/2));
         obj->setScale(room->getDepthScale(obj->getPosition()));
-        obj->setDepth(obj->getPosition().y/Engine::instance()->getWalkGridSize());
+        obj->setDepth(obj->getPosition().y/Engine::instance()->getWalkGridSize(false));
         Engine::instance()->getSaver()->removeCharacter(obj->getName());
         room->addObject(obj);
       }
       else{
         obj->setRoom(roomname);
         Engine::instance()->getSaver()->removeCharacter(obj->getName());
-        Engine::instance()->getSaver()->getRoom(roomname);
+        SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(roomname);
+        obj->setPosition(pos*sr->getWalkGridSize()+Vec2i(sr->getWalkGridSize()/2, sr->getWalkGridSize()/2));
         obj->save();
         delete obj;
       }
@@ -880,8 +875,15 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs < 3 || numArgs > 5)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   Vec2i pos;
-  pos.x = ctx.stack().pop().getInt()*Engine::instance()->getWalkGridSize();
-  pos.y = ctx.stack().pop().getInt()*Engine::instance()->getWalkGridSize();
+  int walkgridsize;
+  RoomObject* room = Engine::instance()->getRoom("");
+  if (room){
+    walkgridsize = room->getWalkGridSize();
+  }
+  else
+    walkgridsize = Engine::instance()->getWalkGridSize(false);
+  pos.x = ctx.stack().pop().getInt()*walkgridsize;
+  pos.y = ctx.stack().pop().getInt()*walkgridsize;
   std::string text = ctx.stack().pop().getString();
   std::string sound = "";
   bool hold = Engine::instance()->getInterpreter()->isBlockingScriptRunning() || ctx.isLoop1() || ctx.isIdle();
@@ -909,7 +911,6 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
     }
   }
   //correct the offspeech position
-  RoomObject* room = Engine::instance()->getRoom("");
   if (room){
     pos = pos+room->getScrollOffset();
   }
@@ -1522,10 +1523,7 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
     //Engine::instance()->walkTo(chr, pos, dir);
     chr->setPosition(pos);
     chr->setLookDir(dir);
-    chr->setDepth(pos.y/Engine::instance()->getWalkGridSize());
-    //RoomObject* ro = Engine::instance()->getContainingRoom(chr);
-    //if (ro)
-    //  chr->setScale(ro->getDepthScale(pos));
+    chr->setDepth(pos.y/Engine::instance()->getWalkGridSize(false));
   }
   else{
     TR_BREAK("Character %s not found", name.c_str());
@@ -1925,7 +1923,7 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
   Vec2i pos;
   pos.x = ctx.stack().pop().getInt();
   pos.y = ctx.stack().pop().getInt();
-  pos = pos * -Engine::instance()->getWalkGridSize();
+  pos = pos * -Engine::instance()->getWalkGridSize(false);
   bool dontscroll = ctx.stack().pop().getBool();
   if (numArgs > 4){
     LookDir blenddir = UNSPECIFIED;
@@ -2740,8 +2738,8 @@ int ScriptFunctions::isCharTriggering(ExecutionContext& ctx, unsigned numArgs){
     //find the position of the script
     Vec2i pos = room->getScriptPosition(&ctx);
     Vec2i charpos = chr->getPosition();
-    charpos.x /= Engine::instance()->getWalkGridSize();
-    charpos.y /= Engine::instance()->getWalkGridSize();
+    charpos.x /= room->getWalkGridSize();
+    charpos.y /= room->getWalkGridSize();
     if (pos == charpos)
       ctx.stack().push(0);
     else

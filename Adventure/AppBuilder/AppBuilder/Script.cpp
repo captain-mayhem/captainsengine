@@ -1195,7 +1195,7 @@ StackData PcdkScript::getVariable(const std::string& name){
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
     if (!chr)
       TR_BREAK("Character %s not found", name.substr(idx).c_str());
-    return chr->getPosition().x/(idx == 7 ? Engine::instance()->getWalkGridSize() : 1);
+    return chr->getPosition().x/(idx == 7 ? chr->getWalkGridSize() : 1);
   }
   else if (name.size() > 6 && lname.substr(0,6) == "chary:"){
     int idx = 6;
@@ -1204,7 +1204,7 @@ StackData PcdkScript::getVariable(const std::string& name){
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
     if (!chr)
       TR_BREAK("Character %s not found", name.substr(idx).c_str());
-    return chr->getPosition().y/(idx == 7 ? Engine::instance()->getWalkGridSize() : 1);
+    return chr->getPosition().y/(idx == 7 ? chr->getWalkGridSize() : 1);
   }
   else if (name.size() > 9 && lname.substr(0,9) == "charzoom:"){
     TR_BREAK("Implement me");

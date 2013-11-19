@@ -171,6 +171,7 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
     save->base.lighting = Color();
     save->base.name = orig->name;
     save->scrolloffset = orig->scrolloffset*-1;
+    save->doublewalkmap = orig->doublewalkmap;
     for (unsigned i = 0; i < orig->objects.size(); ++i){
       SaveObject* object = new SaveObject();
       object->lighting = Color();
@@ -361,6 +362,8 @@ void SaveStateProvider::load(const std::string& name){
     in >> roomname;
     SaveRoom* room = new SaveRoom;
     in >> *room;
+    Room* rm = mData->getRoom(roomname);
+    room->doublewalkmap = rm->doublewalkmap;
     mRooms[roomname] = room;
   }
   //load rooms to load
@@ -457,4 +460,8 @@ SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& 
   TR_USE(ADV_SaveState);
   TR_BREAK("Object %s not found in %s", name.c_str(), room.c_str());
   return NULL;
+}
+
+int SaveStateProvider::SaveRoom::getWalkGridSize(){
+  return Engine::instance()->getWalkGridSize(doublewalkmap);
 }

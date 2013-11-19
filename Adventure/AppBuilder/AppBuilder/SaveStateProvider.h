@@ -37,6 +37,7 @@ public:
     std::map<std::string, SaveObject*> objects;
     std::map<std::string, CharSaveObject*> characters;
     std::map<Vec2i, bool> walkmap;
+    bool doublewalkmap;
     void clear(){
       for (std::map<std::string, SaveObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter){
         delete iter->second;
@@ -48,6 +49,7 @@ public:
       characters.clear();
       walkmap.clear();
     }
+    int getWalkGridSize();
     //friend std::ostream& operator<<(std::ostream& strm, const SaveRoom& room);
   };
 

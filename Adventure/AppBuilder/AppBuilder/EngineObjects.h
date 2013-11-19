@@ -153,7 +153,7 @@ class CharacterObject;
 
 class RoomObject : public Object2D{
 public:
-  RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap);
+  RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap, bool doublewalkmap);
   ~RoomObject();
   void setBackground(std::string bg, int depth);
   void setParallaxBackground(const std::string& bg, int depth);
@@ -192,10 +192,12 @@ public:
   void setDepth(int depth);
   void setFadeout(int time) {mFadeout = time;}
   int getFadeout() {return mFadeout;}
+  int getWalkGridSize();
 protected:
   class DepthMap {
   public:
-    DepthMap(Vec2i depthmap);
+    DepthMap();
+    void init(Vec2i depthmap, int walkgridsize);
     void setZoomFactor(int factor);
     int scaleStart;
     int scaleStop;
@@ -212,6 +214,7 @@ protected:
   std::vector<ParticleEngine::Barrier> mBarriers;
   std::map<Vec2i,bool> mModifiedWalkmap;
   int mFadeout;
+  bool mDoubleWalkmap;
 };
 
 class CharacterObject : public Object2D{
@@ -264,6 +267,7 @@ public:
   void setWalking(bool doit) {mWalking = doit; updateState(false, true);}
   void updateState(bool mirror, bool force);
   virtual bool animationEnded(Animation* anim);
+  int getWalkGridSize();
 protected:
   static int calculateState(LookDir dir, bool& mirror);
   static int calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror=false);

@@ -9,7 +9,7 @@ using namespace adv;
 
 Menu::Menu() : RoomObject(1, 
       Vec2i(Engine::instance()->getSettings()->resolution.x/2-MENU_WIDTH/2, Engine::instance()->getSettings()->resolution.y/2-MENU_HEIGHT/2), 
-      Vec2i(MENU_WIDTH, MENU_HEIGHT), "#menu", Vec2i()) {
+      Vec2i(MENU_WIDTH, MENU_HEIGHT), "#menu", Vec2i(), false) {
   Color bgorig(Engine::instance()->getSettings()->backgroundcolor);
   Color bg(Engine::instance()->getSettings()->backgroundcolor);
   bg += 16;

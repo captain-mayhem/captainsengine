@@ -50,7 +50,7 @@ public:
   void unloadRoom(RoomObject* room, bool mainroom, bool immedately);
   bool setFocus(std::string charname, ExecutionContext* reason);
   CGE::Image* getImage(const std::string& name);
-  int getWalkGridSize() {return mWalkGridSize;}
+  int getWalkGridSize(bool doublewalkmap) {return doublewalkmap ? mWalkGridSize/2 : mWalkGridSize;}
   Object2D* getObjectAt(const Vec2i& pos);
   Object2D* getObject(const std::string& name, bool searchInventoryFirst);
   CharacterObject* getCharacter(const std::string& name);
