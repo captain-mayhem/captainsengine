@@ -1063,6 +1063,10 @@ bool CharacterObject::isHit(const Vec2i& point){
 
 void CharacterObject::setState(int state){
   TR_USE(ADV_Character);
+  Vec2i oldoffset;
+  if (mState > 0){
+    oldoffset = mBasePoints[mState-1];
+  }
   mState = state;
   //mNextStates.clear();
   //fallback to lower states when they not exist (walk,talk  back => walk back)
@@ -1070,6 +1074,11 @@ void CharacterObject::setState(int state){
     if (mState > 3)
       setTalking(false);
   }
+  Vec2i newoffset;
+  if (mState > 0){
+    newoffset = mBasePoints[mState-1];
+  }
+  Object2D::setPosition(mPos+oldoffset-newoffset);
   mIdleTime = 0; //reset idle timer
   TR_DEBUG("%s state %i", mClass->name.c_str(), mState);
 }
@@ -1156,12 +1165,22 @@ void CharacterObject::abortClick(){
   Engine::instance()->getAnimator()->remove(this);
 }
 
-bool CharacterObject::animationEnded(Animation* anim){
+/*bool CharacterObject::animationEnded(Animation* anim){
   bool ret = Object2D::animationEnded(anim);
   if (mState == 0){
     updateState(false, false);
   }
   return ret;
+}*/
+
+void CharacterObject::activateNextState(){
+  if (mNextStates.empty())
+    return;
+  if (mNextStates.front() == 0)
+    updateState(false, true);
+  else
+    setState(mNextStates.front());
+  mNextStates.pop_front();
 }
 
 int CharacterObject::getWalkGridSize(){

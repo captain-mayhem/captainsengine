@@ -87,7 +87,7 @@ public:
   void setDepth(int depth);
   void addNextState(int state) {mNextStates.push_back(state);}
   int removeLastNextState();
-  void activateNextState();
+  virtual void activateNextState();
   void clearNextStates() {mNextStates.clear();}
   virtual void setLightingColor(const Color& col) {mLightingColor = col;}
   virtual Color getLightingColor() {return mLightingColor;}
@@ -266,7 +266,8 @@ public:
   void setTalking(bool doit) {mTalking = doit; updateState(false, false);}
   void setWalking(bool doit) {mWalking = doit; updateState(false, true);}
   void updateState(bool mirror, bool force);
-  virtual bool animationEnded(Animation* anim);
+  //virtual bool animationEnded(Animation* anim);
+  virtual void activateNextState();
   int getWalkGridSize();
 protected:
   static int calculateState(LookDir dir, bool& mirror);
