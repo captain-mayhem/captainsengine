@@ -835,7 +835,7 @@ void Engine::endRendering(){
 void Engine::insertToBlit(BaseBlitObject* obj){
   bool placenotfound = true;
   for (std::list<BaseBlitObject*>::iterator iter = mBlitQueues.back().begin(); iter != mBlitQueues.back().end(); ++iter){
-    if (obj->getDepth() <= (*iter)->getDepth()){
+    if (obj->getDepth() < (*iter)->getDepth()){
       mBlitQueues.back().insert(iter, obj);
       placenotfound = false;
       break;
