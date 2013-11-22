@@ -49,7 +49,7 @@ public:
       characters.clear();
       walkmap.clear();
     }
-    int getWalkGridSize();
+    float getWalkGridSize();
     //friend std::ostream& operator<<(std::ostream& strm, const SaveRoom& room);
   };
 

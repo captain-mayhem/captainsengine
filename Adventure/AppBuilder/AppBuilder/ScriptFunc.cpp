@@ -241,7 +241,7 @@ int ScriptFunctions::moveTo(ExecutionContext& ctx, unsigned numArgs, float speed
   CharacterObject* chr = Engine::instance()->getCharacter(character);
   if (chr){
     pos = pos * chr->getWalkGridSize() + 
-      Vec2i(chr->getWalkGridSize()/2, chr->getWalkGridSize()/2);
+      Vec2f(chr->getWalkGridSize()/2, chr->getWalkGridSize()/2);
     if (!ctx.isSkipping() && hold){
       chr->setSuspensionScript(&ctx);
       ctx.mSuspended = true;
@@ -486,7 +486,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       std::string realname;
       Vec2i scrolloffset;
       Vec2i roomoffset;
-      int walkgridsize;
+      float walkgridsize;
       if (ro == NULL){
         SaveStateProvider::SaveRoom* sro = Engine::instance()->getSaver()->getRoom(roomname);
         realname = sro->base.name;
@@ -502,10 +502,10 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       }
       obj->setRoom(realname);
       obj->setPosition((pos*walkgridsize)
-        +Vec2i(walkgridsize/2, walkgridsize/2)
+        +Vec2f(walkgridsize/2, walkgridsize/2)
         +roomoffset, true);
       obj->setScrollOffset(scrolloffset);
-      obj->setDepth(obj->getPosition().y/Engine::instance()->getWalkGridSize(false));
+      obj->setDepth((int)(obj->getPosition().y/Engine::instance()->getWalkGridSize(false)));
       //obj->setScale(ro->getDepthScale(obj->getPosition()));
     }
   }
@@ -527,9 +527,9 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       RoomObject* room = Engine::instance()->getRoom(roomname);
       if (room){
         obj->setRoom(room->getName());
-        obj->setPosition(pos*room->getWalkGridSize()+Vec2i(room->getWalkGridSize()/2, room->getWalkGridSize()/2));
+        obj->setPosition(Vec2i(pos*room->getWalkGridSize()+Vec2f(room->getWalkGridSize()/2, room->getWalkGridSize()/2)));
         obj->setScale(room->getDepthScale(obj->getPosition()));
-        obj->setDepth(obj->getPosition().y/Engine::instance()->getWalkGridSize(false));
+        obj->setDepth((int)(obj->getPosition().y/Engine::instance()->getWalkGridSize(false)));
         Engine::instance()->getSaver()->removeCharacter(obj->getName());
         room->addObject(obj);
       }
@@ -537,7 +537,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
         obj->setRoom(roomname);
         Engine::instance()->getSaver()->removeCharacter(obj->getName());
         SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(roomname);
-        obj->setPosition(pos*sr->getWalkGridSize()+Vec2i(sr->getWalkGridSize()/2, sr->getWalkGridSize()/2));
+        obj->setPosition(Vec2i(pos*sr->getWalkGridSize()+Vec2f(sr->getWalkGridSize()/2, sr->getWalkGridSize()/2)));
         obj->save();
         delete obj;
       }
@@ -875,15 +875,15 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs < 3 || numArgs > 5)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   Vec2i pos;
-  int walkgridsize;
+  float walkgridsize;
   RoomObject* room = Engine::instance()->getRoom("");
   if (room){
     walkgridsize = room->getWalkGridSize();
   }
   else
     walkgridsize = Engine::instance()->getWalkGridSize(false);
-  pos.x = ctx.stack().pop().getInt()*walkgridsize;
-  pos.y = ctx.stack().pop().getInt()*walkgridsize;
+  pos.x = (int)(ctx.stack().pop().getInt()*walkgridsize);
+  pos.y = (int)(ctx.stack().pop().getInt()*walkgridsize);
   std::string text = ctx.stack().pop().getString();
   std::string sound = "";
   bool hold = Engine::instance()->getInterpreter()->isBlockingScriptRunning() || ctx.isLoop1() || ctx.isIdle();
@@ -1523,7 +1523,7 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
     //Engine::instance()->walkTo(chr, pos, dir);
     chr->setPosition(pos);
     chr->setLookDir(dir);
-    chr->setDepth(pos.y/Engine::instance()->getWalkGridSize(false));
+    chr->setDepth((int)(pos.y/Engine::instance()->getWalkGridSize(false)));
   }
   else{
     TR_BREAK("Character %s not found", name.c_str());
@@ -2738,8 +2738,8 @@ int ScriptFunctions::isCharTriggering(ExecutionContext& ctx, unsigned numArgs){
     //find the position of the script
     Vec2i pos = room->getScriptPosition(&ctx);
     Vec2i charpos = chr->getPosition();
-    charpos.x /= room->getWalkGridSize();
-    charpos.y /= room->getWalkGridSize();
+    charpos.x = (int)(charpos.x/room->getWalkGridSize());
+    charpos.y = (int)(charpos.y/room->getWalkGridSize());
     if (pos == charpos)
       ctx.stack().push(0);
     else

@@ -462,6 +462,6 @@ SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& 
   return NULL;
 }
 
-int SaveStateProvider::SaveRoom::getWalkGridSize(){
+float SaveStateProvider::SaveRoom::getWalkGridSize(){
   return Engine::instance()->getWalkGridSize(doublewalkmap);
 }
