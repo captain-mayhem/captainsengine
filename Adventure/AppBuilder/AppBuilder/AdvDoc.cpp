@@ -236,13 +236,13 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     if (str == "Booleans :"){
       str = txtstream.readLine();
       while (str != "Commands :"){
-        std::string name;
+        String name;
         std::string val = str.substr(str.size()-1);
         if (val == "1")
-          name = str.substr(0, str.size()-2);
+          name = str.substr(0, str.size()-2).c_str();
         else
-          name = str.substr(0, str.size()-1);
-        mSettings.booleans[std::string(name)] = (val == "1");
+          name = str.substr(0, str.size()-1).c_str();
+        mSettings.booleans[name] = (val == "1");
         str = txtstream.readLine();
       }
     }

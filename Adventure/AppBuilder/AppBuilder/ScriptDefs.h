@@ -1,6 +1,8 @@
 #ifndef SCRIPTDEFS_H
 #define SCRIPTDEFS_H
 
+#include "String.h"
+
 namespace adv{
 
 class ExecutionContext;
@@ -10,12 +12,12 @@ class StackData{
   friend std::istream& operator>>(std::istream& strm, StackData& data);
 public:
   StackData() : mType(I), mStr(""), mInt(0) {}
-  StackData(std::string str) : mType(S), mInt(0) {mStr = str; if (mStr == "true"){mBool = true; mType = B;}}
+  StackData(String str) : mType(S), mInt(0) {mStr = str; if (mStr == "true"){mBool = true; mType = B;}}
   StackData(int value) : mType(I) {mInt = value;}
   StackData(bool value) : mType(B) {mBool = value;}
   StackData(float value) : mType(F) {mFloat = value;}
   StackData(ExecutionContext* ctx) : mType(EC) {mContext = ctx;}
-  std::string getString() const {return mStr;}
+  String getString() const {return mStr;}
   int getInt() const {if (mType == F) return (int)mFloat; else if (mType == S) return atoi(mStr.c_str()); return mInt;}
   bool getBool() const {return mBool;}
   float getFloat() const {if (mType == I)return (float)mInt; return mFloat;}
@@ -29,7 +31,7 @@ protected:
     S, I, B, F, EC
   };
   Type mType;
-  std::string mStr;
+  String mStr;
   union{
     int mInt;
     bool mBool;

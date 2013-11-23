@@ -9,6 +9,7 @@
 #include <system/types.h>
 #include "Ids.h"
 #include "Vector.h"
+#include "String.h"
 
 namespace CGE{
   class MemReader;
@@ -55,7 +56,7 @@ struct ProjectSettings{
   std::string linktext;
   std::string givelink;
   std::string walktext;
-  std::map<std::string,bool> booleans;
+  std::map<String,bool> booleans;
   std::map<std::string, unsigned> commands;
   std::vector<std::string> pretty_commands;
 
