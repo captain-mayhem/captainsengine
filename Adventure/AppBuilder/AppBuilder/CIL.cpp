@@ -114,7 +114,7 @@ unsigned CSTATE::execute(ExecutionContext& ctx, unsigned pc){
   return ++pc;
 }
 
-static std::string stackDataToStr(const StackData& sd){
+static String stackDataToStr(const StackData& sd){
   if (sd.isString())
     return sd.getString();
   else if (sd.isNumber()){
@@ -150,10 +150,10 @@ static bool isDigit(char ch){
 unsigned CCONCAT::execute(ExecutionContext& ctx, unsigned pc){
   StackData s2 = ctx.stack().pop();
   StackData s1 = ctx.stack().pop();
-  std::string d1, d2;
+  String d1, d2;
   d1 = stackDataToStr(s1);
   d2 = stackDataToStr(s2);
-  std::string space = " ";
+  String space = " ";
   if (d2.size() > 0 && (d2[0] == '.' || d2[0] == ':' || d2[0] == ',' || d2[0] == ')' || d2[0] == '?'))
     space = "";
   if (d1.size() > 0 && d2.size() > 0){

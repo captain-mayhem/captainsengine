@@ -56,7 +56,7 @@ public:
 
 class CPUSH : public CCode{
 public:
-  CPUSH(const std::string& s) : mData(s) {}
+  CPUSH(const String& s) : mData(s) {}
   CPUSH(const int i) : mData(i) {}
   CPUSH(const float f) : mData(f) {}
   CPUSH(const ExecutionContext* ec) : mData((ExecutionContext*)ec) {}
@@ -120,7 +120,7 @@ protected:
 
 class CBNEROW : public CBRA{
 public:
-  CBNEROW(int row, const std::string& text, bool visible) : mRow(row), mText(text), mVisible(visible) {}
+  CBNEROW(int row, const String& text, bool visible) : mRow(row), mText(text), mVisible(visible) {}
   CBNEROW(std::istream& in);
   virtual ~CBNEROW() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
@@ -128,7 +128,7 @@ public:
   virtual void save(std::ostream& out);
 protected:
   int mRow;
-  std::string mText;
+  String mText;
   bool mVisible;
 };
 
@@ -188,16 +188,16 @@ public:
 
 class CLOAD : public CCode{
 public:
-  CLOAD(const std::string& s) : mVariable(s) {}
+  CLOAD(const String& s) : mVariable(s) {}
   CLOAD(std::istream& in);
   virtual ~CLOAD() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return LOAD;}
-  void changeVariable(const std::string& var) {mVariable += var;}
-  const std::string& getVarname() {return mVariable;}
+  void changeVariable(const String& var) {mVariable += var;}
+  const String& getVarname() {return mVariable;}
   virtual void save(std::ostream& out);
 protected:
-  std::string mVariable;
+  String mVariable;
 };
 
 class CADD : public CCode{

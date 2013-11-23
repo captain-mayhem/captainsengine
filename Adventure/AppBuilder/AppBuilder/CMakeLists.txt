@@ -197,6 +197,8 @@ SET(AppBuilder_SRCS
   Sound.h
   SoundPlayer.cpp
   SoundPlayer.h
+  String.cpp
+  String.h
   SwfPlayer.cpp
   SwfPlayer.h
   Textout.cpp

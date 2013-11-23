@@ -8,6 +8,7 @@
 #include "pcdkLexer.h"
 #include "pcdkParser.h"
 #include "AdvDoc.h"
+#include "String.h"
 
 #include "CIL.h"
 
@@ -94,7 +95,7 @@ protected:
   AdvDocument* mData;
   std::list<ExecutionContext*> mScripts;
   ExecutionContext* mCutScene;
-  std::map<std::string,bool> mBooleans;
+  std::map<String,bool> mBooleans;
   std::map<std::string,StackData> mVariables;
   static bool mRemoveLinkObject;
   std::string mTSName;

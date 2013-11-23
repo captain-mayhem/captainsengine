@@ -366,11 +366,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::IDENTIFIER:{
         IdentNode* id = static_cast<IdentNode*>(node);
-        codes->addCode(new CPUSH(id->value()));
+        codes->addCode(new CPUSH(id->value().c_str()));
         ++count;
         if (mCurrArg == 1){
           for (std::list<CLOAD*>::iterator iter = mUnresolvedLoads.begin(); iter != mUnresolvedLoads.end(); ++iter){
-            (*iter)->changeVariable(id->value());
+            (*iter)->changeVariable(id->value().c_str());
           }
           mUnresolvedLoads.clear();
         }
@@ -445,7 +445,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::VARIABLE:{
         VariableNode* var = static_cast<VariableNode*>(node);
-        codes->addCode(new CLOAD(var->name()));
+        codes->addCode(new CLOAD(var->name().c_str()));
         ++count;
       }
       break;
@@ -479,7 +479,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           if (argiter == funciter->second.end())
             TR_BREAK("Unknown argument");
           std::string prefix = argiter->second;
-          CLOAD* ld = new CLOAD(prefix);
+          CLOAD* ld = new CLOAD(prefix.c_str());
           codes->addCode(ld);
           count += 1;
           count += transform(relnode->child(), codes);
@@ -526,7 +526,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::ROWDEF:{
         RowNode* row = static_cast<RowNode*>(node);
-        CBNEROW* crow = new CBNEROW(row->getRow(), row->getText(), row->isVisible());
+        CBNEROW* crow = new CBNEROW(row->getRow(), row->getText().c_str(), row->isVisible());
         codes->addCode(crow);
         ++count;
         int offset = transform(row->getBlock(), codes, START);
@@ -919,7 +919,7 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
 
 std::ostream& PcdkScript::save(std::ostream& out){
   out << mBooleans.size() << std::endl;
-  for (std::map<std::string,bool>::iterator iter = mBooleans.begin(); iter != mBooleans.end(); ++iter){
+  for (std::map<String,bool>::iterator iter = mBooleans.begin(); iter != mBooleans.end(); ++iter){
     out << iter->first << " " << iter->second << std::endl;
   }
   out << mVariables.size() << std::endl;
@@ -969,10 +969,11 @@ std::istream& PcdkScript::load(std::istream& in){
   int num1, num2, num3;
   in >> num1;
   std::string name;
+  String name2;
   bool value;
   for (int i = 0; i < num1; ++i){
-    in >> name >> value;
-    mBooleans[name] = value;
+    in >> name2 >> value;
+    mBooleans[name2] = value;
   }
   StackData data;
   in >> num1;
@@ -1025,9 +1026,9 @@ std::ostream& operator<<(std::ostream& strm, const StackData& data){
   strm << data.mType << " "; 
   if (data.mType == StackData::S){
     if (data.mStr.empty())
-       strm << "4 none";
+       strm << String("none");
     else 
-      strm << data.mStr.size() << " " << data.mStr;
+      strm << data.mStr;
   }
   else
     strm << data.mInt;
@@ -1039,15 +1040,7 @@ std::istream& operator>>(std::istream& strm, StackData& data){
   strm >> tmp;
   data.mType = (StackData::Type)tmp;
   if (data.mType == StackData::S){
-    unsigned size;
-    strm >> size;
-    data.mStr.resize(size);
-    char ch;
-    do {
-      ch = strm.get();
-    } while (ch == ' ');
-    strm.unget();
-    strm.read((char*)data.mStr.data(), size);
+    strm >> data.mStr;
     if (data.mStr == "none")
       data.mStr = "";
   }
@@ -1155,7 +1148,7 @@ StackData PcdkScript::getVariable(const std::string& name){
     RoomObject* room = Engine::instance()->getRoom("");
     if (!room)
       TR_BREAK("Room not found");
-    return room->getName();
+    return String(room->getName().c_str());
   }
   else if (lname == "roomx"){
     TR_BREAK("Implement me");
@@ -1247,16 +1240,16 @@ StackData PcdkScript::getVariable(const std::string& name){
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).y;
   }
   else if (lname == "actiontext"){
-    return Engine::instance()->getActionText();
+    return String(Engine::instance()->getActionText().c_str());
   }
   else if (lname == "empty"){
-    return std::string();
+    return String();
   }
   else if (lname == "leftbracket"){
-    return std::string("(");
+    return String("(");
   }
   else if (lname == "rightbracket"){
-    return std::string(")");
+    return String(")");
   }
   std::map<std::string, StackData>::iterator iter = mVariables.find(name);
   if (iter != mVariables.end())

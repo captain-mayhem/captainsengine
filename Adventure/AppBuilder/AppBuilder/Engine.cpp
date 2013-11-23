@@ -477,14 +477,14 @@ void Engine::render(unsigned time){
     }
     if (mBlinkCursorVisible){
       std::string text = mInterpreter->getVariable(mTextEnter).getString();
-      mInterpreter->setVariable(mTextEnter, text+"_");
+      mInterpreter->setVariable(mTextEnter, String((text+"_").c_str()));
     }
   }
 
    mFonts->prepareTextouts();
 
   if (!mTextEnter.empty() && mBlinkCursorVisible){
-    std::string text = mInterpreter->getVariable(mTextEnter).getString();
+    String text = mInterpreter->getVariable(mTextEnter).getString();
     text.erase(text.size()-1);
     mInterpreter->setVariable(mTextEnter, text);
   }
@@ -1457,7 +1457,7 @@ void Engine::keyPress(int key){
       }
     case KEY_BACKSPACE:
       if (!mTextEnter.empty()){
-        std::string text = mInterpreter->getVariable(mTextEnter).getString();
+        String text = mInterpreter->getVariable(mTextEnter).getString();
         if (!text.empty())
           text.erase(text.size()-1);
         mInterpreter->setVariable(mTextEnter, text);
@@ -1481,7 +1481,7 @@ void Engine::keyRelease(int key){
 void Engine::keyAscii(char chr){
   if (mTextEnter.empty())
     return;
-  std::string text = mInterpreter->getVariable(mTextEnter).getString();
+  String text = mInterpreter->getVariable(mTextEnter).getString();
   if (text.size() < mNumCharactersEnter)
     text += chr;
   mInterpreter->setVariable(mTextEnter, text);

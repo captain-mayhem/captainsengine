@@ -379,7 +379,7 @@ int ScriptFunctions::setBool(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string boolname = ctx.stack().pop().getString();
+  String boolname = ctx.stack().pop().getString();
   bool val = ctx.stack().pop().getBool();
   Engine::instance()->getInterpreter()->mBooleans[boolname] = val;
   return 0;
@@ -1240,8 +1240,8 @@ int ScriptFunctions::setString(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string varname = ctx.stack().pop().getString();
-  std::string val = ctx.stack().pop().getString();
+  String varname = ctx.stack().pop().getString();
+  String val = ctx.stack().pop().getString();
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }
@@ -1737,9 +1737,9 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
   int textnum = -1;
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(true);
-  std::string varname;
+  String varname;
   int maxchars = 100;
-  std::string initalContent;
+  String initalContent;
   if (numArgs >= 1){
     ExecutionContext* text = ctx.stack().pop().getEC();
     //get and init the variable
@@ -1924,7 +1924,9 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
   pos.x = ctx.stack().pop().getInt();
   pos.y = ctx.stack().pop().getInt();
   pos = pos * -Engine::instance()->getWalkGridSize(false);
-  bool dontscroll = ctx.stack().pop().getBool();
+  bool dontscroll = false;
+  if (numArgs > 3)
+    dontscroll = ctx.stack().pop().getBool();
   if (numArgs > 4){
     LookDir blenddir = UNSPECIFIED;
     string dir = ctx.stack().pop().getString();
@@ -2316,7 +2318,7 @@ int ScriptFunctions::loadString(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string varname = ctx.stack().pop().getString();
-  StackData val(std::string("none"));
+  StackData val(String("none"));
   std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
   std::ifstream in(file.c_str());
   while(in){
@@ -2650,7 +2652,7 @@ int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){
 }
 
 int ScriptFunctions::isBoolEqual(ExecutionContext& ctx, unsigned numArgs){
-  std::string boolname = ctx.stack().pop().getString();
+  String boolname = ctx.stack().pop().getString();
   bool test = ctx.stack().pop().getBool();
   bool saved = Engine::instance()->getInterpreter()->mBooleans[boolname];
   ctx.stack().push(saved ? 1 : 0);
