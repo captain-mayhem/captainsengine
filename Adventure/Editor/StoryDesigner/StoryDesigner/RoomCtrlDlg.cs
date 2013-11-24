@@ -219,28 +219,28 @@ namespace StoryDesigner
         private void look_up_CheckedChanged(object sender, EventArgs e)
         {
             CharacterInstance chr = (CharacterInstance)mObject;
-            chr.LookDir = 2;
+            chr.setLookDir(2);
             redrawRoom();
         }
 
         private void look_right_CheckedChanged(object sender, EventArgs e)
         {
             CharacterInstance chr = (CharacterInstance)mObject;
-            chr.LookDir = 3;
+            chr.setLookDir(3);
             redrawRoom();
         }
 
         private void look_down_CheckedChanged(object sender, EventArgs e)
         {
             CharacterInstance chr = (CharacterInstance)mObject;
-            chr.LookDir = 1;
+            chr.setLookDir(1);
             redrawRoom();
         }
 
         private void look_left_CheckedChanged(object sender, EventArgs e)
         {
             CharacterInstance chr = (CharacterInstance)mObject;
-            chr.LookDir = 4;
+            chr.setLookDir(4);
             redrawRoom();
         }
 

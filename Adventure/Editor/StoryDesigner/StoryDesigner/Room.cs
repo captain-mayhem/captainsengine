@@ -327,8 +327,8 @@ namespace StoryDesigner
         }
         public Vec2i Position
         {
-            set { position = value - mData.getHotspot(LookDir); ; }
-            get { return position + mData.getHotspot(LookDir); }
+            set { position = value - mData.getHotspot(LookDir == 4 ? 3 : LookDir); ; }
+            get { return position + mData.getHotspot(LookDir == 4 ? 3 : LookDir); }
         }
 
         private void setName(string basename)
@@ -365,6 +365,15 @@ namespace StoryDesigner
                 mAdvData.addScript(newscr);
             }
             return inst;
+        }
+        public void setLookDir(int lookDir)
+        {
+            int oldstate = LookDir == 4 ? 3 : LookDir;
+            int newstate = lookDir == 4 ? 3 : lookDir;
+            Vec2i oldoffset = mData.getHotspot(oldstate);
+            Vec2i newoffset = mData.getHotspot(newstate);
+            position = position - oldoffset + newoffset;
+            LookDir = lookDir;
         }
         public int LookDir;
         public bool Unmovable;
