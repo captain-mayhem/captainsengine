@@ -3,6 +3,7 @@
 
 #include "Vector.h"
 #include "BlitObjects.h"
+#include "String.h"
 
 namespace adv{
 
@@ -23,7 +24,7 @@ public:
   Vec2i& getPos() {return mPos;}
   void setFont(int fontid);
   Color& getColor() {return mColor;}
-  void setRoom(const std::string& room) {mBoundRoom = room;}
+  void setRoom(const String& room) {mBoundRoom = room;}
   void save(std::ostream& out);
   void load(std::istream& in);
   void setAlignment(Alignment alignment) {mAlignment = alignment;}
@@ -33,7 +34,7 @@ protected:
   Vec2i mPos;
   int mFont;
   Color mColor;
-  std::string mBoundRoom;
+  String mBoundRoom;
   Alignment mAlignment;
 };
 

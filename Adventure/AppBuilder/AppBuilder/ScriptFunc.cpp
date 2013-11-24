@@ -864,7 +864,7 @@ int ScriptFunctions::setNum(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().pop().getString();
   float val = ctx.stack().pop().getFloat();
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
@@ -1168,7 +1168,7 @@ int ScriptFunctions::randomNum(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string name = ctx.stack().pop().getString();
+  String name = ctx.stack().pop().getString();
   int limit = ctx.stack().pop().getInt();
   int rnd = rand()%limit;
   Engine::instance()->getInterpreter()->setVariable(name, StackData(rnd+1));
@@ -1250,7 +1250,7 @@ int ScriptFunctions::loadNum(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().pop().getString();
   int val = 0;
   std::string file = Engine::instance()->getSettings()->savedir+"/num.sav";
   std::ifstream in(file.c_str());
@@ -1272,7 +1272,7 @@ int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().pop().getString();
   int val = Engine::instance()->getInterpreter()->getVariable(varname).getInt();
   std::string file = Engine::instance()->getSettings()->savedir+"/num.sav";
   //load old content
@@ -1830,16 +1830,16 @@ int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   int textnum = ctx.stack().pop().getInt();
-  std::string room = ctx.stack().pop().getString();
+  String room = ctx.stack().pop().getString();
   if (room == "any"){
-    room = Engine::instance()->getData()->getProjectSettings()->anywhere_room;
+    room = Engine::instance()->getData()->getProjectSettings()->anywhere_room.c_str();
   }
   else if (room == "taskbar"){
-    room = Engine::instance()->getData()->getProjectSettings()->taskroom;
+    room = Engine::instance()->getData()->getProjectSettings()->taskroom.c_str();
   }
   else if (room == "menu"){
     if (Engine::instance()->getData()->getProjectSettings()->has_menuroom)
-      room = Engine::instance()->getData()->getProjectSettings()->menuroom;
+      room = Engine::instance()->getData()->getProjectSettings()->menuroom.c_str();
     else
       TR_BREAK("Implement me");
   }
@@ -2287,7 +2287,7 @@ int ScriptFunctions::saveString(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().pop().getString();
   StackData val = Engine::instance()->getInterpreter()->getVariable(varname);
   std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
   //load old content
@@ -2317,7 +2317,7 @@ int ScriptFunctions::loadString(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().pop().getString();
   StackData val(String("none"));
   std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
   std::ifstream in(file.c_str());
@@ -2708,7 +2708,7 @@ int ScriptFunctions::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs)
 }
 
 int ScriptFunctions::isNumEqual(ExecutionContext& ctx, unsigned numArgs){
-  std::string varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().pop().getString();
   int test = ctx.stack().pop().getInt();
   int saved = Engine::instance()->getInterpreter()->getVariable(varname).getInt();
   ctx.stack().push(saved);
@@ -2846,21 +2846,12 @@ int ScriptFunctions::isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-std::string stripWS(const std::string& input){
-  std::string ret;
-  for (unsigned i = 0; i < input.size(); ++i){
-    if (input[i] != ' ')
-      ret.append(1, input[i]);
-  }
-  return ret;
-}
-
 int ScriptFunctions::isStringEqual(ExecutionContext& ctx, unsigned numArgs){
-  std::string name = ctx.stack().pop().getString();
-  std::string text = ctx.stack().pop().getString();
-  std::string val = Engine::instance()->getInterpreter()->getVariable(name).getString();
+  String name = ctx.stack().pop().getString();
+  String text = ctx.stack().pop().getString();
+  String val = Engine::instance()->getInterpreter()->getVariable(name).getString();
   ctx.stack().push(0);
-  ctx.stack().push(_stricmp(stripWS(val).c_str(), stripWS(text).c_str()));
+  ctx.stack().push(_stricmp(val.removeAll(' ').c_str(), text.removeAll(' ').c_str()));
   return 2;
 }
 

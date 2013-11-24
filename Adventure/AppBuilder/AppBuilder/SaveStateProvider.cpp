@@ -17,7 +17,7 @@ TR_CHANNEL(ADV_SaveState);
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room){
   strm << room.base;
   strm << room.scrolloffset.x << " " << room.scrolloffset.y << std::endl;
-  strm << room.overlaylighting.r << " " << room.overlaylighting.g << " " << room.overlaylighting.b << " " << room.overlaylighting.a << std::endl;
+  strm << room.overlaylighting << std::endl;
   strm << room.objects.size() << std::endl;
   for (std::map<std::string,SaveStateProvider::SaveObject*>::const_iterator iter = room.objects.begin(); iter != room.objects.end(); ++iter){
     strm << iter->first << std::endl << *iter->second;
@@ -36,7 +36,7 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
   strm >> room.base;
   strm >> room.scrolloffset.x >> room.scrolloffset.y;
-  strm >> room.overlaylighting.r >> room.overlaylighting.g >> room.overlaylighting.b >> room.overlaylighting.a;
+  strm >> room.overlaylighting;
   int number;
   strm >> number;
   std::string name;
@@ -66,13 +66,13 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
 
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveObject& object){
   strm << object.position.x << " " << object.position.y << " " << object.state << " " << object.name << std::endl;
-  strm << object.lighting.r << " " << object.lighting.g << " " << object.lighting.b << " " << object.lighting.a << std::endl;
+  strm << object.lighting << std::endl;
   return strm;
 }
 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveObject& object){
   strm >> object.position.x >> object.position.y >> object.state >> object.name;
-  strm >> object.lighting.r >> object.lighting.g >> object.lighting.b >> object.lighting.a;
+  strm >> object.lighting;
   return strm;
 }
 
@@ -138,12 +138,20 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& i
 }
 
 std::ostream& operator<<(std::ostream& strm, const Color& color){
-  strm << color.r << " " << color.g << " " << color.b << " " << color.a;
+  strm << (int)color.r << " " << (int)color.g << " " << (int)color.b << " " << (int)color.a;
   return strm;
 }
 
 std::istream& operator>>(std::istream& strm, Color& color){
-  strm >> color.r >> color.g >> color.b >> color.a;
+  int tmp;
+  strm >> tmp;
+  color.r = (char)tmp;
+  strm >> tmp;
+  color.g = (char)tmp;
+  strm >> tmp;
+  color.b = (char)tmp;
+  strm >> tmp;
+  color.a = (char)tmp;
   return strm;
 }
 

@@ -67,8 +67,14 @@ public:
   }
   Vec2 operator/(int num) const{
     Vec2 result;
-    result.x = x/num;
-    result.y = y/num;
+    result.x = (T)(x/num);
+    result.y = (T)(y/num);
+    return result;
+  }
+  Vec2 operator/(float num) const{
+    Vec2 result;
+    result.x = (T)(x/num);
+    result.y = (T)(y/num);
     return result;
   }
   //! tests for inequality

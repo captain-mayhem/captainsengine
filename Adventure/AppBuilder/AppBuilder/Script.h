@@ -41,10 +41,10 @@ public:
   bool update(unsigned time);
   void remove(Object2D* object);
   void remove(ExecutionContext* script);
-  StackData getVariable(const std::string& name);
-  void setVariable(const std::string& name, const StackData& value);
-  bool isVariable(const std::string& name);
-  void deleteVariable(const std::string& name);
+  StackData getVariable(const String& name);
+  void setVariable(const String& name, const StackData& value);
+  bool isVariable(const String& name);
+  void deleteVariable(const String& name);
   CBRA* getBranchInstr(RelationalNode* relnode, bool negated);
   Vec2i& tsPos() {return mTSPos;}
   std::map<int, bool>& tsActive() {return mTSActive[mTSName][mTSLevel];}
