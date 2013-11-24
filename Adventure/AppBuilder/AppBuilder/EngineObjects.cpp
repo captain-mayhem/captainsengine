@@ -311,10 +311,10 @@ BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i(
   char tmp[16];
   sprintf(tmp, "%i", id);
   mName += tmp;
-  mState = Engine::instance()->getInterpreter()->getVariable(mName).getInt();
+  mState = Engine::instance()->getInterpreter()->getVariable(mName.c_str()).getInt();
   if (mState == 0)
     mState = 1;
-  Engine::instance()->getInterpreter()->setVariable(mName, 1);
+  Engine::instance()->getInterpreter()->setVariable(mName.c_str(), 1);
   BaseBlitObject::mPos = pos;
   BaseBlitObject::mSize = size;
   mBackgroundColor = Engine::instance()->getSettings()->tsareacolor;
@@ -367,9 +367,9 @@ void ButtonObject::setColors(const Color& background, const Color& border, const
 }
 
 void ButtonObject::render(){
-  string labelVar = mName+"Label";
+  String labelVar = String(mName.c_str())+"Label";
   if (Engine::instance()->getInterpreter()->isVariable(labelVar)){
-    mText = Engine::instance()->getInterpreter()->getVariable(labelVar).getString();
+    mText = Engine::instance()->getInterpreter()->getVariable(labelVar.c_str()).getString();
     Engine::instance()->getInterpreter()->deleteVariable(labelVar);
   }
   std::vector<Vec2i> breakinfo;

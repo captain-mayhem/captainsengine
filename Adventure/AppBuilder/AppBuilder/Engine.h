@@ -97,7 +97,7 @@ public:
   void renderUnloadingRoom();
   ParticleEngine* getParticleEngine() {return mParticleEngine;}
   void remove(Object2D* obj);
-  void enterText(const std::string& variable, int maxcharacters, ExecutionContext* suspensionReason);
+  void enterText(const String& variable, int maxcharacters, ExecutionContext* suspensionReason);
   int getMouseWheelDelta() {return mWheelCount;}
   void setMouseWheelDelta(int delta) {mWheelCount = delta;}
   void restoreRenderDefaults();
@@ -198,7 +198,7 @@ protected:
   exit_callback mExitCall;
   bool mMenuShown;
   ExecutionContext* mSuspender;
-  std::string mTextEnter;
+  String mTextEnter;
   unsigned mNumCharactersEnter;
   bool mBlinkCursorVisible;
   unsigned mBlinkTimeAccu;

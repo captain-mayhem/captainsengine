@@ -476,7 +476,7 @@ void Engine::render(unsigned time){
       mBlinkCursorVisible = !mBlinkCursorVisible;
     }
     if (mBlinkCursorVisible){
-      std::string text = mInterpreter->getVariable(mTextEnter).getString();
+      String text = mInterpreter->getVariable(mTextEnter).getString();
       mInterpreter->setVariable(mTextEnter, String((text+"_").c_str()));
     }
   }
@@ -1574,7 +1574,7 @@ void Engine::remove(Object2D* obj){
     mClickedObject = NULL;
 }
 
-void Engine::enterText(const std::string& variable, int maxcharacters, ExecutionContext* suspensionReason){
+void Engine::enterText(const String& variable, int maxcharacters, ExecutionContext* suspensionReason){
   mSuspender = suspensionReason;
   mTextEnter = variable;
   mNumCharactersEnter = maxcharacters;

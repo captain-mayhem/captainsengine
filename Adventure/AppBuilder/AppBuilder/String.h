@@ -12,6 +12,9 @@ public:
   String() : std::string() {}
   String(const char* str) : std::string(str) {}
   String operator+(const String& s);
+  String operator+(const char* s);
+
+  String removeAll(char ch) const;
 };
 
 std::ostream& operator<<(std::ostream& strm, const String& str);

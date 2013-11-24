@@ -1097,14 +1097,14 @@ private:
 
     std::ostream& save(std::ostream& out){
       out << start.x << " " << start.y << " " << end.x << " " << end.y << " ";
-      out << color.r << " " << color.g << " " << color.b << " " << color.a << " ";
+      out << color << " ";
       out << numSpikes << " " << height << " " << delay;
       return out;
     }
     
     std::istream& load(std::istream& in){
       in >> start.x >> start.y >> end.x >> end.y;
-      in >> color.r >> color.g >> color.b >> color.a;
+      in >> color;
       in >> numSpikes >> height >> delay;
       timeaccu = delay;
       verts = NULL;

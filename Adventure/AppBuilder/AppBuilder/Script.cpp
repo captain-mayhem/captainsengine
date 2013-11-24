@@ -189,7 +189,7 @@ std::string PcdkScript::internal_stringify(ASTNode* node){
   case ASTNode::VARIABLE:
     {
       VariableNode* var = static_cast<VariableNode*>(node);
-      StackData s = getVariable(var->name());
+      StackData s = getVariable(var->name().c_str());
       ret += s.getString();
     }
     break;
@@ -1106,7 +1106,7 @@ inline int getTime(TimeVal tv){
     
 #endif
 
-StackData PcdkScript::getVariable(const std::string& name){
+StackData PcdkScript::getVariable(const String& name){
   TR_USE(ADV_Script);
   string lname = toLower(name);
   if (name.size() > 0 && name[0] == '_'){
@@ -1251,13 +1251,13 @@ StackData PcdkScript::getVariable(const std::string& name){
   else if (lname == "rightbracket"){
     return String(")");
   }
-  std::map<std::string, StackData>::iterator iter = mVariables.find(name);
+  std::map<std::string, StackData>::iterator iter = mVariables.find(name.removeAll(' '));
   if (iter != mVariables.end())
     return iter->second;
   return 0;
 }
 
-void PcdkScript::setVariable(const std::string& name, const StackData& value){
+void PcdkScript::setVariable(const String& name, const StackData& value){
   TR_USE(ADV_Script);
   if (name == "mousex"){
     TR_BREAK("setting mousex is not allowed");
@@ -1265,15 +1265,15 @@ void PcdkScript::setVariable(const std::string& name, const StackData& value){
   else if (name == "mousey"){
     TR_BREAK("setting mousey is not allowed");
   }
-  mVariables[name] = value;
+  mVariables[name.removeAll(' ')] = value;
 }
 
-bool PcdkScript::isVariable(const std::string& name){
-  return mVariables.find(name) != mVariables.end();
+bool PcdkScript::isVariable(const String& name){
+  return mVariables.find(name.removeAll(' ')) != mVariables.end();
 }
 
-void PcdkScript::deleteVariable(const std::string& name){
-  mVariables.erase(name);
+void PcdkScript::deleteVariable(const String& name){
+  mVariables.erase(name.removeAll(' '));
 }
 
 void PcdkScript::setPrevState(Object2D* trigger, Object2D* target){

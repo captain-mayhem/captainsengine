@@ -60,8 +60,8 @@ void Textout::render(){
 }
 
 void Textout::save(std::ostream& out){
-  out << mEnabled << " " << mPos.x << " " << mPos.y << " " << mFont << " ";
-  out << mColor.r << " " << mColor.g << " " << mColor.b << " " << mColor.a << " ";
+  out << mEnabled << " " << mPos.x << " " << mPos.y << " " << mFont << "\n";
+  out << mColor << " ";
   out << (mBoundRoom.empty() ? "none" : mBoundRoom);
   out << "\n";
   out << (int)mAlignment << "\n";
@@ -70,7 +70,7 @@ void Textout::save(std::ostream& out){
 
 void Textout::load(std::istream& in){
   in >> mEnabled >> mPos.x >> mPos.y >> mFont;
-  in >> mColor.r >> mColor.g >> mColor.b >> mColor.a;
+  in >> mColor;
   in >> mBoundRoom;
   if (mBoundRoom == "none")
     mBoundRoom = "";
