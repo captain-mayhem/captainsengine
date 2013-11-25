@@ -1380,8 +1380,11 @@ namespace StoryDesigner
             }
             else if (funcname.Text == "textout")
             {
-                PcdkParser.Argument text = (PcdkParser.Argument)args[1];
-                mLanguages["origin"].addWord(Language.Section.Textout, text.Text, null);
+                if (args.Length > 1)
+                {
+                    PcdkParser.Argument text = (PcdkParser.Argument)args[1];
+                    mLanguages["origin"].addWord(Language.Section.Textout, text.Text, null);
+                }
             }
             else if (funcname.Text == "setstring")
             {

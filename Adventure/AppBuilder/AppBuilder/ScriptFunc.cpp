@@ -1695,6 +1695,9 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
       //blocking stuff prevents immediate execution, so enqueue the script
       Engine::instance()->getInterpreter()->execute(func, true);
     }
+    else{
+      Engine::instance()->getInterpreter()->removeScript(scriptname, false); //script ran through, so remove it again
+    }
   return 0;
 }
 

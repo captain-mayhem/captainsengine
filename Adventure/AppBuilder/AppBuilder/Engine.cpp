@@ -553,8 +553,10 @@ void Engine::render(unsigned time){
     else
       cmdidx = mPrevActiveCommand;
     int langcmdidx = cmdidx;
-    if (langcmdidx > 0)
-      langcmdidx += 1;
+    if (langcmdidx > 0){
+      //the command section is not neccessarily ordered, so search the right index
+      langcmdidx = mData->getLanguageIndex("origin", Language::COMMANDS, mData->getProjectSettings()->pretty_commands[cmdidx]);
+    }
     if (mData->hasLanguageInfo())
       text = mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, langcmdidx);
     else
@@ -1445,8 +1447,10 @@ void Engine::keyPress(int key){
               mRooms.push_front(menu);
               mSubRoomLoaded = true;
               mMenuShown = true;
-              menu->setFadeout(mData->getProjectSettings()->menu_fading);
-              mAnimator->add(menu, mData->getProjectSettings()->menu_fading, true);
+              if (mData->getProjectSettings()->menu_fading > 0){
+                menu->setFadeout(mData->getProjectSettings()->menu_fading);
+                mAnimator->add(menu, mData->getProjectSettings()->menu_fading, true);
+              }
             }
           }
           else{
