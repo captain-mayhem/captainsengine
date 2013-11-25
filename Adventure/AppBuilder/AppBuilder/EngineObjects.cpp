@@ -386,6 +386,7 @@ void ButtonObject::render(){
     if (mState == 2)
       textcol = mHighlightColor;
   }
+  textcol.a = textcol.a*mLightingColor.a/255;
   FontRenderer::String* str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, mFont, breakinfo, textcol);
   Engine::instance()->insertToBlit(this);
 }
@@ -398,13 +399,13 @@ void ButtonObject::blit(){
   GL()pushMatrix();
   GL()disable(GL_TEXTURE_2D);
   if (mState == 1 || mHighlightText)
-    GL()color4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a);
+    GL()color4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a*mLightingColor.a/255);
   else if (mState == 2)
-    GL()color4ub(mHighlightColor.r, mHighlightColor.g, mHighlightColor.b, mHighlightColor.a);
+    GL()color4ub(mHighlightColor.r, mHighlightColor.g, mHighlightColor.b, mHighlightColor.a*mLightingColor.a/255);
   GL()translatef((GLfloat)BaseBlitObject::mPos.x,(GLfloat)BaseBlitObject::mPos.y,0.0f);
   GL()scalef((GLfloat)BaseBlitObject::mSize.x,(GLfloat)BaseBlitObject::mSize.y,1.0f);
   GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  GL()color4ub(mBorderColor.r, mBorderColor.g, mBorderColor.b, mBorderColor.a);
+  GL()color4ub(mBorderColor.r, mBorderColor.g, mBorderColor.b, mBorderColor.a*mLightingColor.a/255);
   short indices[] = {
     2, 3, 1, 0
   };

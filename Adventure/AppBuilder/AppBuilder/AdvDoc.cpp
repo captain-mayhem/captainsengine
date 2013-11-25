@@ -1048,6 +1048,15 @@ std::string AdvDocument::getLanguageString(const std::string& language, Language
   return mLanguages[language].sections[section][strindex];
 }
 
+int AdvDocument::getLanguageIndex(const std::string& language, Language::Section section, const std::string& str){
+  std::vector<std::string>& sect = mLanguages[language].sections[section];
+  for (unsigned i = 0; i < sect.size(); ++i){
+    if (sect[i] == str)
+      return i;
+  }
+  return -1;
+}
+
 bool AdvDocument::loadFile10(CGE::MemReader& txtstream){
   std::string str = txtstream.readLine();
   int ver_major = atoi(str.substr(0, 1).c_str());
