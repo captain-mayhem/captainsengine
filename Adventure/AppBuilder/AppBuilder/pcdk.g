@@ -7,6 +7,7 @@ options{
 
 @parser::includes{
 #include "AST.h"
+#include <system/allocation.h>
 }
 
 @parser::postinclude{

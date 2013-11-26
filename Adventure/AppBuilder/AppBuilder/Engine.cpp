@@ -1501,12 +1501,12 @@ int Engine::unloadRooms(){
   }
   mCurrentObject = NULL;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
+    (*iter)->setFadeout(0); //skip fading of subrooms
     mRoomsToUnload.push_back(*iter);
     ExecutionContext* script = (*iter)->getScript();
     if (script)
       script->setEvent(EVT_EXIT);
-    //if ((*iter)->getScript())
-    //  (*iter)->getScript()->resume(); //bulk unload, do unblock scripts
+    //bulk unload, do unblock scripts
     (*iter)->finishScripts(false);
     iter = mRooms.erase(iter);
   }

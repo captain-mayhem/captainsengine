@@ -5,6 +5,7 @@
 #include "ScriptFunc.h"
 #include "Sound.h"
 #include "SoundPlayer.h"
+#include <system/allocation.h>
 
 using namespace adv;
 

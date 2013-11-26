@@ -213,6 +213,8 @@ ASTNode* stringify(ASTNode* node){
 }
 
 ExecutionContext* PcdkScript::parseProgram(std::string program){
+  if (program.empty())
+    return NULL;
   pANTLR3_INPUT_STREAM input;
   ppcdkLexer lexer;
   pANTLR3_COMMON_TOKEN_STREAM tokStream;
@@ -236,9 +238,6 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
     tokStream->free(tokStream);
     lexer->free(lexer);
     input->free(input);
-#ifdef _CRTDBG_MAP_ALLOC
-#define free _free_dbg
-#endif
     delete p;
     return NULL;
   }
@@ -246,6 +245,9 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   tokStream->free(tokStream);
   lexer->free(lexer);
   input->free(input);
+#ifdef _CRTDBG_MAP_ALLOC
+#define free _free_dbg
+#endif
   mIsGameObject = false;
   mObjectInfo = "";
   mLastRelation = NULL;
@@ -349,7 +351,8 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           nl->reset(true);
         }
         else if (fc->getName() == "minicut"){
-          mUnresolvedBlockEnd = new CCALL(ScriptFunctions::miniCutEnd, "minicut", 0);
+          if (mUnresolvedBlockEnd == NULL)
+            mUnresolvedBlockEnd = new CCALL(ScriptFunctions::miniCutEnd, "minicut", 0);
         }
         ScriptFunc f = mFunctions[fc->getName()];
         if (f == NULL){
@@ -1369,9 +1372,6 @@ ASTNode* PcdkScript::parseLangArg(const char* funcname, int argnum, int strindex
     tokStream->free(tokStream);
     lexer->free(lexer);
     input->free(input);
-#ifdef _CRTDBG_MAP_ALLOC
-#define free _free_dbg
-#endif
     delete node;
     return NULL;
   }
@@ -1379,6 +1379,9 @@ ASTNode* PcdkScript::parseLangArg(const char* funcname, int argnum, int strindex
   tokStream->free(tokStream);
   lexer->free(lexer);
   input->free(input);
+#ifdef _CRTDBG_MAP_ALLOC
+#define free _free_dbg
+#endif
   return node;
 }
 
