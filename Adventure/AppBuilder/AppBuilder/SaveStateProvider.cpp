@@ -309,9 +309,15 @@ void SaveStateProvider::save(const std::string& name){
     out << iter->first << std::endl << *iter->second;
   }
   //save loaded rooms
-  out << Engine::instance()->mRooms.size();
+  int roomsToSave = Engine::instance()->mRooms.size();
+  if (Engine::instance()->mSubRoomLoaded)
+    --roomsToSave;//do not save active subroom
+  out << roomsToSave;
   for (std::list<RoomObject*>::reverse_iterator iter = Engine::instance()->mRooms.rbegin(); iter != Engine::instance()->mRooms.rend(); ++iter){
     out << " " << (*iter)->getName();
+    --roomsToSave;
+    if (roomsToSave <= 0)
+      break;
   }
   out << std::endl;
   //focussed char
