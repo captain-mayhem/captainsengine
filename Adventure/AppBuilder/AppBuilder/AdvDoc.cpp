@@ -754,7 +754,13 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
 }
 
 bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
-  std::string filename = mSoundNames[toLower(name)];
+  TR_USE(ADV_DATA);
+  std::map<std::string, std::string>::iterator iter = mSoundNames.find(toLower(name));
+  if (iter == mSoundNames.end()){
+    TR_WARN("Sound %s not found", name.c_str());
+    return false;
+  }
+  std::string filename = iter->second;
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
   if (mUseCompressedData){

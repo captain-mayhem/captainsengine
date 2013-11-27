@@ -252,13 +252,18 @@ SoundPlayer* SoundEngine::getSound(const std::string& name, int flags){
 }
 
 SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled, int flags){
+  TR_USE(ADV_SOUND_ENGINE);
   if (!(flags & PLAYER_CREATE_ALWAYS)){
     std::multimap<std::string,SoundPlayer*>::iterator lowerit = mActiveSounds.find(name);
     if (lowerit != mActiveSounds.end() && lowerit->second != NULL)
       return lowerit->second;
   }
   DataBuffer* db = new DataBuffer();
-  mData->getSound(name, *db);
+  TR_DETAIL("buffer %p is %s", db, name.c_str());
+  if (!mData->getSound(name, *db)){
+    delete db;
+    return NULL;
+  }
   SoundPlayer* plyr = createPlayer(name, *db, effectEnabled);
   if (plyr && (flags & PLAYER_UNMANAGED))
     plyr->setAutoDelete(false);
