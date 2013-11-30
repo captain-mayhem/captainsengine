@@ -653,14 +653,22 @@ static const char heatfs[] =
 
 class HeatEffect : public PostProcessor::Effect{
 public:
-  HeatEffect() : Effect(stdvs, heatfs), mBlendTex(0), mTimeAccu(0){
-    mName = "heat";
+  enum Type{
+    RANDOM,
+    SINE,
+  };
+  HeatEffect(const std::string& name, Type type) : Effect(stdvs, heatfs), mBlendTex(0), mTimeAccu(0), mLineCount(0){
+    mName = name;
+    mType = type;
   }
   virtual void init(const Vec2f& size){
     mImage.setFormat(1, 1, (int)size.y/2);
     mImage.allocateData();
     for (unsigned i = 0; i < mImage.getImageSize(); ++i){
-      mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
+      if (mType == RANDOM)
+        mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
+      else if (mType == SINE)
+        mImage.getData()[i] = (unsigned char)(sin((float)mLineCount++)*127+127);
     }
     Vec2i imgsize;
     Vec2f imgscale;
@@ -714,7 +722,10 @@ public:
       time = 1;
       memmove(mImage.getData(), mImage.getData()+time, mImage.getImageSize()-time);
       for (unsigned i = mImage.getImageSize()-time; i < mImage.getImageSize(); ++i){
-        mImage.getData()[i] = mFadeout ? 127 : (unsigned char)((rand()/(float)RAND_MAX)*255);
+        if (mType == RANDOM)
+          mImage.getData()[i] = mFadeout ? 127 : (unsigned char)((rand()/(float)RAND_MAX)*255);
+        else if (mType == SINE)
+          mImage.getData()[i] = (unsigned char)(sin((float)mLineCount++/6.0f)*127+127);
       }
       glActiveTexture(GL_TEXTURE1);
       glBindTexture(GL_TEXTURE_2D, mBlendTex);
@@ -735,12 +746,14 @@ public:
   }
   virtual std::ostream& save(std::ostream& out){
     Effect::save(out);
-    out << mFadeout << " " << mTimeAccu << " " << mFadeoutPixels;
+    out << mFadeout << " " << mTimeAccu << " " << mFadeoutPixels << " " << mType;
     return out;
   }
   virtual std::istream& load(std::istream& in){
     Effect::load(in);
-    in >> mFadeout >> mTimeAccu >> mFadeoutPixels;
+    int tmp;
+    in >> mFadeout >> mTimeAccu >> mFadeoutPixels >> tmp;
+    mType = (Type)mType;
     return in;
   }
 private:
@@ -749,6 +762,8 @@ private:
   CGE::Image mImage;
   int mTimeAccu;
   int mFadeoutPixels;
+  int mLineCount;
+  Type mType;
 };
 
 static const char druggedvs[] =
@@ -1477,7 +1492,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(noise, NoiseEffect);
   REGISTER_EFFECT(hell, BloomEffect, "hell", hellfs);
   REGISTER_EFFECT(motionblur, MotionBlurEffect);
-  REGISTER_EFFECT(heat, HeatEffect);
+  REGISTER_EFFECT(heat, HeatEffect, "heat", HeatEffect::RANDOM);
   REGISTER_EFFECT(whoosh, BloomEffect, "whoosh", whooshfs);
   REGISTER_EFFECT(bloom, BloomEffect, "bloom", bloomfs)
   REGISTER_EFFECT(drugged, DruggedEffect);
@@ -1485,6 +1500,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(fog, FogEffect);
   REGISTER_EFFECT(zoom, ZoomEffect);
   REGISTER_EFFECT(flash, FlashEffect);
+  REGISTER_EFFECT(underwater, HeatEffect, "underwater", HeatEffect::SINE);
 }
 
 PostProcessor::~PostProcessor(){
