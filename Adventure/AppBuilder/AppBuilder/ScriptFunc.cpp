@@ -2117,6 +2117,7 @@ static void disableMainEffect(){
   Engine::instance()->getPostProcessor()->getEffect("heat")->deactivate();
   Engine::instance()->getPostProcessor()->getEffect("whoosh")->deactivate();
   Engine::instance()->getPostProcessor()->getEffect("bloom")->deactivate();
+  Engine::instance()->getPostProcessor()->getEffect("underwater")->deactivate();
 }
 
 int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
@@ -2180,6 +2181,10 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
     }
     disableMainEffect();
     ef->activate(fade);
+  }
+  else if (effect == "underwater"){
+    disableMainEffect();
+    ef->activate(false);
   }
   else if (effect == "drugged"){
     int strength = ctx.stack().pop().getInt();

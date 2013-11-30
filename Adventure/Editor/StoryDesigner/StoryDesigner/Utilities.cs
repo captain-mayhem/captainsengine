@@ -7,6 +7,39 @@ using System.Drawing.Drawing2D;
 
 namespace StoryDesigner
 {
+    public class InputField : Form
+    {
+        public InputField(string caption)
+        {
+            this.Size = new Size(200, 100);
+            this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            this.Text = caption;
+            box = new TextBox();
+            box.Location = new Point(30, 10);
+            box.Size = new Size(120, 20);
+            this.Controls.Add(box);
+            button = new Button();
+            button.Text = "Enter";
+            button.Location = new Point(50, 35);
+            button.Click += new EventHandler(button_Click);
+            this.Controls.Add(button);
+        }
+
+        void button_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.OK;
+        }
+
+        public string Input
+        {
+            get { return this.box.Text; }
+            set { this.box.Text = value; }
+        }
+
+        private TextBox box;
+        private Button button;
+    }
+
     static class Utilities
     {
         public static int convertColor(System.UInt32 color)
@@ -162,38 +195,5 @@ namespace StoryDesigner
         }
 
         private TreeNode mNode;
-    }
-
-    public class InputField : Form
-    {
-        public InputField(string caption)
-        {
-            this.Size = new Size(200, 100);
-            this.FormBorderStyle = FormBorderStyle.FixedToolWindow;
-            this.Text = caption;
-            box = new TextBox();
-            box.Location = new Point(30, 10);
-            box.Size = new Size(120, 20);
-            this.Controls.Add(box);
-            button = new Button();
-            button.Text = "Enter";
-            button.Location = new Point(50, 35);
-            button.Click += new EventHandler(button_Click);
-            this.Controls.Add(button);
-        }
-
-        void button_Click(object sender, EventArgs e)
-        {
-            this.DialogResult = DialogResult.OK;
-        }
-
-        public string Input
-        {
-            get { return this.box.Text; }
-            set { this.box.Text = value; }
-        }
-
-        private TextBox box;
-        private Button button;
     }
 }
