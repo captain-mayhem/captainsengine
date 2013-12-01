@@ -2646,9 +2646,14 @@ int ScriptFunctions::setItem(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs < 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  if (numArgs > 2)
+    TR_BREAK("Implement me");
   std::string itemname = ctx.stack().pop().getString();
   int state = ctx.stack().pop().getInt();
-  TR_BREAK("Implement me");
+  Object2D* item = Engine::instance()->getObject(itemname, true);
+  if (item == NULL)
+    TR_BREAK("Implement me 2");
+  item->setState(state);
   return 0;
 }
 

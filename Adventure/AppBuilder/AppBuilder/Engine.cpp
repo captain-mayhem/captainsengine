@@ -826,10 +826,17 @@ void Engine::beginRendering(){
   mBlitQueues.push_back(std::list<BaseBlitObject*>());
 }
 
-void Engine::endRendering(){
+void Engine::endRendering(bool inverse){
   restoreRenderDefaults();
-  for (std::list<BaseBlitObject*>::iterator iter = mBlitQueues.back().begin(); iter != mBlitQueues.back().end(); ++iter){ 
-    (*iter)->blit();
+  if (inverse){
+    for (std::list<BaseBlitObject*>::reverse_iterator iter = mBlitQueues.back().rbegin(); iter != mBlitQueues.back().rend(); ++iter){ 
+      (*iter)->blit();
+    }
+  }
+  else{
+    for (std::list<BaseBlitObject*>::iterator iter = mBlitQueues.back().begin(); iter != mBlitQueues.back().end(); ++iter){ 
+      (*iter)->blit();
+    }
   }
   mBlitQueues.pop_back();
 }

@@ -36,7 +36,7 @@ public:
   void exitGame();
   GLuint genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
   void beginRendering();
-  void endRendering();
+  void endRendering(bool inverse=false);
   void insertToBlit(BaseBlitObject* obj);
   void setCursorPos(Vec2i pos);
   Vec2i getCursorPos();

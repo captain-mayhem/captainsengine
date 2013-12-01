@@ -668,7 +668,7 @@ public:
       if (mType == RANDOM)
         mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
       else if (mType == SINE)
-        mImage.getData()[i] = (unsigned char)(sin((float)mLineCount++)*127+127);
+        mImage.getData()[i] = (unsigned char)(sin((float)mLineCount++/6.0f)*127+127);
     }
     Vec2i imgsize;
     Vec2f imgscale;
