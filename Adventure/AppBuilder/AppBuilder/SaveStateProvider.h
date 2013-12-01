@@ -14,9 +14,13 @@ public:
     Color lighting;
     std::string name;
   };
+  struct SaveItem{
+    std::string name;
+    int count;
+  };
   struct SaveInventory{
     SaveInventory() {current = 1;}
-    std::map<int, std::vector<std::string> > items;
+    std::map<int, std::vector<SaveItem> > items;
     int current;
   };
   struct CharSaveObject{

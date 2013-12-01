@@ -148,6 +148,12 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   mSettings.draw_dragged_items = str[1] == '1';
   mSettings.show_actiontext = str[2] == '1';
   mSettings.show_taskbar = str[3] == '1';
+  if (ver_major >= 3){
+    mSettings.group_items = str[6] == '1';
+  }
+  else{
+    mSettings.group_items = false;
+  }
   if (ver_major > 2 || (ver_major == 2 && ver_minor > 0)){
     str = txtstream.readLine(); //action text height
   }
@@ -932,9 +938,9 @@ std::vector<std::pair<Vec2i,Script*> > AdvDocument::getWMScripts(std::string roo
 
 FontData AdvDocument::getFont(int num){
   std::ostringstream number;
-  if (num < 100)
+  //if (num < 100)
   number << "0";
-  if (num < 10)
+  //if (num < 10)
   number << "0";
   number << num;
   CGE::ZipReader* firstzrdr = NULL;

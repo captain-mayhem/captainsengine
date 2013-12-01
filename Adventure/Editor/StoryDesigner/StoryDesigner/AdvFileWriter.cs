@@ -671,7 +671,7 @@ namespace StoryDesigner
                 Vec2i numchars;
                 int[] widths = fnts.createBitmapFont(font, out images, out alphaimages, out dims, out numchars);
 
-                string fontname = String.Format("font.{0:D3}", font);
+                string fontname = String.Format("font.00{0}", font);
                 ZipEntry mze = new ZipEntry(fontname);
                 masterz.PutNextEntry(mze);
                 ZipOutputStream zos = new ZipOutputStream(masterz);

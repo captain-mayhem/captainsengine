@@ -9,20 +9,21 @@
 
 namespace adv{
 
-class Object2D;
+class ItemObject;
 
 class Inventory{
   friend class InventoryDisplay;
 public:
   Inventory();
   ~Inventory();
-  void addItem(Object2D* item, int invnumber);
+  void addItem(ItemObject* item, int invnumber);
   void removeItem(const std::string& item, int invnumber, ExecutionContext* del_script);
-  Object2D* getItem(const std::string& name);
+  ItemObject* getItem(const std::string& name);
+  ItemObject* getItem(const std::string& name, int invnumber);
   void save(SaveStateProvider::SaveInventory& inv) const;
   void setCurrent(int invNum) {mCurrentInv = invNum;}
 protected:
-  typedef std::list<Object2D*> SingleInv;
+  typedef std::list<ItemObject*> SingleInv;
   std::map<int, SingleInv> mInventory;
   int mCurrentInv;
 };

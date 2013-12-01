@@ -1,5 +1,5 @@
 #include "Inventory.h"
-#include "EngineObjects.h"
+#include "ItemObject.h"
 #include "Engine.h"
 
 using namespace adv;
@@ -17,7 +17,7 @@ Inventory::~Inventory(){
   }
 }
 
-void Inventory::addItem(Object2D* item, int invnumber){
+void Inventory::addItem(ItemObject* item, int invnumber){
   mInventory[invnumber].push_front(item);
 }
 
@@ -37,7 +37,7 @@ void Inventory::removeItem(const std::string& item, int invnumber, ExecutionCont
   }
 }
 
-Object2D* Inventory::getItem(const std::string& name){
+ItemObject* Inventory::getItem(const std::string& name){
   for (std::map<int, SingleInv>::iterator iter = mInventory.begin(); iter != mInventory.end(); ++iter){
     for (SingleInv::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2){
       if (_stricmp((*iter2)->getName().c_str(), name.c_str()) == 0){
@@ -48,10 +48,22 @@ Object2D* Inventory::getItem(const std::string& name){
   return NULL;
 }
 
+ItemObject* Inventory::getItem(const std::string& name, int invnumber){
+  for (SingleInv::iterator iter2 = mInventory[invnumber].begin(); iter2 != mInventory[invnumber].end(); ++iter2){
+    if (_stricmp((*iter2)->getName().c_str(), name.c_str()) == 0){
+      return *iter2;
+    }
+  }
+  return NULL;
+}
+
 void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
   for (std::map<int, SingleInv>::const_iterator iter = mInventory.begin(); iter != mInventory.end(); ++iter){
     for (SingleInv::const_reverse_iterator inviter = iter->second.rbegin(); inviter != iter->second.rend(); ++inviter){
-      inv.items[iter->first].push_back((*inviter)->getName());
+      SaveStateProvider::SaveItem si;
+      si.name = (*inviter)->getName();
+      si.count = (*inviter)->getCount();
+      inv.items[iter->first].push_back(si);
     }
   }
   inv.current = mCurrentInv;
@@ -75,7 +87,7 @@ void InventoryDisplay::render(Inventory* inv){
   int count = 0;
   int invitemwidth = 56;
   int invitemheight = 48;
-  for (std::list<Object2D*>::iterator iter = tmp.begin(); iter != tmp.end(); ++iter){
+  for (std::list<ItemObject*>::iterator iter = tmp.begin(); iter != tmp.end(); ++iter){
     if (precount < mItemOffset){
       ++precount;
       continue;
@@ -100,7 +112,7 @@ Object2D* InventoryDisplay::getObjectAt(const Vec2i& pos, Inventory* inv){
   Inventory::SingleInv tmp = inv->mInventory[inv->mCurrentInv];
   int precount = 0;
   int count = 0;
-  for (std::list<Object2D*>::iterator iter = tmp.begin(); iter != tmp.end(); ++iter){
+  for (std::list<ItemObject*>::iterator iter = tmp.begin(); iter != tmp.end(); ++iter){
     if (precount < mItemOffset){
       ++precount;
       continue;

@@ -20,6 +20,7 @@ class SaveStateProvider;
 class SoundPlayer;
 class ParticleEngine;
 class PostProcessor;
+class ItemObject;
 
 typedef void (*exit_callback)();
 
@@ -64,7 +65,7 @@ public:
   Animator* getAnimator() {return mAnimator;}
   SaveStateProvider* getSaver() {return mSaver;}
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
-  Object2D* createItem(const std::string& name);
+  ItemObject* createItem(const std::string& name, int count);
   void setUseObject(const std::string& object, const std::string& objectInfo);
   std::string getUseObjectName() {return mUseObjectName;}
   void setGiveObject(const std::string& object, const std::string& objectInfo);

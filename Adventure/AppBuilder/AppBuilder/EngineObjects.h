@@ -56,6 +56,7 @@ public:
     ROOM,
     CHARACTER,
     CURSOR,
+    ITEM,
   };
   Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name);
   virtual ~Object2D();
@@ -145,6 +146,7 @@ public:
   int getCurrentCommand();
   void setCommand(int command);
   virtual bool isHit(const Vec2i& point) {return true; /*the cursor always hits itself*/}
+  virtual Type getType() {return CURSOR;}
 protected:
   std::vector<int> mCommands;
 };

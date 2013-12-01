@@ -31,6 +31,7 @@ struct ProjectSettings{
   bool draw_dragged_items;
   bool show_actiontext;
   bool show_taskbar;
+  bool group_items;
   bool has_menuroom;
   std::string menuroom;
   int taskheight;
