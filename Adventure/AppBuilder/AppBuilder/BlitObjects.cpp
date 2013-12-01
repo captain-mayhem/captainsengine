@@ -256,7 +256,7 @@ bool MirrorObject::update(unsigned interval){
       renderCharacter((CharacterObject*)mRoom->getObjects()[i]);
     }
   }
-  Engine::instance()->endRendering();
+  Engine::instance()->endRendering(true);
   glDepthMask(GL_TRUE);
   glDisable(GL_DEPTH_TEST);
 
