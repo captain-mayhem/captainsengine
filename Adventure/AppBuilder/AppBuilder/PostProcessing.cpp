@@ -1007,8 +1007,11 @@ public:
   }
   virtual void deactivate(int data){
     std::map<int,Lightning*>::iterator iter = mLigthnings.find(data);
-    if (iter != mLigthnings.end())
+    if (iter != mLigthnings.end()){
+      Lightning* lt = iter->second;
       mLigthnings.erase(iter);
+      delete lt;
+    }
     if (mLigthnings.empty())
       Effect::deactivate();
   }

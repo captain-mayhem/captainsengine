@@ -15,6 +15,7 @@
 #include "Sound.h"
 #include "PostProcessing.h"
 #include "Menu.h"
+#include "ItemObject.h"
 
 using namespace adv;
 
@@ -1245,14 +1246,15 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float s
   mAnimator->add(chr, path, (10-ch->walkspeed)*speedFactor);
 }
 
-Object2D* Engine::createItem(const std::string& name){
+ItemObject* Engine::createItem(const std::string& name, int count){
   Item* it = mData->getItem(name);
   if (it == NULL){
     TR_USE(ADV_Engine);
     TR_BREAK("Item %s not found", name.c_str());
     return NULL;
   }
-  Object2D* object = new Object2D(1, Vec2i(), Vec2i(50,50), it->name);
+  ItemObject* object = new ItemObject(1, Vec2i(), Vec2i(50,50), it->name);
+  object->setCount(count);
   int depth = DEPTH_ITEM;
   for (unsigned j = 0; j < it->states.size(); ++j){
     Animation* anim = new Animation(it->states[j].frames, it->states[j].fps, Vec2i(), depth);
@@ -1276,7 +1278,7 @@ void Engine::setUseObject(const std::string& object, const std::string& objectIn
     if (object.empty())
       mDraggingObject = NULL;
     else{
-      mDraggingObject = createItem(mClickedObject->getName());
+      mDraggingObject = createItem(mClickedObject->getName(), 1);
       mDraggingObject->setDepth(DEPTH_CURSOR-1);
     }
   }
@@ -1407,10 +1409,10 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
       mInterpreter->execute(scr, false);
     }
   }
-  for (std::map<int,std::vector<std::string> >::iterator inviter = obj->inventory.items.begin();
+  for (std::map<int,std::vector<SaveStateProvider::SaveItem> >::iterator inviter = obj->inventory.items.begin();
     inviter != obj->inventory.items.end(); ++inviter){
       for (unsigned i = 0; i < inviter->second.size(); ++i){
-        Object2D* item = createItem(inviter->second[i]);
+        ItemObject* item = createItem(inviter->second[i].name, inviter->second[i].count);
         character->getInventory()->addItem(item, inviter->first);
       }
   }

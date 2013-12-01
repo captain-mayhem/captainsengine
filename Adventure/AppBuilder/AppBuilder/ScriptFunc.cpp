@@ -15,6 +15,7 @@
 #include "Particles.h"
 #include "Textout.h"
 #include "PostProcessing.h"
+#include "ItemObject.h"
 
 using namespace adv;
 
@@ -558,10 +559,19 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs >= 3)
     inventory = ctx.stack().pop().getInt();
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
-  Object2D* item = Engine::instance()->createItem(itemname);
+  ItemObject* item = Engine::instance()->createItem(itemname, 1);
   if (item == NULL)
     return 0;
   if (chr){
+    if (Engine::instance()->getSettings()->group_items){
+      //increment only item count
+      ItemObject* io = chr->getInventory()->getItem(itemname, inventory);
+      if (io != NULL){
+        io->setCount(io->getCount()+1);
+        delete item;
+        return 0;
+      }
+    }
     chr->getInventory()->addItem(item, inventory);
   }
   else{
@@ -569,7 +579,18 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
     if (!cso){
       TR_BREAK("Character %s not found", charname.c_str());
     }
-    cso->inventory.items[inventory].push_back(item->getName());
+    if (Engine::instance()->getSettings()->group_items){
+      for (unsigned i = 0; i < cso->inventory.items[inventory].size(); ++i){
+        if (_stricmp(cso->inventory.items[inventory][i].name.c_str(), itemname.c_str()) == 0){
+          ++cso->inventory.items[inventory][i].count;
+          return 0;
+        }
+      }
+    }
+    SaveStateProvider::SaveItem si;
+    si.name = item->getName();
+    si.count = item->getCount();
+    cso->inventory.items[inventory].push_back(si);
     delete item;
   }
   return 0;
@@ -708,7 +729,11 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
     inventory = ctx.stack().pop().getInt();
   CharacterObject* chr = Engine::instance()->getCharacter(charname);
   if (chr){
-    chr->getInventory()->removeItem(itemname, inventory, &ctx);
+    ItemObject* io = chr->getInventory()->getItem(itemname, inventory);
+    if (io != NULL && io->getCount() > 1)
+      io->setCount(io->getCount()-1);
+    else
+      chr->getInventory()->removeItem(itemname, inventory, &ctx);
   }
   else{
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
@@ -717,9 +742,12 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
       TR_BREAK("Character %s not found", charname.c_str());
     }
     bool deleted = false;
-    for (std::vector<std::string>::iterator iter = cso->inventory.items[inventory].begin(); iter != cso->inventory.items[inventory].end(); ++iter){
-      if (_stricmp(iter->c_str(), itemname.c_str()) == 0){
-        cso->inventory.items[inventory].erase(iter);
+    for (std::vector<SaveStateProvider::SaveItem>::iterator iter = cso->inventory.items[inventory].begin(); iter != cso->inventory.items[inventory].end(); ++iter){
+      if (_stricmp(iter->name.c_str(), itemname.c_str()) == 0){
+        if (iter->count > 1)
+          --iter->count;
+        else
+          cso->inventory.items[inventory].erase(iter);
         deleted = true;
         break;
       }
@@ -2802,9 +2830,9 @@ int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArg
     std::string realName;
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, realName);
     bool found = false;
-    for (std::map<int,std::vector<std::string> >::iterator iter = cso->inventory.items.begin(); iter != cso->inventory.items.end(); ++iter){
+    for (std::map<int,std::vector<SaveStateProvider::SaveItem> >::iterator iter = cso->inventory.items.begin(); iter != cso->inventory.items.end(); ++iter){
       for (unsigned i = 0; i < iter->second.size(); ++i){
-        if (_stricmp(itemname.c_str(), iter->second[i].c_str()) == 0){
+        if (_stricmp(itemname.c_str(), iter->second[i].name.c_str()) == 0){
           found = true;
           break;
         }

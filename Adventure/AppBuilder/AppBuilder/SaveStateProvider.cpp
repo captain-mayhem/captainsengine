@@ -109,11 +109,11 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::CharSaveObject& 
 
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveInventory& inv){
   strm << inv.items.size() << std::endl;
-  for (std::map<int, std::vector<std::string> >::const_iterator iter = inv.items.begin(); iter != inv.items.end(); ++iter){
+  for (std::map<int, std::vector<SaveStateProvider::SaveItem> >::const_iterator iter = inv.items.begin(); iter != inv.items.end(); ++iter){
     strm << iter->first << " ";
     strm << iter->second.size();
     for (unsigned i = 0; i < iter->second.size(); ++i){
-      strm << " " << iter->second[i];
+      strm << " " << iter->second[i].name << " " << iter->second[i].count;
     }
     strm << std::endl;
   }
@@ -123,14 +123,14 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveInvent
 
 std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveInventory& inv){
   int numInvs, invnum, number;
-  std::string itemName;
   strm >> numInvs;
   for (int i = 0; i < numInvs; ++i){
     strm >> invnum >> number;
     inv.items[invnum].resize(number);
     for (int j = 0; j < number; ++j){
-      strm >> itemName;
-      inv.items[invnum][j] = itemName;
+      SaveStateProvider::SaveItem si;
+      strm >> si.name >> si.count;
+      inv.items[invnum][j] = si;
     }
   }
   strm >> inv.current;
