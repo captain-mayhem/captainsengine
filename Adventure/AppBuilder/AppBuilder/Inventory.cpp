@@ -98,6 +98,14 @@ void InventoryDisplay::render(Inventory* inv){
     if (mDepth > olddepth)
       (*iter)->setDepth(mDepth);
     ++count;
+    //print the item count
+    if ((*iter)->getCount() > 1){
+      char tmp[32];
+      sprintf(tmp, "%i", (*iter)->getCount());
+      std::vector<Vec2i> breakinfo;
+      Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(tmp, 0, breakinfo);
+      Engine::instance()->getFontRenderer()->render(pos.x+invitemwidth-breakinfo[0].y-6, pos.y-3, tmp, mDepth, 0, breakinfo, Engine::instance()->getSettings()->infotextcolor);
+    }
     int xpos = count % mSize.x;
     pos.x = mPos.x+xpos*invitemwidth;
     int ypos = count / mSize.x;
@@ -134,8 +142,10 @@ Vec2i InventoryDisplay::getPosition(){
   return mPos-Vec2i(32,8);
 }
 
-void InventoryDisplay::addScrollOffset(int offset){
+void InventoryDisplay::addScrollOffset(int offset, int maxItems){
   mItemOffset += offset;
   if (mItemOffset < 0)
     mItemOffset = 0;
+  if (mItemOffset >= maxItems)
+    mItemOffset -= offset;
 }

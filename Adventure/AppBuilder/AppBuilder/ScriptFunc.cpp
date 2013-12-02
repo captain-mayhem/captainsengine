@@ -1054,7 +1054,11 @@ int ScriptFunctions::invDown(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   int move = ctx.stack().pop().getInt();
   RoomObject* room = Engine::instance()->getContainingRoom(ctx.mOwner);
-  room->getInventory()->addScrollOffset(move);
+  int maxit = 1000;
+  CharacterObject* chr = Engine::instance()->getCharacter("self");
+  if (chr)
+    maxit = chr->getInventory()->getNumItemSlots();
+  room->getInventory()->addScrollOffset(move, maxit);
   return 0;
 }
 
@@ -1064,7 +1068,11 @@ int ScriptFunctions::invUp(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   int move = ctx.stack().pop().getInt();
   RoomObject* room = Engine::instance()->getContainingRoom(ctx.mOwner);
-  room->getInventory()->addScrollOffset(-move);
+  int maxit = 1000;
+  CharacterObject* chr = Engine::instance()->getCharacter("self");
+  if (chr)
+    maxit = chr->getInventory()->getNumItemSlots();
+  room->getInventory()->addScrollOffset(-move, maxit);
   return 0;
 }
 

@@ -403,6 +403,7 @@ void SaveStateProvider::load(const std::string& name){
   in >> Engine::instance()->mShowTaskbar >> tmp;
   Engine::instance()->mScreenChange = (ScreenChange)tmp;
   in >> Engine::instance()->mTextEnabled >> Engine::instance()->mFontID;
+  Engine::instance()->getFontRenderer()->loadFont(Engine::instance()->mFontID);
   in >> Engine::instance()->mMouseShown >> Engine::instance()->mMouseEnabled;
   in >> Engine::instance()->mTimeFactor >> Engine::instance()->mTimeFactorFaded;
   in >> Engine::instance()->mMenuEnabled;
