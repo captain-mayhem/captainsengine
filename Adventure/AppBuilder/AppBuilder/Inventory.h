@@ -22,6 +22,7 @@ public:
   ItemObject* getItem(const std::string& name, int invnumber);
   void save(SaveStateProvider::SaveInventory& inv) const;
   void setCurrent(int invNum) {mCurrentInv = invNum;}
+  unsigned getNumItemSlots() {return mInventory[mCurrentInv].size();}
 protected:
   typedef std::list<ItemObject*> SingleInv;
   std::map<int, SingleInv> mInventory;
@@ -36,7 +37,7 @@ public:
   Object2D* getObjectAt(const Vec2i& pos, Inventory* inv);
   void setPosition(const Vec2i& pos);
   Vec2i getPosition();
-  void addScrollOffset(int offset);
+  void addScrollOffset(int offset, int maxItems);
 protected:
   Vec2i mPos;
   Vec2i mSize;
