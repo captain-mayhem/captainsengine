@@ -601,7 +601,7 @@ int ScriptFunctions::cutScene(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string scriptname = ctx.stack().pop().getString();
-  Engine::instance()->getInterpreter()->mGlobalSuspend = true;
+  Engine::instance()->getInterpreter()->cutsceneMode(true);
   if (!ctx.getEvents().empty() && ctx.getEvents().front() == EVT_CLICK){ //the cutscene should stop the current click
     ctx.getEvents().pop_front(); //stop click
     ctx.getEvents().pop_front(); //stop user event
@@ -1837,7 +1837,7 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
     initalContent = ctx.stack().pop().getString();
   }
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(initalContent));
-  Engine::instance()->getInterpreter()->mGlobalSuspend = true;
+  Engine::instance()->getInterpreter()->cutsceneMode(false);
   Engine::instance()->enterText(varname, maxchars, &ctx);
   ctx.mSuspended = true;
   return 0;
@@ -2001,9 +2001,16 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::miniCut(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
+  if (numArgs > 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  Engine::instance()->getInterpreter()->mGlobalSuspend = true;
+  bool hide = true;
+  if (numArgs == 1){
+    String hstr = ctx.stack().pop().getString();
+    if (hstr != "donthide")
+      TR_BREAK("donthide expected");
+    hide = false;
+  }
+  Engine::instance()->getInterpreter()->cutsceneMode(hide);
   return 0;
 }
 
@@ -2012,6 +2019,7 @@ int ScriptFunctions::miniCutEnd(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 0)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   Engine::instance()->getInterpreter()->mGlobalSuspend = false;
+  Engine::instance()->getInterpreter()->mHideUI = false;
   return 0;
 }
 
