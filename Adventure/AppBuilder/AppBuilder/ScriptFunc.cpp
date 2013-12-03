@@ -38,7 +38,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setbool", setBool);
   interpreter->registerFunction("if_command", isCommandSet);
   interpreter->registerFunction("setobj", setObj);
-  interpreter->registerRelVar("setobj", 2, "_objstate");
+  interpreter->registerRelVar("setobj", 2, "obj:");
   interpreter->registerFunction("beamto", beamTo);
   interpreter->registerFunction("additem", addItem);
   interpreter->registerFunction("cutscene", cutScene);

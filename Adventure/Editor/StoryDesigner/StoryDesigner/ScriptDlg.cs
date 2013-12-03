@@ -533,7 +533,7 @@ namespace StoryDesigner
             if (scr.ScriptType == Script.Type.WALKMAP)
             {
                 if (name.StartsWith("#"))
-                    ret = String.Format("0} [{1}-{2}] / {3}", name.Substring(7), Convert.ToInt32(name.Substring(1, 3)), Convert.ToInt32(name.Substring(4, 3)), text);
+                    ret = String.Format("{0} [{1}-{2}] / {3}", name.Substring(7), Convert.ToInt32(name.Substring(1, 3)), Convert.ToInt32(name.Substring(4, 3)), text);
                 else
                     ret = String.Format("{0} [{1}-{2}] / {3}", name.Substring(4), Convert.ToInt32(name.Substring(0, 2)), Convert.ToInt32(name.Substring(2, 2)), text);
             }

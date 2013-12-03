@@ -1211,7 +1211,10 @@ StackData PcdkScript::getVariable(const String& name){
     TR_BREAK("Implement me");
   }
   else if (name.size() > 4 && lname.substr(0,4) == "obj:"){
-    TR_BREAK("Implement me");
+    Object2D* obj = Engine::instance()->getObject(name.substr(4), false);
+    if (obj == NULL)
+      TR_BREAK("Object %s not found", name.substr(4).c_str());
+    return obj->getState();
   }
   else if (name.size() > 5 && lname.substr(0,5) == "objx:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
