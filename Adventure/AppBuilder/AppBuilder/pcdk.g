@@ -182,6 +182,7 @@ complex_arg returns [ASTNode* value]
 	(
 		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
 		| MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$MINUS.text->chars);}
+		| PLUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$PLUS.text->chars);}
 		| t2=TIMES {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t2.text->chars);}
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| REAL_INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL_INT.text->chars);}
