@@ -498,11 +498,11 @@ void Engine::render(unsigned time){
     (*iter)->setDepth(roomdepth);
     roomdepth += DEPTH_ROOM_RANGE;
     if ((*iter) == mTaskbar){
-      if (!mShowTaskbar || mInterpreter->isBlockingScriptRunning())
+      if (!mShowTaskbar || mInterpreter->isUIHidden())
         continue;
     }
     if ((*iter)->getName() == mData->getProjectSettings()->anywhere_room){
-      if (mInterpreter->isBlockingScriptRunning())
+      if (mInterpreter->isUIHidden())
         continue;
     }
     if (mMainRoomLoaded && iter == mRooms.rbegin()){
@@ -547,7 +547,7 @@ void Engine::render(unsigned time){
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
   std::string text;
-  if (mFocussedChar){
+  if (mFocussedChar && !mInterpreter->isBlockingScriptRunning()){
     int cmdidx;
     if ((mUseObjectName.empty() && mGiveObjectName.empty()) || mPrevActiveCommand == 0)
       cmdidx = mActiveCommand;

@@ -74,6 +74,8 @@ public:
   float getRunSpeed() {return mRunSpeed;}
   const Color& getOfftextColor() {return mOfftextColor;}
   void setOfftextColor(const Color& color) {mOfftextColor = color;}
+  void cutsceneMode(bool hideUI) {mGlobalSuspend = true; mHideUI = hideUI;}
+  bool isUIHidden() {return mHideUI;}
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
@@ -120,6 +122,7 @@ protected:
   unsigned mTimeAccu;
   float mRunSpeed;
   Color mOfftextColor;
+  bool mHideUI;
 };
 
 }

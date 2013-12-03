@@ -60,6 +60,7 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
   mCutScene = NULL;
   mTSLevel = 1;
   mNextTSLevel = 0;
+  mHideUI = false;
   std::string key = "a";
   for (int i = 0; i < 26; ++i){
     key[0] = 'a'+i;
@@ -104,6 +105,7 @@ void PcdkScript::stop(){
   mTimers.clear(); //no need to destroy them, destroyed above
   mScriptFunctions.clear();
   mGlobalSuspend = false;
+  mHideUI = false;
   mCutScene->unref();
   mCutScene = NULL;
   mPrevState.clear();
@@ -707,6 +709,7 @@ bool PcdkScript::update(unsigned time){
       oldcutscene->unref();
     if (mCutScene && !mCutScene->mSuspended && mCutScene->mExecuteOnce && mCutScene == oldcutscene){
       mGlobalSuspend = false;
+      mHideUI = false;
       Engine::instance()->setCommand(mPrevActiveCommand, false);
       mCutScene->unref();
       mCutScene = NULL;
@@ -797,6 +800,7 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
 
 void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
   mGlobalSuspend = true;
+  mHideUI = true;
   if (mCutScene != NULL){
     Engine::instance()->setCommand(mPrevActiveCommand, false);
     mCutScene->unref();
@@ -804,6 +808,7 @@ void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
   mCutScene = script;
   if (script == NULL){
     mGlobalSuspend = false;
+    mHideUI = false;
     return;
   }
   script->mExecuteOnce = !looping;
