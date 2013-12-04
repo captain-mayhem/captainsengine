@@ -3,12 +3,14 @@ Topic | Prio
 Engine
 ------
 char positioning / char collision detection (->block walkmap?) | 2
-module sounds | 5
-group (use in setobj/moveobj) | 3
-playing of swf (flash) | 2
+module sounds | 6
+group (use in moveobj) | 3
+playing of swf (flash) | 6
 special effects | 4
 particle barriers: bounding box calculation of particles when rotated | 5
-walkmap: other characters should also trigger | 2
+path finding with less direction changes | 5
+correct "self" reference when other characters trigger walkmap | 1
+check if "spawn pos" is still needed | 2
 
 Editor
 ------
