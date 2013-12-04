@@ -417,10 +417,6 @@ void Engine::render(unsigned time){
         }
       }
     }
-    if (mRooms.size() > 0 && mFocussedChar && !mFocussedChar->isSpawnPos()/* && !mInterpreter->isBlockingScriptRunning()*/){ //walkmap
-      Vec2f pos = ((Vec2f)mFocussedChar->getPosition())/mFocussedChar->getWalkGridSize();
-      mRooms.back()->walkTo((Vec2i)pos);
-    }
 
     //ui update
     for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){

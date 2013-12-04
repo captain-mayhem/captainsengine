@@ -107,7 +107,7 @@ mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
 Animation::~Animation(){
   for (unsigned k = 0; k < mBlits.size(); ++k){
     delete mBlits[k];
-    if (mScripts[k] != NULL)
+    if (mScripts.size() > k && mScripts[k] != NULL)
       Engine::instance()->getInterpreter()->remove(mScripts[k]);
   }
 }
@@ -235,7 +235,8 @@ void Object2D::setSuspensionScript(ExecutionContext* script){
 void Object2D::save(){
   SaveStateProvider::SaveObject* save = Engine::instance()->getSaver()->getOrAddObject(mName);
   if (save){
-    save->position = mPos;
+    Vec2i pos = Engine::instance()->getAnimator()->getTargetPoisition(this);
+    save->position = pos;
     save->state = mState;
     save->lighting = mLightingColor;
     save->name = mName;
@@ -885,6 +886,12 @@ void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
   }
   Vec2i dir = next-getPosition();
   setLookDir(dir);
+  //trigger walkmap scripts
+  RoomObject* room = Engine::instance()->getRoom(mRoom);
+  if (room){
+    Vec2f pos = ((Vec2f)getPosition())/room->getWalkGridSize();
+    room->walkTo((Vec2i)pos);
+  }
 }
 
 void CharacterObject::animationEnd(const Vec2i& prev){
@@ -901,6 +908,12 @@ void CharacterObject::animationEnd(const Vec2i& prev){
   if (mWalkSound){
     mWalkSound->stop();
     mWalkSound->seek(0);
+  }
+  //trigger walkmap scripts
+  RoomObject* room = Engine::instance()->getRoom(mRoom);
+  if (room){
+    Vec2f pos = ((Vec2f)getPosition())/room->getWalkGridSize();
+    room->walkTo((Vec2i)pos);
   }
 }
 
