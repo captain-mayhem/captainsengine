@@ -451,7 +451,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs < 3 || numArgs > 5)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string charname = ctx.stack().pop().getString();
+  String charname = ctx.stack().pop().getString();
   StackData arg = ctx.stack().top();
   std::string roomname;
   if (!arg.isString()){
@@ -465,12 +465,13 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   LookDir dir = UNSPECIFIED;
   if (numArgs >= 5)
     dir = (LookDir)(ctx.stack().pop().getInt()-1);
+  bool isFocussedChar = false;
   CharacterObject* focussedChar = Engine::instance()->getCharacter("self");
   if (focussedChar){
      if(_stricmp(charname.c_str(), focussedChar->getName().c_str()) == 0)
-       charname = "self";
+       isFocussedChar = true;
   }
-  if (charname == "self"){
+  if (isFocussedChar){
     //focussed char, therefore change room
     if (!roomname.empty())
       Engine::instance()->loadMainRoom(roomname, &ctx, Engine::instance()->getScreenChange());
@@ -504,14 +505,16 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       obj->setRoom(realname);
       obj->setPosition((pos*walkgridsize)
         +Vec2f(walkgridsize/2, walkgridsize/2)
-        +roomoffset, true);
+        +roomoffset);
       obj->setScrollOffset(scrolloffset);
       obj->setDepth((int)(obj->getPosition().y/Engine::instance()->getWalkGridSize(false)));
       //obj->setScale(ro->getDepthScale(obj->getPosition()));
     }
   }
   else{
-    CharacterObject* obj = Engine::instance()->extractCharacter(charname);
+    //resolve the self
+    String realcharname = ctx.resolveCharName(charname);
+    CharacterObject* obj = Engine::instance()->extractCharacter(realcharname);
     if (!obj){
       obj = Engine::instance()->loadCharacter(charname, Engine::instance()->getCharacterClass(charname), false, &ctx);
       Engine::instance()->getSaver()->getRoom(obj->getRoom());

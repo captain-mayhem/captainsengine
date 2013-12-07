@@ -632,11 +632,12 @@ void RoomObject::update(unsigned interval){
   }
 }
 
-void RoomObject::walkTo(const Vec2i& pos){
+void RoomObject::walkTo(CharacterObject* chr, const Vec2i& pos){
   std::map<Vec2i,ExecutionContext*>::iterator iter = mWalkmapScripts.find(pos);
   if (iter == mWalkmapScripts.end())
     return;
   ExecutionContext* scr = iter->second;
+  scr->setSelf(chr->getName());
   Engine::instance()->getInterpreter()->execute(scr, true);
 }
 
@@ -808,7 +809,7 @@ float RoomObject::getWalkGridSize(){
 
 CharacterObject::CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(mirror), mTextColor(), 
-mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0), mSpawnPos(-1,-1),
+mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0),
 mWalkSound(NULL), mClass(chrclass), mWalking(false), mTalking(false)
 {
   TR_USE(ADV_Character);
@@ -842,16 +843,10 @@ CharacterObject::~CharacterObject(){
 }
 
 void CharacterObject::setPosition(const Vec2i& pos){
-  setPosition(pos, false);
-}
-
-void CharacterObject::setPosition(const Vec2i& pos, bool isSpawnPos){
   Vec2i offset;
   if (mState != 0)
     offset = mBasePoints[mState-1];
   Object2D::setPosition(pos-offset);
-  if (isSpawnPos)
-    mSpawnPos = getPosition();
   RoomObject* room = Engine::instance()->getRoom(mRoom);
   if (room){
     float scale = room->getDepthScale(pos);
@@ -890,7 +885,7 @@ void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
   RoomObject* room = Engine::instance()->getRoom(mRoom);
   if (room){
     Vec2f pos = ((Vec2f)getPosition())/room->getWalkGridSize();
-    room->walkTo((Vec2i)pos);
+    room->walkTo(this, (Vec2i)pos);
   }
 }
 
@@ -913,7 +908,7 @@ void CharacterObject::animationEnd(const Vec2i& prev){
   RoomObject* room = Engine::instance()->getRoom(mRoom);
   if (room){
     Vec2f pos = ((Vec2f)getPosition())/room->getWalkGridSize();
-    room->walkTo((Vec2i)pos);
+    room->walkTo(this, (Vec2i)pos);
   }
 }
 
@@ -1155,15 +1150,6 @@ void CharacterObject::setLinkObject(Object2D* link){
 
 int CharacterObject::getDepth(){
   return (int)(getPosition().y/Engine::instance()->getWalkGridSize(false));
-}
-
-bool CharacterObject::isSpawnPos(){
-  Vec2i p1 = (Vec2i)(((Vec2f)getPosition())/getWalkGridSize());
-  Vec2i p2 = (Vec2i)(((Vec2f)mSpawnPos)/getWalkGridSize());
-  if (p1 == p2)
-    return true;
-  mSpawnPos = Vec2i(-1,-1);
-  return false;
 }
 
 void CharacterObject::setWalkSound(SoundPlayer* plyr){

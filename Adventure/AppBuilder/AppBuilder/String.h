@@ -11,6 +11,7 @@ class String : public std::string{
 public:
   String() : std::string() {}
   String(const char* str) : std::string(str) {}
+  String(const std::string& str) : std::string(str) {}
   String operator+(const String& s);
   String operator+(const char* s);
 
