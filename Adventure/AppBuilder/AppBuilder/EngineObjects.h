@@ -73,7 +73,7 @@ public:
   Animation* getAnimation();
   Animation* getAnimation(int state);
   virtual bool isHit(const Vec2i& point);
-  void setScript(ExecutionContext* script) {mScript = script; if (script) script->setOwner(this);}
+  void setScript(ExecutionContext* script) {mScript = script; if (script) script->setOwner(this); script->setSelf(getName());}
   ExecutionContext* getScript() {return mScript;}
   void setSuspensionScript(ExecutionContext* script);
   int getState() {return mState;}
@@ -174,7 +174,7 @@ public:
   virtual void setLightingColor(const Color& col) {mLighting->setColor(col);}
   virtual Color getLightingColor() {return mLighting->getColor();}
   void addWalkmapScript(const Vec2i& wmpos, ExecutionContext* script) {mWalkmapScripts[wmpos] = script; script->setOwner(this);}
-  void walkTo(const Vec2i& pos);
+  void walkTo(CharacterObject* chr, const Vec2i& pos);
   virtual void save();
   InventoryDisplay* getInventory() {return mInventroy;}
   void setInventory(InventoryDisplay* disp);
@@ -229,7 +229,6 @@ public:
   virtual Type getType() {return CHARACTER;}
   void addBasepoint(Vec2i p, Vec2i size) {mBasePoints.push_back(p); mSizes.push_back(size);}
   virtual void setPosition(const Vec2i& pos);
-  void setPosition(const Vec2i& pos, bool isSpawnPos);
   virtual Vec2i getPosition();
   void setDepth(int depth);
   virtual void animationBegin(const Vec2i& next);
@@ -261,7 +260,6 @@ public:
   void setFrozenScale(float scale) {mFrozenScale = scale;}
   float getScaleFactor();
   virtual int getDepth();
-  bool isSpawnPos();
   void setWalkSound(SoundPlayer* plyr);
   void abortClick();
   Character* getClass() {return mClass;}
@@ -288,7 +286,6 @@ protected:
   float mFrozenScale;
   int mIdleTime;
   int mIdleTimeout;
-  Vec2i mSpawnPos;
   SoundPlayer* mWalkSound;
   Character* mClass;
   bool mWalking;

@@ -204,3 +204,23 @@ bool ExecutionContext::isLoop1(){
   CBNEEVT* evt = (CBNEEVT*)code;
   return evt->getEvent() == EVT_LOOP1;
 }
+
+String ExecutionContext::resolveCharName(const String& name){
+  TR_USE(ADV_ExectionContext);
+  if (name == "self"){
+    if (!mSelf.empty())
+      return mSelf;
+    CharacterObject* co = Engine::instance()->getCharacter("self");
+    if (!co){
+      TR_BREAK("What is self");
+      return "";
+    }
+    return co->getName();
+  }
+  return name;
+}
+
+CharacterObject* ExecutionContext::getCharacter(const String& name){
+  String realname = resolveCharName(name);
+  return Engine::instance()->getCharacter(realname);
+}

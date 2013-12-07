@@ -11,6 +11,7 @@ namespace adv{
 class CCode;
 class Object2D;
 class ExecutionContext;
+class CharacterObject;
 
 enum EngineEvent{
   EVT_USER_RANGE=0x50,
@@ -118,6 +119,9 @@ public:
   bool isGameObject() {return mIsGameObject;}
   void finish() {mShouldFinish = true; setSkip(); if (mCode->getLoop1() != NULL)mCode->getLoop1()->finish();}
   bool isLoop1();
+  void setSelf(const String& name) {mSelf = name;}
+  String resolveCharName(const String& name);
+  CharacterObject* getCharacter(const String& name);
 protected:
   ~ExecutionContext();
   CodeSegment* mCode;
@@ -136,6 +140,7 @@ protected:
   int mRefCount;
   Suspender* mSuspender;
   bool mShouldFinish;
+  String mSelf;
 };
 
 }
