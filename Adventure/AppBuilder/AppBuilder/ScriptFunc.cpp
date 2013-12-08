@@ -239,7 +239,7 @@ int ScriptFunctions::moveTo(ExecutionContext& ctx, unsigned numArgs, float speed
     if (dw == "dontwait")
       hold = false;
   }
-  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  CharacterObject* chr = ctx.getCharacter(character);
   if (chr){
     pos = pos * chr->getWalkGridSize() + 
       Vec2f(chr->getWalkGridSize()/2, chr->getWalkGridSize()/2);
@@ -274,7 +274,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
   }
   if (ctx.mSkip)
     return 0;
-  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  CharacterObject* chr = ctx.getCharacter(character);
   FontRenderer::String* str = NULL;
   SoundPlayer* plyr = NULL;
   if (chr){
@@ -318,7 +318,7 @@ int ScriptFunctions::pickup(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
   if (ctx.mSkip)
     return 0;
-  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  CharacterObject* chr = ctx.getCharacter(character);
   if (chr){
     LookDir dir = chr->getLookDir();
     if (dir == LEFT || dir == RIGHT)
@@ -468,8 +468,9 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   bool isFocussedChar = false;
   CharacterObject* focussedChar = Engine::instance()->getCharacter("self");
   if (focussedChar){
-     if(_stricmp(charname.c_str(), focussedChar->getName().c_str()) == 0)
-       isFocussedChar = true;
+    String realcharname = ctx.resolveCharName(charname);
+    if(_stricmp(realcharname.c_str(), focussedChar->getName().c_str()) == 0)
+      isFocussedChar = true;
   }
   if (isFocussedChar){
     //focussed char, therefore change room
@@ -516,7 +517,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
     String realcharname = ctx.resolveCharName(charname);
     CharacterObject* obj = Engine::instance()->extractCharacter(realcharname);
     if (!obj){
-      obj = Engine::instance()->loadCharacter(charname, Engine::instance()->getCharacterClass(charname), false, &ctx);
+      obj = Engine::instance()->loadCharacter(realcharname, Engine::instance()->getCharacterClass(realcharname), false, &ctx);
       Engine::instance()->getSaver()->getRoom(obj->getRoom());
       Engine::instance()->getSaver()->removeCharacter(obj->getName());
     }
@@ -561,7 +562,7 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
   int inventory = 1;
   if (numArgs >= 3)
     inventory = ctx.stack().pop().getInt();
-  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  CharacterObject* chr = ctx.getCharacter(charname);
   ItemObject* item = Engine::instance()->createItem(itemname, 1);
   if (item == NULL)
     return 0;
@@ -635,8 +636,8 @@ int ScriptFunctions::follow(ExecutionContext& ctx, unsigned numArgs){
       hold = false;
     }
   }
-  CharacterObject* chr1 = Engine::instance()->getCharacter(char1);
-  CharacterObject* chr2 = Engine::instance()->getCharacter(char2);
+  CharacterObject* chr1 = ctx.getCharacter(char1);
+  CharacterObject* chr2 = ctx.getCharacter(char2);
   if (chr1 && chr2){
     if (ctx.mSkip){
       chr1->setPosition(chr2->getPosition());
@@ -663,7 +664,7 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
   StackData d = ctx.stack().pop();
   LookDir dir = UNSPECIFIED;
-  CharacterObject* chr1 = Engine::instance()->getCharacter(character);
+  CharacterObject* chr1 = ctx.getCharacter(character);
   if (d.getInt() != 0){
     dir = (LookDir)(d.getInt()-1);
     if (chr1)
@@ -680,7 +681,7 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
   }
   else{
     std::string char2 = d.getString();
-    CharacterObject* chr2 = Engine::instance()->getCharacter(char2);
+    CharacterObject* chr2 = ctx.getCharacter(char2);
     if (chr1 == NULL || chr2 == NULL) //look at another character not possible, they are in different rooms
       return 0;
     Vec2i dir = chr2->getPosition()-chr1->getPosition();
@@ -730,7 +731,7 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
   int inventory = 1;
   if (numArgs >= 3)
     inventory = ctx.stack().pop().getInt();
-  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  CharacterObject* chr = ctx.getCharacter(charname);
   if (chr){
     ItemObject* io = chr->getInventory()->getItem(itemname, inventory);
     if (io != NULL && io->getCount() > 1)
@@ -1087,7 +1088,7 @@ int ScriptFunctions::setFont(ExecutionContext& ctx, unsigned numArgs){
   if (!Engine::instance()->getFontRenderer()->loadFont(fontid))
     return 0;
   if (numArgs >= 2){
-    CharacterObject* chr = Engine::instance()->getCharacter(ctx.stack().pop().getString());
+    CharacterObject* chr = ctx.getCharacter(ctx.stack().pop().getString());
     if (!chr){
       TR_USE(ADV_ScriptFunc);
       TR_BREAK("Character not found");
@@ -1248,7 +1249,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     return 0;
   }
   int state = 0;
-  CharacterObject* obj = Engine::instance()->getCharacter(chrname);
+  CharacterObject* obj = ctx.getCharacter(chrname);
   if (obj == NULL){
     TR_WARN("setChar: Character %s not found", chrname.c_str());
   }
@@ -1370,7 +1371,7 @@ int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
     if (fading == "fade")
       fade = true;
   }
-  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  CharacterObject* chr = ctx.getCharacter(charname);
   if (chr){
     if (fade && !ctx.mSkip){
       //do not block right now.
@@ -1539,7 +1540,7 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
   else{
     TR_BREAK("Unknown direction %s", dirname.c_str());
   }
-  CharacterObject* chr = Engine::instance()->getCharacter(name);
+  CharacterObject* chr = ctx.getCharacter(name);
   if (chr){
     int step = 3;
     Vec2i pos = chr->getPosition();
@@ -2297,7 +2298,7 @@ int ScriptFunctions::linkChar(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string character = ctx.stack().pop().getString();
   std::string object = ctx.stack().pop().getString();
-  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  CharacterObject* chr = ctx.getCharacter(character);
   if (!chr){
     //just save link information for later use
     std::string room;
@@ -2319,7 +2320,7 @@ int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string character = ctx.stack().pop().getString();
   bool stopzooming = ctx.stack().pop().getBool();
-  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  CharacterObject* chr = ctx.getCharacter(character);
   if (!chr)
     TR_BREAK("Unknown character %s", character.c_str());
   chr->setNoZooming(stopzooming, stopzooming && ctx.isSkipping());
@@ -2331,7 +2332,7 @@ int ScriptFunctions::unlinkChar(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 1)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string character = ctx.stack().pop().getString();
-  CharacterObject* chr = Engine::instance()->getCharacter(character);
+  CharacterObject* chr = ctx.getCharacter(character);
   if (!chr)
     TR_BREAK("Unknown character %s", character.c_str());
   chr->setLinkObject(NULL);
@@ -2412,7 +2413,7 @@ int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
       TR_BREAK("fade is %s", fadestr.c_str());
     fade = true;
   }
-  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  CharacterObject* chr = ctx.getCharacter(charname);
   if (chr){
     if (fade && !ctx.isSkipping())
       Engine::instance()->getAnimator()->add(chr, chr->getUserScale(), size/100.0f, true);
@@ -2433,7 +2434,7 @@ int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string charname = ctx.stack().pop().getString();
   std::string soundname = ctx.stack().pop().getString();
-  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  CharacterObject* chr = ctx.getCharacter(charname);
   if (chr){
     SoundPlayer* plyr = SoundEngine::instance()->getSound(soundname, SoundEngine::PLAYER_CREATE_ALWAYS | SoundEngine::PLAYER_UNMANAGED);
     chr->setWalkSound(plyr);
@@ -2504,8 +2505,8 @@ int ScriptFunctions::exchange(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string char1 = ctx.stack().pop().getString();
   std::string char2 = ctx.stack().pop().getString();
-  CharacterObject* c1 = Engine::instance()->getCharacter(char1);
-  CharacterObject* c2 = Engine::instance()->getCharacter(char2);
+  CharacterObject* c1 = ctx.getCharacter(char1);
+  CharacterObject* c2 = ctx.getCharacter(char2);
   if (c1 == NULL || c2 == NULL)
     TR_BREAK("Character %s or %s is unknown", char1.c_str(), char2.c_str());
   Inventory* inv = c1->getInventory();
@@ -2790,7 +2791,7 @@ int ScriptFunctions::isCharFocussed(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::isCharTriggering(ExecutionContext& ctx, unsigned numArgs){
   std::string name = ctx.stack().pop().getString();
   ctx.stack().push(0);
-  CharacterObject* chr = Engine::instance()->getCharacter(name);
+  CharacterObject* chr = ctx.getCharacter(name);
   if (!chr){ //when the character is not found, he or she is not in the current room, so no triggering possible
     ctx.stack().push(3);
     return 2;
@@ -2821,7 +2822,7 @@ int ScriptFunctions::isCharInRoom(ExecutionContext& ctx, unsigned numArgs){
   ctx.stack().push(0);
   std::string room;
   std::string name;
-  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  CharacterObject* chr = ctx.getCharacter(charname);
   if (chr)
     room = chr->getRoom();
   else{
@@ -2839,7 +2840,7 @@ int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArg
   std::string charname = ctx.stack().pop().getString();
   std::string itemname = ctx.stack().pop().getString();
   ctx.stack().push(0);
-  CharacterObject* chr = Engine::instance()->getCharacter(charname);
+  CharacterObject* chr = ctx.getCharacter(charname);
   if (!chr){
     if (charname == "self"){ //no focussed char, so he cannot possess it
       ctx.stack().push(1);
