@@ -73,7 +73,7 @@ public:
   Animation* getAnimation();
   Animation* getAnimation(int state);
   virtual bool isHit(const Vec2i& point);
-  void setScript(ExecutionContext* script) {mScript = script; if (script) script->setOwner(this); script->setSelf(getName());}
+  virtual void setScript(ExecutionContext* script) {mScript = script; if (script) script->setOwner(this);}
   ExecutionContext* getScript() {return mScript;}
   void setSuspensionScript(ExecutionContext* script);
   int getState() {return mState;}
@@ -269,6 +269,7 @@ public:
   //virtual bool animationEnded(Animation* anim);
   virtual void activateNextState();
   float getWalkGridSize();
+  virtual void setScript(ExecutionContext* script) {Object2D::setScript(script); if (script) script->setSelf(getName());}
 protected:
   static int calculateState(LookDir dir, bool& mirror);
   static int calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror=false);
