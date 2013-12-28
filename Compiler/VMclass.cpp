@@ -543,7 +543,7 @@ int VMClass::getCatchIP(int ip, VMContext* ctx, VMObject* exception, int methodI
     return -1;
   Java::method_info* info = mClass.methods[methodIndex];
   for (int i = 0; i < info->attributes_count; ++i){
-    if (info->attributes[i]->attribute_type == Java::ATTR_Code){
+    if (info->attributes[i] && info->attributes[i]->attribute_type == Java::ATTR_Code){
       Java::Code_attribute* ca = (Java::Code_attribute*)info->attributes[i];
       for (int j = 0; j < ca->exception_table_length; ++j){
         Java::Code_attribute::Exception_table extab = ca->exception_table[j];
