@@ -94,7 +94,7 @@ BootstrapLoader::BootstrapLoader(VMArgs* args) : VMLoader(NULL){
 #endif
   if (!mRuntimeClasses.openFile(prefix+"/lib/rt.jar")){
     //hack for my crappy environment
-    //prefix[0] = 'E';
+    prefix[0] = 'D';
     if (!mRuntimeClasses.openFile(prefix+"/lib/rt.jar")){
       TR_BREAK("Java runtime classes not found");
     }

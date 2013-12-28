@@ -1703,6 +1703,10 @@ skipdefault:
 			case Java::op_monitorenter:
 				{
 					VMObject* obj = ctx->pop().obj;
+          if (obj == NULL){
+            TR_WARN("monitorenter on null");
+            break;
+          }
 					obj->lock();
 					break;
 				}

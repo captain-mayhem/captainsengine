@@ -526,7 +526,7 @@ jstring JNIEXPORT Java_java_lang_System_mapLibraryName(JNIEnv* env, jobject obje
   return ret;
 }
 
-void Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
+void JNIEXPORT Java_java_lang_System_registerNatives(JNIEnv* env, jobject object){
 	/*JNINativeMethod methods[3];
 	methods[0].name = (char*)"currentTimeMillis";
 	methods[0].signature = (char*)"()J";
@@ -981,7 +981,19 @@ jobject JNIEXPORT Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0
   return instance;
 }
 
+#ifndef JRE6
+jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass(JNIEnv* env, jobject object){
+  VMContext* ctx = CTX(env);
+  VMMethod* mthd = ctx->getFrameMethod(0);
+  return (VMObject*)mthd->getClass();
+}
+#endif
+
+#ifdef JRE6
 jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass(JNIEnv* env, jobject object, jint realFramesToSkip){
+#else
+jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass0(JNIEnv* env, jobject object, jint realFramesToSkip){
+#endif
 	VMContext* ctx = CTX(env);
 	VMMethod* mthd = ctx->getFrameMethod(realFramesToSkip);
 	return (VMObject*)mthd->getClass();

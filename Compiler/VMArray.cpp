@@ -6,18 +6,26 @@
 
 TR_CHANNEL(Java_Array);
 
+#ifndef JRE6
+#define IS_ARRAY_ID 20
+#define GET_COMPONENT_ID 34
+#else
+#define IS_ARRAY_ID 21
+#define GET_COMPONENT_ID 35
+#endif
+
 VMArrayClass::VMArrayClass(VMLoader* loader, const std::string& name) : VMClass(loader){
   mFilename = name;
   mMethodResolver.insert(std::make_pair("clone()Ljava/lang/Object;", 1));
-  mMethodResolver.insert(std::make_pair("isArray()Z", 21));
-  mMethodResolver.insert(std::make_pair("getComponentType()Ljava/lang/Class;", 35));
+  mMethodResolver.insert(std::make_pair("isArray()Z", IS_ARRAY_ID));
+  mMethodResolver.insert(std::make_pair("getComponentType()Ljava/lang/Class;", GET_COMPONENT_ID));
   mMethods.resize(35);
   NativeVMMethod* clone = new NativeVMMethod("clone", "()Ljava/lang/Obejct;", this, false, -1, (nativeMethod)cloneFunc);
   mMethods[0] = clone;
   NativeVMMethod* isArray = new NativeVMMethod("isArray", "()Z", this, false, -1, (nativeMethod)isArrayFunc);
-  mMethods[20] = isArray;
+  mMethods[IS_ARRAY_ID-1] = isArray;
   NativeVMMethod* getComponentType = new NativeVMMethod("getComponentType", "()Ljava/lang/Class;", this, false, -1, (nativeMethod)getComponentTypeFunc);
-  mMethods[34] = getComponentType;
+  mMethods[GET_COMPONENT_ID-1] = getComponentType;
 }
 
 jobjectArray VMArrayClass::cloneFunc(JNIEnv* env, jobjectArray array){

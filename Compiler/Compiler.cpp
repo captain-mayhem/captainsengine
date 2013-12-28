@@ -78,6 +78,13 @@ int main(int argc, char* argv[])
   JNI_GetDefaultJavaVMInitArgs(&vm_args);
   //vm_args.classpath = "";
   JNI_CreateJavaVM(&jvm, &env, &vm_args);
+
+  jthrowable exception = env->ExceptionOccurred();
+  if (exception != NULL){
+    printf("Uncaught exception occurred!\n");
+    env->ExceptionDescribe();
+    return -1;
+  }
   
   jclass cls = env->FindClass(filename);
 	jmethodID mainfunc = env->GetStaticMethodID(cls, "main", "([Ljava/lang/String;)V");
@@ -92,7 +99,7 @@ int main(int argc, char* argv[])
 	//jstring test = env->NewStringUTF("teststring");
 	env->CallStaticVoidMethod(cls, mainfunc, args);
 
-  jthrowable exception = env->ExceptionOccurred();
+  exception = env->ExceptionOccurred();
   if (exception != NULL){
     printf("Uncaught exception occurred!\n");
     env->ExceptionDescribe();
