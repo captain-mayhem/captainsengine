@@ -44,6 +44,7 @@ VMContext::VMContext(JNIEnv* myself, JVM* vm, VMObject* thrd) : mVm(vm), mSelf(m
   JNINativeInterface_::ReleaseByteArrayElements = ReleaseByteArrayElements;
 	JNINativeInterface_::RegisterNatives = RegisterNatives;
   JNINativeInterface_::NewObjectV = NewObjectV;
+  JNINativeInterface_::NewDirectByteBuffer = NewDirectByteBuffer;
   mVm->addThread(this);
 	mStack = new StackData[1024];
 	mStackPointer = mStack;

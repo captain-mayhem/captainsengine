@@ -720,6 +720,7 @@ public:
   jbyte * GetByteArrayElements(jbyteArray array, jboolean *isCopy) {return m_func->GetByteArrayElements(this, array, isCopy);}
   void ReleaseByteArrayElements(jbyteArray array, jbyte *elems, jint mode) {m_func->ReleaseByteArrayElements(this, array, elems, mode);}
   jint RegisterNatives(jclass clazz, const JNINativeMethod *methods, jint nMethods) {return m_func->RegisterNatives(this, clazz, methods, nMethods);}
+  jobject NewDirectByteBuffer(void* address, jlong capacity) {return m_func->NewDirectByteBuffer(this, address, capacity);}
 protected:
   JNIEnv_(JavaVM_* vm);
   JNIEnv_(JNINativeInterface_* iface);
