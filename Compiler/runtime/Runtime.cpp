@@ -281,6 +281,22 @@ jboolean JNIEXPORT Java_java_lang_Class_isArray(JNIEnv* env, jclass cls){
   return JNI_FALSE; //Arrays are handled separately
 }
 
+jboolean JNIEXPORT Java_java_lang_Class_isAssignableFrom(JNIEnv* env, jclass clazz, jclass cls){
+  TR_USE(Java_Runtime);
+  VMContext* ctx = CTX(env);
+  VMClass* that = (VMClass*)clazz;
+  VMClass* toTest = (VMClass*)cls;
+  if (that == toTest)
+    return JNI_TRUE;
+  do{
+    toTest = toTest->getSuperclass(ctx);
+    if (that == toTest)
+      return JNI_TRUE;
+  } while(toTest != NULL);
+  TR_BREAK("Check for interface");
+  return JNI_FALSE;
+}
+
 jboolean JNIEXPORT Java_java_lang_Class_isInterface(JNIEnv* env, jobject object){
   VMClass* cls = (VMClass*)object;
   return cls->getClassDefinition().access_flags & ACC_INTERFACE ? JNI_TRUE : JNI_FALSE;
@@ -493,6 +509,10 @@ jobject JNIEXPORT Java_java_lang_System_initProperties(JNIEnv* env, jobject obje
   
   key = env->NewStringUTF("java.class.path");
   value = env->NewStringUTF(args->classpath);
+  env->CallObjectMethod(properties, mthd, key, value);
+
+  key = env->NewStringUTF("os.arch");
+  value = env->NewStringUTF("x86");
   env->CallObjectMethod(properties, mthd, key, value);
 
   //init user properties
@@ -790,6 +810,15 @@ void JNIEXPORT Java_sun_misc_Perf_registerNatives(JNIEnv* env, jobject object){
 
 }
 
+jobject JNIEXPORT Java_sun_misc_Perf_createLong(JNIEnv* env, jobject object, jstring name, jint variability, jint units, jlong value){
+  const char* namestr = env->GetStringUTFChars(name, NULL);
+  env->ReleaseStringUTFChars(name, namestr);
+  jlong* l = new jlong;
+  *l = value;
+  jobject ret = env->NewDirectByteBuffer(l, sizeof(jlong));
+  return ret;
+}
+
 jint JNIEXPORT Java_sun_misc_Signal_findSignal(JNIEnv* env, jobject object, jstring signal){
   TR_USE(Java_Runtime);
   jint ret = -1;
@@ -984,7 +1013,7 @@ jobject JNIEXPORT Java_sun_reflect_NativeConstructorAccessorImpl_newInstance0
 #ifndef JRE6
 jobject JNIEXPORT Java_sun_reflect_Reflection_getCallerClass(JNIEnv* env, jobject object){
   VMContext* ctx = CTX(env);
-  VMMethod* mthd = ctx->getFrameMethod(0);
+  VMMethod* mthd = ctx->getFrameMethod(2);
   return (VMObject*)mthd->getClass();
 }
 #endif

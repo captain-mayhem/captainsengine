@@ -79,6 +79,7 @@ protected:
   static jbyte * GetByteArrayElements(JNIEnv *env, jbyteArray array, jboolean *isCopy);
   static void ReleaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *elems, jint mode);
 	static jint RegisterNatives(JNIEnv *env, jclass clazz, const JNINativeMethod *methods, jint nMethods);
+  static jobject NewDirectByteBuffer(JNIEnv* env, void* address, jlong capacity);
 
   JVM* mVm;
   JNIEnv* mSelf;

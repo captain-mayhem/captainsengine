@@ -19,6 +19,7 @@ public:
   virtual bool isArray() {return true;}
 private:
   static jobjectArray cloneFunc(JNIEnv* env, jarray array);
+  static jclass getClassFunc(JNIEnv* env, jarray array);
   static jboolean isArrayFunc(JNIEnv* env, jarray array);
   static jclass getComponentTypeFunc(JNIEnv* env, jarray array);
 };

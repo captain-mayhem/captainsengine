@@ -287,6 +287,14 @@ void VMContext::ReleaseByteArrayElements(JNIEnv *env, jbyteArray array, jbyte *e
   /*nothing to do*/
 }
 
+jobject VMContext::NewDirectByteBuffer(JNIEnv* env, void* address, jlong capacity){
+  VMClass* dbb = getVM()->getLoader(NULL)->find(CTX(env), "java/nio/DirectByteBuffer");
+  int idx = dbb->findMethodIndex("<init>", "");
+  VMObject* obj = getVM()->createObject(CTX(env), dbb);
+  CTX(env)->push(obj);
+  return obj;
+}
+
 JNIEnv_::JNIEnv_(JavaVM_* vm){
   VMContext* ctx = new VMContext(this, (JVM*)vm->m_func, NULL);
 	m_func = ctx;
