@@ -53,6 +53,7 @@ public:
   static std::string stringToString(VMObject* str);
   static int utf8to16(const char* in, unsigned short* out, unsigned outsize);
   VMLoader* getLoader(VMObject* loader);
+  void* createInstrumentationEntry(const std::string& name, unsigned numBytes);
 protected:
 	void init();
 
@@ -64,6 +65,7 @@ protected:
   std::map <VMObject*,VMLoader*> mLoaders;
 	std::list<VMObject*> mCreatedObjects;
 	std::map<std::string, VMObject*> mInternalizedStrings;
+  std::map<std::string, void*> mInstrumentationBuffer;
 };
 
 JVM* getVM();

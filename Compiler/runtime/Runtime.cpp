@@ -812,8 +812,8 @@ void JNIEXPORT Java_sun_misc_Perf_registerNatives(JNIEnv* env, jobject object){
 
 jobject JNIEXPORT Java_sun_misc_Perf_createLong(JNIEnv* env, jobject object, jstring name, jint variability, jint units, jlong value){
   const char* namestr = env->GetStringUTFChars(name, NULL);
+  jlong* l = (jlong*)getVM()->createInstrumentationEntry(namestr, sizeof(jlong));
   env->ReleaseStringUTFChars(name, namestr);
-  jlong* l = new jlong;
   *l = value;
   jobject ret = env->NewDirectByteBuffer(l, sizeof(jlong));
   return ret;
@@ -939,6 +939,11 @@ void JNIEXPORT Java_sun_misc_Unsafe_freeMemory(JNIEnv* env, jobject object, jlon
 
 jbyte JNIEXPORT Java_sun_misc_Unsafe_getByte(JNIEnv* env, jobject object, jlong address){
   jbyte* data = (jbyte*)address;
+  return *data;
+}
+
+jlong JNIEXPORT Java_sun_misc_Unsafe_getLong(JNIEnv* env, jobject object, jlong address){
+  jlong* data = (jlong*)address;
   return *data;
 }
 

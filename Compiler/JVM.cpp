@@ -52,6 +52,10 @@ JVM::~JVM(){
     delete iter->second;
   }
   mLoaders.clear();
+  for (std::map<std::string,void*>::iterator iter = mInstrumentationBuffer.begin(); iter != mInstrumentationBuffer.end(); ++iter){
+    free(iter->second);
+  }
+  mLoaders.clear();
   globalVM = NULL;
   CGE::Engine::instance()->shutdown();
 }
@@ -254,4 +258,10 @@ VMLoader* JVM::getLoader(VMObject* loader){
     mLoaders[loader] = ldr;
   }
   return ldr;
+}
+
+void* JVM::createInstrumentationEntry(const std::string& name, unsigned numBytes){
+  void* data = malloc(numBytes);
+  mInstrumentationBuffer[name] = data;
+  return data;
 }
