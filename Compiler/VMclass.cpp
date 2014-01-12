@@ -503,7 +503,7 @@ VMClass* VMClass::getInterface(VMContext* ctx, Java::u2 class_ref){
 */
 std::string VMClass::getSourceFileName(){
   for (int i = 0; i < mClass.attributes_count; ++i){
-    if (mClass.attributes[i]->attribute_type == Java::ATTR_SourceFile){
+    if (mClass.attributes[i] && mClass.attributes[i]->attribute_type == Java::ATTR_SourceFile){
       Java::SourceFile_attribute* sa = (Java::SourceFile_attribute*)mClass.attributes[i];
       Java::cp_info* cpinfo = mClass.constant_pool[sa->sourcefile_index-1];
       Java::CONSTANT_Utf8_info* utf = dynamic_cast<Java::CONSTANT_Utf8_info*>(cpinfo);
@@ -521,7 +521,7 @@ int VMClass::getLineNumber(int ip, int methodIndex){
     if (info->attributes[i]->attribute_type == Java::ATTR_Code){
       Java::Code_attribute* ca = (Java::Code_attribute*)info->attributes[i];
       for (int j = 0; j < ca->attributes_count; ++j){
-        if (ca->attributes[j]->attribute_type == Java::ATTR_LineNumberTable){
+        if (ca->attributes[j] && ca->attributes[j]->attribute_type == Java::ATTR_LineNumberTable){
           int lineNumber = -1;
           Java::LineNumberTable_attribute* lna = (Java::LineNumberTable_attribute*)ca->attributes[j];
           for (int k = 0; k < lna->line_number_table_length; ++k){

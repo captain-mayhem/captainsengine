@@ -8,12 +8,11 @@ IF(RENDER_DIRECTX)
 		${PRE}/DirectX/DXvertexbuffer.cpp
 		${RENDERER_SRCS}
 	)
-	SET(RENDERER_HDRS
+	SET(RENDERER_HDRS_DX
 		${PRE}/DirectX/DXindexbuffer.h
 		${PRE}/DirectX/DXrenderer.h
 		${PRE}/DirectX/DXtexture.h
 		${PRE}/DirectX/DXvertexbuffer.h
-		${RENDERER_HDRS}
 	)
 ENDIF(RENDER_DIRECTX)
 IF(RENDER_OPENGL)
@@ -24,12 +23,11 @@ IF(RENDER_OPENGL)
 		${PRE}/OpenGL/OGLvertexbuffer.cpp
 		${RENDERER_SRCS}
 	)
-	SET(RENDERER_HDRS
+	SET(RENDERER_HDRS_OGL
 		${PRE}/OpenGL/OGLindexbuffer.h
 		${PRE}/OpenGL/OGLrenderer.h
 		${PRE}/OpenGL/OGLtexture.h
 		${PRE}/OpenGL/OGLvertexbuffer.h
-		${RENDERER_HDRS}
 	)
 ENDIF(RENDER_OPENGL)
 IF(RENDER_GLES)
@@ -40,12 +38,11 @@ IF(RENDER_GLES)
 		${PRE}/GLES/GLESvertexbuffer.cpp
 		${RENDERER_SRCS}
 	)
-	SET(RENDERER_HDRS
+	SET(RENDERER_HDRS_GLES
 		${PRE}/GLES/GLESindexbuffer.h
 		${PRE}/GLES/GLESrenderer.h
 		${PRE}/GLES/GLEStexture.h
 		${PRE}/GLES/GLESvertexbuffer.h
-		${RENDERER_HDRS}
 	)
 ENDIF(RENDER_GLES)
 IF(RENDER_GL2 OR RENDER_EMBEDDED)
@@ -54,8 +51,7 @@ IF(RENDER_GL2 OR RENDER_EMBEDDED)
 		${PRE}/GL2/GL2Renderer.cpp
 		${PRE}/GL2/GL2Shader.cpp
 	)
-	SET(RENDERER_HDRS
-		${RENDERER_HDRS}
+	SET(RENDERER_HDRS_GL2
 		${PRE}/GL2/GL2Renderer.h
 		${PRE}/GL2/GL2Shader.h
 	)
@@ -76,7 +72,7 @@ SET(Engine_renderer_SRCS
 	${RENDERER_SRCS}
 )
 
-SET(Engine_renderer_HDRS
+SET(RENDERER_HDRS_CORE
 	${PRE}/camera.h
 	${PRE}/dummyrenderer.h
 	${PRE}/font.h
@@ -89,7 +85,18 @@ SET(Engine_renderer_HDRS
 	${PRE}/scene.h
 	${PRE}/texture.h
 	${PRE}/vertexbuffer.h
-	${RENDERER_HDRS}
 )
 
-INSTALL(FILES ${Engine_renderer_HDRS} DESTINATION Engine/include/${PRE})
+INSTALL(FILES ${RENDERER_HDRS_CORE} DESTINATION Engine/include/${PRE} COMPONENT CGE)
+INSTALL(FILES ${RENDERER_HDRS_DX} DESTINATION Engine/include/${PRE}/DirectX COMPONENT CGE)
+INSTALL(FILES ${RENDERER_HDRS_OGL} DESTINATION Engine/include/${PRE}/OpenGL COMPONENT CGE)
+INSTALL(FILES ${RENDERER_HDRS_GLES} DESTINATION Engine/include/${PRE}/GLES COMPONENT CGE)
+INSTALL(FILES ${RENDERER_HDRS_GL2} DESTINATION Engine/include/${PRE}/GL2 COMPONENT CGE)
+
+SET(Engine_renderer_HDRS
+	${RENDERER_HDRS_CORE}
+	${RENDERER_HDRS_DX}
+	${RENDERER_HDRS_OGL}
+	${RENDERER_HDRS_GLES}
+	${RENDERER_HDRS_GL2}
+)

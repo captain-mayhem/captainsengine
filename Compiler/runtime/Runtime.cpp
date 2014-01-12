@@ -933,6 +933,12 @@ jboolean JNIEXPORT Java_sun_misc_Unsafe_compareAndSwapObject(JNIEnv* env, jobjec
   }
 }
 
+void JNIEXPORT Java_sun_misc_Unsafe_ensureClassInitialized(JNIEnv* env, jobject object, jclass cls){
+  VMClass* cl = (VMClass*)cls;
+  //TODO
+  return;
+}
+
 void JNIEXPORT Java_sun_misc_Unsafe_freeMemory(JNIEnv* env, jobject object, jlong address){
   free((void*)address);
 }
