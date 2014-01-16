@@ -15,6 +15,7 @@ protected:
   virtual bool run() = 0;
   Thread mThread;
   Mutex mMutex;
+  Condition mCond;
 private:
   static void threadFunc(void* data);
   bool mShouldStop;
