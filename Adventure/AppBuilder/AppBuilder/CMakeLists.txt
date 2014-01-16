@@ -178,6 +178,8 @@ SET(AppBuilder_SRCS
   Inventory.h
   ItemObject.cpp
   ItemObject.h
+  Loader.cpp
+  Loader.h
   Menu.cpp
   Menu.h
   Particles.cpp

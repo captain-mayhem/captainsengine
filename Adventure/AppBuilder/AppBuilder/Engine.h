@@ -9,6 +9,7 @@
 #include "Script.h"
 #include "Animator.h"
 #include "Font.h"
+#include "Loader.h"
 
 namespace adv{
 
@@ -217,6 +218,7 @@ protected:
   std::string mActionText;
   float mScrollSpeed;
   bool mCamFollowChar;
+  ResLoader mLoader;
 };
 
 }

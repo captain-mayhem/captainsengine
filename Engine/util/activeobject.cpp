@@ -17,6 +17,7 @@ void ActiveObject::start(){
 void ActiveObject::stop(){
   mMutex.lock();
   mShouldStop = true;
+  mCond.signal();
   mMutex.unlock();
   mThread.join();
 }
