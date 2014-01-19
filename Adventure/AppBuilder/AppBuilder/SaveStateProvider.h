@@ -1,6 +1,8 @@
 #ifndef SAVE_STATE_PROVIDER_H
 #define SAVE_STATE_PROVIDER_H
 
+#include <system/thread.h>
+
 #include "EngineObjects.h"
 
 namespace adv{
@@ -80,6 +82,7 @@ protected:
   std::map<std::string, SaveRoom*> mRooms;
   SaveRoom* mLastRoom;
   int mNoWrites;
+  CGE::Mutex mMuty;
 };
 
 std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& room);

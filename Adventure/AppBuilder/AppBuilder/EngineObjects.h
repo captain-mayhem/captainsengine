@@ -18,6 +18,7 @@ public:
   void setDepth(int depth);
   int getDepth() {if (mBlits.size() == 0) return 0; return mBlits[0]->getDepth();}
   void setBlendMode(BlitObject::BlendMode mode);
+  void realize();
 protected:
   BlitGroup() {}
   std::vector<BlitObject*> mBlits;
@@ -39,6 +40,7 @@ public:
   bool exists() {return this != NULL && mBlits.size() > 0;}
   void registerAnimationEndHandler(AnimationEndHandler* handler) {mHandler = handler;}
   void setBlendMode(BlitObject::BlendMode mode);
+  void realize();
 protected:
   void executeScript();
   std::vector<BlitGroup*> mBlits;
