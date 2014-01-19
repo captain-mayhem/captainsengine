@@ -7,6 +7,10 @@
 #include "Renderer.h"
 #include "Ids.h"
 
+namespace CGE{
+  class Image;
+}
+
 namespace adv{
 
 class Inventory;
@@ -54,11 +58,13 @@ public:
   void setRotation(float angle) {mRotAngle = angle;}
   void setBlendMode(BlendMode mode) {mBlendMode = mode;}
   void updateTexture(unsigned width, unsigned height, void* data);
-  GLuint getTexture() {return mTex;}
+  GLuint getTexture() {realize(); return mTex;}
+  void realize();
 protected:
   Vec2i mOffset;
   Vec2f mScale;
   GLuint mTex;
+  CGE::Image* mImage;
   Vec2f mZoomScale;
   bool mDeleteTex;
   Vec2i mMirrorOffset;

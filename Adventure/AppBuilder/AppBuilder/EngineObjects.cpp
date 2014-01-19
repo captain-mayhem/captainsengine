@@ -59,6 +59,12 @@ BlitGroup* BlitGroup::clone(){
   return bltgrp;
 }
 
+void BlitGroup::realize(){
+  for (unsigned i = 0; i < mBlits.size(); ++i){
+    mBlits[i]->realize();
+  }
+}
+
 TR_CHANNEL(ADV_Animation);
 
 Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0), mTimeAccu(0), mHandler(NULL){
@@ -168,6 +174,12 @@ void Animation::executeScript(){
   if (!Engine::instance()->getInterpreter()->executeImmediately(ctx)){
     TR_USE(ADV_Animation);
     TR_BREAK("Animation::executeScript script contains blocking commands");
+  }
+}
+
+void Animation::realize(){
+  for (unsigned k = 0; k < mBlits.size(); ++k){
+    mBlits[k]->realize();
   }
 }
 

@@ -22,7 +22,7 @@ BaseBlitObject::~BaseBlitObject(){
 }
 
 BlitObject::BlitObject(int width, int height, int depth, GLenum format) : 
-BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
+BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mScale(1.0f, 1.0f), mTex(0), mImage(NULL), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
   mScale.y = ((float)mSize.y)/pow2.y;
@@ -39,22 +39,21 @@ BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mMirrorOffset(), mRotAng
 }
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
-BaseBlitObject(depth, Vec2i()), mOffset(offset), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
-  CGE::Image* image = Engine::instance()->getImage(texture);
-  mTex = Engine::instance()->genTexture(image, mSize, mScale);
-  delete image;
+BaseBlitObject(depth, Vec2i()), mOffset(offset), mScale(1.0f, 1.0f), mTex(0), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
+  mImage = Engine::instance()->getImage(texture);
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = true;
 }
 
 BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
-BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mMirrorOffset(), mRotAngle(0), mBlendMode(BLEND_ALPHA)
+BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mImage(NULL), mMirrorOffset(), mRotAngle(0), mBlendMode(BLEND_ALPHA)
 {
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = false;
 }
 
 BlitObject::~BlitObject(){
+  delete mImage;
   if (mDeleteTex)
     glDeleteTextures(1, &mTex);
 }
@@ -102,6 +101,7 @@ void BlitObject::blit(){
   GL()loadIdentity();
   GL()scalef(mScale.x, mScale.y, 1.0f);
   GL()matrixMode(MM_MODELVIEW);
+  realize();
   glBindTexture(GL_TEXTURE_2D, mTex);
   GL()color4ub(mColor.r, mColor.g, mColor.b, mColor.a);
   GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -118,6 +118,14 @@ BlitObject* BlitObject::clone(){
 void BlitObject::updateTexture(unsigned width, unsigned height, void* data){
   glBindTexture(GL_TEXTURE_2D, mTex);
   glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+}
+
+void BlitObject::realize(){
+  if (mImage == NULL)
+    return;
+  mTex = Engine::instance()->genTexture(mImage, mSize, mScale);
+  delete mImage;
+  mImage = NULL;
 }
 
 LightingBlitObject::LightingBlitObject(int depth, const Vec2i& size) : BaseBlitObject(depth, size){
