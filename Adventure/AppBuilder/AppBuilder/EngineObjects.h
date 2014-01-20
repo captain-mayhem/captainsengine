@@ -102,6 +102,7 @@ public:
   float getRotation() {return mRotAngle;}
   void setLighten(bool lighten);
   virtual void update(unsigned interval);
+  virtual void realize();
 protected:
   int mState;
   Vec2i mPos;

@@ -90,6 +90,7 @@ protected:
   unsigned mCurrArg;
   std::map<std::string, std::map<int, std::string> > mRelVars;
   std::map<std::string, int> mArgEC;
+  CGE::Mutex mMutex;
 
   EngineEvent getEngineEvent(const std::string eventname);
   void update(ExecutionContext* ctx, unsigned time, bool execute=true);

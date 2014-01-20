@@ -9,9 +9,11 @@
 
 namespace adv{
 
+class EventQueue;
+
 class Event{
 public:
-  virtual void execute() = 0;
+  virtual Event* execute() = 0;
 };
 
 class EventQueue{
@@ -24,14 +26,23 @@ private:
 };
 
 class ExecutionContext;
+class AdvDocument;
+class PcdkScript;
 
 class ResLoader : public CGE::ActiveObject{
 public:
-  void loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading);
+  ResLoader();
+  ~ResLoader();
+  void setData(AdvDocument* data);
+  void loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset);
+  bool handleResultEvent();
 protected:
   virtual bool run();
 private:
-  EventQueue mQ;
+  AdvDocument* mData;
+  EventQueue mQReq;
+  EventQueue mQRes;
+  PcdkScript* mCompiler;
 };
 
 }

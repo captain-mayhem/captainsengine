@@ -320,6 +320,14 @@ void Object2D::update(unsigned interval){
     anim->update(interval);
 }
 
+void Object2D::realize(){
+  for (unsigned i = 0; i < mAnimations.size(); ++i){
+    mAnimations[i]->realize();
+  }
+  if (mScript)
+    Engine::instance()->getInterpreter()->execute(mScript, false);
+}
+
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "!button"),
 BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i()), mText(text){
   char tmp[16];

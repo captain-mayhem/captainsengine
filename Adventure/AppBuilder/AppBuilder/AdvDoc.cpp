@@ -723,6 +723,7 @@ bool AdvDocument::loadFile5(CGE::MemReader& txtstream){
 
 CGE::Image* AdvDocument::getImage(const std::string& name){
   TR_USE(ADV_DATA);
+  mMuty.lock();
   std::string idxname = toLower(name);
   std::string filename;
   std::map<std::string,std::string>::iterator iter = mImageNames.find(idxname);
@@ -736,8 +737,10 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
     static CGE::ZipReader zrdr(mPath+"/gfx.dat");
     std::string imagename = filename.substr(namepos+1);
     CGE::MemReader rdr = zrdr.openEntry(imagename, mZipPwd);
-    if (!rdr.isWorking())
+    if (!rdr.isWorking()){
+      mMuty.unlock();
       return NULL;
+    }
     int extpos = filename.find_last_of('.');
     CGE::Image* img = NULL;
     if (filename.substr(extpos+1) == "pnj"){
@@ -753,9 +756,11 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
       CGE::ImageLoader::Type imgtype = CGE::ImageLoader::determineType(imagename);
       img = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), imgtype);
     }
+    mMuty.unlock();
     return img;
   }
   CGE::Image* img = CGE::ImageLoader::load(filename.c_str());
+  mMuty.unlock();
   return img;
 }
 
@@ -1017,14 +1022,17 @@ Item* AdvDocument::getItem(const std::string& name){
 }
 
 Room* AdvDocument::getRoom(Object* obj){
+  //mMuty.lock();
   for (std::map<std::string,Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     for (std::vector<Roomobject>::iterator objiter = iter->second.objects.begin(); objiter != iter->second.objects.end(); ++objiter){
       if (objiter->name == obj->name)
+        //mMuty.unlock();
         return &iter->second;
     }
   }
   TR_USE(ADV_DATA)
   TR_BREAK("Room not found");
+  //mMuty.unlock();
   return NULL;
 }
 
