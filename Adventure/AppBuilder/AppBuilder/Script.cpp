@@ -217,6 +217,7 @@ ASTNode* stringify(ASTNode* node){
 ExecutionContext* PcdkScript::parseProgram(std::string program){
   if (program.empty())
     return NULL;
+  mMutex.lock();
   pANTLR3_INPUT_STREAM input;
   ppcdkLexer lexer;
   pANTLR3_COMMON_TOKEN_STREAM tokStream;
@@ -263,11 +264,14 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   }
   mUnresolvedBranches.clear();
   delete p;
+  bool isGameObject = mIsGameObject;
+  std::string objectInfo = mObjectInfo;
+  mMutex.unlock();
   if (segment->numInstructions() == 0 && segment->getLoop1() == NULL){
     delete segment;
     return NULL;
   }
-  return new ExecutionContext(segment, mIsGameObject, mObjectInfo);
+  return new ExecutionContext(segment, isGameObject, objectInfo);
 }
 
 unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext){

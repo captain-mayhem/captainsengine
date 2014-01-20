@@ -7,6 +7,7 @@
 
 #include <image/image.h>
 #include <system/types.h>
+#include <system/thread.h>
 #include "Ids.h"
 #include "Vector.h"
 #include "String.h"
@@ -317,6 +318,7 @@ protected:
   bool mUseCompressedData;
   std::string mZipPwd;
   std::map<std::string, Language> mLanguages;
+  CGE::Mutex mMuty;
 };
 
 }
