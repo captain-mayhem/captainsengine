@@ -122,6 +122,7 @@ public:
   void setScrollSpeed(float speed, bool followChar)  {mScrollSpeed = speed; mCamFollowChar = followChar;}
   float getScrollSpeed() {return mScrollSpeed;}
   bool isSubRoomLoaded() {return mSubRoomLoaded;}
+  void insertRoom(RoomObject* room, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading);
 protected:
   Engine();
   static Engine* mInstance;

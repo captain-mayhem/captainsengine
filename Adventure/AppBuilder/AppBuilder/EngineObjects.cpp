@@ -827,6 +827,13 @@ float RoomObject::getWalkGridSize(){
   return Engine::instance()->getWalkGridSize(mDoubleWalkmap);
 }
 
+void RoomObject::realize(){
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    mObjects[i]->realize();
+  }
+  Object2D::realize();
+}
+
 CharacterObject::CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(mirror), mTextColor(), 
 mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0),
