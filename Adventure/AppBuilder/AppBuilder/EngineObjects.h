@@ -198,6 +198,7 @@ public:
   void setFadeout(int time) {mFadeout = time;}
   int getFadeout() {return mFadeout;}
   float getWalkGridSize();
+  virtual void realize();
 protected:
   class DepthMap {
   public:

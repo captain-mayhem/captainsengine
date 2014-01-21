@@ -19,8 +19,10 @@ public:
 class EventQueue{
 public:
   void addEvent(Event* evt) {mQueue.push(evt);}
-  Event* getEvent() {if (mQueue.empty()) return NULL; Event* evt = mQueue.front(); mQueue.pop(); return evt;}
+  Event* getEvent() {if (mQueue.empty()) return NULL; Event* evt = mQueue.front(); return evt;}
+  void popEvent() {mQueue.pop();}
   bool empty() {return mQueue.empty();}
+  unsigned size() {return mQueue.size();}
 private:
   std::queue<Event*> mQueue;
 };
@@ -36,12 +38,15 @@ public:
   void setData(AdvDocument* data);
   void loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset);
   bool handleResultEvent();
+  void waitUntilFinished();
 protected:
   virtual bool run();
 private:
   AdvDocument* mData;
   EventQueue mQReq;
   EventQueue mQRes;
+  CGE::Mutex mResMutex;
+  CGE::Condition mResCond;
   PcdkScript* mCompiler;
 };
 

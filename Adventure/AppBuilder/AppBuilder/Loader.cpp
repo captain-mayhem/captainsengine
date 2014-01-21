@@ -14,7 +14,9 @@ public:
   RoomLoadedEvent(RoomObject* room, bool isSubRoom, ExecutionContext* loadreason, ScreenChange screenchange, int fading) :
       mRoom(room), mIsSubRoom(isSubRoom), mLoadreason(loadreason), mScreenchange(screenchange), mFading(fading) {}
       virtual Event* execute(){
-        delete mRoom;
+        mRoom->realize();
+        Engine::instance()->insertRoom(mRoom, mIsSubRoom, mLoadreason, mScreenchange, mFading);
+        //delete mRoom;
         return NULL;
       }
 private:
@@ -182,9 +184,14 @@ bool ResLoader::run(){
     mMutex.unlock();
     Event* res = evt->execute();
     delete evt;
-    mMutex.lock();
-    if (res != NULL)
+    if (res != NULL){
+      mResMutex.lock();
       mQRes.addEvent(res);
+      mResCond.signal();
+      mResMutex.unlock();
+    }
+    mMutex.lock();
+    mQReq.popEvent();
   }
   mCond.wait(mMutex);
   mMutex.unlock();
@@ -192,17 +199,34 @@ bool ResLoader::run(){
 }
 
 bool ResLoader::handleResultEvent(){
-  mMutex.lock();
+  mResMutex.lock();
   if (!mQRes.empty()){
     Event* evt = mQRes.getEvent();
-    mMutex.unlock();
+    mResMutex.unlock();
     evt->execute();
     delete evt;
-    mMutex.lock();
+    mResMutex.lock();
+    mQRes.popEvent();
   }
   bool empty = mQRes.empty();
-  mMutex.unlock();
+  mResMutex.unlock();
   return !empty;
+}
+
+void ResLoader::waitUntilFinished(){
+  while(1){
+    mMutex.lock();
+    unsigned reqCount = mQReq.size();
+    mMutex.unlock();
+    mResMutex.lock();
+    if (reqCount+mQRes.size() == 0){
+      mResMutex.unlock();
+      return;
+    }
+    mResCond.wait(mResMutex);
+    mResMutex.unlock();
+    handleResultEvent();
+  }
 }
 
 void ResLoader::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset){
