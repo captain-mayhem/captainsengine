@@ -21,21 +21,13 @@ BaseBlitObject::~BaseBlitObject(){
 
 }
 
-BlitObject::BlitObject(int width, int height, int depth, GLenum format) : 
+BlitObject::BlitObject(int width, int height, int depth) : 
 BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mScale(1.0f, 1.0f), mTex(0), mImage(NULL), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
   mScale.y = ((float)mSize.y)/pow2.y;
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = true;
-  glGenTextures(1, &mTex);
-  GLint mOldTex;
-  glGetIntegerv(GL_TEXTURE_BINDING_2D, &mOldTex);
-  glBindTexture(GL_TEXTURE_2D, mTex);
-  glTexImage2D(GL_TEXTURE_2D, 0, format, pow2.x, pow2.y, 0, format, GL_UNSIGNED_BYTE, NULL);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-  glBindTexture(GL_TEXTURE_2D, mOldTex);
 }
 
 BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
@@ -101,7 +93,7 @@ void BlitObject::blit(){
   GL()loadIdentity();
   GL()scalef(mScale.x, mScale.y, 1.0f);
   GL()matrixMode(MM_MODELVIEW);
-  realize();
+
   glBindTexture(GL_TEXTURE_2D, mTex);
   GL()color4ub(mColor.r, mColor.g, mColor.b, mColor.a);
   GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -126,6 +118,18 @@ void BlitObject::realize(){
   mTex = Engine::instance()->genTexture(mImage, mSize, mScale);
   delete mImage;
   mImage = NULL;
+}
+
+void BlitObject::realizeEmpty(GLenum format){
+  Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
+  glGenTextures(1, &mTex);
+  GLint mOldTex;
+  glGetIntegerv(GL_TEXTURE_BINDING_2D, &mOldTex);
+  glBindTexture(GL_TEXTURE_2D, mTex);
+  glTexImage2D(GL_TEXTURE_2D, 0, format, pow2.x, pow2.y, 0, format, GL_UNSIGNED_BYTE, NULL);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+  glBindTexture(GL_TEXTURE_2D, mOldTex);
 }
 
 LightingBlitObject::LightingBlitObject(int depth, const Vec2i& size) : BaseBlitObject(depth, size){
@@ -176,12 +180,16 @@ void ScrollBlitObject::render(const Vec2i& pos){
 }
 
 RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth){
+}
+
+void RenderableBlitObject::realize(){
   TR_USE(ADV_Render_BlitObject);
-  int powx = (int)(width/mScale.x);
-  int powy = (int)(height/mScale.y);
+  BlitObject::realizeEmpty();
+  int powx = (int)(mSize.x/mScale.x);
+  int powy = (int)(mSize.y/mScale.y);
   glGenRenderbuffers(1, &mRenderBuffer);
   glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, (int)(width/mScale.x), (int)(height/mScale.y));
+  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, (int)(mSize.x/mScale.x), (int)(mSize.y/mScale.y));
   glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
   glGenFramebuffers(1, &mFrameBuffer);

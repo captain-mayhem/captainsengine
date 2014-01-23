@@ -45,7 +45,7 @@ public:
     BLEND_ADDITIVE,
     BLEND_PREMULT_ALPHA,
   };
-  BlitObject(int width, int height, int depth, GLenum format=GL_RGBA);
+  BlitObject(int width, int height, int depth);
   BlitObject(std::string texture, int depth, Vec2i offset);
   BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
   virtual ~BlitObject();
@@ -58,8 +58,9 @@ public:
   void setRotation(float angle) {mRotAngle = angle;}
   void setBlendMode(BlendMode mode) {mBlendMode = mode;}
   void updateTexture(unsigned width, unsigned height, void* data);
-  GLuint getTexture() {realize(); return mTex;}
-  void realize();
+  GLuint getTexture() {return mTex;}
+  virtual void realize();
+  void realizeEmpty(GLenum format=GL_RGBA);
 protected:
   Vec2i mOffset;
   Vec2f mScale;
@@ -94,6 +95,7 @@ public:
   ~RenderableBlitObject();
   void bind();
   void unbind();
+  virtual void realize();
 protected:
   GLuint mRenderBuffer;
   GLuint mFrameBuffer;

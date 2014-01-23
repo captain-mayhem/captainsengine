@@ -15,6 +15,7 @@ void ScreenChangeBase::screenChangeSwitch(){
 }
 
 Screenshot::Screenshot(int depth) : RenderableBlitObject(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, depth){
+  realize();
 }
 
 void Screenshot::take(){

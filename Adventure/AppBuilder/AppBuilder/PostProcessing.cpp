@@ -544,6 +544,7 @@ public:
     mStdShader.deactivate();
     for (int i = 0; i < 3; ++i){
       RenderableBlitObject* rbo = new RenderableBlitObject(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, 0);
+      rbo->realize();
       mGenFrames.push_back(rbo);
     }
   }
@@ -952,6 +953,7 @@ public:
   virtual void init(const Vec2f& size){
     glActiveTexture(GL_TEXTURE1);
     mFBO = new RenderableBlitObject((int)size.x, (int)size.y, 0);
+    mFBO->realize();
     Vec2i imgsize;
     Vec2f imgscale;
     glActiveTexture(GL_TEXTURE0);
@@ -1491,6 +1493,8 @@ private:
 #define REGISTER_EFFECT(effect, class, ...) class* effect = new class(__VA_ARGS__); mEffects[effect->getName()] = effect;
 
 PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width, height, depth), mResult2(width, height, depth){
+  mResult1.realize();
+  mResult2.realize();
   REGISTER_EFFECT(darkbloom, BloomEffect, "darkbloom", darkbloomfs);
   REGISTER_EFFECT(noise, NoiseEffect);
   REGISTER_EFFECT(hell, BloomEffect, "hell", hellfs);

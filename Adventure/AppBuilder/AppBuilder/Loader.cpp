@@ -108,7 +108,7 @@ public:
           break;
         }
       }
-      CharacterObject* character = NULL;//TODO loadCharacter(ch.name, ch.character, false, mLoadreason);
+      CharacterObject* character = Engine::instance()->loadCharacter(ch.name, ch.character, false, mLoadreason);
       if (character){
         character->setScale(roomobj->getDepthScale(character->getPosition()));
         roomobj->addObject(character);
@@ -217,8 +217,8 @@ void ResLoader::waitUntilFinished(){
   while(1){
     mMutex.lock();
     unsigned reqCount = mQReq.size();
-    mMutex.unlock();
     mResMutex.lock();
+    mMutex.unlock();
     if (reqCount+mQRes.size() == 0){
       mResMutex.unlock();
       return;

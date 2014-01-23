@@ -105,6 +105,7 @@ void Engine::initGame(exit_callback exit_cb){
   mCursor = new CursorObject(Vec2i(0,0));
   for (unsigned j = 0; j < cursor->size(); ++j){
     Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, DEPTH_CURSOR);
+    anim->realize();
     mCursor->addAnimation(anim, (*cursor)[j].command-1);
   }
   //load fonts
@@ -158,6 +159,7 @@ void Engine::initGame(exit_callback exit_cb){
   mPendingLoadRoom.reason = NULL;
   mPendingLoadRoom.screenchange = SC_DIRECT;
   mRenderedMain = new RenderableBlitObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
+  mRenderedMain->realize();
   mRenderedMain->setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
   mPostProc = new PostProcessor(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
   mMouseShown = true;
@@ -626,8 +628,6 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
     if (!mMainRoomLoaded)
       depthoffset += 1000;
   }
-  //trigger async loader
-  mLoader.loadRoom(name, isSubRoom, loadreason, change, fading, depthoffset);
 
   if (mMainRoomLoaded && !isSubRoom){
     TR_INFO("requested loading of room %s", name.c_str());
@@ -642,6 +642,9 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
     mPendingLoadRoom.screenchange = change;
     return false;
   }
+
+  //trigger async loader
+  mLoader.loadRoom(name, isSubRoom, loadreason, change, fading, depthoffset);
 
   mLoader.waitUntilFinished();
 
@@ -928,6 +931,7 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
     mSaver->removeCharacter(res->getName());
     res->setScrollOffset(rm->scrolloffset);
     mFocussedChar = res;
+    mFocussedChar->realize();
     delete deletionChar;
     return true;
   }
@@ -1171,6 +1175,7 @@ ItemObject* Engine::createItem(const std::string& name, int count){
     object->setScript(scr);
     mInterpreter->execute(scr, false);
   }
+  object->realize();
   return object;
 }
 
@@ -1357,6 +1362,7 @@ void Engine::keyPress(int key){
             else{
               //use internal menu
               Menu* menu = new Menu();
+              menu->realize();
               mRooms.push_front(menu);
               mSubRoomLoaded = true;
               mMenuShown = true;
@@ -1463,6 +1469,7 @@ void Engine::renderUnloadingRoom(){
   }
   
   RenderableBlitObject mainroom(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
+  mainroom.realize();
   mainroom.setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
   mainroom.bind();
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -828,10 +828,15 @@ float RoomObject::getWalkGridSize(){
 }
 
 void RoomObject::realize(){
+  Object2D::realize();
   for (unsigned i = 0; i < mObjects.size(); ++i){
     mObjects[i]->realize();
   }
-  Object2D::realize();
+  if (mParallaxBackground)
+    mParallaxBackground->realize();
+  for (unsigned i = 0; i < mMirrors.size(); ++i){
+    mMirrors[i]->realize();
+  }
 }
 
 CharacterObject::CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name) 
