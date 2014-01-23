@@ -212,7 +212,6 @@ String ExecutionContext::resolveCharName(const String& name){
       return mSelf;
     CharacterObject* co = Engine::instance()->getCharacter("self");
     if (!co){
-      TR_BREAK("What is self");
       return "";
     }
     return co->getName();
@@ -222,5 +221,7 @@ String ExecutionContext::resolveCharName(const String& name){
 
 CharacterObject* ExecutionContext::getCharacter(const String& name){
   String realname = resolveCharName(name);
+  if (realname.empty())
+    return NULL;
   return Engine::instance()->getCharacter(realname);
 }

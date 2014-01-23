@@ -243,6 +243,7 @@ void SwfPlayer::initLayer(int x, int y, int width, int height){
   mScale.x = width/(float)mSize.x;
   mScale.y = height/(float)mSize.y;
   mLayer = new RenderableBlitObject(mSize.x, mSize.y, DEPTH_VIDEO_LAYER);
+  mLayer->realize();
 }
 
 void SwfPlayer::setSuspensionScript(ExecutionContext* ctx){

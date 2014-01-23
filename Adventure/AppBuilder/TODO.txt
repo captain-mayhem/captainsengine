@@ -9,11 +9,17 @@ playing of swf (flash) | 6
 special effects | 4
 particle barriers: bounding box calculation of particles when rotated | 5
 path finding with less direction changes | 5
-correct "self" reference when other characters trigger walkmap | 1
+async loading | 1
 
 Editor
 ------
 Script-Autocompletion | 3
+
+Async loading
+-------------
+Characters in loadRoomEvent => thread-safety
+realize for Characters => walksound
+Handling of loading/unloading room => when to trigger async loader, when to merge result
 
 Tests
 -----

@@ -520,6 +520,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       obj = Engine::instance()->loadCharacter(realcharname, Engine::instance()->getCharacterClass(realcharname), false, &ctx);
       Engine::instance()->getSaver()->getRoom(obj->getRoom());
       Engine::instance()->getSaver()->removeCharacter(obj->getName());
+      obj->realize();
     }
     if (obj){
       obj->abortClick();   
@@ -2674,6 +2675,7 @@ int ScriptFunctions::loadChar(ExecutionContext& ctx, unsigned numArgs){
   std::string name = ctx.stack().pop().getString();
   std::string dummy;
   CharacterObject* ch = Engine::instance()->loadCharacter(name, Engine::instance()->getCharacterClass(name), false, &ctx);
+  ch->realize();
   delete ch;
   return 0;
 }

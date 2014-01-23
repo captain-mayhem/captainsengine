@@ -35,6 +35,7 @@ void ParticleEngine::setParticleObject(const std::string& name, float initialRot
     mParticleObject->addAnimation(anim);
   }
   mParticleObject->setRotation(initialRotation);
+  mParticleObject->realize();
   mEmissionInterval = 20;//max(mParticleObject->getSize().x, mParticleObject->getSize().y);
   mEmissionInterval = (unsigned)(20*mEmissionInterval/mDir.length());
   return;
