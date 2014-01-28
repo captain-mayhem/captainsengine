@@ -157,7 +157,7 @@ std::istream& operator>>(std::istream& strm, Color& color){
 
 }
 
-SaveStateProvider::SaveStateProvider(AdvDocument* data) : mData(data), mNoWrites(0) {
+SaveStateProvider::SaveStateProvider(AdvDocument* data) : mData(data), mNoWrites(0), mMuty(true) {
 
 }
 
@@ -327,7 +327,9 @@ void SaveStateProvider::save(const std::string& name){
   //save room data
   out << mRooms.size() << std::endl;
   for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    out << iter->first << std::endl << *iter->second;
+    String rname = iter->first;
+    out << rname;
+    out << std::endl << *iter->second;
   }
   //save loaded rooms
   int roomsToSave = Engine::instance()->mRooms.size();
@@ -335,7 +337,9 @@ void SaveStateProvider::save(const std::string& name){
     --roomsToSave;//do not save active subroom
   out << roomsToSave;
   for (std::list<RoomObject*>::reverse_iterator iter = Engine::instance()->mRooms.rbegin(); iter != Engine::instance()->mRooms.rend(); ++iter){
-    out << " " << (*iter)->getName();
+    out << " ";
+    String rname = (*iter)->getName();
+    out << rname;
     --roomsToSave;
     if (roomsToSave <= 0)
       break;
@@ -392,7 +396,7 @@ void SaveStateProvider::load(const std::string& name){
   Engine::instance()->getInterpreter()->setLanguage(language);
   int numRooms;
   in >> numRooms;
-  std::string roomname;
+  String roomname;
   for (int i = 0; i < numRooms; ++i){
     in >> roomname;
     SaveRoom* room = new SaveRoom;
@@ -445,12 +449,14 @@ std::string SaveStateProvider::saveSlotToPath(int slot){
 }
 
 SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::string& name, std::string& room, std::string& realName){
+  mMuty.lock();
   //check if already present
   for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     for (std::map<std::string,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
       if (_stricmp(chriter->first.c_str(), name.c_str()) == 0){
         room = iter->second->base.name;
         realName = chriter->first;
+        mMuty.unlock();
         return chriter->second;
       }
     }
@@ -462,39 +468,51 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::s
       realName = mData->getRoomCharacters()[i].name;
       SaveRoom* saveroom = getRoom(room);
       std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.find(realName);
-      if (iter != saveroom->characters.end())
+      if (iter != saveroom->characters.end()){
+        mMuty.unlock();
         return iter->second;
+      }
       for (std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.begin(); iter != saveroom->characters.end(); ++iter){
-        if (_stricmp(iter->first.c_str(), name.c_str()) == 0)
+        if (_stricmp(iter->first.c_str(), name.c_str()) == 0){
+          mMuty.unlock();
           return iter->second;
+        }
       }
     }
   }
+  mMuty.unlock();
   return NULL;
 }
 
 SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& name, std::string& room){
+  mMuty.lock();
   //check if already present
   for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     for (std::map<std::string,SaveObject*>::iterator objiter = iter->second->objects.begin(); objiter != iter->second->objects.end(); ++objiter){
       if (_stricmp(objiter->first.c_str(), name.c_str()) == 0){
         room = iter->second->base.name;
+        mMuty.unlock();
         return objiter->second;
       }
     }
   }
   //load the room with the object into saving
   Object* obj = mData->getObject(name);
-  if (obj == NULL)
+  if (obj == NULL){
+    mMuty.unlock();
     return NULL;
+  }
   Room* rm = mData->getRoom(obj);
   room = rm->name;
   SaveRoom* saveroom = getRoom(room);
   std::map<std::string,SaveObject*>::iterator iter = saveroom->objects.find(obj->name);
-  if (iter != saveroom->objects.end())
+  if (iter != saveroom->objects.end()){
+    mMuty.unlock();
     return iter->second;
+  }
   TR_USE(ADV_SaveState);
   TR_BREAK("Object %s not found in %s", name.c_str(), room.c_str());
+  mMuty.unlock();
   return NULL;
 }
 

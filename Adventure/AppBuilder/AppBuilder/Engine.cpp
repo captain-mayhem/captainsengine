@@ -1272,6 +1272,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
     obj = mSaver->findCharacter(instanceName, room, realName);
     if (obj){
       loadMainRoom(room, loadreason, Engine::instance()->getScreenChange());
+      mLoader.waitUntilFinished();
       CharacterObject* chr = extractCharacter(realName);
       if (chr)
         return chr;
@@ -1294,7 +1295,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   character->setRoom(room);
   character->setNoZooming(obj->nozooming, true);
   if (!obj->walksound.empty()){
-    SoundPlayer* plyr = SoundEngine::instance()->getSound(obj->walksound, SoundEngine::PLAYER_CREATE_ALWAYS | SoundEngine::PLAYER_UNMANAGED);
+    SoundPlayer* plyr = SoundEngine::instance()->getSound(obj->walksound, SoundEngine::PLAYER_CREATE_ALWAYS | SoundEngine::PLAYER_UNMANAGED | SoundEngine::PLAYER_UNREALIZED);
     character->setWalkSound(plyr);
   }
   if (!obj->linkedObject.empty()){
@@ -1315,7 +1316,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
     ExecutionContext* scr = mInterpreter->parseProgram(script->text);
     if (scr){
       character->setScript(scr);
-      mInterpreter->execute(scr, false);
+      //mInterpreter->execute(scr, false);
     }
   }
   for (std::map<int,std::vector<SaveStateProvider::SaveItem> >::iterator inviter = obj->inventory.items.begin();

@@ -874,6 +874,12 @@ CharacterObject::~CharacterObject(){
   delete mInventory;
 }
 
+void CharacterObject::realize(){
+  Object2D::realize();
+  if (mWalkSound)
+    mWalkSound->realize();
+}
+
 void CharacterObject::setPosition(const Vec2i& pos){
   Vec2i offset;
   if (mState != 0)

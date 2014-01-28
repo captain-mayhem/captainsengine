@@ -27,6 +27,7 @@ public:
   virtual void render(unsigned time);
   void initLayer(int x, int y, int width, int height);
   void setSuspensionScript(ExecutionContext* ctx);
+  virtual void realize() {}
 protected:
   bool parseFile();
   bool processTags();

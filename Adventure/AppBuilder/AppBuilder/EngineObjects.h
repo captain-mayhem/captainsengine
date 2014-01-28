@@ -273,7 +273,8 @@ public:
   //virtual bool animationEnded(Animation* anim);
   virtual void activateNextState();
   float getWalkGridSize();
-  virtual void setScript(ExecutionContext* script) {Object2D::setScript(script); if (script) script->setSelf(getName());}
+  virtual void setScript(ExecutionContext* script) {Object2D::setScript(script); /*if (script) script->setSelf(getName());*/}
+  virtual void realize();
 protected:
   static int calculateState(LookDir dir, bool& mirror);
   static int calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror=false);

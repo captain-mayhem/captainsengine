@@ -18,7 +18,6 @@ Script-Autocompletion | 3
 Async loading
 -------------
 Characters in loadRoomEvent => thread-safety
-realize for Characters => walksound
 Handling of loading/unloading room => when to trigger async loader, when to merge result
 
 Tests

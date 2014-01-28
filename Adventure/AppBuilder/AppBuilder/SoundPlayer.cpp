@@ -38,12 +38,20 @@ extern "C"{
 using namespace adv;
 
 SoundPlayer::SoundPlayer(const std::string& name, bool effectEnabled) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), 
-mName(name), mStartVolume(1.0f), mEndVolume(1.0f), mFadeDuration(0), mCurrTime(0), mEffectEnabled(effectEnabled){
+mName(name), mStartVolume(1.0f), mEndVolume(1.0f), mFadeDuration(0), mCurrTime(0), mEffectEnabled(effectEnabled), mSpeed(0){
+#ifndef DISABLE_SOUND
+  mSource = 0;
+#endif
+}
+
+void SoundPlayer::realize(){
 #ifndef DISABLE_SOUND
   alGenSources(1, &mSource);
-  if (effectEnabled)
+  if (mEffectEnabled)
     alSource3i(mSource, AL_AUXILIARY_SEND_FILTER, SoundEngine::instance()->getEffectSlot(), 0, AL_FILTER_NULL);
 #endif
+  if (mSpeed != 0)
+    setSpeed(mSpeed);
 }
 
 SoundPlayer::~SoundPlayer(){
@@ -110,14 +118,20 @@ bool SoundPlayer::fadeUpdate(unsigned time){
 }
 
 void SoundPlayer::setSpeed(float factor){
+  mSpeed = factor;
 #ifndef DISABLE_SOUND
-  alSourcef(mSource, AL_PITCH, factor);
+  if (mSource != 0)
+    alSourcef(mSource, AL_PITCH, factor);
 #endif
 }
 
 #ifndef DISABLE_SOUND
 SimpleSoundPlayer::SimpleSoundPlayer(const std::string& name, ALuint buffer, bool effectEnabled) : SoundPlayer(name, effectEnabled), mBuffer(buffer){
-  alSourcei(mSource, AL_BUFFER, buffer);
+}
+
+void SimpleSoundPlayer::realize(){
+  SoundPlayer::realize();
+  alSourcei(mSource, AL_BUFFER, mBuffer);
 }
 
 SimpleSoundPlayer::~SimpleSoundPlayer(){
@@ -164,12 +178,30 @@ mLooping(false), mStop(true), mPlay(false), mAutoDelete(true) {
   mALBuffer.used = 0;
 }
 
+void StreamSoundPlayer::realize(){
+  SoundPlayer::realize();
+  if (mStreamDB != NULL)
+    openStream(*mStreamDB);
+  else
+    openStream(mStreamF);
+}
+
 StreamSoundPlayer::~StreamSoundPlayer(){
   closeStream();
   //deallocate this way, as it was allocated by av_malloc
   av_free(mDecodeBuffer.data);
   mDecodeBuffer.data = NULL;
   //remove(mFilename.c_str());
+}
+
+void StreamSoundPlayer::setStream(const std::string& filename){
+  mStreamF = filename;
+  mStreamDB = NULL;
+}
+
+void StreamSoundPlayer::setStream(const DataBuffer& buffer){
+  mStreamF = "";
+  mStreamDB = &buffer;
 }
 
 bool StreamSoundPlayer::openStream(const std::string& filename){
