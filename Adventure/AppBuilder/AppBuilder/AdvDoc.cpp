@@ -766,9 +766,11 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
 
 bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
   TR_USE(ADV_DATA);
+  mMuty.lock();
   std::map<std::string, std::string>::iterator iter = mSoundNames.find(toLower(name));
   if (iter == mSoundNames.end()){
     TR_WARN("Sound %s not found", name.c_str());
+    mMuty.unlock();
     return false;
   }
   std::string filename = iter->second;
@@ -777,8 +779,10 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
   if (mUseCompressedData){
     static CGE::ZipReader zrdr(mPath+"/sfx.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1), mZipPwd);
-    if (!rdr.isWorking())
+    if (!rdr.isWorking()){
+      mMuty.unlock();
       return false;
+    }
     db.length = rdr.getSize();
     db.data = new char[db.length];
     memcpy(db.data, rdr.getData(), db.length);
@@ -789,18 +793,22 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
     db.data = new char[db.length];
     strm.readBytes((unsigned char*)db.data, db.length);
   }
+  mMuty.unlock();
   return true;
 }
 
 bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
+  mMuty.lock();
   std::string filename = mMusicNames[name];
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
   if (mUseCompressedData){
     static CGE::ZipReader zrdr(mPath+"/music.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1), mZipPwd);
-    if (!rdr.isWorking())
+    if (!rdr.isWorking()){
+      mMuty.unlock();
       return false;
+    }
     db.length = rdr.getSize();
     db.data = new char[db.length];
     memcpy(db.data, rdr.getData(), db.length);
@@ -811,18 +819,22 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
     db.data = new char[db.length];
     strm.readBytes((unsigned char*)db.data, db.length);
   }
+  mMuty.unlock();
   return true;
 }
 
 bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
+  mMuty.lock();
   std::string filename = mMovieNames[name];
   int pos = filename.find_last_of('/');
   db.name = filename.substr(pos+1);
   if (mUseCompressedData){
     static CGE::ZipReader zrdr(mPath+"/movie.dat");
     CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1), mZipPwd);
-    if (!rdr.isWorking())
+    if (!rdr.isWorking()){
+      mMuty.unlock();
       return false;
+    }
     db.length = rdr.getSize();
     db.data = new char[db.length];
     memcpy(db.data, rdr.getData(), db.length);
@@ -833,6 +845,7 @@ bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
     db.data = new char[db.length];
     strm.readBytes((unsigned char*)db.data, db.length);
   }
+  mMuty.unlock();
   return true;
 }
 

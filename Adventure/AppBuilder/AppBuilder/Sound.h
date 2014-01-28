@@ -33,6 +33,7 @@ public:
     PLAYER_DEFAULT=0,
     PLAYER_CREATE_ALWAYS=1,
     PLAYER_UNMANAGED=2,
+    PLAYER_UNREALIZED=4,
   };
   ~SoundEngine();
   static void init() {mInstance = new SoundEngine();}

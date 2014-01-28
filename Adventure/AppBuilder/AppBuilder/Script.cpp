@@ -242,6 +242,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
     lexer->free(lexer);
     input->free(input);
     delete p;
+    mMutex.unlock();
     return NULL;
   }
   parser->free(parser);

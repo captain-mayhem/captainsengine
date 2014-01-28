@@ -265,6 +265,8 @@ SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled, 
     return NULL;
   }
   SoundPlayer* plyr = createPlayer(name, *db, effectEnabled);
+  if (plyr && !(flags & PLAYER_UNREALIZED))
+    plyr->realize();
   if (plyr && (flags & PLAYER_UNMANAGED))
     plyr->setAutoDelete(false);
   mActiveSounds.insert(std::make_pair(name, plyr));
@@ -287,6 +289,8 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name, bool effectEnabled){
   DataBuffer* db = new DataBuffer();
   mData->getMusic(name, *db);
   plyr = createPlayer(name, *db, effectEnabled);
+  if (plyr)
+    plyr->realize();
   if (mActiveMusic){
     //crossfade
     mActiveMusic->fadeVolume(mMusicVolume, 0.0f, mFadingTime);
@@ -318,6 +322,8 @@ VideoPlayer* SoundEngine::getMovie(const std::string& name, bool isSwf){
   DataBuffer* db = new DataBuffer();
   mData->getMovie(name, *db);
   plyr = createVideoPlayer(name, *db, isSwf);
+  if (plyr)
+    plyr->realize();
   if (mActiveVideo){
     mActiveVideo->stop();
     delete mActiveVideo;
@@ -328,8 +334,9 @@ VideoPlayer* SoundEngine::getMovie(const std::string& name, bool isSwf){
 
 SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer& db, bool effectEnabled){
 #ifndef DISABLE_SOUND
-  if (db.data == NULL)
+  if (db.data == NULL || db.length == 0){
     return NULL;
+  }
   /*char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir
 #ifdef WIN32
@@ -344,14 +351,15 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
   StreamSoundPlayer* plyr = new StreamSoundPlayer(name, effectEnabled);
-  if (plyr->openStream(db)){
+  plyr->setStream(db);
+  //if (plyr->openStream(db)){
     plyr->setSpeed(mSpeedFactor);
     return plyr;
-  }
+  /*}
   else{
     delete plyr;
     return NULL;
-  }
+  }*/
 #else
   return NULL;
 #endif
@@ -359,8 +367,9 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
 
 VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataBuffer& db, bool isSwf){
 #ifndef DISABLE_SOUND
-  if (db.data == NULL)
+  if (db.data == NULL || db.length == 0){
     return NULL;
+  }
   if (isSwf){
     SwfPlayer* plyr = new SwfPlayer(name, &db);
     return plyr;
@@ -379,13 +388,14 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
   //ALuint buffer = alutCreateBufferFromFileImage(db.data, db.length);
   //SoundPlayer* plyr = new SimpleSoundPlayer(buffer);
   StreamVideoPlayer* plyr = new StreamVideoPlayer(name);
-  if (plyr->openStream(db)){
-    return plyr;
-  }
-  else{
+  plyr->setStream(db);
+  //if (plyr->openStream(db)){
+  return plyr;
+  //}
+  /*else{
     delete plyr;
     return NULL;
-  }
+  }*/
 #else
   return NULL;
 #endif

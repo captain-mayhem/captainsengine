@@ -223,7 +223,8 @@ void ResLoader::waitUntilFinished(){
       mResMutex.unlock();
       return;
     }
-    mResCond.wait(mResMutex);
+    if (mQRes.size() == 0)
+      mResCond.wait(mResMutex);
     mResMutex.unlock();
     handleResultEvent();
   }

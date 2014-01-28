@@ -44,6 +44,7 @@ public:
   virtual void setAutoDelete(bool del) {}
   virtual bool hasAutoDeletion() {return true;}
   void setSpeed(float factor);
+  virtual void realize();
 protected:
   bool fadeUpdate(unsigned time);
 #ifndef DISABLE_SOUND
@@ -58,6 +59,7 @@ protected:
   unsigned mFadeDuration;
   unsigned mCurrTime;
   bool mEffectEnabled;
+  float mSpeed;
 };
 
 class VideoPlayer{
@@ -69,6 +71,7 @@ public:
   virtual void render(unsigned time)=0;
   virtual void initLayer(int x, int y, int width, int height)=0;
   virtual void setSuspensionScript(ExecutionContext* ctx)=0;
+  virtual void realize()=0;
 };
 
 }
@@ -86,6 +89,7 @@ public:
   void stop();
   bool update(unsigned time);
   void seek(int time) {}
+  virtual void realize();
 protected:
 #ifndef DISABLE_SOUND
   ALuint mBuffer;
@@ -107,8 +111,8 @@ class StreamSoundPlayer : public SoundPlayer{
 public:
   StreamSoundPlayer(const std::string& soundname, bool effectEnabled);
   virtual ~StreamSoundPlayer();
-  bool openStream(const std::string& filename);
-  bool openStream(const DataBuffer& buffer);
+  void setStream(const std::string& filename);
+  void setStream(const DataBuffer& buffer);
   void play(bool looping);
   void stop();
   bool update(unsigned time);
@@ -116,7 +120,10 @@ public:
   virtual bool isLooping() {return mLooping;}
   virtual void setAutoDelete(bool del) {mAutoDelete = del;}
   bool hasAutoDeletion() {return mAutoDelete;}
+  virtual void realize();
 protected:
+  bool openStream(const std::string& filename);
+  bool openStream(const DataBuffer& buffer);
   unsigned decode();
   bool getNextPacket();
   void closeStream();
@@ -139,6 +146,9 @@ protected:
   bool mAutoDelete;
   unsigned char* mMemoryBuffer;
   void* mMemoryStream;
+
+  const DataBuffer* mStreamDB;
+  std::string mStreamF;
 };
 
 class BlitObject;
@@ -153,6 +163,7 @@ public:
   virtual bool update(unsigned time);
   virtual void render(unsigned time);
   void initLayer(int x, int y, int width, int height);
+  virtual void realize() {StreamSoundPlayer::realize();}
 protected:
   virtual bool openStreamHook(int currStream);
   virtual bool getPacketHook(AVPacket& packet);
