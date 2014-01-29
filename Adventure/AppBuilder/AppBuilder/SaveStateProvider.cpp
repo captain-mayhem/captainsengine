@@ -414,6 +414,7 @@ void SaveStateProvider::load(const std::string& name){
     else
       Engine::instance()->loadSubRoom(roomname, NULL, 0);
   }
+  Engine::instance()->mLoader.waitUntilFinished();//TODO quick and dirty, persistence access to avoid race conditions
   //focussed char
   std::string focussedchar;
   in >> focussedchar;

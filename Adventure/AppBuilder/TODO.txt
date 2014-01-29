@@ -19,6 +19,7 @@ Async loading
 -------------
 Characters in loadRoomEvent => thread-safety
 Handling of loading/unloading room => when to trigger async loader, when to merge result
+mLastRoom in SaveStateProvider is not a thread safe construct
 
 Tests
 -----

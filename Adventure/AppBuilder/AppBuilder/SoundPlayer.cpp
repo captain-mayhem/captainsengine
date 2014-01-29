@@ -35,6 +35,8 @@ extern "C"{
 };
 #endif
 
+#include <system/allocation.h>
+
 using namespace adv;
 
 SoundPlayer::SoundPlayer(const std::string& name, bool effectEnabled) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), 

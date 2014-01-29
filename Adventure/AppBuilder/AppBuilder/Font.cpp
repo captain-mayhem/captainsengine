@@ -2,6 +2,7 @@
 #include "AdvDoc.h"
 #include "Engine.h"
 #include "Textout.h"
+#include <system/allocation.h>
 
 using namespace adv;
 
