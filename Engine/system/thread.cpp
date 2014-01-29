@@ -170,7 +170,11 @@ void Mutex::unlock(){
 
 Condition::Condition(){
 #ifdef WIN32
-  mCond = CreateEvent(NULL,FALSE,FALSE,NULL);
+  mCond = CreateEvent(NULL,TRUE,FALSE,NULL);
+  InitializeCriticalSection(&mMuty);
+  mWaiters = 0;
+  mRelease = 0;
+  mGeneration = 0;
 #endif
 #ifdef UNIX
   pthread_cond_init(&mCond,NULL);
@@ -188,9 +192,27 @@ Condition::~Condition(){
 
 void Condition::wait(Mutex& mutex){
 #ifdef WIN32
+  EnterCriticalSection(&mMuty);
+  ++mWaiters;
+  int generation = mGeneration;
+  LeaveCriticalSection(&mMuty);
   mutex.unlock();
-  WaitForSingleObject(mCond, INFINITE);
+  while(true){
+    WaitForSingleObject(mCond, INFINITE);
+    EnterCriticalSection(&mMuty);
+    bool waitDone = mRelease > 0 && mGeneration != generation;
+    LeaveCriticalSection(&mMuty);
+    if (waitDone)
+      break;
+  }
   mutex.lock();
+  EnterCriticalSection(&mMuty);
+  --mWaiters;
+  --mRelease;
+  bool last = mRelease == 0;
+  LeaveCriticalSection(&mMuty);
+  if (last)
+    ResetEvent(mCond);
 #endif
 #ifdef UNIX
   pthread_cond_wait(&mCond, mutex);
@@ -199,9 +221,23 @@ void Condition::wait(Mutex& mutex){
 
 void Condition::waitTimeout(Mutex& mutex, int milliseconds){
 #ifdef WIN32
+  EnterCriticalSection(&mMuty);
+  ++mWaiters;
+  int generation = mGeneration;
+  LeaveCriticalSection(&mMuty);
   mutex.unlock();
+
   WaitForSingleObject(mCond, milliseconds);
+ 
   mutex.lock();
+  EnterCriticalSection(&mMuty);
+  --mWaiters;
+  if (mRelease > 0/* && mGeneration != generation*/)
+    --mRelease;
+  bool last = mRelease == 0;
+  LeaveCriticalSection(&mMuty);
+  if (last)
+    ResetEvent(mCond);
 #endif
 #ifdef UNIX
   struct timespec tv;
@@ -215,12 +251,35 @@ void Condition::waitTimeout(Mutex& mutex, int milliseconds){
 
 void Condition::signal(){
 #ifdef WIN32
-  SetEvent(mCond);
+  EnterCriticalSection(&mMuty);
+  if (mWaiters > mRelease){
+    SetEvent(mCond);
+    ++mRelease;
+    ++mGeneration;
+  }
+  LeaveCriticalSection(&mMuty);
 #endif
 #ifdef UNIX
   pthread_cond_signal(&mCond);
 #endif
 }
+
+#if 0
+int
+pthread_cond_broadcast (pthread_cond_t *cv)
+{
+  EnterCriticalSection (&cv->waiters_count_lock_);
+  if (cv->waiters_count_ > 0) {  
+    SetEvent (cv->event_);
+    // Release all the threads in this generation.
+    cv->release_count_ = cv->waiters_count_;
+
+    // Start a new generation.
+    cv->wait_generation_count_++;
+  }
+  LeaveCriticalSection (&cv->waiters_count_lock_);
+}
+#endif
 
 Semaphore::Semaphore(int count){
 #ifdef WIN32

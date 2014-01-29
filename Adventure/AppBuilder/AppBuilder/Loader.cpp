@@ -4,6 +4,7 @@
 #include "SaveStateProvider.h"
 #include "Inventory.h"
 #include "ScriptFunc.h"
+#include <system/allocation.h>
 
 TR_CHANNEL(ADV_ResLoader);
 

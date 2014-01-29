@@ -480,6 +480,8 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
     if (obj){
       obj->abortClick();
       obj->setTalking(false);
+      SoundEngine::instance()->removeSpeaker(obj);
+      Engine::instance()->getFontRenderer()->removeText(obj);
       obj->setWalking(false);
       if (dir != UNSPECIFIED)
         obj->setLookDir(dir);

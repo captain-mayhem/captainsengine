@@ -174,7 +174,7 @@ protected:
     }
   };
   struct LoadRoom{
-    std::string roomName;
+    RoomObject* room;
     ExecutionContext* reason;
     ScreenChange screenchange;
   };

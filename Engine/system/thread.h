@@ -71,6 +71,10 @@ public:
 protected:
 #ifdef WIN32
   HANDLE mCond;
+  CRITICAL_SECTION mMuty;
+  int mWaiters;
+  int mRelease;
+  int mGeneration;
 #endif
 #ifdef UNIX
   pthread_cond_t mCond;

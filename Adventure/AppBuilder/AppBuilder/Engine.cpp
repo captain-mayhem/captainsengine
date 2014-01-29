@@ -16,6 +16,7 @@
 #include "PostProcessing.h"
 #include "Menu.h"
 #include "ItemObject.h"
+#include <system/allocation.h>
 
 using namespace adv;
 
@@ -120,6 +121,7 @@ void Engine::initGame(exit_callback exit_cb){
   //load taskbar room
   if (mData->getProjectSettings()->show_taskbar && mData->getProjectSettings()->taskroom != ""){
     loadSubRoom(mData->getProjectSettings()->taskroom, NULL, 0);
+    mLoader.waitUntilFinished();
     mRooms.front()->setOpacity(255-transparency);
     if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)
       mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
@@ -136,6 +138,7 @@ void Engine::initGame(exit_callback exit_cb){
   //load anywhere room
   if (mData->getProjectSettings()->anywhere_room != ""){
     loadSubRoom(mData->getProjectSettings()->anywhere_room, NULL, 0);
+    mLoader.waitUntilFinished();
     mRooms.front()->setOpacity(255-transparency);
   }
   //load main script
@@ -155,7 +158,7 @@ void Engine::initGame(exit_callback exit_cb){
   mTextEnabled = true;
   mUnloadedRoom = NULL;
   mForceNotToRenderUnloadingRoom = false;
-  mPendingLoadRoom.roomName = "";
+  mPendingLoadRoom.room = NULL;
   mPendingLoadRoom.reason = NULL;
   mPendingLoadRoom.screenchange = SC_DIRECT;
   mRenderedMain = new RenderableBlitObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
@@ -358,14 +361,14 @@ void Engine::render(unsigned time){
     else
       mUnloadedRoom = mRoomsToUnload.front();
     mRoomsToUnload.pop_front();
-    if (mRoomsToUnload.empty() && !mPendingLoadRoom.roomName.empty()){
+    if (mRoomsToUnload.empty() && mPendingLoadRoom.room != NULL){
       //delayed load
-      loadMainRoom(mPendingLoadRoom.roomName, mPendingLoadRoom.reason, mPendingLoadRoom.screenchange);
+      insertRoom(mPendingLoadRoom.room, false, mPendingLoadRoom.reason, mPendingLoadRoom.screenchange, 0);
       if (mPendingLoadRoom.reason){
         mPendingLoadRoom.reason->resume();
         mPendingLoadRoom.reason = NULL;
       }
-      mPendingLoadRoom.roomName = "";
+      mPendingLoadRoom.room = NULL;
     }
   }
 
@@ -629,29 +632,31 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
       depthoffset += 1000;
   }
 
-  if (mMainRoomLoaded && !isSubRoom){
-    TR_INFO("requested loading of room %s", name.c_str());
-    unloadRoom(mRooms.back(), true, false);
-    if (mPendingLoadRoom.reason != NULL){
-      mPendingLoadRoom.reason->resume();
-    }
-    if (loadreason)
-      loadreason->suspend(0, NULL);
-    mPendingLoadRoom.roomName = name;
-    mPendingLoadRoom.reason = loadreason;
-    mPendingLoadRoom.screenchange = change;
-    return false;
-  }
-
   //trigger async loader
+  if (loadreason)
+    loadreason->suspend(0, NULL);
   mLoader.loadRoom(name, isSubRoom, loadreason, change, fading, depthoffset);
-
-  mLoader.waitUntilFinished();
 
   return true;
 }
 
 void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading){
+  TR_USE(ADV_Engine);
+
+  if (mMainRoomLoaded && !isSubRoom){
+    TR_INFO("delay activation of room %s", roomobj->getName().c_str());
+    unloadRoom(mRooms.back(), true, false);
+    if (mPendingLoadRoom.reason != NULL){
+      mPendingLoadRoom.reason->resume();
+    }
+    mPendingLoadRoom.room = roomobj;
+    mPendingLoadRoom.reason = loadreason;
+    mPendingLoadRoom.screenchange = change;
+    return;
+  }
+  else if (loadreason)
+    loadreason->resume();
+
   if (isSubRoom){
     mRooms.push_front(roomobj);
     if (mInitialized)

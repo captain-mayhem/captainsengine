@@ -1,6 +1,7 @@
 #include "Sound.h"
 
 #include <iostream>
+#include <system/allocation.h>
 
 #ifdef UNIX
 #define UINT64_C(val) (uint64_t)val
