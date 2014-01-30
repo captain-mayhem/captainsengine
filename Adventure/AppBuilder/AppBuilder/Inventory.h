@@ -10,6 +10,8 @@
 namespace adv{
 
 class ItemObject;
+class ExecutionContext;
+class Object2D;
 
 class Inventory{
   friend class InventoryDisplay;
@@ -23,6 +25,7 @@ public:
   void save(SaveStateProvider::SaveInventory& inv) const;
   void setCurrent(int invNum) {mCurrentInv = invNum;}
   unsigned getNumItemSlots() {return mInventory[mCurrentInv].size();}
+  void realize();
 protected:
   typedef std::list<ItemObject*> SingleInv;
   std::map<int, SingleInv> mInventory;

@@ -1,11 +1,17 @@
 #ifndef SAVE_STATE_PROVIDER_H
 #define SAVE_STATE_PROVIDER_H
 
+#include <map>
+#include <vector>
+
 #include <system/thread.h>
 
-#include "EngineObjects.h"
+#include "Vector.h"
+#include "Ids.h"
 
 namespace adv{
+
+class AdvDocument;
 
 class SaveStateProvider{
 public:
@@ -62,15 +68,15 @@ public:
   SaveStateProvider(AdvDocument* data);
   ~SaveStateProvider();
   SaveRoom* getRoom(const std::string name);
-  SaveObject* getObject(const std::string& name);
-  SaveObject* getOrAddObject(const std::string& name);
+  SaveObject* getObject(SaveStateProvider::SaveRoom* room, const std::string& name);
+  SaveObject* getOrAddObject(SaveStateProvider::SaveRoom* room, const std::string& name);
   SaveObject* findObject(const std::string& name, std::string& room);
-  void removeObject(const std::string& name);
-  CharSaveObject* getCharacter(const std::string& name);
-  CharSaveObject* getOrAddCharacter(const std::string& name);
+  void removeObject(SaveStateProvider::SaveRoom* room, const std::string& name);
+  CharSaveObject* getCharacter(SaveStateProvider::SaveRoom* room, const std::string& name);
+  CharSaveObject* getOrAddCharacter(SaveStateProvider::SaveRoom* room, const std::string& name);
   CharSaveObject* findCharacter(const std::string& name) {std::string dummy; return findCharacter(name, dummy, dummy);}
   CharSaveObject* findCharacter(const std::string& name, std::string& room, std::string& realName);
-  void removeCharacter(const std::string& name);
+  void removeCharacter(SaveStateProvider::SaveRoom* room, const std::string& name);
   void clear();
   void save(const std::string& name);
   void load(const std::string& name);
@@ -80,7 +86,6 @@ public:
 protected:
   AdvDocument* mData;
   std::map<std::string, SaveRoom*> mRooms;
-  SaveRoom* mLastRoom;
   int mNoWrites;
   CGE::Mutex mMuty;
 };

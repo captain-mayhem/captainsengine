@@ -348,7 +348,7 @@ void Engine::render(unsigned time){
     mRooms.remove(mRoomsToUnload.front());
 
     if (mSaver->isWriteAllowed())
-      mRoomsToUnload.front()->save();
+      mRoomsToUnload.front()->save(NULL);
     else
       mSaver->allowWrites();
     if (mUnloadedRoom)
@@ -904,8 +904,8 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
       mRooms.back()->addObject(mFocussedChar);
     else{
       //just store the character as it is in another room
-      mSaver->getRoom(mFocussedChar->getRoom());
-      mFocussedChar->save();
+      SaveStateProvider::SaveRoom* sr = mSaver->getRoom(mFocussedChar->getRoom());
+      mFocussedChar->save(sr);
       deletionChar = mFocussedChar;
     }
   }
@@ -933,7 +933,7 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
   res = loadCharacter(charname, getCharacterClass(charname), true, reason);
   if (res){
     SaveStateProvider::SaveRoom* rm = getSaver()->getRoom(res->getRoom());
-    mSaver->removeCharacter(res->getName());
+    mSaver->removeCharacter(rm, res->getName());
     res->setScrollOffset(rm->scrolloffset);
     mFocussedChar = res;
     mFocussedChar->realize();
@@ -1112,7 +1112,7 @@ CharacterObject* Engine::extractCharacter(const std::string& name){
     res = (*iter)->extractCharacter(name);
     if (res){
       SaveStateProvider::SaveRoom* srm = mSaver->getRoom((*iter)->getName());
-      mSaver->removeCharacter(res->getName());
+      mSaver->removeCharacter(srm, res->getName());
       return res;
     }
   }
@@ -1178,9 +1178,7 @@ ItemObject* Engine::createItem(const std::string& name, int count){
   if (script){
     ExecutionContext* scr = mInterpreter->parseProgram(script->text);
     object->setScript(scr);
-    mInterpreter->execute(scr, false);
   }
-  object->realize();
   return object;
 }
 
@@ -1193,6 +1191,7 @@ void Engine::setUseObject(const std::string& object, const std::string& objectIn
       mDraggingObject = NULL;
     else{
       mDraggingObject = createItem(mClickedObject->getName(), 1);
+      mDraggingObject->realize();
       mDraggingObject->setDepth(DEPTH_CURSOR-1);
     }
   }

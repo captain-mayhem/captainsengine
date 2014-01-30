@@ -167,7 +167,6 @@ SaveStateProvider::~SaveStateProvider(){
 
 SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
   mMuty.lock();
-  mLastRoom = NULL;
   std::string idxname = toLower(name);
   std::map<std::string,SaveRoom*>::iterator iter = mRooms.find(idxname);
   if (mRooms.empty() || iter == mRooms.end()){
@@ -222,19 +221,17 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
       }
     }
     mRooms[idxname] = save;
-    mLastRoom = save;
     mMuty.unlock();
     return save;
   }
-  mLastRoom = iter->second;
   mMuty.unlock();
   return iter->second;
 }
 
-SaveStateProvider::SaveObject* SaveStateProvider::getObject(const std::string& name){
+SaveStateProvider::SaveObject* SaveStateProvider::getObject(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  std::map<std::string,SaveObject*>::iterator iter = mLastRoom->objects.find(name);
-  if (mLastRoom->objects.empty() || iter == mLastRoom->objects.end()){
+  std::map<std::string,SaveObject*>::iterator iter = room->objects.find(name);
+  if (room->objects.empty() || iter == room->objects.end()){
     mMuty.unlock();
     return NULL;
   }
@@ -242,12 +239,12 @@ SaveStateProvider::SaveObject* SaveStateProvider::getObject(const std::string& n
   return iter->second;
 }
 
-SaveStateProvider::SaveObject* SaveStateProvider::getOrAddObject(const std::string& name){
+SaveStateProvider::SaveObject* SaveStateProvider::getOrAddObject(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  std::map<std::string,SaveObject*>::iterator iter = mLastRoom->objects.find(name);
-  if (mLastRoom->objects.empty() || iter == mLastRoom->objects.end()){
+  std::map<std::string,SaveObject*>::iterator iter = room->objects.find(name);
+  if (room->objects.empty() || iter == room->objects.end()){
     SaveObject* so = new SaveObject;
-    mLastRoom->objects.insert(std::make_pair(name,so));
+    room->objects.insert(std::make_pair(name,so));
     mMuty.unlock();
     return so;
   }
@@ -255,17 +252,17 @@ SaveStateProvider::SaveObject* SaveStateProvider::getOrAddObject(const std::stri
   return iter->second;
 }
 
-void SaveStateProvider::removeObject(const std::string& name){
+void SaveStateProvider::removeObject(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  delete mLastRoom->objects[name];
-  mLastRoom->objects.erase(name);
+  delete room->objects[name];
+  room->objects.erase(name);
   mMuty.unlock();
 }
 
-SaveStateProvider::CharSaveObject* SaveStateProvider::getCharacter(const std::string& name){
+SaveStateProvider::CharSaveObject* SaveStateProvider::getCharacter(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  std::map<std::string,CharSaveObject*>::iterator iter = mLastRoom->characters.find(name);
-  if (mLastRoom->characters.empty() || iter == mLastRoom->characters.end()){
+  std::map<std::string,CharSaveObject*>::iterator iter = room->characters.find(name);
+  if (room->characters.empty() || iter == room->characters.end()){
     mMuty.unlock();
     return NULL;
   }
@@ -273,12 +270,12 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::getCharacter(const std::st
   return iter->second;
 }
 
-SaveStateProvider::CharSaveObject* SaveStateProvider::getOrAddCharacter(const std::string& name){
+SaveStateProvider::CharSaveObject* SaveStateProvider::getOrAddCharacter(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  std::map<std::string,CharSaveObject*>::iterator iter = mLastRoom->characters.find(name);
-  if (mLastRoom->characters.empty() || iter == mLastRoom->characters.end()){
+  std::map<std::string,CharSaveObject*>::iterator iter = room->characters.find(name);
+  if (room->characters.empty() || iter == room->characters.end()){
     CharSaveObject* cso = new CharSaveObject;
-    mLastRoom->characters.insert(std::make_pair(name,cso));
+    room->characters.insert(std::make_pair(name,cso));
     mMuty.unlock();
     return cso;
   }
@@ -286,10 +283,10 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::getOrAddCharacter(const st
   return iter->second;
 }
 
-void SaveStateProvider::removeCharacter(const std::string& name){
+void SaveStateProvider::removeCharacter(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  delete mLastRoom->characters[name];
-  mLastRoom->characters.erase(name);
+  delete room->characters[name];
+  room->characters.erase(name);
   mMuty.unlock();
 }
 
@@ -313,12 +310,12 @@ void SaveStateProvider::save(const std::string& name){
   }
   std::string focussedcharname;
   if (Engine::instance()->mFocussedChar){
-    getRoom(Engine::instance()->mRooms.back()->getName());
+    SaveRoom* sr = getRoom(Engine::instance()->mRooms.back()->getName());
     focussedcharname = Engine::instance()->mFocussedChar->getName();
-    Engine::instance()->mFocussedChar->save();
+    Engine::instance()->mFocussedChar->save(sr);
   }
   for (std::list<RoomObject*>::iterator iter = Engine::instance()->mRooms.begin(); iter != Engine::instance()->mRooms.end(); ++iter){
-    (*iter)->save();
+    (*iter)->save(NULL);
   }
   std::ofstream out(name.c_str());
   int version = 1;
@@ -355,8 +352,10 @@ void SaveStateProvider::save(const std::string& name){
     out << Engine::instance()->mLastFocussedChar << std::endl;
   else
     out << "none" << std::endl;
-  if (Engine::instance()->mFocussedChar)
-    removeCharacter(focussedcharname);
+  if (Engine::instance()->mFocussedChar){
+    SaveStateProvider::SaveRoom* sr = getRoom(Engine::instance()->mFocussedChar->getRoom());
+    removeCharacter(sr, focussedcharname);
+  }
   out << Engine::instance()->mMainRoomLoaded << " " << Engine::instance()->mSubRoomLoaded << std::endl;
   out << Engine::instance()->mShowTaskbar << " " << Engine::instance()->mScreenChange << std::endl;
   out << Engine::instance()->mTextEnabled << " " << Engine::instance()->mFontID << std::endl;
