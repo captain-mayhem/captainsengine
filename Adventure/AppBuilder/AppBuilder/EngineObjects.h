@@ -5,6 +5,7 @@
 #include "Script.h"
 #include "BlitObjects.h"
 #include "Particles.h"
+#include "SaveStateProvider.h"
 
 namespace adv{
 
@@ -85,7 +86,7 @@ public:
   virtual Vec2i getSize() {return mSize*mScale;}
   virtual void setScrollOffset(const Vec2i& offset) {mScrollOffset = offset;}
   Vec2i getScrollOffset() {return mScrollOffset;}
-  virtual void save();
+  virtual void save(SaveStateProvider::SaveRoom* containingRoom);
   virtual int getDepth();
   void setDepth(int depth);
   void addNextState(int state) {mNextStates.push_back(state);}
@@ -178,7 +179,7 @@ public:
   virtual Color getLightingColor() {return mLighting->getColor();}
   void addWalkmapScript(const Vec2i& wmpos, ExecutionContext* script) {mWalkmapScripts[wmpos] = script; script->setOwner(this);}
   void walkTo(CharacterObject* chr, const Vec2i& pos);
-  virtual void save();
+  virtual void save(SaveStateProvider::SaveRoom* containingRoom);
   InventoryDisplay* getInventory() {return mInventroy;}
   void setInventory(InventoryDisplay* disp);
   virtual void setPosition(const Vec2i& pos);
@@ -253,7 +254,7 @@ public:
   virtual Vec2i getSize();
   Inventory* getInventory() {return mInventory;}
   void setInventory(Inventory* inventory) {mInventory = inventory;}
-  virtual void save();
+  virtual void save(SaveStateProvider::SaveRoom* containingRoom);
   virtual bool isHit(const Vec2i& point);
   bool isMirrored() {return mMirror;}
   void setRoom(const std::string& room) {mRoom = room;}

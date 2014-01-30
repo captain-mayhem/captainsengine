@@ -69,6 +69,14 @@ void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
   inv.current = mCurrentInv;
 }
 
+void Inventory::realize(){
+  for (std::map<int, SingleInv>::iterator iter = mInventory.begin(); iter != mInventory.end(); ++iter){
+    for (SingleInv::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2){
+      (*iter2)->realize();
+    }
+  }
+}
+
 ////////////////////////////////////////////
 
 InventoryDisplay::InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale, int depth)

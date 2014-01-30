@@ -70,7 +70,7 @@ public:
     }
     for (unsigned i = 0; i < room->objects.size(); ++i){
       Object* o = mData->getObject(room->objects[i].object);
-      SaveStateProvider::SaveObject* saveobj = Engine::instance()->getSaver()->getObject(room->objects[i].name);
+      SaveStateProvider::SaveObject* saveobj = Engine::instance()->getSaver()->getObject(save, room->objects[i].name);
       if (!saveobj)
         continue;
       Object2D* object = new Object2D(saveobj->state, saveobj->position, o->size, room->objects[i].name);
@@ -179,6 +179,7 @@ void ResLoader::setData(AdvDocument* data){
 }
 
 bool ResLoader::run(){
+  TR_USE(ADV_ResLoader);
   mMutex.lock();
   while(!mQReq.empty()){
     Event* evt = mQReq.getEvent();
@@ -190,6 +191,9 @@ bool ResLoader::run(){
       mQRes.addEvent(res);
       mResCond.signal();
       mResMutex.unlock();
+    }
+    else{
+      TR_BREAK("Event produced no result");
     }
     mMutex.lock();
     mQReq.popEvent();

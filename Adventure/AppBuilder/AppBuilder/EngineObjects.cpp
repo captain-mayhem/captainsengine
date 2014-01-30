@@ -244,8 +244,8 @@ void Object2D::setSuspensionScript(ExecutionContext* script){
   mSuspensionScript = script;
 }
 
-void Object2D::save(){
-  SaveStateProvider::SaveObject* save = Engine::instance()->getSaver()->getOrAddObject(mName);
+void Object2D::save(SaveStateProvider::SaveRoom* room){
+  SaveStateProvider::SaveObject* save = Engine::instance()->getSaver()->getOrAddObject(room, mName);
   if (save){
     Vec2i pos = Engine::instance()->getAnimator()->getTargetPoisition(this);
     save->position = pos;
@@ -617,8 +617,8 @@ CharacterObject* RoomObject::extractCharacter(const std::string& name){
       CharacterObject* ch = static_cast<CharacterObject*>((*iter));
       if (_stricmp(ch->getName().c_str(), name.c_str()) == 0){
         mObjects.erase(iter);
-        Engine::instance()->getSaver()->getRoom(mName);
-        Engine::instance()->getSaver()->removeCharacter(name);
+        SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(mName);
+        Engine::instance()->getSaver()->removeCharacter(sr, name);
         return ch;
       }
     }
@@ -681,7 +681,7 @@ void RoomObject::setScrollOffset(const Vec2i& offset){
   }
 }
 
-void RoomObject::save(){
+void RoomObject::save(SaveStateProvider::SaveRoom* containingRoom){
   SaveStateProvider::SaveRoom* save = Engine::instance()->getSaver()->getRoom(mName);
   if (!save)
     return;
@@ -692,7 +692,7 @@ void RoomObject::save(){
   save->scrolloffset = mScrollOffset;
   save->walkmap = mModifiedWalkmap;
   for (unsigned i = 0; i < mObjects.size(); ++i){
-    mObjects[i]->save();
+    mObjects[i]->save(save);
   }
 }
 
@@ -878,6 +878,7 @@ void CharacterObject::realize(){
   Object2D::realize();
   if (mWalkSound)
     mWalkSound->realize();
+  mInventory->realize();
 }
 
 void CharacterObject::setPosition(const Vec2i& pos){
@@ -1064,8 +1065,8 @@ Vec2i CharacterObject::getSize(){
   return mSizes[mState-1]*mScale*mUserScale;
 }
 
-void CharacterObject::save(){
-  SaveStateProvider::CharSaveObject* save = Engine::instance()->getSaver()->getOrAddCharacter(mName);
+void CharacterObject::save(SaveStateProvider::SaveRoom* containingRoom){
+  SaveStateProvider::CharSaveObject* save = Engine::instance()->getSaver()->getOrAddCharacter(containingRoom, mName);
   if (save){
     save->base.position = mPos;
     /*if (isWalking() || isTalking()) //do not save walking or talking states as they are temorary only
