@@ -330,6 +330,7 @@ void Object2D::realize(){
 
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "!button"),
 BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i()), mText(text){
+  BlitObject::realize();
   char tmp[16];
   sprintf(tmp, "%i", id);
   mName += tmp;
@@ -879,6 +880,7 @@ void CharacterObject::realize(){
   if (mWalkSound)
     mWalkSound->realize();
   mInventory->realize();
+  Engine::instance()->getFontRenderer()->loadFont(mFontID);
 }
 
 void CharacterObject::setPosition(const Vec2i& pos){
