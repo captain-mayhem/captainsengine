@@ -569,6 +569,7 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
   ItemObject* item = Engine::instance()->createItem(itemname, 1);
   if (item == NULL)
     return 0;
+  item->realize();
   if (chr){
     if (Engine::instance()->getSettings()->group_items){
       //increment only item count
