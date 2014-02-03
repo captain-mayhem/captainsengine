@@ -19,11 +19,11 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::SaveRoom& 
   strm << room.scrolloffset.x << " " << room.scrolloffset.y << std::endl;
   strm << room.overlaylighting << std::endl;
   strm << room.objects.size() << std::endl;
-  for (std::map<std::string,SaveStateProvider::SaveObject*>::const_iterator iter = room.objects.begin(); iter != room.objects.end(); ++iter){
+  for (std::map<String,SaveStateProvider::SaveObject*>::const_iterator iter = room.objects.begin(); iter != room.objects.end(); ++iter){
     strm << iter->first << std::endl << *iter->second;
   }
   strm << room.characters.size() << std::endl;
-  for (std::map<std::string,SaveStateProvider::CharSaveObject*>::const_iterator iter = room.characters.begin(); iter != room.characters.end(); ++iter){
+  for (std::map<String,SaveStateProvider::CharSaveObject*>::const_iterator iter = room.characters.begin(); iter != room.characters.end(); ++iter){
     strm << iter->first << std::endl << *iter->second;
   }
   strm << room.walkmap.size() << std::endl;
@@ -39,7 +39,7 @@ std::istream& operator>>(std::istream& strm, SaveStateProvider::SaveRoom& room){
   strm >> room.overlaylighting;
   int number;
   strm >> number;
-  std::string name;
+  String name;
   for (int i = 0; i < number; ++i){
     strm >> name;
     SaveStateProvider::SaveObject* obj = new SaveStateProvider::SaveObject;
@@ -82,12 +82,12 @@ std::ostream& operator<<(std::ostream& strm, const SaveStateProvider::CharSaveOb
   strm << chr.inventory;
   strm << chr.fontid << " " << chr.scale << " " << chr.nozooming << std::endl;
   if (chr.walksound.empty())
-    strm << "none";
+    strm << String("none");
   else
     strm << chr.walksound;
   strm << std::endl;
   if (chr.linkedObject.empty())
-    strm << "none";
+    strm << String("none");
   else
     strm << chr.linkedObject;
   strm << std::endl;
@@ -168,7 +168,7 @@ SaveStateProvider::~SaveStateProvider(){
 SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
   mMuty.lock();
   std::string idxname = toLower(name);
-  std::map<std::string,SaveRoom*>::iterator iter = mRooms.find(idxname);
+  std::map<String,SaveRoom*>::iterator iter = mRooms.find(idxname);
   if (mRooms.empty() || iter == mRooms.end()){
     //let's see if we find the room in the original
     Room* orig = mData->getRoom(name);
@@ -230,7 +230,7 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
 
 SaveStateProvider::SaveObject* SaveStateProvider::getObject(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  std::map<std::string,SaveObject*>::iterator iter = room->objects.find(name);
+  std::map<String,SaveObject*>::iterator iter = room->objects.find(name);
   if (room->objects.empty() || iter == room->objects.end()){
     mMuty.unlock();
     return NULL;
@@ -241,7 +241,7 @@ SaveStateProvider::SaveObject* SaveStateProvider::getObject(SaveStateProvider::S
 
 SaveStateProvider::SaveObject* SaveStateProvider::getOrAddObject(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  std::map<std::string,SaveObject*>::iterator iter = room->objects.find(name);
+  std::map<String,SaveObject*>::iterator iter = room->objects.find(name);
   if (room->objects.empty() || iter == room->objects.end()){
     SaveObject* so = new SaveObject;
     room->objects.insert(std::make_pair(name,so));
@@ -261,7 +261,7 @@ void SaveStateProvider::removeObject(SaveStateProvider::SaveRoom* room, const st
 
 SaveStateProvider::CharSaveObject* SaveStateProvider::getCharacter(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  std::map<std::string,CharSaveObject*>::iterator iter = room->characters.find(name);
+  std::map<String,CharSaveObject*>::iterator iter = room->characters.find(name);
   if (room->characters.empty() || iter == room->characters.end()){
     mMuty.unlock();
     return NULL;
@@ -272,7 +272,7 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::getCharacter(SaveStateProv
 
 SaveStateProvider::CharSaveObject* SaveStateProvider::getOrAddCharacter(SaveStateProvider::SaveRoom* room, const std::string& name){
   mMuty.lock();
-  std::map<std::string,CharSaveObject*>::iterator iter = room->characters.find(name);
+  std::map<String,CharSaveObject*>::iterator iter = room->characters.find(name);
   if (room->characters.empty() || iter == room->characters.end()){
     CharSaveObject* cso = new CharSaveObject;
     room->characters.insert(std::make_pair(name,cso));
@@ -291,11 +291,11 @@ void SaveStateProvider::removeCharacter(SaveStateProvider::SaveRoom* room, const
 }
 
 void SaveStateProvider::clear(){
-  for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    for (std::map<std::string,SaveObject*>::iterator objiter = iter->second->objects.begin(); objiter != iter->second->objects.end(); ++objiter){
+  for (std::map<String,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    for (std::map<String,SaveObject*>::iterator objiter = iter->second->objects.begin(); objiter != iter->second->objects.end(); ++objiter){
       delete objiter->second;
     }
-    for (std::map<std::string,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
+    for (std::map<String,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
       delete chriter->second;
     }
     delete iter->second;
@@ -323,7 +323,7 @@ void SaveStateProvider::save(const std::string& name){
   out << Engine::instance()->getInterpreter()->getLanguage() << std::endl;
   //save room data
   out << mRooms.size() << std::endl;
-  for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+  for (std::map<String,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     String rname = iter->first;
     out << rname;
     out << std::endl << *iter->second;
@@ -451,11 +451,11 @@ std::string SaveStateProvider::saveSlotToPath(int slot){
 SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::string& name, std::string& room, std::string& realName){
   mMuty.lock();
   //check if already present
-  for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    for (std::map<std::string,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
+  for (std::map<String,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    for (std::map<String,CharSaveObject*>::iterator chriter = iter->second->characters.begin(); chriter != iter->second->characters.end(); ++chriter){
       if (_stricmp(chriter->first.c_str(), name.c_str()) == 0){
         room = iter->second->base.name;
-        realName = chriter->first;
+        realName = chriter->first.c_str();
         mMuty.unlock();
         return chriter->second;
       }
@@ -467,12 +467,12 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::s
       room = mData->getRoomCharacters()[i].room;
       realName = mData->getRoomCharacters()[i].name;
       SaveRoom* saveroom = getRoom(room);
-      std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.find(realName);
+      std::map<String,CharSaveObject*>::iterator iter = saveroom->characters.find(realName);
       if (iter != saveroom->characters.end()){
         mMuty.unlock();
         return iter->second;
       }
-      for (std::map<std::string,CharSaveObject*>::iterator iter = saveroom->characters.begin(); iter != saveroom->characters.end(); ++iter){
+      for (std::map<String,CharSaveObject*>::iterator iter = saveroom->characters.begin(); iter != saveroom->characters.end(); ++iter){
         if (_stricmp(iter->first.c_str(), name.c_str()) == 0){
           mMuty.unlock();
           return iter->second;
@@ -487,8 +487,8 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::s
 SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& name, std::string& room){
   mMuty.lock();
   //check if already present
-  for (std::map<std::string,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    for (std::map<std::string,SaveObject*>::iterator objiter = iter->second->objects.begin(); objiter != iter->second->objects.end(); ++objiter){
+  for (std::map<String,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    for (std::map<String,SaveObject*>::iterator objiter = iter->second->objects.begin(); objiter != iter->second->objects.end(); ++objiter){
       if (_stricmp(objiter->first.c_str(), name.c_str()) == 0){
         room = iter->second->base.name;
         mMuty.unlock();
@@ -505,7 +505,7 @@ SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& 
   Room* rm = mData->getRoom(obj);
   room = rm->name;
   SaveRoom* saveroom = getRoom(room);
-  std::map<std::string,SaveObject*>::iterator iter = saveroom->objects.find(obj->name);
+  std::map<String,SaveObject*>::iterator iter = saveroom->objects.find(obj->name);
   if (iter != saveroom->objects.end()){
     mMuty.unlock();
     return iter->second;

@@ -1280,6 +1280,13 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
       CharacterObject* chr = extractCharacter(realName);
       if (chr)
         return chr;
+      else if (mPendingLoadRoom.room != NULL){
+        chr = mPendingLoadRoom.room->extractCharacter(realName);
+        if (chr){
+          chr->realize();
+          return chr;
+        }
+      }
     }
   }
   if (mFocussedChar && _stricmp(mFocussedChar->getName().c_str(), instanceName.c_str()) == 0)

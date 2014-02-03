@@ -1121,7 +1121,7 @@ inline int getTime(TimeVal tv){
 
 StackData PcdkScript::getVariable(const String& name){
   TR_USE(ADV_Script);
-  string lname = toLower(name);
+  string lname = name.toLower();
   if (name.size() > 0 && name[0] == '_'){
     if (name.size() > 6 && lname.substr(1, 6) == "volume"){
       return int(SoundEngine::instance()->getMusicVolume()*100);

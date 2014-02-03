@@ -7,6 +7,7 @@
 #include <system/thread.h>
 
 #include "Vector.h"
+#include "String.h"
 #include "Ids.h"
 
 namespace adv{
@@ -20,10 +21,10 @@ public:
     Vec2i position;
     int state;
     Color lighting;
-    std::string name;
+    String name;
   };
   struct SaveItem{
-    std::string name;
+    String name;
     int count;
   };
   struct SaveInventory{
@@ -39,23 +40,23 @@ public:
     int fontid;
     float scale;
     bool nozooming;
-    std::string walksound;
-    std::string linkedObject;
+    String walksound;
+    String linkedObject;
   };
   struct SaveRoom{
     SaveObject base;
     Vec2i scrolloffset;
     Color overlaylighting;
-    std::map<std::string, SaveObject*> objects;
-    std::map<std::string, CharSaveObject*> characters;
+    std::map<String, SaveObject*> objects;
+    std::map<String, CharSaveObject*> characters;
     std::map<Vec2i, bool> walkmap;
     bool doublewalkmap;
     void clear(){
-      for (std::map<std::string, SaveObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter){
+      for (std::map<String, SaveObject*>::iterator iter = objects.begin(); iter != objects.end(); ++iter){
         delete iter->second;
       }
       objects.clear();
-      for (std::map<std::string, CharSaveObject*>::iterator iter = characters.begin(); iter != characters.end(); ++iter){
+      for (std::map<String, CharSaveObject*>::iterator iter = characters.begin(); iter != characters.end(); ++iter){
         delete iter->second;
       }
       characters.clear();
@@ -85,7 +86,7 @@ public:
   static std::string saveSlotToPath(int slot);
 protected:
   AdvDocument* mData;
-  std::map<std::string, SaveRoom*> mRooms;
+  std::map<String, SaveRoom*> mRooms;
   int mNoWrites;
   CGE::Mutex mMuty;
 };

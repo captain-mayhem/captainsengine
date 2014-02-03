@@ -101,10 +101,10 @@ public:
       roomobj->addObject(object);
     }
     //now check for the characters
-    for (std::map<std::string, SaveStateProvider::CharSaveObject*>::iterator iter = save->characters.begin(); iter != save->characters.end(); ++iter){
+    for (std::map<String, SaveStateProvider::CharSaveObject*>::iterator iter = save->characters.begin(); iter != save->characters.end(); ++iter){
       Rcharacter ch;
       for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
-        if (mData->getRoomCharacters()[i].name == iter->first){
+        if (iter->first == mData->getRoomCharacters()[i].name){
           ch = mData->getRoomCharacters()[i];
           break;
         }
