@@ -1302,7 +1302,7 @@ int ScriptFunctions::loadNum(ExecutionContext& ctx, unsigned numArgs){
     std::string name;
     int value;
     in >> name >> value;
-    if (name == varname){
+    if (varname == name){
       val = value;
       break;
     }
@@ -2385,7 +2385,7 @@ int ScriptFunctions::loadString(ExecutionContext& ctx, unsigned numArgs){
     std::string name;
     StackData value;
     in >> name >> value;
-    if (name == varname){
+    if (varname == name){
       val = value;
       break;
     }
