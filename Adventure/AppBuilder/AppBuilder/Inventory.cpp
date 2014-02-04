@@ -1,6 +1,7 @@
 #include "Inventory.h"
 #include "ItemObject.h"
 #include "Engine.h"
+#include <system/allocation.h>
 
 using namespace adv;
 

@@ -184,6 +184,12 @@ void Engine::initGame(exit_callback exit_cb){
 void Engine::exitGame(){
   if (!mInitialized)
     return;
+  mLoader.waitUntilFinished();
+  if (mPendingLoadRoom.room != NULL){
+    mPendingLoadRoom.room->realize();
+    delete mPendingLoadRoom.room;
+    mPendingLoadRoom.room = NULL;
+  }
   mInitialized = false;
   mCurrentObject = NULL;
   mClickedObject = NULL;
@@ -1166,7 +1172,8 @@ ItemObject* Engine::createItem(const std::string& name, int count){
     TR_BREAK("Item %s not found", name.c_str());
     return NULL;
   }
-  ItemObject* object = new ItemObject(1, Vec2i(), Vec2i(50,50), it->name);
+  int state = mInterpreter->getItemState(name);
+  ItemObject* object = new ItemObject(state, Vec2i(), Vec2i(50,50), it->name);
   object->setCount(count);
   int depth = DEPTH_ITEM;
   for (unsigned j = 0; j < it->states.size(); ++j){

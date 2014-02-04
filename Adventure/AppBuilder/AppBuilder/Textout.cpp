@@ -1,6 +1,7 @@
 #include "Textout.h"
 #include "ScriptDefs.h"
 #include "Engine.h"
+#include <system/allocation.h>
 
 using namespace adv;
 

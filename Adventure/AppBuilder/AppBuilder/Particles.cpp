@@ -6,6 +6,7 @@
 #include "AdvDoc.h"
 #include "EngineObjects.h"
 #include "Engine.h"
+#include <system/allocation.h>
 
 using namespace std;
 using namespace adv;

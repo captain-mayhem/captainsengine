@@ -16,6 +16,7 @@
 #include "Textout.h"
 #include "PostProcessing.h"
 #include "ItemObject.h"
+#include <system/allocation.h>
 
 using namespace adv;
 
@@ -2444,8 +2445,11 @@ int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
     chr->setWalkSound(plyr);
   }
   else{
-    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
-    cso->walksound = soundname;
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(ctx.resolveCharName(charname));
+    if (cso == NULL)
+      TR_BREAK("Character %s not found", charname);
+    else
+      cso->walksound = soundname;
   }
   return 0;
 }
@@ -2704,9 +2708,9 @@ int ScriptFunctions::setItem(ExecutionContext& ctx, unsigned numArgs){
   std::string itemname = ctx.stack().pop().getString();
   int state = ctx.stack().pop().getInt();
   Object2D* item = Engine::instance()->getObject(itemname, true);
-  if (item == NULL)
-    TR_BREAK("Implement me 2");
-  item->setState(state);
+  if (item)
+    item->setState(state);
+  Engine::instance()->getInterpreter()->setItemState(itemname, state);
   return 0;
 }
 

@@ -7,6 +7,7 @@
 #include "Sound.h"
 #include "Particles.h"
 #include "PostProcessing.h"
+#include <system/allocation.h>
 
 using namespace adv;
 

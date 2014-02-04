@@ -76,6 +76,8 @@ public:
   void setOfftextColor(const Color& color) {mOfftextColor = color;}
   void cutsceneMode(bool hideUI) {mGlobalSuspend = true; mHideUI = hideUI;}
   bool isUIHidden() {return mHideUI;}
+  void setItemState(const String& name, int state) {mItemStates[name.toLower()] = state;}
+  int getItemState(const String& name);
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
@@ -124,6 +126,7 @@ protected:
   float mRunSpeed;
   Color mOfftextColor;
   bool mHideUI;
+  std::map<String, int> mItemStates;
 };
 
 }
