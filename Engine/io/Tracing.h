@@ -53,7 +53,7 @@ protected:
 #define TR_CHANNEL_EXT(name) extern CGE::TraceObject name;
 #define TR_CHANNEL_LVL(name, level) CGE::TraceObject name(CGE_STRINGIFY(name), level);
 #define TR_USE(name) CGE::TraceObject tracescopeobject = name;
-#define TR_TRACE(level, message, ...) {if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__);}
+#define TR_TRACE(level, message, ...) do {if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__);} while(0)
 #define TR_IS_ENABLED(level) tracescopeobject.isEnabled(level)
 
 #define TR_BREAK(message, ...) TR_TRACE(TRACE_FATAL_ERROR, message, ##__VA_ARGS__)
