@@ -1,5 +1,6 @@
 #include "Screenchange.h"
 #include "Engine.h"
+#include <system/allocation.h>
 
 TR_CHANNEL(ADV_Screenchange);
 

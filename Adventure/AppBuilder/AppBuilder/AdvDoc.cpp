@@ -12,6 +12,7 @@
 #include <sys/stat.h>
 #endif
 #include "Engine.h"
+#include <system/allocation.h>
 
 const float FPS_MAX = 50.0f;
 const int STATES_MAX = 10;

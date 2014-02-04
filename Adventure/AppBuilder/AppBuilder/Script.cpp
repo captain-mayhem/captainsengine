@@ -116,6 +116,7 @@ void PcdkScript::stop(){
   mLanguage = "origin";
   mRunSpeed = 1.0f;
   mOfftextColor = mData->getProjectSettings()->offspeechcolor;
+  mItemStates.clear();
 }
 
 void reportParseError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
@@ -968,6 +969,10 @@ std::ostream& PcdkScript::save(std::ostream& out){
     (*iter)->save(out);
     out << std::endl;
   }
+  out << mItemStates.size() << std::endl;
+  for (std::map<String,int>::iterator iter = mItemStates.begin(); iter != mItemStates.end(); ++iter){
+    out << iter->first << " " << iter->second << std::endl;
+  }
   return out;
 }
 
@@ -1029,6 +1034,18 @@ std::istream& PcdkScript::load(std::istream& in){
   for (unsigned i = 0; i < numtimers; ++i){
     ExecutionContext* ctx = new ExecutionContext(in);
     addTimer(ctx);
+  }
+  mItemStates.clear();
+  unsigned numitemstates;
+  in >> numitemstates;
+  for (unsigned i = 0; i < numitemstates; ++i){
+    String name;
+    int state;
+    in >> name >> state;
+    mItemStates[name] = state;
+    Object2D* activeItem = Engine::instance()->getObject(name, true);
+    if (activeItem)
+      activeItem->setState(state);
   }
   return in;
 }
@@ -1404,4 +1421,15 @@ ObjectGroup* PcdkScript::getGroup(const std::string& name){
       return *iter;
   }
   return NULL;
+}
+
+int PcdkScript::getItemState(const String& name){
+  mMutex.lock();
+  std::map<String,int>::iterator iter = mItemStates.find(name.toLower());
+  if (iter == mItemStates.end()){
+    mMutex.unlock();
+    return 1;
+  }
+  mMutex.unlock();
+  return iter->second;
 }
