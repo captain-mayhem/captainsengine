@@ -848,7 +848,9 @@ void PcdkScript::remove(ExecutionContext* script){
 }
 
 EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
-  if (eventname == "mouse")
+  if (eventname == "none")
+    return EVT_NONE;
+  else if (eventname == "mouse")
     return EVT_MOUSE;
   else if (eventname == "click")
     return EVT_CLICK;
@@ -896,7 +898,7 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
   //  ctx.resetEvent(EVT_CLICK);
   //}
   EngineEvent evt = ctx.getCommandEvent();
-  if (evt != EVT_NONE && ctx.isEventSet(evt) && !ctx.isEventHandled()){
+  if (evt != EVT_NONE && evt != EVT_LINK && evt != EVT_GIVE_LINK && ctx.isEventSet(evt) && !ctx.isEventHandled()){
     //an action remained unhandled
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (chr && chr->getScript() != NULL){

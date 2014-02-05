@@ -166,6 +166,8 @@ EngineEvent ExecutionContext::getCommandEvent(){
     EngineEvent curr = *iter;
     if (curr >= EVT_USER_BEGIN && curr <= EVT_USER_MIRROR_END)
       return curr;
+    if (curr == EVT_LINK || curr == EVT_GIVE_LINK)
+      return curr;
   }
   return EVT_NONE;
 }

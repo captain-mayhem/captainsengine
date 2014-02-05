@@ -122,6 +122,7 @@ public:
   void setSelf(const String& name) {mSelf = name;}
   String resolveCharName(const String& name);
   CharacterObject* getCharacter(const String& name);
+  void setObjectInfo(const std::string& info) {mObjectInfo = info;}
 protected:
   ~ExecutionContext();
   CodeSegment* mCode;
