@@ -209,6 +209,7 @@ int ScriptFunctions::showInfo(ExecutionContext& ctx, unsigned numArgs){
   else
     Engine::instance()->setObjectTooltipString("");
   Engine::instance()->setObjectString(text);
+  ctx.setObjectInfo(text); //update object info in case it is changing text
   return 0;
 }
 
@@ -1050,9 +1051,18 @@ int ScriptFunctions::instObj(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::command(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
+  if (numArgs >= 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  std::string cmd = ctx.stack().pop().getString();
+  std::string cmd;
+  if (numArgs == 1)
+    cmd = ctx.stack().pop().getString();
+  else
+    cmd = "none";
+  //change also event in current script
+  EngineEvent evt = ctx.getCommandEvent();
+  ctx.resetEvent(evt);
+  evt = Engine::instance()->getInterpreter()->getEngineEvent(cmd);
+  ctx.setEvent(evt);
   Engine::instance()->setCommand(cmd, true);
   return 0;
 }
