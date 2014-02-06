@@ -123,6 +123,8 @@ public:
   float getScrollSpeed() {return mScrollSpeed;}
   bool isSubRoomLoaded() {return mSubRoomLoaded;}
   void insertRoom(RoomObject* room, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading);
+  void insertCharacter(CharacterObject* obj, std::string room, Vec2i pos, LookDir dir);
+  ResLoader* getResLoader() {return &mLoader;}
 protected:
   Engine();
   static Engine* mInstance;

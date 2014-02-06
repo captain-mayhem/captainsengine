@@ -43,7 +43,10 @@ void Textout::render(){
   std::string text;
   if (sd.isNumber()){
     char tmp[32];
-    sprintf(tmp, "%i", sd.getInt());
+    if (sd.isFloat())
+      sprintf(tmp, "%.2f", sd.getFloat());
+    else
+      sprintf(tmp, "%i", sd.getInt());
     text = tmp;
   }
   else

@@ -33,28 +33,41 @@ void internal_trace(unsigned group, int level, const char* file, const char* fun
 	}
 }
 
-TraceObject::TraceObject(const char* name) : mName(name), mLevel(TRACE_INFO), mChannel(0){
+TraceChannel::TraceChannel(const char* name) : mName(name), mLevel(TRACE_INFO), mChannel(0){
   //called from static code, so don't do big things here
 }
 
-TraceObject::TraceObject(const char* name, int level) : mName(name), mLevel(level), mChannel(0){
+TraceChannel::TraceChannel(const char* name, int level) : mName(name), mLevel(level), mChannel(0){
   //called from static code, so don't do big things here
 }
 
-bool TraceObject::isEnabled(int level){
+void TraceChannel::realize(){
   if (mChannel == 0)
     mChannel = TraceManager::instance()->registerChannel(mName, mLevel);
+}
+
+bool TraceChannel::isEnabled(int level){
   return TraceManager::instance()->getCurrentLevel(mChannel) >= level;
 }
 
+void TraceChannel::trace(int level, const char* function, const char* message){
+  TraceManager::instance()->trace(mChannel, level, function, message);
+}
+
+TraceObject::TraceObject(TraceChannel* channel) : mChannel(channel){
+  mChannel->realize();
+}
+
+bool TraceObject::isEnabled(int level){
+  return mChannel->isEnabled(level);
+}
+
 void TraceObject::trace(int level, const char* function, const char* message, ...){
-  if (mChannel == 0)
-    mChannel = TraceManager::instance()->registerChannel(mName, mLevel);
   va_list list;
   va_start(list, message);
   vsnprintf(buffer, BUF_SIZE, message, list);
   va_end(list);
-  TraceManager::instance()->trace(mChannel, level, function, buffer);
+  mChannel->trace(level, function, buffer);
   if (level == TRACE_FATAL_ERROR){
 #ifdef _DEBUG
 #ifdef WIN32
@@ -64,7 +77,6 @@ void TraceObject::trace(int level, const char* function, const char* message, ..
 #endif
 #endif
   }
-  //internal_trace(mChannel, level, file, function, message);
 }
 
 LogOutputter::~LogOutputter(){
