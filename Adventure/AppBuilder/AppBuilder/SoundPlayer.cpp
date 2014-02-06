@@ -182,8 +182,12 @@ mLooping(false), mStop(true), mPlay(false), mAutoDelete(true) {
 
 void StreamSoundPlayer::realize(){
   SoundPlayer::realize();
-  if (mStreamDB != NULL)
-    openStream(*mStreamDB);
+  if (mStreamDB != NULL){
+    if (!openStream(*mStreamDB)){
+      delete mStreamDB;
+      mStreamDB = NULL;
+    }
+  }
   else
     openStream(mStreamF);
 }

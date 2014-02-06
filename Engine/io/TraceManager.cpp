@@ -12,12 +12,16 @@ TraceManager::TraceManager() : mChannelCount(0), mPutty(NULL){
 }
 
 TraceManager::~TraceManager(){
+  mTraceBuffer.clear();
+  mTraceLevels.clear();
   delete mPutty;
 }
 
 unsigned TraceManager::registerChannel(const char* name, int level){
+  mMutex.lock();
   unsigned channel = ++mChannelCount;
   setCurrentLevel(channel, level);
+  mMutex.unlock();
   return channel;
 }
 
@@ -26,10 +30,14 @@ void TraceManager::setCurrentLevel(unsigned channel, int level){
 }
 
 int TraceManager::getCurrentLevel(unsigned channel){
-  return mTraceLevels[channel];
+  mMutex.lock();
+  int level = mTraceLevels[channel];
+  mMutex.unlock();
+  return level;
 }
 
 void TraceManager::trace(unsigned channel, int level, const char* function, const char* message){
+  mMutex.lock();
   if (mPutty)
     mPutty->trace(channel, level, function, message);
   else{
@@ -40,6 +48,7 @@ void TraceManager::trace(unsigned channel, int level, const char* function, cons
     msg.message = message;
     mTraceBuffer.push_back(msg);
   }
+  mMutex.unlock();
 }
 
 void TraceManager::setTraceOutputter(TraceOutputter* putty){

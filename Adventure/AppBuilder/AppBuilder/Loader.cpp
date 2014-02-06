@@ -34,7 +34,6 @@ public:
       mName(roomname), mIsSubRoom(subroom), mLoadreason(reason), mScreenchange(change), mFading(fade), mDepthOffset(depthoffset) {}
       void setData(AdvDocument* data, PcdkScript* cc) {mData = data; mCompiler = cc;}
   virtual Event* execute(){
-#if 1
     TR_USE(ADV_ResLoader);
     TR_INFO("loading room %s with screenchange %i", mName.c_str(), mScreenchange);
     Room* room = mData->getRoom(mName);
@@ -149,7 +148,6 @@ public:
       InventoryDisplay* disp = new InventoryDisplay(room->invpos, room->invsize, room->invscale, DEPTH_ITEM+mDepthOffset);
       roomobj->setInventory(disp);
     }
-#endif
     return new RoomLoadedEvent(roomobj, mIsSubRoom, mLoadreason, mScreenchange, mFading);
   }
 private:
@@ -161,6 +159,46 @@ private:
   int mDepthOffset;
   AdvDocument* mData;
   PcdkScript* mCompiler;
+};
+
+class InsertCharacterEvent : public Event{
+public:
+  InsertCharacterEvent(CharacterObject* chr, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir) :
+      mCharacter(chr), mReason(reason), mRoom(room), mPos(pos), mDir(dir) {}
+  virtual Event* execute(){
+    if (mReason)
+      mReason->resume();
+    if (mCharacter){
+      SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(mCharacter->getRoom());
+      Engine::instance()->getSaver()->removeCharacter(sr, mCharacter->getName());
+      mCharacter->realize();
+    }
+    Engine::instance()->insertCharacter(mCharacter, mRoom, mPos, mDir);
+    return NULL;
+  }
+private:
+  CharacterObject* mCharacter;
+  ExecutionContext* mReason;
+  std::string mRoom;
+  Vec2i mPos;
+  LookDir mDir;
+};
+
+class BeamCharacterEvent : public Event{
+public:
+  BeamCharacterEvent(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir) :
+      mName(name), mReason(reason), mRoom(room), mPos(pos), mDir(dir) {}
+  virtual Event* execute(){
+    CharacterObject* obj = Engine::instance()->loadCharacter(mName, Engine::instance()->getCharacterClass(mName), false, mReason);
+    InsertCharacterEvent* ice = new InsertCharacterEvent(obj, mReason, mRoom, mPos, mDir);
+    return ice;
+  }
+private:
+  std::string mName;
+  ExecutionContext* mReason;
+  std::string mRoom;
+  Vec2i mPos;
+  LookDir mDir;
 };
 
 ResLoader::ResLoader() : mData(NULL), mCompiler(NULL) {
@@ -219,6 +257,7 @@ bool ResLoader::handleResultEvent(){
 }
 
 void ResLoader::waitUntilFinished(){
+  TR_USE(ADV_ResLoader);
   while(1){
     mMutex.lock();
     unsigned reqCount = mQReq.size();
@@ -228,8 +267,10 @@ void ResLoader::waitUntilFinished(){
       mResMutex.unlock();
       return;
     }
-    if (mQRes.size() == 0)
-      mResCond.wait(mResMutex);
+    if (mQRes.size() == 0){
+      if (mResCond.waitTimeout(mResMutex, 1000))
+        TR_WARN("timeout occurred!");
+    }
     mResMutex.unlock();
     handleResultEvent();
   }
@@ -242,4 +283,20 @@ void ResLoader::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loa
   mQReq.addEvent(lre);
   mCond.signal();
   mMutex.unlock();
+}
+
+void ResLoader::beamCharacter(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir){
+#if 0
+  if (reason)
+    reason->suspend(0, NULL);
+  BeamCharacterEvent* bce = new BeamCharacterEvent(name, reason, room, pos, dir);
+  mMutex.lock();
+  mQReq.addEvent(bce);
+  mCond.signal();
+  mMutex.unlock();
+#endif
+  BeamCharacterEvent bce(name, reason, room, pos, dir);
+  Event* ret = bce.execute();
+  ret->execute();
+  delete ret;
 }

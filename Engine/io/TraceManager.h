@@ -6,6 +6,8 @@
 #include <string>
 #include <map>
 
+#include <system/thread.h>
+
 namespace CGE{
 
 class TraceOutputter;
@@ -41,6 +43,7 @@ protected:
   TraceOutputter* mPutty;
   std::list<Message> mTraceBuffer;
   std::map<unsigned, int> mTraceLevels;
+  Mutex mMutex;
 };
 
 }

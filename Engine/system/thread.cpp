@@ -219,7 +219,7 @@ void Condition::wait(Mutex& mutex){
 #endif
 }
 
-void Condition::waitTimeout(Mutex& mutex, int milliseconds){
+bool Condition::waitTimeout(Mutex& mutex, int milliseconds){
 #ifdef WIN32
   EnterCriticalSection(&mMuty);
   ++mWaiters;
@@ -227,7 +227,7 @@ void Condition::waitTimeout(Mutex& mutex, int milliseconds){
   LeaveCriticalSection(&mMuty);
   mutex.unlock();
 
-  WaitForSingleObject(mCond, milliseconds);
+  DWORD ret = WaitForSingleObject(mCond, milliseconds);
  
   mutex.lock();
   EnterCriticalSection(&mMuty);
@@ -238,6 +238,7 @@ void Condition::waitTimeout(Mutex& mutex, int milliseconds){
   LeaveCriticalSection(&mMuty);
   if (last)
     ResetEvent(mCond);
+  return ret == WAIT_TIMEOUT;
 #endif
 #ifdef UNIX
   struct timespec tv;
@@ -245,7 +246,8 @@ void Condition::waitTimeout(Mutex& mutex, int milliseconds){
   int seconds = milliseconds/1000;
   tv.tv_sec += seconds;
   tv.tv_nsec += (milliseconds-(seconds*1000))*1000000;
-  pthread_cond_timedwait(&mCond, mutex, &tv);
+  int ret = pthread_cond_timedwait(&mCond, mutex, &tv);
+  return ret == ETIMEDOUT;
 #endif
 }
 

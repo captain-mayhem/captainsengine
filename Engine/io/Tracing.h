@@ -23,16 +23,26 @@ public:
   virtual void trace(unsigned channel, int level, const char* function, const char* message)=0;
 };
 
-class TraceObject{
+class TraceChannel{
 public:
-  TraceObject(const char* name);
-  TraceObject(const char* name, int level);
-  void trace(int level, const char* function, const char* message, ...);
+  TraceChannel(const char* name);
+  TraceChannel(const char* name, int level);
+  void realize();
+  void trace(int level, const char* function, const char* message);
   bool isEnabled(int level);
 protected:
   const char* mName;
   int mLevel;
   unsigned mChannel;
+};
+
+class TraceObject{
+public:
+  TraceObject(TraceChannel* channel);
+  void trace(int level, const char* function, const char* message, ...);
+  bool isEnabled(int level);
+protected:
+  TraceChannel* mChannel;
 };
 
 class LogOutputter : public TraceOutputter{
@@ -49,10 +59,10 @@ protected:
 #define CGE_STRINGIFY(x) INTERNAL_STRINGIFY(x)
 #define INTERNAL_STRINGIFY(x) #x
 
-#define TR_CHANNEL(name) CGE::TraceObject name(CGE_STRINGIFY(name));
-#define TR_CHANNEL_EXT(name) extern CGE::TraceObject name;
-#define TR_CHANNEL_LVL(name, level) CGE::TraceObject name(CGE_STRINGIFY(name), level);
-#define TR_USE(name) CGE::TraceObject tracescopeobject = name;
+#define TR_CHANNEL(name) CGE::TraceChannel name(CGE_STRINGIFY(name));
+#define TR_CHANNEL_EXT(name) extern CGE::TraceChannel name;
+#define TR_CHANNEL_LVL(name, level) CGE::TraceChannel name(CGE_STRINGIFY(name), level);
+#define TR_USE(name) CGE::TraceObject tracescopeobject(&name);
 #define TR_TRACE(level, message, ...) do {if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__);} while(0)
 #define TR_IS_ENABLED(level) tracescopeobject.isEnabled(level)
 

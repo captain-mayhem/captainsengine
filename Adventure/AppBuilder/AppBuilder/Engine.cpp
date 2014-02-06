@@ -1596,3 +1596,32 @@ void Engine::resetCursor(bool resetInstMouse, bool resetDragging){
     }
   }
 }
+
+void Engine::insertCharacter(CharacterObject* obj, std::string roomname, Vec2i pos, LookDir dir){
+  if (!obj)
+    return;
+  obj->abortClick();   
+  obj->setTalking(false);
+  obj->setWalking(false);
+  if (dir != UNSPECIFIED)
+    obj->setLookDir(dir);
+  if (roomname.empty())
+    roomname = obj->getRoom();
+  RoomObject* room = Engine::instance()->getRoom(roomname);
+  SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(roomname);
+  if (room){
+    obj->setRoom(room->getName());
+    obj->setPosition(Vec2i(pos*room->getWalkGridSize()+Vec2f(room->getWalkGridSize()/2, room->getWalkGridSize()/2)));
+    obj->setScale(room->getDepthScale(obj->getPosition()));
+    obj->setDepth((int)(obj->getPosition().y/Engine::instance()->getWalkGridSize(false)));
+    Engine::instance()->getSaver()->removeCharacter(sr, obj->getName());
+    room->addObject(obj);
+  }
+  else{
+    obj->setRoom(roomname);
+    Engine::instance()->getSaver()->removeCharacter(sr, obj->getName());
+    obj->setPosition(Vec2i(pos*sr->getWalkGridSize()+Vec2f(sr->getWalkGridSize()/2, sr->getWalkGridSize()/2)));
+    obj->save(sr);
+    delete obj;
+  }
+}

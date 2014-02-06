@@ -66,7 +66,7 @@ public:
   Condition();
   ~Condition();
   void wait(Mutex& mutex);
-  void waitTimeout(Mutex& mutex, int milliseconds);
+  bool waitTimeout(Mutex& mutex, int milliseconds);
   void signal();
 protected:
 #ifdef WIN32
