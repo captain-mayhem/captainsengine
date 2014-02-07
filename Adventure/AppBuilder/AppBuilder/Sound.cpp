@@ -458,7 +458,7 @@ std::ostream& SoundEngine::save(std::ostream& out){
 std::istream& SoundEngine::load(std::istream& in){
   //clear previous sounds
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
-    if (iter->second->hasAutoDeletion()){
+    if (iter->second && iter->second->hasAutoDeletion()){
       delete iter->second;
       iter->second = NULL;
     }

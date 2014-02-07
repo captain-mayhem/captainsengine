@@ -1276,6 +1276,7 @@ RoomObject* Engine::getContainingRoom(Object2D* object){
 }
 
 CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom, ExecutionContext* loadreason){
+  TR_USE(ADV_Engine);
   SaveStateProvider::CharSaveObject* obj = NULL;
   std::string room;
   std::string realName;
@@ -1300,6 +1301,10 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
     return NULL;
   if (!obj){
     obj = mSaver->findCharacter(instanceName, room, realName);
+    if (obj == NULL){
+      TR_WARN("Character %s not found or currently beamed around", instanceName.c_str());
+      return NULL;
+    }
   }
   Character* chbase = mData->getCharacter(className);
   if (chbase == NULL)

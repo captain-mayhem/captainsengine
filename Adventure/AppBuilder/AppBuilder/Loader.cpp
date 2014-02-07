@@ -286,7 +286,7 @@ void ResLoader::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loa
 }
 
 void ResLoader::beamCharacter(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir){
-#if 0
+#if 1
   if (reason)
     reason->suspend(0, NULL);
   BeamCharacterEvent* bce = new BeamCharacterEvent(name, reason, room, pos, dir);
@@ -295,8 +295,10 @@ void ResLoader::beamCharacter(const std::string& name, ExecutionContext* reason,
   mCond.signal();
   mMutex.unlock();
 #endif
+#if 0
   BeamCharacterEvent bce(name, reason, room, pos, dir);
   Event* ret = bce.execute();
   ret->execute();
   delete ret;
+#endif
 }

@@ -113,7 +113,7 @@ void InventoryDisplay::render(Inventory* inv){
       sprintf(tmp, "%i", (*iter)->getCount());
       std::vector<Vec2i> breakinfo;
       Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(tmp, 0, breakinfo);
-      Engine::instance()->getFontRenderer()->render(pos.x+invitemwidth-breakinfo[0].y-6, pos.y-3, tmp, mDepth, 0, breakinfo, Engine::instance()->getSettings()->infotextcolor);
+      Engine::instance()->getFontRenderer()->render(pos.x+invitemwidth-breakinfo[0].y-(int)(9*mScale.x), pos.y-(int)(4*mScale.y), tmp, mDepth, 0, breakinfo, Engine::instance()->getSettings()->infotextcolor);
     }
     int xpos = count % mSize.x;
     pos.x = mPos.x+xpos*invitemwidth;
