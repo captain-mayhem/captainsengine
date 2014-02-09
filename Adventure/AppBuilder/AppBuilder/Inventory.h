@@ -23,10 +23,12 @@ public:
   ItemObject* getItem(const std::string& name);
   ItemObject* getItem(const std::string& name, int invnumber);
   void save(SaveStateProvider::SaveInventory& inv) const;
+  void load(const SaveStateProvider::SaveInventory& inv);
   void setCurrent(int invNum) {mCurrentInv = invNum;}
   unsigned getNumItemSlots() {return mInventory[mCurrentInv].size();}
   void realize();
 protected:
+  void clear();
   typedef std::list<ItemObject*> SingleInv;
   std::map<int, SingleInv> mInventory;
   int mCurrentInv;

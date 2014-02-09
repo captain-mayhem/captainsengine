@@ -651,7 +651,7 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
 
   if (mMainRoomLoaded && !isSubRoom){
     TR_INFO("delay activation of room %s", roomobj->getName().c_str());
-    unloadRoom(mRooms.back(), true, false);
+    unloadRoom(mRooms.back(), true, false, loadreason);
     if (mPendingLoadRoom.reason != NULL){
       mPendingLoadRoom.reason->resume();
     }
@@ -688,7 +688,7 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
   }
 }
 
-void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately){
+void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately, ExecutionContext* reason){
   if (mRooms.empty())
     return;
   if (room == NULL){
@@ -715,6 +715,7 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately){
   ExecutionContext* script = room->getScript();
   if (script)
     script->setEvent(EVT_EXIT);
+  room->unbindScript(reason); //prevent the script that triggered the unloading from being skipped or aborted
   room->finishScripts(false);
   //room->save();
   if (immediately){
@@ -1291,7 +1292,6 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
       else if (mPendingLoadRoom.room != NULL){
         chr = mPendingLoadRoom.room->extractCharacter(realName);
         if (chr){
-          chr->realize();
           return chr;
         }
       }
@@ -1342,14 +1342,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
       //mInterpreter->execute(scr, false);
     }
   }
-  for (std::map<int,std::vector<SaveStateProvider::SaveItem> >::iterator inviter = obj->inventory.items.begin();
-    inviter != obj->inventory.items.end(); ++inviter){
-      for (unsigned i = 0; i < inviter->second.size(); ++i){
-        ItemObject* item = createItem(inviter->second[i].name, inviter->second[i].count);
-        character->getInventory()->addItem(item, inviter->first);
-      }
-  }
-  character->getInventory()->setCurrent(obj->inventory.current);
+  character->getInventory()->load(obj->inventory);
   return character;
 }
 
@@ -1397,7 +1390,7 @@ void Engine::keyPress(int key){
             }
           }
           else{
-            unloadRoom(NULL, false, false);
+            unloadRoom(NULL, false, false, NULL);
             mMenuShown = false;
           }
         }

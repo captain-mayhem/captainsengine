@@ -306,7 +306,7 @@ void SaveStateProvider::clear(){
 
 void SaveStateProvider::save(const std::string& name){
   if (Engine::instance()->mMenuShown){
-    Engine::instance()->unloadRoom(NULL, false, true);
+    Engine::instance()->unloadRoom(NULL, false, true, NULL);
     Engine::instance()->mMenuShown = false;
   }
   std::string focussedcharname;
@@ -385,7 +385,7 @@ void SaveStateProvider::load(const std::string& name){
   Engine::instance()->getInterpreter()->executeCutscene(NULL, false);
   mNoWrites = Engine::instance()->unloadRooms();
   if (Engine::instance()->mMenuShown){
-    Engine::instance()->unloadRoom(NULL, false, false);
+    Engine::instance()->unloadRoom(NULL, false, false, NULL);
     Engine::instance()->mMenuShown = false;
   }
   //load room data

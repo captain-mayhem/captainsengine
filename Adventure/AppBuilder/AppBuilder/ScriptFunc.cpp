@@ -823,7 +823,7 @@ int ScriptFunctions::subRoom(ExecutionContext& ctx, unsigned numArgs){
     fading_time = ctx.stack().pop().getInt();
   }
   if (Engine::instance()->isSubRoomLoaded())
-    Engine::instance()->unloadRoom(NULL, false, false);
+    Engine::instance()->unloadRoom(NULL, false, false, &ctx);
   Engine::instance()->loadSubRoom(roomname, &ctx, fading_time);
   return 0;
 }
@@ -832,7 +832,7 @@ int ScriptFunctions::subRoomReturn(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 0)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  Engine::instance()->unloadRoom(NULL, false, false);
+  Engine::instance()->unloadRoom(NULL, false, false, &ctx);
   return 0;
 }
 
@@ -840,7 +840,7 @@ int ScriptFunctions::subRoomReturnImmediate(ExecutionContext& ctx, unsigned numA
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 0)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  Engine::instance()->unloadRoom(NULL, false, true);
+  Engine::instance()->unloadRoom(NULL, false, true, &ctx);
   return 0;
 }
 
@@ -950,7 +950,7 @@ int ScriptFunctions::unloadRoom(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 0)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   bool animate = !ctx.isSkipping();
-  Engine::instance()->unloadRoom(NULL, true, false);
+  Engine::instance()->unloadRoom(NULL, true, false, &ctx);
   //make unloads smoother. triggerScreenchange, add finished callback to screenchanges, call ForceNot... in callback
   if (animate){
     //Engine::instance()->getRoom("")->setFadeout(1);
@@ -2498,11 +2498,47 @@ int ScriptFunctions::exchange(ExecutionContext& ctx, unsigned numArgs){
   std::string char2 = ctx.stack().pop().getString();
   CharacterObject* c1 = ctx.getCharacter(char1);
   CharacterObject* c2 = ctx.getCharacter(char2);
-  if (c1 == NULL || c2 == NULL)
-    TR_BREAK("Character %s or %s is unknown", char1.c_str(), char2.c_str());
-  Inventory* inv = c1->getInventory();
-  c1->setInventory(c2->getInventory());
-  c2->setInventory(inv);
+  if (c1 == NULL || c2 == NULL){
+    std::string room, realname;
+    if (c1 == NULL && c2 != NULL){
+      SaveStateProvider::SaveInventory si;
+      c2->getInventory()->save(si);
+      SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(char1, room, realname);
+      if (cso == NULL)
+        TR_BREAK("Character %s is unknown", char1.c_str());
+      else{
+        c2->getInventory()->load(cso->inventory);
+        c2->getInventory()->realize();
+        cso->inventory = si;
+      }
+    }
+    else if (c2 == NULL && c1 != NULL){
+      SaveStateProvider::SaveInventory si;
+      c1->getInventory()->save(si);
+      SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(char2, room, realname);
+      if (cso == NULL)
+        TR_BREAK("Character %s is unknown", char2.c_str());
+      else{
+        c1->getInventory()->load(cso->inventory);
+        c1->getInventory()->realize();
+        cso->inventory = si;
+      }
+    }
+    else{
+      SaveStateProvider::CharSaveObject* cso1 = Engine::instance()->getSaver()->findCharacter(char1, room, realname);
+      SaveStateProvider::CharSaveObject* cso2 = Engine::instance()->getSaver()->findCharacter(char2, room, realname);
+      if (cso1 == NULL || cso2 == NULL)
+        TR_BREAK("Character %s or %s is unknown", char1.c_str(), char2.c_str());
+      SaveStateProvider::SaveInventory tmp = cso1->inventory;
+      cso1->inventory = cso2->inventory;
+      cso2->inventory = tmp;
+    }
+  }
+  else{
+    Inventory* inv = c1->getInventory();
+    c1->setInventory(c2->getInventory());
+    c2->setInventory(inv);
+  }
   return 0;
 }
 

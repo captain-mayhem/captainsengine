@@ -49,7 +49,7 @@ public:
   void mouseWheel(int delta);
   bool loadMainRoom(const std::string& name, ExecutionContext* loadreason, ScreenChange change) {return loadRoom(name, false, loadreason, change, 0);}
   bool loadSubRoom(const std::string& name, ExecutionContext* loadreason, int fading) {return loadRoom(name, true, loadreason, SC_DIRECT, fading);}
-  void unloadRoom(RoomObject* room, bool mainroom, bool immedately);
+  void unloadRoom(RoomObject* room, bool mainroom, bool immedately, ExecutionContext* reason);
   bool setFocus(std::string charname, ExecutionContext* reason);
   CGE::Image* getImage(const std::string& name);
   float getWalkGridSize(bool doublewalkmap) {return doublewalkmap ? mWalkGridSize/2.0f : (float)mWalkGridSize;}
