@@ -486,6 +486,7 @@ SaveStateProvider::CharSaveObject* SaveStateProvider::findCharacter(const std::s
 }
 
 SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& name, std::string& room){
+  TR_USE(ADV_SaveState);
   mMuty.lock();
   //check if already present
   for (std::map<String,SaveRoom*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
@@ -498,12 +499,13 @@ SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& 
     }
   }
   //load the room with the object into saving
-  Object* obj = mData->getObject(name);
+  Room* rm = NULL;
+  Roomobject* obj = mData->findRoomObject(name, rm);
   if (obj == NULL){
     mMuty.unlock();
+    TR_BREAK("should have found it.");
     return NULL;
   }
-  Room* rm = mData->getRoom(obj);
   room = rm->name;
   SaveRoom* saveroom = getRoom(room);
   std::map<String,SaveObject*>::iterator iter = saveroom->objects.find(obj->name);
@@ -511,7 +513,6 @@ SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& 
     mMuty.unlock();
     return iter->second;
   }
-  TR_USE(ADV_SaveState);
   TR_BREAK("Object %s not found in %s", name.c_str(), room.c_str());
   mMuty.unlock();
   return NULL;

@@ -1035,21 +1035,6 @@ Item* AdvDocument::getItem(const std::string& name){
   return &((*iter).second);
 }
 
-Room* AdvDocument::getRoom(Object* obj){
-  //mMuty.lock();
-  for (std::map<std::string,Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    for (std::vector<Roomobject>::iterator objiter = iter->second.objects.begin(); objiter != iter->second.objects.end(); ++objiter){
-      if (objiter->name == obj->name)
-        //mMuty.unlock();
-        return &iter->second;
-    }
-  }
-  TR_USE(ADV_DATA)
-  TR_BREAK("Room not found");
-  //mMuty.unlock();
-  return NULL;
-}
-
 Language::Section AdvDocument::getLanguageSection(const std::string& funcname, int argnum){
   if (funcname == "speech"){
     if (argnum == 1)
@@ -1113,5 +1098,17 @@ std::string AdvDocument::animationScript(const std::string& input){
       ret.append(1, input[i]);
   }
   return ret;
+}
+
+Roomobject* AdvDocument::findRoomObject(const std::string& name, Room*& containingRoom){
+  for (std::map<std::string,Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    for (std::vector<Roomobject>::iterator objiter = iter->second.objects.begin(); objiter != iter->second.objects.end(); ++objiter){
+      if (_stricmp(objiter->name.c_str(), name.c_str()) == 0){
+        containingRoom = &iter->second;
+        return &*objiter;
+      }
+    }
+  }
+  return NULL;
 }
 

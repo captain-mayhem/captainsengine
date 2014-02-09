@@ -581,10 +581,17 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::cutScene(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
+  if (numArgs < 1 || numArgs > 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string scriptname = ctx.stack().pop().getString();
-  Engine::instance()->getInterpreter()->cutsceneMode(true);
+  bool hideUI = true;
+  if (numArgs > 1){
+    String donthide = ctx.stack().pop().getString();
+    if (donthide != "donthide")
+      TR_BREAK("%s unexpected", donthide.c_str());
+    hideUI = false;
+  }
+  Engine::instance()->getInterpreter()->cutsceneMode(hideUI);
   if (!ctx.getEvents().empty() && ctx.getEvents().front() == EVT_CLICK){ //the cutscene should stop the current click
     ctx.getEvents().pop_front(); //stop click
     ctx.getEvents().pop_front(); //stop user event

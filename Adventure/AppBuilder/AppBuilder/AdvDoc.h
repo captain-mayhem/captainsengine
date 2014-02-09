@@ -275,8 +275,8 @@ public:
   bool getMusic(const std::string& name, DataBuffer& db);
   bool getMovie(const std::string& name, DataBuffer& db);
   Room* getRoom(std::string name);
-  Room* getRoom(Object* obj);
   Object* getObject(std::string name);
+  Roomobject* findRoomObject(const std::string& name, Room*& containingRoom);
   MouseCursor* getCursor();
   std::vector<Rcharacter> getRoomCharacters() {return mRoomCharacters;}
   Character* getCharacter(std::string name);
