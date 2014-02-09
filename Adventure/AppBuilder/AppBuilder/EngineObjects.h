@@ -200,6 +200,7 @@ public:
   int getFadeout() {return mFadeout;}
   float getWalkGridSize();
   virtual void realize();
+  bool unbindScript(ExecutionContext* ctx);
 protected:
   class DepthMap {
   public:

@@ -10,6 +10,10 @@ Inventory::Inventory() : mCurrentInv(1){
 }
 
 Inventory::~Inventory(){
+  clear();
+}
+
+void Inventory::clear(){
   for (std::map<int, SingleInv>::iterator iter = mInventory.begin(); iter != mInventory.end(); ++iter){
     while (!iter->second.empty()){
       delete iter->second.front();
@@ -68,6 +72,18 @@ void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
     }
   }
   inv.current = mCurrentInv;
+}
+
+void Inventory::load(const SaveStateProvider::SaveInventory& inventory){
+  clear();
+  for (std::map<int,std::vector<SaveStateProvider::SaveItem> >::const_iterator inviter = inventory.items.begin();
+    inviter != inventory.items.end(); ++inviter){
+      for (unsigned i = 0; i < inviter->second.size(); ++i){
+        ItemObject* item = Engine::instance()->createItem(inviter->second[i].name, inviter->second[i].count);
+        addItem(item, inviter->first);
+      }
+  }
+  setCurrent(inventory.current);
 }
 
 void Inventory::realize(){

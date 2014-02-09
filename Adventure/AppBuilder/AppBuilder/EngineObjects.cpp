@@ -767,6 +767,23 @@ void RoomObject::finishScripts(bool execute){
   }
 }
 
+bool RoomObject::unbindScript(ExecutionContext* ctx){
+  ExecutionContext* script = NULL;
+  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    if ((*iter)->getScript() == ctx){
+      (*iter)->setScript(NULL);
+      script = ctx;
+      break;
+    }
+  }
+  if (script != NULL){
+    script->setOwner(NULL);
+    script->setExecuteOnce();
+    return true;
+  }
+  return false;
+}
+
 float RoomObject::getDepthScale(const Vec2i& pos){
   float factor = (pos.y-mDepthMap.scaleStart)/(float)(mDepthMap.scaleStop-mDepthMap.scaleStart);
   factor = factor < 0 ? 0 : factor;
