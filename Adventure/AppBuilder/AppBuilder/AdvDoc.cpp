@@ -373,7 +373,10 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
           int pos = str.find(";");
           Frame frm;
           frm.name = str.substr(0, pos);
-          frm.script = animationScript(str.substr(pos+1));
+          if (pos >= 0)
+            frm.script = animationScript(str.substr(pos+1));
+          else
+            frm.script = "";
           is.frames.push_back(frm);
         }
         str = txtstream.readLine();

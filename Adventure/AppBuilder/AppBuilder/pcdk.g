@@ -3,7 +3,7 @@ grammar pcdk;
 options{
 	language=C;
 	output=AST;
-}
+	}
 
 @parser::includes{
 #include "AST.h"
@@ -89,8 +89,6 @@ row_stmt returns [RowNode* row]
 	
 timer_stmt returns [TimerNode* timer]
 	:	TIMER LPAREN (
-	/*REAL { char tmp[64]; strcpy(tmp, (char*)$REAL.text->chars); char* tst = strchr(tmp, ','); if (tst != NULL) *tst = '.'; float time = (float)atof(tmp); $timer = new TimerNode(time);}
-	| INT { float time = (float)atoi((char*)$INT.text->chars); $timer = new TimerNode(time); }*/
 	fa = factor {$timer = new TimerNode(fa.fac); }
 	) RPAREN exec=block
 	{
@@ -142,8 +140,7 @@ arg	returns [ASTNode* value]
 		 | ca2=complex_arg {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}else{delete ca2.value;}}
 		)*
 		)
-	| (MINUS {if (internalArgument){$value = new IdentNode("-");} } )?
-	  (ca=complex_arg {
+	| (ca=complex_arg {
 			if (internalArgument){
 				if ($value == NULL)
 					$value = ca.value;
@@ -178,16 +175,20 @@ complex_arg returns [ASTNode* value]
 		first=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(first.value->value().c_str()); delete first.value;}
 		| t1=TIMES {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t1.text->chars);}
 		| t3=UNDERSCORE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t3.text->chars);}
+		| t5=MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t5.text->chars);}
+		| t7=PLUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t7.text->chars);}
+		| t9='#'  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t9.text->chars);}
 	)
 	(
 		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
-		| MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$MINUS.text->chars);}
-		| PLUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$PLUS.text->chars);}
+		| t6=MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t6.text->chars);}
+		| t8=PLUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t8.text->chars);}
 		| t2=TIMES {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t2.text->chars);}
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| REAL_INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL_INT.text->chars);}
 		| COMMA {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$COMMA.text->chars);}
 		| t4=UNDERSCORE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t4.text->chars);}
+		| t10='#'  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t10.text->chars);}
 	)*)
 	;
 
@@ -218,7 +219,7 @@ rel_expr returns [ASTNode* exp]
 
 expr returns [ASTNode* exp]
 	: lt=term {$exp = lt.trm;}
-	((
+	((PLUS | MINUS) => (
 	PLUS {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_PLUS; an->left() = $exp; $exp = an;}
 	| MINUS {ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_MINUS; an->left() = $exp; $exp = an;}
 	) 
@@ -312,8 +313,7 @@ TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('.'|COMMA)'0'..'9'+;
 REAL_INT:	INT COMMA;
-IDENT_PART	:	/*('a'..'z'|'A'..'Z'|'\u00fc'|'\u00dc'|'\u00f6'|'\u00d6'|'\u00e4'|'\u00c4'|'\u00df'|'0'..'9'|'\''|'\.'|'!'|COMMA|'&'|TIMES)*/
-				('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|COMMA|'&'|'|'|'%'|'\\'|'\u0080'..'\u00ff')+;
+IDENT_PART	:	('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|COMMA|'&'|'|'|'%'|'\\'|'\u0080'..'\u00ff')+;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}
