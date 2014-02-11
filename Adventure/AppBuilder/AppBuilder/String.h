@@ -30,8 +30,8 @@ public:
 
   String substr(unsigned pos = 0, unsigned len = npos) const {String ret(mStr.substr(pos, len)); return ret;}
 
-  operator std::string() {return mStr;}
-  operator const std::string() const {return mStr;}
+  //operator std::string() {return mStr;}
+  operator const std::string&() const {return mStr;}
 
   String removeAll(char ch) const;
   String toLower() const;

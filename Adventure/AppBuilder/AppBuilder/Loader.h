@@ -14,6 +14,7 @@ class EventQueue;
 
 class Event{
 public:
+  virtual ~Event() {}
   virtual Event* execute() = 0;
 };
 

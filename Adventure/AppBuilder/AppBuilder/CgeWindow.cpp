@@ -18,6 +18,7 @@ using namespace adv;
 TR_CHANNEL(ADV_CGE_Window);
 
 std::string filename;
+std::string savegame;
 AdvDocument* adoc = NULL;
 CommandReceiver receiver;
 
@@ -114,6 +115,12 @@ void render(){
     sleeptime = 0;
 
   CGE::Thread::sleep(sleeptime); //just a little sleep to avoid frame times < 5ms.
+
+  if (!savegame.empty()){
+    savegame = Engine::instance()->getSaver()->saveSlotToPath(atoi(savegame.c_str()));
+    Engine::instance()->getSaver()->load(savegame);
+    savegame.clear();
+  }
 }
 
 void mouse_move(int x, int y, int button){
@@ -181,6 +188,10 @@ void engineMain(int argc, char** argv){
     filename = argv[1];
   else
     filename = "data/game.dat";
+  if (argc > 2)
+    savegame = argv[2];
+  else
+    savegame = "";
   CGE::Utilities::replaceWith(filename, '\\', '/');
   //render callbacks
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();

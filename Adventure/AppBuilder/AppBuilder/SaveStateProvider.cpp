@@ -168,7 +168,7 @@ SaveStateProvider::~SaveStateProvider(){
 
 SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
   mMuty.lock();
-  std::string idxname = toLower(name);
+  String idxname = toLower(name);
   std::map<String,SaveRoom*>::iterator iter = mRooms.find(idxname);
   if (mRooms.empty() || iter == mRooms.end()){
     //let's see if we find the room in the original
@@ -192,7 +192,7 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
       save->objects[orig->objects[i].name] = object;
     }
     for (unsigned i = 0; i < mData->getRoomCharacters().size(); ++i){
-      if (toLower(mData->getRoomCharacters()[i].room) == idxname){
+      if (idxname == toLower(mData->getRoomCharacters()[i].room)){
         bool mirror;
         int state = CharacterObject::calculateState(mData->getRoomCharacters()[i].dir, mirror);
         state = CharacterObject::calculateState(state, false, false, false);

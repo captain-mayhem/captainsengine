@@ -321,6 +321,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         FuncCallNode* fc = static_cast<FuncCallNode*>(node);
         mCurrFunc = fc->getName();
         if (fc->getName() == "break"){
+          //break within minicut, add minicut end before break
+          if (mUnresolvedBlockEnd != NULL){
+            codes->addCode(new CCALL(ScriptFunctions::miniCutEnd, "minicut", 0));
+            ++count;
+          }
           ScriptFunc f = mFunctions["break"];
           codes->addCode(new CCALL(f, "break", 0));
           ++count;
