@@ -460,19 +460,26 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
   }
   //right click changes to icon 1
   else if (Engine::instance()->getSettings()->right_click == 1){
-    if (Engine::instance()->getObjectAt(pos) != NULL){
-      Engine::instance()->resetCursor(false, true);
-      mState = 2;
-      Engine::instance()->getInterpreter()->setPrevState(this, this);
+    if (2-1 >= (int)mAnimations.size()-1 || !mAnimations[2-1]->exists()){ //no command bound
+      mState = 1;
+      leftClickRequired = true;
+      return 2;
     }
-    else
-      Engine::instance()->resetCursor(true, true);
-    leftClickRequired = false;
+    else{
+      if (Engine::instance()->getObjectAt(pos) != NULL){
+        Engine::instance()->resetCursor(false, true);
+        mState = 2;
+        Engine::instance()->getInterpreter()->setPrevState(this, this);
+      }
+      else
+        Engine::instance()->resetCursor(true, true);
+      leftClickRequired = false;
+    }
   }
   //classic mode
   else{
     ++mState;
-    if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){
+    if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){ //no command bound
       if (mState == 2){
         mState = 1;
         leftClickRequired = true;
