@@ -279,6 +279,7 @@ bool StreamSoundPlayer::openStream(const DataBuffer& buffer){
     av_free(mMemoryBuffer);
     //delete &buffer; //is deleted outside
     mFormat = NULL;
+    mMemoryStream = NULL;
     return false;
   }
   TR_DEBUG("stream opened successfully");

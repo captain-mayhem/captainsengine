@@ -487,7 +487,8 @@ std::istream& SoundEngine::load(std::istream& in){
     bool effect;
     in >> sound >> effect;
     SoundPlayer* sp = getSound(sound, effect, PLAYER_DEFAULT);
-    sp->play(true);
+    if (sp)
+      sp->play(true);
   }
   return in;
 }

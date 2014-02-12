@@ -2017,8 +2017,10 @@ int ScriptFunctions::miniCutEnd(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
   if (numArgs != 0)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
-  Engine::instance()->getInterpreter()->mGlobalSuspend = false;
-  Engine::instance()->getInterpreter()->mHideUI = false;
+  if (Engine::instance()->getInterpreter()->getCutscene() == NULL){ //no cutscene started from minicut
+    Engine::instance()->getInterpreter()->mGlobalSuspend = false;
+    Engine::instance()->getInterpreter()->mHideUI = false;
+  }
   return 0;
 }
 
