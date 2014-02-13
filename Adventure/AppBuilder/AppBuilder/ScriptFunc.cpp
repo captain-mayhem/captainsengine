@@ -1712,8 +1712,14 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
     if (d.getInt() == 0){
       std::string txt = d.getString();
       bool loop = false;
-      if (txt == "inf" || txt == "infinitly")
+      if (txt == "inf" || txt == "infinitly"){
         loop = true;
+        func->setIdle(false);
+      }
+      else if (txt == "loop2"){
+        loop = true;
+        func->setIdle(true);
+      }
       else
         TR_BREAK("Unhandled repeat %s", txt.c_str());
       Engine::instance()->getInterpreter()->execute(func, !loop);
@@ -2326,9 +2332,12 @@ int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::unlinkChar(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
+  if (numArgs < 1 || numArgs > 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string character = ctx.stack().pop().getString();
+  String object = "";
+  if (numArgs >= 2)
+    object = ctx.stack().pop().getString();
   CharacterObject* chr = ctx.getCharacter(character);
   if (!chr)
     TR_BREAK("Unknown character %s", character.c_str());

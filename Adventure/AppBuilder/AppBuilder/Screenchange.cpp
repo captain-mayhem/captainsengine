@@ -10,6 +10,10 @@ using namespace adv;
 #define M_PI       3.14159265358979323846
 #endif
 
+ScreenChangeBase::~ScreenChangeBase(){
+  Engine::instance()->getCursor()->showLoading(false);
+}
+
 void ScreenChangeBase::screenChangeSwitch(){
   if (mUnload)
     Engine::instance()->forceNotToRenderUnloadingRoom();
