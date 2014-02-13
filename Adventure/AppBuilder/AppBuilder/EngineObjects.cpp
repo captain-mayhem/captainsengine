@@ -438,7 +438,7 @@ void ButtonObject::blit(){
   GL()popMatrix();
 }
 
-CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32), "xxx"){
+CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32), "xxx"), mSavedState(0) {
 
 }
 
@@ -463,7 +463,7 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
     if (2-1 >= (int)mAnimations.size()-1 || !mAnimations[2-1]->exists()){ //no command bound
       mState = 1;
       leftClickRequired = true;
-      return 2;
+      return mCommands[2] != 0 ? mCommands[2] : 2;  //take the next action
     }
     else{
       if (Engine::instance()->getObjectAt(pos) != NULL){
@@ -483,7 +483,7 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
       if (mState == 2){
         mState = 1;
         leftClickRequired = true;
-        return mCommands[mState]; //take the next action
+        return mCommands[mState] != 0 ? mCommands[mState] : 2; //take the next action
       }
       else
         mState = 1;
@@ -508,6 +508,17 @@ void CursorObject::setCommand(int command){
       }
       break;
     }
+  }
+}
+
+void CursorObject::showLoading(bool loading){
+  if (loading){
+    mSavedState = mState;
+    mState = 10;
+  }
+  else{
+    mState = mSavedState;
+    mSavedState = 0;
   }
 }
 

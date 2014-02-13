@@ -151,8 +151,10 @@ public:
   void setCommand(int command);
   virtual bool isHit(const Vec2i& point) {return true; /*the cursor always hits itself*/}
   virtual Type getType() {return CURSOR;}
+  void showLoading(bool loading);
 protected:
   std::vector<int> mCommands;
+  int mSavedState;
 };
 
 class CharacterObject;

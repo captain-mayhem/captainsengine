@@ -8,6 +8,7 @@ namespace adv{
 class ScreenChangeBase : public RenderableBlitObject, public DynamicAnimation{
 public:
   ScreenChangeBase(int width, int height, int depth) : RenderableBlitObject(width, height, depth), mUnload(false) {realize();}
+  virtual ~ScreenChangeBase();
   virtual Object2D* getTarget() {return NULL;}
   virtual Type getType() {return SCREEN;}
   virtual void finish() {}

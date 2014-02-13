@@ -15,7 +15,6 @@ public:
   RoomLoadedEvent(RoomObject* room, bool isSubRoom, ExecutionContext* loadreason, ScreenChange screenchange, int fading) :
       mRoom(room), mIsSubRoom(isSubRoom), mLoadreason(loadreason), mScreenchange(screenchange), mFading(fading) {}
       virtual Event* execute(){
-        mRoom->realize();
         Engine::instance()->insertRoom(mRoom, mIsSubRoom, mLoadreason, mScreenchange, mFading);
         //delete mRoom;
         return NULL;

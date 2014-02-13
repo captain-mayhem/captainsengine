@@ -637,6 +637,9 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
     if (!mMainRoomLoaded)
       depthoffset += 1000;
   }
+  else{
+    mCursor->showLoading(true);
+  }
 
   //trigger async loader
   if (loadreason)
@@ -663,6 +666,7 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
   else if (loadreason)
     loadreason->resume();
 
+  roomobj->realize();
   if (isSubRoom){
     mRooms.push_front(roomobj);
     if (mInitialized)
@@ -1576,6 +1580,11 @@ void Engine::triggerScreenchange(ExecutionContext* loadreason, ScreenChange chan
       scb->setUnload(unload);
       Engine::instance()->getAnimator()->add(scb);
     }
+    else
+      mCursor->showLoading(false);
+  }
+  else{
+    mCursor->showLoading(false);
   }
 }
 
