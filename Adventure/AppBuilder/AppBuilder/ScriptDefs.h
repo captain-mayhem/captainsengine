@@ -1,6 +1,7 @@
 #ifndef SCRIPTDEFS_H
 #define SCRIPTDEFS_H
 
+#include <cstdlib>
 #include "String.h"
 
 namespace adv{

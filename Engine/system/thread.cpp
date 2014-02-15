@@ -9,6 +9,7 @@
 #endif
 #ifdef UNIX
 #include <pthread.h>
+#include <errno.h>
 #endif
 #include <stdlib.h>
 #include <system/engine.h>

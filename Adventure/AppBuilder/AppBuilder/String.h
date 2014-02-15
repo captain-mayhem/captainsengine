@@ -36,7 +36,7 @@ public:
   String removeAll(char ch) const;
   String toLower() const;
 
-  static const unsigned npos = 4294967295;
+  static const unsigned npos = 4294967295U;
 protected:
   std::string mStr;
 };

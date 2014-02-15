@@ -1,6 +1,8 @@
 #ifndef IDS_H
 #define IDS_H
 
+#include <iostream>
+
 namespace adv{
 
 enum ResourceID{
