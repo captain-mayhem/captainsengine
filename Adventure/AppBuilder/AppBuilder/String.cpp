@@ -1,5 +1,7 @@
 #include "String.h"
 
+#include <iostream>
+
 using namespace adv;
 
 String String::operator+(const String& s){

@@ -1219,7 +1219,7 @@ int ScriptFunctions::getRequestedState(Character* cclass, const StackData& data)
     std::string statename = data.getString();
     bool found = false;
     for (unsigned i = 0; i < cclass->extrastatenames.size(); ++i){
-      if (stricmp(cclass->extrastatenames[i].c_str(), statename.c_str()) == 0){
+      if (_stricmp(cclass->extrastatenames[i].c_str(), statename.c_str()) == 0){
         found = true;
         state = i + 17;
         break;
@@ -2448,7 +2448,7 @@ int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
   else{
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(ctx.resolveCharName(charname));
     if (cso == NULL)
-      TR_BREAK("Character %s not found", charname);
+      TR_BREAK("Character %s not found", charname.c_str());
     else
       cso->walksound = soundname;
   }

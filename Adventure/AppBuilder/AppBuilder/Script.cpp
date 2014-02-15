@@ -473,7 +473,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           if (funciter == mRelVars.end()){
             if (mCurrFunc == "offspeech" && mCurrArg == 3){
               //allow strings that look like relative numbers / variables
-              char* tmp = " ";
+              const char* tmp = " ";
               if (relnode->type() == RelationalNode::REL_PLUS)
                 tmp = "+";
               else if (relnode->type() == RelationalNode::REL_MINUS)
