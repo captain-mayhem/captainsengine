@@ -78,7 +78,7 @@ public:
   std::string getActiveCommand();
   void clearGui();
   RoomObject* getContainingRoom(Object2D* object);
-  CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom, ExecutionContext* loadreason);
+  CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className, ExecutionContext* loadreason);
   void keyPress(int key);
   void keyRelease(int key);
   void keyAscii(char chr);
@@ -124,6 +124,7 @@ public:
   bool isSubRoomLoaded() {return mSubRoomLoaded;}
   void insertRoom(RoomObject* room, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading);
   void insertCharacter(CharacterObject* obj, std::string room, Vec2i pos, LookDir dir);
+  void changeFocus(std::string charname, ExecutionContext* reason);
   ResLoader* getResLoader() {return &mLoader;}
 protected:
   Engine();
@@ -179,6 +180,7 @@ protected:
     RoomObject* room;
     ExecutionContext* reason;
     ScreenChange screenchange;
+    std::string focusChar;
   };
   bool aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path);
   float distance(const Vec2i& x, const Vec2i& y);

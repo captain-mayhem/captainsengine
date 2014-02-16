@@ -2718,7 +2718,7 @@ int ScriptFunctions::loadChar(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string name = ctx.stack().pop().getString();
   std::string dummy;
-  CharacterObject* ch = Engine::instance()->loadCharacter(name, Engine::instance()->getCharacterClass(name), false, &ctx);
+  CharacterObject* ch = Engine::instance()->loadCharacter(name, Engine::instance()->getCharacterClass(name), &ctx);
   ch->realize();
   delete ch;
   return 0;

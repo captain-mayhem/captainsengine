@@ -40,6 +40,7 @@ public:
   void setData(AdvDocument* data);
   void loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset);
   void beamCharacter(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir);
+  void setFocus(const std::string& name, ExecutionContext* reason);
   bool handleResultEvent();
   void waitUntilFinished();
 protected:
