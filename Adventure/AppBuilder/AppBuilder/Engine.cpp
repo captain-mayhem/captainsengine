@@ -375,6 +375,10 @@ void Engine::render(unsigned time){
         mPendingLoadRoom.reason = NULL;
       }
       mPendingLoadRoom.room = NULL;
+      if (!mPendingLoadRoom.focusChar.empty()){
+        changeFocus(mPendingLoadRoom.focusChar, NULL);
+        mPendingLoadRoom.focusChar = "";
+      }
     }
   }
 
@@ -661,6 +665,7 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
     mPendingLoadRoom.room = roomobj;
     mPendingLoadRoom.reason = loadreason;
     mPendingLoadRoom.screenchange = change;
+    mPendingLoadRoom.focusChar = "";
     return;
   }
   else if (loadreason)
@@ -934,27 +939,22 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
     delete deletionChar;
     return true;
   }
-  /*if (!mLastFocussedChar.empty() && mLastFocussedChar != "none"){
-    focusChar(mLastFocussedChar);
-    return true;
-  }*/
-  //load character
-  res = loadCharacter(charname, getCharacterClass(charname), true, reason);
-  if (res){
-    SaveStateProvider::SaveRoom* rm = getSaver()->getRoom(res->getRoom());
-    mSaver->removeCharacter(rm, res->getName());
-    res->setScrollOffset(rm->scrolloffset);
-    mFocussedChar = res;
-    mFocussedChar->realize();
-    delete deletionChar;
-    return true;
-  }
-  else{
-    TR_USE(ADV_Engine);
-    TR_BREAK("Character %s not found", charname.c_str());
-  }
-  //mCharOutOfFocus = true;
+  //load character async with room loading
+  mCursor->showLoading(true);
+  mLoader.setFocus(charname, reason);
+  mFocussedChar = NULL;
+  delete deletionChar;
   return false;
+}
+
+void Engine::changeFocus(std::string charname, ExecutionContext* reason){
+  if (mPendingLoadRoom.room != NULL){
+    mPendingLoadRoom.focusChar = charname;
+    return;
+  }
+  if (reason)
+    reason->resume();
+  setFocus(charname, reason);
 }
 
 bool Engine::aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path){
@@ -1278,27 +1278,11 @@ RoomObject* Engine::getContainingRoom(Object2D* object){
   return NULL;
 }
 
-CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className, bool loadContainingRoom, ExecutionContext* loadreason){
+CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className, ExecutionContext* loadreason){
   TR_USE(ADV_Engine);
   SaveStateProvider::CharSaveObject* obj = NULL;
   std::string room;
   std::string realName;
-  if (loadContainingRoom){
-    obj = mSaver->findCharacter(instanceName, room, realName);
-    if (obj){
-      loadMainRoom(room, loadreason, Engine::instance()->getScreenChange());
-      mLoader.waitUntilFinished();
-      CharacterObject* chr = extractCharacter(realName);
-      if (chr)
-        return chr;
-      else if (mPendingLoadRoom.room != NULL){
-        chr = mPendingLoadRoom.room->extractCharacter(realName);
-        if (chr){
-          return chr;
-        }
-      }
-    }
-  }
   if (mFocussedChar && _stricmp(mFocussedChar->getName().c_str(), instanceName.c_str()) == 0)
     return NULL;
   if (!obj){

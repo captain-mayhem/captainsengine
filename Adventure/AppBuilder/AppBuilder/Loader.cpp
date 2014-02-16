@@ -107,7 +107,7 @@ public:
           break;
         }
       }
-      CharacterObject* character = Engine::instance()->loadCharacter(ch.name, ch.character, false, mLoadreason);
+      CharacterObject* character = Engine::instance()->loadCharacter(ch.name, ch.character, mLoadreason);
       if (character){
         character->setScale(roomobj->getDepthScale(character->getPosition()));
         roomobj->addObject(character);
@@ -188,7 +188,7 @@ public:
   BeamCharacterEvent(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir) :
       mName(name), mReason(reason), mRoom(room), mPos(pos), mDir(dir) {}
   virtual Event* execute(){
-    CharacterObject* obj = Engine::instance()->loadCharacter(mName, Engine::instance()->getCharacterClass(mName), false, mReason);
+    CharacterObject* obj = Engine::instance()->loadCharacter(mName, Engine::instance()->getCharacterClass(mName), mReason);
     InsertCharacterEvent* ice = new InsertCharacterEvent(obj, mReason, mRoom, mPos, mDir);
     return ice;
   }
@@ -198,6 +198,45 @@ private:
   std::string mRoom;
   Vec2i mPos;
   LookDir mDir;
+};
+
+class ChangeFocusEvent : public Event{
+public:
+  ChangeFocusEvent(const std::string& chr, ExecutionContext* ctx, Event* loadevt) : mCharacter(chr), mReason(ctx), mRoomLoadEvt(loadevt) {}
+  virtual Event* execute(){
+    mRoomLoadEvt->execute();
+    delete mRoomLoadEvt;
+    Engine::instance()->changeFocus(mCharacter, mReason);
+    return NULL;
+  }
+private:
+  std::string mCharacter;
+  ExecutionContext* mReason;
+  Event* mRoomLoadEvt;
+};
+
+class SetFocusEvent : public Event{
+public:
+  SetFocusEvent(const std::string& name, ExecutionContext* reason) : mName(name), mReason(reason) {}
+  void setData(AdvDocument* data, PcdkScript* cc) {mData = data; mCompiler = cc;}
+  virtual Event* execute(){
+    std::string room;
+    std::string realName;
+    SaveStateProvider::CharSaveObject* obj = Engine::instance()->getSaver()->findCharacter(mName, room, realName);
+    if (!obj){
+      TR_USE(ADV_ResLoader);
+      TR_BREAK("Character %s not found", mName.c_str());
+    }
+    LoadRoomEvent lre(room, false, mReason, Engine::instance()->getScreenChange(), 0, 0);
+    lre.setData(mData, mCompiler);
+    Event* loadret = lre.execute();
+    return new ChangeFocusEvent(realName, mReason, loadret);
+  }
+private:
+  std::string mName;
+  ExecutionContext* mReason;
+  AdvDocument* mData;
+  PcdkScript* mCompiler;
 };
 
 ResLoader::ResLoader() : mData(NULL), mCompiler(NULL) {
@@ -300,4 +339,15 @@ void ResLoader::beamCharacter(const std::string& name, ExecutionContext* reason,
   ret->execute();
   delete ret;
 #endif
+}
+
+void ResLoader::setFocus(const std::string& name, ExecutionContext* reason){
+  if (reason)
+    reason->suspend(0, NULL);
+  SetFocusEvent* sfe = new SetFocusEvent(name, reason);
+  sfe->setData(mData, mCompiler);
+  mMutex.lock();
+  mQReq.addEvent(sfe);
+  mCond.signal();
+  mMutex.unlock();
 }
