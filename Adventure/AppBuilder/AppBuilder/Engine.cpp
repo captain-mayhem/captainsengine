@@ -16,6 +16,7 @@
 #include "PostProcessing.h"
 #include "Menu.h"
 #include "ItemObject.h"
+#include "GuiRoom.h"
 #include <system/allocation.h>
 
 using namespace adv;
@@ -179,6 +180,7 @@ void Engine::initGame(exit_callback exit_cb){
     ExecutionContext* initScript = mInterpreter->parseProgram(startScript->text);
     mInterpreter->executeCutscene(initScript, false);
   }
+  mUI = new GuiRoom();
 }
 
 void Engine::exitGame(){
@@ -219,6 +221,7 @@ void Engine::exitGame(){
   delete mPostProc;
   delete mDraggingObject;
   mDraggingObject = NULL;
+  delete mUI;
 }
 
 CGE::Image* Engine::getImage(const std::string& name){
@@ -441,10 +444,8 @@ void Engine::render(unsigned time){
     }
 
     //ui update
-    for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-      while(!(*iter)->getScript()->getEvents().empty())
-        mInterpreter->executeImmediately((*iter)->getScript());
-    }
+    mUI->scriptUpdate();
+    
     clearGui();
   }
 
@@ -558,9 +559,7 @@ void Engine::render(unsigned time){
       mDraggingObject->render();
     }
   }
-  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-    (*iter)->render();
-  }
+  mUI->render();
 
   //command handling
   Vec2i res = mData->getProjectSettings()->resolution;
@@ -1055,11 +1054,9 @@ float Engine::distance(const Vec2i& x, const Vec2i& y){
 }
 
 Object2D* Engine::getObjectAt(const Vec2i& pos){
-  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-    if ((*iter)->isHit(pos)){
-      return (*iter);
-    }
-  }
+  Object2D* ret = mUI->getObjectAt(pos);
+  if (ret != NULL)
+    return ret;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     Object2D* ret = (*iter)->getObjectAt(pos);
     if (ret != NULL)
@@ -1093,11 +1090,8 @@ Object2D* Engine::getObject(const std::string& name, bool searchInventoryFirst){
     if (ret != NULL)
       return ret;
   }
-  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-    if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0)
-      return *iter;
-  }
-  return NULL;
+  Object2D* ret = mUI->getObject(name);
+  return ret;
 }
 
 CharacterObject* Engine::getCharacter(const std::string& name){
@@ -1219,14 +1213,12 @@ ExecutionContext* Engine::loadScript(Script::Type type, const std::string& name)
 }
 
 void Engine::addUIElement(Object2D* elem, int offset){
-  if (offset != 0){
-    for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-      Vec2i pos = (*iter)->getPosition();
-      pos.y += offset;
-      (*iter)->setPosition(pos);
-    }
+  int fading = Engine::instance()->getSettings()->textscene_fading;
+  if (fading > 0 && mUI->getFadeout() == 0){
+    mUI->setFadeout(fading);
+    Engine::instance()->getAnimator()->add(mUI, fading, true);
   }
-  mUI.push_back(elem);
+  mUI->addUIElement(elem, offset);
 }
 
 void Engine::setCommand(const std::string& command, bool deleteLinks){
@@ -1258,16 +1250,10 @@ std::string Engine::getActiveCommand(){
 }
 
 void Engine::clearGui(){
-  for (std::list<Object2D*>::iterator iter = mUI.begin(); iter != mUI.end(); ++iter){
-    /*Object2D* obj = *iter;
-    ExecutionContext* ctx = obj->getScript();
-    if (ctx){
-      if (!ctx->getEvents().empty())
-        TR_BREAK();
-    }*/
-    delete (*iter);
+  if (mUI->clear()){
+    int fading = Engine::instance()->getSettings()->textscene_fading;
+    Engine::instance()->getAnimator()->add(mUI, fading, false);
   }
-  mUI.clear();
 }
 
 RoomObject* Engine::getContainingRoom(Object2D* object){
@@ -1613,4 +1599,8 @@ void Engine::insertCharacter(CharacterObject* obj, std::string roomname, Vec2i p
     obj->save(sr);
     delete obj;
   }
+}
+
+void Engine::enableTextScene(bool doit){
+  mUI->setAllowAdd(doit);
 }

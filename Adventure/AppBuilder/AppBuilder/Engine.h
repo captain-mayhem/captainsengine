@@ -22,6 +22,7 @@ class SoundPlayer;
 class ParticleEngine;
 class PostProcessor;
 class ItemObject;
+class GuiRoom;
 
 typedef void (*exit_callback)();
 
@@ -126,6 +127,7 @@ public:
   void insertCharacter(CharacterObject* obj, std::string room, Vec2i pos, LookDir dir);
   void changeFocus(std::string charname, ExecutionContext* reason);
   ResLoader* getResLoader() {return &mLoader;}
+  void enableTextScene(bool doit);
 protected:
   Engine();
   static Engine* mInstance;
@@ -144,7 +146,7 @@ protected:
   std::string mLastFocussedChar;
   bool mMainRoomLoaded;
   bool mSubRoomLoaded;
-  std::list<Object2D*> mUI;
+  GuiRoom* mUI;
   RoomObject* mTaskbar;
   bool mShowTaskbar;
   ScreenChange mScreenChange;

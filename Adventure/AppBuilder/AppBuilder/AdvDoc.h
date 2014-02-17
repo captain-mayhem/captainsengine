@@ -41,6 +41,7 @@ struct ProjectSettings{
   bool taskHideCompletely;
   int right_click;
   int menu_fading;
+  int textscene_fading;
   int anywhere_transparency;
   int targacolor;
   int bordercolor;

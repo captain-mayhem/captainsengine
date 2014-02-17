@@ -173,6 +173,7 @@ SET(AppBuilder_SRCS
   ExecutionContext.h
   Font.cpp
   Font.h
+  GuiRoom.h
   Ids.h
   Inventory.cpp
   Inventory.h

@@ -174,7 +174,7 @@ public:
   CharacterObject* findCharacter(const std::string& name);
   bool isWalkable(const Vec2i& pos);
   bool isScriptRunning();
-  Object2D* getObjectAt(const Vec2i& pos);
+  virtual Object2D* getObjectAt(const Vec2i& pos);
   Object2D* getObject(const std::string& name);
   virtual void update(unsigned interval);
   virtual void setLightingColor(const Color& col) {mLighting->setColor(col);}
@@ -191,14 +191,14 @@ public:
   float getDepthScale(const Vec2i& pos);
   static float getDepthScale(const Vec2i& pos, int depthStart, int depthEnd, int zoomfactor);
   void setZoomFactor(int factor) {mDepthMap.setZoomFactor(factor);}
-  void setOpacity(unsigned char opacity);
+  virtual void setOpacity(unsigned char opacity);
   void addMirror(MirrorObject* mirror) {mMirrors.push_back(mirror);}
   void addBarrier(const Vec2i box[4]) {mBarriers.push_back(box);}
   const std::vector<Object2D*>& getObjects() {return mObjects;}
   bool hitsBarriers(const ParticleEngine::Particle& particle);
   void modifyWalkmap(const Vec2i& pos, bool walkable);
   void setDepth(int depth);
-  void setFadeout(int time) {mFadeout = time;}
+  virtual void setFadeout(int time) {mFadeout = time;}
   int getFadeout() {return mFadeout;}
   float getWalkGridSize();
   virtual void realize();

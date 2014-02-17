@@ -185,6 +185,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     str = txtstream.readLine();
     mSettings.menu_fading = atoi(str.c_str());
     str = txtstream.readLine();
+    mSettings.textscene_fading = atoi(str.c_str());
     str = txtstream.readLine();
     mSettings.anywhere_transparency = atoi(str.c_str());
   }
