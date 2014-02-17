@@ -700,6 +700,7 @@ int ScriptFunctions::textScene(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getInterpreter()->mTSPosOrig = pos;
   Engine::instance()->getInterpreter()->mTSWidth = width;
   Engine::instance()->getInterpreter()->mNextTSLevel = 0;
+  Engine::instance()->enableTextScene(true);
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scenename);
   Engine::instance()->getInterpreter()->executeCutscene(context, true);
   return 0;
@@ -1003,6 +1004,7 @@ int ScriptFunctions::endScene(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs != 0)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   ctx.mExecuteOnce = true;
+  Engine::instance()->enableTextScene(false);
   Engine::instance()->clearGui();
   return 0;
 }
