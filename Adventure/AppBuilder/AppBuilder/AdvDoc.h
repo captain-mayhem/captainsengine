@@ -24,7 +24,7 @@ struct ProjectSettings{
   std::string dir;
   std::string savedir;
   Vec2i resolution;
-  //TODO fonts
+  std::vector<int> font_fading;
   std::string startscript;
   std::string mainscript;
   std::string anywhere_room;

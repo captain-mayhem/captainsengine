@@ -8,15 +8,16 @@
 namespace adv{
 
 class Textout;
+class FontBlitObject;
 
 class FontRenderer{
 public:
   class String{
   public:
-    String(const Vec2i& pos, unsigned displayTime, bool keepOnScreen);
+    String(const Vec2i& pos, unsigned displayTime, bool keepOnScreen, unsigned fading);
     //String(const String& str);
     ~String();
-    void append(BlitObject* obj) {mString.push_back(obj);}
+    void append(FontBlitObject* obj) {mString.push_back(obj);}
     void clear();
     void render(unsigned interval);
     int getTime() {return mDisplayTime;}
@@ -30,16 +31,18 @@ public:
     Vec2i mPos;
     Vec2i mCenterOffset;
     int mDisplayTime;
-    std::vector<BlitObject*> mString;
+    std::vector<FontBlitObject*> mString;
     ExecutionContext* mSuspensionScript;
     CharacterObject* mSpeaker;
     bool mKeepOnScreen;
     RoomObject* mBoundRoom;
+    int mFadingTime;
+    int mTimeShown;
   };
 protected:
   class Font{
   public:
-    Font(const FontData& data);
+    Font(const FontData& data, int fading);
     ~Font();
     String* render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen);
     Vec2i getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo, unsigned maxStringWidth);
@@ -55,6 +58,7 @@ protected:
     std::vector<GLuint> mImages;
     std::vector<unsigned> mCharwidths;
     std::list<String*> mRenderQueue;
+    int mFading;
   };
 public:
   FontRenderer(AdvDocument* data);

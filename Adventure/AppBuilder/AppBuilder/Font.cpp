@@ -6,6 +6,8 @@
 
 using namespace adv;
 
+namespace adv{
+
 class FontBlitObject : public BlitObject{
 public:
   FontBlitObject(GLuint masktexture, GLuint texture, const Vec2i& size, 
@@ -35,16 +37,21 @@ BlitObject(texture, size, scale, depth, offset){
     GL()color4ub(255,255,255,255);
     GL()popMatrix();
   }
+  void setOpacity(unsigned char opacity){
+    mColor.a = opacity;
+  }
 protected:
   Vec2f mTexTrans;
   GLuint mMaskTexture;
   Color mColor;
 };
 
+}
+
 ////////////////////////////////////////////////
 
-FontRenderer::String::String(const Vec2i& pos, unsigned displayTime, bool keepOnScreen) : 
-mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mCenterOffset(), mKeepOnScreen(keepOnScreen), mBoundRoom(NULL){
+FontRenderer::String::String(const Vec2i& pos, unsigned displayTime, bool keepOnScreen, unsigned fading) : 
+mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mCenterOffset(), mKeepOnScreen(keepOnScreen), mBoundRoom(NULL), mFadingTime(fading), mTimeShown(0){
 }
 
 FontRenderer::String::~String(){
@@ -82,10 +89,31 @@ void FontRenderer::String::render(unsigned interval){
     if (pos.y < 0 && pos.y > -mCenterOffset.y/3*2)
       pos.y = 0;
   }
-  for (unsigned i = 0; i < mString.size(); ++i){
-    mString[i]->render(pos, Vec2f(1.0f,1.0f), Vec2i());
+  //opacity
+  if (mDisplayTime > 0){
+    unsigned char opacity = 255;
+    if (mFadingTime > 0){
+      float factor;
+      if (mTimeShown < mFadingTime)
+        factor = mTimeShown/(float)mFadingTime;
+      else
+        factor = mDisplayTime/(float)mFadingTime;
+      if (factor > 1.0f)
+        factor = 1.0f;
+      opacity = (unsigned char)(factor*255);
+    }
+    for (unsigned i = 0; i < mString.size(); ++i){
+      mString[i]->setOpacity(opacity);
+      mString[i]->render(pos, Vec2f(1.0f,1.0f), Vec2i());
+    }
+  }
+  else{
+    for (unsigned i = 0; i < mString.size(); ++i){
+      mString[i]->render(pos, Vec2f(1.0f,1.0f), Vec2i());
+    }
   }
   mDisplayTime -= interval;
+  mTimeShown += interval;
   if (interval == 0 && mDisplayTime == 0)
     mDisplayTime = -1;
 }
@@ -106,7 +134,7 @@ void FontRenderer::String::setSuspensionScript(ExecutionContext* ctx){
 
 ////////////////////////////////////////
 
-FontRenderer::Font::Font(const FontData& data){
+FontRenderer::Font::Font(const FontData& data, int fading) : mFading(fading){
   mFontsize = data.fontsize;
   mNumChars = data.numChars;
   mCharwidths = data.charwidths;
@@ -125,7 +153,7 @@ FontRenderer::Font::~Font(){
 }
 
 FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen){
-  String* str = new String(Vec2i(x,y), displayTime, keepOnScreen);
+  String* str = new String(Vec2i(x,y), displayTime, keepOnScreen, mFading);
   unsigned max_len = 0;
   for (unsigned i = 0; i < breakinfo.size(); ++i){
     max_len = breakinfo[i].y > (int)max_len ? breakinfo[i].y : max_len;
@@ -140,7 +168,7 @@ FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string
     charnum %= mNumChars.x*mNumChars.y;
     int rownum = charnum/mNumChars.x;
     charnum %= mNumChars.x;
-    BlitObject* obj = new FontBlitObject(mImages[texnum], mImages[texnum], 
+    FontBlitObject* obj = new FontBlitObject(mImages[texnum], mImages[texnum], 
       mFontsize, mScale, depth, Vec2i(xoffset,yoffset), Vec2f(charnum, (float)rownum), color);
     str->append(obj);
     xoffset += chardeviation;
@@ -245,7 +273,8 @@ bool FontRenderer::loadFont(unsigned id){
     FontData fnt = mData->getFont(id);
     if (fnt.images.empty())
       return false;
-    mFonts[id] = new Font(fnt);
+    int fading = id == 0 ? 0 : mData->getProjectSettings()->font_fading[id-1];
+    mFonts[id] = new Font(fnt, fading);
     fnt.destroyImages();
   }
   return true;
