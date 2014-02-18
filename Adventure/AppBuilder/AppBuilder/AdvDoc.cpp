@@ -119,10 +119,26 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   }
   else
     TR_BREAK("Unknown resolution");
-  std::string font;
-  do{
+  std::string font = txtstream.readLine();
+  while (font.substr(0, 11) != "GameFont : "){
+    int pos = font.find(';', 0);//name
+    pos = font.find(';', pos+1);//bold
+    pos = font.find(';', pos+1);//italic
+    pos = font.find(';', pos+1);//size
+    pos = font.find(';', pos+1);//outline
+    if (ver_major > 1)
+      pos = font.find(';', pos+1);//charset
+    int fading = 0;
+    if (ver_major > 2 || (ver_major == 2 && ver_minor > 0)){
+      pos = font.find(';', pos+1);//shadow
+      pos = font.find(';', pos+1);//fill
+      //fading
+      std::string tmp = font.substr(pos+1);
+      fading = atoi(tmp.c_str());
+    }
+    mSettings.font_fading.push_back(fading);
     font = txtstream.readLine();
-  } while (font.substr(0, 11) != "GameFont : ");
+  };
   str = txtstream.readLine();
   str = txtstream.readLine();
   str = txtstream.readLine();
