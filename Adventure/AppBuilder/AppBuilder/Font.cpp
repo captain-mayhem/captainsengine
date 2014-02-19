@@ -52,6 +52,8 @@ protected:
 
 FontRenderer::String::String(const Vec2i& pos, unsigned displayTime, bool keepOnScreen, unsigned fading) : 
 mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mCenterOffset(), mKeepOnScreen(keepOnScreen), mBoundRoom(NULL), mFadingTime(fading), mTimeShown(0){
+  if (mDisplayTime > 0 && mDisplayTime < 2*mFadingTime)
+    mDisplayTime = 2*mFadingTime;
 }
 
 FontRenderer::String::~String(){
@@ -130,6 +132,10 @@ void FontRenderer::String::setSuspensionScript(ExecutionContext* ctx){
   }
   ctx->ref();
   mSuspensionScript = ctx;
+}
+
+void FontRenderer::String::remove(){
+  mDisplayTime = mFadingTime;
 }
 
 ////////////////////////////////////////
@@ -232,22 +238,25 @@ void FontRenderer::Font::blit(unsigned interval, RoomObject* mainroom, bool rend
   }
 }
 
-void FontRenderer::Font::removeText(CharacterObject* chr){
+void FontRenderer::Font::removeText(CharacterObject* chr, bool immediately){
   for (std::list<String*>::iterator iter = mRenderQueue.begin(); iter != mRenderQueue.end(); ++iter){
     if ((*iter)->getSpeaker() == chr){
-      delete *iter;
-      iter = mRenderQueue.erase(iter);
-      break;
+      if (immediately){
+        delete *iter;
+        iter = mRenderQueue.erase(iter);
+      }
+      else
+        (*iter)->remove();
     }
+    if (iter == mRenderQueue.end())
+      break;
   }
 }
 
 void FontRenderer::Font::removeText(String* str){
   for (std::list<String*>::iterator iter = mRenderQueue.begin(); iter != mRenderQueue.end(); ++iter){
     if ((*iter) == str){
-      delete *iter;
-      iter = mRenderQueue.erase(iter);
-      break;
+      (*iter)->remove();
     }
   }
 }
@@ -310,10 +319,10 @@ void FontRenderer::prepareBlit(unsigned interval, RoomObject* mainroom, bool ren
   }
 }
 
-void FontRenderer::removeText(CharacterObject* chr){
+void FontRenderer::removeText(CharacterObject* chr, bool immediately){
   for (unsigned i = 0; i < mFonts.size(); ++i){
     if (mFonts[i])
-      mFonts[i]->removeText(chr);
+      mFonts[i]->removeText(chr, immediately);
   }
 }
 
