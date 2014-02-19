@@ -27,6 +27,7 @@ public:
     void setExtent(const Vec2i& extent);
     void setBoundRoom(RoomObject* room) {mBoundRoom = room;}
     RoomObject* getRoom() {return mBoundRoom;}
+    void remove();
   protected:
     Vec2i mPos;
     Vec2i mCenterOffset;
@@ -47,7 +48,7 @@ protected:
     String* render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen);
     Vec2i getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo, unsigned maxStringWidth);
     void blit(unsigned interval,  RoomObject* mainroom, bool renderBoundText);
-    void removeText(CharacterObject* chr);
+    void removeText(CharacterObject* chr, bool immediately);
     void removeText(String* str);
   protected:
     void buildBlitObject();
@@ -69,7 +70,7 @@ public:
   Vec2i getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo, int maxStringWidth=300);
   void prepareTextouts();
   void prepareBlit(unsigned interval, RoomObject* mainroom, bool renderBoundText);
-  void removeText(CharacterObject* chr);
+  void removeText(CharacterObject* chr, bool immediately);
   void removeText(String* str);
   Textout* getTextout(int id);
   void clearTextouts();

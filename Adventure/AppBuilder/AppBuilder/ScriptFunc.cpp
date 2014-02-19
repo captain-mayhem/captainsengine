@@ -280,6 +280,9 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
   FontRenderer::String* str = NULL;
   SoundPlayer* plyr = NULL;
   if (chr){
+    //stop the current sound
+    SoundEngine::instance()->removeSpeaker(chr);
+    //create new one
     if (sound != ""){
       plyr = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_CREATE_ALWAYS);
       if (plyr){
@@ -296,7 +299,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
       DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*text.length());
     //stop speaking
-    Engine::instance()->getFontRenderer()->removeText(chr);
+    Engine::instance()->getFontRenderer()->removeText(chr, false);
     if (str)
       str->setSpeaker(chr);
     chr->setTalking(true);
@@ -483,7 +486,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
       obj->abortClick();
       obj->setTalking(false);
       SoundEngine::instance()->removeSpeaker(obj);
-      Engine::instance()->getFontRenderer()->removeText(obj);
+      Engine::instance()->getFontRenderer()->removeText(obj, true);
       obj->setWalking(false);
       if (dir != UNSPECIFIED)
         obj->setLookDir(dir);

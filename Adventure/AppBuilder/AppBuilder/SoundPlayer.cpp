@@ -64,7 +64,7 @@ SoundPlayer::~SoundPlayer(){
   }
   if (mSpeaker){
     //stop speaking
-    Engine::instance()->getFontRenderer()->removeText(mSpeaker);
+    Engine::instance()->getFontRenderer()->removeText(mSpeaker, false);
     mSpeaker->setTalking(false);
     mSpeaker = NULL;
   }

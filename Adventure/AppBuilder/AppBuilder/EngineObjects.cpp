@@ -416,6 +416,7 @@ void ButtonObject::render(){
 
 void ButtonObject::blit(){
   if (mTex != 0){
+    mColor.a = mLightingColor.a;
     BlitObject::blit();
     return;
   }
@@ -903,7 +904,7 @@ mWalkSound(NULL), mClass(chrclass), mWalking(false), mTalking(false)
 }
 
 CharacterObject::~CharacterObject(){
-  Engine::instance()->getFontRenderer()->removeText(this);
+  Engine::instance()->getFontRenderer()->removeText(this, true);
   SoundEngine::instance()->removeSpeaker(this);
   if (mWalkSound)
     SoundEngine::instance()->removeSoundPlayer(mWalkSound);
@@ -1158,7 +1159,7 @@ void CharacterObject::setState(int state){
   //fallback to lower states when they not exist (walk,talk  back => walk back)
   if (!getAnimation()->exists()){
     if (mState > 3)
-      setTalking(false);
+      mState = calculateState(mState, isWalking(), false, false);
   }
   Vec2i newoffset;
   if (mState > 0){
