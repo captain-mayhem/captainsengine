@@ -275,6 +275,7 @@ ident returns [IdentNode* id]
 		| INT {$id->append("_"); $id->append((char*)$INT.text->chars);}
 		| LEVEL {$id->append("_"); $id->append((char*)$LEVEL.text->chars);}
 		| ON {$id->append("_"); $id->append((char*)$ON.text->chars);}
+		| TIMER {$id->append("_"); $id->append((char*)$TIMER.text->chars);}
 		)
 	)*
 	;

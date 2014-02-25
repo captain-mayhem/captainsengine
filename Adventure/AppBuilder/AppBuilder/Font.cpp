@@ -64,6 +64,8 @@ FontRenderer::String::~String(){
   }
   if (mSpeaker){
     mSpeaker->setTalking(false);
+    if (Engine::instance()->getBlockingSpeaker() == mSpeaker)
+      Engine::instance()->setBlockingSpeaker(NULL);
     mSpeaker = NULL;
   }
   clear();
