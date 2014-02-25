@@ -625,7 +625,9 @@ Object2D* RoomObject::getObject(const std::string& name){
   for (unsigned i = 0; i < mObjects.size(); ++i){
     if (mObjects[i]->getType() != Object2D::OBJECT) //find only 'real' objects
       continue;
-    if(_stricmp(mObjects[i]->getName().c_str(), name.c_str()) == 0)
+    String comparename(mObjects[i]->getName());
+    comparename = comparename.removeAll(' ');
+    if(_stricmp(comparename.c_str(), name.c_str()) == 0)
       return mObjects[i];
   }
   return NULL;

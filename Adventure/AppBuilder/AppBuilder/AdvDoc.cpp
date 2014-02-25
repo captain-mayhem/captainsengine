@@ -1088,12 +1088,14 @@ std::string AdvDocument::getLanguageString(const std::string& language, Language
 }
 
 int AdvDocument::getLanguageIndex(const std::string& language, Language::Section section, const std::string& str){
+  TR_USE(ADV_DATA);
   std::vector<std::string>& sect = mLanguages[language].sections[section];
   for (unsigned i = 0; i < sect.size(); ++i){
     if (sect[i] == str)
       return i;
   }
-  return -1;
+  TR_INFO("Language string %s not found", str.c_str());
+  return 0;
 }
 
 bool AdvDocument::loadFile10(CGE::MemReader& txtstream){

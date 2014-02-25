@@ -53,7 +53,7 @@ Engine* Engine::mInstance = NULL;
 static CGE::Mutex trymtx;
 
 Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false),
-  mSaver(NULL), mLoader(){
+  mSaver(NULL), mLoader(), mBlockingSpeaker(NULL) {
   mVerts[0] = 0; mVerts[1] = 1;
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
@@ -875,6 +875,11 @@ void Engine::leftRelease(const Vec2i& pos){
 void Engine::rightClick(const Vec2i& pos){
   if (!mMouseEnabled)
     return;
+  if (mBlockingSpeaker){
+    mFonts->removeText(mBlockingSpeaker, false);
+    SoundEngine::instance()->removeSpeaker(mBlockingSpeaker);
+    mBlockingSpeaker = NULL;
+  }
   bool leftClickRequired;
   int cmd = mCursor->getNextCommand(leftClickRequired, pos);
   mActiveCommand = cmd;
@@ -1334,6 +1339,11 @@ void Engine::keyPress(int key){
       {
         ExecutionContext* ctx = mInterpreter->getCutscene();
         if (ctx){
+          if (mBlockingSpeaker){
+            mFonts->removeText(mBlockingSpeaker, false);
+            SoundEngine::instance()->removeSpeaker(mBlockingSpeaker);
+            mBlockingSpeaker = NULL;
+          }
           ctx->setSkip();
         }
         else if (!mTextEnter.empty()){

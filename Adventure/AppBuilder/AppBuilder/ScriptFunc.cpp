@@ -311,6 +311,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     else if (str){
       str->setSuspensionScript(&ctx);
     }
+    Engine::instance()->setBlockingSpeaker(chr);
     ctx.mSuspended = true;
   }
   return 0;
