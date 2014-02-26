@@ -540,7 +540,7 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   std::string itemname = ctx.stack().pop().getString();
   if (itemname == "givelink")
-    itemname = Engine::instance()->getGiveObjectName();
+    itemname = ctx.getGiveObjectName();
   int inventory = 1;
   if (numArgs >= 3)
     inventory = ctx.stack().pop().getInt();
@@ -717,7 +717,7 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
   std::string charname = ctx.stack().pop().getString();
   std::string itemname = ctx.stack().pop().getString();
   if (itemname == "givelink"){
-    itemname = Engine::instance()->getGiveObjectName();
+    itemname = ctx.getGiveObjectName();
   }
   int inventory = 1;
   if (numArgs >= 3)
@@ -2775,7 +2775,8 @@ int ScriptFunctions::isBoolEqual(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  std::string objname = ctx.stack().pop().getString();
+  String objname = ctx.stack().pop().getString();
+  objname = objname.removeAll(' ');
   int checkstate = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
@@ -2806,7 +2807,7 @@ int ScriptFunctions::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
-  std::string linkname = Engine::instance()->getUseObjectName();
+  std::string linkname = ctx.getUseObjectName();
   ctx.stack().push(0);
   ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()));
   return 2;
@@ -2814,7 +2815,7 @@ int ScriptFunctions::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs){
   std::string objname = ctx.stack().pop().getString();
-  std::string linkname = Engine::instance()->getGiveObjectName();
+  std::string linkname = ctx.getGiveObjectName();
   ctx.stack().push(0);
   ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()));
   return 2;

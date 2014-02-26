@@ -318,8 +318,8 @@ void Engine::render(unsigned time){
   if (mResetRequested){
     mMenuShown = false;
     Engine::instance()->setFocus("none", NULL);
-    Engine::instance()->getSaver()->clear();
     Engine::instance()->exitGame();
+    Engine::instance()->getSaver()->clear();
     SoundEngine::instance()->reset();
     Engine::instance()->initGame(NULL);
     mResetRequested = false;
@@ -831,10 +831,14 @@ void Engine::leftClick(const Vec2i& pos){
     script = obj->getScript();
     if (script != NULL){
       script->setEvent(EVT_CLICK);
-      if (!mUseObjectName.empty())
+      if (!mUseObjectName.empty()){
+        script->setUseObjectName(mUseObjectName);
         script->setEvent(EVT_LINK);
-      else if (!mGiveObjectName.empty())
+      }
+      else if (!mGiveObjectName.empty()){
+        script->setGiveObjectName(mGiveObjectName);
         script->setEvent(EVT_GIVE_LINK);
+      }
       else
         script->setEvent((EngineEvent)mActiveCommand);
     }
@@ -847,7 +851,8 @@ void Engine::leftClick(const Vec2i& pos){
   }
   if (!keepCommand){
     int curCmd = mCursor->getCurrentCommand();
-    if (curCmd != mActiveCommand && mLinkObjectInfo.empty()){
+    if (curCmd != mActiveCommand && mLinkObjectInfo.empty() ||
+      curCmd == mActiveCommand && !mLinkObjectInfo.empty()){
       mPrevActiveCommand = mActiveCommand;
       mActiveCommand = curCmd;
       mUseObjectName = "";
@@ -878,7 +883,6 @@ void Engine::rightClick(const Vec2i& pos){
   if (mBlockingSpeaker){
     mFonts->removeText(mBlockingSpeaker, false);
     SoundEngine::instance()->removeSpeaker(mBlockingSpeaker);
-    mBlockingSpeaker = NULL;
   }
   bool leftClickRequired;
   int cmd = mCursor->getNextCommand(leftClickRequired, pos);
@@ -1342,7 +1346,6 @@ void Engine::keyPress(int key){
           if (mBlockingSpeaker){
             mFonts->removeText(mBlockingSpeaker, false);
             SoundEngine::instance()->removeSpeaker(mBlockingSpeaker);
-            mBlockingSpeaker = NULL;
           }
           ctx->setSkip();
         }
@@ -1613,4 +1616,20 @@ void Engine::insertCharacter(CharacterObject* obj, std::string roomname, Vec2i p
 
 void Engine::enableTextScene(bool doit){
   mUI->setAllowAdd(doit);
+}
+
+void Engine::setBlockingSpeaker(CharacterObject* chr){
+  if (chr == NULL){
+    --mBlockingSpeakerCount;
+    if (mBlockingSpeakerCount == 0)
+      mBlockingSpeaker = NULL;
+  }
+  else{
+    if (mBlockingSpeaker == chr)
+      ++mBlockingSpeakerCount;
+    else{
+      mBlockingSpeaker = chr;
+      mBlockingSpeakerCount = 1;
+    }
+  }
 }
