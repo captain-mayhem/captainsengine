@@ -503,7 +503,7 @@ SaveStateProvider::SaveObject* SaveStateProvider::findObject(const std::string& 
   Roomobject* obj = mData->findRoomObject(name, rm);
   if (obj == NULL){
     mMuty.unlock();
-    TR_BREAK("should have found it.");
+    TR_BREAK("Object %s not found.", name.c_str());
     return NULL;
   }
   room = rm->name;

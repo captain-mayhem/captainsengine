@@ -513,11 +513,11 @@ void CursorObject::setCommand(int command){
 }
 
 void CursorObject::showLoading(bool loading){
-  if (loading){
+  if (loading && mSavedState == 0){
     mSavedState = mState;
     mState = 10;
   }
-  else{
+  else if (!loading && mSavedState != 0){
     mState = mSavedState;
     mSavedState = 0;
   }

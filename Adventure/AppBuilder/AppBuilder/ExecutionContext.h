@@ -123,6 +123,10 @@ public:
   String resolveCharName(const String& name);
   CharacterObject* getCharacter(const String& name);
   void setObjectInfo(const std::string& info) {mObjectInfo = info;}
+  void setUseObjectName(const String& link) {mLinkName = link;}
+  void setGiveObjectName(const String& give) {mGiveLinkName = give;}
+  String getUseObjectName() {return mLinkName;}
+  String getGiveObjectName() {return mGiveLinkName;}
 protected:
   ~ExecutionContext();
   CodeSegment* mCode;
@@ -142,6 +146,8 @@ protected:
   Suspender* mSuspender;
   bool mShouldFinish;
   String mSelf;
+  String mLinkName;
+  String mGiveLinkName;
 };
 
 }

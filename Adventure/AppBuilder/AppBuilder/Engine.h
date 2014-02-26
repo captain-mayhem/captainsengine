@@ -128,7 +128,7 @@ public:
   void changeFocus(std::string charname, ExecutionContext* reason);
   ResLoader* getResLoader() {return &mLoader;}
   void enableTextScene(bool doit);
-  void setBlockingSpeaker(CharacterObject* chr) {mBlockingSpeaker = chr;}
+  void setBlockingSpeaker(CharacterObject* chr);
   CharacterObject* getBlockingSpeaker() {return mBlockingSpeaker;}
 protected:
   Engine();
@@ -229,6 +229,7 @@ protected:
   bool mCamFollowChar;
   ResLoader mLoader;
   CharacterObject* mBlockingSpeaker;
+  int mBlockingSpeakerCount;
 };
 
 }
