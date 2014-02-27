@@ -3055,8 +3055,8 @@ int ScriptFunctions::isItemInState(ExecutionContext& ctx, unsigned numArgs){
     ctx.stack().push(item->getState());
   }
   else{
-    TR_BREAK("Unknown item %s", itemname.c_str());
-    ctx.stack().push(0);
+    int state = Engine::instance()->getInterpreter()->getItemState(itemname);
+    ctx.stack().push(state);
   }
   ctx.stack().push(checkstate);
   return 2;

@@ -188,8 +188,10 @@ public:
   BeamCharacterEvent(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir) :
       mName(name), mReason(reason), mRoom(room), mPos(pos), mDir(dir) {}
   virtual Event* execute(){
+    Engine::instance()->getSaver()->lock();
     CharacterObject* obj = Engine::instance()->loadCharacter(mName, Engine::instance()->getCharacterClass(mName), mReason);
     InsertCharacterEvent* ice = new InsertCharacterEvent(obj, mReason, mRoom, mPos, mDir);
+    Engine::instance()->getSaver()->unlock();
     return ice;
   }
 private:

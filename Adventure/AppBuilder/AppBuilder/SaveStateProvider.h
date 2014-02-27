@@ -84,6 +84,8 @@ public:
   void allowWrites() {--mNoWrites;}
   bool isWriteAllowed() {return mNoWrites == 0;}
   static std::string saveSlotToPath(int slot);
+  void lock() {mMuty.lock();}
+  void unlock() {mMuty.unlock();}
 protected:
   AdvDocument* mData;
   std::map<String, SaveRoom*> mRooms;
