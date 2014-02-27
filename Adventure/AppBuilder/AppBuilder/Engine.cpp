@@ -570,6 +570,8 @@ void Engine::render(unsigned time){
       cmdidx = mActiveCommand;
     else
       cmdidx = mPrevActiveCommand;
+    if (cmdidx == mData->getProjectSettings()->commands["loading"]) //don't display loading state
+      cmdidx = 0;
     int langcmdidx = cmdidx;
     if (langcmdidx > 0){
       //the command section is not neccessarily ordered, so search the right index

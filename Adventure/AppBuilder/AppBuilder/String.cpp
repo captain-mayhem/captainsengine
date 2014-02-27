@@ -34,6 +34,10 @@ String String::toLower() const {
   return ret;
 }
 
+bool String::ieqauls(const String& other){
+  return _stricmp(c_str(), other.c_str()) == 0;
+}
+
 namespace adv{
 
 std::ostream& operator<<(std::ostream& strm, const String& str){
