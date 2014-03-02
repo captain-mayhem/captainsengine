@@ -25,6 +25,7 @@ class ItemObject;
 class GuiRoom;
 
 typedef void (*exit_callback)();
+typedef void (*set_mouse_callback)(int x, int y);
 
 class Engine{
   friend class SaveStateProvider;
@@ -35,7 +36,7 @@ public:
   static Engine* instance() {return mInstance;}
   void setData(AdvDocument* doc);
   void render(unsigned time);
-  void initGame(exit_callback exit_cb);
+  void initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb);
   void exitGame();
   GLuint genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
   void beginRendering();
@@ -130,6 +131,7 @@ public:
   void enableTextScene(bool doit);
   void setBlockingSpeaker(CharacterObject* chr);
   CharacterObject* getBlockingSpeaker() {return mBlockingSpeaker;}
+  void setMousePosition(int x, int y);
 protected:
   Engine();
   static Engine* mInstance;
@@ -207,6 +209,7 @@ protected:
   bool mExitRequested;
   bool mResetRequested;
   exit_callback mExitCall;
+  set_mouse_callback mSetMouseCall;
   bool mMenuShown;
   ExecutionContext* mSuspender;
   String mTextEnter;

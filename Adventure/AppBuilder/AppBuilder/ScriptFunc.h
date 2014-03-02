@@ -467,6 +467,10 @@ public:
   **/
   static int speechVolume(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param name the name of the variable a square root should be calculated of
+  **/
+  static int sqrt(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param effect name of the effect
   \param args [opt] additional effect parameters
   **/

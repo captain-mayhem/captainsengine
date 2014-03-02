@@ -230,7 +230,11 @@ void Mouse::showCursor(bool visible){
 
 void Mouse::setMousePos(int x, int y){
 #ifdef WIN32
-  SetCursorPos(x, y);
+  POINT point;
+  point.x = x;
+  point.y = y;
+  ClientToScreen((HWND)static_cast<Windows::WindowsWindow*>(CGE::Engine::instance()->getWindow())->getHandle(), &point);
+  SetCursorPos(point.x, point.y);
 #endif
 #if defined(LINUX) && !defined(NO_X11)
   Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());

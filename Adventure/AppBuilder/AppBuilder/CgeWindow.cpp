@@ -25,6 +25,7 @@ CommandReceiver receiver;
 Vec2i windowsize(640,480);
 
 void quit();
+void set_mouse(int x, int y);
 
 void init(){
   TR_USE(ADV_CGE_Window);
@@ -65,7 +66,7 @@ void init(){
   glViewport(0, 0, windowsize.x, windowsize.y);
   
   receiver.start();
-  Engine::instance()->initGame(quit);
+  Engine::instance()->initGame(quit, set_mouse);
 }
 
 void deinit(){
@@ -81,6 +82,10 @@ void deinit(){
 
 void quit(){
   CGE::Engine::instance()->requestShutdown();
+}
+
+void set_mouse(int x, int y){
+  Input::Mouse::instance()->setMousePos(x, y);
 }
 
 void render(){
