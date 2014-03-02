@@ -53,7 +53,7 @@ Engine* Engine::mInstance = NULL;
 static CGE::Mutex trymtx;
 
 Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false),
-  mSaver(NULL), mLoader(), mBlockingSpeaker(NULL) {
+  mSaver(NULL), mLoader(), mBlockingSpeaker(NULL), mExitCall(NULL), mSetMouseCall(NULL) {
   mVerts[0] = 0; mVerts[1] = 1;
   mVerts[2] = 0; mVerts[3] = 0;
   mVerts[4] = 1; mVerts[5] = 1;
@@ -88,11 +88,13 @@ void Engine::setData(AdvDocument* doc){
   mLoader.setData(doc);
 }
 
-void Engine::initGame(exit_callback exit_cb){
+void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   if (!mData)
     return;
   if (exit_cb != NULL)
     mExitCall = exit_cb;
+  if (set_mouse_cb != NULL)
+    mSetMouseCall = set_mouse_cb;
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   //ExecutionContext* ctx = mInterpreter->parseProgram("playswf (snitt ; 106 ;120 ;427 ; 330)");
   //mInterpreter->execute(ctx, true);
@@ -321,7 +323,7 @@ void Engine::render(unsigned time){
     Engine::instance()->exitGame();
     Engine::instance()->getSaver()->clear();
     SoundEngine::instance()->reset();
-    Engine::instance()->initGame(NULL);
+    Engine::instance()->initGame(NULL, NULL);
     mResetRequested = false;
     return;
   }
@@ -1634,4 +1636,9 @@ void Engine::setBlockingSpeaker(CharacterObject* chr){
       mBlockingSpeakerCount = 1;
     }
   }
+}
+
+void Engine::setMousePosition(int x, int y){
+  if (mSetMouseCall)
+    mSetMouseCall(x, y);
 }

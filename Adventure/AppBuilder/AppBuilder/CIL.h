@@ -302,6 +302,7 @@ public:
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return STATE;}
   virtual void save(std::ostream& out);
+  void setState(State st) {mState = st;}
 protected:
   State mState;
 };

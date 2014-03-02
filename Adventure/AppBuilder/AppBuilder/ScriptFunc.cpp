@@ -171,6 +171,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("loadchar", loadChar);
   interpreter->registerFunction("offtextcolor", offTextColor);
   interpreter->registerFunction("setitem", setItem);
+  interpreter->registerFunction("sqrt", sqrt);
   srand((unsigned)time(NULL));
 }
 
@@ -649,10 +650,15 @@ int ScriptFunctions::follow(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs!= 2)
+  if (numArgs< 2 || numArgs > 3)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string character = ctx.stack().pop().getString();
   StackData d = ctx.stack().pop();
+  if (numArgs >= 3){
+    String noturn = ctx.stack().pop().getString();
+    if (noturn != "noturn")
+      TR_BREAK("noturn expected");
+  }
   LookDir dir = UNSPECIFIED;
   CharacterObject* chr1 = ctx.getCharacter(character);
   if (d.getInt() != 0){
@@ -1718,13 +1724,14 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
     if (d.getInt() == 0){
       std::string txt = d.getString();
       bool loop = false;
+      CSTATE* state = (CSTATE*)func->getCode()->get(0);
       if (txt == "inf" || txt == "infinitly"){
         loop = true;
-        func->setIdle(false);
+        state->setState(CSTATE::NORMAL);
       }
       else if (txt == "loop2"){
         loop = true;
-        func->setIdle(true);
+        state->setState(CSTATE::IDLE);
       }
       else
         TR_BREAK("Unhandled repeat %s", txt.c_str());
@@ -2754,6 +2761,17 @@ int ScriptFunctions::setItem(ExecutionContext& ctx, unsigned numArgs){
   if (item)
     item->setState(state);
   Engine::instance()->getInterpreter()->setItemState(itemname, state);
+  return 0;
+}
+
+int ScriptFunctions::sqrt(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  if (numArgs != 1)
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  String variable = ctx.stack().pop().getString();
+  float val = Engine::instance()->getInterpreter()->getVariable(variable).getFloat();
+  val = sqrtf(val);
+  Engine::instance()->getInterpreter()->setVariable(variable, val);
   return 0;
 }
 

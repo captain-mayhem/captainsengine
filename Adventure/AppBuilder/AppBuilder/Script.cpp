@@ -259,6 +259,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   mUnresolvedLoads.clear();
   mUnresolvedBlockEnd = NULL;
   CodeSegment* segment = new CodeSegment;
+  segment->addCode(new CSTATE(CSTATE::NORMAL));
   transform(p, segment, START);
   for (std::list<std::pair<CBRA*,unsigned> >::iterator iter = mUnresolvedBranches.begin(); iter != mUnresolvedBranches.end(); ++iter){
     unsigned diff = segment->numInstructions() - iter->second;
@@ -269,7 +270,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   bool isGameObject = mIsGameObject;
   std::string objectInfo = mObjectInfo;
   mMutex.unlock();
-  if (segment->numInstructions() == 0 && segment->getLoop1() == NULL){
+  if (segment->numInstructions() <= 1 && segment->getLoop1() == NULL){
     delete segment;
     return NULL;
   }
@@ -1300,10 +1301,10 @@ StackData PcdkScript::getVariable(const String& name){
 void PcdkScript::setVariable(const String& name, const StackData& value){
   TR_USE(ADV_Script);
   if (name == "mousex"){
-    TR_BREAK("setting mousex is not allowed");
+    Engine::instance()->setMousePosition(value.getInt(), Engine::instance()->getCursorPos().y);
   }
   else if (name == "mousey"){
-    TR_BREAK("setting mousey is not allowed");
+    Engine::instance()->setMousePosition(Engine::instance()->getCursorPos().x, value.getInt());
   }
   mVariables[name.removeAll(' ')] = value;
 }
