@@ -1,6 +1,7 @@
 #include "String.h"
 
 #include <iostream>
+#include "Engine.h"
 
 using namespace adv;
 
@@ -46,6 +47,7 @@ std::ostream& operator<<(std::ostream& strm, const String& str){
 }
 
 std::istream& operator>>(std::istream& strm, String& str){
+  str.mStr = std::string();
   unsigned size;
   strm >> size;
   char tmp;
