@@ -4,22 +4,15 @@ Engine
 ------
 char positioning / char collision detection (->block walkmap?) | 2
 module sounds | 6
-group (use in moveobj) | 3
 playing of swf (flash) | 6
 special effects | 4
 particle barriers: bounding box calculation of particles when rotated | 5
 path finding with less direction changes | 5
-async loading | 1
 
 Editor
 ------
 Script-Autocompletion | 3
-
-Async loading
--------------
-Characters in loadRoomEvent => thread-safety
-Handling of loading/unloading room => when to trigger async loader, when to merge result
-mLastRoom in SaveStateProvider is not a thread safe construct
+Scaling of characters | 1
 
 Tests
 -----

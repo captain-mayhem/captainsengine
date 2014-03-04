@@ -57,6 +57,11 @@ mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), m
 }
 
 FontRenderer::String::~String(){
+  endDisplaying();
+  clear();
+}
+
+void FontRenderer::String::endDisplaying(){
   if (mSuspensionScript){
     mSuspensionScript->resume();
     mSuspensionScript->unref();
@@ -68,7 +73,6 @@ FontRenderer::String::~String(){
       Engine::instance()->setBlockingSpeaker(NULL);
     mSpeaker = NULL;
   }
-  clear();
 }
 
 void FontRenderer::String::clear(){
@@ -90,7 +94,7 @@ void FontRenderer::String::render(unsigned interval){
       pos.x = 0;
     if (pos.y+mCenterOffset.y > Engine::instance()->getResolution().y && pos.y+mCenterOffset.y < Engine::instance()->getResolution().y+mCenterOffset.y)
       pos.y = Engine::instance()->getResolution().y-mCenterOffset.y;
-    if (pos.y < 0 && pos.y > -mCenterOffset.y/3*2)
+    if (pos.y < 0/* && pos.y > -mCenterOffset.y/3*2*/)
       pos.y = 0;
   }
   //opacity
@@ -138,6 +142,7 @@ void FontRenderer::String::setSuspensionScript(ExecutionContext* ctx){
 
 void FontRenderer::String::remove(){
   mDisplayTime = mFadingTime;
+  endDisplaying();
 }
 
 ////////////////////////////////////////

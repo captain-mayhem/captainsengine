@@ -180,6 +180,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
     ExecutionContext* initScript = mInterpreter->parseProgram(startScript->text);
+    mInterpreter->cutsceneMode(true);
     mInterpreter->executeCutscene(initScript, false);
   }
   mUI = new GuiRoom();
@@ -885,8 +886,10 @@ void Engine::rightClick(const Vec2i& pos){
   if (!mMouseEnabled)
     return;
   if (mBlockingSpeaker){
-    mFonts->removeText(mBlockingSpeaker, false);
-    SoundEngine::instance()->removeSpeaker(mBlockingSpeaker);
+    CharacterObject* speaker = mBlockingSpeaker;
+    mFonts->removeText(speaker, false);
+    SoundEngine::instance()->removeSpeaker(speaker);
+    return;
   }
   bool leftClickRequired;
   int cmd = mCursor->getNextCommand(leftClickRequired, pos);
@@ -1202,21 +1205,28 @@ ItemObject* Engine::createItem(const std::string& name, int count){
 void Engine::setUseObject(const std::string& object, const std::string& objectInfo){
   mLinkObjectInfo = objectInfo;
   mUseObjectName = object;
-  if (mData->getProjectSettings()->draw_dragged_items){
-    delete mDraggingObject;
-    if (object.empty())
-      mDraggingObject = NULL;
-    else{
-      mDraggingObject = createItem(mClickedObject->getName(), 1);
-      mDraggingObject->realize();
-      mDraggingObject->setDepth(DEPTH_CURSOR-1);
-    }
-  }
+  handleDragging(object);
 }
 
 void Engine::setGiveObject(const std::string& object, const std::string& objectInfo){
   mLinkObjectInfo = objectInfo;
   mGiveObjectName = object;
+  handleDragging(object);
+}
+
+void Engine::handleDragging(const std::string& object){
+  if (mData->getProjectSettings()->draw_dragged_items){
+    delete mDraggingObject;
+    if (object.empty() || mClickedObject == NULL)
+      mDraggingObject = NULL;
+    else{
+      mDraggingObject = createItem(mClickedObject->getName(), 1);
+      if (mDraggingObject){
+        mDraggingObject->realize();
+        mDraggingObject->setDepth(DEPTH_CURSOR-1);
+      }
+    }
+  }
 }
 
 ExecutionContext* Engine::loadScript(Script::Type type, const std::string& name){
@@ -1348,8 +1358,9 @@ void Engine::keyPress(int key){
         ExecutionContext* ctx = mInterpreter->getCutscene();
         if (ctx){
           if (mBlockingSpeaker){
-            mFonts->removeText(mBlockingSpeaker, false);
-            SoundEngine::instance()->removeSpeaker(mBlockingSpeaker);
+            CharacterObject* speaker = mBlockingSpeaker;
+            mFonts->removeText(speaker, false);
+            SoundEngine::instance()->removeSpeaker(speaker);
           }
           ctx->setSkip();
         }

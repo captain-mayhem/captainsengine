@@ -712,6 +712,7 @@ int ScriptFunctions::textScene(ExecutionContext& ctx, unsigned numArgs){
   Engine::instance()->getInterpreter()->mNextTSLevel = 0;
   Engine::instance()->enableTextScene(true);
   ExecutionContext* context = Engine::instance()->loadScript(Script::CUTSCENE, scenename);
+  Engine::instance()->getInterpreter()->cutsceneMode(true);
   Engine::instance()->getInterpreter()->executeCutscene(context, true);
   return 0;
 }
@@ -1611,37 +1612,54 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
     if (wait == "wait")
       hold = true;
   }
-  Object2D* obj = Engine::instance()->getObject(name, false);
-  if (obj == NULL){
-    std::string room;
-    SaveStateProvider::SaveObject* obj = Engine::instance()->getSaver()->findObject(name, room);
-    if (obj)
-      obj->position = newpos;
-    else
-      TR_ERROR("moveObj: Object %s does not exist", name.c_str());
-    return 0;
+
+  ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(name);
+  std::vector<std::string> objects;
+  if (grp)
+    objects = grp->getObjects();
+  else
+    objects.push_back(name);
+
+  Vec2i baseoffset;
+  for (unsigned i = 0; i < objects.size(); ++i){
+    std::string objname = objects[i];
+    Object2D* obj = Engine::instance()->getObject(objname, false);
+    if (obj == NULL){
+      std::string room;
+      SaveStateProvider::SaveObject* obj = Engine::instance()->getSaver()->findObject(objname, room);
+      if (obj){
+        if (i == 0)
+          baseoffset = obj->position;
+        obj->position = newpos+obj->position-baseoffset;
+      }
+      else
+        TR_ERROR("moveObj: Object %s does not exist", objname.c_str());
+      continue;
+    }
+    if (i == 0)
+      baseoffset = obj->getPosition();
+    if (speed == 0 || ctx.mSkip){
+      TR_DETAIL("object %s positioned to %i %i", objname.c_str(), newpos.x, newpos.y);
+      Engine::instance()->getAnimator()->remove(obj);
+      obj->setPosition(newpos+obj->getPosition()-baseoffset);
+      continue;
+    }
+    std::list<Vec2i> path;
+    //path.push_back(obj->getPosition());
+    path.push_back(newpos+obj->getPosition()-baseoffset);
+    float factor;
+    if (speed <= 10)
+      factor = (float)(11-speed);
+    else{
+      //we have ms => calculate speedfactor
+      factor = (newpos+obj->getPosition()-baseoffset-obj->getPosition()).length()*20.0f/speed;
+    }
+    if (hold){
+      ctx.suspend(0, NULL/*new PositionSuspender(obj, newpos)*/);
+      obj->setSuspensionScript(&ctx);
+    }
+    Engine::instance()->getAnimator()->add(obj, path, factor);
   }
-  if (speed == 0 || ctx.mSkip){
-    TR_DETAIL("object %s positioned to %i %i", name.c_str(), newpos.x, newpos.y);
-    Engine::instance()->getAnimator()->remove(obj);
-    obj->setPosition(newpos);
-    return 0;
-  }
-  std::list<Vec2i> path;
-  //path.push_back(obj->getPosition());
-  path.push_back(newpos);
-  float factor;
-  if (speed <= 10)
-    factor = (float)(11-speed);
-  else{
-    //we have ms => calculate speedfactor
-    factor = (newpos-obj->getPosition()).length()*20.0f/speed;
-  }
-  if (hold){
-    ctx.suspend(0, NULL/*new PositionSuspender(obj, newpos)*/);
-    obj->setSuspensionScript(&ctx);
-  }
-  Engine::instance()->getAnimator()->add(obj, path, factor);
   return 0;
 }
 
@@ -1757,9 +1775,14 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::stopFunction(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
+  if (numArgs < 1 || numArgs > 2)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string scriptname = ctx.stack().pop().getString();
+  if (numArgs >= 2){
+    String dummy = ctx.stack().pop().getString();
+    if (dummy != "inf")
+      TR_BREAK("inf expected");
+  }
   TR_DEBUG("Function %s stopped", scriptname.c_str());
   ExecutionContext* stopped = Engine::instance()->getInterpreter()->removeScript(scriptname, false);
   if (stopped == &ctx){
