@@ -28,6 +28,7 @@ public:
     void setBoundRoom(RoomObject* room) {mBoundRoom = room;}
     RoomObject* getRoom() {return mBoundRoom;}
     void remove();
+    void endDisplaying();
   protected:
     Vec2i mPos;
     Vec2i mCenterOffset;

@@ -812,7 +812,6 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
 
 void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
   mGlobalSuspend = true;
-  mHideUI = true;
   if (mCutScene != NULL){
     Engine::instance()->setCommand(mPrevActiveCommand, false);
     mCutScene->unref();

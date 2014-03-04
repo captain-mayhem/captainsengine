@@ -192,6 +192,7 @@ protected:
   float distance(const Vec2i& x, const Vec2i& y);
   std::list<Vec2i> reconstruct_path(AStarData node, const std::set<AStarData>& data);
   bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading);
+  void handleDragging(const std::string& object);
   //engine - script communication
   std::string mObjectInfo;
   std::string mObjectTooltipInfo;
