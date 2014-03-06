@@ -78,6 +78,7 @@ public:
   ProjectSettings* getSettings() {return mData->getProjectSettings();}
   void setCommand(const std::string& command, bool deleteLinks);
   std::string getActiveCommand();
+  EngineEvent getActiveCommandAsEvent();
   void clearGui();
   RoomObject* getContainingRoom(Object2D* object);
   CharacterObject* loadCharacter(const std::string& instanceName, const std::string& className, ExecutionContext* loadreason);

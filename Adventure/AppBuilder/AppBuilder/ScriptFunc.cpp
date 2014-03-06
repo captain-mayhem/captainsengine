@@ -2841,6 +2841,8 @@ int ScriptFunctions::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
     check = Engine::instance()->getInterpreter()->getEngineEvent(evtname);
   }
   EngineEvent evt = ctx.getCommandEvent();
+  if (evt == EVT_NONE)
+    evt = Engine::instance()->getActiveCommandAsEvent();
   ctx.stack().push(evt);
   ctx.stack().push(check);
   return 2;

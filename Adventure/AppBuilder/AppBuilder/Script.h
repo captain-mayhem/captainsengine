@@ -76,8 +76,9 @@ public:
   void setOfftextColor(const Color& color) {mOfftextColor = color;}
   void cutsceneMode(bool hideUI) {mGlobalSuspend = true; mHideUI = hideUI;}
   bool isUIHidden() {return mHideUI;}
-  void setItemState(const String& name, int state) {mItemStates[name.toLower()] = state;}
+  void setItemState(const String& name, int state) {mMutex.lock(); mItemStates[name.toLower()] = state; mMutex.unlock();}
   int getItemState(const String& name);
+  void clearState() {mMutex.lock(); mItemStates.clear(); mMutex.unlock();}
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
