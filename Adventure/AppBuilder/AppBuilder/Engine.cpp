@@ -391,8 +391,9 @@ void Engine::render(unsigned time){
   //do some scripting
   bool scriptupdate = mInterpreter->willUpdate(interval);
   if (scriptupdate){
+    bool hasCursor = (!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown && mMouseEnabled;
     Object2D* obj = getObjectAt(mCursor->getPosition());
-    if (obj != NULL){
+    if (hasCursor && obj != NULL){
       if (mCurrentObject != obj){
         if (mCurrentObject != NULL){
           ExecutionContext* script = mCurrentObject->getScript();
@@ -1270,6 +1271,14 @@ std::string Engine::getActiveCommand(){
         return iter->first;
   }
   return "";
+}
+
+EngineEvent Engine::getActiveCommandAsEvent(){
+  if (!mUseObjectName.empty())
+    return EVT_LINK;
+  else if (!mGiveObjectName.empty())
+    return EVT_GIVE_LINK;
+  return (EngineEvent)mActiveCommand;
 }
 
 void Engine::clearGui(){

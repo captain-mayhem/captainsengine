@@ -382,6 +382,7 @@ void SaveStateProvider::load(const std::string& name){
     return;
   //clear the current save state;
   clear();
+  Engine::instance()->getInterpreter()->clearState();
   Engine::instance()->getInterpreter()->executeCutscene(NULL, false);
   mNoWrites = Engine::instance()->unloadRooms();
   if (Engine::instance()->mMenuShown){

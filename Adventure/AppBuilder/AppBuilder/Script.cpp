@@ -1042,7 +1042,7 @@ std::istream& PcdkScript::load(std::istream& in){
     ExecutionContext* ctx = new ExecutionContext(in);
     addTimer(ctx);
   }
-  mItemStates.clear();
+  //mItemStates.clear(); item states are already cleared before
   unsigned numitemstates;
   in >> numitemstates;
   for (unsigned i = 0; i < numitemstates; ++i){
@@ -1188,10 +1188,16 @@ StackData PcdkScript::getVariable(const String& name){
     return String(room->getName().c_str());
   }
   else if (lname == "roomx"){
-    TR_BREAK("Implement me");
+    RoomObject* room = Engine::instance()->getRoom("");
+    if (!room)
+      TR_BREAK("Room not found");
+    return -room->getScrollOffset().x/Engine::instance()->getWalkGridSize(false);
   }
   else if (lname == "roomy"){
-    TR_BREAK("Implement me");
+    RoomObject* room = Engine::instance()->getRoom("");
+    if (!room)
+      TR_BREAK("Room not found");
+    return -room->getScrollOffset().y/Engine::instance()->getWalkGridSize(false);
   }
   else if (lname == "charx"){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
