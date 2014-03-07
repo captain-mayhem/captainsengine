@@ -164,11 +164,14 @@ protected:
 
 class VariableNode : public ASTNode{
 public:
-  VariableNode(const std::string& name) : ASTNode(VARIABLE) {mName = name;}
-  virtual ~VariableNode(){}
+  VariableNode(const std::string& name) : ASTNode(VARIABLE), mName(name), mChildVar(NULL){}
+  virtual ~VariableNode(){delete mChildVar;}
   std::string& name() {return mName;}
+  void setChild(VariableNode* child) {mChildVar = child;}
+  VariableNode* getChild() {return mChildVar;}
 protected:
   std::string mName;
+  VariableNode* mChildVar;
 };
 
 class RelationalNode : public ASTNode{

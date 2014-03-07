@@ -45,6 +45,7 @@ public:
     STATE,
     DECSHIFT,
     I2R,
+    SLOAD,
   };
   CCode(){}
   virtual ~CCode(){}
@@ -198,6 +199,14 @@ public:
   virtual void save(std::ostream& out);
 protected:
   String mVariable;
+};
+
+class CSLOAD : public CCode{
+public:
+  CSLOAD() {}
+  virtual ~CSLOAD() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){return SLOAD;}
 };
 
 class CADD : public CCode{
