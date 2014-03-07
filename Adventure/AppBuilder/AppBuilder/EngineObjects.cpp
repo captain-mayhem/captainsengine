@@ -288,6 +288,8 @@ void Object2D::activateNextState(){
     return;
   mState = mNextStates.front();
   mNextStates.pop_front();
+  if (mState > 0 && mAnimations[mState-1]->exists())
+    mAnimations[mState-1]->registerAnimationEndHandler(this);
 }
 
 Object2D* Object2D::clone(){
@@ -1260,8 +1262,11 @@ void CharacterObject::activateNextState(){
     return;
   if (mNextStates.front() == 0)
     updateState(false, true);
-  else
+  else{
     setState(mNextStates.front());
+    if (mState > 0 && mAnimations[mState-1]->exists())
+      mAnimations[mState-1]->registerAnimationEndHandler(this);
+  }
   mNextStates.pop_front();
 }
 

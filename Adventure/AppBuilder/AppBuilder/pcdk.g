@@ -264,7 +264,9 @@ variable returns [ASTNode* var]
 	LBRACKET
 	id=ident {$var = new VariableNode(id.id->value()); delete id.id;}
 	/* names with : are allowed here */
-	(IDIV id2=ident {VariableNode* node = (VariableNode*)$var; node->name().append(":"+id2.id->value()); delete id2.id;} )?
+	(IDIV (id2=ident {VariableNode* node = (VariableNode*)$var; node->name().append(":"+id2.id->value()); delete id2.id;} 
+	   |  var2=variable {VariableNode* node = (VariableNode*)$var; node->name().append(":"); node->setChild((VariableNode*)var2.var);} )
+	 )?
 	RBRACKET
 ;
 

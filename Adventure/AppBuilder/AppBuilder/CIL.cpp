@@ -96,6 +96,13 @@ unsigned CLOAD::execute(ExecutionContext& ctx, unsigned pc){
   return ++pc;
 }
 
+unsigned CSLOAD::execute(ExecutionContext& ctx, unsigned pc){
+  String variable = ctx.stack().pop().getString();
+  StackData dat = Engine::instance()->getInterpreter()->getVariable(variable);
+  ctx.stack().push(dat);
+  return ++pc;
+}
+
 unsigned CTIMER::execute(ExecutionContext& ctx, unsigned pc){
   float time = ctx.stack().pop().getFloat();
   mCommands->suspend((int)(time*1000), NULL);
@@ -211,6 +218,8 @@ CCode* CCode::load(std::istream& in){
       return new CBGE(in);
     case LOAD:
       return new CLOAD(in);
+    case SLOAD:
+      return new CSLOAD();
     case ADD:
       return new CADD();
     case SUB:

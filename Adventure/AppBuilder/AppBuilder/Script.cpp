@@ -192,6 +192,8 @@ std::string PcdkScript::internal_stringify(ASTNode* node){
   case ASTNode::VARIABLE:
     {
       VariableNode* var = static_cast<VariableNode*>(node);
+      if (var->getChild() != NULL)
+        TR_BREAK("Variable with child unhandled");
       StackData s = getVariable(var->name().c_str());
       ret += s.getString();
     }
@@ -340,27 +342,6 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           mIsGameObject = true;
           NodeList* nl = fc->getArguments();
           ASTNode* node = nl->next();
-          /*if(node->getType() == ASTNode::IDENTIFIER){
-            IdentNode* id = static_cast<IdentNode*>(node);
-            mObjectInfo = id->value();
-          }
-          else if (node->getType() == ASTNode::RELATIONAL){
-            RelationalNode* rel = static_cast<RelationalNode*>(node);
-            if (rel->type() != RelationalNode::REL_EQUAL)
-              TR_BREAK();
-            if (rel->child()->getType() != ASTNode::VARIABLE)
-              TR_BREAK();
-            VariableNode* var = static_cast<VariableNode*>(rel->child());
-            StackData s = getVariable(var->name());
-            mObjectInfo = s.getString();
-          }
-          else if (node->getType() == ASTNode::CONCATENATION){
-            ConcatenationNode* concat = static_cast<ConcatenationNode*>(node);
-            TR_BREAK();
-          }
-          else{
-            TR_BREAK();
-          }*/
           mObjectInfo = internal_stringify(node);
           nl->reset(true);
         }
@@ -462,8 +443,18 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::VARIABLE:{
         VariableNode* var = static_cast<VariableNode*>(node);
-        codes->addCode(new CLOAD(var->name().c_str()));
-        ++count;
+        if (var->getChild() != NULL){ //build variable name dynamically
+          codes->addCode(new CPUSH(var->name()));
+          ++count;
+          count += transform(var->getChild(), codes);
+          codes->addCode(new CCONCAT());
+          codes->addCode(new CSLOAD());
+          count += 2;
+        }
+        else{
+          codes->addCode(new CLOAD(var->name().c_str()));
+          ++count;
+        }
       }
       break;
       case ASTNode::RELATIONAL:{
@@ -1226,20 +1217,24 @@ StackData PcdkScript::getVariable(const String& name){
   }
   else if (name.size() > 6 && lname.substr(0,6) == "charx:"){
     int idx = 6;
-    if (name[6] == '_')
+    if (name[6] == '_' || name[6] == ' ')
       idx = 7;
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
-    if (!chr)
+    if (!chr){
       TR_BREAK("Character %s not found", name.substr(idx).c_str());
+      return 0;
+    }
     return chr->getPosition().x/(idx == 7 ? chr->getWalkGridSize() : 1);
   }
   else if (name.size() > 6 && lname.substr(0,6) == "chary:"){
     int idx = 6;
-    if (name[6] == '_')
+    if (name[6] == '_' || name[6] == ' ')
       idx = 7;
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
-    if (!chr)
+    if (!chr){
       TR_BREAK("Character %s not found", name.substr(idx).c_str());
+      return 0;
+    }
     return chr->getPosition().y/(idx == 7 ? chr->getWalkGridSize() : 1);
   }
   else if (name.size() > 9 && lname.substr(0,9) == "charzoom:"){
@@ -1264,10 +1259,14 @@ StackData PcdkScript::getVariable(const String& name){
     return obj->getPosition().y;
   }
   else if (name.size() > 8 && lname.substr(0,8) == "tgtobjx:"){
-    Object2D* obj = Engine::instance()->getObject(name.substr(8), false);
+    std::string objname = name.substr(8);
+    ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(objname);
+    if (grp)
+      objname = grp->getObjects()[0];
+    Object2D* obj = Engine::instance()->getObject(objname, false);
     if (obj == NULL){
       std::string dummy;
-      SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(name.substr(8), dummy);
+      SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
       if (so == NULL)
         TR_BREAK("Object %s not found", name.substr(8).c_str());
       return so->position.x;
@@ -1275,10 +1274,14 @@ StackData PcdkScript::getVariable(const String& name){
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).x;
   }
   else if (name.size() > 8 && lname.substr(0,8) == "tgtobjy:"){
-    Object2D* obj = Engine::instance()->getObject(name.substr(8), false);
+    std::string objname = name.substr(8);
+    ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(objname);
+    if (grp)
+      objname = grp->getObjects()[0];
+    Object2D* obj = Engine::instance()->getObject(objname, false);
     if (obj == NULL){
       std::string dummy;
-      SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(name.substr(8), dummy);
+      SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
       if (so == NULL)
         TR_BREAK("Object %s not found", name.substr(8).c_str());
       return so->position.y;
