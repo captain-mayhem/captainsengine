@@ -312,7 +312,8 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     else if (str){
       str->setSuspensionScript(&ctx);
     }
-    Engine::instance()->setBlockingSpeaker(chr);
+    if (!ctx.isIdle())
+      Engine::instance()->setBlockingSpeaker(chr);
     ctx.mSuspended = true;
   }
   return 0;
@@ -1264,7 +1265,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   else{
     state = getRequestedState(obj->getClass(), data);
   }
-  if (obj){
+  if (obj && state != 0){
     obj->clearNextStates();
     TR_DEBUG("setting new state %i for char %s", state, chrname.c_str());
     obj->setState(state);
