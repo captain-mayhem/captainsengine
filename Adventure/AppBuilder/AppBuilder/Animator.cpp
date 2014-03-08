@@ -131,11 +131,19 @@ void Animator::update(unsigned interval){
       else{
         Vec2i tmp = iter->second.startpos;
         iter->second.startpos = reachedpos;
-        while(iter->second.path.front() == iter->second.startpos)
+        while(!iter->second.path.empty() && iter->second.path.front() == iter->second.startpos)
           iter->second.path.pop_front();
-        iter->second.normalization = (iter->second.path.front()-iter->second.startpos).length();
-        iter->second.factor = 0;
-        iter->first->animationWaypoint(tmp, iter->second.path.front());
+        if (iter->second.path.empty()){
+          iter->first->animationEnd(iter->second.startpos);
+          mObjects.erase(iter++);
+          if (iter == mObjects.end())
+            break;
+        }
+        else{
+          iter->second.normalization = (iter->second.path.front()-iter->second.startpos).length();
+          iter->second.factor = 0;
+          iter->first->animationWaypoint(tmp, iter->second.path.front());
+        }
       }
     }
   }

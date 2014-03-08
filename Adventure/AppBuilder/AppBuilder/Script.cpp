@@ -1217,25 +1217,57 @@ StackData PcdkScript::getVariable(const String& name){
   }
   else if (name.size() > 6 && lname.substr(0,6) == "charx:"){
     int idx = 6;
-    if (name[6] == '_' || name[6] == ' ')
+    bool wmpos = false;
+    if (name[6] == '_'){
+      wmpos = true;
       idx = 7;
+    }
+    else if (name[6] == ' '){
+      idx = 7;
+    }
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
     if (!chr){
-      TR_BREAK("Character %s not found", name.substr(idx).c_str());
-      return 0;
+      std::string room;
+      std::string realname;
+      SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(name.substr(idx), room, realname);
+      if (cso == NULL){
+        TR_BREAK("Character %s not found", name.substr(idx).c_str());
+        return 0;
+      }
+      if (wmpos){
+        SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(room);
+        return cso->base.position.x/Engine::instance()->getWalkGridSize(sr->doublewalkmap);
+      }
+      return cso->base.position.x;
     }
-    return chr->getPosition().x/(idx == 7 ? chr->getWalkGridSize() : 1);
+    return chr->getPosition().x/(wmpos ? chr->getWalkGridSize() : 1);
   }
   else if (name.size() > 6 && lname.substr(0,6) == "chary:"){
     int idx = 6;
-    if (name[6] == '_' || name[6] == ' ')
+    bool wmpos = false;
+    if (name[6] == '_'){
+      wmpos = true;
       idx = 7;
+    }
+    else if (name[6] == ' '){
+      idx = 7;
+    }
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
     if (!chr){
-      TR_BREAK("Character %s not found", name.substr(idx).c_str());
-      return 0;
+      std::string room;
+      std::string realname;
+      SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(name.substr(idx), room, realname);
+      if (cso == NULL){
+        TR_BREAK("Character %s not found", name.substr(idx).c_str());
+        return 0;
+      }
+      if (wmpos){
+        SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(room);
+        return cso->base.position.y/Engine::instance()->getWalkGridSize(sr->doublewalkmap);
+      }
+      return cso->base.position.y;
     }
-    return chr->getPosition().y/(idx == 7 ? chr->getWalkGridSize() : 1);
+    return chr->getPosition().y/(wmpos ? chr->getWalkGridSize() : 1);
   }
   else if (name.size() > 9 && lname.substr(0,9) == "charzoom:"){
     TR_BREAK("Implement me");
