@@ -189,7 +189,7 @@ protected:
     ScreenChange screenchange;
     std::string focusChar;
   };
-  bool aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path);
+  bool aStarSearch(CharacterObject* chr, const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path);
   float distance(const Vec2i& x, const Vec2i& y);
   std::list<Vec2i> reconstruct_path(AStarData node, const std::set<AStarData>& data);
   bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading);

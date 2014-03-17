@@ -172,7 +172,7 @@ public:
   virtual void setScrollOffset(const Vec2i& offset);
   CharacterObject* extractCharacter(const std::string& name);
   CharacterObject* findCharacter(const std::string& name);
-  bool isWalkable(const Vec2i& pos);
+  bool isWalkable(CharacterObject* chr, const Vec2i& pos);
   bool isScriptRunning();
   virtual Object2D* getObjectAt(const Vec2i& pos);
   Object2D* getObject(const std::string& name);
@@ -279,6 +279,7 @@ public:
   float getWalkGridSize();
   virtual void setScript(ExecutionContext* script) {Object2D::setScript(script); /*if (script) script->setSelf(getName());*/}
   virtual void realize();
+  bool isStandingAt(const Vec2i& pos);
 protected:
   static int calculateState(LookDir dir, bool& mirror);
   static int calculateState(int currState, bool shouldWalk, bool shouldTalk, bool mirror=false);
