@@ -973,7 +973,7 @@ void Engine::changeFocus(std::string charname, ExecutionContext* reason){
   setFocus(charname, reason);
 }
 
-bool Engine::aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path){
+bool Engine::aStarSearch(CharacterObject* chr, const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path){
   std::set<AStarData> closedset;
   std::priority_queue<AStarData, std::vector<AStarData>, std::greater<AStarData> > openset;
   std::set<AStarData> openset2;
@@ -1025,7 +1025,7 @@ bool Engine::aStarSearch(const Vec2i& from, const Vec2i& to, std::list<Vec2i>& p
             continue;
           break;
       }
-      if (!mRooms.back()->isWalkable(y.pos))
+      if (!mRooms.back()->isWalkable(chr, y.pos))
         continue;
       if (closedset.find(y) != closedset.end())
         continue;
@@ -1158,7 +1158,7 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float s
   Vec2f oldwmpos = ((Vec2f)chr->getPosition())/walkgridsize;
   Vec2f newwmpos = ((Vec2f)pos)/walkgridsize;
   std::list<Vec2i> path;
-  bool couldReach = aStarSearch(oldwmpos,newwmpos,path); 
+  bool couldReach = aStarSearch(chr, oldwmpos, newwmpos, path); 
   //remove first entry as we are already on that field
   path.pop_front();
   for (std::list<Vec2i>::iterator iter = path.begin(); iter != path.end(); ++iter){

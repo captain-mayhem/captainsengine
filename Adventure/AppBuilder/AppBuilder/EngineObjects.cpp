@@ -662,12 +662,28 @@ CharacterObject* RoomObject::findCharacter(const std::string& name){
   return NULL;
 }
 
-bool RoomObject::isWalkable(const Vec2i& pos){
+bool RoomObject::isWalkable(CharacterObject* walker, const Vec2i& pos){
   if (pos.x < 0 || pos.y < 0){
     return false;
   }
   WMField field = mWalkmap[pos.x][pos.y];
-  return field.walkable;
+  if (!field.walkable)
+    return false;
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    if (mObjects[i]->getType() != CHARACTER)
+      continue;
+    CharacterObject* chr = (CharacterObject*)mObjects[i];
+    if (chr == walker)
+      continue;
+    if (chr->isStandingAt(pos))
+      return false;
+  }
+  CharacterObject* chr = Engine::instance()->getCharacter("self");
+  if (chr != walker){
+    if (chr->isStandingAt(pos))
+      return false;
+  }
+  return true;
 }
 
 void RoomObject::update(unsigned interval){
@@ -1280,4 +1296,16 @@ float CharacterObject::getWalkGridSize(){
     walkgridsize = sr->getWalkGridSize();
   }
   return walkgridsize;
+}
+
+bool CharacterObject::isStandingAt(const Vec2i& pos){
+  Vec2i myPos = getPosition()/getWalkGridSize();
+  if (pos == myPos)
+    return true;
+  Room* room = Engine::instance()->getData()->getRoom(mRoom);
+  if (room->doublewalkmap){
+    if ((pos.x == myPos.x || pos.x == myPos.x+1 || pos.x == myPos.x-1) && (pos.y == myPos.y || pos.y == myPos.y-1 || pos.y == myPos.y+1))
+      return true;
+  }
+  return false;
 }
