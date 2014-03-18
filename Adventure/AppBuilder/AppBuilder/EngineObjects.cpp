@@ -1299,13 +1299,14 @@ float CharacterObject::getWalkGridSize(){
 }
 
 bool CharacterObject::isStandingAt(const Vec2i& pos){
-  Vec2i myPos = getPosition()/getWalkGridSize();
-  if (pos == myPos)
-    return true;
   Room* room = Engine::instance()->getData()->getRoom(mRoom);
-  if (room->doublewalkmap){
-    if ((pos.x == myPos.x || pos.x == myPos.x+1 || pos.x == myPos.x-1) && (pos.y == myPos.y || pos.y == myPos.y-1 || pos.y == myPos.y+1))
-      return true;
-  }
+  float gridsize = Engine::instance()->getWalkGridSize(room->doublewalkmap);
+  int myY = (int)(getPosition().y/gridsize);
+  if (!(myY == pos.y || (room->doublewalkmap && (myY == pos.y - 1 || myY == pos.y + 1))))
+    return false;
+  int myX = (int)(mPos.x/gridsize);
+  int range = (int)(getSize().x*getScaleFactor()/gridsize)+1;
+  if (pos.x >= myX && pos.x <= myX+range)
+    return true;
   return false;
 }
