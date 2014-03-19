@@ -1025,9 +1025,9 @@ bool Engine::aStarSearch(CharacterObject* chr, const Vec2i& from, const Vec2i& t
             continue;
           break;
       }
-      if (!mRooms.back()->isWalkable(chr, y.pos))
-        continue;
       if (closedset.find(y) != closedset.end())
+        continue;
+      if (!mRooms.back()->isWalkable(chr, y.pos))
         continue;
       float tentative_g_score = x.g_score + 1/*distance constant 1 due to grid layout*/;
       if (openset2.find(y) == openset2.end()){

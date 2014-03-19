@@ -28,7 +28,7 @@ public:
     void setBoundRoom(RoomObject* room) {mBoundRoom = room;}
     RoomObject* getRoom() {return mBoundRoom;}
     void remove();
-    void endDisplaying();
+    void endDisplaying(bool immediate);
   protected:
     Vec2i mPos;
     Vec2i mCenterOffset;
@@ -36,6 +36,7 @@ public:
     std::vector<FontBlitObject*> mString;
     ExecutionContext* mSuspensionScript;
     CharacterObject* mSpeaker;
+    bool mUnregisterSpeaker;
     bool mKeepOnScreen;
     RoomObject* mBoundRoom;
     int mFadingTime;

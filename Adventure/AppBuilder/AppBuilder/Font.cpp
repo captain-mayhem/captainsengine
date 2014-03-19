@@ -51,27 +51,32 @@ protected:
 ////////////////////////////////////////////////
 
 FontRenderer::String::String(const Vec2i& pos, unsigned displayTime, bool keepOnScreen, unsigned fading) : 
-mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mCenterOffset(), mKeepOnScreen(keepOnScreen), mBoundRoom(NULL), mFadingTime(fading), mTimeShown(0){
+mPos(pos), mDisplayTime(displayTime), mSuspensionScript(NULL), mSpeaker(NULL), mUnregisterSpeaker(true), mCenterOffset(), mKeepOnScreen(keepOnScreen), mBoundRoom(NULL), mFadingTime(fading), mTimeShown(0){
   if (mDisplayTime > 0 && mDisplayTime < 2*mFadingTime)
     mDisplayTime = 2*mFadingTime;
 }
 
 FontRenderer::String::~String(){
-  endDisplaying();
+  endDisplaying(true);
   clear();
 }
 
-void FontRenderer::String::endDisplaying(){
+void FontRenderer::String::endDisplaying(bool immediate){
   if (mSuspensionScript){
     mSuspensionScript->resume();
     mSuspensionScript->unref();
     mSuspensionScript = NULL;
   }
   if (mSpeaker){
-    mSpeaker->setTalking(false);
-    if (Engine::instance()->getBlockingSpeaker() == mSpeaker)
-      Engine::instance()->setBlockingSpeaker(NULL);
-    mSpeaker = NULL;
+    if (mUnregisterSpeaker){
+      mSpeaker->setTalking(false);
+      if (Engine::instance()->getBlockingSpeaker() == mSpeaker)
+        Engine::instance()->setBlockingSpeaker(NULL);
+    }
+    if (immediate)
+      mSpeaker = NULL;
+    else
+      mUnregisterSpeaker = false;
   }
 }
 
@@ -142,7 +147,7 @@ void FontRenderer::String::setSuspensionScript(ExecutionContext* ctx){
 
 void FontRenderer::String::remove(){
   mDisplayTime = mFadingTime;
-  endDisplaying();
+  endDisplaying(false);
 }
 
 ////////////////////////////////////////
