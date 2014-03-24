@@ -172,6 +172,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("offtextcolor", offTextColor);
   interpreter->registerFunction("setitem", setItem);
   interpreter->registerFunction("sqrt", sqrt);
+  interpreter->registerFunction("switchchar", switchCharacter);
   srand((unsigned)time(NULL));
 }
 
@@ -2796,6 +2797,18 @@ int ScriptFunctions::sqrt(ExecutionContext& ctx, unsigned numArgs){
   float val = Engine::instance()->getInterpreter()->getVariable(variable).getFloat();
   val = sqrtf(val);
   Engine::instance()->getInterpreter()->setVariable(variable, val);
+  return 0;
+}
+
+int ScriptFunctions::switchCharacter(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  if (numArgs != 2)
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  String char1 = ctx.stack().pop().getString();
+  String char2 = ctx.stack().pop().getString();
+  CharacterObject* c1 = ctx.getCharacter(char1);
+  CharacterObject* c2 = ctx.getCharacter(char2);
+  TR_BREAK("Implement me");
   return 0;
 }
 

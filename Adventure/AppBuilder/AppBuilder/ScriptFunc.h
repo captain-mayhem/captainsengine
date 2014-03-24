@@ -492,6 +492,9 @@ public:
   \param scriptname the function to stop
   **/
   static int stopFunction(ExecutionContext& ctx, unsigned numArgs);
+   /**
+  **/
+  static int stopMusic(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param fast [opt] show particles immediately
   **/
@@ -519,8 +522,10 @@ public:
   **/
   static int subRoomReturnImmediate(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param char1 first character to switch position and inventory
+  \param char2 second character to switch position and inventory
   **/
-  static int stopMusic(ExecutionContext& ctx, unsigned numArgs);
+  static int switchCharacter(ExecutionContext& ctx, unsigned numArgs);
   /**
   \param num the number of the text
   \param alignment left, right, middle

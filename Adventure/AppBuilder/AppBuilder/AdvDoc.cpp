@@ -1055,7 +1055,8 @@ Item* AdvDocument::getItem(const std::string& name){
   return &((*iter).second);
 }
 
-Language::Section AdvDocument::getLanguageSection(const std::string& funcname, int argnum){
+Language::Section AdvDocument::getLanguageSection(const String& fname, int argnum){
+  String funcname = fname.toLower();
   if (funcname == "speech"){
     if (argnum == 1)
       return Language::SPEECH;
