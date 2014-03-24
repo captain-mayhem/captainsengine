@@ -286,7 +286,7 @@ public:
   std::vector<std::pair<Vec2i,Script*> > getWMScripts(std::string roomname);
   FontData getFont(int num);
   Item* getItem(const std::string& name);
-  Language::Section getLanguageSection(const std::string& funcname, int argnum);
+  Language::Section getLanguageSection(const String& funcname, int argnum);
   std::string getLanguageString(const std::string& language, Language::Section section, int strindex);
   int getLanguageIndex(const std::string& language, Language::Section section, const std::string& str);
   bool hasLanguageInfo() {return mLanguages.size() > 0 && mLanguages["origin"].sections[Language::COMMANDS].size() > 0;}

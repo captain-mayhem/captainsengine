@@ -679,7 +679,7 @@ bool RoomObject::isWalkable(CharacterObject* walker, const Vec2i& pos){
       return false;
   }
   CharacterObject* chr = Engine::instance()->getCharacter("self");
-  if (chr != walker){
+  if (chr && chr != walker){
     if (chr->isStandingAt(pos))
       return false;
   }
@@ -1304,8 +1304,9 @@ bool CharacterObject::isStandingAt(const Vec2i& pos){
   int myY = (int)(getPosition().y/gridsize);
   if (!(myY == pos.y || (room->doublewalkmap && (myY == pos.y - 1 || myY == pos.y + 1))))
     return false;
-  int myX = (int)(mPos.x/gridsize);
-  int range = (int)(getSize().x*getScaleFactor()/gridsize)+1;
+  float posx = mPos.x+mBasePoints[mState-1].x-mBasePoints[mState-1].x*getScaleFactor();
+  int myX = (int)(posx/gridsize);
+  int range = (int)(getSize().x/gridsize)+1;
   if (pos.x >= myX && pos.x <= myX+range)
     return true;
   return false;
