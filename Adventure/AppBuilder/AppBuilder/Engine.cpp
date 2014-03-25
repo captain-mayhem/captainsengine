@@ -1662,3 +1662,7 @@ void Engine::setMousePosition(int x, int y){
   if (mSetMouseCall)
     mSetMouseCall(x, y);
 }
+
+void Engine::disposeCharacter(CharacterObject* character){
+  delete character;
+}
