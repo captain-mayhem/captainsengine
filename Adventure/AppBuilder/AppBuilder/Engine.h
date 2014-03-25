@@ -53,6 +53,7 @@ public:
   bool loadSubRoom(const std::string& name, ExecutionContext* loadreason, int fading) {return loadRoom(name, true, loadreason, SC_DIRECT, fading);}
   void unloadRoom(RoomObject* room, bool mainroom, bool immedately, ExecutionContext* reason);
   bool setFocus(std::string charname, ExecutionContext* reason);
+  void setFocus(CharacterObject* character) {mFocussedChar = character;}
   CGE::Image* getImage(const std::string& name);
   float getWalkGridSize(bool doublewalkmap) {return doublewalkmap ? mWalkGridSize/2.0f : (float)mWalkGridSize;}
   Object2D* getObjectAt(const Vec2i& pos);
@@ -133,6 +134,7 @@ public:
   void setBlockingSpeaker(CharacterObject* chr);
   CharacterObject* getBlockingSpeaker() {return mBlockingSpeaker;}
   void setMousePosition(int x, int y);
+  void disposeCharacter(CharacterObject* character);
 protected:
   Engine();
   static Engine* mInstance;

@@ -2758,7 +2758,7 @@ int ScriptFunctions::loadChar(ExecutionContext& ctx, unsigned numArgs){
   std::string dummy;
   CharacterObject* ch = Engine::instance()->loadCharacter(name, Engine::instance()->getCharacterClass(name), &ctx);
   ch->realize();
-  delete ch;
+  Engine::instance()->disposeCharacter(ch);
   return 0;
 }
 
@@ -2808,7 +2808,50 @@ int ScriptFunctions::switchCharacter(ExecutionContext& ctx, unsigned numArgs){
   String char2 = ctx.stack().pop().getString();
   CharacterObject* c1 = ctx.getCharacter(char1);
   CharacterObject* c2 = ctx.getCharacter(char2);
-  TR_BREAK("Implement me");
+  if (c2 != NULL && c1 == NULL){
+    c1 = c2;
+    c2 = NULL;
+    String tmp = char1;
+    char1 = char2;
+    char2 = tmp;
+  }
+  if (c1 != NULL && c2 == NULL){
+    std::string room;
+    std::string realname;
+    SaveStateProvider::CharSaveObject* cso2 = Engine::instance()->getSaver()->findCharacter(char2, room, realname);
+    //save char1
+    Engine::instance()->extractCharacter(char1);
+    std::string activeRoom = c1->getRoom();
+    c1->setRoom(room);
+    SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(room);
+    c1->save(sr);
+    //exchange save state
+    SaveStateProvider::CharSaveObject* cso1 = Engine::instance()->getSaver()->getCharacter(sr, c1->getName());
+    String tmp = cso2->base.name;
+    cso2->base.name = cso1->base.name;
+    cso1->base.name = tmp;
+    SaveStateProvider::CharSaveObject tmpcso = *cso2;
+    *cso2 = *cso1;
+    *cso1 = tmpcso;
+    //load char2
+    c2 = Engine::instance()->loadCharacter(char2, Engine::instance()->getCharacterClass(char2), &ctx);
+    Engine::instance()->getSaver()->removeCharacter(sr, realname);
+    c2->setRoom(activeRoom);
+    c2->realize();
+    RoomObject* ro = Engine::instance()->getRoom("");
+    c2->setScale(ro->getDepthScale(c2->getPosition()));
+    if (Engine::instance()->getCharacter("self") == c1)
+      Engine::instance()->setFocus(c2);
+    else
+      ro->addObject(c2);
+    Engine::instance()->disposeCharacter(c1);
+  }
+  else if (c1 != NULL && c2 != NULL){
+    TR_BREAK("Implement me 1");
+  }
+  else if (c1 == NULL && c2 == NULL){
+    TR_BREAK("Implement me 2");
+  }
   return 0;
 }
 
