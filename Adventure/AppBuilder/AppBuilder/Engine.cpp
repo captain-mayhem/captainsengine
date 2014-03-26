@@ -1004,22 +1004,22 @@ bool Engine::aStarSearch(CharacterObject* chr, const Vec2i& from, const Vec2i& t
       AStarData y;
       y.pos = x.pos;
       switch(i){
-        case 0:
+        case 2:
           y.pos.y -= 1;
           if (y.pos.y < 0)
             continue;
           break;
-        case 1:
+        case 3:
           y.pos.y += 1;
           if (y.pos.y >= mData->getProjectSettings()->resolution.y/mWalkGridSize*4)
             continue;
           break;
-        case 2:
+        case 0:
           y.pos.x -= 1;
           if (y.pos.x < 0)
             continue;
           break;
-        case 3:
+        case 1:
           y.pos.x += 1;
           if (y.pos.x >= mData->getProjectSettings()->resolution.x/mWalkGridSize*6)
             continue;

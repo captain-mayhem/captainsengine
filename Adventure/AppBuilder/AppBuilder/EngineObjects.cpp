@@ -1257,7 +1257,7 @@ void CharacterObject::setWalkSound(SoundPlayer* plyr){
 
 void CharacterObject::abortClick(){
   if (mSuspensionScript != NULL){
-    if (mSuspensionScript->getEvents().front() == EVT_CLICK){
+    if (!mSuspensionScript->getEvents().empty() && mSuspensionScript->getEvents().front() == EVT_CLICK){
       mSuspensionScript->getEvents().pop_front();
       Object2D::animationEnd(Vec2i());
     }
