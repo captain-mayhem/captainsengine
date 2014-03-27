@@ -302,6 +302,7 @@ protected:
   bool mWalking;
   bool mTalking;
   LookDir mLookDir;
+  bool mRealized;
 };
 
 class ObjectGroup{

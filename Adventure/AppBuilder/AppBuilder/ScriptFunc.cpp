@@ -2487,8 +2487,14 @@ int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(ctx.resolveCharName(charname));
     if (cso == NULL)
       TR_BREAK("Character %s not found", charname.c_str());
-    else
+    else{
       cso->walksound = soundname;
+      CharacterObject* cached = Engine::instance()->getCachedCharacter(ctx.resolveCharName(charname));
+      if (cached){
+        SoundPlayer* plyr = SoundEngine::instance()->getSound(soundname, SoundEngine::PLAYER_CREATE_ALWAYS | SoundEngine::PLAYER_UNMANAGED);
+        cached->setWalkSound(plyr);
+      }
+    }
   }
   return 0;
 }

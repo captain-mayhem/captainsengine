@@ -538,7 +538,12 @@ RoomObject::~RoomObject(){
     delete mMirrors[i];
   }
   for (unsigned i = 0; i < mObjects.size(); ++i){
-    delete mObjects[i];
+    if (mObjects[i]->getType() == Object2D::CHARACTER){
+      CharacterObject* chr = (CharacterObject*)mObjects[i];
+      Engine::instance()->disposeCharacter(chr);
+    }
+    else
+      delete mObjects[i];
   }
   delete mLighting;
   for (std::map<Vec2i,ExecutionContext*>::iterator iter = mWalkmapScripts.begin(); iter != mWalkmapScripts.end(); ++iter){
@@ -899,7 +904,7 @@ void RoomObject::realize(){
 CharacterObject::CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(mirror), mTextColor(), 
 mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0),
-mWalkSound(NULL), mClass(chrclass), mWalking(false), mTalking(false)
+mWalkSound(NULL), mClass(chrclass), mWalking(false), mTalking(false), mRealized(false)
 {
   TR_USE(ADV_Character);
   mInventory = new Inventory();
@@ -932,11 +937,14 @@ CharacterObject::~CharacterObject(){
 }
 
 void CharacterObject::realize(){
+  if (mRealized)
+    return;
   Object2D::realize();
   if (mWalkSound)
     mWalkSound->realize();
   mInventory->realize();
   Engine::instance()->getFontRenderer()->loadFont(mFontID);
+  mRealized = true;
 }
 
 void CharacterObject::setPosition(const Vec2i& pos){
