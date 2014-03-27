@@ -135,6 +135,7 @@ public:
   CharacterObject* getBlockingSpeaker() {return mBlockingSpeaker;}
   void setMousePosition(int x, int y);
   void disposeCharacter(CharacterObject* character);
+  CharacterObject* getCachedCharacter(const String& name) {std::map<String,CharacterObject*>::iterator iter = mCharCache.find(name.toLower()); if (iter == mCharCache.end()) return NULL; return iter->second;}
 protected:
   Engine();
   static Engine* mInstance;
@@ -237,6 +238,7 @@ protected:
   ResLoader mLoader;
   CharacterObject* mBlockingSpeaker;
   int mBlockingSpeakerCount;
+  std::map<String, CharacterObject*> mCharCache;
 };
 
 }

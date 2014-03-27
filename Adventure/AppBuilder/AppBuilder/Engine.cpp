@@ -215,7 +215,11 @@ void Engine::exitGame(){
   mMainRoomLoaded = false;
   resetCursor(true, false);
   delete mCursor;
-  delete mFocussedChar;
+  disposeCharacter(mFocussedChar);
+  for (std::map<String, CharacterObject*>::iterator iter = mCharCache.begin(); iter != mCharCache.end(); ++iter){
+    delete iter->second;
+  }
+  mCharCache.clear();
   mFonts->unloadFont(mFontID);
   mFonts->unloadFont(0);
   mFonts->clearTextouts();
@@ -943,7 +947,7 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
     if (mFocussedChar)
       mLastFocussedChar = mFocussedChar->getName();
     mFocussedChar = NULL;
-    delete deletionChar;
+    disposeCharacter(deletionChar);
     return true;
   }
   if (charname == "last"){
@@ -952,14 +956,14 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
   CharacterObject* res = extractCharacter(charname);
   if (res){
     mFocussedChar = res;
-    delete deletionChar;
+    disposeCharacter(deletionChar);
     return true;
   }
   //load character async with room loading
   mCursor->showLoading(true);
   mLoader.setFocus(charname, reason);
   mFocussedChar = NULL;
-  delete deletionChar;
+  disposeCharacter(deletionChar);
   return false;
 }
 
@@ -1313,7 +1317,18 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   Character* chbase = mData->getCharacter(className);
   if (chbase == NULL)
     return NULL;
-  CharacterObject* character = new CharacterObject(chbase, obj->base.state, obj->mirrored, obj->base.position, realName);
+  String key = instanceName;
+  key = key.toLower();
+  bool fromCache = chbase->memresistent && mCharCache.find(key) != mCharCache.end();
+  CharacterObject* character;
+  if (fromCache){
+    character = mCharCache[key];
+  }
+  else{
+    character = new CharacterObject(chbase, obj->base.state, obj->mirrored, obj->base.position, realName);
+    if (chbase->memresistent)
+      mCharCache[key] = character;
+  }
   character->setLightingColor(obj->base.lighting);
   character->setFontID(obj->fontid);
   //mFonts->loadFont(obj->fontid);
@@ -1321,7 +1336,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   character->setTextColor(chbase->textcolor);
   character->setRoom(room);
   character->setNoZooming(obj->nozooming, true);
-  if (!obj->walksound.empty()){
+  if (!fromCache && !obj->walksound.empty()){
     SoundPlayer* plyr = SoundEngine::instance()->getSound(obj->walksound, SoundEngine::PLAYER_CREATE_ALWAYS | SoundEngine::PLAYER_UNMANAGED | SoundEngine::PLAYER_UNREALIZED);
     character->setWalkSound(plyr);
   }
@@ -1332,18 +1347,20 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   //RoomObject* ro = Engine::instance()->getRoom(room);
   //if (ro)
   //  character->setScale(ro->getDepthScale(obj->base.position));
-  for (unsigned j = 0; j < chbase->states.size(); ++j){
-    int depth = (int)((obj->base.position.y+chbase->states[j].basepoint.y)/Engine::instance()->getWalkGridSize(false));
-    Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
-    character->addAnimation(anim);
-    character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
-  }
-  Script* script = mData->getScript(Script::CHARACTER,instanceName);
-  if (script){
-    ExecutionContext* scr = mInterpreter->parseProgram(script->text);
-    if (scr){
-      character->setScript(scr);
-      //mInterpreter->execute(scr, false);
+  if (!fromCache){
+    for (unsigned j = 0; j < chbase->states.size(); ++j){
+      int depth = (int)((obj->base.position.y+chbase->states[j].basepoint.y)/Engine::instance()->getWalkGridSize(false));
+      Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
+      character->addAnimation(anim);
+      character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
+    }
+    Script* script = mData->getScript(Script::CHARACTER,instanceName);
+    if (script){
+      ExecutionContext* scr = mInterpreter->parseProgram(script->text);
+      if (scr){
+        character->setScript(scr);
+        //mInterpreter->execute(scr, false);
+      }
     }
   }
   character->getInventory()->load(obj->inventory);
@@ -1634,7 +1651,7 @@ void Engine::insertCharacter(CharacterObject* obj, std::string roomname, Vec2i p
     Engine::instance()->getSaver()->removeCharacter(sr, obj->getName());
     obj->setPosition(Vec2i(pos*sr->getWalkGridSize()+Vec2f(sr->getWalkGridSize()/2, sr->getWalkGridSize()/2)));
     obj->save(sr);
-    delete obj;
+    disposeCharacter(obj);
   }
 }
 
@@ -1664,5 +1681,15 @@ void Engine::setMousePosition(int x, int y){
 }
 
 void Engine::disposeCharacter(CharacterObject* character){
-  delete character;
+  TR_USE(ADV_Engine);
+  if (character == NULL)
+    return;
+  if (character->getClass()->memresistent){
+    //String name = character->getName();
+    //if (mCharCache[name.toLower()] != NULL)
+    //  TR_BREAK("Caching error: %s already exists", name);
+    //mCharCache[name.toLower()] = character;
+  }
+  else
+    delete character;
 }
