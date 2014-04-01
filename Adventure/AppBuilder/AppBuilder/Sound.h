@@ -14,6 +14,7 @@
 #endif
 #endif
 
+#include <system/thread.h>
 #include <util/activeobject.h>
 
 #include "AdvDoc.h"
@@ -84,6 +85,7 @@ protected:
   std::string mCurrentEffect;
   unsigned mFadingTime;
   float mSpeedFactor;
+  CGE::Mutex mMutex;
 };
 
 }

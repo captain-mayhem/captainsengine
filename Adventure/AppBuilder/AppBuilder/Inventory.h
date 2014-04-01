@@ -32,6 +32,7 @@ protected:
   typedef std::list<ItemObject*> SingleInv;
   std::map<int, SingleInv> mInventory;
   int mCurrentInv;
+  bool mRealized;
 };
 
 class InventoryDisplay{
