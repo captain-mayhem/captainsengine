@@ -239,6 +239,7 @@ protected:
   CharacterObject* mBlockingSpeaker;
   int mBlockingSpeakerCount;
   std::map<String, CharacterObject*> mCharCache;
+  std::list<CharacterObject*> mCharsToUnload;
 };
 
 }

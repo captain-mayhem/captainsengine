@@ -220,6 +220,10 @@ void Engine::exitGame(){
     delete iter->second;
   }
   mCharCache.clear();
+  for (std::list<CharacterObject*>::iterator iter = mCharsToUnload.begin(); iter != mCharsToUnload.end(); ++iter){
+    delete *iter;
+  }
+  mCharsToUnload.clear();
   mFonts->unloadFont(mFontID);
   mFonts->unloadFont(0);
   mFonts->clearTextouts();
@@ -391,6 +395,10 @@ void Engine::render(unsigned time){
       }
     }
   }
+  for (std::list<CharacterObject*>::iterator iter = mCharsToUnload.begin(); iter != mCharsToUnload.end(); ++iter){
+    delete *iter;
+  }
+  mCharsToUnload.clear();
 
   //do some scripting
   bool scriptupdate = mInterpreter->willUpdate(interval);
@@ -1684,12 +1692,7 @@ void Engine::disposeCharacter(CharacterObject* character){
   TR_USE(ADV_Engine);
   if (character == NULL)
     return;
-  if (character->getClass()->memresistent){
-    //String name = character->getName();
-    //if (mCharCache[name.toLower()] != NULL)
-    //  TR_BREAK("Caching error: %s already exists", name);
-    //mCharCache[name.toLower()] = character;
+  if (!character->getClass()->memresistent){
+    mCharsToUnload.push_back(character);
   }
-  else
-    delete character;
 }

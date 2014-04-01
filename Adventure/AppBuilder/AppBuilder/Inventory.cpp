@@ -5,7 +5,7 @@
 
 using namespace adv;
 
-Inventory::Inventory() : mCurrentInv(1){
+Inventory::Inventory() : mCurrentInv(1), mRealized(false){
 
 }
 
@@ -76,6 +76,7 @@ void Inventory::save(SaveStateProvider::SaveInventory& inv) const{
 
 void Inventory::load(const SaveStateProvider::SaveInventory& inventory){
   clear();
+  mRealized = false;
   for (std::map<int,std::vector<SaveStateProvider::SaveItem> >::const_iterator inviter = inventory.items.begin();
     inviter != inventory.items.end(); ++inviter){
       for (unsigned i = 0; i < inviter->second.size(); ++i){
@@ -87,11 +88,14 @@ void Inventory::load(const SaveStateProvider::SaveInventory& inventory){
 }
 
 void Inventory::realize(){
+  if (mRealized)
+    return;
   for (std::map<int, SingleInv>::iterator iter = mInventory.begin(); iter != mInventory.end(); ++iter){
     for (SingleInv::iterator iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2){
       (*iter2)->realize();
     }
   }
+  mRealized = true;
 }
 
 ////////////////////////////////////////////

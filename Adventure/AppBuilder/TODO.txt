@@ -2,6 +2,7 @@ Topic | Prio
 -------------
 Engine
 ------
+characters should not block each other when they happen to be standing at the same fields | 2
 dynamic char collision detection (both characters moving) | 5
 module sounds | 6
 playing of swf (flash) | 6

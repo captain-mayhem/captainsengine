@@ -254,23 +254,30 @@ SoundPlayer* SoundEngine::getSound(const std::string& name, int flags){
 
 SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled, int flags){
   TR_USE(ADV_SOUND_ENGINE);
+  mMutex.lock();
   if (!(flags & PLAYER_CREATE_ALWAYS)){
     std::multimap<std::string,SoundPlayer*>::iterator lowerit = mActiveSounds.find(name);
-    if (lowerit != mActiveSounds.end() && lowerit->second != NULL)
-      return lowerit->second;
+    if (lowerit != mActiveSounds.end() && lowerit->second != NULL){
+      SoundPlayer* ret = lowerit->second;
+      mMutex.unlock();
+      return ret;
+    }
   }
   DataBuffer* db = new DataBuffer();
   TR_DETAIL("buffer %p is %s", db, name.c_str());
   if (!mData->getSound(name, *db)){
     delete db;
+    mMutex.unlock();
     return NULL;
   }
   SoundPlayer* plyr = createPlayer(name, *db, effectEnabled);
+  //TR_WARN("creating player %s %p", name.c_str(), plyr);
   if (plyr && !(flags & PLAYER_UNREALIZED))
     plyr->realize();
   if (plyr && (flags & PLAYER_UNMANAGED))
     plyr->setAutoDelete(false);
   mActiveSounds.insert(std::make_pair(name, plyr));
+  mMutex.unlock();
   return plyr;
 }
 
@@ -409,12 +416,14 @@ void SoundEngine::update(unsigned time){
 }
 
 void SoundEngine::removeSpeaker(CharacterObject* chr){
+  mMutex.lock();
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && iter->second->getSpeaker() == chr){
       delete iter->second;
       iter->second = NULL;
     }
   }
+  mMutex.unlock();
 }
 
 void SoundEngine::setMusicVolume(float volume){
@@ -494,6 +503,8 @@ std::istream& SoundEngine::load(std::istream& in){
 }
 
 void SoundEngine::removeSoundPlayer(SoundPlayer* plyr){
+  TR_USE(ADV_SOUND_ENGINE);
+  mMutex.lock();
   std::multimap<std::string, SoundPlayer*>::iterator lower = mActiveSounds.lower_bound(plyr->getName());
   std::multimap<std::string, SoundPlayer*>::iterator upper = mActiveSounds.upper_bound(plyr->getName());
   while(lower != upper){
@@ -503,11 +514,14 @@ void SoundEngine::removeSoundPlayer(SoundPlayer* plyr){
     }
     ++lower;
   }
+  mMutex.unlock();
   plyr->stop();
+  //TR_WARN("deleting player %p", plyr);
   delete plyr;
 }
 
 void SoundEngine::setSpeedFactor(float speed){
+  mMutex.lock();
   mSpeedFactor = speed;
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second == NULL)
@@ -516,6 +530,7 @@ void SoundEngine::setSpeedFactor(float speed){
   }
   if (mActiveMusic != NULL)
     mActiveMusic->setSpeed(speed);
+  mMutex.unlock();
 }
 
 bool SoundEngine::run(){
@@ -524,6 +539,7 @@ bool SoundEngine::run(){
   int time = now-lastTime;
   lastTime = now;
 
+  mMutex.lock();
   std::multimap<std::string, SoundPlayer*>::iterator garbage = mActiveSounds.end();
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && !iter->second->update(time)){
@@ -545,6 +561,7 @@ bool SoundEngine::run(){
     delete mActiveVideo;
     mActiveVideo = NULL;
   }
+  mMutex.unlock();
   //CGE::Thread::sleep(10);
   return true;
 }

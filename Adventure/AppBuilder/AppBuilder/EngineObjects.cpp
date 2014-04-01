@@ -692,8 +692,8 @@ bool RoomObject::isWalkable(CharacterObject* walker, const Vec2i& pos){
 }
 
 void RoomObject::update(unsigned interval){
-  for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
-    (*iter)->update(interval);
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    mObjects[i]->update(interval);
   }
 }
 
@@ -937,12 +937,12 @@ CharacterObject::~CharacterObject(){
 }
 
 void CharacterObject::realize(){
+  mInventory->realize(); //has its own check if realization is necessary
   if (mRealized)
     return;
   Object2D::realize();
   if (mWalkSound)
     mWalkSound->realize();
-  mInventory->realize();
   Engine::instance()->getFontRenderer()->loadFont(mFontID);
   mRealized = true;
 }
@@ -1307,6 +1307,8 @@ float CharacterObject::getWalkGridSize(){
 }
 
 bool CharacterObject::isStandingAt(const Vec2i& pos){
+  if (mClass->ghost)
+    return false;
   Room* room = Engine::instance()->getData()->getRoom(mRoom);
   float gridsize = Engine::instance()->getWalkGridSize(room->doublewalkmap);
   int myY = (int)(getPosition().y/gridsize);
