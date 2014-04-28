@@ -674,18 +674,19 @@ bool RoomObject::isWalkable(CharacterObject* walker, const Vec2i& pos){
   WMField field = mWalkmap[pos.x][pos.y];
   if (!field.walkable)
     return false;
+  Vec2i walkerpos = walker->getPosition() / walker->getWalkGridSize();
   for (unsigned i = 0; i < mObjects.size(); ++i){
     if (mObjects[i]->getType() != CHARACTER)
       continue;
     CharacterObject* chr = (CharacterObject*)mObjects[i];
     if (chr == walker)
       continue;
-    if (chr->isStandingAt(pos))
+    if (chr->isStandingAt(pos) && !chr->isStandingAt(walkerpos))
       return false;
   }
   CharacterObject* chr = Engine::instance()->getCharacter("self");
   if (chr && chr != walker){
-    if (chr->isStandingAt(pos))
+    if (chr->isStandingAt(pos) && !chr->isStandingAt(walkerpos))
       return false;
   }
   return true;
@@ -938,8 +939,11 @@ CharacterObject::~CharacterObject(){
 
 void CharacterObject::realize(){
   mInventory->realize(); //has its own check if realization is necessary
-  if (mRealized)
+  if (mRealized){
+    if (mScript)
+      mScript->cancelFinish();
     return;
+  }
   Object2D::realize();
   if (mWalkSound)
     mWalkSound->realize();
