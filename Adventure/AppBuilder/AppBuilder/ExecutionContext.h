@@ -104,7 +104,7 @@ public:
   void setOwner(Object2D* owner) {mOwner = owner;}
   void setExecuteOnce() {mExecuteOnce = true;}
   bool isExecuteOnce() {return mExecuteOnce;}
-  void setSkip() {mSkip = true; mSuspended = false;}
+  void setSkip(bool skip=true) {mSkip = skip; mSuspended = false;}
   bool isSkipping() {return mSkip;}
   void setIdle(bool idle) {mIdle = idle;}
   bool isIdle() {return mIdle;}
@@ -118,6 +118,7 @@ public:
   ExecutionContext* getLoop1() {return mCode->getLoop1();}
   bool isGameObject() {return mIsGameObject;}
   void finish() {mShouldFinish = true; setSkip(); if (mCode->getLoop1() != NULL)mCode->getLoop1()->finish();}
+  void cancelFinish() {mShouldFinish = false; setSkip(false); if (mCode->getLoop1() != NULL) mCode->getLoop1()->cancelFinish();}
   bool isLoop1();
   void setSelf(const String& name) {mSelf = name;}
   String resolveCharName(const String& name);

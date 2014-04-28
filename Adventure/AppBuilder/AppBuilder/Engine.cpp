@@ -395,10 +395,17 @@ void Engine::render(unsigned time){
       }
     }
   }
+  bool clearChars = true;
   for (std::list<CharacterObject*>::iterator iter = mCharsToUnload.begin(); iter != mCharsToUnload.end(); ++iter){
+    if ((*iter)->getScript() != NULL && (*iter)->getScript()->isRunning()){
+      clearChars = false;
+      continue;
+    }
     delete *iter;
+    *iter = NULL;
   }
-  mCharsToUnload.clear();
+  if (clearChars)
+    mCharsToUnload.clear();
 
   //do some scripting
   bool scriptupdate = mInterpreter->willUpdate(interval);
