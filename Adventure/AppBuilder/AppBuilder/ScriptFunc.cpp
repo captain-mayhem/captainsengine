@@ -668,8 +668,7 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
     if (chr1)
       chr1->setLookDir(dir);
     else{
-      std::string dummy;
-      SaveStateProvider::CharSaveObject* chs = Engine::instance()->getSaver()->findCharacter(character, dummy, dummy);
+      SaveStateProvider::CharSaveObject* chs = Engine::instance()->getSaver()->findCharacter(character);
       if (!chs){
         TR_USE(ADV_ScriptFunc);
         TR_BREAK("Character %s not found", character.c_str());
@@ -2465,8 +2464,7 @@ int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
       chr->setUserScale(size/100.0f);
   }
   else{
-    std::string dummy;
-    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, dummy, dummy);
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname);
     cso->scale = size/100.0f;
   }
   return 0;
