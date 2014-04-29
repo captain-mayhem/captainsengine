@@ -75,7 +75,7 @@ public:
   void removeObject(SaveStateProvider::SaveRoom* room, const std::string& name);
   CharSaveObject* getCharacter(SaveStateProvider::SaveRoom* room, const std::string& name);
   CharSaveObject* getOrAddCharacter(SaveStateProvider::SaveRoom* room, const std::string& name);
-  CharSaveObject* findCharacter(const std::string& name) {std::string dummy; return findCharacter(name, dummy, dummy);}
+  CharSaveObject* findCharacter(const std::string& name) {std::string dummy; std::string dummy2; return findCharacter(name, dummy, dummy2);}
   CharSaveObject* findCharacter(const std::string& name, std::string& room, std::string& realName);
   void removeCharacter(SaveStateProvider::SaveRoom* room, const std::string& name);
   void clear();
