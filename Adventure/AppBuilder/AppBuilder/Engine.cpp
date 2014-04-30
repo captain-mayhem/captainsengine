@@ -1533,13 +1533,27 @@ void Engine::renderUnloadingRoom(){
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   beginRendering();
-  if (mRoomsToUnload.size() == 0 && mUnloadedRoom)
+  //a workaround to make screen shots correct that are taken too late
+  bool oldMainLoaded = mMainRoomLoaded;
+  mMainRoomLoaded = true;
+  bool inserted = false;
+  if (mRoomsToUnload.size() == 0 && mUnloadedRoom){
+    mRooms.push_back(mUnloadedRoom);
+    inserted = true;
     mUnloadedRoom->render();
+  }
   else{
+    if (!mRoomsToUnload.empty()){
+      inserted = true;
+      mRooms.push_back(mRoomsToUnload.back());
+    }
     for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
       (*iter)->render();
     }
   }
+  mMainRoomLoaded = oldMainLoaded;
+  if (inserted)
+    mRooms.pop_back();
   endRendering();
   
   mainroom.unbind();

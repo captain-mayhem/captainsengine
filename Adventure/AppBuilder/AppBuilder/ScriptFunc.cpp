@@ -2844,8 +2844,10 @@ int ScriptFunctions::switchCharacter(ExecutionContext& ctx, unsigned numArgs){
     c2->realize();
     RoomObject* ro = Engine::instance()->getRoom("");
     c2->setScale(ro->getDepthScale(c2->getPosition()));
-    if (Engine::instance()->getCharacter("self") == c1)
+    if (Engine::instance()->getCharacter("self") == c1){
+      c2->setPosition(c2->getPosition()+ro->getScrollOffset());
       Engine::instance()->setFocus(c2);
+    }
     else
       ro->addObject(c2);
     Engine::instance()->disposeCharacter(c1);
@@ -2854,7 +2856,14 @@ int ScriptFunctions::switchCharacter(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Implement me 1");
   }
   else if (c1 == NULL && c2 == NULL){
-    TR_BREAK("Implement me 2");
+    SaveStateProvider::CharSaveObject* cso1 = Engine::instance()->getSaver()->findCharacter(char1);
+    SaveStateProvider::CharSaveObject* cso2 = Engine::instance()->getSaver()->findCharacter(char2);
+    String tmp = cso2->base.name;
+    cso2->base.name = cso1->base.name;
+    cso1->base.name = tmp;
+    SaveStateProvider::CharSaveObject tmpcso = *cso2;
+    *cso2 = *cso1;
+    *cso1 = tmpcso;
   }
   return 0;
 }
