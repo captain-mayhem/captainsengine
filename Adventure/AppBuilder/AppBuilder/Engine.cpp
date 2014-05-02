@@ -524,7 +524,7 @@ void Engine::render(unsigned time){
     }
   }
 
-   mFonts->prepareTextouts();
+   mFonts->prepareTextouts(time);
 
   if (!mTextEnter.empty() && mBlinkCursorVisible){
     String text = mInterpreter->getVariable(mTextEnter).getString();
@@ -769,6 +769,7 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately, Execu
   else{
     if (!mainroom){
       if (room->getFadeout() > 0){
+        mFonts->disableBoundTextouts(room);
         mAnimator->add(room, room->getFadeout(), false);
       }
     }
