@@ -6,7 +6,8 @@
 using namespace adv;
 
 Textout::Textout() : mEnabled(false), mText(NULL), mPos(0,0), mFont(1), mColor(Engine::instance()->getSettings()->infotextcolor),
-  mAlignment(LEFT){
+  mAlignment(LEFT), mTimeShown(0), mFadingOut(false){
+    mFadingTime = Engine::instance()->getFontRenderer()->getFont(mFont)->getFading();
 }
 
 Textout::~Textout(){
@@ -21,9 +22,10 @@ void Textout::setText(ExecutionContext* text){
 void Textout::setFont(int fontid){
   mFont = fontid;
   Engine::instance()->getFontRenderer()->loadFont(fontid);
+  mFadingTime = Engine::instance()->getFontRenderer()->getFont(fontid)->getFading();
 }
 
-void Textout::render(){
+void Textout::render(unsigned time){
   if (!mEnabled)
     return;
   Vec2i pos(0,0);
@@ -61,6 +63,25 @@ void Textout::render(){
   FontRenderer::String* result = Engine::instance()->getFontRenderer()->render(mPos.x/*-(keepOnScreen ? ext.x/2 : 0)*/+pos.x-alignoffset,mPos.y+pos.y, text, 
       depth, mFont, breakinfo, mColor, 0, false);
   result->setBoundRoom(boundRoom);
+  //text fading
+  unsigned char opacity = 255;
+  if (mFadingTime > 0){
+    float factor;
+    if (mTimeShown < mFadingTime)
+      factor = mTimeShown/(float)mFadingTime;
+    else
+      factor = 1.0f;//mDisplayTime/(float)mFadingTime;
+    if (factor > 1.0f)
+      factor = 1.0f;
+    opacity = (unsigned char)(factor*255);
+  }
+  result->setOpacity(opacity);
+  mTimeShown += mFadingOut ? -(int)time : time;
+  if (mFadingOut && mTimeShown <= 0){
+    mFadingOut = false;
+    mEnabled = false;
+    mTimeShown = 0;
+  }
 }
 
 void Textout::save(std::ostream& out){
@@ -82,4 +103,17 @@ void Textout::load(std::istream& in){
   in >> tmp; mAlignment = (Alignment)tmp;
   Engine::instance()->getFontRenderer()->loadFont(mFont);
   mText = new ExecutionContext(in);
+}
+
+void Textout::setEnabled(bool enabled){
+  if (!mEnabled)
+    mFadingTime = 0;
+  if (mFadingOut & enabled)
+    mFadingOut = false;
+  if (mEnabled && !enabled && mFadingTime > 0){
+    mFadingOut = true;
+    mTimeShown = mFadingTime;
+  }
+  else
+    mEnabled = enabled;
 }

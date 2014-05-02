@@ -150,6 +150,12 @@ void FontRenderer::String::remove(){
   endDisplaying(false);
 }
 
+void FontRenderer::String::setOpacity(unsigned char opacity){
+  for (unsigned i = 0; i < mString.size(); ++i){
+    mString[i]->setOpacity(opacity);
+  }
+}
+
 ////////////////////////////////////////
 
 FontRenderer::Font::Font(const FontData& data, int fading) : mFading(fading){
@@ -318,9 +324,9 @@ Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vect
   return mFonts[fontid]->getTextExtent(text, breakinfo, maxStringWidth);
 }
 
-void FontRenderer::prepareTextouts(){
+void FontRenderer::prepareTextouts(unsigned time){
   for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
-    iter->second->render();
+    iter->second->render(time);
   }
 }
 
@@ -389,5 +395,14 @@ void FontRenderer::load(std::istream& in){
     Textout* to = new Textout();
     to->load(in);
     mTextouts[id] = to;
+  }
+}
+
+void FontRenderer::disableBoundTextouts(RoomObject* room){
+  for (std::map<int, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+    Textout* txt = iter->second;
+    if (txt->getBoundRoom() == room->getName()){
+      txt->setEnabled(false);
+    }
   }
 }

@@ -18,8 +18,8 @@ public:
   };
   Textout();
   ~Textout();
-  void render();
-  void setEnabled(bool enabled) {mEnabled = enabled;}
+  void render(unsigned time);
+  void setEnabled(bool enabled);
   void setText(ExecutionContext* text);
   Vec2i& getPos() {return mPos;}
   void setFont(int fontid);
@@ -28,6 +28,7 @@ public:
   void save(std::ostream& out);
   void load(std::istream& in);
   void setAlignment(Alignment alignment) {mAlignment = alignment;}
+  String getBoundRoom() {return mBoundRoom;}
 protected:
   bool mEnabled;
   ExecutionContext* mText;
@@ -36,6 +37,9 @@ protected:
   Color mColor;
   String mBoundRoom;
   Alignment mAlignment;
+  int mFadingTime;
+  int mTimeShown;
+  bool mFadingOut;
 };
 
 }
