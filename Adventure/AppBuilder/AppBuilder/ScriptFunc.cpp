@@ -166,6 +166,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("textalign", textAlign);
   interpreter->registerFunction("runspeed", runSpeed);
   interpreter->registerFunction("runto", runTo);
+  interpreter->registerRelVar("runto", 2, "charx:_");
+  interpreter->registerRelVar("runto", 3, "chary:_");
   interpreter->registerFunction("enablefxshape", enableFXShape);
   interpreter->registerFunction("scrollspeed", scrollSpeed);
   interpreter->registerFunction("loadchar", loadChar);
@@ -305,17 +307,18 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
     if (str)
       str->setSpeaker(chr);
     chr->setTalking(true);
-  }
-  if (hold){
-    if (plyr){
-      plyr->setSuspensionScript(&ctx);
+
+    if (hold){
+      if (plyr){
+        plyr->setSuspensionScript(&ctx);
+      }
+      else if (str){
+        str->setSuspensionScript(&ctx);
+      }
+      if (!ctx.isIdle())
+        Engine::instance()->setBlockingSpeaker(chr);
+      ctx.mSuspended = true;
     }
-    else if (str){
-      str->setSuspensionScript(&ctx);
-    }
-    if (!ctx.isIdle())
-      Engine::instance()->setBlockingSpeaker(chr);
-    ctx.mSuspended = true;
   }
   return 0;
 }

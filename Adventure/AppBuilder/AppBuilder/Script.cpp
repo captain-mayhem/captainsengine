@@ -697,7 +697,7 @@ bool PcdkScript::update(unsigned time){
       iter = mScripts.erase(iter);
     }
     else
-      ++iter;
+      iter = next;
   }
   if (mCutScene){
     mTSPos = mTSPosOrig;

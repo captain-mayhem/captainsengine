@@ -2,14 +2,13 @@ Topic | Prio
 -------------
 Engine
 ------
-characters should not block each other when they happen to be standing at the same fields | 2
 dynamic char collision detection (both characters moving) | 5
 module sounds | 6
 playing of swf (flash) | 6
 special effects | 4
 particle barriers: bounding box calculation of particles when rotated | 5
 path finding with less direction changes | 4
-switchchar with both characters active/inactive | 3
+switchchar with both characters active | 3
 
 Editor
 ------
