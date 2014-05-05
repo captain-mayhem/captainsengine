@@ -320,6 +320,9 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
       ctx.mSuspended = true;
     }
   }
+  else{
+    TR_WARN("Character %s not found", character.c_str());
+  }
   return 0;
 }
 
@@ -807,7 +810,7 @@ int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
     }
   }
   SoundPlayer* sp = SoundEngine::instance()->getMusic(music);
-  if (sp){
+  if (sp && !sp->isPlaying()){
     sp->play(true);
   }
   return 0;
@@ -1401,7 +1404,7 @@ int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
   else{
     std::string room;
     std::string name;
-    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, name);
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(ctx.resolveCharName(charname), room, name);
     cso->base.lighting = c;
   }
   return 0;
@@ -1747,7 +1750,7 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
       std::string txt = d.getString();
       bool loop = false;
       CSTATE* state = (CSTATE*)func->getCode()->get(0);
-      if (txt == "inf" || txt == "infinitly"){
+      if (txt == "inf" || txt == "infinitly" || txt == "*"){
         loop = true;
         state->setState(CSTATE::NORMAL);
       }
@@ -2674,6 +2677,11 @@ int ScriptFunctions::setObjLight(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs < 4 || numArgs > 5)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string objname = ctx.stack().pop().getString();
+  //remove whitespaces in object names
+  for(int size = objname.size()-1; size >= 0; --size){
+    if (objname[size] == ' ')
+      objname.erase(size, 1);
+  }
   Color c;
   c.r = (unsigned char)ctx.stack().pop().getInt();
   c.g = (unsigned char)ctx.stack().pop().getInt();

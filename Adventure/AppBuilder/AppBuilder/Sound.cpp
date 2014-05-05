@@ -287,7 +287,7 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
 
 SoundPlayer* SoundEngine::getMusic(const std::string& name, bool effectEnabled){
   SoundPlayer* plyr = NULL;
-  if (name.empty()){
+  if (name.empty() || (mActiveMusic != NULL && mActiveMusic->getName() == name)){
     return mActiveMusic;
   }
   //else
