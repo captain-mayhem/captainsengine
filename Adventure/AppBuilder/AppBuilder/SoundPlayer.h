@@ -41,6 +41,7 @@ public:
   std::string getName() {return mName;}
   bool hasEffect() {return mEffectEnabled;}
   virtual bool isLooping() {return false;}
+  virtual bool isPlaying() {return false;}
   virtual void setAutoDelete(bool del) {}
   virtual bool hasAutoDeletion() {return true;}
   void setSpeed(float factor);
@@ -121,6 +122,7 @@ public:
   virtual void setAutoDelete(bool del) {mAutoDelete = del;}
   bool hasAutoDeletion() {return mAutoDelete;}
   virtual void realize();
+  bool isPlaying() {return mPlay;}
 protected:
   bool openStream(const std::string& filename);
   bool openStream(const DataBuffer& buffer);
