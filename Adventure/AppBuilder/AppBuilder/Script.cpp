@@ -1136,7 +1136,7 @@ inline int getTime(TimeVal tv){
 
 StackData PcdkScript::getVariable(const String& name){
   TR_USE(ADV_Script);
-  string lname = name.toLower();
+  String lname = name.toLower();
   if (name.size() > 0 && name[0] == '_'){
     if (name.size() > 6 && lname.substr(1, 6) == "volume"){
       return int(SoundEngine::instance()->getMusicVolume()*100);
@@ -1332,7 +1332,7 @@ StackData PcdkScript::getVariable(const String& name){
   else if (lname == "rightbracket"){
     return String(")");
   }
-  std::map<std::string, StackData>::iterator iter = mVariables.find(name.removeAll(' '));
+  std::map<std::string, StackData>::iterator iter = mVariables.find(lname.removeAll(' '));
   if (iter != mVariables.end())
     return iter->second;
   return 0;
@@ -1340,21 +1340,22 @@ StackData PcdkScript::getVariable(const String& name){
 
 void PcdkScript::setVariable(const String& name, const StackData& value){
   TR_USE(ADV_Script);
-  if (name == "mousex"){
+  String lname = name.toLower();
+  if (lname == "mousex"){
     Engine::instance()->setMousePosition(value.getInt(), Engine::instance()->getCursorPos().y);
   }
-  else if (name == "mousey"){
+  else if (lname == "mousey"){
     Engine::instance()->setMousePosition(Engine::instance()->getCursorPos().x, value.getInt());
   }
-  mVariables[name.removeAll(' ')] = value;
+  mVariables[lname.removeAll(' ')] = value;
 }
 
 bool PcdkScript::isVariable(const String& name){
-  return mVariables.find(name.removeAll(' ')) != mVariables.end();
+  return mVariables.find(name.toLower().removeAll(' ')) != mVariables.end();
 }
 
 void PcdkScript::deleteVariable(const String& name){
-  mVariables.erase(name.removeAll(' '));
+  mVariables.erase(name.toLower().removeAll(' '));
 }
 
 void PcdkScript::setPrevState(Object2D* trigger, Object2D* target){

@@ -46,6 +46,7 @@ public:
     DECSHIFT,
     I2R,
     SLOAD,
+    BRK,
   };
   CCode(){}
   virtual ~CCode(){}
@@ -341,6 +342,17 @@ public:
     return ++pc;
   }
   virtual Type getType(){return I2R;}
+};
+
+class CBRK : public CCode{
+public:
+  CBRK(CCode* orig) : mOrig(orig) {}
+  virtual ~CBRK() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual void save(std::ostream& out);
+  virtual Type getType(){return BRK;}
+protected:
+  CCode* mOrig;
 };
 
 

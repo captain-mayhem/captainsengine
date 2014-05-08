@@ -327,3 +327,17 @@ CSTATE::CSTATE(std::istream& in){
   in >> tmp;
   mState = (State)tmp;
 }
+
+unsigned CBRK::execute(ExecutionContext& ctx, unsigned pc){
+  TR_USE(ADV_CIL);
+  TR_BREAK("Script breakpoint hit");
+  if (mOrig)
+    return mOrig->execute(ctx, pc);
+  else
+    return ++pc;
+}
+
+void CBRK::save(std::ostream& out){
+  if (mOrig)
+    mOrig->save(out);
+}
