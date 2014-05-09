@@ -694,7 +694,8 @@ bool PcdkScript::update(unsigned time){
         mTimers.erase(current);
         current->unref();
       }
-      iter = mScripts.erase(iter);
+      mScripts.erase(iter);
+      iter = next;
     }
     else
       iter = next;
