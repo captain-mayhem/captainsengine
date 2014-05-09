@@ -407,7 +407,13 @@ void ScriptFunctions::setObjInternal(std::vector<std::string> objects, std::vect
     Object2D* obj = Engine::instance()->getObject(objects[objiter], false);
     SaveStateProvider::SaveObject* so = NULL;
     if (obj){
+      int oldstate = obj->getState();
       obj->setState(states[0]);
+      //re-evaluate on(mouse) when state changes
+      /*Object2D* cursorobj = Engine::instance()->getObjectAt(Engine::instance()->getCursorPos());
+      if (cursorobj && cursorobj->getScript() != NULL && cursorobj == obj && states[0] != oldstate){
+        obj->getScript()->setEvent(EVT_MOUSE);
+      }*/
     }
     else{
       std::string room;
@@ -677,7 +683,7 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
       SaveStateProvider::CharSaveObject* chs = Engine::instance()->getSaver()->findCharacter(character);
       if (!chs){
         TR_USE(ADV_ScriptFunc);
-        TR_BREAK("Character %s not found", character.c_str());
+        TR_ERROR("Character %s not found", character.c_str());
       }
       //chs->base.state = CharacterObject::calculateState(chs->base.state, false, false);
     }
@@ -2055,7 +2061,7 @@ int ScriptFunctions::miniCut(ExecutionContext& ctx, unsigned numArgs){
   if (numArgs == 1){
     String hstr = ctx.stack().pop().getString();
     if (hstr != "donthide")
-      TR_BREAK("donthide expected");
+      TR_WARN("donthide expected");
     hide = false;
   }
   Engine::instance()->getInterpreter()->cutsceneMode(hide);
@@ -2907,9 +2913,11 @@ int ScriptFunctions::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
   else{
     std::string room;
     SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, room);
-    if (!so)
-      TR_BREAK("Unknown object %s", objname.c_str());
-    ctx.stack().push(so->state);
+    if (!so){
+      ctx.stack().push(0);
+    }
+    else
+      ctx.stack().push(so->state);
   }
   ctx.stack().push(checkstate);
   return 2;

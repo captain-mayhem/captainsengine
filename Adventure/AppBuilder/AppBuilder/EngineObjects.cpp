@@ -904,7 +904,7 @@ void RoomObject::realize(){
 
 CharacterObject::CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(mirror), mTextColor(), 
-mFontID(0), mLinkObject(NULL), mNoZooming(false), mIdleTime(0),
+mFontID(0), mLinkObject(NULL), mNoZooming(false), mFrozenScale(1.0f), mIdleTime(0),
 mWalkSound(NULL), mClass(chrclass), mWalking(false), mTalking(false), mRealized(false)
 {
   TR_USE(ADV_Character);
@@ -1203,12 +1203,12 @@ void CharacterObject::setState(int state){
 }
 
 void CharacterObject::update(unsigned interval){
+  Object2D::update(interval);
   if (mLinkObject != NULL){
     Vec2i pos = mLinkObject->getPosition()+mLinkObject->getSize()/2;
     setPosition(pos-mLinkOffset);
   }
   else{
-    Object2D::update(interval);
     mIdleTime += interval;
     //trigger idle animation
     if (mIdleTime >= mIdleTimeout){
