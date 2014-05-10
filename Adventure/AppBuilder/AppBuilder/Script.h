@@ -93,6 +93,7 @@ protected:
   unsigned mCurrArg;
   std::map<std::string, std::map<int, std::string> > mRelVars;
   std::map<std::string, int> mArgEC;
+  std::set<EngineEvent> mEvents;
   CGE::Mutex mMutex;
 
   EngineEvent getEngineEvent(const std::string eventname);
@@ -128,6 +129,7 @@ protected:
   Color mOfftextColor;
   bool mHideUI;
   std::map<String, int> mItemStates;
+  CGE::Mutex mScriptMutex;
 };
 
 }

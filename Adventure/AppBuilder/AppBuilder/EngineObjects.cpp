@@ -269,7 +269,7 @@ void Object2D::setDepth(int depth){
 
 bool Object2D::animationEnded(Animation* anim){
   activateNextState();
-  return mNextStates.empty();
+  return mNextStates.empty() || getAnimation() != anim;
 }
 
 int Object2D::removeLastNextState(){ 
@@ -1074,7 +1074,9 @@ void CharacterObject::render(bool mirrorY){
     scale.x *= -1;
   if (mirrorY)
     scale.y *= -1;
-  Vec2i renderPos = renderPos = mPos+mBasePoints[mState-1]-mBasePoints[mState-1]*getScaleFactor();
+  Vec2i renderPos = mPos + mBasePoints[mState-1]-mBasePoints[mState-1]*getScaleFactor();
+  if (mMirror)
+    renderPos.x += (int)((-mSizes[mState-1].x+2*mBasePoints[mState-1].x)*getScaleFactor());
   if (mirrorY)
     renderPos.y += (int)(mBasePoints[mState-1].y*getScaleFactor()-2);
   mAnimations[mState-1]->render(mScrollOffset+renderPos, scale, mSizes[mState-1], mLightingColor, mRotAngle);
@@ -1211,7 +1213,7 @@ void CharacterObject::update(unsigned interval){
   else{
     mIdleTime += interval;
     //trigger idle animation
-    if (mIdleTime >= mIdleTimeout){
+    if (mIdleTime >= mIdleTimeout && mNextStates.empty()){
       //int oldstate = getState();
       float rnd = rand()/(float)RAND_MAX;
       int nextbored = (int)(rnd+0.5f);

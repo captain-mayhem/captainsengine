@@ -272,7 +272,7 @@ public:
   void abortClick();
   Character* getClass() {return mClass;}
   void setTalking(bool doit) {mTalking = doit; updateState(false, false);}
-  void setWalking(bool doit) {mWalking = doit; updateState(false, true);}
+  void setWalking(bool doit) {mWalking = doit; updateState(false, doit);}
   void updateState(bool mirror, bool force);
   //virtual bool animationEnded(Animation* anim);
   virtual void activateNextState();
