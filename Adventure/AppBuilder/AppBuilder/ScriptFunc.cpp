@@ -1239,8 +1239,11 @@ int ScriptFunctions::randomNum(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::getRequestedState(Character* cclass, const StackData& data){
   TR_USE(ADV_ScriptFunc);
   int state = 0;
-  if (data.isNumber())
+  if (data.isNumber()){
     state = data.getInt()+16;
+    if (state > 36)
+      state = 0;
+  }
   else{
     std::string statename = data.getString();
     bool found = false;
@@ -1281,6 +1284,7 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
     obj->clearNextStates();
     TR_DEBUG("setting new state %i for char %s", state, chrname.c_str());
     obj->setState(state);
+    obj->getAnimation()->start(); //restart from beginning
   }
   for (unsigned i = 2; i < numArgs; ++i){
     data = ctx.stack().pop();
@@ -2373,9 +2377,14 @@ int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
   std::string character = ctx.stack().pop().getString();
   bool stopzooming = ctx.stack().pop().getBool();
   CharacterObject* chr = ctx.getCharacter(character);
-  if (!chr)
-    TR_BREAK("Unknown character %s", character.c_str());
-  chr->setNoZooming(stopzooming, stopzooming && ctx.isSkipping());
+  if (!chr){
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(character);
+    if (cso == NULL)
+      TR_BREAK("Unknown character %s", character.c_str());
+    cso->nozooming = stopzooming;
+  }
+  else
+    chr->setNoZooming(stopzooming, stopzooming && ctx.isSkipping());
   return 0;
 }
 

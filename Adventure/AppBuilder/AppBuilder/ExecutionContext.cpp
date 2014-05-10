@@ -153,6 +153,14 @@ bool ExecutionContext::isEventSet(EngineEvent evt){
   return mEvents.front() == evt;
 }
 
+bool ExecutionContext::containsEvent(EngineEvent evt){
+  for (std::list<EngineEvent>::iterator iter = mEvents.begin(); iter != mEvents.end(); ++iter){
+    if (*iter == evt)
+      return true;
+  }
+  return false;
+}
+
 bool ExecutionContext::isRunning(){
   bool running = (mPC > 0 && !mIdle) || !mEvents.empty();
   if (!running){

@@ -433,6 +433,11 @@ void Engine::render(unsigned time){
           script->setEvent(EVT_MOUSE);
         }
       }
+      //always trigger evt_mouse
+      ExecutionContext* script = obj->getScript();
+      if (script != NULL && !script->containsEvent(EVT_MOUSE)){
+        script->setEvent(EVT_MOUSE);
+      }
     }
     else{
       if (mCurrentObject){

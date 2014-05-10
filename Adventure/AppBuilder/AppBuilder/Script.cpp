@@ -53,7 +53,7 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
 
 }
 
-PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f) {
+PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true) {
   ScriptFunctions::registerFunctions(this);
   mBooleans = data->getProjectSettings()->booleans;
   mOfftextColor = data->getProjectSettings()->offspeechcolor;
@@ -94,6 +94,7 @@ PcdkScript::~PcdkScript(){
 }
 
 void PcdkScript::stop(){
+  mScriptMutex.lock();
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
     if ((*iter)->mExecuteOnce && (*iter)->mOwner == NULL)
       (*iter)->unref();
@@ -117,6 +118,7 @@ void PcdkScript::stop(){
   mRunSpeed = 1.0f;
   mOfftextColor = mData->getProjectSettings()->offspeechcolor;
   mItemStates.clear();
+  mScriptMutex.unlock();
 }
 
 void reportParseError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
@@ -271,6 +273,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   delete p;
   bool isGameObject = mIsGameObject;
   std::string objectInfo = mObjectInfo;
+  mEvents.clear();
   mMutex.unlock();
   if (segment->numInstructions() <= 1 && segment->getLoop1() == NULL){
     delete segment;
@@ -389,6 +392,12 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       case ASTNode::EVENT:{
         EventNode* evt = static_cast<EventNode*>(node);
         EngineEvent evtcode = getEngineEvent(evt->getEvent());
+        //duplicate event handler
+        if (mEvents.find(evtcode) != mEvents.end()){
+          TR_ERROR("duplicate event handler %i - ignoring...", evtcode);
+          break;
+        }
+        mEvents.insert(evtcode);
         CodeSegment* oldcodes = codes;
         if (evtcode == EVT_LOOP1){
           CodeSegment* cs = new CodeSegment;
@@ -654,7 +663,13 @@ bool PcdkScript::update(unsigned time){
         break;
     }*/
   //}
-  for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ){
+  //copy for save list modifications
+  mScriptMutex.lock();
+  std::list<ExecutionContext*> tmpScripts = mScripts;
+  for (std::list<ExecutionContext*>::iterator iter = tmpScripts.begin(); iter != tmpScripts.end(); ++iter){
+    (*iter)->ref();
+  }
+  for (std::list<ExecutionContext*>::iterator iter = tmpScripts.begin(); iter != tmpScripts.end(); ++iter){
     std::list<EngineEvent> events;
     if (mGlobalSuspend){
       //only set loop1 which is always executed
@@ -677,15 +692,8 @@ bool PcdkScript::update(unsigned time){
     //if (events.empty() || events.front() != EVT_ENTER) //execute only if it is not EVT_ENTER that is pending when being in global suspend
     
     ExecutionContext* current = *iter;
-    std::list<ExecutionContext*>::iterator olditer = iter;
-    std::list<ExecutionContext*>::iterator next = ++iter;
-    iter = olditer;
-    current->ref(); //to prevent self deletion
     update(current, time);
-    if (current->unref()){ //now it's safe to delete oneself
-      iter = next;
-      continue;
-    }
+
     if (mGlobalSuspend){
       current->setEvents(events);
     }
@@ -694,12 +702,15 @@ bool PcdkScript::update(unsigned time){
         mTimers.erase(current);
         current->unref();
       }
-      mScripts.erase(iter);
-      iter = next;
+      mScripts.remove(current);
     }
-    else
-      iter = next;
   }
+  for (std::list<ExecutionContext*>::iterator iter = tmpScripts.begin(); iter != tmpScripts.end(); ++iter){
+    if ((*iter)->unref()){
+      continue;
+    }
+  }
+  mScriptMutex.unlock();
   if (mCutScene){
     mTSPos = mTSPosOrig;
     mCutScene->resetEvents(false);
@@ -764,13 +775,17 @@ void PcdkScript::update(ExecutionContext* ctx, unsigned time, bool execute){
 void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
   if (script == NULL)
     return;
+  mScriptMutex.lock();
   script->mExecuteOnce = executeOnce;
   //disallow double add
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
-    if (*iter == script)
+    if (*iter == script){
+      mScriptMutex.unlock();
       return;
+    }
   }
   mScripts.push_back(script);
+  mScriptMutex.unlock();
 }
 
 bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAfterExec){
@@ -830,6 +845,7 @@ void PcdkScript::remove(Object2D* object){
 void PcdkScript::remove(ExecutionContext* script){
   if (script == NULL)
     return;
+  mScriptMutex.lock();
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
     if (*iter == script){
       iter = mScripts.erase(iter);
@@ -842,6 +858,7 @@ void PcdkScript::remove(ExecutionContext* script){
   mTimers.erase(script);
   Engine::instance()->removeScript(script);
   script->unref();
+  mScriptMutex.unlock();
 }
 
 EngineEvent PcdkScript::getEngineEvent(const std::string eventname){

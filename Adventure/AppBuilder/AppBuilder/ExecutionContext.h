@@ -95,6 +95,7 @@ public:
   void resetNextEvent();
   void resetEvents(bool leaveCurrentUntouched);
   bool isEventSet(EngineEvent evt);
+  bool containsEvent(EngineEvent evt);
   bool isRunning();
   EngineEvent getCommandEvent();
   Stack& stack() {return mStack;}
