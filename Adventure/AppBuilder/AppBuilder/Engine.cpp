@@ -216,10 +216,7 @@ void Engine::exitGame(){
   resetCursor(true, false);
   delete mCursor;
   disposeCharacter(mFocussedChar);
-  for (std::map<String, CharacterObject*>::iterator iter = mCharCache.begin(); iter != mCharCache.end(); ++iter){
-    delete iter->second;
-  }
-  mCharCache.clear();
+  clearCharCache();
   for (std::list<CharacterObject*>::iterator iter = mCharsToUnload.begin(); iter != mCharsToUnload.end(); ++iter){
     delete *iter;
   }
@@ -1344,6 +1341,10 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   CharacterObject* character;
   if (fromCache){
     character = mCharCache[key];
+    character->Object2D::setPosition(obj->base.position);
+    character->setState(obj->base.state);
+    if (obj->mirrored)
+      character->setLookDir(LEFT);
   }
   else{
     character = new CharacterObject(chbase, obj->base.state, obj->mirrored, obj->base.position, realName);
@@ -1722,4 +1723,11 @@ void Engine::disposeCharacter(CharacterObject* character){
   if (!character->getClass()->memresistent){
     mCharsToUnload.push_back(character);
   }
+}
+
+void Engine::clearCharCache(){
+  for (std::map<String, CharacterObject*>::iterator iter = mCharCache.begin(); iter != mCharCache.end(); ++iter){
+    delete iter->second;
+  }
+  mCharCache.clear();
 }

@@ -136,6 +136,7 @@ public:
   void setMousePosition(int x, int y);
   void disposeCharacter(CharacterObject* character);
   CharacterObject* getCachedCharacter(const String& name) {std::map<String,CharacterObject*>::iterator iter = mCharCache.find(name.toLower()); if (iter == mCharCache.end()) return NULL; return iter->second;}
+  void clearCharCache();
 protected:
   Engine();
   static Engine* mInstance;

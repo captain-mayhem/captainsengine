@@ -669,6 +669,7 @@ bool PcdkScript::update(unsigned time){
   for (std::list<ExecutionContext*>::iterator iter = tmpScripts.begin(); iter != tmpScripts.end(); ++iter){
     (*iter)->ref();
   }
+  mScriptMutex.unlock();
   for (std::list<ExecutionContext*>::iterator iter = tmpScripts.begin(); iter != tmpScripts.end(); ++iter){
     std::list<EngineEvent> events;
     if (mGlobalSuspend){
@@ -710,7 +711,6 @@ bool PcdkScript::update(unsigned time){
       continue;
     }
   }
-  mScriptMutex.unlock();
   if (mCutScene){
     mTSPos = mTSPosOrig;
     mCutScene->resetEvents(false);

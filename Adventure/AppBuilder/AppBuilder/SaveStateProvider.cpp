@@ -381,6 +381,7 @@ void SaveStateProvider::load(const std::string& name){
   if (!in)
     return;
   //clear the current save state;
+  Engine::instance()->setFocus("none", NULL);
   clear();
   Engine::instance()->getInterpreter()->clearState();
   Engine::instance()->getInterpreter()->executeCutscene(NULL, false);
