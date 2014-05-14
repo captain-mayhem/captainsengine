@@ -175,6 +175,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setitem", setItem);
   interpreter->registerFunction("sqrt", sqrt);
   interpreter->registerFunction("switchchar", switchCharacter);
+  interpreter->registerFunction("movetext", moveText);
+  interpreter->registerRelVar("movetext", 2, "_txtoutx:");
+  interpreter->registerRelVar("movetext", 3, "_txtouty:");
   srand((unsigned)time(NULL));
 }
 
@@ -2890,6 +2893,50 @@ int ScriptFunctions::switchCharacter(ExecutionContext& ctx, unsigned numArgs){
     SaveStateProvider::CharSaveObject tmpcso = *cso2;
     *cso2 = *cso1;
     *cso1 = tmpcso;
+  }
+  return 0;
+}
+
+int ScriptFunctions::moveText(ExecutionContext& ctx, unsigned numArgs){
+  TR_USE(ADV_ScriptFunc);
+  if (numArgs < 4 || numArgs > 5)
+    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+  int id = ctx.stack().pop().getInt();
+
+  Vec2i newpos;
+  newpos.x = ctx.stack().pop().getInt();
+  newpos.y = ctx.stack().pop().getInt();
+  int speed = ctx.stack().pop().getInt();
+  bool hold = false;
+  if (numArgs >= 5){
+    std::string wait = ctx.stack().pop().getString();
+    if (wait == "wait")
+      hold = true;
+  }
+
+  Textout* text = Engine::instance()->getFontRenderer()->getTextout(id);
+
+  if (speed == 0 || ctx.mSkip){
+    TR_DETAIL("textout %i positioned to %i %i", id, newpos.x, newpos.y);
+    Engine::instance()->getAnimator()->remove(text);
+    text->setPosition(newpos);
+  }
+  else{
+    std::list<Vec2i> path;
+    //path.push_back(obj->getPosition());
+    path.push_back(newpos);
+    float factor;
+    if (speed <= 10)
+      factor = (float)(11-speed);
+    else{
+      //we have ms => calculate speedfactor
+      factor = newpos.length()*20.0f/speed;
+    }
+    if (hold){
+      ctx.suspend(0, NULL/*new PositionSuspender(obj, newpos)*/);
+      text->setSuspensionScript(&ctx);
+    }
+    Engine::instance()->getAnimator()->add(text, path, factor);
   }
   return 0;
 }

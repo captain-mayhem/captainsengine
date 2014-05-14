@@ -8,6 +8,7 @@
 #include "Inventory.h"
 #include "ScriptFunc.h"
 #include "Sound.h"
+#include "Textout.h"
 #include <system/allocation.h>
 
 using namespace adv;
@@ -369,18 +370,18 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         IdentNode* id = static_cast<IdentNode*>(node);
         codes->addCode(new CPUSH(id->value().c_str()));
         ++count;
-        if (mCurrArg == 1){
-          for (std::list<CLOAD*>::iterator iter = mUnresolvedLoads.begin(); iter != mUnresolvedLoads.end(); ++iter){
-            (*iter)->changeVariable(id->value().c_str());
-          }
-          mUnresolvedLoads.clear();
-        }
+        resolveLoads(id->value().c_str());
       }
       break;
       case ASTNode::INTEGER:{
         IntNode* number = static_cast<IntNode*>(node);
         codes->addCode(new CPUSH(number->value()));
         ++count;
+        if (mCurrArg == 1 && mUnresolvedLoads.size() > 0){
+          char tmp[32];
+          sprintf(tmp, "%i", number->value());
+          resolveLoads(tmp);
+        }
       }
       break;
       case ASTNode::REALNUM:{
@@ -606,6 +607,15 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         break;
   }
   return count;
+}
+
+void PcdkScript::resolveLoads(const std::string& val){
+  if (mCurrArg == 1){
+    for (std::list<CLOAD*>::iterator iter = mUnresolvedLoads.begin(); iter != mUnresolvedLoads.end(); ++iter){
+      (*iter)->changeVariable(val);
+    }
+    mUnresolvedLoads.clear();
+  }
 }
 
 CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
@@ -1164,6 +1174,16 @@ StackData PcdkScript::getVariable(const String& name){
     }
     else if (name.size() > 8 && lname.substr(1, 8) == "objstate"){
       TR_BREAK("Implement me");
+    }
+    else if (name.size() > 8 && lname.substr(1, 8) == "txtoutx:"){
+      std::string idstr = lname.substr(9);
+      Textout* txt = Engine::instance()->getFontRenderer()->getTextout(atoi(idstr.c_str()));
+      return Engine::instance()->getAnimator()->getTargetPoisition(txt).x;
+    }
+    else if (name.size() > 8 && lname.substr(1, 8) == "txtouty:"){
+      std::string idstr = lname.substr(9);
+      Textout* txt = Engine::instance()->getFontRenderer()->getTextout(atoi(idstr.c_str()));
+      return Engine::instance()->getAnimator()->getTargetPoisition(txt).y;
     }
   }
   else if (lname == "mousex"){

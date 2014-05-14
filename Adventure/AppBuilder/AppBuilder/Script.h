@@ -83,6 +83,7 @@ protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
   std::string internal_stringify(ASTNode* node);
+  void resolveLoads(const std::string& val);
   std::string mObjectInfo;
   bool mIsGameObject;
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;
