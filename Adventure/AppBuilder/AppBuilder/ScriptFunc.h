@@ -223,6 +223,14 @@ public:
   **/
   static int moveObj(ExecutionContext& ctx, unsigned numArgs);
   /**
+  \param id id of the textout instance
+  \param x the x-position the text should be moved to
+  \param y the y-position the text should be moved to
+  \param speed/time the moving speed (9-1, 0) or time (x ms)
+  \param wait [opt] if the script should be suspended
+  **/
+  static int moveText(ExecutionContext& ctx, unsigned numArgs);
+  /**
   \param volume the volume of the music
   **/
   static int musicVolume(ExecutionContext& ctx, unsigned numArgs);

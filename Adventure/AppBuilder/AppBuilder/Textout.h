@@ -4,12 +4,13 @@
 #include "Vector.h"
 #include "BlitObjects.h"
 #include "String.h"
+#include "EngineObjects.h"
 
 namespace adv{
 
 class ExecutionContext;
 
-class Textout{
+class Textout : public Object2D{
 public:
   enum Alignment{
     LEFT,
@@ -32,7 +33,7 @@ public:
 protected:
   bool mEnabled;
   ExecutionContext* mText;
-  Vec2i mPos;
+  //Vec2i mPos;
   int mFont;
   Color mColor;
   String mBoundRoom;

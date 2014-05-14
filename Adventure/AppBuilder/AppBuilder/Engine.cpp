@@ -724,7 +724,7 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
 }
 
 void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately, ExecutionContext* reason){
-  if (mRooms.empty())
+  if (mRooms.empty() || (mainroom && !mMainRoomLoaded))
     return;
   if (room == NULL){
     if (mainroom){

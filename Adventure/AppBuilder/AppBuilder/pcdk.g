@@ -184,6 +184,7 @@ complex_arg returns [ASTNode* value]
 		| t6=MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t6.text->chars);}
 		| t8=PLUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t8.text->chars);}
 		| t2=TIMES {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t2.text->chars);}
+		| t12=DIVIDE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t12.text->chars);}
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| REAL_INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL_INT.text->chars);}
 		| COMMA {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$COMMA.text->chars);}
@@ -200,7 +201,7 @@ stdarg returns [IdentNode* value]
 	| LESS {$value = new IdentNode(""); $value->append((char*)$LESS.text->chars);}
 	| GREATER {$value = new IdentNode(""); $value->append((char*)$GREATER.text->chars);}
 	| RBRACKET {$value = new IdentNode(""); $value->append((char*)$RBRACKET.text->chars);}
-	| DIVIDE {$value = new IdentNode(""); $value->append((char*)$DIVIDE.text->chars);}
+	//| DIVIDE {$value = new IdentNode(""); $value->append((char*)$DIVIDE.text->chars);}
 	| IDIV {$value = new IdentNode(""); $value->append((char*)$IDIV.text->chars);}
 	| INT {$value = new IdentNode(""); $value->append((char*)$INT.text->chars);}
 	| ' , ' {$value = new IdentNode(",");}
@@ -267,6 +268,7 @@ variable returns [ASTNode* var]
 	(IDIV (id2=ident {VariableNode* node = (VariableNode*)$var; node->name().append(":"+id2.id->value()); delete id2.id;} 
 	   |  var2=variable {VariableNode* node = (VariableNode*)$var; node->name().append(":"); node->setChild((VariableNode*)var2.var);} )
 	 )?
+	 (var3=variable {VariableNode* node = (VariableNode*)$var; node->setChild((VariableNode*)var3.var);} )*
 	RBRACKET
 ;
 
