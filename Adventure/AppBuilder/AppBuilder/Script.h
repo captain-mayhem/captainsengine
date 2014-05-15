@@ -83,18 +83,17 @@ protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
   std::string internal_stringify(ASTNode* node);
-  void resolveLoads(const std::string& val);
   std::string mObjectInfo;
   bool mIsGameObject;
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;
   RelationalNode* mLastRelation;
-  std::list<CLOAD*> mUnresolvedLoads;
   CCALL* mUnresolvedBlockEnd;
   std::string mCurrFunc;
   unsigned mCurrArg;
   std::map<std::string, std::map<int, std::string> > mRelVars;
   std::map<std::string, int> mArgEC;
   std::set<EngineEvent> mEvents;
+  ASTNode* mFirstArg;
   CGE::Mutex mMutex;
 
   EngineEvent getEngineEvent(const std::string eventname);

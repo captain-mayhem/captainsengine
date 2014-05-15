@@ -1965,13 +1965,17 @@ int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
   }
   if (numArgs >= 3){
     int x = ctx.stack().pop().getInt();
-    if (x != -1)
+    if (x != -1){
+      Engine::instance()->getAnimator()->remove(txtout);
       txtout->getPos().x = x;
+    }
   }
   if (numArgs >= 4){
     int y = ctx.stack().pop().getInt();
-    if (y != -1)
+    if (y != -1){
+      Engine::instance()->getAnimator()->remove(txtout);
       txtout->getPos().y = y;
+    }
   }
   if (numArgs >= 5){
     int font = ctx.stack().pop().getInt();

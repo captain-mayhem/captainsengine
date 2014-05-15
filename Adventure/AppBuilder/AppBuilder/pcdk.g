@@ -178,6 +178,8 @@ complex_arg returns [ASTNode* value]
 		| t5=MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t5.text->chars);}
 		| t7=PLUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t7.text->chars);}
 		| t9='#'  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t9.text->chars);}
+		| t11=DIVIDE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t11.text->chars);}
+		//| t13=INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t13.text->chars);}
 	)
 	(
 		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
@@ -185,11 +187,13 @@ complex_arg returns [ASTNode* value]
 		| t8=PLUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t8.text->chars);}
 		| t2=TIMES {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t2.text->chars);}
 		| t12=DIVIDE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t12.text->chars);}
+		//| t14=INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t14.text->chars);}
 		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
 		| REAL_INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL_INT.text->chars);}
 		| COMMA {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$COMMA.text->chars);}
 		| t4=UNDERSCORE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t4.text->chars);}
 		| t10='#'  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t10.text->chars);}
+		//| '.' {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(".");}
 	)*)
 	;
 
@@ -201,7 +205,6 @@ stdarg returns [IdentNode* value]
 	| LESS {$value = new IdentNode(""); $value->append((char*)$LESS.text->chars);}
 	| GREATER {$value = new IdentNode(""); $value->append((char*)$GREATER.text->chars);}
 	| RBRACKET {$value = new IdentNode(""); $value->append((char*)$RBRACKET.text->chars);}
-	//| DIVIDE {$value = new IdentNode(""); $value->append((char*)$DIVIDE.text->chars);}
 	| IDIV {$value = new IdentNode(""); $value->append((char*)$IDIV.text->chars);}
 	| INT {$value = new IdentNode(""); $value->append((char*)$INT.text->chars);}
 	| ' , ' {$value = new IdentNode(",");}
@@ -317,9 +320,10 @@ LEVEL	:	'l''e''v''e''l';
 ROW	:	'r''o''w';
 TIMER:	't''i''m''e''r';
 INT	:	'0'..'9'+;
-REAL:	'0'..'9'+('.'|COMMA)'0'..'9'+;
+REAL:	'0'..'9'+('\.'|COMMA)'0'..'9'+;
 REAL_INT:	INT COMMA;
-IDENT_PART	:	('a'..'z'|'A'..'Z'|'0'..'9'|'\?'|'\''|'\.'|'!'|COMMA|'&'|'|'|'%'|'\\'|'\u0080'..'\u00ff')+;
+fragment IDENT_FRAG: ('a'..'z'|'A'..'Z'|'\?'|'\''|'\.'|'!'|COMMA|'&'|'|'|'%'|'\\'|'\u0080'..'\u00ff');
+IDENT_PART	:	IDENT_FRAG(IDENT_FRAG|'0'..'9')*;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}

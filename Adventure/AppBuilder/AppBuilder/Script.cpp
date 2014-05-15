@@ -261,7 +261,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   mIsGameObject = false;
   mObjectInfo = "";
   mLastRelation = NULL;
-  mUnresolvedLoads.clear();
+  mFirstArg = NULL;
   mUnresolvedBlockEnd = NULL;
   CodeSegment* segment = new CodeSegment;
   segment->addCode(new CSTATE(CSTATE::NORMAL));
@@ -287,6 +287,7 @@ unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mod
   unsigned count = 0;
   if (mode == ARGLIST){
     program->reset(false);
+    mFirstArg = program->first();
     mCurrArg = program->size();
     while(program->hasPrev()){
       ASTNode* ast = program->prev();
@@ -370,18 +371,12 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         IdentNode* id = static_cast<IdentNode*>(node);
         codes->addCode(new CPUSH(id->value().c_str()));
         ++count;
-        resolveLoads(id->value().c_str());
       }
       break;
       case ASTNode::INTEGER:{
         IntNode* number = static_cast<IntNode*>(node);
         codes->addCode(new CPUSH(number->value()));
         ++count;
-        if (mCurrArg == 1 && mUnresolvedLoads.size() > 0){
-          char tmp[32];
-          sprintf(tmp, "%i", number->value());
-          resolveLoads(tmp);
-        }
       }
       break;
       case ASTNode::REALNUM:{
@@ -494,12 +489,20 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
               TR_BREAK("special handling needed");
           }
           std::map<int, std::string>::iterator argiter = funciter->second.find(mCurrArg);
+          std::string prefix = "";
           if (argiter == funciter->second.end())
             TR_BREAK("Unknown argument");
-          std::string prefix = argiter->second;
-          CLOAD* ld = new CLOAD(prefix.c_str());
-          codes->addCode(ld);
-          count += 1;
+          else
+            prefix = argiter->second;
+          if (!prefix.empty())
+            codes->addCode(new CPUSH(prefix));
+          count += transform(mFirstArg, codes);
+          if (!prefix.empty()){
+            codes->addCode(new CCONCAT());
+            count += 2;
+          }
+          codes->addCode(new CSLOAD());
+          ++count;
           count += transform(relnode->child(), codes);
           if (relnode->type() == RelationalNode::REL_PLUS)
             codes->addCode(new CADD());
@@ -516,7 +519,6 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           else
             TR_BREAK("Unknown type");
           count += 1;
-          mUnresolvedLoads.push_back(ld);
         }
         else if (relnode->type() == RelationalNode::REL_EQUAL || relnode->type() == RelationalNode::REL_LESS || relnode->type() == RelationalNode::REL_GREATER){
           mLastRelation = relnode;
@@ -607,15 +609,6 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         break;
   }
   return count;
-}
-
-void PcdkScript::resolveLoads(const std::string& val){
-  if (mCurrArg == 1){
-    for (std::list<CLOAD*>::iterator iter = mUnresolvedLoads.begin(); iter != mUnresolvedLoads.end(); ++iter){
-      (*iter)->changeVariable(val);
-    }
-    mUnresolvedLoads.clear();
-  }
 }
 
 CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
@@ -1263,11 +1256,13 @@ StackData PcdkScript::getVariable(const String& name){
     else if (name[6] == ' '){
       idx = 7;
     }
-    CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
+    String charname = name.substr(idx);
+    charname = charname.removeAll(' ');
+    CharacterObject* chr = Engine::instance()->getCharacter(charname);
     if (!chr){
       std::string room;
       std::string realname;
-      SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(name.substr(idx), room, realname);
+      SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, realname);
       if (cso == NULL){
         TR_BREAK("Character %s not found", name.substr(idx).c_str());
         return 0;
@@ -1290,11 +1285,13 @@ StackData PcdkScript::getVariable(const String& name){
     else if (name[6] == ' '){
       idx = 7;
     }
-    CharacterObject* chr = Engine::instance()->getCharacter(name.substr(idx));
+    String charname = name.substr(idx);
+    charname = charname.removeAll(' ');
+    CharacterObject* chr = Engine::instance()->getCharacter(charname);
     if (!chr){
       std::string room;
       std::string realname;
-      SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(name.substr(idx), room, realname);
+      SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, realname);
       if (cso == NULL){
         TR_BREAK("Character %s not found", name.substr(idx).c_str());
         return 0;
@@ -1329,7 +1326,8 @@ StackData PcdkScript::getVariable(const String& name){
     return obj->getPosition().y;
   }
   else if (name.size() > 8 && lname.substr(0,8) == "tgtobjx:"){
-    std::string objname = name.substr(8);
+    String objname = name.substr(8);
+    objname = objname.removeAll(' ');
     ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(objname);
     if (grp)
       objname = grp->getObjects()[0];
@@ -1344,7 +1342,8 @@ StackData PcdkScript::getVariable(const String& name){
     return Engine::instance()->getAnimator()->getTargetPoisition(obj).x;
   }
   else if (name.size() > 8 && lname.substr(0,8) == "tgtobjy:"){
-    std::string objname = name.substr(8);
+    String objname = name.substr(8);
+    objname = objname.removeAll(' ');
     ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(objname);
     if (grp)
       objname = grp->getObjects()[0];
