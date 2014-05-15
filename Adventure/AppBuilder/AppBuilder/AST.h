@@ -64,6 +64,11 @@ public:
   unsigned size(){
     return (unsigned)mNodes.size();
   }
+  ASTNode* first(){
+    if (mNodes.size() == 0)
+      return NULL;
+    return mNodes[0];
+  }
 protected:
   std::vector<ASTNode*> mNodes;
   unsigned mIdx;
@@ -183,6 +188,7 @@ public:
     REL_PLUS,
     REL_MINUS,
     REL_TIMES,
+    REL_DIVIDE,
   };
   RelationalNode() : ASTNode(RELATIONAL), mType(REL_EQUAL), mChild(NULL), mNegated(false){}
   virtual ~RelationalNode(){
