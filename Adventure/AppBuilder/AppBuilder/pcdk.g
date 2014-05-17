@@ -12,8 +12,6 @@ options{
 
 @parser::postinclude{
 extern ASTNode* stringify(ASTNode* tree);
-//extern ASTNode* concatinateStr(ASTNode* left, const char* right);
-//extern ASTNode* concatinateVar(ASTNode* left, VariableNode* right);
 extern ASTNode* parseLangArg(const char* funcname, int argnum, int strindex);
 std::string currentFunc;
 int currentArg;
@@ -92,7 +90,6 @@ timer_stmt returns [TimerNode* timer]
 	fa = factor {$timer = new TimerNode(fa.fac); }
 	) RPAREN exec=block
 	{
-		//float time = (float)atoi((char*)$INT.text->chars);
 		$timer->setCommands(exec.nodes);
 	}
 	;
@@ -135,11 +132,8 @@ arg	returns [ASTNode* value]
 @init{ bool internalArgument = true; $value = NULL;}
 	:
 	(ahdr=arg_header {internalArgument = false; $value = parseLangArg(currentFunc.c_str(), currentArg, ahdr.number->value()); delete ahdr.number;})?
-	((rel_expr) => (exp=rel_expr {if (internalArgument){$value = exp.exp;}else{delete exp.exp;}}
-		(vari=variable {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}else{delete vari.var;}}
-		 | ca2=complex_arg {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}else{delete ca2.value;}}
-		)*
-		)
+	((rel_expr (SEMICOLON|RPAREN)) => (exp=rel_expr {if (internalArgument){$value = exp.exp;}else{delete exp.exp;}}
+	 )
 	| (ca=complex_arg {
 			if (internalArgument){
 				if ($value == NULL)
@@ -155,10 +149,6 @@ arg	returns [ASTNode* value]
 				delete ca.value;
 			}
 		}
-		(vari=variable {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = vari.var; $value = concat;}else{delete vari.var;}}
-		| ca2=complex_arg {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca2.value; $value = concat;}else{delete ca2.value;}}
-		| COMMA {if (internalArgument){ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = new IdentNode(","); $value = concat;}}
-		)*
 	  )
 	)
 ;
@@ -170,33 +160,24 @@ arg_header returns [IntNode* number]
 	
 complex_arg returns [ASTNode* value]
 	:
-	({$value = new IdentNode("");}
-	(
-		first=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(first.value->value().c_str()); delete first.value;}
-		| t1=TIMES {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t1.text->chars);}
-		| t3=UNDERSCORE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t3.text->chars);}
-		| t5=MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t5.text->chars);}
-		| t7=PLUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t7.text->chars);}
-		| t9='#'  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t9.text->chars);}
-		| t11=DIVIDE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t11.text->chars);}
-		//| t13=INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t13.text->chars);}
+	(ls=long_string {$value = ls.ident;} 
+	 | vari=variable  { $value = vari.var;}
 	)
-	(
-		second=stdarg {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(second.value->value().c_str()); delete second.value;}
-		| t6=MINUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t6.text->chars);}
-		| t8=PLUS {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t8.text->chars);}
-		| t2=TIMES {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t2.text->chars);}
-		| t12=DIVIDE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t12.text->chars);}
-		//| t14=INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t14.text->chars);}
-		| REAL  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL.text->chars);}
-		| REAL_INT {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$REAL_INT.text->chars);}
-		| COMMA {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$COMMA.text->chars);}
-		| t4=UNDERSCORE {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t4.text->chars);}
-		| t10='#'  {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append((char*)$t10.text->chars);}
-		//| '.' {((IdentNode*)$value)->append(" "); ((IdentNode*)$value)->append(".");}
-	)*)
-	;
-
+	(ca=complex_arg { ConcatenationNode* concat = new ConcatenationNode(); concat->left() = $value; concat->right() = ca.value; $value = concat;}
+	)?
+;
+	
+long_string returns [IdentNode* ident]
+@init {$ident = new IdentNode("");}
+	:
+	(str=~(LBRACKET|SEMICOLON|RPAREN) {
+		char* txt = (char*)$str.text->chars;
+		if (txt[0] != '_' && $ident->lastChar() != '_')
+			$ident->append(" ");
+		$ident->append(txt);
+	 } )+
+;
+	
 stdarg returns [IdentNode* value]
 	:
 	id=ident {$value = id.id;}
@@ -247,8 +228,6 @@ factor returns [ASTNode* fac]
 		UnaryArithNode* i2r = new UnaryArithNode(); i2r->type() = UnaryArithNode::UA_I2R; i2r->node() = $fac;
 		ArithmeticNode* an = new ArithmeticNode(); an->type() = ArithmeticNode::AR_PLUS; an->left() = i2r;
 		UnaryArithNode* shift = new UnaryArithNode(); shift->type() = UnaryArithNode::UA_DEC_SHIFT; shift->node() = var2.var; an->right() = shift;
-		//ArithmeticNode* mul = new ArithmeticNode(); mul->type() = ArithmeticNode::AR_TIMES; mul->left() = var2.var; an->right() = mul;
-		//mul->right() = new RealNode(0.1f); //TODO how to make generic
 		$fac = an;
 	}
 	)?
@@ -323,7 +302,7 @@ INT	:	'0'..'9'+;
 REAL:	'0'..'9'+('\.'|COMMA)'0'..'9'+;
 REAL_INT:	INT COMMA;
 fragment IDENT_FRAG: ('a'..'z'|'A'..'Z'|'\?'|'\''|'\.'|'!'|COMMA|'&'|'|'|'%'|'\\'|'\u0080'..'\u00ff');
-IDENT_PART	:	IDENT_FRAG(IDENT_FRAG|'0'..'9')*;
+IDENT_PART	:	(IDENT_FRAG|'0'..'9')+;
 NEWLINE	:	('\r'|'\n')+ {$channel=HIDDEN;}
 	;
 WS	:	(' '|'\t'|'"')+ {$channel=HIDDEN;}
