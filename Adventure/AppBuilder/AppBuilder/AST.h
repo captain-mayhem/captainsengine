@@ -86,6 +86,7 @@ public:
   virtual ~IdentNode(){}
   void append(const char* str);
   std::string& value() {return mValue;}
+  char lastChar() {if (mValue.empty()) return '\0'; return mValue[mValue.size()-1];}
 protected:
   std::string mValue;
 };
