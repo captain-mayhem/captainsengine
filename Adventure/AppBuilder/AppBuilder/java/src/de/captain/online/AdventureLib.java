@@ -32,6 +32,12 @@ public class AdventureLib{
 	public static void adventureSize(int x, int y){
 		mView.setAdventureDims(x, y);
 	}
+	public static void setMousePos(int x, int y){
+		//TODO
+	}
+	public static void quit(){
+		
+	}
 	
 	private static AdventureView.Renderer mView;
 }

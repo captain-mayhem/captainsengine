@@ -11,6 +11,7 @@ import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -20,8 +21,10 @@ public class ListAdventuresActivity extends ListActivity{
 	String mDir;
 	
 	public void onCreate(Bundle icicle){
+		Log.i("ListAdventures", "starting search");
 		super.onCreate(icicle);
 		mDir = getAdventureDir();
+		Log.i("ListAdventures", "Dir is "+mDir);
 		//String[] values = new String[] {"testadv", "Alühn", "functiondemo"};
 		String[] values = getAdventures();
 		ArrayAdapter<String> adapter = new ArrayAdapter<String>(
@@ -47,9 +50,14 @@ public class ListAdventuresActivity extends ListActivity{
 	private String[] getAdventures(){
 		File f = new File(mDir);
 		File[] files = f.listFiles();
+		if (files == null){
+			Log.e("ListAdventures", "No adventures found!");
+			return null;
+		}
 		String[] ret = new String[files.length];
 		for (int i = 0; i < ret.length; ++i){
 			ret[i] = files[i].getName();
+			Log.i("ListAdventurs", ret[i]);
 		}
 		return ret;
 	}
@@ -68,6 +76,7 @@ public class ListAdventuresActivity extends ListActivity{
 	}
 	
 	private boolean isCorrectDir(String path){
+		Log.i("ListAdventures", "checking directory"+path+"/adventure for adventures");
 		File file = new File(path+"/adventure");
 		return file.isDirectory();
 	}
@@ -112,6 +121,7 @@ public class ListAdventuresActivity extends ListActivity{
 	          e.printStackTrace();
 	       }
 	    }
+		paths.add("/storage/extSdCard");//TODO
 	    String[] ret = new String[paths.size()];
 	    for (int i = 0; i < paths.size(); ++i){
 	    	ret[i] = paths.get(i);
