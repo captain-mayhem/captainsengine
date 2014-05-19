@@ -23,6 +23,8 @@ static int advheight = 0;
 static int realwidth = 0;
 static int realheight = 0;
 
+JNIEnv* currentEnv;
+
 extern "C"{
 //JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename);
 //JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time);
@@ -54,11 +56,38 @@ class AndroidLogOutputter : public CGE::TraceOutputter{
 };
 
 AdvDocument* adoc;
-static bool shouldQuit = false;
 CommandReceiver receiver;
 
 void quit(){
-  shouldQuit = true;
+	TR_USE(ADV_JNIFrontend);
+	JNIEnv* env = currentEnv;
+	jclass cls = env->FindClass("de/captain/online/AdventureLib");
+	if (cls == NULL){
+		TR_ERROR("class de.captain.online.AdventureLib not found");
+		return;
+	}
+	jmethodID func = env->GetStaticMethodID(cls, "quit", "()V");
+	if (func == 0){
+		TR_ERROR("method quit not found");
+	}
+	else
+		env->CallStaticVoidMethod(cls, func);
+}
+
+void setMouse(int x, int y){
+	TR_USE(ADV_JNIFrontend);
+	JNIEnv* env = currentEnv;
+	jclass cls = env->FindClass("de/captain/online/AdventureLib");
+	if (cls == NULL){
+		TR_ERROR("class de.captain.online.AdventureLib not found");
+		return;
+	}
+	jmethodID func = env->GetStaticMethodID(cls, "setMousePos", "(II)V");
+	if (func == 0){
+		TR_ERROR("method setMousePos not found");
+	}
+	else
+		env->CallStaticVoidMethod(cls, func, x, y);
 }
 
 void setAdventureDims(JNIEnv* env, int x, int y){
@@ -146,7 +175,7 @@ JNIEXPORT jboolean JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env
 	TR_DEBUG("init remote server");
 	receiver.start();
 	TR_DEBUG("init game");
-	Engine::instance()->initGame(quit);
+	Engine::instance()->initGame(quit, setMouse);
 	TR_DEBUG("init done");
 	
 	env->ReleaseStringUTFChars(filename, str);
@@ -154,6 +183,7 @@ JNIEXPORT jboolean JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env
 }
 
 JNIEXPORT void JNICALL Java_de_captain_online_AdventureLib_render(JNIEnv* env, jobject obj, int time){
+  currentEnv = env;
 	//CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   GL()matrixMode(MM_PROJECTION);
   GL()loadIdentity();
