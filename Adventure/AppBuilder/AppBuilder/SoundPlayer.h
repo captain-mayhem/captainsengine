@@ -105,6 +105,7 @@ struct AVFormatContext;
 struct AVFrame;
 struct AVPacket;
 struct SwsContext;
+struct SwrContext;
 
 namespace adv{
 
@@ -138,6 +139,7 @@ protected:
   AVFormatContext* mFormat;
   AVCodecContext* mCodecContext;
   AVCodec* mCodec;
+  SwrContext* mResampler;
   int mStreamNum;
   DataBuffer mDataBuffer;
   DataBuffer mDecodeBuffer;
