@@ -16,6 +16,10 @@
 #define INT64_C(val) val##i64
 #endif
 
+#ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
+#define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
+#endif
+
 #ifdef WIN32
 #pragma warning( disable : 4244 )
 #endif
@@ -32,6 +36,7 @@ extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#include <libswresample/swresample.h>
 };
 #endif
 
@@ -165,7 +170,7 @@ TR_CHANNEL(ADV_Sound_Player);
 static const int BUFFER_SIZE = 19200;
 
 StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname, bool effectEnabled) : 
-SoundPlayer(soundname, effectEnabled), mCodecContext(NULL), mCodec(NULL), mStreamNum(-1), 
+SoundPlayer(soundname, effectEnabled), mCodecContext(NULL), mCodec(NULL), mResampler(NULL), mStreamNum(-1), 
 mLooping(false), mStop(true), mPlay(false), mAutoDelete(true) {
   TR_USE(ADV_Sound_Player);
   TR_DEBUG("Creating sound player %s", soundname.c_str());
@@ -299,8 +304,11 @@ bool StreamSoundPlayer::openStreamInternal(){
       mCodec = avcodec_find_decoder(mCodecContext->codec_id);
       if (!mCodec)
         continue;
-      if (avcodec_open(mCodecContext, mCodec) < 0)
+
+      if (avcodec_open2(mCodecContext, mCodec, NULL) < 0){
         continue;
+      }
+
       mStreamNum = i;
       
       if (mCodecContext->sample_fmt == AV_SAMPLE_FMT_U8){
@@ -328,8 +336,14 @@ bool StreamSoundPlayer::openStreamInternal(){
         }
       }
       else{
+        //needs resampling
         TR_USE(ADV_Sound_Player);
-        TR_BREAK("Sample format %i unexpected", mCodecContext->sample_fmt);
+        TR_DEBUG("Sample format %i needs resampling", mCodecContext->sample_fmt);
+        mPCMFormat = AL_FORMAT_MONO16;
+        mResampler = swr_alloc_set_opts(NULL, 1, AV_SAMPLE_FMT_S16, 44100, mCodecContext->channel_layout, 
+          mCodecContext->sample_fmt, mCodecContext->sample_rate, 0, NULL);
+        swr_init(mResampler);
+        //TR_BREAK("Sample format %i unexpected", mCodecContext->sample_fmt);
       }
       if (mPCMFormat == 0)
         continue;
@@ -367,6 +381,8 @@ void StreamSoundPlayer::closeStream(){
     }
     else
       av_close_input_file(mFormat);
+    if (mResampler)
+      swr_free(&mResampler);
   }
 }
 
@@ -419,8 +435,9 @@ unsigned StreamSoundPlayer::decode(){
       av_init_packet(&tmppkt);
       tmppkt.data = (uint8_t*)mDataBuffer.data;
       tmppkt.size = insize;
-      VHALIGNCALL16(length = avcodec_decode_audio3(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, &tmppkt));//(uint8_t*)mDataBuffer.data, insize));
-      while(length == 0){
+      AVFrame* frame = avcodec_alloc_frame();
+      VHALIGNCALL16(length = avcodec_decode_audio4(mCodecContext, frame, &size, &tmppkt));//(uint8_t*)mDataBuffer.data, insize));
+      while(length == 0 || size == 0){
         if (size > 0)
           break;
         getNextPacket();
@@ -428,7 +445,7 @@ unsigned StreamSoundPlayer::decode(){
           break;
         insize = mDataBuffer.used;
         memset(mDataBuffer.data+insize, 0, FF_INPUT_BUFFER_PADDING_SIZE);
-        VHALIGNCALL16(length = avcodec_decode_audio3(mCodecContext, (int16_t*)mDecodeBuffer.data, &size, &tmppkt));//(uint8_t*)mDataBuffer.data, insize));
+        VHALIGNCALL16(length = avcodec_decode_audio4(mCodecContext, frame, &size, &tmppkt));//(uint8_t*)mDataBuffer.data, insize));
       }
       if (length < 0)
         break;
@@ -438,7 +455,18 @@ unsigned StreamSoundPlayer::decode(){
           memmove(mDataBuffer.data, mDataBuffer.data+length, remain);
         mDataBuffer.used = remain;
       }
-      mDecodeBuffer.used = size;
+      if (!mResampler){
+        memcpy(mDecodeBuffer.data, frame->data[0], frame->linesize[0]);
+        mDecodeBuffer.used = frame->linesize[0];
+      }
+      else{
+        int ret = swr_convert(mResampler, (uint8_t**)&mDecodeBuffer.data, mDecodeBuffer.length, (const uint8_t **)frame->extended_data, frame->nb_samples);
+        if (ret < 0)
+          printf("convert failed");
+        else
+          mDecodeBuffer.used = ret*sizeof(short);
+      }
+      av_frame_unref(frame);
     }
   }
   mALBuffer.used = decoded;
@@ -620,7 +648,7 @@ bool StreamVideoPlayer::openStreamHook(int i){
     mVidCodec = avcodec_find_decoder(mVidCodecContext->codec_id);
     if (!mVidCodec)
       return false;
-    if (avcodec_open(mVidCodecContext, mVidCodec) < 0){
+    if (avcodec_open2(mVidCodecContext, mVidCodec, NULL) < 0){
       return false;
     }
     mVidStreamNum = i;
