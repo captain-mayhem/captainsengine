@@ -296,7 +296,7 @@ bool StreamSoundPlayer::openStreamInternal(){
   unsigned last_nb_streams;
   do{
     last_nb_streams = mFormat->nb_streams;
-    av_find_stream_info(mFormat);
+    avformat_find_stream_info(mFormat, NULL);
   } while(last_nb_streams != mFormat->nb_streams);
   for (unsigned i = 0; i < mFormat->nb_streams; ++i){
     if (mFormat->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO){
@@ -380,7 +380,7 @@ void StreamSoundPlayer::closeStream(){
       mMemoryStream = NULL;
     }
     else
-      av_close_input_file(mFormat);
+      avformat_close_input(&mFormat);
     if (mResampler)
       swr_free(&mResampler);
   }
@@ -435,7 +435,7 @@ unsigned StreamSoundPlayer::decode(){
       av_init_packet(&tmppkt);
       tmppkt.data = (uint8_t*)mDataBuffer.data;
       tmppkt.size = insize;
-      AVFrame* frame = avcodec_alloc_frame();
+      AVFrame* frame = av_frame_alloc();
       VHALIGNCALL16(length = avcodec_decode_audio4(mCodecContext, frame, &size, &tmppkt));//(uint8_t*)mDataBuffer.data, insize));
       while(length == 0 || size == 0){
         if (size > 0)
@@ -632,10 +632,10 @@ StreamSoundPlayer(soundname, false), mClock(0)/*, mLayer(NULL)*/, mFirstFrame(tr
 }
 
 StreamVideoPlayer::~StreamVideoPlayer(){
-  av_free(mFrame);
+  av_frame_free(&mFrame);
   for (std::list<AVFrame*>::iterator iter = mFramesRGB.begin(); iter != mFramesRGB.end(); ++iter){
     delete [] (*iter)->data[0];
-    av_free(*iter);
+    av_frame_free(&*iter);
   }
   avcodec_close(mVidCodecContext);
   for (int i = 0; i < NUM_LAYERS; ++i)
@@ -655,7 +655,7 @@ bool StreamVideoPlayer::openStreamHook(int i){
     if (mVidCodecContext->time_base.num>1000 && mVidCodecContext->time_base.den == 1)
       mVidCodecContext->time_base.den = 1000;
 
-    mFrame = avcodec_alloc_frame();
+    mFrame = av_frame_alloc();
     mVidDataBufferLength = avpicture_get_size(PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
 
     mScaler = sws_getContext(mVidCodecContext->width, mVidCodecContext->height,
@@ -695,7 +695,7 @@ bool StreamVideoPlayer::getPacketHook(AVPacket& packet){
     int frame_finished;
     avcodec_decode_video2(mVidCodecContext, mFrame, &frame_finished, &packet);
     if (frame_finished){
-      AVFrame* frameRGB = avcodec_alloc_frame();
+      AVFrame* frameRGB = av_frame_alloc();
       uint8_t* data = new uint8_t[mVidDataBufferLength];
       avpicture_fill((AVPicture*)frameRGB, data, PIX_FMT_RGB24, mVidCodecContext->width, mVidCodecContext->height);
       sws_scale(mScaler, mFrame->data, mFrame->linesize, 0, mVidCodecContext->height,
@@ -785,7 +785,7 @@ void StreamVideoPlayer::render(unsigned time){
       frameTime = 0;
       mLayer[mCurrLayer]->updateTexture(mVidCodecContext->width, mVidCodecContext->height, frameRGB->data[0]);
       delete [] frameRGB->data[0];
-      av_free(frameRGB);
+      av_frame_free(&frameRGB);
       if (mFramesRGB.empty()){
         TR_WARN("Video queue ran empty");
         break;
