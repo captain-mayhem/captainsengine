@@ -54,16 +54,19 @@ LPALEFFECTFV alEffectfv = NULL;
 LPALEFFECTI alEffecti = NULL;
 #endif
 
-#ifdef FFMPEG_OLD_API
+#ifdef FFMPEG_ANCIENT_API
 #define AVMEDIA_TYPE_AUDIO CODEC_TYPE_AUDIO
 #define AVMEDIA_TYPE_VIDEO CODEC_TYPE_VIDEO
 #define AV_SAMPLE_FMT_
+
 int avcodec_decode_audio3(AVCodecContext* avctx, int16_t* samples, int* frame_size_ptr, AVPacket* avpkt){
   return avcodec_decode_audio2(avctx, samples, frame_size_ptr, avpkt->data, avpkt->size);
 }
+
 int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture, int* got_picture_ptr, AVPacket* avpkt){
   return avcodec_decode_video(avctx, picture, got_picture_ptr, avpkt->data, avpkt->size);
 }
+
 #endif
 
 SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mCurrentEffect("none"), mFadingTime(300), mSpeedFactor(1.0){

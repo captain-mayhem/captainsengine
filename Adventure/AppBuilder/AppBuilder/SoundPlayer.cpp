@@ -36,11 +36,32 @@ extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
+#ifndef FFMPEG_OLD_API
 #include <libswresample/swresample.h>
+#endif
 };
+
+#ifdef FFMPEG_OLD_API
+AVFrame *av_frame_alloc(void){
+  return avcodec_alloc_frame();
+}
+
+void av_frame_free(AVFrame **frame){
+  av_free(*frame);
+}
+
+void av_frame_unref(AVFrame *frame){
+}
+
+#endif
+
 #endif
 
 #include <system/allocation.h>
+
+//int avcodec_decode_audio4(AVCodecContext *avctx, AVFrame *frame, int *got_frame_ptr, const AVPacket *avpkt){
+//}
+
 
 using namespace adv;
 
@@ -338,12 +359,15 @@ bool StreamSoundPlayer::openStreamInternal(){
       else{
         //needs resampling
         TR_USE(ADV_Sound_Player);
+#ifdef FFMPEG_OLD_API
+        TR_BREAK("Sample format %i unsupported", mCodecContext->sample_fmt);
+#else
         TR_DEBUG("Sample format %i needs resampling", mCodecContext->sample_fmt);
         mPCMFormat = AL_FORMAT_MONO16;
         mResampler = swr_alloc_set_opts(NULL, 1, AV_SAMPLE_FMT_S16, 44100, mCodecContext->channel_layout, 
           mCodecContext->sample_fmt, mCodecContext->sample_rate, 0, NULL);
         swr_init(mResampler);
-        //TR_BREAK("Sample format %i unexpected", mCodecContext->sample_fmt);
+#endif
       }
       if (mPCMFormat == 0)
         continue;
@@ -381,8 +405,10 @@ void StreamSoundPlayer::closeStream(){
     }
     else
       avformat_close_input(&mFormat);
+#ifndef FFMPEG_OLD_API
     if (mResampler)
       swr_free(&mResampler);
+#endif
   }
 }
 
@@ -437,7 +463,7 @@ unsigned StreamSoundPlayer::decode(){
       tmppkt.size = insize;
       AVFrame* frame = av_frame_alloc();
       VHALIGNCALL16(length = avcodec_decode_audio4(mCodecContext, frame, &size, &tmppkt));//(uint8_t*)mDataBuffer.data, insize));
-      while(length == 0 || size == 0){
+      while(length == 0){
         if (size > 0)
           break;
         getNextPacket();
@@ -460,11 +486,13 @@ unsigned StreamSoundPlayer::decode(){
         mDecodeBuffer.used = frame->linesize[0];
       }
       else{
+#ifndef FFMPEG_OLD_API
         int ret = swr_convert(mResampler, (uint8_t**)&mDecodeBuffer.data, mDecodeBuffer.length, (const uint8_t **)frame->extended_data, frame->nb_samples);
         if (ret < 0)
           printf("convert failed");
         else
           mDecodeBuffer.used = ret*sizeof(short);
+#endif
       }
       av_frame_unref(frame);
     }
