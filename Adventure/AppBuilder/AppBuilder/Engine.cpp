@@ -89,8 +89,11 @@ void Engine::setData(AdvDocument* doc){
 }
 
 void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
-  if (!mData)
+  TR_USE(ADV_Engine);
+  if (!mData){
+    TR_ERROR("No data available");
     return;
+  }
   if (exit_cb != NULL)
     mExitCall = exit_cb;
   if (set_mouse_cb != NULL)
@@ -122,9 +125,12 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   mClickedObject = NULL;
   int transparency = mData->getProjectSettings()->anywhere_transparency*255/100;
   //load taskbar room
+  TR_INFO("Loading UI");
   if (mData->getProjectSettings()->show_taskbar && mData->getProjectSettings()->taskroom != ""){
     loadSubRoom(mData->getProjectSettings()->taskroom, NULL, 0);
+    TR_DEBUG("waiting for taskbar to load");
     mLoader.waitUntilFinished();
+    TR_DEBUG("waiting finished");
     mRooms.front()->setOpacity(255-transparency);
     if (mData->getProjectSettings()->taskpopup != TB_SCROLLING)
       mTaskbar->setPosition(Vec2i(0,mData->getProjectSettings()->resolution.y-mData->getProjectSettings()->taskheight));
@@ -145,6 +151,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
     mRooms.front()->setOpacity(255-transparency);
   }
   //load main script
+  TR_INFO("Loading start script");
   Script* mainScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->mainscript);
   if (mainScript){
     mMainScript = mInterpreter->parseProgram(mainScript->text);
@@ -184,6 +191,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
     mInterpreter->executeCutscene(initScript, false);
   }
   mUI = new GuiRoom();
+  TR_INFO("Game initialized successfully");
 }
 
 void Engine::exitGame(){
@@ -672,6 +680,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   }
 
   //trigger async loader
+  TR_DETAIL("loadRoom called for %s", name.c_str());
   if (loadreason)
     loadreason->suspend(0, NULL);
   mLoader.loadRoom(name, isSubRoom, loadreason, change, fading, depthoffset);
