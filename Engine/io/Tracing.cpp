@@ -11,8 +11,6 @@ using namespace CGE;
 
 #define BUF_SIZE 1024
 
-char buffer[BUF_SIZE];
-
 #ifdef UNDER_CE
 #define vsnprintf _vsnprintf
 #endif
@@ -20,6 +18,7 @@ char buffer[BUF_SIZE];
 unsigned internal_groups = 0;
 
 void internal_trace(unsigned group, int level, const char* file, const char* function, const char* message, ...){
+  char buffer[BUF_SIZE];
   va_list list;
   va_start(list, message);
   vsnprintf(buffer, BUF_SIZE, message, list);
@@ -63,6 +62,7 @@ bool TraceObject::isEnabled(int level){
 }
 
 void TraceObject::trace(int level, const char* function, const char* message, ...){
+  char buffer[BUF_SIZE];
   va_list list;
   va_start(list, message);
   vsnprintf(buffer, BUF_SIZE, message, list);

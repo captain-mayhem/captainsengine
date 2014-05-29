@@ -807,7 +807,7 @@ int ScriptFunctions::loopStop(ExecutionContext& ctx, unsigned numArgs){
 
 int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
   TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
+  if (numArgs < 1 || numArgs > 3)
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string music = ctx.stack().pop().getString();
   std::string pattern;
@@ -817,6 +817,10 @@ int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
       TR_USE(ADV_ScriptFunc);
       TR_BREAK("patterns in playMusic need to be implemented %s", pattern.c_str());
     }
+  }
+  if (numArgs >= 3){
+    std::string dummy = ctx.stack().pop().getString();
+    TR_INFO("%s unexpected", dummy.c_str());
   }
   SoundPlayer* sp = SoundEngine::instance()->getMusic(music);
   if (sp && !sp->isPlaying()){

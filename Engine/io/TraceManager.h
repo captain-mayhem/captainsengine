@@ -29,7 +29,7 @@ class TraceManager{
   };
 public:
   ~TraceManager();
-  static TraceManager* instance() {if (mManager == NULL) mManager = new TraceManager(); return mManager;}
+  static TraceManager* instance() {mMuStat.lock(); if (mManager == NULL) mManager = new TraceManager(); mMuStat.unlock(); return mManager;}
   static void deinit() {delete mManager; mManager = NULL;}
   unsigned registerChannel(const char* name, int level);
   void trace(unsigned channel, int level, const char* function, const char* message);
@@ -39,6 +39,7 @@ public:
 protected:
   TraceManager();
   static TraceManager* mManager;
+  static Mutex mMuStat;
   unsigned mChannelCount;
   TraceOutputter* mPutty;
   std::list<Message> mTraceBuffer;

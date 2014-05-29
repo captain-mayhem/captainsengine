@@ -7,6 +7,7 @@
 using namespace CGE;
 
 TraceManager* TraceManager::mManager;
+Mutex TraceManager::mMuStat;
 
 TraceManager::TraceManager() : mChannelCount(0), mPutty(NULL){
 }

@@ -21,12 +21,12 @@ TR_CHANNEL(CGE_Thread)
 int Thread::create(void (*proc)(void* data), void* data){
   int threadID = 0;
 #ifdef WIN32
-  thread_ = CreateThread(NULL, 8192, (LPTHREAD_START_ROUTINE)proc, data, 0, (LPDWORD)&threadID);
+  thread_ = CreateThread(NULL, 65536, (LPTHREAD_START_ROUTINE)proc, data, 0, (LPDWORD)&threadID);
 #endif
 #ifdef UNIX 
   pthread_attr_t attr;
   pthread_attr_init(&attr);
-  pthread_attr_setstacksize(&attr, 8192);
+  pthread_attr_setstacksize(&attr, 65536);
   pthread_create(&thread_, &attr, (void* (*)(void*))proc, data);
   threadID = (int)thread_;
 #endif

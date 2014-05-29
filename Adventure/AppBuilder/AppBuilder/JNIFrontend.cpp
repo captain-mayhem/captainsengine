@@ -14,7 +14,7 @@
 
 using namespace adv;
 
-TR_CHANNEL(ADV_JNIFrontend);
+TR_CHANNEL_LVL(ADV_JNIFrontend, TRACE_DEBUG);
 
 static int winwidth = 0;
 static int winheight = 0;
@@ -23,6 +23,7 @@ static int advheight = 0;
 static int realwidth = 0;
 static int realheight = 0;
 
+JavaVM *jvm;
 JNIEnv* currentEnv;
 
 extern "C"{
@@ -33,6 +34,14 @@ extern "C"{
 class AndroidLogOutputter : public CGE::TraceOutputter{
   virtual bool init() {}
   virtual void trace(unsigned channel, int level, const char* function, const char* message){
+	/*JNIEnv* env;
+	if (jvm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK){
+		JavaVMAttachArgs args;
+		args.version = JNI_VERSION_1_6;
+		args.name = NULL;
+		args.group = NULL;
+		jvm->AttachCurrentThread(&env, &args);
+	}*/
 	int prio;
 	switch(level){
 		case TRACE_DEBUG_DETAIL:
@@ -50,8 +59,13 @@ class AndroidLogOutputter : public CGE::TraceOutputter{
 		case TRACE_ERROR:
 			prio = ANDROID_LOG_ERROR;
 			break;
+		case TRACE_FATAL_ERROR:
+			prio = ANDROID_LOG_FATAL;
+			break;
 	}
-    __android_log_print(prio, function, "%s (channel %i)", message, channel);
+    //__android_log_print(prio, function, "%s (channel %i)", message, channel);
+	__android_log_write(prio, function, message);
+	//fflush(0);
   }
 };
 
@@ -107,6 +121,7 @@ void setAdventureDims(JNIEnv* env, int x, int y){
 
 JNIEXPORT jboolean JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env, jobject obj,  jstring filename){
 	TR_USE(ADV_JNIFrontend);
+	env->GetJavaVM(&jvm);
 	const char* str = env->GetStringUTFChars(filename, NULL);
 	if (str == NULL)
 		return JNI_FALSE;
@@ -176,7 +191,7 @@ JNIEXPORT jboolean JNICALL Java_de_captain_online_AdventureLib_init(JNIEnv * env
 	receiver.start();
 	TR_DEBUG("init game");
 	Engine::instance()->initGame(quit, setMouse);
-	TR_DEBUG("init done");
+	TR_INFO("game init done");
 	
 	env->ReleaseStringUTFChars(filename, str);
 	return JNI_TRUE;

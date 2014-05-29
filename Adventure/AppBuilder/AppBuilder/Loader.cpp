@@ -262,6 +262,9 @@ bool ResLoader::run(){
   while(!mQReq.empty()){
     Event* evt = mQReq.getEvent();
     mMutex.unlock();
+    if (evt == NULL)
+      TR_BREAK("Event is NULL");
+    TR_DETAIL("Executing an event");
     Event* res = evt->execute();
     delete evt;
     if (res != NULL){
@@ -282,6 +285,7 @@ bool ResLoader::run(){
 }
 
 bool ResLoader::handleResultEvent(){
+  TR_USE(ADV_ResLoader);
   mResMutex.lock();
   if (!mQRes.empty()){
     Event* evt = mQRes.getEvent();
@@ -299,12 +303,15 @@ bool ResLoader::handleResultEvent(){
 void ResLoader::waitUntilFinished(){
   TR_USE(ADV_ResLoader);
   while(1){
+    TR_DETAIL("locking mutex");
     mMutex.lock();
     unsigned reqCount = mQReq.size();
     mResMutex.lock();
     mMutex.unlock();
+    TR_DETAIL("reqCount %i", reqCount);
     if (reqCount+mQRes.size() == 0){
       mResMutex.unlock();
+      TR_DEBUG("queue is empty - returning");
       return;
     }
     if (mQRes.size() == 0){
@@ -317,7 +324,11 @@ void ResLoader::waitUntilFinished(){
 }
 
 void ResLoader::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset){
+  TR_USE(ADV_ResLoader);
+  TR_DETAIL("enqueuing loadRoom");
   LoadRoomEvent* lre = new LoadRoomEvent(name, isSubRoom, loadreason, change, fading, depthoffset);
+  if (!lre)
+    TR_BREAK("Out of memory");
   lre->setData(mData, mCompiler);
   mMutex.lock();
   mQReq.addEvent(lre);

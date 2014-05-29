@@ -1,6 +1,9 @@
 #include "activeobject.h"
+#include "../io/Tracing.h"
 
 using namespace CGE;
+
+TR_CHANNEL_LVL(CGE_ActiveObject, TRACE_DEBUG);
 
 ActiveObject::ActiveObject() : mShouldStop(false) {
 
@@ -23,6 +26,8 @@ void ActiveObject::stop(){
 }
 
 void ActiveObject::threadFunc(void* data){
+  TR_USE(CGE_ActiveObject);
+  TR_DEBUG("entered thread loop");
   ActiveObject* self = (ActiveObject*)data;
   while(!self->mShouldStop){
     bool ret = !self->run();
@@ -30,4 +35,5 @@ void ActiveObject::threadFunc(void* data){
     self->mShouldStop = self->mShouldStop || ret;
     self->mMutex.unlock();
   }
+  TR_DEBUG("left thread loop");
 }

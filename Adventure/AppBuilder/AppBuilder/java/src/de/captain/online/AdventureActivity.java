@@ -12,7 +12,7 @@ public class AdventureActivity extends Activity {
 		super.onCreate(icicle);
 		Bundle arguments = getIntent().getExtras();
 		String adventure = arguments.getString("adventure");
-		mView = new AdventureView(getApplication(), adventure);
+		mView = new AdventureView(this, adventure);
 		mView.setFocusableInTouchMode(true);
 		mView.requestFocus();
 		setContentView(mView);

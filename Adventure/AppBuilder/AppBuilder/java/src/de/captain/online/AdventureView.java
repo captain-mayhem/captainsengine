@@ -1,6 +1,8 @@
 package de.captain.online;
 
 import android.opengl.GLSurfaceView;
+import android.app.Activity;
+import android.app.Application;
 import android.content.Context;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -300,6 +302,12 @@ class AdventureView extends GLSurfaceView{
         		}
         	}
         }
+        
+        public void quit(){
+    		Log.i(TAG, "Quit called");
+    		Activity host = (Activity)getContext();
+    		host.finish();
+    	}
         
         private long mCurrentTime;
         boolean mInitialized;

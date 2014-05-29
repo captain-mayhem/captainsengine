@@ -1,5 +1,7 @@
 package de.captain.online;
 
+import android.util.Log;
+
 public class AdventureLib{
 	static{
 		System.loadLibrary("gnustl_shared");
@@ -37,7 +39,7 @@ public class AdventureLib{
 		//TODO
 	}
 	public static void quit(){
-		
+		mView.quit();
 	}
 	
 	private static AdventureView.Renderer mView;
