@@ -2,6 +2,7 @@
 #include "renderer/renderer.h"
 #include "window/window.h"
 #include "system/utilities.h"
+#include "system/script.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
 #include "io/Tracing.h"
@@ -21,6 +22,7 @@ std::string filename;
 std::string savegame;
 AdvDocument* adoc = NULL;
 CommandReceiver receiver;
+bool openConsole;
 
 Vec2i windowsize(640,480);
 
@@ -65,13 +67,15 @@ void init(){
 
   glViewport(0, 0, windowsize.x, windowsize.y);
   
-  receiver.start();
+  if (CGE::Script::instance()->getBoolSetting("debugPorts"))
+    receiver.start();
   Engine::instance()->initGame(quit, set_mouse);
 }
 
 void deinit(){
   Engine::instance()->exitGame();
-  receiver.stop();
+  if (CGE::Script::instance()->getBoolSetting("debugPorts"))
+    receiver.stop();
 
   AdvRenderer::deinit();
 
@@ -170,22 +174,23 @@ void key_ascii(unsigned char ascii){
 
 void cleanup(){
 #ifdef WIN32
-#ifdef _DEBUG
-  fclose(stdout);
-  fclose(stderr);
-  FreeConsole();
-#endif
+  if (openConsole){
+    fclose(stdout);
+    fclose(stderr);
+    FreeConsole();
+  }
 #endif
 }
 
 void engineMain(int argc, char** argv){
   atexit(cleanup);
 #ifdef WIN32
-#ifdef _DEBUG
-  AllocConsole();
-  freopen("CONOUT$", "wb", stdout);
-  freopen("CONOUT$", "wb", stderr);
-#endif
+  openConsole = CGE::Script::instance()->getBoolSetting("openConsole");
+  if (openConsole){
+    AllocConsole();
+    freopen("CONOUT$", "wb", stdout);
+    freopen("CONOUT$", "wb", stderr);
+  }
 #endif
   CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);

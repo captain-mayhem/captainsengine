@@ -364,7 +364,8 @@ bool StreamSoundPlayer::openStreamInternal(){
 #else
         TR_DEBUG("Sample format %i needs resampling", mCodecContext->sample_fmt);
         mPCMFormat = AL_FORMAT_MONO16;
-        mResampler = swr_alloc_set_opts(NULL, 1, AV_SAMPLE_FMT_S16, 44100, mCodecContext->channel_layout, 
+        mResampler = swr_alloc_set_opts(NULL, AV_CH_LAYOUT_MONO, AV_SAMPLE_FMT_S16, mCodecContext->sample_rate,
+          mCodecContext->channel_layout == 0 ? AV_CH_LAYOUT_STEREO : mCodecContext->channel_layout, 
           mCodecContext->sample_fmt, mCodecContext->sample_rate, 0, NULL);
         swr_init(mResampler);
 #endif
@@ -489,8 +490,9 @@ unsigned StreamSoundPlayer::decode(){
 #ifndef FFMPEG_OLD_API
         int ret = swr_convert(mResampler, (uint8_t**)&mDecodeBuffer.data, mDecodeBuffer.length, (const uint8_t **)frame->extended_data, frame->nb_samples);
         if (ret < 0)
-          printf("convert failed");
-        else
+          ret = 0;
+          //printf("convert failed");
+        //else
           mDecodeBuffer.used = ret*sizeof(short);
 #endif
       }

@@ -21,6 +21,7 @@ public:
   void kill();
   virtual void changeSize(int width, int height);
 protected:
+  void applyResolution();
   HWND handle_;
   HINSTANCE instance_;
 };

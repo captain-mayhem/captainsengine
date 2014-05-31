@@ -137,24 +137,7 @@ void WindowsWindow::init(const std::string& name){
   DWORD style = 0;
   DWORD exStyle = 0;
 
-  if (renderer_->getRenderType() == CGE::OpenGL){
-    if (fullscreen_){
-#ifndef UNDER_CE
-      DEVMODE screenSettings;
-      memset(&screenSettings, 0, sizeof(screenSettings));
-      screenSettings.dmSize = sizeof(screenSettings);
-      screenSettings.dmPelsWidth = width_;
-      screenSettings.dmPelsHeight = height_;
-      screenSettings.dmBitsPerPel = bpp_;
-      screenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
-
-      if (ChangeDisplaySettings(&screenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL){
-        TR_WARN("Changing to fullscreen failed - Trying windowed mode");
-        fullscreen_ = false;
-      }
-#endif
-    }
-}
+  applyResolution();
 
 #ifndef UNDER_CE
     if (fullscreen_){
@@ -211,6 +194,28 @@ void WindowsWindow::init(const std::string& name){
 
 }
 
+void WindowsWindow::applyResolution(){
+  TR_USE(CGE_Window);
+  if (renderer_->getRenderType() == CGE::OpenGL || renderer_->getRenderType() == CGE::OpenGL2){
+    if (fullscreen_){
+#ifndef UNDER_CE
+      DEVMODE screenSettings;
+      memset(&screenSettings, 0, sizeof(screenSettings));
+      screenSettings.dmSize = sizeof(screenSettings);
+      screenSettings.dmPelsWidth = width_;
+      screenSettings.dmPelsHeight = height_;
+      screenSettings.dmBitsPerPel = bpp_;
+      screenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+
+      if (ChangeDisplaySettings(&screenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL){
+        TR_WARN("Changing to fullscreen failed - Trying windowed mode");
+        fullscreen_ = false;
+      }
+#endif
+    }
+  }
+}
+
 void WindowsWindow::kill(){
   TR_USE(CGE_Window);
   TR_INFO("Killing window");
@@ -244,6 +249,7 @@ void WindowsWindow::changeSize(int width, int height){
   int xoffset = (rectWin.right-rectWin.left)-(rectClient.right-rectClient.left);
   int yoffset = (rectWin.bottom-rectWin.top)-(rectClient.bottom-rectClient.top);
   SetWindowPos(handle_, NULL, 0, 0, width+xoffset, height+yoffset, SWP_NOMOVE);
+  applyResolution();
 }
 
 }
