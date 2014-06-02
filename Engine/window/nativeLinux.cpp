@@ -6,7 +6,7 @@
 //#include "../input/keyboard.h"
 #include "nativeLinux.h"
 
-TR_CHANNEL(CGE_Window);
+TR_CHANNEL_EXT(CGE_Window);
 
 namespace Windows{
 
