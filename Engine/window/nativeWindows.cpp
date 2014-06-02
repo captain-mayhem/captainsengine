@@ -5,9 +5,9 @@
 #include "../input/mouse.h"
 #include "nativeWindows.h"
 
-TR_CHANNEL(CGE_Window);
+TR_CHANNEL_EXT(CGE_Window);
 
-namespace Windows{
+using namespace Windows;
 
 LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
   PAINTSTRUCT ps;
@@ -252,5 +252,8 @@ void WindowsWindow::changeSize(int width, int height){
   applyResolution();
 }
 
+void WindowsWindow::messageBox(const std::string& title, const std::string& message){
+  MessageBox(handle_, message.c_str(), title.c_str(), MB_OK);
 }
+
 #endif

@@ -38,6 +38,8 @@ public:
     width_ = width;
     height_ = height;
   }
+
+  virtual void messageBox(const std::string& title, const std::string& message);
 protected:
   CGE::Renderer* renderer_;
   bool fullscreen_;

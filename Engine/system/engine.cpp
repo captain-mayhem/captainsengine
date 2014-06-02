@@ -383,5 +383,8 @@ void Engine::requestShutdown(){
 
 void Engine::messageBox(const std::string& message, const std::string& title){
   TR_USE(CGE_Engine);
-  TR_WARN("MsgBox (not yet implemented): %s: %s", title.c_str(), message.c_str());
+  if (win_ == NULL)
+    TR_WARN("MsgBox failed (no window active): %s: %s", title.c_str(), message.c_str());
+  else
+    win_->messageBox(title, message);
 }

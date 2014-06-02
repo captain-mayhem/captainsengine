@@ -41,7 +41,7 @@ bool AdvDocument::loadDocument(const std::string filename){
   mFilename = filename;
   CGE::ZipReader zrdr(mFilename);
   if (!zrdr.isWorking()){
-    CGE::Engine::instance()->messageBox("Cannot find adventure file", "Error");
+    CGE::Engine::instance()->messageBox("Cannot find adventure (game.dat)", "Error");
     return false;
   }
   string entry = "game";

@@ -483,8 +483,8 @@ unsigned StreamSoundPlayer::decode(){
         mDataBuffer.used = remain;
       }
       if (!mResampler){
-        memcpy(mDecodeBuffer.data, frame->data[0], frame->linesize[0]);
-        mDecodeBuffer.used = frame->linesize[0];
+        memcpy(mDecodeBuffer.data, frame->data[0], length);
+        mDecodeBuffer.used = length;
       }
       else{
 #ifndef FFMPEG_OLD_API

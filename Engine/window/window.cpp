@@ -1,8 +1,12 @@
-#include "../system/script.h"
+
 #include "window.h"
 
+#include "../system/script.h"
+#include "../io/Tracing.h"
 
-namespace Windows{
+TR_CHANNEL(CGE_Window);
+
+using namespace Windows;
 
 AppWindow::AppWindow(CGE::Renderer* render){
   renderer_ = render;
@@ -22,4 +26,8 @@ void AppWindow::focus(bool hasFocus){
 
 }
 
+void AppWindow::messageBox(const std::string& title, const std::string& message){
+  TR_USE(CGE_Window);
+  TR_WARN("MsgBox failed (not yet implemented): %s: %s", title.c_str(), message.c_str());
 }
+

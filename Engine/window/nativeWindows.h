@@ -20,6 +20,8 @@ public:
   //! kill the window
   void kill();
   virtual void changeSize(int width, int height);
+
+  virtual void messageBox(const std::string& title, const std::string& message);
 protected:
   void applyResolution();
   HWND handle_;
