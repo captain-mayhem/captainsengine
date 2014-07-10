@@ -11,6 +11,10 @@ IF(${OS} STREQUAL "qnx")
 	ADD_DEFINITIONS(-D__linux__)
 ENDIF(${OS} STREQUAL "qnx")
 
+IF(${OS} STREQUAL "linux")
+	ADD_DEFINITIONS(-D__linux__)
+ENDIF(${OS} STREQUAL "linux")
+
 ADD_DEFINITIONS(
 	-DODE_LIB
 )

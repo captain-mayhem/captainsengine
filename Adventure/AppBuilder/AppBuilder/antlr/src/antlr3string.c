@@ -32,6 +32,8 @@
 // THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include    <antlr3string.h>
+int isprint ( int c );
+int isdigit ( int c );
 
 /* Factory API
  */
