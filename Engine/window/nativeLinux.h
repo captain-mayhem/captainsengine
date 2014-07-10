@@ -4,7 +4,9 @@
 #if defined(LINUX) && !defined(NO_X11)
 
 #include <X11/Xlib.h>
+#ifndef DISABLE_XF86VMODE
 #include <X11/extensions/xf86vmode.h>
+#endif
 #include "window.h"
 
 namespace Windows{
@@ -32,8 +34,10 @@ protected:
   Display* disp_;
   //! the screen
   int screen_;
+#ifndef DISABLE_XF86VMODE
   //! desktop resolution
   XF86VidModeModeInfo prevDesktop_;
+#endif
 };
 
 }

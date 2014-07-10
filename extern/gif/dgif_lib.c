@@ -86,6 +86,7 @@ DGifOpenFileName(const char *FileName) {
  * Returns GifFileType pointer dynamically allocated which serves as the gif
  * info record. _GifError is cleared if succesfull.
  *****************************************************************************/
+int close(int fd);
 GifFileType *
 DGifOpenFileHandle(int FileHandle) {
 

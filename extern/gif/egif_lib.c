@@ -98,6 +98,7 @@ static int EGifBufferedOutput(GifFileType * GifFile, GifByteType * Buf,
  * Returns GifFileType pointer dynamically allocated which serves as the gif
  * info record. _GifError is cleared if succesfull.
  *****************************************************************************/
+int close(int fd);
 GifFileType *
 EGifOpenFileName(const char *FileName,
                  int TestExistance) {
