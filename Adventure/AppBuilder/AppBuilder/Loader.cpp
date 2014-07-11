@@ -270,7 +270,9 @@ bool ResLoader::run(){
     if (res != NULL){
       mResMutex.lock();
       mQRes.addEvent(res);
+#ifndef ENGINE_SINGLE_THREADED
       mResCond.signal();
+#endif
       mResMutex.unlock();
     }
     else{
@@ -279,12 +281,17 @@ bool ResLoader::run(){
     mMutex.lock();
     mQReq.popEvent();
   }
+#ifndef ENGINE_SINGLE_THREADED
   mCond.wait(mMutex);
+#endif
   mMutex.unlock();
   return true;
 }
 
 bool ResLoader::handleResultEvent(){
+#ifdef ENGINE_SINGLE_THREADED
+  run();
+#endif
   TR_USE(ADV_ResLoader);
   mResMutex.lock();
   if (!mQRes.empty()){
@@ -314,10 +321,12 @@ void ResLoader::waitUntilFinished(){
       TR_DEBUG("queue is empty - returning");
       return;
     }
+#ifndef ENGINE_SINGLE_THREADED
     if (mQRes.size() == 0){
       if (mResCond.waitTimeout(mResMutex, 1000))
         TR_WARN("timeout occurred!");
     }
+#endif
     mResMutex.unlock();
     handleResultEvent();
   }
@@ -332,7 +341,9 @@ void ResLoader::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loa
   lre->setData(mData, mCompiler);
   mMutex.lock();
   mQReq.addEvent(lre);
+#ifndef ENGINE_SINGLE_THREADED
   mCond.signal();
+#endif
   mMutex.unlock();
 }
 
@@ -343,7 +354,9 @@ void ResLoader::beamCharacter(const std::string& name, ExecutionContext* reason,
   BeamCharacterEvent* bce = new BeamCharacterEvent(name, reason, room, pos, dir);
   mMutex.lock();
   mQReq.addEvent(bce);
+#ifndef ENGINE_SINGLE_THREADED
   mCond.signal();
+#endif
   mMutex.unlock();
 #endif
 #if 0
@@ -361,6 +374,8 @@ void ResLoader::setFocus(const std::string& name, ExecutionContext* reason){
   sfe->setData(mData, mCompiler);
   mMutex.lock();
   mQReq.addEvent(sfe);
+#ifndef ENGINE_SINGLE_THREADED
   mCond.signal();
+#endif
   mMutex.unlock();
 }

@@ -66,11 +66,15 @@ Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitReques
     mKeysDown[i] = false;
     mKeysPressed[i] = false;
   }
+#ifndef ENGINE_SINGLE_THREADED
   mLoader.start();
+#endif
 }
 
 Engine::~Engine(){
+#ifndef ENGINE_SINGLE_THREADED
   mLoader.stop();
+#endif
   delete mParticleEngine;
   delete mFonts;
   delete mAnimator;

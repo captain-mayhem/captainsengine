@@ -50,7 +50,9 @@ private:
   EventQueue mQReq;
   EventQueue mQRes;
   CGE::Mutex mResMutex;
+#ifndef ENGINE_SINGLE_THREADED
   CGE::Condition mResCond;
+#endif
   PcdkScript* mCompiler;
 };
 

@@ -65,8 +65,8 @@ GL2Renderer::GL2Renderer() : mMatrixMode(MM_MODELVIEW){
 }
 
 void GL2Renderer::initShaders(){
-  mShader.addShader(GL_VERTEX_SHADER, vertexshadersource, sizeof(vertexshadersource));
-  mShader.addShader(GL_FRAGMENT_SHADER, fragmentshadersource, sizeof(fragmentshadersource));
+  mShader.addShader(GL_VERTEX_SHADER, vertexshadersource, sizeof(vertexshadersource)-1);
+  mShader.addShader(GL_FRAGMENT_SHADER, fragmentshadersource, sizeof(fragmentshadersource)-1);
   mShader.linkShaders();
   mShader.activate();
   mAttribLocs[ATTR_VERTEX_ARRAY] = mShader.getAttribLocation("position");

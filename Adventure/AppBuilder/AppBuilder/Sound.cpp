@@ -102,8 +102,10 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
   av_register_all();
   av_log_set_level(AV_LOG_ERROR);
 #endif
+#ifndef ENGINE_SINGLE_THREADED
   mThread.setPriority(CGE::Thread::LOW);
   //start();
+#endif
 }
 
 SoundEngine::~SoundEngine(){
