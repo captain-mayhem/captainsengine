@@ -235,5 +235,5 @@ SET(DISABLE_SOUND TRUE CACHE BOOL "Sound")
 
 SET(OPENAL_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/Adventure/AppBuilder/AppBuilder/openal/include)
 SET(OPENAL_LIBRARY ${PROJECT_SOURCE_DIR}/Adventure/AppBuilder/AppBuilder/openal/lib/android/libopenal.so)
-SET(C_FRONTEND TRUE CACHE BOOL "emscripten frontend")
+SET(EMSCRIPTEN_FRONTEND TRUE CACHE BOOL "emscripten frontend")
 SET(DISABLE_XF86VMODE TRUE CACHE BOOL "x11 xf86")

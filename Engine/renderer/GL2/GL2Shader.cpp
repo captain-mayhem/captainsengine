@@ -34,7 +34,7 @@ bool GL2Shader::addShader(GLenum shadertype, const char* shaderstring, int strin
     if (len > 0){
       char* log = new char[len];
       glGetShaderInfoLog(shader, len, NULL, log);
-      TR_ERROR("GL2: %s", log);
+      TR_ERROR("GL2: %s\nshader was\n%s", log, shaderstring);
       delete [] log;
     }
   }
