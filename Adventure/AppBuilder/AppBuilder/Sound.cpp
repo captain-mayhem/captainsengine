@@ -19,6 +19,7 @@
 
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
+#ifndef DISABLE_EFX
 #ifdef UNIX
 #include <AL/efx.h>
 #else
@@ -27,6 +28,7 @@
 //#include <EFX-Util.h>
 #endif
 #include "EFXeffects.h"
+#endif
 extern "C"{
 #include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
@@ -43,7 +45,7 @@ TR_CHANNEL(ADV_SOUND_ENGINE);
 
 SoundEngine* SoundEngine::mInstance = NULL;
 
-#ifndef DISABLE_SOUND
+#if !defined(DISABLE_SOUND) && !defined(DISABLE_EFX)
 LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots = NULL;
 LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots = NULL;
 LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti = NULL;
@@ -77,6 +79,7 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
     mContext = alcCreateContext(mDevice, NULL);
     alcMakeContextCurrent(mContext);
   }
+#ifndef DISABLE_EFX
   if (!alcIsExtensionPresent(mDevice, ALC_EXT_EFX_NAME)){
     TR_ERROR("EFX exension not present");
   }
@@ -97,6 +100,7 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
     alGenEffects(1, &mEffect);
     alEffecti(mEffect, AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
   }
+#endif
   //init codecs
   alutInitWithoutContext(NULL, NULL);
   av_register_all();
@@ -112,8 +116,10 @@ SoundEngine::~SoundEngine(){
   //stop();
   reset();
 #ifndef DISABLE_SOUND
+#ifndef DISABLE_EFX
   alDeleteEffects(1, &mEffect);
   alDeleteAuxiliaryEffectSlots(1, &mEffectSlot);
+#endif
   alcMakeContextCurrent(NULL);
   alcDestroyContext(mContext);
   alcCloseDevice(mDevice);
@@ -139,7 +145,7 @@ void SoundEngine::reset(){
 }
 
 void SoundEngine::setEAXEffect(const std::string& effect){
-#ifndef DISABLE_SOUND
+#if !defined(DISABLE_SOUND) && !defined(DISABLE_EFX)
   if (effect == "off" || effect == "none"){
     mCurrentEffect = "none";
   }
