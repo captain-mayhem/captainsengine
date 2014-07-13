@@ -2,6 +2,7 @@
 #include <io/TraceManager.h>
 #include <SDL/SDL.h>
 #include <emscripten.h>
+#include <input/keyboard.h>
 
 #include "AdvDoc.h"
 #include "Engine.h"
@@ -147,6 +148,7 @@ void mainloop(){
 	render();
 
 	SDL_Event event;
+	int key = 0;
 	while (SDL_PollEvent(&event)){
 		switch (event.type) 
 		{
@@ -167,11 +169,19 @@ void mainloop(){
 				}
 				break;
 			case SDL_KEYDOWN:
+			  if (event.key.keysym.sym == SDLK_ESCAPE)
+				key = KEY_ESCAPE;
+			  else
+				key = event.key.keysym.unicode;
+			  Engine::instance()->keyPress(key);
 			  break;
 			case SDL_KEYUP:
 			// If escape is pressed, return (and thus, quit)
 			  if (event.key.keysym.sym == SDLK_ESCAPE)
-				exit(0);
+				key = KEY_ESCAPE;
+			  else
+			    key = event.key.keysym.unicode;
+			  Engine::instance()->keyRelease(key);
 			  break;
 			case SDL_QUIT:
 			  exit(0);
@@ -186,6 +196,14 @@ int main(int argc, char** argv){
 	lastTime = emscripten_get_now();
 	emscripten_set_main_loop(mainloop, 0, 0);
 	return 0;
+}
+
+int av_get_cpu_flags(){
+	return 0;
+}
+
+ALenum alGetEnumValue(const ALchar* ename){
+	return (ALenum)0;
 }
 
 }

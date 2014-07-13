@@ -26,11 +26,13 @@
 
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
+#ifndef DISABLE_EFX
 #ifdef UNIX
 #include <AL/efx.h>
 #else
 #include <efx.h>
 #include <efx-creative.h>
+#endif
 #endif
 extern "C"{
 #include <libavcodec/avcodec.h>
@@ -75,8 +77,10 @@ mName(name), mStartVolume(1.0f), mEndVolume(1.0f), mFadeDuration(0), mCurrTime(0
 void SoundPlayer::realize(){
 #ifndef DISABLE_SOUND
   alGenSources(1, &mSource);
+#ifndef DISABLE_EFX
   if (mEffectEnabled)
     alSource3i(mSource, AL_AUXILIARY_SEND_FILTER, SoundEngine::instance()->getEffectSlot(), 0, AL_FILTER_NULL);
+#endif
 #endif
   if (mSpeed != 0)
     setSpeed(mSpeed);
@@ -99,7 +103,9 @@ SoundPlayer::~SoundPlayer(){
     mSpokenString = NULL;
   }
 #ifndef DISABLE_SOUND
+#ifndef DISABLE_EFX
   alSource3i(mSource, AL_AUXILIARY_SEND_FILTER, AL_EFFECTSLOT_NULL, 0, AL_FILTER_NULL);
+#endif
   alDeleteSources(1, &mSource);
 #endif
 }
