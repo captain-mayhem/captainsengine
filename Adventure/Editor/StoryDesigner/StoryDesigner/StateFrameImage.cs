@@ -554,7 +554,7 @@ namespace StoryDesigner
                 {
                     if (mData.frameExists(mState, i) && !isFrameEmpty(mState, i))
                         e.Graphics.DrawEllipse(p, r.X+r.Width/4+1, r.Y+r.Height/2-2, r.Width/2, r.Height/2);
-                    if (mData.getScript(mState, i).Length > 0)
+                    if (mData.getScript(mState, i) != null && mData.getScript(mState, i).Length > 0)
                         e.Graphics.DrawEllipse(p, r.X + r.Width / 4 + 1, r.Y + 2, r.Width / 2, r.Width / 2);
                 }
                 e.Graphics.DrawRectangle(p, r);

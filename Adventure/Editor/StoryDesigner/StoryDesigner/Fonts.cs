@@ -121,8 +121,13 @@ namespace StoryDesigner
                 }
                 charwidths[i] = width+outlinethickness;
                 maxwidth = Math.Max(maxwidth, (int)(rect.Width+rect.X));
-                maxheight = Math.Max(maxheight, (int)(rect.Height+rect.Y));
+                int height = (int)(rect.Height + rect.Y);
+                if (height > 256)
+                    continue;
+                maxheight = Math.Max(maxheight, height);
             }
+            if (maxheight == 0)
+                maxheight = maxwidth;//a crappy workaround to compensate for crappy fonts
             int charwidth = maxwidth+outlinethickness+shadowthickness;
             int charheight = maxheight+2+outlinethickness+shadowthickness;
             int charsperrow = 256 / charwidth;
