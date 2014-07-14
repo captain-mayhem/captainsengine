@@ -389,7 +389,10 @@ int ScriptFunctions::setLight(ExecutionContext& ctx, unsigned numArgs){
   }
   else{
     SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(room);
-    sr->overlaylighting = c;
+    if (!sr)
+      TR_ERROR("Room %s does not exist", room.c_str());
+    else
+      sr->overlaylighting = c;
   }
   return 0;
 }

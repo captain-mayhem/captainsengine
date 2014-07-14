@@ -359,7 +359,8 @@ namespace StoryDesigner
                         //else
                         //    swr.Write();
                         swr.Write(';');
-                        swr.WriteLine(item.Value.getScript(i, frames).Replace(';', '\xaf'));
+                        string scr = item.Value.getScript(i, frames);
+                        swr.WriteLine(scr != null ? scr.Replace(';', '\xaf') : "");
                     }
                     swr.WriteLine(item.Value.getFPSDivider(i));
                 }
@@ -399,7 +400,8 @@ namespace StoryDesigner
                         swr.Write(';');
                         swr.Write(obj.Value.getFramePartOffset(i, frames, 1).y);
                         swr.Write(';');
-                        swr.WriteLine(obj.Value.getScript(i, frames).Replace(';', '\xaf'));
+                        string scr = obj.Value.getScript(i, frames);
+                        swr.WriteLine(scr != null ? scr.Replace(';', '\xaf') : "");
                     }
                     swr.WriteLine(obj.Value.getFPSDivider(i));
                 }
@@ -456,7 +458,8 @@ namespace StoryDesigner
                         swr.Write(';');
                         swr.Write(chr.getFramePartOffset(i, frames, 1).y);
                         swr.Write(';');
-                        swr.WriteLine(chr.getScript(i, frames).Replace(';', '\xaf'));
+                        string scr = chr.getScript(i, frames);
+                        swr.WriteLine(scr != null ? scr.Replace(';', '\xaf') : "");
                     }
                     swr.WriteLine(chr.getFPSDivider(i));
                 }
