@@ -134,7 +134,7 @@ namespace StoryDesigner
                 scripttext.SelectionStart = oldidx;
                 scripttext.SelectionLength = 0;
                 scripttext.Paste();
-                if (old != null)
+                if (old != null && old.Length > 0)
                     Clipboard.SetText(old);
                 unlockUpdate();
             }
@@ -460,7 +460,7 @@ namespace StoryDesigner
             Clipboard.SetText(text);
             int numlines = text.Split('\n').Length-1;
             scripttext.Paste();
-            if (old != null)
+            if (old != null && old.Length > 0)
                 Clipboard.SetText(old);
             int line = scripttext.GetLineFromCharIndex(scripttext.SelectionStart);
             for (int i = line; i >= line - numlines; --i)
