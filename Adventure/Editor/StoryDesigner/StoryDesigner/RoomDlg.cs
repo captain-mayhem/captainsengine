@@ -584,7 +584,8 @@ namespace StoryDesigner
             foreach (System.Collections.Generic.KeyValuePair<int,DrawableObject> pair in blitqueue)
             {
                 bool isSelected = mControl.SelectedObject == pair.Value;
-                pair.Value.draw(e.Graphics, mMode == ViewMode.Objects, isSelected ? bordercolor : Color.Red);
+                float scale = mRoom.getScale(pair.Value.getPosition());
+                pair.Value.draw(e.Graphics, mMode == ViewMode.Objects, isSelected ? bordercolor : Color.Red, scale);
             }
 
             //draw view specific stuff
@@ -811,6 +812,7 @@ namespace StoryDesigner
             DrawableObject ret = null;
             DrawableObject ret2 = null;
             int retdepth = -1;
+            int secretdepth = -1;
             foreach (ObjectInstance obj in mRoom.Objects)
             {
                 if (obj.isHit(pos))
@@ -818,6 +820,7 @@ namespace StoryDesigner
                     int depth = getDepth(obj);
                     if (depth >= retdepth)
                     {
+                        secretdepth = retdepth;
                         retdepth = depth;
                         ret2 = ret;
                         ret = obj;
@@ -831,9 +834,15 @@ namespace StoryDesigner
                     int depth = getDepth(chr);
                     if (depth > retdepth)
                     {
+                        secretdepth = retdepth;
                         retdepth = depth;
                         ret2 = ret;
                         ret = chr;
+                    }
+                    else if (depth > secretdepth)
+                    {
+                        secretdepth = depth;
+                        ret2 = chr;
                     }
                 }
             }

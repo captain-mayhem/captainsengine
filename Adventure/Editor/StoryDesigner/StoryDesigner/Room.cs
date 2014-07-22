@@ -257,12 +257,24 @@ namespace StoryDesigner
             }
             return rm;
         }
+
+        public float getScale(Vec2i pos)
+        {
+            float scaleStart = Depthmap.y*mData.WalkGridSize;
+            float scaleStop = Depthmap.x*mData.WalkGridSize;
+            float minVal = 1.0f-(scaleStart-scaleStop)/mData.Settings.Resolution.y*Zoom*0.3f;
+            float factor = (pos.y - scaleStart) / (scaleStop - scaleStart);
+            factor = factor < 0 ? 0 : factor;
+            factor = factor > 1.0f ? 1.0f : factor;
+            float scale = (1 - factor) * 1 + (factor) * minVal;
+            return scale;
+        }
     }
 
     public abstract class DrawableObject : Drawable
     {
         public DrawableObject(IStateFrameData data) : base(data) { }
-        public abstract void draw(Graphics g, bool boundary, Color bordercolor);
+        public abstract void draw(Graphics g, bool boundary, Color bordercolor, float scale);
         public abstract bool isHit(Vec2i pos);
         public abstract Vec2i getPosition();
         public abstract void setPosition(Vec2i pos);
@@ -279,18 +291,26 @@ namespace StoryDesigner
             mAdvData = data;
             setName(chr.Name);
         }
-        public override void draw(Graphics g, bool boundary, Color bordercolor)
+        public override void draw(Graphics g, bool boundary, Color bordercolor, float scale)
         {
             int state = LookDir;
             if (LookDir == 4)
                 state = 3;
-            Vec2i size = mData.getSize(state);
+            if (Character.NoZoom)
+                scale = 1.0f;
+            scale *= Character.Zoom / 100.0f;
+            Vec2i size = mData.getSize(state-1);
             Bitmap bmp = new Bitmap(size.x, size.y);
             Graphics gbmp = Graphics.FromImage(bmp);
             draw(gbmp, state, new Vec2i(0, 0));
             if (LookDir == 4)
                 bmp.RotateFlip(RotateFlipType.RotateNoneFlipX);
-            g.DrawImage(bmp, RawPosition.x, RawPosition.y);
+            Vec2i renderPos = RawPosition + mData.getHotspot(state - 1) - mData.getHotspot(state - 1) * scale;
+            if (LookDir == 4)
+            {
+                renderPos.x += (int)((-mData.getSize(state - 1).x + 2 * mData.getHotspot(state - 1).x) * scale);
+            }
+            g.DrawImage(bmp, renderPos.x, renderPos.y, size.x*scale, size.y*scale);
             if (boundary)
                 drawBoundary(g, state, RawPosition, bordercolor);
         }
@@ -370,9 +390,9 @@ namespace StoryDesigner
         {
             int oldstate = LookDir == 4 ? 3 : LookDir;
             int newstate = lookDir == 4 ? 3 : lookDir;
-            Vec2i oldoffset = mData.getHotspot(oldstate);
-            Vec2i newoffset = mData.getHotspot(newstate);
-            position = position - oldoffset + newoffset;
+            Vec2i oldoffset = mData.getHotspot(oldstate-1);
+            Vec2i newoffset = mData.getHotspot(newstate-1);
+            position = position + oldoffset - newoffset;
             LookDir = lookDir;
         }
         public int LookDir;
@@ -391,7 +411,7 @@ namespace StoryDesigner
             Object = obj;
             mAdvData = data;
         }
-        public override void draw(Graphics g, bool boundary, Color bordercolor)
+        public override void draw(Graphics g, bool boundary, Color bordercolor, float scale)
         {
             draw(g, State, Position);
             if (boundary)
