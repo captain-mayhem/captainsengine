@@ -212,5 +212,45 @@ namespace StoryDesigner
         {
             this.Text = "Character (" + mCharacter.Name + ")";
         }
+
+        private void nozoom_CheckedChanged(object sender, EventArgs e)
+        {
+            mCharacter.NoZoom = nozoom.Checked;
+        }
+
+        private void leftanim_CheckedChanged(object sender, EventArgs e)
+        {
+            mCharacter.RealLeftAnimations = leftanim.Checked;
+        }
+
+        private void memory_resistant_CheckedChanged(object sender, EventArgs e)
+        {
+            mCharacter.MemoryReistent = memory_resistant.Checked;
+        }
+
+        private void ghostmode_CheckedChanged(object sender, EventArgs e)
+        {
+            mCharacter.Ghost = ghostmode.Checked;
+        }
+
+        private void startzoom_ValueChanged(object sender, EventArgs e)
+        {
+            mCharacter.Zoom = (int)startzoom.Value;
+        }
+
+        private void font_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            mCharacter.Font = font.SelectedIndex;
+        }
+
+        private void walksound_TextChanged(object sender, EventArgs e)
+        {
+            mCharacter.Walksound = walksound.Text;
+        }
+
+        private void walkspeed_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            mCharacter.WalkSpeed = Convert.ToInt32(walkspeed.Text);
+        }
     }
 }

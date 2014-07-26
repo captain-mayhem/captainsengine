@@ -40,7 +40,18 @@ namespace StoryDesigner
 
         void mBackupTimer_Tick(object sender, EventArgs e)
         {
-            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),"StoryDesigner");
+            //write backup
+            if (mPersistence.CreateBackups)
+            {
+                string dir = getBackupFileName();
+                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool, mZipPwd);
+                afw.writeProjectFile(dir);
+            }
+        }
+
+        string getBackupFileName()
+        {
+            string dir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "StoryDesigner");
             dir = Path.Combine(dir, "backups");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
@@ -68,11 +79,9 @@ namespace StoryDesigner
             {
 
             }
-            //write backup
             string filename = mData.Settings.Projectname + " " + instanceCount + ".adv";
             dir = Path.Combine(dir, filename);
-            AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
-            afw.writeProjectFile(dir);
+            return dir;
         }
 
         void mediaPool_DragDrop(object sender, DragEventArgs e)
@@ -277,11 +286,6 @@ namespace StoryDesigner
             pool.DoDragDrop(res, DragDropEffects.Copy);
         }
 
-        public MainForm(string filename, Persistence pers) : this(pers)
-        {
-            loadFile(filename);
-        }
-
         void mediaPool_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
             ResourceID id = (ResourceID)e.Node.Tag;
@@ -454,16 +458,19 @@ namespace StoryDesigner
             }
         }
 
-        private bool loadFile(string filename)
+        public bool loadFile(string filename)
         {
             try
             {
                 AdvFileReader reader = new AdvFileReader(filename, mediaPool, gamePool, mPersistence);
                 mData = reader.Data;
+                mZipPwd = reader.ZipPassword;
                 if (Path.GetExtension(filename) == ".adv")
                 {
                     mSavePath = filename;
                     mBackupTimer.Start();
+
+                    allowSave(true);
 
                     //check if media path is ok
                     Dictionary<string, string> missingImages = new Dictionary<string, string>();
@@ -498,6 +505,8 @@ namespace StoryDesigner
                         return false;
                     }
                 }
+                else
+                    allowSave(false);
                 return true;
             }
             catch (Exception)
@@ -583,6 +592,15 @@ namespace StoryDesigner
             return images.Count == 0 && sounds.Count == 0 && music.Count == 0 && videos.Count == 0;
         }
 
+        void allowSave(bool allow)
+        {
+            ToolStripDropDownItem project = MainMenuStrip.Items[0] as ToolStripDropDownItem;
+            ToolStripMenuItem save = project.DropDownItems[2] as ToolStripMenuItem;
+            save.Enabled = allow;
+            ToolStripMenuItem saveAs = project.DropDownItems[3] as ToolStripMenuItem;
+            saveAs.Enabled = allow;
+        }
+
         private AdvData mData;
         private ImageViewer mImageViewer;
         private MouseIcons mMouseIcons;
@@ -597,6 +615,7 @@ namespace StoryDesigner
         private Persistence mPersistence;
         private string mSavePath = null;
         private Timer mBackupTimer = new Timer();
+        private string mZipPwd = "";
 
         internal void projectSetupToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -661,7 +680,10 @@ namespace StoryDesigner
         internal void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mBackupTimer.Stop();
+            if (MainMenuStrip != null)
+                allowSave(true);
             mData = new AdvData(mPersistence);
+            mZipPwd = "";
             gamePool.Nodes.Clear();
             gamePool.Nodes.Add("1) "+Strings.Characters.ToUpper());
             gamePool.Nodes.Add("2) "+Strings.Scripts.ToUpper());
@@ -698,7 +720,7 @@ namespace StoryDesigner
             if (dr == DialogResult.OK)
             {
                 mPersistence.LastOpenPath = Path.GetDirectoryName(sod.FileName);
-                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
+                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool, mZipPwd);
                 afw.writeProjectFile(sod.FileName);
                 mSavePath = sod.FileName;
                 if (!mBackupTimer.Enabled)
@@ -757,7 +779,7 @@ namespace StoryDesigner
                 m_runtime_name = sod.FileName;
                 showWhile(delegate
                 {
-                    AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool);
+                    AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool, mZipPwd);
                     writer.writeGame(sod.FileName);
                     mData.Settings.Directory = Path.GetDirectoryName(sod.FileName);
                 });
@@ -1123,7 +1145,14 @@ namespace StoryDesigner
         {
             if (mSavePath != null)
             {
-                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
+                if (mPersistence.CreateBackups)
+                {
+                    string backup = getBackupFileName();
+                    File.Copy(mSavePath, backup);
+                    mBackupTimer.Stop();
+                    mBackupTimer.Start();
+                }
+                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool, mZipPwd);
                 afw.writeProjectFile(mSavePath);
             }
             else //open save as
@@ -1336,7 +1365,7 @@ namespace StoryDesigner
             DialogResult dr = sfd.ShowDialog();
             if (dr == DialogResult.OK)
             {
-                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool);
+                AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool, mZipPwd);
                 afw.writeExport(sfd.FileName);
             }
         }

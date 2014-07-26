@@ -22,8 +22,9 @@ namespace StoryDesigner
         public MDIMain(string filename, Persistence pers)
         {
             mPersistence = pers;
-            mMainForm = new MainForm(filename, pers);
+            mMainForm = new MainForm(pers);
             initialize();
+            mMainForm.loadFile(filename);
         }
 
         private void initialize()
