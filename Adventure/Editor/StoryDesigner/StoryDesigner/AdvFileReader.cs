@@ -1159,6 +1159,11 @@ namespace StoryDesigner
             zis.Close();
         }
 
+        public string ZipPassword
+        {
+            get { return mZipPwd; }
+        }
+
         private TreeView mMediaPool;
         private TreeView mGamePool;
         private string mPath;

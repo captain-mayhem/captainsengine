@@ -21,11 +21,12 @@ namespace StoryDesigner
         protected readonly int PARTS_MAX = 2;
         protected readonly int FXSHAPES_MAX = 3;
 
-        public AdvFileWriter(AdvData data, TreeView gamepool, TreeView mediapool){
+        public AdvFileWriter(AdvData data, TreeView gamepool, TreeView mediapool, string zipPassword){
             ZipConstants.DefaultCodePage = 1252;
             mData = data;
             mGamepool = gamepool;
             mMediapool = mediapool;
+            mZipPwd = zipPassword;
         }
 
         public void writeExport(string path)
@@ -87,7 +88,7 @@ namespace StoryDesigner
 
                 ZipEntry ze5 = new ZipEntry(entry + ".adv");
                 zs.PutNextEntry(ze5);
-                writeProjectFile(zs, entry, false);
+                writeProjectFile(zs, entry, false, false);
                 zs.CloseEntry();
 
                 if (mData.Settings.GameIcon.Length > 0)
@@ -133,7 +134,7 @@ namespace StoryDesigner
                 bool writeDat = ext == ".dat";
                 string entry = Path.GetFileNameWithoutExtension(path);
                 FileStream fs = new FileStream(path, FileMode.Create);
-                writeProjectFile(fs, entry, writeDat);
+                writeProjectFile(fs, entry, writeDat, mData.Settings.ProtectGameFile);
                 fs.Close();
             }
             catch (Exception)
@@ -142,7 +143,7 @@ namespace StoryDesigner
             }
         }
 
-        private void writeProjectFile(Stream stream, string entry, bool writeDat)
+        private void writeProjectFile(Stream stream, string entry, bool writeDat, bool protectAssets)
         {        
             ZipOutputStream zs = new ZipOutputStream(stream);
             zs.UseZip64 = UseZip64.Off;
@@ -166,6 +167,14 @@ namespace StoryDesigner
             zs.PutNextEntry(ze4);
             writeLanguages(zs);
             zs.CloseEntry();
+
+            if (protectAssets)
+            {
+                ZipEntry ze5 = new ZipEntry(entry + ".005");
+                zs.PutNextEntry(ze5);
+                writePassword(zs);
+                zs.CloseEntry();
+            }
 
             ZipEntry ze10 = new ZipEntry(entry + ".010");
             zs.PutNextEntry(ze10);
@@ -661,6 +670,41 @@ namespace StoryDesigner
             swr.Flush();
         }
 
+        void writePassword(Stream strm)
+        {
+            //create one
+            if (mZipPwd == null || mZipPwd.Length < 20)
+            {
+                Random rand = new Random();
+                StringBuilder pwd = new StringBuilder();
+                for (int i = 0; i < 20; ++i)
+                {
+                    int val = rand.Next(33, 127);
+                    char ch = (char)val;
+                    pwd.Append(ch);
+                }
+                mZipPwd = pwd.ToString();
+            }
+            //convert
+            StringBuilder pwdwrite = new StringBuilder();
+            for (int i = 0; i < 20; ++i)
+            {
+                int val = mZipPwd[i];
+                if (i >= 15)
+                    val *=  3;
+                else if (i >= 10)
+                    val *= 6;
+                else if (i >= 5)
+                    val *= 4;
+                else
+                    val *= 5;
+                pwdwrite.Append(val);
+            }
+            StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
+            swr.WriteLine(pwdwrite.ToString());
+            swr.Flush();
+        }
+
         void writeFonts(string datadir)
         {
             FileStream fs = new FileStream(datadir+"fonts.dat", FileMode.Create);
@@ -731,6 +775,8 @@ namespace StoryDesigner
             FileStream fs = new FileStream(datadir + "gfx.dat", FileMode.Create);
             ZipOutputStream zos = new ZipOutputStream(fs);
             zos.UseZip64 = UseZip64.Off;
+            if (mZipPwd != null && mZipPwd.Length > 0)
+                zos.Password = mZipPwd;
 
             foreach (KeyValuePair<string,string> entry in mData.Images){
                 Bitmap bmp = (Bitmap)Bitmap.FromFile(entry.Value);
@@ -783,6 +829,8 @@ namespace StoryDesigner
             FileStream fs = new FileStream(datadir + output, FileMode.Create);
             ZipOutputStream zos = new ZipOutputStream(fs);
             zos.UseZip64 = UseZip64.Off;
+            if (mZipPwd != null && mZipPwd.Length > 0)
+                zos.Password = mZipPwd;
 
             foreach (KeyValuePair<string, string> entry in files)
             {
@@ -918,5 +966,6 @@ namespace StoryDesigner
         protected AdvData mData;
         TreeView mGamepool;
         TreeView mMediapool;
+        string mZipPwd;
     }
 }

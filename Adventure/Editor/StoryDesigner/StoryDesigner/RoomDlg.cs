@@ -603,9 +603,13 @@ namespace StoryDesigner
                 wmy = mRoom.Walkmap.GetUpperBound(1);
             bool wmfree = mRoom.Walkmap[wmx, wmy].isFree;
             Font f = new Font(Fonts.DefaultFont.FontFamily, 11);
-            if (mMode == ViewMode.Objects){
-                string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x/mData.WalkGridSize, mRoom.ScrollOffset.y/mData.WalkGridSize, wmx+1, wmy+1, wmfree ? 'F' : 'B', mp.x, mp.y);
-                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
+            if (mMode == ViewMode.Objects)
+            {
+                if (mData.Settings.InfoLine)
+                {
+                    string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x / mData.WalkGridSize, mRoom.ScrollOffset.y / mData.WalkGridSize, wmx + 1, wmy + 1, wmfree ? 'F' : 'B', mp.x, mp.y);
+                    Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
+                }
                 string s2 = "Object:";
                 DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset, false);
                 if (drob is ObjectInstance)

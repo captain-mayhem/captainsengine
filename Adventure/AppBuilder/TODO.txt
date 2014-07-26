@@ -12,8 +12,7 @@ switchchar with both characters active | 3
 
 Editor
 ------
-Script-Autocompletion | 3
-Scaling of characters | 1
+
 
 Tests
 -----

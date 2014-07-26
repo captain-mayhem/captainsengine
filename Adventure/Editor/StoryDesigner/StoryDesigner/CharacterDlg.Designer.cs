@@ -120,6 +120,7 @@ namespace StoryDesigner
             this.startzoom.Name = "startzoom";
             this.startzoom.Size = new System.Drawing.Size(45, 20);
             this.startzoom.TabIndex = 10;
+            this.startzoom.ValueChanged += new System.EventHandler(this.startzoom_ValueChanged);
             // 
             // ghostmode
             // 
@@ -130,6 +131,7 @@ namespace StoryDesigner
             this.ghostmode.TabIndex = 9;
             this.ghostmode.Text = "Ghost mode";
             this.ghostmode.UseVisualStyleBackColor = true;
+            this.ghostmode.CheckedChanged += new System.EventHandler(this.ghostmode_CheckedChanged);
             // 
             // memory_resistant
             // 
@@ -140,6 +142,7 @@ namespace StoryDesigner
             this.memory_resistant.TabIndex = 8;
             this.memory_resistant.Text = "Memory resistant";
             this.memory_resistant.UseVisualStyleBackColor = true;
+            this.memory_resistant.CheckedChanged += new System.EventHandler(this.memory_resistant_CheckedChanged);
             // 
             // leftanim
             // 
@@ -150,6 +153,7 @@ namespace StoryDesigner
             this.leftanim.TabIndex = 7;
             this.leftanim.Text = "Real left-animations";
             this.leftanim.UseVisualStyleBackColor = true;
+            this.leftanim.CheckedChanged += new System.EventHandler(this.leftanim_CheckedChanged);
             // 
             // nozoom
             // 
@@ -160,6 +164,7 @@ namespace StoryDesigner
             this.nozoom.TabIndex = 6;
             this.nozoom.Text = "Do NOT Zoom";
             this.nozoom.UseVisualStyleBackColor = true;
+            this.nozoom.CheckedChanged += new System.EventHandler(this.nozoom_CheckedChanged);
             // 
             // walkspeed
             // 
@@ -168,6 +173,7 @@ namespace StoryDesigner
             this.walkspeed.Name = "walkspeed";
             this.walkspeed.Size = new System.Drawing.Size(100, 21);
             this.walkspeed.TabIndex = 5;
+            this.walkspeed.SelectedIndexChanged += new System.EventHandler(this.walkspeed_SelectedIndexChanged);
             // 
             // label4
             // 
@@ -184,6 +190,7 @@ namespace StoryDesigner
             this.walksound.Name = "walksound";
             this.walksound.Size = new System.Drawing.Size(100, 20);
             this.walksound.TabIndex = 3;
+            this.walksound.TextChanged += new System.EventHandler(this.walksound_TextChanged);
             // 
             // label3
             // 
@@ -201,6 +208,7 @@ namespace StoryDesigner
             this.font.Name = "font";
             this.font.Size = new System.Drawing.Size(100, 21);
             this.font.TabIndex = 1;
+            this.font.SelectedIndexChanged += new System.EventHandler(this.font_SelectedIndexChanged);
             // 
             // label2
             // 
@@ -235,7 +243,7 @@ namespace StoryDesigner
             this.toolStripSeparator3,
             this.backgroundColorToolStripMenuItem});
             this.customizeMenu.Name = "customizeMenu";
-            this.customizeMenu.Size = new System.Drawing.Size(249, 198);
+            this.customizeMenu.Size = new System.Drawing.Size(249, 176);
             this.customizeMenu.Opening += new System.ComponentModel.CancelEventHandler(this.customizeMenu_Opening);
             // 
             // copyActionToolStripMenuItem
@@ -306,6 +314,8 @@ namespace StoryDesigner
             // 
             // stateFrameImage1
             // 
+            this.stateFrameImage1.AdaptFirstDrop = false;
+            this.stateFrameImage1.AddScripts = true;
             this.stateFrameImage1.AutoSize = true;
             this.stateFrameImage1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.stateFrameImage1.BackgroundColor = System.Drawing.Color.Black;
