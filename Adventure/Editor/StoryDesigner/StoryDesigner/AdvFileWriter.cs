@@ -775,7 +775,7 @@ namespace StoryDesigner
             FileStream fs = new FileStream(datadir + "gfx.dat", FileMode.Create);
             ZipOutputStream zos = new ZipOutputStream(fs);
             zos.UseZip64 = UseZip64.Off;
-            if (mZipPwd != null && mZipPwd.Length > 0)
+            if (mData.Settings.ProtectGameFile)
                 zos.Password = mZipPwd;
 
             foreach (KeyValuePair<string,string> entry in mData.Images){
@@ -829,7 +829,7 @@ namespace StoryDesigner
             FileStream fs = new FileStream(datadir + output, FileMode.Create);
             ZipOutputStream zos = new ZipOutputStream(fs);
             zos.UseZip64 = UseZip64.Off;
-            if (mZipPwd != null && mZipPwd.Length > 0)
+            if (mData.Settings.ProtectGameFile)
                 zos.Password = mZipPwd;
 
             foreach (KeyValuePair<string, string> entry in files)
@@ -961,6 +961,11 @@ namespace StoryDesigner
             swr.Write(mData.Settings.NoPngToJpeg ? -1 : 0);
             swr.WriteLine("");
             swr.Flush();
+        }
+
+        public string ZipPassword
+        {
+            get { return mZipPwd; }
         }
 
         protected AdvData mData;

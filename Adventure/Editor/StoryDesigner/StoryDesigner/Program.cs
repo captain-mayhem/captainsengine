@@ -21,12 +21,14 @@ namespace StoryDesigner
             AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
             Persistence pers = Persistence.load();
             System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo(pers.LCID);
-            Update update = new Update();
-            update.checkForUpdates();
+            MDIMain main = null;
             if (args.Length > 0)
-                Application.Run(new MDIMain(args[0], pers));
+                main = new MDIMain(args[0], pers);
             else
-                Application.Run(new MDIMain(pers));
+                main = new MDIMain(pers);
+            Update update = new Update(main);
+            update.doUpdate();
+            Application.Run(main);
         }
 
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)

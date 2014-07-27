@@ -10,10 +10,11 @@ namespace StoryDesigner
 {
     public partial class ObjectDlg : ChildForm
     {
-        public ObjectDlg(AdvObject obj)
+        public ObjectDlg(AdvObject obj, bool fitImage)
         {
             InitializeComponent();
             this.stateFrameImage1.ClientSizeChanged += new EventHandler(stateFrameImage1_ClientSizeChanged);
+            stateFrameImage1.AdaptFirstDrop = fitImage;
             mObject = obj;
             updateObject();
             this.stateFrameImage1.Data = obj;

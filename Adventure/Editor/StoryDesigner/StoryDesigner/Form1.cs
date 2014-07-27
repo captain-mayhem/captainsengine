@@ -401,7 +401,7 @@ namespace StoryDesigner
                 mPersistence.ObjectDlgPosition = mObjectDlg.Location;
                 mObjectDlg.Close();
             }
-            mObjectDlg = new ObjectDlg(obj);
+            mObjectDlg = new ObjectDlg(obj, mPersistence.FitImages);
             mObjectDlg.MdiParent = this.MdiParent;
             mObjectDlg.StartPosition = FormStartPosition.Manual;
             mObjectDlg.Location = mPersistence.ObjectDlgPosition;
@@ -723,6 +723,7 @@ namespace StoryDesigner
                 AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool, mZipPwd);
                 afw.writeProjectFile(sod.FileName);
                 mSavePath = sod.FileName;
+                mZipPwd = afw.ZipPassword;
                 if (!mBackupTimer.Enabled)
                     mBackupTimer.Start();
             }
@@ -782,6 +783,7 @@ namespace StoryDesigner
                     AdvFileWriter writer = new AdvFileWriter(mData, gamePool, mediaPool, mZipPwd);
                     writer.writeGame(sod.FileName);
                     mData.Settings.Directory = Path.GetDirectoryName(sod.FileName);
+                    mZipPwd = writer.ZipPassword;
                 });
             }
         }
@@ -1154,6 +1156,7 @@ namespace StoryDesigner
                 }
                 AdvFileWriter afw = new AdvFileWriter(mData, gamePool, mediaPool, mZipPwd);
                 afw.writeProjectFile(mSavePath);
+                mZipPwd = afw.ZipPassword;
             }
             else //open save as
                 saveAsToolStripMenuItem_Click(sender, e);
@@ -1214,14 +1217,18 @@ namespace StoryDesigner
         {
             if (mSelectedView.SelectedNode.Parent == null)
                 return; //do not delete root folders
-            string entry = mSelectedView.SelectedNode.Text;
-            string text;
-            ResourceID res = (ResourceID)mSelectedView.SelectedNode.Tag;
-            if (res == ResourceID.FOLDER)
-                text = "Delete subdirectory " + entry + " and all its entries?";
-            else
-                text = "Delete " + entry + "?";
-            DialogResult result = MessageBox.Show(text, "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            DialogResult result = DialogResult.Yes;
+            if (!mData.Settings.SilentDelete)
+            {
+                string entry = mSelectedView.SelectedNode.Text;
+                string text;
+                ResourceID res = (ResourceID)mSelectedView.SelectedNode.Tag;
+                if (res == ResourceID.FOLDER)
+                    text = "Delete subdirectory " + entry + " and all its entries?";
+                else
+                    text = "Delete " + entry + "?";
+                result = MessageBox.Show(text, "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            }
             if (result == DialogResult.Yes)
             {
                 removeResource(mSelectedView.SelectedNode);

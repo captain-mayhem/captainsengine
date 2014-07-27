@@ -7,10 +7,11 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.Threading;
+using System.Reflection;
 
 namespace StoryDesigner
 {
-    public partial class MDIMain : Form, PluginHost
+    public partial class MDIMain : Form, PluginHost, Updatable
     {
         public MDIMain(Persistence pers)
         {
@@ -24,7 +25,8 @@ namespace StoryDesigner
             mPersistence = pers;
             mMainForm = new MainForm(pers);
             initialize();
-            mMainForm.loadFile(filename);
+            if (filename != null && filename.Length > 0)
+                mMainForm.loadFile(filename);
         }
 
         private void initialize()
@@ -219,6 +221,36 @@ namespace StoryDesigner
         private void importCharacterToolStripMenuItem_Click(object sender, EventArgs e)
         {
             mMainForm.importCharacterToolStripMenuItem_Click(sender, e);
+        }
+
+        public string ApplicationName
+        {
+            get { return "StoryDesigner"; }
+        }
+
+        public string ApplicationID
+        {
+            get { return "StoryDesigner"; }
+        }
+
+        public Assembly ApplicationAssembly
+        {
+            get { return Assembly.GetExecutingAssembly(); }
+        }
+
+        public Icon ApplicationIcon
+        {
+            get { return this.Icon; }
+        }
+
+        public Uri UpdateXmlLocation
+        {
+            get { return new Uri(mPersistence.UpdateURL); }
+        }
+
+        public Form Context
+        {
+            get { return this; }
         }
     }
 }

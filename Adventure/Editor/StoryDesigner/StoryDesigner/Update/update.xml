@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<StoryDesignerUpdate>
+	<update appId="StoryDesigner">
+		<version>1.0.0.1</version>
+		<url>http://adventure.captain-online.de/StoryDesigner.exe</url>
+		<fileName>StoryDesigner.exe</fileName>
+		<md5>fae1270c9fa735718b8753a2e6150d14</md5>
+		<description>A test version to test updater</description>
+		<launchArgs></launchArgs>
+	</update>
+</StoryDesignerUpdate>
