@@ -1098,17 +1098,20 @@ namespace StoryDesigner
         private void removeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             DrawableObject obj = mControl.SelectedObject;
+            DialogResult res = DialogResult.Yes;
             if (obj is ObjectInstance)
             {
                 ObjectInstance inst = (ObjectInstance)obj;
-                DialogResult res = MessageBox.Show("Delete the Object \"" + inst.Name + "\" from your room?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (!mData.Settings.SilentDelete)
+                    res = MessageBox.Show("Delete the Object \"" + inst.Name + "\" from your room?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res == DialogResult.Yes)
                     mRoom.removeObject(inst);
             }
             else
             {
                 CharacterInstance inst = (CharacterInstance)obj;
-                DialogResult res = MessageBox.Show("Delete the Character \"" + inst.Name + "\" from your room?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                if (!mData.Settings.SilentDelete)
+                    res = MessageBox.Show("Delete the Character \"" + inst.Name + "\" from your room?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (res == DialogResult.Yes)
                     mRoom.removeCharacter(inst);
             }
