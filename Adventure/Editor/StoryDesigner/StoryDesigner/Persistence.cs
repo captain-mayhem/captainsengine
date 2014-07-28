@@ -34,7 +34,7 @@ namespace StoryDesigner
             set { CharBackColor = ColorTranslator.FromHtml(value); }
         }
         public int LCID = System.Threading.Thread.CurrentThread.CurrentUICulture.LCID;
-        public string UpdateURL = "http://adventure.captain-online.de/update.xml";
+        public string UpdateURL = "http://captainsengine.sourceforge.net/update.xml";
 
         protected Persistence()
         {

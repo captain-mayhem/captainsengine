@@ -5,23 +5,33 @@ namespace StoryDesigner
 {
     internal partial class UpdateAccept : Form
     {
-        private Updatable applicationInfo;
-        private UpdateXml updateInfo;
+        private Updatable[] applicationInfos;
+        private UpdateXml[] updateInfos;
         private UpdateInfo updateUnfoForm;
 
-        internal UpdateAccept(Updatable applicationInfo, UpdateXml updateInfo)
+        internal UpdateAccept(Updatable[] applicationInfos, UpdateXml[] updateInfos)
         {
             InitializeComponent();
 
-            this.applicationInfo = applicationInfo;
-            this.updateInfo = updateInfo;
+            int firstUpdatable = 0;
+            for (int i = 0; i < updateInfos.Length; ++i)
+            {
+                if (updateInfos[i].ShouldUpdate)
+                {
+                    firstUpdatable = i;
+                    break;
+                }
+            }
 
-            this.Text = applicationInfo.ApplicationName+ " - Update Available";
+            this.applicationInfos = applicationInfos;
+            this.updateInfos = updateInfos;
 
-            if (applicationInfo.ApplicationIcon != null)
-                this.Icon = applicationInfo.ApplicationIcon;
+            this.Text = applicationInfos[firstUpdatable].ApplicationName+ " - Update Available";
 
-            lblNewVersion.Text = string.Format("New Version: {0}", updateInfo.Version.ToString());
+            if (applicationInfos[0].ApplicationIcon != null)
+                this.Icon = applicationInfos[0].ApplicationIcon;
+
+            lblNewVersion.Text = string.Format("New Version: {0}", updateInfos[firstUpdatable].Version.ToString());
         }
 
         private void btnYes_Click(object sender, EventArgs e)
@@ -39,7 +49,7 @@ namespace StoryDesigner
         private void btnDetails_Click(object sender, EventArgs e)
         {
             if (updateUnfoForm == null)
-                updateUnfoForm = new UpdateInfo(applicationInfo, updateInfo);
+                updateUnfoForm = new UpdateInfo(applicationInfos, updateInfos);
             updateUnfoForm.ShowDialog(this);
         }
     }

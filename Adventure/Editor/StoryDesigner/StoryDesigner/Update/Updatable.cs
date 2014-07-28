@@ -12,7 +12,8 @@ namespace StoryDesigner
     {
         string ApplicationName { get; }
         string ApplicationID { get; }
-        Assembly ApplicationAssembly { get; }
+        Version ApplicationVersion { get; }
+        string ApplicationLocation { get; }
         Icon ApplicationIcon { get; }
         Uri UpdateXmlLocation { get; }
         Form Context { get; }
