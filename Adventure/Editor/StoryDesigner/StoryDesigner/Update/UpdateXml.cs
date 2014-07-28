@@ -16,6 +16,16 @@ namespace StoryDesigner
             this.launchArgs = launchArgs;
         }
 
+        internal UpdateXml(UpdateXml other)
+        {
+            this.version = other.version;
+            this.uri = other.uri;
+            this.fileName = other.fileName;
+            this.md5 = other.md5;
+            this.description = other.description;
+            this.launchArgs = other.launchArgs;
+        }
+
         internal bool isNewerThan(Version version)
         {
             return this.version > version;
@@ -70,6 +80,7 @@ namespace StoryDesigner
         private string md5;
         private string description;
         private string launchArgs;
+        private bool shouldUpdate = false;
 
         internal Version Version
         {
@@ -99,6 +110,12 @@ namespace StoryDesigner
         internal string LaunchArgs
         {
             get { return this.launchArgs; }
+        }
+
+        internal bool ShouldUpdate
+        {
+            get { return shouldUpdate; }
+            set { shouldUpdate = value; }
         }
     }
 }

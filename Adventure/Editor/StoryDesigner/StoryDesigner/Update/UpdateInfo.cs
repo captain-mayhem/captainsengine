@@ -11,18 +11,34 @@ namespace StoryDesigner
 {
     internal partial class UpdateInfo : Form
     {
-        public UpdateInfo(Updatable applicationInfo, UpdateXml updateInfo)
+        public UpdateInfo(Updatable[] applicationInfos, UpdateXml[] updateInfos)
         {
             InitializeComponent();
 
-            if (applicationInfo.ApplicationIcon != null)
-                this.Icon = applicationInfo.ApplicationIcon;
+            if (applicationInfos[0].ApplicationIcon != null)
+                this.Icon = applicationInfos[0].ApplicationIcon;
 
-            this.Text = applicationInfo.ApplicationName + " - Update Info";
+            int firstUpdatable = 0;
+            for (int i = 0; i < updateInfos.Length; ++i)
+            {
+                if (updateInfos[i].ShouldUpdate)
+                {
+                    firstUpdatable = i;
+                    break;
+                }
+            }
+
+            this.Text = applicationInfos[firstUpdatable].ApplicationName + " - Update Info";
             this.lblVersions.Text = String.Format("Current Version: {0}\n Update Version: {1}",
-                applicationInfo.ApplicationAssembly.GetName().Version.ToString(),
-                updateInfo.Version.ToString());
-            this.txtDescription.Text = updateInfo.Description;
+                applicationInfos[firstUpdatable].ApplicationVersion.ToString(),
+                updateInfos[firstUpdatable].Version.ToString());
+            this.txtDescription.Text = "";
+            for (int i = 0; i < updateInfos.Length; ++i){
+                UpdateXml updateInfo = updateInfos[i];
+                if (updateInfo.ShouldUpdate)
+                    this.txtDescription.Text += applicationInfos[i].ApplicationName+"\n";
+                    this.txtDescription.Text += updateInfo.Description+"\n\n";
+            }
         }
 
         private void btnBack_Click(object sender, EventArgs e)

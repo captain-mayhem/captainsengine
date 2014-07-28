@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Security.Permissions;
+using System.Collections;
 
 namespace StoryDesigner
 {
@@ -26,8 +27,7 @@ namespace StoryDesigner
                 main = new MDIMain(args[0], pers);
             else
                 main = new MDIMain(pers);
-            Update update = new Update(main);
-            update.doUpdate();
+            checkForUpdates(main);
             Application.Run(main);
         }
 
@@ -39,6 +39,18 @@ namespace StoryDesigner
         static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
         {
             MessageBox.Show(e.Exception.Message + "\n" + e.Exception.StackTrace, e.ToString());
+        }
+
+        static void checkForUpdates(MDIMain main)
+        {
+            ArrayList list = new ArrayList();
+            list.Add(main);
+            UpdatableFile uf = new UpdatableFile(main, "engine1.dat");
+            list.Add(uf);
+            uf = new UpdatableFile(main, "engine2.dat");
+            list.Add(uf);
+            Update update = new Update((Updatable[])list.ToArray(typeof(Updatable)));
+            update.doUpdate();
         }
     }
 }

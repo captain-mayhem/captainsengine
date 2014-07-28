@@ -233,9 +233,14 @@ namespace StoryDesigner
             get { return "StoryDesigner"; }
         }
 
-        public Assembly ApplicationAssembly
+        public Version ApplicationVersion
         {
-            get { return Assembly.GetExecutingAssembly(); }
+            get { return Assembly.GetExecutingAssembly().GetName().Version; }
+        }
+
+        public string ApplicationLocation
+        {
+            get { return Assembly.GetExecutingAssembly().Location; }
         }
 
         public Icon ApplicationIcon

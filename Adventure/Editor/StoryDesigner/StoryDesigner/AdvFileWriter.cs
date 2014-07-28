@@ -857,15 +857,24 @@ namespace StoryDesigner
         private void writeRuntime(string datadir, string runtimeName)
         {
             string path = Path.GetDirectoryName(Application.ExecutablePath);
-            FileStream engine = new FileStream(Path.Combine(path,"engine.dat"), FileMode.Open); ;
+            FileStream engine = new FileStream(Path.Combine(path, "engine2.dat"), FileMode.Open); ;
             ZipInputStream zis = new ZipInputStream(engine);
             ZipEntry entry = zis.GetNextEntry();
             while (entry != null)
             {
-                string name = entry.Name;
-                if (name == "Adventure.exe")
-                    name = runtimeName;
-                writeFile(zis, Path.Combine(datadir, name));
+                writeFile(zis, Path.Combine(datadir, entry.Name));
+                entry = zis.GetNextEntry();
+            }
+            zis.Close();
+            engine = new FileStream(Path.Combine(path,"engine1.dat"), FileMode.Open); ;
+            zis = new ZipInputStream(engine);
+            entry = zis.GetNextEntry();
+            while (entry != null)
+            {
+                //string name = entry.Name;
+                //if (name == "Adventure.exe")
+                //name = runtimeName;
+                writeFile(zis, Path.Combine(datadir, runtimeName));
                 entry = zis.GetNextEntry();
             }
             zis.Close();

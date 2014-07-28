@@ -8,12 +8,12 @@ namespace StoryDesigner
 {
     public class Update
     {
-        private Updatable applicationInfo;
+        private Updatable[] applicationInfos;
         private BackgroundWorker bgWorker;
 
-        public Update(Updatable applicationInfo)
+        public Update(Updatable[] applicationInfos)
         {
-            this.applicationInfo = applicationInfo;
+            this.applicationInfos = applicationInfos;
 
             this.bgWorker = new BackgroundWorker();
             bgWorker.DoWork += new DoWorkEventHandler(bgWorker_DoWork);
@@ -23,41 +23,63 @@ namespace StoryDesigner
         public void doUpdate()
         {
             if (!bgWorker.IsBusy)
-                bgWorker.RunWorkerAsync(applicationInfo);
+                bgWorker.RunWorkerAsync(applicationInfos);
         }
 
         private void bgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             if (!e.Cancelled)
             {
-                UpdateXml update = (UpdateXml)e.Result;
-                if (update != null && update.isNewerThan(applicationInfo.ApplicationAssembly.GetName().Version))
+                UpdateXml[] updates = (UpdateXml[])e.Result;
+                if (updates == null)
+                    return;
+                bool needsUpdate = false;
+                for (int i = 0; i < updates.Length; ++i)
                 {
-                    if (new UpdateAccept(applicationInfo, update).ShowDialog(applicationInfo.Context) == DialogResult.Yes)
+                    UpdateXml update = (UpdateXml)updates[i];
+                    if (update != null && update.isNewerThan(applicationInfos[i].ApplicationVersion))
                     {
-                        downloadUpdate(update);
+                        update.ShouldUpdate = true;
+                        needsUpdate = true;
                     }
+                }
+                if (!needsUpdate)
+                    return;
+                if (new UpdateAccept(applicationInfos, updates).ShowDialog(applicationInfos[0].Context) == DialogResult.Yes)
+                {
+                    downloadUpdate(updates[0], applicationInfos[0].ApplicationLocation);
                 }
             }
         }
 
         private void bgWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            Updatable application = (Updatable)e.Argument;
-            if (!UpdateXml.existsOnServer(application.UpdateXmlLocation))
+            Updatable[] applications = (Updatable[])e.Argument;
+            UpdateXml[] result = new UpdateXml[applications.Length];
+            bool oneSucceeded = false;
+            for (int i = 0; i < applications.Length; ++i)
+            {
+                Updatable application = applications[i];
+                if (!UpdateXml.existsOnServer(application.UpdateXmlLocation))
+                    result[i] = null;
+                else
+                    result[i] = UpdateXml.parse(application.UpdateXmlLocation, application.ApplicationID);
+                if (!oneSucceeded && result[i] != null)
+                    oneSucceeded = true;
+            }
+            if (!oneSucceeded)
                 e.Cancel = true;
-            else
-                e.Result = UpdateXml.parse(application.UpdateXmlLocation, application.ApplicationID);
+            e.Result = result;
         }
 
-        private void downloadUpdate(UpdateXml update)
+        private void downloadUpdate(UpdateXml update, string location)
         {
-            UpdateDownloader form = new UpdateDownloader(update.Uri, update.MD5, applicationInfo.ApplicationIcon);
-            DialogResult result = form.ShowDialog(applicationInfo.Context);
+            UpdateDownloader form = new UpdateDownloader(update.Uri, update.MD5, applicationInfos[0].ApplicationIcon);
+            DialogResult result = form.ShowDialog(applicationInfos[0].Context);
 
             if (result == DialogResult.OK)
             {
-                string currentPath = applicationInfo.ApplicationAssembly.Location;
+                string currentPath = location;
                 string newPath = Path.Combine(Path.GetDirectoryName(currentPath), update.FileName);
                 updateApplication(form.TempFilePath, currentPath, newPath, update.LaunchArgs);
                 Application.Exit();
