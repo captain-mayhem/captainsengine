@@ -8,6 +8,12 @@ using System.Windows.Forms;
 
 namespace StoryDesigner
 {
+    public enum UpdateAction
+    {
+        RESTART,
+        FILECOPY,
+    }
+
     public interface Updatable
     {
         string ApplicationName { get; }
@@ -17,5 +23,6 @@ namespace StoryDesigner
         Icon ApplicationIcon { get; }
         Uri UpdateXmlLocation { get; }
         Form Context { get; }
+        UpdateAction UpdateMode { get; }
     }
 }

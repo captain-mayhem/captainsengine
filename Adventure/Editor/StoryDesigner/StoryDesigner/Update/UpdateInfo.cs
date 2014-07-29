@@ -36,8 +36,10 @@ namespace StoryDesigner
             for (int i = 0; i < updateInfos.Length; ++i){
                 UpdateXml updateInfo = updateInfos[i];
                 if (updateInfo.ShouldUpdate)
-                    this.txtDescription.Text += applicationInfos[i].ApplicationName+"\n";
-                    this.txtDescription.Text += updateInfo.Description+"\n\n";
+                {
+                    this.txtDescription.Text += applicationInfos[i].ApplicationName + "\n";
+                    this.txtDescription.Text += updateInfo.Description + "\n\n";
+                }
             }
         }
 

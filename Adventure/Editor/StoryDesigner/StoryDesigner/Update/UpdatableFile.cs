@@ -10,15 +10,25 @@ namespace StoryDesigner
 {
     internal class UpdatableFile : Updatable
     {
-        internal UpdatableFile(Updatable parent, string path)
+        internal UpdatableFile(Updatable parent, string name, string path)
         {
             this.parent = parent;
+            this.name = name;
             this.path = path;
+            string verfile = Path.Combine(Path.GetDirectoryName(path), Path.GetFileNameWithoutExtension(path)) + ".ver";
+            try
+            {
+                version = new Version(File.ReadAllText(verfile));
+            }
+            catch
+            {
+                version = new Version("0.0.0.0");
+            }               
         }
 
         public string ApplicationName
         {
-            get { return "Engine runtime"; }
+            get { return name; }
         }
 
         public string ApplicationID
@@ -28,7 +38,7 @@ namespace StoryDesigner
 
         public Version ApplicationVersion
         {
-            get { return new Version("0.0.0.0"); }
+            get { return version; }
         }
 
         public string ApplicationLocation
@@ -51,7 +61,14 @@ namespace StoryDesigner
             get { return parent.Context; }
         }
 
+        public UpdateAction UpdateMode
+        {
+            get { return UpdateAction.FILECOPY; }
+        }
+
         private Updatable parent;
+        private string name;
         private string path;
+        private Version version;
     }
 }

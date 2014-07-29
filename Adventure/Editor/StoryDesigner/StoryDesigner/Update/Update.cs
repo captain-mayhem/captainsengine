@@ -47,7 +47,12 @@ namespace StoryDesigner
                     return;
                 if (new UpdateAccept(applicationInfos, updates).ShowDialog(applicationInfos[0].Context) == DialogResult.Yes)
                 {
-                    downloadUpdate(updates[0], applicationInfos[0].ApplicationLocation);
+                    for (int i = 0; i < updates.Length; ++i)
+                    {
+                        if (updates[i].ShouldUpdate)
+                            downloadUpdate(updates[i], applicationInfos[i].ApplicationLocation, applicationInfos[i].UpdateMode);
+                    }
+                    performUpdate();
                 }
             }
         }
@@ -72,17 +77,20 @@ namespace StoryDesigner
             e.Result = result;
         }
 
-        private void downloadUpdate(UpdateXml update, string location)
+        private void downloadUpdate(UpdateXml update, string location, UpdateAction action)
         {
             UpdateDownloader form = new UpdateDownloader(update.Uri, update.MD5, applicationInfos[0].ApplicationIcon);
             DialogResult result = form.ShowDialog(applicationInfos[0].Context);
+            form.Close();
 
             if (result == DialogResult.OK)
             {
                 string currentPath = location;
                 string newPath = Path.Combine(Path.GetDirectoryName(currentPath), update.FileName);
-                updateApplication(form.TempFilePath, currentPath, newPath, update.LaunchArgs);
-                Application.Exit();
+                if (action == UpdateAction.RESTART)
+                    updateApplication(form.TempFilePath, currentPath, newPath, update.LaunchArgs);
+                else if (action == UpdateAction.FILECOPY)
+                    updateFile(form.TempFilePath, currentPath, newPath, update.Version.ToString());
             }
             else if (result == DialogResult.Abort)
             {
@@ -94,16 +102,46 @@ namespace StoryDesigner
             }
         }
 
+        private string tempFilePath;
+        private string currentPath;
+        private string newPath;
+        private string launchArgs;
+
         private void updateApplication(string tempFilePath, string currentPath, string newPath, string launchArgs)
         {
-            string argument = "/C Choice /C Y /N /D Y /T 4 & Del /f /Q \"{0}\" & /C Choice /C Y /N /D Y /T 2 & Move /Y \"{1}\" \"{2}\" & Start \"\" /D \"{3}\" \"{4}\" \"{5}\"";
+            this.tempFilePath = tempFilePath;
+            this.currentPath = currentPath;
+            this.newPath = newPath;
+            this.launchArgs = launchArgs;
+        }
+
+        private void updateFile(string tempFilePath, string currentPath, string newPath, string version)
+        {
+            File.Delete(currentPath);
+            File.Copy(tempFilePath, newPath);
+            string verfile = Path.Combine(Path.GetDirectoryName(newPath), Path.GetFileNameWithoutExtension(newPath)) + ".ver";
+            File.WriteAllText(verfile, version);
+        }
+
+        private void performUpdate()
+        {
+            if (tempFilePath == null)
+                return;
+            string newSD = Path.Combine(Path.GetTempPath(), Path.GetFileName(currentPath));
+            File.Copy(currentPath, newSD, true);
             ProcessStartInfo info = new ProcessStartInfo();
-            info.Arguments = string.Format(argument, currentPath, tempFilePath, newPath, Path.GetDirectoryName(newPath),
-                Path.GetFileName(newPath), launchArgs);
+            //string argument = "/C Choice /C Y /N /D Y /T 4 & Del /f /Q \"{0}\" & /C Choice /C Y /N /D Y /T 2 & Move /Y \"{1}\" \"{2}\" & Start \"\" /D \"{3}\" \"{4}\" \"{5}\"";          
+            //info.Arguments = string.Format(argument, currentPath, tempFilePath, newPath, Path.GetDirectoryName(newPath),
+            //    Path.GetFileName(newPath), launchArgs);
+            info.Arguments = string.Format("--install {0} {1} {2} {3}", currentPath, tempFilePath, newPath,  launchArgs);
             info.WindowStyle = ProcessWindowStyle.Hidden;
             info.CreateNoWindow = true;
-            info.FileName = "cmd.exe";
+            //info.Verb = "runas";
+
+            //info.FileName = "cmd.exe";
+            info.FileName = newSD;
             Process.Start(info);
+            Application.Exit();
         }
 
     }
