@@ -257,5 +257,10 @@ namespace StoryDesigner
         {
             get { return this; }
         }
+
+        public UpdateAction UpdateMode
+        {
+            get { return UpdateAction.RESTART; }
+        }
     }
 }
