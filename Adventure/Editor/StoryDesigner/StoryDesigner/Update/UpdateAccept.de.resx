@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -117,85 +117,14 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Characters" xml:space="preserve">
-    <value>Characters</value>
+  <data name="lblUpdateAvail.Text" xml:space="preserve">
+    <value>Ein Update ist verfügbar!
+Möchten Sie updaten?</value>
   </data>
-  <data name="Deepmap" xml:space="preserve">
-    <value>Deepmap</value>
+  <data name="btnYes.Text" xml:space="preserve">
+    <value>Ja</value>
   </data>
-  <data name="done" xml:space="preserve">
-    <value>Done.</value>
-  </data>
-  <data name="FXShapes" xml:space="preserve">
-    <value>FX Shapes</value>
-  </data>
-  <data name="Images" xml:space="preserve">
-    <value>Images</value>
-  </data>
-  <data name="importAdz" xml:space="preserve">
-    <value>Project was imported to {0}.</value>
-  </data>
-  <data name="Inventoryfield" xml:space="preserve">
-    <value>Inventoryfield</value>
-  </data>
-  <data name="Items" xml:space="preserve">
-    <value>Items</value>
-  </data>
-  <data name="languageSwitch" xml:space="preserve">
-    <value>Please restart Story Designer.</value>
-  </data>
-  <data name="Music" xml:space="preserve">
-    <value>Music</value>
-  </data>
-  <data name="Objects" xml:space="preserve">
-    <value>Objects</value>
-  </data>
-  <data name="off" xml:space="preserve">
-    <value>off</value>
-  </data>
-  <data name="on" xml:space="preserve">
-    <value>on</value>
-  </data>
-  <data name="Rooms" xml:space="preserve">
-    <value>Rooms</value>
-  </data>
-  <data name="Scripts" xml:space="preserve">
-    <value>Scripts</value>
-  </data>
-  <data name="Sounds" xml:space="preserve">
-    <value>Sounds</value>
-  </data>
-  <data name="Videos" xml:space="preserve">
-    <value>Videos</value>
-  </data>
-  <data name="Walkmap" xml:space="preserve">
-    <value>Walkmap</value>
-  </data>
-  <data name="cancelled" xml:space="preserve">
-    <value>Cancelled</value>
-  </data>
-  <data name="currUpdVersion" xml:space="preserve">
-    <value>Current Version: {0}
-Update Version: {1}</value>
-  </data>
-  <data name="error" xml:space="preserve">
-    <value>Error</value>
-  </data>
-  <data name="newVersion" xml:space="preserve">
-    <value>New Version: {0}</value>
-  </data>
-  <data name="updateAvail" xml:space="preserve">
-    <value> - Update available</value>
-  </data>
-  <data name="updateCancelled" xml:space="preserve">
-    <value>The update download was cancelled.
-This program has not been modified.</value>
-  </data>
-  <data name="updateError" xml:space="preserve">
-    <value>There was a problem downloading the update.
-Please try again later.</value>
-  </data>
-  <data name="veryfingDownload" xml:space="preserve">
-    <value>Verifying Download...</value>
+  <data name="btnNo.Text" xml:space="preserve">
+    <value>Nein</value>
   </data>
 </root>

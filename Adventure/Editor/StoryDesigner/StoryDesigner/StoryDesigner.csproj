@@ -375,12 +375,20 @@
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Update\UpdateAccept.de.resx">
+      <DependentUpon>UpdateAccept.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Update\UpdateAccept.resx">
       <DependentUpon>UpdateAccept.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Update\UpdateDownloader.resx">
       <DependentUpon>UpdateDownloader.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Update\UpdateInfo.de.resx">
+      <DependentUpon>UpdateInfo.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Update\UpdateInfo.resx">

@@ -15,17 +15,24 @@ namespace StoryDesigner
     {
         internal static string HashFile(string filePath, HashType algo)
         {
+            FileStream fs = new FileStream(filePath, FileMode.Open);
+            string ret = "";
             switch (algo)
             {
                 case HashType.MD5:
-                    return makeHashString(MD5.Create().ComputeHash(new FileStream(filePath, FileMode.Open)));
+                    ret = makeHashString(MD5.Create().ComputeHash(fs));
+                    break;
                 case HashType.SHA1:
-                    return makeHashString(SHA1.Create().ComputeHash(new FileStream(filePath, FileMode.Open)));
+                    ret = makeHashString(SHA1.Create().ComputeHash(fs));
+                    break;
                 case HashType.SHA512:
-                    return makeHashString(SHA512.Create().ComputeHash(new FileStream(filePath, FileMode.Open)));
+                    ret = makeHashString(SHA512.Create().ComputeHash(fs));
+                    break;
                 default:
-                    return "";
+                    break;
             }
+            fs.Close();
+            return ret;
         }
 
         private static string makeHashString(byte[] hash)

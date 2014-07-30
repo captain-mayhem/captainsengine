@@ -26,12 +26,12 @@ namespace StoryDesigner
             this.applicationInfos = applicationInfos;
             this.updateInfos = updateInfos;
 
-            this.Text = applicationInfos[firstUpdatable].ApplicationName+ " - Update Available";
+            this.Text = applicationInfos[firstUpdatable].ApplicationName+ Strings.updateAvail;
 
             if (applicationInfos[0].ApplicationIcon != null)
                 this.Icon = applicationInfos[0].ApplicationIcon;
 
-            lblNewVersion.Text = string.Format("New Version: {0}", updateInfos[firstUpdatable].Version.ToString());
+            lblNewVersion.Text = string.Format(Strings.newVersion, updateInfos[firstUpdatable].Version.ToString());
         }
 
         private void btnYes_Click(object sender, EventArgs e)

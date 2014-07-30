@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Threading;
 using System.Reflection;
+using System.Collections;
 
 namespace StoryDesigner
 {
@@ -261,6 +262,23 @@ namespace StoryDesigner
         public UpdateAction UpdateMode
         {
             get { return UpdateAction.RESTART; }
+        }
+
+        internal void checkForUpdates()
+        {
+            ArrayList list = new ArrayList();
+            list.Add(this);
+            UpdatableFile uf = new UpdatableFile(this, "Engine runtime", "engine1.dat");
+            list.Add(uf);
+            uf = new UpdatableFile(this, "Engine libraries", "engine2.dat");
+            list.Add(uf);
+            Update update = new Update((Updatable[])list.ToArray(typeof(Updatable)));
+            update.doUpdate();
+        }
+
+        private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            checkForUpdates();
         }
     }
 }

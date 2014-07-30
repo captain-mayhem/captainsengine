@@ -29,7 +29,7 @@ namespace StoryDesigner
             }
 
             this.Text = applicationInfos[firstUpdatable].ApplicationName + " - Update Info";
-            this.lblVersions.Text = String.Format("Current Version: {0}\n Update Version: {1}",
+            this.lblVersions.Text = String.Format(Strings.currUpdVersion,
                 applicationInfos[firstUpdatable].ApplicationVersion.ToString(),
                 updateInfos[firstUpdatable].Version.ToString());
             this.txtDescription.Text = "";

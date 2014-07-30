@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UpdateAccept));
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.lblUpdateAvail = new System.Windows.Forms.Label();
             this.lblNewVersion = new System.Windows.Forms.Label();
@@ -39,80 +40,81 @@
             // 
             // pictureBox
             // 
+            this.pictureBox.AccessibleDescription = null;
+            this.pictureBox.AccessibleName = null;
+            resources.ApplyResources(this.pictureBox, "pictureBox");
+            this.pictureBox.BackgroundImage = null;
+            this.pictureBox.Font = null;
             this.pictureBox.Image = global::StoryDesigner.Properties.Resources.Update;
-            this.pictureBox.Location = new System.Drawing.Point(12, 8);
+            this.pictureBox.ImageLocation = null;
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(80, 80);
-            this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox.TabIndex = 0;
             this.pictureBox.TabStop = false;
             // 
             // lblUpdateAvail
             // 
-            this.lblUpdateAvail.Font = new System.Drawing.Font("Segoe UI", 12.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUpdateAvail.Location = new System.Drawing.Point(106, 8);
+            this.lblUpdateAvail.AccessibleDescription = null;
+            this.lblUpdateAvail.AccessibleName = null;
+            resources.ApplyResources(this.lblUpdateAvail, "lblUpdateAvail");
             this.lblUpdateAvail.Name = "lblUpdateAvail";
-            this.lblUpdateAvail.Size = new System.Drawing.Size(228, 56);
-            this.lblUpdateAvail.TabIndex = 1;
-            this.lblUpdateAvail.Text = "An update is available!\r\nWould you like to update?";
-            this.lblUpdateAvail.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lblNewVersion
             // 
-            this.lblNewVersion.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblNewVersion.Location = new System.Drawing.Point(143, 69);
+            this.lblNewVersion.AccessibleDescription = null;
+            this.lblNewVersion.AccessibleName = null;
+            resources.ApplyResources(this.lblNewVersion, "lblNewVersion");
             this.lblNewVersion.Name = "lblNewVersion";
-            this.lblNewVersion.Size = new System.Drawing.Size(154, 19);
-            this.lblNewVersion.TabIndex = 2;
-            this.lblNewVersion.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // btnYes
             // 
-            this.btnYes.Location = new System.Drawing.Point(97, 108);
+            this.btnYes.AccessibleDescription = null;
+            this.btnYes.AccessibleName = null;
+            resources.ApplyResources(this.btnYes, "btnYes");
+            this.btnYes.BackgroundImage = null;
+            this.btnYes.Font = null;
             this.btnYes.Name = "btnYes";
-            this.btnYes.Size = new System.Drawing.Size(75, 23);
-            this.btnYes.TabIndex = 3;
-            this.btnYes.Text = "Yes";
             this.btnYes.UseVisualStyleBackColor = true;
             this.btnYes.Click += new System.EventHandler(this.btnYes_Click);
             // 
             // btnNo
             // 
-            this.btnNo.Location = new System.Drawing.Point(178, 108);
+            this.btnNo.AccessibleDescription = null;
+            this.btnNo.AccessibleName = null;
+            resources.ApplyResources(this.btnNo, "btnNo");
+            this.btnNo.BackgroundImage = null;
+            this.btnNo.Font = null;
             this.btnNo.Name = "btnNo";
-            this.btnNo.Size = new System.Drawing.Size(75, 23);
-            this.btnNo.TabIndex = 4;
-            this.btnNo.Text = "No";
             this.btnNo.UseVisualStyleBackColor = true;
             this.btnNo.Click += new System.EventHandler(this.btnNo_Click);
             // 
             // btnDetails
             // 
-            this.btnDetails.Location = new System.Drawing.Point(259, 108);
+            this.btnDetails.AccessibleDescription = null;
+            this.btnDetails.AccessibleName = null;
+            resources.ApplyResources(this.btnDetails, "btnDetails");
+            this.btnDetails.BackgroundImage = null;
+            this.btnDetails.Font = null;
             this.btnDetails.Name = "btnDetails";
-            this.btnDetails.Size = new System.Drawing.Size(75, 23);
-            this.btnDetails.TabIndex = 5;
-            this.btnDetails.Text = "Details";
             this.btnDetails.UseVisualStyleBackColor = true;
             this.btnDetails.Click += new System.EventHandler(this.btnDetails_Click);
             // 
             // UpdateAccept
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AccessibleDescription = null;
+            this.AccessibleName = null;
+            resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(346, 143);
+            this.BackgroundImage = null;
             this.Controls.Add(this.btnDetails);
             this.Controls.Add(this.btnNo);
             this.Controls.Add(this.btnYes);
             this.Controls.Add(this.lblNewVersion);
             this.Controls.Add(this.lblUpdateAvail);
             this.Controls.Add(this.pictureBox);
-            this.Font = new System.Drawing.Font("Segoe UI", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = null;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "UpdateAccept";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.ResumeLayout(false);
 
