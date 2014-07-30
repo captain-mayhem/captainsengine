@@ -94,11 +94,11 @@ namespace StoryDesigner
             }
             else if (result == DialogResult.Abort)
             {
-                MessageBox.Show("The update download was cancelled.\nThis program has not been modified.", "Update Download Cancelled", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Strings.updateCancelled, "Update Download "+Strings.cancelled, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                MessageBox.Show("There was a problem downloading the update.\nPlease try again later.", "Update Download Error", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show(Strings.updateError, "Update Download "+Strings.error, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
@@ -118,7 +118,7 @@ namespace StoryDesigner
         private void updateFile(string tempFilePath, string currentPath, string newPath, string version)
         {
             File.Delete(currentPath);
-            File.Copy(tempFilePath, newPath);
+            File.Move(tempFilePath, newPath);
             string verfile = Path.Combine(Path.GetDirectoryName(newPath), Path.GetFileNameWithoutExtension(newPath)) + ".ver";
             File.WriteAllText(verfile, version);
         }
@@ -128,15 +128,15 @@ namespace StoryDesigner
             if (tempFilePath == null)
                 return;
             string newSD = Path.Combine(Path.GetTempPath(), Path.GetFileName(currentPath));
-            File.Copy(currentPath, newSD, true);
+            File.Copy(tempFilePath, newSD, true);
             ProcessStartInfo info = new ProcessStartInfo();
             //string argument = "/C Choice /C Y /N /D Y /T 4 & Del /f /Q \"{0}\" & /C Choice /C Y /N /D Y /T 2 & Move /Y \"{1}\" \"{2}\" & Start \"\" /D \"{3}\" \"{4}\" \"{5}\"";          
             //info.Arguments = string.Format(argument, currentPath, tempFilePath, newPath, Path.GetDirectoryName(newPath),
             //    Path.GetFileName(newPath), launchArgs);
-            info.Arguments = string.Format("--install {0} {1} {2} {3}", currentPath, tempFilePath, newPath,  launchArgs);
+            info.Arguments = string.Format("--install {0} {1} {2} {3} {4} {5}", currentPath, tempFilePath, newPath,  Path.GetDirectoryName(newPath), Path.GetFileName(newPath), launchArgs);
             info.WindowStyle = ProcessWindowStyle.Hidden;
             info.CreateNoWindow = true;
-            //info.Verb = "runas";
+            info.Verb = "runas";
 
             //info.FileName = "cmd.exe";
             info.FileName = newSD;

@@ -171,4 +171,31 @@
   <data name="Walkmap" xml:space="preserve">
     <value>Walkmap</value>
   </data>
+  <data name="cancelled" xml:space="preserve">
+    <value>Abgebrochen</value>
+  </data>
+  <data name="currUpdVersion" xml:space="preserve">
+    <value>Aktuelle Version: {0}
+Update Version: {1}</value>
+  </data>
+  <data name="error" xml:space="preserve">
+    <value>Fehler</value>
+  </data>
+  <data name="newVersion" xml:space="preserve">
+    <value>Neue Version: {0}</value>
+  </data>
+  <data name="updateAvail" xml:space="preserve">
+    <value> - Update verfügbar</value>
+  </data>
+  <data name="updateCancelled" xml:space="preserve">
+    <value>Der Download des Updates wurde abgebrochen.
+Dieses Programm ist nicht verändert worden.</value>
+  </data>
+  <data name="updateError" xml:space="preserve">
+    <value>Es gab ein Problem, das Update herunterzuladen.
+Bitte versuchen Sie es später erneut.</value>
+  </data>
+  <data name="verifyingDownload" xml:space="preserve">
+    <value>Überprüfe Download...</value>
+  </data>
 </root>

@@ -171,4 +171,31 @@
   <data name="Walkmap" xml:space="preserve">
     <value>Walkmap</value>
   </data>
+  <data name="cancelled" xml:space="preserve">
+    <value>Cancelled</value>
+  </data>
+  <data name="currUpdVersion" xml:space="preserve">
+    <value>Current Version: {0}
+Update Version: {1}</value>
+  </data>
+  <data name="error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="newVersion" xml:space="preserve">
+    <value>New Version: {0}</value>
+  </data>
+  <data name="updateAvail" xml:space="preserve">
+    <value> - Update available</value>
+  </data>
+  <data name="updateCancelled" xml:space="preserve">
+    <value>The update download was cancelled.
+This program has not been modified.</value>
+  </data>
+  <data name="updateError" xml:space="preserve">
+    <value>There was a problem downloading the update.
+Please try again later.</value>
+  </data>
+  <data name="veryfingDownload" xml:space="preserve">
+    <value>Verifying Download...</value>
+  </data>
 </root>

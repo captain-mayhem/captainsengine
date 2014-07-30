@@ -80,7 +80,7 @@ namespace StoryDesigner
             }
             else
             {
-                lblProgress.Text = "Verifying Download...";
+                lblProgress.Text = Strings.veryfingDownload;
                 progressBar.Style = ProgressBarStyle.Marquee;
 
                 bgWorker.RunWorkerAsync(new string[] { tempFile, md5 });
@@ -144,6 +144,7 @@ namespace StoryDesigner
                 bgWorker.CancelAsync();
                 this.DialogResult = DialogResult.Abort;
             }
+            webClient.Dispose();
         }
     }
 }
