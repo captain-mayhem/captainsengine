@@ -174,6 +174,12 @@
   <data name="cancelled" xml:space="preserve">
     <value>Abgebrochen</value>
   </data>
+  <data name="cannotFindImage" xml:space="preserve">
+    <value>Bild kann nicht gefunden werden: </value>
+  </data>
+  <data name="confirmation" xml:space="preserve">
+    <value>Bestätigung</value>
+  </data>
   <data name="currUpdVersion" xml:space="preserve">
     <value>Aktuelle Version: {0}
 Update Version: {1}</value>
@@ -181,8 +187,15 @@ Update Version: {1}</value>
   <data name="error" xml:space="preserve">
     <value>Fehler</value>
   </data>
+  <data name="gameCreatedUnder" xml:space="preserve">
+    <value>Spiel unter </value>
+  </data>
   <data name="newVersion" xml:space="preserve">
     <value>Neue Version: {0}</value>
+  </data>
+  <data name="startNow" xml:space="preserve">
+    <value> erstellt.
+Jetzt starten?</value>
   </data>
   <data name="updateAvail" xml:space="preserve">
     <value> - Update verfügbar</value>
@@ -194,6 +207,9 @@ Dieses Programm ist nicht verändert worden.</value>
   <data name="updateError" xml:space="preserve">
     <value>Es gab ein Problem, das Update herunterzuladen.
 Bitte versuchen Sie es später erneut.</value>
+  </data>
+  <data name="updatePrevious" xml:space="preserve">
+    <value>Vorher erstelltes Spiel updaten?</value>
   </data>
   <data name="verifyingDownload" xml:space="preserve">
     <value>Überprüfe Download...</value>

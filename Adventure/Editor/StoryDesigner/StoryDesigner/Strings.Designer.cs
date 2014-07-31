@@ -70,11 +70,29 @@ namespace StoryDesigner {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot find image .
+        /// </summary>
+        internal static string cannotFindImage {
+            get {
+                return ResourceManager.GetString("cannotFindImage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Characters.
         /// </summary>
         internal static string Characters {
             get {
                 return ResourceManager.GetString("Characters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Confirmation.
+        /// </summary>
+        internal static string confirmation {
+            get {
+                return ResourceManager.GetString("confirmation", resourceCulture);
             }
         }
         
@@ -121,6 +139,15 @@ namespace StoryDesigner {
         internal static string FXShapes {
             get {
                 return ResourceManager.GetString("FXShapes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Game was created under .
+        /// </summary>
+        internal static string gameCreatedUnder {
+            get {
+                return ResourceManager.GetString("gameCreatedUnder", resourceCulture);
             }
         }
         
@@ -242,6 +269,16 @@ namespace StoryDesigner {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to .
+        ///Start now?.
+        /// </summary>
+        internal static string startNow {
+            get {
+                return ResourceManager.GetString("startNow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to  - Update available.
         /// </summary>
         internal static string updateAvail {
@@ -267,6 +304,15 @@ namespace StoryDesigner {
         internal static string updateError {
             get {
                 return ResourceManager.GetString("updateError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Update previously created game?.
+        /// </summary>
+        internal static string updatePrevious {
+            get {
+                return ResourceManager.GetString("updatePrevious", resourceCulture);
             }
         }
         
