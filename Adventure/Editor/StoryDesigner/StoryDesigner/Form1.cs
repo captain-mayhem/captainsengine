@@ -300,7 +300,7 @@ namespace StoryDesigner
                     System.Drawing.Bitmap bmp = mData.getImage(name);
                     if (bmp == null)
                     {
-                        MessageBox.Show("Cannot find image " + name);
+                        MessageBox.Show(Strings.cannotFindImage + name);
                         return;
                     }
                     mImageViewer = new ImageViewer(bmp);
@@ -501,7 +501,7 @@ namespace StoryDesigner
                         return true;
                     if (!resolveMedia(Path.GetDirectoryName(filename), ref missingImages, ref missingSounds, ref missingMusic, ref missingVideos))
                     {
-                        MessageBox.Show("Not all media files were found. Project cannot work correctly.", "Error");
+                        MessageBox.Show("Not all media files were found. Project cannot work correctly.", Strings.error);
                         return false;
                     }
                 }
@@ -740,7 +740,7 @@ namespace StoryDesigner
             MethodInvoker callback = delegate { 
                 Application.UseWaitCursor = false;
                 m_wait.Dispose();
-                DialogResult start = MessageBox.Show("Game was created under " + m_runtime_name + ".\n Start now?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult start = MessageBox.Show(Strings.gameCreatedUnder + m_runtime_name + Strings.startNow, Strings.confirmation, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (start == DialogResult.Yes)
                 {
                     ProcessStartInfo info = new ProcessStartInfo(m_runtime_name);
@@ -760,7 +760,7 @@ namespace StoryDesigner
             if (m_runtime_name != null && m_runtime_name.Length > 0)
             {
                 sod.FileName = m_runtime_name;
-                DialogResult update = MessageBox.Show("Update previously created game?", "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                DialogResult update = MessageBox.Show(Strings.updatePrevious, Strings.confirmation, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (update == DialogResult.Yes)
                     showSave = false;
             }
@@ -1227,7 +1227,7 @@ namespace StoryDesigner
                     text = "Delete subdirectory " + entry + " and all its entries?";
                 else
                     text = "Delete " + entry + "?";
-                result = MessageBox.Show(text, "Confirmation", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                result = MessageBox.Show(text, Strings.confirmation, MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             }
             if (result == DialogResult.Yes)
             {

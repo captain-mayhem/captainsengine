@@ -35,6 +35,7 @@ namespace StoryDesigner
         }
         public int LCID = System.Threading.Thread.CurrentThread.CurrentUICulture.LCID;
         public string UpdateURL = "http://captainsengine.sourceforge.net/update.xml";
+        public DateTime LastUpdate = DateTime.Now;
 
         protected Persistence()
         {

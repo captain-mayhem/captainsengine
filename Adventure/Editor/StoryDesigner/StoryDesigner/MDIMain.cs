@@ -266,6 +266,7 @@ namespace StoryDesigner
 
         internal void checkForUpdates()
         {
+            mPersistence.LastUpdate = DateTime.Now;
             ArrayList list = new ArrayList();
             list.Add(this);
             UpdatableFile uf = new UpdatableFile(this, "Engine runtime", "engine1.dat");
@@ -279,6 +280,18 @@ namespace StoryDesigner
         private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
         {
             checkForUpdates();
+        }
+
+        private void manualToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Not yet available");
+        }
+
+        private void toolStripMenuItem5_Click(object sender, EventArgs e)
+        {
+            AboutBox box = new AboutBox();
+            box.MdiParent = this;
+            box.Show();
         }
     }
 }

@@ -45,7 +45,9 @@ namespace StoryDesigner
                     main = new MDIMain(args[0], pers);
                 else
                     main = new MDIMain(pers);
-                main.checkForUpdates();
+                TimeSpan updateDiff = DateTime.Now - pers.LastUpdate;
+                if (updateDiff.Days >= 7)
+                    main.checkForUpdates();
                 Application.Run(main);
             }
         }
