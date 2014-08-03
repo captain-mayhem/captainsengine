@@ -488,7 +488,7 @@ unsigned StreamSoundPlayer::decode(){
           memmove(mDataBuffer.data, mDataBuffer.data+length, remain);
         mDataBuffer.used = remain;
       }
-      if (!mResampler){
+      if (!mResampler && frame->data[0] != NULL){
         memcpy(mDecodeBuffer.data, frame->data[0], length);
         mDecodeBuffer.used = length;
       }
