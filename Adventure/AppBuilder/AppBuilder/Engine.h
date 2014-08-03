@@ -209,8 +209,8 @@ protected:
   Object2D* mCurrentObject;
   Object2D* mClickedObject;
   ExecutionContext* mMainScript;
-  bool mKeysDown[256];
-  bool mKeysPressed[256];
+  std::map<int,bool> mKeysDown;
+  std::map<int,bool> mKeysPressed;
   int mWheelCount;
   bool mExitRequested;
   bool mResetRequested;
