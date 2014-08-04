@@ -414,6 +414,15 @@ Image* decodeBMP(Reader* rdr){
       pImage->getData()[i + 2] = temp;
     }
   }
+	else if (biBitCount == 32){
+		for (i = 0; i < height; ++i){
+			for (int j = 0; j < width; ++j){
+				//xrgb
+				rdr->skip(1);
+				rdr->readBytes(pImage->getData()+i*width*3+j*3, 3);
+			}
+    }
+	}
   else{
     TR_ERROR("Unhandled bit depth %i", biBitCount);
   }

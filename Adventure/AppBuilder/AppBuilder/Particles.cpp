@@ -32,7 +32,7 @@ void ParticleEngine::setParticleObject(const std::string& name, float initialRot
   delete mParticleObject;
   mParticleObject = new Object2D(1, Vec2i(100,100), obj->size, obj->name);
   for (unsigned j = 0; j < obj->states.size(); ++j){
-    Animation* anim = new Animation(obj->states[j].frames, obj->states[j].fps, mParticleDepth);
+		Animation* anim = new Animation(obj->states[j].frames, obj->states[j].fps, mParticleDepth, obj->size);
     mParticleObject->addAnimation(anim);
   }
   mParticleObject->setRotation(initialRotation);

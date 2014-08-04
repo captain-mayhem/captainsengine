@@ -24,6 +24,7 @@ namespace CGE{
     unsigned getNumChannels() const {return mChannels;}
     void debugWrite(const std::string& filename);
     void flipHorizontally();
+		void crop(int x, int y, int width, int height);
   protected:
     //! Number of channels
     //! 3 means RGB, 4 is RGBA

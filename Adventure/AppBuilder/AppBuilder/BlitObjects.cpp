@@ -32,9 +32,16 @@ BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mScale(1.0f, 1.0f), mTex
   mDeleteTex = true;
 }
 
-BlitObject::BlitObject(std::string texture, int depth, Vec2i offset) : 
+BlitObject::BlitObject(std::string texture, const Vec2i& size, int depth, Vec2i offset) : 
 BaseBlitObject(depth, Vec2i()), mOffset(offset), mScale(1.0f, 1.0f), mTex(0), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
   mImage = Engine::instance()->getImage(texture);
+	if (mImage && size > Vec2i()){
+		mImage->crop(-offset.x, -offset.y, size.x, size.y);
+		if (mOffset.x < 0)
+			mOffset.x = 0;
+		if (mOffset.y < 0)
+			mOffset.y = 0;
+	}
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = true;
 }

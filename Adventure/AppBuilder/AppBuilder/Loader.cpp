@@ -84,7 +84,7 @@ public:
       object->setDepth(depth+mDepthOffset);
       //object->setScale(roomobj->getDepthScale(saveobj->position));
       for (unsigned j = 0; j < o->states.size(); ++j){
-        Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth+mDepthOffset);
+				Animation* anim = new Animation(o->states[j].frames, o->states[j].fps, depth+mDepthOffset, o->size);
         object->addAnimation(anim);
       }
       object->setLighten(o->lighten);

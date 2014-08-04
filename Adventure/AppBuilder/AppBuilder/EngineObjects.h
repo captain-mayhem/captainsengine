@@ -11,8 +11,8 @@ namespace adv{
 
 class BlitGroup{
 public:
-  BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth);
-  BlitGroup(const std::string& texture, const Vec2i& offset, int depth);
+  BlitGroup(std::vector<std::string> textures, const Vec2i& size, std::vector<Vec2i> offsets, int depth);
+  BlitGroup(const std::string& texture, const Vec2i& size, const Vec2i& offset, int depth);
   ~BlitGroup();
   BlitGroup* clone();
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation);
@@ -28,9 +28,9 @@ protected:
 class Animation{
 public:
   Animation(float fps);
-  Animation(ExtendedFrames& frames, float fps, int depth);
-  Animation(Frames& frames, float fps, Vec2i offset, int depth);
-  Animation(SimpleFrames& frames, float fps, Vec2i offset, int depth);
+  Animation(ExtendedFrames& frames, float fps, int depth, const Vec2i& cropSize);
+  Animation(Frames& frames, float fps, Vec2i offset, int depth, const Vec2i& cropSize);
+  Animation(SimpleFrames& frames, float fps, Vec2i offset, int depth, const Vec2i& cropSize);
   ~Animation();
   Animation* clone();
   void render(const Vec2i& pos, const Vec2f& scale, const Vec2i& parentsize, const Color& color, float rotation);

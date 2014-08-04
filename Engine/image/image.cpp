@@ -4,6 +4,7 @@
 #include <cstdio>
 
 using namespace CGE;
+using std::min;
 
 Image::Image() : mChannels(0), mWidth(0), mHeight(0), mData(NULL) {}
 
@@ -79,4 +80,34 @@ void Image::flipHorizontally(){
     memcpy(mData+(mHeight-i-1)*rowWidth, tmp, rowWidth);
   }
   delete [] tmp;
+}
+
+void Image::crop(int x, int y, int width, int height){
+	int newx = x;
+	int newy = y;
+	if (newx < 0)
+		newx = 0;
+	if (newy < 0)
+		newy = 0;
+
+	int newwidth = min(mWidth-newx, width);
+	int newheight = min(mHeight-newy, height);
+	if (newx == 0 && newy == 0 && newwidth == mWidth && newheight == mHeight)
+		return;
+
+	Image* ret = new Image(mChannels, newwidth, newheight);
+	ret->allocateData();
+	for (int j = 0; j < newheight; ++j){
+		for (int i = 0; i < newwidth; ++i){
+			void* to = ret->getData()+j*newwidth*mChannels+i*mChannels;
+			void* from = mData+(j+newy)*mWidth*mChannels+(i+newx)*mChannels;
+			memcpy(to, from, mChannels);
+		}
+	}
+	delete [] mData;
+	mData = ret->getData();
+	mWidth = ret->getWidth();
+	mHeight = ret->getHeight();
+	ret->mData = NULL;
+	delete ret;
 }
