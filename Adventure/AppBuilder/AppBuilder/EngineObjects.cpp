@@ -12,15 +12,15 @@ using namespace adv;
 TR_CHANNEL_LVL(ADV_Character, TRACE_INFO);
 TR_CHANNEL(ADV_Room);
 
-BlitGroup::BlitGroup(std::vector<std::string> textures, std::vector<Vec2i> offsets, int depth){
+BlitGroup::BlitGroup(std::vector<std::string> textures, const Vec2i& size, std::vector<Vec2i> offsets, int depth){
   for (unsigned l = (unsigned)textures.size(); l > 0; --l){
-    BlitObject* obj = new BlitObject(textures[l-1], depth, offsets[l-1]);
+    BlitObject* obj = new BlitObject(textures[l-1], size, depth, offsets[l-1]);
     mBlits.push_back(obj);
   }
 }
 
-BlitGroup::BlitGroup(const std::string& texture, const Vec2i& offset, int depth){
-  BlitObject* obj = new BlitObject(texture, depth, offset);
+BlitGroup::BlitGroup(const std::string& texture, const Vec2i& size, const Vec2i& offset, int depth){
+  BlitObject* obj = new BlitObject(texture, size, depth, offset);
   mBlits.push_back(obj);
 }
 
@@ -71,10 +71,10 @@ Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame
 
 }
 
-Animation::Animation(ExtendedFrames& frames, float fps, int depth) : mInterval((unsigned)(1000.0f/fps)), mTimeAccu(0),
+Animation::Animation(ExtendedFrames& frames, float fps, int depth, const Vec2i& cropSize) : mInterval((unsigned)(1000.0f/fps)), mTimeAccu(0),
 mCurrFrame(0), mHandler(NULL){
   for (unsigned k = 0; k < frames.size(); ++k){
-    BlitGroup* group = new BlitGroup(frames[k].names, frames[k].offsets, depth);
+    BlitGroup* group = new BlitGroup(frames[k].names, cropSize, frames[k].offsets, depth);
     mBlits.push_back(group);
     if (!frames[k].script.empty()){
       ExecutionContext* scr = Engine::instance()->getInterpreter()->parseProgram(frames[k].script);
@@ -86,10 +86,10 @@ mCurrFrame(0), mHandler(NULL){
   }
 }
 
-Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth) : mInterval((unsigned)(1000.0f/fps)), 
+Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth, const Vec2i& cropSize) : mInterval((unsigned)(1000.0f/fps)), 
 mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
   for (unsigned k = 0; k < frames.size(); ++k){
-    BlitGroup* group = new BlitGroup(frames[k].name, offset, depth);
+    BlitGroup* group = new BlitGroup(frames[k].name, cropSize, offset, depth);
     mBlits.push_back(group);
     if (!frames[k].script.empty()){
       ExecutionContext* scr = Engine::instance()->getInterpreter()->parseProgram(frames[k].script);
@@ -101,10 +101,10 @@ mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
   }
 }
 
-Animation::Animation(SimpleFrames& frames, float fps, Vec2i offset, int depth) : mInterval((unsigned)(1000.0f/fps)), 
+Animation::Animation(SimpleFrames& frames, float fps, Vec2i offset, int depth, const Vec2i& cropSize) : mInterval((unsigned)(1000.0f/fps)), 
 mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
   for (unsigned k = 0; k < frames.size(); ++k){
-    BlitGroup* group = new BlitGroup(frames[k], offset, depth);
+    BlitGroup* group = new BlitGroup(frames[k], cropSize, offset, depth);
     mBlits.push_back(group);
     mScripts.push_back(NULL);
   }
@@ -331,7 +331,7 @@ void Object2D::realize(){
 }
 
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "!button"),
-BlitObject(Engine::instance()->getSettings()->tsbackground, DEPTH_BUTTON, Vec2i()), mText(text){
+BlitObject(Engine::instance()->getSettings()->tsbackground, size, DEPTH_BUTTON, Vec2i()), mText(text){
   BlitObject::realize();
   char tmp[16];
   sprintf(tmp, "%i", id);
@@ -588,7 +588,7 @@ void RoomObject::setBackground(std::string bg, int depth){
     return;
   SimpleFrames f;
   f.push_back(bg);
-  Animation* anim = new Animation(f, 2.5f, Vec2i(0,0), depth);
+  Animation* anim = new Animation(f, 2.5f, Vec2i(0,0), depth, mSize);
   addAnimation(anim);
 }
 
@@ -597,7 +597,7 @@ void RoomObject::setParallaxBackground(const std::string& bg, int depth){
     return;
   SimpleFrames f;
   f.push_back(bg);
-  mParallaxBackground = new Animation(f, 2.5f, Vec2i(), depth);
+  mParallaxBackground = new Animation(f, 2.5f, Vec2i(), depth, mSize);
 }
 
 void RoomObject::addObject(Object2D* obj){
@@ -1185,6 +1185,7 @@ bool CharacterObject::isHit(const Vec2i& point){
 void CharacterObject::setState(int state){
   TR_USE(ADV_Character);
   Vec2i oldoffset;
+	int oldstate = mState;
   if (mState > 0){
     oldoffset = mBasePoints[mState-1];
   }
@@ -1194,6 +1195,8 @@ void CharacterObject::setState(int state){
   if (!getAnimation()->exists()){
     if (mState > 3)
       mState = calculateState(mState, isWalking(), false, false);
+		if (!getAnimation()->exists())
+			mState = oldstate;
   }
   Vec2i newoffset;
   if (mState > 0){

@@ -46,7 +46,7 @@ public:
     BLEND_PREMULT_ALPHA,
   };
   BlitObject(int width, int height, int depth);
-  BlitObject(std::string texture, int depth, Vec2i offset);
+  BlitObject(std::string texture, const Vec2i& size, int depth, Vec2i offset);
   BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
   virtual ~BlitObject();
   BlitObject* clone();

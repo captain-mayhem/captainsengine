@@ -115,7 +115,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   MouseCursor* cursor = mData->getCursor();
   mCursor = new CursorObject(Vec2i(0,0));
   for (unsigned j = 0; j < cursor->size(); ++j){
-    Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, DEPTH_CURSOR);
+    Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, DEPTH_CURSOR, Vec2i(0,0));
     anim->realize();
     mCursor->addAnimation(anim, (*cursor)[j].command-1);
   }
@@ -1226,7 +1226,7 @@ ItemObject* Engine::createItem(const std::string& name, int count){
   object->setCount(count);
   int depth = DEPTH_ITEM;
   for (unsigned j = 0; j < it->states.size(); ++j){
-    Animation* anim = new Animation(it->states[j].frames, it->states[j].fps, Vec2i(), depth);
+    Animation* anim = new Animation(it->states[j].frames, it->states[j].fps, Vec2i(), depth, Vec2i(50,50));
     object->addAnimation(anim);
   }
   //check for object scripts
@@ -1385,7 +1385,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   if (!fromCache){
     for (unsigned j = 0; j < chbase->states.size(); ++j){
       int depth = (int)((obj->base.position.y+chbase->states[j].basepoint.y)/Engine::instance()->getWalkGridSize(false));
-      Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth);
+			Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth, chbase->states[j].size);
       character->addAnimation(anim);
       character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
     }
