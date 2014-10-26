@@ -1,6 +1,7 @@
 
 #include "MemReader.h"
 #include <cstring>
+#include <algorithm>
 
 using std::min;
 using std::max;

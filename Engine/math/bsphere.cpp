@@ -4,6 +4,7 @@
 #include "matrix.h"
 
 #include <float.h>
+#include <algorithm>
 
 using namespace CGE;
 using std::min;
