@@ -24,6 +24,7 @@
 #include <iostream>
 #include <fstream>
 #include <float.h>
+#include <algorithm>
 
 using std::min;
 using namespace MeshGeo;

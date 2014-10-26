@@ -108,6 +108,14 @@ public:
   bool isWeak() const{
     return !mStrong;
   }
+  void swap(Ptr<T>& ptr){
+	  T* tmp = mObject;
+	  mObject = ptr.mObject;
+	  ptr.mObject = tmp;
+	  bool str = mStrong;
+	  mStrong = ptr.mStrong;
+	  ptr.mStrong = str;
+  }
 protected:
   T* mObject;
   bool mStrong;

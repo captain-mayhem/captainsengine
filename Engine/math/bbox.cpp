@@ -2,6 +2,7 @@
 #include "ray.h"
 #include "bbox.h"
 #include "matrix.h"
+#include <algorithm>
 
 using namespace CGE;
 using std::min;

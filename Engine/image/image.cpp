@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <cstdio>
+#include <algorithm>
 
 using namespace CGE;
 using std::min;
