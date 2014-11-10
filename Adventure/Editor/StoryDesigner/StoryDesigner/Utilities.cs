@@ -170,6 +170,38 @@ namespace StoryDesigner
             }
             return 0;
         }
+
+        public static Bitmap cropTransparent(Bitmap bmp)
+        {
+            int minx = bmp.Width;
+            int miny = bmp.Height;
+            int maxx = 0;
+            int maxy = 0;
+            for (int j = 0; j < bmp.Height; ++j)
+            {
+                for (int i = 0; i < bmp.Width; ++i)
+                {
+                    Color c = bmp.GetPixel(i, j);
+                    if (c.A > 0)
+                    {
+                        minx = i < minx ? i : minx;
+                        maxx = i > maxx ? i : maxx;
+                        miny = j < miny ? j : miny;
+                        maxy = j > maxy ? j : maxy;
+                    }
+                }
+            }
+            Bitmap result = new Bitmap(maxx - minx, maxy - miny, bmp.PixelFormat);
+            for (int j = miny; j < maxy; ++j)
+            {
+                for (int i = minx; i < maxx; ++i)
+                {
+                    Color c = bmp.GetPixel(i, j);
+                    result.SetPixel(i - minx, j - miny, c);
+                }
+            }
+            return result;
+        }
     }
 
     class Resource

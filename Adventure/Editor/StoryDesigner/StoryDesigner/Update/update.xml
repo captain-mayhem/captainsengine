@@ -4,24 +4,26 @@
 		<version>1.0.1.0</version>
 		<url>http://captainsengine.sourceforge.net/StoryDesigner.exe</url>
 		<fileName>StoryDesigner.exe</fileName>
-		<md5>fae1270c9fa735718b8753a2e6150d14</md5>
+		<md5>75845693effc89a4867720c48d18e675</md5>
 		<description>A test version to test updater</description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="engine1.dat">
-		<version>1.0.0.0</version>
-		<url>http://captainsengine.sourceforge.net/engine_win.zip</url>
+		<version>1.0.1.0</version>
+		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/Updates/engine1.dat</url>
 		<fileName>engine1.dat</fileName>
-		<md5>95b91c3b5369888d0b51ee6df8291e51</md5>
-		<description>Initial release of the game engine (Windows binary)</description>
+		<md5>dd9f1618cd0a94c977771e5079bc51b9</md5>
+		<description>Implemented cropping of larger images for objects, characters and items.
+		Disallowed changing to non-existing character states.
+		</description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="engine2.dat">
-		<version>1.0.0.0</version>
-		<url>http://captainsengine.sourceforge.net/engine_win_dll.zip</url>
+		<version>1.0.1.0</version>
+		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/Updates/engine2.dat</url>
 		<fileName>engine2.dat</fileName>
-		<md5>81f1a17e65144eea5daa7265544a6f43</md5>
-		<description>Initial release of the game engine (support libraries)</description>
+		<md5>d1982a9fc0d14573681bd6386065b13d</md5>
+		<description>Updated OpenAL to be more compatible with engine runtime</description>
 		<launchArgs></launchArgs>
 	</update>
 </StoryDesignerUpdate>

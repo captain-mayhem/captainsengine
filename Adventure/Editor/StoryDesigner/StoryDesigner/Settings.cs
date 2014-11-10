@@ -186,6 +186,7 @@ namespace StoryDesigner
             //TODO crosshair
             //sixth page
             this.noPngToJpeg.Checked = mData.Settings.NoPngToJpeg;
+            this.cropTransparent.Checked = mData.Persistence.CropTransparentImages;
         }
 
         private void getControls()
@@ -305,6 +306,7 @@ namespace StoryDesigner
             //TODO crosshair
             //sixth page
             mData.Settings.NoPngToJpeg = this.noPngToJpeg.Checked;
+            mData.Persistence.CropTransparentImages = this.cropTransparent.Checked;
         }
 
         AdvData mData;
