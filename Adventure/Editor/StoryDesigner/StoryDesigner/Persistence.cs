@@ -36,6 +36,7 @@ namespace StoryDesigner
         public int LCID = System.Threading.Thread.CurrentThread.CurrentUICulture.LCID;
         public string UpdateURL = "http://captainsengine.sourceforge.net/update.xml";
         public DateTime LastUpdate = DateTime.Now;
+        public bool CropTransparentImages = false;
 
         protected Persistence()
         {

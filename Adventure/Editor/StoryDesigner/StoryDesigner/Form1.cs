@@ -660,11 +660,19 @@ namespace StoryDesigner
                     try
                     {
                         mData.Images.Add(file.ToLower(), filename);
+                        if (mData.Persistence.CropTransparentImages)
+                        {
+                            Bitmap bmp = (Bitmap)Bitmap.FromFile(filename);
+                            Bitmap result = Utilities.cropTransparent(bmp);
+                            bmp.Dispose();
+                            result.Save(filename);
+                            result.Dispose();
+                        }
                     }
                     catch (ArgumentException)
                     {
                         MessageBox.Show("Image with same name already added");
-                        return;
+                        continue;
                     }
                     TreeNode parent;
                     ResourceID res = determineTypeAndFolder(mediaPool, out parent);
