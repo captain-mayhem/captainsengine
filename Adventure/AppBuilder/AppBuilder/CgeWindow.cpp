@@ -40,7 +40,9 @@ void init(){
   }
   windowsize = adoc->getProjectSettings()->resolution;
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  //rend->getWindow()->setTitle(adoc->getProjectSettings()->)
   rend->getWindow()->changeSize(windowsize.x, windowsize.y);
+  rend->getWindow()->show(true);
   Engine::instance()->setData(adoc);
   SoundEngine::init();
   SoundEngine::instance()->setData(adoc);

@@ -137,7 +137,8 @@ void WindowsWindow::init(const std::string& name){
   DWORD style = 0;
   DWORD exStyle = 0;
 
-  applyResolution();
+  if (shown_)
+    applyResolution();
 
 #ifndef UNDER_CE
     if (fullscreen_){
@@ -191,6 +192,9 @@ void WindowsWindow::init(const std::string& name){
   MoveWindow(handle_, rectWin.left, rectWin.top, rectWin.right-rectWin.left, rectWin.bottom-rectWin.top, TRUE);
 
   renderer_->initContext(this);
+
+  if (shown_)
+    show(true);
 
 }
 
@@ -254,6 +258,21 @@ void WindowsWindow::changeSize(int width, int height){
 
 void WindowsWindow::messageBox(const std::string& title, const std::string& message){
   MessageBox(handle_, message.c_str(), title.c_str(), MB_OK);
+}
+
+void WindowsWindow::show(bool doit){
+  if (doit){
+    ShowWindow(handle_, SW_SHOW);
+    SetForegroundWindow(handle_);
+    SetFocus(handle_);
+  }
+  else
+    ShowWindow(handle_, SW_HIDE);
+  AppWindow::show(doit);
+}
+
+void WindowsWindow::setTitle(const std::string& title){
+  SetWindowText(handle_, title.c_str());
 }
 
 #endif

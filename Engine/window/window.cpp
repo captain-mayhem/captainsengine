@@ -20,6 +20,10 @@ AppWindow::AppWindow(CGE::Renderer* render){
   bpp_ = CGE::Script::instance()->getNumberSetting("bitsPerPixel");
   if (bpp_ == 0)
     bpp_ = 32;
+  bool shownSet;
+  shown_ = CGE::Script::instance()->getBoolSetting("windowShown", &shownSet);
+  if (!shownSet)
+    shown_ = true;
 }
 
 void AppWindow::focus(bool hasFocus){
