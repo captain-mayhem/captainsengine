@@ -40,12 +40,19 @@ public:
   }
 
   virtual void messageBox(const std::string& title, const std::string& message);
+
+  virtual void show(bool doit){
+    shown_ = doit;
+  }
+
+  virtual void setTitle(const std::string& title) {}
 protected:
   CGE::Renderer* renderer_;
   bool fullscreen_;
   int width_;
   int height_;
   int bpp_;
+  bool shown_;
 };
 
 }

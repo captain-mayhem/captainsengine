@@ -90,9 +90,6 @@ void GL2Renderer::initContext(::Windows::AppWindow* win){
     EXIT();
   }
 
-  ShowWindow(wnd, SW_SHOW);
-  SetForegroundWindow(wnd);
-  SetFocus(wnd);
 #endif
 #if defined UNIX && !defined QNX
   ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
