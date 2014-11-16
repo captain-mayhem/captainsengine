@@ -55,6 +55,7 @@ struct ProjectSettings{
   int tsselectioncolor;
   int tstextcolor;
   int tsbordercolor;
+  std::string splashscreen;
   std::string tsbackground;
   std::string linktext;
   std::string givelink;
@@ -264,6 +265,8 @@ struct Language{
   std::vector<std::string> sections[NUM_SECTIONS];
 };
 
+typedef void(*SPLASHSCREENCB)(unsigned width, unsigned height, unsigned numChannels, void* data);
+
 class AdvDocument{
 public:
   AdvDocument();
@@ -290,6 +293,7 @@ public:
   std::string getLanguageString(const std::string& language, Language::Section section, int strindex);
   int getLanguageIndex(const std::string& language, Language::Section section, const std::string& str);
   bool hasLanguageInfo() {return mLanguages.size() > 0 && mLanguages["origin"].sections[Language::COMMANDS].size() > 0;}
+  void setSpashScreenCB(SPLASHSCREENCB sscb) { mSSCB = sscb; }
 protected:
   bool loadFile1(CGE::MemReader& txtstream);
   bool loadFile2(CGE::MemReader& txtstream);
@@ -320,6 +324,7 @@ protected:
   std::string mZipPwd;
   std::map<std::string, Language> mLanguages;
   CGE::Mutex mMuty;
+  SPLASHSCREENCB mSSCB;
 };
 
 }

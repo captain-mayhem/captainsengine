@@ -29,7 +29,7 @@ using namespace adv;
 
 TR_CHANNEL(ADV_DATA);
 
-AdvDocument::AdvDocument() : mUseCompressedData(false){
+AdvDocument::AdvDocument() : mUseCompressedData(false), mSSCB(NULL){
 }
 
 AdvDocument::~AdvDocument(){
@@ -54,6 +54,29 @@ bool AdvDocument::loadDocument(const std::string filename){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
+
+  if (mFilename.substr(mFilename.size() - 4) == ".dat")
+    mUseCompressedData = true;
+
+  CGE::Utilities::replaceWith(mFilename, '\\', '/');
+  mPath = mFilename;
+  int pos = mPath.find_last_of('/');
+  mPath.erase(pos);
+  
+  //spash screen
+  if (mSSCB && !mSettings.splashscreen.empty()){
+    string splashfile = mImageNames[mSettings.splashscreen];
+    if (mUseCompressedData){
+      int namepos = splashfile.find_last_of('/');
+      splashfile = mPath + "/" + splashfile.substr(namepos + 1);
+    }
+    CGE::ImageLoader loader;
+    CGE::Image* splash = loader.load(splashfile.c_str());
+    if (splash)
+      mSSCB(splash->getWidth(), splash->getHeight(), splash->getNumChannels(), splash->getData());
+    delete splash;
+  }
+
   rdr = zrdr.openEntry(entry+".002");
   if(!loadFile2(rdr)){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
@@ -76,14 +99,7 @@ bool AdvDocument::loadDocument(const std::string filename){
   else{
     mSettings.noPngToJpeg = false;
   }
-
-  if (mFilename.substr(mFilename.size()-4) == ".dat")
-    mUseCompressedData = true;
   
-  CGE::Utilities::replaceWith(mFilename, '\\', '/');
-  mPath = mFilename;
-  int pos = mPath.find_last_of('/');
-  mPath.erase(pos);
   mSettings.savedir = mPath+"/../saves";
 #ifdef WIN32
   _mkdir(mSettings.savedir.c_str());
@@ -146,7 +162,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine();
   str = txtstream.readLine();
   if (ver_major > 1){
-    str = txtstream.readLine();
+    mSettings.splashscreen = txtstream.readLine();
     str = txtstream.readLine();
     mSettings.tsbackground = txtstream.readLine();
   }
