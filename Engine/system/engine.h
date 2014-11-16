@@ -33,11 +33,9 @@ using std::vector;
 #define VERSTRING "0.7"
 #endif
 
-namespace Windows{
-class AppWindow;
-}
 
 namespace CGE{
+class AppWindow;
 class Renderer;
 class Font;
 class Forms;
@@ -129,7 +127,7 @@ class Engine{
     //! Get the standard forms
     inline CGE::Forms* getForms() {return forms_;}
     //! get the window
-    inline ::Windows::AppWindow* getWindow() {return win_;}
+    inline CGE::AppWindow* getWindow() {return win_;}
     //! get the console
     inline ::Gui::Console* getConsole() {return console_;}
     inline double getFrameInterval() {return frameInterval_;}
@@ -172,7 +170,7 @@ class Engine{
     Engine();
 
     //! The window
-    ::Windows::AppWindow* win_;
+    CGE::AppWindow* win_;
     
     //! The renderer
     CGE::Renderer* rend_;

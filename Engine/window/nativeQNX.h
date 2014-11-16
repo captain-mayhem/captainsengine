@@ -5,7 +5,7 @@
 
 #include "window.h"
 
-namespace Windows{
+namespace CGE{
 
 class QNXWindow : public AppWindow{
 public:
@@ -24,7 +24,7 @@ protected:
 
 #ifdef WIN32
 #include "window.h"
-namespace Windows{
+namespace CGE{
 class QNXWindow : public AppWindow{
 public:
   QNXWindow(CGE::Renderer* renderer) : AppWindow(renderer) {}

@@ -7,7 +7,7 @@
 #include <windows.h>
 #include "window.h"
 
-namespace Windows{
+namespace CGE{
 
 class WindowsWindow : public AppWindow{
 public:
@@ -38,7 +38,7 @@ protected:
 
 #ifdef UNIX
 #include "window.h"
-namespace Windows{
+namespace CGE{
 class WindowsWindow : public AppWindow{
 public:
   WindowsWindow(CGE::Renderer* renderer) : AppWindow(renderer) {}

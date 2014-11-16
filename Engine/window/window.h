@@ -7,7 +7,7 @@ namespace CGE{
 class Renderer;
 }
 
-namespace Windows{
+namespace CGE{
 
 #define WINDOW_NAME "Captains Game Engine"
 
@@ -53,6 +53,10 @@ protected:
   int height_;
   int bpp_;
   bool shown_;
+};
+
+class SplashWindow{
+
 };
 
 }

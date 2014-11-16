@@ -10,7 +10,7 @@
 #include "../math/vector.h"
 #include "../input/mouse.h"
 
-using Windows::AppWindow;
+using CGE::AppWindow;
 using Gui::InputField;
 using Gui::Button;;
 using Gui::Console;
@@ -233,7 +233,7 @@ void Mouse::setMousePos(int x, int y){
   POINT point;
   point.x = x;
   point.y = y;
-  ClientToScreen((HWND)static_cast<Windows::WindowsWindow*>(CGE::Engine::instance()->getWindow())->getHandle(), &point);
+  ClientToScreen((HWND)static_cast<CGE::WindowsWindow*>(CGE::Engine::instance()->getWindow())->getHandle(), &point);
   SetCursorPos(point.x, point.y);
 #endif
 #if defined(LINUX) && !defined(NO_X11)

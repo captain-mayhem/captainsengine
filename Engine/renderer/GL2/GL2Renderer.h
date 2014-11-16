@@ -24,7 +24,7 @@ public:
   //! Destructor
   ~GL2Renderer();
   //! init rendering context
-  void initContext(::Windows::AppWindow* win);
+  void initContext(AppWindow* win);
 #ifdef WIN32
   //! get the device context
   inline HDC getDevice() {return hDC_;}

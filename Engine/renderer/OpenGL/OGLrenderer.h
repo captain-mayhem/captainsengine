@@ -24,7 +24,7 @@ public:
   //! Destructor
   ~OGLRenderer();
   //! init rendering context
-  void initContext(::Windows::AppWindow* win);
+  void initContext(CGE::AppWindow* win);
 #ifdef WIN32
   //! get the device context
   inline HDC getDevice() {return hDC_;}

@@ -9,7 +9,7 @@
 #endif
 #include "window.h"
 
-namespace Windows{
+namespace CGE{
 
 class X11Window : public AppWindow{
 public:
@@ -46,7 +46,7 @@ protected:
 
 #ifdef WIN32
 #include "window.h"
-namespace Windows{
+namespace CGE{
 class X11Window : public AppWindow{
 public:
   X11Window(CGE::Renderer* renderer) : AppWindow(renderer) {}

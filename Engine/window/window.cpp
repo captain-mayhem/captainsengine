@@ -4,9 +4,9 @@
 #include "../system/script.h"
 #include "../io/Tracing.h"
 
-TR_CHANNEL(CGE_Window);
+using namespace CGE;
 
-using namespace Windows;
+TR_CHANNEL(CGE_Window);
 
 AppWindow::AppWindow(CGE::Renderer* render){
   renderer_ = render;

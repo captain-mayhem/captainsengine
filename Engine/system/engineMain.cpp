@@ -62,7 +62,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
       //Do not use WM_MouseMove-Event, because it causes the cursor to freeze
       POINT p;
       GetCursorPos(&p);
-      ScreenToClient((HWND)static_cast<Windows::WindowsWindow*>(CGE::Engine::instance()->getWindow())->getHandle(), &p);
+      ScreenToClient((HWND)static_cast<CGE::WindowsWindow*>(CGE::Engine::instance()->getWindow())->getHandle(), &p);
       Input::Mouse::instance()->move(p.x, p.y, 0);
       CGE::Engine::instance()->run();
     }

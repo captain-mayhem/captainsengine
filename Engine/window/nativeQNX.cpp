@@ -3,7 +3,7 @@
 #include "../renderer/GLES/GLESrenderer.h"
 #include "nativeQNX.h"
 
-namespace Windows{
+using namespace CGE;
 
 TR_CHANNEL_EXT(CGE_Window)
 
@@ -26,5 +26,4 @@ void QNXWindow::kill(){
   renderer_->killContext();
 }
 
-}
 #endif

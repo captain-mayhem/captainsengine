@@ -8,7 +8,7 @@
 
 TR_CHANNEL_EXT(CGE_Window);
 
-namespace Windows{
+using namespace CGE;
 
 X11Window::X11Window(CGE::Renderer* renderer) : AppWindow(renderer){
   disp_ = NULL;
@@ -123,5 +123,4 @@ void X11Window::changeSize(int width, int height){
   XResizeWindow(disp_, win_, width, height);
 }
 
-}
 #endif
