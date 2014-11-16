@@ -1,10 +1,6 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
-namespace Windows{
-class AppWindow;
-}
-
 #include "../math/vector.h"
 #include "../math/matrix.h"
 #include "vertexbuffer.h"
@@ -16,6 +12,8 @@ class AppWindow;
 #define COLORBUFFER 0x00000010
 
 namespace CGE{
+
+class AppWindow;
 
 enum RenderType{
   OpenGL,
@@ -58,7 +56,7 @@ public:
   //! set resize callback
   void setResizeCB(void (*proc)(int width, int height)) {resizeCB_ = proc;}
   //! initialize rendering context
-  virtual void initContext(::Windows::AppWindow* win);
+  virtual void initContext(AppWindow* win);
   //! kill rendering context
   virtual void killContext();
   //! initialize render settings
@@ -128,13 +126,13 @@ public:
   //! switch from view to model matrix
   virtual void switchFromViewToModelTransform()=0;
   //! get the window
-  Windows::AppWindow* getWindow() {return win_;}
+  AppWindow* getWindow() {return win_;}
 protected:
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/
   RenderType type_;
   //! the window in which is rendered
-  ::Windows::AppWindow* win_;
+  AppWindow* win_;
   //! the render callback
   void (*renderCB_)();
   //! the init callback

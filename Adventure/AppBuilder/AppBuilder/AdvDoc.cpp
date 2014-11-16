@@ -64,14 +64,20 @@ bool AdvDocument::loadDocument(const std::string filename){
   mPath.erase(pos);
   
   //spash screen
-  if (mSSCB && !mSettings.splashscreen.empty()){
-    string splashfile = mImageNames[mSettings.splashscreen];
-    if (mUseCompressedData){
-      int namepos = splashfile.find_last_of('/');
-      splashfile = mPath + "/" + splashfile.substr(namepos + 1);
-    }
+  if (mSSCB){
     CGE::ImageLoader loader;
-    CGE::Image* splash = loader.load(splashfile.c_str());
+    CGE::Image* splash = NULL;
+    if (!mSettings.splashscreen.empty()){
+      string splashfile = mImageNames[mSettings.splashscreen];
+      if (mUseCompressedData){
+        int namepos = splashfile.find_last_of('/');
+        splashfile = mPath + "/" + splashfile.substr(namepos + 1);
+      }
+      splash = loader.load(splashfile.c_str());
+    }
+    if (!splash){
+      splash = loader.load((mPath + "/loading.gif").c_str());//try hard-coded path for compatibility
+    }
     if (splash)
       mSSCB(splash->getWidth(), splash->getHeight(), splash->getNumChannels(), splash->getData());
     delete splash;

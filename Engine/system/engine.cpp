@@ -107,13 +107,13 @@ void Engine::startup(int argc, char** argv){
     }
 
 #ifdef WIN32
-    win_ = new ::Windows::WindowsWindow(rend_);
+    win_ = new WindowsWindow(rend_);
 #endif
 #if defined(LINUX) && !defined(NO_X11)
-    win_ = new ::Windows::X11Window(rend_);
+    win_ = new X11Window(rend_);
 #endif
 #if defined(QNX) || defined(NO_X11)
-		win_ = new ::Windows::QNXWindow(rend_);
+		win_ = new QNXWindow(rend_);
 #endif
   }
   else{

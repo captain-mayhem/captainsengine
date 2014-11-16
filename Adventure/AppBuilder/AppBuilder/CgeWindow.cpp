@@ -121,18 +121,26 @@ void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* 
   void* image;
   HBITMAP bmp = CreateDIBSection(screen, &bminfo, DIB_RGB_COLORS, &image, NULL, 0);
   
-  char* tgt = (char*)image;
-  char* src = (char*)data;
+  unsigned char* tgt = (unsigned char*)image;
+  unsigned char* src = (unsigned char*)data;
   int srcrowsize = width*numChannels;
   int tgtrowsize = ((srcrowsize + 3) >> 2) << 2;
   for (unsigned j = 0; j < height; ++j){
     for (unsigned i = 0; i < width; ++i){
-      char* tgtdata = tgt + j*tgtrowsize + i*numChannels;
-      char* srcdata = src + j*srcrowsize + i*numChannels;
-      tgtdata[0] = srcdata[2];
-      tgtdata[1] = srcdata[1];
-      tgtdata[2] = srcdata[0];
-      //memcpy(tgt + j*tgtrowsize + i*numChannels, src + j*srcrowsize + i*numChannels, numChannels);
+      unsigned char* tgtdata = tgt + j*tgtrowsize + i*numChannels;
+      unsigned char* srcdata = src + j*srcrowsize + i*numChannels;
+      if (numChannels > 3){
+        //premultiplied alpha
+        tgtdata[0] = (unsigned char)((((float)srcdata[2]) / 255 * ((float)srcdata[3]) / 255) * 255);
+        tgtdata[1] = (unsigned char)((((float)srcdata[1]) / 255 * ((float)srcdata[3]) / 255) * 255);
+        tgtdata[2] = (unsigned char)((((float)srcdata[0]) / 255 * ((float)srcdata[3]) / 255) * 255);
+        tgtdata[3] = srcdata[3];
+      }
+      else{
+        tgtdata[0] = srcdata[2];
+        tgtdata[1] = srcdata[1];
+        tgtdata[2] = srcdata[0];
+      }
     }
   }
   
@@ -144,7 +152,7 @@ void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* 
   wc.lpszClassName = "splashwindow";
   RegisterClass(&wc);
 
-  HWND parent = (HWND)(((Windows::AppWindow*)CGE::Engine::instance()->getWindow())->getHandle());
+  HWND parent = (HWND)(((CGE::AppWindow*)CGE::Engine::instance()->getWindow())->getHandle());
   splashwindow = CreateWindowEx(WS_EX_LAYERED | WS_EX_TOPMOST, "splashwindow", NULL, WS_POPUP | WS_VISIBLE, 0, 0, 0, 0, parent, NULL, GetModuleHandle(NULL), NULL);
  
   BITMAP bm;

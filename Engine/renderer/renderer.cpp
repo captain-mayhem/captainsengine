@@ -15,7 +15,7 @@ Renderer::Renderer(){
 Renderer::~Renderer(){
 }
 
-void Renderer::initContext(::Windows::AppWindow* win){
+void Renderer::initContext(AppWindow* win){
   win_ = win;
 }
 

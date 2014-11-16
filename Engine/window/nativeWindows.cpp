@@ -7,7 +7,7 @@
 
 TR_CHANNEL_EXT(CGE_Window);
 
-using namespace Windows;
+using namespace CGE;
 
 LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
   PAINTSTRUCT ps;

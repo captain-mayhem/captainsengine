@@ -32,7 +32,7 @@ OGLRenderer::~OGLRenderer(){
 #endif
 }
 
-void OGLRenderer::initContext(::Windows::AppWindow* win){
+void OGLRenderer::initContext(CGE::AppWindow* win){
   TR_USE(CGE_Renderer_OGL);
   TR_INFO("Initializing OpenGL context");
   win_ = win;
@@ -56,7 +56,7 @@ void OGLRenderer::initContext(::Windows::AppWindow* win){
       0, 0, 0				//Layer masks ignored
   };
 
-  HWND wnd = (HWND)dynamic_cast<::Windows::WindowsWindow*>(win)->getHandle();
+  HWND wnd = (HWND)dynamic_cast<WindowsWindow*>(win)->getHandle();
   if(!(hDC_ = GetDC(wnd))){
     TR_ERROR("Can't create GL device context");
     EXIT();
@@ -108,7 +108,7 @@ void OGLRenderer::killContext(){
     hRC_ = NULL;
   }
 
-  HWND wnd = (HWND)dynamic_cast<::Windows::WindowsWindow*>(win_)->getHandle();
+  HWND wnd = (HWND)dynamic_cast<WindowsWindow*>(win_)->getHandle();
   if (hDC_ && !ReleaseDC(wnd,hDC_)){
     TR_ERROR("Release of device context failed");
     hDC_ = NULL;
