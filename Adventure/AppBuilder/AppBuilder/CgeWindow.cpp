@@ -7,6 +7,7 @@
 #include "input/keyboard.h"
 #include "io/Tracing.h"
 #include "io/TraceManager.h"
+#include "window/splashwindow.h"
 
 #include "AdvDoc.h"
 #include "Engine.h"
@@ -23,16 +24,13 @@ std::string savegame;
 AdvDocument* adoc = NULL;
 CommandReceiver receiver;
 bool openConsole;
+CGE::SplashWindow* splashWindow = NULL;
 
 Vec2i windowsize(640,480);
 
 void quit();
 void set_mouse(int x, int y);
 void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* data);
-
-#ifdef WIN32
-HWND splashwindow;
-#endif
 
 void init(){
   TR_USE(ADV_CGE_Window);
@@ -78,9 +76,8 @@ void init(){
   if (CGE::Script::instance()->getBoolSetting("debugPorts"))
     receiver.start();
   Engine::instance()->initGame(quit, set_mouse);
-#ifdef WIN32
-  DestroyWindow(splashwindow);
-#endif
+  delete splashWindow;
+  splashWindow = NULL;
   rend->getWindow()->show(true);
 }
 
@@ -107,81 +104,12 @@ void set_mouse(int x, int y){
 #include <window/nativeWindows.h>
 
 void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* data){
-#ifdef WIN32
-  BITMAPINFO bminfo;
-  ZeroMemory(&bminfo, sizeof(bminfo));
-  bminfo.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-  bminfo.bmiHeader.biWidth = width;
-  bminfo.bmiHeader.biHeight = -((LONG)height);
-  bminfo.bmiHeader.biPlanes = 1;
-  bminfo.bmiHeader.biBitCount = numChannels * 8;
-  bminfo.bmiHeader.biCompression = BI_RGB;
-
-  HDC screen = GetDC(NULL);
-  void* image;
-  HBITMAP bmp = CreateDIBSection(screen, &bminfo, DIB_RGB_COLORS, &image, NULL, 0);
-  
-  unsigned char* tgt = (unsigned char*)image;
-  unsigned char* src = (unsigned char*)data;
-  int srcrowsize = width*numChannels;
-  int tgtrowsize = ((srcrowsize + 3) >> 2) << 2;
-  for (unsigned j = 0; j < height; ++j){
-    for (unsigned i = 0; i < width; ++i){
-      unsigned char* tgtdata = tgt + j*tgtrowsize + i*numChannels;
-      unsigned char* srcdata = src + j*srcrowsize + i*numChannels;
-      if (numChannels > 3){
-        //premultiplied alpha
-        tgtdata[0] = (unsigned char)((((float)srcdata[2]) / 255 * ((float)srcdata[3]) / 255) * 255);
-        tgtdata[1] = (unsigned char)((((float)srcdata[1]) / 255 * ((float)srcdata[3]) / 255) * 255);
-        tgtdata[2] = (unsigned char)((((float)srcdata[0]) / 255 * ((float)srcdata[3]) / 255) * 255);
-        tgtdata[3] = srcdata[3];
-      }
-      else{
-        tgtdata[0] = srcdata[2];
-        tgtdata[1] = srcdata[1];
-        tgtdata[2] = srcdata[0];
-      }
-    }
-  }
-  
-  WNDCLASS wc = { 0 };
-  wc.lpfnWndProc = DefWindowProc;
-  wc.hInstance = GetModuleHandle(NULL);
-  wc.hIcon = NULL;// LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_SPLASHSCREEN))
-  wc.hCursor = LoadCursor(NULL, IDC_ARROW);
-  wc.lpszClassName = "splashwindow";
-  RegisterClass(&wc);
-
-  HWND parent = (HWND)(((CGE::AppWindow*)CGE::Engine::instance()->getWindow())->getHandle());
-  splashwindow = CreateWindowEx(WS_EX_LAYERED | WS_EX_TOPMOST, "splashwindow", NULL, WS_POPUP | WS_VISIBLE, 0, 0, 0, 0, parent, NULL, GetModuleHandle(NULL), NULL);
- 
-  BITMAP bm;
-  GetObject(bmp, sizeof(bm), &bm);
-  SIZE sizeSplash = { bm.bmWidth, bm.bmHeight };
-  POINT position;
-  POINT zero = { 0 };
-  HMONITOR primMon = MonitorFromPoint(zero, MONITOR_DEFAULTTOPRIMARY);
-  MONITORINFO monInfo = { 0 };
-  monInfo.cbSize = sizeof(monInfo);
-  GetMonitorInfo(primMon, &monInfo);
-  const RECT & rect = monInfo.rcWork;
-  position.x = rect.left + (rect.right - rect.left - sizeSplash.cx) / 2;
-  position.y = rect.top + (rect.bottom - rect.top - sizeSplash.cy) / 2;
-  HDC mem = CreateCompatibleDC(screen);
-  HBITMAP oldBmp = (HBITMAP)SelectObject(mem, bmp);
-  
-
-  BLENDFUNCTION blend = { 0 };
-  blend.BlendOp = AC_SRC_OVER;
-  blend.SourceConstantAlpha = 255;
-  blend.AlphaFormat = AC_SRC_ALPHA;
-  UpdateLayeredWindow(splashwindow, screen, &position, &sizeSplash, mem, &zero, RGB(0,0,0), &blend, numChannels<=3?ULW_OPAQUE:ULW_ALPHA);
-  //SetWindowPos(splash, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE);
-  
-  SelectObject(mem, oldBmp);
-  DeleteDC(mem);
-  ReleaseDC(NULL, screen);
-#endif
+  splashWindow = new CGE::SplashWindow(CGE::Engine::instance()->getWindow());
+  CGE::Image image;
+  image.setFormat(numChannels, width, height);
+  image.setData((unsigned char*)data);
+  splashWindow->show(image);
+  image.setData(NULL);
 }
 
 void render(){
