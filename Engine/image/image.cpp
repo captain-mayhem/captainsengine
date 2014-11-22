@@ -43,6 +43,10 @@ void Image::setFormat(int channels, int width, int height){
   mHeight = height;
 }
 
+void Image::setData(unsigned char* data){
+  mData = data;
+}
+
 void Image::allocateData(){
   if (mData)
     delete [] mData;

@@ -13,6 +13,7 @@ namespace CGE{
     Image(int channels, int width, int height, unsigned char* palette, unsigned char* indices);
     ~Image();
     void setFormat(int channels, int width, int height);
+    void setData(unsigned char* data);
     void allocateData();
     unsigned getWidth() const {return mWidth;}
     unsigned getHeight() const {return mHeight;}

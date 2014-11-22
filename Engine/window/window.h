@@ -55,10 +55,6 @@ protected:
   bool shown_;
 };
 
-class SplashWindow{
-
-};
-
 }
 
 #endif
