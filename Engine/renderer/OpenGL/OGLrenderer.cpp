@@ -56,7 +56,7 @@ void OGLRenderer::initContext(CGE::AppWindow* win){
       0, 0, 0				//Layer masks ignored
   };
 
-  HWND wnd = (HWND)dynamic_cast<WindowsWindow*>(win)->getHandle();
+  HWND wnd = (HWND)static_cast<WindowsWindow*>(win)->getHandle();
   if(!(hDC_ = GetDC(wnd))){
     TR_ERROR("Can't create GL device context");
     EXIT();
@@ -85,7 +85,7 @@ void OGLRenderer::initContext(CGE::AppWindow* win){
 
 #endif
 #ifdef UNIX
-  ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
+  X11Window* x11 = static_cast<X11Window* >(win_);
   glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
 #endif
 #ifdef WIN32
@@ -108,14 +108,14 @@ void OGLRenderer::killContext(){
     hRC_ = NULL;
   }
 
-  HWND wnd = (HWND)dynamic_cast<WindowsWindow*>(win_)->getHandle();
+  HWND wnd = (HWND)static_cast<WindowsWindow*>(win_)->getHandle();
   if (hDC_ && !ReleaseDC(wnd,hDC_)){
     TR_ERROR("Release of device context failed");
     hDC_ = NULL;
   }
 #endif
 #ifdef UNIX
-  ::Windows::X11Window* x11 = dynamic_cast< ::Windows::X11Window* >(win_);
+  X11Window* x11 = static_cast<X11Window* >(win_);
   if (glx_){
     if (!glXMakeCurrent(x11->getDisplay(), None, NULL)){
       TR_ERROR("Release of GL context failed");
@@ -378,7 +378,7 @@ void OGLRenderer::swapBuffers(){
   SwapBuffers(hDC_);
 #endif
 #ifdef UNIX
-  Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(win_);
+  X11Window* win = static_cast<X11Window*>(win_);
   glXSwapBuffers(win->getDisplay(), win->getWindow());
 #endif
 }
