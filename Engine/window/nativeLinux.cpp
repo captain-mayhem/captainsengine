@@ -22,23 +22,6 @@ void X11Window::init(const std::string& name){
   disp_ = XOpenDisplay(0);
   screen_ = DefaultScreen(disp_);
 
-  int videoMajor;
-  int videoMinor;
-  XF86VidModeQueryVersion(disp_, &videoMajor, &videoMinor);
-
-  int numModes;
-  XF86VidModeModeInfo** modes;
-  XF86VidModeGetAllModeLines(disp_, screen_, &numModes, &modes);
-  prevDesktop_ = *modes[0];
-  
-  //search for best resolution
-  int bestMode = 0;
-  for (int i = 0; i < numModes; i++){
-    if (modes[i]->hdisplay == width_ && modes[i]->vdisplay == height_){
-      bestMode = i;
-    }
-  }
-
   int attribs[] = {GLX_RGBA, GLX_DOUBLEBUFFER,
     GLX_RED_SIZE, 4,
     GLX_GREEN_SIZE, 4,
@@ -66,14 +49,10 @@ void X11Window::init(const std::string& name){
   attr.colormap = color;
   attr.border_pixel = 0;
   
+  if (shown_)
+    applyResolution(); 
+  
   if (fullscreen_){
-    //Change video mode
-    XF86VidModeSwitchToMode(disp_, screen_, modes[bestMode]);
-    XF86VidModeSetViewPort(disp_, screen_, 0, 0);
-    width_ = modes[bestMode]->hdisplay;
-    height_ = modes[bestMode]->vdisplay;
-    XFree(modes);
-    
     attr.override_redirect = True;
     attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
     win_ = XCreateWindow(disp_, RootWindow(disp_, vi->screen), 0, 0,
@@ -95,12 +74,46 @@ void X11Window::init(const std::string& name){
     XSetWMProtocols(disp_, win_, &wmDelete, 1);
     XSetStandardProperties(disp_, win_, name.c_str(), name.c_str(), 
         None, NULL, 0, NULL);
-    XMapRaised(disp_, win_);
+    if (shown_)
+      show(true);
   }
 
   glx = NULL;
   renderer_->initContext(this);
   renderer_->resizeScene(width_, height_);
+}
+
+void X11Window::applyResolution(){
+  if (fullscreen_){
+    int videoMajor;
+    int videoMinor;
+    XF86VidModeQueryVersion(disp_, &videoMajor, &videoMinor);
+
+    int numModes;
+    XF86VidModeModeInfo** modes;
+    XF86VidModeGetAllModeLines(disp_, screen_, &numModes, &modes);
+    static bool first = true;
+    if (first){
+      prevDesktop_ = *modes[0];
+      first = false;
+    }
+  
+    //search for best resolution
+    int bestMode = 0;
+    for (int i = 0; i < numModes; i++){
+      if (modes[i]->hdisplay == width_ && modes[i]->vdisplay == height_){
+        bestMode = i;
+      }
+    }
+
+    //Change video mode
+    XF86VidModeSwitchToMode(disp_, screen_, modes[bestMode]);
+    XF86VidModeSetViewPort(disp_, screen_, 0, 0);
+    width_ = modes[bestMode]->hdisplay;
+    height_ = modes[bestMode]->vdisplay;
+    XFree(modes);
+ 
+  }
 }
 
 void X11Window::kill(){
@@ -121,6 +134,17 @@ void X11Window::kill(){
 void X11Window::changeSize(int width, int height){
   AppWindow::changeSize(width, height);
   XResizeWindow(disp_, win_, width, height);
+  applyResolution();
 }
+
+void X11Window::show(bool doit){
+  if (doit){
+    XMapRaised(disp_, win_);
+  }
+  else
+    XUnmapWindow(disp_, win_);
+  AppWindow::show(doit);
+}
+
 
 #endif

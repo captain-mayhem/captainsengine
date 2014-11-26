@@ -89,7 +89,7 @@ int main(int argc, char** argv){
   CGE::Engine::instance()->startup(argc, argv);
   XEvent event;
   bool running = true;
-  Windows::X11Window* win = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
+  CGE::X11Window* win = static_cast<CGE::X11Window*>(CGE::Engine::instance()->getWindow());
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   Display* disp = win->getDisplay();
   XSynchronize(disp, true);

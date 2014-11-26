@@ -42,7 +42,7 @@ Mouse::~Mouse(){
 #if defined(LINUX) && !defined(NO_X11)
   if (!graphics_)
     return;
-  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
+  CGE::X11Window* wnd = dynamic_cast<CGE::X11Window*>(CGE::Engine::instance()->getWindow());
   XFreeCursor(wnd->getDisplay(), invCursor_);
 #endif
 }
@@ -57,7 +57,7 @@ void Mouse::init(bool hasGraphics){
   if (!hasGraphics)
     return;
   mouse_->graphics_ = true;
-  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
+  CGE::X11Window* wnd = dynamic_cast<CGE::X11Window*>(CGE::Engine::instance()->getWindow());
   //create invisible cursor
   char data[8] = {0,0,0,0,0,0,0,0};
   XImage* img = XCreateImage(wnd->getDisplay(), DefaultVisual(wnd->getDisplay(), wnd->getScreen()),
@@ -218,7 +218,7 @@ void Mouse::showCursor(bool visible){
     ShowCursor(0);
 #endif
 #if defined(LINUX) && !defined(NO_X11)
-  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
+  CGE::X11Window* wnd = dynamic_cast<CGE::X11Window*>(CGE::Engine::instance()->getWindow());
   if (mousePointer_){
     XDefineCursor(wnd->getDisplay(), wnd->getWindow(), None);
   }
@@ -237,7 +237,7 @@ void Mouse::setMousePos(int x, int y){
   SetCursorPos(point.x, point.y);
 #endif
 #if defined(LINUX) && !defined(NO_X11)
-  Windows::X11Window* wnd = dynamic_cast<Windows::X11Window*>(CGE::Engine::instance()->getWindow());
+  CGE::X11Window* wnd = dynamic_cast<CGE::X11Window*>(CGE::Engine::instance()->getWindow());
   XWarpPointer(wnd->getDisplay(), None, wnd->getWindow(), 0, 0, 0, 0, x, y);
   XEvent useless;
   XMaskEvent(wnd->getDisplay(), PointerMotionMask, &useless);

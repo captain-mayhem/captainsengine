@@ -27,7 +27,10 @@ public:
   void kill();
   
   virtual void changeSize(int width, int height);
+  
+  virtual void show(bool doit);
 protected:
+  void applyResolution();
   //! the window handle
   Window win_;
   //! the display
