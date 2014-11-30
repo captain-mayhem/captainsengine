@@ -35,7 +35,7 @@ protected:
   Window win_;
   //! the display
   Display* disp_;
-  //! the screen
+  //! the screen number
   int screen_;
 #ifndef DISABLE_XF86VMODE
   //! desktop resolution

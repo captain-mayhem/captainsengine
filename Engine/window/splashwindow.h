@@ -3,6 +3,11 @@
 
 #ifdef WIN32
 #include <Windows.h>
+#elif defined(LINUX) && !defined(NO_X11)
+#include <X11/Xlib.h>
+namespace CGE{
+class X11Window;
+}
 #endif
 
 namespace CGE{
@@ -19,6 +24,9 @@ private:
 #ifdef WIN32
   WNDCLASS m_wc;
   HWND m_window;
+#elif defined(LINUX) && !defined(NO_X11)
+  X11Window* m_parent;
+  Window m_window;
 #endif
 };
 
