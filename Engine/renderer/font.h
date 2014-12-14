@@ -57,7 +57,7 @@ public:
   //! Destructor
   ~Font();
   //! build the display lists that are used displaying the text
-  void buildFont();
+  void buildFont(VertexBuffer* other);
   //! deletes the display lists
   void killFont();
   //! prints text on the screen
@@ -89,7 +89,7 @@ public:
   //! get the font vertex buffer
   inline VertexBuffer* getVB() {return buffer_;}
   //! set the font vertex buffer
-  inline void setVB(VertexBuffer* vb) {buffer_ = vb;}
+  inline void resetVB() {buffer_ = NULL;}
   //! delete the texts with a certain id
   void deleteText(short id);
 private:

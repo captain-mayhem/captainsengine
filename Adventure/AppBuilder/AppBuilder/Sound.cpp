@@ -23,8 +23,8 @@
 #ifdef UNIX
 #include <AL/efx.h>
 #else
-#include <efx.h>
-#include <efx-creative.h>
+#include <AL/efx.h>
+#include <AL/efx-creative.h>
 //#include <EFX-Util.h>
 #endif
 #include "EFXeffects.h"

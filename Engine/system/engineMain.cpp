@@ -67,7 +67,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
       CGE::Engine::instance()->run();
     }
   }
-  if (CGE::Engine::instance()->isShutdownRequested())
+  if (CGE::Engine::instance() != NULL && CGE::Engine::instance()->isShutdownRequested())
     CGE::Engine::instance()->shutdown();
   return 0;
 }
