@@ -92,7 +92,7 @@ void HQRenderer::keyUp_(int key){
 
 // handle keys continously
 void HQRenderer::handleKeys(){
-  float speed = cam.getSpeed()*CGE::Engine::instance()->getFrameInterval();
+  float speed = (float)(cam.getSpeed()*CGE::Engine::instance()->getFrameInterval());
   if (keys_[KEY_W])
     cam.moveCamera(speed);
   if (keys_[KEY_S])
@@ -265,8 +265,8 @@ void HQRenderer::mouseMove_(int x, int y, int buttons){
   int width = CGE::Engine::instance()->getWindow()->getWidth();
   int height = CGE::Engine::instance()->getWindow()->getHeight();
   
-  if (x == width/2 && y == height/2)
-    return;
+  //if (x == width/2 && y == height/2)
+  //  return;
   if(threeD_ && !Mouse::instance()->isMouseActive()){
     float angleY = 0.0f;
     float angleZ = 0.0f;
@@ -276,9 +276,31 @@ void HQRenderer::mouseMove_(int x, int y, int buttons){
     //if (xrel == 0 && yrel == 0)
     //  return;
 
-    mousePos_.x = width/2;
-    mousePos_.y = height/2;
-    Mouse::instance()->setMousePos(width/2, height/2);
+    //too unprecise to set it every move
+    //mousePos_.x = width/2;
+    //mousePos_.y = height/2;
+    //Mouse::instance()->setMousePos(width/2, height/2);
+    bool needsSet = false;
+    if (x < 10){
+      x = width - 10;
+      needsSet = true;
+    }
+    else if (x > width - 10){
+      x = 10;
+      needsSet = true;
+    }
+    if (y < 10){
+      y = height - 10;
+      needsSet = true;
+    }
+    else if (y > height - 10){
+      y = 10;
+      needsSet = true;
+    }
+    if (needsSet)
+      Mouse::instance()->setMousePos(x, y);
+    mousePos_.x = x;
+    mousePos_.y = y;
 
     angleY = (float) (-xrel)/400.0f;
     angleZ = (float) (-yrel)/400.0f;
@@ -324,7 +346,10 @@ void HQRenderer::initialize_(){
   render_->setClearColor(Vector3D());
 
   //init game
-  game.init();
+  if (!game.init()){
+    EXIT();
+    return;
+  }
 
   //setup some nice dark fog
   float fogColor[4] = {0, 0, 0, 1};

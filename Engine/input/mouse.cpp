@@ -26,6 +26,7 @@ Mouse::Mouse(){
   buttonUpCB_ = NULL;
   moveCB_ = NULL;
   wheelCB_ = NULL;
+  doubleClickCB_ = NULL;
   mousePointer_ = true;
   pressed_[0] = false;
   pressed_[1] = false;

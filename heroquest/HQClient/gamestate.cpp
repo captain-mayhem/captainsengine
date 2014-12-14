@@ -43,15 +43,17 @@ GameState::~GameState(){
 }
 
 //init game
-void GameState::init(){
+bool GameState::init(){
   status_ = INIT;
   Templates::init();
   msg.init();
-  wrld.init();
+  if (!wrld.init())
+    return false;
   scr.init();
   void (*p)(const char*);
   p = &Message::process;
   consol.setCbFunc(p);
+  return true;
 }
 
 //start game

@@ -25,7 +25,6 @@ SET(HQClient_SRCS
 	player.cpp
 	renderer.cpp
 	script.cpp
-	socket.cpp
 	templates.cpp
 	textureManager.cpp
 	trade.cpp
@@ -55,7 +54,6 @@ SET(HQClient_HDRS
 	player.h
 	renderer.h
 	script.h
-	socket.h
 	socketexception.h
 	templates.h
 	textureManager.h

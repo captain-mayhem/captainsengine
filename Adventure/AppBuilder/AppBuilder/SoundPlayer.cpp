@@ -30,8 +30,8 @@
 #ifdef UNIX
 #include <AL/efx.h>
 #else
-#include <efx.h>
-#include <efx-creative.h>
+#include <AL/efx.h>
+#include <AL/efx-creative.h>
 #endif
 #endif
 extern "C"{

@@ -12,14 +12,14 @@
 #ifndef CLIENTSOCKET_HH
 #define CLIENTSOCKET_HH
 
-#include "socket.h"
+#include <Engine/system/socket.h>
 
 using std::string;
 
 //! client side socket
 /*! provides simple socket operations
  */
-class ClientSocket : private Socket
+class ClientSocket : private CGE::Socket
 {
  public:
   //! Creates a socket and connects it

@@ -21,7 +21,7 @@
 #include "player.h"
 #include "camera.h"
 
-#define COLL_STEP 0.1
+#define COLL_STEP 0.1f
 
 Camera::Camera(){
   //Set some standard values

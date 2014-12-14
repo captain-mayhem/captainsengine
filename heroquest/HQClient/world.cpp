@@ -1354,7 +1354,11 @@ void World::addOverlay(Overlay* over, const Vector2D& pos, Direction d, int vecP
 }
 
 //read in monster and furniture data
-void World::init(){
+bool World::init(){
+  if (Templates::instance()->numMonsterTypes() == 0){
+    CGE::Engine::instance()->messageBox("No monster templates found. Exiting...", "Error");
+    return false;
+  }
 	//monsters
 	monsterCounter_.resize(Templates::instance()->numMonsterTypes());
 	//for (unsigned i = 0; i < monsterTypes_.size(); i++){
@@ -1380,7 +1384,7 @@ void World::init(){
 		furnitureTypes_.push_back(f);
 	}
 	in2.close();
-
+  return true;
 }
 
 //updates 2D map visibility

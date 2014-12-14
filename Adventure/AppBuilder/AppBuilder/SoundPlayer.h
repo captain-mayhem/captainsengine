@@ -6,8 +6,8 @@
 
 #ifndef DISABLE_SOUND
 #ifdef WIN32
-#include <al.h>
-#include <alc.h>
+#include <AL/al.h>
+#include <AL/alc.h>
 #else
 #include <AL/al.h>
 #include <AL/alc.h>

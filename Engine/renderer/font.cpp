@@ -45,7 +45,7 @@ Font::~Font(){
 }
 
 //Build font display list
-void Font::buildFont(){
+void Font::buildFont(VertexBuffer* other){
   //character coords
   float	cx;
   float	cy;
@@ -53,26 +53,32 @@ void Font::buildFont(){
   if (tex_ == NULL)
     return;
   tex_->activate();
-  buffer_->create(VB_POSITION | VB_TEXCOORD, 4*256);
-  buffer_->lockVertexPointer();
-  
-  for (int i=0; i<256; i++){
-    //position of current character in font texture
-    cx=float(i%16)/16.0f;
-    cy=float(i/16)/16.0f;
+  if (other == NULL){
+    buffer_->create(VB_POSITION | VB_TEXCOORD, 4 * 256);
+    buffer_->lockVertexPointer();
 
-    //A Quad for each character
-    buffer_->setPosition(4*i+0, Vertex(0,0,0));
-    buffer_->setPosition(4*i+1, Vertex(16,0,0));
-    buffer_->setPosition(4*i+3, Vertex(16,16,0));
-    buffer_->setPosition(4*i+2, Vertex(0,16,0));
-    buffer_->setTexCoord(4*i+0, Vec2f(cx,1-cy-0.0625f), true);
-    buffer_->setTexCoord(4*i+1, Vec2f(cx+0.0625f,1-cy-0.0625f), true);
-    buffer_->setTexCoord(4*i+3, Vec2f(cx+0.0625f,1-cy), true);
-    buffer_->setTexCoord(4*i+2, Vec2f(cx,1-cy), true);
+    for (int i = 0; i < 256; i++){
+      //position of current character in font texture
+      cx = float(i % 16) / 16.0f;
+      cy = float(i / 16) / 16.0f;
+
+      //A Quad for each character
+      buffer_->setPosition(4 * i + 0, Vertex(0, 0, 0));
+      buffer_->setPosition(4 * i + 1, Vertex(16, 0, 0));
+      buffer_->setPosition(4 * i + 3, Vertex(16, 16, 0));
+      buffer_->setPosition(4 * i + 2, Vertex(0, 16, 0));
+      buffer_->setTexCoord(4 * i + 0, Vec2f(cx, 1 - cy - 0.0625f), true);
+      buffer_->setTexCoord(4 * i + 1, Vec2f(cx + 0.0625f, 1 - cy - 0.0625f), true);
+      buffer_->setTexCoord(4 * i + 3, Vec2f(cx + 0.0625f, 1 - cy), true);
+      buffer_->setTexCoord(4 * i + 2, Vec2f(cx, 1 - cy), true);
+    }
+
+    buffer_->unlockVertexPointer();
   }
-
-  buffer_->unlockVertexPointer();
+  else{
+    delete buffer_;
+    buffer_ = other;
+  }
 
   short* in = (short*)inds_->lockIndexPointer();
   in[0] = 0; in[1] = 1; in[3] = 3;

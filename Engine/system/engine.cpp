@@ -137,11 +137,9 @@ void Engine::startup(int argc, char** argv){
     fnt_[i] = new CGE::Font();
   }
   if (graphics_){
-    fnt_[0]->buildFont();
-    delete fnt_[1]->getVB();
-    fnt_[1]->setVB(fnt_[0]->getVB());
-    delete fnt_[2]->getVB();
-    fnt_[2]->setVB(fnt_[0]->getVB());
+    fnt_[0]->buildFont(NULL);
+    fnt_[1]->buildFont(fnt_[0]->getVB());
+    fnt_[2]->buildFont(fnt_[0]->getVB());
     forms_ = new CGE::Forms();
   }
   console_ = new ::Gui::Console();
@@ -164,7 +162,7 @@ void Engine::shutdown(){
     fnt_[0]->killFont();
     for (int i = 0; i < 3; i++){
       if (i != 0)
-        fnt_[i]->setVB(NULL);
+        fnt_[i]->resetVB();
       SAFE_DELETE(fnt_[i]);
     }
     SAFE_DELETE_ARRAY(fnt_);

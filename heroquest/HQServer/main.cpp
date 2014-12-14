@@ -46,6 +46,7 @@ using std::cerr;
 using std::endl;
 using std::string;
 
+const char SEPARATOR = '\004';
 
 const string getCwd(){
   char cwd[2048];

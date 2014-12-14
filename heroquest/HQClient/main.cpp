@@ -11,6 +11,8 @@
 #include "clientsocket.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
+#include "io/Tracing.h"
+#include "io/TraceManager.h"
 
 #include "renderer.h"
 
@@ -29,16 +31,25 @@ string home;
 TR_CHANNEL(HQ_Client)
 
 void engineMain(int argc, char** argv){
+  CGE::LogOutputter* putty = new CGE::LogOutputter();
+  CGE::TraceManager::instance()->setTraceOutputter(putty);
   TR_USE(HQ_Client);
   path = "";
   home = "";
 #ifdef WIN32
-  char* drv = getenv("HOMEDRIVE");
-  char* pth = getenv("HOMEPATH");
-  if (drv && pth)
-    home = string(drv)+pth;
-  else
-    home = path;
+  char* app = getenv("APPDATA");
+  if (app){
+    home = std::string(app)+"/heroquest/";
+    CreateDirectory(home.c_str(), NULL);
+  }
+  else{
+    char* drv = getenv("HOMEDRIVE");
+    char* pth = getenv("HOMEPATH");
+    if (drv && pth)
+      home = string(drv) + pth;
+    else
+      home = path;
+  }
 #endif
 #ifdef UNIX
   char* pth = getenv("HOME");
@@ -47,7 +58,7 @@ void engineMain(int argc, char** argv){
   else
     home = path;
 #endif
-  TR_DEBUG(home.c_str());
+  TR_DEBUG("Home is: %s", home.c_str());
   Renderer* rend = Engine::instance()->getRenderer();
   HQRenderer::init(rend);
 

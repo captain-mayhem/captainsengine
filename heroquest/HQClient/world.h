@@ -226,7 +226,7 @@ public:
   bool isWall(short x, short y, Direction dir, bool useVisibility=true);
 
 	//! init some data structures
-	void init();
+	bool init();
 
   //! if a monster is visible from position pos
   bool isMonsterVisible(Vector2D pos);

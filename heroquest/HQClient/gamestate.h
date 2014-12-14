@@ -45,7 +45,7 @@ public:
   //! gets the pending damage
   inline short getPendingDamage() {return pending_damage_;}
   //! inits the game
-  void init();
+  bool init();
   //! starts the game
   bool start();
   //! is called every frame to keep the game running

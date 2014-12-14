@@ -1,1 +1,1 @@
-..\..\..\..\Engine_windows\heroquest\HQServer\debug\HQServer.exe 28405
+..\..\..\..\build_win\heroquest\HQServer\Debug\HQServer.exe 28405

@@ -23,7 +23,6 @@ SET(HQServer_SRCS
 	${CLIENT}/monster.cpp
 	${CLIENT}/overlay.cpp
 	${CLIENT}/script.cpp
-	${CLIENT}/socket.cpp
 	${CLIENT}/templates.cpp
 	${CLIENT}/world.cpp
 )

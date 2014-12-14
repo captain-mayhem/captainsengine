@@ -39,6 +39,9 @@
 #include "mesh/mesh.h"
 #include "mesh/model.h"
 
+//! the separator
+const char SEPARATOR = '\004';
+
 using std::istringstream;
 using std::ifstream;
 using std::vector;

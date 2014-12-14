@@ -18,12 +18,12 @@
 #ifndef SERVERSOCKET_HH
 #define SERVERSOCKET_HH
 
-#include "../HQClient/socket.h"
+#include <Engine/system/socket.h>
 
 using std::string;
 
 //! The socket on the server side
-class ServerSocket : private Socket
+class ServerSocket : private CGE::Socket
 {
  public:
   //! Constructor, takes port
