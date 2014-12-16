@@ -16,6 +16,7 @@
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "math/vector.h"
+#include "../editor/hqmExport.h"
 
 #include "compiler.h"
 
@@ -251,7 +252,15 @@ void engineMain(int argc, char** argv){
     }
     delete [] map;
 
+    HQMExport exp;
+    string filename = argv[mc];
+    int idx = filename.find_last_of(".");
+    filename.erase(idx);
+    filename += ".hqm";
+    exp.exportHQM(cmp.getScene(), filename);
+
   }
+
   Engine::instance()->shutdown();
   exit(-1);
 }

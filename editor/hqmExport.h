@@ -12,9 +12,9 @@ namespace CGE{
 class Scene;
 };
 
-class Field{
+class HQField{
 public:
-  Field() {
+  HQField() {
     position = CGE::Vector2D(-1,-1);
     id = -1;
     active = false;
@@ -40,7 +40,7 @@ public:
   std::vector<unsigned> modelids;
 };
 
-struct Door{
+struct HQDoor{
   unsigned id;
   short type;
   CGE::Vector2D pos;
@@ -51,6 +51,13 @@ struct Monster{
   unsigned id;
   unsigned instanceid;
   CGE::Vector2D pos;
+};
+
+struct Furniture{
+  unsigned id;
+  unsigned instanceid;
+  CGE::Vector2D pos;
+  unsigned direction;
 };
 
 class HQMExport{
@@ -66,7 +73,7 @@ public:
   bool exportHQM(CGE::Scene& scn, const std::string& filename);
 private:
   //! Get the field position given a world position
-  CGE::Vector2D convertToMap(const CGE::Vector3D& pos);
+  CGE::Vector2D convertToMap(const CGE::Vector3D& pos, float xoffset, float yoffset);
   //! Get the direction given a matrix
   Direction extractDir(const CGE::Matrix& mat);
   //! the width of the map
@@ -74,15 +81,17 @@ private:
   //! the height of the map
   short height_;
   //! the map
-  Field** map_;
+  HQField** map_;
   //! the room structure
   std::vector< std::vector< CGE::Vector2D > > rooms_;
   //! the starting positions
   std::vector<CGE::Vector2D> startpos_;
   //! the doors
-  std::vector<Door> doors_;
+  std::vector<HQDoor> doors_;
   //! the monsters
   std::vector<Monster> monsters_;
+  //! the furniture
+  std::vector<Furniture> furnitures_;
 };
   
 

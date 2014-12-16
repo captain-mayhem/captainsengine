@@ -26,14 +26,14 @@ class Inventory;
 using ::CGE::Vector3D;
 using ::CGE::Vec2f;
 
-#define QUADSIZE 8
-#define WALLHEIGHT 16
-#define THICKNESS 1
+#define QUADSIZE 8.0f
+#define WALLHEIGHT 16.0f
+#define THICKNESS 1.0f
 // WALLHEIGHT/QUADSIZE
 #define RATIO 2
-#define DOORTHICK 0.9990
-#define DOORHEIGHT 2.0/3*WALLHEIGHT
-#define DOORTEX 2.0/3*RATIO
+#define DOORTHICK 0.9990f
+#define DOORHEIGHT 2.0f/3*WALLHEIGHT
+#define DOORTEX 2.0f/3*RATIO
 
 //! specifies direction of walls, doors, etc.
 enum Direction{

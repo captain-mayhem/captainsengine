@@ -54,7 +54,7 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
   for (iter = models.begin(); iter != models.end(); iter++){
     Matrix mat = (*iter)->getTrafo();
     Vector3D trans = mat.getTranslation();
-    Vector2D pos = convertToMap(trans);
+    Vector2D pos = convertToMap(trans, 0.5f, 0.5f);
     short tmpX = pos.x;
     short tmpY = pos.y;
     width_ = max(width_, tmpX);
@@ -62,16 +62,16 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
   }
   width_++; height_++;
   //allocate the map
-  map_ = new Field*[height_];
+  map_ = new HQField*[height_];
   for (int i = 0; i < height_; i++){
-    map_[i] = new Field[width_];
+    map_[i] = new HQField[width_];
   }
   //extract the informations needed for the map
   for (iter = models.begin(); iter != models.end(); iter++){
     Matrix mat = (*iter)->getTrafo();
     Vector3D trans = mat.getTranslation();
-    Vector2D pos = convertToMap(trans);
-    Field* f = &map_[pos.y][pos.x];
+    Vector2D pos = convertToMap(trans, 0.5f, 0.5f);
+    HQField* f = &map_[pos.y][pos.x];
     int classAttrib = (*iter)->getAttrib(0);
     //ground
     if (classAttrib == Editor::GROUND){
@@ -104,7 +104,7 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
     }
     //door
     else if (classAttrib == Editor::DOOR){
-      Door door;
+      HQDoor door;
       door.id = (*iter)->getID();
       door.type = (*iter)->getAttrib(1);
       int idx = (int)doors_.size();
@@ -114,28 +114,28 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
       if (d == TOP){
         door.pos = Vector2D(pos.x,pos.y-1);
         door.pos2 = pos;
-        Field* f2 = &map_[pos.y-1][pos.x];
+        HQField* f2 = &map_[pos.y-1][pos.x];
         f2->doorbits.set(BOTTOM);
         f2->dooridx[BOTTOM] = idx;
       }
       else if (d == RIGHT){
         door.pos = pos;
         door.pos2 = Vector2D(pos.x+1,pos.y);
-        Field* f2 = &map_[pos.y][pos.x+1];
+        HQField* f2 = &map_[pos.y][pos.x+1];
         f2->doorbits.set(LEFT);
         f2->dooridx[LEFT] = idx;
       }
       else if (d == BOTTOM){
         door.pos = pos;
         door.pos2 = Vector2D(pos.x,pos.y+1);
-        Field* f2 = &map_[pos.y+1][pos.x];
+        HQField* f2 = &map_[pos.y+1][pos.x];
         f2->doorbits.set(TOP);
         f2->dooridx[TOP] = idx;
       }
       else if (d == LEFT){
         door.pos = Vector2D(pos.x-1,pos.y);
         door.pos2 = pos;
-        Field* f2 = &map_[pos.y][pos.x-1];
+        HQField* f2 = &map_[pos.y][pos.x-1];
         f2->doorbits.set(RIGHT);
         f2->dooridx[RIGHT] = idx;
       }
@@ -151,7 +151,31 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
       monsters_.push_back(m);
     }
     else if (classAttrib == Editor::FURNITURE){
+      Furniture f;
+      f.id = (*iter)->getID();
+      f.instanceid = (*iter)->getAttrib(1);
+      int w = (*iter)->getAttrib(2);
+      int h = (*iter)->getAttrib(3);
+      Direction d = extractDir(mat);
+      f.direction = (unsigned)d;
 
+      float xoffset = w*0.5f;
+      float yoffset = h*0.5f;
+      if (d == LEFT){
+        xoffset = h*0.5f;
+        yoffset = 1.0f - w*0.5f;
+      }
+      else if (d == BOTTOM){
+        xoffset = 1.0f - w*0.5f;
+        yoffset = 1.0f - h*0.5f;
+      }
+      if (d == RIGHT){
+        xoffset = 1.0f - h*0.5f;
+        yoffset = w*0.5f;
+      }
+
+      f.pos = convertToMap(trans, xoffset, yoffset);
+      furnitures_.push_back(f);
     }
   }
   
@@ -164,7 +188,7 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
   for (int j = 0; j < height_; j++){
     for(int i = 0; i < width_; i++){
       //write field content
-      Field* f = &map_[j][i];
+      HQField* f = &map_[j][i];
       char bits = f->wallbits.getData();
       out.write(&bits, sizeof(bits));
       out.write((char*)&f->position, sizeof(f->position));
@@ -204,7 +228,7 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
   size = doors_.size();
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; ++i){
-    Door door = doors_[i];
+    HQDoor door = doors_[i];
     out.write((char*)&door.id, sizeof(door.id));
     out.write((char*)&door.type, sizeof(door.type));
     out.write((char*)&door.pos, sizeof(door.pos));
@@ -221,10 +245,18 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
     out.write((char*)&m.pos, sizeof(m.pos));
     //out.write((char*)&m, sizeof(m));
   }
+  //furniture
+  size = furnitures_.size();
+  out.write((char*)&size, sizeof(size));
+  for (unsigned i = 0; i < size; ++i){
+    Furniture& f = furnitures_[i];
+    out.write((char*)&f.id, sizeof(f.id));
+    out.write((char*)&f.instanceid, sizeof(f.instanceid));
+    out.write((char*)&f.pos, sizeof(f.pos));
+    out.write((char*)&f.direction, sizeof(f.direction));
+  }
   //TODO complete
   size = 0;
-  //furniture
-  out.write((char*)&size, sizeof(size));
   //overlays
   out.write((char*)&size, sizeof(size));
   //scripts
@@ -247,10 +279,10 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
 }
 
 //! Get the field position given a world position
-Vector2D HQMExport::convertToMap(const Vector3D& pos){
+Vector2D HQMExport::convertToMap(const Vector3D& pos, float xoffset, float yoffset){
   Vector2D result;
-  result.x = (int)((pos.x-4.0f)/8.0f);
-  result.y = (int)((pos.z-4.0f)/8.0f);
+  result.x = (int)((pos.x-8.0f*xoffset)/8.0f);
+  result.y = (int)((pos.z-8.0f*yoffset)/8.0f);
   return result;
 }
 

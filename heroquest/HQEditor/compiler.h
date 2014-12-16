@@ -85,6 +85,7 @@ public:
   //! Set the current (ascii) map
   void setMap(char** map) {map_ = map;}
 
+  CGE::Scene& getScene() { return scene_; }
 private:
   //! load or get a mesh
   MeshGeo::Mesh* getMesh(std::string tilename, std::string path);

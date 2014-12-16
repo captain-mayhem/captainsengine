@@ -261,8 +261,6 @@ bool World::load(const string& name){
 	in.read((char*)&size, sizeof(size));
 	monsters_.resize(size);
 	for(unsigned i=0; i<size; i++){
-		//monsterPos mp;
-		//in.read((char*)&mp, sizeof(mp));
     unsigned mid;
     unsigned instanceid;
     Vector2D pos;
@@ -282,30 +280,22 @@ bool World::load(const string& name){
 	in.read((char*)&size, sizeof(size));
 	furniture_.resize(size);
 	for(unsigned i=0; i<size; i++){
-		furniturePos fp;
-		in.read((char*)&fp, sizeof(fp));
-		string furniture = string(fp.furniture);
+    unsigned mid;
+    unsigned instanceid;
+    Vector2D pos;
+    unsigned dir;
+    in.read((char*)&mid, sizeof(mid));
+    in.read((char*)&instanceid, sizeof(instanceid));
+    in.read((char*)&pos, sizeof(pos));
+    in.read((char*)&dir, sizeof(dir));
 		
-		bool b1, b2;
-		Direction d;
-		isupper(fp.furniture[0])? b1=true : b1 = false;
-		isupper(fp.furniture[1])? b2=true : b2 = false;
-		if(!b1 && !b2)
-			d = TOP;
-		else if (!b1 && b2)
-			d = RIGHT;
-		else if (b1 && !b2)
-			d = BOTTOM;
-		else 
-			d = LEFT;
-		
-		furniture = toLower(furniture);
+		Direction d = (Direction)dir;
 		//cerr<<"Furniture: "<<furniture<<endl;	
 		for(unsigned j=0; j<furnitureTypes_.size(); j++){
-			if(furnitureTypes_[j]->getBrev() == furniture){
+			if(furnitureTypes_[j]->getId() == instanceid){
 				Furniture* f = new Furniture();
         *f = *furnitureTypes_[j];
-				addFurniture(f, fp.pos, d, i);
+				addFurniture(f, pos, d, i);
 				break;
 			}
 		}
@@ -495,7 +485,7 @@ void World::render(){
 		glTexCoord2f(width_,height_);
 		glVertex3f(0, WALLHEIGHT, 0);
 		glTexCoord2f(0,height_);
-		glVertex3f(QUADSIZE*width_, WALLHEIGHT, 0);
+		glVertex3f((float)(QUADSIZE*width_), WALLHEIGHT, 0);
 		glTexCoord2f(0,0);
 		glVertex3f(QUADSIZE*width_, WALLHEIGHT, QUADSIZE*height_);
 		glTexCoord2f(width_,0);
@@ -503,10 +493,10 @@ void World::render(){
 	glEnd();
 
   string messg;
-  GLenum errCode;
+  /*GLenum errCode;
 
   const GLubyte *errString;
-/*
+
   if( (errCode = glGetError() ) != GL_NO_ERROR ){
     errString = gluErrorString(errCode);
     messg = string("An OpenGL error has occurred [") + (const char*)errString + "]";
@@ -652,7 +642,7 @@ void World::render2D(bool vis){
 					if (doo->getType() > 0)
 						glColor3f(1,1,1);
 					else
-        		glColor3f(0.8,0.12,0.12);
+        		glColor3f(0.8f,0.12f,0.12f);
 					if(doo->isClosed()){
 						glVertex2f(i*xstep, (height_-j)*ystep);
 						glVertex2f(i*xstep+xstep, (height_-j)*ystep);
@@ -663,7 +653,7 @@ void World::render2D(bool vis){
 					if (doo->getType() > 0)
 						glColor3f(1,1,1);
 					else
-        		glColor3f(0.8,0.12,0.12);
+        		glColor3f(0.8f,0.12f,0.12f);
 					if(doo->isClosed()){
 						glVertex2f(i*xstep+xstep, (height_-j)*ystep);
 						glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
@@ -674,7 +664,7 @@ void World::render2D(bool vis){
 					if (doo->getType() > 0)
 						glColor3f(1,1,1);
 					else
-        		glColor3f(0.8,0.12,0.12);
+        		glColor3f(0.8f,0.12f,0.12f);
 					if(doo->isClosed()){
 						glVertex2f(i*xstep, (height_-j)*ystep-ystep);
 						glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
@@ -685,7 +675,7 @@ void World::render2D(bool vis){
 					if (doo->getType() > 0)
 						glColor3f(1,1,1);
 					else
-        		glColor3f(0.8,0.12,0.12);
+        		glColor3f(0.8f,0.12f,0.12f);
 					if(doo->isClosed()){
 						glVertex2f(i*xstep, (height_-j)*ystep-ystep);
 						glVertex2f(i*xstep, (height_-j)*ystep);
@@ -708,8 +698,8 @@ void World::render2D(bool vis){
 	Vector3D view = (cam.view() - cam.position()).normalized();
 	Vector2D pos = cam.modelPos();
 	glBegin(GL_LINES);
-		glVertex2f((pos.x+0.5)*xstep, (height_-pos.y-0.5)*ystep);
-		glVertex2f((pos.x+0.5)*xstep + 0.5*xstep*view.x, (height_-pos.y-0.5)*ystep - 0.5*ystep*view.z);
+		glVertex2f((pos.x+0.5f)*xstep, (height_-pos.y-0.5f)*ystep);
+		glVertex2f((pos.x+0.5f)*xstep + 0.5f*xstep*view.x, (height_-pos.y-0.5f)*ystep - 0.5f*ystep*view.z);
 	glEnd();
 	glColor3f(1,1,1);
 	glEnable(GL_BLEND);
@@ -726,10 +716,10 @@ void World::render2D(bool vis){
 		int i = canSee_[k]->getPosition().x;
 		int j = canSee_[k]->getPosition().y;
 		glBegin(GL_LINES);
-			glVertex2f(i*xstep+3, (height_-j)*ystep-ystep+3);
-			glVertex2f(i*xstep+xstep-3, (height_-j)*ystep-3);
-			glVertex2f(i*xstep+3, (height_-j)*ystep-2);
-			glVertex2f(i*xstep+xstep-3, (height_-j)*ystep-ystep+3);
+    glVertex2f((GLfloat)(i*xstep + 3), (GLfloat)((height_ - j)*ystep - ystep + 3));
+    glVertex2f((GLfloat)(i*xstep + xstep - 3), (GLfloat)((height_ - j)*ystep - 3));
+      glVertex2f((GLfloat)(i*xstep + 3), (GLfloat)((height_ - j)*ystep - 2));
+			glVertex2f((GLfloat)(i*xstep+xstep-3), (GLfloat)((height_-j)*ystep-ystep+3));
 		glEnd();
 	}
 	glEnable(GL_BLEND);
@@ -798,7 +788,7 @@ void World::updateCollisionVertices(Vector2D modelPos){
       i = width_ - 1;
     if (j < 0)
       j = 0;
-    if (j > height_)
+    if (j >= height_)
       j = height_ - 1;
     //collision with walls
     for (unsigned k = 0; k < world_[j][i].numModels; ++k){
@@ -837,14 +827,14 @@ void World::updateCollisionVertices(Vector2D modelPos){
 	
   //set invisible box around the field, if no more moves are left
   moveBox_->clear();
-  moveBox_->addVertex(modelPos.x*QUADSIZE, 0, modelPos.y*QUADSIZE);
-  moveBox_->addVertex(modelPos.x*QUADSIZE, 0, modelPos.y*QUADSIZE+QUADSIZE);
-  moveBox_->addVertex(modelPos.x*QUADSIZE+QUADSIZE, 0, modelPos.y*QUADSIZE+QUADSIZE);
-  moveBox_->addVertex(modelPos.x*QUADSIZE+QUADSIZE, 0, modelPos.y*QUADSIZE);
-  moveBox_->addVertex(modelPos.x*QUADSIZE, WALLHEIGHT, modelPos.y*QUADSIZE);
-  moveBox_->addVertex(modelPos.x*QUADSIZE, WALLHEIGHT, modelPos.y*QUADSIZE+QUADSIZE);
-  moveBox_->addVertex(modelPos.x*QUADSIZE+QUADSIZE, WALLHEIGHT, modelPos.y*QUADSIZE+QUADSIZE);
-  moveBox_->addVertex(modelPos.x*QUADSIZE+QUADSIZE, WALLHEIGHT, modelPos.y*QUADSIZE);
+  moveBox_->addVertex((float)(modelPos.x*QUADSIZE), 0, (float)(modelPos.y*QUADSIZE));
+  moveBox_->addVertex((float)(modelPos.x*QUADSIZE), 0, (float)(modelPos.y*QUADSIZE + QUADSIZE));
+  moveBox_->addVertex((float)(modelPos.x*QUADSIZE + QUADSIZE), 0, (float)(modelPos.y*QUADSIZE + QUADSIZE));
+  moveBox_->addVertex((float)(modelPos.x*QUADSIZE + QUADSIZE), 0, (float)(modelPos.y*QUADSIZE));
+  moveBox_->addVertex((float)(modelPos.x*QUADSIZE), (float)WALLHEIGHT, (float)(modelPos.y*QUADSIZE));
+  moveBox_->addVertex((float)(modelPos.x*QUADSIZE), (float)WALLHEIGHT, (float)(modelPos.y*QUADSIZE + QUADSIZE));
+  moveBox_->addVertex((float)(modelPos.x*QUADSIZE + QUADSIZE), (float)WALLHEIGHT, (float)(modelPos.y*QUADSIZE + QUADSIZE));
+  moveBox_->addVertex((float)(modelPos.x*QUADSIZE+QUADSIZE), (float)WALLHEIGHT, (float)(modelPos.y*QUADSIZE));
 
 	Creature* c = plyr.getCreature();
 	if (!c){

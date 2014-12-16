@@ -6,6 +6,8 @@ SET(HQEditor_SRCS
 	compiler.cpp
 	../HQClient/door.cpp
 	main.cpp
+	../../editor/hqmExport.cpp
+	../../editor/hqmExport.h
 )
 
 SET(HQEditor_HDRS

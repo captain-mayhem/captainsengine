@@ -39,7 +39,7 @@ void Furniture::render() const {
 #ifdef _CLIENT_
 	if (rendered_)
 		return;
-  TextureManager::instance()->furnitureTex[id_]->activate();
+  TextureManager::instance()->furnitureTex[id_-3000]->activate();
 	//glBindTexture(GL_TEXTURE_2D, tex.furnitureTex[id_]);
   glPushMatrix();
 	
@@ -48,25 +48,25 @@ void Furniture::render() const {
 			glTranslatef(position_.x*QUADSIZE + QUADSIZE/2 + QUADSIZE*(float)(width_-1)/2, 
 									4, 
 									position_.y*QUADSIZE + QUADSIZE/2 + QUADSIZE*(float)(height_-1)/2);
-			glScalef(4*width_, 4, 4*height_);
+			glScalef(4.0f*width_, 4, 4.0f*height_);
 			break;
 		case BOTTOM:
 			glTranslatef(position_.x*QUADSIZE + QUADSIZE/2 - QUADSIZE*(float)(width_-1)/2, 
 									4, 
 									position_.y*QUADSIZE + QUADSIZE/2 - QUADSIZE*(float)(height_-1)/2);
-			glScalef(4*width_, 4, 4*height_);
+			glScalef(4.0f*width_, 4, 4.0f*height_);
 			break;
 		case RIGHT:
 			glTranslatef(position_.x*QUADSIZE + QUADSIZE/2 - QUADSIZE*(float)(height_-1)/2, 
 									4, 
 									position_.y*QUADSIZE + QUADSIZE/2 + QUADSIZE*(float)(width_-1)/2);
-			glScalef(4*height_, 4, 4*width_);
+			glScalef(4.0f*height_, 4, 4.0f*width_);
 			break;
 		case LEFT:
 			glTranslatef(position_.x*QUADSIZE + QUADSIZE/2 + QUADSIZE*(float)(height_-1)/2, 
 									4, 
 									position_.y*QUADSIZE + QUADSIZE/2 - QUADSIZE*(float)(width_-1)/2);
-			glScalef(4*height_, 4, 4*width_);
+			glScalef(4.0f*height_, 4, 4.0f*width_);
 			break;
 	}
 	
@@ -84,7 +84,7 @@ void Furniture::render2D() const {
 	int dy = SCREENHEIGHT/height;
 	glEnable(GL_TEXTURE_2D);
 	//glBindTexture(GL_TEXTURE_2D, tex.furnitureTex[id_]);
-  TextureManager::instance()->furnitureTex[id_]->activate();
+  TextureManager::instance()->furnitureTex[id_-3000]->activate();
 	switch(orientation_){	
 		case TOP:
 			glBegin(GL_QUADS);

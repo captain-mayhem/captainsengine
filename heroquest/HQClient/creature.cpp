@@ -134,7 +134,7 @@ void Creature::render() const{
     glPushMatrix();
   
     glScalef(1.5,3,1.5);
-    glTranslatef(actPos_.x/1.5, 1, actPos_.z/1.5);
+    glTranslatef(actPos_.x/1.5f, 1, actPos_.z/1.5f);
   
     // In the current development stage, the creature is just a cube
     ::Forms::drawCube();
@@ -155,7 +155,7 @@ void Creature::render2D() const{
   if (active_)
     glColor4f(1,1,1,1);
   else
-    glColor4f(1,1,1,0.3);
+    glColor4f(1,1,1,0.3f);
   glEnable(GL_TEXTURE_2D);
   
   glBegin(GL_QUADS);
@@ -203,9 +203,9 @@ void Creature::update(){
     return;
   toReach = positions_.front();
   // move how far
-  float move = CGE::Engine::instance()->getFrameInterval()*cam.getSpeed();
+  float move = (float)(CGE::Engine::instance()->getFrameInterval()*cam.getSpeed());
   // a little epsilon to avoid oscillation around the target point
-  float epsilon = 0.1;
+  float epsilon = 0.1f;
   // move in the correct direction
   if (actPos_.x < toReach.x-epsilon)
     actPos_.x += move;

@@ -400,24 +400,24 @@ void Compiler::addFurniture(const Vector2D& pos, char furniture[2]){
   float angle = 0;
   short xoffset = 0;
   short yoffset = 0;
-  if (islower(furniture[0]) && islower(furniture[1])){
+  if (islower(furniture[0]) && islower(furniture[1])){ //TOP
     angle = 0;
     xoffset = width*8/2;
     yoffset = height*8/2;
   }
-  else if (islower(furniture[0]) && !islower(furniture[1])){
-    angle = M_PI/2.0;
+  else if (islower(furniture[0]) && !islower(furniture[1])){ //RIGHT
+    angle = (float)(3.0f*M_PI/2.0);
     //short tmp; tmp = width; width = height; height = tmp;
     xoffset = height*8/2-(height-1)*8;
     yoffset = width*8/2;
   }
-  else if (!islower(furniture[0]) && islower(furniture[1])){
-    angle = M_PI;
+  else if (!islower(furniture[0]) && islower(furniture[1])){ //BOTTOM
+    angle = (float)M_PI;
     xoffset = width*8/2-(width-1)*8;
     yoffset = height*8/2-(height-1)*8;
   }
-  else if (!islower(furniture[0]) && !islower(furniture[1])){
-    angle = 3.0*M_PI/2.0;
+  else if (!islower(furniture[0]) && !islower(furniture[1])){ //LEFT
+    angle = (float)(M_PI/2.0);
     //short tmp; tmp = width; width = height; height = tmp;
     xoffset = height*8/2;
     yoffset = width*8/2-(width-1)*8;

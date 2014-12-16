@@ -1,0 +1,1 @@
+..\..\..\..\build_win\heroquest\HQClient\Debug\HQClient.exe
