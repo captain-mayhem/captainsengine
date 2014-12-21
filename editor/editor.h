@@ -29,6 +29,7 @@ public:
     WALLPART = 1004,
     MONSTER = 1005,
     FURNITURE = 1006,
+    OVERLAY = 1007,
   };
   ~Editor();
   static void init();
