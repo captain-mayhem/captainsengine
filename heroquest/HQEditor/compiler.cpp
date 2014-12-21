@@ -397,45 +397,53 @@ void Compiler::addFurniture(const Vector2D& pos, char furniture[2]){
   mdl->setAttrib(2, width);
   mdl->setAttrib(3, height);
   //determine rotation
-  float angle = 0;
-  short xoffset = 0;
-  short yoffset = 0;
-  if (islower(furniture[0]) && islower(furniture[1])){ //TOP
-    angle = 0;
-    xoffset = width*8/2;
-    yoffset = height*8/2;
-  }
-  else if (islower(furniture[0]) && !islower(furniture[1])){ //RIGHT
-    angle = (float)(3.0f*M_PI/2.0);
-    //short tmp; tmp = width; width = height; height = tmp;
-    xoffset = height*8/2-(height-1)*8;
-    yoffset = width*8/2;
-  }
-  else if (!islower(furniture[0]) && islower(furniture[1])){ //BOTTOM
-    angle = (float)M_PI;
-    xoffset = width*8/2-(width-1)*8;
-    yoffset = height*8/2-(height-1)*8;
-  }
-  else if (!islower(furniture[0]) && !islower(furniture[1])){ //LEFT
-    angle = (float)(M_PI/2.0);
-    //short tmp; tmp = width; width = height; height = tmp;
-    xoffset = height*8/2;
-    yoffset = width*8/2-(width-1)*8;
-  }
-  CGE::Matrix rot(Matrix::Rotation, Vector3D(0,1,0), angle);
-  CGE::Matrix trans(Matrix::Translation, Vector3D((float)(pos.x*8+xoffset),0,(float)(pos.y*8+yoffset)));
-  mdl->setTrafo(trans*rot);
+  mdl->setTrafo(calcTrafo(pos, width, height, furniture));
+  
   scene_.addModel(mdl);
 }
 
 //add overlay
 void Compiler::addOverlay(const Vector2D& pos, char overlay[3]){
-  overlayPos op;
-  op.overlay[0] = overlay[0];
-  op.overlay[1] = overlay[1];
-  op.overlay[2] = '\0';
-  op.pos = pos;
-  overlays_.push_back(op);
+  std::string overlayname;
+  int overlayvalue;
+  short width = 1;
+  short height = 1;
+  if (towlower(overlay[0]) == 's' && towlower(overlay[1]) == 't'){
+    overlayname = "stairs";
+    overlayvalue = 4000;
+    width = 2;
+    height = 2;
+  }
+  else if (towlower(overlay[0]) == 'p' && towlower(overlay[1]) == 't'){
+    overlayname = "pittrap";
+    overlayvalue = 4001;
+  }
+  else if (towlower(overlay[0]) == 'r' && towlower(overlay[1]) == 't'){
+    overlayname = "rocktrap";
+    overlayvalue = 4002;
+  }
+  else if (towlower(overlay[0]) == 's' && towlower(overlay[1]) == 'p'){
+    overlayname = "speartrap";
+    overlayvalue = 4003;
+  }
+  else
+    return;
+
+  MeshGeo::Mesh* msh = getMesh(overlayname + ".obj", "models/overlays/");
+  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+
+  CGE::Texture* tex = getTexture("textures/overlays/" + overlayname + ".jpg");
+  mdl->assignTexture(tex, 0);
+
+  //overlays
+  mdl->setAttrib(0, 1007);
+  mdl->setAttrib(1, overlayvalue);
+  mdl->setAttrib(2, width);
+  mdl->setAttrib(3, height);
+
+  //determine rotation
+  mdl->setTrafo(calcTrafo(pos, width, height, overlay));
+  scene_.addModel(mdl);
 }
 
 
@@ -529,4 +537,35 @@ short Compiler::getLengthInfo(const Vector2D& pos, Direction d, Matrix* rot){
     return 1;
   else
     return 0;
+}
+
+CGE::Matrix Compiler::calcTrafo(Vector2D pos, int width, int height, char* type){
+  float angle = 0;
+  short xoffset = 0;
+  short yoffset = 0;
+  if (islower(type[0]) && islower(type[1])){ //TOP
+    angle = 0;
+    xoffset = width * 8 / 2;
+    yoffset = height * 8 / 2;
+  }
+  else if (islower(type[0]) && !islower(type[1])){ //RIGHT
+    angle = (float)(3.0f*M_PI / 2.0);
+    //short tmp; tmp = width; width = height; height = tmp;
+    xoffset = height * 8 / 2 - (height - 1) * 8;
+    yoffset = width * 8 / 2;
+  }
+  else if (!islower(type[0]) && islower(type[1])){ //BOTTOM
+    angle = (float)M_PI;
+    xoffset = width * 8 / 2 - (width - 1) * 8;
+    yoffset = height * 8 / 2 - (height - 1) * 8;
+  }
+  else if (!islower(type[0]) && !islower(type[1])){ //LEFT
+    angle = (float)(M_PI / 2.0);
+    //short tmp; tmp = width; width = height; height = tmp;
+    xoffset = height * 8 / 2;
+    yoffset = width * 8 / 2 - (width - 1) * 8;
+  }
+  CGE::Matrix rot(Matrix::Rotation, Vector3D(0, 1, 0), angle);
+  CGE::Matrix trans(Matrix::Translation, Vector3D((float)(pos.x * 8 + xoffset), 0, (float)(pos.y * 8 + yoffset)));
+  return trans*rot;
 }

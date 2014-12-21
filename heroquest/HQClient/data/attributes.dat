@@ -1,20 +1,21 @@
 #################
 #main categories
 #################
-ground		1000
+ground			1000
 wall			1001
 startpos		1002
 door			1003
 wallpart		1004
-monster		1005
+monster			1005
 furniture		1006
+overlay			1007
 #################
 #monster types
 #################
-Goblin		2000
+Goblin			2000
 Skeleton		2001
-Zombie		2002
-Orc			2003
+Zombie			2002
+Orc				2003
 Fimir			2004
 Mummy			2005
 Chaos_Warrior	2006
@@ -34,3 +35,10 @@ Table			3007
 Throne		3008
 Tomb			3009
 Weapons_Rack	3010
+#################
+#overlay types
+#################
+stairs			4000
+pit_trap		4001
+rock_trap		4002
+spear_trap		4003

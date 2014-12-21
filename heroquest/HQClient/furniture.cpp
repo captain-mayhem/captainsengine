@@ -33,13 +33,21 @@ Furniture::Furniture(const Furniture& f){
 	width_ = f.width_;
 	height_ = f.height_;
 	rendered_ = f.rendered_;
+  mModel = f.mModel;
 }
 
 void Furniture::render() const {
 #ifdef _CLIENT_
 	if (rendered_)
 		return;
-  TextureManager::instance()->furnitureTex[id_-3000]->activate();
+
+  if (mModel){
+    mModel->setupMaterial();
+    mModel->render();
+    mModel->resetMaterial();
+  }
+  
+  /*TextureManager::instance()->furnitureTex[id_-3000]->activate();
 	//glBindTexture(GL_TEXTURE_2D, tex.furnitureTex[id_]);
   glPushMatrix();
 	
@@ -71,7 +79,7 @@ void Furniture::render() const {
 	}
 	
 	Forms::drawCube();
-	glPopMatrix();
+	glPopMatrix();*/
 #endif
 }
 

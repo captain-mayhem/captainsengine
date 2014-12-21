@@ -24,6 +24,7 @@ public:
 	Furniture(){
 		active_ = true;
 		rendered_ = false;
+    mModel = NULL;
 	}
 
 	//! Copy Constructor
@@ -56,6 +57,8 @@ public:
 	inline bool isRendered(){return rendered_;}
 	//! reset the furniture state
 	inline void reset(){rendered_ = false;}
+  //! sets a model
+  void setModel(MeshGeo::Model* mdl) { mModel = mdl; }
 
 private:
 	//! the orientation of the piece of furniture
@@ -68,6 +71,8 @@ private:
 	short height_;
 	//! is the furniture already rendered
 	bool rendered_;
+  //! the model of the furniture
+  MeshGeo::Model* mModel;
 };
 
 //! less operator for STL storage

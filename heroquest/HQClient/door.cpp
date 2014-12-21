@@ -91,8 +91,8 @@ void Door::render() const{
   //a door is just a textured, properly scaled cube
   //horizontal doors
   if (pos_.x == pos2_.x){
-    Matrix t(Matrix::Translation, Vector3D(pos_.x*QUADSIZE+QUADSIZE/2,1.0/3*WALLHEIGHT,pos_.y*QUADSIZE+QUADSIZE));
-    Matrix s(Matrix::Scale, Vector3D((QUADSIZE-2*THICKNESS)/2,1.0/3*WALLHEIGHT,THICKNESS));
+    Matrix t(Matrix::Translation, Vector3D(pos_.x*QUADSIZE+QUADSIZE/2,1.0f/3*WALLHEIGHT,pos_.y*QUADSIZE+QUADSIZE));
+    Matrix s(Matrix::Scale, Vector3D((QUADSIZE-2*THICKNESS)/2,1.0f/3*WALLHEIGHT,THICKNESS));
     //secret door?
     if (type_ > 0){
 	    /*
@@ -111,9 +111,9 @@ void Door::render() const{
   }
   //vertical doors
   else{
-    Matrix r(Matrix::Rotation, Vector3D(0,1,0), M_PI/2);
-    Matrix t(Matrix::Translation, Vector3D(pos_.x*QUADSIZE+QUADSIZE,1.0/3*WALLHEIGHT,pos_.y*QUADSIZE+QUADSIZE/2));
-    Matrix s(Matrix::Scale, Vector3D((QUADSIZE-2*THICKNESS)/2,1.0/3*WALLHEIGHT,THICKNESS));
+    Matrix r(Matrix::Rotation, Vector3D(0,1,0), (float)M_PI/2);
+    Matrix t(Matrix::Translation, Vector3D(pos_.x*QUADSIZE+QUADSIZE,1.0f/3*WALLHEIGHT,pos_.y*QUADSIZE+QUADSIZE/2));
+    Matrix s(Matrix::Scale, Vector3D((QUADSIZE-2*THICKNESS)/2,1.0f/3*WALLHEIGHT,THICKNESS));
     if (type_ > 0){
 	    /*
       glTranslatef(position_.x*QUADSIZE+QUADSIZE,1.0/3*WALLHEIGHT,position_.y*QUADSIZE+QUADSIZE/2);
@@ -135,7 +135,7 @@ void Door::render() const{
     float xr = (float)THICKNESS/QUADSIZE;
     float xl = (float)(QUADSIZE-THICKNESS)/QUADSIZE;
     float yu = 0;
-    float yd = 2*2.0/3;
+    float yd = 2*2.0f/3;
     float textureCoords[] = {
       xl,yu,
       xr,yu,

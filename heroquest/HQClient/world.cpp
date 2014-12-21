@@ -293,8 +293,12 @@ bool World::load(const string& name){
 		//cerr<<"Furniture: "<<furniture<<endl;	
 		for(unsigned j=0; j<furnitureTypes_.size(); j++){
 			if(furnitureTypes_[j]->getId() == instanceid){
-				Furniture* f = new Furniture();
-        *f = *furnitureTypes_[j];
+        Furniture* f = new Furniture(*furnitureTypes_[j]);
+        //*f = *furnitureTypes_[j];
+#ifdef _CLIENT_
+        MeshGeo::Model* mdl = scene_.getModel(mid);
+        f->setModel(mdl);
+#endif
 				addFurniture(f, pos, d, i);
 				break;
 			}

@@ -98,6 +98,8 @@ private:
             3 left and right is longer
   */
   short getLengthInfo(const Vector2D& pos, Direction d, CGE::Matrix* mat = NULL);
+  /* calculates transformation */
+  CGE::Matrix calcTrafo(Vector2D pos, int width, int height, char* type);
   //! the scene
   CGE::Scene scene_;
   //! the hero starting positions
@@ -130,12 +132,6 @@ private:
     ::CGE::Vector3D translation;
     float rotation;
   };
-	
-	//! the monsters
-	vector<monsterPos> monsters_;
-
-	//! the furnitures
-	vector<furniturePos> furnitures_;
 
   //! the overlays
   vector<overlayPos> overlays_;
