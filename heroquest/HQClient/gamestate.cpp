@@ -65,7 +65,7 @@ bool GameState::start(){
   //start screen with GUI
   Font* f = CGE::Engine::instance()->getFont(0);
   f->setColor(1.0,1.0,1.0);
-  f->glPrint(120, 450, "Server:", 1, HUGE_VAL);
+  f->print(120, 450, "Server:", 1, HUGE_VAL);
   InputField* in = new InputField();
   in->setPosition(Vector2D(200, 450));
   in->setText(msg.getSetting(0));

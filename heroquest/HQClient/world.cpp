@@ -309,30 +309,24 @@ bool World::load(const string& name){
   in.read((char*)&size, sizeof(size));
 	overlays_.resize(size);
 	for(unsigned i=0; i<size; i++){
-		overlayPos op;
-		in.read((char*)&op, sizeof(op));
-		string overlay = string(op.overlay);
+    unsigned mid;
+    unsigned instanceid;
+    Vector2D pos;
+    unsigned dir;
+    in.read((char*)&mid, sizeof(mid));
+    in.read((char*)&instanceid, sizeof(instanceid));
+    in.read((char*)&pos, sizeof(pos));
+    in.read((char*)&dir, sizeof(dir));
 		
-		bool b1, b2;
-		Direction d;
-		isupper(op.overlay[0])? b1=true : b1 = false;
-		isupper(op.overlay[1])? b2=true : b2 = false;
-		if(!b1 && !b2)
-			d = TOP;
-		else if (!b1 && b2)
-			d = RIGHT;
-		else if (b1 && !b2)
-			d = BOTTOM;
-		else 
-			d = LEFT;
-		
-		overlay = toLower(overlay);
-		//cerr<<"Furniture: "<<furniture<<endl;
-    
-		Overlay* o = new Overlay();
-    *o = *Templates::instance()->getOverlay(overlay);
-    addOverlay(o, op.pos, d, i);
-	}
+    Direction d = (Direction)dir;
+    Overlay& tmplover = Templates::instance()->getOverlay(instanceid);
+    Overlay* o = new Overlay(tmplover);
+#ifdef _CLIENT_
+    //MeshGeo::Model* mdl = scene_.getModel(mid);
+    //f->setModel(mdl);
+#endif
+    addOverlay(o, pos, d, i);
+  }
   
   //scripts
   vector<scriptPos> scripts;
@@ -539,8 +533,8 @@ void World::render2D(bool vis){
 	}
   
 	//how big may a single field be that all fit on the screen
-	int xstep = SCREENWIDTH/width_;
-	int ystep = SCREENHEIGHT/height_;
+	float xstep = (float)(SCREENWIDTH/width_);
+	float ystep = (float)(SCREENHEIGHT/height_);
   
 	glColor4f(1,1,1,1);
 	glLineWidth(3);
@@ -1304,7 +1298,7 @@ void World::addOverlay(Overlay* over, const Vector2D& pos, Direction d, int vecP
   over->setOrientation(d);
   //TODO this is a temporary hack as long as traps are not fully implemented
   //only stairs and traps known; stairs must be visible
-  if (over->getId() == 0)
+  if (over->getId() == 4000)
     over->setActive();
   
   overlays_[vecPos] = over;

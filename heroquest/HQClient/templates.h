@@ -40,6 +40,8 @@ class Templates{
     static inline Templates* instance() {return templ;}
     //! get an overlay object by shortcut
     Overlay* getOverlay(string brev);
+    //! get an overlay by id
+    inline Overlay& getOverlay(unsigned id) { return *overlays_[id - 4000]; }
     //! get a model
     MeshGeo::Model* getModel(int idx) {return models_[idx];}
   private:

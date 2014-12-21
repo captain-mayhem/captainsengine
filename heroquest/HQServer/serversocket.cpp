@@ -20,7 +20,6 @@
 
 
 ServerSocket::ServerSocket (int port){
-  Socket();
   if (!Socket::create()){
     throw SocketException("Could not create server socket.");
   }
@@ -35,7 +34,6 @@ ServerSocket::ServerSocket (int port){
 }
 
 ServerSocket::ServerSocket(){
-  Socket();
   Socket::create();
 }
 

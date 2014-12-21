@@ -201,7 +201,7 @@ void Hero::createFromGui(Gui::GuiElement*){
 void Hero::write(const string& p) const{
   ofstream out(p.c_str(), ios::binary);
 
-  float version = VERSION;
+  float version = (float)VERSION;
   out.write((char*)&version, sizeof(version));
 
   short length = player_.length();

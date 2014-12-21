@@ -47,14 +47,14 @@ void Overlay::render2D() const {
   if (rendered_ || (!active_ && !found_))
     return;
   if (found_){
-    glColor4f(1.,1.,1.,0.4);
+    glColor4f(1.,1.,1.,0.4f);
     glEnable(GL_BLEND);
   }
   int height = wrld.getMapSize().y;
   int dx = SCREENWIDTH/wrld.getMapSize().x;
   int dy = SCREENHEIGHT/height;
   glEnable(GL_TEXTURE_2D);
-  TextureManager::instance()->overlayTex[id_]->activate();
+  TextureManager::instance()->overlayTex[id_-4000]->activate();
   //glBindTexture(GL_TEXTURE_2D, tex.overlayTex[id_]);
   switch(orientation_){ 
     case TOP:

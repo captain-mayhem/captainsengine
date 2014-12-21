@@ -177,6 +177,33 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
       f.pos = convertToMap(trans, xoffset, yoffset);
       furnitures_.push_back(f);
     }
+    else if (classAttrib == Editor::OVERLAY){
+      HQOverlay o;
+      o.id = (*iter)->getID();
+      o.instanceid = (*iter)->getAttrib(1);
+      int w = (*iter)->getAttrib(2);
+      int h = (*iter)->getAttrib(3);
+      Direction d = extractDir(mat);
+      o.direction = (unsigned)d;
+
+      float xoffset = w*0.5f;
+      float yoffset = h*0.5f;
+      if (d == LEFT){
+        xoffset = h*0.5f;
+        yoffset = 1.0f - w*0.5f;
+      }
+      else if (d == BOTTOM){
+        xoffset = 1.0f - w*0.5f;
+        yoffset = 1.0f - h*0.5f;
+      }
+      if (d == RIGHT){
+        xoffset = 1.0f - h*0.5f;
+        yoffset = w*0.5f;
+      }
+
+      o.pos = convertToMap(trans, xoffset, yoffset);
+      overlays_.push_back(o);
+    }
   }
   
   //write
@@ -255,10 +282,18 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
     out.write((char*)&f.pos, sizeof(f.pos));
     out.write((char*)&f.direction, sizeof(f.direction));
   }
+  //overlays
+  size = overlays_.size();
+  out.write((char*)&size, sizeof(size));
+  for (unsigned i = 0; i < size; ++i){
+    HQOverlay& o = overlays_[i];
+    out.write((char*)&o.id, sizeof(o.id));
+    out.write((char*)&o.instanceid, sizeof(o.instanceid));
+    out.write((char*)&o.pos, sizeof(o.pos));
+    out.write((char*)&o.direction, sizeof(o.direction));
+  }
   //TODO complete
   size = 0;
-  //overlays
-  out.write((char*)&size, sizeof(size));
   //scripts
   out.write((char*)&size, sizeof(size));
   

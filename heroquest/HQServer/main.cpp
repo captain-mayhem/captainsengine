@@ -103,8 +103,10 @@ void engineMain(int argc, char** argv) {
   //mutex = SDL_CreateMutex();
 
   //now init global data and settings
+  cout << "setting up data..." << endl;
   game.init();
   globl.init();
+  cout << "waiting for connections..." << endl;
 
   try{
     ServerSocket server(port);

@@ -60,6 +60,13 @@ struct Furniture{
   unsigned direction;
 };
 
+struct HQOverlay{
+  unsigned id;
+  unsigned instanceid;
+  CGE::Vector2D pos;
+  unsigned direction;
+};
+
 class HQMExport{
 public:
   enum Direction{
@@ -92,6 +99,8 @@ private:
   std::vector<Monster> monsters_;
   //! the furniture
   std::vector<Furniture> furnitures_;
+  //! the overlays
+  std::vector<HQOverlay> overlays_;
 };
   
 
