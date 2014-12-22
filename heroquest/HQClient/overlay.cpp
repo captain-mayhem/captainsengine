@@ -21,6 +21,7 @@ Overlay::Overlay(){
   rendered_ = false;
   found_ = false;
   walkable_ = true;
+  model_ = NULL;
 }
 
 //Destructor
@@ -40,6 +41,7 @@ Overlay::Overlay(const Overlay& o){
   rendered_ = o.rendered_;
   found_ = o.found_;
   walkable_ = o.walkable_;
+  model_ = o.model_;
 }
 
 void Overlay::render2D() const {
@@ -110,6 +112,18 @@ void Overlay::render2D() const {
   if (found_){
     glColor4f(1.,1.,1.,1.);
     glDisable(GL_BLEND);
+  }
+#endif
+}
+
+void Overlay::render() const{
+#ifdef _CLIENT_
+  if (rendered_ || (!active_ && !found_))
+    return;
+  if (model_){
+    model_->setupMaterial();
+    model_->render();
+    model_->resetMaterial();
   }
 #endif
 }

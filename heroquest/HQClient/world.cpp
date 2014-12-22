@@ -322,8 +322,8 @@ bool World::load(const string& name){
     Overlay& tmplover = Templates::instance()->getOverlay(instanceid);
     Overlay* o = new Overlay(tmplover);
 #ifdef _CLIENT_
-    //MeshGeo::Model* mdl = scene_.getModel(mid);
-    //f->setModel(mdl);
+    MeshGeo::Model* mdl = scene_.getModel(mid);
+    o->setModel(mdl);
 #endif
     addOverlay(o, pos, d, i);
   }
@@ -382,6 +382,11 @@ void World::render(){
 	for (unsigned i = 0; i < furniture_.size(); i++){
 		furniture_[i]->reset();
 	}
+
+  //reset overlay
+  for (unsigned i = 0; i < overlays_.size(); i++){
+    overlays_[i]->reset();
+  }
   
   //scene_.render();
   
@@ -439,6 +444,12 @@ void World::render(){
 				glVertex3f(curr.vertices[k*4+3].x,curr.vertices[k*4+3].y,curr.vertices[k*4+3].z);
 			glEnd();
 		}*/
+
+    //render overlay
+    if (curr.getStatus() && curr.overlay){
+      curr.overlay->render();
+      curr.overlay->update();
+    }
     
 		//if there are objects on the field, render them, too
 		if (curr.object){

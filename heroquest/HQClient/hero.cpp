@@ -157,11 +157,11 @@ void Hero::createFromGui(Gui::GuiElement*){
   fnt->deleteText(1);
   fnt->setId(1);
   fnt->setColor(1,1,1);
-  fnt->print(120, 570, tmp.str().c_str(), 1, HUGE_VAL);
+  fnt->print(120, 570, tmp.str().c_str(), 1, (float)HUGE_VAL);
 
   if (heroe.getSpellClasses() > 0){
     fnt->setId(1);
-    fnt->print(120, 530, "Spells:", 1, HUGE_VAL);
+    fnt->print(120, 530, "Spells:", 1, (float)HUGE_VAL);
   }
 
   while (GuiElement* but = CGE::Engine::instance()->getGuiListener("spell")){

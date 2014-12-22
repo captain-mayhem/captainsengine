@@ -482,7 +482,7 @@ bool Script::call(eventType e, ScriptInfo* si, Vector2D pos){
 	}
   if (lua_isnil(L, -1))
     return true;
-  bool success = (bool)lua_toboolean(L, -1);
+  bool success = lua_toboolean(L, -1) != 0;
   lua_pop(L, 1);
   return success;
 }
@@ -587,7 +587,7 @@ int Script::setCreatureProperty(lua_State* L){
 		lua_pushboolean(L, true);
 	}
   else if (what == "sleeping"){
-    bool sleep = (bool)lua_toboolean(L, 4);
+    bool sleep = lua_toboolean(L, 4) != 0;
     c->setSleeping(sleep);
     lua_pushboolean(L, true);
   }
@@ -602,7 +602,7 @@ int Script::setCreatureProperty(lua_State* L){
     lua_pushboolean(L, true);
   }
   else if (what == "diceToMove"){
-    bool dice = (bool)lua_toboolean(L, 4);
+    bool dice = lua_toboolean(L, 4) != 0;
     c->setDiceToMove(dice);
     lua_pushboolean(L, true);
   }
@@ -670,7 +670,7 @@ int Script::output(lua_State* L){
 }
 
 int Script::enableWallCollision(lua_State *L){
-	bool enable = (bool)lua_toboolean(L,1);
+	bool enable = lua_toboolean(L,1) != 0;
 	wrld.enableWallCollision(enable);
 	return 0;
 }
@@ -725,7 +725,7 @@ int Script::dice(lua_State *L){
 
 //! enable hero/monster collision
 int Script::enableHeroMonsterCollision(lua_State* L){
-	bool enable = (bool)lua_toboolean(L,1);
+	bool enable = lua_toboolean(L,1) != 0;
 	wrld.setRespectClasses(enable);
 	return 0;
 }
@@ -991,7 +991,7 @@ int Script::allowAnotherAction(lua_State* L){
 int Script::makeOverlayActive(lua_State* L){
 	short x = (short)luaL_checknumber(L, 1);
 	short y = (short)luaL_checknumber(L, 2);
-  bool active = (bool)(lua_toboolean(L, 3));
+  bool active = (lua_toboolean(L, 3)) != 0;
   Field& f = wrld.getField(Vector2D(x,y));
   f.overlay->find(false);
   f.overlay->setActive(active);
@@ -1124,7 +1124,7 @@ int Script::moveObject(lua_State* L){
 	x = (short)luaL_checknumber(L, 3);
 	y = (short)luaL_checknumber(L, 4);
   Vector2D trg = Vector2D(x, y);
-  bool interpolate = (bool)(lua_toboolean(L, 5));
+  bool interpolate = lua_toboolean(L, 5) != 0;
   wrld.setObject(wrld.getObject(src), trg, interpolate);
   return 0;
 }
@@ -1187,7 +1187,7 @@ int Script::addModel(lua_State* L){
   unsigned fieldidx = field.numModels;
   //realloc model array
   MeshGeo::Model** tmp = new MeshGeo::Model*[fieldidx+1];
-  for (int i = 0; i < fieldidx; i++){
+  for (unsigned i = 0; i < fieldidx; i++){
     tmp[i] = field.models[i];
   }
   delete [] field.models;

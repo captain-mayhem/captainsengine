@@ -61,7 +61,7 @@ public:
   inline bool isRendered(){return rendered_;}
   
   //! renders the object in 3D
-  virtual void render() const {};
+  virtual void render() const;
   //! renders the object in 2D
   virtual void render2D() const ;
   //! updates overlay status
@@ -76,6 +76,8 @@ public:
   inline void setWalkable(bool what) {walkable_ = what;}
   //! is walkable
   inline bool isWalkable() {return walkable_;}
+  //! set the 3D model
+  inline void setModel(MeshGeo::Model* model) { model_ = model; }
 protected:
   //! the name
   string name_;
@@ -95,6 +97,8 @@ protected:
   bool found_;
   //! can someone walk on the overlay
   bool walkable_;
+  //! the model of the creature
+  MeshGeo::Model* model_;
 };
   
 #endif

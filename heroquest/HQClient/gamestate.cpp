@@ -65,13 +65,13 @@ bool GameState::start(){
   //start screen with GUI
   Font* f = CGE::Engine::instance()->getFont(0);
   f->setColor(1.0,1.0,1.0);
-  f->print(120, 450, "Server:", 1, HUGE_VAL);
+  f->print(120, 450, "Server:", 1, (float)HUGE_VAL);
   InputField* in = new InputField();
   in->setPosition(Vector2D(200, 450));
   in->setText(msg.getSetting(0));
   CGE::Engine::instance()->addGuiListener(in);
   
-  f->glPrint(120, 400, "Port:", 1, HUGE_VAL);
+  f->print(120, 400, "Port:", 1, (float)HUGE_VAL);
   InputField* in2 = new InputField();
   in2->setPosition(Vector2D(200, 400));
   in2->setText(msg.getSetting(1));
