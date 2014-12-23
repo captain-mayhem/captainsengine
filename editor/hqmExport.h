@@ -67,6 +67,12 @@ struct HQOverlay{
   unsigned direction;
 };
 
+struct HQScript{
+  unsigned id;
+  unsigned instanceid;
+  CGE::Vector2D pos;
+};
+
 class HQMExport{
 public:
   enum Direction{
@@ -101,6 +107,8 @@ private:
   std::vector<Furniture> furnitures_;
   //! the overlays
   std::vector<HQOverlay> overlays_;
+  //! the scripts
+  std::vector<HQScript> scripts_;
 };
   
 

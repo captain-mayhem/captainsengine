@@ -41,6 +41,7 @@ void Graphic::init(){
   //rend->setMaterial(mat);
   //glEnable(GL_LIGHT0);
   gra_ = new Graphic();
+  atexit(Graphic::release);
 
   Button* opt = new Button();
   opt->setPosition(Vector2D(900,40));

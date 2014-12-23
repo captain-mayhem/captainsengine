@@ -133,14 +133,19 @@ void Engine::startup(int argc, char** argv){
     internalEngineMain(argc, argv);
   
   fnt_ = new CGE::Font*[3];
-  for (int i = 0; i < 3; i++){
-    fnt_[i] = new CGE::Font();
-  }
   if (graphics_){
+    for (int i = 0; i < 3; i++){
+      fnt_[i] = new CGE::Font();
+    }
     fnt_[0]->buildFont(NULL);
     fnt_[1]->buildFont(fnt_[0]->getVB());
     fnt_[2]->buildFont(fnt_[0]->getVB());
     forms_ = new CGE::Forms();
+  }
+  else{
+    for (int i = 0; i < 3; i++){
+      fnt_[i] = NULL;
+    }
   }
   console_ = new ::Gui::Console();
   isUp_ = true;

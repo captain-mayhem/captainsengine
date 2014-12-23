@@ -14,6 +14,7 @@ extern void (*internalEngineMain)(int argc, char** argv);
 
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, int cmdShow){
+  //_CrtSetBreakAlloc(729);
   internalEngineMain = engineMain;
   MSG msg;
   std::vector<std::string> args;

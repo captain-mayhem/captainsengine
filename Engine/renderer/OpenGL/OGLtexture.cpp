@@ -324,7 +324,7 @@ Image* OGLTexture::loadJPG(const char *strFileName){
   Image *pImageData = NULL;
   FILE *pFile;
   if((pFile = fopen(strFileName, "rb")) == NULL){
-    EXIT2("Unable to load JPG File %s!", strFileName);
+    TR_ERROR("Unable to load JPG File %s!", strFileName);
     return NULL;
   }
   // Create an error handler

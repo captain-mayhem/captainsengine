@@ -204,6 +204,13 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
       o.pos = convertToMap(trans, xoffset, yoffset);
       overlays_.push_back(o);
     }
+    else if (classAttrib == Editor::SCRIPT){
+      HQScript s;
+      s.id = (*iter)->getID();
+      s.instanceid = (*iter)->getAttrib(2);
+      s.pos = pos;
+      scripts_.push_back(s);
+    }
   }
   
   //write
@@ -292,11 +299,16 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
     out.write((char*)&o.pos, sizeof(o.pos));
     out.write((char*)&o.direction, sizeof(o.direction));
   }
-  //TODO complete
-  size = 0;
   //scripts
+  size = scripts_.size();
   out.write((char*)&size, sizeof(size));
-  
+  for (unsigned i = 0; i < size; ++i){
+    HQScript& s = scripts_[i];
+    out.write((char*)&s.id, sizeof(s.id));
+    out.write((char*)&s.instanceid, sizeof(s.instanceid));
+    out.write((char*)&s.pos, sizeof(s.pos));
+  }
+
   out.close();
   
   //print out map
