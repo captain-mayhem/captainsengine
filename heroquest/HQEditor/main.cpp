@@ -247,7 +247,7 @@ void engineMain(int argc, char** argv){
     cmp.write(string(argv[mc]));
 
     //delete allocated memory
-    for (int k = 0; k < height; k++){
+    for (int k = 0; k < height * 3 + 1; k++){
       delete [] map[k];
     }
     delete [] map;
@@ -261,6 +261,5 @@ void engineMain(int argc, char** argv){
 
   }
 
-  Engine::instance()->shutdown();
-  exit(-1);
+  Engine::instance()->requestShutdown();
 }

@@ -333,9 +333,15 @@ bool World::load(const string& name){
   in.read((char*)&size, sizeof(size));
   scripts.resize(size);
   for(unsigned i = 0; i<size; i++){
-    scriptPos sp;
-    in.read((char*)&sp, sizeof(sp));
-    scripts[i] = sp;
+    unsigned mid;
+    unsigned instanceid;
+    Vector2D pos;
+    in.read((char*)&mid, sizeof(mid));
+    in.read((char*)&instanceid, sizeof(instanceid));
+    in.read((char*)&pos, sizeof(pos));
+    scripts[i].pos = pos;
+    scripts[i].script[0] = (char)instanceid;
+    scripts[i].script[1] = '\0';
   }
 					
 	in.close();

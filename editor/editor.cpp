@@ -62,6 +62,7 @@ Editor::~Editor(){
 
 void Editor::init(){
   edi_ = new Editor();
+  atexit(Editor::release);
 }
 
 void Editor::keypress(int key){

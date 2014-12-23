@@ -30,6 +30,7 @@ public:
     MONSTER = 1005,
     FURNITURE = 1006,
     OVERLAY = 1007,
+    SCRIPT = 1008,
   };
   ~Editor();
   static void init();

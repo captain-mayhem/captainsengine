@@ -448,11 +448,18 @@ void Compiler::addOverlay(const Vector2D& pos, char overlay[3]){
 
 
 void Compiler::addScript(char ident, const Vector2D& pos){
-  scriptPos sp;
-  sp.script[0] = ident;
-  sp.script[1] = '\0';
-  sp.pos = pos;
-  scripts_.push_back(sp);
+  MeshGeo::Mesh* msh = getMesh("script.obj", "models/other/");
+  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+
+  CGE::Texture* tex = getTexture("textures/other/script.jpg");
+  mdl->assignTexture(tex, 0);
+  //script
+  mdl->setAttrib(0, 1008);
+  mdl->setAttrib(1, 5000);
+  mdl->setAttrib(2, (int)ident);
+  CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x * 8 + 4), 0, (float)(pos.y * 8 + 4)));
+  mdl->setTrafo(mat);
+  scene_.addModel(mdl);
 }
 
 MeshGeo::Mesh* Compiler::getMesh(std::string tilename, std::string path){

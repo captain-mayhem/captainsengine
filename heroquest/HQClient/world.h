@@ -330,21 +330,6 @@ private:
 
   //! counts the number of monsters in the world
 	vector<unsigned short> monsterCounter_;
-	
-	struct monsterPos{
-		char monster[3];
-		Vector2D pos;
-	};
-
-	struct furniturePos{
-		char furniture[3];
-		Vector2D pos;
-	};
-	
-  struct overlayPos{
-		char overlay[3];
-		Vector2D pos;
-	};
 
   //! should collision between walls be enabled
   bool wallCollision_;

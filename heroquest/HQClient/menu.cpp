@@ -117,13 +117,13 @@ void Menu::connect(GuiElement*){
     CGE::Engine::instance()->clearListeners();
 
     CGE::Engine::instance()->getFont(0)->setColor(1,1,1);
-    CGE::Engine::instance()->getFont(0)->glPrint(120, 450, "User name:", 1, HUGE_VAL);
+    CGE::Engine::instance()->getFont(0)->print(120, 450, "User name:", 1, (float)HUGE_VAL);
     InputField* in = new InputField();
     in->setPosition(Vector2D(220, 450));
     in->setText(msg.getSetting(2));
     CGE::Engine::instance()->addGuiListener(in);
 
-    CGE::Engine::instance()->getFont(0)->glPrint(120, 400, "Password:", 1, HUGE_VAL);
+    CGE::Engine::instance()->getFont(0)->print(120, 400, "Password:", 1, (float)HUGE_VAL);
     InputField* in2 = new InputField();
     in2->setPosition(Vector2D(220, 400));
     in2->setHidden();
@@ -772,7 +772,7 @@ void Menu::createHero(GuiElement*){
   fnt->setColor(1,1,1);
   
   fnt->setId(2);
-  fnt->print(120, 650, "Character class:", 1, HUGE_VAL);
+  fnt->print(120, 650, "Character class:", 1, (float)HUGE_VAL);
   DropDownButton* cls = new DropDownButton();
   cls->setPosition(Vector2D(300, 650));
   cls->calcDDPos(2);
@@ -785,7 +785,7 @@ void Menu::createHero(GuiElement*){
   CGE::Engine::instance()->addGuiListener(cls);
   
   fnt->setId(2);
-  fnt->print(120, 610, "Name:", 1, HUGE_VAL);
+  fnt->print(120, 610, "Name:", 1, (float)HUGE_VAL);
   InputField* in = new InputField();
   in->setName("heroname");
   in->setPosition(Vector2D(180, 610));
