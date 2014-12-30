@@ -2,6 +2,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
+#include <renderer/GL2/GL2Shader.h>
 #include <GL/gl.h>
 
 #include "renderer/renderer.h"
@@ -53,6 +54,10 @@ HQRenderer::HQRenderer(CGE::Renderer* rend){
 
   inventory_ = NULL;
   trade_ = false;
+}
+
+HQRenderer::~HQRenderer(){
+  delete m3DShader;
 }
 
 void HQRenderer::resize_(int width, int height){
@@ -338,8 +343,45 @@ void HQRenderer::mouseMove_(int x, int y, int buttons){
   }
 }
 
+char const * vs_src =
+"#version 330\n"
+"layout (location = 0) in vec3 pos;\n"
+"layout (location = 1) in vec4 color;\n"
+"layout (location = 2) in vec2 texcoord;\n"
+"layout (location = 3) in vec3 normal;\n"
+"\n"
+"uniform mat4 mvp;\n"
+"\n"
+"smooth out vec2 uvcoord;\n"
+"smooth out vec4 vcolor;\n"
+"\n"
+"void main(){\n"
+"  uvcoord = texcoord;\n"
+"  vcolor = color;\n"
+"  gl_Position = mvp*vec4(pos, 1.0);\n"
+"};\n"
+"";
+
+char const * fs_src =
+"#version 330\n"
+"uniform sampler2D texture;\n"
+"\n"
+"smooth in vec2 uvcoord;\n"
+"smooth in vec4 vcolor;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = texture2D(texture, uvcoord);\n"
+"  gl_FragColor = color*vcolor;\n"
+"};\n"
+"";
 
 void HQRenderer::initialize_(){
+  //init shader
+  m3DShader = new CGE::GL2Shader();
+  m3DShader->addShader(GL_VERTEX_SHADER, vs_src);
+  m3DShader->addShader(GL_FRAGMENT_SHADER, fs_src);
+  m3DShader->linkShaders();
+  m3DShader->activate();
   //init textures
   TextureManager::init();
 
@@ -434,7 +476,7 @@ void HQRenderer::paint_(){
   }
  
   //render inventory
-  glLoadIdentity();
+  render_->resetModelView();
   render_->translate(-512, -384, 0);
   if (inventory_){
     inventory_->render();
@@ -448,7 +490,7 @@ void HQRenderer::paint_(){
   
   CGE::Font *f = CGE::Engine::instance()->getFont(0);
   f->setColor(0,1,0);
-  f->glPrint(20, 720, ("Current Frames Per Second: "+toStr(CGE::Engine::instance()->getFPS())).c_str(), 0);
+  f->print(20, 720, ("Current Frames Per Second: "+toStr(CGE::Engine::instance()->getFPS())).c_str(), 0);
   
   //interpolate hero positions
   for (int i = 0; i < wrld.getHeroSize(); i++){

@@ -526,18 +526,18 @@ void World::render2D(bool vis){
 	if (!isLoaded())
 		return;
 
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
 	//Setup orthographic view
 	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0, SCREENWIDTH, 0, SCREENHEIGHT,  -1, 1);
+  rend->switchMatrixStack(CGE::Projection);
+  rend->pushMatrix();
+  rend->ortho(0, SCREENWIDTH, 0, SCREENHEIGHT, -1, 1);
   
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
+  rend->switchMatrixStack(CGE::Modelview);
+  rend->pushMatrix();
+  rend->resetModelView();
 
 	//reset furniture
 	for (unsigned i = 0; i < furniture_.size(); i++){
@@ -742,10 +742,10 @@ void World::render2D(bool vis){
 #endif
   
 	//Restore original
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+  rend->switchMatrixStack(CGE::Projection);
+  rend->popMatrix();
+  rend->switchMatrixStack(CGE::Modelview);
+  rend->popMatrix();
 	glPopAttrib();
 #endif
 }

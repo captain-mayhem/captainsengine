@@ -35,7 +35,7 @@ Field::Field(const Field& f){
   numModels = f.numModels;
   //models = new std::vector<CGE::ModelInstance>();
   models = new MeshGeo::Model*[numModels];
-  for (int i = 0; i < numModels; i++)
+  for (unsigned i = 0; i < numModels; i++)
     models[i] = f.models[i];
   //for (int i = 0; i < models->size(); i++)
   //  (*models)[i] = (*f.models)[i];

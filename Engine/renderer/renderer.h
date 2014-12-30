@@ -36,6 +36,7 @@ enum RendMode{
 enum MatrixType{
   Projection,
   Modelview,
+  MVP,
 };
 
 //! The abstract renderer
@@ -82,7 +83,8 @@ public:
   //! set perspective projection
   virtual void projection(float angle, float aspect, float nearplane, float farplane){}
   //! set orthographic projection
-  virtual void ortho(const int width, const int height)=0;
+  virtual void ortho(float left, float right, float bottom, float top, float nearp, float farp)=0;
+  void ortho(const int width, const int height);
   //! reset modelview matrix
   virtual void resetModelView()=0;
   //! translate
@@ -127,6 +129,8 @@ public:
   virtual void switchFromViewToModelTransform()=0;
   //! get the window
   AppWindow* getWindow() {return win_;}
+  //! switch matrix type
+  virtual void switchMatrixStack(MatrixType type) = 0;
 protected:
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/

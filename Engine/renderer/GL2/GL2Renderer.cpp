@@ -13,10 +13,9 @@
 #endif
 //#include <GL/gl.h>
 #include "GL2Renderer.h"
-/*#include "OGLvertexbuffer.h"
-#include "OGLtexture.h"
-#include "OGLrenderer.h"
-#include "OGLindexbuffer.h"*/
+#include "GL2vertexbuffer.h"
+#include "../OpenGL/OGLtexture.h"
+#include "GL2indexbuffer.h"
 
 using namespace CGE;
 
@@ -31,6 +30,10 @@ GL2Renderer::GL2Renderer(): Renderer() {
 #if defined UNIX && !defined QNX
   glx_ = NULL;
 #endif
+  for (int i = 0; i < 3; ++i){
+    mMatrix[i] = CGE::Matrix(CGE::Matrix::Identity);
+  }
+  mMatrixMode = Modelview;
 }
 
 GL2Renderer::~GL2Renderer(){
@@ -150,9 +153,6 @@ void GL2Renderer::initRendering(){
   }
 #endif
 
-  //background color black
-  //glClearColor(0.5f, 0.5f, 0.5f, 0.0f);
-
   //depth buffer
   glClearDepth(1.0f);
   glEnable(GL_DEPTH_TEST);
@@ -162,8 +162,6 @@ void GL2Renderer::initRendering(){
 }
 
 void GL2Renderer::renderScene(){
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  //glLoadIdentity();
   Renderer::renderScene();
 }
 
@@ -183,18 +181,6 @@ void GL2Renderer::resizeScene(int width, int height){
   glViewport(0, 0, width, height);
 
   Renderer::resizeScene(width, height);
-
-  //Projection Matrix
-  //glMatrixMode(GL_PROJECTION);
-  //glLoadIdentity();
-
-  //Calculate Aspect Ratio
-  //gluPerspective(45.0f,(GLfloat)width/(GLfloat)height,1.0f,100.0f);
-
-  //glMatrixMode(GL_MODELVIEW);
-  //glLoadIdentity();
-
-  //glColor3f(0,0,0);
 }
 
 //! clear scene
@@ -213,18 +199,15 @@ void GL2Renderer::clear(long flags){
 
 //! get a vertex buffer
 VertexBuffer* GL2Renderer::createVertexBuffer(){
-  //return new OGLVertexBuffer();
-  return NULL;
+  return new GL2VertexBuffer();
 }
 
 Texture* GL2Renderer::createTexture(string filename){
-  //return new OGLTexture(filename);
-  return NULL;
+  return new OGLTexture(filename);
 }
 
 IndexBuffer* GL2Renderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){
-  //return new OGLIndexBuffer(t,size);
-  return NULL;
+  return new GL2IndexBuffer(t,size);
 }
 
 void GL2Renderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
@@ -237,37 +220,31 @@ void GL2Renderer::lookAt(const Vector3D& position, const Vector3D& look, const V
 }
 
 //! set projection
-void GL2Renderer::projection(float angle, float aspect, float nearplane, float farplane){
-  /*glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
+void GL2Renderer::projection(float angle, float aspect, float nearplane, float farplane){ 
   GLfloat ymax = nearplane * (GLfloat)tan(angle * 3.1415962f / 360.0);
   GLfloat ymin = -ymax;
   GLfloat xmin = ymin * aspect;
   GLfloat xmax = ymax * aspect;
-  glFrustum(xmin, xmax, ymin, ymax, nearplane, farplane);
-  glMatrixMode(GL_MODELVIEW);*/
+  mMatrix[Projection] = CGE::Matrix(CGE::Matrix::Perspective, xmin, xmax, ymin, ymax, nearplane, farplane);
 }
 
-void GL2Renderer::ortho(const int width, const int height){
-  /*glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glOrtho(-width/2.0, width/2.0, -height/2.0, height/2.0, -1.f, 1.f);
-  glMatrixMode(GL_MODELVIEW);*/
+void GL2Renderer::ortho(float left, float right, float bottom, float top, float nearp, float farp){
+  mMatrix[Projection] = CGE::Matrix(CGE::Matrix::Ortho, left, right, bottom, top, nearp, farp);
 }
 
 //! reset modelview matrix
 void GL2Renderer::resetModelView(){
-  //glLoadIdentity();
+  mMatrix[mMatrixMode] = Matrix(Matrix::Identity);
 }
 
 //! translate
 void GL2Renderer::translate(float x, float y, float z){
-  //glTranslatef(x,y,z);
+  mMatrix[mMatrixMode] *= Matrix(Matrix::Translation, Vec3f(x, y, z));
 }
 
 //! scale
 void GL2Renderer::scale(float x, float y, float z){
-  //glScalef(x,y,z);
+  mMatrix[mMatrixMode] *= Matrix(Matrix::Scale, Vec3f(x, y, z));
 }
 
 //! set rendermode
@@ -340,27 +317,28 @@ void GL2Renderer::enableLighting(const bool flag){
 
 //! set color
 void GL2Renderer::setColor(float r, float g, float b, float a){
-  //glColor4f(r,g,b,a);
+  glVertexAttrib4f(1, r, g, b, a);
 }
 
 //! set color
 void GL2Renderer::setColor(const Color* c){
-  //glColor4fv(c->array);
+  glVertexAttrib4fv(1, c->array);
 }
 
 //! push matrix
 void GL2Renderer::pushMatrix(){
-  //glPushMatrix();
+  mMatrixStack[mMatrixMode].push(mMatrix[mMatrixMode]);
 }
 
 //! pop matrix
 void GL2Renderer::popMatrix(){
-  //glPopMatrix();
+  mMatrix[mMatrixMode] = mMatrixStack[mMatrixMode].top();
+  mMatrixStack[mMatrixMode].pop();
 }
 
 //! multiply matrix
 void GL2Renderer::multiplyMatrix(const CGE::Matrix& mat){
-  //glMultMatrixf(mat.getData());
+  mMatrix[mMatrixMode] *= mat;
 }
 
 //! set material
@@ -379,16 +357,10 @@ void GL2Renderer::getViewport(int view[4]){
 
 //! get a matrix
 Matrix GL2Renderer::getMatrix(MatrixType mt){
-  /*float tmp[16];
-  if (mt == Modelview){
-    glGetFloatv(GL_MODELVIEW_MATRIX, tmp);
-    return Matrix(tmp);
+  if (mt == MVP){
+    return mMatrix[Projection] * mMatrix[Modelview];
   }
-  if (mt == Projection){
-    glGetFloatv(GL_PROJECTION_MATRIX, tmp);
-    return Matrix(tmp);
-  }*/
-  return Matrix(Matrix::Identity);
+  return mMatrix[mt];
 }
 
 void GL2Renderer::swapBuffers(){
@@ -420,6 +392,10 @@ void GL2Renderer::setLight(int number, const Light& lit){
 
 void GL2Renderer::switchFromViewToModelTransform(){
 
+}
+
+void GL2Renderer::switchMatrixStack(MatrixType type){
+  mMatrixMode = type;
 }
 
 

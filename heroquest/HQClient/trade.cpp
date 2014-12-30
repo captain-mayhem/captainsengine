@@ -151,7 +151,7 @@ void Trade::render(){
     Vector2D pos(50, 485);
     short count = 0;
     fnt_->setColor(0,1,1);
-    for (unsigned i = 9*(invPage_-1)+1; i < items.size() && i < 9*invPage_+1; i++){
+    for (unsigned i = 9*(invPage_-1)+1; i < items.size() && i < 9U*invPage_+1; i++){
       string name = items[i].getName();
       if (name.size() > 11)
         name.erase(11);
@@ -174,7 +174,7 @@ void Trade::render(){
   Vector2D pos(575, 485);
   short count = 0;
   fnt_->setColor(0,1,1);
-  for (unsigned i = 9*(shopPage_-1)+1; i < items_.size() && i < 9*shopPage_+1; i++){
+  for (unsigned i = 9*(shopPage_-1)+1; i < items_.size() && i < 9U*shopPage_+1; i++){
     string name = items_[i].getName();
     if (name.size() > 11)
       name.erase(11);

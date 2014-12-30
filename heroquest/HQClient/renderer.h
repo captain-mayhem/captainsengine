@@ -17,11 +17,16 @@
 
 class Inventory;
 
+namespace CGE{
+  class GL2Shader;
+}
+
 //! provides an OpenGL drawing area
 /*! Besides drawing the scene, it handles also key and mouse events
  */
 class HQRenderer{
 public:
+  ~HQRenderer();
   static void init(CGE::Renderer* rend){rend_ = new HQRenderer(rend);}
   inline static HQRenderer* instance() {return rend_;}
   inline static void release() {SAFE_DELETE(rend_);}
@@ -99,6 +104,8 @@ protected:
   Inventory* inventory_;
   //! if the trading is active
   bool trade_;
+  //! shader
+  CGE::GL2Shader* m3DShader;
 };
 
 #endif

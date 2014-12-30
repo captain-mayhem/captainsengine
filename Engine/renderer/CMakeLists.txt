@@ -50,10 +50,14 @@ IF(RENDER_GL2 OR RENDER_EMBEDDED)
 		${RENDERER_SRCS}
 		${PRE}/GL2/GL2Renderer.cpp
 		${PRE}/GL2/GL2Shader.cpp
+		${PRE}/GL2/GL2indexbuffer.cpp
+		${PRE}/GL2/GL2vertexbuffer.cpp
 	)
 	SET(RENDERER_HDRS_GL2
 		${PRE}/GL2/GL2Renderer.h
 		${PRE}/GL2/GL2Shader.h
+		${PRE}/GL2/GL2indexbuffer.h
+		${PRE}/GL2/GL2vertexbuffer.h
 	)
 ENDIF(RENDER_GL2 OR RENDER_EMBEDDED)
 

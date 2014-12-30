@@ -15,6 +15,8 @@
 #endif
 #include "../renderer.h"
 
+#include <stack>
+
 namespace CGE{
 //! The OpenGL version of the rendering interface
 class GL2Renderer : public Renderer{
@@ -58,7 +60,7 @@ public:
   //! set projection
   void projection(float angle, float aspect, float nearplane, float farplane);
   //! set orthographic viewing
-  void ortho(const int width, const int height);
+  void ortho(float left, float right, float bottom, float top, float nearp, float farp);
   //! reset modelview matrix
   void resetModelView();
   //! translate
@@ -101,6 +103,8 @@ public:
   virtual void swapBuffers();
   //! switch from view to model matrix
   virtual void switchFromViewToModelTransform();
+  //! switch matrix stack
+  virtual void switchMatrixStack(MatrixType type);
 protected:
 #ifdef WIN32
   //! device context
@@ -111,6 +115,10 @@ protected:
 #if defined UNIX && !defined QNX
   GLXContext glx_;
 #endif
+  //! matrix stacks
+  std::stack<CGE::Matrix> mMatrixStack[3];
+  CGE::Matrix mMatrix[3];
+  MatrixType mMatrixMode;
 };
 
 }

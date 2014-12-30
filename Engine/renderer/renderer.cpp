@@ -47,4 +47,8 @@ void Renderer::resizeScene(int width, int height){
   }
 }
 
+void Renderer::ortho(const int width, const int height){
+  ortho(-width / 2.0f, width / 2.0f, -height / 2.0f, height / 2.0f, -1.f, 1.f);
+}
+
 
