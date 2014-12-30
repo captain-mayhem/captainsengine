@@ -58,7 +58,7 @@ public:
   //! set projection
   void projection(float angle, float aspect, float nearplane, float farplane);
   //! set orthographic viewing
-  void ortho(const int width, const int height);
+  virtual void ortho(float left, float right, float bottom, float top, float nearp, float farp);
   //! reset modelview matrix
   void resetModelView();
   //! translate
@@ -101,6 +101,8 @@ public:
   virtual void swapBuffers();
   //! switch from view to model matrix
   virtual void switchFromViewToModelTransform();
+  //! switch matrix stack
+  virtual void switchMatrixStack(MatrixType type);
 protected:
 #ifdef WIN32
   //! device context

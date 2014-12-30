@@ -31,7 +31,8 @@ public:
 		Translation,
 		Scale,
 		Identity,
-    Ortho
+    Ortho,
+    Perspective,
 	};
   //! Default constructor
 	Matrix();
@@ -55,8 +56,8 @@ public:
   /* \param t has to be Identity
    */
 	Matrix(Type t);
-  //! orthographic projection matrix
-  /* \param t has to be Ortho
+  //! orthographic/perspective projection matrix
+  /* \param t has to be Ortho or Perspective
    */
   Matrix(Type t, float left, float right, float bottom, float top, float neaar, float faar);
   //! Constructor that initializes the matrix with the given values

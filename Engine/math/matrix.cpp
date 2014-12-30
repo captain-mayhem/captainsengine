@@ -107,10 +107,10 @@ Matrix::Matrix(Type t){
 
 Matrix::Matrix(Type t, float left, float right, float bottom, float top, float neaar, float faar){
   memset(data_, 0, 16*sizeof(float));
+  float rl = right - left;
+  float tb = top - bottom;
+  float fn = faar - neaar;
   if (t == Ortho){
-    float rl = right - left;
-    float tb = top - bottom;
-    float fn = faar - neaar;
     data_[0] = 2.0f/rl;
     data_[5] = 2.0f/tb;
     data_[10] = -2.0f/fn;
@@ -118,6 +118,15 @@ Matrix::Matrix(Type t, float left, float right, float bottom, float top, float n
     data_[12] = (right+left)/-rl;
     data_[13] = (top+bottom)/-tb;
     data_[14] = (faar+neaar)/-fn;
+  }
+  else if (t == Perspective){
+    data_[0] = 2 * neaar / rl;
+    data_[5] = 2 * neaar / tb;
+    data_[8] = (right + left) / rl;
+    data_[9] = (top + bottom) / tb;
+    data_[10] = (faar + neaar) / fn;
+    data_[11] = -1;
+    data_[14] = 2 * faar* neaar / fn;
   }
   else{
     cerr<<"invalid matrix type"<<endl;

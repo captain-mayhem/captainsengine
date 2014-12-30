@@ -230,10 +230,10 @@ void OGLRenderer::projection(float angle, float aspect, float nearplane, float f
   glMatrixMode(GL_MODELVIEW);
 }
 
-void OGLRenderer::ortho(const int width, const int height){
+void OGLRenderer::ortho(float left, float right, float bottom, float top, float nearp, float farp){
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  glOrtho(-width/2.0, width/2.0, -height/2.0, height/2.0, -1.f, 1.f);
+  glOrtho(left, right, bottom, top, nearp, farp);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -402,6 +402,13 @@ void OGLRenderer::setLight(int number, const Light& lit){
 
 void OGLRenderer::switchFromViewToModelTransform(){
 
+}
+
+void OGLRenderer::switchMatrixStack(MatrixType type){
+  GLenum mode = GL_MODELVIEW_MATRIX;
+  if (type == Projection)
+    mode = GL_PROJECTION_MATRIX;
+  glMatrixMode(mode);
 }
 
 
