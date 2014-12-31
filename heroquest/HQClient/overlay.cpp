@@ -13,6 +13,7 @@
 #include "overlay.h"
 #ifdef _CLIENT_
   #include "textureManager.h"
+  #include "renderer/forms.h"
 #endif
 
 //Constructor
@@ -48,30 +49,24 @@ void Overlay::render2D() const {
 #ifdef _CLIENT_
   if (rendered_ || (!active_ && !found_))
     return;
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::Forms* forms = CGE::Engine::instance()->getForms();
   if (found_){
-    glColor4f(1.,1.,1.,0.4f);
-    glEnable(GL_BLEND);
+    rend->setColor(1., 1., 1., 0.4f);
+    rend->enableBlend(true);
   }
   int height = wrld.getMapSize().y;
   int dx = SCREENWIDTH/wrld.getMapSize().x;
   int dy = SCREENHEIGHT/height;
-  glEnable(GL_TEXTURE_2D);
+  rend->enableTexturing(true);
   TextureManager::instance()->overlayTex[id_-4000]->activate();
-  //glBindTexture(GL_TEXTURE_2D, tex.overlayTex[id_]);
+
   switch(orientation_){ 
     case TOP:
-      glBegin(GL_QUADS);
-        glTexCoord2f(1, 0);
-        glVertex2i(position_.x*dx+dx*width_, (height-position_.y)*dy);
-        glTexCoord2f(0, 0);
-        glVertex2i(position_.x*dx, (height-position_.y)*dy);
-        glTexCoord2f(0, 1);
-        glVertex2i(position_.x*dx, (height-position_.y-height_)*dy);
-        glTexCoord2f(1, 1);
-        glVertex2i(position_.x*dx+dx*width_, (height-position_.y-height_)*dy);
-      glEnd();
+      forms->drawQuad(Vec2f(position_.x*dx, (height - position_.y-height_)*dy), Vec2f(dx*width_, dy*height_));
       break;
     case BOTTOM:
+      DebugBreak();
       glBegin(GL_QUADS);
         glTexCoord2f(0, 1);
         glVertex2i((position_.x+1)*dx, (height-(position_.y-height_+1))*dy);
@@ -84,6 +79,7 @@ void Overlay::render2D() const {
       glEnd();
       break;
     case RIGHT:
+      DebugBreak();
 //      cerr<<"height: "<<height<<" height_: "<<height_<<" width_: "<<width_<<" pos x: "<<position_.x<<" position y: "<<position_.y<<endl;
       glBegin(GL_QUADS);
         glTexCoord2f(0, 0);
@@ -97,6 +93,7 @@ void Overlay::render2D() const {
       glEnd();
       break;
     case LEFT:
+      DebugBreak();
       glBegin(GL_QUADS);
         glTexCoord2f(1, 1);
         glVertex2i(position_.x*dx+dx*height_, (height-position_.y+width_-1)*dy);
@@ -110,8 +107,8 @@ void Overlay::render2D() const {
       break;
   }
   if (found_){
-    glColor4f(1.,1.,1.,1.);
-    glDisable(GL_BLEND);
+    rend->setColor(1., 1., 1., 1.);
+    rend->enableBlend(false);
   }
 #endif
 }

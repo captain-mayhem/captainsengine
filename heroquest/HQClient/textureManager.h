@@ -7,8 +7,9 @@ class Texture;
 
 class TextureManager{
   public:
-    static void init() {texMan_ = new TextureManager();}
+    static void init() { texMan_ = new TextureManager(); atexit(release); }
     static TextureManager* instance() {return texMan_;}
+    static void release() { delete texMan_; texMan_ = NULL; }
     CGE::Texture** floorTex;
     CGE::Texture** wallTex;
     CGE::Texture** heroTex;

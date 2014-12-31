@@ -17,6 +17,12 @@ Templates::Templates(){
 }
 
 Templates::~Templates(){
+  for (unsigned i = 0; i < overlays_.size(); ++i){
+    delete overlays_[i];
+  }
+  for (unsigned i = 0; i < models_.size(); ++i){
+    delete models_[i];
+  }
 }
 
 void Templates::load(){

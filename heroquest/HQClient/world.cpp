@@ -17,6 +17,7 @@
 #include "textureManager.h"
 #include "camera.h"
 #include "renderer/font.h"
+#include "renderer/forms.h"
 #endif
 
 #ifdef WIN32
@@ -553,7 +554,9 @@ void World::render2D(bool vis){
 	float xstep = (float)(SCREENWIDTH/width_);
 	float ystep = (float)(SCREENHEIGHT/height_);
   
-	glColor4f(1,1,1,1);
+  rend->setColor(1, 1, 1, 1);
+  CGE::Forms* form = CGE::Engine::instance()->getForms();
+  form->activateQuad();
 	glLineWidth(3);
 	for (int j = 0; j < height_; j++){
 		for (int i = 0; i < width_; i++){
@@ -562,29 +565,17 @@ void World::render2D(bool vis){
 			// not visible?
 			if (!curr.getStatus() && vis)
         TextureManager::instance()->floorTex[0]->activate();
-				//glBindTexture(GL_TEXTURE_2D, tex.floorTex[0]);
 			else
         TextureManager::instance()->floorTex[curr.getId()]->activate();
-				//glBindTexture(GL_TEXTURE_2D, tex.floorTex[curr.getId()]);
       
 			if ((!curr.object && 
             (!curr.overlay || !curr.overlay->getStatus())
           ) 
           || (!curr.getStatus() && vis)){
-				glBegin(GL_TRIANGLE_STRIP);
-					glTexCoord2f(1.0f, 1.0f);
-					glVertex2f(i*xstep+xstep, (height_-j)*ystep);
-					glTexCoord2f(0.0f, 1.0f);
-					glVertex2f(i*xstep, (height_-j)*ystep);
-					glTexCoord2f(1.0f, 0.0f);
-					glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
-					glTexCoord2f(0.0f, 0.0f);
-					glVertex2f(i*xstep, (height_-j)*ystep-ystep);
-				glEnd();
+        form->drawQuad(Vec2f(i*xstep, (height_-j)*ystep-ystep), Vec2f(xstep, ystep));
 			}
      
-			
-      glColor3f(1,1,1);
+      //glColor3f(1,1,1);
 			
       //render overlay
       if ((curr.getStatus() || !vis) && curr.overlay){
@@ -614,8 +605,7 @@ void World::render2D(bool vis){
 					f->update();
 			}
 
-      
-			glDisable(GL_TEXTURE_2D);
+      rend->enableTexturing(false);
       
 			//mark starting positions as long as the game did not start
 			if (game.getState() == PREPARE){
@@ -699,10 +689,10 @@ void World::render2D(bool vis){
 	
 			glEnd();
 		
-      glColor3f(1.0,1.0,1.0);
+      rend->setColor(1.0,1.0,1.0,1.0);
       //glEnable(GL_BLEND);
 			
-      glEnable(GL_TEXTURE_2D);
+      rend->enableTexturing(true);
 		}
 	}
 

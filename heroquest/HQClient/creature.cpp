@@ -22,6 +22,7 @@
 //#include "texture.hh"
 #include "player.h"
 #include "camera.h"
+#include "renderer/forms.h"
 #endif
 #include "common.h"
 #include "opcodes.h"
@@ -149,28 +150,22 @@ void Creature::render() const{
 void Creature::render2D() const{
 #ifdef _CLIENT_	
   int height = wrld.getMapSize().y;
-  int dx = SCREENWIDTH/wrld.getMapSize().x;
-  int dy = SCREENHEIGHT/height;
+  float dx = (float)(SCREENWIDTH/wrld.getMapSize().x);
+  float dy = (float)(SCREENHEIGHT/height);
+
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::Forms* forms = CGE::Engine::instance()->getForms();
   
   if (active_)
-    glColor4f(1,1,1,1);
+    rend->setColor(1,1,1,1);
   else
-    glColor4f(1,1,1,0.3f);
-  glEnable(GL_TEXTURE_2D);
+    rend->setColor(1,1,1,0.3f);
+  rend->enableTexturing(true);
   
-  glBegin(GL_QUADS);
-    glTexCoord2f(1, 0);
-    glVertex2i(position_.x*dx+dx, (height-position_.y)*dy);
-    glTexCoord2f(0, 0);
-    glVertex2i(position_.x*dx, (height-position_.y)*dy);
-    glTexCoord2f(0, 1);
-    glVertex2i(position_.x*dx, (height-position_.y)*dy-dy);
-    glTexCoord2f(1, 1);
-    glVertex2i(position_.x*dx+dx, (height-position_.y)*dy-dy);
-  glEnd();
+  forms->drawQuad(Vec2f(position_.x*dx, (height - position_.y)*dy - dy), Vec2f(dx, dy));
   
-  glColor3f(1,1,1);
-  glDisable(GL_TEXTURE_2D);
+  rend->setColor(1,1,1,1);
+  rend->enableTexturing(false);
 #endif
 }
 

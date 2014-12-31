@@ -27,7 +27,7 @@ namespace CGE{
 class HQRenderer{
 public:
   ~HQRenderer();
-  static void init(CGE::Renderer* rend){rend_ = new HQRenderer(rend);}
+  static void init(CGE::Renderer* rend){ rend_ = new HQRenderer(rend); atexit(release); }
   inline static HQRenderer* instance() {return rend_;}
   inline static void release() {SAFE_DELETE(rend_);}
   //! the callback for init the scene

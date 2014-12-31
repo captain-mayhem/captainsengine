@@ -16,6 +16,7 @@
 #include "GL2vertexbuffer.h"
 #include "../OpenGL/OGLtexture.h"
 #include "GL2indexbuffer.h"
+#include "GL2Shader.h"
 
 using namespace CGE;
 
@@ -301,10 +302,11 @@ void GL2Renderer::enableBackFaceCulling(const bool flag){
 
 //! enable texturing
 void GL2Renderer::enableTexturing(const bool flag){
+  int texEn = GL2Shader::getCurrentShader()->getUniformLocation("textureEnabled");
   if (flag)
-    glEnable(GL_TEXTURE_2D);
+    GL2Shader::uniform(texEn, 1);
   else
-    glDisable(GL_TEXTURE_2D);
+    GL2Shader::uniform(texEn, 0);
 }
 
 // enable lighting

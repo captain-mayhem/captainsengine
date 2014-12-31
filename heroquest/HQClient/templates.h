@@ -15,7 +15,9 @@ class Templates{
   public:
     ~Templates();
     //! init template object
-    static void init() { templ = new Templates(); templ->load(); }
+    static void init() { templ = new Templates(); templ->load(); atexit(release); }
+    //! release template object
+    static void release() { delete templ; templ = NULL; }
     //! load item list
     void load();
     //! get the number of monster types

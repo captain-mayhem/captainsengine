@@ -16,8 +16,8 @@ public:
   ~GL2Shader();
   bool addShader(GLenum shadertype, const char* shaderstring, int stringlen=0);
   bool linkShaders();
-  void activate() {glGetIntegerv(GL_CURRENT_PROGRAM, &mOldProg); glUseProgram(mProgram);}
-  void deactivate() {glUseProgram(mOldProg);}
+  void activate() { mOldProg = mCurrShader; glUseProgram(mProgram); mCurrShader = this; }
+  void deactivate() { glUseProgram(mOldProg?mOldProg->mProgram:0); mCurrShader = mOldProg; }
   void bindAttribLocation(int location, const char* name) { glBindAttribLocation(mProgram, location, name);}
   int getAttribLocation(const char* name) {return glGetAttribLocation(mProgram, name);}
   int getUniformLocation(const char* name) {return glGetUniformLocation(mProgram, name);}
@@ -26,9 +26,11 @@ public:
   static void uniform(int location, float v0, float v1) { glUniform2f(location, v0, v1); }
   static void uniform(int location, float v0, float v1, float v2, float v3) { glUniform4f(location, v0, v1, v2, v3); }
   static void uniform(int location, const CGE::Matrix& mat) { glUniformMatrix4fv(location, 1, GL_FALSE, mat.getData()); }
+  static GL2Shader* getCurrentShader() { return mCurrShader; }
 protected:
+  static GL2Shader* mCurrShader;
   GLuint mProgram;
-  GLint mOldProg;
+  GL2Shader* mOldProg;
 };
 
 }

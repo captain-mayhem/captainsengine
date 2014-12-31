@@ -16,6 +16,7 @@ TraceManager::~TraceManager(){
   mTraceBuffer.clear();
   mTraceLevels.clear();
   delete mPutty;
+  mPutty = NULL;
 }
 
 unsigned TraceManager::registerChannel(const char* name, int level){

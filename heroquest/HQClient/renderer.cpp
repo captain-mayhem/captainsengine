@@ -344,16 +344,15 @@ void HQRenderer::mouseMove_(int x, int y, int buttons){
 }
 
 char const * vs_src =
-"#version 330\n"
-"layout (location = 0) in vec3 pos;\n"
-"layout (location = 1) in vec4 color;\n"
-"layout (location = 2) in vec2 texcoord;\n"
-"layout (location = 3) in vec3 normal;\n"
+"attribute vec3 pos;\n"
+"attribute vec4 color;\n"
+"attribute vec2 texcoord;\n"
+"attribute vec3 normal;\n"
 "\n"
 "uniform mat4 mvp;\n"
 "\n"
-"smooth out vec2 uvcoord;\n"
-"smooth out vec4 vcolor;\n"
+"varying vec2 uvcoord;\n"
+"varying vec4 vcolor;\n"
 "\n"
 "void main(){\n"
 "  uvcoord = texcoord;\n"
@@ -363,25 +362,35 @@ char const * vs_src =
 "";
 
 char const * fs_src =
-"#version 330\n"
 "uniform sampler2D texture;\n"
+"uniform bool textureEnabled;\n"
 "\n"
-"smooth in vec2 uvcoord;\n"
-"smooth in vec4 vcolor;\n"
+"varying vec2 uvcoord;\n"
+"varying vec4 vcolor;\n"
 "\n"
 "void main(){\n"
-"  vec4 color = texture2D(texture, uvcoord);\n"
+"  vec4 color = vec4(1.0);\n"
+"  if (textureEnabled)\n"
+"     color = texture2D(texture, uvcoord);\n"
 "  gl_FragColor = color*vcolor;\n"
 "};\n"
 "";
 
 void HQRenderer::initialize_(){
   //init shader
-  m3DShader = new CGE::GL2Shader();
-  m3DShader->addShader(GL_VERTEX_SHADER, vs_src);
-  m3DShader->addShader(GL_FRAGMENT_SHADER, fs_src);
-  m3DShader->linkShaders();
-  m3DShader->activate();
+  if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL2){
+    m3DShader = new CGE::GL2Shader();
+    m3DShader->addShader(GL_VERTEX_SHADER, vs_src);
+    m3DShader->addShader(GL_FRAGMENT_SHADER, fs_src);
+    m3DShader->bindAttribLocation(0, "pos");
+    m3DShader->bindAttribLocation(1, "color");
+    m3DShader->bindAttribLocation(2, "texcoord");
+    m3DShader->bindAttribLocation(3, "normal");
+    m3DShader->linkShaders();
+    m3DShader->activate();
+    int tex = m3DShader->getUniformLocation("texture");
+    m3DShader->uniform(tex, 0);//texture (uniform 32) at stage 0
+  }
   //init textures
   TextureManager::init();
 
@@ -451,6 +460,7 @@ void HQRenderer::paint_(){
   render_->translate(-SCREENWIDTH/2, -SCREENHEIGHT/2, 0);
   render_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
   render_->enableBlend(true);
+  render_->enableTexturing(true);
   
   if (!wrld.isLoaded()){
     TextureManager::instance()->otherTex[0]->activate();

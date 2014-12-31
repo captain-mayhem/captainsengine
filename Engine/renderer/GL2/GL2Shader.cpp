@@ -8,6 +8,8 @@ TR_CHANNEL(CGE_Shader)
 
 using namespace CGE;
 
+GL2Shader* GL2Shader::mCurrShader = NULL;
+
 GL2Shader::GL2Shader(){
   mProgram = glCreateProgram();
 }
