@@ -21,11 +21,14 @@ public:
   void drawCylinder();
   static VertexBuffer* createCylinder(float radius, float height, int cylinder_segments, IndexBuffer** indices);
   static VertexBuffer* createBox(float width, float height, float depth, IndexBuffer** indices);
+  void activateLines();
+  void drawLine(Vec2f const& from, Vec2f const& to);
 private:
   void constructVBOs();
   VertexBuffer* quad_;
   VertexBuffer* cylinder_;
   IndexBuffer* mCylinderInds[3];
+  VertexBuffer* lines_;
 };
   
 }

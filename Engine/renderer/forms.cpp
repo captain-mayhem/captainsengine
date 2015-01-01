@@ -25,6 +25,7 @@ Forms::~Forms(){
   for (int i = 0; i < 3; ++i){
     SAFE_DELETE(mCylinderInds[i]);
   }
+  SAFE_DELETE(lines_);
 }
 
 void Forms::constructVBOs(){
@@ -47,6 +48,9 @@ void Forms::constructVBOs(){
   
   //generate cylinder
   cylinder_ = createCylinder(1,1,32,mCylinderInds);
+  //generate line
+  lines_ = rend->createVertexBuffer();
+  lines_->create(VB_POSITION, 2);
 }
 
 void Forms::activateQuad(){
@@ -228,4 +232,16 @@ VertexBuffer* Forms::createBox(float width, float height, float depth, IndexBuff
   idx[33] = 12; idx[34] = 14; idx[35] = 15;
   indices[0]->unlockIndexPointer();
   return box;
+}
+
+void Forms::activateLines(){
+  lines_->activate();
+}
+
+void Forms::drawLine(Vec2f const& from, Vec2f const& to){
+  lines_->lockVertexPointer();
+  lines_->setPosition(0, Vec3f(from.x, from.y, 0));
+  lines_->setPosition(1, Vec3f(to.x, to.y, 0));
+  lines_->unlockVertexPointer();
+  lines_->draw(VB_Lines, NULL);
 }
