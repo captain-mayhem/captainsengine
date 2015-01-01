@@ -21,6 +21,7 @@ Templates::~Templates(){
     delete overlays_[i];
   }
   for (unsigned i = 0; i < models_.size(); ++i){
+    delete models_[i]->getMesh();
     delete models_[i];
   }
 }

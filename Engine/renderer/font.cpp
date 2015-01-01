@@ -39,6 +39,11 @@ Font::Font(const Font& f){
 
 //Destructor
 Font::~Font(){
+  while (!q_.empty()){
+    font_data& data = q_.front();
+    delete data.text;
+    q_.pop();
+  }
   SAFE_DELETE(tex_);
   SAFE_DELETE(buffer_);
   SAFE_DELETE(inds_);
@@ -190,6 +195,8 @@ void Font::deleteText(short id){
     q_.pop();
     if (f.id != id)
       temp.push(f);
+    else
+      delete f.text;
   }
   q_ = temp;
 }

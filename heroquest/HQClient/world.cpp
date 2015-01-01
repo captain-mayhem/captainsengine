@@ -84,6 +84,9 @@ World::World(const World& w){
 //Destructor
 World::~World(void){
   SAFE_DELETE(moveBox_);
+  for (unsigned i = 0; i < furnitureTypes_.size(); ++i){
+    delete furnitureTypes_[i];
+  }
 	//TODO save destruction needed
   //deInit();
 }

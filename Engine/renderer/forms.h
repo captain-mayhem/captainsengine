@@ -15,7 +15,7 @@ public:
   */
   void drawQuad();
   //! draw a quad at position position with the spanning of size
-  void drawQuad(const CGE::Vector2D& position, const CGE::Vector2D& size) const;
+  void drawQuad(const CGE::Vector2D& position, const CGE::Vector2D& size, float rotation=0) const;
 
   void activateCylinder();
   void drawCylinder();

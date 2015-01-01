@@ -252,6 +252,11 @@ void OGLRenderer::scale(float x, float y, float z){
   glScalef(x,y,z);
 }
 
+//! rotate
+void OGLRenderer::rotate(float angle, float x, float y, float z){
+  glRotatef(angle, x, y, z);
+}
+
 //! set rendermode
 void OGLRenderer::renderMode(RendMode rm){
   if (rm == Filled){

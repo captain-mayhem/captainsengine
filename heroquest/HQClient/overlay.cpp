@@ -56,55 +56,24 @@ void Overlay::render2D() const {
     rend->enableBlend(true);
   }
   int height = wrld.getMapSize().y;
-  int dx = SCREENWIDTH/wrld.getMapSize().x;
-  int dy = SCREENHEIGHT/height;
+  float dx = (float)(SCREENWIDTH/wrld.getMapSize().x);
+  float dy = (float)(SCREENHEIGHT/height);
   rend->enableTexturing(true);
   TextureManager::instance()->overlayTex[id_-4000]->activate();
 
-  switch(orientation_){ 
-    case TOP:
-      forms->drawQuad(Vec2f(position_.x*dx, (height - position_.y-height_)*dy), Vec2f(dx*width_, dy*height_));
-      break;
-    case BOTTOM:
-      DebugBreak();
-      glBegin(GL_QUADS);
-        glTexCoord2f(0, 1);
-        glVertex2i((position_.x+1)*dx, (height-(position_.y-height_+1))*dy);
-        glTexCoord2f(1, 1);
-        glVertex2i((position_.x-width_+1)*dx, (height-(position_.y-height_+1))*dy);
-        glTexCoord2f(1, 0);
-        glVertex2i((position_.x-width_+1)*dx, (height-(position_.y+1))*dy);
-        glTexCoord2f(0, 0);
-        glVertex2i((position_.x+1)*dx, (height-(position_.y+1))*dy);
-      glEnd();
-      break;
-    case RIGHT:
-      DebugBreak();
-//      cerr<<"height: "<<height<<" height_: "<<height_<<" width_: "<<width_<<" pos x: "<<position_.x<<" position y: "<<position_.y<<endl;
-      glBegin(GL_QUADS);
-        glTexCoord2f(0, 0);
-        glVertex2i((position_.x+1)*dx, (height-(position_.y))*dy);
-        glTexCoord2f(0, 1);
-        glVertex2i((position_.x-height_+1)*dx, (height-(position_.y))*dy);
-        glTexCoord2f(1, 1);
-        glVertex2i((position_.x-height_+1)*dx, (height-(position_.y+width_))*dy);
-        glTexCoord2f(1, 0);
-        glVertex2i((position_.x+1)*dx, (height-(position_.y+width_))*dy);
-      glEnd();
-      break;
-    case LEFT:
-      DebugBreak();
-      glBegin(GL_QUADS);
-        glTexCoord2f(1, 1);
-        glVertex2i(position_.x*dx+dx*height_, (height-position_.y+width_-1)*dy);
-        glTexCoord2f(1, 0);
-        glVertex2i(position_.x*dx, (height-position_.y+width_-1)*dy);
-        glTexCoord2f(0, 0);
-        glVertex2i(position_.x*dx, (height-position_.y)*dy-dy);
-        glTexCoord2f(0, 1);
-        glVertex2i(position_.x*dx+dx*height_, (height-position_.y)*dy-dy);
-      glEnd();
-      break;
+  switch (orientation_){
+  case TOP:
+    forms->drawQuad(Vec2f(position_.x*dx, (height - position_.y - height_)*dy), Vec2f(dx*width_, dy*height_));
+    break;
+  case BOTTOM:
+    forms->drawQuad(Vec2f((position_.x - width_ + 1)*dx, (height - (position_.y + 1))*dy), Vec2f(dx*width_, dy*height_), 180);
+    break;
+  case RIGHT:
+    forms->drawQuad(Vec2f((position_.x - height_ + 1)*dx, (height - (position_.y + width_))*dy), Vec2f(dx*width_, dy*height_), 270);
+    break;
+  case LEFT:
+    forms->drawQuad(Vec2f((position_.x)*dx, (height - (position_.y + 1))*dy), Vec2f(dx*width_, dy*height_), 90);
+    break;
   }
   if (found_){
     rend->setColor(1., 1., 1., 1.);

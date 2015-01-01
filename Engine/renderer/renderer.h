@@ -91,6 +91,8 @@ public:
   virtual void translate(float x, float y, float z)=0;
   //! scale
   virtual void scale(float x, float y, float z)=0;
+  //! rotate
+  virtual void rotate(float angle, float x, float y, float z) = 0;
   //! set render mode
   virtual void renderMode(RendMode rm){}
   //! set blending mode
