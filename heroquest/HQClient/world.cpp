@@ -559,10 +559,12 @@ void World::render2D(bool vis){
   
   rend->setColor(1, 1, 1, 1);
   CGE::Forms* form = CGE::Engine::instance()->getForms();
-  form->activateQuad();
+  
 	glLineWidth(3);
 	for (int j = 0; j < height_; j++){
 		for (int i = 0; i < width_; i++){
+      form->activateQuad();
+
 			Field& curr = world_[j][i];
 			// ground tiles
 			// not visible?
@@ -609,88 +611,74 @@ void World::render2D(bool vis){
 			}
 
       rend->enableTexturing(false);
+      form->activateLines();
       
 			//mark starting positions as long as the game did not start
 			if (game.getState() == PREPARE){
-				glColor3f(1,0,0);
+        rend->setColor(1, 0, 0, 1);
 				for (int k = 0; k < heroSize_; k++){
 					if (Vector2D(i,j) == starts_[k]){
-						glBegin(GL_LINES);
-							glVertex2f(i*xstep+3, (height_-j)*ystep-ystep+3);
-							glVertex2f(i*xstep+xstep-3, (height_-j)*ystep-3);
-							glVertex2f(i*xstep+3, (height_-j)*ystep-2);
-							glVertex2f(i*xstep+xstep-3, (height_-j)*ystep-ystep+3);
-						glEnd();
+            form->drawLine(Vec2f(i*xstep + 3, (height_ - j)*ystep - ystep + 3), Vec2f(i*xstep + xstep - 3, (height_ - j)*ystep - 3));
+            form->drawLine(Vec2f(i*xstep + 3, (height_ - j)*ystep - 2), Vec2f(i*xstep + xstep - 3, (height_ - j)*ystep - ystep + 3));
 					}
 				}
 			}
       
 			//draw walls and doors as colored lines
 			//glDisable(GL_BLEND);
-			glBegin(GL_LINES);
-				glColor3f(1,1,1);
-				if (isWall(i,j,TOP, vis)){
-					glVertex2f(i*xstep, (height_-j)*ystep);
-					glVertex2f(i*xstep+xstep, (height_-j)*ystep);
+      rend->setColor(1, 1, 1, 1);
+			if (isWall(i,j,TOP, vis)){
+				form->drawLine(Vec2f(i*xstep, (height_-j)*ystep), Vec2f(i*xstep+xstep, (height_-j)*ystep));
+			}
+			if (isWall(i,j,RIGHT, vis)){
+        form->drawLine(Vec2f(i*xstep + xstep, (height_ - j)*ystep), Vec2f(i*xstep+xstep, (height_-j)*ystep-ystep));
+			}
+			if (isWall(i,j,BOTTOM, vis)){
+        form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
+			}
+			if (isWall(i,j,LEFT, vis)){
+        form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep, (height_ - j)*ystep));
+			}
+			if (isDoor(i,j,TOP, vis)){
+				Door* doo = getDoor(Vector2D(i,j),TOP);
+				if (doo->getType() > 0)
+					rend->setColor(1,1,1,1);
+				else
+        	rend->setColor(0.8f,0.12f,0.12f,1);
+				if(doo->isClosed()){
+          form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep));
 				}
-				if (isWall(i,j,RIGHT, vis)){
-					glVertex2f(i*xstep+xstep, (height_-j)*ystep);
-					glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
+			}
+			if (isDoor(i,j,RIGHT, vis)){
+				Door* doo = getDoor(Vector2D(i,j),RIGHT);
+				if (doo->getType() > 0)
+					rend->setColor(1,1,1,1);
+				else
+        	rend->setColor(0.8f,0.12f,0.12f,1);
+				if(doo->isClosed()){
+          form->drawLine(Vec2f(i*xstep + xstep, (height_ - j)*ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
 				}
-				if (isWall(i,j,BOTTOM, vis)){
-					glVertex2f(i*xstep, (height_-j)*ystep-ystep);
-					glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
+			}
+			if (isDoor(i,j,BOTTOM, vis)){
+				Door* doo = getDoor(Vector2D(i,j),BOTTOM);
+				if (doo->getType() > 0)
+					rend->setColor(1,1,1,1);
+				else
+        	rend->setColor(0.8f,0.12f,0.12f,1);
+				if(doo->isClosed()){
+          form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
 				}
-				if (isWall(i,j,LEFT, vis)){
-					glVertex2f(i*xstep, (height_-j)*ystep-ystep);
-					glVertex2f(i*xstep, (height_-j)*ystep);
+			}
+			if (isDoor(i,j,LEFT, vis)){
+				Door* doo = getDoor(Vector2D(i,j),LEFT);
+				if (doo->getType() > 0)
+					rend->setColor(1,1,1,1);
+				else
+        	rend->setColor(0.8f,0.12f,0.12f,1);
+				if(doo->isClosed()){
+          form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep, (height_ - j)*ystep));
 				}
-				if (isDoor(i,j,TOP, vis)){
-					Door* doo = getDoor(Vector2D(i,j),TOP);
-					if (doo->getType() > 0)
-						glColor3f(1,1,1);
-					else
-        		glColor3f(0.8f,0.12f,0.12f);
-					if(doo->isClosed()){
-						glVertex2f(i*xstep, (height_-j)*ystep);
-						glVertex2f(i*xstep+xstep, (height_-j)*ystep);
-					}
-				}
-				if (isDoor(i,j,RIGHT, vis)){
-					Door* doo = getDoor(Vector2D(i,j),RIGHT);
-					if (doo->getType() > 0)
-						glColor3f(1,1,1);
-					else
-        		glColor3f(0.8f,0.12f,0.12f);
-					if(doo->isClosed()){
-						glVertex2f(i*xstep+xstep, (height_-j)*ystep);
-						glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
-					}
-				}
-				if (isDoor(i,j,BOTTOM, vis)){
-					Door* doo = getDoor(Vector2D(i,j),BOTTOM);
-					if (doo->getType() > 0)
-						glColor3f(1,1,1);
-					else
-        		glColor3f(0.8f,0.12f,0.12f);
-					if(doo->isClosed()){
-						glVertex2f(i*xstep, (height_-j)*ystep-ystep);
-						glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
-					}
-				}
-				if (isDoor(i,j,LEFT, vis)){
-					Door* doo = getDoor(Vector2D(i,j),LEFT);
-					if (doo->getType() > 0)
-						glColor3f(1,1,1);
-					else
-        		glColor3f(0.8f,0.12f,0.12f);
-					if(doo->isClosed()){
-						glVertex2f(i*xstep, (height_-j)*ystep-ystep);
-						glVertex2f(i*xstep, (height_-j)*ystep);
-					}
-				}
-	
-			glEnd();
+			}
 		
       rend->setColor(1.0,1.0,1.0,1.0);
       //glEnable(GL_BLEND);

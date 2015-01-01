@@ -120,8 +120,7 @@ void Message::quit(){
     tid_.destroy();
 		delete ss_;
 	}
-	//gl->quit();
-  CGE::Engine::instance()->shutdown();
+  CGE::Engine::instance()->requestShutdown();
 }
 
 //process the line that the user typed in
