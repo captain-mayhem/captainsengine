@@ -65,6 +65,8 @@ public:
   void translate(float x, float y, float z);
   //! scale
   void scale(float x, float y, float z);
+  //! rotate
+  virtual void rotate(float angle, float x, float y, float z);
   //! set rendermode
   void renderMode(RendMode rm);
   //! set blending mode

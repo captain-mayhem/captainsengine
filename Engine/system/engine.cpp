@@ -163,6 +163,7 @@ void Engine::shutdown(){
     SAFE_DELETE(mSimulator);
     Input::Keyboard::release();
     Input::Mouse::release();
+    clearListeners();
     SAFE_DELETE(console_);
     fnt_[0]->killFont();
     for (int i = 0; i < 3; i++){

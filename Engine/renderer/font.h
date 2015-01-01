@@ -81,7 +81,7 @@ public:
   //! toggles the visibility of the text
   inline void toggle() {show_ = !show_;}
   //! erases all stored print data
-  inline void clear() {while(!q_.empty()) q_.pop();}
+  inline void clear() { while (!q_.empty()) { delete q_.front().text; q_.pop(); } }
   //! easy to use output operator for status messages
   void operator<<(const string& text);
   //! output for streams

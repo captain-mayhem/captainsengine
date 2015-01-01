@@ -30,7 +30,7 @@ class TraceManager{
 public:
   ~TraceManager();
   static TraceManager* instance() {mMuStat.lock(); if (mManager == NULL) mManager = new TraceManager(); mMuStat.unlock(); return mManager;}
-  static void deinit() {delete mManager; mManager = NULL;}
+  static void deinit() { TraceManager* mgr = mManager; mManager = NULL; delete mgr; }
   unsigned registerChannel(const char* name, int level);
   void trace(unsigned channel, int level, const char* function, const char* message);
   void setCurrentLevel(unsigned channel, int level);

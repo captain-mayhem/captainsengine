@@ -57,10 +57,18 @@ void Forms::drawQuad(){
   quad_->draw(VB_Tristrip, 0);
 }
 
-void Forms::drawQuad(const Vector2D& position, const Vector2D& size) const {
+void Forms::drawQuad(const Vector2D& position, const Vector2D& size, float rotation) const {
   Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->pushMatrix();
-  rend->translate(position.x+size.x/2.0f, position.y+size.y/2.0f, 0);
+  Vec2f offset = size/2.0f;
+  if (rotation != 0){
+    Matrix rot = Matrix(Matrix::Rotation, Vec3f(0, 0, -1), rotation/180*(float)M_PI);
+    Vec3f rotoff = rot * Vec3f(offset.x, offset.y, 0);
+    offset = Vec2f(abs(rotoff.x), abs(rotoff.y));
+  }
+  rend->translate(position.x+offset.x, position.y+offset.y, 0);
+  if (rotation != 0)
+    rend->rotate(rotation, 0, 0, -1);
   rend->scale(size.x, size.y, 1);
   quad_->draw(VB_Tristrip, 0);
   rend->popMatrix();

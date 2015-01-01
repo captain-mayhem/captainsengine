@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -246,6 +247,11 @@ void GL2Renderer::translate(float x, float y, float z){
 //! scale
 void GL2Renderer::scale(float x, float y, float z){
   mMatrix[mMatrixMode] *= Matrix(Matrix::Scale, Vec3f(x, y, z));
+}
+
+//! rotate
+void GL2Renderer::rotate(float angle, float x, float y, float z){
+  mMatrix[mMatrixMode] *= Matrix(Matrix::Rotation, Vec3f(x, y, z), angle/180*M_PI);
 }
 
 //! set rendermode
