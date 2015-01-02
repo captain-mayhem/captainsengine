@@ -54,6 +54,7 @@ HQRenderer::HQRenderer(CGE::Renderer* rend){
 
   inventory_ = NULL;
   trade_ = false;
+  m3DShader = NULL;
 }
 
 HQRenderer::~HQRenderer(){
@@ -378,7 +379,7 @@ char const * fs_src =
 
 void HQRenderer::initialize_(){
   //init shader
-  if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL2){
+  /*if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL2){
     m3DShader = new CGE::GL2Shader();
     m3DShader->addShader(GL_VERTEX_SHADER, vs_src);
     m3DShader->addShader(GL_FRAGMENT_SHADER, fs_src);
@@ -390,7 +391,7 @@ void HQRenderer::initialize_(){
     m3DShader->activate();
     int tex = m3DShader->getUniformLocation("texture");
     m3DShader->uniform(tex, 0);//texture (uniform 32) at stage 0
-  }
+  }*/
   //init textures
   TextureManager::init();
 
@@ -437,12 +438,13 @@ void HQRenderer::paint_(){
 
   if (wrld.isLoaded()){
     //number of moves in the upper right corner
-    CGE::Engine::instance()->getFont(0)->glPrint(1000, 750, toStr(game.getMoves()).c_str(), 1);
+    CGE::Engine::instance()->getFont(0)->print(1000, 750, toStr(game.getMoves()).c_str(), 1);
     //get the nearest vertices and check them for camera collision
     //Vector3D** worldCollision = wrld.getWorld();
     //cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
     //allow lookat changes by mouse
     cam.look();
+    glEnable(GL_DEPTH_TEST);
     //render world without blending
     glDisable(GL_BLEND);
     //glEnable(GL_TEXTURE_2D);

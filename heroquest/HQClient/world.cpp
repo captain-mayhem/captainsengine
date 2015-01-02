@@ -370,7 +370,8 @@ void World::render(){
 #ifdef _CLIENT_
 	if (!isLoaded())
 		return;
-	glColor3f(1,1,1);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+	rend->setColor(1,1,1,1);
   
 	//reset canSee_ and calculate new pvs
 	for (unsigned i = 0; i < canSee_.size(); i++){
@@ -386,7 +387,7 @@ void World::render(){
 	unsigned size = (unsigned)canSee_.size();
 	fields << size << " of " << (width_*height_) << " Fields rendered";
   CGE::Engine::instance()->getFont(0)->setColor(0,1,0);
-  CGE::Engine::instance()->getFont(0)->glPrint(20,680, fields.str().c_str(), 0, 0);
+  CGE::Engine::instance()->getFont(0)->print(20,680, fields.str().c_str(), 0, 0);
 
 	//reset furniture
 	for (unsigned i = 0; i < furniture_.size(); i++){
@@ -500,7 +501,23 @@ void World::render(){
 	//render ceiling
   TextureManager::instance()->wallTex[2]->activate();
 	//glBindTexture(GL_TEXTURE_2D, tex.wallTex[2]);
-	glBegin(GL_QUADS);
+  CGE::Forms* forms = CGE::Engine::instance()->getForms();
+  forms->activateQuad();
+  rend->pushMatrix();
+  rend->translate(QUADSIZE*width_ / 2, WALLHEIGHT, QUADSIZE*height_/2);
+  rend->rotate(90, 1, 0, 0);
+  rend->scale(QUADSIZE*width_, QUADSIZE*height_, 1);
+
+  rend->switchMatrixStack(CGE::MatTexture);
+  rend->pushMatrix();
+  rend->scale(width_, height_, 1);
+  
+  forms->drawQuad();
+
+  rend->popMatrix();
+  rend->switchMatrixStack(CGE::Modelview);
+  rend->popMatrix();
+	/*glBegin(GL_QUADS);
 		glTexCoord2f(width_,height_);
 		glVertex3f(0, WALLHEIGHT, 0);
 		glTexCoord2f(0,height_);
@@ -509,7 +526,7 @@ void World::render(){
 		glVertex3f(QUADSIZE*width_, WALLHEIGHT, QUADSIZE*height_);
 		glTexCoord2f(width_,0);
 		glVertex3f(0, WALLHEIGHT, QUADSIZE*height_);
-	glEnd();
+	glEnd();*/
 
   string messg;
   /*GLenum errCode;
@@ -532,9 +549,8 @@ void World::render2D(bool vis){
 
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
 	//Setup orthographic view
-	glPushAttrib(GL_ENABLE_BIT);
 	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
+  rend->enableBlend(false);
   rend->switchMatrixStack(CGE::Projection);
   rend->pushMatrix();
   rend->ortho(0, SCREENWIDTH, 0, SCREENHEIGHT, -1, 1);
@@ -685,49 +701,46 @@ void World::render2D(bool vis){
 			
       rend->enableTexturing(true);
 		}
+    rend->enableBlend(true);
 	}
 
 	//Render orientation line (the direction in which the camera looks)
-	glDisable(GL_TEXTURE_2D);
+  rend->enableTexturing(false);
 	//glDisable(GL_BLEND);
-	glColor3f(1,1,0);
+	rend->setColor(1,1,0,1);
 	Vector3D view = (cam.view() - cam.position()).normalized();
 	Vector2D pos = cam.modelPos();
-	glBegin(GL_LINES);
-		glVertex2f((pos.x+0.5f)*xstep, (height_-pos.y-0.5f)*ystep);
-		glVertex2f((pos.x+0.5f)*xstep + 0.5f*xstep*view.x, (height_-pos.y-0.5f)*ystep - 0.5f*ystep*view.z);
-	glEnd();
-	glColor3f(1,1,1);
-	glEnable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
+  form->drawLine(Vec2f((pos.x+0.5f)*xstep, (height_-pos.y-0.5f)*ystep), 
+    Vec2f((pos.x+0.5f)*xstep + 0.5f*xstep*view.x, (height_-pos.y-0.5f)*ystep - 0.5f*ystep*view.z));
+	rend->setColor(1,1,1,1);
+  rend->enableBlend(true);
+  rend->enableTexturing(true);
   
 	//in debug compilation, visualize all fields that will be rendered in 3D on the 2D map.   
 #ifdef _DEBUG
 	//what is visible in 3D?
 	currently_visible(cam.modelPos(), cam.getLookDirection());
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
-	glColor3f(0,1,0);
+  rend->enableTexturing(false);
+  rend->enableBlend(false);
+  rend->setColor(0, 1, 0, 1);
 	for (unsigned k = 0; k < canSee_.size(); k++){
 		int i = canSee_[k]->getPosition().x;
 		int j = canSee_[k]->getPosition().y;
-		glBegin(GL_LINES);
-    glVertex2f((GLfloat)(i*xstep + 3), (GLfloat)((height_ - j)*ystep - ystep + 3));
-    glVertex2f((GLfloat)(i*xstep + xstep - 3), (GLfloat)((height_ - j)*ystep - 3));
-      glVertex2f((GLfloat)(i*xstep + 3), (GLfloat)((height_ - j)*ystep - 2));
-			glVertex2f((GLfloat)(i*xstep+xstep-3), (GLfloat)((height_-j)*ystep-ystep+3));
-		glEnd();
+    form->drawLine(Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - ystep + 3)),
+      Vec2f((float)(i*xstep + xstep - 3), (float)((height_ - j)*ystep - 3)));
+    form->drawLine(Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - 2)),
+		  Vec2f((float)(i*xstep+xstep-3), (float)((height_-j)*ystep-ystep+3)));
 	}
-	glEnable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
+  rend->enableBlend(true);
+  rend->enableTexturing(true);
 #endif
   
 	//Restore original
+  glEnable(GL_DEPTH_TEST);
   rend->switchMatrixStack(CGE::Projection);
   rend->popMatrix();
   rend->switchMatrixStack(CGE::Modelview);
   rend->popMatrix();
-	glPopAttrib();
 #endif
 }
 

@@ -90,6 +90,8 @@ void GL2VertexBuffer::activate(){
 void GL2VertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices){
   int loc = GL2Shader::getCurrentShader()->getUniformLocation("mvp");
   GL2Shader::uniform(loc, Engine::instance()->getRenderer()->getMatrix(CGE::MVP));
+  loc = GL2Shader::getCurrentShader()->getUniformLocation("texmat");
+  GL2Shader::uniform(loc, Engine::instance()->getRenderer()->getMatrix(CGE::MatTexture));
   if (indices == NULL){
     if (pt == VB_Tristrip)
       glDrawArrays(GL_TRIANGLE_STRIP, 0, vbsize_);
