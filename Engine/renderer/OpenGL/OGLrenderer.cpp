@@ -317,6 +317,14 @@ void OGLRenderer::enableTexturing(const bool flag){
     glDisable(GL_TEXTURE_2D);
 }
 
+//! enable depth test
+void OGLRenderer::enableDepthTest(const bool flag){
+  if (flag)
+    glEnable(GL_DEPTH_TEST);
+  else
+    glDisable(GL_DEPTH_TEST);
+}
+
 // enable lighting
 void OGLRenderer::enableLighting(const bool flag){
   if (flag)

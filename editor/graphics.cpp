@@ -115,6 +115,7 @@ void Graphic::render_(){
   rend->setColor(1.0,1.0,1.0,1.0);
   rend->enableTexturing(false);
   rend->projection(60, 4.0f/3.0f, 0.1f, 1000.0f);
+  //rend->ortho(-50, 50, -50, 50, 0.1, 100);
   rend->resetModelView();
   rend->multiplyMatrix(camTrafo_);
   rend->multiplyMatrix(camRot_);
@@ -129,6 +130,7 @@ void Graphic::render_(){
   //fnt->setColor(0.0,1.0,0.0);
   //fnt->glPrint(200, 400, ("FPS: "+toStr(Engine::instance()->getFPS())).c_str(), 0);
   //rend->enableLighting(true);
+  rend->enableTexturing(true);
   scene_.render();
   //rend->enableLighting(false);
 }

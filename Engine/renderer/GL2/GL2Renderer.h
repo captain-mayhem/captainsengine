@@ -14,6 +14,7 @@
 #include <GL/glx.h>
 #endif
 #include "../renderer.h"
+#include "GL2Shader.h"
 
 #include <stack>
 
@@ -83,6 +84,8 @@ public:
   void enableLighting(const bool flag);
   //! enable light
   virtual void enableLight(short number, bool flag);
+  //! enable depth test
+  virtual void enableDepthTest(const bool flag);
   //! set color
   void setColor(float r, float g, float b, float a);
   //! set color
@@ -121,6 +124,8 @@ protected:
   std::stack<CGE::Matrix> mMatrixStack[3];
   CGE::Matrix mMatrix[3];
   MatrixType mMatrixMode;
+  //! shader
+  CGE::GL2Shader* mShader;
 };
 
 }

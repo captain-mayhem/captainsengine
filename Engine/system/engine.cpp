@@ -214,6 +214,7 @@ void Engine::run(){
     rend_->translate(-512, -384, 0);
     rend_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
     rend_->enableBlend(true);
+    rend_->enableDepthTest(false);
   
     //render GUI-elements
     guitex_.lock();
@@ -234,6 +235,7 @@ void Engine::run(){
     guitex_.unlock();
   
     rend_->enableBlend(false);
+    rend_->enableDepthTest(true);
 
     rend_->swapBuffers();
   }

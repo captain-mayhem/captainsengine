@@ -23,7 +23,7 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Renderer_GL2);
 
-GL2Renderer::GL2Renderer(): Renderer() {
+GL2Renderer::GL2Renderer(): Renderer(), mShader(NULL) {
   type_ = OpenGL2;
 #ifdef WIN32
   hDC_ = NULL;
@@ -109,6 +109,7 @@ void GL2Renderer::initContext(AppWindow* win){
 
 void GL2Renderer::killContext(){
   TR_USE(CGE_Renderer_GL2);
+  delete mShader;
 #if defined(WIN32) && !defined(UNDER_CE)
   if (hRC_){
     if (!wglMakeCurrent(NULL,NULL)){
@@ -138,6 +139,40 @@ void GL2Renderer::killContext(){
 #endif
 }
 
+static char const * vs_src =
+"attribute vec3 pos;\n"
+"attribute vec4 color;\n"
+"attribute vec2 texcoord;\n"
+"attribute vec3 normal;\n"
+"\n"
+"uniform mat4 mvp;\n"
+"uniform mat4 texmat;\n"
+"\n"
+"varying vec2 uvcoord;\n"
+"varying vec4 vcolor;\n"
+"\n"
+"void main(){\n"
+"  uvcoord = (texmat*vec4(texcoord,1,1)).xy;\n"
+"  vcolor = color;\n"
+"  gl_Position = mvp*vec4(pos, 1.0);\n"
+"};\n"
+"";
+
+static char const * fs_src =
+"uniform sampler2D texture;\n"
+"uniform bool textureEnabled;\n"
+"\n"
+"varying vec2 uvcoord;\n"
+"varying vec4 vcolor;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = vec4(1.0);\n"
+"  if (textureEnabled)\n"
+"     color = texture2D(texture, uvcoord);\n"
+"  gl_FragColor = color*vcolor;\n"
+"};\n"
+"";
+
 void GL2Renderer::initRendering(){
   TR_USE(CGE_Renderer_GL2);
   TR_INFO("Initializing Scene");
@@ -159,6 +194,18 @@ void GL2Renderer::initRendering(){
   glClearDepth(1.0f);
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
+
+  mShader = new CGE::GL2Shader();
+  mShader->addShader(GL_VERTEX_SHADER, vs_src);
+  mShader->addShader(GL_FRAGMENT_SHADER, fs_src);
+  mShader->bindAttribLocation(0, "pos");
+  mShader->bindAttribLocation(1, "color");
+  mShader->bindAttribLocation(2, "texcoord");
+  mShader->bindAttribLocation(3, "normal");
+  mShader->linkShaders();
+  mShader->activate();
+  int tex = mShader->getUniformLocation("texture");
+  mShader->uniform(tex, 0);//texture (uniform 32) at stage 0
 
   Renderer::initRendering();
 }
@@ -251,7 +298,7 @@ void GL2Renderer::scale(float x, float y, float z){
 
 //! rotate
 void GL2Renderer::rotate(float angle, float x, float y, float z){
-  mMatrix[mMatrixMode] *= Matrix(Matrix::Rotation, Vec3f(x, y, z), angle/180*M_PI);
+  mMatrix[mMatrixMode] *= Matrix(Matrix::Rotation, Vec3f(x, y, z), angle/180*(float)M_PI);
 }
 
 //! set rendermode
@@ -321,6 +368,14 @@ void GL2Renderer::enableLighting(const bool flag){
     glEnable(GL_LIGHTING);
   else
     glDisable(GL_LIGHTING);*/
+}
+
+//! enable depth test
+void GL2Renderer::enableDepthTest(const bool flag){
+  if (flag)
+    glEnable(GL_DEPTH_TEST);
+  else
+    glDisable(GL_DEPTH_TEST);
 }
 
 //! set color

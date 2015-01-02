@@ -36,6 +36,7 @@ enum RendMode{
 enum MatrixType{
   Projection,
   Modelview,
+  MatTexture,
   MVP,
 };
 
@@ -107,6 +108,8 @@ public:
   virtual void enableLighting(const bool flag)=0;
   //! enable light
   virtual void enableLight(short number, bool flag)=0;
+  //! enable depth test
+  virtual void enableDepthTest(const bool flag) = 0;
   //! set color
   virtual void setColor(float r, float g, float b, float a)=0;
   //! set color
