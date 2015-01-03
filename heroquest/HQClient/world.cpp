@@ -517,16 +517,6 @@ void World::render(){
   rend->popMatrix();
   rend->switchMatrixStack(CGE::Modelview);
   rend->popMatrix();
-	/*glBegin(GL_QUADS);
-		glTexCoord2f(width_,height_);
-		glVertex3f(0, WALLHEIGHT, 0);
-		glTexCoord2f(0,height_);
-		glVertex3f((float)(QUADSIZE*width_), WALLHEIGHT, 0);
-		glTexCoord2f(0,0);
-		glVertex3f(QUADSIZE*width_, WALLHEIGHT, QUADSIZE*height_);
-		glTexCoord2f(width_,0);
-		glVertex3f(0, WALLHEIGHT, QUADSIZE*height_);
-	glEnd();*/
 
   string messg;
   /*GLenum errCode;
@@ -549,7 +539,7 @@ void World::render2D(bool vis){
 
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
 	//Setup orthographic view
-	glDisable(GL_DEPTH_TEST);
+  rend->enableDepthTest(false);
   rend->enableBlend(false);
   rend->switchMatrixStack(CGE::Projection);
   rend->pushMatrix();
@@ -576,7 +566,7 @@ void World::render2D(bool vis){
   rend->setColor(1, 1, 1, 1);
   CGE::Forms* form = CGE::Engine::instance()->getForms();
   
-	glLineWidth(3);
+  form->setLineWidth(3);
 	for (int j = 0; j < height_; j++){
 		for (int i = 0; i < width_; i++){
       form->activateQuad();
@@ -643,16 +633,16 @@ void World::render2D(bool vis){
 			//draw walls and doors as colored lines
 			//glDisable(GL_BLEND);
       rend->setColor(1, 1, 1, 1);
-			if (isWall(i,j,TOP, vis)){
+			if (isWall(i,j,TOP, vis) && !isDoor(i,j,TOP,vis)){
 				form->drawLine(Vec2f(i*xstep, (height_-j)*ystep), Vec2f(i*xstep+xstep, (height_-j)*ystep));
 			}
-			if (isWall(i,j,RIGHT, vis)){
+      if (isWall(i, j, RIGHT, vis) && !isDoor(i, j, RIGHT, vis)){
         form->drawLine(Vec2f(i*xstep + xstep, (height_ - j)*ystep), Vec2f(i*xstep+xstep, (height_-j)*ystep-ystep));
 			}
-			if (isWall(i,j,BOTTOM, vis)){
+      if (isWall(i, j, BOTTOM, vis) && !isDoor(i, j, BOTTOM, vis)){
         form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
 			}
-			if (isWall(i,j,LEFT, vis)){
+      if (isWall(i, j, LEFT, vis) && !isDoor(i, j, LEFT, vis)){
         form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep, (height_ - j)*ystep));
 			}
 			if (isDoor(i,j,TOP, vis)){
@@ -736,7 +726,7 @@ void World::render2D(bool vis){
 #endif
   
 	//Restore original
-  glEnable(GL_DEPTH_TEST);
+  rend->enableDepthTest(true);
   rend->switchMatrixStack(CGE::Projection);
   rend->popMatrix();
   rend->switchMatrixStack(CGE::Modelview);

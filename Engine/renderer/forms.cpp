@@ -10,7 +10,7 @@
 
 using namespace CGE;
 
-Forms::Forms(){
+Forms::Forms() : mLineWidth(1) {
   quad_ = NULL;
   cylinder_ = NULL;
   for (int i = 0; i < 3; ++i){
@@ -50,7 +50,7 @@ void Forms::constructVBOs(){
   cylinder_ = createCylinder(1,1,32,mCylinderInds);
   //generate line
   lines_ = rend->createVertexBuffer();
-  lines_->create(VB_POSITION, 2);
+  lines_->create(VB_POSITION, 4);
 }
 
 void Forms::activateQuad(){
@@ -239,9 +239,17 @@ void Forms::activateLines(){
 }
 
 void Forms::drawLine(Vec2f const& from, Vec2f const& to){
+  Vec2f dir = to - from;
+  Vec2f ortho = dir.cross().normalize()*mLineWidth/2;
+  Vec2f ul = from - ortho;
+  Vec2f ll = to - ortho;
+  Vec2f ur = from + ortho;
+  Vec2f lr = to + ortho;
   lines_->lockVertexPointer();
-  lines_->setPosition(0, Vec3f(from.x, from.y, 0));
-  lines_->setPosition(1, Vec3f(to.x, to.y, 0));
+  lines_->setPosition(0, Vec3f(ul.x, ul.y, 0));
+  lines_->setPosition(2, Vec3f(ll.x, ll.y, 0));
+  lines_->setPosition(1, Vec3f(ur.x, ur.y, 0));
+  lines_->setPosition(3, Vec3f(lr.x, lr.y, 0));
   lines_->unlockVertexPointer();
-  lines_->draw(VB_Lines, NULL);
+  lines_->draw(VB_Tristrip, NULL);
 }
