@@ -23,12 +23,14 @@ public:
   static VertexBuffer* createBox(float width, float height, float depth, IndexBuffer** indices);
   void activateLines();
   void drawLine(Vec2f const& from, Vec2f const& to);
+  void setLineWidth(float width) { mLineWidth = width; }
 private:
   void constructVBOs();
   VertexBuffer* quad_;
   VertexBuffer* cylinder_;
   IndexBuffer* mCylinderInds[3];
   VertexBuffer* lines_;
+  float mLineWidth;
 };
   
 }
