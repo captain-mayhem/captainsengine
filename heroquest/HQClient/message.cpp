@@ -1209,7 +1209,7 @@ void Message::process(){
         MeshGeo::Mesh* msh = NULL;
         std::vector<MeshGeo::Mesh*> meshes = wrld.getScene().getMeshes();
         for (unsigned  i = 0; i < meshes.size(); ++i){
-          if (meshes[i]->getFilename() == "models/world/door.obj"){
+          if (meshes[i]->getName() == "models/world/door.obj"){
             msh = meshes[i];
             break;
           }
@@ -1218,7 +1218,7 @@ void Message::process(){
         CGE::Texture* tex = NULL;
         std::vector<CGE::Texture*> textures = wrld.getScene().getTextures();
         for (unsigned i = 0; i < textures.size(); ++i){
-          if (textures[i]->getFilename() == "textures/world/door.jpg"){
+          if (textures[i]->getName() == "textures/world/door.jpg"){
             tex = textures[i];
             break;
           }

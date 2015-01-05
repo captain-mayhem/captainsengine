@@ -22,13 +22,14 @@
 #include "camera.h"
 
 #define COLL_STEP 0.1f
+#define SPEED_SCALE 0.2f
 
 Camera::Camera(){
   //Set some standard values
   position_ = Vector3D();
   view_	= Vector3D(0.0,0.0,1.0);
   upVector_ = Vector3D(0.0,1.0,0.0);
-  speed_ = 15.0;
+  speed_ = 6.0f;
   modelPos_ = Vector2D();
 }
 
@@ -120,7 +121,7 @@ void Camera::strafeCamera(float speed){
 void Camera::moveCamera(float speed){
   // the current view vector
   Vector3D vVector = view_ - position_;
-  vVector = vVector.normalized();
+  vVector = vVector.normalized()*SPEED_SCALE;
 
   float step = 0;
   if (speed > 0){
@@ -250,7 +251,7 @@ void Camera::collisionHelper(const Vector3D* triangle){
 void Camera::update(){
   //strafe vector
   Vector3D cross = (view_ - position_).cross(upVector_);
-  strafe_ = cross.normalized();
+  strafe_ = cross.normalized()*SPEED_SCALE;
 
   // Calculate frame rate for time based movement
   //gl->calculateFrameRate();

@@ -153,7 +153,7 @@ public:
     Vector3D ret;
     ret.x = (float)modelPos.x*QUAD_SIZE;
     ret.x += 0.5*QUAD_SIZE;
-    ret.y = 0.8f*QUAD_SIZE;
+    ret.y = 1.0f*QUAD_SIZE;
     ret.z = (float)modelPos.y*QUAD_SIZE;
     ret.z += 0.5*QUAD_SIZE;
     return ret;
