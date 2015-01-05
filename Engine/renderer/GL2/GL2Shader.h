@@ -6,7 +6,9 @@
 #else
 #include <GLES2/gl2.h>
 #endif
+#include <map>
 #include <math/matrix.h>
+#include <renderer/renderer.h>
 
 namespace CGE{
 
@@ -21,6 +23,8 @@ public:
   void bindAttribLocation(int location, const char* name) { glBindAttribLocation(mProgram, location, name);}
   int getAttribLocation(const char* name) {return glGetAttribLocation(mProgram, name);}
   int getUniformLocation(const char* name) {return glGetUniformLocation(mProgram, name);}
+  void syncMatrix(char const* name, MatrixType type);
+  void applyEngineUniforms();
   static void uniform(int location, int value) {glUniform1i(location, value);}
   static void uniform(int location, float value) { glUniform1f(location, value); }
   static void uniform(int location, float v0, float v1) { glUniform2f(location, v0, v1); }
@@ -31,6 +35,7 @@ protected:
   static GL2Shader* mCurrShader;
   GLuint mProgram;
   GL2Shader* mOldProg;
+  std::map<int, MatrixType> mSyncMat;
 };
 
 }

@@ -3,6 +3,8 @@
 #include <cstring>
 
 #include "io/Tracing.h"
+#include "system/engine.h"
+#include "renderer/renderer.h"
 
 TR_CHANNEL(CGE_Shader)
 
@@ -61,4 +63,17 @@ bool GL2Shader::linkShaders(){
     }
   }
   return success != 0;
+}
+
+void GL2Shader::syncMatrix(char const* name, MatrixType type){
+  int loc = getUniformLocation(name);
+  if (loc < 0)
+    return;
+  mSyncMat[loc] = type;
+}
+
+void GL2Shader::applyEngineUniforms(){
+  for (std::map<int, MatrixType>::iterator iter = mSyncMat.begin(); iter != mSyncMat.end(); ++iter){
+    uniform(iter->first, Engine::instance()->getRenderer()->getMatrix(iter->second));
+  }
 }

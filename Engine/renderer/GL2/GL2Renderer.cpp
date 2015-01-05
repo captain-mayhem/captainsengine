@@ -203,6 +203,8 @@ void GL2Renderer::initRendering(){
   mShader->bindAttribLocation(2, "texcoord");
   mShader->bindAttribLocation(3, "normal");
   mShader->linkShaders();
+  mShader->syncMatrix("mvp", CGE::MVP);
+  mShader->syncMatrix("texmat", CGE::MatTexture);
   mShader->activate();
   int tex = mShader->getUniformLocation("texture");
   mShader->uniform(tex, 0);//texture (uniform 32) at stage 0
