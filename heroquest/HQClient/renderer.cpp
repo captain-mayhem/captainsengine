@@ -344,42 +344,63 @@ void HQRenderer::mouseMove_(int x, int y, int buttons){
   }
 }
 
-char const * vs_src =
+static char const * vs_src =
 "attribute vec3 pos;\n"
 "attribute vec4 color;\n"
 "attribute vec2 texcoord;\n"
 "attribute vec3 normal;\n"
 "\n"
-"uniform mat4 mvp;\n"
+"uniform mat4 mvmat;\n"
+"uniform mat4 projmat;\n"
+"uniform mat4 texmat;\n"
 "\n"
 "varying vec2 uvcoord;\n"
 "varying vec4 vcolor;\n"
+"varying vec4 eyepos;\n"
 "\n"
 "void main(){\n"
-"  uvcoord = texcoord;\n"
+"  uvcoord = (texmat*vec4(texcoord,1,1)).xy;\n"
 "  vcolor = color;\n"
-"  gl_Position = mvp*vec4(pos, 1.0);\n"
+"  vec4 ep = mvmat*vec4(pos, 1.0);\n"
+"  eyepos = ep;\n"
+"  gl_Position = projmat*ep;\n"
 "};\n"
 "";
 
-char const * fs_src =
+static char const * fs_src =
 "uniform sampler2D texture;\n"
 "uniform bool textureEnabled;\n"
+"uniform float density;\n"
+"uniform vec4 fogColor;\n"
 "\n"
 "varying vec2 uvcoord;\n"
 "varying vec4 vcolor;\n"
+"varying vec4 eyepos;\n"
+"\n"
+"float getFogFactor(float fogCoord){\n"
+"  float result = 0;\n"
+"  result = exp(-pow(density*fogCoord, 2.0));\n" //EXP2
+//"  result = exp(-density*fogCoord);\n" //EXP
+//"  result = (end - fogCoord) / (end - start);\n" //LINEAR
+"  result = 1.0-clamp(result, 0.0, 1.0);\n"
+"  return result;\n"
+"}\n"
 "\n"
 "void main(){\n"
 "  vec4 color = vec4(1.0);\n"
 "  if (textureEnabled)\n"
 "     color = texture2D(texture, uvcoord);\n"
-"  gl_FragColor = color*vcolor;\n"
+"  color = color*vcolor;\n"
+"  float fogFactor = abs(eyepos.z/eyepos.w);\n"
+"  fogFactor = getFogFactor(fogFactor);\n"
+"  color = mix(color, fogColor, fogFactor);\n"
+"  gl_FragColor = color;\n"
 "};\n"
 "";
 
 void HQRenderer::initialize_(){
   //init shader
-  /*if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL2){
+  if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL2){
     m3DShader = new CGE::GL2Shader();
     m3DShader->addShader(GL_VERTEX_SHADER, vs_src);
     m3DShader->addShader(GL_FRAGMENT_SHADER, fs_src);
@@ -388,10 +409,29 @@ void HQRenderer::initialize_(){
     m3DShader->bindAttribLocation(2, "texcoord");
     m3DShader->bindAttribLocation(3, "normal");
     m3DShader->linkShaders();
+    m3DShader->syncMatrix("mvmat", CGE::Modelview);
+    m3DShader->syncMatrix("projmat", CGE::Projection);
+    m3DShader->syncMatrix("texmat", CGE::MatTexture);
     m3DShader->activate();
     int tex = m3DShader->getUniformLocation("texture");
-    m3DShader->uniform(tex, 0);//texture (uniform 32) at stage 0
-  }*/
+    m3DShader->uniform(tex, 0);//texture at stage 0
+    int dens = m3DShader->getUniformLocation("density");
+    m3DShader->uniform(dens, 0.035f);
+    int col = m3DShader->getUniformLocation("fogColor");
+    m3DShader->uniform(col, 0, 0, 0, 1);
+    m3DShader->deactivate();
+  }
+  else if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL){
+    //setup some nice dark fog
+    float fogColor[4] = { 0, 0, 0, 1 };
+    glFogi(GL_FOG_MODE, GL_EXP2);
+    glFogfv(GL_FOG_COLOR, fogColor);
+    glFogf(GL_FOG_DENSITY, 0.035f);
+    glHint(GL_FOG_HINT, GL_DONT_CARE);
+    glFogf(GL_FOG_START, 0.0);
+    glFogf(GL_FOG_END, 100.0);
+    glEnable(GL_FOG);
+  }
   //init textures
   TextureManager::init();
 
@@ -403,19 +443,9 @@ void HQRenderer::initialize_(){
     return;
   }
 
-  //setup some nice dark fog
-  float fogColor[4] = {0, 0, 0, 1};
-  glFogi(GL_FOG_MODE, GL_EXP2);
-  glFogfv(GL_FOG_COLOR, fogColor);
-  glFogf(GL_FOG_DENSITY, 0.035f);
-  glHint(GL_FOG_HINT, GL_DONT_CARE);
-  glFogf(GL_FOG_START, 0.0);
-  glFogf(GL_FOG_END, 100.0);
-  glEnable(GL_FOG);
-
   //back face culling
-  glCullFace(GL_BACK);
-  glEnable(GL_CULL_FACE);
+  //glCullFace(GL_BACK);
+  render_->enableBackFaceCulling(true);
 
   //start game
   if (!game.start())
@@ -444,15 +474,20 @@ void HQRenderer::paint_(){
     //cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
     //allow lookat changes by mouse
     cam.look();
-    glEnable(GL_DEPTH_TEST);
+    render_->enableDepthTest(true);
     //render world without blending
-    glDisable(GL_BLEND);
+    render_->enableBlend(false);
     //glEnable(GL_TEXTURE_2D);
-    if (threeD_)
+    if (threeD_){
+      if (m3DShader)
+        m3DShader->activate();
       wrld.render();
+      if (m3DShader)
+        m3DShader->deactivate();
+    }
     else
       wrld.render2D(!plyr.isZargon());
-    glEnable(GL_BLEND);
+    render_->enableBlend(true);
   }
   else{
     setViewTo3D(false);

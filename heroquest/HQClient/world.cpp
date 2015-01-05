@@ -372,6 +372,7 @@ void World::render(){
 		return;
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
 	rend->setColor(1,1,1,1);
+  rend->enableTexturing(true);
   
 	//reset canSee_ and calculate new pvs
 	for (unsigned i = 0; i < canSee_.size(); i++){
