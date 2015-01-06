@@ -22,14 +22,14 @@
 #include "camera.h"
 
 #define COLL_STEP 0.1f
-#define SPEED_SCALE 0.2f
+#define SPEED_SCALE 1.0f
 
 Camera::Camera(){
   //Set some standard values
   position_ = Vector3D();
   view_	= Vector3D(0.0,0.0,1.0);
   upVector_ = Vector3D(0.0,1.0,0.0);
-  speed_ = 6.0f;
+  speed_ = 8.0f;
   modelPos_ = Vector2D();
 }
 
@@ -121,6 +121,7 @@ void Camera::strafeCamera(float speed){
 void Camera::moveCamera(float speed){
   // the current view vector
   Vector3D vVector = view_ - position_;
+  vVector.y = 0;
   vVector = vVector.normalized()*SPEED_SCALE;
 
   float step = 0;

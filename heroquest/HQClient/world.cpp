@@ -18,6 +18,7 @@
 #include "camera.h"
 #include "renderer/font.h"
 #include "renderer/forms.h"
+#include <Engine/system/script.h>
 #endif
 
 #ifdef WIN32
@@ -707,24 +708,24 @@ void World::render2D(bool vis){
   rend->enableBlend(true);
   rend->enableTexturing(true);
   
-	//in debug compilation, visualize all fields that will be rendered in 3D on the 2D map.   
-#ifdef _DEBUG
-	//what is visible in 3D?
-	currently_visible(cam.modelPos(), cam.getLookDirection());
-  rend->enableTexturing(false);
-  rend->enableBlend(false);
-  rend->setColor(0, 1, 0, 1);
-	for (unsigned k = 0; k < canSee_.size(); k++){
-		int i = canSee_[k]->getPosition().x;
-		int j = canSee_[k]->getPosition().y;
-    form->drawLine(Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - ystep + 3)),
-      Vec2f((float)(i*xstep + xstep - 3), (float)((height_ - j)*ystep - 3)));
-    form->drawLine(Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - 2)),
-		  Vec2f((float)(i*xstep+xstep-3), (float)((height_-j)*ystep-ystep+3)));
-	}
-  rend->enableBlend(true);
-  rend->enableTexturing(true);
-#endif
+	//for debugging, visualize all fields that will be rendered in 3D on the 2D map.   
+  if (CGE::Script::instance()->getBoolSetting("debugVisibility")){
+    //what is visible in 3D?
+    currently_visible(cam.modelPos(), cam.getLookDirection());
+    rend->enableTexturing(false);
+    rend->enableBlend(false);
+    rend->setColor(0, 1, 0, 1);
+    for (unsigned k = 0; k < canSee_.size(); k++){
+      int i = canSee_[k]->getPosition().x;
+      int j = canSee_[k]->getPosition().y;
+      form->drawLine(Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - ystep + 3)),
+        Vec2f((float)(i*xstep + xstep - 3), (float)((height_ - j)*ystep - 3)));
+      form->drawLine(Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - 2)),
+        Vec2f((float)(i*xstep + xstep - 3), (float)((height_ - j)*ystep - ystep + 3)));
+    }
+    rend->enableBlend(true);
+    rend->enableTexturing(true);
+  }
   
 	//Restore original
   rend->enableDepthTest(true);
