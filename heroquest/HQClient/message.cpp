@@ -171,8 +171,9 @@ void Message::process_(const char* cmd){
 
 	//store all other arguments in a string vector
 	string t;
-	while(!temp.fail()){
+	while(!temp.eof()){
 		temp >> t;
+    if (!t.empty())
 		argv.push_back(t);
 	}
 	//all arguments in one string are also sometimes needed
@@ -224,6 +225,10 @@ void Message::process_(const char* cmd){
       consol << "Usage: startserver <port>";
       break;
     }
+    if (ss_){
+      consol << "You are already connected to a server";
+      break;
+    }
     mServer.setExecutable(CGE::Script::instance()->getStringSetting("HQServerExe"));
     mServer.setArguments(argv[0]);
     mServer.setWorkingDirectory(CGE::Script::instance()->getStringSetting("HQServerDir"));
@@ -231,8 +236,11 @@ void Message::process_(const char* cmd){
       consol << "Unable to start server...\n";
       line << "Unable to start server...\n";
     }
-    else
+    else{
       process_(("connect 127.0.0.1 " + argv[0]).c_str());
+      plyr.setName(msg.getSetting(2));
+      special_(msg.getSetting(3), LOGIN, NULL);
+    }
     break;
  
 	case CHAT:
@@ -290,7 +298,7 @@ void Message::process_(const char* cmd){
       consol << "Please connect to a server first";
       break;
     }
-    if (argv.size() < 2){
+    if (argv.size() < 1){
       consol << "Usage: list (players | inventory | shop)";
     }
     else if(toLower(argv[0]) == "players"){
@@ -352,12 +360,12 @@ void Message::process_(const char* cmd){
 			consol << "You must log in first.";
 			break;
 		}
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: create (game <pack> <level> | hero)";
 			break;
 		}
 		//create game <package> <level>
-		if (toLower(argv[0]) == "game" && argv.size() >= 4 && game.getState() == INIT){
+		if (toLower(argv[0]) == "game" && argv.size() >= 3 && game.getState() == INIT){
 			toSend += " "+args;
 			*ss_ << toSend;
 		}
@@ -370,7 +378,7 @@ void Message::process_(const char* cmd){
 	break;
 
 	case PLAY:
-		if(argv.size() < 2){
+		if(argv.size() < 1){
 			consol << "Usage: play <character name>";
 			break;
 		}
@@ -407,7 +415,7 @@ void Message::process_(const char* cmd){
 			break;
 		}
 		//currently only end turn exists as command
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: end turn";
 			break;
 		}
@@ -465,7 +473,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: open <direction>";
 		}
 		{
@@ -491,7 +499,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 3){
+		if (argv.size() < 2){
 			consol << "Usage: Attack <x> <y>";
 			break;
 		}
@@ -516,7 +524,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 3){
+		if (argv.size() < 2){
 			consol << "Usage: Whois <x> <y>";
 			break;
 		}
@@ -557,7 +565,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 4){
+		if (argv.size() < 3){
 			consol << "Usage: spell <x> <y> <spellindex>";
 			break;
 		}
@@ -569,11 +577,11 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: use <item> [<x> <y>]";
 			break;
 		}
-    if (argv.size() < 4)
+    if (argv.size() < 3)
 		  *ss_ << toStr(USE_ITEM)+" "+"0"+" "+"0"+" "+argv[0]+" "+plyr.getActCreature(); 
     else
 		  *ss_ << toStr(USE_ITEM)+" "+argv[1]+" "+argv[2]+" "+argv[0]+" "+plyr.getActCreature();
@@ -589,7 +597,7 @@ void Message::process_(const char* cmd){
     
   case WHATIS:
   {
-    if (argv.size() < 2){
+    if (argv.size() < 1){
       consol << "Usage: whatis <item>";
       break;
     }
@@ -608,7 +616,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
     }
-    if (argv.size() < 2){
+    if (argv.size() < 1){
       consol << "Usage: takeoff <item>";
       break;
     }
@@ -620,7 +628,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
     }
-    if (argv.size() < 3){
+    if (argv.size() < 2){
       consol << "Usage: spawn <item> <amount>";
       break;
     }
@@ -640,7 +648,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: disarm <direction>";
       break;
 		}
@@ -667,7 +675,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: jump <direction>";
       break;
 		}
@@ -690,7 +698,7 @@ void Message::process_(const char* cmd){
 	break;
   
   case DUMP:
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: dump <filename>";
       break;
 		}
@@ -698,7 +706,7 @@ void Message::process_(const char* cmd){
     break;
 
   case REPLAY:
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: replay <filename>";
       break;
 		}
@@ -710,7 +718,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: drop <item>";
       break;
 		}
@@ -722,7 +730,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: buy <item>";
       break;
 		}
@@ -738,7 +746,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		if (argv.size() < 2){
+		if (argv.size() < 1){
 			consol << "Usage: sell <item>";
       break;
 		}
