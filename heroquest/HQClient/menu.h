@@ -12,6 +12,10 @@ public:
   static void mainMenu(Gui::GuiElement* elem);
   //! connect button
   static void connect(Gui::GuiElement* elem);
+  //! local play button
+  static void playLocal(Gui::GuiElement* elem);
+  //! setup login
+  static void setupLogin();
   //! login button
   static void login(Gui::GuiElement* elem);
   //! package button

@@ -18,6 +18,7 @@
 #include <queue>
 
 #include <system/thread.h>
+#include <system/process.h>
 //#include "SDL_thread.h"
 #include "clientsocket.h"
 #include "item.h"
@@ -94,6 +95,8 @@ private:
   bool toDefend_;
   //! the incoming messages
   std::queue<string> messages_;
+  //! the server process - if started locally
+  CGE::Process mServer;
 };
 
 

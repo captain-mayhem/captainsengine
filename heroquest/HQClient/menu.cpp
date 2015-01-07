@@ -112,11 +112,14 @@ void Menu::connect(GuiElement*){
       send += " "+inp->getText();
   }
   msg.process(send.c_str());
+}
+
+void Menu::setupLogin(){
   //setup login-GUI after connection
   if (msg.isConnected()){
     CGE::Engine::instance()->clearListeners();
 
-    CGE::Engine::instance()->getFont(0)->setColor(1,1,1);
+    CGE::Engine::instance()->getFont(0)->setColor(1, 1, 1);
     CGE::Engine::instance()->getFont(0)->print(120, 450, "User name:", 1, (float)HUGE_VAL);
     InputField* in = new InputField();
     in->setPosition(Vector2D(220, 450));
@@ -131,11 +134,32 @@ void Menu::connect(GuiElement*){
     CGE::Engine::instance()->addGuiListener(in2);
 
     Button* but = new Button();
-    but->setPosition(Vector2D(220,300));
+    but->setPosition(Vector2D(220, 300));
     but->setText("    Login");
     CGE::Engine::instance()->addGuiListener(but);
     but->setCbFunc(login);
   }
+}
+
+void Menu::playLocal(Gui::GuiElement* elem){
+  if (CGE::Engine::instance()->getActiveInput() != NULL){
+    InputField* inp = CGE::Engine::instance()->getActiveInput();
+    inp->removeChar();
+    inp->end();
+    CGE::Engine::instance()->setActiveInput(NULL);
+  }
+  list<GuiElement*>::iterator iter;
+  string send = "startserver";
+  int count = 0;
+  for (iter = CGE::Engine::instance()->getGuiElements().begin(); iter != CGE::Engine::instance()->getGuiElements().end(); iter++){
+    InputField* inp = dynamic_cast<InputField*>(*iter);
+    if ((*iter)->getType() == Gui::InputFieldT && inp){
+      if (count > 0)
+        send += " " + inp->getText();
+      ++count;
+    }
+  }
+  msg.process(send.c_str());
 }
 
 //login button

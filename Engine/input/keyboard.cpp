@@ -29,8 +29,10 @@ void Keyboard::keyDown(int key){
     //quit console
     if (cons->isActive()){
       cons->toggle();
-      CGE::Engine::instance()->getActiveInput()->clear();
-      CGE::Engine::instance()->setActiveInput(NULL);
+      if (CGE::Engine::instance()->getActiveInput()){
+        CGE::Engine::instance()->getActiveInput()->clear();
+        CGE::Engine::instance()->setActiveInput(NULL);
+      }
       return;
     }
   }

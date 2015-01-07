@@ -38,6 +38,7 @@
 #include "message.h"
 #include "mesh/mesh.h"
 #include "mesh/model.h"
+#include "system/script.h"
 
 //! the separator
 const char SEPARATOR = '\004';
@@ -98,6 +99,7 @@ Message::Message(): ss_(0) {
   cliToSrv_["buy"] = BUY;
   cliToSrv_["sell"] = SELL;
   cliToSrv_["pickup"] = PICKUP;
+  cliToSrv_["startserver"] = START_SERVER;
 }
 
 Message::Message(const Message& m){
@@ -206,6 +208,8 @@ void Message::process_(const char* cmd){
 			//create thread for recieving server messages
 			//tid_ = SDL_CreateThread(receiver, (void*)ss_);
 			tid_.create(receiver, (void*)ss_);
+      //setup login screen
+      Menu::setupLogin();
 		}
 		catch (SocketException& e){
 			consol << "Error: " + e.description()  + "\n";
@@ -214,6 +218,22 @@ void Message::process_(const char* cmd){
 			ss_ = NULL;
 		}
 	break;
+
+  case START_SERVER:
+    if (argv.size() < 1){
+      consol << "Usage: startserver <port>";
+      break;
+    }
+    mServer.setExecutable(CGE::Script::instance()->getStringSetting("HQServerExe"));
+    mServer.setArguments(argv[0]);
+    mServer.setWorkingDirectory(CGE::Script::instance()->getStringSetting("HQServerDir"));
+    if (!mServer.start()){
+      consol << "Unable to start server...\n";
+      line << "Unable to start server...\n";
+    }
+    else
+      process_(("connect 127.0.0.1 " + argv[0]).c_str());
+    break;
  
 	case CHAT:
 	case CHAT_PERSON:
@@ -242,7 +262,7 @@ void Message::process_(const char* cmd){
 	case HELP:
 		//not connected
 		if (ss_ == NULL){
-			consol << "connect <server> <port>";
+			consol << "connect <server> <port>\nstartserver <port>";
 		}
 		//not logged in
 		else if ((short)plyr.getStatus() == 0){

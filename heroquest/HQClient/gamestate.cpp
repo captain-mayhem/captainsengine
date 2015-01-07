@@ -79,7 +79,13 @@ bool GameState::start(){
 
   Button* but = new Button();
   but->setPosition(Vector2D(200,300));
-  but->setText("   Connect");
+  but->setText("  Play local");
+  CGE::Engine::instance()->addGuiListener(but);
+  but->setCbFunc(Menu::playLocal);
+
+  but = new Button();
+  but->setPosition(Vector2D(200, 250));
+  but->setText("   ´Connect");
   CGE::Engine::instance()->addGuiListener(but);
   //void (*p)();
   //p = &Renderer::connect;

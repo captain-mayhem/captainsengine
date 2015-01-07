@@ -62,5 +62,6 @@
 #define CREAT_CHANGE  1045
 #define PICKUP        1046
 #define RANDOM        1047
+#define START_SERVER  1048
 
 #endif
