@@ -167,7 +167,7 @@ void Console::render(){
   CGE::Engine::instance()->getFont(2)->setColor(fgColor_.x,fgColor_.y,fgColor_.z);
   int y = pos_.y + 20;
   for (list<string>::iterator iter = history_.begin(); iter != history_.end(); iter++){
-    CGE::Engine::instance()->getFont(2)->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
+    CGE::Engine::instance()->getFont(2)->print(pos_.x, y, (*iter).c_str(), 0, 0.0);
     y += 20;
   }
   //fnt_.render();

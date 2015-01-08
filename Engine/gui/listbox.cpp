@@ -67,7 +67,7 @@ void ListBox::render(){
     else{
       CGE::Engine::instance()->getFont(1)->setColor(fgColor_.x, fgColor_.y, fgColor_.z);
     }
-    CGE::Engine::instance()->getFont(1)->glPrint(pos_.x, y, (*iter).c_str(), 0, 0.0);
+    CGE::Engine::instance()->getFont(1)->print(pos_.x, y, (*iter).c_str(), 0, 0.0);
     y -= 20;
     ++count;
   }

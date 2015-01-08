@@ -115,11 +115,11 @@ void InputField::render(){
       replacement.erase(replacement.length()-1,1);
       replacement += '_';
     }
-    fnt_->glPrint(pos_.x, pos_.y, replacement.c_str(), 0, 0.0);
+    fnt_->print(pos_.x, pos_.y, replacement.c_str(), 0, 0.0);
   }
   //display string without modifications
   else{
-    fnt_->glPrint(pos_.x, pos_.y, out.c_str(), 0, 0.0);
+    fnt_->print(pos_.x, pos_.y, out.c_str(), 0, 0.0);
   }
 }
 

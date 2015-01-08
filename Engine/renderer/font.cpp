@@ -178,7 +178,7 @@ void Font::render(){
 void Font::operator<<(const string& text){
   clear();
   setColor(1.0,1.0,1.0);
-  glPrint(20, 750, text.c_str(), 0, 10);
+  print(20, 750, text.c_str(), 0, 10);
 }
 
 //for stringstreams
