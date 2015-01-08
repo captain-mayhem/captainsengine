@@ -11,6 +11,7 @@
 #ifdef _CLIENT_
 #include "player.h"
 #include "renderer.h"
+#include "renderer/forms.h"
 #endif
 
 using std::cerr;
@@ -331,22 +332,16 @@ void Inventory::render(){
 #ifdef _CLIENT_
   if (!visible_)
     return;
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   //background
-  glDisable(GL_BLEND);
-  glColor4f(1.0,1.0,1.0,1.0);
+  rend->enableBlend(false);
+  rend->setColor(1.0, 1.0, 1.0, 1.0);
   TextureManager::instance()->otherTex[1]->activate();
   //glBindTexture(GL_TEXTURE_2D, tex.otherTex[1]);
-  glBegin(GL_QUADS);
-    glTexCoord2f(1, 0);
-    glVertex2i(SCREENWIDTH, SCREENHEIGHT);
-    glTexCoord2f(0, 0);
-    glVertex2i(0, SCREENHEIGHT);
-    glTexCoord2f(0, 1);
-    glVertex2i(0, 0);
-    glTexCoord2f(1, 1);
-    glVertex2i(SCREENWIDTH, 0);
-  glEnd();
-  glEnable(GL_BLEND);
+  CGE::Forms* forms = CGE::Engine::instance()->getForms();
+  forms->activateQuad();
+  forms->drawQuad(Vec2f(), Vec2f(SCREENWIDTH, SCREENHEIGHT));
+  rend->enableBlend(true);
 
   //items
   Vector2D pos(50, 485);
@@ -358,8 +353,8 @@ void Inventory::render(){
       name.erase(11);
     int fill = (11 - name.size())/2;
     name.insert(name.begin(), fill, ' ');
-    fnt_->glPrint(pos.x, pos.y, name.c_str(), 1);
-    fnt_->glPrint(pos.x+48, pos.y-18, toStr(items_[i].getNumber()).c_str(), 1);
+    fnt_->print(pos.x, pos.y, name.c_str(), 1);
+    fnt_->print(pos.x+48, pos.y-18, toStr(items_[i].getNumber()).c_str(), 1);
     pos.x += 148;
     count++;
     if (count == 3){
@@ -368,53 +363,53 @@ void Inventory::render(){
       pos.y -= 193;
     }
   }
-  fnt_->glPrint(177, 50, ("<<  Page "+toStr(page_)+"  >>").c_str(), 0);
+  fnt_->print(177, 50, ("<<  Page "+toStr(page_)+"  >>").c_str(), 0);
 
   //stats
   Creature* c = plyr.getCreature();
   fnt_->setColor(0,1,1);
-  fnt_->glPrint(600, 700, ("Name: "+c->getName()).c_str(), 0);
-  fnt_->glPrint(800, 700, ("Race: "+c->getType()).c_str(), 0);
-  fnt_->glPrint(600, 680, ("Attack: "+toStr(c->getAttack())).c_str(), 0);
-  fnt_->glPrint(800, 680, ("Defense: "+toStr(c->getDefence())).c_str(), 0);
-  fnt_->glPrint(600, 660, ("Body: "+toStr(c->getBody())+"/"+toStr(c->getMaxBody())).c_str(), 0);
-  fnt_->glPrint(800, 660, ("Mind: "+toStr(c->getMind())+"/"+toStr(c->getMaxMind())).c_str(), 0);
+  fnt_->print(600, 700, ("Name: "+c->getName()).c_str(), 0);
+  fnt_->print(800, 700, ("Race: "+c->getType()).c_str(), 0);
+  fnt_->print(600, 680, ("Attack: "+toStr(c->getAttack())).c_str(), 0);
+  fnt_->print(800, 680, ("Defense: "+toStr(c->getDefence())).c_str(), 0);
+  fnt_->print(600, 660, ("Body: "+toStr(c->getBody())+"/"+toStr(c->getMaxBody())).c_str(), 0);
+  fnt_->print(800, 660, ("Mind: "+toStr(c->getMind())+"/"+toStr(c->getMaxMind())).c_str(), 0);
   Hero* h = dynamic_cast<Hero*>(c);
   if (h){
-    fnt_->glPrint(600, 620, ("Money: "+toStr(h->getMoney())).c_str(), 0);
+    fnt_->print(600, 620, ("Money: "+toStr(h->getMoney())).c_str(), 0);
   }
 
   //worn items
   Item ite = getArmory("right hand");
   if (ite.isValid()){
-    fnt_->glPrint(600, 580, (ite.getName()+" is held in the right hand").c_str(), 0);
+    fnt_->print(600, 580, (ite.getName()+" is held in the right hand").c_str(), 0);
   }
   ite = getArmory("left hand");
   if (ite.isValid()){
-    fnt_->glPrint(600, 560, (ite.getName()+" is held in the left hand").c_str(), 0);
+    fnt_->print(600, 560, (ite.getName()+" is held in the left hand").c_str(), 0);
   }
   ite = getArmory("head");
   if (ite.isValid()){
-    fnt_->glPrint(600, 540, (ite.getName()+" is worn on the head").c_str(), 0);
+    fnt_->print(600, 540, (ite.getName()+" is worn on the head").c_str(), 0);
   }
   ite = getArmory("body");
   if (ite.isValid()){
-    fnt_->glPrint(600, 520, (ite.getName()+" is worn on the body").c_str(), 0);
+    fnt_->print(600, 520, (ite.getName()+" is worn on the body").c_str(), 0);
   }
   ite = getArmory("belt");
   if (ite.isValid()){
-    fnt_->glPrint(600, 500, (ite.getName()+" is worn on the belt").c_str(), 0);
+    fnt_->print(600, 500, (ite.getName()+" is worn on the belt").c_str(), 0);
   }
   ite = getArmory("breast");
   if (ite.isValid()){
-    fnt_->glPrint(600, 480, (ite.getName()+" is worn on the breast").c_str(), 0);
+    fnt_->print(600, 480, (ite.getName()+" is worn on the breast").c_str(), 0);
   }
 
   //Vector2D click = gl->getMousePos();
   //fnt_->glPrint(600, 460, (toStr(click.x)+"/"+toStr(click.y)).c_str(), 0);
 
   if (chosenItem_ != NULL){
-    fnt_->glPrint(600, 440, chosenItem_->getName().c_str(), 0);
+    fnt_->print(600, 440, chosenItem_->getName().c_str(), 0);
   }
 
   //fnt_.render();

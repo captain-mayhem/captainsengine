@@ -10,6 +10,7 @@
 #ifdef _CLIENT_
 #include "player.h"
 #include "renderer.h"
+#include "renderer/forms.h"
 #endif
 
 using std::cerr;
@@ -123,22 +124,16 @@ void Trade::render(){
 #ifdef _CLIENT_
   if (!visible_)
     return;
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   //background
-  glDisable(GL_BLEND);
-  glColor4f(1.0,1.0,1.0,1.0);
+  rend->enableBlend(false);
+  rend->setColor(1.0, 1.0, 1.0, 1.0);
   TextureManager::instance()->otherTex[2]->activate();
   //glBindTexture(GL_TEXTURE_2D, tex.otherTex[1]);
-  glBegin(GL_QUADS);
-    glTexCoord2f(1, 0);
-    glVertex2i(SCREENWIDTH, SCREENHEIGHT);
-    glTexCoord2f(0, 0);
-    glVertex2i(0, SCREENHEIGHT);
-    glTexCoord2f(0, 1);
-    glVertex2i(0, 0);
-    glTexCoord2f(1, 1);
-    glVertex2i(SCREENWIDTH, 0);
-  glEnd();
-  glEnable(GL_BLEND);
+  CGE::Forms* forms = CGE::Engine::instance()->getForms();
+  forms->activateQuad();
+  forms->drawQuad(Vec2f(), Vec2f(SCREENWIDTH, SCREENHEIGHT));
+  rend->enableBlend(true);
 
   //get current inventory
   Creature* c = plyr.getCreature();
@@ -157,8 +152,8 @@ void Trade::render(){
         name.erase(11);
       int fill = (11 - name.size())/2;
       name.insert(name.begin(), fill, ' ');
-      fnt_->glPrint(pos.x, pos.y, name.c_str(), 1);
-      fnt_->glPrint(pos.x+28, pos.y-18, toStr(items[i].getNumber()).c_str(), 1);
+      fnt_->print(pos.x, pos.y, name.c_str(), 1);
+      fnt_->print(pos.x+28, pos.y-18, toStr(items[i].getNumber()).c_str(), 1);
       pos.x += 148;
       count++;
       if (count == 3){
@@ -168,7 +163,7 @@ void Trade::render(){
       }
     }
   }
-  fnt_->glPrint(177, 50, ("<<  Page "+toStr(invPage_)+"  >>").c_str(), 0);
+  fnt_->print(177, 50, ("<<  Page "+toStr(invPage_)+"  >>").c_str(), 0);
   
   //shop
   Vector2D pos(575, 485);
@@ -180,8 +175,8 @@ void Trade::render(){
       name.erase(11);
     int fill = (11 - name.size())/2;
     name.insert(name.begin(), fill, ' ');
-    fnt_->glPrint(pos.x, pos.y, name.c_str(), 1);
-    fnt_->glPrint(pos.x+28, pos.y-18, items_[i].getAdditional().c_str(), 1);
+    fnt_->print(pos.x, pos.y, name.c_str(), 1);
+    fnt_->print(pos.x+28, pos.y-18, items_[i].getAdditional().c_str(), 1);
     pos.x += 148;
     count++;
     if (count == 3){
@@ -190,23 +185,23 @@ void Trade::render(){
       pos.y -= 193;
     }
   }
-  fnt_->glPrint(702, 50, ("<<  Page "+toStr(shopPage_)+"  >>").c_str(), 0);
+  fnt_->print(702, 50, ("<<  Page "+toStr(shopPage_)+"  >>").c_str(), 0);
 
   //stats
   fnt_->setColor(0,1,1);
   if (h){
-    fnt_->glPrint(350, 680, ("Money: "+toStr(h->getMoney())).c_str(), 0);
+    fnt_->print(350, 680, ("Money: "+toStr(h->getMoney())).c_str(), 0);
   }
 
   //Vector2D click = gl->getMousePos();
   //fnt_->glPrint(600, 460, (toStr(click.x)+"/"+toStr(click.y)).c_str(), 0);
 
   if (chosenItem_.isValid()){
-    fnt_->glPrint(450, 50, chosenItem_.getName().c_str(), 0);
+    fnt_->print(450, 50, chosenItem_.getName().c_str(), 0);
     int price = toInt(chosenItem_.getAdditional());
     if (halfPrice_)
       price = price >> 1;
-    fnt_->glPrint(560, 680, ("Price: "+toStr(price)).c_str(), 0);
+    fnt_->print(560, 680, ("Price: "+toStr(price)).c_str(), 0);
   }
 
   //fnt_.render();

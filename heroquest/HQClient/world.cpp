@@ -622,6 +622,7 @@ void World::render2D(bool vis){
       form->activateLines();
       
 			//mark starting positions as long as the game did not start
+      rend->enableBlend(false);
 			if (game.getState() == PREPARE){
         rend->setColor(1, 0, 0, 1);
 				for (int k = 0; k < heroSize_; k++){
@@ -633,7 +634,6 @@ void World::render2D(bool vis){
 			}
       
 			//draw walls and doors as colored lines
-			//glDisable(GL_BLEND);
       rend->setColor(1, 1, 1, 1);
 			if (isWall(i,j,TOP, vis) && !isDoor(i,j,TOP,vis)){
 				form->drawLine(Vec2f(i*xstep, (height_-j)*ystep), Vec2f(i*xstep+xstep, (height_-j)*ystep));

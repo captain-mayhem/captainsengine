@@ -19,9 +19,6 @@
 #include "material.h"
 #include "../math/vector.h"
 
-//for compatibility to older code
-#define glPrint print
-
 using std::string;
 using std::ostringstream;
 using std::queue;

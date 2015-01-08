@@ -261,7 +261,7 @@ void Camera::update(){
   char temp[100];
   sprintf(temp, "Coordinates(2D): x: %d y: %d", modelPos_.x, modelPos_.y);
   CGE::Engine::instance()->getFont(0)->setColor(0, 1, 0);
-  CGE::Engine::instance()->getFont(0)->glPrint(20, 700, temp, 0);
+  CGE::Engine::instance()->getFont(0)->print(20, 700, temp, 0);
 }
 
 

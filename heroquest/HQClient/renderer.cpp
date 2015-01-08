@@ -241,7 +241,7 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
 
     //buttons to add a hero at this position
     CGE::Engine::instance()->getFont(0)->setColor(1,1,1);
-    CGE::Engine::instance()->getFont(0)->glPrint(250, 500, "Hero name:", 1, (float)HUGE_VAL);
+    CGE::Engine::instance()->getFont(0)->print(250, 500, "Hero name:", 1, (float)HUGE_VAL);
     InputField* in = new InputField();
     in->setName("Playname");
     in->setPosition(Vector2D(400, 500));

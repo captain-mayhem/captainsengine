@@ -94,7 +94,7 @@ void MessageBox::render(){
   CGE::Engine::instance()->getFont(1)->setColor(surFgColor_);
   int y = surPos_.y + surSpan_.y - 20;
   for (list<string>::iterator iter = msg_.begin(); iter != msg_.end(); iter++){
-    CGE::Engine::instance()->getFont(1)->glPrint(surPos_.x, y, (*iter).c_str(), 0, 0.0);
+    CGE::Engine::instance()->getFont(1)->print(surPos_.x, y, (*iter).c_str(), 0, 0.0);
     y -= 20;
   }
   InputField::render();

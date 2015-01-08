@@ -831,7 +831,7 @@ void Message::process(){
       CGE::Engine::instance()->clearListeners(false);
 		  //only the player with admin status can create games
 		  if (plyr.getStatus() == 2){
-			  (line).glPrint(120, 450, "Package:",1, (float)HUGE_VAL);
+			  (line).print(120, 450, "Package:",1, (float)HUGE_VAL);
 			  DropDownButton* but = new DropDownButton();
 			  but->setPosition(Vector2D(200,450));
         but->calcDDPos(1);
@@ -839,7 +839,7 @@ void Message::process(){
         but->setCbFunc(Menu::level);
         CGE::Engine::instance()->addGuiListener(but,false);
 
-			  (line).glPrint(120, 400, "Level:", 1, (float)HUGE_VAL);
+			  (line).print(120, 400, "Level:", 1, (float)HUGE_VAL);
 			  DropDownButton* but2 = new DropDownButton();
 			  but2->setPosition(Vector2D(200,400));
         but2->calcDDPos(1);
