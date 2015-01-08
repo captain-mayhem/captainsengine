@@ -3,7 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#include "GL2shader.h"
+#include "GL2Shader.h"
 #include <GL/gl.h>
 #include "GL2vertexbuffer.h"
 #include "GL2indexbuffer.h"
