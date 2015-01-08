@@ -364,7 +364,7 @@ static char const * vs_src =
 "  vec4 ep = mvmat*vec4(pos, 1.0);\n"
 "  eyepos = ep;\n"
 "  gl_Position = projmat*ep;\n"
-"};\n"
+"}\n"
 "";
 
 static char const * fs_src =
@@ -378,7 +378,7 @@ static char const * fs_src =
 "varying vec4 eyepos;\n"
 "\n"
 "float getFogFactor(float fogCoord){\n"
-"  float result = 0;\n"
+"  float result = 0.0;\n"
 "  result = exp(-pow(density*fogCoord, 2.0));\n" //EXP2
 //"  result = exp(-density*fogCoord);\n" //EXP
 //"  result = (end - fogCoord) / (end - start);\n" //LINEAR
@@ -395,7 +395,7 @@ static char const * fs_src =
 "  fogFactor = getFogFactor(fogFactor);\n"
 "  color = mix(color, fogColor, fogFactor);\n"
 "  gl_FragColor = color;\n"
-"};\n"
+"}\n"
 "";
 
 void HQRenderer::initialize_(){

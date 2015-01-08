@@ -155,7 +155,7 @@ static char const * vs_src =
 "  uvcoord = (texmat*vec4(texcoord,1,1)).xy;\n"
 "  vcolor = color;\n"
 "  gl_Position = mvp*vec4(pos, 1.0);\n"
-"};\n"
+"}\n"
 "";
 
 static char const * fs_src =
@@ -170,7 +170,7 @@ static char const * fs_src =
 "  if (textureEnabled)\n"
 "     color = texture2D(texture, uvcoord);\n"
 "  gl_FragColor = color*vcolor;\n"
-"};\n"
+"}\n"
 "";
 
 void GL2Renderer::initRendering(){

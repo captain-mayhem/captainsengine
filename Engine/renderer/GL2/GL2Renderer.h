@@ -11,6 +11,7 @@
 #include <windows.h>
 #endif
 #if defined UNIX && !defined QNX
+#include <GL/glew.h>
 #include <GL/glx.h>
 #endif
 #include "../renderer.h"

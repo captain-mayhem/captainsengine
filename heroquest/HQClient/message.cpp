@@ -237,9 +237,16 @@ void Message::process_(const char* cmd){
       line << "Unable to start server...\n";
     }
     else{
+      CGE::Thread::sleep(100); //wait so that the server has time to initialize
       process_(("connect 127.0.0.1 " + argv[0]).c_str());
-      plyr.setName(msg.getSetting(2));
-      special_(msg.getSetting(3), LOGIN, NULL);
+      if (ss_ == NULL){
+        consol << "Unable to start server...\n";
+        line << "Unable to start server...\n";
+      }
+      else{
+        plyr.setName(msg.getSetting(2));
+        special_(msg.getSetting(3), LOGIN, NULL);
+      }
     }
     break;
  

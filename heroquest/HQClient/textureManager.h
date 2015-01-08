@@ -1,6 +1,8 @@
 #ifndef TEXTUREMANAGER_H
 #define TEXTUREMANAGER_H
 
+#include <cstdlib>
+
 namespace CGE{
 class Texture;
 }

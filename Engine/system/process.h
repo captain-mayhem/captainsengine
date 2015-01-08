@@ -25,6 +25,9 @@ private:
 #ifdef WIN32
   HANDLE mProcess;
 #endif
+#ifdef UNIX
+  pid_t mProcess;
+#endif
 };
 
 }

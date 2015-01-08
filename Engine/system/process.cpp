@@ -1,5 +1,10 @@
 #include "process.h"
 
+#include <cstdlib>
+#ifdef UNIX
+#include <unistd.h>
+#endif
+
 using namespace CGE;
 
 Process::Process(){
@@ -32,6 +37,26 @@ bool Process::start(){
   mProcess = info.hProcess;
   CloseHandle(info.hThread);
   return ret != 0;
+#elif defined(UNIX)
+  pid_t pid = fork();
+  if (pid == 0){
+    //child
+    if (!mWD.empty())
+      chdir(mWD.c_str());
+    char* args[3];
+    args[0] = (char*)mName.c_str();
+    args[1] = (char*)mArguments.c_str();
+    args[2] = NULL;
+    execvp(mName.c_str(), args);
+    _exit(-1); //execvp should not return if successful
+  }
+  else if (pid < 0){
+    return false;
+  }
+  else{
+    mProcess = pid;
+    return true;
+  }
 #else
   return false;
 #endif

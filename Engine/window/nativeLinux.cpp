@@ -1,8 +1,8 @@
 #if defined(LINUX) && !defined(NO_X11)
+#include "../renderer/GL2/GL2Renderer.h"
 #include <GL/glx.h>
 #include "../system/engine.h"
 #include "../renderer/OpenGL/OGLrenderer.h"
-#include "../renderer/GL2/GL2Renderer.h"
 //#include "../input/keyboard.h"
 #include "nativeLinux.h"
 

@@ -99,6 +99,7 @@ void engineMain(int argc, char** argv) {
   }
   path = globl.getPath();
   home = path;
+  cout << "path is " << path << endl;
 
   //mutex = SDL_CreateMutex();
 
