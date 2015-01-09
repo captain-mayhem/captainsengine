@@ -9,10 +9,10 @@ class FollowCam : public CGE::Camera {
 public:
   FollowCam();
   ~FollowCam();
-  void setTarget(GameObject* obj) {mTarget = obj;}
+  void setTarget(::GameObject* obj) {mTarget = obj;}
   virtual void activate();
 protected:
-  GameObject* mTarget;
+  ::GameObject* mTarget;
 };
 
 #endif

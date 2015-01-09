@@ -41,7 +41,7 @@ namespace CGE{
 class VertexBuffer;
 }
 
-namespace MeshGeo{
+namespace CGE{
 
 //! Mesh provides storage and loading for meshes
 class Mesh{

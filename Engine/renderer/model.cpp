@@ -11,20 +11,20 @@ using std::ifstream;
 using std::ios;
 using std::vector;
 
-using namespace CGE;
-using CGE::Model;
-using CGE::ModelInstance;
+using namespace CGE_OLD;
+using CGE_OLD::Model;
+using CGE_OLD::ModelInstance;
 
 //default constructor
 ModelInstance::ModelInstance(){
   model_ = NULL;
-  transform_ = Matrix(Matrix::Identity);
+  transform_ = CGE::Matrix(CGE::Matrix::Identity);
 }
 
 //constructor
 ModelInstance::ModelInstance(Model* model){
   model_ = model;
-  transform_ = Matrix(Matrix::Identity);
+  transform_ = CGE::Matrix(CGE::Matrix::Identity);
 }
 
 // copy constructor
@@ -86,12 +86,12 @@ void Model::loadFromHMB(const std::string& filename){
 
   //build vertexbuffer
   vb_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
-  inds_ = CGE::Engine::instance()->getRenderer()->createIndexBuffer(IndexBuffer::IB_USHORT, indices_.size());
+  inds_ = CGE::Engine::instance()->getRenderer()->createIndexBuffer(CGE::IndexBuffer::IB_USHORT, indices_.size());
   vb_->create(VB_POSITION | VB_TEXCOORD, vertices_.size());
   vb_->lockVertexPointer();
   for (unsigned i = 0; i < vertices_.size(); i++){
-    vb_->setPosition(i, Vertex(vertices_[i].v));
-    vb_->setTexCoord(i, Vec2f(vertices_[i].t[0], vertices_[i].t[1]));
+    vb_->setPosition(i, CGE::Vec3f(vertices_[i].v));
+    vb_->setTexCoord(i, CGE::Vec2f(vertices_[i].t[0], vertices_[i].t[1]));
   }
   vb_->unlockVertexPointer();
   short* idx = (short*)inds_->lockIndexPointer();

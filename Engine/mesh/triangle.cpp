@@ -1,6 +1,6 @@
 #include "triangle.h"
 
-using namespace MeshGeo;
+using namespace CGE;
 
 
 Triangle::Triangle(int v0, int v1, int v2, int t0, int t1, int t2, Edge* e0_, Edge* e1_, Edge* e2_){

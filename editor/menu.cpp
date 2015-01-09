@@ -15,8 +15,8 @@
 
 using namespace Gui;
 using CGE::Vector2D;
-using MeshGeo::Mesh;
-using MeshGeo::Model;
+using CGE::Mesh;
+using CGE::Model;
 using CGE::Texture;
 
 //! The add mesh callback function
