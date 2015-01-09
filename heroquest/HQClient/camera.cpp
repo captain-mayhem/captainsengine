@@ -192,7 +192,7 @@ void Camera::moveTo(float dist, const Vector3D dir){
 
 
 //checks all the polygons in list and resets the camera if collided
-void Camera::checkCameraCollision(const std::list<MeshGeo::Model*>& models, const MeshGeo::Mesh* mesh){
+void Camera::checkCameraCollision(const std::list<CGE::Model*>& models, const CGE::Mesh* mesh){
   //Can happen directly after loading world, that this is NULL
   //because the world is loaded asynchronously within another thread
   //if (pVertices == NULL)
@@ -203,9 +203,9 @@ void Camera::checkCameraCollision(const std::list<MeshGeo::Model*>& models, cons
     //Vector3D triangle[3] = { *pVertices[i], *pVertices[i+1], *pVertices[i+2] };
     //collisionHelper(triangle);
   //}
-  for (std::list<MeshGeo::Model*>::const_iterator iter = models.begin(); iter != models.end(); ++iter){
-    MeshGeo::Model* mdl = *iter;
-    MeshGeo::Mesh* msh = mdl->getMesh();
+  for (std::list<CGE::Model*>::const_iterator iter = models.begin(); iter != models.end(); ++iter){
+    CGE::Model* mdl = *iter;
+    CGE::Mesh* msh = mdl->getMesh();
     for (int i = 0; i < msh->getNumTriangles(); ++i){
       Vector3D triangle[3];
       Vector3D* p = &triangle[0];

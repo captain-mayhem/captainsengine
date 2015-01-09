@@ -58,7 +58,7 @@ public:
 	//! reset the furniture state
 	inline void reset(){rendered_ = false;}
   //! sets a model
-  void setModel(MeshGeo::Model* mdl) { mModel = mdl; }
+  void setModel(CGE::Model* mdl) { mModel = mdl; }
 
 private:
 	//! the orientation of the piece of furniture
@@ -72,7 +72,7 @@ private:
 	//! is the furniture already rendered
 	bool rendered_;
   //! the model of the furniture
-  MeshGeo::Model* mModel;
+  CGE::Model* mModel;
 };
 
 //! less operator for STL storage

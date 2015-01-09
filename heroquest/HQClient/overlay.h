@@ -77,7 +77,7 @@ public:
   //! is walkable
   inline bool isWalkable() {return walkable_;}
   //! set the 3D model
-  inline void setModel(MeshGeo::Model* model) { model_ = model; }
+  inline void setModel(CGE::Model* model) { model_ = model; }
 protected:
   //! the name
   string name_;
@@ -98,7 +98,7 @@ protected:
   //! can someone walk on the overlay
   bool walkable_;
   //! the model of the creature
-  MeshGeo::Model* model_;
+  CGE::Model* model_;
 };
   
 #endif

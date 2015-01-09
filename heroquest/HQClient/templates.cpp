@@ -191,11 +191,11 @@ void Templates::load(){
   for (int i = 0; i < number; i++){
     in6 >> name;
     in6 >> idx;
-    MeshGeo::Mesh* msh = new MeshGeo::Mesh();
+    CGE::Mesh* msh = new CGE::Mesh();
 #ifdef _CLIENT_
     msh->loadFromFile("../HQClient/models/"+name);
 #endif
-    MeshGeo::Model* mod = new MeshGeo::Model(msh);
+    CGE::Model* mod = new CGE::Model(msh);
     models_.push_back(mod);
   }
   in6.close();

@@ -68,10 +68,10 @@ void Font::buildFont(VertexBuffer* other){
       cy = float(i / 16) / 16.0f;
 
       //A Quad for each character
-      buffer_->setPosition(4 * i + 0, Vertex(0, 0, 0));
-      buffer_->setPosition(4 * i + 1, Vertex(16, 0, 0));
-      buffer_->setPosition(4 * i + 3, Vertex(16, 16, 0));
-      buffer_->setPosition(4 * i + 2, Vertex(0, 16, 0));
+      buffer_->setPosition(4 * i + 0, Vec3f(0, 0, 0));
+      buffer_->setPosition(4 * i + 1, Vec3f(16, 0, 0));
+      buffer_->setPosition(4 * i + 3, Vec3f(16, 16, 0));
+      buffer_->setPosition(4 * i + 2, Vec3f(0, 16, 0));
       buffer_->setTexCoord(4 * i + 0, Vec2f(cx, 1 - cy - 0.0625f), true);
       buffer_->setTexCoord(4 * i + 1, Vec2f(cx + 0.0625f, 1 - cy - 0.0625f), true);
       buffer_->setTexCoord(4 * i + 3, Vec2f(cx + 0.0625f, 1 - cy), true);

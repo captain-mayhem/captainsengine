@@ -8,7 +8,6 @@
 
 #include <cassert>
 
-using namespace MeshGeo;
 using namespace CGE;
 
 Model::Model(){

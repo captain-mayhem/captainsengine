@@ -43,23 +43,4 @@ inline void wait(){
   //SDL_Delay(3);
 }
 
-//! provides simple geometric forms
-/*! Currently only cube needed
- */
-class Forms{
-  public:
-    //! draws a textured cube using vertex arrays
-    /*! if no texture coordinates are given, the texture
-     *  is mapped one each side once
-     */
-    static void drawCube(float* texCoords=NULL);
-
-    //! draws a unit textured cube using vertex arrays
-    /*! if no texture coordinates are given, the texture
-     *  is mapped one each side once
-     */
-    static void drawCube2(float* texCoords=NULL);
-
-};
-
 #endif

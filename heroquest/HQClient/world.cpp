@@ -59,7 +59,7 @@ World::World(void) : width_(0), height_(0), world_(0), starts_(0){
 	loaded_ = false;
 	wallCollision_ = true;
   respectClasses_ = true;
-  moveBox_ = new MeshGeo::Mesh();
+  moveBox_ = new CGE::Mesh();
 }
 
 World::World(const World& w){
@@ -198,7 +198,7 @@ bool World::load(const string& name){
       unsigned numModels;
       in.read((char*)&numModels, sizeof(numModels));
       f->numModels = numModels;
-      f->models = new MeshGeo::Model*[numModels];
+      f->models = new CGE::Model*[numModels];
       for (unsigned i = 0; i < numModels; ++i){
         unsigned modelid;
         in.read((char*)&modelid, sizeof(modelid));
@@ -275,7 +275,7 @@ bool World::load(const string& name){
     Monster m = Templates::instance()->getMonster(instanceid);
     Monster* ptr = new Monster(m);
 #ifdef _CLIENT_
-    MeshGeo::Model* mdl = scene_.getModel(mid);
+    CGE::Model* mdl = scene_.getModel(mid);
     ptr->setModel(mdl);
 #endif
 		addMonster(ptr, pos, i);
@@ -301,7 +301,7 @@ bool World::load(const string& name){
         Furniture* f = new Furniture(*furnitureTypes_[j]);
         //*f = *furnitureTypes_[j];
 #ifdef _CLIENT_
-        MeshGeo::Model* mdl = scene_.getModel(mid);
+        CGE::Model* mdl = scene_.getModel(mid);
         f->setModel(mdl);
 #endif
 				addFurniture(f, pos, d, i);
@@ -327,7 +327,7 @@ bool World::load(const string& name){
     Overlay& tmplover = Templates::instance()->getOverlay(instanceid);
     Overlay* o = new Overlay(tmplover);
 #ifdef _CLIENT_
-    MeshGeo::Model* mdl = scene_.getModel(mid);
+    CGE::Model* mdl = scene_.getModel(mid);
     o->setModel(mdl);
 #endif
     addOverlay(o, pos, d, i);
@@ -793,7 +793,7 @@ void World::updateCollisionVertices(Vector2D modelPos){
       j = height_ - 1;
     //collision with walls
     for (unsigned k = 0; k < world_[j][i].numModels; ++k){
-      MeshGeo::Model* mdl = world_[j][i].models[k];
+      CGE::Model* mdl = world_[j][i].models[k];
       int attrib = mdl->getAttrib(0);
       //collide with walls, wallparts and doors
       if ((attrib == 1001 || attrib == 1004 || attrib == 1003) && wallCollision_){
@@ -1202,15 +1202,19 @@ void World::removeObject(const Vector2D& pos){
 }
 
 //add a hero to the map
-void World::addHero(const Hero& heroe, const short posIdx){
+void World::addHero(Hero const& heroe, const short posIdx){
   starts_[posIdx] = Vector2D(-1,-1);
   heros_[posIdx] = heroe;
   Vector2D pos = heroe.getPosition();
   heros_[posIdx].setCamPos(wrld.modelToRealPos(pos));
   wrld.setObject(&heros_[posIdx], pos);
 #ifdef _CLIENT_
+  heros_[posIdx].createModel();
+  scene_.addMesh(heros_[posIdx].getModel()->getMesh());
+  scene_.addModel(heros_[posIdx].getModel());
+  Vector3D p = modelToRealPos(pos);
+  heros_[posIdx].getModel()->setTrafo(CGE::Matrix(CGE::Matrix::Translation, p));
   if (heroe.getPlayer() == plyr.getName()){
-    Vector3D p = modelToRealPos(pos);
     cam.positionCamera(p, Vector3D(p.x+1,p.y,p.z), Vector3D(0,1,0));
     //game.setMoves(0);
     plyr.setActCreature(heroe.getName());

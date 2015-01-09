@@ -1241,8 +1241,8 @@ void Message::process(){
         unsigned id = d->getModel()->getID();
         //wrld.getScene().deleteModel(id);
         //set new door model
-        MeshGeo::Mesh* msh = NULL;
-        std::vector<MeshGeo::Mesh*> meshes = wrld.getScene().getMeshes();
+        CGE::Mesh* msh = NULL;
+        std::vector<CGE::Mesh*> meshes = wrld.getScene().getMeshes();
         for (unsigned  i = 0; i < meshes.size(); ++i){
           if (meshes[i]->getName() == "models/world/door.obj"){
             msh = meshes[i];
@@ -1259,7 +1259,7 @@ void Message::process(){
           }
         }
         assert(tex);
-        MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+        CGE::Model* mdl = new CGE::Model(msh);
         mdl->setTrafo(wrld.getScene().getModel(id)->getTrafo());
         mdl->assignTexture(tex, 0);
         mdl->setAttrib(0, 1003);

@@ -75,9 +75,9 @@ public:
   //! get the type of the door
   inline short getType() const {return type_;}
   //! get the model of the door
-  inline MeshGeo::Model* getModel() {return model_;}
+  inline CGE::Model* getModel() {return model_;}
   //! set the model of the door
-  inline void setModel(MeshGeo::Model* mdl) {model_ = mdl;}
+  inline void setModel(CGE::Model* mdl) {model_ = mdl;}
 private:
   //! The neighbouring field to the door
   Vector2D pos_;
@@ -90,7 +90,7 @@ private:
   //! is the door open
   bool closed_;
   //! the door model
-  MeshGeo::Model* model_;
+  CGE::Model* model_;
   //! collision vertices
   Vector3D verts_[8];
   //! door script

@@ -67,7 +67,7 @@ public:
    * \param pVertices The vertices with which the camera could collide
    * \param numOfVerts the number of vertices that were given in pVertices
    */
-  void checkCameraCollision(const std::list<MeshGeo::Model*>& models, const MeshGeo::Mesh* mesh);
+  void checkCameraCollision(const std::list<CGE::Model*>& models, const CGE::Mesh* mesh);
   //! This updates the camera's view and calls framerate calculation
   void update();
   //! Gives the lookAt parameters to OpenGL

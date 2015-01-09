@@ -1168,7 +1168,7 @@ int Script::exchangeModel(lua_State* L){
   int fieldidx = (int)luaL_checknumber(L, 3);
   int modelid = (int)luaL_checknumber(L, 4);
 	Field& field = wrld.getField(Vector2D(x,y));
-  MeshGeo::Model* old = field.models[fieldidx];
+  CGE::Model* old = field.models[fieldidx];
   //TODO clone
   field.models[fieldidx] = Templates::instance()->getModel(modelid);
   field.models[fieldidx]->setTrafo(old->getTrafo());
@@ -1186,7 +1186,7 @@ int Script::addModel(lua_State* L){
 	Field& field = wrld.getField(Vector2D(x,y));
   unsigned fieldidx = field.numModels;
   //realloc model array
-  MeshGeo::Model** tmp = new MeshGeo::Model*[fieldidx+1];
+  CGE::Model** tmp = new CGE::Model*[fieldidx+1];
   for (unsigned i = 0; i < fieldidx; i++){
     tmp[i] = field.models[i];
   }

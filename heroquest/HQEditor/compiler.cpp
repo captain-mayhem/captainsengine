@@ -57,7 +57,7 @@ void Compiler::setWall(const Vector2D& pos, Direction d){
     tilename = "wallLl.obj";
   
    //see if the wall tile is in there
-  MeshGeo::Mesh* msh = getMesh(tilename, "models/world/");
+  CGE::Mesh* msh = getMesh(tilename, "models/world/");
 
   //build texture name
   std::string texName;
@@ -66,7 +66,7 @@ void Compiler::setWall(const Vector2D& pos, Direction d){
   //get texture
   CGE::Texture* tex = getTexture(texName);
   
-  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+  CGE::Model* mdl = new CGE::Model(msh);
   mdl->assignTexture(tex, 0);
   //wall
   mdl->setAttrib(0, 1001);
@@ -129,7 +129,7 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
     tilename = "doorLl.obj";
 
   //see if the wall tile is in there
-  MeshGeo::Mesh* msh = getMesh(tilename, "models/world/");
+  CGE::Mesh* msh = getMesh(tilename, "models/world/");
 
   //build texture name
   std::string texName;
@@ -138,7 +138,7 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   //get texture
   CGE::Texture* tex = getTexture(texName);
 
-  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+  CGE::Model* mdl = new CGE::Model(msh);
   mdl->assignTexture(tex, 0);
   //wall
   mdl->setAttrib(0, 1004);
@@ -170,7 +170,7 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   }
   
   msh = getMesh(tilename, "models/world/");
-  mdl = new MeshGeo::Model(msh);
+  mdl = new CGE::Model(msh);
 
   tex = getTexture(texName);
   mdl->assignTexture(tex, 0);
@@ -194,7 +194,7 @@ void Compiler::write(string filename){
 //add a field to a room
 void Compiler::addRoom(const Vector2D& pos, short id){
   //see if the ground tile is in there
-  MeshGeo::Mesh* msh = getMesh("ground.obj", "models/world/");
+  CGE::Mesh* msh = getMesh("ground.obj", "models/world/");
   //build texture name
   std::string texName;
   if (id == 0)
@@ -205,7 +205,7 @@ void Compiler::addRoom(const Vector2D& pos, short id){
   //get texture
   CGE::Texture* tex = getTexture(texName);
   
-  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+  CGE::Model* mdl = new CGE::Model(msh);
   mdl->assignTexture(tex, 0);
   //ground
   mdl->setAttrib(0, 1000);
@@ -219,8 +219,8 @@ void Compiler::addRoom(const Vector2D& pos, short id){
 void Compiler::addStartPos(const Vector2D& pos){
   //starts_.push_back(pos);
 
-  MeshGeo::Mesh* msh = getMesh("startpos.obj", "models/world/");
-  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+  CGE::Mesh* msh = getMesh("startpos.obj", "models/world/");
+  CGE::Model* mdl = new CGE::Model(msh);
   
   CGE::Texture* tex = getTexture("textures/world/startpos1.jpg");
   mdl->assignTexture(tex, 0);
@@ -291,8 +291,8 @@ void Compiler::addMonster(const Vector2D& pos, char monster[2]){
   else
     assert(false);
   //build monster model
-  MeshGeo::Mesh* msh = getMesh(monstername+".obj", "models/monsters/");
-  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+  CGE::Mesh* msh = getMesh(monstername+".obj", "models/monsters/");
+  CGE::Model* mdl = new CGE::Model(msh);
 
   CGE::Texture* tex = getTexture("textures/monsters/"+monstername+".jpg");
   mdl->assignTexture(tex, 0);
@@ -386,8 +386,8 @@ void Compiler::addFurniture(const Vector2D& pos, char furniture[2]){
   else
     return;
     //assert(false);
-  MeshGeo::Mesh* msh = getMesh(furniturename+".obj", "models/furniture/");
-  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+  CGE::Mesh* msh = getMesh(furniturename+".obj", "models/furniture/");
+  CGE::Model* mdl = new CGE::Model(msh);
 
   CGE::Texture* tex = getTexture("textures/furniture/"+furniturename+".jpg");
   mdl->assignTexture(tex, 0);
@@ -429,8 +429,8 @@ void Compiler::addOverlay(const Vector2D& pos, char overlay[3]){
   else
     return;
 
-  MeshGeo::Mesh* msh = getMesh(overlayname + ".obj", "models/overlays/");
-  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+  CGE::Mesh* msh = getMesh(overlayname + ".obj", "models/overlays/");
+  CGE::Model* mdl = new CGE::Model(msh);
 
   CGE::Texture* tex = getTexture("textures/overlays/" + overlayname + ".jpg");
   mdl->assignTexture(tex, 0);
@@ -448,8 +448,8 @@ void Compiler::addOverlay(const Vector2D& pos, char overlay[3]){
 
 
 void Compiler::addScript(char ident, const Vector2D& pos){
-  MeshGeo::Mesh* msh = getMesh("script.obj", "models/other/");
-  MeshGeo::Model* mdl = new MeshGeo::Model(msh);
+  CGE::Mesh* msh = getMesh("script.obj", "models/other/");
+  CGE::Model* mdl = new CGE::Model(msh);
 
   CGE::Texture* tex = getTexture("textures/other/script.jpg");
   mdl->assignTexture(tex, 0);
@@ -462,10 +462,10 @@ void Compiler::addScript(char ident, const Vector2D& pos){
   scene_.addModel(mdl);
 }
 
-MeshGeo::Mesh* Compiler::getMesh(std::string tilename, std::string path){
+CGE::Mesh* Compiler::getMesh(std::string tilename, std::string path){
   //see if the mesh is in there
-  MeshGeo::Mesh* msh = NULL;
-  std::vector<MeshGeo::Mesh*> meshes = scene_.getMeshes();
+  CGE::Mesh* msh = NULL;
+  std::vector<CGE::Mesh*> meshes = scene_.getMeshes();
   for (unsigned  i = 0; i < meshes.size(); ++i){
     if (meshes[i]->getName() == path+tilename){
       msh = meshes[i];
@@ -474,7 +474,7 @@ MeshGeo::Mesh* Compiler::getMesh(std::string tilename, std::string path){
   }
   //load mesh
   if (!msh){
-    msh = new MeshGeo::Mesh();
+    msh = new CGE::Mesh();
     msh->loadFromFile(path+tilename);
     scene_.addMesh(msh);
   }

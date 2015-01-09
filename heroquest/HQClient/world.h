@@ -78,10 +78,10 @@ public:
   void updateCollisionVertices(Vector2D modelPos);
   
 	//! returns the vertices for collision
-  MeshGeo::Mesh* getCollisionVertices() {return moveBox_;}
+  CGE::Mesh* getCollisionVertices() {return moveBox_;}
 
   //! returns the models for collision
-  std::list<MeshGeo::Model*>& getCollisionModels() {return coll_models_;}
+  std::list<CGE::Model*>& getCollisionModels() {return coll_models_;}
   
 	//! returns the number of collision vertices
   //int getNumberOfVerts() {return numberOfVerts_;}
@@ -90,7 +90,7 @@ public:
   /*! \param heroe the hero to be added
    * \param posIdx the index of the starting position on which the hero should be placed
    */
-  void addHero(const Hero& heroe, const short posIdx);
+  void addHero(Hero const& heroe, const short posIdx);
   
 	//! adds a monster to the world
   /*! \param monster the monster to be added
@@ -287,13 +287,13 @@ private:
   
 	//! the collision detection models
   //Vector3D** vWorld_;
-  std::list<MeshGeo::Model*> coll_models_;
+  std::list<CGE::Model*> coll_models_;
   
 	//! some special collision vertices
   /*! this is an invisible box around the current field if
    *  no more moves are left
    */
-  MeshGeo::Mesh* moveBox_;
+  CGE::Mesh* moveBox_;
   
 	//! the number of hero starting positions	
   unsigned short heroSize_;

@@ -9,7 +9,7 @@ class BoundingObject;
 class Texture;
 }
 
-namespace MeshGeo{
+namespace CGE{
 
 class Mesh;
 

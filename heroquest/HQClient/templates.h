@@ -45,7 +45,7 @@ class Templates{
     //! get an overlay by id
     inline Overlay& getOverlay(unsigned id) { return *overlays_[id - 4000]; }
     //! get a model
-    MeshGeo::Model* getModel(int idx) {return models_[idx];}
+    CGE::Model* getModel(int idx) {return models_[idx];}
   private:
     static Templates* templ;
     //! Constructor
@@ -61,7 +61,7 @@ class Templates{
     //! the overlays
     vector<Overlay*> overlays_;
     //! the template models
-    vector<MeshGeo::Model*> models_;
+    vector<CGE::Model*> models_;
 };
 
 #endif

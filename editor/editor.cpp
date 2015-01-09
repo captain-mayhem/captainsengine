@@ -25,7 +25,7 @@ using CGE::Vector3D;
 using CGE::Matrix;
 using CGE::Ray;
 using Gui::Button;
-using MeshGeo::Model;
+using CGE::Model;
 using CGE::Filesystem;
 
 Editor* Editor::edi_ = NULL;

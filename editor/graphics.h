@@ -34,9 +34,9 @@ public:
   //! get the scene
   CGE::Scene& getScene() {return scene_;}
   //! set the current model
-  void setCurrModel(MeshGeo::Model* mdl) {currModel_ = mdl;}
+  void setCurrModel(CGE::Model* mdl) {currModel_ = mdl;}
   //! get the current model
-  MeshGeo::Model* getCurrModel() const {return currModel_;}
+  CGE::Model* getCurrModel() const {return currModel_;}
   //! get view matrix
   CGE::Matrix getViewMat() {return camTrafo_ * camRot_;}
   //! set the filename
@@ -58,7 +58,7 @@ protected:
   //! the camera rotation
   CGE::Matrix camRot_;
   //! the current model
-  MeshGeo::Model* currModel_;
+  CGE::Model* currModel_;
   //! the filename of the loaded scene
   std::string filename_;
 };

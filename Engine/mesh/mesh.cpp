@@ -27,7 +27,6 @@
 #include <algorithm>
 
 using std::min;
-using namespace MeshGeo;
 using namespace CGE;
 
 // --------------------------------------------------------------------

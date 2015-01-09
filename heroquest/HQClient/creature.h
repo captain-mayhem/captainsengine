@@ -184,10 +184,10 @@ public:
   inline bool diceToMove() {return diceToMove_;}
 
   //! sets a Model for the creature
-  inline void setModel(MeshGeo::Model* mdl) {model_ = mdl;}
+  inline void setModel(CGE::Model* mdl) {model_ = mdl;}
 
   //! gets the model
-  inline MeshGeo::Model* getModel() {return model_;}
+  inline CGE::Model* getModel() {return model_;}
 	
 protected:
   //! the creature's name
@@ -248,7 +248,7 @@ protected:
   bool diceToMove_;
 
   //! the model of the creature
-  MeshGeo::Model* model_;
+  CGE::Model* model_;
 };
 
 //! less operator for STL storage

@@ -89,7 +89,7 @@ public:
   //! number of models on the field
   unsigned numModels;
   //! the ids of the models
-  MeshGeo::Model** models;
+  CGE::Model** models;
   //! object storage, if two creatures try to cross
   /*! If two creatures are on the same field, the first
    * is stored here

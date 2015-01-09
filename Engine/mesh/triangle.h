@@ -4,7 +4,7 @@
 #include "../math/vector.h"
 #include <vector>
 
-namespace MeshGeo{
+namespace CGE{
 
 class Edge;
 

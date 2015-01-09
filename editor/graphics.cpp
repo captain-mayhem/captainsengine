@@ -11,8 +11,8 @@
 
 using CGE::Engine;
 using Gui::Button;
-using MeshGeo::Mesh;
-using MeshGeo::Model;
+using CGE::Mesh;
+using CGE::Model;
 using namespace CGE;
 
 TR_CHANNEL(CGE_Editor);
@@ -94,7 +94,7 @@ void Graphic::init(){
 
 void Graphic::addMesh(std::string filename){
   TR_USE(CGE_Editor);
-  MeshGeo::Mesh* mesh = new MeshGeo::Mesh();
+  CGE::Mesh* mesh = new CGE::Mesh();
   if (!mesh->loadFromFile(filename)){
     TR_ERROR("cannot load file %s", filename.c_str());
     std::cerr << "cannot load file";

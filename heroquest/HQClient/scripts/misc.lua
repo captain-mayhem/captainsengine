@@ -4,7 +4,7 @@ function default_wandering_monster(sx, sy, name)
   local ty;
   adjacent, tx, ty = getAdjacentFreeField(sx, sy);
   if tx == -1 and ty == -1 then
-    output("You are lucky, becuase a wandering monster was near you, but it did not see you.", "");
+    output("You are lucky, because a wandering monster was near you, but it did not see you.", "");
     return true;
   end
   setMonster(tx,ty,name);

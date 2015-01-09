@@ -129,20 +129,6 @@ void Creature::render() const{
     model_->render();
     model_->resetMaterial();
   }
-  else{
-    glColor3f(1,1,1);
-    glEnable(GL_TEXTURE_2D);
-    glPushMatrix();
-  
-    glScalef(1.5,3,1.5);
-    glTranslatef(actPos_.x/1.5f, 1, actPos_.z/1.5f);
-  
-    // In the current development stage, the creature is just a cube
-    ::Forms::drawCube();
-  
-    glPopMatrix();
-    glColor3f(1,1,1);
-  }
 #endif
 }
 

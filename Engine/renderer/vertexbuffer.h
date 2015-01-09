@@ -12,7 +12,6 @@
 namespace CGE{
 
 class IndexBuffer;
-typedef CGE::Vector3D Vertex;
 
 enum PrimitiveType{
   VB_Triangles,
@@ -35,7 +34,7 @@ public:
   virtual void unlockVertexPointer()=0;
   virtual void activate()=0;
   virtual void draw(PrimitiveType pt, IndexBuffer* indices)=0;
-  virtual void setPosition(int pos, Vertex v);
+  virtual void setPosition(int pos, Vec3f v);
   virtual void setColor(int pos, Color c)=0;
   virtual void setTexCoord(int pos, CGE::Vec2f t, bool dxswap=false)=0;
   virtual void setNormal(int pos, CGE::Vec3f normal);

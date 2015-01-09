@@ -24,7 +24,7 @@ using std::list;
 using std::max;
 using std::ofstream;
 using std::ios;
-using MeshGeo::Model;
+using CGE::Model;
 using CGE::Matrix;
 using CGE::Vector3D;
 using CGE::Vector2D;

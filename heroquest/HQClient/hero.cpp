@@ -24,6 +24,7 @@
 #include "camera.h"
 #include "textureManager.h"
 #include "message.h"
+#include "mesh/mesh.h"
 #endif
 #include "opcodes.h"
 #include "world.h"
@@ -334,6 +335,11 @@ void Hero::win(){
 }
 
 void Hero::createModel(){
-  //MeshGeo::Mesh msh = new MeshGeo::Mesh();
-  //model_ = new MeshGeo::Model();
+#ifdef _CLIENT_
+  CGE::Mesh* mesh = new CGE::Mesh();
+  mesh->loadFromFile("models/heros/"+toLower(type_)+".obj");
+  mesh->buildVBO();
+  model_ = new CGE::Model(mesh);
+  //model_->assignTexture
+#endif
 }

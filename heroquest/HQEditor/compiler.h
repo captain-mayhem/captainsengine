@@ -88,7 +88,7 @@ public:
   CGE::Scene& getScene() { return scene_; }
 private:
   //! load or get a mesh
-  MeshGeo::Mesh* getMesh(std::string tilename, std::string path);
+  CGE::Mesh* getMesh(std::string tilename, std::string path);
   //! load or get a texture
   CGE::Texture* getTexture(std::string texname);
   /*! get the info which side has to be longer

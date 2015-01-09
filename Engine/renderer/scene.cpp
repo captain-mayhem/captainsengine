@@ -20,8 +20,8 @@ using std::ofstream;
 using std::ifstream;
 using std::ios;
 using std::max;
-using MeshGeo::Model;
-using MeshGeo::Mesh;
+using CGE::Model;
+using CGE::Mesh;
 using CGE::BoundingObject;
 using CGE::Matrix;
 using CGE::Ray;
@@ -34,7 +34,7 @@ Scene::Scene(){
 }
 
 Scene::~Scene(){
-  list<MeshGeo::Model*>::iterator iter;
+  list<Model*>::iterator iter;
   for (iter = models_.begin(); iter != models_.end(); iter++){
     SAFE_DELETE(*iter);
   };
@@ -50,7 +50,7 @@ Scene::~Scene(){
 }
 
 void Scene::render(){
-  list<MeshGeo::Model*>::iterator iter;
+  list<Model*>::iterator iter;
   for (iter = models_.begin(); iter != models_.end(); iter++){
     (*iter)->setupMaterial();
     (*iter)->render();
@@ -60,7 +60,7 @@ void Scene::render(){
 
 //! Get a model
 Model* Scene::getModel(const unsigned id){
-  list<MeshGeo::Model*>::iterator iter;
+  list<Model*>::iterator iter;
   //int count = 0;
   for (iter = models_.begin(); iter != models_.end(); iter++){
     if ((*iter)->getID() == id)
@@ -104,7 +104,7 @@ void Scene::save(const std::string& filename) const{
   //models
   size = models_.size();
   out.write((char*)&size, sizeof(size));
-  list<MeshGeo::Model*>::const_iterator iter;
+  list<Model*>::const_iterator iter;
   for (iter = models_.begin(); iter != models_.end(); iter++){
     //model id
     unsigned id = (*iter)->getID();
@@ -228,8 +228,8 @@ void Scene::load(const std::string& filename){
 }
 
 //! Get the model that is the nearest one on the ray
-MeshGeo::Model* Scene::pickModel(const Ray& ray) const {
-  list<MeshGeo::Model*>::const_iterator iter;
+Model* Scene::pickModel(const Ray& ray) const {
+  list<Model*>::const_iterator iter;
   //std::cerr << ray.getOrigin() << " " << ray.getDirection() << "\n";
   Model* nearest = NULL;
   float nearDistance = FLT_MAX;
@@ -259,7 +259,7 @@ MeshGeo::Model* Scene::pickModel(const Ray& ray) const {
 
 //! Delete a model
 void Scene::deleteModel(const unsigned id){
-  list<MeshGeo::Model*>::iterator iter;
+  list<Model*>::iterator iter;
   for (iter = models_.begin(); iter != models_.end(); iter++){
     if (id == (*iter)->getID()){
       models_.erase(iter);
