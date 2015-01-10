@@ -36,6 +36,7 @@ Mesh::Mesh(){
   numTriangles_ = 0;
   numVertices_ = 0;
   numTexCoords_ = 0;
+  mNumNormals = 0;
   name_ = "none";
   filename_ = "none";
   m_visible = true;
@@ -44,6 +45,7 @@ Mesh::Mesh(){
     m_color[i] = 1.0;
   }
   vb_ = NULL;
+  mIB = NULL;
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
   max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
   center_ = Vector3D();
@@ -56,6 +58,7 @@ Mesh::~Mesh(){
   //glDeleteBuffersARB(1, &m_vbo);
   //glDeleteBuffersARB(1, &m_vboidx);
   SAFE_DELETE(vb_);
+  SAFE_DELETE(mIB);
   for (unsigned i = 0; i < triangles_.size(); i++){
     delete triangles_[i];
     triangles_[i] = NULL;
@@ -102,6 +105,11 @@ void Mesh::addTexCoord(float x, float y, float z){
   numTexCoords_++;
 }
 
+void Mesh::addNormal(float x, float y, float z){
+  mNormals.push_back(Vec3f(x, y, z));
+  ++mNumNormals;
+}
+
   
 //! add edge
 Edge* Mesh::addEdge(int v0, int v1){
@@ -119,7 +127,7 @@ Edge* Mesh::addEdge(int v0, int v1){
 }
 
 //! add triangle
-Triangle* Mesh::addTriangle(int v0, int v1, int v2, int t0, int t1, int t2){
+Triangle* Mesh::addTriangle(int v0, int v1, int v2, int t0, int t1, int t2, int n0, int n1, int n2){
   
   Edge* e0 = vertices_[v1].eList.getEdge(v1,v2);
   if (!e0)
@@ -133,7 +141,7 @@ Triangle* Mesh::addTriangle(int v0, int v1, int v2, int t0, int t1, int t2){
   if (!e2)
     e2 = addEdge(v0,v1);
   
-  Triangle* tri = new Triangle(v0, v1, v2, t0, t1, t2, e0, e1, e2);
+  Triangle* tri = new Triangle(v0, v1, v2, t0, t1, t2, n0, n1, n2, e0, e1, e2);
   triangles_.insertTriangle(tri);
 
   e0->tList.insertTriangle(tri);
@@ -214,7 +222,7 @@ bool Mesh::loadOBJ(std::string filename){
           file >> x; if (file.eof()) {bEnd = true; fprintf(stderr, "end at x\n"); break;};
           file >> y; if (file.eof()) {bEnd = true; fprintf(stderr, "end at y\n"); break;};
           file >> z; if (file.eof()) {bEnd = true; fprintf(stderr, "end at z\n"); break;};
-          //addNormalVertex(x,y,z);
+          addNormal(x,y,z);
         }
         else {
           file >> x; if (file.eof()) {bEnd = true; fprintf(stderr, "end at x\n"); break;};
@@ -263,7 +271,7 @@ bool Mesh::loadOBJ(std::string filename){
           if (file.eof()) {bEnd = true; fprintf(stderr, "end at n2\n"); break;}
         }
         
-        addTriangle(vertexid[0]-1,vertexid[1]-1,vertexid[2]-1,textureid[0]-1,textureid[1]-1,textureid[2]-1);
+        addTriangle(vertexid[0]-1,vertexid[1]-1,vertexid[2]-1,textureid[0]-1,textureid[1]-1,textureid[2]-1,normalid[0]-1,normalid[1]-1,normalid[2]-1);
 
         //do we have a quad?
         file.ignore();
@@ -281,7 +289,7 @@ bool Mesh::loadOBJ(std::string filename){
             file >> tester >> normalid[3]; 
             if (file.eof()) {bEnd = true; fprintf(stderr, "end at n3\n"); break;}
           }
-          addTriangle(vertexid[0]-1,vertexid[2]-1,vertexid[3]-1,textureid[0]-1,textureid[2]-1,textureid[3]-1);
+          addTriangle(vertexid[0] - 1, vertexid[2] - 1, vertexid[3] - 1, textureid[0] - 1, textureid[2] - 1, textureid[3] - 1, normalid[0] - 1, normalid[2] - 1, normalid[3] - 1);
         }
         break;
       default:
@@ -399,7 +407,48 @@ float* Mesh::getNormal(int i){
 void Mesh::buildVBO(){
   //float* vertices = new float[numTriangles_*3*3];
   //unsigned int* indices = new unsigned int[numTriangles_*3];
-  
+  std::map<Vec3i, int> distinctVertices;
+  std::vector<float> vdata;
+  std::vector<int> idata;
+  int vidx = 0;
+  int numVertices = 0;
+  for (int i = 0; i < numTriangles_; i++){
+    Triangle* tri = triangles_[i];
+    for (int j = 0; j < 3; ++j){
+      Vec3i idx(tri->data[j], tri->texdata[j], tri->normdata[j]);
+      int di = distinctVertices[idx];
+      if (di == 0){
+        ++numVertices;
+        Vec3f pos = vertices_[tri->data[j]];
+        vdata.push_back(pos.x); vdata.push_back(pos.y); vdata.push_back(pos.z);
+        if (numTexCoords_ > 0){
+          Vec3f tex = texCoords_[tri->texdata[j]];
+          vdata.push_back(tex.x); vdata.push_back(tex.y);
+        }
+        Vec3f norm;
+        if (mNumNormals > 0)
+          norm = mNormals[tri->normdata[j]];
+        else
+          norm = getNormal(tri->data[j]);
+        vdata.push_back(norm.x); vdata.push_back(norm.y); vdata.push_back(norm.z);
+        idata.push_back(vidx);
+        distinctVertices[idx] = ++vidx;
+      }
+      else{
+        idata.push_back(di - 1);
+      }
+    }
+  }
+
+  vb_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
+  if (numTexCoords_ > 0)
+    vb_->create(VB_POSITION | VB_NORMAL | VB_TEXCOORD, numVertices);
+  else
+    vb_->create(VB_POSITION | VB_NORMAL, numVertices);
+  void* vdat = vb_->lockVertexPointer();
+  memcpy(vdat, vdata.data(), vdata.size()*sizeof(float));
+  vb_->unlockVertexPointer();
+  /*
   vb_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
   if (numTexCoords_ > 0)
     vb_->create(VB_POSITION | VB_NORMAL | VB_TEXCOORD, numTriangles_*3);
@@ -415,9 +464,17 @@ void Mesh::buildVBO(){
     vb_->setPosition(3*i+0, v0);
     vb_->setPosition(3*i+1, v1);
     vb_->setPosition(3*i+2, v2);
-    Vector3D n0 = getNormal(tri->v0);
-    Vector3D n1 = getNormal(tri->v1);
-    Vector3D n2 = getNormal(tri->v2);
+    Vector3D n0, n1, n2;
+    if (mNumNormals == 0){
+      n0 = getNormal(tri->v0);
+      n1 = getNormal(tri->v1);
+      n2 = getNormal(tri->v2);
+    }
+    else{
+      n0 = mNormals[tri->n0];
+      n1 = mNormals[tri->n1];
+      n2 = mNormals[tri->n2];
+    }
     vb_->setNormal(3*i+0, n0);
     vb_->setNormal(3*i+1, n1);
     vb_->setNormal(3*i+2, n2);
@@ -432,7 +489,7 @@ void Mesh::buildVBO(){
     //indices[i*3+0] = i*3+0;
     //indices[i*3+1] = i*3+1;
     //indices[i*3+2] = i*3+2;
-  }
+  }*/
 /*
   vb_->unlockVertexPointer();
 
@@ -456,6 +513,10 @@ void Mesh::buildVBO(){
 */
   //delete [] vertices;
   //delete [] indices;
+  mIB = CGE::Engine::instance()->getRenderer()->createIndexBuffer(IndexBuffer::IB_UINT, idata.size());
+  void* data = mIB->lockIndexPointer();
+  memcpy(data, idata.data(), idata.size()*sizeof(int));
+  mIB->unlockIndexPointer();
 
   //compute real center
   center_ = center_ / (float)numVertices_;
@@ -495,7 +556,7 @@ void Mesh::draw(){/*
   glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);*/
   //CGE::Engine::instance()->getRenderer()->multiplyMatrix(trafo_);
   vb_->activate();
-  vb_->draw(CGE::VB_Triangles, 0);
+  vb_->draw(CGE::VB_Triangles, mIB);
 }
 
 //! intersects a ray and a triangle

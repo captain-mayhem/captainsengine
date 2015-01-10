@@ -55,6 +55,10 @@ public:
   inline void setGridStep(float step) {gridStep_=step;}
   //! set grid step
   inline float getGridStep() {return gridStep_;}
+  //! add model to load at startup
+  inline void addStartupModel(std::string const& name){ mLoadModels.push_back(name); }
+  //! startup after renderer is initialized
+  void startup();
 protected:
   //! Constructor
   Editor();
@@ -84,6 +88,8 @@ protected:
   std::map <int,std::string> vToa_;
   //! convert attribute to value
   std::map <std::string,int> aTov_;
+  //! models to load at startup
+  std::vector<std::string> mLoadModels;
 };
 
 #endif

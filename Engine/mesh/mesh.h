@@ -39,6 +39,7 @@
 
 namespace CGE{
 class VertexBuffer;
+class IndexBuffer;
 }
 
 namespace CGE{
@@ -57,10 +58,12 @@ public:
   void addVertex(CGE::Vec3f v);
   //! add texture coordinates
   void addTexCoord(float x, float y, float z = -1);
+  //! add normal
+  void addNormal(float x, float y, float z);
   //! add edge
   Edge* addEdge(int v0, int v1);
   //! add triangle
-  Triangle* addTriangle(int v0, int v1, int v2, int t0=-1, int t1=-1, int t2=-1);
+  Triangle* addTriangle(int v0, int v1, int v2, int t0 = -1, int t1 = -1, int t2 = -1, int n0 = -1, int n1 = -1, int n2 = -1);
   //! loads a mesh from a file
   bool loadFromFile(std::string filename);
   //! build vertex buffer object
@@ -118,11 +121,17 @@ protected:
   //! the number of texture coordinates
   int numTexCoords_;
 
+  //! the number of normals
+  int mNumNormals;
+
   //! the vertices
   std::vector<Vertex> vertices_;
 
   //! the texture coordinates
   std::vector<CGE::Vector3D> texCoords_;
+
+  //! the normals
+  std::vector<Vec3f> mNormals;
 
   //! the edges
   EdgeList edges_;
@@ -141,6 +150,9 @@ protected:
 
   //! the vertex buffer
   CGE::VertexBuffer* vb_;
+
+  //! the index buffer
+  IndexBuffer* mIB;
   
   //! vertex buffer object
   //GLuint m_vbo;

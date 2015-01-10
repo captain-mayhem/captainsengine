@@ -33,5 +33,19 @@ void engineMain(int argc, char** argv){
   Input::Keyboard::instance()->setKeyDownCB(Editor::keypress);
   Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
   Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);
+
+  //check command line
+  int state = 0;
+  for (int i = 1; i < argc; ++i){
+    if (state == 0){
+      if (strcmp(argv[i], "-m") == 0){
+        state = 1;
+      }
+    }
+    else if (state == 1){
+      char* model = argv[i];
+      Editor::instance()->addStartupModel(model);
+    }
+  }
 }
 

@@ -274,3 +274,10 @@ int Editor::attribValue(const std::string& attrib){
     return toInt(attrib);
 }
 
+//! startup after renderer is initialized
+void Editor::startup(){
+  for (unsigned i = 0; i < mLoadModels.size(); ++i){
+    Graphic::instance()->addMesh(mLoadModels[i]);
+  }
+}
+

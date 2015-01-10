@@ -90,6 +90,8 @@ void Graphic::init(){
   hqm->setText("Export HQM");
   hqm->setCbFunc(Menu::hqmExport);
   CGE::Engine::instance()->addGuiListener(hqm);
+
+  Editor::instance()->startup();
 }
 
 void Graphic::addMesh(std::string filename){
