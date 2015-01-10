@@ -11,8 +11,8 @@ class Edge;
 //! Just a triangle
 class Triangle{
 public:
-  Triangle(){v0=-1;v1=-1;v2=-1;e0=NULL;e1=NULL;e2=NULL;t0=-1;t1=-1;t2=-1;}
-  Triangle(int v0, int v1, int v2, int t0, int t1, int t2, Edge* e0_, Edge* e1_, Edge* e2_);
+  Triangle(){ v0 = -1; v1 = -1; v2 = -1; e0 = NULL; e1 = NULL; e2 = NULL; t0 = -1; t1 = -1; t2 = -1; n0 = -1; n1 = -1; n2 = -1; }
+  Triangle(int v0, int v1, int v2, int t0, int t1, int t2, int n0, int n1, int n2, Edge* e0_, Edge* e1_, Edge* e2_);
   ~Triangle(){}
   union{
     int data[3];
@@ -28,6 +28,14 @@ public:
       int t0;
       int t1;
       int t2;
+    };
+  };
+  union{
+    int normdata[3];
+    struct{
+      int n0;
+      int n1;
+      int n2;
     };
   };
   Edge* e0;

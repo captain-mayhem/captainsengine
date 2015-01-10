@@ -3,9 +3,10 @@
 using namespace CGE;
 
 
-Triangle::Triangle(int v0, int v1, int v2, int t0, int t1, int t2, Edge* e0_, Edge* e1_, Edge* e2_){
+Triangle::Triangle(int v0, int v1, int v2, int t0, int t1, int t2, int n0, int n1, int n2, Edge* e0_, Edge* e1_, Edge* e2_){
   data[0]=v0;data[1]=v1;data[2]=v2;
   texdata[0]=t0;texdata[1]=t1;texdata[2]=t2;
+  normdata[0] = n0; normdata[1] = n1; normdata[2] = n2;
   e0=e0_;e1=e1_;e2=e2_;
 }
 
