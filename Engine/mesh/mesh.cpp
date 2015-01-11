@@ -186,12 +186,85 @@ bool Mesh::loadFromFile(std::string filename){
 
 // load obj-files
 bool Mesh::loadOBJ(std::string filename){
-  char type;
   char tester;	
   float x,y,z;
   unsigned int vertexid[4], textureid[4], normalid[4];
   char line[2000];
+  
+  char* pos;
+  FILE* file = fopen(filename.c_str(), "r");
+  if (!file)
+    return false;
+  while (fgets(line, 2000, file)){
+    switch (line[0]){
+    case 'v':
+      if (line[1] == 't'){
+        // texture coordinate
+        pos = line + 2;
+        x = strtof(pos, &pos);
+        y = strtof(pos, &pos);
+        z = 0.0f;
+        //do we have 3D coords?
+        tester = pos[1];
+        if (tester >= 48 && tester <= 57){
+          z = strtof(pos, &pos);
+        }
+        addTexCoord(x, y, z);
+      }
+      else if (line[1] == 'n'){
+        // normal vector
+        pos = line + 2;
+        x = strtof(pos, &pos);
+        y = strtof(pos, &pos);
+        z = strtof(pos, &pos);
+        addNormal(x, y, z);
+      }
+      else{
+        pos = line + 1;
+        x = strtof(pos, &pos);
+        y = strtof(pos, &pos);
+        z = strtof(pos, &pos);
+        addVertex(x, y, z);
+      }
+      break;
+    case 'f':
+      pos = line + 1;
+      for (int i = 0; i < 3; ++i){
+        vertexid[i] = strtoul(pos, &pos, 10);
+        if (pos[0] == '/'){
+          // read texture index
+          textureid[i] = strtoul(pos + 1, &pos, 10);
+        }
+        if (pos[0] == '/'){
+          // read normal index
+          normalid[i] = strtoul(pos + 1, &pos, 10);
+        }
+      }
 
+      addTriangle(vertexid[0] - 1, vertexid[1] - 1, vertexid[2] - 1, textureid[0] - 1, textureid[1] - 1, textureid[2] - 1, normalid[0] - 1, normalid[1] - 1, normalid[2] - 1);
+
+      //do we have a quad?
+      tester = pos[1];
+      if (tester >= 48 && tester <= 57){
+        vertexid[3] = strtoul(pos, &pos, 10);
+        if (pos[0] == '/'){
+          // read texture index
+          textureid[3] = strtoul(pos + 1, &pos, 10);
+        }
+        if (pos[0] == '/'){
+          // read normal index
+          normalid[3] = strtoul(pos + 1, &pos, 10);
+        }
+        addTriangle(vertexid[0] - 1, vertexid[2] - 1, vertexid[3] - 1, textureid[0] - 1, textureid[2] - 1, textureid[3] - 1, normalid[0] - 1, normalid[2] - 1, normalid[3] - 1);
+      }
+      break;
+    default:
+      break;
+    }
+  }
+  fclose(file);
+  /*
+  //the significantly slower, but little bit safer variant
   std::ifstream file(filename.c_str());
   if (!file)
     return false;
@@ -297,10 +370,7 @@ bool Mesh::loadOBJ(std::string filename){
         break;
     }
   }	// while
-  file.close();
-  //exit(1);
-  //std::cerr << "Read " << m_numTriangles << " triangles" << std::endl;
-  //std::cerr << "Read " << m_numVertices << " vertices " << std::endl;
+  file.close();*/
   return true;
 }
 
@@ -409,7 +479,9 @@ void Mesh::buildVBO(){
   //unsigned int* indices = new unsigned int[numTriangles_*3];
   std::map<Vec3i, int> distinctVertices;
   std::vector<float> vdata;
+  vdata.reserve(numVertices_*(3 + 3 + 2));
   std::vector<int> idata;
+  idata.reserve(numTriangles_ * 3);
   int vidx = 0;
   int numVertices = 0;
   for (int i = 0; i < numTriangles_; i++){
