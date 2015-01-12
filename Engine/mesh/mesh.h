@@ -153,12 +153,6 @@ protected:
 
   //! the index buffer
   IndexBuffer* mIB;
-  
-  //! vertex buffer object
-  //GLuint m_vbo;
-
-  //! index buffer for vbo
-  //GLuint m_vboidx;
 
   //! the name of the mesh
   std::string name_;
@@ -175,8 +169,11 @@ protected:
   // color
   float m_color[4];
 
+  //compute edges
+  bool mComputeEdges;
+
 };
 
 }
 
-#endif // MDAV_MESH_RENDER_COMPONENT_HH
+#endif
