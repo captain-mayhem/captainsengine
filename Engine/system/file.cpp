@@ -14,6 +14,7 @@
 #include "engine.h"
 
 #ifdef WIN32
+#define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #ifndef UNDER_CE
@@ -191,6 +192,49 @@ bool Filesystem::changeDir(const std::string& path){
 #endif
 #ifdef UNIX
   return chdir(path.c_str()) == 0 ? true : false;
+#endif
+}
+
+// gets the path component from a full path
+std::string Filesystem::getPathComponent(std::string const & filepath){
+  int pos = std::string::npos;
+  for (int i = filepath.size() - 1; i >= 0; --i){
+    char ch = filepath[i];
+    if (ch == '/' || ch == '\\'){
+      pos = i;
+      break;
+    }
+  }
+  return filepath.substr(0, pos);
+}
+
+// gets the file component from a full path
+std::string Filesystem::getFileComponent(std::string const & filepath){
+  int pos = std::string::npos;
+  for (int i = filepath.size() - 1; i >= 0; --i){
+    char ch = filepath[i];
+    if (ch == '/' || ch == '\\'){
+      pos = i;
+      break;
+    }
+  }
+  return filepath.substr(pos+1);
+}
+
+// gets the extension from a file name
+std::string Filesystem::getExtension(std::string const & filepath){
+  size_t pos = filepath.find_last_of('.');
+  if (pos == std::string::npos)
+    return "";
+  return filepath.substr(pos + 1);
+}
+
+// combines two path components
+std::string Filesystem::combinePath(std::string const & p1, std::string const & p2){
+#ifdef WIN32
+  return p1 + '\\' + p2;
+#else
+  return p1 + '/' + p2;
 #endif
 }
 

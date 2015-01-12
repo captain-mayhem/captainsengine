@@ -39,6 +39,14 @@ public:
   //! working directory emulation for Windows CE
   static std::string cwd_;
 #endif
+  //! gets the path component from a full path
+  static std::string getPathComponent(std::string const & filepath);
+  //! gets the file component from a full path
+  static std::string getFileComponent(std::string const & filepath);
+  //! gets the extension from a file name
+  static std::string getExtension(std::string const & filepath);
+  //! combines two path components
+  static std::string combinePath(std::string const & p1, std::string const & p2);
 };
 
 }

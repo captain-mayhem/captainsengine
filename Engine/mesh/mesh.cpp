@@ -18,6 +18,7 @@
 #include "../renderer/renderer.h"
 #include "../renderer/vertexbuffer.h"
 #include "../math/ray.h"
+#include "../system/file.h"
 
 #include <cmath>
 #include <vector>
@@ -32,7 +33,7 @@ using namespace CGE;
 // --------------------------------------------------------------------
 //  Default constructor
 // --------------------------------------------------------------------
-Mesh::Mesh(){
+Mesh::Mesh() : mComputeEdges(true){
   numTriangles_ = 0;
   numVertices_ = 0;
   numTexCoords_ = 0;
@@ -106,6 +107,7 @@ void Mesh::addTexCoord(float x, float y, float z){
 }
 
 void Mesh::addNormal(float x, float y, float z){
+  mComputeEdges = false;
   mNormals.push_back(Vec3f(x, y, z));
   ++mNumNormals;
 }
@@ -128,25 +130,29 @@ Edge* Mesh::addEdge(int v0, int v1){
 
 //! add triangle
 Triangle* Mesh::addTriangle(int v0, int v1, int v2, int t0, int t1, int t2, int n0, int n1, int n2){
-  
-  Edge* e0 = vertices_[v1].eList.getEdge(v1,v2);
-  if (!e0)
-    e0 = addEdge(v1,v2);
-  
-  Edge* e1 = vertices_[v1].eList.getEdge(v2,v0);
-  if (!e1)
-    e1 = addEdge(v2,v0);
-  
-  Edge* e2 = vertices_[v1].eList.getEdge(v0,v1);
-  if (!e2)
-    e2 = addEdge(v0,v1);
+  Edge *e0 = NULL, *e1 = NULL, *e2 = NULL;
+  if (mComputeEdges){
+    e0 = vertices_[v1].eList.getEdge(v1, v2);
+    if (!e0)
+      e0 = addEdge(v1, v2);
+
+    e1 = vertices_[v1].eList.getEdge(v2, v0);
+    if (!e1)
+      e1 = addEdge(v2, v0);
+
+    e2 = vertices_[v1].eList.getEdge(v0, v1);
+    if (!e2)
+      e2 = addEdge(v0, v1);
+  }
   
   Triangle* tri = new Triangle(v0, v1, v2, t0, t1, t2, n0, n1, n2, e0, e1, e2);
   triangles_.insertTriangle(tri);
 
-  e0->tList.insertTriangle(tri);
-  e1->tList.insertTriangle(tri);
-  e2->tList.insertTriangle(tri);
+  if (mComputeEdges){
+    e0->tList.insertTriangle(tri);
+    e1->tList.insertTriangle(tri);
+    e2->tList.insertTriangle(tri);
+  }
   
   numTriangles_++;
   return tri;  
@@ -155,15 +161,8 @@ Triangle* Mesh::addTriangle(int v0, int v1, int v2, int t0, int t1, int t2, int 
 //load from file
 bool Mesh::loadFromFile(std::string filename){
   filename_ = filename;
-  int n = filename.find_last_of(".");
-  std::string ending = filename.substr(n+1);
-#ifdef WIN32
-  n = filename.find_last_of("\\");
-#endif
-#ifdef UNIX
-  n = filename.find_last_of("/");
-#endif
-  std::string name = filename.substr(n+1);
+  std::string name = Filesystem::getFileComponent(filename);
+  std::string ending = Filesystem::getExtension(name);
   name_ = name;
   if (ending == "nofile"){
     addVertex(0.5,0.5,0.5);
@@ -258,119 +257,21 @@ bool Mesh::loadOBJ(std::string filename){
         addTriangle(vertexid[0] - 1, vertexid[2] - 1, vertexid[3] - 1, textureid[0] - 1, textureid[2] - 1, textureid[3] - 1, normalid[0] - 1, normalid[2] - 1, normalid[3] - 1);
       }
       break;
+    case 'm':
+      if (memcmp(line, "mtllib", 6) == 0){
+        std::string mtlfile(line + 7);
+        if (mtlfile.back() == '\n')
+          mtlfile.pop_back();
+        string path = Filesystem::getPathComponent(filename);
+        mtlfile = Filesystem::combinePath(path, mtlfile);
+        break;
+      }
+      break;
     default:
       break;
     }
   }
   fclose(file);
-  /*
-  //the significantly slower, but little bit safer variant
-  std::ifstream file(filename.c_str());
-  if (!file)
-    return false;
-  bool bEnd = false;
-  while(!file.eof() || bEnd){
-    file >> type;
-    if (file.eof())
-      break;
-    switch(type){
-      case 'v':
-        if (file.peek() =='t') {
-          // texture coordinate
-          file >> type;
-          file >> x; if (file.eof()) {bEnd = true; fprintf(stderr, "end at x\n"); break;};
-          file >> y; if (file.eof()) {bEnd = true; fprintf(stderr, "end at y\n"); break;};
-          z = 0.0f;
-          //do we have 3D coords?
-          file.ignore();
-          tester = file.peek();
-          if (tester >=48 && tester <= 57){
-            file >> z;
-          }
-          addTexCoord(x,y,z);
-        }
-        else if (file.peek() == 'n') {
-          // normal vector
-          file >> type;
-          file >> x; if (file.eof()) {bEnd = true; fprintf(stderr, "end at x\n"); break;};
-          file >> y; if (file.eof()) {bEnd = true; fprintf(stderr, "end at y\n"); break;};
-          file >> z; if (file.eof()) {bEnd = true; fprintf(stderr, "end at z\n"); break;};
-          addNormal(x,y,z);
-        }
-        else {
-          file >> x; if (file.eof()) {bEnd = true; fprintf(stderr, "end at x\n"); break;};
-          file >> y; if (file.eof()) {bEnd = true; fprintf(stderr, "end at y\n"); break;};
-          file >> z; if (file.eof()) {bEnd = true; fprintf(stderr, "end at z\n"); break;};
-          addVertex(x,y,z);
-        }
-        break;
-      case 'f':
-        file >> vertexid[0];
-        if (file.eof()) {bEnd = true; fprintf(stderr, "end at v0\n"); break;}
-        if (file.peek() == '/'){
-          // read texture index
-          file >> tester >> textureid[0]; 
-          if (file.eof()) {bEnd = true; fprintf(stderr, "end at t0\n"); break;}
-        }
-        if (file.peek() == '/') {
-          // read normal index
-          file >> tester >> normalid[0]; 
-          if (file.eof()) {bEnd = true; fprintf(stderr, "end at n0\n"); break;}
-        }
-
-        file >> vertexid[1];
-        if (file.eof()) {bEnd = true; fprintf(stderr, "end at v1\n"); break;}
-        if (file.peek() == '/') {
-          // read texture index
-          file >> tester >> textureid[1]; 
-          if (file.eof()) {bEnd = true; fprintf(stderr, "end at t1\n"); break;}
-        }
-        if (file.peek() == '/'){
-          // read normal index
-          file >> tester >> normalid[1]; 
-          if (file.eof()) {bEnd = true; fprintf(stderr, "end at n1\n"); break;}
-        }
-
-        file >> vertexid[2];
-        if (file.eof()) {bEnd = true; fprintf(stderr, "end at v2\n"); break;}
-        if (file.peek() == '/') {
-          // read texture index
-          file >> tester >> textureid[2]; 
-          if (file.eof()) {bEnd = true; fprintf(stderr, "end at t2\n"); break;}
-        }
-        if (file.peek() == '/') {
-          // read normal index
-          file >> tester >> normalid[2]; 
-          if (file.eof()) {bEnd = true; fprintf(stderr, "end at n2\n"); break;}
-        }
-        
-        addTriangle(vertexid[0]-1,vertexid[1]-1,vertexid[2]-1,textureid[0]-1,textureid[1]-1,textureid[2]-1,normalid[0]-1,normalid[1]-1,normalid[2]-1);
-
-        //do we have a quad?
-        file.ignore();
-        tester = file.peek();
-        if (tester >=48 && tester <= 57){
-          file >> vertexid[3];
-          if (file.eof()) {bEnd = true; fprintf(stderr, "end at v3\n"); break;}
-          if (file.peek() == '/') {
-            // read texture index
-            file >> tester >> textureid[3]; 
-            if (file.eof()) {bEnd = true; fprintf(stderr, "end at t3\n"); break;}
-          }
-          if (file.peek() == '/') {
-            // read normal index
-            file >> tester >> normalid[3]; 
-            if (file.eof()) {bEnd = true; fprintf(stderr, "end at n3\n"); break;}
-          }
-          addTriangle(vertexid[0] - 1, vertexid[2] - 1, vertexid[3] - 1, textureid[0] - 1, textureid[2] - 1, textureid[3] - 1, normalid[0] - 1, normalid[2] - 1, normalid[3] - 1);
-        }
-        break;
-      default:
-        file.getline(line, 2000);
-        break;
-    }
-  }	// while
-  file.close();*/
   return true;
 }
 
@@ -391,9 +292,6 @@ bool Mesh::loadOFF(std::string filename){
   float x,y,z;
   for (int i = 0; i < numV; i++){
     file >> x >> y >> z;
-    //x /= 330.596;
-    //y /= 390.473;
-    //z /= 460.378;
     addVertex(x,y,z);
   }
 
@@ -450,6 +348,9 @@ bool Mesh::loadOFF(std::string filename){
 
 //! get the normal of a triangle
 float* Mesh::getNormal(int i){
+  if (!mComputeEdges)
+    return NULL;
+
   Vertex v = vertices_[i];
 
   Vector3D normal = Vector3D(0,0,0);
@@ -675,8 +576,10 @@ void Mesh::clear(){
   numVertices_ = 0;
   numTriangles_ = 0;
   numTexCoords_ = 0;
+  mNumNormals = 0;
   vertices_.clear();
   texCoords_.clear();
+  mNormals.clear();
   edges_.clear();
   triangles_.clear();
   indices_.clear();
@@ -684,8 +587,11 @@ void Mesh::clear(){
   filename_ = "none";
   if (vb_)
     SAFE_DELETE(vb_);
+  if (mIB)
+    SAFE_DELETE(mIB);
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
   max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
   center_ = Vector3D();
+  mComputeEdges = true;
 }
 
