@@ -363,7 +363,7 @@ void OGLRenderer::setMaterial(const Material& mat){
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.getAmbient().array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat.getDiffuse().array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat.getSpecular().array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat.getEmissive().array);
+  //glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat.getEmissive().array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.getPower());
 }
 

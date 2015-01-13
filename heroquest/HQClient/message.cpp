@@ -510,7 +510,7 @@ void Message::process_(const char* cmd){
 			consol << "Usage: Attack <x> <y>";
 			break;
 		}
-		*ss_ << toStr(ATTACK)+" "+argv[0]+" "+argv[2];
+		*ss_ << toStr(ATTACK)+" "+argv[0]+" "+argv[1];
 	break;
 
 	case DEFEND:
