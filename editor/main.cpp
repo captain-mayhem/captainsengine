@@ -14,6 +14,7 @@
 #include "gui/dropdown.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
+#include "io/TraceManager.h"
 
 #include "graphics.h"
 #include "editor.h"
@@ -22,6 +23,8 @@ using std::cerr;
 using namespace CGE;
 
 void engineMain(int argc, char** argv){
+  CGE::LogOutputter* putty = new CGE::LogOutputter("editor.log");
+  CGE::TraceManager::instance()->setTraceOutputter(putty);
   Editor::instance()->init();
   
   //render callbacks

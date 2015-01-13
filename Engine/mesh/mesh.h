@@ -64,6 +64,8 @@ public:
   Edge* addEdge(int v0, int v1);
   //! add triangle
   Triangle* addTriangle(int v0, int v1, int v2, int t0 = -1, int t1 = -1, int t2 = -1, int n0 = -1, int n1 = -1, int n2 = -1);
+  //! add submesh
+  void addSubMesh(int triangleFrom, int triangleCount);
   //! loads a mesh from a file
   bool loadFromFile(std::string filename);
   //! build vertex buffer object

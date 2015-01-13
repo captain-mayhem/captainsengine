@@ -79,12 +79,20 @@ void TraceObject::trace(int level, const char* function, const char* message, ..
   }
 }
 
+LogOutputter::LogOutputter(){
+  mLogName = "engine.log";
+}
+
+LogOutputter::LogOutputter(std::string const& file){
+  mLogName = file;
+}
+
 LogOutputter::~LogOutputter(){
   mLog.close();
 }
 
 bool LogOutputter::init(){
-  mLog.open("engine.log");
+  mLog.open(mLogName);
   if (!mLog)
     return false;
   return true;

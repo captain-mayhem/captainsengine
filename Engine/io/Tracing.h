@@ -47,10 +47,13 @@ protected:
 
 class LogOutputter : public TraceOutputter{
 public:
+  LogOutputter();
+  LogOutputter(std::string const& file);
   ~LogOutputter();
   virtual bool init();
   virtual void trace(unsigned channel, int level, const char* function, const char* message);
 protected:
+  std::string mLogName;
   std::ofstream mLog;
 };
 

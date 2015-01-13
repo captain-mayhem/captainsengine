@@ -30,6 +30,8 @@
 using std::min;
 using namespace CGE;
 
+TR_CHANNEL(CGE_Mesh);
+
 // --------------------------------------------------------------------
 //  Default constructor
 // --------------------------------------------------------------------
@@ -185,6 +187,7 @@ bool Mesh::loadFromFile(std::string filename){
 
 // load obj-files
 bool Mesh::loadOBJ(std::string filename){
+  TR_USE(CGE_Mesh);
   char tester;	
   float x,y,z;
   unsigned int vertexid[4], textureid[4], normalid[4];
@@ -264,10 +267,26 @@ bool Mesh::loadOBJ(std::string filename){
           mtlfile.pop_back();
         string path = Filesystem::getPathComponent(filename);
         mtlfile = Filesystem::combinePath(path, mtlfile);
-        break;
       }
+      else
+        TR_WARN("%s unhandled", line);
+      break;
+	  case 'u':
+		  if (memcmp(line, "usemtl", 6) == 0){
+			  std::string mtl(line + 7);
+        mtl.pop_back();
+			  addSubMesh(0, 0);
+		  }
+      else
+        TR_WARN("%s unhandled", line);
+		  break;
+    case 'g':
+      break;
+    case '#':
+    case '\n':
       break;
     default:
+      TR_WARN("%s unhandled", line);
       break;
     }
   }
@@ -594,4 +613,9 @@ void Mesh::clear(){
   center_ = Vector3D();
   mComputeEdges = true;
 }
+
+void Mesh::addSubMesh(int triangleFrom, int triangleCount){
+
+}
+
 

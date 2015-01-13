@@ -34,15 +34,14 @@ public:
   const Color& getAmbient() const {return mAmbient;}
   void setSpecular(const Color& specular) {mSpecular = specular;}
   const Color& getSpecular() const {return mSpecular;}
-  void setEmissive(const Color& emissive) {mEmissive = emissive;}
-  const Color& getEmissive() const {return mEmissive;}
+  //void setEmissive(const Color& emissive) {mEmissive = emissive;}
+  //const Color& getEmissive() const {return mEmissive;}
   void setPower(float power) {mPower = power;}
   const float& getPower() const {return mPower;}
 protected:
   Color mDiffuse;
   Color mAmbient;
   Color mSpecular;
-  Color mEmissive;
   float mPower;
 };
 
