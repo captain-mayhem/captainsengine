@@ -40,6 +40,7 @@
 namespace CGE{
 class VertexBuffer;
 class IndexBuffer;
+class Material;
 }
 
 namespace CGE{
@@ -65,7 +66,7 @@ public:
   //! add triangle
   Triangle* addTriangle(int v0, int v1, int v2, int t0 = -1, int t1 = -1, int t2 = -1, int n0 = -1, int n1 = -1, int n2 = -1);
   //! add submesh
-  void addSubMesh(int triangleFrom, int triangleCount);
+  void addSubMesh(int triangleFrom, int triangleCount, int materialIdx);
   //! loads a mesh from a file
   bool loadFromFile(std::string filename);
   //! build vertex buffer object
@@ -79,12 +80,6 @@ public:
 
   //! is the mesh visible
   bool isVisible() {return m_visible;}
-
-  //! is the mesh lighted
-  bool isLighted() {return m_light;}
-
-  //! the mesh color
-  float* getColor() {return m_color;}
 
   //! get the normal of a triangle
   float* getNormal(int i);
@@ -165,15 +160,11 @@ protected:
   //! should it be visible
   bool m_visible;
 
-  //! lighting?
-  bool m_light;
-
-  // color
-  float m_color[4];
-
-  //compute edges
+  //! compute edges
   bool mComputeEdges;
 
+  //! the materials
+  std::vector<Material*> mMaterials;
 };
 
 }

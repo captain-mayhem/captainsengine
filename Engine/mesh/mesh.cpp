@@ -43,10 +43,6 @@ Mesh::Mesh() : mComputeEdges(true){
   name_ = "none";
   filename_ = "none";
   m_visible = true;
-  m_light = true;
-  for (int i = 0; i < 4; i++){
-    m_color[i] = 1.0;
-  }
   vb_ = NULL;
   mIB = NULL;
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
@@ -60,19 +56,7 @@ Mesh::Mesh() : mComputeEdges(true){
 Mesh::~Mesh(){
   //glDeleteBuffersARB(1, &m_vbo);
   //glDeleteBuffersARB(1, &m_vboidx);
-  SAFE_DELETE(vb_);
-  SAFE_DELETE(mIB);
-  for (unsigned i = 0; i < triangles_.size(); i++){
-    delete triangles_[i];
-    triangles_[i] = NULL;
-  }
-  triangles_.clear();
-  for (unsigned i = 0; i < edges_.size(); i++){
-    delete edges_[i];
-    edges_[i] = NULL;
-  }
-  edges_.clear();
-  texCoords_.clear();
+  clear();
 }
 
 
@@ -192,11 +176,15 @@ bool Mesh::loadOBJ(std::string filename){
   float x,y,z;
   unsigned int vertexid[4], textureid[4], normalid[4];
   char line[2000];
+
+  std::map<string, int> materialMap;
+  int materialIdx = 0;
   
   char* pos;
   FILE* file = fopen(filename.c_str(), "r");
   if (!file)
     return false;
+  int subMeshStart = 0;
   while (fgets(line, 2000, file)){
     switch (line[0]){
     case 'v':
@@ -267,6 +255,12 @@ bool Mesh::loadOBJ(std::string filename){
           mtlfile.pop_back();
         string path = Filesystem::getPathComponent(filename);
         mtlfile = Filesystem::combinePath(path, mtlfile);
+        unsigned from = mMaterials.size();
+        if (!Material::loadFromMTL(mtlfile, mMaterials))
+          TR_ERROR("mtlfile %s not found", mtlfile.c_str());
+        for (unsigned i = from; i < mMaterials.size(); ++i){
+          materialMap[mMaterials[i]->getName()] = i;
+        }
       }
       else
         TR_WARN("%s unhandled", line);
@@ -275,7 +269,9 @@ bool Mesh::loadOBJ(std::string filename){
 		  if (memcmp(line, "usemtl", 6) == 0){
 			  std::string mtl(line + 7);
         mtl.pop_back();
-			  addSubMesh(0, 0);
+			  addSubMesh(subMeshStart, triangles_.size()-subMeshStart, materialIdx);
+        subMeshStart = triangles_.size();
+        materialIdx = materialMap[mtl];
 		  }
       else
         TR_WARN("%s unhandled", line);
@@ -290,6 +286,7 @@ bool Mesh::loadOBJ(std::string filename){
       break;
     }
   }
+  addSubMesh(subMeshStart, triangles_.size() - subMeshStart, materialIdx);
   fclose(file);
   return true;
 }
@@ -599,23 +596,35 @@ void Mesh::clear(){
   vertices_.clear();
   texCoords_.clear();
   mNormals.clear();
-  edges_.clear();
-  triangles_.clear();
   indices_.clear();
   name_ = "none";
   filename_ = "none";
-  if (vb_)
-    SAFE_DELETE(vb_);
-  if (mIB)
-    SAFE_DELETE(mIB);
+  for (unsigned i = 0; i < triangles_.size(); i++){
+    delete triangles_[i];
+  }
+  triangles_.clear();
+  for (unsigned i = 0; i < edges_.size(); i++){
+    delete edges_[i];
+    edges_[i] = NULL;
+  }
+  edges_.clear();
+  SAFE_DELETE(vb_);
+  SAFE_DELETE(mIB);
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
   max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
   center_ = Vector3D();
   mComputeEdges = true;
+  for (unsigned i = 0; i < mMaterials.size(); ++i){
+    delete mMaterials[i];
+  }
+  mMaterials.clear();
 }
 
-void Mesh::addSubMesh(int triangleFrom, int triangleCount){
-
+void Mesh::addSubMesh(int triangleFrom, int triangleCount, int materialIdx){
+  if (triangleCount == 0)
+    return;
+  TR_USE(CGE_Mesh);
+  TR_INFO("%i %i, material %i", triangleFrom, triangleCount, materialIdx);
 }
 
 
