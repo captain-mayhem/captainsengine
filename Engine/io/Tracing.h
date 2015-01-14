@@ -19,6 +19,7 @@ namespace CGE{
 
 class TraceOutputter{
 public:
+  virtual ~TraceOutputter() {}
   virtual bool init()=0;
   virtual void trace(unsigned channel, int level, const char* function, const char* message)=0;
 };

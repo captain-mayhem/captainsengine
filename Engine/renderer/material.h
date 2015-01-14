@@ -1,6 +1,7 @@
 #ifndef CGE_MATERIAL_H
 #define CGE_MATERIAL_H
 
+#include <vector>
 #include "../math/vector.h"
 
 namespace CGE{
@@ -26,7 +27,7 @@ struct Color{
   
 class Material{
 public:
-  Material();
+  Material(std::string const& name);
   ~Material();
   void setDiffuse(const Color& diffuse) {mDiffuse = diffuse;}
   const Color& getDiffuse() const {return mDiffuse;}
@@ -38,7 +39,10 @@ public:
   //const Color& getEmissive() const {return mEmissive;}
   void setPower(float power) {mPower = power;}
   const float& getPower() const {return mPower;}
+  std::string const & getName() const { return mName; }
+  static bool loadFromMTL(std::string const& file, std::vector<Material*>& materials);
 protected:
+  std::string mName;
   Color mDiffuse;
   Color mAmbient;
   Color mSpecular;

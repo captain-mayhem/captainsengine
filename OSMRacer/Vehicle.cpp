@@ -18,13 +18,13 @@ Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(),
   float startheight = 2;
   float length = 3;
   float height = 1.0;
-  float width = 1.7;
+  float width = 1.7f;
   float chassis_weight = 1500;
-  float wheel_width = 0.165;
-  float wheel_radius = 0.381;
-  float wheel_weight = 7.0;
-  float damping = 10000.0;
-  float springiness = 125000.0;
+  float wheel_width = 0.165f;
+  float wheel_radius = 0.381f;
+  float wheel_weight = 7.0f;
+  float damping = 10000.0f;
+  float springiness = 125000.0f;
 
   mAutobody->initBox(*this, width, height, length, chassis_weight);
   mAutobody->setPosition(Vec3f(0,startheight+height/2,0));
@@ -33,8 +33,8 @@ Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(),
     mWheels[i] = new CGE::CollisionBody(sim);
     mWheels[i]->initCylinder(*this, wheel_width, wheel_radius, wheel_weight);
   }
-  Matrix wheelsLeft(Matrix::Rotation, Vec3f(0,0,1), M_PI/2);
-  Matrix wheelsRight(Matrix::Rotation, Vec3f(0,0,1), -M_PI/2);
+  Matrix wheelsLeft(Matrix::Rotation, Vec3f(0,0,1), (float)M_PI/2);
+  Matrix wheelsRight(Matrix::Rotation, Vec3f(0,0,1), -(float)M_PI/2);
   Vec3f frontLeft = Vec3f(-width/2,startheight,-length/2);
   Vec3f frontRight = Vec3f(width/2,startheight,-length/2);
   Vec3f backLeft = Vec3f(-width/2,startheight,length/2);
@@ -81,7 +81,7 @@ Vehicle::Vehicle(const CGE::Simulator& sim) : CollisionSpace(sim.getRootSpace(),
   for (int i = 2; i < 4; ++i){
     mWheelHinges[i]->setLowStop(0);
     mWheelHinges[i]->setHighStop(0);
-    mWheelHinges[i]->setStopERP(0.99);
+    mWheelHinges[i]->setStopERP(0.99f);
   }
   
 }
@@ -111,13 +111,13 @@ void Vehicle::render(const CGE::Camera& cam){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   CGE::Forms* form = CGE::Engine::instance()->getForms();
 
-  CGE::Material mat;
+  CGE::Material mat("vehicle");
   mat.setDiffuse(CGE::Color(1.0,1.0,0.0,1.0));
-  mat.setAmbient(CGE::Color(0.7,0.7,0.0,1.0));
+  mat.setAmbient(CGE::Color(0.7f,0.7f,0.0,1.0));
   rend->setMaterial(mat);
   mAutobody->render(cam);
   mat.setDiffuse(CGE::Color(0.0,0.0,1.0,1.0));
-  mat.setAmbient(CGE::Color(0.0,0.0,0.3,1.0));
+  mat.setAmbient(CGE::Color(0.0,0.0,0.3f,1.0));
   rend->setMaterial(mat);
   for (int i = 0; i < 4; ++i){
     mWheels[i]->render(cam);
@@ -130,10 +130,10 @@ void Vehicle::simulate(float acceleration, float steering){
   float velocity = mAutobody->getLinearVelocity().length()*3.6f;
   float factor = steering/(0.02f*velocity+1.0f);
   sprintf(tmp, "Velocity: %f", velocity);
-  CGE::Engine::instance()->getFont(0)->print(10,480,tmp,0.1);
+  CGE::Engine::instance()->getFont(0)->print(10,480,tmp,0,0.1f);
   for (int i = 0; i < 2; ++i){
-    mWheelHinges[i]->setLowStop(0.75*factor);
-    mWheelHinges[i]->setHighStop(0.75*factor);
+    mWheelHinges[i]->setLowStop(0.75f*factor);
+    mWheelHinges[i]->setHighStop(0.75f*factor);
 
     //float v = 12*steering - mWheelHinges[i]->getAngleAxis1();	
     //if (v > 0.1f) v = 0.1f;
@@ -143,7 +143,7 @@ void Vehicle::simulate(float acceleration, float steering){
 
     //mWheelHinges[i]->addTorques(vel, 0);
     sprintf(tmp, "Steering: %f", factor);
-    CGE::Engine::instance()->getFont(0)->print(10,500+20*i,tmp,0.1);
+    CGE::Engine::instance()->getFont(0)->print(10,500+20*i,tmp,0,0.1f);
   }
   for (int i = 0; i < 4; ++i){
     mWheelHinges[i]->setMaxForceAxis2(0.0);

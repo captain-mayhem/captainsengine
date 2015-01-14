@@ -42,7 +42,7 @@ void MapChunk::render(const CGE::Camera* cam){
   drawCount = 0;
   //mTree.render(cam);s
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  CGE::Material mat;
+  CGE::Material mat("street");
   mat.setDiffuse(CGE::Color(0.2f,0.2f,0.2f,1.0f));
   mat.setAmbient(CGE::Color(0.1f,0.1f,0.1f,1.0f));
   rend->setMaterial(mat);
