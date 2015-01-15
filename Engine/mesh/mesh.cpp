@@ -514,38 +514,14 @@ void Mesh::buildVBO(){
 // --------------------------------------------------------------------
 //  draw the mesh
 // --------------------------------------------------------------------
-void Mesh::draw(){/*
-  if (!m_visible)
-    return;
-  if (m_light){
-    glEnable(GL_LIGHTING);
-    float ambient[4] = { m_color[0]*0.5, m_color[1]*0.5, m_color[2]*0.5, m_color[3]};
-    float specular[4] = {0.5,0.5,0.5,m_color[3]};
-    float shininess[1] = {20.0};
-    //float diffuse[4] = { 0.8, 0.4, 0.4, 1.0 };
-    glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, ambient );
-    glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, m_color );
-    glMaterialfv( GL_FRONT_AND_BACK, GL_SPECULAR, specular );
-    glMaterialfv( GL_FRONT_AND_BACK, GL_SHININESS, shininess );
-    if(shader)
-      shader->Texture1i("lighting", 1, 0);
-  }
-  else{
-    if(shader)
-      shader->Texture1i("lighting", 0, 0);
-    glDisable(GL_LIGHTING);
-  }
-  glColor4fv(m_color);
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m_vboidx);
-  glVertexPointer(3, GL_FLOAT, (3+3)*sizeof(float), NULL);
-  glNormalPointer(GL_FLOAT, (3+3)*sizeof(float), (void*)(3*sizeof(float)));
-  glDrawElements(GL_TRIANGLES, m_numTriangles*3, GL_UNSIGNED_INT, NULL);
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);*/
-  //CGE::Engine::instance()->getRenderer()->multiplyMatrix(trafo_);
+void Mesh::draw(){
   vb_->activate();
-  vb_->draw(CGE::VB_Triangles, mIB);
+  mIB->activate();
+  for (unsigned i = 0; i < mSubmeshes.size(); ++i){
+    SubMesh& msh = mSubmeshes[i];
+    vb_->draw(VB_Triangles, mIB, msh.offset, msh.count);
+  }
+  //vb_->draw(CGE::VB_Triangles, mIB);
 }
 
 //! intersects a ray and a triangle
@@ -625,6 +601,7 @@ void Mesh::addSubMesh(int triangleFrom, int triangleCount, int materialIdx){
     return;
   TR_USE(CGE_Mesh);
   TR_INFO("%i %i, material %i", triangleFrom, triangleCount, materialIdx);
+  mSubmeshes.push_back(SubMesh(triangleFrom*3, triangleCount*3, materialIdx));
 }
 
 

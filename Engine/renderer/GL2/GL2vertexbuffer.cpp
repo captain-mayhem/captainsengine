@@ -87,32 +87,32 @@ void GL2VertexBuffer::activate(){
     glDisableVertexAttribArray(3);
 }
 
-void GL2VertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices){
+void GL2VertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, int count){
   GL2Shader::getCurrentShader()->applyEngineUniforms();
   if (indices == NULL){
     if (pt == VB_Tristrip)
-      glDrawArrays(GL_TRIANGLE_STRIP, 0, vbsize_);
+      glDrawArrays(GL_TRIANGLE_STRIP, offset, count);
     else if (pt == VB_Triangles)
-      glDrawArrays(GL_TRIANGLES, 0, vbsize_);
+      glDrawArrays(GL_TRIANGLES, offset, count);
     else if (pt == VB_Trifan)
-      glDrawArrays(GL_TRIANGLE_FAN, 0, vbsize_);
+      glDrawArrays(GL_TRIANGLE_FAN, offset, count);
     else if (pt == VB_Lines)
-      glDrawArrays(GL_LINES, 0, vbsize_);
+      glDrawArrays(GL_LINES, offset, count);
     else if (pt == VB_Points)
-      glDrawArrays(GL_POINTS, 0, vbsize_);
+      glDrawArrays(GL_POINTS, offset, count);
     return;
   }
   GL2IndexBuffer* oglidx = (GL2IndexBuffer*)indices;
   if (pt == VB_Tristrip)
-    glDrawElements(GL_TRIANGLE_STRIP, oglidx->getNumIndices(), oglidx->getType(), oglidx->getIndices());
+    glDrawElements(GL_TRIANGLE_STRIP, count, oglidx->getGLType(), oglidx->getIndices(offset));
   else if (pt == VB_Triangles)
-    glDrawElements(GL_TRIANGLES, oglidx->getNumIndices(), oglidx->getType(), oglidx->getIndices());
+    glDrawElements(GL_TRIANGLES, count, oglidx->getGLType(), oglidx->getIndices(offset));
   else if (pt == VB_Trifan)
-    glDrawElements(GL_TRIANGLE_FAN, oglidx->getNumIndices(), oglidx->getType(), oglidx->getIndices());
+    glDrawElements(GL_TRIANGLE_FAN, count, oglidx->getGLType(), oglidx->getIndices(offset));
   else if (pt == VB_Lines)
-    glDrawElements(GL_LINES, oglidx->getNumIndices(), oglidx->getType(), oglidx->getIndices());
+    glDrawElements(GL_LINES, count, oglidx->getGLType(), oglidx->getIndices(offset));
   else if (pt == VB_Points)
-    glDrawElements(GL_POINTS, oglidx->getNumIndices(), oglidx->getType(), oglidx->getIndices());
+    glDrawElements(GL_POINTS, count, oglidx->getGLType(), oglidx->getIndices(offset));
 }
 
 void GL2VertexBuffer::setColor(int pos, Color c){

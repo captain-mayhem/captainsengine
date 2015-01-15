@@ -14,7 +14,7 @@ public:
   void* lockVertexPointer();
   void unlockVertexPointer();
   void activate();
-  void draw(PrimitiveType pt, IndexBuffer* indices);
+  void draw(PrimitiveType pt, IndexBuffer* indices, int offset, int count);
   void setColor(int pos, Color c);
   void setTexCoord(int pos, ::CGE::Vec2f t, bool dxswap=false);
   void setVertexOffset(int offset);

@@ -46,9 +46,14 @@ class Material;
 namespace CGE{
 
 //! Mesh provides storage and loading for meshes
-class Mesh{
-      
+class Mesh{ 
 public:
+  struct SubMesh{
+    SubMesh(int off, int cnt, int mat) : offset(off), count(cnt), material(mat) {}
+    int offset;
+    int count;
+    int material;
+  };
 	//! Default constructor
 	Mesh();
 	//! Destructor
@@ -165,6 +170,9 @@ protected:
 
   //! the materials
   std::vector<Material*> mMaterials;
+
+  //! the sub meshes
+  std::vector<SubMesh> mSubmeshes;
 };
 
 }

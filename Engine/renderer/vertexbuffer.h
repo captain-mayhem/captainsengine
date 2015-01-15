@@ -33,7 +33,8 @@ public:
   virtual void* lockVertexPointer()=0;
   virtual void unlockVertexPointer()=0;
   virtual void activate()=0;
-  virtual void draw(PrimitiveType pt, IndexBuffer* indices)=0;
+  virtual void draw(PrimitiveType pt, IndexBuffer* indices, int offset, int count)=0;
+  void draw(PrimitiveType pt, IndexBuffer* indices);
   virtual void setPosition(int pos, Vec3f v);
   virtual void setColor(int pos, Color c)=0;
   virtual void setTexCoord(int pos, CGE::Vec2f t, bool dxswap=false)=0;

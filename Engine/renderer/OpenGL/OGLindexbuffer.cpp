@@ -13,22 +13,22 @@ OGLIndexBuffer::OGLIndexBuffer(Type t, int32 size) : IndexBuffer(t,size){
   mIbSize = size;
   switch(t){
     case IB_UCHAR:
-      mType = GL_UNSIGNED_BYTE;
+      mGLType = GL_UNSIGNED_BYTE;
       mInds = new uint8[mIbSize];
       break;
     case IB_USHORT:
-      mType = GL_UNSIGNED_SHORT;
+      mGLType = GL_UNSIGNED_SHORT;
       mInds = (uint8*)new uint16[mIbSize];
       break;
     case IB_UINT:
-      mType = GL_UNSIGNED_INT;
+      mGLType = GL_UNSIGNED_INT;
       mInds = (uint8*)new uint32[mIbSize];
       break;
   }
 }
 
 OGLIndexBuffer::~OGLIndexBuffer(){
-  switch(mType){
+  switch(mGLType){
     case GL_UNSIGNED_BYTE:
       delete [] mInds;
       break;
