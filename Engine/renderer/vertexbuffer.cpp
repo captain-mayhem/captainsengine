@@ -1,4 +1,5 @@
 #include "vertexbuffer.h"
+#include "indexbuffer.h"
 
 using namespace CGE;
 
@@ -20,5 +21,9 @@ void VertexBuffer::setNormal(int pos, CGE::Vector3D normal){
   CGE::Vector3D* norm;
   norm = (CGE::Vector3D*)(((char*)verts_)+pos*structsize_+normoffset_);
   norm->x = normal.x; norm->y = normal.y; norm->z = normal.z; 
+}
+
+void VertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices){
+  draw(pt, indices, 0, indices ? indices->getNumIndices() : vbsize_);
 }
 
