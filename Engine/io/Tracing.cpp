@@ -46,6 +46,8 @@ void TraceChannel::realize(){
 }
 
 bool TraceChannel::isEnabled(int level){
+  if (!TraceManager::instance())
+    return false;
   return TraceManager::instance()->getCurrentLevel(mChannel) >= level;
 }
 

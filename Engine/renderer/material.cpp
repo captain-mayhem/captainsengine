@@ -1,8 +1,11 @@
 #include "material.h"
+#include <system/file.h>
+#include <system/engine.h>
+#include <renderer/renderer.h>
 
 using namespace CGE;
 
-Material::Material(std::string const& name) : mName(name){
+Material::Material(std::string const& name) : mName(name), mDiffuseTex(NULL){
   mAmbient = Color(0.0f,0.0f,0.0f,1.0f);
   mDiffuse = Color(1.0f,1.0f,1.0f,1.0f);
   mSpecular = Color(0.0f,0.0f,0.0f,1.0f);
@@ -12,7 +15,7 @@ Material::Material(std::string const& name) : mName(name){
 Material::~Material(){
 }
 
-bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& materials){
+bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& materials, std::vector<Texture*>& textures){
   FILE* f = fopen(filename.c_str(), "r");
   if (!f)
     return false;
@@ -23,8 +26,30 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
   Material* currMat = NULL;
   Color col;
 
+  std::map<std::string, Texture*> texturemap;
+  for (unsigned i = 0; i < textures.size(); ++i){
+    Texture* tex = textures[i];
+    texturemap[tex->getName()] = tex;
+  }
+
   while (fgets(line, 2000, f)){
     switch (line[0]){
+    case 'm':
+      if (memcmp(line, "map_Kd", 6) == 0){
+        std::string texture(line + 7);
+        texture.pop_back();
+        std::string path = Filesystem::getPathComponent(filename);
+        texture = Filesystem::combinePath(path, texture);
+        Texture* tex = texturemap[texture];
+        if (tex == NULL){
+          tex = Engine::instance()->getRenderer()->createTexture(texture);
+          texturemap[texture] = tex;
+          if (tex)
+            textures.push_back(tex);
+        }
+        currMat->setDiffuseTex(tex);
+      }
+      break;
     case 'n':
       if (memcmp(line, "newmtl", 6) == 0){
         std::string mtl(line + 7);

@@ -181,7 +181,9 @@ bool Socket::connect(const std::string& host, const int port){
 bool Socket::ipconnect(const std::string& host){
   //Error occured with gethostbyname or connect, so host may be speciifed as IP-Address
 #ifdef WIN32
+#ifndef EAFNOSUPPORT
 #define EAFNOSUPPORT WSAEAFNOSUPPORT
+#endif
 	struct hostent* conn;
 	conn = gethostbyaddr(host.c_str(), host.size(),SOCK_STREAM);
 	 //set the IP-Address

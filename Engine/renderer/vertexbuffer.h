@@ -37,7 +37,7 @@ public:
   void draw(PrimitiveType pt, IndexBuffer* indices);
   virtual void setPosition(int pos, Vec3f v);
   virtual void setColor(int pos, Color c)=0;
-  virtual void setTexCoord(int pos, CGE::Vec2f t, bool dxswap=false)=0;
+  virtual void setTexCoord(int pos, CGE::Vec2f t)=0;
   virtual void setNormal(int pos, CGE::Vec3f normal);
   virtual void setVertexOffset(int offset)=0;
 protected:

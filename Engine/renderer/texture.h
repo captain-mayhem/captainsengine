@@ -11,8 +11,8 @@ class Texture{
 public:
   Texture(string filename);
   virtual ~Texture();
-  virtual void activate()=0;
-  virtual void deactivate()=0;
+  virtual void activate() const =0;
+  virtual void deactivate() const =0;
   static Texture** loadFromDat(const string& path, const string& filename, int& number);
   //! load a texture
   static Texture* create(const std::string& filename);

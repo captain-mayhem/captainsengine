@@ -408,6 +408,14 @@ void GL2Renderer::multiplyMatrix(const CGE::Matrix& mat){
 
 //! set material
 void GL2Renderer::setMaterial(const Material& mat){
+  setColor(&mat.getDiffuse());
+  Texture const* tex = mat.getDiffuseTex();
+  if (tex){
+    enableTexturing(true);
+    tex->activate();
+  }
+  else
+    enableTexturing(false);
   /*glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.getAmbient().array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat.getDiffuse().array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat.getSpecular().array);
