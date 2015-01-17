@@ -55,7 +55,7 @@ void Bitset::unset(const short position){
 // test, if bit is set
 bool Bitset::test(const short position){
   assert(position < 8 && position >= 0);
-  return (data_ & idx_[position]);
+  return (data_ & idx_[position]) != 0;
 }
 
 // number of set bits

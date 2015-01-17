@@ -89,11 +89,11 @@ std::string BinFileReader::readLine(){
 }
 
 uint32 BinFileReader::getSize(){
-  unsigned pos = mStream.tellg();
+  unsigned pos = (unsigned)mStream.tellg();
   mStream.seekg(0, std::ios::beg);
-  unsigned start = mStream.tellg();
+  unsigned start = (unsigned)mStream.tellg();
   mStream.seekg(0, std::ios::end);
-  unsigned end = mStream.tellg();
+  unsigned end = (unsigned)mStream.tellg();
   mStream.seekg(pos, std::ios::beg);
   return end - start;
 }

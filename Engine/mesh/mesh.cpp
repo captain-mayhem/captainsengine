@@ -48,6 +48,7 @@ Mesh::Mesh() : mComputeEdges(true){
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
   max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
   center_ = Vector3D();
+  mMaterials.push_back(NULL);
 }
 
 // --------------------------------------------------------------------
@@ -88,7 +89,7 @@ void Mesh::addVertex(CGE::Vec3f v){
 
 // add texture coordinates
 void Mesh::addTexCoord(float x, float y, float z){
-  texCoords_.push_back(Vector3D(x,y,z));
+  texCoords_.push_back(Vector3D(x,1.0f-y,z));
   numTexCoords_++;
 }
 
@@ -256,7 +257,7 @@ bool Mesh::loadOBJ(std::string filename){
         string path = Filesystem::getPathComponent(filename);
         mtlfile = Filesystem::combinePath(path, mtlfile);
         unsigned from = mMaterials.size();
-        if (!Material::loadFromMTL(mtlfile, mMaterials))
+        if (!Material::loadFromMTL(mtlfile, mMaterials, mTextures))
           TR_ERROR("mtlfile %s not found", mtlfile.c_str());
         for (unsigned i = from; i < mMaterials.size(); ++i){
           materialMap[mMaterials[i]->getName()] = i;
@@ -519,6 +520,9 @@ void Mesh::draw(){
   mIB->activate();
   for (unsigned i = 0; i < mSubmeshes.size(); ++i){
     SubMesh& msh = mSubmeshes[i];
+    Material* mat = mMaterials[msh.material];
+    if (mat)
+      Engine::instance()->getRenderer()->setMaterial(*mat);
     vb_->draw(VB_Triangles, mIB, msh.offset, msh.count);
   }
   //vb_->draw(CGE::VB_Triangles, mIB);
@@ -594,13 +598,17 @@ void Mesh::clear(){
     delete mMaterials[i];
   }
   mMaterials.clear();
+  for (unsigned i = 0; i < mTextures.size(); ++i){
+    delete mTextures[i];
+  }
+  mTextures.clear();
 }
 
 void Mesh::addSubMesh(int triangleFrom, int triangleCount, int materialIdx){
   if (triangleCount == 0)
     return;
   TR_USE(CGE_Mesh);
-  TR_INFO("%i %i, material %i", triangleFrom, triangleCount, materialIdx);
+  TR_DEBUG("%i %i, material %i", triangleFrom, triangleCount, materialIdx);
   mSubmeshes.push_back(SubMesh(triangleFrom*3, triangleCount*3, materialIdx));
 }
 

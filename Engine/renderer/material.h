@@ -6,6 +6,8 @@
 
 namespace CGE{
 
+class Texture;
+
 struct Color{
   Color(){r = 1.0; g = 1.0; b = 1.0; a=1.0;}
   Color(float rn, float gn, float bn, float an){
@@ -31,19 +33,20 @@ public:
   ~Material();
   void setDiffuse(const Color& diffuse) {mDiffuse = diffuse;}
   const Color& getDiffuse() const {return mDiffuse;}
+  void setDiffuseTex(Texture* tex) { mDiffuseTex = tex; }
+  Texture const* getDiffuseTex() const { return mDiffuseTex; }
   void setAmbient(const Color& ambient) {mAmbient = ambient;}
   const Color& getAmbient() const {return mAmbient;}
   void setSpecular(const Color& specular) {mSpecular = specular;}
   const Color& getSpecular() const {return mSpecular;}
-  //void setEmissive(const Color& emissive) {mEmissive = emissive;}
-  //const Color& getEmissive() const {return mEmissive;}
   void setPower(float power) {mPower = power;}
   const float& getPower() const {return mPower;}
   std::string const & getName() const { return mName; }
-  static bool loadFromMTL(std::string const& file, std::vector<Material*>& materials);
+  static bool loadFromMTL(std::string const& file, std::vector<Material*>& materials, std::vector<Texture*>& textures);
 protected:
   std::string mName;
   Color mDiffuse;
+  Texture* mDiffuseTex;
   Color mAmbient;
   Color mSpecular;
   float mPower;

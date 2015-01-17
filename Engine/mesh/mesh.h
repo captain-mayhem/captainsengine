@@ -41,6 +41,7 @@ namespace CGE{
 class VertexBuffer;
 class IndexBuffer;
 class Material;
+class Texture;
 }
 
 namespace CGE{
@@ -170,6 +171,9 @@ protected:
 
   //! the materials
   std::vector<Material*> mMaterials;
+
+  //! the textures
+  std::vector<Texture*> mTextures;
 
   //! the sub meshes
   std::vector<SubMesh> mSubmeshes;

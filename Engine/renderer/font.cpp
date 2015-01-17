@@ -72,10 +72,10 @@ void Font::buildFont(VertexBuffer* other){
       buffer_->setPosition(4 * i + 1, Vec3f(16, 0, 0));
       buffer_->setPosition(4 * i + 3, Vec3f(16, 16, 0));
       buffer_->setPosition(4 * i + 2, Vec3f(0, 16, 0));
-      buffer_->setTexCoord(4 * i + 0, Vec2f(cx, 1 - cy - 0.0625f), true);
-      buffer_->setTexCoord(4 * i + 1, Vec2f(cx + 0.0625f, 1 - cy - 0.0625f), true);
-      buffer_->setTexCoord(4 * i + 3, Vec2f(cx + 0.0625f, 1 - cy), true);
-      buffer_->setTexCoord(4 * i + 2, Vec2f(cx, 1 - cy), true);
+      buffer_->setTexCoord(4 * i + 0, Vec2f(cx, cy + 0.0625f));
+      buffer_->setTexCoord(4 * i + 1, Vec2f(cx + 0.0625f, cy + 0.0625f));
+      buffer_->setTexCoord(4 * i + 3, Vec2f(cx + 0.0625f, cy));
+      buffer_->setTexCoord(4 * i + 2, Vec2f(cx, cy));
     }
 
     buffer_->unlockVertexPointer();

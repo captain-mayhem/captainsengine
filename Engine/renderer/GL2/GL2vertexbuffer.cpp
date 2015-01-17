@@ -121,7 +121,7 @@ void GL2VertexBuffer::setColor(int pos, Color c){
   col->r = c.r; col->g = c.g; col->b = c.b; col->a = c.a;
 }
 
-void GL2VertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t, bool dxswap){
+void GL2VertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t){
   ::CGE::Vec2f* tex;
   tex = (::CGE::Vec2f*)(((char*)verts_)+pos*structsize_+texoffset_);
   tex->x = t.x; tex->y = t.y;
