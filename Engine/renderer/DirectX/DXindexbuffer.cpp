@@ -35,6 +35,10 @@ void DXIndexBuffer::unlockIndexPointer(){
   ctx->Unmap(mIb, NULL);
 }
 
+void DXIndexBuffer::activate(){
+
+}
+
 void DXIndexBuffer::setIndex(uint32 i, uint8 index){
 
 }

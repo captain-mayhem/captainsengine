@@ -402,8 +402,8 @@ void HQRenderer::initialize_(){
   //init shader
   if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL2){
     m3DShader = new CGE::GL2Shader();
-    m3DShader->addShader(GL_VERTEX_SHADER, vs_src);
-    m3DShader->addShader(GL_FRAGMENT_SHADER, fs_src);
+    m3DShader->addShader(CGE::Shader::VERTEX_SHADER, vs_src);
+    m3DShader->addShader(CGE::Shader::FRAGMENT_SHADER, fs_src);
     m3DShader->bindAttribLocation(0, "pos");
     m3DShader->bindAttribLocation(1, "color");
     m3DShader->bindAttribLocation(2, "texcoord");

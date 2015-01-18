@@ -130,8 +130,10 @@ void Font::render(){
   if (tex_ == NULL)
     return;
 
-  tex_->activate();
-  buffer_->activate();
+  if (!q_.empty()){
+    tex_->activate();
+    buffer_->activate();
+  }
 
   while(!q_.empty()){
     

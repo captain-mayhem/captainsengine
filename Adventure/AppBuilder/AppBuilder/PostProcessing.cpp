@@ -56,8 +56,8 @@ private:
 PostProcessor::Effect::Effect(const char* vertexsource, const char* fragmentsource) : mFade(false){
   mShader.bindAttribLocation(0, "position");
   mShader.bindAttribLocation(1, "texCoord");
-  mShader.addShader(GL_VERTEX_SHADER, vertexsource);
-  mShader.addShader(GL_FRAGMENT_SHADER, fragmentsource);
+  mShader.addShader(CGE::Shader::VERTEX_SHADER, vertexsource);
+  mShader.addShader(CGE::Shader::FRAGMENT_SHADER, fragmentsource);
   mShader.linkShaders();
 }
 
@@ -507,8 +507,8 @@ class MotionBlurEffect : public PostProcessor::Effect{
 public:
   MotionBlurEffect() : Effect(stdvs, motionblurfs){
     mName = "motionblur";
-    mStdShader.addShader(GL_VERTEX_SHADER, stdvs);
-    mStdShader.addShader(GL_FRAGMENT_SHADER, stdfs);
+    mStdShader.addShader(CGE::Shader::VERTEX_SHADER, stdvs);
+    mStdShader.addShader(CGE::Shader::FRAGMENT_SHADER, stdfs);
     mStdShader.linkShaders();
   }
   ~MotionBlurEffect(){
@@ -942,8 +942,8 @@ class LightningEffect : public PostProcessor::Effect{
 public:
   LightningEffect() : Effect(stdvs, lightningfs), mFBO(NULL){
     mName = "lightning";
-    mDrawShader.addShader(GL_VERTEX_SHADER, drawvs);
-    mDrawShader.addShader(GL_FRAGMENT_SHADER, drawfs);
+    mDrawShader.addShader(CGE::Shader::VERTEX_SHADER, drawvs);
+    mDrawShader.addShader(CGE::Shader::FRAGMENT_SHADER, drawfs);
     mDrawShader.bindAttribLocation(0, "position");
     mDrawShader.bindAttribLocation(1, "color");
     mDrawShader.linkShaders();

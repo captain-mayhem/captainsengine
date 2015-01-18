@@ -116,3 +116,16 @@ void Image::crop(int x, int y, int width, int height){
 	ret->mData = NULL;
 	delete ret;
 }
+
+void Image::convertFormat(int numChannels){
+  unsigned char* data = new unsigned char[mWidth*mHeight*numChannels];
+  if (numChannels == 4 && mChannels == 3){
+    for (int i = 0; i < mWidth*mHeight; ++i){
+      memcpy(data + i*numChannels, mData + i*mChannels, mChannels);
+      data[i*numChannels + 3] = 0xff;
+    }
+  }
+  delete[] mData;
+  mData = data;
+  mChannels = numChannels;
+}

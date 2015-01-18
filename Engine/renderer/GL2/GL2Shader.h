@@ -9,14 +9,15 @@
 #include <map>
 #include <math/matrix.h>
 #include <renderer/renderer.h>
+#include <renderer/shader.h>
 
 namespace CGE{
 
-class GL2Shader{
+class GL2Shader : public Shader{
 public:
   GL2Shader();
   ~GL2Shader();
-  bool addShader(GLenum shadertype, const char* shaderstring, int stringlen=0);
+  bool addShader(Type shadertype, const char* shaderstring, int stringlen=0);
   bool linkShaders();
   void activate() { mOldProg = mCurrShader; glUseProgram(mProgram); mCurrShader = this; }
   void deactivate() { glUseProgram(mOldProg?mOldProg->mProgram:0); mCurrShader = mOldProg; }

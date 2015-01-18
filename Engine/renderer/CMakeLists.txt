@@ -4,6 +4,7 @@ IF(RENDER_DIRECTX)
 	SET(RENDERER_SRCS
 		${PRE}/DirectX/DXindexbuffer.cpp
 		${PRE}/DirectX/DXrenderer.cpp
+		${PRE}/DirectX/DXshader.cpp
 		${PRE}/DirectX/DXtexture.cpp
 		${PRE}/DirectX/DXvertexbuffer.cpp
 		${RENDERER_SRCS}
@@ -11,6 +12,7 @@ IF(RENDER_DIRECTX)
 	SET(RENDERER_HDRS_DX
 		${PRE}/DirectX/DXindexbuffer.h
 		${PRE}/DirectX/DXrenderer.h
+		${PRE}/DirectX/DXshader.h
 		${PRE}/DirectX/DXtexture.h
 		${PRE}/DirectX/DXvertexbuffer.h
 	)
@@ -71,6 +73,7 @@ SET(Engine_renderer_SRCS
 	${PRE}/model.cpp
 	${PRE}/renderer.cpp
 	${PRE}/scene.cpp
+	${PRE}/shader.cpp
 	${PRE}/texture.cpp
 	${PRE}/vertexbuffer.cpp
 	${RENDERER_SRCS}
@@ -87,6 +90,7 @@ SET(RENDERER_HDRS_CORE
 	${PRE}/model.h
 	${PRE}/renderer.h
 	${PRE}/scene.h
+	${PRE}/shader.h
 	${PRE}/texture.h
 	${PRE}/vertexbuffer.h
 )

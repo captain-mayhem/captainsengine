@@ -56,13 +56,15 @@ public:
   //! set perspective projection
   void projection(float angle, float aspect, float nearplane, float farplane);
   //! set orthographic projection
-  void ortho(const int width, const int height);
+  void ortho(float left, float right, float bottom, float top, float nearp, float farp);
   //! reset modelview matrix
   void resetModelView();
   //! translate
   void translate(float x, float y, float z);
   //! scale
   void scale(float x, float y, float z);
+  //! rotate
+  virtual void rotate(float angle, float x, float y, float z);
   //! set render mode
   void renderMode(RendMode rm);
   //! set blending mode
@@ -77,6 +79,8 @@ public:
   void enableLighting(const bool flag);
   //! enable light
   virtual void enableLight(short number, bool flag);
+  //! enable depth test
+  virtual void enableDepthTest(const bool flag);
   //! set color
   void setColor(float r, float g, float b, float a);
   //! set color
@@ -99,6 +103,8 @@ public:
   virtual void swapBuffers();
   //! switch from view to model matrix
   virtual void switchFromViewToModelTransform();
+  //! switch matrix type
+  virtual void switchMatrixStack(MatrixType type);
 protected:
   //! the directX context
   ID3D11DeviceContext* mD3d;
@@ -111,9 +117,9 @@ protected:
   //! the clear color
   FLOAT mClearColor[4];
   //! the matrix stack
-  std::stack<DirectX::XMMATRIX> mMatrixStack[3];
+  std::stack<DirectX::XMFLOAT4X4> mMatrixStack[3];
   //! the matrices
-  DirectX::XMMATRIX mMatrix[3];
+  DirectX::XMFLOAT4X4 mMatrix[3];
   //! the transform type
   MatrixType mMatrixMode;
 };
