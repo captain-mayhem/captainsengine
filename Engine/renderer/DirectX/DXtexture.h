@@ -3,7 +3,7 @@
 
 #ifdef WIN32
 
-#include <d3d9.h>
+#include <d3d11.h>
 #include "../texture.h"
 
 namespace CGE{
@@ -11,13 +11,14 @@ namespace CGE{
 class DXTexture : public Texture {
 public:
   DXTexture(string filename);
-  virtual ~DXTexture(){}
-  void activate();
-  virtual void deactivate();
+  virtual ~DXTexture();
+  void activate()const;
+  virtual void deactivate()const;
 protected:
   bool load(string filename);
-  LPDIRECT3DDEVICE9 device_;
-  IDirect3DTexture9* tex_;
+  ID3D11Device* mDevice;
+  ID3D11ShaderResourceView* mTex;
+  ID3D11SamplerState* mState;
 };
 
 

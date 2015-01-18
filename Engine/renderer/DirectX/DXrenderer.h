@@ -8,8 +8,8 @@
 #else
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <d3d9.h>
-#include <d3dx9.h>
+#include <d3d11.h>
+#include <DirectXMath.h>
 #include <stack>
 #include "../../math/vector.h"
 #include "../renderer.h"
@@ -28,9 +28,11 @@ public:
   //! Destructor
   ~DXRenderer();
   //! get device
-  inline LPDIRECT3DDEVICE9 getDevice() const {return device_;}
+  inline ID3D11Device* getDevice() const {return mDevice;}
+  //! get context
+  inline ID3D11DeviceContext* getContext() const { return mD3d; }
   //! init rendering context
-  void initContext(::Windows::AppWindow* win);
+  void initContext(AppWindow* win);
   //! kill rendering context
   void killContext();
   //! start scene
@@ -99,15 +101,21 @@ public:
   virtual void switchFromViewToModelTransform();
 protected:
   //! the directX context
-  LPDIRECT3D9 d3d_;
+  ID3D11DeviceContext* mD3d;
   //! the graphics device
-  LPDIRECT3DDEVICE9 device_;
+  ID3D11Device* mDevice;
+  //! the swap chain
+  IDXGISwapChain* mSwapchain;
+  //! the back buffer
+  ID3D11RenderTargetView* mBackBuffer;
   //! the clear color
-  ::CGE::Vector3D clearColor_;
+  FLOAT mClearColor[4];
   //! the matrix stack
-  stack<D3DXMATRIX> modelstack_;
+  std::stack<DirectX::XMMATRIX> mMatrixStack[3];
+  //! the matrices
+  DirectX::XMMATRIX mMatrix[3];
   //! the transform type
-  D3DTRANSFORMSTATETYPE matrixtype_;
+  MatrixType mMatrixMode;
 };
 
 }

@@ -27,7 +27,6 @@ bool OGLTexture::load(string filename){
   Image *img = NULL;
 
   img = ImageLoader::load(filename.c_str());
-  string end;
 
   if (!img)
     return false;
