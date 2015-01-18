@@ -12,7 +12,7 @@ using namespace CGE;
 
 GL2Shader* GL2Shader::mCurrShader = NULL;
 
-GL2Shader::GL2Shader(){
+GL2Shader::GL2Shader() : mOldProg(NULL){
   mProgram = glCreateProgram();
 }
 
@@ -20,11 +20,16 @@ GL2Shader::~GL2Shader(){
   glDeleteProgram(mProgram);
 }
 
-bool GL2Shader::addShader(GLenum shadertype, const char* shaderstring, int stringlen){
+bool GL2Shader::addShader(Type shadertype, const char* shaderstring, int stringlen){
   TR_USE(CGE_Shader);
   if (stringlen == 0)
     stringlen = strlen(shaderstring);
-  GLuint shader = glCreateShader(shadertype);
+  GLenum type;
+  if (shadertype == VERTEX_SHADER)
+    type = GL_VERTEX_SHADER;
+  else if (shadertype == FRAGMENT_SHADER)
+    type = GL_FRAGMENT_SHADER;
+  GLuint shader = glCreateShader(type);
   glShaderSource(shader, 1, &shaderstring, &stringlen);
   glCompileShader(shader);
   GLint success = 0;

@@ -19,7 +19,8 @@ DXRenderer::DXRenderer(): Renderer() {
   mD3d = NULL;
   mDevice = NULL;
   for (int i = 0; i < 3; ++i){
-    mMatrix[i] = XMMatrixIdentity();
+    XMMATRIX mat = XMMatrixIdentity();
+    XMStoreFloat4x4(&mMatrix[i], mat);
   }
   mMatrixMode = Modelview;
 }
@@ -31,27 +32,46 @@ void DXRenderer::initContext(AppWindow* win){
   TR_USE(CGE_Renderer_DirectX)
   TR_INFO("Initializing DirectX context");
   win_ = win;
+  HWND wnd = (HWND)win->getHandle();
+  ShowWindow(wnd, SW_SHOW);
+  SetForegroundWindow(wnd);
+  SetFocus(wnd);
 
   DXGI_SWAP_CHAIN_DESC scd;
   ZeroMemory(&scd, sizeof(scd));
   scd.BufferCount = 1;
-  if (win->getBpp() == 16){
+  if (win->getBpp() == 32){
     scd.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
   }
-  else if (win->getBpp() == 32){
+  else if (win->getBpp() == 16){
     scd.BufferDesc.Format = DXGI_FORMAT_B4G4R4A4_UNORM;
   }
   scd.BufferDesc.Width = win->getWidth();
   scd.BufferDesc.Height = win->getHeight();
   scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-  HWND wnd = (HWND)win->getHandle();
+  
   scd.OutputWindow = wnd;
   scd.SampleDesc.Count = 4;
+  //scd.SampleDesc.Quality = 0;
   scd.Windowed = !win->isFullscreen();
   scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-  if (SUCCEEDED(D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL,
-    D3D11_SDK_VERSION, &scd, &mSwapchain, &mDevice, NULL, &mD3d))){
+  D3D_FEATURE_LEVEL level;
+
+  /*HRESULT res = D3D11CreateDevice(NULL,
+    D3D_DRIVER_TYPE_HARDWARE,
+    NULL,
+    D3D11_CREATE_DEVICE_DEBUG,
+    NULL,
+    0,
+    D3D11_SDK_VERSION,
+    &mDevice,
+    &level,
+    &mD3d);*/
+
+  HRESULT res = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_DEBUG, NULL, 0,
+    D3D11_SDK_VERSION, &scd, &mSwapchain, &mDevice, &level, &mD3d);
+  if (SUCCEEDED(res)){
     TR_INFO("DirectX 11 context created successfully");
   }
   else{
@@ -61,9 +81,7 @@ void DXRenderer::initContext(AppWindow* win){
   if (win->isFullscreen())
     mSwapchain->SetFullscreenState(TRUE, NULL);
 
-  ShowWindow(wnd, SW_SHOW);
-  SetForegroundWindow(wnd);
-  SetFocus(wnd);
+  
   resizeScene(win->getWidth(), win->getHeight());
   //initRendering();  
 }
@@ -191,33 +209,44 @@ void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Ve
   XMVECTOR l = XMVectorSet(look.x, look.y, look.z, 1.0f);
   XMVECTOR u = XMVectorSet(up.x, up.y, up.z, 0.0f);
   XMMATRIX mat = XMMatrixLookAtRH(eye, l-eye, u);
-  mMatrix[mMatrixMode] *= mat;
+  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*mat);
 }
 
 //! set projection
 void DXRenderer::projection(float angle, float aspect, float nearplane, float farplane){
-  mMatrix[Projection] = XMMatrixPerspectiveFovRH(angle/180.0f*XM_PI, aspect, nearplane, farplane);
+  XMStoreFloat4x4(&mMatrix[Projection], XMMatrixPerspectiveFovRH(angle / 180.0f*XM_PI, aspect, nearplane, farplane));
 }
 
-void DXRenderer::ortho(const int width, const int height){
-  mMatrix[Projection] = XMMatrixOrthographicRH((float)width, (float)height, 0, 1);
+void DXRenderer::ortho(float left, float right, float bottom, float top, float nearp, float farp){
+  XMStoreFloat4x4(&mMatrix[Projection], XMMatrixOrthographicOffCenterRH(left, right, bottom, top, nearp, farp));
 }
 
 //! reset modelview matrix
 void DXRenderer::resetModelView(){
-  mMatrix[mMatrixMode] = XMMatrixIdentity();
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], XMMatrixIdentity());
 }
 
 //! translate
 void DXRenderer::translate(float x, float y, float z){
   XMMATRIX mat = XMMatrixTranslation(x, y, z);
-  mMatrix[mMatrixMode] *= mat;
+  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*mat);
 }
 
 //! scale
 void DXRenderer::scale(float x, float y, float z){
   XMMATRIX mat = XMMatrixScaling(x, y, z);
-  mMatrix[mMatrixMode] *= mat;
+  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*mat);
+}
+
+//! rotate
+void DXRenderer::rotate(float angle, float x, float y, float z){
+  XMVECTOR axis = XMVectorSet(x, y, z, 0.0f);
+  XMMATRIX mat = XMMatrixRotationAxis(axis, angle / 180.0f*XM_PI);
+  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*mat);
 }
 
 //! set rendermode
@@ -274,6 +303,10 @@ void DXRenderer::enableTexturing(const bool flag){
 void DXRenderer::enableLighting(const bool flag){
   //device_->SetRenderState(D3DRS_LIGHTING, flag);
 }
+
+void DXRenderer::enableDepthTest(const bool flag){
+
+}
   
 //! set color
 void DXRenderer::setColor(float r, float g, float b, float a){
@@ -301,7 +334,8 @@ void DXRenderer::multiplyMatrix(const CGE::Matrix& mat){
     mat.getData()[4], mat.getData()[5], mat.getData()[6], mat.getData()[7],
     mat.getData()[8], mat.getData()[9], mat.getData()[10], mat.getData()[11],
     mat.getData()[12], mat.getData()[13], mat.getData()[14], mat.getData()[15]);
-  mMatrix[mMatrixMode] *= dxmat;
+  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*dxmat);
 }
 
 //! set material
@@ -329,18 +363,17 @@ void DXRenderer::getViewport(int view[4]){
 
 //! get a matrix
 Matrix DXRenderer::getMatrix(MatrixType mt){
-  XMMATRIX ret;
+  XMFLOAT4X4 ret;
   if (mt == MVP){
-    ret = mMatrix[Projection] * mMatrix[Modelview];
+    XMMATRIX p = XMLoadFloat4x4(&mMatrix[Projection]);
+    XMMATRIX mv = XMLoadFloat4x4(&mMatrix[Modelview]);
+    XMStoreFloat4x4(&ret, p*mv);
   }
   else
     ret = mMatrix[mt];
-  float m[16];
-  for (int i = 0; i < 4; ++i){
-    XMVECTOR v = ret.r[i];
-    memcpy(m+i*4*sizeof(float), v.m128_f32, 4 * sizeof(float));
-  }
-  return CGE::Matrix(m);
+  //float m[16];
+  //memcpy(m, ret.m, 4 * 4* sizeof(float));
+  return CGE::Matrix((float*)ret.m);
 }
 
 void DXRenderer::swapBuffers(){
@@ -375,5 +408,10 @@ void DXRenderer::setLight(int number, const Light& lit){
 
 void DXRenderer::switchFromViewToModelTransform(){
   //matrixtype_ = D3DTS_WORLD;
+}
+
+//! switch matrix type
+void DXRenderer::switchMatrixStack(MatrixType type){
+  mMatrixMode = type;
 }
 

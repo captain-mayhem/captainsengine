@@ -27,23 +27,30 @@ bool DXTexture::load(string filename){
   if (!img)
     return false;
 
+  if (img->getNumChannels() == 3){
+    img->convertFormat(4);
+  }
+
   D3D11_TEXTURE2D_DESC desc;
   ZeroMemory(&desc, sizeof(desc));
   desc.Width = img->getWidth();
   desc.Height = img->getHeight();
-  //desc.MipLevels = 0;
+  desc.MipLevels = 1;
   desc.ArraySize = 1;
   desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  desc.SampleDesc.Count = 1;
   desc.Usage = D3D11_USAGE_DEFAULT;
   desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-  desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  //desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
   D3D11_SUBRESOURCE_DATA data;
   data.pSysMem = img->getData();
   data.SysMemPitch = img->getRowSpan();
+  data.SysMemSlicePitch = img->getImageSize();
 
   ID3D11Texture2D* tex;
-  if (!SUCCEEDED(mDevice->CreateTexture2D(&desc, &data, &tex)))
+  HRESULT res = mDevice->CreateTexture2D(&desc, &data, &tex);
+  if (!SUCCEEDED(res))
     return false;
   mDevice->CreateShaderResourceView(tex, NULL, &mTex);
   tex->Release();
@@ -51,6 +58,10 @@ bool DXTexture::load(string filename){
   D3D11_SAMPLER_DESC samp;
   ZeroMemory(&samp, sizeof(samp));
   samp.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+  samp.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+  samp.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+  samp.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+  samp.MaxLOD = D3D11_FLOAT32_MAX;
   mDevice->CreateSamplerState(&samp, &mState);
 
   return true;

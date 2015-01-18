@@ -196,8 +196,8 @@ void GL2Renderer::initRendering(){
   glDepthFunc(GL_LEQUAL);
 
   mShader = new CGE::GL2Shader();
-  mShader->addShader(GL_VERTEX_SHADER, vs_src);
-  mShader->addShader(GL_FRAGMENT_SHADER, fs_src);
+  mShader->addShader(Shader::VERTEX_SHADER, vs_src);
+  mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
   mShader->bindAttribLocation(0, "pos");
   mShader->bindAttribLocation(1, "color");
   mShader->bindAttribLocation(2, "texcoord");

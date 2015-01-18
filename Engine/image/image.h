@@ -26,6 +26,7 @@ namespace CGE{
     void debugWrite(const std::string& filename);
     void flipHorizontally();
 		void crop(int x, int y, int width, int height);
+    void convertFormat(int numChannels);
   protected:
     //! Number of channels
     //! 3 means RGB, 4 is RGBA
