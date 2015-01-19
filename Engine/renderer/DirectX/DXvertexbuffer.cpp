@@ -24,60 +24,26 @@ DXVertexBuffer::~DXVertexBuffer(){
 }
 
 void DXVertexBuffer::create(int type, int vertexBufferSize){
+  ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
   vbsize_ = vertexBufferSize;
-  D3D11_INPUT_ELEMENT_DESC edesc[4];
-  int arr = 0;
   int offset = 0;
   if (type & VB_POSITION){
-    edesc[arr].SemanticName = "pos";
-    edesc[arr].SemanticIndex = 0;
-    edesc[arr].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-    edesc[arr].InputSlot = 0;
-    edesc[arr].AlignedByteOffset = offset;
-    edesc[arr].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    edesc[arr].InstanceDataStepRate = 0;
-    ++arr;
     vertoffset_ = offset;
     offset += 3*sizeof(float);
   }
   if (type & VB_COLOR){
-    edesc[arr].SemanticName = "color";
-    edesc[arr].SemanticIndex = 0;
-    edesc[arr].Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    edesc[arr].InputSlot = 0;
-    edesc[arr].AlignedByteOffset = offset;
-    edesc[arr].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    edesc[arr].InstanceDataStepRate = 0;
-    ++arr;
     coloffset_ = offset;
     offset += 4 * sizeof(char);
   }
   if (type & VB_TEXCOORD){
-    edesc[arr].SemanticName = "texcoord";
-    edesc[arr].SemanticIndex = 0;
-    edesc[arr].Format = DXGI_FORMAT_R32G32_FLOAT;
-    edesc[arr].InputSlot = 0;
-    edesc[arr].AlignedByteOffset = offset;
-    edesc[arr].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    edesc[arr].InstanceDataStepRate = 0;
-    ++arr;
     texoffset_ = offset;
     offset += 2*sizeof(float);
   }
   if (type & VB_NORMAL){
-    edesc[arr].SemanticName = "normal";
-    edesc[arr].SemanticIndex = 0;
-    edesc[arr].Format = DXGI_FORMAT_R32G32B32_FLOAT;
-    edesc[arr].InputSlot = 0;
-    edesc[arr].AlignedByteOffset = offset;
-    edesc[arr].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
-    edesc[arr].InstanceDataStepRate = 0;
-    ++arr;
     normoffset_ = offset;
     offset += 3 * sizeof(float);
   }
   structsize_ = offset;
-  //mDevice->CreateInputLayout(edesc, arr, );
 
   D3D11_BUFFER_DESC desc;
   ZeroMemory(&desc, sizeof(desc));
@@ -128,8 +94,8 @@ void DXVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, in
     return;
   }
   DXIndexBuffer* dxinds = (DXIndexBuffer*)indices;
-  //ctx->IASetIndexBuffer()
-  ctx->DrawIndexed(count, offset, userVertOffset_);
+  /*indices->activate();
+  ctx->DrawIndexed(count, offset, userVertOffset_);*/
 }
 
 void DXVertexBuffer::setColor(int pos, Color c){

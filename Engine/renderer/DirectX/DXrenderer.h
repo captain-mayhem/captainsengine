@@ -19,6 +19,7 @@ using std::stack;
 namespace CGE{
 
 class VertexBuffer;
+class DXShader;
 
 //! The DirectX version of the rendering interface
 class DXRenderer : public Renderer{
@@ -122,6 +123,8 @@ protected:
   DirectX::XMFLOAT4X4 mMatrix[3];
   //! the transform type
   MatrixType mMatrixMode;
+  //! the default shader
+  DXShader* mShader;
 };
 
 }
