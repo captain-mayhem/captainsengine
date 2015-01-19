@@ -6,6 +6,7 @@
 #include "DXtexture.h"
 #include "DXrenderer.h"
 #include "DXindexbuffer.h"
+#include "DXshader.h"
 
 using namespace CGE;
 using namespace DirectX;
@@ -87,12 +88,42 @@ void DXRenderer::initContext(AppWindow* win){
 }
 
 void DXRenderer::killContext(){
+  delete mShader;
   mSwapchain->SetFullscreenState(FALSE, NULL);
   SAFE_RELEASE(mSwapchain);
   SAFE_RELEASE(mBackBuffer);
   SAFE_RELEASE(mDevice);
   SAFE_RELEASE(mD3d);
 }
+
+static char const * vs_src =
+"struct VSInput{\n"
+"  float3 pos : POSITION;\n"
+//"  float4 color: COLOR0;\n"
+"  float2 texcoord: TEXCOORD0;\n"
+//"  float3 normal: NORMAL;\n"
+"};\n"
+"\n"
+"struct VSOutput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"};\n"
+"\n"
+"VSOutput main(VSInput inp){\n"
+"  VSOutput outp;\n"
+"  outp.vPos = float4(inp.pos, 1.0);\n"
+"  return outp;\n"
+"}\n"
+"\n"
+;
+
+static char const * fs_src =
+"struct PSInput{\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  return float4(1.0, 0.0, 0.0, 1.0);\n"
+"}\n"
+"\n";
 
 void DXRenderer::initRendering(){
   TR_USE(CGE_Renderer_DirectX);
@@ -103,6 +134,15 @@ void DXRenderer::initRendering(){
   mDevice->CreateRenderTargetView(backbuffer, NULL, &mBackBuffer);
   backbuffer->Release();
   mD3d->OMSetRenderTargets(1, &mBackBuffer, NULL);
+
+  D3D11_RASTERIZER_DESC desc;
+  ZeroMemory(&desc, sizeof(desc));
+  desc.FillMode = D3D11_FILL_SOLID;
+  desc.CullMode = D3D11_CULL_BACK;
+  desc.FrontCounterClockwise = TRUE;
+  ID3D11RasterizerState* state;
+  mDevice->CreateRasterizerState(&desc, &state);
+  mD3d->RSSetState(state);
   //mD3d->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
   //device_->SetRenderState(D3DRS_LIGHTING, false);
 
@@ -135,6 +175,11 @@ void DXRenderer::initRendering(){
   device_->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_TEXTURE);
   device_->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
   device_->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);*/
+
+  mShader = new CGE::DXShader(VB_POSITION|VB_TEXCOORD);
+  mShader->addShader(Shader::VERTEX_SHADER, vs_src);
+  mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
+  mShader->activate();
 
   Renderer::initRendering();
 }

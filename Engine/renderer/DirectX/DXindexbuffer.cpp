@@ -36,7 +36,15 @@ void DXIndexBuffer::unlockIndexPointer(){
 }
 
 void DXIndexBuffer::activate(){
-
+  ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
+  DXGI_FORMAT fmt;
+  if (mType == IB_UCHAR)
+    fmt = DXGI_FORMAT_R8_UINT;
+  else if (mType == IB_USHORT)
+    fmt = DXGI_FORMAT_R16_UINT;
+  else if (mType == IB_UINT)
+    fmt = DXGI_FORMAT_R32_UINT;
+  ctx->IASetIndexBuffer(mIb, fmt, 0);
 }
 
 void DXIndexBuffer::setIndex(uint32 i, uint8 index){
