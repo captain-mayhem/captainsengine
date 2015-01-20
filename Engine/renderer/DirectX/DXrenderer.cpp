@@ -92,11 +92,18 @@ void DXRenderer::killContext(){
   mSwapchain->SetFullscreenState(FALSE, NULL);
   SAFE_RELEASE(mSwapchain);
   SAFE_RELEASE(mBackBuffer);
-  SAFE_RELEASE(mDevice);
   SAFE_RELEASE(mD3d);
+  //ID3D11Debug* dbg;
+  //mDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&dbg));
+  //dbg->ReportLiveDeviceObjects(D3D11_RLDO_DETAIL);
+  SAFE_RELEASE(mDevice);
 }
 
 static char const * vs_src =
+"cbuffer perObject{\n"
+"  matrix MVP;\n"
+"}\n"
+"\n"
 "struct VSInput{\n"
 "  float3 pos : POSITION;\n"
 //"  float4 color: COLOR0;\n"
@@ -110,7 +117,8 @@ static char const * vs_src =
 "\n"
 "VSOutput main(VSInput inp){\n"
 "  VSOutput outp;\n"
-"  outp.vPos = float4(inp.pos, 1.0);\n"
+"  float4 vPos = float4(inp.pos, 1.0);\n"
+"  outp.vPos = mul(MVP, vPos);\n"
 "  return outp;\n"
 "}\n"
 "\n"
@@ -143,6 +151,17 @@ void DXRenderer::initRendering(){
   ID3D11RasterizerState* state;
   mDevice->CreateRasterizerState(&desc, &state);
   mD3d->RSSetState(state);
+
+  mShader = new CGE::DXShader(VB_POSITION | VB_TEXCOORD);
+  mShader->allocUniforms(sizeof(CGE::Matrix));
+  mShader->addShader(Shader::VERTEX_SHADER, vs_src);
+  mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
+  mShader->activate();
+  Matrix mat(Matrix::Translation, Vec3f(0.5, 0.5, 0.0));
+  resetModelView();
+  translate(0.5, 0.25, 0.0);
+  mat = getMatrix(mMatrixMode);
+  mShader->uniform(0, mat);
   //mD3d->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
   //device_->SetRenderState(D3DRS_LIGHTING, false);
 
@@ -175,11 +194,6 @@ void DXRenderer::initRendering(){
   device_->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_TEXTURE);
   device_->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
   device_->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);*/
-
-  mShader = new CGE::DXShader(VB_POSITION|VB_TEXCOORD);
-  mShader->addShader(Shader::VERTEX_SHADER, vs_src);
-  mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
-  mShader->activate();
 
   Renderer::initRendering();
 }

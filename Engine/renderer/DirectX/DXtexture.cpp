@@ -55,6 +55,8 @@ bool DXTexture::load(string filename){
   mDevice->CreateShaderResourceView(tex, NULL, &mTex);
   tex->Release();
 
+  delete img;
+
   D3D11_SAMPLER_DESC samp;
   ZeroMemory(&samp, sizeof(samp));
   samp.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
