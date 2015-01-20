@@ -15,6 +15,7 @@ DXShader::~DXShader(){
   SAFE_RELEASE(mVS);
   SAFE_RELEASE(mPS);
   SAFE_RELEASE(mLayout);
+  SAFE_RELEASE(mConstants);
 }
 
 bool DXShader::addShader(Type shadertype, const char* shaderstring, int stringlen){
@@ -49,6 +50,14 @@ bool DXShader::addShader(Type shadertype, const char* shaderstring, int stringle
   }
   else if (shadertype == FRAGMENT_SHADER)
     dev->CreatePixelShader(shader->GetBufferPointer(), shader->GetBufferSize(), NULL, &mPS);
+  ID3D11ShaderReflection* refl;
+  D3DReflect(shader->GetBufferPointer(), shader->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&refl);
+  D3D11_SHADER_INPUT_BIND_DESC bind;
+  //refl->GetResourceBindingDescByName("MVP", &bind);
+  ID3D11ShaderReflectionVariable* var = refl->GetVariableByName("MVP");
+  D3D11_SHADER_VARIABLE_DESC d;
+  var->GetDesc(&d);
+  refl->Release();
   shader->Release();
   return true;
 }
@@ -109,9 +118,36 @@ bool DXShader::createAttributes(ID3DBlob* shader){
   return true;
 }
 
+void DXShader::allocUniforms(unsigned size){
+  D3D11_BUFFER_DESC desc;
+  desc.ByteWidth = size;
+  desc.Usage = D3D11_USAGE_DYNAMIC;
+  desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  desc.MiscFlags = 0;
+  desc.StructureByteStride = 0;
+  ID3D11Device* dev = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
+  dev->CreateBuffer(&desc, NULL, &mConstants);
+}
+
 void DXShader::activate(){
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
   ctx->VSSetShader(mVS, 0, 0);
   ctx->PSSetShader(mPS, 0, 0);
+  ctx->VSSetConstantBuffers(0, 1, &mConstants);
   ctx->IASetInputLayout(mLayout);
+}
+
+void DXShader::uniform(int location, const CGE::Matrix& mat){
+  ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
+  D3D11_MAPPED_SUBRESOURCE mr;
+  ctx->Map(mConstants, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mr);
+  memcpy(mr.pData, mat.getData(), sizeof(mat));
+  ctx->Unmap(mConstants, 0);
+  //ctx->UpdateSubresource(mConstants, 0, NULL, mat.getData(), 0, 0);
+  //ctx->VSSetConstantBuffers(0, 1, &mConstants);
+}
+
+void DXShader::updateUniforms(){
+  
 }
