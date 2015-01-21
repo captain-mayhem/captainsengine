@@ -13,17 +13,22 @@ public:
   DXShader(int attrType);
   ~DXShader();
   bool addShader(Type shadertype, const char* shaderstring, int stringlen = 0);
-  void activate();
-  void allocUniforms(unsigned size);
+  void allocUniforms(Type shader, unsigned size);
+  void lockUniforms(Type t);
+  void unlockUniforms(Type t);
+  void uniform(int location, float v0, float v1, float v2, float v3);
   void uniform(int location, const CGE::Matrix& mat);
-  void updateUniforms();
+  int getUniformLocation(const char* name);
 private:
+  void use();
+  void unuse();
   bool createAttributes(ID3DBlob* shader);
   int mAttrType;
   ID3D11VertexShader* mVS;
   ID3D11PixelShader* mPS;
   ID3D11InputLayout* mLayout;
-  ID3D11Buffer* mConstants;
+  ID3D11Buffer* mConstants[NUM_SHADERS];
+  unsigned char* mMappedUBO;
 };
 
 }
