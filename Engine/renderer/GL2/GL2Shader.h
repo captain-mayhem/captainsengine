@@ -19,24 +19,21 @@ public:
   ~GL2Shader();
   bool addShader(Type shadertype, const char* shaderstring, int stringlen=0);
   bool linkShaders();
-  void activate() { mOldProg = mCurrShader; glUseProgram(mProgram); mCurrShader = this; }
-  void deactivate() { glUseProgram(mOldProg?mOldProg->mProgram:0); mCurrShader = mOldProg; }
   void bindAttribLocation(int location, const char* name) { glBindAttribLocation(mProgram, location, name);}
   int getAttribLocation(const char* name) {return glGetAttribLocation(mProgram, name);}
+
+  void lockUniforms(Type t) {}
+  void unlockUniforms(Type t) {}
   int getUniformLocation(const char* name) {return glGetUniformLocation(mProgram, name);}
-  void syncMatrix(char const* name, MatrixType type);
-  void applyEngineUniforms();
-  static void uniform(int location, int value) {glUniform1i(location, value);}
-  static void uniform(int location, float value) { glUniform1f(location, value); }
-  static void uniform(int location, float v0, float v1) { glUniform2f(location, v0, v1); }
-  static void uniform(int location, float v0, float v1, float v2, float v3) { glUniform4f(location, v0, v1, v2, v3); }
-  static void uniform(int location, const CGE::Matrix& mat) { glUniformMatrix4fv(location, 1, GL_FALSE, mat.getData()); }
-  static GL2Shader* getCurrentShader() { return mCurrShader; }
+  void uniform(int location, int value) {glUniform1i(location, value);}
+  void uniform(int location, float value) { glUniform1f(location, value); }
+  void uniform(int location, float v0, float v1) { glUniform2f(location, v0, v1); }
+  void uniform(int location, float v0, float v1, float v2, float v3) { glUniform4f(location, v0, v1, v2, v3); }
+  void uniform(int location, const CGE::Matrix& mat) { glUniformMatrix4fv(location, 1, GL_FALSE, mat.getData()); }
 protected:
-  static GL2Shader* mCurrShader;
+  virtual void use() { glUseProgram(mProgram); }
+  virtual void unuse() { glUseProgram(0); }
   GLuint mProgram;
-  GL2Shader* mOldProg;
-  std::map<int, MatrixType> mSyncMat;
 };
 
 }

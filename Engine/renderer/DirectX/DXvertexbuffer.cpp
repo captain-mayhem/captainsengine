@@ -4,6 +4,7 @@
 #include "DXrenderer.h"
 #include "DXvertexbuffer.h"
 #include "DXindexbuffer.h"
+#include "../shader.h"
 
 using namespace CGE;
 
@@ -76,6 +77,7 @@ void DXVertexBuffer::activate(){
 }
 
 void DXVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, int count){
+  Shader::getCurrentShader()->applyEngineUniforms();
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
 
   if (pt == VB_Tristrip)

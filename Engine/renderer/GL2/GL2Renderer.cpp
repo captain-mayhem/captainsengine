@@ -357,11 +357,11 @@ void GL2Renderer::enableBackFaceCulling(const bool flag){
 
 //! enable texturing
 void GL2Renderer::enableTexturing(const bool flag){
-  int texEn = GL2Shader::getCurrentShader()->getUniformLocation("textureEnabled");
+  int texEn = ((GL2Shader*)Shader::getCurrentShader())->getUniformLocation("textureEnabled");
   if (flag)
-    GL2Shader::uniform(texEn, 1);
+    ((GL2Shader*)Shader::getCurrentShader())->uniform(texEn, 1);
   else
-    GL2Shader::uniform(texEn, 0);
+    ((GL2Shader*)Shader::getCurrentShader())->uniform(texEn, 0);
 }
 
 // enable lighting

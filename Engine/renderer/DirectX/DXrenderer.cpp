@@ -101,13 +101,13 @@ void DXRenderer::killContext(){
 
 static char const * vs_src =
 "cbuffer perObject{\n"
-"  matrix MVP;\n"
+"  matrix mvp;\n"
 "}\n"
 "\n"
 "struct VSInput{\n"
 "  float3 pos : POSITION;\n"
 //"  float4 color: COLOR0;\n"
-"  float2 texcoord: TEXCOORD0;\n"
+"  float2 texcoord: TEXCOORD;\n"
 //"  float3 normal: NORMAL;\n"
 "};\n"
 "\n"
@@ -118,18 +118,23 @@ static char const * vs_src =
 "VSOutput main(VSInput inp){\n"
 "  VSOutput outp;\n"
 "  float4 vPos = float4(inp.pos, 1.0);\n"
-"  outp.vPos = mul(MVP, vPos);\n"
+"  outp.vPos = mul(mvp, vPos);\n"
 "  return outp;\n"
 "}\n"
 "\n"
 ;
 
 static char const * fs_src =
+"cbuffer perDraw{\n"
+"  float4 modColor;\n"
+"}\n"
+"\n"
 "struct PSInput{\n"
 "};\n"
 "\n"
 "float4 main(PSInput inp) : SV_TARGET {\n"
-"  return float4(1.0, 0.0, 0.0, 1.0);\n"
+"  float4 color = modColor;\n"
+"  return color;\n"
 "}\n"
 "\n";
 
@@ -151,17 +156,16 @@ void DXRenderer::initRendering(){
   ID3D11RasterizerState* state;
   mDevice->CreateRasterizerState(&desc, &state);
   mD3d->RSSetState(state);
+  state->Release();
 
   mShader = new CGE::DXShader(VB_POSITION | VB_TEXCOORD);
-  mShader->allocUniforms(sizeof(CGE::Matrix));
+  mShader->allocUniforms(Shader::VERTEX_SHADER, sizeof(CGE::Matrix));
+  mShader->allocUniforms(Shader::FRAGMENT_SHADER, 4 * sizeof(float));
   mShader->addShader(Shader::VERTEX_SHADER, vs_src);
   mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
+  mShader->syncMatrix("mvp", CGE::MVP);
   mShader->activate();
-  Matrix mat(Matrix::Translation, Vec3f(0.5, 0.5, 0.0));
-  resetModelView();
-  translate(0.5, 0.25, 0.0);
-  mat = getMatrix(mMatrixMode);
-  mShader->uniform(0, mat);
+  
   //mD3d->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
   //device_->SetRenderState(D3DRS_LIGHTING, false);
 
@@ -269,7 +273,7 @@ void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Ve
   XMVECTOR u = XMVectorSet(up.x, up.y, up.z, 0.0f);
   XMMATRIX mat = XMMatrixLookAtRH(eye, l-eye, u);
   XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*mat);
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
 }
 
 //! set projection
@@ -290,14 +294,14 @@ void DXRenderer::resetModelView(){
 void DXRenderer::translate(float x, float y, float z){
   XMMATRIX mat = XMMatrixTranslation(x, y, z);
   XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*mat);
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
 }
 
 //! scale
 void DXRenderer::scale(float x, float y, float z){
   XMMATRIX mat = XMMatrixScaling(x, y, z);
   XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*mat);
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
 }
 
 //! rotate
@@ -305,7 +309,7 @@ void DXRenderer::rotate(float angle, float x, float y, float z){
   XMVECTOR axis = XMVectorSet(x, y, z, 0.0f);
   XMMATRIX mat = XMMatrixRotationAxis(axis, angle / 180.0f*XM_PI);
   XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*mat);
+  XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
 }
 
 //! set rendermode
@@ -369,11 +373,15 @@ void DXRenderer::enableDepthTest(const bool flag){
   
 //! set color
 void DXRenderer::setColor(float r, float g, float b, float a){
-  //device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB((int)(a*255),(int)(r*255),(int)(g*255),(int)(b*255)));
+  Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
+  Shader::getCurrentShader()->uniform(0, r, g, b, a);
+  Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
 }
 
 void DXRenderer::setColor(const Color* c){
-  //device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_ARGB((int)(c->a*255),(int)(c->r*255),(int)(c->g*255),(int)(c->b*255)));
+  Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
+  Shader::getCurrentShader()->uniform(0, c->r, c->g, c->b, c->a);
+  Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
 }
 
 //! push matrix
@@ -426,7 +434,7 @@ Matrix DXRenderer::getMatrix(MatrixType mt){
   if (mt == MVP){
     XMMATRIX p = XMLoadFloat4x4(&mMatrix[Projection]);
     XMMATRIX mv = XMLoadFloat4x4(&mMatrix[Modelview]);
-    XMStoreFloat4x4(&ret, p*mv);
+    XMStoreFloat4x4(&ret, mv*p);
   }
   else
     ret = mMatrix[mt];
