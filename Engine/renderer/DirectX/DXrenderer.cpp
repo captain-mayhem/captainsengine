@@ -26,6 +26,13 @@ DXRenderer::DXRenderer(): Renderer() {
   mMatrixMode = Modelview;
   mPSUniforms.mModColor = Color(1.0, 1.0, 1.0, 1.0);
   mPSUniforms.mTextureEnabled = 0;
+  mBlendState = NULL;
+  mBlendDesc.AlphaToCoverageEnable = FALSE;
+  mBlendDesc.IndependentBlendEnable = FALSE;
+  mBlendDesc.RenderTarget[0].BlendEnable = TRUE;
+  mBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+  mBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+  mBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
 }
 
 DXRenderer::~DXRenderer(){
@@ -92,6 +99,7 @@ void DXRenderer::initContext(AppWindow* win){
 void DXRenderer::killContext(){
   delete mShader;
   mSwapchain->SetFullscreenState(FALSE, NULL);
+  SAFE_RELEASE(mBlendState);
   SAFE_RELEASE(mSwapchain);
   SAFE_RELEASE(mBackBuffer);
   SAFE_RELEASE(mD3d);
@@ -340,46 +348,50 @@ void DXRenderer::renderMode(RendMode rm){
 
 //! set blending mode
 void DXRenderer::blendFunc(BlendType src, BlendType dest){
-  D3D11_BLEND_DESC d;
-  d.AlphaToCoverageEnable = FALSE;
-  d.IndependentBlendEnable = FALSE;
-  d.RenderTarget[0].BlendEnable = TRUE;
-  d.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-  d.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-  d.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  BOOL curr = mBlendDesc.RenderTarget[0].BlendEnable;
+  mBlendDesc.RenderTarget[0].BlendEnable = TRUE;
   switch (src){
   case BLEND_ONE:
-    d.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-    d.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
     break;
   case BLEND_SRC_ALPHA:
-    d.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-    d.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
     break;
   case BLEND_ONE_MINUS_SRC_ALPHA:
-    d.RenderTarget[0].SrcBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    d.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
     break;
   }
   switch (dest){
   case BLEND_ONE:
-    d.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-    d.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+    mBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+    mBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
     break;
   case BLEND_SRC_ALPHA:
-    d.RenderTarget[0].DestBlend = D3D11_BLEND_SRC_ALPHA;
-    d.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+    mBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_SRC_ALPHA;
+    mBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_SRC_ALPHA;
     break;
   case BLEND_ONE_MINUS_SRC_ALPHA:
-    d.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    d.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+    mBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    mBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
     break;
   }
+  SAFE_RELEASE(mBlendState);
+  mDevice->CreateBlendState(&mBlendDesc, &mBlendState);
+  if (curr)
+    mD3d->OMSetBlendState(mBlendState, NULL, 0xffffffff);
+  mBlendDesc.RenderTarget[0].BlendEnable = curr;
 }
 
 //! enable blending
 void DXRenderer::enableBlend(const bool flag){
-  //device_->SetRenderState(D3DRS_ALPHABLENDENABLE, flag);
+  mBlendDesc.RenderTarget[0].BlendEnable = flag ? TRUE : FALSE;
+  if (flag)
+    mD3d->OMSetBlendState(mBlendState, NULL, 0xffffffff);
+  else
+    mD3d->OMSetBlendState(NULL, NULL, 0xffffffff);
 }
 
 void DXRenderer::enableBackFaceCulling(const bool flag){
