@@ -4,6 +4,8 @@
 #include <renderer/shader.h>
 #include <d3d11.h>
 
+struct ID3D11ShaderReflection;
+
 namespace CGE{
 
 class Matrix;
@@ -16,9 +18,10 @@ public:
   void allocUniforms(Type shader, unsigned size);
   void lockUniforms(Type t);
   void unlockUniforms(Type t);
+  void uniform(int location, int value);
   void uniform(int location, float v0, float v1, float v2, float v3);
   void uniform(int location, const CGE::Matrix& mat);
-  int getUniformLocation(const char* name);
+  int getUniformLocation(Type t, const char* name);
 private:
   void use();
   void unuse();
@@ -27,7 +30,11 @@ private:
   ID3D11VertexShader* mVS;
   ID3D11PixelShader* mPS;
   ID3D11InputLayout* mLayout;
-  ID3D11Buffer* mConstants[NUM_SHADERS];
+  struct ShaderData{
+    ID3D11Buffer* constants;
+    ID3D11ShaderReflection* refl;
+  };
+  ShaderData mData[NUM_SHADERS];
   unsigned char* mMappedUBO;
 };
 

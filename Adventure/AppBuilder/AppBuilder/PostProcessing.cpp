@@ -230,15 +230,15 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation("texture");
+    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint scale = mShader.getUniformLocation("tex_scale");
+    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    GLint pixeloffset = mShader.getUniformLocation("pixel_offset");
+    GLint pixeloffset = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "pixel_offset");
     mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
-    mIntensityLoc = mShader.getUniformLocation("strength");
+    mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "strength");
     mShader.deactivate();
   }
   virtual void activate(bool fade, ...){
@@ -392,15 +392,15 @@ public:
     glActiveTexture(GL_TEXTURE0);
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation("texture");
+    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint blendtex = mShader.getUniformLocation("blendtex");
+    GLint blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
     mShader.uniform(blendtex, 1);
-    GLint scale = mShader.getUniformLocation("tex_scale");
+    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    mIntensityLoc = mShader.getUniformLocation("opacity");
+    mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "opacity");
     mShader.deactivate();
   }
   virtual void deinit(){
@@ -524,23 +524,23 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation("texture");
+    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint scale = mShader.getUniformLocation("tex_scale");
+    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    GLint motion = mShader.getUniformLocation("motion1");
+    GLint motion = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "motion1");
     mShader.uniform(motion, 1);
-    motion = mShader.getUniformLocation("motion2");
+    motion = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "motion2");
     mShader.uniform(motion, 2);
-    motion = mShader.getUniformLocation("motion3");
+    motion = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "motion3");
     mShader.uniform(motion, 3);
     mShader.deactivate();
     mStdShader.activate();
-    tex = mStdShader.getUniformLocation("texture");
+    tex = mStdShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mStdShader.uniform(tex, 0);
-    scale = mStdShader.getUniformLocation("tex_scale");
+    scale = mStdShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     mStdShader.uniform(scale, size.x/powx, size.y/powy);
     mStdShader.deactivate();
     for (int i = 0; i < 3; ++i){
@@ -679,15 +679,15 @@ public:
     glActiveTexture(GL_TEXTURE0);
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation("texture");
+    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint blendtex = mShader.getUniformLocation("blendtex");
+    GLint blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
     mShader.uniform(blendtex, 1);
-    GLint scale = mShader.getUniformLocation("tex_scale");
+    GLint scale = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    GLint pixeloffset = mShader.getUniformLocation("pixel_offset");
+    GLint pixeloffset = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "pixel_offset");
     mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
     mShader.deactivate();
   }
@@ -794,7 +794,7 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint scale = mShader.getUniformLocation("tex_scale");
+    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
@@ -960,11 +960,11 @@ public:
     glActiveTexture(GL_TEXTURE0);
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation("texture");
+    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint blendtex = mShader.getUniformLocation("blendtex");
+    GLint blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
     mShader.uniform(blendtex, 1);
-    GLint scale = mShader.getUniformLocation("tex_scale");
+    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
@@ -1221,14 +1221,14 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation("texture");
+    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint scale = mShader.getUniformLocation("tex_scale");
+    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    mIntensityLoc = mShader.getUniformLocation("opacity");
-    GLint blendcol = mShader.getUniformLocation("blendcol");
+    mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "opacity");
+    GLint blendcol = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendcol");
     mShader.uniform(blendcol, 0.5, 0.5, 0.5, 1.0);
     mShader.deactivate();
   }
@@ -1317,7 +1317,7 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint scale = mShader.getUniformLocation("tex_scale");
+    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
@@ -1424,14 +1424,14 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation("texture");
+    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint scale = mShader.getUniformLocation("tex_scale");
+    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    mIntensityLoc = mShader.getUniformLocation("opacity");
-    GLint blendcol = mShader.getUniformLocation("blendcol");
+    mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "opacity");
+    GLint blendcol = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendcol");
     mShader.uniform(blendcol, 1.0, 1.0, 1.0, 1.0);
     mShader.deactivate();
   }

@@ -125,6 +125,12 @@ protected:
   MatrixType mMatrixMode;
   //! the default shader
   DXShader* mShader;
+
+  struct PSUniforms{
+    Color mModColor;
+    int mTextureEnabled;
+  };
+  PSUniforms mPSUniforms;
 };
 
 }

@@ -9,7 +9,8 @@ TR_CHANNEL(CGE_Shader_DX);
 
 DXShader::DXShader(int attrType) : mVS(NULL), mPS(NULL), mLayout(NULL), mAttrType(attrType), mMappedUBO(NULL){
   for (int i = 0; i < Shader::NUM_SHADERS; ++i){
-    mConstants[i] = NULL;
+    mData[i].constants = NULL;
+    mData[i].refl = NULL;
   }
 }
 
@@ -18,7 +19,8 @@ DXShader::~DXShader(){
   SAFE_RELEASE(mPS);
   SAFE_RELEASE(mLayout);
   for (int i = 0; i < Shader::NUM_SHADERS; ++i){
-    SAFE_RELEASE(mConstants[i]);
+    SAFE_RELEASE(mData[i].constants);
+    SAFE_RELEASE(mData[i].refl);
   }
 }
 
@@ -54,14 +56,10 @@ bool DXShader::addShader(Type shadertype, const char* shaderstring, int stringle
   }
   else if (shadertype == FRAGMENT_SHADER)
     dev->CreatePixelShader(shader->GetBufferPointer(), shader->GetBufferSize(), NULL, &mPS);
-  ID3D11ShaderReflection* refl;
-  D3DReflect(shader->GetBufferPointer(), shader->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&refl);
+  D3DReflect(shader->GetBufferPointer(), shader->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&mData[shadertype].refl);
+  
   //D3D11_SHADER_INPUT_BIND_DESC bind;
   //refl->GetResourceBindingDescByName("mvp", &bind);
-  ID3D11ShaderReflectionVariable* var = refl->GetVariableByName("MVP");
-  D3D11_SHADER_VARIABLE_DESC d;
-  var->GetDesc(&d);
-  refl->Release();
   shader->Release();
   return true;
 }
@@ -131,15 +129,15 @@ void DXShader::allocUniforms(Type shader, unsigned size){
   desc.MiscFlags = 0;
   desc.StructureByteStride = 0;
   ID3D11Device* dev = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
-  dev->CreateBuffer(&desc, NULL, &mConstants[shader]);
+  dev->CreateBuffer(&desc, NULL, &mData[shader].constants);
 }
 
 void DXShader::use(){
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
   ctx->VSSetShader(mVS, 0, 0);
-  ctx->VSSetConstantBuffers(0, 1, &mConstants[Shader::VERTEX_SHADER]);
+  ctx->VSSetConstantBuffers(0, 1, &mData[VERTEX_SHADER].constants);
   ctx->PSSetShader(mPS, 0, 0);
-  ctx->PSSetConstantBuffers(0, 1, &mConstants[Shader::FRAGMENT_SHADER]);
+  ctx->PSSetConstantBuffers(0, 1, &mData[FRAGMENT_SHADER].constants);
   ctx->IASetInputLayout(mLayout);
 }
 
@@ -154,13 +152,18 @@ void DXShader::unuse(){
 void DXShader::lockUniforms(Type t){
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
   D3D11_MAPPED_SUBRESOURCE mr;
-  ctx->Map(mConstants[t], 0, D3D11_MAP_WRITE_DISCARD, NULL, &mr);
+  ctx->Map(mData[t].constants, 0, D3D11_MAP_WRITE_DISCARD, NULL, &mr);
   mMappedUBO = (unsigned char*)mr.pData;
 }
 
 void DXShader::unlockUniforms(Type t){
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
-  ctx->Unmap(mConstants[t], 0);
+  ctx->Unmap(mData[t].constants, 0);
+}
+
+void DXShader::uniform(int location, int value){
+  int* iloc = (int*)(mMappedUBO + location);
+  *iloc = value;
 }
 
 void DXShader::uniform(int location, float v0, float v1, float v2, float v3){
@@ -180,7 +183,12 @@ void DXShader::uniform(int location, const CGE::Matrix& mat){
   memcpy(mMappedUBO+location, mat.getData(), sizeof(mat));
 }
 
-int DXShader::getUniformLocation(const char* name){
-  return 0;
+int DXShader::getUniformLocation(Type t, const char* name){
+  ID3D11ShaderReflectionVariable* var = mData[t].refl->GetVariableByName(name);
+  if (var == NULL)
+    return -1;
+  D3D11_SHADER_VARIABLE_DESC d;
+  var->GetDesc(&d);
+  return d.StartOffset;
 }
 

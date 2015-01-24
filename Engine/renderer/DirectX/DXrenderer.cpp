@@ -24,6 +24,8 @@ DXRenderer::DXRenderer(): Renderer() {
     XMStoreFloat4x4(&mMatrix[i], mat);
   }
   mMatrixMode = Modelview;
+  mPSUniforms.mModColor = Color(1.0, 1.0, 1.0, 1.0);
+  mPSUniforms.mTextureEnabled = 0;
 }
 
 DXRenderer::~DXRenderer(){
@@ -107,33 +109,44 @@ static char const * vs_src =
 "struct VSInput{\n"
 "  float3 pos : POSITION;\n"
 //"  float4 color: COLOR0;\n"
-"  float2 texcoord: TEXCOORD;\n"
+"  float2 texcoord: TEXCOORD0;\n"
 //"  float3 normal: NORMAL;\n"
 "};\n"
 "\n"
 "struct VSOutput{\n"
 "  float4 vPos : SV_POSITION;\n"
+"  float2 tcoord : TEXCOORD0;\n"
 "};\n"
 "\n"
 "VSOutput main(VSInput inp){\n"
 "  VSOutput outp;\n"
 "  float4 vPos = float4(inp.pos, 1.0);\n"
 "  outp.vPos = mul(mvp, vPos);\n"
+"  outp.tcoord = inp.texcoord;\n"
 "  return outp;\n"
 "}\n"
 "\n"
 ;
 
 static char const * fs_src =
+"Texture2D tex;\n"
+"SamplerState sampl;\n"
+"\n"
 "cbuffer perDraw{\n"
 "  float4 modColor;\n"
+"  int textureEnabled;\n"
 "}\n"
 "\n"
 "struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tcoord : TEXCOORD0;\n"
 "};\n"
 "\n"
 "float4 main(PSInput inp) : SV_TARGET {\n"
 "  float4 color = modColor;\n"
+"  if (textureEnabled != 0){\n"
+"    color = color * tex.Sample(sampl, inp.tcoord);\n"
+"  }\n"
 "  return color;\n"
 "}\n"
 "\n";
@@ -160,7 +173,10 @@ void DXRenderer::initRendering(){
 
   mShader = new CGE::DXShader(VB_POSITION | VB_TEXCOORD);
   mShader->allocUniforms(Shader::VERTEX_SHADER, sizeof(CGE::Matrix));
-  mShader->allocUniforms(Shader::FRAGMENT_SHADER, 4 * sizeof(float));
+  mShader->allocUniforms(Shader::FRAGMENT_SHADER, 4 * sizeof(float) + 4*sizeof(int));
+  mShader->lockUniforms(Shader::FRAGMENT_SHADER);
+  mShader->uniform(4 * sizeof(float), 1);
+  mShader->unlockUniforms(Shader::FRAGMENT_SHADER);
   mShader->addShader(Shader::VERTEX_SHADER, vs_src);
   mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
   mShader->syncMatrix("mvp", CGE::MVP);
@@ -324,22 +340,41 @@ void DXRenderer::renderMode(RendMode rm){
 
 //! set blending mode
 void DXRenderer::blendFunc(BlendType src, BlendType dest){
-  /*switch(src){
-    case BLEND_ONE:
-      device_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_ONE);
-      break;
-    case BLEND_SRC_ALPHA:
-      device_->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-      break;
+  D3D11_BLEND_DESC d;
+  d.AlphaToCoverageEnable = FALSE;
+  d.IndependentBlendEnable = FALSE;
+  d.RenderTarget[0].BlendEnable = TRUE;
+  d.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+  d.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+  d.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  switch (src){
+  case BLEND_ONE:
+    d.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
+    d.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+    break;
+  case BLEND_SRC_ALPHA:
+    d.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+    d.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+    break;
+  case BLEND_ONE_MINUS_SRC_ALPHA:
+    d.RenderTarget[0].SrcBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    d.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+    break;
   }
-  switch(dest){
-    case BLEND_ONE:
-      device_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-      break;
-    case BLEND_ONE_MINUS_SRC_ALPHA:
-      device_->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-      break; 
-  }*/
+  switch (dest){
+  case BLEND_ONE:
+    d.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
+    d.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
+    break;
+  case BLEND_SRC_ALPHA:
+    d.RenderTarget[0].DestBlend = D3D11_BLEND_SRC_ALPHA;
+    d.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+    break;
+  case BLEND_ONE_MINUS_SRC_ALPHA:
+    d.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+    d.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+    break;
+  }
 }
 
 //! enable blending
@@ -356,10 +391,11 @@ void DXRenderer::enableBackFaceCulling(const bool flag){
 
 //! enable texturing
 void DXRenderer::enableTexturing(const bool flag){
-  //if (!flag)
-  //  device_->SetTexture(0,0);
-  //TODO
-  //save texture when disabling to reenable it.
+  mPSUniforms.mTextureEnabled = flag ? 1 : 0;
+  Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
+  Shader::getCurrentShader()->uniform(0, mPSUniforms.mModColor.r, mPSUniforms.mModColor.g, mPSUniforms.mModColor.b, mPSUniforms.mModColor.a);
+  Shader::getCurrentShader()->uniform(sizeof(Color), mPSUniforms.mTextureEnabled);
+  Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
 }
 
 //! enable lighting
@@ -373,14 +409,18 @@ void DXRenderer::enableDepthTest(const bool flag){
   
 //! set color
 void DXRenderer::setColor(float r, float g, float b, float a){
+  mPSUniforms.mModColor = Color(r, g, b, a);
   Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
-  Shader::getCurrentShader()->uniform(0, r, g, b, a);
+  Shader::getCurrentShader()->uniform(0, mPSUniforms.mModColor.r, mPSUniforms.mModColor.g, mPSUniforms.mModColor.b, mPSUniforms.mModColor.a);
+  Shader::getCurrentShader()->uniform(sizeof(Color), mPSUniforms.mTextureEnabled);
   Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
 }
 
 void DXRenderer::setColor(const Color* c){
+  mPSUniforms.mModColor = *c;
   Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
-  Shader::getCurrentShader()->uniform(0, c->r, c->g, c->b, c->a);
+  Shader::getCurrentShader()->uniform(0, mPSUniforms.mModColor.r, mPSUniforms.mModColor.g, mPSUniforms.mModColor.b, mPSUniforms.mModColor.a);
+  Shader::getCurrentShader()->uniform(sizeof(Color), mPSUniforms.mTextureEnabled);
   Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
 }
 

@@ -133,6 +133,7 @@ void Font::render(){
   if (!q_.empty()){
     tex_->activate();
     buffer_->activate();
+    inds_->activate();
   }
 
   while(!q_.empty()){
