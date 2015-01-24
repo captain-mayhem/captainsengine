@@ -130,7 +130,12 @@ protected:
     Color mModColor;
     int mTextureEnabled;
   };
+  //! the engine uniforms
   PSUniforms mPSUniforms;
+  //! the blend state
+  ID3D11BlendState* mBlendState;
+  //! the blend description
+  D3D11_BLEND_DESC mBlendDesc;
 };
 
 }
