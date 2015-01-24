@@ -413,11 +413,11 @@ void HQRenderer::initialize_(){
     m3DShader->syncMatrix("projmat", CGE::Projection);
     m3DShader->syncMatrix("texmat", CGE::MatTexture);
     m3DShader->activate();
-    int tex = m3DShader->getUniformLocation("texture");
+    int tex = m3DShader->getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     m3DShader->uniform(tex, 0);//texture at stage 0
-    int dens = m3DShader->getUniformLocation("density");
+    int dens = m3DShader->getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "density");
     m3DShader->uniform(dens, 0.035f);
-    int col = m3DShader->getUniformLocation("fogColor");
+    int col = m3DShader->getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "fogColor");
     m3DShader->uniform(col, 0, 0, 0, 1);
     m3DShader->deactivate();
   }

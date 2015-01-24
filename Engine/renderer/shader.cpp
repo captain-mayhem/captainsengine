@@ -13,7 +13,7 @@ Shader::Shader() : mOldProg(NULL) {
 }
 
 void Shader::syncMatrix(char const* name, MatrixType type){
-  int loc = getUniformLocation(name);
+  int loc = getUniformLocation(VERTEX_SHADER, name);
   if (loc < 0)
     return;
   mSyncMat[loc] = type;

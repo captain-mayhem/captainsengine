@@ -71,10 +71,10 @@ void GL2Renderer::initShaders(){
   mShader.activate();
   mAttribLocs[ATTR_VERTEX_ARRAY] = mShader.getAttribLocation("position");
   mAttribLocs[ATTR_TEXTURE_COORD_ARRAY] = mShader.getAttribLocation("texCoord");
-  mMatricesLoc = mShader.getUniformLocation("matrices");
-  mTextureLoc = mShader.getUniformLocation("texture");
-  mTextureEnabledLoc = mShader.getUniformLocation("textureEnabled");
-  mColorLoc = mShader.getUniformLocation("constColor");
+  mMatricesLoc = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "matrices");
+  mTextureLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
+  mTextureEnabledLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "textureEnabled");
+  mColorLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "constColor");
   mShader.uniform(mTextureLoc, 0);
   mShader.uniform(mColorLoc, 1.0f, 1.0f, 1.0f, 1.0f);
 }

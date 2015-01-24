@@ -206,7 +206,7 @@ void GL2Renderer::initRendering(){
   mShader->syncMatrix("mvp", CGE::MVP);
   mShader->syncMatrix("texmat", CGE::MatTexture);
   mShader->activate();
-  int tex = mShader->getUniformLocation("texture");
+  int tex = mShader->getUniformLocation(Shader::FRAGMENT_SHADER, "texture");
   mShader->uniform(tex, 0);//texture (uniform 32) at stage 0
 
   Renderer::initRendering();
@@ -357,7 +357,7 @@ void GL2Renderer::enableBackFaceCulling(const bool flag){
 
 //! enable texturing
 void GL2Renderer::enableTexturing(const bool flag){
-  int texEn = ((GL2Shader*)Shader::getCurrentShader())->getUniformLocation("textureEnabled");
+  int texEn = ((GL2Shader*)Shader::getCurrentShader())->getUniformLocation(Shader::FRAGMENT_SHADER, "textureEnabled");
   if (flag)
     ((GL2Shader*)Shader::getCurrentShader())->uniform(texEn, 1);
   else

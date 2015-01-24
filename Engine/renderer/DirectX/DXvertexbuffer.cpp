@@ -96,8 +96,7 @@ void DXVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, in
     return;
   }
   DXIndexBuffer* dxinds = (DXIndexBuffer*)indices;
-  /*indices->activate();
-  ctx->DrawIndexed(count, offset, userVertOffset_);*/
+  ctx->DrawIndexed(count, offset, userVertOffset_);
 }
 
 void DXVertexBuffer::setColor(int pos, Color c){
