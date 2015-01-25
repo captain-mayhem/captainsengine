@@ -103,8 +103,6 @@ public:
   virtual CGE::Matrix getMatrix(MatrixType mt);
   //! swap back and front buffer
   virtual void swapBuffers();
-  //! switch from view to model matrix
-  virtual void switchFromViewToModelTransform();
   //! switch matrix stack
   virtual void switchMatrixStack(MatrixType type);
 protected:

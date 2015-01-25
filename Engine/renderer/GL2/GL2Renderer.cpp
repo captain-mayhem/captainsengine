@@ -463,10 +463,6 @@ void GL2Renderer::setLight(int number, const Light& lit){
   glLightfv(GL_LIGHT0, GL_POSITION, tmp);*/
 }
 
-void GL2Renderer::switchFromViewToModelTransform(){
-
-}
-
 void GL2Renderer::switchMatrixStack(MatrixType type){
   mMatrixMode = type;
 }

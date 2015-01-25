@@ -102,8 +102,6 @@ public:
   virtual CGE::Matrix getMatrix(MatrixType mt);
   //! swap back and front buffer
   virtual void swapBuffers();
-  //! switch from view to model matrix
-  virtual void switchFromViewToModelTransform();
   //! switch matrix type
   virtual void switchMatrixStack(MatrixType type);
 protected:
@@ -115,12 +113,14 @@ protected:
   IDXGISwapChain* mSwapchain;
   //! the back buffer
   ID3D11RenderTargetView* mBackBuffer;
+  //! the depth buffer
+  ID3D11DepthStencilView* mDepthBuffer;
   //! the clear color
   FLOAT mClearColor[4];
   //! the matrix stack
-  std::stack<DirectX::XMFLOAT4X4> mMatrixStack[3];
+  std::stack<Matrix> mMatrixStack[3];
   //! the matrices
-  DirectX::XMFLOAT4X4 mMatrix[3];
+  Matrix mMatrix[3];
   //! the transform type
   MatrixType mMatrixMode;
   //! the default shader
@@ -136,6 +136,8 @@ protected:
   ID3D11BlendState* mBlendState;
   //! the blend description
   D3D11_BLEND_DESC mBlendDesc;
+  //! state of the depth test
+  ID3D11DepthStencilState* mDepthState;
 };
 
 }

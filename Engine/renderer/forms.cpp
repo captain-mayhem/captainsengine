@@ -34,7 +34,7 @@ void Forms::constructVBOs(){
   quad_ = rend->createVertexBuffer();
   if (quad_ == NULL)
     return;
-  quad_->create(VB_POSITION | VB_TEXCOORD, 4);
+  quad_->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, 4);
   quad_->lockVertexPointer();
   quad_->setPosition(3, Vector3D(0.5,0.5,0));
   quad_->setPosition(2, Vector3D(-0.5,0.5,0));
@@ -44,13 +44,17 @@ void Forms::constructVBOs(){
   quad_->setTexCoord(2, Vec2f(0,0));
   quad_->setTexCoord(0, Vec2f(0,1));
   quad_->setTexCoord(1, Vec2f(1,1));
+  quad_->setNormal(3, Vec3f(0, 0, 1));
+  quad_->setNormal(2, Vec3f(0, 0, 1));
+  quad_->setNormal(0, Vec3f(0, 0, 1));
+  quad_->setNormal(1, Vec3f(0, 0, 1));
   quad_->unlockVertexPointer();
   
   //generate cylinder
   cylinder_ = createCylinder(1,1,32,mCylinderInds);
   //generate line
   lines_ = rend->createVertexBuffer();
-  lines_->create(VB_POSITION, 4);
+  lines_->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, 4);
 }
 
 void Forms::activateQuad(){
