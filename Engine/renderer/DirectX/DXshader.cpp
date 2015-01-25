@@ -174,12 +174,19 @@ void DXShader::uniform(int location, float v0, float v1, float v2, float v3){
   flt[3] = v3;
 }
 
+/*#include <DirectXMath.h>
+
+using namespace DirectX;*/
+
 void DXShader::uniform(int location, const CGE::Matrix& mat){
   TR_USE(CGE_Shader_DX);
   if (mMappedUBO == NULL){
     TR_ERROR("Attempt to set uniform on non-locked UBO");
     return;
   }
+  /*XMMATRIX m = XMLoadFloat4x4((XMFLOAT4X4*)&mat);
+  XMMATRIX matt = XMMatrixTranspose(m);
+  XMStoreFloat4x4((XMFLOAT4X4*)&mat, matt);*/
   memcpy(mMappedUBO+location, mat.getData(), sizeof(mat));
 }
 

@@ -21,9 +21,12 @@ DXRenderer::DXRenderer(): Renderer(), mDepthState(NULL) {
   mD3d = NULL;
   mDevice = NULL;
   for (int i = 0; i < 3; ++i){
-    //XMMATRIX mat = XMMatrixIdentity();
-    //XMStoreFloat4x4(&mMatrix[i], mat);
+#if 1
+    XMMATRIX mat = XMMatrixIdentity();
+    XMStoreFloat4x4((XMFLOAT4X4*)&mMatrix[i], mat);
+#else
     mMatrix[i] = Matrix(Matrix::Identity);
+#endif
   }
   mMatrixMode = Modelview;
   mPSUniforms.mModColor = Color(1.0, 1.0, 1.0, 1.0);
@@ -210,7 +213,7 @@ void DXRenderer::initRendering(){
   D3D11_RASTERIZER_DESC desc;
   ZeroMemory(&desc, sizeof(desc));
   desc.FillMode = D3D11_FILL_SOLID;
-  desc.CullMode = D3D11_CULL_NONE;
+  desc.CullMode = D3D11_CULL_BACK;
   desc.DepthClipEnable = TRUE;
   desc.FrontCounterClockwise = TRUE;
   ID3D11RasterizerState* state;
@@ -260,6 +263,8 @@ void DXRenderer::resizeScene(int width, int height){
   viewport.TopLeftY = 0;
   viewport.Width = (FLOAT)width;
   viewport.Height = (FLOAT)height;
+  viewport.MinDepth = 0.0f;
+  viewport.MaxDepth = 1.0f;
   mD3d->RSSetViewports(1, &viewport);
   
   win_->setWidth(width);
@@ -298,13 +303,13 @@ Texture* DXRenderer::createTexture(string filename){
 
 //! set lookAt
 void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
-#if 0
+#if 1
   XMVECTOR eye = XMVectorSet(position.x, position.y, position.z, 1.0f);
   XMVECTOR l = XMVectorSet(look.x, look.y, look.z, 1.0f);
   XMVECTOR u = XMVectorSet(up.x, up.y, up.z, 0.0f);
-  XMMATRIX mat = XMMatrixLookAtRH(eye, l-eye, u);
-  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
+  XMMATRIX mat = XMMatrixLookAtRH(eye, l, u);
+  XMMATRIX curr = XMLoadFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode], mat*curr);
 #else
   Vec3f forward = look - position;
   forward.normalize();
@@ -317,8 +322,8 @@ void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Ve
 
 //! set projection
 void DXRenderer::projection(float angle, float aspect, float nearplane, float farplane){
-#if 0
-  XMStoreFloat4x4(&mMatrix[Projection], XMMatrixPerspectiveFovRH(angle / 180.0f*XM_PI, 1/aspect, nearplane, farplane));
+#if 1
+  XMStoreFloat4x4((XMFLOAT4X4*)&mMatrix[Projection], XMMatrixPerspectiveFovRH(angle / 180.0f*XM_PI, aspect, nearplane, farplane));
 #else
   float ymax = nearplane * (float)tan(angle * 3.1415962f / 360.0);
   float ymin = -ymax;
@@ -329,8 +334,8 @@ void DXRenderer::projection(float angle, float aspect, float nearplane, float fa
 }
 
 void DXRenderer::ortho(float left, float right, float bottom, float top, float nearp, float farp){
-#if 0
-  XMStoreFloat4x4(&mMatrix[Projection], XMMatrixOrthographicOffCenterRH(left, right, bottom, top, nearp, farp));
+#if 1
+  XMStoreFloat4x4((XMFLOAT4X4*)&mMatrix[Projection], XMMatrixOrthographicOffCenterRH(left, right, bottom, top, nearp, farp));
 #else
   mMatrix[Projection] = CGE::Matrix(CGE::Matrix::Ortho, left, right, bottom, top, nearp, farp);
 #endif
@@ -338,8 +343,8 @@ void DXRenderer::ortho(float left, float right, float bottom, float top, float n
 
 //! reset modelview matrix
 void DXRenderer::resetModelView(){
-#if 0
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], XMMatrixIdentity());
+#if 1
+  XMStoreFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode], XMMatrixIdentity());
 #else
   mMatrix[mMatrixMode] = Matrix(Matrix::Identity);
 #endif
@@ -347,10 +352,10 @@ void DXRenderer::resetModelView(){
 
 //! translate
 void DXRenderer::translate(float x, float y, float z){
-#if 0
+#if 1
   XMMATRIX mat = XMMatrixTranslation(x, y, z);
-  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
+  XMMATRIX curr = XMLoadFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode], mat*curr);
 #else
   mMatrix[mMatrixMode] *= Matrix(Matrix::Translation, Vec3f(x, y, z));
 #endif
@@ -358,10 +363,10 @@ void DXRenderer::translate(float x, float y, float z){
 
 //! scale
 void DXRenderer::scale(float x, float y, float z){
-#if 0
+#if 1
   XMMATRIX mat = XMMatrixScaling(x, y, z);
-  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
+  XMMATRIX curr = XMLoadFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode], mat*curr);
 #else
   mMatrix[mMatrixMode] *= Matrix(Matrix::Scale, Vec3f(x, y, z));
 #endif
@@ -369,11 +374,11 @@ void DXRenderer::scale(float x, float y, float z){
 
 //! rotate
 void DXRenderer::rotate(float angle, float x, float y, float z){
-#if 0
+#if 1
   XMVECTOR axis = XMVectorSet(x, y, z, 0.0f);
   XMMATRIX mat = XMMatrixRotationAxis(axis, angle / 180.0f*XM_PI);
-  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
+  XMMATRIX curr = XMLoadFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode], mat*curr);
 #else
   mMatrix[mMatrixMode] *= Matrix(Matrix::Rotation, Vec3f(x, y, z), angle / 180 * (float)M_PI);
 #endif
@@ -499,13 +504,13 @@ void DXRenderer::popMatrix(){
 
 //! multiply matrix
 void DXRenderer::multiplyMatrix(const CGE::Matrix& mat){
-#if 0
+#if 1
   XMMATRIX dxmat = XMMatrixSet(mat.getData()[0], mat.getData()[1], mat.getData()[2], mat.getData()[3],
     mat.getData()[4], mat.getData()[5], mat.getData()[6], mat.getData()[7],
     mat.getData()[8], mat.getData()[9], mat.getData()[10], mat.getData()[11],
     mat.getData()[12], mat.getData()[13], mat.getData()[14], mat.getData()[15]);
-  XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
-  XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*dxmat);
+  XMMATRIX curr = XMLoadFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode]);
+  XMStoreFloat4x4((XMFLOAT4X4*)&mMatrix[mMatrixMode], dxmat*curr);
 #else
   mMatrix[mMatrixMode] *= mat;
 #endif
@@ -537,18 +542,18 @@ void DXRenderer::getViewport(int view[4]){
 
 //! get a matrix
 Matrix DXRenderer::getMatrix(MatrixType mt){
-#if 0
+#if 1
   XMFLOAT4X4 ret;
   if (mt == MVP){
-    XMMATRIX p = XMLoadFloat4x4(&mMatrix[Projection]);
-    XMMATRIX mv = XMLoadFloat4x4(&mMatrix[Modelview]);
+    XMMATRIX p = XMLoadFloat4x4((XMFLOAT4X4*)&mMatrix[Projection]);
+    XMMATRIX mv = XMLoadFloat4x4((XMFLOAT4X4*)&mMatrix[Modelview]);
     XMStoreFloat4x4(&ret, mv*p);
   }
   else
-    ret = mMatrix[mt];
+    ret = *(XMFLOAT4X4*)&mMatrix[mt];
   //float m[16];
   //memcpy(m, ret.m, 4 * 4* sizeof(float));
-  return CGE::Matrix((float*)ret.m);
+  return *(Matrix*)&ret;//CGE::Matrix((float*)ret.m);
 #else
   if (mt == MVP){
     return mMatrix[Projection] * mMatrix[Modelview];

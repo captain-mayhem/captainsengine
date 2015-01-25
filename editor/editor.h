@@ -57,6 +57,8 @@ public:
   inline float getGridStep() {return gridStep_;}
   //! add model to load at startup
   inline void addStartupModel(std::string const& name){ mLoadModels.push_back(name); }
+  //! set scene to load at startup
+  inline void setStartupScene(std::string const& name) { mLoadScene = name; }
   //! startup after renderer is initialized
   void startup();
 protected:
@@ -90,6 +92,8 @@ protected:
   std::map <std::string,int> aTov_;
   //! models to load at startup
   std::vector<std::string> mLoadModels;
+  //! scene to load at startup
+  std::string mLoadScene;
 };
 
 #endif
