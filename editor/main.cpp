@@ -44,10 +44,19 @@ void engineMain(int argc, char** argv){
       if (strcmp(argv[i], "-m") == 0){
         state = 1;
       }
+      else if (strcmp(argv[i], "-s") == 0){
+        state = 2;
+      }
     }
     else if (state == 1){
       char* model = argv[i];
       Editor::instance()->addStartupModel(model);
+      state = 0;
+    }
+    else if (state == 2){
+      char* scene = argv[i];
+      Editor::instance()->setStartupScene(scene);
+      state = 0;
     }
   }
 }

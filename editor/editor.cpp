@@ -276,6 +276,10 @@ int Editor::attribValue(const std::string& attrib){
 
 //! startup after renderer is initialized
 void Editor::startup(){
+  if (!mLoadScene.empty()){
+    Graphic::instance()->getScene().load(mLoadScene);
+    Graphic::instance()->setFilename(mLoadScene);
+  }
   for (unsigned i = 0; i < mLoadModels.size(); ++i){
     Graphic::instance()->addMesh(mLoadModels[i]);
   }
