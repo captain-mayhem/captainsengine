@@ -1,4 +1,5 @@
 #define WIN32_LEAN_AND_MEAN
+#define _USE_MATH_DEFINES
 #include <windows.h>
 #include "../../window/nativeWindows.h"
 #include "../../system/engine.h"
@@ -13,15 +14,16 @@ using namespace DirectX;
 
 TR_CHANNEL(CGE_Renderer_DirectX)
 
-DXRenderer::DXRenderer(): Renderer() {
+DXRenderer::DXRenderer(): Renderer(), mDepthState(NULL) {
   type_ = DirectX;
   mSwapchain = NULL;
   mBackBuffer = NULL;
   mD3d = NULL;
   mDevice = NULL;
   for (int i = 0; i < 3; ++i){
-    XMMATRIX mat = XMMatrixIdentity();
-    XMStoreFloat4x4(&mMatrix[i], mat);
+    //XMMATRIX mat = XMMatrixIdentity();
+    //XMStoreFloat4x4(&mMatrix[i], mat);
+    mMatrix[i] = Matrix(Matrix::Identity);
   }
   mMatrixMode = Modelview;
   mPSUniforms.mModColor = Color(1.0, 1.0, 1.0, 1.0);
@@ -61,7 +63,7 @@ void DXRenderer::initContext(AppWindow* win){
   scd.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
   
   scd.OutputWindow = wnd;
-  scd.SampleDesc.Count = 4;
+  scd.SampleDesc.Count = 1;
   //scd.SampleDesc.Quality = 0;
   scd.Windowed = !win->isFullscreen();
   scd.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
@@ -88,6 +90,46 @@ void DXRenderer::initContext(AppWindow* win){
     TR_ERROR("Failed to create DirectX 11 context");
   }
 
+  ID3D11Texture2D* backbuffer;
+  mSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backbuffer);
+  mDevice->CreateRenderTargetView(backbuffer, NULL, &mBackBuffer);
+  backbuffer->Release();
+  //mD3d->OMSetRenderTargets(1, &mBackBuffer, NULL);
+
+  //create depth buffer
+  D3D11_TEXTURE2D_DESC dbd;
+  dbd.Width = win->getWidth();
+  dbd.Height = win->getHeight();
+  dbd.MipLevels = 1;
+  dbd.ArraySize = 1;
+  dbd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+  dbd.SampleDesc.Count = 1;
+  dbd.SampleDesc.Quality = 0;
+  dbd.Usage = D3D11_USAGE_DEFAULT;
+  dbd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+  dbd.CPUAccessFlags = 0;
+  dbd.MiscFlags = 0;
+  ID3D11Texture2D* depthtexture;
+  mDevice->CreateTexture2D(&dbd, NULL, &depthtexture);
+  
+  enableDepthTest(true);
+  /*D3D11_DEPTH_STENCIL_DESC dsd;
+  ZeroMemory(&dsd, sizeof(dsd));
+  dsd.DepthEnable = TRUE;
+  dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+  dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+  mDevice->CreateDepthStencilState(&dsd, &mDepthState);
+  mD3d->OMSetDepthStencilState(mDepthState, 0);*/
+
+  D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+  ZeroMemory(&dsvd, sizeof(dsvd));
+  dsvd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+  dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+  dsvd.Texture2D.MipSlice = 0;
+  mDevice->CreateDepthStencilView(depthtexture, &dsvd, &mDepthBuffer);
+  depthtexture->Release();
+  mD3d->OMSetRenderTargets(1, &mBackBuffer, mDepthBuffer);
+
   if (win->isFullscreen())
     mSwapchain->SetFullscreenState(TRUE, NULL);
 
@@ -99,8 +141,10 @@ void DXRenderer::initContext(AppWindow* win){
 void DXRenderer::killContext(){
   delete mShader;
   mSwapchain->SetFullscreenState(FALSE, NULL);
+  SAFE_RELEASE(mDepthState);
   SAFE_RELEASE(mBlendState);
   SAFE_RELEASE(mSwapchain);
+  SAFE_RELEASE(mDepthBuffer);
   SAFE_RELEASE(mBackBuffer);
   SAFE_RELEASE(mD3d);
   //ID3D11Debug* dbg;
@@ -118,7 +162,7 @@ static char const * vs_src =
 "  float3 pos : POSITION;\n"
 //"  float4 color: COLOR0;\n"
 "  float2 texcoord: TEXCOORD0;\n"
-//"  float3 normal: NORMAL;\n"
+"  float3 normal: NORMAL;\n"
 "};\n"
 "\n"
 "struct VSOutput{\n"
@@ -163,23 +207,18 @@ void DXRenderer::initRendering(){
   TR_USE(CGE_Renderer_DirectX);
   TR_INFO("Initializing Scene");
 
-  ID3D11Texture2D* backbuffer;
-  mSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backbuffer);
-  mDevice->CreateRenderTargetView(backbuffer, NULL, &mBackBuffer);
-  backbuffer->Release();
-  mD3d->OMSetRenderTargets(1, &mBackBuffer, NULL);
-
   D3D11_RASTERIZER_DESC desc;
   ZeroMemory(&desc, sizeof(desc));
   desc.FillMode = D3D11_FILL_SOLID;
-  desc.CullMode = D3D11_CULL_BACK;
+  desc.CullMode = D3D11_CULL_NONE;
+  desc.DepthClipEnable = TRUE;
   desc.FrontCounterClockwise = TRUE;
   ID3D11RasterizerState* state;
   mDevice->CreateRasterizerState(&desc, &state);
   mD3d->RSSetState(state);
   state->Release();
 
-  mShader = new CGE::DXShader(VB_POSITION | VB_TEXCOORD);
+  mShader = new CGE::DXShader(VB_POSITION | VB_TEXCOORD | VB_NORMAL);
   mShader->allocUniforms(Shader::VERTEX_SHADER, sizeof(CGE::Matrix));
   mShader->allocUniforms(Shader::FRAGMENT_SHADER, 4 * sizeof(float) + 4*sizeof(int));
   mShader->lockUniforms(Shader::FRAGMENT_SHADER);
@@ -189,39 +228,6 @@ void DXRenderer::initRendering(){
   mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
   mShader->syncMatrix("mvp", CGE::MVP);
   mShader->activate();
-  
-  //mD3d->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
-  //device_->SetRenderState(D3DRS_LIGHTING, false);
-
-  //device_->SetRenderState(D3DRS_SPECULARENABLE, true);
-  //device_->SetRenderState(D3DRS_NORMALIZENORMALS, true);
-  //device_->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_RGBA(51,51,51,255));
-  /*
-  device_->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
-  device_->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR);
-  device_->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_LINEAR);
-  //device_->SetRenderState(D3DRS_TEXTUREFACTOR, D3DCOLOR_RGBA(0,255,0,255));
-  // Coloring
-  device_->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_CURRENT);
-  device_->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_TEXTURE);
-  device_->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
-  device_->SetTextureStageState(1, D3DTSS_COLORARG1, D3DTA_CURRENT);
-  device_->SetTextureStageState(1, D3DTSS_COLORARG2, D3DTA_TFACTOR);
-  device_->SetTextureStageState(1, D3DTSS_COLOROP, D3DTOP_MODULATE);
-  device_->SetTextureStageState(2, D3DTSS_COLOROP, D3DTOP_DISABLE);
-
-  // Alpha transparency
-  device_->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-  device_->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_TEXTURE);
-  device_->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-  device_->SetTextureStageState(1, D3DTSS_ALPHAARG1, D3DTA_CURRENT);
-  device_->SetTextureStageState(1, D3DTSS_ALPHAARG2, D3DTA_TFACTOR);
-  device_->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-  device_->SetTextureStageState(2, D3DTSS_ALPHAOP, D3DTOP_DISABLE);
-  /*device_->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TFACTOR);
-  device_->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_TEXTURE);
-  device_->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
-  device_->SetTextureStageState(1, D3DTSS_ALPHAOP, D3DTOP_DISABLE);*/
 
   Renderer::initRendering();
 }
@@ -273,8 +279,8 @@ void DXRenderer::setClearColor(::CGE::Vector3D color){
 void DXRenderer::clear(long flags){
   if (flags & COLORBUFFER)
     mD3d->ClearRenderTargetView(mBackBuffer, mClearColor);
-  //if (flags & ZBUFFER)
-    //mD3d->ClearDepthStencilView(, D3D11_CLEAR_DEPTH, 1.0f);
+  if (flags & ZBUFFER)
+    mD3d->ClearDepthStencilView(mDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 VertexBuffer* DXRenderer::createVertexBuffer(){
@@ -292,48 +298,85 @@ Texture* DXRenderer::createTexture(string filename){
 
 //! set lookAt
 void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
+#if 0
   XMVECTOR eye = XMVectorSet(position.x, position.y, position.z, 1.0f);
   XMVECTOR l = XMVectorSet(look.x, look.y, look.z, 1.0f);
   XMVECTOR u = XMVectorSet(up.x, up.y, up.z, 0.0f);
   XMMATRIX mat = XMMatrixLookAtRH(eye, l-eye, u);
   XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
   XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
+#else
+  Vec3f forward = look - position;
+  forward.normalize();
+  Vec3f side = forward.cross(up).normalized();
+  Vec3f up_new = side.cross(forward);
+  Matrix mat = Matrix(side, up_new, forward*-1, Vec3f()/*eye*1*/)*Matrix(Matrix::Translation, position*-1);
+  multiplyMatrix(mat);
+#endif
 }
 
 //! set projection
 void DXRenderer::projection(float angle, float aspect, float nearplane, float farplane){
-  XMStoreFloat4x4(&mMatrix[Projection], XMMatrixPerspectiveFovRH(angle / 180.0f*XM_PI, aspect, nearplane, farplane));
+#if 0
+  XMStoreFloat4x4(&mMatrix[Projection], XMMatrixPerspectiveFovRH(angle / 180.0f*XM_PI, 1/aspect, nearplane, farplane));
+#else
+  float ymax = nearplane * (float)tan(angle * 3.1415962f / 360.0);
+  float ymin = -ymax;
+  float xmin = ymin * aspect;
+  float xmax = ymax * aspect;
+  mMatrix[Projection] = CGE::Matrix(CGE::Matrix::Perspective, xmin, xmax, ymin, ymax, nearplane, farplane);
+#endif
 }
 
 void DXRenderer::ortho(float left, float right, float bottom, float top, float nearp, float farp){
+#if 0
   XMStoreFloat4x4(&mMatrix[Projection], XMMatrixOrthographicOffCenterRH(left, right, bottom, top, nearp, farp));
+#else
+  mMatrix[Projection] = CGE::Matrix(CGE::Matrix::Ortho, left, right, bottom, top, nearp, farp);
+#endif
 }
 
 //! reset modelview matrix
 void DXRenderer::resetModelView(){
+#if 0
   XMStoreFloat4x4(&mMatrix[mMatrixMode], XMMatrixIdentity());
+#else
+  mMatrix[mMatrixMode] = Matrix(Matrix::Identity);
+#endif
 }
 
 //! translate
 void DXRenderer::translate(float x, float y, float z){
+#if 0
   XMMATRIX mat = XMMatrixTranslation(x, y, z);
   XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
   XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
+#else
+  mMatrix[mMatrixMode] *= Matrix(Matrix::Translation, Vec3f(x, y, z));
+#endif
 }
 
 //! scale
 void DXRenderer::scale(float x, float y, float z){
+#if 0
   XMMATRIX mat = XMMatrixScaling(x, y, z);
   XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
   XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
+#else
+  mMatrix[mMatrixMode] *= Matrix(Matrix::Scale, Vec3f(x, y, z));
+#endif
 }
 
 //! rotate
 void DXRenderer::rotate(float angle, float x, float y, float z){
+#if 0
   XMVECTOR axis = XMVectorSet(x, y, z, 0.0f);
   XMMATRIX mat = XMMatrixRotationAxis(axis, angle / 180.0f*XM_PI);
   XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
   XMStoreFloat4x4(&mMatrix[mMatrixMode], mat*curr);
+#else
+  mMatrix[mMatrixMode] *= Matrix(Matrix::Rotation, Vec3f(x, y, z), angle / 180 * (float)M_PI);
+#endif
 }
 
 //! set rendermode
@@ -416,7 +459,14 @@ void DXRenderer::enableLighting(const bool flag){
 }
 
 void DXRenderer::enableDepthTest(const bool flag){
-
+  SAFE_RELEASE(mDepthState);
+  D3D11_DEPTH_STENCIL_DESC dsd;
+  ZeroMemory(&dsd, sizeof(dsd));
+  dsd.DepthEnable = flag ? TRUE : FALSE;
+  dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+  dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+  mDevice->CreateDepthStencilState(&dsd, &mDepthState);
+  mD3d->OMSetDepthStencilState(mDepthState, 0);
 }
   
 //! set color
@@ -449,23 +499,28 @@ void DXRenderer::popMatrix(){
 
 //! multiply matrix
 void DXRenderer::multiplyMatrix(const CGE::Matrix& mat){
+#if 0
   XMMATRIX dxmat = XMMatrixSet(mat.getData()[0], mat.getData()[1], mat.getData()[2], mat.getData()[3],
     mat.getData()[4], mat.getData()[5], mat.getData()[6], mat.getData()[7],
     mat.getData()[8], mat.getData()[9], mat.getData()[10], mat.getData()[11],
     mat.getData()[12], mat.getData()[13], mat.getData()[14], mat.getData()[15]);
   XMMATRIX curr = XMLoadFloat4x4(&mMatrix[mMatrixMode]);
   XMStoreFloat4x4(&mMatrix[mMatrixMode], curr*dxmat);
+#else
+  mMatrix[mMatrixMode] *= mat;
+#endif
 }
 
 //! set material
 void DXRenderer::setMaterial(const Material& mat){
-  /*D3DMATERIAL9 m;
-  m.Diffuse = D3DXCOLOR(mat.getDiffuse().array);
-  m.Ambient = D3DXCOLOR(mat.getAmbient().array);
-  m.Specular = D3DXCOLOR(mat.getSpecular().array);
-  m.Emissive = D3DXCOLOR(mat.getEmissive().array);
-  m.Power = mat.getPower();
-  device_->SetMaterial(&m);*/
+  setColor(&mat.getDiffuse());
+  Texture const* tex = mat.getDiffuseTex();
+  if (tex){
+    enableTexturing(true);
+    tex->activate();
+  }
+  else
+    enableTexturing(false);
 }
 
 
@@ -482,6 +537,7 @@ void DXRenderer::getViewport(int view[4]){
 
 //! get a matrix
 Matrix DXRenderer::getMatrix(MatrixType mt){
+#if 0
   XMFLOAT4X4 ret;
   if (mt == MVP){
     XMMATRIX p = XMLoadFloat4x4(&mMatrix[Projection]);
@@ -493,6 +549,12 @@ Matrix DXRenderer::getMatrix(MatrixType mt){
   //float m[16];
   //memcpy(m, ret.m, 4 * 4* sizeof(float));
   return CGE::Matrix((float*)ret.m);
+#else
+  if (mt == MVP){
+    return mMatrix[Projection] * mMatrix[Modelview];
+  }
+  return mMatrix[mt];
+#endif
 }
 
 void DXRenderer::swapBuffers(){
@@ -523,10 +585,6 @@ void DXRenderer::setLight(int number, const Light& lit){
   //light.Specular = c;
   light.Direction = dir;
   device_->SetLight(number, &light);*/
-}
-
-void DXRenderer::switchFromViewToModelTransform(){
-  //matrixtype_ = D3DTS_WORLD;
 }
 
 //! switch matrix type

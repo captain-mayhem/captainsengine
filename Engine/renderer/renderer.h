@@ -130,8 +130,6 @@ public:
   virtual CGE::Matrix getMatrix(MatrixType mt)=0;
   //! swap back and front buffer
   virtual void swapBuffers()=0;
-  //! switch from view to model matrix
-  virtual void switchFromViewToModelTransform()=0;
   //! get the window
   AppWindow* getWindow() {return win_;}
   //! switch matrix type

@@ -413,10 +413,6 @@ void OGLRenderer::setLight(int number, const Light& lit){
   glLightfv(GL_LIGHT0, GL_POSITION, tmp);
 }
 
-void OGLRenderer::switchFromViewToModelTransform(){
-
-}
-
 void OGLRenderer::switchMatrixStack(MatrixType type){
   GLenum mode = GL_MODELVIEW_MATRIX;
   if (type == Projection)
