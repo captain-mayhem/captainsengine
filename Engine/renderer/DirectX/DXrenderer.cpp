@@ -221,14 +221,12 @@ void DXRenderer::initRendering(){
   mD3d->RSSetState(state);
   state->Release();
 
-  mShader = new CGE::DXShader(VB_POSITION | VB_TEXCOORD | VB_NORMAL);
-  mShader->allocUniforms(Shader::VERTEX_SHADER, sizeof(CGE::Matrix));
-  mShader->allocUniforms(Shader::FRAGMENT_SHADER, 4 * sizeof(float) + 4*sizeof(int));
+  mShader = new CGE::DXShader();
+  mShader->addShader(Shader::VERTEX_SHADER, vs_src);
+  mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
   mShader->lockUniforms(Shader::FRAGMENT_SHADER);
   mShader->uniform(4 * sizeof(float), 1);
   mShader->unlockUniforms(Shader::FRAGMENT_SHADER);
-  mShader->addShader(Shader::VERTEX_SHADER, vs_src);
-  mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
   mShader->syncMatrix("mvp", CGE::MVP);
   mShader->activate();
 
