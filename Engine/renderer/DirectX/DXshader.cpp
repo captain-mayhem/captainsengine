@@ -7,7 +7,7 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Shader_DX);
 
-DXShader::DXShader(int attrType) : mVS(NULL), mPS(NULL), mLayout(NULL), mAttrType(attrType), mMappedUBO(NULL){
+DXShader::DXShader() : mVS(NULL), mPS(NULL), mLayout(NULL), mAttrType(0), mMappedUBO(NULL){
   for (int i = 0; i < Shader::NUM_SHADERS; ++i){
     mData[i].constants = NULL;
     mData[i].refl = NULL;
@@ -52,14 +52,40 @@ bool DXShader::addShader(Type shadertype, const char* shaderstring, int stringle
   }
   if (shadertype == VERTEX_SHADER){
     dev->CreateVertexShader(shader->GetBufferPointer(), shader->GetBufferSize(), NULL, &mVS);
-    createAttributes(shader);
   }
   else if (shadertype == FRAGMENT_SHADER)
     dev->CreatePixelShader(shader->GetBufferPointer(), shader->GetBufferSize(), NULL, &mPS);
+
   D3DReflect(shader->GetBufferPointer(), shader->GetBufferSize(), IID_ID3D11ShaderReflection, (void**)&mData[shadertype].refl);
-  
-  //D3D11_SHADER_INPUT_BIND_DESC bind;
-  //refl->GetResourceBindingDescByName("mvp", &bind);
+  if (mData[shadertype].refl){
+    D3D11_SHADER_DESC sdesc;
+    mData[shadertype].refl->GetDesc(&sdesc);
+
+    ID3D11ShaderReflectionConstantBuffer* cbr = mData[shadertype].refl->GetConstantBufferByIndex(0);
+    if (cbr){
+      D3D11_SHADER_BUFFER_DESC desc;
+      cbr->GetDesc(&desc);
+      allocUniforms(shadertype, desc.Size);
+    }
+    if (shadertype == VERTEX_SHADER){
+      for (unsigned i = 0; i < sdesc.InputParameters; ++i){
+        D3D11_SIGNATURE_PARAMETER_DESC pdesc;
+        mData[shadertype].refl->GetInputParameterDesc(i, &pdesc);
+        if (strcmp(pdesc.SemanticName, "POSITION") == 0)
+          mAttrType |= VB_POSITION;
+        else if (strcmp(pdesc.SemanticName, "TEXCOORD") == 0)
+          mAttrType |= VB_TEXCOORD;
+        else if (strcmp(pdesc.SemanticName, "NORMAL") == 0)
+          mAttrType |= VB_NORMAL;
+        else if (strcmp(pdesc.SemanticName, "COLOR") == 0)
+          mAttrType |= VB_COLOR;
+        else
+          TR_WARN("%s unknown, cannot deduce Vertex Buffer layout", pdesc.SemanticName);
+      }
+      createAttributes(shader);
+    }
+  }
+
   shader->Release();
   return true;
 }

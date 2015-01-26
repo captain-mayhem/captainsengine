@@ -12,7 +12,7 @@ class Matrix;
 
 class DXShader : public Shader{
 public:
-  DXShader(int attrType);
+  DXShader();
   ~DXShader();
   bool addShader(Type shadertype, const char* shaderstring, int stringlen = 0);
   void allocUniforms(Type shader, unsigned size);
