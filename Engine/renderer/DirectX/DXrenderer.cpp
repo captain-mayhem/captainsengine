@@ -159,6 +159,7 @@ void DXRenderer::killContext(){
 static char const * vs_src =
 "cbuffer perObject{\n"
 "  matrix mvp;\n"
+"  matrix texmat;\n"
 "}\n"
 "\n"
 "struct VSInput{\n"
@@ -177,7 +178,7 @@ static char const * vs_src =
 "  VSOutput outp;\n"
 "  float4 vPos = float4(inp.pos, 1.0);\n"
 "  outp.vPos = mul(mvp, vPos);\n"
-"  outp.tcoord = inp.texcoord;\n"
+"  outp.tcoord = mul(texmat, float4(inp.texcoord,0,0));\n"
 "  return outp;\n"
 "}\n"
 "\n"
@@ -228,6 +229,7 @@ void DXRenderer::initRendering(){
   mShader->uniform(4 * sizeof(float), 1);
   mShader->unlockUniforms(Shader::FRAGMENT_SHADER);
   mShader->syncMatrix("mvp", CGE::MVP);
+  mShader->syncMatrix("texmat", MatTexture);
   mShader->activate();
 
   Renderer::initRendering();
