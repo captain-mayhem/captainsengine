@@ -4,7 +4,9 @@
 #include <windows.h>
 #endif
 #include "GL2Shader.h"
+#ifndef QNX
 #include <GL/gl.h>
+#endif
 #include "GL2vertexbuffer.h"
 #include "GL2indexbuffer.h"
 #include "../renderer.h"

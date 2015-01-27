@@ -6,6 +6,9 @@
 #ifdef WIN32
 #include <Windows.h>
 #endif
+#ifdef UNIX
+#include <unistd.h>
+#endif
 
 namespace CGE{
 
@@ -25,7 +28,7 @@ private:
 #ifdef WIN32
   HANDLE mProcess;
 #endif
-#ifdef UNIX
+#if defined(UNIX)
   pid_t mProcess;
 #endif
 };
