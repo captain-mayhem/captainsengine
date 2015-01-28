@@ -1,8 +1,7 @@
 OPTION(RENDER_OPENGL "compile renderer with OpenGL support" ON)
 OPTION(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
-OPTION(RENDER_GLES "compile renderer with OpenGL ES support" OFF)
 OPTION(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
-OPTION(RENDER_EMBEDDED "use variant of renderer for embedded systems" OFF)
+OPTION(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" OFF)
 OPTION (NO_PTHREAD_CANCEL "Platform has no pthread cancel" OFF)
 IF (OS STREQUAL linux)
 OPTION (NO_X11 "Disable X11 for embedded systems" OFF)
@@ -25,6 +24,7 @@ ENDIF(RENDER_OPENGL)
 IF(RENDER_GL2)
 	MESSAGE(STATUS "with OpenGL 2 renderer")
 	ADD_DEFINITIONS(-DOPENGL2)
+	
 	SET(ENGINE_COMPILE_FLAGS
 		-DGLEW_STATIC
 	)
@@ -44,23 +44,6 @@ IF (RENDER_EMBEDDED)
 	MESSAGE(STATUS "with OpenGL ES 2.0 renderer")
 	ADD_DEFINITIONS(-DOPENGL2)
 ENDIF (RENDER_EMBEDDED)
-IF(RENDER_GLES)
-	ADD_DEFINITIONS(-DGLES)
-IF (${OS} STREQUAL "qnx")
-	SET(ENGINE_LINK_LIBRARIES
-		EGL
-		GLESv1_CM
-		gf
-		${ENGINE_LINK_LIBRARIES}
-	)
-ELSE (${OS} STREQUAL "qnx")
-	SET(ENGINE_LINK_LIBRARIES
-		libEGL
-		libGLES_CM_NoE
-		${ENGINE_LINK_LIBRARIES}
-	)
-ENDIF (${OS} STREQUAL "qnx")
-ENDIF(RENDER_GLES)
 
 IF (OS STREQUAL linux)
 IF (NOT NO_X11)

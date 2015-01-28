@@ -1,6 +1,6 @@
 #if defined(QNX) || defined(NO_X11)
 #include "../system/engine.h"
-#include "../renderer/GLES/GLESrenderer.h"
+#include "../renderer/GL2/GL2Renderer.h"
 #include "nativeQNX.h"
 
 using namespace CGE;

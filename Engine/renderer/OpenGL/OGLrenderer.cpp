@@ -143,6 +143,8 @@ void OGLRenderer::initRendering(){
   //better perspective calculations
   glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
   Renderer::initRendering();
 }
 

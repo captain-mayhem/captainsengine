@@ -32,21 +32,6 @@ IF(RENDER_OPENGL)
 		${PRE}/OpenGL/OGLvertexbuffer.h
 	)
 ENDIF(RENDER_OPENGL)
-IF(RENDER_GLES)
-	SET(RENDERER_SRCS
-		${PRE}/GLES/GLESindexbuffer.cpp
-		${PRE}/GLES/GLESrenderer.cpp
-		${PRE}/GLES/GLEStexture.cpp
-		${PRE}/GLES/GLESvertexbuffer.cpp
-		${RENDERER_SRCS}
-	)
-	SET(RENDERER_HDRS_GLES
-		${PRE}/GLES/GLESindexbuffer.h
-		${PRE}/GLES/GLESrenderer.h
-		${PRE}/GLES/GLEStexture.h
-		${PRE}/GLES/GLESvertexbuffer.h
-	)
-ENDIF(RENDER_GLES)
 IF(RENDER_GL2 OR RENDER_EMBEDDED)
 	SET(RENDERER_SRCS
 		${RENDERER_SRCS}

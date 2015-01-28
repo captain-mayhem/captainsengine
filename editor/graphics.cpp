@@ -116,7 +116,7 @@ void Graphic::render_(){
   rend->clear(ZBUFFER | COLORBUFFER);
   rend->setColor(1.0,1.0,1.0,1.0);
   rend->enableTexturing(false);
-  rend->projection(60, 4.0f/3.0f, 0.1f, 1000.0f);
+  rend->projection(60, 4.0f/3.0f, 0.01f, 1000.0f);
   //rend->ortho(-50, 50, -50, 50, 0.1, 100);
   rend->resetModelView();
   rend->multiplyMatrix(camTrafo_);
@@ -133,6 +133,7 @@ void Graphic::render_(){
   //fnt->glPrint(200, 400, ("FPS: "+toStr(Engine::instance()->getFPS())).c_str(), 0);
   //rend->enableLighting(true);
   rend->enableTexturing(true);
+  rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
   scene_.render();
   //rend->enableLighting(false);
 }

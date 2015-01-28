@@ -2,7 +2,6 @@
 #include "../renderer/GL2/GL2Renderer.h"
 #include "../renderer/OpenGL/OGLrenderer.h"
 #include "../renderer/DirectX/DXrenderer.h"
-#include "../renderer/GLES/GLESrenderer.h"
 #include "../renderer/dummyrenderer.h"
 #include "../input/mouse.h"
 #include "../input/keyboard.h"
