@@ -189,7 +189,7 @@ void GL2Renderer::initRendering(){
     return;
   }
 #endif
-
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   //depth buffer
   glClearDepth(1.0f);
   glEnable(GL_DEPTH_TEST);
@@ -408,6 +408,10 @@ void GL2Renderer::multiplyMatrix(const CGE::Matrix& mat){
 
 //! set material
 void GL2Renderer::setMaterial(const Material& mat){
+  if (mat.getDiffuse().a != 1.0f)
+    enableBlend(true);
+  else
+    enableBlend(false);
   setColor(&mat.getDiffuse());
   Texture const* tex = mat.getDiffuseTex();
   if (tex){

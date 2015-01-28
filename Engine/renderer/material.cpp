@@ -34,6 +34,14 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
 
   while (fgets(line, 2000, f)){
     switch (line[0]){
+    case 'd':
+      {
+        float opacity = strtof(line + 2, NULL);
+        Color col = currMat->getDiffuse();
+        col.a = opacity;
+        currMat->setDiffuse(col);
+      }
+      break;
     case 'm':
       if (memcmp(line, "map_Kd", 6) == 0){
         std::string texture(line + 7);
@@ -69,8 +77,10 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
       col.r = strtof(line + 3, &pos);
       col.g = strtof(pos+1, &pos);
       col.b = strtof(pos+1, &pos);
-      if (line[1] == 'd')
+      if (line[1] == 'd'){
+        col.a = currMat->getDiffuse().a;
         currMat->setDiffuse(col);
+      }
       else if (line[1] == 'a')
         currMat->setAmbient(col);
       else if (line[1] == 's')

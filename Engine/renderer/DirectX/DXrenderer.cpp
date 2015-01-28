@@ -518,6 +518,10 @@ void DXRenderer::multiplyMatrix(const CGE::Matrix& mat){
 
 //! set material
 void DXRenderer::setMaterial(const Material& mat){
+  if (mat.getDiffuse().a != 1.0f)
+    enableBlend(true);
+  else
+    enableBlend(false);
   setColor(&mat.getDiffuse());
   Texture const* tex = mat.getDiffuseTex();
   if (tex){
