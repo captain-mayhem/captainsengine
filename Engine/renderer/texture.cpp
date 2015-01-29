@@ -4,6 +4,7 @@
 #include "../system/engine.h"
 #include "renderer.h"
 #include "texture.h"
+#include "../image/loader.h"
 
 using std::ifstream;
 
@@ -11,8 +12,7 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Texture);
 
-Texture::Texture(std::string filename){
-  filename_ = filename;
+Texture::Texture(){
 }
 
 Texture::~Texture(){

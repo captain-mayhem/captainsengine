@@ -10,12 +10,14 @@ namespace CGE{
 
 class DXTexture : public Texture {
 public:
-  DXTexture(string filename);
+  DXTexture();
   virtual ~DXTexture();
   void activate()const;
   virtual void deactivate()const;
+  virtual bool loadFromFile(std::string const& file);
+  virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
 protected:
-  bool load(string filename);
+  DXGI_FORMAT dxformat(Format fmt);
   ID3D11Device* mDevice;
   ID3D11ShaderResourceView* mTex;
   ID3D11SamplerState* mState;

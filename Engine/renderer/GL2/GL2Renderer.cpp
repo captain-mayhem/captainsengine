@@ -254,7 +254,11 @@ VertexBuffer* GL2Renderer::createVertexBuffer(){
 }
 
 Texture* GL2Renderer::createTexture(string filename){
-  return new OGLTexture(filename);
+  OGLTexture* tex = new OGLTexture();
+  if (tex->loadFromFile(filename))
+    return tex;
+  delete tex;
+  return NULL;
 }
 
 IndexBuffer* GL2Renderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){

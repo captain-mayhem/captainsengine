@@ -297,7 +297,11 @@ IndexBuffer* DXRenderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){
 }
 
 Texture* DXRenderer::createTexture(string filename){
-  return new DXTexture(filename);
+  DXTexture* tex = new DXTexture();
+  if (tex->loadFromFile(filename))
+    return tex;
+  delete tex;
+  return NULL;
 }
 
 
