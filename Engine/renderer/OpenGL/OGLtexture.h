@@ -9,19 +9,26 @@
 #include <windows.h>
 #endif
 #ifndef QNX
+#ifdef OPENGL2
+#include <GL/glew.h>
+#else
 #include <GL/gl.h>
+#endif
 #endif
 
 namespace CGE{
 
 class OGLTexture : public Texture {
 public:
-  OGLTexture(string filename);
+  OGLTexture();
   virtual ~OGLTexture();
+  virtual bool loadFromFile(std::string const& file);
+  virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
   void activate() const;
   virtual void deactivate() const;
+  GLuint getHandle() { return tex_; }
+  static GLenum glFormat(Format fmt);
 protected:
-  bool load(string filename);
   GLuint tex_;
 };
 

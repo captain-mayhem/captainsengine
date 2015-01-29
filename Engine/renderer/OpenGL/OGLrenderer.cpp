@@ -5,7 +5,7 @@
 #include "../../window/nativeWindows.h"
 #include "../../window/nativeLinux.h"
 #include "../../system/engine.h"
-#include <GL/gl.h>
+//#include <GL/gl.h>
 #include "OGLvertexbuffer.h"
 #include "OGLtexture.h"
 #include "OGLrenderer.h"
@@ -204,7 +204,11 @@ VertexBuffer* OGLRenderer::createVertexBuffer(){
 }
 
 Texture* OGLRenderer::createTexture(string filename){
-  return new OGLTexture(filename);
+  OGLTexture* tex = new OGLTexture();
+  if (tex->loadFromFile(filename))
+    return tex;
+  delete tex;
+  return NULL;
 }
 
 IndexBuffer* OGLRenderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){

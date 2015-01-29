@@ -52,7 +52,7 @@ void StreetGenerator::reorderGrah(Ptr<MapChunk::Node> node){
   Ptr<MapChunk::Node> first = (Ptr<MapChunk::Node>)node->succs_[0];
   Vec3f v1 = Vec3f(first->mPos - node->mPos);
   v1.normalize();
-  nodes[0] = std::pair<float,Ptr<MapChunk::Node> >(0,first);
+  nodes[0] = std::pair<float,Ptr<MapChunk::Node> >(0.0f,first);
   //generate angles
   for (unsigned i = 1; i < node->succs_.size(); ++i){
     Ptr<MapChunk::Node> second = (Ptr<MapChunk::Node>)node->succs_[i];
@@ -206,13 +206,13 @@ float StreetGenerator::calculateThinckness(const StreetInfo& info){
       base = 2.8f;
       break;
     case StreetInfo::BIG_LOCAL_STREET:
-      base = 2.6;
+      base = 2.6f;
       break;
     case StreetInfo::MEDIUM_LOCAL_STREET:
-      base = 2.4;
+      base = 2.4f;
       break;
     case StreetInfo::SMALL_LOCAL_STREET:
-      base = 2.1;
+      base = 2.1f;
       break;
   }
   float street = base*info.lanes;

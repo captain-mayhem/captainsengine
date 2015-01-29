@@ -36,12 +36,14 @@ IF(RENDER_GL2 OR RENDER_EMBEDDED)
 	SET(RENDERER_SRCS
 		${RENDERER_SRCS}
 		${PRE}/GL2/GL2Renderer.cpp
+		${PRE}/GL2/GL2rendertarget.cpp
 		${PRE}/GL2/GL2Shader.cpp
 		${PRE}/GL2/GL2indexbuffer.cpp
 		${PRE}/GL2/GL2vertexbuffer.cpp
 	)
 	SET(RENDERER_HDRS_GL2
 		${PRE}/GL2/GL2Renderer.h
+		${PRE}/GL2/GL2rendertarget.h
 		${PRE}/GL2/GL2Shader.h
 		${PRE}/GL2/GL2indexbuffer.h
 		${PRE}/GL2/GL2vertexbuffer.h
@@ -57,6 +59,7 @@ SET(Engine_renderer_SRCS
 	${PRE}/material.cpp
 	${PRE}/model.cpp
 	${PRE}/renderer.cpp
+	${PRE}/rendertarget.cpp
 	${PRE}/scene.cpp
 	${PRE}/shader.cpp
 	${PRE}/texture.cpp
@@ -74,6 +77,7 @@ SET(RENDERER_HDRS_CORE
 	${PRE}/material.h
 	${PRE}/model.h
 	${PRE}/renderer.h
+	${PRE}/rendertarget.h
 	${PRE}/scene.h
 	${PRE}/shader.h
 	${PRE}/texture.h

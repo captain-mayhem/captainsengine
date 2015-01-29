@@ -14,15 +14,16 @@ typedef unsigned short WORD;
 
 TR_CHANNEL(CGE_Texture_OGL);
 
-OGLTexture::OGLTexture(string filename) : Texture(filename), tex_(0){
-  load(filename);
+OGLTexture::OGLTexture() : Texture(), tex_(0){
+  glGenTextures(1, &tex_);
 }
 
 OGLTexture::~OGLTexture(){
   glDeleteTextures(1, &tex_);
 }
 
-bool OGLTexture::load(string filename){
+bool OGLTexture::loadFromFile(std::string const & filename){
+  filename_ = filename;
   TR_USE(CGE_Texture_OGL);
   Image *img = NULL;
 
@@ -31,7 +32,6 @@ bool OGLTexture::load(string filename){
   if (!img)
     return false;
 
-  glGenTextures(1, &tex_);
   glBindTexture(GL_TEXTURE_2D, tex_);
   glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP, GL_TRUE);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
@@ -40,6 +40,20 @@ bool OGLTexture::load(string filename){
   glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->getWidth(), img->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, img->getData());
 
   delete img;
+  return true;
+}
+
+bool OGLTexture::createEmpty(unsigned width, unsigned height, Format fmt){
+  if (fmt == AUTO)
+    return false;
+
+  glBindTexture(GL_TEXTURE_2D, tex_);
+  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+  GLenum glformat = glFormat(fmt);
+  glTexImage2D(GL_TEXTURE_2D, 0, glformat, width, height, 0, glformat, GL_UNSIGNED_BYTE, NULL);
   return true;
 }
 
@@ -52,4 +66,18 @@ void OGLTexture::activate() const{
 void OGLTexture::deactivate() const{
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+GLenum OGLTexture::glFormat(Format fmt){
+  switch (fmt){
+  case GRAY:
+    return GL_LUMINANCE;
+  case RGB:
+    return GL_RGB;
+  case RGBA:
+    return GL_RGBA;
+  case DEPTH:
+    return GL_DEPTH_COMPONENT16;
+  }
+  return GL_INVALID_ENUM;
 }
