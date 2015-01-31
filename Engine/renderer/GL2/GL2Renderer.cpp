@@ -18,6 +18,7 @@
 #include "../OpenGL/OGLtexture.h"
 #include "GL2indexbuffer.h"
 #include "GL2Shader.h"
+#include "GL2rendertarget.h"
 
 using namespace CGE;
 
@@ -109,6 +110,7 @@ void GL2Renderer::initContext(AppWindow* win){
 
 void GL2Renderer::killContext(){
   TR_USE(CGE_Renderer_GL2);
+  delete mRT;
   delete mShader;
 #if defined(WIN32) && !defined(UNDER_CE)
   if (hRC_){
@@ -195,6 +197,9 @@ void GL2Renderer::initRendering(){
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LEQUAL);
 
+  mRT = new GL2RenderTarget();
+  RenderTarget::mCurrTarget = mRT;
+
   mShader = new CGE::GL2Shader();
   mShader->addShader(Shader::VERTEX_SHADER, vs_src);
   mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
@@ -263,6 +268,11 @@ Texture* GL2Renderer::createTexture(string filename){
 
 IndexBuffer* GL2Renderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){
   return new GL2IndexBuffer(t,size);
+}
+
+RenderTarget* GL2Renderer::createRenderTarget(unsigned width, unsigned height){
+  GL2RenderTarget* rt = new GL2RenderTarget(width, height);
+  return rt;
 }
 
 void GL2Renderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){

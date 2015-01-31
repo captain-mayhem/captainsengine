@@ -13,11 +13,15 @@ namespace CGE{
 
 class GL2RenderTarget : public RenderTarget{
 public:
+  GL2RenderTarget();
   GL2RenderTarget(unsigned width, unsigned height);
   ~GL2RenderTarget();
   virtual void addTexture(Texture::Format fmt);
   virtual void addRenderbuffer(Texture::Format fmt);
-  virtual void create();
+  virtual bool isComplete();
+  virtual Texture* getTexture(unsigned idx);
+protected:
+  virtual void bind();
 private:
   unsigned mWidth;
   unsigned mHeight;

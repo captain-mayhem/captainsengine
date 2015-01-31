@@ -5,6 +5,7 @@
 #include "math/matrix.h"
 #include "system/engine.h"
 #include "renderer/scene.h"
+#include "renderer/rendertarget.h"
 
 namespace MeshGeo{
 class Mesh;
@@ -15,6 +16,7 @@ public:
   ~Graphic();
   static void init();
   static void render();
+  static void resize(int width, int height);
   inline static Graphic* instance() {return gra_;}
   inline static void release() {SAFE_DELETE(gra_);}
   //! add a mesh to the editor
@@ -48,6 +50,8 @@ protected:
   Graphic();
   //! the render method
   void render_();
+  //! the resize method
+  void resize_(int width, int height);
   //! the instance
   static Graphic* gra_;
   //! the scene
@@ -61,6 +65,8 @@ protected:
   CGE::Model* currModel_;
   //! the filename of the loaded scene
   std::string filename_;
+  //! the fbo
+  CGE::RenderTarget* mRT;
 };
 
 #endif

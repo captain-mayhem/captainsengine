@@ -304,6 +304,10 @@ Texture* DXRenderer::createTexture(string filename){
   return NULL;
 }
 
+RenderTarget* DXRenderer::createRenderTarget(unsigned width, unsigned height){
+  return NULL;
+}
+
 
 //! set lookAt
 void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){

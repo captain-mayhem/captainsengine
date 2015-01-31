@@ -7,6 +7,7 @@
 #include "indexbuffer.h"
 #include "texture.h"
 #include "light.h"
+#include "rendertarget.h"
 
 #define ZBUFFER 0x00000001
 #define COLORBUFFER 0x00000010
@@ -79,6 +80,8 @@ public:
   virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size){return NULL;}
   //! create texture
   virtual Texture* createTexture(string filename)=0;
+  //! create rendertarget
+  virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) = 0;
   //! set lookAt
   virtual void lookAt(const CGE::Vec3f& position, const CGE::Vec3f& look, const CGE::Vec3f& up){}
   //! set perspective projection

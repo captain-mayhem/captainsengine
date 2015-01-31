@@ -4,6 +4,8 @@
 #include "mesh/mesh.h"
 #include "mesh/model.h"
 #include "gui/gui.h"
+#include "window/window.h"
+#include "renderer/forms.h"
 
 #include "editor.h"
 #include "menu.h"
@@ -19,18 +21,25 @@ TR_CHANNEL(CGE_Editor);
 
 Graphic* Graphic::gra_ = NULL;
 
-Graphic::Graphic(){
+Graphic::Graphic() : mRT(NULL){
   camTrafo_ = CGE::Matrix(Matrix::Translation, Vector3D(0.0,0.0,-10.0f));
   camRot_ = CGE::Matrix(Matrix::Identity);
   currModel_ = NULL;
   filename_ = "";
+
+  Renderer* rend = Engine::instance()->getRenderer();
+  mRT = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
+  mRT->activate();
+  mRT->addTexture(CGE::Texture::RGBA);
+  mRT->addRenderbuffer(CGE::Texture::DEPTH);
+  mRT->isComplete();
+  mRT->deactivate();
+  //delete mRT;
+  //mRT = rend->createRenderTarget(width, height);
 }
 
 Graphic::~Graphic(){
-  //for (unsigned i = 0; i < meshes_.size(); i++){
-  //  delete meshes_[i];
-  //}
-  //meshes_.clear();
+  delete mRT;
 }
 
 void Graphic::init(){
@@ -111,8 +120,19 @@ void Graphic::render(){
   gra_->render_();
 }
 
+void Graphic::resize(int width, int height){
+  gra_->resize_(width, height);
+}
+
+void Graphic::resize_(int width, int height){
+  Renderer* rend = Engine::instance()->getRenderer();
+  //delete mRT;
+  //mRT = rend->createRenderTarget(width, height);
+}
+
 void Graphic::render_(){
-  Renderer* rend = Engine::instance()->getRenderer(); 
+  Renderer* rend = Engine::instance()->getRenderer();
+  mRT->activate();
   rend->clear(ZBUFFER | COLORBUFFER);
   rend->setColor(1.0,1.0,1.0,1.0);
   rend->enableTexturing(false);
@@ -135,6 +155,22 @@ void Graphic::render_(){
   rend->enableTexturing(true);
   rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
   scene_.render();
+  mRT->deactivate();
+
+  rend->ortho(1, 1);
+  rend->resetModelView();
+  rend->enableDepthTest(false);
+  CGE::Forms& forms = *CGE::Engine::instance()->getForms();
+  forms.activateQuad();
+  rend->enableTexturing(true);
+  rend->setColor(1, 1, 1, 1);
+  rend->switchMatrixStack(CGE::MatTexture);
+  rend->resetModelView();
+  rend->scale(1, -1, 1);
+  mRT->getTexture(0)->activate();
+  forms.drawQuad(Vec2f(), Vec2f(1,1));
+  rend->resetModelView();
+  rend->switchMatrixStack(CGE::Modelview);
   //rend->enableLighting(false);
 }
 
