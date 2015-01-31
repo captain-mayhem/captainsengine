@@ -6,9 +6,14 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Rendertarget);
 
+GL2RenderTarget::GL2RenderTarget() : mWidth(0), mHeight(0){
+  GLint fb;
+  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fb);
+  mFBO = fb;
+}
+
 GL2RenderTarget::GL2RenderTarget(unsigned width, unsigned height) : mWidth(width), mHeight(height){
   glGenFramebuffers(1, &mFBO);
-  glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 }
 
 GL2RenderTarget::~GL2RenderTarget(){
@@ -19,6 +24,10 @@ GL2RenderTarget::~GL2RenderTarget(){
     glDeleteRenderbuffers(1, &mRenderbuffers[i]);
   }
   glDeleteFramebuffers(1, &mFBO);
+}
+
+void GL2RenderTarget::bind(){
+  glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
 }
 
 void GL2RenderTarget::addTexture(Texture::Format fmt){
@@ -49,14 +58,16 @@ void GL2RenderTarget::addRenderbuffer(Texture::Format fmt){
   mRenderbuffers.push_back(renderBuffer);
 }
 
-void GL2RenderTarget::create(){
-#if 0
-  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mOldFrameBuffer);
-  
+bool GL2RenderTarget::isComplete(){
+  TR_USE(CGE_Rendertarget);
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE){
     TR_ERROR("Unable to create framebuffer - status %i", status);
-    //TR_BREAK();
+    return false;
   }
-#endif
+  return true;
+}
+
+Texture* GL2RenderTarget::getTexture(unsigned idx){
+  return mTextures[idx];
 }

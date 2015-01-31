@@ -282,6 +282,7 @@ void Editor::startup(){
   }
   for (unsigned i = 0; i < mLoadModels.size(); ++i){
     Graphic::instance()->addMesh(mLoadModels[i]);
+    Graphic::instance()->addModel(0);
   }
 }
 

@@ -52,6 +52,8 @@ public:
   virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size);
   //! get a texture
   Texture* createTexture(string filename);
+  //! create rendertarget
+  virtual RenderTarget* createRenderTarget(unsigned width, unsigned height);
   //! set lookAt
   void lookAt(const CGE::Vec3f& position, const CGE::Vec3f& look, const CGE::Vec3f& up);
   //! set perspective projection

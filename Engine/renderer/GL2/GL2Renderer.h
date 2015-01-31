@@ -16,6 +16,7 @@
 #endif
 #include "../renderer.h"
 #include "GL2Shader.h"
+#include "GL2rendertarget.h"
 
 #include <stack>
 
@@ -57,6 +58,8 @@ public:
   virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size);
   //! create texture
   Texture* createTexture(string filename);
+  //! create rendertarget
+  virtual RenderTarget* createRenderTarget(unsigned width, unsigned height);
   //! set look at
   void lookAt(const CGE::Vec3f& position, const CGE::Vec3f& look, const CGE::Vec3f& up);
   //! set projection
@@ -125,6 +128,8 @@ protected:
   MatrixType mMatrixMode;
   //! shader
   CGE::GL2Shader* mShader;
+  //! the framebuffer
+  GL2RenderTarget* mRT;
 };
 
 }

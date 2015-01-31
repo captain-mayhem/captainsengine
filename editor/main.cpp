@@ -31,6 +31,7 @@ void engineMain(int argc, char** argv){
   Renderer* rend = Engine::instance()->getRenderer();
   rend->setRenderCB(Graphic::render);
   rend->setInitCB(Graphic::init);
+  rend->setResizeCB(Graphic::resize);
 
   //input callbacks
   Input::Keyboard::instance()->setKeyDownCB(Editor::keypress);
