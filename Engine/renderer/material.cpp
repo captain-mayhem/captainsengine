@@ -5,7 +5,7 @@
 
 using namespace CGE;
 
-Material::Material(std::string const& name) : mName(name), mDiffuseTex(NULL){
+Material::Material(std::string const& name) : mName(name), mDiffuseTex(NULL), mOpacityTex(NULL){
   mAmbient = Color(0.0f,0.0f,0.0f,1.0f);
   mDiffuse = Color(1.0f,1.0f,1.0f,1.0f);
   mSpecular = Color(0.0f,0.0f,0.0f,1.0f);
@@ -55,6 +55,23 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
             textures.push_back(tex);
         }
         currMat->setDiffuseTex(tex);
+      }
+      else if (memcmp(line, "map_d", 5) == 0){
+        int count = 6;
+        while (isspace(line[count]))
+          ++count;
+        std::string texture(line + count);
+        texture.pop_back();
+        std::string path = Filesystem::getPathComponent(filename);
+        texture = Filesystem::combinePath(path, texture);
+        Texture* tex = texturemap[texture];
+        if (tex == NULL){
+          tex = Engine::instance()->getRenderer()->createTexture(texture, Texture::ALPHA);
+          texturemap[texture] = tex;
+          if (tex)
+            textures.push_back(tex);
+        }
+        currMat->setOpacityTex(tex);
       }
       break;
     case 'n':

@@ -22,24 +22,19 @@ OGLTexture::~OGLTexture(){
   glDeleteTextures(1, &tex_);
 }
 
-bool OGLTexture::loadFromFile(std::string const & filename){
-  filename_ = filename;
+bool OGLTexture::createFromImage(Image* img, Format fmt){
   TR_USE(CGE_Texture_OGL);
-  Image *img = NULL;
-
-  img = ImageLoader::load(filename.c_str());
-
-  if (!img)
-    return false;
+  if (fmt == AUTO)
+    fmt = (Format)img->getNumChannels();
 
   glBindTexture(GL_TEXTURE_2D, tex_);
   glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP, GL_TRUE);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
 
-  glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, img->getWidth(), img->getHeight(), 0, GL_RGB, GL_UNSIGNED_BYTE, img->getData());
+  GLenum glfmt = glFormat(fmt);
+  glTexImage2D(GL_TEXTURE_2D, 0, glfmt, img->getWidth(), img->getHeight(), 0, glfmt, GL_UNSIGNED_BYTE, img->getData());
 
-  delete img;
   return true;
 }
 
@@ -78,6 +73,8 @@ GLenum OGLTexture::glFormat(Format fmt){
     return GL_RGBA;
   case DEPTH:
     return GL_DEPTH_COMPONENT16;
+  case ALPHA:
+    return GL_ALPHA;
   }
   return GL_INVALID_ENUM;
 }

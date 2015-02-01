@@ -11,7 +11,7 @@ public:
   //! Destructor
   ~DummyRenderer(){}  
   //! create texture
-  Texture* createTexture(string filename){return NULL;}
+  Texture* createTexture(Image* img, Texture::Format fmt){return NULL;}
   //! create rendertarget
   virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) { return NULL; }
   //! set orthographic projection

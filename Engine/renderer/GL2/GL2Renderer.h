@@ -57,7 +57,7 @@ public:
   //! get a index buffer
   virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size);
   //! create texture
-  Texture* createTexture(string filename);
+  Texture* createTexture(Image* img, Texture::Format fmt);
   //! create rendertarget
   virtual RenderTarget* createRenderTarget(unsigned width, unsigned height);
   //! set look at
@@ -95,7 +95,7 @@ public:
   //! set color
   void setColor(const Color* c);
   //! set material
-  void setMaterial(const Material& mat);
+  //void setMaterial(const Material& mat);
   //! set light
   virtual void setLight(int number, const Light& lit);
   //! push matrix

@@ -15,6 +15,7 @@
 namespace CGE{
 
 class AppWindow;
+class Image;
 
 enum RenderType{
   OpenGL,
@@ -79,7 +80,9 @@ public:
   //! create index buffer
   virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size){return NULL;}
   //! create texture
-  virtual Texture* createTexture(string filename)=0;
+  Texture* createTexture(string filename, Texture::Format fmt=Texture::AUTO);
+  //! create texture
+  virtual Texture* createTexture(Image* img, Texture::Format fmt) = 0;
   //! create rendertarget
   virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) = 0;
   //! set lookAt
@@ -118,7 +121,7 @@ public:
   //! set color
   virtual void setColor(const Color* c)=0;
   //! set material
-  virtual void setMaterial(const Material& mat)=0;
+  virtual void setMaterial(const Material& mat);
   //! set light
   virtual void setLight(int number, const Light& lit)=0;
   //! push matrix

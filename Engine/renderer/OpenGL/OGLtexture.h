@@ -22,7 +22,7 @@ class OGLTexture : public Texture {
 public:
   OGLTexture();
   virtual ~OGLTexture();
-  virtual bool loadFromFile(std::string const& file);
+  virtual bool createFromImage(Image* img, Format fmt);
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
   void activate() const;
   virtual void deactivate() const;

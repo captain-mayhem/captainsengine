@@ -19,14 +19,9 @@ DXTexture::~DXTexture(){
   SAFE_RELEASE(mState);
 }
 
-bool DXTexture::loadFromFile(std::string const& filename){
-  filename_ = filename;
-  Image *img = NULL;
-
-  img = ImageLoader::load(filename.c_str());
-
-  if (!img)
-    return false;
+bool DXTexture::createFromImage(Image* img, Format fmt){
+  if (fmt == AUTO)
+    fmt = (Format)img->getNumChannels();
 
   if (img->getNumChannels() == 3){
     img->convertFormat(4);
@@ -41,7 +36,7 @@ bool DXTexture::loadFromFile(std::string const& filename){
   desc.Height = img->getHeight();
   desc.MipLevels = 1;
   desc.ArraySize = 1;
-  desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+  desc.Format = dxformat(fmt);
   desc.SampleDesc.Count = 1;
   desc.Usage = D3D11_USAGE_DEFAULT;
   desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -56,8 +51,6 @@ bool DXTexture::loadFromFile(std::string const& filename){
   if (!SUCCEEDED(res))
     return false;
   mDevice->CreateShaderResourceView(mTexture, NULL, &mTex);
-
-  delete img;
 
   D3D11_SAMPLER_DESC samp;
   ZeroMemory(&samp, sizeof(samp));
@@ -133,6 +126,8 @@ DXGI_FORMAT DXTexture::dxformat(Format fmt){
     return DXGI_FORMAT_R8G8B8A8_UNORM;
   case DEPTH:
     return DXGI_FORMAT_D24_UNORM_S8_UINT;
+  case ALPHA:
+    return DXGI_FORMAT_A8_UNORM;
   }
   return DXGI_FORMAT_UNKNOWN;
 }

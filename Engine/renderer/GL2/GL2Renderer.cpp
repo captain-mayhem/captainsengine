@@ -258,9 +258,9 @@ VertexBuffer* GL2Renderer::createVertexBuffer(){
   return new GL2VertexBuffer();
 }
 
-Texture* GL2Renderer::createTexture(string filename){
+Texture* GL2Renderer::createTexture(Image* img, Texture::Format fmt){
   OGLTexture* tex = new OGLTexture();
-  if (tex->loadFromFile(filename))
+  if (tex->createFromImage(img, fmt))
     return tex;
   delete tex;
   return NULL;
@@ -421,7 +421,7 @@ void GL2Renderer::multiplyMatrix(const CGE::Matrix& mat){
 }
 
 //! set material
-void GL2Renderer::setMaterial(const Material& mat){
+/*void GL2Renderer::setMaterial(const Material& mat){
   Color diff = mat.getDiffuse();
   diff.a = mat.getOpacity();
   if (mat.getOpacity() != 1.0f)
@@ -436,12 +436,7 @@ void GL2Renderer::setMaterial(const Material& mat){
   }
   else
     enableTexturing(false);
-  /*glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.getAmbient().array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat.getDiffuse().array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat.getSpecular().array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat.getEmissive().array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.getPower());*/
-}
+}*/
 
 //! get the viewport
 void GL2Renderer::getViewport(int view[4]){

@@ -203,9 +203,9 @@ VertexBuffer* OGLRenderer::createVertexBuffer(){
   return new OGLVertexBuffer();
 }
 
-Texture* OGLRenderer::createTexture(string filename){
+Texture* OGLRenderer::createTexture(Image* img, Texture::Format fmt){
   OGLTexture* tex = new OGLTexture();
-  if (tex->loadFromFile(filename))
+  if (tex->createFromImage(img, fmt))
     return tex;
   delete tex;
   return NULL;
