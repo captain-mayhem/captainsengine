@@ -164,13 +164,17 @@ void Graphic::render_(){
   forms.activateQuad();
   rend->enableTexturing(true);
   rend->setColor(1, 1, 1, 1);
-  rend->switchMatrixStack(CGE::MatTexture);
-  rend->resetModelView();
-  rend->scale(1, -1, 1);
+  if (rend->getRenderType() != DirectX){
+    rend->switchMatrixStack(CGE::MatTexture);
+    rend->resetModelView();
+    rend->scale(1, -1, 1);
+  }
   mRT->getTexture(0)->activate();
   forms.drawQuad(Vec2f(), Vec2f(1,1));
-  rend->resetModelView();
-  rend->switchMatrixStack(CGE::Modelview);
+  if (rend->getRenderType() != DirectX){
+    rend->resetModelView();
+    rend->switchMatrixStack(CGE::Modelview);
+  }
   //rend->enableLighting(false);
 }
 

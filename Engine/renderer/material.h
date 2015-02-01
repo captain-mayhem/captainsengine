@@ -39,8 +39,10 @@ public:
   const Color& getAmbient() const {return mAmbient;}
   void setSpecular(const Color& specular) {mSpecular = specular;}
   const Color& getSpecular() const {return mSpecular;}
-  void setPower(float power) {mPower = power;}
-  const float& getPower() const {return mPower;}
+  void setPower(float power) {mSpecPower = power;}
+  const float& getPower() const {return mSpecPower;}
+  void setOpacity(float opacity) { mOpacity = opacity; }
+  const float getOpacity() const { return mOpacity; }
   std::string const & getName() const { return mName; }
   static bool loadFromMTL(std::string const& file, std::vector<Material*>& materials, std::vector<Texture*>& textures);
 protected:
@@ -49,7 +51,8 @@ protected:
   Texture* mDiffuseTex;
   Color mAmbient;
   Color mSpecular;
-  float mPower;
+  float mSpecPower;
+  float mOpacity;
 };
 
 }

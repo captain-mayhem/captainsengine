@@ -16,8 +16,10 @@ public:
   virtual void deactivate()const;
   virtual bool loadFromFile(std::string const& file);
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
+  static DXGI_FORMAT dxformat(Format fmt);
+  ID3D11Texture2D* getHandle() { return mTexture; }
 protected:
-  DXGI_FORMAT dxformat(Format fmt);
+  ID3D11Texture2D* mTexture;
   ID3D11Device* mDevice;
   ID3D11ShaderResourceView* mTex;
   ID3D11SamplerState* mState;
