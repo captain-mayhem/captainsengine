@@ -118,11 +118,23 @@ void Image::crop(int x, int y, int width, int height){
 }
 
 void Image::convertFormat(int numChannels){
+  if (numChannels == mChannels)
+    return;
   unsigned char* data = new unsigned char[mWidth*mHeight*numChannels];
   if (numChannels == 4 && mChannels == 3){
     for (int i = 0; i < mWidth*mHeight; ++i){
       memcpy(data + i*numChannels, mData + i*mChannels, mChannels);
       data[i*numChannels + 3] = 0xff;
+    }
+  }
+  else if (numChannels == 1 && mChannels == 3){
+    for (int i = 0; i < mWidth*mHeight; ++i){
+      int intensity = 0;
+      for (int j = 0; j < mChannels; ++j){
+        intensity += mData[i*mChannels + j];
+      }
+      intensity /= mChannels;
+      data[i*numChannels] = (intensity/mChannels);
     }
   }
   delete[] mData;

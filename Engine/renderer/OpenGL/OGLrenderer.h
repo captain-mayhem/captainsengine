@@ -52,7 +52,7 @@ public:
   //! get a index buffer
   virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size);
   //! create texture
-  Texture* createTexture(string filename);
+  Texture* createTexture(Image* img, Texture::Format fmt);
   //! create rendertarget
   virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) { return NULL; }
   //! set look at

@@ -14,7 +14,7 @@ public:
   virtual ~DXTexture();
   void activate()const;
   virtual void deactivate()const;
-  virtual bool loadFromFile(std::string const& file);
+  virtual bool createFromImage(Image* img, Format fmt);
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
   static DXGI_FORMAT dxformat(Format fmt);
   ID3D11Texture2D* getHandle() { return mTexture; }

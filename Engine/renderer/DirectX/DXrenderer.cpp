@@ -263,9 +263,9 @@ IndexBuffer* DXRenderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){
   return new DXIndexBuffer(t,size);
 }
 
-Texture* DXRenderer::createTexture(string filename){
+Texture* DXRenderer::createTexture(Image* img, Texture::Format fmt){
   DXTexture* tex = new DXTexture();
-  if (tex->loadFromFile(filename))
+  if (tex->createFromImage(img, fmt))
     return tex;
   delete tex;
   return NULL;
@@ -493,7 +493,7 @@ void DXRenderer::multiplyMatrix(const CGE::Matrix& mat){
 }
 
 //! set material
-void DXRenderer::setMaterial(const Material& mat){
+/*void DXRenderer::setMaterial(const Material& mat){
   if (mat.getDiffuse().a != 1.0f)
     enableBlend(true);
   else
@@ -506,7 +506,7 @@ void DXRenderer::setMaterial(const Material& mat){
   }
   else
     enableTexturing(false);
-}
+}*/
 
 
 //! get the viewport
