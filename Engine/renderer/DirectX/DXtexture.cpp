@@ -9,10 +9,12 @@
 
 using namespace CGE; 
 
-DXTexture::DXTexture() : Texture(), mTex(NULL), mState(NULL) {
+DXTexture::DXTexture() : Texture(), mTexture(NULL), mTex(NULL), mState(NULL){
+  mDevice = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
 }
 
 DXTexture::~DXTexture(){
+  SAFE_RELEASE(mTexture);
   SAFE_RELEASE(mTex);
   SAFE_RELEASE(mState);
 }
@@ -50,12 +52,10 @@ bool DXTexture::loadFromFile(std::string const& filename){
   data.SysMemPitch = img->getRowSpan();
   data.SysMemSlicePitch = img->getImageSize();
 
-  ID3D11Texture2D* tex;
-  HRESULT res = mDevice->CreateTexture2D(&desc, &data, &tex);
+  HRESULT res = mDevice->CreateTexture2D(&desc, &data, &mTexture);
   if (!SUCCEEDED(res))
     return false;
-  mDevice->CreateShaderResourceView(tex, NULL, &mTex);
-  tex->Release();
+  mDevice->CreateShaderResourceView(mTexture, NULL, &mTex);
 
   delete img;
 
@@ -88,14 +88,18 @@ bool DXTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   desc.SampleDesc.Count = 1;
   desc.Usage = D3D11_USAGE_DEFAULT;
   desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-  //desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  if (fmt == Texture::DEPTH)
+    desc.BindFlags |= D3D11_BIND_DEPTH_STENCIL;
+  else
+    desc.BindFlags |= D3D11_BIND_RENDER_TARGET;
+  desc.CPUAccessFlags = 0;
+  desc.MiscFlags = 0;
 
-  ID3D11Texture2D* tex;
-  HRESULT res = mDevice->CreateTexture2D(&desc, NULL, &tex);
+  HRESULT res = mDevice->CreateTexture2D(&desc, NULL, &mTexture);
   if (!SUCCEEDED(res))
     return false;
-  mDevice->CreateShaderResourceView(tex, NULL, &mTex);
-  tex->Release();
+
+  mDevice->CreateShaderResourceView(mTexture, NULL, &mTex);
 
   D3D11_SAMPLER_DESC samp;
   ZeroMemory(&samp, sizeof(samp));
@@ -127,6 +131,8 @@ DXGI_FORMAT DXTexture::dxformat(Format fmt){
     return DXGI_FORMAT_R8G8B8A8_UNORM;
   case RGBA:
     return DXGI_FORMAT_R8G8B8A8_UNORM;
+  case DEPTH:
+    return DXGI_FORMAT_D24_UNORM_S8_UINT;
   }
   return DXGI_FORMAT_UNKNOWN;
 }

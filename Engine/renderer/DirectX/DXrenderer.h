@@ -20,6 +20,7 @@ namespace CGE{
 
 class VertexBuffer;
 class DXShader;
+class DXRenderTarget;
 
 //! The DirectX version of the rendering interface
 class DXRenderer : public Renderer{
@@ -114,9 +115,7 @@ protected:
   //! the swap chain
   IDXGISwapChain* mSwapchain;
   //! the back buffer
-  ID3D11RenderTargetView* mBackBuffer;
-  //! the depth buffer
-  ID3D11DepthStencilView* mDepthBuffer;
+  DXRenderTarget* mRT;
   //! the clear color
   FLOAT mClearColor[4];
   //! the matrix stack

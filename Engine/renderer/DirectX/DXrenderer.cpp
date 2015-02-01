@@ -8,16 +8,16 @@
 #include "DXrenderer.h"
 #include "DXindexbuffer.h"
 #include "DXshader.h"
+#include "DXrendertarget.h"
 
 using namespace CGE;
 using namespace DirectX;
 
 TR_CHANNEL(CGE_Renderer_DirectX)
 
-DXRenderer::DXRenderer(): Renderer(), mDepthState(NULL) {
+DXRenderer::DXRenderer(): Renderer(), mDepthState(NULL), mRT(NULL) {
   type_ = DirectX;
   mSwapchain = NULL;
-  mBackBuffer = NULL;
   mD3d = NULL;
   mDevice = NULL;
   for (int i = 0; i < 3; ++i){
@@ -93,45 +93,12 @@ void DXRenderer::initContext(AppWindow* win){
     TR_ERROR("Failed to create DirectX 11 context");
   }
 
-  ID3D11Texture2D* backbuffer;
-  mSwapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (LPVOID*)&backbuffer);
-  mDevice->CreateRenderTargetView(backbuffer, NULL, &mBackBuffer);
-  backbuffer->Release();
-  //mD3d->OMSetRenderTargets(1, &mBackBuffer, NULL);
+  mRT = new DXRenderTarget(mSwapchain);
+  mRT->addRenderbuffer(Texture::DEPTH);
+  mRT->bind();
+  RenderTarget::mCurrTarget = mRT;
 
-  //create depth buffer
-  D3D11_TEXTURE2D_DESC dbd;
-  dbd.Width = win->getWidth();
-  dbd.Height = win->getHeight();
-  dbd.MipLevels = 1;
-  dbd.ArraySize = 1;
-  dbd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-  dbd.SampleDesc.Count = 1;
-  dbd.SampleDesc.Quality = 0;
-  dbd.Usage = D3D11_USAGE_DEFAULT;
-  dbd.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-  dbd.CPUAccessFlags = 0;
-  dbd.MiscFlags = 0;
-  ID3D11Texture2D* depthtexture;
-  mDevice->CreateTexture2D(&dbd, NULL, &depthtexture);
-  
   enableDepthTest(true);
-  /*D3D11_DEPTH_STENCIL_DESC dsd;
-  ZeroMemory(&dsd, sizeof(dsd));
-  dsd.DepthEnable = TRUE;
-  dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-  dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-  mDevice->CreateDepthStencilState(&dsd, &mDepthState);
-  mD3d->OMSetDepthStencilState(mDepthState, 0);*/
-
-  D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
-  ZeroMemory(&dsvd, sizeof(dsvd));
-  dsvd.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-  dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-  dsvd.Texture2D.MipSlice = 0;
-  mDevice->CreateDepthStencilView(depthtexture, &dsvd, &mDepthBuffer);
-  depthtexture->Release();
-  mD3d->OMSetRenderTargets(1, &mBackBuffer, mDepthBuffer);
 
   if (win->isFullscreen())
     mSwapchain->SetFullscreenState(TRUE, NULL);
@@ -147,8 +114,7 @@ void DXRenderer::killContext(){
   SAFE_RELEASE(mDepthState);
   SAFE_RELEASE(mBlendState);
   SAFE_RELEASE(mSwapchain);
-  SAFE_RELEASE(mDepthBuffer);
-  SAFE_RELEASE(mBackBuffer);
+  delete mRT;
   SAFE_RELEASE(mD3d);
   //ID3D11Debug* dbg;
   //mDevice->QueryInterface(__uuidof(ID3D11Debug), reinterpret_cast<void**>(&dbg));
@@ -282,10 +248,11 @@ void DXRenderer::setClearColor(::CGE::Vector3D color){
 }
 
 void DXRenderer::clear(long flags){
+  DXRenderTarget* rt = (DXRenderTarget*)DXRenderTarget::getCurrent();
   if (flags & COLORBUFFER)
-    mD3d->ClearRenderTargetView(mBackBuffer, mClearColor);
+    mD3d->ClearRenderTargetView(rt->getRenderTargets(), mClearColor);
   if (flags & ZBUFFER)
-    mD3d->ClearDepthStencilView(mDepthBuffer, D3D11_CLEAR_DEPTH, 1.0f, 0);
+    mD3d->ClearDepthStencilView(rt->getDepthStencil(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
 
 VertexBuffer* DXRenderer::createVertexBuffer(){
@@ -305,7 +272,8 @@ Texture* DXRenderer::createTexture(string filename){
 }
 
 RenderTarget* DXRenderer::createRenderTarget(unsigned width, unsigned height){
-  return NULL;
+  DXRenderTarget* rt = new DXRenderTarget(width, height);
+  return rt;
 }
 
 

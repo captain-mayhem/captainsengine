@@ -422,11 +422,13 @@ void GL2Renderer::multiplyMatrix(const CGE::Matrix& mat){
 
 //! set material
 void GL2Renderer::setMaterial(const Material& mat){
-  if (mat.getDiffuse().a != 1.0f)
+  Color diff = mat.getDiffuse();
+  diff.a = mat.getOpacity();
+  if (mat.getOpacity() != 1.0f)
     enableBlend(true);
   else
     enableBlend(false);
-  setColor(&mat.getDiffuse());
+  setColor(&diff);
   Texture const* tex = mat.getDiffuseTex();
   if (tex){
     enableTexturing(true);

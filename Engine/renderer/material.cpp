@@ -9,7 +9,8 @@ Material::Material(std::string const& name) : mName(name), mDiffuseTex(NULL){
   mAmbient = Color(0.0f,0.0f,0.0f,1.0f);
   mDiffuse = Color(1.0f,1.0f,1.0f,1.0f);
   mSpecular = Color(0.0f,0.0f,0.0f,1.0f);
-  mPower = 0.0f;
+  mSpecPower = 0.0f;
+  mOpacity = 1.0f;
 }
 
 Material::~Material(){
@@ -37,9 +38,7 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
     case 'd':
       {
         float opacity = strtof(line + 2, NULL);
-        Color col = currMat->getDiffuse();
-        col.a = opacity;
-        currMat->setDiffuse(col);
+        currMat->setOpacity(opacity);
       }
       break;
     case 'm':
@@ -77,10 +76,8 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
       col.r = strtof(line + 3, &pos);
       col.g = strtof(pos+1, &pos);
       col.b = strtof(pos+1, &pos);
-      if (line[1] == 'd'){
-        col.a = currMat->getDiffuse().a;
+      if (line[1] == 'd')
         currMat->setDiffuse(col);
-      }
       else if (line[1] == 'a')
         currMat->setAmbient(col);
       else if (line[1] == 's')

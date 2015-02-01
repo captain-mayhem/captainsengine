@@ -4,6 +4,7 @@ IF(RENDER_DIRECTX)
 	SET(RENDERER_SRCS
 		${PRE}/DirectX/DXindexbuffer.cpp
 		${PRE}/DirectX/DXrenderer.cpp
+		${PRE}/DirectX/DXrendertarget.cpp
 		${PRE}/DirectX/DXshader.cpp
 		${PRE}/DirectX/DXtexture.cpp
 		${PRE}/DirectX/DXvertexbuffer.cpp
@@ -12,6 +13,7 @@ IF(RENDER_DIRECTX)
 	SET(RENDERER_HDRS_DX
 		${PRE}/DirectX/DXindexbuffer.h
 		${PRE}/DirectX/DXrenderer.h
+		${PRE}/DirectX/DXrendertarget.h
 		${PRE}/DirectX/DXshader.h
 		${PRE}/DirectX/DXtexture.h
 		${PRE}/DirectX/DXvertexbuffer.h
