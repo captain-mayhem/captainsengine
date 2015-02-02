@@ -101,8 +101,6 @@ void set_mouse(int x, int y){
   Input::Mouse::instance()->setMousePos(x, y);
 }
 
-#include <window/nativeWindows.h>
-
 void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* data){
   splashWindow = new CGE::SplashWindow(CGE::Engine::instance()->getWindow());
   CGE::Image image;

@@ -40,6 +40,7 @@ IF(RENDER_GL2 OR RENDER_EMBEDDED)
 		${PRE}/GL2/GL2Renderer.cpp
 		${PRE}/GL2/GL2rendertarget.cpp
 		${PRE}/GL2/GL2Shader.cpp
+		${PRE}/OpenGL/OGLtexture.cpp
 		${PRE}/GL2/GL2indexbuffer.cpp
 		${PRE}/GL2/GL2vertexbuffer.cpp
 	)
@@ -47,6 +48,7 @@ IF(RENDER_GL2 OR RENDER_EMBEDDED)
 		${PRE}/GL2/GL2Renderer.h
 		${PRE}/GL2/GL2rendertarget.h
 		${PRE}/GL2/GL2Shader.h
+		${PRE}/OpenGL/OGLtexture.h
 		${PRE}/GL2/GL2indexbuffer.h
 		${PRE}/GL2/GL2vertexbuffer.h
 	)
