@@ -252,8 +252,8 @@ bool Mesh::loadOBJ(std::string filename){
     case 'm':
       if (memcmp(line, "mtllib", 6) == 0){
         std::string mtlfile(line + 7);
-        if (mtlfile.back() == '\n')
-          mtlfile.pop_back();
+        if (*mtlfile.rbegin() == '\n')
+          mtlfile.resize(mtlfile.size()-1);
         string path = Filesystem::getPathComponent(filename);
         mtlfile = Filesystem::combinePath(path, mtlfile);
         unsigned from = mMaterials.size();
@@ -269,7 +269,7 @@ bool Mesh::loadOBJ(std::string filename){
 	  case 'u':
 		  if (memcmp(line, "usemtl", 6) == 0){
 			  std::string mtl(line + 7);
-        mtl.pop_back();
+        mtl.resize(mtl.size()-1);
 			  addSubMesh(subMeshStart, triangles_.size()-subMeshStart, materialIdx);
         subMeshStart = triangles_.size();
         materialIdx = materialMap[mtl];

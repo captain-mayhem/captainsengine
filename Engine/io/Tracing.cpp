@@ -94,7 +94,7 @@ LogOutputter::~LogOutputter(){
 }
 
 bool LogOutputter::init(){
-  mLog.open(mLogName);
+  mLog.open(mLogName.c_str());
   if (!mLog)
     return false;
   return true;

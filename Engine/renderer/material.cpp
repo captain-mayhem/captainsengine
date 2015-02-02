@@ -44,7 +44,7 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
     case 'm':
       if (memcmp(line, "map_Kd", 6) == 0){
         std::string texture(line + 7);
-        texture.pop_back();
+        texture.resize(texture.size()-1);
         std::string path = Filesystem::getPathComponent(filename);
         texture = Filesystem::combinePath(path, texture);
         Texture* tex = texturemap[texture];
@@ -61,7 +61,7 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
         while (isspace(line[count]))
           ++count;
         std::string texture(line + count);
-        texture.pop_back();
+        texture.resize(texture.size()-1);
         std::string path = Filesystem::getPathComponent(filename);
         texture = Filesystem::combinePath(path, texture);
         Texture* tex = texturemap[texture];
@@ -77,7 +77,7 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
     case 'n':
       if (memcmp(line, "newmtl", 6) == 0){
         std::string mtl(line + 7);
-        mtl.pop_back();
+        mtl.resize(mtl.size()-1);
         if (currMat != NULL)
           materials.push_back(currMat);
         currMat = new Material(mtl);

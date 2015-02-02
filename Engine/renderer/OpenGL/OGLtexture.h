@@ -14,6 +14,8 @@
 #else
 #include <GL/gl.h>
 #endif
+#else
+#include <GLES2/gl2.h>
 #endif
 
 namespace CGE{

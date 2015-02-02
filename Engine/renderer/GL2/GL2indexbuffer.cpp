@@ -5,7 +5,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
+#ifndef QNX
 #include <GL/gl.h>
+#else
+#include <GLES2/gl2.h>
+#endif
 
 using namespace CGE;
 
