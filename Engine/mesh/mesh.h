@@ -50,10 +50,11 @@ namespace CGE{
 class Mesh{ 
 public:
   struct SubMesh{
-    SubMesh(int off, int cnt, int mat) : offset(off), count(cnt), material(mat) {}
+    SubMesh(int off, int cnt, int mat, Material* dfltMat) : offset(off), count(cnt), material(mat), dfltMaterial(dfltMat) {}
     int offset;
     int count;
     int material;
+    Material* dfltMaterial;
   };
 	//! Default constructor
 	Mesh();
@@ -108,12 +109,17 @@ public:
   //! clear an existing mesh
   void clear();
 
+  //! sort submeshes according to material
+  void materialSort();
 protected:
   //! load obj-files
   bool loadOBJ(std::string filename);
 
   //! load off-files
   bool loadOFF(std::string filename);
+
+  //! the submesh compare function
+  static int submeshCompare(const void* p1, const void* p2);
   
   //! the number of vertices
   int numVertices_;
@@ -177,6 +183,9 @@ protected:
 
   //! the sub meshes
   std::vector<SubMesh> mSubmeshes;
+
+  //! draw list
+  std::vector<SubMesh> mDrawList;
 };
 
 }
