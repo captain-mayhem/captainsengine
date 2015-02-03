@@ -49,6 +49,7 @@ Mesh::Mesh() : mComputeEdges(true){
   max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
   center_ = Vector3D();
   mMaterials.push_back(NULL);
+  //vertices_.reserve(200000);
 }
 
 // --------------------------------------------------------------------
@@ -393,6 +394,7 @@ float* Mesh::getNormal(int i){
 
 //! build vertex buffer object
 void Mesh::buildVBO(){
+  materialSort();
   //float* vertices = new float[numTriangles_*3*3];
   //unsigned int* indices = new unsigned int[numTriangles_*3];
   std::map<Vec3i, int> distinctVertices;
@@ -402,33 +404,51 @@ void Mesh::buildVBO(){
   idata.reserve(numTriangles_ * 3);
   int vidx = 0;
   int numVertices = 0;
-  for (int i = 0; i < numTriangles_; i++){
-    Triangle* tri = triangles_[i];
-    for (int j = 0; j < 3; ++j){
-      Vec3i idx(tri->data[j], tri->texdata[j], tri->normdata[j]);
-      int di = distinctVertices[idx];
-      if (di == 0){
-        ++numVertices;
-        Vec3f pos = vertices_[tri->data[j]];
-        vdata.push_back(pos.x); vdata.push_back(pos.y); vdata.push_back(pos.z);
-        if (numTexCoords_ > 0){
-          Vec3f tex = texCoords_[tri->texdata[j]];
-          vdata.push_back(tex.x); vdata.push_back(tex.y);
+  
+  unsigned offset = idata.size();
+  int idxcount = 0;
+  int matid = mSubmeshes[0].material;
+
+  for (unsigned mc = 0; mc < mSubmeshes.size(); ++mc){
+    SubMesh& sm = mSubmeshes[mc];
+    if (sm.material != matid){
+      mDrawList.push_back(SubMesh(offset, idxcount, matid, mMaterials[matid]));
+      offset = idata.size();
+      matid = sm.material;
+      idxcount = 0;
+    }
+
+    idxcount += sm.count;
+
+    for (int i = sm.offset / 3; i < sm.offset / 3 + sm.count / 3; ++i){
+      Triangle* tri = triangles_[i];
+      for (int j = 0; j < 3; ++j){
+        Vec3i idx(tri->data[j], tri->texdata[j], tri->normdata[j]);
+        int di = distinctVertices[idx];
+        if (di == 0){
+          ++numVertices;
+          Vec3f pos = vertices_[tri->data[j]];
+          vdata.push_back(pos.x); vdata.push_back(pos.y); vdata.push_back(pos.z);
+          if (numTexCoords_ > 0){
+            Vec3f tex = texCoords_[tri->texdata[j]];
+            vdata.push_back(tex.x); vdata.push_back(tex.y);
+          }
+          Vec3f norm;
+          if (mNumNormals > 0)
+            norm = mNormals[tri->normdata[j]];
+          else
+            norm = getNormal(tri->data[j]);
+          vdata.push_back(norm.x); vdata.push_back(norm.y); vdata.push_back(norm.z);
+          idata.push_back(vidx);
+          distinctVertices[idx] = ++vidx;
         }
-        Vec3f norm;
-        if (mNumNormals > 0)
-          norm = mNormals[tri->normdata[j]];
-        else
-          norm = getNormal(tri->data[j]);
-        vdata.push_back(norm.x); vdata.push_back(norm.y); vdata.push_back(norm.z);
-        idata.push_back(vidx);
-        distinctVertices[idx] = ++vidx;
-      }
-      else{
-        idata.push_back(di - 1);
+        else{
+          idata.push_back(di - 1);
+        }
       }
     }
   }
+  mDrawList.push_back(SubMesh(offset, idxcount, matid, mMaterials[matid]));
 
   vb_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
   if (numTexCoords_ > 0)
@@ -518,8 +538,8 @@ void Mesh::buildVBO(){
 void Mesh::draw(){
   vb_->activate();
   mIB->activate();
-  for (unsigned i = 0; i < mSubmeshes.size(); ++i){
-    SubMesh& msh = mSubmeshes[i];
+  for (unsigned i = 0; i < mDrawList.size(); ++i){
+    SubMesh& msh = mDrawList[i];
     Material* mat = mMaterials[msh.material];
     if (mat)
       Engine::instance()->getRenderer()->setMaterial(*mat);
@@ -602,6 +622,8 @@ void Mesh::clear(){
     delete mTextures[i];
   }
   mTextures.clear();
+  mSubmeshes.clear();
+  mDrawList.clear();
 }
 
 void Mesh::addSubMesh(int triangleFrom, int triangleCount, int materialIdx){
@@ -609,7 +631,30 @@ void Mesh::addSubMesh(int triangleFrom, int triangleCount, int materialIdx){
     return;
   TR_USE(CGE_Mesh);
   TR_DEBUG("%i %i, material %i", triangleFrom, triangleCount, materialIdx);
-  mSubmeshes.push_back(SubMesh(triangleFrom*3, triangleCount*3, materialIdx));
+  mSubmeshes.push_back(SubMesh(triangleFrom*3, triangleCount*3, materialIdx, mMaterials[materialIdx]));
+}
+
+//! sort submeshes according to material
+void Mesh::materialSort(){
+  qsort(mSubmeshes.data(), mSubmeshes.size(), sizeof(SubMesh), submeshCompare);
+}
+
+int Mesh::submeshCompare(const void* p1, const void* p2){
+  SubMesh* m1 = (SubMesh*)p1;
+  SubMesh* m2 = (SubMesh*)p2;
+  int cmpm1 = m1->material;
+  int cmpm2 = m2->material;
+  if (m1->dfltMaterial && m1->dfltMaterial->isTransparent())
+    cmpm1 += 10000;
+  if (m2->dfltMaterial && m2->dfltMaterial->isTransparent())
+    cmpm2 += 10000;
+  if (cmpm1 < cmpm2)
+    return -1;
+  if (cmpm1 == cmpm2)
+    return 0;
+  if (cmpm1 > cmpm2)
+    return 1;
+  return 0;
 }
 
 
