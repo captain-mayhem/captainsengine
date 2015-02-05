@@ -128,6 +128,8 @@ protected:
   MatrixType mMatrixMode;
   //! shader
   CGE::GL2Shader* mShader;
+  //! light shader
+  CGE::GL2Shader* mLightShader;
   //! the framebuffer
   GL2RenderTarget* mRT;
 };

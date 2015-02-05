@@ -151,11 +151,12 @@ void Graphic::render_(){
   //Font* fnt = CGE::Engine::instance()->getFont(0);
   //fnt->setColor(0.0,1.0,0.0);
   //fnt->glPrint(200, 400, ("FPS: "+toStr(Engine::instance()->getFPS())).c_str(), 0);
-  //rend->enableLighting(true);
+  rend->enableLighting(true);
   rend->enableTexturing(true);
   rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
   scene_.render();
   mRT->deactivate();
+  rend->enableLighting(false);
 
   rend->ortho(1, 1);
   rend->resetModelView();
@@ -175,7 +176,6 @@ void Graphic::render_(){
     rend->resetModelView();
     rend->switchMatrixStack(CGE::Modelview);
   }
-  //rend->enableLighting(false);
 }
 
 //! set transformation of a mesh

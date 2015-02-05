@@ -112,6 +112,7 @@ void GL2Renderer::killContext(){
   TR_USE(CGE_Renderer_GL2);
   delete mRT;
   delete mShader;
+  delete mLightShader;
 #if defined(WIN32) && !defined(UNDER_CE)
   if (hRC_){
     if (!wglMakeCurrent(NULL,NULL)){
@@ -141,7 +142,7 @@ void GL2Renderer::killContext(){
 #endif
 }
 
-static char const * vs_src =
+static char const * vs_src_unlit =
 "attribute vec3 pos;\n"
 "attribute vec4 color;\n"
 "attribute vec2 texcoord;\n"
@@ -160,7 +161,7 @@ static char const * vs_src =
 "}\n"
 "";
 
-static char const * fs_src =
+static char const * fs_src_unlit =
 "uniform sampler2D texture;\n"
 "uniform bool textureEnabled;\n"
 "\n"
@@ -172,6 +173,70 @@ static char const * fs_src =
 "  if (textureEnabled)\n"
 "     color = texture2D(texture, uvcoord);\n"
 "  gl_FragColor = color*vcolor;\n"
+"}\n"
+"";
+
+static char const * vs_src_light =
+"attribute vec3 pos;\n"
+"attribute vec4 color;\n"
+"attribute vec2 texcoord;\n"
+"attribute vec3 normal;\n"
+"\n"
+"uniform mat4 mvp;\n"
+"uniform mat4 texmat;\n"
+"uniform mat4 mvmat;\n"
+"\n"
+"varying vec2 uvcoord;\n"
+"varying vec4 vcolor;\n"
+
+"varying vec3 vnormal;\n"
+"varying vec3 lightvec;\n"
+"varying vec3 vpos;\n"
+"\n"
+"void main(){\n"
+"  uvcoord = (texmat*vec4(texcoord,1,1)).xy;\n"
+"  vcolor = color;\n"
+"\n"
+"  vnormal = normalize((mvmat * vec4(normal, 0.0)).xyz);\n"
+"  vpos = (mvmat*vec4(pos, 1.0)).xyz;\n"
+//"  vec3 lpos =  (-1,-1,0);\n"
+"  vec3 lpos = (mvmat*vec4(0.0, 3.0, 3.0, 1.0)).xyz;\n"
+"  lightvec = normalize(lpos - vpos);\n"
+"\n"
+"  gl_Position = mvp*vec4(pos, 1.0);\n"
+"}\n"
+"";
+
+static char const * fs_src_light =
+"uniform sampler2D texture;\n"
+"uniform bool textureEnabled;\n"
+"\n"
+"varying vec2 uvcoord;\n"
+"varying vec4 vcolor;\n"
+"\n"
+"varying vec3 vnormal;\n"
+"varying vec3 lightvec;\n"
+"varying vec3 vpos;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = vcolor;\n"
+"  if (textureEnabled)\n"
+"     color *= texture2D(texture, uvcoord);\n"
+"\n"
+"  vec3 normal = vnormal;\n"//normalize(vnormal);\n"
+"  vec3 eye = normalize(-vpos);\n"
+"  vec3 refl = normalize(reflect(-lightvec, vnormal));\n"
+"  float NL = max(dot(normal,lightvec), 0.0);\n"
+"  float spec = 0.0;\n"
+"  if (NL > 0.0)\n"
+"    spec = pow(max(dot(refl, eye), 0.0), 2);\n"
+"\n"
+"  vec3 ambient = vec3(0.2,0.2,0.2);\n"
+"  vec3 diffuse = vec3(1.0,1.0,1.0)*NL;\n"
+"  vec3 specular = vec3(0.0,0.0, 1.0)*spec;\n"
+"  vec4 finalColor = vec4(color.rgb*(ambient + diffuse) + specular, color.a);\n"
+"  gl_FragColor = finalColor;\n"
+//"  gl_FragColor = vec4(normal, 1.0);\n"
 "}\n"
 "";
 
@@ -200,9 +265,25 @@ void GL2Renderer::initRendering(){
   mRT = new GL2RenderTarget();
   RenderTarget::mCurrTarget = mRT;
 
+  mLightShader = new CGE::GL2Shader();
+  mLightShader->addShader(Shader::VERTEX_SHADER, vs_src_light);
+  mLightShader->addShader(Shader::FRAGMENT_SHADER, fs_src_light);
+  mLightShader->bindAttribLocation(0, "pos");
+  mLightShader->bindAttribLocation(1, "color");
+  mLightShader->bindAttribLocation(2, "texcoord");
+  mLightShader->bindAttribLocation(3, "normal");
+  mLightShader->linkShaders();
+  mLightShader->syncMatrix("mvp", CGE::MVP);
+  mLightShader->syncMatrix("texmat", CGE::MatTexture);
+  mLightShader->syncMatrix("mvmat", CGE::Modelview);
+  mLightShader->activate();
+  int tex = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "texture");
+  mLightShader->uniform(tex, 0);//texture (uniform 32) at stage 0
+  mLightShader->deactivate();
+
   mShader = new CGE::GL2Shader();
-  mShader->addShader(Shader::VERTEX_SHADER, vs_src);
-  mShader->addShader(Shader::FRAGMENT_SHADER, fs_src);
+  mShader->addShader(Shader::VERTEX_SHADER, vs_src_unlit);
+  mShader->addShader(Shader::FRAGMENT_SHADER, fs_src_unlit);
   mShader->bindAttribLocation(0, "pos");
   mShader->bindAttribLocation(1, "color");
   mShader->bindAttribLocation(2, "texcoord");
@@ -211,7 +292,7 @@ void GL2Renderer::initRendering(){
   mShader->syncMatrix("mvp", CGE::MVP);
   mShader->syncMatrix("texmat", CGE::MatTexture);
   mShader->activate();
-  int tex = mShader->getUniformLocation(Shader::FRAGMENT_SHADER, "texture");
+  tex = mShader->getUniformLocation(Shader::FRAGMENT_SHADER, "texture");
   mShader->uniform(tex, 0);//texture (uniform 32) at stage 0
 
   Renderer::initRendering();
@@ -380,10 +461,14 @@ void GL2Renderer::enableTexturing(const bool flag){
 
 // enable lighting
 void GL2Renderer::enableLighting(const bool flag){
-  /*if (flag)
-    glEnable(GL_LIGHTING);
-  else
-    glDisable(GL_LIGHTING);*/
+  if (flag && Shader::getCurrentShader() != mLightShader){
+    Shader::getCurrentShader()->deactivate();
+    mLightShader->activate();
+  }
+  else if (!flag && Shader::getCurrentShader() != mShader){
+    Shader::getCurrentShader()->deactivate();
+    mShader->activate();
+  }
 }
 
 //! enable depth test
