@@ -51,7 +51,7 @@ void render(){
   rend->enableLighting(true);
 
   activeCam->activate();
-  CGE::Light lit(CGE::Light::Directional, Vec3f(0.5,-1,0));
+  CGE::Light lit(CGE::Light::Directional, Vec3f(0.5,1,0));
   rend->setLight(0, lit);
   test.render(*rend, *activeCam);
 

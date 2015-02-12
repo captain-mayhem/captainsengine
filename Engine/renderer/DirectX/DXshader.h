@@ -15,6 +15,7 @@ public:
   DXShader();
   ~DXShader();
   bool addShader(Type shadertype, const char* shaderstring, int stringlen = 0);
+  bool linkShaders() { return true; }
   void allocUniforms(Type shader, unsigned size);
   void lockUniforms(Type t);
   void unlockUniforms(Type t);

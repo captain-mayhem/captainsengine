@@ -18,6 +18,8 @@ public:
   void activate() { mOldProg = mCurrShader; use(); mCurrShader = this; }
   void deactivate() { if (mOldProg) mOldProg->use(); else unuse(); mCurrShader = mOldProg; }
   static Shader* getCurrentShader() { return mCurrShader; }
+  
+  virtual bool linkShaders() = 0;
 
   virtual void lockUniforms(Type t) = 0;
   virtual void unlockUniforms(Type t) = 0;
@@ -28,6 +30,8 @@ public:
 
   void syncMatrix(char const* name, MatrixType type);
   void applyEngineUniforms();
+  virtual bool applyMaterial(Material const& mat);
+  virtual void applyLight(int number, Light const& light) {}
 protected:
   virtual void use() = 0;
   virtual void unuse() = 0;

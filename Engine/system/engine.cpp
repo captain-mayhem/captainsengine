@@ -214,6 +214,7 @@ void Engine::run(){
     rend_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
     rend_->enableBlend(true);
     rend_->enableDepthTest(false);
+    rend_->enableTexturing(true);
   
     //render GUI-elements
     guitex_.lock();

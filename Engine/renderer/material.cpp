@@ -9,7 +9,7 @@ Material::Material(std::string const& name) : mName(name), mDiffuseTex(NULL), mO
   mAmbient = Color(0.0f,0.0f,0.0f,1.0f);
   mDiffuse = Color(1.0f,1.0f,1.0f,1.0f);
   mSpecular = Color(0.0f,0.0f,0.0f,1.0f);
-  mSpecPower = 0.0f;
+  mSpecPower = 10.0f;
   mOpacity = 1.0f;
 }
 

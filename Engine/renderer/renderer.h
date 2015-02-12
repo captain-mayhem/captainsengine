@@ -40,6 +40,7 @@ enum MatrixType{
   Modelview,
   MatTexture,
   MVP,
+  MatNormal,
 };
 
 //! The abstract renderer
@@ -116,6 +117,8 @@ public:
   virtual void enableLight(short number, bool flag)=0;
   //! enable depth test
   virtual void enableDepthTest(const bool flag) = 0;
+  //! enable depth write
+  virtual void enableDepthWrite(bool flag) = 0;
   //! set color
   virtual void setColor(float r, float g, float b, float a)=0;
   //! set color

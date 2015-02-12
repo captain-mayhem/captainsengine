@@ -232,6 +232,15 @@ Vector3D Matrix::operator*(const Vector3D& vec) const
 	return result;
 }
 
+Vec4f Matrix::operator*(const Vec4f& vec) const{
+  Vec4f result;
+  result.x = vec.x*data_[0] + vec.y*data_[4] + vec.z*data_[8] + vec.w*data_[12];
+  result.y = vec.x*data_[1] + vec.y*data_[5] + vec.z*data_[9] + vec.w*data_[13];
+  result.z = vec.x*data_[2] + vec.y*data_[6] + vec.z*data_[10] + vec.w*data_[14];
+  result.w = vec.x*data_[3] + vec.y*data_[7] + vec.z*data_[11] + vec.w*data_[15];
+  return result;
+}
+
 Matrix CGE::Matrix::operator*(float number) const {
 	Matrix ret = *this;
 	for (int i = 0; i < 16; i++){

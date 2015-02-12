@@ -80,6 +80,8 @@ public:
   Matrix& operator*=(const CGE::Matrix& mat);
   //! Multiply a vector to a matrix
 	Vector3D operator*(const Vector3D& vec) const;
+  //! Multipy a vector to a matrix
+  Vec4f operator*(const Vec4f& vec) const;
   //! Multiply the matrix with a scalar
 	Matrix operator*(float number) const;
   //! Multiply the matrix with a scalar
