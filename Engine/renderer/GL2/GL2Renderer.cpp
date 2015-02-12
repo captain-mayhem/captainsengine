@@ -176,6 +176,55 @@ static char const * fs_src_unlit =
 "}\n"
 "";
 
+namespace CGE{
+  class LightGL2Shader : public GL2Shader{
+    virtual bool linkShaders(){
+      bool ret = GL2Shader::linkShaders();
+      mTexEnabledLoc = getUniformLocation(FRAGMENT_SHADER, "textureEnabled");
+      mColorLoc = getUniformLocation(FRAGMENT_SHADER, "matDiffuse");
+      mAmbientLoc = getUniformLocation(FRAGMENT_SHADER, "matAmbient");
+      mShininessLoc = getUniformLocation(FRAGMENT_SHADER, "matShininess");
+      mSpecularLoc = getUniformLocation(FRAGMENT_SHADER, "matSpecular");
+      mLightPosLoc = getUniformLocation(FRAGMENT_SHADER, "lightPos");
+      return ret;
+    }
+    virtual bool applyMaterial(Material const& mat){
+      lockUniforms(FRAGMENT_SHADER);
+      Color diff = mat.getDiffuse();
+      diff.a = mat.getOpacity();
+      uniform(mColorLoc, diff);
+      uniform(mAmbientLoc, mat.getAmbient());
+      uniform(mShininessLoc, mat.getPower());
+      uniform(mSpecularLoc, mat.getSpecular());
+      Texture const* tex = mat.getDiffuseTex();
+      if (!tex)
+        tex = mat.getOpacityTex();
+      if (tex){
+        uniform(mTexEnabledLoc, 1);
+        tex->activate();
+      }
+      else
+        uniform(mTexEnabledLoc, 0);
+      unlockUniforms(FRAGMENT_SHADER);
+      return true;
+    }
+    virtual void applyLight(int number, Light const& light){
+      lockUniforms(FRAGMENT_SHADER);
+      Vec4f pos = light.getPosition();
+      uniform(mLightPosLoc, pos.x, pos.y, pos.z, pos.w);
+      unlockUniforms(FRAGMENT_SHADER);
+    }
+
+    int mColorLoc;
+    int mAmbientLoc;
+    int mSpecularLoc;
+    int mTexEnabledLoc;
+    int mShininessLoc;
+    
+    int mLightPosLoc;
+  };
+}
+
 static char const * vs_src_light =
 "attribute vec3 pos;\n"
 "attribute vec4 color;\n"
@@ -185,23 +234,26 @@ static char const * vs_src_light =
 "uniform mat4 mvp;\n"
 "uniform mat4 texmat;\n"
 "uniform mat4 mvmat;\n"
+"uniform mat4 normalmat;\n"
 "\n"
 "varying vec2 uvcoord;\n"
-"varying vec4 vcolor;\n"
+//"varying vec4 vcolor;\n"
 
 "varying vec3 vnormal;\n"
-"varying vec3 lightvec;\n"
+//"varying vec3 lightvec;\n"
+//"varying vec3 lightpos;\n"
 "varying vec3 vpos;\n"
 "\n"
 "void main(){\n"
 "  uvcoord = (texmat*vec4(texcoord,1,1)).xy;\n"
-"  vcolor = color;\n"
+//"  vcolor = color;\n"
 "\n"
-"  vnormal = normalize((mvmat * vec4(normal, 0.0)).xyz);\n"
+"  vnormal = normalize((normalmat * vec4(normal, 0.0)).xyz);\n"
 "  vpos = (mvmat*vec4(pos, 1.0)).xyz;\n"
-//"  vec3 lpos =  (-1,-1,0);\n"
-"  vec3 lpos = (mvmat*vec4(0.0, 3.0, 3.0, 1.0)).xyz;\n"
-"  lightvec = normalize(lpos - vpos);\n"
+//"  vec3 lpos =  (0,1.0,0.0);\n"
+//"  lightpos = lpos;\n"
+//"  vec3 lpos = (mvmat*vec4(0.0, 3.0, 3.0, 1.0)).xyz;\n"
+//"  lightvec = normalize(lpos - vpos);\n"
 "\n"
 "  gl_Position = mvp*vec4(pos, 1.0);\n"
 "}\n"
@@ -212,31 +264,47 @@ static char const * fs_src_light =
 "uniform bool textureEnabled;\n"
 "\n"
 "varying vec2 uvcoord;\n"
-"varying vec4 vcolor;\n"
+//"varying vec4 vcolor;\n"
 "\n"
 "varying vec3 vnormal;\n"
-"varying vec3 lightvec;\n"
 "varying vec3 vpos;\n"
 "\n"
+"uniform vec4 lightPos;\n"
+"\n"
+"uniform vec4 matAmbient;\n"
+"uniform vec4 matDiffuse;\n"
+"uniform vec4 matSpecular;\n"
+"uniform float matShininess;\n"
+"\n"
 "void main(){\n"
-"  vec4 color = vcolor;\n"
+"  vec4 color = matDiffuse;\n"
 "  if (textureEnabled)\n"
 "     color *= texture2D(texture, uvcoord);\n"
 "\n"
-"  vec3 normal = vnormal;\n"//normalize(vnormal);\n"
+"  vec3 lightvec;\n"
+"  float att = 1.0f;\n"
+"  if (lightPos.w == 0.0)\n"
+"     lightvec = normalize(lightPos.xyz);\n"
+"  else{\n"
+"    lightvec = normalize(lightPos.xyz - vpos);\n"
+"    float lightDist = length(lightPos.xyz-vpos);\n"
+"    att = 1.0/(1.0+0.1*pow(lightDist, 2));\n"
+"  }\n"
+"  vec3 normal = normalize(vnormal);\n"
 "  vec3 eye = normalize(-vpos);\n"
-"  vec3 refl = normalize(reflect(-lightvec, vnormal));\n"
+"  vec3 refl = normalize(reflect(-lightvec, normal));\n"
 "  float NL = max(dot(normal,lightvec), 0.0);\n"
 "  float spec = 0.0;\n"
 "  if (NL > 0.0)\n"
-"    spec = pow(max(dot(refl, eye), 0.0), 2);\n"
+"    spec = pow(max(dot(refl, eye), 0.0), matShininess);\n"
 "\n"
-"  vec3 ambient = vec3(0.2,0.2,0.2);\n"
+"  vec3 ambient = matAmbient.rgb;\n"
 "  vec3 diffuse = vec3(1.0,1.0,1.0)*NL;\n"
-"  vec3 specular = vec3(0.0,0.0, 1.0)*spec;\n"
-"  vec4 finalColor = vec4(color.rgb*(ambient + diffuse) + specular, color.a);\n"
+"  vec3 specular = vec3(1.0,1.0, 1.0)*spec;\n"
+"  vec4 finalColor = vec4(color.rgb*(ambient + diffuse*att) + specular*att*matSpecular.rgb, color.a);\n"
 "  gl_FragColor = finalColor;\n"
-//"  gl_FragColor = vec4(normal, 1.0);\n"
+//"  gl_FragColor = vec4(1,1,0,1);\n"
+//"  gl_FragColor = vec4(spec, spec, spec, 1.0);\n"
 "}\n"
 "";
 
@@ -265,7 +333,7 @@ void GL2Renderer::initRendering(){
   mRT = new GL2RenderTarget();
   RenderTarget::mCurrTarget = mRT;
 
-  mLightShader = new CGE::GL2Shader();
+  mLightShader = new CGE::LightGL2Shader();
   mLightShader->addShader(Shader::VERTEX_SHADER, vs_src_light);
   mLightShader->addShader(Shader::FRAGMENT_SHADER, fs_src_light);
   mLightShader->bindAttribLocation(0, "pos");
@@ -276,6 +344,7 @@ void GL2Renderer::initRendering(){
   mLightShader->syncMatrix("mvp", CGE::MVP);
   mLightShader->syncMatrix("texmat", CGE::MatTexture);
   mLightShader->syncMatrix("mvmat", CGE::Modelview);
+  mLightShader->syncMatrix("normalmat", CGE::MatNormal);
   mLightShader->activate();
   int tex = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "texture");
   mLightShader->uniform(tex, 0);//texture (uniform 32) at stage 0
@@ -479,6 +548,11 @@ void GL2Renderer::enableDepthTest(const bool flag){
     glDisable(GL_DEPTH_TEST);
 }
 
+//! enable depth write
+void GL2Renderer::enableDepthWrite(bool flag){
+  glDepthMask(flag ? GL_TRUE : GL_FALSE);
+}
+
 //! set color
 void GL2Renderer::setColor(float r, float g, float b, float a){
   glVertexAttrib4f(1, r, g, b, a);
@@ -533,6 +607,9 @@ Matrix GL2Renderer::getMatrix(MatrixType mt){
   if (mt == MVP){
     return mMatrix[Projection] * mMatrix[Modelview];
   }
+  else if (mt == MatNormal){
+    return mMatrix[Modelview].inverse().transpose();
+  }
   return mMatrix[mt];
 }
 
@@ -554,13 +631,13 @@ void GL2Renderer::enableLight(short number, bool flag){
 }
 
 void GL2Renderer::setLight(int number, const Light& lit){
-  /*Vec3f dir = lit.getDirection()*-1;
-  float tmp[4];
-  tmp[0] = dir.x;
-  tmp[1] = dir.y;
-  tmp[2] = dir.z;
-  tmp[3] = 0;
-  glLightfv(GL_LIGHT0, GL_POSITION, tmp);*/
+  Shader* shdr = Shader::getCurrentShader();
+  if (!shdr)
+    return;
+  Vec4f pos = lit.getPosition();
+  pos = mMatrix[mMatrixMode] * pos;
+  Light trans(lit.getType(), pos);
+  shdr->applyLight(number, trans);
 }
 
 void GL2Renderer::switchMatrixStack(MatrixType type){

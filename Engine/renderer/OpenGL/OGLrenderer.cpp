@@ -331,6 +331,11 @@ void OGLRenderer::enableDepthTest(const bool flag){
     glDisable(GL_DEPTH_TEST);
 }
 
+//! enable depth write
+void OGLRenderer::enableDepthWrite(bool flag){
+  glDepthMask(flag ? GL_TRUE : GL_FALSE);
+}
+
 // enable lighting
 void OGLRenderer::enableLighting(const bool flag){
   if (flag)
@@ -410,13 +415,8 @@ void OGLRenderer::enableLight(short number, bool flag){
 }
 
 void OGLRenderer::setLight(int number, const Light& lit){
-  Vec3f dir = lit.getDirection()*-1;
-  float tmp[4];
-  tmp[0] = dir.x;
-  tmp[1] = dir.y;
-  tmp[2] = dir.z;
-  tmp[3] = 0;
-  glLightfv(GL_LIGHT0, GL_POSITION, tmp);
+  Vec4f dir = lit.getPosition();
+  glLightfv(GL_LIGHT0+number, GL_POSITION, dir.data);
 }
 
 void OGLRenderer::switchMatrixStack(MatrixType type){

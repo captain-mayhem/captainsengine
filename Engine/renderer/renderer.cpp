@@ -3,6 +3,7 @@
 #include "renderer.h"
 #include "../image/loader.h"
 #include "../image/image.h"
+#include "shader.h"
 
 using namespace CGE;
 
@@ -54,12 +55,19 @@ void Renderer::ortho(const int width, const int height){
 }
 
 void Renderer::setMaterial(const Material& mat){
+  if (mat.isTransparent()){
+    enableBlend(true);
+    enableDepthWrite(false);
+  }
+  else{
+    enableBlend(false);
+    enableDepthWrite(true);
+  }
+  if (Shader::getCurrentShader() != NULL && Shader::getCurrentShader()->applyMaterial(mat)){ //handled by shader  
+    return;
+  }
   Color diff = mat.getDiffuse();
   diff.a = mat.getOpacity();
-  if (mat.isTransparent())
-    enableBlend(true);
-  else
-    enableBlend(false);
   setColor(&diff);
   Texture const* tex = mat.getDiffuseTex();
   if (!tex)

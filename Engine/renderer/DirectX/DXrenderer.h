@@ -85,6 +85,8 @@ public:
   virtual void enableLight(short number, bool flag);
   //! enable depth test
   virtual void enableDepthTest(const bool flag);
+  //! enable depth write
+  virtual void enableDepthWrite(bool flag);
   //! set color
   void setColor(float r, float g, float b, float a);
   //! set color
@@ -137,6 +139,8 @@ protected:
   ID3D11BlendState* mBlendState;
   //! the blend description
   D3D11_BLEND_DESC mBlendDesc;
+  //! the depth description
+  D3D11_DEPTH_STENCIL_DESC mDepthDesc;
   //! state of the depth test
   ID3D11DepthStencilState* mDepthState;
 };

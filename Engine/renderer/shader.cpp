@@ -26,3 +26,7 @@ void Shader::applyEngineUniforms(){
   }
   unlockUniforms(VERTEX_SHADER);
 }
+
+bool Shader::applyMaterial(Material const& mat){
+  return false;
+}

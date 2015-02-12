@@ -50,11 +50,11 @@ void OSMMapAdapter::transformIntoPlane(){
   CGE::Matrix offset(Matrix::Translation, Vec3f(0,0.05f,0));
   mTransform = offset*ytozero*valuescale*planerotation*origintranslation;
 
-  mMinBox = mTransform*mMinBox;//mMinExtent;
-  mMaxBox = mTransform*mMaxBox;//mMaxExtent;
+  mMinBox = mTransform*Vec3f(mMinBox);//mMinExtent;
+  mMaxBox = mTransform*Vec3f(mMaxBox);//mMaxExtent;
 
   for (iter = mNodePositions.begin(); iter != mNodePositions.end(); ++iter){
-    (*iter).second = mTransform*(*iter).second;
+    (*iter).second = mTransform*Vec3f((*iter).second);
   }
 }
 

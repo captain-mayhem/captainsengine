@@ -139,6 +139,11 @@ void Graphic::render_(){
   rend->projection(60, 4.0f/3.0f, 0.01f, 1000.0f);
   //rend->ortho(-50, 50, -50, 50, 0.1, 100);
   rend->resetModelView();
+
+  rend->enableLighting(true);
+  CGE::Light lt(CGE::Light::Point, Vec3f(0, 0.5, 0.5));
+  rend->setLight(0, lt);
+
   rend->multiplyMatrix(camTrafo_);
   rend->multiplyMatrix(camRot_);
   //draw coord sys
@@ -151,10 +156,10 @@ void Graphic::render_(){
   //Font* fnt = CGE::Engine::instance()->getFont(0);
   //fnt->setColor(0.0,1.0,0.0);
   //fnt->glPrint(200, 400, ("FPS: "+toStr(Engine::instance()->getFPS())).c_str(), 0);
-  rend->enableLighting(true);
   rend->enableTexturing(true);
   rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
   scene_.render();
+  rend->enableDepthWrite(true);
   mRT->deactivate();
   rend->enableLighting(false);
 

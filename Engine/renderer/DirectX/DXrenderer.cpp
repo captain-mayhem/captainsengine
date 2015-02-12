@@ -38,6 +38,11 @@ DXRenderer::DXRenderer(): Renderer(), mDepthState(NULL), mRT(NULL) {
   mBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
   mBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
   mBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+
+  ZeroMemory(&mDepthDesc, sizeof(mDepthDesc));
+  mDepthDesc.DepthEnable = TRUE;
+  mDepthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+  mDepthDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 }
 
 DXRenderer::~DXRenderer(){
@@ -441,12 +446,15 @@ void DXRenderer::enableLighting(const bool flag){
 
 void DXRenderer::enableDepthTest(const bool flag){
   SAFE_RELEASE(mDepthState);
-  D3D11_DEPTH_STENCIL_DESC dsd;
-  ZeroMemory(&dsd, sizeof(dsd));
-  dsd.DepthEnable = flag ? TRUE : FALSE;
-  dsd.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-  dsd.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
-  mDevice->CreateDepthStencilState(&dsd, &mDepthState);
+  mDepthDesc.DepthEnable = flag ? TRUE : FALSE;
+  mDevice->CreateDepthStencilState(&mDepthDesc, &mDepthState);
+  mD3d->OMSetDepthStencilState(mDepthState, 0);
+}
+
+void DXRenderer::enableDepthWrite(bool flag){
+  SAFE_RELEASE(mDepthState);
+  mDepthDesc.DepthWriteMask = flag ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+  mDevice->CreateDepthStencilState(&mDepthDesc, &mDepthState);
   mD3d->OMSetDepthStencilState(mDepthState, 0);
 }
   

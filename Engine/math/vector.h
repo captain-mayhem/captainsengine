@@ -366,6 +366,45 @@ typedef Vec3<double> Vec3d;
 typedef Vec3<float> Vec3f;
 typedef Vec3<int> Vec3i;
 
+
+template <typename T>
+class Vec4{
+public:
+  //! Default Constructor
+  //! Inits the vector with zeros
+  Vec4(){
+    x = 0; y = 0; z = 0; w = 0;
+  }
+  //! Constructor that inits the Vector with x,y,z.
+  Vec4(T x, T y, T z, T w) {
+    this->x = x; this->y = y; this->z = z; this->w = w;
+  }
+  //! Constructor that inits the vector with an array
+  Vec4(T data[4]){
+    x = data[0]; y = data[1]; z = data[2]; w = data[3];
+  }
+  template <typename S>
+  Vec4(const Vec3<S> v){
+    x = v.x; y = v.y; z = v.z; w = (T)1;
+  }
+  //! product with vector and scalar
+  Vec4 operator*(const T num) const{
+    return Vec4(x * num, y * num, z * num, w*num);
+  }
+  //! the three conponents of the vector
+  union{
+    struct{
+      T x;
+      T y;
+      T z;
+      T w;
+    };
+    T data[4];
+  };
+};
+
+typedef Vec4<float> Vec4f;
+
 }
 
 #endif
