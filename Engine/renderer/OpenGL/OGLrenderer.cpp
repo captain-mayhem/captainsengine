@@ -371,8 +371,11 @@ void OGLRenderer::multiplyMatrix(const CGE::Matrix& mat){
 
 //! set material
 void OGLRenderer::setMaterial(const Material& mat){
+  Renderer::setMaterial(mat);
+  Color diff = mat.getDiffuse();
+  diff.a = mat.getOpacity();
   glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, mat.getAmbient().array);
-  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, mat.getDiffuse().array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diff.array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, mat.getSpecular().array);
   //glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, mat.getEmissive().array);
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.getPower());
@@ -407,14 +410,8 @@ void OGLRenderer::swapBuffers(){
 #endif
 }
 
-void OGLRenderer::enableLight(short number, bool flag){
-  if (flag)
-    glEnable(GL_LIGHT0+number);
-  else
-    glDisable(GL_LIGHT0+number);
-}
-
 void OGLRenderer::setLight(int number, const Light& lit){
+  glEnable(GL_LIGHT0 + number);
   Vec4f dir = lit.getPosition();
   glLightfv(GL_LIGHT0+number, GL_POSITION, dir.data);
 }

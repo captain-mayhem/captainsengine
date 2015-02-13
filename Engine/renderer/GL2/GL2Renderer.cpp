@@ -623,13 +623,6 @@ void GL2Renderer::swapBuffers(){
 #endif
 }
 
-void GL2Renderer::enableLight(short number, bool flag){
-  /*if (flag)
-    glEnable(GL_LIGHT0+number);
-  else
-    glDisable(GL_LIGHT0+number);*/
-}
-
 void GL2Renderer::setLight(int number, const Light& lit){
   Shader* shdr = Shader::getCurrentShader();
   if (!shdr)

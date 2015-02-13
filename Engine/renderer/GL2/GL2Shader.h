@@ -22,8 +22,8 @@ public:
   void bindAttribLocation(int location, const char* name) { glBindAttribLocation(mProgram, location, name);}
   int getAttribLocation(const char* name) {return glGetAttribLocation(mProgram, name);}
 
-  void lockUniforms(Type t) {}
-  void unlockUniforms(Type t) {}
+  void lockUniforms(Type t, unsigned buffer=0) {}
+  void unlockUniforms(Type t, unsigned buffer=0) {}
   int getUniformLocation(Type t, const char* name) {return glGetUniformLocation(mProgram, name);}
   void uniform(int location, int value) {glUniform1i(location, value);}
   void uniform(int location, float value) { glUniform1f(location, value); }

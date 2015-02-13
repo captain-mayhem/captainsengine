@@ -21,12 +21,13 @@ public:
   
   virtual bool linkShaders() = 0;
 
-  virtual void lockUniforms(Type t) = 0;
-  virtual void unlockUniforms(Type t) = 0;
+  virtual void lockUniforms(Type t, unsigned buffer=0) = 0;
+  virtual void unlockUniforms(Type t, unsigned buffer=0) = 0;
   virtual int getUniformLocation(Type t, const char* name) = 0;
   virtual void uniform(int location, int value) = 0;
   virtual void uniform(int location, float v0, float v1, float v2, float v3) = 0;
   virtual void uniform(int location, const CGE::Matrix& mat) = 0;
+  virtual void uniform(int location, const CGE::Color& col) = 0;
 
   void syncMatrix(char const* name, MatrixType type);
   void applyEngineUniforms();

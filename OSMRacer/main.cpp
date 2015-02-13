@@ -39,7 +39,6 @@ void init(){
   followCam.project(60,1,0.1f,5000);
   followCam.lookAt(Vec3f(0,5,0), Vec3f(), Vec3f(0,0,-1));
   //cam.lookAt(Vec3f(ep*200),Vec3f(),Vec3f(0,1,0));
-  rend->enableLight(0, true);
 }
 
 void render(){

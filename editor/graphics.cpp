@@ -29,11 +29,13 @@ Graphic::Graphic() : mRT(NULL){
 
   Renderer* rend = Engine::instance()->getRenderer();
   mRT = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
-  mRT->activate();
-  mRT->addTexture(CGE::Texture::RGBA);
-  mRT->addRenderbuffer(CGE::Texture::DEPTH);
-  mRT->isComplete();
-  mRT->deactivate();
+  if (mRT){
+    mRT->activate();
+    mRT->addTexture(CGE::Texture::RGBA);
+    mRT->addRenderbuffer(CGE::Texture::DEPTH);
+    mRT->isComplete();
+    mRT->deactivate();
+  }
   //delete mRT;
   //mRT = rend->createRenderTarget(width, height);
 }
@@ -132,7 +134,8 @@ void Graphic::resize_(int width, int height){
 
 void Graphic::render_(){
   Renderer* rend = Engine::instance()->getRenderer();
-  mRT->activate();
+  if (mRT)
+    mRT->activate();
   rend->clear(ZBUFFER | COLORBUFFER);
   rend->setColor(1.0,1.0,1.0,1.0);
   rend->enableTexturing(false);
@@ -160,26 +163,28 @@ void Graphic::render_(){
   rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
   scene_.render();
   rend->enableDepthWrite(true);
-  mRT->deactivate();
   rend->enableLighting(false);
+  if (mRT){
+    mRT->deactivate();
 
-  rend->ortho(1, 1);
-  rend->resetModelView();
-  rend->enableDepthTest(false);
-  CGE::Forms& forms = *CGE::Engine::instance()->getForms();
-  forms.activateQuad();
-  rend->enableTexturing(true);
-  rend->setColor(1, 1, 1, 1);
-  if (rend->getRenderType() != DirectX){
-    rend->switchMatrixStack(CGE::MatTexture);
+    rend->ortho(1, 1);
     rend->resetModelView();
-    rend->scale(1, -1, 1);
-  }
-  mRT->getTexture(0)->activate();
-  forms.drawQuad(Vec2f(), Vec2f(1,1));
-  if (rend->getRenderType() != DirectX){
-    rend->resetModelView();
-    rend->switchMatrixStack(CGE::Modelview);
+    rend->enableDepthTest(false);
+    CGE::Forms& forms = *CGE::Engine::instance()->getForms();
+    forms.activateQuad();
+    rend->enableTexturing(true);
+    rend->setColor(1, 1, 1, 1);
+    if (rend->getRenderType() != DirectX){
+      rend->switchMatrixStack(CGE::MatTexture);
+      rend->resetModelView();
+      rend->scale(1, -1, 1);
+    }
+    mRT->getTexture(0)->activate();
+    forms.drawQuad(Vec2f(), Vec2f(1, 1));
+    if (rend->getRenderType() != DirectX){
+      rend->resetModelView();
+      rend->switchMatrixStack(CGE::Modelview);
+    }
   }
 }
 
