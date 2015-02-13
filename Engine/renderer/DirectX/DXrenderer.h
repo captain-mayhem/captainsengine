@@ -81,8 +81,6 @@ public:
   void enableTexturing(const bool flag);
   //! enable lighting
   void enableLighting(const bool flag);
-  //! enable light
-  virtual void enableLight(short number, bool flag);
   //! enable depth test
   virtual void enableDepthTest(const bool flag);
   //! enable depth write
@@ -128,10 +126,12 @@ protected:
   MatrixType mMatrixMode;
   //! the default shader
   DXShader* mShader;
+  //! the light shader
+  DXShader* mLightShader;
 
   struct PSUniforms{
-    Color mModColor;
     int mTextureEnabled;
+    Color mModColor;
   };
   //! the engine uniforms
   PSUniforms mPSUniforms;

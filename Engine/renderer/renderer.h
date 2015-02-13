@@ -113,8 +113,6 @@ public:
   virtual void enableTexturing(const bool flag)=0;
   //! enable lighting
   virtual void enableLighting(const bool flag)=0;
-  //! enable light
-  virtual void enableLight(short number, bool flag)=0;
   //! enable depth test
   virtual void enableDepthTest(const bool flag) = 0;
   //! enable depth write
