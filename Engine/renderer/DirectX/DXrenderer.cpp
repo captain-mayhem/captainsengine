@@ -295,7 +295,7 @@ static char const * fs_src_lit =
 "  else{\n"
 "    lightvec = normalize(lightPos.xyz - inp.vpos);\n"
 "    float lightDist = length(lightPos.xyz-inp.vpos);\n"
-"    att = 1.0/(1.0+0.1*pow(lightDist, 2));\n"
+"    att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
 "  }\n"
 "  float3 normal = normalize(inp.vnormal);\n"
 "  float3 eye = normalize(-inp.vpos);\n"
@@ -332,6 +332,8 @@ void DXRenderer::initRendering(){
   mLightShader->addShader(Shader::VERTEX_SHADER, vs_src_lit);
   mLightShader->addShader(Shader::FRAGMENT_SHADER, fs_src_lit);
   mLightShader->linkShaders();
+  Material tmp("init");
+  mLightShader->applyMaterial(tmp);
   mLightShader->lockUniforms(Shader::FRAGMENT_SHADER);
   mLightShader->uniform(0, 1);
   mLightShader->unlockUniforms(Shader::FRAGMENT_SHADER);
@@ -581,6 +583,19 @@ void DXRenderer::enableBackFaceCulling(const bool flag){
 //! enable texturing
 void DXRenderer::enableTexturing(const bool flag){
   mPSUniforms.mTextureEnabled = flag ? 1 : 0;
+  if (Shader::getCurrentShader() == mLightShader){
+    Material tmp("enableTexturing");
+    mLightShader->lockUniforms(Shader::FRAGMENT_SHADER);
+    Color diff = tmp.getDiffuse();
+    diff.a = tmp.getOpacity();
+    mLightShader->uniform(16, diff);
+    mLightShader->uniform(32, tmp.getAmbient());
+    mLightShader->uniform(64, tmp.getPower());
+    mLightShader->uniform(48, tmp.getSpecular());
+    mLightShader->uniform(0, 1);
+    mLightShader->unlockUniforms(Shader::FRAGMENT_SHADER);
+    return;
+  }
   Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
   Shader::getCurrentShader()->uniform(4*sizeof(int), mPSUniforms.mModColor);
   Shader::getCurrentShader()->uniform(0, mPSUniforms.mTextureEnabled);
@@ -616,18 +631,32 @@ void DXRenderer::enableDepthWrite(bool flag){
 //! set color
 void DXRenderer::setColor(float r, float g, float b, float a){
   mPSUniforms.mModColor = Color(r, g, b, a);
-  Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
-  Shader::getCurrentShader()->uniform(4 * sizeof(int), mPSUniforms.mModColor);
-  Shader::getCurrentShader()->uniform(0, mPSUniforms.mTextureEnabled);
-  Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
+  if (Shader::getCurrentShader() == mLightShader){
+    Material tmp("setColor");
+    tmp.setDiffuse(mPSUniforms.mModColor);
+    Shader::getCurrentShader()->applyMaterial(tmp);
+  }
+  else{
+    Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
+    Shader::getCurrentShader()->uniform(4 * sizeof(int), mPSUniforms.mModColor);
+    Shader::getCurrentShader()->uniform(0, mPSUniforms.mTextureEnabled);
+    Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
+  }
 }
 
 void DXRenderer::setColor(const Color* c){
   mPSUniforms.mModColor = *c;
-  Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
-  Shader::getCurrentShader()->uniform(4 * sizeof(int), mPSUniforms.mModColor);
-  Shader::getCurrentShader()->uniform(0, mPSUniforms.mTextureEnabled);
-  Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
+  if (Shader::getCurrentShader() == mLightShader){
+    Material tmp("setColor");
+    tmp.setDiffuse(mPSUniforms.mModColor);
+    Shader::getCurrentShader()->applyMaterial(tmp);
+  }
+  else{
+    Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
+    Shader::getCurrentShader()->uniform(4 * sizeof(int), mPSUniforms.mModColor);
+    Shader::getCurrentShader()->uniform(0, mPSUniforms.mTextureEnabled);
+    Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
+  }
 }
 
 //! push matrix
