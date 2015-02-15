@@ -288,7 +288,7 @@ static char const * fs_src_light =
 "  else{\n"
 "    lightvec = normalize(lightPos.xyz - vpos);\n"
 "    float lightDist = length(lightPos.xyz-vpos);\n"
-"    att = 1.0/(1.0+0.1*pow(lightDist, 2));\n"
+"    att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
 "  }\n"
 "  vec3 normal = normalize(vnormal);\n"
 "  vec3 eye = normalize(-vpos);\n"
@@ -303,7 +303,7 @@ static char const * fs_src_light =
 "  vec3 specular = vec3(1.0,1.0, 1.0)*spec;\n"
 "  vec4 finalColor = vec4(color.rgb*(ambient + diffuse*att) + specular*att*matSpecular.rgb, color.a);\n"
 "  gl_FragColor = finalColor;\n"
-//"  gl_FragColor = vec4(1,1,0,1);\n"
+//"  gl_FragColor = vec4(color.rgb*diffuse,1);\n"
 //"  gl_FragColor = vec4(spec, spec, spec, 1.0);\n"
 "}\n"
 "";
@@ -346,6 +346,8 @@ void GL2Renderer::initRendering(){
   mLightShader->syncMatrix("mvmat", CGE::Modelview);
   mLightShader->syncMatrix("normalmat", CGE::MatNormal);
   mLightShader->activate();
+  Material tmp("init");
+  mLightShader->applyMaterial(tmp);
   int tex = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "texture");
   mLightShader->uniform(tex, 0);//texture (uniform 32) at stage 0
   mLightShader->deactivate();
@@ -555,12 +557,24 @@ void GL2Renderer::enableDepthWrite(bool flag){
 
 //! set color
 void GL2Renderer::setColor(float r, float g, float b, float a){
-  glVertexAttrib4f(1, r, g, b, a);
+  if (Shader::getCurrentShader() == mLightShader){
+    Material tmp("setColor");
+    tmp.setDiffuse(Color(r,g,b,a));
+    mLightShader->applyMaterial(tmp);
+  }
+  else
+    glVertexAttrib4f(1, r, g, b, a);
 }
 
 //! set color
 void GL2Renderer::setColor(const Color* c){
-  glVertexAttrib4fv(1, c->array);
+  if (Shader::getCurrentShader() == mLightShader){
+    Material tmp("setColor");
+    tmp.setDiffuse(*c);
+    mLightShader->applyMaterial(tmp);
+  }
+  else
+    glVertexAttrib4fv(1, c->array);
 }
 
 //! push matrix

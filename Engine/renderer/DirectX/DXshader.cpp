@@ -159,7 +159,12 @@ void DXShader::allocUniforms(Type shader, unsigned idx, unsigned size){
   desc.MiscFlags = 0;
   desc.StructureByteStride = 0;
   ID3D11Device* dev = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
-  dev->CreateBuffer(&desc, NULL, &mData[shader].constants[idx]);
+  D3D11_SUBRESOURCE_DATA data;
+  data.pSysMem = malloc(size);
+  data.SysMemPitch = size;
+  memset((void*)data.pSysMem, 0, size);
+  dev->CreateBuffer(&desc, &data, &mData[shader].constants[idx]);
+  free((void*)data.pSysMem);
 }
 
 void DXShader::use(){

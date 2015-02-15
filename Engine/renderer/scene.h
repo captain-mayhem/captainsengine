@@ -23,7 +23,7 @@ public:
   //! Add a mesh
   unsigned addMesh(Mesh* mesh) {meshes_.push_back(mesh); return (unsigned)meshes_.size();}
   //! Get all meshes
-  std::vector<Mesh*> getMeshes() const {return meshes_;}
+  std::vector<Mesh*> const& getMeshes() const {return meshes_;}
   //! Add a model
   void addModel(Model* model) {models_.push_back(model);}
   //! Delete a model

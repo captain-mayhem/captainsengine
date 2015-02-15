@@ -72,7 +72,11 @@ GLenum OGLTexture::glFormat(Format fmt){
   case RGBA:
     return GL_RGBA;
   case DEPTH:
+#ifdef RENDER_EMBEDDED
     return GL_DEPTH_COMPONENT16;
+#else
+    return GL_DEPTH_COMPONENT;
+#endif
   case ALPHA:
     return GL_ALPHA;
   }

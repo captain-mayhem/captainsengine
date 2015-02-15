@@ -28,6 +28,7 @@ Graphic::Graphic() : mRT(NULL){
   filename_ = "";
 
   Renderer* rend = Engine::instance()->getRenderer();
+  rend->enableBackFaceCulling(true);
   mRT = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
   if (mRT){
     mRT->activate();
@@ -136,6 +137,7 @@ void Graphic::render_(){
   Renderer* rend = Engine::instance()->getRenderer();
   if (mRT)
     mRT->activate();
+  rend->enableLighting(true);
   rend->clear(ZBUFFER | COLORBUFFER);
   rend->setColor(1.0,1.0,1.0,1.0);
   rend->enableTexturing(false);
@@ -143,7 +145,6 @@ void Graphic::render_(){
   //rend->ortho(-50, 50, -50, 50, 0.1, 100);
   rend->resetModelView();
 
-  rend->enableLighting(true);
   CGE::Light lt(CGE::Light::Point, Vec3f(0, 0.5, 0.5));
   rend->setLight(0, lt);
 
