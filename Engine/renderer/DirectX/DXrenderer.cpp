@@ -188,6 +188,8 @@ namespace CGE{
       mShininessLoc = getUniformLocation(FRAGMENT_SHADER, "matShininess");
       mSpecularLoc = getUniformLocation(FRAGMENT_SHADER, "matSpecular");
       mLightPosLoc = getUniformLocation(FRAGMENT_SHADER, "lightPos");
+      mLightDirLoc = getUniformLocation(FRAGMENT_SHADER, "lightDir");
+      mLightCutoffLoc = getUniformLocation(FRAGMENT_SHADER, "lightCutoff");
       return ret;
     }
     virtual bool applyMaterial(Material const& mat){
@@ -214,6 +216,8 @@ namespace CGE{
       lockUniforms(FRAGMENT_SHADER, 1);
       Vec4f pos = light.getPosition();
       uniform(mLightPosLoc, pos.x, pos.y, pos.z, pos.w);
+      uniform(mLightDirLoc, light.getDirection());
+      uniform(mLightCutoffLoc, light.getCutoff() / 180.0f*(float)M_PI);
       unlockUniforms(FRAGMENT_SHADER, 1);
     }
 
@@ -224,6 +228,8 @@ namespace CGE{
     int mShininessLoc;
 
     int mLightPosLoc;
+    int mLightDirLoc;
+    int mLightCutoffLoc;
   };
 }
 
@@ -274,6 +280,8 @@ static char const * fs_src_lit =
 "}\n"
 "cbuffer perFrame{\n"
 "  float4 lightPos;\n"
+"  float3 lightDir;\n"
+"  float lightCutoff;\n"
 "}\n"
 "\n"
 "struct PSInput{\n"
@@ -294,8 +302,14 @@ static char const * fs_src_lit =
 "     lightvec = normalize(lightPos.xyz);\n"
 "  else{\n"
 "    lightvec = normalize(lightPos.xyz - inp.vpos);\n"
-"    float lightDist = length(lightPos.xyz-inp.vpos);\n"
-"    att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
+"    float lightAngle = acos(dot(-lightvec, normalize(lightDir)));\n"
+"    if (lightAngle > lightCutoff){\n"
+"      att = 0.0;\n"
+"    }\n"
+"    else{\n"
+"      float lightDist = length(lightPos.xyz-inp.vpos);\n"
+"      att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
+"    }\n"
 "  }\n"
 "  float3 normal = normalize(inp.vnormal);\n"
 "  float3 eye = normalize(-inp.vpos);\n"
@@ -751,9 +765,21 @@ void DXRenderer::setLight(int number, const Light& lit){
   if (!shdr)
     return;
   Vec4f pos = lit.getPosition();
-  pos = mMatrix[mMatrixMode] * pos;
-  Light trans(lit.getType(), pos);
-  shdr->applyLight(number, trans);
+  Matrix& mat = getMatrix(Modelview);
+  Matrix& inv = getMatrix(MatNormal);
+  if (lit.getType() == Light::Directional)
+    pos = inv*pos;
+  else
+    pos = mat*pos;
+  if (lit.getType() == Light::Spot){
+    Vec3f dir = inv * lit.getDirection();
+    Light trans(pos, dir, lit.getCutoff());
+    shdr->applyLight(number, trans);
+  }
+  else{
+    Light trans(lit.getType(), pos);
+    shdr->applyLight(number, trans);
+  }
 }
 
 //! switch matrix type

@@ -414,6 +414,8 @@ void OGLRenderer::setLight(int number, const Light& lit){
   glEnable(GL_LIGHT0 + number);
   Vec4f dir = lit.getPosition();
   glLightfv(GL_LIGHT0+number, GL_POSITION, dir.data);
+  glLightfv(GL_LIGHT0 + number, GL_SPOT_DIRECTION, lit.getDirection().data);
+  glLightf(GL_LIGHT0 + number, GL_SPOT_CUTOFF, lit.getCutoff());
 }
 
 void OGLRenderer::switchMatrixStack(MatrixType type){

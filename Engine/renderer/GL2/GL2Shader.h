@@ -29,6 +29,7 @@ public:
   void uniform(int location, float value) { glUniform1f(location, value); }
   void uniform(int location, float v0, float v1) { glUniform2f(location, v0, v1); }
   void uniform(int location, float v0, float v1, float v2, float v3) { glUniform4f(location, v0, v1, v2, v3); }
+  void uniform(int location, const Vec3f& vec) { glUniform3fv(location, 1, vec.data); }
   void uniform(int location, const CGE::Matrix& mat) { glUniformMatrix4fv(location, 1, GL_FALSE, mat.getData()); }
   void uniform(int location, const CGE::Color& col) { glUniform4fv(location, 1, col.array); }
 protected:
