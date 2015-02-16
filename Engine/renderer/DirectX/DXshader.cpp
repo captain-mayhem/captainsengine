@@ -223,6 +223,11 @@ void DXShader::uniform(int location, float v0, float v1, float v2, float v3){
   flt[3] = v3;
 }
 
+void DXShader::uniform(int location, const Vec3f& vec){
+  UCHECK();
+  memcpy(mMappedUBO + location, vec.data, sizeof(vec));
+}
+
 void DXShader::uniform(int location, const CGE::Matrix& mat){
   UCHECK();
   memcpy(mMappedUBO+location, mat.getData(), sizeof(mat));

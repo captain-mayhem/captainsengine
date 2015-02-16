@@ -22,6 +22,7 @@ public:
   void uniform(int location, int value);
   void uniform(int location, float value);
   void uniform(int location, float v0, float v1, float v2, float v3);
+  void uniform(int location, const Vec3f& vec);
   void uniform(int location, const CGE::Matrix& mat);
   void uniform(int location, const CGE::Color& col);
   int getUniformLocation(Type t, const char* name);

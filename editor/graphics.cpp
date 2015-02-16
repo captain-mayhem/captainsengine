@@ -146,6 +146,7 @@ void Graphic::render_(){
   rend->resetModelView();
 
   CGE::Light lt(CGE::Light::Point, Vec3f(0, 0.5, 0.5));
+  //CGE::Light lt(Vec3f(0, 0.5, 0.5), Vec3f(0, 0, -1), 30);
   rend->setLight(0, lt);
 
   rend->multiplyMatrix(camTrafo_);
