@@ -129,12 +129,6 @@ protected:
   //! the light shader
   DXShader* mLightShader;
 
-  struct PSUniforms{
-    int mTextureEnabled;
-    Color mModColor;
-  };
-  //! the engine uniforms
-  PSUniforms mPSUniforms;
   //! the blend state
   ID3D11BlendState* mBlendState;
   //! the blend description

@@ -20,6 +20,7 @@ DXShader::~DXShader(){
   for (int i = 0; i < Shader::NUM_SHADERS; ++i){
     for (unsigned j = 0; j < mData[i].constants.size(); ++j){
       SAFE_RELEASE(mData[i].constants[j]);
+      free(mData[i].constRam[j].ram);
     }
     SAFE_RELEASE(mData[i].refl);
   }
@@ -63,6 +64,7 @@ bool DXShader::addShader(Type shadertype, const char* shaderstring, int stringle
     mData[shadertype].refl->GetDesc(&sdesc);
 
     mData[shadertype].constants.resize(sdesc.ConstantBuffers);
+    mData[shadertype].constRam.resize(sdesc.ConstantBuffers);
     for (unsigned i = 0; i < sdesc.ConstantBuffers; ++i){
       ID3D11ShaderReflectionConstantBuffer* cbr = mData[shadertype].refl->GetConstantBufferByIndex(i);
       if (cbr){
@@ -159,12 +161,11 @@ void DXShader::allocUniforms(Type shader, unsigned idx, unsigned size){
   desc.MiscFlags = 0;
   desc.StructureByteStride = 0;
   ID3D11Device* dev = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
-  D3D11_SUBRESOURCE_DATA data;
-  data.pSysMem = malloc(size);
-  data.SysMemPitch = size;
-  memset((void*)data.pSysMem, 0, size);
-  dev->CreateBuffer(&desc, &data, &mData[shader].constants[idx]);
-  free((void*)data.pSysMem);
+  void* ram = malloc(size);
+  memset(ram, 0, size);
+  mData[shader].constRam[idx].ram = (unsigned char*)ram;
+  mData[shader].constRam[idx].size = size;
+  dev->CreateBuffer(&desc, NULL, &mData[shader].constants[idx]);
 }
 
 void DXShader::use(){
@@ -185,6 +186,15 @@ void DXShader::unuse(){
 }
 
 void DXShader::lockUniforms(Type t, unsigned buffer){
+  mData[t].constRam[buffer].dirty = true;
+  mMappedUBO = mData[t].constRam[buffer].ram;
+}
+
+void DXShader::unlockUniforms(Type t, unsigned buffer){
+  mMappedUBO = NULL;
+}
+
+void DXShader::lockConstantBuffer(Type t, unsigned buffer){
   if (mData[t].constants.size() <= buffer || mData[t].constants[buffer] == NULL)
     return;
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
@@ -193,7 +203,7 @@ void DXShader::lockUniforms(Type t, unsigned buffer){
   mMappedUBO = (unsigned char*)mr.pData;
 }
 
-void DXShader::unlockUniforms(Type t, unsigned buffer){
+void DXShader::unlockConstantBuffer(Type t, unsigned buffer){
   if (mData[t].constants.size() <= buffer || mData[t].constants[buffer] == NULL)
     return;
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
@@ -247,5 +257,24 @@ int DXShader::getUniformLocation(Type t, const char* name){
   D3D11_SHADER_VARIABLE_DESC d;
   var->GetDesc(&d);
   return d.StartOffset;
+}
+
+void DXShader::applyConstants(Type t, unsigned buffer){
+  lockConstantBuffer(t, buffer);
+  memcpy(mMappedUBO, mData[t].constRam[buffer].ram, mData[t].constRam[buffer].size);
+  unlockConstantBuffer(t, buffer);
+  mData[t].constRam[buffer].dirty = false;
+}
+
+void DXShader::applyEngineUniforms(){
+  Shader::applyEngineUniforms();
+  for (unsigned i = 0; i < mData[VERTEX_SHADER].constants.size(); ++i){
+    if (mData[VERTEX_SHADER].constRam[i].dirty)
+      applyConstants(VERTEX_SHADER, i);
+  }
+  for (unsigned i = 0; i < mData[FRAGMENT_SHADER].constants.size(); ++i){
+    if (mData[FRAGMENT_SHADER].constRam[i].dirty)
+      applyConstants(FRAGMENT_SHADER, i);
+  }
 }
 
