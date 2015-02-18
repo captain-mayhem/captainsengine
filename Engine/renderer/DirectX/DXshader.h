@@ -26,7 +26,11 @@ public:
   void uniform(int location, const CGE::Matrix& mat);
   void uniform(int location, const CGE::Color& col);
   int getUniformLocation(Type t, const char* name);
+  void applyEngineUniforms();
 private:
+  void applyConstants(Type t, unsigned buffer = 0);
+  void lockConstantBuffer(Type t, unsigned buffer = 0);
+  void unlockConstantBuffer(Type t, unsigned buffer = 0);
   void use();
   void unuse();
   bool createAttributes(ID3DBlob* shader);
@@ -34,8 +38,15 @@ private:
   ID3D11VertexShader* mVS;
   ID3D11PixelShader* mPS;
   ID3D11InputLayout* mLayout;
+  struct CBuffer{
+    CBuffer() : ram(NULL), size(0), dirty(true) {}
+    unsigned char* ram;
+    unsigned size;
+    bool dirty;
+  };
   struct ShaderData{
     std::vector<ID3D11Buffer*> constants;
+    std::vector<CBuffer> constRam;
     ID3D11ShaderReflection* refl;
   };
   ShaderData mData[NUM_SHADERS];

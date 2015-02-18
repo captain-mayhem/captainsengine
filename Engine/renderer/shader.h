@@ -30,7 +30,7 @@ public:
   virtual void uniform(int location, const CGE::Color& col) = 0;
 
   void syncMatrix(char const* name, MatrixType type);
-  void applyEngineUniforms();
+  virtual void applyEngineUniforms();
   virtual bool applyMaterial(Material const& mat);
   virtual void applyLight(int number, Light const& light) {}
 protected:

@@ -29,8 +29,6 @@ DXRenderer::DXRenderer(): Renderer(), mDepthState(NULL), mRT(NULL) {
 #endif
   }
   mMatrixMode = Modelview;
-  mPSUniforms.mModColor = Color(1.0, 1.0, 1.0, 1.0);
-  mPSUniforms.mTextureEnabled = 0;
   mBlendState = NULL;
   mBlendDesc.AlphaToCoverageEnable = FALSE;
   mBlendDesc.IndependentBlendEnable = FALSE;
@@ -178,6 +176,8 @@ static char const * fs_src_unlit =
 "}\n"
 "\n";
 
+#define NUM_LIGHTS 8
+
 namespace CGE{
   class LightDXShader : public DXShader{
     virtual bool linkShaders(){
@@ -187,6 +187,7 @@ namespace CGE{
       mAmbientLoc = getUniformLocation(FRAGMENT_SHADER, "matAmbient");
       mShininessLoc = getUniformLocation(FRAGMENT_SHADER, "matShininess");
       mSpecularLoc = getUniformLocation(FRAGMENT_SHADER, "matSpecular");
+      mNumLights = getUniformLocation(FRAGMENT_SHADER, "numLights");
       mLightPosLoc = getUniformLocation(FRAGMENT_SHADER, "lightPos");
       mLightDirLoc = getUniformLocation(FRAGMENT_SHADER, "lightDir");
       mLightCutoffLoc = getUniformLocation(FRAGMENT_SHADER, "lightCutoff");
@@ -215,9 +216,12 @@ namespace CGE{
     virtual void applyLight(int number, Light const& light){
       lockUniforms(FRAGMENT_SHADER, 1);
       Vec4f pos = light.getPosition();
-      uniform(mLightPosLoc, pos.x, pos.y, pos.z, pos.w);
-      uniform(mLightDirLoc, light.getDirection());
-      uniform(mLightCutoffLoc, light.getCutoff() / 180.0f*(float)M_PI);
+      uniform(mNumLights, 1);
+      for (int i = 0; i < 8; ++i){
+        uniform(mLightPosLoc+i*4*4, pos.x, pos.y, pos.z, pos.w);
+        uniform(mLightDirLoc+i*4*4, light.getDirection());
+        uniform(mLightCutoffLoc+i*2*4, light.getCutoff() / 180.0f*(float)M_PI);
+      }
       unlockUniforms(FRAGMENT_SHADER, 1);
     }
 
@@ -227,6 +231,7 @@ namespace CGE{
     int mTexEnabledLoc;
     int mShininessLoc;
 
+    int mNumLights;
     int mLightPosLoc;
     int mLightDirLoc;
     int mLightCutoffLoc;
@@ -268,6 +273,7 @@ static char const * vs_src_lit =
 ;
 
 static char const * fs_src_lit =
+"#define NUM_LIGHTS 8\n"
 "Texture2D tex;\n"
 "SamplerState sampl;\n"
 "\n"
@@ -279,10 +285,11 @@ static char const * fs_src_lit =
 "  float matShininess;\n"
 "}\n"
 "cbuffer perFrame{\n"
-"  float4 lightPos;\n"
-"  float3 lightDir;\n"
-"  float lightCutoff;\n"
-"}\n"
+"  int numLights;\n"
+"  float4 lightPos[NUM_LIGHTS];\n"
+"  float3 lightDir[NUM_LIGHTS];\n"
+"  float lightCutoff[NUM_LIGHTS];\n"
+"};\n"
 "\n"
 "struct PSInput{\n"
 "  float4 vPos : SV_POSITION;\n"
@@ -296,33 +303,37 @@ static char const * fs_src_lit =
 "  if (textureEnabled != 0){\n"
 "    color = color * tex.Sample(sampl, inp.tcoord);\n"
 "  }\n"
-"  float3 lightvec;\n"
-"  float att = 1.0;\n"
-"  if (lightPos.w == 0.0)\n"
-"     lightvec = normalize(lightPos.xyz);\n"
-"  else{\n"
-"    lightvec = normalize(lightPos.xyz - inp.vpos);\n"
-"    float lightAngle = acos(dot(-lightvec, normalize(lightDir)));\n"
-"    if (lightAngle > lightCutoff){\n"
-"      att = 0.0;\n"
-"    }\n"
-"    else{\n"
-"      float lightDist = length(lightPos.xyz-inp.vpos);\n"
-"      att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
-"    }\n"
-"  }\n"
 "  float3 normal = normalize(inp.vnormal);\n"
 "  float3 eye = normalize(-inp.vpos);\n"
-"  float3 refl = normalize(reflect(-lightvec, normal));\n"
-"  float NL = max(dot(normal,lightvec), 0.0);\n"
-"  float spec = 0.0;\n"
-"  if (NL > 0.0)\n"
-"    spec = pow(max(dot(refl, eye), 0.0), matShininess);\n"
-"  \n"
+"  float3 diffuse = float3(0.0,0.0,0.0);\n"
+"  float3 specular = float3(0.0,0.0,0.0);\n"
+"  for (int i = 0; i < numLights; ++i){\n"
+"    float3 lightvec;\n"
+"    float att = 1.0;\n"
+"    if (lightPos[i].w == 0.0)\n"
+"     lightvec = normalize(lightPos[i].xyz);\n"
+"    else{\n"
+"      lightvec = normalize(lightPos[i].xyz - inp.vpos);\n"
+"      float lightAngle = acos(dot(-lightvec, normalize(lightDir[i])));\n"
+"      if (lightAngle > lightCutoff[i]){\n"
+"        att = 0.0;\n"
+"      }\n"
+"      else{\n"
+"        float lightDist = length(lightPos[i].xyz-inp.vpos);\n"
+"        att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
+"      }\n"
+"    }\n"
+"    float3 refl = normalize(reflect(-lightvec, normal));\n"
+"    float NL = max(dot(normal,lightvec), 0.0);\n"
+"    float spec = 0.0;\n"
+"    if (NL > 0.0)\n"
+"      spec = pow(max(dot(refl, eye), 0.0), matShininess);\n"
+"    \n"
+"    diffuse += float3(1.0,1.0,1.0)*NL*att;\n"
+"    specular += float3(1.0,1.0, 1.0)*spec*att;\n"
+"  }\n"
 "  float3 ambient = matAmbient.rgb;\n"
-"  float3 diffuse = float3(1.0,1.0,1.0)*NL;\n"
-"  float3 specular = float3(1.0,1.0, 1.0)*spec;\n"
-"  float4 finalColor = float4(color.rgb*(ambient + diffuse*att) + specular*att*matSpecular.rgb, color.a);\n"
+"  float4 finalColor = float4(color.rgb*(ambient + diffuse) + specular*matSpecular.rgb, color.a);\n"
 "  return finalColor;\n"
 "}\n"
 "\n";
@@ -596,23 +607,9 @@ void DXRenderer::enableBackFaceCulling(const bool flag){
 
 //! enable texturing
 void DXRenderer::enableTexturing(const bool flag){
-  mPSUniforms.mTextureEnabled = flag ? 1 : 0;
-  if (Shader::getCurrentShader() == mLightShader){
-    Material tmp("enableTexturing");
-    mLightShader->lockUniforms(Shader::FRAGMENT_SHADER);
-    Color diff = tmp.getDiffuse();
-    diff.a = tmp.getOpacity();
-    mLightShader->uniform(16, diff);
-    mLightShader->uniform(32, tmp.getAmbient());
-    mLightShader->uniform(64, tmp.getPower());
-    mLightShader->uniform(48, tmp.getSpecular());
-    mLightShader->uniform(0, 1);
-    mLightShader->unlockUniforms(Shader::FRAGMENT_SHADER);
-    return;
-  }
+  int textureEnabled = flag ? 1 : 0;
   Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
-  Shader::getCurrentShader()->uniform(4*sizeof(int), mPSUniforms.mModColor);
-  Shader::getCurrentShader()->uniform(0, mPSUniforms.mTextureEnabled);
+  Shader::getCurrentShader()->uniform(0, textureEnabled);
   Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
 }
 
@@ -644,31 +641,28 @@ void DXRenderer::enableDepthWrite(bool flag){
   
 //! set color
 void DXRenderer::setColor(float r, float g, float b, float a){
-  mPSUniforms.mModColor = Color(r, g, b, a);
+  Color modColor = Color(r, g, b, a);
   if (Shader::getCurrentShader() == mLightShader){
     Material tmp("setColor");
-    tmp.setDiffuse(mPSUniforms.mModColor);
+    tmp.setDiffuse(modColor);
     Shader::getCurrentShader()->applyMaterial(tmp);
   }
   else{
     Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
-    Shader::getCurrentShader()->uniform(4 * sizeof(int), mPSUniforms.mModColor);
-    Shader::getCurrentShader()->uniform(0, mPSUniforms.mTextureEnabled);
+    Shader::getCurrentShader()->uniform(4 * sizeof(int), modColor);
     Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
   }
 }
 
 void DXRenderer::setColor(const Color* c){
-  mPSUniforms.mModColor = *c;
   if (Shader::getCurrentShader() == mLightShader){
     Material tmp("setColor");
-    tmp.setDiffuse(mPSUniforms.mModColor);
+    tmp.setDiffuse(*c);
     Shader::getCurrentShader()->applyMaterial(tmp);
   }
   else{
     Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
-    Shader::getCurrentShader()->uniform(4 * sizeof(int), mPSUniforms.mModColor);
-    Shader::getCurrentShader()->uniform(0, mPSUniforms.mTextureEnabled);
+    Shader::getCurrentShader()->uniform(4 * sizeof(int), *c);
     Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
   }
 }
