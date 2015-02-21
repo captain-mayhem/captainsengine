@@ -216,12 +216,9 @@ namespace CGE{
     virtual void applyLight(int number, Light const& light){
       lockUniforms(FRAGMENT_SHADER, 1);
       Vec4f pos = light.getPosition();
-      uniform(mNumLights, 1);
-      for (int i = 0; i < 8; ++i){
-        uniform(mLightPosLoc+i*4*4, pos.x, pos.y, pos.z, pos.w);
-        uniform(mLightDirLoc+i*4*4, light.getDirection());
-        uniform(mLightCutoffLoc+i*2*4, light.getCutoff() / 180.0f*(float)M_PI);
-      }
+      uniform(mLightPosLoc+number*4*4, pos.x, pos.y, pos.z, pos.w);
+      uniform(mLightDirLoc+number*4*4, light.getDirection());
+      uniform(mLightCutoffLoc+number*4*4, light.getCutoff() / 180.0f*(float)M_PI);
       unlockUniforms(FRAGMENT_SHADER, 1);
     }
 

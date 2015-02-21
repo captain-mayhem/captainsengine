@@ -101,4 +101,11 @@ Texture* Renderer::createTexture(std::string filename, Texture::Format fmt){
   return tex;
 }
 
+void Renderer::setNumLights(int number){
+  int loc = Shader::getCurrentShader()->getUniformLocation(Shader::FRAGMENT_SHADER, "numLights");
+  Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER, 1);
+  Shader::getCurrentShader()->uniform(loc, number);
+  Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER, 1);
+}
+
 

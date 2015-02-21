@@ -30,6 +30,9 @@ MapChunk map;
 void init(){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->setClearColor(Vec3f(0.2f,0.3f,1.0f));
+  rend->enableLighting(true);
+  rend->setNumLights(1);
+  rend->enableLighting(false);
   //rend->renderMode(CGE::Wireframe);
   rend->enableBackFaceCulling(true);
   //Vec3f ep = Vec3f(map.getCenter().x,map.getCenter().y,map.getCenter().z);

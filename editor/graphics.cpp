@@ -49,6 +49,10 @@ void Graphic::init(){
   Renderer* rend = Engine::instance()->getRenderer();
   rend->setClearColor(Vector3D(0.5,0.5,0.5));
   rend->renderMode(CGE::Filled);
+
+  rend->enableLighting(true);
+  rend->setNumLights(2);
+  rend->enableLighting(false);
   //Material mat;
   //rend->setMaterial(mat);
   //glEnable(GL_LIGHT0);
@@ -146,8 +150,9 @@ void Graphic::render_(){
   rend->resetModelView();
 
   CGE::Light lt(CGE::Light::Point, Vec3f(0, 0.5, 0.5));
-  //CGE::Light lt(Vec3f(0, 0.5, 0.5), Vec3f(0, 0, -1), 30);
-  rend->setLight(0, lt);
+  CGE::Light lt2(Vec3f(0, 0.5, 0.5), Vec3f(0, 0, -1), 30);
+  rend->setLight(1, lt);
+  rend->setLight(0, lt2);
 
   rend->multiplyMatrix(camTrafo_);
   rend->multiplyMatrix(camRot_);

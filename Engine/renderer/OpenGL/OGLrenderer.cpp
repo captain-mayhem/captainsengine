@@ -347,11 +347,14 @@ void OGLRenderer::enableLighting(const bool flag){
 //! set color
 void OGLRenderer::setColor(float r, float g, float b, float a){
   glColor4f(r,g,b,a);
+  Color c(r, g, b, a);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, c.array);
 }
 
 //! set color
 void OGLRenderer::setColor(const Color* c){
   glColor4fv(c->array);
+  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, c->array);
 }
 
 //! push matrix
@@ -411,7 +414,6 @@ void OGLRenderer::swapBuffers(){
 }
 
 void OGLRenderer::setLight(int number, const Light& lit){
-  glEnable(GL_LIGHT0 + number);
   Vec4f dir = lit.getPosition();
   glLightfv(GL_LIGHT0+number, GL_POSITION, dir.data);
   glLightfv(GL_LIGHT0 + number, GL_SPOT_DIRECTION, lit.getDirection().data);
@@ -423,6 +425,14 @@ void OGLRenderer::switchMatrixStack(MatrixType type){
   if (type == Projection)
     mode = GL_PROJECTION_MATRIX;
   glMatrixMode(mode);
+}
+
+//! set num lights
+void OGLRenderer::setNumLights(int number){
+  for (int i = 0; i < number; ++i)
+    glEnable(GL_LIGHT0 + i);
+  for (int i = number; i < 8; ++i)
+    glDisable(GL_LIGHT0 + i);
 }
 
 
