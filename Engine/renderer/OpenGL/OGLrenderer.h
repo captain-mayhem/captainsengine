@@ -93,6 +93,8 @@ public:
   void setMaterial(const Material& mat);
   //! set light
   virtual void setLight(int number, const Light& lit);
+  //! se num lights
+  virtual void setNumLights(int number);
   //! push matrix
   void pushMatrix();
   //! pop matrix

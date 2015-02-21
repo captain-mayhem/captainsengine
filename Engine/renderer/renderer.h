@@ -125,6 +125,8 @@ public:
   virtual void setMaterial(const Material& mat);
   //! set light
   virtual void setLight(int number, const Light& lit)=0;
+  //! se num lights
+  virtual void setNumLights(int number);
   //! push matrix
   virtual void pushMatrix()=0;
   //! pop matrix

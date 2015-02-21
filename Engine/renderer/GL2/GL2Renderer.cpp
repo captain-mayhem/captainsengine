@@ -213,9 +213,9 @@ namespace CGE{
     virtual void applyLight(int number, Light const& light){
       lockUniforms(FRAGMENT_SHADER);
       Vec4f pos = light.getPosition();
-      uniform(mLightPosLoc, pos.x, pos.y, pos.z, pos.w);
-      uniform(mLightDirLoc, light.getDirection());
-      uniform(mLightCutoffLoc, light.getCutoff() / 180.0f*(float)M_PI);
+      uniform(mLightPosLoc + number, pos.x, pos.y, pos.z, pos.w);
+      uniform(mLightDirLoc + number, light.getDirection());
+      uniform(mLightCutoffLoc + number, light.getCutoff() / 180.0f*(float)M_PI);
       unlockUniforms(FRAGMENT_SHADER);
     }
 
@@ -258,6 +258,7 @@ static char const * vs_src_light =
 "";
 
 static char const * fs_src_light =
+"#define NUM_LIGHTS 8\n"
 "uniform sampler2D texture;\n"
 "uniform bool textureEnabled;\n"
 "\n"
@@ -266,9 +267,10 @@ static char const * fs_src_light =
 "varying vec3 vnormal;\n"
 "varying vec3 vpos;\n"
 "\n"
-"uniform vec4 lightPos;\n"
-"uniform vec3 lightDir;\n"
-"uniform float lightCutoff;\n"
+"uniform int numLights;\n"
+"uniform vec4 lightPos[NUM_LIGHTS];\n"
+"uniform vec3 lightDir[NUM_LIGHTS];\n"
+"uniform float lightCutoff[NUM_LIGHTS];\n"
 "\n"
 "uniform vec4 matAmbient;\n"
 "uniform vec4 matDiffuse;\n"
@@ -280,33 +282,37 @@ static char const * fs_src_light =
 "  if (textureEnabled)\n"
 "     color *= texture2D(texture, uvcoord);\n"
 "\n"
-"  vec3 lightvec;\n"
-"  float att = 1.0f;\n"
-"  if (lightPos.w == 0.0)\n"
-"     lightvec = normalize(lightPos.xyz);\n"
-"  else{\n"
-"    lightvec = normalize(lightPos.xyz - vpos);\n"
-"    float lightAngle = acos(dot(-lightvec, normalize(lightDir)));\n"
-"    if (lightAngle > lightCutoff){\n"
-"      att = 0.0;\n"
-"    }\n"
-"    else{\n"
-"      float lightDist = length(lightPos.xyz-vpos);\n"
-"      att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
-"    }\n"
-"  }\n"
 "  vec3 normal = normalize(vnormal);\n"
 "  vec3 eye = normalize(-vpos);\n"
-"  vec3 refl = normalize(reflect(-lightvec, normal));\n"
-"  float NL = max(dot(normal,lightvec), 0.0);\n"
-"  float spec = 0.0;\n"
-"  if (NL > 0.0)\n"
-"    spec = pow(max(dot(refl, eye), 0.0), matShininess);\n"
-"\n"
+"  vec3 diffuse = vec3(0.0,0.0,0.0);\n"
+"  vec3 specular = vec3(0.0,0.0,0.0);\n"
+"  for (int i = 0; i < numLights; ++i){\n"
+"    vec3 lightvec;\n"
+"    float att = 1.0f;\n"
+"    if (lightPos[i].w == 0.0)\n"
+"     lightvec = normalize(lightPos[i].xyz);\n"
+"    else{\n"
+"      lightvec = normalize(lightPos[i].xyz - vpos);\n"
+"      float lightAngle = acos(dot(-lightvec, normalize(lightDir[i])));\n"
+"      if (lightAngle > lightCutoff[i]){\n"
+"        att = 0.0;\n"
+"      }\n"
+"      else{\n"
+"        float lightDist = length(lightPos[i].xyz-vpos);\n"
+"        att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
+"      }\n"
+"    }\n"
+"    vec3 refl = normalize(reflect(-lightvec, normal));\n"
+"    float NL = max(dot(normal,lightvec), 0.0);\n"
+"    float spec = 0.0;\n"
+"    if (NL > 0.0)\n"
+"      spec = pow(max(dot(refl, eye), 0.0), matShininess);\n"
+"    \n"
+"    diffuse += vec3(1.0,1.0,1.0)*NL*att;\n"
+"    specular += vec3(1.0,1.0, 1.0)*spec*att;\n"
+"  }\n"
 "  vec3 ambient = matAmbient.rgb;\n"
-"  vec3 diffuse = vec3(1.0,1.0,1.0)*NL;\n"
-"  vec3 specular = vec3(1.0,1.0, 1.0)*spec;\n"
-"  vec4 finalColor = vec4(color.rgb*(ambient + diffuse*att) + specular*att*matSpecular.rgb, color.a);\n"
+"  vec4 finalColor = vec4(color.rgb*(ambient + diffuse) + specular*matSpecular.rgb, color.a);\n"
 "  gl_FragColor = finalColor;\n"
 //"  gl_FragColor = vec4(color.rgb*diffuse,1);\n"
 //"  gl_FragColor = vec4(-lightDir,1);\n"
