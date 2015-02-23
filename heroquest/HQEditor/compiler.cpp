@@ -34,7 +34,7 @@ using namespace CGE;
 
 
 //Constructor, takes map size
-Compiler::Compiler(short width, short height){
+Compiler::Compiler(short width, short height) : mLightOffset(0){
   width_ = width;
   height_ = height;
 }
@@ -72,7 +72,12 @@ void Compiler::setWall(const Vector2D& pos, Direction d){
   mdl->setAttrib(0, 1001);
   //mdl->setAttrib(1, id);
   CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
-  mdl->setTrafo(mat*rot);
+  CGE::Matrix trafo = mat*rot;
+  if (mLightOffset++ % 5 == 0){
+    CGE::Light* lt = new CGE::Light(CGE::Light::Point, trafo*Vec3f(0, 8, 0));
+    scene_.addLight(lt);
+  }
+  mdl->setTrafo(trafo);
   scene_.addModel(mdl);
 }
 
@@ -467,7 +472,7 @@ CGE::Mesh* Compiler::getMesh(std::string tilename, std::string path){
   CGE::Mesh* msh = NULL;
   std::vector<CGE::Mesh*> meshes = scene_.getMeshes();
   for (unsigned  i = 0; i < meshes.size(); ++i){
-    if (meshes[i]->getName() == path+tilename){
+    if (meshes[i]->getFilename() == path+tilename){
       msh = meshes[i];
       break;
     }

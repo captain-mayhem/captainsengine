@@ -150,6 +150,9 @@ private:
 
   //! the height
   short height_;
+
+  //! light offset
+  int mLightOffset;
 };
 
 #endif

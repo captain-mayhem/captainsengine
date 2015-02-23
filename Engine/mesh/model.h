@@ -2,7 +2,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "../system/gameobject.h"
+#include "../renderer/scenenode.h"
 
 namespace CGE{
 class BoundingObject;
@@ -16,7 +16,7 @@ class Mesh;
 #define MAX_TEXTURES 8
 #define MAX_ATTRIBS 8
 
-class Model : public CGE::GameObject{
+class Model : public CGE::SceneNode{
 public:
   //! Default constructor
   Model();

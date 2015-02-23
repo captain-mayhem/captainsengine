@@ -61,10 +61,10 @@ SET(Engine_renderer_SRCS
 	${PRE}/indexbuffer.cpp
 	${PRE}/light.cpp
 	${PRE}/material.cpp
-	${PRE}/model.cpp
 	${PRE}/renderer.cpp
 	${PRE}/rendertarget.cpp
 	${PRE}/scene.cpp
+	${PRE}/scenenode.cpp
 	${PRE}/shader.cpp
 	${PRE}/texture.cpp
 	${PRE}/vertexbuffer.cpp
@@ -79,10 +79,10 @@ SET(RENDERER_HDRS_CORE
 	${PRE}/indexbuffer.h
 	${PRE}/light.h
 	${PRE}/material.h
-	${PRE}/model.h
 	${PRE}/renderer.h
 	${PRE}/rendertarget.h
 	${PRE}/scene.h
+	${PRE}/scenenode.h
 	${PRE}/shader.h
 	${PRE}/texture.h
 	${PRE}/vertexbuffer.h

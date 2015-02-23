@@ -48,9 +48,9 @@ HQMExport::~HQMExport(){
 
 bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
   TR_USE(HQ_Editor_HQM);
-  const list<Model*>& models = scn.getModels();
+  const list<CGE::SceneNode*>& models = scn.getNodes();
   //determine size of the map
-  list<Model*>::const_iterator iter;
+  list<CGE::SceneNode*>::const_iterator iter;
   for (iter = models.begin(); iter != models.end(); iter++){
     Matrix mat = (*iter)->getTrafo();
     Vector3D trans = mat.getTranslation();
@@ -68,15 +68,18 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
   }
   //extract the informations needed for the map
   for (iter = models.begin(); iter != models.end(); iter++){
+    if ((*iter)->getType() != CGE::SceneNode::MESH)
+      continue;
+    CGE::Model* mdl = (CGE::Model*)*iter;
     Matrix mat = (*iter)->getTrafo();
     Vector3D trans = mat.getTranslation();
     Vector2D pos = convertToMap(trans, 0.5f, 0.5f);
     HQField* f = &map_[pos.y][pos.x];
-    int classAttrib = (*iter)->getAttrib(0);
+    int classAttrib = mdl->getAttrib(0);
     //ground
     if (classAttrib == Editor::GROUND){
       f->position = pos;
-      f->id = (*iter)->getAttrib(1);
+      f->id = mdl->getAttrib(1);
       //update rooms
       while (rooms_.size() <= (unsigned short)f->id){
         vector<Vector2D> tmp;
@@ -106,7 +109,7 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
     else if (classAttrib == Editor::DOOR){
       HQDoor door;
       door.id = (*iter)->getID();
-      door.type = (*iter)->getAttrib(1);
+      door.type = mdl->getAttrib(1);
       int idx = (int)doors_.size();
       Direction d = extractDir(mat);
       f->doorbits.set(d);
@@ -146,16 +149,16 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
     else if (classAttrib == Editor::MONSTER){
       Monster m;
       m.id = (*iter)->getID();
-      m.instanceid = (*iter)->getAttrib(1);
+      m.instanceid = mdl->getAttrib(1);
       m.pos = pos;
       monsters_.push_back(m);
     }
     else if (classAttrib == Editor::FURNITURE){
       Furniture f;
       f.id = (*iter)->getID();
-      f.instanceid = (*iter)->getAttrib(1);
-      int w = (*iter)->getAttrib(2);
-      int h = (*iter)->getAttrib(3);
+      f.instanceid = mdl->getAttrib(1);
+      int w = mdl->getAttrib(2);
+      int h = mdl->getAttrib(3);
       Direction d = extractDir(mat);
       f.direction = (unsigned)d;
 
@@ -180,9 +183,9 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
     else if (classAttrib == Editor::OVERLAY){
       HQOverlay o;
       o.id = (*iter)->getID();
-      o.instanceid = (*iter)->getAttrib(1);
-      int w = (*iter)->getAttrib(2);
-      int h = (*iter)->getAttrib(3);
+      o.instanceid = mdl->getAttrib(1);
+      int w = mdl->getAttrib(2);
+      int h = mdl->getAttrib(3);
       Direction d = extractDir(mat);
       o.direction = (unsigned)d;
 
@@ -207,7 +210,7 @@ bool HQMExport::exportHQM(CGE::Scene& scn, const std::string& filename){
     else if (classAttrib == Editor::SCRIPT){
       HQScript s;
       s.id = (*iter)->getID();
-      s.instanceid = (*iter)->getAttrib(2);
+      s.instanceid = mdl->getAttrib(2);
       s.pos = pos;
       scripts_.push_back(s);
     }

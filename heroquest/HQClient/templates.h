@@ -3,8 +3,6 @@
 
 #include <vector>
 
-#include "renderer/model.h"
-
 #include "item.h"
 #include "monster.h"
 #include "overlay.h"
