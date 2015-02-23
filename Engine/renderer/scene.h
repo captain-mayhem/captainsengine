@@ -5,11 +5,12 @@
 #include <vector>
 #include <list>
 #include <string>
+#include <mesh/model.h>
 
 namespace CGE{
 class Ray;
-class Model;
 class Mesh;
+class Light;
 }
 
 namespace CGE{
@@ -25,7 +26,7 @@ public:
   //! Get all meshes
   std::vector<Mesh*> const& getMeshes() const {return meshes_;}
   //! Add a model
-  void addModel(Model* model) {models_.push_back(model);}
+  void addModel(Model* model) {mNodes.push_back(model);}
   //! Delete a model
   void deleteModel(const unsigned id);
   //! Get a model
@@ -34,6 +35,8 @@ public:
   unsigned addTexture(Texture* tex) {textures_.push_back(tex); return (unsigned)textures_.size();}
   //! Get all textures
   std::vector<CGE::Texture*> getTextures() const {return textures_;}
+  //! Add a light
+  unsigned addLight(Light* light) { mLights.push_back(light); return (unsigned)mLights.size(); }
   //! render the scene
   void render();
   //! save the scene
@@ -43,16 +46,18 @@ public:
   //! Get the model that is the nearest one on the ray
   Model* pickModel(const CGE::Ray& ray) const;
   //! get the models
-  const std::list<Model*>& getModels() const {return models_;}
+  const std::list<SceneNode*>& getNodes() const {return mNodes;}
 protected:
   //! The scene version number
   int version_;
-  //! The models (components the scene consists of)
-  std::list<Model*> models_;
+  //! The nodes (components the scene consists of)
+  std::list<SceneNode*> mNodes;
   //! The meshes
   std::vector<Mesh*> meshes_;
   //! The textures
   std::vector<Texture*> textures_;
+  //! The lights
+  std::vector<Light*> mLights;
 };
 
 }

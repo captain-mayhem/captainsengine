@@ -34,7 +34,6 @@
 #include <string>
 
 #include "triangle.h"
-#include "../system/gameobject.h"
 #include "../math/bbox.h"
 
 namespace CGE{

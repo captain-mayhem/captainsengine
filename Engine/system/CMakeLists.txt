@@ -11,7 +11,6 @@ SET(Engine_system_SRCS
 	${PRE}/engine.cpp
 	${PRE}/event.cpp
 	${PRE}/file.cpp
-	${PRE}/gameobject.cpp
 	${PRE}/process.cpp
 	${PRE}/script.cpp
 	#${PRE}/serversocket.cpp
@@ -29,7 +28,6 @@ SET(Engine_system_HDRS
 	${PRE}/engine.h
 	${PRE}/event.h
 	${PRE}/file.h
-	${PRE}/gameobject.h
 	${PRE}/process.h
 	${PRE}/script.h
 	#${PRE}/serversocket.h

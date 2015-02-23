@@ -10,7 +10,7 @@
 
 using namespace CGE;
 
-Model::Model(){
+Model::Model() : SceneNode(MESH){
   trafo_ = Matrix(Matrix::Identity);
   mesh_ = NULL;
   boundingObj_ = NULL;
@@ -22,7 +22,7 @@ Model::Model(){
   }
 }
 
-Model::Model(Mesh* mesh){
+Model::Model(Mesh* mesh) : SceneNode(MESH){
   trafo_ = Matrix(Matrix::Identity);
   mesh_ = mesh;
   BBox box = mesh_->getExtents();
@@ -38,7 +38,7 @@ Model::Model(Mesh* mesh){
 }
 
 //! Copy constructor
-Model::Model(const Model& m) : GameObject(m){
+Model::Model(const Model& m) : SceneNode(m){
   //trafo_ = m.trafo_;
   mesh_ = m.mesh_;
   boundingObj_ = new BSphere(*dynamic_cast<BSphere*>(m.boundingObj_));

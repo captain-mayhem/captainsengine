@@ -7,6 +7,8 @@
 #include "../mesh/model.h"
 #include "../mesh/mesh.h"
 #include "../math/ray.h"
+#include "../renderer/light.h"
+#include "../renderer/renderer.h"
 
 #include <iostream>
 #include <fstream>
@@ -34,11 +36,11 @@ Scene::Scene(){
 }
 
 Scene::~Scene(){
-  list<Model*>::iterator iter;
-  for (iter = models_.begin(); iter != models_.end(); iter++){
+  list<SceneNode*>::iterator iter;
+  for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
     SAFE_DELETE(*iter);
   };
-  models_.clear();
+  mNodes.clear();
   for (unsigned i = 0; i < meshes_.size(); i++){
     SAFE_DELETE(meshes_[i]);
   }
@@ -46,25 +48,42 @@ Scene::~Scene(){
   for (unsigned i = 0; i < textures_.size(); i++){
     SAFE_DELETE(textures_[i]);
   }
+  for (unsigned i = 0; i < mLights.size(); ++i){
+    SAFE_DELETE(mLights[i]);
+  }
   textures_.clear();
 }
 
 void Scene::render(){
-  list<Model*>::iterator iter;
-  for (iter = models_.begin(); iter != models_.end(); iter++){
-    (*iter)->setupMaterial();
-    (*iter)->render();
-    (*iter)->resetMaterial();
+  Renderer* rend = Engine::instance()->getRenderer();
+  unsigned numLights = mLights.size();
+  if (numLights > 8)
+    numLights = 8;
+  rend->setNumLights(numLights);
+  for (unsigned i = 0; i < 8; ++i){
+    rend->setLight(i, *mLights[i]);
+  }
+  list<SceneNode*>::iterator iter;
+  for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
+    if ((*iter)->getType() == SceneNode::MESH){
+      Model* mdl = (Model*)*iter;
+      mdl->setupMaterial();
+      mdl->render();
+      mdl->resetMaterial();
+    }
   }
 }
 
 //! Get a model
 Model* Scene::getModel(const unsigned id){
-  list<Model*>::iterator iter;
+  list<SceneNode*>::iterator iter;
   //int count = 0;
-  for (iter = models_.begin(); iter != models_.end(); iter++){
+  for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
     if ((*iter)->getID() == id)
-      return *iter;
+      if ((*iter)->getType() == SceneNode::MESH)
+        return (Model*)*iter;
+      else
+        return NULL;
     //count++;
   };
   return NULL;
@@ -101,16 +120,28 @@ void Scene::save(const std::string& filename) const{
     out.write((char*)&length, sizeof(length));
     out.write(name.c_str(), sizeof(char)*length);
   }
-  //models
-  size = models_.size();
+  //lights
+  size = mLights.size();
   out.write((char*)&size, sizeof(size));
-  list<Model*>::const_iterator iter;
-  for (iter = models_.begin(); iter != models_.end(); iter++){
+  for (unsigned i = 0; i < size; i++){
+    Light* lt = mLights[i];
+    char type = (char)lt->getType();
+    out.write(&type, 1);
+    out.write((const char*)lt->getPosition().data, 4 * sizeof(float));
+  }
+  //models
+  size = mNodes.size();
+  out.write((char*)&size, sizeof(size));
+  list<SceneNode*>::const_iterator iter;
+  for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
     //model id
     unsigned id = (*iter)->getID();
     out.write((char*)&id, sizeof(id));
+    if ((*iter)->getType() != SceneNode::MESH)
+      continue;
+    Model* mdl = (Model*)*iter;
     //mesh link
-    Mesh* mesh = (*iter)->getMesh();
+    Mesh* mesh = mdl->getMesh();
     unsigned idx;
     for (idx = 0; idx < meshes_.size(); idx++){
       if (mesh == meshes_[idx])
@@ -119,7 +150,7 @@ void Scene::save(const std::string& filename) const{
     out.write((char*)&idx, sizeof(idx));
     //texture links
     for (int i = 0; i < MAX_TEXTURES; i++){
-      Texture* tex = (*iter)->getTexture(i);
+      Texture* tex = mdl->getTexture(i);
       unsigned idx;
       if (tex == NULL){
         idx = UINT_MAX;
@@ -137,7 +168,7 @@ void Scene::save(const std::string& filename) const{
     out.write((char*)mat, 16*sizeof(float));
     //attributes
     for (int i = 0; i < MAX_ATTRIBS; i++){
-      int att = (*iter)->getAttrib(i);
+      int att = mdl->getAttrib(i);
       out.write((char*)&att, sizeof(att));
     }
   }
@@ -191,20 +222,30 @@ void Scene::load(const std::string& filename){
     Texture* tex = Texture::create(cwd+name);
     textures_.push_back(tex);
   }
+  //read lights
+  in.read((char*)&size, sizeof(size));
+  for (unsigned i = 0; i < size; ++i){
+    char type;
+    in.read(&type, 1);
+    Vec4f pos;
+    in.read((char*)pos.data, 4 * sizeof(float));
+    Light* lt = new Light((Light::Type)type, pos);
+    mLights.push_back(lt);
+  }
   //read models
   in.read((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
     //model id
     unsigned id;
     in.read((char*)&id, sizeof(id));
-    CGE::GameObject::setIDCount(max(id+1, CGE::GameObject::getIDCount()));
+    CGE::SceneNode::setIDCount(max(id+1, CGE::SceneNode::getIDCount()));
     //mesh link
     unsigned idx;
     in.read((char*)&idx, sizeof(idx));
     Mesh* msh = meshes_[idx];
     Model* mdl = new Model(msh);
     mdl->setID(id);
-    models_.push_back(mdl);
+    mNodes.push_back(mdl);
     //texture links
     for (int i = 0; i < MAX_TEXTURES; i++){
       in.read((char*)&idx, sizeof(idx));
@@ -229,12 +270,14 @@ void Scene::load(const std::string& filename){
 
 //! Get the model that is the nearest one on the ray
 Model* Scene::pickModel(const Ray& ray) const {
-  list<Model*>::const_iterator iter;
+  list<SceneNode*>::const_iterator iter;
   //std::cerr << ray.getOrigin() << " " << ray.getDirection() << "\n";
   Model* nearest = NULL;
   float nearDistance = FLT_MAX;
-  for (iter = models_.begin(); iter != models_.end(); iter++){
-    Model* mdl = *iter;
+  for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
+    if ((*iter)->getType() != SceneNode::MESH)
+      continue;
+    Model* mdl = (Model*)*iter;
     BoundingObject* bound = mdl->getBoundingObject();
     BoundingObject* tmp = bound->copy();
     tmp->transform(mdl->getTrafo());
@@ -259,10 +302,10 @@ Model* Scene::pickModel(const Ray& ray) const {
 
 //! Delete a model
 void Scene::deleteModel(const unsigned id){
-  list<Model*>::iterator iter;
-  for (iter = models_.begin(); iter != models_.end(); iter++){
+  list<SceneNode*>::iterator iter;
+  for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
     if (id == (*iter)->getID()){
-      models_.erase(iter);
+      mNodes.erase(iter);
       return;
     }
   }
