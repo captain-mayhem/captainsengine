@@ -3,6 +3,7 @@ INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
 LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
 
 SET(editor_SRCS
+	camera.cpp
 	editor.cpp
 	graphics.cpp
 	hqmExport.cpp
@@ -10,6 +11,7 @@ SET(editor_SRCS
 	menu.cpp)
 
 SET(editor_HDRS
+	camera.h
 	editor.h
 	graphics.h
 	hqmExport.h
