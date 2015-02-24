@@ -11,6 +11,7 @@ namespace CGE{
 class Ray;
 class Mesh;
 class Light;
+class Camera;
 }
 
 namespace CGE{
@@ -47,6 +48,8 @@ public:
   Model* pickModel(const CGE::Ray& ray) const;
   //! get the models
   const std::list<SceneNode*>& getNodes() const {return mNodes;}
+  //! set active camera
+  void setActiveCam(Camera* cam) { mActiveCam = cam; }
 protected:
   //! The scene version number
   int version_;
@@ -58,6 +61,8 @@ protected:
   std::vector<Texture*> textures_;
   //! The lights
   std::vector<Light*> mLights;
+  //! active camera
+  Camera* mActiveCam;
 };
 
 }

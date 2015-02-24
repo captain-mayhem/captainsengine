@@ -22,8 +22,6 @@ TR_CHANNEL(CGE_Editor);
 Graphic* Graphic::gra_ = NULL;
 
 Graphic::Graphic() : mRT(NULL){
-  camTrafo_ = CGE::Matrix(Matrix::Translation, Vector3D(0.0,0.0,-10.0f));
-  camRot_ = CGE::Matrix(Matrix::Identity);
   currModel_ = NULL;
   filename_ = "";
 
@@ -39,6 +37,7 @@ Graphic::Graphic() : mRT(NULL){
   }
   //delete mRT;
   //mRT = rend->createRenderTarget(width, height);
+  scene_.setActiveCam(&mCam);
 }
 
 Graphic::~Graphic(){
@@ -154,8 +153,7 @@ void Graphic::render_(){
   rend->setLight(1, lt);
   rend->setLight(0, lt2);
 
-  rend->multiplyMatrix(camTrafo_);
-  rend->multiplyMatrix(camRot_);
+  rend->multiplyMatrix(mCam.getViewMat());
   //draw coord sys
   rend->renderMode(Wireframe);
   //x-axis

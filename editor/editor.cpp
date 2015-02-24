@@ -225,7 +225,7 @@ void Editor::_mouseDown(int x, int y, int button){
     Matrix proj = rend->getMatrix(CGE::Projection);
     Ray r;
     r.buildPickingRay((float)x, (float)y, /*viewport[2]-viewport[0], viewport[3]-viewport[1]*/1024.0f, 768.0f, proj.getData()[0], proj.getData()[5], proj.getData()[10]);
-    Matrix view = Graphic::instance()->getViewMat();
+    Matrix view = Graphic::instance()->getCam().getViewMat();
     r.transform(view.inverse());
     //get the picked model
     Model* mdl = Graphic::instance()->getScene().pickModel(r);
@@ -246,14 +246,14 @@ void Editor::update(){
     float length = (pos.y-lastPos_.y)*TRANSLATION_SPEED;
     lastPos_ = pos;
     Matrix trans = Matrix(Matrix::Translation, dir*length);
-    Graphic::instance()->multCamTrafo(trans);
+    Graphic::instance()->getCam().multCamTrafo(trans);
   }
   
   //Rotation
   bool active = Input::Mouse::instance()->isPressed(MB_RIGHT);
   arcball_->update(active,false,pos);
   //Graphic::instance()->setCamRotation(arcball_->getTrafo());
-  Graphic::instance()->multCamTrafo(arcball_->getIncTrafo());
+  Graphic::instance()->getCam().multCamTrafo(arcball_->getIncTrafo());
 }
 
 //! get the string to an attribute

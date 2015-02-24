@@ -73,8 +73,8 @@ void Compiler::setWall(const Vector2D& pos, Direction d){
   //mdl->setAttrib(1, id);
   CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
   CGE::Matrix trafo = mat*rot;
-  if (mLightOffset++ % 5 == 0){
-    CGE::Light* lt = new CGE::Light(CGE::Light::Point, trafo*Vec3f(0, 8, 0));
+  if (mLightOffset++ % 8 == 0){
+    CGE::Light* lt = new CGE::Light(CGE::Light::Point, trafo*Vec3f(0, 8, -2.8f));
     scene_.addLight(lt);
   }
   mdl->setTrafo(trafo);
