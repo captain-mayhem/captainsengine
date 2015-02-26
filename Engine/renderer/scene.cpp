@@ -76,7 +76,7 @@ void Scene::render(){
     }
   }
   rend->setNumLights(numLights);
-  for (unsigned i = 0; i < 8; ++i){
+  for (unsigned i = 0; i < numLights; ++i){
     rend->setLight(i, *mLights[i]);
   }
   list<SceneNode*>::iterator iter;
@@ -144,6 +144,12 @@ void Scene::save(const std::string& filename) const{
     char type = (char)lt->getType();
     out.write(&type, 1);
     out.write((const char*)lt->getPosition().data, 4 * sizeof(float));
+    out.write((const char*)lt->getDirection().data, 3 * sizeof(float));
+    float flt = lt->getCutoff();
+    out.write((const char*)&flt, sizeof(float));
+    out.write((const char*)lt->getColor().array, 4 * sizeof(float));
+    flt = lt->getAttenuation();
+    out.write((const char*)&flt, sizeof(float));
   }
   //models
   size = mNodes.size();
@@ -246,6 +252,17 @@ void Scene::load(const std::string& filename){
     Vec4f pos;
     in.read((char*)pos.data, 4 * sizeof(float));
     Light* lt = new Light((Light::Type)type, pos);
+    Vec3f dir;
+    in.read((char*)dir.data, 3 * sizeof(float));
+    lt->setDirection(dir);
+    float flt;
+    in.read((char*)&flt, sizeof(float));
+    lt->setCutoff(flt);
+    Color c;
+    in.read((char*)c.array, 4 * sizeof(float));
+    lt->setColor(c);
+    in.read((char*)&flt, sizeof(float));
+    lt->setAttenuation(flt);
     mLights.push_back(lt);
   }
   //read models

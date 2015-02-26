@@ -144,7 +144,8 @@ void Graphic::render_(){
   rend->clear(ZBUFFER | COLORBUFFER);
   rend->setColor(1.0,1.0,1.0,1.0);
   rend->enableTexturing(false);
-  rend->projection(60, 4.0f/3.0f, 0.01f, 1000.0f);
+  
+  //rend->projection(60, 4.0f/3.0f, 0.01f, 1000.0f);
   //rend->ortho(-50, 50, -50, 50, 0.1, 100);
   rend->resetModelView();
 
@@ -153,7 +154,8 @@ void Graphic::render_(){
   rend->setLight(1, lt);
   rend->setLight(0, lt2);
 
-  rend->multiplyMatrix(mCam.getViewMat());
+  mCam.activate();
+  //rend->multiplyMatrix(mCam.getViewMat());
   //draw coord sys
   rend->renderMode(Wireframe);
   //x-axis
