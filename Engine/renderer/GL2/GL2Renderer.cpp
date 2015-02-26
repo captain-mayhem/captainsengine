@@ -663,8 +663,8 @@ void GL2Renderer::setLight(int number, const Light& lit){
   if (!shdr)
     return;
   Vec4f pos = lit.getPosition();
-  Matrix& mat = getMatrix(Modelview);
-  Matrix& inv = getMatrix(MatNormal);
+  Matrix const& mat = getMatrix(Modelview);
+  Matrix const& inv = getMatrix(MatNormal);
   Light trans = lit;
   if (lit.getType() == Light::Directional)
     pos = inv*pos;

@@ -19,7 +19,7 @@
 using namespace CGE;
 
 GameState game;
-Camera cam;
+::Camera cam;
 World wrld;
 Player plyr;
 Message msg;

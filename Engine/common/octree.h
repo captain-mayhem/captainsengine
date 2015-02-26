@@ -180,7 +180,7 @@ typename Octree<index,value>::Node** Octree<index,value>::recurseCreate(const CG
 template<typename index, typename value>
 void Octree<index,value>::insertVertex(Node* node, int& data1, void* data2){
   CGE::VertexBuffer* vb = (CGE::VertexBuffer*)data2;
-  vb->setPosition(data1,CGE::Vertex((float)node->mIndex.x,(float)node->mIndex.y,(float)node->mIndex.z));
+  vb->setPosition(data1,CGE::Vec3f((float)node->mIndex.x,(float)node->mIndex.y,(float)node->mIndex.z));
   ++data1;
 }
 
@@ -205,14 +205,14 @@ void Octree<index,value>::renderDebug(){
   vb->create(VB_POSITION,8);
   vb->lockVertexPointer();
   CGE::Vec3<index> p = mCenter-mCenter;
-  vb->setPosition(0,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->setPosition(1,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(2,CGE::Vertex((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(3,CGE::Vertex((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->setPosition(4,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
-  vb->setPosition(5,CGE::Vertex((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(6,CGE::Vertex((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
-  vb->setPosition(7,CGE::Vertex((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
+  vb->setPosition(0,CGE::Vec3f((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
+  vb->setPosition(1,CGE::Vec3f((float)p.x-(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
+  vb->setPosition(2,CGE::Vec3f((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z+(float)mSpan.z));
+  vb->setPosition(3,CGE::Vec3f((float)p.x+(float)mSpan.x,(float)p.y-(float)mSpan.y,(float)p.z-(float)mSpan.z));
+  vb->setPosition(4,CGE::Vec3f((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
+  vb->setPosition(5,CGE::Vec3f((float)p.x-(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
+  vb->setPosition(6,CGE::Vec3f((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z+(float)mSpan.z));
+  vb->setPosition(7,CGE::Vec3f((float)p.x+(float)mSpan.x,(float)p.y+(float)mSpan.y,(float)p.z-(float)mSpan.z));
   vb->unlockVertexPointer();
   short* ind = (short*)indbuf->lockIndexPointer();
   ind[0] = 0; ind[1] = 1; ind[2] = 1; ind[3] = 2; ind[4] = 2; ind[5] = 3; ind[6] = 3; ind[7] = 0;
