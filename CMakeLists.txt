@@ -133,8 +133,8 @@ SET(ENGINE_LINK_LIBRARIES
 	lua
 	lualib
 	ode
-	zlib
 	png
+	zlib
 	${ENGINE_LINK_LIBRARIES}
 )
 
