@@ -188,6 +188,8 @@ namespace CGE{
       mLightPosLoc = getUniformLocation(FRAGMENT_SHADER, "lightPos");
       mLightDirLoc = getUniformLocation(FRAGMENT_SHADER, "lightDir");
       mLightCutoffLoc = getUniformLocation(FRAGMENT_SHADER, "lightCutoff");
+      mLightColorLoc = getUniformLocation(FRAGMENT_SHADER, "lightColor");
+      mLightAttenuationLoc = getUniformLocation(FRAGMENT_SHADER, "lightAttenuation");
       return ret;
     }
     virtual bool applyMaterial(Material const& mat){
@@ -216,6 +218,8 @@ namespace CGE{
       uniform(mLightPosLoc + number, pos.x, pos.y, pos.z, pos.w);
       uniform(mLightDirLoc + number, light.getDirection());
       uniform(mLightCutoffLoc + number, light.getCutoff() / 180.0f*(float)M_PI);
+      uniform(mLightAttenuationLoc + number, light.getAttenuation());
+      uniform(mLightColorLoc + number, light.getColor());
       unlockUniforms(FRAGMENT_SHADER);
     }
 
@@ -227,7 +231,9 @@ namespace CGE{
     
     int mLightPosLoc;
     int mLightDirLoc;
+    int mLightColorLoc;
     int mLightCutoffLoc;
+    int mLightAttenuationLoc;
   };
 }
 
@@ -270,7 +276,9 @@ static char const * fs_src_light =
 "uniform int numLights;\n"
 "uniform vec4 lightPos[NUM_LIGHTS];\n"
 "uniform vec3 lightDir[NUM_LIGHTS];\n"
+"uniform vec4 lightColor[NUM_LIGHTS];\n"
 "uniform float lightCutoff[NUM_LIGHTS];\n"
+"uniform float lightAttenuation[NUM_LIGHTS];\n"
 "\n"
 "uniform vec4 matAmbient;\n"
 "uniform vec4 matDiffuse;\n"
@@ -286,6 +294,7 @@ static char const * fs_src_light =
 "  vec3 eye = normalize(-vpos);\n"
 "  vec3 diffuse = vec3(0.0,0.0,0.0);\n"
 "  vec3 specular = vec3(0.0,0.0,0.0);\n"
+"  vec3 ambient = vec3(0.0,0.0,0.0);\n"
 "  for (int i = 0; i < numLights; ++i){\n"
 "    vec3 lightvec;\n"
 "    float att = 1.0f;\n"
@@ -299,7 +308,7 @@ static char const * fs_src_light =
 "      }\n"
 "      else{\n"
 "        float lightDist = length(lightPos[i].xyz-vpos);\n"
-"        att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
+"        att = 1.0/(1.0+lightAttenuation[i]*pow(lightDist, 2));\n"
 "      }\n"
 "    }\n"
 "    vec3 refl = normalize(reflect(-lightvec, normal));\n"
@@ -308,10 +317,10 @@ static char const * fs_src_light =
 "    if (NL > 0.0)\n"
 "      spec = pow(max(dot(refl, eye), 0.0), matShininess);\n"
 "    \n"
-"    diffuse += vec3(1.0,1.0,1.0)*NL*att;\n"
-"    specular += vec3(1.0,1.0, 1.0)*spec*att;\n"
+"    diffuse += lightColor[i].rgb*NL*att;\n"
+"    specular += lightColor[i].rgb*spec*att;\n"
+"    ambient += lightColor[i].rgb*matAmbient.rgb;\n"
 "  }\n"
-"  vec3 ambient = matAmbient.rgb;\n"
 "  vec4 finalColor = vec4(color.rgb*(ambient + diffuse) + specular*matSpecular.rgb, color.a);\n"
 "  gl_FragColor = finalColor;\n"
 //"  gl_FragColor = vec4(color.rgb*diffuse,1);\n"
@@ -656,19 +665,17 @@ void GL2Renderer::setLight(int number, const Light& lit){
   Vec4f pos = lit.getPosition();
   Matrix& mat = getMatrix(Modelview);
   Matrix& inv = getMatrix(MatNormal);
+  Light trans = lit;
   if (lit.getType() == Light::Directional)
     pos = inv*pos;
   else
     pos = mat*pos;
+  trans.setPosition(pos);
   if (lit.getType() == Light::Spot){
     Vec3f dir = inv * lit.getDirection();
-    Light trans(pos, dir, lit.getCutoff());
-    shdr->applyLight(number, trans);
+    trans.setDirection(dir);
   }
-  else{
-    Light trans(lit.getType(), pos);
-    shdr->applyLight(number, trans);
-  }
+  shdr->applyLight(number, trans);
 }
 
 void GL2Renderer::switchMatrixStack(MatrixType type){

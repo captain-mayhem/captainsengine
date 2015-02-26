@@ -75,6 +75,7 @@ void Compiler::setWall(const Vector2D& pos, Direction d){
   CGE::Matrix trafo = mat*rot;
   if (mLightOffset++ % 8 == 0){
     CGE::Light* lt = new CGE::Light(CGE::Light::Point, trafo*Vec3f(0, 8, -2.8f));
+    lt->setAttenuation(0.01f);
     scene_.addLight(lt);
   }
   mdl->setTrafo(trafo);

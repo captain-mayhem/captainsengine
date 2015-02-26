@@ -3,7 +3,7 @@
 
 using namespace CGE;
 
-Light::Light(Type t, const Vec3f val) : mSpotDirection(0,0,1), mSpotCutoff(180){
+Light::Light(Type t, const Vec3f val) : mSpotDirection(0,0,1), mSpotCutoff(180), mAttenuation(0.1f), mColor(){
   mType = t;
   mPosition = val;
   if (t == Directional)
@@ -13,7 +13,7 @@ Light::Light(Type t, const Vec3f val) : mSpotDirection(0,0,1), mSpotCutoff(180){
 }
 
 Light::Light(const Vec3f& pos, const Vec3f& dir, float cutoff) : mType(Spot), mPosition(pos),
-mSpotDirection(dir), mSpotCutoff(cutoff)
+mSpotDirection(dir), mSpotCutoff(cutoff), mAttenuation(0.1f), mColor()
 {
 
 }
