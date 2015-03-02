@@ -191,6 +191,8 @@ namespace CGE{
       mLightPosLoc = getUniformLocation(FRAGMENT_SHADER, "lightPos");
       mLightDirLoc = getUniformLocation(FRAGMENT_SHADER, "lightDir");
       mLightCutoffLoc = getUniformLocation(FRAGMENT_SHADER, "lightCutoff");
+      mLightColorLoc = getUniformLocation(FRAGMENT_SHADER, "lightColor");
+      mLightAttenuationLoc = getUniformLocation(FRAGMENT_SHADER, "lightAttenuation");
       return ret;
     }
     virtual bool applyMaterial(Material const& mat){
@@ -219,6 +221,8 @@ namespace CGE{
       uniform(mLightPosLoc+number*4*4, pos.x, pos.y, pos.z, pos.w);
       uniform(mLightDirLoc+number*4*4, light.getDirection());
       uniform(mLightCutoffLoc+number*4*4, light.getCutoff() / 180.0f*(float)M_PI);
+      uniform(mLightColorLoc + number * 4 * 4, light.getColor());
+      uniform(mLightAttenuationLoc + number * 4 * 4, light.getAttenuation());
       unlockUniforms(FRAGMENT_SHADER, 1);
     }
 
@@ -232,6 +236,8 @@ namespace CGE{
     int mLightPosLoc;
     int mLightDirLoc;
     int mLightCutoffLoc;
+    int mLightColorLoc;
+    int mLightAttenuationLoc;
   };
 }
 
@@ -285,7 +291,9 @@ static char const * fs_src_lit =
 "  int numLights;\n"
 "  float4 lightPos[NUM_LIGHTS];\n"
 "  float3 lightDir[NUM_LIGHTS];\n"
+"  float4 lightColor[NUM_LIGHTS];\n"
 "  float lightCutoff[NUM_LIGHTS];\n"
+"  float lightAttenuation[NUM_LIGHTS];\n"
 "};\n"
 "\n"
 "struct PSInput{\n"
@@ -304,6 +312,7 @@ static char const * fs_src_lit =
 "  float3 eye = normalize(-inp.vpos);\n"
 "  float3 diffuse = float3(0.0,0.0,0.0);\n"
 "  float3 specular = float3(0.0,0.0,0.0);\n"
+"  float3 ambient = float3(0.0,0.0,0.0);\n"
 "  for (int i = 0; i < numLights; ++i){\n"
 "    float3 lightvec;\n"
 "    float att = 1.0;\n"
@@ -317,7 +326,7 @@ static char const * fs_src_lit =
 "      }\n"
 "      else{\n"
 "        float lightDist = length(lightPos[i].xyz-inp.vpos);\n"
-"        att = 1.0/(1.0+0.01*pow(lightDist, 2));\n"
+"        att = 1.0/(1.0+lightAttenuation[i]*pow(lightDist, 2));\n"
 "      }\n"
 "    }\n"
 "    float3 refl = normalize(reflect(-lightvec, normal));\n"
@@ -326,10 +335,10 @@ static char const * fs_src_lit =
 "    if (NL > 0.0)\n"
 "      spec = pow(max(dot(refl, eye), 0.0), matShininess);\n"
 "    \n"
-"    diffuse += float3(1.0,1.0,1.0)*NL*att;\n"
-"    specular += float3(1.0,1.0, 1.0)*spec*att;\n"
+"    diffuse += lightColor[i].rgb*NL*att;\n"
+"    specular += lightColor[i].rgb*spec*att;\n"
+"    ambient += lightColor[i].rgb*matAmbient.rgb;\n"
 "  }\n"
-"  float3 ambient = matAmbient.rgb;\n"
 "  float4 finalColor = float4(color.rgb*(ambient + diffuse) + specular*matSpecular.rgb, color.a);\n"
 "  return finalColor;\n"
 "}\n"
@@ -748,29 +757,6 @@ Matrix DXRenderer::getMatrix(MatrixType mt){
 void DXRenderer::swapBuffers(){
     // Present the backbuffer contents to the display
     mSwapchain->Present(0, 0);
-}
-
-
-void DXRenderer::setLight(int number, const Light& lit){
-  Shader* shdr = Shader::getCurrentShader();
-  if (!shdr)
-    return;
-  Vec4f pos = lit.getPosition();
-  Matrix& mat = getMatrix(Modelview);
-  Matrix& inv = getMatrix(MatNormal);
-  if (lit.getType() == Light::Directional)
-    pos = inv*pos;
-  else
-    pos = mat*pos;
-  if (lit.getType() == Light::Spot){
-    Vec3f dir = inv * lit.getDirection();
-    Light trans(pos, dir, lit.getCutoff());
-    shdr->applyLight(number, trans);
-  }
-  else{
-    Light trans(lit.getType(), pos);
-    shdr->applyLight(number, trans);
-  }
 }
 
 //! switch matrix type

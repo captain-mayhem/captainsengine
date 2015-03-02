@@ -89,10 +89,6 @@ public:
   void setColor(float r, float g, float b, float a);
   //! set color
   void setColor(const Color* c);
-  //! set material
-  //void setMaterial(const Material& mat);
-  //! set light
-  virtual void setLight(int number, const Light& lit);
   //! push matrix
   void pushMatrix();
   //! pop matrix

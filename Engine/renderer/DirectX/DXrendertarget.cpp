@@ -51,6 +51,15 @@ void DXRenderTarget::addTexture(Texture::Format fmt){
   ID3D11RenderTargetView* rtv;
   dev->CreateRenderTargetView(tex->getHandle(), &rtvd, &rtv);
   mRT.push_back(rtv);
+
+  if (fmt == Texture::DEPTH){
+    D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
+    ZeroMemory(&dsvd, sizeof(dsvd));
+    dsvd.Format = DXTexture::dxformat(fmt);
+    dsvd.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+    dsvd.Texture2D.MipSlice = 0;
+    dev->CreateDepthStencilView(tex->getHandle(), &dsvd, &mDS);
+  }
 }
 
 void DXRenderTarget::addRenderbuffer(Texture::Format fmt){

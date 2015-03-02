@@ -37,7 +37,10 @@ void GL2RenderTarget::addTexture(Texture::Format fmt){
     TR_ERROR("cannot create texture of format %i", fmt);
     return;
   }
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getHandle(), 0);
+  if (fmt != Texture::DEPTH)
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getHandle(), 0);
+  else
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex->getHandle(), 0);
   mTextures.push_back(tex);
 }
 
@@ -62,7 +65,15 @@ bool GL2RenderTarget::isComplete(){
   TR_USE(CGE_Rendertarget);
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE){
-    TR_ERROR("Unable to create framebuffer - status %i", status);
+    char const* statstr = "UNKNOWN";
+    switch (status){
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+      statstr = "Incomplete attachment";
+      break;
+    default:
+      break;
+    }
+    TR_ERROR("Unable to create framebuffer - status %s (%i)", statstr, status);
     return false;
   }
   return true;

@@ -77,7 +77,7 @@ bool DXTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   desc.Height = height;
   desc.MipLevels = 1;
   desc.ArraySize = 1;
-  desc.Format = dxformat(fmt);
+  desc.Format = fmt == DEPTH ? DXGI_FORMAT_R24G8_TYPELESS : dxformat(fmt);
   desc.SampleDesc.Count = 1;
   desc.Usage = D3D11_USAGE_DEFAULT;
   desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -92,7 +92,13 @@ bool DXTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   if (!SUCCEEDED(res))
     return false;
 
-  mDevice->CreateShaderResourceView(mTexture, NULL, &mTex);
+  D3D11_SHADER_RESOURCE_VIEW_DESC rvdesc;
+  ZeroMemory(&rvdesc, sizeof(rvdesc));
+  rvdesc.Format = fmt == DEPTH ? DXGI_FORMAT_R24_UNORM_X8_TYPELESS : dxformat(fmt);
+  rvdesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+  rvdesc.Texture2D.MipLevels = -1;
+  rvdesc.Texture2D.MostDetailedMip = 0;
+  mDevice->CreateShaderResourceView(mTexture, &rvdesc, &mTex);
 
   D3D11_SAMPLER_DESC samp;
   ZeroMemory(&samp, sizeof(samp));
