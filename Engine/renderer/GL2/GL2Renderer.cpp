@@ -658,26 +658,6 @@ void GL2Renderer::swapBuffers(){
 #endif
 }
 
-void GL2Renderer::setLight(int number, const Light& lit){
-  Shader* shdr = Shader::getCurrentShader();
-  if (!shdr)
-    return;
-  Vec4f pos = lit.getPosition();
-  Matrix const& mat = getMatrix(Modelview);
-  Matrix const& inv = getMatrix(MatNormal);
-  Light trans = lit;
-  if (lit.getType() == Light::Directional)
-    pos = inv*pos;
-  else
-    pos = mat*pos;
-  trans.setPosition(pos);
-  if (lit.getType() == Light::Spot){
-    Vec3f dir = inv * lit.getDirection();
-    trans.setDirection(dir);
-  }
-  shdr->applyLight(number, trans);
-}
-
 void GL2Renderer::switchMatrixStack(MatrixType type){
   mMatrixMode = type;
 }

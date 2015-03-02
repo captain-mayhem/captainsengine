@@ -101,6 +101,26 @@ Texture* Renderer::createTexture(std::string filename, Texture::Format fmt){
   return tex;
 }
 
+void Renderer::setLight(int number, const Light& lit){
+  Shader* shdr = Shader::getCurrentShader();
+  if (!shdr)
+    return;
+  Vec4f pos = lit.getPosition();
+  Matrix const& mat = getMatrix(Modelview);
+  Matrix const& inv = getMatrix(MatNormal);
+  Light trans = lit;
+  if (lit.getType() == Light::Directional)
+    pos = inv*pos;
+  else
+    pos = mat*pos;
+  trans.setPosition(pos);
+  if (lit.getType() == Light::Spot){
+    Vec3f dir = inv * lit.getDirection();
+    trans.setDirection(dir);
+  }
+  shdr->applyLight(number, trans);
+}
+
 void Renderer::setNumLights(int number){
   int loc = Shader::getCurrentShader()->getUniformLocation(Shader::FRAGMENT_SHADER, "numLights");
   Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER, 1);
