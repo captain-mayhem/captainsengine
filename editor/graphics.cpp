@@ -6,6 +6,8 @@
 #include "gui/gui.h"
 #include "window/window.h"
 #include "renderer/forms.h"
+#include "renderpass/Forward.h"
+#include "renderpass/LightPrepass.h"
 
 #include "editor.h"
 #include "menu.h"
@@ -35,12 +37,19 @@ Graphic::Graphic() : mRT(NULL){
     mRT->isComplete();
     mRT->deactivate();
   }
-  //delete mRT;
-  //mRT = rend->createRenderTarget(width, height);
   scene_.setActiveCam(&mCam);
+#if 1
+  mTechnique = new CGE::ForwardRenderer();
+#else
+  mTechnique = new CGE::LightPrepassRenderer();
+#endif
+  mTechnique->init();
+  mTechnique->setScene(scene_);
 }
 
 Graphic::~Graphic(){
+  mTechnique->deinit();
+  delete mTechnique;
   delete mRT;
 }
 
@@ -168,7 +177,7 @@ void Graphic::render_(){
   //fnt->glPrint(200, 400, ("FPS: "+toStr(Engine::instance()->getFPS())).c_str(), 0);
   rend->enableTexturing(true);
   rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
-  scene_.render();
+  mTechnique->render();
   rend->enableDepthWrite(true);
   rend->enableLighting(false);
   if (mRT){
