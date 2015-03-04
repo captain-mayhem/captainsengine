@@ -8,8 +8,8 @@
 #include "renderer/rendertarget.h"
 #include "camera.h"
 
-namespace MeshGeo{
-class Mesh;
+namespace CGE{
+  class RenderTechnique;
 }
 
 class Graphic{
@@ -59,6 +59,8 @@ protected:
   std::string filename_;
   //! the fbo
   CGE::RenderTarget* mRT;
+  //! the rendering technique
+  CGE::RenderTechnique* mTechnique;
 };
 
 #endif
