@@ -14,6 +14,8 @@ public:
   Texture* createTexture(Image* img, Texture::Format fmt){return NULL;}
   //! create rendertarget
   virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) { return NULL; }
+  //! create shader
+  virtual Shader* createShader() { return NULL; }
   //! set orthographic projection
   virtual void ortho(float left, float right, float bottom, float top, float nearp, float farp){}
   //! reset modelview matrix

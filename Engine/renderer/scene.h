@@ -38,6 +38,8 @@ public:
   std::vector<CGE::Texture*> getTextures() const {return textures_;}
   //! Add a light
   unsigned addLight(Light* light) { mLights.push_back(light); return (unsigned)mLights.size(); }
+  //! Get the lights
+  std::vector<Light*>& getLights() { return mLights; }
   //! render the scene
   void render();
   //! save the scene
@@ -50,6 +52,8 @@ public:
   const std::list<SceneNode*>& getNodes() const {return mNodes;}
   //! set active camera
   void setActiveCam(Camera* cam) { mActiveCam = cam; }
+  //! get active camera
+  Camera* getActiveCam() { return mActiveCam; }
 protected:
   //! The scene version number
   int version_;

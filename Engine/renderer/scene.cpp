@@ -55,30 +55,8 @@ Scene::~Scene(){
   textures_.clear();
 }
 
-static Vec3f camPos;
-
-static int compareLightDist(const void * a, const void * b){
-  Light* l1 = *(Light**)a;
-  Light* l2 = *(Light**)b;
-  float l1dist = (Vec3f(l1->getPosition()) - camPos).length();
-  float l2dist = (Vec3f(l2->getPosition()) - camPos).length();
-  return (int)((l1dist - l2dist)*100);
-}
-
 void Scene::render(){
   Renderer* rend = Engine::instance()->getRenderer();
-  unsigned numLights = mLights.size();
-  if (numLights > 8){
-    numLights = 8;
-    if (mActiveCam){
-      camPos = mActiveCam->getPosition();
-      qsort(mLights.data(), mLights.size(), sizeof(Light*), compareLightDist);
-    }
-  }
-  rend->setNumLights(numLights);
-  for (unsigned i = 0; i < numLights; ++i){
-    rend->setLight(i, *mLights[i]);
-  }
   list<SceneNode*>::iterator iter;
   for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
     if ((*iter)->getType() == SceneNode::MESH){

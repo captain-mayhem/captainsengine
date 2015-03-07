@@ -448,6 +448,11 @@ RenderTarget* GL2Renderer::createRenderTarget(unsigned width, unsigned height){
   return rt;
 }
 
+Shader* GL2Renderer::createShader(){
+  GL2Shader* sh = new GL2Shader();
+  return sh;
+}
+
 void GL2Renderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
   Vec3f forward = look - position;
   forward.normalize();

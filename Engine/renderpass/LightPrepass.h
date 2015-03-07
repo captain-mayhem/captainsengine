@@ -6,6 +6,7 @@
 namespace CGE{
 
 class RenderTarget;
+class Shader;
 
 class LightPrepassRenderer : public RenderTechnique{
 public:
@@ -13,6 +14,8 @@ public:
   virtual void deinit();
   virtual void render();
 private:
+  //! the base pass shader
+  Shader* mBaseShader;
   //! the fbo
   RenderTarget* mGBuffer;
 };

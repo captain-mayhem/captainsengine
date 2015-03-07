@@ -60,6 +60,8 @@ public:
   Texture* createTexture(Image* img, Texture::Format fmt);
   //! create rendertarget
   virtual RenderTarget* createRenderTarget(unsigned width, unsigned height);
+  //! create shader
+  virtual Shader* createShader();
   //! set look at
   void lookAt(const CGE::Vec3f& position, const CGE::Vec3f& look, const CGE::Vec3f& up);
   //! set projection

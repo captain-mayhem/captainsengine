@@ -16,6 +16,7 @@ namespace CGE{
 
 class AppWindow;
 class Image;
+class Shader;
 
 enum RenderType{
   OpenGL,
@@ -86,6 +87,8 @@ public:
   virtual Texture* createTexture(Image* img, Texture::Format fmt) = 0;
   //! create rendertarget
   virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) = 0;
+  //! create shader
+  virtual Shader* createShader() = 0;
   //! set lookAt
   virtual void lookAt(const CGE::Vec3f& position, const CGE::Vec3f& look, const CGE::Vec3f& up){}
   //! set perspective projection
