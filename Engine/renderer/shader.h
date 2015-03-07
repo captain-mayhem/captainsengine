@@ -19,6 +19,7 @@ public:
   void deactivate() { if (mOldProg) mOldProg->use(); else unuse(); mCurrShader = mOldProg; }
   static Shader* getCurrentShader() { return mCurrShader; }
   
+  virtual bool addShader(Type shadertype, const char* shaderstring, int stringlen = 0) = 0;
   virtual bool linkShaders() = 0;
 
   virtual void lockUniforms(Type t, unsigned buffer=0) = 0;

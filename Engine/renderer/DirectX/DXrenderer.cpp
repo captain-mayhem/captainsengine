@@ -462,6 +462,11 @@ RenderTarget* DXRenderer::createRenderTarget(unsigned width, unsigned height){
   return rt;
 }
 
+Shader* DXRenderer::createShader(){
+  DXShader* sh = new DXShader();
+  return sh;
+}
+
 
 //! set lookAt
 void DXRenderer::lookAt(const Vector3D& position, const Vector3D& look, const Vector3D& up){
