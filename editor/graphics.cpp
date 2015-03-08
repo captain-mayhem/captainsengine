@@ -38,7 +38,7 @@ Graphic::Graphic() : mRT(NULL){
     mRT->deactivate();
   }
   scene_.setActiveCam(&mCam);
-#if 1
+#if 0
   mTechnique = new CGE::ForwardRenderer();
 #else
   mTechnique = new CGE::LightPrepassRenderer();
@@ -182,25 +182,7 @@ void Graphic::render_(){
   rend->enableLighting(false);
   if (mRT){
     mRT->deactivate();
-
-    rend->ortho(1, 1);
-    rend->resetModelView();
-    rend->enableDepthTest(false);
-    CGE::Forms& forms = *CGE::Engine::instance()->getForms();
-    forms.activateQuad();
-    rend->enableTexturing(true);
-    rend->setColor(1, 1, 1, 1);
-    if (rend->getRenderType() != DirectX){
-      rend->switchMatrixStack(CGE::MatTexture);
-      rend->resetModelView();
-      rend->scale(1, -1, 1);
-    }
-    mRT->getTexture(0)->activate();
-    forms.drawQuad(Vec2f(), Vec2f(1, 1));
-    if (rend->getRenderType() != DirectX){
-      rend->resetModelView();
-      rend->switchMatrixStack(CGE::Modelview);
-    }
+    mRT->drawFullscreen(true);
   }
 }
 

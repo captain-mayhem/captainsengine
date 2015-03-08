@@ -19,6 +19,7 @@ public:
   virtual void addRenderbuffer(Texture::Format fmt);
   virtual bool isComplete();
   virtual Texture* getTexture(unsigned idx);
+  virtual unsigned getNumTextures() { return mRTTextures.size(); }
   ID3D11RenderTargetView* getRenderTargets() { return mRT[0]; }
   ID3D11DepthStencilView* getDepthStencil() { return mDS; }
 protected:

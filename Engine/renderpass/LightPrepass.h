@@ -18,6 +18,10 @@ private:
   Shader* mBaseShader;
   //! the fbo
   RenderTarget* mGBuffer;
+  //! the lighting pass
+  Shader* mLightShader;
+  int mCamNearLoc;
+  int mCamFarLoc;
 };
 
 }

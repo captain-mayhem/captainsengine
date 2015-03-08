@@ -18,6 +18,8 @@ public:
   virtual void addRenderbuffer(Texture::Format fmt) = 0;
   virtual bool isComplete() = 0;
   virtual Texture* getTexture(unsigned idx) = 0;
+  virtual unsigned getNumTextures() = 0;
+  void drawFullscreen(bool transform);
 protected:
   virtual void bind() = 0;
 

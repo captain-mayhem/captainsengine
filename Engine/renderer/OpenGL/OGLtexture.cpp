@@ -52,13 +52,15 @@ bool OGLTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   return true;
 }
 
-void OGLTexture::activate() const{
+void OGLTexture::activate(unsigned stage) const{
+  glActiveTexture(GL_TEXTURE0 + stage);
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, tex_);
 }
 
 
-void OGLTexture::deactivate() const{
+void OGLTexture::deactivate(unsigned stage) const{
+  glActiveTexture(GL_TEXTURE0 + stage);
   glDisable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, 0);
 }
