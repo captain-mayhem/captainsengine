@@ -26,8 +26,8 @@ public:
   virtual ~OGLTexture();
   virtual bool createFromImage(Image* img, Format fmt);
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
-  void activate() const;
-  virtual void deactivate() const;
+  void activate(unsigned stage=0) const;
+  virtual void deactivate(unsigned stage=0) const;
   GLuint getHandle() { return tex_; }
   static GLenum glFormat(Format fmt);
 protected:

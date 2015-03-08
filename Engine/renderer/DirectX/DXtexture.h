@@ -12,8 +12,8 @@ class DXTexture : public Texture {
 public:
   DXTexture();
   virtual ~DXTexture();
-  void activate()const;
-  virtual void deactivate()const;
+  void activate(unsigned stage=0)const;
+  virtual void deactivate(unsigned stage=0)const;
   virtual bool createFromImage(Image* img, Format fmt);
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
   static DXGI_FORMAT dxformat(Format fmt);

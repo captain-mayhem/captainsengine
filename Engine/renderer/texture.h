@@ -21,8 +21,8 @@ public:
   };
   Texture();
   virtual ~Texture();
-  virtual void activate() const =0;
-  virtual void deactivate() const =0;
+  virtual void activate(unsigned stage=0) const =0;
+  virtual void deactivate(unsigned stage=0) const =0;
   virtual bool createFromImage(Image* img, Format fmt) = 0;
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt) = 0;
   static Texture** loadFromDat(const string& path, const string& filename, int& number);

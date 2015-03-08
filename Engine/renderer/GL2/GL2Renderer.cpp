@@ -101,6 +101,21 @@ void GL2Renderer::initContext(AppWindow* win){
   X11Window* x11 = static_cast<X11Window* >(win_);
   glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
 #endif
+
+#ifndef QNX
+  GLenum err = glewInit();
+  if (err != GLEW_OK){
+    TR_ERROR("Unable to init OpenGL extensions");
+    CGE::Engine::instance()->requestShutdown();
+    return;
+  }
+  if (!GLEW_VERSION_2_0){
+    TR_ERROR("OpenGL 2.0 not available");
+    CGE::Engine::instance()->requestShutdown();
+    return;
+  }
+#endif
+
 #ifdef WIN32
   resizeScene(win->getWidth(), win->getHeight());
 #endif
@@ -332,19 +347,7 @@ static char const * fs_src_light =
 void GL2Renderer::initRendering(){
   TR_USE(CGE_Renderer_GL2);
   TR_INFO("Initializing Scene");
-#ifndef QNX
-  GLenum err = glewInit();
-  if (err != GLEW_OK){
-    TR_ERROR("Unable to init OpenGL extensions");
-    CGE::Engine::instance()->requestShutdown();
-    return;
-  }
-  if (!GLEW_VERSION_2_0){
-    TR_ERROR("OpenGL 2.0 not available");
-    CGE::Engine::instance()->requestShutdown();
-    return;
-  }
-#endif
+
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   //depth buffer
   glClearDepth(1.0f);
@@ -357,10 +360,6 @@ void GL2Renderer::initRendering(){
   mLightShader = new CGE::LightGL2Shader();
   mLightShader->addShader(Shader::VERTEX_SHADER, vs_src_light);
   mLightShader->addShader(Shader::FRAGMENT_SHADER, fs_src_light);
-  mLightShader->bindAttribLocation(0, "pos");
-  mLightShader->bindAttribLocation(1, "color");
-  mLightShader->bindAttribLocation(2, "texcoord");
-  mLightShader->bindAttribLocation(3, "normal");
   mLightShader->linkShaders();
   mLightShader->syncMatrix("mvp", CGE::MVP);
   mLightShader->syncMatrix("texmat", CGE::MatTexture);
@@ -376,10 +375,6 @@ void GL2Renderer::initRendering(){
   mShader = new CGE::GL2Shader();
   mShader->addShader(Shader::VERTEX_SHADER, vs_src_unlit);
   mShader->addShader(Shader::FRAGMENT_SHADER, fs_src_unlit);
-  mShader->bindAttribLocation(0, "pos");
-  mShader->bindAttribLocation(1, "color");
-  mShader->bindAttribLocation(2, "texcoord");
-  mShader->bindAttribLocation(3, "normal");
   mShader->linkShaders();
   mShader->syncMatrix("mvp", CGE::MVP);
   mShader->syncMatrix("texmat", CGE::MatTexture);

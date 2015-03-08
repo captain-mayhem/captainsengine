@@ -30,10 +30,10 @@ public:
   ~Frustum();
   void setProjection(float angle, float ratio, float nearDist, float farDist);
   void setCoordSys(const Vec3f& point, const Vec3f& forward, const Vec3f& side, const Vec3f& up);
-  float getAngle() {return mAngle;}
-  float getRatio() {return mRatio;}
-  float getNearDist() {return mNearDist;}
-  float getFarDist() {return mFarDist;}
+  float getAngle() const {return mAngle;}
+  float getRatio() const {return mRatio;}
+  float getNearDist() const {return mNearDist;}
+  float getFarDist() const {return mFarDist;}
   Result checkPoint(const Vec3f& p) const;
   Result checkSphere(const BSphere& sphere) const;
   Result checkBox(const BBox& box) const;

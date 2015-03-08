@@ -112,13 +112,13 @@ bool DXTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   return true;
 }
 
-void DXTexture::activate()const{
+void DXTexture::activate(unsigned stage)const{
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
-  ctx->PSSetShaderResources(0, 1, &mTex);
-  ctx->PSSetSamplers(0, 1, &mState);
+  ctx->PSSetShaderResources(stage, 1, &mTex);
+  ctx->PSSetSamplers(stage, 1, &mState);
 }
 
-void DXTexture::deactivate()const{
+void DXTexture::deactivate(unsigned stage)const{
   
 }
 

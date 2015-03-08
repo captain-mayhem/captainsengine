@@ -12,6 +12,10 @@ using namespace CGE;
 
 GL2Shader::GL2Shader(){
   mProgram = glCreateProgram();
+  bindAttribLocation(0, "pos");
+  bindAttribLocation(1, "color");
+  bindAttribLocation(2, "texcoord");
+  bindAttribLocation(3, "normal");
 }
 
 GL2Shader::~GL2Shader(){

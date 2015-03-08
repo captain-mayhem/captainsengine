@@ -26,6 +26,7 @@ public:
   virtual void unlockUniforms(Type t, unsigned buffer=0) = 0;
   virtual int getUniformLocation(Type t, const char* name) = 0;
   virtual void uniform(int location, int value) = 0;
+  virtual void uniform(int location, float value) = 0;
   virtual void uniform(int location, float v0, float v1, float v2, float v3) = 0;
   virtual void uniform(int location, const CGE::Matrix& mat) = 0;
   virtual void uniform(int location, const CGE::Color& col) = 0;
