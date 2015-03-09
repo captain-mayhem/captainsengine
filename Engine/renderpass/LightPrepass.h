@@ -7,6 +7,7 @@ namespace CGE{
 
 class RenderTarget;
 class Shader;
+class Light;
 
 class LightPrepassRenderer : public RenderTechnique{
 public:
@@ -14,6 +15,7 @@ public:
   virtual void deinit();
   virtual void render();
 private:
+  static void applyLight(Shader* shader, int number, Light const& light, void* userdata);
   //! the base pass shader
   Shader* mBaseShader;
   //! the fbo
@@ -22,6 +24,12 @@ private:
   Shader* mLightShader;
   int mCamNearLoc;
   int mCamFarLoc;
+  int mLightPosLoc;
+  int mLightDirLoc;
+  int mLightColorLoc;
+  int mLightCutoffLoc;
+  int mLightAttenuationLoc;
+  int mNearPlaneSizeLoc;
 };
 
 }

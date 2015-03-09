@@ -8,7 +8,7 @@ using namespace CGE;
 
 Shader* Shader::mCurrShader = NULL;
 
-Shader::Shader() : mOldProg(NULL) {
+Shader::Shader() : mOldProg(NULL), mApplyLight(NULL), mApplyLightData(NULL) {
 
 }
 

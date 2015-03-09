@@ -21,6 +21,7 @@ public:
   void unlockUniforms(Type t, unsigned buffer=0);
   void uniform(int location, int value);
   void uniform(int location, float value);
+  void uniform(int location, float v0, float v1);
   void uniform(int location, float v0, float v1, float v2, float v3);
   void uniform(int location, const Vec3f& vec);
   void uniform(int location, const CGE::Matrix& mat);

@@ -224,6 +224,13 @@ void DXShader::uniform(int location, float value){
   *floc = value;
 }
 
+void DXShader::uniform(int location, float v0, float v1){
+  UCHECK();
+  float* flt = (float*)(mMappedUBO + location);
+  flt[0] = v0;
+  flt[1] = v1;
+}
+
 void DXShader::uniform(int location, float v0, float v1, float v2, float v3){
   UCHECK();
   float* flt = (float*)(mMappedUBO+location);
