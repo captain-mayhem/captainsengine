@@ -20,6 +20,7 @@ void ForwardRenderer::render(){
   if (!mScene)
     return;
   Renderer* rend = Engine::instance()->getRenderer();
+  rend->enableLighting(true);
   std::vector<Light*> lights = mScene->getLights();
   unsigned numLights = lights.size();
   if (numLights > 8){
@@ -34,4 +35,5 @@ void ForwardRenderer::render(){
     rend->setLight(i, *lights[i]);
   }
   mScene->render();
+  rend->enableLighting(false);
 }
