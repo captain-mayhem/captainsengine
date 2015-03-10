@@ -18,6 +18,7 @@ public:
     RGBA = 4,
     DEPTH,
     ALPHA,
+    FLOAT,
   };
   Texture();
   virtual ~Texture();
