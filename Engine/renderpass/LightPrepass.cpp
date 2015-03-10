@@ -74,7 +74,7 @@ static char const * fs_src_light =
 "  vec3 normal = normalize(color.xyz);\n"
 "  float depth = texture2D(depthTex, uvcoord).r;\n"
 "  depth = camNear * camFar / (camFar - depth * (camFar-camNear));\n"
-"  vec3 vpos = normalize(eyeDir)*depth;\n"
+"  vec3 vpos = eyeDir*depth;\n"
 "  vec3 eye = normalize(-vpos);\n"
 "  \n"
 "  vec3 lightvec;\n"
@@ -89,23 +89,23 @@ static char const * fs_src_light =
 "    }\n"
 "    else{\n"
 "      float lightDist = length(lightPos.xyz-vpos);\n"
-"      att = 1.0/(1.0+lightAttenuation*pow(lightDist, 2));\n"
+"      att = 1.0/(1.0+lightAttenuation*pow(lightDist, 2.0));\n"
 "    }\n"
 "  }\n"
 "  vec3 refl = normalize(reflect(-lightvec, normal));\n"
 "  float NL = max(dot(normal,lightvec), 0.0);\n"
 "  float spec = 0.0;\n"
 "  if (NL > 0.0)\n"
-"    spec = pow(max(dot(refl, eye), 0.0), 20);\n"
+"    spec = pow(max(dot(refl, eye), 0.0), 20.0);\n"
 "  \n"
 "  vec3 diffuse = lightColor.rgb*NL*att;\n"
 //"  specular += lightColor[i].rgb*spec*att;\n"
 //"  ambient += lightColor[i].rgb*matAmbient.rgb;\n"
 "  \n"
 "  float showdepth = (depth - camNear)/(camFar-camNear);\n"
-"  gl_FragColor.rgb = vec3(uvcoord.x,uvcoord.y,showdepth);\n"
-//"  gl_FragColor.rgb = vec3(showdepth);\n"
 "  gl_FragColor.rgb = diffuse;\n"
+//"  gl_FragColor.rgb = vec3(NL, NL, NL);\n"
+//"  gl_FragColor.rgb = lightvec;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
 "";
@@ -124,7 +124,7 @@ void LightPrepassRenderer::init(){
 
   mGBuffer = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
   mGBuffer->activate();
-  mGBuffer->addTexture(CGE::Texture::RGBA);
+  mGBuffer->addTexture(CGE::Texture::FLOAT);
   mGBuffer->addTexture(CGE::Texture::DEPTH);
   mGBuffer->isComplete();
   mGBuffer->deactivate();
@@ -163,6 +163,7 @@ void LightPrepassRenderer::render(){
   Renderer* rend = Engine::instance()->getRenderer();
   mBaseShader->activate();
   mGBuffer->activate();
+  rend->setClearColor(Vec3f(0, 0, 0));
   rend->clear(ZBUFFER | COLORBUFFER);
   mScene->render();
   mGBuffer->deactivate();
@@ -171,11 +172,12 @@ void LightPrepassRenderer::render(){
   mLightShader->activate();
   mLightShader->uniform(mCamNearLoc, mScene->getActiveCam()->getFrustum().getNearDist());
   mLightShader->uniform(mCamFarLoc, mScene->getActiveCam()->getFrustum().getFarDist());
-  float npy = tanf(mScene->getActiveCam()->getFrustum().getAngle()/180.0f*(float)M_PI/2.0f);
+  float npy = tanf(mScene->getActiveCam()->getFrustum().getAngle() / 180.0f*(float)M_PI / 2.0f);
   mLightShader->uniform(mNearPlaneSizeLoc, npy*mScene->getActiveCam()->getFrustum().getRatio(), npy);
   
   rend->enableBlend(true);
   rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
+  rend->clear(ZBUFFER | COLORBUFFER);
   for (unsigned i = 0; i < mScene->getLights().size(); ++i){
     Light* l = mScene->getLights()[i];
     rend->setLight(0, *l);

@@ -149,7 +149,7 @@ void Graphic::render_(){
   Renderer* rend = Engine::instance()->getRenderer();
   if (mRT)
     mRT->activate();
-  rend->enableLighting(true);
+  //rend->enableLighting(true);
   rend->clear(ZBUFFER | COLORBUFFER);
   rend->setColor(1.0,1.0,1.0,1.0);
   rend->enableTexturing(false);
@@ -179,7 +179,7 @@ void Graphic::render_(){
   rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
   mTechnique->render();
   rend->enableDepthWrite(true);
-  rend->enableLighting(false);
+  //rend->enableLighting(false);
   if (mRT){
     mRT->deactivate();
     mRT->drawFullscreen(true);

@@ -29,8 +29,8 @@ bool OGLTexture::createFromImage(Image* img, Format fmt){
 
   glBindTexture(GL_TEXTURE_2D, tex_);
   glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP, GL_TRUE);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
   GLenum glfmt = glFormat(fmt);
   glTexImage2D(GL_TEXTURE_2D, 0, glfmt, img->getWidth(), img->getHeight(), 0, glfmt, GL_UNSIGNED_BYTE, img->getData());
@@ -44,11 +44,17 @@ bool OGLTexture::createEmpty(unsigned width, unsigned height, Format fmt){
 
   glBindTexture(GL_TEXTURE_2D, tex_);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   GLenum glformat = glFormat(fmt);
-  glTexImage2D(GL_TEXTURE_2D, 0, glformat, width, height, 0, glformat, GL_UNSIGNED_BYTE, NULL);
+  GLenum glintformat = glformat;
+  if (fmt == Texture::FLOAT){
+    glintformat = GL_RGBA32F;
+  }
+  //else if (fmt == Texture::DEPTH)
+  //  glintformat = GL_DEPTH_COMPONENT32F;
+  glTexImage2D(GL_TEXTURE_2D, 0, glintformat, width, height, 0, glformat, GL_UNSIGNED_BYTE, NULL);
   return true;
 }
 
@@ -72,6 +78,7 @@ GLenum OGLTexture::glFormat(Format fmt){
   case RGB:
     return GL_RGB;
   case RGBA:
+  case FLOAT:
     return GL_RGBA;
   case DEPTH:
 #ifdef RENDER_EMBEDDED
