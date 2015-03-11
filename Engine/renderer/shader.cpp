@@ -8,7 +8,7 @@ using namespace CGE;
 
 Shader* Shader::mCurrShader = NULL;
 
-Shader::Shader() : mOldProg(NULL), mApplyLight(NULL), mApplyLightData(NULL) {
+Shader::Shader() : mOldProg(NULL), mApplyLight(NULL), mApplyLightData(NULL), mApplyMaterial(NULL), mApplyMaterialData(NULL) {
 
 }
 
@@ -28,5 +28,9 @@ void Shader::applyEngineUniforms(){
 }
 
 bool Shader::applyMaterial(Material const& mat){
+  if (mApplyMaterial){
+    mApplyMaterial(this, mat, mApplyMaterialData);
+    return true;
+  }
   return false;
 }

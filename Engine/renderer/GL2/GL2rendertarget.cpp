@@ -6,13 +6,13 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Rendertarget);
 
-GL2RenderTarget::GL2RenderTarget() : mWidth(0), mHeight(0){
+GL2RenderTarget::GL2RenderTarget() : mWidth(0), mHeight(0), mCTCount(0){
   GLint fb;
   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &fb);
   mFBO = fb;
 }
 
-GL2RenderTarget::GL2RenderTarget(unsigned width, unsigned height) : mWidth(width), mHeight(height){
+GL2RenderTarget::GL2RenderTarget(unsigned width, unsigned height) : mWidth(width), mHeight(height), mCTCount(0){
   glGenFramebuffers(1, &mFBO);
 }
 
@@ -38,7 +38,7 @@ void GL2RenderTarget::addTexture(Texture::Format fmt){
     return;
   }
   if (fmt != Texture::DEPTH)
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, tex->getHandle(), 0);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0+mCTCount++, GL_TEXTURE_2D, tex->getHandle(), 0);
   else
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex->getHandle(), 0);
   mTextures.push_back(tex);

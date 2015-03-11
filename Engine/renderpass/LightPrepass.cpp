@@ -110,9 +110,39 @@ static char const * fs_src_light =
 "}\n"
 "";
 
+static char const * vs_src_compositing =
+"attribute vec3 pos;\n"
+"attribute vec2 texcoord;\n"
+"\n"
+"varying vec2 uvcoord;\n"
+"\n"
+"void main(){\n"
+"  uvcoord = vec2(texcoord.x, 1-texcoord.y);\n"
+"  gl_Position = vec4(2*pos.x, 2*pos.y, 2*pos.z, 1.0);\n"
+"}\n"
+"";
+
+static char const * fs_src_compositing =
+"uniform sampler2D lightBuffer;\n"
+"uniform sampler2D GBuffer;\n"
+"\n"
+"varying vec2 uvcoord;\n"
+"\n"
+"void main(){\n"
+"  vec4 lcolor = texture2D(lightBuffer, uvcoord);\n"
+"  gl_FragColor.rgb = lcolor;\n"
+"  vec3 normal = texture2D(GBuffer, uvcoord).rgb;\n"
+"  if (length(normal) == 0)\n"
+"    discard;\n"
+"  else\n"
+"    gl_FragColor.a = 1.0;\n"
+"}\n"
+"";
+
 void LightPrepassRenderer::init(){
   Renderer* rend = Engine::instance()->getRenderer();
   mBaseShader = rend->createShader();
+  mBaseShader->registerMatCB(applyMaterial, this);
   mBaseShader->addShader(Shader::VERTEX_SHADER, vs_src_base, 0);
   mBaseShader->addShader(Shader::FRAGMENT_SHADER, fs_src_base, 0);
  
@@ -125,6 +155,7 @@ void LightPrepassRenderer::init(){
   mGBuffer = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
   mGBuffer->activate();
   mGBuffer->addTexture(CGE::Texture::FLOAT);
+  mGBuffer->addTexture(Texture::RGBA);
   mGBuffer->addTexture(CGE::Texture::DEPTH);
   mGBuffer->isComplete();
   mGBuffer->deactivate();
@@ -138,7 +169,7 @@ void LightPrepassRenderer::init(){
   mLightShader->activate();
   mNearPlaneSizeLoc = mLightShader->getUniformLocation(Shader::VERTEX_SHADER, "nearPlaneSize");
   mLightShader->uniform(mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "texture"), 0);
-  mLightShader->uniform(mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "depthTex"), 1);
+  mLightShader->uniform(mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "depthTex"), 2);
   mCamFarLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "camFar");
   mCamNearLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "camNear");
   mLightPosLoc = mLightShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightPos");
@@ -149,12 +180,30 @@ void LightPrepassRenderer::init(){
   //mLightShader->syncMatrix("mvp", CGE::MVP);
   //mLightShader->syncMatrix("normalmat", CGE::MatNormal);
   mLightShader->deactivate();
+
+  mLightBuffer = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
+  mLightBuffer->activate();
+  mLightBuffer->addTexture(Texture::RGBA);
+  mLightBuffer->addRenderbuffer(Texture::DEPTH);
+  mLightBuffer->isComplete();
+  mLightBuffer->deactivate();
+
+  mCompositingShader = rend->createShader();
+  mCompositingShader->addShader(Shader::VERTEX_SHADER, vs_src_compositing, 0);
+  mCompositingShader->addShader(Shader::FRAGMENT_SHADER, fs_src_compositing, 0);
+  mCompositingShader->linkShaders();
+  mCompositingShader->activate();
+  mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightBuffer"), 0);
+  mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "GBuffer"), 1);
+  mCompositingShader->deactivate();
 }
 
 void LightPrepassRenderer::deinit(){
   delete mBaseShader;
   delete mGBuffer;
   delete mLightShader;
+  delete mLightBuffer;
+  delete mCompositingShader;
 }
 
 void LightPrepassRenderer::render(){
@@ -175,6 +224,7 @@ void LightPrepassRenderer::render(){
   float npy = tanf(mScene->getActiveCam()->getFrustum().getAngle() / 180.0f*(float)M_PI / 2.0f);
   mLightShader->uniform(mNearPlaneSizeLoc, npy*mScene->getActiveCam()->getFrustum().getRatio(), npy);
   
+  mLightBuffer->activate();
   rend->enableBlend(true);
   rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
   rend->clear(ZBUFFER | COLORBUFFER);
@@ -184,12 +234,19 @@ void LightPrepassRenderer::render(){
     mGBuffer->drawFullscreen(false);
   }
   rend->enableBlend(false);
+  mLightBuffer->deactivate();
   
   mLightShader->deactivate();
-  //mGBuffer->getTexture(1)->deactivate(1);
 
-  //rend->clear(ZBUFFER | COLORBUFFER);
+  mCompositingShader->activate();
+  mGBuffer->getTexture(0)->activate(1);
+  mLightBuffer->drawFullscreen(false);
   //mScene->render();
+  mCompositingShader->deactivate();
+}
+
+void LightPrepassRenderer::applyMaterial(Shader* shader, Material const& mat, void* userdata){
+  LightPrepassRenderer* rend = (LightPrepassRenderer*)userdata;
 }
 
 void LightPrepassRenderer::applyLight(Shader* shader, int number, Light const& light, void* userdata){

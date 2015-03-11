@@ -15,6 +15,7 @@ public:
     NUM_SHADERS
   };
   typedef void(*applyLightCB)(Shader* shader, int number, Light const& light, void* userdata);
+  typedef void(*applyMaterialCB)(Shader* shader, Material const& mat, void* userdata);
   Shader();
   void activate() { mOldProg = mCurrShader; use(); mCurrShader = this; }
   void deactivate() { if (mOldProg) mOldProg->use(); else unuse(); mCurrShader = mOldProg; }
@@ -38,6 +39,7 @@ public:
   virtual bool applyMaterial(Material const& mat);
   virtual void applyLight(int number, Light const& light) { if (mApplyLight) mApplyLight(this, number, light, mApplyLightData); }
   void registerLightCB(applyLightCB al, void* data) { mApplyLight = al; mApplyLightData = data; }
+  void registerMatCB(applyMaterialCB am, void* data) { mApplyMaterial = am; mApplyMaterialData = data; }
 protected:
   virtual void use() = 0;
   virtual void unuse() = 0;
@@ -47,6 +49,8 @@ protected:
   std::map<int, MatrixType> mSyncMat;
   applyLightCB mApplyLight;
   void* mApplyLightData;
+  applyMaterialCB mApplyMaterial;
+  void* mApplyMaterialData;
 };
 
 }

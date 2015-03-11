@@ -29,6 +29,7 @@ private:
   GLuint mFBO;
   std::vector<Texture*> mTextures;
   std::vector<GLuint> mRenderbuffers;
+  unsigned mCTCount;
 };
 
 }
