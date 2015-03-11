@@ -147,6 +147,7 @@ void Graphic::resize_(int width, int height){
 
 void Graphic::render_(){
   Renderer* rend = Engine::instance()->getRenderer();
+  rend->setClearColor(Vector3D(0.5, 0.5, 0.5));
   if (mRT)
     mRT->activate();
   //rend->enableLighting(true);
