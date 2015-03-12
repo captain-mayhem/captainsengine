@@ -13,15 +13,18 @@ using namespace CGE;
 
 static char const * vs_src_base =
 "attribute vec3 pos;\n"
+"attribute vec2 texcoord;\n"
 "attribute vec3 normal;\n"
 "\n"
 "uniform mat4 mvp;\n"
 "uniform mat4 normalmat;\n"
 "\n"
 "varying vec3 vnormal;\n"
+"varying vec2 uvcoord;\n"
 "\n"
 "void main(){\n"
 "  vnormal = normalize((normalmat * vec4(normal, 0.0)).xyz);\n"
+"  uvcoord = texcoord;\n"
 "  gl_Position = mvp*vec4(pos, 1.0);\n"
 "}\n"
 "";
@@ -30,10 +33,22 @@ static char const * fs_src_base =
 "uniform sampler2D texture;\n"
 "\n"
 "varying vec4 vnormal;\n"
+"varying vec2 uvcoord;\n"
+"\n"
+"uniform int textureEnabled;\n"
+"uniform vec4 matDiffuse;\n"
+"uniform vec4 matSpecular;\n"
+"uniform float matShininess;\n"
 "\n"
 "void main(){\n"
-"  gl_FragColor.rgb = normalize(vnormal);\n"
-"  gl_FragColor.a = 1.0;\n"
+"  gl_FragData[0].rgb = normalize(vnormal);\n"
+"  gl_FragData[0].a = matShininess;\n"
+"  \n"
+"  vec4 color = matDiffuse;\n"
+"  if (textureEnabled)\n"
+"    color *= texture2D(texture, uvcoord);\n"
+"  gl_FragData[1] = color;\n"
+"  \n"
 "}\n"
 "";
 
@@ -124,17 +139,18 @@ static char const * vs_src_compositing =
 
 static char const * fs_src_compositing =
 "uniform sampler2D lightBuffer;\n"
-"uniform sampler2D GBuffer;\n"
+"uniform sampler2D diffuseTex;\n"
 "\n"
 "varying vec2 uvcoord;\n"
 "\n"
 "void main(){\n"
 "  vec4 lcolor = texture2D(lightBuffer, uvcoord);\n"
-"  gl_FragColor.rgb = lcolor;\n"
-"  vec3 normal = texture2D(GBuffer, uvcoord).rgb;\n"
-"  if (length(normal) == 0)\n"
+"  vec4 diffuse = texture2D(diffuseTex, uvcoord);\n"
+"  if (diffuse.a == 0)\n"
 "    discard;\n"
-"  else\n"
+"  gl_FragColor.rgb = diffuse.rgb*lcolor.rgb;\n"
+
+//"  else\n"
 "    gl_FragColor.a = 1.0;\n"
 "}\n"
 "";
@@ -150,6 +166,9 @@ void LightPrepassRenderer::init(){
   mBaseShader->activate();
   mBaseShader->syncMatrix("mvp", CGE::MVP);
   mBaseShader->syncMatrix("normalmat", CGE::MatNormal);
+  mTexEnabledLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "textureEnabled");
+  mColorLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "matDiffuse");
+  mShininessLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "matShininess");
   mBaseShader->deactivate();
 
   mGBuffer = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
@@ -194,7 +213,7 @@ void LightPrepassRenderer::init(){
   mCompositingShader->linkShaders();
   mCompositingShader->activate();
   mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightBuffer"), 0);
-  mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "GBuffer"), 1);
+  mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "diffuseTex"), 1);
   mCompositingShader->deactivate();
 }
 
@@ -212,7 +231,7 @@ void LightPrepassRenderer::render(){
   Renderer* rend = Engine::instance()->getRenderer();
   mBaseShader->activate();
   mGBuffer->activate();
-  rend->setClearColor(Vec3f(0, 0, 0));
+  rend->setClearColor(Vec4f(0, 0, 0, 0));
   rend->clear(ZBUFFER | COLORBUFFER);
   mScene->render();
   mGBuffer->deactivate();
@@ -239,7 +258,7 @@ void LightPrepassRenderer::render(){
   mLightShader->deactivate();
 
   mCompositingShader->activate();
-  mGBuffer->getTexture(0)->activate(1);
+  mGBuffer->getTexture(1)->activate(1);
   mLightBuffer->drawFullscreen(false);
   //mScene->render();
   mCompositingShader->deactivate();
@@ -247,6 +266,23 @@ void LightPrepassRenderer::render(){
 
 void LightPrepassRenderer::applyMaterial(Shader* shader, Material const& mat, void* userdata){
   LightPrepassRenderer* rend = (LightPrepassRenderer*)userdata;
+  shader->lockUniforms(Shader::FRAGMENT_SHADER);
+  Color diff = mat.getDiffuse();
+  diff.a = mat.getOpacity();
+  shader->uniform(rend->mColorLoc, diff);
+  shader->uniform(rend->mAmbientLoc, mat.getAmbient());
+  shader->uniform(rend->mShininessLoc, mat.getPower());
+  shader->uniform(rend->mSpecularLoc, mat.getSpecular());
+  Texture const* tex = mat.getDiffuseTex();
+  if (!tex)
+    tex = mat.getOpacityTex();
+  if (tex){
+    shader->uniform(rend->mTexEnabledLoc, 1);
+    tex->activate();
+  }
+  else
+    shader->uniform(rend->mTexEnabledLoc, 0);
+  shader->unlockUniforms(Shader::FRAGMENT_SHADER);
 }
 
 void LightPrepassRenderer::applyLight(Shader* shader, int number, Light const& light, void* userdata){

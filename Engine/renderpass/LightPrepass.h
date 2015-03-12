@@ -20,6 +20,11 @@ private:
   static void applyLight(Shader* shader, int number, Light const& light, void* userdata);
   //! the base pass shader
   Shader* mBaseShader;
+  int mColorLoc;
+  int mAmbientLoc;
+  int mSpecularLoc;
+  int mTexEnabledLoc;
+  int mShininessLoc;
   //! the fbo
   RenderTarget* mGBuffer;
   //! the lighting pass

@@ -185,8 +185,8 @@ void OGLRenderer::resizeScene(int width, int height){
 }
 
 //! clear scene
-void OGLRenderer::setClearColor(::CGE::Vector3D color){
-  glClearColor(color.x, color.y, color.z, 1.0);
+void OGLRenderer::setClearColor(const Vec4f& color){
+  glClearColor(color.x, color.y, color.z, color.w);
 }
 
 void OGLRenderer::clear(long flags){

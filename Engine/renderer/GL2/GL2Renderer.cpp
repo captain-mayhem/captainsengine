@@ -408,8 +408,8 @@ void GL2Renderer::resizeScene(int width, int height){
 }
 
 //! clear scene
-void GL2Renderer::setClearColor(::CGE::Vector3D color){
-  glClearColor(color.x, color.y, color.z, 1.0);
+void GL2Renderer::setClearColor(const Vec4f& color){
+  glClearColor(color.x, color.y, color.z, color.w);
 }
 
 void GL2Renderer::clear(long flags){
