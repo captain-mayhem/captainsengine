@@ -44,7 +44,7 @@ public:
   //! resize scene
   void resizeScene(int width, int height);
   //! clear scene
-  virtual void setClearColor(::CGE::Vector3D color);
+  virtual void setClearColor(const Vec4f& color);
   //! clear scene
   virtual void clear(long flags);
   //! get a vertex buffer

@@ -28,6 +28,14 @@ GL2RenderTarget::~GL2RenderTarget(){
 
 void GL2RenderTarget::bind(){
   glBindFramebuffer(GL_FRAMEBUFFER, mFBO);
+  if (mCTCount > 1){
+    std::vector<GLenum> buffers;
+    buffers.resize(mCTCount);
+    for (unsigned i = 0; i < mCTCount; ++i){
+      buffers[i] = GL_COLOR_ATTACHMENT0 + i;
+    }
+    glDrawBuffers(mCTCount, buffers.data());
+  }
 }
 
 void GL2RenderTarget::addTexture(Texture::Format fmt){

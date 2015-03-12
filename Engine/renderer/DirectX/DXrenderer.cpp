@@ -426,11 +426,11 @@ void DXRenderer::resizeScene(int width, int height){
 }
 
 //! clear scene
-void DXRenderer::setClearColor(::CGE::Vector3D color){
+void DXRenderer::setClearColor(const Vec4f& color){
   mClearColor[0] = color.x;
   mClearColor[1] = color.y;
   mClearColor[2] = color.z;
-  mClearColor[3] = 1.0f;
+  mClearColor[3] = color.w;
 }
 
 void DXRenderer::clear(long flags){
