@@ -48,6 +48,7 @@ static char const * fs_src_base =
 "  if (textureEnabled)\n"
 "    color *= texture2D(texture, uvcoord);\n"
 "  gl_FragData[1] = color;\n"
+"  gl_FragData[2] = matSpecular;\n"
 "  \n"
 "}\n"
 "";
@@ -87,6 +88,7 @@ static char const * fs_src_light =
 "void main(){\n"
 "  vec4 color = texture2D(texture, uvcoord);\n"
 "  vec3 normal = normalize(color.xyz);\n"
+"  float shininess = color.a;\n"
 "  float depth = texture2D(depthTex, uvcoord).r;\n"
 "  depth = camNear * camFar / (camFar - depth * (camFar-camNear));\n"
 "  vec3 vpos = eyeDir*depth;\n"
@@ -111,17 +113,15 @@ static char const * fs_src_light =
 "  float NL = max(dot(normal,lightvec), 0.0);\n"
 "  float spec = 0.0;\n"
 "  if (NL > 0.0)\n"
-"    spec = pow(max(dot(refl, eye), 0.0), 20.0);\n"
+"    spec = pow(max(dot(refl, eye), 0.0), shininess);\n"
 "  \n"
 "  vec3 diffuse = lightColor.rgb*NL*att;\n"
-//"  specular += lightColor[i].rgb*spec*att;\n"
-//"  ambient += lightColor[i].rgb*matAmbient.rgb;\n"
+//"  vec3 specular = lightColor.rgb*spec*NL*att;\n"
+//"  gl_FragColor.a = 0.299*specular.r+0.587*specular.g+0.114*specular.b;\n"
 "  \n"
-"  float showdepth = (depth - camNear)/(camFar-camNear);\n"
+//"  float showdepth = (depth - camNear)/(camFar-camNear);\n"
 "  gl_FragColor.rgb = diffuse;\n"
-//"  gl_FragColor.rgb = vec3(NL, NL, NL);\n"
-//"  gl_FragColor.rgb = lightvec;\n"
-"  gl_FragColor.a = 1.0;\n"
+"  gl_FragColor.a = spec*att;\n"
 "}\n"
 "";
 
@@ -140,18 +140,20 @@ static char const * vs_src_compositing =
 static char const * fs_src_compositing =
 "uniform sampler2D lightBuffer;\n"
 "uniform sampler2D diffuseTex;\n"
+"uniform sampler2D specTex;\n"
 "\n"
 "varying vec2 uvcoord;\n"
 "\n"
 "void main(){\n"
-"  vec4 lcolor = texture2D(lightBuffer, uvcoord);\n"
 "  vec4 diffuse = texture2D(diffuseTex, uvcoord);\n"
-"  if (diffuse.a == 0)\n"
+"  if (diffuse.a == 0.0)\n"
 "    discard;\n"
-"  gl_FragColor.rgb = diffuse.rgb*lcolor.rgb;\n"
-
-//"  else\n"
-"    gl_FragColor.a = 1.0;\n"
+"  vec4 specular = texture2D(specTex, uvcoord);\n"
+"  vec4 lcolor = texture2D(lightBuffer, uvcoord);\n"
+"  vec3 chroma = lcolor.rgb/(0.299*lcolor.r+0.587*lcolor.g+0.114*lcolor.b+0.0);\n"
+"  vec3 spec = chroma*lcolor.aaa;\n"
+"  gl_FragColor.rgb = diffuse.rgb*lcolor.rgb + specular.rgb*spec;\n"
+"  gl_FragColor.a = 1.0;\n"
 "}\n"
 "";
 
@@ -168,14 +170,16 @@ void LightPrepassRenderer::init(){
   mBaseShader->syncMatrix("normalmat", CGE::MatNormal);
   mTexEnabledLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "textureEnabled");
   mColorLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "matDiffuse");
+  mSpecularLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "matSpecular");
   mShininessLoc = mBaseShader->getUniformLocation(Shader::FRAGMENT_SHADER, "matShininess");
   mBaseShader->deactivate();
 
   mGBuffer = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
   mGBuffer->activate();
-  mGBuffer->addTexture(CGE::Texture::FLOAT);
-  mGBuffer->addTexture(Texture::RGBA);
-  mGBuffer->addTexture(CGE::Texture::DEPTH);
+  mGBuffer->addTexture(Texture::FLOAT);//normal + shininess
+  mGBuffer->addTexture(Texture::RGBA);//diffuse
+  mGBuffer->addTexture(Texture::DEPTH);//depth
+  mGBuffer->addTexture(Texture::RGBA);//specular
   mGBuffer->isComplete();
   mGBuffer->deactivate();
 
@@ -214,6 +218,7 @@ void LightPrepassRenderer::init(){
   mCompositingShader->activate();
   mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "lightBuffer"), 0);
   mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "diffuseTex"), 1);
+  mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "specTex"), 2);
   mCompositingShader->deactivate();
 }
 
@@ -245,7 +250,7 @@ void LightPrepassRenderer::render(){
   
   mLightBuffer->activate();
   rend->enableBlend(true);
-  rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE);
+  rend->blendFunc(BLEND_ONE, BLEND_ONE); //additive without alpha
   rend->clear(ZBUFFER | COLORBUFFER);
   for (unsigned i = 0; i < mScene->getLights().size(); ++i){
     Light* l = mScene->getLights()[i];
@@ -259,6 +264,7 @@ void LightPrepassRenderer::render(){
 
   mCompositingShader->activate();
   mGBuffer->getTexture(1)->activate(1);
+  mGBuffer->getTexture(3)->activate(2);
   mLightBuffer->drawFullscreen(false);
   //mScene->render();
   mCompositingShader->deactivate();
