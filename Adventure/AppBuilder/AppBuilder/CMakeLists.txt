@@ -295,3 +295,7 @@ WIN32_EXECUTABLE TRUE)
 ENDIF(NOT RENDER_EMBEDDED)
 
 ADD_SUBDIRECTORY(eax2efx)
+
+if (EMSCRIPTEN_FRONTEND)
+add_subdirectory(emscripten)
+endif()

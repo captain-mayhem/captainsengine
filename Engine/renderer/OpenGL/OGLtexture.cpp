@@ -51,9 +51,11 @@ bool OGLTexture::createEmpty(unsigned width, unsigned height, Format fmt){
 
   GLenum glformat = glFormat(fmt);
   GLenum glintformat = glformat;
+#ifndef RENDER_ES20
   if (fmt == Texture::FLOAT){
     glintformat = GL_RGBA32F;
   }
+#endif
   //else if (fmt == Texture::DEPTH)
   //  glintformat = GL_DEPTH_COMPONENT32F;
   glTexImage2D(GL_TEXTURE_2D, 0, glintformat, width, height, 0, glformat, GL_UNSIGNED_BYTE, NULL);

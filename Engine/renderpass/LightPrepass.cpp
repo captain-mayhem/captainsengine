@@ -32,7 +32,7 @@ static char const * vs_src_base =
 static char const * fs_src_base =
 "uniform sampler2D texture;\n"
 "\n"
-"varying vec4 vnormal;\n"
+"varying vec3 vnormal;\n"
 "varying vec2 uvcoord;\n"
 "\n"
 "uniform int textureEnabled;\n"
