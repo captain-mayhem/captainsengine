@@ -10,7 +10,7 @@ class Scene;
 class RenderTechnique{
 public:
   RenderTechnique() : mScene(NULL) {}
-  void setScene(Scene& scene) { mScene = &scene; }
+  virtual void setScene(Scene& scene) { mScene = &scene; }
   virtual void init() {}
   virtual void deinit() {}
   virtual void render() = 0;

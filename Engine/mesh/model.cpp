@@ -55,12 +55,12 @@ Model::~Model(){
 }
 
 // Render the model
-void Model::render(){
+void Model::render(Mesh::DrawPart part){
   assert(mesh_ && "A mesh needs to be assigned to the model");
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->pushMatrix();
   rend->multiplyMatrix(trafo_);
-  mesh_->draw();
+  mesh_->draw(part);
   rend->popMatrix();
 }
 

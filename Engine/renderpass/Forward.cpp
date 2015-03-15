@@ -16,7 +16,7 @@ static int compareLightDist(const void * a, const void * b){
   return (int)((l1dist - l2dist) * 100);
 }
 
-void ForwardRenderer::render(){
+void ForwardRenderer::render(Mesh::DrawPart part){
   if (!mScene)
     return;
   Renderer* rend = Engine::instance()->getRenderer();
@@ -34,6 +34,6 @@ void ForwardRenderer::render(){
   for (unsigned i = 0; i < numLights; ++i){
     rend->setLight(i, *lights[i]);
   }
-  mScene->render();
+  mScene->render(part);
   rend->enableLighting(false);
 }

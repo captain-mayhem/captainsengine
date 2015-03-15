@@ -37,8 +37,13 @@ void GL2RenderTarget::addTexture(Texture::Format fmt){
     TR_ERROR("cannot create texture of format %i", fmt);
     return;
   }
-  if (fmt != Texture::DEPTH){
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + mCTCount++, GL_TEXTURE_2D, tex->getHandle(), 0);
+  addTexture(*tex);
+  mTextures.push_back(tex);
+}
+
+void GL2RenderTarget::addTexture(const CGE::Texture& tex){
+  if (tex.getFormat() != Texture::DEPTH){
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + mCTCount++, GL_TEXTURE_2D, ((const OGLTexture&)tex).getHandle(), 0);
     if (mCTCount > 1){
       std::vector<GLenum> buffers;
       buffers.resize(mCTCount);
@@ -49,8 +54,7 @@ void GL2RenderTarget::addTexture(Texture::Format fmt){
     }
   }
   else
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, tex->getHandle(), 0);
-  mTextures.push_back(tex);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, ((const OGLTexture&)tex).getHandle(), 0);
 }
 
 void GL2RenderTarget::addRenderbuffer(Texture::Format fmt){

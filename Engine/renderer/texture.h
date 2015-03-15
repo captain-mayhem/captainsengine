@@ -20,7 +20,7 @@ public:
     ALPHA,
     FLOAT,
   };
-  Texture();
+  Texture(Format fmt);
   virtual ~Texture();
   virtual void activate(unsigned stage=0) const =0;
   virtual void deactivate(unsigned stage=0) const =0;
@@ -35,9 +35,13 @@ public:
   void setFilename(std::string const& file) { filename_ = file; }
   //! get the name
   std::string getName() const;
+  //! get the format
+  Format getFormat() const { return mFormat; }
 protected:
   //! the filename
   std::string filename_;
+  //! the format
+  Format mFormat;
 };
 
 }

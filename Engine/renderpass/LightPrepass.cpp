@@ -220,6 +220,13 @@ void LightPrepassRenderer::init(){
   mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "diffuseTex"), 1);
   mCompositingShader->uniform(mCompositingShader->getUniformLocation(Shader::FRAGMENT_SHADER, "specTex"), 2);
   mCompositingShader->deactivate();
+
+  mCompositingBuffer = rend->createRenderTarget(rend->getWindow()->getWidth(), rend->getWindow()->getHeight());
+  mCompositingBuffer->activate();
+  mCompositingBuffer->addTexture(Texture::RGBA);
+  mCompositingBuffer->addTexture(*mGBuffer->getTexture(2));
+  mCompositingBuffer->isComplete();
+  mCompositingBuffer->deactivate();
 }
 
 void LightPrepassRenderer::deinit(){
@@ -228,6 +235,7 @@ void LightPrepassRenderer::deinit(){
   delete mLightShader;
   delete mLightBuffer;
   delete mCompositingShader;
+  delete mCompositingBuffer;
 }
 
 void LightPrepassRenderer::render(){
@@ -238,7 +246,7 @@ void LightPrepassRenderer::render(){
   mGBuffer->activate();
   rend->setClearColor(Vec4f(0, 0, 0, 0));
   rend->clear(ZBUFFER | COLORBUFFER);
-  mScene->render();
+  mScene->render(Mesh::DRAW_OPAQUE);
   mGBuffer->deactivate();
   mBaseShader->deactivate();
 
@@ -262,12 +270,20 @@ void LightPrepassRenderer::render(){
   
   mLightShader->deactivate();
 
+  mCompositingBuffer->activate();
+  rend->clear(COLORBUFFER);
   mCompositingShader->activate();
   mGBuffer->getTexture(1)->activate(1);
   mGBuffer->getTexture(3)->activate(2);
   mLightBuffer->drawFullscreen(false);
-  //mScene->render();
   mCompositingShader->deactivate();
+
+  rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
+  rend->enableDepthTest(true);
+  mTransRend.render(Mesh::DRAW_TRANSPARENT);
+  mCompositingBuffer->deactivate();
+
+  mCompositingBuffer->drawFullscreen(true);
 }
 
 void LightPrepassRenderer::applyMaterial(Shader* shader, Material const& mat, void* userdata){

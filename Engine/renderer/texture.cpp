@@ -12,7 +12,7 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Texture);
 
-Texture::Texture(){
+Texture::Texture(Format fmt) : mFormat(fmt){
 }
 
 Texture::~Texture(){

@@ -535,14 +535,28 @@ void Mesh::buildVBO(){
 // --------------------------------------------------------------------
 //  draw the mesh
 // --------------------------------------------------------------------
-void Mesh::draw(){
-  vb_->activate();
-  mIB->activate();
+void Mesh::draw(DrawPart part){
+  bool activate = true;
   for (unsigned i = 0; i < mDrawList.size(); ++i){
     SubMesh& msh = mDrawList[i];
     Material* mat = mMaterials[msh.material];
-    if (mat)
+    if (mat){
+      if (mat->isTransparent() && part == DRAW_OPAQUE)
+        continue;
+      if (!mat->isTransparent() && part == DRAW_TRANSPARENT)
+        continue;
       Engine::instance()->getRenderer()->setMaterial(*mat);
+    }
+    else{
+      //no material is assumed opaque
+      if (part == DRAW_TRANSPARENT)
+        continue;
+    }
+    if (activate){
+      activate = false;
+      vb_->activate();
+      mIB->activate();
+    }
     vb_->draw(VB_Triangles, mIB, msh.offset, msh.count);
   }
   //vb_->draw(CGE::VB_Triangles, mIB);

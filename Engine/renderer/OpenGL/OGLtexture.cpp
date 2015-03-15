@@ -14,7 +14,7 @@ typedef unsigned short WORD;
 
 TR_CHANNEL(CGE_Texture_OGL);
 
-OGLTexture::OGLTexture() : Texture(), tex_(0){
+OGLTexture::OGLTexture() : Texture(AUTO), tex_(0){
   glGenTextures(1, &tex_);
 }
 
@@ -26,6 +26,7 @@ bool OGLTexture::createFromImage(Image* img, Format fmt){
   TR_USE(CGE_Texture_OGL);
   if (fmt == AUTO)
     fmt = (Format)img->getNumChannels();
+  mFormat = fmt;
 
   glBindTexture(GL_TEXTURE_2D, tex_);
   glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP, GL_TRUE);
@@ -41,6 +42,7 @@ bool OGLTexture::createFromImage(Image* img, Format fmt){
 bool OGLTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   if (fmt == AUTO)
     return false;
+  mFormat = fmt;
 
   glBindTexture(GL_TEXTURE_2D, tex_);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);

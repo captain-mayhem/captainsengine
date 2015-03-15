@@ -55,14 +55,14 @@ Scene::~Scene(){
   textures_.clear();
 }
 
-void Scene::render(){
+void Scene::render(Mesh::DrawPart part){
   Renderer* rend = Engine::instance()->getRenderer();
   list<SceneNode*>::iterator iter;
   for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
     if ((*iter)->getType() == SceneNode::MESH){
       Model* mdl = (Model*)*iter;
       mdl->setupMaterial();
-      mdl->render();
+      mdl->render(part);
       mdl->resetMaterial();
     }
   }

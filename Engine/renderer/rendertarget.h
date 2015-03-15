@@ -15,6 +15,7 @@ public:
   static RenderTarget* getCurrent() { return mCurrTarget; }
 
   virtual void addTexture(Texture::Format fmt) = 0;
+  virtual void addTexture(const CGE::Texture& tex) = 0;
   virtual void addRenderbuffer(Texture::Format fmt) = 0;
   virtual bool isComplete() = 0;
   virtual Texture* getTexture(unsigned idx) = 0;

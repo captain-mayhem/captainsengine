@@ -3,6 +3,7 @@
 #define MODEL_H
 
 #include "../renderer/scenenode.h"
+#include "../mesh/mesh.h"
 
 namespace CGE{
 class BoundingObject;
@@ -10,8 +11,6 @@ class Texture;
 }
 
 namespace CGE{
-
-class Mesh;
 
 #define MAX_TEXTURES 8
 #define MAX_ATTRIBS 8
@@ -27,7 +26,7 @@ public:
   //! Destructor
   virtual ~Model();
   //! Render the model
-  void render();
+  void render(Mesh::DrawPart part);
   //! Setup material
   void setupMaterial();
   //! Reset material
