@@ -44,6 +44,7 @@ void GL2RenderTarget::addTexture(Texture::Format fmt){
 void GL2RenderTarget::addTexture(const CGE::Texture& tex){
   if (tex.getFormat() != Texture::DEPTH){
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + mCTCount++, GL_TEXTURE_2D, ((const OGLTexture&)tex).getHandle(), 0);
+#ifndef RENDER_ES20
     if (mCTCount > 1){
       std::vector<GLenum> buffers;
       buffers.resize(mCTCount);
@@ -52,6 +53,9 @@ void GL2RenderTarget::addTexture(const CGE::Texture& tex){
       }
       glDrawBuffers(mCTCount, buffers.data());
     }
+#else
+#pragma message "Multiple Render Targets (MRT) not supported"
+#endif
   }
   else
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, ((const OGLTexture&)tex).getHandle(), 0);
