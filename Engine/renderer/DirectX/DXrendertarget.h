@@ -16,6 +16,7 @@ public:
   DXRenderTarget(int width, int height);
   ~DXRenderTarget();
   virtual void addTexture(Texture::Format fmt);
+  virtual void addTexture(const CGE::Texture& tex);
   virtual void addRenderbuffer(Texture::Format fmt);
   virtual bool isComplete();
   virtual Texture* getTexture(unsigned idx);

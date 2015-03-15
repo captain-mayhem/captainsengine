@@ -2,6 +2,7 @@
 #define CGE_LIGHT_PREPASS_H
 
 #include "Technique.h"
+#include "Forward.h"
 
 namespace CGE{
 
@@ -15,6 +16,7 @@ public:
   virtual void init();
   virtual void deinit();
   virtual void render();
+  virtual void setScene(Scene& scene) { mTransRend.setScene(scene); RenderTechnique::setScene(scene); }
 private:
   static void applyMaterial(Shader* shader, Material const& mat, void* userdata);
   static void applyLight(Shader* shader, int number, Light const& light, void* userdata);
@@ -41,6 +43,10 @@ private:
   RenderTarget* mLightBuffer;
   //! the compositing shader
   Shader* mCompositingShader;
+  //! the final buffer
+  RenderTarget* mCompositingBuffer;
+  //! the forward renderer for transparent parts
+  ForwardRenderer mTransRend;
 };
 
 }

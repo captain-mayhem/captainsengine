@@ -9,7 +9,7 @@
 
 using namespace CGE; 
 
-DXTexture::DXTexture() : Texture(), mTexture(NULL), mTex(NULL), mState(NULL){
+DXTexture::DXTexture() : Texture(AUTO), mTexture(NULL), mTex(NULL), mState(NULL){
   mDevice = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
 }
 
@@ -22,6 +22,7 @@ DXTexture::~DXTexture(){
 bool DXTexture::createFromImage(Image* img, Format fmt){
   if (fmt == AUTO)
     fmt = (Format)img->getNumChannels();
+  mFormat = fmt;
 
   if (img->getNumChannels() == 3){
     img->convertFormat(4);
@@ -67,6 +68,7 @@ bool DXTexture::createFromImage(Image* img, Format fmt){
 bool DXTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   if (fmt == AUTO)
     return false;
+  mFormat = fmt;
 
   SAFE_RELEASE(mTex);
   SAFE_RELEASE(mState);

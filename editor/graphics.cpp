@@ -183,6 +183,7 @@ void Graphic::render_(){
   //rend->enableLighting(false);
   if (mRT){
     mRT->deactivate();
+    rend->enableBlend(false);
     mRT->drawFullscreen(true);
   }
 }

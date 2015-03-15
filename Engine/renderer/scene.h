@@ -41,7 +41,7 @@ public:
   //! Get the lights
   std::vector<Light*>& getLights() { return mLights; }
   //! render the scene
-  void render();
+  void render(Mesh::DrawPart part=Mesh::DRAW_ALL);
   //! save the scene
   void save(const std::string& filename) const;
   //! load the scene

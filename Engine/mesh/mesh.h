@@ -48,6 +48,11 @@ namespace CGE{
 //! Mesh provides storage and loading for meshes
 class Mesh{ 
 public:
+  enum DrawPart{
+    DRAW_ALL,
+    DRAW_OPAQUE,
+    DRAW_TRANSPARENT,
+  };
   struct SubMesh{
     SubMesh(int off, int cnt, int mat, Material* dfltMat) : offset(off), count(cnt), material(mat), dfltMaterial(dfltMat) {}
     int offset;
@@ -78,7 +83,7 @@ public:
   //! build vertex buffer object
   void buildVBO();
 	//! draw the mesh
-	void draw();
+	void draw(DrawPart part);
   //! get the name of the mesh
   std::string getName() const {return name_;}
   //! get the filename of the mesh

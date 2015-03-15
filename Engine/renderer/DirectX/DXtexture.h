@@ -17,7 +17,7 @@ public:
   virtual bool createFromImage(Image* img, Format fmt);
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
   static DXGI_FORMAT dxformat(Format fmt);
-  ID3D11Texture2D* getHandle() { return mTexture; }
+  ID3D11Texture2D* getHandle() const { return mTexture; }
 protected:
   ID3D11Texture2D* mTexture;
   ID3D11Device* mDevice;
