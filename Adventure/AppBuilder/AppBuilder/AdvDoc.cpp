@@ -6,13 +6,9 @@
 #include <image/loader.h>
 #include <io/BinFileReader.h>
 #include "Sound.h"
-#ifdef WIN32
-#include <direct.h>
-#else
-#include <sys/stat.h>
-#endif
 #include "Engine.h"
 #include <system/allocation.h>
+#include <system/file.h>
 
 const float FPS_MAX = 50.0f;
 const int STATES_MAX = 10;
@@ -106,12 +102,19 @@ bool AdvDocument::loadDocument(const std::string filename){
     mSettings.noPngToJpeg = false;
   }
   
-  mSettings.savedir = mPath+"/../saves";
-#ifdef WIN32
-  _mkdir(mSettings.savedir.c_str());
-#else
-  mkdir(mSettings.savedir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-#endif
+  if (mSettings.savedir.empty())
+    mSettings.savedir = mPath+"/../saves";
+  else{
+    string dirname = mSettings.dir;
+    CGE::Utilities::replaceWith(dirname, '\\', '/');
+    unsigned idx = dirname.find_last_of('/');
+    //dirname = dirname.erase(idx);
+    //idx = dirname.find_last_of('/');
+    dirname.erase(0, idx);
+    mSettings.savedir = CGE::Filesystem::combinePath(mSettings.savedir, dirname);
+  }
+
+  CGE::Filesystem::createDir(mSettings.savedir);
 
   return true;
 }

@@ -47,6 +47,8 @@ public:
   static std::string getExtension(std::string const & filepath);
   //! combines two path components
   static std::string combinePath(std::string const & p1, std::string const & p2);
+  //! create directory
+  static bool createDir(const std::string& path);
 };
 
 }
