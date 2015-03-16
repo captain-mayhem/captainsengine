@@ -55,6 +55,11 @@ void Font::buildFont(VertexBuffer* other){
   float	cx;
   float	cy;
 
+  if (other != NULL){
+    delete buffer_;
+    buffer_ = other;
+  }
+
   if (tex_ == NULL)
     return;
   tex_->activate();
@@ -79,10 +84,6 @@ void Font::buildFont(VertexBuffer* other){
     }
 
     buffer_->unlockVertexPointer();
-  }
-  else{
-    delete buffer_;
-    buffer_ = other;
   }
 
   short* in = (short*)inds_->lockIndexPointer();

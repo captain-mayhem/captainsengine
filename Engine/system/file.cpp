@@ -238,3 +238,13 @@ std::string Filesystem::combinePath(std::string const & p1, std::string const & 
 #endif
 }
 
+bool Filesystem::createDir(const std::string& path){
+#ifdef WIN32
+  int ret = _mkdir(path.c_str());
+  return ret == 0;
+#else
+  int ret = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
+  return ret == 0;
+#endif
+}
+

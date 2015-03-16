@@ -28,6 +28,7 @@ static int advheight = 0;
 static int realwidth = 0;
 static int realheight = 0;
 static int lastTime = 0;
+static int initialized = 0;
 
 class ConsoleOutputter : public CGE::TraceOutputter{
   virtual bool init() {return true;}
@@ -50,6 +51,7 @@ CEXPORT int advLoad(const char* filename){
 	TR_USE(Frontend);
 	TR_INFO("trying to load adventure %s", filename);
 	adoc = new AdvDocument();
+  adoc->getProjectSettings()->savedir = "/IDBFS";
 	if (!adoc->loadDocument(filename)){
 		TR_ERROR("failed to load adventure");
 		return 0;
@@ -117,6 +119,8 @@ CEXPORT int advLoad(const char* filename){
 }
 
 void render(){
+  if (!initialized)
+    return;
   GL()matrixMode(MM_PROJECTION);
   GL()loadIdentity();
   GL()ortho(0, advwidth, advheight, 0, -1.0, 1.0);
@@ -191,11 +195,26 @@ void mainloop(){
 
 int main(int argc, char** argv){
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
-	advLoad("data/game.dat");
+  EM_ASM(
+    FS.mkdir('/IDBFS');
+    FS.mount(IDBFS, {}, '/IDBFS');
+    FS.syncfs(true, function (err) {
+            assert(!err);
+            ccall('fsMounted', 'v', [], []);
+        });
+  );
+	//advLoad("data/game.dat");
 	emscripten_hide_mouse();
 	lastTime = emscripten_get_now();
 	emscripten_set_main_loop(mainloop, 0, 0);
 	return 0;
+}
+
+void fsMounted(){
+  TR_USE(Frontend);
+  advLoad("/data/game.dat");
+  initialized = 1;
+  TR_INFO("save path is %s", adoc->getProjectSettings()->savedir.c_str());
 }
 
 int av_get_cpu_flags(){
