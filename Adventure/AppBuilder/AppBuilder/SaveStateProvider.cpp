@@ -374,6 +374,7 @@ void SaveStateProvider::save(const std::string& name){
   //postproc
   Engine::instance()->getPostProcessor()->save(out);
   out.close();
+  mData->fileChanged(name);
 }
 
 void SaveStateProvider::load(const std::string& name){

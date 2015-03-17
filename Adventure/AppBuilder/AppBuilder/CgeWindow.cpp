@@ -32,10 +32,17 @@ void quit();
 void set_mouse(int x, int y);
 void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* data);
 
+void fileChanged(std::string const& file){
+  TR_USE(ADV_CGE_Window);
+  TR_INFO("File %s written", file.c_str());
+}
+
 void init(){
   TR_USE(ADV_CGE_Window);
   Engine::init();
   adoc = new AdvDocument();
+  //adoc->getProjectSettings()->savedir = "C:\\tmp";
+  adoc->setFileChangedCB(fileChanged);
   adoc->setSpashScreenCB(splash_screen);
   if (!adoc->loadDocument(filename)){
     TR_ERROR("Cannot load %s", filename.c_str());

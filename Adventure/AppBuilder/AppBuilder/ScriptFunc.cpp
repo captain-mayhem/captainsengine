@@ -1362,6 +1362,8 @@ int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
     data[name] = value;
   }
   in.close();
+  if (data[varname] == val) //no change
+    return 0;
   //insert new content
   data[varname] = val;
   //save content
@@ -1370,6 +1372,7 @@ int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
     out << iter->first << " " << iter->second << std::endl;
   }
   out.close();
+  Engine::instance()->getData()->fileChanged(file);
   return 0;
 }
 
@@ -2436,6 +2439,8 @@ int ScriptFunctions::saveString(ExecutionContext& ctx, unsigned numArgs){
     data[name] = value;
   }
   in.close();
+  if (data[varname].getString() == val.getString()) //no change
+    return 0;
   //insert new content
   data[varname] = val;
   //save content
@@ -2444,6 +2449,7 @@ int ScriptFunctions::saveString(ExecutionContext& ctx, unsigned numArgs){
     out << iter->first << " " << iter->second << std::endl;
   }
   out.close();
+  Engine::instance()->getData()->fileChanged(file);
   return 0;
 }
 
