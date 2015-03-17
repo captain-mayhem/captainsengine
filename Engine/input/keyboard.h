@@ -79,6 +79,7 @@
 #define KEY_CTRL 11
 #define KEY_ALT 12
 #define KEY_SPACE 13
+#define KEY_DELETE 14
 #endif
 
 #include "../system/engine.h"

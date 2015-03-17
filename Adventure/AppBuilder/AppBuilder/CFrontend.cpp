@@ -3,6 +3,7 @@
 #include <SDL/SDL.h>
 #include <emscripten.h>
 #include <input/keyboard.h>
+#include <system/file.h>
 
 #include "AdvDoc.h"
 #include "Engine.h"
@@ -29,6 +30,7 @@ static int realwidth = 0;
 static int realheight = 0;
 static int lastTime = 0;
 static int initialized = 0;
+static unsigned lastClick = 0;
 
 class ConsoleOutputter : public CGE::TraceOutputter{
   virtual bool init() {return true;}
@@ -43,6 +45,22 @@ void quit(){
 void setMouse(int x, int y){
 }
 
+void fileChanged(std::string const& file){
+  TR_USE(Frontend);
+  TR_INFO("file %s changed, syncing...", file.c_str());
+  EM_ASM(     
+          FS.syncfs(false,function (err) { // sync TO backing store
+              assert(!err);
+              ccall('fileWritten', 'v', [], []);
+          });
+      );
+}
+
+void fileWritten(){
+  TR_USE(Frontend);
+  TR_INFO("file written");
+}
+
 CEXPORT int advLoad(const char* filename){
 	ConsoleOutputter* putty = new ConsoleOutputter;
     CGE::TraceManager::instance()->setTraceOutputter(putty);
@@ -51,7 +69,9 @@ CEXPORT int advLoad(const char* filename){
 	TR_USE(Frontend);
 	TR_INFO("trying to load adventure %s", filename);
 	adoc = new AdvDocument();
-  adoc->getProjectSettings()->savedir = "/IDBFS";
+  adoc->getProjectSettings()->savedir = "/IDBFS/adventure";
+  CGE::Filesystem::createDir("/IDBFS/adventure");
+  adoc->setFileChangedCB(fileChanged);
 	if (!adoc->loadDocument(filename)){
 		TR_ERROR("failed to load adventure");
 		return 0;
@@ -148,12 +168,48 @@ void render(){
   SDL_GL_SwapBuffers();
 }
 
+int translateKey(SDL_keysym& sym){
+  switch (sym.sym){
+    case SDLK_ESCAPE:
+      return KEY_ESCAPE;
+    case SDLK_RETURN:
+      return KEY_RETURN;
+    case SDLK_BACKSPACE:
+      return KEY_BACKSPACE;
+    case SDLK_SPACE:
+      return KEY_SPACE;
+    case SDLK_UP:
+      return KEY_UP;
+    case SDLK_DOWN:
+      return KEY_DOWN;
+    case SDLK_LEFT:
+      return KEY_LEFT;
+    case SDLK_RIGHT:
+      return KEY_RIGHT;
+    case SDLK_DELETE:
+      return KEY_DELETE;
+    case SDLK_RCTRL:
+    case SDLK_LCTRL:
+      return KEY_CTRL;
+    case SDLK_RALT:
+    case SDLK_LALT:
+      return KEY_ALT;
+    case SDLK_F1:
+      return KEY_F1;
+    case SDLK_F2:
+      return KEY_F2;
+    default:
+      return sym.unicode;
+  }
+}
+
 void mainloop(){
 	render();
 
 	SDL_Event event;
 	int key = 0;
 	while (SDL_PollEvent(&event)){
+    short ascii;
 		switch (event.type) 
 		{
 			case SDL_MOUSEMOTION:
@@ -161,7 +217,12 @@ void mainloop(){
 				break;
 			case SDL_MOUSEBUTTONDOWN:
 				if (event.button.button == SDL_BUTTON_LEFT){
-					Engine::instance()->leftClick(Vec2i(event.button.x,event.button.y));
+          unsigned ticks = SDL_GetTicks();
+          if (ticks - lastClick < 500)
+            Engine::instance()->doubleClick(Vec2i(event.button.x,event.button.y));
+          else
+            Engine::instance()->leftClick(Vec2i(event.button.x,event.button.y));
+          lastClick = ticks;
 				}
 				else if (event.button.button == SDL_BUTTON_RIGHT){
 					Engine::instance()->rightClick(Vec2i(event.button.x,event.button.y));
@@ -173,18 +234,16 @@ void mainloop(){
 				}
 				break;
 			case SDL_KEYDOWN:
-			  if (event.key.keysym.sym == SDLK_ESCAPE)
-				key = KEY_ESCAPE;
-			  else
-				key = event.key.keysym.unicode;
+			  key = translateKey(event.key.keysym);
 			  Engine::instance()->keyPress(key);
+        ascii = event.key.keysym.unicode;
+        if (ascii > 31 && ascii < 256){
+          Engine::instance()->keyAscii((char)ascii);
+        }
 			  break;
 			case SDL_KEYUP:
 			// If escape is pressed, return (and thus, quit)
-			  if (event.key.keysym.sym == SDLK_ESCAPE)
-				key = KEY_ESCAPE;
-			  else
-			    key = event.key.keysym.unicode;
+			  key = translateKey(event.key.keysym);
 			  Engine::instance()->keyRelease(key);
 			  break;
 			case SDL_QUIT:

@@ -266,6 +266,7 @@ struct Language{
 };
 
 typedef void(*SPLASHSCREENCB)(unsigned width, unsigned height, unsigned numChannels, void* data);
+typedef void(*FILECHANGEDCB)(std::string const& file);
 
 class AdvDocument{
 public:
@@ -294,6 +295,8 @@ public:
   int getLanguageIndex(const std::string& language, Language::Section section, const std::string& str);
   bool hasLanguageInfo() {return mLanguages.size() > 0 && mLanguages["origin"].sections[Language::COMMANDS].size() > 0;}
   void setSpashScreenCB(SPLASHSCREENCB sscb) { mSSCB = sscb; }
+  void setFileChangedCB(FILECHANGEDCB fcb) { mFCB = fcb; }
+  void fileChanged(std::string const& file) { if (!mFCB) return; mFCB(file); }
 protected:
   bool loadFile1(CGE::MemReader& txtstream);
   bool loadFile2(CGE::MemReader& txtstream);
@@ -325,6 +328,7 @@ protected:
   std::map<std::string, Language> mLanguages;
   CGE::Mutex mMuty;
   SPLASHSCREENCB mSSCB;
+  FILECHANGEDCB mFCB;
 };
 
 }

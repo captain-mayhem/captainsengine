@@ -25,7 +25,7 @@ using namespace adv;
 
 TR_CHANNEL(ADV_DATA);
 
-AdvDocument::AdvDocument() : mUseCompressedData(false), mSSCB(NULL){
+AdvDocument::AdvDocument() : mUseCompressedData(false), mSSCB(NULL), mFCB(NULL){
 }
 
 AdvDocument::~AdvDocument(){
