@@ -73,7 +73,7 @@ void Door::render() const{
     return;
 
   model_->setupMaterial();
-  model_->render();
+  model_->render(CGE::Mesh::DRAW_ALL);
   model_->resetMaterial();
 #endif
   

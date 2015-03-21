@@ -44,7 +44,7 @@ void Furniture::render() const {
 
   if (mModel){
     mModel->setupMaterial();
-    mModel->render();
+    mModel->render(CGE::Mesh::DRAW_ALL);
     mModel->resetMaterial();
   }
   

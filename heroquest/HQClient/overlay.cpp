@@ -88,7 +88,7 @@ void Overlay::render() const{
     return;
   if (model_){
     model_->setupMaterial();
-    model_->render();
+    model_->render(CGE::Mesh::DRAW_ALL);
     model_->resetMaterial();
   }
 #endif

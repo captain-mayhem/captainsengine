@@ -126,7 +126,7 @@ void Creature::render() const{
 
   if (model_){
     model_->setupMaterial();
-    model_->render();
+    model_->render(CGE::Mesh::DRAW_ALL);
     model_->resetMaterial();
   }
 #endif

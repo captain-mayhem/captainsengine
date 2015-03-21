@@ -1,0 +1,2 @@
+ADD_SUBDIRECTORY(sharpzip)
+ADD_SUBDIRECTORY(StoryDesigner)

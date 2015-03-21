@@ -299,3 +299,23 @@ ADD_SUBDIRECTORY(eax2efx)
 if (EMSCRIPTEN_FRONTEND)
 add_subdirectory(emscripten)
 endif()
+
+INSTALL(TARGETS Adventure RUNTIME DESTINATION adventure)
+
+if (OS STREQUAL windows)
+#openal
+get_filename_component(OPENAL_DLL ${OPENAL_LIBRARY} PATH)
+set(OPENAL_DLL "${OPENAL_DLL}/OpenAL32.dll")
+message(STATUS "OpenAL: ${OPENAL_DLL}")
+INSTALL(FILES ${OPENAL_DLL} DESTINATION adventure)
+
+#ffmpeg
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/avcodec-55.dll 
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/avformat-55.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/avutil-52.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swresample-0.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swscale-2.dll
+DESTINATION adventure)
+endif()
+
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/engine.ini DESTINATION adventure)

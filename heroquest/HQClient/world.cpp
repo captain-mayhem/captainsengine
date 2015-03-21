@@ -409,7 +409,7 @@ void World::render(){
 
     for (unsigned j = 0; j < curr.numModels; ++j){
       curr.models[j]->setupMaterial();
-      curr.models[j]->render();
+      curr.models[j]->render(CGE::Mesh::DRAW_ALL);
       curr.models[j]->resetMaterial();
     }
     
