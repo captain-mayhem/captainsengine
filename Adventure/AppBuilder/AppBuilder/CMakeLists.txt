@@ -300,13 +300,35 @@ if (EMSCRIPTEN_FRONTEND)
 add_subdirectory(emscripten)
 endif()
 
-INSTALL(TARGETS Adventure RUNTIME DESTINATION adventure)
+get_target_property(ADVENTURE_EXE Adventure LOCATION)
+get_filename_component(ADVENTURE_PATH ${ADVENTURE_EXE} PATH)
+get_filename_component(ADVENTURE_FILE ${ADVENTURE_EXE} NAME)
+add_custom_command(TARGET Adventure POST_BUILD
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C ${ADVENTURE_PATH} ${ADVENTURE_FILE})
+
+#install
+
+INSTALL(TARGETS Adventure RUNTIME DESTINATION adventure COMPONENT adv_runtime)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner)
 
 if (OS STREQUAL windows)
 #openal
-get_filename_component(OPENAL_DLL ${OPENAL_LIBRARY} PATH)
-set(OPENAL_DLL "${OPENAL_DLL}/OpenAL32.dll")
+get_filename_component(OPENAL_PATH ${OPENAL_LIBRARY} PATH)
+set(OPENAL_FILE OpenAL32.dll)
+set(OPENAL_DLL "${OPENAL_PATH}/${OPENAL_FILE}")
 message(STATUS "OpenAL: ${OPENAL_DLL}")
+
+add_custom_command(OUTPUT engine2.dat
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${OPENAL_PATH} ${OPENAL_FILE}
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin avcodec-55.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin avformat-55.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin avutil-52.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin swresample-0.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin swscale-2.dll
+)
+
+add_custom_target(pack_engine_deps DEPENDS engine2.dat)
+
 INSTALL(FILES ${OPENAL_DLL} DESTINATION adventure)
 
 #ffmpeg
@@ -316,6 +338,15 @@ ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/avutil-52.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swresample-0.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swscale-2.dll
 DESTINATION adventure)
+
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner)
 endif()
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/engine.ini DESTINATION adventure)
+
+#packaging
+#set(CPACK_GENERATOR "ZIP")
+#set(CPACK_PACKAGE_NAME "engine1.dat")
+#set(CPACK_COMPONENTS_ALL adv_runtime)
+#set(CPACK_PACKAGE_INSTALL_DIRECTORY "StoryDesigner")
+#INCLUDE(CPack)
