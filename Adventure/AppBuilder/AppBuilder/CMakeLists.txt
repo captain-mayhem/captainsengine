@@ -300,11 +300,8 @@ if (EMSCRIPTEN_FRONTEND)
 add_subdirectory(emscripten)
 endif()
 
-get_target_property(ADVENTURE_EXE Adventure LOCATION)
-get_filename_component(ADVENTURE_PATH ${ADVENTURE_EXE} PATH)
-get_filename_component(ADVENTURE_FILE ${ADVENTURE_EXE} NAME)
 add_custom_command(TARGET Adventure POST_BUILD
-COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C ${ADVENTURE_PATH} ${ADVENTURE_FILE})
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure> $<TARGET_FILE_NAME:Adventure>)
 
 #install
 
