@@ -306,7 +306,7 @@ COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure> $
 #install
 
 INSTALL(TARGETS Adventure RUNTIME DESTINATION adventure COMPONENT adv_runtime)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 
 if (OS STREQUAL windows)
 #openal
@@ -336,7 +336,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swresample-0.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swscale-2.dll
 DESTINATION adventure)
 
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 endif()
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/engine.ini DESTINATION adventure)

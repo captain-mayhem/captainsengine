@@ -1,7 +1,7 @@
 ADD_SUBDIRECTORY(sharpzip)
 ADD_SUBDIRECTORY(StoryDesigner)
 
-SET(STORY_DESIGNER_VERSION "1.0.2.0")
+SET(STORY_DESIGNER_VERSION "${STORY_DESIGNER_VERSION}.0")
 SET(ENGINE_VERSION "1.0.2.0")
 SET(DEP_LIB_VERSION "1.0.2.0")
 
@@ -25,7 +25,7 @@ add_custom_target(configure_update ALL
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/update.xml DESTINATION StoryDesignerUpdate)
 
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine1.ver ${ENGINE_VERSION})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine1.ver DESTINATION StoryDesigner)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine1.ver DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine2.ver ${DEP_LIB_VERSION})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine2.ver DESTINATION StoryDesigner)
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine2.ver DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
