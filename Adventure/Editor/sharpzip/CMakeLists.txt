@@ -5,4 +5,4 @@ include_external_msproject(
     
 ADD_CUSTOM_TARGET(BuildCSharpZip ALL DEPENDS CSharpZip)
 
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/SrcSamples/bin/ICSharpCode.SharpZipLib.dll DESTINATION StoryDesigner)
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/SrcSamples/bin/ICSharpCode.SharpZipLib.dll DESTINATION StoryDesigner COMPONENT StoryDesignerLibs)
