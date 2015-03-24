@@ -2,9 +2,9 @@
 #define SCRIPT_H
 
 extern "C"{
-#include "../include/lua.h"
-#include "../include/lauxlib.h"
-#include "../include/lualib.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 }
 
 #include <string>
