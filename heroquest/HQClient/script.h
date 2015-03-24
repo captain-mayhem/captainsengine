@@ -13,9 +13,9 @@
 #define SCRIPT_HH
 
 extern "C"{
-#include "include/lua.h"
-#include "include/lauxlib.h"
-#include "include/lualib.h"
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
 }
 #include "math/vector.h"
 #include "monster.h"

@@ -300,12 +300,12 @@ if (EMSCRIPTEN_FRONTEND)
 add_subdirectory(emscripten)
 endif()
 
-add_custom_command(TARGET Adventure POST_BUILD
-COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure> $<TARGET_FILE_NAME:Adventure>)
+add_custom_command(TARGET Adventure${ADV_SUFFIX} POST_BUILD
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure${ADV_SUFFIX}> $<TARGET_FILE_NAME:Adventure${ADV_SUFFIX}>)
 
 #install
 
-INSTALL(TARGETS Adventure RUNTIME DESTINATION adventure COMPONENT adv_runtime)
+INSTALL(TARGETS Adventure${ADV_SUFFIX} RUNTIME DESTINATION adventure COMPONENT adv_runtime)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 
 if (OS STREQUAL windows)
@@ -322,6 +322,7 @@ COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${OPENAL_PATH} ${OPENAL_FILE}
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin avutil-52.dll
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin swresample-0.dll
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin swscale-2.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib d3dcompiler_47.dll
 )
 
 add_custom_target(pack_engine_deps DEPENDS engine2.dat)
@@ -334,6 +335,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/avformat-55.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/avutil-52.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swresample-0.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swscale-2.dll
+${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/d3dcompiler_47.dll
 DESTINATION adventure)
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
