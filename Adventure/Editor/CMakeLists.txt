@@ -1,3 +1,6 @@
+if (NOT CMAKE_HOST_WIN32)
+  return()
+endif()
 ADD_SUBDIRECTORY(sharpzip)
 ADD_SUBDIRECTORY(StoryDesigner)
 
