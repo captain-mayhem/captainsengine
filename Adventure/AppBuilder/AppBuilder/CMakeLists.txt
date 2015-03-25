@@ -130,7 +130,7 @@ SET(AB_LINK_LIBS ${AB_LINK_LIBS} alut)
 IF (OS STREQUAL windows)
 INCLUDE_DIRECTORIES(ffmpeg/include)
 INCLUDE_DIRECTORIES(ffmpeg/include/win32)
-LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/lib)
+LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/lib/${CPU})
 ADD_LIBRARY(avformat STATIC IMPORTED)
 SET_PROPERTY(TARGET avformat PROPERTY IMPORTED_LOCATION avformat.lib)
 ADD_LIBRARY(avcodec STATIC IMPORTED)
@@ -317,24 +317,30 @@ message(STATUS "OpenAL: ${OPENAL_DLL}")
 
 add_custom_command(OUTPUT engine2.dat
 COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${OPENAL_PATH} ${OPENAL_FILE}
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin avcodec-55.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin avformat-55.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin avutil-52.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin swresample-0.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin swscale-2.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avcodec-55.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avformat-55.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avutil-52.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swresample-0.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swscale-2.dll
 -C ${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib d3dcompiler_47.dll
+DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
+${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/d3dcompiler_47.dll
 )
 
-add_custom_target(pack_engine_deps DEPENDS engine2.dat)
+add_custom_target(pack_engine_deps ALL DEPENDS engine2.dat)
 
 INSTALL(FILES ${OPENAL_DLL} DESTINATION adventure)
 
 #ffmpeg
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/avcodec-55.dll 
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/avformat-55.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/avutil-52.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swresample-0.dll
-${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/swscale-2.dll
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll 
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
+${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/d3dcompiler_47.dll
 DESTINATION adventure)
 
