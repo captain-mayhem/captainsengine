@@ -322,13 +322,13 @@ COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${OPENAL_PATH} ${OPENAL_FILE}
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avutil-52.dll
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swresample-0.dll
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swscale-2.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib d3dcompiler_47.dll
+-C ${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/${CPU} d3dcompiler_47.dll
 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
-${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/d3dcompiler_47.dll
+${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/${CPU}/d3dcompiler_47.dll
 )
 
 add_custom_target(pack_engine_deps ALL DEPENDS engine2.dat)
@@ -341,7 +341,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
-${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/d3dcompiler_47.dll
+${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/${CPU}/d3dcompiler_47.dll
 DESTINATION adventure)
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
