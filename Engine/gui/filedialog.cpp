@@ -87,8 +87,8 @@ void FileDialog::changeDir(GuiElement* elem){
   string dir = dirs->selectedItem();
   //collapse path when .. is chosen and the situation is appropriate
   if (dir == ".." && path_.length() > 1 && path_[path_.length()-1] != '.'){
-    int n = path_.find_last_of(SEPARATOR);
-    if (n != -1)
+    size_t n = path_.find_last_of(SEPARATOR);
+    if (n != path_.npos)
       path_.erase(n);
     else
       path_ += ".";

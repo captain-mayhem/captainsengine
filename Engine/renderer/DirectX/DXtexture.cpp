@@ -23,6 +23,8 @@ bool DXTexture::createFromImage(Image* img, Format fmt){
   if (fmt == AUTO)
     fmt = (Format)img->getNumChannels();
   mFormat = fmt;
+  mWidth = img->getWidth();
+  mHeight = img->getHeight();
 
   if (img->getNumChannels() == 3){
     img->convertFormat(4);
@@ -69,6 +71,8 @@ bool DXTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   if (fmt == AUTO)
     return false;
   mFormat = fmt;
+  mWidth = width;
+  mHeight = height;
 
   SAFE_RELEASE(mTex);
   SAFE_RELEASE(mState);
@@ -121,7 +125,11 @@ void DXTexture::activate(unsigned stage)const{
 }
 
 void DXTexture::deactivate(unsigned stage)const{
-  
+  ID3D11ShaderResourceView* view = NULL;
+  //ID3D11SamplerState* state = NULL;
+  ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
+  ctx->PSSetShaderResources(stage, 1, &view);
+  //ctx->PSSetSamplers(stage, 1, &state);
 }
 
 DXGI_FORMAT DXTexture::dxformat(Format fmt){
@@ -140,6 +148,14 @@ DXGI_FORMAT DXTexture::dxformat(Format fmt){
     return DXGI_FORMAT_R32G32B32A32_FLOAT;
   }
   return DXGI_FORMAT_UNKNOWN;
+}
+
+Texture* DXTexture::copy(){
+  DXTexture* ret = new DXTexture();
+  ret->createEmpty(mWidth, mHeight, mFormat);
+  ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
+  ctx->CopyResource(ret->mTexture, mTexture);
+  return ret;
 }
 
 #endif

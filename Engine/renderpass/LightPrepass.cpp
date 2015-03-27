@@ -12,6 +12,7 @@
 using namespace CGE;
 
 static char const * vs_src_base =
+"@GLSL\n"
 "attribute vec3 pos;\n"
 "attribute vec2 texcoord;\n"
 "attribute vec3 normal;\n"
@@ -27,9 +28,38 @@ static char const * vs_src_base =
 "  uvcoord = texcoord;\n"
 "  gl_Position = mvp*vec4(pos, 1.0);\n"
 "}\n"
-"";
+""
+""
+"@HLSL\n"
+"cbuffer perObject{\n"
+"  matrix mvp;\n"
+"  matrix normalmat;\n"
+"};\n"
+"\n"
+"struct VSInput{\n"
+"  float3 pos : POSITION;\n"
+"  float2 texcoord: TEXCOORD0;\n"
+"  float3 normal: NORMAL;\n"
+"};\n"
+"\n"
+"struct VSOutput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float3 vnormal : NORMAL0;\n"
+"  float2 uvcoord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"VSOutput main(VSInput inp){\n"
+"  VSOutput outp;\n"
+"  float4 vPos = float4(inp.pos, 1.0);\n"
+"  outp.vnormal = normalize( mul(normalmat, float4(inp.normal, 0.0)).xyz );\n"
+"  outp.uvcoord = inp.texcoord;\n"
+"  outp.vPos = mul(mvp, vPos);\n"
+"  return outp;\n"
+"}\n"
+"\n";
 
 static char const * fs_src_base =
+"@GLSL\n"
 "uniform sampler2D texture;\n"
 "\n"
 "varying vec3 vnormal;\n"
@@ -51,9 +81,48 @@ static char const * fs_src_base =
 "  gl_FragData[2] = matSpecular;\n"
 "  \n"
 "}\n"
-"";
+""
+""
+"@HLSL\n"
+"Texture2D tex;\n"
+"SamplerState sampl;\n"
+"\n"
+"cbuffer perDraw{\n"
+"  int textureEnabled;\n"
+"  float4 matDiffuse;\n"
+"  float4 matSpecular;\n"
+"  float matShininess;\n"
+"};\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float3 vnormal : NORMAL0;\n"
+"  float2 uvcoord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"struct PSOutput{\n"
+"  float4 normal : SV_TARGET0;\n"
+"  float4 diffuse : SV_TARGET1;\n"
+"  float4 specular : SV_TARGET2;\n"
+"};\n"
+"\n"
+"PSOutput main(PSInput inp){\n"
+"  PSOutput outp;\n"
+"  outp.normal.rgb = normalize(inp.vnormal);\n"
+"  outp.normal.a = matShininess;\n"
+"  \n"
+"  float4 color = matDiffuse;\n"
+"  if (textureEnabled != 0)\n"
+"    color *= tex.Sample(sampl, inp.uvcoord);\n"
+"  outp.diffuse = color;\n"
+"  outp.specular = matSpecular;\n"
+"  return outp;\n"
+"  \n"
+"}\n"
+"\n";
 
 static char const * vs_src_light =
+"@GLSL\n"
 "attribute vec3 pos;\n"
 "attribute vec2 texcoord;\n"
 "\n"
@@ -67,9 +136,36 @@ static char const * vs_src_light =
 "  eyeDir = vec3(2.0*nearPlaneSize*uvcoord - nearPlaneSize, -1.0);\n"
 "  gl_Position = vec4(2*pos.x, 2*pos.y, 2*pos.z, 1.0);\n"
 "}\n"
-"";
+""
+""
+"@HLSL\n"
+"cbuffer perCam{\n"
+"  float2 nearPlaneSize;\n"
+"};\n"
+"\n"
+"struct VSInput{\n"
+"  float3 pos : POSITION;\n"
+"  float2 texcoord: TEXCOORD0;\n"
+"};\n"
+"\n"
+"struct VSOutput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float3 eyeDir : NORMAL0;\n"
+"  float2 uvcoord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"VSOutput main(VSInput inp){\n"
+"  VSOutput outp;\n"
+"  outp.uvcoord = float2(inp.texcoord.x, inp.texcoord.y);\n"
+"  outp.eyeDir = float3(2.0*nearPlaneSize*outp.uvcoord - nearPlaneSize, -1.0);\n"
+"  outp.vPos = float4(2*inp.pos.x, 2*inp.pos.y, 2*inp.pos.z, 1.0);\n"
+"  return outp;\n"
+"}\n"
+"\n";
+;
 
 static char const * fs_src_light =
+"@GLSL\n"
 "uniform sampler2D texture;\n"
 "uniform sampler2D depthTex;\n"
 "\n"
@@ -123,9 +219,70 @@ static char const * fs_src_light =
 "  gl_FragColor.rgb = diffuse;\n"
 "  gl_FragColor.a = spec*att;\n"
 "}\n"
-"";
+""
+""
+"@HLSL\n"
+"Texture2D tex;\n"
+"SamplerState texSampl;\n"
+"Texture2D depthTex;\n"
+"SamplerState depthSampl;\n"
+"\n"
+"cbuffer perFrame{\n"
+"   float camNear;\n"
+"  float camFar;\n"
+"  float4 lightPos;\n"
+"  float3 lightDir;\n"
+"  float4 lightColor;\n"
+"  float lightCutoff;\n"
+"  float lightAttenuation;\n"
+"};\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float3 eyeDir : NORMAL0;\n"
+"  float2 uvcoord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = tex.Sample(texSampl, inp.uvcoord);\n"
+"  float3 normal = normalize(color.xyz);\n"
+"  float shininess = color.a;\n"
+"  float depth = depthTex.Sample(depthSampl, inp.uvcoord).r;\n"
+"  depth = camNear * camFar / (camFar - depth * (camFar-camNear));\n"
+"  float3 vpos = inp.eyeDir*depth;\n"
+"  float3 eye = normalize(-vpos);\n"
+"  \n"
+"  float3 lightvec;\n"
+"  float att = 1.0;\n"
+"  if (lightPos.w == 0.0)\n"
+"    lightvec = normalize(lightPos.xyz);\n"
+"  else{\n"
+"    lightvec = normalize(lightPos.xyz - vpos);\n"
+"    float lightAngle = acos(dot(-lightvec, normalize(lightDir)));\n"
+"    if (lightAngle > lightCutoff){\n"
+"      att = 0.0;\n"
+"    }\n"
+"    else{\n"
+"      float lightDist = length(lightPos.xyz-vpos);\n"
+"      att = 1.0/(1.0+lightAttenuation*pow(lightDist, 2.0));\n"
+"    }\n"
+"  }\n"
+"  float3 refl = normalize(reflect(-lightvec, normal));\n"
+"  float NL = max(dot(normal,lightvec), 0.0);\n"
+"  float spec = 0.0;\n"
+"  if (NL > 0.0)\n"
+"    spec = pow(max(dot(refl, eye), 0.0), shininess);\n"
+"  \n"
+"  float3 diffuse = lightColor.rgb*NL*att;\n"
+"  float4 retColor;\n"
+"  retColor.rgb = diffuse;\n"
+"  retColor.a = spec*att;\n"
+"  return retColor;\n"
+"}\n"
+;
 
 static char const * vs_src_compositing =
+"@GLSL\n"
 "attribute vec3 pos;\n"
 "attribute vec2 texcoord;\n"
 "\n"
@@ -135,9 +292,29 @@ static char const * vs_src_compositing =
 "  uvcoord = vec2(texcoord.x, 1-texcoord.y);\n"
 "  gl_Position = vec4(2*pos.x, 2*pos.y, 2*pos.z, 1.0);\n"
 "}\n"
-"";
+""
+""
+"@HLSL\n"
+"struct VSInput{\n"
+"  float3 pos : POSITION;\n"
+"  float2 texcoord: TEXCOORD0;\n"
+"};\n"
+"\n"
+"struct VSOutput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 uvcoord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"VSOutput main(VSInput inp){\n"
+"  VSOutput outp;\n"
+"  outp.uvcoord = float2(inp.texcoord.x, inp.texcoord.y);\n"
+"  outp.vPos = float4(2*inp.pos.x, 2*inp.pos.y, 2*inp.pos.z, 1.0);\n"
+"  return outp;\n"
+"}\n"
+;
 
 static char const * fs_src_compositing =
+"@GLSL\n"
 "uniform sampler2D lightBuffer;\n"
 "uniform sampler2D diffuseTex;\n"
 "uniform sampler2D specTex;\n"
@@ -155,7 +332,35 @@ static char const * fs_src_compositing =
 "  gl_FragColor.rgb = diffuse.rgb*lcolor.rgb + specular.rgb*spec;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+""
+"@HLSL\n"
+"Texture2D lightBuffer;\n"
+"SamplerState lightSampl;\n"
+"Texture2D diffuseTex;\n"
+"SamplerState diffuseSampl;\n"
+"Texture2D specTex;\n"
+"SamplerState specSampl;\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 uvcoord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 diffuse = diffuseTex.Sample(diffuseSampl, inp.uvcoord);\n"
+"  if (diffuse.a == 0.0)\n"
+"    discard;\n"
+"  float4 specular = specTex.Sample(specSampl, inp.uvcoord);\n"
+"  float4 lcolor = lightBuffer.Sample(lightSampl, inp.uvcoord);\n"
+"  float3 chroma = lcolor.rgb/(0.299*lcolor.r+0.587*lcolor.g+0.114*lcolor.b+0.0);\n"
+"  float3 spec = chroma*lcolor.aaa;\n"
+"  float4 retColor;\n"
+"  retColor.rgb = diffuse.rgb*lcolor.rgb + specular.rgb*spec;\n"
+"  retColor.a = 1.0;\n"
+"  return retColor;\n"
+"}\n"
+;
 
 void LightPrepassRenderer::init(){
   Renderer* rend = Engine::instance()->getRenderer();
@@ -267,14 +472,15 @@ void LightPrepassRenderer::render(){
   }
   rend->enableBlend(false);
   mLightBuffer->deactivate();
+  mGBuffer->getTexture(3)->deactivate(3);
   
   mLightShader->deactivate();
 
+  mGBuffer->getTexture(3)->activate(2); //overwrite depth binding before acivating compositingbuffer
   mCompositingBuffer->activate();
   rend->clear(COLORBUFFER);
   mCompositingShader->activate();
   mGBuffer->getTexture(1)->activate(1);
-  mGBuffer->getTexture(3)->activate(2);
   mLightBuffer->drawFullscreen(false);
   mCompositingShader->deactivate();
 
@@ -284,6 +490,8 @@ void LightPrepassRenderer::render(){
   mCompositingBuffer->deactivate();
 
   mCompositingBuffer->drawFullscreen(true);
+  mGBuffer->getTexture(1)->deactivate(1);
+  mGBuffer->getTexture(3)->deactivate(2);
 }
 
 void LightPrepassRenderer::applyMaterial(Shader* shader, Material const& mat, void* userdata){

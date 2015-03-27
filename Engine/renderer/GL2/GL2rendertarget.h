@@ -21,7 +21,7 @@ public:
   virtual void addRenderbuffer(Texture::Format fmt);
   virtual bool isComplete();
   virtual Texture* getTexture(unsigned idx);
-  virtual unsigned getNumTextures() { return mTextures.size(); }
+  virtual unsigned getNumTextures() { return (unsigned)mTextures.size(); }
 protected:
   virtual void bind();
 private:

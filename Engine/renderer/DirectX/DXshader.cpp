@@ -29,8 +29,17 @@ DXShader::~DXShader(){
 bool DXShader::addShader(Type shadertype, const char* shaderstring, int stringlen){
   TR_USE(CGE_Shader_DX);
   ID3D11Device* dev = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
+  std::string shadercode;
   if (stringlen == 0)
-    stringlen = strlen(shaderstring);
+    shadercode = shaderstring;
+  else
+    shadercode = std::string(shaderstring, stringlen);
+  size_t idx = shadercode.find("@HLSL");
+  if (idx != std::string::npos){
+    size_t endidx = shadercode.find("@", idx + 5);
+    shadercode = shadercode.substr(idx + 5, endidx-idx-5);
+  }
+
   char* type;
   if (shadertype == VERTEX_SHADER)
     type = "vs_5_0";
@@ -42,10 +51,10 @@ bool DXShader::addShader(Type shadertype, const char* shaderstring, int stringle
 #endif
   ID3DBlob* shader = NULL;
   ID3DBlob* errors = NULL;
-  HRESULT res = D3DCompile(shaderstring, stringlen, NULL, NULL, NULL, "main", type, flags, 0, &shader, &errors);
+  HRESULT res = D3DCompile(shadercode.c_str(), shadercode.size(), NULL, NULL, NULL, "main", type, flags, 0, &shader, &errors);
   if (FAILED(res)){
     if (errors){
-      TR_ERROR("DX: %s\nshader was\n%s", errors->GetBufferPointer(), shaderstring);
+      TR_ERROR("DX: %s\nshader was\n%s", errors->GetBufferPointer(), shadercode.c_str());
       errors->Release();
     }
     if (shader)
@@ -171,9 +180,9 @@ void DXShader::allocUniforms(Type shader, unsigned idx, unsigned size){
 void DXShader::use(){
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
   ctx->VSSetShader(mVS, 0, 0);
-  ctx->VSSetConstantBuffers(0, mData[VERTEX_SHADER].constants.size(), mData[VERTEX_SHADER].constants.data());
+  ctx->VSSetConstantBuffers(0, (UINT)mData[VERTEX_SHADER].constants.size(), mData[VERTEX_SHADER].constants.data());
   ctx->PSSetShader(mPS, 0, 0);
-  ctx->PSSetConstantBuffers(0, mData[FRAGMENT_SHADER].constants.size(), mData[FRAGMENT_SHADER].constants.data());
+  ctx->PSSetConstantBuffers(0, (UINT)mData[FRAGMENT_SHADER].constants.size(), mData[FRAGMENT_SHADER].constants.data());
   ctx->IASetInputLayout(mLayout);
 }
 
@@ -186,6 +195,8 @@ void DXShader::unuse(){
 }
 
 void DXShader::lockUniforms(Type t, unsigned buffer){
+  if (mData[t].constRam.size() <= buffer)
+    return;
   mData[t].constRam[buffer].dirty = true;
   mMappedUBO = mData[t].constRam[buffer].ram;
 }

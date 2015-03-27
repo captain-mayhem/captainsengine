@@ -24,15 +24,27 @@ GL2Shader::~GL2Shader(){
 
 bool GL2Shader::addShader(Type shadertype, const char* shaderstring, int stringlen){
   TR_USE(CGE_Shader);
+  
+  std::string shadercode;
   if (stringlen == 0)
-    stringlen = strlen(shaderstring);
+    shadercode = shaderstring;
+  else
+    shadercode = std::string(shaderstring, stringlen);
+  size_t idx = shadercode.find("@GLSL");
+  if (idx != std::string::npos){
+    size_t endidx = shadercode.find("@", idx + 5);
+    shadercode = shadercode.substr(idx + 5, endidx - idx - 5);
+  }
+
   GLenum type;
   if (shadertype == VERTEX_SHADER)
     type = GL_VERTEX_SHADER;
   else if (shadertype == FRAGMENT_SHADER)
     type = GL_FRAGMENT_SHADER;
   GLuint shader = glCreateShader(type);
-  glShaderSource(shader, 1, &shaderstring, &stringlen);
+  GLchar const* ss = shadercode.c_str();
+  GLint slen = (GLint)shadercode.size();
+  glShaderSource(shader, 1, &ss, &slen);
   glCompileShader(shader);
   GLint success = 0;
   glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
@@ -45,7 +57,7 @@ bool GL2Shader::addShader(Type shadertype, const char* shaderstring, int stringl
     if (len > 0){
       char* log = new char[len];
       glGetShaderInfoLog(shader, len, NULL, log);
-      TR_ERROR("GL2: %s\nshader was\n%s", log, shaderstring);
+      TR_ERROR("GL2: %s\nshader was\n%s", log, shadercode.c_str());
       delete [] log;
     }
   }
