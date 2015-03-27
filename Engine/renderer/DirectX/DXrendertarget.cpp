@@ -48,17 +48,17 @@ void DXRenderTarget::addTexture(Texture::Format fmt){
 
 void DXRenderTarget::addTexture(const CGE::Texture& tex){
   ID3D11Device* dev = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
-
-  D3D11_RENDER_TARGET_VIEW_DESC rtvd;
-  ZeroMemory(&rtvd, sizeof(rtvd));
-  rtvd.Format = DXTexture::dxformat(tex.getFormat());
-  rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
-  rtvd.Texture2D.MipSlice = 0;
-  ID3D11RenderTargetView* rtv;
-  dev->CreateRenderTargetView(((const DXTexture&)tex).getHandle(), &rtvd, &rtv);
-  mRT.push_back(rtv);
-
-  if (tex.getFormat() == Texture::DEPTH){
+  if (tex.getFormat() != Texture::DEPTH){
+    D3D11_RENDER_TARGET_VIEW_DESC rtvd;
+    ZeroMemory(&rtvd, sizeof(rtvd));
+    rtvd.Format = DXTexture::dxformat(tex.getFormat());
+    rtvd.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+    rtvd.Texture2D.MipSlice = 0;
+    ID3D11RenderTargetView* rtv;
+    dev->CreateRenderTargetView(((const DXTexture&)tex).getHandle(), &rtvd, &rtv);
+    mRT.push_back(rtv);
+  }
+  else{
     D3D11_DEPTH_STENCIL_VIEW_DESC dsvd;
     ZeroMemory(&dsvd, sizeof(dsvd));
     dsvd.Format = DXTexture::dxformat(tex.getFormat());
@@ -115,5 +115,5 @@ Texture* DXRenderTarget::getTexture(unsigned idx){
 }
 
 void DXRenderTarget::bind(){
-  mCtx->OMSetRenderTargets(mRT.size(), mRT.data(), mDS);
+  mCtx->OMSetRenderTargets((UINT)mRT.size(), mRT.data(), mDS);
 }

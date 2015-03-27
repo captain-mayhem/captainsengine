@@ -28,6 +28,7 @@ public:
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
   void activate(unsigned stage=0) const;
   virtual void deactivate(unsigned stage=0) const;
+  virtual Texture* copy();
   GLuint getHandle() const { return tex_; }
   static GLenum glFormat(Format fmt);
 protected:

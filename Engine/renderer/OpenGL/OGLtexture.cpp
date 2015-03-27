@@ -27,6 +27,8 @@ bool OGLTexture::createFromImage(Image* img, Format fmt){
   if (fmt == AUTO)
     fmt = (Format)img->getNumChannels();
   mFormat = fmt;
+  mWidth = img->getWidth();
+  mHeight = img->getHeight();
 
   glBindTexture(GL_TEXTURE_2D, tex_);
   glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP, GL_TRUE);
@@ -43,6 +45,8 @@ bool OGLTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   if (fmt == AUTO)
     return false;
   mFormat = fmt;
+  mWidth = width;
+  mHeight = height;
 
   glBindTexture(GL_TEXTURE_2D, tex_);
   glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
@@ -94,4 +98,15 @@ GLenum OGLTexture::glFormat(Format fmt){
     return GL_ALPHA;
   }
   return GL_INVALID_ENUM;
+}
+
+Texture* OGLTexture::copy(){
+#ifdef RENDER_EMBEDDED
+  return NULL;
+#else
+  OGLTexture* ret = new OGLTexture();
+  ret->createEmpty(mWidth, mHeight, mFormat);
+  glCopyImageSubDataNV(tex_, GL_TEXTURE_2D, 0, 0, 0, 0, ret->tex_, GL_TEXTURE_2D, 0, 0, 0, 0, mWidth, mHeight, 0);
+  return ret;
+#endif
 }
