@@ -157,7 +157,7 @@ static char const * vs_src_light =
 "VSOutput main(VSInput inp){\n"
 "  VSOutput outp;\n"
 "  outp.uvcoord = float2(inp.texcoord.x, inp.texcoord.y);\n"
-"  outp.eyeDir = float3(2.0*nearPlaneSize*outp.uvcoord - nearPlaneSize, -1.0);\n"
+"  outp.eyeDir = float3(2.0*nearPlaneSize*outp.uvcoord - nearPlaneSize, -1);\n"
 "  outp.vPos = float4(2*inp.pos.x, 2*inp.pos.y, 2*inp.pos.z, 1.0);\n"
 "  return outp;\n"
 "}\n"
@@ -187,6 +187,7 @@ static char const * fs_src_light =
 "  float shininess = color.a;\n"
 "  float depth = texture2D(depthTex, uvcoord).r;\n"
 "  depth = camNear * camFar / (camFar - depth * (camFar-camNear));\n"
+//"  depth = 2 * camNear * camFar / (camFar + camNear - depth * (camFar - camNear));\n"
 "  vec3 vpos = eyeDir*depth;\n"
 "  vec3 eye = normalize(-vpos);\n"
 "  \n"
@@ -222,14 +223,17 @@ static char const * fs_src_light =
 ""
 ""
 "@HLSL\n"
-"Texture2D tex;\n"
-"SamplerState texSampl;\n"
-"Texture2D depthTex;\n"
-"SamplerState depthSampl;\n"
+"Texture2D tex : register(t0);\n"
+"SamplerState texSampl : register(s0);\n"
+"Texture2D depthTex : register(t2);\n"
+"SamplerState depthSampl : register(s2);\n"
+"\n"
+"cbuffer perCam{\n"
+"  float camNear;\n"
+"  float camFar;\n"
+"}\n"
 "\n"
 "cbuffer perFrame{\n"
-"   float camNear;\n"
-"  float camFar;\n"
 "  float4 lightPos;\n"
 "  float3 lightDir;\n"
 "  float4 lightColor;\n"
@@ -249,7 +253,12 @@ static char const * fs_src_light =
 "  float shininess = color.a;\n"
 "  float depth = depthTex.Sample(depthSampl, inp.uvcoord).r;\n"
 "  depth = camNear * camFar / (camFar - depth * (camFar-camNear));\n"
+//"  depth = ((- camNear * camFar)/(camFar-camNear)) / (depth - camFar / (camFar - camNear));\n"
+//"  float showdepth = (depth - camNear)/(camFar-camNear);\n"
+//"  depth = depth * (camNear-camFar) / (camFar+camNear*camFar);\n"
 "  float3 vpos = inp.eyeDir*depth;\n"
+//"  float zdist = dot(float3(0, 0, -1), normalize(inp.eyeDir));\n"
+//"  float3 vpos = normalize(inp.eyeDir)*depth/zdist;\n"
 "  float3 eye = normalize(-vpos);\n"
 "  \n"
 "  float3 lightvec;\n"
@@ -335,12 +344,12 @@ static char const * fs_src_compositing =
 ""
 ""
 "@HLSL\n"
-"Texture2D lightBuffer;\n"
-"SamplerState lightSampl;\n"
-"Texture2D diffuseTex;\n"
-"SamplerState diffuseSampl;\n"
-"Texture2D specTex;\n"
-"SamplerState specSampl;\n"
+"Texture2D lightBuffer : register(t0);\n"
+"SamplerState lightSampl : register(s0);\n"
+"Texture2D diffuseTex : register(t1);\n"
+"SamplerState diffuseSampl : register(s1);\n"
+"Texture2D specTex : register(t2);\n"
+"SamplerState specSampl : register(s2);\n"
 "\n"
 "struct PSInput{\n"
 "  float4 vPos : SV_POSITION;\n"
@@ -356,7 +365,7 @@ static char const * fs_src_compositing =
 "  float3 chroma = lcolor.rgb/(0.299*lcolor.r+0.587*lcolor.g+0.114*lcolor.b+0.0);\n"
 "  float3 spec = chroma*lcolor.aaa;\n"
 "  float4 retColor;\n"
-"  retColor.rgb = diffuse.rgb*lcolor.rgb + specular.rgb*spec;\n"
+"  retColor.rgb = lcolor.rgb;//diffuse.rgb*lcolor.rgb + specular.rgb*spec; \n"
 "  retColor.a = 1.0;\n"
 "  return retColor;\n"
 "}\n"
@@ -456,10 +465,14 @@ void LightPrepassRenderer::render(){
   mBaseShader->deactivate();
 
   mLightShader->activate();
+  mLightShader->lockUniforms(Shader::FRAGMENT_SHADER);
   mLightShader->uniform(mCamNearLoc, mScene->getActiveCam()->getFrustum().getNearDist());
   mLightShader->uniform(mCamFarLoc, mScene->getActiveCam()->getFrustum().getFarDist());
+  mLightShader->unlockUniforms(Shader::FRAGMENT_SHADER);
   float npy = tanf(mScene->getActiveCam()->getFrustum().getAngle() / 180.0f*(float)M_PI / 2.0f);
+  mLightShader->lockUniforms(Shader::VERTEX_SHADER);
   mLightShader->uniform(mNearPlaneSizeLoc, npy*mScene->getActiveCam()->getFrustum().getRatio(), npy);
+  mLightShader->unlockUniforms(Shader::VERTEX_SHADER);
   
   mLightBuffer->activate();
   rend->enableBlend(true);
@@ -469,6 +482,7 @@ void LightPrepassRenderer::render(){
     Light* l = mScene->getLights()[i];
     rend->setLight(0, *l);
     mGBuffer->drawFullscreen(false);
+    //break;
   }
   rend->enableBlend(false);
   mLightBuffer->deactivate();

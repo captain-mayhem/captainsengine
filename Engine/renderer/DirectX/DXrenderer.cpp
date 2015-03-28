@@ -618,9 +618,10 @@ void DXRenderer::enableBackFaceCulling(const bool flag){
 
 //! enable texturing
 void DXRenderer::enableTexturing(const bool flag){
+  int texEn = Shader::getCurrentShader()->getUniformLocation(Shader::FRAGMENT_SHADER, "textureEnabled");
   int textureEnabled = flag ? 1 : 0;
   Shader::getCurrentShader()->lockUniforms(Shader::FRAGMENT_SHADER);
-  Shader::getCurrentShader()->uniform(0, textureEnabled);
+  Shader::getCurrentShader()->uniform(texEn, textureEnabled);
   Shader::getCurrentShader()->unlockUniforms(Shader::FRAGMENT_SHADER);
 }
 
