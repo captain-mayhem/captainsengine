@@ -435,8 +435,11 @@ void DXRenderer::setClearColor(const Vec4f& color){
 
 void DXRenderer::clear(long flags){
   DXRenderTarget* rt = (DXRenderTarget*)DXRenderTarget::getCurrent();
-  if (flags & COLORBUFFER)
-    mD3d->ClearRenderTargetView(rt->getRenderTargets(), mClearColor);
+  if (flags & COLORBUFFER){
+    for (unsigned i = 0; i < rt->getNumRenderTargets(); ++i){
+      mD3d->ClearRenderTargetView(rt->getRenderTarget(i), mClearColor);
+    }
+  }
   if (flags & ZBUFFER)
     mD3d->ClearDepthStencilView(rt->getDepthStencil(), D3D11_CLEAR_DEPTH, 1.0f, 0);
 }
