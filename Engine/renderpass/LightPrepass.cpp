@@ -150,14 +150,15 @@ static char const * vs_src_light =
 "\n"
 "struct VSOutput{\n"
 "  float4 vPos : SV_POSITION;\n"
-"  float3 eyeDir : NORMAL0;\n"
+"  float3 eyeDir : TEXCOORD4;\n"
 "  float2 uvcoord : TEXCOORD0;\n"
 "};\n"
 "\n"
 "VSOutput main(VSInput inp){\n"
 "  VSOutput outp;\n"
 "  outp.uvcoord = float2(inp.texcoord.x, inp.texcoord.y);\n"
-"  outp.eyeDir = float3(2.0*nearPlaneSize*outp.uvcoord - nearPlaneSize, -1);\n"
+"  float2 eyeCoord = float2(inp.texcoord.x, 1-inp.texcoord.y);\n"
+"  outp.eyeDir = float3(2.0*nearPlaneSize*eyeCoord - nearPlaneSize, -1.0);\n"
 "  outp.vPos = float4(2*inp.pos.x, 2*inp.pos.y, 2*inp.pos.z, 1.0);\n"
 "  return outp;\n"
 "}\n"
@@ -187,6 +188,7 @@ static char const * fs_src_light =
 "  float shininess = color.a;\n"
 "  float depth = texture2D(depthTex, uvcoord).r;\n"
 "  depth = camNear * camFar / (camFar - depth * (camFar-camNear));\n"
+//"  float depth = 2.0*texture2D(depthTex, uvcoord).r - 1.0;\n"
 //"  depth = 2 * camNear * camFar / (camFar + camNear - depth * (camFar - camNear));\n"
 "  vec3 vpos = eyeDir*depth;\n"
 "  vec3 eye = normalize(-vpos);\n"
@@ -243,7 +245,7 @@ static char const * fs_src_light =
 "\n"
 "struct PSInput{\n"
 "  float4 vPos : SV_POSITION;\n"
-"  float3 eyeDir : NORMAL0;\n"
+"  float3 eyeDir : TEXCOORD4;\n"
 "  float2 uvcoord : TEXCOORD0;\n"
 "};\n"
 "\n"
@@ -252,7 +254,9 @@ static char const * fs_src_light =
 "  float3 normal = normalize(color.xyz);\n"
 "  float shininess = color.a;\n"
 "  float depth = depthTex.Sample(depthSampl, inp.uvcoord).r;\n"
+//"  depth = depth*2-1;\n"
 "  depth = camNear * camFar / (camFar - depth * (camFar-camNear));\n"
+//"  depth = (depth+1)*0.5;\n"
 //"  depth = ((- camNear * camFar)/(camFar-camNear)) / (depth - camFar / (camFar - camNear));\n"
 //"  float showdepth = (depth - camNear)/(camFar-camNear);\n"
 //"  depth = depth * (camNear-camFar) / (camFar+camNear*camFar);\n"
@@ -365,7 +369,7 @@ static char const * fs_src_compositing =
 "  float3 chroma = lcolor.rgb/(0.299*lcolor.r+0.587*lcolor.g+0.114*lcolor.b+0.0);\n"
 "  float3 spec = chroma*lcolor.aaa;\n"
 "  float4 retColor;\n"
-"  retColor.rgb = lcolor.rgb;//diffuse.rgb*lcolor.rgb + specular.rgb*spec; \n"
+"  retColor.rgb = diffuse.rgb*lcolor.rgb + specular.rgb*spec; \n"
 "  retColor.a = 1.0;\n"
 "  return retColor;\n"
 "}\n"
@@ -482,7 +486,6 @@ void LightPrepassRenderer::render(){
     Light* l = mScene->getLights()[i];
     rend->setLight(0, *l);
     mGBuffer->drawFullscreen(false);
-    //break;
   }
   rend->enableBlend(false);
   mLightBuffer->deactivate();

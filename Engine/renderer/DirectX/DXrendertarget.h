@@ -21,7 +21,8 @@ public:
   virtual bool isComplete();
   virtual Texture* getTexture(unsigned idx);
   virtual unsigned getNumTextures() { return (unsigned)mRTTextures.size(); }
-  ID3D11RenderTargetView* getRenderTargets() { return mRT[0]; }
+  unsigned getNumRenderTargets() { return (unsigned) mRT.size(); }
+  ID3D11RenderTargetView* getRenderTarget(unsigned idx) { return mRT[idx]; }
   ID3D11DepthStencilView* getDepthStencil() { return mDS; }
 protected:
   virtual void bind();
