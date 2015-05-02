@@ -460,10 +460,10 @@ namespace StoryDesigner
                 cs.highlight.y = Convert.ToInt32(str);
                 mAdv.Cursor.Add(cs);
             }
-            return readObjectsLoop(rdr, ver_major, ver_minor);
+            return readObjectsLoop(rdr, ver_major, ver_minor, null);
         }
 
-        protected bool readObjectsLoop(StreamReader rdr, int ver_major, int ver_minor)
+        protected bool readObjectsLoop(StreamReader rdr, int ver_major, int ver_minor, TreeNode parent)
         {
             string str;
             while (!rdr.EndOfStream)
@@ -534,8 +534,13 @@ namespace StoryDesigner
                 //OBJECT
                 else if (typename[0] == "Object")
                 {
-                    AdvObject obj = new AdvObject(mAdv);
-                    obj.Name = typename[1];
+                    AdvObject obj = mAdv.getObject(typename[1]);
+                    if (obj == null)
+                    {
+                        obj = new AdvObject(mAdv);
+                        obj.Name = typename[1];
+                        mAdv.addObject(obj);
+                    }
                     str = rdr.ReadLine();
                     int x = Convert.ToInt32(str);
                     str = rdr.ReadLine();
@@ -549,14 +554,6 @@ namespace StoryDesigner
                         ObjectState os = new ObjectState();
                         os.fpsDivider = readExtendedFrames(rdr, os.frames);
                         obj.Add(os);
-                    }
-                    try
-                    {
-                        mAdv.addObject(obj);
-                    }
-                    catch (Exception)
-                    {
-                        Console.WriteLine("WARNING: Duplicate Object " + obj.Name + " found!");
                     }
                 }
                 //CHARACTER
@@ -754,9 +751,24 @@ namespace StoryDesigner
                 else if (typename[0] == "Roomobject")
                 {
                     string obj = rdr.ReadLine();
+                    AdvObject newobj = mAdv.getObject(obj);
+                    if (newobj == null)
+                    {
+                        //this happens during room import
+                        newobj = new AdvObject(mAdv);
+                        newobj.Name = obj;
+                        mAdv.addObject(newobj);
+                        //auto add objects
+                        if (parent != null)
+                        {
+                            TreeNode tno = new TreeNode(obj);
+                            tno.Tag = ResourceID.OBJECT;
+                            tno.ImageIndex = Utilities.ResourceIDToImageIndex((ResourceID)tno.Tag);
+                            tno.SelectedImageIndex = tno.ImageIndex;
+                            parent.Nodes.Add(tno);
+                        }
+                    }
                     ObjectInstance objinst = new ObjectInstance(mAdv.getObject(obj), mAdv);
-                    if (objinst.Object == null)
-                        throw new UnexpectedValueException("No object for object instance found");
                     objinst.Name = typename[1];
                     objinst.Position.x = Convert.ToInt32(rdr.ReadLine());
                     objinst.Position.y = Convert.ToInt32(rdr.ReadLine());
@@ -778,7 +790,12 @@ namespace StoryDesigner
             int ver_minor = Int32.Parse(str.Substring(2, 1));
             if (str.Substring(4) != "Point&Click Project File. DO NOT MODIFY!!")
                 return false;
-            str = rdr.ReadLine();
+            return readScriptsLoop(rdr, ver_major, ver_minor);
+        }
+
+        protected bool readScriptsLoop(StreamReader rdr, int ver_major, int ver_minor)
+        {      
+            string str = rdr.ReadLine();
             mLastScript = null;
             while (!rdr.EndOfStream)
             {
@@ -1090,6 +1107,45 @@ namespace StoryDesigner
             return advname;
         }
 
+        private void addImageList(string dirname, string mediaDir, Stream zis)
+        {
+            TreeNode dir = null;
+            foreach (TreeNode node in mMediaPool.Nodes[0].Nodes)
+            {
+                if (node.Text == dirname)
+                {
+                    dir = node;
+                    break;
+                }
+            }
+            if (dir == null)
+            {
+                dir = new TreeNode(dirname);
+                dir.Tag = ResourceID.FOLDER;
+                dir.SelectedImageIndex = Utilities.ResourceIDToImageIndex(ResourceID.FOLDER);
+                dir.ImageIndex = dir.SelectedImageIndex;
+                mMediaPool.Nodes[0].Nodes.Add(dir);
+            }
+
+            StreamReader rdr = new StreamReader(zis, Encoding.GetEncoding(1252));
+            while (!rdr.EndOfStream)
+            {
+                string file = rdr.ReadLine();
+                string key = Path.GetFileNameWithoutExtension(file);
+                if (!mAdv.Images.ContainsKey(key))
+                {
+                    string value = Path.Combine(mediaDir, Path.GetFileName(file));
+                    mAdv.Images.Add(key.ToLower(), value);
+                    TreeNode image = new TreeNode(key);
+                    image.Tag = ResourceID.IMAGE;
+                    image.ImageIndex = Utilities.ResourceIDToImageIndex((ResourceID)image.Tag);
+                    image.SelectedImageIndex = image.ImageIndex;
+                    dir.Nodes.Add(image);
+                }
+            }
+            mMediaPool.Sort();
+        }
+
         public void importCharacter(string filename)
         {
             ZipInputStream zis = new ZipInputStream(File.OpenRead(filename));
@@ -1101,7 +1157,7 @@ namespace StoryDesigner
                 if (entry.Name == "char.dat")
                 {
                     StreamReader rdr = new StreamReader(zis, Encoding.GetEncoding(1252));
-                    readObjectsLoop(rdr, 0, 0);
+                    readObjectsLoop(rdr, 0, 0, null);
                     TreeNode chr = new TreeNode(dirname);
                     chr.Tag = ResourceID.CHARACTER;
                     chr.ImageIndex = Utilities.ResourceIDToImageIndex((ResourceID)chr.Tag);
@@ -1119,41 +1175,52 @@ namespace StoryDesigner
                 }
                 else if (entry.Name == "list.gfx")
                 {
-                    TreeNode dir = null;
-                    foreach (TreeNode node in mMediaPool.Nodes[0].Nodes)
-                    {
-                        if (node.Text == dirname)
-                        {
-                            dir = node;
-                            break;
-                        }
-                    }
-                    if (dir == null)
-                    {
-                        dir = new TreeNode(dirname);
-                        dir.Tag = ResourceID.FOLDER;
-                        dir.SelectedImageIndex = Utilities.ResourceIDToImageIndex(ResourceID.FOLDER);
-                        dir.ImageIndex = dir.SelectedImageIndex;
-                        mMediaPool.Nodes[0].Nodes.Add(dir);
-                    }
+                    addImageList(dirname, mediaDir, zis);
+                }
+            }
+            zis.Close();
+        }
 
+        public void importRoom(string filename)
+        {
+            ZipInputStream zis = new ZipInputStream(File.OpenRead(filename));
+            ZipEntry entry;
+            string dirname = Path.GetFileNameWithoutExtension(filename);
+            string mediaDir = Path.Combine(mPath, dirname);
+            while ((entry = zis.GetNextEntry()) != null)
+            {
+                if (entry.Name == "room.dat")
+                {
+                    TreeNode objects = new TreeNode(dirname);
+                    objects.Tag = ResourceID.FOLDER;
+                    objects.ImageIndex = Utilities.ResourceIDToImageIndex((ResourceID)objects.Tag);
+                    objects.SelectedImageIndex = objects.ImageIndex;
+                    mGamePool.Nodes[3].Nodes.Add(objects);
                     StreamReader rdr = new StreamReader(zis, Encoding.GetEncoding(1252));
-                    while (!rdr.EndOfStream)
-                    {
-                        string file = rdr.ReadLine();
-                        string key = Path.GetFileNameWithoutExtension(file);
-                        if (!mAdv.Images.ContainsKey(key))
-                        {
-                            string value = Path.Combine(mediaDir, Path.GetFileName(file));
-                            mAdv.Images.Add(key.ToLower(), value);
-                            TreeNode image = new TreeNode(key);
-                            image.Tag = ResourceID.IMAGE;
-                            image.ImageIndex = Utilities.ResourceIDToImageIndex((ResourceID)image.Tag);
-                            image.SelectedImageIndex = image.ImageIndex;
-                            dir.Nodes.Add(image);
-                        }
-                    }
-                    mMediaPool.Sort();
+                    readObjectsLoop(rdr, 0, 0, objects);
+                    TreeNode room = new TreeNode(dirname);
+                    room.Tag = ResourceID.ROOM;
+                    room.ImageIndex = Utilities.ResourceIDToImageIndex((ResourceID)room.Tag);
+                    room.SelectedImageIndex = room.ImageIndex;
+                    mGamePool.Nodes[4].Nodes.Add(room);
+
+                }
+                else if (entry.Name == "gfx.roo")
+                {
+                    Directory.CreateDirectory(mediaDir);
+                    ZipInputStream input = new ZipInputStream(zis);
+                    input.IsStreamOwner = false;
+                    AdvFileWriter.writeFileRecursive(input, mediaDir);
+                    input.Close();
+                }
+                else if (entry.Name == "script.dat")
+                {
+                    StreamReader rdr = new StreamReader(zis, Encoding.GetEncoding(1252));
+                    readScriptsLoop(rdr, 0, 0);
+                }
+                else if (entry.Name == "list.gfx")
+                {
+                    addImageList(dirname, mediaDir, zis);
                 }
             }
             zis.Close();

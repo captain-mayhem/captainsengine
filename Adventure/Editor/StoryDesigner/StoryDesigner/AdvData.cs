@@ -1161,7 +1161,9 @@ namespace StoryDesigner
 
         public AdvObject getObject(string name)
         {
-            return mObjects[name.ToLower()];
+            AdvObject obj;
+            mObjects.TryGetValue(name.ToLower(), out obj);
+            return obj;
         }
         public void addObject(AdvObject obj)
         {

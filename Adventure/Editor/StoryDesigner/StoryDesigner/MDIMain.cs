@@ -293,5 +293,10 @@ namespace StoryDesigner
             box.MdiParent = this;
             box.Show();
         }
+
+        private void importRoomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            mMainForm.importRoomToolStripMenuItem_Click(sender, e);
+        }
     }
 }

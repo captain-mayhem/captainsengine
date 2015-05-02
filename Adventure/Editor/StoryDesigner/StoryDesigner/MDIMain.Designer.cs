@@ -205,6 +205,7 @@
             // 
             this.importRoomToolStripMenuItem.Name = "importRoomToolStripMenuItem";
             resources.ApplyResources(this.importRoomToolStripMenuItem, "importRoomToolStripMenuItem");
+            this.importRoomToolStripMenuItem.Click += new System.EventHandler(this.importRoomToolStripMenuItem_Click);
             // 
             // toolStripSeparator11
             // 
