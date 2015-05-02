@@ -1393,8 +1393,28 @@ namespace StoryDesigner
             DialogResult dr = fod.ShowDialog();
             if (dr == DialogResult.OK)
             {
-                AdvFileReader rdr = new AdvFileReader(mData, mediaPool, gamePool, mPersistence, Path.GetDirectoryName(mSavePath));
+                string savepath = "";
+                if (mSavePath != null)
+                    savepath = Path.GetDirectoryName(mSavePath);
+                AdvFileReader rdr = new AdvFileReader(mData, mediaPool, gamePool, mPersistence, savepath);
                 rdr.importCharacter(fod.FileName);
+                MessageBox.Show(Strings.done, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+
+        internal void importRoomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fod = new OpenFileDialog();
+            fod.Filter = "Room export file|*.adr";
+            fod.InitialDirectory = mPersistence.LastOpenPath;
+            DialogResult dr = fod.ShowDialog();
+            if (dr == DialogResult.OK)
+            {
+                string savepath = "";
+                if (mSavePath != null)
+                    savepath = Path.GetDirectoryName(mSavePath);
+                AdvFileReader rdr = new AdvFileReader(mData, mediaPool, gamePool, mPersistence, savepath);
+                rdr.importRoom(fod.FileName);
                 MessageBox.Show(Strings.done, "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
