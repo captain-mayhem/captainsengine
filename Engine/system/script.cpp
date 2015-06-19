@@ -24,7 +24,7 @@ Script::~Script(){
 void Script::initEnv(){
   TR_USE(CGE_Script);
   TR_INFO("Initialize Lua Scripting environment");
-	L = lua_open();
+	L = luaL_newstate();
   luaopen_base(L);
 	luaopen_table(L);
 	luaopen_io(L);

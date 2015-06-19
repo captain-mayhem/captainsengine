@@ -1,13 +1,15 @@
 /*
-** $Id: ltablib.c,v 1.21 2003/04/03 13:35:34 roberto Exp $
+** $Id: ltablib.c,v 1.65.1.2 2014/05/07 16:32:55 roberto Exp $
 ** Library for Table Manipulation
 ** See Copyright Notice in lua.h
 */
 
 
+#include <limits.h>
 #include <stddef.h>
 
 #define ltablib_c
+#define LUA_LIB
 
 #include "lua.h"
 
@@ -15,114 +17,140 @@
 #include "lualib.h"
 
 
-#define aux_getn(L,n)	(luaL_checktype(L, n, LUA_TTABLE), luaL_getn(L, n))
+#define aux_getn(L,n)	(luaL_checktype(L, n, LUA_TTABLE), luaL_len(L, n))
 
 
-static int luaB_foreachi (lua_State *L) {
-  int i;
-  int n = aux_getn(L, 1);
-  luaL_checktype(L, 2, LUA_TFUNCTION);
-  for (i=1; i<=n; i++) {
-    lua_pushvalue(L, 2);  /* function */
-    lua_pushnumber(L, (lua_Number)i);  /* 1st argument */
-    lua_rawgeti(L, 1, i);  /* 2nd argument */
-    lua_call(L, 2, 1);
-    if (!lua_isnil(L, -1))
-      return 1;
-    lua_pop(L, 1);  /* remove nil result */
-  }
-  return 0;
-}
 
-
-static int luaB_foreach (lua_State *L) {
+#if defined(LUA_COMPAT_MAXN)
+static int maxn (lua_State *L) {
+  lua_Number max = 0;
   luaL_checktype(L, 1, LUA_TTABLE);
-  luaL_checktype(L, 2, LUA_TFUNCTION);
   lua_pushnil(L);  /* first key */
-  for (;;) {
-    if (lua_next(L, 1) == 0)
-      return 0;
-    lua_pushvalue(L, 2);  /* function */
-    lua_pushvalue(L, -3);  /* key */
-    lua_pushvalue(L, -3);  /* value */
-    lua_call(L, 2, 1);
-    if (!lua_isnil(L, -1))
-      return 1;
-    lua_pop(L, 2);  /* remove value and result */
+  while (lua_next(L, 1)) {
+    lua_pop(L, 1);  /* remove value */
+    if (lua_type(L, -1) == LUA_TNUMBER) {
+      lua_Number v = lua_tonumber(L, -1);
+      if (v > max) max = v;
+    }
   }
-}
-
-
-static int luaB_getn (lua_State *L) {
-  lua_pushnumber(L, (lua_Number)aux_getn(L, 1));
+  lua_pushnumber(L, max);
   return 1;
 }
+#endif
 
 
-static int luaB_setn (lua_State *L) {
-  luaL_checktype(L, 1, LUA_TTABLE);
-  luaL_setn(L, 1, luaL_checkint(L, 2));
-  return 0;
-}
-
-
-static int luaB_tinsert (lua_State *L) {
-  int v = lua_gettop(L);  /* number of arguments */
-  int n = aux_getn(L, 1) + 1;
+static int tinsert (lua_State *L) {
+  int e = aux_getn(L, 1) + 1;  /* first empty element */
   int pos;  /* where to insert new element */
-  if (v == 2)  /* called with only 2 arguments */
-    pos = n;  /* insert new element at the end */
-  else {
-    pos = luaL_checkint(L, 2);  /* 2nd argument is the position */
-    if (pos > n) n = pos;  /* `grow' array if necessary */
-    v = 3;  /* function may be called with more than 3 args */
+  switch (lua_gettop(L)) {
+    case 2: {  /* called with only 2 arguments */
+      pos = e;  /* insert new element at the end */
+      break;
+    }
+    case 3: {
+      int i;
+      pos = luaL_checkint(L, 2);  /* 2nd argument is the position */
+      luaL_argcheck(L, 1 <= pos && pos <= e, 2, "position out of bounds");
+      for (i = e; i > pos; i--) {  /* move up elements */
+        lua_rawgeti(L, 1, i-1);
+        lua_rawseti(L, 1, i);  /* t[i] = t[i-1] */
+      }
+      break;
+    }
+    default: {
+      return luaL_error(L, "wrong number of arguments to " LUA_QL("insert"));
+    }
   }
-  luaL_setn(L, 1, n);  /* new size */
-  while (--n >= pos) {  /* move up elements */
-    lua_rawgeti(L, 1, n);
-    lua_rawseti(L, 1, n+1);  /* t[n+1] = t[n] */
-  }
-  lua_pushvalue(L, v);
   lua_rawseti(L, 1, pos);  /* t[pos] = v */
   return 0;
 }
 
 
-static int luaB_tremove (lua_State *L) {
-  int n = aux_getn(L, 1);
-  int pos = luaL_optint(L, 2, n);
-  if (n <= 0) return 0;  /* table is `empty' */
-  luaL_setn(L, 1, n-1);  /* t.n = n-1 */
+static int tremove (lua_State *L) {
+  int size = aux_getn(L, 1);
+  int pos = luaL_optint(L, 2, size);
+  if (pos != size)  /* validate 'pos' if given */
+    luaL_argcheck(L, 1 <= pos && pos <= size + 1, 1, "position out of bounds");
   lua_rawgeti(L, 1, pos);  /* result = t[pos] */
-  for ( ;pos<n; pos++) {
+  for ( ; pos < size; pos++) {
     lua_rawgeti(L, 1, pos+1);
     lua_rawseti(L, 1, pos);  /* t[pos] = t[pos+1] */
   }
   lua_pushnil(L);
-  lua_rawseti(L, 1, n);  /* t[n] = nil */
+  lua_rawseti(L, 1, pos);  /* t[pos] = nil */
   return 1;
 }
 
 
-static int str_concat (lua_State *L) {
+static void addfield (lua_State *L, luaL_Buffer *b, int i) {
+  lua_rawgeti(L, 1, i);
+  if (!lua_isstring(L, -1))
+    luaL_error(L, "invalid value (%s) at index %d in table for "
+                  LUA_QL("concat"), luaL_typename(L, -1), i);
+  luaL_addvalue(b);
+}
+
+
+static int tconcat (lua_State *L) {
   luaL_Buffer b;
   size_t lsep;
+  int i, last;
   const char *sep = luaL_optlstring(L, 2, "", &lsep);
-  int i = luaL_optint(L, 3, 1);
-  int n = luaL_optint(L, 4, 0);
   luaL_checktype(L, 1, LUA_TTABLE);
-  if (n == 0) n = luaL_getn(L, 1);
+  i = luaL_optint(L, 3, 1);
+  last = luaL_opt(L, luaL_checkint, 4, luaL_len(L, 1));
   luaL_buffinit(L, &b);
-  for (; i <= n; i++) {
-    lua_rawgeti(L, 1, i);
-    luaL_argcheck(L, lua_isstring(L, -1), 1, "table contains non-strings");
-    luaL_addvalue(&b);
-    if (i != n)
-      luaL_addlstring(&b, sep, lsep);
+  for (; i < last; i++) {
+    addfield(L, &b, i);
+    luaL_addlstring(&b, sep, lsep);
   }
+  if (i == last)  /* add last value (if interval was not empty) */
+    addfield(L, &b, i);
   luaL_pushresult(&b);
   return 1;
 }
+
+
+/*
+** {======================================================
+** Pack/unpack
+** =======================================================
+*/
+
+static int pack (lua_State *L) {
+  int n = lua_gettop(L);  /* number of elements to pack */
+  lua_createtable(L, n, 1);  /* create result table */
+  lua_pushinteger(L, n);
+  lua_setfield(L, -2, "n");  /* t.n = number of elements */
+  if (n > 0) {  /* at least one element? */
+    int i;
+    lua_pushvalue(L, 1);
+    lua_rawseti(L, -2, 1);  /* insert first element */
+    lua_replace(L, 1);  /* move table into index 1 */
+    for (i = n; i >= 2; i--)  /* assign other elements */
+      lua_rawseti(L, 1, i);
+  }
+  return 1;  /* return table */
+}
+
+
+static int unpack (lua_State *L) {
+  int i, e;
+  unsigned int n;
+  luaL_checktype(L, 1, LUA_TTABLE);
+  i = luaL_optint(L, 2, 1);
+  e = luaL_opt(L, luaL_checkint, 3, luaL_len(L, 1));
+  if (i > e) return 0;  /* empty range */
+  n = (unsigned int)e - (unsigned int)i;  /* number of elements minus 1 */
+  if (n > (INT_MAX - 10) || !lua_checkstack(L, ++n))
+    return luaL_error(L, "too many results to unpack");
+  lua_rawgeti(L, 1, i);  /* push arg[i] (avoiding overflow problems) */
+  while (i++ < e)  /* push arg[i + 1...e] */
+    lua_rawgeti(L, 1, i);
+  return n;
+}
+
+/* }====================================================== */
 
 
 
@@ -131,6 +159,7 @@ static int str_concat (lua_State *L) {
 ** Quicksort
 ** (based on `Algorithms in MODULA-3', Robert Sedgewick;
 **  Addison-Wesley, 1993.)
+** =======================================================
 */
 
 
@@ -151,7 +180,7 @@ static int sort_comp (lua_State *L, int a, int b) {
     return res;
   }
   else  /* a < b? */
-    return lua_lessthan(L, a, b);
+    return lua_compare(L, a, b, LUA_OPLT);
 }
 
 static void auxsort (lua_State *L, int l, int u) {
@@ -188,12 +217,12 @@ static void auxsort (lua_State *L, int l, int u) {
     for (;;) {  /* invariant: a[l..i] <= P <= a[j..u] */
       /* repeat ++i until a[i] >= P */
       while (lua_rawgeti(L, 1, ++i), sort_comp(L, -1, -2)) {
-        if (i>u) luaL_error(L, "invalid order function for sorting");
+        if (i>=u) luaL_error(L, "invalid order function for sorting");
         lua_pop(L, 1);  /* remove a[i] */
       }
       /* repeat --j until a[j] <= P */
       while (lua_rawgeti(L, 1, --j), sort_comp(L, -3, -1)) {
-        if (j<l) luaL_error(L, "invalid order function for sorting");
+        if (j<=l) luaL_error(L, "invalid order function for sorting");
         lua_pop(L, 1);  /* remove a[j] */
       }
       if (j<i) {
@@ -217,7 +246,7 @@ static void auxsort (lua_State *L, int l, int u) {
   }  /* repeat the routine for the larger one */
 }
 
-static int luaB_sort (lua_State *L) {
+static int sort (lua_State *L) {
   int n = aux_getn(L, 1);
   luaL_checkstack(L, 40, "");  /* assume array is smaller than 2^40 */
   if (!lua_isnoneornil(L, 2))  /* is there a 2nd argument? */
@@ -230,21 +259,27 @@ static int luaB_sort (lua_State *L) {
 /* }====================================================== */
 
 
-static const luaL_reg tab_funcs[] = {
-  {"concat", str_concat},
-  {"foreach", luaB_foreach},
-  {"foreachi", luaB_foreachi},
-  {"getn", luaB_getn},
-  {"setn", luaB_setn},
-  {"sort", luaB_sort},
-  {"insert", luaB_tinsert},
-  {"remove", luaB_tremove},
+static const luaL_Reg tab_funcs[] = {
+  {"concat", tconcat},
+#if defined(LUA_COMPAT_MAXN)
+  {"maxn", maxn},
+#endif
+  {"insert", tinsert},
+  {"pack", pack},
+  {"unpack", unpack},
+  {"remove", tremove},
+  {"sort", sort},
   {NULL, NULL}
 };
 
 
-LUALIB_API int luaopen_table (lua_State *L) {
-  luaL_openlib(L, LUA_TABLIBNAME, tab_funcs, 0);
+LUAMOD_API int luaopen_table (lua_State *L) {
+  luaL_newlib(L, tab_funcs);
+#if defined(LUA_COMPAT_UNPACK)
+  /* _G.unpack = table.unpack */
+  lua_getfield(L, -1, "unpack");
+  lua_setglobal(L, "unpack");
+#endif
   return 1;
 }
 

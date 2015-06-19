@@ -58,7 +58,7 @@ void Inventory::addItem(Item it){
   //no such item stored
   if(idx == 0){
     items_.push_back(it);
-    lookup_[it.getName()] = items_.size()-1;
+    lookup_[it.getName()] = (int)items_.size()-1;
   }
   else{
     for (int i = 0; i < it.getNumber(); i++)
@@ -120,7 +120,7 @@ bool Inventory::useItem(string name, Vector2D pos, Vector2D target){
     
 //! writes item data
 void Inventory::write(ofstream& out)const{
-  short length = items_.size()-1;
+  short length = (short)items_.size()-1;
   out.write((char*)&length, sizeof(length));
   for (int i = 1; i < length+1; i++){
     items_[i].write(out);
@@ -141,7 +141,7 @@ void Inventory::read(ifstream& in){
     Item it;
     it.read(in);
     items_.push_back(it);
-    lookup_[it.getName()] = items_.size()-1;
+    lookup_[it.getName()] = (int)items_.size()-1;
   }
   in.read((char*)&left_hand_, sizeof(left_hand_));
   in.read((char*)&right_hand_, sizeof(right_hand_));
@@ -166,8 +166,8 @@ string Inventory::toString(){
 }
 
 void Inventory::fromString(string it){
-  int pos = 0;
-  unsigned found;
+  size_t pos = 0;
+  size_t found;
   items_.clear();
   while ((found = it.find('!',pos)) != string::npos){
     string tmp = it.substr(pos,found-pos);
@@ -175,7 +175,7 @@ void Inventory::fromString(string it){
     Item ite;
     ite.fromString(tmp);
     items_.push_back(ite);
-    lookup_[ite.getName()] = items_.size()-1;
+    lookup_[ite.getName()] = (int)items_.size()-1;
   }
   //find the armory mount points
   string tmp;
@@ -351,7 +351,7 @@ void Inventory::render(){
     string name = items_[i].getName();
     if (name.size() > 11)
       name.erase(11);
-    int fill = (11 - name.size())/2;
+    int fill = (int)(11 - name.size())/2;
     name.insert(name.begin(), fill, ' ');
     fnt_->print(pos.x, pos.y, name.c_str(), 1);
     fnt_->print(pos.x+48, pos.y-18, toStr(items_[i].getNumber()).c_str(), 1);

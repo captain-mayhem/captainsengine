@@ -1540,10 +1540,10 @@ void Message::receiver(void* v){
       *sock >> answer;
       //separate messages
       int pos = 0;
-      unsigned found;
+      size_t found;
       while ((found = answer.find(SEPARATOR,pos)) != string::npos){
         string tmp = answer.substr(pos,found-pos);
-        pos = found+1;
+        pos = (int)found+1;
         msg.messages_.push(tmp);
         //msg.process(tmp);
       }

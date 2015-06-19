@@ -70,7 +70,7 @@ class Admin{
   //! Get the player with a certain name
   Player* getPlayer(const string& name);
   //! Returns the number of players
-  unsigned getNumPlayers() {return players.size()-1;}
+  unsigned getNumPlayers() {return (unsigned)players.size()-1;}
   //! list all players
   const string listPlayers();
   //! change the name of a player

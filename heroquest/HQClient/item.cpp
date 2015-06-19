@@ -156,16 +156,16 @@ bool Item::use(Vector2D source, Vector2D target){
 
 //! writes door data
 void Item::write(ofstream& out)const{
-  short length = name_.size();
+  short length = (short)name_.size();
   out.write((char*)&length,sizeof(length));
   out.write(name_.c_str(), length);
-  length = additional_.size();
+  length = (short)additional_.size();
   out.write((char*)&length,sizeof(length));
   out.write(additional_.c_str(), length);
   out.write((char*)&type_, sizeof(type_));
   out.write((char*)&id_, sizeof(id_));
   out.write((char*)&count_, sizeof(count_));
-  length = description_.size();
+  length = (short)description_.size();
   out.write((char*)&length,sizeof(length));
   out.write(description_.c_str(), length);
 }
@@ -201,18 +201,18 @@ string Item::toString(){
   string desc = description_;
   
   unsigned int pos = 0;
-  unsigned int found;
+  size_t found;
   while((found = desc.find(" ", pos)) !=string::npos){
     desc[found] = '*';
-    pos = found+1;
+    pos = (unsigned)found+1;
   }
   ret += desc;
   return ret;
 }
     
 void Item::fromString(string it){
-  unsigned int pos = 0;
-  unsigned int found;
+  size_t pos = 0;
+  size_t found;
   found = it.find('*',pos);
   name_ = it.substr(pos,found-pos);
   pos = found+1;

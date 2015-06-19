@@ -47,7 +47,7 @@ Script::~Script(){
 
 
 void Script::loadLevelScript(string name){
-  unsigned length = name.size();
+  unsigned length = (unsigned)name.size();
   name[length-3] = 'l';
   name[length-2] = 'u';
   name[length-1] = 'a';
@@ -57,7 +57,7 @@ void Script::loadLevelScript(string name){
 }
 
 void Script::init(){
-	L = lua_open();
+	L = luaL_newstate();
 	luaopen_base(L);
 	luaopen_table(L);
 	luaopen_io(L);
@@ -1142,7 +1142,7 @@ int Script::getItems(lua_State* L){
       string name = items[i].getName();
       lua_pushstring(L, name.c_str());
     }
-    return items.size();
+    return (int)items.size();
   }
   return 0;
 }

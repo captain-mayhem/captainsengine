@@ -241,6 +241,10 @@ SET(AppBuilder_SRCS
 
 ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
 
+ADD_LIBRARY(cge SHARED lua/lua_bindings.cpp)
+
+TARGET_LINK_LIBRARIES(cge AdventureBase ${AB_LINK_LIBS} ${ENGINE_LINK_LIBRARIES})
+
 ###Adventure###
 
 IF(JNI_FRONTEND)

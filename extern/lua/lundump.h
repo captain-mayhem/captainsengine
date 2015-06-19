@@ -1,6 +1,6 @@
 /*
-** $Id: lundump.h,v 1.30 2003/04/07 20:34:20 lhf Exp $
-** load pre-compiled Lua chunks
+** $Id: lundump.h,v 1.39.1.1 2013/04/12 18:48:47 roberto Exp $
+** load precompiled Lua chunks
 ** See Copyright Notice in lua.h
 */
 
@@ -11,24 +11,18 @@
 #include "lzio.h"
 
 /* load one chunk; from lundump.c */
-Proto* luaU_undump (lua_State* L, ZIO* Z, Mbuffer* buff);
+LUAI_FUNC Closure* luaU_undump (lua_State* L, ZIO* Z, Mbuffer* buff, const char* name);
 
-/* find byte order; from lundump.c */
-int luaU_endianness (void);
+/* make header; from lundump.c */
+LUAI_FUNC void luaU_header (lu_byte* h);
 
 /* dump one chunk; from ldump.c */
-void luaU_dump (lua_State* L, const Proto* Main, lua_Chunkwriter w, void* data);
+LUAI_FUNC int luaU_dump (lua_State* L, const Proto* f, lua_Writer w, void* data, int strip);
 
-/* print one chunk; from print.c */
-void luaU_print (const Proto* Main);
+/* data to catch conversion errors */
+#define LUAC_TAIL		"\x19\x93\r\n\x1a\n"
 
-/* definitions for headers of binary files */
-#define	LUA_SIGNATURE	"\033Lua"	/* binary files start with "<esc>Lua" */
-#define	VERSION		0x50		/* last format change was in 5.0 */
-#define	VERSION0	0x50		/* last major  change was in 5.0 */
-
-/* a multiple of PI for testing native format */
-/* multiplying by 1E7 gives non-trivial integer values */
-#define	TEST_NUMBER	((lua_Number)3.14159265358979323846E7)
+/* size in bytes of header of binary files */
+#define LUAC_HEADERSIZE		(sizeof(LUA_SIGNATURE)-sizeof(char)+2+6+sizeof(LUAC_TAIL)-sizeof(char))
 
 #endif
