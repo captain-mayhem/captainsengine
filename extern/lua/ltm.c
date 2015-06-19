@@ -1,5 +1,5 @@
 /*
-** $Id: ltm.c,v 1.106 2003/04/03 13:35:34 roberto Exp $
+** $Id: ltm.c,v 2.14.1.1 2013/04/12 18:48:47 roberto Exp $
 ** Tag methods
 ** See Copyright Notice in lua.h
 */
@@ -8,6 +8,7 @@
 #include <string.h>
 
 #define ltm_c
+#define LUA_CORE
 
 #include "lua.h"
 
@@ -18,18 +19,21 @@
 #include "ltm.h"
 
 
+static const char udatatypename[] = "userdata";
 
-const char *const luaT_typenames[] = {
-  "nil", "boolean", "userdata", "number",
-  "string", "table", "function", "userdata", "thread"
+LUAI_DDEF const char *const luaT_typenames_[LUA_TOTALTAGS] = {
+  "no value",
+  "nil", "boolean", udatatypename, "number",
+  "string", "table", "function", udatatypename, "thread",
+  "proto", "upval"  /* these last two cases are used for tests only */
 };
 
 
 void luaT_init (lua_State *L) {
   static const char *const luaT_eventname[] = {  /* ORDER TM */
     "__index", "__newindex",
-    "__gc", "__mode", "__eq",
-    "__add", "__sub", "__mul", "__div",
+    "__gc", "__mode", "__len", "__eq",
+    "__add", "__sub", "__mul", "__div", "__mod",
     "__pow", "__unm", "__lt", "__le",
     "__concat", "__call"
   };
@@ -45,26 +49,29 @@ void luaT_init (lua_State *L) {
 ** function to be used with macro "fasttm": optimized for absence of
 ** tag methods
 */
-const TObject *luaT_gettm (Table *events, TMS event, TString *ename) {
-  const TObject *tm = luaH_getstr(events, ename);
+const TValue *luaT_gettm (Table *events, TMS event, TString *ename) {
+  const TValue *tm = luaH_getstr(events, ename);
   lua_assert(event <= TM_EQ);
   if (ttisnil(tm)) {  /* no tag method? */
-    events->flags |= cast(lu_byte, 1u<<event);  /* cache this fact */
+    events->flags |= cast_byte(1u<<event);  /* cache this fact */
     return NULL;
   }
   else return tm;
 }
 
 
-const TObject *luaT_gettmbyobj (lua_State *L, const TObject *o, TMS event) {
-  TString *ename = G(L)->tmname[event];
-  switch (ttype(o)) {
+const TValue *luaT_gettmbyobj (lua_State *L, const TValue *o, TMS event) {
+  Table *mt;
+  switch (ttypenv(o)) {
     case LUA_TTABLE:
-      return luaH_getstr(hvalue(o)->metatable, ename);
+      mt = hvalue(o)->metatable;
+      break;
     case LUA_TUSERDATA:
-      return luaH_getstr(uvalue(o)->uv.metatable, ename);
+      mt = uvalue(o)->metatable;
+      break;
     default:
-      return &luaO_nilobject;
+      mt = G(L)->mt[ttypenv(o)];
   }
+  return (mt ? luaH_getstr(mt, G(L)->tmname[event]) : luaO_nilobject);
 }
 

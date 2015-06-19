@@ -428,6 +428,8 @@ namespace StoryDesigner
 
         private void font_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (mCurrInfo == null)
+                return;
             mCurrInfo.name = (string)font.SelectedItem;
             mCurrFont = new Font(mCurrInfo.name, mCurrInfo.size, mCurrFont.Style);
             preview.Invalidate();
@@ -482,6 +484,8 @@ namespace StoryDesigner
 
         private void setListName(int idx, FontInfo info)
         {
+            if (idx < 0)
+                return;
             fontlist.Items[idx] = (idx+1)+" - "+info.name + " ("+info.size+")";
         }
 
