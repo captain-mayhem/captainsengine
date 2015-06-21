@@ -197,8 +197,8 @@ bool Filesystem::changeDir(const std::string& path){
 
 // gets the path component from a full path
 std::string Filesystem::getPathComponent(std::string const & filepath){
-  int pos = std::string::npos;
-  for (int i = filepath.size() - 1; i >= 0; --i){
+  size_t pos = std::string::npos;
+  for (int i = (int)filepath.size() - 1; i >= 0; --i){
     char ch = filepath[i];
     if (ch == '/' || ch == '\\'){
       pos = i;
@@ -210,8 +210,8 @@ std::string Filesystem::getPathComponent(std::string const & filepath){
 
 // gets the file component from a full path
 std::string Filesystem::getFileComponent(std::string const & filepath){
-  int pos = std::string::npos;
-  for (int i = filepath.size() - 1; i >= 0; --i){
+  size_t pos = std::string::npos;
+  for (int i = (int)filepath.size() - 1; i >= 0; --i){
     char ch = filepath[i];
     if (ch == '/' || ch == '\\'){
       pos = i;
@@ -246,5 +246,27 @@ bool Filesystem::createDir(const std::string& path){
   int ret = mkdir(path.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
   return ret == 0;
 #endif
+}
+
+//! remove directory
+bool Filesystem::removeDir(const std::string& path, bool recursive){
+  if (recursive){
+    std::vector<std::string> dirs = getDirectories(path);
+    for (size_t i = 0; i < dirs.size(); ++i){
+      if (dirs[i] == "." || dirs[i] == "..")
+        continue;
+      removeDir(combinePath(path, dirs[i]), recursive);
+    }
+    std::vector<std::string> files = getFiles(path);
+    for (size_t i = 0; i < files.size(); ++i){
+      remove(combinePath(path, files[i]).c_str());
+    }
+  }
+#ifdef WIN32
+  int ret = _rmdir(path.c_str());
+#else
+  int ret = rmdir(path.c_str());
+#endif
+  return ret == 0;
 }
 

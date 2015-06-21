@@ -49,6 +49,8 @@ public:
   static std::string combinePath(std::string const & p1, std::string const & p2);
   //! create directory
   static bool createDir(const std::string& path);
+  //! remove directory
+  static bool removeDir(const std::string& path, bool recursive = false);
 };
 
 }

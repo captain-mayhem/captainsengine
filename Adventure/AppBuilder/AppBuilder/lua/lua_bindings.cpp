@@ -1,6 +1,5 @@
-extern "C"{
-#include <lua.h>
-#include <lauxlib.h>
+#include "lua_bindings.h"
+#include "cge_io.h"
 
 #ifdef WIN32
 #define LUA_EXPORT __declspec(dllexport)
@@ -8,13 +7,15 @@ extern "C"{
 #define LUA_EXPORT
 #endif
 
+extern "C"{
+
 static int myTest(lua_State* L){
   printf("Hello World\n");
   return 0;
 }
 
 static const struct luaL_Reg cgelib[] = {
-  { "dir", myTest },
+  { "test", myTest },
   { NULL, NULL }
 };
 
@@ -35,6 +36,8 @@ void cge_setfuncs(lua_State *L, const luaL_Reg *l, int nup){
 
 int LUA_EXPORT luaopen_cge(lua_State* L){
   cge_newlib(L, cgelib);
+  createIOModule(L);
+  lua_setfield(L, -2, "io");
   return 1;
 }
 
