@@ -13,7 +13,7 @@ BinFileReader::~BinFileReader(){
 
 uint32 BinFileReader::readBytes(unsigned char* array, unsigned int length){
   mStream.read((char*)array,length);
-  return length;
+  return (uint32)mStream.gcount();
 }
 
 char BinFileReader::readChar(){
