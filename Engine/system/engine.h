@@ -113,10 +113,11 @@ double getTime();
 
 namespace CGE{
 
-//extern ofstream Log;
+typedef void(*USERMAINFUNC)(int argc, char** argv);
 
 class Engine{
   public:
+    static int mainLoop(int argc, char** argv, USERMAINFUNC func);
     static void init();
     inline static Engine* instance() {return eng;}
     void startup(int argc, char** argv);

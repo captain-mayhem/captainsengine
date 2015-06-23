@@ -16,6 +16,7 @@ namespace CGE {
   
 class Thread{
 public:
+  Thread();
   enum Priority{
     EXTREMELY_LOW,
     VERY_LOW,
@@ -31,12 +32,14 @@ public:
   void join();
   static void sleep(int milliseconds);
   void setPriority(Priority priority);
+  bool isRunning();
 private:
 #ifdef WIN32
   HANDLE thread_;
 #else
   pthread_t thread_;
 #endif
+  bool mStarted;
 };
 
 class Mutex{
