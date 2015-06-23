@@ -126,6 +126,7 @@ void GL2Renderer::initContext(AppWindow* win){
 void GL2Renderer::killContext(){
   TR_USE(CGE_Renderer_GL2);
   delete mRT;
+  mShader->deactivate();
   delete mShader;
   delete mLightShader;
 #if defined(WIN32) && !defined(UNDER_CE)

@@ -10,6 +10,7 @@
 #ifdef UNIX
 #include <pthread.h>
 #include <errno.h>
+#include <signal.h>
 #endif
 #include <stdlib.h>
 #include <system/engine.h>
@@ -18,7 +19,16 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Thread)
 
+Thread::Thread() : mStarted(false){
+#ifdef WIN32
+  thread_ = INVALID_HANDLE_VALUE;
+#else
+  thread_ = 0;
+#endif
+}
+
 int Thread::create(void (*proc)(void* data), void* data){
+  mStarted = true;
   int threadID = 0;
 #ifdef WIN32
   thread_ = CreateThread(NULL, 65536, (LPTHREAD_START_ROUTINE)proc, data, 0, (LPDWORD)&threadID);
@@ -54,7 +64,7 @@ void Thread::destroy(){
 	abort();
 #endif
 #endif
-  //_endthread();
+  mStarted = false;
 }
 
 void Thread::join(){
@@ -64,6 +74,7 @@ void Thread::join(){
 #ifdef UNIX
   pthread_join(thread_, NULL);
 #endif
+  mStarted = false;
 }
 
 void Thread::sleep(int milliseconds){
@@ -112,6 +123,19 @@ void Thread::setPriority(Priority priority){
   TR_USE(CGE_Thread);
   TR_ERROR("pthread_setschedprio not supported by this platform");
 #endif
+#endif
+}
+
+bool Thread::isRunning(){
+  if (!mStarted)
+    return false;
+#ifdef WIN32
+  DWORD res = WaitForSingleObject(thread_, 0);
+  return res != WAIT_OBJECT_0;
+#elif defined(UNIX)
+  return pthread_kill(thread_, 0) == 0;
+#else
+  return false;
 #endif
 }
 
