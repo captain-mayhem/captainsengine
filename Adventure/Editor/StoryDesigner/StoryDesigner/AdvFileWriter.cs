@@ -728,12 +728,16 @@ namespace StoryDesigner
                     string imagename = String.Format("font{0}.bm{1}", font, i+1);
                     ZipEntry ze = new ZipEntry(imagename);
                     zos.PutNextEntry(ze);
-                    images[i].Save(zos, ImageFormat.Bmp);
+                    MemoryStream ms = new MemoryStream();
+                    images[i].Save(ms, ImageFormat.Bmp);
+                    zos.Write(ms.GetBuffer(), 0, (int)ms.Length);
                     imagename = String.Format("font{0}.al{1}", font, i + 1);
                     zos.CloseEntry();
                     ze = new ZipEntry(imagename);
                     zos.PutNextEntry(ze);
-                    alphaimages[i].Save(zos, ImageFormat.Bmp);
+                    ms = new MemoryStream();
+                    alphaimages[i].Save(ms, ImageFormat.Bmp);
+                    zos.Write(ms.GetBuffer(), 0, (int)ms.Length);
                     zos.CloseEntry();
                 }
                 string dataname = String.Format("fontdata.{0:D3}", font);

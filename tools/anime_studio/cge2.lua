@@ -10,7 +10,6 @@ visibility = {}
 pictures = {}
 
 dialog = {}
-layer_menu = nil
 
 list_file = nil
 objects_file = nil
@@ -32,6 +31,9 @@ function traverseLayer(moho, layer, func)
   if layer:LayerType() == MOHO.LT_GROUP then
     glayer = moho:LayerAsGroup(layer)
     traverseLayers(moho, glayer, func)
+  elseif layer:LayerType() == MOHO.LT_BONE then
+    blayer = moho:LayerAsBone(layer)
+    traverseLayers(moho, blayer, func)
   elseif not bbox:IsEmpty() then
     func(moho, layer)
   end
@@ -67,7 +69,7 @@ function drawLayer(moho, layer)
   local height = moho:DocToPixel((bbox.fMax.y-bbox.fMin.y)/pos.z*layerscale.y)
   width = math.ceil(width)
   height = math.ceil(height)
-  pos.z = cam.z*(bbox.fMax.y-bbox.fMin.y)/2--cam.z*(view_width/width)
+  pos.z = cam.z*(bbox.fMax.y-bbox.fMin.y)/2*layerscale.y+layerpos.y--cam.z*(view_width/width)
   --print(pos.x.."/"..pos.y.."/"..pos.z.."  ->"..width..";"..height)
   moho.document:SetShape(width, height)
   --print("wxh:"..moho.document:Width().." "..moho.document:Height())
@@ -94,16 +96,43 @@ end
 
 function buildMenu(moho, layer)
   dialog.layers[count] = MOHO.MSG_BASE + count
-  layer_menu:AddItem(layer:Name(), 0, dialog.layers[count])
+  dialog.layer_menu:AddItem(layer:Name(), 0, dialog.layers[count])
   if (count == 1) then
-    layer_menu:SetChecked(dialog.layers[count], true)
+    dialog.layer_menu:SetChecked(dialog.layers[count], true)
   end
   count = count + 1
 end
 
-function handleMessage(dia, message)
-  local check = not layer_menu:IsChecked(message)
-  layer_menu:SetChecked(message, check)
+function dialog:HandleMessage(message)
+  local check = not dialog.layer_menu:IsChecked(message)
+  dialog.layer_menu:SetChecked(message, check)
+end
+
+function dialog:new()
+  self.layers = {}
+  local dia = LM.GUI.SimpleDialog("Export Settings", dialog)
+  local layout = dia:GetLayout();
+  layout:PushH()
+  layout:AddChild(LM.GUI.StaticText("Directory:"))
+  self.directory = LM.GUI.TextControl(200, file_path)
+  layout:AddChild(self.directory)
+  layout:Pop()
+  layout:PushH()
+  layout:AddChild(LM.GUI.StaticText("Project:"))
+  self.project = LM.GUI.TextControl(200, project_name)
+  layout:AddChild(self.project)
+  layout:Pop()
+  local popup = LM.GUI.PopupMenu(150, false)  
+  layout:AddChild(popup)
+  self.layer_menu = LM.GUI.Menu("Merge Layers")
+  popup:SetMenu(self.layer_menu)
+  return dia
+end
+
+function dialog:OnOK()
+	file_path = dialog.directory:Value()
+  project_name = dialog.project:Value()
+  --print("Yeah!")
 end
 
 function bla(moho)
@@ -115,22 +144,18 @@ function bla(moho)
   cam = doc.fCameraTrack:GetValue(0)
   print("image dimensions:"..view_width.."x"..view_height)
   
-  dialog.layers = {}
-  local dia = LM.GUI.SimpleDialog("Export Settings", dialog)
-  local popup = LM.GUI.PopupMenu(100, false)  
-  dia:GetLayout():AddChild(popup)
-  layer_menu = LM.GUI.Menu("Layers")
-  popup:SetMenu(layer_menu)
+  local dia = dialog:new()
   
   count = 1
   traverseLayers(moho, doc, buildMenu)
-  dia.HandleMessage = handleMessage
+  --dia.HandleMessage = handleMessage
   
   if dia:DoModal() ~= LM.GUI.MSG_OK then
     return
   end
   
   cge.io.removeDir(file_path.."gfx")
+  sleep(0.1)
   cge.io.createDir(file_path.."gfx")
   list_file = io.open(file_path.."list.gfx", "w")
   objects_file = io.open(file_path.."room.dat", "w")
