@@ -8,6 +8,8 @@ view_height = 0
 cam = 0
 visibility = {}
 pictures = {}
+layers = {}
+layer_groups = {}
 
 dialog = {}
 
@@ -34,6 +36,17 @@ function traverseLayer(moho, layer, func)
   elseif layer:LayerType() == MOHO.LT_BONE then
     blayer = moho:LayerAsBone(layer)
     traverseLayers(moho, blayer, func)
+  elseif layer:LayerType() == MOHO.LT_SWITCH then
+    slayer = moho:LayerAsSwitch(layer)
+    local val = slayer:GetValue(0)
+    --print(val)
+    local active_layer = slayer:LayerByName(val)
+    if active_layer == nil then
+      --print("wtf")
+      active_layer = slayer:Layer(slayer:CountLayers()-1)
+    end
+    --print(active_layer:Name())
+    traverseLayer(moho, active_layer, func)
   elseif not bbox:IsEmpty() then
     func(moho, layer)
   end
@@ -52,34 +65,33 @@ function restoreVisibility(moho, layer)
   count = count + 1
 end
 
-function drawLayer(moho, layer)
-  print("Layer: "..layer:Name())
-  local vis = layer.fVisibility
-  vis:SetValue(0, true)
-  local bbox = layer:Bounds(0)
-  --print(bbox.fMin.x.."/"..bbox.fMin.y.."/"..bbox.fMin.z)
-  --print(bbox.fMax.x.."/"..bbox.fMax.y.."/"..bbox.fMax.z)
+function drawLayers(name, moho, layers)
+  --print ("drawLayers")
+  local bbox = LM.BBox:new_local()
+  for k,v in ipairs(layers) do
+    local layer = v
+    local vis = layer.fVisibility
+    vis:SetValue(0, true)
+    local newbox = layer:Bounds(0)
+    local mat = LM.Matrix:new_local()
+    layer:GetLayerTransform(0, mat, moho.document)
+    mat:Transform(newbox)
+    bbox:AccumulateBBox(newbox)
+  end
+  
   local pos = moho.document.fCameraTrack:GetValue(0)
-  local layerpos = layer.fTranslation:GetValue(0)
-  local layerscale = layer.fScale:GetValue(0)
   --print(pos.x.."/"..pos.y.."/"..pos.z)
-  pos.x = ((bbox.fMin.x+bbox.fMax.x)/2)*layerscale.x+layerpos.x--/layerscale.x--/pos.z
-  pos.y = ((bbox.fMin.y+bbox.fMax.y)/2)*layerscale.y+layerpos.y--*layerscale.y
-  local width = moho:DocToPixel((bbox.fMax.x-bbox.fMin.x)/pos.z*layerscale.x)
-  local height = moho:DocToPixel((bbox.fMax.y-bbox.fMin.y)/pos.z*layerscale.y)
+  pos.x = ((bbox.fMin.x+bbox.fMax.x)/2)
+  pos.y = ((bbox.fMin.y+bbox.fMax.y)/2)
+  local width = moho:DocToPixel((bbox.fMax.x-bbox.fMin.x)/pos.z)
+  local height = moho:DocToPixel((bbox.fMax.y-bbox.fMin.y)/pos.z)
   width = math.ceil(width)
   height = math.ceil(height)
-  pos.z = cam.z*(bbox.fMax.y-bbox.fMin.y)/2*layerscale.y+layerpos.y--cam.z*(view_width/width)
-  --print(pos.x.."/"..pos.y.."/"..pos.z.."  ->"..width..";"..height)
+  pos.z = cam.z*(bbox.fMax.y-bbox.fMin.y)/2
   moho.document:SetShape(width, height)
-  --print("wxh:"..moho.document:Width().." "..moho.document:Height())
-  --position camera
   moho.document.fCameraTrack:SetValue(0, pos)
   
-  --moho:SetSelLayer(layer)
-  --moho.view:ResetView(1)
-  --if count < 20 then
-  local filename = file_path.."gfx/"..project_name.."_"..layer:Name()..".png"
+  local filename = file_path.."gfx/"..project_name.."_"..name..".png"
   moho:FileRender(filename)
   sleep(0.3)
   pictures[count] = filename
@@ -91,14 +103,20 @@ function drawLayer(moho, layer)
   --print("CAM:"..cam.x.."/"..cam.y.."/"..cam.z)
   pos.z = cam.z
   count = count + 1
-  vis:SetValue(0, false)
+  
+  for k,v in ipairs(layers) do
+    local layer = v
+    local vis = layer.fVisibility
+    vis:SetValue(0, false)
+  end
 end
 
 function buildMenu(moho, layer)
+  layers[count] = layer
   dialog.layers[count] = MOHO.MSG_BASE + count
   dialog.layer_menu:AddItem(layer:Name(), 0, dialog.layers[count])
   if (count == 1) then
-    dialog.layer_menu:SetChecked(dialog.layers[count], true)
+    --dialog.layer_menu:SetChecked(dialog.layers[count], true)
   end
   count = count + 1
 end
@@ -154,6 +172,18 @@ function bla(moho)
     return
   end
   
+  local groupname
+  for i=1, dialog.layer_menu:CountItems() do
+    local checked = dialog.layer_menu:IsChecked(dialog.layers[i])
+    --print (checked and "True" or "Not")
+    if not checked then
+      groupname = layers[i]:Name()
+      layer_groups[groupname] = {layers[i]}
+    else
+      layer_groups[groupname][#layer_groups[groupname]+1] = layers[i]
+    end
+  end
+  
   cge.io.removeDir(file_path.."gfx")
   sleep(0.1)
   cge.io.createDir(file_path.."gfx")
@@ -167,7 +197,11 @@ function bla(moho)
   count = 1
   traverseLayers(moho, doc, makeInvisble)
   count = 1
-  traverseLayers(moho, doc, drawLayer)
+  --traverseLayers(moho, doc, drawLayer)
+  for k,v in pairs(layer_groups) do
+    print ("group "..k)
+    drawLayers(k, moho, v)
+  end
   count = 1
   traverseLayers(moho, doc, restoreVisibility)
   
