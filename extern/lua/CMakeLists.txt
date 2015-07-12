@@ -44,13 +44,17 @@ ADD_EXECUTABLE(lua_interpreter
 lua.c
 )
 
-TARGET_LINK_LIBRARIES(lua_interpreter lua lualib)
+IF (OS STREQUAL "linux")
+SET(LUA_DEP_LIBS m)
+ENDIF()
+
+TARGET_LINK_LIBRARIES(lua_interpreter lua lualib ${LUA_DEP_LIBS})
 
 ADD_EXECUTABLE(luac
 luac.c
 )
 
-TARGET_LINK_LIBRARIES(luac lua lualib)
+TARGET_LINK_LIBRARIES(luac lua lualib ${LUA_DEP_LIBS})
 
 IF(${OS} STREQUAL "wince")
 ADD_DEFINITIONS(-DUSE_TMPNAME=0)
