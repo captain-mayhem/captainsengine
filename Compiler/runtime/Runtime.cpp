@@ -5,6 +5,7 @@
 #include <direct.h>
 #else
 #include <dlfcn.h>
+#include <unistd.h>
 #endif
 
 #include <VMContext.h>
@@ -844,7 +845,7 @@ void callbackSignalHandler(int signal){
   jclass cls = mainThreadEnv->FindClass("sun/misc/Signal");
   jmethodID dispatch = mainThreadEnv->GetStaticMethodID(cls, "dispatch", "(I)V");
   mainThreadEnv->CallStaticVoidMethod(cls, dispatch, signal);
-  TR_BREAK("Should callback signal dispatch - how to get a JNIEnv?")
+  TR_BREAK("Should callback signal dispatch - how to get a JNIEnv?");
 }
 
 jlong JNIEXPORT Java_sun_misc_Signal_handle0(JNIEnv* env, jobject object, jint sig, jlong nativeH){
