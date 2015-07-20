@@ -1038,7 +1038,8 @@ namespace StoryDesigner
             Settings.OffspeechColor = 16777215;
             Settings.Projectname = "New Project";
             Settings.ProtectGameFile = false;
-            Settings.Resolution = new Vec2i(640, 480);
+            Settings.Resolution = new Vec2i(800, 600);
+            Settings.Is16to9 = false;
             Settings.ScreenChange = ScreenChange.SC_DIRECT;
             Settings.ShowTaskbar = true;
             Settings.SilentDelete = false;
@@ -1411,6 +1412,27 @@ namespace StoryDesigner
         public string getLocalizedString(string key)
         {
             return mLocalizedStrings.GetString(key);
+        }
+
+        public int WindowXRes
+        {
+            get {
+                int x = Settings.Resolution.x;
+                if (Settings.Is16to9)
+                {
+                    if (x == 320)
+                        x = 420;
+                    else if (x == 640)
+                        x = 840;
+                    else if (x == 800)
+                        x = 1050;
+                    else if (x == 1024)
+                        x = 1344;
+                    else if (x == 1440)
+                        x = 1890;
+                }
+                return x;
+            }
         }
 
         public ProjectSettings Settings;

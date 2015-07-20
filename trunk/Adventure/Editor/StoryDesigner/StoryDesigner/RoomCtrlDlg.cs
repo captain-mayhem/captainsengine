@@ -32,11 +32,11 @@ namespace StoryDesigner
             }
             zoomfactor.SelectedItem = mRoom.Zoom;
             doublewalkmap.Checked = mRoom.DoubleWalkmap;
-            roomwidth.Minimum = data.Settings.Resolution.x;
+            roomwidth.Minimum = data.WindowXRes;
             roomwidth.Maximum = data.Settings.Resolution.x * 3;
             roomheight.Minimum = data.Settings.Resolution.y;
             roomheight.Maximum = data.Settings.Resolution.y * 2;
-            roomwidth.Value = mRoom.Size.x;
+            roomwidth.Value = mRoom.Size.x < roomwidth.Minimum ? roomwidth.Minimum : mRoom.Size.x;
             roomheight.Value = mRoom.Size.y;
             mDragOffset.x = -1;
             scroller.Paint += new PaintEventHandler(scroller_Paint);
@@ -68,10 +68,10 @@ namespace StoryDesigner
                 realx = 0;
             if (realy < 0)
                 realy = 0;
-            mRoom.ScrollOffset.x = (int)(realx * 3.0f / scroller.Width * mData.Settings.Resolution.x);
+            mRoom.ScrollOffset.x = (int)(realx * (mData.Settings.Resolution.x * 3.0f / mData.WindowXRes) / scroller.Width * mData.WindowXRes);
             mRoom.ScrollOffset.y = (int)(realy * 2.0f / scroller.Height * mData.Settings.Resolution.y);
-            if (mRoom.ScrollOffset.x > mRoom.Size.x - mData.Settings.Resolution.x)
-                mRoom.ScrollOffset.x = mRoom.Size.x - mData.Settings.Resolution.x;
+            if (mRoom.ScrollOffset.x > mRoom.Size.x - mData.WindowXRes)
+                mRoom.ScrollOffset.x = mRoom.Size.x - mData.WindowXRes;
             if (mRoom.ScrollOffset.y > mRoom.Size.y - mData.Settings.Resolution.y)
                 mRoom.ScrollOffset.y = mRoom.Size.y - mData.Settings.Resolution.y;
             scroller.Invalidate();
@@ -82,7 +82,7 @@ namespace StoryDesigner
         {
             mDragOffset.x = e.X/(int)divider;
             mDragOffset.y = e.Y/(int)divider;
-            mScrollOffset.x = scroller.Width / 3.0f * mRoom.ScrollOffset.x / mData.Settings.Resolution.x;
+            mScrollOffset.x = scroller.Width / (mData.Settings.Resolution.x * 3 / mData.WindowXRes) * mRoom.ScrollOffset.x / mData.WindowXRes;
             mScrollOffset.y = scroller.Height / 2.0f * mRoom.ScrollOffset.y / mData.Settings.Resolution.y;
         }
 
@@ -97,7 +97,7 @@ namespace StoryDesigner
             e.Graphics.DrawRectangle(Pens.Black, roomrect);
             roomrect.X = (int)(ctrl.Width / 3.0f * mRoom.ScrollOffset.x / mData.Settings.Resolution.x);
             roomrect.Y = (int)(ctrl.Height / 2.0f * mRoom.ScrollOffset.y / mData.Settings.Resolution.y);
-            roomrect.Width = ctrl.Width / 3;
+            roomrect.Width = (int)(ctrl.Width / (3.0f * mData.Settings.Resolution.x / mData.WindowXRes));
             roomrect.Height = ctrl.Height / 2;
             e.Graphics.FillRectangle(Brushes.White, roomrect);
             e.Graphics.DrawRectangle(Pens.Black, roomrect);
