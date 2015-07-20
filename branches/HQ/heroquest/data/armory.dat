@@ -1,0 +1,15 @@
+tool_kit -> id: 0  price: 250 description: This tool kit gives you a 50% chance to disarm any searched-for-and-found but unsprung trap. /description
+shortsword -> id: 1  price: 150 description: This short blade gives you the attack strength of 2. Not for the Wizard.  /description
+helmet -> id: 2  price: 125 description: This protective headpiece gives you 1 extra defense. Not for the Wizard. /description
+dagger -> id: 3  price: 25 description: This sharp knife gives you the attack strength of 1. A dagger can also be thrown at any creature you can see, but is lost once it is thrown. /description
+broadsword -> id: 4  price: 250 description: This wide blade gives you the attack strength of 3. Not for the Wizard. /description
+shield -> id: 5  price: 150 description: This hand-held armor gives you 1 extra defense. Not for the Wizard. /description
+staff -> id: 6  price: 100 description: This long, sturdy, wooden staff gives you the attack strength of 1. Because of its length, the staff enables you to attack diagonally. /description
+longsword -> id: 7  price: 350 description: This long blade gives you the attack strength of 3. Because of its length, the longsword enables you to attack diagonally. Not for the Wizard. /description
+chain_mail -> id: 8  price: 500 description: This light metal armor gives you 1 extra defense. Not for the Wizard. /description
+crossbow -> id: 9  price: 350 description: This long-range weapon gives you the attack strength of 3. You may fire at any creature you can see. However, you cannot fire at a monster that is adjacent to you. You have an unlimited supply of arrows. Not for the Wizard. /description
+battle_axe -> id: 10  price: 450 description: This heavy, double-edged axe gives you the attack strength of 4, but you need both hands to hold it. Not for the Wizard. /description
+plate_mail -> id: 11  price: 850 description: This heavy metal armor gives you 2 extra defense. However, because it is so heavy, you are slower in movement while wearing it. /description
+talisman_of_lore -> id: 12 price: -1 description: This magical medallion increases your mind points by 1 for as long as it is worn. /description
+wizards_cloak -> id: 13 price: -1 description: This magical cloak made of shimmery fabric is covered with mystical runes. It gives the wearer 1 extra defense. Only for the Wizard. /description
+victibleGarg -> id: 1000 price: -1 description: Special weapon for the Gargoyle in Melar's maze /description

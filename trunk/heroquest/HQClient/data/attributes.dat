@@ -1,0 +1,44 @@
+#################
+#main categories
+#################
+ground			1000
+wall			1001
+startpos		1002
+door			1003
+wallpart		1004
+monster			1005
+furniture		1006
+overlay			1007
+#################
+#monster types
+#################
+Goblin			2000
+Skeleton		2001
+Zombie			2002
+Orc				2003
+Fimir			2004
+Mummy			2005
+Chaos_Warrior	2006
+Gargoyle		2007
+Chaos_Warlock	2008
+#################
+#furniture types
+#################
+Alchemist's_Bench	3000
+Bookcase		3001
+Chest			3002
+Cupboard		3003
+Fireplace		3004
+Rack			3005
+Sorcerer's_Table	3006
+Table			3007
+Throne		3008
+Tomb			3009
+Weapons_Rack	3010
+#################
+#overlay types
+#################
+stairs			4000
+pit_trap		4001
+rock_trap		4002
+spear_trap		4003

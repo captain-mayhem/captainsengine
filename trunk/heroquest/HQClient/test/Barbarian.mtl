@@ -1,0 +1,169 @@
+newmtl Shirt
+Ns 10
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+newmtl Pants
+Ns 10
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+newmtl Belt
+Ns 10
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+newmtl BeltBuckle
+Ns 10
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+newmtl SkinBody
+Ns 1
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonBodyTexLo.jpg
+d 1
+newmtl FingerNails
+Ns 100
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonBodyTexLo.jpg
+d 1
+newmtl ShoesInner
+Ns 10
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+newmtl Shoes
+Ns 10
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+newmtl ShoeSoles
+Ns 10
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+newmtl ShoeLaces
+Ns 10
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+newmtl Buttons
+Ns 10
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 1
+newmtl Pupil
+Ns 85.5827
+Ka 0 0 0
+Kd 0 0 0
+Ks 1 1 1
+d 1
+newmtl Iris
+Ns 85.5052
+Ka 0 0 0
+Kd 1 1 1
+Ks 1 1 1
+map_Kd DonHazelEyeLo.jpg
+d 1
+newmtl EyeWhite
+Ns 100
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonHazelEyeLo.jpg
+d 1
+newmtl EyeBall
+Ns 65.3979
+Ka 0 0 0
+Kd 1 1 1
+Ks 1 1 1
+d 0.058544
+newmtl lenscovering
+Ns 100
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+d 0
+newmtl Tongue
+Ns 1
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonHeadTexLo.jpg
+d 1
+newmtl Lacrimal
+Ns 1
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonHeadTexLo.jpg
+d 1
+newmtl Eyelashes
+Ns 100
+Ka 0 0 0
+Kd 0 0 0
+Ks 0 0 0
+d 1
+map_d  DonLashTransLo.jpg
+newmtl InnerMouth
+Ns 1
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonHeadTexLo.jpg
+d 1
+newmtl Lips
+Ns 100
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonHeadTexLo.jpg
+d 1
+newmtl SkinHead
+Ns 100
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonHeadTexLo.jpg
+d 1
+newmtl Nostrils
+Ns 100
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonHeadTexLo.jpg
+d 1
+newmtl Teeth
+Ns 100
+Ka 0 0 0
+Kd 1 1 1
+Ks 0 0 0
+map_Kd DonHeadTexLo.jpg
+d 1
+newmtl Preview
+Ns 30
+Ka 0 0 0
+Kd 0.972549 0.960784 0.956863
+Ks 0.119425 0.0417737 0.180462
+d 1
+newmtl SkullCap
+Ns 1
+Ka 0 0 0
+Kd 0.141176 0.129412 0.101961
+Ks 0 0 0
+d 1
+map_d  SkullMale4.jpg

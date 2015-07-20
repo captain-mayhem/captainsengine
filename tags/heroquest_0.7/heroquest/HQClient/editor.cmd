@@ -1,0 +1,1 @@
+..\..\editor\Debug\editor.exe

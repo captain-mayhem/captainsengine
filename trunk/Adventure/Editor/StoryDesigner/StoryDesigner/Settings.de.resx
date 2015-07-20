@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="protectGamefiles.Size" type="System.Drawing.Size, System.Drawing">
+    <value>130, 17</value>
+  </data>
+  <data name="protectGamefiles.Text" xml:space="preserve">
+    <value>Spieldateien schützen</value>
+  </data>
+  <data name="createBackups.Size" type="System.Drawing.Size, System.Drawing">
+    <value>110, 17</value>
+  </data>
+  <data name="createBackups.Text" xml:space="preserve">
+    <value>Backups erstellen</value>
+  </data>
+  <data name="fitImages.Size" type="System.Drawing.Size, System.Drawing">
+    <value>103, 17</value>
+  </data>
+  <data name="fitImages.Text" xml:space="preserve">
+    <value>Bilder einpassen</value>
+  </data>
+  <data name="infoLine.Size" type="System.Drawing.Size, System.Drawing">
+    <value>65, 17</value>
+  </data>
+  <data name="infoLine.Text" xml:space="preserve">
+    <value>Infozeile</value>
+  </data>
+  <data name="silentDelete.Size" type="System.Drawing.Size, System.Drawing">
+    <value>97, 17</value>
+  </data>
+  <data name="silentDelete.Text" xml:space="preserve">
+    <value>Stilles Löschen</value>
+  </data>
+  <data name="label5.Size" type="System.Drawing.Size, System.Drawing">
+    <value>86, 13</value>
+  </data>
+  <data name="label5.Text" xml:space="preserve">
+    <value>Aktionstexthöhe:</value>
+  </data>
+  <data name="actionText.Size" type="System.Drawing.Size, System.Drawing">
+    <value>78, 17</value>
+  </data>
+  <data name="actionText.Text" xml:space="preserve">
+    <value>Aktionstext</value>
+  </data>
+  <data name="groupItems.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 17</value>
+  </data>
+  <data name="groupItems.Text" xml:space="preserve">
+    <value>Gegenstände gruppieren</value>
+  </data>
+  <data name="drawDraggedItems.Size" type="System.Drawing.Size, System.Drawing">
+    <value>161, 17</value>
+  </data>
+  <data name="drawDraggedItems.Text" xml:space="preserve">
+    <value>Gegenstandsicons mitziehen</value>
+  </data>
+  <data name="text_on.Size" type="System.Drawing.Size, System.Drawing">
+    <value>110, 17</value>
+  </data>
+  <data name="text_on.Text" xml:space="preserve">
+    <value>Text ausschaltbar</value>
+  </data>
+  <data name="mute_music.Size" type="System.Drawing.Size, System.Drawing">
+    <value>138, 17</value>
+  </data>
+  <data name="mute_music.Text" xml:space="preserve">
+    <value>Musik leise bei Sprache</value>
+  </data>
+  <data name="no_antialiasing.Size" type="System.Drawing.Size, System.Drawing">
+    <value>103, 17</value>
+  </data>
+  <data name="no_antialiasing.Text" xml:space="preserve">
+    <value>Kein Antialiasing</value>
+  </data>
+  <data name="label3.Size" type="System.Drawing.Size, System.Drawing">
+    <value>105, 13</value>
+  </data>
+  <data name="label3.Text" xml:space="preserve">
+    <value>Auflösung des Spiels</value>
+  </data>
+  <data name="label2.Text" xml:space="preserve">
+    <value>Projektname:</value>
+  </data>
+  <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
+    <value>70, 13</value>
+  </data>
+  <data name="label1.Text" xml:space="preserve">
+    <value>"Laden" Bild:</value>
+  </data>
+  <data name="tabPage1.Text" xml:space="preserve">
+    <value>Generell</value>
+  </data>
+  <data name="label12.Size" type="System.Drawing.Size, System.Drawing">
+    <value>69, 13</value>
+  </data>
+  <data name="label12.Text" xml:space="preserve">
+    <value>Transparenz:</value>
+  </data>
+  <data name="label11.Size" type="System.Drawing.Size, System.Drawing">
+    <value>139, 13</value>
+  </data>
+  <data name="label11.Text" xml:space="preserve">
+    <value>Raum für "Überall" Objekte:</value>
+  </data>
+  <data name="ts_scrolling.Size" type="System.Drawing.Size, System.Drawing">
+    <value>138, 17</value>
+  </data>
+  <data name="ts_scrolling.Text" xml:space="preserve">
+    <value>Scrollendes Auftauchen</value>
+  </data>
+  <data name="ts_popup.Size" type="System.Drawing.Size, System.Drawing">
+    <value>122, 17</value>
+  </data>
+  <data name="ts_popup.Text" xml:space="preserve">
+    <value>Direktes Auftauchen</value>
+  </data>
+  <data name="ts_always.Size" type="System.Drawing.Size, System.Drawing">
+    <value>68, 17</value>
+  </data>
+  <data name="ts_always.Text" xml:space="preserve">
+    <value>Immer da</value>
+  </data>
+  <data name="tsstylebox.Text" xml:space="preserve">
+    <value>Style der Bedienfläche</value>
+  </data>
+  <data name="ts_appears_top.Size" type="System.Drawing.Size, System.Drawing">
+    <value>51, 17</value>
+  </data>
+  <data name="ts_appears_top.Text" xml:space="preserve">
+    <value>Oben</value>
+  </data>
+  <data name="ts_appear_bottom.Size" type="System.Drawing.Size, System.Drawing">
+    <value>54, 17</value>
+  </data>
+  <data name="ts_appear_bottom.Text" xml:space="preserve">
+    <value>Unten</value>
+  </data>
+  <data name="label10.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 13</value>
+  </data>
+  <data name="label10.Text" xml:space="preserve">
+    <value>Erscheint von:</value>
+  </data>
+  <data name="hideCompletely.Size" type="System.Drawing.Size, System.Drawing">
+    <value>168, 17</value>
+  </data>
+  <data name="hideCompletely.Text" xml:space="preserve">
+    <value>Wenn unten, ganz verdecken</value>
+  </data>
+  <data name="label9.Size" type="System.Drawing.Size, System.Drawing">
+    <value>119, 13</value>
+  </data>
+  <data name="label9.Text" xml:space="preserve">
+    <value>Raum mit Bedienfläche:</value>
+  </data>
+  <data name="label8.Size" type="System.Drawing.Size, System.Drawing">
+    <value>36, 13</value>
+  </data>
+  <data name="label8.Text" xml:space="preserve">
+    <value>Höhe:</value>
+  </data>
+  <data name="taskbar.Size" type="System.Drawing.Size, System.Drawing">
+    <value>88, 17</value>
+  </data>
+  <data name="taskbar.Text" xml:space="preserve">
+    <value>Bedienfläche</value>
+  </data>
+  <data name="sc_blend_slow.Size" type="System.Drawing.Size, System.Drawing">
+    <value>132, 17</value>
+  </data>
+  <data name="sc_blend_slow.Text" xml:space="preserve">
+    <value>Langsam Überblenden</value>
+  </data>
+  <data name="sc_blend.Size" type="System.Drawing.Size, System.Drawing">
+    <value>86, 17</value>
+  </data>
+  <data name="sc_blend.Text" xml:space="preserve">
+    <value>Überblenden</value>
+  </data>
+  <data name="sc_clock.Size" type="System.Drawing.Size, System.Drawing">
+    <value>42, 17</value>
+  </data>
+  <data name="sc_clock.Text" xml:space="preserve">
+    <value>Uhr</value>
+  </data>
+  <data name="sc_shutters.Size" type="System.Drawing.Size, System.Drawing">
+    <value>67, 17</value>
+  </data>
+  <data name="sc_shutters.Text" xml:space="preserve">
+    <value>Rolläden</value>
+  </data>
+  <data name="sc_circle.Size" type="System.Drawing.Size, System.Drawing">
+    <value>48, 17</value>
+  </data>
+  <data name="sc_circle.Text" xml:space="preserve">
+    <value>Kreis</value>
+  </data>
+  <data name="sc_rectangle.Size" type="System.Drawing.Size, System.Drawing">
+    <value>72, 17</value>
+  </data>
+  <data name="sc_rectangle.Text" xml:space="preserve">
+    <value>Rechteck</value>
+  </data>
+  <data name="sc_blackfade.Size" type="System.Drawing.Size, System.Drawing">
+    <value>128, 17</value>
+  </data>
+  <data name="sc_blackfade.Text" xml:space="preserve">
+    <value>Schwarz überblenden</value>
+  </data>
+  <data name="sc_direct.Text" xml:space="preserve">
+    <value>Direkt</value>
+  </data>
+  <data name="screenchange.Text" xml:space="preserve">
+    <value>Bildwechsel</value>
+  </data>
+  <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
+    <value>64, 13</value>
+  </data>
+  <data name="label7.Text" xml:space="preserve">
+    <value>Hauptskript:</value>
+  </data>
+  <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
+    <value>80, 13</value>
+  </data>
+  <data name="label6.Text" xml:space="preserve">
+    <value>Start-Cutscene:</value>
+  </data>
+  <data name="tabPage2.Text" xml:space="preserve">
+    <value>Skript und Bedienfeld</value>
+  </data>
+  <data name="fading_indicator.Size" type="System.Drawing.Size, System.Drawing">
+    <value>39, 13</value>
+  </data>
+  <data name="fading_indicator.Text" xml:space="preserve">
+    <value>&lt;kein&gt;</value>
+  </data>
+  <data name="label16.Size" type="System.Drawing.Size, System.Drawing">
+    <value>148, 13</value>
+  </data>
+  <data name="label16.Text" xml:space="preserve">
+    <value>Raum mit dem eigenen Menü:</value>
+  </data>
+  <data name="useCustomMenu.Size" type="System.Drawing.Size, System.Drawing">
+    <value>150, 17</value>
+  </data>
+  <data name="useCustomMenu.Text" xml:space="preserve">
+    <value>Eigenes Menü verwenden</value>
+  </data>
+  <data name="label15.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 13</value>
+  </data>
+  <data name="label15.Text" xml:space="preserve">
+    <value>Textfarbe:</value>
+  </data>
+  <data name="label14.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 13</value>
+  </data>
+  <data name="label14.Text" xml:space="preserve">
+    <value>Hintergrundfarbe:</value>
+  </data>
+  <data name="label13.Size" type="System.Drawing.Size, System.Drawing">
+    <value>36, 13</value>
+  </data>
+  <data name="label13.Text" xml:space="preserve">
+    <value>Rand:</value>
+  </data>
+  <data name="groupBox2.Text" xml:space="preserve">
+    <value>Menüfarben</value>
+  </data>
+  <data name="label19.Size" type="System.Drawing.Size, System.Drawing">
+    <value>75, 13</value>
+  </data>
+  <data name="label19.Text" xml:space="preserve">
+    <value>Infotext Farbe:</value>
+  </data>
+  <data name="label20.Size" type="System.Drawing.Size, System.Drawing">
+    <value>124, 13</value>
+  </data>
+  <data name="label20.Text" xml:space="preserve">
+    <value>Targa Transparenzfarbe:</value>
+  </data>
+  <data name="label18.Size" type="System.Drawing.Size, System.Drawing">
+    <value>89, 13</value>
+  </data>
+  <data name="label18.Text" xml:space="preserve">
+    <value>Offspeech Farbe:</value>
+  </data>
+  <data name="tabPage3.Text" xml:space="preserve">
+    <value>Menü und Farben</value>
+  </data>
+  <data name="use_background_image.Size" type="System.Drawing.Size, System.Drawing">
+    <value>144, 17</value>
+  </data>
+  <data name="use_background_image.Text" xml:space="preserve">
+    <value>Hintergrundbild benutzen</value>
+  </data>
+  <data name="groupBox3.Text" xml:space="preserve">
+    <value>Erscheinungsbild</value>
+  </data>
+  <data name="label24.Size" type="System.Drawing.Size, System.Drawing">
+    <value>55, 13</value>
+  </data>
+  <data name="label24.Text" xml:space="preserve">
+    <value>Textfarbe:</value>
+  </data>
+  <data name="label25.Size" type="System.Drawing.Size, System.Drawing">
+    <value>74, 13</value>
+  </data>
+  <data name="label25.Text" xml:space="preserve">
+    <value>Auswahlfarbe:</value>
+  </data>
+  <data name="label23.Size" type="System.Drawing.Size, System.Drawing">
+    <value>60, 13</value>
+  </data>
+  <data name="label23.Text" xml:space="preserve">
+    <value>Randfarbe:</value>
+  </data>
+  <data name="label21.Location" type="System.Drawing.Point, System.Drawing">
+    <value>21, 208</value>
+  </data>
+  <data name="label21.Size" type="System.Drawing.Size, System.Drawing">
+    <value>72, 13</value>
+  </data>
+  <data name="label21.Text" xml:space="preserve">
+    <value>Flächenfarbe:</value>
+  </data>
+  <data name="textscene_fading_indicator.Size" type="System.Drawing.Size, System.Drawing">
+    <value>39, 13</value>
+  </data>
+  <data name="textscene_fading_indicator.Text" xml:space="preserve">
+    <value>&lt;kein&gt;</value>
+  </data>
+  <data name="ts_border_none.Size" type="System.Drawing.Size, System.Drawing">
+    <value>46, 17</value>
+  </data>
+  <data name="ts_border_none.Text" xml:space="preserve">
+    <value>Kein</value>
+  </data>
+  <data name="ts_lines.Size" type="System.Drawing.Size, System.Drawing">
+    <value>53, 17</value>
+  </data>
+  <data name="ts_lines.Text" xml:space="preserve">
+    <value>Linien</value>
+  </data>
+  <data name="ts_rectangles.Size" type="System.Drawing.Size, System.Drawing">
+    <value>78, 17</value>
+  </data>
+  <data name="ts_rectangles.Text" xml:space="preserve">
+    <value>Rechtecke</value>
+  </data>
+  <data name="groupBox1.Text" xml:space="preserve">
+    <value>Rand</value>
+  </data>
+  <data name="ts_none.Size" type="System.Drawing.Size, System.Drawing">
+    <value>46, 17</value>
+  </data>
+  <data name="ts_none.Text" xml:space="preserve">
+    <value>Kein</value>
+  </data>
+  <data name="ts_additive.Size" type="System.Drawing.Size, System.Drawing">
+    <value>57, 17</value>
+  </data>
+  <data name="ts_additive.Text" xml:space="preserve">
+    <value>Additiv</value>
+  </data>
+  <data name="ts_solid.Size" type="System.Drawing.Size, System.Drawing">
+    <value>45, 17</value>
+  </data>
+  <data name="ts_solid.Text" xml:space="preserve">
+    <value>Fest</value>
+  </data>
+  <data name="tabPage4.Text" xml:space="preserve">
+    <value>Textszene</value>
+  </data>
+  <data name="coin_fading_indicator.Size" type="System.Drawing.Size, System.Drawing">
+    <value>39, 13</value>
+  </data>
+  <data name="coin_fading_indicator.Text" xml:space="preserve">
+    <value>&lt;kein&gt;</value>
+  </data>
+  <data name="label27.Size" type="System.Drawing.Size, System.Drawing">
+    <value>143, 13</value>
+  </data>
+  <data name="label27.Text" xml:space="preserve">
+    <value>Coin-Interface Mittelpunkt --&gt;</value>
+  </data>
+  <data name="coin_autopopup.Size" type="System.Drawing.Size, System.Drawing">
+    <value>202, 17</value>
+  </data>
+  <data name="coin_autopopup.Text" xml:space="preserve">
+    <value>automatischer Popup bei Rechtsklick</value>
+  </data>
+  <data name="label26.Size" type="System.Drawing.Size, System.Drawing">
+    <value>156, 13</value>
+  </data>
+  <data name="label26.Text" xml:space="preserve">
+    <value>Raum der das Interface enthält:</value>
+  </data>
+  <data name="coin_interface.Size" type="System.Drawing.Size, System.Drawing">
+    <value>149, 17</value>
+  </data>
+  <data name="coin_interface.Text" xml:space="preserve">
+    <value>Coin-Interface einschalten</value>
+  </data>
+  <data name="cropTransparent.Location" type="System.Drawing.Point, System.Drawing">
+    <value>195, 16</value>
+  </data>
+  <data name="cropTransparent.Size" type="System.Drawing.Size, System.Drawing">
+    <value>192, 17</value>
+  </data>
+  <data name="cropTransparent.Text" xml:space="preserve">
+    <value>Transparente Bildteile abschneiden</value>
+  </data>
+  <data name="noPngToJpeg.Size" type="System.Drawing.Size, System.Drawing">
+    <value>180, 17</value>
+  </data>
+  <data name="noPngToJpeg.Text" xml:space="preserve">
+    <value>Pngs nicht nach Jpg umwandeln</value>
+  </data>
+  <data name="tabPage6.Text" xml:space="preserve">
+    <value>Erweitert</value>
+  </data>
+  <assembly alias="mscorlib" name="mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  <data name="$this.RightToLeftLayout" type="System.Boolean, mscorlib">
+    <value>False</value>
+  </data>
+  <data name="$this.Text" xml:space="preserve">
+    <value>Projekteinstellungen</value>
+  </data>
+</root>

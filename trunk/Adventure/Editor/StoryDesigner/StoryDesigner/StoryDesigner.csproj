@@ -1,0 +1,465 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6AEE91C0-1F60-4D20-995A-CCDABF758BE6}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>StoryDesigner</RootNamespace>
+    <AssemblyName>StoryDesigner</AssemblyName>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup />
+  <PropertyGroup />
+  <PropertyGroup>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\sharpzip\SrcSamples\bin\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AboutBox.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="AboutBox.Designer.cs">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+    </Compile>
+    <Compile Include="AdvData.cs">
+    </Compile>
+    <Compile Include="AdvFileReader.cs" />
+    <Compile Include="AdvFileWriter.cs" />
+    <Compile Include="CharacterDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CharacterDlg.Designer.cs">
+      <DependentUpon>CharacterDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ChildForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ChildForm.Designer.cs">
+      <DependentUpon>ChildForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="CommandsAndBools.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="CommandsAndBools.Designer.cs">
+      <DependentUpon>CommandsAndBools.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Fonts.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Fonts.Designer.cs">
+      <DependentUpon>Fonts.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Form1.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form1.Designer.cs">
+      <DependentUpon>Form1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FxShapeCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FxShapeCtrl.Designer.cs">
+      <DependentUpon>FxShapeCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FxShapeTabCtrl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="FxShapeTabCtrl.Designer.cs">
+      <DependentUpon>FxShapeTabCtrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Update\UpdatableFile.cs" />
+    <Compile Include="Update\UpdateAccept.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Update\UpdateAccept.Designer.cs">
+      <DependentUpon>UpdateAccept.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Update\Hasher.cs" />
+    <Compile Include="ImageViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ImageViewer.Designer.cs">
+      <DependentUpon>ImageViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ItemDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ItemDlg.Designer.cs">
+      <DependentUpon>ItemDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Language.cs" />
+    <Compile Include="LanguageDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="LanguageDlg.Designer.cs">
+      <DependentUpon>LanguageDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="LanguageTable.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="LanguageTable.Designer.cs">
+      <DependentUpon>LanguageTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MDIMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MDIMain.Designer.cs">
+      <DependentUpon>MDIMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MediaPlyr.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MediaPlyr.Designer.cs">
+      <DependentUpon>MediaPlyr.cs</DependentUpon>
+    </Compile>
+    <Compile Include="MouseIcons.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MouseIcons.Designer.cs">
+      <DependentUpon>MouseIcons.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ObjectDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ObjectDlg.Designer.cs">
+      <DependentUpon>ObjectDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="PcdkParser.cs" />
+    <Compile Include="Persistence.cs" />
+    <Compile Include="Plugin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="CharacterDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>CharacterDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CommandsAndBools.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>CommandsAndBools.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Fonts.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>Fonts.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form1.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>Form1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FxShapeCtrl.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FxShapeCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FxShapeTabCtrl.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>FxShapeTabCtrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ImageViewer.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ImageViewer.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ItemDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ItemDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MouseIcons.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>MouseIcons.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ObjectDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ObjectDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RoomCtrlDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>RoomCtrlDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="RoomDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>RoomDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ScriptDlg.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>ScriptDlg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>Settings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="StateFrameImage.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>StateFrameImage.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="app.manifest" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <EmbeddedResource Include="Resources\font.dat" />
+    <EmbeddedResource Include="WaitForm.resx">
+      <SubType>Designer</SubType>
+      <DependentUpon>WaitForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+    <Compile Include="Room.cs" />
+    <Compile Include="RoomCtrlDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RoomCtrlDlg.Designer.cs">
+      <DependentUpon>RoomCtrlDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="RoomDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="RoomDlg.Designer.cs">
+      <DependentUpon>RoomDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ScriptDlg.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ScriptDlg.Designer.cs">
+      <DependentUpon>ScriptDlg.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Settings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Settings.Designer.cs">
+      <DependentUpon>Settings.cs</DependentUpon>
+    </Compile>
+    <Compile Include="StateFrameImage.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="StateFrameImage.Designer.cs">
+      <DependentUpon>StateFrameImage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Strings.de-DE.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.de-DE.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Strings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Strings.resx</DependentUpon>
+    </Compile>
+    <Compile Include="UnexpectedValue.cs" />
+    <Compile Include="Update\Updatable.cs" />
+    <Compile Include="Update\Update.cs" />
+    <Compile Include="Update\UpdateDownloader.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Update\UpdateDownloader.Designer.cs">
+      <DependentUpon>UpdateDownloader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Update\UpdateInfo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Update\UpdateInfo.Designer.cs">
+      <DependentUpon>UpdateInfo.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Update\UpdateXml.cs" />
+    <Compile Include="Utilities.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Vec2i.cs" />
+    <Compile Include="WaitForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WaitForm.Designer.cs">
+      <DependentUpon>WaitForm.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Icons\Empty.ico" />
+    <Content Include="Icons\Folder.ico" />
+    <None Include="Images\Update.gif" />
+    <EmbeddedResource Include="AboutBox.resx">
+      <DependentUpon>AboutBox.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ChildForm.resx">
+      <DependentUpon>ChildForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form1.de.resx">
+      <DependentUpon>Form1.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Images\FxshapeManDark.png" />
+    <EmbeddedResource Include="Images\FxshapeManLight.png" />
+    <EmbeddedResource Include="LanguageDlg.resx">
+      <DependentUpon>LanguageDlg.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="LanguageTable.resx">
+      <DependentUpon>LanguageTable.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MDIMain.de.resx">
+      <DependentUpon>MDIMain.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MDIMain.resx">
+      <DependentUpon>MDIMain.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="MediaPlyr.resx">
+      <DependentUpon>MediaPlyr.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Settings.de.resx">
+      <DependentUpon>Settings.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Strings.de-DE.resx">
+      <SubType>Designer</SubType>
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.de-DE.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Strings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Strings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Update\UpdateAccept.de.resx">
+      <DependentUpon>UpdateAccept.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Update\UpdateAccept.resx">
+      <DependentUpon>UpdateAccept.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Update\UpdateDownloader.resx">
+      <DependentUpon>UpdateDownloader.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Update\UpdateInfo.de.resx">
+      <DependentUpon>UpdateInfo.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Update\UpdateInfo.resx">
+      <DependentUpon>UpdateInfo.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WaitForm.de.resx">
+      <DependentUpon>WaitForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.0">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.0 %28x86%29</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <COMReference Include="WMPLib">
+      <Guid>{6BF52A50-394A-11D3-B153-00C04F79FAA6}</Guid>
+      <VersionMajor>1</VersionMajor>
+      <VersionMinor>0</VersionMinor>
+      <Lcid>0</Lcid>
+      <WrapperTool>tlbimp</WrapperTool>
+      <Isolated>False</Isolated>
+    </COMReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

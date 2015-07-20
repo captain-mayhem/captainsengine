@@ -1,0 +1,37 @@
+Topic | Prio
+-------------
+Engine
+------
+dynamic char collision detection (both characters moving) | 5
+module sounds | 6
+playing of swf (flash) | 6
+special effects | 4
+particle barriers: bounding box calculation of particles when rotated | 5
+path finding with less direction changes | 4
+switchchar with both characters active | 3
+
+Editor
+------
+
+
+Tests
+-----
+D:\pcdk\Sinnlos im Weltraum - The First Adventure\Sinnlos im Weltraum - The First Adventure\data\game.dat
+D:\pcdk\editor\functiondemo\data\game.dat
+D:\pcdk\editor\particles\data\game.dat
+D:\Projects\captainsengine\trunk\Adventure\AppBuilder\test\data\game.dat
+D:\pcdk\aluehnfinal\Alühn\data\game.dat
+D:\pcdk\testadv\TestAdventure\data\game.dat
+"D:\Program Files (x86)\Alühn 2\data\game.dat"
+D:\Projects\adventure\dark_mystery\bin\data\game.dat
+
+D:\pcdk\editor\functiondemo_adz\FunctionDemo\FunctionDemo.adv
+D:\Projects\adventure\dark_mystery\dark_mystery.adv
+D:\pcdk\tutorials\My First Adventure.adv
+
+Script-Bugs in Alühn
+--------------
+Textscene gogglen: Level 2:  row (3 ;Zurück; true): row 3 existiert schon, sollte hier wohl 4 sein
+Cutscene Zwischensequenz2: setpos (oraniering ; 4 ; 0 ; false): oraniering soll wahrscheinlich oranierring heißen
+Room Wcs, Object zwitschirften1: setobj(kette; 0): kette ist kein Objekt
+Room SoftwareDiscount, Room-Script: beamto (wolfgang ; 21 ; 18 ; 1): beamto ohne Raum? Zumindest so nicht in der Skript-Doku...

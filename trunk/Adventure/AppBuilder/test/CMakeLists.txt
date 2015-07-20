@@ -1,0 +1,1 @@
+INSTALL(DIRECTORY data DESTINATION adventure)

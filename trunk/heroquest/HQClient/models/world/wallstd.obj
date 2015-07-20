@@ -1,0 +1,21 @@
+#a simple ground tile
+mtllib ground.mtl
+
+#4
+v 4 16 -3
+v -4 16 -3
+v -4 0 -3
+v 4 0 -3
+
+#4
+vt 1 2
+vt 0 2
+vt 0 0
+vt 1 0
+
+#1
+vn 0 0 1
+
+usemtl Material
+#1
+f 1/1/1 2/2/1 3/3/1 4/4/1
