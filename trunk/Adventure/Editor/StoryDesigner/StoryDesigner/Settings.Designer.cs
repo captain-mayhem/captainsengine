@@ -43,6 +43,9 @@ namespace StoryDesigner
             this.drawDraggedItems = new System.Windows.Forms.CheckBox();
             this.text_on = new System.Windows.Forms.CheckBox();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.aspect_ratio2 = new System.Windows.Forms.RadioButton();
+            this.aspect_ratio = new System.Windows.Forms.RadioButton();
             this.symbol = new System.Windows.Forms.PictureBox();
             this.label4 = new System.Windows.Forms.Label();
             this.mute_music = new System.Windows.Forms.CheckBox();
@@ -52,6 +55,8 @@ namespace StoryDesigner
             this.projetName = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.settingsPicture = new System.Windows.Forms.TextBox();
+            this.label28 = new System.Windows.Forms.Label();
             this.loadingImage = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
@@ -153,6 +158,7 @@ namespace StoryDesigner
             this.tabPage1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.actionTextHeight)).BeginInit();
             this.panel2.SuspendLayout();
+            this.groupBox4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.symbol)).BeginInit();
             this.panel1.SuspendLayout();
             this.tabPage2.SuspendLayout();
@@ -286,6 +292,7 @@ namespace StoryDesigner
             // 
             resources.ApplyResources(this.panel2, "panel2");
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel2.Controls.Add(this.groupBox4);
             this.panel2.Controls.Add(this.symbol);
             this.panel2.Controls.Add(this.label4);
             this.panel2.Controls.Add(this.mute_music);
@@ -295,6 +302,29 @@ namespace StoryDesigner
             this.panel2.Controls.Add(this.projetName);
             this.panel2.Controls.Add(this.label2);
             this.panel2.Name = "panel2";
+            // 
+            // groupBox4
+            // 
+            resources.ApplyResources(this.groupBox4, "groupBox4");
+            this.groupBox4.Controls.Add(this.aspect_ratio2);
+            this.groupBox4.Controls.Add(this.aspect_ratio);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.TabStop = false;
+            // 
+            // aspect_ratio2
+            // 
+            resources.ApplyResources(this.aspect_ratio2, "aspect_ratio2");
+            this.aspect_ratio2.Name = "aspect_ratio2";
+            this.aspect_ratio2.TabStop = true;
+            this.aspect_ratio2.UseVisualStyleBackColor = true;
+            // 
+            // aspect_ratio
+            // 
+            resources.ApplyResources(this.aspect_ratio, "aspect_ratio");
+            this.aspect_ratio.Name = "aspect_ratio";
+            this.aspect_ratio.TabStop = true;
+            this.aspect_ratio.UseVisualStyleBackColor = true;
+            this.aspect_ratio.CheckedChanged += new System.EventHandler(this.aspect_ratio_CheckedChanged);
             // 
             // symbol
             // 
@@ -330,7 +360,8 @@ namespace StoryDesigner
             resources.GetString("resolution.Items1"),
             resources.GetString("resolution.Items2"),
             resources.GetString("resolution.Items3"),
-            resources.GetString("resolution.Items4")});
+            resources.GetString("resolution.Items4"),
+            resources.GetString("resolution.Items5")});
             this.resolution.Name = "resolution";
             // 
             // label3
@@ -352,9 +383,21 @@ namespace StoryDesigner
             // 
             resources.ApplyResources(this.panel1, "panel1");
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.settingsPicture);
+            this.panel1.Controls.Add(this.label28);
             this.panel1.Controls.Add(this.loadingImage);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Name = "panel1";
+            // 
+            // settingsPicture
+            // 
+            resources.ApplyResources(this.settingsPicture, "settingsPicture");
+            this.settingsPicture.Name = "settingsPicture";
+            // 
+            // label28
+            // 
+            resources.ApplyResources(this.label28, "label28");
+            this.label28.Name = "label28";
             // 
             // loadingImage
             // 
@@ -1073,6 +1116,8 @@ namespace StoryDesigner
             ((System.ComponentModel.ISupportInitialize)(this.actionTextHeight)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.symbol)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -1236,5 +1281,10 @@ namespace StoryDesigner
         private System.Windows.Forms.TabPage tabPage6;
         private System.Windows.Forms.CheckBox noPngToJpeg;
         private System.Windows.Forms.CheckBox cropTransparent;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.RadioButton aspect_ratio2;
+        private System.Windows.Forms.RadioButton aspect_ratio;
+        private System.Windows.Forms.TextBox settingsPicture;
+        private System.Windows.Forms.Label label28;
     }
 }

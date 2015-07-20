@@ -119,79 +119,82 @@
   </resheader>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="protectGamefiles.Size" type="System.Drawing.Size, System.Drawing">
-    <value>130, 17</value>
+    <value>169, 21</value>
   </data>
   <data name="protectGamefiles.Text" xml:space="preserve">
     <value>Spieldateien schützen</value>
   </data>
   <data name="createBackups.Size" type="System.Drawing.Size, System.Drawing">
-    <value>110, 17</value>
+    <value>142, 21</value>
   </data>
   <data name="createBackups.Text" xml:space="preserve">
     <value>Backups erstellen</value>
   </data>
   <data name="fitImages.Size" type="System.Drawing.Size, System.Drawing">
-    <value>103, 17</value>
+    <value>135, 21</value>
   </data>
   <data name="fitImages.Text" xml:space="preserve">
     <value>Bilder einpassen</value>
   </data>
   <data name="infoLine.Size" type="System.Drawing.Size, System.Drawing">
-    <value>65, 17</value>
+    <value>82, 21</value>
   </data>
   <data name="infoLine.Text" xml:space="preserve">
     <value>Infozeile</value>
   </data>
   <data name="silentDelete.Size" type="System.Drawing.Size, System.Drawing">
-    <value>97, 17</value>
+    <value>125, 21</value>
   </data>
   <data name="silentDelete.Text" xml:space="preserve">
     <value>Stilles Löschen</value>
   </data>
   <data name="label5.Size" type="System.Drawing.Size, System.Drawing">
-    <value>86, 13</value>
+    <value>112, 17</value>
   </data>
   <data name="label5.Text" xml:space="preserve">
     <value>Aktionstexthöhe:</value>
   </data>
   <data name="actionText.Size" type="System.Drawing.Size, System.Drawing">
-    <value>78, 17</value>
+    <value>98, 21</value>
   </data>
   <data name="actionText.Text" xml:space="preserve">
     <value>Aktionstext</value>
   </data>
   <data name="groupItems.Size" type="System.Drawing.Size, System.Drawing">
-    <value>143, 17</value>
+    <value>189, 21</value>
   </data>
   <data name="groupItems.Text" xml:space="preserve">
     <value>Gegenstände gruppieren</value>
   </data>
   <data name="drawDraggedItems.Size" type="System.Drawing.Size, System.Drawing">
-    <value>161, 17</value>
+    <value>212, 21</value>
   </data>
   <data name="drawDraggedItems.Text" xml:space="preserve">
     <value>Gegenstandsicons mitziehen</value>
   </data>
   <data name="text_on.Size" type="System.Drawing.Size, System.Drawing">
-    <value>110, 17</value>
+    <value>142, 21</value>
   </data>
   <data name="text_on.Text" xml:space="preserve">
     <value>Text ausschaltbar</value>
   </data>
+  <data name="groupBox4.Text" xml:space="preserve">
+    <value>Seitenverhältnis</value>
+  </data>
   <data name="mute_music.Size" type="System.Drawing.Size, System.Drawing">
-    <value>138, 17</value>
+    <value>179, 21</value>
   </data>
   <data name="mute_music.Text" xml:space="preserve">
     <value>Musik leise bei Sprache</value>
   </data>
   <data name="no_antialiasing.Size" type="System.Drawing.Size, System.Drawing">
-    <value>103, 17</value>
+    <value>134, 21</value>
   </data>
   <data name="no_antialiasing.Text" xml:space="preserve">
     <value>Kein Antialiasing</value>
   </data>
   <data name="label3.Size" type="System.Drawing.Size, System.Drawing">
-    <value>105, 13</value>
+    <value>140, 17</value>
   </data>
   <data name="label3.Text" xml:space="preserve">
     <value>Auflösung des Spiels</value>
@@ -199,8 +202,17 @@
   <data name="label2.Text" xml:space="preserve">
     <value>Projektname:</value>
   </data>
+  <data name="settingsPicture.Location" type="System.Drawing.Point, System.Drawing">
+    <value>322, 33</value>
+  </data>
+  <data name="label28.Size" type="System.Drawing.Size, System.Drawing">
+    <value>134, 17</value>
+  </data>
+  <data name="label28.Text" xml:space="preserve">
+    <value>"Einstellungen" Bild:</value>
+  </data>
   <data name="label1.Size" type="System.Drawing.Size, System.Drawing">
-    <value>70, 13</value>
+    <value>89, 17</value>
   </data>
   <data name="label1.Text" xml:space="preserve">
     <value>"Laden" Bild:</value>
@@ -209,31 +221,31 @@
     <value>Generell</value>
   </data>
   <data name="label12.Size" type="System.Drawing.Size, System.Drawing">
-    <value>69, 13</value>
+    <value>93, 17</value>
   </data>
   <data name="label12.Text" xml:space="preserve">
     <value>Transparenz:</value>
   </data>
   <data name="label11.Size" type="System.Drawing.Size, System.Drawing">
-    <value>139, 13</value>
+    <value>182, 17</value>
   </data>
   <data name="label11.Text" xml:space="preserve">
     <value>Raum für "Überall" Objekte:</value>
   </data>
   <data name="ts_scrolling.Size" type="System.Drawing.Size, System.Drawing">
-    <value>138, 17</value>
+    <value>179, 21</value>
   </data>
   <data name="ts_scrolling.Text" xml:space="preserve">
     <value>Scrollendes Auftauchen</value>
   </data>
   <data name="ts_popup.Size" type="System.Drawing.Size, System.Drawing">
-    <value>122, 17</value>
+    <value>157, 21</value>
   </data>
   <data name="ts_popup.Text" xml:space="preserve">
     <value>Direktes Auftauchen</value>
   </data>
   <data name="ts_always.Size" type="System.Drawing.Size, System.Drawing">
-    <value>68, 17</value>
+    <value>87, 21</value>
   </data>
   <data name="ts_always.Text" xml:space="preserve">
     <value>Immer da</value>
@@ -242,85 +254,85 @@
     <value>Style der Bedienfläche</value>
   </data>
   <data name="ts_appears_top.Size" type="System.Drawing.Size, System.Drawing">
-    <value>51, 17</value>
+    <value>64, 21</value>
   </data>
   <data name="ts_appears_top.Text" xml:space="preserve">
     <value>Oben</value>
   </data>
   <data name="ts_appear_bottom.Size" type="System.Drawing.Size, System.Drawing">
-    <value>54, 17</value>
+    <value>67, 21</value>
   </data>
   <data name="ts_appear_bottom.Text" xml:space="preserve">
     <value>Unten</value>
   </data>
   <data name="label10.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 13</value>
+    <value>98, 17</value>
   </data>
   <data name="label10.Text" xml:space="preserve">
     <value>Erscheint von:</value>
   </data>
   <data name="hideCompletely.Size" type="System.Drawing.Size, System.Drawing">
-    <value>168, 17</value>
+    <value>216, 21</value>
   </data>
   <data name="hideCompletely.Text" xml:space="preserve">
     <value>Wenn unten, ganz verdecken</value>
   </data>
   <data name="label9.Size" type="System.Drawing.Size, System.Drawing">
-    <value>119, 13</value>
+    <value>157, 17</value>
   </data>
   <data name="label9.Text" xml:space="preserve">
     <value>Raum mit Bedienfläche:</value>
   </data>
   <data name="label8.Size" type="System.Drawing.Size, System.Drawing">
-    <value>36, 13</value>
+    <value>46, 17</value>
   </data>
   <data name="label8.Text" xml:space="preserve">
     <value>Höhe:</value>
   </data>
   <data name="taskbar.Size" type="System.Drawing.Size, System.Drawing">
-    <value>88, 17</value>
+    <value>112, 21</value>
   </data>
   <data name="taskbar.Text" xml:space="preserve">
     <value>Bedienfläche</value>
   </data>
   <data name="sc_blend_slow.Size" type="System.Drawing.Size, System.Drawing">
-    <value>132, 17</value>
+    <value>173, 21</value>
   </data>
   <data name="sc_blend_slow.Text" xml:space="preserve">
     <value>Langsam Überblenden</value>
   </data>
   <data name="sc_blend.Size" type="System.Drawing.Size, System.Drawing">
-    <value>86, 17</value>
+    <value>111, 21</value>
   </data>
   <data name="sc_blend.Text" xml:space="preserve">
     <value>Überblenden</value>
   </data>
   <data name="sc_clock.Size" type="System.Drawing.Size, System.Drawing">
-    <value>42, 17</value>
+    <value>52, 21</value>
   </data>
   <data name="sc_clock.Text" xml:space="preserve">
     <value>Uhr</value>
   </data>
   <data name="sc_shutters.Size" type="System.Drawing.Size, System.Drawing">
-    <value>67, 17</value>
+    <value>85, 21</value>
   </data>
   <data name="sc_shutters.Text" xml:space="preserve">
     <value>Rolläden</value>
   </data>
   <data name="sc_circle.Size" type="System.Drawing.Size, System.Drawing">
-    <value>48, 17</value>
+    <value>61, 21</value>
   </data>
   <data name="sc_circle.Text" xml:space="preserve">
     <value>Kreis</value>
   </data>
   <data name="sc_rectangle.Size" type="System.Drawing.Size, System.Drawing">
-    <value>72, 17</value>
+    <value>88, 21</value>
   </data>
   <data name="sc_rectangle.Text" xml:space="preserve">
     <value>Rechteck</value>
   </data>
   <data name="sc_blackfade.Size" type="System.Drawing.Size, System.Drawing">
-    <value>128, 17</value>
+    <value>166, 21</value>
   </data>
   <data name="sc_blackfade.Text" xml:space="preserve">
     <value>Schwarz überblenden</value>
@@ -332,13 +344,13 @@
     <value>Bildwechsel</value>
   </data>
   <data name="label7.Size" type="System.Drawing.Size, System.Drawing">
-    <value>64, 13</value>
+    <value>84, 17</value>
   </data>
   <data name="label7.Text" xml:space="preserve">
     <value>Hauptskript:</value>
   </data>
   <data name="label6.Size" type="System.Drawing.Size, System.Drawing">
-    <value>80, 13</value>
+    <value>106, 17</value>
   </data>
   <data name="label6.Text" xml:space="preserve">
     <value>Start-Cutscene:</value>
@@ -347,37 +359,37 @@
     <value>Skript und Bedienfeld</value>
   </data>
   <data name="fading_indicator.Size" type="System.Drawing.Size, System.Drawing">
-    <value>39, 13</value>
+    <value>50, 17</value>
   </data>
   <data name="fading_indicator.Text" xml:space="preserve">
     <value>&lt;kein&gt;</value>
   </data>
   <data name="label16.Size" type="System.Drawing.Size, System.Drawing">
-    <value>148, 13</value>
+    <value>196, 17</value>
   </data>
   <data name="label16.Text" xml:space="preserve">
     <value>Raum mit dem eigenen Menü:</value>
   </data>
   <data name="useCustomMenu.Size" type="System.Drawing.Size, System.Drawing">
-    <value>150, 17</value>
+    <value>193, 21</value>
   </data>
   <data name="useCustomMenu.Text" xml:space="preserve">
     <value>Eigenes Menü verwenden</value>
   </data>
   <data name="label15.Size" type="System.Drawing.Size, System.Drawing">
-    <value>55, 13</value>
+    <value>72, 17</value>
   </data>
   <data name="label15.Text" xml:space="preserve">
     <value>Textfarbe:</value>
   </data>
   <data name="label14.Size" type="System.Drawing.Size, System.Drawing">
-    <value>89, 13</value>
+    <value>120, 17</value>
   </data>
   <data name="label14.Text" xml:space="preserve">
     <value>Hintergrundfarbe:</value>
   </data>
   <data name="label13.Size" type="System.Drawing.Size, System.Drawing">
-    <value>36, 13</value>
+    <value>46, 17</value>
   </data>
   <data name="label13.Text" xml:space="preserve">
     <value>Rand:</value>
@@ -386,19 +398,19 @@
     <value>Menüfarben</value>
   </data>
   <data name="label19.Size" type="System.Drawing.Size, System.Drawing">
-    <value>75, 13</value>
+    <value>98, 17</value>
   </data>
   <data name="label19.Text" xml:space="preserve">
     <value>Infotext Farbe:</value>
   </data>
   <data name="label20.Size" type="System.Drawing.Size, System.Drawing">
-    <value>124, 13</value>
+    <value>168, 17</value>
   </data>
   <data name="label20.Text" xml:space="preserve">
     <value>Targa Transparenzfarbe:</value>
   </data>
   <data name="label18.Size" type="System.Drawing.Size, System.Drawing">
-    <value>89, 13</value>
+    <value>118, 17</value>
   </data>
   <data name="label18.Text" xml:space="preserve">
     <value>Offspeech Farbe:</value>
@@ -407,7 +419,7 @@
     <value>Menü und Farben</value>
   </data>
   <data name="use_background_image.Size" type="System.Drawing.Size, System.Drawing">
-    <value>144, 17</value>
+    <value>190, 21</value>
   </data>
   <data name="use_background_image.Text" xml:space="preserve">
     <value>Hintergrundbild benutzen</value>
@@ -416,19 +428,19 @@
     <value>Erscheinungsbild</value>
   </data>
   <data name="label24.Size" type="System.Drawing.Size, System.Drawing">
-    <value>55, 13</value>
+    <value>72, 17</value>
   </data>
   <data name="label24.Text" xml:space="preserve">
     <value>Textfarbe:</value>
   </data>
   <data name="label25.Size" type="System.Drawing.Size, System.Drawing">
-    <value>74, 13</value>
+    <value>97, 17</value>
   </data>
   <data name="label25.Text" xml:space="preserve">
     <value>Auswahlfarbe:</value>
   </data>
   <data name="label23.Size" type="System.Drawing.Size, System.Drawing">
-    <value>60, 13</value>
+    <value>79, 17</value>
   </data>
   <data name="label23.Text" xml:space="preserve">
     <value>Randfarbe:</value>
@@ -437,31 +449,31 @@
     <value>21, 208</value>
   </data>
   <data name="label21.Size" type="System.Drawing.Size, System.Drawing">
-    <value>72, 13</value>
+    <value>95, 17</value>
   </data>
   <data name="label21.Text" xml:space="preserve">
     <value>Flächenfarbe:</value>
   </data>
   <data name="textscene_fading_indicator.Size" type="System.Drawing.Size, System.Drawing">
-    <value>39, 13</value>
+    <value>50, 17</value>
   </data>
   <data name="textscene_fading_indicator.Text" xml:space="preserve">
     <value>&lt;kein&gt;</value>
   </data>
   <data name="ts_border_none.Size" type="System.Drawing.Size, System.Drawing">
-    <value>46, 17</value>
+    <value>57, 21</value>
   </data>
   <data name="ts_border_none.Text" xml:space="preserve">
     <value>Kein</value>
   </data>
   <data name="ts_lines.Size" type="System.Drawing.Size, System.Drawing">
-    <value>53, 17</value>
+    <value>67, 21</value>
   </data>
   <data name="ts_lines.Text" xml:space="preserve">
     <value>Linien</value>
   </data>
   <data name="ts_rectangles.Size" type="System.Drawing.Size, System.Drawing">
-    <value>78, 17</value>
+    <value>96, 21</value>
   </data>
   <data name="ts_rectangles.Text" xml:space="preserve">
     <value>Rechtecke</value>
@@ -470,19 +482,19 @@
     <value>Rand</value>
   </data>
   <data name="ts_none.Size" type="System.Drawing.Size, System.Drawing">
-    <value>46, 17</value>
+    <value>57, 21</value>
   </data>
   <data name="ts_none.Text" xml:space="preserve">
     <value>Kein</value>
   </data>
   <data name="ts_additive.Size" type="System.Drawing.Size, System.Drawing">
-    <value>57, 17</value>
+    <value>71, 21</value>
   </data>
   <data name="ts_additive.Text" xml:space="preserve">
     <value>Additiv</value>
   </data>
   <data name="ts_solid.Size" type="System.Drawing.Size, System.Drawing">
-    <value>45, 17</value>
+    <value>56, 21</value>
   </data>
   <data name="ts_solid.Text" xml:space="preserve">
     <value>Fest</value>
@@ -491,31 +503,31 @@
     <value>Textszene</value>
   </data>
   <data name="coin_fading_indicator.Size" type="System.Drawing.Size, System.Drawing">
-    <value>39, 13</value>
+    <value>50, 17</value>
   </data>
   <data name="coin_fading_indicator.Text" xml:space="preserve">
     <value>&lt;kein&gt;</value>
   </data>
   <data name="label27.Size" type="System.Drawing.Size, System.Drawing">
-    <value>143, 13</value>
+    <value>190, 17</value>
   </data>
   <data name="label27.Text" xml:space="preserve">
     <value>Coin-Interface Mittelpunkt --&gt;</value>
   </data>
   <data name="coin_autopopup.Size" type="System.Drawing.Size, System.Drawing">
-    <value>202, 17</value>
+    <value>262, 21</value>
   </data>
   <data name="coin_autopopup.Text" xml:space="preserve">
     <value>automatischer Popup bei Rechtsklick</value>
   </data>
   <data name="label26.Size" type="System.Drawing.Size, System.Drawing">
-    <value>156, 13</value>
+    <value>207, 17</value>
   </data>
   <data name="label26.Text" xml:space="preserve">
     <value>Raum der das Interface enthält:</value>
   </data>
   <data name="coin_interface.Size" type="System.Drawing.Size, System.Drawing">
-    <value>149, 17</value>
+    <value>194, 21</value>
   </data>
   <data name="coin_interface.Text" xml:space="preserve">
     <value>Coin-Interface einschalten</value>
@@ -524,13 +536,13 @@
     <value>195, 16</value>
   </data>
   <data name="cropTransparent.Size" type="System.Drawing.Size, System.Drawing">
-    <value>192, 17</value>
+    <value>254, 21</value>
   </data>
   <data name="cropTransparent.Text" xml:space="preserve">
     <value>Transparente Bildteile abschneiden</value>
   </data>
   <data name="noPngToJpeg.Size" type="System.Drawing.Size, System.Drawing">
-    <value>180, 17</value>
+    <value>233, 21</value>
   </data>
   <data name="noPngToJpeg.Text" xml:space="preserve">
     <value>Pngs nicht nach Jpg umwandeln</value>

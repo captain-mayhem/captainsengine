@@ -36,7 +36,8 @@ namespace StoryDesigner
             mData = data;
             mMode = mode;
             updateRoom();
-            this.ClientSize = new Size(data.Settings.Resolution.x, data.Settings.Resolution.y);
+            
+            this.ClientSize = new Size(data.WindowXRes, data.Settings.Resolution.y);
             this.Paint += new PaintEventHandler(RoomDlg_Paint);
             this.MouseDown += new MouseEventHandler(RoomDlg_MouseDown);
             this.MouseMove += new MouseEventHandler(RoomDlg_MouseMove);

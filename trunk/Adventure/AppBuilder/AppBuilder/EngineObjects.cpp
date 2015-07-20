@@ -503,11 +503,12 @@ int CursorObject::getCurrentCommand(){
 }
 
 void CursorObject::setCommand(int command){
+  int& state = mState == 10 ? mSavedState : mState;
   for (unsigned i = 0; i < mCommands.size(); ++i){
     if (mCommands[i] == command){
-      mState = i+1;
-      if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){
-        mState = 1;
+      state = i+1;
+      if (state - 1 >= (int)mAnimations.size() - 1 || !mAnimations[state - 1]->exists()){
+        state = 1;
       }
       break;
     }
