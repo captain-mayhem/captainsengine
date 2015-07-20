@@ -1,0 +1,7 @@
+potion_of_healing ->  id: 0  type: potion  description: restores up to 4 body points /description
+heroic_brew ->  id: 1  type: potion  description: you can drink this liquid to get another attack in this round. /description
+potion_of_defense ->  id: 2  type: potion  description: throw 2 extra dices at your next defense /description
+potion_of_strength ->  id: 3  type: potion  description: throw 2 extra dices at your next attack /description
+chest ->  id: 4  type: unusable  description: a chest belonging to Prince Magnus with 250 gold in it /description
+purple_liquid ->  id: 5  type: potion  description: a flask with an unidentifiable purple liquid /description
+wandOfMagic ->  id: 6  type: artifact  description: This magical wand allows the elf or wizard to cast two seperate and different spells on his turn instead of one single spell.  /description

@@ -1,0 +1,17 @@
+#/bin/sh
+
+HQEdit basic/maze.map
+HQEdit basic/trial.map
+HQEdit basic/rescueSirRagnar.map
+HQEdit basic/lairOrcWarlord.map
+HQEdit basic/princeMagnusGold.map
+HQEdit basic/melarsMaze.map
+HQEdit basic/legacyOrcWarlord.map
+HQEdit basic/lostWizard.map
+HQEdit basic/fireMage.map
+HQEdit basic/raceAgainstTime.map
+HQEdit basic/castleMystery.map
+HQEdit basic/bastionChaos.map
+HQEdit basic/barakTor.map
+HQEdit basic/spiritBlade.map
+HQEdit basic/returnBarakTor.map

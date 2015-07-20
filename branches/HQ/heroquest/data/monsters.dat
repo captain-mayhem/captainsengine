@@ -1,0 +1,9 @@
+Goblin        -> id: 0  short: go movement: 10 attack: 2 defend: 1 body: 1 mind: 1
+Skeleton      -> id: 1  short: sk movement: 6  attack: 2 defend: 2 body: 1 mind: 0
+Zombie        -> id: 2  short: zo movement: 5  attack: 2 defend: 3 body: 1 mind: 0
+Orc           -> id: 3  short: or movement: 8  attack: 3 defend: 2 body: 1 mind: 2
+Fimir         -> id: 4  short: fi movement: 6  attack: 3 defend: 3 body: 2 mind: 3
+Mummy         -> id: 5  short: mu movement: 4  attack: 3 defend: 4 body: 2 mind: 0
+Chaos_Warrior -> id: 6  short: ch movement: 7  attack: 4 defend: 4 body: 3 mind: 3
+Gargoyle      -> id: 7  short: ga movement: 6  attack: 4 defend: 5 body: 3 mind: 4
+Chaos_Warlock -> id: 8  short: cw movement: 6  attack: 4 defend: 6 body: 4 mind: 6
