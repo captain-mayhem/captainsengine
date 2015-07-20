@@ -1,0 +1,20 @@
+<Combine fileversion="2.0">
+  <Configurations active="Debug">
+    <Configuration name="Debug" ctype="CombineConfiguration">
+      <Entry build="True" name="StoryDesigner" configuration="Debug" />
+      <Entry build="True" name="RemoteControl" configuration="Debug" />
+    </Configuration>
+    <Configuration name="Release" ctype="CombineConfiguration">
+      <Entry build="True" name="StoryDesigner" configuration="Release" />
+      <Entry build="True" name="RemoteControl" configuration="Release" />
+    </Configuration>
+  </Configurations>
+  <StartMode startupentry="StoryDesigner" single="True">
+    <Execute type="None" entry="StoryDesigner" />
+    <Execute type="None" entry="RemoteControl" />
+  </StartMode>
+  <Entries>
+    <Entry filename="StoryDesigner/StoryDesigner.mdp" />
+    <Entry filename="RemoteControl/RemoteControl.mdp" />
+  </Entries>
+</Combine>

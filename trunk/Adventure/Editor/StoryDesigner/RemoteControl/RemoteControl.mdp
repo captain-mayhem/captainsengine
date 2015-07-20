@@ -1,0 +1,42 @@
+<Project name="RemoteControl" fileversion="2.0" DefaultNamespace="RemoteControl" language="C#" Configuration="Debug" Platform="AnyCPU" AppDesignerFolder="Properties" AssemblyName="RemoteControl" FileUpgradeFlags="" OldToolsVersion="2.0" UpgradeBackupLocation="" TargetFrameworkVersion="v3.5" PublishUrl="publish\" Install="true" InstallFrom="Disk" UpdateEnabled="false" UpdateMode="Foreground" UpdateInterval="7" UpdateIntervalUnits="Days" UpdatePeriodically="false" UpdateRequired="false" MapFileExtensions="true" ApplicationRevision="0" ApplicationVersion="1.0.0.%2a" IsWebBootstrapper="false" UseApplicationTrust="false" BootstrapperEnabled="true" targetFramework="4.0" ctype="DotNetProject">
+  <Configurations active="Debug">
+    <Configuration name="Debug" Optimize="false" DefineConstants="DEBUG;TRACE" WarningLevel="4" ctype="DotNetProjectConfiguration">
+      <Output directory="bin/Debug/" assembly="RemoteControl" />
+      <Build debugmode="True" target="WinExe" />
+      <Execution consolepause="True" runwithwarnings="True" runtime="MsNet" />
+      <CodeGeneration compiler="Mcs" warninglevel="4" optimize="False" unsafecodeallowed="False" generateoverflowchecks="False" definesymbols="DEBUG;TRACE" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+    <Configuration name="Release" Optimize="true" DefineConstants="TRACE" WarningLevel="4" ctype="DotNetProjectConfiguration">
+      <Output directory="bin/Release/" assembly="RemoteControl" />
+      <Build debugmode="False" target="WinExe" />
+      <Execution consolepause="True" runwithwarnings="True" runtime="MsNet" />
+      <CodeGeneration compiler="Mcs" warninglevel="4" optimize="True" unsafecodeallowed="False" generateoverflowchecks="False" definesymbols="TRACE" generatexmldocumentation="False" ctype="CSharpCompilerParameters" />
+    </Configuration>
+  </Configurations>
+  <Contents>
+    <File subtype="Code" buildaction="Compile" name="Form1.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="Form1.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/RemoteControl/Form1.cs" />
+    <File subtype="Code" buildaction="Compile" name="Program.cs" />
+    <File subtype="Code" buildaction="Compile" name="Properties/AssemblyInfo.cs" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Form1.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/RemoteControl/Form1.cs" resource_id="RemoteControl.MainForm.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Properties/Resources.resx" contentType="Designer" generator="ResXFileCodeGenerator" resource_id="RemoteControl.Properties.Resources.resources" />
+    <File subtype="Code" buildaction="EmbedAsResource" name="Settings.resx" contentType="Designer" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/RemoteControl/Settings.cs" resource_id="RemoteControl.Settings.resources" />
+    <File subtype="Code" buildaction="Compile" name="Properties/Resources.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/RemoteControl/Properties/Resources.resx" />
+    <File subtype="Code" buildaction="Nothing" name="Properties/Settings.settings" generator="SettingsSingleFileGenerator" />
+    <File subtype="Code" buildaction="Compile" name="Properties/Settings.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/RemoteControl/Properties/Settings.settings" />
+    <File subtype="Code" buildaction="Compile" name="Settings.cs" contentType="Form" />
+    <File subtype="Code" buildaction="Compile" name="Settings.Designer.cs" dependson="/home/captain/captainsengine/trunk/Adventure/Editor/StoryDesigner/RemoteControl/Settings.cs" />
+    <File subtype="Code" buildaction="BootstrapperPackage" name="Microsoft.Net.Framework.2.0" visible="False" />
+    <File subtype="Code" buildaction="BootstrapperPackage" name="Microsoft.Net.Framework.3.0" visible="False" />
+    <File subtype="Code" buildaction="BootstrapperPackage" name="Microsoft.Net.Framework.3.5" visible="False" />
+  </Contents>
+  <References>
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Deployment" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+    <ProjectReference specificVersion="False" type="Gac" localcopy="True" refto="System.Xml, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
+  </References>
+</Project>
