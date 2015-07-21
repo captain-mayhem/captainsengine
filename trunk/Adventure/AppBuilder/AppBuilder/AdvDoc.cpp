@@ -670,10 +670,10 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_mi
       ro.position = Vec2i(val1, val2);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.state = val1;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.layer = val1;
-      str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.wm_depth = val1;
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.wm_depth = val1*2;
       if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
         //double walk map
-        str = txtstream.readLine(); val1 = atoi(str.c_str());
+        str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.wm_depth = val1;
       }
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.locked = (val1 != 0);
       mLastRoom->objects.push_back(ro);
