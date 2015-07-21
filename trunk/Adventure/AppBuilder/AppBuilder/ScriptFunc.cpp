@@ -537,7 +537,7 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
         +Vec2f(walkgridsize/2, walkgridsize/2)
         +roomoffset);
       obj->setScrollOffset(scrolloffset);
-      obj->setDepth((int)(obj->getPosition().y/Engine::instance()->getWalkGridSize(false)));
+      obj->setDepth((int)(obj->getPosition().y/Engine::instance()->getWalkGridSize(true)));
       //obj->setScale(ro->getDepthScale(obj->getPosition()));
     }
   }
@@ -1601,7 +1601,7 @@ int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
     //Engine::instance()->walkTo(chr, pos, dir);
     chr->setPosition(pos);
     chr->setLookDir(dir);
-    chr->setDepth((int)(pos.y/Engine::instance()->getWalkGridSize(false)));
+    chr->setDepth((int)(pos.y/Engine::instance()->getWalkGridSize(true)));
   }
   else{
     TR_BREAK("Character %s not found", name.c_str());

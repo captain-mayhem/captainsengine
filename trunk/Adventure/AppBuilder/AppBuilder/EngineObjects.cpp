@@ -987,7 +987,7 @@ void CharacterObject::animationBegin(const Vec2i& next){
 void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
   int ycoord = getPosition().y;
   if (prev.y-ycoord != 0){
-    setDepth((int)(ycoord/Engine::instance()->getWalkGridSize(false)));
+    setDepth((int)(ycoord/Engine::instance()->getWalkGridSize(true)));
   }
   Vec2i dir = next-getPosition();
   setLookDir(dir);
@@ -1002,7 +1002,7 @@ void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
 void CharacterObject::animationEnd(const Vec2i& prev){
   int ycoord = getPosition().y;
   if (prev.y-ycoord != 0){
-    setDepth((int)(ycoord/Engine::instance()->getWalkGridSize(false)));
+    setDepth((int)(ycoord/Engine::instance()->getWalkGridSize(true)));
   }
   if (mDesiredDir != UNSPECIFIED){
     setLookDir(mDesiredDir);
@@ -1264,7 +1264,7 @@ void CharacterObject::setLinkObject(Object2D* link){
 }
 
 int CharacterObject::getDepth(){
-  return (int)(getPosition().y/Engine::instance()->getWalkGridSize(false));
+  return (int)(getPosition().y/Engine::instance()->getWalkGridSize(true));
 }
 
 void CharacterObject::setWalkSound(SoundPlayer* plyr){
