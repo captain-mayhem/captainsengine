@@ -576,8 +576,8 @@ namespace StoryDesigner
                     swr.WriteLine(obj.Position.y);
                     swr.WriteLine(obj.State);
                     swr.WriteLine(obj.Layer);
+                    swr.WriteLine(obj.Depth/2);
                     swr.WriteLine(obj.Depth);
-                    swr.WriteLine(obj.Depth*2);
                     swr.WriteLine(obj.Locked ? -1 : 0);
                 }
             }

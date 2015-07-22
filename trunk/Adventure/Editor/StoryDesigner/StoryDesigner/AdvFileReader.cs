@@ -817,10 +817,10 @@ namespace StoryDesigner
                     objinst.Position.y = Convert.ToInt32(rdr.ReadLine());
                     objinst.State = Convert.ToInt32(rdr.ReadLine());
                     objinst.Layer = Convert.ToInt32(rdr.ReadLine());
-                    objinst.Depth = Convert.ToInt32(rdr.ReadLine());
+                    objinst.Depth = Convert.ToInt32(rdr.ReadLine())*2;
                     if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5))
                     {
-                        str = rdr.ReadLine();
+                        objinst.Depth = Convert.ToInt32(rdr.ReadLine());
                     }
                     objinst.Locked = Convert.ToInt32(rdr.ReadLine()) != 0;
                     mLastRoom.Objects.Add(objinst);
