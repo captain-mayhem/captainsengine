@@ -1,5 +1,0 @@
-#!/bin/bash
-cp basic/*.hqm ../HQClient/levels/basic/
-cp basic/*.lua ../HQClient/levels/basic/
-cp basic/*.hqm ../HQServer/levels/basic/
-cp basic/*.lua ../HQServer/levels/basic/

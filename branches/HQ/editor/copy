@@ -1,5 +1,0 @@
-#!/bin/bash
-cp *.hqm ../heroquest/levels/basic/
-cp *.lua ../heroquest/levels/basic/
-cp *.hqm ../server/levels/basic/
-cp *.lua ../server/levels/basic/
