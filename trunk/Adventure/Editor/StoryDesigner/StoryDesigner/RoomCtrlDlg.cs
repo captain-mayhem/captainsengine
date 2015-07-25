@@ -38,6 +38,7 @@ namespace StoryDesigner
             roomheight.Maximum = data.Settings.Resolution.y * 2;
             roomwidth.Value = mRoom.Size.x < roomwidth.Minimum ? roomwidth.Minimum : mRoom.Size.x;
             roomheight.Value = mRoom.Size.y;
+            light_color.BackColor = mRoom.Lighting;
             mDragOffset.x = -1;
             scroller.Paint += new PaintEventHandler(scroller_Paint);
             scroller.MouseDown += new MouseEventHandler(scroller_MouseDown);
@@ -305,6 +306,12 @@ namespace StoryDesigner
         private void room_editscript_Click(object sender, EventArgs e)
         {
             mParent.showScript(Script.Type.ROOM, mRoom.Name);
+        }
+
+        private void border_color_Click(object sender, EventArgs e)
+        {
+            Utilities.chooseColor(sender);
+            mRoom.Lighting = light_color.BackColor;
         }
     }
 }
