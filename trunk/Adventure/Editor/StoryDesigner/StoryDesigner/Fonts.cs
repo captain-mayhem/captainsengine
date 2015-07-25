@@ -47,9 +47,14 @@ namespace StoryDesigner
             charset.Items.Add("Dos OEM");
             charset.Items.Add("Symbol");
 
-            for (int i = 6; i <= 28; ++i)
+            for (int i = 6; i <= 40; ++i)
             {
                 fontsize.Items.Add(Convert.ToString(i));
+            }
+
+            for (int i = -5; i <= 5; ++i)
+            {
+                letterspacing.Items.Add(Convert.ToString(i));
             }
 
             if (fontlist.Items.Count > 0)
@@ -119,7 +124,7 @@ namespace StoryDesigner
                     SizeF f = g.MeasureString(new string(ch, 1), mCurrFont);
                     width = (int)f.Width;
                 }
-                charwidths[i] = width+outlinethickness;
+                charwidths[i] = width+outlinethickness+mCurrInfo.spacing;
                 maxwidth = Math.Max(maxwidth, (int)(rect.Width+rect.X));
                 int height = (int)(rect.Height + rect.Y);
                 if (height > 256)
@@ -241,6 +246,7 @@ namespace StoryDesigner
             bold.Checked = info.bold;
             italic.Checked = info.italic;
             fontsize.SelectedItem = Convert.ToString(info.size);
+            letterspacing.SelectedItem = Convert.ToString(info.spacing);
             switch (info.outline)
             {
                 case 0:
@@ -539,6 +545,13 @@ namespace StoryDesigner
                 setListName(i, mFonts[i] as FontInfo);
             }
             fontlist.SelectedIndex = idx;
+        }
+
+        private void letterspacing_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            mCurrInfo.spacing = Convert.ToInt32(letterspacing.SelectedItem);
+            preview.Invalidate();
+            setListName(fontlist.SelectedIndex, mCurrInfo);
         }
     }
 }

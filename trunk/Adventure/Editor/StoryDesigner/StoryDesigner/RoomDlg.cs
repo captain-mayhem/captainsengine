@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace StoryDesigner
 {
@@ -553,16 +554,19 @@ namespace StoryDesigner
 
         void RoomDlg_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.TranslateTransform(-mRoom.ScrollOffset.x, -mRoom.ScrollOffset.y);
+            Bitmap roombmp = new Bitmap(mRoom.Size.x, mRoom.Size.y);
+            Graphics graphics = Graphics.FromImage(roombmp);
+
+            graphics.TranslateTransform(-mRoom.ScrollOffset.x, -mRoom.ScrollOffset.y);
             if (mRoom.ParallaxBackground.Length > 0)
             {
                 Bitmap bmp = mData.getImage(mRoom.ParallaxBackground);
-                e.Graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
+                graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
             }
             if (mRoom.Background.Length > 0)
             {
                 Bitmap bmp = mData.getImage(mRoom.Background);
-                e.Graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
+                graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
             }
 
             System.Collections.Generic.LinkedList<System.Collections.Generic.KeyValuePair<int, DrawableObject> > blitqueue = new LinkedList<KeyValuePair<int,DrawableObject>>();
@@ -586,8 +590,21 @@ namespace StoryDesigner
             {
                 bool isSelected = mControl.SelectedObject == pair.Value;
                 float scale = mRoom.getScale(pair.Value.getPosition());
-                pair.Value.draw(e.Graphics, mMode == ViewMode.Objects, isSelected ? bordercolor : Color.Red, scale);
+                pair.Value.draw(graphics, mMode == ViewMode.Objects, isSelected ? bordercolor : Color.Red, scale);
             }
+
+            ImageAttributes bmpAttributes = new ImageAttributes();
+            float[][] colorMatrixElements = { 
+                   new float[] {mRoom.Lighting.R/255.0f,  0,  0,  0, 0},
+                   new float[] {0,  mRoom.Lighting.G/255.0f,  0,  0, 0},
+                   new float[] {0,  0,  mRoom.Lighting.B/255.0f,  0, 0},
+                   new float[] {0,  0,  0,  1, 0},
+                   new float[] {0,  0,  0, 0, 1}
+            };
+            ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
+            bmpAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+            Rectangle screen = new Rectangle(0, 0, mRoom.Size.x, mRoom.Size.y);
+            e.Graphics.DrawImage(roombmp, screen, 0, 0, mRoom.Size.x, mRoom.Size.y, GraphicsUnit.Pixel, bmpAttributes);
 
             //draw view specific stuff
             Vec2i mp = mMousePos + mRoom.ScrollOffset;

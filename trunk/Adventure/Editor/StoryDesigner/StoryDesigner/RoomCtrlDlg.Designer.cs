@@ -60,6 +60,8 @@ namespace StoryDesigner
             this.chr_instancename = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.room_editscript = new System.Windows.Forms.Button();
+            this.light_color = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.scroller)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.roomwidth)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.roomheight)).BeginInit();
@@ -82,7 +84,7 @@ namespace StoryDesigner
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(240, 15);
+            this.label1.Location = new System.Drawing.Point(217, 15);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(88, 17);
@@ -92,7 +94,7 @@ namespace StoryDesigner
             // zoomfactor
             // 
             this.zoomfactor.FormattingEnabled = true;
-            this.zoomfactor.Location = new System.Drawing.Point(244, 34);
+            this.zoomfactor.Location = new System.Drawing.Point(221, 34);
             this.zoomfactor.Margin = new System.Windows.Forms.Padding(4);
             this.zoomfactor.Name = "zoomfactor";
             this.zoomfactor.Size = new System.Drawing.Size(84, 24);
@@ -462,12 +464,35 @@ namespace StoryDesigner
             this.room_editscript.UseVisualStyleBackColor = true;
             this.room_editscript.Click += new System.EventHandler(this.room_editscript_Click);
             // 
+            // light_color
+            // 
+            this.light_color.BackColor = System.Drawing.Color.Lime;
+            this.light_color.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+            this.light_color.Location = new System.Drawing.Point(332, 34);
+            this.light_color.Margin = new System.Windows.Forms.Padding(4);
+            this.light_color.Name = "light_color";
+            this.light_color.Size = new System.Drawing.Size(31, 28);
+            this.light_color.TabIndex = 9;
+            this.light_color.UseVisualStyleBackColor = false;
+            this.light_color.Click += new System.EventHandler(this.border_color_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(304, 15);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(75, 17);
+            this.label7.TabIndex = 10;
+            this.label7.Text = "Room light";
+            // 
             // RoomCtrlDlg
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(391, 532);
             this.ControlBox = false;
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.light_color);
             this.Controls.Add(this.room_editscript);
             this.Controls.Add(this.charactergroup);
             this.Controls.Add(this.objectgroup);
@@ -533,5 +558,7 @@ namespace StoryDesigner
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.CheckBox doublewalkmap;
         private System.Windows.Forms.Button room_editscript;
+        private System.Windows.Forms.Button light_color;
+        private System.Windows.Forms.Label label7;
     }
 }
