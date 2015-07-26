@@ -1,0 +1,21 @@
+#ifndef COMMANDS_HXX
+#define COMMANDS_HXX
+
+enum DataPoolEntry{
+  DP_DEBUG,
+  DP_COMMAND,
+  DP_CURRENT_METADATA,
+  DP_CURRENT_POSITION,
+  DP_CURRENT_SONGID,
+  DP_PLAYLIST,
+};
+
+enum Command{
+	MC_PLAY,
+	MC_PAUSE,
+	MC_NEXT,
+	MC_PREV
+};
+
+#endif
+
