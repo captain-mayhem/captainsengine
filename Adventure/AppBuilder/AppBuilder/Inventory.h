@@ -25,7 +25,7 @@ public:
   void save(SaveStateProvider::SaveInventory& inv) const;
   void load(const SaveStateProvider::SaveInventory& inv);
   void setCurrent(int invNum) {mCurrentInv = invNum;}
-  unsigned getNumItemSlots() {return mInventory[mCurrentInv].size();}
+  unsigned getNumItemSlots() {return (unsigned)mInventory[mCurrentInv].size();}
   void realize();
 protected:
   void clear();

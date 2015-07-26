@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 
 namespace StoryDesigner
 {
@@ -36,7 +37,8 @@ namespace StoryDesigner
             mData = data;
             mMode = mode;
             updateRoom();
-            this.ClientSize = new Size(data.Settings.Resolution.x, data.Settings.Resolution.y);
+            
+            this.ClientSize = new Size(data.WindowXRes, data.Settings.Resolution.y);
             this.Paint += new PaintEventHandler(RoomDlg_Paint);
             this.MouseDown += new MouseEventHandler(RoomDlg_MouseDown);
             this.MouseMove += new MouseEventHandler(RoomDlg_MouseMove);
@@ -96,7 +98,7 @@ namespace StoryDesigner
                 }
                 if (count != 0)
                     inst.Name += count;
-                inst.Depth = p.Y / mData.WalkGridSize + 1;
+                inst.Depth = p.Y * 2 / mData.WalkGridSize + 1;
                 inst.Layer = 2;
                 inst.Object = obj;
                 inst.State = 1;
@@ -203,11 +205,11 @@ namespace StoryDesigner
                 if (mDragDepth)
                 {
                     ObjectInstance obj = (ObjectInstance)mDragObject;
-                    obj.Depth = (e.Y + 5 + mDragOffset.y + mData.WalkGridSize / 2) / mData.WalkGridSize;
+                    obj.Depth = (int)((e.Y + 5 + mDragOffset.y + mData.WalkGridSize / 4.0f) / (mData.WalkGridSize/2.0f));
                     if (obj.Depth < 1)
                         obj.Depth = 1;
-                    if (obj.Depth > mRoom.Size.y / mData.WalkGridSize)
-                        obj.Depth = mRoom.Size.y / mData.WalkGridSize;
+                    if (obj.Depth > mRoom.Size.y / (mData.WalkGridSize/2) - 2)
+                        obj.Depth = mRoom.Size.y / (mData.WalkGridSize/2) - 2;
                 }
                 else
                 {
@@ -376,7 +378,7 @@ namespace StoryDesigner
                 {
                     if (obj.Layer != 1)
                         continue;
-                    Vec2i depthcenter = new Vec2i(obj.Position.x, obj.Depth * mData.WalkGridSize - mData.WalkGridSize / 2);
+                    Vec2i depthcenter = new Vec2i(obj.Position.x, obj.Depth * mData.WalkGridSize/2 - mData.WalkGridSize / 4);
                     if ((depthcenter - pos - mRoom.ScrollOffset).length() <= 5)
                     {
                         mDragObject = obj;
@@ -552,16 +554,19 @@ namespace StoryDesigner
 
         void RoomDlg_Paint(object sender, PaintEventArgs e)
         {
-            e.Graphics.TranslateTransform(-mRoom.ScrollOffset.x, -mRoom.ScrollOffset.y);
+            Bitmap roombmp = new Bitmap(mRoom.Size.x, mRoom.Size.y);
+            Graphics graphics = Graphics.FromImage(roombmp);
+
+            graphics.TranslateTransform(-mRoom.ScrollOffset.x, -mRoom.ScrollOffset.y);
             if (mRoom.ParallaxBackground.Length > 0)
             {
                 Bitmap bmp = mData.getImage(mRoom.ParallaxBackground);
-                e.Graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
+                graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
             }
             if (mRoom.Background.Length > 0)
             {
                 Bitmap bmp = mData.getImage(mRoom.Background);
-                e.Graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
+                graphics.DrawImage(bmp, 0, 0, bmp.Width, bmp.Height);
             }
 
             System.Collections.Generic.LinkedList<System.Collections.Generic.KeyValuePair<int, DrawableObject> > blitqueue = new LinkedList<KeyValuePair<int,DrawableObject>>();
@@ -585,8 +590,21 @@ namespace StoryDesigner
             {
                 bool isSelected = mControl.SelectedObject == pair.Value;
                 float scale = mRoom.getScale(pair.Value.getPosition());
-                pair.Value.draw(e.Graphics, mMode == ViewMode.Objects, isSelected ? bordercolor : Color.Red, scale);
+                pair.Value.draw(graphics, mMode == ViewMode.Objects, isSelected ? bordercolor : Color.Red, scale);
             }
+
+            ImageAttributes bmpAttributes = new ImageAttributes();
+            float[][] colorMatrixElements = { 
+                   new float[] {mRoom.Lighting.R/255.0f,  0,  0,  0, 0},
+                   new float[] {0,  mRoom.Lighting.G/255.0f,  0,  0, 0},
+                   new float[] {0,  0,  mRoom.Lighting.B/255.0f,  0, 0},
+                   new float[] {0,  0,  0,  1, 0},
+                   new float[] {0,  0,  0, 0, 1}
+            };
+            ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
+            bmpAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+            Rectangle screen = new Rectangle(0, 0, mRoom.Size.x, mRoom.Size.y);
+            e.Graphics.DrawImage(roombmp, screen, 0, 0, mRoom.Size.x, mRoom.Size.y, GraphicsUnit.Pixel, bmpAttributes);
 
             //draw view specific stuff
             Vec2i mp = mMousePos + mRoom.ScrollOffset;
@@ -615,7 +633,14 @@ namespace StoryDesigner
                 if (drob is ObjectInstance)
                 {
                     ObjectInstance obj = (ObjectInstance)drob;
-                    s2 = String.Format("Object: {0} (PixelPos: {1},{2})", obj.Name, obj.Position.x, obj.Position.y);
+                    string depth;
+                    if (obj.Layer == 0)
+                        depth = "Back";
+                    else if (obj.Layer == 1)
+                        depth = String.Format("{0}/{1}", getDepth(obj)/2, getDepth(obj));
+                    else
+                        depth = "Front";
+                    s2 = String.Format("Object: {0} (PixelPos: {1},{2} Depth: {3})", obj.Name, obj.Position.x, obj.Position.y, depth);
                 }
                 else if (drob is CharacterInstance)
                 {
@@ -867,7 +892,7 @@ namespace StoryDesigner
 
         private int getDepth(CharacterInstance chr)
         {
-            return (chr.Position.y / mData.WalkGridSize);
+            return (chr.Position.y * 2 / mData.WalkGridSize);
         }
 
         public ViewMode Viewmode

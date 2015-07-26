@@ -108,7 +108,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   mMainRoomLoaded = false;
   mSubRoomLoaded = false;
   mFocussedChar = NULL;
-  Vec2i res = mData->getProjectSettings()->resolution;
+  Vec2i res = mData->getProjectSettings()->wm_resolution;
   mWalkGridSize = res.x/32;
   mWalkFields = Vec2i(32,res.y/mWalkGridSize);
   //load cursor
@@ -725,7 +725,7 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
   if (mFocussedChar && mFocussedChar->getRoom() == roomobj->getName()){
     mFocussedChar->setScale(roomobj->getDepthScale(mFocussedChar->getPosition()));
     mFocussedChar->setScrollOffset(roomobj->getScrollOffset());
-    mFocussedChar->setDepth((int)(mFocussedChar->getPosition().y/Engine::instance()->getWalkGridSize(false)));
+    mFocussedChar->setDepth((int)(mFocussedChar->getPosition().y/Engine::instance()->getWalkGridSize(true)));
   }
   //animation stuff
   if (!isSubRoom)
@@ -1384,7 +1384,7 @@ CharacterObject* Engine::loadCharacter(const std::string& instanceName, const st
   //  character->setScale(ro->getDepthScale(obj->base.position));
   if (!fromCache){
     for (unsigned j = 0; j < chbase->states.size(); ++j){
-      int depth = (int)((obj->base.position.y+chbase->states[j].basepoint.y)/Engine::instance()->getWalkGridSize(false));
+      int depth = (int)((obj->base.position.y+chbase->states[j].basepoint.y)/Engine::instance()->getWalkGridSize(true));
 			Animation* anim = new Animation(chbase->states[j].frames, chbase->states[j].fps, depth, chbase->states[j].size);
       character->addAnimation(anim);
       character->addBasepoint(chbase->states[j].basepoint, chbase->states[j].size);
@@ -1439,7 +1439,7 @@ void Engine::keyPress(int key){
             }
             else{
               //use internal menu
-              Menu* menu = new Menu();
+              Menu* menu = new Menu(mData->hasUnifiedFonts() ? 1 : 0);
               menu->realize();
               mRooms.push_front(menu);
               mSubRoomLoaded = true;
@@ -1510,7 +1510,7 @@ int Engine::unloadRooms(){
   mMainRoomLoaded = false;
   mSubRoomLoaded = false;
   mTaskbar = NULL;
-  return mRoomsToUnload.size();
+  return (int)mRoomsToUnload.size();
 }
 
 std::string Engine::getCharacterClass(const std::string instanceName){
@@ -1691,7 +1691,7 @@ void Engine::insertCharacter(CharacterObject* obj, std::string roomname, Vec2i p
     obj->setRoom(room->getName());
     obj->setPosition(Vec2i(pos*room->getWalkGridSize()+Vec2f(room->getWalkGridSize()/2, room->getWalkGridSize()/2)));
     obj->setScale(room->getDepthScale(obj->getPosition()));
-    obj->setDepth((int)(obj->getPosition().y/Engine::instance()->getWalkGridSize(false)));
+    obj->setDepth((int)(obj->getPosition().y/Engine::instance()->getWalkGridSize(true)));
     Engine::instance()->getSaver()->removeCharacter(sr, obj->getName());
     room->addObject(obj);
   }

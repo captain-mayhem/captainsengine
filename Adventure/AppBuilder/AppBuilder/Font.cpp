@@ -158,13 +158,21 @@ void FontRenderer::String::setOpacity(unsigned char opacity){
 
 ////////////////////////////////////////
 
-FontRenderer::Font::Font(const FontData& data, int fading) : mFading(fading){
+FontRenderer::Font::Font(const FontData& data, int fading, bool unified) : mFading(fading){
   mFontsize = data.fontsize;
   mNumChars = data.numChars;
   mCharwidths = data.charwidths;
-  mImages.reserve(data.images.size()/2);
-  for (unsigned i = 0; i < data.images.size()/2; ++i){
-    mImages.push_back(Engine::instance()->genTexture(data.images[2*i+1], mTexSize, mScale, data.images[2*i]));
+  if (unified){
+    mImages.reserve(data.images.size());
+    for (unsigned i = 0; i < data.images.size(); ++i){
+      mImages.push_back(Engine::instance()->genTexture(data.images[i], mTexSize, mScale));
+    }
+  }
+  else{
+    mImages.reserve(data.images.size() / 2);
+    for (unsigned i = 0; i < data.images.size() / 2; ++i){
+      mImages.push_back(Engine::instance()->genTexture(data.images[2 * i + 1], mTexSize, mScale, data.images[2 * i]));
+    }
   }
   mScale = Vec2f(mFontsize.x/(float)mTexSize.x, mFontsize.y/(float)mTexSize.y);
 }
@@ -203,7 +211,7 @@ FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string
       yoffset += mFontsize.y;
     }
   }
-  str->setExtent(Vec2i(max_len,mFontsize.y*breakinfo.size()));
+  str->setExtent(Vec2i(max_len,mFontsize.y*(unsigned)breakinfo.size()));
   mRenderQueue.push_back(str);
   return str;
 }
@@ -228,9 +236,9 @@ Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec
     }
   }
   accu += wordaccu;
-  breakinfo.push_back(Vec2i(text.size(), accu));
+  breakinfo.push_back(Vec2i((int)text.size(), accu));
   max_line = accu > max_line ? accu : max_line;
-  return Vec2i(max_line, mFontsize.y*breakinfo.size());
+  return Vec2i(max_line, mFontsize.y*(unsigned)breakinfo.size());
 }
 
 void FontRenderer::Font::blit(unsigned interval, RoomObject* mainroom, bool renderBoundText){
@@ -301,7 +309,7 @@ bool FontRenderer::loadFont(unsigned id){
     if (fnt.images.empty())
       return false;
     int fading = id == 0 ? 0 : mData->getProjectSettings()->font_fading[id-1];
-    mFonts[id] = new Font(fnt, fading);
+    mFonts[id] = new Font(fnt, fading, mData->hasUnifiedFonts());
     fnt.destroyImages();
   }
   return true;

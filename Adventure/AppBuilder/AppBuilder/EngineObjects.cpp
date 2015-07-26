@@ -307,7 +307,7 @@ unsigned Object2D::getNumDefinedStates(){
     if (!mAnimations[i]->exists())
       return i;
   }
-  return mAnimations.size();
+  return (unsigned)mAnimations.size();
 }
 
 void Object2D::setLighten(bool lighten){
@@ -398,7 +398,7 @@ void ButtonObject::render(){
     Engine::instance()->getInterpreter()->deleteVariable(labelVar);
   }
   std::vector<Vec2i> breakinfo;
-  breakinfo.push_back(Vec2i(mText.size(), 0)); //fake break
+  breakinfo.push_back(Vec2i((int)mText.size(), 0)); //fake break
   //Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
   Color textcol = mTextColor;
   if (mHighlightText && mOldHighlighting){
@@ -503,11 +503,12 @@ int CursorObject::getCurrentCommand(){
 }
 
 void CursorObject::setCommand(int command){
+  int& state = mState == 10 ? mSavedState : mState;
   for (unsigned i = 0; i < mCommands.size(); ++i){
     if (mCommands[i] == command){
-      mState = i+1;
-      if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){
-        mState = 1;
+      state = i+1;
+      if (state - 1 >= (int)mAnimations.size() - 1 || !mAnimations[state - 1]->exists()){
+        state = 1;
       }
       break;
     }
@@ -563,11 +564,11 @@ void RoomObject::render(){
   if (mParallaxBackground)
     mParallaxBackground->render(Vec2i(), Vec2f(mScale*mUserScale,mScale*mUserScale), mSize, mLightingColor, mRotAngle);
   Object2D::render();
-  for (int i = mObjects.size()-1; i >= 0; --i){
+  for (int i = (int)mObjects.size()-1; i >= 0; --i){
     if (mObjects[i]->getType() != CHARACTER)
       mObjects[i]->render();
   }
-  for (int i = mObjects.size()-1; i >= 0; --i){
+  for (int i = (int)mObjects.size()-1; i >= 0; --i){
     if (mObjects[i]->getType() == CHARACTER)
       mObjects[i]->render();
   }
@@ -986,7 +987,7 @@ void CharacterObject::animationBegin(const Vec2i& next){
 void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
   int ycoord = getPosition().y;
   if (prev.y-ycoord != 0){
-    setDepth((int)(ycoord/Engine::instance()->getWalkGridSize(false)));
+    setDepth((int)(ycoord/Engine::instance()->getWalkGridSize(true)));
   }
   Vec2i dir = next-getPosition();
   setLookDir(dir);
@@ -1001,7 +1002,7 @@ void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
 void CharacterObject::animationEnd(const Vec2i& prev){
   int ycoord = getPosition().y;
   if (prev.y-ycoord != 0){
-    setDepth((int)(ycoord/Engine::instance()->getWalkGridSize(false)));
+    setDepth((int)(ycoord/Engine::instance()->getWalkGridSize(true)));
   }
   if (mDesiredDir != UNSPECIFIED){
     setLookDir(mDesiredDir);
@@ -1263,7 +1264,7 @@ void CharacterObject::setLinkObject(Object2D* link){
 }
 
 int CharacterObject::getDepth(){
-  return (int)(getPosition().y/Engine::instance()->getWalkGridSize(false));
+  return (int)(getPosition().y/Engine::instance()->getWalkGridSize(true));
 }
 
 void CharacterObject::setWalkSound(SoundPlayer* plyr){

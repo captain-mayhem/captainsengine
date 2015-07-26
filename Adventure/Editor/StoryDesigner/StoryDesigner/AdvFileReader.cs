@@ -68,15 +68,16 @@ namespace StoryDesigner
 
             ZipInputStream zis = new ZipInputStream(File.OpenRead(filename));
             ZipEntry entry;
+            int ver_major = 0, ver_minor = 0;
             while ((entry = zis.GetNextEntry()) != null)
             {
                 if (Path.GetExtension(entry.Name) == ".001")
                 {
-                    readSettings(zis);
+                    readSettings(zis, out ver_major, out ver_minor);
                 }
                 else if (Path.GetExtension(entry.Name) == ".002")
                 {
-                    readObjects(zis);
+                    readObjects(zis, ver_major, ver_minor);
                 }
                 else if (Path.GetExtension(entry.Name) == ".003")
                 {
@@ -99,12 +100,12 @@ namespace StoryDesigner
             mPath = System.IO.Path.GetDirectoryName(filename);
         }
 
-        protected bool readSettings(Stream strm)
+        protected bool readSettings(Stream strm, out int ver_major, out int ver_minor)
         {
             StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding(1252));
             string str = rdr.ReadLine();
-            int ver_major = Int32.Parse(str.Substring(0, 1));
-            int ver_minor = Int32.Parse(str.Substring(2, 1));
+            ver_major = Int32.Parse(str.Substring(0, 1));
+            ver_minor = Int32.Parse(str.Substring(2, 1));
             mVerMajor = ver_major;
             mVerMinor = ver_minor;
             if (str.Substring(4) != "Point&Click Project File. DO NOT MODIFY!!")
@@ -162,6 +163,10 @@ namespace StoryDesigner
                     info.fill = 0;
                     info.fading = 0;
                 }
+                if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5))
+                    info.spacing = Convert.ToInt32(fontparts[9]);
+                else
+                    info.spacing = 0;
                 mAdv.Settings.Fonts.Add(info);
                 font = rdr.ReadLine();
             } 
@@ -174,7 +179,15 @@ namespace StoryDesigner
             if (ver_major > 1)
             {
                 mAdv.Settings.GameIcon = str.Substring(11);
-                mAdv.Settings.LoadingImage = rdr.ReadLine();
+                str = rdr.ReadLine();
+                if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5))
+                {
+                    string[] data = str.Split(';');
+                    mAdv.Settings.LoadingImage = data[0];
+                    mAdv.Settings.SettingsPicture = data[1];
+                }
+                else
+                    mAdv.Settings.LoadingImage = str;
                 str = rdr.ReadLine();
                 mAdv.Settings.TsUseBgImage = str == "-1";
                 mAdv.Settings.TsBackground = rdr.ReadLine();
@@ -219,6 +232,14 @@ namespace StoryDesigner
             else{
                 mAdv.Settings.GroupItems = false;
                 mAdv.Settings.ProtectGameFile = false;
+            }
+            if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5))
+            {
+                mAdv.Settings.Is16to9 = str[8] == '1';
+            }
+            else
+            {
+                mAdv.Settings.Is16to9 = false;
             }
             if (ver_major > 2 || (ver_major == 2 && ver_minor > 0))
             {
@@ -317,6 +338,20 @@ namespace StoryDesigner
                 mAdv.Settings.CoinCenter.x = Convert.ToInt32(str);
                 str = rdr.ReadLine();
                 mAdv.Settings.CoinCenter.y = Convert.ToInt32(str);
+            }
+            if (ver_major >= 3 || (ver_major == 3 && ver_major >= 5))
+            {
+                //dsp effects
+                for (int i = 0; i < 25; ++i)
+                {
+                    rdr.ReadLine();
+                    rdr.ReadLine();
+                    rdr.ReadLine();
+                    rdr.ReadLine();
+                    rdr.ReadLine();
+                    rdr.ReadLine();
+                    rdr.ReadLine();
+                }
             }
             str = rdr.ReadLine();
             mAdv.Settings.LinkText = str.Substring(11);
@@ -431,12 +466,12 @@ namespace StoryDesigner
             return true;
         }
 
-        protected bool readObjects(Stream strm)
+        protected bool readObjects(Stream strm, int ver_major, int ver_minor)
         {
             StreamReader rdr = new StreamReader(strm, Encoding.GetEncoding(1252));
             string str = rdr.ReadLine();
-            int ver_major = Int32.Parse(str.Substring(0, 1));
-            int ver_minor = Int32.Parse(str.Substring(2, 1));
+            int local_ver_major = Int32.Parse(str.Substring(0, 1));
+            int local_ver_minor = Int32.Parse(str.Substring(2, 1));
             if (str.Substring(4) != "Point&Click Project File. DO NOT MODIFY!!")
                 return false;
             str = rdr.ReadLine();
@@ -659,6 +694,14 @@ namespace StoryDesigner
                     {
                         room.DoubleWalkmap = false;
                     }
+                    if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5))
+                    {
+                        str = rdr.ReadLine();
+                        string[] col = str.Split(';');
+                        room.Lighting = Color.FromArgb(Convert.ToInt32(col[0]), Convert.ToInt32(col[1]), Convert.ToInt32(col[2]));
+                    }
+                    else
+                        room.Lighting = Color.FromArgb(255, 255, 255);
                     if (ver_major >= 3 || (ver_major == 2 && ver_minor >= 8))
                     {
                         for (int i = 0; i < FXSHAPES_MAX; ++i)
@@ -774,7 +817,11 @@ namespace StoryDesigner
                     objinst.Position.y = Convert.ToInt32(rdr.ReadLine());
                     objinst.State = Convert.ToInt32(rdr.ReadLine());
                     objinst.Layer = Convert.ToInt32(rdr.ReadLine());
-                    objinst.Depth = Convert.ToInt32(rdr.ReadLine());
+                    objinst.Depth = Convert.ToInt32(rdr.ReadLine())*2;
+                    if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5))
+                    {
+                        objinst.Depth = Convert.ToInt32(rdr.ReadLine());
+                    }
                     objinst.Locked = Convert.ToInt32(rdr.ReadLine()) != 0;
                     mLastRoom.Objects.Add(objinst);
                 }

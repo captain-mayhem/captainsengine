@@ -25,7 +25,7 @@ public:
   bool operator<(const String& s) const { return mStr < s.mStr;}
   const char* c_str() const {return mStr.c_str();}
   bool empty() const {return mStr.empty();}
-  unsigned size() const {return mStr.size();}
+  unsigned size() const {return (unsigned)mStr.size();}
   const char& operator[](int i) const {return mStr[i];}
 
   String substr(unsigned pos = 0, unsigned len = npos) const {String ret(mStr.substr(pos, len)); return ret;}

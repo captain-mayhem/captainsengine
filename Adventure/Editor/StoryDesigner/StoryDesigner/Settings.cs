@@ -23,10 +23,36 @@ namespace StoryDesigner
             this.DialogResult = DialogResult.OK;
         }
 
+        void setResolution(bool is16to9)
+        {
+            this.resolution.Items.Clear();
+            if (is16to9)
+            {
+                resolution.Items.Add("420x200");
+                resolution.Items.Add("420x240");
+                resolution.Items.Add("840x480");
+                resolution.Items.Add("1050x600");
+                resolution.Items.Add("1344x768");
+                resolution.Items.Add("1890x1080");
+            }
+            else
+            {
+                resolution.Items.Add("320x200");
+                resolution.Items.Add("320x240");
+                resolution.Items.Add("640x480");
+                resolution.Items.Add("800x600");
+                resolution.Items.Add("1024x768");
+                resolution.Items.Add("1440x1080");
+            }
+        }
+
         private void setControls()
         {
             //first page
             this.projetName.Text = mData.Settings.Projectname;
+            this.aspect_ratio.Checked = mData.Settings.Is16to9;
+            this.aspect_ratio2.Checked = !mData.Settings.Is16to9;
+            setResolution(aspect_ratio.Checked);
             if (mData.Settings.Resolution.y == 200)
                 this.resolution.SelectedIndex = 0;
             else if (mData.Settings.Resolution.y == 240)
@@ -37,6 +63,8 @@ namespace StoryDesigner
                 this.resolution.SelectedIndex = 3;
             else if (mData.Settings.Resolution.x == 1024)
                 this.resolution.SelectedIndex = 4;
+            else if (mData.Settings.Resolution.x == 1440)
+                this.resolution.SelectedIndex = 5;
             this.no_antialiasing.Checked = mData.Settings.NotAntialiased;
             this.mute_music.Checked = mData.Settings.MuteMusicWhenSpeech;
             if (mData.Settings.GameIcon.Length != 0)
@@ -69,6 +97,7 @@ namespace StoryDesigner
             this.createBackups.Checked = mData.Persistence.CreateBackups;
             this.protectGamefiles.Checked = mData.Settings.ProtectGameFile;
             this.loadingImage.Text = mData.Settings.LoadingImage;
+            this.settingsPicture.Text = mData.Settings.SettingsPicture;
             //second page
             this.start_script.Text = mData.Settings.Startscript;
             this.main_script.Text = mData.Settings.Mainscript;
@@ -210,7 +239,11 @@ namespace StoryDesigner
                 case 4:
                     mData.Settings.Resolution = new Vec2i(1024, 768);
                     break;
+                case 5:
+                    mData.Settings.Resolution = new Vec2i(1440, 1080);
+                    break;
             }
+            mData.Settings.Is16to9 = this.aspect_ratio.Checked;
             mData.Settings.NotAntialiased = this.no_antialiasing.Checked;
             mData.Settings.MuteMusicWhenSpeech = this.mute_music.Checked;
             mData.Settings.GameIcon = mIcon;
@@ -225,6 +258,7 @@ namespace StoryDesigner
             mData.Persistence.CreateBackups = this.createBackups.Checked;
             mData.Settings.ProtectGameFile = this.protectGamefiles.Checked;
             mData.Settings.LoadingImage = this.loadingImage.Text;
+            mData.Settings.SettingsPicture = this.settingsPicture.Text;
             //second page
             mData.Settings.Startscript = this.start_script.Text;
             mData.Settings.Mainscript = this.main_script.Text;
@@ -424,6 +458,13 @@ namespace StoryDesigner
         private void ts_selection_color_Click(object sender, EventArgs e)
         {
             Utilities.chooseColor(sender);
+        }
+
+        private void aspect_ratio_CheckedChanged(object sender, EventArgs e)
+        {
+            int sel = resolution.SelectedIndex;
+            setResolution(aspect_ratio.Checked);
+            resolution.SelectedIndex = sel;
         }
     }
 }

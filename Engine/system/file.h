@@ -51,6 +51,8 @@ public:
   static bool createDir(const std::string& path);
   //! remove directory
   static bool removeDir(const std::string& path, bool recursive = false);
+  //! does a file exist
+  static bool exists(const std::string& path);
 };
 
 }

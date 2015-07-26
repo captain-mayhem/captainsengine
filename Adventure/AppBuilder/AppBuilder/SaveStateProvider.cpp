@@ -179,7 +179,7 @@ SaveStateProvider::SaveRoom* SaveStateProvider::getRoom(const std::string name){
     }
     SaveRoom* save = new SaveRoom();
     save->base.position = Vec2i();
-    save->base.lighting = Color();
+    save->base.lighting = orig->lighting;
     save->base.name = orig->name;
     save->scrolloffset = orig->scrolloffset*-1;
     save->doublewalkmap = orig->doublewalkmap;
@@ -330,7 +330,7 @@ void SaveStateProvider::save(const std::string& name){
     out << std::endl << *iter->second;
   }
   //save loaded rooms
-  int roomsToSave = Engine::instance()->mRooms.size();
+  int roomsToSave = (int)Engine::instance()->mRooms.size();
   if (Engine::instance()->mSubRoomLoaded)
     --roomsToSave;//do not save active subroom
   out << roomsToSave;

@@ -76,6 +76,7 @@ namespace StoryDesigner
             wmsize.x *= 3 * 2;
             wmsize.y *= 2 * 2;
             Walkmap = new WalkMapEntry[wmsize.x, wmsize.y];
+            Lighting = Color.White;
         }
         public string Name;
         public Vec2i Size;
@@ -98,6 +99,7 @@ namespace StoryDesigner
             public bool hasScript;
         }
         public WalkMapEntry[,] Walkmap = null;
+        public Color Lighting;
         private AdvData mData;
         public AdvData Data
         {
@@ -232,6 +234,7 @@ namespace StoryDesigner
             rm.InvScale = InvScale;
             rm.InvSize = InvSize;
             rm.Walkmap = (WalkMapEntry[,])Walkmap.Clone();
+            rm.Lighting = Lighting;
             foreach (ObjectInstance inst in Objects)
             {
                 ObjectInstance newinst = inst.duplicate(Name, rm.Name);

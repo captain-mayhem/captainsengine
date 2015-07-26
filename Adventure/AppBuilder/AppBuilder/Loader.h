@@ -24,7 +24,7 @@ public:
   Event* getEvent() {if (mQueue.empty()) return NULL; Event* evt = mQueue.front(); return evt;}
   void popEvent() {mQueue.pop();}
   bool empty() {return mQueue.empty();}
-  unsigned size() {return mQueue.size();}
+  unsigned size() {return (unsigned)mQueue.size();}
 private:
   std::queue<Event*> mQueue;
 };
