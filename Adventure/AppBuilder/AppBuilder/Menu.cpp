@@ -7,7 +7,7 @@ using namespace adv;
 #define MENU_HEIGHT 240
 #define DEPTH_MENU 10000
 
-Menu::Menu() : RoomObject(1, 
+Menu::Menu(int font) : RoomObject(1, 
       Vec2i(Engine::instance()->getSettings()->resolution.x/2-MENU_WIDTH/2, Engine::instance()->getSettings()->resolution.y/2-MENU_HEIGHT/2), 
       Vec2i(MENU_WIDTH, MENU_HEIGHT), "#menu", Vec2i(), false) {
   Color bgorig(Engine::instance()->getSettings()->backgroundcolor);
@@ -30,7 +30,7 @@ Menu::Menu() : RoomObject(1,
     "  setnum(!saveSlot; %i)\n"
     "  setobj(!button[!saveSlot]; 2)\n"
     "  setstring(!button%iLabel; [empty])\n"
-    "  entertext([!saveLabel] ; %i; %i; 0; 18; %i; %i; %i; [!saveName%i])\n"
+    "  entertext([!saveLabel] ; %i; %i; %i; 18; %i; %i; %i; [!saveName%i])\n"
     "  setstring(!button%iLabel; [!saveLabel])\n"
     "  setstring(!saveName%i; [!saveLabel])\n"
     "}\n";
@@ -40,10 +40,11 @@ Menu::Menu() : RoomObject(1,
     ButtonObject* slot = new ButtonObject(slotpos, Vec2i(170,20), tmp, i);
     slot->BlitObject::setDepth(DEPTH_MENU);
     slot->setColors(bg, line, line, text);
-    slot->setFont(0, true);
+    slot->setFont(font, true);
     sprintf(tmp, slotscript, i, i, i,
       Engine::instance()->getSettings()->resolution.x/2-MENU_WIDTH/2+slotpos.x,
       Engine::instance()->getSettings()->resolution.y/2-MENU_HEIGHT/2+slotpos.y,
+      font,
       line.r, line.g, line.b,
       i, i, i);
     ExecutionContext* slotscr = Engine::instance()->getInterpreter()->parseProgram(tmp);
@@ -56,31 +57,31 @@ Menu::Menu() : RoomObject(1,
 
   ButtonObject* loadBut = new ButtonObject(Vec2i(183,20), Vec2i(51,20), "LOAD", 11);
   loadBut->setColors(bg, line, line, text);
-  loadBut->setFont(0, true);
+  loadBut->setFont(font, true);
   addObject(loadBut);
   Engine::instance()->getInterpreter()->execute(loadBut->getScript(), false);
 
   ButtonObject* saveBut = new ButtonObject(Vec2i(183,50), Vec2i(51,20), "SAVE", 12);
   saveBut->setColors(bg, line, line, text);
-  saveBut->setFont(0, true);
+  saveBut->setFont(font, true);
   addObject(saveBut);
   Engine::instance()->getInterpreter()->execute(saveBut->getScript(), false);
 
   ButtonObject* newBut = new ButtonObject(Vec2i(183,100), Vec2i(51,20), "NEW", 13);
   newBut->setColors(bg, line, line, text);
-  newBut->setFont(0, true);
+  newBut->setFont(font, true);
   addObject(newBut);
   Engine::instance()->getInterpreter()->execute(newBut->getScript(), false);
 
   ButtonObject* quit = new ButtonObject(Vec2i(183,130), Vec2i(51,20), "QUIT", 14);
   quit->setColors(bg, line, line, text);
-  quit->setFont(0, true);
+  quit->setFont(font, true);
   addObject(quit);
   Engine::instance()->getInterpreter()->execute(quit->getScript(), false);
 
   ButtonObject* speed = new ButtonObject(Vec2i(45,187), Vec2i(MENU_WIDTH-45-8,20), "Textspeed: Normal", 15);
   speed->setColors(bgorig, bgorig, line, text);
-  speed->setFont(0, true);
+  speed->setFont(font, true);
   addObject(speed);
   Engine::instance()->getInterpreter()->execute(speed->getScript(), false);
 

@@ -154,7 +154,7 @@ namespace StoryDesigner
 
         public static void drawDepthHandle(Graphics g, AdvData data, Vec2i position, float depth, Color color)
         {
-            int ycenter = (int)(depth * data.WalkGridSize - data.WalkGridSize / 2);
+            int ycenter = (int)(depth * data.WalkGridSize/2 - data.WalkGridSize / 4);
             Pen cp = new Pen(color);
             g.DrawLine(cp, position.x, position.y, position.x, ycenter);
             g.FillRectangle(new SolidBrush(color), position.x - 2, ycenter - 2, 5, 5);

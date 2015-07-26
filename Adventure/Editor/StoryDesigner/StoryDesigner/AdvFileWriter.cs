@@ -187,7 +187,7 @@ namespace StoryDesigner
         void writeSettings(Stream strm, bool convertPngs)
         {
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
-            swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
+            swr.WriteLine("3.5 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             swr.WriteLine(mData.Settings.Directory);
             swr.Write("Resolution X : ");
@@ -202,7 +202,8 @@ namespace StoryDesigner
                 swr.Write(fi.charset); swr.Write(';');
                 swr.Write(fi.shadow); swr.Write(';');
                 swr.Write(fi.fill); swr.Write(';');
-                swr.WriteLine(fi.fading);
+                swr.Write(fi.fading); swr.Write(';');
+                swr.WriteLine(fi.spacing);
             }
             swr.WriteLine("GameFont : ");
             for (int i = 2; i <= 6; ++i)
@@ -210,7 +211,9 @@ namespace StoryDesigner
                 swr.WriteLine("GameFont"+i+" : ");
             }
             swr.WriteLine("Gameicon : " + mData.Settings.GameIcon);
-            swr.WriteLine(mData.Settings.LoadingImage);
+            swr.Write(mData.Settings.LoadingImage);
+            swr.Write(";");
+            swr.WriteLine(mData.Settings.SettingsPicture);
             swr.WriteLine(mData.Settings.TsUseBgImage ? -1 : 0);
             swr.WriteLine(mData.Settings.TsBackground);
             swr.WriteLine("Startskript : " + mData.Settings.Startscript);
@@ -225,7 +228,9 @@ namespace StoryDesigner
             swr.Write(mData.Settings.NotAntialiased ? 1 : 0);
             swr.Write(mData.Settings.TaskbarFromTop ? 1 : 0);
             swr.Write(mData.Settings.GroupItems ? 1 : 0);
-            swr.WriteLine(mData.Settings.ProtectGameFile ? 1 : 0);
+            swr.Write(mData.Settings.ProtectGameFile ? 1 : 0);
+            swr.Write(mData.Settings.Is16to9 ? 1 : 0);
+            swr.WriteLine("0");
             swr.WriteLine(mData.Settings.ActionTextHeight);
             swr.WriteLine(mData.Settings.CustomMenu ? -1 : 0);
             swr.WriteLine(mData.Settings.CustomMenuRoom);
@@ -267,6 +272,19 @@ namespace StoryDesigner
             swr.WriteLine(mData.Settings.CoinFading);
             swr.WriteLine(mData.Settings.CoinCenter.x);
             swr.WriteLine(mData.Settings.CoinCenter.y);
+            //dsp effects
+            for (int i = 1; i <= 25; ++i)
+            {
+                swr.Write("dsp;");
+                swr.Write(i);
+                swr.WriteLine(";;0");
+                swr.WriteLine("0;0;0;0;0;0");
+                swr.WriteLine("0;0;0;0;0;0");
+                swr.WriteLine("0;0;0;0;0;0");
+                swr.WriteLine("0;0;0;0;0;0");
+                swr.WriteLine("0;0;0;0;0;0");
+                swr.WriteLine("0;0;0;0;0;0");
+            }
             swr.Write("Linktext : ");
             swr.WriteLine(mData.Settings.LinkText);
             swr.Write("Givelink : ");
@@ -503,6 +521,9 @@ namespace StoryDesigner
                 swr.WriteLine(room.Background);
                 swr.WriteLine(room.ParallaxBackground);
                 swr.WriteLine(room.DoubleWalkmap ? -1 : 0);
+                swr.Write(room.Lighting.R); swr.Write(";");
+                swr.Write(room.Lighting.G); swr.Write(";");
+                swr.WriteLine(room.Lighting.B);
                 for (int i = 0; i < FXSHAPES_MAX; ++i)
                 {
                     FxShape shape = (FxShape)room.FXShapes[i];
@@ -555,6 +576,7 @@ namespace StoryDesigner
                     swr.WriteLine(obj.Position.y);
                     swr.WriteLine(obj.State);
                     swr.WriteLine(obj.Layer);
+                    swr.WriteLine(obj.Depth/2);
                     swr.WriteLine(obj.Depth);
                     swr.WriteLine(obj.Locked ? -1 : 0);
                 }

@@ -25,7 +25,7 @@ unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
     return pc+mOffset;
   std::vector<Vec2i> breakinfo;
   Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(mText, Engine::instance()->getFontID(), breakinfo);
-  extent.y /= breakinfo.size();
+  extent.y /= (int)breakinfo.size();
   if (!Engine::instance()->getInterpreter()->isTSTopToBottom())
     Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
   Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);

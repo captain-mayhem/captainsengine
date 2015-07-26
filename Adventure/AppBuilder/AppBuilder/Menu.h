@@ -7,7 +7,7 @@ namespace adv{
 
 class Menu : public RoomObject{
 public:
-  Menu();
+  Menu(int font);
   static CGE::Image* getBackground();
 protected:
   void addButton(const char* text, int id);

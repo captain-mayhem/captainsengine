@@ -46,7 +46,7 @@ public:
 protected:
   class Font{
   public:
-    Font(const FontData& data, int fading);
+    Font(const FontData& data, int fading, bool unified);
     ~Font();
     String* render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen);
     Vec2i getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo, unsigned maxStringWidth);

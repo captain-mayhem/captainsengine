@@ -41,12 +41,13 @@ bool AdvDocument::loadDocument(const std::string filename){
     return false;
   }
   string entry = "game";
-  if (filename.substr(filename.size()-4) == ".adv"){
-    int idx = filename.find_last_of("/");
-    entry = filename.substr(idx+1, filename.size()-(idx+1)-4);
+  if (filename.substr(filename.size() - 4) == ".adv"){
+    size_t idx = filename.find_last_of("/");
+    entry = filename.substr(idx + 1, filename.size() - (idx + 1) - 4);
   }
-  CGE::MemReader rdr = zrdr.openEntry(entry+".001");
-  if (!loadFile1(rdr)){
+  int ver_major = 0, ver_minor = 0;
+  CGE::MemReader rdr = zrdr.openEntry(entry + ".001");
+  if (!loadFile1(rdr, ver_major, ver_minor)){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
@@ -56,9 +57,9 @@ bool AdvDocument::loadDocument(const std::string filename){
 
   CGE::Utilities::replaceWith(mFilename, '\\', '/');
   mPath = mFilename;
-  int pos = mPath.find_last_of('/');
+  size_t pos = mPath.find_last_of('/');
   mPath.erase(pos);
-  
+
   //spash screen
   if (mSSCB){
     CGE::ImageLoader loader;
@@ -66,10 +67,14 @@ bool AdvDocument::loadDocument(const std::string filename){
     if (!mSettings.splashscreen.empty()){
       string splashfile = mImageNames[mSettings.splashscreen];
       if (mUseCompressedData){
-        int namepos = splashfile.find_last_of('/');
+        size_t namepos = splashfile.find_last_of('/');
         splashfile = mPath + "/" + splashfile.substr(namepos + 1);
       }
       splash = loader.load(splashfile.c_str());
+      if (!splash){
+        std::string ext = CGE::Filesystem::getExtension(splashfile);
+        splash = loader.load((mPath + "/loading." + ext).c_str());
+      }
     }
     if (!splash){
       splash = loader.load((mPath + "/loading.gif").c_str());//try hard-coded path for compatibility
@@ -79,35 +84,41 @@ bool AdvDocument::loadDocument(const std::string filename){
     delete splash;
   }
 
-  rdr = zrdr.openEntry(entry+".002");
-  if(!loadFile2(rdr)){
+  if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
+    mFontsPNG = !CGE::Filesystem::exists(mPath + "/font.dat");
+  }
+  else
+    mFontsPNG = false;
+
+  rdr = zrdr.openEntry(entry + ".002");
+  if (!loadFile2(rdr, ver_major, ver_minor)){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
-  rdr = zrdr.openEntry(entry+".003");
-  if(!loadFile3(rdr)){
+  rdr = zrdr.openEntry(entry + ".003");
+  if (!loadFile3(rdr)){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
   }
-  rdr = zrdr.openEntry(entry+".004");
+  rdr = zrdr.openEntry(entry + ".004");
   loadFile4(rdr);
-  rdr = zrdr.openEntry(entry+".005");
-  if(!loadFile5(rdr)){
+  rdr = zrdr.openEntry(entry + ".005");
+  if (!loadFile5(rdr)){
     mZipPwd = "";
   }
-  rdr = zrdr.openEntry(entry+".010");
+  rdr = zrdr.openEntry(entry + ".010");
   if (rdr.isWorking())
     loadFile10(rdr);
   else{
     mSettings.noPngToJpeg = false;
   }
-  
+
   if (mSettings.savedir.empty())
-    mSettings.savedir = mPath+"/../saves";
+    mSettings.savedir = mPath + "/../saves";
   else{
     string dirname = mSettings.dir;
     CGE::Utilities::replaceWith(dirname, '\\', '/');
-    unsigned idx = dirname.find_last_of('/');
+    size_t idx = dirname.find_last_of('/');
     //dirname = dirname.erase(idx);
     //idx = dirname.find_last_of('/');
     dirname.erase(0, idx);
@@ -119,11 +130,11 @@ bool AdvDocument::loadDocument(const std::string filename){
   return true;
 }
 
-bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
+bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_minor){
   TR_USE(ADV_DATA);
   std::string str = txtstream.readLine();
-  int ver_major = atoi(str.substr(0, 1).c_str());
-  int ver_minor = atoi(str.substr(2, 1).c_str());
+  ver_major = atoi(str.substr(0, 1).c_str());
+  ver_minor = atoi(str.substr(2, 1).c_str());
   if (str.substr(4) != "Point&Click Project File. DO NOT MODIFY!!"){
     return false;
   }
@@ -134,31 +145,32 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     mSettings.dir = "";
   str = txtstream.readLine();
   if (str == "Resolution X : 640"){
-    mSettings.resolution = Vec2i(640,480);
+    mSettings.resolution = Vec2i(640, 480);
   }
   else if (str == "Resolution X : 800"){
-    mSettings.resolution = Vec2i(800,600);
+    mSettings.resolution = Vec2i(800, 600);
   }
   else if (str == "Resolution X : 320"){
-    mSettings.resolution = Vec2i(320,240);
+    mSettings.resolution = Vec2i(320, 240);
   }
   else
     TR_BREAK("Unknown resolution");
+  mSettings.wm_resolution = mSettings.resolution;
   std::string font = txtstream.readLine();
   while (font.substr(0, 11) != "GameFont : "){
-    int pos = font.find(';', 0);//name
-    pos = font.find(';', pos+1);//bold
-    pos = font.find(';', pos+1);//italic
-    pos = font.find(';', pos+1);//size
-    pos = font.find(';', pos+1);//outline
+    size_t pos = font.find(';', 0);//name
+    pos = font.find(';', pos + 1);//bold
+    pos = font.find(';', pos + 1);//italic
+    pos = font.find(';', pos + 1);//size
+    pos = font.find(';', pos + 1);//outline
     if (ver_major > 1)
-      pos = font.find(';', pos+1);//charset
+      pos = font.find(';', pos + 1);//charset
     int fading = 0;
     if (ver_major > 2 || (ver_major == 2 && ver_minor > 0)){
-      pos = font.find(';', pos+1);//shadow
-      pos = font.find(';', pos+1);//fill
+      pos = font.find(';', pos + 1);//shadow
+      pos = font.find(';', pos + 1);//fill
       //fading
-      std::string tmp = font.substr(pos+1);
+      std::string tmp = font.substr(pos + 1);
       fading = atoi(tmp.c_str());
     }
     mSettings.font_fading.push_back(fading);
@@ -172,6 +184,12 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   str = txtstream.readLine();
   if (ver_major > 1){
     mSettings.splashscreen = txtstream.readLine();
+    if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
+      size_t idx = mSettings.splashscreen.find(';');
+      if (idx != mSettings.splashscreen.npos){
+        mSettings.splashscreen.erase(idx);
+      }
+    }
     str = txtstream.readLine();
     mSettings.tsbackground = txtstream.readLine();
   }
@@ -179,7 +197,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     mSettings.tsbackground = "";
   }
   str = txtstream.readLine();
-  if(str.substr(0,14) != "Startskript : ")
+  if (str.substr(0, 14) != "Startskript : ")
     TR_BREAK("Invalid content %s", str.c_str());
   mSettings.startscript = str.substr(14);
   mSettings.mainscript = txtstream.readLine();
@@ -195,6 +213,22 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   }
   else{
     mSettings.group_items = false;
+  }
+  bool is16to9 = false;
+  if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
+    is16to9 = str[8] == '1';
+  }
+  if (is16to9){
+    if (mSettings.resolution.x == 320)
+      mSettings.resolution.x = 420;
+    else if (mSettings.resolution.x == 640)
+      mSettings.resolution.x = 840;
+    else if (mSettings.resolution.x == 800)
+      mSettings.resolution.x = 1050;
+    else if (mSettings.resolution.x == 1024)
+      mSettings.resolution.x = 1344;
+    else if (mSettings.resolution.x == 1440)
+      mSettings.resolution.x = 1890;
   }
   if (ver_major > 2 || (ver_major == 2 && ver_minor > 0)){
     str = txtstream.readLine(); //action text height
@@ -243,10 +277,10 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   mSettings.textcolor = atoi(str.substr(12).c_str());
   str = txtstream.readLine(); //offtextcolor
   if (ver_major > 1){
-    int pos = str.find(';');
-    std::string color = str.substr(15, pos-15);
+    size_t pos = str.find(';');
+    std::string color = str.substr(15, pos - 15);
     mSettings.offspeechcolor = atoi(color.c_str());
-    color = str.substr(pos+1);
+    color = str.substr(pos + 1);
     mSettings.infotextcolor = atoi(color.c_str());
   }
   else{
@@ -255,7 +289,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
     mSettings.infotextcolor = 0xffffff;
   }
   str = txtstream.readLine();
-  mSettings.tsstyle = (TsStyle)(atoi(str.c_str())-1);
+  mSettings.tsstyle = (TsStyle)(atoi(str.c_str()) - 1);
   str = txtstream.readLine();
   mSettings.tsborderstyle = atoi(str.c_str());
   str = txtstream.readLine();
@@ -266,7 +300,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   mSettings.tsselectioncolor = atoi(str.c_str());
   str = txtstream.readLine();
   mSettings.tstextcolor = atoi(str.c_str());
-  if (ver_major >= 3 || (ver_major >=2 && ver_minor >= 7)){
+  if (ver_major >= 3 || (ver_major >= 2 && ver_minor >= 7)){
     for (int i = 0; i < 8; ++i){
       str = txtstream.readLine();
     }
@@ -274,37 +308,49 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   else{
     //mSettings.tsselectioncolor = 15793151;
   }
+  if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
+    //dsp effects
+    for (int i = 0; i < 25; ++i){
+      str = txtstream.readLine();
+      str = txtstream.readLine();
+      str = txtstream.readLine();
+      str = txtstream.readLine();
+      str = txtstream.readLine();
+      str = txtstream.readLine();
+      str = txtstream.readLine();
+    }
+  }
   str = txtstream.readLine();
   mSettings.linktext = str.substr(11);
   str = txtstream.readLine();
   mSettings.givelink = str.substr(11);
   str = txtstream.readLine();
   mSettings.walktext = str.substr(11);
-  while(txtstream.isWorking()){
+  while (txtstream.isWorking()){
     str = txtstream.readLine();
     if (str == "Booleans :"){
       str = txtstream.readLine();
       while (str != "Commands :"){
         String name;
-        std::string val = str.substr(str.size()-1);
+        std::string val = str.substr(str.size() - 1);
         if (val == "1")
-          name = str.substr(0, str.size()-2).c_str();
+          name = str.substr(0, str.size() - 2).c_str();
         else
-          name = str.substr(0, str.size()-1).c_str();
+          name = str.substr(0, str.size() - 1).c_str();
         mSettings.booleans[name] = (val == "1");
         str = txtstream.readLine();
       }
     }
     if (str == "Commands :"){
       mSettings.pretty_commands.push_back(mSettings.walktext);
-      mSettings.commands["walkto"] = (unsigned)mSettings.pretty_commands.size()-1;
+      mSettings.commands["walkto"] = (unsigned)mSettings.pretty_commands.size() - 1;
       mSettings.pretty_commands.push_back("Loading");
-      mSettings.commands["loading"] = (unsigned)mSettings.pretty_commands.size()-1;
+      mSettings.commands["loading"] = (unsigned)mSettings.pretty_commands.size() - 1;
       str = txtstream.readLine();
       while (str != "Mediapool :"){
         std::string pretty_name = txtstream.readLine();
         mSettings.pretty_commands.push_back((const char*)pretty_name.c_str());
-        mSettings.commands[(const char*)str.c_str()] = (unsigned)mSettings.pretty_commands.size()-1;
+        mSettings.commands[(const char*)str.c_str()] = (unsigned)mSettings.pretty_commands.size() - 1;
         str = txtstream.readLine();
       }
     }
@@ -357,10 +403,10 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream){
   return true;
 }
 
-bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
+bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_minor){
   std::string str = txtstream.readLine();
-  int ver_major = atoi(str.substr(0, 1).c_str());
-  int ver_minor = atoi(str.substr(2, 1).c_str());
+  int local_ver_major = atoi(str.substr(0, 1).c_str());
+  int local_ver_minor = atoi(str.substr(2, 1).c_str());
   if (str.substr(4) != "Point&Click Project File. DO NOT MODIFY!!"){
     return false;
   }
@@ -379,25 +425,25 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
     cs.command = val1;
     str = txtstream.readLine();
     val1 = atoi(str.c_str());
-    cs.fps = FPS_MAX/val1;
+    cs.fps = FPS_MAX / val1;
     long val2;
     str = txtstream.readLine();
     val1 = atoi(str.c_str());
     str = txtstream.readLine();
     val2 = atoi(str.c_str());
-    cs.highlight = Vec2i(val1,val2);
+    cs.highlight = Vec2i(val1, val2);
     mCursor.push_back(cs);
   }
-  while(txtstream.isWorking()){
+  while (txtstream.isWorking()){
     str = txtstream.readLine();
     if (!txtstream.isWorking())
       return true;
     std::string rest = str.substr(2);
     if (!(str[0] == '/' && str[1] == '/') && !(str[0] == ';' && str[1] == ';'))
       return false;
-    int splitidx = rest.find(" ");
+    size_t splitidx = rest.find(" ");
     std::string type = rest.substr(0, splitidx);
-    std::string name = rest.substr(splitidx+1);
+    std::string name = rest.substr(splitidx + 1);
     // ITEM
     if (type == "Item"){
       Item it;
@@ -412,11 +458,11 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
         ItemState is;
         for (int frames = 0; frames < FRAMES_MAX; ++frames){
           str = txtstream.readLine();
-          int pos = str.find(";");
+          size_t pos = str.find(";");
           Frame frm;
           frm.name = str.substr(0, pos);
           if (pos >= 0)
-            frm.script = animationScript(str.substr(pos+1));
+            frm.script = animationScript(str.substr(pos + 1));
           else
             frm.script = "";
           is.frames.push_back(frm);
@@ -424,7 +470,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
         str = txtstream.readLine();
         long val1;
         val1 = atoi(str.c_str());
-        is.fps = FPS_MAX/val1;
+        is.fps = FPS_MAX / val1;
         it.states.push_back(is);
       }
       mItems[it.name] = it;
@@ -465,11 +511,11 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       ch.walksound = txtstream.readLine();
       if (ver_major >= 3){
         str = txtstream.readLine();
-        unsigned pos = str.find(";");
+        size_t pos = str.find(";");
         while (pos < str.length()){
           std::string state = std::string(str.substr(0, pos));
           ch.extrastatenames.push_back(state);
-          str = str.substr(pos+1);
+          str = str.substr(pos + 1);
           pos = str.find(";");
         }
       }
@@ -495,8 +541,8 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       rc.room = txtstream.readLine();
       long val1, val2;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
-      rc.position = Vec2i(val1,val2);
-      str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.dir = (LookDir)(val1-1);
+      rc.position = Vec2i(val1, val2);
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.dir = (LookDir)(val1 - 1);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.unmovable = (val1 == 0);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); rc.locked = (val1 != 0);
       mRoomCharacters.push_back(rc);
@@ -507,7 +553,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       room.name = name;
       long val1, val2;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
-      room.size = Vec2i(val1,val2);
+      room.size = Vec2i(val1, val2);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
       room.scrolloffset = Vec2i(val1, val2);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
@@ -517,16 +563,27 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       room.parallaxbackground = txtstream.readLine();
       if (ver_major >= 3){
         str = txtstream.readLine(); val1 = atoi(str.c_str()); room.doublewalkmap = (val1 != 0);
-      } else{
+      }
+      else{
         room.doublewalkmap = false;
+      }
+      if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
+        str = txtstream.readLine();//lighting color
+        room.lighting.r = atoi(str.c_str());
+        size_t split = str.find(';');
+        str.erase(0, split+1);
+        room.lighting.g = atoi(str.c_str());
+        split = str.find(';');
+        str.erase(0, split + 1);
+        room.lighting.b = atoi(str.c_str());
       }
       if (ver_major >= 3 || (ver_major == 2 && ver_minor >= 8)){
         for (int i = 0; i < FXSHAPES_MAX; ++i){
           FXShape shape;
           str = txtstream.readLine();
-          int split = str.find(";");
+          size_t split = str.find(";");
           shape.active = str.substr(0, split) != "0";
-          shape.dependingOnRoomPosition = str.substr(split+1) != "0";
+          shape.dependingOnRoomPosition = str.substr(split + 1) != "0";
           str = txtstream.readLine();
           shape.effect = (FXShape::FxEffect)atoi(str.c_str());
           shape.room = txtstream.readLine();
@@ -541,12 +598,12 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
           str = txtstream.readLine();
           split = -1;
           for (int i = 0; i < 8; ++i){
-            int idx = str.find(";", split+1);
-            std::string tmp = str.substr(split+1, idx-split-1);
+            size_t idx = str.find(";", split + 1);
+            std::string tmp = str.substr(split + 1, idx - split - 1);
             if (i % 2 == 0)
-              shape.points[i/2].x = atoi(tmp.c_str());
+              shape.points[i / 2].x = atoi(tmp.c_str());
             else
-              shape.points[i/2].y = atoi(tmp.c_str());
+              shape.points[i / 2].y = atoi(tmp.c_str());
             split = idx;
           }
           room.fxshapes.push_back(shape);
@@ -558,21 +615,21 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       str = txtstream.readLine();
       unsigned from = 0;
       unsigned to = (unsigned)str.find(';', from);
-      room.invpos.x = atoi(str.substr(from, to-from).c_str());
-      from = to+1; to = (unsigned)str.find(';', from);
-      room.invpos.y = atoi(str.substr(from, to-from).c_str());
-      from = to+1; to = (unsigned)str.find(';', from);
-      room.invsize.x = atoi(str.substr(from, to-from).c_str());
-      from = to+1; to = (unsigned)str.find(';', from);
-      room.invsize.y = atoi(str.substr(from, to-from).c_str());
-      from = to+1; to = (unsigned)str.find(';', from);
-      std::string tmp = str.substr(from, to-from);
+      room.invpos.x = atoi(str.substr(from, to - from).c_str());
+      from = to + 1; to = (unsigned)str.find(';', from);
+      room.invpos.y = atoi(str.substr(from, to - from).c_str());
+      from = to + 1; to = (unsigned)str.find(';', from);
+      room.invsize.x = atoi(str.substr(from, to - from).c_str());
+      from = to + 1; to = (unsigned)str.find(';', from);
+      room.invsize.y = atoi(str.substr(from, to - from).c_str());
+      from = to + 1; to = (unsigned)str.find(';', from);
+      std::string tmp = str.substr(from, to - from);
       size_t idx = tmp.find(',');
       if (idx != std::string::npos)
         tmp[idx] = '.';
       room.invscale.x = (float)atof(tmp.c_str());
-      from = to+1; to = (unsigned)str.find(';', from);
-      tmp = str.substr(from, to-from);
+      from = to + 1; to = (unsigned)str.find(';', from);
+      tmp = str.substr(from, to - from);
       idx = tmp.find(',');
       if (idx != std::string::npos)
         tmp[idx] = '.';
@@ -580,8 +637,8 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       //walkmap
       str = txtstream.readLine();
       int WALKMAP_X = 32;
-      int walkGridSize = mSettings.resolution.x/WALKMAP_X;
-      int WALKMAP_Y = mSettings.resolution.y/walkGridSize;
+      int walkGridSize = mSettings.wm_resolution.x / WALKMAP_X;
+      int WALKMAP_Y = mSettings.wm_resolution.y / walkGridSize;
       WALKMAP_X *= 3;
       WALKMAP_Y *= 2;
       if (ver_major >= 3){
@@ -590,19 +647,19 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
         WALKMAP_Y *= 2;
       }
       room.walkmap.resize(WALKMAP_X);
-      for(int i = 0; i < WALKMAP_X; ++i){
+      for (int i = 0; i < WALKMAP_X; ++i){
         room.walkmap[i].resize(WALKMAP_Y);
       }
       for (int i = 0; i < WALKMAP_X*WALKMAP_Y; ++i){
-        char ch = str[2*i];
-        char ch2 = str[2*i+1];
+        char ch = str[2 * i];
+        char ch2 = str[2 * i + 1];
         bool walkable = true;
         bool script = false;
         if (ch == '1')
           walkable = false;
         if (ch2 == '1')
           script = true;
-        int x = i/WALKMAP_Y;
+        int x = i / WALKMAP_Y;
         int y = i%WALKMAP_Y;
         room.walkmap[x][y].walkable = walkable;
         room.walkmap[x][y].script = script;
@@ -616,10 +673,14 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream){
       ro.object = txtstream.readLine();
       long val1, val2;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
-      ro.position = Vec2i(val1,val2);
+      ro.position = Vec2i(val1, val2);
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.state = val1;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.layer = val1;
-      str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.wm_depth = val1;
+      str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.wm_depth = val1*2;
+      if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
+        //double walk map
+        str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.wm_depth = val1;
+      }
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ro.locked = (val1 != 0);
       mLastRoom->objects.push_back(ro);
     }
@@ -640,15 +701,15 @@ bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
   }
   txtstream.readLine();
   mLastScript = NULL;
-  while(txtstream.isWorking()){
+  while (txtstream.isWorking()){
     str = txtstream.readLine();
     //if (!txtstream.isWorking())
     //  return true;
     if (str.size() >= 2 && str[0] == '/' && str[1] == '/'){
       std::string rest = str.substr(2);
-      int splitidx = rest.find(" ");
+      size_t splitidx = rest.find(" ");
       std::string type = rest.substr(0, splitidx);
-      std::string name = rest.substr(splitidx+1);
+      std::string name = rest.substr(splitidx + 1);
       Script::Type scrType;
       if (type == "Cutscene")
         scrType = Script::CUTSCENE;
@@ -663,7 +724,7 @@ bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
       else if (type == "Walkmap")
         scrType = Script::WALKMAP;
       else{
-        CGE::Engine::instance()->messageBox("Unknown script type: "+type, "Error");
+        CGE::Engine::instance()->messageBox("Unknown script type: " + type, "Error");
       }
       Script scr;
       scr.name = name;
@@ -673,15 +734,15 @@ bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
         Vec2i pos;
         if (ver_major >= 3){
           roomname = std::string(name.substr(7).c_str());
-          pos.x = atoi(name.substr(1,3).c_str());
-          pos.y = atoi(name.substr(4,3).c_str());
+          pos.x = atoi(name.substr(1, 3).c_str());
+          pos.y = atoi(name.substr(4, 3).c_str());
         }
         else{
           roomname = std::string(name.substr(4).c_str());
-          pos.x = atoi(name.substr(0,2).c_str());
-          pos.y = atoi(name.substr(2,2).c_str());
+          pos.x = atoi(name.substr(0, 2).c_str());
+          pos.y = atoi(name.substr(2, 2).c_str());
         }
-        mWMScripts[roomname].push_back(std::make_pair(pos,scr));
+        mWMScripts[roomname].push_back(std::make_pair(pos, scr));
         mLastScript = &mWMScripts[roomname].back().second;
       }
       else{
@@ -703,9 +764,9 @@ bool AdvDocument::loadFile4(CGE::MemReader& txtstream){
   while (txtstream.isWorking()){
     std::string str = txtstream.readLine();
     if (str.substr(0, 3) == "*/*"){
-      int idx = str.find(';');
-      language = str.substr(3, idx-3);
-      std::string sectionstr = str.substr(idx+1);
+      size_t idx = str.find(';');
+      language = str.substr(3, idx - 3);
+      std::string sectionstr = str.substr(idx + 1);
       if (sectionstr == "speech"){
         section = Language::SPEECH;
       }
@@ -751,16 +812,16 @@ bool AdvDocument::loadFile5(CGE::MemReader& txtstream){
   std::string str = txtstream.readLine();
   std::string pwd;
   for (int i = 0; i < 20; ++i){
-    int val = atoi(str.substr(i*3, 3).c_str());
+    int val = atoi(str.substr(i * 3, 3).c_str());
     char curr;
     if (i >= 15)
-      curr = val/3;
+      curr = val / 3;
     else if (i >= 10)
-      curr = val/6;
+      curr = val / 6;
     else if (i >= 5)
-      curr = val/4;
+      curr = val / 4;
     else
-      curr = val/5;
+      curr = val / 5;
     pwd += curr;
   }
   mZipPwd = pwd;
@@ -772,27 +833,27 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
   mMuty.lock();
   std::string idxname = toLower(name);
   std::string filename;
-  std::map<std::string,std::string>::iterator iter = mImageNames.find(idxname);
+  std::map<std::string, std::string>::iterator iter = mImageNames.find(idxname);
   if (iter != mImageNames.end())
     filename = iter->second;
   else{
     TR_BREAK("Image %s not found", name.c_str());
   }
   if (mUseCompressedData){
-    int namepos = filename.find_last_of('/');
-    static CGE::ZipReader zrdr(mPath+"/gfx.dat");
-    std::string imagename = filename.substr(namepos+1);
+    size_t namepos = filename.find_last_of('/');
+    static CGE::ZipReader zrdr(mPath + "/gfx.dat");
+    std::string imagename = filename.substr(namepos + 1);
     CGE::MemReader rdr = zrdr.openEntry(imagename, mZipPwd);
     if (!rdr.isWorking()){
       mMuty.unlock();
       return NULL;
     }
-    int extpos = filename.find_last_of('.');
+    size_t extpos = filename.find_last_of('.');
     CGE::Image* img = NULL;
-    if (filename.substr(extpos+1) == "pnj"){
+    if (filename.substr(extpos + 1) == "pnj"){
       CGE::Image* rgbimage = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), CGE::ImageLoader::JPG);
-      filename[filename.length()-1] = 'a';
-      rdr = zrdr.openEntry(filename.substr(namepos+1), mZipPwd);
+      filename[filename.length() - 1] = 'a';
+      rdr = zrdr.openEntry(filename.substr(namepos + 1), mZipPwd);
       CGE::Image* alphaimage = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), CGE::ImageLoader::JPG);
       img = new CGE::Image(rgbimage->getNumChannels(), rgbimage->getWidth(), rgbimage->getHeight(), rgbimage->getData(), alphaimage->getNumChannels(), alphaimage->getData());
       delete rgbimage;
@@ -820,11 +881,11 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
     return false;
   }
   std::string filename = iter->second;
-  int pos = filename.find_last_of('/');
-  db.name = filename.substr(pos+1);
+  size_t pos = filename.find_last_of('/');
+  db.name = filename.substr(pos + 1);
   if (mUseCompressedData){
-    static CGE::ZipReader zrdr(mPath+"/sfx.dat");
-    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1), mZipPwd);
+    static CGE::ZipReader zrdr(mPath + "/sfx.dat");
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos + 1), mZipPwd);
     if (!rdr.isWorking()){
       mMuty.unlock();
       return false;
@@ -846,11 +907,11 @@ bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
 bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
   mMuty.lock();
   std::string filename = mMusicNames[name];
-  int pos = filename.find_last_of('/');
-  db.name = filename.substr(pos+1);
+  size_t pos = filename.find_last_of('/');
+  db.name = filename.substr(pos + 1);
   if (mUseCompressedData){
-    static CGE::ZipReader zrdr(mPath+"/music.dat");
-    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1), mZipPwd);
+    static CGE::ZipReader zrdr(mPath + "/music.dat");
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos + 1), mZipPwd);
     if (!rdr.isWorking()){
       mMuty.unlock();
       return false;
@@ -872,11 +933,11 @@ bool AdvDocument::getMusic(const std::string& name, DataBuffer& db){
 bool AdvDocument::getMovie(const std::string& name, DataBuffer& db){
   mMuty.lock();
   std::string filename = mMovieNames[name];
-  int pos = filename.find_last_of('/');
-  db.name = filename.substr(pos+1);
+  size_t pos = filename.find_last_of('/');
+  db.name = filename.substr(pos + 1);
   if (mUseCompressedData){
-    static CGE::ZipReader zrdr(mPath+"/movie.dat");
-    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos+1), mZipPwd);
+    static CGE::ZipReader zrdr(mPath + "/movie.dat");
+    CGE::MemReader rdr = zrdr.openEntry(filename.substr(pos + 1), mZipPwd);
     if (!rdr.isWorking()){
       mMuty.unlock();
       return false;
@@ -913,35 +974,35 @@ float AdvDocument::readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames&
     }
     //read offsets
     str = txtstream.readLine();
-    int pos = 0;
+    size_t pos = 0;
     for (unsigned i = 0; i < PARTS_MAX; ++i){
       pos = str.find(";");
       std::string num = str.substr(0, pos);
-      str = str.substr(pos+1);
+      str = str.substr(pos + 1);
       val1 = atoi(num.c_str());
       pos = str.find(";");
       num = str.substr(0, pos);
-      str = str.substr(pos+1);
+      str = str.substr(pos + 1);
       val2 = atoi(num.c_str());
       if (set[i])
-        frm.offsets.push_back(Vec2i(val1,val2));
+        frm.offsets.push_back(Vec2i(val1, val2));
     }
     if (set[0] || set[1])
-      realFrames = frames+1;
+      realFrames = frames + 1;
     frm.script = animationScript(str);
     frms.push_back(frm);
   }
   frms.resize(realFrames);
   str = txtstream.readLine();
   val1 = atoi(str.c_str());
-  float fps = FPS_MAX/val1;
+  float fps = FPS_MAX / val1;
   return fps;
 }
 
 Room* AdvDocument::getRoom(std::string name){
-  std::map<std::string,Room>::iterator iter = mRooms.find(name);
+  std::map<std::string, Room>::iterator iter = mRooms.find(name);
   if (iter == mRooms.end()){
-    for (std::map<std::string,Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    for (std::map<std::string, Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
       if (_stricmp(name.c_str(), iter->first.c_str()) == 0)
         return &iter->second;
     }
@@ -951,9 +1012,9 @@ Room* AdvDocument::getRoom(std::string name){
 }
 
 Object* AdvDocument::getObject(std::string name){
-  std::map<std::string,Object>::iterator iter = mObjects.find(name);
+  std::map<std::string, Object>::iterator iter = mObjects.find(name);
   if (iter == mObjects.end()){
-    for (std::map<std::string,Object>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
+    for (std::map<std::string, Object>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
       if (_stricmp(name.c_str(), iter->first.c_str()) == 0)
         return &iter->second;
     }
@@ -971,16 +1032,16 @@ ProjectSettings* AdvDocument::getProjectSettings(){
 }
 
 Character* AdvDocument::getCharacter(std::string name){
-  std::map<std::string,Character>::iterator iter = mCharacters.find(name);
+  std::map<std::string, Character>::iterator iter = mCharacters.find(name);
   if (iter == mCharacters.end())
     return NULL;
   return &((*iter).second);
 }
 
 Script* AdvDocument::getScript(Script::Type t, std::string name){
-  std::map<std::pair<Script::Type,std::string>, Script>::iterator iter = mScripts.find(std::make_pair(t, name));
+  std::map<std::pair<Script::Type, std::string>, Script>::iterator iter = mScripts.find(std::make_pair(t, name));
   if (iter == mScripts.end()){
-    for (std::map<std::pair<Script::Type,std::string>,Script>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+    for (std::map<std::pair<Script::Type, std::string>, Script>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
       if (_stricmp(name.c_str(), iter->first.second.c_str()) == 0)
         return &iter->second;
     }
@@ -989,9 +1050,9 @@ Script* AdvDocument::getScript(Script::Type t, std::string name){
   return &((*iter).second);
 }
 
-std::vector<std::pair<Vec2i,Script*> > AdvDocument::getWMScripts(std::string roomname){
-  std::vector<std::pair<Vec2i,Script*> > result;
-  std::map<std::string, std::vector<std::pair<Vec2i,Script> > >::iterator iter = mWMScripts.find(roomname);
+std::vector<std::pair<Vec2i, Script*> > AdvDocument::getWMScripts(std::string roomname){
+  std::vector<std::pair<Vec2i, Script*> > result;
+  std::map<std::string, std::vector<std::pair<Vec2i, Script> > >::iterator iter = mWMScripts.find(roomname);
   if (iter == mWMScripts.end())
     return result;
   for (unsigned i = 0; i < iter->second.size(); ++i){
@@ -1012,56 +1073,58 @@ FontData AdvDocument::getFont(int num){
   CGE::ZipReader* zrdr = NULL;
   CGE::MemReader in;
   if (num == 0){
-  zrdr = new CGE::ZipReader(mPath+"/font.dat");
-  in = zrdr->openEntry("fontdata.sta");
+    zrdr = new CGE::ZipReader(mPath + "/font.dat");
+    in = zrdr->openEntry("fontdata.sta");
   }
   else{
-  firstzrdr = new CGE::ZipReader(mPath+"/fonts.dat");
-  firstrdr = firstzrdr->openEntry("font."+number.str());
-  zrdr = new CGE::ZipReader(firstrdr.getData(), firstrdr.getSize());
-  in = zrdr->openEntry("fontdata."+number.str());
+    firstzrdr = new CGE::ZipReader(mPath + "/fonts.dat");
+    firstrdr = firstzrdr->openEntry("font." + number.str());
+    zrdr = new CGE::ZipReader(firstrdr.getData(), firstrdr.getSize());
+    in = zrdr->openEntry("fontdata." + number.str());
   }
   FontData fnt;
   if (!in.isWorking()){
-  delete firstzrdr;
-  delete zrdr;
-  return fnt;
+    delete firstzrdr;
+    delete zrdr;
+    return fnt;
   }
   long val;
-  std::string str = in.readLine(); val = atoi(str.c_str()); fnt.images.resize(2*val);
+  std::string str = in.readLine(); val = atoi(str.c_str()); fnt.images.resize(mFontsPNG ? val : 2 * val);
   str = in.readLine(); val = atoi(str.c_str()); fnt.fontsize.x = val;
   str = in.readLine(); val = atoi(str.c_str()); fnt.fontsize.y = val;
   str = in.readLine(); val = atoi(str.c_str()); fnt.numChars.x = val;
   str = in.readLine(); val = atoi(str.c_str()); fnt.numChars.y = val;
   fnt.charwidths.reserve(224);
-  while(in.isWorking()){
-  str = in.readLine(); val = atoi(str.c_str()); fnt.charwidths.push_back(val);
+  while (in.isWorking()){
+    str = in.readLine(); val = atoi(str.c_str()); fnt.charwidths.push_back(val);
   }
-  for (unsigned i = 0; i < fnt.images.size()/2; ++i){
-  number.str("");
-  number.clear();
-  if (num == 0){
-  number << "fontsta.al" << (i+1);
-  in = zrdr->openEntry(number.str());
-  }
-  else{
-  number << "font" << num << ".al" << (i+1);
-  in = zrdr->openEntry(number.str());
-  }
-  if (!in.isWorking())
-  continue;
-  fnt.images[2*i] = CGE::ImageLoader::load(in.getData(), in.getSize(), CGE::ImageLoader::BMP);
-  number.str("");
-  number.clear();
-  if (num == 0){
-  number << "fontsta.bm" << (i+1);
-  in = zrdr->openEntry(number.str());
-  }
-  else{
-  number << "font" << num << ".bm" << (i+1);
-  in = zrdr->openEntry(number.str());
-  }
-  fnt.images[2*i+1] = CGE::ImageLoader::load(in.getData(), in.getSize(), CGE::ImageLoader::BMP);
+  for (unsigned i = 0; i < (mFontsPNG ? fnt.images.size() : fnt.images.size() / 2); ++i){
+    number.str("");
+    number.clear();
+    if (num == 0){
+      number << "fontsta.al" << (i + 1);
+      in = zrdr->openEntry(number.str());
+    }
+    else{
+      number << "font" << num << (mFontsPNG ? ".pn" : ".al") << (i + 1);
+      in = zrdr->openEntry(number.str());
+    }
+    if (!in.isWorking())
+      continue;
+    fnt.images[2 * i] = CGE::ImageLoader::load(in.getData(), in.getSize(), mFontsPNG ? CGE::ImageLoader::PNG : CGE::ImageLoader::BMP);
+    if (!mFontsPNG){
+      number.str("");
+      number.clear();
+      if (num == 0){
+        number << "fontsta.bm" << (i + 1);
+        in = zrdr->openEntry(number.str());
+      }
+      else{
+        number << "font" << num << ".bm" << (i + 1);
+        in = zrdr->openEntry(number.str());
+      }
+      fnt.images[2 * i + 1] = CGE::ImageLoader::load(in.getData(), in.getSize(), CGE::ImageLoader::BMP);
+    }
   }
   delete firstzrdr;
   delete zrdr;
@@ -1069,9 +1132,9 @@ FontData AdvDocument::getFont(int num){
 }
 
 Item* AdvDocument::getItem(const std::string& name){
-  std::map<std::string,Item>::iterator iter = mItems.find(name);
+  std::map<std::string, Item>::iterator iter = mItems.find(name);
   if (iter == mItems.end()){
-    for (std::map<std::string,Item>::iterator iter = mItems.begin(); iter != mItems.end(); ++iter){
+    for (std::map<std::string, Item>::iterator iter = mItems.begin(); iter != mItems.end(); ++iter){
       if (_stricmp(name.c_str(), iter->first.c_str()) == 0)
         return &iter->second;
     }
@@ -1149,7 +1212,7 @@ std::string AdvDocument::animationScript(const std::string& input){
 }
 
 Roomobject* AdvDocument::findRoomObject(const std::string& name, Room*& containingRoom){
-  for (std::map<std::string,Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+  for (std::map<std::string, Room>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     for (std::vector<Roomobject>::iterator objiter = iter->second.objects.begin(); objiter != iter->second.objects.end(); ++objiter){
       if (_stricmp(objiter->name.c_str(), name.c_str()) == 0){
         containingRoom = &iter->second;

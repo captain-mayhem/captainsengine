@@ -270,3 +270,13 @@ bool Filesystem::removeDir(const std::string& path, bool recursive){
   return ret == 0;
 }
 
+bool Filesystem::exists(const std::string& path){
+#ifdef WIN32
+  return GetFileAttributes(path.c_str()) != INVALID_FILE_ATTRIBUTES;
+#else
+  struct stat buf;
+  int ret = stat(path.c_str(), &buf);
+  return ret == 0;
+#endif
+}
+

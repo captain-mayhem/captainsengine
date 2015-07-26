@@ -23,6 +23,7 @@ class SoundPlayer;
 struct ProjectSettings{
   std::string dir;
   std::string savedir;
+  Vec2i wm_resolution;
   Vec2i resolution;
   std::vector<int> font_fading;
   std::string startscript;
@@ -196,6 +197,7 @@ struct Room{
   Vec2f invscale;
   std::vector<std::vector<WMField> > walkmap;
   std::vector<Roomobject> objects;
+  Color lighting;
 };
 
 struct Script{
@@ -297,9 +299,10 @@ public:
   void setSpashScreenCB(SPLASHSCREENCB sscb) { mSSCB = sscb; }
   void setFileChangedCB(FILECHANGEDCB fcb) { mFCB = fcb; }
   void fileChanged(std::string const& file) { if (!mFCB) return; mFCB(file); }
+  bool hasUnifiedFonts() { return mFontsPNG; }
 protected:
-  bool loadFile1(CGE::MemReader& txtstream);
-  bool loadFile2(CGE::MemReader& txtstream);
+  bool loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_minor);
+  bool loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_minor);
   bool loadFile3(CGE::MemReader& txtstream);
   bool loadFile4(CGE::MemReader& txtstream);
   bool loadFile5(CGE::MemReader& txtstream);
@@ -329,6 +332,7 @@ protected:
   CGE::Mutex mMuty;
   SPLASHSCREENCB mSSCB;
   FILECHANGEDCB mFCB;
+  bool mFontsPNG;
 };
 
 }
