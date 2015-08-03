@@ -339,7 +339,7 @@ namespace StoryDesigner
                 str = rdr.ReadLine();
                 mAdv.Settings.CoinCenter.y = Convert.ToInt32(str);
             }
-            if (ver_major >= 3 || (ver_major == 3 && ver_major >= 5))
+            if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5))
             {
                 //dsp effects
                 for (int i = 0; i < 25; ++i)
