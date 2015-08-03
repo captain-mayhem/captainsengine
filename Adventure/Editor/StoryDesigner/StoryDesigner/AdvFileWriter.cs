@@ -827,11 +827,15 @@ namespace StoryDesigner
                     param.Param[0] = new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 100L);
                     ZipEntry ze1 = new ZipEntry(basename + ".pnj");
                     zos.PutNextEntry(ze1);
-                    rgb.Save(zos, ImageFormat.Jpeg);
+                    MemoryStream ms = new MemoryStream();
+                    rgb.Save(ms, ImageFormat.Jpeg);
+                    zos.Write(ms.GetBuffer(), 0, (int)ms.Length);
                     zos.CloseEntry();
                     ZipEntry ze2 = new ZipEntry(basename + ".pna");
                     zos.PutNextEntry(ze2);
-                    alpha.Save(zos, ImageFormat.Jpeg);
+                    ms = new MemoryStream();
+                    alpha.Save(ms, ImageFormat.Jpeg);
+                    zos.Write(ms.GetBuffer(), 0, (int)ms.Length);
                     zos.CloseEntry();
                     bmp.Dispose();
                 }
@@ -883,27 +887,34 @@ namespace StoryDesigner
         private void writeRuntime(string datadir, string runtimeName)
         {
             string path = Path.GetDirectoryName(Application.ExecutablePath);
-            FileStream engine = new FileStream(Path.Combine(path, "engine2.dat"), FileMode.Open); ;
-            ZipInputStream zis = new ZipInputStream(engine);
-            ZipEntry entry = zis.GetNextEntry();
-            while (entry != null)
+            try
             {
-                writeFile(zis, Path.Combine(datadir, entry.Name));
+                FileStream engine = new FileStream(Path.Combine(path, "engine2.dat"), FileMode.Open); ;
+                ZipInputStream zis = new ZipInputStream(engine);
+                ZipEntry entry = zis.GetNextEntry();
+                while (entry != null)
+                {
+                    writeFile(zis, Path.Combine(datadir, entry.Name));
+                    entry = zis.GetNextEntry();
+                }
+                zis.Close();
+                engine = new FileStream(Path.Combine(path, "engine1.dat"), FileMode.Open); ;
+                zis = new ZipInputStream(engine);
                 entry = zis.GetNextEntry();
+                while (entry != null)
+                {
+                    //string name = entry.Name;
+                    //if (name == "Adventure.exe")
+                    //name = runtimeName;
+                    writeFile(zis, Path.Combine(datadir, runtimeName));
+                    entry = zis.GetNextEntry();
+                }
+                zis.Close();
             }
-            zis.Close();
-            engine = new FileStream(Path.Combine(path,"engine1.dat"), FileMode.Open); ;
-            zis = new ZipInputStream(engine);
-            entry = zis.GetNextEntry();
-            while (entry != null)
+            catch (FileNotFoundException e)
             {
-                //string name = entry.Name;
-                //if (name == "Adventure.exe")
-                //name = runtimeName;
-                writeFile(zis, Path.Combine(datadir, runtimeName));
-                entry = zis.GetNextEntry();
+                MessageBox.Show("Unable to generate adventure runtime");
             }
-            zis.Close();
         }
 
         internal static void writeFile(Stream input, string outfile)

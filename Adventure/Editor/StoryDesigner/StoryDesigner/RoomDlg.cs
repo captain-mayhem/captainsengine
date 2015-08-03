@@ -626,7 +626,7 @@ namespace StoryDesigner
                 if (mData.Settings.InfoLine)
                 {
                     string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x / mData.WalkGridSize, mRoom.ScrollOffset.y / mData.WalkGridSize, wmx + 1, wmy + 1, wmfree ? 'F' : 'B', mp.x, mp.y);
-                    Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
+                    Utilities.drawText(e.Graphics, 0, 0, s, f);
                 }
                 string s2 = "Object:";
                 DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset, false);
@@ -647,7 +647,7 @@ namespace StoryDesigner
                     CharacterInstance chr = (CharacterInstance)drob;
                     s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, wmscale*chr.Position.x/mData.WalkGridSize+1, wmscale*chr.Position.y/mData.WalkGridSize+1);
                 }
-                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y + f.Height, s2, f);
+                Utilities.drawText(e.Graphics, 0, f.Height, s2, f);
             }
             else if (mMode == ViewMode.Walkmap)
             {

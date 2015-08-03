@@ -61,7 +61,7 @@ namespace StoryDesigner
         {
             mData = data;
             Name = "Room" + (data.NumRooms + 1);
-            Size = data.Settings.Resolution;
+            Size = new Vec2i(data.WindowXRes, data.Settings.Resolution.y);
             Depthmap = new Vec2i(5, 10);
             Zoom = 3;
             Background = "";
