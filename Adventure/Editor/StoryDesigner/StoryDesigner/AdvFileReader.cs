@@ -763,6 +763,11 @@ namespace StoryDesigner
                         room.InvScale.x = Single.Parse(inventory[4], info);
                         room.InvScale.y = Single.Parse(inventory[5], info);
                     }
+                    if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
+                        room.InvSpacing = Convert.ToInt32(inventory[6]);
+                    }
+                    else
+                        room.InvSpacing = 10;
                     //walkmap
                     str = rdr.ReadLine();
                     int walkmapX = 32;

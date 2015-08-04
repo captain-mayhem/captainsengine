@@ -246,8 +246,8 @@ namespace StoryDesigner
             {
                 if (mDragMode == DragMode.DragNone)
                 {
-                    int sizex = (int)((mRoom.InvSize.x * 61) * mRoom.InvScale.x) + 30;
-                    int sizey = (int)((mRoom.InvSize.y * 59) * mRoom.InvScale.y) + 5;
+                    int sizex = mRoom.InvSize.x * ((int)(50 * mRoom.InvScale.x) + mRoom.InvSpacing) + 30;
+                    int sizey = mRoom.InvSize.y * ((int)(50 * mRoom.InvScale.y) + mRoom.InvSpacing) + 5;
                     int ydown = -mRoom.ScrollOffset.y + mRoom.InvPos.y + sizey;
                     int xmiddle = -mRoom.ScrollOffset.x + mRoom.InvPos.x + sizex / 2;
                     //e.Graphics.DrawLine(tbp, xmiddle - 15, ydown - 3, xmiddle + 15, ydown - 3);
@@ -284,12 +284,12 @@ namespace StoryDesigner
                 {
                     int maxX = (int)((mData.Settings.Resolution.x - 30) / 60);
                     int maxY = (int)((mData.Settings.Resolution.y - 5) / 60);
-                    mRoom.InvSize.x = (int)Math.Round((e.X + mRoom.ScrollOffset.x - mRoom.InvPos.x - 30) / (mRoom.InvScale.x * 61));
+                    mRoom.InvSize.x = (int)Math.Round((e.X + mRoom.ScrollOffset.x - mRoom.InvPos.x - 30) / (mRoom.InvScale.x * 50 + mRoom.InvSpacing));
                     if (mRoom.InvSize.x < 1)
                         mRoom.InvSize.x = 1;
                     if (mRoom.InvSize.x > maxX)
                         mRoom.InvSize.x = maxX;
-                    mRoom.InvSize.y = (int)Math.Round((e.Y + mRoom.ScrollOffset.y - mRoom.InvPos.y - 5) / (mRoom.InvScale.y * 59));
+                    mRoom.InvSize.y = (int)Math.Round((e.Y + mRoom.ScrollOffset.y - mRoom.InvPos.y - 5) / (mRoom.InvScale.y * 50 + mRoom.InvSpacing));
                     if (mRoom.InvSize.y < 1)
                         mRoom.InvSize.y = 1;
                     if (mRoom.InvSize.y > maxY)
@@ -306,22 +306,22 @@ namespace StoryDesigner
                 else if (mDragMode == DragMode.DragBottom)
                 {
                     float newsize = (e.Y - mDragOffset.y - mRoom.InvPos.y + mRoom.ScrollOffset.y);
-                    float oldsize = (mRoom.InvSize.y * 59) + 5;
+                    float oldsize = (mRoom.InvSize.y * (50 + mRoom.InvSpacing)) + 5;
                     mRoom.InvScale.y = newsize / oldsize;
-                    if (mRoom.InvScale.y > 1.25)
-                        mRoom.InvScale.y = 1.25f;
-                    if (mRoom.InvScale.y < 0.65)
-                        mRoom.InvScale.y = 0.65f;
+                    if (mRoom.InvScale.y > 1.5)
+                        mRoom.InvScale.y = 1.5f;
+                    if (mRoom.InvScale.y < 0.3)
+                        mRoom.InvScale.y = 0.3f;
                 }
                 else if (mDragMode == DragMode.DragRight)
                 {
                     float newsize = (e.X - mDragOffset.x - mRoom.InvPos.x + mRoom.ScrollOffset.x);
-                    float oldsize = (mRoom.InvSize.x * 61) + 30;
+                    float oldsize = (mRoom.InvSize.x * (50 + mRoom.InvSpacing)) + 30;
                     mRoom.InvScale.x = newsize / oldsize;
-                    if (mRoom.InvScale.x > 1.25)
-                        mRoom.InvScale.x = 1.25f;
-                    if (mRoom.InvScale.x < 0.65)
-                        mRoom.InvScale.x = 0.65f;
+                    if (mRoom.InvScale.x > 1.5)
+                        mRoom.InvScale.x = 1.5f;
+                    if (mRoom.InvScale.x < 0.3)
+                        mRoom.InvScale.x = 0.3f;
                 }
             }
             else if (mMode == ViewMode.Specialfx)
@@ -447,8 +447,8 @@ namespace StoryDesigner
                     {
                         menuInventory.Show(this, click);
                     }
-                    int sizex = (int)((mRoom.InvSize.x * 61) * mRoom.InvScale.x) + 30;
-                    int sizey = (int)((mRoom.InvSize.y * 59) * mRoom.InvScale.y) + 5;
+                    int sizex = mRoom.InvSize.x * ((int)(50 * mRoom.InvScale.x) + mRoom.InvSpacing) + 30;
+                    int sizey = mRoom.InvSize.y * ((int)(50 * mRoom.InvScale.y) + mRoom.InvSpacing) + 5;
                     int ydown = -mRoom.ScrollOffset.y + mRoom.InvPos.y + sizey;
                     int xmiddle = -mRoom.ScrollOffset.x + mRoom.InvPos.x + sizex / 2;
                     int ymiddle = -mRoom.ScrollOffset.y + mRoom.InvPos.y + sizey / 2;
@@ -558,6 +558,7 @@ namespace StoryDesigner
             Graphics graphics = Graphics.FromImage(roombmp);
 
             graphics.TranslateTransform(-mRoom.ScrollOffset.x, -mRoom.ScrollOffset.y);
+            e.Graphics.TranslateTransform(-mRoom.ScrollOffset.x, -mRoom.ScrollOffset.y);
             if (mRoom.ParallaxBackground.Length > 0)
             {
                 Bitmap bmp = mData.getImage(mRoom.ParallaxBackground);
@@ -604,7 +605,7 @@ namespace StoryDesigner
             ColorMatrix colorMatrix = new ColorMatrix(colorMatrixElements);
             bmpAttributes.SetColorMatrix(colorMatrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
             Rectangle screen = new Rectangle(0, 0, mRoom.Size.x, mRoom.Size.y);
-            e.Graphics.DrawImage(roombmp, screen, 0, 0, mRoom.Size.x, mRoom.Size.y, GraphicsUnit.Pixel, bmpAttributes);
+            e.Graphics.DrawImage(roombmp, screen, -mRoom.ScrollOffset.x, -mRoom.ScrollOffset.y, mRoom.Size.x, mRoom.Size.y, GraphicsUnit.Pixel, bmpAttributes);
 
             //draw view specific stuff
             Vec2i mp = mMousePos + mRoom.ScrollOffset;
@@ -626,7 +627,7 @@ namespace StoryDesigner
                 if (mData.Settings.InfoLine)
                 {
                     string s = String.Format("Position: Room({0}/{1}) Walkmap({2}/{3}){4} Mouse({5}/{6})", mRoom.ScrollOffset.x / mData.WalkGridSize, mRoom.ScrollOffset.y / mData.WalkGridSize, wmx + 1, wmy + 1, wmfree ? 'F' : 'B', mp.x, mp.y);
-                    Utilities.drawText(e.Graphics, 0, 0, s, f);
+                    Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y, s, f);
                 }
                 string s2 = "Object:";
                 DrawableObject drob = getObjectAt(mMousePos+mRoom.ScrollOffset, false);
@@ -647,7 +648,7 @@ namespace StoryDesigner
                     CharacterInstance chr = (CharacterInstance)drob;
                     s2 = String.Format("Object: {0} (WalkmapPos: {1},{2})", chr.Name, wmscale*chr.Position.x/mData.WalkGridSize+1, wmscale*chr.Position.y/mData.WalkGridSize+1);
                 }
-                Utilities.drawText(e.Graphics, 0, f.Height, s2, f);
+                Utilities.drawText(e.Graphics, mRoom.ScrollOffset.x, mRoom.ScrollOffset.y+f.Height, s2, f);
             }
             else if (mMode == ViewMode.Walkmap)
             {
@@ -729,16 +730,16 @@ namespace StoryDesigner
                     return;
                 }
                 SolidBrush blue = new SolidBrush(Color.FromArgb(50, Color.Blue));
-                int sizex = (int)((mRoom.InvSize.x * 61) * mRoom.InvScale.x) + 30;
-                int sizey = (int)((mRoom.InvSize.y * 59) * mRoom.InvScale.y) + 5;
+                int sizex = (int)(mRoom.InvSize.x * ((50 * mRoom.InvScale.x) + mRoom.InvSpacing) + 30);
+                int sizey = (int)(mRoom.InvSize.y * ((50 * mRoom.InvScale.y) + mRoom.InvSpacing) + 5);
                 e.Graphics.FillRectangle(blue, mRoom.InvPos.x, mRoom.InvPos.y, sizex, sizey);
                 e.Graphics.DrawRectangle(Pens.DarkBlue, mRoom.InvPos.x, mRoom.InvPos.y, sizex, sizey);
                 for (int x = 0; x < mRoom.InvSize.x; ++x)
                 {
                     for (int y = 0; y < mRoom.InvSize.y; ++y)
                     {
-                        float posx = x * ((int)(61 * mRoom.InvScale.x)) + 30 + mRoom.InvPos.x;
-                        float posy = y * ((int)(59 * mRoom.InvScale.y)) + 5 + mRoom.InvPos.y;
+                        float posx = x * ((int)(50 * mRoom.InvScale.x) + mRoom.InvSpacing) + 30 + mRoom.InvPos.x;
+                        float posy = y * ((int)(50 * mRoom.InvScale.y) + mRoom.InvSpacing) + 5 + mRoom.InvPos.y;
                         e.Graphics.DrawRectangle(Pens.Blue, posx, posy, 50*mRoom.InvScale.x, 48*mRoom.InvScale.y);
                     }
                 }

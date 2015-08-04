@@ -77,6 +77,8 @@ namespace StoryDesigner
             wmsize.y *= 2 * 2;
             Walkmap = new WalkMapEntry[wmsize.x, wmsize.y];
             Lighting = Color.White;
+            InvScale = new Vec2f(1.0f, 1.0f);
+            InvSpacing = 10;
         }
         public string Name;
         public Vec2i Size;
@@ -91,6 +93,7 @@ namespace StoryDesigner
         public Vec2i InvPos;
         public Vec2i InvSize;
         public Vec2f InvScale;
+        public int InvSpacing;
         public ArrayList Objects = new ArrayList();
         public ArrayList Characters = new ArrayList();
         public struct WalkMapEntry
@@ -233,6 +236,7 @@ namespace StoryDesigner
             rm.InvPos = InvPos;
             rm.InvScale = InvScale;
             rm.InvSize = InvSize;
+            rm.InvSpacing = InvSpacing;
             rm.Walkmap = (WalkMapEntry[,])Walkmap.Clone();
             rm.Lighting = Lighting;
             foreach (ObjectInstance inst in Objects)
