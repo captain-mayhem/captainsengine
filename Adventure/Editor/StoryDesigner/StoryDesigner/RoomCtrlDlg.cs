@@ -50,6 +50,19 @@ namespace StoryDesigner
             mFxShapes.Visible = false;
             mFxShapes.Location = objectgroup.Location;
             this.Controls.Add(mFxShapes);
+            mInvSpacing = new NumericUpDown();
+            mInvSpacing.Visible = false;
+            mInvSpacing.Location = objectgroup.Location;
+            mInvSpacing.Value = room.InvSpacing;
+            mInvSpacing.Minimum = 2;
+            mInvSpacing.Maximum = 20;
+            this.Controls.Add(mInvSpacing);
+            mInvSpacing.ValueChanged += new EventHandler(mInvSpacing_ValueChanged);
+        }
+
+        void mInvSpacing_ValueChanged(object sender, EventArgs e)
+        {
+            mRoom.InvSpacing = (int)mInvSpacing.Value;
         }
 
         void scroller_MouseUp(object sender, MouseEventArgs e)
@@ -167,12 +180,21 @@ namespace StoryDesigner
                 {
                     objectgroup.Visible = false;
                     charactergroup.Visible = false;
+                    mInvSpacing.Visible = false;
                     mFxShapes.Visible = true;
+                }
+                else if (value == RoomDlg.ViewMode.Inventory)
+                {
+                    objectgroup.Visible = false;
+                    charactergroup.Visible = false;
+                    mInvSpacing.Visible = true;
+                    mFxShapes.Visible = false;
                 }
                 else
                 {
                     objectgroup.Visible = true;
                     charactergroup.Visible = true;
+                    mInvSpacing.Visible = false;
                     mFxShapes.Visible = false;
                 }
             }
@@ -185,6 +207,7 @@ namespace StoryDesigner
         private Vec2i mDragOffset;
         private Vec2f mScrollOffset;
         private FxShapeTabCtrl mFxShapes;
+        private NumericUpDown mInvSpacing;
 
         private void roomwidth_ValueChanged(object sender, EventArgs e)
         {

@@ -554,7 +554,8 @@ namespace StoryDesigner
                 System.Globalization.NumberFormatInfo info = new System.Globalization.NumberFormatInfo();
                 info.NumberDecimalSeparator = ",";
                 swr.Write(String.Format(info, "{0:0.##############}",room.InvScale.x)); swr.Write(';');
-                swr.WriteLine(String.Format(info, "{0:0.##############}", room.InvScale.y));
+                swr.Write(String.Format(info, "{0:0.##############}", room.InvScale.y)); swr.Write(';');
+                swr.WriteLine(room.InvSpacing);
                 //walkmap
                 for (int i = 0; i <= room.Walkmap.GetUpperBound(0); ++i)
                 {
@@ -913,7 +914,7 @@ namespace StoryDesigner
             }
             catch (FileNotFoundException e)
             {
-                MessageBox.Show("Unable to generate adventure runtime");
+                MessageBox.Show("Unable to generate adventure runtime: " + e.FileName + " is missing");
             }
         }
 
