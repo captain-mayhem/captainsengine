@@ -100,8 +100,8 @@ void Inventory::realize(){
 
 ////////////////////////////////////////////
 
-InventoryDisplay::InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale, int depth)
-: mPos(pos+Vec2i(30,5)), mSize(size), mScale(scale), mItemOffset(0), mDepth(depth){
+InventoryDisplay::InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale, int spacing, int depth)
+: mPos(pos+Vec2i(30,5)), mSize(size), mScale(scale), mSpacing(spacing), mItemOffset(0), mDepth(depth){
 
 }
 
@@ -114,8 +114,8 @@ void InventoryDisplay::render(Inventory* inv){
   Vec2i pos = mPos;
   int precount = 0;
   int count = 0;
-  int invitemwidth = (int)(61*mScale.x);
-  int invitemheight = (int)(59*mScale.y);
+  int invitemwidth = (int)(50*mScale.x)+mSpacing;
+  int invitemheight = (int)(50*mScale.y)+mSpacing;
   for (std::list<ItemObject*>::iterator iter = tmp.begin(); iter != tmp.end(); ++iter){
     if (precount < mItemOffset){
       ++precount;

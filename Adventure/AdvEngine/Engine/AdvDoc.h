@@ -195,6 +195,7 @@ struct Room{
   Vec2i invpos;
   Vec2i invsize;
   Vec2f invscale;
+  int   invspacing;
   std::vector<std::vector<WMField> > walkmap;
   std::vector<Roomobject> objects;
   Color lighting;

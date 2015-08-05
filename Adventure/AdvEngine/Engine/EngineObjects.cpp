@@ -610,6 +610,12 @@ void RoomObject::addObject(Object2D* obj){
 
 Object2D* RoomObject::getObjectAt(const Vec2i& pos){
   Object2D* curr = NULL;
+  CharacterObject* currChar = Engine::instance()->getCharacter("self");
+  if (mInventroy && currChar){
+    curr = mInventroy->getObjectAt(pos, currChar->getInventory());
+  }
+  if (curr)
+    return curr;
   int currdepth = -10000;
   for (unsigned i = 0; i < mObjects.size(); ++i){
     if(mObjects[i]->isHit(pos-mScrollOffset)){
@@ -619,12 +625,6 @@ Object2D* RoomObject::getObjectAt(const Vec2i& pos){
         currdepth = curr->getDepth();
       }
     }
-  }
-  if (curr)
-    return curr;
-  CharacterObject* currChar = Engine::instance()->getCharacter("self");
-  if (mInventroy && currChar){
-    curr = mInventroy->getObjectAt(pos, currChar->getInventory());
   }
   return curr;
 }

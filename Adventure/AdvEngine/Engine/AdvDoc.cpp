@@ -634,6 +634,12 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_mi
       if (idx != std::string::npos)
         tmp[idx] = '.';
       room.invscale.y = (float)atof(tmp.c_str());
+      if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
+        from = to + 1; to = (unsigned)str.find(';', from);
+        room.invspacing = atoi(str.substr(from, to - from).c_str());
+      }
+      else
+        room.invspacing = 10;
       //walkmap
       str = txtstream.readLine();
       int WALKMAP_X = 32;

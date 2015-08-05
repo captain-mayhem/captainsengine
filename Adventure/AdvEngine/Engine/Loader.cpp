@@ -144,7 +144,7 @@ public:
     }
     //inventory display
     if (room->invsize != Vec2i()){
-      InventoryDisplay* disp = new InventoryDisplay(room->invpos, room->invsize, room->invscale, DEPTH_ITEM+mDepthOffset);
+      InventoryDisplay* disp = new InventoryDisplay(room->invpos, room->invsize, room->invscale, room->invspacing, DEPTH_ITEM+mDepthOffset);
       roomobj->setInventory(disp);
     }
     return new RoomLoadedEvent(roomobj, mIsSubRoom, mLoadreason, mScreenchange, mFading);
