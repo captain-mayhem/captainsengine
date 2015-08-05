@@ -37,7 +37,7 @@ protected:
 
 class InventoryDisplay{
 public:
-  InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale, int depth);
+  InventoryDisplay(const Vec2i& pos, const Vec2i& size, const Vec2f& scale, int spacing, int depth);
   ~InventoryDisplay();
   void render(Inventory* inv);
   Object2D* getObjectAt(const Vec2i& pos, Inventory* inv);
@@ -48,6 +48,7 @@ protected:
   Vec2i mPos;
   Vec2i mSize;
   Vec2f mScale;
+  int mSpacing;
   int mItemOffset;
   int mDepth;
 };
