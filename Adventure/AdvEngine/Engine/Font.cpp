@@ -161,7 +161,7 @@ void FontRenderer::String::setOpacity(unsigned char opacity){
 FontRenderer::Font::Font(const FontData& data, int fading, bool unified) : mFading(fading){
   mFontsize = data.fontsize;
   mNumChars = data.numChars;
-  mCharwidths = data.charwidths;
+  mGlyphMap = data.glyphmap;
   if (unified){
     mImages.reserve(data.images.size());
     for (unsigned i = 0; i < data.images.size(); ++i){
@@ -195,13 +195,11 @@ FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string
   int yoffset = 0;
   for (unsigned i = 0; i < text.size(); ++i){
     unsigned char charnum = ((unsigned char)text[i])-0x20;
-    int chardeviation = mCharwidths[charnum];
+    FontData::Glyph& gl = mGlyphMap[charnum];
+    int chardeviation = gl.advwidth;
     int texnum = charnum/(mNumChars.x*mNumChars.y);
-    charnum %= mNumChars.x*mNumChars.y;
-    int rownum = charnum/mNumChars.x;
-    charnum %= mNumChars.x;
     FontBlitObject* obj = new FontBlitObject(mImages[texnum], mImages[texnum], 
-      mFontsize, mScale, depth, Vec2i(xoffset,yoffset), Vec2f(charnum, (float)rownum), color);
+      Vec2f((float)gl.w, (float)gl.h), Vec2f(gl.w/(float)mTexSize.x,gl.h/(float)mTexSize.y), depth, Vec2i(xoffset+gl.xoffset,yoffset+gl.yoffset), Vec2f(gl.x/(float)gl.w, gl.y/(float)gl.h), color);
     str->append(obj);
     xoffset += chardeviation;
     if (i >= (unsigned)breakinfo[line].x){
@@ -223,7 +221,8 @@ Vec2i FontRenderer::Font::getTextExtent(const std::string& text, std::vector<Vec
   unsigned last_idx = 0;
   for (unsigned i = 0; i < text.size(); ++i){
     unsigned char charnum = ((unsigned char)text[i])-0x20;
-    wordaccu += mCharwidths[charnum];
+    FontData::Glyph& gl = mGlyphMap[charnum];
+    wordaccu += gl.advwidth;
     if (text[i] == ' '){
       if (accu + wordaccu > maxStringWidth){
         breakinfo.push_back(Vec2i(last_idx, accu));

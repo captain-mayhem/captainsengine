@@ -223,6 +223,15 @@ struct Script{
 };
 
 struct FontData{
+  struct Glyph{
+    unsigned x;
+    unsigned y;
+    unsigned w;
+    unsigned h;
+    int xoffset;
+    int yoffset;
+    unsigned advwidth;
+  };
   void destroyImages(){
     for (unsigned i = 0; i < images.size(); ++i){
       delete images[i];
@@ -231,7 +240,7 @@ struct FontData{
   Vec2i fontsize;
   Vec2i numChars;
   std::vector<CGE::Image*> images;
-  std::vector<unsigned> charwidths;
+  std::vector<Glyph> glyphmap;
 };
 
 struct DataBuffer{
@@ -310,6 +319,7 @@ protected:
   bool loadFile10(CGE::MemReader& txtstream);
   float readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames& frms);
   std::string animationScript(const std::string& input);
+  bool parseFontData(const std::string& name, FontData& data);
   ProjectSettings mSettings;
   std::map<std::string,std::string> mImageNames;
   std::map<std::string,std::string> mSoundNames;

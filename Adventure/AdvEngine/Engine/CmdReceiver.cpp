@@ -53,7 +53,7 @@ void CommandReceiver::threadLoop(){
         break;
       if (msg.length() > 0){
         cmd += msg;
-        unsigned pos = cmd.find('\n');
+        size_t pos = cmd.find('\n');
         while (pos != cmd.npos){
           std::string begin = cmd.substr(0, pos-1);
           cmd = cmd.substr(pos+1);

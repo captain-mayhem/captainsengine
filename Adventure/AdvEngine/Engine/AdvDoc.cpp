@@ -1,3 +1,4 @@
+#include <extern/libxml/tinyxml.h>
 #include "AdvDoc.h"
 #include <iomanip>
 #include <sstream>
@@ -1067,6 +1068,39 @@ std::vector<std::pair<Vec2i, Script*> > AdvDocument::getWMScripts(std::string ro
   return result;
 }
 
+bool AdvDocument::parseFontData(const std::string& name, FontData& data){
+  TiXmlDocument doc;
+  if (!doc.LoadFile(name.c_str()))
+    return false;
+  TiXmlNode* font = doc.FirstChild();
+  TiXmlElement* elem = font->ToElement();
+  data.fontsize.x = atoi(elem->Attribute("width"));
+  data.fontsize.y = atoi(elem->Attribute("height"));
+  for (TiXmlNode* child = font->FirstChild(); child != NULL; child = child->NextSibling()){
+    TiXmlElement* elem = child->ToElement();
+    const char* value = elem->Attribute("ascii");
+    if (!value)
+      value = elem->Attribute("ucode");
+    unsigned charidx = atoi(value) - 0x20;
+    if (data.glyphmap.size() <= charidx)
+      data.glyphmap.resize(charidx + 1);
+    FontData::Glyph gl;
+    gl.x = atoi(elem->Attribute("x"));
+    gl.y = atoi(elem->Attribute("y"));
+    gl.yoffset = atoi(elem->Attribute("top"));
+    gl.xoffset = atoi(elem->Attribute("leading"));
+    gl.w = atoi(elem->Attribute("width"));
+    gl.h = atoi(elem->Attribute("height"));
+    gl.advwidth = gl.w+atoi(elem->Attribute("trailing"));
+    data.glyphmap[charidx] = gl;
+  }
+  if (data.glyphmap.empty())
+    return false;
+  if (data.glyphmap[0].advwidth == 0)
+    data.glyphmap[0].advwidth = data.fontsize.x/3;
+  return true;
+}
+
 FontData AdvDocument::getFont(int num){
   std::ostringstream number;
   //if (num < 100)
@@ -1079,6 +1113,15 @@ FontData AdvDocument::getFont(int num){
   CGE::ZipReader* zrdr = NULL;
   CGE::MemReader in;
   if (num == 0){
+    if (hasUnifiedFonts()){
+      FontData ret;
+      ret.images.resize(1);
+      ret.images[0] = CGE::ImageLoader::load((mPath + "/font.png").c_str());
+      ret.numChars.x = 1000000;//just one texture, so always return first
+      ret.numChars.y = 1000000;
+      parseFontData(mPath+"/font.xml", ret);
+      return ret;
+    }
     zrdr = new CGE::ZipReader(mPath + "/font.dat");
     in = zrdr->openEntry("fontdata.sta");
   }
@@ -1100,9 +1143,23 @@ FontData AdvDocument::getFont(int num){
   str = in.readLine(); val = atoi(str.c_str()); fnt.fontsize.y = val;
   str = in.readLine(); val = atoi(str.c_str()); fnt.numChars.x = val;
   str = in.readLine(); val = atoi(str.c_str()); fnt.numChars.y = val;
-  fnt.charwidths.reserve(224);
+  fnt.glyphmap.reserve(224);
+  unsigned charnum = 0;
   while (in.isWorking()){
-    str = in.readLine(); val = atoi(str.c_str()); fnt.charwidths.push_back(val);
+    FontData::Glyph glyph;
+    unsigned posInTex = charnum % (fnt.numChars.x*fnt.numChars.y);
+    unsigned rownum = posInTex / fnt.numChars.x;
+    unsigned colnum = charnum % fnt.numChars.x;
+    glyph.x = colnum*fnt.fontsize.x;
+    glyph.y = rownum*fnt.fontsize.y;
+    glyph.w = fnt.fontsize.x;
+    glyph.h = fnt.fontsize.y;
+    glyph.xoffset = 0;
+    glyph.yoffset = 0;
+    ++charnum;
+    str = in.readLine(); val = atoi(str.c_str());
+    glyph.advwidth = val;
+    fnt.glyphmap.push_back(glyph);
   }
   for (unsigned i = 0; i < (mFontsPNG ? fnt.images.size() : fnt.images.size() / 2); ++i){
     number.str("");
