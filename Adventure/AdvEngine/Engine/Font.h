@@ -61,7 +61,7 @@ protected:
     Vec2i mTexSize;
     Vec2f mScale;
     std::vector<GLuint> mImages;
-    std::vector<unsigned> mCharwidths;
+    std::vector<FontData::Glyph> mGlyphMap;
     std::list<String*> mRenderQueue;
     int mFading;
   };

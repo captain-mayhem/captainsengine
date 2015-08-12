@@ -304,7 +304,7 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
       text = "";
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID(), breakinfo);
     str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*text.length());
+      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*(unsigned)text.length());
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr, false);
     if (str)
@@ -452,7 +452,7 @@ int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string objname = ctx.stack().pop().getString();
   //remove whitespaces in object names
-  for(int size = objname.size()-1; size >= 0; --size){
+  for(int size = (int)objname.size()-1; size >= 0; --size){
     if (objname[size] == ' ')
       objname.erase(size, 1);
   }
@@ -973,7 +973,7 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
       text = "";
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
   str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, fontid, breakinfo, Engine::instance()->getInterpreter()->getOfftextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*text.length());
+    DEPTH_GAME_FONT, fontid, breakinfo, Engine::instance()->getInterpreter()->getOfftextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*(unsigned)text.length());
   if (str && plyr)
     plyr->setSpokenString(str);
   if (hold){
@@ -1628,7 +1628,7 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string name = ctx.stack().pop().getString();
   //remove whitespaces in object names
-  for(int size = name.size()-1; size >= 0; --size){
+  for(int size = (int)name.size()-1; size >= 0; --size){
     if (name[size] == ' ')
       name.erase(size, 1);
   }
@@ -2713,7 +2713,7 @@ int ScriptFunctions::setObjLight(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   std::string objname = ctx.stack().pop().getString();
   //remove whitespaces in object names
-  for(int size = objname.size()-1; size >= 0; --size){
+  for(int size = (int)objname.size()-1; size >= 0; --size){
     if (objname[size] == ' ')
       objname.erase(size, 1);
   }
