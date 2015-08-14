@@ -47,10 +47,10 @@ Texture* Texture::create(const std::string& filename){
 //! get the name
 std::string Texture::getName() const{
 #ifdef WIN32
-  int n = filename_.find_last_of("\\");
+  size_t n = filename_.find_last_of("\\");
 #endif
 #ifdef UNIX
-  int n = filename_.find_last_of("/");
+  size_t n = filename_.find_last_of("/");
 #endif
   return filename_.substr(n+1);
 }

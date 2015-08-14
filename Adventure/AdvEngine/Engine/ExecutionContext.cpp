@@ -116,6 +116,8 @@ void ExecutionContext::setEvent(EngineEvent evt){
   if (mEvents.size() > 20)
     TR_WARN("Event %i added even though %i events remained unhandled", evt, mEvents.size());
   //if (!mSuspended)
+  if (mEvents.empty())
+    mEvents.push_back(EVT_NONE); //insert dummy event so that the new event is not popped to early when added while script was somewhere
   mEvents.push_back(evt);
 }
 

@@ -72,7 +72,7 @@ void MessageBox::setMessage(const string& text){
     }
     //concatenate word to current line
     line += word + " ";
-    chars += word.size()+1;
+    chars += (unsigned)word.size()+1;
   }
   msg_.push_back(line);
 }

@@ -36,6 +36,7 @@ public:
   String removeAll(char ch) const;
   String toLower() const;
   bool ieqauls(const String& other);
+  void trim();
 
   static const unsigned npos = 4294967295U;
 protected:

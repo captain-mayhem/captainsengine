@@ -31,6 +31,7 @@ public:
   void realize();
   void trace(int level, const char* function, const char* message);
   bool isEnabled(int level);
+  unsigned getChannel() { return mChannel; }
 protected:
   const char* mName;
   int mLevel;
@@ -69,6 +70,7 @@ protected:
 #define TR_USE(name) CGE::TraceObject tracescopeobject(&name);
 #define TR_TRACE(level, message, ...) do {if (tracescopeobject.isEnabled(level)) tracescopeobject.trace(level, __FUNCTION__, message, ##__VA_ARGS__);} while(0)
 #define TR_IS_ENABLED(level) tracescopeobject.isEnabled(level)
+#define TR_GET_ID(name) name.getChannel()
 
 #define TR_BREAK(message, ...) TR_TRACE(TRACE_FATAL_ERROR, message, ##__VA_ARGS__)
 #define TR_ERROR(message, ...) TR_TRACE(TRACE_ERROR, message, ##__VA_ARGS__)

@@ -10,6 +10,7 @@
 #include "Engine.h"
 #include <system/allocation.h>
 #include <system/file.h>
+#include "Console.h"
 
 const float FPS_MAX = 50.0f;
 const int STATES_MAX = 10;
@@ -51,6 +52,11 @@ bool AdvDocument::loadDocument(const std::string filename){
   if (!loadFile1(rdr, ver_major, ver_minor)){
     CGE::Engine::instance()->messageBox("Failed loading project file", "Error");
     return false;
+  }
+
+  {
+    TR_USE(ADV_Console);
+    TR_INFO("Game.dat opened... File version: %i.%i.", ver_major, ver_minor);
   }
 
   if (mFilename.substr(mFilename.size() - 4) == ".dat")
@@ -1091,7 +1097,7 @@ bool AdvDocument::parseFontData(const std::string& name, FontData& data){
     gl.xoffset = atoi(elem->Attribute("leading"));
     gl.w = atoi(elem->Attribute("width"));
     gl.h = atoi(elem->Attribute("height"));
-    gl.advwidth = gl.w+atoi(elem->Attribute("trailing"));
+    gl.advwidth = gl.w+gl.xoffset+atoi(elem->Attribute("trailing"));
     data.glyphmap[charidx] = gl;
   }
   if (data.glyphmap.empty())

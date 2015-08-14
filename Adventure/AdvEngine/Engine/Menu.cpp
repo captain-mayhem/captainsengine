@@ -5,7 +5,6 @@ using namespace adv;
 
 #define MENU_WIDTH 246
 #define MENU_HEIGHT 240
-#define DEPTH_MENU 10000
 
 Menu::Menu(int font) : RoomObject(1, 
       Vec2i(Engine::instance()->getSettings()->resolution.x/2-MENU_WIDTH/2, Engine::instance()->getSettings()->resolution.y/2-MENU_HEIGHT/2), 

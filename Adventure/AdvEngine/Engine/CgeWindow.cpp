@@ -177,6 +177,7 @@ void mouse_release(int x, int y, int button){
 }
 
 void double_click(int x, int y, int button){
+  mouse_click(x, y, button); //also emit a single click when double click occurs
   Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
   Engine::instance()->doubleClick(pos);
 }

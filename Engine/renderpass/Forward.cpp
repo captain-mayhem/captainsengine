@@ -22,7 +22,7 @@ void ForwardRenderer::render(Mesh::DrawPart part){
   Renderer* rend = Engine::instance()->getRenderer();
   rend->enableLighting(true);
   std::vector<Light*> lights = mScene->getLights();
-  unsigned numLights = lights.size();
+  unsigned numLights = (unsigned)lights.size();
   if (numLights > 8){
     numLights = 8;
     if (mScene->getActiveCam()){
