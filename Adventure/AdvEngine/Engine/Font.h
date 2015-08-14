@@ -54,6 +54,7 @@ protected:
     void removeText(CharacterObject* chr, bool immediately);
     void removeText(String* str);
     int getFading() {return mFading;}
+    int getLineHeight() { return mFontsize.y; }
   protected:
     void buildBlitObject();
     Vec2i mFontsize;

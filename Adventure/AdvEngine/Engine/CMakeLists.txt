@@ -194,6 +194,8 @@ SET(AppBuilder_SRCS
   BlitObjects.h
   CIL.cpp
   CIL.h
+  Console.cpp
+  Console.h
   Engine.cpp
   Engine.h
   EngineObjects.cpp

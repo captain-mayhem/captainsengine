@@ -9,14 +9,16 @@ using namespace CGE;
 TraceManager* TraceManager::mManager;
 Mutex TraceManager::mMuStat;
 
-TraceManager::TraceManager() : mChannelCount(0), mPutty(NULL){
+TraceManager::TraceManager() : mChannelCount(0){
 }
 
 TraceManager::~TraceManager(){
   mTraceBuffer.clear();
   mTraceLevels.clear();
-  delete mPutty;
-  mPutty = NULL;
+  for (std::list<TraceOutputter*>::iterator iter = mPutty.begin(); iter != mPutty.end(); ++iter){
+    delete *iter;
+  }
+  mPutty.clear();
 }
 
 unsigned TraceManager::registerChannel(const char* name, int level){
@@ -40,24 +42,35 @@ int TraceManager::getCurrentLevel(unsigned channel){
 
 void TraceManager::trace(unsigned channel, int level, const char* function, const char* message){
   mMutex.lock();
-  if (mPutty)
-    mPutty->trace(channel, level, function, message);
-  else{
-    Message msg;
-    msg.channel = channel;
-    msg.level = level;
-    msg.function = function;
-    msg.message = message;
-    mTraceBuffer.push_back(msg);
+  if (!mPutty.empty()){
+    for (std::list<TraceOutputter*>::iterator iter = mPutty.begin(); iter != mPutty.end(); ++iter){
+      (*iter)->trace(channel, level, function, message);
+    }
   }
+  Message msg;
+  msg.channel = channel;
+  msg.level = level;
+  msg.function = function;
+  msg.message = message;
+  mTraceBuffer.push_back(msg);
+  if (mTraceBuffer.size() > 1000)
+    mTraceBuffer.pop_front();
   mMutex.unlock();
 }
 
 void TraceManager::setTraceOutputter(TraceOutputter* putty){
   putty->init();
-  mPutty = putty;
+  mPutty.push_back(putty);
   for (std::list<Message>::iterator iter = mTraceBuffer.begin(); iter != mTraceBuffer.end(); ++iter){
-    mPutty->trace(iter->channel, iter->level, iter->function.c_str(), iter->message.c_str());
+    putty->trace(iter->channel, iter->level, iter->function.c_str(), iter->message.c_str());
   }
-  mTraceBuffer.clear();
+}
+
+void TraceManager::removeTraceOutputter(TraceOutputter* putty){
+  for (std::list<TraceOutputter*>::iterator iter = mPutty.begin(); iter != mPutty.end(); ++iter){
+    if (*iter == putty){
+      mPutty.erase(iter);
+      break;
+    }
+  }
 }

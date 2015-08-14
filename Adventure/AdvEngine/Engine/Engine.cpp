@@ -17,6 +17,7 @@
 #include "Menu.h"
 #include "ItemObject.h"
 #include "GuiRoom.h"
+#include "Console.h"
 #include <system/allocation.h>
 
 using namespace adv;
@@ -66,6 +67,7 @@ Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitReques
     mKeysDown[i] = false;
     mKeysPressed[i] = false;
   }
+  mConsole = NULL;
 #ifndef ENGINE_SINGLE_THREADED
   mLoader.start();
 #endif
@@ -123,6 +125,8 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   mFontID = 1;
   mFonts->loadFont(0);
   mFonts->loadFont(mFontID);
+  mConsole = new Console();
+  mConsole->realize();
   mActiveCommand = 0;
   mPrevActiveCommand = 0;
   mCurrentObject = NULL;
@@ -213,14 +217,17 @@ void Engine::exitGame(){
   mInterpreter->stop();
   mMainScript->unref();
   mAnimator->clear();
-  delete mUnloadedRoom;
+  if (mUnloadedRoom != mConsole)
+    delete mUnloadedRoom;
   for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
     mRooms.remove(*iter);
-    delete *iter;
+    if (*iter != mConsole)
+      delete *iter;
   }
   mRoomsToUnload.clear();
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
-    delete *iter;
+    if (*iter != mConsole)
+      delete *iter;
   }
   mRooms.clear();
   clearGui();
@@ -242,6 +249,7 @@ void Engine::exitGame(){
   delete mDraggingObject;
   mDraggingObject = NULL;
   delete mUI;
+  delete mConsole;
 }
 
 CGE::Image* Engine::getImage(const std::string& name){
@@ -251,6 +259,9 @@ CGE::Image* Engine::getImage(const std::string& name){
     //get special images
     if (name == "#menu_bg"){
       return Menu::getBackground();
+    }
+    else if (name == "#console_bg"){
+      return Console::getBackground();
     }
     return NULL;
   }
@@ -380,12 +391,13 @@ void Engine::render(unsigned time){
       mRoomsToUnload.front()->save(NULL);
     else
       mSaver->allowWrites();
-    if (mUnloadedRoom)
+    if (mUnloadedRoom && mUnloadedRoom != mConsole)
       delete mUnloadedRoom;
     if (mForceNotToRenderUnloadingRoom){
       mUnloadedRoom = NULL;
       mForceNotToRenderUnloadingRoom = false;
-      delete mRoomsToUnload.front();
+      if (mRoomsToUnload.front() != mConsole)
+        delete mRoomsToUnload.front();
     }
     else
       mUnloadedRoom = mRoomsToUnload.front();
@@ -1425,6 +1437,10 @@ void Engine::keyPress(int key){
           }
           ctx->setSkip();
         }
+        else if (mConsole->isShown()){
+          mConsole->show(false);
+          unloadRoom(mConsole, false, false, NULL);
+        }
         else if (!mTextEnter.empty()){
           mInterpreter->resumeBlockingScript();
           mTextEnter.clear();
@@ -1465,12 +1481,18 @@ void Engine::keyPress(int key){
       }
       break;
     case KEY_RETURN:
-      if (!mTextEnter.empty()){
-        mInterpreter->resumeBlockingScript();
-        mTextEnter.clear();
-        mSuspender->resume();
-        mFonts->getTextout(-1)->setEnabled(false);
+      finishTextInput(true);
+      break;
+    case KEY_CIRCUMFLEX:
+      if (!mConsole->isShown()){
+        mRooms.push_front(mConsole);
+        mConsole->show(true);
       }
+      else{
+        mConsole->show(false);
+        unloadRoom(mConsole, false, false, NULL);
+      }
+      break;
   }
 }
 
@@ -1480,12 +1502,28 @@ void Engine::keyRelease(int key){
 }
 
 void Engine::keyAscii(char chr){
+  if (chr == '^') //remove this special character (open console)
+    return;
   if (mTextEnter.empty())
     return;
   String text = mInterpreter->getVariable(mTextEnter).getString();
   if (text.size() < mNumCharactersEnter)
     text += chr;
   mInterpreter->setVariable(mTextEnter, text);
+}
+
+void Engine::finishTextInput(bool commit){
+  if (!mTextEnter.empty()){
+    if (mConsole->isShown() && commit){
+      StackData val = mInterpreter->getVariable("!consoleInput");
+      mInterpreter->setVariable("!consoleInput", "");
+      Engine::instance()->getConsole()->input(val.getString().c_str());
+    }
+    mInterpreter->resumeBlockingScript();
+    mTextEnter.clear();
+    mSuspender->resume();
+    mFonts->getTextout(-1)->setEnabled(false);
+  }
 }
 
 int Engine::unloadRooms(){

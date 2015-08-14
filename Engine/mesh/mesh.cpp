@@ -257,7 +257,7 @@ bool Mesh::loadOBJ(std::string filename){
           mtlfile.resize(mtlfile.size()-1);
         string path = Filesystem::getPathComponent(filename);
         mtlfile = Filesystem::combinePath(path, mtlfile);
-        unsigned from = mMaterials.size();
+        unsigned from = (unsigned)mMaterials.size();
         if (!Material::loadFromMTL(mtlfile, mMaterials, mTextures))
           TR_ERROR("mtlfile %s not found", mtlfile.c_str());
         for (unsigned i = from; i < mMaterials.size(); ++i){
@@ -271,8 +271,8 @@ bool Mesh::loadOBJ(std::string filename){
 		  if (memcmp(line, "usemtl", 6) == 0){
 			  std::string mtl(line + 7);
         mtl.resize(mtl.size()-1);
-			  addSubMesh(subMeshStart, triangles_.size()-subMeshStart, materialIdx);
-        subMeshStart = triangles_.size();
+			  addSubMesh(subMeshStart, (int)triangles_.size()-subMeshStart, materialIdx);
+        subMeshStart = (int)triangles_.size();
         materialIdx = materialMap[mtl];
 		  }
       else
@@ -288,7 +288,7 @@ bool Mesh::loadOBJ(std::string filename){
       break;
     }
   }
-  addSubMesh(subMeshStart, triangles_.size() - subMeshStart, materialIdx);
+  addSubMesh(subMeshStart, (int)triangles_.size() - subMeshStart, materialIdx);
   fclose(file);
   return true;
 }
@@ -405,7 +405,7 @@ void Mesh::buildVBO(){
   int vidx = 0;
   int numVertices = 0;
   
-  unsigned offset = idata.size();
+  unsigned offset = (unsigned)idata.size();
   int idxcount = 0;
   int matid = mSubmeshes[0].material;
 
@@ -413,7 +413,7 @@ void Mesh::buildVBO(){
     SubMesh& sm = mSubmeshes[mc];
     if (sm.material != matid){
       mDrawList.push_back(SubMesh(offset, idxcount, matid, mMaterials[matid]));
-      offset = idata.size();
+      offset = (unsigned)idata.size();
       matid = sm.material;
       idxcount = 0;
     }
@@ -523,7 +523,7 @@ void Mesh::buildVBO(){
 */
   //delete [] vertices;
   //delete [] indices;
-  mIB = CGE::Engine::instance()->getRenderer()->createIndexBuffer(IndexBuffer::IB_UINT, idata.size());
+  mIB = CGE::Engine::instance()->getRenderer()->createIndexBuffer(IndexBuffer::IB_UINT, (uint32)idata.size());
   void* data = mIB->lockIndexPointer();
   memcpy(data, idata.data(), idata.size()*sizeof(int));
   mIB->unlockIndexPointer();

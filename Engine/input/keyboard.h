@@ -33,6 +33,7 @@
 #define KEY_0 '0'
 #define KEY_1 '1'
 #define KEY_2 '2'
+#define KEY_CIRCUMFLEX VK_OEM_5
 #endif
 #ifdef LINUX
 #include <X11/keysym.h>
@@ -63,6 +64,7 @@
 #define KEY_0 XK_0
 #define KEY_1 XK_1
 #define KEY_2 XK_2
+#define KEY_CIRCUMFLEX XK_asciicircum
 #endif
 #ifdef QNX
 #define KEY_ESCAPE 0
@@ -80,6 +82,7 @@
 #define KEY_ALT 12
 #define KEY_SPACE 13
 #define KEY_DELETE 14
+#define KEY_CIRCUMFLEX 15
 #endif
 
 #include "../system/engine.h"

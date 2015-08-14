@@ -36,12 +36,13 @@ public:
   void setCurrentLevel(unsigned channel, int level);
   int getCurrentLevel(unsigned channel);
   void setTraceOutputter(TraceOutputter* putty);
+  void removeTraceOutputter(TraceOutputter* putty);
 protected:
   TraceManager();
   static TraceManager* mManager;
   static Mutex mMuStat;
   unsigned mChannelCount;
-  TraceOutputter* mPutty;
+  std::list<TraceOutputter*> mPutty;
   std::list<Message> mTraceBuffer;
   std::map<unsigned, int> mTraceLevels;
   Mutex mMutex;

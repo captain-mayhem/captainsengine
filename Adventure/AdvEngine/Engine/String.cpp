@@ -39,6 +39,22 @@ bool String::ieqauls(const String& other){
   return _stricmp(c_str(), other.c_str()) == 0;
 }
 
+void String::trim(){
+  if (mStr.empty())
+    return;
+  size_t end;
+  for (end = mStr.size() - 1; end > 0; --end){
+    if (!isspace(mStr[end]))
+      break;
+  }
+  size_t begin;
+  for (begin = 0; begin <= end; ++begin){
+    if (!isspace(mStr[begin]))
+      break;
+  }
+  mStr = mStr.substr(begin, end - begin + 1);
+}
+
 namespace adv{
 
 std::ostream& operator<<(std::ostream& strm, const String& str){

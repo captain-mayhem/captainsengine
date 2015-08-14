@@ -23,6 +23,7 @@ class ParticleEngine;
 class PostProcessor;
 class ItemObject;
 class GuiRoom;
+class Console;
 
 typedef void (*exit_callback)();
 typedef void (*set_mouse_callback)(int x, int y);
@@ -137,6 +138,8 @@ public:
   void disposeCharacter(CharacterObject* character);
   CharacterObject* getCachedCharacter(const String& name) {std::map<String,CharacterObject*>::iterator iter = mCharCache.find(name.toLower()); if (iter == mCharCache.end()) return NULL; return iter->second;}
   void clearCharCache();
+  Console* getConsole() { return mConsole; }
+  void finishTextInput(bool commit);
 protected:
   Engine();
   static Engine* mInstance;
@@ -241,6 +244,7 @@ protected:
   int mBlockingSpeakerCount;
   std::map<String, CharacterObject*> mCharCache;
   std::list<CharacterObject*> mCharsToUnload;
+  Console* mConsole;
 };
 
 }

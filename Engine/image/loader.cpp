@@ -56,7 +56,7 @@ Image* ImageLoader::load(void* memory, unsigned size, Type t){
 
 ImageLoader::Type ImageLoader::determineType(const std::string& filename){
   TR_USE(CGE_Imageloader);
-  int pos = filename.find_last_of('.');
+  size_t pos = filename.find_last_of('.');
   std::string ext = filename.substr(pos+1);
   ext = toLower(ext);
   if (ext == "jpg" || ext == "jpeg")
