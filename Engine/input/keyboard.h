@@ -66,7 +66,7 @@
 #define KEY_0 XK_0
 #define KEY_1 XK_1
 #define KEY_2 XK_2
-#define KEY_CIRCUMFLEX XK_asciicircum
+#define KEY_CIRCUMFLEX XK_dead_circumflex
 #define KEY_PAGEUP XK_Page_Up
 #define KEY_PAGEDOWN XK_Page_Down
 #endif
