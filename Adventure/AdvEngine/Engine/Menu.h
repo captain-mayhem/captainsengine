@@ -11,6 +11,7 @@ public:
   static CGE::Image* getBackground();
 protected:
   void addButton(const char* text, int id);
+  static unsigned mLineHeight;
 };
 
 }
