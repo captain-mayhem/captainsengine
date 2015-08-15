@@ -33,6 +33,8 @@ public:
   //operator std::string() {return mStr;}
   operator const std::string&() const {return mStr;}
 
+  const char& back() { return mStr[mStr.size() - 1]; }
+
   String removeAll(char ch) const;
   String toLower() const;
   bool ieqauls(const String& other);

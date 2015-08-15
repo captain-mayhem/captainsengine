@@ -120,6 +120,21 @@ bool AdvDocument::loadDocument(const std::string filename){
     mSettings.noPngToJpeg = false;
   }
 
+  {
+    TR_USE(ADV_Console);
+    TR_INFO("All game data read:");
+    TR_INFO("%4i rooms", mRooms.size());
+    TR_INFO("%4i characters", mCharacters.size());
+    TR_INFO("%4i items", mItems.size());
+    TR_INFO("%4i objects", mObjects.size());
+    int scriptcount = 0;
+    for (std::map<std::pair<Script::Type, std::string>, Script>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
+      if (iter->first.first == Script::CUTSCENE)
+        ++scriptcount;
+    }
+    TR_INFO("%4i scripts", scriptcount);
+  }
+
   if (mSettings.savedir.empty())
     mSettings.savedir = mPath + "/../saves";
   else{

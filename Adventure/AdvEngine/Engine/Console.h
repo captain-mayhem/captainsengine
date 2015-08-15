@@ -18,12 +18,19 @@ public:
   void input(const char* str);
   void output(const char* str);
   void print(const char* fmt, ...);
+  void historyUp();
+  void historyDown();
+  void scrollUp();
+  void scrollDown();
   static CGE::Image* getBackground();
   void render();
   virtual int getDepth();
 protected:
   bool mActive;
-  std::list<std::string> mOutput;
+  std::deque<std::string> mOutput;
+  std::deque<std::string> mInput;
+  int mHistoryPos;
+  int mScrollPos;
 };
 
 }

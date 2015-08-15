@@ -9,7 +9,7 @@ TR_CHANNEL(ADV_Console);
 Console::Console() : RoomObject(1,
   Vec2i(0, 0),
   Vec2i(Engine::instance()->getSettings()->resolution.x, Engine::instance()->getSettings()->resolution.y/3), "!console", Vec2i(), false),
-  mActive(false){
+  mActive(false), mHistoryPos(-1), mScrollPos(0){
   int font = 0;
   Color bgorig(Engine::instance()->getSettings()->backgroundcolor);
   Color bg(Engine::instance()->getSettings()->backgroundcolor);
@@ -90,10 +90,11 @@ void Console::render(){
   FontRenderer* fren = Engine::instance()->getFontRenderer();
   int lineHeight = Engine::instance()->getFontRenderer()->getFont(0)->getLineHeight();
   int ystart = Engine::instance()->getSettings()->resolution.y / 3 - 3*2 - 2*lineHeight;
-  for (std::list<std::string>::iterator iter = mOutput.begin(); iter != mOutput.end(); ++iter){
+  for (size_t i = mScrollPos; i < mOutput.size(); ++i){
     std::vector<Vec2i> brinfo;
-    fren->getTextExtent(*iter, 0, brinfo, Engine::instance()->getResolution().x - 5);
-    fren->render(5, ystart, *iter, DEPTH_CONSOLE + 1, 0, brinfo, Color()/*Color(175, 191, 207, 255)*/, 0U, false);
+    std::string text = mOutput[i];
+    fren->getTextExtent(text, 0, brinfo, Engine::instance()->getResolution().x - 5);
+    fren->render(5, ystart, text, DEPTH_CONSOLE + 1, 0, brinfo, Color()/*Color(175, 191, 207, 255)*/, 0U, false);
     ystart -= lineHeight;
     if (ystart < -lineHeight) //no more lines visible
       break;
@@ -105,6 +106,7 @@ void Console::show(bool doit){
   if (doit){
     mScript->cancelFinish();
     mScript->setEvent(EVT_ENTER);
+    mScrollPos = 0;
   }
   else{
     Engine::instance()->finishTextInput(false);
@@ -121,19 +123,60 @@ void Console::print(const char* fmt, ...){
 }
 
 void Console::input(const char* str){
+  mHistoryPos = -1;
+  mScrollPos = 0;
   String msg(str);
   msg.trim();
   if (!msg.empty()){
+    mInput.push_front(msg);
+    if (mInput.size() > 100)
+      mInput.pop_back();
     output(msg.c_str());
+    if (msg.back() != ')') //append call for convenience
+      msg += "()";
+    ExecutionContext* script = Engine::instance()->getInterpreter()->parseProgram(msg);
+    if (script){
+      Engine::instance()->getInterpreter()->execute(script, true);
+    }
   }
 }
 
 void Console::output(const char* str){
   mOutput.push_front(str);
-  if (mOutput.size() > 50)
+  if (mOutput.size() > 200)
     mOutput.pop_back();
 }
 
 int Console::getDepth(){
   return DEPTH_CONSOLE;
+}
+
+void Console::historyUp(){
+  if (mHistoryPos < (int)mInput.size()-1)
+    ++mHistoryPos;
+  if (mHistoryPos >= 0){
+    std::string val = mInput[mHistoryPos];
+    Engine::instance()->getInterpreter()->setVariable("!consoleInput", String(val));
+  }
+}
+
+void Console::historyDown(){
+  if (mHistoryPos > -1)
+    --mHistoryPos;
+  std::string val;
+  if (mHistoryPos >= 0)
+    val = mInput[mHistoryPos];
+  Engine::instance()->getInterpreter()->setVariable("!consoleInput", String(val));
+}
+
+void Console::scrollUp(){
+  if (mScrollPos + 2 < mOutput.size())
+    mScrollPos += 2;
+}
+
+void Console::scrollDown(){
+  if (mScrollPos > 2)
+    mScrollPos -= 2;
+  else
+    mScrollPos = 0;
 }
