@@ -122,9 +122,19 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
     mCursor->addAnimation(anim, (*cursor)[j].command-1);
   }
   //load fonts
+  int fontcount = 0;
   mFontID = 1;
-  mFonts->loadFont(0);
-  mFonts->loadFont(mFontID);
+  if (mFonts->loadFont(0))
+    ++fontcount;
+  if (mFonts->loadFont(mFontID))
+    ++fontcount;
+  {
+    TR_USE(ADV_Console);
+    if (fontcount < 2)
+      TR_INFO("Failed to load initial fonts, %i loaded.", fontcount);
+    else
+      TR_INFO("Initial game fonts loaded (%i).", fontcount);
+  }
   mConsole = new Console();
   mConsole->realize();
   mActiveCommand = 0;
@@ -194,9 +204,12 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   //load and execute start script
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
+    TR_USE(ADV_Console);
+    TR_INFO("Starting first cutscene...");
     ExecutionContext* initScript = mInterpreter->parseProgram(startScript->text);
     mInterpreter->cutsceneMode(true);
     mInterpreter->executeCutscene(initScript, false);
+    TR_INFO("------------------");
   }
   mUI = new GuiRoom();
   TR_INFO("Game initialized successfully");
@@ -705,9 +718,8 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
 }
 
 void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading){
-  TR_USE(ADV_Engine);
-
   if (mMainRoomLoaded && !isSubRoom){
+    TR_USE(ADV_Engine);
     TR_INFO("delay activation of room %s", roomobj->getName().c_str());
     unloadRoom(mRooms.back(), true, false, loadreason);
     if (mPendingLoadRoom.reason != NULL){
@@ -723,6 +735,9 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
     loadreason->resume();
 
   roomobj->realize();
+  TR_USE(ADV_Console);
+  TR_INFO("Room \"%s\" loaded.", roomobj->getName().c_str());
+
   if (isSubRoom){
     mRooms.push_front(roomobj);
     if (mInitialized)
@@ -1491,6 +1506,26 @@ void Engine::keyPress(int key){
       else{
         mConsole->show(false);
         unloadRoom(mConsole, false, false, NULL);
+      }
+      break;
+    case KEY_UP:
+      if (mConsole->isShown()){
+        mConsole->historyUp();
+      }
+      break;
+    case KEY_DOWN:
+      if (mConsole->isShown()){
+        mConsole->historyDown();
+      }
+      break;
+    case KEY_PAGEUP:
+      if (mConsole->isShown()){
+        mConsole->scrollUp();
+      }
+      break;
+    case KEY_PAGEDOWN:
+      if (mConsole->isShown()){
+        mConsole->scrollDown();
       }
       break;
   }

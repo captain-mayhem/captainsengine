@@ -34,6 +34,8 @@
 #define KEY_1 '1'
 #define KEY_2 '2'
 #define KEY_CIRCUMFLEX VK_OEM_5
+#define KEY_PAGEUP VK_PRIOR
+#define KEY_PAGEDOWN VK_NEXT
 #endif
 #ifdef LINUX
 #include <X11/keysym.h>
@@ -65,6 +67,8 @@
 #define KEY_1 XK_1
 #define KEY_2 XK_2
 #define KEY_CIRCUMFLEX XK_asciicircum
+#define KEY_PAGEUP XK_Page_Up
+#define KEY_PAGEDOWN XK_Page_Down
 #endif
 #ifdef QNX
 #define KEY_ESCAPE 0
@@ -83,6 +87,8 @@
 #define KEY_SPACE 13
 #define KEY_DELETE 14
 #define KEY_CIRCUMFLEX 15
+#define KEY_PAGEUP 16
+#define KEY_PAGEDOWN 17
 #endif
 
 #include "../system/engine.h"

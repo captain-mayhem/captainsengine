@@ -240,7 +240,7 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   NodeList* p = pcdkAST.nodes;
   if (parser->pParser->rec->state->errorCount > 0){
     TR_USE(ADV_Script)
-    CGE::Engine::instance()->messageBox("Error parsing script", "Error");
+    //CGE::Engine::instance()->messageBox("Error parsing script", "Error");
     TR_ERROR("Error parsing script %s", program.c_str());
 #undef free
     parser->free(parser);
