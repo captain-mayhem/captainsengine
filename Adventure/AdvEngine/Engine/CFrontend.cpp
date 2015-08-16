@@ -198,6 +198,12 @@ int translateKey(SDL_keysym& sym){
       return KEY_F1;
     case SDLK_F2:
       return KEY_F2;
+    case SDLK_BACKQUOTE:
+      return KEY_CIRCUMFLEX;
+    case SDLK_PAGEUP:
+      return KEY_PAGEUP;
+    case SDLK_PAGEDOWN:
+      return KEY_PAGEDOWN;
     default:
       return sym.unicode;
   }

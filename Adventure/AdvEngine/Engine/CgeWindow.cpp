@@ -239,6 +239,7 @@ void engineMain(int argc, char** argv){
   Input::Keyboard::instance()->setKeyDownCB(key_press);
   Input::Keyboard::instance()->setKeyUpCB(key_release);
   Input::Keyboard::instance()->setAsciiCB(key_ascii);
+  Input::Keyboard::instance()->enableBuitInConsole(false);
   Input::Mouse::instance()->setButtonDownCB(mouse_click);
   Input::Mouse::instance()->setButtonUpCB(mouse_release);
   Input::Mouse::instance()->setMouseMoveCB(mouse_move);

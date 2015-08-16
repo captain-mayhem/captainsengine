@@ -214,7 +214,7 @@ namespace StoryDesigner
             this.coin_fading.Value = mData.Settings.CoinFading;
             //TODO crosshair
             //sixth page
-            this.noPngToJpeg.Checked = mData.Settings.NoPngToJpeg;
+            this.pngToJpeg.Checked = mData.Settings.PngToJpeg;
             this.cropTransparent.Checked = mData.Persistence.CropTransparentImages;
         }
 
@@ -339,7 +339,7 @@ namespace StoryDesigner
             mData.Settings.CoinFading = (int)this.coin_fading.Value;
             //TODO crosshair
             //sixth page
-            mData.Settings.NoPngToJpeg = this.noPngToJpeg.Checked;
+            mData.Settings.PngToJpeg = this.pngToJpeg.Checked;
             mData.Persistence.CropTransparentImages = this.cropTransparent.Checked;
         }
 

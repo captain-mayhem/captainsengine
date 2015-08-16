@@ -124,6 +124,7 @@ namespace StoryDesigner
             packData(datadir, mData.Music, "music.dat");
             packData(datadir, mData.Videos, "movie.dat");
             writeRuntime(dir, name);
+            writeSplashscreen(datadir);
         }
 
         public void writeProjectFile(string path)
@@ -150,7 +151,7 @@ namespace StoryDesigner
 
             ZipEntry ze1 = new ZipEntry(entry+".001");
             zs.PutNextEntry(ze1);
-            writeSettings(zs, writeDat && !mData.Settings.NoPngToJpeg);
+            writeSettings(zs, writeDat && mData.Settings.PngToJpeg);
             zs.CloseEntry();
 
             ZipEntry ze2 = new ZipEntry(entry+".002");
@@ -809,7 +810,7 @@ namespace StoryDesigner
                 Bitmap bmp = (Bitmap)Bitmap.FromFile(entry.Value);
                 string name = Path.GetFileName(entry.Value);
                 ImageFormat fmt = bmp.RawFormat;
-                if (!mData.Settings.NoPngToJpeg && fmt.Equals(ImageFormat.Png))
+                if (mData.Settings.PngToJpeg && fmt.Equals(ImageFormat.Png))
                 {
                     //special handling for pngs
                     Bitmap rgb = new Bitmap(bmp.Width, bmp.Height);
@@ -1005,7 +1006,7 @@ namespace StoryDesigner
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
             swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
-            swr.Write(mData.Settings.NoPngToJpeg ? -1 : 0);
+            swr.Write(mData.Settings.PngToJpeg ? -1 : 0);
             swr.WriteLine("");
             swr.Flush();
         }
@@ -1013,6 +1014,19 @@ namespace StoryDesigner
         public string ZipPassword
         {
             get { return mZipPwd; }
+        }
+
+        void writeSplashscreen(string destpath)
+        {
+            string loading = mData.Settings.LoadingImage;
+            if (loading.Length == 0)
+                return;
+            string path;
+            if (!mData.Images.TryGetValue(loading, out path))
+                return;
+            string ext = Path.GetExtension(path);
+            string dest = Path.Combine(destpath, "loading" + ext);
+            File.Copy(path, dest, true);
         }
 
         protected AdvData mData;

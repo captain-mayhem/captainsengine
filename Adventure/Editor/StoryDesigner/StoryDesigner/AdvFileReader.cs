@@ -1111,7 +1111,7 @@ namespace StoryDesigner
                 return false;
             str = rdr.ReadLine();
             str = rdr.ReadLine();
-            mAdv.Settings.NoPngToJpeg = str == "-1";
+            mAdv.Settings.PngToJpeg = str == "-1";
             return true;
         }
 
