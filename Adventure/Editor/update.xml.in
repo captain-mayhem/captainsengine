@@ -5,7 +5,7 @@
 		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/Updates/StoryDesigner.exe</url>
 		<fileName>StoryDesigner.exe</fileName>
 		<md5>@STORY_DESIGNER_MD5@</md5>
-		<description>Update to .NET 4.0</description>
+		<description>Fixed several major bugs</description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="engine1.dat">
@@ -13,7 +13,7 @@
 		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/Updates/engine1.dat</url>
 		<fileName>engine1.dat</fileName>
 		<md5>@ENGINE_MD5@</md5>
-		<description>Performance improvements and small bugixes</description>
+		<description>a lot of improvements, added debug console</description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="engine2.dat">
@@ -21,7 +21,7 @@
 		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/Updates/engine2.dat</url>
 		<fileName>engine2.dat</fileName>
 		<md5>@DEP_LIB_MD5@</md5>
-		<description>Update to latest OpenAL</description>
+		<description>Reduced size of binaries</description>
 		<launchArgs></launchArgs>
 	</update>
 </StoryDesignerUpdate>

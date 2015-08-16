@@ -8,8 +8,8 @@ SET(STORY_DESIGNER_VERSION "${STORY_DESIGNER_VERSION}.0")
 SET(ENGINE_VERSION "1.0.3.0")
 SET(DEP_LIB_VERSION "1.0.3.0")
 
-SET(ENGINE_FILE "${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine1.dat")
-SET(DEP_LIB_FILE "${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine2.dat")
+SET(ENGINE_FILE "${CMAKE_CURRENT_BINARY_DIR}/../AdvEngine/Engine/engine1.dat")
+SET(DEP_LIB_FILE "${CMAKE_CURRENT_BINARY_DIR}/../AdvEngine/Engine/engine2.dat")
 
 configure_file(configure_update.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/configure_update.cmake @ONLY)
 
@@ -27,8 +27,8 @@ add_custom_target(configure_update ALL
   
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/update.xml DESTINATION StoryDesignerUpdate)
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine1.ver ${ENGINE_VERSION})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine1.ver DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/../AdvEngine/Engine/engine1.ver ${ENGINE_VERSION})
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/../AdvEngine/Engine/engine1.ver DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine2.ver ${DEP_LIB_VERSION})
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/../AppBuilder/Appbuilder/engine2.ver DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
+file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/../AdvEngine/Engine/engine2.ver ${DEP_LIB_VERSION})
+INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/../AdvEngine/Engine/engine2.ver DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
