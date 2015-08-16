@@ -110,7 +110,7 @@ namespace StoryDesigner
         public bool UseMouseWheel;
         public ArrayList Fonts;
 
-        public bool NoPngToJpeg;
+        public bool PngToJpeg;
     }
 
     public interface IStateFrameData{
@@ -1067,7 +1067,7 @@ namespace StoryDesigner
             Settings.UseMouseWheel = false;
             Settings.Fonts = new ArrayList();
 
-            Settings.NoPngToJpeg = true;
+            Settings.PngToJpeg = false;
 
             mImages = new Dictionary<string, string>();
             mSounds = new Dictionary<string, string>();
@@ -1099,7 +1099,7 @@ namespace StoryDesigner
             setLanguage(persist.LCID);
             mCursor = new Cursor(this);
             mReader = reader;
-            Settings.NoPngToJpeg = false;
+            Settings.PngToJpeg = false;
         }
 
         public System.Drawing.Bitmap getImage(string name)

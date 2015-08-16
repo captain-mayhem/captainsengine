@@ -152,7 +152,7 @@ namespace StoryDesigner
             this.coin_interface = new System.Windows.Forms.CheckBox();
             this.tabPage6 = new System.Windows.Forms.TabPage();
             this.cropTransparent = new System.Windows.Forms.CheckBox();
-            this.noPngToJpeg = new System.Windows.Forms.CheckBox();
+            this.pngToJpeg = new System.Windows.Forms.CheckBox();
             this.OK = new System.Windows.Forms.Button();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -185,19 +185,18 @@ namespace StoryDesigner
             // 
             // tabControl1
             // 
-            resources.ApplyResources(this.tabControl1, "tabControl1");
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
             this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Controls.Add(this.tabPage4);
             this.tabControl1.Controls.Add(this.tabPage5);
             this.tabControl1.Controls.Add(this.tabPage6);
+            resources.ApplyResources(this.tabControl1, "tabControl1");
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
             // 
             // tabPage1
             // 
-            resources.ApplyResources(this.tabPage1, "tabPage1");
             this.tabPage1.Controls.Add(this.protectGamefiles);
             this.tabPage1.Controls.Add(this.createBackups);
             this.tabPage1.Controls.Add(this.fitImages);
@@ -211,6 +210,7 @@ namespace StoryDesigner
             this.tabPage1.Controls.Add(this.text_on);
             this.tabPage1.Controls.Add(this.panel2);
             this.tabPage1.Controls.Add(this.panel1);
+            resources.ApplyResources(this.tabPage1, "tabPage1");
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
@@ -290,7 +290,6 @@ namespace StoryDesigner
             // 
             // panel2
             // 
-            resources.ApplyResources(this.panel2, "panel2");
             this.panel2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel2.Controls.Add(this.groupBox4);
             this.panel2.Controls.Add(this.symbol);
@@ -301,13 +300,14 @@ namespace StoryDesigner
             this.panel2.Controls.Add(this.label3);
             this.panel2.Controls.Add(this.projetName);
             this.panel2.Controls.Add(this.label2);
+            resources.ApplyResources(this.panel2, "panel2");
             this.panel2.Name = "panel2";
             // 
             // groupBox4
             // 
-            resources.ApplyResources(this.groupBox4, "groupBox4");
             this.groupBox4.Controls.Add(this.aspect_ratio2);
             this.groupBox4.Controls.Add(this.aspect_ratio);
+            resources.ApplyResources(this.groupBox4, "groupBox4");
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.TabStop = false;
             // 
@@ -328,8 +328,8 @@ namespace StoryDesigner
             // 
             // symbol
             // 
-            resources.ApplyResources(this.symbol, "symbol");
             this.symbol.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            resources.ApplyResources(this.symbol, "symbol");
             this.symbol.Name = "symbol";
             this.symbol.TabStop = false;
             this.symbol.Click += new System.EventHandler(this.pictureBox1_Click);
@@ -353,7 +353,6 @@ namespace StoryDesigner
             // 
             // resolution
             // 
-            resources.ApplyResources(this.resolution, "resolution");
             this.resolution.FormattingEnabled = true;
             this.resolution.Items.AddRange(new object[] {
             resources.GetString("resolution.Items"),
@@ -362,6 +361,7 @@ namespace StoryDesigner
             resources.GetString("resolution.Items3"),
             resources.GetString("resolution.Items4"),
             resources.GetString("resolution.Items5")});
+            resources.ApplyResources(this.resolution, "resolution");
             this.resolution.Name = "resolution";
             // 
             // label3
@@ -381,12 +381,12 @@ namespace StoryDesigner
             // 
             // panel1
             // 
-            resources.ApplyResources(this.panel1, "panel1");
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel1.Controls.Add(this.settingsPicture);
             this.panel1.Controls.Add(this.label28);
             this.panel1.Controls.Add(this.loadingImage);
             this.panel1.Controls.Add(this.label1);
+            resources.ApplyResources(this.panel1, "panel1");
             this.panel1.Name = "panel1";
             // 
             // settingsPicture
@@ -411,7 +411,6 @@ namespace StoryDesigner
             // 
             // tabPage2
             // 
-            resources.ApplyResources(this.tabPage2, "tabPage2");
             this.tabPage2.Controls.Add(this.anywhere_transparency);
             this.tabPage2.Controls.Add(this.label12);
             this.tabPage2.Controls.Add(this.anywhere_room);
@@ -420,6 +419,7 @@ namespace StoryDesigner
             this.tabPage2.Controls.Add(this.taskbar_panel);
             this.tabPage2.Controls.Add(this.taskbar);
             this.tabPage2.Controls.Add(this.panel3);
+            resources.ApplyResources(this.tabPage2, "tabPage2");
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.UseVisualStyleBackColor = true;
             // 
@@ -445,10 +445,10 @@ namespace StoryDesigner
             // 
             // tsstylebox
             // 
-            resources.ApplyResources(this.tsstylebox, "tsstylebox");
             this.tsstylebox.Controls.Add(this.ts_scrolling);
             this.tsstylebox.Controls.Add(this.ts_popup);
             this.tsstylebox.Controls.Add(this.ts_always);
+            resources.ApplyResources(this.tsstylebox, "tsstylebox");
             this.tsstylebox.Name = "tsstylebox";
             this.tsstylebox.TabStop = false;
             // 
@@ -475,7 +475,6 @@ namespace StoryDesigner
             // 
             // taskbar_panel
             // 
-            resources.ApplyResources(this.taskbar_panel, "taskbar_panel");
             this.taskbar_panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.taskbar_panel.Controls.Add(this.ts_appears_top);
             this.taskbar_panel.Controls.Add(this.ts_appear_bottom);
@@ -485,6 +484,7 @@ namespace StoryDesigner
             this.taskbar_panel.Controls.Add(this.label9);
             this.taskbar_panel.Controls.Add(this.taskBarHeight);
             this.taskbar_panel.Controls.Add(this.label8);
+            resources.ApplyResources(this.taskbar_panel, "taskbar_panel");
             this.taskbar_panel.Name = "taskbar_panel";
             // 
             // ts_appears_top
@@ -546,18 +546,17 @@ namespace StoryDesigner
             // 
             // panel3
             // 
-            resources.ApplyResources(this.panel3, "panel3");
             this.panel3.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.panel3.Controls.Add(this.screenchange);
             this.panel3.Controls.Add(this.main_script);
             this.panel3.Controls.Add(this.label7);
             this.panel3.Controls.Add(this.start_script);
             this.panel3.Controls.Add(this.label6);
+            resources.ApplyResources(this.panel3, "panel3");
             this.panel3.Name = "panel3";
             // 
             // screenchange
             // 
-            resources.ApplyResources(this.screenchange, "screenchange");
             this.screenchange.Controls.Add(this.sc_blend_slow);
             this.screenchange.Controls.Add(this.sc_blend);
             this.screenchange.Controls.Add(this.sc_clock);
@@ -566,6 +565,7 @@ namespace StoryDesigner
             this.screenchange.Controls.Add(this.sc_rectangle);
             this.screenchange.Controls.Add(this.sc_blackfade);
             this.screenchange.Controls.Add(this.sc_direct);
+            resources.ApplyResources(this.screenchange, "screenchange");
             this.screenchange.Name = "screenchange";
             this.screenchange.TabStop = false;
             // 
@@ -647,7 +647,6 @@ namespace StoryDesigner
             // 
             // tabPage3
             // 
-            resources.ApplyResources(this.tabPage3, "tabPage3");
             this.tabPage3.Controls.Add(this.fading_indicator);
             this.tabPage3.Controls.Add(this.menu_fading);
             this.tabPage3.Controls.Add(this.label17);
@@ -658,6 +657,7 @@ namespace StoryDesigner
             this.tabPage3.Controls.Add(this.transparent_color);
             this.tabPage3.Controls.Add(this.label18);
             this.tabPage3.Controls.Add(this.offspeech_color);
+            resources.ApplyResources(this.tabPage3, "tabPage3");
             this.tabPage3.Name = "tabPage3";
             this.tabPage3.UseVisualStyleBackColor = true;
             // 
@@ -684,7 +684,6 @@ namespace StoryDesigner
             // 
             // groupBox2
             // 
-            resources.ApplyResources(this.groupBox2, "groupBox2");
             this.groupBox2.Controls.Add(this.label16);
             this.groupBox2.Controls.Add(this.customMenu);
             this.groupBox2.Controls.Add(this.useCustomMenu);
@@ -694,6 +693,7 @@ namespace StoryDesigner
             this.groupBox2.Controls.Add(this.label15);
             this.groupBox2.Controls.Add(this.label14);
             this.groupBox2.Controls.Add(this.label13);
+            resources.ApplyResources(this.groupBox2, "groupBox2");
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.TabStop = false;
             // 
@@ -716,24 +716,24 @@ namespace StoryDesigner
             // 
             // text_color
             // 
-            resources.ApplyResources(this.text_color, "text_color");
             this.text_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.text_color, "text_color");
             this.text_color.Name = "text_color";
             this.text_color.UseVisualStyleBackColor = false;
             this.text_color.Click += new System.EventHandler(this.button2_Click);
             // 
             // background_color
             // 
-            resources.ApplyResources(this.background_color, "background_color");
             this.background_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.background_color, "background_color");
             this.background_color.Name = "background_color";
             this.background_color.UseVisualStyleBackColor = false;
             this.background_color.Click += new System.EventHandler(this.button1_Click);
             // 
             // border_color
             // 
-            resources.ApplyResources(this.border_color, "border_color");
             this.border_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.border_color, "border_color");
             this.border_color.Name = "border_color";
             this.border_color.UseVisualStyleBackColor = false;
             this.border_color.Click += new System.EventHandler(this.border_color_Click);
@@ -760,8 +760,8 @@ namespace StoryDesigner
             // 
             // infotext_color
             // 
-            resources.ApplyResources(this.infotext_color, "infotext_color");
             this.infotext_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.infotext_color, "infotext_color");
             this.infotext_color.Name = "infotext_color";
             this.infotext_color.UseVisualStyleBackColor = false;
             this.infotext_color.Click += new System.EventHandler(this.border_color_Click);
@@ -773,8 +773,8 @@ namespace StoryDesigner
             // 
             // transparent_color
             // 
-            resources.ApplyResources(this.transparent_color, "transparent_color");
             this.transparent_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.transparent_color, "transparent_color");
             this.transparent_color.Name = "transparent_color";
             this.transparent_color.UseVisualStyleBackColor = false;
             this.transparent_color.Click += new System.EventHandler(this.border_color_Click);
@@ -786,15 +786,14 @@ namespace StoryDesigner
             // 
             // offspeech_color
             // 
-            resources.ApplyResources(this.offspeech_color, "offspeech_color");
             this.offspeech_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.offspeech_color, "offspeech_color");
             this.offspeech_color.Name = "offspeech_color";
             this.offspeech_color.UseVisualStyleBackColor = false;
             this.offspeech_color.Click += new System.EventHandler(this.border_color_Click);
             // 
             // tabPage4
             // 
-            resources.ApplyResources(this.tabPage4, "tabPage4");
             this.tabPage4.Controls.Add(this.ts_background_image);
             this.tabPage4.Controls.Add(this.use_background_image);
             this.tabPage4.Controls.Add(this.groupBox3);
@@ -811,6 +810,7 @@ namespace StoryDesigner
             this.tabPage4.Controls.Add(this.label22);
             this.tabPage4.Controls.Add(this.groupBox1);
             this.tabPage4.Controls.Add(this.ts_stylegroup);
+            resources.ApplyResources(this.tabPage4, "tabPage4");
             this.tabPage4.Name = "tabPage4";
             this.tabPage4.UseVisualStyleBackColor = true;
             // 
@@ -828,9 +828,9 @@ namespace StoryDesigner
             // 
             // groupBox3
             // 
-            resources.ApplyResources(this.groupBox3, "groupBox3");
             this.groupBox3.Controls.Add(this.ts_symbol);
             this.groupBox3.Controls.Add(this.ts_text);
+            resources.ApplyResources(this.groupBox3, "groupBox3");
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.TabStop = false;
             // 
@@ -850,32 +850,32 @@ namespace StoryDesigner
             // 
             // ts_text_color
             // 
-            resources.ApplyResources(this.ts_text_color, "ts_text_color");
             this.ts_text_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.ts_text_color, "ts_text_color");
             this.ts_text_color.Name = "ts_text_color";
             this.ts_text_color.UseVisualStyleBackColor = false;
             this.ts_text_color.Click += new System.EventHandler(this.ts_text_color_Click);
             // 
             // ts_border_color
             // 
-            resources.ApplyResources(this.ts_border_color, "ts_border_color");
             this.ts_border_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.ts_border_color, "ts_border_color");
             this.ts_border_color.Name = "ts_border_color";
             this.ts_border_color.UseVisualStyleBackColor = false;
             this.ts_border_color.Click += new System.EventHandler(this.ts_border_color_Click);
             // 
             // ts_selection_color
             // 
-            resources.ApplyResources(this.ts_selection_color, "ts_selection_color");
             this.ts_selection_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.ts_selection_color, "ts_selection_color");
             this.ts_selection_color.Name = "ts_selection_color";
             this.ts_selection_color.UseVisualStyleBackColor = false;
             this.ts_selection_color.Click += new System.EventHandler(this.ts_selection_color_Click);
             // 
             // ts_area_color
             // 
-            resources.ApplyResources(this.ts_area_color, "ts_area_color");
             this.ts_area_color.BackColor = System.Drawing.Color.Lime;
+            resources.ApplyResources(this.ts_area_color, "ts_area_color");
             this.ts_area_color.Name = "ts_area_color";
             this.ts_area_color.UseVisualStyleBackColor = false;
             this.ts_area_color.Click += new System.EventHandler(this.ts_area_color_Click);
@@ -923,11 +923,11 @@ namespace StoryDesigner
             // 
             // groupBox1
             // 
-            resources.ApplyResources(this.groupBox1, "groupBox1");
             this.groupBox1.Controls.Add(this.ts_border_none);
             this.groupBox1.Controls.Add(this.ts_box);
             this.groupBox1.Controls.Add(this.ts_lines);
             this.groupBox1.Controls.Add(this.ts_rectangles);
+            resources.ApplyResources(this.groupBox1, "groupBox1");
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.TabStop = false;
             // 
@@ -961,11 +961,11 @@ namespace StoryDesigner
             // 
             // ts_stylegroup
             // 
-            resources.ApplyResources(this.ts_stylegroup, "ts_stylegroup");
             this.ts_stylegroup.Controls.Add(this.ts_none);
             this.ts_stylegroup.Controls.Add(this.ts_additive);
             this.ts_stylegroup.Controls.Add(this.ts_transparent);
             this.ts_stylegroup.Controls.Add(this.ts_solid);
+            resources.ApplyResources(this.ts_stylegroup, "ts_stylegroup");
             this.ts_stylegroup.Name = "ts_stylegroup";
             this.ts_stylegroup.TabStop = false;
             // 
@@ -999,15 +999,14 @@ namespace StoryDesigner
             // 
             // tabPage5
             // 
-            resources.ApplyResources(this.tabPage5, "tabPage5");
             this.tabPage5.Controls.Add(this.coin_interface_panel);
             this.tabPage5.Controls.Add(this.coin_interface);
+            resources.ApplyResources(this.tabPage5, "tabPage5");
             this.tabPage5.Name = "tabPage5";
             this.tabPage5.UseVisualStyleBackColor = true;
             // 
             // coin_interface_panel
             // 
-            resources.ApplyResources(this.coin_interface_panel, "coin_interface_panel");
             this.coin_interface_panel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.coin_interface_panel.Controls.Add(this.coin_fading_indicator);
             this.coin_interface_panel.Controls.Add(this.coin_fading);
@@ -1017,6 +1016,7 @@ namespace StoryDesigner
             this.coin_interface_panel.Controls.Add(this.coin_autopopup);
             this.coin_interface_panel.Controls.Add(this.coin_room);
             this.coin_interface_panel.Controls.Add(this.label26);
+            resources.ApplyResources(this.coin_interface_panel, "coin_interface_panel");
             this.coin_interface_panel.Name = "coin_interface_panel";
             // 
             // coin_fading_indicator
@@ -1047,8 +1047,8 @@ namespace StoryDesigner
             // 
             // pictureBox1
             // 
-            resources.ApplyResources(this.pictureBox1, "pictureBox1");
             this.pictureBox1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            resources.ApplyResources(this.pictureBox1, "pictureBox1");
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.TabStop = false;
             // 
@@ -1077,9 +1077,9 @@ namespace StoryDesigner
             // 
             // tabPage6
             // 
-            resources.ApplyResources(this.tabPage6, "tabPage6");
             this.tabPage6.Controls.Add(this.cropTransparent);
-            this.tabPage6.Controls.Add(this.noPngToJpeg);
+            this.tabPage6.Controls.Add(this.pngToJpeg);
+            resources.ApplyResources(this.tabPage6, "tabPage6");
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.UseVisualStyleBackColor = true;
             // 
@@ -1089,11 +1089,11 @@ namespace StoryDesigner
             this.cropTransparent.Name = "cropTransparent";
             this.cropTransparent.UseVisualStyleBackColor = true;
             // 
-            // noPngToJpeg
+            // pngToJpeg
             // 
-            resources.ApplyResources(this.noPngToJpeg, "noPngToJpeg");
-            this.noPngToJpeg.Name = "noPngToJpeg";
-            this.noPngToJpeg.UseVisualStyleBackColor = true;
+            resources.ApplyResources(this.pngToJpeg, "pngToJpeg");
+            this.pngToJpeg.Name = "pngToJpeg";
+            this.pngToJpeg.UseVisualStyleBackColor = true;
             // 
             // OK
             // 
@@ -1279,7 +1279,7 @@ namespace StoryDesigner
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.TabPage tabPage6;
-        private System.Windows.Forms.CheckBox noPngToJpeg;
+        private System.Windows.Forms.CheckBox pngToJpeg;
         private System.Windows.Forms.CheckBox cropTransparent;
         private System.Windows.Forms.GroupBox groupBox4;
         private System.Windows.Forms.RadioButton aspect_ratio2;

@@ -18,6 +18,15 @@ Console::Console() : RoomObject(1,
   Color text(Engine::instance()->getSettings()->textcolor);
   setBackground("#console_bg", DEPTH_CONSOLE);
 
+  Vec2i crop(Engine::instance()->getSettings()->resolution.x, 3);
+  Object2D* border = new Object2D(1, Vec2i(), Vec2i(Engine::instance()->getSettings()->resolution.x, Engine::instance()->getSettings()->resolution.y / 3), "#consoleBorder");
+  border->setDepth(DEPTH_CONSOLE+DEPTH_LIGHTING);
+  SimpleFrames sf;
+  sf.push_back("#console_bg");
+  Animation* anim = new Animation(sf, 20.0f, Vec2i(), DEPTH_CONSOLE + DEPTH_LIGHTING, crop);
+  border->addAnimation(anim);
+  addObject(border);
+
   CGE::TraceManager::instance()->setTraceOutputter(this);
   char tmp[512];
 
@@ -170,7 +179,7 @@ void Console::historyDown(){
 }
 
 void Console::scrollUp(){
-  if (mScrollPos + 2 < mOutput.size())
+  if (mScrollPos + 2 < (int)mOutput.size())
     mScrollPos += 2;
 }
 

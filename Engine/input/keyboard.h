@@ -112,6 +112,7 @@ public:
   void keyUp(int key);
   void ascii(unsigned char key);
   void processPressedKeys(float diffTime);
+  void enableBuitInConsole(bool doit) { mBuiltInConsole = doit; }
 protected:
   static Keyboard* key_;
   Keyboard();
@@ -125,6 +126,8 @@ protected:
   void (*keyPressedCB_)(int key, float diffTime);
   //! the key state
   std::list<int> pressedKeys_;
+  //! enable built-in console
+  bool mBuiltInConsole;
 };
 
 }

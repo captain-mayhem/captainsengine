@@ -10,7 +10,7 @@ using namespace Input;
 
 Keyboard* Keyboard::key_ = NULL;
 
-Keyboard::Keyboard(){
+Keyboard::Keyboard() : mBuiltInConsole(true){
   keyDownCB_ = NULL;
   keyUpCB_ = NULL;
   asciiCB_ = NULL;
@@ -94,7 +94,7 @@ void Keyboard::ascii(unsigned char key){
     return;
   }
   //open console
-  if (key == '~'){
+  if (mBuiltInConsole && key == '~'){
     CGE::Engine::instance()->getConsole()->toggle();
     CGE::Engine::instance()->setActiveInput(CGE::Engine::instance()->getConsole()->GetInputField());
   }
