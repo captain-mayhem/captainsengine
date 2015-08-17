@@ -27,6 +27,7 @@ public:
   bool isFloat() const {return mType == F;}
   bool isString() const {return mType == S;}
   bool isNumber() const {return mType == I || mType == F;}
+  bool isBool() const { return mType == B; }
 protected:
   enum Type{
     S, I, B, F, EC
