@@ -66,7 +66,6 @@ static int packFiles(lua_State* L){
         writer.addEntry(name, reader);
         lua_pop(L, 1);
       }
-      lua_pop(L, 1);
     }
     else
       luaL_argerror(L, i + 2, "string or table expected");

@@ -4,6 +4,11 @@
 #include <time.h>
 #define _USE_MATH_DEFINES
 #include <math.h>
+extern "C"{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
 
 #include "Engine.h"
 #include "Script.h"
@@ -403,7 +408,10 @@ int ScriptFunctions::setBool(ExecutionContext& ctx, unsigned numArgs){
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   String boolname = ctx.stack().pop().getString();
   bool val = ctx.stack().pop().getBool();
-  Engine::instance()->getInterpreter()->mBooleans[boolname] = val;
+  lua_getglobal(ctx.mL, "bool");
+  lua_pushboolean(ctx.mL, val);
+  lua_setfield(ctx.mL, -2, boolname.c_str());
+  lua_pop(ctx.mL, 1);
   return 0;
 }
 
@@ -2968,7 +2976,10 @@ int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){
 int ScriptFunctions::isBoolEqual(ExecutionContext& ctx, unsigned numArgs){
   String boolname = ctx.stack().pop().getString();
   bool test = ctx.stack().pop().getBool();
-  bool saved = Engine::instance()->getInterpreter()->mBooleans[boolname];
+  lua_getglobal(ctx.mL, "bool");
+  lua_getfield(ctx.mL, -1, boolname.c_str());
+  bool saved = lua_toboolean(ctx.mL, -1) != 0;
+  lua_pop(ctx.mL, 2);
   ctx.stack().push(saved ? 1 : 0);
   ctx.stack().push(test ? 1 : 0);
   return 2;

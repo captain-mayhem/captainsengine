@@ -1,4 +1,9 @@
 #include "ExecutionContext.h"
+extern "C"{
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+}
 #include "Engine.h"
 #include <system/allocation.h>
 
@@ -63,10 +68,11 @@ ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, cons
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
 mSuspender(NULL), mShouldFinish(false){
-
+  mL = newThread();
 }
 
 ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
+  mL = newThread();
   mCode = new CodeSegment(*ctx.mCode);
   mIsGameObject = ctx.mIsGameObject;
   mObjectInfo = ctx.mObjectInfo;
@@ -89,6 +95,7 @@ ExecutionContext::ExecutionContext(std::istream& in) :
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), 
 mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false)
 {
+  mL = newThread();
   in >> mIsGameObject >> mObjectInfo;
   if (mObjectInfo == "none")
     mObjectInfo = "";
@@ -99,6 +106,9 @@ mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false)
 
 ExecutionContext::~ExecutionContext(){
   delete mCode;
+  lua_pushthread(mL);
+  lua_pushnil(mL);
+  lua_settable(mL, LUA_REGISTRYINDEX);
 }
 
 void ExecutionContext::setEvent(EngineEvent evt){
@@ -237,4 +247,12 @@ CharacterObject* ExecutionContext::getCharacter(const String& name){
   if (realname.empty())
     return NULL;
   return Engine::instance()->getCharacter(realname);
+}
+
+lua_State* ExecutionContext::newThread(){
+  lua_State* main = Engine::instance()->getInterpreter()->getLuaState();
+  lua_State* ret = lua_newthread(main);
+  lua_pushlightuserdata(main, this);
+  lua_settable(main, LUA_REGISTRYINDEX);
+  return ret;
 }

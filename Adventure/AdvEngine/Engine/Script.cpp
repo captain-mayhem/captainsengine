@@ -1,4 +1,9 @@
 #include "Script.h"
+extern "C"{
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
 
 #include <cassert>
 #include <string>
@@ -56,7 +61,6 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
 
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true) {
   ScriptFunctions::registerFunctions(this);
-  mBooleans = data->getProjectSettings()->booleans;
   mOfftextColor = data->getProjectSettings()->offspeechcolor;
   mCutScene = NULL;
   mTSLevel = 1;
@@ -88,10 +92,22 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
   mKeymap["esc"] = KEY_ESCAPE;
 
   mLanguage = "origin";
+  mL = luaL_newstate();
+
+  lua_newtable(mL);
+  lua_setglobal(mL, "var");
+
+  lua_newtable(mL);
+  for (std::map<String, bool>::iterator iter = data->getProjectSettings()->booleans.begin(); iter != data->getProjectSettings()->booleans.end(); ++iter){
+    lua_pushboolean(mL, iter->second);
+    lua_setfield(mL, -2, iter->first.c_str());
+  }
+  lua_setglobal(mL, "bool");
 }
 
 PcdkScript::~PcdkScript(){
   stop();
+  lua_close(mL);
 }
 
 void PcdkScript::stop(){
@@ -951,17 +967,41 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
 }
 
 std::ostream& PcdkScript::save(std::ostream& out){
-  out << mBooleans.size() << std::endl;
-  for (std::map<String,bool>::iterator iter = mBooleans.begin(); iter != mBooleans.end(); ++iter){
-    out << iter->first << " " << iter->second << std::endl;
+  lua_getglobal(mL, "bool");
+  int numVars = 0;
+  lua_pushnil(mL);
+  while (lua_next(mL, -2)){
+    ++numVars;
+    lua_pop(mL, 1);
   }
-  out << mVariables.size() << std::endl;
-  for (std::map<std::string,StackData>::iterator iter = mVariables.begin(); iter != mVariables.end(); ++iter){
-    std::string name = iter->first;
+  out << numVars << std::endl;
+  lua_pushnil(mL);
+  while (lua_next(mL, -2)){
+    String name = lua_tostring(mL, -2);
+    bool val = lua_toboolean(mL, -1) != 0;
+    out << name << " " << val << std::endl;
+    lua_pop(mL, 1);
+  }
+  lua_pop(mL, 1); //"bool"
+
+  lua_getglobal(mL, "var");
+  numVars = 0;
+  lua_pushnil(mL);
+  while (lua_next(mL, -2)){
+    ++numVars;
+    lua_pop(mL, 1);
+  }
+  out << numVars << std::endl;
+  lua_pushnil(mL);
+  while (lua_next(mL, -2)){
+    std::string name = luaL_checkstring(mL, -2);
     if (name.empty())
       name = "none";
-    out << name << " " << iter->second << std::endl;
+    StackData val = fromStack(mL, -1);
+    out << name << " " << val << std::endl;
+    lua_pop(mL, 1);
   }
+  lua_pop(mL, 1); //"var"
   out << mTSActive.size() << std::endl;
   for (std::map<std::string, std::map<int, std::map<int, bool> > >::iterator iter = mTSActive.begin(); iter != mTSActive.end(); ++iter){
     out << iter->second.size() << " " << iter->first << std::endl;
@@ -996,8 +1036,10 @@ std::ostream& PcdkScript::save(std::ostream& out){
 }
 
 std::istream& PcdkScript::load(std::istream& in){
-  mBooleans.clear();
-  mVariables.clear();
+  lua_newtable(mL);
+  lua_setglobal(mL, "bool");
+  lua_newtable(mL);
+  lua_setglobal(mL, "var");
   mTSActive.clear();
   for (std::vector<ObjectGroup*>::iterator iter = mGroups.begin(); iter != mGroups.end(); ++iter){
     delete *iter;
@@ -1008,16 +1050,22 @@ std::istream& PcdkScript::load(std::istream& in){
   std::string name;
   String name2;
   bool value;
+  lua_getglobal(mL, "bool");
   for (int i = 0; i < num1; ++i){
     in >> name2 >> value;
-    mBooleans[name2] = value;
+    lua_pushboolean(mL, value);
+    lua_setfield(mL, -2, name2.c_str());
   }
+  lua_pop(mL, 1);
   StackData data;
   in >> num1;
+  lua_getglobal(mL, "var");
   for (int i = 0; i < num1; ++i){
     in >> name >> data;
-    mVariables[name] = data;
+    pushStack(mL, data);
+    lua_setfield(mL, -2, name.c_str());
   }
+  lua_pop(mL, 1);
   in >> num1;
   int secondval, thirdval;
   for (int i = 0; i < num1; ++i){
@@ -1369,10 +1417,11 @@ StackData PcdkScript::getVariable(const String& name){
   else if (lname == "rightbracket"){
     return String(")");
   }
-  std::map<std::string, StackData>::iterator iter = mVariables.find(lname.removeAll(' '));
-  if (iter != mVariables.end())
-    return iter->second;
-  return 0;
+  lua_getglobal(mL, "var");
+  lua_getfield(mL, -1, lname.removeAll(' ').c_str());
+  StackData ret = fromStack(mL, -1);
+  lua_pop(mL, 2);
+  return ret;
 }
 
 void PcdkScript::setVariable(const String& name, const StackData& value){
@@ -1380,19 +1429,31 @@ void PcdkScript::setVariable(const String& name, const StackData& value){
   String lname = name.toLower();
   if (lname == "mousex"){
     Engine::instance()->setMousePosition(value.getInt(), Engine::instance()->getCursorPos().y);
+    return;
   }
   else if (lname == "mousey"){
     Engine::instance()->setMousePosition(Engine::instance()->getCursorPos().x, value.getInt());
+    return;
   }
-  mVariables[lname.removeAll(' ')] = value;
+  lua_getglobal(mL, "var");
+  pushStack(mL, value);
+  lua_setfield(mL, -2, lname.removeAll(' ').c_str());
+  lua_pop(mL, 1);
 }
 
 bool PcdkScript::isVariable(const String& name){
-  return mVariables.find(name.toLower().removeAll(' ')) != mVariables.end();
+  lua_getglobal(mL, "var");
+  lua_getfield(mL, -1, name.toLower().removeAll(' ').c_str());
+  bool ret = lua_isnil(mL, -1) == 0;
+  lua_pop(mL, 2);
+  return ret;
 }
 
 void PcdkScript::deleteVariable(const String& name){
-  mVariables.erase(name.toLower().removeAll(' '));
+  lua_getglobal(mL, "var");
+  lua_pushnil(mL);
+  lua_setfield(mL, -2, name.toLower().removeAll(' ').c_str());
+  lua_pop(mL, 1);
 }
 
 void PcdkScript::setPrevState(Object2D* trigger, Object2D* target){
@@ -1518,4 +1579,41 @@ int PcdkScript::getItemState(const String& name){
   }
   mMutex.unlock();
   return iter->second;
+}
+
+StackData PcdkScript::fromStack(lua_State* L, int idx){
+  int type = lua_type(L, idx);
+  if (type == LUA_TNUMBER){
+    double num = lua_tonumber(L, idx);
+    StackData ret;
+    if ((double)(int)num == num)
+      ret = StackData((int)num);
+    else
+      ret = StackData((float)num);
+    return ret;
+  }
+  else if (type == LUA_TSTRING){
+    const char* str = lua_tostring(L, idx);
+    StackData ret = StackData(String(str));
+    return ret;
+  }
+  else if (type == LUA_TBOOLEAN){
+    bool b = lua_toboolean(L, idx) != 0;
+    StackData ret = StackData(b);
+    return ret;
+  }
+  return StackData(0);
+}
+
+void PcdkScript::pushStack(lua_State* L, StackData const& value){
+  if (value.isInt())
+    lua_pushinteger(L, value.getInt());
+  else if (value.isFloat())
+    lua_pushnumber(L, value.getFloat());
+  else if (value.isString())
+    lua_pushstring(L, value.getString().c_str());
+  else if (value.isBool())
+    lua_pushboolean(L, value.getBool());
+  else
+    lua_pushnil(L);
 }

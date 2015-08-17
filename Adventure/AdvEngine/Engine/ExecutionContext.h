@@ -6,6 +6,8 @@
 #include <string>
 #include "ScriptDefs.h"
 
+typedef struct lua_State lua_State;
+
 namespace adv{
 
 class CCode;
@@ -131,6 +133,7 @@ public:
   String getGiveObjectName() {return mGiveLinkName;}
 protected:
   ~ExecutionContext();
+  lua_State* newThread();
   CodeSegment* mCode;
   bool mIsGameObject;
   std::string mObjectInfo;
@@ -150,6 +153,7 @@ protected:
   String mSelf;
   String mLinkName;
   String mGiveLinkName;
+  lua_State* mL;
 };
 
 }
