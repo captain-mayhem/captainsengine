@@ -186,10 +186,21 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   srand((unsigned)time(NULL));
 }
 
-int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+#define ARG_MAX 20
+
+#define NUM_ARGS(argmin, argmax) \
+lua_pushthread(L);\
+lua_gettable(L, LUA_REGISTRYINDEX);\
+ExecutionContext& ctx = *(ExecutionContext*)lua_touserdata(L, -1);\
+unsigned numArgs = ctx.stack().numArgs();\
+lua_pop(L, 1);\
+TR_USE(ADV_ScriptFunc);\
+if (numArgs < argmin || numArgs > argmax){\
+TR_BREAK("Unexpected number of arguments (%i)", numArgs);\
+}
+
+int ScriptFunctions::loadRoom(lua_State* L){
+  NUM_ARGS(1, 2);
   std::string room = ctx.stack().pop().getString();
   ScreenChange change = Engine::instance()->getScreenChange();
   if (numArgs == 2){
@@ -200,19 +211,15 @@ int ScriptFunctions::loadRoom(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setFocus(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setFocus(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string character = ctx.stack().pop().getString();
   Engine::instance()->setFocus(character, &ctx);
   return 0;
 }
 
-int ScriptFunctions::showInfo(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::showInfo(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string text = ctx.stack().pop().getString();
   bool show = ctx.stack().pop().getBool();
   if (show){
@@ -225,14 +232,12 @@ int ScriptFunctions::showInfo(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::walkTo(ExecutionContext& ctx, unsigned numArgs){
-  return moveTo(ctx, numArgs, 1.0f);
+int ScriptFunctions::walkTo(lua_State* L){
+  return moveTo(L, 1.0f);
 }
 
-int ScriptFunctions::moveTo(ExecutionContext& ctx, unsigned numArgs, float speedFactor){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 3 || numArgs > 5)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::moveTo(lua_State* L, float speedFactor){
+  NUM_ARGS(3, 5);
   std::string character = ctx.stack().pop().getString();
   Vec2i pos;
   pos.x = ctx.stack().pop().getInt()-1;
@@ -266,10 +271,8 @@ int ScriptFunctions::moveTo(ExecutionContext& ctx, unsigned numArgs, float speed
   return 0;
 }
 
-int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2 || numArgs > 4)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::speech(lua_State* L){
+  NUM_ARGS(2, 4);
   std::string character = ctx.stack().pop().getString();
   std::string text = ctx.stack().pop().getString();
   std::string sound = "";
@@ -334,10 +337,8 @@ int ScriptFunctions::speech(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::pickup(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::pickup(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string character = ctx.stack().pop().getString();
   if (ctx.mSkip)
     return 0;
@@ -354,10 +355,8 @@ int ScriptFunctions::pickup(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::playSound(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::playSound(lua_State* L){
+  NUM_ARGS(1, 2);
   std::string sound = ctx.stack().pop().getString();
   unsigned volume = 100;
   if (numArgs >= 2)
@@ -372,10 +371,8 @@ int ScriptFunctions::playSound(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setLight(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 4 || numArgs > 5)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setLight(lua_State* L){
+  NUM_ARGS(4, 5);
   std::string room = ctx.stack().pop().getString();
   Color c;
   c.r = (unsigned char)ctx.stack().pop().getInt();
@@ -402,16 +399,14 @@ int ScriptFunctions::setLight(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setBool(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setBool(lua_State* L){
+  NUM_ARGS(2, 2);
   String boolname = ctx.stack().pop().getString();
   bool val = ctx.stack().pop().getBool();
-  lua_getglobal(ctx.mL, "bool");
-  lua_pushboolean(ctx.mL, val);
-  lua_setfield(ctx.mL, -2, boolname.c_str());
-  lua_pop(ctx.mL, 1);
+  lua_getglobal(L, "bool");
+  lua_pushboolean(L, val);
+  lua_setfield(L, -2, boolname.c_str());
+  lua_pop(L, 1);
   return 0;
 }
 
@@ -454,10 +449,8 @@ void ScriptFunctions::setObjInternal(std::vector<std::string> objects, std::vect
   }
 }
 
-int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setObj(lua_State* L){
+  NUM_ARGS(2, ARG_MAX);
   std::string objname = ctx.stack().pop().getString();
   //remove whitespaces in object names
   for(int size = (int)objname.size()-1; size >= 0; --size){
@@ -482,10 +475,8 @@ int ScriptFunctions::setObj(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 3 || numArgs > 5)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::beamTo(lua_State* L){
+  NUM_ARGS(3, 5);
   String charname = ctx.stack().pop().getString();
   StackData arg = ctx.stack().top();
   std::string roomname;
@@ -562,10 +553,8 @@ int ScriptFunctions::beamTo(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2 || numArgs > 3)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::addItem(lua_State* L){
+  NUM_ARGS(2, 3);
   std::string charname = ctx.stack().pop().getString();
   std::string itemname = ctx.stack().pop().getString();
   if (itemname == "givelink")
@@ -612,10 +601,8 @@ int ScriptFunctions::addItem(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::cutScene(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::cutScene(lua_State* L){
+  NUM_ARGS(1, 2);
   std::string scriptname = ctx.stack().pop().getString();
   bool hideUI = true;
   if (numArgs > 1){
@@ -634,19 +621,15 @@ int ScriptFunctions::cutScene(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::taskbar(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::taskbar(lua_State* L){
+  NUM_ARGS(1, 1);
   bool state = ctx.stack().pop().getBool();
   Engine::instance()->showTaskbar(state);
   return 0;
 }
 
-int ScriptFunctions::follow(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2 || numArgs > 3)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::follow(lua_State* L){
+  NUM_ARGS(2, 3);
   std::string char1 = ctx.stack().pop().getString();
   std::string char2 = ctx.stack().pop().getString();
   bool hold = true;
@@ -676,10 +659,8 @@ int ScriptFunctions::follow(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs< 2 || numArgs > 3)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::lookTo(lua_State* L){
+  NUM_ARGS(2, 3);
   std::string character = ctx.stack().pop().getString();
   StackData d = ctx.stack().pop();
   if (numArgs >= 3){
@@ -713,10 +694,8 @@ int ScriptFunctions::lookTo(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::textScene(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 4)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::textScene(lua_State* L){
+  NUM_ARGS(1, 4);
   std::string scenename = ctx.stack().pop().getString();
   Vec2i pos(0,Engine::instance()->getResolution().y);
   int width = Engine::instance()->getResolution().x;
@@ -744,10 +723,8 @@ int ScriptFunctions::textScene(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2 || numArgs > 3)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::delItem(lua_State* L){
+  NUM_ARGS(2, 3);
   std::string charname = ctx.stack().pop().getString();
   std::string itemname = ctx.stack().pop().getString();
   if (itemname == "givelink"){
@@ -789,10 +766,8 @@ int ScriptFunctions::delItem(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::loopSound(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::loopSound(lua_State* L){
+  NUM_ARGS(1, 2);
   std::string sound = ctx.stack().pop().getString();
   int volume = 100;
   if (numArgs >= 2)
@@ -805,10 +780,8 @@ int ScriptFunctions::loopSound(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::loopStop(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::loopStop(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string sound = ctx.stack().pop().getString();
   SoundPlayer* sp = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_DEFAULT);
   if (sp)
@@ -816,10 +789,8 @@ int ScriptFunctions::loopStop(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 3)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::playMusic(lua_State* L){
+  NUM_ARGS(1, 3);
   std::string music = ctx.stack().pop().getString();
   std::string pattern;
   if (numArgs >= 2){
@@ -840,10 +811,8 @@ int ScriptFunctions::playMusic(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::stopMusic(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::stopMusic(lua_State* L){
+  NUM_ARGS(0, 0);
   SoundPlayer* sp = SoundEngine::instance()->getMusic("");
   if (sp){
     sp->fadeVolume(SoundEngine::instance()->getMusicVolume(), 0.0f, SoundEngine::instance()->getFadingTime());
@@ -851,10 +820,8 @@ int ScriptFunctions::stopMusic(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::wait(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::wait(lua_State* L){
+  NUM_ARGS(1, 1);
   float seconds = ctx.stack().pop().getFloat();
   if (ctx.mSkip)
     return 0;
@@ -863,10 +830,8 @@ int ScriptFunctions::wait(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::subRoom(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::subRoom(lua_State* L){
+  NUM_ARGS(1, 2);
   std::string roomname = ctx.stack().pop().getString();
   int fading_time = 0;
   if (numArgs >= 2){
@@ -878,36 +843,28 @@ int ScriptFunctions::subRoom(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::subRoomReturn(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::subRoomReturn(lua_State* L){
+  NUM_ARGS(0, 0);
   Engine::instance()->unloadRoom(NULL, false, false, &ctx);
   return 0;
 }
 
-int ScriptFunctions::subRoomReturnImmediate(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::subRoomReturnImmediate(lua_State* L){
+  NUM_ARGS(0, 0);
   Engine::instance()->unloadRoom(NULL, false, true, &ctx);
   return 0;
 }
 
-int ScriptFunctions::link(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::link(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string objectname = ctx.stack().pop().getString();
   Engine::instance()->setUseObject(objectname, ctx.mObjectInfo);
   PcdkScript::mRemoveLinkObject = false;
   return 0;
 }
 
-int ScriptFunctions::giveLink(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs > 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::giveLink(lua_State* L){
+  NUM_ARGS(0, 1);
   Object2D* obj = NULL;
   if (numArgs >= 1){
     std::string objectname = ctx.stack().pop().getString();
@@ -921,20 +878,16 @@ int ScriptFunctions::giveLink(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setNum(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setNum(lua_State* L){
+  NUM_ARGS(2, 2);
   String varname = ctx.stack().pop().getString();
   float val = ctx.stack().pop().getFloat();
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }
 
-int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 3 || numArgs > 5)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::offSpeech(lua_State* L){
+  NUM_ARGS(3, 5);
   Vec2i pos;
   float walkgridsize;
   RoomObject* room = Engine::instance()->getRoom("");
@@ -995,10 +948,8 @@ int ScriptFunctions::offSpeech(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::unloadRoom(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::unloadRoom(lua_State* L){
+  NUM_ARGS(0, 0);
   bool animate = !ctx.isSkipping();
   Engine::instance()->unloadRoom(NULL, true, false, &ctx);
   //make unloads smoother. triggerScreenchange, add finished callback to screenchanges, call ForceNot... in callback
@@ -1011,27 +962,21 @@ int ScriptFunctions::unloadRoom(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::restart(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::restart(lua_State* L){
+  NUM_ARGS(0, 0);
   Engine::instance()->reset();
   return 0;
 }
 
-int ScriptFunctions::gotoLevel(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::gotoLevel(lua_State* L){
+  NUM_ARGS(1, 1);
   int level = ctx.stack().pop().getInt();
   Engine::instance()->getInterpreter()->mNextTSLevel = level;
   return 0;
 }
 
-int ScriptFunctions::deactivate(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 3)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::deactivate(lua_State* L){
+  NUM_ARGS(3, 3);
   std::string scene = ctx.stack().pop().getString();
   int level = ctx.stack().pop().getInt();
   int row = ctx.stack().pop().getInt();
@@ -1041,20 +986,16 @@ int ScriptFunctions::deactivate(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::endScene(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::endScene(lua_State* L){
+  NUM_ARGS(0, 0);
   ctx.mExecuteOnce = true;
   Engine::instance()->enableTextScene(false);
   Engine::instance()->clearGui();
   return 0;
 }
 
-int ScriptFunctions::instObj(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::instObj(lua_State* L){
+  NUM_ARGS(2, ARG_MAX);
   std::string objname = ctx.stack().pop().getString();
   int state = ctx.stack().pop().getInt();
   for (unsigned i = 2; i < numArgs; ++i){
@@ -1073,10 +1014,8 @@ int ScriptFunctions::instObj(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::command(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs >= 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::command(lua_State* L){
+  NUM_ARGS(0, 1);
   std::string cmd;
   if (numArgs == 1)
     cmd = ctx.stack().pop().getString();
@@ -1091,10 +1030,8 @@ int ScriptFunctions::command(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::invDown(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::invDown(lua_State* L){
+  NUM_ARGS(1, 1);
   int move = ctx.stack().pop().getInt();
   RoomObject* room = Engine::instance()->getContainingRoom(ctx.mOwner);
   int maxit = 1000;
@@ -1105,10 +1042,8 @@ int ScriptFunctions::invDown(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::invUp(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::invUp(lua_State* L){
+  NUM_ARGS(1, 1);
   int move = ctx.stack().pop().getInt();
   RoomObject* room = Engine::instance()->getContainingRoom(ctx.mOwner);
   int maxit = 1000;
@@ -1119,10 +1054,8 @@ int ScriptFunctions::invUp(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setFont(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setFont(lua_State* L){
+  NUM_ARGS(1, 2);
   int fontid = ctx.stack().pop().getInt();
   if (!Engine::instance()->getFontRenderer()->loadFont(fontid))
     return 0;
@@ -1165,10 +1098,8 @@ ScreenChange ScriptFunctions::getScreenChange(const std::string& name){
   return screenchange;
 }
 
-int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setScreenchange(lua_State* L){
+  NUM_ARGS(1, 1);
   StackData data = ctx.stack().pop();
   ScreenChange screenchange = SC_DIRECT;
   if (data.getString().size() > 1){
@@ -1182,10 +1113,8 @@ int ScriptFunctions::setScreenchange(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::activate(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 3)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::activate(lua_State* L){
+  NUM_ARGS(3, 3);
   std::string scene = ctx.stack().pop().getString();
   int level = ctx.stack().pop().getInt();
   int row = ctx.stack().pop().getInt();
@@ -1195,28 +1124,22 @@ int ScriptFunctions::activate(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::saveGame(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::saveGame(lua_State* L){
+  NUM_ARGS(1, 1);
   int slot = ctx.stack().pop().getInt();
   Engine::instance()->getSaver()->save(SaveStateProvider::saveSlotToPath(slot));
   return 0;
 }
 
-int ScriptFunctions::loadGame(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::loadGame(lua_State* L){
+  NUM_ARGS(1, 1);
   int slot = ctx.stack().pop().getInt();
   Engine::instance()->getSaver()->load(SaveStateProvider::saveSlotToPath(slot));
   return 0;
 }
 
-int ScriptFunctions::jiggle(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::jiggle(lua_State* L){
+  NUM_ARGS(1, 2);
   float seconds = ctx.stack().pop().getFloat();
   int power = 10;
   if (numArgs >= 2)
@@ -1243,10 +1166,8 @@ int ScriptFunctions::jiggle(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::randomNum(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::randomNum(lua_State* L){
+  NUM_ARGS(2, 2);
   String name = ctx.stack().pop().getString();
   int limit = ctx.stack().pop().getInt();
   int rnd = rand()%limit;
@@ -1278,10 +1199,8 @@ int ScriptFunctions::getRequestedState(Character* cclass, const StackData& data)
   return state;
 }
 
-int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setChar(lua_State* L){
+  NUM_ARGS(2, ARG_MAX);
   std::string chrname = ctx.stack().pop().getString();
   StackData data = ctx.stack().pop();
   if (ctx.mSkip){
@@ -1319,20 +1238,16 @@ int ScriptFunctions::setChar(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setString(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setString(lua_State* L){
+  NUM_ARGS(2, 2);
   String varname = ctx.stack().pop().getString();
   String val = ctx.stack().pop().getString();
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }
 
-int ScriptFunctions::loadNum(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::loadNum(lua_State* L){
+  NUM_ARGS(1, 1);
   String varname = ctx.stack().pop().getString();
   int val = 0;
   std::string file = Engine::instance()->getSettings()->savedir+"/num.sav";
@@ -1351,10 +1266,8 @@ int ScriptFunctions::loadNum(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::saveNum(lua_State* L){
+  NUM_ARGS(1, 1);
   String varname = ctx.stack().pop().getString();
   int val = Engine::instance()->getInterpreter()->getVariable(varname).getInt();
   std::string file = Engine::instance()->getSettings()->savedir+"/num.sav";
@@ -1384,28 +1297,22 @@ int ScriptFunctions::saveNum(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::textEnabled(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::textEnabled(lua_State* L){
+  NUM_ARGS(1, 1);
   bool enabled = ctx.stack().pop().getBool();
   Engine::instance()->setTextEnabled(enabled);
   return 0;
 }
 
-int ScriptFunctions::realTime(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::realTime(lua_State* L){
+  NUM_ARGS(1, 1);
   bool enabled = ctx.stack().pop().getBool();
   //this is intentionally left blank, consider implementing if engine too slow otherwise
   return 0;
 }
 
-int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 4 || numArgs > 5)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setCharLight(lua_State* L){
+  NUM_ARGS(4, 5);
   std::string charname = ctx.stack().pop().getString();
   Color c;
   c.r = (unsigned char)ctx.stack().pop().getInt();
@@ -1441,10 +1348,8 @@ int ScriptFunctions::setCharLight(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::group(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::group(lua_State* L){
+  NUM_ARGS(1, ARG_MAX);
   std::string groupname = ctx.stack().pop().getString();
   ObjectGroup* grp = new ObjectGroup(groupname);
   for (unsigned i = 1; i < numArgs; ++i){
@@ -1455,18 +1360,14 @@ int ScriptFunctions::group(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::stopSkip(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::stopSkip(lua_State* L){
+  NUM_ARGS(0, 0);
   ctx.mSkip = false;
   return 0;
 }
 
-int ScriptFunctions::playSwf(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 5)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::playSwf(lua_State* L){
+  NUM_ARGS(1, 5);
   std::string moviename = ctx.stack().pop().getString();
   int x = 0;
   int y = 0;
@@ -1492,10 +1393,8 @@ int ScriptFunctions::playSwf(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::stopSwf(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::stopSwf(lua_State* L){
+  NUM_ARGS(0, 0);
   VideoPlayer* vp = SoundEngine::instance()->getMovie("", true);
   if (vp){
     vp->stop();
@@ -1515,10 +1414,8 @@ protected:
   VideoPlayer* mPlayer;
 };
 
-int ScriptFunctions::playVideo(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2 || numArgs > 6)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::playVideo(lua_State* L){
+  NUM_ARGS(2, 6);
   std::string moviename = ctx.stack().pop().getString();
   bool suspend = ctx.stack().pop().getBool();
   int x = 0;
@@ -1549,10 +1446,8 @@ int ScriptFunctions::playVideo(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 4)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setWalkmap(lua_State* L){
+  NUM_ARGS(4, 4);
   std::string room = ctx.stack().pop().getString();
   Vec2i pos;
   pos.x = ctx.stack().pop().getInt();
@@ -1568,10 +1463,8 @@ int ScriptFunctions::setWalkmap(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::stepTo(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::stepTo(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string name = ctx.stack().pop().getString();
   std::string dirname = ctx.stack().pop().getString();
   LookDir dir = UNSPECIFIED;
@@ -1630,10 +1523,8 @@ private:
   Vec2i mPosition;
 };
 
-int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 4 || numArgs > 5)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::moveObj(lua_State* L){
+  NUM_ARGS(4, 5);
   std::string name = ctx.stack().pop().getString();
   //remove whitespaces in object names
   for(int size = (int)name.size()-1; size >= 0; --size){
@@ -1701,27 +1592,21 @@ int ScriptFunctions::moveObj(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::quit(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::quit(lua_State* L){
+  NUM_ARGS(0, 0);
   Engine::instance()->quit();
   return 0;
 }
 
-int ScriptFunctions::musicVolume(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::musicVolume(lua_State* L){
+  NUM_ARGS(1, 1);
   int volume = ctx.stack().pop().getInt();
   SoundEngine::instance()->setMusicVolume(volume/100.0f);
   return 0;
 }
 
-int ScriptFunctions::setParticles(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 6)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setParticles(lua_State* L){
+  NUM_ARGS(6, 6);
   std::string object = ctx.stack().pop().getString();
   int speed = ctx.stack().pop().getInt();
   int amount = ctx.stack().pop().getInt();
@@ -1741,10 +1626,8 @@ int ScriptFunctions::setParticles(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::startParticles(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs > 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::startParticles(lua_State* L){
+  NUM_ARGS(0, 1);
   bool fast = false;
   if (numArgs >= 1){
     std::string arg = ctx.stack().pop().getString();
@@ -1754,10 +1637,8 @@ int ScriptFunctions::startParticles(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::stopParticles(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs > 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::stopParticles(lua_State* L){
+  NUM_ARGS(0, 1);
   bool fast = false;
   if (numArgs >= 1){
     std::string arg = ctx.stack().pop().getString();
@@ -1767,10 +1648,8 @@ int ScriptFunctions::stopParticles(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::function(lua_State* L){
+  NUM_ARGS(1, 2);
   std::string scriptname = ctx.stack().pop().getString();
   TR_DEBUG("Function %s started", scriptname.c_str());
   ExecutionContext* func = Engine::instance()->getInterpreter()->getScript(scriptname);
@@ -1811,10 +1690,8 @@ int ScriptFunctions::function(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::stopFunction(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::stopFunction(lua_State* L){
+  NUM_ARGS(1, 2);
   std::string scriptname = ctx.stack().pop().getString();
   if (numArgs >= 2){
     String dummy = ctx.stack().pop().getString();
@@ -1830,28 +1707,22 @@ int ScriptFunctions::stopFunction(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::speechVolume(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::speechVolume(lua_State* L){
+  NUM_ARGS(1, 1);
   int volume = ctx.stack().pop().getInt();
   SoundEngine::instance()->setSpeechVolume(volume/100.0f);
   return 0;
 }
 
-int ScriptFunctions::setLanguage(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setLanguage(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string language = ctx.stack().pop().getString();
   Engine::instance()->getInterpreter()->setLanguage(language);
   return 0;
 }
 
-int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs > 9)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::enterText(lua_State* L){
+  NUM_ARGS(0, 9);
   int textnum = -1;
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(true);
@@ -1922,10 +1793,8 @@ int ScriptFunctions::enterText(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::fadeSpeed(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::fadeSpeed(lua_State* L){
+  NUM_ARGS(1, 1);
   int speed = ctx.stack().pop().getInt();
   if (speed <= 15){
     speed = 1500-(speed-1)*100;
@@ -1934,19 +1803,15 @@ int ScriptFunctions::fadeSpeed(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setEAX(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setEAX(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string effect = ctx.stack().pop().getString();
   SoundEngine::instance()->setEAXEffect(toLower(effect));
   return 0;
 }
 
-int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::bindText(lua_State* L){
+  NUM_ARGS(2, 2);
   int textnum = ctx.stack().pop().getInt();
   String room = ctx.stack().pop().getString();
   if (room == "any"){
@@ -1966,10 +1831,8 @@ int ScriptFunctions::bindText(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 8)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::textOut(lua_State* L){
+  NUM_ARGS(1, 8);
   int textnum = ctx.stack().pop().getInt();
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(true);
@@ -2018,10 +1881,8 @@ int ScriptFunctions::textOut(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::textSpeed(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string speed = ctx.stack().pop().getString();
   toLower(speed);
   int numspeed = 100;
@@ -2037,10 +1898,8 @@ int ScriptFunctions::textSpeed(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 3 || numArgs > 4)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setPos(lua_State* L){
+  NUM_ARGS(3, 4);
   std::string roomname = ctx.stack().pop().getString();
   Vec2i pos;
   pos.x = ctx.stack().pop().getInt();
@@ -2082,10 +1941,8 @@ int ScriptFunctions::setPos(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::miniCut(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs > 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::miniCut(lua_State* L){
+  NUM_ARGS(0, 1);
   bool hide = true;
   if (numArgs == 1){
     String hstr = ctx.stack().pop().getString();
@@ -2097,10 +1954,8 @@ int ScriptFunctions::miniCut(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::miniCutEnd(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::miniCutEnd(lua_State* L){
+  NUM_ARGS(0, 0);
   if (Engine::instance()->getInterpreter()->getCutscene() == NULL){ //no cutscene started from minicut
     Engine::instance()->getInterpreter()->mGlobalSuspend = false;
     Engine::instance()->getInterpreter()->mHideUI = false;
@@ -2108,20 +1963,16 @@ int ScriptFunctions::miniCutEnd(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::breakExec(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::breakExec(lua_State* L){
+  NUM_ARGS(0, 0);
   //don't know anymore why this was there, but it is bad => see elevator (room 8) functiondemo
   //ctx.resetEvents(true);
   //it was there because of this: pickup keycard and use machine (simple test adventure)
   return 0;
 }
 
-int ScriptFunctions::particleView(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::particleView(lua_State* L){
+  NUM_ARGS(1, 1);
   StackData view = ctx.stack().pop();
   int viewnum = 0;
   if (view.isString()){
@@ -2157,10 +2008,8 @@ int ScriptFunctions::particleView(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::textHide(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::textHide(lua_State* L){
+  NUM_ARGS(1, 1);
   int textnum = ctx.stack().pop().getInt();
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(false);
@@ -2201,10 +2050,8 @@ private:
   float mTarget;
 };
 
-int ScriptFunctions::stopEffect(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::stopEffect(lua_State* L){
+  NUM_ARGS(1, 2);
   std::string effect = ctx.stack().pop().getString();
   if (numArgs == 2 && effect != "lightning")
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
@@ -2249,10 +2096,8 @@ static void disableMainEffect(){
   Engine::instance()->getPostProcessor()->getEffect("underwater")->deactivate();
 }
 
-int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::startEffect(lua_State* L){
+  NUM_ARGS(1, ARG_MAX);
   std::string effect = ctx.stack().pop().getString();
   if (effect == "slowmotion"){
     int speed = ctx.stack().pop().getInt();
@@ -2373,10 +2218,8 @@ int ScriptFunctions::startEffect(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::linkChar(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::linkChar(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string character = ctx.stack().pop().getString();
   std::string object = ctx.stack().pop().getString();
   CharacterObject* chr = ctx.getCharacter(character);
@@ -2395,10 +2238,8 @@ int ScriptFunctions::linkChar(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::stopZooming(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string character = ctx.stack().pop().getString();
   bool stopzooming = ctx.stack().pop().getBool();
   CharacterObject* chr = ctx.getCharacter(character);
@@ -2413,10 +2254,8 @@ int ScriptFunctions::stopZooming(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::unlinkChar(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 1 || numArgs > 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::unlinkChar(lua_State* L){
+  NUM_ARGS(1, 2);
   std::string character = ctx.stack().pop().getString();
   String object = "";
   if (numArgs >= 2)
@@ -2428,10 +2267,8 @@ int ScriptFunctions::unlinkChar(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::saveString(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::saveString(lua_State* L){
+  NUM_ARGS(1, 1);
   String varname = ctx.stack().pop().getString();
   StackData val = Engine::instance()->getInterpreter()->getVariable(varname);
   std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
@@ -2461,10 +2298,8 @@ int ScriptFunctions::saveString(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::loadString(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::loadString(lua_State* L){
+  NUM_ARGS(1, 1);
   String varname = ctx.stack().pop().getString();
   StackData val(String("none"));
   std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
@@ -2483,19 +2318,15 @@ int ScriptFunctions::loadString(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::showMouse(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::showMouse(lua_State* L){
+  NUM_ARGS(1, 1);
   bool show = ctx.stack().pop().getBool();
   Engine::instance()->showMouse(show);
   return 0;
 }
 
-int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2 || numArgs > 3)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::charZoom(lua_State* L){
+  NUM_ARGS(2, 3);
   std::string charname = ctx.stack().pop().getString();
   int size = ctx.stack().pop().getInt();
   bool fade = false;
@@ -2519,10 +2350,8 @@ int ScriptFunctions::charZoom(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setWalkSound(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string charname = ctx.stack().pop().getString();
   std::string soundname = ctx.stack().pop().getString();
   CharacterObject* chr = ctx.getCharacter(charname);
@@ -2546,27 +2375,21 @@ int ScriptFunctions::setWalkSound(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::hideAllTexts(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::hideAllTexts(lua_State* L){
+  NUM_ARGS(0, 0);
   Engine::instance()->getFontRenderer()->enableTextouts(false);
   return 0;
 }
 
-int ScriptFunctions::enableMouse(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::enableMouse(lua_State* L){
+  NUM_ARGS(1, 1);
   bool enable = ctx.stack().pop().getBool();
   Engine::instance()->enableMouse(enable);
   return 0;
 }
 
-int ScriptFunctions::setRectWalkmap(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 6)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setRectWalkmap(lua_State* L){
+  NUM_ARGS(6, 6);
   std::string room = ctx.stack().pop().getString();
   Vec2i pos1;
   Vec2i pos2;
@@ -2599,10 +2422,8 @@ int ScriptFunctions::setRectWalkmap(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::exchange(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::exchange(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string char1 = ctx.stack().pop().getString();
   std::string char2 = ctx.stack().pop().getString();
   CharacterObject* c1 = ctx.getCharacter(char1);
@@ -2651,19 +2472,15 @@ int ScriptFunctions::exchange(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::enableMenu(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::enableMenu(lua_State* L){
+  NUM_ARGS(1, 1);
   bool enable = ctx.stack().pop().getBool();
   Engine::instance()->enableMenu(enable);
   return 0;
 }
 
-int ScriptFunctions::setTransparency(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setTransparency(lua_State* L){
+  NUM_ARGS(1, 1);
   int transparency = ctx.stack().pop().getInt();
   int opacity = 255-transparency*255/100;
   std::string roomname = Engine::instance()->getData()->getProjectSettings()->anywhere_room;
@@ -2681,18 +2498,14 @@ int ScriptFunctions::setTransparency(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::showAllText(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 0)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::showAllText(lua_State* L){
+  NUM_ARGS(0, 0);
   Engine::instance()->getFontRenderer()->enableTextouts(true);
   return 0;
 }
 
-int ScriptFunctions::instMouse(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::instMouse(lua_State* L){
+  NUM_ARGS(1, 1);
   int state = ctx.stack().pop().getInt();
   CursorObject* cursor = Engine::instance()->getCursor();
   Engine::instance()->getInterpreter()->setPrevState(cursor, cursor);
@@ -2700,10 +2513,8 @@ int ScriptFunctions::instMouse(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::showInventory(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::showInventory(lua_State* L){
+  NUM_ARGS(1, 1);
   int inventory = ctx.stack().pop().getInt();
   CharacterObject* chr = Engine::instance()->getCharacter("self");
   if (chr == NULL){
@@ -2715,10 +2526,8 @@ int ScriptFunctions::showInventory(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setObjLight(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 4 || numArgs > 5)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setObjLight(lua_State* L){
+  NUM_ARGS(4, 5);
   std::string objname = ctx.stack().pop().getString();
   //remove whitespaces in object names
   for(int size = (int)objname.size()-1; size >= 0; --size){
@@ -2754,10 +2563,8 @@ int ScriptFunctions::setObjLight(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::textAlign(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::textAlign(lua_State* L){
+  NUM_ARGS(2, 2);
   int num = ctx.stack().pop().getInt();
   std::string alignstr = ctx.stack().pop().getString();
   Textout::Alignment align;
@@ -2772,32 +2579,26 @@ int ScriptFunctions::textAlign(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::runSpeed(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::runSpeed(lua_State* L){
+  NUM_ARGS(1, 1);
   float speed = ctx.stack().pop().getInt()/100.0f;
   Engine::instance()->getInterpreter()->setRunSpeed(speed);
   return 0;
 }
 
-int ScriptFunctions::runTo(ExecutionContext& ctx, unsigned numArgs){
-  return moveTo(ctx, numArgs, Engine::instance()->getInterpreter()->getRunSpeed());
+int ScriptFunctions::runTo(lua_State* L){
+  return moveTo(L, Engine::instance()->getInterpreter()->getRunSpeed());
 }
 
-int ScriptFunctions::enableFXShape(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::enableFXShape(lua_State* L){
+  NUM_ARGS(1, 1);
   bool enable = ctx.stack().pop().getBool();
   Engine::instance()->enableFXShapes(enable);
   return 0;
 }
 
-int ScriptFunctions::scrollSpeed(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::scrollSpeed(lua_State* L){
+  NUM_ARGS(1, 1);
   int speed = ctx.stack().pop().getInt();
   bool follow = true;
   if (speed > 100){
@@ -2808,10 +2609,8 @@ int ScriptFunctions::scrollSpeed(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::loadChar(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::loadChar(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string name = ctx.stack().pop().getString();
   std::string dummy;
   CharacterObject* ch = Engine::instance()->loadCharacter(name, Engine::instance()->getCharacterClass(name), &ctx);
@@ -2820,10 +2619,8 @@ int ScriptFunctions::loadChar(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::offTextColor(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 3)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::offTextColor(lua_State* L){
+  NUM_ARGS(3, 3);
   Color col;
   col.r = ctx.stack().pop().getInt();
   col.g = ctx.stack().pop().getInt();
@@ -2832,10 +2629,8 @@ int ScriptFunctions::offTextColor(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::setItem(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::setItem(lua_State* L){
+  NUM_ARGS(2, ARG_MAX);
   if (numArgs > 2)
     TR_BREAK("Implement me");
   std::string itemname = ctx.stack().pop().getString();
@@ -2847,10 +2642,8 @@ int ScriptFunctions::setItem(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::sqrt(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 1)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::sqrt(lua_State* L){
+  NUM_ARGS(1, 1);
   String variable = ctx.stack().pop().getString();
   float val = Engine::instance()->getInterpreter()->getVariable(variable).getFloat();
   val = sqrtf(val);
@@ -2858,10 +2651,8 @@ int ScriptFunctions::sqrt(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::switchCharacter(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs != 2)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::switchCharacter(lua_State* L){
+  NUM_ARGS(2, 2);
   String char1 = ctx.stack().pop().getString();
   String char2 = ctx.stack().pop().getString();
   CharacterObject* c1 = ctx.getCharacter(char1);
@@ -2922,10 +2713,8 @@ int ScriptFunctions::switchCharacter(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::moveText(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
-  if (numArgs < 4 || numArgs > 5)
-    TR_BREAK("Unexpected number of arguments (%i)", numArgs);
+int ScriptFunctions::moveText(lua_State* L){
+  NUM_ARGS(4, 5);
   int id = ctx.stack().pop().getInt();
 
   Vec2i newpos;
@@ -2966,27 +2755,29 @@ int ScriptFunctions::moveText(ExecutionContext& ctx, unsigned numArgs){
   return 0;
 }
 
-int ScriptFunctions::dummy(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::dummy(lua_State* L){
+  NUM_ARGS(0, ARG_MAX);
   for (unsigned i = 0; i < numArgs; ++i){
     ctx.stack().pop();
   }
   return 0;
 }
 
-int ScriptFunctions::isBoolEqual(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isBoolEqual(lua_State* L){
+  NUM_ARGS(2, 2);
   String boolname = ctx.stack().pop().getString();
   bool test = ctx.stack().pop().getBool();
-  lua_getglobal(ctx.mL, "bool");
-  lua_getfield(ctx.mL, -1, boolname.c_str());
-  bool saved = lua_toboolean(ctx.mL, -1) != 0;
-  lua_pop(ctx.mL, 2);
+  lua_getglobal(L, "bool");
+  lua_getfield(L, -1, boolname.c_str());
+  bool saved = lua_toboolean(L, -1) != 0;
+  lua_pop(L, 2);
   ctx.stack().push(saved ? 1 : 0);
   ctx.stack().push(test ? 1 : 0);
   return 2;
 }
 
-int ScriptFunctions::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
+int ScriptFunctions::isObjectInState(lua_State* L){
+  NUM_ARGS(2, 2);
   String objname = ctx.stack().pop().getString();
   objname = objname.removeAll(' ');
   int checkstate = ctx.stack().pop().getInt();
@@ -3007,7 +2798,8 @@ int ScriptFunctions::isObjectInState(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isCommandSet(lua_State* L){
+  NUM_ARGS(0, 1);
   EngineEvent check = EVT_NONE;
   if (numArgs >= 1){
     std::string evtname = ctx.stack().pop().getString();
@@ -3021,7 +2813,8 @@ int ScriptFunctions::isCommandSet(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isLinkedObject(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string objname = ctx.stack().pop().getString();
   std::string linkname = ctx.getUseObjectName();
   ctx.stack().push(0);
@@ -3029,7 +2822,8 @@ int ScriptFunctions::isLinkedObject(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isGiveLinkedObject(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string objname = ctx.stack().pop().getString();
   std::string linkname = ctx.getGiveObjectName();
   ctx.stack().push(0);
@@ -3037,7 +2831,8 @@ int ScriptFunctions::isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs)
   return 2;
 }
 
-int ScriptFunctions::isNumEqual(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isNumEqual(lua_State* L){
+  NUM_ARGS(2, 2);
   String varname = ctx.stack().pop().getString();
   int test = ctx.stack().pop().getInt();
   int saved = Engine::instance()->getInterpreter()->getVariable(varname).getInt();
@@ -3046,7 +2841,8 @@ int ScriptFunctions::isNumEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isCharFocussed(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isCharFocussed(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string name = ctx.stack().pop().getString();
   ctx.stack().push(0);
   CharacterObject* chr = Engine::instance()->getCharacter("self");
@@ -3057,7 +2853,8 @@ int ScriptFunctions::isCharFocussed(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isCharTriggering(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isCharTriggering(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string name = ctx.stack().pop().getString();
   ctx.stack().push(0);
   CharacterObject* chr = ctx.getCharacter(name);
@@ -3085,7 +2882,8 @@ int ScriptFunctions::isCharTriggering(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isCharInRoom(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isCharInRoom(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string charname = ctx.stack().pop().getString();
   std::string roomname = ctx.stack().pop().getString();
   ctx.stack().push(0);
@@ -3105,7 +2903,8 @@ int ScriptFunctions::isCharInRoom(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isCharPossessingItem(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string charname = ctx.stack().pop().getString();
   std::string itemname = ctx.stack().pop().getString();
   ctx.stack().push(0);
@@ -3139,8 +2938,8 @@ int ScriptFunctions::isCharPossessingItem(ExecutionContext& ctx, unsigned numArg
   return 2;
 }
 
-int ScriptFunctions::isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
+int ScriptFunctions::isKeyDownEqual(lua_State* L){
+  NUM_ARGS(1, 1);
   StackData sd = ctx.stack().pop();
   std::string key = sd.getString();
   if (key.empty()){
@@ -3161,8 +2960,8 @@ int ScriptFunctions::isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
+int ScriptFunctions::isKeyPressedEqual(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string key = ctx.stack().pop().getString();
   std::map<std::string,int>::iterator iter = Engine::instance()->getInterpreter()->mKeymap.find(key);
   if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
@@ -3176,7 +2975,8 @@ int ScriptFunctions::isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isStringEqual(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isStringEqual(lua_State* L){
+  NUM_ARGS(2, 2);
   String name = ctx.stack().pop().getString();
   String text = ctx.stack().pop().getString();
   String val = Engine::instance()->getInterpreter()->getVariable(name).getString();
@@ -3185,7 +2985,8 @@ int ScriptFunctions::isStringEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isCurrentRoom(ExecutionContext& ctx, unsigned numArgs){
+int ScriptFunctions::isCurrentRoom(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string room = ctx.stack().pop().getString();
   ctx.stack().push(0);
   RoomObject* ro = Engine::instance()->getRoom("");
@@ -3197,8 +2998,8 @@ int ScriptFunctions::isCurrentRoom(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
+int ScriptFunctions::isMouseWheelEqual(lua_State* L){
+  NUM_ARGS(1, 1);
   std::string dir = ctx.stack().pop().getString();
   dir = toLower(dir);
   ctx.stack().push(0);
@@ -3224,8 +3025,8 @@ int ScriptFunctions::isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
+int ScriptFunctions::isObjXPosEqual(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string objname = ctx.stack().pop().getString();
   int xpos = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
@@ -3243,8 +3044,8 @@ int ScriptFunctions::isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
+int ScriptFunctions::isObjYPosEqual(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string objname = ctx.stack().pop().getString();
   int ypos = ctx.stack().pop().getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
@@ -3262,8 +3063,8 @@ int ScriptFunctions::isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs){
   return 2;
 }
 
-int ScriptFunctions::isItemInState(ExecutionContext& ctx, unsigned numArgs){
-  TR_USE(ADV_ScriptFunc);
+int ScriptFunctions::isItemInState(lua_State* L){
+  NUM_ARGS(2, 2);
   std::string itemname = ctx.stack().pop().getString();
   int checkstate = ctx.stack().pop().getInt();
   Object2D* item = Engine::instance()->getObject(itemname, true);

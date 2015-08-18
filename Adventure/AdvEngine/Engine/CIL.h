@@ -14,11 +14,13 @@ CRET, CASSGN, CLOAD, CSTORE, CPUSH, CCALL,
 CVAR
 */
 
+typedef struct lua_State lua_State;
+
 namespace adv{
 
 class Stack;
 
-typedef int (*ScriptFunc) (ExecutionContext&, unsigned numArgs);
+typedef int (*ScriptFunc) (lua_State*);
 
 class CCode{
 public:
@@ -81,7 +83,10 @@ public:
   virtual ~CCALL(){}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
     ctx.mPC = ++pc;
-    (*mFunc)(ctx, mNumArgs);
+    unsigned oldNum = ctx.stack().mNumArgs;
+    ctx.stack().mNumArgs = mNumArgs;
+    (*mFunc)(ctx.mL);
+    ctx.stack().mNumArgs = oldNum;
     return ctx.mPC;
   }
   virtual Type getType(){return CALL;}

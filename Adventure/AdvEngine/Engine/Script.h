@@ -80,8 +80,6 @@ public:
   void setItemState(const String& name, int state) {mMutex.lock(); mItemStates[name.toLower()] = state; mMutex.unlock();}
   int getItemState(const String& name);
   void clearState() {mMutex.lock(); mItemStates.clear(); mMutex.unlock();}
-  static StackData fromStack(lua_State* L, int idx);
-  static void pushStack(lua_State* L, StackData const& sd);
   lua_State* getLuaState() { return mL; }
 protected:
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);

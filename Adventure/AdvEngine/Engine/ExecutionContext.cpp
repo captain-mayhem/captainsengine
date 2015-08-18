@@ -69,6 +69,7 @@ mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
 mSuspender(NULL), mShouldFinish(false){
   mL = newThread();
+  mStack.setState(mL);
 }
 
 ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
@@ -77,6 +78,7 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
   mIsGameObject = ctx.mIsGameObject;
   mObjectInfo = ctx.mObjectInfo;
   mStack = ctx.mStack;
+  mStack.setState(mL);
   mPC = ctx.mPC;
   mEvents = ctx.mEvents;
   mExecuteOnce = ctx.mExecuteOnce;
@@ -96,6 +98,7 @@ mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), 
 mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false)
 {
   mL = newThread();
+  mStack.setState(mL);
   in >> mIsGameObject >> mObjectInfo;
   if (mObjectInfo == "none")
     mObjectInfo = "";
