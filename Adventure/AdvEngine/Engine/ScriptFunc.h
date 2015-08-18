@@ -6,6 +6,8 @@
 
 #include "Ids.h"
 
+typedef struct lua_State lua_State;
+
 namespace adv{
 
 class ExecutionContext;
@@ -21,7 +23,7 @@ public:
   \param level level of the textscene
   \param row row to deactivate
   **/
-  static int activate(ExecutionContext& ctx, unsigned numArgs);
+  static int activate(lua_State* L);
   /**
   \param character name of the character to whose inventory the item should be added
   special values off
@@ -29,7 +31,7 @@ public:
   special values givelink
   \param num [opt] the inventory number
   **/
-  static int addItem(ExecutionContext& ctx, unsigned numArgs);
+  static int addItem(lua_State* L);
   /**
   \param character name of the character to beam
   \param room room to beam to
@@ -37,36 +39,36 @@ public:
   \param y y-position to beam to
   \param dir [opt] look direction
   **/
-  static int beamTo(ExecutionContext& ctx, unsigned numArgs);
+  static int beamTo(lua_State* L);
   /**
     \param number identifies the textout line
     \param room the room to which the text should be bound
   **/
-  static int bindText(ExecutionContext& ctx, unsigned numArgs);
+  static int bindText(lua_State* L);
   /**
   **/
-  static int breakExec(ExecutionContext& ctx, unsigned numArgs);
+  static int breakExec(lua_State* L);
   /**
     \param character the character whose zoom should be changed
     \param size the size of the character
     \param fade [opt] fade to the new size
   **/
-  static int charZoom(ExecutionContext& ctx, unsigned numArgs);
+  static int charZoom(lua_State* L);
   /**
   \param command name of the command to set
   **/
-  static int command(ExecutionContext& ctx, unsigned numArgs);
+  static int command(lua_State* L);
   /**
   \param cutscene name of the cutscene to start
   \param donthide [opt] leaves anywhere-objects and user panel there
   **/
-  static int cutScene(ExecutionContext& ctx, unsigned numArgs);
+  static int cutScene(lua_State* L);
   /**
   \param textscene name of the textscene to deactivate
   \param level level of the textscene
   \param row row to deactivate
   **/
-  static int deactivate(ExecutionContext& ctx, unsigned numArgs);
+  static int deactivate(lua_State* L);
   /**
   \param character name of the character from whose inventory the item should be removed
   special values off
@@ -74,22 +76,22 @@ public:
   special values givelink
   \param num [opt] the inventory number
   **/
-  static int delItem(ExecutionContext& ctx, unsigned numArgs);
+  static int delItem(lua_State* L);
     /**
   \param enable if FX shapes are enabled
   **/
-  static int enableFXShape(ExecutionContext& ctx, unsigned numArgs);
+  static int enableFXShape(lua_State* L);
   /**
   \param enable if menu is enabled
   **/
-  static int enableMenu(ExecutionContext& ctx, unsigned numArgs);
+  static int enableMenu(lua_State* L);
   /**
   \param show enable the mouse
   **/
-  static int enableMouse(ExecutionContext& ctx, unsigned numArgs);
+  static int enableMouse(lua_State* L);
   /**
   **/
-  static int endScene(ExecutionContext& ctx, unsigned numArgs);
+  static int endScene(lua_State* L);
   /**
   \param display the string to display before the prompt
   \param variable the variable where to save the user's input
@@ -101,119 +103,119 @@ public:
   \param green [opt] the green component of the text's color
   \param blue [opt] the blue component of the text's color
   **/
-  static int enterText(ExecutionContext& ctx, unsigned numArgs);
+  static int enterText(lua_State* L);
   /**
   \param char1 the first character whose inventories should be exchanged
   \param char2 the second character
   **/
-  static int exchange(ExecutionContext& ctx, unsigned numArgs);
+  static int exchange(lua_State* L);
   /**
   \param speed 1-15 or time in ms
   **/
-  static int fadeSpeed(ExecutionContext& ctx, unsigned numArgs);
+  static int fadeSpeed(lua_State* L);
   /**
   \param char1 name of the character to follow char2
   \param char2 name of the character to be followed by char1
   \param dontwait [opt] continue script execution immediately
   **/
-  static int follow(ExecutionContext& ctx, unsigned numArgs);
+  static int follow(lua_State* L);
   /**
   \param scriptname name of the script to execute as function
   \param loops [opt] number of loops to execute (also "*" or "infinity" possible)
   **/
-  static int function(ExecutionContext& ctx, unsigned numArgs);
+  static int function(lua_State* L);
   /**
   \param name [opt] name of the object to link for giving
   **/
-  static int giveLink(ExecutionContext& ctx, unsigned numArgs);
+  static int giveLink(lua_State* L);
   /**
   \param level set the level of a textscene
   **/
-  static int gotoLevel(ExecutionContext& ctx, unsigned numArgs);
+  static int gotoLevel(lua_State* L);
   /**
   \param object name of the group
   \param state first object of the group
   \param ... [opt] additional objects to group
   **/
-  static int group(ExecutionContext& ctx, unsigned numArgs);
+  static int group(lua_State* L);
   /*
   */
-  static int hideAllTexts(ExecutionContext& ctx, unsigned numArgs);
+  static int hideAllTexts(lua_State* L);
   /**
   \param icon mouse icon number
   **/
-  static int instMouse(ExecutionContext& ctx, unsigned numArgs);
+  static int instMouse(lua_State* L);
   /**
   \param object name of the object instance
   \param state state of the object
   \param ... [opt] additional states TODO
   **/
-  static int instObj(ExecutionContext& ctx, unsigned numArgs);
+  static int instObj(lua_State* L);
   /**
   \param number scrolls the inventory number steps down
   **/
-  static int invDown(ExecutionContext& ctx, unsigned numArgs);
+  static int invDown(lua_State* L);
   /**
   \param number scrolls the inventory number steps up
   **/
-  static int invUp(ExecutionContext& ctx, unsigned numArgs);
+  static int invUp(lua_State* L);
   /**
   \param seconds time to jiggle
   \param power how strong the jiggling is
   **/
-  static int jiggle(ExecutionContext& ctx, unsigned numArgs);
+  static int jiggle(lua_State* L);
   /**
   \param name name of the object to link
   **/
-  static int link(ExecutionContext& ctx, unsigned numArgs);
+  static int link(lua_State* L);
   /**
   \param character the character to be linked to an object
   \param object the object to link to
   **/
-  static int linkChar(ExecutionContext& ctx, unsigned numArgs);
+  static int linkChar(lua_State* L);
   /**
   \param character preload the character character
   **/
-  static int loadChar(ExecutionContext& ctx, unsigned numArgs);
+  static int loadChar(lua_State* L);
   /**
   \param slot the save slot to be used
   **/
-  static int loadGame(ExecutionContext& ctx, unsigned numArgs);
+  static int loadGame(lua_State* L);
   /**
   \param name the name of the variable to load
   **/
-  static int loadNum(ExecutionContext& ctx, unsigned numArgs);
+  static int loadNum(lua_State* L);
   /**
   \param room name of the room
   \param effect [opt] blending effect
   **/
-  static int loadRoom(ExecutionContext& ctx, unsigned numArgs);
+  static int loadRoom(lua_State* L);
   /**
   \param name the name of the variable to load
   **/
-  static int loadString(ExecutionContext& ctx, unsigned numArgs);
+  static int loadString(lua_State* L);
   /**
   \param char name of the character to change look direction
   \param dir direction number or character name
   **/
-  static int lookTo(ExecutionContext& ctx, unsigned numArgs);
+  static int lookTo(lua_State* L);
   /**
   \param sound the sound name which should be played in loop
   \param volume [opt] the volume of the sound
   **/
-  static int loopSound(ExecutionContext& ctx, unsigned numArgs);
+  static int loopSound(lua_State* L);
   /**
   \param sound the looping sound name which should be stopped
   **/
-  static int loopStop(ExecutionContext& ctx, unsigned numArgs);
+  static int loopStop(lua_State* L);
   /**
   \param donthide [opt] don't hide the taskbar / anywhere objects
   **/
-  static int miniCut(ExecutionContext& ctx, unsigned numArgs);
+  static int miniCut(lua_State* L);
   /**
     Engine internal
   **/
-  static int miniCutEnd(ExecutionContext& ctx, unsigned numArgs);
+  static int miniCutEnd(lua_State* L);
   /**
   \param instance name of the object instance
   \param x the x-position the object should be moved to
@@ -221,7 +223,7 @@ public:
   \param speed/time the moving speed (9-1, 0) or time (x ms)
   \param wait [opt] if the script should be suspended
   **/
-  static int moveObj(ExecutionContext& ctx, unsigned numArgs);
+  static int moveObj(lua_State* L);
   /**
   \param id id of the textout instance
   \param x the x-position the text should be moved to
@@ -229,11 +231,11 @@ public:
   \param speed/time the moving speed (9-1, 0) or time (x ms)
   \param wait [opt] if the script should be suspended
   **/
-  static int moveText(ExecutionContext& ctx, unsigned numArgs);
+  static int moveText(lua_State* L);
   /**
   \param volume the volume of the music
   **/
-  static int musicVolume(ExecutionContext& ctx, unsigned numArgs);
+  static int musicVolume(lua_State* L);
   /**
   \param x x-coord of text (middle)
   \param y y-coord of text (bottom)
@@ -241,31 +243,31 @@ public:
   \param sample [opt] sound file to be played TODO
   \param dontwait [opt] continue script execution immediately
   **/
-  static int offSpeech(ExecutionContext& ctx, unsigned numArgs);
+  static int offSpeech(lua_State* L);
   /**
   \param red
   \param green
   \param blue
   **/
-  static int offTextColor(ExecutionContext& ctx, unsigned numArgs);
+  static int offTextColor(lua_State* L);
   /**
   \param view 1: in front of all, 2: behind front objects, 3: behind middle objects, 4: behind background
   **/
-  static int particleView(ExecutionContext& ctx, unsigned numArgs);
+  static int particleView(lua_State* L);
   /**
   \param character the name of the character to execute the pickup action
   **/
-  static int pickup(ExecutionContext& ctx, unsigned numArgs);
+  static int pickup(lua_State* L);
   /**
   \param name the music file which should be played
   \param position [opt] start position (as pattern for module track)
   **/
-  static int playMusic(ExecutionContext& ctx, unsigned numArgs);
+  static int playMusic(lua_State* L);
   /**
   \param sound name of the sound file to play
   \param volume [opt] the volume
   **/
-  static int playSound(ExecutionContext& ctx, unsigned numArgs);
+  static int playSound(lua_State* L);
   /**
   \param movie name of the swf movie file to play
   \param x [opt] x-position of the movie
@@ -273,7 +275,7 @@ public:
   \param width [opt] width of the movie
   \param height [opt] height of the movie
   **/
-  static int playSwf(ExecutionContext& ctx, unsigned numArgs);
+  static int playSwf(lua_State* L);
   /**
   \param movie name of the swf movie file to play
   \param suspend suspend script execution
@@ -282,26 +284,26 @@ public:
   \param width [opt] width of the movie
   \param height [opt] height of the movie
   **/
-  static int playVideo(ExecutionContext& ctx, unsigned numArgs);
+  static int playVideo(lua_State* L);
   /**
   **/
-  static int quit(ExecutionContext& ctx, unsigned numArgs);
+  static int quit(lua_State* L);
   /**
   \param name the variable to be filled with a random number
   \param limit limits the number to 1 .. limit
   **/
-  static int randomNum(ExecutionContext& ctx, unsigned numArgs);
+  static int randomNum(lua_State* L);
   /**
   \param realtime true/false
   **/
-  static int realTime(ExecutionContext& ctx, unsigned numArgs);
+  static int realTime(lua_State* L);
   /**
   **/
-  static int restart(ExecutionContext& ctx, unsigned numArgs);
+  static int restart(lua_State* L);
   /**
   \param speed 50 - 300 %
   **/
-  static int runSpeed(ExecutionContext& ctx, unsigned numArgs);
+  static int runSpeed(lua_State* L);
   /**
   \param character name of the character to walk
   \param x x-position to walk to
@@ -309,34 +311,34 @@ public:
   \param dir [opt] look direction
   \param dontwait [opt] continue script execution immediately
   **/
-  static int runTo(ExecutionContext& ctx, unsigned numArgs);
+  static int runTo(lua_State* L);
   /**
   \param slot the save slot to be used
   **/
-  static int saveGame(ExecutionContext& ctx, unsigned numArgs);
+  static int saveGame(lua_State* L);
   /**
   \param name of the variable to be saved
   **/
-  static int saveNum(ExecutionContext& ctx, unsigned numArgs);
+  static int saveNum(lua_State* L);
   /**
   \param name of the variable to be saved
   **/
-  static int saveString(ExecutionContext& ctx, unsigned numArgs);
+  static int saveString(lua_State* L);
   /**
   \param speed the scroll speed 1-20 (+100 for don't follow)
   **/
-  static int scrollSpeed(ExecutionContext& ctx, unsigned numArgs);
+  static int scrollSpeed(lua_State* L);
   /**
   \param bool name of the boolean
   \param value true/false
   **/
-  static int setBool(ExecutionContext& ctx, unsigned numArgs);
+  static int setBool(lua_State* L);
   /**
   \param char name of the character instance
   \param state extra state of the character (number or name)
   \param ... [opt] additional states
   **/
-  static int setChar(ExecutionContext& ctx, unsigned numArgs);
+  static int setChar(lua_State* L);
   /**
   \param char name of the character instance
   \param r red component
@@ -344,35 +346,35 @@ public:
   \param b blue component
   \param fade [opt] do a fading to the color
   **/
-  static int setCharLight(ExecutionContext& ctx, unsigned numArgs);
+  static int setCharLight(lua_State* L);
   /**
   \param effect sets the eax effect
   **/
-  static int setEAX(ExecutionContext& ctx, unsigned numArgs);
+  static int setEAX(lua_State* L);
   /**
   \param inventory intentory to show (1-5)
   **/
-  static int showInventory(ExecutionContext& ctx, unsigned numArgs);
+  static int showInventory(lua_State* L);
   /**
   \param item the item
   \param state the new state
   \param ... [opt] additional states
   **/
-  static int setItem(ExecutionContext& ctx, unsigned numArgs);
+  static int setItem(lua_State* L);
   /**
   \param character name of the character to focus
   special values none/last
   **/
-  static int setFocus(ExecutionContext& ctx, unsigned numArgs);
+  static int setFocus(lua_State* L);
   /**
   \param number number of the font to activate
   \param character [opt] set the font for a character
   **/
-  static int setFont(ExecutionContext& ctx, unsigned numArgs);
+  static int setFont(lua_State* L);
   /**
   \param language choose the language for the game
   **/
-  static int setLanguage(ExecutionContext& ctx, unsigned numArgs);
+  static int setLanguage(lua_State* L);
   /**
   \param room name of the room
   \param r red-component
@@ -380,18 +382,18 @@ public:
   \param b blue-component
   \param fade [opt] fading effect TODO
   **/
-  static int setLight(ExecutionContext& ctx, unsigned numArgs);
+  static int setLight(lua_State* L);
   /**
   \param name the name of the variable
   \param value the value to set
   **/
-  static int setNum(ExecutionContext& ctx, unsigned numArgs);
+  static int setNum(lua_State* L);
   /**
   \param object name of the object instance
   \param state state of the object
   \param ... [opt] additional states
   **/
-  static int setObj(ExecutionContext& ctx, unsigned numArgs);
+  static int setObj(lua_State* L);
     /**
   \param obj name of the object instance
   \param r red component
@@ -399,7 +401,7 @@ public:
   \param b blue component
   \param fade [opt] do a fading to the color
   **/
-  static int setObjLight(ExecutionContext& ctx, unsigned numArgs);
+  static int setObjLight(lua_State* L);
   /**
   \param object name of the particle object
   \param speed the speed of the particle
@@ -408,7 +410,7 @@ public:
   \param rotation the rotation angle speed of the particle (clockwise)
   \param variation the variation in speed of the particles in percent
   **/
-  static int setParticles(ExecutionContext& ctx, unsigned numArgs);
+  static int setParticles(lua_State* L);
   /**
   \param room the room where the camera position should be set
   \param x the x-position of the camera
@@ -416,7 +418,7 @@ public:
   \param immediately set the camera position immediately
   \param dir [opt] up/down/left/right moves the new position graphically to the old one
   **/
-  static int setPos(ExecutionContext& ctx, unsigned numArgs);
+  static int setPos(lua_State* L);
   /**
   \param room the room for which its walkmap should be modified
   \param x1 start x-position of the walkmap rectangle
@@ -425,124 +427,124 @@ public:
   \param y2 end y-position of the walkmap rectangle
   \param walkable if the field should be made walkable
   **/
-  static int setRectWalkmap(ExecutionContext& ctx, unsigned numArgs);
+  static int setRectWalkmap(lua_State* L);
   /**
   \param change changes style of room changes
   **/
-  static int setScreenchange(ExecutionContext& ctx, unsigned numArgs);
+  static int setScreenchange(lua_State* L);
   /**
   \param name the name of the variable
   \param value the value to set
   **/
-  static int setString(ExecutionContext& ctx, unsigned numArgs);
+  static int setString(lua_State* L);
   /**
   \param transparency the transparency of overall and taskbar room
   **/
-  static int setTransparency(ExecutionContext& ctx, unsigned numArgs);
+  static int setTransparency(lua_State* L);
   /**
   \param room the room for which its walkmap should be modified
   \param x x-position of the walkmap field
   \param y y-position of the walkmap field
   \param walkable if the field should be made walkable
   **/
-  static int setWalkmap(ExecutionContext& ctx, unsigned numArgs);
+  static int setWalkmap(lua_State* L);
   /**
   \param character the name of the character
   \param soundname the name of the new walk sound
   **/
-  static int setWalkSound(ExecutionContext& ctx, unsigned numArgs);
+  static int setWalkSound(lua_State* L);
   /**
   **/
-  static int showAllText(ExecutionContext& ctx, unsigned numArgs);
+  static int showAllText(lua_State* L);
   /**
   \param text information about the object
   \param show boolean if the text should be displayed on the mouse cursor
   **/
-  static int showInfo(ExecutionContext& ctx, unsigned numArgs);
+  static int showInfo(lua_State* L);
   /**
   \param show show the mouse cursor
   **/
-  static int showMouse(ExecutionContext& ctx, unsigned numArgs);
+  static int showMouse(lua_State* L);
   /**
   \param character name of the character to speak
   \param text the text to be displayed
   \param sample [opt] sound file to be played TODO
   \param dontwait [opt] continue script execution immediately
   **/
-  static int speech(ExecutionContext& ctx, unsigned numArgs);
+  static int speech(lua_State* L);
   /**
   \param volume the volume of speech
   **/
-  static int speechVolume(ExecutionContext& ctx, unsigned numArgs);
+  static int speechVolume(lua_State* L);
   /**
   \param name the name of the variable a square root should be calculated of
   **/
-  static int sqrt(ExecutionContext& ctx, unsigned numArgs);
+  static int sqrt(lua_State* L);
   /**
   \param effect name of the effect
   \param args [opt] additional effect parameters
   **/
-  static int startEffect(ExecutionContext& ctx, unsigned numArgs);
+  static int startEffect(lua_State* L);
   /**
   \param fast [opt] show particles immediately
   **/
-  static int startParticles(ExecutionContext& ctx, unsigned numArgs);
+  static int startParticles(lua_State* L);
   /**
   \param character name of the character
   \param direction makes a step into the given direction
   **/
-  static int stepTo(ExecutionContext& ctx, unsigned numArgs);
+  static int stepTo(lua_State* L);
   /**
   \param effect the effect to stop
   **/
-  static int stopEffect(ExecutionContext& ctx, unsigned numArgs);
+  static int stopEffect(lua_State* L);
   /**
   \param scriptname the function to stop
   **/
-  static int stopFunction(ExecutionContext& ctx, unsigned numArgs);
+  static int stopFunction(lua_State* L);
    /**
   **/
-  static int stopMusic(ExecutionContext& ctx, unsigned numArgs);
+  static int stopMusic(lua_State* L);
   /**
   \param fast [opt] show particles immediately
   **/
-  static int stopParticles(ExecutionContext& ctx, unsigned numArgs);
+  static int stopParticles(lua_State* L);
   /*
   */
-  static int stopSkip(ExecutionContext& ctx, unsigned numArgs);
+  static int stopSkip(lua_State* L);
   /**
   **/
-  static int stopSwf(ExecutionContext& ctx, unsigned numArgs);
+  static int stopSwf(lua_State* L);
   /**
   \param character character to change zoom behaviour
   \param doit stop zooming
   **/
-  static int stopZooming(ExecutionContext& ctx, unsigned numArgs);
+  static int stopZooming(lua_State* L);
   /**
   \param room name of the subroom to load
   \param fadingtime [opt] time in milliseconds for fading effect
   **/
-  static int subRoom(ExecutionContext& ctx, unsigned numArgs);
+  static int subRoom(lua_State* L);
   /**
   **/
-  static int subRoomReturn(ExecutionContext& ctx, unsigned numArgs);
+  static int subRoomReturn(lua_State* L);
   /**
   **/
-  static int subRoomReturnImmediate(ExecutionContext& ctx, unsigned numArgs);
+  static int subRoomReturnImmediate(lua_State* L);
   /**
   \param char1 first character to switch position and inventory
   \param char2 second character to switch position and inventory
   **/
-  static int switchCharacter(ExecutionContext& ctx, unsigned numArgs);
+  static int switchCharacter(lua_State* L);
   /**
   \param num the number of the text
   \param alignment left, right, middle
   **/
-  static int textAlign(ExecutionContext& ctx, unsigned numArgs);
+  static int textAlign(lua_State* L);
   /**
   \param num the number of the text
   **/
-  static int textHide(ExecutionContext& ctx, unsigned numArgs);
+  static int textHide(lua_State* L);
    /**
   \param num the number of the text
   \param text the text to display
@@ -553,7 +555,7 @@ public:
   \param green [opt] the green component of the text's color
   \param blue [opt] the blue component of the text's color
   **/
-  static int textOut(ExecutionContext& ctx, unsigned numArgs);
+  static int textOut(lua_State* L);
   /**
   /**
   \param textscene name of the textscene to start
@@ -561,30 +563,30 @@ public:
   \param posy [opt] y-position of the textscene
   \param width [opt] width if the textscene
   **/
-  static int textScene(ExecutionContext& ctx, unsigned numArgs);
+  static int textScene(lua_State* L);
   /**
   \param speed fast/normal/slow
   **/
-  static int textSpeed(ExecutionContext& ctx, unsigned numArgs);
+  static int textSpeed(lua_State* L);
   /**
   \param show true/false
   **/
-  static int taskbar(ExecutionContext& ctx, unsigned numArgs);
+  static int taskbar(lua_State* L);
   /**
   \param show true/false
   **/
-  static int textEnabled(ExecutionContext& ctx, unsigned numArgs);
+  static int textEnabled(lua_State* L);
   /**
   \param character unlink character
   **/
-  static int unlinkChar(ExecutionContext& ctx, unsigned numArgs);
+  static int unlinkChar(lua_State* L);
   /**
   **/
-  static int unloadRoom(ExecutionContext& ctx, unsigned numArgs);
+  static int unloadRoom(lua_State* L);
   /**
   \param time time in seconds
   **/
-  static int wait(ExecutionContext& ctx, unsigned numArgs);
+  static int wait(lua_State* L);
   /**
   \param character name of the character to walk
   \param x x-position to walk to
@@ -592,31 +594,31 @@ public:
   \param dir [opt] look direction
   \param dontwait [opt] continue script execution immediately
   **/
-  static int walkTo(ExecutionContext& ctx, unsigned numArgs);
+  static int walkTo(lua_State* L);
 
-  static int dummy(ExecutionContext& ctx, unsigned numArgs);
+  static int dummy(lua_State* L);
 
-  static int isBoolEqual(ExecutionContext& ctx, unsigned numArgs);
-  static int isCharFocussed(ExecutionContext& cxt, unsigned numArgs);
-  static int isCharInRoom(ExecutionContext& ctx, unsigned numArgs);
-  static int isCharPossessingItem(ExecutionContext& ctx, unsigned numArgs);
-  static int isCharTriggering(ExecutionContext& ctx, unsigned numArgs);
-  static int isCommandSet(ExecutionContext& ctx, unsigned numArgs);
-  static int isCurrentRoom(ExecutionContext& ctx, unsigned numArgs);
-  static int isObjectInState(ExecutionContext& ctx, unsigned numArgs);
-  static int isLinkedObject(ExecutionContext& ctx, unsigned numArgs);
-  static int isGiveLinkedObject(ExecutionContext& ctx, unsigned numArgs);
-  static int isNumEqual(ExecutionContext& ctx, unsigned numArgs);
-  static int isKeyDownEqual(ExecutionContext& ctx, unsigned numArgs);
-  static int isKeyPressedEqual(ExecutionContext& ctx, unsigned numArgs);
-  static int isMouseWheelEqual(ExecutionContext& ctx, unsigned numArgs);
-  static int isStringEqual(ExecutionContext& ctx, unsigned numArgs);
-  static int isObjXPosEqual(ExecutionContext& ctx, unsigned numArgs);
-  static int isObjYPosEqual(ExecutionContext& ctx, unsigned numArgs);
-  static int isItemInState(ExecutionContext& ctx, unsigned numArgs);
+  static int isBoolEqual(lua_State* L);
+  static int isCharFocussed(lua_State* L);
+  static int isCharInRoom(lua_State* L);
+  static int isCharPossessingItem(lua_State* L);
+  static int isCharTriggering(lua_State* L);
+  static int isCommandSet(lua_State* L);
+  static int isCurrentRoom(lua_State* L);
+  static int isObjectInState(lua_State* L);
+  static int isLinkedObject(lua_State* L);
+  static int isGiveLinkedObject(lua_State* L);
+  static int isNumEqual(lua_State* L);
+  static int isKeyDownEqual(lua_State* L);
+  static int isKeyPressedEqual(lua_State* L);
+  static int isMouseWheelEqual(lua_State* L);
+  static int isStringEqual(lua_State* L);
+  static int isObjXPosEqual(lua_State* L);
+  static int isObjYPosEqual(lua_State* L);
+  static int isItemInState(lua_State* L);
  private:
   static void setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip);
-  static int moveTo(ExecutionContext& ctx, unsigned numArgs, float speedFactor);
+  static int moveTo(lua_State* L, float speedFactor);
   static int getRequestedState(Character* cclass, const StackData& data);
   static ScreenChange getScreenChange(const std::string& name);
 };

@@ -4,6 +4,10 @@
 #include <cstdlib>
 #include "String.h"
 
+extern "C"{
+#include <lua.h>
+}
+
 namespace adv{
 
 class ExecutionContext;
@@ -28,6 +32,9 @@ public:
   bool isString() const {return mType == S;}
   bool isNumber() const {return mType == I || mType == F;}
   bool isBool() const { return mType == B; }
+  bool isEC() const { return mType == EC; }
+  static StackData fromStack(lua_State* L, int idx);
+  static void pushStack(lua_State* L, StackData const& sd);
 protected:
   enum Type{
     S, I, B, F, EC
@@ -46,22 +53,27 @@ std::ostream& operator<<(std::ostream& strm, const StackData& data);
 std::istream& operator>>(std::istream& strm, StackData& data);
 
 class Stack{
+  friend class CCALL;
 public:
-  Stack(){}
-  Stack(const Stack& st){mVariables = st.mVariables;}
+  Stack() : mNumArgs(0), mL(NULL) {}
+  Stack(const Stack& st){ mNumArgs = 0; mL = NULL; }
   ~Stack(){}
-  void push(const StackData& v) {mVariables.push_back(v);}
+  void push(const StackData& v) {StackData::pushStack(mL, v);}
   StackData pop() {
-    StackData data = mVariables.back();
-    mVariables.pop_back();
+    StackData data = StackData::fromStack(mL, -1);
+    lua_pop(mL, 1);
     return data;
   }
   void clear(){
-    mVariables.clear();
+    lua_settop(mL, 0);
+    mNumArgs = 0;
   }
-  StackData& top() {return mVariables.back();}
+  StackData top() { return StackData::fromStack(mL, -1); }
+  unsigned numArgs() { return mNumArgs; }
+  void setState(lua_State* L) { mL = L; }
 protected:
-  std::vector<StackData> mVariables;
+  unsigned mNumArgs;
+  lua_State* mL;
 };
 
 }

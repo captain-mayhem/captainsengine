@@ -997,7 +997,7 @@ std::ostream& PcdkScript::save(std::ostream& out){
     std::string name = luaL_checkstring(mL, -2);
     if (name.empty())
       name = "none";
-    StackData val = fromStack(mL, -1);
+    StackData val = StackData::fromStack(mL, -1);
     out << name << " " << val << std::endl;
     lua_pop(mL, 1);
   }
@@ -1062,7 +1062,7 @@ std::istream& PcdkScript::load(std::istream& in){
   lua_getglobal(mL, "var");
   for (int i = 0; i < num1; ++i){
     in >> name >> data;
-    pushStack(mL, data);
+    StackData::pushStack(mL, data);
     lua_setfield(mL, -2, name.c_str());
   }
   lua_pop(mL, 1);
@@ -1419,7 +1419,7 @@ StackData PcdkScript::getVariable(const String& name){
   }
   lua_getglobal(mL, "var");
   lua_getfield(mL, -1, lname.removeAll(' ').c_str());
-  StackData ret = fromStack(mL, -1);
+  StackData ret = StackData::fromStack(mL, -1);
   lua_pop(mL, 2);
   return ret;
 }
@@ -1436,7 +1436,7 @@ void PcdkScript::setVariable(const String& name, const StackData& value){
     return;
   }
   lua_getglobal(mL, "var");
-  pushStack(mL, value);
+  StackData::pushStack(mL, value);
   lua_setfield(mL, -2, lname.removeAll(' ').c_str());
   lua_pop(mL, 1);
 }
@@ -1581,7 +1581,7 @@ int PcdkScript::getItemState(const String& name){
   return iter->second;
 }
 
-StackData PcdkScript::fromStack(lua_State* L, int idx){
+StackData StackData::fromStack(lua_State* L, int idx){
   int type = lua_type(L, idx);
   if (type == LUA_TNUMBER){
     double num = lua_tonumber(L, idx);
@@ -1602,10 +1602,15 @@ StackData PcdkScript::fromStack(lua_State* L, int idx){
     StackData ret = StackData(b);
     return ret;
   }
+  else if (type == LUA_TLIGHTUSERDATA){
+    ExecutionContext* ctx = (ExecutionContext*)lua_touserdata(L, idx);
+    StackData ret = StackData(ctx);
+    return ret;
+  }
   return StackData(0);
 }
 
-void PcdkScript::pushStack(lua_State* L, StackData const& value){
+void StackData::pushStack(lua_State* L, StackData const& value){
   if (value.isInt())
     lua_pushinteger(L, value.getInt());
   else if (value.isFloat())
@@ -1614,6 +1619,8 @@ void PcdkScript::pushStack(lua_State* L, StackData const& value){
     lua_pushstring(L, value.getString().c_str());
   else if (value.isBool())
     lua_pushboolean(L, value.getBool());
+  else if (value.isEC())
+    lua_pushlightuserdata(L, value.getEC());
   else
     lua_pushnil(L);
 }
