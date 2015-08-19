@@ -69,6 +69,7 @@ public:
     mNumArgs = 0;
   }
   StackData top() { return StackData::fromStack(mL, -1); }
+  StackData get(int idx) { return StackData::fromStack(mL, -idx); }
   unsigned numArgs() { return mNumArgs; }
   void setState(lua_State* L) { mL = L; }
 protected:

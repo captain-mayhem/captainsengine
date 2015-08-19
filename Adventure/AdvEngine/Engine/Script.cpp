@@ -347,12 +347,14 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         if (fc->getName() == "break"){
           //break within minicut, add minicut end before break
           if (mUnresolvedBlockEnd != NULL){
-            codes->addCode(new CCALL(ScriptFunctions::miniCutEnd, "minicut", 0));
-            ++count;
+            codes->addCode(new CFCPUSH(ScriptFunctions::miniCutEnd, "minicutend"));
+            codes->addCode(new CCALL(ScriptFunctions::miniCutEnd, "minicutend", 0, 0));
+            count += 2;
           }
           ScriptFunc f = mFunctions["break"];
-          codes->addCode(new CCALL(f, "break", 0));
-          ++count;
+          codes->addCode(new CFCPUSH(f, "break"));
+          codes->addCode(new CCALL(f, "break", 0, 0));
+          count += 2;
           CBRA* jmp = new CBRA();
           codes->addCode(jmp);
           ++count;
@@ -367,8 +369,9 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           nl->reset(true);
         }
         else if (fc->getName() == "minicut"){
-          if (mUnresolvedBlockEnd == NULL)
-            mUnresolvedBlockEnd = new CCALL(ScriptFunctions::miniCutEnd, "minicut", 0);
+          if (mUnresolvedBlockEnd == NULL){
+            mUnresolvedBlockEnd = new CCALL(ScriptFunctions::miniCutEnd, "minicut", 0, 0);
+          }
         }
         ScriptFunc f = mFunctions[fc->getName()];
         if (f == NULL){
@@ -378,8 +381,10 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         std::map<std::string,int>::iterator sepiter = mArgEC.find(fc->getName());
         if (sepiter != mArgEC.end())
           seperateArgument = sepiter->second;
+        codes->addCode(new CFCPUSH(f, fc->getName()));
+        ++count;
         count += transform(fc->getArguments(), codes, ARGLIST, seperateArgument);
-        codes->addCode(new CCALL(f, fc->getName(), fc->getArguments()->size()));
+        codes->addCode(new CCALL(f, fc->getName(), fc->getArguments()->size(), 0));
         ++count;
       }
       break;
@@ -432,8 +437,9 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           ++offset;
         }
         if (mUnresolvedBlockEnd != NULL){
+          codes->addCode(new CFCPUSH(mUnresolvedBlockEnd->getFunc(), mUnresolvedBlockEnd->getName()));
           codes->addCode(mUnresolvedBlockEnd);
-          ++offset;
+          offset += 2;
           mUnresolvedBlockEnd = NULL;
         }
         cevt->setOffset(offset+1);
@@ -452,8 +458,10 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           f = ScriptFunctions::dummy;
           TR_BREAK("conditional script function %s does not exist", cond->getCondFuncName().c_str());
         }
+        codes->addCode(new CFCPUSH(f, cond->getCondFuncName()));
+        ++count;
         count += transform(cond->getArguments(), codes, ARGLIST);
-        codes->addCode(new CCALL(f, cond->getCondFuncName(), cond->getArguments()->size()));
+        codes->addCode(new CCALL(f, cond->getCondFuncName(), cond->getArguments()->size(), 2));
         CBRA* cez = getBranchInstr(mLastRelation, cond->isNegated());
         codes->addCode(cez);
         count += 2;

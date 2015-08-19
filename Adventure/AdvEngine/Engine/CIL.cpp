@@ -240,6 +240,8 @@ CCode* CCode::load(std::istream& in){
       return new CDecShift();
     case I2R:
       return new CI2R();
+    case FCPUSH:
+      return new CFCPUSH(in);
     default:
       TR_BREAK("Input stream corrupted?");
   }
@@ -255,13 +257,23 @@ CPUSH::CPUSH(std::istream& in){
   in >> mData;
 }
 
+void CFCPUSH::save(std::ostream& out){
+  CCode::save(out);
+  out << " " << mName;
+}
+
+CFCPUSH::CFCPUSH(std::istream& in){
+  in >> mName;
+  mFunc = Engine::instance()->getInterpreter()->getFunction(mName);
+}
+
 void CCALL::save(std::ostream& out){
   CCode::save(out);
-  out << " " << mName << " " << mNumArgs;
+  out << " " << mName << " " << mNumArgs << " " << mNumRetVals;
 }
 
 CCALL::CCALL(std::istream& in){
-  in >> mName >> mNumArgs;
+  in >> mName >> mNumArgs >> mNumRetVals;
   mFunc = Engine::instance()->getInterpreter()->getFunction(mName);
 }
 

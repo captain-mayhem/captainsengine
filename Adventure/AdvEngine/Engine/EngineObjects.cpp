@@ -333,7 +333,7 @@ void Object2D::realize(){
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "!button"),
 BlitObject(Engine::instance()->getSettings()->tsbackground, size, DEPTH_BUTTON, Vec2i()), mText(text){
   BlitObject::realize();
-  char tmp[16];
+  char tmp[2048];
   sprintf(tmp, "%i", id);
   mName += tmp;
   mState = Engine::instance()->getInterpreter()->getVariable(mName.c_str()).getInt();
@@ -350,32 +350,24 @@ BlitObject(Engine::instance()->getSettings()->tsbackground, size, DEPTH_BUTTON, 
     mBackgroundColor.a = 127;
     mHighlightColor.a = 127;
   }
-  CodeSegment* code = new CodeSegment();
-  mScript = new ExecutionContext(code, false, "");
-  CBNEEVT* click = new CBNEEVT(EVT_CLICK);
-  code->addCode(click);
-  code->addCode(new CPUSH(id));
-  code->addCode(new CPUSH("!button"));
-  code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
-  click->setOffset(4);
-  CBNEEVT* mouse = new CBNEEVT(EVT_MOUSE);
-  code->addCode(mouse);
-  code->addCode(new CPUSH(2));
-  code->addCode(new CPUSH(mName.c_str()));
-  code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
-  code->addCode(new CPUSH(2));
-  code->addCode(new CPUSH(mName.c_str()));
-  code->addCode(new CCALL(ScriptFunctions::setObj, "setobj", 2));
-  mouse->setOffset(7);
-  CBNEEVT* mouseout = new CBNEEVT(EVT_MOUSEOUT);
-  code->addCode(mouseout);
-  code->addCode(new CPUSH(1));
-  code->addCode(new CPUSH(mName.c_str()));
-  code->addCode(new CCALL(ScriptFunctions::setNum, "setnum", 2));
-  code->addCode(new CPUSH(1));
-  code->addCode(new CPUSH(mName.c_str()));
-  code->addCode(new CCALL(ScriptFunctions::setObj, "setobj", 2));
-  mouseout->setOffset(7);
+
+  sprintf(tmp,
+    "on(click)\n"
+    "  setnum(!button; %i)\n"
+    "\n"
+    "on(mouse){\n"
+    "  setnum(%s; 2)\n"
+    "  setobj(%s; 2)\n"
+    "}\n"
+    "\n"
+    "on(mouseout){\n"
+    "  setnum(%s; 1)\n"
+    "  setobj(%s; 1)\n"
+    "}\n",
+    id, mName.c_str(), mName.c_str(), mName.c_str(), mName.c_str()
+    );
+  mScript = Engine::instance()->getInterpreter()->parseProgram(tmp);
+  
   mFont = Engine::instance()->getFontID();
   mHighlightText = mTex != 0;
   mOldHighlighting = true;

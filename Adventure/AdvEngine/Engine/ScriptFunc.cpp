@@ -138,6 +138,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("textspeed", textSpeed);
   interpreter->registerFunction("setpos", setPos);
   interpreter->registerFunction("minicut", miniCut);
+  interpreter->registerFunction("minicutend", miniCutEnd);
   interpreter->registerFunction("break", breakExec);
   interpreter->registerFunction("particleview", particleView);
   interpreter->registerFunction("texthide", textHide);
@@ -201,10 +202,10 @@ TR_BREAK("Unexpected number of arguments (%i)", numArgs);\
 
 int ScriptFunctions::loadRoom(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string room = ctx.stack().pop().getString();
+  std::string room = ctx.stack().get(1).getString();
   ScreenChange change = Engine::instance()->getScreenChange();
   if (numArgs == 2){
-    std::string changename = ctx.stack().pop().getString();
+    std::string changename = ctx.stack().get(2).getString();
     change = getScreenChange(changename);
   }
   Engine::instance()->loadMainRoom(room, &ctx, change);
@@ -213,15 +214,15 @@ int ScriptFunctions::loadRoom(lua_State* L){
 
 int ScriptFunctions::setFocus(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string character = ctx.stack().pop().getString();
+  std::string character = ctx.stack().get(1).getString();
   Engine::instance()->setFocus(character, &ctx);
   return 0;
 }
 
 int ScriptFunctions::showInfo(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string text = ctx.stack().pop().getString();
-  bool show = ctx.stack().pop().getBool();
+  std::string text = ctx.stack().get(1).getString();
+  bool show = ctx.stack().get(2).getBool();
   if (show){
     Engine::instance()->setObjectTooltipString(text);
   }
@@ -238,14 +239,14 @@ int ScriptFunctions::walkTo(lua_State* L){
 
 int ScriptFunctions::moveTo(lua_State* L, float speedFactor){
   NUM_ARGS(3, 5);
-  std::string character = ctx.stack().pop().getString();
+  std::string character = ctx.stack().get(1).getString();
   Vec2i pos;
-  pos.x = ctx.stack().pop().getInt()-1;
-  pos.y = ctx.stack().pop().getInt()-1;
+  pos.x = ctx.stack().get(2).getInt()-1;
+  pos.y = ctx.stack().get(3).getInt()-1;
   LookDir dir = UNSPECIFIED;
   bool hold = true;
   if (numArgs >= 4){
-    StackData sd = ctx.stack().pop();
+    StackData sd = ctx.stack().get(4);
     if (sd.isString()){
       if (sd.getString() == "dontwait")
         hold = false;
@@ -254,7 +255,7 @@ int ScriptFunctions::moveTo(lua_State* L, float speedFactor){
       dir = (LookDir)(sd.getInt()-1);
   }
   if (numArgs >= 5){
-    std::string dw = ctx.stack().pop().getString();
+    std::string dw = ctx.stack().get(5).getString();
     if (dw == "dontwait")
       hold = false;
   }
@@ -273,19 +274,19 @@ int ScriptFunctions::moveTo(lua_State* L, float speedFactor){
 
 int ScriptFunctions::speech(lua_State* L){
   NUM_ARGS(2, 4);
-  std::string character = ctx.stack().pop().getString();
-  std::string text = ctx.stack().pop().getString();
+  std::string character = ctx.stack().get(1).getString();
+  std::string text = ctx.stack().get(2).getString();
   std::string sound = "";
   bool hold = Engine::instance()->getInterpreter()->isBlockingScriptRunning() || ctx.isLoop1() || ctx.isIdle();
   if (numArgs >= 3){ //TODO SOUND
-    sound = ctx.stack().pop().getString();
+    sound = ctx.stack().get(3).getString();
     if (sound == "dontwait"){
       hold = false;
       sound = "";
     }
   }
   if (numArgs >= 4){
-    std::string dw = ctx.stack().pop().getString();
+    std::string dw = ctx.stack().get(4).getString();
     if (dw == "dontwait")
       hold = false;
   }
@@ -339,7 +340,7 @@ int ScriptFunctions::speech(lua_State* L){
 
 int ScriptFunctions::pickup(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string character = ctx.stack().pop().getString();
+  std::string character = ctx.stack().get(1).getString();
   if (ctx.mSkip)
     return 0;
   CharacterObject* chr = ctx.getCharacter(character);
@@ -357,10 +358,10 @@ int ScriptFunctions::pickup(lua_State* L){
 
 int ScriptFunctions::playSound(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string sound = ctx.stack().pop().getString();
+  std::string sound = ctx.stack().get(1).getString();
   unsigned volume = 100;
   if (numArgs >= 2)
-    volume = ctx.stack().pop().getInt();
+    volume = ctx.stack().get(2).getInt();
   if (ctx.mSkip)
     return 0;
   SoundPlayer* sp = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_CREATE_ALWAYS);
@@ -373,14 +374,14 @@ int ScriptFunctions::playSound(lua_State* L){
 
 int ScriptFunctions::setLight(lua_State* L){
   NUM_ARGS(4, 5);
-  std::string room = ctx.stack().pop().getString();
+  std::string room = ctx.stack().get(1).getString();
   Color c;
-  c.r = (unsigned char)ctx.stack().pop().getInt();
-  c.g = (unsigned char)ctx.stack().pop().getInt();
-  c.b = (unsigned char)ctx.stack().pop().getInt();
+  c.r = (unsigned char)ctx.stack().get(2).getInt();
+  c.g = (unsigned char)ctx.stack().get(3).getInt();
+  c.b = (unsigned char)ctx.stack().get(4).getInt();
   bool fade = false;
   if (numArgs >= 5)
-    fade = ctx.stack().pop().getString() == "fade";
+    fade = ctx.stack().get(5).getString() == "fade";
   RoomObject* roomobj = Engine::instance()->getRoom(room);
   if (roomobj){
     if (fade && !ctx.mSkip){
@@ -401,8 +402,8 @@ int ScriptFunctions::setLight(lua_State* L){
 
 int ScriptFunctions::setBool(lua_State* L){
   NUM_ARGS(2, 2);
-  String boolname = ctx.stack().pop().getString();
-  bool val = ctx.stack().pop().getBool();
+  String boolname = ctx.stack().get(1).getString();
+  bool val = ctx.stack().get(2).getBool();
   lua_getglobal(L, "bool");
   lua_pushboolean(L, val);
   lua_setfield(L, -2, boolname.c_str());
@@ -451,14 +452,14 @@ void ScriptFunctions::setObjInternal(std::vector<std::string> objects, std::vect
 
 int ScriptFunctions::setObj(lua_State* L){
   NUM_ARGS(2, ARG_MAX);
-  std::string objname = ctx.stack().pop().getString();
+  std::string objname = ctx.stack().get(1).getString();
   //remove whitespaces in object names
   for(int size = (int)objname.size()-1; size >= 0; --size){
     if (objname[size] == ' ')
       objname.erase(size, 1);
   }
   //TR_DEBUG("obj: %s", objname.c_str());
-  int state = ctx.stack().pop().getInt();
+  int state = ctx.stack().get(2).getInt();
   ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(objname);
   std::vector<std::string> objects;
   if (grp)
@@ -468,7 +469,7 @@ int ScriptFunctions::setObj(lua_State* L){
   std::vector<int> states;
   states.push_back(state);
   for (unsigned i = 2; i < numArgs; ++i){
-    state = ctx.stack().pop().getInt();
+    state = ctx.stack().get(i+1).getInt();
     states.push_back(state);
   }
   setObjInternal(objects, states, ctx.isSkipping());
@@ -477,20 +478,21 @@ int ScriptFunctions::setObj(lua_State* L){
 
 int ScriptFunctions::beamTo(lua_State* L){
   NUM_ARGS(3, 5);
-  String charname = ctx.stack().pop().getString();
+  String charname = ctx.stack().get(1).getString();
   StackData arg = ctx.stack().top();
   std::string roomname;
+  int getidx = 1;
   if (!arg.isString()){
     ++numArgs;
   }
   else
-    roomname = ctx.stack().pop().getString();
+    roomname = ctx.stack().get(++getidx).getString();
   Vec2i pos;
-  pos.x = ctx.stack().pop().getInt()-1;
-  pos.y = ctx.stack().pop().getInt()-1;
+  pos.x = ctx.stack().get(++getidx).getInt()-1;
+  pos.y = ctx.stack().get(++getidx).getInt()-1;
   LookDir dir = UNSPECIFIED;
   if (numArgs >= 5)
-    dir = (LookDir)(ctx.stack().pop().getInt()-1);
+    dir = (LookDir)(ctx.stack().get(++getidx).getInt()-1);
   bool isFocussedChar = false;
   CharacterObject* focussedChar = Engine::instance()->getCharacter("self");
   if (focussedChar){
@@ -555,13 +557,13 @@ int ScriptFunctions::beamTo(lua_State* L){
 
 int ScriptFunctions::addItem(lua_State* L){
   NUM_ARGS(2, 3);
-  std::string charname = ctx.stack().pop().getString();
-  std::string itemname = ctx.stack().pop().getString();
+  std::string charname = ctx.stack().get(1).getString();
+  std::string itemname = ctx.stack().get(2).getString();
   if (itemname == "givelink")
     itemname = ctx.getGiveObjectName();
   int inventory = 1;
   if (numArgs >= 3)
-    inventory = ctx.stack().pop().getInt();
+    inventory = ctx.stack().get(3).getInt();
   CharacterObject* chr = ctx.getCharacter(charname);
   ItemObject* item = Engine::instance()->createItem(itemname, 1);
   if (item == NULL)
@@ -603,10 +605,10 @@ int ScriptFunctions::addItem(lua_State* L){
 
 int ScriptFunctions::cutScene(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string scriptname = ctx.stack().pop().getString();
+  std::string scriptname = ctx.stack().get(1).getString();
   bool hideUI = true;
   if (numArgs > 1){
-    String donthide = ctx.stack().pop().getString();
+    String donthide = ctx.stack().get(2).getString();
     if (donthide != "donthide")
       TR_BREAK("%s unexpected", donthide.c_str());
     hideUI = false;
@@ -623,18 +625,18 @@ int ScriptFunctions::cutScene(lua_State* L){
 
 int ScriptFunctions::taskbar(lua_State* L){
   NUM_ARGS(1, 1);
-  bool state = ctx.stack().pop().getBool();
+  bool state = ctx.stack().get(1).getBool();
   Engine::instance()->showTaskbar(state);
   return 0;
 }
 
 int ScriptFunctions::follow(lua_State* L){
   NUM_ARGS(2, 3);
-  std::string char1 = ctx.stack().pop().getString();
-  std::string char2 = ctx.stack().pop().getString();
+  std::string char1 = ctx.stack().get(1).getString();
+  std::string char2 = ctx.stack().get(2).getString();
   bool hold = true;
   if (numArgs >= 3){
-    if (ctx.stack().pop().getString() == "dontwait"){
+    if (ctx.stack().get(3).getString() == "dontwait"){
       hold = false;
     }
   }
@@ -661,10 +663,10 @@ int ScriptFunctions::follow(lua_State* L){
 
 int ScriptFunctions::lookTo(lua_State* L){
   NUM_ARGS(2, 3);
-  std::string character = ctx.stack().pop().getString();
-  StackData d = ctx.stack().pop();
+  std::string character = ctx.stack().get(1).getString();
+  StackData d = ctx.stack().get(2);
   if (numArgs >= 3){
-    String noturn = ctx.stack().pop().getString();
+    String noturn = ctx.stack().get(3).getString();
     if (noturn != "noturn")
       TR_BREAK("noturn expected");
   }
@@ -696,15 +698,15 @@ int ScriptFunctions::lookTo(lua_State* L){
 
 int ScriptFunctions::textScene(lua_State* L){
   NUM_ARGS(1, 4);
-  std::string scenename = ctx.stack().pop().getString();
+  std::string scenename = ctx.stack().get(1).getString();
   Vec2i pos(0,Engine::instance()->getResolution().y);
   int width = Engine::instance()->getResolution().x;
   if (numArgs > 1){
-    pos.x = ctx.stack().pop().getInt();
+    pos.x = ctx.stack().get(2).getInt();
     if (numArgs > 2)
-      pos.y = ctx.stack().pop().getInt();
+      pos.y = ctx.stack().get(3).getInt();
     if (numArgs > 3)
-      width = ctx.stack().pop().getInt();
+      width = ctx.stack().get(4).getInt();
     Engine::instance()->getInterpreter()->mTSTopToBottom = true;
   }
   else{
@@ -725,14 +727,14 @@ int ScriptFunctions::textScene(lua_State* L){
 
 int ScriptFunctions::delItem(lua_State* L){
   NUM_ARGS(2, 3);
-  std::string charname = ctx.stack().pop().getString();
-  std::string itemname = ctx.stack().pop().getString();
+  std::string charname = ctx.stack().get(1).getString();
+  std::string itemname = ctx.stack().get(2).getString();
   if (itemname == "givelink"){
     itemname = ctx.getGiveObjectName();
   }
   int inventory = 1;
   if (numArgs >= 3)
-    inventory = ctx.stack().pop().getInt();
+    inventory = ctx.stack().get(3).getInt();
   CharacterObject* chr = ctx.getCharacter(charname);
   if (chr){
     ItemObject* io = chr->getInventory()->getItem(itemname, inventory);
@@ -768,10 +770,10 @@ int ScriptFunctions::delItem(lua_State* L){
 
 int ScriptFunctions::loopSound(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string sound = ctx.stack().pop().getString();
+  std::string sound = ctx.stack().get(1).getString();
   int volume = 100;
   if (numArgs >= 2)
-    volume = ctx.stack().pop().getInt();
+    volume = ctx.stack().get(2).getInt();
   SoundPlayer* sp = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_DEFAULT);
   if (sp){
     sp->setVolume(volume/100.0f);
@@ -782,7 +784,7 @@ int ScriptFunctions::loopSound(lua_State* L){
 
 int ScriptFunctions::loopStop(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string sound = ctx.stack().pop().getString();
+  std::string sound = ctx.stack().get(1).getString();
   SoundPlayer* sp = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_DEFAULT);
   if (sp)
     sp->stop();
@@ -791,17 +793,17 @@ int ScriptFunctions::loopStop(lua_State* L){
 
 int ScriptFunctions::playMusic(lua_State* L){
   NUM_ARGS(1, 3);
-  std::string music = ctx.stack().pop().getString();
+  std::string music = ctx.stack().get(1).getString();
   std::string pattern;
   if (numArgs >= 2){
-    pattern = ctx.stack().pop().getString();
+    pattern = ctx.stack().get(2).getString();
     if (!pattern.empty()){
       TR_USE(ADV_ScriptFunc);
       TR_BREAK("patterns in playMusic need to be implemented %s", pattern.c_str());
     }
   }
   if (numArgs >= 3){
-    std::string dummy = ctx.stack().pop().getString();
+    std::string dummy = ctx.stack().get(3).getString();
     TR_INFO("%s unexpected", dummy.c_str());
   }
   SoundPlayer* sp = SoundEngine::instance()->getMusic(music);
@@ -822,7 +824,7 @@ int ScriptFunctions::stopMusic(lua_State* L){
 
 int ScriptFunctions::wait(lua_State* L){
   NUM_ARGS(1, 1);
-  float seconds = ctx.stack().pop().getFloat();
+  float seconds = ctx.stack().get(1).getFloat();
   if (ctx.mSkip)
     return 0;
   ctx.mSleepTime = (int)(seconds*1000);
@@ -832,10 +834,10 @@ int ScriptFunctions::wait(lua_State* L){
 
 int ScriptFunctions::subRoom(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string roomname = ctx.stack().pop().getString();
+  std::string roomname = ctx.stack().get(1).getString();
   int fading_time = 0;
   if (numArgs >= 2){
-    fading_time = ctx.stack().pop().getInt();
+    fading_time = ctx.stack().get(2).getInt();
   }
   if (Engine::instance()->isSubRoomLoaded())
     Engine::instance()->unloadRoom(NULL, false, false, &ctx);
@@ -857,7 +859,7 @@ int ScriptFunctions::subRoomReturnImmediate(lua_State* L){
 
 int ScriptFunctions::link(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string objectname = ctx.stack().pop().getString();
+  std::string objectname = ctx.stack().get(1).getString();
   Engine::instance()->setUseObject(objectname, ctx.mObjectInfo);
   PcdkScript::mRemoveLinkObject = false;
   return 0;
@@ -867,7 +869,7 @@ int ScriptFunctions::giveLink(lua_State* L){
   NUM_ARGS(0, 1);
   Object2D* obj = NULL;
   if (numArgs >= 1){
-    std::string objectname = ctx.stack().pop().getString();
+    std::string objectname = ctx.stack().get(1).getString();
     obj = Engine::instance()->getObject(objectname, true);
   }
   else{
@@ -880,8 +882,8 @@ int ScriptFunctions::giveLink(lua_State* L){
 
 int ScriptFunctions::setNum(lua_State* L){
   NUM_ARGS(2, 2);
-  String varname = ctx.stack().pop().getString();
-  float val = ctx.stack().pop().getFloat();
+  String varname = ctx.stack().get(1).getString();
+  float val = ctx.stack().get(2).getFloat();
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }
@@ -896,20 +898,20 @@ int ScriptFunctions::offSpeech(lua_State* L){
   }
   else
     walkgridsize = Engine::instance()->getWalkGridSize(false);
-  pos.x = (int)(ctx.stack().pop().getInt()*walkgridsize);
-  pos.y = (int)(ctx.stack().pop().getInt()*walkgridsize);
-  std::string text = ctx.stack().pop().getString();
+  pos.x = (int)(ctx.stack().get(1).getInt()*walkgridsize);
+  pos.y = (int)(ctx.stack().get(2).getInt()*walkgridsize);
+  std::string text = ctx.stack().get(3).getString();
   std::string sound = "";
   bool hold = Engine::instance()->getInterpreter()->isBlockingScriptRunning() || ctx.isLoop1() || ctx.isIdle();
   if (numArgs >= 4){
-    sound = ctx.stack().pop().getString();
+    sound = ctx.stack().get(4).getString();
     if (sound == "dontwait"){
       hold = false;
       sound = "";
     }
   }
   if (numArgs >= 5){
-    std::string dw = ctx.stack().pop().getString();
+    std::string dw = ctx.stack().get(5).getString();
     if (dw == "dontwait")
       hold = false;
   }
@@ -970,16 +972,16 @@ int ScriptFunctions::restart(lua_State* L){
 
 int ScriptFunctions::gotoLevel(lua_State* L){
   NUM_ARGS(1, 1);
-  int level = ctx.stack().pop().getInt();
+  int level = ctx.stack().get(1).getInt();
   Engine::instance()->getInterpreter()->mNextTSLevel = level;
   return 0;
 }
 
 int ScriptFunctions::deactivate(lua_State* L){
   NUM_ARGS(3, 3);
-  std::string scene = ctx.stack().pop().getString();
-  int level = ctx.stack().pop().getInt();
-  int row = ctx.stack().pop().getInt();
+  std::string scene = ctx.stack().get(1).getString();
+  int level = ctx.stack().get(2).getInt();
+  int row = ctx.stack().get(3).getInt();
   if (scene == "self")
     scene = Engine::instance()->getInterpreter()->mTSName;
   Engine::instance()->getInterpreter()->mTSActive[scene][level][row] = false;
@@ -996,12 +998,12 @@ int ScriptFunctions::endScene(lua_State* L){
 
 int ScriptFunctions::instObj(lua_State* L){
   NUM_ARGS(2, ARG_MAX);
-  std::string objname = ctx.stack().pop().getString();
-  int state = ctx.stack().pop().getInt();
+  std::string objname = ctx.stack().get(1).getString();
+  int state = ctx.stack().get(2).getInt();
   for (unsigned i = 2; i < numArgs; ++i){
     TR_USE(ADV_ScriptFunc);
     TR_BREAK("state lists - implement me"); //TODO state lists
-    state = ctx.stack().pop().getInt();
+    state = ctx.stack().get(i+1).getInt();
   }
   Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
@@ -1018,7 +1020,7 @@ int ScriptFunctions::command(lua_State* L){
   NUM_ARGS(0, 1);
   std::string cmd;
   if (numArgs == 1)
-    cmd = ctx.stack().pop().getString();
+    cmd = ctx.stack().get(1).getString();
   else
     cmd = "none";
   //change also event in current script
@@ -1032,7 +1034,7 @@ int ScriptFunctions::command(lua_State* L){
 
 int ScriptFunctions::invDown(lua_State* L){
   NUM_ARGS(1, 1);
-  int move = ctx.stack().pop().getInt();
+  int move = ctx.stack().get(1).getInt();
   RoomObject* room = Engine::instance()->getContainingRoom(ctx.mOwner);
   int maxit = 1000;
   CharacterObject* chr = Engine::instance()->getCharacter("self");
@@ -1044,7 +1046,7 @@ int ScriptFunctions::invDown(lua_State* L){
 
 int ScriptFunctions::invUp(lua_State* L){
   NUM_ARGS(1, 1);
-  int move = ctx.stack().pop().getInt();
+  int move = ctx.stack().get(1).getInt();
   RoomObject* room = Engine::instance()->getContainingRoom(ctx.mOwner);
   int maxit = 1000;
   CharacterObject* chr = Engine::instance()->getCharacter("self");
@@ -1056,11 +1058,11 @@ int ScriptFunctions::invUp(lua_State* L){
 
 int ScriptFunctions::setFont(lua_State* L){
   NUM_ARGS(1, 2);
-  int fontid = ctx.stack().pop().getInt();
+  int fontid = ctx.stack().get(1).getInt();
   if (!Engine::instance()->getFontRenderer()->loadFont(fontid))
     return 0;
   if (numArgs >= 2){
-    CharacterObject* chr = ctx.getCharacter(ctx.stack().pop().getString());
+    CharacterObject* chr = ctx.getCharacter(ctx.stack().get(2).getString());
     if (!chr){
       TR_USE(ADV_ScriptFunc);
       TR_BREAK("Character not found");
@@ -1100,7 +1102,7 @@ ScreenChange ScriptFunctions::getScreenChange(const std::string& name){
 
 int ScriptFunctions::setScreenchange(lua_State* L){
   NUM_ARGS(1, 1);
-  StackData data = ctx.stack().pop();
+  StackData data = ctx.stack().get(1);
   ScreenChange screenchange = SC_DIRECT;
   if (data.getString().size() > 1){
     std::string name = data.getString();
@@ -1115,9 +1117,9 @@ int ScriptFunctions::setScreenchange(lua_State* L){
 
 int ScriptFunctions::activate(lua_State* L){
   NUM_ARGS(3, 3);
-  std::string scene = ctx.stack().pop().getString();
-  int level = ctx.stack().pop().getInt();
-  int row = ctx.stack().pop().getInt();
+  std::string scene = ctx.stack().get(1).getString();
+  int level = ctx.stack().get(2).getInt();
+  int row = ctx.stack().get(3).getInt();
   if (scene == "self")
     scene = Engine::instance()->getInterpreter()->mTSName;
   Engine::instance()->getInterpreter()->mTSActive[scene][level][row] = true;
@@ -1126,24 +1128,24 @@ int ScriptFunctions::activate(lua_State* L){
 
 int ScriptFunctions::saveGame(lua_State* L){
   NUM_ARGS(1, 1);
-  int slot = ctx.stack().pop().getInt();
+  int slot = ctx.stack().get(1).getInt();
   Engine::instance()->getSaver()->save(SaveStateProvider::saveSlotToPath(slot));
   return 0;
 }
 
 int ScriptFunctions::loadGame(lua_State* L){
   NUM_ARGS(1, 1);
-  int slot = ctx.stack().pop().getInt();
+  int slot = ctx.stack().get(1).getInt();
   Engine::instance()->getSaver()->load(SaveStateProvider::saveSlotToPath(slot));
   return 0;
 }
 
 int ScriptFunctions::jiggle(lua_State* L){
   NUM_ARGS(1, 2);
-  float seconds = ctx.stack().pop().getFloat();
+  float seconds = ctx.stack().get(1).getFloat();
   int power = 10;
   if (numArgs >= 2)
-    power = ctx.stack().pop().getInt();
+    power = ctx.stack().get(2).getInt();
   if (ctx.mSkip)
     return 0;
   RoomObject* room = Engine::instance()->getRoom("");
@@ -1168,8 +1170,8 @@ int ScriptFunctions::jiggle(lua_State* L){
 
 int ScriptFunctions::randomNum(lua_State* L){
   NUM_ARGS(2, 2);
-  String name = ctx.stack().pop().getString();
-  int limit = ctx.stack().pop().getInt();
+  String name = ctx.stack().get(1).getString();
+  int limit = ctx.stack().get(2).getInt();
   int rnd = rand()%limit;
   Engine::instance()->getInterpreter()->setVariable(name, StackData(rnd+1));
   return 0;
@@ -1201,11 +1203,11 @@ int ScriptFunctions::getRequestedState(Character* cclass, const StackData& data)
 
 int ScriptFunctions::setChar(lua_State* L){
   NUM_ARGS(2, ARG_MAX);
-  std::string chrname = ctx.stack().pop().getString();
-  StackData data = ctx.stack().pop();
+  std::string chrname = ctx.stack().get(1).getString();
+  StackData data = ctx.stack().get(2);
   if (ctx.mSkip){
     for (unsigned i = 2; i < numArgs; ++i){
-      ctx.stack().pop();
+      ctx.stack().get(i+1);
     }
     return 0;
   }
@@ -1224,7 +1226,7 @@ int ScriptFunctions::setChar(lua_State* L){
     obj->getAnimation()->start(); //restart from beginning
   }
   for (unsigned i = 2; i < numArgs; ++i){
-    data = ctx.stack().pop();
+    data = ctx.stack().get(i+1);
     if (obj){
       state = getRequestedState(obj->getClass(), data);
       obj->addNextState(state);
@@ -1240,15 +1242,15 @@ int ScriptFunctions::setChar(lua_State* L){
 
 int ScriptFunctions::setString(lua_State* L){
   NUM_ARGS(2, 2);
-  String varname = ctx.stack().pop().getString();
-  String val = ctx.stack().pop().getString();
+  String varname = ctx.stack().get(1).getString();
+  String val = ctx.stack().get(2).getString();
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }
 
 int ScriptFunctions::loadNum(lua_State* L){
   NUM_ARGS(1, 1);
-  String varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().get(1).getString();
   int val = 0;
   std::string file = Engine::instance()->getSettings()->savedir+"/num.sav";
   std::ifstream in(file.c_str());
@@ -1268,7 +1270,7 @@ int ScriptFunctions::loadNum(lua_State* L){
 
 int ScriptFunctions::saveNum(lua_State* L){
   NUM_ARGS(1, 1);
-  String varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().get(1).getString();
   int val = Engine::instance()->getInterpreter()->getVariable(varname).getInt();
   std::string file = Engine::instance()->getSettings()->savedir+"/num.sav";
   //load old content
@@ -1299,28 +1301,28 @@ int ScriptFunctions::saveNum(lua_State* L){
 
 int ScriptFunctions::textEnabled(lua_State* L){
   NUM_ARGS(1, 1);
-  bool enabled = ctx.stack().pop().getBool();
+  bool enabled = ctx.stack().get(1).getBool();
   Engine::instance()->setTextEnabled(enabled);
   return 0;
 }
 
 int ScriptFunctions::realTime(lua_State* L){
   NUM_ARGS(1, 1);
-  bool enabled = ctx.stack().pop().getBool();
+  bool enabled = ctx.stack().get(1).getBool();
   //this is intentionally left blank, consider implementing if engine too slow otherwise
   return 0;
 }
 
 int ScriptFunctions::setCharLight(lua_State* L){
   NUM_ARGS(4, 5);
-  std::string charname = ctx.stack().pop().getString();
+  std::string charname = ctx.stack().get(1).getString();
   Color c;
-  c.r = (unsigned char)ctx.stack().pop().getInt();
-  c.g = (unsigned char)ctx.stack().pop().getInt();
-  c.b = (unsigned char)ctx.stack().pop().getInt();
+  c.r = (unsigned char)ctx.stack().get(2).getInt();
+  c.g = (unsigned char)ctx.stack().get(3).getInt();
+  c.b = (unsigned char)ctx.stack().get(4).getInt();
   bool fade = false;
   if (numArgs >= 5){
-    std::string fading = ctx.stack().pop().getString();
+    std::string fading = ctx.stack().get(5).getString();
     if (fading == "fade")
       fade = true;
   }
@@ -1350,10 +1352,10 @@ int ScriptFunctions::setCharLight(lua_State* L){
 
 int ScriptFunctions::group(lua_State* L){
   NUM_ARGS(1, ARG_MAX);
-  std::string groupname = ctx.stack().pop().getString();
+  std::string groupname = ctx.stack().get(1).getString();
   ObjectGroup* grp = new ObjectGroup(groupname);
   for (unsigned i = 1; i < numArgs; ++i){
-    std::string object = ctx.stack().pop().getString();
+    std::string object = ctx.stack().get(i+1).getString();
     grp->add(object);
   }
   Engine::instance()->getInterpreter()->mGroups.push_back(grp);
@@ -1368,22 +1370,22 @@ int ScriptFunctions::stopSkip(lua_State* L){
 
 int ScriptFunctions::playSwf(lua_State* L){
   NUM_ARGS(1, 5);
-  std::string moviename = ctx.stack().pop().getString();
+  std::string moviename = ctx.stack().get(1).getString();
   int x = 0;
   int y = 0;
   int width = Engine::instance()->getSettings()->resolution.x;
   int height = Engine::instance()->getSettings()->resolution.y;
   if (numArgs >= 2){
-    x = ctx.stack().pop().getInt();
+    x = ctx.stack().get(2).getInt();
   }
   if (numArgs >= 3){
-    y = ctx.stack().pop().getInt();
+    y = ctx.stack().get(3).getInt();
   }
   if (numArgs >= 4){
-    width = ctx.stack().pop().getInt();
+    width = ctx.stack().get(4).getInt();
   }
   if (numArgs >= 5){
-    height = ctx.stack().pop().getInt();
+    height = ctx.stack().get(5).getInt();
   }
   VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename, true);
   if (vp){
@@ -1416,23 +1418,23 @@ protected:
 
 int ScriptFunctions::playVideo(lua_State* L){
   NUM_ARGS(2, 6);
-  std::string moviename = ctx.stack().pop().getString();
-  bool suspend = ctx.stack().pop().getBool();
+  std::string moviename = ctx.stack().get(1).getString();
+  bool suspend = ctx.stack().get(2).getBool();
   int x = 0;
   int y = 0;
   int width = Engine::instance()->getSettings()->resolution.x;
   int height = Engine::instance()->getSettings()->resolution.y;
   if (numArgs >= 3){
-    x = ctx.stack().pop().getInt();
+    x = ctx.stack().get(3).getInt();
   }
   if (numArgs >= 4){
-    y = ctx.stack().pop().getInt();
+    y = ctx.stack().get(4).getInt();
   }
   if (numArgs >= 5){
-    width = ctx.stack().pop().getInt();
+    width = ctx.stack().get(5).getInt();
   }
   if (numArgs >= 6){
-    height = ctx.stack().pop().getInt();
+    height = ctx.stack().get(6).getInt();
   }
   VideoPlayer* vp = SoundEngine::instance()->getMovie(moviename, false);
   if (!ctx.isSkipping() && vp){
@@ -1448,11 +1450,11 @@ int ScriptFunctions::playVideo(lua_State* L){
 
 int ScriptFunctions::setWalkmap(lua_State* L){
   NUM_ARGS(4, 4);
-  std::string room = ctx.stack().pop().getString();
+  std::string room = ctx.stack().get(1).getString();
   Vec2i pos;
-  pos.x = ctx.stack().pop().getInt();
-  pos.y = ctx.stack().pop().getInt();
-  bool walkable = ctx.stack().pop().getBool();
+  pos.x = ctx.stack().get(2).getInt();
+  pos.y = ctx.stack().get(3).getInt();
+  bool walkable = ctx.stack().get(4).getBool();
   RoomObject* rm = Engine::instance()->getRoom(room);
   if (rm)
     rm->modifyWalkmap(pos, walkable);
@@ -1465,8 +1467,8 @@ int ScriptFunctions::setWalkmap(lua_State* L){
 
 int ScriptFunctions::stepTo(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string name = ctx.stack().pop().getString();
-  std::string dirname = ctx.stack().pop().getString();
+  std::string name = ctx.stack().get(1).getString();
+  std::string dirname = ctx.stack().get(2).getString();
   LookDir dir = UNSPECIFIED;
   if (_stricmp(dirname.c_str(), "UP") == 0)
     dir = BACK;
@@ -1525,19 +1527,19 @@ private:
 
 int ScriptFunctions::moveObj(lua_State* L){
   NUM_ARGS(4, 5);
-  std::string name = ctx.stack().pop().getString();
+  std::string name = ctx.stack().get(1).getString();
   //remove whitespaces in object names
   for(int size = (int)name.size()-1; size >= 0; --size){
     if (name[size] == ' ')
       name.erase(size, 1);
   }
   Vec2i newpos;
-  newpos.x = ctx.stack().pop().getInt();
-  newpos.y = ctx.stack().pop().getInt();
-  int speed = ctx.stack().pop().getInt();
+  newpos.x = ctx.stack().get(2).getInt();
+  newpos.y = ctx.stack().get(3).getInt();
+  int speed = ctx.stack().get(4).getInt();
   bool hold = false;
   if (numArgs >= 5){
-    std::string wait = ctx.stack().pop().getString();
+    std::string wait = ctx.stack().get(5).getString();
     if (wait == "wait")
       hold = true;
   }
@@ -1600,19 +1602,19 @@ int ScriptFunctions::quit(lua_State* L){
 
 int ScriptFunctions::musicVolume(lua_State* L){
   NUM_ARGS(1, 1);
-  int volume = ctx.stack().pop().getInt();
+  int volume = ctx.stack().get(1).getInt();
   SoundEngine::instance()->setMusicVolume(volume/100.0f);
   return 0;
 }
 
 int ScriptFunctions::setParticles(lua_State* L){
   NUM_ARGS(6, 6);
-  std::string object = ctx.stack().pop().getString();
-  int speed = ctx.stack().pop().getInt();
-  int amount = ctx.stack().pop().getInt();
-  int direction = ctx.stack().pop().getInt();
-  int rotation = ctx.stack().pop().getInt();
-  int variation = ctx.stack().pop().getInt();
+  std::string object = ctx.stack().get(1).getString();
+  int speed = ctx.stack().get(2).getInt();
+  int amount = ctx.stack().get(3).getInt();
+  int direction = ctx.stack().get(4).getInt();
+  int rotation = ctx.stack().get(5).getInt();
+  int variation = ctx.stack().get(6).getInt();
   float angle = (float)((90.0f-direction)/180.0f*M_PI);
   Vec2f dir;
   dir.x = speed*cosf(angle);
@@ -1630,7 +1632,7 @@ int ScriptFunctions::startParticles(lua_State* L){
   NUM_ARGS(0, 1);
   bool fast = false;
   if (numArgs >= 1){
-    std::string arg = ctx.stack().pop().getString();
+    std::string arg = ctx.stack().get(1).getString();
     fast = arg == "fast";
   }
   Engine::instance()->getParticleEngine()->activate(true, fast);
@@ -1641,7 +1643,7 @@ int ScriptFunctions::stopParticles(lua_State* L){
   NUM_ARGS(0, 1);
   bool fast = false;
   if (numArgs >= 1){
-    std::string arg = ctx.stack().pop().getString();
+    std::string arg = ctx.stack().get(1).getString();
     fast = arg == "fast";
   }
   Engine::instance()->getParticleEngine()->activate(false, fast);
@@ -1650,12 +1652,12 @@ int ScriptFunctions::stopParticles(lua_State* L){
 
 int ScriptFunctions::function(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string scriptname = ctx.stack().pop().getString();
+  std::string scriptname = ctx.stack().get(1).getString();
   TR_DEBUG("Function %s started", scriptname.c_str());
   ExecutionContext* func = Engine::instance()->getInterpreter()->getScript(scriptname);
   int numExecutions = 1;
   if (numArgs > 1){
-    StackData d = ctx.stack().pop();
+    StackData d = ctx.stack().get(2);
     if (d.getInt() == 0){
       std::string txt = d.getString();
       bool loop = false;
@@ -1692,9 +1694,9 @@ int ScriptFunctions::function(lua_State* L){
 
 int ScriptFunctions::stopFunction(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string scriptname = ctx.stack().pop().getString();
+  std::string scriptname = ctx.stack().get(1).getString();
   if (numArgs >= 2){
-    String dummy = ctx.stack().pop().getString();
+    String dummy = ctx.stack().get(2).getString();
     if (dummy != "inf")
       TR_BREAK("inf expected");
   }
@@ -1709,14 +1711,14 @@ int ScriptFunctions::stopFunction(lua_State* L){
 
 int ScriptFunctions::speechVolume(lua_State* L){
   NUM_ARGS(1, 1);
-  int volume = ctx.stack().pop().getInt();
+  int volume = ctx.stack().get(1).getInt();
   SoundEngine::instance()->setSpeechVolume(volume/100.0f);
   return 0;
 }
 
 int ScriptFunctions::setLanguage(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string language = ctx.stack().pop().getString();
+  std::string language = ctx.stack().get(1).getString();
   Engine::instance()->getInterpreter()->setLanguage(language);
   return 0;
 }
@@ -1730,7 +1732,7 @@ int ScriptFunctions::enterText(lua_State* L){
   int maxchars = 100;
   String initalContent;
   if (numArgs >= 1){
-    ExecutionContext* text = ctx.stack().pop().getEC();
+    ExecutionContext* text = ctx.stack().get(1).getEC();
     //get and init the variable
     CCode* code = text->getCode()->get(text->getCode()->numInstructions()-2);
     if (code == NULL) //no string prepended to variable
@@ -1751,40 +1753,40 @@ int ScriptFunctions::enterText(lua_State* L){
     }
   }
   if (numArgs >= 2){
-    int x = ctx.stack().pop().getInt();
+    int x = ctx.stack().get(2).getInt();
     if (x != -1)
       txtout->getPos().x = x;
   }
   if (numArgs >= 3){
-    int y = ctx.stack().pop().getInt();
+    int y = ctx.stack().get(3).getInt();
     if (y != -1)
       txtout->getPos().y = y;
   }
   if (numArgs >= 4){
-    int font = ctx.stack().pop().getInt();
+    int font = ctx.stack().get(4).getInt();
     if (font != -1)
       txtout->setFont(font);
   }
   if (numArgs >= 5){
-    maxchars = ctx.stack().pop().getInt();
+    maxchars = ctx.stack().get(5).getInt();
   }
   if (numArgs >= 6){
-    int col = ctx.stack().pop().getInt();
+    int col = ctx.stack().get(6).getInt();
     if (col != -1)
       txtout->getColor().r = col;
   }
   if (numArgs >= 7){
-    int col = ctx.stack().pop().getInt();
+    int col = ctx.stack().get(7).getInt();
     if (col != -1)
       txtout->getColor().g = col;
   }
   if (numArgs >= 8){
-    int col = ctx.stack().pop().getInt();
+    int col = ctx.stack().get(8).getInt();
     if (col != -1)
       txtout->getColor().b = col;
   }
   if (numArgs >= 9){
-    initalContent = ctx.stack().pop().getString();
+    initalContent = ctx.stack().get(9).getString();
   }
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(initalContent));
   Engine::instance()->getInterpreter()->cutsceneMode(false);
@@ -1795,7 +1797,7 @@ int ScriptFunctions::enterText(lua_State* L){
 
 int ScriptFunctions::fadeSpeed(lua_State* L){
   NUM_ARGS(1, 1);
-  int speed = ctx.stack().pop().getInt();
+  int speed = ctx.stack().get(1).getInt();
   if (speed <= 15){
     speed = 1500-(speed-1)*100;
   }
@@ -1805,15 +1807,15 @@ int ScriptFunctions::fadeSpeed(lua_State* L){
 
 int ScriptFunctions::setEAX(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string effect = ctx.stack().pop().getString();
+  std::string effect = ctx.stack().get(1).getString();
   SoundEngine::instance()->setEAXEffect(toLower(effect));
   return 0;
 }
 
 int ScriptFunctions::bindText(lua_State* L){
   NUM_ARGS(2, 2);
-  int textnum = ctx.stack().pop().getInt();
-  String room = ctx.stack().pop().getString();
+  int textnum = ctx.stack().get(1).getInt();
+  String room = ctx.stack().get(2).getString();
   if (room == "any"){
     room = Engine::instance()->getData()->getProjectSettings()->anywhere_room.c_str();
   }
@@ -1833,11 +1835,11 @@ int ScriptFunctions::bindText(lua_State* L){
 
 int ScriptFunctions::textOut(lua_State* L){
   NUM_ARGS(1, 8);
-  int textnum = ctx.stack().pop().getInt();
+  int textnum = ctx.stack().get(1).getInt();
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(true);
   if (numArgs >= 2){
-    ExecutionContext* text = ctx.stack().pop().getEC();
+    ExecutionContext* text = ctx.stack().get(2).getEC();
     Engine::instance()->getInterpreter()->executeImmediately(text, false);
     StackData result = text->stack().pop();
     if (!result.isNumber() || result.getInt() != -1){
@@ -1845,36 +1847,36 @@ int ScriptFunctions::textOut(lua_State* L){
     }
   }
   if (numArgs >= 3){
-    int x = ctx.stack().pop().getInt();
+    int x = ctx.stack().get(3).getInt();
     if (x != -1){
       Engine::instance()->getAnimator()->remove(txtout);
       txtout->getPos().x = x;
     }
   }
   if (numArgs >= 4){
-    int y = ctx.stack().pop().getInt();
+    int y = ctx.stack().get(4).getInt();
     if (y != -1){
       Engine::instance()->getAnimator()->remove(txtout);
       txtout->getPos().y = y;
     }
   }
   if (numArgs >= 5){
-    int font = ctx.stack().pop().getInt();
+    int font = ctx.stack().get(5).getInt();
     if (font != -1)
       txtout->setFont(font);
   }
   if (numArgs >= 6){
-    int col = ctx.stack().pop().getInt();
+    int col = ctx.stack().get(6).getInt();
     if (col != -1)
       txtout->getColor().r = col;
   }
   if (numArgs >= 7){
-    int col = ctx.stack().pop().getInt();
+    int col = ctx.stack().get(7).getInt();
     if (col != -1)
       txtout->getColor().g = col;
   }
   if (numArgs >= 8){
-    int col = ctx.stack().pop().getInt();
+    int col = ctx.stack().get(8).getInt();
     if (col != -1)
       txtout->getColor().b = col;
   }
@@ -1883,7 +1885,7 @@ int ScriptFunctions::textOut(lua_State* L){
 
 int ScriptFunctions::textSpeed(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string speed = ctx.stack().pop().getString();
+  std::string speed = ctx.stack().get(1).getString();
   toLower(speed);
   int numspeed = 100;
   if (speed == "slow")
@@ -1899,18 +1901,18 @@ int ScriptFunctions::textSpeed(lua_State* L){
 }
 
 int ScriptFunctions::setPos(lua_State* L){
-  NUM_ARGS(3, 4);
-  std::string roomname = ctx.stack().pop().getString();
+  NUM_ARGS(3, 5);
+  std::string roomname = ctx.stack().get(1).getString();
   Vec2i pos;
-  pos.x = ctx.stack().pop().getInt();
-  pos.y = ctx.stack().pop().getInt();
+  pos.x = ctx.stack().get(2).getInt();
+  pos.y = ctx.stack().get(3).getInt();
   pos = pos * -Engine::instance()->getWalkGridSize(false);
   bool dontscroll = false;
   if (numArgs > 3)
-    dontscroll = ctx.stack().pop().getBool();
+    dontscroll = ctx.stack().get(4).getBool();
   if (numArgs > 4){
     LookDir blenddir = UNSPECIFIED;
-    string dir = ctx.stack().pop().getString();
+    string dir = ctx.stack().get(5).getString();
     if (dir == "right")
       blenddir = RIGHT;
     else if (dir == "left")
@@ -1944,8 +1946,8 @@ int ScriptFunctions::setPos(lua_State* L){
 int ScriptFunctions::miniCut(lua_State* L){
   NUM_ARGS(0, 1);
   bool hide = true;
-  if (numArgs == 1){
-    String hstr = ctx.stack().pop().getString();
+  if (numArgs >= 1){
+    String hstr = ctx.stack().get(1).getString();
     if (hstr != "donthide")
       TR_WARN("donthide expected");
     hide = false;
@@ -1973,7 +1975,7 @@ int ScriptFunctions::breakExec(lua_State* L){
 
 int ScriptFunctions::particleView(lua_State* L){
   NUM_ARGS(1, 1);
-  StackData view = ctx.stack().pop();
+  StackData view = ctx.stack().get(1);
   int viewnum = 0;
   if (view.isString()){
     std::string val = view.getString();
@@ -2010,7 +2012,7 @@ int ScriptFunctions::particleView(lua_State* L){
 
 int ScriptFunctions::textHide(lua_State* L){
   NUM_ARGS(1, 1);
-  int textnum = ctx.stack().pop().getInt();
+  int textnum = ctx.stack().get(1).getInt();
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(false);
   return 0;
@@ -2052,7 +2054,7 @@ private:
 
 int ScriptFunctions::stopEffect(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string effect = ctx.stack().pop().getString();
+  std::string effect = ctx.stack().get(1).getString();
   if (numArgs == 2 && effect != "lightning")
     TR_BREAK("Unexpected number of arguments (%i)", numArgs);
   if (effect == "all"){
@@ -2073,7 +2075,7 @@ int ScriptFunctions::stopEffect(lua_State* L){
     }
   }
   else if (effect == "lightning" && numArgs == 2){
-    int idx = ctx.stack().pop().getInt();
+    int idx = ctx.stack().get(2).getInt();
     PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
     if (ef)
       ef->deactivate(idx);
@@ -2098,12 +2100,12 @@ static void disableMainEffect(){
 
 int ScriptFunctions::startEffect(lua_State* L){
   NUM_ARGS(1, ARG_MAX);
-  std::string effect = ctx.stack().pop().getString();
+  std::string effect = ctx.stack().get(1).getString();
   if (effect == "slowmotion"){
-    int speed = ctx.stack().pop().getInt();
+    int speed = ctx.stack().get(2).getInt();
     bool fade = false;
     if (numArgs > 2){
-      std::string fadestr = ctx.stack().pop().getString();
+      std::string fadestr = ctx.stack().get(3).getString();
       if (fadestr == "fade")
         fade = true;
     }
@@ -2123,10 +2125,10 @@ int ScriptFunctions::startEffect(lua_State* L){
   }
   PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
   if (effect == "noise" || effect == "darkbloom" || effect == "whoosh" || effect == "bloom" || effect == "fog"){
-    int strength = ctx.stack().pop().getInt();
+    int strength = ctx.stack().get(2).getInt();
     bool fade = false;
     if (numArgs > 2){
-      std::string fadestr = ctx.stack().pop().getString();
+      std::string fadestr = ctx.stack().get(3).getString();
       if (fadestr == "fade")
         fade = true;
     }
@@ -2142,14 +2144,14 @@ int ScriptFunctions::startEffect(lua_State* L){
     ef->activate(false, 1.0, false);
   }
   else if (effect == "motionblur"){
-    int strength = ctx.stack().pop().getInt();
+    int strength = ctx.stack().get(2).getInt();
     disableMainEffect();
     ef->activate(false, strength/50.0f);
   }
   else if (effect == "heat"){
     bool fade = false;
     if (numArgs > 1){
-      std::string fadestr = ctx.stack().pop().getString();
+      std::string fadestr = ctx.stack().get(2).getString();
       if (fadestr == "fade")
         fade = true;
     }
@@ -2161,38 +2163,38 @@ int ScriptFunctions::startEffect(lua_State* L){
     ef->activate(false);
   }
   else if (effect == "drugged"){
-    int strength = ctx.stack().pop().getInt();
+    int strength = ctx.stack().get(2).getInt();
     ef->activate(false, strength/500.0f);
   }
   else if (effect == "lightning"){
-    int slot = ctx.stack().pop().getInt();
-    double x1 = (double)ctx.stack().pop().getInt();
-    double y1 = (double)ctx.stack().pop().getInt();
-    double x2 = (double)ctx.stack().pop().getInt();
-    double y2 = (double)ctx.stack().pop().getInt();
+    int slot = ctx.stack().get(2).getInt();
+    double x1 = (double)ctx.stack().get(3).getInt();
+    double y1 = (double)ctx.stack().get(4).getInt();
+    double x2 = (double)ctx.stack().get(5).getInt();
+    double y2 = (double)ctx.stack().get(6).getInt();
     x1 /= (double)Engine::instance()->getSettings()->resolution.x;
     y1 /= (double)Engine::instance()->getSettings()->resolution.y;
     x2 /= (double)Engine::instance()->getSettings()->resolution.x;
     y2 /= (double)Engine::instance()->getSettings()->resolution.y;
     Color c;
-    c.r = (unsigned char)ctx.stack().pop().getInt();
-    c.g = (unsigned char)ctx.stack().pop().getInt();
-    c.b = (unsigned char)ctx.stack().pop().getInt();
-    int spikes = ctx.stack().pop().getInt();
+    c.r = (unsigned char)ctx.stack().get(7).getInt();
+    c.g = (unsigned char)ctx.stack().get(8).getInt();
+    c.b = (unsigned char)ctx.stack().get(9).getInt();
+    int spikes = ctx.stack().get(10).getInt();
     double heightfactor = Engine::instance()->getSettings()->resolution.x+Engine::instance()->getSettings()->resolution.y/2.0;
-    double height = ctx.stack().pop().getInt()/heightfactor;
-    int speed = ctx.stack().pop().getInt();
+    double height = ctx.stack().get(11).getInt()/heightfactor;
+    int speed = ctx.stack().get(12).getInt();
     speed = (speed+1)*25;
     ef->activate(false, slot, x1, y1, x2, y2, c.r, c.g, c.b, spikes, height, speed);
   }
   else if (effect == "zoom"){
     Vec2i pos;
-    pos.x = ctx.stack().pop().getInt();
-    pos.y = ctx.stack().pop().getInt();
-    double factor = ctx.stack().pop().getFloat()/100.0f;
+    pos.x = ctx.stack().get(2).getInt();
+    pos.y = ctx.stack().get(3).getInt();
+    double factor = ctx.stack().get(4).getFloat()/100.0f;
     int fading = 0;
     if (numArgs > 4){
-      std::string fadestr = ctx.stack().pop().getString();
+      std::string fadestr = ctx.stack().get(5).getString();
       if (fadestr == "fade")
         fading = 1000;
       else if (fadestr == "fadeslow")
@@ -2205,10 +2207,10 @@ int ScriptFunctions::startEffect(lua_State* L){
   else if (effect == "whiteflash"){
     int fadein = 0;
     if (numArgs > 1)
-      fadein = ctx.stack().pop().getInt();
+      fadein = ctx.stack().get(2).getInt();
     int fadeout = 0;
     if (numArgs > 2)
-      ctx.stack().pop().getInt();
+      ctx.stack().get(3).getInt();
     ef->activate(true, fadein, fadeout);
   }
   else{
@@ -2220,8 +2222,8 @@ int ScriptFunctions::startEffect(lua_State* L){
 
 int ScriptFunctions::linkChar(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string character = ctx.stack().pop().getString();
-  std::string object = ctx.stack().pop().getString();
+  std::string character = ctx.stack().get(1).getString();
+  std::string object = ctx.stack().get(2).getString();
   CharacterObject* chr = ctx.getCharacter(character);
   if (!chr){
     //just save link information for later use
@@ -2240,8 +2242,8 @@ int ScriptFunctions::linkChar(lua_State* L){
 
 int ScriptFunctions::stopZooming(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string character = ctx.stack().pop().getString();
-  bool stopzooming = ctx.stack().pop().getBool();
+  std::string character = ctx.stack().get(1).getString();
+  bool stopzooming = ctx.stack().get(2).getBool();
   CharacterObject* chr = ctx.getCharacter(character);
   if (!chr){
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(character);
@@ -2256,10 +2258,10 @@ int ScriptFunctions::stopZooming(lua_State* L){
 
 int ScriptFunctions::unlinkChar(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string character = ctx.stack().pop().getString();
+  std::string character = ctx.stack().get(1).getString();
   String object = "";
   if (numArgs >= 2)
-    object = ctx.stack().pop().getString();
+    object = ctx.stack().get(2).getString();
   CharacterObject* chr = ctx.getCharacter(character);
   if (!chr)
     TR_BREAK("Unknown character %s", character.c_str());
@@ -2269,7 +2271,7 @@ int ScriptFunctions::unlinkChar(lua_State* L){
 
 int ScriptFunctions::saveString(lua_State* L){
   NUM_ARGS(1, 1);
-  String varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().get(1).getString();
   StackData val = Engine::instance()->getInterpreter()->getVariable(varname);
   std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
   //load old content
@@ -2300,7 +2302,7 @@ int ScriptFunctions::saveString(lua_State* L){
 
 int ScriptFunctions::loadString(lua_State* L){
   NUM_ARGS(1, 1);
-  String varname = ctx.stack().pop().getString();
+  String varname = ctx.stack().get(1).getString();
   StackData val(String("none"));
   std::string file = Engine::instance()->getSettings()->savedir+"/string.sav";
   std::ifstream in(file.c_str());
@@ -2320,18 +2322,18 @@ int ScriptFunctions::loadString(lua_State* L){
 
 int ScriptFunctions::showMouse(lua_State* L){
   NUM_ARGS(1, 1);
-  bool show = ctx.stack().pop().getBool();
+  bool show = ctx.stack().get(1).getBool();
   Engine::instance()->showMouse(show);
   return 0;
 }
 
 int ScriptFunctions::charZoom(lua_State* L){
   NUM_ARGS(2, 3);
-  std::string charname = ctx.stack().pop().getString();
-  int size = ctx.stack().pop().getInt();
+  std::string charname = ctx.stack().get(1).getString();
+  int size = ctx.stack().get(2).getInt();
   bool fade = false;
   if (numArgs >= 3){
-    std::string fadestr = ctx.stack().pop().getString();
+    std::string fadestr = ctx.stack().get(3).getString();
     if (fadestr != "fade")
       TR_BREAK("fade is %s", fadestr.c_str());
     fade = true;
@@ -2352,8 +2354,8 @@ int ScriptFunctions::charZoom(lua_State* L){
 
 int ScriptFunctions::setWalkSound(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string charname = ctx.stack().pop().getString();
-  std::string soundname = ctx.stack().pop().getString();
+  std::string charname = ctx.stack().get(1).getString();
+  std::string soundname = ctx.stack().get(2).getString();
   CharacterObject* chr = ctx.getCharacter(charname);
   if (chr){
     SoundPlayer* plyr = SoundEngine::instance()->getSound(soundname, SoundEngine::PLAYER_CREATE_ALWAYS | SoundEngine::PLAYER_UNMANAGED);
@@ -2383,21 +2385,21 @@ int ScriptFunctions::hideAllTexts(lua_State* L){
 
 int ScriptFunctions::enableMouse(lua_State* L){
   NUM_ARGS(1, 1);
-  bool enable = ctx.stack().pop().getBool();
+  bool enable = ctx.stack().get(1).getBool();
   Engine::instance()->enableMouse(enable);
   return 0;
 }
 
 int ScriptFunctions::setRectWalkmap(lua_State* L){
   NUM_ARGS(6, 6);
-  std::string room = ctx.stack().pop().getString();
+  std::string room = ctx.stack().get(1).getString();
   Vec2i pos1;
   Vec2i pos2;
-  pos1.x = ctx.stack().pop().getInt();
-  pos1.y = ctx.stack().pop().getInt();
-  pos2.x = ctx.stack().pop().getInt();
-  pos2.y = ctx.stack().pop().getInt();
-  bool walkable = ctx.stack().pop().getBool();
+  pos1.x = ctx.stack().get(2).getInt();
+  pos1.y = ctx.stack().get(3).getInt();
+  pos2.x = ctx.stack().get(4).getInt();
+  pos2.y = ctx.stack().get(5).getInt();
+  bool walkable = ctx.stack().get(6).getBool();
   Vec2i pos;
   RoomObject* rm = Engine::instance()->getRoom(room);
   if (rm){
@@ -2424,8 +2426,8 @@ int ScriptFunctions::setRectWalkmap(lua_State* L){
 
 int ScriptFunctions::exchange(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string char1 = ctx.stack().pop().getString();
-  std::string char2 = ctx.stack().pop().getString();
+  std::string char1 = ctx.stack().get(1).getString();
+  std::string char2 = ctx.stack().get(2).getString();
   CharacterObject* c1 = ctx.getCharacter(char1);
   CharacterObject* c2 = ctx.getCharacter(char2);
   if (c1 == NULL || c2 == NULL){
@@ -2474,14 +2476,14 @@ int ScriptFunctions::exchange(lua_State* L){
 
 int ScriptFunctions::enableMenu(lua_State* L){
   NUM_ARGS(1, 1);
-  bool enable = ctx.stack().pop().getBool();
+  bool enable = ctx.stack().get(1).getBool();
   Engine::instance()->enableMenu(enable);
   return 0;
 }
 
 int ScriptFunctions::setTransparency(lua_State* L){
   NUM_ARGS(1, 1);
-  int transparency = ctx.stack().pop().getInt();
+  int transparency = ctx.stack().get(1).getInt();
   int opacity = 255-transparency*255/100;
   std::string roomname = Engine::instance()->getData()->getProjectSettings()->anywhere_room;
   if (!roomname.empty()){
@@ -2506,7 +2508,7 @@ int ScriptFunctions::showAllText(lua_State* L){
 
 int ScriptFunctions::instMouse(lua_State* L){
   NUM_ARGS(1, 1);
-  int state = ctx.stack().pop().getInt();
+  int state = ctx.stack().get(1).getInt();
   CursorObject* cursor = Engine::instance()->getCursor();
   Engine::instance()->getInterpreter()->setPrevState(cursor, cursor);
   cursor->setState(state+1);
@@ -2515,7 +2517,7 @@ int ScriptFunctions::instMouse(lua_State* L){
 
 int ScriptFunctions::showInventory(lua_State* L){
   NUM_ARGS(1, 1);
-  int inventory = ctx.stack().pop().getInt();
+  int inventory = ctx.stack().get(1).getInt();
   CharacterObject* chr = Engine::instance()->getCharacter("self");
   if (chr == NULL){
     TR_WARN("No character focussed");
@@ -2528,19 +2530,19 @@ int ScriptFunctions::showInventory(lua_State* L){
 
 int ScriptFunctions::setObjLight(lua_State* L){
   NUM_ARGS(4, 5);
-  std::string objname = ctx.stack().pop().getString();
+  std::string objname = ctx.stack().get(1).getString();
   //remove whitespaces in object names
   for(int size = (int)objname.size()-1; size >= 0; --size){
     if (objname[size] == ' ')
       objname.erase(size, 1);
   }
   Color c;
-  c.r = (unsigned char)ctx.stack().pop().getInt();
-  c.g = (unsigned char)ctx.stack().pop().getInt();
-  c.b = (unsigned char)ctx.stack().pop().getInt();
+  c.r = (unsigned char)ctx.stack().get(2).getInt();
+  c.g = (unsigned char)ctx.stack().get(3).getInt();
+  c.b = (unsigned char)ctx.stack().get(4).getInt();
   bool fade = false;
   if (numArgs >= 5){
-    std::string fading = ctx.stack().pop().getString();
+    std::string fading = ctx.stack().get(5).getString();
     if (fading == "fade")
       fade = true;
   }
@@ -2565,8 +2567,8 @@ int ScriptFunctions::setObjLight(lua_State* L){
 
 int ScriptFunctions::textAlign(lua_State* L){
   NUM_ARGS(2, 2);
-  int num = ctx.stack().pop().getInt();
-  std::string alignstr = ctx.stack().pop().getString();
+  int num = ctx.stack().get(1).getInt();
+  std::string alignstr = ctx.stack().get(2).getString();
   Textout::Alignment align;
   if (alignstr == "left")
     align = Textout::LEFT;
@@ -2581,7 +2583,7 @@ int ScriptFunctions::textAlign(lua_State* L){
 
 int ScriptFunctions::runSpeed(lua_State* L){
   NUM_ARGS(1, 1);
-  float speed = ctx.stack().pop().getInt()/100.0f;
+  float speed = ctx.stack().get(1).getInt()/100.0f;
   Engine::instance()->getInterpreter()->setRunSpeed(speed);
   return 0;
 }
@@ -2592,14 +2594,14 @@ int ScriptFunctions::runTo(lua_State* L){
 
 int ScriptFunctions::enableFXShape(lua_State* L){
   NUM_ARGS(1, 1);
-  bool enable = ctx.stack().pop().getBool();
+  bool enable = ctx.stack().get(1).getBool();
   Engine::instance()->enableFXShapes(enable);
   return 0;
 }
 
 int ScriptFunctions::scrollSpeed(lua_State* L){
   NUM_ARGS(1, 1);
-  int speed = ctx.stack().pop().getInt();
+  int speed = ctx.stack().get(1).getInt();
   bool follow = true;
   if (speed > 100){
     follow = false;
@@ -2611,7 +2613,7 @@ int ScriptFunctions::scrollSpeed(lua_State* L){
 
 int ScriptFunctions::loadChar(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string name = ctx.stack().pop().getString();
+  std::string name = ctx.stack().get(1).getString();
   std::string dummy;
   CharacterObject* ch = Engine::instance()->loadCharacter(name, Engine::instance()->getCharacterClass(name), &ctx);
   ch->realize();
@@ -2622,9 +2624,9 @@ int ScriptFunctions::loadChar(lua_State* L){
 int ScriptFunctions::offTextColor(lua_State* L){
   NUM_ARGS(3, 3);
   Color col;
-  col.r = ctx.stack().pop().getInt();
-  col.g = ctx.stack().pop().getInt();
-  col.b = ctx.stack().pop().getInt();
+  col.r = ctx.stack().get(1).getInt();
+  col.g = ctx.stack().get(2).getInt();
+  col.b = ctx.stack().get(3).getInt();
   Engine::instance()->getInterpreter()->setOfftextColor(col);
   return 0;
 }
@@ -2633,8 +2635,8 @@ int ScriptFunctions::setItem(lua_State* L){
   NUM_ARGS(2, ARG_MAX);
   if (numArgs > 2)
     TR_BREAK("Implement me");
-  std::string itemname = ctx.stack().pop().getString();
-  int state = ctx.stack().pop().getInt();
+  std::string itemname = ctx.stack().get(1).getString();
+  int state = ctx.stack().get(2).getInt();
   Object2D* item = Engine::instance()->getObject(itemname, true);
   if (item)
     item->setState(state);
@@ -2644,7 +2646,7 @@ int ScriptFunctions::setItem(lua_State* L){
 
 int ScriptFunctions::sqrt(lua_State* L){
   NUM_ARGS(1, 1);
-  String variable = ctx.stack().pop().getString();
+  String variable = ctx.stack().get(1).getString();
   float val = Engine::instance()->getInterpreter()->getVariable(variable).getFloat();
   val = sqrtf(val);
   Engine::instance()->getInterpreter()->setVariable(variable, val);
@@ -2653,8 +2655,8 @@ int ScriptFunctions::sqrt(lua_State* L){
 
 int ScriptFunctions::switchCharacter(lua_State* L){
   NUM_ARGS(2, 2);
-  String char1 = ctx.stack().pop().getString();
-  String char2 = ctx.stack().pop().getString();
+  String char1 = ctx.stack().get(1).getString();
+  String char2 = ctx.stack().get(2).getString();
   CharacterObject* c1 = ctx.getCharacter(char1);
   CharacterObject* c2 = ctx.getCharacter(char2);
   if (c2 != NULL && c1 == NULL){
@@ -2715,15 +2717,15 @@ int ScriptFunctions::switchCharacter(lua_State* L){
 
 int ScriptFunctions::moveText(lua_State* L){
   NUM_ARGS(4, 5);
-  int id = ctx.stack().pop().getInt();
+  int id = ctx.stack().get(1).getInt();
 
   Vec2i newpos;
-  newpos.x = ctx.stack().pop().getInt();
-  newpos.y = ctx.stack().pop().getInt();
-  int speed = ctx.stack().pop().getInt();
+  newpos.x = ctx.stack().get(2).getInt();
+  newpos.y = ctx.stack().get(3).getInt();
+  int speed = ctx.stack().get(4).getInt();
   bool hold = false;
   if (numArgs >= 5){
-    std::string wait = ctx.stack().pop().getString();
+    std::string wait = ctx.stack().get(5).getString();
     if (wait == "wait")
       hold = true;
   }
@@ -2758,15 +2760,15 @@ int ScriptFunctions::moveText(lua_State* L){
 int ScriptFunctions::dummy(lua_State* L){
   NUM_ARGS(0, ARG_MAX);
   for (unsigned i = 0; i < numArgs; ++i){
-    ctx.stack().pop();
+    ctx.stack().get(i+1);
   }
   return 0;
 }
 
 int ScriptFunctions::isBoolEqual(lua_State* L){
   NUM_ARGS(2, 2);
-  String boolname = ctx.stack().pop().getString();
-  bool test = ctx.stack().pop().getBool();
+  String boolname = ctx.stack().get(1).getString();
+  bool test = ctx.stack().get(2).getBool();
   lua_getglobal(L, "bool");
   lua_getfield(L, -1, boolname.c_str());
   bool saved = lua_toboolean(L, -1) != 0;
@@ -2778,9 +2780,9 @@ int ScriptFunctions::isBoolEqual(lua_State* L){
 
 int ScriptFunctions::isObjectInState(lua_State* L){
   NUM_ARGS(2, 2);
-  String objname = ctx.stack().pop().getString();
+  String objname = ctx.stack().get(1).getString();
   objname = objname.removeAll(' ');
-  int checkstate = ctx.stack().pop().getInt();
+  int checkstate = ctx.stack().get(2).getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
     ctx.stack().push(obj->getState());
@@ -2802,7 +2804,7 @@ int ScriptFunctions::isCommandSet(lua_State* L){
   NUM_ARGS(0, 1);
   EngineEvent check = EVT_NONE;
   if (numArgs >= 1){
-    std::string evtname = ctx.stack().pop().getString();
+    std::string evtname = ctx.stack().get(1).getString();
     check = Engine::instance()->getInterpreter()->getEngineEvent(evtname);
   }
   EngineEvent evt = ctx.getCommandEvent();
@@ -2815,7 +2817,7 @@ int ScriptFunctions::isCommandSet(lua_State* L){
 
 int ScriptFunctions::isLinkedObject(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string objname = ctx.stack().pop().getString();
+  std::string objname = ctx.stack().get(1).getString();
   std::string linkname = ctx.getUseObjectName();
   ctx.stack().push(0);
   ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()));
@@ -2824,7 +2826,7 @@ int ScriptFunctions::isLinkedObject(lua_State* L){
 
 int ScriptFunctions::isGiveLinkedObject(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string objname = ctx.stack().pop().getString();
+  std::string objname = ctx.stack().get(1).getString();
   std::string linkname = ctx.getGiveObjectName();
   ctx.stack().push(0);
   ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()));
@@ -2833,8 +2835,8 @@ int ScriptFunctions::isGiveLinkedObject(lua_State* L){
 
 int ScriptFunctions::isNumEqual(lua_State* L){
   NUM_ARGS(2, 2);
-  String varname = ctx.stack().pop().getString();
-  int test = ctx.stack().pop().getInt();
+  String varname = ctx.stack().get(1).getString();
+  int test = ctx.stack().get(2).getInt();
   int saved = Engine::instance()->getInterpreter()->getVariable(varname).getInt();
   ctx.stack().push(saved);
   ctx.stack().push(test);
@@ -2843,7 +2845,7 @@ int ScriptFunctions::isNumEqual(lua_State* L){
 
 int ScriptFunctions::isCharFocussed(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string name = ctx.stack().pop().getString();
+  std::string name = ctx.stack().get(1).getString();
   ctx.stack().push(0);
   CharacterObject* chr = Engine::instance()->getCharacter("self");
   if (chr && _stricmp(chr->getName().c_str(), name.c_str()) == 0)
@@ -2855,7 +2857,7 @@ int ScriptFunctions::isCharFocussed(lua_State* L){
 
 int ScriptFunctions::isCharTriggering(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string name = ctx.stack().pop().getString();
+  std::string name = ctx.stack().get(1).getString();
   ctx.stack().push(0);
   CharacterObject* chr = ctx.getCharacter(name);
   if (!chr){ //when the character is not found, he or she is not in the current room, so no triggering possible
@@ -2884,8 +2886,8 @@ int ScriptFunctions::isCharTriggering(lua_State* L){
 
 int ScriptFunctions::isCharInRoom(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string charname = ctx.stack().pop().getString();
-  std::string roomname = ctx.stack().pop().getString();
+  std::string charname = ctx.stack().get(1).getString();
+  std::string roomname = ctx.stack().get(2).getString();
   ctx.stack().push(0);
   std::string room;
   std::string name;
@@ -2905,8 +2907,8 @@ int ScriptFunctions::isCharInRoom(lua_State* L){
 
 int ScriptFunctions::isCharPossessingItem(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string charname = ctx.stack().pop().getString();
-  std::string itemname = ctx.stack().pop().getString();
+  std::string charname = ctx.stack().get(1).getString();
+  std::string itemname = ctx.stack().get(2).getString();
   ctx.stack().push(0);
   CharacterObject* chr = ctx.getCharacter(charname);
   if (!chr){
@@ -2940,7 +2942,7 @@ int ScriptFunctions::isCharPossessingItem(lua_State* L){
 
 int ScriptFunctions::isKeyDownEqual(lua_State* L){
   NUM_ARGS(1, 1);
-  StackData sd = ctx.stack().pop();
+  StackData sd = ctx.stack().get(1);
   std::string key = sd.getString();
   if (key.empty()){
     char tmp[16];
@@ -2962,7 +2964,7 @@ int ScriptFunctions::isKeyDownEqual(lua_State* L){
 
 int ScriptFunctions::isKeyPressedEqual(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string key = ctx.stack().pop().getString();
+  std::string key = ctx.stack().get(1).getString();
   std::map<std::string,int>::iterator iter = Engine::instance()->getInterpreter()->mKeymap.find(key);
   if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
     TR_BREAK("Unknown key %s", key.c_str());
@@ -2977,8 +2979,8 @@ int ScriptFunctions::isKeyPressedEqual(lua_State* L){
 
 int ScriptFunctions::isStringEqual(lua_State* L){
   NUM_ARGS(2, 2);
-  String name = ctx.stack().pop().getString();
-  String text = ctx.stack().pop().getString();
+  String name = ctx.stack().get(1).getString();
+  String text = ctx.stack().get(2).getString();
   String val = Engine::instance()->getInterpreter()->getVariable(name).getString();
   ctx.stack().push(0);
   ctx.stack().push(_stricmp(val.removeAll(' ').c_str(), text.removeAll(' ').c_str()));
@@ -2987,7 +2989,7 @@ int ScriptFunctions::isStringEqual(lua_State* L){
 
 int ScriptFunctions::isCurrentRoom(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string room = ctx.stack().pop().getString();
+  std::string room = ctx.stack().get(1).getString();
   ctx.stack().push(0);
   RoomObject* ro = Engine::instance()->getRoom("");
   if (!ro){
@@ -3000,7 +3002,7 @@ int ScriptFunctions::isCurrentRoom(lua_State* L){
 
 int ScriptFunctions::isMouseWheelEqual(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string dir = ctx.stack().pop().getString();
+  std::string dir = ctx.stack().get(1).getString();
   dir = toLower(dir);
   ctx.stack().push(0);
   int delta = Engine::instance()->getMouseWheelDelta();
@@ -3027,8 +3029,8 @@ int ScriptFunctions::isMouseWheelEqual(lua_State* L){
 
 int ScriptFunctions::isObjXPosEqual(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string objname = ctx.stack().pop().getString();
-  int xpos = ctx.stack().pop().getInt();
+  std::string objname = ctx.stack().get(1).getString();
+  int xpos = ctx.stack().get(2).getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
   TR_DETAIL("eval if: object %s is at x %i", objname.c_str(), obj->getPosition().x);
   if (obj == NULL){
@@ -3046,8 +3048,8 @@ int ScriptFunctions::isObjXPosEqual(lua_State* L){
 
 int ScriptFunctions::isObjYPosEqual(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string objname = ctx.stack().pop().getString();
-  int ypos = ctx.stack().pop().getInt();
+  std::string objname = ctx.stack().get(1).getString();
+  int ypos = ctx.stack().get(2).getInt();
   Object2D* obj = Engine::instance()->getObject(objname, false);
   TR_DETAIL("eval if: object %s is at y %i", objname.c_str(), obj->getPosition().y);
   if (obj == NULL){
@@ -3065,8 +3067,8 @@ int ScriptFunctions::isObjYPosEqual(lua_State* L){
 
 int ScriptFunctions::isItemInState(lua_State* L){
   NUM_ARGS(2, 2);
-  std::string itemname = ctx.stack().pop().getString();
-  int checkstate = ctx.stack().pop().getInt();
+  std::string itemname = ctx.stack().get(1).getString();
+  int checkstate = ctx.stack().get(2).getInt();
   Object2D* item = Engine::instance()->getObject(itemname, true);
   if (item){
     ctx.stack().push(item->getState());

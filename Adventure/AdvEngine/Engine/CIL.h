@@ -49,6 +49,7 @@ public:
     I2R,
     SLOAD,
     BRK,
+    FCPUSH,
   };
   CCode(){}
   virtual ~CCode(){}
@@ -56,6 +57,22 @@ public:
   virtual Type getType()=0;
   virtual void save(std::ostream& out);
   static CCode* load(std::istream& in);
+};
+
+class CFCPUSH : public CCode{
+public:
+  CFCPUSH(ScriptFunc func, const std::string& name) : mFunc(func), mName(name) {}
+  CFCPUSH(std::istream& in);
+  virtual ~CFCPUSH() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    lua_pushcfunction(ctx.getState(), mFunc);
+    return ++pc;
+  }
+  virtual Type getType(){return FCPUSH;}
+  virtual void save(std::ostream& out);
+protected:
+  ScriptFunc mFunc;
+  std::string mName;
 };
 
 class CPUSH : public CCode{
@@ -70,7 +87,7 @@ public:
     ctx.stack().push(mData);
     return ++pc;
   }
-  virtual Type getType(){return PUSH;}
+  virtual Type getType(){ return PUSH; }
   virtual void save(std::ostream& out);
 protected:
   StackData mData;
@@ -78,23 +95,28 @@ protected:
 
 class CCALL : public CCode{
 public:
-  CCALL(ScriptFunc func, const std::string& funcname, unsigned numArgs) : mFunc(func), mName(funcname), mNumArgs(numArgs) {}
+  CCALL(ScriptFunc func, const std::string& funcname, unsigned numArgs, unsigned numRetVals) : mFunc(func), mName(funcname), mNumArgs(numArgs), mNumRetVals(numRetVals) {}
   CCALL(std::istream& in);
   virtual ~CCALL(){}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
     ctx.mPC = ++pc;
     unsigned oldNum = ctx.stack().mNumArgs;
     ctx.stack().mNumArgs = mNumArgs;
-    (*mFunc)(ctx.mL);
+    //int ret = (*mFunc)(ctx.mL);
+    lua_call(ctx.mL, mNumArgs, mNumRetVals);
     ctx.stack().mNumArgs = oldNum;
+    //lua_remove(ctx.mL, -(int)(mNumArgs + mNumRetVals + 1)); //get rid of the pushed c function
     return ctx.mPC;
   }
   virtual Type getType(){return CALL;}
   virtual void save(std::ostream& out);
+  ScriptFunc getFunc() { return mFunc; }
+  const std::string& getName() { return mName; }
 protected:
   ScriptFunc mFunc;
   std::string mName;
   unsigned mNumArgs;
+  unsigned mNumRetVals;
 };
 
 class CBRA : public CCode{
