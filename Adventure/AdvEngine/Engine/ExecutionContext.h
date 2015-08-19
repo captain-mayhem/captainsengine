@@ -131,6 +131,7 @@ public:
   void setGiveObjectName(const String& give) {mGiveLinkName = give;}
   String getUseObjectName() {return mLinkName;}
   String getGiveObjectName() {return mGiveLinkName;}
+  lua_State* getState() { return mL; }
 protected:
   ~ExecutionContext();
   lua_State* newThread();
