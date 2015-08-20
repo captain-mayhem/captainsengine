@@ -193,8 +193,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
 lua_pushthread(L);\
 lua_gettable(L, LUA_REGISTRYINDEX);\
 ExecutionContext& ctx = *(ExecutionContext*)lua_touserdata(L, -1);\
-unsigned numArgs = ctx.stack().numArgs();\
 lua_pop(L, 1);\
+int numArgs = lua_gettop(L);\
 TR_USE(ADV_ScriptFunc);\
 if (numArgs < argmin || numArgs > argmax){\
 TR_BREAK("Unexpected number of arguments (%i)", numArgs);\
@@ -468,7 +468,7 @@ int ScriptFunctions::setObj(lua_State* L){
     objects.push_back(objname);
   std::vector<int> states;
   states.push_back(state);
-  for (unsigned i = 2; i < numArgs; ++i){
+  for (int i = 2; i < numArgs; ++i){
     state = ctx.stack().get(i+1).getInt();
     states.push_back(state);
   }
@@ -479,7 +479,7 @@ int ScriptFunctions::setObj(lua_State* L){
 int ScriptFunctions::beamTo(lua_State* L){
   NUM_ARGS(3, 5);
   String charname = ctx.stack().get(1).getString();
-  StackData arg = ctx.stack().top();
+  StackData arg = ctx.stack().get(2);
   std::string roomname;
   int getidx = 1;
   if (!arg.isString()){
@@ -1000,7 +1000,7 @@ int ScriptFunctions::instObj(lua_State* L){
   NUM_ARGS(2, ARG_MAX);
   std::string objname = ctx.stack().get(1).getString();
   int state = ctx.stack().get(2).getInt();
-  for (unsigned i = 2; i < numArgs; ++i){
+  for (int i = 2; i < numArgs; ++i){
     TR_USE(ADV_ScriptFunc);
     TR_BREAK("state lists - implement me"); //TODO state lists
     state = ctx.stack().get(i+1).getInt();
@@ -1206,7 +1206,7 @@ int ScriptFunctions::setChar(lua_State* L){
   std::string chrname = ctx.stack().get(1).getString();
   StackData data = ctx.stack().get(2);
   if (ctx.mSkip){
-    for (unsigned i = 2; i < numArgs; ++i){
+    for (int i = 2; i < numArgs; ++i){
       ctx.stack().get(i+1);
     }
     return 0;
@@ -1225,7 +1225,7 @@ int ScriptFunctions::setChar(lua_State* L){
     obj->setState(state);
     obj->getAnimation()->start(); //restart from beginning
   }
-  for (unsigned i = 2; i < numArgs; ++i){
+  for (int i = 2; i < numArgs; ++i){
     data = ctx.stack().get(i+1);
     if (obj){
       state = getRequestedState(obj->getClass(), data);
@@ -1354,7 +1354,7 @@ int ScriptFunctions::group(lua_State* L){
   NUM_ARGS(1, ARG_MAX);
   std::string groupname = ctx.stack().get(1).getString();
   ObjectGroup* grp = new ObjectGroup(groupname);
-  for (unsigned i = 1; i < numArgs; ++i){
+  for (int i = 1; i < numArgs; ++i){
     std::string object = ctx.stack().get(i+1).getString();
     grp->add(object);
   }
@@ -2759,7 +2759,7 @@ int ScriptFunctions::moveText(lua_State* L){
 
 int ScriptFunctions::dummy(lua_State* L){
   NUM_ARGS(0, ARG_MAX);
-  for (unsigned i = 0; i < numArgs; ++i){
+  for (int i = 0; i < numArgs; ++i){
     ctx.stack().get(i+1);
   }
   return 0;

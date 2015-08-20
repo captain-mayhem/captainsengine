@@ -14,6 +14,7 @@ extern "C"{
 #include "ScriptFunc.h"
 #include "Sound.h"
 #include "Textout.h"
+#include "Console.h"
 #include <system/allocation.h>
 
 using namespace adv;
@@ -236,7 +237,15 @@ ASTNode* stringify(ASTNode* node){
   return ret;
 }
 
-ExecutionContext* PcdkScript::parseProgram(std::string program){
+ExecutionContext* PcdkScript::parseProgram(const std::string& program, ScriptType type){
+  if (type == PCDK)
+    return parseProgramPCDK(program);
+  else if (type == LUA)
+    return parseProgramLUA(program);
+  return NULL;
+}
+
+ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
   if (program.empty())
     return NULL;
   mMutex.lock();
@@ -299,9 +308,45 @@ ExecutionContext* PcdkScript::parseProgram(std::string program){
   return new ExecutionContext(segment, isGameObject, objectInfo);
 }
 
+ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
+  TR_USE(ADV_Console);
+  ExecutionContext* ret = new ExecutionContext(NULL, false, "");
+  if (luaL_loadstring(ret->getState(), program.c_str()) != LUA_OK){
+    TR_ERROR("%s", lua_tostring(ret->getState(), -1));
+    delete ret;
+    return NULL;
+  }
+  return ret;
+}
+
 unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext){
   unsigned count = 0;
   if (mode == ARGLIST){
+    program->reset(true);
+    mFirstArg = program->first();
+    mCurrArg = 1;
+    while (program->hasNext()){
+      ASTNode* ast = program->next();
+      if (mCurrArg == seperateContext){
+        CodeSegment* newcodes = new CodeSegment();
+        unsigned oldargs = mCurrArg;
+        transform(ast, newcodes);
+        mCurrArg = oldargs;
+        ExecutionContext* ctx = new ExecutionContext(newcodes, false, "");
+        codes->addEmbeddedContext(ctx);
+        CPUSH* ecp = new CPUSH(ctx);
+        codes->addCode(ecp);
+        ++count;
+      }
+      else{
+        unsigned oldargs = mCurrArg;
+        count += transform(ast, codes);
+        mCurrArg = oldargs;
+      }
+      ++mCurrArg;
+    }
+  }
+  else if (mode == REVERSE){
     program->reset(false);
     mFirstArg = program->first();
     mCurrArg = program->size();
@@ -348,12 +393,12 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           //break within minicut, add minicut end before break
           if (mUnresolvedBlockEnd != NULL){
             codes->addCode(new CFCPUSH(ScriptFunctions::miniCutEnd, "minicutend"));
-            codes->addCode(new CCALL(ScriptFunctions::miniCutEnd, "minicutend", 0, 0));
+            codes->addCode(new CCALL(0, 0));
             count += 2;
           }
           ScriptFunc f = mFunctions["break"];
           codes->addCode(new CFCPUSH(f, "break"));
-          codes->addCode(new CCALL(f, "break", 0, 0));
+          codes->addCode(new CCALL(0, 0));
           count += 2;
           CBRA* jmp = new CBRA();
           codes->addCode(jmp);
@@ -370,7 +415,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         }
         else if (fc->getName() == "minicut"){
           if (mUnresolvedBlockEnd == NULL){
-            mUnresolvedBlockEnd = new CCALL(ScriptFunctions::miniCutEnd, "minicut", 0, 0);
+            mUnresolvedBlockEnd = new CFCPUSH(ScriptFunctions::miniCutEnd, "minicut");
           }
         }
         ScriptFunc f = mFunctions[fc->getName()];
@@ -384,7 +429,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         codes->addCode(new CFCPUSH(f, fc->getName()));
         ++count;
         count += transform(fc->getArguments(), codes, ARGLIST, seperateArgument);
-        codes->addCode(new CCALL(f, fc->getName(), fc->getArguments()->size(), 0));
+        codes->addCode(new CCALL(fc->getArguments()->size(), 0));
         ++count;
       }
       break;
@@ -437,8 +482,8 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           ++offset;
         }
         if (mUnresolvedBlockEnd != NULL){
-          codes->addCode(new CFCPUSH(mUnresolvedBlockEnd->getFunc(), mUnresolvedBlockEnd->getName()));
           codes->addCode(mUnresolvedBlockEnd);
+          codes->addCode(new CCALL(0, 0));
           offset += 2;
           mUnresolvedBlockEnd = NULL;
         }
@@ -461,7 +506,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         codes->addCode(new CFCPUSH(f, cond->getCondFuncName()));
         ++count;
         count += transform(cond->getArguments(), codes, ARGLIST);
-        codes->addCode(new CCALL(f, cond->getCondFuncName(), cond->getArguments()->size(), 2));
+        codes->addCode(new CCALL(cond->getArguments()->size(), 2));
         CBRA* cez = getBranchInstr(mLastRelation, cond->isNegated());
         codes->addCode(cez);
         count += 2;
@@ -563,7 +608,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         CBNEEVT* cevt = new CBNEEVT(evtcode);
         codes->addCode(cevt);
         ++count;
-        int offset = transform(lvl->getBlock(), codes, ARGLIST);
+        int offset = transform(lvl->getBlock(), codes, REVERSE);
         cevt->setOffset(offset+1);
         count += offset;
       }

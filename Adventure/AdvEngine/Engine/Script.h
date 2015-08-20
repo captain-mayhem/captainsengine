@@ -27,11 +27,17 @@ public:
   enum TrMode{
     START,
     ARGLIST,
+    REVERSE,
+  };
+
+  enum ScriptType{
+    PCDK,
+    LUA,
   };
 
   PcdkScript(AdvDocument* data);
   ~PcdkScript();
-  ExecutionContext* parseProgram(std::string program);
+  ExecutionContext* parseProgram(const std::string& program, ScriptType type = PCDK);
   void registerFunction(std::string name, ScriptFunc func);
   ScriptFunc getFunction(const std::string name) {return mFunctions[name];}
   void registerRelVar(const std::string& function, int argnum, const std::string& prefix);
@@ -82,6 +88,8 @@ public:
   void clearState() {mMutex.lock(); mItemStates.clear(); mMutex.unlock();}
   lua_State* getLuaState() { return mL; }
 protected:
+  ExecutionContext* parseProgramPCDK(const std::string& program);
+  ExecutionContext* parseProgramLUA(const std::string& program);
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
   std::string internal_stringify(ASTNode* node);
@@ -89,7 +97,7 @@ protected:
   bool mIsGameObject;
   std::list<std::pair<CBRA*, unsigned> > mUnresolvedBranches;
   RelationalNode* mLastRelation;
-  CCALL* mUnresolvedBlockEnd;
+  CFCPUSH* mUnresolvedBlockEnd;
   std::string mCurrFunc;
   unsigned mCurrArg;
   std::map<std::string, std::map<int, std::string> > mRelVars;
