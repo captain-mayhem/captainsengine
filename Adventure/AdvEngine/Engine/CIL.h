@@ -95,26 +95,17 @@ protected:
 
 class CCALL : public CCode{
 public:
-  CCALL(ScriptFunc func, const std::string& funcname, unsigned numArgs, unsigned numRetVals) : mFunc(func), mName(funcname), mNumArgs(numArgs), mNumRetVals(numRetVals) {}
+  CCALL(unsigned numArgs, unsigned numRetVals) : mNumArgs(numArgs), mNumRetVals(numRetVals) {}
   CCALL(std::istream& in);
   virtual ~CCALL(){}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
     ctx.mPC = ++pc;
-    unsigned oldNum = ctx.stack().mNumArgs;
-    ctx.stack().mNumArgs = mNumArgs;
-    //int ret = (*mFunc)(ctx.mL);
     lua_call(ctx.mL, mNumArgs, mNumRetVals);
-    ctx.stack().mNumArgs = oldNum;
-    //lua_remove(ctx.mL, -(int)(mNumArgs + mNumRetVals + 1)); //get rid of the pushed c function
     return ctx.mPC;
   }
   virtual Type getType(){return CALL;}
   virtual void save(std::ostream& out);
-  ScriptFunc getFunc() { return mFunc; }
-  const std::string& getName() { return mName; }
 protected:
-  ScriptFunc mFunc;
-  std::string mName;
   unsigned mNumArgs;
   unsigned mNumRetVals;
 };

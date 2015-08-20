@@ -55,8 +55,8 @@ std::istream& operator>>(std::istream& strm, StackData& data);
 class Stack{
   friend class CCALL;
 public:
-  Stack() : mNumArgs(0), mL(NULL) {}
-  Stack(const Stack& st){ mNumArgs = 0; mL = NULL; }
+  Stack() : mL(NULL) {}
+  Stack(const Stack& st){ mL = NULL; }
   ~Stack(){}
   void push(const StackData& v) {StackData::pushStack(mL, v);}
   StackData pop() {
@@ -66,14 +66,11 @@ public:
   }
   void clear(){
     lua_settop(mL, 0);
-    mNumArgs = 0;
   }
   StackData top() { return StackData::fromStack(mL, -1); }
-  StackData get(int idx) { return StackData::fromStack(mL, -idx); }
-  unsigned numArgs() { return mNumArgs; }
+  StackData get(int idx) { return StackData::fromStack(mL, idx); }
   void setState(lua_State* L) { mL = L; }
 protected:
-  unsigned mNumArgs;
   lua_State* mL;
 };
 

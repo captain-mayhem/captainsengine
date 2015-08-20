@@ -269,12 +269,11 @@ CFCPUSH::CFCPUSH(std::istream& in){
 
 void CCALL::save(std::ostream& out){
   CCode::save(out);
-  out << " " << mName << " " << mNumArgs << " " << mNumRetVals;
+  out << " " << mNumArgs << " " << mNumRetVals;
 }
 
 CCALL::CCALL(std::istream& in){
-  in >> mName >> mNumArgs >> mNumRetVals;
-  mFunc = Engine::instance()->getInterpreter()->getFunction(mName);
+  in >> mNumArgs >> mNumRetVals;
 }
 
 void CBRA::save(std::ostream& out){
