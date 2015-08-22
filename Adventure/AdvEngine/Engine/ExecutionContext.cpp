@@ -255,7 +255,9 @@ CharacterObject* ExecutionContext::getCharacter(const String& name){
 lua_State* ExecutionContext::newThread(){
   lua_State* main = Engine::instance()->getInterpreter()->getLuaState();
   lua_State* ret = lua_newthread(main);
+  lua_newtable(main);
   lua_pushlightuserdata(main, this);
+  lua_setfield(main, -2, "ec");
   lua_settable(main, LUA_REGISTRYINDEX);
   return ret;
 }

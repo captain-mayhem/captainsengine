@@ -15,7 +15,7 @@ public:
   String& operator+=(const String& s) {mStr += s.mStr; return *this;}
   String& operator+=(const char& ch) {mStr += ch; return *this;}
   char& operator[](int i) {return mStr[i];}
-  String& erase (unsigned pos = 0, unsigned len = npos) {mStr.erase(pos, len); return *this;}
+  String& erase (unsigned pos = 0, size_t len = npos) {mStr.erase(pos, len); return *this;}
   void clear() {mStr.clear();}
 
   String operator+(const String& s);
@@ -28,7 +28,9 @@ public:
   unsigned size() const {return (unsigned)mStr.size();}
   const char& operator[](int i) const {return mStr[i];}
 
-  String substr(unsigned pos = 0, unsigned len = npos) const {String ret(mStr.substr(pos, len)); return ret;}
+  size_t find(char c, size_t pos = 0) { return mStr.find(c, pos); }
+
+  String substr(unsigned pos = 0, size_t len = npos) const {String ret(mStr.substr(pos, len)); return ret;}
 
   //operator std::string() {return mStr;}
   operator const std::string&() const {return mStr;}
@@ -40,7 +42,7 @@ public:
   bool ieqauls(const String& other);
   void trim();
 
-  static const unsigned npos = 4294967295U;
+  static const size_t npos = SIZE_MAX;
 protected:
   std::string mStr;
 };
