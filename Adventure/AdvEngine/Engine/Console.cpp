@@ -141,9 +141,9 @@ void Console::input(const char* str){
     if (mInput.size() > 100)
       mInput.pop_back();
     output(msg.c_str());
-    if (msg.back() != ')') //append call for convenience
+    if (msg.find(' ') == msg.npos && msg.find('=') == msg.npos) //append call for convenience
       msg += "()";
-    ExecutionContext* script = Engine::instance()->getInterpreter()->parseProgram(msg);
+    ExecutionContext* script = Engine::instance()->getInterpreter()->parseProgram(msg, PcdkScript::LUA);
     if (script){
       Engine::instance()->getInterpreter()->execute(script, true);
     }

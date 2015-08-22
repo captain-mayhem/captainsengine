@@ -118,7 +118,7 @@ public:
   bool unref() {if (this == NULL) return false; --mRefCount; if (mRefCount == 0){ delete this; return true;} return false; }
   CodeSegment* getCode() {return mCode;}
   void save(std::ostream& out);
-  ExecutionContext* getLoop1() {return mCode->getLoop1();}
+  ExecutionContext* getLoop1() {return mCode ? mCode->getLoop1() : NULL;}
   bool isGameObject() {return mIsGameObject;}
   void finish() {mShouldFinish = true; setSkip(); if (mCode->getLoop1() != NULL)mCode->getLoop1()->finish();}
   void cancelFinish() {mShouldFinish = false; setSkip(false); if (mCode->getLoop1() != NULL) mCode->getLoop1()->cancelFinish();}

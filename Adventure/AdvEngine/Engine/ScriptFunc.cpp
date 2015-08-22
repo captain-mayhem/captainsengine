@@ -192,8 +192,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
 #define NUM_ARGS(argmin, argmax) \
 lua_pushthread(L);\
 lua_gettable(L, LUA_REGISTRYINDEX);\
+lua_getfield(L, -1, "ec");\
 ExecutionContext& ctx = *(ExecutionContext*)lua_touserdata(L, -1);\
-lua_pop(L, 1);\
+lua_pop(L, 2);\
 int numArgs = lua_gettop(L);\
 TR_USE(ADV_ScriptFunc);\
 if (numArgs < argmin || numArgs > argmax){\

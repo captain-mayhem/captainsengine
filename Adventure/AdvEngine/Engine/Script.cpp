@@ -61,6 +61,7 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
 }
 
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true) {
+  mL = luaL_newstate();
   ScriptFunctions::registerFunctions(this);
   mOfftextColor = data->getProjectSettings()->offspeechcolor;
   mCutScene = NULL;
@@ -93,7 +94,6 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
   mKeymap["esc"] = KEY_ESCAPE;
 
   mLanguage = "origin";
-  mL = luaL_newstate();
 
   lua_newtable(mL);
   lua_setglobal(mL, "var");
@@ -311,11 +311,17 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
 ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
   TR_USE(ADV_Console);
   ExecutionContext* ret = new ExecutionContext(NULL, false, "");
-  if (luaL_loadstring(ret->getState(), program.c_str()) != LUA_OK){
-    TR_ERROR("%s", lua_tostring(ret->getState(), -1));
+  lua_State* L = ret->getState();
+  lua_pushthread(L);
+  lua_gettable(L, LUA_REGISTRYINDEX);
+  if (luaL_loadstring(L, program.c_str()) != LUA_OK){
+    TR_ERROR("%s", lua_tostring(L, -1));
+    lua_pop(L, 2);
     delete ret;
     return NULL;
   }
+  lua_setfield(L, -2, "script");
+  lua_pop(L, 1);
   return ret;
 }
 
@@ -708,6 +714,8 @@ CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
 
 void PcdkScript::registerFunction(std::string name, ScriptFunc func){
   mFunctions[name] = func;
+  lua_pushcfunction(mL, func);
+  lua_setglobal(mL, name.c_str());
 }
 
 void PcdkScript::registerRelVar(const std::string& function, int argnum, const std::string& prefix){
@@ -869,12 +877,30 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
   do{
     if (script->mSuspended)
       return false;
-    CCode* code = script->mCode->get(script->mPC);
-    while(code){
-      int result = script->mPC = code->execute(*script, script->mPC);
-      if (script->mSuspended)
-        return false;
-      code = script->mCode->get(script->mPC);
+    if (script->mCode == NULL){
+      //lua script
+      lua_State* L = script->mL;
+      lua_pushthread(L);
+      lua_gettable(L, LUA_REGISTRYINDEX);
+      lua_getfield(L, -1, "script");
+      if (lua_pcall(script->mL, 0, 0, 0) != LUA_OK){
+        TR_USE(ADV_Console);
+        const char* msg = lua_tostring(script->mL, -1);
+        TR_ERROR("%s", msg);
+        lua_pop(script->mL, 1);
+      }
+      lua_pop(L, 1);
+      script->mSuspended = false; //TODO: suspend not yet working with lua scripts
+    }
+    else{
+      //pcdk script
+      CCode* code = script->mCode->get(script->mPC);
+      while (code){
+        int result = script->mPC = code->execute(*script, script->mPC);
+        if (script->mSuspended)
+          return false;
+        code = script->mCode->get(script->mPC);
+      }
     }
     //script ran through
     if (!script->mSuspended && script->mCode && script->mPC >= script->mCode->numInstructions()){
