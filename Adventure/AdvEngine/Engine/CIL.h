@@ -98,11 +98,7 @@ public:
   CCALL(unsigned numArgs, unsigned numRetVals) : mNumArgs(numArgs), mNumRetVals(numRetVals) {}
   CCALL(std::istream& in);
   virtual ~CCALL(){}
-  virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    ctx.mPC = ++pc;
-    lua_call(ctx.mL, mNumArgs, mNumRetVals);
-    return ctx.mPC;
-  }
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return CALL;}
   virtual void save(std::ostream& out);
 protected:
@@ -233,9 +229,7 @@ public:
   CADD() {}
   virtual ~CADD() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    float d2 = ctx.stack().pop().getFloat();
-    float d1 = ctx.stack().pop().getFloat();
-    ctx.stack().push(d1+d2);
+    lua_arith(ctx.getState(), LUA_OPADD);
     return ++pc;
   }
   virtual Type getType(){return ADD;}
@@ -246,9 +240,7 @@ public:
   CSUB() {}
   virtual ~CSUB() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    float d2 = ctx.stack().pop().getFloat();
-    float d1 = ctx.stack().pop().getFloat();
-    ctx.stack().push(d1-d2);
+    lua_arith(ctx.getState(), LUA_OPSUB);
     return ++pc;
   }
   virtual Type getType(){return SUB;}
@@ -259,9 +251,7 @@ public:
   CMUL() {}
   virtual ~CMUL() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    float d2 = ctx.stack().pop().getFloat();
-    float d1 = ctx.stack().pop().getFloat();
-    ctx.stack().push(d1*d2);
+    lua_arith(ctx.getState(), LUA_OPMUL);
     return ++pc;
   }
   virtual Type getType(){return MUL;}
@@ -272,9 +262,7 @@ public:
   CDIV() {}
   virtual ~CDIV() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
-    float d2 = ctx.stack().pop().getFloat();
-    float d1 = ctx.stack().pop().getFloat();
-    ctx.stack().push(d1/d2);
+    lua_arith(ctx.getState(), LUA_OPDIV);
     return ++pc;
   }
   virtual Type getType(){return DIV;}

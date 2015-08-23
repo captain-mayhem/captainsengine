@@ -86,7 +86,8 @@ public:
   void setItemState(const String& name, int state) {mMutex.lock(); mItemStates[name.toLower()] = state; mMutex.unlock();}
   int getItemState(const String& name);
   void clearState() {mMutex.lock(); mItemStates.clear(); mMutex.unlock();}
-  lua_State* getLuaState() { return mL; }
+  lua_State* allocNewState(ExecutionContext* ctx);
+  static int luaPcdkCall(lua_State* L);
 protected:
   ExecutionContext* parseProgramPCDK(const std::string& program);
   ExecutionContext* parseProgramLUA(const std::string& program);

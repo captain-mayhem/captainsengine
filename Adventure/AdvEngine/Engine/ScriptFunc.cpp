@@ -21,6 +21,7 @@ extern "C"{
 #include "Textout.h"
 #include "PostProcessing.h"
 #include "ItemObject.h"
+#include "Console.h"
 #include <system/allocation.h>
 
 using namespace adv;
@@ -184,6 +185,8 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("movetext", moveText);
   interpreter->registerRelVar("movetext", 2, "_txtoutx:");
   interpreter->registerRelVar("movetext", 3, "_txtouty:");
+
+  interpreter->registerFunction("print", print);
   srand((unsigned)time(NULL));
 }
 
@@ -201,6 +204,12 @@ if (numArgs < argmin || numArgs > argmax){\
 TR_BREAK("Unexpected number of arguments (%i)", numArgs);\
 }
 
+#define RET_MAY_YIELD(numRet) \
+  if (ctx.isSuspended()) \
+    return lua_yield(L, numRet); \
+  return numRet;
+
+
 int ScriptFunctions::loadRoom(lua_State* L){
   NUM_ARGS(1, 2);
   std::string room = ctx.stack().get(1).getString();
@@ -210,14 +219,14 @@ int ScriptFunctions::loadRoom(lua_State* L){
     change = getScreenChange(changename);
   }
   Engine::instance()->loadMainRoom(room, &ctx, change);
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::setFocus(lua_State* L){
   NUM_ARGS(1, 1);
   std::string character = ctx.stack().get(1).getString();
   Engine::instance()->setFocus(character, &ctx);
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::showInfo(lua_State* L){
@@ -270,7 +279,7 @@ int ScriptFunctions::moveTo(lua_State* L, float speedFactor){
     }
     Engine::instance()->walkTo(chr, pos, dir, speedFactor);
   }
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::speech(lua_State* L){
@@ -336,7 +345,7 @@ int ScriptFunctions::speech(lua_State* L){
   else{
     TR_WARN("Character %s not found", character.c_str());
   }
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::pickup(lua_State* L){
@@ -553,7 +562,7 @@ int ScriptFunctions::beamTo(lua_State* L){
     else
       Engine::instance()->insertCharacter(obj, roomname, pos, dir);
   }
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::addItem(lua_State* L){
@@ -659,7 +668,7 @@ int ScriptFunctions::follow(lua_State* L){
       Engine::instance()->walkTo(chr1, chr2->getPosition(), UNSPECIFIED, 1.0f);
     }
   }
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::lookTo(lua_State* L){
@@ -830,7 +839,7 @@ int ScriptFunctions::wait(lua_State* L){
     return 0;
   ctx.mSleepTime = (int)(seconds*1000);
   ctx.mSuspended = true;
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::subRoom(lua_State* L){
@@ -843,7 +852,7 @@ int ScriptFunctions::subRoom(lua_State* L){
   if (Engine::instance()->isSubRoomLoaded())
     Engine::instance()->unloadRoom(NULL, false, false, &ctx);
   Engine::instance()->loadSubRoom(roomname, &ctx, fading_time);
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::subRoomReturn(lua_State* L){
@@ -948,7 +957,7 @@ int ScriptFunctions::offSpeech(lua_State* L){
       str->setSuspensionScript(&ctx);
     ctx.mSuspended = true;
   }
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::unloadRoom(lua_State* L){
@@ -1446,7 +1455,7 @@ int ScriptFunctions::playVideo(lua_State* L){
     }
     vp->play(false);
   }
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::setWalkmap(lua_State* L){
@@ -1592,7 +1601,7 @@ int ScriptFunctions::moveObj(lua_State* L){
     }
     Engine::instance()->getAnimator()->add(obj, path, factor);
   }
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::quit(lua_State* L){
@@ -1793,7 +1802,7 @@ int ScriptFunctions::enterText(lua_State* L){
   Engine::instance()->getInterpreter()->cutsceneMode(false);
   Engine::instance()->enterText(varname, maxchars, &ctx);
   ctx.mSuspended = true;
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::fadeSpeed(lua_State* L){
@@ -2755,7 +2764,7 @@ int ScriptFunctions::moveText(lua_State* L){
     }
     Engine::instance()->getAnimator()->add(text, path, factor);
   }
-  return 0;
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::dummy(lua_State* L){
@@ -3080,4 +3089,26 @@ int ScriptFunctions::isItemInState(lua_State* L){
   }
   ctx.stack().push(checkstate);
   return 2;
+}
+
+int ScriptFunctions::print(lua_State* L){
+  int n = lua_gettop(L);
+  string ret;
+  for (int i = 1; i <= n; ++i){
+    if (lua_isstring(L, i)){
+      const char* str = lua_tostring(L, i);
+      ret += str;
+    }
+    else if (lua_isboolean(L, i)){
+      ret += lua_toboolean(L, i) ? "true" : "false";
+    }
+    else if (lua_isnil(L, i)){
+      ret += "nil";
+    }
+  }
+  {
+    TR_USE(ADV_Console);
+    TR_INFO(ret.c_str());
+  }
+  return 0;
 }
