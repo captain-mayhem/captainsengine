@@ -616,6 +616,9 @@ public:
   static int isObjXPosEqual(lua_State* L);
   static int isObjYPosEqual(lua_State* L);
   static int isItemInState(lua_State* L);
+  
+  //debug functions
+  static int print(lua_State* L);
  private:
   static void setObjInternal(std::vector<std::string> objects, std::vector<int> states, bool skip);
   static int moveTo(lua_State* L, float speedFactor);

@@ -431,6 +431,8 @@ void Engine::render(unsigned time){
   }
   bool clearChars = true;
   for (std::list<CharacterObject*>::iterator iter = mCharsToUnload.begin(); iter != mCharsToUnload.end(); ++iter){
+    if (*iter == NULL)
+      continue;
     if ((*iter)->getScript() != NULL && (*iter)->getScript()->isRunning()){
       clearChars = false;
       continue;

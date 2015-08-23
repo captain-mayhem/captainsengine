@@ -180,6 +180,12 @@ unsigned CCONCAT::execute(ExecutionContext& ctx, unsigned pc){
   return ++pc;
 }
 
+unsigned CCALL::execute(ExecutionContext& ctx, unsigned pc){
+  ctx.mPC = ++pc;
+  lua_callk(ctx.mL, mNumArgs, mNumRetVals, 0, PcdkScript::luaPcdkCall);
+  return ctx.mPC;
+}
+
 
 
 void CCode::save(std::ostream& out){

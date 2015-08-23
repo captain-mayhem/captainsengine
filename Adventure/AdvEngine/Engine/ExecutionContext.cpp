@@ -67,12 +67,12 @@ void CodeSegment::load(std::istream& in){
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
-mSuspender(NULL), mShouldFinish(false){
+mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK){
   mL = newThread();
   mStack.setState(mL);
 }
 
-ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
+ExecutionContext::ExecutionContext(const ExecutionContext& ctx) : mLuaRet(LUA_OK){
   mL = newThread();
   mCode = new CodeSegment(*ctx.mCode);
   mIsGameObject = ctx.mIsGameObject;
@@ -95,7 +95,7 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx){
 
 ExecutionContext::ExecutionContext(std::istream& in) : 
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), 
-mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false)
+mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK)
 {
   mL = newThread();
   mStack.setState(mL);
@@ -253,11 +253,6 @@ CharacterObject* ExecutionContext::getCharacter(const String& name){
 }
 
 lua_State* ExecutionContext::newThread(){
-  lua_State* main = Engine::instance()->getInterpreter()->getLuaState();
-  lua_State* ret = lua_newthread(main);
-  lua_newtable(main);
-  lua_pushlightuserdata(main, this);
-  lua_setfield(main, -2, "ec");
-  lua_settable(main, LUA_REGISTRYINDEX);
+  lua_State* ret = Engine::instance()->getInterpreter()->allocNewState(this);
   return ret;
 }

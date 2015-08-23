@@ -868,6 +868,22 @@ void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
   mScriptMutex.unlock();
 }
 
+int PcdkScript::luaPcdkCall(lua_State* L){
+  lua_pushthread(L);
+  lua_gettable(L, LUA_REGISTRYINDEX);
+  lua_getfield(L, -1, "ec");
+  ExecutionContext* script = (ExecutionContext*)lua_touserdata(L, -1);
+  lua_pop(L, 2);
+  CCode* code = script->mCode->get(script->mPC);
+  while (code){
+    int result = script->mPC = code->execute(*script, script->mPC);
+    if (script->mSuspended)
+      return lua_yieldk(L, lua_gettop(L), 0, luaPcdkCall);
+    code = script->mCode->get(script->mPC);
+  }
+  return lua_gettop(L);
+}
+
 bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAfterExec){
   if (script->getLoop1() != NULL){
     if (!(!script->getEvents().empty() && script->getEvents().front() == EVT_ENTER)) //loop events only after enter
@@ -877,31 +893,46 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
   do{
     if (script->mSuspended)
       return false;
+    lua_State* L = script->mL;
+    mScriptMutex.lock();
     if (script->mCode == NULL){
-      //lua script
-      lua_State* L = script->mL;
+      //real lua script
       lua_pushthread(L);
       lua_gettable(L, LUA_REGISTRYINDEX);
       lua_getfield(L, -1, "script");
-      if (lua_pcall(script->mL, 0, 0, 0) != LUA_OK){
-        TR_USE(ADV_Console);
-        const char* msg = lua_tostring(script->mL, -1);
-        TR_ERROR("%s", msg);
-        lua_pop(script->mL, 1);
-      }
+      script->mLuaRet = lua_resume(script->mL, mL, 0);
+      //script->mSuspended = false; //TODO: suspend not yet working with lua scripts
       lua_pop(L, 1);
-      script->mSuspended = false; //TODO: suspend not yet working with lua scripts
     }
     else{
       //pcdk script
-      CCode* code = script->mCode->get(script->mPC);
+      int numArgs = lua_gettop(L);
+      if (script->mLuaRet != LUA_YIELD)
+        lua_pushcfunction(L, luaPcdkCall);
+      script->mLuaRet = lua_resume(script->mL, mL, numArgs);
+      /*CCode* code = script->mCode->get(script->mPC);
       while (code){
         int result = script->mPC = code->execute(*script, script->mPC);
         if (script->mSuspended)
           return false;
         code = script->mCode->get(script->mPC);
       }
+      script->mLuaRet = LUA_OK;*/
     }
+    mScriptMutex.unlock();
+    if (script->mLuaRet == LUA_YIELD){
+      return false;
+    }
+    else if (script->mLuaRet != LUA_OK){
+      TR_USE(ADV_Console);
+      const char* msg = lua_tostring(script->mL, -1);
+      TR_ERROR("%s", msg);
+      lua_pop(script->mL, 1);
+    }
+    else{
+      //lua_pop(script->mL, 1);
+    }
+    
     //script ran through
     if (!script->mSuspended && script->mCode && script->mPC >= script->mCode->numInstructions()){
       //if (script->mHandler)
@@ -1650,7 +1681,7 @@ ObjectGroup* PcdkScript::getGroup(const std::string& name){
 }
 
 int PcdkScript::getItemState(const String& name){
-  mMutex.lock();
+  mMutex.lock(); //TODO really mMutex and not mScriptMutex???
   std::map<String,int>::iterator iter = mItemStates.find(name.toLower());
   if (iter == mItemStates.end()){
     mMutex.unlock();
@@ -1658,6 +1689,17 @@ int PcdkScript::getItemState(const String& name){
   }
   mMutex.unlock();
   return iter->second;
+}
+
+lua_State* PcdkScript::allocNewState(ExecutionContext* ctx){
+  mScriptMutex.lock();
+  lua_State* ret = lua_newthread(mL);
+  lua_newtable(mL);
+  lua_pushlightuserdata(mL, ctx);
+  lua_setfield(mL, -2, "ec");
+  lua_settable(mL, LUA_REGISTRYINDEX);
+  mScriptMutex.unlock();
+  return ret;
 }
 
 StackData StackData::fromStack(lua_State* L, int idx){

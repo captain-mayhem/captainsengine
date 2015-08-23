@@ -155,6 +155,7 @@ protected:
   String mLinkName;
   String mGiveLinkName;
   lua_State* mL;
+  int mLuaRet;
 };
 
 }
