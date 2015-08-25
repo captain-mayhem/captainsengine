@@ -109,6 +109,8 @@ protected:
 
   EngineEvent getEngineEvent(const std::string eventname);
   void update(ExecutionContext* ctx, unsigned time, bool execute=true);
+  static int getSpecialVar(lua_State* L);
+  static int setSpecialVar(lua_State* L);
   std::map<std::string, ScriptFunc> mFunctions;
   AdvDocument* mData;
   std::list<ExecutionContext*> mScripts;

@@ -212,6 +212,8 @@ SET(AppBuilder_SRCS
   ItemObject.h
   Loader.cpp
   Loader.h
+  LuaChunk.cpp
+  LuaChunk.h
   Menu.cpp
   Menu.h
   Particles.cpp
