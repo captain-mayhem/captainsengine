@@ -15,6 +15,7 @@ extern "C"{
 #include "Sound.h"
 #include "Textout.h"
 #include "Console.h"
+#include "LuaChunk.h"
 #include <system/allocation.h>
 
 using namespace adv;
@@ -96,6 +97,12 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
   mLanguage = "origin";
 
   lua_newtable(mL);
+  lua_newtable(mL);
+  lua_pushcfunction(mL, getSpecialVar);
+  lua_setfield(mL, -2, "__index");
+  lua_pushcfunction(mL, setSpecialVar);
+  lua_setfield(mL, -2, "__newindex");
+  lua_setmetatable(mL, -2);
   lua_setglobal(mL, "var");
 
   lua_newtable(mL);
@@ -305,6 +312,11 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
     delete segment;
     return NULL;
   }
+  /*LuaChunk ch;
+  String ret = ch.serialize();
+  FILE* f = fopen("C:/tmp/cmp.luac", "wb");
+  fwrite(ret.c_str(), ret.size(), 1, f);
+  fclose(f);*/
   return new ExecutionContext(segment, isGameObject, objectInfo);
 }
 
@@ -894,14 +906,15 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
     if (script->mSuspended)
       return false;
     lua_State* L = script->mL;
-    mScriptMutex.lock();
+    //mScriptMutex.lock(); TODO load game won't work with lock
     if (script->mCode == NULL){
       //real lua script
+      int numArgs = lua_gettop(L);
       lua_pushthread(L);
       lua_gettable(L, LUA_REGISTRYINDEX);
-      lua_getfield(L, -1, "script");
-      script->mLuaRet = lua_resume(script->mL, mL, 0);
-      //script->mSuspended = false; //TODO: suspend not yet working with lua scripts
+      if (script->mLuaRet != LUA_YIELD)
+        lua_getfield(L, -1, "script");
+      script->mLuaRet = lua_resume(script->mL, mL, numArgs);
       lua_pop(L, 1);
     }
     else{
@@ -910,16 +923,8 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
       if (script->mLuaRet != LUA_YIELD)
         lua_pushcfunction(L, luaPcdkCall);
       script->mLuaRet = lua_resume(script->mL, mL, numArgs);
-      /*CCode* code = script->mCode->get(script->mPC);
-      while (code){
-        int result = script->mPC = code->execute(*script, script->mPC);
-        if (script->mSuspended)
-          return false;
-        code = script->mCode->get(script->mPC);
-      }
-      script->mLuaRet = LUA_OK;*/
     }
-    mScriptMutex.unlock();
+    //mScriptMutex.unlock();
     if (script->mLuaRet == LUA_YIELD){
       return false;
     }
@@ -1148,8 +1153,16 @@ std::ostream& PcdkScript::save(std::ostream& out){
 std::istream& PcdkScript::load(std::istream& in){
   lua_newtable(mL);
   lua_setglobal(mL, "bool");
+
   lua_newtable(mL);
+  lua_newtable(mL);
+  lua_pushcfunction(mL, getSpecialVar);
+  lua_setfield(mL, -2, "__index");
+  lua_pushcfunction(mL, setSpecialVar);
+  lua_setfield(mL, -2, "__newindex");
+  lua_setmetatable(mL, -2);
   lua_setglobal(mL, "var");
+
   mTSActive.clear();
   for (std::vector<ObjectGroup*>::iterator iter = mGroups.begin(); iter != mGroups.end(); ++iter){
     delete *iter;
@@ -1313,98 +1326,123 @@ inline int getTime(TimeVal tv){
     
 #endif
 
-StackData PcdkScript::getVariable(const String& name){
+int PcdkScript::getSpecialVar(lua_State* L){
   TR_USE(ADV_Script);
+  String name = lua_tostring(L, 2);
   String lname = name.toLower();
   if (name.size() > 0 && name[0] == '_'){
     if (name.size() > 6 && lname.substr(1, 6) == "volume"){
-      return int(SoundEngine::instance()->getMusicVolume()*100);
+      lua_pushinteger(L, int(SoundEngine::instance()->getMusicVolume() * 100));
+      return 1;
     }
     else if (name.size() > 9 && lname.substr(1, 9) == "charstate"){
-      return 0;
+      lua_pushinteger(L, 0);
+      return 1;
     }
     else if (name.size() > 8 && lname.substr(1, 8) == "objstate"){
       TR_BREAK("Implement me");
+      return 0;
     }
     else if (name.size() > 8 && lname.substr(1, 8) == "txtoutx:"){
       std::string idstr = lname.substr(9);
       Textout* txt = Engine::instance()->getFontRenderer()->getTextout(atoi(idstr.c_str()));
-      return Engine::instance()->getAnimator()->getTargetPoisition(txt).x;
+      lua_pushinteger(L, Engine::instance()->getAnimator()->getTargetPoisition(txt).x);
+      return 1;
     }
     else if (name.size() > 8 && lname.substr(1, 8) == "txtouty:"){
       std::string idstr = lname.substr(9);
       Textout* txt = Engine::instance()->getFontRenderer()->getTextout(atoi(idstr.c_str()));
-      return Engine::instance()->getAnimator()->getTargetPoisition(txt).y;
+      lua_pushinteger(L, Engine::instance()->getAnimator()->getTargetPoisition(txt).y);
+      return 1;
     }
   }
   else if (lname == "mousex"){
-    return Engine::instance()->getCursorPos().x;
+    lua_pushinteger(L, Engine::instance()->getCursorPos().x);
+    return 1;
   }
   else if (lname == "mousey"){
-    return Engine::instance()->getCursorPos().y;
+    lua_pushinteger(L, Engine::instance()->getCursorPos().y);
+    return 1;
   }
   else if (lname == "hour"){
-    return getTime(TM_HOUR);
+    lua_pushinteger(L, getTime(TM_HOUR));
+    return 1;
   }
   else if (lname == "minute"){
-    return getTime(TM_MINUTE);
+    lua_pushinteger(L, getTime(TM_MINUTE));
+    return 1;
   }
   else if (lname == "second"){
-    return getTime(TM_SECOND);
+    lua_pushinteger(L, getTime(TM_SECOND));
+    return 1;
   }
   else if (lname == "year"){
-    return getTime(TM_YEAR);
+    lua_pushinteger(L, getTime(TM_YEAR));
+    return 1;
   }
   else if (lname == "month"){
-    return getTime(TM_MONTH);
+    lua_pushinteger(L, getTime(TM_MONTH));
+    return 1;
   }
   else if (lname == "day"){
-    return getTime(TM_DAY);
+    lua_pushinteger(L, getTime(TM_DAY));
+    return 1;
   }
   else if (lname == "currentroom"){
     RoomObject* room = Engine::instance()->getRoom("");
     if (!room)
       TR_BREAK("Room not found");
-    return String(room->getName().c_str());
+    lua_pushstring(L, room->getName().c_str());
+    return 1;
   }
   else if (lname == "roomx"){
     RoomObject* room = Engine::instance()->getRoom("");
     if (!room)
       TR_BREAK("Room not found");
-    return -room->getScrollOffset().x/Engine::instance()->getWalkGridSize(false);
+    lua_pushnumber(L, -room->getScrollOffset().x / Engine::instance()->getWalkGridSize(false));
+    return 1;
   }
   else if (lname == "roomy"){
     RoomObject* room = Engine::instance()->getRoom("");
     if (!room)
       TR_BREAK("Room not found");
-    return -room->getScrollOffset().y/Engine::instance()->getWalkGridSize(false);
+    lua_pushnumber(L, -room->getScrollOffset().y / Engine::instance()->getWalkGridSize(false));
+    return 1;
   }
   else if (lname == "charx"){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
-    if (!chr)
-      return 0;
-    return chr->getPosition().x;
+    if (!chr){
+      lua_pushinteger(L, 0);
+      return 1;
+    }
+    lua_pushinteger(L, chr->getPosition().x);
+    return 1;
   }
   else if (lname == "chary"){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
-    if (!chr)
-      return 0;
+    if (!chr){
+      lua_pushinteger(L, 0);
+      return 1;
+    }
     return chr->getPosition().y;
   }
   else if (lname == "charzoom"){
     TR_BREAK("Implement me");
+    return 0;
   }
-  else if (name.size() > 5 && lname.substr(0,5) == "char:"){
+  else if (name.size() > 5 && lname.substr(0, 5) == "char:"){
     CharacterObject* chr = Engine::instance()->getCharacter(name.substr(5));
     if (!chr){
       SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(name.substr(5));
       if (!cso)
         TR_BREAK("Character %s not found", name.substr(5).c_str());
-      return cso->base.state;
+      lua_pushinteger(L, cso->base.state);
+      return 1;
     }
-    return chr->getState();
+    lua_pushinteger(L, chr->getState());
+    return 1;
   }
-  else if (name.size() > 6 && lname.substr(0,6) == "charx:"){
+  else if (name.size() > 6 && lname.substr(0, 6) == "charx:"){
     int idx = 6;
     bool wmpos = false;
     if (name[6] == '_'){
@@ -1423,17 +1461,21 @@ StackData PcdkScript::getVariable(const String& name){
       SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, realname);
       if (cso == NULL){
         TR_BREAK("Character %s not found", name.substr(idx).c_str());
-        return 0;
+        lua_pushinteger(L, 0);
+        return 1;
       }
       if (wmpos){
         SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(room);
-        return cso->base.position.x/Engine::instance()->getWalkGridSize(sr->doublewalkmap);
+        lua_pushnumber(L, cso->base.position.x / Engine::instance()->getWalkGridSize(sr->doublewalkmap));
+        return 1;
       }
-      return cso->base.position.x;
+      lua_pushinteger(L, cso->base.position.x);
+      return 1;
     }
-    return chr->getPosition().x/(wmpos ? chr->getWalkGridSize() : 1);
+    lua_pushnumber(L, chr->getPosition().x / (wmpos ? chr->getWalkGridSize() : 1));
+    return 1;
   }
-  else if (name.size() > 6 && lname.substr(0,6) == "chary:"){
+  else if (name.size() > 6 && lname.substr(0, 6) == "chary:"){
     int idx = 6;
     bool wmpos = false;
     if (name[6] == '_'){
@@ -1452,38 +1494,46 @@ StackData PcdkScript::getVariable(const String& name){
       SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, realname);
       if (cso == NULL){
         TR_BREAK("Character %s not found", name.substr(idx).c_str());
-        return 0;
+        lua_pushinteger(L, 0);
+        return 1;
       }
       if (wmpos){
         SaveStateProvider::SaveRoom* sr = Engine::instance()->getSaver()->getRoom(room);
-        return cso->base.position.y/Engine::instance()->getWalkGridSize(sr->doublewalkmap);
+        lua_pushnumber(L, cso->base.position.y / Engine::instance()->getWalkGridSize(sr->doublewalkmap));
+        return 1;
       }
-      return cso->base.position.y;
+      lua_pushinteger(L, cso->base.position.y);
+      return 1;
     }
-    return chr->getPosition().y/(wmpos ? chr->getWalkGridSize() : 1);
+    lua_pushnumber(L, chr->getPosition().y / (wmpos ? chr->getWalkGridSize() : 1));
+    return 1;
   }
-  else if (name.size() > 9 && lname.substr(0,9) == "charzoom:"){
+  else if (name.size() > 9 && lname.substr(0, 9) == "charzoom:"){
     TR_BREAK("Implement me");
+    return 0;
   }
-  else if (name.size() > 4 && lname.substr(0,4) == "obj:"){
+  else if (name.size() > 4 && lname.substr(0, 4) == "obj:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(4), false);
     if (obj == NULL)
       TR_BREAK("Object %s not found", name.substr(4).c_str());
-    return obj->getState();
+    lua_pushinteger(L, obj->getState());
+    return 1;
   }
-  else if (name.size() > 5 && lname.substr(0,5) == "objx:"){
+  else if (name.size() > 5 && lname.substr(0, 5) == "objx:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
     if (obj == NULL)
       TR_BREAK("Object %s not found", name.substr(5).c_str());
-    return obj->getPosition().x;
+    lua_pushinteger(L, obj->getPosition().x);
+    return 1;
   }
-  else if (name.size() > 5 && lname.substr(0,5) == "objy:"){
+  else if (name.size() > 5 && lname.substr(0, 5) == "objy:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
     if (obj == NULL)
       TR_BREAK("Object %s not found", name.substr(5).c_str());
-    return obj->getPosition().y;
+    lua_pushinteger(L, obj->getPosition().y);
+    return 1;
   }
-  else if (name.size() > 8 && lname.substr(0,8) == "tgtobjx:"){
+  else if (name.size() > 8 && lname.substr(0, 8) == "tgtobjx:"){
     String objname = name.substr(8);
     objname = objname.removeAll(' ');
     ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(objname);
@@ -1495,11 +1545,13 @@ StackData PcdkScript::getVariable(const String& name){
       SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
       if (so == NULL)
         TR_BREAK("Object %s not found", name.substr(8).c_str());
-      return so->position.x;
+      lua_pushinteger(L, so->position.x);
+      return 1;
     }
-    return Engine::instance()->getAnimator()->getTargetPoisition(obj).x;
+    lua_pushinteger(L, Engine::instance()->getAnimator()->getTargetPoisition(obj).x);
+    return 1;
   }
-  else if (name.size() > 8 && lname.substr(0,8) == "tgtobjy:"){
+  else if (name.size() > 8 && lname.substr(0, 8) == "tgtobjy:"){
     String objname = name.substr(8);
     objname = objname.removeAll(' ');
     ObjectGroup* grp = Engine::instance()->getInterpreter()->getGroup(objname);
@@ -1511,43 +1563,67 @@ StackData PcdkScript::getVariable(const String& name){
       SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
       if (so == NULL)
         TR_BREAK("Object %s not found", name.substr(8).c_str());
-      return so->position.y;
+      lua_pushinteger(L, so->position.y);
+      return 1;
     }
-    return Engine::instance()->getAnimator()->getTargetPoisition(obj).y;
+    lua_pushinteger(L, Engine::instance()->getAnimator()->getTargetPoisition(obj).y);
+    return 1;
   }
   else if (lname == "actiontext"){
-    return String(Engine::instance()->getActionText().c_str());
+    lua_pushstring(L, Engine::instance()->getActionText().c_str());
+    return 1;
   }
   else if (lname == "empty"){
-    return String();
+    lua_pushstring(L, "");
+    return 1;
   }
   else if (lname == "leftbracket"){
-    return String("(");
+    lua_pushstring(L, "(");
+    return 1;
   }
   else if (lname == "rightbracket"){
-    return String(")");
+    lua_pushstring(L, ")");
+    return 1;
   }
+  //transformed raw lookup
+  lua_pushstring(L, lname.removeAll(' ').c_str());
+  lua_rawget(L, 1);
+  return 1;
+}
+
+StackData PcdkScript::getVariable(const String& name){
   lua_getglobal(mL, "var");
-  lua_getfield(mL, -1, lname.removeAll(' ').c_str());
+  lua_getfield(mL, -1, name.c_str());
   StackData ret = StackData::fromStack(mL, -1);
   lua_pop(mL, 2);
   return ret;
 }
 
-void PcdkScript::setVariable(const String& name, const StackData& value){
-  TR_USE(ADV_Script);
+int PcdkScript::setSpecialVar(lua_State* L){
+  String name = lua_tostring(L, 2);
   String lname = name.toLower();
   if (lname == "mousex"){
-    Engine::instance()->setMousePosition(value.getInt(), Engine::instance()->getCursorPos().y);
-    return;
+    int x = (int)lua_tointeger(L, 3);
+    Engine::instance()->setMousePosition(x, Engine::instance()->getCursorPos().y);
+    return 0;
   }
   else if (lname == "mousey"){
-    Engine::instance()->setMousePosition(Engine::instance()->getCursorPos().x, value.getInt());
-    return;
+    int y = (int)lua_tointeger(L, 3);
+    Engine::instance()->setMousePosition(Engine::instance()->getCursorPos().x, y);
+    return 0;
   }
+  //transformed raw set
+  lua_pushstring(L, lname.removeAll(' ').c_str());
+  lua_pushnil(L);
+  lua_copy(L, 3, -1);
+  lua_rawset(L, 1);
+  return 0;
+}
+
+void PcdkScript::setVariable(const String& name, const StackData& value){
   lua_getglobal(mL, "var");
   StackData::pushStack(mL, value);
-  lua_setfield(mL, -2, lname.removeAll(' ').c_str());
+  lua_setfield(mL, -2, name.c_str());
   lua_pop(mL, 1);
 }
 

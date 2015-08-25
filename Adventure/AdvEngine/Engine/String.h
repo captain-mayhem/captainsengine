@@ -26,6 +26,8 @@ public:
   const char* c_str() const {return mStr.c_str();}
   bool empty() const {return mStr.empty();}
   unsigned size() const {return (unsigned)mStr.size();}
+  void resize(size_t n) { mStr.resize(n); }
+  String& append(size_t n, char c) { mStr.append(n, c); return *this; }
   const char& operator[](int i) const {return mStr[i];}
 
   size_t find(char c, size_t pos = 0) { return mStr.find(c, pos); }
