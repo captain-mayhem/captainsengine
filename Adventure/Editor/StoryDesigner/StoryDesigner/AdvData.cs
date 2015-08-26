@@ -49,6 +49,11 @@ namespace StoryDesigner
 
     public struct ProjectSettings
     {
+        public enum ScriptLang
+        {
+            PCDK = 0,
+            LUA = 1,
+        };
         public string Projectname;
         public string Directory;
         public Vec2i Resolution;
@@ -111,6 +116,7 @@ namespace StoryDesigner
         public ArrayList Fonts;
 
         public bool PngToJpeg;
+        public ScriptLang ScriptingLanguage;
     }
 
     public interface IStateFrameData{
@@ -1068,6 +1074,7 @@ namespace StoryDesigner
             Settings.Fonts = new ArrayList();
 
             Settings.PngToJpeg = false;
+            Settings.ScriptingLanguage = ProjectSettings.ScriptLang.PCDK;
 
             mImages = new Dictionary<string, string>();
             mSounds = new Dictionary<string, string>();
@@ -1100,6 +1107,7 @@ namespace StoryDesigner
             mCursor = new Cursor(this);
             mReader = reader;
             Settings.PngToJpeg = false;
+            Settings.ScriptingLanguage = ProjectSettings.ScriptLang.PCDK;
         }
 
         public System.Drawing.Bitmap getImage(string name)

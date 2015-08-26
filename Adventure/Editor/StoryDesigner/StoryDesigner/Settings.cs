@@ -216,6 +216,7 @@ namespace StoryDesigner
             //sixth page
             this.pngToJpeg.Checked = mData.Settings.PngToJpeg;
             this.cropTransparent.Checked = mData.Persistence.CropTransparentImages;
+            this.scriptLang.SelectedIndex = (int)mData.Settings.ScriptingLanguage;
         }
 
         private void getControls()
@@ -341,6 +342,7 @@ namespace StoryDesigner
             //sixth page
             mData.Settings.PngToJpeg = this.pngToJpeg.Checked;
             mData.Persistence.CropTransparentImages = this.cropTransparent.Checked;
+            mData.Settings.ScriptingLanguage = (ProjectSettings.ScriptLang)this.scriptLang.SelectedIndex;
         }
 
         AdvData mData;

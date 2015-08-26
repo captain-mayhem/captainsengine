@@ -30,14 +30,9 @@ public:
     REVERSE,
   };
 
-  enum ScriptType{
-    PCDK,
-    LUA,
-  };
-
   PcdkScript(AdvDocument* data);
   ~PcdkScript();
-  ExecutionContext* parseProgram(const std::string& program, ScriptType type = PCDK);
+  ExecutionContext* parseProgram(const std::string& program, ScriptLang type = DEFAULT_SCRIPT);
   void registerFunction(std::string name, ScriptFunc func);
   ScriptFunc getFunction(const std::string name) {return mFunctions[name];}
   void registerRelVar(const std::string& function, int argnum, const std::string& prefix);
@@ -111,6 +106,7 @@ protected:
   void update(ExecutionContext* ctx, unsigned time, bool execute=true);
   static int getSpecialVar(lua_State* L);
   static int setSpecialVar(lua_State* L);
+  static int varToString(lua_State* L);
   std::map<std::string, ScriptFunc> mFunctions;
   AdvDocument* mData;
   std::list<ExecutionContext*> mScripts;

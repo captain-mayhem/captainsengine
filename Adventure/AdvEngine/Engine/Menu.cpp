@@ -53,7 +53,7 @@ Menu::Menu(int font) : RoomObject(1, Vec2i(), Vec2i(), "#menu", Vec2i(), false) 
       18,
       line.r, line.g, line.b,
       i, i, i);
-    ExecutionContext* slotscr = Engine::instance()->getInterpreter()->parseProgram(tmp);
+    ExecutionContext* slotscr = Engine::instance()->getInterpreter()->parseProgram(tmp, PCDK_SCRIPT);
     slot->getScript()->unref();
     slot->setScript(slotscr);
     addObject(slot);
@@ -175,7 +175,7 @@ Menu::Menu(int font) : RoomObject(1, Vec2i(), Vec2i(), "#menu", Vec2i(), false) 
     "    textspeed([!textSpeed])\n"
     "  }\n"
     "}\n";
-  ExecutionContext* scr = Engine::instance()->getInterpreter()->parseProgram(script);
+  ExecutionContext* scr = Engine::instance()->getInterpreter()->parseProgram(script, PCDK_SCRIPT);
   setScript(scr);
   Engine::instance()->getInterpreter()->execute(scr, false);
   scr->setEvent(EVT_ENTER);

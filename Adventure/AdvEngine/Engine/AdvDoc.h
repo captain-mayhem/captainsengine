@@ -20,6 +20,12 @@ namespace adv{
 
 class SoundPlayer;
 
+enum ScriptLang{
+  PCDK_SCRIPT,
+  LUA_SCRIPT,
+  DEFAULT_SCRIPT,
+};
+
 struct ProjectSettings{
   std::string dir;
   std::string savedir;
@@ -65,7 +71,7 @@ struct ProjectSettings{
   std::map<std::string, unsigned> commands;
   std::vector<std::string> pretty_commands;
 
-  bool noPngToJpeg;
+  ScriptLang script_lang;
 };
 
 
