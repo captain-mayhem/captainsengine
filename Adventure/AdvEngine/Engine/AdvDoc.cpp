@@ -117,7 +117,7 @@ bool AdvDocument::loadDocument(const std::string filename){
   if (rdr.isWorking())
     loadFile10(rdr);
   else{
-    mSettings.noPngToJpeg = false;
+    mSettings.script_lang = PCDK_SCRIPT;
   }
 
   {
@@ -1280,7 +1280,12 @@ bool AdvDocument::loadFile10(CGE::MemReader& txtstream){
   }
   txtstream.readLine();
   str = txtstream.readLine();
-  mSettings.noPngToJpeg = str == "-1";
+  //mSettings.noPngToJpeg = str == "-1";
+  str = txtstream.readLine();
+  if (str == "LUA")
+    mSettings.script_lang = LUA_SCRIPT;
+  else
+    mSettings.script_lang = PCDK_SCRIPT;
   return true;
 }
 

@@ -1008,6 +1008,7 @@ namespace StoryDesigner
             swr.WriteLine();
             swr.Write(mData.Settings.PngToJpeg ? -1 : 0);
             swr.WriteLine("");
+            swr.WriteLine(mData.Settings.ScriptingLanguage.ToString());
             swr.Flush();
         }
 

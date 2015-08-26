@@ -532,8 +532,17 @@
   <data name="coin_interface.Text" xml:space="preserve">
     <value>Coin-Interface einschalten</value>
   </data>
+  <data name="scriptLang.Location" type="System.Drawing.Point, System.Drawing">
+    <value>114, 64</value>
+  </data>
+  <data name="label30.Size" type="System.Drawing.Size, System.Drawing">
+    <value>99, 17</value>
+  </data>
+  <data name="label30.Text" xml:space="preserve">
+    <value>Skriptsprache:</value>
+  </data>
   <data name="cropTransparent.Location" type="System.Drawing.Point, System.Drawing">
-    <value>195, 16</value>
+    <value>269, 20</value>
   </data>
   <data name="cropTransparent.Size" type="System.Drawing.Size, System.Drawing">
     <value>254, 21</value>
@@ -541,11 +550,11 @@
   <data name="cropTransparent.Text" xml:space="preserve">
     <value>Transparente Bildteile abschneiden</value>
   </data>
-  <data name="noPngToJpeg.Size" type="System.Drawing.Size, System.Drawing">
-    <value>233, 21</value>
+  <data name="pngToJpeg.Size" type="System.Drawing.Size, System.Drawing">
+    <value>208, 21</value>
   </data>
-  <data name="noPngToJpeg.Text" xml:space="preserve">
-    <value>Pngs nicht nach Jpg umwandeln</value>
+  <data name="pngToJpeg.Text" xml:space="preserve">
+    <value>Png nach Jpeg konvertieren</value>
   </data>
   <data name="tabPage6.Text" xml:space="preserve">
     <value>Erweitert</value>

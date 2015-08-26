@@ -3534,6 +3534,60 @@
   <data name="&gt;&gt;tabPage5.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
+  <data name="scriptLang.Items" xml:space="preserve">
+    <value>Pcdk</value>
+  </data>
+  <data name="scriptLang.Items1" xml:space="preserve">
+    <value>Lua</value>
+  </data>
+  <data name="scriptLang.Location" type="System.Drawing.Point, System.Drawing">
+    <value>141, 64</value>
+  </data>
+  <data name="scriptLang.Size" type="System.Drawing.Size, System.Drawing">
+    <value>121, 24</value>
+  </data>
+  <data name="scriptLang.TabIndex" type="System.Int32, mscorlib">
+    <value>3</value>
+  </data>
+  <data name="&gt;&gt;scriptLang.Name" xml:space="preserve">
+    <value>scriptLang</value>
+  </data>
+  <data name="&gt;&gt;scriptLang.Type" xml:space="preserve">
+    <value>System.Windows.Forms.ComboBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;scriptLang.Parent" xml:space="preserve">
+    <value>tabPage6</value>
+  </data>
+  <data name="&gt;&gt;scriptLang.ZOrder" xml:space="preserve">
+    <value>0</value>
+  </data>
+  <data name="label30.AutoSize" type="System.Boolean, mscorlib">
+    <value>True</value>
+  </data>
+  <data name="label30.Location" type="System.Drawing.Point, System.Drawing">
+    <value>9, 67</value>
+  </data>
+  <data name="label30.Size" type="System.Drawing.Size, System.Drawing">
+    <value>130, 17</value>
+  </data>
+  <data name="label30.TabIndex" type="System.Int32, mscorlib">
+    <value>2</value>
+  </data>
+  <data name="label30.Text" xml:space="preserve">
+    <value>Scripting language:</value>
+  </data>
+  <data name="&gt;&gt;label30.Name" xml:space="preserve">
+    <value>label30</value>
+  </data>
+  <data name="&gt;&gt;label30.Type" xml:space="preserve">
+    <value>System.Windows.Forms.Label, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="&gt;&gt;label30.Parent" xml:space="preserve">
+    <value>tabPage6</value>
+  </data>
+  <data name="&gt;&gt;label30.ZOrder" xml:space="preserve">
+    <value>1</value>
+  </data>
   <data name="cropTransparent.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
   </data>
@@ -3562,7 +3616,7 @@
     <value>tabPage6</value>
   </data>
   <data name="&gt;&gt;cropTransparent.ZOrder" xml:space="preserve">
-    <value>0</value>
+    <value>2</value>
   </data>
   <data name="pngToJpeg.AutoSize" type="System.Boolean, mscorlib">
     <value>True</value>
@@ -3592,7 +3646,7 @@
     <value>tabPage6</value>
   </data>
   <data name="&gt;&gt;pngToJpeg.ZOrder" xml:space="preserve">
-    <value>1</value>
+    <value>3</value>
   </data>
   <data name="tabPage6.Location" type="System.Drawing.Point, System.Drawing">
     <value>4, 25</value>

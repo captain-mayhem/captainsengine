@@ -111,6 +111,13 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
     lua_setfield(mL, -2, iter->first.c_str());
   }
   lua_setglobal(mL, "bool");
+
+  lua_pushglobaltable(mL);
+  lua_newtable(mL);
+  lua_pushcfunction(mL, varToString);
+  lua_setfield(mL, -2, "__index");
+  lua_setmetatable(mL, -2);
+  lua_pop(mL, 1);
 }
 
 PcdkScript::~PcdkScript(){
@@ -244,10 +251,12 @@ ASTNode* stringify(ASTNode* node){
   return ret;
 }
 
-ExecutionContext* PcdkScript::parseProgram(const std::string& program, ScriptType type){
-  if (type == PCDK)
+ExecutionContext* PcdkScript::parseProgram(const std::string& program, ScriptLang type){
+  if (type == DEFAULT_SCRIPT)
+    type = mData->getProjectSettings()->script_lang;
+  if (type == PCDK_SCRIPT)
     return parseProgramPCDK(program);
-  else if (type == LUA)
+  else if (type == LUA_SCRIPT)
     return parseProgramLUA(program);
   return NULL;
 }
@@ -939,7 +948,7 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
     }
     
     //script ran through
-    if (!script->mSuspended && script->mCode && script->mPC >= script->mCode->numInstructions()){
+    if (!script->mSuspended && (script->mCode && script->mPC >= script->mCode->numInstructions() || script->mLuaRet == LUA_OK)){
       //if (script->mHandler)
       //  script->mHandler(*script);
       clickEndHandler(*script);
@@ -1820,4 +1829,10 @@ void StackData::pushStack(lua_State* L, StackData const& value){
     lua_pushlightuserdata(L, value.getEC());
   else
     lua_pushnil(L);
+}
+
+int PcdkScript::varToString(lua_State* L){
+  lua_pushnil(L);
+  lua_copy(L, 2, -1);
+  return 1;
 }

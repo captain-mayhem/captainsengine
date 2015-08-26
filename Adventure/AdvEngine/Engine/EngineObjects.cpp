@@ -366,7 +366,7 @@ BlitObject(Engine::instance()->getSettings()->tsbackground, size, DEPTH_BUTTON, 
     "}\n",
     id, mName.c_str(), mName.c_str(), mName.c_str(), mName.c_str()
     );
-  mScript = Engine::instance()->getInterpreter()->parseProgram(tmp);
+  mScript = Engine::instance()->getInterpreter()->parseProgram(tmp, PCDK_SCRIPT);
   
   mFont = Engine::instance()->getFontID();
   mHighlightText = mTex != 0;

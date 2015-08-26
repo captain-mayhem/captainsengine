@@ -45,7 +45,7 @@ Console::Console() : RoomObject(1,
   sprintf(tmp, script,
     Engine::instance()->getSettings()->resolution.y / 3 - 3 - Engine::instance()->getFontRenderer()->getFont(0)->getLineHeight()
     );
-  ExecutionContext* scr = Engine::instance()->getInterpreter()->parseProgram(tmp);
+  ExecutionContext* scr = Engine::instance()->getInterpreter()->parseProgram(tmp, PCDK_SCRIPT);
   setScript(scr);
 }
 
@@ -142,7 +142,7 @@ void Console::input(const char* str){
     output(msg.c_str());
     if (msg.find(' ') == msg.npos && msg.find('=') == msg.npos && msg.find(')') == msg.npos) //append call for convenience
       msg += "()";
-    ExecutionContext* script = Engine::instance()->getInterpreter()->parseProgram(msg, PcdkScript::LUA);
+    ExecutionContext* script = Engine::instance()->getInterpreter()->parseProgram(msg, LUA_SCRIPT);
     if (script){
       Engine::instance()->getInterpreter()->execute(script, true);
     }

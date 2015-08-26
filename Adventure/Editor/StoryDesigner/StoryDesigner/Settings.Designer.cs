@@ -151,6 +151,8 @@ namespace StoryDesigner
             this.label26 = new System.Windows.Forms.Label();
             this.coin_interface = new System.Windows.Forms.CheckBox();
             this.tabPage6 = new System.Windows.Forms.TabPage();
+            this.scriptLang = new System.Windows.Forms.ComboBox();
+            this.label30 = new System.Windows.Forms.Label();
             this.cropTransparent = new System.Windows.Forms.CheckBox();
             this.pngToJpeg = new System.Windows.Forms.CheckBox();
             this.OK = new System.Windows.Forms.Button();
@@ -1077,11 +1079,27 @@ namespace StoryDesigner
             // 
             // tabPage6
             // 
+            this.tabPage6.Controls.Add(this.scriptLang);
+            this.tabPage6.Controls.Add(this.label30);
             this.tabPage6.Controls.Add(this.cropTransparent);
             this.tabPage6.Controls.Add(this.pngToJpeg);
             resources.ApplyResources(this.tabPage6, "tabPage6");
             this.tabPage6.Name = "tabPage6";
             this.tabPage6.UseVisualStyleBackColor = true;
+            // 
+            // scriptLang
+            // 
+            this.scriptLang.FormattingEnabled = true;
+            this.scriptLang.Items.AddRange(new object[] {
+            resources.GetString("scriptLang.Items"),
+            resources.GetString("scriptLang.Items1")});
+            resources.ApplyResources(this.scriptLang, "scriptLang");
+            this.scriptLang.Name = "scriptLang";
+            // 
+            // label30
+            // 
+            resources.ApplyResources(this.label30, "label30");
+            this.label30.Name = "label30";
             // 
             // cropTransparent
             // 
@@ -1286,5 +1304,7 @@ namespace StoryDesigner
         private System.Windows.Forms.RadioButton aspect_ratio;
         private System.Windows.Forms.TextBox settingsPicture;
         private System.Windows.Forms.Label label28;
+        private System.Windows.Forms.ComboBox scriptLang;
+        private System.Windows.Forms.Label label30;
     }
 }
