@@ -61,7 +61,14 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
 
 }
 
+const char* luaRunner =
+"function execScript()\n"
+"  _state.script()\n"
+"end\n"
+;
+
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true) {
+  TR_USE(ADV_Script);
   mL = luaL_newstate();
   ScriptFunctions::registerFunctions(this);
   mOfftextColor = data->getProjectSettings()->offspeechcolor;
@@ -111,6 +118,12 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
     lua_setfield(mL, -2, iter->first.c_str());
   }
   lua_setglobal(mL, "bool");
+
+  if (luaL_dostring(mL, luaRunner) != LUA_OK){
+    TR_ERROR("Failed to load luaRunner script: %s", lua_tostring(mL, -1));
+    lua_pop(mL, 1);
+  }
+  //lua_setglobal(mL, "execScript");
 
   lua_pushglobaltable(mL);
   lua_newtable(mL);
@@ -919,10 +932,8 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
     if (script->mCode == NULL){
       //real lua script
       int numArgs = lua_gettop(L);
-      lua_pushthread(L);
-      lua_gettable(L, LUA_REGISTRYINDEX);
       if (script->mLuaRet != LUA_YIELD)
-        lua_getfield(L, -1, "script");
+        lua_getglobal(L, "execScript");
       script->mLuaRet = lua_resume(script->mL, mL, numArgs);
       lua_pop(L, 1);
     }
@@ -948,7 +959,10 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
     }
     
     //script ran through
-    if (!script->mSuspended && (script->mCode && script->mPC >= script->mCode->numInstructions() || script->mLuaRet == LUA_OK)){
+    if (!script->mSuspended && 
+      (script->mCode && script->mPC >= script->mCode->numInstructions()) || //pcdk
+      (!script->mCode && script->mLuaRet == LUA_OK) // lua
+      ){
       //if (script->mHandler)
       //  script->mHandler(*script);
       clickEndHandler(*script);
@@ -1832,7 +1846,14 @@ void StackData::pushStack(lua_State* L, StackData const& value){
 }
 
 int PcdkScript::varToString(lua_State* L){
-  lua_pushnil(L);
-  lua_copy(L, 2, -1);
+  String name = lua_tostring(L, 2);
+  if (name == "_state"){
+    lua_pushthread(L);
+    lua_gettable(L, LUA_REGISTRYINDEX);
+  }
+  else{
+    lua_pushnil(L);
+    lua_copy(L, 2, -1);
+  }
   return 1;
 }

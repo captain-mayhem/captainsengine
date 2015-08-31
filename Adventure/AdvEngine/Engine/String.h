@@ -8,6 +8,7 @@ namespace adv{
 class String{
   friend std::ostream& operator<<(std::ostream& strm, const String& str);
   friend std::istream& operator>>(std::istream& strm, String& str);
+  friend String operator+(const char* ptr, const String& str);
 public:
   String() : mStr() {}
   String(const char* str) : mStr(str) {}
@@ -51,6 +52,7 @@ protected:
 
 std::ostream& operator<<(std::ostream& strm, const String& str);
 std::istream& operator>>(std::istream& strm, String& str);
+String operator+(const char* ptr, const String& str);
 
 }
 

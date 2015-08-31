@@ -3093,7 +3093,7 @@ int ScriptFunctions::isItemInState(lua_State* L){
 
 int ScriptFunctions::print(lua_State* L){
   int n = lua_gettop(L);
-  string ret;
+  String ret;
   for (int i = 1; i <= n; ++i){
     if (lua_isstring(L, i)){
       const char* str = lua_tostring(L, i);
@@ -3104,6 +3104,16 @@ int ScriptFunctions::print(lua_State* L){
     }
     else if (lua_isnil(L, i)){
       ret += "nil";
+    }
+    else if (lua_istable(L, i)){
+      char tmp[64];
+      sprintf(tmp, "table: 0x%p", lua_topointer(L, i));
+      ret += tmp;
+    }
+    else if (lua_isfunction(L, i)){
+      char tmp[64];
+      sprintf(tmp, "function: 0x%p", lua_topointer(L, i));
+      ret += tmp;
     }
   }
   {
