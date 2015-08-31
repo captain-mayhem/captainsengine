@@ -73,4 +73,8 @@ std::istream& operator>>(std::istream& strm, String& str){
   return strm;
 }
 
+String operator+(const char* ptr, const String& str){
+  return String(ptr) + str;
+}
+
 }
