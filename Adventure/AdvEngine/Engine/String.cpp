@@ -44,12 +44,12 @@ void String::trim(){
     return;
   size_t end;
   for (end = mStr.size() - 1; end > 0; --end){
-    if (!isspace(mStr[end]))
+    if (mStr[end] < 0 || !isspace(mStr[end]))
       break;
   }
   size_t begin;
   for (begin = 0; begin <= end; ++begin){
-    if (!isspace(mStr[begin]))
+    if (mStr[begin] < 0 || !isspace(mStr[begin]))
       break;
   }
   mStr = mStr.substr(begin, end - begin + 1);
