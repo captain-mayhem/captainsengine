@@ -65,6 +65,18 @@ const char* luaRunner =
 "function execScript()\n"
 "  _state.script()\n"
 "end\n"
+"\n"
+"function on_newidx(table, ev, eventfunc)\n"
+"  local event = getEvent(ev)\n"
+"  if _state:eventFired(event) then\n"
+"    _state:eventHandled()\n"
+"    eventfunc()\n"
+"  end\n"
+"end\n"
+//"function on(event, func)\n"
+//"  func()\n"
+//"end\n"
+//"on = _state.event\n"
 ;
 
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true) {
@@ -123,7 +135,9 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
     TR_ERROR("Failed to load luaRunner script: %s", lua_tostring(mL, -1));
     lua_pop(mL, 1);
   }
-  //lua_setglobal(mL, "execScript");
+  
+  lua_pushcfunction(mL, eventStrToEventId);
+  lua_setglobal(mL, "getEvent");
 
   lua_pushglobaltable(mL);
   lua_newtable(mL);
@@ -355,6 +369,19 @@ ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
     return NULL;
   }
   lua_setfield(L, -2, "script");
+  lua_newtable(L);
+  lua_newtable(L);
+  lua_getglobal(L, "on_newidx");
+  //lua_pushcfunction(L, setEventHandler);
+  lua_setfield(L, -2, "__newindex");
+  lua_setmetatable(L, -2);
+  //lua_pushnil(L);
+  //lua_copy(L, -2, -1);
+  lua_setfield(L, -2, "event");
+  lua_pushcfunction(L, eventFired);
+  lua_setfield(L, -2, "eventFired");
+  lua_pushcfunction(L, eventHandled);
+  lua_setfield(L, -2, "eventHandled");
   lua_pop(L, 1);
   return ret;
 }
@@ -1851,9 +1878,40 @@ int PcdkScript::varToString(lua_State* L){
     lua_pushthread(L);
     lua_gettable(L, LUA_REGISTRYINDEX);
   }
+  else if (name == "on"){
+    lua_pushthread(L);
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    lua_getfield(L, -1, "event");
+    lua_remove(L, -2);
+  }
   else{
     lua_pushnil(L);
     lua_copy(L, 2, -1);
   }
   return 1;
+}
+
+int PcdkScript::eventStrToEventId(lua_State* L){
+  const char* ev = lua_tostring(L, 1);
+  EngineEvent event = Engine::instance()->getInterpreter()->getEngineEvent(ev);
+  lua_pushinteger(L, event);
+  return 1;
+}
+
+int PcdkScript::eventFired(lua_State* L){
+  lua_getfield(L, 1, "ec");
+  ExecutionContext* ctx = (ExecutionContext*)lua_touserdata(L, -1);
+  lua_pop(L, 1);
+  EngineEvent event = (EngineEvent)lua_tointeger(L, 2);
+  bool ret = ctx->isEventSet(event);
+  lua_pushboolean(L, ret ? 1 : 0);
+  return 1;
+}
+
+int PcdkScript::eventHandled(lua_State* L){
+  lua_getfield(L, 1, "ec");
+  ExecutionContext* ctx = (ExecutionContext*)lua_touserdata(L, -1);
+  lua_pop(L, 1);
+  ctx->setEventHandled();
+  return 0;
 }

@@ -107,6 +107,9 @@ protected:
   static int getSpecialVar(lua_State* L);
   static int setSpecialVar(lua_State* L);
   static int varToString(lua_State* L);
+  static int eventStrToEventId(lua_State* L);
+  static int eventFired(lua_State* L);
+  static int eventHandled(lua_State* L);
   std::map<std::string, ScriptFunc> mFunctions;
   AdvDocument* mData;
   std::list<ExecutionContext*> mScripts;
