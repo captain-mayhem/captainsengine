@@ -1,0 +1,46 @@
+@0
+
+
+@1
+MOV UP, DOWN
+
+@2
+
+
+@3
+
+
+@4
+MOV UP, ACC
+LOOP:
+MOV ACC, DOWN
+MOV ACC, DOWN
+SUB 1
+JEZ END
+JMP LOOP
+END:
+MOV 0, DOWN
+
+@5
+
+
+@6
+
+
+@7
+
+
+@8
+LOOP:
+MOV UP, ACC
+JEZ END
+SWP
+ADD UP
+SWP
+JMP LOOP
+END:
+SWP
+MOV ACC, DOWN
+
+@9
+
