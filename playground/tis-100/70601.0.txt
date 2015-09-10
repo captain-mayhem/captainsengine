@@ -1,0 +1,58 @@
+@0
+
+
+@1
+MOV UP, DOWN
+
+@2
+
+
+@3
+
+
+@4
+
+
+@5
+MOV UP, RIGHT
+
+@6
+NEXT:
+MOV LEFT, ACC
+SAV
+MOV LEFT, ACC
+SWP
+JEZ NEXT
+SWP
+MOV ACC, DOWN
+SWP
+SUB 1
+JRO -5
+
+@7
+
+
+@8
+
+
+@9
+
+
+@10
+MOV 0, ACC
+MOV 0, DOWN
+MOV ACC, DOWN
+SWP
+MOV 30, ACC
+JEZ ENDL
+MOV UP, DOWN
+SUB 1
+JRO -3
+ENDL:
+MOV -1, DOWN
+SWP
+ADD 1
+JRO -11
+
+@11
+
