@@ -73,15 +73,22 @@ function drawLayers(name, moho, layers)
     local vis = layer.fVisibility
     vis:SetValue(0, true)
     local newbox = layer:Bounds(0)
+    --print("box"..newbox.fMin.x.."/"..newbox.fMax.x)
     local mat = LM.Matrix:new_local()
-    layer:GetLayerTransform(0, mat, moho.document)
+    local s = layer.fScale:GetValue(0)
+    local t = layer.fTranslation:GetValue(0)
+    mat:Translate(t.x, t.y, t.z)
+    mat:Scale(s.x, s.y, s.z)
+    --layer:GetFullTransform(0, mat, moho.document) --seems not to work, therefore own calculations above
     mat:Transform(newbox)
+    --print("box"..newbox.fMin.x.."/"..newbox.fMax.x)
     bbox:AccumulateBBox(newbox)
   end
   
   local pos = moho.document.fCameraTrack:GetValue(0)
   --print(pos.x.."/"..pos.y.."/"..pos.z)
   pos.x = ((bbox.fMin.x+bbox.fMax.x)/2)
+  --print("box:"..bbox.fMin.x.." "..bbox.fMax.x)
   pos.y = ((bbox.fMin.y+bbox.fMax.y)/2)
   local width = moho:DocToPixel((bbox.fMax.x-bbox.fMin.x)/pos.z)
   local height = moho:DocToPixel((bbox.fMax.y-bbox.fMin.y)/pos.z)
@@ -89,6 +96,7 @@ function drawLayers(name, moho, layers)
   height = math.ceil(height)
   pos.z = cam.z*(bbox.fMax.y-bbox.fMin.y)/2
   moho.document:SetShape(width, height)
+  --print(pos.x.."/"..pos.y.."/"..pos.z.."->"..width.."/"..height)
   moho.document.fCameraTrack:SetValue(0, pos)
   
   local filename = file_path.."gfx/"..project_name.."_"..name..".png"
@@ -97,7 +105,6 @@ function drawLayers(name, moho, layers)
   pictures[count] = filename
   list_file:write(filename.."\n")
   --sleep(1)
-  --end
   moho.document:SetShape(view_width, view_height)
   moho.document.fCameraTrack:SetValue(0, cam)
   --print("CAM:"..cam.x.."/"..cam.y.."/"..cam.z)
