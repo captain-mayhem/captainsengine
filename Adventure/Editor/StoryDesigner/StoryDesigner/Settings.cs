@@ -212,11 +212,59 @@ namespace StoryDesigner
             this.coin_room.Text = mData.Settings.CoinRoom;
             this.coin_autopopup.Checked = mData.Settings.CoinAutoPopup;
             this.coin_fading.Value = mData.Settings.CoinFading;
-            //TODO crosshair
+            //crosshair
+            float xrange = (float)mData.Settings.CoinCenter.x / mData.WindowXRes;
+            float yrange = (float)mData.Settings.CoinCenter.y / mData.Settings.Resolution.y;
+            mCoinCenter = new Vec2i((int)(coinCenter.Size.Width * xrange), (int)(coinCenter.Size.Height * yrange));
+            this.coinCenter.Paint += new PaintEventHandler(coinCenter_Paint);
+            this.coinCenter.MouseDown += coinCenter_MouseDown;
+            this.coinCenter.MouseUp += coinCenter_MouseUp;
+            this.coinCenter.MouseMove += coinCenter_MouseMove;
             //sixth page
             this.pngToJpeg.Checked = mData.Settings.PngToJpeg;
             this.cropTransparent.Checked = mData.Persistence.CropTransparentImages;
             this.scriptLang.SelectedIndex = (int)mData.Settings.ScriptingLanguage;
+        }
+
+        void coinCenter_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (!mCoinCenterDragging)
+                return;
+            Vec2i mouse = new Vec2i(e.X, e.Y);
+            if (mouse.x < 0)
+                mouse.x = 0;
+            if (mouse.x > coinCenter.Size.Width)
+                mouse.x = coinCenter.Size.Width;
+            if (mouse.y < 0)
+                mouse.y = 0;
+            if (mouse.y > coinCenter.Size.Height)
+                mouse.y = coinCenter.Size.Height;
+            mCoinCenter = mouse - mCoinCenterOffset;
+            coinCenter.Invalidate();
+        }
+
+        void coinCenter_MouseUp(object sender, MouseEventArgs e)
+        {
+            mCoinCenterDragging = false;
+        }
+
+        void coinCenter_MouseDown(object sender, MouseEventArgs e)
+        {
+            if (!coin_interface.Checked)
+                return;
+            Vec2i mouse = new Vec2i(e.X, e.Y);
+            if ((mouse - mCoinCenter).length() < 10)
+            {
+                mCoinCenterOffset = mouse - mCoinCenter;
+                mCoinCenterDragging = true;
+            }
+        }
+
+        void coinCenter_Paint(object sender, PaintEventArgs e)
+        {
+            if (!coin_interface.Checked)
+                return;
+            Utilities.drawCrosshair(e.Graphics, mCoinCenter);
         }
 
         private void getControls()
@@ -338,7 +386,10 @@ namespace StoryDesigner
             mData.Settings.CoinRoom = this.coin_room.Text;
             mData.Settings.CoinAutoPopup = this.coin_autopopup.Checked;
             mData.Settings.CoinFading = (int)this.coin_fading.Value;
-            //TODO crosshair
+            //crosshair
+            float xrange = (float)mCoinCenter.x / coinCenter.Size.Width;
+            float yrange = (float)mCoinCenter.y / coinCenter.Size.Height;
+            mData.Settings.CoinCenter = mCoinCenter = new Vec2i((int)(mData.WindowXRes * xrange), (int)(mData.Settings.Resolution.y * yrange));
             //sixth page
             mData.Settings.PngToJpeg = this.pngToJpeg.Checked;
             mData.Persistence.CropTransparentImages = this.cropTransparent.Checked;
@@ -347,6 +398,9 @@ namespace StoryDesigner
 
         AdvData mData;
         string mIcon;
+        Vec2i mCoinCenter;
+        bool mCoinCenterDragging;
+        Vec2i mCoinCenterOffset;
 
         private void pictureBox1_Click(object sender, EventArgs e)
         {
@@ -467,6 +521,11 @@ namespace StoryDesigner
             int sel = resolution.SelectedIndex;
             setResolution(aspect_ratio.Checked);
             resolution.SelectedIndex = sel;
+        }
+
+        private void pictureBox1_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

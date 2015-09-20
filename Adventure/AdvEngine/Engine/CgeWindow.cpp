@@ -19,7 +19,7 @@ using namespace adv;
 
 TR_CHANNEL(ADV_CGE_Window);
 
-std::string filename;
+String filename;
 std::string savegame;
 AdvDocument* adoc = NULL;
 CommandReceiver receiver;
@@ -228,7 +228,9 @@ void engineMain(int argc, char** argv){
     savegame = argv[2];
   else
     savegame = "";
-  CGE::Utilities::replaceWith(filename, '\\', '/');
+  filename.replaceWith('\\', '/');
+  if (!filename.endsWith(".dat") && !filename.endsWith(".adv"))
+    filename += "/data/game.dat";
   //render callbacks
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->setRenderCB(render);
