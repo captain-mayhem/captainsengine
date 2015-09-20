@@ -3339,28 +3339,28 @@
   <data name="&gt;&gt;label27.ZOrder" xml:space="preserve">
     <value>3</value>
   </data>
-  <data name="pictureBox1.Location" type="System.Drawing.Point, System.Drawing">
+  <data name="coinCenter.Location" type="System.Drawing.Point, System.Drawing">
     <value>321, 98</value>
   </data>
-  <data name="pictureBox1.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
+  <data name="coinCenter.Margin" type="System.Windows.Forms.Padding, System.Windows.Forms">
     <value>4, 4, 4, 4</value>
   </data>
-  <data name="pictureBox1.Size" type="System.Drawing.Size, System.Drawing">
+  <data name="coinCenter.Size" type="System.Drawing.Size, System.Drawing">
     <value>273, 208</value>
   </data>
-  <data name="pictureBox1.TabIndex" type="System.Int32, mscorlib">
+  <data name="coinCenter.TabIndex" type="System.Int32, mscorlib">
     <value>3</value>
   </data>
-  <data name="&gt;&gt;pictureBox1.Name" xml:space="preserve">
-    <value>pictureBox1</value>
+  <data name="&gt;&gt;coinCenter.Name" xml:space="preserve">
+    <value>coinCenter</value>
   </data>
-  <data name="&gt;&gt;pictureBox1.Type" xml:space="preserve">
+  <data name="&gt;&gt;coinCenter.Type" xml:space="preserve">
     <value>System.Windows.Forms.PictureBox, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
-  <data name="&gt;&gt;pictureBox1.Parent" xml:space="preserve">
+  <data name="&gt;&gt;coinCenter.Parent" xml:space="preserve">
     <value>coin_interface_panel</value>
   </data>
-  <data name="&gt;&gt;pictureBox1.ZOrder" xml:space="preserve">
+  <data name="&gt;&gt;coinCenter.ZOrder" xml:space="preserve">
     <value>4</value>
   </data>
   <data name="coin_autopopup.AutoSize" type="System.Boolean, mscorlib">

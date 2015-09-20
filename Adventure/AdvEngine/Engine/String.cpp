@@ -78,3 +78,15 @@ String operator+(const char* ptr, const String& str){
 }
 
 }
+
+void String::replaceWith(char oldCh, char newCh){
+  for (size_t i = 0; i < mStr.size(); i++){
+    if (mStr[i] == oldCh)
+      mStr[i] = newCh;
+  }
+}
+
+bool String::endsWith(const String& str){
+  size_t pos = mStr.rfind(str.mStr);
+  return pos == mStr.size() - str.size();
+}

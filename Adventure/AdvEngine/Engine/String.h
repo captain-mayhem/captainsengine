@@ -44,6 +44,8 @@ public:
   String toLower() const;
   bool ieqauls(const String& other);
   void trim();
+  void replaceWith(char oldCh, char newCh);
+  bool endsWith(const String& str);
 
   static const size_t npos = SIZE_MAX;
 protected:

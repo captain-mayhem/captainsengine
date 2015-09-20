@@ -145,7 +145,7 @@ namespace StoryDesigner
             this.coin_fading = new System.Windows.Forms.NumericUpDown();
             this.label29 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.coinCenter = new System.Windows.Forms.PictureBox();
             this.coin_autopopup = new System.Windows.Forms.CheckBox();
             this.coin_room = new System.Windows.Forms.TextBox();
             this.label26 = new System.Windows.Forms.Label();
@@ -181,7 +181,7 @@ namespace StoryDesigner
             this.tabPage5.SuspendLayout();
             this.coin_interface_panel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.coinCenter)).BeginInit();
             this.tabPage6.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -1014,7 +1014,7 @@ namespace StoryDesigner
             this.coin_interface_panel.Controls.Add(this.coin_fading);
             this.coin_interface_panel.Controls.Add(this.label29);
             this.coin_interface_panel.Controls.Add(this.label27);
-            this.coin_interface_panel.Controls.Add(this.pictureBox1);
+            this.coin_interface_panel.Controls.Add(this.coinCenter);
             this.coin_interface_panel.Controls.Add(this.coin_autopopup);
             this.coin_interface_panel.Controls.Add(this.coin_room);
             this.coin_interface_panel.Controls.Add(this.label26);
@@ -1047,12 +1047,13 @@ namespace StoryDesigner
             resources.ApplyResources(this.label27, "label27");
             this.label27.Name = "label27";
             // 
-            // pictureBox1
+            // coinCenter
             // 
-            this.pictureBox1.BackColor = System.Drawing.SystemColors.ControlDarkDark;
-            resources.ApplyResources(this.pictureBox1, "pictureBox1");
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.TabStop = false;
+            this.coinCenter.BackColor = System.Drawing.SystemColors.ControlDarkDark;
+            resources.ApplyResources(this.coinCenter, "coinCenter");
+            this.coinCenter.Name = "coinCenter";
+            this.coinCenter.TabStop = false;
+            this.coinCenter.Click += new System.EventHandler(this.pictureBox1_Click_1);
             // 
             // coin_autopopup
             // 
@@ -1170,7 +1171,7 @@ namespace StoryDesigner
             this.coin_interface_panel.ResumeLayout(false);
             this.coin_interface_panel.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.coin_fading)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.coinCenter)).EndInit();
             this.tabPage6.ResumeLayout(false);
             this.tabPage6.PerformLayout();
             this.ResumeLayout(false);
@@ -1295,7 +1296,7 @@ namespace StoryDesigner
         private System.Windows.Forms.NumericUpDown coin_fading;
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Label label27;
-        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.PictureBox coinCenter;
         private System.Windows.Forms.TabPage tabPage6;
         private System.Windows.Forms.CheckBox pngToJpeg;
         private System.Windows.Forms.CheckBox cropTransparent;
