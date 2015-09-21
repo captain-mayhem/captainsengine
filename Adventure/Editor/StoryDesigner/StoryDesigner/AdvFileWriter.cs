@@ -271,8 +271,8 @@ namespace StoryDesigner
             swr.WriteLine(mData.Settings.CoinAutoPopup ? -1 : 0);
             swr.WriteLine(mData.Settings.CoinRoom);
             swr.WriteLine(mData.Settings.CoinFading);
-            swr.WriteLine(mData.Settings.CoinCenter.x);
             swr.WriteLine(mData.Settings.CoinCenter.y);
+            swr.WriteLine(mData.Settings.CoinCenter.x);
             //dsp effects
             for (int i = 1; i <= 25; ++i)
             {

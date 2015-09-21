@@ -1022,7 +1022,7 @@ namespace StoryDesigner
             Settings.BorderColor = 8421376;
             Settings.CoinActivated = false;
             Settings.CoinAutoPopup = true;
-            Settings.CoinCenter = new Vec2i(400, 300);
+            Settings.CoinCenter = new Vec2i(90, 65);
             Settings.CoinFading = 0;
             Settings.CoinRoom = "";
             Settings.Commands = new Dictionary<string, string>();

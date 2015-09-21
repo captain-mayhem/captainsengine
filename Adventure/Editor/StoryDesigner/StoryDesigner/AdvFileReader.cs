@@ -335,9 +335,9 @@ namespace StoryDesigner
                 str = rdr.ReadLine();
                 mAdv.Settings.CoinFading = Convert.ToInt32(str);
                 str = rdr.ReadLine();
-                mAdv.Settings.CoinCenter.x = Convert.ToInt32(str);
-                str = rdr.ReadLine();
                 mAdv.Settings.CoinCenter.y = Convert.ToInt32(str);
+                str = rdr.ReadLine();
+                mAdv.Settings.CoinCenter.x = Convert.ToInt32(str);
             }
             if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5))
             {

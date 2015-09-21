@@ -201,6 +201,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   mDraggingObject = NULL;
   mScrollSpeed = 0.0375f*4;
   mCamFollowChar = true;
+  mCoinShown = false;
   //load and execute start script
   Script* startScript = mData->getScript(Script::CUTSCENE,mData->getProjectSettings()->startscript);
   if (startScript){
@@ -958,6 +959,7 @@ void Engine::rightClick(const Vec2i& pos){
   }
   bool leftClickRequired;
   int cmd = mCursor->getNextCommand(leftClickRequired, pos);
+  leftClickRequired = leftClickRequired && !(mData->getProjectSettings()->coinActivated && mData->getProjectSettings()->coinAutoPopup);
   mActiveCommand = cmd;
   mUseObjectName = "";
   mGiveObjectName = "";
@@ -966,9 +968,13 @@ void Engine::rightClick(const Vec2i& pos){
     leftClick(pos);
   Object2D* obj = getObjectAt(pos);
   if (obj != NULL){
-    ExecutionContext* script = obj->getScript();
-    if (script != NULL)
-      script->setEvent(EVT_RIGHTCLICK);
+    if (mData->getProjectSettings()->coinActivated && mData->getProjectSettings()->coinAutoPopup)
+      popupCoinMenu();
+    else{
+      ExecutionContext* script = obj->getScript();
+      if (script != NULL)
+        script->setEvent(EVT_RIGHTCLICK);
+    }
   }
 }
 
@@ -1818,4 +1824,11 @@ void Engine::clearCharCache(){
     delete iter->second;
   }
   mCharCache.clear();
+}
+
+void Engine::popupCoinMenu(){
+  if (mData->getProjectSettings()->coinActivated){
+    loadSubRoom(mData->getProjectSettings()->coinRoom, NULL, mData->getProjectSettings()->coinFading);
+    mCoinShown = true;
+  }
 }
