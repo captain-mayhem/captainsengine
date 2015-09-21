@@ -323,12 +323,22 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
   str = txtstream.readLine();
   mSettings.tstextcolor = atoi(str.c_str());
   if (ver_major >= 3 || (ver_major >= 2 && ver_minor >= 7)){
-    for (int i = 0; i < 8; ++i){
-      str = txtstream.readLine();
-    }
+    str = txtstream.readLine();
+    str = txtstream.readLine();
+    str = txtstream.readLine();
+    mSettings.coinActivated = str == "-1";
+    str = txtstream.readLine();
+    mSettings.coinAutoPopup = str == "-1";
+    mSettings.coinRoom = txtstream.readLine();
+    str = txtstream.readLine();
+    mSettings.coinFading = atoi(str.c_str());
+    str = txtstream.readLine();
+    mSettings.coinCenter.y = (int)(atoi(str.c_str()) / 130.0f*mSettings.resolution.y);
+    str = txtstream.readLine();
+    mSettings.coinCenter.x = (int)(atoi(str.c_str()) / 180.0f*mSettings.resolution.x);
   }
   else{
-    //mSettings.tsselectioncolor = 15793151;
+    mSettings.coinActivated = false;
   }
   if (ver_major > 3 || (ver_major == 3 && ver_minor >= 5)){
     //dsp effects

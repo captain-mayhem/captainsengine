@@ -140,6 +140,7 @@ public:
   void clearCharCache();
   Console* getConsole() { return mConsole; }
   void finishTextInput(bool commit);
+  void popupCoinMenu();
 protected:
   Engine();
   static Engine* mInstance;
@@ -245,6 +246,7 @@ protected:
   std::map<String, CharacterObject*> mCharCache;
   std::list<CharacterObject*> mCharsToUnload;
   Console* mConsole;
+  bool mCoinShown;
 };
 
 }

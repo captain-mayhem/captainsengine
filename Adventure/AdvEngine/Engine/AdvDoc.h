@@ -62,6 +62,11 @@ struct ProjectSettings{
   int tsselectioncolor;
   int tstextcolor;
   int tsbordercolor;
+  bool coinActivated;
+  bool coinAutoPopup;
+  std::string coinRoom;
+  int coinFading;
+  Vec2i coinCenter;
   std::string splashscreen;
   std::string tsbackground;
   std::string linktext;
