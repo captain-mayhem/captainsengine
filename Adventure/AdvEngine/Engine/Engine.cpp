@@ -738,6 +738,9 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
     loadreason->resume();
 
   roomobj->realize();
+  if (mData->getProjectSettings()->coinActivated && roomobj->getName() == mData->getProjectSettings()->coinRoom){
+    roomobj->setPosition(getCursorPos()-mData->getProjectSettings()->coinCenter);
+  }
   TR_USE(ADV_Console);
   TR_INFO("Room \"%s\" loaded.", roomobj->getName().c_str());
 
@@ -932,6 +935,13 @@ void Engine::leftClick(const Vec2i& pos){
       resetCursor(true, true);
     }
   }
+  if (mCoinShown){
+    RoomObject* cr = getRoom(mData->getProjectSettings()->coinRoom);
+    if (cr){
+      unloadRoom(cr, false, false, NULL);
+      mCoinShown = false;
+    }
+  }
   trymtx.unlock();
 }
 
@@ -974,6 +984,13 @@ void Engine::rightClick(const Vec2i& pos){
       ExecutionContext* script = obj->getScript();
       if (script != NULL)
         script->setEvent(EVT_RIGHTCLICK);
+    }
+  }
+  if (mCoinShown){
+    RoomObject* cr = getRoom(mData->getProjectSettings()->coinRoom);
+    if (cr){
+      unloadRoom(cr, false, false, NULL);
+      mCoinShown = false;
     }
   }
 }

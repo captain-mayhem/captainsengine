@@ -177,9 +177,9 @@ bool ExecutionContext::containsEvent(EngineEvent evt){
 }
 
 bool ExecutionContext::isRunning(){
-  bool running = (mPC > 0 && !mIdle) || !mEvents.empty();
+  bool running = ((mCode && mPC > 0 || mLuaRet != LUA_OK) && !mIdle) || !mEvents.empty();
   if (!running){
-    running = mCode->getLoop1() ? mCode->getLoop1()->isRunning() : false;
+    running = mCode && mCode->getLoop1() ? mCode->getLoop1()->isRunning() : false;
   }
   return running;
 }

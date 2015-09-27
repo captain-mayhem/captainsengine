@@ -120,8 +120,8 @@ public:
   void save(std::ostream& out);
   ExecutionContext* getLoop1() {return mCode ? mCode->getLoop1() : NULL;}
   bool isGameObject() {return mIsGameObject;}
-  void finish() {mShouldFinish = true; setSkip(); if (mCode->getLoop1() != NULL)mCode->getLoop1()->finish();}
-  void cancelFinish() {mShouldFinish = false; setSkip(false); if (mCode->getLoop1() != NULL) mCode->getLoop1()->cancelFinish();}
+  void finish() {mShouldFinish = true; setSkip(); if (mCode && mCode->getLoop1() != NULL)mCode->getLoop1()->finish();}
+  void cancelFinish() {mShouldFinish = false; setSkip(false); if (mCode && mCode->getLoop1() != NULL) mCode->getLoop1()->cancelFinish();}
   bool isLoop1();
   void setSelf(const String& name) {mSelf = name;}
   String resolveCharName(const String& name);
