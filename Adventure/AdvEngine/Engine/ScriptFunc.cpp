@@ -185,6 +185,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("movetext", moveText);
   interpreter->registerRelVar("movetext", 2, "_txtoutx:");
   interpreter->registerRelVar("movetext", 3, "_txtouty:");
+  interpreter->registerFunction("popupcoin", popupCoin);
 
   interpreter->registerFunction("print", print);
   srand((unsigned)time(NULL));
@@ -2764,6 +2765,12 @@ int ScriptFunctions::moveText(lua_State* L){
     }
     Engine::instance()->getAnimator()->add(text, path, factor);
   }
+  RET_MAY_YIELD(0);
+}
+
+int ScriptFunctions::popupCoin(lua_State* L){
+  NUM_ARGS(0, 0);
+  Engine::instance()->popupCoinMenu(&ctx);
   RET_MAY_YIELD(0);
 }
 

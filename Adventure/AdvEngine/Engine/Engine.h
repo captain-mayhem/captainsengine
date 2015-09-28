@@ -140,7 +140,7 @@ public:
   void clearCharCache();
   Console* getConsole() { return mConsole; }
   void finishTextInput(bool commit);
-  void popupCoinMenu();
+  void popupCoinMenu(ExecutionContext* loadreason);
 protected:
   Engine();
   static Engine* mInstance;

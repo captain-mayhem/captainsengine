@@ -979,7 +979,7 @@ void Engine::rightClick(const Vec2i& pos){
   Object2D* obj = getObjectAt(pos);
   if (obj != NULL){
     if (mData->getProjectSettings()->coinActivated && mData->getProjectSettings()->coinAutoPopup)
-      popupCoinMenu();
+      popupCoinMenu(NULL);
     else{
       ExecutionContext* script = obj->getScript();
       if (script != NULL)
@@ -1843,9 +1843,9 @@ void Engine::clearCharCache(){
   mCharCache.clear();
 }
 
-void Engine::popupCoinMenu(){
+void Engine::popupCoinMenu(ExecutionContext* loadreason){
   if (mData->getProjectSettings()->coinActivated){
-    loadSubRoom(mData->getProjectSettings()->coinRoom, NULL, mData->getProjectSettings()->coinFading);
+    loadSubRoom(mData->getProjectSettings()->coinRoom, loadreason, mData->getProjectSettings()->coinFading);
     mCoinShown = true;
   }
 }
