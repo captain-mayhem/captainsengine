@@ -287,6 +287,9 @@ public:
   static int playVideo(lua_State* L);
   /**
   **/
+  static int popupCoin(lua_State* L);
+  /**
+  **/
   static int quit(lua_State* L);
   /**
   \param name the variable to be filled with a random number

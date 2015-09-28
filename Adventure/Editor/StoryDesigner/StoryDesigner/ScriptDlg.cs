@@ -30,7 +30,7 @@ namespace StoryDesigner
             //scripttext
             updateScript();
             //parsing stuff
-            mParser = new PcdkParser();
+            mParser = new PcdkParser(data.Settings.ScriptingLanguage);
             mParser.initSyntax();
             mParser.Comment += new PcdkParser.commentCB(colorComment);
             mParser.Function += new PcdkParser.functionCB(colorFunction);
@@ -79,7 +79,7 @@ namespace StoryDesigner
             char ch = ' ';
             if (startidx >= 0)
                 ch = scripttext.Text[startidx];
-            while (!Char.IsWhiteSpace(ch) && ch != ';' && ch != '(' && ch != ')')
+            while (!Char.IsWhiteSpace(ch) && ch != ';' && ch != '(' && ch != ')' && ch != '.')
             {
                 --startidx;
                 if (startidx < 0)
@@ -92,7 +92,7 @@ namespace StoryDesigner
             if (stopidx < scripttext.Text.Length)
             {
                 ch = scripttext.Text[stopidx];
-                while (!Char.IsWhiteSpace(ch) && ch != ';' && ch != '(' && ch != ')')
+                while (!Char.IsWhiteSpace(ch) && ch != ';' && ch != '(' && ch != ')' && ch != '.')
                 {
                     ++stopidx;
                     ch = scripttext.Text[stopidx];

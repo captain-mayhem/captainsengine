@@ -1338,7 +1338,7 @@ namespace StoryDesigner
 
         public void updateLanguageList()
         {
-            PcdkParser parser = new PcdkParser();
+            PcdkParser parser = new PcdkParser(Settings.ScriptingLanguage);
             parser.initSyntax();
             parser.Function += new PcdkParser.functionCB(parser_Function);
 

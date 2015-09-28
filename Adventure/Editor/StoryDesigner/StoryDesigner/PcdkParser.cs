@@ -77,9 +77,21 @@ namespace StoryDesigner
         public event functionCB Function;
         public event parseError ParseError;
 
+        public PcdkParser(ProjectSettings.ScriptLang lang)
+        {
+            mLanguage = lang;
+        }
+
         //syntax definition
         public void initSyntax()
         {
+            //lua specific key words
+            if (mLanguage == ProjectSettings.ScriptLang.LUA)
+            {
+                ArgDef[] largs = new ArgDef[0];
+                addFunction("end", largs, true);
+            }
+
             //events
             ArgDef[] args = new ArgDef[1];
             args[0] = new ArgDef("Event", ArgType.Event);
@@ -594,7 +606,7 @@ namespace StoryDesigner
             args[0] = new ArgDef("Script", ArgType.Script);
             args[1] = new ArgDef("loop count / infinitly / * / loop2", ArgType.String, true);
             args[1].AdditionalValues = new string[] { "infinitly", "*", "loop2" };
-            addFunction("function", args);
+            addFunction("function", args, mLanguage == ProjectSettings.ScriptLang.LUA);
             args = new ArgDef[1];
             args[0] = new ArgDef("Script", ArgType.Script);
             addFunction("stopfunction", args);
@@ -771,8 +783,16 @@ namespace StoryDesigner
 
         void parseFunction(int startindex, string text)
         {
-            string result;
-            int idx = readUntil('(', text, 0, out result);
+            string result = "";
+            int idx = -1;
+            if (mLanguage == ProjectSettings.ScriptLang.LUA)
+            {
+                idx = readUntil('.', text, 0, out result);
+                if (result != "on")
+                    idx = -1;
+            }
+            if (idx == -1)
+                idx = readUntil('(', text, 0, out result);
             if (idx != -1)
             {
                 if (text.Length > idx+1 && text[idx + 1] == '*')
@@ -789,7 +809,8 @@ namespace StoryDesigner
                     System.Collections.ArrayList arguments = new System.Collections.ArrayList();
                     do
                     {
-                        int newidx = readUntil(';', text, lastidx, out result);
+                        char argsep = mLanguage == ProjectSettings.ScriptLang.PCDK ? ';' : ',';
+                        int newidx = readUntil(argsep, text, lastidx, out result);
                         if (newidx != -1)
                         {
                             Argument arg = new Argument(lastidx, newidx, result);
@@ -878,5 +899,6 @@ namespace StoryDesigner
 
         System.Collections.Specialized.StringCollection mKeywords = new System.Collections.Specialized.StringCollection();
         System.Collections.Generic.Dictionary<string, ArgDef[]> mFunctions = new Dictionary<string,ArgDef[]>();
+        ProjectSettings.ScriptLang mLanguage;
     }
 }
