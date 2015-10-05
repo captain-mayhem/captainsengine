@@ -624,7 +624,7 @@ public:
     return in;
   }
 private:
-  GL2Shader mStdShader;
+  CGE::GL2Shader mStdShader;
   std::list<RenderableBlitObject*> mPrevFrames;
   std::list<RenderableBlitObject*> mGenFrames;
   int mTakeFrame;
@@ -1190,7 +1190,7 @@ private:
     }
   }
   RenderableBlitObject* mFBO;
-  GL2Shader mDrawShader;
+  CGE::GL2Shader mDrawShader;
   std::map<int,Lightning*> mLigthnings;
 };
 

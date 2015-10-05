@@ -88,6 +88,8 @@ void DXVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, in
   //ctx->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN);
   else if (pt == VB_Lines)
     ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINELIST);
+  else if (pt == VB_Linestrip)
+    ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_LINESTRIP);
   else if (pt == VB_Points)
     ctx->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 

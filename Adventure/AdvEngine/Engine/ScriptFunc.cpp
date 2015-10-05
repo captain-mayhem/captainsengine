@@ -1147,7 +1147,7 @@ int ScriptFunctions::saveGame(lua_State* L){
 int ScriptFunctions::loadGame(lua_State* L){
   NUM_ARGS(1, 1);
   int slot = ctx.stack().get(1).getInt();
-  Engine::instance()->getSaver()->load(SaveStateProvider::saveSlotToPath(slot));
+  Engine::instance()->getSaver()->load(SaveStateProvider::saveSlotToPath(slot), true);
   return 0;
 }
 

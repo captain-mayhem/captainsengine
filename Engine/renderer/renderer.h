@@ -27,8 +27,10 @@ enum RenderType{
 
 enum BlendType{
   BLEND_ONE,
+  BLEND_ZERO,
   BLEND_SRC_ALPHA,
-  BLEND_ONE_MINUS_SRC_ALPHA
+  BLEND_ONE_MINUS_SRC_ALPHA,
+  BLEND_DST_COLOR,
 };
 
 enum RendMode{

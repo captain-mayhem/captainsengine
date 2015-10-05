@@ -21,21 +21,22 @@ BlitObject(texture, size, scale, depth, offset){
 
   }
   virtual void blit(){
-    GL()pushMatrix();
-    GL()translatef((float)mPos.x,(float)mPos.y,0.0f);
-    GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
+    CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+    rend->pushMatrix();
+    rend->translate((float)mPos.x,(float)mPos.y,0.0f);
+    rend->scale((float)mSize.x,(float)mSize.y,1.0f);
     //if (mMirrorX)
     //  glScalef(-1.,1.,1.);
-    GL()matrixMode(MM_TEXTURE);
-    GL()loadIdentity();
-    GL()scalef(mScale.x, mScale.y, 1.0f);
-    GL()translatef(mTexTrans.x, mTexTrans.y, 0);
-    GL()matrixMode(MM_MODELVIEW);
+    rend->switchMatrixStack(CGE::MatTexture);
+    rend->resetModelView();
+    rend->scale(mScale.x, mScale.y, 1.0f);
+    rend->translate(mTexTrans.x, mTexTrans.y, 0);
+    rend->switchMatrixStack(CGE::Modelview);
     glBindTexture(GL_TEXTURE_2D, mTex);
-    GL()color4ub(mColor.r,mColor.g,mColor.b,mColor.a);
-    GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    GL()color4ub(255,255,255,255);
-    GL()popMatrix();
+    rend->setColor(mColor.r / 255.0f, mColor.g / 255.0f, mColor.b / 255.0f, mColor.a / 255.0f);
+    Engine::instance()->drawQuad();
+    rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
+    rend->popMatrix();
   }
   void setOpacity(unsigned char opacity){
     mColor.a = opacity;

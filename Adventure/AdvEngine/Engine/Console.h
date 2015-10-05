@@ -1,6 +1,7 @@
 #ifndef ADV_CONSOLE_H
 #define ADV_CONSOLE_H
 
+#include <deque>
 #include "EngineObjects.h"
 
 TR_CHANNEL_EXT(ADV_Console);

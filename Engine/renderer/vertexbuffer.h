@@ -18,6 +18,7 @@ enum PrimitiveType{
   VB_Tristrip,
   VB_Trifan,
   VB_Lines,
+  VB_Linestrip,
   VB_Points,
 };
 

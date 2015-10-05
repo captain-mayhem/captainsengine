@@ -24,7 +24,7 @@ public:
     virtual std::ostream& save(std::ostream& out);
     virtual std::istream& load(std::istream& in);
   protected:
-    GL2Shader mShader;
+    CGE::GL2Shader mShader;
     std::string mName;
     bool mFade;
   };

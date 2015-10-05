@@ -33,7 +33,7 @@ protected:
   void generateCircle(float radius);
   int mDuration;
   int mCurrentTime;
-  float* mVerts;
+  CGE::VertexBuffer* mVerts;
   bool mClosing;
   Screenshot mShot;
   int mSegments;
@@ -80,7 +80,7 @@ protected:
   void generateCircle(float radius);
   int mDuration;
   int mCurrentTime;
-  float* mVerts;
+  CGE::VertexBuffer* mVerts;
   bool mClosing;
   Screenshot mShot;
   int mSegments;

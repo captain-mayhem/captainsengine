@@ -581,6 +581,14 @@ void DXRenderer::blendFunc(BlendType src, BlendType dest){
     mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_INV_SRC_ALPHA;
     mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
     break;
+  case BLEND_DST_COLOR:
+    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
+    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+    break;
+  case BLEND_ZERO:
+    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ZERO;
+    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
+    break;
   }
   switch (dest){
   case BLEND_ONE:
@@ -594,6 +602,14 @@ void DXRenderer::blendFunc(BlendType src, BlendType dest){
   case BLEND_ONE_MINUS_SRC_ALPHA:
     mBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
     mBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+    break;
+  case BLEND_DST_COLOR:
+    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
+    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+    break;
+  case BLEND_ZERO:
+    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ZERO;
+    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
     break;
   }
   SAFE_RELEASE(mBlendState);

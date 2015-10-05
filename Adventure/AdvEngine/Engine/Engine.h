@@ -141,13 +141,16 @@ public:
   Console* getConsole() { return mConsole; }
   void finishTextInput(bool commit);
   void popupCoinMenu(ExecutionContext* loadreason);
+  void drawQuad();
+  void drawQuadLines();
 protected:
   Engine();
   static Engine* mInstance;
   AdvDocument* mData;
   //rendering
   std::vector<std::list<BaseBlitObject*> > mBlitQueues;
-  short mVerts[8];
+  CGE::VertexBuffer* mVerts;
+  CGE::IndexBuffer* mInds;
   bool mInitialized;
   Vec2i mScrollOffset;
   //data

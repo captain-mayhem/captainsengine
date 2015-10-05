@@ -80,7 +80,7 @@ public:
   void removeCharacter(SaveStateProvider::SaveRoom* room, const std::string& name);
   void clear();
   void save(const std::string& name);
-  void load(const std::string& name);
+  void load(const std::string& name, bool fromScript);
   void allowWrites() {--mNoWrites;}
   bool isWriteAllowed() {return mNoWrites == 0;}
   static std::string saveSlotToPath(int slot);

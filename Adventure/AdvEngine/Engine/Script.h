@@ -83,6 +83,7 @@ public:
   void clearState() {mMutex.lock(); mItemStates.clear(); mMutex.unlock();}
   lua_State* allocNewState(ExecutionContext* ctx);
   static int luaPcdkCall(lua_State* L);
+  CGE::Mutex& getExecMutex() { return mExecMutex; }
 protected:
   ExecutionContext* parseProgramPCDK(const std::string& program);
   ExecutionContext* parseProgramLUA(const std::string& program);
@@ -140,6 +141,7 @@ protected:
   bool mHideUI;
   std::map<String, int> mItemStates;
   CGE::Mutex mScriptMutex;
+  CGE::Mutex mExecMutex;
   lua_State* mL;
 };
 
