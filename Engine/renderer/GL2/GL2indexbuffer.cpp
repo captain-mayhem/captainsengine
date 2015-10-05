@@ -54,13 +54,32 @@ void GL2IndexBuffer::unlockIndexPointer(){
 }
 
 void GL2IndexBuffer::setIndex(uint32 i, uint8 index){
-
+  setIndex(i, (uint32)index);
 }
 
 void GL2IndexBuffer::setIndex(uint32 i, uint16 index){
-
+  setIndex(i, (uint32)index);
 }
 
 void GL2IndexBuffer::setIndex(uint32 i, uint32 index){
-
+  switch (mType){
+  case IB_UCHAR:
+  {
+    uint8* pos = mInds + i*sizeof(uint8);
+    *pos = index;
+    break;
+  }
+  case IB_USHORT:
+  {
+    uint16* pos = (uint16*)(mInds + i*sizeof(uint16));
+    *pos = index;
+    break;
+  }
+  case IB_UINT:
+  {
+    uint32* pos = (uint32*)(mInds + i*sizeof(uint32));
+    *pos = index;
+    break;
+  }
+  }
 }

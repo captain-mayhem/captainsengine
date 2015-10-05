@@ -79,7 +79,7 @@ const char* luaRunner =
 //"on = _state.event\n"
 ;
 
-PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true) {
+PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true), mExecMutex(true) {
   TR_USE(ADV_Script);
   mL = luaL_newstate();
   ScriptFunctions::registerFunctions(this);
@@ -955,13 +955,13 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
     if (script->mSuspended)
       return false;
     lua_State* L = script->mL;
-    //mScriptMutex.lock(); TODO load game won't work with lock
+    mExecMutex.lock();
     if (script->mCode == NULL){
       //real lua script
       int numArgs = lua_gettop(L);
       if (script->mLuaRet != LUA_YIELD)
         lua_getglobal(L, "execScript");
-      script->mLuaRet = lua_resume(script->mL, mL, numArgs);
+      script->mLuaRet = lua_resume(script->mL, NULL, numArgs);
       lua_pop(L, 1);
     }
     else{
@@ -969,16 +969,29 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
       int numArgs = lua_gettop(L);
       if (script->mLuaRet != LUA_YIELD)
         lua_pushcfunction(L, luaPcdkCall);
-      script->mLuaRet = lua_resume(script->mL, mL, numArgs);
+      script->mLuaRet = lua_resume(script->mL, NULL, numArgs);
     }
-    //mScriptMutex.unlock();
+    mExecMutex.unlock();
     if (script->mLuaRet == LUA_YIELD){
       return false;
     }
     else if (script->mLuaRet != LUA_OK){
       TR_USE(ADV_Console);
-      const char* msg = lua_tostring(script->mL, -1);
-      TR_ERROR("%s", msg);
+      int top = lua_gettop(script->mL);
+      TR_ERROR("%i stack entries:", top);
+      for (int i = 0; i < top; ++i){
+        int t = lua_type(script->mL, i);
+        switch (t){
+        case LUA_TSTRING:
+          TR_ERROR("%s", lua_tostring(script->mL, i));
+          break;
+        default:
+          TR_ERROR("%s", lua_typename(script->mL, i));
+          break;
+        }
+      }
+      //const char* msg = lua_tostring(script->mL, -1);
+      //TR_ERROR("%s", msg);
       lua_pop(script->mL, 1);
     }
     else{
@@ -1818,13 +1831,13 @@ int PcdkScript::getItemState(const String& name){
 }
 
 lua_State* PcdkScript::allocNewState(ExecutionContext* ctx){
-  mScriptMutex.lock();
+  mExecMutex.lock();
   lua_State* ret = lua_newthread(mL);
   lua_newtable(mL);
   lua_pushlightuserdata(mL, ctx);
   lua_setfield(mL, -2, "ec");
   lua_settable(mL, LUA_REGISTRYINDEX);
-  mScriptMutex.unlock();
+  mExecMutex.unlock();
   return ret;
 }
 

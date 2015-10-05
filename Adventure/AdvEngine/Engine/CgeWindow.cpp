@@ -58,20 +58,18 @@ void init(){
   SoundEngine::init();
   SoundEngine::instance()->setData(adoc);
 
-  AdvRenderer::init();
-
-  GL()matrixMode(MM_PROJECTION);
-  GL()loadIdentity();
-  GL()ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
+  rend->switchMatrixStack(CGE::Projection);
+  rend->resetModelView();
+  rend->ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
-  GL()matrixMode(MM_MODELVIEW);
-  GL()color4ub(255,255,255,255);
+  rend->switchMatrixStack(CGE::Modelview);
+  rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
 
   glDisable(GL_DEPTH_TEST);
-  GL()enableClientState(ATTR_VERTEX_ARRAY);
-  GL()enableClientState(ATTR_TEXTURE_COORD_ARRAY);
-  GL()enable(GL_TEXTURE_2D);
+  //GL()enableClientState(ATTR_VERTEX_ARRAY);
+  //GL()enableClientState(ATTR_TEXTURE_COORD_ARRAY);
+  rend->enableTexturing(true);
   //glAlphaFunc(GL_GREATER, 0);
   //glEnable(GL_ALPHA_TEST);
   //glBlendFunc(GL_ZERO, GL_SRC_COLOR);
@@ -92,8 +90,6 @@ void deinit(){
   Engine::instance()->exitGame();
   if (CGE::Script::instance()->getBoolSetting("debugPorts"))
     receiver.stop();
-
-  AdvRenderer::deinit();
 
   SoundEngine::deinit();
   Engine::deinit();
@@ -119,23 +115,23 @@ void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* 
 
 void render(){
   double start = getTime();
-  //CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  GL()matrixMode(MM_PROJECTION);
-  GL()loadIdentity();
-  GL()ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->switchMatrixStack(CGE::Projection);
+  rend->resetModelView();
+  rend->ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
-  GL()matrixMode(MM_MODELVIEW);
+  rend->switchMatrixStack(CGE::Modelview);
   glDisable(GL_DEPTH_TEST);
   //glEnableClientState(GL_VERTEX_ARRAY);
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  GL()enable(GL_TEXTURE_2D);
+  rend->enableTexturing(true);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_BLEND);
 
   glClearColor(0.0,0.0,0.0,1.0);
   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  GL()loadIdentity();
+  rend->resetModelView();
 
   receiver.processCommands();
   unsigned time = (unsigned)(CGE::Engine::instance()->getFrameInterval()*1000);
@@ -152,7 +148,7 @@ void render(){
 
   if (!savegame.empty()){
     savegame = Engine::instance()->getSaver()->saveSlotToPath(atoi(savegame.c_str()));
-    Engine::instance()->getSaver()->load(savegame);
+    Engine::instance()->getSaver()->load(savegame, false);
     savegame.clear();
   }
 }

@@ -128,12 +128,13 @@ class CharacterObject;
 class MirrorObject : public RenderableBlitObject{
 public:
   MirrorObject(int width, int height, int depth, unsigned char strength);
+  ~MirrorObject();
   virtual bool update(unsigned interval);
   void setMirrorArea(Vec2i points[4], RoomObject* room);
   void setWallMirror(Vec2i offset, bool positionDependent);
 protected:
   void renderCharacter(CharacterObject* chr);
-  GLfloat mPolygon[12];
+  CGE::VertexBuffer* mPolygon;
   RoomObject* mRoom;
   Vec2i mMirrorOffset;
   bool mPositionDependent;

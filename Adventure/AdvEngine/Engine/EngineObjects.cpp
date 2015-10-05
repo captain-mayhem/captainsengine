@@ -414,23 +414,21 @@ void ButtonObject::blit(){
     BlitObject::blit();
     return;
   }
-  GL()pushMatrix();
-  GL()disable(GL_TEXTURE_2D);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->pushMatrix();
+  rend->enableTexturing(false);
   if (mState == 1 || mHighlightText)
-    GL()color4ub(mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a*mLightingColor.a/255);
+    rend->setColor(mBackgroundColor.r / 255.0f, mBackgroundColor.g / 255.0f, mBackgroundColor.b / 255.0f, mBackgroundColor.a*mLightingColor.a / 255 / 255.0f);
   else if (mState == 2)
-    GL()color4ub(mHighlightColor.r, mHighlightColor.g, mHighlightColor.b, mHighlightColor.a*mLightingColor.a/255);
-  GL()translatef((GLfloat)BaseBlitObject::mPos.x,(GLfloat)BaseBlitObject::mPos.y,0.0f);
-  GL()scalef((GLfloat)BaseBlitObject::mSize.x,(GLfloat)BaseBlitObject::mSize.y,1.0f);
-  GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  GL()color4ub(mBorderColor.r, mBorderColor.g, mBorderColor.b, mBorderColor.a*mLightingColor.a/255);
-  short indices[] = {
-    2, 3, 1, 0
-  };
-  GL()drawElements(GL_LINE_LOOP, 4, GL_UNSIGNED_SHORT, indices);
-  GL()enable(GL_TEXTURE_2D);
-  GL()color4ub(255,255,255,255);
-  GL()popMatrix();
+    rend->setColor(mHighlightColor.r / 255.0f, mHighlightColor.g / 255.0f, mHighlightColor.b / 255.0f, mHighlightColor.a*mLightingColor.a / 255 / 255.0f);
+  rend->translate((GLfloat)BaseBlitObject::mPos.x,(GLfloat)BaseBlitObject::mPos.y,0.0f);
+  rend->scale((GLfloat)BaseBlitObject::mSize.x,(GLfloat)BaseBlitObject::mSize.y,1.0f);
+  Engine::instance()->drawQuad();
+  rend->setColor(mBorderColor.r / 255.0f, mBorderColor.g / 255.0f, mBorderColor.b / 255.0f, mBorderColor.a*mLightingColor.a / 255 / 255.0f);
+  Engine::instance()->drawQuadLines();
+  rend->enableTexturing(true);
+  rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
+  rend->popMatrix();
 }
 
 CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32), "xxx"), mSavedState(0) {

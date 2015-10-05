@@ -377,7 +377,7 @@ void SaveStateProvider::save(const std::string& name){
   mData->fileChanged(name);
 }
 
-void SaveStateProvider::load(const std::string& name){
+void SaveStateProvider::load(const std::string& name, bool fromScript){
   std::ifstream in(name.c_str());
   if (!in)
     return;
@@ -417,7 +417,11 @@ void SaveStateProvider::load(const std::string& name){
     else
       Engine::instance()->loadSubRoom(roomname, NULL, 0);
   }
+  if (fromScript)
+    Engine::instance()->getInterpreter()->getExecMutex().unlock();
   Engine::instance()->mLoader.waitUntilFinished();//TODO quick and dirty, persistence access to avoid race conditions
+  if (fromScript)
+    Engine::instance()->getInterpreter()->getExecMutex().lock();
   //focussed char
   std::string focussedchar;
   in >> focussedchar;

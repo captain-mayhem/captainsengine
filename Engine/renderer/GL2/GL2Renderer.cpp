@@ -512,12 +512,18 @@ void GL2Renderer::blendFunc(BlendType src, BlendType dest){
     case BLEND_SRC_ALPHA:
       srcfl = GL_SRC_ALPHA;
       break;
+    case BLEND_DST_COLOR:
+      srcfl = GL_DST_COLOR;
+      break;
     default:
       break;
   }
   switch(dest){
     case BLEND_ONE:
       destfl = GL_ONE;
+      break;
+    case BLEND_ZERO:
+      destfl = GL_ZERO;
       break;
     case BLEND_ONE_MINUS_SRC_ALPHA:
       destfl = GL_ONE_MINUS_SRC_ALPHA;

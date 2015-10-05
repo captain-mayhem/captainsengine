@@ -95,6 +95,8 @@ void OGLVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, i
       glDrawArrays(GL_TRIANGLE_FAN, offset, count);
     else if (pt == VB_Lines)
       glDrawArrays(GL_LINES, offset, count);
+    else if (pt == VB_Linestrip)
+      glDrawArrays(GL_LINE_STRIP, offset, count);
     else if (pt == VB_Points)
       glDrawArrays(GL_POINTS, offset, count);
     return;
@@ -108,6 +110,8 @@ void OGLVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, i
     glDrawElements(GL_TRIANGLE_FAN, count, oglidx->getGLType(), oglidx->getIndices(offset));
   else if (pt == VB_Lines)
     glDrawElements(GL_LINES, count, oglidx->getGLType(), oglidx->getIndices(offset));
+  else if (pt == VB_Linestrip)
+    glDrawElements(GL_LINE_STRIP, count, oglidx->getGLType(), oglidx->getIndices(offset));
   else if (pt == VB_Points)
     glDrawElements(GL_POINTS, count, oglidx->getGLType(), oglidx->getIndices(offset));
 }

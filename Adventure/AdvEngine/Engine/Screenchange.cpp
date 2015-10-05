@@ -24,13 +24,14 @@ Screenshot::Screenshot(int depth) : RenderableBlitObject(Engine::instance()->get
 }
 
 void Screenshot::take(){
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   bind();
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  GL()pushMatrix();
-  GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-  GL()scalef(1.0f,-1.0f,1.0f);
+  rend->clear(COLORBUFFER | ZBUFFER);
+  rend->pushMatrix();
+  rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+  rend->scale(1.0f,-1.0f,1.0f);
   Engine::instance()->renderUnloadingRoom();
-  GL()popMatrix();
+  rend->popMatrix();
   unbind();
 }
 
@@ -39,7 +40,7 @@ CircleScreenChange::CircleScreenChange(int width, int height, int depth, int dur
 }
 
 CircleScreenChange::~CircleScreenChange(){
-  delete [] mVerts;
+  delete mVerts;
 }
 
 bool CircleScreenChange::update(unsigned interval){
@@ -55,18 +56,19 @@ bool CircleScreenChange::update(unsigned interval){
   }
 
   bind();
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  GL()disable(GL_TEXTURE_2D);
-  glBlendFunc(GL_DST_COLOR, GL_ZERO);
-  GL()color4ub(0, 0, 0, 0);
-  GL()pushMatrix();
-  GL()translatef(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
-  GL()scalef(scale, scale*Engine::instance()->getResolution().y/Engine::instance()->getResolution().x, 1.0f);
-  GL()vertexPointer(2, GL_FLOAT, 0, mVerts);
-  GL()drawArrays(GL_TRIANGLE_FAN, 0, mSegments+2);
-  GL()popMatrix();
-  GL()enable(GL_TEXTURE_2D);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->clear(COLORBUFFER | ZBUFFER);
+  rend->enableTexturing(false);
+  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
+  rend->setColor(0, 0, 0, 0);
+  rend->pushMatrix();
+  rend->translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
+  rend->scale(scale, scale*Engine::instance()->getResolution().y/Engine::instance()->getResolution().x, 1.0f);
+  mVerts->activate();
+  mVerts->draw(CGE::VB_Trifan, NULL);
+  rend->popMatrix();
+  rend->enableTexturing(true);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   unbind();
   
   if (mCurrentTime >= mDuration && !mClosing){
@@ -84,15 +86,17 @@ bool CircleScreenChange::update(unsigned interval){
 }
 
 void CircleScreenChange::generateCircle(float radius){
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   float angle = (float)M_PI/4.0f;
-  mVerts = new float[(mSegments+1)*2+2];
-  mVerts[0] = 0.0f;
-  mVerts[1] = 0.0f;
+  mVerts = rend->createVertexBuffer();
+  mVerts->create(VB_POSITION, (mSegments + 1) + 1);
+  mVerts->lockVertexPointer();
+  mVerts->setPosition(0, CGE::Vec3f(0.0f, 0.0f, 0.0f));
   for (int i = 1; i < mSegments+2; ++i){
-    mVerts[2*i] = radius*cos(angle);
-    mVerts[2*i+1] = radius*sin(angle);
+    mVerts->setPosition(i, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
     angle += (float)(M_PI*2./mSegments);
   }
+  mVerts->unlockVertexPointer();
 }
 
 BlendScreenChange::BlendScreenChange(int width, int height, int depth, int duration) : ScreenChangeBase(width, height, depth), mDuration(duration), mCurrentTime(0), mShot(depth-1){
@@ -107,25 +111,26 @@ bool BlendScreenChange::update(unsigned interval){
   int alpha = (int)((mDuration-mCurrentTime)/(float)mDuration*255);
 
   bind();
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->clear(COLORBUFFER | ZBUFFER);
   
   //render previous room
-  GL()pushMatrix();
-  GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-  GL()scalef(1.0f,-1.0f,1.0f);
+  rend->pushMatrix();
+  rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+  rend->scale(1.0f,-1.0f,1.0f);
   mShot.blit();
-  GL()popMatrix();
+  rend->popMatrix();
   
   //multiply alpha
-  GL()pushMatrix();
-  GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
-  glBlendFunc(GL_DST_COLOR, GL_ZERO);
-  GL()color4ub(255, 255, 255, alpha);
-  GL()disable(GL_TEXTURE_2D);
-  GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  GL()popMatrix();
-  GL()enable(GL_TEXTURE_2D);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  rend->pushMatrix();
+  rend->scale((float)mSize.x,(float)mSize.y,1.0f);
+  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
+  rend->setColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
+  rend->enableTexturing(false);
+  Engine::instance()->drawQuad();
+  rend->popMatrix();
+  rend->enableTexturing(true);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   unbind();
   
   if (mCurrentTime >= mDuration){
@@ -152,30 +157,31 @@ bool FadeoutScreenChange::update(unsigned interval){
     alpha = 0;
 
   bind();
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->clear(COLORBUFFER | ZBUFFER);
   
   //render previous room
   if (mClosing){
-    GL()pushMatrix();
-    GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-    GL()scalef(1.0f,-1.0f,1.0f);
+    rend->pushMatrix();
+    rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+    rend->scale(1.0f,-1.0f,1.0f);
     mShot.blit();
-    GL()popMatrix();
+    rend->popMatrix();
   }
   
   //multiply alpha
-  GL()pushMatrix();
-  GL()scalef((float)mSize.x,(float)mSize.y,1.0f);
-  glBlendFunc(GL_DST_COLOR, GL_ZERO);
+  rend->pushMatrix();
+  rend->scale((float)mSize.x,(float)mSize.y,1.0f);
+  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
   if (mClosing)
-    GL()color4ub(alpha, alpha, alpha, 255);
+    rend->setColor(alpha / 255.0f, alpha / 255.0f, alpha / 255.0f, 1.0f);
   else
-    GL()color4ub(255, 255, 255, alpha);
-  GL()disable(GL_TEXTURE_2D);
-  GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-  GL()popMatrix();
-  GL()enable(GL_TEXTURE_2D);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    rend->setColor(1.0f, 1.0f, 1.0f, alpha / 255.0f);
+  rend->enableTexturing(false);
+  Engine::instance()->drawQuad();
+  rend->popMatrix();
+  rend->enableTexturing(true);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   unbind();
   if (mCurrentTime >= mDuration && !mClosing){
     return false;
@@ -205,21 +211,22 @@ bool ShuttersScreenChange::update(unsigned interval){
     scale = mCurrentTime/(float)mDuration;//*Engine::instance()->getResolution().y;
 
   bind();
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  GL()disable(GL_TEXTURE_2D);
-  glBlendFunc(GL_DST_COLOR, GL_ZERO);
-  GL()color4ub(0, 0, 0, 0);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->clear(COLORBUFFER | ZBUFFER);
+  rend->enableTexturing(false);
+  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
+  rend->setColor(0, 0, 0, 0);
   static const int numshutters = 10;
   for (int i = 0; i < numshutters; ++i){
     float posscale = 2-(i/(numshutters-1.0f));
-    GL()pushMatrix();
-    GL()translatef(0.0f, i*mSize.y/(float)numshutters, 0.0f);
-    GL()scalef((float)Engine::instance()->getResolution().x, mSize.y/(float)numshutters*scale*posscale, 1.0f);
-    GL()drawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    GL()popMatrix();
+    rend->pushMatrix();
+    rend->translate(0.0f, i*mSize.y/(float)numshutters, 0.0f);
+    rend->scale((float)Engine::instance()->getResolution().x, mSize.y/(float)numshutters*scale*posscale, 1.0f);
+    Engine::instance()->drawQuad();
+    rend->popMatrix();
   }
-  GL()enable(GL_TEXTURE_2D);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  rend->enableTexturing(true);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   unbind();
   
   if (mCurrentTime >= mDuration && !mClosing){
@@ -241,7 +248,7 @@ ClockScreenChange::ClockScreenChange(int width, int height, int depth, int durat
 }
 
 ClockScreenChange::~ClockScreenChange(){
-  delete [] mVerts;
+  delete mVerts;
 }
 
 bool ClockScreenChange::update(unsigned interval){
@@ -257,18 +264,19 @@ bool ClockScreenChange::update(unsigned interval){
   }
 
   bind();
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  GL()disable(GL_TEXTURE_2D);
-  glBlendFunc(GL_DST_COLOR, GL_ZERO);
-  GL()color4ub(0, 0, 0, 0);
-  GL()pushMatrix();
-  GL()translatef(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
-  GL()scalef(Engine::instance()->getResolution().x*1.0f, Engine::instance()->getResolution().x*1.0f, 1.0f);
-  GL()vertexPointer(2, GL_FLOAT, 0, mVerts);
-  GL()drawArrays(GL_TRIANGLE_FAN, 0, (GLsizei)scale);
-  GL()popMatrix();
-  GL()enable(GL_TEXTURE_2D);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->clear(COLORBUFFER | ZBUFFER);
+  rend->enableTexturing(false);
+  rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
+  rend->setColor(0, 0, 0, 0);
+  rend->pushMatrix();
+  rend->translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
+  rend->scale(Engine::instance()->getResolution().x*1.0f, Engine::instance()->getResolution().x*1.0f, 1.0f);
+  mVerts->activate();
+  mVerts->draw(CGE::VB_Trifan, NULL, 0, (int)scale);
+  rend->popMatrix();
+  rend->enableTexturing(true);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   unbind();
   
   if (mCurrentTime >= mDuration && !mClosing){
@@ -286,13 +294,15 @@ bool ClockScreenChange::update(unsigned interval){
 }
 
 void ClockScreenChange::generateCircle(float radius){
-  float angle = (float)M_PI/2.0f;
-  mVerts = new float[(mSegments+1)*2+2];
-  mVerts[0] = 0.0f;
-  mVerts[1] = 0.0f;
-  for (int i = 1; i < mSegments+2; ++i){
-    mVerts[2*i] = radius*cos(angle);
-    mVerts[2*i+1] = radius*sin(angle);
-    angle += (float)(M_PI*2./mSegments);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  float angle = (float)M_PI / 2.0f;
+  mVerts = rend->createVertexBuffer();
+  mVerts->create(VB_POSITION, (mSegments + 1) + 1);
+  mVerts->lockVertexPointer();
+  mVerts->setPosition(0, CGE::Vec3f(0.0f, 0.0f, 0.0f));
+  for (int i = 1; i < mSegments + 2; ++i){
+    mVerts->setPosition(i, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
+    angle += (float)(M_PI*2. / mSegments);
   }
+  mVerts->unlockVertexPointer();
 }

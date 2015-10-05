@@ -55,10 +55,26 @@ static CGE::Mutex trymtx;
 
 Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false),
   mSaver(NULL), mLoader(), mBlockingSpeaker(NULL), mExitCall(NULL), mSetMouseCall(NULL) {
-  mVerts[0] = 0; mVerts[1] = 1;
-  mVerts[2] = 0; mVerts[3] = 0;
-  mVerts[4] = 1; mVerts[5] = 1;
-  mVerts[6] = 1; mVerts[7] = 0;
+  mVerts = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
+  mVerts->create(VB_POSITION | VB_TEXCOORD, 4);
+  mVerts->lockVertexPointer();
+  mVerts->setPosition(0, CGE::Vec3f(0, 1, 0));
+  mVerts->setPosition(1, CGE::Vec3f(0, 0, 0));
+  mVerts->setPosition(2, CGE::Vec3f(1, 1, 0));
+  mVerts->setPosition(3, CGE::Vec3f(1, 0, 0));
+  mVerts->setTexCoord(0, CGE::Vec2f(0, 1));
+  mVerts->setTexCoord(1, CGE::Vec2f(0, 0));
+  mVerts->setTexCoord(2, CGE::Vec2f(1, 1));
+  mVerts->setTexCoord(3, CGE::Vec2f(1, 0));
+  mVerts->unlockVertexPointer();
+  mInds = CGE::Engine::instance()->getRenderer()->createIndexBuffer(CGE::IndexBuffer::IB_USHORT, 5);
+  mInds->lockIndexPointer();
+  mInds->setIndex(0, 2U);
+  mInds->setIndex(1, 3U);
+  mInds->setIndex(2, 1U);
+  mInds->setIndex(3, 0U);
+  mInds->setIndex(4, 2U);
+  mInds->unlockIndexPointer();
   mAnimator = new Animator();
   mFonts = NULL;
   mInterpreter = NULL;
@@ -82,6 +98,8 @@ Engine::~Engine(){
   delete mAnimator;
   delete mInterpreter;
   delete mSaver;
+  delete mVerts;
+  delete mInds;
 }
 
 void Engine::setData(AdvDocument* doc){
@@ -575,7 +593,8 @@ void Engine::render(unsigned time){
   }
 
   //build blit queue
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->clear(COLORBUFFER | ZBUFFER);
   int roomdepth = 0;
   RoomObject* mainroom = NULL;
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
@@ -595,11 +614,11 @@ void Engine::render(unsigned time){
       beginRendering();
       mFonts->prepareBlit(interval, mainroom, true);
       //glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-      GL()pushMatrix();
-      GL()loadIdentity();
-      GL()translatef(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-      GL()scalef(1.0f,-1.0f,1.0f);
+      rend->clear(COLORBUFFER | ZBUFFER);
+      rend->pushMatrix();
+      rend->resetModelView();
+      rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+      rend->scale(1.0f,-1.0f,1.0f);
     }
     (*iter)->render();
     if (mMainRoomLoaded && iter == mRooms.rbegin()){
@@ -608,7 +627,7 @@ void Engine::render(unsigned time){
       if (mParticleEngine->getDepth() != DEPTH_PARTICLES_TOP) //render the particles now if they belong to the main room
         mParticleEngine->update(interval);
       endRendering();
-      GL()popMatrix();
+      rend->popMatrix();
       mRenderedMain->unbind();
       BlitObject* result = mPostProc->process(mRenderedMain, interval);
       result->render(Vec2i(), Vec2f(1.0f,1.0f), Vec2i());
@@ -1464,7 +1483,7 @@ void Engine::keyPress(int key){
       mSaver->save(SaveStateProvider::saveSlotToPath(0));
       break;
     case KEY_F2:
-      mSaver->load(SaveStateProvider::saveSlotToPath(0));
+      mSaver->load(SaveStateProvider::saveSlotToPath(0), false);
       break;
     case KEY_ESCAPE:
       {
@@ -1697,8 +1716,7 @@ void Engine::enterText(const String& variable, int maxcharacters, ExecutionConte
 }
 
 void Engine::restoreRenderDefaults(){
-  GL()vertexPointer(2, GL_SHORT, 0, mVerts);
-  GL()texCoordPointer(2, GL_SHORT, 0, mVerts);
+  mVerts->activate();
 }
 
 RoomObject* Engine::getMainRoom(){
@@ -1848,4 +1866,12 @@ void Engine::popupCoinMenu(ExecutionContext* loadreason){
     loadSubRoom(mData->getProjectSettings()->coinRoom, loadreason, mData->getProjectSettings()->coinFading);
     mCoinShown = true;
   }
+}
+
+void Engine::drawQuad(){
+  mVerts->draw(CGE::VB_Tristrip, NULL);
+}
+
+void Engine::drawQuadLines(){
+  mVerts->draw(CGE::VB_Linestrip, mInds);
 }
