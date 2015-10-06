@@ -284,7 +284,7 @@ public:
     return true;
   }
   virtual void apply(BlitObject* input){
-    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    input->getTexture()->activate();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
     mShader.uniform(mIntensityLoc, mInterpolator.current());
@@ -404,8 +404,10 @@ public:
     mShader.deactivate();
   }
   virtual void deinit(){
-    if (mBlendTex != 0)
-      glDeleteTextures(1, &mBlendTex);
+    if (mBlendTex != 0){
+      delete mBlendTex;
+      mBlendTex = NULL;
+    }
   }
   virtual void activate(bool fade, ...){
     va_list args;
@@ -439,14 +441,13 @@ public:
     for (unsigned i = 0; i < mImage.getImageSize(); ++i){
       mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
     }
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, mBlendTex);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mImage.getWidth(), mImage.getHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, mImage.getData());
+    mBlendTex->activate(1);
+    mBlendTex->update(0, 0, mImage.getWidth(), mImage.getHeight(), mImage.getData());
     glActiveTexture(GL_TEXTURE0);
     return true;
   }
   virtual void apply(BlitObject* input){
-    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    input->getTexture()->activate();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
     mShader.uniform(mIntensityLoc, mInterpolator.current());
@@ -469,7 +470,7 @@ private:
   GLint mIntensityLoc;
   Interpolator mInterpolator;
   bool mFadeout;
-  GLuint mBlendTex;
+  CGE::Texture* mBlendTex;
   CGE::Image mImage;
 };
 
@@ -571,8 +572,7 @@ public:
     return true;
   }
   virtual void apply(BlitObject* input){
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    input->getTexture()->activate();
     if (mTakeCount >= mTakeFrame){
       if (mPrevFrames.size() < 3){
         RenderableBlitObject* rbo = mGenFrames.front();
@@ -600,8 +600,7 @@ public:
       mShader.activate();
     int count = 0;
     for (std::list<RenderableBlitObject*>::iterator iter = mPrevFrames.begin(); iter != mPrevFrames.end(); ++iter){
-      glActiveTexture(GL_TEXTURE1+count);
-      glBindTexture(GL_TEXTURE_2D, (*iter)->getTexture());
+      (*iter)->getTexture()->activate(1 + count);
       ++count;
     }
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -692,16 +691,17 @@ public:
     mShader.deactivate();
   }
   virtual void deinit(){
-    if (mBlendTex != 0)
-      glDeleteTextures(1, &mBlendTex);
+    if (mBlendTex != 0){
+      delete mBlendTex;
+      mBlendTex = NULL;
+    }
   }
   virtual void activate(bool fade, ...){
     Effect::activate(fade);
     if (fade){
       memset(mImage.getData(), 127, mImage.getImageSize());
-      glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, mBlendTex);
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mImage.getWidth(), mImage.getHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, mImage.getData());
+      mBlendTex->activate(1);
+      mBlendTex->update(0, 0, mImage.getWidth(), mImage.getHeight(), mImage.getData());
       glActiveTexture(GL_TEXTURE0);
     }
     mFadeout = false;
@@ -729,9 +729,8 @@ public:
         else if (mType == SINE)
           mImage.getData()[i] = (unsigned char)(sin((float)mLineCount++/6.0f)*127+127);
       }
-      glActiveTexture(GL_TEXTURE1);
-      glBindTexture(GL_TEXTURE_2D, mBlendTex);
-      glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, mImage.getWidth(), mImage.getHeight(), GL_LUMINANCE, GL_UNSIGNED_BYTE, mImage.getData());
+      mBlendTex->activate(1);
+      mBlendTex->update(0, 0, mImage.getWidth(), mImage.getHeight(), mImage.getData());
       glActiveTexture(GL_TEXTURE0);
       mTimeAccu -= 50;
       if (mFadeout)
@@ -740,7 +739,7 @@ public:
     return true;
   }
   virtual void apply(BlitObject* input){
-    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    input->getTexture()->activate();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -760,7 +759,7 @@ public:
   }
 private:
   bool mFadeout;
-  GLuint mBlendTex;
+  CGE::Texture* mBlendTex;
   CGE::Image mImage;
   int mTimeAccu;
   int mFadeoutPixels;
@@ -841,7 +840,7 @@ public:
     return true;
   }
   virtual void apply(BlitObject* input){
-    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    input->getTexture()->activate();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
     float tmp[8];
@@ -1058,12 +1057,12 @@ public:
     Engine::instance()->restoreRenderDefaults();
     mFBO->unbind();
     
-    glBindTexture(GL_TEXTURE_2D, mFBO->getTexture());
+    mFBO->getTexture()->activate(1);
     glActiveTexture(GL_TEXTURE0);
     return true;
   }
   virtual void apply(BlitObject* input){
-    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    input->getTexture()->activate();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
     //mShader.uniform(mIntensityLoc, mInterpolator.current());
@@ -1266,7 +1265,7 @@ public:
     return true;
   }
   virtual void apply(BlitObject* input){
-    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    input->getTexture()->activate();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
     mShader.uniform(mIntensityLoc, mInterpolator.current());
@@ -1357,7 +1356,7 @@ public:
     return true;
   }
   virtual void apply(BlitObject* input){
-    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    input->getTexture()->activate();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
     float tmp[8];
@@ -1462,7 +1461,7 @@ public:
     return true;
   }
   virtual void apply(BlitObject* input){
-    glBindTexture(GL_TEXTURE_2D, input->getTexture());
+    input->getTexture()->activate();
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     mShader.activate();
     mShader.uniform(mIntensityLoc, mInterpolator.current());
@@ -1513,6 +1512,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
 
 PostProcessor::~PostProcessor(){
   for (std::map<std::string,Effect*>::iterator iter = mEffects.begin(); iter != mEffects.end(); ++iter){
+    iter->second->deinit();
     delete iter->second;
   }
 }

@@ -39,7 +39,7 @@ public:
   void render(unsigned time);
   void initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb);
   void exitGame();
-  GLuint genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
+  CGE::Texture* genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
   void beginRendering();
   void endRendering(bool inverse=false);
   void insertToBlit(BaseBlitObject* obj);

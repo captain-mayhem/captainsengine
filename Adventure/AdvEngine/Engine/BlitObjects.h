@@ -47,7 +47,7 @@ public:
   };
   BlitObject(int width, int height, int depth);
   BlitObject(std::string texture, const Vec2i& size, int depth, Vec2i offset);
-  BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
+  BlitObject(CGE::Texture* texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
   virtual ~BlitObject();
   BlitObject* clone();
   bool operator<(const BlitObject& obj);
@@ -58,13 +58,13 @@ public:
   void setRotation(float angle) {mRotAngle = angle;}
   void setBlendMode(BlendMode mode) {mBlendMode = mode;}
   void updateTexture(unsigned width, unsigned height, void* data);
-  GLuint getTexture() {return mTex;}
+  CGE::Texture* getTexture() {return mTex;}
   virtual void realize();
-  void realizeEmpty(GLenum format=GL_RGBA);
+  void realizeEmpty(CGE::Texture::Format format=CGE::Texture::RGBA);
 protected:
   Vec2i mOffset;
   Vec2f mScale;
-  GLuint mTex;
+  CGE::Texture* mTex;
   CGE::Image* mImage;
   Vec2f mZoomScale;
   bool mDeleteTex;

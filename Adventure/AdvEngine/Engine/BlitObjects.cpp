@@ -46,7 +46,7 @@ BaseBlitObject(depth, Vec2i()), mOffset(offset), mScale(1.0f, 1.0f), mTex(0), mM
   mDeleteTex = true;
 }
 
-BlitObject::BlitObject(GLuint texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
+BlitObject::BlitObject(CGE::Texture* texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
 BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mImage(NULL), mMirrorOffset(), mRotAngle(0), mBlendMode(BLEND_ALPHA)
 {
   mZoomScale = Vec2f(1.0f,1.0f);
@@ -56,7 +56,7 @@ BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mIma
 BlitObject::~BlitObject(){
   delete mImage;
   if (mDeleteTex)
-    glDeleteTextures(1, &mTex);
+    delete mTex;
 }
 
 bool BlitObject::operator<(const BlitObject& obj){
@@ -104,7 +104,7 @@ void BlitObject::blit(){
   rend->scale(mScale.x, mScale.y, 1.0f);
   rend->switchMatrixStack(CGE::Modelview);
 
-  glBindTexture(GL_TEXTURE_2D, mTex);
+  mTex->activate();
   rend->setColor(mColor.r/255.0f, mColor.g/255.0f, mColor.b/255.0f, mColor.a/255.0f);
   Engine::instance()->drawQuad();
   rend->popMatrix();
@@ -118,8 +118,7 @@ BlitObject* BlitObject::clone(){
 }
 
 void BlitObject::updateTexture(unsigned width, unsigned height, void* data){
-  glBindTexture(GL_TEXTURE_2D, mTex);
-  glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+  mTex->update(0, 0, width, height, data);
 }
 
 void BlitObject::realize(){
@@ -130,16 +129,17 @@ void BlitObject::realize(){
   mImage = NULL;
 }
 
-void BlitObject::realizeEmpty(GLenum format){
+void BlitObject::realizeEmpty(CGE::Texture::Format format){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
-  glGenTextures(1, &mTex);
+  mTex = CGE::Engine::instance()->getRenderer()->createTexture(pow2.x, pow2.y, format);
+  /*glGenTextures(1, &mTex);
   GLint mOldTex;
   glGetIntegerv(GL_TEXTURE_BINDING_2D, &mOldTex);
   glBindTexture(GL_TEXTURE_2D, mTex);
   glTexImage2D(GL_TEXTURE_2D, 0, format, pow2.x, pow2.y, 0, format, GL_UNSIGNED_BYTE, NULL);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-  glBindTexture(GL_TEXTURE_2D, mOldTex);
+  glBindTexture(GL_TEXTURE_2D, mOldTex);*/
 }
 
 LightingBlitObject::LightingBlitObject(int depth, const Vec2i& size) : BaseBlitObject(depth, size){
@@ -193,7 +193,7 @@ void ScrollBlitObject::render(const Vec2i& pos){
 
 RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth){
 }
-
+#include <renderer/OpenGL/OGLtexture.h>
 void RenderableBlitObject::realize(){
   TR_USE(ADV_Render_BlitObject);
   BlitObject::realizeEmpty();
@@ -207,7 +207,7 @@ void RenderableBlitObject::realize(){
   glGenFramebuffers(1, &mFrameBuffer);
   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mOldFrameBuffer);
   glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, mTex, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ((CGE::OGLTexture*)mTex)->getHandle(), 0);
   glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBuffer);
   GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
   if (status != GL_FRAMEBUFFER_COMPLETE){

@@ -31,6 +31,7 @@ public:
   virtual Texture* copy();
   GLuint getHandle() const { return tex_; }
   static GLenum glFormat(Format fmt);
+  virtual void update(int x, int y, unsigned width, unsigned height, void* data);
 protected:
   GLuint tex_;
 };

@@ -427,12 +427,9 @@ VertexBuffer* GL2Renderer::createVertexBuffer(){
   return new GL2VertexBuffer();
 }
 
-Texture* GL2Renderer::createTexture(Image* img, Texture::Format fmt){
+Texture* GL2Renderer::createTexture(){
   OGLTexture* tex = new OGLTexture();
-  if (tex->createFromImage(img, fmt))
-    return tex;
-  delete tex;
-  return NULL;
+  return tex;
 }
 
 IndexBuffer* GL2Renderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){

@@ -49,8 +49,8 @@ bool OGLTexture::createEmpty(unsigned width, unsigned height, Format fmt){
   mHeight = height;
 
   glBindTexture(GL_TEXTURE_2D, tex_);
-  glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
-  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  //glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE); no mipmapping for empty textures (e.g. rendertargets)
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR/*_MIPMAP_LINEAR*/);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
   GLenum glformat = glFormat(fmt);
@@ -109,4 +109,9 @@ Texture* OGLTexture::copy(){
   glCopyImageSubDataNV(tex_, GL_TEXTURE_2D, 0, 0, 0, 0, ret->tex_, GL_TEXTURE_2D, 0, 0, 0, 0, mWidth, mHeight, 0);
   return ret;
 #endif
+}
+
+void OGLTexture::update(int x, int y, unsigned width, unsigned height, void* data){
+  glBindTexture(GL_TEXTURE_2D, tex_);
+  glTexSubImage2D(GL_TEXTURE_2D, 0, x, y, width, height, glFormat(mFormat), GL_UNSIGNED_BYTE, data);
 }
