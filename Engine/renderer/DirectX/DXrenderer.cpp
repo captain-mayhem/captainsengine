@@ -452,12 +452,9 @@ IndexBuffer* DXRenderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){
   return new DXIndexBuffer(t,size);
 }
 
-Texture* DXRenderer::createTexture(Image* img, Texture::Format fmt){
+Texture* DXRenderer::createTexture(){
   DXTexture* tex = new DXTexture();
-  if (tex->createFromImage(img, fmt))
-    return tex;
-  delete tex;
-  return NULL;
+  return tex;
 }
 
 RenderTarget* DXRenderer::createRenderTarget(unsigned width, unsigned height){

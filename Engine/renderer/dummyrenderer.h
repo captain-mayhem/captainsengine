@@ -11,7 +11,7 @@ public:
   //! Destructor
   ~DummyRenderer(){}  
   //! create texture
-  Texture* createTexture(Image* img, Texture::Format fmt){return NULL;}
+  Texture* createTexture(){return NULL;}
   //! create rendertarget
   virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) { return NULL; }
   //! create shader

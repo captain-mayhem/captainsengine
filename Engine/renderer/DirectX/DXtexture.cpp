@@ -158,4 +158,17 @@ Texture* DXTexture::copy(){
   return ret;
 }
 
+void DXTexture::update(int x, int y, unsigned width, unsigned height, void* data){
+  ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
+  int bpp = (int)mFormat;
+  D3D11_BOX box;
+  box.top = y;
+  box.left = x;
+  box.bottom = y + height;
+  box.right = x * width;
+  box.front = 0;
+  box.back = 1;
+  ctx->UpdateSubresource(mTexture, 0, &box, data, width*bpp, 0);
+}
+
 #endif

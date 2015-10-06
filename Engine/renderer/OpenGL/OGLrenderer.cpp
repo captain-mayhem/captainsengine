@@ -203,12 +203,9 @@ VertexBuffer* OGLRenderer::createVertexBuffer(){
   return new OGLVertexBuffer();
 }
 
-Texture* OGLRenderer::createTexture(Image* img, Texture::Format fmt){
+Texture* OGLRenderer::createTexture(){
   OGLTexture* tex = new OGLTexture();
-  if (tex->createFromImage(img, fmt))
-    return tex;
-  delete tex;
-  return NULL;
+  return tex;
 }
 
 IndexBuffer* OGLRenderer::createIndexBuffer(IndexBuffer::Type t, uint32 size){

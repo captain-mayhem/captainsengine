@@ -86,7 +86,9 @@ public:
   //! create texture
   Texture* createTexture(string filename, Texture::Format fmt=Texture::AUTO);
   //! create texture
-  virtual Texture* createTexture(Image* img, Texture::Format fmt) = 0;
+  Texture* createTexture(Image* img, Texture::Format fmt);
+  //! create empty texture
+  Texture* createTexture(unsigned width, unsigned height, Texture::Format fmt);
   //! create rendertarget
   virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) = 0;
   //! create shader
@@ -149,6 +151,7 @@ public:
   //! switch matrix type
   virtual void switchMatrixStack(MatrixType type) = 0;
 protected:
+  virtual Texture* createTexture() = 0;
   //! the type of the renderer
   /*! can be OpenGL or DirectX*/
   RenderType type_;

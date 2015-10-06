@@ -101,6 +101,28 @@ Texture* Renderer::createTexture(std::string filename, Texture::Format fmt){
   return tex;
 }
 
+Texture* Renderer::createTexture(Image* img, Texture::Format fmt){
+  Texture* tex = createTexture();
+  if (tex->createFromImage(img, fmt))
+    return tex;
+  delete tex;
+  return NULL;
+}
+
+Texture* Renderer::createTexture(unsigned width, unsigned height, Texture::Format fmt){
+  Texture* tex = createTexture();
+  if (!tex->createEmpty(width, height, fmt)){
+    delete tex;
+    return NULL;
+  }
+  int bpp = (int)fmt;
+  uint8* data = new uint8[width*height*bpp];
+  memset(data, 0, width*height*bpp);
+  tex->update(0, 0, width, height, data);
+  delete[] data;
+  return tex;
+}
+
 void Renderer::setLight(int number, const Light& lit){
   Shader* shdr = Shader::getCurrentShader();
   if (!shdr)

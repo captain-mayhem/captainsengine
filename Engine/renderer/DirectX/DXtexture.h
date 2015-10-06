@@ -19,6 +19,7 @@ public:
   virtual Texture* copy();
   static DXGI_FORMAT dxformat(Format fmt);
   ID3D11Texture2D* getHandle() const { return mTexture; }
+  virtual void update(int x, int y, unsigned width, unsigned height, void* data);
 protected:
   ID3D11Texture2D* mTexture;
   ID3D11Device* mDevice;

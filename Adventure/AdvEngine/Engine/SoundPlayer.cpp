@@ -764,7 +764,7 @@ void StreamVideoPlayer::initLayer(int x, int y, int width, int height){
   mScale.y = height/(float)mVidCodecContext->height;
   for (int i = 0; i < NUM_LAYERS; ++i){
     mLayer[i] = new BlitObject(mVidCodecContext->width, mVidCodecContext->height, DEPTH_VIDEO_LAYER);
-    mLayer[i]->realizeEmpty(GL_RGB);
+    mLayer[i]->realizeEmpty(CGE::Texture::RGB);
   }
   mCurrLayer = 0;
 }

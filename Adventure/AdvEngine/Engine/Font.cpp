@@ -10,7 +10,7 @@ namespace adv{
 
 class FontBlitObject : public BlitObject{
 public:
-  FontBlitObject(GLuint masktexture, GLuint texture, const Vec2i& size, 
+  FontBlitObject(CGE::Texture* masktexture, CGE::Texture* texture, const Vec2i& size, 
     const Vec2f& scale, int depth, const Vec2i& offset, const Vec2f& textrans, const Color& color) : 
 BlitObject(texture, size, scale, depth, offset){
     mTexTrans = textrans;
@@ -32,7 +32,7 @@ BlitObject(texture, size, scale, depth, offset){
     rend->scale(mScale.x, mScale.y, 1.0f);
     rend->translate(mTexTrans.x, mTexTrans.y, 0);
     rend->switchMatrixStack(CGE::Modelview);
-    glBindTexture(GL_TEXTURE_2D, mTex);
+    mTex->activate();
     rend->setColor(mColor.r / 255.0f, mColor.g / 255.0f, mColor.b / 255.0f, mColor.a / 255.0f);
     Engine::instance()->drawQuad();
     rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -43,7 +43,7 @@ BlitObject(texture, size, scale, depth, offset){
   }
 protected:
   Vec2f mTexTrans;
-  GLuint mMaskTexture;
+  CGE::Texture* mMaskTexture;
   Color mColor;
 };
 
@@ -183,6 +183,9 @@ FontRenderer::Font::~Font(){
     delete *iter;
   }
   mRenderQueue.clear();
+  for (size_t i = 0; i < mImages.size(); ++i){
+    delete mImages[i];
+  }
 }
 
 FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen){
