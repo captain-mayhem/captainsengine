@@ -408,16 +408,7 @@ void DXRenderer::resizeScene(int width, int height){
     return;
   TR_INFO("Resizing Scene");
 
-  D3D11_VIEWPORT viewport;
-  ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
-
-  viewport.TopLeftX = 0;
-  viewport.TopLeftY = 0;
-  viewport.Width = (FLOAT)width;
-  viewport.Height = (FLOAT)height;
-  viewport.MinDepth = 0.0f;
-  viewport.MaxDepth = 1.0f;
-  mD3d->RSSetViewports(1, &viewport);
+  viewport(0, 0, width, height);
   
   win_->setWidth(width);
   win_->setHeight(height);
@@ -736,6 +727,19 @@ void DXRenderer::multiplyMatrix(const CGE::Matrix& mat){
     enableTexturing(false);
 }*/
 
+//! set the viewport
+void DXRenderer::viewport(int x, int y, int w, int h){
+  D3D11_VIEWPORT viewport;
+  ZeroMemory(&viewport, sizeof(D3D11_VIEWPORT));
+
+  viewport.TopLeftX = (FLOAT)x;
+  viewport.TopLeftY = (FLOAT)y;
+  viewport.Width = (FLOAT)w;
+  viewport.Height = (FLOAT)h;
+  viewport.MinDepth = 0.0f;
+  viewport.MaxDepth = 1.0f;
+  mD3d->RSSetViewports(1, &viewport);
+}
 
 //! get the viewport
 void DXRenderer::getViewport(int view[4]){
