@@ -97,10 +97,8 @@ public:
   void unbind();
   virtual void realize();
 protected:
-  GLuint mRenderBuffer;
-  GLuint mFrameBuffer;
-  GLint mOldFrameBuffer;
-  GLint mOldViewport[4];
+  CGE::RenderTarget* mFrameBuffer;
+  int mOldViewport[4];
 };
 
 class Object2D;

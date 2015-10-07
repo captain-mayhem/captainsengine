@@ -387,6 +387,11 @@ void OGLRenderer::setMaterial(const Material& mat){
   glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, &mat.getPower());
 }
 
+//! set the viewport
+void OGLRenderer::viewport(int x, int y, int w, int h){
+  glViewport(x, y, w, h);
+}
+
 //! get the viewport
 void OGLRenderer::getViewport(int view[4]){
   glGetIntegerv(GL_VIEWPORT, view);

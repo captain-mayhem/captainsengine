@@ -140,6 +140,8 @@ public:
   virtual void popMatrix()=0;
   //! multiply matrix
   virtual void multiplyMatrix(const CGE::Matrix& mat)=0;
+  //! set the viewport
+  virtual void viewport(int x, int y, int w, int h) = 0;
   //! get the viewport
   virtual void getViewport(int view[4])=0;
   //! get a matrix

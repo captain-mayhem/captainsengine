@@ -56,6 +56,8 @@ public:
   void popMatrix(){}
   //! multiply matrix
   void multiplyMatrix(const CGE::Matrix& mat){}
+  //! set the viewport
+  virtual void viewport(int x, int y, int w, int h){}
   //! get the viewport
   virtual void getViewport(int view[4]){}
   //! get a matrix

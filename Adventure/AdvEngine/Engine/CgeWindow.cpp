@@ -66,17 +66,17 @@ void init(){
   rend->switchMatrixStack(CGE::Modelview);
   rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-  glDisable(GL_DEPTH_TEST);
+  rend->enableDepthTest(false);
   //GL()enableClientState(ATTR_VERTEX_ARRAY);
   //GL()enableClientState(ATTR_TEXTURE_COORD_ARRAY);
   rend->enableTexturing(true);
   //glAlphaFunc(GL_GREATER, 0);
   //glEnable(GL_ALPHA_TEST);
   //glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+  rend->enableBlend(true);
 
-  glViewport(0, 0, windowsize.x, windowsize.y);
+  rend->viewport(0, 0, windowsize.x, windowsize.y);
   
   if (CGE::Script::instance()->getBoolSetting("debugPorts"))
     receiver.start();
@@ -122,14 +122,14 @@ void render(){
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
   rend->switchMatrixStack(CGE::Modelview);
-  glDisable(GL_DEPTH_TEST);
+  rend->enableDepthTest(false);
   //glEnableClientState(GL_VERTEX_ARRAY);
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
   rend->enableTexturing(true);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+  rend->enableBlend(true);
 
-  glClearColor(0.0,0.0,0.0,1.0);
+  rend->setClearColor(CGE::Vec4f(0.0, 0.0, 0.0, 1.0));
   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   rend->resetModelView();
 

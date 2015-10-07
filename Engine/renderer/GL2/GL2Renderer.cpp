@@ -636,6 +636,11 @@ void GL2Renderer::multiplyMatrix(const CGE::Matrix& mat){
     enableTexturing(false);
 }*/
 
+//! set the viewport
+void GL2Renderer::viewport(int x, int y, int w, int h){
+  glViewport(x, y, w, h);
+}
+
 //! get the viewport
 void GL2Renderer::getViewport(int view[4]){
   glGetIntegerv(GL_VIEWPORT, view);

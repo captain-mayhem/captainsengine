@@ -191,47 +191,40 @@ void ScrollBlitObject::render(const Vec2i& pos){
   mPos = pos;
 }
 
-RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth){
+RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth), mFrameBuffer(NULL){
 }
-#include <renderer/OpenGL/OGLtexture.h>
+
 void RenderableBlitObject::realize(){
   TR_USE(ADV_Render_BlitObject);
   BlitObject::realizeEmpty();
   int powx = (int)(mSize.x/mScale.x);
   int powy = (int)(mSize.y/mScale.y);
-  glGenRenderbuffers(1, &mRenderBuffer);
-  glBindRenderbuffer(GL_RENDERBUFFER, mRenderBuffer);
-  glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, (int)(mSize.x/mScale.x), (int)(mSize.y/mScale.y));
-  glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-  glGenFramebuffers(1, &mFrameBuffer);
-  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mOldFrameBuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
-  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ((CGE::OGLTexture*)mTex)->getHandle(), 0);
-  glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, mRenderBuffer);
-  GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-  if (status != GL_FRAMEBUFFER_COMPLETE){
-    TR_ERROR("Unable to create framebuffer - status %i", status);
+  mFrameBuffer = CGE::Engine::instance()->getRenderer()->createRenderTarget(powx, powy);
+  mFrameBuffer->activate();
+  mFrameBuffer->addTexture(*mTex);
+  mFrameBuffer->addRenderbuffer(CGE::Texture::DEPTH);
+  if (!mFrameBuffer->isComplete()){
+    TR_ERROR("Unable to create framebuffer");
     //TR_BREAK();
   }
-  glBindFramebuffer(GL_FRAMEBUFFER, mOldFrameBuffer);
+  mFrameBuffer->deactivate();
 }
 
 RenderableBlitObject::~RenderableBlitObject(){
-  glDeleteFramebuffers(1, &mFrameBuffer);
-  glDeleteRenderbuffers(1, &mRenderBuffer);
+  delete mFrameBuffer;
 }
 
 void RenderableBlitObject::bind(){
-  glGetIntegerv(GL_VIEWPORT, mOldViewport);
-  glViewport(0, 0, mSize.x, mSize.y);
-  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &mOldFrameBuffer);
-  glBindFramebuffer(GL_FRAMEBUFFER, mFrameBuffer);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->getViewport(mOldViewport);
+  rend->viewport(0, 0, mSize.x, mSize.y);
+  mFrameBuffer->activate();
 }
 
 void RenderableBlitObject::unbind(){
-  glBindFramebuffer(GL_FRAMEBUFFER, mOldFrameBuffer);
-  glViewport(mOldViewport[0], mOldViewport[1], mOldViewport[2], mOldViewport[3]);
+  mFrameBuffer->deactivate();
+  CGE::Engine::instance()->getRenderer()->viewport(mOldViewport[0], mOldViewport[1], mOldViewport[2], mOldViewport[3]);
 }
 
 DynamicAnimation::DynamicAnimation(){
