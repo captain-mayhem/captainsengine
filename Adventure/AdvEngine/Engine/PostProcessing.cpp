@@ -1,5 +1,7 @@
 #include "PostProcessing.h"
 
+#include <renderer/shader.h>
+
 #include "Renderer.h"
 #include "Engine.h"
 #include <system/allocation.h>

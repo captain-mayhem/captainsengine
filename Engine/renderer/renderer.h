@@ -152,6 +152,10 @@ public:
   AppWindow* getWindow() {return win_;}
   //! switch matrix type
   virtual void switchMatrixStack(MatrixType type) = 0;
+  //! set scissor rect
+  virtual void scissor(int x, int y, unsigned w, unsigned h) = 0;
+  //! enable scissor test
+  virtual void enableScissorTest(bool flag) = 0;
 protected:
   virtual Texture* createTexture() = 0;
   //! the type of the renderer

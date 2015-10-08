@@ -443,4 +443,15 @@ void OGLRenderer::setNumLights(int number){
     glDisable(GL_LIGHT0 + i);
 }
 
+void OGLRenderer::scissor(int x, int y, unsigned w, unsigned h){
+  glScissor(x, y, w, h);
+}
+
+void OGLRenderer::enableScissorTest(bool flag){
+  if (flag)
+    glEnable(GL_SCISSOR_TEST);
+  else
+    glDisable(GL_SCISSOR_TEST);
+}
+
 

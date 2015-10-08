@@ -62,11 +62,13 @@ void fileWritten(){
 }
 
 CEXPORT int advLoad(const char* filename){
+  TR_USE(Frontend);
+  TR_DEBUG("init core engine");
+  CGE::Engine::init();
+
 	ConsoleOutputter* putty = new ConsoleOutputter;
-    CGE::TraceManager::instance()->setTraceOutputter(putty);
-	//CGE::TraceManager::instance()->setTraceOutputter(alo);
-	//TR_INFO("native lib init, trying to load %s", str);
-	TR_USE(Frontend);
+  CGE::TraceManager::instance()->setTraceOutputter(putty);
+
 	TR_INFO("trying to load adventure %s", filename);
 	adoc = new AdvDocument();
   adoc->getProjectSettings()->savedir = "/IDBFS/adventure";
@@ -79,35 +81,36 @@ CEXPORT int advLoad(const char* filename){
 	advwidth = adoc->getProjectSettings()->resolution.x;
 	advheight = adoc->getProjectSettings()->resolution.y;
 	screen = SDL_SetVideoMode(advwidth, advheight, 0, SDL_OPENGL);
-	//setAdventureDims(env, advwidth, advheight);
-	
+
+  TR_DEBUG("init renderer");
+  CGE::Engine::instance()->startupRenderer("GL2");
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->initRendering();
+  
 	TR_DEBUG("init adventure engine");
 	Engine::init();
 	Engine::instance()->setData(adoc);
 	SoundEngine::init();
 	SoundEngine::instance()->setData(adoc);
 
-	TR_DEBUG("init renderer");
-	AdvRenderer::init();
-
-	GL()matrixMode(MM_PROJECTION);
-	GL()loadIdentity();
-	GL()ortho(0, advwidth, advheight, 0, -1.0, 1.0);
+  rend->switchMatrixStack(CGE::Projection);
+  rend->resetModelView();
+	rend->ortho(0, advwidth, advheight, 0, -1.0, 1.0);
 	//glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
-	GL()matrixMode(MM_MODELVIEW);
-	glClearColor(0.0,0.0,0.0,1.0);
-	GL()color4ub(255,255,255,255);
+  rend->switchMatrixStack(CGE::Modelview);
+	rend->setClearColor(CGE::Vec4f(0.0,0.0,0.0,1.0));
+  rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-	glDisable(GL_DEPTH_TEST);
-	GL()enableClientState(ATTR_VERTEX_ARRAY);
-	GL()enableClientState(ATTR_TEXTURE_COORD_ARRAY);
-	GL()enable(GL_TEXTURE_2D);
+  rend->enableDepthTest(false);
+	//GL()enableClientState(ATTR_VERTEX_ARRAY);
+	//GL()enableClientState(ATTR_TEXTURE_COORD_ARRAY);
+  rend->enableTexturing(true);
 	//glAlphaFunc(GL_GREATER, 0);
 	//glEnable(GL_ALPHA_TEST);
 	//glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
+	rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+  rend->enableBlend(true);
 
 	/*realwidth = winwidth;
 	realheight = winheight;
@@ -129,7 +132,7 @@ CEXPORT int advLoad(const char* filename){
 	realwidth = advwidth;
 	realheight = advheight;
 	TR_INFO("Setting viewort to %i x %i", realwidth, realheight);
-	glViewport(0, 0, realwidth, realheight);
+	rend->viewport(0, 0, realwidth, realheight);
 
 	//TR_DEBUG("init remote server");
 	//receiver.start();
@@ -141,21 +144,22 @@ CEXPORT int advLoad(const char* filename){
 void render(){
   if (!initialized)
     return;
-  GL()matrixMode(MM_PROJECTION);
-  GL()loadIdentity();
-  GL()ortho(0, advwidth, advheight, 0, -1.0, 1.0);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->switchMatrixStack(CGE::Projection);
+  rend->resetModelView();
+  rend->ortho(0, advwidth, advheight, 0, -1.0, 1.0);
   //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
 
-  GL()matrixMode(MM_MODELVIEW);
-  glDisable(GL_DEPTH_TEST);
+  rend->switchMatrixStack(CGE::Modelview);
+  rend->enableDepthTest(false);
   //glEnableClientState(GL_VERTEX_ARRAY);
   //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  GL()enable(GL_TEXTURE_2D);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glEnable(GL_BLEND);
+  rend->enableTexturing(true);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+  rend->enableBlend(true);
 
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  GL()loadIdentity();
+  rend->clear(COLORBUFFER | ZBUFFER);
+  rend->resetModelView();
 
   //receiver.processCommands();
   //int time = (unsigned)(CGE::Engine::instance()->getFrameInterval()*1000);

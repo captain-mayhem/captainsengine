@@ -178,6 +178,9 @@ static char const * vs_src_unlit =
 "";
 
 static char const * fs_src_unlit =
+#ifdef RENDER_EMBEDDED
+"precision mediump float;\n"
+#endif
 "uniform sampler2D texture;\n"
 "uniform bool textureEnabled;\n"
 "\n"
@@ -280,6 +283,9 @@ static char const * vs_src_light =
 "";
 
 static char const * fs_src_light =
+#ifdef RENDER_EMBEDDED
+"precision mediump float;\n"
+#endif
 "#define NUM_LIGHTS 8\n"
 "uniform sampler2D texture;\n"
 "uniform bool textureEnabled;\n"
@@ -311,9 +317,14 @@ static char const * fs_src_light =
 "  vec3 diffuse = vec3(0.0,0.0,0.0);\n"
 "  vec3 specular = vec3(0.0,0.0,0.0);\n"
 "  vec3 ambient = vec3(0.0,0.0,0.0);\n"
+#ifdef RENDER_EMBEDDED
+"  for (int i = 0; i <= NUM_LIGHTS; ++i){\n"
+"    if (i < numLights){\n"
+#else
 "  for (int i = 0; i < numLights; ++i){\n"
+#endif
 "    vec3 lightvec;\n"
-"    float att = 1.0f;\n"
+"    float att = 1.0;\n"
 "    if (lightPos[i].w == 0.0)\n"
 "     lightvec = normalize(lightPos[i].xyz);\n"
 "    else{\n"
@@ -324,7 +335,7 @@ static char const * fs_src_light =
 "      }\n"
 "      else{\n"
 "        float lightDist = length(lightPos[i].xyz-vpos);\n"
-"        att = 1.0/(1.0+lightAttenuation[i]*pow(lightDist, 2));\n"
+"        att = 1.0/(1.0+lightAttenuation[i]*pow(lightDist, 2.0));\n"
 "      }\n"
 "    }\n"
 "    vec3 refl = normalize(reflect(-lightvec, normal));\n"
@@ -336,6 +347,9 @@ static char const * fs_src_light =
 "    diffuse += lightColor[i].rgb*NL*att;\n"
 "    specular += lightColor[i].rgb*spec*att;\n"
 "    ambient += lightColor[i].rgb*matAmbient.rgb;\n"
+#ifdef RENDER_EMBEDDED
+"    }\n"
+#endif
 "  }\n"
 "  vec4 finalColor = vec4(color.rgb*(ambient + diffuse) + specular*matSpecular.rgb, color.a);\n"
 "  gl_FragColor = finalColor;\n"
@@ -669,6 +683,18 @@ void GL2Renderer::swapBuffers(){
 
 void GL2Renderer::switchMatrixStack(MatrixType type){
   mMatrixMode = type;
+}
+
+
+void GL2Renderer::scissor(int x, int y, unsigned w, unsigned h){
+  glScissor(x, y, w, h);
+}
+
+void GL2Renderer::enableScissorTest(bool flag){
+  if (flag)
+    glEnable(GL_SCISSOR_TEST);
+  else
+    glDisable(GL_SCISSOR_TEST);
 }
 
 

@@ -73,35 +73,7 @@ void Engine::startup(int argc, char** argv){
   physics_ = Script::instance()->getBoolSetting("physics");
 
   if (graphics_){
-    if (type == "OpenGL"){
-#ifdef OPENGL
-        rend_ = new CGE::OGLRenderer();
-#else
-        EXIT2("OpenGL support is not compiled in\n");
-#endif
-    }
-    else if (type == "DirectX"){
-#ifdef DIRECTX
-        rend_ = new CGE::DXRenderer();
-#else
-        EXIT2("DirectX support is not compiled in\n");
-#endif
-    }
-    else if (type == "GLES"){
-#ifdef GLES
-      rend_ = new CGE::GLESRenderer();
-#else
-      EXIT2("OpenGL ES support is not compiled in\n");
-#endif
-    }
-    else if (type == "GL2"){
-#ifdef OPENGL2
-      rend_ = new CGE::GL2Renderer();
-#else
-      EXIT2("OpenGL (ES) 2 support is not compiled in\n");
-#endif
-    }
-    else{
+    if (!startupRenderer(type)){
       EXIT2("No valid renderer specified in engine.ini");
     }
 
@@ -151,6 +123,39 @@ void Engine::startup(int argc, char** argv){
   rend_->initRendering();
   frameTime_ = getTime();
   //isUp_ = true;
+}
+
+bool Engine::startupRenderer(const std::string& type){
+  TR_USE(CGE_Engine);
+  if (type == "OpenGL"){
+#ifdef OPENGL
+    rend_ = new CGE::OGLRenderer();
+#else
+    TR_ERROR("OpenGL support is not compiled in");
+#endif
+  }
+  else if (type == "DirectX"){
+#ifdef DIRECTX
+    rend_ = new CGE::DXRenderer();
+#else
+    TR_ERROR("DirectX support is not compiled in\n");
+#endif
+  }
+  else if (type == "GLES"){
+#ifdef GLES
+    rend_ = new CGE::GLESRenderer();
+#else
+    TR_ERROR("OpenGL ES support is not compiled in\n");
+#endif
+  }
+  else if (type == "GL2"){
+#ifdef OPENGL2
+    rend_ = new CGE::GL2Renderer();
+#else
+    TR_ERROR("OpenGL (ES) 2 support is not compiled in\n");
+#endif
+  }
+  return rend_ != NULL;
 }
 
 void Engine::shutdown(){

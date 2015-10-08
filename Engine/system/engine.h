@@ -121,6 +121,7 @@ class Engine{
     static void init();
     inline static Engine* instance() {return eng;}
     void startup(int argc, char** argv);
+    bool startupRenderer(const std::string& renderer);
     void run();
     void shutdown();
     inline CGE::Renderer* getRenderer() {return rend_;}

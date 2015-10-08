@@ -421,8 +421,8 @@ void ButtonObject::blit(){
     rend->setColor(mBackgroundColor.r / 255.0f, mBackgroundColor.g / 255.0f, mBackgroundColor.b / 255.0f, mBackgroundColor.a*mLightingColor.a / 255 / 255.0f);
   else if (mState == 2)
     rend->setColor(mHighlightColor.r / 255.0f, mHighlightColor.g / 255.0f, mHighlightColor.b / 255.0f, mHighlightColor.a*mLightingColor.a / 255 / 255.0f);
-  rend->translate((GLfloat)BaseBlitObject::mPos.x,(GLfloat)BaseBlitObject::mPos.y,0.0f);
-  rend->scale((GLfloat)BaseBlitObject::mSize.x,(GLfloat)BaseBlitObject::mSize.y,1.0f);
+  rend->translate((float)BaseBlitObject::mPos.x,(float)BaseBlitObject::mPos.y,0.0f);
+  rend->scale((float)BaseBlitObject::mSize.x,(float)BaseBlitObject::mSize.y,1.0f);
   Engine::instance()->drawQuad();
   rend->setColor(mBorderColor.r / 255.0f, mBorderColor.g / 255.0f, mBorderColor.b / 255.0f, mBorderColor.a*mLightingColor.a / 255 / 255.0f);
   Engine::instance()->drawQuadLines();

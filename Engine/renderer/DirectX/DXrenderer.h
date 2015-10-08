@@ -107,6 +107,10 @@ public:
   virtual void swapBuffers();
   //! switch matrix type
   virtual void switchMatrixStack(MatrixType type);
+  //! set scissor rect
+  virtual void scissor(int x, int y, unsigned w, unsigned h);
+  //! enable scissor test
+  virtual void enableScissorTest(bool flag);
 protected:
   //! the directX context
   ID3D11DeviceContext* mD3d;
@@ -137,6 +141,8 @@ protected:
   D3D11_DEPTH_STENCIL_DESC mDepthDesc;
   //! state of the depth test
   ID3D11DepthStencilState* mDepthState;
+  //! rasterizer state
+  D3D11_RASTERIZER_DESC mRasterDesc;
 };
 
 }

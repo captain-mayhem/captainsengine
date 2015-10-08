@@ -68,6 +68,10 @@ public:
   virtual void switchFromViewToModelTransform(){}
   //! switch matrix stack
   virtual void switchMatrixStack(MatrixType type){}
+  //! set scissor rect
+  virtual void scissor(int x, int y, unsigned w, unsigned h){}
+  //! enable scissor test
+  virtual void enableScissorTest(bool flag){}
 };
 
 }

@@ -321,7 +321,7 @@ CGE::Texture* Engine::genTexture(const CGE::Image* image, Vec2i& size, Vec2f& sc
   scale.x = ((float)size.x)/pow2.x;
   scale.y = ((float)size.y)/pow2.y;
   CGE::Texture::Format format = CGE::Texture::RGBA;
-  GLubyte* buffer;
+  unsigned char* buffer;
   bool deleteBuffer = true;
   int numchannels = 4;
   if (image->getNumChannels() == 1){
@@ -334,7 +334,7 @@ CGE::Texture* Engine::genTexture(const CGE::Image* image, Vec2i& size, Vec2f& sc
     unsigned totalsize = size.x*size.y;
     unsigned char* rgb = image->getData();
     //unsigned char* alpha = image.GetAlpha();
-    buffer = new GLubyte[totalsize*4];
+    buffer = new unsigned char[totalsize*4];
     int channels = image->getNumChannels();
     for (unsigned i = 0; i < totalsize; ++i){
       buffer[4*i] = rgb[channels*i];
