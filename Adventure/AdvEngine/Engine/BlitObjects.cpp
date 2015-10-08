@@ -86,7 +86,7 @@ void BlitObject::blit(){
     rend->translate(0.0f, mMirrorOffset.y*-mZoomScale.y, 0.0f);
   }
 
-  rend->translate((GLfloat)mPos.x, (GLfloat)mPos.y, 0.0f);
+  rend->translate((float)mPos.x, (float)mPos.y, 0.0f);
   
   rend->translate((float)-mOffset.x, (float)-mOffset.y, 0.0f);
   rend->scale(mZoomScale.x, mZoomScale.y, 1.0f);
@@ -252,8 +252,8 @@ bool MirrorObject::update(unsigned interval){
   rend->enableTexturing(false);
   rend->setClearColor(CGE::Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
   glClearDepth(0.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glEnable(GL_DEPTH_TEST);
+  rend->clear(COLORBUFFER | ZBUFFER);
+  rend->enableDepthTest(true);
   glDepthFunc(GL_GEQUAL);
   
   //draw mirror surface
@@ -273,7 +273,7 @@ bool MirrorObject::update(unsigned interval){
   //render characters
   glDepthMask(GL_FALSE);
   glDepthFunc(GL_EQUAL);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   rend->enableTexturing(true);
   Engine::instance()->beginRendering();
   CharacterObject* self = Engine::instance()->getCharacter("self");

@@ -348,14 +348,13 @@ void DXRenderer::initRendering(){
   TR_USE(CGE_Renderer_DirectX);
   TR_INFO("Initializing Scene");
 
-  D3D11_RASTERIZER_DESC desc;
-  ZeroMemory(&desc, sizeof(desc));
-  desc.FillMode = D3D11_FILL_SOLID;
-  desc.CullMode = D3D11_CULL_BACK;
-  desc.DepthClipEnable = TRUE;
-  desc.FrontCounterClockwise = TRUE;
+  ZeroMemory(&mRasterDesc, sizeof(mRasterDesc));
+  mRasterDesc.FillMode = D3D11_FILL_SOLID;
+  mRasterDesc.CullMode = D3D11_CULL_BACK;
+  mRasterDesc.DepthClipEnable = TRUE;
+  mRasterDesc.FrontCounterClockwise = TRUE;
   ID3D11RasterizerState* state;
-  mDevice->CreateRasterizerState(&desc, &state);
+  mDevice->CreateRasterizerState(&mRasterDesc, &state);
   mD3d->RSSetState(state);
   state->Release();
 
@@ -788,5 +787,24 @@ void DXRenderer::swapBuffers(){
 //! switch matrix type
 void DXRenderer::switchMatrixStack(MatrixType type){
   mMatrixMode = type;
+}
+
+void DXRenderer::scissor(int x, int y, unsigned w, unsigned h){
+  D3D11_RECT rect;
+  rect.top = y;
+  rect.bottom = y + h;
+  rect.left = x;
+  rect.right = x + w;
+  mD3d->RSSetScissorRects(1, &rect);
+}
+
+void DXRenderer::enableScissorTest(bool flag){
+  if (mRasterDesc.ScissorEnable == (flag?TRUE:FALSE))
+    return;
+  mRasterDesc.ScissorEnable = flag ? TRUE : FALSE;
+  ID3D11RasterizerState* state;
+  mDevice->CreateRasterizerState(&mRasterDesc, &state);
+  mD3d->RSSetState(state);
+  state->Release();
 }
 
