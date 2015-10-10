@@ -427,6 +427,10 @@ void GL2Renderer::setClearColor(const Vec4f& color){
   glClearColor(color.x, color.y, color.z, color.w);
 }
 
+void GL2Renderer::setClearDepth(float depth){
+  glClearDepth(depth);
+}
+
 void GL2Renderer::clear(long flags){
   long glflags = 0;
   if (flags & ZBUFFER)
@@ -560,6 +564,13 @@ void GL2Renderer::enableBackFaceCulling(const bool flag){
     glDisable(GL_CULL_FACE);
 }
 
+void GL2Renderer::enableColorWrite(bool flag){
+  if (flag)
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  else
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+}
+
 //! enable texturing
 void GL2Renderer::enableTexturing(const bool flag){
   int texEn = ((GL2Shader*)Shader::getCurrentShader())->getUniformLocation(Shader::FRAGMENT_SHADER, "textureEnabled");
@@ -592,6 +603,19 @@ void GL2Renderer::enableDepthTest(const bool flag){
 //! enable depth write
 void GL2Renderer::enableDepthWrite(bool flag){
   glDepthMask(flag ? GL_TRUE : GL_FALSE);
+}
+
+void GL2Renderer::depthFunc(CompareFunc func){
+  GLenum dfunc = GL_INVALID_ENUM;
+  switch (func){
+  case CMP_EQUAL:
+    dfunc = GL_EQUAL;
+    break;
+  case CMP_GEQUAL:
+    dfunc = GL_GEQUAL;
+    break;
+  }
+  glDepthFunc(dfunc);
 }
 
 //! set color

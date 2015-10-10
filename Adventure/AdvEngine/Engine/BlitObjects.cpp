@@ -251,13 +251,13 @@ bool MirrorObject::update(unsigned interval){
   //setup
   rend->enableTexturing(false);
   rend->setClearColor(CGE::Vec4f(0.0f, 0.0f, 0.0f, 0.0f));
-  glClearDepth(0.0f);
+  rend->setClearDepth(0.0f);
   rend->clear(COLORBUFFER | ZBUFFER);
   rend->enableDepthTest(true);
-  glDepthFunc(GL_GEQUAL);
+  rend->depthFunc(CGE::CMP_GEQUAL);
   
   //draw mirror surface
-  glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+  rend->enableColorWrite(false);
   rend->setColor(1.0f, 1.0f, 0.0f, 1.0f);
   rend->pushMatrix();
   rend->resetModelView();
@@ -268,11 +268,11 @@ bool MirrorObject::update(unsigned interval){
   mPolygon->activate();
   mPolygon->draw(CGE::VB_Trifan, NULL);
   rend->popMatrix();
-  glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  rend->enableColorWrite(true);
   
   //render characters
-  glDepthMask(GL_FALSE);
-  glDepthFunc(GL_EQUAL);
+  rend->enableDepthWrite(false);
+  rend->depthFunc(CGE::CMP_EQUAL);
   rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
   rend->enableTexturing(true);
   Engine::instance()->beginRendering();
@@ -285,8 +285,8 @@ bool MirrorObject::update(unsigned interval){
     }
   }
   Engine::instance()->endRendering(true);
-  glDepthMask(GL_TRUE);
-  glDisable(GL_DEPTH_TEST);
+  rend->enableDepthWrite(true);
+  rend->enableDepthTest(false);
 
   //multiply alpha
   rend->scale((float)mSize.x,(float)mSize.y,1.0f);

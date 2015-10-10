@@ -560,7 +560,6 @@ public:
   **/
   static int textOut(lua_State* L);
   /**
-  /**
   \param textscene name of the textscene to start
   \param posx [opt] x-position of the textscene
   \param posy [opt] y-position of the textscene

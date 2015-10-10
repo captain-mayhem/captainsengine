@@ -58,14 +58,7 @@ Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitReques
   mVerts = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
   mVerts->create(VB_POSITION | VB_TEXCOORD, 4);
   mVerts->lockVertexPointer();
-  mVerts->setPosition(0, CGE::Vec3f(0, 1, 0));
-  mVerts->setPosition(1, CGE::Vec3f(0, 0, 0));
-  mVerts->setPosition(2, CGE::Vec3f(1, 1, 0));
-  mVerts->setPosition(3, CGE::Vec3f(1, 0, 0));
-  mVerts->setTexCoord(0, CGE::Vec2f(0, 1));
-  mVerts->setTexCoord(1, CGE::Vec2f(0, 0));
-  mVerts->setTexCoord(2, CGE::Vec2f(1, 1));
-  mVerts->setTexCoord(3, CGE::Vec2f(1, 0));
+  fillWithStdQuad(mVerts);
   mVerts->unlockVertexPointer();
   mInds = CGE::Engine::instance()->getRenderer()->createIndexBuffer(CGE::IndexBuffer::IB_USHORT, 5);
   mInds->lockIndexPointer();
@@ -122,7 +115,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
     mExitCall = exit_cb;
   if (set_mouse_cb != NULL)
     mSetMouseCall = set_mouse_cb;
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   //ExecutionContext* ctx = mInterpreter->parseProgram("playswf (snitt ; 106 ;120 ;427 ; 330)");
   //mInterpreter->execute(ctx, true);
   mMainRoomLoaded = false;
@@ -1658,7 +1651,7 @@ void Engine::renderUnloadingRoom(){
   mainroom.realize();
   mainroom.setBlendMode(BlitObject::BLEND_PREMULT_ALPHA);
   mainroom.bind();
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
 
   beginRendering();
   //a workaround to make screen shots correct that are taken too late
@@ -1865,4 +1858,15 @@ void Engine::drawQuad(){
 
 void Engine::drawQuadLines(){
   mVerts->draw(CGE::VB_Linestrip, mInds);
+}
+
+void Engine::fillWithStdQuad(CGE::VertexBuffer* verts){
+  verts->setPosition(0, CGE::Vec3f(0, 1, 0));
+  verts->setPosition(1, CGE::Vec3f(0, 0, 0));
+  verts->setPosition(2, CGE::Vec3f(1, 1, 0));
+  verts->setPosition(3, CGE::Vec3f(1, 0, 0));
+  verts->setTexCoord(0, CGE::Vec2f(0, 1));
+  verts->setTexCoord(1, CGE::Vec2f(0, 0));
+  verts->setTexCoord(2, CGE::Vec2f(1, 1));
+  verts->setTexCoord(3, CGE::Vec2f(1, 0));
 }
