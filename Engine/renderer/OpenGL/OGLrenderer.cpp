@@ -189,6 +189,11 @@ void OGLRenderer::setClearColor(const Vec4f& color){
   glClearColor(color.x, color.y, color.z, color.w);
 }
 
+//! set clear depth
+void OGLRenderer::setClearDepth(float depth){
+  glClearDepth(depth);
+}
+
 void OGLRenderer::clear(long flags){
   long glflags = 0;
   if (flags & ZBUFFER)
@@ -270,6 +275,13 @@ void OGLRenderer::renderMode(RendMode rm){
   }
 }
 
+void OGLRenderer::enableColorWrite(bool flag){
+  if (flag)
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+  else
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+}
+
 //! set blending mode
 void OGLRenderer::blendFunc(BlendType src, BlendType dest){
   int srcfl = 0;
@@ -337,6 +349,19 @@ void OGLRenderer::enableDepthTest(const bool flag){
 //! enable depth write
 void OGLRenderer::enableDepthWrite(bool flag){
   glDepthMask(flag ? GL_TRUE : GL_FALSE);
+}
+
+void OGLRenderer::depthFunc(CompareFunc func){
+  GLenum dfunc = GL_INVALID_ENUM;
+  switch (func){
+  case CMP_EQUAL:
+    dfunc = GL_EQUAL;
+    break;
+  case CMP_GEQUAL:
+    dfunc = GL_GEQUAL;
+    break;
+  }
+  glDepthFunc(dfunc);
 }
 
 // enable lighting

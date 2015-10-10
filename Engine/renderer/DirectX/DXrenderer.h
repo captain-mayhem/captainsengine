@@ -45,6 +45,8 @@ public:
   void resizeScene(int width, int height);
   //! set clear color
   void setClearColor(const Vec4f& color);
+  //! set clear depth
+  virtual void setClearDepth(float depth);
   //! clear scene
   void clear(long flags);
   //! get a vertex buffer
@@ -79,6 +81,8 @@ public:
   void enableBlend(const bool flag);
   //! enable culling
   void enableBackFaceCulling(const bool flag);
+  //! enable color writes
+  virtual void enableColorWrite(bool flag);
   //! enable texturing
   void enableTexturing(const bool flag);
   //! enable lighting
@@ -87,6 +91,8 @@ public:
   virtual void enableDepthTest(const bool flag);
   //! enable depth write
   virtual void enableDepthWrite(bool flag);
+  //! set depth func
+  virtual void depthFunc(CompareFunc func);
   //! set color
   void setColor(float r, float g, float b, float a);
   //! set color
@@ -122,6 +128,8 @@ protected:
   DXRenderTarget* mRT;
   //! the clear color
   FLOAT mClearColor[4];
+  //! the clear depth
+  FLOAT mClearDepth;
   //! the matrix stack
   std::stack<Matrix> mMatrixStack[3];
   //! the matrices

@@ -23,6 +23,12 @@ void VertexBuffer::setNormal(int pos, CGE::Vector3D normal){
   norm->x = normal.x; norm->y = normal.y; norm->z = normal.z; 
 }
 
+void VertexBuffer::setTexCoord2(int pos, CGE::Vec2f t){
+  Vec2f* tex;
+  tex = (Vec2f*)(((char*)verts_) + pos*structsize_ + tex2offset_);
+  tex->x = t.x; tex->y = t.y;
+}
+
 void VertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices){
   draw(pt, indices, 0, indices ? indices->getNumIndices() : vbsize_);
 }

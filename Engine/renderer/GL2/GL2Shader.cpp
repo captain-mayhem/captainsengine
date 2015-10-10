@@ -16,6 +16,7 @@ GL2Shader::GL2Shader(){
   bindAttribLocation(1, "color");
   bindAttribLocation(2, "texcoord");
   bindAttribLocation(3, "normal");
+  bindAttribLocation(4, "texcoord2");
 }
 
 GL2Shader::~GL2Shader(){

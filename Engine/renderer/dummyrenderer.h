@@ -9,7 +9,9 @@ public:
   //! Constructor
   DummyRenderer(){}
   //! Destructor
-  ~DummyRenderer(){}  
+  ~DummyRenderer(){} 
+  //! set clear depth
+  virtual void setClearDepth(float depth) {}
   //! create texture
   Texture* createTexture(){return NULL;}
   //! create rendertarget
@@ -34,6 +36,8 @@ public:
   void enableBlend(const bool flag){}
   //! enable backface culling
   void enableBackFaceCulling(const bool flag){}
+  //! enable color writes
+  virtual void enableColorWrite(bool flag){}
   //! enable texturing
   void enableTexturing(const bool flag){}
   //! enable lighting
@@ -42,6 +46,8 @@ public:
   virtual void enableDepthTest(const bool flag){}
   //! enable depth write
   virtual void enableDepthWrite(bool flag){}
+  //! set depth func
+  virtual void depthFunc(CompareFunc func){}
   //! set color
   void setColor(float r, float g, float b, float a){}
   //! set color

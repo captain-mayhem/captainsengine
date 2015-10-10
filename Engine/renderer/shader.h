@@ -17,6 +17,7 @@ public:
   typedef void(*applyLightCB)(Shader* shader, int number, Light const& light, void* userdata);
   typedef void(*applyMaterialCB)(Shader* shader, Material const& mat, void* userdata);
   Shader();
+  virtual ~Shader() {}
   void activate() { mOldProg = mCurrShader; use(); mCurrShader = this; }
   void deactivate() { if (mOldProg) mOldProg->use(); else unuse(); mCurrShader = mOldProg; }
   static Shader* getCurrentShader() { return mCurrShader; }

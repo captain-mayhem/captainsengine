@@ -143,6 +143,7 @@ public:
   void popupCoinMenu(ExecutionContext* loadreason);
   void drawQuad();
   void drawQuadLines();
+  void fillWithStdQuad(CGE::VertexBuffer* vb);
 protected:
   Engine();
   static Engine* mInstance;

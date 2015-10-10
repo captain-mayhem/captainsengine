@@ -7,7 +7,8 @@
 #define VB_POSITION 0x0001
 #define VB_COLOR 0x0002
 #define VB_TEXCOORD 0x0004
-#define VB_NORMAL 0x0008
+#define VB_TEXCOORD2 0x0008
+#define VB_NORMAL 0x0010
 
 namespace CGE{
 
@@ -39,6 +40,7 @@ public:
   virtual void setPosition(int pos, Vec3f v);
   virtual void setColor(int pos, Color c)=0;
   virtual void setTexCoord(int pos, CGE::Vec2f t)=0;
+  virtual void setTexCoord2(int pos, CGE::Vec2f t);
   virtual void setNormal(int pos, CGE::Vec3f normal);
   virtual void setVertexOffset(int offset)=0;
 protected:
@@ -48,6 +50,7 @@ protected:
   int vertoffset_;
   int coloffset_;
   int texoffset_;
+  int tex2offset_;
   int normoffset_;
   int userVertOffset_;
 };

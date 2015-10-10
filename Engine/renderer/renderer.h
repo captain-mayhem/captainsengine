@@ -33,6 +33,11 @@ enum BlendType{
   BLEND_DST_COLOR,
 };
 
+enum CompareFunc{
+  CMP_EQUAL,
+  CMP_GEQUAL
+};
+
 enum RendMode{
   Filled,
   Wireframe
@@ -77,6 +82,8 @@ public:
   virtual void resizeScene(int width, int height);
   //! set clear color
   virtual void setClearColor(const Vec4f& color){}
+  //! set clear depth
+  virtual void setClearDepth(float depth) = 0;
   //! clear scene
   virtual void clear(long flags){}
   //! create vertex buffer
@@ -112,6 +119,8 @@ public:
   virtual void renderMode(RendMode rm){}
   //! set blending mode
   virtual void blendFunc(BlendType src, BlendType dest)=0;
+  //! enable color writes
+  virtual void enableColorWrite(bool flag) = 0;
   //! enable blending
   virtual void enableBlend(const bool flag)=0;
   //! enable culling
@@ -124,6 +133,8 @@ public:
   virtual void enableDepthTest(const bool flag) = 0;
   //! enable depth write
   virtual void enableDepthWrite(bool flag) = 0;
+  //! set depth func
+  virtual void depthFunc(CompareFunc func) = 0;
   //! set color
   virtual void setColor(float r, float g, float b, float a)=0;
   //! set color

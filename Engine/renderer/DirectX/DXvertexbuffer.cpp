@@ -16,6 +16,7 @@ DXVertexBuffer::DXVertexBuffer(){
   vertoffset_ = -1;
   coloffset_ = -1;
   texoffset_ = -1;
+  tex2offset_ = -1;
   normoffset_ = -1;
   userVertOffset_ = 0;
 }
@@ -43,6 +44,10 @@ void DXVertexBuffer::create(int type, int vertexBufferSize){
   if (type & VB_NORMAL){
     normoffset_ = offset;
     offset += 3 * sizeof(float);
+  }
+  if (type & VB_TEXCOORD2){
+    tex2offset_ = offset;
+    offset += 2 * sizeof(float);
   }
   structsize_ = offset;
 

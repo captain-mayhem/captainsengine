@@ -15,7 +15,7 @@ using namespace DirectX;
 
 TR_CHANNEL(CGE_Renderer_DirectX)
 
-DXRenderer::DXRenderer(): Renderer(), mDepthState(NULL), mRT(NULL) {
+DXRenderer::DXRenderer(): Renderer(), mDepthState(NULL), mRT(NULL), mClearDepth(1.0f) {
   type_ = DirectX;
   mSwapchain = NULL;
   mD3d = NULL;
@@ -32,10 +32,12 @@ DXRenderer::DXRenderer(): Renderer(), mDepthState(NULL), mRT(NULL) {
   mBlendState = NULL;
   mBlendDesc.AlphaToCoverageEnable = FALSE;
   mBlendDesc.IndependentBlendEnable = FALSE;
-  mBlendDesc.RenderTarget[0].BlendEnable = TRUE;
-  mBlendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
-  mBlendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
-  mBlendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  for (int i = 0; i < 8; ++i){
+    mBlendDesc.RenderTarget[i].BlendEnable = TRUE;
+    mBlendDesc.RenderTarget[i].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+    mBlendDesc.RenderTarget[i].BlendOp = D3D11_BLEND_OP_ADD;
+    mBlendDesc.RenderTarget[i].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  }
 
   ZeroMemory(&mDepthDesc, sizeof(mDepthDesc));
   mDepthDesc.DepthEnable = TRUE;
@@ -423,6 +425,11 @@ void DXRenderer::setClearColor(const Vec4f& color){
   mClearColor[3] = color.w;
 }
 
+//! set clear depth
+void DXRenderer::setClearDepth(float depth){
+  mClearDepth = depth;
+}
+
 void DXRenderer::clear(long flags){
   DXRenderTarget* rt = (DXRenderTarget*)DXRenderTarget::getCurrent();
   if (flags & COLORBUFFER){
@@ -431,7 +438,7 @@ void DXRenderer::clear(long flags){
     }
   }
   if (flags & ZBUFFER)
-    mD3d->ClearDepthStencilView(rt->getDepthStencil(), D3D11_CLEAR_DEPTH, 1.0f, 0);
+    mD3d->ClearDepthStencilView(rt->getDepthStencil(), D3D11_CLEAR_DEPTH, mClearDepth, 0);
 }
 
 VertexBuffer* DXRenderer::createVertexBuffer(){
@@ -553,66 +560,62 @@ void DXRenderer::renderMode(RendMode rm){
 
 //! set blending mode
 void DXRenderer::blendFunc(BlendType src, BlendType dest){
-  BOOL curr = mBlendDesc.RenderTarget[0].BlendEnable;
-  mBlendDesc.RenderTarget[0].BlendEnable = TRUE;
-  switch (src){
-  case BLEND_ONE:
-    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ONE;
-    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
-    break;
-  case BLEND_SRC_ALPHA:
-    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
-    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-    break;
-  case BLEND_ONE_MINUS_SRC_ALPHA:
-    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-    break;
-  case BLEND_DST_COLOR:
-    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
-    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
-    break;
-  case BLEND_ZERO:
-    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ZERO;
-    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
-    break;
-  }
-  switch (dest){
-  case BLEND_ONE:
-    mBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_ONE;
-    mBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ONE;
-    break;
-  case BLEND_SRC_ALPHA:
-    mBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_SRC_ALPHA;
-    mBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-    break;
-  case BLEND_ONE_MINUS_SRC_ALPHA:
-    mBlendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-    mBlendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-    break;
-  case BLEND_DST_COLOR:
-    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_DEST_COLOR;
-    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
-    break;
-  case BLEND_ZERO:
-    mBlendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_ZERO;
-    mBlendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ZERO;
-    break;
+  for (int i = 0; i < 8; ++i){
+    switch (src){
+    case BLEND_ONE:
+      mBlendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_ONE;
+      mBlendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ONE;
+      break;
+    case BLEND_SRC_ALPHA:
+      mBlendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+      mBlendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+      break;
+    case BLEND_ONE_MINUS_SRC_ALPHA:
+      mBlendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_INV_SRC_ALPHA;
+      mBlendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+      break;
+    case BLEND_DST_COLOR:
+      mBlendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_DEST_COLOR;
+      mBlendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+      break;
+    case BLEND_ZERO:
+      mBlendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_ZERO;
+      mBlendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ZERO;
+      break;
+    }
+    switch (dest){
+    case BLEND_ONE:
+      mBlendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_ONE;
+      mBlendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ONE;
+      break;
+    case BLEND_SRC_ALPHA:
+      mBlendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_SRC_ALPHA;
+      mBlendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+      break;
+    case BLEND_ONE_MINUS_SRC_ALPHA:
+      mBlendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+      mBlendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+      break;
+    case BLEND_DST_COLOR:
+      mBlendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_DEST_COLOR;
+      mBlendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+      break;
+    case BLEND_ZERO:
+      mBlendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_ZERO;
+      mBlendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ZERO;
+      break;
+    }
   }
   SAFE_RELEASE(mBlendState);
   mDevice->CreateBlendState(&mBlendDesc, &mBlendState);
-  if (curr)
-    mD3d->OMSetBlendState(mBlendState, NULL, 0xffffffff);
-  mBlendDesc.RenderTarget[0].BlendEnable = curr;
+  mD3d->OMSetBlendState(mBlendState, NULL, 0xffffffff);
 }
 
 //! enable blending
 void DXRenderer::enableBlend(const bool flag){
-  mBlendDesc.RenderTarget[0].BlendEnable = flag ? TRUE : FALSE;
-  if (flag)
-    mD3d->OMSetBlendState(mBlendState, NULL, 0xffffffff);
-  else
-    mD3d->OMSetBlendState(NULL, NULL, 0xffffffff);
+  for (int i = 0; i < 8; ++i)
+    mBlendDesc.RenderTarget[i].BlendEnable = flag ? TRUE : FALSE;
+  mD3d->OMSetBlendState(mBlendState, NULL, 0xffffffff);
 }
 
 void DXRenderer::enableBackFaceCulling(const bool flag){
@@ -620,6 +623,14 @@ void DXRenderer::enableBackFaceCulling(const bool flag){
   if (flag)
     cull = D3DCULL_CW;
   device_->SetRenderState(D3DRS_CULLMODE, cull);*/
+}
+
+void DXRenderer::enableColorWrite(bool flag){
+  for (int i = 0; i < 8; ++i)
+    mBlendDesc.RenderTarget[i].RenderTargetWriteMask = flag ? D3D11_COLOR_WRITE_ENABLE_ALL : 0;
+  SAFE_RELEASE(mBlendState);
+  mDevice->CreateBlendState(&mBlendDesc, &mBlendState);
+  mD3d->OMSetBlendState(mBlendState, NULL, 0xffffffff);
 }
 
 //! enable texturing
@@ -653,6 +664,22 @@ void DXRenderer::enableDepthTest(const bool flag){
 void DXRenderer::enableDepthWrite(bool flag){
   SAFE_RELEASE(mDepthState);
   mDepthDesc.DepthWriteMask = flag ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
+  mDevice->CreateDepthStencilState(&mDepthDesc, &mDepthState);
+  mD3d->OMSetDepthStencilState(mDepthState, 0);
+}
+
+void DXRenderer::depthFunc(CompareFunc func){
+  D3D11_COMPARISON_FUNC dxfunc = D3D11_COMPARISON_NEVER;
+  switch (func){
+  case CGE::CMP_EQUAL:
+    dxfunc = D3D11_COMPARISON_EQUAL;
+    break;
+  case CGE::CMP_GEQUAL:
+    dxfunc = D3D11_COMPARISON_GREATER_EQUAL;
+    break;
+  }
+  SAFE_RELEASE(mDepthState);
+  mDepthDesc.DepthFunc = dxfunc;
   mDevice->CreateDepthStencilState(&mDepthDesc, &mDepthState);
   mD3d->OMSetDepthStencilState(mDepthState, 0);
 }

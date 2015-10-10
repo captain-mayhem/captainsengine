@@ -55,16 +55,14 @@ private:
   int mTimeAccu;
 };
 
-PostProcessor::Effect::Effect(const char* vertexsource, const char* fragmentsource) : mFade(false){
-  mShader.bindAttribLocation(0, "position");
-  mShader.bindAttribLocation(1, "texCoord");
+PostProcessor::Effect::Effect(const char* vertexsource, const char* fragmentsource) : mShader(*CGE::Engine::instance()->getRenderer()->createShader()), mFade(false){
   mShader.addShader(CGE::Shader::VERTEX_SHADER, vertexsource);
   mShader.addShader(CGE::Shader::FRAGMENT_SHADER, fragmentsource);
   mShader.linkShaders();
 }
 
 PostProcessor::Effect::~Effect(){
-  
+  delete &mShader;
 }
 
 void PostProcessor::Effect::activate(bool fade, ...){
@@ -108,8 +106,8 @@ static const char bloomvs[] =
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
-"attribute vec3 position;\n"
-"attribute vec4 texCoord;\n"
+"attribute vec3 pos;\n"
+"attribute vec4 texcoord;\n"
 "\n"
 "uniform vec2 tex_scale;\n"
 "uniform vec2 pixel_offset;\n"
@@ -118,9 +116,9 @@ static const char bloomvs[] =
 "varying vec2 tex_coord2;\n"
 "\n"
 "void main(){\n"
-"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
-"  tex_coord2 = vec2(position.x*2.0-1.0, (0.0+position.y)*2.0-1.0)*pixel_offset*2.0;\n"
-"  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
+"  tex_coord = vec2(pos.x*tex_scale.x, (0.0+pos.y)*tex_scale.y);\n"
+"  tex_coord2 = vec2(pos.x*2.0-1.0, (0.0+pos.y)*2.0-1.0)*pixel_offset*2.0;\n"
+"  gl_Position = vec4(pos.x*2.0-1.0, pos.y*2.0-1.0, 0.0, 1.0);\n"
 "}\n"
 "";
 
@@ -232,13 +230,13 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    GLint pixeloffset = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "pixel_offset");
+    int pixeloffset = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "pixel_offset");
     mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
     mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "strength");
     mShader.deactivate();
@@ -287,10 +285,10 @@ public:
   }
   virtual void apply(BlitObject* input){
     input->getTexture()->activate();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
     mShader.uniform(mIntensityLoc, mInterpolator.current());
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    Engine::instance()->drawQuad();
     mShader.deactivate();
   }
   virtual std::ostream& save(std::ostream& out){
@@ -315,7 +313,7 @@ private:
     FADEOUT
   };
   bool mAnimate;
-  GLint mIntensityLoc;
+  int mIntensityLoc;
   Interpolator mInterpolator;
   State mState;
 };
@@ -326,16 +324,16 @@ static const char stdvs[] =
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
-"attribute vec3 position;\n"
-"attribute vec4 texCoord;\n"
+"attribute vec3 pos;\n"
+"attribute vec4 texcoord;\n"
 "\n"
 "uniform vec2 tex_scale;\n"
 "\n"
 "varying vec2 tex_coord;\n"
 "\n"
 "void main(){\n"
-"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
-"  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
+"  tex_coord = vec2(pos.x*tex_scale.x, (0.0+pos.y)*tex_scale.y);\n"
+"  gl_Position = vec4(pos.x*2.0-1.0, pos.y*2.0-1.0, 0.0, 1.0);\n"
 "}\n"
 "";
 
@@ -389,16 +387,15 @@ public:
     }
     Vec2i imgsize;
     Vec2f imgscale;
-    glActiveTexture(GL_TEXTURE1);
     mBlendTex = Engine::instance()->genTexture(&mImage, imgsize, imgscale);
-    glActiveTexture(GL_TEXTURE0);
+    mBlendTex->activate(1);
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
+    int blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
     mShader.uniform(blendtex, 1);
-    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
@@ -445,15 +442,14 @@ public:
     }
     mBlendTex->activate(1);
     mBlendTex->update(0, 0, mImage.getWidth(), mImage.getHeight(), mImage.getData());
-    glActiveTexture(GL_TEXTURE0);
     return true;
   }
   virtual void apply(BlitObject* input){
     input->getTexture()->activate();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
     mShader.uniform(mIntensityLoc, mInterpolator.current());
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    Engine::instance()->drawQuad();
     mShader.deactivate();
   }
   virtual std::ostream& save(std::ostream& out){
@@ -469,7 +465,7 @@ public:
     return in;
   }
 private:
-  GLint mIntensityLoc;
+  int mIntensityLoc;
   Interpolator mInterpolator;
   bool mFadeout;
   CGE::Texture* mBlendTex;
@@ -508,7 +504,7 @@ static const char motionblurfs[] =
 
 class MotionBlurEffect : public PostProcessor::Effect{
 public:
-  MotionBlurEffect() : Effect(stdvs, motionblurfs){
+  MotionBlurEffect() : Effect(stdvs, motionblurfs), mStdShader(*CGE::Engine::instance()->getRenderer()->createShader()){
     mName = "motionblur";
     mStdShader.addShader(CGE::Shader::VERTEX_SHADER, stdvs);
     mStdShader.addShader(CGE::Shader::FRAGMENT_SHADER, stdfs);
@@ -523,17 +519,18 @@ public:
     }
     mPrevFrames.clear();
     mGenFrames.clear();
+    delete &mStdShader;
   }
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    GLint motion = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "motion1");
+    int motion = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "motion1");
     mShader.uniform(motion, 1);
     motion = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "motion2");
     mShader.uniform(motion, 2);
@@ -589,8 +586,8 @@ public:
       mTakeCount = -1;
       mStdShader.activate();
       mPrevFrames.front()->bind();
-      glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-      glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+      CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
+      Engine::instance()->drawQuad();
       mPrevFrames.front()->unbind();
       mStdShader.deactivate();
     }
@@ -605,9 +602,8 @@ public:
       (*iter)->getTexture()->activate(1 + count);
       ++count;
     }
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glActiveTexture(GL_TEXTURE0);
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
+    Engine::instance()->drawQuad();
     if (mPrevFrames.size() < 3)
       mStdShader.deactivate();
     else
@@ -625,7 +621,7 @@ public:
     return in;
   }
 private:
-  CGE::GL2Shader mStdShader;
+  CGE::Shader& mStdShader;
   std::list<RenderableBlitObject*> mPrevFrames;
   std::list<RenderableBlitObject*> mGenFrames;
   int mTakeFrame;
@@ -675,20 +671,19 @@ public:
     }
     Vec2i imgsize;
     Vec2f imgscale;
-    glActiveTexture(GL_TEXTURE1);
     mBlendTex = Engine::instance()->genTexture(&mImage, imgsize, imgscale);
-    glActiveTexture(GL_TEXTURE0);
+    mBlendTex->activate(1);
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
+    int blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
     mShader.uniform(blendtex, 1);
-    GLint scale = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "tex_scale");
+    int scale = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    GLint pixeloffset = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "pixel_offset");
+    int pixeloffset = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "pixel_offset");
     mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
     mShader.deactivate();
   }
@@ -704,7 +699,6 @@ public:
       memset(mImage.getData(), 127, mImage.getImageSize());
       mBlendTex->activate(1);
       mBlendTex->update(0, 0, mImage.getWidth(), mImage.getHeight(), mImage.getData());
-      glActiveTexture(GL_TEXTURE0);
     }
     mFadeout = false;
   }
@@ -733,7 +727,6 @@ public:
       }
       mBlendTex->activate(1);
       mBlendTex->update(0, 0, mImage.getWidth(), mImage.getHeight(), mImage.getData());
-      glActiveTexture(GL_TEXTURE0);
       mTimeAccu -= 50;
       if (mFadeout)
         mFadeoutPixels -= time;
@@ -742,9 +735,9 @@ public:
   }
   virtual void apply(BlitObject* input){
     input->getTexture()->activate();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    Engine::instance()->drawQuad();
     mShader.deactivate();
   }
   virtual std::ostream& save(std::ostream& out){
@@ -773,34 +766,40 @@ static const char druggedvs[] =
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
-"attribute vec3 position;\n"
-"attribute vec4 texCoord;\n"
-"attribute vec2 offset;\n"
+"attribute vec3 pos;\n"
+"attribute vec2 texcoord;\n"
+"attribute vec2 texcoord2; /*offset*/\n"
 "\n"
 "uniform vec2 tex_scale;\n"
 "\n"
 "varying vec2 tex_coord;\n"
 "\n"
 "void main(){\n"
-"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
-"  gl_Position = vec4(position.x*2.0-1.0+offset.x, position.y*2.0-1.0+offset.y, 0.0, 1.0);\n"
+"  tex_coord = vec2(pos.x*tex_scale.x, (0.0+pos.y)*tex_scale.y);\n"
+"  gl_Position = vec4(pos.x*2.0-1.0+texcoord2.x, pos.y*2.0-1.0+texcoord2.y, 0.0, 1.0);\n"
 "}\n"
 "";
 
 class DruggedEffect : public PostProcessor::Effect{
 public:
-  DruggedEffect() : Effect(druggedvs, stdfs){
+  DruggedEffect() : Effect(druggedvs, stdfs), mVB(NULL){
     mName = "drugged";
   }
   virtual void init(const Vec2f& size){
     Effect::init(size);
+    mVB = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
+    mVB->create(VB_POSITION | VB_TEXCOORD | VB_TEXCOORD2, 4);
     mShader.activate();
-    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    mOffsetIndex = mShader.getAttribLocation("offset");
     mShader.deactivate();
+  }
+  virtual void deinit(){
+    delete mVB;
+    mVB = NULL;
+    Effect::deinit();
   }
   virtual void activate(bool fade, ...){
     va_list args;
@@ -843,7 +842,7 @@ public:
   }
   virtual void apply(BlitObject* input){
     input->getTexture()->activate();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
     float tmp[8];
     for (int i = 0; i < 8; ++i){
@@ -851,8 +850,15 @@ public:
       if (i == 0 || i == 2 || i == 3 || i == 7)
         tmp[i] *= -1;
     }
-    glVertexAttribPointer(mOffsetIndex, 2, GL_FLOAT, GL_FALSE, 0, tmp);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    mVB->lockVertexPointer();
+    Engine::instance()->fillWithStdQuad(mVB);
+    mVB->setTexCoord2(0, CGE::Vec2f(tmp[0], tmp[1]));
+    mVB->setTexCoord2(1, CGE::Vec2f(tmp[2], tmp[3]));
+    mVB->setTexCoord2(2, CGE::Vec2f(tmp[4], tmp[5]));
+    mVB->setTexCoord2(3, CGE::Vec2f(tmp[6], tmp[7]));
+    mVB->unlockVertexPointer();
+    mVB->activate();
+    mVB->draw(CGE::VB_Tristrip, NULL);
     mShader.deactivate();
     Engine::instance()->restoreRenderDefaults();
   }
@@ -884,9 +890,9 @@ private:
     time = (rand()/(float)RAND_MAX)*1000+100;
     return ((rand()/(float)RAND_MAX)*2-0.5f)*mStrength;
   }
-  GLuint mOffsetIndex;
   bool mFadeout;
   Interpolator mVerts[8];
+  CGE::VertexBuffer* mVB;
   float mStrength;
 };
 
@@ -915,14 +921,14 @@ static const char drawvs[] =
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
-"attribute vec3 position;\n"
+"attribute vec3 pos;\n"
 "attribute vec4 color;\n"
 "\n"
 "varying vec4 vert_color;\n"
 "\n"
 "void main(){\n"
 "  vert_color = color;\n"
-"  gl_Position = vec4(position.x*2.0-1.0, position.y*2.0-1.0, 0.0, 1.0);\n"
+"  gl_Position = vec4(pos.x*2.0-1.0, pos.y*2.0-1.0, 0.0, 1.0);\n"
 "}\n"
 "";
 
@@ -1296,34 +1302,39 @@ static const char zoomvs[] =
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
-"attribute vec3 position;\n"
-"attribute vec4 texCoord;\n"
-"attribute vec2 offset;\n"
+"attribute vec3 pos;\n"
+"attribute vec4 texcoord;\n"
+"attribute vec2 texcoord2; /*offset*/\n"
 "\n"
 "uniform vec2 tex_scale;\n"
 "\n"
 "varying vec2 tex_coord;\n"
 "\n"
 "void main(){\n"
-"  tex_coord = vec2(position.x*tex_scale.x, (0.0+position.y)*tex_scale.y);\n"
-"  gl_Position = vec4(position.x*2.0-1.0+offset.x, position.y*2.0-1.0+offset.y, 0.0, 1.0);\n"
+"  tex_coord = vec2(pos.x*tex_scale.x, (0.0+pos.y)*tex_scale.y);\n"
+"  gl_Position = vec4(pos.x*2.0-1.0+texcoord2.x, pos.y*2.0-1.0+texcoord2.y, 0.0, 1.0);\n"
 "}\n"
 "";
 
 class ZoomEffect : public PostProcessor::Effect{
 public:
-  ZoomEffect() : Effect(zoomvs, stdfs){
+  ZoomEffect() : Effect(zoomvs, stdfs), mVB(NULL){
     mName = "zoom";
   }
   virtual void init(const Vec2f& size){
     Effect::init(size);
+    mVB->create(VB_POSITION | VB_TEXCOORD | VB_TEXCOORD2, 4);
     mShader.activate();
     GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
-    mOffsetIndex = mShader.getAttribLocation("offset");
     mShader.deactivate();
+  }
+  virtual void deinit(){
+    delete mVB;
+    mVB = NULL;
+    Effect::deinit();
   }
   virtual void activate(bool fade, ...){
     va_list args;
@@ -1367,8 +1378,15 @@ public:
       if (i == 0 || i == 2 || i == 3 || i == 7)
         tmp[i] *= -1;
     }
-    glVertexAttribPointer(mOffsetIndex, 2, GL_FLOAT, GL_FALSE, 0, tmp);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    mVB->lockVertexPointer();
+    Engine::instance()->fillWithStdQuad(mVB);
+    mVB->setTexCoord2(0, CGE::Vec2f(tmp[0], tmp[1]));
+    mVB->setTexCoord2(1, CGE::Vec2f(tmp[2], tmp[3]));
+    mVB->setTexCoord2(2, CGE::Vec2f(tmp[4], tmp[5]));
+    mVB->setTexCoord2(3, CGE::Vec2f(tmp[6], tmp[7]));
+    mVB->unlockVertexPointer();
+    mVB->activate();
+    mVB->draw(CGE::VB_Tristrip, NULL);
     mShader.deactivate();
     Engine::instance()->restoreRenderDefaults();
   }
@@ -1409,8 +1427,8 @@ private:
       mVerts[i].set(0, tmp, time);
     }
   }
-  GLuint mOffsetIndex;
   bool mFadeout;
+  CGE::VertexBuffer* mVB;
   Interpolator mVerts[8];
   Vec2i mPos;
   float mScale;

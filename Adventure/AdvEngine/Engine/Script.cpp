@@ -1000,8 +1000,8 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
     
     //script ran through
     if (!script->mSuspended && 
-      (script->mCode && script->mPC >= script->mCode->numInstructions()) || //pcdk
-      (!script->mCode && script->mLuaRet == LUA_OK) // lua
+      ((script->mCode && script->mPC >= script->mCode->numInstructions()) || //pcdk
+      (!script->mCode && script->mLuaRet == LUA_OK)) // lua
       ){
       //if (script->mHandler)
       //  script->mHandler(*script);
