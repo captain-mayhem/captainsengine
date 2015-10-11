@@ -34,7 +34,7 @@ void OGLVertexBuffer::create(int type, int vertexBufferSize){
   }
   if (flags_ & VB_COLOR){
     coloffset_ = offset;
-    offset += 4*sizeof(char);
+    offset += 4*sizeof(float);
   }
   if (flags_ & VB_TEXCOORD){
     texoffset_ = offset;
@@ -67,7 +67,7 @@ void OGLVertexBuffer::activate(){
     glDisableClientState(GL_VERTEX_ARRAY);
   if (flags_ & VB_COLOR){
     glEnableClientState(GL_COLOR_ARRAY);
-    glColorPointer(4, GL_UNSIGNED_BYTE, structsize_, vb_+coloffset_+userVertOffset_);
+    glColorPointer(4, GL_FLOAT, structsize_, vb_+coloffset_+userVertOffset_);
   }
   else
     glDisableClientState(GL_COLOR_ARRAY);
@@ -131,7 +131,7 @@ void OGLVertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t){
 void OGLVertexBuffer::setVertexOffset(int offset){
   userVertOffset_ = 4*offset*structsize_;//offset*structsize_;
   glVertexPointer(3, GL_FLOAT, structsize_, vb_+vertoffset_+userVertOffset_);
-  glColorPointer(4, GL_UNSIGNED_BYTE, structsize_, vb_+coloffset_+userVertOffset_);
+  glColorPointer(4, GL_FLOAT, structsize_, vb_+coloffset_+userVertOffset_);
   glTexCoordPointer(2, GL_FLOAT, structsize_, vb_+texoffset_+userVertOffset_);
   glNormalPointer(GL_FLOAT, structsize_, vb_+normoffset_+userVertOffset_);
 }

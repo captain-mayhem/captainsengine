@@ -39,7 +39,7 @@ void GL2VertexBuffer::create(int type, int vertexBufferSize){
   }
   if (flags_ & VB_COLOR){
     coloffset_ = offset;
-    offset += 4*sizeof(char);
+    offset += 4*sizeof(float);
   }
   if (flags_ & VB_TEXCOORD){
     texoffset_ = offset;
@@ -76,7 +76,7 @@ void GL2VertexBuffer::activate(){
     glDisableVertexAttribArray(0);
   if (flags_ & VB_COLOR){
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, structsize_, vb_ + coloffset_ + userVertOffset_);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, structsize_, vb_ + coloffset_ + userVertOffset_);
   }
   else
     glDisableVertexAttribArray(1);
@@ -147,7 +147,7 @@ void GL2VertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t){
 void GL2VertexBuffer::setVertexOffset(int offset){
   userVertOffset_ = 4*offset*structsize_;//offset*structsize_;
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, structsize_, vb_ + vertoffset_ + userVertOffset_);
-  glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_FALSE, structsize_, vb_ + coloffset_ + userVertOffset_);
+  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, structsize_, vb_ + coloffset_ + userVertOffset_);
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, structsize_, vb_+texoffset_+userVertOffset_);
   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, structsize_, vb_ + normoffset_ + userVertOffset_);
   glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, structsize_, vb_ + tex2offset_ + userVertOffset_);

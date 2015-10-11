@@ -928,8 +928,8 @@ void Engine::leftClick(const Vec2i& pos){
   }
   if (!keepCommand){
     int curCmd = mCursor->getCurrentCommand();
-    if (curCmd != mActiveCommand && mLinkObjectInfo.empty() ||
-      curCmd == mActiveCommand && !mLinkObjectInfo.empty()){
+    if ((curCmd != mActiveCommand && mLinkObjectInfo.empty()) ||
+      (curCmd == mActiveCommand && !mLinkObjectInfo.empty())){
       mPrevActiveCommand = mActiveCommand;
       mActiveCommand = curCmd;
       mUseObjectName = "";

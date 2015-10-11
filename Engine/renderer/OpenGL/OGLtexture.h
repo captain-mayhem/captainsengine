@@ -24,7 +24,7 @@ class OGLTexture : public Texture {
 public:
   OGLTexture();
   virtual ~OGLTexture();
-  virtual bool createFromImage(Image* img, Format fmt);
+  virtual bool createFromImage(Image const* img, Format fmt);
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
   void activate(unsigned stage=0) const;
   virtual void deactivate(unsigned stage=0) const;

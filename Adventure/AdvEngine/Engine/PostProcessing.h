@@ -1,8 +1,10 @@
 #ifndef ADV_POSTPROCESSING_H
 #define ADV_POSTPROCESSING_H
 
+#include <map>
+#include <list>
+
 #include "BlitObjects.h"
-#include "Renderer.h"
 
 namespace adv{
 

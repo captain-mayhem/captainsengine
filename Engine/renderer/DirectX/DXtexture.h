@@ -14,7 +14,7 @@ public:
   virtual ~DXTexture();
   void activate(unsigned stage=0)const;
   virtual void deactivate(unsigned stage=0)const;
-  virtual bool createFromImage(Image* img, Format fmt);
+  virtual bool createFromImage(Image const* img, Format fmt);
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt);
   virtual Texture* copy();
   static DXGI_FORMAT dxformat(Format fmt);

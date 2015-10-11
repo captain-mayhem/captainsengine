@@ -8,7 +8,6 @@
 #include "AdvDoc.h"
 #include "Engine.h"
 #include "Sound.h"
-#include "Renderer.h"
 #include "CmdReceiver.h"
 
 #define CEXPORT __attribute__ ((visibility ("default")))

@@ -2,7 +2,6 @@
 
 #include <renderer/shader.h>
 
-#include "Renderer.h"
 #include "Engine.h"
 #include <system/allocation.h>
 
@@ -947,31 +946,29 @@ static const char drawfs[] =
 
 class LightningEffect : public PostProcessor::Effect{
 public:
-  LightningEffect() : Effect(stdvs, lightningfs), mFBO(NULL){
+  LightningEffect() : Effect(stdvs, lightningfs), mFBO(NULL), mDrawShader(*CGE::Engine::instance()->getRenderer()->createShader()){
     mName = "lightning";
     mDrawShader.addShader(CGE::Shader::VERTEX_SHADER, drawvs);
     mDrawShader.addShader(CGE::Shader::FRAGMENT_SHADER, drawfs);
-    mDrawShader.bindAttribLocation(0, "position");
-    mDrawShader.bindAttribLocation(1, "color");
     mDrawShader.linkShaders();
   }
   ~LightningEffect(){
     deactivate();
+    delete &mDrawShader;
   }
   virtual void init(const Vec2f& size){
-    glActiveTexture(GL_TEXTURE1);
     mFBO = new RenderableBlitObject((int)size.x, (int)size.y, 0);
     mFBO->realize();
+    mFBO->getTexture()->activate(1);
     Vec2i imgsize;
     Vec2f imgscale;
-    glActiveTexture(GL_TEXTURE0);
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
+    int blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
     mShader.uniform(blendtex, 1);
-    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
@@ -1000,10 +997,8 @@ public:
     va_end(args);
     ltn.timeaccu = ltn.delay;
     ltn.verts = NULL;
-    ltn.colorAttrib = NULL;
     ltn.timeaccu2 = (int)(ltn.delay*1.5f);
     ltn.verts2 = NULL;
-    ltn.colorAttrib2 = NULL;
     delete mLigthnings[slot];
     mLigthnings[slot] = lightning;
     Effect::activate(fade);
@@ -1025,12 +1020,11 @@ public:
     if (mLigthnings.empty())
       Effect::deactivate();
   }
-  virtual bool update(unsigned time) {
-    glActiveTexture(GL_TEXTURE1);
-    
+  virtual bool update(unsigned time) {   
     mFBO->bind();
-    glClearColor(0.0, 0.0, 0.0, 0.0);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+    rend->setClearColor(CGE::Vec4f(0.0, 0.0, 0.0, 0.0));
+    rend->clear(COLORBUFFER | ZBUFFER);
     mDrawShader.activate();
     for (std::map<int,Lightning*>::iterator iter = mLigthnings.begin(); iter != mLigthnings.end(); ++iter){
       iter->second->timeaccu += time;
@@ -1054,27 +1048,24 @@ public:
         renderNew2 = false;
         drawFlash(numVerts, iter->second, true);
       }
-      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, iter->second->verts);
-      glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, iter->second->colorAttrib);
-      glDrawArrays(GL_LINE_STRIP, 0, numVerts);
-      glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, iter->second->verts2);
-      glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, iter->second->colorAttrib2);
-      glDrawArrays(GL_LINE_STRIP, 0, numVerts);
+      iter->second->verts->activate();
+      iter->second->verts->draw(CGE::VB_Linestrip, NULL);
+      iter->second->verts2->activate();
+      iter->second->verts2->draw(CGE::VB_Linestrip, NULL);
     }
     mDrawShader.deactivate();
     Engine::instance()->restoreRenderDefaults();
     mFBO->unbind();
     
     mFBO->getTexture()->activate(1);
-    glActiveTexture(GL_TEXTURE0);
     return true;
   }
   virtual void apply(BlitObject* input){
     input->getTexture()->activate();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
     //mShader.uniform(mIntensityLoc, mInterpolator.current());
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    Engine::instance()->drawQuad();
     mShader.deactivate();
   }
   virtual std::ostream& save(std::ostream& out){
@@ -1110,17 +1101,13 @@ private:
     int delay;
 
     int timeaccu;
-    float* verts;
-    float* colorAttrib;
+    CGE::VertexBuffer* verts;
     int timeaccu2;
-    float* verts2;
-    float* colorAttrib2;
+    CGE::VertexBuffer* verts2;
 
     ~Lightning(){
-      delete [] verts;
-      delete [] colorAttrib;
-      delete [] verts2;
-      delete [] colorAttrib2;
+      delete verts;
+      delete verts2;
     }
 
     std::ostream& save(std::ostream& out){
@@ -1136,10 +1123,8 @@ private:
       in >> numSpikes >> height >> delay;
       timeaccu = delay;
       verts = NULL;
-      colorAttrib = NULL;
       timeaccu2 = (int)(delay*1.5f);
       verts2 = NULL;
-      colorAttrib2 = NULL;
       return in;
     }
 
@@ -1152,8 +1137,8 @@ private:
     return fa < fb ? -1 : 1;
   }
   void drawFlash(int numVerts, Lightning* ltn, bool secondFlash){
-    float* verts = new float[numVerts*2];
-    float* color = new float[numVerts*4];
+    CGE::VertexBuffer* vb = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
+    vb->create(VB_POSITION | VB_COLOR, numVerts);
     Vec2f dir = ltn->end-ltn->start;
     float length = dir.length();
     float* knots = new float[ltn->numSpikes];
@@ -1163,41 +1148,38 @@ private:
     qsort(knots, ltn->numSpikes, sizeof(float), compare);
     dir.normalize();
     Vec2f ortho(dir.y, -dir.x);
+    vb->lockVertexPointer();
     for (int i = 0; i < ltn->numSpikes; ++i){
       Vec2f vert = ltn->start+dir*knots[i];
       float tmp = rand()/(float)RAND_MAX;
       float height = ltn->height;
       float spikeheight = tmp*height*2-height;
-      verts[2*(i+1)] = vert.x+ortho.x*spikeheight;
-      verts[2*(i+1)+1] = vert.y+ortho.y*spikeheight;
-      color[4*(i+1)] = ltn->color.r/255.0f; color[4*(i+1)+1] = ltn->color.g/255.0f; color[4*(i+1)+2] = ltn->color.b/255.0f; color[4*(i+1)+3] = ltn->color.a/255.0f;
+      vb->setPosition(i + 1, CGE::Vec3f(vert.x + ortho.x*spikeheight, vert.y + ortho.y*spikeheight, 0));
+      float opacity = 1.0f;
       if (secondFlash)
-        color[4*(i+1)+3] *= 0.75f;
+        opacity = 0.75f;
+      vb->setColor(i + 1, CGE::Color(ltn->color.r / 255.0f, ltn->color.g / 255.0f, ltn->color.b / 255.0f, ltn->color.a / 255.0f * opacity));
     }
     delete [] knots;
-    verts[0] = ltn->start.x; verts[1] = ltn->start.y;
-    verts[2*numVerts-2] = ltn->end.x; verts[2*numVerts-1] = ltn->end.y;
-    color[0] = ltn->color.r/255.0f; color[1] = ltn->color.g/255.0f; color[2] = ltn->color.b/255.0f; color[3] = ltn->color.a/255.0f;
+    vb->setPosition(0, CGE::Vec3f(ltn->start.x, ltn->start.y, 0));
+    vb->setPosition(numVerts-1, CGE::Vec3f(ltn->end.x, ltn->end.y, 0));
+    float opacity = ltn->color.a / 255.0f;
     if (secondFlash)
-      color[3] = 0.25f;
-    color[4*numVerts-4] = ltn->color.r/255.0f; color[4*numVerts-3] = ltn->color.g/255.0f; color[4*numVerts-2] = ltn->color.b/255.0f; color[4*numVerts-1] = ltn->color.a/255.0f;
-    if (secondFlash)
-      color[4*numVerts-1] = 0.25f;
+      opacity = 0.25f;
+    vb->setColor(0, CGE::Color(ltn->color.r / 255.0f, ltn->color.g / 255.0f, ltn->color.b / 255.0f, opacity));
+    vb->setColor(numVerts-1, CGE::Color(ltn->color.r / 255.0f, ltn->color.g / 255.0f, ltn->color.b / 255.0f, opacity));
+    vb->unlockVertexPointer();
     if (secondFlash){
-      delete [] ltn->verts2;
-      delete [] ltn->colorAttrib2;
-      ltn->verts2 = verts;
-      ltn->colorAttrib2 = color;
+      delete ltn->verts2;
+      ltn->verts2 = vb;
     }
     else{
-      delete [] ltn->verts;
-      delete [] ltn->colorAttrib;
-      ltn->verts = verts;
-      ltn->colorAttrib = color;
+      delete ltn->verts;
+      ltn->verts = vb;
     }
   }
   RenderableBlitObject* mFBO;
-  CGE::GL2Shader mDrawShader;
+  CGE::Shader& mDrawShader;
   std::map<int,Lightning*> mLigthnings;
 };
 
@@ -1228,14 +1210,14 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
     mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "opacity");
-    GLint blendcol = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendcol");
+    int blendcol = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendcol");
     mShader.uniform(blendcol, 0.5, 0.5, 0.5, 1.0);
     mShader.deactivate();
   }
@@ -1274,10 +1256,10 @@ public:
   }
   virtual void apply(BlitObject* input){
     input->getTexture()->activate();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
     mShader.uniform(mIntensityLoc, mInterpolator.current());
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    Engine::instance()->drawQuad();
     mShader.deactivate();
   }
   virtual std::ostream& save(std::ostream& out){
@@ -1293,7 +1275,7 @@ public:
     return in;
   }
 private:
-  GLint mIntensityLoc;
+  int mIntensityLoc;
   Interpolator mInterpolator;
   bool mFadeout;
 };
@@ -1323,9 +1305,10 @@ public:
   }
   virtual void init(const Vec2f& size){
     Effect::init(size);
+    mVB = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
     mVB->create(VB_POSITION | VB_TEXCOORD | VB_TEXCOORD2, 4);
     mShader.activate();
-    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
@@ -1370,7 +1353,7 @@ public:
   }
   virtual void apply(BlitObject* input){
     input->getTexture()->activate();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
     float tmp[8];
     for (int i = 0; i < 8; ++i){
@@ -1443,14 +1426,14 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    GLint tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mShader.uniform(tex, 0);
-    GLint scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
     mShader.uniform(scale, size.x/powx, size.y/powy);
     mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "opacity");
-    GLint blendcol = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendcol");
+    int blendcol = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendcol");
     mShader.uniform(blendcol, 1.0, 1.0, 1.0, 1.0);
     mShader.deactivate();
   }
@@ -1482,10 +1465,10 @@ public:
   }
   virtual void apply(BlitObject* input){
     input->getTexture()->activate();
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
     mShader.uniform(mIntensityLoc, mInterpolator.current());
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    Engine::instance()->drawQuad();
     mShader.deactivate();
   }
   virtual std::ostream& save(std::ostream& out){
@@ -1501,7 +1484,7 @@ public:
     return in;
   }
 private:
-  GLint mIntensityLoc;
+  int mIntensityLoc;
   Interpolator mInterpolator;
   bool mFadeout;
   int mFadeoutTime;

@@ -93,7 +93,7 @@ public:
   //! create texture
   Texture* createTexture(string filename, Texture::Format fmt=Texture::AUTO);
   //! create texture
-  Texture* createTexture(Image* img, Texture::Format fmt);
+  Texture* createTexture(Image const* img, Texture::Format fmt);
   //! create empty texture
   Texture* createTexture(unsigned width, unsigned height, Texture::Format fmt);
   //! create rendertarget

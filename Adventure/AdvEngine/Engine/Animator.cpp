@@ -185,10 +185,10 @@ void Animator::update(unsigned interval){
     CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
     rend->viewport((int)mCamera.currPos.x, (int)mCamera.currPos.y, dims.x, dims.y);
     rend->scissor((int)mCamera.currPos.x, (int)mCamera.currPos.y, dims.x, dims.y);
-    if (mCamera.dir.x > 0 && mCamera.currPos.x > mCamera.target.x
-      || mCamera.dir.x < 0 && mCamera.currPos.x < mCamera.target.x
-      || mCamera.dir.y > 0 && mCamera.currPos.y > mCamera.target.y
-      || mCamera.dir.y < 0 && mCamera.currPos.y < mCamera.target.y){
+    if ((mCamera.dir.x > 0 && mCamera.currPos.x > mCamera.target.x)
+      || (mCamera.dir.x < 0 && mCamera.currPos.x < mCamera.target.x)
+      || (mCamera.dir.y > 0 && mCamera.currPos.y > mCamera.target.y)
+      || (mCamera.dir.y < 0 && mCamera.currPos.y < mCamera.target.y)){
         rend->viewport(0, 0, dims.x, dims.y);
         rend->enableScissorTest(false);
         mCamera.active = false;

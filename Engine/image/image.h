@@ -27,6 +27,7 @@ namespace CGE{
     void flipHorizontally();
 		void crop(int x, int y, int width, int height);
     void convertFormat(int numChannels);
+    CGE::Image* convertImage(int numChannels) const;
   protected:
     //! Number of channels
     //! 3 means RGB, 4 is RGBA
