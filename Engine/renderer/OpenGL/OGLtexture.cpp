@@ -22,7 +22,7 @@ OGLTexture::~OGLTexture(){
   glDeleteTextures(1, &tex_);
 }
 
-bool OGLTexture::createFromImage(Image* img, Format fmt){
+bool OGLTexture::createFromImage(Image const* img, Format fmt){
   TR_USE(CGE_Texture_OGL);
   if (fmt == AUTO)
     fmt = (Format)img->getNumChannels();
@@ -96,6 +96,8 @@ GLenum OGLTexture::glFormat(Format fmt){
 #endif
   case ALPHA:
     return GL_ALPHA;
+  default:
+    break;
   }
   return GL_INVALID_ENUM;
 }

@@ -73,11 +73,12 @@ Model* Scene::getModel(const unsigned id){
   list<SceneNode*>::iterator iter;
   //int count = 0;
   for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
-    if ((*iter)->getID() == id)
+    if ((*iter)->getID() == id){
       if ((*iter)->getType() == SceneNode::MESH)
         return (Model*)*iter;
       else
         return NULL;
+    }
     //count++;
   };
   return NULL;

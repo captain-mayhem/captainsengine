@@ -141,3 +141,9 @@ void Image::convertFormat(int numChannels){
   mData = data;
   mChannels = numChannels;
 }
+
+CGE::Image* Image::convertImage(int numChannels) const{
+  Image* newone = new CGE::Image(mChannels, mWidth, mHeight, mData);
+  newone->convertFormat(numChannels);
+  return newone;
+}

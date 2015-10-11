@@ -24,7 +24,7 @@ public:
   virtual ~Texture();
   virtual void activate(unsigned stage=0) const =0;
   virtual void deactivate(unsigned stage=0) const =0;
-  virtual bool createFromImage(Image* img, Format fmt) = 0;
+  virtual bool createFromImage(Image const* img, Format fmt) = 0;
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt) = 0;
   virtual void update(int x, int y, unsigned width, unsigned height, void* data) = 0;
   virtual Texture* copy() = 0;

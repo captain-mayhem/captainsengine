@@ -101,7 +101,7 @@ Texture* Renderer::createTexture(std::string filename, Texture::Format fmt){
   return tex;
 }
 
-Texture* Renderer::createTexture(Image* img, Texture::Format fmt){
+Texture* Renderer::createTexture(Image const* img, Texture::Format fmt){
   Texture* tex = createTexture();
   if (tex->createFromImage(img, fmt))
     return tex;

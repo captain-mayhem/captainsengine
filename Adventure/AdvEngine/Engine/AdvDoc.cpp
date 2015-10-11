@@ -493,7 +493,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_mi
           size_t pos = str.find(";");
           Frame frm;
           frm.name = str.substr(0, pos);
-          if (pos >= 0)
+          if (pos != std::string::npos)
             frm.script = animationScript(str.substr(pos + 1));
           else
             frm.script = "";

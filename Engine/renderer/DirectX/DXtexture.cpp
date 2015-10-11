@@ -19,15 +19,28 @@ DXTexture::~DXTexture(){
   SAFE_RELEASE(mState);
 }
 
-bool DXTexture::createFromImage(Image* img, Format fmt){
+bool DXTexture::createFromImage(Image const* img, Format fmt){
   if (fmt == AUTO)
     fmt = (Format)img->getNumChannels();
   mFormat = fmt;
   mWidth = img->getWidth();
   mHeight = img->getHeight();
 
+  CGE::Image* converted = NULL;
+  const void* imgdata;
+  UINT imgsize;
+  UINT imgpitch;
+
   if (img->getNumChannels() == 3){
-    img->convertFormat(4);
+    converted = img->convertImage(4);
+    imgdata = converted->getData();
+    imgsize = converted->getImageSize();
+    imgpitch = converted->getRowSpan();
+  }
+  else{
+    imgdata = img->getData();
+    imgsize = img->getImageSize();
+    imgpitch = img->getRowSpan();
   }
 
   SAFE_RELEASE(mTex);
@@ -46,9 +59,9 @@ bool DXTexture::createFromImage(Image* img, Format fmt){
   //desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
   D3D11_SUBRESOURCE_DATA data;
-  data.pSysMem = img->getData();
-  data.SysMemPitch = img->getRowSpan();
-  data.SysMemSlicePitch = img->getImageSize();
+  data.pSysMem = imgdata;
+  data.SysMemPitch = imgpitch;
+  data.SysMemSlicePitch = imgsize;
 
   HRESULT res = mDevice->CreateTexture2D(&desc, &data, &mTexture);
   if (!SUCCEEDED(res))
@@ -63,6 +76,8 @@ bool DXTexture::createFromImage(Image* img, Format fmt){
   samp.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
   samp.MaxLOD = D3D11_FLOAT32_MAX;
   mDevice->CreateSamplerState(&samp, &mState);
+
+  delete converted;
 
   return true;
 }

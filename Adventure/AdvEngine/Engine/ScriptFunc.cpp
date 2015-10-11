@@ -191,7 +191,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   srand((unsigned)time(NULL));
 }
 
-#define ARG_MAX 20
+#define SCR_ARG_MAX 20
 
 #define NUM_ARGS(argmin, argmax) \
 lua_pushthread(L);\
@@ -462,7 +462,7 @@ void ScriptFunctions::setObjInternal(std::vector<std::string> objects, std::vect
 }
 
 int ScriptFunctions::setObj(lua_State* L){
-  NUM_ARGS(2, ARG_MAX);
+  NUM_ARGS(2, SCR_ARG_MAX);
   std::string objname = ctx.stack().get(1).getString();
   //remove whitespaces in object names
   for(int size = (int)objname.size()-1; size >= 0; --size){
@@ -1008,7 +1008,7 @@ int ScriptFunctions::endScene(lua_State* L){
 }
 
 int ScriptFunctions::instObj(lua_State* L){
-  NUM_ARGS(2, ARG_MAX);
+  NUM_ARGS(2, SCR_ARG_MAX);
   std::string objname = ctx.stack().get(1).getString();
   int state = ctx.stack().get(2).getInt();
   for (int i = 2; i < numArgs; ++i){
@@ -1213,7 +1213,7 @@ int ScriptFunctions::getRequestedState(Character* cclass, const StackData& data)
 }
 
 int ScriptFunctions::setChar(lua_State* L){
-  NUM_ARGS(2, ARG_MAX);
+  NUM_ARGS(2, SCR_ARG_MAX);
   std::string chrname = ctx.stack().get(1).getString();
   StackData data = ctx.stack().get(2);
   if (ctx.mSkip){
@@ -1362,7 +1362,7 @@ int ScriptFunctions::setCharLight(lua_State* L){
 }
 
 int ScriptFunctions::group(lua_State* L){
-  NUM_ARGS(1, ARG_MAX);
+  NUM_ARGS(1, SCR_ARG_MAX);
   std::string groupname = ctx.stack().get(1).getString();
   ObjectGroup* grp = new ObjectGroup(groupname);
   for (int i = 1; i < numArgs; ++i){
@@ -2110,7 +2110,7 @@ static void disableMainEffect(){
 }
 
 int ScriptFunctions::startEffect(lua_State* L){
-  NUM_ARGS(1, ARG_MAX);
+  NUM_ARGS(1, SCR_ARG_MAX);
   std::string effect = ctx.stack().get(1).getString();
   if (effect == "slowmotion"){
     int speed = ctx.stack().get(2).getInt();
@@ -2643,7 +2643,7 @@ int ScriptFunctions::offTextColor(lua_State* L){
 }
 
 int ScriptFunctions::setItem(lua_State* L){
-  NUM_ARGS(2, ARG_MAX);
+  NUM_ARGS(2, SCR_ARG_MAX);
   if (numArgs > 2)
     TR_BREAK("Implement me");
   std::string itemname = ctx.stack().get(1).getString();
@@ -2775,7 +2775,7 @@ int ScriptFunctions::popupCoin(lua_State* L){
 }
 
 int ScriptFunctions::dummy(lua_State* L){
-  NUM_ARGS(0, ARG_MAX);
+  NUM_ARGS(0, SCR_ARG_MAX);
   for (int i = 0; i < numArgs; ++i){
     ctx.stack().get(i+1);
   }

@@ -169,19 +169,13 @@ namespace swf{
   class Character{
   public:
     Character(const CGE::Image& img){
-      glGenTextures(1, &mTexture);
-      glBindTexture(GL_TEXTURE_2D, mTexture);
-      if (img.getNumChannels() != 4){
-        TR_USE(ADV_SWF);
-        TR_BREAK("Implement me");
-      }
-      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.getWidth(), img.getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, img.getData());
+      mTexture = CGE::Engine::instance()->getRenderer()->createTexture(&img, CGE::Texture::AUTO);
     }
     ~Character(){
-      glDeleteTextures(1, &mTexture);
+      delete mTexture;
     }
   protected:
-    GLuint mTexture;
+    CGE::Texture* mTexture;
   };
 
   class Displayable{
@@ -407,8 +401,9 @@ swf::Displayable* SwfPlayer::getDisplayable(uint16 depth){
 
 void SwfPlayer::render(){
   mLayer->bind();
-  glClearColor(mClearColor[0], mClearColor[1], mClearColor[2], 1.0f);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  rend->setClearColor(CGE::Vec4f(mClearColor[0], mClearColor[1], mClearColor[2], 1.0f));
+  rend->clear(COLORBUFFER | ZBUFFER);
   mLayer->unbind();
   ++mFrameNum;
 }

@@ -220,8 +220,6 @@ SET(AppBuilder_SRCS
   Particles.h
   PostProcessing.cpp
   PostProcessing.h
-  #Renderer.cpp
-  Renderer.h
   SaveStateProvider.cpp
   SaveStateProvider.h
   Screenchange.cpp

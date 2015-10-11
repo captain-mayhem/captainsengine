@@ -35,7 +35,7 @@ void DXVertexBuffer::create(int type, int vertexBufferSize){
   }
   if (type & VB_COLOR){
     coloffset_ = offset;
-    offset += 4 * sizeof(char);
+    offset += 4 * sizeof(float);
   }
   if (type & VB_TEXCOORD){
     texoffset_ = offset;

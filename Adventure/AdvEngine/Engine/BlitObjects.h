@@ -3,8 +3,9 @@
 
 #include <string>
 
+#include <renderer/renderer.h>
+
 #include "Vector.h"
-#include "Renderer.h"
 #include "Ids.h"
 
 namespace CGE{

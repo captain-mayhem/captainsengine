@@ -36,6 +36,8 @@ Image* ImageLoader::load(const char* filename, Type t){
       return loadBMP(filename);
     case PNG:
       return loadPNG(filename);
+    case UNKNOWN:
+      return NULL;
   }
   return NULL;
 }
@@ -50,6 +52,8 @@ Image* ImageLoader::load(void* memory, unsigned size, Type t){
       return loadBMP(memory, size);
     case PNG:
       return loadPNG(memory, size);
+    case UNKNOWN:
+      return NULL;
   }
   return NULL;
 }
@@ -213,6 +217,7 @@ Image* ImageLoader::loadGIF(void* memory, unsigned size){
 }
 
 Image* decodeGIF(GifFileType* giffile){
+  TR_USE(CGE_Imageloader);
   GifRecordType recordtype;
   int extcode;
   GifByteType* extension;
@@ -277,6 +282,9 @@ Image* decodeGIF(GifFileType* giffile){
         }
         break;
       case TERMINATE_RECORD_TYPE:
+        break;
+      default:
+        TR_BREAK("Unhandled record type");
         break;
     }
   } while (recordtype != TERMINATE_RECORD_TYPE);
