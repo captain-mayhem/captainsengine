@@ -180,7 +180,7 @@ void DXTexture::update(int x, int y, unsigned width, unsigned height, void* data
   box.top = y;
   box.left = x;
   box.bottom = y + height;
-  box.right = x * width;
+  box.right = x + width;
   box.front = 0;
   box.back = 1;
   ctx->UpdateSubresource(mTexture, 0, &box, data, width*bpp, 0);

@@ -601,8 +601,10 @@ void Engine::render(unsigned time){
       rend->clear(COLORBUFFER | ZBUFFER);
       rend->pushMatrix();
       rend->resetModelView();
-      rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-      rend->scale(1.0f,-1.0f,1.0f);
+      if (CGE::Engine::instance()->getRenderer()->getRenderType() != CGE::DirectX){ //flip the quad in open gl case
+        rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+        rend->scale(1.0f, -1.0f, 1.0f);
+      }
     }
     (*iter)->render();
     if (mMainRoomLoaded && iter == mRooms.rbegin()){
