@@ -108,9 +108,7 @@ void DXRenderer::initContext(AppWindow* win){
   if (win->isFullscreen())
     mSwapchain->SetFullscreenState(TRUE, NULL);
 
-  
-  resizeScene(win->getWidth(), win->getHeight());
-  //initRendering();  
+  viewport(0, 0, win->getWidth(), win->getHeight()); 
 }
 
 void DXRenderer::killContext(){
@@ -352,7 +350,7 @@ void DXRenderer::initRendering(){
 
   ZeroMemory(&mRasterDesc, sizeof(mRasterDesc));
   mRasterDesc.FillMode = D3D11_FILL_SOLID;
-  mRasterDesc.CullMode = D3D11_CULL_BACK;
+  mRasterDesc.CullMode = D3D11_CULL_NONE;
   mRasterDesc.DepthClipEnable = TRUE;
   mRasterDesc.FrontCounterClockwise = TRUE;
   ID3D11RasterizerState* state;
@@ -409,12 +407,20 @@ void DXRenderer::resizeScene(int width, int height){
     return;
   TR_INFO("Resizing Scene");
 
+  mD3d->OMSetRenderTargets(0, 0, 0);
+  delete mRT;
+  mSwapchain->ResizeBuffers(0, 0, 0, DXGI_FORMAT_UNKNOWN, 0);
+  mRT = new DXRenderTarget(mSwapchain);
+  mRT->addRenderbuffer(Texture::DEPTH);
+  mRT->bind();
+  RenderTarget::mCurrTarget = mRT;
+
   viewport(0, 0, width, height);
   
   win_->setWidth(width);
   win_->setHeight(height);
- 
-  Renderer::resizeScene(width, height);
+
+  viewport(0, 0, width, height);
 }
 
 //! clear scene
@@ -597,12 +603,12 @@ void DXRenderer::blendFunc(BlendType src, BlendType dest){
       mBlendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
       break;
     case BLEND_DST_COLOR:
-      mBlendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_DEST_COLOR;
-      mBlendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_DEST_ALPHA;
+      mBlendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_DEST_COLOR;
+      mBlendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_DEST_ALPHA;
       break;
     case BLEND_ZERO:
-      mBlendDesc.RenderTarget[i].SrcBlend = D3D11_BLEND_ZERO;
-      mBlendDesc.RenderTarget[i].SrcBlendAlpha = D3D11_BLEND_ZERO;
+      mBlendDesc.RenderTarget[i].DestBlend = D3D11_BLEND_ZERO;
+      mBlendDesc.RenderTarget[i].DestBlendAlpha = D3D11_BLEND_ZERO;
       break;
     }
   }
@@ -615,14 +621,17 @@ void DXRenderer::blendFunc(BlendType src, BlendType dest){
 void DXRenderer::enableBlend(const bool flag){
   for (int i = 0; i < 8; ++i)
     mBlendDesc.RenderTarget[i].BlendEnable = flag ? TRUE : FALSE;
+  SAFE_RELEASE(mBlendState);
+  mDevice->CreateBlendState(&mBlendDesc, &mBlendState);
   mD3d->OMSetBlendState(mBlendState, NULL, 0xffffffff);
 }
 
 void DXRenderer::enableBackFaceCulling(const bool flag){
-  /*D3DCULL cull = D3DCULL_NONE;
-  if (flag)
-    cull = D3DCULL_CW;
-  device_->SetRenderState(D3DRS_CULLMODE, cull);*/
+  mRasterDesc.CullMode = flag ? D3D11_CULL_BACK : D3D11_CULL_NONE;
+  ID3D11RasterizerState* state;
+  mDevice->CreateRasterizerState(&mRasterDesc, &state);
+  mD3d->RSSetState(state);
+  state->Release();
 }
 
 void DXRenderer::enableColorWrite(bool flag){
@@ -774,8 +783,8 @@ void DXRenderer::getViewport(int view[4]){
   mD3d->RSGetViewports(&num, &vp);
   view[0] = (int)vp.TopLeftX;
   view[1] = (int)vp.TopLeftY;
-  view[2] = (int)(vp.TopLeftX + vp.Width);
-  view[3] = (int)(vp.TopLeftY + vp.Height);
+  view[2] = (int)(vp.Width);
+  view[3] = (int)(vp.Height);
 }
 
 //! get a matrix
