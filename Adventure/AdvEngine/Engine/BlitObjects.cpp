@@ -110,6 +110,7 @@ void BlitObject::blit(){
   rend->popMatrix();
   if (mBlendMode != BLEND_ALPHA)
     rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
+  mTex->deactivate();
 }
 
 BlitObject* BlitObject::clone(){
@@ -261,8 +262,7 @@ bool MirrorObject::update(unsigned interval){
   rend->setColor(1.0f, 1.0f, 0.0f, 1.0f);
   rend->pushMatrix();
   rend->resetModelView();
-  rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-  rend->scale(1.0f,-1.0f,1.0f);
+  Engine::instance()->flipTexture();
   rend->pushMatrix();
   rend->translate((float)mRoom->getScrollOffset().x, (float)mRoom->getScrollOffset().y, 0.0f);
   mPolygon->activate();

@@ -144,6 +144,7 @@ public:
   void drawQuad();
   void drawQuadLines();
   void fillWithStdQuad(CGE::VertexBuffer* vb);
+  void flipTexture();
 protected:
   Engine();
   static Engine* mInstance;

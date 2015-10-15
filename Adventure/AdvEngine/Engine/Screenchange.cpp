@@ -28,8 +28,7 @@ void Screenshot::take(){
   bind();
   rend->clear(COLORBUFFER | ZBUFFER);
   rend->pushMatrix();
-  rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-  rend->scale(1.0f,-1.0f,1.0f);
+  Engine::instance()->flipTexture();
   Engine::instance()->renderUnloadingRoom();
   rend->popMatrix();
   unbind();
@@ -89,7 +88,7 @@ void CircleScreenChange::generateCircle(float radius){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   float angle = (float)M_PI/4.0f;
   mVerts = rend->createVertexBuffer();
-  mVerts->create(VB_POSITION, (mSegments + 1) + 1);
+  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, (mSegments + 1) + 1);
   mVerts->lockVertexPointer();
   mVerts->setPosition(0, CGE::Vec3f(0.0f, 0.0f, 0.0f));
   for (int i = 1; i < mSegments+2; ++i){
@@ -116,8 +115,7 @@ bool BlendScreenChange::update(unsigned interval){
   
   //render previous room
   rend->pushMatrix();
-  rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-  rend->scale(1.0f,-1.0f,1.0f);
+  Engine::instance()->flipTexture();
   mShot.blit();
   rend->popMatrix();
   
@@ -163,8 +161,7 @@ bool FadeoutScreenChange::update(unsigned interval){
   //render previous room
   if (mClosing){
     rend->pushMatrix();
-    rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-    rend->scale(1.0f,-1.0f,1.0f);
+    Engine::instance()->flipTexture();
     mShot.blit();
     rend->popMatrix();
   }
@@ -297,7 +294,7 @@ void ClockScreenChange::generateCircle(float radius){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   float angle = (float)M_PI / 2.0f;
   mVerts = rend->createVertexBuffer();
-  mVerts->create(VB_POSITION, (mSegments + 1) + 1);
+  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, (mSegments + 1) + 1);
   mVerts->lockVertexPointer();
   mVerts->setPosition(0, CGE::Vec3f(0.0f, 0.0f, 0.0f));
   for (int i = 1; i < mSegments + 2; ++i){
