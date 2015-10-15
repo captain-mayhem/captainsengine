@@ -56,7 +56,7 @@ static CGE::Mutex trymtx;
 Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false),
   mSaver(NULL), mLoader(), mBlockingSpeaker(NULL), mExitCall(NULL), mSetMouseCall(NULL) {
   mVerts = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
-  mVerts->create(VB_POSITION | VB_TEXCOORD, 4);
+  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, 4);
   mVerts->lockVertexPointer();
   fillWithStdQuad(mVerts);
   mVerts->unlockVertexPointer();
@@ -601,10 +601,7 @@ void Engine::render(unsigned time){
       rend->clear(COLORBUFFER | ZBUFFER);
       rend->pushMatrix();
       rend->resetModelView();
-      if (CGE::Engine::instance()->getRenderer()->getRenderType() != CGE::DirectX){ //flip the quad in open gl case
-        rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
-        rend->scale(1.0f, -1.0f, 1.0f);
-      }
+      flipTexture();
     }
     (*iter)->render();
     if (mMainRoomLoaded && iter == mRooms.rbegin()){
@@ -1860,6 +1857,14 @@ void Engine::drawQuad(){
 
 void Engine::drawQuadLines(){
   mVerts->draw(CGE::VB_Linestrip, mInds);
+}
+
+void Engine::flipTexture(){
+  if (CGE::Engine::instance()->getRenderer()->getRenderType() != CGE::DirectX){ //flip the quad in open gl case
+    CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+    rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
+    rend->scale(1.0f, -1.0f, 1.0f);
+  }
 }
 
 void Engine::fillWithStdQuad(CGE::VertexBuffer* verts){
