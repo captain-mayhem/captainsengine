@@ -239,7 +239,7 @@ DynamicAnimation::~DynamicAnimation(){
 MirrorObject::MirrorObject(int width, int height, int depth, unsigned char strength) : 
 RenderableBlitObject(width, height, depth), mOpacity(strength), mIsWallMirror(false){
   mPolygon = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
-  mPolygon->create(VB_POSITION, 4);
+  mPolygon->create(VB_POSITION, 5);
 }
 
 MirrorObject::~MirrorObject(){
@@ -266,7 +266,7 @@ bool MirrorObject::update(unsigned interval){
   rend->pushMatrix();
   rend->translate((float)mRoom->getScrollOffset().x, (float)mRoom->getScrollOffset().y, 0.0f);
   mPolygon->activate();
-  mPolygon->draw(CGE::VB_Trifan, NULL);
+  mPolygon->draw(CGE::VB_Tristrip, NULL);
   rend->popMatrix();
   rend->enableColorWrite(true);
   
@@ -308,16 +308,20 @@ bool MirrorObject::update(unsigned interval){
 void MirrorObject::setMirrorArea(Vec2i points[4], RoomObject* room){
   mRoom = room;
   int xmin = 1000; int xmax = -1000;
-  mPolygon->lockVertexPointer();
   for (int i = 0; i < 4; ++i){
     if (points[i].x > xmax)
       xmax = points[i].x;
     if (points[i].x < xmin)
       xmin = points[i].x;
-    mPolygon->setPosition(i, CGE::Vec3f((float)points[i].x, (float)points[i].y, 0.0f));
   }
+  mMirrorCenter = (xmin + xmax) / 2;
+  mPolygon->lockVertexPointer();
+  mPolygon->setPosition(0, CGE::Vec3f((float)points[1].x, (float)points[1].y, 0.0f));
+  mPolygon->setPosition(1, CGE::Vec3f((float)points[2].x, (float)points[2].y, 0.0f));
+  mPolygon->setPosition(2, CGE::Vec3f((float)points[0].x, (float)points[0].y, 0.0f));
+  mPolygon->setPosition(3, CGE::Vec3f((float)points[3].x, (float)points[3].y, 0.0f));
+  mPolygon->setPosition(4, CGE::Vec3f((float)points[0].x, (float)points[0].y, 0.0f));
   mPolygon->unlockVertexPointer();
-  mMirrorCenter = (xmin+xmax)/2;
 }
 
 void MirrorObject::renderCharacter(CharacterObject* chr){

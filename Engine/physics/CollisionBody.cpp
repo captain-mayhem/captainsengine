@@ -66,8 +66,8 @@ void CollisionBody::render(const CGE::Camera& cam){
   mPhysicsVB->activate();
   if (dGeomGetClass(mGeom) == dCylinderClass){
     mPhysicsVB->draw(CGE::VB_Tristrip, mPhysicsInds[0]);
-    mPhysicsVB->draw(CGE::VB_Trifan, mPhysicsInds[1]);
-    mPhysicsVB->draw(CGE::VB_Trifan, mPhysicsInds[2]);
+    mPhysicsVB->draw(CGE::VB_Tristrip, mPhysicsInds[1]);
+    mPhysicsVB->draw(CGE::VB_Tristrip, mPhysicsInds[2]);
   }
   else if (dGeomGetClass(mGeom) == dBoxClass){
     mPhysicsVB->draw(CGE::VB_Triangles, mPhysicsInds[0]);

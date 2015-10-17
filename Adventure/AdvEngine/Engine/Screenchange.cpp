@@ -64,7 +64,7 @@ bool CircleScreenChange::update(unsigned interval){
   rend->translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
   rend->scale(scale, scale*Engine::instance()->getResolution().y/Engine::instance()->getResolution().x, 1.0f);
   mVerts->activate();
-  mVerts->draw(CGE::VB_Trifan, NULL);
+  mVerts->draw(CGE::VB_Tristrip, NULL);
   rend->popMatrix();
   rend->enableTexturing(true);
   rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
@@ -88,12 +88,13 @@ void CircleScreenChange::generateCircle(float radius){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   float angle = (float)M_PI/4.0f;
   mVerts = rend->createVertexBuffer();
-  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, (mSegments + 1) + 1);
+  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, (mSegments * 2) + 1);
   mVerts->lockVertexPointer();
-  mVerts->setPosition(0, CGE::Vec3f(0.0f, 0.0f, 0.0f));
-  for (int i = 1; i < mSegments+2; ++i){
-    mVerts->setPosition(i, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
-    angle += (float)(M_PI*2./mSegments);
+  mVerts->setPosition(0, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
+  for (int i = 1; i <= mSegments; ++i){
+    angle += (float)(M_PI*2. / mSegments);
+    mVerts->setPosition(2 * i - 1, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
+    mVerts->setPosition(2 * i, CGE::Vec3f(0.0f, 0.0f, 0.0f));
   }
   mVerts->unlockVertexPointer();
 }
@@ -215,10 +216,11 @@ bool ShuttersScreenChange::update(unsigned interval){
   rend->setColor(0, 0, 0, 0);
   static const int numshutters = 10;
   for (int i = 0; i < numshutters; ++i){
-    float posscale = 2-(i/(numshutters-1.0f));
+    float posscale = 1+(i/(numshutters-1.0f));
     rend->pushMatrix();
-    rend->translate(0.0f, i*mSize.y/(float)numshutters, 0.0f);
-    rend->scale((float)Engine::instance()->getResolution().x, mSize.y/(float)numshutters*scale*posscale, 1.0f);
+    Engine::instance()->flipTexture();
+    rend->translate(0.0f, (i+1)*mSize.y/(float)numshutters, 0.0f);
+    rend->scale((float)Engine::instance()->getResolution().x, mSize.y/(float)numshutters*-scale*posscale, 1.0f);
     Engine::instance()->drawQuad();
     rend->popMatrix();
   }
@@ -251,9 +253,13 @@ ClockScreenChange::~ClockScreenChange(){
 bool ClockScreenChange::update(unsigned interval){
   float scale;
   if (mClosing)
-    scale = (mDuration-mCurrentTime)/(float)mDuration*mSegments;
+    scale = (mDuration-mCurrentTime)/(float)mDuration*(2*mSegments+1);
   else
-    scale = mCurrentTime/(float)mDuration*mSegments;
+    scale = mCurrentTime/(float)mDuration*(2*mSegments+1);
+  if (scale > 2 * mSegments + 1)
+    scale = (float)(2 * mSegments + 1);
+  if (scale < 0)
+    scale = 0;
   
   if (mClosing && mCurrentTime == 0){
     mShot.take();
@@ -267,10 +273,11 @@ bool ClockScreenChange::update(unsigned interval){
   rend->blendFunc(CGE::BLEND_DST_COLOR, CGE::BLEND_ZERO);
   rend->setColor(0, 0, 0, 0);
   rend->pushMatrix();
+  Engine::instance()->flipTexture();
   rend->translate(mSize.x/2.0f, mSize.y/2.0f, 0.0f);
   rend->scale(Engine::instance()->getResolution().x*1.0f, Engine::instance()->getResolution().x*1.0f, 1.0f);
   mVerts->activate();
-  mVerts->draw(CGE::VB_Trifan, NULL, 0, (int)scale);
+  mVerts->draw(CGE::VB_Tristrip, NULL, 0, (int)scale);
   rend->popMatrix();
   rend->enableTexturing(true);
   rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
@@ -292,14 +299,15 @@ bool ClockScreenChange::update(unsigned interval){
 
 void ClockScreenChange::generateCircle(float radius){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  float angle = (float)M_PI / 2.0f;
+  float angle = -(float)M_PI / 2.0f;
   mVerts = rend->createVertexBuffer();
-  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, (mSegments + 1) + 1);
+  mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, (mSegments * 2) + 1);
   mVerts->lockVertexPointer();
-  mVerts->setPosition(0, CGE::Vec3f(0.0f, 0.0f, 0.0f));
-  for (int i = 1; i < mSegments + 2; ++i){
-    mVerts->setPosition(i, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
+  mVerts->setPosition(0, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
+  for (int i = 1; i <= mSegments; ++i){
     angle += (float)(M_PI*2. / mSegments);
+    mVerts->setPosition(2*i - 1, CGE::Vec3f(radius*cos(angle), radius*sin(angle), 0.0f));
+    mVerts->setPosition(2 * i, CGE::Vec3f(0.0f, 0.0f, 0.0f));
   }
   mVerts->unlockVertexPointer();
 }

@@ -107,8 +107,6 @@ void GL2VertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, i
       glDrawArrays(GL_TRIANGLE_STRIP, offset, count);
     else if (pt == VB_Triangles)
       glDrawArrays(GL_TRIANGLES, offset, count);
-    else if (pt == VB_Trifan)
-      glDrawArrays(GL_TRIANGLE_FAN, offset, count);
     else if (pt == VB_Lines)
       glDrawArrays(GL_LINES, offset, count);
     else if (pt == VB_Linestrip)
@@ -122,8 +120,6 @@ void GL2VertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, i
     glDrawElements(GL_TRIANGLE_STRIP, count, oglidx->getGLType(), oglidx->getIndices(offset));
   else if (pt == VB_Triangles)
     glDrawElements(GL_TRIANGLES, count, oglidx->getGLType(), oglidx->getIndices(offset));
-  else if (pt == VB_Trifan)
-    glDrawElements(GL_TRIANGLE_FAN, count, oglidx->getGLType(), oglidx->getIndices(offset));
   else if (pt == VB_Lines)
     glDrawElements(GL_LINES, count, oglidx->getGLType(), oglidx->getIndices(offset));
   else if (pt == VB_Linestrip)
