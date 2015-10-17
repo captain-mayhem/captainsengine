@@ -88,8 +88,8 @@ void Forms::activateCylinder(){
 
 void Forms::drawCylinder(){
   cylinder_->draw(VB_Tristrip, mCylinderInds[0]);
-  cylinder_->draw(VB_Trifan, mCylinderInds[1]);
-  cylinder_->draw(VB_Trifan, mCylinderInds[2]);
+  cylinder_->draw(VB_Tristrip, mCylinderInds[1]);
+  cylinder_->draw(VB_Tristrip, mCylinderInds[2]);
 }
 
 VertexBuffer* Forms::createCylinder(float radius, float height, int cylinder_segments, IndexBuffer* indices[3]){
@@ -123,25 +123,25 @@ VertexBuffer* Forms::createCylinder(float radius, float height, int cylinder_seg
     hull[i] = i%(2*cylinder_segments);
   }
   indices[0]->unlockIndexPointer();
-  indices[1] = rend->createIndexBuffer(IndexBuffer::IB_USHORT,cylinder_segments+2);
+  indices[1] = rend->createIndexBuffer(IndexBuffer::IB_USHORT,2*cylinder_segments+1);
   short* bottom = (short*)indices[1]->lockIndexPointer();
-  bottom[0] = 4*cylinder_segments;
+  bottom[0] = 4 * cylinder_segments - 2;
   int count = 0;
   for (int i = 1; i <= cylinder_segments; ++i){
-    bottom[i] = 2*cylinder_segments+count;
+    bottom[2*i-1] = 2*cylinder_segments+count;
+    bottom[2 * i] = 4 * cylinder_segments;
     count+=2;
   }
-  bottom[cylinder_segments+1] = 2*cylinder_segments;
   indices[1]->unlockIndexPointer();
-  indices[2] = rend->createIndexBuffer(IndexBuffer::IB_USHORT,cylinder_segments+2);
+  indices[2] = rend->createIndexBuffer(IndexBuffer::IB_USHORT,2*cylinder_segments+1);
   short* top = (short*)indices[2]->lockIndexPointer();
-  top[0] = 4*cylinder_segments+1;
+  top[0] = 2 * cylinder_segments + 1;
   count = 4*cylinder_segments-1;
   for (int i = 1; i <= cylinder_segments; ++i){
-    top[i] = count;
+    top[2 * i - 1] = count;
+    top[2*i] = 4 * cylinder_segments + 1;
     count-=2;
   }
-  top[cylinder_segments+1] = 4*cylinder_segments-1;
   indices[2]->unlockIndexPointer();
   return cylinder;
 }
