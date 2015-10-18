@@ -102,6 +102,7 @@ std::istream& PostProcessor::Effect::load(std::istream& in){
 /*dark bloom*/
 
 static const char bloomvs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -119,9 +120,38 @@ static const char bloomvs[] =
 "  tex_coord2 = vec2(pos.x*2.0-1.0, (0.0+pos.y)*2.0-1.0)*pixel_offset*2.0;\n"
 "  gl_Position = vec4(pos.x*2.0-1.0, pos.y*2.0-1.0, 0.0, 1.0);\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"cbuffer perObject{\n"
+"  float2 tex_scale;\n"
+"  float2 pixel_offset;\n"
+"}\n"
+"\n"
+"struct VSInput{\n"
+"  float3 pos : POSITION;\n"
+"  float2 texcoord: TEXCOORD0;\n"
+"  float3 normal: NORMAL;\n"
+"};\n"
+"\n"
+"struct VSOutput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tcoord : TEXCOORD0;\n"
+"  float2 tcoord2 : TEXCOORD1;\n"
+"};\n"
+"\n"
+"VSOutput main(VSInput inp){\n"
+"  VSOutput outp;\n"
+"  outp.tcoord = float2(inp.pos.x*tex_scale.x, (1.0-inp.pos.y)*tex_scale.y);\n"
+"  outp.tcoord2 = float2(inp.pos.x*2.0-1.0, (1.0-inp.pos.y)*2.0-1.0)*pixel_offset*2.0;\n"
+"  outp.vPos = float4(inp.pos.x*2.0-1.0, inp.pos.y*2.0-1.0, 0.0, 1.0);\n"
+"  return outp;\n"
+"}\n"
+"\n"
+;
 
 static const char darkbloomfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -146,9 +176,39 @@ static const char darkbloomfs[] =
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"Texture2D tex;\n"
+"SamplerState sampl;\n"
+"\n"
+"cbuffer perDraw{\n"
+"  float strength;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"  float2 tex_coord2 : TEXCOORD1;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  color = tex.Sample(sampl, inp.tex_coord);\n"
+"  float4 intensity = float4(strength, strength, strength, strength)/float4(6.0, 6.0, 6.0, 6.0);\n"
+"  intensity.a = 0.0;\n"
+"  color = color-tex.Sample(sampl, inp.tex_coord-inp.tex_coord2)*intensity;\n"
+"  color = color-tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(2.0, 2.0))*intensity;\n"
+"  color = color-tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(3.0, 3.0))*intensity;\n"
+"  color = color-tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(4.0, 4.0))*intensity;\n"
+"  color = color-tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(5.0, 5.0))*intensity;\n"
+"  color = color-tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(6.0, 6.0))*intensity;\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
 
 static const char hellfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -167,9 +227,33 @@ static const char hellfs[] =
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"Texture2D tex;\n"
+"SamplerState sampl;\n"
+"\n"
+"cbuffer perDraw{\n"
+"  float strength;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"  float2 tex_coord2 : TEXCOORD1;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  color = tex.Sample(sampl, inp.tex_coord);\n"
+"  color.rgb = color.rgb*tex.Sample(sampl, inp.tex_coord-inp.tex_coord2).rgb;\n"
+"  color.rgb = color.rgb*tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(2.0, 2.0)).rgb;\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
 
 static const char whooshfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -192,34 +276,94 @@ static const char whooshfs[] =
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"Texture2D tex;\n"
+"SamplerState sampl;\n"
+"\n"
+"cbuffer perDraw{\n"
+"  float strength;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"  float2 tex_coord2 : TEXCOORD1;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  color = tex.Sample(sampl, inp.tex_coord);\n"
+"  float4 intensity = float4(strength, strength, strength, strength)/float4(6.0, 6.0, 6.0, 6.0);\n"
+"  intensity.a = 0.0;\n"
+"  color = lerp(color, tex.Sample(sampl, inp.tex_coord-inp.tex_coord2), intensity);\n"
+"  color = lerp(color, tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(2.0, 2.0)), intensity);\n"
+"  color = lerp(color, tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(3.0, 3.0)), intensity);\n"
+"  color = lerp(color, tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(4.0, 4.0)), intensity);\n"
+"  color = lerp(color, tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(5.0, 5.0)), intensity);\n"
+"  color = lerp(color, tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(6.0, 6.0)), intensity);\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
 
 static const char bloomfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
 "varying vec2 tex_coord2;\n"
 "\n"
-"uniform sampler2D texture;\n"
+"uniform sampler2D tex;\n"
 "uniform float strength;\n"
 "\n"
 "void main(){\n"
 "  vec4 color = vec4(1.0);\n"
-"  color = texture2D(texture, tex_coord.st);\n"
+"  color = texture2D(tex, tex_coord.st);\n"
 //"  color.rgb = color.rgb*color.rgb*vec3(2.0);\n"
 "  vec4 intensity = vec4(strength)/vec4(6.0);\n"
 "  intensity.a = 0.0;\n"
-"  color = color+texture2D(texture, tex_coord.st-tex_coord2.st)*intensity;\n"
-"  color = color+texture2D(texture, tex_coord.st-tex_coord2.st*vec2(2.0))*intensity;\n"
-"  color = color+texture2D(texture, tex_coord.st-tex_coord2.st*vec2(3.0))*intensity;\n"
-"  color = color+texture2D(texture, tex_coord.st-tex_coord2.st*vec2(4.0))*intensity;\n"
-"  color = color+texture2D(texture, tex_coord.st-tex_coord2.st*vec2(5.0))*intensity;\n"
-"  color = color+texture2D(texture, tex_coord.st-tex_coord2.st*vec2(6.0))*intensity;\n"
+"  color = color+texture2D(tex, tex_coord.st-tex_coord2.st)*intensity;\n"
+"  color = color+texture2D(tex, tex_coord.st-tex_coord2.st*vec2(2.0))*intensity;\n"
+"  color = color+texture2D(tex, tex_coord.st-tex_coord2.st*vec2(3.0))*intensity;\n"
+"  color = color+texture2D(tex, tex_coord.st-tex_coord2.st*vec2(4.0))*intensity;\n"
+"  color = color+texture2D(tex, tex_coord.st-tex_coord2.st*vec2(5.0))*intensity;\n"
+"  color = color+texture2D(tex, tex_coord.st-tex_coord2.st*vec2(6.0))*intensity;\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"Texture2D tex;\n"
+"SamplerState sampl;\n"
+"\n"
+"cbuffer perDraw{\n"
+"  float strength;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"  float2 tex_coord2 : TEXCOORD1;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  color = tex.Sample(sampl, inp.tex_coord);\n"
+"  float4 intensity = float4(strength, strength, strength, strength)/float4(6.0, 6.0, 6.0, 6.0);\n"
+"  intensity.a = 0.0;\n"
+"  color = color+tex.Sample(sampl, inp.tex_coord-inp.tex_coord2)*intensity;\n"
+"  color = color+tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(2.0, 2.0))*intensity;\n"
+"  color = color+tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(3.0, 3.0))*intensity;\n"
+"  color = color+tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(4.0, 4.0))*intensity;\n"
+"  color = color+tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(5.0, 5.0))*intensity;\n"
+"  color = color+tex.Sample(sampl, inp.tex_coord-inp.tex_coord2*float2(6.0, 6.0))*intensity;\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
+;
 
 class BloomEffect : public PostProcessor::Effect{
 public:
@@ -229,14 +373,16 @@ public:
   virtual void init(const Vec2f& size){
     Effect::init(size);
     mShader.activate();
-    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "tex");
     mShader.uniform(tex, 0);
-    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     mShader.uniform(scale, size.x/powx, size.y/powy);
     int pixeloffset = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "pixel_offset");
     mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
     mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "strength");
     mShader.deactivate();
   }
@@ -286,7 +432,9 @@ public:
     input->getTexture()->activate();
     CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER);
     mShader.uniform(mIntensityLoc, mInterpolator.current());
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER);
     Engine::instance()->drawQuad();
     mShader.deactivate();
   }
