@@ -183,7 +183,13 @@ void DXTexture::update(int x, int y, unsigned width, unsigned height, void* data
   box.right = x + width;
   box.front = 0;
   box.back = 1;
-  ctx->UpdateSubresource(mTexture, 0, &box, data, width*bpp, 0);
+  if (bpp == 3){
+    Image img(3, width, height, (unsigned char*)data);
+    img.convertFormat(4);
+    ctx->UpdateSubresource(mTexture, 0, &box, img.getData(), width*4, 0);
+  }
+  else
+    ctx->UpdateSubresource(mTexture, 0, &box, data, width*bpp, 0);
 }
 
 #endif

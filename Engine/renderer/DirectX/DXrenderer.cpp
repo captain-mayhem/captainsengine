@@ -53,9 +53,6 @@ void DXRenderer::initContext(AppWindow* win){
   TR_INFO("Initializing DirectX context");
   win_ = win;
   HWND wnd = (HWND)win->getHandle();
-  ShowWindow(wnd, SW_SHOW);
-  SetForegroundWindow(wnd);
-  SetFocus(wnd);
 
   DXGI_SWAP_CHAIN_DESC scd;
   ZeroMemory(&scd, sizeof(scd));
