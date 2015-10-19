@@ -1700,6 +1700,7 @@ void Engine::enterText(const String& variable, int maxcharacters, ExecutionConte
 
 void Engine::restoreRenderDefaults(){
   mVerts->activate();
+  mInds->activate();
 }
 
 RoomObject* Engine::getMainRoom(){

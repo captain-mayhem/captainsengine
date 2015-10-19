@@ -25,6 +25,7 @@ public:
 protected:
   uint32 mIbSize;
   ID3D11Buffer* mIb;
+  unsigned char* mInds;
 };
 
 }

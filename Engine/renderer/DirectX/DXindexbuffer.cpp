@@ -5,7 +5,7 @@
 
 using namespace CGE;
 
-DXIndexBuffer::DXIndexBuffer(Type t, int32 size) : IndexBuffer(t,size){
+DXIndexBuffer::DXIndexBuffer(Type t, int32 size) : IndexBuffer(t,size), mInds(NULL){
   mIbSize = size;
   ID3D11Device* device = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
   D3D11_BUFFER_DESC desc;
@@ -27,12 +27,14 @@ void* DXIndexBuffer::lockIndexPointer(){
   D3D11_MAPPED_SUBRESOURCE mr;
   ctx->Map(mIb, NULL, D3D11_MAP_WRITE_DISCARD, NULL, &mr);
   inds = mr.pData;
+  mInds = (unsigned char*)inds;
   return inds;
 }
 
 void DXIndexBuffer::unlockIndexPointer(){
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
   ctx->Unmap(mIb, NULL);
+  mInds = NULL;
 }
 
 void DXIndexBuffer::activate(){
@@ -48,13 +50,32 @@ void DXIndexBuffer::activate(){
 }
 
 void DXIndexBuffer::setIndex(uint32 i, uint8 index){
-
+  setIndex(i, (uint32)index);
 }
 
 void DXIndexBuffer::setIndex(uint32 i, uint16 index){
-
+  setIndex(i, (uint32)index);
 }
 
 void DXIndexBuffer::setIndex(uint32 i, uint32 index){
-
+  switch (mType){
+  case IB_UCHAR:
+  {
+    uint8* pos = mInds + i*sizeof(uint8);
+    *pos = index;
+    break;
+  }
+  case IB_USHORT:
+  {
+    uint16* pos = (uint16*)(mInds + i*sizeof(uint16));
+    *pos = index;
+    break;
+  }
+  case IB_UINT:
+  {
+    uint32* pos = (uint32*)(mInds + i*sizeof(uint32));
+    *pos = index;
+    break;
+  }
+  }
 }
