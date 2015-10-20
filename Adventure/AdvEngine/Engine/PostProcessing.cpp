@@ -510,6 +510,7 @@ static const char stdvs[] =
 "\n";
 
 static const char stdfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -523,7 +524,23 @@ static const char stdfs[] =
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"Texture2D tex;\n"
+"SamplerState sampl;\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  color = tex.Sample(sampl, inp.tex_coord);\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
 
 static const char noisefs[] =
 "@GLSL"
@@ -675,6 +692,7 @@ private:
 };
 
 static const char motionblurfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -686,13 +704,11 @@ static const char motionblurfs[] =
 "uniform sampler2D motion3;\n"
 //"uniform sampler2D motion4;\n"
 //"uniform sampler2D motion5;\n"
-"uniform float opacity;\n"
 "\n"
 "void main(){\n"
 "  vec4 color = vec4(1.0);\n"
 "  vec4 blendcol = vec4(1.0);\n"
 "  color.rgb = texture2D(motion3, tex_coord.st).rgb;\n"
-//"  color = mix(color, blendcol, 0.5);\n"
 "  blendcol.rgb = texture2D(motion2, tex_coord.st).rgb;\n"
 "  color = mix(color, blendcol, 0.5);\n"
 "  blendcol.rgb = texture2D(motion1, tex_coord.st).rgb;\n"
@@ -702,7 +718,36 @@ static const char motionblurfs[] =
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"Texture2D tex : register(t0);\n"
+"SamplerState sampl : register(s0);\n"
+"Texture2D motion1 : register(t1);\n"
+"SamplerState motion1samp : register(s1);\n"
+"Texture2D motion2 : register(t2);\n"
+"SamplerState motion2samp : register(s2);\n"
+"Texture2D motion3 : register(t3);\n"
+"SamplerState motion3samp : register(s3);\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  float4 blendcol = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  color.rgb = motion3.Sample(motion3samp, inp.tex_coord).rgb;\n"
+"  blendcol.rgb = motion2.Sample(motion2samp, inp.tex_coord).rgb;\n"
+"  color = lerp(color, blendcol, 0.5);\n"
+"  blendcol.rgb = motion1.Sample(motion1samp, inp.tex_coord).rgb;\n"
+"  color = lerp(color, blendcol, 0.5);\n"
+"  blendcol.rgb = tex.Sample(sampl, inp.tex_coord).rgb;\n"
+"  color = lerp(color, blendcol, 0.5);\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
 
 class MotionBlurEffect : public PostProcessor::Effect{
 public:
@@ -731,7 +776,9 @@ public:
     int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
     mShader.uniform(scale, size.x/powx, size.y/powy);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
     int motion = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "motion1");
     mShader.uniform(motion, 1);
     motion = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "motion2");
@@ -743,7 +790,9 @@ public:
     tex = mStdShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
     mStdShader.uniform(tex, 0);
     scale = mStdShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    mStdShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
     mStdShader.uniform(scale, size.x/powx, size.y/powy);
+    mStdShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
     mStdShader.deactivate();
     for (int i = 0; i < 3; ++i){
       RenderableBlitObject* rbo = new RenderableBlitObject(Engine::instance()->getResolution().x, Engine::instance()->getResolution().y, 0);
@@ -806,6 +855,11 @@ public:
     }
     CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     Engine::instance()->drawQuad();
+    count = 0;
+    for (std::list<RenderableBlitObject*>::iterator iter = mPrevFrames.begin(); iter != mPrevFrames.end(); ++iter){
+      (*iter)->getTexture()->deactivate(1 + count);
+      ++count;
+    }
     if (mPrevFrames.size() < 3)
       mStdShader.deactivate();
     else
@@ -831,6 +885,7 @@ private:
 };
 
 static const char heatfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -838,19 +893,43 @@ static const char heatfs[] =
 "\n"
 "uniform sampler2D texture;\n"
 "uniform sampler2D blendtex;\n"
-"uniform float opacity;\n"
 "uniform vec2 tex_scale;\n"
 "uniform vec2 pixel_offset;\n"
 "\n"
 "void main(){\n"
 "  float xoffset = texture2D(blendtex, vec2(0.5, tex_coord.t)).r*2.0-1.0;\n"
 "  vec4 color = vec4(1.0);\n"
-"  float xcoord = clamp(tex_coord.s+xoffset*pixel_offset.x, 0.0, tex_scale.x-pixel_offset.x/2.0);"
+"  float xcoord = clamp(tex_coord.s+xoffset*pixel_offset.x, 0.0, tex_scale.x-pixel_offset.x/2.0);\n"
 "  color = texture2D(texture, vec2(xcoord,tex_coord.t));\n"
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"Texture2D tex : register(t0);\n"
+"SamplerState sampl : register(s0);\n"
+"Texture2D blendtex : register(t1);\n"
+"SamplerState blendsampl : register(s1);\n"
+"\n"
+"cbuffer perDraw{\n"
+"  float2 tex_scale;\n"
+"  float2 pixel_offset;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float xoffset = blendtex.Sample(blendsampl, float2(0.5, inp.tex_coord.y)).r*2.0-1.0;\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  float xcoord = clamp(inp.tex_coord.x+xoffset*pixel_offset.x, 0.0, tex_scale.x-pixel_offset.x/2.0);\n"
+"  color = tex.Sample(sampl, float2(xcoord, inp.tex_coord.y));\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
 
 class HeatEffect : public PostProcessor::Effect{
 public:
@@ -881,12 +960,18 @@ public:
     mShader.uniform(tex, 0);
     int blendtex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendtex");
     mShader.uniform(blendtex, 1);
-    int scale = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
-    mShader.uniform(scale, size.x/powx, size.y/powy);
+    int vscale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
+    mShader.uniform(vscale, size.x / powx, size.y / powy);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
+    int scale = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "tex_scale");
     int pixeloffset = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "pixel_offset");
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER);
+    mShader.uniform(scale, size.x/powx, size.y/powy);
     mShader.uniform(pixeloffset, 1.0f/size.x, 1.0f/size.y);
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER);
     mShader.deactivate();
   }
   virtual void deinit(){
@@ -965,6 +1050,7 @@ private:
 };
 
 static const char druggedvs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -980,7 +1066,31 @@ static const char druggedvs[] =
 "  tex_coord = vec2(pos.x*tex_scale.x, (0.0+pos.y)*tex_scale.y);\n"
 "  gl_Position = vec4(pos.x*2.0-1.0+texcoord2.x, pos.y*2.0-1.0+texcoord2.y, 0.0, 1.0);\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"cbuffer perObject{\n"
+"  float2 tex_scale;\n"
+"}\n"
+"\n"
+"struct VSInput{\n"
+"  float3 pos : POSITION;\n"
+"  float2 texcoord: TEXCOORD0;\n"
+"  float3 texcoord2: TEXCOORD1;\n"
+"};\n"
+"\n"
+"struct VSOutput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tcoord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"VSOutput main(VSInput inp){\n"
+"  VSOutput outp;\n"
+"  outp.tcoord = float2(inp.pos.x*tex_scale.x, (1.0-inp.pos.y)*tex_scale.y);\n"
+"  outp.vPos = float4(inp.pos.x*2.0-1.0+inp.texcoord2.x, inp.pos.y*2.0-1.0+inp.texcoord2.y, 0.0, 1.0);\n"
+"  return outp;\n"
+"}\n"
+"\n";
 
 class DruggedEffect : public PostProcessor::Effect{
 public:
@@ -995,7 +1105,9 @@ public:
     int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
     mShader.uniform(scale, size.x/powx, size.y/powy);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
     mShader.deactivate();
   }
   virtual void deinit(){

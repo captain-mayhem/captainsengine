@@ -88,8 +88,14 @@ bool DXShader::addShader(Type shadertype, const char* shaderstring, int stringle
         mData[shadertype].refl->GetInputParameterDesc(i, &pdesc);
         if (strcmp(pdesc.SemanticName, "POSITION") == 0)
           mAttrType |= VB_POSITION;
-        else if (strcmp(pdesc.SemanticName, "TEXCOORD") == 0)
-          mAttrType |= VB_TEXCOORD;
+        else if (strcmp(pdesc.SemanticName, "TEXCOORD") == 0){
+          if (pdesc.SemanticIndex == 0)
+            mAttrType |= VB_TEXCOORD;
+          else if (pdesc.SemanticIndex == 1)
+            mAttrType |= VB_TEXCOORD2;
+          else
+            TR_WARN("texcoord %i unhandled", pdesc.SemanticIndex);
+        }
         else if (strcmp(pdesc.SemanticName, "NORMAL") == 0)
           mAttrType |= VB_NORMAL;
         else if (strcmp(pdesc.SemanticName, "COLOR") == 0)
@@ -110,7 +116,7 @@ bool DXShader::createAttributes(ID3DBlob* shader){
     return false;
   ID3D11Device* dev = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getDevice();
   ID3D11DeviceContext* ctx = static_cast< DXRenderer* >(Engine::instance()->getRenderer())->getContext();
-  D3D11_INPUT_ELEMENT_DESC edesc[4];
+  D3D11_INPUT_ELEMENT_DESC edesc[5];
   int arr = 0;
   int offset = 0;
   if (mAttrType & VB_POSITION){
@@ -156,6 +162,17 @@ bool DXShader::createAttributes(ID3DBlob* shader){
     edesc[arr].InstanceDataStepRate = 0;
     ++arr;
     offset += 3 * sizeof(float);
+  }
+  if (mAttrType & VB_TEXCOORD2){
+    edesc[arr].SemanticName = "TEXCOORD";
+    edesc[arr].SemanticIndex = 1;
+    edesc[arr].Format = DXGI_FORMAT_R32G32_FLOAT;
+    edesc[arr].InputSlot = 0;
+    edesc[arr].AlignedByteOffset = offset;
+    edesc[arr].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+    edesc[arr].InstanceDataStepRate = 0;
+    ++arr;
+    offset += 2 * sizeof(float);
   }
   dev->CreateInputLayout(edesc, arr, shader->GetBufferPointer(), shader->GetBufferSize(), &mLayout);
   return true;
