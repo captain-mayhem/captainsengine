@@ -39,7 +39,7 @@ void GL2VertexBuffer::create(int type, int vertexBufferSize){
   }
   if (flags_ & VB_COLOR){
     coloffset_ = offset;
-    offset += 4*sizeof(float);
+    offset += 4*sizeof(char);
   }
   if (flags_ & VB_TEXCOORD){
     texoffset_ = offset;
@@ -76,7 +76,7 @@ void GL2VertexBuffer::activate(){
     glDisableVertexAttribArray(0);
   if (flags_ & VB_COLOR){
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, structsize_, vb_ + coloffset_ + userVertOffset_);
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, structsize_, vb_ + coloffset_ + userVertOffset_);
   }
   else
     glDisableVertexAttribArray(1);
@@ -129,9 +129,8 @@ void GL2VertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, i
 }
 
 void GL2VertexBuffer::setColor(int pos, Color c){
-  Color* col;
-  col = (Color*)(((char*)verts_)+pos*structsize_+coloffset_);
-  col->r = c.r; col->g = c.g; col->b = c.b; col->a = c.a;
+  unsigned char* col = (((unsigned char*)verts_) + pos*structsize_ + coloffset_);
+  col[0] = (unsigned char)(c.r*255.0f); col[1] = (unsigned char)(c.g*255.0f); col[2] = (unsigned char)(c.b*255.0f); col[3] = (unsigned char)(c.a*255.0f);
 }
 
 void GL2VertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t){
@@ -143,7 +142,7 @@ void GL2VertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t){
 void GL2VertexBuffer::setVertexOffset(int offset){
   userVertOffset_ = 4*offset*structsize_;//offset*structsize_;
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, structsize_, vb_ + vertoffset_ + userVertOffset_);
-  glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, structsize_, vb_ + coloffset_ + userVertOffset_);
+  glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, structsize_, vb_ + coloffset_ + userVertOffset_);
   glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, structsize_, vb_+texoffset_+userVertOffset_);
   glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, structsize_, vb_ + normoffset_ + userVertOffset_);
   glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, structsize_, vb_ + tex2offset_ + userVertOffset_);

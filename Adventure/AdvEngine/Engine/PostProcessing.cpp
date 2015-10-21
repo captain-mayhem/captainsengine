@@ -1211,6 +1211,7 @@ private:
 };
 
 static const char lightningfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -1218,7 +1219,6 @@ static const char lightningfs[] =
 "\n"
 "uniform sampler2D texture;\n"
 "uniform sampler2D blendtex;\n"
-"uniform float opacity;\n"
 "\n"
 "void main(){\n"
 "  vec4 color = vec4(1.0);\n"
@@ -1229,9 +1229,31 @@ static const char lightningfs[] =
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"Texture2D tex : register(t0);\n"
+"SamplerState sampl : register(s0);\n"
+"Texture2D blendtex : register(t1);\n"
+"SamplerState blendsampl : register(s1);\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  color = tex.Sample(sampl, inp.tex_coord);\n"
+"  float4 blendcol = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  blendcol = blendtex.Sample(blendsampl, inp.tex_coord);\n"
+"  color = lerp(color, blendcol, blendcol.a);\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
 
 static const char drawvs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -1244,9 +1266,29 @@ static const char drawvs[] =
 "  vert_color = color;\n"
 "  gl_Position = vec4(pos.x*2.0-1.0, pos.y*2.0-1.0, 0.0, 1.0);\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"struct VSInput{\n"
+"  float3 pos : POSITION;\n"
+"  float4 color : COLOR0;\n"
+"};\n"
+"\n"
+"struct VSOutput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float4 vert_color : COLOR0;\n"
+"};\n"
+"\n"
+"VSOutput main(VSInput inp){\n"
+"  VSOutput outp;\n"
+"  outp.vert_color = inp.color;\n"
+"  outp.vPos = float4(inp.pos.x*2.0-1.0, (1.0-inp.pos.y)*2.0-1.0, 0.0, 1.0);\n"
+"  return outp;\n"
+"}\n"
+"\n";
 
 static const char drawfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -1257,7 +1299,20 @@ static const char drawfs[] =
 "  gl_FragColor = color;\n"
 //"  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float4 vert_color : COLOR0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = inp.vert_color;\n"
+"  return color;\n"
+"}\n"
+"\n";
 
 class LightningEffect : public PostProcessor::Effect{
 public:
@@ -1274,7 +1329,6 @@ public:
   virtual void init(const Vec2f& size){
     mFBO = new RenderableBlitObject((int)size.x, (int)size.y, 0);
     mFBO->realize();
-    mFBO->getTexture()->activate(1);
     Vec2i imgsize;
     Vec2f imgscale;
     Effect::init(size);
@@ -1286,7 +1340,9 @@ public:
     int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
     mShader.uniform(scale, size.x/powx, size.y/powy);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
     mShader.deactivate();
   }
   virtual void deinit(){
@@ -1372,15 +1428,16 @@ public:
     Engine::instance()->restoreRenderDefaults();
     mFBO->unbind();
     
-    mFBO->getTexture()->activate(1);
     return true;
   }
   virtual void apply(BlitObject* input){
     input->getTexture()->activate();
+    mFBO->getTexture()->activate(1);
     CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
     //mShader.uniform(mIntensityLoc, mInterpolator.current());
     Engine::instance()->drawQuad();
+    mFBO->getTexture()->deactivate(1);
     mShader.deactivate();
   }
   virtual std::ostream& save(std::ostream& out){
@@ -1499,6 +1556,7 @@ private:
 };
 
 static const char fogfs[] =
+"@GLSL"
 #ifdef RENDER_TEGRA
 "precision mediump float;\n"
 #endif
@@ -1515,7 +1573,29 @@ static const char fogfs[] =
 "  gl_FragColor = color;\n"
 "  gl_FragColor.a = 1.0;\n"
 "}\n"
-"";
+""
+"@HLSL"
+""
+"Texture2D tex : register(t0);\n"
+"SamplerState sampl : register(s0);\n"
+"\n"
+"cbuffer perDraw{\n"
+"  float opacity;\n"
+"  float4 blendcol;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  color = tex.Sample(sampl, inp.tex_coord);\n"
+"  color = lerp(color, blendcol, opacity);\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
 
 class FogEffect : public PostProcessor::Effect{
 public:
@@ -1530,10 +1610,14 @@ public:
     int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
     mShader.uniform(scale, size.x/powx, size.y/powy);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
     mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "opacity");
     int blendcol = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendcol");
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER);
     mShader.uniform(blendcol, 0.5, 0.5, 0.5, 1.0);
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER);
     mShader.deactivate();
   }
   virtual void deinit(){
@@ -1573,7 +1657,9 @@ public:
     input->getTexture()->activate();
     CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER);
     mShader.uniform(mIntensityLoc, mInterpolator.current());
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER);
     Engine::instance()->drawQuad();
     mShader.deactivate();
   }
@@ -1595,27 +1681,9 @@ private:
   bool mFadeout;
 };
 
-static const char zoomvs[] =
-#ifdef RENDER_TEGRA
-"precision mediump float;\n"
-#endif
-"attribute vec3 pos;\n"
-"attribute vec4 texcoord;\n"
-"attribute vec2 texcoord2; /*offset*/\n"
-"\n"
-"uniform vec2 tex_scale;\n"
-"\n"
-"varying vec2 tex_coord;\n"
-"\n"
-"void main(){\n"
-"  tex_coord = vec2(pos.x*tex_scale.x, (0.0+pos.y)*tex_scale.y);\n"
-"  gl_Position = vec4(pos.x*2.0-1.0+texcoord2.x, pos.y*2.0-1.0+texcoord2.y, 0.0, 1.0);\n"
-"}\n"
-"";
-
 class ZoomEffect : public PostProcessor::Effect{
 public:
-  ZoomEffect() : Effect(zoomvs, stdfs), mVB(NULL){
+  ZoomEffect() : Effect(druggedvs, stdfs), mVB(NULL){
     mName = "zoom";
   }
   virtual void init(const Vec2f& size){
@@ -1626,7 +1694,9 @@ public:
     int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
     mShader.uniform(scale, size.x/powx, size.y/powy);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
     mShader.deactivate();
   }
   virtual void deinit(){
@@ -1707,7 +1777,10 @@ private:
     float xres = (float)Engine::instance()->getResolution().x;
     float sx = ((mPos.x-xres/2)/xres)*2;
     float yres = (float)Engine::instance()->getResolution().y;
-    float sy = ((mPos.y-yres/2)/yres)*2;
+    float y = (float)mPos.y;
+    if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::DirectX)
+      y = yres - mPos.y;
+    float sy = ((y-yres/2)/yres)*2;
     float scale = mScale;
     float transx = sx*(1-scale);
     float transy = sy*(1-scale);
@@ -1746,10 +1819,14 @@ public:
     int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
     float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
     float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
     mShader.uniform(scale, size.x/powx, size.y/powy);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
     mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "opacity");
     int blendcol = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "blendcol");
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER);
     mShader.uniform(blendcol, 1.0, 1.0, 1.0, 1.0);
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER);
     mShader.deactivate();
   }
   virtual void deinit(){
@@ -1782,7 +1859,9 @@ public:
     input->getTexture()->activate();
     CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER);
     mShader.uniform(mIntensityLoc, mInterpolator.current());
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER);
     Engine::instance()->drawQuad();
     mShader.deactivate();
   }
