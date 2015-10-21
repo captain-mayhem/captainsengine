@@ -35,7 +35,7 @@ void DXVertexBuffer::create(int type, int vertexBufferSize){
   }
   if (type & VB_COLOR){
     coloffset_ = offset;
-    offset += 4 * sizeof(float);
+    offset += 4 * sizeof(char);
   }
   if (type & VB_TEXCOORD){
     texoffset_ = offset;
@@ -107,9 +107,8 @@ void DXVertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, in
 }
 
 void DXVertexBuffer::setColor(int pos, Color c){
-  Color* col;
-  col = (Color*)(((char*)verts_)+pos*structsize_+coloffset_);
-  col->r = c.b; col->g = c.g; col->b = c.r; col->a = c.a;
+  char* col = (((char*)verts_) + pos*structsize_ + coloffset_);
+  col[0] = (char)(c.r*255.0f); col[1] = (char)(c.g*255.0f); col[2] = (char)(c.b*255.0f); col[3] = (char)(c.a*255.0f);
 }
 
 void DXVertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t){

@@ -2221,7 +2221,7 @@ int ScriptFunctions::startEffect(lua_State* L){
       fadein = ctx.stack().get(2).getInt();
     int fadeout = 0;
     if (numArgs > 2)
-      ctx.stack().get(3).getInt();
+      fadeout = ctx.stack().get(3).getInt();
     ef->activate(true, fadein, fadeout);
   }
   else{
