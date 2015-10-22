@@ -443,6 +443,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_mi
     return false;
   }
   txtstream.readLine();
+  mCursor.reserve(STATES_MAX);
   for (int state = 0; state < STATES_MAX; ++state){
     CursorState cs;
     for (int frames = 0; frames < FRAMES_MAX; ++frames){
@@ -486,8 +487,10 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_mi
         numStates = 1;
         delim = 1;
       }
+      it.states.reserve(numStates);
       for (int state = 0; state < numStates; ++state){
         ItemState is;
+        is.frames.reserve(FRAMES_MAX);
         for (int frames = 0; frames < FRAMES_MAX; ++frames){
           str = txtstream.readLine();
           size_t pos = str.find(";");
@@ -520,6 +523,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_mi
       str = txtstream.readLine();
       val1 = atoi(str.c_str());
       obj.lighten = (val1 != 0);
+      obj.states.reserve(STATES_MAX);
       for (int state = 0; state < STATES_MAX; ++state){
         ObjectState os;
         os.fps = readExtendedFrames(txtstream, os.frames);
@@ -554,6 +558,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_mi
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.fontid = val1;
       str = txtstream.readLine(); val1 = atoi(str.c_str()); ch.zoom = val1;
       //int states = ver_major >= 3 ? CHAR_STATES_MAX : CHAR_STATES_MAX-20;
+      ch.states.reserve(CHAR_STATES_MAX);
       for (int state = 0; state < CHAR_STATES_MAX; ++state){
         CharacterState cs;
         str = txtstream.readLine(); val1 = atoi(str.c_str()); str = txtstream.readLine(); val2 = atoi(str.c_str());
@@ -610,6 +615,7 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_mi
         room.lighting.b = atoi(str.c_str());
       }
       if (ver_major >= 3 || (ver_major == 2 && ver_minor >= 8)){
+        room.fxshapes.reserve(FXSHAPES_MAX);
         for (int i = 0; i < FXSHAPES_MAX; ++i){
           FXShape shape;
           str = txtstream.readLine();
@@ -998,6 +1004,7 @@ float AdvDocument::readExtendedFrames(CGE::MemReader& txtstream, ExtendedFrames&
   std::string str;
   long val1, val2;
   int realFrames = 0;
+  frms.reserve(FRAMES2_MAX);
   for (int frames = 0; frames < FRAMES2_MAX; ++frames){
     ExtendedFrame frm;
     bool set[PARTS_MAX];

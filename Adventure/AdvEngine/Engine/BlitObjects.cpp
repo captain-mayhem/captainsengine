@@ -240,6 +240,7 @@ MirrorObject::MirrorObject(int width, int height, int depth, unsigned char stren
 RenderableBlitObject(width, height, depth), mOpacity(strength), mIsWallMirror(false){
   mPolygon = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
   mPolygon->create(VB_POSITION, 5);
+  memset(mPoints, 0, 4 * sizeof(Vec2i));
 }
 
 MirrorObject::~MirrorObject(){
@@ -315,13 +316,7 @@ void MirrorObject::setMirrorArea(Vec2i points[4], RoomObject* room){
       xmin = points[i].x;
   }
   mMirrorCenter = (xmin + xmax) / 2;
-  mPolygon->lockVertexPointer();
-  mPolygon->setPosition(0, CGE::Vec3f((float)points[1].x, (float)points[1].y, 0.0f));
-  mPolygon->setPosition(1, CGE::Vec3f((float)points[2].x, (float)points[2].y, 0.0f));
-  mPolygon->setPosition(2, CGE::Vec3f((float)points[0].x, (float)points[0].y, 0.0f));
-  mPolygon->setPosition(3, CGE::Vec3f((float)points[3].x, (float)points[3].y, 0.0f));
-  mPolygon->setPosition(4, CGE::Vec3f((float)points[0].x, (float)points[0].y, 0.0f));
-  mPolygon->unlockVertexPointer();
+  memcpy(mPoints, points, 4 * sizeof(Vec2i));
 }
 
 void MirrorObject::renderCharacter(CharacterObject* chr){
@@ -362,4 +357,15 @@ void MirrorObject::setWallMirror(Vec2i offset, bool positionDependent){
   mMirrorOffset = offset;
   mPositionDependent = positionDependent;
   mIsWallMirror = true;
+}
+
+void MirrorObject::realize(){
+  RenderableBlitObject::realize();
+  mPolygon->lockVertexPointer();
+  mPolygon->setPosition(0, CGE::Vec3f((float)mPoints[1].x, (float)mPoints[1].y, 0.0f));
+  mPolygon->setPosition(1, CGE::Vec3f((float)mPoints[2].x, (float)mPoints[2].y, 0.0f));
+  mPolygon->setPosition(2, CGE::Vec3f((float)mPoints[0].x, (float)mPoints[0].y, 0.0f));
+  mPolygon->setPosition(3, CGE::Vec3f((float)mPoints[3].x, (float)mPoints[3].y, 0.0f));
+  mPolygon->setPosition(4, CGE::Vec3f((float)mPoints[0].x, (float)mPoints[0].y, 0.0f));
+  mPolygon->unlockVertexPointer();
 }

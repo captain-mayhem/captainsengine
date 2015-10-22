@@ -131,8 +131,10 @@ public:
   virtual bool update(unsigned interval);
   void setMirrorArea(Vec2i points[4], RoomObject* room);
   void setWallMirror(Vec2i offset, bool positionDependent);
+  virtual void realize();
 protected:
   void renderCharacter(CharacterObject* chr);
+  Vec2i mPoints[4];
   CGE::VertexBuffer* mPolygon;
   RoomObject* mRoom;
   Vec2i mMirrorOffset;
