@@ -152,6 +152,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   mPrevActiveCommand = 0;
   mCurrentObject = NULL;
   mClickedObject = NULL;
+  mPrevClickedObject = NULL;
   int transparency = mData->getProjectSettings()->anywhere_transparency*255/100;
   //load taskbar room
   TR_INFO("Loading UI");
@@ -239,6 +240,7 @@ void Engine::exitGame(){
   mInitialized = false;
   mCurrentObject = NULL;
   mClickedObject = NULL;
+  mPrevClickedObject = NULL;
   mInterpreter->stop();
   mMainScript->unref();
   mAnimator->clear();
@@ -903,23 +905,11 @@ void Engine::leftClick(const Vec2i& pos){
   if (obj != NULL){
     if (obj->getScript() != NULL && !obj->getScript()->isGameObject())
       keepCommand = true;
+    if (mClickedObject && mClickedObject->getScript() && mClickedObject->getScript()->isGameObject())
+      mPrevClickedObject = mClickedObject;
     mClickedObject = obj;
-    script = obj->getScript();
-    if (script != NULL){
-      script->setEvent(EVT_CLICK);
-      if (!mUseObjectName.empty()){
-        script->setUseObjectName(mUseObjectName);
-        script->setEvent(EVT_LINK);
-      }
-      else if (!mGiveObjectName.empty()){
-        script->setGiveObjectName(mGiveObjectName);
-        script->setEvent(EVT_GIVE_LINK);
-      }
-      else
-        script->setEvent((EngineEvent)mActiveCommand);
-    }
-    else if (mFocussedChar && !mSubRoomLoaded){
-      Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED, 1.0f);
+    if (!applyCommandToSelObj(false) && mFocussedChar && !mSubRoomLoaded){
+      Engine::instance()->walkTo(mFocussedChar, pos - mScrollOffset, UNSPECIFIED, 1.0f);
     }
   }
   else if (mFocussedChar && !mSubRoomLoaded && !mInterpreter->isBlockingScriptRunning()){
@@ -955,6 +945,7 @@ void Engine::leftRelease(const Vec2i& pos){
     ExecutionContext* ctx = mClickedObject->getScript();
     if (ctx != NULL)
       ctx->setEvent(EVT_RELEASE);
+    mPrevClickedObject = mClickedObject;
     mClickedObject = NULL;
   }
   trymtx.unlock();
@@ -980,8 +971,10 @@ void Engine::rightClick(const Vec2i& pos){
     leftClick(pos);
   Object2D* obj = getObjectAt(pos);
   if (obj != NULL){
-    if (mData->getProjectSettings()->coinActivated && mData->getProjectSettings()->coinAutoPopup)
+    if (mData->getProjectSettings()->coinActivated && mData->getProjectSettings()->coinAutoPopup){
+      mPrevClickedObject = obj;
       popupCoinMenu(NULL);
+    }
     else{
       ExecutionContext* script = obj->getScript();
       if (script != NULL)
@@ -1688,6 +1681,8 @@ void Engine::remove(Object2D* obj){
     mCurrentObject = NULL;
   if (mClickedObject == obj)
     mClickedObject = NULL;
+  if (mPrevClickedObject == obj)
+    mPrevClickedObject = NULL;
 }
 
 void Engine::enterText(const String& variable, int maxcharacters, ExecutionContext* suspensionReason){
@@ -1850,6 +1845,28 @@ void Engine::popupCoinMenu(ExecutionContext* loadreason){
     loadSubRoom(mData->getProjectSettings()->coinRoom, loadreason, mData->getProjectSettings()->coinFading);
     mCoinShown = true;
   }
+}
+
+bool Engine::applyCommandToSelObj(bool prevObj){
+  Object2D* obj = prevObj ? mPrevClickedObject : mClickedObject;
+  if (!obj)
+    return false;
+  ExecutionContext* script = obj->getScript();
+  if (script != NULL){
+    script->setEvent(EVT_CLICK);
+    if (!mUseObjectName.empty()){
+      script->setUseObjectName(mUseObjectName);
+      script->setEvent(EVT_LINK);
+    }
+    else if (!mGiveObjectName.empty()){
+      script->setGiveObjectName(mGiveObjectName);
+      script->setEvent(EVT_GIVE_LINK);
+    }
+    else
+      script->setEvent((EngineEvent)mActiveCommand);
+    return true;
+  }
+  return false;
 }
 
 void Engine::drawQuad(){

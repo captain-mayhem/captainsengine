@@ -101,6 +101,7 @@ protected:
   std::map<std::string, int> mArgEC;
   std::set<EngineEvent> mEvents;
   ASTNode* mFirstArg;
+  ExecutionContext* mLoop1;
   CGE::Mutex mMutex;
 
   EngineEvent getEngineEvent(const std::string eventname);

@@ -1040,6 +1040,10 @@ int ScriptFunctions::command(lua_State* L){
   evt = Engine::instance()->getInterpreter()->getEngineEvent(cmd);
   ctx.setEvent(evt);
   Engine::instance()->setCommand(cmd, true);
+  if (Engine::instance()->getSettings()->coinActivated){
+    if (Engine::instance()->applyCommandToSelObj(true))
+      Engine::instance()->setCommand("none", false);
+  }
   return 0;
 }
 

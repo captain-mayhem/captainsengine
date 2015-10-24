@@ -33,7 +33,6 @@ CodeSegment::~CodeSegment(){
   for (unsigned i = 0; i < mEmbeddedContexts.size(); ++i){
     mEmbeddedContexts[i]->unref();
   }
-  mLoop1->unref();
 }
 
 bool PcdkScript::mRemoveLinkObject = false;
@@ -279,6 +278,7 @@ ASTNode* stringify(ASTNode* node){
 }
 
 ExecutionContext* PcdkScript::parseProgram(const std::string& program, ScriptLang type){
+  mLoop1 = NULL;
   if (type == DEFAULT_SCRIPT)
     type = mData->getProjectSettings()->script_lang;
   if (type == PCDK_SCRIPT)
@@ -344,7 +344,7 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
   std::string objectInfo = mObjectInfo;
   mEvents.clear();
   mMutex.unlock();
-  if (segment->numInstructions() <= 1 && segment->getLoop1() == NULL){
+  if (segment->numInstructions() <= 1 && mLoop1 == NULL){
     delete segment;
     return NULL;
   }
@@ -353,12 +353,14 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
   FILE* f = fopen("C:/tmp/cmp.luac", "wb");
   fwrite(ret.c_str(), ret.size(), 1, f);
   fclose(f);*/
-  return new ExecutionContext(segment, isGameObject, objectInfo);
+  ExecutionContext* ret = new ExecutionContext(segment, isGameObject, objectInfo);
+  ret->setLoop1(mLoop1);
+  return ret;
 }
 
 ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
   TR_USE(ADV_Console);
-  ExecutionContext* ret = new ExecutionContext(NULL, false, "");
+  ExecutionContext* ret = new ExecutionContext(NULL, program.find("showinfo") != program.npos , "");
   lua_State* L = ret->getState();
   lua_pushthread(L);
   lua_gettable(L, LUA_REGISTRYINDEX);
@@ -531,7 +533,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         if (evtcode == EVT_LOOP1){
           CodeSegment* cs = new CodeSegment;
           ExecutionContext* loop1 = new ExecutionContext(cs, false, "");
-          codes->setLoop1(loop1); //loop1 as seperate execution context
+          mLoop1 = loop1; //loop1 as seperate execution context
           codes = cs;
         }
         CBNEEVT* cevt = new CBNEEVT(evtcode);

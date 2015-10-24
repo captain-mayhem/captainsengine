@@ -141,6 +141,7 @@ public:
   Console* getConsole() { return mConsole; }
   void finishTextInput(bool commit);
   void popupCoinMenu(ExecutionContext* loadreason);
+  bool applyCommandToSelObj(bool prevObj);
   void drawQuad();
   void drawQuadLines();
   void fillWithStdQuad(CGE::VertexBuffer* vb);
@@ -217,6 +218,7 @@ protected:
   std::string mLinkObjectInfo;
   Object2D* mCurrentObject;
   Object2D* mClickedObject;
+  Object2D* mPrevClickedObject;
   ExecutionContext* mMainScript;
   std::map<int,bool> mKeysDown;
   std::map<int,bool> mKeysPressed;
