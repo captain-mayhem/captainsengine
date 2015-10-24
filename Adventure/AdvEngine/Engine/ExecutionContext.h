@@ -41,7 +41,7 @@ enum EngineEvent{
 
 class CodeSegment{
 public:
-  CodeSegment() : mLoop1(NULL) {mRefCount = new int(1);}
+  CodeSegment() {mRefCount = new int(1);}
   CodeSegment(const CodeSegment& cs);
   ~CodeSegment();
   void addCode(CCode* code){
@@ -61,13 +61,10 @@ public:
   void removeLast();
   void save(std::ostream& out);
   void load(std::istream& in);
-  void setLoop1(ExecutionContext* ctx) {mLoop1 = ctx;}
-  ExecutionContext* getLoop1() {return mLoop1;}
 protected:
   std::vector<CCode*> mCodes;
   int* mRefCount;
   std::vector<ExecutionContext*> mEmbeddedContexts;
-  ExecutionContext* mLoop1;
 };
 
 class ExecutionContext;
@@ -118,10 +115,10 @@ public:
   bool unref() {if (this == NULL) return false; --mRefCount; if (mRefCount == 0){ delete this; return true;} return false; }
   CodeSegment* getCode() {return mCode;}
   void save(std::ostream& out);
-  ExecutionContext* getLoop1() {return mCode ? mCode->getLoop1() : NULL;}
+  ExecutionContext* getLoop1() {return mLoop1;}
   bool isGameObject() {return mIsGameObject;}
-  void finish() {mShouldFinish = true; setSkip(); if (mCode && mCode->getLoop1() != NULL)mCode->getLoop1()->finish();}
-  void cancelFinish() {mShouldFinish = false; setSkip(false); if (mCode && mCode->getLoop1() != NULL) mCode->getLoop1()->cancelFinish();}
+  void finish() {mShouldFinish = true; setSkip(); if (mLoop1) mLoop1->finish();}
+  void cancelFinish() {mShouldFinish = false; setSkip(false); if (mLoop1) mLoop1->cancelFinish();}
   bool isLoop1();
   void setSelf(const String& name) {mSelf = name;}
   String resolveCharName(const String& name);
@@ -132,6 +129,7 @@ public:
   String getUseObjectName() {return mLinkName;}
   String getGiveObjectName() {return mGiveLinkName;}
   lua_State* getState() { return mL; }
+  void setLoop1(ExecutionContext* ctx) { mLoop1 = ctx; }
 protected:
   ~ExecutionContext();
   lua_State* newThread();
@@ -156,6 +154,7 @@ protected:
   String mGiveLinkName;
   lua_State* mL;
   int mLuaRet;
+  ExecutionContext* mLoop1;
 };
 
 }

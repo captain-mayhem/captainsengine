@@ -15,9 +15,6 @@ CodeSegment::CodeSegment(const CodeSegment& cs){
   mCodes = cs.mCodes;
   mRefCount = cs.mRefCount;
   ++(*mRefCount);
-  mLoop1 = cs.mLoop1;
-  if (mLoop1)
-    mLoop1->ref();
 }
 
 void CodeSegment::removeLast(){
@@ -35,14 +32,6 @@ void CodeSegment::save(std::ostream& out){
   for (unsigned i = 0; i < mEmbeddedContexts.size(); ++i){
     mEmbeddedContexts[i]->save(out);
   }
-  out << " ";
-  if (mLoop1 == NULL)
-    out << "none\n";
-  else{
-    out << "loop1\n";
-    mLoop1->save(out);
-  }
-  out << "\n";
 }
 
 void CodeSegment::load(std::istream& in){
@@ -58,16 +47,12 @@ void CodeSegment::load(std::istream& in){
   for (unsigned i = 0; i < size; ++i){
     mEmbeddedContexts[i] = new ExecutionContext(in);
   }
-  std::string tag;
-  in >> tag;
-  if (tag == "loop1")
-    mLoop1 = new ExecutionContext(in);
 }
 
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
-mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK){
+mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK), mLoop1(NULL){
   mL = newThread();
   mStack.setState(mL);
 }
@@ -91,6 +76,9 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx) : mLuaRet(LUA_OK
   mRefCount = 1;
   mSuspender = ctx.mSuspender;
   mShouldFinish = ctx.mShouldFinish;
+  mLoop1 = ctx.mLoop1;
+  if (mLoop1)
+    mLoop1->ref();
 }
 
 ExecutionContext::ExecutionContext(std::istream& in) : 
@@ -105,10 +93,16 @@ mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false), mLua
   in >> mSleepTime >> mSuspended;
   mCode = new CodeSegment();
   mCode->load(in);
+  std::string tag;
+  in >> tag;
+  if (tag == "loop1")
+    mLoop1 = new ExecutionContext(in);
 }
 
 ExecutionContext::~ExecutionContext(){
   delete mCode;
+  if (mLoop1)
+    mLoop1->unref();
   lua_pushthread(mL);
   lua_pushnil(mL);
   lua_settable(mL, LUA_REGISTRYINDEX);
@@ -179,7 +173,7 @@ bool ExecutionContext::containsEvent(EngineEvent evt){
 bool ExecutionContext::isRunning(){
   bool running = (((mCode && mPC > 0) || mLuaRet != LUA_OK) && !mIdle) || !mEvents.empty();
   if (!running){
-    running = mCode && mCode->getLoop1() ? mCode->getLoop1()->isRunning() : false;
+    running = mLoop1 ? mLoop1->isRunning() : false;
   }
   return running;
 }
@@ -219,6 +213,14 @@ void ExecutionContext::save(std::ostream& out){
   out << mIsGameObject << " " << (mObjectInfo.empty() ? "none" : mObjectInfo) << " ";
   out << mSleepTime << " " << mSuspended << " ";
   mCode->save(out);
+  out << " ";
+  if (mLoop1 == NULL)
+    out << "none\n";
+  else{
+    out << "loop1\n";
+    mLoop1->save(out);
+  }
+  out << "\n";
 }
 
 bool ExecutionContext::isLoop1(){
