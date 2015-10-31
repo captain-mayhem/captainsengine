@@ -971,12 +971,14 @@ void Engine::rightClick(const Vec2i& pos){
     leftClick(pos);
   Object2D* obj = getObjectAt(pos);
   if (obj != NULL){
+    ExecutionContext* script = obj->getScript();
     if (mData->getProjectSettings()->coinActivated && mData->getProjectSettings()->coinAutoPopup){
       mPrevClickedObject = obj;
       popupCoinMenu(NULL);
+      if (script != NULL)
+        script->setEvent(EVT_CLICK);
     }
     else{
-      ExecutionContext* script = obj->getScript();
       if (script != NULL)
         script->setEvent(EVT_RIGHTCLICK);
     }
@@ -1841,6 +1843,8 @@ void Engine::clearCharCache(){
 }
 
 void Engine::popupCoinMenu(ExecutionContext* loadreason){
+  if (mCoinShown)
+    return;
   if (mData->getProjectSettings()->coinActivated){
     loadSubRoom(mData->getProjectSettings()->coinRoom, loadreason, mData->getProjectSettings()->coinFading);
     mCoinShown = true;
@@ -1853,7 +1857,8 @@ bool Engine::applyCommandToSelObj(bool prevObj){
     return false;
   ExecutionContext* script = obj->getScript();
   if (script != NULL){
-    script->setEvent(EVT_CLICK);
+    if (!prevObj) //from coin menu - click handler was already executed
+      script->setEvent(EVT_CLICK);
     if (!mUseObjectName.empty()){
       script->setUseObjectName(mUseObjectName);
       script->setEvent(EVT_LINK);

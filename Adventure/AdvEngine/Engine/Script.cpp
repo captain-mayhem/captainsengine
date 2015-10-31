@@ -68,8 +68,14 @@ const char* luaRunner =
 "function on_newidx(table, ev, eventfunc)\n"
 "  local event = getEvent(ev)\n"
 "  if _state:eventFired(event) then\n"
+"    if event == 172 then --loop2\n"
+"      _state:setIdle(true)\n"
+"    end\n"
 "    _state:eventHandled()\n"
 "    eventfunc()\n"
+"    if event == 172 then --loop2\n"
+"      _state:setIdle(false)\n"
+"    end\n"
 "  end\n"
 "end\n"
 //"function on(event, func)\n"
@@ -384,6 +390,8 @@ ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
   lua_setfield(L, -2, "eventFired");
   lua_pushcfunction(L, eventHandled);
   lua_setfield(L, -2, "eventHandled");
+  lua_pushcfunction(L, setIdle);
+  lua_setfield(L, -2, "setIdle");
   lua_pop(L, 1);
   return ret;
 }
@@ -1928,5 +1936,16 @@ int PcdkScript::eventHandled(lua_State* L){
   ExecutionContext* ctx = (ExecutionContext*)lua_touserdata(L, -1);
   lua_pop(L, 1);
   ctx->setEventHandled();
+  return 0;
+}
+
+int PcdkScript::setIdle(lua_State* L){
+  if (lua_gettop(L) < 2)
+    return luaL_error(L, "2 arguments expected");
+  lua_getfield(L, 1, "ec");
+  ExecutionContext* ctx = (ExecutionContext*)lua_touserdata(L, -1);
+  lua_pop(L, 1);
+  bool idle = lua_toboolean(L, 2) != 0 ? true : false;
+  ctx->setIdle(idle);
   return 0;
 }
