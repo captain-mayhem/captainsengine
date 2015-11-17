@@ -364,7 +364,7 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
   return ret;
 }
 
-ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
+ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program, bool checkLoop1){
   TR_USE(ADV_Console);
   ExecutionContext* ret = new ExecutionContext(NULL, program.find("showinfo") != program.npos , "");
   lua_State* L = ret->getState();
@@ -393,6 +393,10 @@ ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
   lua_pushcfunction(L, setIdle);
   lua_setfield(L, -2, "setIdle");
   lua_pop(L, 1);
+  if (checkLoop1 && program.find("loop1") != program.npos){
+    ExecutionContext* loop1 = parseProgramLUA(program, false);
+    ret->setLoop1(loop1);
+  }
   return ret;
 }
 
