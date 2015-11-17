@@ -16,10 +16,10 @@ dialog = {}
 list_file = nil
 objects_file = nil
 
-function traverseLayers(moho, grouplayer, func)
+function traverseLayers(moho, grouplayer, func, depth)
   for i=1,grouplayer:CountLayers() do
     local layer = grouplayer:Layer(i-1)
-    traverseLayer(moho, layer, func);
+    traverseLayer(moho, layer, func, depth);
   end
 end
 
@@ -28,14 +28,14 @@ function sleep(s)
   repeat until os.time() > ntime
 end
 
-function traverseLayer(moho, layer, func)
+function traverseLayer(moho, layer, func, depth)
   local bbox = layer:Bounds(0)
   if layer:LayerType() == MOHO.LT_GROUP then
     glayer = moho:LayerAsGroup(layer)
-    traverseLayers(moho, glayer, func)
+    traverseLayers(moho, glayer, func, depth+1)
   elseif layer:LayerType() == MOHO.LT_BONE then
     blayer = moho:LayerAsBone(layer)
-    traverseLayers(moho, blayer, func)
+    traverseLayers(moho, blayer, func, depth)
   elseif layer:LayerType() == MOHO.LT_SWITCH then
     slayer = moho:LayerAsSwitch(layer)
     local val = slayer:GetValue(0)
@@ -46,20 +46,20 @@ function traverseLayer(moho, layer, func)
       active_layer = slayer:Layer(slayer:CountLayers()-1)
     end
     --print(active_layer:Name())
-    traverseLayer(moho, active_layer, func)
+    traverseLayer(moho, active_layer, func, depth)
   elseif not bbox:IsEmpty() then
-    func(moho, layer)
+    func(moho, layer, depth)
   end
 end
 
-function makeInvisble(moho, layer)
+function makeInvisble(moho, layer, depth)
   local vis = layer.fVisibility
   visibility[count] = vis:GetValue(0)
   vis:SetValue(0, false)
   count = count + 1
 end
 
-function restoreVisibility(moho, layer)
+function restoreVisibility(moho, layer, depth)
   local vis = layer.fVisibility
   vis:SetValue(0, visibility[count])
   count = count + 1
@@ -118,12 +118,12 @@ function drawLayers(name, moho, layers)
   end
 end
 
-function buildMenu(moho, layer)
+function buildMenu(moho, layer, depth)
   layers[count] = layer
   dialog.layers[count] = MOHO.MSG_BASE + count
   dialog.layer_menu:AddItem(layer:Name(), 0, dialog.layers[count])
-  if (count == 1) then
-    --dialog.layer_menu:SetChecked(dialog.layers[count], true)
+  if (count > 1 and depth > 1) then
+    dialog.layer_menu:SetChecked(dialog.layers[count], true)
   end
   count = count + 1
 end
@@ -172,7 +172,7 @@ function bla(moho)
   local dia = dialog:new()
   
   count = 1
-  traverseLayers(moho, doc, buildMenu)
+  traverseLayers(moho, doc, buildMenu, 1)
   --dia.HandleMessage = handleMessage
   
   if dia:DoModal() ~= LM.GUI.MSG_OK then
@@ -202,7 +202,7 @@ function bla(moho)
   objects_file:write("0\n0\n5\n10\n3\n\n\n")
   
   count = 1
-  traverseLayers(moho, doc, makeInvisble)
+  traverseLayers(moho, doc, makeInvisble, 1)
   count = 1
   --traverseLayers(moho, doc, drawLayer)
   for k,v in pairs(layer_groups) do
@@ -210,7 +210,7 @@ function bla(moho)
     drawLayers(k, moho, v)
   end
   count = 1
-  traverseLayers(moho, doc, restoreVisibility)
+  traverseLayers(moho, doc, restoreVisibility, 1)
   
   doc:SetShape(view_width, view_height)
   
