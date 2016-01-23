@@ -1805,7 +1805,7 @@ ASTNode* PcdkScript::parseLangArg(const char* funcname, int argnum, int strindex
   ASTNode* node = pcdkAST.value;
   if (parser->pParser->rec->state->errorCount > 0){
     TR_USE(ADV_Script)
-    CGE::Engine::instance()->messageBox("Error parsing argument", "Error");
+    //CGE::Engine::instance()->messageBox("Error parsing argument", "Error");
     TR_ERROR("Error parsing argument %s", text.c_str());
 #undef free
     parser->free(parser);

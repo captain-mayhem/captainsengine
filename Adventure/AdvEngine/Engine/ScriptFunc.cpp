@@ -1677,7 +1677,7 @@ int ScriptFunctions::function(lua_State* L){
       std::string txt = d.getString();
       bool loop = false;
       CSTATE* state = (CSTATE*)func->getCode()->get(0);
-      if (txt == "inf" || txt == "infinitly" || txt == "*"){
+      if ((txt.size() >= 3 && txt.substr(0, 3) == "inf") || txt == "*"){
         loop = true;
         state->setState(CSTATE::NORMAL);
       }
