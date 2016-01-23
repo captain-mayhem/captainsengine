@@ -250,7 +250,10 @@ variable returns [ASTNode* var]
 	(IDIV (id2=ident {VariableNode* node = (VariableNode*)$var; node->name().append(":"+id2.id->value()); delete id2.id;} 
 	   |  var2=variable {VariableNode* node = (VariableNode*)$var; node->name().append(":"); node->setChild((VariableNode*)var2.var);} )
 	 )?
-	 (var3=variable {VariableNode* node = (VariableNode*)$var; node->setChild((VariableNode*)var3.var);} )*
+	 (var3=variable {VariableNode* node = (VariableNode*)$var; node->setChild((VariableNode*)var3.var);} 
+	 | INT {VariableNode* node = (VariableNode*)$var; node->name().append((char*)$INT.text->chars);}
+	 | id3=ident {VariableNode* node = (VariableNode*)$var; node->name().append(id3.id->value()); delete id3.id;}
+	 )*
 	RBRACKET
 ;
 

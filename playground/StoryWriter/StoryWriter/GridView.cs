@@ -13,6 +13,7 @@ namespace StoryWriter
         public GridView()
         {
             RowHeadersVisible = false;
+            AllowUserToResizeRows = false;
             GridColor = SystemColors.Control;
             mGridColor = GridColor;
             this.Paint += GridView_Paint;
