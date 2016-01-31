@@ -43,6 +43,12 @@ public:
     if (node != NULL)
       mNodes.push_back(node);
   }
+  void addNodes(NodeList* list){
+    for (size_t i = 0; i < list->mNodes.size(); ++i){
+      mNodes.push_back(list->mNodes[i]);
+    }
+    list->mNodes.clear();
+  }
   void reset(bool start) {
     if (start)
       mIdx = 0;

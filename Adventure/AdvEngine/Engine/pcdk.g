@@ -22,6 +22,7 @@ prog returns [NodeList* nodes]
 	:	{$nodes = new NodeList();}
 		(
 		statement=stmt {$nodes->addNode(statement.stmt);}
+		| blk=braced_block {$nodes->addNodes(blk.nodes); delete blk.nodes;}
 		)*;
 
 stmt returns [StmtNode* stmt]
@@ -107,14 +108,21 @@ conditional returns [CondNode* cond]
 		$cond->setIfBlock(ifblock.nodes);
 	}
 	;
-	
-block returns [NodeList* nodes]
+
+braced_block returns [NodeList* nodes]
 	:	{$nodes = new NodeList();}
 		LBRACE
 		(
 			stmtnode=nested_stmt {$nodes->addNode(stmtnode.stmt);}
+			|   evth=event_handler {delete evth.evt;/* ignore nested events */}
+			|   blk=braced_block {$nodes->addNodes(blk.nodes); delete blk.nodes;}
 		)*
 		RBRACE
+	;
+	
+block returns [NodeList* nodes]
+	:
+	bb=braced_block {$nodes = bb.nodes;}
 	|	stmtnode=nested_stmt {$nodes = new NodeList(); $nodes->addNode(stmtnode.stmt);}
 	;
 	
