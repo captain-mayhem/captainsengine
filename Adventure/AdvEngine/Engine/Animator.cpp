@@ -376,6 +376,8 @@ void Animator::add(CharacterObject* obj, float sourcescale, float targetscale, b
       break;
     }
   }
+  if (sourcescale == targetscale)
+    return;
   ScaleAnimation* sa = new ScaleAnimation(sourcescale, targetscale, obj, isUserScale);
   add(sa);
 }
