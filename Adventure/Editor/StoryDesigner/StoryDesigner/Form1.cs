@@ -509,9 +509,9 @@ namespace StoryDesigner
                     allowSave(false);
                 return true;
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                MessageBox.Show("Cannot load " + filename);
+                MessageBox.Show("Cannot load " + filename + e.ToString());
                 return false;
             }
         }

@@ -1,0 +1,1 @@
+python emscripten/1.21.0/tools/file_packager.py %2.dat --preload %1@data --js-output=%2.js

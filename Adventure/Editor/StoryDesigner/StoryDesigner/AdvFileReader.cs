@@ -540,7 +540,10 @@ namespace StoryDesigner
                                 {
                                     string[] split = str.Split(';');
                                     ist.frames.Add(split[0]);
-                                    ist.scripts.Add(split[1].Replace('\xaf', ';'));
+                                    if (split.Length > 1)
+                                        ist.scripts.Add(split[1].Replace('\xaf', ';'));
+                                    else
+                                        ist.scripts.Add("");
                                 }
                                 else
                                 {
