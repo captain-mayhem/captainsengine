@@ -97,6 +97,8 @@ mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false), mLua
   in >> tag;
   if (tag == "loop1")
     mLoop1 = new ExecutionContext(in);
+  else
+    mLoop1 = NULL;
 }
 
 ExecutionContext::~ExecutionContext(){
