@@ -75,6 +75,19 @@ public:
       return NULL;
     return mNodes[0];
   }
+  bool removeNotOfType(ASTNode::Type type){
+    bool changed = false;
+    for (std::vector<ASTNode*>::iterator iter = mNodes.begin(); iter != mNodes.end(); ){
+      if ((*iter)->getType() != type){
+        delete *iter;
+        iter = mNodes.erase(iter);
+        changed = true;
+      }
+      else
+        ++iter;
+    }
+    return changed;
+  }
 protected:
   std::vector<ASTNode*> mNodes;
   unsigned mIdx;

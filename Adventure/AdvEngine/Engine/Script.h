@@ -103,6 +103,7 @@ protected:
   ASTNode* mFirstArg;
   ExecutionContext* mLoop1;
   CGE::Mutex mMutex;
+  bool mInRow;
 
   EngineEvent getEngineEvent(const std::string eventname);
   void update(ExecutionContext* ctx, unsigned time, bool execute=true);
