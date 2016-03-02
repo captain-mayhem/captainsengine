@@ -332,11 +332,20 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
 #ifdef _CRTDBG_MAP_ALLOC
 #define free _free_dbg
 #endif
+  //sanitize AST
+  if (p->first() && p->first()->getType() == ASTNode::EVENT){
+    if (p->removeNotOfType(ASTNode::EVENT)){
+      TR_USE(ADV_Script);
+      TR_ERROR("Skipping non-event top-level statements in event script");
+    }
+  }
+  //transform AST to CIL
   mIsGameObject = false;
   mObjectInfo = "";
   mLastRelation = NULL;
   mFirstArg = NULL;
   mUnresolvedBlockEnd = NULL;
+  mInRow = false;
   CodeSegment* segment = new CodeSegment;
   segment->addCode(new CSTATE(CSTATE::NORMAL));
   transform(p, segment, START);
@@ -696,12 +705,19 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::ROWDEF:{
         RowNode* row = static_cast<RowNode*>(node);
-        CBNEROW* crow = new CBNEROW(row->getRow(), row->getText().c_str(), row->isVisible());
-        codes->addCode(crow);
-        ++count;
-        int offset = transform(row->getBlock(), codes, START);
-        crow->setOffset(offset+1);
-        count += offset;
+        if (!mInRow){
+          CBNEROW* crow = new CBNEROW(row->getRow(), row->getText().c_str(), row->isVisible());
+          codes->addCode(crow);
+          ++count;
+          mInRow = true;
+          int offset = transform(row->getBlock(), codes, START);
+          mInRow = false;
+          crow->setOffset(offset + 1);
+          count += offset;
+        }
+        else{
+          TR_ERROR("Skipping nested row statement: %s", row->getText().c_str());
+        }
       }
       break;
       case ASTNode::TIMERFUNC:{
