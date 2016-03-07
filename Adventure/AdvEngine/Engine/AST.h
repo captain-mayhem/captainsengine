@@ -167,7 +167,7 @@ protected:
 
 class CondNode : public StmtNode{
 public:
-  CondNode(bool negation) : StmtNode(CONDITION), mNegation(negation){
+  CondNode(bool negation) : StmtNode(CONDITION), mNegation(negation), mArgs(NULL), mIfBlock(NULL){
   }
   ~CondNode(){
     delete mArgs;

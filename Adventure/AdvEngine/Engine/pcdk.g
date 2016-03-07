@@ -121,6 +121,7 @@ braced_block returns [NodeList* nodes]
 	;
 	
 block returns [NodeList* nodes]
+@init{ $nodes = NULL;}
 	:
 	bb=braced_block {$nodes = bb.nodes;}
 	|	stmtnode=nested_stmt {$nodes = new NodeList(); $nodes->addNode(stmtnode.stmt);}

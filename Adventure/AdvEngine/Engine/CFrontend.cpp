@@ -201,7 +201,7 @@ int translateKey(SDL_keysym& sym){
       return KEY_F1;
     case SDLK_F2:
       return KEY_F2;
-    case SDLK_BACKQUOTE:
+    case SDLK_CARET:
       return KEY_CIRCUMFLEX;
     case SDLK_PAGEUP:
       return KEY_PAGEUP;
@@ -227,8 +227,10 @@ void mainloop(){
 			case SDL_MOUSEBUTTONDOWN:
 				if (event.button.button == SDL_BUTTON_LEFT){
           unsigned ticks = SDL_GetTicks();
-          if (ticks - lastClick < 500)
+          if (ticks - lastClick < 500){
+            Engine::instance()->leftClick(Vec2i(event.button.x,event.button.y));
             Engine::instance()->doubleClick(Vec2i(event.button.x,event.button.y));
+          }
           else
             Engine::instance()->leftClick(Vec2i(event.button.x,event.button.y));
           lastClick = ticks;
@@ -263,6 +265,7 @@ void mainloop(){
 
 int main(int argc, char** argv){
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
+  SDL_EnableUNICODE(1);
   EM_ASM(
     FS.mkdir('/IDBFS');
     FS.mount(IDBFS, {}, '/IDBFS');
