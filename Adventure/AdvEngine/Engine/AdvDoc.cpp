@@ -881,7 +881,9 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
   if (iter != mImageNames.end())
     filename = iter->second;
   else{
-    TR_BREAK("Image %s not found", name.c_str());
+    TR_ERROR("Image %s not found", name.c_str());
+    mMuty.unlock();
+    return NULL;
   }
   if (mUseCompressedData){
     size_t namepos = filename.find_last_of('/');
