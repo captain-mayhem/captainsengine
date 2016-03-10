@@ -1112,7 +1112,9 @@ namespace StoryDesigner
 
         public System.Drawing.Bitmap getImage(string name)
         {
-            string filename = mImages[name.ToLower()];
+            string filename;
+            if (!mImages.TryGetValue(name.ToLower(), out filename))
+                return null;
             if (mImageCache.ContainsKey(filename))
                 return mImageCache[filename];
             System.Drawing.Bitmap bmp = mReader.getImage(filename);

@@ -77,6 +77,8 @@ bool AdvDocument::loadDocument(const std::string filename){
         size_t namepos = splashfile.find_last_of('/');
         splashfile = mPath + "/" + splashfile.substr(namepos + 1);
       }
+      if (splashfile.size() > 0 && splashfile[splashfile.size() - 1] == 'j')
+        splashfile[splashfile.size() - 1] = 'g';
       splash = loader.load(splashfile.c_str());
       if (!splash){
         std::string ext = CGE::Filesystem::getExtension(splashfile);
