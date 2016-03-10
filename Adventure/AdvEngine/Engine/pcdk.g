@@ -101,12 +101,16 @@ conditional returns [CondNode* cond]
 		| 
 		IFNOT {$cond = new CondNode(true);}
 		) 
-		id=ident LPAREN args=arg_list RPAREN ifblock=block
+		id=ident LPAREN args=arg_list RPAREN
 	{
 		$cond->setCondition(id.id->value()); delete id.id;
 		$cond->setCondArgs(args.nodes);
-		$cond->setIfBlock(ifblock.nodes);
+		MARK();
 	}
+	(ifblock=block {$cond->setIfBlock(ifblock.nodes);}
+	| 
+	RBRACE {$cond->setIfBlock(new NodeList()); REWINDLAST();} //a hack to recoginze empty if blocks before closing scopes
+	)
 	;
 
 braced_block returns [NodeList* nodes]

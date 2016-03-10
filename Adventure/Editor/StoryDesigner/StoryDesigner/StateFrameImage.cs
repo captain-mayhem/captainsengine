@@ -391,6 +391,8 @@ namespace StoryDesigner
                 if (!mTimer.Enabled && mPictureDragging == 0)
                     imageNames.Text += pics[i] + " ";
                 System.Drawing.Bitmap bmp = mData.getImage(pics[i]);
+                if (bmp == null)
+                    continue;
                 Vec2i offset = mData.getFramePartOffset(mState, mFrame, i);
                 Pen pen;
                 if (i == mSelectedPart)
