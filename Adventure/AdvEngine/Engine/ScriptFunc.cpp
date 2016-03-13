@@ -39,22 +39,22 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("pickup", pickup);
   interpreter->registerFunction("playsound", playSound);
   interpreter->registerRelVar("playsound", 2, "_volume");
-  interpreter->registerFunction("if_bool", isBoolEqual);
-  interpreter->registerFunction("if_obj", isObjectInState);
+  interpreter->registerConditional("bool", isBoolEqual);
+  interpreter->registerConditional("obj", isObjectInState);
   interpreter->registerFunction("setlight", setLight);
   interpreter->registerFunction("setbool", setBool);
-  interpreter->registerFunction("if_command", isCommandSet);
+  interpreter->registerConditional("command", isCommandSet);
   interpreter->registerFunction("setobj", setObj);
   interpreter->registerRelVar("setobj", 2, "obj:");
   interpreter->registerFunction("beamto", beamTo);
   interpreter->registerFunction("additem", addItem);
   interpreter->registerFunction("cutscene", cutScene);
-  interpreter->registerFunction("if_link", isLinkedObject);
+  interpreter->registerConditional("link", isLinkedObject);
   interpreter->registerFunction("taskbar", taskbar);
   interpreter->registerFunction("follow", follow);
   interpreter->registerFunction("lookto", lookTo);
   interpreter->registerFunction("textscene", textScene);
-  interpreter->registerFunction("if_givelink", isGiveLinkedObject);
+  interpreter->registerConditional("givelink", isGiveLinkedObject);
   interpreter->registerFunction("delitem", delItem);
   interpreter->registerFunction("loopsound", loopSound);
   interpreter->registerFunction("loopstop", loopStop);
@@ -67,7 +67,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("realreturn", subRoomReturnImmediate);
   interpreter->registerFunction("link", link);
   interpreter->registerFunction("givelink", giveLink);
-  interpreter->registerFunction("if_num", isNumEqual);
+  interpreter->registerConditional("num", isNumEqual);
   interpreter->registerFunction("setnum", setNum);
   interpreter->registerRelVar("setnum", 2, "");
   interpreter->registerFunction("offspeech", offSpeech);
@@ -80,7 +80,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("command", command);
   interpreter->registerFunction("inv_down", invDown);
   interpreter->registerFunction("inv_up", invUp);
-  interpreter->registerFunction("if_focus", isCharFocussed);
+  interpreter->registerConditional("focus", isCharFocussed);
   interpreter->registerFunction("setfont", setFont);
   interpreter->registerFunction("setscreenchange", setScreenchange);
   interpreter->registerFunction("activate", activate);
@@ -104,13 +104,13 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("stopswf", stopSwf);
   interpreter->registerFunction("stopvideo", stopSwf);
   interpreter->registerFunction("stopavi", stopSwf);
-  interpreter->registerFunction("if_ischar", isCharTriggering);
-  interpreter->registerFunction("if_charin", isCharInRoom);
-  interpreter->registerFunction("if_hasitem", isCharPossessingItem);
+  interpreter->registerConditional("ischar", isCharTriggering);
+  interpreter->registerConditional("charin", isCharInRoom);
+  interpreter->registerConditional("hasitem", isCharPossessingItem);
   interpreter->registerFunction("setwalkmap", setWalkmap);
-  interpreter->registerFunction("if_keydown", isKeyDownEqual);
-  interpreter->registerFunction("if_keypressed", isKeyPressedEqual);
-  interpreter->registerFunction("if_string", isStringEqual);
+  interpreter->registerConditional("keydown", isKeyDownEqual);
+  interpreter->registerConditional("keypressed", isKeyPressedEqual);
+  interpreter->registerConditional("string", isStringEqual);
   interpreter->registerFunction("stepto", stepTo);
   interpreter->registerFunction("moveobj", moveObj);
   interpreter->registerRelVar("moveobj", 2, "tgtobjx:");
@@ -124,10 +124,10 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("stopfunction", stopFunction);
   interpreter->registerFunction("speechvolume", speechVolume);
   interpreter->registerFunction("setlanguage", setLanguage);
-  interpreter->registerFunction("if_room", isCurrentRoom);
+  interpreter->registerConditional("room", isCurrentRoom);
   interpreter->registerFunction("entertext", enterText);
   interpreter->getArgumentAsExecutionContext("entertext", 1);
-  interpreter->registerFunction("if_mousewheel", isMouseWheelEqual);
+  interpreter->registerConditional("mousewheel", isMouseWheelEqual);
   interpreter->registerFunction("fadespeed", fadeSpeed);
   interpreter->registerFunction("seteax", setEAX);
   interpreter->registerFunction("bindtext", bindText);
@@ -149,7 +149,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("stopavi", stopSwf);
   interpreter->registerFunction("stopeffect", stopEffect);
   interpreter->registerFunction("starteffect", startEffect);
-  interpreter->registerFunction("if_xobj", isObjXPosEqual);
+  interpreter->registerConditional("xobj", isObjXPosEqual);
   interpreter->registerFunction("linkchar", linkChar);
   interpreter->registerFunction("stopzooming", stopZooming);
   interpreter->registerFunction("unlinkchar", unlinkChar);
@@ -158,7 +158,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("loadstring", loadString);
   interpreter->registerFunction("charzoom", charZoom);
   interpreter->registerFunction("setwalksound", setWalkSound);
-  interpreter->registerFunction("if_yobj", isObjYPosEqual);
+  interpreter->registerConditional("yobj", isObjYPosEqual);
   interpreter->registerFunction("hidealltext", hideAllTexts);
   interpreter->registerFunction("enablemouse", enableMouse);
   interpreter->registerFunction("set_rect_walkmap", setRectWalkmap);
@@ -168,7 +168,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("showalltext", showAllText);
   interpreter->registerFunction("instmouse", instMouse);
   interpreter->registerFunction("showinventory", showInventory);
-  interpreter->registerFunction("if_item", isItemInState);
+  interpreter->registerConditional("item", isItemInState);
   interpreter->registerFunction("setobjlight", setObjLight);
   interpreter->registerFunction("textalign", textAlign);
   interpreter->registerFunction("runspeed", runSpeed);
@@ -2840,8 +2840,8 @@ int ScriptFunctions::isLinkedObject(lua_State* L){
   NUM_ARGS(1, 1);
   std::string objname = ctx.stack().get(1).getString();
   std::string linkname = ctx.getUseObjectName();
-  ctx.stack().push(0);
-  ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()));
+  ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()) == 0 ? 1 : 0);
+  ctx.stack().push(1);
   return 2;
 }
 
@@ -2849,8 +2849,8 @@ int ScriptFunctions::isGiveLinkedObject(lua_State* L){
   NUM_ARGS(1, 1);
   std::string objname = ctx.stack().get(1).getString();
   std::string linkname = ctx.getGiveObjectName();
-  ctx.stack().push(0);
-  ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()));
+  ctx.stack().push(_stricmp(linkname.c_str(), objname.c_str()) == 0 ? 1 : 0);
+  ctx.stack().push(1);
   return 2;
 }
 
@@ -2867,21 +2867,21 @@ int ScriptFunctions::isNumEqual(lua_State* L){
 int ScriptFunctions::isCharFocussed(lua_State* L){
   NUM_ARGS(1, 1);
   std::string name = ctx.stack().get(1).getString();
-  ctx.stack().push(0);
   CharacterObject* chr = Engine::instance()->getCharacter("self");
   if (chr && _stricmp(chr->getName().c_str(), name.c_str()) == 0)
-    ctx.stack().push(0);
-  else
     ctx.stack().push(1);
+  else
+    ctx.stack().push(0);
+  ctx.stack().push(1);
   return 2;
 }
 
 int ScriptFunctions::isCharTriggering(lua_State* L){
   NUM_ARGS(1, 1);
   std::string name = ctx.stack().get(1).getString();
-  ctx.stack().push(0);
   CharacterObject* chr = ctx.getCharacter(name);
   if (!chr){ //when the character is not found, he or she is not in the current room, so no triggering possible
+    ctx.stack().push(0);
     ctx.stack().push(3);
     return 2;
   }
@@ -2893,12 +2893,14 @@ int ScriptFunctions::isCharTriggering(lua_State* L){
     charpos.x = (int)(charpos.x/room->getWalkGridSize());
     charpos.y = (int)(charpos.y/room->getWalkGridSize());
     if (pos == charpos)
-      ctx.stack().push(0);
-    else
       ctx.stack().push(1);
+    else
+      ctx.stack().push(0);
+    ctx.stack().push(1);
   }
   else{
     TR_USE(ADV_ScriptFunc);
+    ctx.stack().push(0);
     ctx.stack().push(2);
     TR_BREAK("Room not found");
   }
@@ -2909,7 +2911,6 @@ int ScriptFunctions::isCharInRoom(lua_State* L){
   NUM_ARGS(2, 2);
   std::string charname = ctx.stack().get(1).getString();
   std::string roomname = ctx.stack().get(2).getString();
-  ctx.stack().push(0);
   std::string room;
   std::string name;
   CharacterObject* chr = ctx.getCharacter(charname);
@@ -2919,10 +2920,11 @@ int ScriptFunctions::isCharInRoom(lua_State* L){
     SaveStateProvider::CharSaveObject* chs = Engine::instance()->getSaver()->findCharacter(charname, room, name);
   }
   if (_stricmp(room.c_str(), roomname.c_str()) == 0)
-    ctx.stack().push(0);
-  else
     ctx.stack().push(1);
+  else
+    ctx.stack().push(0);
   //RoomObject* room = Engine::instance()->getRoom(ro);
+  ctx.stack().push(1);
   return 2;
 }
 
@@ -2930,10 +2932,10 @@ int ScriptFunctions::isCharPossessingItem(lua_State* L){
   NUM_ARGS(2, 2);
   std::string charname = ctx.stack().get(1).getString();
   std::string itemname = ctx.stack().get(2).getString();
-  ctx.stack().push(0);
   CharacterObject* chr = ctx.getCharacter(charname);
   if (!chr){
     if (charname == "self"){ //no focussed char, so he cannot possess it
+      ctx.stack().push(0);
       ctx.stack().push(1);
       return 2;
     }
@@ -2951,13 +2953,15 @@ int ScriptFunctions::isCharPossessingItem(lua_State* L){
       if (found)
         break;
     }
-    ctx.stack().push(found ? 0 : 1);
+    ctx.stack().push(found ? 1 : 0);
+    ctx.stack().push(1);
     return 2;
   }
   if (chr->getInventory()->getItem(itemname))
-    ctx.stack().push(0);
-  else
     ctx.stack().push(1);
+  else
+    ctx.stack().push(0);
+  ctx.stack().push(1);
   return 2;
 }
 
@@ -2975,11 +2979,11 @@ int ScriptFunctions::isKeyDownEqual(lua_State* L){
   if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
     TR_BREAK("Unknown key %s", key.c_str());
   int keycode = iter->second;
-  ctx.stack().push(0);
   if (Engine::instance()->isKeyDown(keycode))
-    ctx.stack().push(0);
-  else
     ctx.stack().push(1);
+  else
+    ctx.stack().push(0);
+  ctx.stack().push(1);
   return 2;
 }
 
@@ -2990,11 +2994,11 @@ int ScriptFunctions::isKeyPressedEqual(lua_State* L){
   if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
     TR_BREAK("Unknown key %s", key.c_str());
   int keycode = iter->second;
-  ctx.stack().push(0);
   if (Engine::instance()->isKeyPressed(keycode))
-    ctx.stack().push(0);
-  else
     ctx.stack().push(1);
+  else
+    ctx.stack().push(0);
+  ctx.stack().push(1);
   return 2;
 }
 
@@ -3003,21 +3007,22 @@ int ScriptFunctions::isStringEqual(lua_State* L){
   String name = ctx.stack().get(1).getString();
   String text = ctx.stack().get(2).getString();
   String val = Engine::instance()->getInterpreter()->getVariable(name).getString();
-  ctx.stack().push(0);
   ctx.stack().push(_stricmp(val.removeAll(' ').c_str(), text.removeAll(' ').c_str()));
+  ctx.stack().push(0);
   return 2;
 }
 
 int ScriptFunctions::isCurrentRoom(lua_State* L){
   NUM_ARGS(1, 1);
   std::string room = ctx.stack().get(1).getString();
-  ctx.stack().push(0);
   RoomObject* ro = Engine::instance()->getRoom("");
   if (!ro){
+    ctx.stack().push(0);
     ctx.stack().push(1);
     return 2;
   }
-  ctx.stack().push(_stricmp(room.c_str(), ro->getName().c_str()));
+  ctx.stack().push(_stricmp(room.c_str(), ro->getName().c_str()) == 0 ? 1 : 0);
+  ctx.stack().push(1);
   return 2;
 }
 
@@ -3025,26 +3030,26 @@ int ScriptFunctions::isMouseWheelEqual(lua_State* L){
   NUM_ARGS(1, 1);
   std::string dir = ctx.stack().get(1).getString();
   dir = toLower(dir);
-  ctx.stack().push(0);
   int delta = Engine::instance()->getMouseWheelDelta();
   if (dir == "up"){
     if (delta > 0){
       Engine::instance()->setMouseWheelDelta(delta-1);
-      ctx.stack().push(0);
+      ctx.stack().push(1);
     }
     else
-      ctx.stack().push(1);
+      ctx.stack().push(0);
   }
   else if (dir == "down"){
     if (delta < 0){
       Engine::instance()->setMouseWheelDelta(delta+1);
-      ctx.stack().push(0);
+      ctx.stack().push(1);
     }
     else
-      ctx.stack().push(1);
+      ctx.stack().push(0);
   }
   else
     TR_BREAK("Unknown direction %s", dir.c_str());
+  ctx.stack().push(1);
   return 2;
 }
 

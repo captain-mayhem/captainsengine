@@ -87,6 +87,7 @@ const char* luaRunner =
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true), mExecMutex(true) {
   TR_USE(ADV_Script);
   mL = luaL_newstate();
+  luaL_openlibs(mL);
   ScriptFunctions::registerFunctions(this);
   mOfftextColor = data->getProjectSettings()->offspeechcolor;
   mCutScene = NULL;
@@ -807,6 +808,24 @@ void PcdkScript::registerFunction(std::string name, ScriptFunc func){
   mFunctions[name] = func;
   lua_pushcfunction(mL, func);
   lua_setglobal(mL, name.c_str());
+}
+
+char const* condLuaHelper =
+"function is_%s (...)\n"
+"  local a,b = if_%s(...);\n"
+"  return a == b\n"
+"end\n";
+
+void PcdkScript::registerConditional(std::string name, ScriptFunc func){
+  registerFunction("if_" + name, func);
+  char tmp[1024];
+  sprintf(tmp, condLuaHelper, name.c_str(), name.c_str());
+  if (luaL_dostring(mL, tmp) != LUA_OK){
+    TR_USE(ADV_Script);
+    TR_ERROR("Failed to compile cond helper script: %s", lua_tostring(mL, -1));
+    lua_pop(mL, 1);
+  }
+
 }
 
 void PcdkScript::registerRelVar(const std::string& function, int argnum, const std::string& prefix){

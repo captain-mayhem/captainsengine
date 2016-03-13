@@ -34,6 +34,7 @@ public:
   ~PcdkScript();
   ExecutionContext* parseProgram(const std::string& program, ScriptLang type = DEFAULT_SCRIPT);
   void registerFunction(std::string name, ScriptFunc func);
+  void registerConditional(std::string name, ScriptFunc func);
   ScriptFunc getFunction(const std::string name) {return mFunctions[name];}
   void registerRelVar(const std::string& function, int argnum, const std::string& prefix);
   void getArgumentAsExecutionContext(const std::string& function, int argnum) {mArgEC[function] = argnum;}

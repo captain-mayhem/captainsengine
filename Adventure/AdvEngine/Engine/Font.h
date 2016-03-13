@@ -43,7 +43,7 @@ public:
     int mFadingTime;
     int mTimeShown;
   };
-protected:
+
   class Font{
   public:
     Font(const FontData& data, int fading, bool unified);

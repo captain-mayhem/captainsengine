@@ -71,7 +71,7 @@ namespace StoryDesigner
                 files = dirinfo.GetFiles();
                 foreach (FileInfo info in files)
                 {
-                    if (info.Name.StartsWith(mData.Settings.Projectname))
+                    if (info.Name.ToLower().StartsWith(mData.Settings.Projectname.ToLower()))
                         ++instanceCount;
                 }
             }
