@@ -7,7 +7,8 @@ using namespace adv;
 
 Textout::Textout() : Object2D(1, Vec2i(), Vec2i(), "textout"), mEnabled(false), mText(NULL), mFont(1), mColor(Engine::instance()->getSettings()->infotextcolor),
   mAlignment(LEFT), mTimeShown(0), mFadingOut(false){
-    mFadingTime = Engine::instance()->getFontRenderer()->getFont(mFont)->getFading();
+    FontRenderer::Font* fnt = Engine::instance()->getFontRenderer()->getFont(mFont);
+    mFadingTime = fnt ? fnt->getFading() : 0;
 }
 
 Textout::~Textout(){
