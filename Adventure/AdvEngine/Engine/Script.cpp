@@ -123,6 +123,15 @@ PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), 
 
   lua_newtable(mL);
   lua_newtable(mL);
+  lua_pushcfunction(mL, getDataVar);
+  lua_setfield(mL, -2, "__index");
+  //lua_pushcfunction(mL, setSpecialVar);
+  //lua_setfield(mL, -2, "__newindex");
+  lua_setmetatable(mL, -2);
+  lua_setglobal(mL, "data");
+
+  lua_newtable(mL);
+  lua_newtable(mL);
   lua_pushcfunction(mL, getSpecialVar);
   lua_setfield(mL, -2, "__index");
   lua_pushcfunction(mL, setSpecialVar);
@@ -1700,6 +1709,39 @@ int PcdkScript::getSpecialVar(lua_State* L){
   //transformed raw lookup
   lua_pushstring(L, lname.removeAll(' ').c_str());
   lua_rawget(L, 1);
+  return 1;
+}
+
+int PcdkScript::getDataVar(lua_State* L){
+  //create a new table, store and return it
+  TR_USE(ADV_Script);
+  String name = lua_tostring(L, 2);
+  String lname = name.toLower();
+  lua_newtable(L);
+
+  lua_pushstring(L, lname.removeAll(' ').c_str());
+  lua_setfield(L, -2, "name");
+
+  lua_pushstring(L, lname.removeAll(' ').c_str());
+  lua_pushvalue(L, -2);
+  lua_rawset(L, 1);
+
+  lua_newtable(L);
+  lua_pushcfunction(L, specialVarAccessor);
+  lua_setfield(L, -2, "__index");
+  lua_setmetatable(L, -2);
+
+  return 1;
+}
+
+int PcdkScript::specialVarAccessor(lua_State* L){
+  String name = lua_tostring(L, 2);
+  lua_getfield(L, 1, "name");
+  String obj = lua_tostring(L, -1);
+  lua_pop(L, 1);
+  lua_getglobal(L, "var");
+  lua_getfield(L, -1, (name+":"+obj).c_str());
+  lua_remove(L, -2);
   return 1;
 }
 
