@@ -115,6 +115,8 @@ protected:
   static int eventFired(lua_State* L);
   static int eventHandled(lua_State* L);
   static int setIdle(lua_State* L);
+  static int getDataVar(lua_State* L);
+  static int specialVarAccessor(lua_State* L);
   std::map<std::string, ScriptFunc> mFunctions;
   AdvDocument* mData;
   std::list<ExecutionContext*> mScripts;

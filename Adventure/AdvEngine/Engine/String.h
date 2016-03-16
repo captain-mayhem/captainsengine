@@ -11,7 +11,7 @@ class String{
   friend String operator+(const char* ptr, const String& str);
 public:
   String() : mStr() {}
-  String(const char* str) : mStr(str) {}
+  String(const char* str) : mStr(str ? str : "") {}
   String(const std::string& str) : mStr(str) {}
   String& operator+=(const String& s) {mStr += s.mStr; return *this;}
   String& operator+=(const char& ch) {mStr += ch; return *this;}
