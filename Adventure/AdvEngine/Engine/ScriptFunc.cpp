@@ -188,6 +188,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("popupcoin", popupCoin);
 
   interpreter->registerFunction("print", print);
+  interpreter->registerFunction("timer", timer);
   srand((unsigned)time(NULL));
 }
 
@@ -2776,6 +2777,16 @@ int ScriptFunctions::popupCoin(lua_State* L){
   NUM_ARGS(0, 0);
   Engine::instance()->popupCoinMenu(&ctx);
   RET_MAY_YIELD(0);
+}
+
+int ScriptFunctions::timer(lua_State* L){
+  NUM_ARGS(2, 2);
+  float time = (float)lua_tonumber(L, 1);
+  lua_pushvalue(L, 2); //createContext will pop the function, so duplicate it first
+  ExecutionContext* tctx = Engine::instance()->getInterpreter()->createContext(L, false);
+  tctx->suspend((int)(time * 1000), NULL);
+  Engine::instance()->getInterpreter()->addTimer(tctx);
+  return 0;
 }
 
 int ScriptFunctions::dummy(lua_State* L){

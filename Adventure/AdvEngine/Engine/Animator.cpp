@@ -100,6 +100,7 @@ void Animator::update(unsigned interval){
   TR_USE(ADV_Animator);
   if (interval == 0)
     return;
+  std::vector<Object2D*> toErase;
   for (std::map<Object2D*, ObjectAnim>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     iter->second.factor += interval*iter->second.speedfactor/20.f;
     if (iter->second.factor > iter->second.normalization)
@@ -124,9 +125,7 @@ void Animator::update(unsigned interval){
       iter->second.path.pop_front();
       if (iter->second.path.empty()){
         iter->first->animationEnd(iter->second.startpos);
-        mObjects.erase(iter++);
-        if (iter == mObjects.end())
-          break;
+        toErase.push_back(iter->first);
       }
       else{
         Vec2i tmp = iter->second.startpos;
@@ -135,9 +134,7 @@ void Animator::update(unsigned interval){
           iter->second.path.pop_front();
         if (iter->second.path.empty()){
           iter->first->animationEnd(iter->second.startpos);
-          mObjects.erase(iter++);
-          if (iter == mObjects.end())
-            break;
+          toErase.push_back(iter->first);
         }
         else{
           iter->second.normalization = (iter->second.path.front()-iter->second.startpos).length();
@@ -146,6 +143,9 @@ void Animator::update(unsigned interval){
         }
       }
     }
+  }
+  for (int i = 0; i < toErase.size(); ++i){
+    mObjects.erase(toErase[i]);
   }
 
   for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){

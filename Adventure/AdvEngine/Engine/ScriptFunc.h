@@ -579,6 +579,11 @@ public:
   **/
   static int textEnabled(lua_State* L);
   /**
+  \param time the time when the function should be triggered
+  \param func the function to be triggered
+  **/
+  static int timer(lua_State* L);
+  /**
   \param character unlink character
   **/
   static int unlinkChar(lua_State* L);
