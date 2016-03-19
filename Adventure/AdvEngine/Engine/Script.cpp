@@ -383,39 +383,21 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
   return ret;
 }
 
-ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program, bool checkLoop1){
+ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
   TR_USE(ADV_Console);
-  ExecutionContext* ret = new ExecutionContext(NULL, program.find("showinfo") != program.npos , "");
-  lua_State* L = ret->getState();
-  lua_pushthread(L);
-  lua_gettable(L, LUA_REGISTRYINDEX);
-  if (luaL_loadstring(L, program.c_str()) != LUA_OK){
-    TR_ERROR("%s", lua_tostring(L, -1));
-    lua_pop(L, 2);
-    delete ret;
+  if (luaL_loadstring(mL, program.c_str()) != LUA_OK){
+    TR_ERROR("%s", lua_tostring(mL, -1));
+    lua_pop(mL, 2);
     return NULL;
   }
-  lua_setfield(L, -2, "script");
-  lua_newtable(L);
-  lua_newtable(L);
-  lua_getglobal(L, "on_newidx");
-  //lua_pushcfunction(L, setEventHandler);
-  lua_setfield(L, -2, "__newindex");
-  lua_setmetatable(L, -2);
-  //lua_pushnil(L);
-  //lua_copy(L, -2, -1);
-  lua_setfield(L, -2, "event");
-  lua_pushcfunction(L, eventFired);
-  lua_setfield(L, -2, "eventFired");
-  lua_pushcfunction(L, eventHandled);
-  lua_setfield(L, -2, "eventHandled");
-  lua_pushcfunction(L, setIdle);
-  lua_setfield(L, -2, "setIdle");
-  lua_pop(L, 1);
-  if (checkLoop1 && program.find("loop1") != program.npos){
-    ExecutionContext* loop1 = parseProgramLUA(program, false);
+  lua_pushvalue(mL, -1);
+  ExecutionContext* ret = createContext(mL, program.find("showinfo") != program.npos);
+  if (program.find("loop1") != program.npos){
+    ExecutionContext* loop1 = createContext(mL, false);
     ret->setLoop1(loop1);
   }
+  else
+    lua_pop(mL, 1);
   return ret;
 }
 
@@ -1690,6 +1672,20 @@ int PcdkScript::getSpecialVar(lua_State* L){
     lua_pushinteger(L, Engine::instance()->getAnimator()->getTargetPoisition(obj).y);
     return 1;
   }
+  else if (name.size() > 5 && lname.substr(0, 5) == "objw:"){
+    Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
+    if (obj == NULL)
+      TR_BREAK("Object %s not found", name.substr(5).c_str());
+    lua_pushinteger(L, obj->getSize().x);
+    return 1;
+  }
+  else if (name.size() > 5 && lname.substr(0, 5) == "objh:"){
+    Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
+    if (obj == NULL)
+      TR_BREAK("Object %s not found", name.substr(5).c_str());
+    lua_pushinteger(L, obj->getSize().y);
+    return 1;
+  }
   else if (lname == "actiontext"){
     lua_pushstring(L, Engine::instance()->getActionText().c_str());
     return 1;
@@ -2029,4 +2025,31 @@ int PcdkScript::setIdle(lua_State* L){
   bool idle = lua_toboolean(L, 2) != 0 ? true : false;
   ctx->setIdle(idle);
   return 0;
+}
+
+ExecutionContext* PcdkScript::createContext(lua_State* func, bool isGameObject){
+  TR_USE(ADV_Console);
+  ExecutionContext* ret = new ExecutionContext(NULL, isGameObject, "");
+  lua_State* L = ret->getState();
+  lua_pushthread(L);
+  lua_gettable(L, LUA_REGISTRYINDEX);
+  lua_xmove(func, L, 1);
+  lua_setfield(L, -2, "script");
+  lua_newtable(L);
+  lua_newtable(L);
+  lua_getglobal(L, "on_newidx");
+  //lua_pushcfunction(L, setEventHandler);
+  lua_setfield(L, -2, "__newindex");
+  lua_setmetatable(L, -2);
+  //lua_pushnil(L);
+  //lua_copy(L, -2, -1);
+  lua_setfield(L, -2, "event");
+  lua_pushcfunction(L, eventFired);
+  lua_setfield(L, -2, "eventFired");
+  lua_pushcfunction(L, eventHandled);
+  lua_setfield(L, -2, "eventHandled");
+  lua_pushcfunction(L, setIdle);
+  lua_setfield(L, -2, "setIdle");
+  lua_pop(L, 1);
+  return ret;
 }

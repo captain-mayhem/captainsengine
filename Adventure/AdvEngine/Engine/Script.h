@@ -85,9 +85,10 @@ public:
   lua_State* allocNewState(ExecutionContext* ctx);
   static int luaPcdkCall(lua_State* L);
   CGE::Mutex& getExecMutex() { return mExecMutex; }
+  ExecutionContext* createContext(lua_State* func, bool isGameObject);
 protected:
   ExecutionContext* parseProgramPCDK(const std::string& program);
-  ExecutionContext* parseProgramLUA(const std::string& program, bool checkLoop1 = true);
+  ExecutionContext* parseProgramLUA(const std::string& program);
   unsigned transform(NodeList* program, CodeSegment* codes, TrMode mode, int seperateContext = -1);
   unsigned transform(ASTNode* node, CodeSegment* codes);
   std::string internal_stringify(ASTNode* node);
