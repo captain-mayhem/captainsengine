@@ -101,6 +101,16 @@ mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false), mLua
     mLoop1 = NULL;
 }
 
+ExecutionContext::ExecutionContext(lua_State* L) :
+mCode(NULL), mIsGameObject(false), mObjectInfo(""),
+mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
+mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK), mLoop1(NULL){
+  mL = newThread();
+  mStack.setState(mL);
+  lua_xmove(L, mL, 1);
+  Engine::instance()->getInterpreter()->initLuaContext(this);
+}
+
 ExecutionContext::~ExecutionContext(){
   delete mCode;
   if (mLoop1)

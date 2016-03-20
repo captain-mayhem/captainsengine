@@ -87,6 +87,7 @@ public:
   ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo);
   ExecutionContext(const ExecutionContext& ctx);
   ExecutionContext(std::istream& in);
+  ExecutionContext(lua_State* L);
   std::list<EngineEvent>& getEvents() {return mEvents;}
   void setEvent(EngineEvent evt);
   void setEvents(std::list<EngineEvent>& events);
