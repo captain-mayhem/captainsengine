@@ -85,7 +85,7 @@ public:
   lua_State* allocNewState(ExecutionContext* ctx);
   static int luaPcdkCall(lua_State* L);
   CGE::Mutex& getExecMutex() { return mExecMutex; }
-  ExecutionContext* createContext(lua_State* func, bool isGameObject);
+  void initLuaContext(ExecutionContext* ctx);
 protected:
   ExecutionContext* parseProgramPCDK(const std::string& program);
   ExecutionContext* parseProgramLUA(const std::string& program);

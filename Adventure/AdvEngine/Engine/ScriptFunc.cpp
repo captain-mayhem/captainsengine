@@ -2782,8 +2782,8 @@ int ScriptFunctions::popupCoin(lua_State* L){
 int ScriptFunctions::timer(lua_State* L){
   NUM_ARGS(2, 2);
   float time = (float)lua_tonumber(L, 1);
-  lua_pushvalue(L, 2); //createContext will pop the function, so duplicate it first
-  ExecutionContext* tctx = Engine::instance()->getInterpreter()->createContext(L, false);
+  lua_pushvalue(L, 2); //constructor will pop the function, so duplicate it first
+  ExecutionContext* tctx = new ExecutionContext(L);
   tctx->suspend((int)(time * 1000), NULL);
   Engine::instance()->getInterpreter()->addTimer(tctx);
   return 0;

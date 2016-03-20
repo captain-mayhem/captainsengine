@@ -385,19 +385,22 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
 
 ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
   TR_USE(ADV_Console);
-  if (luaL_loadstring(mL, program.c_str()) != LUA_OK){
-    TR_ERROR("%s", lua_tostring(mL, -1));
-    lua_pop(mL, 2);
+  ExecutionContext* ret = new ExecutionContext(NULL, program.find("showinfo") != program.npos, "");
+  lua_State* L = ret->getState();
+  if (luaL_loadstring(L, program.c_str()) != LUA_OK){
+    TR_ERROR("%s", lua_tostring(L, -1));
+    lua_pop(L, 2);
+    delete ret;
     return NULL;
   }
-  lua_pushvalue(mL, -1);
-  ExecutionContext* ret = createContext(mL, program.find("showinfo") != program.npos);
+  lua_pushvalue(L, -1); //duplicate function for possible loop1 context
+  initLuaContext(ret);
   if (program.find("loop1") != program.npos){
-    ExecutionContext* loop1 = createContext(mL, false);
+    ExecutionContext* loop1 = new ExecutionContext(L);
     ret->setLoop1(loop1);
   }
   else
-    lua_pop(mL, 1);
+    lua_pop(L, 1);
   return ret;
 }
 
@@ -2027,13 +2030,11 @@ int PcdkScript::setIdle(lua_State* L){
   return 0;
 }
 
-ExecutionContext* PcdkScript::createContext(lua_State* func, bool isGameObject){
-  TR_USE(ADV_Console);
-  ExecutionContext* ret = new ExecutionContext(NULL, isGameObject, "");
-  lua_State* L = ret->getState();
+void PcdkScript::initLuaContext(ExecutionContext* ctx){
+  lua_State* L = ctx->getState();
   lua_pushthread(L);
   lua_gettable(L, LUA_REGISTRYINDEX);
-  lua_xmove(func, L, 1);
+  lua_pushvalue(L, -2);
   lua_setfield(L, -2, "script");
   lua_newtable(L);
   lua_newtable(L);
@@ -2050,6 +2051,5 @@ ExecutionContext* PcdkScript::createContext(lua_State* func, bool isGameObject){
   lua_setfield(L, -2, "eventHandled");
   lua_pushcfunction(L, setIdle);
   lua_setfield(L, -2, "setIdle");
-  lua_pop(L, 1);
-  return ret;
+  lua_pop(L, 2);
 }
