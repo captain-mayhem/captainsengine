@@ -59,7 +59,18 @@ mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK), mLoop1(NULL){
 
 ExecutionContext::ExecutionContext(const ExecutionContext& ctx) : mLuaRet(LUA_OK){
   mL = newThread();
-  mCode = new CodeSegment(*ctx.mCode);
+  if (ctx.mCode)
+    mCode = new CodeSegment(*ctx.mCode);
+  else{
+    mCode = NULL;
+    lua_State* L = ((ExecutionContext&)ctx).getState();
+    lua_pushthread(L);
+    lua_gettable(L, LUA_REGISTRYINDEX);
+    lua_getfield(L, -1, "script");
+    lua_xmove(L, mL, 1);
+    lua_pop(L, 1);
+    Engine::instance()->getInterpreter()->initLuaContext(this);
+  }
   mIsGameObject = ctx.mIsGameObject;
   mObjectInfo = ctx.mObjectInfo;
   mStack = ctx.mStack;

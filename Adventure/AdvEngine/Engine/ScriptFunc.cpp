@@ -1855,11 +1855,20 @@ int ScriptFunctions::textOut(lua_State* L){
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(true);
   if (numArgs >= 2){
-    ExecutionContext* text = ctx.stack().get(2).getEC();
-    Engine::instance()->getInterpreter()->executeImmediately(text, false);
-    StackData result = text->stack().pop();
-    if (!result.isNumber() || result.getInt() != -1){
+    StackData data = ctx.stack().get(2);
+    if (data.isEC()){
+      ExecutionContext* text = data.getEC();
+      Engine::instance()->getInterpreter()->executeImmediately(text, false);
+      StackData result = text->stack().pop();
+      if (!result.isNumber() || result.getInt() != -1){
+        txtout->setText(text);
+      }
+    }
+    else if (!data.isNumber() || data.getInt() != -1){
+      String val = data.getString();
+      ExecutionContext* text = Engine::instance()->getInterpreter()->parseProgram("return \""+val+"\"");
       txtout->setText(text);
+      delete text;
     }
   }
   if (numArgs >= 3){
