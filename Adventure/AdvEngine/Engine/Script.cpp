@@ -62,7 +62,7 @@ std::istream& operator>>(std::istream& strm, ObjectGroup& data){
 
 const char* luaRunner =
 "function execScript()\n"
-"  _state.script()\n"
+"  return _state.script()\n"
 "end\n"
 "\n"
 "function on_newidx(table, ev, eventfunc)\n"
@@ -1005,7 +1005,6 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
       if (script->mLuaRet != LUA_YIELD)
         lua_getglobal(L, "execScript");
       script->mLuaRet = lua_resume(script->mL, NULL, numArgs);
-      lua_pop(L, 1);
     }
     else{
       //pcdk script
