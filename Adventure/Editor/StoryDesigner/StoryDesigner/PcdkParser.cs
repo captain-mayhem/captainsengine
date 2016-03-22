@@ -725,8 +725,15 @@ namespace StoryDesigner
 
         public void addConditional(string name, ArgDef[] arguments)
         {
-            addFunction("if_" + name, arguments, true);
-            addFunction("ifnot_" + name, arguments, true);
+            if (mLanguage == ProjectSettings.ScriptLang.PCDK)
+            {
+                addFunction("if_" + name, arguments, true);
+                addFunction("ifnot_" + name, arguments, true);
+            }
+            else
+            {
+                addFunction("is_" + name, arguments, false);
+            }
         }
 
         public void addFunction(string name, ArgDef[] arguments)

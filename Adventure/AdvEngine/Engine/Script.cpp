@@ -1956,6 +1956,12 @@ StackData StackData::fromStack(lua_State* L, int idx){
     StackData ret = StackData(ctx);
     return ret;
   }
+  else if (type == LUA_TFUNCTION){
+    lua_pushvalue(L, idx);
+    ExecutionContext* ctx = new ExecutionContext(L);
+    StackData ret = StackData(ctx, true);
+    return ret;
+  }
   return StackData(0);
 }
 

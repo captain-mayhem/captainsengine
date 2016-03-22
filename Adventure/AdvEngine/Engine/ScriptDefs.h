@@ -21,7 +21,7 @@ public:
   StackData(int value) : mType(I) {mInt = value;}
   StackData(bool value) : mType(B) {mBool = value;}
   StackData(float value) : mType(F) {mFloat = value;}
-  StackData(ExecutionContext* ctx) : mType(EC) {mContext = ctx;}
+  StackData(ExecutionContext* ctx, bool allocated = false) : mType(allocated ? LF : EC) {mContext = ctx;}
   String getString() const {return mStr;}
   int getInt() const {if (mType == F) return (int)mFloat; else if (mType == S) return atoi(mStr.c_str()); return mInt;}
   bool getBool() const {return mBool;}
@@ -33,11 +33,12 @@ public:
   bool isNumber() const {return mType == I || mType == F;}
   bool isBool() const { return mType == B; }
   bool isEC() const { return mType == EC; }
+  bool isLF() const { return mType == LF; }
   static StackData fromStack(lua_State* L, int idx);
   static void pushStack(lua_State* L, StackData const& sd);
 protected:
   enum Type{
-    S, I, B, F, EC
+    S, I, B, F, EC, LF
   };
   Type mType;
   String mStr;

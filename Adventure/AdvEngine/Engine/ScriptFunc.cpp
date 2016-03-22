@@ -1864,6 +1864,11 @@ int ScriptFunctions::textOut(lua_State* L){
         txtout->setText(text);
       }
     }
+    else if (data.isLF()){
+      ExecutionContext* text = data.getEC();
+      txtout->setText(text);
+      delete text;
+    }
     else if (!data.isNumber() || data.getInt() != -1){
       String val = data.getString();
       ExecutionContext* text = Engine::instance()->getInterpreter()->parseProgram("return \""+val+"\"");
