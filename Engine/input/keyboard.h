@@ -76,19 +76,25 @@
 #define KEY_BACKSPACE 2
 #define KEY_UP 3
 #define KEY_DOWN 4
-#define KEY_F1 5
-#define KEY_F2 6
-#define KEY_A 7
-#define KEY_0 8
-#define KEY_LEFT 9
-#define KEY_RIGHT 10
-#define KEY_CTRL 11
-#define KEY_ALT 12
-#define KEY_SPACE 13
-#define KEY_DELETE 14
-#define KEY_CIRCUMFLEX 15
-#define KEY_PAGEUP 16
-#define KEY_PAGEDOWN 17
+#define KEY_LEFT 5
+#define KEY_RIGHT 6
+#define KEY_F1 7
+#define KEY_F2 8
+
+#define KEY_CTRL 19
+#define KEY_ALT 20
+#define KEY_DELETE 21
+#define KEY_PAGEUP 22
+#define KEY_PAGEDOWN 23
+
+#define KEY_SPACE 32
+
+#define KEY_0 48
+
+#define KEY_CIRCUMFLEX 94
+
+#define KEY_A 97
+
 #endif
 
 #include "../system/engine.h"
