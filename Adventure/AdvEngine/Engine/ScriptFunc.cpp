@@ -1748,24 +1748,41 @@ int ScriptFunctions::enterText(lua_State* L){
   int maxchars = 100;
   String initalContent;
   if (numArgs >= 1){
-    ExecutionContext* text = ctx.stack().get(1).getEC();
-    //get and init the variable
-    CCode* code = text->getCode()->get(text->getCode()->numInstructions()-2);
-    if (code == NULL) //no string prepended to variable
-      code = text->getCode()->get(text->getCode()->numInstructions()-1);
-    if (code->getType() != CCode::LOAD){
-      TR_USE(ADV_ScriptFunc);
-      TR_BREAK("Something's wrong");
-    }
-    else{
-      CLOAD* load = (CLOAD*)code;
-      varname = load->getVarname();
-    }
+    StackData data = ctx.stack().get(1);
+    if (data.isEC()){
+      ExecutionContext* text = data.getEC();
+      //get and init the variable
+      CCode* code = text->getCode()->get(text->getCode()->numInstructions() - 2);
+      if (code == NULL) //no string prepended to variable
+        code = text->getCode()->get(text->getCode()->numInstructions() - 1);
+      if (code->getType() != CCode::LOAD){
+        TR_USE(ADV_ScriptFunc);
+        TR_BREAK("Something's wrong");
+      }
+      else{
+        CLOAD* load = (CLOAD*)code;
+        varname = load->getVarname();
+      }
 
-    Engine::instance()->getInterpreter()->executeImmediately(text, false);
-    StackData result = text->stack().pop();
-    if (!result.isNumber() || result.getInt() != -1){
+      Engine::instance()->getInterpreter()->executeImmediately(text, false);
+      StackData result = text->stack().pop();
+      if (!result.isNumber() || result.getInt() != -1){
+        txtout->setText(text);
+      }
+    }
+    else if (data.isLF()){
+      ExecutionContext* text = data.getEC();
+      Engine::instance()->getInterpreter()->executeImmediately(text, false);
+      text->stack().pop();
+      varname = text->stack().pop().getString();
       txtout->setText(text);
+      delete text;
+    }
+    else if (!data.isNumber() || data.getInt() != -1){
+      varname = data.getString();
+      ExecutionContext* text = Engine::instance()->getInterpreter()->parseProgram("return \"" + varname + "\", var."+ varname + " or \"\"");
+      txtout->setText(text);
+      delete text;
     }
   }
   if (numArgs >= 2){

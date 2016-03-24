@@ -43,6 +43,7 @@ void Textout::render(unsigned time){
   }
   Engine::instance()->getInterpreter()->executeImmediately(mText, false);
   StackData sd = mText->stack().pop();
+  mText->reset(false, true);
   std::string text;
   if (sd.isNumber()){
     char tmp[32];
