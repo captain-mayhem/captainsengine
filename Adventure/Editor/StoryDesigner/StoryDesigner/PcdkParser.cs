@@ -90,6 +90,12 @@ namespace StoryDesigner
             {
                 ArgDef[] largs = new ArgDef[0];
                 addFunction("end", largs, true);
+                addFunction("if", largs, true);
+                addFunction("then", largs, true);
+                addFunction("else", largs, true);
+                addFunction("elseif", largs, true);
+                addFunction("for", largs, true);
+                addFunction("function", largs, true);
             }
 
             //events
@@ -606,7 +612,7 @@ namespace StoryDesigner
             args[0] = new ArgDef("Script", ArgType.Script);
             args[1] = new ArgDef("loop count / infinitly / * / loop2", ArgType.String, true);
             args[1].AdditionalValues = new string[] { "infinitly", "*", "loop2" };
-            addFunction("function", args, mLanguage == ProjectSettings.ScriptLang.LUA);
+            addFunction(mLanguage == ProjectSettings.ScriptLang.LUA ? "startfunction" : "function", args);
             args = new ArgDef[1];
             args[0] = new ArgDef("Script", ArgType.Script);
             addFunction("stopfunction", args);
@@ -810,7 +816,8 @@ namespace StoryDesigner
                 }
                 else
                 {
-                    Argument func = new Argument(0, idx, result, new ArgDef("Command", ArgType.Function));
+                    int start = readBefore(' ', text, idx, out result);
+                    Argument func = new Argument(start, idx, result, new ArgDef("Command", ArgType.Function));
                     int lastidx = idx + 1;
                     //arguments
                     System.Collections.ArrayList arguments = new System.Collections.ArrayList();
@@ -872,6 +879,20 @@ namespace StoryDesigner
             }
             result = builder.ToString().Trim();
             return -1;
+        }
+
+        int readBefore(char stopchar, string text, int stopidx, out string result)
+        {
+            for (int i = stopidx-1; i >= 0; --i)
+            {
+                if (text[i] == stopchar)
+                {
+                    result = text.Substring(i, stopidx-i).Trim();
+                    return i;
+                }
+            }
+            result = text.Substring(0, stopidx).Trim();
+            return 0;
         }
 
         public bool IsKeyword(Argument funcname){

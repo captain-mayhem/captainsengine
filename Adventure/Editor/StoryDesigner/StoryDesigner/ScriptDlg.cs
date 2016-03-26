@@ -256,6 +256,17 @@ namespace StoryDesigner
             scripttext.SelectionColor = Color.Black;
             if (error == PcdkParser.Error.LINE_NOT_RECOGINZED)
             {
+                for (int i = text.Length - 1; i >= 0; --i)
+                {
+                    if (text[i] == ' ')
+                    {
+                        text = text.Substring(i);
+                        scripttext.SelectionStart = charpos+i;
+                        scripttext.SelectionLength = length-i;
+                        break;
+                    }
+             
+                }
                 PcdkParser.Argument arg = new PcdkParser.Argument(charpos, charpos + length, text.Trim(),
                 new PcdkParser.ArgDef("Command", PcdkParser.ArgType.Function));
                 if (mParser.IsKeyword(arg))

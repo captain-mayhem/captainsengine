@@ -121,6 +121,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("startparticles", startParticles);
   interpreter->registerFunction("stopparticles", stopParticles);
   interpreter->registerFunction("function", function);
+  interpreter->registerFunction("startfunction", function);
   interpreter->registerFunction("stopfunction", stopFunction);
   interpreter->registerFunction("speechvolume", speechVolume);
   interpreter->registerFunction("setlanguage", setLanguage);

@@ -92,6 +92,22 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx) : mLuaRet(LUA_OK
     mLoop1->ref();
 }
 
+const char* ExecutionContext::luaReader(lua_State* L, void* data, size_t* size){
+  std::istream& in = *(std::istream*)data;
+  size_t sz;
+  in >> sz;
+  char dummy;
+  in.get(dummy);
+  *size = sz;
+  static std::vector<char> dat;
+  if (sz == 0){
+    return NULL;
+  }
+  dat.resize(sz);
+  in.read(&dat[0], sz);
+  return &dat[0];
+}
+
 ExecutionContext::ExecutionContext(std::istream& in) : 
 mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), 
 mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK)
@@ -102,8 +118,15 @@ mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false), mLua
   if (mObjectInfo == "none")
     mObjectInfo = "";
   in >> mSleepTime >> mSuspended;
-  mCode = new CodeSegment();
-  mCode->load(in);
+  if (Engine::instance()->getSettings()->script_lang == PCDK_SCRIPT){
+    mCode = new CodeSegment();
+    mCode->load(in);
+  }
+  else{
+    mCode = NULL;
+    lua_load(mL, luaReader, &in, "saved chunk", "bt");
+    Engine::instance()->getInterpreter()->initLuaContext(this);
+  }
   std::string tag;
   in >> tag;
   if (tag == "loop1")
@@ -232,10 +255,25 @@ void ExecutionContext::resume(){
     reset(true, true);
 }
 
+int ExecutionContext::luaWriter(lua_State* L, const void* p, size_t sz, void* ud){
+  std::ostream& out = *(std::ostream*)ud;
+  out << " " << sz << " ";
+  out.write((const char*)p, sz);
+  return 0;
+}
+
 void ExecutionContext::save(std::ostream& out){
   out << mIsGameObject << " " << (mObjectInfo.empty() ? "none" : mObjectInfo) << " ";
   out << mSleepTime << " " << mSuspended << " ";
-  mCode->save(out);
+  if (mCode)
+    mCode->save(out);
+  else{
+    lua_pushthread(mL);
+    lua_gettable(mL, LUA_REGISTRYINDEX);
+    lua_getfield(mL, -1, "script");
+    lua_dump(mL, luaWriter, &out);
+    lua_pop(mL, 2);
+  }
   out << " ";
   if (mLoop1 == NULL)
     out << "none\n";

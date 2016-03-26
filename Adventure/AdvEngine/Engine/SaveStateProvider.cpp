@@ -318,7 +318,7 @@ void SaveStateProvider::save(const std::string& name){
   for (std::list<RoomObject*>::iterator iter = Engine::instance()->mRooms.begin(); iter != Engine::instance()->mRooms.end(); ++iter){
     (*iter)->save(NULL);
   }
-  std::ofstream out(name.c_str());
+  std::ofstream out(name.c_str(), std::ios::binary);
   int version = 1;
   out << version << std::endl;
   out << Engine::instance()->getInterpreter()->getLanguage() << std::endl;
@@ -378,7 +378,7 @@ void SaveStateProvider::save(const std::string& name){
 }
 
 void SaveStateProvider::load(const std::string& name, bool fromScript){
-  std::ifstream in(name.c_str());
+  std::ifstream in(name.c_str(), std::ios::binary);
   if (!in)
     return;
   //clear the current save state;
