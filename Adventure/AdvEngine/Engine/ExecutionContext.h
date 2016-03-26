@@ -132,6 +132,8 @@ public:
   lua_State* getState() { return mL; }
   void setLoop1(ExecutionContext* ctx) { mLoop1 = ctx; }
 protected:
+  static int luaWriter(lua_State* L, const void* p, size_t sz, void* ud);
+  static const char* luaReader(lua_State* L, void* data, size_t* size);
   ~ExecutionContext();
   lua_State* newThread();
   CodeSegment* mCode;
