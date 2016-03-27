@@ -50,8 +50,8 @@ public:
   void rightClick(const Vec2i& pos);
   void doubleClick(const Vec2i& pos);
   void mouseWheel(int delta);
-  bool loadMainRoom(const std::string& name, ExecutionContext* loadreason, ScreenChange change) {return loadRoom(name, false, loadreason, change, 0);}
-  bool loadSubRoom(const std::string& name, ExecutionContext* loadreason, int fading) {return loadRoom(name, true, loadreason, SC_DIRECT, fading);}
+  bool loadMainRoom(const std::string& name, ExecutionContext* loadreason, ScreenChange change, bool executeEnter=true) {return loadRoom(name, false, loadreason, change, 0, executeEnter);}
+  bool loadSubRoom(const std::string& name, ExecutionContext* loadreason, int fading, bool executeEnter=true) {return loadRoom(name, true, loadreason, SC_DIRECT, fading, executeEnter);}
   void unloadRoom(RoomObject* room, bool mainroom, bool immedately, ExecutionContext* reason);
   bool setFocus(std::string charname, ExecutionContext* reason);
   void setFocus(CharacterObject* character) {mFocussedChar = character;}
@@ -206,7 +206,7 @@ protected:
   bool aStarSearch(CharacterObject* chr, const Vec2i& from, const Vec2i& to, std::list<Vec2i>& path);
   float distance(const Vec2i& x, const Vec2i& y);
   std::list<Vec2i> reconstruct_path(AStarData node, const std::set<AStarData>& data);
-  bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading);
+  bool loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, bool executeEnter);
   void handleDragging(const std::string& object);
   //engine - script communication
   std::string mObjectInfo;

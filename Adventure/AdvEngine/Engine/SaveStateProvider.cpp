@@ -413,9 +413,9 @@ void SaveStateProvider::load(const std::string& name, bool fromScript){
   for (int i = 0; i < numRooms; ++i){
     in >> roomname;
     if (i == 0)
-      Engine::instance()->loadMainRoom(roomname, NULL, Engine::instance()->getScreenChange());
+      Engine::instance()->loadMainRoom(roomname, NULL, Engine::instance()->getScreenChange(), false);
     else
-      Engine::instance()->loadSubRoom(roomname, NULL, 0);
+      Engine::instance()->loadSubRoom(roomname, NULL, 0, false);
   }
   if (fromScript)
     Engine::instance()->getInterpreter()->getExecMutex().unlock();

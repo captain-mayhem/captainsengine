@@ -687,7 +687,7 @@ void Engine::render(unsigned time){
   trymtx.unlock();
 }
 
-bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading){
+bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, bool executeEnter){
   TR_USE(ADV_Engine);
   if (!mData)
     return false;
@@ -719,7 +719,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   TR_DETAIL("loadRoom called for %s", name.c_str());
   if (loadreason)
     loadreason->suspend(0, NULL);
-  mLoader.loadRoom(name, isSubRoom, loadreason, change, fading, depthoffset);
+  mLoader.loadRoom(name, isSubRoom, loadreason, change, fading, depthoffset, executeEnter);
 
   return true;
 }
