@@ -38,7 +38,7 @@ public:
   ResLoader();
   ~ResLoader();
   void setData(AdvDocument* data);
-  void loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset);
+  void loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset, bool executeEnter);
   void beamCharacter(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir);
   void setFocus(const std::string& name, ExecutionContext* reason);
   bool handleResultEvent();

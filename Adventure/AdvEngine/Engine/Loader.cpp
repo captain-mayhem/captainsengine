@@ -29,8 +29,8 @@ private:
 
 class LoadRoomEvent : public Event{
 public:
-  LoadRoomEvent(const std::string& roomname, bool subroom, ExecutionContext* reason, ScreenChange change, int fade, int depthoffset) :
-      mName(roomname), mIsSubRoom(subroom), mLoadreason(reason), mScreenchange(change), mFading(fade), mDepthOffset(depthoffset) {}
+  LoadRoomEvent(const std::string& roomname, bool subroom, ExecutionContext* reason, ScreenChange change, int fade, int depthoffset, bool executeEnter) :
+      mName(roomname), mIsSubRoom(subroom), mLoadreason(reason), mScreenchange(change), mFading(fade), mDepthOffset(depthoffset), mExecuteEnter(executeEnter) {}
       void setData(AdvDocument* data, PcdkScript* cc) {mData = data; mCompiler = cc;}
   virtual Event* execute(){
     TR_USE(ADV_ResLoader);
@@ -138,7 +138,8 @@ public:
       ExecutionContext* scr = mCompiler->parseProgram(script->text);
       if (scr != NULL){
         roomobj->setScript(scr);
-        scr->setEvent(EVT_ENTER);
+        if (mExecuteEnter)
+          scr->setEvent(EVT_ENTER);
         //mInterpreter->executeImmediately(scr);
       }
     }
@@ -158,6 +159,7 @@ private:
   int mDepthOffset;
   AdvDocument* mData;
   PcdkScript* mCompiler;
+  bool mExecuteEnter;
 };
 
 class InsertCharacterEvent : public Event{
@@ -229,7 +231,7 @@ public:
       TR_USE(ADV_ResLoader);
       TR_BREAK("Character %s not found", mName.c_str());
     }
-    LoadRoomEvent lre(room, false, mReason, Engine::instance()->getScreenChange(), 0, 0);
+    LoadRoomEvent lre(room, false, mReason, Engine::instance()->getScreenChange(), 0, 0, true);
     lre.setData(mData, mCompiler);
     Event* loadret = lre.execute();
     return new ChangeFocusEvent(realName, mReason, loadret);
@@ -332,10 +334,10 @@ void ResLoader::waitUntilFinished(){
   }
 }
 
-void ResLoader::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset){
+void ResLoader::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset, bool executeEnter){
   TR_USE(ADV_ResLoader);
   TR_DETAIL("enqueuing loadRoom");
-  LoadRoomEvent* lre = new LoadRoomEvent(name, isSubRoom, loadreason, change, fading, depthoffset);
+  LoadRoomEvent* lre = new LoadRoomEvent(name, isSubRoom, loadreason, change, fading, depthoffset, executeEnter);
   if (!lre)
     TR_BREAK("Out of memory");
   lre->setData(mData, mCompiler);
