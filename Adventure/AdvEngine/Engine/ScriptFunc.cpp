@@ -187,9 +187,10 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerRelVar("movetext", 2, "_txtoutx:");
   interpreter->registerRelVar("movetext", 3, "_txtouty:");
   interpreter->registerFunction("popupcoin", popupCoin);
+  interpreter->registerFunction("timer", timer);
+  interpreter->registerFunction("row", row);
 
   interpreter->registerFunction("print", print);
-  interpreter->registerFunction("timer", timer);
   srand((unsigned)time(NULL));
 }
 
@@ -2819,6 +2820,44 @@ int ScriptFunctions::timer(lua_State* L){
   tctx->suspend((int)(time * 1000), NULL);
   Engine::instance()->getInterpreter()->addTimer(tctx);
   return 0;
+}
+
+int ScriptFunctions::row(lua_State* L){
+  NUM_ARGS(3, 3);
+  int row = luaL_checkint(L, 1);
+  String text = luaL_checkstring(L, 2);
+  bool visible = lua_toboolean(L, 3) ? true : false;
+  std::map<int, bool>::iterator iter = Engine::instance()->getInterpreter()->tsActive().find(row);
+  if (iter == Engine::instance()->getInterpreter()->tsActive().end()){
+    Engine::instance()->getInterpreter()->tsActive()[row] = visible;
+    iter = Engine::instance()->getInterpreter()->tsActive().find(row);
+  }
+  if (!iter->second){ //the text is invisible, so skip further processing
+    lua_pushboolean(L, 0);
+    return 1;
+  }
+  std::vector<Vec2i> breakinfo;
+  Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(text, Engine::instance()->getFontID(), breakinfo);
+  extent.y /= (int)breakinfo.size();
+  Vec2i offset;
+  if (!Engine::instance()->getInterpreter()->isTSTopToBottom())
+    offset.y = extent.y;
+  Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);
+  ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos() - offset, butsize, text, row);
+  if (Engine::instance()->getInterpreter()->isTSTopToBottom()){
+    Engine::instance()->addUIElement(but, 0);
+    Engine::instance()->getInterpreter()->tsPos().y += extent.y;
+  }
+  else
+    Engine::instance()->addUIElement(but, -extent.y);
+  int chosenRow = Engine::instance()->getInterpreter()->getVariable("!button").getInt();
+  if (chosenRow == row){
+    Engine::instance()->getInterpreter()->setVariable("!button", 0);
+    lua_pushboolean(L, 1);
+    return 1;
+  }
+  lua_pushboolean(L, 0);
+  return 1;
 }
 
 int ScriptFunctions::dummy(lua_State* L){

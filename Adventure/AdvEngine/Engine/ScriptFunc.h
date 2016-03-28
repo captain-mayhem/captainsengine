@@ -304,6 +304,12 @@ public:
   **/
   static int restart(lua_State* L);
   /**
+  \param row the row number
+  \param text the text to be displayed
+  \param active whether row is active from the beginning
+  **/
+  static int row(lua_State* L);
+  /**
   \param speed 50 - 300 %
   **/
   static int runSpeed(lua_State* L);
