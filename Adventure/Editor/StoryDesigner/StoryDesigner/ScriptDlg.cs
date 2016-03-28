@@ -445,6 +445,8 @@ namespace StoryDesigner
 
         string getIndent(int line)
         {
+            if (scripttext.Lines.Length <= line)
+                return "";
             string prevline = scripttext.Lines[line];
             int i;
             for (i = 0; i < prevline.Length; ++i)

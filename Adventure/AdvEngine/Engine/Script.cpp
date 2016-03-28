@@ -78,10 +78,14 @@ const char* luaRunner =
 "    end\n"
 "  end\n"
 "end\n"
-//"function on(event, func)\n"
-//"  func()\n"
-//"end\n"
-//"on = _state.event\n"
+"\n"
+"function level(lvl, eventfunc)\n"
+"  local event = 177 + lvl --level event\n"
+"  if _state:eventFired(event) then\n"
+"    _state:eventHandled()\n"
+"    eventfunc()\n"
+"  end\n"
+"end\n"
 ;
 
 PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true), mExecMutex(true) {
