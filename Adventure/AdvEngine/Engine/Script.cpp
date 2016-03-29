@@ -435,31 +435,6 @@ unsigned PcdkScript::transform(NodeList* program, CodeSegment* codes, TrMode mod
       ++mCurrArg;
     }
   }
-  else if (mode == REVERSE){
-    program->reset(false);
-    mFirstArg = program->first();
-    mCurrArg = program->size();
-    while(program->hasPrev()){
-      ASTNode* ast = program->prev();
-      if (mCurrArg == seperateContext){
-        CodeSegment* newcodes = new CodeSegment();
-        unsigned oldargs = mCurrArg;
-        transform(ast, newcodes);
-        mCurrArg = oldargs;
-        ExecutionContext* ctx = new ExecutionContext(newcodes, false, "");
-        codes->addEmbeddedContext(ctx);
-        CPUSH* ecp = new CPUSH(ctx);
-        codes->addCode(ecp);
-        ++count;
-      }
-      else{
-        unsigned oldargs = mCurrArg;
-        count += transform(ast, codes);
-        mCurrArg = oldargs;
-      }
-      --mCurrArg;
-    }
-  }
   else{
     program->reset(true);
     while(program->hasNext()){
@@ -697,7 +672,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         CBNEEVT* cevt = new CBNEEVT(evtcode);
         codes->addCode(cevt);
         ++count;
-        int offset = transform(lvl->getBlock(), codes, REVERSE);
+        int offset = transform(lvl->getBlock(), codes, START);
         cevt->setOffset(offset+1);
         count += offset;
       }
