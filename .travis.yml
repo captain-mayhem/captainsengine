@@ -1,0 +1,15 @@
+language: cpp
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -y cmake
+  - sudo apt-get install -y fastjar
+  - sudo apt-get install -y java-common
+  - sudo apt-get install -y libavcodec-dev
+  - sudo apt-get install -y libavformat-dev
+  - sudo apt-get install -y libavutil-dev
+  - sudo apt-get install -y libswscale-dev
+  - sudo apt-get install -y libx11-dev
+  - sudo apt-get install -y libxxf86vm-dev
+  - sudo apt-get install -y libgl1-mesa-dev
+  - sudo apt-get install -y libopenal-dev
+script: cmake

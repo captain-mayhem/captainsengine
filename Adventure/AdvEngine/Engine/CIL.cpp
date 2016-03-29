@@ -16,30 +16,17 @@ unsigned CBNEEVT::execute(ExecutionContext& ctx, unsigned pc){
 }
 
 unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
-  std::map<int,bool>::iterator iter = Engine::instance()->getInterpreter()->tsActive().find(mRow);
-  if (iter == Engine::instance()->getInterpreter()->tsActive().end()){
-    Engine::instance()->getInterpreter()->tsActive()[mRow] = mVisible;
-    iter = Engine::instance()->getInterpreter()->tsActive().find(mRow);
-  }
-  if (!iter->second) //the text is invisible, so skip further processing
-    return pc+mOffset;
-  std::vector<Vec2i> breakinfo;
-  Vec2i extent = Engine::instance()->getFontRenderer()->getTextExtent(mText, Engine::instance()->getFontID(), breakinfo);
-  extent.y /= (int)breakinfo.size();
-  if (!Engine::instance()->getInterpreter()->isTSTopToBottom())
-    Engine::instance()->getInterpreter()->tsPos().y -= extent.y;
-  Vec2i butsize(Engine::instance()->getInterpreter()->getTSWidth(), extent.y);
-  ButtonObject* but = new ButtonObject(Engine::instance()->getInterpreter()->tsPos(), butsize, mText, mRow);
-  if (Engine::instance()->getInterpreter()->isTSTopToBottom())
-    Engine::instance()->addUIElement(but, extent.y);
-  else
-    Engine::instance()->addUIElement(but, 0);
-  int chosenRow = Engine::instance()->getInterpreter()->getVariable("!button").getInt();
-  if (chosenRow == mRow){
-    Engine::instance()->getInterpreter()->setVariable("!button", 0);
+  lua_State* L = ctx.getState();
+  lua_getglobal(L, "row");
+  lua_pushinteger(L, mRow);
+  lua_pushstring(L, mText.c_str());
+  lua_pushboolean(L, mVisible);
+  lua_call(L, 3, 1);
+  bool chosen = lua_toboolean(L, -1) ? true : false;
+  lua_pop(L, 1);
+  if (chosen)
     return ++pc;
-  }
-  return pc+mOffset;
+  return pc + mOffset;
 }
 
 unsigned CBE::execute(ExecutionContext& ctx, unsigned pc){

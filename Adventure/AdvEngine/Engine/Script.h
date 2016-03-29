@@ -27,7 +27,6 @@ public:
   enum TrMode{
     START,
     ARGLIST,
-    REVERSE,
   };
 
   PcdkScript(AdvDocument* data);
