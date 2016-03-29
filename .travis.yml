@@ -12,4 +12,6 @@ before_install:
   - sudo apt-get install -y libxxf86vm-dev
   - sudo apt-get install -y libgl1-mesa-dev
   - sudo apt-get install -y libopenal-dev
-script: cmake
+script:
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install .
+  - make
