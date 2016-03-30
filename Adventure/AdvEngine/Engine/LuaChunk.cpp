@@ -1,5 +1,7 @@
 #include "LuaChunk.h"
 
+#include <cstring>
+
 extern "C"{
 #include <lua.h>
 #include <lopcodes.h>

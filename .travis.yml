@@ -1,9 +1,6 @@
 language: cpp
 before_install:
   - sudo apt-get -qq update
-  - sudo apt-get install -y cmake
-  - sudo apt-get install -y fastjar
-  - sudo apt-get install -y java-common
   - sudo apt-get install -y libavcodec-dev
   - sudo apt-get install -y libavformat-dev
   - sudo apt-get install -y libavutil-dev
@@ -13,5 +10,5 @@ before_install:
   - sudo apt-get install -y libgl1-mesa-dev
   - sudo apt-get install -y libopenal-dev
 script:
-  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install .
+  - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=install -DFFMPEG_OLD_API=ON .
   - make

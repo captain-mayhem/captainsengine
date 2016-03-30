@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "../window/window.h"
 #include "../math/vector.h"
 #include "renderer.h"
