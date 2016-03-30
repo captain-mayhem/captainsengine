@@ -1,6 +1,9 @@
 #ifndef ADV_STRING_H
 #define ADV_STRING_H
 
+#ifdef UNIX
+#include <stdint.h>
+#endif
 #include <string>
 
 namespace adv{
