@@ -482,33 +482,58 @@ namespace StoryDesigner
 
         private void itemToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("on(mouse)\n\tshowinfo( ; )\n\non(pickup)\n\tbreak()\n\non(use)\n\tlink()\n\non(give)\n\tgivelink()");
+            if (mData.Settings.ScriptingLanguage == ProjectSettings.ScriptLang.PCDK)
+                insertText("on(mouse)\n\tshowinfo( ; )\n\non(pickup)\n\tbreak()\n\non(use)\n\tlink()\n\non(give)\n\tgivelink()");
+            else
+                insertText("on.mouse = function()\n\tshowinfo( , )\nend\n\non.pickup = function()\n\tbreak()\nend\n\non.use = function()\n\tlink()\nend\n\non.give = function()\n\tgivelink()\nend");
         }
 
         private void characterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("on(mouse)\n\tshowinfo( ; )\n\non(click)\n\tfollow(self; )\n\non(givelink){\n\tdelitem(self; givelink)\n\tadditem( ; givelink)\n\tlookto( ; self)\n\tplaysound( )\n\tpickup(self)\n\tpickup()\n}\n\non(cantall){\n\t\n}");
+            if (mData.Settings.ScriptingLanguage == ProjectSettings.ScriptLang.PCDK)
+                insertText("on(mouse)\n\tshowinfo( ; )\n\non(click)\n\tfollow(self; )\n\non(givelink){\n\tdelitem(self; givelink)\n\tadditem( ; givelink)\n\tlookto( ; self)\n\tplaysound( )\n\tpickup(self)\n\tpickup()\n}\n\non(cantall){\n\t\n}");
+            else
+                insertText("on.mouse = function()\n\tshowinfo( , )\nend\n\non.click = function()\n\tfollow(self, )\nend\n\non.givelink = function()\n\tdelitem(self, givelink)\n\tadditem( , givelink)\n\tlookto( , self)\n\tplaysound( )\n\tpickup(self)\n\tpickup()\nend\n\non.cantall = function()\n\t\nend");
         }
 
         private void objectToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("on(mouse)\n\tshowinfo( ; )\n\non(click)\n\twalkto( ; ; ; )");
+            if (mData.Settings.ScriptingLanguage == ProjectSettings.ScriptLang.PCDK)
+                insertText("on(mouse)\n\tshowinfo( ; )\n\non(click)\n\twalkto( ; ; ; )");
+            else
+                insertText("on.mouse = function()\n\tshowinfo( , )\nend\n\non.click = function()\n\twalkto( , , , )\nend");
         }
 
         private void insertTextScene(int rows)
         {
-            string text = "level(){\n";
-            for (int i = 1; i <= rows; ++i)
+            if (mData.Settings.ScriptingLanguage == ProjectSettings.ScriptLang.PCDK)
             {
-                text += "\trow(" + i + "; ; true){\n\t\t\n\t}\n";
+                string text = "level(){\n";
+                for (int i = 1; i <= rows; ++i)
+                {
+                    text += "\trow(" + i + "; ; true){\n\t\t\n\t}\n";
+                }
+                text += "}";
+                insertText(text);
             }
-            text += "}";
-            insertText(text);
+            else
+            {
+                string text = "level( , function()\n";
+                for (int i = 1; i <= rows; ++i)
+                {
+                    text += "\tif row(" + i + ", , true) then\n\t\t\n\tend\n";
+                }
+                text += "end)";
+                insertText(text);
+            }
         }
 
         private void roomToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            insertText("on(enter){\n\t\n}\n\non(loop1){\n\t\n}\n\non(loop2){\n\t\n}\n\non(exit){\n\t\n}");
+            if (mData.Settings.ScriptingLanguage == ProjectSettings.ScriptLang.PCDK)
+                insertText("on(enter){\n\t\n}\n\non(loop1){\n\t\n}\n\non(loop2){\n\t\n}\n\non(exit){\n\t\n}");
+            else
+                insertText("on.enter = function()\n\t\nend\n\non.loop1 = function()\n\t\nend\n\non.loop2 = function()\n\t\nend\n\non.exit = function()\n\t\nend");
         }
 
         public Script Script
