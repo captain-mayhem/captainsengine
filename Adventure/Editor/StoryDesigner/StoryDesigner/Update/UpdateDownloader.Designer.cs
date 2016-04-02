@@ -39,13 +39,13 @@
             this.lblDownloading.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblDownloading.Location = new System.Drawing.Point(35, 35);
             this.lblDownloading.Name = "lblDownloading";
-            this.lblDownloading.Size = new System.Drawing.Size(343, 45);
+            this.lblDownloading.Size = new System.Drawing.Size(428, 54);
             this.lblDownloading.TabIndex = 0;
             this.lblDownloading.Text = "Downloading Update...";
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(34, 111);
+            this.progressBar.Location = new System.Drawing.Point(72, 111);
             this.progressBar.Name = "progressBar";
             this.progressBar.Size = new System.Drawing.Size(344, 23);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
@@ -62,9 +62,9 @@
             // 
             // UpdateDownloader
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 19F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(413, 196);
+            this.ClientSize = new System.Drawing.Size(479, 196);
             this.Controls.Add(this.lblProgress);
             this.Controls.Add(this.progressBar);
             this.Controls.Add(this.lblDownloading);
