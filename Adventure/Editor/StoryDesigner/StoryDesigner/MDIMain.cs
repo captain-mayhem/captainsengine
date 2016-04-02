@@ -273,6 +273,8 @@ namespace StoryDesigner
             list.Add(uf);
             uf = new UpdatableFile(this, "Engine libraries", "engine2.dat");
             list.Add(uf);
+            UpdatableExecutable ue = new UpdatableExecutable(this, Assembly.GetExecutingAssembly(), "CGE Installer", "CGEInstaller");
+            list.Add(ue);
             Update update = new Update((Updatable[])list.ToArray(typeof(Updatable)));
             update.doUpdate();
         }

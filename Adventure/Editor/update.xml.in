@@ -1,5 +1,13 @@
 <?xml version="1.0"?>
 <StoryDesignerUpdate>
+  <update appId="CGEInstaller">
+		<version>@STORY_DESIGNER_VERSION@</version>
+		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/CaptainsGameEngine-1.0.4-win32.exe</url>
+		<fileName>CaptainsGameEngineInstaller.exe</fileName>
+		<md5>@INSTALLER_MD5@</md5>
+		<description>CGE 1.1 contains support for Lua scripting, rendering with DirectX and example/tutorial games</description>
+		<launchArgs></launchArgs>
+	</update>
 	<update appId="StoryDesigner">
 		<version>@STORY_DESIGNER_VERSION@</version>
 		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/Updates/StoryDesigner.exe</url>

@@ -123,6 +123,7 @@
     <Compile Include="FxShapeTabCtrl.Designer.cs">
       <DependentUpon>FxShapeTabCtrl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Update\UpdatableExecutable.cs" />
     <Compile Include="Update\UpdatableFile.cs" />
     <Compile Include="Update\UpdateAccept.cs">
       <SubType>Form</SubType>

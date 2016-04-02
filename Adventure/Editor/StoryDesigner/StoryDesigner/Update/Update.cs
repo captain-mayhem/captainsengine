@@ -14,6 +14,7 @@ namespace StoryDesigner
         public Update(Updatable[] applicationInfos)
         {
             this.applicationInfos = applicationInfos;
+            this.isInstaller = false;
 
             this.bgWorker = new BackgroundWorker();
             bgWorker.DoWork += new DoWorkEventHandler(bgWorker_DoWork);
@@ -88,7 +89,9 @@ namespace StoryDesigner
                 string currentPath = location;
                 string newPath = Path.Combine(Path.GetDirectoryName(currentPath), update.FileName);
                 if (action == UpdateAction.RESTART)
-                    updateApplication(form.TempFilePath, currentPath, newPath, update.LaunchArgs);
+                    updateApplication(form.TempFilePath, currentPath, newPath, update.LaunchArgs, false);
+                else if (action == UpdateAction.INSTALL)
+                    updateApplication(form.TempFilePath, currentPath, newPath, update.LaunchArgs, true);
                 else if (action == UpdateAction.FILECOPY)
                     updateFile(form.TempFilePath, currentPath, newPath, update.Version.ToString());
             }
@@ -106,13 +109,17 @@ namespace StoryDesigner
         private string currentPath;
         private string newPath;
         private string launchArgs;
+        private bool isInstaller;
 
-        private void updateApplication(string tempFilePath, string currentPath, string newPath, string launchArgs)
+        private void updateApplication(string tempFilePath, string currentPath, string newPath, string launchArgs, bool isInstaller)
         {
+            if (this.isInstaller && !isInstaller)
+                return; //prefer the complete installer if both are available
             this.tempFilePath = tempFilePath;
             this.currentPath = currentPath;
             this.newPath = newPath;
             this.launchArgs = launchArgs;
+            this.isInstaller = isInstaller;
         }
 
         private void updateFile(string tempFilePath, string currentPath, string newPath, string version)
@@ -127,19 +134,27 @@ namespace StoryDesigner
         {
             if (tempFilePath == null)
                 return;
-            string newSD = Path.Combine(Path.GetTempPath(), Path.GetFileName(currentPath));
-            File.Copy(tempFilePath, newSD, true);
             ProcessStartInfo info = new ProcessStartInfo();
-            //string argument = "/C Choice /C Y /N /D Y /T 4 & Del /f /Q \"{0}\" & /C Choice /C Y /N /D Y /T 2 & Move /Y \"{1}\" \"{2}\" & Start \"\" /D \"{3}\" \"{4}\" \"{5}\"";          
-            //info.Arguments = string.Format(argument, currentPath, tempFilePath, newPath, Path.GetDirectoryName(newPath),
-            //    Path.GetFileName(newPath), launchArgs);
-            info.Arguments = string.Format("--install {0} {1} {2} {3} {4} {5}", currentPath, tempFilePath, newPath,  Path.GetDirectoryName(newPath), Path.GetFileName(newPath), launchArgs);
-            info.WindowStyle = ProcessWindowStyle.Hidden;
-            info.CreateNoWindow = true;
-            info.Verb = "runas";
+            if (!isInstaller)
+            {
+                string newSD = Path.Combine(Path.GetTempPath(), Path.GetFileName(currentPath));
+                File.Copy(tempFilePath, newSD, true);
+                //string argument = "/C Choice /C Y /N /D Y /T 4 & Del /f /Q \"{0}\" & /C Choice /C Y /N /D Y /T 2 & Move /Y \"{1}\" \"{2}\" & Start \"\" /D \"{3}\" \"{4}\" \"{5}\"";          
+                //info.Arguments = string.Format(argument, currentPath, tempFilePath, newPath, Path.GetDirectoryName(newPath),
+                //    Path.GetFileName(newPath), launchArgs);
+                info.Arguments = string.Format("--install {0} {1} {2} {3} {4} {5}", currentPath, tempFilePath, newPath, Path.GetDirectoryName(newPath), Path.GetFileName(newPath), launchArgs);
+                info.WindowStyle = ProcessWindowStyle.Hidden;
+                info.CreateNoWindow = true;
+                info.Verb = "runas";
 
-            //info.FileName = "cmd.exe";
-            info.FileName = newSD;
+                //info.FileName = "cmd.exe";
+                info.FileName = newSD;
+            }
+            else
+            {
+                info.Arguments = launchArgs;
+                info.FileName = tempFilePath;
+            }
             Process.Start(info);
             Application.Exit();
         }

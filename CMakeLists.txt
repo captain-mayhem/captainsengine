@@ -175,7 +175,7 @@ set(CPACK_GENERATOR "NSIS")
 set(CPACK_OUTPUT_FILE_PREFIX ${CMAKE_INSTALL_PREFIX})
 set(CPACK_ARCHIVE_COMPONENT_INSTALL ON)
 set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
-set(CPACK_PACKAGE_NAME "Captains Game Engine")
+set(CPACK_PACKAGE_NAME "CaptainsGameEngine")
 set(CPACK_PACKAGE_VENDOR "Marco Staginski")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "An open source, cross-platform game engine with focus on point&click adventures and 2D games")
 set(CPACK_PACKAGE_VERSION ${STORY_DESIGNER_VERSION})
@@ -185,7 +185,7 @@ set(CPACK_COMPONENT_GROUP_EDITOR_DESCRIPTION "The Point&Click Adventure and 2D G
 set(CPACK_COMPONENT_GROUP_EXAMPLES_DISPLAY_NAME "Examples")
 set(CPACK_COMPONENT_GROUP_EXAMPLES_DESCRIPTION "Examples and Demos")
 
-set(CPACK_COMPONENTS_ALL StoryDesignerRuntime StoryDesignerPlugins StoryDesignerEngine TestAdventure)
+set(CPACK_COMPONENTS_ALL StoryDesignerRuntime StoryDesignerPlugins StoryDesignerEngine TestAdventure Airfight)
 set(CPACK_COMPONENT_STORYDESIGNERRUNTIME_GROUP "Editor")
 set(CPACK_COMPONENT_STORYDESIGNERRUNTIME_DISPLAY_NAME "StoryDesigner")
 set(CPACK_COMPONENT_STORYDESIGNERRUNTIME_DESCRIPTION "The main component of the editor")
@@ -199,6 +199,9 @@ set(CPACK_COMPONENT_STORYDESIGNERENGINE_DESCRIPTION "The game engine runtime env
 set(CPACK_COMPONENT_TESTADVENTURE_GROUP "Examples")
 set(CPACK_COMPONENT_TESTADVENTURE_DISPLAY_NAME "Demo-Adventure")
 set(CPACK_COMPONENT_TESTADVENTURE_DESCRIPTION "A simple demo adventure that gives an example how editor and engine can be used")
+set(CPACK_COMPONENT_AIRFIGHT_GROUP "Examples")
+set(CPACK_COMPONENT_AIRFIGHT_DISPLAY_NAME "Airfight")
+set(CPACK_COMPONENT_AIRFIGHT_DESCRIPTION "A simple 2D shooter with airplanes using Lua scripting")
 
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
 

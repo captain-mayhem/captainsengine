@@ -12,6 +12,7 @@ namespace StoryDesigner
     {
         RESTART,
         FILECOPY,
+        INSTALL,
     }
 
     public interface Updatable
