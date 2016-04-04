@@ -2,7 +2,7 @@
 <StoryDesignerUpdate>
   <update appId="CGEInstaller">
 		<version>@STORY_DESIGNER_VERSION@</version>
-		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/CaptainsGameEngine-1.0.4-win32.exe</url>
+		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/CaptainsGameEngine-1.1.0-win32.exe</url>
 		<fileName>CaptainsGameEngineInstaller.exe</fileName>
 		<md5>@INSTALLER_MD5@</md5>
 		<description>CGE 1.1 contains support for Lua scripting, rendering with DirectX and example/tutorial games</description>
@@ -13,7 +13,7 @@
 		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/Updates/StoryDesigner.exe</url>
 		<fileName>StoryDesigner.exe</fileName>
 		<md5>@STORY_DESIGNER_MD5@</md5>
-		<description>Fixed several major bugs</description>
+		<description>CGE 1.1 contains support for Lua scripting, Coin-Interface and several editor improvements</description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="engine1.dat">
@@ -21,7 +21,7 @@
 		<url>http://sourceforge.net/projects/captainsengine/files/Adventure-Editor/Updates/engine1.dat</url>
 		<fileName>engine1.dat</fileName>
 		<md5>@ENGINE_MD5@</md5>
-		<description>a lot of improvements, added debug console</description>
+		<description>Support for DirectX rendering, lua scripting and stability improvements</description>
 		<launchArgs></launchArgs>
 	</update>
 	<update appId="engine2.dat">

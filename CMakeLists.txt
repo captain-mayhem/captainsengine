@@ -30,7 +30,7 @@ OPTION(PROJECT_ADVENTURE "compile adventure projects" ON)
 OPTION(PROJECT_OSMRACER "compile osm racer projects" ON)
 OPTION(PROJECT_COMPILER "compile compiler project" OFF)
 OPTION(PROJECT_VGRENDER "compile vector graphics render projects" OFF)
-SET(STORY_DESIGNER_VERSION "1.0.4" CACHE STRING "Story Designer Version" FORCE)
+SET(STORY_DESIGNER_VERSION "1.1.0" CACHE STRING "Story Designer Version" FORCE)
 
 SET(VC_DIR "$ENV{VCINSTALLDIR}")
 
