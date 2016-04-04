@@ -1357,7 +1357,22 @@ namespace StoryDesigner
             {
                 string dir = Path.GetDirectoryName(fod.FileName);
                 mPersistence.LastOpenPath = dir;
-                string advfile = AdvFileReader.unpackAdz(fod.FileName);
+                string advfile;
+                try
+                {
+                    advfile = AdvFileReader.unpackAdz(fod.FileName);
+                }
+                catch (Exception)
+                {
+                    FolderBrowserDialog fbd = new FolderBrowserDialog();
+                    fbd.Description = mData.getLocalizedString("ChooseDestination");
+                    fbd.SelectedPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                    DialogResult res = fbd.ShowDialog(this);
+                    if (res != DialogResult.OK)
+                        return;
+                    advfile = AdvFileReader.unpackAdz(fod.FileName, fbd.SelectedPath);
+
+                }
                 newToolStripMenuItem_Click(null, null);
                 if (!loadFile(advfile))
                 {

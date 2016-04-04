@@ -1116,7 +1116,8 @@ namespace StoryDesigner
             str = rdr.ReadLine();
             mAdv.Settings.PngToJpeg = str == "-1";
             str = rdr.ReadLine();
-            mAdv.Settings.ScriptingLanguage = (ProjectSettings.ScriptLang)Enum.Parse(typeof(ProjectSettings.ScriptLang), str);
+            if (str != null)
+                mAdv.Settings.ScriptingLanguage = (ProjectSettings.ScriptLang)Enum.Parse(typeof(ProjectSettings.ScriptLang), str);
             return true;
         }
 
@@ -1141,7 +1142,12 @@ namespace StoryDesigner
         {
             string unpackpath = Path.GetDirectoryName(filename);
             unpackpath = Path.Combine(unpackpath, Path.GetFileNameWithoutExtension(filename));
-            Directory.CreateDirectory(unpackpath);
+            return unpackAdz(filename, unpackpath);
+        }
+
+        public static string unpackAdz(string filename, string destfolder)
+        {
+            Directory.CreateDirectory(destfolder);
             ZipInputStream zis = new ZipInputStream(File.OpenRead(filename));
             ZipEntry entry;
             string advname = null;
@@ -1149,14 +1155,14 @@ namespace StoryDesigner
             {
                 if (Path.GetExtension(entry.Name) == ".adv")
                 {
-                    advname = Path.Combine(unpackpath, entry.Name);
-                    AdvFileWriter.writeFile(zis, Path.Combine(unpackpath, entry.Name));
+                    advname = Path.Combine(destfolder, entry.Name);
+                    AdvFileWriter.writeFile(zis, Path.Combine(destfolder, entry.Name));
                 }
                 else if (Path.GetExtension(entry.Name) == ".dat")
                 {
                     ZipInputStream input = new ZipInputStream(zis);
                     input.IsStreamOwner = false;
-                    AdvFileWriter.writeFileRecursive(input, unpackpath);
+                    AdvFileWriter.writeFileRecursive(input, destfolder);
                     input.Close();
                 }
             }

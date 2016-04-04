@@ -891,7 +891,7 @@ namespace StoryDesigner
             string path = Path.GetDirectoryName(Application.ExecutablePath);
             try
             {
-                FileStream engine = new FileStream(Path.Combine(path, "engine2.dat"), FileMode.Open); ;
+                FileStream engine = new FileStream(Path.Combine(path, "engine2.dat"), FileMode.Open, FileAccess.Read); ;
                 ZipInputStream zis = new ZipInputStream(engine);
                 ZipEntry entry = zis.GetNextEntry();
                 while (entry != null)
@@ -900,7 +900,7 @@ namespace StoryDesigner
                     entry = zis.GetNextEntry();
                 }
                 zis.Close();
-                engine = new FileStream(Path.Combine(path, "engine1.dat"), FileMode.Open); ;
+                engine = new FileStream(Path.Combine(path, "engine1.dat"), FileMode.Open, FileAccess.Read); ;
                 zis = new ZipInputStream(engine);
                 entry = zis.GetNextEntry();
                 while (entry != null)
