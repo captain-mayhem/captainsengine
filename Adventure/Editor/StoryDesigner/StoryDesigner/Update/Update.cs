@@ -134,26 +134,20 @@ namespace StoryDesigner
         {
             if (tempFilePath == null)
                 return;
+            string newSD = Path.Combine(Path.GetTempPath(), Path.GetFileName(currentPath));
+            File.Copy(tempFilePath, newSD, true);
             ProcessStartInfo info = new ProcessStartInfo();
+            info.FileName = newSD;
             if (!isInstaller)
             {
-                string newSD = Path.Combine(Path.GetTempPath(), Path.GetFileName(currentPath));
-                File.Copy(tempFilePath, newSD, true);
-                //string argument = "/C Choice /C Y /N /D Y /T 4 & Del /f /Q \"{0}\" & /C Choice /C Y /N /D Y /T 2 & Move /Y \"{1}\" \"{2}\" & Start \"\" /D \"{3}\" \"{4}\" \"{5}\"";          
-                //info.Arguments = string.Format(argument, currentPath, tempFilePath, newPath, Path.GetDirectoryName(newPath),
-                //    Path.GetFileName(newPath), launchArgs);
                 info.Arguments = string.Format("--install {0} {1} {2} {3} {4} {5}", currentPath, tempFilePath, newPath, Path.GetDirectoryName(newPath), Path.GetFileName(newPath), launchArgs);
                 info.WindowStyle = ProcessWindowStyle.Hidden;
                 info.CreateNoWindow = true;
                 info.Verb = "runas";
-
-                //info.FileName = "cmd.exe";
-                info.FileName = newSD;
             }
             else
             {
                 info.Arguments = launchArgs;
-                info.FileName = tempFilePath;
             }
             Process.Start(info);
             Application.Exit();
