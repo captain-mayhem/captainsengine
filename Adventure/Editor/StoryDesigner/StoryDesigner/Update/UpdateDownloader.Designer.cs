@@ -54,9 +54,9 @@
             // lblProgress
             // 
             this.lblProgress.Font = new System.Drawing.Font("Segoe UI", 8F);
-            this.lblProgress.Location = new System.Drawing.Point(34, 137);
+            this.lblProgress.Location = new System.Drawing.Point(72, 137);
             this.lblProgress.Name = "lblProgress";
-            this.lblProgress.Size = new System.Drawing.Size(344, 13);
+            this.lblProgress.Size = new System.Drawing.Size(344, 34);
             this.lblProgress.TabIndex = 2;
             this.lblProgress.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 

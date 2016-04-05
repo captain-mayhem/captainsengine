@@ -12,6 +12,8 @@ namespace StoryDesigner
     {
         internal UpdatableFile(Updatable parent, string name, string path)
         {
+            if (!Path.IsPathRooted(path)) //make relative paths relative to the main executable
+                path = Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), path);
             this.parent = parent;
             this.name = name;
             this.path = path;

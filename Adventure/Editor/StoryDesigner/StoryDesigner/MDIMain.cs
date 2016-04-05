@@ -268,13 +268,13 @@ namespace StoryDesigner
         {
             mPersistence.LastUpdate = DateTime.Now;
             ArrayList list = new ArrayList();
+            UpdatableExecutable ue = new UpdatableExecutable(this, Assembly.GetExecutingAssembly(), "CGE Installer", "CGEInstaller");
+            list.Add(ue);
             list.Add(this);
             UpdatableFile uf = new UpdatableFile(this, "Engine runtime", "engine1.dat");
             list.Add(uf);
             uf = new UpdatableFile(this, "Engine libraries", "engine2.dat");
             list.Add(uf);
-            UpdatableExecutable ue = new UpdatableExecutable(this, Assembly.GetExecutingAssembly(), "CGE Installer", "CGEInstaller");
-            list.Add(ue);
             Update update = new Update((Updatable[])list.ToArray(typeof(Updatable)));
             update.doUpdate();
         }

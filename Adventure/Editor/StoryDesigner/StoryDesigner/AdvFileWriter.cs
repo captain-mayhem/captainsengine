@@ -1004,7 +1004,7 @@ namespace StoryDesigner
         void writeAdvancedSettings(Stream strm)
         {
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
-            swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
+            swr.WriteLine("3.5 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             swr.Write(mData.Settings.PngToJpeg ? -1 : 0);
             swr.WriteLine("");

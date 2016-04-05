@@ -1115,9 +1115,10 @@ namespace StoryDesigner
             str = rdr.ReadLine();
             str = rdr.ReadLine();
             mAdv.Settings.PngToJpeg = str == "-1";
+            if (ver_major == 3 && ver_minor < 5)
+                return true;
             str = rdr.ReadLine();
-            if (str != null)
-                mAdv.Settings.ScriptingLanguage = (ProjectSettings.ScriptLang)Enum.Parse(typeof(ProjectSettings.ScriptLang), str);
+            mAdv.Settings.ScriptingLanguage = (ProjectSettings.ScriptLang)Enum.Parse(typeof(ProjectSettings.ScriptLang), str);
             return true;
         }
 
