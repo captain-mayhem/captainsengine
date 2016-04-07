@@ -467,6 +467,15 @@ bool AdvDocument::loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_mi
     str = txtstream.readLine();
     val2 = atoi(str.c_str());
     cs.highlight = Vec2i(val1, val2);
+    if (ver_major > 3 || (ver_major == 3 && ver_minor >= 6)){
+      str = txtstream.readLine();
+      cs.itemoffset.x = atoi(str.c_str());
+      str = txtstream.readLine();
+      cs.itemoffset.y = atoi(str.c_str());
+    }
+    else{
+      cs.itemoffset = Vec2i(16, 16);
+    }
     mCursor.push_back(cs);
   }
   while (txtstream.isWorking()){
@@ -1302,6 +1311,8 @@ bool AdvDocument::loadFile10(CGE::MemReader& txtstream){
   txtstream.readLine();
   str = txtstream.readLine();
   //mSettings.noPngToJpeg = str == "-1";
+  if (ver_major < 3 || (ver_major == 3 && ver_minor < 5))
+    return true;
   str = txtstream.readLine();
   if (str == "LUA")
     mSettings.script_lang = LUA_SCRIPT;

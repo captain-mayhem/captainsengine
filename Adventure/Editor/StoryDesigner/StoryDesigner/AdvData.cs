@@ -143,6 +143,7 @@ namespace StoryDesigner
         public int fpsDivider;
         public int command;
         public Vec2i highlight;
+        public Vec2i itemoffset;
     }
 
     public class Cursor : IStateFrameData
@@ -165,6 +166,7 @@ namespace StoryDesigner
                 cs.fpsDivider = 20;
                 cs.frames = new System.Collections.ArrayList();
                 cs.highlight = new Vec2i(1, 1);
+                cs.itemoffset = new Vec2i(16, 16);
                 mStates.Add(cs);
             }
         }
@@ -256,6 +258,12 @@ namespace StoryDesigner
         }
 
         public void setStateName(int state, string name) { }
+
+        public Vec2i getItemOffset(int state)
+        {
+            CursorState cs = (CursorState)mStates[state];
+            return cs.itemoffset;
+        }
 
         System.Collections.ArrayList mStates = new System.Collections.ArrayList();
         AdvData mData;

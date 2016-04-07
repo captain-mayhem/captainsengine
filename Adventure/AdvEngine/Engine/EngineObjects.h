@@ -145,16 +145,18 @@ class CursorObject : public Object2D{
 public:
   CursorObject(const Vec2i& pos);
   ~CursorObject();
-  void addAnimation(Animation* anim, int command);
+  void addAnimation(Animation* anim, int command, const Vec2i& itemoffset);
   int getNextCommand(bool& leftClickRequired, const Vec2i& pos);
   int getCurrentCommand();
   void setCommand(int command);
   virtual bool isHit(const Vec2i& point) {return true; /*the cursor always hits itself*/}
   virtual Type getType() {return CURSOR;}
   void showLoading(bool loading);
+  Vec2i getItemOffset();
 protected:
   std::vector<int> mCommands;
   int mSavedState;
+  std::vector<Vec2i> mItemOffsets;
 };
 
 class CharacterObject;

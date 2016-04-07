@@ -421,7 +421,7 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
 }
 
 void SoundEngine::update(unsigned time){
-  run();
+  run(time);
   if (mActiveVideo)
     mActiveVideo->render(time);
 }
@@ -545,11 +545,14 @@ void SoundEngine::setSpeedFactor(float speed){
 }
 
 bool SoundEngine::run(){
-  static int lastTime = (int)(getTime()*1000);
-  int now = (int)(getTime()*1000);
-  int time = now-lastTime;
+  static int64 lastTime = (int64)(getTime() * 1000);
+  int64 now = (int64)(getTime() * 1000);
+  int time = now - lastTime;
   lastTime = now;
+  return run(time);
+}
 
+bool SoundEngine::run(unsigned time){
   mMutex.lock();
   std::multimap<std::string, SoundPlayer*>::iterator garbage = mActiveSounds.end();
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
