@@ -69,6 +69,7 @@ protected:
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db, bool effectEnabled);
   VideoPlayer* createVideoPlayer(const std::string& name, const DataBuffer& db, bool isSwf);
   bool run();
+  bool run(unsigned time);
   static SoundEngine* mInstance;
   AdvDocument* mData;
 #ifndef DISABLE_SOUND

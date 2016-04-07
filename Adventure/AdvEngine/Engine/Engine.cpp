@@ -130,7 +130,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   for (unsigned j = 0; j < cursor->size(); ++j){
     Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, DEPTH_CURSOR, Vec2i(0,0));
     anim->realize();
-    mCursor->addAnimation(anim, (*cursor)[j].command-1);
+    mCursor->addAnimation(anim, (*cursor)[j].command-1, (*cursor)[j].itemoffset);
   }
   //load fonts
   int fontcount = 0;
@@ -624,7 +624,7 @@ void Engine::render(unsigned time){
   if ((!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown && mMouseEnabled){
     mCursor->render();
     if (mDraggingObject != NULL){
-      mDraggingObject->setPosition(mCursor->getPosition()+mCursor->getSize()/2);
+      mDraggingObject->setPosition(mCursor->getPosition()+mCursor->getItemOffset());
       mDraggingObject->render();
     }
   }
@@ -1486,22 +1486,7 @@ void Engine::keyPress(int key){
         }
         else if (mMenuEnabled){
           if (!mMenuShown){
-            if (mData->getProjectSettings()->has_menuroom && !mData->getProjectSettings()->menuroom.empty()){
-              mMenuShown = true;
-              loadSubRoom(mData->getProjectSettings()->menuroom, NULL, mData->getProjectSettings()->menu_fading);
-            }
-            else{
-              //use internal menu
-              Menu* menu = new Menu(mData->hasUnifiedFonts() ? 1 : 0);
-              menu->realize();
-              mRooms.push_front(menu);
-              mSubRoomLoaded = true;
-              mMenuShown = true;
-              if (mData->getProjectSettings()->menu_fading > 0){
-                menu->setFadeout(mData->getProjectSettings()->menu_fading);
-                mAnimator->add(menu, mData->getProjectSettings()->menu_fading, true);
-              }
-            }
+            popupMenu();
           }
           else{
             unloadRoom(NULL, false, false, NULL);
@@ -1899,4 +1884,25 @@ void Engine::fillWithStdQuad(CGE::VertexBuffer* verts){
   verts->setTexCoord(1, CGE::Vec2f(0, 0));
   verts->setTexCoord(2, CGE::Vec2f(1, 1));
   verts->setTexCoord(3, CGE::Vec2f(1, 0));
+}
+
+void Engine::popupMenu(){
+  if (mMenuShown)
+    return;
+  if (mData->getProjectSettings()->has_menuroom && !mData->getProjectSettings()->menuroom.empty()){
+    mMenuShown = true;
+    loadSubRoom(mData->getProjectSettings()->menuroom, NULL, mData->getProjectSettings()->menu_fading);
+  }
+  else{
+    //use internal menu
+    Menu* menu = new Menu(mData->hasUnifiedFonts() ? 1 : 0);
+    menu->realize();
+    mRooms.push_front(menu);
+    mSubRoomLoaded = true;
+    mMenuShown = true;
+    if (mData->getProjectSettings()->menu_fading > 0){
+      menu->setFadeout(mData->getProjectSettings()->menu_fading);
+      mAnimator->add(menu, mData->getProjectSettings()->menu_fading, true);
+    }
+  }
 }

@@ -188,7 +188,7 @@ namespace StoryDesigner
         void writeSettings(Stream strm, bool convertPngs)
         {
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
-            swr.WriteLine("3.5 Point&Click Project File. DO NOT MODIFY!!");
+            swr.WriteLine("3.6 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             swr.WriteLine(mData.Settings.Directory);
             swr.Write("Resolution X : ");
@@ -357,7 +357,7 @@ namespace StoryDesigner
         void writeObjects(Stream strm)
         {
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
-            swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
+            swr.WriteLine("3.6 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             for (int i = 0; i < STATES_MAX; ++i)
             {
@@ -373,6 +373,8 @@ namespace StoryDesigner
                 swr.WriteLine(mData.Cursor.getFPSDivider(i));
                 swr.WriteLine(mData.Cursor.getHotspot(i).x);
                 swr.WriteLine(mData.Cursor.getHotspot(i).y);
+                swr.WriteLine(mData.Cursor.getItemOffset(i).x);
+                swr.WriteLine(mData.Cursor.getItemOffset(i).y);
             }
             foreach (KeyValuePair<string,Item> item in mData.Items){
                 swr.Write("//Item ");
@@ -589,7 +591,7 @@ namespace StoryDesigner
         void writeScripts(Stream strm)
         {
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
-            swr.WriteLine("3.2 Point&Click Project File. DO NOT MODIFY!!");
+            swr.WriteLine("3.6 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             foreach (KeyValuePair<string,Script> script in mData.getScripts(Script.Type.CUTSCENE)){
                 swr.Write("//Cutscene ");
@@ -1004,7 +1006,7 @@ namespace StoryDesigner
         void writeAdvancedSettings(Stream strm)
         {
             StreamWriter swr = new StreamWriter(strm, Encoding.GetEncoding(1252));
-            swr.WriteLine("3.5 Point&Click Project File. DO NOT MODIFY!!");
+            swr.WriteLine("3.6 Point&Click Project File. DO NOT MODIFY!!");
             swr.WriteLine();
             swr.Write(mData.Settings.PngToJpeg ? -1 : 0);
             swr.WriteLine("");

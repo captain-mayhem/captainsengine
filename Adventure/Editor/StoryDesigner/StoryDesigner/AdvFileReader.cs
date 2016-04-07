@@ -493,6 +493,17 @@ namespace StoryDesigner
                 cs.highlight.x = Convert.ToInt32(str);
                 str = rdr.ReadLine();
                 cs.highlight.y = Convert.ToInt32(str);
+                if (ver_major > 3 || (ver_major == 3 && ver_minor >= 6))
+                {
+                    str = rdr.ReadLine();
+                    cs.itemoffset.x = Convert.ToInt32(str);
+                    str = rdr.ReadLine();
+                    cs.itemoffset.y = Convert.ToInt32(str);
+                }
+                else
+                {
+                    cs.itemoffset = new Vec2i(16, 16);
+                }
                 mAdv.Cursor.Add(cs);
             }
             return readObjectsLoop(rdr, ver_major, ver_minor, null);

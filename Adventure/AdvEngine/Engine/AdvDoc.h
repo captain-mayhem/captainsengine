@@ -87,6 +87,7 @@ struct CursorState{
   float fps;
   int command;
   Vec2i highlight;
+  Vec2i itemoffset;
 };
 
 typedef std::vector<CursorState> MouseCursor;

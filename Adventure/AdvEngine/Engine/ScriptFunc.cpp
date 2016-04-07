@@ -189,6 +189,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("popupcoin", popupCoin);
   interpreter->registerFunction("timer", timer);
   interpreter->registerFunction("row", row);
+  interpreter->registerFunction("popupmenu", popupMenu);
+  interpreter->registerFunction("setobjalpha", setObjAlpha);
+  interpreter->registerFunction("offalign", offAlign);
 
   interpreter->registerFunction("print", print);
   srand((unsigned)time(NULL));
@@ -2858,6 +2861,54 @@ int ScriptFunctions::row(lua_State* L){
   }
   lua_pushboolean(L, 0);
   return 1;
+}
+
+int ScriptFunctions::popupMenu(lua_State* L){
+  NUM_ARGS(0, 0);
+  Engine::instance()->popupMenu();
+  return 0;
+}
+
+int ScriptFunctions::setObjAlpha(lua_State* L){
+  NUM_ARGS(2, 3);
+  std::string objname = ctx.stack().get(1).getString();
+  //remove whitespaces in object names
+  for (int size = (int)objname.size() - 1; size >= 0; --size){
+    if (objname[size] == ' ')
+      objname.erase(size, 1);
+  }
+  Color c;
+  c.a = (unsigned char)ctx.stack().get(2).getInt();
+  bool fade = false;
+  if (numArgs >= 3){
+    std::string fading = ctx.stack().get(3).getString();
+    if (fading == "fade")
+      fade = true;
+  }
+  Object2D* obj = Engine::instance()->getObject(objname, false);
+  if (obj){
+    if (fade && !ctx.mSkip){
+      //do not block right now.
+      //ctx.mSuspended = true;
+      Engine::instance()->getAnimator()->add(obj, c);
+    }
+    else{
+      obj->setLightingColor(c);
+    }
+  }
+  else{
+    std::string room;
+    SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, room);
+    so->lighting = c;
+  }
+  return 0;
+}
+
+int ScriptFunctions::offAlign(lua_State* L){
+  NUM_ARGS(1, 2);
+  std::string align1 = ctx.stack().get(1).getString();
+  TR_BREAK("Implement me");
+  return 0;
 }
 
 int ScriptFunctions::dummy(lua_State* L){

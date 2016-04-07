@@ -439,9 +439,10 @@ CursorObject::~CursorObject(){
 
 }
 
-void CursorObject::addAnimation(Animation* anim, int command){
+void CursorObject::addAnimation(Animation* anim, int command, const Vec2i& itemoffset){
   Object2D::addAnimation(anim);
   mCommands.push_back(command);
+  mItemOffsets.push_back(itemoffset);
 }
 
 int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
@@ -514,6 +515,12 @@ void CursorObject::showLoading(bool loading){
     mState = mSavedState;
     mSavedState = 0;
   }
+}
+
+Vec2i CursorObject::getItemOffset(){
+  if (mState == 0)
+    return Vec2i();
+  return mItemOffsets[mState - 1];
 }
 
 RoomObject::RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap, bool doublewalkmap) : 

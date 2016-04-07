@@ -237,6 +237,10 @@ public:
   **/
   static int musicVolume(lua_State* L);
   /**
+  \param alignment
+  **/
+  static int offAlign(lua_State* L);
+  /**
   \param x x-coord of text (middle)
   \param y y-coord of text (bottom)
   \param text the text to be displayed
@@ -288,6 +292,9 @@ public:
   /**
   **/
   static int popupCoin(lua_State* L);
+  /**
+  **/
+  static int popupMenu(lua_State* L);
   /**
   **/
   static int quit(lua_State* L);
@@ -403,6 +410,12 @@ public:
   \param ... [opt] additional states
   **/
   static int setObj(lua_State* L);
+  /**
+  \param obj name of the object instance
+  \param a alpha value
+  \param fade [opt] do a fading to the color
+  **/
+  static int setObjAlpha(lua_State* L);
     /**
   \param obj name of the object instance
   \param r red component
