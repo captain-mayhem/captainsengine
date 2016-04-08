@@ -12,11 +12,6 @@ class ExecutionContext;
 
 class Textout : public Object2D{
 public:
-  enum Alignment{
-    LEFT,
-    CENTER,
-    RIGHT,
-  };
   Textout();
   ~Textout();
   void render(unsigned time);

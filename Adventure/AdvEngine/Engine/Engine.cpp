@@ -525,7 +525,7 @@ void Engine::render(unsigned time){
     std::vector<Vec2i> breakinfo;
     Vec2i pos = Engine::instance()->getCursorPos();
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(mObjectTooltipInfo, 1, breakinfo);
-    Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2, pos.y-ext.y, mObjectTooltipInfo, DEPTH_GAME_FONT, 1, breakinfo, Engine::instance()->getSettings()->infotextcolor);
+    Engine::instance()->getFontRenderer()->render(pos.x, pos.y-ext.y, mObjectTooltipInfo, DEPTH_GAME_FONT, 1, breakinfo, Engine::instance()->getSettings()->infotextcolor, 0, true, ALGN_CENTER);
   }
 
   //can't all
@@ -677,7 +677,7 @@ void Engine::render(unsigned time){
     std::vector<Vec2i> breakinfo;
     Vec2i offset = mFonts->getTextExtent(text, 1, breakinfo);
     if (!mInterpreter->isBlockingScriptRunning() && mFocussedChar != NULL)
-      mFonts->render(res.x/2-offset.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1, breakinfo, Engine::instance()->getSettings()->infotextcolor);
+      mFonts->render(res.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1, breakinfo, Engine::instance()->getSettings()->infotextcolor, 0, true, ALGN_CENTER);
   }
 
   mFonts->prepareBlit(interval, mainroom, false);

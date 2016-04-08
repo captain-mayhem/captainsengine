@@ -54,7 +54,7 @@ public:
   bool isTSTopToBottom() {return mTSTopToBottom;}
   void stop();
   std::ostream& save(std::ostream& out);
-  std::istream& load(std::istream& in);
+  std::istream& load(std::istream& in, int version);
   bool isBlockingScriptRunning() {return mGlobalSuspend;}
   bool isTextScene() {return mCutScene != NULL && !mCutScene->isExecuteOnce();}
   void resumeBlockingScript() {mGlobalSuspend = false;}
@@ -85,6 +85,8 @@ public:
   static int luaPcdkCall(lua_State* L);
   CGE::Mutex& getExecMutex() { return mExecMutex; }
   void initLuaContext(ExecutionContext* ctx);
+  Alignment getOffAlign(bool& relative) { relative = mOffRelative; return mOffAlign; }
+  void setOffAlign(Alignment align, bool relative) { mOffAlign = align, mOffRelative = relative; }
 protected:
   ExecutionContext* parseProgramPCDK(const std::string& program);
   ExecutionContext* parseProgramLUA(const std::string& program);
@@ -149,6 +151,8 @@ protected:
   CGE::Mutex mScriptMutex;
   CGE::Mutex mExecMutex;
   lua_State* mL;
+  Alignment mOffAlign;
+  bool mOffRelative;
 };
 
 }

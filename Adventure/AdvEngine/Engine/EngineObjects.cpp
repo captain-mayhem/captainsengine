@@ -404,7 +404,7 @@ void ButtonObject::render(){
       textcol = mHighlightColor;
   }
   textcol.a = textcol.a*mLightingColor.a/255;
-  FontRenderer::String* str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, mFont, breakinfo, textcol);
+  FontRenderer::String* str = Engine::instance()->getFontRenderer()->render(Object2D::mPos.x, Object2D::mPos.y, mText, DEPTH_UI_FONT, mFont, breakinfo, textcol, 0, true, ALGN_LEFT);
   Engine::instance()->insertToBlit(this);
 }
 

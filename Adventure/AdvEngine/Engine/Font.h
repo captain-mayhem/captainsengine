@@ -48,7 +48,7 @@ public:
   public:
     Font(const FontData& data, int fading, bool unified);
     ~Font();
-    String* render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen);
+    String* render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen, Alignment align);
     Vec2i getTextExtent(const std::string& text, std::vector<Vec2i>& breakinfo, unsigned maxStringWidth);
     void blit(unsigned interval,  RoomObject* mainroom, bool renderBoundText);
     void removeText(CharacterObject* chr, bool immediately);
@@ -71,7 +71,7 @@ public:
   ~FontRenderer();
   bool loadFont(unsigned id);
   void unloadFont(unsigned id);
-  String* render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& col=Color(), unsigned displayTime=0, bool keepOnScreen=true);
+  String* render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& col, unsigned displayTime, bool keepOnScreen, Alignment align);
   Vec2i getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo, int maxStringWidth=300);
   void prepareTextouts(unsigned interval);
   void prepareBlit(unsigned interval, RoomObject* mainroom, bool renderBoundText);

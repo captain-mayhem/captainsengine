@@ -88,7 +88,8 @@ const char* luaRunner =
 "end\n"
 ;
 
-PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true), mExecMutex(true) {
+PcdkScript::PcdkScript(AdvDocument* data) : mData(data), mGlobalSuspend(false), mTextSpeed(100), mTimeAccu(0), mRunSpeed(1.0f), mScriptMutex(true), mExecMutex(true),
+mOffAlign(ALGN_CENTER), mOffRelative(false){
   TR_USE(ADV_Script);
   mL = luaL_newstate();
   luaL_openlibs(mL);
@@ -196,6 +197,8 @@ void PcdkScript::stop(){
   mRunSpeed = 1.0f;
   mOfftextColor = mData->getProjectSettings()->offspeechcolor;
   mItemStates.clear();
+  mOffAlign = ALGN_CENTER;
+  mOffRelative = false;
   mScriptMutex.unlock();
 }
 
@@ -1222,6 +1225,7 @@ std::ostream& PcdkScript::save(std::ostream& out){
   out << std::endl;
   out << mTextSpeed << " " << mRunSpeed << std::endl;
   out << mOfftextColor << std::endl;
+  out << mOffAlign << " " << mOffRelative << std::endl;
   out << mTimers.size() << " ";
   for (std::set<ExecutionContext*>::iterator iter = mTimers.begin(); iter != mTimers.end(); ++iter){
     (*iter)->save(out);
@@ -1234,7 +1238,7 @@ std::ostream& PcdkScript::save(std::ostream& out){
   return out;
 }
 
-std::istream& PcdkScript::load(std::istream& in){
+std::istream& PcdkScript::load(std::istream& in, int version){
   lua_newtable(mL);
   lua_setglobal(mL, "bool");
 
@@ -1299,6 +1303,16 @@ std::istream& PcdkScript::load(std::istream& in){
   }
   in >> mTextSpeed >> mRunSpeed;
   in >> mOfftextColor;
+  if (version >= 2){
+    int tmp;
+    in >> tmp;
+    mOffAlign = (Alignment)tmp;
+    in >> mOffRelative;
+  }
+  else{
+    mOffAlign = ALGN_CENTER;
+    mOffRelative = false;
+  }
   //timers
   while(!mTimers.empty()){
     remove(*mTimers.begin());
@@ -1493,6 +1507,20 @@ int PcdkScript::getSpecialVar(lua_State* L){
     lua_pushnumber(L, -room->getScrollOffset().y / Engine::instance()->getWalkGridSize(false));
     return 1;
   }
+  else if (lname == "roompx"){
+    RoomObject* room = Engine::instance()->getRoom("");
+    if (!room)
+      TR_BREAK("Room not found");
+    lua_pushnumber(L, -room->getScrollOffset().x);
+    return 1;
+  }
+  else if (lname == "roompy"){
+    RoomObject* room = Engine::instance()->getRoom("");
+    if (!room)
+      TR_BREAK("Room not found");
+    lua_pushnumber(L, -room->getScrollOffset().y);
+    return 1;
+  }
   else if (lname == "charx"){
     CharacterObject* chr = Engine::instance()->getCharacter("self");
     if (!chr){
@@ -1511,6 +1539,10 @@ int PcdkScript::getSpecialVar(lua_State* L){
     return chr->getPosition().y;
   }
   else if (lname == "charzoom"){
+    TR_BREAK("Implement me");
+    return 0;
+  }
+  else if (lname.size() > 9 && lname.substr(0, 9) == "charzoom:"){
     TR_BREAK("Implement me");
     return 0;
   }
@@ -1682,6 +1714,9 @@ int PcdkScript::getSpecialVar(lua_State* L){
   else if (lname == "rightbracket"){
     lua_pushstring(L, ")");
     return 1;
+  }
+  else if (name.size() > 7 && lname.substr(0, 7) == "gamepad"){
+    TR_BREAK("Implement me");
   }
   //transformed raw lookup
   lua_pushstring(L, lname.removeAll(' ').c_str());
