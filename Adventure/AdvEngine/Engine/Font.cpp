@@ -188,14 +188,23 @@ FontRenderer::Font::~Font(){
   }
 }
 
-FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen){
-  String* str = new String(Vec2i(x,y), displayTime, keepOnScreen, mFading);
+FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string& text, int depth, const Color& color, unsigned displayTime, const std::vector<Vec2i>& breakinfo, bool keepOnScreen, Alignment align){
   unsigned max_len = 0;
   for (unsigned i = 0; i < breakinfo.size(); ++i){
-    max_len = breakinfo[i].y > (int)max_len ? breakinfo[i].y : max_len;
+    max_len = breakinfo[i].y >(int)max_len ? breakinfo[i].y : max_len;
   }
+  int alignoffset = 0;
+  int xoffset = 0;
   unsigned line = 0;
-  int xoffset = (max_len-breakinfo[line].y)/2;
+  if (align == ALGN_CENTER){
+    alignoffset = max_len / 2;
+    xoffset = (max_len - breakinfo[line].y) / 2;
+  }
+  else if (align == ALGN_RIGHT){
+    alignoffset = max_len;
+    xoffset = (max_len - breakinfo[line].y);
+  }
+  String* str = new String(Vec2i(x-alignoffset,y), displayTime, keepOnScreen, mFading);
   int yoffset = 0;
   for (unsigned i = 0; i < text.size(); ++i){
     unsigned char charnum = ((unsigned char)text[i])-0x20;
@@ -209,7 +218,12 @@ FontRenderer::String* FontRenderer::Font::render(int x, int y, const std::string
     if (i >= (unsigned)breakinfo[line].x){
       //line break
       ++line;
-      xoffset = (max_len-breakinfo[line].y)/2;
+      if (align == ALGN_LEFT)
+        xoffset = 0;
+      if (align == ALGN_CENTER)
+        xoffset = (max_len - breakinfo[line].y) / 2;
+      else if (align == ALGN_RIGHT)
+        xoffset = (max_len - breakinfo[line].y);
       yoffset += mFontsize.y;
     }
   }
@@ -323,10 +337,10 @@ void FontRenderer::unloadFont(unsigned id){
   mFonts[id] = NULL;
 }
 
-FontRenderer::String* FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& color, unsigned displayTime, bool keepOnScreen){
+FontRenderer::String* FontRenderer::render(int x, int y, const std::string& text, int depth, int fontid, const std::vector<Vec2i>& breakinfo, const Color& color, unsigned displayTime, bool keepOnScreen, Alignment align){
   if (mFonts[fontid] == NULL)
     return NULL;
-  return mFonts[fontid]->render(x, y, text, depth, color, displayTime, breakinfo, keepOnScreen);
+  return mFonts[fontid]->render(x, y, text, depth, color, displayTime, breakinfo, keepOnScreen, align);
 }
 
 Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vector<Vec2i>& breakinfo, int maxStringWidth){

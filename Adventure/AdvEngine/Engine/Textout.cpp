@@ -6,7 +6,7 @@
 using namespace adv;
 
 Textout::Textout() : Object2D(1, Vec2i(), Vec2i(), "textout"), mEnabled(false), mText(NULL), mFont(1), mColor(Engine::instance()->getSettings()->infotextcolor),
-  mAlignment(LEFT), mTimeShown(0), mFadingOut(false){
+  mAlignment(ALGN_LEFT), mTimeShown(0), mFadingOut(false){
     FontRenderer::Font* fnt = Engine::instance()->getFontRenderer()->getFont(mFont);
     mFadingTime = fnt ? fnt->getFading() : 0;
 }
@@ -57,13 +57,8 @@ void Textout::render(unsigned time){
     text = sd.getString();
   std::vector<Vec2i> breakinfo;
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, mFont, breakinfo, Engine::instance()->getData()->getProjectSettings()->resolution.x);
-  int alignoffset = 0;
-  if (mAlignment == CENTER)
-    alignoffset = ext.x/2;
-  else if (mAlignment == RIGHT)
-    alignoffset = ext.x;
-  FontRenderer::String* result = Engine::instance()->getFontRenderer()->render(mPos.x/*-(keepOnScreen ? ext.x/2 : 0)*/+pos.x-alignoffset,mPos.y+pos.y, text, 
-      depth, mFont, breakinfo, mColor, 0, false);
+  FontRenderer::String* result = Engine::instance()->getFontRenderer()->render(mPos.x+pos.x,mPos.y+pos.y, text, 
+      depth, mFont, breakinfo, mColor, 0, false, mAlignment);
   result->setBoundRoom(boundRoom);
   //text fading
   unsigned char opacity = 255;

@@ -289,6 +289,12 @@ struct Language{
   std::vector<std::string> sections[NUM_SECTIONS];
 };
 
+enum Alignment{
+  ALGN_LEFT,
+  ALGN_CENTER,
+  ALGN_RIGHT,
+};
+
 typedef void(*SPLASHSCREENCB)(unsigned width, unsigned height, unsigned numChannels, void* data);
 typedef void(*FILECHANGEDCB)(std::string const& file);
 

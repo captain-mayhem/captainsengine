@@ -319,7 +319,7 @@ void SaveStateProvider::save(const std::string& name){
     (*iter)->save(NULL);
   }
   std::ofstream out(name.c_str(), std::ios::binary);
-  int version = 1;
+  int version = 2;
   out << version << std::endl;
   out << Engine::instance()->getInterpreter()->getLanguage() << std::endl;
   //save room data
@@ -441,7 +441,7 @@ void SaveStateProvider::load(const std::string& name, bool fromScript){
   in >> Engine::instance()->mTimeFactor >> Engine::instance()->mTimeFactorFaded;
   in >> Engine::instance()->mMenuEnabled;
   in >> Engine::instance()->mFxShapesEnabled >> Engine::instance()->mScrollSpeed >> Engine::instance()->mCamFollowChar;
-  Engine::instance()->getInterpreter()->load(in);
+  Engine::instance()->getInterpreter()->load(in, version);
   SoundEngine::instance()->load(in);
   Engine::instance()->getParticleEngine()->load(in);
   Engine::instance()->getFontRenderer()->load(in);

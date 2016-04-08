@@ -329,8 +329,8 @@ int ScriptFunctions::speech(lua_State* L){
     if (!Engine::instance()->isTextEnabled())
       text = "";
     Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, chr->getFontID(), breakinfo);
-    str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*(unsigned)text.length());
+    str = Engine::instance()->getFontRenderer()->render(pos.x,pos.y-ext.y, text, 
+      DEPTH_GAME_FONT, chr->getFontID(), breakinfo, chr->getTextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*(unsigned)text.length(), true, ALGN_CENTER);
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(chr, false);
     if (str)
@@ -943,6 +943,8 @@ int ScriptFunctions::offSpeech(lua_State* L){
       plyr->play(false);
     }
   }
+  bool relative;
+  Alignment align = Engine::instance()->getInterpreter()->getOffAlign(relative);
   //correct the offspeech position
   if (room){
     pos = pos+room->getScrollOffset();
@@ -952,8 +954,8 @@ int ScriptFunctions::offSpeech(lua_State* L){
   if (!Engine::instance()->isTextEnabled())
       text = "";
   Vec2i ext = Engine::instance()->getFontRenderer()->getTextExtent(text, fontid, breakinfo);
-  str = Engine::instance()->getFontRenderer()->render(pos.x-ext.x/2,pos.y-ext.y, text, 
-    DEPTH_GAME_FONT, fontid, breakinfo, Engine::instance()->getInterpreter()->getOfftextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*(unsigned)text.length());
+  str = Engine::instance()->getFontRenderer()->render(pos.x,pos.y-ext.y, text, 
+    DEPTH_GAME_FONT, fontid, breakinfo, Engine::instance()->getInterpreter()->getOfftextColor(), plyr ? 100000 : Engine::instance()->getInterpreter()->getTextSpeed()*(unsigned)text.length(), true, align);
   if (str && plyr)
     plyr->setSpokenString(str);
   if (hold){
@@ -2600,6 +2602,7 @@ int ScriptFunctions::setObjLight(lua_State* L){
   }
   Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
+    c.a = obj->getLightingColor().a;
     if (fade && !ctx.mSkip){
       //do not block right now.
       //ctx.mSuspended = true;
@@ -2612,6 +2615,7 @@ int ScriptFunctions::setObjLight(lua_State* L){
   else{
     std::string room;
     SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, room);
+    c.a = so->lighting.a;
     so->lighting = c;
   }
   return 0;
@@ -2621,13 +2625,13 @@ int ScriptFunctions::textAlign(lua_State* L){
   NUM_ARGS(2, 2);
   int num = ctx.stack().get(1).getInt();
   std::string alignstr = ctx.stack().get(2).getString();
-  Textout::Alignment align;
+  Alignment align;
   if (alignstr == "left")
-    align = Textout::LEFT;
+    align = ALGN_LEFT;
   else if (alignstr == "center")
-    align = Textout::CENTER;
+    align = ALGN_CENTER;
   else if (alignstr == "right")
-    align = Textout::RIGHT;
+    align = ALGN_RIGHT;
   Textout* text = Engine::instance()->getFontRenderer()->getTextout(num);
   text->setAlignment(align);
   return 0;
@@ -2877,8 +2881,7 @@ int ScriptFunctions::setObjAlpha(lua_State* L){
     if (objname[size] == ' ')
       objname.erase(size, 1);
   }
-  Color c;
-  c.a = (unsigned char)ctx.stack().get(2).getInt();
+  unsigned char alpha = (unsigned char)ctx.stack().get(2).getInt();
   bool fade = false;
   if (numArgs >= 3){
     std::string fading = ctx.stack().get(3).getString();
@@ -2887,6 +2890,8 @@ int ScriptFunctions::setObjAlpha(lua_State* L){
   }
   Object2D* obj = Engine::instance()->getObject(objname, false);
   if (obj){
+    Color c = obj->getLightingColor();
+    c.a = alpha;
     if (fade && !ctx.mSkip){
       //do not block right now.
       //ctx.mSuspended = true;
@@ -2899,15 +2904,33 @@ int ScriptFunctions::setObjAlpha(lua_State* L){
   else{
     std::string room;
     SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, room);
-    so->lighting = c;
+    so->lighting.a = alpha;
   }
   return 0;
 }
 
 int ScriptFunctions::offAlign(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string align1 = ctx.stack().get(1).getString();
-  TR_BREAK("Implement me");
+  bool relative;
+  Alignment align = Engine::instance()->getInterpreter()->getOffAlign(relative);
+  for (int i = 0; i < numArgs; ++i){
+    std::string str = ctx.stack().get(i+1).getString();
+    if (str == "center")
+      align = ALGN_CENTER;
+    else if (str == "left")
+      align = ALGN_LEFT;
+    else if (str == "right")
+      align = ALGN_RIGHT;
+    else if (str == "relative"){
+      relative = true;
+      TR_BREAK("Implement me");
+    }
+    else if (str == "absolut" || str == "absolute")
+      relative = false;
+    else
+      TR_BREAK("unknown alignment");
+  }
+  Engine::instance()->getInterpreter()->setOffAlign(align, relative);
   return 0;
 }
 

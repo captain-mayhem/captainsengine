@@ -34,6 +34,7 @@ namespace StoryDesigner
             Video,
             VideoSwf,
             Language,
+            LuaFunc,
         }
 
         public class ArgDef
@@ -351,6 +352,12 @@ namespace StoryDesigner
             args[4] = new ArgDef("fade (Optional)", ArgType.String, true);
             args[4].AdditionalValues = new string[] { "fade" };
             addFunction("setobjlight", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Object", ArgType.Object);
+            args[1] = new ArgDef("Alpha Value (0-255)", ArgType.Integer);
+            args[2] = new ArgDef("fade (Optional)", ArgType.String, true);
+            args[2].AdditionalValues = new string[] { "fade" };
+            addFunction("setobjalpha", args);
 
             //room commands
             args = new ArgDef[2];
@@ -500,6 +507,12 @@ namespace StoryDesigner
             args = new ArgDef[1];
             args[0] = new ArgDef("Character", ArgType.Character);
             addFunction("unlinkchar", args);
+            args = new ArgDef[2];
+            args[0] = new ArgDef("left/center/right or absolute/relative", ArgType.String);
+            args[0].AdditionalValues = new string[] { "left", "center", "right", "absolute", "relative" };
+            args[1] = new ArgDef("left/center/right or absolute/relative", ArgType.String, true);
+            args[1].AdditionalValues = new string[] { "left", "center", "right", "absolute", "relative" };
+            addFunction("offalign", args);
 
             //item commands
             args = new ArgDef[12];
@@ -560,7 +573,7 @@ namespace StoryDesigner
             //text commands
             args = new ArgDef[8];
             args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
-            args[1] = new ArgDef("Textline", ArgType.String, true);
+            args[1] = new ArgDef("Textline", mLanguage == ProjectSettings.ScriptLang.LUA ? ArgType.LuaFunc : ArgType.String, true);
             args[2] = new ArgDef("X (pixel)", ArgType.Integer, true);
             args[3] = new ArgDef("Y (pixel)", ArgType.Integer, true);
             args[4] = new ArgDef("Font (1-99)", ArgType.Integer, true);
@@ -593,8 +606,8 @@ namespace StoryDesigner
             args[4] = new ArgDef("Optional: wait", ArgType.String, true);
             args[4].AdditionalValues = new string[] { "wait" };
             addFunction("movetext", args);
-            args = new ArgDef[8];
-            args[0] = new ArgDef("String name", ArgType.String);
+            args = new ArgDef[9];
+            args[0] = new ArgDef("String name", mLanguage == ProjectSettings.ScriptLang.LUA ? ArgType.LuaFunc : ArgType.String);
             args[1] = new ArgDef("X (pixel)", ArgType.Integer);
             args[2] = new ArgDef("Y (pixel)", ArgType.Integer);
             args[3] = new ArgDef("Font (1-99)", ArgType.Integer, true);
@@ -602,11 +615,14 @@ namespace StoryDesigner
             args[5] = new ArgDef("Red Color Value (0-255)", ArgType.Integer, true);
             args[6] = new ArgDef("Green Color Value (0-255)", ArgType.Integer, true);
             args[7] = new ArgDef("Blue Color Value (0-255)", ArgType.Integer, true);
+            args[8] = new ArgDef("Initial content", ArgType.String, true);
             addFunction("entertext", args);
 
             //scene & game commands
-            args = new ArgDef[1];
+            args = new ArgDef[2];
             args[0] = new ArgDef("Script", ArgType.Script);
+            args[1] = new ArgDef("Optional: donthide", ArgType.String, true);
+            args[1].AdditionalValues = new string[] { "donthide" };
             addFunction("cutscene", args);
             args = new ArgDef[2];
             args[0] = new ArgDef("Script", ArgType.Script);
@@ -620,6 +636,8 @@ namespace StoryDesigner
             args[0] = new ArgDef("Optional: donthide", ArgType.String, true);
             args[0].AdditionalValues = new string[] { "donthide" };
             addFunction("minicut", args);
+            args = new ArgDef[0];
+            addFunction("minicutend", args);
             args = new ArgDef[1];
             args[0] = new ArgDef("Seconds", ArgType.Number);
             addFunction("wait", args);
@@ -646,6 +664,8 @@ namespace StoryDesigner
             addFunction("realtime", args);
             args = new ArgDef[0];
             addFunction("popupcoin", args);
+            args = new ArgDef[0];
+            addFunction("popupmenu", args);
             args = new ArgDef[1];
             args[0] = new ArgDef("Language", ArgType.Language);
             addFunction("setlanguage", args);
@@ -679,11 +699,34 @@ namespace StoryDesigner
             args[0] = new ArgDef("Style (usetext / useitem)", ArgType.String);
             args[0].AdditionalValues = new string[] { "usetext", "useitem" };
             addFunction("textscenestyle", args);
-            args = new ArgDef[1];
-            args[0] = new ArgDef("Seconds", ArgType.Number);
+            if (mLanguage == ProjectSettings.ScriptLang.LUA)
+            {
+                args = new ArgDef[2];
+                args[0] = new ArgDef("Seconds", ArgType.Number);
+                args[1] = new ArgDef("Function", ArgType.LuaFunc);
+            }
+            else
+            {
+                args = new ArgDef[1];
+                args[0] = new ArgDef("Seconds", ArgType.Number);
+            }
             addFunction("timer", args);
             args = new ArgDef[0];
             addFunction("break", args);
+            args = new ArgDef[mLanguage == ProjectSettings.ScriptLang.LUA ? 2 : 1];
+            args[0] = new ArgDef("Level 1-9", ArgType.Integer);
+            args[0].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            if (mLanguage == ProjectSettings.ScriptLang.LUA)
+            {
+                args[1] = new ArgDef("Function", ArgType.LuaFunc);
+            }
+            addFunction("level", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Level 1-9", ArgType.Integer);
+            args[0].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+            args[1] = new ArgDef("Textline", ArgType.String);
+            args[2] = new ArgDef("Activate (true/false)", ArgType.Boolean);
+            addFunction("row", args);
 
             //save & load menu
             args = new ArgDef[0];

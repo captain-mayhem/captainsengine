@@ -102,7 +102,7 @@ void Console::render(){
     std::vector<Vec2i> brinfo;
     std::string text = mOutput[i];
     fren->getTextExtent(text, 0, brinfo, Engine::instance()->getResolution().x - 5);
-    fren->render(5, ystart, text, DEPTH_CONSOLE + 1, 0, brinfo, Color()/*Color(175, 191, 207, 255)*/, 0U, false);
+    fren->render(5, ystart, text, DEPTH_CONSOLE + 1, 0, brinfo, Color()/*Color(175, 191, 207, 255)*/, 0U, false, ALGN_LEFT);
     ystart -= lineHeight;
     if (ystart < -lineHeight) //no more lines visible
       break;
