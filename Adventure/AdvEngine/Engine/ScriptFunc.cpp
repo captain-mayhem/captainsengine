@@ -197,6 +197,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("soundvolume", soundVolume);
   interpreter->registerFunction("rightclickstyle", rightClickStyle);
   interpreter->registerFunction("simclick", simClick);
+  interpreter->registerFunction("setdsp", setDSP);
   srand((unsigned)time(NULL));
 }
 
@@ -2970,6 +2971,13 @@ int ScriptFunctions::simClick(lua_State* L){
   return 0;
 }
 
+int ScriptFunctions::setDSP(lua_State* L){
+  NUM_ARGS(1, 1);
+  std::string effect = luaL_checkstring(L, 1);
+  TR_ERROR("setDSP not implemented: not activating %s", effect.c_str());
+  return 0;
+}
+
 int ScriptFunctions::dummy(lua_State* L){
   NUM_ARGS(0, SCR_ARG_MAX);
   for (int i = 0; i < numArgs; ++i){
@@ -3160,14 +3168,14 @@ int ScriptFunctions::isCharPossessingItem(lua_State* L){
 int ScriptFunctions::isKeyDownEqual(lua_State* L){
   NUM_ARGS(1, 1);
   StackData sd = ctx.stack().get(1);
-  std::string key = sd.getString();
+  String key = sd.getString();
   if (key.empty()){
     char tmp[16];
     int k = sd.getInt();
     sprintf(tmp, "%i", k);
     key = tmp;
   }
-  std::map<std::string,int>::iterator iter = Engine::instance()->getInterpreter()->mKeymap.find(key);
+  std::map<std::string,int>::iterator iter = Engine::instance()->getInterpreter()->mKeymap.find(key.toLower());
   if (iter == Engine::instance()->getInterpreter()->mKeymap.end())
     TR_BREAK("Unknown key %s", key.c_str());
   int keycode = iter->second;

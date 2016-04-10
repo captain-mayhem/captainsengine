@@ -78,8 +78,11 @@ void SoundPlayer::realize(){
 #ifndef DISABLE_SOUND
   alGenSources(1, &mSource);
 #ifndef DISABLE_EFX
-  if (mEffectEnabled)
-    alSource3i(mSource, AL_AUXILIARY_SEND_FILTER, SoundEngine::instance()->getEffectSlot(), 0, AL_FILTER_NULL);
+  if (mEffectEnabled){
+    ALuint* filters = SoundEngine::instance()->getFilters();
+    alSourcei(mSource, AL_DIRECT_FILTER, filters[0]);
+    alSource3i(mSource, AL_AUXILIARY_SEND_FILTER, SoundEngine::instance()->getEffectSlot(), 0, filters[1]);
+  }
 #endif
 #endif
   if (mSpeed != 0)
