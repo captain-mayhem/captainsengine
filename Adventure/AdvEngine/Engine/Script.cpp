@@ -277,7 +277,9 @@ std::string PcdkScript::internal_stringify(ASTNode* node){
       VariableNode* var = static_cast<VariableNode*>(node);
       if (var->getChild() != NULL)
         TR_BREAK("Variable with child unhandled");
+      Engine::instance()->getInterpreter()->getExecMutex().lock();
       StackData s = getVariable(var->name().c_str());
+      Engine::instance()->getInterpreter()->getExecMutex().unlock();
       ret += s.getString();
     }
     break;

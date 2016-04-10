@@ -54,6 +54,10 @@ LPALDELETEEFFECTS alDeleteEffects = NULL;
 LPALEFFECTF alEffectf = NULL;
 LPALEFFECTFV alEffectfv = NULL;
 LPALEFFECTI alEffecti = NULL;
+LPALGENFILTERS alGenFilters = NULL;
+LPALDELETEFILTERS alDeleteFilters = NULL;
+LPALFILTERI alFilteri = NULL;
+LPALFILTERF alFilterf = NULL;
 #endif
 
 #ifdef FFMPEG_ANCIENT_API
@@ -92,6 +96,11 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
     alEffectf = (LPALEFFECTF)alGetProcAddress("alEffectf");
     alEffectfv = (LPALEFFECTFV)alGetProcAddress("alEffectfv");
     alEffecti = (LPALEFFECTI)alGetProcAddress("alEffecti");
+    alGenFilters = (LPALGENFILTERS)alGetProcAddress("alGenFilters");
+    alDeleteFilters = (LPALDELETEFILTERS)alGetProcAddress("alDeleteFilters");
+    alFilteri = (LPALFILTERI)alGetProcAddress("alFilteri");
+    alFilterf = (LPALFILTERF)alGetProcAddress("alFilterf");
+
     alGenAuxiliaryEffectSlots(1, &mEffectSlot);
     ALenum error = alGetError();
     if (error != AL_NO_ERROR){
@@ -99,6 +108,9 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
     }
     alGenEffects(1, &mEffect);
     alEffecti(mEffect, AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
+    alGenFilters(2, mFilters);
+    alFilteri(mFilters[0], AL_FILTER_TYPE, AL_FILTER_LOWPASS);
+    alFilteri(mFilters[1], AL_FILTER_TYPE, AL_FILTER_LOWPASS);
   }
 #endif
   //init codecs
@@ -117,6 +129,7 @@ SoundEngine::~SoundEngine(){
   reset();
 #ifndef DISABLE_SOUND
 #ifndef DISABLE_EFX
+  alDeleteFilters(2, mFilters);
   alDeleteEffects(1, &mEffect);
   alDeleteAuxiliaryEffectSlots(1, &mEffectSlot);
 #endif
@@ -256,6 +269,8 @@ void SoundEngine::setEAXEffect(const std::string& effect){
 		alEffectf(mEffect, AL_EAXREVERB_ROOM_ROLLOFF_FACTOR, efxReverb.flRoomRolloffFactor);
 		alEffecti(mEffect, AL_EAXREVERB_DECAY_HFLIMIT, efxReverb.iDecayHFLimit);
     alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, mEffect);
+    alFilterf(mFilters[0], AL_LOWPASS_GAIN, 1.0f); //dry mix
+    alFilterf(mFilters[1], AL_LOWPASS_GAIN, 1.0f); //wet mix
   }
 #endif
 }
@@ -461,7 +476,7 @@ std::ostream& SoundEngine::save(std::ostream& out){
     out << String(mActiveMusic->getName()) << " " << mActiveMusic->hasEffect();
   }
   else{
-    out << "none";
+    out << String("none");
   }
   out << "\n";
   int loopcount = 0;

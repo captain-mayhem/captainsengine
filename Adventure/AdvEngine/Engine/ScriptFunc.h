@@ -368,6 +368,10 @@ public:
   **/
   static int setCharLight(lua_State* L);
   /**
+  \param effect sets the dsp effect
+  **/
+  static int setDSP(lua_State* L);
+  /**
   \param effect sets the eax effect
   **/
   static int setEAX(lua_State* L);

@@ -60,6 +60,7 @@ public:
   unsigned getFadingTime() {return mFadingTime;}
 #ifndef DISABLE_SOUND
   ALuint getEffectSlot() {return mEffectSlot;}
+  ALuint* getFilters() { return mFilters; }
 #endif
   bool isEffectEnabled() {return mCurrentEffect != "none";}
   void removeSoundPlayer(SoundPlayer* plyr);
@@ -78,6 +79,7 @@ protected:
   ALCcontext* mContext;
   ALuint mEffectSlot;
   ALuint mEffect;
+  ALuint mFilters[2];
 #endif
   std::multimap<std::string, SoundPlayer*> mActiveSounds;
   SoundPlayer* mActiveMusic;
