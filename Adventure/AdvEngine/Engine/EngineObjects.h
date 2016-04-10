@@ -143,7 +143,7 @@ protected:
 
 class CursorObject : public Object2D{
 public:
-  CursorObject(const Vec2i& pos);
+  CursorObject(const Vec2i& pos, int rightclick);
   ~CursorObject();
   void addAnimation(Animation* anim, int command, const Vec2i& itemoffset);
   int getNextCommand(bool& leftClickRequired, const Vec2i& pos);
@@ -153,10 +153,13 @@ public:
   virtual Type getType() {return CURSOR;}
   void showLoading(bool loading);
   Vec2i getItemOffset();
+  int getRightClickStyle() { return mRightclick; }
+  void setRightClickStyle(int style) { mRightclick = style; }
 protected:
   std::vector<int> mCommands;
   int mSavedState;
   std::vector<Vec2i> mItemOffsets;
+  int mRightclick;
 };
 
 class CharacterObject;

@@ -272,6 +272,9 @@ namespace StoryDesigner
             args = new ArgDef[1];
             args[0] = new ArgDef("Volume 0-100", ArgType.Integer);
             addFunction("speechvolume", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Volume 0-100", ArgType.Integer);
+            addFunction("soundvolume", args);
             args = new ArgDef[0];
             addFunction("stopmusic", args);
             args = new ArgDef[1];
@@ -667,6 +670,10 @@ namespace StoryDesigner
             args = new ArgDef[0];
             addFunction("popupmenu", args);
             args = new ArgDef[1];
+            args[0] = new ArgDef("classic/intelligent/nothing", ArgType.String);
+            args[0].AdditionalValues = new string[] { "classic", "intelligent", "nothing" };
+            addFunction("rightclickstyle", args);
+            args = new ArgDef[1];
             args[0] = new ArgDef("Language", ArgType.Language);
             addFunction("setlanguage", args);
             args = new ArgDef[4];
@@ -727,6 +734,9 @@ namespace StoryDesigner
             args[1] = new ArgDef("Textline", ArgType.String);
             args[2] = new ArgDef("Activate (true/false)", ArgType.Boolean);
             addFunction("row", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Object", ArgType.Object);
+            addFunction("simclick", args);
 
             //save & load menu
             args = new ArgDef[0];

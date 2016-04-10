@@ -29,6 +29,8 @@ using namespace adv;
 TR_CHANNEL(ADV_ScriptFunc);
 
 void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
+  interpreter->registerFunction("print", print);
+
   interpreter->registerFunction("loadroom", loadRoom);
   interpreter->registerFunction("setfocus", setFocus);
   interpreter->registerFunction("showinfo", showInfo);
@@ -192,8 +194,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("popupmenu", popupMenu);
   interpreter->registerFunction("setobjalpha", setObjAlpha);
   interpreter->registerFunction("offalign", offAlign);
-
-  interpreter->registerFunction("print", print);
+  interpreter->registerFunction("soundvolume", soundVolume);
+  interpreter->registerFunction("rightclickstyle", rightClickStyle);
+  interpreter->registerFunction("simclick", simClick);
   srand((unsigned)time(NULL));
 }
 
@@ -2931,6 +2934,39 @@ int ScriptFunctions::offAlign(lua_State* L){
       TR_BREAK("unknown alignment");
   }
   Engine::instance()->getInterpreter()->setOffAlign(align, relative);
+  return 0;
+}
+
+int ScriptFunctions::soundVolume(lua_State* L){
+  NUM_ARGS(1, 1);
+  int volume = luaL_checkint(L, 1);
+  SoundEngine::instance()->setMasterVolume(volume / 100.0f);
+  return 0;
+}
+
+int ScriptFunctions::rightClickStyle(lua_State* L){
+  NUM_ARGS(1, 1);
+  std::string style = luaL_checkstring(L, 1);
+  int istyle = 0;
+  if (style == "intelligent")
+    istyle = 1;
+  else if (style == "classic")
+    istyle = 0;
+  else if (style == "nothing")
+    istyle = 2;
+  else
+    TR_BREAK("unknown style %s", style.c_str());
+  Engine::instance()->getCursor()->setRightClickStyle(istyle);
+  return 0;
+}
+
+int ScriptFunctions::simClick(lua_State* L){
+  NUM_ARGS(1, 1);
+  std::string object = luaL_checkstring(L, 1);
+  Object2D* obj = Engine::instance()->getObject(object, false);
+  if (obj == NULL)
+    luaL_argerror(L, 1, "not a clickable object");
+  Engine::instance()->leftClick(obj->getPosition()+obj->getScrollOffset());
   return 0;
 }
 

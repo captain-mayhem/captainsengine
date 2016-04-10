@@ -431,7 +431,7 @@ void ButtonObject::blit(){
   rend->popMatrix();
 }
 
-CursorObject::CursorObject(const Vec2i& pos) : Object2D(1, pos, Vec2i(32,32), "xxx"), mSavedState(0) {
+CursorObject::CursorObject(const Vec2i& pos, int rightclick) : Object2D(1, pos, Vec2i(32,32), "xxx"), mSavedState(0), mRightclick(rightclick) {
 
 }
 
@@ -449,11 +449,11 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
   if (mState == 0)
     return 0;
   //right click does nothing
-  if (Engine::instance()->getSettings()->right_click == 2){
+  if (mRightclick == 2){
     leftClickRequired = false;
   }
   //right click changes to icon 1
-  else if (Engine::instance()->getSettings()->right_click == 1){
+  else if (mRightclick == 1){
     if (2-1 >= (int)mAnimations.size()-1 || !mAnimations[2-1]->exists()){ //no command bound
       mState = 1;
       leftClickRequired = true;
