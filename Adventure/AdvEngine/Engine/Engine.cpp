@@ -51,7 +51,7 @@ int _stricmp(const char* str1, const char* str2){
 }
 
 Engine* Engine::mInstance = NULL;
-static CGE::Mutex trymtx;
+static CGE::Mutex trymtx(true);
 
 Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false),
   mSaver(NULL), mLoader(), mBlockingSpeaker(NULL), mExitCall(NULL), mSetMouseCall(NULL) {
@@ -126,7 +126,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   mWalkFields = Vec2i(32,res.y/mWalkGridSize);
   //load cursor
   MouseCursor* cursor = mData->getCursor();
-  mCursor = new CursorObject(Vec2i(0,0));
+  mCursor = new CursorObject(Vec2i(0,0), mData->getProjectSettings()->right_click);
   for (unsigned j = 0; j < cursor->size(); ++j){
     Animation* anim = new Animation((*cursor)[j].frames, (*cursor)[j].fps, (*cursor)[j].highlight*-1, DEPTH_CURSOR, Vec2i(0,0));
     anim->realize();

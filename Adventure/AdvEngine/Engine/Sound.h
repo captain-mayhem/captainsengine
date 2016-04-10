@@ -49,11 +49,12 @@ public:
   void update(unsigned time);
   void removeSpeaker(CharacterObject* chr);
   std::ostream& save(std::ostream& out);
-  std::istream& load(std::istream& in);
+  std::istream& load(std::istream& in, int version);
   void setMusicVolume(float volume);
   float getMusicVolume() {return mMusicVolume;}
   void setSpeechVolume(float volume);
   float getSpeechVolume() {return mSpeechVolume;}
+  void setMasterVolume(float volume);
   void setEAXEffect(const std::string& effect);
   void setFadingTime(unsigned time) {mFadingTime = time;}
   unsigned getFadingTime() {return mFadingTime;}

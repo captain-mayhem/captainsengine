@@ -363,6 +363,7 @@ void SaveStateProvider::save(const std::string& name){
   out << Engine::instance()->mMouseShown << " " << Engine::instance()->mMouseEnabled << " " << Engine::instance()->mTimeFactor << " " << Engine::instance()->mTimeFactorFaded << 
     " " << Engine::instance()->mMenuEnabled << std::endl;
   out << Engine::instance()->mFxShapesEnabled << " " << Engine::instance()->mScrollSpeed << " " << Engine::instance()->mCamFollowChar <<std::endl;
+  out << Engine::instance()->getCursor()->getRightClickStyle() << std::endl;
   //scripts
   Engine::instance()->getInterpreter()->save(out);
   //sounds
@@ -441,8 +442,12 @@ void SaveStateProvider::load(const std::string& name, bool fromScript){
   in >> Engine::instance()->mTimeFactor >> Engine::instance()->mTimeFactorFaded;
   in >> Engine::instance()->mMenuEnabled;
   in >> Engine::instance()->mFxShapesEnabled >> Engine::instance()->mScrollSpeed >> Engine::instance()->mCamFollowChar;
+  if (version >= 2){
+    in >> tmp;
+    Engine::instance()->getCursor()->setRightClickStyle(tmp);
+  }
   Engine::instance()->getInterpreter()->load(in, version);
-  SoundEngine::instance()->load(in);
+  SoundEngine::instance()->load(in, version);
   Engine::instance()->getParticleEngine()->load(in);
   Engine::instance()->getFontRenderer()->load(in);
   Engine::instance()->getPostProcessor()->load(in);

@@ -142,6 +142,7 @@ void SoundEngine::reset(){
   mCurrentEffect = "none";
   mFadingTime = 300;
   mSpeedFactor = 1.0f;
+  setMasterVolume(1.0f);
 }
 
 void SoundEngine::setEAXEffect(const std::string& effect){
@@ -453,8 +454,11 @@ std::ostream& SoundEngine::save(std::ostream& out){
   out << mMusicVolume << " " << mSpeechVolume << "\n";
   out << mFadingTime << " " << mCurrentEffect << "\n";
   out << mSpeedFactor << std::endl;
+  float volume;
+  alGetListenerf(AL_GAIN, &volume);
+  out << volume << std::endl;
   if (mActiveMusic != NULL){
-    out << mActiveMusic->getName() << " " << mActiveMusic->hasEffect();
+    out << String(mActiveMusic->getName()) << " " << mActiveMusic->hasEffect();
   }
   else{
     out << "none";
@@ -475,7 +479,7 @@ std::ostream& SoundEngine::save(std::ostream& out){
   return out;
 }
 
-std::istream& SoundEngine::load(std::istream& in){
+std::istream& SoundEngine::load(std::istream& in, int version){
   //clear previous sounds
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && iter->second->hasAutoDeletion()){
@@ -491,8 +495,18 @@ std::istream& SoundEngine::load(std::istream& in){
   in >> mFadingTime >> mCurrentEffect;
   setEAXEffect(mCurrentEffect);
   in >> mSpeedFactor;
+  float volume = 1.0f;
+  if (version >= 2)
+    in >> volume;
+  setMasterVolume(volume);
   std::string music;
-  in >> music;
+  if (version >= 2){
+    String m;
+    in >> m;
+    music = m;
+  }
+  else
+    in >> music;
   if (music != "none"){
     bool effect;
     in >> effect;
@@ -578,4 +592,10 @@ bool SoundEngine::run(unsigned time){
   mMutex.unlock();
   //CGE::Thread::sleep(10);
   return true;
+}
+
+void SoundEngine::setMasterVolume(float volume){
+#ifndef DISABLE_SOUND
+  alListenerf(AL_GAIN, volume);
+#endif
 }

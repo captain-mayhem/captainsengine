@@ -311,6 +311,10 @@ public:
   **/
   static int restart(lua_State* L);
   /**
+  \param style (intelligent/classic/nothing)
+  **/
+  static int rightClickStyle(lua_State* L);
+  /**
   \param row the row number
   \param text the text to be displayed
   \param active whether row is active from the beginning
@@ -367,10 +371,6 @@ public:
   \param effect sets the eax effect
   **/
   static int setEAX(lua_State* L);
-  /**
-  \param inventory intentory to show (1-5)
-  **/
-  static int showInventory(lua_State* L);
   /**
   \param item the item
   \param state the new state
@@ -484,9 +484,21 @@ public:
   **/
   static int showInfo(lua_State* L);
   /**
+  \param inventory intentory to show (1-5)
+  **/
+  static int showInventory(lua_State* L);
+  /**
   \param show show the mouse cursor
   **/
   static int showMouse(lua_State* L);
+  /**
+  \param the object being (sim) clicked
+  **/
+  static int simClick(lua_State* L);
+  /**
+  \param volume the master volume
+  **/
+  static int soundVolume(lua_State* L);
   /**
   \param character name of the character to speak
   \param text the text to be displayed
