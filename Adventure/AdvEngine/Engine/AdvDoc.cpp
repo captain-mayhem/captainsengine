@@ -346,12 +346,32 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
     //dsp effects
     for (int i = 0; i < 25; ++i){
       str = txtstream.readLine();
-      str = txtstream.readLine();
-      str = txtstream.readLine();
-      str = txtstream.readLine();
-      str = txtstream.readLine();
-      str = txtstream.readLine();
-      str = txtstream.readLine();
+      size_t pos = str.find(';', 0);//dsp
+      pos = str.find(';', pos + 1);//id
+      size_t newpos = str.find(';', pos + 1);//name
+      std::string name = str.substr(pos+1, newpos - pos-1);
+      std::string estr = str.substr(newpos + 1);
+      int effectnum = atoi(estr.c_str());
+      for (int i = 0; i < effectnum; ++i){
+        str = txtstream.readLine();
+      }
+      if (effectnum > 0){
+        DSPEffect effect;
+        effect.name = name;
+        effect.type = (DSPEffect::Type)effectnum;
+        std::string val;
+        size_t pos = 0;
+        for (int i = 0; i < 6; ++i){
+          size_t newpos = str.find(';', pos);
+          val = str.substr(pos, newpos - pos);
+          effect.params[i] = atoi(val.c_str());
+          pos = newpos + 1;
+        }
+        mSettings.dspeffects.push_back(effect);
+      }
+      for (int i = effectnum; i < 6; ++i){
+        str = txtstream.readLine();
+      }
     }
   }
   str = txtstream.readLine();

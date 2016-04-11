@@ -47,6 +47,21 @@ namespace StoryDesigner
         public int spacing;
     }
 
+    public class DSPEffect
+    {
+        public enum Type
+        {
+            REVERB = 1,
+            ECHO,
+            CHORUS,
+            DISTORTION,
+            PHASER
+        }
+        public string name;
+        public Type type;
+        public int[,] param = new int[6, 6];
+    }
+
     public struct ProjectSettings
     {
         public enum ScriptLang
@@ -106,6 +121,7 @@ namespace StoryDesigner
         public string CoinRoom;
         public int CoinFading;
         public Vec2i CoinCenter;
+        public ArrayList DSPEffects;
         public string LinkText;
         public string GiveLink;
         public string WalkText;
@@ -1038,6 +1054,7 @@ namespace StoryDesigner
             Settings.CustomMenuRoom = "";
             Settings.Directory = "";
             Settings.DrawDraggedItemIcons = false;
+            Settings.DSPEffects = new ArrayList();
             Settings.GameIcon = "";
             Settings.GiveLink = "to";
             Settings.GroupItems = false;

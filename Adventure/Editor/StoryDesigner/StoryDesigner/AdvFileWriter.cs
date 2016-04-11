@@ -278,13 +278,33 @@ namespace StoryDesigner
             {
                 swr.Write("dsp;");
                 swr.Write(i);
-                swr.WriteLine(";;0");
-                swr.WriteLine("0;0;0;0;0;0");
-                swr.WriteLine("0;0;0;0;0;0");
-                swr.WriteLine("0;0;0;0;0;0");
-                swr.WriteLine("0;0;0;0;0;0");
-                swr.WriteLine("0;0;0;0;0;0");
-                swr.WriteLine("0;0;0;0;0;0");
+                if (i-1 < mData.Settings.DSPEffects.Count)
+                {
+                    DSPEffect effect = mData.Settings.DSPEffects[i-1] as DSPEffect;
+                    swr.Write(";" + effect.name + ";");
+                    swr.WriteLine((int)effect.type);
+                    for (int line = 0; line < 6; ++line)
+                    {
+                        for (int num = 0; num < 6; ++num)
+                        {
+                            swr.Write(effect.param[line, num]);
+                            if (num < 5)
+                                swr.Write(";");
+                            else
+                                swr.WriteLine("");
+                        }
+                    }
+                }
+                else
+                {
+                    swr.WriteLine(";;0");
+                    swr.WriteLine("0;0;0;0;0;0");
+                    swr.WriteLine("0;0;0;0;0;0");
+                    swr.WriteLine("0;0;0;0;0;0");
+                    swr.WriteLine("0;0;0;0;0;0");
+                    swr.WriteLine("0;0;0;0;0;0");
+                    swr.WriteLine("0;0;0;0;0;0");
+                }
             }
             swr.Write("Linktext : ");
             swr.WriteLine(mData.Settings.LinkText);
