@@ -344,13 +344,23 @@ namespace StoryDesigner
                 //dsp effects
                 for (int i = 0; i < 25; ++i)
                 {
-                    rdr.ReadLine();
-                    rdr.ReadLine();
-                    rdr.ReadLine();
-                    rdr.ReadLine();
-                    rdr.ReadLine();
-                    rdr.ReadLine();
-                    rdr.ReadLine();
+                    str = rdr.ReadLine();
+                    string [] header = str.Split(';');
+                    DSPEffect effect = new DSPEffect();
+                    effect.name = header[2];
+                    int etype = Convert.ToInt32(header[3]);
+                    effect.type = (DSPEffect.Type)etype;
+                    for (int line = 0; line < 6; ++line)
+                    {
+                        str = rdr.ReadLine();
+                        string[] vals = str.Split(';');
+                        for (int num = 0; num < 6; ++num)
+                        {
+                            effect.param[line, num] = Convert.ToInt32(vals[num]);
+                        }
+                    }
+                    if (etype > 0)
+                        mAdv.Settings.DSPEffects.Add(effect);
                 }
             }
             str = rdr.ReadLine();

@@ -26,6 +26,19 @@ enum ScriptLang{
   DEFAULT_SCRIPT,
 };
 
+struct DSPEffect{
+  enum Type{
+    REVERB = 1,
+    ECHO,
+    CHORUS,
+    DISTORTION,
+    PHASER,
+  };
+  std::string name;
+  Type type;
+  int params[6];
+};
+
 struct ProjectSettings{
   std::string dir;
   std::string savedir;
@@ -69,6 +82,7 @@ struct ProjectSettings{
   Vec2i coinCenter;
   std::string splashscreen;
   std::string tsbackground;
+  std::vector<DSPEffect> dspeffects;
   std::string linktext;
   std::string givelink;
   std::string walktext;
