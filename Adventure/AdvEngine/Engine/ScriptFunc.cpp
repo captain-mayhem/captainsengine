@@ -2974,7 +2974,9 @@ int ScriptFunctions::simClick(lua_State* L){
 int ScriptFunctions::setDSP(lua_State* L){
   NUM_ARGS(1, 1);
   std::string effect = luaL_checkstring(L, 1);
-  TR_ERROR("setDSP not implemented: not activating %s", effect.c_str());
+  if (!SoundEngine::instance()->setDSPEffect(effect)){
+    TR_ERROR("cannot activate %s", effect.c_str());
+  }
   return 0;
 }
 
