@@ -75,7 +75,7 @@ int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture, int* got_pict
 
 #endif
 
-SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mCurrentEffect("none"), mFadingTime(300), mSpeedFactor(1.0){
+SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mCurrentEffect("none"), mIsDSPEffect(false), mFadingTime(300), mSpeedFactor(1.0){
   TR_USE(ADV_SOUND_ENGINE);
 #ifndef DISABLE_SOUND
   mDevice = alcOpenDevice(NULL);
@@ -106,8 +106,32 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
     if (error != AL_NO_ERROR){
       TR_ERROR("AL error %i", error);
     }
-    alGenEffects(1, &mEffect);
-    alEffecti(mEffect, AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
+    //alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_AUXILIARY_SEND_AUTO, AL_FALSE);
+    alGenEffects(6, mEffect);
+    alEffecti(mEffect[0], AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+      TR_WARN("No eaxreverb effect available");
+    alEffecti(mEffect[1], AL_EFFECT_TYPE, AL_EFFECT_REVERB);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+      TR_WARN("No reverb effect available");
+    alEffecti(mEffect[2], AL_EFFECT_TYPE, AL_EFFECT_ECHO);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+      TR_WARN("No echo effect available");
+    alEffecti(mEffect[3], AL_EFFECT_TYPE, AL_EFFECT_CHORUS);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+      TR_WARN("No chorus effect available");
+    alEffecti(mEffect[4], AL_EFFECT_TYPE, AL_EFFECT_DISTORTION);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+      TR_WARN("No distortion effect available");
+    alEffecti(mEffect[5], AL_EFFECT_TYPE, AL_EFFECT_FLANGER);
+    error = alGetError();
+    if (error != AL_NO_ERROR)
+      TR_WARN("No flanger effect available");
     alGenFilters(2, mFilters);
     alFilteri(mFilters[0], AL_FILTER_TYPE, AL_FILTER_LOWPASS);
     alFilteri(mFilters[1], AL_FILTER_TYPE, AL_FILTER_LOWPASS);
@@ -130,7 +154,7 @@ SoundEngine::~SoundEngine(){
 #ifndef DISABLE_SOUND
 #ifndef DISABLE_EFX
   alDeleteFilters(2, mFilters);
-  alDeleteEffects(1, &mEffect);
+  alDeleteEffects(6, mEffect);
   alDeleteAuxiliaryEffectSlots(1, &mEffectSlot);
 #endif
   alcMakeContextCurrent(NULL);
@@ -153,6 +177,7 @@ void SoundEngine::reset(){
   mMusicVolume = 1.0f;
   mSpeechVolume = 1.0f;
   mCurrentEffect = "none";
+  mIsDSPEffect = false;
   mFadingTime = 300;
   mSpeedFactor = 1.0f;
   setMasterVolume(1.0f);
@@ -162,6 +187,7 @@ void SoundEngine::setEAXEffect(const std::string& effect){
 #if !defined(DISABLE_SOUND) && !defined(DISABLE_EFX)
   if (effect == "off" || effect == "none"){
     mCurrentEffect = "none";
+    mIsDSPEffect = false;
   }
   else{
     EFXREVERBPROPERTIES efxReverb;
@@ -245,34 +271,67 @@ void SoundEngine::setEAXEffect(const std::string& effect){
       TR_BREAK("Unknown effect %s", effect.c_str());
     }
     mCurrentEffect = effect;
-    alEffectf(mEffect, AL_EAXREVERB_DENSITY, efxReverb.flDensity);
-    alEffectf(mEffect, AL_EAXREVERB_DIFFUSION, efxReverb.flDiffusion);
-    alEffectf(mEffect, AL_EAXREVERB_GAIN, efxReverb.flGain);
-    alEffectf(mEffect, AL_EAXREVERB_GAINHF, efxReverb.flGainHF);
-		alEffectf(mEffect, AL_EAXREVERB_GAINLF, efxReverb.flGainLF);
-		alEffectf(mEffect, AL_EAXREVERB_DECAY_TIME, efxReverb.flDecayTime);
-		alEffectf(mEffect, AL_EAXREVERB_DECAY_HFRATIO, efxReverb.flDecayHFRatio);
-		alEffectf(mEffect, AL_EAXREVERB_DECAY_LFRATIO, efxReverb.flDecayLFRatio);
-		alEffectf(mEffect, AL_EAXREVERB_REFLECTIONS_GAIN, efxReverb.flReflectionsGain);
-		alEffectf(mEffect, AL_EAXREVERB_REFLECTIONS_DELAY, efxReverb.flReflectionsDelay);
-		alEffectfv(mEffect, AL_EAXREVERB_REFLECTIONS_PAN, efxReverb.flReflectionsPan);
-		alEffectf(mEffect, AL_EAXREVERB_LATE_REVERB_GAIN, efxReverb.flLateReverbGain);
-		alEffectf(mEffect, AL_EAXREVERB_LATE_REVERB_DELAY, efxReverb.flLateReverbDelay);
-		alEffectfv(mEffect, AL_EAXREVERB_LATE_REVERB_PAN, efxReverb.flLateReverbPan);
-		alEffectf(mEffect, AL_EAXREVERB_ECHO_TIME, efxReverb.flEchoTime);
-		alEffectf(mEffect, AL_EAXREVERB_ECHO_DEPTH, efxReverb.flEchoDepth);
-		alEffectf(mEffect, AL_EAXREVERB_MODULATION_TIME, efxReverb.flModulationTime);
-		alEffectf(mEffect, AL_EAXREVERB_MODULATION_DEPTH, efxReverb.flModulationDepth);
-		alEffectf(mEffect, AL_EAXREVERB_AIR_ABSORPTION_GAINHF, efxReverb.flAirAbsorptionGainHF);
-		alEffectf(mEffect, AL_EAXREVERB_HFREFERENCE, efxReverb.flHFReference);
-		alEffectf(mEffect, AL_EAXREVERB_LFREFERENCE, efxReverb.flLFReference);
-		alEffectf(mEffect, AL_EAXREVERB_ROOM_ROLLOFF_FACTOR, efxReverb.flRoomRolloffFactor);
-		alEffecti(mEffect, AL_EAXREVERB_DECAY_HFLIMIT, efxReverb.iDecayHFLimit);
-    alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, mEffect);
+    mIsDSPEffect = false;
+    alEffectf(mEffect[0], AL_EAXREVERB_DENSITY, efxReverb.flDensity);
+    alEffectf(mEffect[0], AL_EAXREVERB_DIFFUSION, efxReverb.flDiffusion);
+    alEffectf(mEffect[0], AL_EAXREVERB_GAIN, efxReverb.flGain);
+    alEffectf(mEffect[0], AL_EAXREVERB_GAINHF, efxReverb.flGainHF);
+    alEffectf(mEffect[0], AL_EAXREVERB_GAINLF, efxReverb.flGainLF);
+    alEffectf(mEffect[0], AL_EAXREVERB_DECAY_TIME, efxReverb.flDecayTime);
+    alEffectf(mEffect[0], AL_EAXREVERB_DECAY_HFRATIO, efxReverb.flDecayHFRatio);
+    alEffectf(mEffect[0], AL_EAXREVERB_DECAY_LFRATIO, efxReverb.flDecayLFRatio);
+    alEffectf(mEffect[0], AL_EAXREVERB_REFLECTIONS_GAIN, efxReverb.flReflectionsGain);
+    alEffectf(mEffect[0], AL_EAXREVERB_REFLECTIONS_DELAY, efxReverb.flReflectionsDelay);
+    alEffectfv(mEffect[0], AL_EAXREVERB_REFLECTIONS_PAN, efxReverb.flReflectionsPan);
+    alEffectf(mEffect[0], AL_EAXREVERB_LATE_REVERB_GAIN, efxReverb.flLateReverbGain);
+    alEffectf(mEffect[0], AL_EAXREVERB_LATE_REVERB_DELAY, efxReverb.flLateReverbDelay);
+    alEffectfv(mEffect[0], AL_EAXREVERB_LATE_REVERB_PAN, efxReverb.flLateReverbPan);
+    alEffectf(mEffect[0], AL_EAXREVERB_ECHO_TIME, efxReverb.flEchoTime);
+    alEffectf(mEffect[0], AL_EAXREVERB_ECHO_DEPTH, efxReverb.flEchoDepth);
+    alEffectf(mEffect[0], AL_EAXREVERB_MODULATION_TIME, efxReverb.flModulationTime);
+    alEffectf(mEffect[0], AL_EAXREVERB_MODULATION_DEPTH, efxReverb.flModulationDepth);
+    alEffectf(mEffect[0], AL_EAXREVERB_AIR_ABSORPTION_GAINHF, efxReverb.flAirAbsorptionGainHF);
+    alEffectf(mEffect[0], AL_EAXREVERB_HFREFERENCE, efxReverb.flHFReference);
+    alEffectf(mEffect[0], AL_EAXREVERB_LFREFERENCE, efxReverb.flLFReference);
+    alEffectf(mEffect[0], AL_EAXREVERB_ROOM_ROLLOFF_FACTOR, efxReverb.flRoomRolloffFactor);
+    alEffecti(mEffect[0], AL_EAXREVERB_DECAY_HFLIMIT, efxReverb.iDecayHFLimit);
+    alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, mEffect[0]);
     alFilterf(mFilters[0], AL_LOWPASS_GAIN, 1.0f); //dry mix
     alFilterf(mFilters[1], AL_LOWPASS_GAIN, 1.0f); //wet mix
   }
 #endif
+}
+
+bool SoundEngine::setDSPEffect(const std::string& effect){
+  TR_USE(ADV_SOUND_ENGINE);
+  std::map<std::string, DSPEffect>::const_iterator iter = Engine::instance()->getSettings()->dspeffects.find(effect);
+  if (iter == Engine::instance()->getSettings()->dspeffects.end()){
+    TR_ERROR("unknown dsp effect %s", effect.c_str());
+    return false;
+  }
+  const DSPEffect& eff = iter->second;
+  switch (eff.type){
+  case  DSPEffect::REVERB:
+  case  DSPEffect::ECHO:
+    //alFilterf(mFilters[0], AL_LOWPASS_GAIN, abs(eff.params[0]) / 100.f); //dry mix
+    //alFilterf(mFilters[1], AL_LOWPASS_GAIN, abs(eff.params[1]) / 100.f); //wet mix
+    alEffectf(mEffect[eff.type], AL_ECHO_DAMPING, AL_ECHO_MIN_DAMPING);
+    alEffectf(mEffect[eff.type], AL_ECHO_FEEDBACK, abs(eff.params[2]) / 500.f*(AL_ECHO_MAX_FEEDBACK-AL_ECHO_MIN_FEEDBACK)+AL_ECHO_MIN_FEEDBACK);
+    alEffectf(mEffect[eff.type], AL_ECHO_DELAY, eff.params[3] / 333.f*(AL_ECHO_MAX_DELAY - AL_ECHO_MIN_DELAY) + AL_ECHO_MIN_DELAY);
+    alEffectf(mEffect[eff.type], AL_ECHO_LRDELAY, eff.params[3] / 333.f*(AL_ECHO_MAX_LRDELAY - AL_ECHO_MIN_LRDELAY) + AL_ECHO_MIN_LRDELAY);
+    alEffectf(mEffect[eff.type], AL_ECHO_SPREAD, eff.params[2] < 0 ? -1.0 : 1.0);
+    break;
+  case  DSPEffect::CHORUS:
+  case  DSPEffect::DISTORTION:
+  case  DSPEffect::PHASER:
+    break;
+  };
+  alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, mEffect[eff.type]);
+  //alFilterf(mFilters[0], AL_LOWPASS_GAIN, 1.0f); //dry mix
+  //alFilterf(mFilters[1], AL_LOWPASS_GAIN, 1.0f); //wet mix
+  mCurrentEffect = effect;
+  mIsDSPEffect = true;
+  return false;
 }
 
 SoundPlayer* SoundEngine::getSound(const std::string& name, int flags){
@@ -467,7 +526,7 @@ void SoundEngine::setSpeechVolume(float volume){
 
 std::ostream& SoundEngine::save(std::ostream& out){
   out << mMusicVolume << " " << mSpeechVolume << "\n";
-  out << mFadingTime << " " << mCurrentEffect << "\n";
+  out << mFadingTime << " " << mCurrentEffect << " " << mIsDSPEffect << "\n";
   out << mSpeedFactor << std::endl;
   float volume;
   alGetListenerf(AL_GAIN, &volume);
@@ -508,7 +567,14 @@ std::istream& SoundEngine::load(std::istream& in, int version){
   
   in >> mMusicVolume >> mSpeechVolume;
   in >> mFadingTime >> mCurrentEffect;
-  setEAXEffect(mCurrentEffect);
+  if (version >= 2)
+    in >> mIsDSPEffect;
+  else
+    mIsDSPEffect = false;
+  if (mIsDSPEffect)
+    setDSPEffect(mCurrentEffect);
+  else
+    setEAXEffect(mCurrentEffect);
   in >> mSpeedFactor;
   float volume = 1.0f;
   if (version >= 2)

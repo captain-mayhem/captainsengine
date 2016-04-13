@@ -66,6 +66,7 @@ public:
   void removeSoundPlayer(SoundPlayer* plyr);
   void setSpeedFactor(float speed);
   void reset();
+  bool setDSPEffect(const std::string& effect);
 protected:
   SoundEngine();
   SoundPlayer* createPlayer(const std::string& name, const DataBuffer& db, bool effectEnabled);
@@ -78,7 +79,7 @@ protected:
   ALCdevice* mDevice;
   ALCcontext* mContext;
   ALuint mEffectSlot;
-  ALuint mEffect;
+  ALuint mEffect[6];
   ALuint mFilters[2];
 #endif
   std::multimap<std::string, SoundPlayer*> mActiveSounds;
@@ -87,6 +88,7 @@ protected:
   float mMusicVolume;
   float mSpeechVolume;
   std::string mCurrentEffect;
+  bool mIsDSPEffect;
   unsigned mFadingTime;
   float mSpeedFactor;
   CGE::Mutex mMutex;

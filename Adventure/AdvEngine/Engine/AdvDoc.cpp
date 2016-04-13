@@ -357,7 +357,6 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
       }
       if (effectnum > 0){
         DSPEffect effect;
-        effect.name = name;
         effect.type = (DSPEffect::Type)effectnum;
         std::string val;
         size_t pos = 0;
@@ -367,7 +366,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
           effect.params[i] = atoi(val.c_str());
           pos = newpos + 1;
         }
-        mSettings.dspeffects.push_back(effect);
+        mSettings.dspeffects[name] = effect;
       }
       for (int i = effectnum; i < 6; ++i){
         str = txtstream.readLine();

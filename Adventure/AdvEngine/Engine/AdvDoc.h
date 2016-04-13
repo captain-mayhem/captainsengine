@@ -34,7 +34,6 @@ struct DSPEffect{
     DISTORTION,
     PHASER,
   };
-  std::string name;
   Type type;
   int params[6];
 };
@@ -82,7 +81,7 @@ struct ProjectSettings{
   Vec2i coinCenter;
   std::string splashscreen;
   std::string tsbackground;
-  std::vector<DSPEffect> dspeffects;
+  std::map<std::string, DSPEffect> dspeffects;
   std::string linktext;
   std::string givelink;
   std::string walktext;
