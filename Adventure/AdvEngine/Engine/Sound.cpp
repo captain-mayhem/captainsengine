@@ -49,6 +49,7 @@ SoundEngine* SoundEngine::mInstance = NULL;
 LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots = NULL;
 LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots = NULL;
 LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti = NULL;
+LPALAUXILIARYEFFECTSLOTF alAuxiliaryEffectSlotf = NULL;
 LPALGENEFFECTS alGenEffects = NULL;
 LPALDELETEEFFECTS alDeleteEffects = NULL;
 LPALEFFECTF alEffectf = NULL;
@@ -91,6 +92,7 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
     alGenAuxiliaryEffectSlots = (LPALGENAUXILIARYEFFECTSLOTS)alGetProcAddress("alGenAuxiliaryEffectSlots");
     alDeleteAuxiliaryEffectSlots = (LPALDELETEAUXILIARYEFFECTSLOTS)alGetProcAddress("alDeleteAuxiliaryEffectSlots");
     alAuxiliaryEffectSloti = (LPALAUXILIARYEFFECTSLOTI)alGetProcAddress("alAuxiliaryEffectSloti");
+    alAuxiliaryEffectSlotf = (LPALAUXILIARYEFFECTSLOTF)alGetProcAddress("alAuxiliaryEffectSlotf");
     alGenEffects = (LPALGENEFFECTS)alGetProcAddress("alGenEffects");
     alDeleteEffects = (LPALDELETEEFFECTS)alGetProcAddress("alDeleteEffects");
     alEffectf = (LPALEFFECTF)alGetProcAddress("alEffectf");
@@ -107,6 +109,7 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
       TR_ERROR("AL error %i", error);
     }
     //alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_AUXILIARY_SEND_AUTO, AL_FALSE);
+    //alAuxiliaryEffectSlotf(mEffectSlot, AL_EFFECTSLOT_GAIN, 1.0f);
     alGenEffects(6, mEffect);
     alEffecti(mEffect[0], AL_EFFECT_TYPE, AL_EFFECT_EAXREVERB);
     error = alGetError();
@@ -302,33 +305,82 @@ void SoundEngine::setEAXEffect(const std::string& effect){
 #endif
 }
 
+
+static inline float mBtoGain(float mb)
+{
+  return powf(10.0f, mb / 2000.0f);
+}
+
 bool SoundEngine::setDSPEffect(const std::string& effect){
   TR_USE(ADV_SOUND_ENGINE);
+  if (effect == "off"){
+    mCurrentEffect = "none";
+    mIsDSPEffect = true;
+    return true;
+  }
   std::map<std::string, DSPEffect>::const_iterator iter = Engine::instance()->getSettings()->dspeffects.find(effect);
   if (iter == Engine::instance()->getSettings()->dspeffects.end()){
-    TR_ERROR("unknown dsp effect %s", effect.c_str());
+    TR_BREAK("unknown dsp effect %s", effect.c_str());
     return false;
   }
   const DSPEffect& eff = iter->second;
   switch (eff.type){
-  case  DSPEffect::REVERB:
-  case  DSPEffect::ECHO:
-    //alFilterf(mFilters[0], AL_LOWPASS_GAIN, abs(eff.params[0]) / 100.f); //dry mix
-    //alFilterf(mFilters[1], AL_LOWPASS_GAIN, abs(eff.params[1]) / 100.f); //wet mix
+  case  DSPEffect::REVERB:{
+    float dry = eff.params[0] / 1000.0f;
+    alFilterf(mFilters[0], AL_LOWPASS_GAIN, dry > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : dry); //dry mix
+    float wet = eff.params[1] / 1000.0f;
+    alFilterf(mFilters[1], AL_LOWPASS_GAIN, wet > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : wet); //wet mix
+    float rsize = eff.params[2] / 1000.0f;
+    alEffectf(mEffect[eff.type], AL_REVERB_DECAY_TIME, rsize*(AL_REVERB_MAX_DECAY_TIME - AL_REVERB_MIN_DECAY_TIME) + AL_REVERB_MIN_DECAY_TIME);
+    alEffectf(mEffect[eff.type], AL_REVERB_REFLECTIONS_DELAY, rsize*(AL_REVERB_MAX_REFLECTIONS_DELAY - AL_REVERB_MIN_REFLECTIONS_DELAY) + AL_REVERB_MIN_REFLECTIONS_DELAY);
+    alEffectf(mEffect[eff.type], AL_REVERB_LATE_REVERB_DELAY, rsize*(AL_REVERB_MAX_LATE_REVERB_DELAY - AL_REVERB_MIN_LATE_REVERB_DELAY) + AL_REVERB_MIN_LATE_REVERB_DELAY);
+
+    float damping = eff.params[3] / 1000.0f;
+    alEffectf(mEffect[eff.type], AL_REVERB_DENSITY, damping);
+
+    float width = eff.params[4] / 1000.0f;
+    alEffectf(mEffect[eff.type], AL_REVERB_DIFFUSION, width);
+    break;
+  }
+  case  DSPEffect::ECHO:{
+    float dry = abs(eff.params[0]) / 1000.0f;
+    alFilterf(mFilters[0], AL_LOWPASS_GAIN, dry > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : dry); //dry mix
+    float wet = (abs(eff.params[1]) / 1000.0f)*0.1 + 0.9;
+    alFilterf(mFilters[1], AL_LOWPASS_GAIN, wet > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : wet); //wet mix
     alEffectf(mEffect[eff.type], AL_ECHO_DAMPING, AL_ECHO_MIN_DAMPING);
-    alEffectf(mEffect[eff.type], AL_ECHO_FEEDBACK, abs(eff.params[2]) / 500.f*(AL_ECHO_MAX_FEEDBACK-AL_ECHO_MIN_FEEDBACK)+AL_ECHO_MIN_FEEDBACK);
-    alEffectf(mEffect[eff.type], AL_ECHO_DELAY, eff.params[3] / 333.f*(AL_ECHO_MAX_DELAY - AL_ECHO_MIN_DELAY) + AL_ECHO_MIN_DELAY);
-    alEffectf(mEffect[eff.type], AL_ECHO_LRDELAY, eff.params[3] / 333.f*(AL_ECHO_MAX_LRDELAY - AL_ECHO_MIN_LRDELAY) + AL_ECHO_MIN_LRDELAY);
+    float feedback = abs(eff.params[2]) / 1000.f;
+    alEffectf(mEffect[eff.type], AL_ECHO_FEEDBACK, feedback > AL_ECHO_MAX_FEEDBACK ? AL_ECHO_MAX_FEEDBACK : feedback);
+    float delay = eff.params[3] / 1000.f;
+    alEffectf(mEffect[eff.type], AL_ECHO_DELAY, delay > AL_ECHO_MAX_DELAY ? AL_ECHO_MAX_DELAY : delay);
+    alEffectf(mEffect[eff.type], AL_ECHO_LRDELAY, delay > AL_ECHO_MAX_LRDELAY ? AL_ECHO_MAX_LRDELAY : delay);
     alEffectf(mEffect[eff.type], AL_ECHO_SPREAD, eff.params[2] < 0 ? -1.0 : 1.0);
     break;
-  case  DSPEffect::CHORUS:
-  case  DSPEffect::DISTORTION:
-  case  DSPEffect::PHASER:
+  }
+  case  DSPEffect::CHORUS:{
+    float dry = eff.params[0] / 1000.0f;
+    alFilterf(mFilters[0], AL_LOWPASS_GAIN, dry > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : dry); //dry mix
+    float wet = (abs(eff.params[1]) / 1000.0f);
+    alFilterf(mFilters[1], AL_LOWPASS_GAIN, wet > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : wet); //wet mix
+    float sweep = eff.params[4] / 400.0f * 0.016f;
+    alEffectf(mEffect[eff.type], AL_CHORUS_DELAY, sweep > AL_CHORUS_MAX_DELAY ? AL_CHORUS_MAX_DELAY : sweep);
+    float rate = eff.params[5] / 400.0f * 10.0f;
+    alEffectf(mEffect[eff.type], AL_CHORUS_RATE, rate > AL_CHORUS_MAX_RATE ? AL_CHORUS_MAX_RATE : rate);
+    alEffectf(mEffect[eff.type], AL_CHORUS_FEEDBACK, 0.75f);
+    alEffectf(mEffect[eff.type], AL_CHORUS_DEPTH, 0.5f);
     break;
+  }
+  case  DSPEffect::DISTORTION:{
+    alFilterf(mFilters[0], AL_LOWPASS_GAIN, 1.0f); //dry mix
+    alFilterf(mFilters[1], AL_LOWPASS_GAIN, 1.0f); //wet mix
+    break;
+  }
+  case  DSPEffect::PHASER:{
+    alFilterf(mFilters[0], AL_LOWPASS_GAIN, 1.0f); //dry mix
+    alFilterf(mFilters[1], AL_LOWPASS_GAIN, 1.0f); //wet mix
+    break;
+  }
   };
   alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, mEffect[eff.type]);
-  //alFilterf(mFilters[0], AL_LOWPASS_GAIN, 1.0f); //dry mix
-  //alFilterf(mFilters[1], AL_LOWPASS_GAIN, 1.0f); //wet mix
   mCurrentEffect = effect;
   mIsDSPEffect = true;
   return false;
