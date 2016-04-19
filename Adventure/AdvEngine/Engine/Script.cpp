@@ -1445,13 +1445,13 @@ int PcdkScript::getSpecialVar(lua_State* L){
     }
     else if (name.size() > 8 && lname.substr(1, 8) == "txtoutx:"){
       std::string idstr = lname.substr(9);
-      Textout* txt = Engine::instance()->getFontRenderer()->getTextout(atoi(idstr.c_str()));
+      Textout* txt = Engine::instance()->getFontRenderer()->getTextout(idstr);
       lua_pushinteger(L, Engine::instance()->getAnimator()->getTargetPoisition(txt).x);
       return 1;
     }
     else if (name.size() > 8 && lname.substr(1, 8) == "txtouty:"){
       std::string idstr = lname.substr(9);
-      Textout* txt = Engine::instance()->getFontRenderer()->getTextout(atoi(idstr.c_str()));
+      Textout* txt = Engine::instance()->getFontRenderer()->getTextout(idstr);
       lua_pushinteger(L, Engine::instance()->getAnimator()->getTargetPoisition(txt).y);
       return 1;
     }
@@ -1639,9 +1639,12 @@ int PcdkScript::getSpecialVar(lua_State* L){
   }
   else if (name.size() > 5 && lname.substr(0, 5) == "objx:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
-    if (obj == NULL)
+    if (obj == NULL){
       TR_BREAK("Object %s not found", name.substr(5).c_str());
-    lua_pushinteger(L, obj->getPosition().x);
+      lua_pushinteger(L, 0);
+    }
+    else
+      lua_pushinteger(L, obj->getPosition().x);
     return 1;
   }
   else if (name.size() > 5 && lname.substr(0, 5) == "objy:"){

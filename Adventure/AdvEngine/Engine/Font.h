@@ -77,17 +77,17 @@ public:
   void prepareBlit(unsigned interval, RoomObject* mainroom, bool renderBoundText);
   void removeText(CharacterObject* chr, bool immediately);
   void removeText(String* str);
-  Textout* getTextout(int id);
+  Textout* getTextout(const std::string& id);
   void clearTextouts();
   void enableTextouts(bool enable);
   void disableBoundTextouts(RoomObject* room);
   void save(std::ostream& out);
-  void load(std::istream& in);
+  void load(std::istream& in, int version);
   Font* getFont(unsigned id) {return mFonts[id];}
 protected:
   AdvDocument* mData;
   std::vector<Font*> mFonts;
-  std::map<int, Textout*> mTextouts;
+  std::map<std::string, Textout*> mTextouts;
 };
 
 }

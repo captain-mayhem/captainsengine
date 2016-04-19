@@ -387,7 +387,7 @@ void SaveStateProvider::load(const std::string& name, bool fromScript){
   clear();
   Engine::instance()->getInterpreter()->clearState();
   Engine::instance()->getInterpreter()->executeCutscene(NULL, false);
-  mNoWrites = Engine::instance()->unloadRooms();
+  mNoWrites = Engine::instance()->unloadRooms(false);
   if (Engine::instance()->mMenuShown){
     Engine::instance()->unloadRoom(NULL, false, false, NULL);
     Engine::instance()->mMenuShown = false;
@@ -449,7 +449,7 @@ void SaveStateProvider::load(const std::string& name, bool fromScript){
   Engine::instance()->getInterpreter()->load(in, version);
   SoundEngine::instance()->load(in, version);
   Engine::instance()->getParticleEngine()->load(in);
-  Engine::instance()->getFontRenderer()->load(in);
+  Engine::instance()->getFontRenderer()->load(in, version);
   Engine::instance()->getPostProcessor()->load(in);
   in.close();
 }

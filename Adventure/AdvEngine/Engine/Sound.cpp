@@ -370,13 +370,30 @@ bool SoundEngine::setDSPEffect(const std::string& effect){
     break;
   }
   case  DSPEffect::DISTORTION:{
-    alFilterf(mFilters[0], AL_LOWPASS_GAIN, 1.0f); //dry mix
-    alFilterf(mFilters[1], AL_LOWPASS_GAIN, 1.0f); //wet mix
+    float dry = abs(eff.params[0]) / 1000.0f * 2;
+    alFilterf(mFilters[0], AL_LOWPASS_GAIN, dry > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : dry); //dry mix
+    float wet = (abs(eff.params[1]) / 1000.0f) * 2;
+    alFilterf(mFilters[1], AL_LOWPASS_GAIN, wet > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : wet); //wet mix
+    float volume = eff.params[3] / 1000.f;
+    alEffectf(mEffect[eff.type], AL_DISTORTION_GAIN, volume > AL_DISTORTION_MAX_GAIN ? AL_DISTORTION_MAX_GAIN : volume);
+    float drive = eff.params[4] / 300.f;
+    alEffectf(mEffect[eff.type], AL_DISTORTION_EDGE, drive > AL_DISTORTION_MAX_EDGE ? AL_DISTORTION_MAX_EDGE : drive);
+    alEffectf(mEffect[eff.type], AL_DISTORTION_LOWPASS_CUTOFF, AL_DISTORTION_MAX_LOWPASS_CUTOFF);
     break;
   }
   case  DSPEffect::PHASER:{
-    alFilterf(mFilters[0], AL_LOWPASS_GAIN, 1.0f); //dry mix
-    alFilterf(mFilters[1], AL_LOWPASS_GAIN, 1.0f); //wet mix
+    float dry = abs(eff.params[0]) / 1000.0f;
+    alFilterf(mFilters[0], AL_LOWPASS_GAIN, dry > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : dry); //dry mix
+    float wet = (abs(eff.params[1]) / 1000.0f);
+    alFilterf(mFilters[1], AL_LOWPASS_GAIN, wet > AL_LOWPASS_MAX_GAIN ? AL_LOWPASS_MAX_GAIN : wet); //wet mix
+    float feedback = eff.params[2] / 1000.0f;
+    alEffectf(mEffect[eff.type], AL_FLANGER_FEEDBACK, feedback > AL_FLANGER_MAX_FEEDBACK ? AL_FLANGER_MAX_FEEDBACK : feedback);
+    float rate = eff.params[3] / 1000.0f;
+    alEffectf(mEffect[eff.type], AL_FLANGER_RATE, rate > AL_FLANGER_MAX_RATE ? AL_FLANGER_MAX_RATE : rate);
+    float range = eff.params[4] / 10000.0f;
+    alEffectf(mEffect[eff.type], AL_FLANGER_DEPTH, range > AL_FLANGER_MAX_DEPTH ? AL_FLANGER_MAX_DEPTH : range);
+    alEffecti(mEffect[eff.type], AL_FLANGER_PHASE, 180);
+    alEffecti(mEffect[eff.type], AL_FLANGER_WAVEFORM, 0);
     break;
   }
   };

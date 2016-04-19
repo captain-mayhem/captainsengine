@@ -350,7 +350,7 @@ Vec2i FontRenderer::getTextExtent(const std::string& text, int fontid, std::vect
 }
 
 void FontRenderer::prepareTextouts(unsigned time){
-  for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+  for (std::map<std::string,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
     iter->second->render(time);
   }
 }
@@ -376,8 +376,8 @@ void FontRenderer::removeText(String* str){
   }
 }
 
-Textout* FontRenderer::getTextout(int id){
-  std::map<int, Textout*>::iterator iter = mTextouts.find(id);
+Textout* FontRenderer::getTextout(const std::string& id){
+  std::map<std::string, Textout*>::iterator iter = mTextouts.find(id);
   if (iter == mTextouts.end()){
     Textout* text = new Textout();
     mTextouts[id] = text;
@@ -387,36 +387,44 @@ Textout* FontRenderer::getTextout(int id){
 }
 
 void FontRenderer::clearTextouts(){
-  for (std::map<int, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+  for (std::map<std::string, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
     delete iter->second;
   }
   mTextouts.clear();
 }
 
 void FontRenderer::enableTextouts(bool enable){
-  for (std::map<int, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+  for (std::map<std::string, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
     iter->second->setEnabled(enable);
   }
 }
 
 void FontRenderer::save(std::ostream& out){
   out << mTextouts.size() << "\n";
-  for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
-    out << iter->first << " ";
+  for (std::map<std::string,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+    out << adv::String(iter->first) << " ";
     iter->second->save(out);
   }
 }
 
-void FontRenderer::load(std::istream& in){
+void FontRenderer::load(std::istream& in, int version){
   unsigned numTextouts;
   in >> numTextouts;
-  for (std::map<int,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+  for (std::map<std::string,Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
     delete iter->second;
   }
   mTextouts.clear();
   for (unsigned i = 0; i < numTextouts; ++i){
-    int id;
-    in >> id;
+    adv::String id;
+    if (version < 2){
+      int idnum;
+      in >> idnum;
+      char tmp[24];
+      sprintf(tmp, "%i", idnum);
+      id = tmp;
+    }
+    else
+      in >> id;
     Textout* to = new Textout();
     to->load(in);
     mTextouts[id] = to;
@@ -424,7 +432,7 @@ void FontRenderer::load(std::istream& in){
 }
 
 void FontRenderer::disableBoundTextouts(RoomObject* room){
-  for (std::map<int, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
+  for (std::map<std::string, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
     Textout* txt = iter->second;
     if (txt->getBoundRoom() == room->getName()){
       txt->setEnabled(false);

@@ -1482,7 +1482,7 @@ void Engine::keyPress(int key){
           mInterpreter->resumeBlockingScript();
           mTextEnter.clear();
           mSuspender->resume();
-          mFonts->getTextout(-1)->setEnabled(false);
+          mFonts->getTextout("-1")->setEnabled(false);
         }
         else if (mMenuEnabled){
           if (!mMenuShown){
@@ -1564,11 +1564,11 @@ void Engine::finishTextInput(bool commit){
     mInterpreter->resumeBlockingScript();
     mTextEnter.clear();
     mSuspender->resume();
-    mFonts->getTextout(-1)->setEnabled(false);
+    mFonts->getTextout("-1")->setEnabled(false);
   }
 }
 
-int Engine::unloadRooms(){
+int Engine::unloadRooms(bool triggerExitScripts){
   setFocus("none", NULL);
   if (mCurrentObject){
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
@@ -1581,7 +1581,7 @@ int Engine::unloadRooms(){
     (*iter)->setFadeout(0); //skip fading of subrooms
     mRoomsToUnload.push_back(*iter);
     ExecutionContext* script = (*iter)->getScript();
-    if (script)
+    if (triggerExitScripts && script)
       script->setEvent(EVT_EXIT);
     //bulk unload, do unblock scripts
     (*iter)->finishScripts(false);
