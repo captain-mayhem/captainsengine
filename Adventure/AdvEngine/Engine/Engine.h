@@ -87,7 +87,7 @@ public:
   void keyPress(int key);
   void keyRelease(int key);
   void keyAscii(char chr);
-  int unloadRooms();
+  int unloadRooms(bool triggerExitScripts);
   std::string getCharacterClass(const std::string instanceName);
   void showTaskbar(bool show) {mShowTaskbar = show;}
   static unsigned roundToPowerOf2(unsigned x);

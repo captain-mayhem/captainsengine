@@ -1752,7 +1752,7 @@ int ScriptFunctions::setLanguage(lua_State* L){
 
 int ScriptFunctions::enterText(lua_State* L){
   NUM_ARGS(0, 9);
-  int textnum = -1;
+  String textnum = "-1";
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(true);
   String varname;
@@ -1858,7 +1858,15 @@ int ScriptFunctions::setEAX(lua_State* L){
 
 int ScriptFunctions::bindText(lua_State* L){
   NUM_ARGS(2, 2);
-  int textnum = ctx.stack().get(1).getInt();
+  StackData textid = ctx.stack().get(1);
+  std::string textnum;
+  if (textid.isNumber()){
+    char tmp[24];
+    sprintf(tmp, "%i", textid.getInt());
+    textnum = tmp;
+  }
+  else
+    textnum = textid.getString();
   String room = ctx.stack().get(2).getString();
   if (room == "any"){
     room = Engine::instance()->getData()->getProjectSettings()->anywhere_room.c_str();
@@ -1879,7 +1887,15 @@ int ScriptFunctions::bindText(lua_State* L){
 
 int ScriptFunctions::textOut(lua_State* L){
   NUM_ARGS(1, 8);
-  int textnum = ctx.stack().get(1).getInt();
+  StackData textid = ctx.stack().get(1);
+  std::string textnum;
+  if (textid.isNumber()){
+    char tmp[24];
+    sprintf(tmp, "%i", textid.getInt());
+    textnum = tmp;
+  }
+  else
+    textnum = textid.getString();
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(true);
   if (numArgs >= 2){
@@ -2070,7 +2086,15 @@ int ScriptFunctions::particleView(lua_State* L){
 
 int ScriptFunctions::textHide(lua_State* L){
   NUM_ARGS(1, 1);
-  int textnum = ctx.stack().get(1).getInt();
+  StackData textid = ctx.stack().get(1);
+  std::string textnum;
+  if (textid.isNumber()){
+    char tmp[24];
+    sprintf(tmp, "%i", textid.getInt());
+    textnum = tmp;
+  }
+  else
+    textnum = textid.getString();
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(false);
   return 0;
@@ -2627,7 +2651,15 @@ int ScriptFunctions::setObjLight(lua_State* L){
 
 int ScriptFunctions::textAlign(lua_State* L){
   NUM_ARGS(2, 2);
-  int num = ctx.stack().get(1).getInt();
+  StackData textid = ctx.stack().get(1);
+  std::string textnum;
+  if (textid.isNumber()){
+    char tmp[24];
+    sprintf(tmp, "%i", textid.getInt());
+    textnum = tmp;
+  }
+  else
+    textnum = textid.getString();
   std::string alignstr = ctx.stack().get(2).getString();
   Alignment align;
   if (alignstr == "left")
@@ -2636,7 +2668,7 @@ int ScriptFunctions::textAlign(lua_State* L){
     align = ALGN_CENTER;
   else if (alignstr == "right")
     align = ALGN_RIGHT;
-  Textout* text = Engine::instance()->getFontRenderer()->getTextout(num);
+  Textout* text = Engine::instance()->getFontRenderer()->getTextout(textnum);
   text->setAlignment(align);
   return 0;
 }
@@ -2777,7 +2809,15 @@ int ScriptFunctions::switchCharacter(lua_State* L){
 
 int ScriptFunctions::moveText(lua_State* L){
   NUM_ARGS(4, 5);
-  int id = ctx.stack().get(1).getInt();
+  StackData textid = ctx.stack().get(1);
+  std::string textnum;
+  if (textid.isNumber()){
+    char tmp[24];
+    sprintf(tmp, "%i", textid.getInt());
+    textnum = tmp;
+  }
+  else
+    textnum = textid.getString();
 
   Vec2i newpos;
   newpos.x = ctx.stack().get(2).getInt();
@@ -2790,10 +2830,10 @@ int ScriptFunctions::moveText(lua_State* L){
       hold = true;
   }
 
-  Textout* text = Engine::instance()->getFontRenderer()->getTextout(id);
+  Textout* text = Engine::instance()->getFontRenderer()->getTextout(textnum);
 
   if (speed == 0 || ctx.mSkip){
-    TR_DETAIL("textout %i positioned to %i %i", id, newpos.x, newpos.y);
+    TR_DETAIL("textout %s positioned to %i %i", textnum.c_str(), newpos.x, newpos.y);
     Engine::instance()->getAnimator()->remove(text);
     text->setPosition(newpos);
   }
@@ -2908,7 +2948,10 @@ int ScriptFunctions::setObjAlpha(lua_State* L){
   else{
     std::string room;
     SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, room);
-    so->lighting.a = alpha;
+    if (so == NULL)
+      TR_ERROR("object %s not found", objname.c_str());
+    else
+      so->lighting.a = alpha;
   }
   return 0;
 }
