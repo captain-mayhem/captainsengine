@@ -28,6 +28,9 @@
 //#include <EFX-Util.h>
 #endif
 #include "EFXeffects.h"
+#ifndef AL_LOWPASS_MAX_GAIN
+#define AL_LOWPASS_MAX_GAIN 1.0f
+#endif
 #endif
 extern "C"{
 #include <libavcodec/avcodec.h>
