@@ -198,6 +198,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("rightclickstyle", rightClickStyle);
   interpreter->registerFunction("simclick", simClick);
   interpreter->registerFunction("setdsp", setDSP);
+  interpreter->registerFunction("coinreturn", coinReturn);
   srand((unsigned)time(NULL));
 }
 
@@ -1052,7 +1053,7 @@ int ScriptFunctions::command(lua_State* L){
   evt = Engine::instance()->getInterpreter()->getEngineEvent(cmd);
   ctx.setEvent(evt);
   Engine::instance()->setCommand(cmd, true);
-  if (Engine::instance()->getSettings()->coinActivated){
+  if (Engine::instance()->isCoinMenuActive()){
     if (Engine::instance()->applyCommandToSelObj(true))
       Engine::instance()->setCommand("none", false);
   }
@@ -1721,14 +1722,14 @@ int ScriptFunctions::function(lua_State* L){
 
 int ScriptFunctions::stopFunction(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string scriptname = ctx.stack().get(1).getString();
+  String scriptname = ctx.stack().get(1).getString();
   if (numArgs >= 2){
     String dummy = ctx.stack().get(2).getString();
     if (dummy != "inf")
       TR_BREAK("inf expected");
   }
   TR_DEBUG("Function %s stopped", scriptname.c_str());
-  ExecutionContext* stopped = Engine::instance()->getInterpreter()->removeScript(scriptname, false);
+  ExecutionContext* stopped = Engine::instance()->getInterpreter()->removeScript(scriptname.toLower(), false);
   if (stopped == &ctx){
     //script removes itself, skip remaining instructions
     ctx.mPC = 1000000;
@@ -1866,7 +1867,7 @@ int ScriptFunctions::bindText(lua_State* L){
     textnum = tmp;
   }
   else
-    textnum = textid.getString();
+    textnum = textid.getString().toLower();
   String room = ctx.stack().get(2).getString();
   if (room == "any"){
     room = Engine::instance()->getData()->getProjectSettings()->anywhere_room.c_str();
@@ -1895,7 +1896,7 @@ int ScriptFunctions::textOut(lua_State* L){
     textnum = tmp;
   }
   else
-    textnum = textid.getString();
+    textnum = textid.getString().toLower();
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(true);
   if (numArgs >= 2){
@@ -2094,7 +2095,7 @@ int ScriptFunctions::textHide(lua_State* L){
     textnum = tmp;
   }
   else
-    textnum = textid.getString();
+    textnum = textid.getString().toLower();
   Textout* txtout = Engine::instance()->getFontRenderer()->getTextout(textnum);
   txtout->setEnabled(false);
   return 0;
@@ -2659,7 +2660,7 @@ int ScriptFunctions::textAlign(lua_State* L){
     textnum = tmp;
   }
   else
-    textnum = textid.getString();
+    textnum = textid.getString().toLower();
   std::string alignstr = ctx.stack().get(2).getString();
   Alignment align;
   if (alignstr == "left")
@@ -2817,7 +2818,7 @@ int ScriptFunctions::moveText(lua_State* L){
     textnum = tmp;
   }
   else
-    textnum = textid.getString();
+    textnum = textid.getString().toLower();
 
   Vec2i newpos;
   newpos.x = ctx.stack().get(2).getInt();
@@ -3020,6 +3021,12 @@ int ScriptFunctions::setDSP(lua_State* L){
   if (!SoundEngine::instance()->setDSPEffect(effect)){
     TR_ERROR("cannot activate %s", effect.c_str());
   }
+  return 0;
+}
+
+int ScriptFunctions::coinReturn(lua_State* L){
+  NUM_ARGS(0, 0);
+  Engine::instance()->closeCoinMenu();
   return 0;
 }
 

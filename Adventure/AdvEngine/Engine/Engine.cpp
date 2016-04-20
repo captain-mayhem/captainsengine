@@ -419,6 +419,9 @@ void Engine::render(unsigned time){
     }
     else
       mUnloadedRoom = mRoomsToUnload.front();
+    if (mUnloadedRoom->getName() == mData->getProjectSettings()->coinRoom){
+      mCoinShown = false;
+    }
     mRoomsToUnload.pop_front();
     if (mRoomsToUnload.empty() && mPendingLoadRoom.room != NULL){
       //delayed load
@@ -927,13 +930,7 @@ void Engine::leftClick(const Vec2i& pos){
       resetCursor(true, true);
     }
   }
-  if (mCoinShown){
-    RoomObject* cr = getRoom(mData->getProjectSettings()->coinRoom);
-    if (cr){
-      unloadRoom(cr, false, false, NULL);
-      mCoinShown = false;
-    }
-  }
+  closeCoinMenu();
   trymtx.unlock();
 }
 
@@ -970,26 +967,20 @@ void Engine::rightClick(const Vec2i& pos){
   if (leftClickRequired)
     leftClick(pos);
   Object2D* obj = getObjectAt(pos);
+  EngineEvent evt = EVT_RIGHTCLICK;
   if (obj != NULL){
     ExecutionContext* script = obj->getScript();
-    if (mData->getProjectSettings()->coinActivated && mData->getProjectSettings()->coinAutoPopup){
+    if (mData->getProjectSettings()->coinActivated){
       mPrevClickedObject = obj;
-      popupCoinMenu(NULL);
-      if (script != NULL)
-        script->setEvent(EVT_CLICK);
+      if (mData->getProjectSettings()->coinAutoPopup){
+        popupCoinMenu(NULL);
+        evt = EVT_CLICK;
+      }
     }
-    else{
-      if (script != NULL)
-        script->setEvent(EVT_RIGHTCLICK);
-    }
+    if (script != NULL)
+      script->setEvent(evt);
   }
-  if (mCoinShown){
-    RoomObject* cr = getRoom(mData->getProjectSettings()->coinRoom);
-    if (cr){
-      unloadRoom(cr, false, false, NULL);
-      mCoinShown = false;
-    }
-  }
+  closeCoinMenu();
 }
 
 void Engine::doubleClick(const Vec2i& pos){
@@ -1833,6 +1824,15 @@ void Engine::popupCoinMenu(ExecutionContext* loadreason){
   if (mData->getProjectSettings()->coinActivated){
     loadSubRoom(mData->getProjectSettings()->coinRoom, loadreason, mData->getProjectSettings()->coinFading);
     mCoinShown = true;
+  }
+}
+
+void Engine::closeCoinMenu(){
+  if (mCoinShown){
+    RoomObject* cr = getRoom(mData->getProjectSettings()->coinRoom);
+    if (cr){
+      unloadRoom(cr, false, false, NULL);
+    }
   }
 }
 

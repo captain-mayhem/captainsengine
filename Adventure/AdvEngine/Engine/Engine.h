@@ -141,7 +141,9 @@ public:
   Console* getConsole() { return mConsole; }
   void finishTextInput(bool commit);
   void popupCoinMenu(ExecutionContext* loadreason);
+  void closeCoinMenu();
   void popupMenu();
+  bool isCoinMenuActive() { return mCoinShown; }
   bool applyCommandToSelObj(bool prevObj);
   void drawQuad();
   void drawQuadLines();

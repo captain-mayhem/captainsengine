@@ -55,6 +55,9 @@ public:
   **/
   static int charZoom(lua_State* L);
   /**
+  **/
+  static int coinReturn(lua_State* L);
+  /**
   \param command name of the command to set
   **/
   static int command(lua_State* L);
