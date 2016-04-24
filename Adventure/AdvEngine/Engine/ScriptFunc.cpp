@@ -1680,7 +1680,7 @@ int ScriptFunctions::stopParticles(lua_State* L){
 
 int ScriptFunctions::function(lua_State* L){
   NUM_ARGS(1, 2);
-  std::string scriptname = ctx.stack().get(1).getString();
+  std::string scriptname = ctx.stack().get(1).getString().toLower();
   TR_DEBUG("Function %s started", scriptname.c_str());
   ExecutionContext* func = Engine::instance()->getInterpreter()->getScript(scriptname);
   int numExecutions = 1;
@@ -3011,7 +3011,13 @@ int ScriptFunctions::simClick(lua_State* L){
   Object2D* obj = Engine::instance()->getObject(object, false);
   if (obj == NULL)
     luaL_argerror(L, 1, "not a clickable object");
-  Engine::instance()->leftClick(obj->getPosition()+obj->getScrollOffset());
+  if (obj && obj->getScript()){ //override current event by simclick
+    ExecutionContext* exec = obj->getScript();
+    EngineEvent evt = exec->getCommandEvent();
+    exec->resetEvent(evt);
+  }
+  //Engine::instance()->leftClick(obj->getPosition()+obj->getScrollOffset());
+  Engine::instance()->leftClickAt(obj);
   return 0;
 }
 

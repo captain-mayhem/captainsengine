@@ -46,6 +46,7 @@ public:
   void setCursorPos(Vec2i pos);
   Vec2i getCursorPos();
   void leftClick(const Vec2i& pos);
+  bool leftClickAt(const Object2D* obj);
   void leftRelease(const Vec2i& pos);
   void rightClick(const Vec2i& pos);
   void doubleClick(const Vec2i& pos);
@@ -89,7 +90,7 @@ public:
   void keyAscii(char chr);
   int unloadRooms(bool triggerExitScripts);
   std::string getCharacterClass(const std::string instanceName);
-  void showTaskbar(bool show) {mShowTaskbar = show;}
+  void showTaskbar(bool show);
   static unsigned roundToPowerOf2(unsigned x);
   void setScreenChange(ScreenChange sc) {mScreenChange = sc;}
   ScreenChange getScreenChange() {return mScreenChange;}
@@ -220,8 +221,8 @@ protected:
   std::string mGiveObjectName;
   std::string mLinkObjectInfo;
   Object2D* mCurrentObject;
-  Object2D* mClickedObject;
-  Object2D* mPrevClickedObject;
+  const Object2D* mClickedObject;
+  const Object2D* mPrevClickedObject;
   ExecutionContext* mMainScript;
   std::map<int,bool> mKeysDown;
   std::map<int,bool> mKeysPressed;

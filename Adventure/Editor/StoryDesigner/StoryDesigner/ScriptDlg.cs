@@ -392,6 +392,13 @@ namespace StoryDesigner
                         addMatch(lang.Key, match);
                     }
                     break;
+                case PcdkParser.ArgType.DSPEffect:
+                    foreach(DSPEffect effect in mData.Settings.DSPEffects)
+                    {
+                        addMatch(effect.name, match);
+                    }
+                    addMatch("off", match);
+                    break;
             }
         }
 
