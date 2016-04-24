@@ -77,12 +77,12 @@ public:
   Animation* getAnimation(int state);
   virtual bool isHit(const Vec2i& point);
   virtual void setScript(ExecutionContext* script) {mScript = script; if (script) script->setOwner(this);}
-  ExecutionContext* getScript() {return mScript;}
+  ExecutionContext* getScript() const {return mScript;}
   void setSuspensionScript(ExecutionContext* script);
   int getState() {return mState;}
   virtual void setState(int state) {mState = state; mNextStates.clear();}
   unsigned getNumDefinedStates();
-  const std::string& getName() {return mName;}
+  const std::string& getName() const {return mName;}
   virtual Vec2i getSize() {return mSize*mScale;}
   virtual void setScrollOffset(const Vec2i& offset) {mScrollOffset = offset;}
   Vec2i getScrollOffset() {return mScrollOffset;}

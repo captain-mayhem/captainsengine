@@ -431,11 +431,11 @@ void FontRenderer::load(std::istream& in, int version){
   }
 }
 
-void FontRenderer::disableBoundTextouts(RoomObject* room){
+void FontRenderer::enableBoundTextouts(RoomObject* room, bool enable){
   for (std::map<std::string, Textout*>::iterator iter = mTextouts.begin(); iter != mTextouts.end(); ++iter){
     Textout* txt = iter->second;
     if (txt->getBoundRoom() == room->getName()){
-      txt->setEnabled(false);
+      txt->setEnabled(enable);
     }
   }
 }

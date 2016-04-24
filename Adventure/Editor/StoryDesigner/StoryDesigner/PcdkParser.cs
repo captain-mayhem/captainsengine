@@ -35,6 +35,7 @@ namespace StoryDesigner
             VideoSwf,
             Language,
             LuaFunc,
+            DSPEffect,
         }
 
         public class ArgDef
@@ -299,6 +300,9 @@ namespace StoryDesigner
             addFunction("playavi", args);
             args = new ArgDef[0];
             addFunction("stopvideo", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Effectname", ArgType.DSPEffect);
+            addFunction("setdsp", args);
             args = new ArgDef[5];
             args[0] = new ArgDef("Video...", ArgType.VideoSwf);
             args[1] = new ArgDef("X (pixel)", ArgType.Integer, true);
@@ -691,6 +695,8 @@ namespace StoryDesigner
             args[2] = new ArgDef("Row 1-9", ArgType.Integer);
             args[2].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
             addFunction("activate", args);
+            args = new ArgDef[0];
+            addFunction("coinreturn", args);
             args = new ArgDef[3];
             args[0] = new ArgDef("Script", ArgType.Script);
             args[1] = new ArgDef("Level 1-9", ArgType.Integer);

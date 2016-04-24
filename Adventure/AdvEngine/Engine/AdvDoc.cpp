@@ -335,9 +335,12 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
     str = txtstream.readLine();
     mSettings.coinFading = atoi(str.c_str());
     str = txtstream.readLine();
-    mSettings.coinCenter.y = (int)(atoi(str.c_str()) / 130.0f*mSettings.resolution.y);
+    Vec2f div(130.0f, 180.0f);
+    if (ver_major >= 3 || (ver_major == 3) && ver_minor >= 5)
+      div = Vec2f(140.0f, 190.0f);
+    mSettings.coinCenter.y = (int)(atoi(str.c_str()) / div.x*mSettings.resolution.y);
     str = txtstream.readLine();
-    mSettings.coinCenter.x = (int)(atoi(str.c_str()) / 180.0f*mSettings.resolution.x);
+    mSettings.coinCenter.x = (int)(atoi(str.c_str()) / div.y*mSettings.resolution.x);
   }
   else{
     mSettings.coinActivated = false;

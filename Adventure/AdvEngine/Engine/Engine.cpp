@@ -746,7 +746,7 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
 
   roomobj->realize();
   if (mData->getProjectSettings()->coinActivated && roomobj->getName() == mData->getProjectSettings()->coinRoom){
-    roomobj->setPosition(getCursorPos()-mData->getProjectSettings()->coinCenter);
+    roomobj->setPosition(getCursorPos()-mData->getProjectSettings()->coinCenter+mCursor->getSize()/2);
   }
   TR_USE(ADV_Console);
   TR_INFO("Room \"%s\" loaded.", roomobj->getName().c_str());
@@ -824,7 +824,7 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately, Execu
   else{
     if (!mainroom){
       if (room->getFadeout() > 0){
-        mFonts->disableBoundTextouts(room);
+        mFonts->enableBoundTextouts(room, false);
         mAnimator->add(room, room->getFadeout(), false);
       }
     }
@@ -904,7 +904,17 @@ void Engine::leftClick(const Vec2i& pos){
   trymtx.lock();
   ExecutionContext* script = NULL;
   Object2D* obj = getObjectAt(pos);
+  bool handled = leftClickAt(obj);
+  if (!handled){
+    Engine::instance()->walkTo(mFocussedChar, pos - mScrollOffset, UNSPECIFIED, 1.0f);
+  }
+  trymtx.unlock();
+}
+
+bool Engine::leftClickAt(const Object2D* obj){
+  ExecutionContext* script = NULL;
   bool keepCommand = false;
+  bool ret = true;
   if (obj != NULL){
     if (obj->getScript() != NULL && !obj->getScript()->isGameObject())
       keepCommand = true;
@@ -912,11 +922,11 @@ void Engine::leftClick(const Vec2i& pos){
       mPrevClickedObject = mClickedObject;
     mClickedObject = obj;
     if (!applyCommandToSelObj(false) && mFocussedChar && !mSubRoomLoaded){
-      Engine::instance()->walkTo(mFocussedChar, pos - mScrollOffset, UNSPECIFIED, 1.0f);
+      ret = false;
     }
   }
   else if (mFocussedChar && !mSubRoomLoaded && !mInterpreter->isBlockingScriptRunning()){
-    Engine::instance()->walkTo(mFocussedChar, pos-mScrollOffset, UNSPECIFIED, 1.0f);
+    ret = false;
   }
   if (!keepCommand){
     int curCmd = mCursor->getCurrentCommand();
@@ -931,7 +941,7 @@ void Engine::leftClick(const Vec2i& pos){
     }
   }
   closeCoinMenu();
-  trymtx.unlock();
+  return ret;
 }
 
 void Engine::leftRelease(const Vec2i& pos){
@@ -971,6 +981,7 @@ void Engine::rightClick(const Vec2i& pos){
   if (obj != NULL){
     ExecutionContext* script = obj->getScript();
     if (mData->getProjectSettings()->coinActivated){
+      Engine::instance()->walkTo(mFocussedChar, pos - mScrollOffset, UNSPECIFIED, 1.0f);
       mPrevClickedObject = obj;
       if (mData->getProjectSettings()->coinAutoPopup){
         popupCoinMenu(NULL);
@@ -1837,7 +1848,7 @@ void Engine::closeCoinMenu(){
 }
 
 bool Engine::applyCommandToSelObj(bool prevObj){
-  Object2D* obj = prevObj ? mPrevClickedObject : mClickedObject;
+  const Object2D* obj = prevObj ? mPrevClickedObject : mClickedObject;
   if (!obj)
     return false;
   ExecutionContext* script = obj->getScript();
@@ -1905,4 +1916,9 @@ void Engine::popupMenu(){
       mAnimator->add(menu, mData->getProjectSettings()->menu_fading, true);
     }
   }
+}
+
+void Engine::showTaskbar(bool show) { 
+  mShowTaskbar = show;
+  mFonts->enableBoundTextouts(mTaskbar, show);
 }
