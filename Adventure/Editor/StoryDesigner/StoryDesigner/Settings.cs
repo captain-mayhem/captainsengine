@@ -213,8 +213,8 @@ namespace StoryDesigner
             this.coin_autopopup.Checked = mData.Settings.CoinAutoPopup;
             this.coin_fading.Value = mData.Settings.CoinFading;
             //crosshair
-            float xrange = (float)mData.Settings.CoinCenter.x / 180;
-            float yrange = (float)mData.Settings.CoinCenter.y / 130;
+            float xrange = (float)mData.Settings.CoinCenter.x / 190;
+            float yrange = (float)mData.Settings.CoinCenter.y / 140;
             mCoinCenter = new Vec2i((int)(coinCenter.Size.Width * xrange), (int)(coinCenter.Size.Height * yrange));
             this.coinCenter.Paint += new PaintEventHandler(coinCenter_Paint);
             this.coinCenter.MouseDown += coinCenter_MouseDown;
@@ -389,7 +389,7 @@ namespace StoryDesigner
             //crosshair
             float xrange = (float)mCoinCenter.x / coinCenter.Size.Width;
             float yrange = (float)mCoinCenter.y / coinCenter.Size.Height;
-            mData.Settings.CoinCenter = mCoinCenter = new Vec2i((int)(180 * xrange), (int)(130 * yrange));
+            mData.Settings.CoinCenter = mCoinCenter = new Vec2i((int)(190 * xrange), (int)(140 * yrange));
             //sixth page
             mData.Settings.PngToJpeg = this.pngToJpeg.Checked;
             mData.Persistence.CropTransparentImages = this.cropTransparent.Checked;

@@ -579,7 +579,7 @@ namespace StoryDesigner
 
             //text commands
             args = new ArgDef[8];
-            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            args[0] = new ArgDef("Textout Name", ArgType.String);
             args[1] = new ArgDef("Textline", mLanguage == ProjectSettings.ScriptLang.LUA ? ArgType.LuaFunc : ArgType.String, true);
             args[2] = new ArgDef("X (pixel)", ArgType.Integer, true);
             args[3] = new ArgDef("Y (pixel)", ArgType.Integer, true);
@@ -589,15 +589,15 @@ namespace StoryDesigner
             args[7] = new ArgDef("Blue Color Value (0-255)", ArgType.Integer, true);
             addFunction("textout", args);
             args = new ArgDef[1];
-            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            args[0] = new ArgDef("Textout Name", ArgType.String);
             addFunction("texthide", args);
             args = new ArgDef[2];
-            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            args[0] = new ArgDef("Textout Name", ArgType.String);
             args[1] = new ArgDef("Room (or any / taskbar / menu)", ArgType.Room);
             args[1].AdditionalValues = new string[] { "any", "taskbar", "menu" };
             addFunction("bindtext", args);
             args = new ArgDef[2];
-            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            args[0] = new ArgDef("Textout Name", ArgType.String);
             args[1] = new ArgDef("left / center / right", ArgType.String);
             args[1].AdditionalValues = new string[] { "left", "center", "right" };
             addFunction("textalign", args);
@@ -606,7 +606,7 @@ namespace StoryDesigner
             args = new ArgDef[0];
             addFunction("hidealltext", args);
             args = new ArgDef[5];
-            args[0] = new ArgDef("Textout number (1-1000) ", ArgType.Integer);
+            args[0] = new ArgDef("Textout Name", ArgType.String);
             args[1] = new ArgDef("X (pixel)", ArgType.Integer);
             args[2] = new ArgDef("Y (pixel)", ArgType.Integer);
             args[3] = new ArgDef("Speed 0=Immediately 9=Slow OR time in ms", ArgType.Integer);

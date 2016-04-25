@@ -50,10 +50,21 @@ func_call returns [FuncCallNode* func]
 ;
 	
 event_handler returns [EventNode* evt]
-	:	ON LPAREN id=ident RPAREN evtblock=block
+@init{ $evt = NULL;}
+	:	ON LPAREN id=ident 
 	{
 		std::string eventname = id.id->value(); delete id.id;
-		$evt = new EventNode(eventname, evtblock.nodes);
+		$evt = new EventNode(eventname, NULL);
+	}
+	(
+	SEMICOLON
+	id2=ident {
+		std::string eventname = id2.id->value(); delete id2.id;
+		((EventNode*)$evt)->addEvent(eventname);
+	}
+	)*
+	RPAREN evtblock=block {
+		((EventNode*)$evt)->setEventBlock(evtblock.nodes);
 	}
 	;
 	

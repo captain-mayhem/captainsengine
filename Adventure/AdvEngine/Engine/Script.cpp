@@ -522,13 +522,26 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::EVENT:{
         EventNode* evt = static_cast<EventNode*>(node);
-        EngineEvent evtcode = getEngineEvent(evt->getEvent());
-        //duplicate event handler
-        if (mEvents.find(evtcode) != mEvents.end()){
-          TR_ERROR("duplicate event handler %i - ignoring...", evtcode);
-          break;
+        unsigned numEvents = evt->getNumEvents();
+        EngineEvent evtcode = EVT_NONE;
+        for (unsigned i = 0; i < numEvents; ++i){
+          evtcode = getEngineEvent(evt->getEvent(i));
+          //duplicate event handler
+          if (mEvents.find(evtcode) != mEvents.end()){
+            TR_ERROR("duplicate event handler %i - ignoring...", evtcode);
+            break;
+          }
+          mEvents.insert(evtcode);
+          if (i < numEvents - 1){
+            //handle multiple events
+            if (evtcode == EVT_LOOP1 || evtcode == EVT_LOOP2)
+              TR_BREAK("Not handled correctly yet.");
+            CBEEVT* cevt = new CBEEVT(evtcode);
+            cevt->setOffset(numEvents - i);
+            codes->addCode(cevt);
+            ++count;
+          }
         }
-        mEvents.insert(evtcode);
         CodeSegment* oldcodes = codes;
         if (evtcode == EVT_LOOP1){
           CodeSegment* cs = new CodeSegment;

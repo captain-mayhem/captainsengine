@@ -50,6 +50,7 @@ public:
     SLOAD,
     BRK,
     FCPUSH,
+    BEEVT,
   };
   CCode(){}
   virtual ~CCode(){}
@@ -130,6 +131,19 @@ public:
   virtual Type getType(){return BNEEVT;}
   virtual void save(std::ostream& out);
   EngineEvent getEvent() {return mEvent;}
+protected:
+  EngineEvent mEvent;
+};
+
+class CBEEVT : public CBRA{
+public:
+  CBEEVT(EngineEvent event) : mEvent(event) {}
+  CBEEVT(std::istream& in);
+  virtual ~CBEEVT() {}
+  virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
+  virtual Type getType(){ return BEEVT; }
+  virtual void save(std::ostream& out);
+  EngineEvent getEvent() { return mEvent; }
 protected:
   EngineEvent mEvent;
 };

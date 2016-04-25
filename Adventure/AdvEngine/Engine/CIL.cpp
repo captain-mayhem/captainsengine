@@ -15,6 +15,15 @@ unsigned CBNEEVT::execute(ExecutionContext& ctx, unsigned pc){
   return pc+mOffset;
 }
 
+unsigned CBEEVT::execute(ExecutionContext& ctx, unsigned pc){
+  //check if event is set
+  if (ctx.isEventSet(mEvent)){
+    ctx.setEventHandled();
+    return pc + mOffset;
+  }
+  return ++pc;
+}
+
 unsigned CBNEROW::execute(ExecutionContext& ctx, unsigned pc){
   lua_State* L = ctx.getState();
   lua_getglobal(L, "row");
@@ -235,6 +244,8 @@ CCode* CCode::load(std::istream& in){
       return new CI2R();
     case FCPUSH:
       return new CFCPUSH(in);
+    case BEEVT:
+      return new CBEEVT(in);
     default:
       TR_BREAK("Input stream corrupted?");
   }
@@ -284,6 +295,17 @@ void CBNEEVT::save(std::ostream& out){
 }
 
 CBNEEVT::CBNEEVT(std::istream& in) : CBRA(in){
+  int tmp;
+  in >> tmp;
+  mEvent = (EngineEvent)tmp;
+}
+
+void CBEEVT::save(std::ostream& out){
+  CBRA::save(out);
+  out << " " << (int)mEvent;
+}
+
+CBEEVT::CBEEVT(std::istream& in) : CBRA(in){
   int tmp;
   in >> tmp;
   mEvent = (EngineEvent)tmp;
