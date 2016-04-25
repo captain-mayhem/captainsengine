@@ -152,16 +152,21 @@ protected:
 class EventNode : public StmtNode{
 public:
   EventNode(const std::string& event, NodeList* eventblock) : StmtNode(EVENT){
-    mEvent = event;
+    mEvents.push_back(event);
     mBlock = eventblock;
   }
   ~EventNode(){
     delete mBlock;
   }
-  std::string getEvent() {return mEvent;}
+  void addEvent(const std::string& event){
+    mEvents.push_back(event);
+  }
+  void setEventBlock(NodeList* block) { mBlock = block; }
+  std::string getEvent(unsigned idx) {return mEvents[idx];}
+  unsigned getNumEvents() { return (unsigned)mEvents.size(); }
   NodeList* getBlock() {return mBlock;}
 protected:
-  std::string mEvent;
+  std::vector<std::string> mEvents;
   NodeList* mBlock;
 };
 
