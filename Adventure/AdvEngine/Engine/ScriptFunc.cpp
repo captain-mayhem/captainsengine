@@ -1162,9 +1162,21 @@ int ScriptFunctions::saveGame(lua_State* L){
 }
 
 int ScriptFunctions::loadGame(lua_State* L){
-  NUM_ARGS(1, 1);
+  NUM_ARGS(1, 2);
   int slot = ctx.stack().get(1).getInt();
   Engine::instance()->getSaver()->load(SaveStateProvider::saveSlotToPath(slot), true);
+  if (numArgs >= 2){
+    //execute script after load
+    std::string funcname = ctx.stack().get(2).getString().toLower();
+    ExecutionContext* loadfunc = Engine::instance()->getInterpreter()->getScript(funcname);
+    if (!Engine::instance()->getInterpreter()->executeImmediately(loadfunc)){
+      Engine::instance()->getInterpreter()->removeScript(funcname, true);
+      Engine::instance()->getInterpreter()->execute(loadfunc, true);
+    }
+    else{
+      Engine::instance()->getInterpreter()->removeScript(funcname, false);
+    }
+  }
   return 0;
 }
 

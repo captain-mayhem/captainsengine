@@ -53,6 +53,11 @@ public:
     y += v.y;
     return *this;
   }
+  Vec2& operator-=(const Vec2& v){
+    x -= v.x;
+    y -= v.y;
+    return *this;
+  }
   Vec2 operator*(float num) const{
     Vec2 result;
     result.x = (T)(x*num);

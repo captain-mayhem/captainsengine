@@ -419,7 +419,7 @@ void Engine::render(unsigned time){
     }
     else
       mUnloadedRoom = mRoomsToUnload.front();
-    if (mUnloadedRoom->getName() == mData->getProjectSettings()->coinRoom){
+    if (mUnloadedRoom && mUnloadedRoom->getName() == mData->getProjectSettings()->coinRoom){
       mCoinShown = false;
     }
     mRoomsToUnload.pop_front();
@@ -746,10 +746,23 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
 
   roomobj->realize();
   if (mData->getProjectSettings()->coinActivated && roomobj->getName() == mData->getProjectSettings()->coinRoom){
-    roomobj->setPosition(getCursorPos()-mData->getProjectSettings()->coinCenter+mCursor->getSize()/2);
+    Vec2i coinpos = getCursorPos() - mData->getProjectSettings()->coinCenter + mCursor->getSize() / 2;
+    Vec2i cmin, cmax;
+    roomobj->getBBox(cmin, cmax);
+    if (coinpos.x + cmin.x < 0)
+      coinpos.x = -cmin.x;
+    if (coinpos.y + cmin.y < 0)
+      coinpos.y = -cmin.y;
+    if (coinpos.x + cmax.x > mData->getProjectSettings()->resolution.x)
+      coinpos.x = mData->getProjectSettings()->resolution.x-cmax.x;
+    if (coinpos.y + cmax.y > mData->getProjectSettings()->resolution.y)
+      coinpos.y = mData->getProjectSettings()->resolution.y - cmax.y;
+    roomobj->setPosition(coinpos);
   }
-  TR_USE(ADV_Console);
-  TR_INFO("Room \"%s\" loaded.", roomobj->getName().c_str());
+  else{
+    TR_USE(ADV_Console);
+    TR_INFO("Room \"%s\" loaded.", roomobj->getName().c_str());
+  }
 
   if (isSubRoom){
     mRooms.push_front(roomobj);
@@ -1853,8 +1866,7 @@ bool Engine::applyCommandToSelObj(bool prevObj){
     return false;
   ExecutionContext* script = obj->getScript();
   if (script != NULL){
-    if (!prevObj) //from coin menu - click handler was already executed
-      script->setEvent(EVT_CLICK);
+    script->setEvent(EVT_CLICK);
     if (!mUseObjectName.empty()){
       script->setUseObjectName(mUseObjectName);
       script->setEvent(EVT_LINK);
