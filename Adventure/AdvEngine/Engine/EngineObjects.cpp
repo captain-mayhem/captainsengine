@@ -900,6 +900,27 @@ void RoomObject::realize(){
   }
 }
 
+void RoomObject::getBBox(Vec2i& min, Vec2i& max){
+  min.x = INT_MAX; min.y = INT_MAX;
+  max.x = INT_MIN; max.y = INT_MIN;
+  for (unsigned i = 0; i < mObjects.size(); ++i){
+    if (!mObjects[i]->getAnimation()->exists())
+      continue;
+    Vec2i minpos = mObjects[i]->getPosition();
+    Vec2i maxpos = minpos+mObjects[i]->getSize();
+    if (minpos.x < min.x)
+      min.x = minpos.x;
+    if (minpos.y < min.y)
+      min.y = minpos.y;
+    if (maxpos.x > max.x)
+      max.x = maxpos.x;
+    if (maxpos.y > max.y)
+      max.y = maxpos.y;
+  }
+  min -= mPos;
+  max -= mPos;
+}
+
 CharacterObject::CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(mirror), mTextColor(), 
 mFontID(0), mLinkObject(NULL), mNoZooming(false), mFrozenScale(1.0f), mIdleTime(0),

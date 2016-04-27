@@ -208,6 +208,7 @@ public:
   float getWalkGridSize();
   virtual void realize();
   bool unbindScript(ExecutionContext* ctx);
+  void getBBox(Vec2i& min, Vec2i& max);
 protected:
   class DepthMap {
   public:

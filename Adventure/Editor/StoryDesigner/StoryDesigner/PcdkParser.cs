@@ -753,9 +753,10 @@ namespace StoryDesigner
             args[0] = new ArgDef("Gamesave slot 1-10", ArgType.Integer);
             args[0].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
             addFunction("savegame", args);
-            args = new ArgDef[1];
+            args = new ArgDef[2];
             args[0] = new ArgDef("Gamesave slot 1-10", ArgType.Integer);
             args[0].AdditionalValues = new string[] { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+            args[1] = new ArgDef("Script", ArgType.Script, true);
             addFunction("loadgame", args);
             args = new ArgDef[1];
             args[0] = new ArgDef("true / false", ArgType.Boolean);
