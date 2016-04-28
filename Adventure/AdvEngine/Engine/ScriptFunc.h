@@ -163,6 +163,10 @@ public:
   **/
   static int invUp(lua_State* L);
   /**
+  \param item the item to simulate click on
+  **/
+  static int itemSimClick(lua_State* L);
+  /**
   \param seconds time to jiggle
   \param power how strong the jiggling is
   **/

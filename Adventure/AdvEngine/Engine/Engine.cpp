@@ -806,13 +806,13 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately, Execu
       return; //unload already in progress
   }
   mRoomsToUnload.push_back(room);
-  if (mCurrentObject){
+  if (mainroom && mCurrentObject){
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
     delete mDraggingObject;
     mDraggingObject = NULL;
     resetCursor(true, false);
+    mCurrentObject = NULL;
   }
-  mCurrentObject = NULL;
   ExecutionContext* script = room->getScript();
   if (script)
     script->setEvent(EVT_EXIT);
@@ -994,7 +994,6 @@ void Engine::rightClick(const Vec2i& pos){
   if (obj != NULL){
     ExecutionContext* script = obj->getScript();
     if (mData->getProjectSettings()->coinActivated){
-      Engine::instance()->walkTo(mFocussedChar, pos - mScrollOffset, UNSPECIFIED, 1.0f);
       mPrevClickedObject = obj;
       if (mData->getProjectSettings()->coinAutoPopup){
         popupCoinMenu(NULL);
@@ -1252,7 +1251,7 @@ RoomObject* Engine::getRoom(const std::string& name){
   return NULL;
 }
 
-void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor){
+bool Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor){
   float walkgridsize = chr->getWalkGridSize();
   Vec2f oldwmpos = ((Vec2f)chr->getPosition())/walkgridsize;
   Vec2f newwmpos = ((Vec2f)pos)/walkgridsize;
@@ -1275,7 +1274,7 @@ void Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float s
     TR_USE(ADV_Engine);
     TR_BREAK("Character not found");
   }
-  mAnimator->add(chr, path, (10-ch->walkspeed)*speedFactor);
+  return mAnimator->add(chr, path, (10-ch->walkspeed)*speedFactor);
 }
 
 ItemObject* Engine::createItem(const std::string& name, int count){
@@ -1320,7 +1319,7 @@ void Engine::handleDragging(const std::string& object){
     if (object.empty() || mClickedObject == NULL)
       mDraggingObject = NULL;
     else{
-      mDraggingObject = createItem(mClickedObject->getName(), 1);
+      mDraggingObject = createItem(mCoinShown ? mPrevClickedObject->getName() : mClickedObject->getName(), 1);
       if (mDraggingObject){
         mDraggingObject->realize();
         mDraggingObject->setDepth(DEPTH_CURSOR-1);

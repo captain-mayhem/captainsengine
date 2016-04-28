@@ -39,7 +39,7 @@ class Animator{
 public:
   Animator();
   ~Animator();
-  void add(Object2D* obj, const std::list<Vec2i>& targetpath, float speedfactor);
+  bool add(Object2D* obj, const std::list<Vec2i>& targetpath, float speedfactor);
   void remove(Object2D* obj);
   void remove(RoomObject* room);
   void update(unsigned interval);

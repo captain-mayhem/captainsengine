@@ -18,7 +18,7 @@ Animator::~Animator(){
 
 }
 
-void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, float speedfactor){
+bool Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, float speedfactor){
   std::map<Object2D*,ObjectAnim>::iterator iter = mObjects.find(obj);
   if (iter != mObjects.end()){
     if (!targetpath.empty())
@@ -27,7 +27,7 @@ void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, float spee
   }
   if (targetpath.empty()){
     obj->animationEnd(obj->getPosition());
-    return;
+    return false;
   }
   ObjectAnim anim;
   //anim.object = obj;
@@ -50,7 +50,9 @@ void Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, float spee
   }
   else{
     obj->animationEnd(anim.startpos);
+    return false;
   }
+  return true;
 }
 
 void Animator::remove(Object2D* obj){

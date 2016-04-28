@@ -67,7 +67,7 @@ public:
   FontRenderer* getFontRenderer() {return mFonts;}
   void setObjectString(const std::string info) {mObjectInfo = info;}
   void setObjectTooltipString(const std::string& info) {mObjectTooltipInfo = info;}
-  void walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor);
+  bool walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor);
   Animator* getAnimator() {return mAnimator;}
   SaveStateProvider* getSaver() {return mSaver;}
   Vec2i getResolution() {return mData->getProjectSettings()->resolution;}
