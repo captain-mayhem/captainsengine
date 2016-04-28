@@ -199,6 +199,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("simclick", simClick);
   interpreter->registerFunction("setdsp", setDSP);
   interpreter->registerFunction("coinreturn", coinReturn);
+  interpreter->registerFunction("itemsimclick", itemSimClick);
   srand((unsigned)time(NULL));
 }
 
@@ -285,11 +286,11 @@ int ScriptFunctions::moveTo(lua_State* L, float speedFactor){
   if (chr){
     pos = pos * chr->getWalkGridSize() + 
       Vec2f(chr->getWalkGridSize()/2, chr->getWalkGridSize()/2);
-    if (!ctx.isSkipping() && hold){
+    bool isWalking = Engine::instance()->walkTo(chr, pos, dir, speedFactor);
+    if (isWalking && !ctx.isSkipping() && hold){
       chr->setSuspensionScript(&ctx);
       ctx.mSuspended = true;
     }
-    Engine::instance()->walkTo(chr, pos, dir, speedFactor);
   }
   RET_MAY_YIELD(0);
 }
@@ -3045,6 +3046,21 @@ int ScriptFunctions::setDSP(lua_State* L){
 int ScriptFunctions::coinReturn(lua_State* L){
   NUM_ARGS(0, 0);
   Engine::instance()->closeCoinMenu();
+  return 0;
+}
+
+int ScriptFunctions::itemSimClick(lua_State* L){
+  NUM_ARGS(1, 1);
+  std::string object = luaL_checkstring(L, 1);
+  Object2D* obj = Engine::instance()->getObject(object, true);
+  if (obj == NULL)
+    luaL_argerror(L, 1, "not a clickable object");
+  if (obj && obj->getScript()){ //override current event by simclick
+    ExecutionContext* exec = obj->getScript();
+    EngineEvent evt = exec->getCommandEvent();
+    exec->resetEvent(evt);
+  }
+  Engine::instance()->leftClickAt(obj);
   return 0;
 }
 

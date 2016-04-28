@@ -1139,8 +1139,8 @@ EngineEvent PcdkScript::getEngineEvent(const std::string eventname){
     }
   }
   TR_USE(ADV_Script);
-  TR_BREAK("Unknown event %s", eventname.c_str());
-  return EVT_NONE;
+  TR_ERROR("Unknown event %s", eventname.c_str());
+  return EVT_UNKNOWN;
 }
 
 void PcdkScript::clickEndHandler(ExecutionContext& ctx){
