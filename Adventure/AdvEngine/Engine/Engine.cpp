@@ -655,15 +655,19 @@ void Engine::render(unsigned time){
       text = mData->getProjectSettings()->pretty_commands[cmdidx];
     if (!mUseObjectName.empty()){
       text += " "+mLinkObjectInfo;
-      if (mData->hasLanguageInfo())
-        text += " "+mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, 1);
+      if (mData->hasLanguageInfo()){
+        int idx = mData->getLanguageIndex("origin", Language::COMMANDS, mData->getProjectSettings()->linktext);
+        text += " " + mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, idx);
+      }
       else
         text += " "+mData->getProjectSettings()->linktext;
     }
     if (!mGiveObjectName.empty()){
       text += " "+mLinkObjectInfo;
-      if (mData->hasLanguageInfo())
-        text += " "+mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, 2);
+      if (mData->hasLanguageInfo()){
+        int idx = mData->getLanguageIndex("origin", Language::COMMANDS, mData->getProjectSettings()->givelink);
+        text += " " + mData->getLanguageString(getInterpreter()->getLanguage(), Language::COMMANDS, idx);
+      }
       else
         text += " "+mData->getProjectSettings()->givelink;
     }
@@ -1173,6 +1177,8 @@ Object2D* Engine::getObjectAt(const Vec2i& pos){
   if (ret != NULL)
     return ret;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
+    if ((*iter) == mTaskbar && !mShowTaskbar)
+      continue;
     Object2D* ret = (*iter)->getObjectAt(pos);
     if (ret != NULL)
       return ret;
@@ -1346,11 +1352,13 @@ void Engine::addUIElement(Object2D* elem, int offset){
 void Engine::setCommand(const std::string& command, bool deleteLinks){
   if (command == "none"){
     int cmd = mData->getProjectSettings()->commands["walkto"];
+    mPrevActiveCommand = mActiveCommand;
     mActiveCommand = cmd;
     mCursor->setState(1);
   }
   else{
     int cmd = mData->getProjectSettings()->commands[command];
+    mPrevActiveCommand = mActiveCommand;
     mActiveCommand = cmd;
     mCursor->setCommand(cmd);
   }

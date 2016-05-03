@@ -227,9 +227,11 @@ bool Object2D::isHit(const Vec2i& point){
   return false;
 }
 
-void Object2D::animationEnd(const Vec2i& prev){
+void Object2D::animationEnd(const Vec2i& prev, bool aborted){
   if (mSuspensionScript){
     mSuspensionScript->resume();
+    if (aborted)
+      mSuspensionScript->reset(true, true);
     mSuspensionScript->unref();
     mSuspensionScript = NULL;
   }
@@ -1017,7 +1019,7 @@ void CharacterObject::animationWaypoint(const Vec2i& prev, const Vec2i& next){
   }
 }
 
-void CharacterObject::animationEnd(const Vec2i& prev){
+void CharacterObject::animationEnd(const Vec2i& prev, bool aborted){
   int ycoord = getPosition().y;
   if (prev.y-ycoord != 0){
     setDepth((int)(ycoord/Engine::instance()->getWalkGridSize(true)));
@@ -1027,7 +1029,7 @@ void CharacterObject::animationEnd(const Vec2i& prev){
     mDesiredDir = UNSPECIFIED;
   }
   setWalking(false);
-  Object2D::animationEnd(prev);
+  Object2D::animationEnd(prev, aborted);
   if (mWalkSound){
     mWalkSound->stop();
     mWalkSound->seek(0);
@@ -1295,7 +1297,7 @@ void CharacterObject::abortClick(){
   if (mSuspensionScript != NULL){
     if (!mSuspensionScript->getEvents().empty() && mSuspensionScript->getEvents().front() == EVT_CLICK){
       mSuspensionScript->getEvents().pop_front();
-      Object2D::animationEnd(Vec2i());
+      Object2D::animationEnd(Vec2i(), false);
     }
   }
   Engine::instance()->getAnimator()->remove(this);
