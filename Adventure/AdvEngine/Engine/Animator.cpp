@@ -22,11 +22,11 @@ bool Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, float spee
   std::map<Object2D*,ObjectAnim>::iterator iter = mObjects.find(obj);
   if (iter != mObjects.end()){
     if (!targetpath.empty())
-      obj->animationEnd(targetpath.front());
+      obj->animationEnd(targetpath.front(), true);
     mObjects.erase(iter);
   }
   if (targetpath.empty()){
-    obj->animationEnd(obj->getPosition());
+    obj->animationEnd(obj->getPosition(), false);
     return false;
   }
   ObjectAnim anim;
@@ -49,7 +49,7 @@ bool Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, float spee
     mObjects[obj] = anim;
   }
   else{
-    obj->animationEnd(anim.startpos);
+    obj->animationEnd(anim.startpos, false);
     return false;
   }
   return true;
@@ -58,7 +58,7 @@ bool Animator::add(Object2D* obj, const std::list<Vec2i>& targetpath, float spee
 void Animator::remove(Object2D* obj){
   std::map<Object2D*,ObjectAnim>::iterator iter = mObjects.find(obj);
   if (iter != mObjects.end()){
-    obj->animationEnd(obj->getPosition());
+    obj->animationEnd(obj->getPosition(), false);
     mObjects.erase(iter);
   }
   for (std::list<DynamicAnimation*>::iterator iter = mAnimations.begin(); iter != mAnimations.end(); ++iter){
@@ -126,7 +126,7 @@ void Animator::update(unsigned interval){
       //goal reached
       iter->second.path.pop_front();
       if (iter->second.path.empty()){
-        iter->first->animationEnd(iter->second.startpos);
+        iter->first->animationEnd(iter->second.startpos, false);
         toErase.push_back(iter->first);
       }
       else{
@@ -135,7 +135,7 @@ void Animator::update(unsigned interval){
         while(!iter->second.path.empty() && iter->second.path.front() == iter->second.startpos)
           iter->second.path.pop_front();
         if (iter->second.path.empty()){
-          iter->first->animationEnd(iter->second.startpos);
+          iter->first->animationEnd(iter->second.startpos, false);
           toErase.push_back(iter->first);
         }
         else{

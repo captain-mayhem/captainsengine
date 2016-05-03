@@ -70,7 +70,7 @@ public:
   virtual Vec2i getPosition() {return mPos;}
   virtual void animationBegin(const Vec2i& next) {}
   virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next) {}
-  virtual void animationEnd(const Vec2i& prev);
+  virtual void animationEnd(const Vec2i& prev, bool aborted);
   virtual bool animationEnded(Animation* anim);
   void addAnimation(Animation* anim) {mAnimations.push_back(anim);}
   Animation* getAnimation();
@@ -247,7 +247,7 @@ public:
   void setDepth(int depth);
   virtual void animationBegin(const Vec2i& next);
   virtual void animationWaypoint(const Vec2i& prev, const Vec2i& next);
-  virtual void animationEnd(const Vec2i& prev);
+  virtual void animationEnd(const Vec2i& prev, bool aborted);
   virtual void setState(int state);
   void setLookDir(LookDir dir);
   void setLookDir(const Vec2i& dir);
