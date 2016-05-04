@@ -442,13 +442,15 @@ namespace StoryDesigner
             args[1] = new ArgDef("Viewing Direction (1-4) OR Character", ArgType.Character, true);
             args[1].AdditionalValues = new string[] { "1", "2", "3", "4" };
             addFunction("lookto", args);
-            args = new ArgDef[4];
+            args = new ArgDef[5];
             args[0] = new ArgDef("Character", ArgType.Character);
             args[1] = new ArgDef("Speech Text", ArgType.String);
             args[2] = new ArgDef("Speech Soundfile OR 'dontwait')", ArgType.Sound, true);
             args[2].AdditionalValues = new string[] { "dontwait" };
-            args[3] = new ArgDef("Optional: dontwait", ArgType.String, true);
+            args[3] = new ArgDef("Optional: DSP Effect OR 'dontwait')", ArgType.DSPEffect, true);
             args[3].AdditionalValues = new string[] { "dontwait" };
+            args[4] = new ArgDef("Optional: dontwait", ArgType.String, true);
+            args[4].AdditionalValues = new string[] { "dontwait" };
             addFunction("speech", args);
             args = new ArgDef[5];
             args[0] = new ArgDef("X (walkmap)", ArgType.Integer);
@@ -489,6 +491,12 @@ namespace StoryDesigner
             args[0] = new ArgDef("Character", ArgType.Character);
             args[1] = new ArgDef("Character", ArgType.Character);
             addFunction("switchchar", args);
+            args = new ArgDef[3];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            args[1] = new ArgDef("Alpha Value (0-255)", ArgType.Integer);
+            args[2] = new ArgDef("fade (Optional)", ArgType.String, true);
+            args[2].AdditionalValues = new string[] { "fade" };
+            addFunction("setcharalpha", args);
             args = new ArgDef[5];
             args[0] = new ArgDef("Character", ArgType.Character);
             args[1] = new ArgDef("Red Color Value (0-255)", ArgType.Integer);
@@ -554,6 +562,9 @@ namespace StoryDesigner
             addFunction("link", args);
             args = new ArgDef[0];
             addFunction("givelink", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Item", ArgType.Item);
+            addFunction("itemsimclick", args);
 
             //special effects
             args = new ArgDef[1];
