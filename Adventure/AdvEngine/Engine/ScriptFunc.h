@@ -368,6 +368,12 @@ public:
   static int setChar(lua_State* L);
   /**
   \param char name of the character instance
+  \param a alpha value
+  \param fade [opt] do a fading to the color
+  **/
+  static int setCharAlpha(lua_State* L);
+  /**
+  \param char name of the character instance
   \param r red component
   \param g green component
   \param b blue component

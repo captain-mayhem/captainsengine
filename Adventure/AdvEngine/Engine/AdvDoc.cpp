@@ -352,7 +352,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
       size_t pos = str.find(';', 0);//dsp
       pos = str.find(';', pos + 1);//id
       size_t newpos = str.find(';', pos + 1);//name
-      std::string name = str.substr(pos+1, newpos - pos-1);
+      String name = str.substr(pos+1, newpos - pos-1);
       std::string estr = str.substr(newpos + 1);
       int effectnum = atoi(estr.c_str());
       for (int i = 0; i < effectnum; ++i){
@@ -369,7 +369,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
           effect.params[i] = atoi(val.c_str());
           pos = newpos + 1;
         }
-        mSettings.dspeffects[name] = effect;
+        mSettings.dspeffects[name.toLower()] = effect;
       }
       for (int i = effectnum; i < 6; ++i){
         str = txtstream.readLine();
@@ -1247,7 +1247,8 @@ FontData AdvDocument::getFont(int num){
     }
     if (!in.isWorking())
       continue;
-    fnt.images[2 * i] = CGE::ImageLoader::load(in.getData(), in.getSize(), mFontsPNG ? CGE::ImageLoader::PNG : CGE::ImageLoader::BMP);
+    int idx = mFontsPNG ? i : 2 * i;
+    fnt.images[idx] = CGE::ImageLoader::load(in.getData(), in.getSize(), mFontsPNG ? CGE::ImageLoader::PNG : CGE::ImageLoader::BMP);
     if (!mFontsPNG){
       number.str("");
       number.clear();
@@ -1259,7 +1260,7 @@ FontData AdvDocument::getFont(int num){
         number << "font" << num << ".bm" << (i + 1);
         in = zrdr->openEntry(number.str());
       }
-      fnt.images[2 * i + 1] = CGE::ImageLoader::load(in.getData(), in.getSize(), CGE::ImageLoader::BMP);
+      fnt.images[idx + 1] = CGE::ImageLoader::load(in.getData(), in.getSize(), CGE::ImageLoader::BMP);
     }
   }
   delete firstzrdr;

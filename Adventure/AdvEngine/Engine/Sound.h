@@ -42,6 +42,7 @@ public:
   static SoundEngine* instance() {return mInstance;}
   void setData(AdvDocument* doc){mData = doc;}
   SoundPlayer* getSound(const std::string& name, int flags);
+  SoundPlayer* getSound(const std::string& name, const std::string& effect, int flags);
   SoundPlayer* getSound(const std::string& name, bool effectEnabled, int flags);
   SoundPlayer* getMusic(const std::string& name);
   SoundPlayer* getMusic(const std::string& name, bool effectEnabled);

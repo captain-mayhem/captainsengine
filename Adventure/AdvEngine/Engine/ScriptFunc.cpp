@@ -200,6 +200,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("setdsp", setDSP);
   interpreter->registerFunction("coinreturn", coinReturn);
   interpreter->registerFunction("itemsimclick", itemSimClick);
+  interpreter->registerFunction("setcharalpha", setCharAlpha);
   srand((unsigned)time(NULL));
 }
 
@@ -296,10 +297,11 @@ int ScriptFunctions::moveTo(lua_State* L, float speedFactor){
 }
 
 int ScriptFunctions::speech(lua_State* L){
-  NUM_ARGS(2, 4);
+  NUM_ARGS(2, 5);
   std::string character = ctx.stack().get(1).getString();
   std::string text = ctx.stack().get(2).getString();
   std::string sound = "";
+  String effect = "";
   bool hold = Engine::instance()->getInterpreter()->isBlockingScriptRunning() || ctx.isLoop1() || ctx.isIdle();
   if (numArgs >= 3){ //TODO SOUND
     sound = ctx.stack().get(3).getString();
@@ -309,7 +311,14 @@ int ScriptFunctions::speech(lua_State* L){
     }
   }
   if (numArgs >= 4){
-    std::string dw = ctx.stack().get(4).getString();
+    effect = ctx.stack().get(4).getString();
+    if (effect == "dontwait"){
+      hold = false;
+      effect = "";
+    }
+  }
+  if (numArgs >= 5){
+    std::string dw = ctx.stack().get(5).getString();
     if (dw == "dontwait")
       hold = false;
   }
@@ -323,7 +332,10 @@ int ScriptFunctions::speech(lua_State* L){
     SoundEngine::instance()->removeSpeaker(chr);
     //create new one
     if (sound != ""){
-      plyr = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_CREATE_ALWAYS);
+      if (effect.empty())
+        plyr = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_CREATE_ALWAYS);
+      else
+        plyr = SoundEngine::instance()->getSound(sound, effect.toLower(), SoundEngine::PLAYER_CREATE_ALWAYS);
       if (plyr){
         plyr->setVolume(SoundEngine::instance()->getSpeechVolume());
         plyr->play(false);
@@ -1369,6 +1381,7 @@ int ScriptFunctions::setCharLight(lua_State* L){
   }
   CharacterObject* chr = ctx.getCharacter(charname);
   if (chr){
+    c.a = chr->getLightingColor().a;
     if (fade && !ctx.mSkip){
       //do not block right now.
       //be aware that if blocking is done, problems occur
@@ -1386,6 +1399,7 @@ int ScriptFunctions::setCharLight(lua_State* L){
     std::string room;
     std::string name;
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(ctx.resolveCharName(charname), room, name);
+    c.a = cso->base.lighting.a;
     cso->base.lighting = c;
   }
   return 0;
@@ -3036,8 +3050,8 @@ int ScriptFunctions::simClick(lua_State* L){
 
 int ScriptFunctions::setDSP(lua_State* L){
   NUM_ARGS(1, 1);
-  std::string effect = luaL_checkstring(L, 1);
-  if (!SoundEngine::instance()->setDSPEffect(effect)){
+  String effect = luaL_checkstring(L, 1);
+  if (!SoundEngine::instance()->setDSPEffect(effect.toLower())){
     TR_ERROR("cannot activate %s", effect.c_str());
   }
   return 0;
@@ -3061,6 +3075,36 @@ int ScriptFunctions::itemSimClick(lua_State* L){
     exec->resetEvent(evt);
   }
   Engine::instance()->leftClickAt(obj);
+  return 0;
+}
+
+int ScriptFunctions::setCharAlpha(lua_State* L){
+  NUM_ARGS(2, 3);
+  std::string charname = ctx.stack().get(1).getString();
+  unsigned char alpha = (unsigned char)ctx.stack().get(2).getInt();
+  bool fade = false;
+  if (numArgs >= 3){
+    std::string fading = ctx.stack().get(3).getString();
+    if (fading == "fade")
+      fade = true;
+  }
+  CharacterObject* chr = ctx.getCharacter(charname);
+  if (chr){
+    Color c = chr->getLightingColor();
+    c.a = alpha;
+    if (fade && !ctx.mSkip){
+      Engine::instance()->getAnimator()->add(chr, c);
+    }
+    else{
+      chr->setLightingColor(c);
+    }
+  }
+  else{
+    std::string room;
+    std::string name;
+    SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(ctx.resolveCharName(charname), room, name);
+    cso->base.lighting.a = alpha;
+  }
   return 0;
 }
 

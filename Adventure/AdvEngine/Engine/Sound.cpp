@@ -316,7 +316,7 @@ static inline float mBtoGain(float mb)
 
 bool SoundEngine::setDSPEffect(const std::string& effect){
   TR_USE(ADV_SOUND_ENGINE);
-  if (effect == "off"){
+  if (effect == "off" || effect == "none"){
     mCurrentEffect = "none";
     mIsDSPEffect = true;
     return true;
@@ -403,11 +403,19 @@ bool SoundEngine::setDSPEffect(const std::string& effect){
   alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, mEffect[eff.type]);
   mCurrentEffect = effect;
   mIsDSPEffect = true;
-  return false;
+  return true;
 }
 
 SoundPlayer* SoundEngine::getSound(const std::string& name, int flags){
   return getSound(name, isEffectEnabled(), flags);
+}
+
+SoundPlayer* SoundEngine::getSound(const std::string& name, const std::string& effect, int flags){
+  std::string oldEffect = mCurrentEffect;
+  setDSPEffect(effect);
+  SoundPlayer* ret = getSound(name, isEffectEnabled(), flags);
+  setDSPEffect(oldEffect);
+  return ret;
 }
 
 SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled, int flags){
