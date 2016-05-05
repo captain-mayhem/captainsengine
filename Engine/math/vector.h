@@ -82,6 +82,12 @@ public:
     result.y = (T)(y/num);
     return result;
   }
+  Vec2 operator/(Vec2 other) const{
+    Vec2 result;
+    result.x = (T)(x / other.x);
+    result.y = (T)(y / other.y);
+    return result;
+  }
   //! tests for inequality
   const bool operator!=(const Vec2& v) const {
     return (v.x != x || v.y != y);

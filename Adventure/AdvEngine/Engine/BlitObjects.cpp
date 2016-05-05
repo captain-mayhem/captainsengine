@@ -42,6 +42,9 @@ BaseBlitObject(depth, Vec2i()), mOffset(offset), mScale(1.0f, 1.0f), mTex(0), mM
 		if (mOffset.y < 0)
 			mOffset.y = 0;
 	}
+  else if (mImage){
+    mSize = Vec2i(mImage->getWidth(), mImage->getHeight());
+  }
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = true;
 }

@@ -333,7 +333,7 @@ void Object2D::realize(){
 }
 
 ButtonObject::ButtonObject(const Vec2i& pos, const Vec2i& size, const std::string& text, int id) : Object2D(1, pos, size, "!button"),
-BlitObject(Engine::instance()->getSettings()->tsbackground, size, DEPTH_BUTTON, Vec2i()), mText(text){
+BlitObject(Engine::instance()->getSettings()->tsbackground, Vec2i(), DEPTH_BUTTON, Vec2i()), mText(text){
   BlitObject::realize();
   char tmp[2048];
   sprintf(tmp, "%i", id);
@@ -396,10 +396,11 @@ void ButtonObject::render(){
   //Engine::instance()->getFontRenderer()->getTextExtent(mText, 1, breakinfo);
   Color textcol = mTextColor;
   if (mHighlightText && mOldHighlighting){
-    if (mState == 1)
-      textcol *= mBackgroundColor;
-    else if (mState == 2)
-      textcol *= mHighlightColor;
+      if (mState == 2){
+        Color tmp = textcol;
+        textcol *= mHighlightColor;
+        textcol += tmp;
+      }
   }
   else if (mHighlightText){
     if (mState == 2)

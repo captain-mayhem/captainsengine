@@ -49,6 +49,10 @@ public:
   **/
   static int breakExec(lua_State* L);
   /**
+  \param char the character to simulate click on
+  **/
+  static int charSimClick(lua_State* L);
+  /**
     \param character the character whose zoom should be changed
     \param size the size of the character
     \param fade [opt] fade to the new size
@@ -269,6 +273,16 @@ public:
   \param character the name of the character to execute the pickup action
   **/
   static int pickup(lua_State* L);
+  /**
+  \param prefix prefix name of all animation graphics
+  \param fps frames per second
+  \param x x position
+  \param y y position
+  \param width width of animation
+  \param height heigt of animation
+  \param wait [opt] wait for end of animation
+  **/
+  static int playAnimation(lua_State* L);
   /**
   \param name the music file which should be played
   \param position [opt] start position (as pattern for module track)
