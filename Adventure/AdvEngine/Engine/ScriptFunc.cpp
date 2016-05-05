@@ -201,6 +201,9 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("coinreturn", coinReturn);
   interpreter->registerFunction("itemsimclick", itemSimClick);
   interpreter->registerFunction("setcharalpha", setCharAlpha);
+  interpreter->registerFunction("charsimclick", charSimClick);
+  interpreter->registerFunction("playanimation", playAnimation);
+  interpreter->registerRelVar("playanimation", 2, "_charstate");
   srand((unsigned)time(NULL));
 }
 
@@ -924,7 +927,7 @@ int ScriptFunctions::setNum(lua_State* L){
 }
 
 int ScriptFunctions::offSpeech(lua_State* L){
-  NUM_ARGS(3, 5);
+  NUM_ARGS(3, 6);
   Vec2i pos;
   float walkgridsize;
   RoomObject* room = Engine::instance()->getRoom("");
@@ -937,6 +940,7 @@ int ScriptFunctions::offSpeech(lua_State* L){
   pos.y = (int)(ctx.stack().get(2).getInt()*walkgridsize);
   std::string text = ctx.stack().get(3).getString();
   std::string sound = "";
+  String effect = "";
   bool hold = Engine::instance()->getInterpreter()->isBlockingScriptRunning() || ctx.isLoop1() || ctx.isIdle();
   if (numArgs >= 4){
     sound = ctx.stack().get(4).getString();
@@ -946,7 +950,14 @@ int ScriptFunctions::offSpeech(lua_State* L){
     }
   }
   if (numArgs >= 5){
-    std::string dw = ctx.stack().get(5).getString();
+    effect = ctx.stack().get(5).getString();
+    if (effect == "dontwait"){
+      hold = false;
+      effect = "";
+    }
+  }
+  if (numArgs >= 6){
+    std::string dw = ctx.stack().get(6).getString();
     if (dw == "dontwait")
       hold = false;
   }
@@ -955,7 +966,10 @@ int ScriptFunctions::offSpeech(lua_State* L){
   FontRenderer::String* str = NULL;
   SoundPlayer* plyr = NULL;
   if (sound != ""){
-    plyr = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_CREATE_ALWAYS);
+    if (effect.empty())
+      plyr = SoundEngine::instance()->getSound(sound, SoundEngine::PLAYER_CREATE_ALWAYS);
+    else
+      plyr = SoundEngine::instance()->getSound(sound, effect.toLower(), SoundEngine::PLAYER_CREATE_ALWAYS);
     if (plyr){
       plyr->setVolume(SoundEngine::instance()->getSpeechVolume());
       plyr->play(false);
@@ -2014,7 +2028,7 @@ int ScriptFunctions::setPos(lua_State* L){
     dontscroll = ctx.stack().get(4).getBool();
   if (numArgs > 4){
     LookDir blenddir = UNSPECIFIED;
-    string dir = ctx.stack().get(5).getString();
+    string dir = ctx.stack().get(5).getString().toLower();
     if (dir == "right")
       blenddir = RIGHT;
     else if (dir == "left")
@@ -3105,6 +3119,35 @@ int ScriptFunctions::setCharAlpha(lua_State* L){
     SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(ctx.resolveCharName(charname), room, name);
     cso->base.lighting.a = alpha;
   }
+  return 0;
+}
+
+int ScriptFunctions::charSimClick(lua_State* L){
+  NUM_ARGS(1, 1);
+  std::string chr = luaL_checkstring(L, 1);
+  Object2D* obj = Engine::instance()->getCharacter(chr);
+  if (obj == NULL)
+    luaL_argerror(L, 1, "not a clickable character");
+  if (obj && obj->getScript()){ //override current event by simclick
+    ExecutionContext* exec = obj->getScript();
+    EngineEvent evt = exec->getCommandEvent();
+    exec->resetEvent(evt);
+  }
+  Engine::instance()->leftClickAt(obj);
+  return 0;
+}
+
+int ScriptFunctions::playAnimation(lua_State* L){
+  NUM_ARGS(6, 7);
+  std::string prefix = lua_tostring(L, 1);
+  int fps = (int)lua_tointeger(L, 2);
+  Vec2i pos;
+  pos.x = (int)lua_tointeger(L, 3);
+  pos.y = (int)lua_tointeger(L, 4);
+  Vec2i size;
+  size.x = (int)lua_tointeger(L, 5);
+  size.y = (int)lua_tointeger(L, 6);
+  Object2D* anim = new Object2D(1, pos, size, prefix);
   return 0;
 }
 

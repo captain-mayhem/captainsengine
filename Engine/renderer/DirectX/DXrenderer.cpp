@@ -109,8 +109,10 @@ void DXRenderer::initContext(AppWindow* win){
 }
 
 void DXRenderer::killContext(){
+  delete mClearVerts;
   delete mLightShader;
   delete mShader;
+  delete mClearShader;
   mSwapchain->SetFullscreenState(FALSE, NULL);
   SAFE_RELEASE(mDepthState);
   SAFE_RELEASE(mBlendState);
@@ -341,6 +343,47 @@ static char const * fs_src_lit =
 "}\n"
 "\n";
 
+static char const * vs_src_clear =
+"struct VSInput{\n"
+"  float3 pos : POSITION;\n"
+"};\n"
+"\n"
+"struct VSOutput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"};\n"
+"\n"
+"VSOutput main(VSInput inp){\n"
+"  VSOutput outp;\n"
+"  float4 vPos = float4(inp.pos, 1.0);\n"
+"  outp.vPos = vPos;\n"
+"  return outp;\n"
+"}\n"
+"\n"
+;
+
+static char const * fs_src_clear =
+"cbuffer perDraw{\n"
+"  float4 clearColor;\n"
+"  float clearDepth;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"};\n"
+"\n"
+"struct PSOutput{\n"
+"  float4 color : SV_TARGET;\n"
+"  float depth : SV_DEPTH;\n"
+"};\n"
+"\n"
+"PSOutput main(PSInput inp){\n"
+"  PSOutput outp;\n"
+"  outp.color = clearColor;\n"
+"  outp.depth = clearDepth;\n"
+"  return outp;\n"
+"}\n"
+"\n";
+
 void DXRenderer::initRendering(){
   TR_USE(CGE_Renderer_DirectX);
   TR_INFO("Initializing Scene");
@@ -369,6 +412,15 @@ void DXRenderer::initRendering(){
   mLightShader->syncMatrix("mvmat", Modelview);
   mLightShader->syncMatrix("normalmat", MatNormal);
 
+  mClearShader = new CGE::DXShader();
+  mClearShader->addShader(Shader::VERTEX_SHADER, vs_src_clear);
+  mClearShader->addShader(Shader::FRAGMENT_SHADER, fs_src_clear);
+  mClearShader->linkShaders();
+  mClearShader->lockUniforms(Shader::FRAGMENT_SHADER);
+  mClearShader->uniform(0, Vec4f(0,0,0,1));
+  mClearShader->uniform(1, mClearDepth);
+  mClearShader->unlockUniforms(Shader::FRAGMENT_SHADER);
+
   mShader = new CGE::DXShader();
   mShader->addShader(Shader::VERTEX_SHADER, vs_src_unlit);
   mShader->addShader(Shader::FRAGMENT_SHADER, fs_src_unlit);
@@ -380,22 +432,20 @@ void DXRenderer::initRendering(){
   mShader->syncMatrix("texmat", MatTexture);
   mShader->activate();
 
+  mClearVerts = createVertexBuffer();
+  mClearVerts->create(VB_POSITION, 4);
+  mClearVerts->lockVertexPointer();
+  mClearVerts->setPosition(0, Vec3f(-1, 1, 0));
+  mClearVerts->setPosition(1, Vec3f(-1, -1, 0));
+  mClearVerts->setPosition(2, Vec3f(1, 1, 0));
+  mClearVerts->setPosition(3, Vec3f(1, -1, 0));
+  mClearVerts->unlockVertexPointer();
+
   Renderer::initRendering();
 }
 
 void DXRenderer::renderScene(){
-  // Clear the backbuffer and the zbuffer
-  //device_->Clear( 0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER,
-  //  D3DCOLOR_XRGB(128,128,128), 1.0f, 0 );
-  //matrixtype_ = D3DTS_VIEW;
-
   Renderer::renderScene();
-
-  // End the scene
-  //device_->EndScene();
-
-  // Present the backbuffer contents to the display
-  //device_->Present( NULL, NULL, NULL, NULL );
 }
 
 void DXRenderer::resizeScene(int width, int height){
@@ -426,22 +476,41 @@ void DXRenderer::setClearColor(const Vec4f& color){
   mClearColor[1] = color.y;
   mClearColor[2] = color.z;
   mClearColor[3] = color.w;
+  mClearShader->activate();
+  mClearShader->lockUniforms(Shader::FRAGMENT_SHADER);
+  mClearShader->uniform(0, color);
+  mClearShader->unlockUniforms(Shader::FRAGMENT_SHADER);
+  mClearShader->deactivate();
 }
 
 //! set clear depth
 void DXRenderer::setClearDepth(float depth){
   mClearDepth = depth;
+  mClearShader->activate();
+  mClearShader->lockUniforms(Shader::FRAGMENT_SHADER);
+  mClearShader->uniform(1, depth);
+  mClearShader->unlockUniforms(Shader::FRAGMENT_SHADER);
+  mClearShader->deactivate();
 }
 
 void DXRenderer::clear(long flags){
-  DXRenderTarget* rt = (DXRenderTarget*)DXRenderTarget::getCurrent();
-  if (flags & COLORBUFFER){
-    for (unsigned i = 0; i < rt->getNumRenderTargets(); ++i){
-      mD3d->ClearRenderTargetView(rt->getRenderTarget(i), mClearColor);
+  if (!mRasterDesc.ScissorEnable){
+    DXRenderTarget* rt = (DXRenderTarget*)DXRenderTarget::getCurrent();
+    if (flags & COLORBUFFER){
+      for (unsigned i = 0; i < rt->getNumRenderTargets(); ++i){
+        mD3d->ClearRenderTargetView(rt->getRenderTarget(i), mClearColor);
+      }
     }
+    if (flags & ZBUFFER)
+      mD3d->ClearDepthStencilView(rt->getDepthStencil(), D3D11_CLEAR_DEPTH, mClearDepth, 0);
   }
-  if (flags & ZBUFFER)
-    mD3d->ClearDepthStencilView(rt->getDepthStencil(), D3D11_CLEAR_DEPTH, mClearDepth, 0);
+  else{
+    //use clear shader instead of ClearXXXView in order to respect the scissor
+    mClearShader->activate();
+    mClearVerts->activate();
+    mClearVerts->draw(VB_Tristrip, NULL);
+    mClearShader->deactivate();
+  }
 }
 
 VertexBuffer* DXRenderer::createVertexBuffer(){

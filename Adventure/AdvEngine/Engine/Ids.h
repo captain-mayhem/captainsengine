@@ -42,7 +42,8 @@ enum WindowIds{
 #define DEPTH_BOUND_FONT 992
 #define DEPTH_LIGHTING 993
 #define DEPTH_SCREENCHANGE 995
-#define DEPTH_MENU 10000
+#define DEPTH_COIN_MENU 10000
+#define DEPTH_MENU 11000
 #define DEPTH_PARTICLES_TOP 18500
 #define DEPTH_GAME_FONT 19500
 #define DEPTH_BUTTON 19750
@@ -103,6 +104,13 @@ struct Color{
     tmp = g+factor; if (tmp > 255) tmp = 255; g = (unsigned char)tmp;
     tmp = b+factor; if (tmp > 255) tmp = 255; b = (unsigned char)tmp;
     tmp = a+factor; if (tmp > 255) tmp = 255; a = (unsigned char)tmp;
+    return *this;
+  }
+  Color& operator+=(const Color& color){
+    int tmp = r + color.r; if (tmp > 255) tmp = 255; r = (unsigned char)tmp;
+    tmp = g + color.g; if (tmp > 255) tmp = 255; g = (unsigned char)tmp;
+    tmp = b + color.b; if (tmp > 255) tmp = 255; b = (unsigned char)tmp;
+    tmp = a + color.a; if (tmp > 255) tmp = 255; a = (unsigned char)tmp;
     return *this;
   }
   unsigned char r;

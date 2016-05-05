@@ -1334,8 +1334,10 @@ bool AdvDocument::loadFile10(CGE::MemReader& txtstream){
   txtstream.readLine();
   str = txtstream.readLine();
   //mSettings.noPngToJpeg = str == "-1";
-  if (ver_major < 3 || (ver_major == 3 && ver_minor < 5))
+  if (ver_major < 3 || (ver_major == 3 && ver_minor < 5)){
+    mSettings.script_lang = PCDK_SCRIPT;
     return true;
+  }
   str = txtstream.readLine();
   if (str == "LUA")
     mSettings.script_lang = LUA_SCRIPT;

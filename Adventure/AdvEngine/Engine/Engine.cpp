@@ -714,7 +714,10 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   //calculate depth
   int depthoffset = 0;
   if (isSubRoom){
-    depthoffset = (int)mRooms.size()*1000;
+    if (name == mData->getProjectSettings()->coinRoom)
+      depthoffset = DEPTH_COIN_MENU;
+    else
+      depthoffset = (int)mRooms.size()*1000;
     if (!mMainRoomLoaded)
       depthoffset += 1000;
   }

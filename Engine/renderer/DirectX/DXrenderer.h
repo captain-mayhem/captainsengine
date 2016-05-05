@@ -140,6 +140,9 @@ protected:
   DXShader* mShader;
   //! the light shader
   DXShader* mLightShader;
+  //! the clear shader
+  DXShader* mClearShader;
+  VertexBuffer* mClearVerts;
 
   //! the blend state
   ID3D11BlendState* mBlendState;
