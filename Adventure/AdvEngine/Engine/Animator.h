@@ -51,6 +51,7 @@ public:
   void add(CharacterObject* obj, float sourcescale, float targetscale, bool isUserScale);
   Vec2i getTargetPoisition(Object2D* obj);
   void moveCameraViewport(LookDir dir);
+  bool isCamViewportMoving() { return mCamera.active; }
 protected:
   bool isPointOnLine(Vec2f from, Vec2f to, Vec2f pt, double epsilon);
   std::map<Object2D*, ObjectAnim> mObjects;

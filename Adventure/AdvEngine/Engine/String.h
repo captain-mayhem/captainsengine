@@ -49,6 +49,7 @@ public:
   void trim();
   void replaceWith(char oldCh, char newCh);
   bool endsWith(const String& str);
+  bool beginsWith(const String& str);
 
   static const size_t npos = SIZE_MAX;
 protected:

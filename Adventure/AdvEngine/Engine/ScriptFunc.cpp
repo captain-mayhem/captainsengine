@@ -3147,8 +3147,16 @@ int ScriptFunctions::playAnimation(lua_State* L){
   Vec2i size;
   size.x = (int)lua_tointeger(L, 5);
   size.y = (int)lua_tointeger(L, 6);
-  Object2D* anim = new Object2D(1, pos, size, prefix);
-  return 0;
+  bool wait = false;
+  if (numArgs >= 7){
+    string wstr = lua_tostring(L, 7);
+    if (wstr == "wait")
+      wait = true;
+    else
+      TR_BREAK("Check me");
+  }
+  Engine::instance()->getResLoader()->loadAnimation(prefix, (float)fps, pos, size, &ctx, wait);
+  RET_MAY_YIELD(0);
 }
 
 int ScriptFunctions::dummy(lua_State* L){

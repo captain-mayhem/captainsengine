@@ -950,6 +950,19 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
   return img;
 }
 
+SimpleFrames AdvDocument::getAnimation(const std::string& name){
+  mMuty.lock();
+  SimpleFrames ret;
+  String idxname = toLower(name);
+  for (std::map<std::string, std::string>::const_iterator iter = mImageNames.begin(); iter != mImageNames.end(); ++iter){
+    String file = iter->first;
+    if (file.beginsWith(idxname))
+      ret.push_back(file);
+  }
+  mMuty.unlock();
+  return ret;
+}
+
 bool AdvDocument::getSound(const std::string& name, DataBuffer& db){
   TR_USE(ADV_DATA);
   mMuty.lock();
