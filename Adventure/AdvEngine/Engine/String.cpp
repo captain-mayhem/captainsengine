@@ -39,9 +39,9 @@ bool String::ieqauls(const String& other){
   return _stricmp(c_str(), other.c_str()) == 0;
 }
 
-void String::trim(){
+String& String::trim(){
   if (mStr.empty())
-    return;
+    return *this;
   size_t end;
   for (end = mStr.size() - 1; end > 0; --end){
     if (mStr[end] < 0 || !isspace(mStr[end]))
@@ -53,6 +53,7 @@ void String::trim(){
       break;
   }
   mStr = mStr.substr(begin, end - begin + 1);
+  return *this;
 }
 
 namespace adv{

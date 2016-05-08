@@ -1,5 +1,7 @@
 #include "Loader.h"
 
+#include <algorithm>
+
 #include "Engine.h"
 #include "SaveStateProvider.h"
 #include "Inventory.h"
