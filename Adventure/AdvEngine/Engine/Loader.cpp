@@ -243,6 +243,48 @@ private:
   PcdkScript* mCompiler;
 };
 
+class AnimationRoom : public RoomObject{
+public:
+  AnimationRoom(const std::string& name, Vec2i size, ExecutionContext* reason) : RoomObject(1, Vec2i(), size, name, Vec2i(), false), mReason(reason){}
+  virtual bool animationEnded(Animation* anim){
+    if (mReason)
+      mReason->resume();
+    Engine::instance()->unloadRoom(this, false, false, NULL);
+    return true;
+  }
+private:
+  ExecutionContext* mReason;
+};
+
+class LoadAnimationEvent : public Event{
+public:
+  LoadAnimationEvent(const std::string& prefix, float fps, Vec2i pos, Vec2i size, bool wait, ExecutionContext* reason) : 
+    mPrefix(prefix), mFps(fps), mPos(pos), mSize(size), mWait(wait), mReason(reason) {}
+  void setData(AdvDocument* data) { mData = data; }
+  virtual Event* execute(){
+    SimpleFrames frames = Engine::instance()->getData()->getAnimation(mPrefix);
+    if (mFps < 0){
+      std::reverse(frames.begin(), frames.end());
+      mFps = -mFps;
+    }
+    AnimationRoom* ro = new AnimationRoom(mPrefix, mSize + mPos, mWait ? mReason : NULL);
+    Animation* anim = new Animation(frames, mFps, Vec2i(), DEPTH_VIDEO_LAYER, Vec2i());
+    anim->registerAnimationEndHandler(ro);
+    Object2D* animobj = new Object2D(1, mPos, mSize, mPrefix);
+    animobj->addAnimation(anim);
+    ro->addObject(animobj);
+    return new RoomLoadedEvent(ro, true, mWait ? NULL : mReason, SC_DIRECT, 0);
+  }
+private:
+  std::string mPrefix;
+  float mFps;
+  Vec2i mPos;
+  Vec2i mSize;
+  bool mWait;
+  ExecutionContext* mReason;
+  AdvDocument* mData;
+};
+
 ResLoader::ResLoader() : mData(NULL), mCompiler(NULL) {
 
 }
@@ -376,6 +418,19 @@ void ResLoader::setFocus(const std::string& name, ExecutionContext* reason){
   sfe->setData(mData, mCompiler);
   mMutex.lock();
   mQReq.addEvent(sfe);
+#ifndef ENGINE_SINGLE_THREADED
+  mCond.signal();
+#endif
+  mMutex.unlock();
+}
+
+void ResLoader::loadAnimation(const std::string& prefix, float fps, Vec2i pos, Vec2i size, ExecutionContext* loadreason, bool wait){
+  if (loadreason)
+    loadreason->suspend(0, NULL);
+  LoadAnimationEvent* lae = new LoadAnimationEvent(prefix, fps, pos, size, wait, loadreason);
+  lae->setData(mData);
+  mMutex.lock();
+  mQReq.addEvent(lae);
 #ifndef ENGINE_SINGLE_THREADED
   mCond.signal();
 #endif

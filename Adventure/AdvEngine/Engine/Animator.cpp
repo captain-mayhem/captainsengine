@@ -192,7 +192,6 @@ void Animator::update(unsigned interval){
       || (mCamera.dir.y > 0 && mCamera.currPos.y > mCamera.target.y)
       || (mCamera.dir.y < 0 && mCamera.currPos.y < mCamera.target.y)){
         rend->viewport(0, 0, dims.x, dims.y);
-        rend->enableScissorTest(false);
         mCamera.active = false;
     }
   }
@@ -415,6 +414,5 @@ void Animator::moveCameraViewport(LookDir dir){
   }
   mCamera.active = true;
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->enableScissorTest(true);
   rend->scissor((int)mCamera.currPos.x, (int)mCamera.currPos.y, dims.x, dims.y);
 }

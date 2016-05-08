@@ -583,7 +583,11 @@ void Engine::render(unsigned time){
 
   //build blit queue
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  if (mAnimator->isCamViewportMoving())
+    rend->enableScissorTest(true);
   rend->clear(COLORBUFFER | ZBUFFER);
+  if (mAnimator->isCamViewportMoving())
+    rend->enableScissorTest(false);
   int roomdepth = 0;
   RoomObject* mainroom = NULL;
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){

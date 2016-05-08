@@ -90,3 +90,8 @@ bool String::endsWith(const String& str){
   size_t pos = mStr.rfind(str.mStr);
   return pos == mStr.size() - str.size();
 }
+
+bool String::beginsWith(const String& str){
+  size_t pos = mStr.find(str.mStr);
+  return pos == 0;
+}

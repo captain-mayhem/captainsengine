@@ -341,6 +341,7 @@ public:
   void setFileChangedCB(FILECHANGEDCB fcb) { mFCB = fcb; }
   void fileChanged(std::string const& file) { if (!mFCB) return; mFCB(file); }
   bool hasUnifiedFonts() { return mFontsPNG; }
+  SimpleFrames getAnimation(const std::string& name);
 protected:
   bool loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_minor);
   bool loadFile2(CGE::MemReader& txtstream, int ver_major, int ver_minor);

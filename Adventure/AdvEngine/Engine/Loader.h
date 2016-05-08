@@ -41,6 +41,7 @@ public:
   void loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadreason, ScreenChange change, int fading, int depthoffset, bool executeEnter);
   void beamCharacter(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir);
   void setFocus(const std::string& name, ExecutionContext* reason);
+  void loadAnimation(const std::string& prefix, float fps, Vec2i pos, Vec2i size, ExecutionContext* loadreason, bool wait);
   bool handleResultEvent();
   void waitUntilFinished();
 protected:
