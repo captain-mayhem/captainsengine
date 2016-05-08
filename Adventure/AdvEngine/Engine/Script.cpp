@@ -1644,7 +1644,7 @@ int PcdkScript::getSpecialVar(lua_State* L){
     return 0;
   }
   else if (name.size() > 4 && lname.substr(0, 4) == "obj:"){
-    Object2D* obj = Engine::instance()->getObject(name.substr(4), false);
+    Object2D* obj = Engine::instance()->getObject(name.substr(4).trim(), false);
     if (obj == NULL)
       TR_BREAK("Object %s not found", name.substr(4).c_str());
     lua_pushinteger(L, obj->getState());

@@ -46,7 +46,7 @@ public:
   String removeAll(char ch) const;
   String toLower() const;
   bool ieqauls(const String& other);
-  void trim();
+  String& trim();
   void replaceWith(char oldCh, char newCh);
   bool endsWith(const String& str);
   bool beginsWith(const String& str);

@@ -322,6 +322,16 @@ namespace StoryDesigner
             args = new ArgDef[1];
             args[0] = new ArgDef("Soundeffect...", ArgType.Sound);
             addFunction("loopstop", args);
+            args = new ArgDef[7];
+            args[0] = new ArgDef("Filename Prefix", ArgType.String);
+            args[1] = new ArgDef("FPS 1-50", ArgType.Integer);
+            args[2] = new ArgDef("X (Screenpixel)", ArgType.Integer);
+            args[3] = new ArgDef("Y (Screenpixel)", ArgType.Integer);
+            args[4] = new ArgDef("Width (Pixel)", ArgType.Integer);
+            args[5] = new ArgDef("Height (Pixel)", ArgType.Integer);
+            args[6] = new ArgDef("wait (optional)", ArgType.String);
+            args[6].AdditionalValues = new string[] { "wait" };
+            addFunction("playanimation", args);
 
             //object commands
             args = new ArgDef[12];
@@ -528,6 +538,9 @@ namespace StoryDesigner
             args[1] = new ArgDef("left/center/right or absolute/relative", ArgType.String, true);
             args[1].AdditionalValues = new string[] { "left", "center", "right", "absolute", "relative" };
             addFunction("offalign", args);
+            args = new ArgDef[1];
+            args[0] = new ArgDef("Character", ArgType.Character);
+            addFunction("charsimclick", args);
 
             //item commands
             args = new ArgDef[12];
