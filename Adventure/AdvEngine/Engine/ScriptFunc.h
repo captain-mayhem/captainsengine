@@ -685,6 +685,7 @@ public:
   static int isObjXPosEqual(lua_State* L);
   static int isObjYPosEqual(lua_State* L);
   static int isItemInState(lua_State* L);
+  static int isPadPressed(lua_State* L);
   
   //debug functions
   static int print(lua_State* L);

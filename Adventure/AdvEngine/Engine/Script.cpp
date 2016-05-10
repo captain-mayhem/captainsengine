@@ -543,11 +543,13 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           }
         }
         CodeSegment* oldcodes = codes;
+        std::list < std::pair<CBRA*, unsigned> > oldunresbra = mUnresolvedBranches;
         if (evtcode == EVT_LOOP1){
           CodeSegment* cs = new CodeSegment;
           ExecutionContext* loop1 = new ExecutionContext(cs, false, "");
           mLoop1 = loop1; //loop1 as seperate execution context
           codes = cs;
+          mUnresolvedBranches.clear();
         }
         CBNEEVT* cevt = new CBNEEVT(evtcode);
         codes->addCode(cevt);
@@ -571,6 +573,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         }
         cevt->setOffset(offset+1);
         if (evtcode == EVT_LOOP1){
+          for (std::list<std::pair<CBRA*, unsigned> >::iterator iter = mUnresolvedBranches.begin(); iter != mUnresolvedBranches.end(); ++iter){
+            unsigned diff = codes->numInstructions() - iter->second;
+            iter->first->setOffset(diff + 1);
+          }
+          mUnresolvedBranches = oldunresbra;
           codes = oldcodes;
         }
         else
@@ -1019,19 +1026,22 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
       int top = lua_gettop(script->mL);
       TR_ERROR("%i stack entries:", top);
       for (int i = 0; i < top; ++i){
-        int t = lua_type(script->mL, i);
+        int t = lua_type(script->mL, -i-1);
         switch (t){
         case LUA_TSTRING:
-          TR_ERROR("%s", lua_tostring(script->mL, i));
+          TR_ERROR("%s", lua_tostring(script->mL, -i-1));
+          break;
+        case LUA_TNUMBER:
+          TR_ERROR("%i", (int)lua_tointeger(script->mL, -i - 1));
           break;
         default:
-          TR_ERROR("%s", lua_typename(script->mL, i));
+          TR_ERROR("%s", lua_typename(script->mL, t));
           break;
         }
       }
       //const char* msg = lua_tostring(script->mL, -1);
       //TR_ERROR("%s", msg);
-      lua_pop(script->mL, 1);
+      lua_pop(script->mL, top);
     }
     else{
       //lua_pop(script->mL, 1);
@@ -1777,7 +1787,7 @@ int PcdkScript::specialVarAccessor(lua_State* L){
 
 StackData PcdkScript::getVariable(const String& name){
   lua_getglobal(mL, "var");
-  lua_getfield(mL, -1, name.c_str());
+  lua_getfield(mL, -1, name.toLower().c_str());
   StackData ret = StackData::fromStack(mL, -1);
   lua_pop(mL, 2);
   return ret;
@@ -1807,7 +1817,7 @@ int PcdkScript::setSpecialVar(lua_State* L){
 void PcdkScript::setVariable(const String& name, const StackData& value){
   lua_getglobal(mL, "var");
   StackData::pushStack(mL, value);
-  lua_setfield(mL, -2, name.c_str());
+  lua_setfield(mL, -2, name.toLower().c_str());
   lua_pop(mL, 1);
 }
 
