@@ -204,6 +204,7 @@ void ScriptFunctions::registerFunctions(PcdkScript* interpreter){
   interpreter->registerFunction("charsimclick", charSimClick);
   interpreter->registerFunction("playanimation", playAnimation);
   interpreter->registerRelVar("playanimation", 2, "_charstate");
+  interpreter->registerConditional("padpressed", isPadPressed);
   srand((unsigned)time(NULL));
 }
 
@@ -3149,11 +3150,15 @@ int ScriptFunctions::playAnimation(lua_State* L){
   size.y = (int)lua_tointeger(L, 6);
   bool wait = false;
   if (numArgs >= 7){
-    string wstr = lua_tostring(L, 7);
-    if (wstr == "wait")
-      wait = true;
-    else
-      TR_BREAK("Check me");
+    if (lua_isboolean(L, 7))
+      wait = lua_toboolean(L, 7) != 0;
+    else{
+      string wstr = lua_tostring(L, 7);
+      if (wstr == "wait")
+        wait = true;
+      else
+        TR_BREAK("Check me");
+    }
   }
   Engine::instance()->getResLoader()->loadAnimation(prefix, (float)fps, pos, size, &ctx, wait);
   RET_MAY_YIELD(0);
@@ -3485,6 +3490,18 @@ int ScriptFunctions::isItemInState(lua_State* L){
     ctx.stack().push(state);
   }
   ctx.stack().push(checkstate);
+  return 2;
+}
+
+int ScriptFunctions::isPadPressed(lua_State* L){
+  NUM_ARGS(1, 2);
+  std::string button = lua_tostring(L, 1);
+  int pad = 1;
+  if (numArgs >= 2)
+    pad = (int)lua_tointeger(L, 2);
+  //no gamepad support right now
+  ctx.stack().push(0);
+  ctx.stack().push(1);
   return 2;
 }
 

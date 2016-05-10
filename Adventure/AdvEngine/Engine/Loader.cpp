@@ -192,10 +192,14 @@ public:
   BeamCharacterEvent(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir) :
       mName(name), mReason(reason), mRoom(room), mPos(pos), mDir(dir) {}
   virtual Event* execute(){
+    //lock the exec mutex first before accessing save state as the main thread does it that way
+    //TODO: find more parallel solution
+    Engine::instance()->getInterpreter()->getExecMutex().lock();
     Engine::instance()->getSaver()->lock();
     CharacterObject* obj = Engine::instance()->loadCharacter(mName, Engine::instance()->getCharacterClass(mName), mReason);
     InsertCharacterEvent* ice = new InsertCharacterEvent(obj, mReason, mRoom, mPos, mDir);
     Engine::instance()->getSaver()->unlock();
+    Engine::instance()->getInterpreter()->getExecMutex().unlock();
     return ice;
   }
 private:
