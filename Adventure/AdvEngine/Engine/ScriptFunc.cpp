@@ -922,7 +922,14 @@ int ScriptFunctions::giveLink(lua_State* L){
 int ScriptFunctions::setNum(lua_State* L){
   NUM_ARGS(2, 2);
   String varname = ctx.stack().get(1).getString();
-  float val = ctx.stack().get(2).getFloat();
+  StackData value = ctx.stack().get(2);
+  float val = 0;
+  if (value.isNumber())
+    val = value.getFloat();
+  else if (value.isString())
+    val = (float)atof(value.getString().c_str());
+  else
+    TR_BREAK("Unhandled type");
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }
@@ -1241,7 +1248,7 @@ int ScriptFunctions::randomNum(lua_State* L){
   String name = ctx.stack().get(1).getString();
   int limit = ctx.stack().get(2).getInt();
   int rnd = rand()%limit;
-  Engine::instance()->getInterpreter()->setVariable(name, StackData(rnd+1));
+    Engine::instance()->getInterpreter()->setVariable(name, StackData(rnd+1));
   return 0;
 }
 
@@ -1311,7 +1318,15 @@ int ScriptFunctions::setChar(lua_State* L){
 int ScriptFunctions::setString(lua_State* L){
   NUM_ARGS(2, 2);
   String varname = ctx.stack().get(1).getString();
-  String val = ctx.stack().get(2).getString();
+  StackData value = ctx.stack().get(2);
+  String val;
+  if (value.isString())
+    val = value.getString();
+  else if (value.isNumber()){
+    char tmp[64];
+    sprintf(tmp, "%i", value.getInt());
+    val = tmp;
+  }
   Engine::instance()->getInterpreter()->setVariable(varname, StackData(val));
   return 0;
 }

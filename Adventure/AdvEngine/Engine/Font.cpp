@@ -426,7 +426,7 @@ void FontRenderer::load(std::istream& in, int version){
     else
       in >> id;
     Textout* to = new Textout();
-    to->load(in);
+    to->load(in, version);
     mTextouts[id] = to;
   }
 }

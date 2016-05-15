@@ -238,11 +238,21 @@ public:
   virtual Type getType(){return SLOAD;}
 };
 
+#define L2NUM(idx)\
+if (!lua_isnumber(L, idx)){\
+  const char* arg = lua_tostring(L, idx);\
+  lua_pushinteger(L, atoi(arg));\
+  lua_replace(L, idx-1);\
+}
+
+#define MAKENUM() lua_State* L = ctx.getState(); L2NUM(-1); L2NUM(-2);
+
 class CADD : public CCode{
 public:
   CADD() {}
   virtual ~CADD() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    MAKENUM();
     lua_arith(ctx.getState(), LUA_OPADD);
     return ++pc;
   }
@@ -254,6 +264,7 @@ public:
   CSUB() {}
   virtual ~CSUB() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    MAKENUM();
     lua_arith(ctx.getState(), LUA_OPSUB);
     return ++pc;
   }
@@ -265,6 +276,7 @@ public:
   CMUL() {}
   virtual ~CMUL() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    MAKENUM();
     lua_arith(ctx.getState(), LUA_OPMUL);
     return ++pc;
   }
@@ -276,6 +288,7 @@ public:
   CDIV() {}
   virtual ~CDIV() {}
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc){
+    MAKENUM();
     lua_arith(ctx.getState(), LUA_OPDIV);
     return ++pc;
   }
