@@ -669,7 +669,7 @@ CharacterObject* RoomObject::findCharacter(const std::string& name){
 }
 
 bool RoomObject::isWalkable(CharacterObject* walker, const Vec2i& pos){
-  if (pos.x < 0 || pos.y < 0){
+  if (pos.x < 0 || pos.x >= mWalkmap.size() || pos.y < 0 || pos.y >= mWalkmap[0].size()){
     return false;
   }
   WMField field = mWalkmap[pos.x][pos.y];

@@ -87,10 +87,15 @@ void Textout::save(std::ostream& out){
   out << (mBoundRoom.empty() ? "none" : mBoundRoom);
   out << "\n";
   out << (int)mAlignment << "\n";
-  mText->save(out);
+  if (mText){
+    out << 1 << " ";
+    mText->save(out);
+  }
+  else
+    out << 0 << "\n";
 }
 
-void Textout::load(std::istream& in){
+void Textout::load(std::istream& in, int version){
   in >> mEnabled >> mPos.x >> mPos.y >> mFont;
   in >> mColor;
   in >> mBoundRoom;
@@ -99,7 +104,13 @@ void Textout::load(std::istream& in){
   int tmp;
   in >> tmp; mAlignment = (Alignment)tmp;
   Engine::instance()->getFontRenderer()->loadFont(mFont);
-  mText = new ExecutionContext(in);
+  bool hasText = true;
+  if (version >= 2)
+    in >> hasText;
+  if (hasText)
+    mText = new ExecutionContext(in);
+  else
+    mText = NULL;
 }
 
 void Textout::setEnabled(bool enabled){

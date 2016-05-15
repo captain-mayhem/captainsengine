@@ -818,7 +818,8 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately, Execu
   }
   mRoomsToUnload.push_back(room);
   if (mainroom && mCurrentObject){
-    mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
+    if (mCurrentObject->getScript())
+      mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
     delete mDraggingObject;
     mDraggingObject = NULL;
     resetCursor(true, false);

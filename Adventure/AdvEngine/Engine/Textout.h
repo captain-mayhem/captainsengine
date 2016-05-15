@@ -22,9 +22,10 @@ public:
   Color& getColor() {return mColor;}
   void setRoom(const String& room) {mBoundRoom = room;}
   void save(std::ostream& out);
-  void load(std::istream& in);
+  void load(std::istream& in, int version);
   void setAlignment(Alignment alignment) {mAlignment = alignment;}
   String getBoundRoom() {return mBoundRoom;}
+  bool isValid() { return mText != NULL; }
 protected:
   bool mEnabled;
   ExecutionContext* mText;

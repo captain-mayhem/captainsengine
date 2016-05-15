@@ -18,6 +18,8 @@ public:
       mRoom(room), mIsSubRoom(isSubRoom), mLoadreason(loadreason), mScreenchange(screenchange), mFading(fading) {}
       virtual Event* execute(){
         Engine::instance()->insertRoom(mRoom, mIsSubRoom, mLoadreason, mScreenchange, mFading);
+        if (mLoadreason)
+          mLoadreason->unref();
         //delete mRoom;
         return NULL;
       }
@@ -32,7 +34,10 @@ private:
 class LoadRoomEvent : public Event{
 public:
   LoadRoomEvent(const std::string& roomname, bool subroom, ExecutionContext* reason, ScreenChange change, int fade, int depthoffset, bool executeEnter) :
-      mName(roomname), mIsSubRoom(subroom), mLoadreason(reason), mScreenchange(change), mFading(fade), mDepthOffset(depthoffset), mExecuteEnter(executeEnter) {}
+      mName(roomname), mIsSubRoom(subroom), mLoadreason(reason), mScreenchange(change), mFading(fade), mDepthOffset(depthoffset), mExecuteEnter(executeEnter) {
+    if (mLoadreason)
+      mLoadreason->ref();
+  }
       void setData(AdvDocument* data, PcdkScript* cc) {mData = data; mCompiler = cc;}
   virtual Event* execute(){
     TR_USE(ADV_ResLoader);
@@ -177,6 +182,8 @@ public:
       mCharacter->realize();
     }
     Engine::instance()->insertCharacter(mCharacter, mRoom, mPos, mDir);
+    if (mReason)
+      mReason->unref();
     return NULL;
   }
 private:
@@ -190,7 +197,10 @@ private:
 class BeamCharacterEvent : public Event{
 public:
   BeamCharacterEvent(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir) :
-      mName(name), mReason(reason), mRoom(room), mPos(pos), mDir(dir) {}
+      mName(name), mReason(reason), mRoom(room), mPos(pos), mDir(dir) {
+    if (mReason)
+      mReason->ref();
+  }
   virtual Event* execute(){
     //lock the exec mutex first before accessing save state as the main thread does it that way
     //TODO: find more parallel solution
@@ -217,6 +227,8 @@ public:
     mRoomLoadEvt->execute();
     delete mRoomLoadEvt;
     Engine::instance()->changeFocus(mCharacter, mReason);
+    if (mReason)
+      mReason->unref();
     return NULL;
   }
 private:
@@ -227,7 +239,10 @@ private:
 
 class SetFocusEvent : public Event{
 public:
-  SetFocusEvent(const std::string& name, ExecutionContext* reason) : mName(name), mReason(reason) {}
+  SetFocusEvent(const std::string& name, ExecutionContext* reason) : mName(name), mReason(reason) {
+    if (mReason)
+      mReason->ref();
+  }
   void setData(AdvDocument* data, PcdkScript* cc) {mData = data; mCompiler = cc;}
   virtual Event* execute(){
     std::string room;
@@ -265,7 +280,10 @@ private:
 class LoadAnimationEvent : public Event{
 public:
   LoadAnimationEvent(const std::string& prefix, float fps, Vec2i pos, Vec2i size, bool wait, ExecutionContext* reason) : 
-    mPrefix(prefix), mFps(fps), mPos(pos), mSize(size), mWait(wait), mReason(reason) {}
+    mPrefix(prefix), mFps(fps), mPos(pos), mSize(size), mWait(wait), mReason(reason) {
+    if (mReason)
+      mReason->ref();
+  }
   void setData(AdvDocument* data) { mData = data; }
   virtual Event* execute(){
     SimpleFrames frames = Engine::instance()->getData()->getAnimation(mPrefix);

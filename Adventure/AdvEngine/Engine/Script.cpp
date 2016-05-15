@@ -622,7 +622,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::RELATIONAL:{
         RelationalNode* relnode = static_cast<RelationalNode*>(node);
-        if (relnode->type() == RelationalNode::REL_PLUS || relnode->type() == RelationalNode::REL_MINUS || relnode->type() == RelationalNode::REL_TIMES){
+        if (relnode->type() == RelationalNode::REL_PLUS || relnode->type() == RelationalNode::REL_MINUS || relnode->type() == RelationalNode::REL_TIMES || relnode->type() == RelationalNode::REL_DIVIDE){
           //CLOAD var; visit child; CADD/CSUB
           std::map<std::string, std::map<int, std::string> >::iterator funciter = mRelVars.find(mCurrFunc);
           if (funciter == mRelVars.end()){
@@ -635,6 +635,8 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
                 tmp = "-";
               else if (relnode->type() == RelationalNode::REL_TIMES)
                 tmp = "*";
+              else if (relnode->type() == RelationalNode::REL_DIVIDE)
+                tmp = "/";
               CPUSH* push = new CPUSH(tmp);
               codes->addCode(push);
               count += 1;
@@ -673,6 +675,14 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
               count += 2;
             }
             codes->addCode(new CMUL());
+          }
+          else if (relnode->type() == RelationalNode::REL_DIVIDE){
+            if (relnode->negated()){
+              codes->addCode(new CPUSH(-1));
+              codes->addCode(new CMUL());
+              count += 2;
+            }
+            codes->addCode(new CDIV());
           }
           else
             TR_BREAK("Unknown type");
@@ -1687,9 +1697,12 @@ int PcdkScript::getSpecialVar(lua_State* L){
     if (obj == NULL){
       std::string dummy;
       SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
-      if (so == NULL)
-        TR_BREAK("Object %s not found", name.substr(8).c_str());
-      lua_pushinteger(L, so->position.x);
+      if (so == NULL){
+        TR_ERROR("Object %s not found", name.substr(8).c_str());
+        lua_pushinteger(L, 0);
+      }
+      else
+        lua_pushinteger(L, so->position.x);
       return 1;
     }
     lua_pushinteger(L, Engine::instance()->getAnimator()->getTargetPoisition(obj).x);
@@ -1705,9 +1718,12 @@ int PcdkScript::getSpecialVar(lua_State* L){
     if (obj == NULL){
       std::string dummy;
       SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
-      if (so == NULL)
-        TR_BREAK("Object %s not found", name.substr(8).c_str());
-      lua_pushinteger(L, so->position.y);
+      if (so == NULL){
+        TR_ERROR("Object %s not found", name.substr(8).c_str());
+        lua_pushinteger(L, 0);
+      }
+      else
+        lua_pushinteger(L, so->position.y);
       return 1;
     }
     lua_pushinteger(L, Engine::instance()->getAnimator()->getTargetPoisition(obj).y);

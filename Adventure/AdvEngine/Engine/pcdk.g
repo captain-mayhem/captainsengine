@@ -222,6 +222,7 @@ rel_expr returns [ASTNode* exp]
 	| PLUS {((RelationalNode*)$exp)->type() = RelationalNode::REL_PLUS;}
 	| MINUS {((RelationalNode*)$exp)->type() = RelationalNode::REL_MINUS;}
 	| (TIMES {((RelationalNode*)$exp)->type() = RelationalNode::REL_TIMES;} (MINUS {((RelationalNode*)$exp)->negated() = true;})?)
+	| (DIVIDE {((RelationalNode*)$exp)->type() = RelationalNode::REL_DIVIDE;} (MINUS {((RelationalNode*)$exp)->negated() = true;})?)
 	)?
 	ex=expr {((RelationalNode*)$exp)->child() = ex.exp;}
 ;
