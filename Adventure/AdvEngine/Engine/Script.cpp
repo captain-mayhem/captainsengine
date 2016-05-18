@@ -1960,7 +1960,7 @@ ASTNode* PcdkScript::parseLangArg(const char* funcname, int argnum, int strindex
 
 ObjectGroup* PcdkScript::getGroup(const std::string& name){
   for (std::vector<ObjectGroup*>::iterator iter = mGroups.begin(); iter != mGroups.end(); ++iter){
-    if ((*iter)->getName() == name)
+    if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0)
       return *iter;
   }
   return NULL;
