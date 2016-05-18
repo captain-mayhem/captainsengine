@@ -2264,7 +2264,7 @@ int ScriptFunctions::startEffect(lua_State* L){
     return 0;
   }
   PostProcessor::Effect* ef = Engine::instance()->getPostProcessor()->getEffect(effect);
-  if (effect == "noise" || effect == "darkbloom" || effect == "whoosh" || effect == "bloom" || effect == "fog"){
+  if (effect == "noise" || effect == "darkbloom" || effect == "whoosh" || effect == "bloom" || effect == "fog" || effect == "colornoise"){
     int strength = ctx.stack().get(2).getInt();
     bool fade = false;
     if (numArgs > 2){
@@ -2276,7 +2276,7 @@ int ScriptFunctions::startEffect(lua_State* L){
       disableMainEffect();
       ef->activate(fade, strength/50.0f, fade);
     }
-    else if (effect == "noise" || effect == "fog")
+    else if (effect == "noise" || effect == "fog" || effect == "colornoise")
       ef->activate(fade, strength/99.0f);
   }
   else if (effect == "hell"){

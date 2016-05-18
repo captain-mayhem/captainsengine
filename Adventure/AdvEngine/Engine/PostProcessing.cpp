@@ -589,13 +589,60 @@ static const char noisefs[] =
 "}\n"
 "\n";
 
+static const char clrnoisefs[] =
+"@GLSL"
+#ifdef RENDER_TEGRA
+"precision mediump float;\n"
+#endif
+"varying vec2 tex_coord;\n"
+"\n"
+"uniform sampler2D texture;\n"
+"uniform sampler2D blendtex;\n"
+"uniform float opacity;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = vec4(1.0);\n"
+"  color = texture2D(texture, tex_coord.st);\n"
+"  vec4 blendcol = vec4(1.0);\n"
+"  blendcol.rgb = texture2D(blendtex, tex_coord.st).rgb;\n"
+"  color = mix(color, blendcol, opacity);\n"
+"  gl_FragColor = color;\n"
+"  gl_FragColor.a = 1.0;\n"
+"}\n"
+""
+"@HLSL"
+""
+"Texture2D tex : register(t0);\n"
+"SamplerState sampl : register(s0);\n"
+"Texture2D blendtex : register(t1);\n"
+"SamplerState blendsampl : register(s1);\n"
+"\n"
+"cbuffer perDraw{\n"
+"  float opacity;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  color = tex.Sample(sampl, inp.tex_coord);\n"
+"  float4 blendcol = float4(1.0, 1.0, 1.0, 1.0);\n"
+"  blendcol.rgb = blendtex.Sample(blendsampl, inp.tex_coord).rgb;\n"
+"  color = lerp(color, blendcol, opacity);\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
+
 class NoiseEffect : public PostProcessor::Effect{
 public:
-  NoiseEffect() : Effect(stdvs, noisefs), mBlendTex(0){
-    mName = "noise";
+  NoiseEffect(const char* name, const char* fragmentshader, int numChannels) : Effect(stdvs, fragmentshader), mBlendTex(0), mChannels(numChannels){
+    mName = name;
   }
   virtual void init(const Vec2f& size){
-    mImage.setFormat(1, (int)size.x/2, (int)size.y/2);
+    mImage.setFormat(mChannels, (int)size.x/2, (int)size.y/2);
     mImage.allocateData();
     for (unsigned i = 0; i < mImage.getImageSize(); ++i){
       mImage.getData()[i] = (unsigned char)((rand()/(float)RAND_MAX)*255);
@@ -673,13 +720,13 @@ public:
   }
   virtual std::ostream& save(std::ostream& out){
     Effect::save(out);
-    out << mFadeout << " ";
+    out << mFadeout << " " << mChannels << " ";
     mInterpolator.save(out);
     return out;
   }
   virtual std::istream& load(std::istream& in){
     Effect::load(in);
-    in >> mFadeout;
+    in >> mFadeout >> mChannels;
     mInterpolator.load(in);
     return in;
   }
@@ -689,6 +736,7 @@ private:
   bool mFadeout;
   CGE::Texture* mBlendTex;
   CGE::Image mImage;
+  int mChannels;
 };
 
 static const char motionblurfs[] =
@@ -1893,7 +1941,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   mResult1.realize();
   mResult2.realize();
   REGISTER_EFFECT(darkbloom, BloomEffect, "darkbloom", darkbloomfs);
-  REGISTER_EFFECT(noise, NoiseEffect);
+  REGISTER_EFFECT(noise, NoiseEffect, "noise", noisefs, 1);
   REGISTER_EFFECT(hell, BloomEffect, "hell", hellfs);
   REGISTER_EFFECT(motionblur, MotionBlurEffect);
   REGISTER_EFFECT(heat, HeatEffect, "heat", HeatEffect::RANDOM);
@@ -1905,6 +1953,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(zoom, ZoomEffect);
   REGISTER_EFFECT(flash, FlashEffect);
   REGISTER_EFFECT(underwater, HeatEffect, "underwater", HeatEffect::SINE);
+  REGISTER_EFFECT(colornoise, NoiseEffect, "colornoise", clrnoisefs, 4);
 }
 
 PostProcessor::~PostProcessor(){
