@@ -88,6 +88,12 @@ public:
     result.y = (T)(y / other.y);
     return result;
   }
+  Vec2 operator-() const{
+    Vec2 result;
+    result.x = -x;
+    result.y = -y;
+    return result;
+  }
   //! tests for inequality
   const bool operator!=(const Vec2& v) const {
     return (v.x != x || v.y != y);

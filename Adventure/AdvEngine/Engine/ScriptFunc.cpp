@@ -2353,6 +2353,10 @@ int ScriptFunctions::startEffect(lua_State* L){
       fadeout = ctx.stack().get(3).getInt();
     ef->activate(true, fadein, fadeout);
   }
+  else if (effect == "pixelate"){
+    int strength = ctx.stack().get(2).getInt();
+    ef->activate(false, strength * 2.0f);
+  }
   else{
     TR_USE(ADV_ScriptFunc);
     TR_BREAK("Unknown effect %s", effect.c_str());
