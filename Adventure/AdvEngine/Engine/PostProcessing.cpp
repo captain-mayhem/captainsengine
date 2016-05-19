@@ -720,13 +720,13 @@ public:
   }
   virtual std::ostream& save(std::ostream& out){
     Effect::save(out);
-    out << mFadeout << " " << mChannels << " ";
+    out << mFadeout << " ";
     mInterpolator.save(out);
     return out;
   }
   virtual std::istream& load(std::istream& in){
     Effect::load(in);
-    in >> mFadeout >> mChannels;
+    in >> mFadeout;
     mInterpolator.load(in);
     return in;
   }
@@ -1932,6 +1932,117 @@ private:
   int mFadeoutTime;
 };
 
+static const char pixelatefs[] =
+"@GLSL"
+#ifdef RENDER_TEGRA
+"precision mediump float;\n"
+#endif
+"varying vec2 tex_coord;\n"
+"\n"
+"uniform sampler2D texture;\n"
+"uniform float strength;\n"
+"uniform vec2 pixel_offset;\n"
+"\n"
+"void main(){\n"
+"  vec2 delta = strength*pixel_offset;\n"
+"  vec2 basecoord = delta*floor(tex_coord/delta);\n"
+"  vec4 color = vec4(0,0,0,0);\n"
+"  for (int i = 0; i < strength; ++i){\n"
+"    for (int j = 0; j < strength; ++j){\n"
+"      vec2 coord = basecoord + vec2(i*pixel_offset.x, j*pixel_offset.y);\n"
+"      color += texture2D(texture, coord);\n"
+"    }\n"
+"  }\n"
+"  color /= strength*strength;\n"
+"  gl_FragColor = vec4(color.rgb, 1.0);\n"
+"}\n"
+""
+"@HLSL"
+""
+"Texture2D tex;\n"
+"SamplerState sampl;\n"
+"\n"
+"cbuffer perDraw{\n"
+"  float strength;\n"
+"}\n"
+"cbuffer perInstance{\n"
+"  float2 pixel_offset;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float2 delta = strength*pixel_offset;\n"
+"  float2 basecoord = delta*floor(inp.tex_coord/delta);\n"
+"  float4 color = float4(0,0,0,0);\n"
+"  for (int i = 0; i < strength; ++i){\n"
+"    for (int j = 0; j < strength; ++j){\n"
+"      float2 coord = basecoord + float2(i*pixel_offset.x, j*pixel_offset.y);\n"
+"      color += tex.Sample(sampl, coord);\n"
+"    }\n"
+"  }\n"
+"  color /= strength*strength;\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
+
+class PixelateEffect : public PostProcessor::Effect{
+public:
+  PixelateEffect() : Effect(stdvs, pixelatefs){
+    mName = "pixelate";
+  }
+  virtual void init(const Vec2f& size){
+    Effect::init(size);
+    mShader.activate();
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "tex");
+    mShader.uniform(tex, 0);
+    float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
+    float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    mShader.uniform(scale, size.x / powx, size.y / powy);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
+    mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "strength");
+    int pixeloffset = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "pixel_offset");
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER, 1);
+    mShader.uniform(pixeloffset, 1.0f / size.x, 1.0f / size.y);
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER, 1);
+    mShader.deactivate();
+  }
+  virtual void activate(bool fade, ...){
+    va_list args;
+    va_start(args, fade);
+    mPixSize = (float)va_arg(args, double);
+    Effect::activate(fade);
+  }
+  virtual void apply(BlitObject* input){
+    input->getTexture()->activate();
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
+    mShader.activate();
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER);
+    mShader.uniform(mIntensityLoc, mPixSize);
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER);
+    Engine::instance()->drawQuad();
+    mShader.deactivate();
+  }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mPixSize << " ";
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mPixSize;
+    return in;
+  }
+private:
+  int mIntensityLoc;
+  float mPixSize;
+};
+
 
 /* Postprocessor */
 
@@ -1954,6 +2065,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(flash, FlashEffect);
   REGISTER_EFFECT(underwater, HeatEffect, "underwater", HeatEffect::SINE);
   REGISTER_EFFECT(colornoise, NoiseEffect, "colornoise", clrnoisefs, 4);
+  REGISTER_EFFECT(pixelate, PixelateEffect)
 }
 
 PostProcessor::~PostProcessor(){
