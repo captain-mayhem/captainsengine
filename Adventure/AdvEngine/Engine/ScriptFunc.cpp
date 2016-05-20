@@ -2355,7 +2355,7 @@ int ScriptFunctions::startEffect(lua_State* L){
   }
   else if (effect == "pixelate"){
     int strength = ctx.stack().get(2).getInt();
-    ef->activate(false, strength * 2.0f);
+    ef->activate(false, pow(2.0f, strength));
   }
   else{
     TR_USE(ADV_ScriptFunc);

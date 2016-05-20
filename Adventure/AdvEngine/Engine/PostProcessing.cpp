@@ -1941,16 +1941,17 @@ static const char pixelatefs[] =
 "\n"
 "uniform sampler2D texture;\n"
 "uniform float strength;\n"
+"uniform vec2 cam_offset;\n"
 "uniform vec2 pixel_offset;\n"
 "\n"
 "void main(){\n"
 "  vec2 delta = strength*pixel_offset;\n"
 "  vec2 basecoord = delta*floor(tex_coord/delta);\n"
 "  vec4 color = vec4(0,0,0,0);\n"
-"  for (int i = 0; i < strength; ++i){\n"
-"    for (int j = 0; j < strength; ++j){\n"
+"  for (int i = -cam_offset.x; i < strength-cam_offset.x; ++i){\n"
+"    for (int j = -cam_offset.y; j < strength-cam_offset.y; ++j){\n"
 "      vec2 coord = basecoord + vec2(i*pixel_offset.x, j*pixel_offset.y);\n"
-"      color += texture2D(texture, coord);\n"
+"      color += texture2D(texture, clamp(coord, pixel_offset, vec2(1)));\n"
 "    }\n"
 "  }\n"
 "  color /= strength*strength;\n"
@@ -1964,6 +1965,7 @@ static const char pixelatefs[] =
 "\n"
 "cbuffer perDraw{\n"
 "  float strength;\n"
+"  float2 cam_offset;\n"
 "}\n"
 "cbuffer perInstance{\n"
 "  float2 pixel_offset;\n"
@@ -1978,10 +1980,10 @@ static const char pixelatefs[] =
 "  float2 delta = strength*pixel_offset;\n"
 "  float2 basecoord = delta*floor(inp.tex_coord/delta);\n"
 "  float4 color = float4(0,0,0,0);\n"
-"  for (int i = 0; i < strength; ++i){\n"
-"    for (int j = 0; j < strength; ++j){\n"
+"  for (int i = -cam_offset.x; i < strength-cam_offset.x; ++i){\n"
+"    for (int j = -cam_offset.y; j < strength-cam_offset.y; ++j){\n"
 "      float2 coord = basecoord + float2(i*pixel_offset.x, j*pixel_offset.y);\n"
-"      color += tex.Sample(sampl, coord);\n"
+"      color += tex.Sample(sampl, clamp(coord, pixel_offset, float2(1,1)));\n"
 "    }\n"
 "  }\n"
 "  color /= strength*strength;\n"
@@ -2006,9 +2008,10 @@ public:
     mShader.uniform(scale, size.x / powx, size.y / powy);
     mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
     mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "strength");
+    mCamOffsetLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "cam_offset");
     int pixeloffset = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "pixel_offset");
     mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER, 1);
-    mShader.uniform(pixeloffset, 1.0f / size.x, 1.0f / size.y);
+    mShader.uniform(pixeloffset, 1.0f / powx, 1.0f / powy);
     mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER, 1);
     mShader.deactivate();
   }
@@ -2022,8 +2025,10 @@ public:
     input->getTexture()->activate();
     CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
     mShader.activate();
+    Vec2i camOffset = -Engine::instance()->getRoom("")->getScrollOffset();
     mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER);
     mShader.uniform(mIntensityLoc, mPixSize);
+    mShader.uniform(mCamOffsetLoc, fmodf((float)camOffset.x, mPixSize), fmodf((float)camOffset.y, mPixSize));
     mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER);
     Engine::instance()->drawQuad();
     mShader.deactivate();
@@ -2040,6 +2045,7 @@ public:
   }
 private:
   int mIntensityLoc;
+  int mCamOffsetLoc;
   float mPixSize;
 };
 
