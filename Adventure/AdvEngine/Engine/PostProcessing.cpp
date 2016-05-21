@@ -799,8 +799,8 @@ static const char motionblurfs[] =
 
 class MotionBlurEffect : public PostProcessor::Effect{
 public:
-  MotionBlurEffect() : Effect(stdvs, motionblurfs), mStdShader(*CGE::Engine::instance()->getRenderer()->createShader()){
-    mName = "motionblur";
+  MotionBlurEffect(const char* name, const char* fragmentshader) : Effect(stdvs, motionblurfs), mStdShader(*CGE::Engine::instance()->getRenderer()->createShader()){
+    mName = name;
     mStdShader.addShader(CGE::Shader::VERTEX_SHADER, stdvs);
     mStdShader.addShader(CGE::Shader::FRAGMENT_SHADER, stdfs);
     mStdShader.linkShaders();
@@ -2049,6 +2049,129 @@ private:
   float mPixSize;
 };
 
+static const char scanlinefs[] =
+"@GLSL"
+#ifdef RENDER_TEGRA
+"precision mediump float;\n"
+#endif
+"varying vec2 tex_coord;\n"
+"\n"
+"uniform sampler2D texture;\n"
+"uniform float strength;\n"
+"uniform vec2 pixel_size;\n"
+"\n"
+"void main(){\n"
+"  vec4 color = texture2D(texture, tex_coord);\n"
+"  float rem = fmod(tex_coord.y, 3*pixel_size.y);\n"
+"  if (rem < pixel_size.y)\n"
+"    color *= strength;\n"
+"  gl_FragColor = vec4(color.rgb, 1.0);\n"
+"}\n"
+""
+"@HLSL"
+""
+"Texture2D tex;\n"
+"SamplerState sampl;\n"
+"\n"
+"cbuffer perDraw{\n"
+"  float strength;\n"
+"}\n"
+"cbuffer perInstance{\n"
+"  float2 pixel_size;\n"
+"}\n"
+"\n"
+"struct PSInput{\n"
+"  float4 vPos : SV_POSITION;\n"
+"  float2 tex_coord : TEXCOORD0;\n"
+"};\n"
+"\n"
+"float4 main(PSInput inp) : SV_TARGET {\n"
+"  float4 color = tex.Sample(sampl, inp.tex_coord);\n"
+"  float rem = fmod(inp.tex_coord.y, 3*pixel_size.y);\n"
+"  if (rem < pixel_size.y)\n"
+"    color *= strength;\n"
+"  return float4(color.rgb, 1.0);\n"
+"}\n"
+"\n";
+
+
+class ScanlineEffect : public PostProcessor::Effect{
+public:
+  ScanlineEffect() : Effect(stdvs, scanlinefs){
+    mName = "scanlines";
+  }
+  virtual void init(const Vec2f& size){
+    Effect::init(size);
+    mShader.activate();
+    int tex = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "tex");
+    mShader.uniform(tex, 0);
+    float powx = (float)Engine::roundToPowerOf2((unsigned)size.x);
+    float powy = (float)Engine::roundToPowerOf2((unsigned)size.y);
+    mShader.lockUniforms(CGE::Shader::VERTEX_SHADER);
+    int scale = mShader.getUniformLocation(CGE::Shader::VERTEX_SHADER, "tex_scale");
+    mShader.uniform(scale, size.x / powx, size.y / powy);
+    mShader.unlockUniforms(CGE::Shader::VERTEX_SHADER);
+    mIntensityLoc = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "strength");
+    int pixeloffset = mShader.getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "pixel_size");
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER, 1);
+    mShader.uniform(pixeloffset, 1.0f / powx, 1.0f / powy);
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER, 1);
+    mShader.deactivate();
+  }
+  virtual void activate(bool fade, ...){
+    va_list args;
+    va_start(args, fade);
+    float strength = (float)va_arg(args, double);
+    va_end(args);
+    mInterpolator.set(fade ? 1.0f : 1.0f-strength, 1.0f-strength, 1000);
+    mFadeout = false;
+    Effect::activate(fade);
+  }
+  virtual void deactivate(){
+    if (mFade){
+      mInterpolator.set(mInterpolator.current(), 1.0f, 1000);
+      mFadeout = true;
+    }
+    else
+      Effect::deactivate();
+  }
+  virtual bool update(unsigned time) {
+    if (!mInterpolator.update(time)){
+      if (mFadeout){
+        Effect::deactivate();
+        return false;
+      }
+    }
+    return true;
+  }
+  virtual void apply(BlitObject* input){
+    input->getTexture()->activate();
+    CGE::Engine::instance()->getRenderer()->clear(COLORBUFFER | ZBUFFER);
+    mShader.activate();
+    mShader.lockUniforms(CGE::Shader::FRAGMENT_SHADER);
+    mShader.uniform(mIntensityLoc, mInterpolator.current());
+    mShader.unlockUniforms(CGE::Shader::FRAGMENT_SHADER);
+    Engine::instance()->drawQuad();
+    mShader.deactivate();
+  }
+  virtual std::ostream& save(std::ostream& out){
+    Effect::save(out);
+    out << mFadeout << " ";
+    mInterpolator.save(out);
+    return out;
+  }
+  virtual std::istream& load(std::istream& in){
+    Effect::load(in);
+    in >> mFadeout;
+    mInterpolator.load(in);
+    return in;
+  }
+private:
+  int mIntensityLoc;
+  Interpolator mInterpolator;
+  bool mFadeout;
+};
+
 
 /* Postprocessor */
 
@@ -2060,7 +2183,7 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(darkbloom, BloomEffect, "darkbloom", darkbloomfs);
   REGISTER_EFFECT(noise, NoiseEffect, "noise", noisefs, 1);
   REGISTER_EFFECT(hell, BloomEffect, "hell", hellfs);
-  REGISTER_EFFECT(motionblur, MotionBlurEffect);
+  REGISTER_EFFECT(motionblur, MotionBlurEffect, "motionblur", motionblurfs);
   REGISTER_EFFECT(heat, HeatEffect, "heat", HeatEffect::RANDOM);
   REGISTER_EFFECT(whoosh, BloomEffect, "whoosh", whooshfs);
   REGISTER_EFFECT(bloom, BloomEffect, "bloom", bloomfs)
@@ -2071,7 +2194,9 @@ PostProcessor::PostProcessor(int width, int height, int depth) : mResult1(width,
   REGISTER_EFFECT(flash, FlashEffect);
   REGISTER_EFFECT(underwater, HeatEffect, "underwater", HeatEffect::SINE);
   REGISTER_EFFECT(colornoise, NoiseEffect, "colornoise", clrnoisefs, 4);
-  REGISTER_EFFECT(pixelate, PixelateEffect)
+  REGISTER_EFFECT(pixelate, PixelateEffect);
+  REGISTER_EFFECT(scanlines, ScanlineEffect);
+  REGISTER_EFFECT(warpspeed, MotionBlurEffect, "warpspeed", motionblurfs);
 }
 
 PostProcessor::~PostProcessor(){
