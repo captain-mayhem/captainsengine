@@ -326,6 +326,7 @@ bool SoundEngine::setDSPEffect(const std::string& effect){
     TR_BREAK("unknown dsp effect %s", effect.c_str());
     return false;
   }
+#ifndef DISABLE_EFX
   const DSPEffect& eff = iter->second;
   switch (eff.type){
   case  DSPEffect::REVERB:{
@@ -401,6 +402,7 @@ bool SoundEngine::setDSPEffect(const std::string& effect){
   }
   };
   alAuxiliaryEffectSloti(mEffectSlot, AL_EFFECTSLOT_EFFECT, mEffect[eff.type]);
+#endif
   mCurrentEffect = effect;
   mIsDSPEffect = true;
   return true;

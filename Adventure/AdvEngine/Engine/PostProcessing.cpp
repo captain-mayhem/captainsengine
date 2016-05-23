@@ -1948,12 +1948,25 @@ static const char pixelatefs[] =
 "  vec2 delta = strength*pixel_offset;\n"
 "  vec2 basecoord = delta*floor(tex_coord/delta);\n"
 "  vec4 color = vec4(0,0,0,0);\n"
-"  for (int i = -cam_offset.x; i < strength-cam_offset.x; ++i){\n"
-"    for (int j = -cam_offset.y; j < strength-cam_offset.y; ++j){\n"
+#ifdef RENDER_TEGRA
+"  for (float li = 0.0; li <= 8.0; ++li){\n"
+"   float i = li-cam_offset.x;\n"
+"   if (i < strength-cam_offset.x){\n"
+"    for (float lj = 0.0; lj <= 8.0; ++lj){\n"
+"     float j = lj-cam_offset.y;\n"
+"     if (j < strength-cam_offset.y){\n"
+#else
+"  for (float i = -cam_offset.x; i < strength-cam_offset.x; ++i){\n"
+"    for (float j = -cam_offset.y; j < strength-cam_offset.y; ++j){\n"
+#endif
 "      vec2 coord = basecoord + vec2(i*pixel_offset.x, j*pixel_offset.y);\n"
 "      color += texture2D(texture, clamp(coord, pixel_offset, vec2(1)));\n"
 "    }\n"
 "  }\n"
+#ifdef RENDER_TEGRA
+"  }\n"
+"  }\n"
+#endif
 "  color /= strength*strength;\n"
 "  gl_FragColor = vec4(color.rgb, 1.0);\n"
 "}\n"
@@ -2062,7 +2075,7 @@ static const char scanlinefs[] =
 "\n"
 "void main(){\n"
 "  vec4 color = texture2D(texture, tex_coord);\n"
-"  float rem = fmod(tex_coord.y, 3*pixel_size.y);\n"
+"  float rem = mod(tex_coord.y, 3.0*pixel_size.y);\n"
 "  if (rem < pixel_size.y)\n"
 "    color *= strength;\n"
 "  gl_FragColor = vec4(color.rgb, 1.0);\n"
