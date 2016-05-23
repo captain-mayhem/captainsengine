@@ -336,7 +336,7 @@ bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_
     mSettings.coinFading = atoi(str.c_str());
     str = txtstream.readLine();
     Vec2f div(130.0f, 180.0f);
-    if (ver_major >= 3 || (ver_major == 3) && ver_minor >= 5)
+    if (ver_major >= 3 || (ver_major == 3 && ver_minor >= 5))
       div = Vec2f(140.0f, 190.0f);
     mSettings.coinCenter.y = (int)(atoi(str.c_str()) / div.x*mSettings.resolution.y);
     str = txtstream.readLine();
@@ -1338,6 +1338,7 @@ int AdvDocument::getLanguageIndex(const std::string& language, Language::Section
 }
 
 bool AdvDocument::loadFile10(CGE::MemReader& txtstream){
+  TR_USE(ADV_DATA);
   std::string str = txtstream.readLine();
   int ver_major = atoi(str.substr(0, 1).c_str());
   int ver_minor = atoi(str.substr(2, 1).c_str());
@@ -1347,11 +1348,12 @@ bool AdvDocument::loadFile10(CGE::MemReader& txtstream){
   txtstream.readLine();
   str = txtstream.readLine();
   //mSettings.noPngToJpeg = str == "-1";
-  if (ver_major < 3 || (ver_major == 3 && ver_minor < 5)){
+  if (!txtstream.isWorking()){
     mSettings.script_lang = PCDK_SCRIPT;
     return true;
   }
   str = txtstream.readLine();
+  TR_INFO("Script: %s", str.c_str());
   if (str == "LUA")
     mSettings.script_lang = LUA_SCRIPT;
   else
