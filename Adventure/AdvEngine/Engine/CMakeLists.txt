@@ -79,6 +79,9 @@ antlr/include
 )
 
 INCLUDE(FindJava)
+if (NOT Java_JAVA_EXECUTABLE)
+set(Java_JAVA_EXECUTABLE dalvikvm CACHE FILEPATH "" FORCE)
+endif()
 
 SET(PARSER_SRCS
 ${CMAKE_CURRENT_SOURCE_DIR}/pcdkParser.c
