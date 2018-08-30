@@ -124,6 +124,15 @@ IF (${OS} STREQUAL "android")
 	MESSAGE(STATUS "Compiling for Android")
 	ADD_DEFINITIONS(-DUNIX)
 	ADD_DEFINITIONS(-DQNX)
+	ADD_DEFINITIONS(-DANDROID)
+	set(CMAKE_SHARED_LINKER_FLAGS
+	"-Wl,--no-undefined -shared -u android_main"
+	)
+	set(ENGINE_LINK_LIBRARIES
+	  ${ENGINE_LINK_LIBRARIES}
+	  android
+	  log
+	  )
 ENDIF(${OS} STREQUAL "android")
 
 OPTION(PHYSICS_DOUBLE_PRECISION "enable double precision physics calculations" ON)
@@ -136,7 +145,7 @@ ENDIF(PHYSICS_DOUBLE_PRECISION)
 
 include(FindFBX)
 
-SET(ENGINE_LINK_LIBRARIES
+set(ENGINE_LINK_LIBRARIES
 	jpeg
 	gif
 	lua

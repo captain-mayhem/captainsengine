@@ -60,3 +60,17 @@ int main(int argc, char** argv){
 }
 #endif
 
+#ifdef ANDROID
+#include <android_native_app_glue.h>
+
+__attribute__((visibility("default")))
+void android_main(struct android_app* app){
+  app_dummy();
+  
+  int argc = 1;
+  char* arg = "cge";
+  char** argv = &arg;
+  CGE::Engine::mainLoop(argc, argv, engineMain, app);
+}
+
+#endif

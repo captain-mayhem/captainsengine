@@ -44,7 +44,7 @@ ADD_EXECUTABLE(lua_interpreter
 lua.c
 )
 
-IF (OS STREQUAL "linux")
+IF (OS STREQUAL "linux" OR OS STREQUAL "android")
 SET(LUA_DEP_LIBS m)
 ENDIF()
 

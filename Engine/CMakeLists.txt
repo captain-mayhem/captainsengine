@@ -1,8 +1,16 @@
+if (OS STREQUAL android)
+OPTION(RENDER_OPENGL "compile renderer with OpenGL support" OFF)
+OPTION(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
+OPTION(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
+OPTION(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" ON)
+OPTION (NO_PTHREAD_CANCEL "Platform has no pthread cancel" ON)
+else()
 OPTION(RENDER_OPENGL "compile renderer with OpenGL support" ON)
 OPTION(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
 OPTION(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
 OPTION(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" OFF)
 OPTION (NO_PTHREAD_CANCEL "Platform has no pthread cancel" OFF)
+endif()
 IF (OS STREQUAL linux)
 OPTION (NO_X11 "Disable X11 for embedded systems" OFF)
 OPTION (DISABLE_DISABLE_XF86VMODE "Disables the X11 xf86 vmode extension" OFF)
@@ -25,6 +33,7 @@ IF(RENDER_GL2)
 	MESSAGE(STATUS "with OpenGL 2 renderer")
 	ADD_DEFINITIONS(-DOPENGL2)
 	
+	if (NOT OS STREQUAL "android")
 	SET(ENGINE_COMPILE_FLAGS
 		-DGLEW_STATIC
 	)
@@ -32,19 +41,27 @@ IF(RENDER_GL2)
 		${ENGINE_LINK_LIBRARIES}
 		glew
 	)
+	endif()
+	
 ENDIF(RENDER_GL2)
-IF (RENDER_OPENGL OR RENDER_GL2)
+IF ((RENDER_OPENGL OR RENDER_GL2) AND NOT RENDER_EMBEDDED)
 	INCLUDE(FindOpenGL)
 	SET(ENGINE_LINK_LIBRARIES
 		${OPENGL_LIBRARIES}
 		${ENGINE_LINK_LIBRARIES}
 	)
-ENDIF(RENDER_OPENGL OR RENDER_GL2)
+ENDIF()
 IF (RENDER_EMBEDDED)
 	MESSAGE(STATUS "with OpenGL ES 2.0 renderer")
 	ADD_DEFINITIONS(-DOPENGL2)
   ADD_DEFINITIONS(-DRENDER_EMBEDDED)
 	ADD_DEFINITIONS(-DRENDER_ES20)
+	SET(ENGINE_LINK_LIBRARIES
+	  ${ENGINE_LINK_LIBRARIES}
+	  GLESv2
+	  EGL
+	  GLESv1_CM
+	)
 ENDIF (RENDER_EMBEDDED)
 
 IF (OS STREQUAL linux)
@@ -154,9 +171,14 @@ SOURCE_GROUP("util" FILES ${Engine_util_HDRS})
 
 TARGET_LINK_LIBRARIES(Engine ${ENGINE_LINK_LIBRARIES})
 
+if (OS STREQUAL "android")
+find_file(ENGINE_MAIN_ADD_SRC android_native_app_glue.c)
+endif()
+
 ADD_LIBRARY(EngineMain STATIC
 	system/engineMain.cpp
 	system/winceMain.h
+	${ENGINE_MAIN_ADD_SRC}
 )
 TARGET_LINK_LIBRARIES(EngineMain Engine)
 
