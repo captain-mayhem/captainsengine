@@ -123,7 +123,6 @@ ENDIF (${OS} STREQUAL "qnx")
 IF (${OS} STREQUAL "android")
 	MESSAGE(STATUS "Compiling for Android")
 	ADD_DEFINITIONS(-DUNIX)
-	ADD_DEFINITIONS(-DQNX)
 	ADD_DEFINITIONS(-DANDROID)
 	set(CMAKE_SHARED_LINKER_FLAGS
 	"-Wl,--no-undefined -shared -u android_main"

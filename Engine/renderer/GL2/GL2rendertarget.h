@@ -2,7 +2,7 @@
 #define CGE_GL2_RENDERTARGET_H
 
 #include <renderer/rendertarget.h>
-#ifndef QNX
+#if !defined QNX && !defined ANDROID
 #include <GL/glew.h>
 #else
 #include <GLES2/gl2.h>

@@ -177,7 +177,7 @@ std::string Filesystem::getCwd(){
 #ifdef UNIX
   getcwd(cwd, 2048);
 #endif
-  return string(cwd);
+  return string(cwd) + "/";
 }
 
 // change directory
@@ -280,3 +280,10 @@ bool Filesystem::exists(const std::string& path){
 #endif
 }
 
+std::string Filesystem::getStorageDir(){
+#ifdef ANDROID
+   return std::string(CGE::Engine::instance()->getApp()->activity->internalDataPath) + "/";
+#else
+  return getCwd();
+#endif
+}

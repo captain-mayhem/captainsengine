@@ -10,7 +10,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#if defined UNIX && !defined QNX
+#if defined UNIX && !defined QNX && !defined(ANDROID)
 #include <GL/glew.h>
 #include <GL/glx.h>
 #endif
@@ -34,7 +34,7 @@ public:
   //! get the device context
   inline HDC getDevice() {return hDC_;}
 #endif
-#if defined UNIX && !defined QNX
+#if defined UNIX && !defined QNX && !defined ANDROID
   //set glx context
   inline void setGLX(GLXContext glx){glx_ = glx;}
   //get glx context
@@ -133,7 +133,7 @@ protected:
   //! GL rendering context
   HGLRC hRC_;
 #endif
-#if defined UNIX && !defined QNX
+#if defined UNIX && !defined QNX && !defined ANDROID
   GLXContext glx_;
 #endif
   //! matrix stacks
@@ -153,4 +153,3 @@ protected:
 #endif
 
 #endif
-

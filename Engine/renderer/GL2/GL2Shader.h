@@ -1,7 +1,7 @@
 #ifndef GL2_SHADER_H
 #define GL2_SHADER_H
 
-#ifndef QNX
+#if !defined QNX && !defined ANDROID
 #include <GL/glew.h>
 #else
 #include <GLES2/gl2.h>

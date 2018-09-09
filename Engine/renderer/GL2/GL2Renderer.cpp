@@ -6,7 +6,7 @@
 #include "../../window/nativeWindows.h"
 #include "../../window/nativeLinux.h"
 #include "../../system/engine.h"
-#ifdef QNX
+#if defined QNX || defined ANDROID
 #include <GLES2/gl2.h>
 #define glClearDepth glClearDepthf
 #else
@@ -30,7 +30,7 @@ GL2Renderer::GL2Renderer(): Renderer(), mShader(NULL) {
   hDC_ = NULL;
   hRC_ = NULL;
 #endif
-#if defined UNIX && !defined QNX
+#if defined UNIX && !defined QNX && !defined ANDROID
   glx_ = NULL;
 #endif
   for (int i = 0; i < 3; ++i){
@@ -97,12 +97,12 @@ void GL2Renderer::initContext(AppWindow* win){
   }
 
 #endif
-#if defined UNIX && !defined QNX
+#if defined UNIX && !defined QNX && !defined ANDROID
   X11Window* x11 = static_cast<X11Window* >(win_);
   glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
 #endif
 
-#ifndef QNX
+#if !defined QNX && !defined ANDROID
   GLenum err = glewInit();
   if (err != GLEW_OK){
     TR_ERROR("Unable to init OpenGL extensions");
@@ -146,7 +146,7 @@ void GL2Renderer::killContext(){
     hDC_ = NULL;
   }
 #endif
-#if defined UNIX && !defined QNX
+#if defined UNIX && !defined QNX &&  !defined ANDROID
   X11Window* x11 = static_cast<X11Window* >(win_);
   if (glx_){
     if (!glXMakeCurrent(x11->getDisplay(), None, NULL)){
@@ -699,7 +699,7 @@ void GL2Renderer::swapBuffers(){
 #ifdef WIN32
   SwapBuffers(hDC_);
 #endif
-#if defined UNIX && !defined QNX
+#if defined UNIX && !defined QNX && !defined ANDROID
   X11Window* win = static_cast<X11Window*>(win_);
   glXSwapBuffers(win->getDisplay(), win->getWindow());
 #endif
@@ -720,5 +720,3 @@ void GL2Renderer::enableScissorTest(bool flag){
   else
     glDisable(GL_SCISSOR_TEST);
 }
-
-

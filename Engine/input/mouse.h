@@ -22,7 +22,7 @@
 #define MB_CTRL ControlMask
 #define MB_SHIFT ShiftMask
 #endif
-#ifdef QNX
+#if defined(QNX) || defined(ANDROID)
 #define MB_LEFT 0
 #define MB_MIDDLE 1
 #define MB_RIGHT 2
@@ -103,4 +103,3 @@ namespace Input{
 }
 
 #endif
-

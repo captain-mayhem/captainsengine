@@ -107,6 +107,11 @@ inline const string toLower(const string& s){
 #include <sys/times.h>
 
 #endif
+
+#ifdef ANDROID
+#include <android_native_app_glue.h>
+#endif
+
 double getTime();
 
 #include "thread.h"
@@ -167,6 +172,12 @@ class Engine{
     void requestShutdown();
     inline bool isShutdownRequested() {return mShutdownRequested;}
     void messageBox(const std::string& message, const std::string& title);
+
+#ifdef ANDROID
+    android_app* getApp(){
+      return m_app;
+    }
+#endif
   private:
     static Engine* eng;
     Engine();
@@ -223,6 +234,10 @@ class Engine{
     //! a gui lock mutex
     Mutex guitex_;
     bool mShutdownRequested;
+    
+#ifdef ANDROID
+    struct android_app* m_app;
+#endif
 };
 }
 

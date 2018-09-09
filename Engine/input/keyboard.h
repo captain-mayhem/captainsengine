@@ -70,7 +70,7 @@
 #define KEY_PAGEUP XK_Page_Up
 #define KEY_PAGEDOWN XK_Page_Down
 #endif
-#ifdef QNX
+#if defined(QNX) || defined(ANDROID)
 #define KEY_ESCAPE 0
 #define KEY_RETURN 1
 #define KEY_BACKSPACE 2
