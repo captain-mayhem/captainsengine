@@ -38,7 +38,7 @@ Graphic::Graphic() : mRT(NULL){
     mRT->deactivate();
   }
   scene_.setActiveCam(&mCam);
-#if 0
+#ifndef RENDER_EMBEDDED
   mTechnique = new CGE::ForwardRenderer();
 #else
   mTechnique = new CGE::LightPrepassRenderer();
@@ -210,4 +210,3 @@ void Graphic::addTexture(const std::string& filename){
   Texture* tex = Texture::create(filename);
   scene_.addTexture(tex);
 }
-

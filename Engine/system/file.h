@@ -53,9 +53,10 @@ public:
   static bool removeDir(const std::string& path, bool recursive = false);
   //! does a file exist
   static bool exists(const std::string& path);
+  //! get storage directory
+  static std::string getStorageDir();
 };
 
 }
 
 #endif
-

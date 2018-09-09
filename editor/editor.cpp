@@ -20,6 +20,8 @@
 
 #define TRANSLATION_SPEED 0.1f
 
+TR_CHANNEL(CGE_Editor_Main);
+
 using CGE::Vector2D;
 using CGE::Vector3D;
 using CGE::Matrix;
@@ -31,6 +33,7 @@ using CGE::Filesystem;
 Editor* Editor::edi_ = NULL;
 
 Editor::Editor(){
+  TR_USE(CGE_Editor_Main);
   arcball_ = new CGE::Arcball();
   lastPos_ = Vector2D();
   gridStep_ = 8;
@@ -41,7 +44,10 @@ Editor::Editor(){
   std::string path = Filesystem::getCwd();
   std::cerr << path;
   std::ifstream in((path+"/data/attributes.dat").c_str());
-  assert(in);
+  if (!in){
+    TR_ERROR("data/attributes.dat not found!");
+    return;
+  }
   std::string attrib;
   char buffer[1024];
   while(in >> attrib){
@@ -285,4 +291,3 @@ void Editor::startup(){
     Graphic::instance()->addModel(Graphic::instance()->getScene().getMeshes().size()-1);
   }
 }
-

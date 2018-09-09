@@ -60,12 +60,15 @@ static char const * vs_src_base =
 
 static char const * fs_src_base =
 "@GLSL\n"
+#ifdef RENDER_EMBEDDED
+"precision mediump float;"
+#endif
 "uniform sampler2D texture;\n"
 "\n"
 "varying vec3 vnormal;\n"
 "varying vec2 uvcoord;\n"
 "\n"
-"uniform int textureEnabled;\n"
+"uniform bool textureEnabled;\n"
 "uniform vec4 matDiffuse;\n"
 "uniform vec4 matSpecular;\n"
 "uniform float matShininess;\n"
@@ -77,8 +80,10 @@ static char const * fs_src_base =
 "  vec4 color = matDiffuse;\n"
 "  if (textureEnabled)\n"
 "    color *= texture2D(texture, uvcoord);\n"
+#ifndef RENDER_EMBEDDED
 "  gl_FragData[1] = color;\n"
 "  gl_FragData[2] = matSpecular;\n"
+#endif
 "  \n"
 "}\n"
 ""
@@ -132,9 +137,9 @@ static char const * vs_src_light =
 "varying vec3 eyeDir;\n"
 "\n"
 "void main(){\n"
-"  uvcoord = vec2(texcoord.x, 1-texcoord.y);\n"
+"  uvcoord = vec2(texcoord.x, 1.0-texcoord.y);\n"
 "  eyeDir = vec3(2.0*nearPlaneSize*uvcoord - nearPlaneSize, -1.0);\n"
-"  gl_Position = vec4(2*pos.x, 2*pos.y, 2*pos.z, 1.0);\n"
+"  gl_Position = vec4(2.0*pos.x, 2.0*pos.y, 2.0*pos.z, 1.0);\n"
 "}\n"
 ""
 ""
@@ -167,6 +172,9 @@ static char const * vs_src_light =
 
 static char const * fs_src_light =
 "@GLSL\n"
+#ifdef RENDER_EMBEDDED
+"precision mediump float;\n"
+#endif
 "uniform sampler2D texture;\n"
 "uniform sampler2D depthTex;\n"
 "\n"
@@ -302,8 +310,8 @@ static char const * vs_src_compositing =
 "varying vec2 uvcoord;\n"
 "\n"
 "void main(){\n"
-"  uvcoord = vec2(texcoord.x, 1-texcoord.y);\n"
-"  gl_Position = vec4(2*pos.x, 2*pos.y, 2*pos.z, 1.0);\n"
+"  uvcoord = vec2(texcoord.x, 1.0-texcoord.y);\n"
+"  gl_Position = vec4(2.0*pos.x, 2.0*pos.y, 2.0*pos.z, 1.0);\n"
 "}\n"
 ""
 ""
@@ -328,6 +336,9 @@ static char const * vs_src_compositing =
 
 static char const * fs_src_compositing =
 "@GLSL\n"
+#ifdef RENDER_EMBEDDED
+"precision mediump float;\n"
+#endif
 "uniform sampler2D lightBuffer;\n"
 "uniform sampler2D diffuseTex;\n"
 "uniform sampler2D specTex;\n"

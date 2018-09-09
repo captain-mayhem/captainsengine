@@ -8,7 +8,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#ifndef QNX
+#if !defined QNX && !defined ANDROID
 #ifdef OPENGL2
 #include <GL/glew.h>
 #else

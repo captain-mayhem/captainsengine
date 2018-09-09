@@ -8,6 +8,7 @@
 #include "../window/nativeWindows.h"
 #include "../window/nativeLinux.h"
 #include "../window/nativeQNX.h"
+#include "../window/nativeAndroid.h"
 #include "script.h"
 #include "../gui/console.h"
 #include "../renderer/forms.h"
@@ -86,6 +87,9 @@ void Engine::startup(int argc, char** argv){
 #endif
 #if defined(LINUX) && !defined(NO_X11)
     win_ = new X11Window(rend_);
+#endif
+#ifdef ANDROID
+  win_ = new AndroidWindow(rend_);
 #endif
 #if defined(QNX) || defined(NO_X11)
 		win_ = new QNXWindow(rend_);
@@ -413,11 +417,7 @@ void Engine::messageBox(const std::string& message, const std::string& title){
 #include <GLES/gl.h>
 
 #include <android/sensor.h>
-#include <android/log.h>
 #include <android_native_app_glue.h>
-
-#define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, "native-activity", __VA_ARGS__))
-#define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, "native-activity", __VA_ARGS__))
 
 /**
  * Our saved state data.
@@ -450,79 +450,9 @@ struct engine {
 /**
  * Initialize an EGL context for the current display.
  */
-
-//GLUES
-
-static void __gluMakeIdentityf(GLfloat m[16])
-{
-    m[0+4*0] = 1; m[0+4*1] = 0; m[0+4*2] = 0; m[0+4*3] = 0;
-    m[1+4*0] = 0; m[1+4*1] = 1; m[1+4*2] = 0; m[1+4*3] = 0;
-    m[2+4*0] = 0; m[2+4*1] = 0; m[2+4*2] = 1; m[2+4*3] = 0;
-    m[3+4*0] = 0; m[3+4*1] = 0; m[3+4*2] = 0; m[3+4*3] = 1;
-}
-
-#define __glPi 3.14159265358979323846
-
-void gluPerspectivef(GLfloat fovy, GLfloat aspect, GLfloat zNear, GLfloat zFar)
-{
-    GLfloat m[4][4];
-    GLfloat sine, cotangent, deltaZ;
-    GLfloat radians=(GLfloat)(fovy/2.0f*__glPi/180.0f);
-
-
-    deltaZ=zFar-zNear;
-    sine=(GLfloat)sin(radians);
-    if ((deltaZ==0.0f) || (sine==0.0f) || (aspect==0.0f))
-    {
-        return;
-    }
-    cotangent=(GLfloat)(cos(radians)/sine);
-
-    __gluMakeIdentityf(&m[0][0]);
-    m[0][0] = cotangent / aspect;
-    m[1][1] = cotangent;
-    m[2][2] = -(zFar + zNear) / deltaZ;
-    m[2][3] = -1.0f;
-    m[3][2] = -2.0f * zNear * zFar / deltaZ;
-    m[3][3] = 0;
-    glMultMatrixf(&m[0][0]);
-}
- 
- 
-GLfloat box[] = {
-	// FRONT
-	-0.5f, -0.5f,  0.5f,
-	 0.5f, -0.5f,  0.5f,
-	-0.5f,  0.5f,  0.5f,
-	 0.5f,  0.5f,  0.5f,
-	// BACK
-	-0.5f, -0.5f, -0.5f,
-	-0.5f,  0.5f, -0.5f,
-	 0.5f, -0.5f, -0.5f,
-	 0.5f,  0.5f, -0.5f,
-	// LEFT
-	-0.5f, -0.5f,  0.5f,
-	-0.5f,  0.5f,  0.5f,
-	-0.5f, -0.5f, -0.5f,
-	-0.5f,  0.5f, -0.5f,
-	// RIGHT
-	 0.5f, -0.5f, -0.5f,
-	 0.5f,  0.5f, -0.5f,
-	 0.5f, -0.5f,  0.5f,
-	 0.5f,  0.5f,  0.5f,
-	// TOP
-	-0.5f,  0.5f,  0.5f,
-	 0.5f,  0.5f,  0.5f,
-	 -0.5f,  0.5f, -0.5f,
-	 0.5f,  0.5f, -0.5f,
-	// BOTTOM
-	-0.5f, -0.5f,  0.5f,
-	-0.5f, -0.5f, -0.5f,
-	 0.5f, -0.5f,  0.5f,
-	 0.5f, -0.5f, -0.5f,
-};    
  
 static int engine_init_display(struct engine* engine) {
+  TR_USE(CGE_Engine);
     // initialize OpenGL ES and EGL
 
     /*
@@ -532,6 +462,7 @@ static int engine_init_display(struct engine* engine) {
      */
     const EGLint attribs[] = {
             EGL_SURFACE_TYPE, EGL_WINDOW_BIT,
+            EGL_RENDERABLE_TYPE, EGL_OPENGL_ES2_BIT,
             EGL_BLUE_SIZE, 8,
             EGL_GREEN_SIZE, 8,
             EGL_RED_SIZE, 8,
@@ -560,14 +491,20 @@ static int engine_init_display(struct engine* engine) {
     eglGetConfigAttrib(display, config, EGL_NATIVE_VISUAL_ID, &format);
 
     ANativeWindow_setBuffersGeometry(engine->app->window, 0, 0, format);
+    
+    const EGLint surfAttribs[] ={
+      EGL_CONTEXT_CLIENT_VERSION, 2,
+      EGL_NONE
+    };
 
     surface = eglCreateWindowSurface(display, config, engine->app->window, NULL);
-    context = eglCreateContext(display, config, NULL, NULL);
+    context = eglCreateContext(display, config, NULL, surfAttribs);
 
     if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
-        LOGW("Unable to eglMakeCurrent");
+        TR_ERROR("Unable to eglMakeCurrent");
         return -1;
     }
+    TR_INFO("Made egl context current");
 
     eglQuerySurface(display, surface, EGL_WIDTH, &w);
     eglQuerySurface(display, surface, EGL_HEIGHT, &h);
@@ -578,26 +515,6 @@ static int engine_init_display(struct engine* engine) {
     engine->width = w;
     engine->height = h;
     engine->state.angle = 0;
-
-    // Initialize GL state.
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_FASTEST);
-    glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_LEQUAL);
-
-	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-	glClearDepthf(1.0f);
-	glVertexPointer(3, GL_FLOAT, 0, box);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glShadeModel(GL_FLAT);
-	
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-
-	glViewport(0, 0, w, h);
-	gluPerspectivef(45.0f, (1.0f * w) / h, 1.0f, 100.0f);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
 
     return 0;
 }
@@ -611,20 +528,6 @@ static void engine_draw_frame(struct engine* engine) {
         // No display.
         return;
     }
-    glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();   
-	glTranslatef(0,-1,-6);
-    glRotatef(engine->state.y, 1.0f, 0.0f, 0.0f);
-    glRotatef(-engine->state.x, 0.0f, 1.0f, 0.0f);    
-    glColor4f(1.0f, 0.0f, 0.0f, 1.0f);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glDrawArrays(GL_TRIANGLE_STRIP, 4, 4);
-    glColor4f(0.0f, 1.0f, 0.0f, 1.0f);
-    glDrawArrays(GL_TRIANGLE_STRIP, 8, 4);
-    glDrawArrays(GL_TRIANGLE_STRIP, 12, 4);
-    glColor4f(0.0f, 0.0f, 1.0f, 1.0f);
-    glDrawArrays(GL_TRIANGLE_STRIP, 16, 4);
-    glDrawArrays(GL_TRIANGLE_STRIP, 20, 4);
     glFlush();
     eglSwapBuffers(engine->display, engine->surface);
 }
@@ -679,6 +582,9 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
             // The window is being shown, get it ready.
             if (engine->app->window != NULL) {
                 engine_init_display(engine);
+                char* title = "cge";
+                CGE::Engine::instance()->startup(1, &title);
+                CGE::Engine::instance()->run();
                 engine_draw_frame(engine);
             }
             break;
@@ -828,8 +734,8 @@ int Engine::mainLoop(int argc, char** argv, USERMAINFUNC engineMain, void* data)
 #endif
 
 #ifdef ANDROID
-struct android_app* app = (android_app*)data;
-
+  struct android_app* app = (android_app*)data;
+  CGE::Engine::instance()->m_app = app;
   struct engine engine;
 
     memset(&engine, 0, sizeof(engine));
@@ -852,7 +758,8 @@ struct android_app* app = (android_app*)data;
 
 //ANativeActivity_finish(app->activity);
 //CGE::Engine::instance()->startup(argc, argv);
-while (1 || CGE::Engine::instance() != NULL && !CGE::Engine::instance()->isShutdownRequested()){
+while (1){
+  TR_USE(CGE_Engine);
   int ident;
   int events;
   struct android_poll_source* source;
@@ -868,7 +775,7 @@ while (1 || CGE::Engine::instance() != NULL && !CGE::Engine::instance()->isShutd
                     ASensorEvent event;
                     while (ASensorEventQueue_getEvents(engine.sensorEventQueue,
                             &event, 1) > 0) {
-                        LOGI("accelerometer: x=%f y=%f z=%f",
+                        TR_DEBUG("accelerometer: x=%f y=%f z=%f",
                                 event.acceleration.x, event.acceleration.y,
                                 event.acceleration.z);
                     }
@@ -876,7 +783,8 @@ while (1 || CGE::Engine::instance() != NULL && !CGE::Engine::instance()->isShutd
             }
     if (app->destroyRequested){
       engine_term_display(&engine);
-      break;
+      CGE::Engine::instance()->shutdown();
+      return 0;
     }
     
     if (engine.animating) {
@@ -888,8 +796,10 @@ while (1 || CGE::Engine::instance() != NULL && !CGE::Engine::instance()->isShutd
 
             // Drawing is throttled to the screen update rate, so there
             // is no need to do timing here.
+            CGE::Engine::instance()->run();
             engine_draw_frame(&engine);
         }
+        //CGE::Engine::instance()->run();
   }
 }
   CGE::Engine::instance()->shutdown();

@@ -4,7 +4,7 @@
 #include <windows.h>
 #endif
 #include "GL2Shader.h"
-#ifndef QNX
+#if !defined QNX && !defined ANDROID
 #include <GL/gl.h>
 #endif
 #include "GL2vertexbuffer.h"
