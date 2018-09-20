@@ -3,6 +3,8 @@
 
 #if defined(ANDROID)
 
+#include <EGL/egl.h>
+
 #include "window.h"
 
 namespace CGE{
@@ -15,7 +17,17 @@ public:
   void init(const std::string& name);
   //! kill the window
   void kill();
+  
+  EGLDisplay getDisplay() {
+    return m_display;
+  }
+  
+  EGLSurface getSurface(){
+    return m_surface;
+  }
 protected:
+  EGLDisplay m_display;
+  EGLSurface m_surface;
 };
 
 }

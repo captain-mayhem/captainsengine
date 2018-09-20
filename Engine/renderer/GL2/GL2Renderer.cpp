@@ -5,6 +5,7 @@
 #endif
 #include "../../window/nativeWindows.h"
 #include "../../window/nativeLinux.h"
+#include "../../window/nativeAndroid.h"
 #include "../../system/engine.h"
 #if defined QNX || defined ANDROID
 #include <GLES2/gl2.h>
@@ -32,6 +33,9 @@ GL2Renderer::GL2Renderer(): Renderer(), mShader(NULL) {
 #endif
 #if defined UNIX && !defined QNX && !defined ANDROID
   glx_ = NULL;
+#endif
+#if ANDROID
+  m_ctx = EGL_NO_CONTEXT;
 #endif
   for (int i = 0; i < 3; ++i){
     mMatrix[i] = CGE::Matrix(CGE::Matrix::Identity);
@@ -116,6 +120,16 @@ void GL2Renderer::initContext(AppWindow* win){
   }
 #endif
 
+#ifdef ANDROID
+  AndroidWindow* andr = static_cast<AndroidWindow* >(win_);
+  
+      if (eglMakeCurrent(andr->getDisplay(), andr->getSurface(), andr->getSurface(), m_ctx) == EGL_FALSE) {
+        TR_ERROR("Unable to eglMakeCurrent");
+        return;
+    }
+    TR_INFO("Made egl context current");
+#endif
+
 #ifdef WIN32
   resizeScene(win->getWidth(), win->getHeight());
 #endif
@@ -155,6 +169,15 @@ void GL2Renderer::killContext(){
     glXDestroyContext(x11->getDisplay(), glx_);
     glx_ = NULL;
   }
+#endif
+#ifdef ANDROID
+  AndroidWindow* andr = static_cast<AndroidWindow* >(win_);
+  
+  eglMakeCurrent(andr->getDisplay(), EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+  if (m_ctx != EGL_NO_CONTEXT) {
+            eglDestroyContext(andr->getDisplay(), m_ctx);
+        }
+   m_ctx = EGL_NO_CONTEXT; 
 #endif
 }
 
@@ -702,6 +725,10 @@ void GL2Renderer::swapBuffers(){
 #if defined UNIX && !defined QNX && !defined ANDROID
   X11Window* win = static_cast<X11Window*>(win_);
   glXSwapBuffers(win->getDisplay(), win->getWindow());
+#endif
+#ifdef ANDROID
+  AndroidWindow* win = static_cast<AndroidWindow*>(win_);
+  eglSwapBuffers(win->getDisplay(), win->getSurface());
 #endif
 }
 
