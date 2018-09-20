@@ -14,6 +14,9 @@
 #include <GL/glew.h>
 #include <GL/glx.h>
 #endif
+#ifdef ANDROID
+#include <EGL/egl.h>
+#endif
 #include "../renderer.h"
 #include "GL2Shader.h"
 #include "GL2rendertarget.h"
@@ -39,6 +42,11 @@ public:
   inline void setGLX(GLXContext glx){glx_ = glx;}
   //get glx context
   inline GLXContext getGLX() const {return glx_;}
+#endif
+#ifdef ANDROID
+  inline void setContext(EGLContext ctx){
+    m_ctx = ctx;
+  }
 #endif
   //! kill rendering context
   void killContext();
@@ -135,6 +143,9 @@ protected:
 #endif
 #if defined UNIX && !defined QNX && !defined ANDROID
   GLXContext glx_;
+#endif
+#ifdef ANDROID
+  EGLContext m_ctx;
 #endif
   //! matrix stacks
   std::stack<CGE::Matrix> mMatrixStack[3];
