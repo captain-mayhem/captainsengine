@@ -55,6 +55,8 @@ public:
   static bool exists(const std::string& path);
   //! get storage directory
   static std::string getStorageDir();
+  //! get asset directory
+  static std::string getAssetDir();
 };
 
 }

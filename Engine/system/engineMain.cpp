@@ -5,6 +5,8 @@
 
 extern void engineMain(int argc, char** argv);
 
+TR_CHANNEL(CGE_Main);
+
 #ifdef WIN32
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, int cmdShow){
@@ -65,7 +67,28 @@ int main(int argc, char** argv){
 
 __attribute__((visibility("default")))
 void android_main(struct android_app* app){
+	TR_USE(CGE_Main);
   app_dummy();
+  
+  /*JNIEnv *env;
+app->activity->vm->AttachCurrentThread(&env, 0);
+
+jobject me = app->activity->clazz;
+
+jclass acl = env->GetObjectClass(me); //class pointer of NativeActivity
+jmethodID giid = env->GetMethodID(acl, "getIntent", "()Landroid/content/Intent;");
+jobject intent = env->CallObjectMethod(me, giid); //Got our intent
+
+jclass icl = env->GetObjectClass(intent); //class pointer of Intent
+jmethodID gseid = env->GetMethodID(icl, "getStringExtra", "(Ljava/lang/String;)Ljava/lang/String;");
+
+jstring jsParam1 = (jstring) env->CallObjectMethod(intent, gseid, env->NewStringUTF("arguments"));
+const char *param = env->GetStringUTFChars(jsParam1, 0);
+TR_INFO("args %s\n", param);
+//When done with it, or when you've made a copy
+env->ReleaseStringUTFChars(jsParam1, param);
+
+//Same for Param2*/
   
   int argc = 1;
   char* arg = "cge";

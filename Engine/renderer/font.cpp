@@ -17,11 +17,17 @@
 
 using namespace CGE;
 
+TR_CHANNEL(CGE_Font);
+
 //Constructor
 Font::Font(){
+	TR_USE(CGE_Font);
   show_ = true;
   rgb_ = Color(1.0,1.0,1.0,1.0);
-  tex_ = CGE::Engine::instance()->getRenderer()->createTexture(CGE::Filesystem::getCwd()+"/textures/font/font.bmp");
+  tex_ = CGE::Engine::instance()->getRenderer()->createTexture(CGE::Filesystem::getAssetDir()+"/textures/font/font.bmp");
+  if (tex_ == NULL){
+  	TR_WARN("Builtin font  not available");
+  }
   buffer_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
   inds_ = CGE::Engine::instance()->getRenderer()->createIndexBuffer(IndexBuffer::IB_USHORT, 4);
   id_ = -1;
@@ -125,6 +131,7 @@ void Font::setColor(Color& c){
 
 // Render all stored text strings
 void Font::render(){
+	TR_USE(CGE_Font);
   Renderer* rend = CGE::Engine::instance()->getRenderer();
   queue<font_data> temp;
 
@@ -204,4 +211,3 @@ void Font::deleteText(short id){
   }
   q_ = temp;
 }
-
