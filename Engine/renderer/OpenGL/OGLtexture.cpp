@@ -31,12 +31,17 @@ bool OGLTexture::createFromImage(Image const* img, Format fmt){
   mHeight = img->getHeight();
 
   glBindTexture(GL_TEXTURE_2D, tex_);
-  glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP, GL_TRUE);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D,GL_GENERATE_MIPMAP, GL_TRUE);
+ 
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR); 
+	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
   GLenum glfmt = glFormat(fmt);
   glTexImage2D(GL_TEXTURE_2D, 0, glfmt, img->getWidth(), img->getHeight(), 0, glfmt, GL_UNSIGNED_BYTE, img->getData());
+  
+#ifdef RENDER_ES20
+  glGenerateMipmap(GL_TEXTURE_2D);
+#endif
 
   return true;
 }

@@ -409,21 +409,8 @@ void Engine::messageBox(const std::string& message, const std::string& title){
 }
 
 #ifdef ANDROID
-#include <jni.h>
-#include <errno.h>
-#include <math.h>
-
 #include <android/sensor.h>
 #include <android_native_app_glue.h>
-
-/**
- * Our saved state data.
- */
-struct saved_state {
-    float angle;
-    int32_t x;
-    int32_t y;
-};
 
 /**
  * Shared state for our app.
@@ -436,12 +423,6 @@ struct engine {
     ASensorEventQueue* sensorEventQueue;
 
     int animating;
-    EGLDisplay display;
-    EGLSurface surface;
-    EGLContext context;
-    int32_t width;
-    int32_t height;
-    struct saved_state state;
 };
 
 
@@ -452,8 +433,8 @@ static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) 
     struct engine* engine = (struct engine*)app->userData;
     if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
         engine->animating = 1;
-        engine->state.x = AMotionEvent_getX(event, 0);
-        engine->state.y = AMotionEvent_getY(event, 0);
+        //engine->state.x = AMotionEvent_getX(event, 0);
+        //engine->state.y = AMotionEvent_getY(event, 0);
         return 1;
     }
     return 0;
@@ -467,11 +448,13 @@ static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
     switch (cmd) {
         case APP_CMD_SAVE_STATE:
             // The system has asked us to save our current state.  Do so.
-            engine->app->savedState = malloc(sizeof(struct saved_state));
-            *((struct saved_state*)engine->app->savedState) = engine->state;
-            engine->app->savedStateSize = sizeof(struct saved_state);
+            //engine->app->savedState = malloc(sizeof(struct saved_state));
+            //*((struct saved_state*)engine->app->savedState) = engine->state;
+            //engine->app->savedStateSize = sizeof(struct saved_state);
             break;
         case APP_CMD_INIT_WINDOW:
+        	if (!Engine::instance())
+        		Engine::init();
             // The window is being shown, get it ready.
             if (engine->app->window != NULL) {
                 char* title = "cge";
@@ -644,16 +627,16 @@ int Engine::mainLoop(int argc, char** argv, USERMAINFUNC engineMain, void* data)
 
     if (app->savedState != NULL) {
         // We are starting with a previous saved state; restore from it.
-        engine.state = *(struct saved_state*)app->savedState;
+        //engine.state = *(struct saved_state*)app->savedState;
     }
 
 //ANativeActivity_finish(app->activity);
+TR_USE(CGE_Engine);
 while (1){
-  TR_USE(CGE_Engine);
   int ident;
   int events;
   struct android_poll_source* source;
-  while ((ident=ALooper_pollAll(0, NULL, &events, (void**)&source)) >= 0) {
+  while ((ident=ALooper_pollAll(engine.animating ? 0 : -1, NULL, &events, (void**)&source)) >= 0) {
             // Process this event.
             if (source != NULL) {
                 source->process(app, source);
@@ -672,18 +655,13 @@ while (1){
                 }
             }
     if (app->destroyRequested){
+    	
       if (CGE::Engine::instance())
         CGE::Engine::instance()->shutdown();
       return 0;
     }
     
     if (engine.animating) {
-            // Done with events; draw next animation frame.
-            engine.state.angle += .01f;
-            if (engine.state.angle > 1) {
-                engine.state.angle = 0;
-            }
-
             // Drawing is throttled to the screen update rate, so there
             // is no need to do timing here.
             CGE::Engine::instance()->run();
@@ -691,7 +669,8 @@ while (1){
         //CGE::Engine::instance()->run();
   }
 }
-  CGE::Engine::instance()->shutdown();
+TR_INFO("Leaving event loop");
+  //CGE::Engine::instance()->shutdown();
   return 0;
 #endif
 }

@@ -12,6 +12,7 @@
 #include "file.h"
 
 #include "engine.h"
+#include "script.h"
 
 #ifdef WIN32
 #define NOMINMAX
@@ -286,4 +287,11 @@ std::string Filesystem::getStorageDir(){
 #else
   return getCwd();
 #endif
+}
+
+std::string Filesystem::getAssetDir(){
+	std::string ret = Script::instance()->getStringSetting("assetDir");
+	if (ret.empty())
+	  ret = getCwd();
+	return ret;
 }
