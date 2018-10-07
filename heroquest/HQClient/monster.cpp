@@ -13,10 +13,6 @@
 #include <fstream>
 #include <sstream>
 #ifdef _CLIENT_
-#ifdef WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
 #include "gui/console.h"
 #include "common.h"
 #include "renderer.h"
@@ -112,4 +108,3 @@ void Monster::render2D() const {
   Creature::render2D();
 #endif
 }
-

@@ -236,6 +236,8 @@ class Engine{
     bool mShutdownRequested;
     
 #ifdef ANDROID
+	static int32_t handleInput(struct android_app* app, AInputEvent* event);
+	static void handleCmd(struct android_app* app, int32_t cmd);
     struct android_app* m_app;
 #endif
 };

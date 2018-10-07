@@ -14,10 +14,6 @@
 #define OVERLAY_HH
 
 #include <string>
-#ifdef WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
 
 #include "gameobject.h"
 #include "math/vector.h"

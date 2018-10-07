@@ -80,9 +80,6 @@
 #define KEY_RIGHT 6
 #define KEY_F1 7
 #define KEY_F2 8
-#define KEY_C 9
-#define KEY_R 10
-#define KEY_T 11
 
 #define KEY_CTRL 19
 #define KEY_ALT 20
@@ -97,6 +94,12 @@
 #define KEY_CIRCUMFLEX 94
 
 #define KEY_A 97
+#define KEY_C 99
+#define KEY_D 100
+#define KEY_R 114
+#define KEY_S 115
+#define KEY_T 116
+#define KEY_W 119
 
 #endif
 

@@ -3,7 +3,6 @@
 #include <windows.h>
 #endif
 #include <renderer/GL2/GL2Shader.h>
-#include <GL/gl.h>
 
 #include "renderer/renderer.h"
 #include "renderer/font.h"
@@ -422,6 +421,7 @@ void HQRenderer::initialize_(){
     m3DShader->deactivate();
   }
   else if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL){
+ #ifndef RENDER_EMBEDDED
     //setup some nice dark fog
     float fogColor[4] = { 0, 0, 0, 1 };
     glFogi(GL_FOG_MODE, GL_EXP2);
@@ -431,6 +431,7 @@ void HQRenderer::initialize_(){
     glFogf(GL_FOG_START, 0.0);
     glFogf(GL_FOG_END, 100.0);
     glEnable(GL_FOG);
+#endif
   }
   //init textures
   TextureManager::init();

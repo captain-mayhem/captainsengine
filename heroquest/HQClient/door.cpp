@@ -9,10 +9,6 @@
 // | File: door.cpp                                                   |
 //  ==================================================================
 
-#ifdef WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
 #include <string>
 
 #include "system/engine.h"
@@ -133,4 +129,3 @@ void Door::read(ifstream& in, CGE::Scene& scene){
   in.read((char*)&pos_, sizeof(pos_));
   in.read((char*)&pos2_, sizeof(pos2_));
 }
-

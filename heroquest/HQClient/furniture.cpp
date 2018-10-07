@@ -9,11 +9,6 @@
 // | File: furniture.cpp                                              |
 //  ==================================================================
 
-#ifdef WIN32
-	#include <windows.h>
-#endif
-#include <GL/gl.h>
-
 #include "furniture.h"
 #include "common.h"
 #include "world.h"

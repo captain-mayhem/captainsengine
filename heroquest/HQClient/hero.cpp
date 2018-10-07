@@ -13,10 +13,6 @@
 #include <fstream>
 #include <sstream>
 #ifdef _CLIENT_
-#ifdef WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
 #include "gui/console.h"
 #include "gui/dropdown.h"
 #include "common.h"

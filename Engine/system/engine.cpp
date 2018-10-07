@@ -429,21 +429,31 @@ struct engine {
 /**
  * Process the next input event.
  */
-static int32_t engine_handle_input(struct android_app* app, AInputEvent* event) {
+int32_t Engine::handleInput(struct android_app* app, AInputEvent* event) {
     struct engine* engine = (struct engine*)app->userData;
     if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-        engine->animating = 1;
-        //engine->state.x = AMotionEvent_getX(event, 0);
-        //engine->state.y = AMotionEvent_getY(event, 0);
-        return 1;
+    	engine->animating = 1;
+    	int action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
+    switch(action){
+    	case AMOTION_EVENT_ACTION_DOWN:
+    	 Input::Mouse::instance()->buttonDown(AMotionEvent_getX(event, 0), AMotionEvent_getY(event, 0), MB_LEFT);
+    	break;
+    	case AMOTION_EVENT_ACTION_UP:
+    	 Input::Mouse::instance()->buttonUp(AMotionEvent_getX(event, 0), AMotionEvent_getY(event, 0), MB_LEFT);
+    	break;
+    	case AMOTION_EVENT_ACTION_MOVE:
+    	 Input::Mouse::instance()->move(AMotionEvent_getX(event, 0), AMotionEvent_getY(event, 0), MB_LEFT);
+    	break;
     }
-    return 0;
+    return 1;
+  }
+  return 0;
 }
 
 /**
  * Process the next main command.
  */
-static void engine_handle_cmd(struct android_app* app, int32_t cmd) {
+void Engine::handleCmd(struct android_app* app, int32_t cmd) {
     struct engine* engine = (struct engine*)app->userData;
     switch (cmd) {
         case APP_CMD_SAVE_STATE:
@@ -614,8 +624,8 @@ int Engine::mainLoop(int argc, char** argv, USERMAINFUNC engineMain, void* data)
 
     memset(&engine, 0, sizeof(engine));
     app->userData = &engine;
-    app->onAppCmd = engine_handle_cmd;
-    app->onInputEvent = engine_handle_input;
+    app->onAppCmd = handleCmd;
+    app->onInputEvent = handleInput;
     engine.app = app;
 
     // Prepare to monitor accelerometer

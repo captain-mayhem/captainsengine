@@ -10,10 +10,6 @@
 //  ==================================================================
 
 #ifdef _CLIENT_
-#ifdef WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
 #include "textureManager.h"
 #include "camera.h"
 #include "renderer/font.h"
@@ -599,7 +595,8 @@ void World::render2D(bool vis){
       //render items
       if ((curr.getStatus() || !vis) && curr.items){
         TextureManager::instance()->otherTex[3]->activate();
-        glBegin(GL_TRIANGLE_STRIP);
+ #pragma warn "needs to be ported to renderer"
+        /*glBegin(GL_TRIANGLE_STRIP);
 					glTexCoord2f(1.0f, 0.0f);
 					glVertex2f(i*xstep+xstep, (height_-j)*ystep);
 					glTexCoord2f(0.0f, 0.0f);
@@ -608,7 +605,7 @@ void World::render2D(bool vis){
 					glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
 					glTexCoord2f(0.0f, 1.0f);
 					glVertex2f(i*xstep, (height_-j)*ystep-ystep);
-				glEnd();
+				glEnd();*/
       }
 			//if there's an object, render it too.
 			if ((curr.getStatus() || !vis) && curr.object){

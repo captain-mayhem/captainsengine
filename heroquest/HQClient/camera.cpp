@@ -12,6 +12,8 @@
 #include <cmath>
 
 #include <mesh/mesh.h>
+#include <renderer/font.h>
+#include <renderer/renderer.h>
 #include "math.h"
 #include "renderer.h"
 //#include "font.hh"

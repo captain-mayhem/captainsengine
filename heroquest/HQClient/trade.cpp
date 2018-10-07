@@ -1,8 +1,4 @@
 #include <iostream>
-#ifdef WIN32
-#include <windows.h>
-#endif
-#include <GL/gl.h>
 #include "input/mouse.h"
 
 #include "textureManager.h"
