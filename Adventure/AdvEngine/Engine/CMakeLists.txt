@@ -97,8 +97,14 @@ GENERATED TRUE
 LANGUAGE CXX
 )
 
+if(${OS} STREQUAL "android")
+set(ANTLR antlrworks-1.2.3.jar:antlrworks-1.2.3.dex:${CMAKE_CURRENT_BINARY_DIR})
+else()
+set(ANTLR antlrworks-1.2.3.jar)
+endif()
+
 ADD_CUSTOM_COMMAND(OUTPUT ${PARSER_SRCS}
-COMMAND ${JAVA_RUNTIME} -cp antlrworks-1.2.3.jar org.antlr.Tool pcdk.g
+COMMAND ${JAVA_RUNTIME} -cp ${ANTLR} org.antlr.Tool pcdk.g
 DEPENDS pcdk.g
 WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 COMMENT "antlr'ing grammar"
