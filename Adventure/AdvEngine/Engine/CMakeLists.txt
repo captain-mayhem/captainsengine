@@ -7,6 +7,7 @@ OPTION(JNI_FRONTEND "enables a JNI frontend for Android" OFF)
 OPTION(EMSCRIPTEN_FRONTEND "enables a C frontend for emscripten" OFF)
 OPTION(ENGINE_SINGLE_THREADED "makes engine single threaded" ${EMSCRIPTEN_FRONTEND})
 OPTION(DISABLE_EFX "disables EFX sound effects" ${EMSCRIPTEN_FRONTEND})
+OPTION(OPENKODE_FRONTEND "Use an OpenKode frontend" OFF)
 
 SET(AB_LINK_LIBS)
 
@@ -26,10 +27,11 @@ IF(RENDER_EMBEDDED)
       CFrontend.cpp
     )
 	SET(AB_LINK_LIBS ${AB_LINK_LIBS} GLESv2)
-  ELSE(JNI_FRONTEND)
+  ELSEIF(OPENKODE_FRONTEND)
     SET(ADVENTURE_SRCS 
       KDWindow.cpp
     )
+    
     IF (OS STREQUAL windows)
       INCLUDE_DIRECTORIES($ENV{NV_WINGL_X86_PLAT}/include)
       LINK_DIRECTORIES($ENV{NV_WINGL_X86_PLAT}/lib/release)
@@ -40,7 +42,13 @@ IF(RENDER_EMBEDDED)
       ADD_DEFINITIONS(-DRASPBERRY_PI)
       SET(AB_LINK_LIBS ${AB_LINK_LIBS} GLESv2 EGL)
     ENDIF (OS STREQUAL windows)
-  ENDIF(JNI_FRONTEND)
+    
+  else()
+      SET(ADVENTURE_SRCS 
+    CgeWindow.cpp
+    CgeWindow.h
+  )
+  ENDIF()
 
 ELSE(RENDER_EMBEDDED)
   INCLUDE(FindOpenGL)
@@ -76,6 +84,8 @@ ADD_LIBRARY(antlr STATIC
 
 INCLUDE_DIRECTORIES(
 antlr/include
+${CMAKE_CURRENT_BINARY_DIR}
+#${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 INCLUDE(FindJava)
@@ -84,10 +94,10 @@ set(Java_JAVA_EXECUTABLE dalvikvm CACHE FILEPATH "" FORCE)
 endif()
 
 SET(PARSER_SRCS
-${CMAKE_CURRENT_SOURCE_DIR}/pcdkParser.c
-${CMAKE_CURRENT_SOURCE_DIR}/pcdkParser.h
-${CMAKE_CURRENT_SOURCE_DIR}/pcdkLexer.c
-${CMAKE_CURRENT_SOURCE_DIR}/pcdkLexer.h
+${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.c
+${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.h
+${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.c
+${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.h
 )
 
 SET_SOURCE_FILES_PROPERTIES(
@@ -98,17 +108,20 @@ LANGUAGE CXX
 )
 
 if(${OS} STREQUAL "android")
-set(ANTLR antlrworks-1.2.3.jar:antlrworks-1.2.3.dex:${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/antlrworks_android.jar DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+set(ANTLR ${CMAKE_CURRENT_BINARY_DIR}/antlrworks_android.jar)
 else()
-set(ANTLR antlrworks-1.2.3.jar)
+set(ANTLR ${CMAKE_CURRENT_SOURCE_DIR}/antlrworks-1.2.3.jar)
 endif()
 
 ADD_CUSTOM_COMMAND(OUTPUT ${PARSER_SRCS}
-COMMAND ${JAVA_RUNTIME} -cp ${ANTLR} org.antlr.Tool pcdk.g
+COMMAND ${JAVA_RUNTIME} -cp ${ANTLR} org.antlr.Tool -o ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/pcdk.g
 DEPENDS pcdk.g
-WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 COMMENT "antlr'ing grammar"
 )
+
+configure_file(AST.h AST.h COPY_ONLY)
 
 SOURCE_GROUP("Resource Files" FILES AppBuilder.rc)
 SOURCE_GROUP("Grammar" FILES pcdk.g)
@@ -279,11 +292,19 @@ ELSEIF(EMSCRIPTEN_FRONTEND)
 
 SET(ADV_SUFFIX .js)
 
+if(OS STREQUAL "android")
+ADD_LIBRARY(Adventure SHARED
+	${ADVENTURE_SRCS}
+  CmdReceiver.h
+  CmdReceiver.cpp
+)
+else()
 ADD_EXECUTABLE(Adventure${ADV_SUFFIX}
 	${ADVENTURE_SRCS}
   CmdReceiver.h
   CmdReceiver.cpp
 )
+endif()
 
 SET_TARGET_PROPERTIES(Adventure${ADV_SUFFIX} PROPERTIES LINK_FLAGS "-O2 -s FULL_ES2=1 -s OUTLINING_LIMIT=10000 -s TOTAL_MEMORY=268435456 -s ASM_JS=1 -s EXPORTED_FUNCTIONS=\"['_main', '_fsMounted', '_fileWritten', '_fileSynced']\"")
 #-s ALLOW_MEMORY_GROWTH=1
