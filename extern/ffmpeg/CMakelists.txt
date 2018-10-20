@@ -1,0 +1,14 @@
+include_directories(
+.
+android
+)
+
+add_definitions(
+-DARCH_AARCH64=1
+-DARCH_ARM=0
+-DHAVE_MMX=0
+-DHAVE_YASM=0
+-DHAVE_CONFIG_H
+)
+
+#ADD_SUBDIRECTORY(libswresample)

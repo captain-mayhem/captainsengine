@@ -90,12 +90,18 @@
 #define KEY_SPACE 32
 
 #define KEY_0 48
+#define KEY_1 49
+#define KEY_2 50
 
 #define KEY_CIRCUMFLEX 94
 
 #define KEY_A 97
 #define KEY_C 99
 #define KEY_D 100
+#define KEY_I 105
+#define KEY_J 106
+#define KEY_K 107
+#define KEY_L 108
 #define KEY_R 114
 #define KEY_S 115
 #define KEY_T 116
