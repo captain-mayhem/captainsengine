@@ -48,6 +48,7 @@ IF(RENDER_EMBEDDED)
     CgeWindow.cpp
     CgeWindow.h
   )
+  	SET(AB_LINK_LIBS ${AB_LINK_LIBS} EngineMain OpenSLES)
   ENDIF()
 
 ELSE(RENDER_EMBEDDED)
@@ -166,6 +167,18 @@ SET_PROPERTY(TARGET swscale PROPERTY IMPORTED_LOCATION swscale.lib)
 ADD_LIBRARY(swresample STATIC IMPORTED)
 SET_PROPERTY(TARGET swresample PROPERTY IMPORTED_LOCATION swresample.lib)
 ENDIF (OS STREQUAL windows)
+if (OS	STREQUAL "android")
+add_library(avformat STATIC IMPORTED)
+set_property(TARGET avformat PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libavformat/libavformat.a)
+add_library(avcodec STATIC IMPORTED)
+set_property(TARGET avcodec PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libavcodec/libavcodec.a)
+add_library(avutil STATIC IMPORTED)
+set_property(TARGET avutil PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libavutil/libavutil.a)
+add_library(swscale STATIC IMPORTED)
+set_property(TARGET swscale PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libswscale/libswscale.a)
+add_library(swresample STATIC IMPORTED)
+set_property(TARGET swresample PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libswresample/libswresample.a)
+endif()
 
 ###xml###
 SET(AB_LINK_LIBS ${AB_LINK_LIBS} xml)
@@ -292,22 +305,25 @@ ELSEIF(EMSCRIPTEN_FRONTEND)
 
 SET(ADV_SUFFIX .js)
 
-if(OS STREQUAL "android")
-ADD_LIBRARY(Adventure SHARED
-	${ADVENTURE_SRCS}
-  CmdReceiver.h
-  CmdReceiver.cpp
-)
-else()
 ADD_EXECUTABLE(Adventure${ADV_SUFFIX}
 	${ADVENTURE_SRCS}
   CmdReceiver.h
   CmdReceiver.cpp
 )
-endif()
 
 SET_TARGET_PROPERTIES(Adventure${ADV_SUFFIX} PROPERTIES LINK_FLAGS "-O2 -s FULL_ES2=1 -s OUTLINING_LIMIT=10000 -s TOTAL_MEMORY=268435456 -s ASM_JS=1 -s EXPORTED_FUNCTIONS=\"['_main', '_fsMounted', '_fileWritten', '_fileSynced']\"")
 #-s ALLOW_MEMORY_GROWTH=1
+
+
+elseif(OS STREQUAL "android")
+
+ADD_LIBRARY(Adventure SHARED
+	${ADVENTURE_SRCS}
+  CmdReceiver.h
+  CmdReceiver.cpp
+)
+#target_link_libraries(Adventure EngineMain)
+
 
 ELSE(JNI_FRONTEND)
 
@@ -337,12 +353,14 @@ if (EMSCRIPTEN_FRONTEND)
 add_subdirectory(emscripten)
 endif()
 
+if(NOT RENDER_EMBEDDED)
 add_custom_command(TARGET Adventure${ADV_SUFFIX} POST_BUILD
 COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure${ADV_SUFFIX}> $<TARGET_FILE_NAME:Adventure${ADV_SUFFIX}>)
+endif()
 
 #install
 
-INSTALL(TARGETS Adventure${ADV_SUFFIX} RUNTIME DESTINATION adventure COMPONENT adv_runtime)
+INSTALL(TARGETS Adventure${ADV_SUFFIX} RUNTIME DESTINATION adventure LIBRARY	DESTINATION adventure COMPONENT adv_runtime)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 
 if (OS STREQUAL windows)

@@ -1,0 +1,3 @@
+add_library(swresample STATIC
+  audioconvert.c
+)

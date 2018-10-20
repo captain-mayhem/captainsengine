@@ -49,19 +49,19 @@ TR_CHANNEL(ADV_SOUND_ENGINE);
 SoundEngine* SoundEngine::mInstance = NULL;
 
 #if !defined(DISABLE_SOUND) && !defined(DISABLE_EFX)
-LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots = NULL;
-LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots = NULL;
-LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti = NULL;
-LPALAUXILIARYEFFECTSLOTF alAuxiliaryEffectSlotf = NULL;
-LPALGENEFFECTS alGenEffects = NULL;
-LPALDELETEEFFECTS alDeleteEffects = NULL;
-LPALEFFECTF alEffectf = NULL;
-LPALEFFECTFV alEffectfv = NULL;
-LPALEFFECTI alEffecti = NULL;
-LPALGENFILTERS alGenFilters = NULL;
-LPALDELETEFILTERS alDeleteFilters = NULL;
-LPALFILTERI alFilteri = NULL;
-LPALFILTERF alFilterf = NULL;
+static LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots = NULL;
+static LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots = NULL;
+static LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti = NULL;
+static LPALAUXILIARYEFFECTSLOTF alAuxiliaryEffectSlotf = NULL;
+static LPALGENEFFECTS alGenEffects = NULL;
+static LPALDELETEEFFECTS alDeleteEffects = NULL;
+static LPALEFFECTF alEffectf = NULL;
+static LPALEFFECTFV alEffectfv = NULL;
+static LPALEFFECTI alEffecti = NULL;
+static LPALGENFILTERS alGenFilters = NULL;
+static LPALDELETEFILTERS alDeleteFilters = NULL;
+static LPALFILTERI alFilteri = NULL;
+static LPALFILTERF alFilterf = NULL;
 #endif
 
 #ifdef FFMPEG_ANCIENT_API
