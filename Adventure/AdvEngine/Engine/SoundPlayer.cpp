@@ -238,7 +238,7 @@ StreamSoundPlayer::~StreamSoundPlayer(){
 void StreamSoundPlayer::setStream(const std::string& filename){
   mStreamF = filename;
   mStreamDB = NULL;
-}
+} 
 
 void StreamSoundPlayer::setStream(const DataBuffer& buffer){
   mStreamF = "";

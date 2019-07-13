@@ -21,7 +21,7 @@ On top level is the code of the engine and its main projects. In this Readme, th
 
 ## How to build
 Run cmake with trunk as source directory. If you are not doing a cross-platform build and have all dependencies available on your system (OpenGL/DirectX, OpenAL, ffmpeg, Java runtime), it does not need additional arguments. There are tons of it if something needs to be tweaked.
-You can find more detailed instructions in my [Wiki](http://wiki.obfuscated.de)
+You can find more detailed instructions in my [Wiki](http://wiki.captain-online.de)
 
 ## How to use the Engine
-Have a look at my [Wiki](http://wiki.obfuscated.de).
+Have a look at my [Wiki](http://wiki.captain-online.de).
