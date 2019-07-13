@@ -420,7 +420,11 @@ namespace StoryDesigner
         }
         public override void draw(Graphics g, bool boundary, Color bordercolor, float scale)
         {
-            draw(g, State, Position);
+            Vec2i size = mData.getSize(State - 1);
+            Bitmap bmp = new Bitmap(size.x, size.y);
+            Graphics gbmp = Graphics.FromImage(bmp);
+            draw(gbmp, State, new Vec2i());
+            g.DrawImage(bmp, Position.x, Position.y, size.x, size.y);
             if (boundary)
             {
                 drawBoundary(g, State, Position, bordercolor);
