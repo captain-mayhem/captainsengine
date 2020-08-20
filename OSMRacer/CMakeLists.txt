@@ -34,7 +34,7 @@ SET(OSMRacer_HDRS
 	)
 
 if(OS STREQUAL "android")
-ADD_LIBRARY(OSMRacer ${OSMRacer_SRCS} SHARED ${OSMRacer_HDRS})
+ADD_LIBRARY(OSMRacer SHARED ${OSMRacer_SRCS} ${OSMRacer_HDRS})
 else()
 ADD_EXECUTABLE(OSMRacer ${OSMRacer_SRCS} ${OSMRacer_HDRS})
 endif()

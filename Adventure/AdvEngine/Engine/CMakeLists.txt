@@ -122,7 +122,7 @@ WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 COMMENT "antlr'ing grammar"
 )
 
-configure_file(AST.h AST.h COPY_ONLY)
+configure_file(AST.h AST.h COPYONLY)
 
 SOURCE_GROUP("Resource Files" FILES AppBuilder.rc)
 SOURCE_GROUP("Grammar" FILES pcdk.g)
