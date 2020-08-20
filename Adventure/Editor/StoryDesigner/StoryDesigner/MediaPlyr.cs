@@ -16,7 +16,7 @@ namespace StoryDesigner
         {
             InitializeComponent();
             this.Paint += new PaintEventHandler(MediaPlyr_Paint);
-#if !MONO
+#if !MONO && !NO_WMPLIB
             mPlayer = new WMPLib.WindowsMediaPlayer();
             mPlayer.URL = file;
 #endif
@@ -31,19 +31,19 @@ namespace StoryDesigner
 
         private void play_Click(object sender, EventArgs e)
         {
-#if !MONO
+#if !MONO && !NO_WMPLIB
             mPlayer.controls.play();
 #endif
         }
 
-#if !MONO
+#if !MONO && !NO_WMPLIB
         WMPLib.WindowsMediaPlayer mPlayer;
 #endif
         string mName;
 
         private void stop_Click(object sender, EventArgs e)
         {
-#if !MONO
+#if !MONO && !NO_WMPLIB
             mPlayer.controls.stop();
 #endif
         }
