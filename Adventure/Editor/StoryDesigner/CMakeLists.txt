@@ -8,11 +8,11 @@ ADD_CUSTOM_TARGET(BuildStoryDesigner ALL DEPENDS StoryDesigner)
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Debug/StoryDesigner.exe DESTINATION StoryDesigner CONFIGURATIONS Debug COMPONENT StoryDesignerRuntime)
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Debug/de DESTINATION StoryDesigner CONFIGURATIONS Debug COMPONENT StoryDesignerRuntime)
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Debug/de-DE DESTINATION StoryDesigner CONFIGURATIONS Debug COMPONENT StoryDesignerRuntime)
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Debug/Interop.WMPLib.dll DESTINATION StoryDesigner CONFIGURATIONS Debug COMPONENT StoryDesignerRuntime)
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/obj/Debug/Interop.WMPLib.dll DESTINATION StoryDesigner CONFIGURATIONS Debug COMPONENT StoryDesignerRuntime)
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Release/StoryDesigner.exe DESTINATION StoryDesigner CONFIGURATIONS Release COMPONENT StoryDesignerRuntime)
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Release/de DESTINATION StoryDesigner CONFIGURATIONS Release COMPONENT StoryDesignerRuntime)
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Release/de-DE DESTINATION StoryDesigner CONFIGURATIONS Release COMPONENT StoryDesignerRuntime)
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Release/Interop.WMPLib.dll DESTINATION StoryDesigner CONFIGURATIONS Release COMPONENT StoryDesignerRuntime)
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/obj/Release/Interop.WMPLib.dll DESTINATION StoryDesigner CONFIGURATIONS Release COMPONENT StoryDesignerRuntime)
 
 include_external_msproject(
     RemoteControl ${CMAKE_CURRENT_SOURCE_DIR}/RemoteControl/RemoteControl.csproj
