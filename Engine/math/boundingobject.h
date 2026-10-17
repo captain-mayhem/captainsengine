@@ -2,12 +2,14 @@
 #ifndef BOUNDINGOBJECT_H
 #define BOUNDINGOBJECT_H
 
+#include <cge_export.h>
+
 namespace CGE{
 
 class Ray;
 class Matrix;
   
-class BoundingObject{
+class CGE_API BoundingObject{
 public:
   BoundingObject() {}
   virtual ~BoundingObject() {}

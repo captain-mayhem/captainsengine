@@ -92,7 +92,7 @@ void SoundPlayer::realize(){
 SoundPlayer::~SoundPlayer(){
   if (mSuspensionScript){
     mSuspensionScript->resume();
-    mSuspensionScript->unref();
+    ExecutionContext::unref(mSuspensionScript);
     mSuspensionScript = NULL;
   }
   if (mSpeaker){
@@ -122,7 +122,7 @@ void SoundPlayer::setVolume(float volume){
 void SoundPlayer::setSuspensionScript(ExecutionContext* ctx){
   if (mSuspensionScript != NULL){
     mSuspensionScript->reset(true,true);
-    mSuspensionScript->unref();
+    ExecutionContext::unref(mSuspensionScript);
   }
   ctx->ref();
   mSuspensionScript = ctx;

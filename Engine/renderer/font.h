@@ -12,6 +12,8 @@
 #ifndef FONT_HH
 #define FONT_HH
 
+#include <cge_export.h>
+
 #include <string>
 #include <sstream>
 #include <queue>
@@ -28,7 +30,7 @@ namespace CGE{
 class Texture;
 
 //! encapsulates font data with all necessary variables to be able to be rendered
-struct font_data{
+struct CGE_API font_data{
   //! position of the text
   ::CGE::Vector2D pos;
   //! the text
@@ -44,7 +46,7 @@ struct font_data{
 };
 
 //! The font class can render text to the screen, using Bitmap-Fonts and OpenGL
-class Font
+class CGE_API Font
 {
 public:
   //! Constructor

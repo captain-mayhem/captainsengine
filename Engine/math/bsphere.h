@@ -1,12 +1,14 @@
 #ifndef BSPHERE_H
 #define BSPHERE_H
 
+#include <cge_export.h>
+
 #include "boundingobject.h"
 #include "vector.h"
 
 namespace CGE{
 
-class BSphere : public BoundingObject {
+class CGE_API BSphere : public BoundingObject {
 public:
   BSphere();
   BSphere(const Vector3D& center, const float radius);

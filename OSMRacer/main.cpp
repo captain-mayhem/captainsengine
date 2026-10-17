@@ -4,6 +4,7 @@
 #include <input/keyboard.h>
 #include <physics/Simulator.h>
 #include <physics/CollisionPlane.h>
+#include <system/script.h>
 
 #include "OSMReader.h"
 #include "MapChunk.h"
@@ -26,6 +27,8 @@ FollowCam followCam;
 Terrain test(256,256,4.0f,4.0f,NULL,1.0f);
 Vehicle* car;
 MapChunk map;
+// the physics library is separate from the engine core, so the game owns the simulator
+CGE::Simulator* sim = nullptr;
 
 void init(){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
@@ -44,7 +47,13 @@ void init(){
   //cam.lookAt(Vec3f(ep*200),Vec3f(),Vec3f(0,1,0));
 }
 
+void deinit(){
+  delete sim;
+  sim = nullptr;
+}
+
 void render(){
+  sim->doSimulationStep(CGE::Engine::instance()->getFrameInterval());
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->clear(ZBUFFER | COLORBUFFER);
   
@@ -167,9 +176,11 @@ void engineMain(int argc, char** argv){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->setRenderCB(render);
   rend->setInitCB(init);
+  rend->setDeinitCB(deinit);
 
   //physics callbacks
-  CGE::Simulator* sim = CGE::Engine::instance()->getSimulator();
+  float step = CGE::Script::instance()->getRealSetting("integration_interval")/1000;
+  sim = new CGE::Simulator(step);
   sim->setSimulationCallback(simulate);
   sim->setCollisionCallback(collide);
   sim->setGravitation(Vec3f(0,-9.81f,0));

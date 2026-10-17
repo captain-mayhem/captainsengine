@@ -1,6 +1,8 @@
 #ifndef CGE_SOLOADER_H
 #define CGE_SOLOADER_H
 
+#include <cge_export.h>
+
 #include <string>
 
 #ifdef WIN32
@@ -14,7 +16,7 @@ namespace CGE{
 
 typedef void* (*loadedFunc)();
 
-class SOLoader{
+class CGE_API SOLoader{
 public:
 	SOLoader();
 	SOLoader(const std::string& path, const std::string& library);

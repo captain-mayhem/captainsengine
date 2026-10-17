@@ -65,7 +65,7 @@ FontRenderer::String::~String(){
 void FontRenderer::String::endDisplaying(bool immediate){
   if (mSuspensionScript){
     mSuspensionScript->resume();
-    mSuspensionScript->unref();
+    ExecutionContext::unref(mSuspensionScript);
     mSuspensionScript = NULL;
   }
   if (mSpeaker){
@@ -140,7 +140,7 @@ void FontRenderer::String::setExtent(const Vec2i& extent){
 void FontRenderer::String::setSuspensionScript(ExecutionContext* ctx){
   if (mSuspensionScript != NULL){
     mSuspensionScript->reset(true,true);
-    mSuspensionScript->unref();
+    ExecutionContext::unref(mSuspensionScript);
   }
   ctx->ref();
   mSuspensionScript = ctx;

@@ -12,6 +12,8 @@
 #ifndef CLIENTSOCKET_HH
 #define CLIENTSOCKET_HH
 
+#include <cge_export.h>
+
 #include "socket.h"
 
 namespace CGE{
@@ -19,7 +21,7 @@ namespace CGE{
 //! client side socket
 /*! provides simple socket operations
  */
-class ClientSocket : private Socket
+class CGE_API ClientSocket : private Socket
 {
  public:
   //! Creates a socket and connects it

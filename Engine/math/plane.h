@@ -13,11 +13,13 @@
 #ifndef PLANE_H
 #define PLANE_H
 
+#include <cge_export.h>
+
 #include "vector.h"
 
 namespace CGE{
 
-class Plane{
+class CGE_API Plane{
 public:
   Plane();
   Plane(const Vec3f& p1, const Vec3f& p2, const Vec3f& p3);

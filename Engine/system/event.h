@@ -2,6 +2,8 @@
 #ifndef CGE_EVENT_H
 #define CGE_EVENT_H
 
+#include <cge_export.h>
+
 #ifdef WIN32
 #include <Windows.h>
 #endif
@@ -13,7 +15,7 @@
 
 namespace CGE{
 
-class Event{
+class CGE_API Event{
 public:
   Event();
   ~Event();

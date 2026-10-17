@@ -1,6 +1,8 @@
 #ifndef NATIVE_ANDROID_H
 #define NATIVE_ANDROID_H
 
+#include <cge_export.h>
+
 #if defined(ANDROID)
 
 #include <EGL/egl.h>
@@ -9,7 +11,7 @@
 
 namespace CGE{
 
-class AndroidWindow : public AppWindow{
+class CGE_API AndroidWindow : public AppWindow{
 public:
   AndroidWindow(CGE::Renderer* renderer);
   ~AndroidWindow() {}
@@ -37,7 +39,7 @@ protected:
 #ifdef WIN32
 #include "window.h"
 namespace CGE{
-class AndroidWindow : public AppWindow{
+class CGE_API AndroidWindow : public AppWindow{
 public:
   AndroidWindow(CGE::Renderer* renderer) : AppWindow(renderer) {}
   ~AndroidWindow() {}

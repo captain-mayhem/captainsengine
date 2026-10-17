@@ -1,6 +1,8 @@
 #ifndef DXRENDERER_H
 #define DXRENDERER_H
 
+#include <cge_export.h>
+
 #ifndef DIRECTX
 #define Dummy DX
 #include "../dummyrenderer.h"
@@ -23,7 +25,7 @@ class DXShader;
 class DXRenderTarget;
 
 //! The DirectX version of the rendering interface
-class DXRenderer : public Renderer{
+class CGE_API DXRenderer : public Renderer{
 public: 
   //! Constructor
   DXRenderer();

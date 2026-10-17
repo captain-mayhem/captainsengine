@@ -1,13 +1,15 @@
 #ifndef CGE_SHADER_H
 #define CGE_SHADER_H
 
+#include <cge_export.h>
+
 #include <map>
 
 #include <renderer/renderer.h>
 
 namespace CGE{
 
-class Shader{
+class CGE_API Shader{
 public:
   enum Type{
     VERTEX_SHADER = 0,

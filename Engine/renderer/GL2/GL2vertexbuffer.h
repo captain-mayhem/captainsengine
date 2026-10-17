@@ -1,11 +1,13 @@
 #ifndef OGLVERTEXBUFFER_H
 #define OGLVERTEXBUFFER_H
 
+#include <cge_export.h>
+
 #include "../vertexbuffer.h"
 
 namespace CGE{
   
-class GL2VertexBuffer : public VertexBuffer {
+class CGE_API GL2VertexBuffer : public VertexBuffer {
 public:
   GL2VertexBuffer();
   ~GL2VertexBuffer();

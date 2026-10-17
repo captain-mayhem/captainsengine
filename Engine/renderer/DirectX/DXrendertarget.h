@@ -1,6 +1,8 @@
 #ifndef DX_RENDERTARGET_H
 #define DX_RENDERTARGET_H
 
+#include <cge_export.h>
+
 #include "../rendertarget.h"
 #include <vector>
 #include <d3d11.h>
@@ -9,7 +11,7 @@ namespace CGE{
 
 class DXTexture;
 
-class DXRenderTarget : public RenderTarget{
+class CGE_API DXRenderTarget : public RenderTarget{
   friend class DXRenderer;
 public:
   DXRenderTarget(IDXGISwapChain* chain);

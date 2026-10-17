@@ -1,12 +1,14 @@
 #ifndef CGE_WRITER_H
 #define CGE_WRITER_H
 
+#include <cge_export.h>
+
 #include <system/types.h>
 #include <string>
 
 namespace CGE{
 
-class Writer{
+class CGE_API Writer{
 public:
   virtual uint32 writeBytes(uint8* array, uint32 length) = 0;
   virtual bool writeChar(int8 c) = 0;

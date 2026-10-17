@@ -1,6 +1,8 @@
 #ifndef OGLRENDERER_H
 #define OGLRENDERER_H
 
+#include <cge_export.h>
+
 #ifndef OPENGL
 #define Dummy OGL
 #include "../dummyrenderer.h"
@@ -17,7 +19,7 @@
 
 namespace CGE{
 //! The OpenGL version of the rendering interface
-class OGLRenderer : public Renderer{
+class CGE_API OGLRenderer : public Renderer{
 public: 
   //! Constructor
   OGLRenderer();

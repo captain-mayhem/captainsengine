@@ -15,10 +15,11 @@
 #include <iostream>
 #include <math.h>
 #include <float.h>
+#include <cge_export.h>
 
 namespace CGE{
 
-extern float Epsilon;
+extern CGE_API float Epsilon;
 
 template<typename T>
 class Vec2{

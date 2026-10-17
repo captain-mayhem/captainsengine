@@ -1,12 +1,14 @@
 #ifndef DXVERTEXBUFFER_H
 #define DXVERTEXBUFFER_H
 
+#include <cge_export.h>
+
 #include <d3d11.h>
 #include "../vertexbuffer.h"
 
 namespace CGE{
   
-class DXVertexBuffer : public VertexBuffer {
+class CGE_API DXVertexBuffer : public VertexBuffer {
 public:
   DXVertexBuffer();
   ~DXVertexBuffer();

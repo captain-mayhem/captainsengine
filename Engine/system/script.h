@@ -1,6 +1,8 @@
 #ifndef SCRIPT_H
 #define SCRIPT_H
 
+#include <cge_export.h>
+
 extern "C"{
 #include <lua.h>
 #include <lauxlib.h>
@@ -9,7 +11,6 @@ extern "C"{
 
 #include <string>
 
-#include "singleton.h"
 
 using std::string;
 
@@ -20,7 +21,7 @@ namespace CGE{
 /*! Functions to call LUA from C and C-Functions to call from LUA
  * are provided here
  */
-class Script{
+class CGE_API Script{
 public:
 	//! Destructor
 	~Script();

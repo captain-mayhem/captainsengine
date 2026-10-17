@@ -31,7 +31,7 @@ CodeSegment::~CodeSegment(){
   }
   delete mRefCount;
   for (unsigned i = 0; i < mEmbeddedContexts.size(); ++i){
-    mEmbeddedContexts[i]->unref();
+    ExecutionContext::unref(mEmbeddedContexts[i]);
   }
 }
 
@@ -176,17 +176,17 @@ void PcdkScript::stop(){
   mScriptMutex.lock();
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
     if ((*iter)->mExecuteOnce && (*iter)->mOwner == NULL)
-      (*iter)->unref();
+      ExecutionContext::unref((*iter));
   }
   for (std::map<std::string,ExecutionContext*>::iterator iter = mScriptFunctions.begin(); iter != mScriptFunctions.end(); ++iter){
-    iter->second->unref();
+    ExecutionContext::unref(iter->second);
   }
   mScripts.clear();
   mTimers.clear(); //no need to destroy them, destroyed above
   mScriptFunctions.clear();
   mGlobalSuspend = false;
   mHideUI = false;
-  mCutScene->unref();
+  ExecutionContext::unref(mCutScene);
   mCutScene = NULL;
   mPrevState.clear();
   for (unsigned i = 0; i < mGroups.size(); ++i){
@@ -899,13 +899,13 @@ bool PcdkScript::update(unsigned time){
     if (current->mExecuteOnce && !current->mSuspended){
       if (current->mOwner == NULL){
         mTimers.erase(current);
-        current->unref();
+        ExecutionContext::unref(current);
       }
       mScripts.remove(current);
     }
   }
   for (std::list<ExecutionContext*>::iterator iter = tmpScripts.begin(); iter != tmpScripts.end(); ++iter){
-    if ((*iter)->unref()){
+    if (ExecutionContext::unref((*iter))){
       continue;
     }
   }
@@ -919,12 +919,12 @@ bool PcdkScript::update(unsigned time){
     if (mCutScene == NULL)
       mCutScene = oldcutscene;
     else
-      oldcutscene->unref();
+      ExecutionContext::unref(oldcutscene);
     if (mCutScene && !mCutScene->mSuspended && mCutScene->mExecuteOnce && mCutScene == oldcutscene){
       mGlobalSuspend = false;
       mHideUI = false;
       Engine::instance()->setCommand(mPrevActiveCommand, false);
-      mCutScene->unref();
+      ExecutionContext::unref(mCutScene);
       mCutScene = NULL;
       //reload room if changed through cutscene
       CharacterObject* chr = Engine::instance()->getCharacter("self");
@@ -1077,7 +1077,7 @@ void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
   mGlobalSuspend = true;
   if (mCutScene != NULL){
     Engine::instance()->setCommand(mPrevActiveCommand, false);
-    mCutScene->unref();
+    ExecutionContext::unref(mCutScene);
   }
   mCutScene = script;
   if (script == NULL){
@@ -1113,7 +1113,7 @@ void PcdkScript::remove(ExecutionContext* script){
   script->reset(true, true);
   mTimers.erase(script);
   Engine::instance()->removeScript(script);
-  script->unref();
+  ExecutionContext::unref(script);
   mScriptMutex.unlock();
 }
 

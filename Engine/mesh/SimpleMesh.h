@@ -1,3 +1,4 @@
+#include <cge_export.h>
 
 #include "../renderer/vertexbuffer.h"
 
@@ -8,7 +9,7 @@ class IndexBuffer;
 class Camera;
 class Renderer;
 
-class SimpleMesh{
+class CGE_API SimpleMesh{
 public:
   SimpleMesh(VertexBuffer* vb, IndexBuffer* ib, PrimitiveType rt);
   ~SimpleMesh();
