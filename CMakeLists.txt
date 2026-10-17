@@ -2,6 +2,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 3.17)
 
 PROJECT(CaptainsEngine C CXX)
 
+# true if the engine is built on its own, false if another project (e.g. a game)
+# pulls it in with add_subdirectory()
+IF (CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+  SET(CGE_IS_TOP_LEVEL ON)
+ELSE()
+  SET(CGE_IS_TOP_LEVEL OFF)
+ENDIF()
+
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 IF (NOT DEFINED OS)
@@ -25,9 +33,10 @@ ENDIF (NOT CPU)
 SET(CPU ${CPU} CACHE STRING "the current processor architecture")
 MESSAGE(STATUS "CPU architecture is ${CPU}")
 
-OPTION(PROJECT_HEROQUEST "compile heroquest projects" ON)
-OPTION(PROJECT_ADVENTURE "compile adventure projects" ON)
-OPTION(PROJECT_OSMRACER "compile osm racer projects" ON)
+# the engine's own projects are only built by default when the engine is the top-level project
+OPTION(PROJECT_HEROQUEST "compile heroquest projects" ${CGE_IS_TOP_LEVEL})
+OPTION(PROJECT_ADVENTURE "compile adventure projects" ${CGE_IS_TOP_LEVEL})
+OPTION(PROJECT_OSMRACER "compile osm racer projects" ${CGE_IS_TOP_LEVEL})
 OPTION(PROJECT_COMPILER "compile compiler project" OFF)
 OPTION(PROJECT_VGRENDER "compile vector graphics render projects" OFF)
 SET(STORY_DESIGNER_VERSION "1.1.0" CACHE STRING "Story Designer Version" FORCE)
@@ -177,6 +186,12 @@ IF(PROJECT_VGRENDER)
 	ADD_SUBDIRECTORY(vgrender)
 ENDIF(PROJECT_VGRENDER)
 add_subdirectory(tools)
+
+# packaging is only set up for the engine's own build; a project that includes
+# the engine configures CPack itself
+IF (NOT CGE_IS_TOP_LEVEL)
+  RETURN()
+ENDIF()
 
 #packaging
 set(CPACK_GENERATOR "NSIS")
