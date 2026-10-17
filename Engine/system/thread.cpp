@@ -3,9 +3,7 @@
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#ifndef UNDER_CE
 #include <process.h>
-#endif
 #endif
 #ifdef UNIX
 #include <pthread.h>

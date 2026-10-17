@@ -103,7 +103,7 @@ std::istream& PostProcessor::Effect::load(std::istream& in){
 
 static const char bloomvs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "attribute vec3 pos;\n"
@@ -152,7 +152,7 @@ static const char bloomvs[] =
 
 static const char darkbloomfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -209,7 +209,7 @@ static const char darkbloomfs[] =
 
 static const char hellfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -254,7 +254,7 @@ static const char hellfs[] =
 
 static const char whooshfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -309,7 +309,7 @@ static const char whooshfs[] =
 
 static const char bloomfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -469,7 +469,7 @@ private:
 
 static const char stdvs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "attribute vec3 pos;\n"
@@ -511,7 +511,7 @@ static const char stdvs[] =
 
 static const char stdfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -544,7 +544,7 @@ static const char stdfs[] =
 
 static const char noisefs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -591,7 +591,7 @@ static const char noisefs[] =
 
 static const char clrnoisefs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -741,7 +741,7 @@ private:
 
 static const char motionblurfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -934,7 +934,7 @@ private:
 
 static const char heatfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -1099,7 +1099,7 @@ private:
 
 static const char druggedvs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "attribute vec3 pos;\n"
@@ -1260,7 +1260,7 @@ private:
 
 static const char lightningfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -1302,7 +1302,7 @@ static const char lightningfs[] =
 
 static const char drawvs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "attribute vec3 pos;\n"
@@ -1337,7 +1337,7 @@ static const char drawvs[] =
 
 static const char drawfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec4 vert_color;\n"
@@ -1605,7 +1605,7 @@ private:
 
 static const char fogfs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -1934,7 +1934,7 @@ private:
 
 static const char pixelatefs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"
@@ -1948,7 +1948,7 @@ static const char pixelatefs[] =
 "  vec2 delta = strength*pixel_offset;\n"
 "  vec2 basecoord = delta*floor(tex_coord/delta);\n"
 "  vec4 color = vec4(0,0,0,0);\n"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "  for (float li = 0.0; li <= 8.0; ++li){\n"
 "   float i = li-cam_offset.x;\n"
 "   if (i < strength-cam_offset.x){\n"
@@ -1963,7 +1963,7 @@ static const char pixelatefs[] =
 "      color += texture2D(texture, clamp(coord, pixel_offset, vec2(1)));\n"
 "    }\n"
 "  }\n"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "  }\n"
 "  }\n"
 #endif
@@ -2064,7 +2064,7 @@ private:
 
 static const char scanlinefs[] =
 "@GLSL"
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 "precision mediump float;\n"
 #endif
 "varying vec2 tex_coord;\n"

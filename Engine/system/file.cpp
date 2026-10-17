@@ -18,9 +18,7 @@
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#ifndef UNDER_CE
 #include <direct.h>
-#endif
 #endif
 #ifdef UNIX
 #include <sys/types.h>
@@ -33,9 +31,6 @@ using namespace CGE;
 using std::string;
 using std::vector;
 
-#ifdef UNDER_CE
-std::string Filesystem::cwd_ = std::string();
-#endif
 
 
 //get all directories in a directory
@@ -159,21 +154,7 @@ std::vector<std::string> Filesystem::getFiles(const std::string& path){
 std::string Filesystem::getCwd(){
   char cwd[2048];
 #ifdef WIN32
-#ifdef UNDER_CE
-  //no working directory under CE
-  if (cwd_.empty()){
-    wchar_t tmp[256];
-    GetModuleFileName(NULL, tmp, 256);
-    char ctmp[256];
-    wcstombs(ctmp, tmp, 256);
-    cwd_ = std::string(ctmp);
-    int idx = cwd_.find_last_of('\\');
-    cwd_.erase(idx);
-  }
-  return cwd_;
-#else
   _getcwd(cwd, 2048);
-#endif
 #endif
 #ifdef UNIX
   getcwd(cwd, 2048);
@@ -184,12 +165,7 @@ std::string Filesystem::getCwd(){
 // change directory
 bool Filesystem::changeDir(const std::string& path){
 #ifdef WIN32
-#ifdef UNDER_CE
-  //TODO
-  return true;
-#else
   return SetCurrentDirectory(path.c_str()) == TRUE ? true : false;
-#endif
 #endif
 #ifdef UNIX
   return chdir(path.c_str()) == 0 ? true : false;

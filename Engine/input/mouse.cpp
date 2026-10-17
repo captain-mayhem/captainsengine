@@ -1,4 +1,4 @@
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
 #include <X11/Xutil.h>
 #endif
 #include "../system/engine.h"
@@ -40,7 +40,7 @@ Mouse::~Mouse(){
 #ifdef WIN32
   //ReleaseCapture();
 #endif
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
   if (!graphics_)
     return;
   CGE::X11Window* wnd = dynamic_cast<CGE::X11Window*>(CGE::Engine::instance()->getWindow());
@@ -54,7 +54,7 @@ void Mouse::init(bool hasGraphics){
   //Windows::WindowsWindow* wnd = dynamic_cast<Windows::WindowsWindow*>(CGE::Engine::instance()->getWindow());
   //SetCapture(wnd->getHandle());
 #endif
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
   if (!hasGraphics)
     return;
   mouse_->graphics_ = true;
@@ -218,7 +218,7 @@ void Mouse::showCursor(bool visible){
   else
     ShowCursor(0);
 #endif
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
   CGE::X11Window* wnd = dynamic_cast<CGE::X11Window*>(CGE::Engine::instance()->getWindow());
   if (mousePointer_){
     XDefineCursor(wnd->getDisplay(), wnd->getWindow(), None);
@@ -237,7 +237,7 @@ void Mouse::setMousePos(int x, int y){
   ClientToScreen((HWND)static_cast<CGE::WindowsWindow*>(CGE::Engine::instance()->getWindow())->getHandle(), &point);
   SetCursorPos(point.x, point.y);
 #endif
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
   CGE::X11Window* wnd = dynamic_cast<CGE::X11Window*>(CGE::Engine::instance()->getWindow());
   XWarpPointer(wnd->getDisplay(), None, wnd->getWindow(), 0, 0, 0, 0, x, y);
   XEvent useless;

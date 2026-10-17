@@ -326,7 +326,7 @@ bool SoundEngine::setDSPEffect(const std::string& effect){
     TR_BREAK("unknown dsp effect %s", effect.c_str());
     return false;
   }
-#ifndef DISABLE_EFX
+#if !defined(DISABLE_SOUND) && !defined(DISABLE_EFX)
   const DSPEffect& eff = iter->second;
   switch (eff.type){
   case  DSPEffect::REVERB:{
@@ -610,8 +610,10 @@ std::ostream& SoundEngine::save(std::ostream& out){
   out << mMusicVolume << " " << mSpeechVolume << "\n";
   out << mFadingTime << " " << mCurrentEffect << " " << mIsDSPEffect << "\n";
   out << mSpeedFactor << std::endl;
-  float volume;
+  float volume = 1.0f;
+#ifndef DISABLE_SOUND
   alGetListenerf(AL_GAIN, &volume);
+#endif
   out << volume << std::endl;
   if (mActiveMusic != NULL){
     out << String(mActiveMusic->getName()) << " " << mActiveMusic->hasEffect();

@@ -92,8 +92,8 @@ public:
   //! is the mesh visible
   bool isVisible() {return m_visible;}
 
-  //! get the normal of a triangle
-  float* getNormal(int i);
+  //! get the normal of a vertex (averaged over its adjacent triangles)
+  CGE::Vector3D getNormal(int i);
 
   //! get the center of the mesh
   CGE::Vector3D getCenter() {return center_;}

@@ -32,6 +32,8 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/update.xml
 
 add_custom_target(configure_update ALL
   DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/update.xml)
+# update.xml hashes engine1.dat, which the Adventure's post-build step creates
+add_dependencies(configure_update Adventure)
   
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/update.xml DESTINATION StoryDesignerUpdate)
 

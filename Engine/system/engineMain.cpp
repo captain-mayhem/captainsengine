@@ -14,11 +14,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
   std::vector<std::string> args;
   std::vector<const char*> argv;
   args.push_back("Captains Game Engine");
-#ifdef UNDER_CE
-  char tmp[1024];
-  wcstombs(tmp, cmdline, 1024);
-  args.push_back(tmp);
-#else
   int len = (int)strlen(cmdline);
   std::string curr;
   bool acceptWs = false;
@@ -38,7 +33,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
     args.push_back(curr);
     curr.clear();
   }
-#endif
   argv.resize(args.size());
   for (unsigned i = 0; i < args.size(); ++i){
     argv[i] = args[i].c_str();
@@ -53,7 +47,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE oldinstance, LPTSTR cmdline, in
 #include "../renderer/font.h"
 #include "../gui/gui.h"*/
 
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 

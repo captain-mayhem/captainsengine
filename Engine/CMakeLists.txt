@@ -1,90 +1,21 @@
+# Captain's Game Engine library
+
 if (OS STREQUAL android)
-OPTION(RENDER_OPENGL "compile renderer with OpenGL support" OFF)
-OPTION(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
-OPTION(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
-OPTION(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" ON)
-OPTION (NO_PTHREAD_CANCEL "Platform has no pthread cancel" ON)
+  option(RENDER_OPENGL "compile renderer with OpenGL support" OFF)
+  option(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
+  option(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
+  option(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" ON)
+  option(NO_PTHREAD_CANCEL "Platform has no pthread cancel" ON)
 else()
-OPTION(RENDER_OPENGL "compile renderer with OpenGL support" ON)
-OPTION(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
-OPTION(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
-OPTION(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" OFF)
-OPTION (NO_PTHREAD_CANCEL "Platform has no pthread cancel" OFF)
+  option(RENDER_OPENGL "compile renderer with OpenGL support" ON)
+  option(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
+  option(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
+  option(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" OFF)
+  option(NO_PTHREAD_CANCEL "Platform has no pthread cancel" OFF)
 endif()
-IF (OS STREQUAL linux)
-OPTION (NO_X11 "Disable X11 for embedded systems" OFF)
-OPTION (DISABLE_DISABLE_XF86VMODE "Disables the X11 xf86 vmode extension" OFF)
-ENDIF (OS STREQUAL linux)
-
-IF(RENDER_DIRECTX)
-	ADD_DEFINITIONS(-DDIRECTX)
-	SET(ENGINE_LINK_LIBRARIES
-		d3d11
-		d3dcompiler
-		dxguid
-		${ENGINE_LINK_LIBRARIES}
-	)
-ENDIF(RENDER_DIRECTX)
-IF(RENDER_OPENGL)
-	MESSAGE(STATUS "with OpenGL renderer")
-	ADD_DEFINITIONS(-DOPENGL)
-ENDIF(RENDER_OPENGL)
-IF(RENDER_GL2)
-	MESSAGE(STATUS "with OpenGL 2 renderer")
-	ADD_DEFINITIONS(-DOPENGL2)
-	
-	if (NOT OS STREQUAL "android")
-	SET(ENGINE_COMPILE_FLAGS
-		-DGLEW_STATIC
-	)
-	SET(ENGINE_LINK_LIBRARIES
-		${ENGINE_LINK_LIBRARIES}
-		glew
-	)
-	endif()
-	
-ENDIF(RENDER_GL2)
-IF ((RENDER_OPENGL OR RENDER_GL2) AND NOT RENDER_EMBEDDED)
-	INCLUDE(FindOpenGL)
-	SET(ENGINE_LINK_LIBRARIES
-		${OPENGL_LIBRARIES}
-		${ENGINE_LINK_LIBRARIES}
-	)
-ENDIF()
-IF (RENDER_EMBEDDED)
-	MESSAGE(STATUS "with OpenGL ES 2.0 renderer")
-	ADD_DEFINITIONS(-DOPENGL2)
-  ADD_DEFINITIONS(-DRENDER_EMBEDDED)
-	ADD_DEFINITIONS(-DRENDER_ES20)
-	SET(ENGINE_LINK_LIBRARIES
-	  ${ENGINE_LINK_LIBRARIES}
-	  GLESv2
-	  EGL
-	)
-ENDIF (RENDER_EMBEDDED)
-
-IF (OS STREQUAL linux)
-IF (NOT NO_X11)
-SET(ENGINE_LINK_LIBRARIES
-  ${ENGINE_LINK_LIBRARIES}
-  X11
-)
-ELSE (NOT NO_X11)
-ADD_DEFINITIONS(
--DNO_X11
-)
-ENDIF (NOT NO_X11)
-IF (DISABLE_XF86VMODE)
-ADD_DEFINITIONS(
--DDISABLE_XF86VMODE
-)
-ELSE(DISABLE_XF86VMODE)
-SET(ENGINE_LINK_LIBRARIES
-  ${ENGINE_LINK_LIBRARIES}
-  Xxf86vm
-)
-ENDIF(DISABLE_XF86VMODE)
-ENDIF (OS STREQUAL linux)
+if (OS STREQUAL linux)
+  option(DISABLE_XF86VMODE "Disables the X11 xf86 vmode extension" OFF)
+endif()
 
 INCLUDE(gui/CMakeLists.txt)
 INCLUDE(image/CMakeLists.txt)
@@ -100,15 +31,6 @@ INCLUDE(window/CMakeLists.txt)
 INCLUDE(common/CMakeLists.txt)
 INCLUDE(util/CMakeLists.txt)
 
-INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
-LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
-
-IF (NO_PTHREAD_CANCEL)
-ADD_DEFINITIONS(-DNO_PTHREAD_CANCEL)
-ENDIF (NO_PTHREAD_CANCEL)
-
-ADD_DEFINITIONS(${ENGINE_COMPILE_FLAGS})
-
 ADD_LIBRARY(Engine STATIC 
 	${Engine_gui_SRCS}
 	${Engine_image_SRCS}
@@ -118,12 +40,12 @@ ADD_LIBRARY(Engine STATIC
 	${Engine_mesh_SRCS}
 	${Engine_physics_SRCS}
 	${Engine_renderer_SRCS}
-  ${Engine_renderpass_SRCS}
+	${Engine_renderpass_SRCS}
 	${Engine_system_SRCS}
 	${Engine_window_SRCS}
 	${Engine_common_SRCS}
 	${Engine_util_SRCS}
-	
+
 	${Engine_gui_HDRS}
 	${Engine_image_HDRS}
 	${Engine_input_HDRS}
@@ -132,14 +54,85 @@ ADD_LIBRARY(Engine STATIC
 	${Engine_mesh_HDRS}
 	${Engine_physics_HDRS}
 	${Engine_renderer_HDRS}
-  ${Engine_renderpass_HDRS}
+	${Engine_renderpass_HDRS}
 	${Engine_system_HDRS}
 	${Engine_window_HDRS}
 	${Engine_common_HDRS}
 	${Engine_util_HDRS}
 )
+add_library(CGE::Engine ALIAS Engine)
+target_compile_features(Engine PUBLIC cxx_std_20)
 
-TARGET_LINK_LIBRARIES(Engine ${ENGINE_LINK_LIBRARIES})
+# Headers are included as <system/engine.h> (relative to Engine/) and a few
+# as <extern/...> (relative to the engine root).
+target_include_directories(Engine PUBLIC
+	${CaptainsEngine_SOURCE_DIR}
+	${CMAKE_CURRENT_SOURCE_DIR}
+)
+
+# platform definitions used in the public headers
+if (OS STREQUAL "windows")
+	target_compile_definitions(Engine PUBLIC _CRT_SECURE_NO_DEPRECATE)
+	target_link_libraries(Engine PUBLIC wsock32 winmm)
+elseif (OS STREQUAL "linux")
+	target_compile_definitions(Engine PUBLIC UNIX LINUX __STDC_LIMIT_MACROS)
+	find_package(Threads REQUIRED)
+	target_link_libraries(Engine PUBLIC Threads::Threads rt)
+elseif (OS STREQUAL "android")
+	target_compile_definitions(Engine PUBLIC UNIX ANDROID)
+	target_link_libraries(Engine PUBLIC android log)
+endif()
+
+# Lua (system/script.h), ODE (physics/*.h) and zlib (io/ZipReader.h) appear in
+# the public headers; the image libraries are only used inside the engine.
+target_link_libraries(Engine
+	PUBLIC lua lualib ode zlib
+	PRIVATE jpeg gif png
+)
+
+# renderers; these definitions are internal to the engine
+if (RENDER_DIRECTX)
+	target_compile_definitions(Engine PRIVATE DIRECTX)
+	target_link_libraries(Engine PRIVATE d3d11 d3dcompiler dxguid)
+endif()
+if (RENDER_OPENGL)
+	message(STATUS "with OpenGL renderer")
+	target_compile_definitions(Engine PRIVATE OPENGL)
+endif()
+if (RENDER_GL2)
+	message(STATUS "with OpenGL 2 renderer")
+	target_compile_definitions(Engine PRIVATE OPENGL2)
+	if (NOT OS STREQUAL "android")
+		# the GL2 renderer headers include <GL/glew.h>
+		target_link_libraries(Engine PUBLIC glew)
+	endif()
+endif()
+if ((RENDER_OPENGL OR RENDER_GL2) AND NOT RENDER_EMBEDDED)
+	find_package(OpenGL REQUIRED)
+	target_link_libraries(Engine PUBLIC OpenGL::GL OpenGL::GLU)
+	if (TARGET OpenGL::GLX)
+		target_link_libraries(Engine PUBLIC OpenGL::GLX)
+	endif()
+endif()
+if (RENDER_EMBEDDED)
+	message(STATUS "with OpenGL ES 2.0 renderer")
+	target_compile_definitions(Engine PRIVATE OPENGL2 RENDER_ES20)
+	target_compile_definitions(Engine PUBLIC RENDER_EMBEDDED)
+	target_link_libraries(Engine PUBLIC GLESv2 EGL)
+endif()
+
+if (OS STREQUAL linux)
+	target_link_libraries(Engine PUBLIC X11)
+	if (DISABLE_XF86VMODE)
+		target_compile_definitions(Engine PUBLIC DISABLE_XF86VMODE)
+	else()
+		target_link_libraries(Engine PUBLIC Xxf86vm)
+	endif()
+endif()
+
+if (NO_PTHREAD_CANCEL)
+	target_compile_definitions(Engine PRIVATE NO_PTHREAD_CANCEL)
+endif()
 
 SOURCE_GROUP("gui" FILES ${Engine_gui_SRCS})
 SOURCE_GROUP("gui" FILES ${Engine_gui_HDRS})
@@ -168,7 +161,6 @@ SOURCE_GROUP("common" FILES ${Engine_common_HDRS})
 SOURCE_GROUP("util" FILES ${Engine_util_SRCS})
 SOURCE_GROUP("util" FILES ${Engine_util_HDRS})
 
-TARGET_LINK_LIBRARIES(Engine ${ENGINE_LINK_LIBRARIES})
 
 if (OS STREQUAL "android")
 find_file(ENGINE_MAIN_ADD_SRC android_native_app_glue.c)
@@ -176,13 +168,13 @@ endif()
 
 ADD_LIBRARY(EngineMain STATIC
 	system/engineMain.cpp
-	system/winceMain.h
 	${ENGINE_MAIN_ADD_SRC}
 )
-TARGET_LINK_LIBRARIES(EngineMain Engine)
-
-SET(ENGINE_LINK_LIBRARIES ${ENGINE_LINK_LIBRARIES} PARENT_SCOPE)
-SET(ENGINE_COMPILE_FLAGS ${ENGINE_COMPILE_FLAGS} PARENT_SCOPE)
+TARGET_LINK_LIBRARIES(EngineMain PUBLIC Engine)
+if (OS STREQUAL "android")
+	# keep android_main from the native app glue in the application library
+	target_link_options(EngineMain INTERFACE -Wl,--no-undefined -u android_main)
+endif()
 	  
 INSTALL(TARGETS Engine EngineMain ARCHIVE DESTINATION Engine/lib)
 INSTALL(FILES engine.ini DESTINATION Engine)

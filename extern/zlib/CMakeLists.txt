@@ -1,12 +1,6 @@
-IF(${OS} STREQUAL "wince")
-ADD_DEFINITIONS(
-	-DNO_ERRNO_H
-)
-ENDIF(${OS} STREQUAL "wince")
-
-IF(${OS} STREQUAL "windows" OR "wince")
+if (WIN32)
   SET(ZLIB_ADD_SOURCES iowin32.c)
-ENDIF(${OS} STREQUAL "windows" OR "wince")
+endif()
   
 ADD_LIBRARY(zlib STATIC
 	adler32.c
@@ -45,5 +39,7 @@ ADD_LIBRARY(zlib STATIC
 	zlib.h
 	zutil.h
 )
+target_include_directories(zlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+cge_extern_defaults(zlib)
 
 INSTALL(TARGETS zlib ARCHIVE DESTINATION Engine/lib)

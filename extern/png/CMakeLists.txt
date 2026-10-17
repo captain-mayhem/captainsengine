@@ -1,5 +1,3 @@
-INCLUDE_DIRECTORIES(../zlib)
-
 ADD_LIBRARY(png STATIC
 	png.c
 	png.h
@@ -24,5 +22,8 @@ ADD_LIBRARY(png STATIC
 	pngwtran.c
 	pngwutil.c
 )
+target_include_directories(png PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(png PUBLIC zlib)
+cge_extern_defaults(png)
 
 INSTALL(TARGETS png ARCHIVE DESTINATION Engine/lib)

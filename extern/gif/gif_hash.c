@@ -20,6 +20,10 @@
 #include <config.h>
 #endif
 
+/* malloc; without the prototype C assumes it returns int, which truncates
+   64-bit pointers */
+#include <stdlib.h>
+
 /* Find a thirty-two bit int type */
 #ifdef HAVE_STDINT_H
 #include <stdint.h>
