@@ -1,78 +1,37 @@
 ###OPTIONS###
-SET(OS windows CACHE STRING "the os to compile for")
-SET(ARCH ${CPU})
-OPTION(DISABLE_SOUND "disables the ffmpeg and openal backends" OFF)
+# The sound code uses the FFmpeg 2.x API, which only the bundled Windows
+# libraries provide (current Linux distributions ship FFmpeg 5+). It moves to
+# the engine's audio module later; until then Linux builds without sound.
+if (OS STREQUAL "linux")
+  set(DISABLE_SOUND_DEFAULT ON)
+else()
+  set(DISABLE_SOUND_DEFAULT OFF)
+endif()
+OPTION(DISABLE_SOUND "disables the ffmpeg and openal backends" ${DISABLE_SOUND_DEFAULT})
 OPTION(FFMPEG_OLD_API "activate use of older ffmpeg API" OFF)
 OPTION(JNI_FRONTEND "enables a JNI frontend for Android" OFF)
 OPTION(EMSCRIPTEN_FRONTEND "enables a C frontend for emscripten" OFF)
 OPTION(ENGINE_SINGLE_THREADED "makes engine single threaded" ${EMSCRIPTEN_FRONTEND})
 OPTION(DISABLE_EFX "disables EFX sound effects" ${EMSCRIPTEN_FRONTEND})
-OPTION(OPENKODE_FRONTEND "Use an OpenKode frontend" OFF)
 
-SET(AB_LINK_LIBS)
-
-IF (OS STREQUAL windows)
-ADD_DEFINITIONS(-D_CRT_SECURE_NO_DEPRECATE)
-ENDIF (OS STREQUAL windows)
-
+# the frontend (window and main loop) and the libraries only it needs
+SET(ADVENTURE_LINK_LIBS)
 IF(RENDER_EMBEDDED)
-  ADD_DEFINITIONS(-DRENDER_TEGRA)
   IF(JNI_FRONTEND)
-    SET(ADVENTURE_SRCS
-      JNIFrontend.cpp
-    )
-	SET(AB_LINK_LIBS ${AB_LINK_LIBS} GLESv2)
+    SET(ADVENTURE_SRCS JNIFrontend.cpp)
+    SET(ADVENTURE_LINK_LIBS GLESv2 log)
   ELSEIF(EMSCRIPTEN_FRONTEND)
-    SET(ADVENTURE_SRCS
-      CFrontend.cpp
-    )
-	SET(AB_LINK_LIBS ${AB_LINK_LIBS} GLESv2)
-  ELSEIF(OPENKODE_FRONTEND)
-    SET(ADVENTURE_SRCS 
-      KDWindow.cpp
-    )
-    
-    IF (OS STREQUAL windows)
-      INCLUDE_DIRECTORIES($ENV{NV_WINGL_X86_PLAT}/include)
-      LINK_DIRECTORIES($ENV{NV_WINGL_X86_PLAT}/lib/release)
-      SET(AB_LINK_LIBS ${AB_LINK_LIBS} libnvkdmain libKD libGLES20)
-    ELSEIF (OS STREQUAL qnx)
-      SET(AB_LINK_LIBS ${AB_LINK_LIBS} nvkdmain KD GLESv2 EGL rt)
-    ELSE (OS STREQUAL windows)
-      ADD_DEFINITIONS(-DRASPBERRY_PI)
-      SET(AB_LINK_LIBS ${AB_LINK_LIBS} GLESv2 EGL)
-    ENDIF (OS STREQUAL windows)
-    
-  else()
-      SET(ADVENTURE_SRCS 
-    CgeWindow.cpp
-    CgeWindow.h
-  )
-  	SET(AB_LINK_LIBS ${AB_LINK_LIBS} EngineMain OpenSLES)
+    SET(ADVENTURE_SRCS CFrontend.cpp)
+    SET(ADVENTURE_LINK_LIBS GLESv2)
+  ELSE()
+    SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
+    SET(ADVENTURE_LINK_LIBS EngineMain OpenSLES)
   ENDIF()
-
 ELSE(RENDER_EMBEDDED)
-  INCLUDE(FindOpenGL)
-  SET(ADVENTURE_SRCS 
-    CgeWindow.cpp
-    CgeWindow.h
-  )
-  SET(AB_LINK_LIBS ${AB_LINK_LIBS} EngineMain ${OPENGL_gl_LIBRARY})
+  find_package(OpenGL REQUIRED)
+  SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
+  SET(ADVENTURE_LINK_LIBS EngineMain OpenGL::GL)
 ENDIF(RENDER_EMBEDDED)
-
-IF(ENGINE_SINGLE_THREADED)
-ADD_DEFINITIONS(-DENGINE_SINGLE_THREADED)
-ENDIF()
-
-###WXWIDGETS###
-
-#INCLUDE(FindwxWidgets)
-
-#SET(wxWidgets_USE_LIBS base core gl media)
-#FIND_PACKAGE(wxWidgets REQUIRED base core gl media)
-#INCLUDE(${wxWidgets_USE_FILE})
-#ADD_DEFINITIONS(-DwxUSE_NO_MANIFEST=1)
-#SET(AB_LINK_LIBS ${AB_LINK_LIBS} ${wxWidgets_LIBRARIES})
 
 ###ANTLR###
 
@@ -82,12 +41,10 @@ ADD_LIBRARY(antlr STATIC
   ${ANTLR_SRCS}
   ${ANTLR_HDRS}
 )
-
-INCLUDE_DIRECTORIES(
-antlr/include
-${CMAKE_CURRENT_BINARY_DIR}
-#${CMAKE_CURRENT_SOURCE_DIR}
-)
+target_include_directories(antlr PUBLIC antlr/include)
+if (MSVC)
+  target_compile_definitions(antlr PRIVATE _CRT_SECURE_NO_DEPRECATE)
+endif()
 
 INCLUDE(FindJava)
 if (NOT Java_JAVA_EXECUTABLE)
@@ -127,107 +84,7 @@ configure_file(AST.h AST.h COPYONLY)
 SOURCE_GROUP("Resource Files" FILES AppBuilder.rc)
 SOURCE_GROUP("Grammar" FILES pcdk.g)
 
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} antlr)
-
-###GLEW###
-IF(NOT RENDER_EMBEDDED)
-INCLUDE_DIRECTORIES(glew/include)
-ADD_DEFINITIONS(-DGLEW_STATIC)
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} glew)
-ENDIF(NOT RENDER_EMBEDDED)
-
-find_package(OpenAL)
-if (NOT OPENAL_FOUND)
-	message(WARNING "Setting option DISABLE_SOUND as OpenAL was not found")
-	set(DISABLE_SOUND ON CACHE BOOL "" FORCE)
-endif()
-
-IF(NOT DISABLE_SOUND)
-###Open AL###
-INCLUDE(FindOpenAL)
-INCLUDE_DIRECTORIES(
-	${OPENAL_INCLUDE_DIR} 
-	${OPENAL_INCLUDE_DIR}/..
-)
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} ${OPENAL_LIBRARY})
-
-###ALUT###
-INCLUDE_DIRECTORIES(alut/include)
-#this crazy define prevents us from getting declspec dllexport/import defined
-ADD_DEFINITIONS(-D_XBOX)
-ADD_SUBDIRECTORY(alut)
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} alut)
-
-###FFMPEG###
-IF (OS STREQUAL windows)
-INCLUDE_DIRECTORIES(ffmpeg/include)
-if (MSVC_VERSION LESS 1600)
-	INCLUDE_DIRECTORIES(ffmpeg/include/win32)
-endif()
-LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/lib/${CPU})
-ADD_LIBRARY(avformat STATIC IMPORTED)
-SET_PROPERTY(TARGET avformat PROPERTY IMPORTED_LOCATION avformat.lib)
-ADD_LIBRARY(avcodec STATIC IMPORTED)
-SET_PROPERTY(TARGET avcodec PROPERTY IMPORTED_LOCATION avcodec.lib)
-#ADD_LIBRARY(avdevice STATIC IMPORTED)
-#SET_PROPERTY(TARGET avdevice PROPERTY IMPORTED_LOCATION avdevice.lib)
-ADD_LIBRARY(avutil STATIC IMPORTED)
-SET_PROPERTY(TARGET avutil PROPERTY IMPORTED_LOCATION avutil.lib)
-ADD_LIBRARY(swscale STATIC IMPORTED)
-SET_PROPERTY(TARGET swscale PROPERTY IMPORTED_LOCATION swscale.lib)
-ADD_LIBRARY(swresample STATIC IMPORTED)
-SET_PROPERTY(TARGET swresample PROPERTY IMPORTED_LOCATION swresample.lib)
-ENDIF (OS STREQUAL windows)
-if (OS	STREQUAL "android")
-add_library(avformat STATIC IMPORTED)
-set_property(TARGET avformat PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libavformat/libavformat.a)
-add_library(avcodec STATIC IMPORTED)
-set_property(TARGET avcodec PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libavcodec/libavcodec.a)
-add_library(avutil STATIC IMPORTED)
-set_property(TARGET avutil PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libavutil/libavutil.a)
-add_library(swscale STATIC IMPORTED)
-set_property(TARGET swscale PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libswscale/libswscale.a)
-add_library(swresample STATIC IMPORTED)
-set_property(TARGET swresample PROPERTY	IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/libswresample/libswresample.a)
-endif()
-
-###xml###
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} xml)
-
-IF (OS STREQUAL qnx)
-INCLUDE_DIRECTORIES(ffmpeg/include)
-LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/emscripten)
-ENDIF (OS STREQUAL qnx)
-
-IF (OS STREQUAL android)
-INCLUDE_DIRECTORIES(ffmpeg/include)
-LINK_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/android)
-ENDIF (OS STREQUAL android)
-
-IF (OS STREQUAL linux)
-#INCLUDE_DIRECTORIES(ffmpeg/include)
-LINK_DIRECTORIES(/usr/local/lib)
-ENDIF (OS STREQUAL linux)
-
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} avformat avcodec avutil swscale)
-ELSE(NOT DISABLE_SOUND)
-ADD_DEFINITIONS(-DDISABLE_SOUND)
-ENDIF(NOT DISABLE_SOUND)
-IF(FFMPEG_OLD_API)
-ADD_DEFINITIONS(-DFFMPEG_OLD_API)
-ELSE()
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} swresample)
-ENDIF(FFMPEG_OLD_API)
-
-###Engine###
-INCLUDE_DIRECTORIES(../../../Engine)
-SET(AB_LINK_LIBS ${AB_LINK_LIBS} Engine ${ADD_LIB})
-
-###AaventureBase###
-
-IF(DISABLE_EFX)
-ADD_DEFINITIONS(-DDISABLE_EFX)
-ENDIF()
+###AdventureBase###
 
 SET(AppBuilder_SRCS
   AdvDoc.cpp
@@ -292,15 +149,79 @@ SET(AppBuilder_SRCS
 
 ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
 
+# the generated parser and the copied AST.h are in the binary directory
+target_include_directories(AdventureBase PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_link_libraries(AdventureBase PUBLIC CGE::Engine antlr xml)
+
+IF(NOT RENDER_EMBEDDED)
+  target_link_libraries(AdventureBase PUBLIC glew)
+ENDIF()
+
+IF(ENGINE_SINGLE_THREADED)
+  target_compile_definitions(AdventureBase PUBLIC ENGINE_SINGLE_THREADED)
+ENDIF()
+IF(DISABLE_EFX)
+  target_compile_definitions(AdventureBase PUBLIC DISABLE_EFX)
+ENDIF()
+
+find_package(OpenAL)
+if (NOT OPENAL_FOUND)
+	message(WARNING "Setting option DISABLE_SOUND as OpenAL was not found")
+	set(DISABLE_SOUND ON CACHE BOOL "" FORCE)
+endif()
+
+IF(NOT DISABLE_SOUND)
+###Open AL###
+target_include_directories(AdventureBase PUBLIC
+	${OPENAL_INCLUDE_DIR}
+	${OPENAL_INCLUDE_DIR}/..
+)
+target_link_libraries(AdventureBase PUBLIC ${OPENAL_LIBRARY})
+
+###ALUT###
+ADD_SUBDIRECTORY(alut)
+target_link_libraries(AdventureBase PUBLIC alut)
+
+###FFMPEG###
+SET(FFMPEG_LIBS avformat avcodec avutil swscale)
+IF(NOT FFMPEG_OLD_API)
+  LIST(APPEND FFMPEG_LIBS swresample)
+ENDIF()
+IF (OS STREQUAL windows)
+  # prebuilt FFmpeg 2.x import libraries and headers
+  foreach(lib ${FFMPEG_LIBS})
+    add_library(${lib} STATIC IMPORTED)
+    set_target_properties(${lib} PROPERTIES
+      IMPORTED_LOCATION ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/lib/${CPU}/${lib}.lib
+      INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/include
+    )
+  endforeach()
+ELSEIF (OS STREQUAL "android")
+  foreach(lib ${FFMPEG_LIBS})
+    add_library(${lib} STATIC IMPORTED)
+    set_target_properties(${lib} PROPERTIES
+      IMPORTED_LOCATION ${CMAKE_CURRENT_BINARY_DIR}/../../../extern/ffmpeg/c4droid_build/lib${lib}/lib${lib}.a
+      INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/include
+    )
+  endforeach()
+ELSE()
+  # system FFmpeg
+  target_link_directories(AdventureBase PUBLIC /usr/local/lib)
+ENDIF()
+target_link_libraries(AdventureBase PUBLIC ${FFMPEG_LIBS})
+
+ELSE(NOT DISABLE_SOUND)
+target_compile_definitions(AdventureBase PUBLIC DISABLE_SOUND)
+ENDIF(NOT DISABLE_SOUND)
+IF(FFMPEG_OLD_API)
+target_compile_definitions(AdventureBase PUBLIC FFMPEG_OLD_API)
+ENDIF(FFMPEG_OLD_API)
+
 ADD_SUBDIRECTORY(lua)
 
 ###Adventure###
 
 IF(JNI_FRONTEND)
-
-SET(AB_LINK_LIBS ${AB_LINK_LIBS}
-log
-)
 
 ADD_LIBRARY(Adventure SHARED
 	${ADVENTURE_SRCS}
@@ -311,8 +232,6 @@ ADD_LIBRARY(Adventure SHARED
 ADD_SUBDIRECTORY(java)
 
 ELSEIF(EMSCRIPTEN_FRONTEND)
-
-#ADD_DEFINITIONS(-sEXPORTED_FUNCTIONS=@functions.map) 
 
 SET(ADV_SUFFIX .js)
 
@@ -333,7 +252,6 @@ ADD_LIBRARY(Adventure SHARED
   CmdReceiver.h
   CmdReceiver.cpp
 )
-#target_link_libraries(Adventure EngineMain)
 
 
 ELSE(JNI_FRONTEND)
@@ -344,13 +262,9 @@ ADD_EXECUTABLE(Adventure
   CmdReceiver.cpp
 )
 
-if(MSVC12)
-SET_TARGET_PROPERTIES(Adventure PROPERTIES LINK_FLAGS "/SAFESEH:NO")
-endif()
-
 ENDIF(JNI_FRONTEND)
 
-TARGET_LINK_LIBRARIES(Adventure${ADV_SUFFIX} AdventureBase ${AB_LINK_LIBS} ${ENGINE_LINK_LIBRARIES})
+TARGET_LINK_LIBRARIES(Adventure${ADV_SUFFIX} PRIVATE AdventureBase ${ADVENTURE_LINK_LIBS})
 
 IF (NOT RENDER_EMBEDDED)
 SET_TARGET_PROPERTIES(Adventure
@@ -403,7 +317,7 @@ add_custom_target(pack_engine_deps ALL DEPENDS engine2.dat)
 INSTALL(FILES ${OPENAL_DLL} DESTINATION adventure)
 
 #ffmpeg
-INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll 
+INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
@@ -415,10 +329,3 @@ INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner 
 endif()
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/engine.ini DESTINATION adventure)
-
-#packaging
-#set(CPACK_GENERATOR "ZIP")
-#set(CPACK_PACKAGE_NAME "engine1.dat")
-#set(CPACK_COMPONENTS_ALL adv_runtime)
-#set(CPACK_PACKAGE_INSTALL_DIRECTORY "StoryDesigner")
-#INCLUDE(CPack)

@@ -1,7 +1,7 @@
 #ifndef NATIVE_LINUX_H
 #define NATIVE_LINUX_H
 
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
 
 #include <X11/Xlib.h>
 #ifndef DISABLE_XF86VMODE

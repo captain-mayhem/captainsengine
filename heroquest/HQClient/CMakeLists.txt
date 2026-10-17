@@ -1,7 +1,3 @@
-INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
-
-LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
-
 SET(HQClient_SRCS
 	bitset.cpp
 	camera.cpp
@@ -61,23 +57,16 @@ SET(HQClient_HDRS
 	world.h
 )
 
-IF (${OS} STREQUAL "windows")
-  ADD_DEFINITIONS(/D_CLIENT_)
-ENDIF (${OS} STREQUAL "windows")
-IF (${OS} STREQUAL "linux" OR ${OS} STREQUAL "android")
-  ADD_DEFINITIONS(-D_CLIENT_)
-ENDIF ()
-
 if (OS STREQUAL "android")
-ADD_DEFINITIONS(-DRENDER_EMBEDDED)
 ADD_LIBRARY(HQClient SHARED ${HQClient_SRCS} ${HQClient_HDRS})
 else()
 ADD_EXECUTABLE(HQClient ${HQClient_SRCS} ${HQClient_HDRS})
 endif()
+target_compile_definitions(HQClient PRIVATE _CLIENT_)
 
-TARGET_LINK_LIBRARIES(HQClient EngineMain ${ENGINE_LINK_LIBRARIES})
+TARGET_LINK_LIBRARIES(HQClient PRIVATE EngineMain CGE::Engine)
 IF (${OS} STREQUAL "windows")
-  TARGET_LINK_LIBRARIES(HQClient wsock32)
+  TARGET_LINK_LIBRARIES(HQClient PRIVATE wsock32)
   SET_TARGET_PROPERTIES(HQClient PROPERTIES WIN32_EXECUTABLE TRUE)
 ENDIF (${OS} STREQUAL "windows")
 

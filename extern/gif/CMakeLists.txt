@@ -1,14 +1,3 @@
-ADD_DEFINITIONS(-DHAVE_CONFIG_H)
-INCLUDE_DIRECTORIES(BEFORE .)
-
-IF (${OS} STREQUAL windows)
-ADD_DEFINITIONS(-DWINDOWS32
--DHAVE_IO_H)
-ENDIF (${OS} STREQUAL windows)
-IF (${OS} STREQUAL linux)
-#ADD_DEFINITIONS(-DHAVE_FCNTL_H)
-ENDIF (${OS} STREQUAL linux)
-
 ADD_LIBRARY(gif STATIC
 	dev2gif.c
 	dgif_lib.c
@@ -21,5 +10,11 @@ ADD_LIBRARY(gif STATIC
 	qprintf.c
 	quantize.c
 )
+target_include_directories(gif BEFORE PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_compile_definitions(gif PRIVATE HAVE_CONFIG_H)
+if (WIN32)
+  target_compile_definitions(gif PRIVATE WINDOWS32 HAVE_IO_H)
+endif()
+cge_extern_defaults(gif)
 
 INSTALL(TARGETS gif ARCHIVE DESTINATION Engine/lib)

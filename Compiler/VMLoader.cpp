@@ -79,7 +79,6 @@ jlong VMLoader::addLibrary(const std::string& name){
 BootstrapLoader::BootstrapLoader(VMArgs* args) : VMLoader(NULL){
   TR_USE(Java_Loader);
   std::string prefix;
-#ifndef UNDER_CE
   char* tmp = getenv("JAVA_HOME");
   if (tmp != NULL){
     prefix = tmp;
@@ -91,7 +90,6 @@ BootstrapLoader::BootstrapLoader(VMArgs* args) : VMLoader(NULL){
       prefix += "/Java/jre6";
     }
   }
-#endif
   if (!mRuntimeClasses.openFile(prefix+"/lib/rt.jar")){
     //hack for my crappy environment
     prefix[0] = 'D';

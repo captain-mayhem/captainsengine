@@ -1,7 +1,3 @@
-IF(${OS} STREQUAL "wince")
-INCLUDE_DIRECTORIES(errno)
-ENDIF(${OS} STREQUAL "wince")
-
 ADD_LIBRARY(lua STATIC
 lapi.c
 lcode.c
@@ -40,6 +36,11 @@ loadlib.c
 linit.c
 )
 
+target_include_directories(lua PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(lualib PUBLIC lua)
+cge_extern_defaults(lua)
+cge_extern_defaults(lualib)
+
 ADD_EXECUTABLE(lua_interpreter
 lua.c
 )
@@ -55,9 +56,5 @@ luac.c
 )
 
 TARGET_LINK_LIBRARIES(luac lua lualib ${LUA_DEP_LIBS})
-
-IF(${OS} STREQUAL "wince")
-ADD_DEFINITIONS(-DUSE_TMPNAME=0)
-ENDIF(${OS} STREQUAL "wince")
 
 INSTALL(TARGETS lua lualib ARCHIVE DESTINATION Engine/lib)

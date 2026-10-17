@@ -1,7 +1,3 @@
-INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
-
-LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
-
 SET(HQEditor_SRCS
 	compiler.cpp
 	../HQClient/door.cpp
@@ -19,7 +15,7 @@ else()
 ADD_EXECUTABLE(HQEditor ${HQEditor_SRCS} ${HQEditor_HDRS})
 endif()
 
-TARGET_LINK_LIBRARIES(HQEditor EngineMain ${ENGINE_LINK_LIBRARIES})
+TARGET_LINK_LIBRARIES(HQEditor PRIVATE EngineMain CGE::Engine)
 IF (${OS} STREQUAL "windows")
   SET_TARGET_PROPERTIES(HQEditor PROPERTIES WIN32_EXECUTABLE TRUE)
 ENDIF (${OS} STREQUAL "windows")

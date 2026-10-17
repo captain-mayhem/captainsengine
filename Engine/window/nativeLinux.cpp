@@ -1,4 +1,4 @@
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
 #include "../renderer/GL2/GL2Renderer.h"
 #include <GL/glx.h>
 #include "../system/engine.h"

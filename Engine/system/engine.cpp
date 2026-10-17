@@ -7,7 +7,6 @@
 #include "../input/keyboard.h"
 #include "../window/nativeWindows.h"
 #include "../window/nativeLinux.h"
-#include "../window/nativeQNX.h"
 #include "../window/nativeAndroid.h"
 #include "script.h"
 #include "../gui/console.h"
@@ -85,14 +84,11 @@ void Engine::startup(int argc, char** argv){
 #ifdef WIN32
     win_ = new WindowsWindow(rend_);
 #endif
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
     win_ = new X11Window(rend_);
 #endif
 #ifdef ANDROID
   win_ = new AndroidWindow(rend_);
-#endif
-#if defined(QNX) || defined(NO_X11)
-		win_ = new QNXWindow(rend_);
 #endif
   }
   else{
@@ -531,7 +527,7 @@ int Engine::mainLoop(int argc, char** argv, USERMAINFUNC engineMain, void* data)
   return 0;
 #endif
 
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
   CGE::Engine::instance()->startup(argc, argv);
   XEvent event;
   bool running = true;

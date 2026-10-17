@@ -1,7 +1,7 @@
 #include "splashwindow.h"
 #include "window.h"
 #include "image/image.h"
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
 #include "nativeLinux.h"
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
@@ -24,7 +24,7 @@ SplashWindow::SplashWindow(AppWindow* parent) {
 
   HWND parentwnd = (HWND)(parent->getHandle());
   m_window = CreateWindowEx(WS_EX_LAYERED | WS_EX_TOPMOST, "splashwindow", NULL, WS_POPUP | WS_VISIBLE, 0, 0, 0, 0, parentwnd, NULL, GetModuleHandle(NULL), NULL);
-#elif defined(LINUX) && !defined(NO_X11)
+#elif defined(LINUX)
   X11Window* pw = (X11Window*)parent;
   m_parent = pw;
 #endif
@@ -34,7 +34,7 @@ SplashWindow::~SplashWindow(){
 #ifdef WIN32
   DestroyWindow(m_window);
   UnregisterClass("splashwindow", GetModuleHandle(NULL));
-#elif defined(LINUX) && !defined(NO_X11)
+#elif defined(LINUX)
   XUnmapWindow(m_parent->getDisplay(), m_window);
 #endif
 }
@@ -102,7 +102,7 @@ void SplashWindow::show(Image& img){
   SelectObject(mem, oldBmp);
   DeleteDC(mem);
   ReleaseDC(NULL, screen);
-#elif defined(LINUX) && !defined(NO_X11)
+#elif defined(LINUX)
   unsigned char* data = (unsigned char*)malloc(img.getWidth()*img.getHeight()*4);
   if (img.getNumChannels() == 4){
     //premultiplied alpha
