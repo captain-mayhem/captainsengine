@@ -1,6 +1,8 @@
 #ifndef CGE_SPLASH_WINDOW_H
 #define CGE_SPLASH_WINDOW_H
 
+#include <cge_export.h>
+
 #ifdef WIN32
 #include <Windows.h>
 #elif defined(LINUX)
@@ -15,7 +17,7 @@ namespace CGE{
 class AppWindow;
 class Image;
 
-class SplashWindow{
+class CGE_API SplashWindow{
 public:
   SplashWindow(AppWindow* parent);
   ~SplashWindow();

@@ -1,4 +1,8 @@
-ADD_LIBRARY(lua STATIC
+# Lua is compiled into the engine library and exported from it: applications
+# (the Adventure, HQClient) call the Lua API directly, and Lua must exist only
+# once per process. It's an object library so that all of it ends up in the
+# engine, not just the functions the engine itself references.
+add_library(lua OBJECT
 lapi.c
 lcode.c
 lctype.c
@@ -19,9 +23,6 @@ ltm.c
 lundump.c
 lvm.c
 lzio.c
-)
-
-ADD_LIBRARY(lualib STATIC
 lauxlib.c
 lbaselib.c
 lbitlib.c
@@ -35,26 +36,19 @@ ltablib.c
 loadlib.c
 linit.c
 )
-
 target_include_directories(lua PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_link_libraries(lualib PUBLIC lua)
+if (WIN32)
+  # with LUA_CORE/LUA_LIB (set by the Lua sources) this makes LUA_API dllexport
+  target_compile_definitions(lua PRIVATE LUA_BUILD_AS_DLL)
+endif()
 cge_extern_defaults(lua)
-cge_extern_defaults(lualib)
 
-ADD_EXECUTABLE(lua_interpreter
-lua.c
-)
+if (OS STREQUAL "linux" OR OS STREQUAL "android")
+  set(LUA_DEP_LIBS m)
+endif()
 
-IF (OS STREQUAL "linux" OR OS STREQUAL "android")
-SET(LUA_DEP_LIBS m)
-ENDIF()
+add_executable(lua_interpreter lua.c)
+target_link_libraries(lua_interpreter lua ${LUA_DEP_LIBS})
 
-TARGET_LINK_LIBRARIES(lua_interpreter lua lualib ${LUA_DEP_LIBS})
-
-ADD_EXECUTABLE(luac
-luac.c
-)
-
-TARGET_LINK_LIBRARIES(luac lua lualib ${LUA_DEP_LIBS})
-
-INSTALL(TARGETS lua lualib ARCHIVE DESTINATION Engine/lib)
+add_executable(luac luac.c)
+target_link_libraries(luac lua ${LUA_DEP_LIBS})

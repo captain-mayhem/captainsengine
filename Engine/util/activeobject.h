@@ -1,11 +1,13 @@
 #ifndef CGE_ACTIVEOBJECT_H
 #define CGE_ACTIVEOBJECT_H
 
+#include <cge_export.h>
+
 #include <system/thread.h>
 
 namespace CGE{
 
-class ActiveObject{
+class CGE_API ActiveObject{
 public:
   ActiveObject();
   virtual ~ActiveObject();

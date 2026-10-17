@@ -1,6 +1,8 @@
 #ifndef TRIANGLE_H
 #define TRIANGLE_H
 
+#include <cge_export.h>
+
 #include "../math/vector.h"
 #include <vector>
 
@@ -9,7 +11,7 @@ namespace CGE{
 class Edge;
 
 //! Just a triangle
-class Triangle{
+class CGE_API Triangle{
 public:
   Triangle(){ v0 = -1; v1 = -1; v2 = -1; e0 = NULL; e1 = NULL; e2 = NULL; t0 = -1; t1 = -1; t2 = -1; n0 = -1; n1 = -1; n2 = -1; }
   Triangle(int v0, int v1, int v2, int t0, int t1, int t2, int n0, int n1, int n2, Edge* e0_, Edge* e1_, Edge* e2_);
@@ -43,12 +45,12 @@ public:
   Edge* e2;
 };
 
-class TriangleList : public std::vector<Triangle*>{
+class CGE_API TriangleList : public std::vector<Triangle*>{
 public:
   void insertTriangle(Triangle* tri);
 };
 
-class Edge{
+class CGE_API Edge{
 public:
   Edge(){v0=-1; v1=-1;}
 
@@ -61,7 +63,7 @@ public:
   TriangleList tList;
 };
 
-class EdgeList : public std::vector<Edge*>{
+class CGE_API EdgeList : public std::vector<Edge*>{
 public:
   //! Returns the edge with endpoints v0 and v1
   Edge* getEdge(int v0, int v1);
@@ -70,6 +72,8 @@ public:
   void insertEdge(Edge* e);
 };
 
+// not exported: it is header-only, and exporting it would also export its
+// base class Vec3<float>, which applications instantiate themselves
 class Vertex : public CGE::Vector3D{
 public:
   Vertex(){x=0.0f;y=0.0f;z=0.0f;}

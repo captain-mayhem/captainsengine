@@ -1,6 +1,8 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include <cge_export.h>
+
 #include <list>
 
 #ifdef WIN32
@@ -113,7 +115,7 @@
 
 namespace Input{
 
-class Keyboard{
+class CGE_API Keyboard{
 public:
   static void init();
   inline static Keyboard* instance() {return key_;}

@@ -1,6 +1,8 @@
 #ifndef GL2RENDERER_H
 #define GL2RENDERER_H
 
+#include <cge_export.h>
+
 #ifndef OPENGL2
 #define Dummy OGL
 #include "../dummyrenderer.h"
@@ -25,7 +27,7 @@
 
 namespace CGE{
 //! The OpenGL version of the rendering interface
-class GL2Renderer : public Renderer{
+class CGE_API GL2Renderer : public Renderer{
 public: 
   //! Constructor
   GL2Renderer();

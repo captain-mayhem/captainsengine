@@ -1,12 +1,14 @@
 #ifndef READER_H
 #define READER_H
 
+#include <cge_export.h>
+
 #include <system/types.h>
 #include <string>
 
 namespace CGE{
 
-class Reader{
+class CGE_API Reader{
 public:
   virtual uint32 readBytes(uint8* array, uint32 length) = 0;
   virtual int8 readChar() = 0;

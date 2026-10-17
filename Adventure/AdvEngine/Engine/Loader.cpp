@@ -19,7 +19,7 @@ public:
       virtual Event* execute(){
         Engine::instance()->insertRoom(mRoom, mIsSubRoom, mLoadreason, mScreenchange, mFading);
         if (mLoadreason)
-          mLoadreason->unref();
+          ExecutionContext::unref(mLoadreason);
         //delete mRoom;
         return NULL;
       }
@@ -183,7 +183,7 @@ public:
     }
     Engine::instance()->insertCharacter(mCharacter, mRoom, mPos, mDir);
     if (mReason)
-      mReason->unref();
+      ExecutionContext::unref(mReason);
     return NULL;
   }
 private:
@@ -228,7 +228,7 @@ public:
     delete mRoomLoadEvt;
     Engine::instance()->changeFocus(mCharacter, mReason);
     if (mReason)
-      mReason->unref();
+      ExecutionContext::unref(mReason);
     return NULL;
   }
 private:

@@ -42,6 +42,11 @@ ADD_LIBRARY(antlr STATIC
   ${ANTLR_HDRS}
 )
 target_include_directories(antlr PUBLIC antlr/include)
+if (NOT WIN32 AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+  # on Windows antlr3defs.h detects 64-bit from _WIN64; elsewhere its configure
+  # script would define this, otherwise pointers are stored in 32-bit markers
+  target_compile_definitions(antlr PUBLIC ANTLR3_USE_64BIT)
+endif()
 if (MSVC)
   target_compile_definitions(antlr PRIVATE _CRT_SECURE_NO_DEPRECATE)
 endif()
@@ -152,10 +157,6 @@ ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
 # the generated parser and the copied AST.h are in the binary directory
 target_include_directories(AdventureBase PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(AdventureBase PUBLIC CGE::Engine antlr xml)
-
-IF(NOT RENDER_EMBEDDED)
-  target_link_libraries(AdventureBase PUBLIC glew)
-ENDIF()
 
 IF(ENGINE_SINGLE_THREADED)
   target_compile_definitions(AdventureBase PUBLIC ENGINE_SINGLE_THREADED)
@@ -279,13 +280,17 @@ add_subdirectory(emscripten)
 endif()
 
 if(NOT RENDER_EMBEDDED)
+# engine1.dat is the runtime the StoryDesigner unpacks: the Adventure and the engine library
 add_custom_command(TARGET Adventure${ADV_SUFFIX} POST_BUILD
-COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure${ADV_SUFFIX}> $<TARGET_FILE_NAME:Adventure${ADV_SUFFIX}>)
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure${ADV_SUFFIX}> $<TARGET_FILE_NAME:Adventure${ADV_SUFFIX}>
+  -C $<TARGET_FILE_DIR:Engine> $<TARGET_FILE_NAME:Engine>)
 endif()
 
 #install
 
+cge_copy_runtime(Adventure${ADV_SUFFIX})
 INSTALL(TARGETS Adventure${ADV_SUFFIX} RUNTIME DESTINATION adventure LIBRARY	DESTINATION adventure COMPONENT adv_runtime)
+cge_install_runtime(Adventure${ADV_SUFFIX} adventure COMPONENT adv_runtime)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 
 if (OS STREQUAL windows)

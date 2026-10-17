@@ -1,6 +1,8 @@
 #ifndef DX_SHADER_H
 #define DX_SHADER_H
 
+#include <cge_export.h>
+
 #include <renderer/shader.h>
 #include <d3d11.h>
 
@@ -10,7 +12,7 @@ namespace CGE{
 
 class Matrix;
 
-class DXShader : public Shader{
+class CGE_API DXShader : public Shader{
 public:
   DXShader();
   ~DXShader();
@@ -40,13 +42,13 @@ private:
   ID3D11VertexShader* mVS;
   ID3D11PixelShader* mPS;
   ID3D11InputLayout* mLayout;
-  struct CBuffer{
+  struct CGE_API CBuffer{
     CBuffer() : ram(NULL), size(0), dirty(true) {}
     unsigned char* ram;
     unsigned size;
     bool dirty;
   };
-  struct ShaderData{
+  struct CGE_API ShaderData{
     std::vector<ID3D11Buffer*> constants;
     std::vector<CBuffer> constRam;
     ID3D11ShaderReflection* refl;

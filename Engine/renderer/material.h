@@ -1,6 +1,8 @@
 #ifndef CGE_MATERIAL_H
 #define CGE_MATERIAL_H
 
+#include <cge_export.h>
+
 #include <vector>
 #include "../math/vector.h"
 
@@ -8,7 +10,7 @@ namespace CGE{
 
 class Texture;
 
-struct Color{
+struct CGE_API Color{
   Color(){r = 1.0; g = 1.0; b = 1.0; a=1.0;}
   Color(float rn, float gn, float bn, float an){
     r = rn; g = gn; b = bn; a = an;
@@ -27,7 +29,7 @@ struct Color{
   };
 };
   
-class Material{
+class CGE_API Material{
 public:
   Material(std::string const& name);
   ~Material();

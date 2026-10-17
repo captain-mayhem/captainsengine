@@ -1,13 +1,15 @@
 #ifndef ARCBALL_H
 #define ARCBALL_H
 
+#include <cge_export.h>
+
 #include "vector.h"
 #include "matrix.h"
 #include "quaternion.h"
 
 namespace CGE{
 
-class Arcball{
+class CGE_API Arcball{
 public:
   Arcball();
   ~Arcball();

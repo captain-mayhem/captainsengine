@@ -324,7 +324,7 @@ public:
   }
   CTIMER(std::istream& in);
   ~CTIMER(){
-    mCommands->unref();
+    ExecutionContext::unref(mCommands);
   }
   virtual unsigned execute(ExecutionContext& ctx, unsigned pc);
   virtual Type getType(){return CDTIMER;}

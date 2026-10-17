@@ -1,6 +1,8 @@
 #ifndef CGE_ZIPWRITER_H
 #define CGE_ZIPWRITER_H
 
+#include <cge_export.h>
+
 #include <string>
 #include <map>
 #include <../extern/zlib/zip.h>
@@ -9,7 +11,7 @@
 
 namespace CGE{
 
-class ZipWriter : public MemWriter{
+class CGE_API ZipWriter : public MemWriter{
 public:
   ZipWriter();
   ZipWriter(const std::string& zippath);

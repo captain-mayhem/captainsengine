@@ -1,6 +1,8 @@
 #ifndef RAY_H
 #define RAY_H
 
+#include <cge_export.h>
+
 #include "vector.h"
 
 #define Math CGE
@@ -8,7 +10,7 @@ namespace CGE{
 
 class Matrix;
 
-class Ray{
+class CGE_API Ray{
 public:
   Ray();
   Ray(const Vector3D& orig, const Vector3D dir);

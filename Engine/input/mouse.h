@@ -1,6 +1,8 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
+#include <cge_export.h>
+
 #include "../system/engine.h"
 #include "../math/vector.h"
 
@@ -32,7 +34,7 @@
 
 namespace Input{
 
-  class Mouse{
+  class CGE_API Mouse{
   public:
     ~Mouse();
     static void init(bool hasGraphics);

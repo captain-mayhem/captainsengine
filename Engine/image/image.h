@@ -1,10 +1,12 @@
 #ifndef CGE_IMAGE_H
 #define CGE_IMAGE_H
 
+#include <cge_export.h>
+
 #include <string>
 
 namespace CGE{
-  class Image{
+  class CGE_API Image{
   public:
     Image();
     Image(int channels, int width, int height);

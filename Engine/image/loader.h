@@ -1,13 +1,15 @@
 #ifndef IMAGELOADER_H
 #define IMAGELOADER_H
 
+#include <cge_export.h>
+
 #include <string>
 
 namespace CGE{
 
 class Image;
 
-class ImageLoader{
+class CGE_API ImageLoader{
 public:
   enum Type{
     UNKNOWN,

@@ -12,12 +12,14 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
+#include <cge_export.h>
+
 #include "gui.h"
 
 namespace Gui{
 
 //! a dialog field
-class Dialog : public GuiElement {
+class CGE_API Dialog : public GuiElement {
 public:
   //! Constructor
   Dialog();

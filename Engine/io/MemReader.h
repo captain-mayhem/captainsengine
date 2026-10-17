@@ -1,6 +1,8 @@
 #ifndef MEMREADER_H
 #define MEMREADER_H
 
+#include <cge_export.h>
+
 #include "Reader.h"
 
 #include <string>
@@ -8,7 +10,7 @@
 
 namespace CGE{
 
-class MemReader : public Reader{
+class CGE_API MemReader : public Reader{
 public:
   MemReader();
   MemReader(void* address, unsigned int length);

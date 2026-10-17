@@ -11,7 +11,6 @@
 #include "script.h"
 #include "../gui/console.h"
 #include "../renderer/forms.h"
-#include "../physics/Simulator.h"
 #include "../io/Tracing.h"
 #include "../io/TraceManager.h"
 
@@ -49,7 +48,6 @@ Engine::Engine(){
   console_ = NULL;
   clear_ = false;
   //guitex_ = Mutex();
-  mSimulator = NULL;
   mShutdownRequested = false;
 #ifdef WIN32
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
@@ -74,7 +72,6 @@ void Engine::startup(int argc, char** argv){
   graphics_ = Script::instance()->getBoolSetting("graphics", &exists);
   if (!exists)
     graphics_ = true;
-  physics_ = Script::instance()->getBoolSetting("physics");
 
   if (graphics_){
     if (!startupRenderer(type)){
@@ -99,11 +96,6 @@ void Engine::startup(int argc, char** argv){
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
 
-  if (physics_){
-    float step = Script::instance()->getRealSetting("integration_interval")/1000;
-    mSimulator = new CGE::Simulator(step);
-  }
-  
   if (internalEngineMain != NULL)
     internalEngineMain(argc, argv);
   
@@ -168,7 +160,6 @@ void Engine::shutdown(){
     rend_->deinitRendering();
     TR_INFO("engine shutting down");
     isUp_ = false;
-    SAFE_DELETE(mSimulator);
     Input::Keyboard::release();
     Input::Mouse::release();
     clearListeners();
@@ -193,11 +184,6 @@ void Engine::shutdown(){
 }
 
 void Engine::run(){
-  //handle physics, KI, ...
-  if (physics_){
-    mSimulator->doSimulationStep(frameInterval_);
-  }
-
   console_->update();
   Input::Keyboard::instance()->processPressedKeys((float)frameInterval_);
 

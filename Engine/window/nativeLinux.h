@@ -1,6 +1,8 @@
 #ifndef NATIVE_LINUX_H
 #define NATIVE_LINUX_H
 
+#include <cge_export.h>
+
 #if defined(LINUX)
 
 #include <X11/Xlib.h>
@@ -11,7 +13,7 @@
 
 namespace CGE{
 
-class X11Window : public AppWindow{
+class CGE_API X11Window : public AppWindow{
 public:
   X11Window(CGE::Renderer* renderer);
   ~X11Window() {}
@@ -50,7 +52,7 @@ protected:
 #ifdef WIN32
 #include "window.h"
 namespace CGE{
-class X11Window : public AppWindow{
+class CGE_API X11Window : public AppWindow{
 public:
   X11Window(CGE::Renderer* renderer) : AppWindow(renderer) {}
   ~X11Window() {}

@@ -1,13 +1,15 @@
 #ifndef CGE_DX_INDEXBUFFER_H
 #define CGE_DX_INDEXBUFFER_H
 
+#include <cge_export.h>
+
 #include <d3d11.h>
 #include "../../system/types.h"
 #include "../indexbuffer.h"
 
 namespace CGE{
 
-class DXIndexBuffer : public IndexBuffer{
+class CGE_API DXIndexBuffer : public IndexBuffer{
 public:
   DXIndexBuffer(Type t, int32 size);
   virtual ~DXIndexBuffer();

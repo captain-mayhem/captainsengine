@@ -12,13 +12,15 @@
 #ifndef LISTBOX_H
 #define LISTBOX_H
 
+#include <cge_export.h>
+
 #include "gui.h"
 #include "../math/vector.h"
 
 namespace Gui{
 
 //! a dialog field
-class ListBox : public GuiElement {
+class CGE_API ListBox : public GuiElement {
 public:
   //! Constructor
   ListBox();

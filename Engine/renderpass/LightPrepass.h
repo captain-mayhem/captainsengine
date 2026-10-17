@@ -1,6 +1,8 @@
 #ifndef CGE_LIGHT_PREPASS_H
 #define CGE_LIGHT_PREPASS_H
 
+#include <cge_export.h>
+
 #include "Technique.h"
 #include "Forward.h"
 
@@ -11,7 +13,7 @@ class Shader;
 class Light;
 class Material;
 
-class LightPrepassRenderer : public RenderTechnique{
+class CGE_API LightPrepassRenderer : public RenderTechnique{
 public:
   virtual void init();
   virtual void deinit();

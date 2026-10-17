@@ -1,13 +1,15 @@
 #ifndef CGE_REFCOUNTED_OBJECT_H
 #define CGE_REFCOUNTED_OBJECT_H
 
+#include <cge_export.h>
+
 #include <cassert>
 #include <cstdlib>
 #include <system/AtomicCounter.h>
 
 namespace CGE{
 
-class RefCountedObject{
+class CGE_API RefCountedObject{
 public:
   RefCountedObject() : mRefCount(0){}
   virtual ~RefCountedObject(){

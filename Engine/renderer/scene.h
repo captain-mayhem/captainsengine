@@ -2,6 +2,8 @@
 #ifndef SCENE_H
 #define SCENE_H
 
+#include <cge_export.h>
+
 #include <vector>
 #include <list>
 #include <string>
@@ -18,7 +20,7 @@ namespace CGE{
 
 class Texture;
   
-class Scene{
+class CGE_API Scene{
 public:
   Scene();
   virtual ~Scene();

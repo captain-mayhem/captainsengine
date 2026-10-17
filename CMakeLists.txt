@@ -48,7 +48,12 @@ option(PROJECT_COMPILER "compile compiler project" OFF)
 option(PROJECT_VGRENDER "compile vector graphics render projects" OFF)
 set(STORY_DESIGNER_VERSION "1.1.0" CACHE STRING "Story Designer Version" FORCE)
 
+# physics (ODE) is a separate library; only OSMRacer uses it
+option(CGE_WITH_PHYSICS "build the physics library (CGE::Physics, based on ODE)" ${PROJECT_OSMRACER})
 option(PHYSICS_DOUBLE_PRECISION "enable double precision physics calculations" ON)
+if (PROJECT_OSMRACER AND NOT CGE_WITH_PHYSICS)
+  message(FATAL_ERROR "OSMRacer needs CGE_WITH_PHYSICS")
+endif()
 
 include(FindFBX)
 

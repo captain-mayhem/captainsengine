@@ -1,6 +1,8 @@
 #ifndef OGLTEXTURE_H
 #define OGLTEXTURE_H
 
+#include <cge_export.h>
+
 #include <cstdio>
 
 #include "../texture.h"
@@ -20,7 +22,7 @@
 
 namespace CGE{
 
-class OGLTexture : public Texture {
+class CGE_API OGLTexture : public Texture {
 public:
   OGLTexture();
   virtual ~OGLTexture();

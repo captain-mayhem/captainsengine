@@ -12,12 +12,14 @@
 #ifndef FILEDIALOG_H
 #define FILEDIALOG_H
 
+#include <cge_export.h>
+
 #include "dialog.h"
 
 namespace Gui{
 
 //! a dialog field
-class FileDialog : public Dialog {
+class CGE_API FileDialog : public Dialog {
 public:
   //! Constructor
   FileDialog();

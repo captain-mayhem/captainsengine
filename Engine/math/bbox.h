@@ -1,12 +1,14 @@
 #ifndef BBOX_H
 #define BBOX_H
 
+#include <cge_export.h>
+
 #include "boundingobject.h"
 #include "vector.h"
 
 namespace CGE{
   
-class BBox : public BoundingObject {
+class CGE_API BBox : public BoundingObject {
 public:
   BBox();
   BBox(const Vector3D& min, const Vector3D& max);
