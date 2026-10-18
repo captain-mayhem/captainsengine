@@ -17,12 +17,7 @@
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
 #ifndef DISABLE_EFX
-#ifdef UNIX
 #include <AL/efx.h>
-#else
-#include <AL/efx.h>
-#include <AL/efx-creative.h>
-#endif
 #endif
 extern "C"{
 #include <libavcodec/avcodec.h>

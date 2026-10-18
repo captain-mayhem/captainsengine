@@ -13,13 +13,7 @@
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
 #ifndef DISABLE_EFX
-#ifdef UNIX
 #include <AL/efx.h>
-#else
-#include <AL/efx.h>
-#include <AL/efx-creative.h>
-//#include <EFX-Util.h>
-#endif
 #include "EFXeffects.h"
 #ifndef AL_LOWPASS_MAX_GAIN
 #define AL_LOWPASS_MAX_GAIN 1.0f
