@@ -107,11 +107,12 @@ endif()
 
 # Third-party libraries are linked statically into the engine library.
 # Lua is compiled into it and exported (applications use the Lua API
-# directly). The others are private; zlib's headers appear in io/ZipReader.h,
-# so only its include directory is passed on.
+# directly). The others are private; the zlib and minizip headers appear in
+# io/GZipReader.h and io/ZipReader.h, so only their include directories are
+# passed on.
 target_link_libraries(Engine
 	PUBLIC lua
-	PRIVATE zlib jpeg gif png
+	PRIVATE minizip ZLIB::ZLIB JPEG::JPEG PNG::PNG gif
 )
 if (WIN32)
 	# applications see the Lua API as dllimport (see extern/lua)
@@ -121,7 +122,8 @@ function(cge_engine_public_headers lib)
 	target_include_directories(Engine PUBLIC $<TARGET_PROPERTY:${lib},INTERFACE_INCLUDE_DIRECTORIES>)
 	target_compile_definitions(Engine PUBLIC $<TARGET_PROPERTY:${lib},INTERFACE_COMPILE_DEFINITIONS>)
 endfunction()
-cge_engine_public_headers(zlib)
+cge_engine_public_headers(zlibstatic)
+cge_engine_public_headers(minizip)
 
 # renderers; these definitions are internal to the engine
 if (RENDER_DIRECTX)

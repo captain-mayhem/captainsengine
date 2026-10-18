@@ -15,15 +15,55 @@ add_custom_target(unpack
   VERBATIM
 )
 
+# zlib, libpng, libjpeg, FreeType, Dear ImGui, miniaudio, libogg and libvorbis
+# are the same copies as in guitads (see guitads' CMakeLists.txt), so both
+# projects use the same library versions.
+set(BUILD_SHARED_LIBS OFF)
+set(SKIP_INSTALL_ALL ON)
+
+add_subdirectory(zlib)
+
+# minizip (zip archive reading and writing) comes with zlib
+set(MINIZIP_DIR ${CMAKE_CURRENT_SOURCE_DIR}/zlib/contrib/minizip)
+add_library(minizip STATIC
+  ${MINIZIP_DIR}/ioapi.c
+  ${MINIZIP_DIR}/ioapi.h
+  ${MINIZIP_DIR}/unzip.c
+  ${MINIZIP_DIR}/unzip.h
+  ${MINIZIP_DIR}/zip.c
+  ${MINIZIP_DIR}/zip.h
+)
+target_include_directories(minizip PUBLIC ${MINIZIP_DIR})
+target_link_libraries(minizip PUBLIC ZLIB::ZLIB)
+cge_extern_defaults(minizip)
+
+# libpng enables ASM in its project() call; see libpng-policy-fixup.cmake
+set(CMAKE_PROJECT_libpng_INCLUDE_BEFORE "${CMAKE_CURRENT_SOURCE_DIR}/libpng-policy-fixup.cmake")
+set(PNG_TOOLS OFF)
+add_subdirectory(libpng)
+
 add_subdirectory(jpeg)
+cge_extern_defaults(jpeg)
+
+# FreeType without optional dependencies, so it never picks up system libraries
+set(FT_DISABLE_ZLIB ON)
+set(FT_DISABLE_BZIP2 ON)
+set(FT_DISABLE_PNG ON)
+set(FT_DISABLE_HARFBUZZ ON)
+set(FT_DISABLE_BROTLI ON)
+add_subdirectory(freetype)
+
+add_subdirectory(imgui)
+add_subdirectory(miniaudio)
+add_subdirectory(libogg)
+add_subdirectory(libvorbis)
+
 add_subdirectory(lua)
 add_subdirectory(libxml)
-add_subdirectory(zlib)
 if (CGE_WITH_PHYSICS)
   add_subdirectory(ode)
 endif()
 add_subdirectory(gif)
-add_subdirectory(png)
 if (NOT OS STREQUAL "android")
   add_subdirectory(glew)
 endif()

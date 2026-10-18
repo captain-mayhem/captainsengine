@@ -4,7 +4,7 @@
 #include <cge_export.h>
 
 #include <string>
-#include <../extern/zlib/zlib.h>
+#include <zlib.h>
 #include "MemReader.h"
 
 namespace CGE{

@@ -1,2 +1,7 @@
 /build/
 CMakeUserPresets.json
+
+# C# build output and Visual Studio state of the StoryDesigner projects
+/Adventure/Editor/**/bin/
+/Adventure/Editor/**/obj/
+/Adventure/Editor/**/.vs/
