@@ -56,8 +56,9 @@ void Overlay::render2D() const {
     rend->enableBlend(true);
   }
   int height = wrld.getMapSize().y;
-  float dx = (float)(SCREENWIDTH/wrld.getMapSize().x);
-  float dy = (float)(SCREENHEIGHT/height);
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  float dx = (float)(screen.getWidth()/wrld.getMapSize().x);
+  float dy = (float)(screen.getHeight()/height);
   rend->enableTexturing(true);
   TextureManager::instance()->overlayTex[id_-4000]->activate();
 

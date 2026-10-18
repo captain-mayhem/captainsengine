@@ -132,8 +132,9 @@ void Creature::render() const{
 void Creature::render2D() const{
 #ifdef _CLIENT_	
   int height = wrld.getMapSize().y;
-  float dx = (float)(SCREENWIDTH/wrld.getMapSize().x);
-  float dy = (float)(SCREENHEIGHT/height);
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  float dx = (float)(screen.getWidth()/wrld.getMapSize().x);
+  float dy = (float)(screen.getHeight()/height);
 
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   CGE::Forms* forms = CGE::Engine::instance()->getForms();

@@ -38,7 +38,7 @@ DropDownButton::DropDownButton(){
   handleClicks_ = NULL;
   setColors(Vector3D(1.0f,1.0f,0.1f),Color(0.2f,0.01f,0.01f,1.0f));
   setSpan(Vector2D(160,18));
-  ddPos_ = Vector2D(0, 768);
+  ddPos_ = Vector2D(0, CGE::Engine::instance()->getVirtualScreen().getHeight());
   isOpen_ = false;
   direction_ = 0;
   entryNum_ = 0;

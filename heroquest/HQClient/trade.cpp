@@ -128,7 +128,8 @@ void Trade::render(){
   //glBindTexture(GL_TEXTURE_2D, tex.otherTex[1]);
   CGE::Forms* forms = CGE::Engine::instance()->getForms();
   forms->activateQuad();
-  forms->drawQuad(Vec2f(), Vec2f(SCREENWIDTH, SCREENHEIGHT));
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  forms->drawQuad(Vec2f(), Vec2f((float)screen.getWidth(), (float)screen.getHeight()));
   rend->enableBlend(true);
 
   //get current inventory

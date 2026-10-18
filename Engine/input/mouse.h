@@ -45,7 +45,7 @@ namespace Input{
     void doubleClick(int x, int y, int button);
     void move(int x, int y, int buttons);
     void wheel(int x, int y, int delta);
-    //! get the position of the last click
+    //! get the position of the last click in virtual coordinates
     inline CGE::Vector2D getClickPos() {return clickPos_;}
     //! reset click position
     inline void resetMousePos() {clickPos_ = CGE::Vector2D(-1,-1);}
@@ -53,13 +53,13 @@ namespace Input{
     inline bool isGuiClick() {return gui_click_;}
     //! show the cursor
     void showCursor(bool visible);
-    //! set mouse position
+    //! set the mouse position in virtual coordinates
     void setMousePos(int x, int y);
     //! is the mouse visible
     inline bool isMouseActive() {return mousePointer_;}
     //! is a button clicked
     bool isPressed(int button);
-    //! get the position of the mouse
+    //! get the position of the mouse in virtual coordinates
     inline CGE::Vector2D getMousePos() {return mousePos_;}
   protected:
     static Mouse* mouse_;

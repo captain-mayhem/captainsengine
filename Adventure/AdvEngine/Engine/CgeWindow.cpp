@@ -53,6 +53,8 @@ void init(){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   //rend->getWindow()->setTitle(adoc->getProjectSettings()->)
   rend->getWindow()->changeSize(windowsize.x, windowsize.y);
+  //the game and its input use the project resolution
+  CGE::Engine::instance()->getVirtualScreen().setSize(windowsize.x, windowsize.y);
   
   Engine::instance()->setData(adoc);
   SoundEngine::init();
@@ -60,8 +62,7 @@ void init(){
 
   rend->switchMatrixStack(CGE::Projection);
   rend->resetModelView();
-  rend->ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
-  //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
+  CGE::Engine::instance()->getVirtualScreen().ortho(rend, true);
 
   rend->switchMatrixStack(CGE::Modelview);
   rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -118,8 +119,7 @@ void render(){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->switchMatrixStack(CGE::Projection);
   rend->resetModelView();
-  rend->ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
-  //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
+  CGE::Engine::instance()->getVirtualScreen().ortho(rend, true);
 
   rend->switchMatrixStack(CGE::Modelview);
   rend->enableDepthTest(false);
@@ -159,7 +159,7 @@ void mouse_move(int x, int y, int button){
 }
 
 void mouse_click(int x, int y, int button){
-  Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
+  Vec2i pos(x, y);
   if (button == MB_LEFT)
     Engine::instance()->leftClick(pos);
   else if (button == MB_RIGHT)
@@ -167,14 +167,14 @@ void mouse_click(int x, int y, int button){
 }
 
 void mouse_release(int x, int y, int button){
-  Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
+  Vec2i pos(x, y);
   if (button == MB_LEFT)
     Engine::instance()->leftRelease(pos);
 }
 
 void double_click(int x, int y, int button){
   mouse_click(x, y, button); //also emit a single click when double click occurs
-  Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
+  Vec2i pos(x, y);
   Engine::instance()->doubleClick(pos);
 }
 

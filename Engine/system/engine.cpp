@@ -92,6 +92,10 @@ void Engine::startup(int argc, char** argv){
   if (updateRate <= 0)
     updateRate = 60;
   updateInterval_ = 1.0/updateRate;
+  int virtualWidth = Script::instance()->getNumberSetting("virtualWidth");
+  int virtualHeight = Script::instance()->getNumberSetting("virtualHeight");
+  if (virtualWidth > 0 && virtualHeight > 0)
+    virtual_.setSize(virtualWidth, virtualHeight);
   bool exists;
   graphics_ = Script::instance()->getBoolSetting("graphics", &exists);
   if (!exists)
@@ -303,8 +307,7 @@ void Engine::renderFrame(){
     app_->render();
 
   rend_->resetModelView();
-  rend_->ortho(1024, 768);
-  rend_->translate(-512, -384, 0);
+  getVirtualScreen().ortho(rend_);
   rend_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
   rend_->enableBlend(true);
   rend_->enableDepthTest(false);
@@ -356,6 +359,12 @@ void Engine::resize(int width, int height){
   rend_->resizeScene(width, height);
   if (app_ && win_)
     app_->onResize(win_->getWidth(), win_->getHeight());
+}
+
+VirtualScreen& Engine::getVirtualScreen(){
+  if (win_)
+    virtual_.setWindowSize(win_->getWidth(), win_->getHeight());
+  return virtual_;
 }
 
 void Engine::pause(){

@@ -229,8 +229,11 @@ void Editor::_mouseDown(int x, int y, int button){
     rend->getViewport(viewport);
     rend->projection(60, 4.0f/3.0f, 0.1f, 1000.0f);
     Matrix proj = rend->getMatrix(CGE::Projection);
+    //the 3D view covers the whole window, so pick in window pixels
+    CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+    CGE::Vec2i pixel = screen.toWindow(x, y);
     Ray r;
-    r.buildPickingRay((float)x, (float)y, /*viewport[2]-viewport[0], viewport[3]-viewport[1]*/1024.0f, 768.0f, proj.getData()[0], proj.getData()[5], proj.getData()[10]);
+    r.buildPickingRay((float)pixel.x, (float)pixel.y, (float)screen.getWindowWidth(), (float)screen.getWindowHeight(), proj.getData()[0], proj.getData()[5], proj.getData()[10]);
     Matrix view = Graphic::instance()->getCam().getViewMat();
     r.transform(view.inverse());
     //get the picked model

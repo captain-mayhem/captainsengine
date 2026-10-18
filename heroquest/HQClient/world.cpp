@@ -541,7 +541,8 @@ void World::render2D(bool vis){
   rend->enableBlend(false);
   rend->switchMatrixStack(CGE::Projection);
   rend->pushMatrix();
-  rend->ortho(0, SCREENWIDTH, 0, SCREENHEIGHT, -1, 1);
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  screen.ortho(rend);
   
   rend->switchMatrixStack(CGE::Modelview);
   rend->pushMatrix();
@@ -558,8 +559,8 @@ void World::render2D(bool vis){
 	}
   
 	//how big may a single field be that all fit on the screen
-	float xstep = (float)(SCREENWIDTH/width_);
-	float ystep = (float)(SCREENHEIGHT/height_);
+	float xstep = (float)(screen.getWidth()/width_);
+	float ystep = (float)(screen.getHeight()/height_);
   
   rend->setColor(1, 1, 1, 1);
   CGE::Forms* form = CGE::Engine::instance()->getForms();

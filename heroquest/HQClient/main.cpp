@@ -44,6 +44,8 @@ public:
 };
 
 void HQClientApp::init(int argc, char** argv){
+  //the GUI and the 2D map are laid out for 1024x768
+  CGE::Engine::instance()->getVirtualScreen().setSize(1024, 768);
   CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
   TR_USE(HQ_Client);

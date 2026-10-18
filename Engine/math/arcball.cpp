@@ -3,9 +3,6 @@
 #include "../system/engine.h"
 #include "../input/mouse.h"
 
-const float ADJ_WIDTH = (1.0f / ((SCREENWIDTH - 1.0f)*0.5f));
-const float ADJ_HEIGHT = (1.0f / ((SCREENHEIGHT - 1.0f)*0.5f));
-
 using namespace CGE;
 
 Arcball::Arcball(){
@@ -43,9 +40,12 @@ void Arcball::drag(const Vector2D& point, Quaternion* rot){
 
 void Arcball::mapToSphere(const Vector2D& point, Vector3D& newVec) const{
   Vec2f tempVec = Vec2f(point.x, point.y);
-  //scale to [-1..1]
-  tempVec.x = (tempVec.x * ADJ_WIDTH) - 1.0f;
-  tempVec.y = 1.0f - (tempVec.y * ADJ_HEIGHT);
+  //scale the virtual screen to [-1..1]
+  const VirtualScreen& screen = Engine::instance()->getVirtualScreen();
+  float adjWidth = 1.0f / ((screen.getWidth() - 1.0f)*0.5f);
+  float adjHeight = 1.0f / ((screen.getHeight() - 1.0f)*0.5f);
+  tempVec.x = (tempVec.x * adjWidth) - 1.0f;
+  tempVec.y = 1.0f - (tempVec.y * adjHeight);
   float length = tempVec.lengthSquared();
   //outside of the sphere?
   if (length > 1.0f){

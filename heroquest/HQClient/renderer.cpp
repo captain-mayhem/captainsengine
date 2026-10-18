@@ -232,9 +232,13 @@ void HQRenderer::ascii_(unsigned char key){
 // the button click handling
 void HQRenderer::buttonDown_(int x, int y, int buttons){
   //clickable map
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  //clicks beside the 4:3 area of a wider or narrower window are outside the map
+  if (x < 0 || x >= screen.getWidth() || y < 0 || y >= screen.getHeight())
+    return;
   if (game.getState() == PREPARE && !Mouse::instance()->isGuiClick() && clickedField_ == Vector2D(-1,-1) && !trade_){
-    float dx = (float)wrld.getMapSize().x/SCREENWIDTH;
-    float dy = (float)wrld.getMapSize().y/SCREENHEIGHT;
+    float dx = (float)wrld.getMapSize().x/screen.getWidth();
+    float dy = (float)wrld.getMapSize().y/screen.getHeight();
     clickedField_.x = (int)(x*dx);
     clickedField_.y = (int)(y*dy);
 
@@ -255,8 +259,8 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
   }
   else if (game.getState() == RUN && !Mouse::instance()->isGuiClick() && awaitMapClick_){
     //awaiting click on map for various ingame functions
-    float dx = (float)wrld.getMapSize().x/SCREENWIDTH;
-    float dy = (float)wrld.getMapSize().y/SCREENHEIGHT;
+    float dx = (float)wrld.getMapSize().x/screen.getWidth();
+    float dy = (float)wrld.getMapSize().y/screen.getHeight();
     Vector2D click;
     click.x = (int)(x*dx);
     click.y = (int)(y*dy);
@@ -267,8 +271,12 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
 }
 
 void HQRenderer::mouseMove_(int x, int y, int buttons){
-  int width = CGE::Engine::instance()->getWindow()->getWidth();
-  int height = CGE::Engine::instance()->getWindow()->getHeight();
+  //the visible area of the virtual screen
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  int left = (int)screen.getVisibleMin().x;
+  int top = (int)screen.getVisibleMin().y;
+  int right = (int)screen.getVisibleMax().x;
+  int bottom = (int)screen.getVisibleMax().y;
   
   //if (x == width/2 && y == height/2)
   //  return;
@@ -286,20 +294,20 @@ void HQRenderer::mouseMove_(int x, int y, int buttons){
     //mousePos_.y = height/2;
     //Mouse::instance()->setMousePos(width/2, height/2);
     bool needsSet = false;
-    if (x < 10){
-      x = width - 10;
+    if (x < left + 10){
+      x = right - 10;
       needsSet = true;
     }
-    else if (x > width - 10){
-      x = 10;
+    else if (x > right - 10){
+      x = left + 10;
       needsSet = true;
     }
-    if (y < 10){
-      y = height - 10;
+    if (y < top + 10){
+      y = bottom - 10;
       needsSet = true;
     }
-    else if (y > height - 10){
-      y = 10;
+    else if (y > bottom - 10){
+      y = top + 10;
       needsSet = true;
     }
     if (needsSet)
@@ -494,8 +502,9 @@ void HQRenderer::paint_(){
     setViewTo3D(false);
   }
   
-  render_->ortho(SCREENWIDTH, SCREENHEIGHT);
-  render_->translate(-SCREENWIDTH/2, -SCREENHEIGHT/2, 0);
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  render_->resetModelView();
+  screen.ortho(render_);
   render_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
   render_->enableBlend(true);
   render_->enableTexturing(true);
@@ -504,28 +513,15 @@ void HQRenderer::paint_(){
     TextureManager::instance()->otherTex[0]->activate();
     CGE::Forms* form = CGE::Engine::instance()->getForms();
     render_->pushMatrix();
-    render_->translate(512, 384, 0);
-    render_->scale(1024, 768, 1);
+    render_->translate(screen.getWidth()/2.0f, screen.getHeight()/2.0f, 0);
+    render_->scale((float)screen.getWidth(), (float)screen.getHeight(), 1);
     form->activateQuad();
     form->drawQuad();
     render_->popMatrix();
-    /*
-    glBegin(GL_QUADS);
-      glTexCoord2f(1,0);
-      glVertex2i(SCREENWIDTH, SCREENHEIGHT);
-      glTexCoord2f(0,0);
-      glVertex2i(0, SCREENHEIGHT);
-      glTexCoord2f(0,1);
-      glVertex2i(0, 0);
-      glTexCoord2f(1,1);
-      glVertex2i(SCREENWIDTH, 0); 
-    glEnd();
-    */
   }
  
   //render inventory
   render_->resetModelView();
-  render_->translate(-512, -384, 0);
   if (inventory_){
     inventory_->render();
     inventory_->update();
