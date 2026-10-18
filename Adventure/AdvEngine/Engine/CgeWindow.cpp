@@ -41,7 +41,6 @@ void init(){
   TR_USE(ADV_CGE_Window);
   Engine::init();
   adoc = new AdvDocument();
-  //adoc->getProjectSettings()->savedir = "C:\\tmp";
   adoc->setFileChangedCB(fileChanged);
   adoc->setSpashScreenCB(splash_screen);
   if (!adoc->loadDocument(filename)){

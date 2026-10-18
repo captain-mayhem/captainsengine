@@ -5,6 +5,7 @@
 #include "../input/mouse.h"
 #include "../system/script.h"
 #include "nativeWindows.h"
+#include "../platform/platform_internal.h"
 
 TR_CHANNEL_EXT(CGE_Window);
 
@@ -32,6 +33,13 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       CGE::Engine::instance()->resume();
       CGE::Engine::instance()->resize(LOWORD(lparam), HIWORD(lparam));
       return 0;
+      break;
+    case WM_SETCURSOR:
+      //the cursor chosen with Platform::setCursor in the client area
+      if (LOWORD(lparam) == HTCLIENT){
+        CGE::PlatformInternal::applyCursor();
+        return TRUE;
+      }
       break;
     case WM_DESTROY:
       CGE::Engine::instance()->requestShutdown();

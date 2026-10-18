@@ -47,14 +47,12 @@ public:
   static std::string combinePath(std::string const & p1, std::string const & p2);
   //! create directory
   static bool createDir(const std::string& path);
+  //! create a directory and the missing directories above it
+  static bool createDirs(const std::string& path);
   //! remove directory
   static bool removeDir(const std::string& path, bool recursive = false);
   //! does a file exist
   static bool exists(const std::string& path);
-  //! get storage directory
-  static std::string getStorageDir();
-  //! get asset directory
-  static std::string getAssetDir();
 };
 
 }

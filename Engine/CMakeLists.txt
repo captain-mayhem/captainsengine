@@ -31,6 +31,7 @@ INCLUDE(input/CMakeLists.txt)
 INCLUDE(io/CMakeLists.txt)
 INCLUDE(math/CMakeLists.txt)
 INCLUDE(mesh/CMakeLists.txt)
+INCLUDE(platform/CMakeLists.txt)
 INCLUDE(renderer/CMakeLists.txt)
 INCLUDE(renderpass/CMakeLists.txt)
 INCLUDE(system/CMakeLists.txt)
@@ -47,6 +48,7 @@ ADD_LIBRARY(Engine SHARED
 	${Engine_io_SRCS}
 	${Engine_math_SRCS}
 	${Engine_mesh_SRCS}
+	${Engine_platform_SRCS}
 	${Engine_renderer_SRCS}
 	${Engine_renderpass_SRCS}
 	${Engine_system_SRCS}
@@ -60,6 +62,8 @@ ADD_LIBRARY(Engine SHARED
 	${Engine_io_HDRS}
 	${Engine_math_HDRS}
 	${Engine_mesh_HDRS}
+	${Engine_platform_HDRS}
+	${Engine_platform_internal_HDRS}
 	${Engine_renderer_HDRS}
 	${Engine_renderpass_HDRS}
 	${Engine_system_HDRS}
@@ -104,6 +108,8 @@ target_include_directories(Engine PUBLIC
 if (OS STREQUAL "windows")
 	target_compile_definitions(Engine PUBLIC _CRT_SECURE_NO_DEPRECATE)
 	target_link_libraries(Engine PUBLIC wsock32 winmm)
+	# user folders (SHGetKnownFolderPath) and ShellExecute
+	target_link_libraries(Engine PRIVATE shell32 ole32)
 elseif (OS STREQUAL "linux")
 	target_compile_definitions(Engine PUBLIC UNIX LINUX __STDC_LIMIT_MACROS)
 	find_package(Threads REQUIRED)
@@ -194,6 +200,8 @@ SOURCE_GROUP("math" FILES ${Engine_math_SRCS})
 SOURCE_GROUP("math" FILES ${Engine_math_HDRS})
 SOURCE_GROUP("mesh" FILES ${Engine_mesh_SRCS})
 SOURCE_GROUP("mesh" FILES ${Engine_mesh_HDRS})
+SOURCE_GROUP("platform" FILES ${Engine_platform_SRCS})
+SOURCE_GROUP("platform" FILES ${Engine_platform_HDRS} ${Engine_platform_internal_HDRS})
 SOURCE_GROUP("renderer" FILES ${Engine_renderer_SRCS})
 SOURCE_GROUP("renderer" FILES ${Engine_renderer_HDRS})
 SOURCE_GROUP("renderpass" FILES ${Engine_renderpass_SRCS})

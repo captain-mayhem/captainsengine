@@ -24,7 +24,7 @@ Font::Font(){
 	TR_USE(CGE_Font);
   show_ = true;
   rgb_ = Color(1.0,1.0,1.0,1.0);
-  tex_ = CGE::Engine::instance()->getRenderer()->createTexture(CGE::Filesystem::getAssetDir()+"/textures/font/font.bmp");
+  tex_ = CGE::Engine::instance()->getRenderer()->createTexture("textures/font/font.bmp");
   if (tex_ == NULL){
   	TR_WARN("Builtin font  not available");
   }
