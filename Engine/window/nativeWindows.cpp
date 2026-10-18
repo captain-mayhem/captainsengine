@@ -3,6 +3,7 @@
 #include "../renderer/renderer.h"
 #include "../input/keyboard.h"
 #include "../input/mouse.h"
+#include "../system/script.h"
 #include "nativeWindows.h"
 
 TR_CHANNEL_EXT(CGE_Window);
@@ -24,7 +25,12 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       return 0;
       break;
     case WM_SIZE:
-      CGE::Engine::instance()->getRenderer()->resizeScene(LOWORD(lparam), HIWORD(lparam));
+      if (wparam == SIZE_MINIMIZED){
+        CGE::Engine::instance()->pause();
+        return 0;
+      }
+      CGE::Engine::instance()->resume();
+      CGE::Engine::instance()->resize(LOWORD(lparam), HIWORD(lparam));
       return 0;
       break;
     case WM_DESTROY:
@@ -170,6 +176,16 @@ void WindowsWindow::init(const std::string& name){
   MoveWindow(handle_, rectWin.left, rectWin.top, rectWin.right-rectWin.left, rectWin.bottom-rectWin.top, TRUE);
 
   renderer_->initContext(this);
+
+  //vsync (on unless engine.ini says vsync = false)
+  bool exists;
+  bool vsync = CGE::Script::instance()->getBoolSetting("vsync", &exists) || !exists;
+  typedef BOOL (WINAPI *SwapIntervalFunc)(int interval);
+  SwapIntervalFunc swapInterval = (SwapIntervalFunc)wglGetProcAddress("wglSwapIntervalEXT");
+  if (swapInterval)
+    swapInterval(vsync ? 1 : 0);
+  else
+    TR_WARN("wglSwapIntervalEXT not available, vsync can't be set");
 
   if (shown_)
     show(true);

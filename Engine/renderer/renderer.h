@@ -62,14 +62,6 @@ public:
   /*! It can be an OpenGL or DirectX renderer
   */
   RenderType getRenderType() {return type_;}
-  //! set render callback
-  void setRenderCB(void (*proc)()) {renderCB_ = proc;}
-  //! set init callback
-  void setInitCB(void (*proc)()) {initCB_ = proc;}
-  //! set deinit callback
-  void setDeinitCB(void (*proc)()) {deinitCB_ = proc;}
-  //! set resize callback
-  void setResizeCB(void (*proc)(int width, int height)) {resizeCB_ = proc;}
   //! initialize rendering context
   virtual void initContext(AppWindow* win);
   //! kill rendering context
@@ -176,14 +168,6 @@ protected:
   RenderType type_;
   //! the window in which is rendered
   AppWindow* win_;
-  //! the render callback
-  void (*renderCB_)();
-  //! the init callback
-  void (*initCB_)();
-  //! the deinit callback
-  void (*deinitCB_)();
-  //! the resize callback
-  void (*resizeCB_)(int width, int height);
 };
 
 }

@@ -69,7 +69,13 @@ void running(void* s);
 string path;
 string home;
 
-void engineMain(int argc, char** argv) {
+//! accepts connections until the process is ended; init doesn't return
+class HQServerApp : public CGE::IApplication{
+public:
+  void init(int argc, char** argv) override;
+};
+
+void HQServerApp::init(int argc, char** argv) {
 #ifdef WIN32
 #ifdef _DEBUG
 #define _CRTDBG_MAP_ALLOC 1
@@ -130,7 +136,7 @@ void engineMain(int argc, char** argv) {
   //return 0;
 }
 
-CGE_MAIN(engineMain)
+CGE_MAIN(HQServerApp)
 
 void running(void* s){
   ServerSocket *ss = (ServerSocket*) s;

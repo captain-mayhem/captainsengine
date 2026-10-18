@@ -31,7 +31,19 @@ string home;
 
 TR_CHANNEL(HQ_Client)
 
-void engineMain(int argc, char** argv){
+class HQClientApp : public CGE::IApplication{
+public:
+  void init(int argc, char** argv) override;
+  void render() override {HQRenderer::paint();}
+  void onResize(int width, int height) override {HQRenderer::resize(width, height);}
+  void onKeyDown(int key) override {HQRenderer::special(key);}
+  void onKeyUp(int key) override {HQRenderer::keyUp(key);}
+  void onChar(unsigned char ch) override {HQRenderer::ascii(ch);}
+  void onMouseDown(int x, int y, int button) override {HQRenderer::buttonDown(x, y, button);}
+  void onMouseMove(int x, int y, int buttons) override {HQRenderer::mouseMove(x, y, buttons);}
+};
+
+void HQClientApp::init(int argc, char** argv){
   CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
   TR_USE(HQ_Client);
@@ -62,15 +74,7 @@ void engineMain(int argc, char** argv){
   TR_DEBUG("Home is: %s", home.c_str());
   Renderer* rend = Engine::instance()->getRenderer();
   HQRenderer::init(rend);
-
-  rend->setInitCB(HQRenderer::initialize);
-  rend->setRenderCB(HQRenderer::paint);
-  rend->setResizeCB(HQRenderer::resize);
-  Input::Keyboard::instance()->setKeyDownCB(HQRenderer::special);
-  Input::Keyboard::instance()->setKeyUpCB(HQRenderer::keyUp);
-  Input::Keyboard::instance()->setAsciiCB(HQRenderer::ascii);
-  Input::Mouse::instance()->setButtonDownCB(HQRenderer::buttonDown);
-  Input::Mouse::instance()->setMouseMoveCB(HQRenderer::mouseMove);
+  HQRenderer::initialize();
 }
 
-CGE_MAIN(engineMain)
+CGE_MAIN(HQClientApp)

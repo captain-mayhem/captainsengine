@@ -31,7 +31,13 @@ using namespace CGE;
 
 TR_CHANNEL(HQ_Editor);
 
-void engineMain(int argc, char** argv){
+//! compiles the maps given on the command line and quits
+class HQEditorApp : public CGE::IApplication{
+public:
+  void init(int argc, char** argv) override;
+};
+
+void HQEditorApp::init(int argc, char** argv){
   CGE::LogOutputter* putty = new CGE::LogOutputter("HQEditor.log");
   CGE::TraceManager::instance()->setTraceOutputter(putty);
   TR_USE(HQ_Editor);
@@ -275,4 +281,4 @@ void engineMain(int argc, char** argv){
   Engine::instance()->requestShutdown();
 }
 
-CGE_MAIN(engineMain)
+CGE_MAIN(HQEditorApp)

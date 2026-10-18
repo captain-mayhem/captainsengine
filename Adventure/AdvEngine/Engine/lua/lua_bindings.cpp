@@ -13,9 +13,8 @@ extern "C"{
 #define LUA_EXPORT
 #endif
 
-void engineMain(int argc, char** argv){
-
-}
+//! the engine runs without an application of its own; Lua drives it
+CGE::IApplication luaApplication;
 
 class CommThread{
 public:
@@ -60,7 +59,7 @@ void engine_thread_func(void* data){
       lua_setfield(L, LUA_REGISTRYINDEX, "cge.config");
     }
   }*/
-  CGE::runApplication(0, NULL, engineMain);
+  CGE::runApplication(0, NULL, luaApplication);
   CommThread* thread = CommThread::getSelf(L);
   thread->~CommThread();
   lua_close(L);
