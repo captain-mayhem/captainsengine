@@ -1,4 +1,4 @@
-# Captain's Game Engine [![Build Status](https://travis-ci.org/captain-mayhem/captainsengine.svg?branch=master)](https://travis-ci.org/captain-mayhem/captainsengine)
+# Captain's Game Engine [![build](https://github.com/captain-mayhem/captainsengine/actions/workflows/build.yml/badge.svg)](https://github.com/captain-mayhem/captainsengine/actions/workflows/build.yml)
 A cross-platform game engine with focus on classical point-and-click adventures
 
 ## The structure of the repository
