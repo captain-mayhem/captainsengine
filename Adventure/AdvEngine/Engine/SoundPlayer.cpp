@@ -3,18 +3,8 @@
 #include "Sound.h"
 #include "Engine.h"
 
-#ifdef UNIX
-#define UINT64_C(val) (uint64_t)val
-#endif
-#ifndef UINT64_C
-#define UINT64_C(val) val##ui64
-#endif
-#ifdef UNIX
-#define INT64_C(val) (int64_t)val
-#endif
-#ifndef INT64_C
-#define INT64_C(val) val##i64
-#endif
+// FFmpeg's headers need UINT64_C and INT64_C, which <cstdint> defines
+#include <cstdint>
 
 #ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
 #define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000

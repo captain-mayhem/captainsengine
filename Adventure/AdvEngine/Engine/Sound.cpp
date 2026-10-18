@@ -3,15 +3,8 @@
 #include <iostream>
 #include <system/allocation.h>
 
-#ifdef UNIX
-#define UINT64_C(val) (uint64_t)val
-#endif
-#ifndef UINT64_C
-#define UINT64_C(val) val##ui64
-#endif
-#ifndef INT64_C
-#define INT64_C(val) val##i64
-#endif
+// FFmpeg's headers need UINT64_C and INT64_C, which <cstdint> defines
+#include <cstdint>
 
 #ifdef WIN32
 #pragma warning( disable : 4244 )
