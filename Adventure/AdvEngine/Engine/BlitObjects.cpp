@@ -24,7 +24,7 @@ BaseBlitObject::~BaseBlitObject(){
 }
 
 BlitObject::BlitObject(int width, int height, int depth) : 
-BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mScale(1.0f, 1.0f), mTex(0), mImage(NULL), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
+BaseBlitObject(depth, Vec2i(width, height)), mOffset(), mScale(1.0f, 1.0f), mTex(0), mImage(nullptr), mMirrorOffset(), mRotAngle(0.0f), mBlendMode(BLEND_ALPHA){
   Vec2i pow2(Engine::roundToPowerOf2(mSize.x), Engine::roundToPowerOf2(mSize.y));
   mScale.x = ((float)mSize.x)/pow2.x;
   mScale.y = ((float)mSize.y)/pow2.y;
@@ -50,7 +50,7 @@ BaseBlitObject(depth, Vec2i()), mOffset(offset), mScale(1.0f, 1.0f), mTex(0), mM
 }
 
 BlitObject::BlitObject(CGE::Texture* texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset):
-BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mImage(NULL), mMirrorOffset(), mRotAngle(0), mBlendMode(BLEND_ALPHA)
+BaseBlitObject(depth, size), mOffset(offset), mScale(scale), mTex(texture), mImage(nullptr), mMirrorOffset(), mRotAngle(0), mBlendMode(BLEND_ALPHA)
 {
   mZoomScale = Vec2f(1.0f,1.0f);
   mDeleteTex = false;
@@ -126,11 +126,11 @@ void BlitObject::updateTexture(unsigned width, unsigned height, void* data){
 }
 
 void BlitObject::realize(){
-  if (mImage == NULL)
+  if (mImage == nullptr)
     return;
   mTex = Engine::instance()->genTexture(mImage, mSize, mScale);
   delete mImage;
-  mImage = NULL;
+  mImage = nullptr;
 }
 
 void BlitObject::realizeEmpty(CGE::Texture::Format format){
@@ -195,7 +195,7 @@ void ScrollBlitObject::render(const Vec2i& pos){
   mPos = pos;
 }
 
-RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth), mFrameBuffer(NULL){
+RenderableBlitObject::RenderableBlitObject(int width, int height, int depth) : BlitObject(width,height,depth), mFrameBuffer(nullptr){
 }
 
 void RenderableBlitObject::realize(){
@@ -270,7 +270,7 @@ bool MirrorObject::update(unsigned interval){
   rend->pushMatrix();
   rend->translate((float)mRoom->getScrollOffset().x, (float)mRoom->getScrollOffset().y, 0.0f);
   mPolygon->activate();
-  mPolygon->draw(CGE::VB_Tristrip, NULL);
+  mPolygon->draw(CGE::VB_Tristrip, nullptr);
   rend->popMatrix();
   rend->enableColorWrite(true);
   

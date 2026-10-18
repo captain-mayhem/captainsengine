@@ -6,14 +6,14 @@
 
 using namespace CGE;
 
-ZipReader::ZipReader() : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0), mHandle(NULL){
+ZipReader::ZipReader() : MemReader(nullptr, 0), mFileBuffer(nullptr), mBuffer(nullptr), mBufferSize(0), mHandle(nullptr){
 }
 
-ZipReader::ZipReader(const std::string& zippath) : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0), mHandle(NULL){
+ZipReader::ZipReader(const std::string& zippath) : MemReader(nullptr, 0), mFileBuffer(nullptr), mBuffer(nullptr), mBufferSize(0), mHandle(nullptr){
   openFile(zippath);
 }
 
-ZipReader::ZipReader(void* address, uint32 length) : MemReader(address, length), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0), mHandle(NULL){
+ZipReader::ZipReader(void* address, uint32 length) : MemReader(address, length), mFileBuffer(nullptr), mBuffer(nullptr), mBufferSize(0), mHandle(nullptr){
 #ifdef WIN32
   mFile = INVALID_HANDLE_VALUE;
 #endif
@@ -35,7 +35,7 @@ ZipReader::~ZipReader(){
 #ifdef WIN32
   if (mFile != INVALID_HANDLE_VALUE){
     UnmapViewOfFile(mStart);
-    mStart = NULL;
+    mStart = nullptr;
     CloseHandle(mFmap);
     CloseHandle(mFile);
   }
@@ -52,10 +52,10 @@ bool ZipReader::openFile(const std::string& filename){
   mFileFuncs.ztell_file = tell_file_func;
   mFileFuncs.zwrite_file = write_file_func;
 #ifdef WIN32
-  mFile = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  mFile = CreateFile(filename.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
   if (mFile == INVALID_HANDLE_VALUE)
     return false;
-  mFmap = CreateFileMapping(mFile, NULL, PAGE_READONLY, 0, 0, NULL);
+  mFmap = CreateFileMapping(mFile, nullptr, PAGE_READONLY, 0, 0, nullptr);
   void* data = MapViewOfFile(mFmap, FILE_MAP_READ, 0, 0, 0);
   MEMORY_BASIC_INFORMATION meminfo;
   uint32 size = (uint32)VirtualQuery(data, &meminfo, sizeof(meminfo));
@@ -78,7 +78,7 @@ bool ZipReader::openFile(const std::string& filename){
   char tmpname[1024];
   int ret = unzGoToFirstFile(mHandle);
   do {
-    unzGetCurrentFileInfo(mHandle, NULL, tmpname, 1024, NULL, 0, NULL, 0);
+    unzGetCurrentFileInfo(mHandle, nullptr, tmpname, 1024, nullptr, 0, nullptr, 0);
     unz_file_pos pos;
     unzGetFilePos(mHandle, &pos);
     mOffsets[tmpname] = pos;
@@ -89,12 +89,12 @@ bool ZipReader::openFile(const std::string& filename){
 
 MemReader ZipReader::openEntry(const std::string& entry, const std::string& password){
   if (!mHandle)
-    return MemReader(NULL, 0);
+    return MemReader(nullptr, 0);
   std::map<std::string, unz_file_pos>::iterator iter = mOffsets.find(entry);
   if (iter == mOffsets.end()){
     int ret = unzLocateFile(mHandle, entry.c_str(), 2);
     if (ret != 0){
-      return MemReader(NULL, 0);
+      return MemReader(nullptr, 0);
     }
     //only found entries are remembered; a missing one would map to the current file
     unz_file_pos pos;
@@ -109,7 +109,7 @@ MemReader ZipReader::openEntry(const std::string& entry, const std::string& pass
   else
     unzOpenCurrentFilePassword(mHandle, password.c_str());
   unz_file_info info;
-  unzGetCurrentFileInfo(mHandle, &info, NULL, 0, NULL, 0, NULL, 0);
+  unzGetCurrentFileInfo(mHandle, &info, nullptr, 0, nullptr, 0, nullptr, 0);
   if (info.uncompressed_size > mBufferSize){
     delete [] mBuffer;
     mBufferSize = info.uncompressed_size;

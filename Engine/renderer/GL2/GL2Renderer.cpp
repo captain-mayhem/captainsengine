@@ -25,14 +25,14 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Renderer_GL2);
 
-GL2Renderer::GL2Renderer(): Renderer(), mShader(NULL) {
+GL2Renderer::GL2Renderer(): Renderer(), mShader(nullptr) {
   type_ = OpenGL2;
 #ifdef WIN32
-  hDC_ = NULL;
-  hRC_ = NULL;
+  hDC_ = nullptr;
+  hRC_ = nullptr;
 #endif
 #if defined(UNIX) && !defined(ANDROID)
-  glx_ = NULL;
+  glx_ = nullptr;
 #endif
 #if ANDROID
   m_ctx = EGL_NO_CONTEXT;
@@ -145,29 +145,29 @@ void GL2Renderer::killContext(){
   delete mLightShader;
 #if defined(WIN32)
   if (hRC_){
-    if (!wglMakeCurrent(NULL,NULL)){
+    if (!wglMakeCurrent(nullptr,nullptr)){
       TR_ERROR("Release of GL context failed");
     }
     if (!wglDeleteContext(hRC_)){
       TR_ERROR("Release of rendering context failed");
     }
-    hRC_ = NULL;
+    hRC_ = nullptr;
   }
 
   HWND wnd = (HWND)static_cast<WindowsWindow*>(win_)->getHandle();
   if (hDC_ && !ReleaseDC(wnd,hDC_)){
     TR_ERROR("Release of device context failed");
-    hDC_ = NULL;
+    hDC_ = nullptr;
   }
 #endif
 #if defined(UNIX) && !defined(ANDROID)
   X11Window* x11 = static_cast<X11Window* >(win_);
   if (glx_){
-    if (!glXMakeCurrent(x11->getDisplay(), None, NULL)){
+    if (!glXMakeCurrent(x11->getDisplay(), None, nullptr)){
       TR_ERROR("Release of GL context failed");
     }
     glXDestroyContext(x11->getDisplay(), glx_);
-    glx_ = NULL;
+    glx_ = nullptr;
   }
 #endif
 #ifdef ANDROID
@@ -430,7 +430,7 @@ void GL2Renderer::renderScene(){
 void GL2Renderer::resizeScene(int width, int height){
   TR_USE(CGE_Renderer_GL2);
 #ifdef WIN32
-  if (hRC_ == NULL)
+  if (hRC_ == nullptr)
     return;
 #endif
   TR_INFO("Resizing Scene");

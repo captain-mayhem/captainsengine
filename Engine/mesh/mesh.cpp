@@ -27,6 +27,9 @@
 #include <float.h>
 #include <algorithm>
 
+using std::string;
+using std::vector;
+
 using std::min;
 using namespace CGE;
 
@@ -43,12 +46,12 @@ Mesh::Mesh() : mComputeEdges(true){
   name_ = "none";
   filename_ = "none";
   m_visible = true;
-  vb_ = NULL;
-  mIB = NULL;
+  vb_ = nullptr;
+  mIB = nullptr;
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
   max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
   center_ = Vector3D();
-  mMaterials.push_back(NULL);
+  mMaterials.push_back(nullptr);
   //vertices_.reserve(200000);
 }
 
@@ -118,7 +121,7 @@ Edge* Mesh::addEdge(int v0, int v1){
 
 //! add triangle
 Triangle* Mesh::addTriangle(int v0, int v1, int v2, int t0, int t1, int t2, int n0, int n1, int n2){
-  Edge *e0 = NULL, *e1 = NULL, *e2 = NULL;
+  Edge *e0 = nullptr, *e1 = nullptr, *e2 = nullptr;
   if (mComputeEdges){
     e0 = vertices_[v1].eList.getEdge(v1, v2);
     if (!e0)
@@ -619,7 +622,7 @@ void Mesh::clear(){
   triangles_.clear();
   for (unsigned i = 0; i < edges_.size(); i++){
     delete edges_[i];
-    edges_[i] = NULL;
+    edges_[i] = nullptr;
   }
   edges_.clear();
   SAFE_DELETE(vb_);

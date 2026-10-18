@@ -6,6 +6,8 @@
 #include "../image/loader.h"
 #include "../platform/assets.h"
 
+using std::string;
+
 using namespace CGE;
 
 TR_CHANNEL(CGE_Texture);
@@ -21,7 +23,7 @@ Texture** Texture::loadFromDat(const string& path, const string& filename, int& 
   std::string text;
   if (!Assets::loadText(path+filename, text)){
     TR_WARN("Cannot load %s", filename.c_str());
-    return NULL;
+    return nullptr;
   }
   std::istringstream in(text);
   string name;

@@ -175,7 +175,7 @@ void Graphic::render_(){
   rend->renderMode(Filled);
   //Font* fnt = CGE::Engine::instance()->getFont(0);
   //fnt->setColor(0.0,1.0,0.0);
-  //fnt->glPrint(200, 400, ("FPS: "+toStr(Engine::instance()->getFPS())).c_str(), 0);
+  //fnt->glPrint(200, 400, ("FPS: "+std::to_string(Engine::instance()->getFPS())).c_str(), 0);
   rend->enableTexturing(true);
   rend->blendFunc(BLEND_SRC_ALPHA, BLEND_ONE_MINUS_SRC_ALPHA);
   mTechnique->render();

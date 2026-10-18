@@ -25,7 +25,7 @@ CGE::Camera* activeCam;
 CGE::Camera cam;
 FollowCam followCam;
 
-Terrain test(256,256,4.0f,4.0f,NULL,1.0f);
+Terrain test(256,256,4.0f,4.0f,nullptr,1.0f);
 Vehicle* car;
 MapChunk map;
 // the physics library is separate from the engine core, so the game owns the simulator

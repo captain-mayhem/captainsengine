@@ -26,7 +26,7 @@ using namespace CGE;
 //Constructor
 Socket::Socket(){
 #ifdef WIN32
-	sock_ = NULL;
+	sock_ = INVALID_SOCKET;
 #else
 	sock_ = -1;
 #endif

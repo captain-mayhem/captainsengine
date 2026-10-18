@@ -16,14 +16,14 @@ SplashWindow::SplashWindow(AppWindow* parent) {
 #ifdef WIN32
   memset(&m_wc, 0, sizeof(m_wc));
   m_wc.lpfnWndProc = DefWindowProc;
-  m_wc.hInstance = GetModuleHandle(NULL);
-  m_wc.hIcon = NULL;// LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_SPLASHSCREEN))
-  m_wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+  m_wc.hInstance = GetModuleHandle(nullptr);
+  m_wc.hIcon = nullptr;// LoadIcon(wc.hInstance, MAKEINTRESOURCE(IDI_SPLASHSCREEN))
+  m_wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
   m_wc.lpszClassName = "splashwindow";
   RegisterClass(&m_wc);
 
   HWND parentwnd = (HWND)(parent->getHandle());
-  m_window = CreateWindowEx(WS_EX_LAYERED | WS_EX_TOPMOST, "splashwindow", NULL, WS_POPUP | WS_VISIBLE, 0, 0, 0, 0, parentwnd, NULL, GetModuleHandle(NULL), NULL);
+  m_window = CreateWindowEx(WS_EX_LAYERED | WS_EX_TOPMOST, "splashwindow", nullptr, WS_POPUP | WS_VISIBLE, 0, 0, 0, 0, parentwnd, nullptr, GetModuleHandle(nullptr), nullptr);
 #elif defined(LINUX)
   X11Window* pw = (X11Window*)parent;
   m_parent = pw;
@@ -33,7 +33,7 @@ SplashWindow::SplashWindow(AppWindow* parent) {
 SplashWindow::~SplashWindow(){
 #ifdef WIN32
   DestroyWindow(m_window);
-  UnregisterClass("splashwindow", GetModuleHandle(NULL));
+  UnregisterClass("splashwindow", GetModuleHandle(nullptr));
 #elif defined(LINUX)
   XUnmapWindow(m_parent->getDisplay(), m_window);
 #endif
@@ -50,9 +50,9 @@ void SplashWindow::show(Image& img){
   bminfo.bmiHeader.biBitCount = img.getNumChannels() * 8;
   bminfo.bmiHeader.biCompression = BI_RGB;
 
-  HDC screen = GetDC(NULL);
+  HDC screen = GetDC(nullptr);
   void* image;
-  HBITMAP bmp = CreateDIBSection(screen, &bminfo, DIB_RGB_COLORS, &image, NULL, 0);
+  HBITMAP bmp = CreateDIBSection(screen, &bminfo, DIB_RGB_COLORS, &image, nullptr, 0);
 
   unsigned char* tgt = (unsigned char*)image;
   unsigned char* src = (unsigned char*)img.getData();
@@ -101,7 +101,7 @@ void SplashWindow::show(Image& img){
 
   SelectObject(mem, oldBmp);
   DeleteDC(mem);
-  ReleaseDC(NULL, screen);
+  ReleaseDC(nullptr, screen);
 #elif defined(LINUX)
   unsigned char* data = (unsigned char*)malloc(img.getWidth()*img.getHeight()*4);
   if (img.getNumChannels() == 4){
@@ -151,12 +151,12 @@ void SplashWindow::show(Image& img){
   Screen* scn = DefaultScreenOfDisplay(m_parent->getDisplay());
   XImage* ximg = XCreateImage(m_parent->getDisplay(), visual,
       bpp, ZPixmap, 0, (char*)data, img.getWidth(), img.getHeight(), 8, img.getWidth()*4);
-  if (ximg == NULL){
+  if (ximg == nullptr){
     printf("Splash would crash!\n");
     return;
   }
   Pixmap pm = XCreatePixmap(m_parent->getDisplay(), m_window, img.getWidth(), img.getHeight(), img.getNumChannels()*8);
-  GC gc = XCreateGC(m_parent->getDisplay(), pm, 0, NULL);
+  GC gc = XCreateGC(m_parent->getDisplay(), pm, 0, nullptr);
   XPutImage(m_parent->getDisplay(), pm, gc, ximg, 0, 0, 0, 0, img.getWidth(), img.getHeight());
   XFreeGC(m_parent->getDisplay(), gc);
 

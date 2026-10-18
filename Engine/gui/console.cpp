@@ -23,6 +23,9 @@
 #include "../renderer/forms.h"
 #include "console.h"
 
+using std::string;
+using std::list;
+
 using namespace Gui;
 using namespace CGE;
 
@@ -43,8 +46,8 @@ Console::Console(){
   histIter_ = history_.begin(); 
   new_ = false;
   active_ = false;
-  special_ = NULL;
-  process_ = NULL;
+  special_ = nullptr;
+  process_ = nullptr;
   init();
 }
 
@@ -127,7 +130,7 @@ void Console::update(){
     if (special_){
       void (*s)(const string&, int, void*);
       s = special_;
-      special_ = NULL;
+      special_ = nullptr;
       (*s)(history_.front(), mode_, additional_);
     }
     else if (process_)

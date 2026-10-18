@@ -97,8 +97,8 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
 }
 
 WindowsWindow::WindowsWindow(CGE::Renderer* renderer) : AppWindow(renderer){
-  handle_ = NULL;
-  instance_ = NULL;
+  handle_ = nullptr;
+  instance_ = nullptr;
 }
 
 WindowsWindow::~WindowsWindow(){
@@ -111,7 +111,7 @@ void WindowsWindow::init(const std::string& name){
 #ifndef IDI_APPLICATION
 #define IDI_APPLICATION ((LPWSTR)((ULONG_PTR)((WORD)(32512))))
 #endif
-  HWND hwnd = NULL;
+  HWND hwnd = nullptr;
   WNDCLASSEX wndclass;
   wndclass.cbSize = sizeof(WNDCLASSEX);
 
@@ -121,13 +121,13 @@ void WindowsWindow::init(const std::string& name){
   wndclass.lpfnWndProc = messageLoop;
   wndclass.cbClsExtra = 0;
   wndclass.cbWndExtra = 0;
-  wndclass.hInstance = GetModuleHandle(NULL);
-  wndclass.hIcon = LoadIcon(NULL, IDI_APPLICATION);
-  wndclass.hCursor = LoadCursor(NULL, IDC_ARROW);
+  wndclass.hInstance = GetModuleHandle(nullptr);
+  wndclass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+  wndclass.hCursor = LoadCursor(nullptr, IDC_ARROW);
   wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-  wndclass.lpszMenuName = NULL;
+  wndclass.lpszMenuName = nullptr;
   wndclass.lpszClassName = TEXT(WINDOW_NAME);
-  wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+  wndclass.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
 
   instance_ = wndclass.hInstance;
 
@@ -165,7 +165,7 @@ void WindowsWindow::init(const std::string& name){
   if (!(hwnd = CreateWindowEx(exStyle, TEXT(WINDOW_NAME), 
     name.c_str(),
     WS_CLIPCHILDREN | WS_CLIPSIBLINGS | style,
-    0, 0, width_, height_, NULL, NULL, instance_, NULL))){
+    0, 0, width_, height_, nullptr, nullptr, instance_, nullptr))){
       TR_ERROR("Create Window failed");
       EXIT();
   }
@@ -224,7 +224,7 @@ void WindowsWindow::kill(){
   TR_USE(CGE_Window);
   TR_INFO("Killing window");
   if (fullscreen_){
-    ChangeDisplaySettings(NULL, 0);
+    ChangeDisplaySettings(nullptr, 0);
     ShowCursor(TRUE);
   }
 
@@ -232,12 +232,12 @@ void WindowsWindow::kill(){
 
   if (handle_ && !DestroyWindow(handle_)){
     TR_ERROR("Destroying window failed");
-    handle_ = NULL;
+    handle_ = nullptr;
   }
 
   if (!UnregisterClass(TEXT(WINDOW_NAME), instance_)){
     TR_ERROR("Unregistering class failed");
-    instance_ = NULL;
+    instance_ = nullptr;
   }
 
 }
@@ -250,7 +250,7 @@ void WindowsWindow::changeSize(int width, int height){
   GetClientRect(handle_, &rectClient);
   int xoffset = (rectWin.right-rectWin.left)-(rectClient.right-rectClient.left);
   int yoffset = (rectWin.bottom-rectWin.top)-(rectClient.bottom-rectClient.top);
-  SetWindowPos(handle_, NULL, 0, 0, width+xoffset, height+yoffset, SWP_NOMOVE);
+  SetWindowPos(handle_, nullptr, 0, 0, width+xoffset, height+yoffset, SWP_NOMOVE);
   applyResolution();
 }
 

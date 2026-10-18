@@ -67,12 +67,12 @@ void BlitGroup::realize(){
 
 TR_CHANNEL(ADV_Animation);
 
-Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0), mTimeAccu(0), mHandler(NULL){
+Animation::Animation(float fps) : mInterval((unsigned)(1000.0f/fps)), mCurrFrame(0), mTimeAccu(0), mHandler(nullptr){
 
 }
 
 Animation::Animation(ExtendedFrames& frames, float fps, int depth, const Vec2i& cropSize) : mInterval((unsigned)(1000.0f/fps)), mTimeAccu(0),
-mCurrFrame(0), mHandler(NULL){
+mCurrFrame(0), mHandler(nullptr){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k].names, cropSize, frames[k].offsets, depth);
     mBlits.push_back(group);
@@ -81,13 +81,13 @@ mCurrFrame(0), mHandler(NULL){
       mScripts.push_back(scr);
     }
     else{
-      mScripts.push_back(NULL);
+      mScripts.push_back(nullptr);
     }
   }
 }
 
 Animation::Animation(Frames& frames, float fps, Vec2i offset, int depth, const Vec2i& cropSize) : mInterval((unsigned)(1000.0f/fps)), 
-mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
+mTimeAccu(0), mCurrFrame(0), mHandler(nullptr){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k].name, cropSize, offset, depth);
     mBlits.push_back(group);
@@ -96,24 +96,24 @@ mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
       mScripts.push_back(scr);
     }
     else{
-      mScripts.push_back(NULL);
+      mScripts.push_back(nullptr);
     }
   }
 }
 
 Animation::Animation(SimpleFrames& frames, float fps, Vec2i offset, int depth, const Vec2i& cropSize) : mInterval((unsigned)(1000.0f/fps)), 
-mTimeAccu(0), mCurrFrame(0), mHandler(NULL){
+mTimeAccu(0), mCurrFrame(0), mHandler(nullptr){
   for (unsigned k = 0; k < frames.size(); ++k){
     BlitGroup* group = new BlitGroup(frames[k], cropSize, offset, depth);
     mBlits.push_back(group);
-    mScripts.push_back(NULL);
+    mScripts.push_back(nullptr);
   }
 }
 
 Animation::~Animation(){
   for (unsigned k = 0; k < mBlits.size(); ++k){
     delete mBlits[k];
-    if (mScripts.size() > k && mScripts[k] != NULL)
+    if (mScripts.size() > k && mScripts[k] != nullptr)
       Engine::instance()->getInterpreter()->remove(mScripts[k]);
   }
 }
@@ -142,7 +142,7 @@ void Animation::update(unsigned interval){
     if (mCurrFrame >= mBlits.size()){
       if (mHandler){
         if (mHandler->animationEnded(this))
-          mHandler = NULL;
+          mHandler = nullptr;
       }
       mCurrFrame = 0;
     }
@@ -169,7 +169,7 @@ void Animation::executeScript(){
   if (mCurrFrame >= mScripts.size())
     return;
   ExecutionContext* ctx = mScripts[mCurrFrame];
-  if (ctx == NULL)
+  if (ctx == nullptr)
     return;
   if (!Engine::instance()->getInterpreter()->executeImmediately(ctx)){
     TR_USE(ADV_Animation);
@@ -184,7 +184,7 @@ void Animation::realize(){
 }
 
 Object2D::Object2D(int state, const Vec2i& pos, const Vec2i& size, const std::string& name)
-: mState(state), mPos(pos), mSize(size), mScript(NULL), mSuspensionScript(NULL), mName(name),
+: mState(state), mPos(pos), mSize(size), mScript(nullptr), mSuspensionScript(nullptr), mName(name),
 mLightingColor(), mScale(1.0f), mUserScale(1.0f), mRotAngle(0.0f), mDepth(0){
 
 }
@@ -210,12 +210,12 @@ Animation* Object2D::getAnimation(){
 
 Animation* Object2D::getAnimation(int state){
   if (state <= 0 || (unsigned)state > mAnimations.size())
-    return NULL;
+    return nullptr;
   return mAnimations[state-1];
 }
 
 bool Object2D::isHit(const Vec2i& point){
-  if (mScript == NULL || mState == 0)
+  if (mScript == nullptr || mState == 0)
     return false;
   //Vec2i scaleoffset;
   //scaleoffset.x = (int)((1.0f-abs(mScale))*(getSize().x-getSize().x*abs(mScale)));
@@ -233,12 +233,12 @@ void Object2D::animationEnd(const Vec2i& prev, bool aborted){
     if (aborted)
       mSuspensionScript->reset(true, true);
     ExecutionContext::unref(mSuspensionScript);
-    mSuspensionScript = NULL;
+    mSuspensionScript = nullptr;
   }
 }
 
 void Object2D::setSuspensionScript(ExecutionContext* script){
-  if (mSuspensionScript != NULL){
+  if (mSuspensionScript != nullptr){
     mSuspensionScript->reset(true,true);
     ExecutionContext::unref(mSuspensionScript);
   }
@@ -320,7 +320,7 @@ void Object2D::setLighten(bool lighten){
 
 void Object2D::update(unsigned interval){
   Animation* anim = getAnimation();
-  if (anim != NULL)
+  if (anim != nullptr)
     anim->update(interval);
 }
 
@@ -463,7 +463,7 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
       return mCommands[2] != 0 ? mCommands[2] : 2;  //take the next action
     }
     else{
-      if (Engine::instance()->getObjectAt(pos) != NULL){
+      if (Engine::instance()->getObjectAt(pos) != nullptr){
         Engine::instance()->resetCursor(false, true);
         mState = 2;
         Engine::instance()->getInterpreter()->setPrevState(this, this);
@@ -527,9 +527,9 @@ Vec2i CursorObject::getItemOffset(){
 }
 
 RoomObject::RoomObject(int state, const Vec2i& pos, const Vec2i& size, const std::string& name, const Vec2i& depthmap, bool doublewalkmap) : 
-Object2D(state, pos, size, name), mInventroy(NULL), mDepthMap(), mFadeout(0), mDoubleWalkmap(doublewalkmap){
+Object2D(state, pos, size, name), mInventroy(nullptr), mDepthMap(), mFadeout(0), mDoubleWalkmap(doublewalkmap){
   mLighting = new LightingBlitObject(DEPTH_LIGHTING, size);
-  mParallaxBackground = NULL;
+  mParallaxBackground = nullptr;
   mDepthMap.init(depthmap, (int)Engine::instance()->getWalkGridSize(false));
 }
 
@@ -609,7 +609,7 @@ void RoomObject::addObject(Object2D* obj){
 }
 
 Object2D* RoomObject::getObjectAt(const Vec2i& pos){
-  Object2D* curr = NULL;
+  Object2D* curr = nullptr;
   CharacterObject* currChar = Engine::instance()->getCharacter("self");
   if (mInventroy && currChar){
     curr = mInventroy->getObjectAt(pos, currChar->getInventory());
@@ -638,7 +638,7 @@ Object2D* RoomObject::getObject(const std::string& name){
     if(_stricmp(comparename.c_str(), name.c_str()) == 0)
       return mObjects[i];
   }
-  return NULL;
+  return nullptr;
 }
 
 CharacterObject* RoomObject::extractCharacter(const std::string& name){
@@ -653,7 +653,7 @@ CharacterObject* RoomObject::extractCharacter(const std::string& name){
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 CharacterObject* RoomObject::findCharacter(const std::string& name){
@@ -665,7 +665,7 @@ CharacterObject* RoomObject::findCharacter(const std::string& name){
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 bool RoomObject::isWalkable(CharacterObject* walker, const Vec2i& pos){
@@ -775,10 +775,10 @@ bool RoomObject::isScriptRunning(){
   if (mFadeout > 0)
     return true;
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
-    if ((*iter)->getScript() != NULL && (*iter)->getScript()->isRunning())
+    if ((*iter)->getScript() != nullptr && (*iter)->getScript()->isRunning())
       return true;
   }
-  if (mScript != NULL && mScript->isRunning())
+  if (mScript != nullptr && mScript->isRunning())
     return true;
   return false;
 }
@@ -793,7 +793,7 @@ Vec2i RoomObject::getScriptPosition(ExecutionContext* wmscript){
 
 void RoomObject::finishScripts(bool execute){
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
-    if ((*iter)->getScript() != NULL){
+    if ((*iter)->getScript() != nullptr){
       (*iter)->getScript()->finish();
       if (execute && (*iter)->getScript()->isRunning()){
         //(*iter)->getScript()->resume();
@@ -802,7 +802,7 @@ void RoomObject::finishScripts(bool execute){
     }
     Engine::instance()->getInterpreter()->applyPrevState(*iter);
   }
-  if (mScript != NULL/* && mScript->isRunning()*/){
+  if (mScript != nullptr/* && mScript->isRunning()*/){
     //mScript->resetEvent(EVT_LOOP1);
     //mScript->resetEvent(EVT_LOOP2);
     mScript->finish();
@@ -814,16 +814,16 @@ void RoomObject::finishScripts(bool execute){
 }
 
 bool RoomObject::unbindScript(ExecutionContext* ctx){
-  ExecutionContext* script = NULL;
+  ExecutionContext* script = nullptr;
   for (std::vector<Object2D*>::iterator iter = mObjects.begin(); iter != mObjects.end(); ++iter){
     if ((*iter)->getScript() == ctx){
-      (*iter)->setScript(NULL);
+      (*iter)->setScript(nullptr);
       script = ctx;
       break;
     }
   }
-  if (script != NULL){
-    script->setOwner(NULL);
+  if (script != nullptr){
+    script->setOwner(nullptr);
     script->setExecuteOnce();
     return true;
   }
@@ -926,8 +926,8 @@ void RoomObject::getBBox(Vec2i& min, Vec2i& max){
 
 CharacterObject::CharacterObject(Character* chrclass, int state, bool mirror, Vec2i pos, const std::string& name) 
 : Object2D(state, pos, Vec2i(0,0), name), mMirror(mirror), mTextColor(), 
-mFontID(0), mLinkObject(NULL), mNoZooming(false), mFrozenScale(1.0f), mIdleTime(0),
-mWalkSound(NULL), mClass(chrclass), mWalking(false), mTalking(false), mRealized(false)
+mFontID(0), mLinkObject(nullptr), mNoZooming(false), mFrozenScale(1.0f), mIdleTime(0),
+mWalkSound(nullptr), mClass(chrclass), mWalking(false), mTalking(false), mRealized(false)
 {
   TR_USE(ADV_Character);
   mInventory = new Inventory();
@@ -1179,11 +1179,11 @@ void CharacterObject::save(SaveStateProvider::SaveRoom* containingRoom){
     save->fontid = mFontID;
     save->scale = mUserScale;
     save->nozooming = mNoZooming;
-    if (mWalkSound == NULL)
+    if (mWalkSound == nullptr)
       save->walksound = "";
     else
       save->walksound = mWalkSound->getName();
-    if (mLinkObject == NULL)
+    if (mLinkObject == nullptr)
       save->linkedObject = "";
     else
       save->linkedObject = mLinkObject->getName();
@@ -1191,7 +1191,7 @@ void CharacterObject::save(SaveStateProvider::SaveRoom* containingRoom){
 }
 
 bool CharacterObject::isHit(const Vec2i& point){
-  if (mScript == NULL || mState == 0)
+  if (mScript == nullptr || mState == 0)
     return false;
   //Vec2i scaleoffset;
   //scaleoffset.x = (int)((1.0f-abs(mScale))*(getSize().x-getSize().x*abs(mScale)));
@@ -1231,7 +1231,7 @@ void CharacterObject::setState(int state){
 
 void CharacterObject::update(unsigned interval){
   Object2D::update(interval);
-  if (mLinkObject != NULL){
+  if (mLinkObject != nullptr){
     Vec2i pos = mLinkObject->getPosition()+mLinkObject->getSize()/2;
     setPosition(pos-mLinkOffset);
   }
@@ -1289,13 +1289,13 @@ int CharacterObject::getDepth(){
 }
 
 void CharacterObject::setWalkSound(SoundPlayer* plyr){
-  if (mWalkSound != NULL)
+  if (mWalkSound != nullptr)
     SoundEngine::instance()->removeSoundPlayer(mWalkSound);
   mWalkSound = plyr;
 }
 
 void CharacterObject::abortClick(){
-  if (mSuspensionScript != NULL){
+  if (mSuspensionScript != nullptr){
     if (!mSuspensionScript->getEvents().empty() && mSuspensionScript->getEvents().front() == EVT_CLICK){
       mSuspensionScript->getEvents().pop_front();
       Object2D::animationEnd(Vec2i(), false);

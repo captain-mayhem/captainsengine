@@ -21,9 +21,6 @@
 #include "material.h"
 #include "../math/vector.h"
 
-using std::string;
-using std::ostringstream;
-using std::queue;
 
 namespace CGE{
 
@@ -34,7 +31,7 @@ struct CGE_API font_data{
   //! position of the text
   ::CGE::Vector2D pos;
   //! the text
-  string* text;
+  std::string* text;
   //! which font set should be used
   short set;
   //! the font color
@@ -82,13 +79,13 @@ public:
   //! erases all stored print data
   inline void clear() { while (!q_.empty()) { delete q_.front().text; q_.pop(); } }
   //! easy to use output operator for status messages
-  void operator<<(const string& text);
+  void operator<<(const std::string& text);
   //! output for streams
-  void operator<<(const ostringstream& text);
+  void operator<<(const std::ostringstream& text);
   //! get the font vertex buffer
   inline VertexBuffer* getVB() {return buffer_;}
   //! set the font vertex buffer
-  inline void resetVB() {buffer_ = NULL;}
+  inline void resetVB() {buffer_ = nullptr;}
   //! delete the texts with a certain id
   void deleteText(short id);
 private:
@@ -103,7 +100,7 @@ private:
   //! font color
   Color rgb_;
   //! all text strings that are to be rendered
-  queue<font_data> q_;
+  std::queue<font_data> q_;
   //! a id to identify the text
   short id_;
 };

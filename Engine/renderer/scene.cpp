@@ -17,6 +17,8 @@
 #include <limits.h>
 #include <algorithm>
 
+using std::string;
+
 using namespace CGE;
 using std::list;
 using std::ofstream;
@@ -32,7 +34,7 @@ using CGE::Utilities;
 
 TR_CHANNEL(CGE_Scene);
 
-Scene::Scene() : mActiveCam(NULL){
+Scene::Scene() : mActiveCam(nullptr){
   version_ = 1;
 }
 
@@ -77,11 +79,11 @@ Model* Scene::getModel(const unsigned id){
       if ((*iter)->getType() == SceneNode::MESH)
         return (Model*)*iter;
       else
-        return NULL;
+        return nullptr;
     }
     //count++;
   };
-  return NULL;
+  return nullptr;
 }
 
 //! save the scene
@@ -154,7 +156,7 @@ void Scene::save(const std::string& filename) const{
     for (int i = 0; i < MAX_TEXTURES; i++){
       Texture* tex = mdl->getTexture(i);
       unsigned idx;
-      if (tex == NULL){
+      if (tex == nullptr){
         idx = UINT_MAX;
       }
       else{
@@ -285,7 +287,7 @@ void Scene::load(const std::string& filename){
 Model* Scene::pickModel(const Ray& ray) const {
   list<SceneNode*>::const_iterator iter;
   //std::cerr << ray.getOrigin() << " " << ray.getDirection() << "\n";
-  Model* nearest = NULL;
+  Model* nearest = nullptr;
   float nearDistance = FLT_MAX;
   for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
     if ((*iter)->getType() != SceneNode::MESH)

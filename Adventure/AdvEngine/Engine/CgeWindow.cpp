@@ -21,10 +21,10 @@ TR_CHANNEL(ADV_CGE_Window);
 
 String filename;
 std::string savegame;
-AdvDocument* adoc = NULL;
+AdvDocument* adoc = nullptr;
 CommandReceiver receiver;
 bool openConsole;
-CGE::SplashWindow* splashWindow = NULL;
+CGE::SplashWindow* splashWindow = nullptr;
 
 Vec2i windowsize(640,480);
 
@@ -82,7 +82,7 @@ void init(){
     receiver.start();
   Engine::instance()->initGame(quit, set_mouse);
   delete splashWindow;
-  splashWindow = NULL;
+  splashWindow = nullptr;
   rend->getWindow()->show(true);
 }
 
@@ -110,7 +110,7 @@ void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* 
   image.setFormat(numChannels, width, height);
   image.setData((unsigned char*)data);
   splashWindow->show(image);
-  image.setData(NULL);
+  image.setData(nullptr);
 }
 
 void render(){

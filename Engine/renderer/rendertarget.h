@@ -10,7 +10,7 @@ namespace CGE{
 class CGE_API RenderTarget{
   friend class GL2Renderer;
 public:
-  RenderTarget() : mOldTarget(NULL) {}
+  RenderTarget() : mOldTarget(nullptr) {}
   virtual ~RenderTarget() {}
   void activate() { mOldTarget = mCurrTarget; bind(); mCurrTarget = this; }
   void deactivate() { if (mOldTarget) mOldTarget->bind(); mCurrTarget = mOldTarget; }

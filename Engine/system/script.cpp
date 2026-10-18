@@ -4,11 +4,13 @@
 #include "file.h"
 #include "../platform/assets.h"
 
+using std::string;
+
 namespace CGE{
 
 TR_CHANNEL(CGE_Script);
 
-Script* Script::scr_ = NULL;
+Script* Script::scr_ = nullptr;
 
 Script::Script() : L(0) {
 }

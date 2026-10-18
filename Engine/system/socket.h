@@ -71,7 +71,7 @@ public:
   //! returns if the socket is valid
   bool is_valid() const { 
 #ifdef WIN32
-	  return sock_ != NULL;
+	  return sock_ != INVALID_SOCKET;
 #else
 	  return sock_ != -1;
 #endif

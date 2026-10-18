@@ -11,6 +11,8 @@
 #include "../input/mouse.h"
 #include "../platform/platform_internal.h"
 
+using std::list;
+
 using CGE::AppWindow;
 using Gui::InputField;
 using Gui::Button;;
@@ -20,7 +22,7 @@ using CGE::Vector2D;
 
 using namespace Input;
 
-Mouse* Mouse::mouse_ = NULL;
+Mouse* Mouse::mouse_ = nullptr;
 
 Mouse::Mouse(){
   mousePointer_ = true;

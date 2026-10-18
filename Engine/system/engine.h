@@ -11,21 +11,18 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <array>
+#include <memory>
 #include <cstring>
 #include <cstdlib>
 #include <io/Tracing.h>
 
-using std::string;
-using std::ofstream;
-using std::cerr;
-using std::list;
-using std::vector;
 
 #define EXIT() (CGE::Engine::instance()->requestShutdown())
 #define EXIT2(msg, ...) {TR_ERROR(msg, ##__VA_ARGS__); CGE::Engine::instance()->requestShutdown(); }
-#define SAFE_DELETE(ptr)       { if(ptr) { delete (ptr); (ptr)=NULL; } }
-#define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=NULL; } }
-#define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=NULL; } }
+#define SAFE_DELETE(ptr)       { if(ptr) { delete (ptr); (ptr)=nullptr; } }
+#define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=nullptr; } }
+#define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=nullptr; } }
 
 #ifndef VERSION
 #define VERSION 0.7
@@ -47,50 +44,26 @@ class Button;
 class Console;
 }
 
-//! changes an integer to a string
-inline string toStr(const unsigned i){
-  char tmp[16];
-  memset(tmp, 0, 16);
-  sprintf(tmp, "%d", i);
-  return string(tmp);
-}
-
-//! changes an integer to a string
-inline string toStr(const int i){
-  char tmp[16];
-  memset(tmp, 0, 16);
-  sprintf(tmp, "%d", i);
-  return string(tmp);
-}
-
 //! changes a string to an integer
-inline const int toInt(const string& s){
+inline const int toInt(const std::string& s){
   return atoi(s.c_str());
 }
 
-//! changed a float to a string
-inline string toStr(const float f){
-  char tmp[32];
-  memset(tmp, 0, 32);
-  sprintf(tmp, "%f", f);
-  return string(tmp);
-}
-
 //! changes a string to a float
-inline float toFloat(const string& s){
+inline float toFloat(const std::string& s){
   return (float)atof(s.c_str());
 }
 
 //! changes a string to lowercase
-inline const string toLower(string& s){
+inline const std::string toLower(std::string& s){
   for (unsigned i = 0; i < s.length(); i++){
     s.at(i) = tolower(s.at(i));
   }
   return s;
 }
 
-inline const string toLower(const string& s){
-  string ret;
+inline const std::string toLower(const std::string& s){
+  std::string ret;
   for (unsigned i = 0; i < s.length(); i++){
     ret += tolower(s.at(i));
   }
@@ -139,24 +112,24 @@ class CGE_API Engine{
     //! the application comes back from the background
     void resume();
     inline bool isPaused() {return paused_;}
-    inline CGE::Renderer* getRenderer() {return rend_;}
+    inline CGE::Renderer* getRenderer() {return rend_.get();}
     //! the virtual resolution of the GUI pass and the input events
     /*! Its window size is updated from the window on every call. */
     CGE::VirtualScreen& getVirtualScreen();
-    inline CGE::Font* getFont(int idx) {return fnt_[idx];}
+    inline CGE::Font* getFont(int idx) {return fnt_[idx].get();}
     //! Get the standard forms
-    inline CGE::Forms* getForms() {return forms_;}
+    inline CGE::Forms* getForms() {return forms_.get();}
     //! get the window
-    inline CGE::AppWindow* getWindow() {return win_;}
+    inline CGE::AppWindow* getWindow() {return win_.get();}
     //! get the console
-    inline ::Gui::Console* getConsole() {return console_;}
+    inline ::Gui::Console* getConsole() {return console_.get();}
     inline double getFrameInterval() {return frameInterval_;}
     inline int getFPS() {return fps_;}
    
     //! get the input field list
     //inline list< ::Gui::InputField*>& getInputFields() {return listeners_;}
     //! get the button list
-    inline list< ::Gui::GuiElement*>& getGuiElements() {return guiElems_;}
+    inline std::list< ::Gui::GuiElement*>& getGuiElements() {return guiElems_;}
     //! adds an input field for mouse click checking
     //void addInputListener(::Gui::InputField* in, bool immediate=true){if (immediate)listeners_.push_back(in);
     //  else newIn_.push_back(in);}
@@ -174,11 +147,11 @@ class CGE_API Engine{
     //! remove the button listener at position idx
     void removeGuiListener(int idx, bool immediate=true);
     //! remove the button listener with a certain name
-    void removeGuiListener(const string& name);
+    void removeGuiListener(const std::string& name);
     //! remove all button listeners beginning at idx
     void removeGuiListeners(int idx);
     //! get a button by name
-    ::Gui::GuiElement* getGuiListener(const string& name);
+    ::Gui::GuiElement* getGuiListener(const std::string& name);
     //! get the gui mutex
     Mutex& getGuiMutex() {return guitex_;}
     void requestShutdown();
@@ -194,6 +167,9 @@ class CGE_API Engine{
     friend CGE_API int runApplication(int argc, char** argv, IApplication& app, void* platformData);
     static Engine* eng;
     Engine();
+    ~Engine();
+    Engine(const Engine&) = delete;
+    Engine& operator=(const Engine&) = delete;
     //! processes the pending window events
     void processEvents();
     //! one frame, with or without updating the application
@@ -206,16 +182,16 @@ class CGE_API Engine{
     void limitFrame();
 
     //! The window
-    CGE::AppWindow* win_;
+    std::unique_ptr<CGE::AppWindow> win_;
     
     //! The renderer
-    CGE::Renderer* rend_;
+    std::unique_ptr<CGE::Renderer> rend_;
     //! the virtual resolution
     CGE::VirtualScreen virtual_;
     //! The fonts
-    CGE::Font** fnt_;
+    std::array<std::unique_ptr<CGE::Font>, 3> fnt_;
     //! Stadard forms
-    CGE::Forms* forms_;
+    std::unique_ptr<CGE::Forms> forms_;
     //! is the engine initialized and running?
     bool isUp_;
     //! graphics subsystem
@@ -246,11 +222,11 @@ class CGE_API Engine{
     //! waiting input fields
     //list< ::Gui::InputField*> listeners_;
     //! waiting buttons
-    list< ::Gui::GuiElement*> guiElems_;
+    std::list< ::Gui::GuiElement*> guiElems_;
     //! the new input fields
     //list< ::Gui::InputField*> newIn_;
     //! the new buttons
-    list< ::Gui::GuiElement*> newBut_;
+    std::list< ::Gui::GuiElement*> newBut_;
     //! if the input listeners should be cleared
     bool clear_;
     //! which buttons should be removed
@@ -258,7 +234,7 @@ class CGE_API Engine{
     //! where should the keyboard input go to?
     ::Gui::InputField* input_;
     //! the game console
-    ::Gui::Console* console_;
+    std::unique_ptr< ::Gui::Console> console_;
     //! a gui lock mutex
     Mutex guitex_;
     bool mShutdownRequested;

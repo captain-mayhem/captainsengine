@@ -15,6 +15,8 @@
 #include "../renderer/renderer.h"
 #include "../renderer/forms.h"
 
+using std::list;
+
 using namespace Gui;
 using namespace CGE;
 
@@ -124,6 +126,6 @@ GuiElement* Dialog::getElement(int idx) const{
       return *iter;
     idx--;
   }
-  return NULL;
+  return nullptr;
 }
 
