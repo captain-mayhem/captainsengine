@@ -25,12 +25,12 @@ IF(RENDER_EMBEDDED)
     SET(ADVENTURE_LINK_LIBS GLESv2)
   ELSE()
     SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
-    SET(ADVENTURE_LINK_LIBS EngineMain OpenSLES)
+    SET(ADVENTURE_LINK_LIBS OpenSLES)
   ENDIF()
 ELSE(RENDER_EMBEDDED)
   find_package(OpenGL REQUIRED)
   SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
-  SET(ADVENTURE_LINK_LIBS EngineMain OpenGL::GL)
+  SET(ADVENTURE_LINK_LIBS OpenGL::GL)
 ENDIF(RENDER_EMBEDDED)
 
 ###ANTLR###
@@ -51,9 +51,18 @@ if (MSVC)
   target_compile_definitions(antlr PRIVATE _CRT_SECURE_NO_DEPRECATE)
 endif()
 
-INCLUDE(FindJava)
-if (NOT Java_JAVA_EXECUTABLE)
-set(Java_JAVA_EXECUTABLE dalvikvm CACHE FILEPATH "" FORCE)
+# Java runs ANTLR (the script parser) and jar (the StoryDesigner runtime packages)
+if (OS STREQUAL "android")
+  INCLUDE(FindJava)
+  if (NOT Java_JAVA_EXECUTABLE)
+    set(Java_JAVA_EXECUTABLE dalvikvm CACHE FILEPATH "" FORCE)
+  endif()
+else()
+  find_package(Java COMPONENTS Runtime Development)
+  if (NOT Java_JAVA_EXECUTABLE OR NOT Java_JAR_EXECUTABLE)
+    message(FATAL_ERROR "The Adventure needs a Java JDK (java and jar): set JAVA_HOME, "
+      "put the JDK's bin folder in PATH, or turn the Adventure off (PROJECT_ADVENTURE=OFF)")
+  endif()
 endif()
 
 SET(PARSER_SRCS
@@ -167,6 +176,11 @@ ENDIF()
 
 find_package(OpenAL)
 if (NOT OPENAL_FOUND)
+	if (OS STREQUAL "windows")
+		# the StoryDesigner's runtime packages (engine2.dat) contain OpenAL32.dll
+		message(FATAL_ERROR "The Adventure needs OpenAL on Windows: set OPENAL_LIBRARY and OPENAL_INCLUDE_DIR, "
+			"or turn the Adventure off (PROJECT_ADVENTURE=OFF)")
+	endif()
 	message(WARNING "Setting option DISABLE_SOUND as OpenAL was not found")
 	set(DISABLE_SOUND ON CACHE BOOL "" FORCE)
 endif()

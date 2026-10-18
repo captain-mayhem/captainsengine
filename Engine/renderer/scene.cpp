@@ -92,31 +92,32 @@ void Scene::save(const std::string& filename) const{
   //version
   out.write((char*)&version_, sizeof(version_));
   //meshes
-  size_t size = meshes_.size();
+  //counts and lengths are 32 bits, which load() reads
+  unsigned size = (unsigned)meshes_.size();
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
     string name = meshes_[i]->getFilename();
 #ifdef UNIX
     Utilities::replaceWith(name, '/', '\\');
 #endif
-    size_t length = name.size();
+    unsigned length = (unsigned)name.size();
     out.write((char*)&length, sizeof(length));
     out.write(name.c_str(), (std::streamsize) sizeof(char)*length);
   }
   //textures
-  size = textures_.size();
+  size = (unsigned)textures_.size();
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
     string name = textures_[i]->getFilename();
 #ifdef UNIX
     Utilities::replaceWith(name, '/', '\\');
 #endif
-    size_t length = name.size();
+    unsigned length = (unsigned)name.size();
     out.write((char*)&length, sizeof(length));
     out.write(name.c_str(), sizeof(char)*length);
   }
   //lights
-  size = mLights.size();
+  size = (unsigned)mLights.size();
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
     Light* lt = mLights[i];
@@ -131,7 +132,7 @@ void Scene::save(const std::string& filename) const{
     out.write((const char*)&flt, sizeof(float));
   }
   //models
-  size = mNodes.size();
+  size = (unsigned)mNodes.size();
   out.write((char*)&size, sizeof(size));
   list<SceneNode*>::const_iterator iter;
   for (iter = mNodes.begin(); iter != mNodes.end(); iter++){

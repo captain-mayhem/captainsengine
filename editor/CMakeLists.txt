@@ -20,7 +20,7 @@ else()
 ADD_EXECUTABLE(editor ${editor_SRCS} ${editor_HDRS})
 endif()
 
-TARGET_LINK_LIBRARIES(editor PRIVATE EngineMain CGE::Engine)
+TARGET_LINK_LIBRARIES(editor PRIVATE CGE::Engine)
 
 IF (${OS} STREQUAL "windows")
 SET_TARGET_PROPERTIES(editor PROPERTIES WIN32_EXECUTABLE TRUE)

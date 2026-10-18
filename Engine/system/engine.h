@@ -113,14 +113,12 @@ inline const string toLower(const string& s){
 CGE_API double getTime();
 
 #include "thread.h"
+#include "application.h"
 
 namespace CGE{
 
-typedef void(*USERMAINFUNC)(int argc, char** argv);
-
 class CGE_API Engine{
   public:
-    static int mainLoop(int argc, char** argv, USERMAINFUNC func, void* data=NULL);
     static void init();
     inline static Engine* instance() {return eng;}
     void startup(int argc, char** argv);
@@ -176,6 +174,7 @@ class CGE_API Engine{
     }
 #endif
   private:
+    friend CGE_API int runApplication(int argc, char** argv, USERMAINFUNC func, void* platformData);
     static Engine* eng;
     Engine();
 

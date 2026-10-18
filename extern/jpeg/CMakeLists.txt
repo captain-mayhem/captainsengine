@@ -47,7 +47,11 @@ jmemmgr.c
 jmemansi.c
 )
 target_include_directories(jpeg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-target_compile_definitions(jpeg PRIVATE __inline__=)
+if (MSVC)
+	# jconfig.h uses the GCC keyword __inline__ for INLINE; elsewhere redefining it
+	# would also break the C library's inline functions (bionic's fortified strlen)
+	target_compile_definitions(jpeg PRIVATE __inline__=)
+endif()
 cge_extern_defaults(jpeg)
 
 INSTALL(TARGETS jpeg ARCHIVE DESTINATION Engine/lib)
