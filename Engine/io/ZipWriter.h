@@ -5,7 +5,7 @@
 
 #include <string>
 #include <map>
-#include <../extern/zlib/zip.h>
+#include <zip.h>
 #include "MemWriter.h"
 #include "Reader.h"
 

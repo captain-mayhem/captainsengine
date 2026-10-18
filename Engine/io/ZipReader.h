@@ -5,7 +5,7 @@
 
 #include <string>
 #include <map>
-#include <../extern/zlib/unzip.h>
+#include <unzip.h>
 #include "MemReader.h"
 
 namespace CGE{
