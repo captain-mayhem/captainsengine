@@ -22,11 +22,6 @@ using namespace Input;
 Mouse* Mouse::mouse_ = NULL;
 
 Mouse::Mouse(){
-  buttonDownCB_ = NULL;
-  buttonUpCB_ = NULL;
-  moveCB_ = NULL;
-  wheelCB_ = NULL;
-  doubleClickCB_ = NULL;
   mousePointer_ = true;
   pressed_[0] = false;
   pressed_[1] = false;
@@ -150,8 +145,8 @@ void Mouse::buttonDown(int x, int y, int button){
     };
   }
     
-  if (buttonDownCB_)
-    buttonDownCB_(clickPos_.x, clickPos_.y, button);
+  if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
+    app->onMouseDown(clickPos_.x, clickPos_.y, button);
 }
 
 void Mouse::buttonUp(int x, int y, int button){
@@ -171,16 +166,16 @@ void Mouse::buttonUp(int x, int y, int button){
       break;
   };
 
-  if (buttonUpCB_)
-    buttonUpCB_(pos.x, pos.y, button);
+  if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
+    app->onMouseUp(pos.x, pos.y, button);
 }
 
 void Mouse::doubleClick(int x, int y, int button){
   AppWindow* wnd = CGE::Engine::instance()->getWindow();
   clickPos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
   clickPos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
-  if (doubleClickCB_)
-    doubleClickCB_(clickPos_.x, clickPos_.y, button);
+  if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
+    app->onDoubleClick(clickPos_.x, clickPos_.y, button);
 }
 
 void Mouse::move(int x, int y, int buttons){
@@ -192,8 +187,8 @@ void Mouse::move(int x, int y, int buttons){
     return;
   mousePos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
   mousePos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
-  if (moveCB_)
-    moveCB_(x, y, buttons);
+  if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
+    app->onMouseMove(x, y, buttons);
 }
 
 void Mouse::wheel(int x, int y, int delta){
@@ -204,8 +199,8 @@ void Mouse::wheel(int x, int y, int delta){
     return;
   mousePos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
   mousePos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
-  if (wheelCB_)
-    wheelCB_(x, y, delta);
+  if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
+    app->onMouseWheel(x, y, delta);
 }
 
 void Mouse::showCursor(bool visible){

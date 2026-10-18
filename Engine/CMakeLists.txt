@@ -16,6 +16,14 @@ endif()
 if (OS STREQUAL linux)
   option(DISABLE_XF86VMODE "Disables the X11 xf86 vmode extension" OFF)
 endif()
+# Without threads the engine and its applications do their work in the main
+# loop (the browser's main thread on the web).
+if (EMSCRIPTEN)
+  set(ENGINE_SINGLE_THREADED_DEFAULT ON)
+else()
+  set(ENGINE_SINGLE_THREADED_DEFAULT OFF)
+endif()
+option(ENGINE_SINGLE_THREADED "build the engine and its applications without threads" ${ENGINE_SINGLE_THREADED_DEFAULT})
 
 INCLUDE(gui/CMakeLists.txt)
 INCLUDE(image/CMakeLists.txt)
@@ -103,6 +111,10 @@ elseif (OS STREQUAL "linux")
 elseif (OS STREQUAL "android")
 	target_compile_definitions(Engine PUBLIC UNIX ANDROID)
 	target_link_libraries(Engine PUBLIC android log)
+endif()
+
+if (ENGINE_SINGLE_THREADED)
+	target_compile_definitions(Engine PUBLIC ENGINE_SINGLE_THREADED)
 endif()
 
 # Third-party libraries are linked statically into the engine library.

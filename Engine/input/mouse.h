@@ -40,16 +40,6 @@ namespace Input{
     static void init(bool hasGraphics);
     inline static Mouse* instance() {return mouse_;}
     inline static void release() {SAFE_DELETE(mouse_);}
-    //! set button down callback
-    inline void setButtonDownCB(void (*proc)(int x, int y, int button)) {buttonDownCB_ = proc;}
-    //! set button up callback
-    inline void setButtonUpCB(void (*proc)(int x, int y, int button)) {buttonUpCB_ = proc;}
-    //! set double click callback
-    inline void setDoubleClickCB(void (*proc)(int x, int y, int button)) {doubleClickCB_ = proc;}
-    //! set mouse move callback
-    inline void setMouseMoveCB(void (*proc)(int x, int y, int button)) {moveCB_ = proc;}
-    //! set mouse wheel callback
-    inline void setWheelTurnCB(void (*proc)(int x, int y, int delta)) {wheelCB_ = proc;}
     void buttonDown(int x, int y, int button);
     void buttonUp(int x, int y, int button);
     void doubleClick(int x, int y, int button);
@@ -74,16 +64,6 @@ namespace Input{
   protected:
     static Mouse* mouse_;
     Mouse();
-    //! button down callback
-    void (*buttonDownCB_)(int x, int y, int button);
-    //! button up callback
-    void (*buttonUpCB_)(int x, int y, int button);
-    //! double click callback
-    void (*doubleClickCB_)(int x, int y, int button);
-    //! mouse move callback
-    void (*moveCB_)(int x, int y, int button);
-    //! mouse wheel callback
-    void (*wheelCB_)(int x, int y, int delta);
     //! the position of the last click
     CGE::Vector2D clickPos_;
     //! the position of the mouse

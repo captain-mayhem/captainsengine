@@ -204,7 +204,22 @@ void cleanup(){
 #endif
 }
 
-void engineMain(int argc, char** argv){
+class AdventureApp : public CGE::IApplication{
+public:
+  void init(int argc, char** argv) override;
+  void render() override {::render();}
+  void shutdown() override {deinit();}
+  void onKeyDown(int key) override {key_press(key);}
+  void onKeyUp(int key) override {key_release(key);}
+  void onChar(unsigned char ch) override {key_ascii(ch);}
+  void onMouseDown(int x, int y, int button) override {mouse_click(x, y, button);}
+  void onMouseUp(int x, int y, int button) override {mouse_release(x, y, button);}
+  void onDoubleClick(int x, int y, int button) override {double_click(x, y, button);}
+  void onMouseMove(int x, int y, int buttons) override {mouse_move(x, y, buttons);}
+  void onMouseWheel(int x, int y, int delta) override {mouse_wheel(x, y, delta);}
+};
+
+void AdventureApp::init(int argc, char** argv){
   atexit(cleanup);
 #ifdef WIN32
   openConsole = CGE::Script::instance()->getBoolSetting("openConsole");
@@ -227,23 +242,9 @@ void engineMain(int argc, char** argv){
   filename.replaceWith('\\', '/');
   if (!filename.endsWith(".dat") && !filename.endsWith(".adv"))
     filename += "/data/game.dat";
-  //render callbacks
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->setRenderCB(render);
-  rend->setInitCB(init);
-  rend->setDeinitCB(deinit);
-
-  //input callbacks
-  Input::Keyboard::instance()->setKeyDownCB(key_press);
-  Input::Keyboard::instance()->setKeyUpCB(key_release);
-  Input::Keyboard::instance()->setAsciiCB(key_ascii);
   Input::Keyboard::instance()->enableBuitInConsole(false);
-  Input::Mouse::instance()->setButtonDownCB(mouse_click);
-  Input::Mouse::instance()->setButtonUpCB(mouse_release);
-  Input::Mouse::instance()->setMouseMoveCB(mouse_move);
-  Input::Mouse::instance()->setDoubleClickCB(double_click);
-  Input::Mouse::instance()->setWheelTurnCB(mouse_wheel);
   Input::Mouse::instance()->showCursor(false);
+  ::init();
 }
 
-CGE_MAIN(engineMain)
+CGE_MAIN(AdventureApp)

@@ -123,8 +123,24 @@ class CGE_API Engine{
     inline static Engine* instance() {return eng;}
     void startup(int argc, char** argv);
     bool startupRenderer(const std::string& renderer);
-    void run();
+    //! runs one frame: processes the window events, calls the application's
+    //! update as often as needed, renders and waits for the frame limit
+    void runFrame();
+    //! processes the window events and renders one frame without calling update
+    /*! For applications that wait for input in a nested loop of their own,
+        started from update or init. Must not be called from render or from an
+        input handler. Returns false once a shutdown is requested. */
+    bool pumpFrame();
     void shutdown();
+    //! the application, or nullptr while it isn't initialised
+    inline IApplication* getApplication() {return app_;}
+    //! the window was resized to width x height pixels
+    void resize(int width, int height);
+    //! the application goes into the background: no updates and no rendering
+    void pause();
+    //! the application comes back from the background
+    void resume();
+    inline bool isPaused() {return paused_;}
     inline CGE::Renderer* getRenderer() {return rend_;}
     inline CGE::Font* getFont(int idx) {return fnt_[idx];}
     //! Get the standard forms
@@ -174,9 +190,19 @@ class CGE_API Engine{
     }
 #endif
   private:
-    friend CGE_API int runApplication(int argc, char** argv, USERMAINFUNC func, void* platformData);
+    friend CGE_API int runApplication(int argc, char** argv, IApplication& app, void* platformData);
     static Engine* eng;
     Engine();
+    //! processes the pending window events
+    void processEvents();
+    //! one frame, with or without updating the application
+    void frame(bool update);
+    //! renders the application and the GUI and swaps buffers
+    void renderFrame();
+    //! applies the deferred changes to the GUI element list
+    void updateGuiElements();
+    //! sleeps until the frame limit (maxFramerate in engine.ini) is reached
+    void limitFrame();
 
     //! The window
     CGE::AppWindow* win_;
@@ -191,10 +217,18 @@ class CGE_API Engine{
     bool isUp_;
     //! graphics subsystem
     bool graphics_;
-    //! max framerate
-    /*! 0 means time based rendering,
-        >0 is maximum frame rate*/
+    //! the application
+    IApplication* app_;
+    //! is the application in the background?
+    bool paused_;
+    //! is a frame being rendered? (pumpFrame isn't allowed then)
+    bool rendering_;
+    //! max framerate (0 means unlimited)
     int maxFramerate_;
+    //! the fixed update interval
+    double updateInterval_;
+    //! the time that the updates still have to catch up with
+    double updateLag_;
     //! the frame interval
     double frameInterval_;
     //! the time of the previous frame
@@ -226,6 +260,10 @@ class CGE_API Engine{
     Mutex guitex_;
     bool mShutdownRequested;
     
+#ifdef LINUX
+    //! the time of the last click, to detect double clicks
+    double lastClick_;
+#endif
 #ifdef ANDROID
 	static int32_t handleInput(struct android_app* app, AInputEvent* event);
 	static void handleCmd(struct android_app* app, int32_t cmd);

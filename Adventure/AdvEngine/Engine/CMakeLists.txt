@@ -11,7 +11,6 @@ OPTION(DISABLE_SOUND "disables the ffmpeg and openal backends" ${DISABLE_SOUND_D
 OPTION(FFMPEG_OLD_API "activate use of older ffmpeg API" OFF)
 OPTION(JNI_FRONTEND "enables a JNI frontend for Android" OFF)
 OPTION(EMSCRIPTEN_FRONTEND "enables a C frontend for emscripten" OFF)
-OPTION(ENGINE_SINGLE_THREADED "makes engine single threaded" ${EMSCRIPTEN_FRONTEND})
 OPTION(DISABLE_EFX "disables EFX sound effects" ${EMSCRIPTEN_FRONTEND})
 
 # the frontend (window and main loop) and the libraries only it needs
@@ -167,9 +166,6 @@ ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
 target_include_directories(AdventureBase PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(AdventureBase PUBLIC CGE::Engine antlr xml)
 
-IF(ENGINE_SINGLE_THREADED)
-  target_compile_definitions(AdventureBase PUBLIC ENGINE_SINGLE_THREADED)
-ENDIF()
 IF(DISABLE_EFX)
   target_compile_definitions(AdventureBase PUBLIC DISABLE_EFX)
 ENDIF()
