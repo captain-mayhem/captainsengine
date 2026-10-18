@@ -12,6 +12,8 @@
 #ifndef SOCKET_HH
 #define SOCKET_HH
 
+#include <cge_export.h>
+
 
 #include <sys/types.h>
 #ifdef WIN32
@@ -39,7 +41,7 @@ const char SEPARATOR = '\004';
 //! The base class for socket operations
 /*! It uses unix socket system calls for providing the functionality
  */
-class Socket{
+class CGE_API Socket{
 public:
   //! Constructor
   Socket();

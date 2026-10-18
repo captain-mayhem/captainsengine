@@ -3,15 +3,8 @@
 #include <iostream>
 #include <system/allocation.h>
 
-#ifdef UNIX
-#define UINT64_C(val) (uint64_t)val
-#endif
-#ifndef UINT64_C
-#define UINT64_C(val) val##ui64
-#endif
-#ifndef INT64_C
-#define INT64_C(val) val##i64
-#endif
+// FFmpeg's headers need UINT64_C and INT64_C, which <cstdint> defines
+#include <cstdint>
 
 #ifdef WIN32
 #pragma warning( disable : 4244 )
@@ -20,13 +13,7 @@
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
 #ifndef DISABLE_EFX
-#ifdef UNIX
 #include <AL/efx.h>
-#else
-#include <AL/efx.h>
-#include <AL/efx-creative.h>
-//#include <EFX-Util.h>
-#endif
 #include "EFXeffects.h"
 #ifndef AL_LOWPASS_MAX_GAIN
 #define AL_LOWPASS_MAX_GAIN 1.0f
@@ -326,7 +313,7 @@ bool SoundEngine::setDSPEffect(const std::string& effect){
     TR_BREAK("unknown dsp effect %s", effect.c_str());
     return false;
   }
-#ifndef DISABLE_EFX
+#if !defined(DISABLE_SOUND) && !defined(DISABLE_EFX)
   const DSPEffect& eff = iter->second;
   switch (eff.type){
   case  DSPEffect::REVERB:{
@@ -610,8 +597,10 @@ std::ostream& SoundEngine::save(std::ostream& out){
   out << mMusicVolume << " " << mSpeechVolume << "\n";
   out << mFadingTime << " " << mCurrentEffect << " " << mIsDSPEffect << "\n";
   out << mSpeedFactor << std::endl;
-  float volume;
+  float volume = 1.0f;
+#ifndef DISABLE_SOUND
   alGetListenerf(AL_GAIN, &volume);
+#endif
   out << volume << std::endl;
   if (mActiveMusic != NULL){
     out << String(mActiveMusic->getName()) << " " << mActiveMusic->hasEffect();

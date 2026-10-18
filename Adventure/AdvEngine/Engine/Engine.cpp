@@ -242,7 +242,7 @@ void Engine::exitGame(){
   mClickedObject = NULL;
   mPrevClickedObject = NULL;
   mInterpreter->stop();
-  mMainScript->unref();
+  ExecutionContext::unref(mMainScript);
   mAnimator->clear();
   if (mUnloadedRoom != mConsole)
     delete mUnloadedRoom;

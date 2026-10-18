@@ -1,11 +1,13 @@
 #ifndef CGE_INDEXBUFFER_H
 #define CGE_INDEXBUFFER_H
 
+#include <cge_export.h>
+
 #include "../system/types.h"
 
 namespace CGE{
 
-class IndexBuffer{
+class CGE_API IndexBuffer{
 public:
   enum Type{
     IB_UCHAR=1,

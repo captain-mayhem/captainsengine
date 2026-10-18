@@ -27,6 +27,8 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <cge_export.h>
+
 #ifdef WIN32
 #include <windows.h>
 #endif
@@ -46,14 +48,14 @@ class Texture;
 namespace CGE{
 
 //! Mesh provides storage and loading for meshes
-class Mesh{ 
+class CGE_API Mesh{ 
 public:
   enum DrawPart{
     DRAW_ALL,
     DRAW_OPAQUE,
     DRAW_TRANSPARENT,
   };
-  struct SubMesh{
+  struct CGE_API SubMesh{
     SubMesh(int off, int cnt, int mat, Material* dfltMat) : offset(off), count(cnt), material(mat), dfltMaterial(dfltMat) {}
     int offset;
     int count;
@@ -92,8 +94,8 @@ public:
   //! is the mesh visible
   bool isVisible() {return m_visible;}
 
-  //! get the normal of a triangle
-  float* getNormal(int i);
+  //! get the normal of a vertex (averaged over its adjacent triangles)
+  CGE::Vector3D getNormal(int i);
 
   //! get the center of the mesh
   CGE::Vector3D getCenter() {return center_;}

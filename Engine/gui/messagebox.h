@@ -1,6 +1,8 @@
 #ifndef MESSAGEBOX_H
 #define MESSAGEBOX_H
 
+#include <cge_export.h>
+
 #include "gui.h"
 
 //to compile on windows
@@ -10,7 +12,7 @@ namespace Gui{
 //! This class is a message box.
 /*! only a message box
  */
-class MessageBox : public Button {
+class CGE_API MessageBox : public Button {
   public:
     //! Constructor
     MessageBox();

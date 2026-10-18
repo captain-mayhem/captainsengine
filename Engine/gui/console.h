@@ -12,6 +12,8 @@
 #ifndef CONSOLE_HH
 #define CONSOLE_HH
 
+#include <cge_export.h>
+
 #include <string>
 #include <list>
 #include <sstream>
@@ -34,7 +36,7 @@ using std::ostringstream;
 namespace Gui{
 
 //! Provides a customizable quake-like game console
-class Console{
+class CGE_API Console{
   public:
     //! Constructor: Sets default values.
     Console();

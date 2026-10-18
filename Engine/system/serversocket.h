@@ -18,12 +18,14 @@
 #ifndef SERVERSOCKET_HH
 #define SERVERSOCKET_HH
 
+#include <cge_export.h>
+
 #include "socket.h"
 
 namespace CGE{
 
 //! The socket on the server side
-class ServerSocket : private Socket
+class CGE_API ServerSocket : private Socket
 {
  public:
   //! Constructor, takes port

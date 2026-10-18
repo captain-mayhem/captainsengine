@@ -12,6 +12,8 @@
 #ifndef GUI_HH
 #define GUI_HH
 
+#include <cge_export.h>
+
 #include <string>
 #include <list>
 #include <sstream>
@@ -40,7 +42,7 @@ enum GuiType{
 };
   
 //! a common base class for gui elements
-class GuiElement{
+class CGE_API GuiElement{
 public:
   GuiElement();
   virtual ~GuiElement(){}
@@ -97,7 +99,7 @@ protected:
 };
 
 //! a highly customizable text field for user input based on OpenGL
-class InputField : public GuiElement{
+class CGE_API InputField : public GuiElement{
   public:
     //! Constructor: Sets default parameters
     InputField();
@@ -142,7 +144,7 @@ class InputField : public GuiElement{
 //! This class is a button (the thing you can click on).
 /*! The button is based on OpenGL.
  */
-class Button : public InputField{
+class CGE_API Button : public InputField{
   public:
     //! Constructor
     Button();
@@ -160,7 +162,7 @@ class Button : public InputField{
 };
 
 //! A button that destroys his parent if clicked upon
-class PDButton : public Button{
+class CGE_API PDButton : public Button{
   //! executes the callback function and destroys parent
   virtual void process();
 };

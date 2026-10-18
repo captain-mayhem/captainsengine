@@ -13,7 +13,7 @@ struct StreetInfo : public CGE::RefCountedObject{
     SMALL_LOCAL_STREET
   };
   StreetInfo() : streettype(MEDIUM_LOCAL_STREET), lanes(1), oneway(false) {}
-  StreetInfo(const StreetInfo& s) : RefCountedObject(s), streettype(s.streettype), lanes(s.lanes), oneway(s.oneway), name(std::string(name)){
+  StreetInfo(const StreetInfo& s) : RefCountedObject(s), streettype(s.streettype), lanes(s.lanes), oneway(s.oneway), name(s.name){
   }
   Type streettype;
   uint8 lanes;

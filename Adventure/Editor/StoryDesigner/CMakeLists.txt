@@ -1,9 +1,6 @@
-include_external_msproject(
-    StoryDesigner ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/StoryDesigner.csproj
-    TYPE FAE04EC0-301F-11D3-BF4B-00C04F79EFBC
-    PLATFORM "Any CPU")
-    
-ADD_CUSTOM_TARGET(BuildStoryDesigner ALL DEPENDS StoryDesigner)
+cge_add_csharp_project(StoryDesigner ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/StoryDesigner.csproj)
+# uses the SharpZipLib dll
+add_dependencies(StoryDesigner CSharpZip)
     
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Debug/StoryDesigner.exe DESTINATION StoryDesigner CONFIGURATIONS Debug COMPONENT StoryDesignerRuntime)
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Debug/de DESTINATION StoryDesigner CONFIGURATIONS Debug COMPONENT StoryDesignerRuntime)
@@ -14,12 +11,9 @@ INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Release/de DESTI
 INSTALL(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Release/de-DE DESTINATION StoryDesigner CONFIGURATIONS Release COMPONENT StoryDesignerRuntime)
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/obj/Release/Interop.WMPLib.dll DESTINATION StoryDesigner CONFIGURATIONS Release COMPONENT StoryDesignerRuntime)
 
-include_external_msproject(
-    RemoteControl ${CMAKE_CURRENT_SOURCE_DIR}/RemoteControl/RemoteControl.csproj
-    TYPE FAE04EC0-301F-11D3-BF4B-00C04F79EFBC
-    PLATFORM "Any CPU")
-
-ADD_CUSTOM_TARGET(BuildRemoteControl ALL DEPENDS RemoteControl)
+cge_add_csharp_project(RemoteControl ${CMAKE_CURRENT_SOURCE_DIR}/RemoteControl/RemoteControl.csproj)
+# references the StoryDesigner project, which must not be built twice at the same time
+add_dependencies(RemoteControl StoryDesigner)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/StoryDesigner/bin/Debug/RemoteControl.dll DESTINATION StoryDesigner CONFIGURATIONS Debug COMPONENT StoryDesignerPlugins)
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/RemoteControl/bin/Release/RemoteControl.dll DESTINATION StoryDesigner CONFIGURATIONS Release COMPONENT StoryDesignerPlugins)

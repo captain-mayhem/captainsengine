@@ -1,6 +1,8 @@
 #ifndef KEYBOARD_H
 #define KEYBOARD_H
 
+#include <cge_export.h>
+
 #include <list>
 
 #ifdef WIN32
@@ -70,7 +72,7 @@
 #define KEY_PAGEUP XK_Page_Up
 #define KEY_PAGEDOWN XK_Page_Down
 #endif
-#if defined(QNX) || defined(ANDROID)
+#if defined(ANDROID)
 #define KEY_ESCAPE 0
 #define KEY_RETURN 1
 #define KEY_BACKSPACE 2
@@ -113,7 +115,7 @@
 
 namespace Input{
 
-class Keyboard{
+class CGE_API Keyboard{
 public:
   static void init();
   inline static Keyboard* instance() {return key_;}

@@ -7,7 +7,7 @@
 #include "../../window/nativeLinux.h"
 #include "../../window/nativeAndroid.h"
 #include "../../system/engine.h"
-#if defined QNX || defined ANDROID
+#if defined(ANDROID)
 #include <GLES2/gl2.h>
 #define glClearDepth glClearDepthf
 #else
@@ -31,7 +31,7 @@ GL2Renderer::GL2Renderer(): Renderer(), mShader(NULL) {
   hDC_ = NULL;
   hRC_ = NULL;
 #endif
-#if defined UNIX && !defined QNX && !defined ANDROID
+#if defined(UNIX) && !defined(ANDROID)
   glx_ = NULL;
 #endif
 #if ANDROID
@@ -53,7 +53,7 @@ void GL2Renderer::initContext(AppWindow* win){
   TR_USE(CGE_Renderer_GL2);
   TR_INFO("Initializing OpenGL context");
   win_ = win;
-#if defined(WIN32) && !defined(UNDER_CE)
+#if defined(WIN32)
   static PIXELFORMATDESCRIPTOR pfd ={
     sizeof(PIXELFORMATDESCRIPTOR),
       1,
@@ -101,12 +101,12 @@ void GL2Renderer::initContext(AppWindow* win){
   }
 
 #endif
-#if defined UNIX && !defined QNX && !defined ANDROID
+#if defined(UNIX) && !defined(ANDROID)
   X11Window* x11 = static_cast<X11Window* >(win_);
   glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
 #endif
 
-#if !defined QNX && !defined ANDROID
+#if !defined(ANDROID)
   GLenum err = glewInit();
   if (err != GLEW_OK){
     TR_ERROR("Unable to init OpenGL extensions");
@@ -143,7 +143,7 @@ void GL2Renderer::killContext(){
   mShader->deactivate();
   delete mShader;
   delete mLightShader;
-#if defined(WIN32) && !defined(UNDER_CE)
+#if defined(WIN32)
   if (hRC_){
     if (!wglMakeCurrent(NULL,NULL)){
       TR_ERROR("Release of GL context failed");
@@ -160,7 +160,7 @@ void GL2Renderer::killContext(){
     hDC_ = NULL;
   }
 #endif
-#if defined UNIX && !defined QNX &&  !defined ANDROID
+#if defined(UNIX) && !defined(ANDROID)
   X11Window* x11 = static_cast<X11Window* >(win_);
   if (glx_){
     if (!glXMakeCurrent(x11->getDisplay(), None, NULL)){
@@ -722,7 +722,7 @@ void GL2Renderer::swapBuffers(){
 #ifdef WIN32
   SwapBuffers(hDC_);
 #endif
-#if defined UNIX && !defined QNX && !defined ANDROID
+#if defined(UNIX) && !defined(ANDROID)
   X11Window* win = static_cast<X11Window*>(win_);
   glXSwapBuffers(win->getDisplay(), win->getWindow());
 #endif

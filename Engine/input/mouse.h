@@ -1,6 +1,8 @@
 #ifndef MOUSE_H
 #define MOUSE_H
 
+#include <cge_export.h>
+
 #include "../system/engine.h"
 #include "../math/vector.h"
 
@@ -22,7 +24,7 @@
 #define MB_CTRL ControlMask
 #define MB_SHIFT ShiftMask
 #endif
-#if defined(QNX) || defined(ANDROID)
+#if defined(ANDROID)
 #define MB_LEFT 0
 #define MB_MIDDLE 1
 #define MB_RIGHT 2
@@ -32,7 +34,7 @@
 
 namespace Input{
 
-  class Mouse{
+  class CGE_API Mouse{
   public:
     ~Mouse();
     static void init(bool hasGraphics);

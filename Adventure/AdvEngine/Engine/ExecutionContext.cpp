@@ -148,7 +148,7 @@ mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK), mLoop1(NULL){
 ExecutionContext::~ExecutionContext(){
   delete mCode;
   if (mLoop1)
-    mLoop1->unref();
+    ExecutionContext::unref(mLoop1);
   lua_pushthread(mL);
   lua_pushnil(mL);
   lua_settable(mL, LUA_REGISTRYINDEX);

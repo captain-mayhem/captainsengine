@@ -232,7 +232,7 @@ void Object2D::animationEnd(const Vec2i& prev, bool aborted){
     mSuspensionScript->resume();
     if (aborted)
       mSuspensionScript->reset(true, true);
-    mSuspensionScript->unref();
+    ExecutionContext::unref(mSuspensionScript);
     mSuspensionScript = NULL;
   }
 }
@@ -240,7 +240,7 @@ void Object2D::animationEnd(const Vec2i& prev, bool aborted){
 void Object2D::setSuspensionScript(ExecutionContext* script){
   if (mSuspensionScript != NULL){
     mSuspensionScript->reset(true,true);
-    mSuspensionScript->unref();
+    ExecutionContext::unref(mSuspensionScript);
   }
   script->ref();
   mSuspensionScript = script;

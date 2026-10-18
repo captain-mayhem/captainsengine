@@ -12,6 +12,8 @@
 #ifndef FILE_H
 #define FILE_H
 
+#include <cge_export.h>
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
@@ -25,7 +27,7 @@
 
 namespace CGE {
   
-class Filesystem{
+class CGE_API Filesystem{
 public:
   //! get all directories in a directory
   static std::vector<std::string> getDirectories(const std::string& path);
@@ -35,10 +37,6 @@ public:
   static std::string getCwd();
   //! change directory
   static bool changeDir(const std::string& path);
-#ifdef UNDER_CE
-  //! working directory emulation for Windows CE
-  static std::string cwd_;
-#endif
   //! gets the path component from a full path
   static std::string getPathComponent(std::string const & filepath);
   //! gets the file component from a full path

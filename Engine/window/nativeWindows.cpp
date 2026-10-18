@@ -98,17 +98,11 @@ void WindowsWindow::init(const std::string& name){
 #define IDI_APPLICATION ((LPWSTR)((ULONG_PTR)((WORD)(32512))))
 #endif
   HWND hwnd = NULL;
-#ifdef UNDER_CE
-  WNDCLASS wndclass;
-#else
   WNDCLASSEX wndclass;
   wndclass.cbSize = sizeof(WNDCLASSEX);
-#endif
 
   wndclass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS
-#ifndef UNDER_CE
     | CS_OWNDC
-#endif
     ;
   wndclass.lpfnWndProc = messageLoop;
   wndclass.cbClsExtra = 0;
@@ -119,17 +113,11 @@ void WindowsWindow::init(const std::string& name){
   wndclass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
   wndclass.lpszMenuName = NULL;
   wndclass.lpszClassName = TEXT(WINDOW_NAME);
-#ifndef UNDER_CE
   wndclass.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
-#endif
 
   instance_ = wndclass.hInstance;
 
-#ifdef UNDER_CE
-  if (!RegisterClass(&wndclass)){
-#else
   if (!RegisterClassEx(&wndclass)){
-#endif
     TR_ERROR("Cannot register window");
     EXIT();
   }
@@ -140,7 +128,6 @@ void WindowsWindow::init(const std::string& name){
   if (shown_)
     applyResolution();
 
-#ifndef UNDER_CE
     if (fullscreen_){
       exStyle = WS_EX_APPWINDOW;
       style = WS_POPUP;
@@ -160,18 +147,9 @@ void WindowsWindow::init(const std::string& name){
     //Change size
     AdjustWindowRectEx(&windowRect, style, FALSE, exStyle);
   }
-#endif
 
-#ifdef UNDER_CE
-    wchar_t wtmp[256];
-    mbstowcs(wtmp, name.c_str(), 256);
-#endif
   if (!(hwnd = CreateWindowEx(exStyle, TEXT(WINDOW_NAME), 
-#ifdef UNDER_CE
-    wtmp,
-#else
     name.c_str(),
-#endif
     WS_CLIPCHILDREN | WS_CLIPSIBLINGS | style,
     0, 0, width_, height_, NULL, NULL, instance_, NULL))){
       TR_ERROR("Create Window failed");
@@ -202,7 +180,6 @@ void WindowsWindow::applyResolution(){
   TR_USE(CGE_Window);
   if (renderer_->getRenderType() == CGE::OpenGL || renderer_->getRenderType() == CGE::OpenGL2){
     if (fullscreen_){
-#ifndef UNDER_CE
       DEVMODE screenSettings;
       memset(&screenSettings, 0, sizeof(screenSettings));
       screenSettings.dmSize = sizeof(screenSettings);
@@ -215,7 +192,6 @@ void WindowsWindow::applyResolution(){
         TR_WARN("Changing to fullscreen failed - Trying windowed mode");
         fullscreen_ = false;
       }
-#endif
     }
   }
 }
@@ -224,9 +200,7 @@ void WindowsWindow::kill(){
   TR_USE(CGE_Window);
   TR_INFO("Killing window");
   if (fullscreen_){
-#ifndef UNDER_CE
     ChangeDisplaySettings(NULL, 0);
-#endif
     ShowCursor(TRUE);
   }
 

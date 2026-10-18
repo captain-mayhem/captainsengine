@@ -1,12 +1,14 @@
 #ifndef CGE_OGL_INDEXBUFFER_H
 #define CGE_OGL_INDEXBUFFER_H
 
+#include <cge_export.h>
+
 #include "../../system/types.h"
 #include "../indexbuffer.h"
 
 namespace CGE{
 
-class GL2IndexBuffer : public IndexBuffer{
+class CGE_API GL2IndexBuffer : public IndexBuffer{
 public:
   GL2IndexBuffer(Type t, int32 size);
   virtual ~GL2IndexBuffer();

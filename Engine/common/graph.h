@@ -13,6 +13,8 @@
 #ifndef CGE_GRAPHNODE_H
 #define CGE_GRAPHNODE_H
 
+#include <cge_export.h>
+
 #include <vector>
 #include <set>
 #include <queue>
@@ -23,7 +25,7 @@ namespace CGE{
 
 class GraphVisitor;
 
-class GraphNode : public RefCountedObject{
+class CGE_API GraphNode : public RefCountedObject{
   friend class Graph;
 public:
   GraphNode();
@@ -34,9 +36,9 @@ public:
   std::vector<Ptr<GraphNode> > succs_;
 };
 
-class Graph{
+class CGE_API Graph{
 public:
-  class Iterator{
+  class CGE_API Iterator{
   public:
     Iterator(const Graph& grph);
     ~Iterator();
@@ -56,7 +58,7 @@ protected:
 
 };
 
-class GraphVisitor{
+class CGE_API GraphVisitor{
 public:
   GraphVisitor();
   virtual ~GraphVisitor();

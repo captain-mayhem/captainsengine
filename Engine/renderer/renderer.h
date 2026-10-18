@@ -1,6 +1,8 @@
 #ifndef RENDERER_H
 #define RENDERER_H
 
+#include <cge_export.h>
+
 #include "../math/vector.h"
 #include "../math/matrix.h"
 #include "vertexbuffer.h"
@@ -52,7 +54,7 @@ enum MatrixType{
 };
 
 //! The abstract renderer
-class Renderer{
+class CGE_API Renderer{
 public:
   Renderer();
   virtual ~Renderer();

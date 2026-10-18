@@ -36,7 +36,7 @@ void OGLRenderer::initContext(CGE::AppWindow* win){
   TR_USE(CGE_Renderer_OGL);
   TR_INFO("Initializing OpenGL context");
   win_ = win;
-#if defined(WIN32) && !defined(UNDER_CE)
+#if defined(WIN32)
   static PIXELFORMATDESCRIPTOR pfd ={
     sizeof(PIXELFORMATDESCRIPTOR),
       1,
@@ -88,6 +88,12 @@ void OGLRenderer::initContext(CGE::AppWindow* win){
   X11Window* x11 = static_cast<X11Window* >(win_);
   glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
 #endif
+#ifdef OPENGL2
+  // OGLTexture is shared with the GL2 renderer and calls glActiveTexture
+  // through GLEW, so the GLEW function pointers are needed here too
+  if (glewInit() != GLEW_OK)
+    TR_ERROR("Unable to init OpenGL extensions");
+#endif
 #ifdef WIN32
   resizeScene(win->getWidth(), win->getHeight());
 #endif
@@ -97,7 +103,7 @@ void OGLRenderer::initContext(CGE::AppWindow* win){
 
 void OGLRenderer::killContext(){
   TR_USE(CGE_Renderer_OGL);
-#if defined(WIN32) && !defined(UNDER_CE)
+#if defined(WIN32)
   if (hRC_){
     if (!wglMakeCurrent(NULL,NULL)){
       TR_ERROR("Release of GL context failed");

@@ -1,8 +1,3 @@
-INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
-INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/extern/libxml)
-
-LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
-
 SET(OSMRacer_SRCS
 	main.cpp
 	FollowCam.cpp
@@ -39,11 +34,13 @@ else()
 ADD_EXECUTABLE(OSMRacer ${OSMRacer_SRCS} ${OSMRacer_HDRS})
 endif()
 
-TARGET_LINK_LIBRARIES(OSMRacer EngineMain ${ENGINE_LINK_LIBRARIES} xml)
+TARGET_LINK_LIBRARIES(OSMRacer PRIVATE CGE::Engine CGE::Physics xml)
 
 IF (${OS} STREQUAL "windows")
   SET_TARGET_PROPERTIES(OSMRacer PROPERTIES WIN32_EXECUTABLE TRUE)
 ENDIF (${OS} STREQUAL "windows")
+
+cge_copy_runtime(OSMRacer)
 
 #INSTALL(TARGETS editor RUNTIME DESTINATION editor LIBRARY DESTINATION editor)
 #INSTALL(FILES engine.ini DESTINATION editor)

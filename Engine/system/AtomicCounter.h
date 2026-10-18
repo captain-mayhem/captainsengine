@@ -1,11 +1,13 @@
 #ifndef CGE_ATOMIC_COUNTER_H
 #define CGE_ATOMIC_COUNTER_H
 
+#include <cge_export.h>
+
 #include "types.h"
 
 namespace CGE{
 
-class AtomicCounter{
+class CGE_API AtomicCounter{
 public:
   AtomicCounter(int32 number);
   ~AtomicCounter();

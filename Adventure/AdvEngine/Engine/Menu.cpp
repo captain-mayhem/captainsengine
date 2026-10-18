@@ -54,7 +54,7 @@ Menu::Menu(int font) : RoomObject(1, Vec2i(), Vec2i(), "#menu", Vec2i(), false) 
       line.r, line.g, line.b,
       i, i, i);
     ExecutionContext* slotscr = Engine::instance()->getInterpreter()->parseProgram(tmp, PCDK_SCRIPT);
-    slot->getScript()->unref();
+    ExecutionContext::unref(slot->getScript());
     slot->setScript(slotscr);
     addObject(slot);
     Engine::instance()->getInterpreter()->execute(slot->getScript(), false);

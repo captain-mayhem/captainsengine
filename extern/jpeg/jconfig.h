@@ -1,29 +1,57 @@
-/* jconfig.h.  Generated automatically by configure.  */
-/* jconfig.cfg --- source file edited by configure script */
-/* see jconfig.doc for explanations */
+/* jconfig.vc --- jconfig.h for Microsoft Visual C++ on Windows 9x or NT.
+ * This file also works for Borland/Embarcadero C++ for Win32 or Win64
+ * (CLI: bcc32, bcc32c, bcc32x, bcc64; GUI IDE: C++Builder/RAD Studio).
+ * See jconfig.txt for explanations.
+ */
 
-#define HAVE_PROTOTYPES 
-#define HAVE_UNSIGNED_CHAR 
-#define HAVE_UNSIGNED_SHORT 
-#undef void
-#undef const
+#define HAVE_PROTOTYPES
+#define HAVE_UNSIGNED_CHAR
+#define HAVE_UNSIGNED_SHORT
+/* #define void char */
+/* #define const */
 #undef CHAR_IS_UNSIGNED
-#define HAVE_STDDEF_H 
-#define HAVE_STDLIB_H 
+#define HAVE_STDDEF_H
+#ifndef HAVE_STDLIB_H
+#define HAVE_STDLIB_H
+#endif
 #undef NEED_BSD_STRINGS
 #undef NEED_SYS_TYPES_H
-#undef NEED_FAR_POINTERS
+#undef NEED_FAR_POINTERS	/* we presume a 32-bit flat memory model */
 #undef NEED_SHORT_EXTERNAL_NAMES
-/* Define this if you get warnings about undefined structures. */
 #undef INCOMPLETE_TYPES_BROKEN
+
+/* Define "boolean" as unsigned char, not enum, per Windows custom */
+#ifndef __RPCNDR_H__		/* don't conflict if rpcndr.h already read */
+#if defined(__EMSCRIPTEN__) || !defined(_WIN32)
+/* match libmng_types.h's non-Windows "typedef int boolean" (libmng_types.h
+   includes this header after its own typedef, under the same !_WIN32 test) */
+typedef int boolean;
+#else
+typedef unsigned char boolean;
+#endif
+#endif
+#ifndef FALSE			/* in case these macros already exist */
+#define FALSE	0		/* values of boolean */
+#endif
+#ifndef TRUE
+#define TRUE	1
+#endif
+#define HAVE_BOOLEAN		/* prevent jmorecfg.h from redefining it */
+
+/* Define custom RGB color order, prevent jmorecfg.h from redefinition */
+#undef JPEG_HAVE_RGB_CUSTOM
+/* Use Windows custom BGR color order defined in jmorecfg.h */
+#undef JPEG_USE_RGB_CUSTOM
+
+/* Define custom file I/O functions, prevent jinclude.h from redefinition */
+#undef JPEG_HAVE_FILE_IO_CUSTOM
+/* Use Delphi custom file I/O functions defined in jinclude.h */
+#undef JPEG_USE_FILE_IO_CUSTOM
+
 
 #ifdef JPEG_INTERNALS
 
 #undef RIGHT_SHIFT_IS_UNSIGNED
-#define INLINE __inline__
-/* These are for configuring the JPEG memory manager. */
-#undef DEFAULT_MAX_MEM
-#undef NO_MKTEMP
 
 #endif /* JPEG_INTERNALS */
 
@@ -35,11 +63,10 @@
 #undef RLE_SUPPORTED		/* Utah RLE image file format */
 #define TARGA_SUPPORTED		/* Targa image file format */
 
-#undef TWO_FILE_COMMANDLINE
+#define TWO_FILE_COMMANDLINE	/* optional */
+#define USE_SETMODE	/* Microsoft/Borland/Embarcadero have setmode() */
 #undef NEED_SIGNAL_CATCHER
 #undef DONT_USE_B_MODE
-
-/* Define this if you want percent-done progress reports from cjpeg/djpeg. */
-#undef PROGRESS_REPORT
+#undef PROGRESS_REPORT		/* optional */
 
 #endif /* JPEG_CJPEG_DJPEG */

@@ -1,6 +1,8 @@
 #ifndef VERTEXBUFFER_H
 #define VERTEXBUFFER_H
 
+#include <cge_export.h>
+
 #include "../math/vector.h"
 #include "material.h"
 
@@ -26,7 +28,7 @@ enum PrimitiveType{
 //! a vertex buffer and optional index buffer
 /*! this is the central class for managing and drawing vertex data
 */
-class VertexBuffer{
+class CGE_API VertexBuffer{
 public:
   VertexBuffer();
   virtual ~VertexBuffer();

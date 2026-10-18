@@ -1,6 +1,8 @@
 #ifndef GL2RENDERER_H
 #define GL2RENDERER_H
 
+#include <cge_export.h>
+
 #ifndef OPENGL2
 #define Dummy OGL
 #include "../dummyrenderer.h"
@@ -10,7 +12,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#if defined UNIX && !defined QNX && !defined(ANDROID)
+#if defined(UNIX) && !defined(ANDROID)
 #include <GL/glew.h>
 #include <GL/glx.h>
 #endif
@@ -25,7 +27,7 @@
 
 namespace CGE{
 //! The OpenGL version of the rendering interface
-class GL2Renderer : public Renderer{
+class CGE_API GL2Renderer : public Renderer{
 public: 
   //! Constructor
   GL2Renderer();
@@ -37,7 +39,7 @@ public:
   //! get the device context
   inline HDC getDevice() {return hDC_;}
 #endif
-#if defined UNIX && !defined QNX && !defined ANDROID
+#if defined(UNIX) && !defined(ANDROID)
   //set glx context
   inline void setGLX(GLXContext glx){glx_ = glx;}
   //get glx context
@@ -141,7 +143,7 @@ protected:
   //! GL rendering context
   HGLRC hRC_;
 #endif
-#if defined UNIX && !defined QNX && !defined ANDROID
+#if defined(UNIX) && !defined(ANDROID)
   GLXContext glx_;
 #endif
 #ifdef ANDROID

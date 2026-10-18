@@ -12,9 +12,6 @@ using namespace CGE;
 
 #define BUF_SIZE 1024
 
-#ifdef UNDER_CE
-#define vsnprintf _vsnprintf
-#endif
 #ifdef ANDROID
 #include <android/log.h>
 #endif

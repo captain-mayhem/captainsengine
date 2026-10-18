@@ -12,6 +12,8 @@
 #ifndef MATRIX_HH
 #define MATRIX_HH
 
+#include <cge_export.h>
+
 #include <iostream>
 #include "vector.h"
 #include "quaternion.h"
@@ -23,7 +25,7 @@ namespace CGE{
 //! This class is a 4x4-matrix
 /*! It provides some standard matrix operations
  */
-class Matrix{
+class CGE_API Matrix{
 public:
   //! the type of the matrix
 	enum Type{

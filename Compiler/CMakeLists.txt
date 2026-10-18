@@ -1,5 +1,4 @@
 INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
-INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/extern/zlib)
 INCLUDE_DIRECTORIES(.)
 
 LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
@@ -23,7 +22,7 @@ SET(Compiler_HDRS
 
 ADD_EXECUTABLE(Compiler ${Compiler_SRCS} ${Compiler_HDRS})
 
-TARGET_LINK_LIBRARIES(Compiler javaruntime zlib)
+TARGET_LINK_LIBRARIES(Compiler javaruntime minizip)
 
 IF (${OS} STREQUAL "windows")
 	IF (${CPU} STREQUAL x64)

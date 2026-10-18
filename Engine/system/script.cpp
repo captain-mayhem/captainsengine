@@ -25,11 +25,17 @@ void Script::initEnv(){
   TR_USE(CGE_Script);
   TR_INFO("Initialize Lua Scripting environment");
 	L = luaL_newstate();
-  luaopen_base(L);
-	luaopen_table(L);
-	luaopen_io(L);
-	luaopen_string(L);
-	luaopen_math(L);
+  // Lua 5.2: the libraries become globals only through luaL_requiref
+  luaL_requiref(L, "_G", luaopen_base, 1);
+  lua_pop(L, 1);
+  luaL_requiref(L, "table", luaopen_table, 1);
+  lua_pop(L, 1);
+  luaL_requiref(L, "io", luaopen_io, 1);
+  lua_pop(L, 1);
+  luaL_requiref(L, "string", luaopen_string, 1);
+  lua_pop(L, 1);
+  luaL_requiref(L, "math", luaopen_math, 1);
+  lua_pop(L, 1);
 
   if (luaL_loadfile(L, (Filesystem::getCwd()+"engine.ini").c_str()) || lua_pcall(L,0,0,0)){
     TR_WARN("Cannot load engine.ini: %s", lua_tostring(L, -1));

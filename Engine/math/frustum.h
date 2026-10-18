@@ -13,13 +13,15 @@
 #ifndef FRUSTUM_H
 #define FRUSTUM_H
 
+#include <cge_export.h>
+
 #include "plane.h"
 #include "bbox.h"
 #include "bsphere.h"
 
 namespace CGE{
 
-class Frustum{
+class CGE_API Frustum{
 public:
   enum Result{
     INSIDE, 

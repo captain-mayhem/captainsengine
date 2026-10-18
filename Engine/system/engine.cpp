@@ -7,12 +7,10 @@
 #include "../input/keyboard.h"
 #include "../window/nativeWindows.h"
 #include "../window/nativeLinux.h"
-#include "../window/nativeQNX.h"
 #include "../window/nativeAndroid.h"
 #include "script.h"
 #include "../gui/console.h"
 #include "../renderer/forms.h"
-#include "../physics/Simulator.h"
 #include "../io/Tracing.h"
 #include "../io/TraceManager.h"
 
@@ -50,7 +48,6 @@ Engine::Engine(){
   console_ = NULL;
   clear_ = false;
   //guitex_ = Mutex();
-  mSimulator = NULL;
   mShutdownRequested = false;
 #ifdef WIN32
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
@@ -75,7 +72,6 @@ void Engine::startup(int argc, char** argv){
   graphics_ = Script::instance()->getBoolSetting("graphics", &exists);
   if (!exists)
     graphics_ = true;
-  physics_ = Script::instance()->getBoolSetting("physics");
 
   if (graphics_){
     if (!startupRenderer(type)){
@@ -85,14 +81,11 @@ void Engine::startup(int argc, char** argv){
 #ifdef WIN32
     win_ = new WindowsWindow(rend_);
 #endif
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
     win_ = new X11Window(rend_);
 #endif
 #ifdef ANDROID
   win_ = new AndroidWindow(rend_);
-#endif
-#if defined(QNX) || defined(NO_X11)
-		win_ = new QNXWindow(rend_);
 #endif
   }
   else{
@@ -103,11 +96,6 @@ void Engine::startup(int argc, char** argv){
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
 
-  if (physics_){
-    float step = Script::instance()->getRealSetting("integration_interval")/1000;
-    mSimulator = new CGE::Simulator(step);
-  }
-  
   if (internalEngineMain != NULL)
     internalEngineMain(argc, argv);
   
@@ -172,7 +160,6 @@ void Engine::shutdown(){
     rend_->deinitRendering();
     TR_INFO("engine shutting down");
     isUp_ = false;
-    SAFE_DELETE(mSimulator);
     Input::Keyboard::release();
     Input::Mouse::release();
     clearListeners();
@@ -197,11 +184,6 @@ void Engine::shutdown(){
 }
 
 void Engine::run(){
-  //handle physics, KI, ...
-  if (physics_){
-    mSimulator->doSimulationStep(frameInterval_);
-  }
-
   console_->update();
   Input::Keyboard::instance()->processPressedKeys((float)frameInterval_);
 
@@ -502,7 +484,7 @@ void Engine::handleCmd(struct android_app* app, int32_t cmd) {
 
 #endif
 
-int Engine::mainLoop(int argc, char** argv, USERMAINFUNC engineMain, void* data){
+int CGE::runApplication(int argc, char** argv, USERMAINFUNC engineMain, void* data){
     internalEngineMain = engineMain;
   CGE::Engine::init();
   
@@ -531,7 +513,7 @@ int Engine::mainLoop(int argc, char** argv, USERMAINFUNC engineMain, void* data)
   return 0;
 #endif
 
-#if defined(LINUX) && !defined(NO_X11)
+#if defined(LINUX)
   CGE::Engine::instance()->startup(argc, argv);
   XEvent event;
   bool running = true;
@@ -624,8 +606,8 @@ int Engine::mainLoop(int argc, char** argv, USERMAINFUNC engineMain, void* data)
 
     memset(&engine, 0, sizeof(engine));
     app->userData = &engine;
-    app->onAppCmd = handleCmd;
-    app->onInputEvent = handleInput;
+    app->onAppCmd = Engine::handleCmd;
+    app->onInputEvent = Engine::handleInput;
     engine.app = app;
 
     // Prepare to monitor accelerometer
@@ -646,7 +628,7 @@ while (1){
   int ident;
   int events;
   struct android_poll_source* source;
-  while ((ident=ALooper_pollAll(engine.animating ? 0 : -1, NULL, &events, (void**)&source)) >= 0) {
+  while ((ident=ALooper_pollOnce(engine.animating ? 0 : -1, NULL, &events, (void**)&source)) >= 0) {
             // Process this event.
             if (source != NULL) {
                 source->process(app, source);
@@ -684,3 +666,35 @@ TR_INFO("Leaving event loop");
   return 0;
 #endif
 }
+#ifdef WIN32
+int CGE::runApplication(const char* cmdline, USERMAINFUNC engineMain){
+  //_CrtSetBreakAlloc(729);
+  std::vector<std::string> args;
+  std::vector<const char*> argv;
+  args.push_back("Captains Game Engine");
+  int len = (int)strlen(cmdline);
+  std::string curr;
+  bool acceptWs = false;
+  for (int i = 0; i < len; ++i){
+    if (cmdline[i] == '"'){
+      acceptWs = !acceptWs;
+      continue;
+    }
+    if (!acceptWs && cmdline[i] == ' ' && !curr.empty()){
+      args.push_back(curr);
+      curr.clear();
+    }
+    else
+      curr.append(1, cmdline[i]);
+  }
+  if (!curr.empty()){
+    args.push_back(curr);
+    curr.clear();
+  }
+  argv.resize(args.size());
+  for (unsigned i = 0; i < args.size(); ++i){
+    argv[i] = args[i].c_str();
+  }
+  return runApplication((int)argv.size(), (char**)&argv[0], engineMain);
+}
+#endif

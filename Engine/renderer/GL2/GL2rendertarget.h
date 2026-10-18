@@ -1,8 +1,10 @@
 #ifndef CGE_GL2_RENDERTARGET_H
 #define CGE_GL2_RENDERTARGET_H
 
+#include <cge_export.h>
+
 #include <renderer/rendertarget.h>
-#if !defined QNX && !defined ANDROID
+#if !defined(ANDROID)
 #include <GL/glew.h>
 #else
 #include <GLES2/gl2.h>
@@ -11,7 +13,7 @@
 
 namespace CGE{
 
-class GL2RenderTarget : public RenderTarget{
+class CGE_API GL2RenderTarget : public RenderTarget{
 public:
   GL2RenderTarget();
   GL2RenderTarget(unsigned width, unsigned height);
