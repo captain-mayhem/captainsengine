@@ -11,8 +11,8 @@
 
 #include "file.h"
 
-#include "engine.h"
-#include "script.h"
+#include <filesystem>
+#include <system_error>
 
 #ifdef WIN32
 #define NOMINMAX
@@ -225,6 +225,12 @@ bool Filesystem::createDir(const std::string& path){
 #endif
 }
 
+bool Filesystem::createDirs(const std::string& path){
+  std::error_code err;
+  std::filesystem::create_directories(std::filesystem::path(path), err);
+  return !err && std::filesystem::is_directory(std::filesystem::path(path), err);
+}
+
 //! remove directory
 bool Filesystem::removeDir(const std::string& path, bool recursive){
   if (recursive){
@@ -255,19 +261,4 @@ bool Filesystem::exists(const std::string& path){
   int ret = stat(path.c_str(), &buf);
   return ret == 0;
 #endif
-}
-
-std::string Filesystem::getStorageDir(){
-#ifdef ANDROID
-   return std::string(CGE::Engine::instance()->getApp()->activity->internalDataPath) + "/";
-#else
-  return getCwd();
-#endif
-}
-
-std::string Filesystem::getAssetDir(){
-	std::string ret = Script::instance()->getStringSetting("assetDir");
-	if (ret.empty())
-	  ret = getCwd();
-	return ret;
 }

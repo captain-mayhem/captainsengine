@@ -10,6 +10,7 @@
 #include "Engine.h"
 #include <system/allocation.h>
 #include <system/file.h>
+#include <platform/userdirs.h>
 #include "Console.h"
 
 const float FPS_MAX = 50.0f;
@@ -137,21 +138,32 @@ bool AdvDocument::loadDocument(const std::string filename){
     TR_INFO("%4i scripts", scriptcount);
   }
 
+  //the saves go to a folder named after the project's folder, by default
+  //in the user's data folder
   if (mSettings.savedir.empty())
-    mSettings.savedir = mPath + "/../saves";
-  else{
-    string dirname = mSettings.dir;
-    CGE::Utilities::replaceWith(dirname, '\\', '/');
-    size_t idx = dirname.find_last_of('/');
-    //dirname = dirname.erase(idx);
-    //idx = dirname.find_last_of('/');
-    dirname.erase(0, idx);
-    mSettings.savedir = CGE::Filesystem::combinePath(mSettings.savedir, dirname);
+    mSettings.savedir = CGE::UserDirs::getDataDir();
+  string dirname = mSettings.dir;
+  CGE::Utilities::replaceWith(dirname, '\\', '/');
+  while (!dirname.empty() && dirname.back() == '/')
+    dirname.pop_back();
+  dirname.erase(0, dirname.find_last_of('/') + 1);
+  if (dirname.empty())
+    dirname = "game";
+  mSettings.savedir = mSettings.savedir + "/" + dirname;
+
+  if (!CGE::Filesystem::createDirs(mSettings.savedir)){
+    TR_USE(ADV_DATA);
+    TR_ERROR("Cannot create the save folder %s", mSettings.savedir.c_str());
   }
 
-  CGE::Filesystem::createDir(mSettings.savedir);
-
   return true;
+}
+
+void AdvDocument::fileChanged(std::string const& file){
+  //makes the save persistent on the web
+  CGE::UserDirs::commit();
+  if (mFCB)
+    mFCB(file);
 }
 
 bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_minor){

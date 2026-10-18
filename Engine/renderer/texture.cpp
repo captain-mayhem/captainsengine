@@ -1,12 +1,10 @@
-#include <iostream>
-#include <fstream>
+#include <sstream>
 
 #include "../system/engine.h"
 #include "renderer.h"
 #include "texture.h"
 #include "../image/loader.h"
-
-using std::ifstream;
+#include "../platform/assets.h"
 
 using namespace CGE;
 
@@ -20,11 +18,12 @@ Texture::~Texture(){
 
 Texture** Texture::loadFromDat(const string& path, const string& filename, int& number){
   TR_USE(CGE_Texture);
-  ifstream in((path+filename).c_str());
-  if (!in){
+  std::string text;
+  if (!Assets::loadText(path+filename, text)){
     TR_WARN("Cannot load %s", filename.c_str());
     return NULL;
   }
+  std::istringstream in(text);
   string name;
   int idx;
   in >> name;
@@ -35,7 +34,6 @@ Texture** Texture::loadFromDat(const string& path, const string& filename, int& 
     in >> idx;
     tex[idx] = CGE::Engine::instance()->getRenderer()->createTexture(path+name);
   }
-  in.close();
   return tex;
 }
 

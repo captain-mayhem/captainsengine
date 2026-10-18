@@ -1,6 +1,7 @@
 #include <iostream>
 #include "system/engine.h"
 #include "system/application.h"
+#include "platform/userdirs.h"
 #include "renderer/renderer.h"
 #include "gamestate.h"
 #include "camera.h"
@@ -50,29 +51,9 @@ void HQClientApp::init(int argc, char** argv){
   CGE::TraceManager::instance()->setTraceOutputter(putty);
   TR_USE(HQ_Client);
   path = "";
-  home = "";
-#ifdef WIN32
-  char* app = getenv("APPDATA");
-  if (app){
-    home = std::string(app)+"/heroquest/";
-    CreateDirectory(home.c_str(), NULL);
-  }
-  else{
-    char* drv = getenv("HOMEDRIVE");
-    char* pth = getenv("HOMEPATH");
-    if (drv && pth)
-      home = string(drv) + pth;
-    else
-      home = path;
-  }
-#endif
-#ifdef UNIX
-  char* pth = getenv("HOME");
-  if (pth)
-    home = string(pth)+"/";
-  else
-    home = path;
-#endif
+  //the heroes' saves; %APPDATA%\heroquest on Windows, as before
+  CGE::UserDirs::setAppName("heroquest");
+  home = CGE::UserDirs::getDataDir() + "/";
   TR_DEBUG("Home is: %s", home.c_str());
   Renderer* rend = Engine::instance()->getRenderer();
   HQRenderer::init(rend);

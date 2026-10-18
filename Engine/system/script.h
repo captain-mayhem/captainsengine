@@ -35,7 +35,8 @@ public:
   //! get a setting as boolean
   bool getBoolSetting(const string& name, bool* exists = NULL);
   //! get a setting as string
-  string getStringSetting(const string& name);
+  //! a string from engine.ini, empty (with a warning if warnIfMissing) if it isn't set
+  string getStringSetting(const string& name, bool warnIfMissing = true);
   //! get a setting as float
   float getRealSetting(const string& name);
   //! get the script instance

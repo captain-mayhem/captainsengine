@@ -1,5 +1,9 @@
 #include "ZipReader.h"
 
+#include <cstring>
+
+#include "../platform/assets.h"
+
 using namespace CGE;
 
 ZipReader::ZipReader() : MemReader(NULL, 0), mFileBuffer(NULL), mBuffer(NULL), mBufferSize(0), mHandle(NULL){
@@ -59,20 +63,15 @@ bool ZipReader::openFile(const std::string& filename){
   mCurrent = mStart;
   mEnd = mStart+meminfo.RegionSize;
 #else
-  FILE* f = fopen(filename.c_str(), "rb");
-  if (!f)
+  //an asset (in the APK on Android)
+  std::vector<uint8> data;
+  if (!Assets::load(filename, data))
     return false;
-  unsigned bufferSize = -ftell(f);
-  fseek(f, 0, SEEK_END);
-  bufferSize += ftell(f);
-  fseek(f, 0, SEEK_SET);
-  static char* buffer = NULL;
-  mFileBuffer = new char[bufferSize];
-  fread(mFileBuffer, 1, bufferSize, f);
+  mFileBuffer = new char[data.size()];
+  memcpy(mFileBuffer, data.data(), data.size());
   mStart = mFileBuffer;
-  mEnd = mStart+bufferSize;
+  mEnd = mStart+data.size();
   mCurrent = mStart;
-  fclose(f);
 #endif
   mHandle = unzOpen2("memory", &mFileFuncs);
   //a try to speed up things
@@ -94,12 +93,13 @@ MemReader ZipReader::openEntry(const std::string& entry, const std::string& pass
   std::map<std::string, unz_file_pos>::iterator iter = mOffsets.find(entry);
   if (iter == mOffsets.end()){
     int ret = unzLocateFile(mHandle, entry.c_str(), 2);
-    unz_file_pos pos;
-    unzGetFilePos(mHandle, &pos);
-    mOffsets[entry] = pos;
     if (ret != 0){
       return MemReader(NULL, 0);
     }
+    //only found entries are remembered; a missing one would map to the current file
+    unz_file_pos pos;
+    unzGetFilePos(mHandle, &pos);
+    mOffsets[entry] = pos;
   }
   else{
     unzGoToFilePos(mHandle, &iter->second);

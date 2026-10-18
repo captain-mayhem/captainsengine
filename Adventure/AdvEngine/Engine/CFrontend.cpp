@@ -4,6 +4,7 @@
 #include <emscripten.h>
 #include <input/keyboard.h>
 #include <system/file.h>
+#include <platform/userdirs.h>
 
 #include "AdvDoc.h"
 #include "Engine.h"
@@ -46,13 +47,8 @@ void setMouse(int x, int y){
 
 void fileChanged(std::string const& file){
   TR_USE(Frontend);
-  TR_INFO("file %s changed, syncing...", file.c_str());
-  EM_ASM(     
-          FS.syncfs(false,function (err) { // sync TO backing store
-              assert(!err);
-              ccall('fileWritten', 'v', [], []);
-          });
-      );
+  //AdvDocument::fileChanged has synced it to IndexedDB (UserDirs::commit)
+  TR_INFO("file %s changed", file.c_str());
 }
 
 void fileWritten(){
@@ -70,8 +66,8 @@ CEXPORT int advLoad(const char* filename){
 
 	TR_INFO("trying to load adventure %s", filename);
 	adoc = new AdvDocument();
-  adoc->getProjectSettings()->savedir = "/IDBFS/adventure";
-  CGE::Filesystem::createDir("/IDBFS/adventure");
+  //the saves stay in /IDBFS/adventure/<game> (AdvDocument, UserDirs)
+  CGE::UserDirs::setAppName("adventure");
   adoc->setFileChangedCB(fileChanged);
 	if (!adoc->loadDocument(filename)){
 		TR_ERROR("failed to load adventure");

@@ -9,6 +9,7 @@
 #include "../gui/console.h"
 #include "../math/vector.h"
 #include "../input/mouse.h"
+#include "../platform/platform_internal.h"
 
 using CGE::AppWindow;
 using Gui::InputField;
@@ -208,7 +209,7 @@ void Mouse::showCursor(bool visible){
 #if defined(LINUX)
   CGE::X11Window* wnd = dynamic_cast<CGE::X11Window*>(CGE::Engine::instance()->getWindow());
   if (mousePointer_){
-    XDefineCursor(wnd->getDisplay(), wnd->getWindow(), None);
+    CGE::PlatformInternal::applyCursor();
   }
   else{
     XDefineCursor(wnd->getDisplay(), wnd->getWindow(), invCursor_);

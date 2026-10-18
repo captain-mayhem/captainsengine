@@ -74,5 +74,11 @@
     { "name": "emscripten", "configurePreset": "emscripten" },
     { "name": "android", "configurePreset": "android" },
     { "name": "android-x86_64", "configurePreset": "android-x86_64" }
+  ],
+  "testPresets": [
+    {"name": "default", "configurePreset": "default", "output": {"outputOnFailure": true}},
+    {"name": "debug", "configurePreset": "debug", "output": {"outputOnFailure": true}},
+    {"name": "windows", "configurePreset": "windows", "configuration": "Release", "output": {"outputOnFailure": true}},
+    {"name": "windows-debug", "configurePreset": "windows", "configuration": "Debug", "output": {"outputOnFailure": true}}
   ]
 }

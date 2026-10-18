@@ -13,6 +13,8 @@
 #include "../renderer/forms.h"
 #include "../io/Tracing.h"
 #include "../io/TraceManager.h"
+#include "../platform/settings.h"
+#include "../platform/platform_internal.h"
 
 #include <algorithm>
 #include <chrono>
@@ -84,6 +86,8 @@ void Engine::startup(int argc, char** argv){
   TR_USE(CGE_Engine);
   Script::init();
   Script::instance()->initEnv();
+  PlatformInternal::applyEngineSettings(Script::instance()->getStringSetting("assetDir", false),
+    Script::instance()->getStringSetting("appName", false));
   string type = Script::instance()->getStringSetting("renderer");
   if (type.empty())
     type = "GL2";
@@ -196,6 +200,7 @@ void Engine::shutdown(){
     if (app_)
       app_->shutdown();
     app_ = nullptr;
+    Settings::saveUser();
     rend_->deinitRendering();
     TR_INFO("engine shutting down");
     isUp_ = false;
@@ -373,6 +378,8 @@ void Engine::pause(){
   paused_ = true;
   if (app_)
     app_->onPause();
+  //the system may end the application in the background (Android)
+  Settings::saveUser();
 }
 
 void Engine::resume(){
@@ -719,12 +726,33 @@ void IApplication::onKeyDown(int key){
 
 int CGE::runApplication(int argc, char** argv, IApplication& app, void* data){
   internalApplication = &app;
+  PlatformInternal::init(argc, argv, data);
   CGE::Engine::init();
 
 #if defined(__EMSCRIPTEN__)
+  //the user folders live in IndexedDB: mount them and load their contents
+  //before the engine starts (see UserDirs)
+  EM_ASM(
+    Module.cgeFsReady = 0;
+    FS.mkdir('/IDBFS');
+    FS.mount(IDBFS, {}, '/IDBFS');
+    FS.syncfs(true, function(err){
+      if (err)
+        console.error("CGE: loading from IndexedDB failed", err);
+      Module.cgeFsReady = 1;
+    });
+  );
+  static int startupArgc = argc;
+  static char** startupArgv = argv;
   //the browser calls runFrame once per frame; main returns right away
-  CGE::Engine::instance()->startup(argc, argv);
   emscripten_set_main_loop([](){
+    static bool started = false;
+    if (!started){
+      if (!EM_ASM_INT(return Module.cgeFsReady;))
+        return;
+      started = true;
+      CGE::Engine::instance()->startup(startupArgc, startupArgv);
+    }
     CGE::Engine::instance()->runFrame();
     if (CGE::Engine::instance()->isShutdownRequested()){
       emscripten_cancel_main_loop();
