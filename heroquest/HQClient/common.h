@@ -33,7 +33,7 @@ inline void wait(){
   struct timespec ts;
   ts.tv_sec = 0;
   ts.tv_nsec = 250000000;
-  nanosleep(&ts, NULL);
+  nanosleep(&ts, nullptr);
 #endif
   //SDL_Delay(3);
 }

@@ -15,6 +15,10 @@
 #include "renderer.h"
 #include "font.h"
 
+using std::string;
+using std::ostringstream;
+using std::queue;
+
 using namespace CGE;
 
 TR_CHANNEL(CGE_Font);
@@ -25,7 +29,7 @@ Font::Font(){
   show_ = true;
   rgb_ = Color(1.0,1.0,1.0,1.0);
   tex_ = CGE::Engine::instance()->getRenderer()->createTexture("textures/font/font.bmp");
-  if (tex_ == NULL){
+  if (tex_ == nullptr){
   	TR_WARN("Builtin font  not available");
   }
   buffer_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
@@ -38,9 +42,9 @@ Font::Font(const Font& f){
   rgb_ = f.rgb_;
   q_ = queue<font_data>(f.q_);
   id_ = f.id_;
-  tex_ = NULL;
-  buffer_ = NULL;
-  inds_ = NULL;
+  tex_ = nullptr;
+  buffer_ = nullptr;
+  inds_ = nullptr;
 }
 
 //Destructor
@@ -61,15 +65,15 @@ void Font::buildFont(VertexBuffer* other){
   float	cx;
   float	cy;
 
-  if (other != NULL){
+  if (other != nullptr){
     delete buffer_;
     buffer_ = other;
   }
 
-  if (tex_ == NULL)
+  if (tex_ == nullptr)
     return;
   tex_->activate();
-  if (other == NULL){
+  if (other == nullptr){
     buffer_->create(VB_POSITION | VB_TEXCOORD, 4 * 256);
     buffer_->lockVertexPointer();
 
@@ -135,7 +139,7 @@ void Font::render(){
   Renderer* rend = CGE::Engine::instance()->getRenderer();
   queue<font_data> temp;
 
-  if (tex_ == NULL)
+  if (tex_ == nullptr)
     return;
 
   if (!q_.empty()){

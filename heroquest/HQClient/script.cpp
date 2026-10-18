@@ -30,6 +30,10 @@
 #include "opcodes.h"
 #include "templates.h"
 
+using std::string;
+using std::vector;
+using std::cerr;
+
 #define line *CGE::Engine::instance()->getFont(0)
 
 //using namespace CGE;
@@ -695,7 +699,7 @@ int Script::attack(lua_State *L){
 	short ty = (short)luaL_checknumber(L, 8);
   //send only attack if you are the one that is attacking.
   if (plyr.getCreature()->getPosition() == Vector2D(sx,sy))
-	  msg.send(toStr(FIGHT)+" "+toStr(attack)+" "+attype+" "+toStr(defend)+" "+deftype+" "+toStr(tx)+" "+toStr(ty));
+	  msg.send(std::to_string(FIGHT)+" "+std::to_string(attack)+" "+attype+" "+std::to_string(defend)+" "+deftype+" "+std::to_string(tx)+" "+std::to_string(ty));
 #endif
 	return 0;
 }
@@ -867,7 +871,7 @@ bool Script::isFreeAndVisible(const Vector2D& from, const Vector2D& to){
 	const Field& f2 = wrld.getField(to);
   GameObject* o = wrld.getObject(to);
   Vector2D size = wrld.getMapSize();
-  if (o != NULL || to.x >= size.x || to.y >= size.y)
+  if (o != nullptr || to.x >= size.x || to.y >= size.y)
     return false;
 	if (from == to)
 		return true;
@@ -929,7 +933,7 @@ int Script::error(lua_State* L){
   string message = string(luaL_checkstring(L, 3));
   string plyr = dynamic_cast<Creature*>(wrld.getObject(Vector2D(sx,sy)))->getPlayer();
   ServerSocket* ss = globl.getPlayer(plyr)->getSock();
-  *ss << toStr(CHAT)+" "+message;
+  *ss << std::to_string(CHAT)+" "+message;
   wait();
   wait();
 #endif
@@ -1025,12 +1029,12 @@ int Script::openDoor(lua_State* L){
   else
     cerr << "openDoor: wrong direction";
   Door* d = wrld.getDoor(Vector2D(x,y), dir);
-  if (d == NULL){
+  if (d == nullptr){
     cerr << "openDoor: No Door!";
     return 0;
   }
   d->setType(0);
-  if(d->getScript() != NULL){
+  if(d->getScript() != nullptr){
     scr.call(OnOpen, d->getScript(), Vector2D(x,y));
   }
   d->setClosed(false);
@@ -1095,7 +1099,7 @@ int Script::releaseBackPointer(lua_State* L){
     cerr << "releaseBackPointer: There is no creature";
     return 0;
   }
-  c->setBackPointer(NULL);
+  c->setBackPointer(nullptr);
   return 0;
 }
 

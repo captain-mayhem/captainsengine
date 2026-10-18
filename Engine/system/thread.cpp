@@ -29,7 +29,7 @@ int Thread::create(void (*proc)(void* data), void* data){
   mStarted = true;
   int threadID = 0;
 #ifdef WIN32
-  thread_ = CreateThread(NULL, 65536, (LPTHREAD_START_ROUTINE)proc, data, 0, (LPDWORD)&threadID);
+  thread_ = CreateThread(nullptr, 65536, (LPTHREAD_START_ROUTINE)proc, data, 0, (LPDWORD)&threadID);
 #endif
 #ifdef UNIX 
   pthread_attr_t attr;
@@ -70,7 +70,7 @@ void Thread::join(){
   WaitForSingleObject(thread_, INFINITE);
 #endif
 #ifdef UNIX
-  pthread_join(thread_, NULL);
+  pthread_join(thread_, nullptr);
 #endif
   mStarted = false;
 }
@@ -83,7 +83,7 @@ void Thread::sleep(int milliseconds){
   struct timespec tv;
   tv.tv_sec = milliseconds/1000;
   tv.tv_nsec = (milliseconds-tv.tv_sec*1000)*1000000;
-  nanosleep(&tv, NULL);
+  nanosleep(&tv, nullptr);
 #endif
 }
 
@@ -146,11 +146,11 @@ Mutex::Mutex(bool recursive)
   if (recursive)
     mutex_ = CreateMutex(0, FALSE, 0);
   else
-    mutex_ = CreateSemaphore(NULL, 1, 1, NULL);
+    mutex_ = CreateSemaphore(nullptr, 1, 1, nullptr);
 #endif
 #ifdef UNIX
   if (!recursive)
-    pthread_mutex_init(&mutex_, NULL);
+    pthread_mutex_init(&mutex_, nullptr);
   else{
     pthread_mutexattr_t mta;
     pthread_mutexattr_init(&mta);
@@ -184,7 +184,7 @@ void Mutex::unlock(){
   if (recursive_)
     ReleaseMutex(mutex_);
   else
-    ReleaseSemaphore(mutex_, 1, NULL);
+    ReleaseSemaphore(mutex_, 1, nullptr);
 #endif
 #ifdef UNIX
   pthread_mutex_unlock(&mutex_);
@@ -193,14 +193,14 @@ void Mutex::unlock(){
 
 Condition::Condition(){
 #ifdef WIN32
-  mCond = CreateEvent(NULL,TRUE,FALSE,NULL);
+  mCond = CreateEvent(nullptr,TRUE,FALSE,nullptr);
   InitializeCriticalSection(&mMuty);
   mWaiters = 0;
   mRelease = 0;
   mGeneration = 0;
 #endif
 #ifdef UNIX
-  pthread_cond_init(&mCond,NULL);
+  pthread_cond_init(&mCond,nullptr);
 #endif
 }
 
@@ -308,7 +308,7 @@ pthread_cond_broadcast (pthread_cond_t *cv)
 
 Semaphore::Semaphore(int count){
 #ifdef WIN32
-  mSem = CreateSemaphore(NULL, count, count, NULL);
+  mSem = CreateSemaphore(nullptr, count, count, nullptr);
 #endif
 #ifdef UNIX
   sem_init(&mSem, 0, count);
@@ -335,7 +335,7 @@ void Semaphore::dec(){
 
 void Semaphore::inc(){
 #ifdef WIN32
-  ReleaseSemaphore(mSem, 1, NULL);
+  ReleaseSemaphore(mSem, 1, nullptr);
 #endif
 #ifdef UNIX
   sem_post(&mSem);

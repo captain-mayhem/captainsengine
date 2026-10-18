@@ -17,6 +17,8 @@
 #include "../renderer/renderer.h"
 #include "../renderer/forms.h"
 
+using std::string;
+
 using namespace Gui;
 using namespace CGE;
 using CGE::Color;

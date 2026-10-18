@@ -27,7 +27,7 @@ class CGE_API MessageBox : public Button {
     //! process the click
     virtual void process();
     //! set the text in the message box
-    void setMessage(const string& text);
+    void setMessage(const std::string& text);
   private:
     //! the dimensions of the background
     CGE::Vector2D surSpan_;
@@ -38,7 +38,7 @@ class CGE_API MessageBox : public Button {
     //! the foreground color
     CGE::Color surFgColor_;
     //! the message to be displayed
-    list<string> msg_;
+    std::list<std::string> msg_;
 };
 
 }

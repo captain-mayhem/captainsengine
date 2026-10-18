@@ -8,7 +8,7 @@ using Gui::InputField;
 
 using namespace Input;
 
-Keyboard* Keyboard::key_ = NULL;
+Keyboard* Keyboard::key_ = nullptr;
 
 Keyboard::Keyboard() : mBuiltInConsole(true){
 }
@@ -27,21 +27,21 @@ void Keyboard::keyDown(int key){
       cons->toggle();
       if (CGE::Engine::instance()->getActiveInput()){
         CGE::Engine::instance()->getActiveInput()->clear();
-        CGE::Engine::instance()->setActiveInput(NULL);
+        CGE::Engine::instance()->setActiveInput(nullptr);
       }
       return;
     }
   }
   InputField* input = CGE::Engine::instance()->getActiveInput();
   //input goes to input field
-  if (input != NULL){
+  if (input != nullptr){
     //input finished
     if (key == KEY_RETURN){
       input->removeChar();
       input->end();
       //normal input ==> single line
       if (!CGE::Engine::instance()->getConsole()->isActive())
-        CGE::Engine::instance()->setActiveInput(NULL);
+        CGE::Engine::instance()->setActiveInput(nullptr);
       return;
     }
     //delete one char
@@ -79,7 +79,7 @@ void Keyboard::ascii(unsigned char key){
     return;
   InputField* input = CGE::Engine::instance()->getActiveInput();
   //input goes to input field
-  if (input != NULL){
+  if (input != nullptr){
     input->removeChar();
     input->addChar(key);
     input->addChar('_');

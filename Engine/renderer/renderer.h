@@ -81,11 +81,11 @@ public:
   //! clear scene
   virtual void clear(long flags){}
   //! create vertex buffer
-  virtual VertexBuffer* createVertexBuffer(){return NULL;}
+  virtual VertexBuffer* createVertexBuffer(){return nullptr;}
   //! create index buffer
-  virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size){return NULL;}
+  virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size){return nullptr;}
   //! create texture
-  Texture* createTexture(string filename, Texture::Format fmt=Texture::AUTO);
+  Texture* createTexture(std::string filename, Texture::Format fmt=Texture::AUTO);
   //! create texture
   Texture* createTexture(Image const* img, Texture::Format fmt);
   //! create empty texture

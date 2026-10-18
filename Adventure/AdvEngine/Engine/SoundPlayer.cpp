@@ -52,7 +52,7 @@ void av_frame_unref(AVFrame *frame){
 
 using namespace adv;
 
-SoundPlayer::SoundPlayer(const std::string& name, bool effectEnabled) : mSpeaker(NULL), mSuspensionScript(NULL), mSpokenString(NULL), 
+SoundPlayer::SoundPlayer(const std::string& name, bool effectEnabled) : mSpeaker(nullptr), mSuspensionScript(nullptr), mSpokenString(nullptr), 
 mName(name), mStartVolume(1.0f), mEndVolume(1.0f), mFadeDuration(0), mCurrTime(0), mEffectEnabled(effectEnabled), mSpeed(0){
 #ifndef DISABLE_SOUND
   mSource = 0;
@@ -78,17 +78,17 @@ SoundPlayer::~SoundPlayer(){
   if (mSuspensionScript){
     mSuspensionScript->resume();
     ExecutionContext::unref(mSuspensionScript);
-    mSuspensionScript = NULL;
+    mSuspensionScript = nullptr;
   }
   if (mSpeaker){
     //stop speaking
     Engine::instance()->getFontRenderer()->removeText(mSpeaker, false);
     mSpeaker->setTalking(false);
-    mSpeaker = NULL;
+    mSpeaker = nullptr;
   }
   if (mSpokenString){
     Engine::instance()->getFontRenderer()->removeText((FontRenderer::String*)mSpokenString);
-    mSpokenString = NULL;
+    mSpokenString = nullptr;
   }
 #ifndef DISABLE_SOUND
 #ifndef DISABLE_EFX
@@ -105,7 +105,7 @@ void SoundPlayer::setVolume(float volume){
 }
 
 void SoundPlayer::setSuspensionScript(ExecutionContext* ctx){
-  if (mSuspensionScript != NULL){
+  if (mSuspensionScript != nullptr){
     mSuspensionScript->reset(true,true);
     ExecutionContext::unref(mSuspensionScript);
   }
@@ -185,7 +185,7 @@ TR_CHANNEL(ADV_Sound_Player);
 static const int BUFFER_SIZE = 19200;
 
 StreamSoundPlayer::StreamSoundPlayer(const std::string& soundname, bool effectEnabled) : 
-SoundPlayer(soundname, effectEnabled), mCodecContext(NULL), mCodec(NULL), mResampler(NULL), mStreamNum(-1), 
+SoundPlayer(soundname, effectEnabled), mCodecContext(nullptr), mCodec(nullptr), mResampler(nullptr), mStreamNum(-1), 
 mLooping(false), mStop(true), mPlay(false), mAutoDelete(true) {
   TR_USE(ADV_Sound_Player);
   TR_DEBUG("Creating sound player %s", soundname.c_str());
@@ -193,7 +193,7 @@ mLooping(false), mStop(true), mPlay(false), mAutoDelete(true) {
   mDecodeBuffer.data = (char*)av_malloc(mDecodeBuffer.length);
   mDecodeBuffer.used = 0;
   mDataBuffer.length = 0;
-  mDataBuffer.data = NULL;
+  mDataBuffer.data = nullptr;
   mDataBuffer.used = 0;
   mALBuffer.length = BUFFER_SIZE;
   mALBuffer.data = new char[mALBuffer.length];
@@ -202,10 +202,10 @@ mLooping(false), mStop(true), mPlay(false), mAutoDelete(true) {
 
 void StreamSoundPlayer::realize(){
   SoundPlayer::realize();
-  if (mStreamDB != NULL){
+  if (mStreamDB != nullptr){
     if (!openStream(*mStreamDB)){
       delete mStreamDB;
-      mStreamDB = NULL;
+      mStreamDB = nullptr;
     }
   }
   else
@@ -216,13 +216,13 @@ StreamSoundPlayer::~StreamSoundPlayer(){
   closeStream();
   //deallocate this way, as it was allocated by av_malloc
   av_free(mDecodeBuffer.data);
-  mDecodeBuffer.data = NULL;
+  mDecodeBuffer.data = nullptr;
   //remove(mFilename.c_str());
 }
 
 void StreamSoundPlayer::setStream(const std::string& filename){
   mStreamF = filename;
-  mStreamDB = NULL;
+  mStreamDB = nullptr;
 } 
 
 void StreamSoundPlayer::setStream(const DataBuffer& buffer){
@@ -232,13 +232,13 @@ void StreamSoundPlayer::setStream(const DataBuffer& buffer){
 
 bool StreamSoundPlayer::openStream(const std::string& filename){
   mFilename = filename;
-  mMemoryBuffer = NULL;
-  mMemoryStream = NULL;
+  mMemoryBuffer = nullptr;
+  mMemoryStream = nullptr;
   alSourcei(mSource, AL_SOURCE_RELATIVE, AL_TRUE);
   alSourcei(mSource, AL_ROLLOFF_FACTOR, 0);
   alGenBuffers(3, mBuffers);
 
-  if (avformat_open_input(&mFormat, mFilename.c_str(), NULL, NULL) != 0)
+  if (avformat_open_input(&mFormat, mFilename.c_str(), nullptr, nullptr) != 0)
     return false;
   return openStreamInternal();
 }
@@ -282,7 +282,7 @@ bool StreamSoundPlayer::openStream(const DataBuffer& buffer){
   alGenBuffers(3, mBuffers);
 
   mMemoryBuffer = (unsigned char*)av_malloc(BUFFER_SIZE+FF_INPUT_BUFFER_PADDING_SIZE);
-  AVIOContext* ctx = avio_alloc_context(mMemoryBuffer, BUFFER_SIZE, 0, (void*)&buffer, readMemStream, NULL, seekMemStream);
+  AVIOContext* ctx = avio_alloc_context(mMemoryBuffer, BUFFER_SIZE, 0, (void*)&buffer, readMemStream, nullptr, seekMemStream);
   AVProbeData probe;
   probe.filename = mFilename.c_str();
   probe.buf_size = buffer.length-AVPROBE_PADDING_SIZE;
@@ -293,13 +293,13 @@ bool StreamSoundPlayer::openStream(const DataBuffer& buffer){
   }
   mFormat = avformat_alloc_context();
   mFormat->pb = ctx;
-  if (avformat_open_input(&mFormat, mFilename.c_str(), fmt, NULL) != 0){
+  if (avformat_open_input(&mFormat, mFilename.c_str(), fmt, nullptr) != 0){
     TR_WARN("open stream failed for %s", mFilename.c_str());
     av_free(ctx);
     av_free(mMemoryBuffer);
     //delete &buffer; //is deleted outside
-    mFormat = NULL;
-    mMemoryStream = NULL;
+    mFormat = nullptr;
+    mMemoryStream = nullptr;
     return false;
   }
   TR_DEBUG("stream opened successfully");
@@ -311,7 +311,7 @@ bool StreamSoundPlayer::openStreamInternal(){
   unsigned last_nb_streams;
   do{
     last_nb_streams = mFormat->nb_streams;
-    avformat_find_stream_info(mFormat, NULL);
+    avformat_find_stream_info(mFormat, nullptr);
   } while(last_nb_streams != mFormat->nb_streams);
   for (unsigned i = 0; i < mFormat->nb_streams; ++i){
     if (mFormat->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO){
@@ -320,7 +320,7 @@ bool StreamSoundPlayer::openStreamInternal(){
       if (!mCodec)
         continue;
 
-      if (avcodec_open2(mCodecContext, mCodec, NULL) < 0){
+      if (avcodec_open2(mCodecContext, mCodec, nullptr) < 0){
         continue;
       }
 
@@ -358,9 +358,9 @@ bool StreamSoundPlayer::openStreamInternal(){
 #else
         TR_DEBUG("Sample format %i needs resampling", mCodecContext->sample_fmt);
         mPCMFormat = AL_FORMAT_MONO16;
-        mResampler = swr_alloc_set_opts(NULL, AV_CH_LAYOUT_MONO, AV_SAMPLE_FMT_S16, mCodecContext->sample_rate,
+        mResampler = swr_alloc_set_opts(nullptr, AV_CH_LAYOUT_MONO, AV_SAMPLE_FMT_S16, mCodecContext->sample_rate,
           mCodecContext->channel_layout == 0 ? AV_CH_LAYOUT_STEREO : mCodecContext->channel_layout, 
-          mCodecContext->sample_fmt, mCodecContext->sample_rate, 0, NULL);
+          mCodecContext->sample_fmt, mCodecContext->sample_rate, 0, nullptr);
         swr_init(mResampler);
 #endif
       }
@@ -389,14 +389,14 @@ void StreamSoundPlayer::closeStream(){
   alSourcei(mSource, AL_BUFFER, AL_NONE);
   alDeleteBuffers(3, mBuffers);
   if (mFormat){
-    if (mMemoryStream != NULL){
+    if (mMemoryStream != nullptr){
       avformat_close_input(&mFormat);
       AVIOContext* ctx = (AVIOContext*)mMemoryStream;
       DataBuffer* db = (DataBuffer*)ctx->opaque;
       av_free(ctx);
       av_free(mMemoryBuffer);
       delete db;
-      mMemoryStream = NULL;
+      mMemoryStream = nullptr;
     }
     else
       avformat_close_input(&mFormat);
@@ -476,7 +476,7 @@ unsigned StreamSoundPlayer::decode(){
           memmove(mDataBuffer.data, mDataBuffer.data+length, remain);
         mDataBuffer.used = remain;
       }
-      if (!mResampler && frame->data[0] != NULL){
+      if (!mResampler && frame->data[0] != nullptr){
         memcpy(mDecodeBuffer.data, frame->data[0], length);
         mDecodeBuffer.used = length;
       }
@@ -528,7 +528,7 @@ bool StreamSoundPlayer::getNextPacket(){
     }
     else{
       bool isFinished = getPacketHook(packet);
-      if (isFinished && mCodecContext == NULL)
+      if (isFinished && mCodecContext == nullptr)
         break;
     }
     /*else if (packet.stream_index == mVidStreamNum){
@@ -603,13 +603,13 @@ bool StreamSoundPlayer::update(unsigned time){
     if (mStop){
       if (mLooping){
         //stop was not requested, so restart
-        bool inmemory = mMemoryStream != NULL;
-        DataBuffer* db = NULL;
+        bool inmemory = mMemoryStream != nullptr;
+        DataBuffer* db = nullptr;
         if (inmemory){
           AVIOContext* ctx = (AVIOContext*)mMemoryStream;
           db = (DataBuffer*)ctx->opaque;
           db->used = 0;
-          ctx->opaque = NULL;
+          ctx->opaque = nullptr;
         }
         closeStream();
         if (inmemory)
@@ -652,7 +652,7 @@ TR_CHANNEL(ADV_Video);
 StreamVideoPlayer::StreamVideoPlayer(const std::string& soundname) : 
 StreamSoundPlayer(soundname, false), mClock(0)/*, mLayer(NULL)*/, mFirstFrame(true){
   for (int i = 0; i < NUM_LAYERS; ++i)
-    mLayer[i] = NULL;
+    mLayer[i] = nullptr;
 }
 
 StreamVideoPlayer::~StreamVideoPlayer(){
@@ -672,7 +672,7 @@ bool StreamVideoPlayer::openStreamHook(int i){
     mVidCodec = avcodec_find_decoder(mVidCodecContext->codec_id);
     if (!mVidCodec)
       return false;
-    if (avcodec_open2(mVidCodecContext, mVidCodec, NULL) < 0){
+    if (avcodec_open2(mVidCodecContext, mVidCodec, nullptr) < 0){
       return false;
     }
     mVidStreamNum = i;
@@ -684,7 +684,7 @@ bool StreamVideoPlayer::openStreamHook(int i){
 
     mScaler = sws_getContext(mVidCodecContext->width, mVidCodecContext->height,
       mVidCodecContext->pix_fmt, mVidCodecContext->width, mVidCodecContext->height,
-      PIX_FMT_RGB24, SWS_BICUBIC, NULL, NULL, NULL);
+      PIX_FMT_RGB24, SWS_BICUBIC, nullptr, nullptr, nullptr);
     return true;
   }
   return false;
@@ -761,7 +761,7 @@ bool StreamVideoPlayer::update(unsigned time){
   bool cont = false;
   if (!mFirstFrame)
     mClock += time;
-  if (mCodecContext != NULL){ //we have an audio stream
+  if (mCodecContext != nullptr){ //we have an audio stream
       cont = StreamSoundPlayer::update(time);
   }
   else{

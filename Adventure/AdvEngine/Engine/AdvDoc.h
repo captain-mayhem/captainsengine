@@ -269,7 +269,7 @@ struct FontData{
 };
 
 struct DataBuffer{
-  DataBuffer() : data(NULL), length(0), used(0) {}
+  DataBuffer() : data(nullptr), length(0), used(0) {}
   DataBuffer(const DataBuffer& d){
     name = d.name;
     data = new char[d.length];

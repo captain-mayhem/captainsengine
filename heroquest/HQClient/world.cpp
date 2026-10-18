@@ -41,6 +41,10 @@
 #include "script.h"
 #include "world.h"
 
+using std::string;
+using std::vector;
+using std::cerr;
+
 
 using std::ifstream;
 using std::ostringstream;
@@ -90,7 +94,7 @@ World::~World(void){
 
 //Deallocate world memory
 void World::deInit(){
-	if (world_ != NULL){
+	if (world_ != nullptr){
     
     loaded_ = false;
     wait();
@@ -841,7 +845,7 @@ void World::updateCollisionVertices(Vector2D modelPos){
 		return;
 	}
 	Vector2D p = c->getPosition();
-	bool selfHero = dynamic_cast<Hero*>(world_[p.y][p.x].object) == NULL ? false : true;
+	bool selfHero = dynamic_cast<Hero*>(world_[p.y][p.x].object) == nullptr ? false : true;
 	
 	//TOP
 	bool objectHero = true;
@@ -854,9 +858,9 @@ void World::updateCollisionVertices(Vector2D modelPos){
   }
 	GameObject *o = wrld.getObject(Vector2D(modelPos.x, modelPos.y-1));
 	if (o){
-		objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
-		objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
-    objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
+		objectHero = dynamic_cast<Hero*>(o) == nullptr ? false : true;
+		objectMonster = dynamic_cast<Monster*>(o) == nullptr ? false : true;
+    objectFurni = dynamic_cast<Furniture*>(o) == nullptr ? false : true;
 	}
   if (!outside){
     Field* f = &wrld.getField(Vector2D(modelPos.x, modelPos.y-1));
@@ -887,9 +891,9 @@ void World::updateCollisionVertices(Vector2D modelPos){
   }
 	o = wrld.getObject(Vector2D(modelPos.x-1, modelPos.y));
 	if (o){
-		objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
-		objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
-    objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
+		objectHero = dynamic_cast<Hero*>(o) == nullptr ? false : true;
+		objectMonster = dynamic_cast<Monster*>(o) == nullptr ? false : true;
+    objectFurni = dynamic_cast<Furniture*>(o) == nullptr ? false : true;
 	}
   if (!outside){
     Field* f = &wrld.getField(Vector2D(modelPos.x-1, modelPos.y));
@@ -918,9 +922,9 @@ void World::updateCollisionVertices(Vector2D modelPos){
   }
 	o = wrld.getObject(Vector2D(modelPos.x, modelPos.y+1));
 	if (o){
-		objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
-		objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
-    objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
+		objectHero = dynamic_cast<Hero*>(o) == nullptr ? false : true;
+		objectMonster = dynamic_cast<Monster*>(o) == nullptr ? false : true;
+    objectFurni = dynamic_cast<Furniture*>(o) == nullptr ? false : true;
 	}
   if (!outside){
     Field* f = &wrld.getField(Vector2D(modelPos.x, modelPos.y+1));
@@ -949,9 +953,9 @@ void World::updateCollisionVertices(Vector2D modelPos){
   }
 	o = wrld.getObject(Vector2D(modelPos.x+1, modelPos.y));
 	if (o){
-		objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
-		objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
-    objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
+		objectHero = dynamic_cast<Hero*>(o) == nullptr ? false : true;
+		objectMonster = dynamic_cast<Monster*>(o) == nullptr ? false : true;
+    objectFurni = dynamic_cast<Furniture*>(o) == nullptr ? false : true;
 	}
   if (!outside){
     Field* f = &wrld.getField(Vector2D(modelPos.x+1, modelPos.y));
@@ -1053,16 +1057,16 @@ bool World::setObject(GameObject* o, const Vector2D& pos, bool interpolate){
       if (creat){
         Creature* self = dynamic_cast<Creature*>(o);
         if (self){
-          oldField->object = NULL;
+          oldField->object = nullptr;
           o->setPosition(pos,interpolate);
           newField->tryObject = newField->object;
           newField->object = o;
-          if (oldField->tryObject == NULL){
+          if (oldField->tryObject == nullptr){
             self->setBackPointer(oldField);
           }
           else{
             oldField->object = oldField->tryObject;
-            oldField->tryObject = NULL;
+            oldField->tryObject = nullptr;
           }
 #ifdef _CLIENT_
           if (realToModelPos(cam.position()) != pos){
@@ -1087,18 +1091,18 @@ bool World::setObject(GameObject* o, const Vector2D& pos, bool interpolate){
       Hero* self = dynamic_cast<Hero*>(o);
       if (self){
         //two heros are on the same field, so trying to move
-	      oldField->object = NULL;
+	      oldField->object = nullptr;
 	      o->setPosition(pos,interpolate);
 	      //save the old object as the tryObject
 	      newField->tryObject = newField->object;
 	      newField->object = o;
 	      //where must the character be moved, if move try fails
-	      if (oldField->tryObject == NULL){
+	      if (oldField->tryObject == nullptr){
 	        self->setBackPointer(oldField);
 	      }
 	      else{
 	        oldField->object = oldField->tryObject;
-	        oldField->tryObject = NULL;
+	        oldField->tryObject = nullptr;
 	      }
 #ifdef _CLIENT_
 	      //update camera, if neccessary
@@ -1121,18 +1125,18 @@ bool World::setObject(GameObject* o, const Vector2D& pos, bool interpolate){
       Monster* self = dynamic_cast<Monster*>(o);
       if (self){
         //two monsters are on the same field, so trying to move
-	      oldField->object = NULL;
+	      oldField->object = nullptr;
 	      o->setPosition(pos,interpolate);
 	      //save the old object as the tryObject
 	      newField->tryObject = newField->object;
 	      newField->object = o;
 	      //where must the character be moved, if move try fails
-	      if (oldField->tryObject == NULL){
+	      if (oldField->tryObject == nullptr){
 	        self->setBackPointer(oldField);
 	      }
 	      else{
 	        oldField->object = oldField->tryObject;
-	        oldField->tryObject = NULL;
+	        oldField->tryObject = nullptr;
 	      }
 #ifdef _CLIENT_
 	      //update camera, if neccessary
@@ -1150,7 +1154,7 @@ bool World::setObject(GameObject* o, const Vector2D& pos, bool interpolate){
     }
   }
   //standard case (move to a free field)
-  oldField->object = NULL;
+  oldField->object = nullptr;
   o->setPosition(pos, interpolate);
   newField->object = o;
   //was it only trying to move the last time
@@ -1160,11 +1164,11 @@ bool World::setObject(GameObject* o, const Vector2D& pos, bool interpolate){
     Hero* h = dynamic_cast<Hero*>(self);
     if (h)
       update_visibility(h->getPosition());
-    self->setBackPointer(NULL);
+    self->setBackPointer(nullptr);
     if (oldField->tryObject){
       //set original back
       oldField->object = oldField->tryObject;
-      oldField->tryObject = NULL;
+      oldField->tryObject = nullptr;
     }
     //is a trap on the new field ==> set backpointer
     if (newField->script && islower(newField->script->script[0])){
@@ -1196,7 +1200,7 @@ void World::setObjectAnchor(Overlay* o, const Vector2D& pos){
 
 //remove an GameObject from the map
 void World::removeObject(const Vector2D& pos){
-  world_[pos.y][pos.x].object = NULL;
+  world_[pos.y][pos.x].object = nullptr;
 }
 
 //add a hero to the map
@@ -1227,7 +1231,7 @@ void World::addMonster(Monster* monsta, const Vector2D& pos, int vecPos){
   monsta->setCamPos(wrld.modelToRealPos(pos));
 	short mid = monsta->getId();
 	monsterCounter_[mid-2000]++;
-	string name = monsta->getType() + toStr(monsterCounter_[mid-2000]);
+	string name = monsta->getType() + std::to_string(monsterCounter_[mid-2000]);
 	monsta->setName(name);
   monsters_[vecPos] = monsta;
 	
@@ -1247,7 +1251,7 @@ void World::addMonster(Monster* monsta, const Vector2D& pos){
   monsta->setCamPos(wrld.modelToRealPos(pos));
 	short mid = monsta->getId();
 	monsterCounter_[mid]++;
-	string name = monsta->getType() + toStr(monsterCounter_[mid]);
+	string name = monsta->getType() + std::to_string(monsterCounter_[mid]);
 	monsta->setName(name);
   monsters_.push_back(monsta);
 	
@@ -1794,9 +1798,9 @@ bool World::isTempVis(const Vector2D& pos, short bit){
 //returns a door or NULL if there's none
 Door* World::getDoor(const Vector2D& pos, Direction dir){
   if (pos.x < 0 || pos.x >= width_ || pos.y < 0 || pos.y >= height_)
-    return NULL;
+    return nullptr;
   if (!world_[pos.y][pos.x].doorbits.test(dir))
-    return NULL;
+    return nullptr;
   short idx = world_[pos.y][pos.x].dooridx[dir];
   return doors_[idx];
 }
@@ -1817,8 +1821,8 @@ bool World::isMonsterVisible(Vector2D pos){
 void World::placeInventory(Inventory* items, Vector2D position){
   Field& f = getField(position);
   //reset inventory on that field
-  if (items == NULL){
-    f.items = NULL;
+  if (items == nullptr){
+    f.items = nullptr;
     return;
   }
   //does the inventory contain no items
@@ -1826,7 +1830,7 @@ void World::placeInventory(Inventory* items, Vector2D position){
     return;
   }
   //no inventory present, just set it
-  if (f.items == NULL){
+  if (f.items == nullptr){
     f.items = items;
   }
   //merge inventories

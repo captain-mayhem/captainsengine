@@ -150,7 +150,7 @@ void Trade::render(){
       int fill = (11 - name.size())/2;
       name.insert(name.begin(), fill, ' ');
       fnt_->print(pos.x, pos.y, name.c_str(), 1);
-      fnt_->print(pos.x+28, pos.y-18, toStr(items[i].getNumber()).c_str(), 1);
+      fnt_->print(pos.x+28, pos.y-18, std::to_string(items[i].getNumber()).c_str(), 1);
       pos.x += 148;
       count++;
       if (count == 3){
@@ -160,7 +160,7 @@ void Trade::render(){
       }
     }
   }
-  fnt_->print(177, 50, ("<<  Page "+toStr(invPage_)+"  >>").c_str(), 0);
+  fnt_->print(177, 50, ("<<  Page "+std::to_string(invPage_)+"  >>").c_str(), 0);
   
   //shop
   Vector2D pos(575, 485);
@@ -182,23 +182,23 @@ void Trade::render(){
       pos.y -= 193;
     }
   }
-  fnt_->print(702, 50, ("<<  Page "+toStr(shopPage_)+"  >>").c_str(), 0);
+  fnt_->print(702, 50, ("<<  Page "+std::to_string(shopPage_)+"  >>").c_str(), 0);
 
   //stats
   fnt_->setColor(0,1,1);
   if (h){
-    fnt_->print(350, 680, ("Money: "+toStr(h->getMoney())).c_str(), 0);
+    fnt_->print(350, 680, ("Money: "+std::to_string(h->getMoney())).c_str(), 0);
   }
 
   //Vector2D click = gl->getMousePos();
-  //fnt_->glPrint(600, 460, (toStr(click.x)+"/"+toStr(click.y)).c_str(), 0);
+  //fnt_->glPrint(600, 460, (std::to_string(click.x)+"/"+std::to_string(click.y)).c_str(), 0);
 
   if (chosenItem_.isValid()){
     fnt_->print(450, 50, chosenItem_.getName().c_str(), 0);
     int price = toInt(chosenItem_.getAdditional());
     if (halfPrice_)
       price = price >> 1;
-    fnt_->print(560, 680, ("Price: "+toStr(price)).c_str(), 0);
+    fnt_->print(560, 680, ("Price: "+std::to_string(price)).c_str(), 0);
   }
 
   //fnt_.render();

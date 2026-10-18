@@ -29,12 +29,12 @@ Image* ImageLoader::load(const char* filename, Type t){
   if (t == UNKNOWN)
     t = determineType(filename);
   if (t == UNKNOWN)
-    return NULL;
+    return nullptr;
   //images are assets (in the APK on Android)
   std::vector<uint8> data;
   if (!Assets::load(filename, data)){
     TR_ERROR("Unable to load image %s", filename);
-    return NULL;
+    return nullptr;
   }
   return load(data.data(), (unsigned)data.size(), t);
 }
@@ -50,9 +50,9 @@ Image* ImageLoader::load(void* memory, unsigned size, Type t){
     case PNG:
       return loadPNG(memory, size);
     case UNKNOWN:
-      return NULL;
+      return nullptr;
   }
-  return NULL;
+  return nullptr;
 }
 
 ImageLoader::Type ImageLoader::determineType(const std::string& filename){
@@ -103,7 +103,7 @@ METHODDEF(void) jpg_term_source(j_decompress_ptr cinfo){
 
 Image* ImageLoader::loadJPG(void* memory, unsigned size){
   struct jpeg_decompress_struct cinfo;
-  Image *pImageData = NULL;
+  Image *pImageData = nullptr;
   
   // Create an error handler
   jpeg_error_mgr jerr;
@@ -170,7 +170,7 @@ Image* ImageLoader::loadGIF(void* memory, unsigned size){
   GifFileType* giffile = DGifOpen(memory, gif_input_func);
   if (!giffile){
     TR_ERROR("Unable to load GIF File from memory!");
-    return NULL;
+    return nullptr;
   }
   return decodeGIF(giffile);
 }
@@ -182,7 +182,7 @@ Image* decodeGIF(GifFileType* giffile){
   GifByteType* extension;
   unsigned char transparent;
   bool hasTransparency = false;
-  unsigned char* indices = NULL;
+  unsigned char* indices = nullptr;
   do{
     DGifGetRecordType(giffile, &recordtype);
     switch(recordtype){
@@ -192,7 +192,7 @@ Image* decodeGIF(GifFileType* giffile){
           hasTransparency = (extension[1] & 0x01) > 0;
           transparent = extension[4];
         }
-        while (extension != NULL){
+        while (extension != nullptr){
           DGifGetExtensionNext(giffile, &extension);
         }
         break;
@@ -247,7 +247,7 @@ Image* decodeGIF(GifFileType* giffile){
         break;
     }
   } while (recordtype != TERMINATE_RECORD_TYPE);
-  return NULL;
+  return nullptr;
 }
 
 static Image* decodeBMP(Reader* rdr);
@@ -417,7 +417,7 @@ static Image* loadPNGinternal(png_structp png_ptr, png_infop info_ptr){
   int bitdepth = 0;
   int colortype = 0;
   int dummy;
-  png_get_IHDR(png_ptr, info_ptr, &width, &height, &bitdepth, &colortype, &dummy, NULL, NULL);
+  png_get_IHDR(png_ptr, info_ptr, &width, &height, &bitdepth, &colortype, &dummy, nullptr, nullptr);
 
   int channels = 0;
   if (colortype == PNG_COLOR_TYPE_GRAY){
@@ -463,7 +463,7 @@ static Image* loadPNGinternal(png_structp png_ptr, png_infop info_ptr){
 Image* ImageLoader::loadPNG(void* memory, unsigned size){
   TR_USE(CGE_Imageloader);
   
-  png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+  png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
   png_infop info_ptr = png_create_info_struct(png_ptr);
   setjmp(png_jmpbuf(png_ptr));
 
@@ -473,6 +473,6 @@ Image* ImageLoader::loadPNG(void* memory, unsigned size){
 
   Image* img = loadPNGinternal(png_ptr, info_ptr);
 
-  png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+  png_destroy_read_struct(&png_ptr, &info_ptr, nullptr);
   return img;
 }

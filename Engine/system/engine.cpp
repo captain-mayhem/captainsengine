@@ -20,6 +20,9 @@
 #include <chrono>
 #include <thread>
 
+using std::string;
+using std::list;
+
 #ifdef WIN32
 #define _CRTDBG_MAP_ALLOC
 #include <mmsystem.h>
@@ -42,15 +45,13 @@ TR_CHANNEL(CGE_Engine);
 //! the engine instance, which Android recreates with its window
 IApplication* internalApplication = nullptr;
 
-Engine* Engine::eng = NULL;
+Engine* Engine::eng = nullptr;
 
 //! the most time the updates catch up with after a long frame
 static const double MAX_UPDATE_LAG = 0.25;
 
 Engine::Engine(){
   TR_USE(CGE_Engine);
-  win_ = NULL;
-  rend_ = NULL;
   isUp_ = false;
   app_ = nullptr;
   paused_ = false;
@@ -63,8 +64,7 @@ Engine::Engine(){
   lastTime_ = 0;
   fpscounter_ = 0;
   fps_ = 0;
-  input_ = NULL;
-  console_ = NULL;
+  input_ = nullptr;
   clear_ = false;
   //guitex_ = Mutex();
   mShutdownRequested = false;
@@ -76,6 +76,9 @@ Engine::Engine(){
   _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_DEBUG );
 #endif
   TR_INFO("Engine instance created");
+}
+
+Engine::~Engine(){
 }
 
 void Engine::init(){
@@ -111,17 +114,17 @@ void Engine::startup(int argc, char** argv){
     }
 
 #ifdef WIN32
-    win_ = new WindowsWindow(rend_);
+    win_ = std::make_unique<WindowsWindow>(rend_.get());
 #endif
 #if defined(LINUX)
-    win_ = new X11Window(rend_);
+    win_ = std::make_unique<X11Window>(rend_.get());
 #endif
 #ifdef ANDROID
-  win_ = new AndroidWindow(rend_);
+    win_ = std::make_unique<AndroidWindow>(rend_.get());
 #endif
   }
   else{
-    rend_ = new CGE::DummyRenderer();
+    rend_ = std::make_unique<CGE::DummyRenderer>();
   }
   if (graphics_){
 #ifdef WIN32
@@ -130,28 +133,23 @@ void Engine::startup(int argc, char** argv){
 #endif
     win_->init("Captains Game Engine");
 #ifdef LINUX
-    XSynchronize(static_cast<X11Window*>(win_)->getDisplay(), true);
+    XSynchronize(static_cast<X11Window*>(win_.get())->getDisplay(), true);
 #endif
   }
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
   
-  fnt_ = new CGE::Font*[3];
   if (graphics_){
-    for (int i = 0; i < 3; i++){
-      fnt_[i] = new CGE::Font();
+    for (auto& fnt : fnt_){
+      fnt = std::make_unique<CGE::Font>();
     }
-    fnt_[0]->buildFont(NULL);
+    //the other fonts share the first one's vertex buffer
+    fnt_[0]->buildFont(nullptr);
     fnt_[1]->buildFont(fnt_[0]->getVB());
     fnt_[2]->buildFont(fnt_[0]->getVB());
-    forms_ = new CGE::Forms();
+    forms_ = std::make_unique<CGE::Forms>();
   }
-  else{
-    for (int i = 0; i < 3; i++){
-      fnt_[i] = NULL;
-    }
-  }
-  console_ = new ::Gui::Console();
+  console_ = std::make_unique< ::Gui::Console>();
   isUp_ = true;
   rend_->initRendering();
   app_ = internalApplication;
@@ -165,33 +163,33 @@ bool Engine::startupRenderer(const std::string& type){
   TR_USE(CGE_Engine);
   if (type == "OpenGL"){
 #ifdef OPENGL
-    rend_ = new CGE::OGLRenderer();
+    rend_ = std::make_unique<CGE::OGLRenderer>();
 #else
     TR_ERROR("OpenGL support is not compiled in");
 #endif
   }
   else if (type == "DirectX"){
 #ifdef DIRECTX
-    rend_ = new CGE::DXRenderer();
+    rend_ = std::make_unique<CGE::DXRenderer>();
 #else
     TR_ERROR("DirectX support is not compiled in\n");
 #endif
   }
   else if (type == "GLES"){
 #ifdef GLES
-    rend_ = new CGE::GLESRenderer();
+    rend_ = std::make_unique<CGE::GLESRenderer>();
 #else
     TR_ERROR("OpenGL ES support is not compiled in\n");
 #endif
   }
   else if (type == "GL2"){
 #ifdef OPENGL2
-    rend_ = new CGE::GL2Renderer();
+    rend_ = std::make_unique<CGE::GL2Renderer>();
 #else
     TR_ERROR("OpenGL (ES) 2 support is not compiled in\n");
 #endif
   }
-  return rend_ != NULL;
+  return rend_ != nullptr;
 }
 
 void Engine::shutdown(){
@@ -207,19 +205,21 @@ void Engine::shutdown(){
     Input::Keyboard::release();
     Input::Mouse::release();
     clearListeners();
-    SAFE_DELETE(console_);
-    fnt_[0]->killFont();
-    for (int i = 0; i < 3; i++){
-      if (i != 0)
+    console_.reset();
+    //the first font owns the vertex buffer the others share
+    if (fnt_[0])
+      fnt_[0]->killFont();
+    for (int i = 1; i < 3; i++){
+      if (fnt_[i])
         fnt_[i]->resetVB();
-      SAFE_DELETE(fnt_[i]);
     }
-    SAFE_DELETE_ARRAY(fnt_);
-    SAFE_DELETE(forms_);
+    for (auto& fnt : fnt_)
+      fnt.reset();
+    forms_.reset();
     if (win_)
       win_->kill();
-    SAFE_DELETE(win_);
-    SAFE_DELETE(rend_);
+    win_.reset();
+    rend_.reset();
 #ifdef WIN32
     if (graphics_)
       timeEndPeriod(1);
@@ -312,7 +312,7 @@ void Engine::renderFrame(){
     app_->render();
 
   rend_->resetModelView();
-  getVirtualScreen().ortho(rend_);
+  getVirtualScreen().ortho(rend_.get());
   rend_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
   rend_->enableBlend(true);
   rend_->enableDepthTest(false);
@@ -396,7 +396,7 @@ void Engine::resume(){
 #ifdef WIN32
 void Engine::processEvents(){
   MSG msg;
-  while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)){
+  while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)){
     TranslateMessage(&msg);
     DispatchMessage(&msg);
     if (msg.message == WM_QUIT)
@@ -407,7 +407,7 @@ void Engine::processEvents(){
   //Do not use WM_MouseMove-Event, because it causes the cursor to freeze
   POINT p;
   GetCursorPos(&p);
-  ScreenToClient((HWND)static_cast<CGE::WindowsWindow*>(win_)->getHandle(), &p);
+  ScreenToClient((HWND)static_cast<CGE::WindowsWindow*>(win_.get())->getHandle(), &p);
   Input::Mouse::instance()->move(p.x, p.y, 0);
 }
 #endif
@@ -416,7 +416,7 @@ void Engine::processEvents(){
 void Engine::processEvents(){
   if (!win_)
     return;
-  CGE::X11Window* win = static_cast<CGE::X11Window*>(win_);
+  CGE::X11Window* win = static_cast<CGE::X11Window*>(win_.get());
   Display* disp = win->getDisplay();
   XEvent event;
   int x = XPending(disp);
@@ -440,7 +440,7 @@ void Engine::processEvents(){
     {
       char ascii;
       KeySym key;
-      int num = XLookupString(&event.xkey, &ascii, 1, &key, NULL);
+      int num = XLookupString(&event.xkey, &ascii, 1, &key, nullptr);
       Input::Keyboard::instance()->keyDown(key);
       if (num > 0)
         Input::Keyboard::instance()->ascii(ascii);
@@ -499,11 +499,11 @@ void Engine::processEvents(){
 
 // set the current input field that should be active
 void Engine::setActiveInput(::Gui::InputField* field){
-  if (field == NULL){
-    input_ = NULL;
+  if (field == nullptr){
+    input_ = nullptr;
     return;
   }
-  if (input_ != NULL){
+  if (input_ != nullptr){
     input_->removeChar();
   }
   input_ = field;
@@ -597,7 +597,7 @@ void Engine::removeGuiListeners(int idx){
     }
     iter++;
   }
-  return NULL;
+  return nullptr;
 }
 
 double getTime(){
@@ -611,7 +611,7 @@ void Engine::requestShutdown(){
 
 void Engine::messageBox(const std::string& message, const std::string& title){
   TR_USE(CGE_Engine);
-  if (win_ == NULL)
+  if (win_ == nullptr)
     TR_WARN("MsgBox failed (no window active): %s: %s", title.c_str(), message.c_str());
   else
     win_->messageBox(title, message);
@@ -675,7 +675,7 @@ void Engine::handleCmd(struct android_app* app, int32_t cmd) {
         	if (!Engine::instance())
         		Engine::init();
             // The window is being shown, get it ready.
-            if (engine->app->window != NULL) {
+            if (engine->app->window != nullptr) {
                 static char title[] = "cge";
                 char* argv[] = {title, nullptr};
                 CGE::Engine::instance()->startup(1, argv);
@@ -688,7 +688,7 @@ void Engine::handleCmd(struct android_app* app, int32_t cmd) {
             break;
         case APP_CMD_GAINED_FOCUS:
             // When our app gains focus, we start monitoring the accelerometer.
-            if (engine->accelerometerSensor != NULL) {
+            if (engine->accelerometerSensor != nullptr) {
                 ASensorEventQueue_enableSensor(engine->sensorEventQueue,
                         engine->accelerometerSensor);
                 // We'd like to get 60 events per second (in us).
@@ -701,7 +701,7 @@ void Engine::handleCmd(struct android_app* app, int32_t cmd) {
         case APP_CMD_LOST_FOCUS:
             // When our app loses focus, we stop monitoring the accelerometer.
             // This is to avoid consuming battery while not being used.
-            if (engine->accelerometerSensor != NULL) {
+            if (engine->accelerometerSensor != nullptr) {
                 ASensorEventQueue_disableSensor(engine->sensorEventQueue,
                         engine->accelerometerSensor);
             }
@@ -785,22 +785,22 @@ int CGE::runApplication(int argc, char** argv, IApplication& app, void* data){
   engine.accelerometerSensor = ASensorManager_getDefaultSensor(engine.sensorManager,
     ASENSOR_TYPE_ACCELEROMETER);
   engine.sensorEventQueue = ASensorManager_createEventQueue(engine.sensorManager,
-    state->looper, LOOPER_ID_USER, NULL, NULL);
+    state->looper, LOOPER_ID_USER, nullptr, nullptr);
 
   TR_USE(CGE_Engine);
   while (1){
     int ident;
     int events;
     struct android_poll_source* source;
-    while ((ident = ALooper_pollOnce(engine.animating ? 0 : -1, NULL, &events, (void**)&source)) >= 0){
+    while ((ident = ALooper_pollOnce(engine.animating ? 0 : -1, nullptr, &events, (void**)&source)) >= 0){
       // Process this event.
-      if (source != NULL){
+      if (source != nullptr){
         source->process(state, source);
       }
 
       // If a sensor has data, process it now.
       if (ident == LOOPER_ID_USER){
-        if (engine.accelerometerSensor != NULL){
+        if (engine.accelerometerSensor != nullptr){
           ASensorEvent event;
           while (ASensorEventQueue_getEvents(engine.sensorEventQueue, &event, 1) > 0){
             TR_DEBUG("accelerometer: x=%f y=%f z=%f",

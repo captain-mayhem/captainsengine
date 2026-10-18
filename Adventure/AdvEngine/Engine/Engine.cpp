@@ -50,11 +50,11 @@ int _stricmp(const char* str1, const char* str2){
 #endif
 }
 
-Engine* Engine::mInstance = NULL;
+Engine* Engine::mInstance = nullptr;
 static CGE::Mutex trymtx(true);
 
-Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false),
-  mSaver(NULL), mLoader(), mBlockingSpeaker(NULL), mExitCall(NULL), mSetMouseCall(NULL) {
+Engine::Engine() : mData(nullptr), mInitialized(false), mWheelCount(0), mExitRequested(false), mResetRequested(false), mMenuShown(false), mTimeFactor(1.0f), mTimeFactorFaded(false),
+  mSaver(nullptr), mLoader(), mBlockingSpeaker(nullptr), mExitCall(nullptr), mSetMouseCall(nullptr) {
   mVerts = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
   mVerts->create(VB_POSITION | VB_TEXCOORD | VB_NORMAL, 4);
   mVerts->lockVertexPointer();
@@ -69,14 +69,14 @@ Engine::Engine() : mData(NULL), mInitialized(false), mWheelCount(0), mExitReques
   mInds->setIndex(4, 2U);
   mInds->unlockIndexPointer();
   mAnimator = new Animator();
-  mFonts = NULL;
-  mInterpreter = NULL;
-  mParticleEngine = NULL;
+  mFonts = nullptr;
+  mInterpreter = nullptr;
+  mParticleEngine = nullptr;
   for (int i = 0; i < 256; ++i){
     mKeysDown[i] = false;
     mKeysPressed[i] = false;
   }
-  mConsole = NULL;
+  mConsole = nullptr;
 #ifndef ENGINE_SINGLE_THREADED
   mLoader.start();
 #endif
@@ -111,16 +111,16 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
     TR_ERROR("No data available");
     return;
   }
-  if (exit_cb != NULL)
+  if (exit_cb != nullptr)
     mExitCall = exit_cb;
-  if (set_mouse_cb != NULL)
+  if (set_mouse_cb != nullptr)
     mSetMouseCall = set_mouse_cb;
   //glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   //ExecutionContext* ctx = mInterpreter->parseProgram("playswf (snitt ; 106 ;120 ;427 ; 330)");
   //mInterpreter->execute(ctx, true);
   mMainRoomLoaded = false;
   mSubRoomLoaded = false;
-  mFocussedChar = NULL;
+  mFocussedChar = nullptr;
   Vec2i res = mData->getProjectSettings()->wm_resolution;
   mWalkGridSize = res.x/32;
   mWalkFields = Vec2i(32,res.y/mWalkGridSize);
@@ -150,14 +150,14 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   mConsole->realize();
   mActiveCommand = 0;
   mPrevActiveCommand = 0;
-  mCurrentObject = NULL;
-  mClickedObject = NULL;
-  mPrevClickedObject = NULL;
+  mCurrentObject = nullptr;
+  mClickedObject = nullptr;
+  mPrevClickedObject = nullptr;
   int transparency = mData->getProjectSettings()->anywhere_transparency*255/100;
   //load taskbar room
   TR_INFO("Loading UI");
   if (mData->getProjectSettings()->show_taskbar && mData->getProjectSettings()->taskroom != ""){
-    loadSubRoom(mData->getProjectSettings()->taskroom, NULL, 0);
+    loadSubRoom(mData->getProjectSettings()->taskroom, nullptr, 0);
     TR_DEBUG("waiting for taskbar to load");
     mLoader.waitUntilFinished();
     TR_DEBUG("waiting finished");
@@ -172,11 +172,11 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
     }
   }
   else{
-    mTaskbar = NULL;
+    mTaskbar = nullptr;
   }
   //load anywhere room
   if (mData->getProjectSettings()->anywhere_room != ""){
-    loadSubRoom(mData->getProjectSettings()->anywhere_room, NULL, 0);
+    loadSubRoom(mData->getProjectSettings()->anywhere_room, nullptr, 0);
     mLoader.waitUntilFinished();
     mRooms.front()->setOpacity(255-transparency);
   }
@@ -188,7 +188,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
     mInterpreter->execute(mMainScript, false);
   }
   else
-    mMainScript = NULL;
+    mMainScript = nullptr;
   //init some variables
   mUseObjectName = "";
   mGiveObjectName = "";
@@ -196,10 +196,10 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   mShowTaskbar = true;
   mScreenChange = mData->getProjectSettings()->screenchange;
   mTextEnabled = true;
-  mUnloadedRoom = NULL;
+  mUnloadedRoom = nullptr;
   mForceNotToRenderUnloadingRoom = false;
-  mPendingLoadRoom.room = NULL;
-  mPendingLoadRoom.reason = NULL;
+  mPendingLoadRoom.room = nullptr;
+  mPendingLoadRoom.reason = nullptr;
   mPendingLoadRoom.screenchange = SC_DIRECT;
   mRenderedMain = new RenderableBlitObject(mData->getProjectSettings()->resolution.x, mData->getProjectSettings()->resolution.y, 0);
   mRenderedMain->realize();
@@ -210,7 +210,7 @@ void Engine::initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb){
   mTimeFactor = 1.0f;
   mMenuEnabled = true;
   mFxShapesEnabled = true;
-  mDraggingObject = NULL;
+  mDraggingObject = nullptr;
   mScrollSpeed = 0.0375f*4;
   mCamFollowChar = true;
   mCoinShown = false;
@@ -232,15 +232,15 @@ void Engine::exitGame(){
   if (!mInitialized)
     return;
   mLoader.waitUntilFinished();
-  if (mPendingLoadRoom.room != NULL){
+  if (mPendingLoadRoom.room != nullptr){
     mPendingLoadRoom.room->realize();
     delete mPendingLoadRoom.room;
-    mPendingLoadRoom.room = NULL;
+    mPendingLoadRoom.room = nullptr;
   }
   mInitialized = false;
-  mCurrentObject = NULL;
-  mClickedObject = NULL;
-  mPrevClickedObject = NULL;
+  mCurrentObject = nullptr;
+  mClickedObject = nullptr;
+  mPrevClickedObject = nullptr;
   mInterpreter->stop();
   ExecutionContext::unref(mMainScript);
   mAnimator->clear();
@@ -274,14 +274,14 @@ void Engine::exitGame(){
   delete mRenderedMain;
   delete mPostProc;
   delete mDraggingObject;
-  mDraggingObject = NULL;
+  mDraggingObject = nullptr;
   delete mUI;
   delete mConsole;
 }
 
 CGE::Image* Engine::getImage(const std::string& name){
   if (name.empty())
-    return NULL;
+    return nullptr;
   if (name[0] == '#'){
     //get special images
     if (name == "#menu_bg"){
@@ -290,7 +290,7 @@ CGE::Image* Engine::getImage(const std::string& name){
     else if (name == "#console_bg"){
       return Console::getBackground();
     }
-    return NULL;
+    return nullptr;
   }
   else
     return mData->getImage(name);
@@ -366,11 +366,11 @@ void Engine::render(unsigned time){
   }
   if (mResetRequested){
     mMenuShown = false;
-    Engine::instance()->setFocus("none", NULL);
+    Engine::instance()->setFocus("none", nullptr);
     Engine::instance()->exitGame();
     Engine::instance()->getSaver()->clear();
     SoundEngine::instance()->reset();
-    Engine::instance()->initGame(NULL, NULL);
+    Engine::instance()->initGame(nullptr, nullptr);
     mResetRequested = false;
     return;
   }
@@ -406,13 +406,13 @@ void Engine::render(unsigned time){
     mRooms.remove(mRoomsToUnload.front());
 
     if (mSaver->isWriteAllowed())
-      mRoomsToUnload.front()->save(NULL);
+      mRoomsToUnload.front()->save(nullptr);
     else
       mSaver->allowWrites();
     if (mUnloadedRoom && mUnloadedRoom != mConsole)
       delete mUnloadedRoom;
     if (mForceNotToRenderUnloadingRoom){
-      mUnloadedRoom = NULL;
+      mUnloadedRoom = nullptr;
       mForceNotToRenderUnloadingRoom = false;
       if (mRoomsToUnload.front() != mConsole)
         delete mRoomsToUnload.front();
@@ -423,30 +423,30 @@ void Engine::render(unsigned time){
       mCoinShown = false;
     }
     mRoomsToUnload.pop_front();
-    if (mRoomsToUnload.empty() && mPendingLoadRoom.room != NULL){
+    if (mRoomsToUnload.empty() && mPendingLoadRoom.room != nullptr){
       //delayed load
       insertRoom(mPendingLoadRoom.room, false, mPendingLoadRoom.reason, mPendingLoadRoom.screenchange, 0);
       if (mPendingLoadRoom.reason){
         mPendingLoadRoom.reason->resume();
-        mPendingLoadRoom.reason = NULL;
+        mPendingLoadRoom.reason = nullptr;
       }
-      mPendingLoadRoom.room = NULL;
+      mPendingLoadRoom.room = nullptr;
       if (!mPendingLoadRoom.focusChar.empty()){
-        changeFocus(mPendingLoadRoom.focusChar, NULL);
+        changeFocus(mPendingLoadRoom.focusChar, nullptr);
         mPendingLoadRoom.focusChar = "";
       }
     }
   }
   bool clearChars = true;
   for (std::list<CharacterObject*>::iterator iter = mCharsToUnload.begin(); iter != mCharsToUnload.end(); ++iter){
-    if (*iter == NULL)
+    if (*iter == nullptr)
       continue;
-    if ((*iter)->getScript() != NULL && (*iter)->getScript()->isRunning()){
+    if ((*iter)->getScript() != nullptr && (*iter)->getScript()->isRunning()){
       clearChars = false;
       continue;
     }
     delete *iter;
-    *iter = NULL;
+    *iter = nullptr;
   }
   if (clearChars)
     mCharsToUnload.clear();
@@ -456,22 +456,22 @@ void Engine::render(unsigned time){
   if (scriptupdate){
     bool hasCursor = (!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown && mMouseEnabled;
     Object2D* obj = getObjectAt(mCursor->getPosition());
-    if (hasCursor && obj != NULL){
+    if (hasCursor && obj != nullptr){
       if (mCurrentObject != obj){
-        if (mCurrentObject != NULL){
+        if (mCurrentObject != nullptr){
           ExecutionContext* script = mCurrentObject->getScript();
           if (script)
             script->setEvent(EVT_MOUSEOUT);
           TR_USE(ADV_Events);
           TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
-          if (mDraggingObject == NULL)
+          if (mDraggingObject == nullptr)
             resetCursor(true, false);
         }
         mCurrentObject = obj;
         mObjectInfo.clear();
         mObjectTooltipInfo.clear();
         ExecutionContext* script = obj->getScript();
-        if (script != NULL){
+        if (script != nullptr){
           TR_USE(ADV_Events);
           TR_DEBUG("mouse on %s", obj->getName().c_str());
           script->setEvent(EVT_MOUSE);
@@ -479,7 +479,7 @@ void Engine::render(unsigned time){
       }
       //always trigger evt_mouse
       ExecutionContext* script = obj->getScript();
-      if (script != NULL && !script->containsEvent(EVT_MOUSE)){
+      if (script != nullptr && !script->containsEvent(EVT_MOUSE)){
         script->setEvent(EVT_MOUSE);
       }
     }
@@ -490,9 +490,9 @@ void Engine::render(unsigned time){
         if (script)
           script->setEvent(EVT_MOUSEOUT);
         TR_DEBUG("mouseout on %s", mCurrentObject->getName().c_str());
-        if (mDraggingObject == NULL)
+        if (mDraggingObject == nullptr)
           resetCursor(true, false);
-        mCurrentObject = NULL;
+        mCurrentObject = nullptr;
       }
       mObjectInfo.clear();
       mObjectTooltipInfo.clear();
@@ -508,7 +508,7 @@ void Engine::render(unsigned time){
           }
         }
         ExecutionContext* script = (*iter)->getScript();
-        if (script != NULL && !isUnloading){
+        if (script != nullptr && !isUnloading){
           script->setEvent(EVT_LOOP1);
           script->setEvent(EVT_LOOP2);
         }
@@ -589,7 +589,7 @@ void Engine::render(unsigned time){
   if (mAnimator->isCamViewportMoving())
     rend->enableScissorTest(false);
   int roomdepth = 0;
-  RoomObject* mainroom = NULL;
+  RoomObject* mainroom = nullptr;
   for (std::list<RoomObject*>::reverse_iterator iter = mRooms.rbegin(); iter != mRooms.rend(); ++iter){
     (*iter)->setDepth(roomdepth);
     roomdepth += DEPTH_ROOM_RANGE;
@@ -630,7 +630,7 @@ void Engine::render(unsigned time){
   }
   if ((!mInterpreter->isBlockingScriptRunning() || mInterpreter->isTextScene()) && mMouseShown && mMouseEnabled){
     mCursor->render();
-    if (mDraggingObject != NULL){
+    if (mDraggingObject != nullptr){
       mDraggingObject->setPosition(mCursor->getPosition()+mCursor->getItemOffset());
       mDraggingObject->render();
     }
@@ -687,7 +687,7 @@ void Engine::render(unsigned time){
     }
     std::vector<Vec2i> breakinfo;
     Vec2i offset = mFonts->getTextExtent(text, 1, breakinfo);
-    if (!mInterpreter->isBlockingScriptRunning() && mFocussedChar != NULL)
+    if (!mInterpreter->isBlockingScriptRunning() && mFocussedChar != nullptr)
       mFonts->render(res.x/2, res.y-offset.y, text, DEPTH_GAME_FONT, 1, breakinfo, Engine::instance()->getSettings()->infotextcolor, 0, true, ALGN_CENTER);
   }
 
@@ -732,7 +732,7 @@ bool Engine::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loadre
   //trigger async loader
   TR_DETAIL("loadRoom called for %s", name.c_str());
   if (loadreason)
-    loadreason->suspend(0, NULL);
+    loadreason->suspend(0, nullptr);
   mLoader.loadRoom(name, isSubRoom, loadreason, change, fading, depthoffset, executeEnter);
 
   return true;
@@ -743,7 +743,7 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
     TR_USE(ADV_Engine);
     TR_INFO("delay activation of room %s", roomobj->getName().c_str());
     unloadRoom(mRooms.back(), true, false, loadreason);
-    if (mPendingLoadRoom.reason != NULL){
+    if (mPendingLoadRoom.reason != nullptr){
       mPendingLoadRoom.reason->resume();
     }
     mPendingLoadRoom.room = roomobj;
@@ -803,7 +803,7 @@ void Engine::insertRoom(RoomObject* roomobj, bool isSubRoom, ExecutionContext* l
 void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately, ExecutionContext* reason){
   if (mRooms.empty() || (mainroom && !mMainRoomLoaded))
     return;
-  if (room == NULL){
+  if (room == nullptr){
     if (mainroom){
       room = mRooms.back();
     }
@@ -821,9 +821,9 @@ void Engine::unloadRoom(RoomObject* room, bool mainroom, bool immediately, Execu
     if (mCurrentObject->getScript())
       mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
     delete mDraggingObject;
-    mDraggingObject = NULL;
+    mDraggingObject = nullptr;
     resetCursor(true, false);
-    mCurrentObject = NULL;
+    mCurrentObject = nullptr;
   }
   ExecutionContext* script = room->getScript();
   if (script)
@@ -927,7 +927,7 @@ void Engine::leftClick(const Vec2i& pos){
   if (!mMouseEnabled)
     return;
   trymtx.lock();
-  ExecutionContext* script = NULL;
+  ExecutionContext* script = nullptr;
   Object2D* obj = getObjectAt(pos);
   bool handled = leftClickAt(obj);
   if (!handled){
@@ -937,11 +937,11 @@ void Engine::leftClick(const Vec2i& pos){
 }
 
 bool Engine::leftClickAt(const Object2D* obj){
-  ExecutionContext* script = NULL;
+  ExecutionContext* script = nullptr;
   bool keepCommand = false;
   bool ret = true;
-  if (obj != NULL){
-    if (obj->getScript() != NULL && !obj->getScript()->isGameObject())
+  if (obj != nullptr){
+    if (obj->getScript() != nullptr && !obj->getScript()->isGameObject())
       keepCommand = true;
     if (mClickedObject && mClickedObject->getScript() && mClickedObject->getScript()->isGameObject())
       mPrevClickedObject = mClickedObject;
@@ -973,12 +973,12 @@ void Engine::leftRelease(const Vec2i& pos){
   if (!mMouseEnabled)
     return;
   trymtx.lock();
-  if (mClickedObject != NULL){
+  if (mClickedObject != nullptr){
     ExecutionContext* ctx = mClickedObject->getScript();
-    if (ctx != NULL)
+    if (ctx != nullptr)
       ctx->setEvent(EVT_RELEASE);
     mPrevClickedObject = mClickedObject;
-    mClickedObject = NULL;
+    mClickedObject = nullptr;
   }
   trymtx.unlock();
 }
@@ -1003,16 +1003,16 @@ void Engine::rightClick(const Vec2i& pos){
     leftClick(pos);
   Object2D* obj = getObjectAt(pos);
   EngineEvent evt = EVT_RIGHTCLICK;
-  if (obj != NULL){
+  if (obj != nullptr){
     ExecutionContext* script = obj->getScript();
     if (mData->getProjectSettings()->coinActivated){
       mPrevClickedObject = obj;
       if (mData->getProjectSettings()->coinAutoPopup){
-        popupCoinMenu(NULL);
+        popupCoinMenu(nullptr);
         evt = EVT_CLICK;
       }
     }
-    if (script != NULL)
+    if (script != nullptr)
       script->setEvent(evt);
   }
   closeCoinMenu();
@@ -1021,11 +1021,11 @@ void Engine::rightClick(const Vec2i& pos){
 void Engine::doubleClick(const Vec2i& pos){
   if (!mMouseEnabled)
     return;
-  ExecutionContext* script = NULL;
+  ExecutionContext* script = nullptr;
   Object2D* obj = getObjectAt(pos);
-  if (obj != NULL){
+  if (obj != nullptr){
     script = obj->getScript();
-    if (script != NULL){
+    if (script != nullptr){
       script->setEvent(EVT_DBLCLCK);
     }
   }
@@ -1038,7 +1038,7 @@ void Engine::mouseWheel(int delta){
 }
 
 bool Engine::setFocus(std::string charname, ExecutionContext* reason){
-  CharacterObject* deletionChar = NULL;
+  CharacterObject* deletionChar = nullptr;
   if (mFocussedChar){
     if (mFocussedChar->getRoom() == mRooms.back()->getName())
       mRooms.back()->addObject(mFocussedChar);
@@ -1052,7 +1052,7 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
   if (charname == "none"){
     if (mFocussedChar)
       mLastFocussedChar = mFocussedChar->getName();
-    mFocussedChar = NULL;
+    mFocussedChar = nullptr;
     disposeCharacter(deletionChar);
     return true;
   }
@@ -1068,13 +1068,13 @@ bool Engine::setFocus(std::string charname, ExecutionContext* reason){
   //load character async with room loading
   mCursor->showLoading(true);
   mLoader.setFocus(charname, reason);
-  mFocussedChar = NULL;
+  mFocussedChar = nullptr;
   disposeCharacter(deletionChar);
   return false;
 }
 
 void Engine::changeFocus(std::string charname, ExecutionContext* reason){
-  if (mPendingLoadRoom.room != NULL){
+  if (mPendingLoadRoom.room != nullptr){
     mPendingLoadRoom.focusChar = charname;
     return;
   }
@@ -1182,41 +1182,41 @@ float Engine::distance(const Vec2i& x, const Vec2i& y){
 
 Object2D* Engine::getObjectAt(const Vec2i& pos){
   Object2D* ret = mUI->getObjectAt(pos);
-  if (ret != NULL)
+  if (ret != nullptr)
     return ret;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     if ((*iter) == mTaskbar && !mShowTaskbar)
       continue;
     Object2D* ret = (*iter)->getObjectAt(pos);
-    if (ret != NULL)
+    if (ret != nullptr)
       return ret;
     if (mSubRoomLoaded)
       break;
   }
-  return NULL;
+  return nullptr;
 }
 
 Object2D* Engine::getObject(const std::string& name, bool searchInventoryFirst){
   if (mFocussedChar && searchInventoryFirst){
     Object2D* ret = mFocussedChar->getInventory()->getItem(name);
-    if (ret != NULL)
+    if (ret != nullptr)
       return ret;
   }
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     Object2D* ret = (*iter)->getObject(name);
-    if (ret != NULL)
+    if (ret != nullptr)
       return ret;
   }
   //also rooms to unload need check
   //no, this leads to invalid objects
   for (std::list<RoomObject*>::iterator iter = mRoomsToUnload.begin(); iter != mRoomsToUnload.end(); ++iter){
     Object2D* ret = (*iter)->getObject(name);
-    if (ret != NULL)
+    if (ret != nullptr)
       return ret;
   }
   if (mFocussedChar && !searchInventoryFirst){
     Object2D* ret = mFocussedChar->getInventory()->getItem(name);
-    if (ret != NULL)
+    if (ret != nullptr)
       return ret;
   }
   Object2D* ret = mUI->getObject(name);
@@ -1228,18 +1228,18 @@ CharacterObject* Engine::getCharacter(const std::string& name){
     return mFocussedChar;
   if (mFocussedChar && _stricmp(mFocussedChar->getName().c_str(), name.c_str()) == 0)
     return mFocussedChar;
-  CharacterObject* res = NULL;
+  CharacterObject* res = nullptr;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     res = (*iter)->findCharacter(name);
     if (res){
       return res;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 CharacterObject* Engine::extractCharacter(const std::string& name){
-  CharacterObject* res = NULL;
+  CharacterObject* res = nullptr;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     res = (*iter)->extractCharacter(name);
     if (res){
@@ -1248,21 +1248,21 @@ CharacterObject* Engine::extractCharacter(const std::string& name){
       return res;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 RoomObject* Engine::getRoom(const std::string& name){
   if (name.empty()){
     if (mMainRoomLoaded)
       return mRooms.back();
-    return NULL;
+    return nullptr;
   }
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ++iter){
     if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0){
       return *iter;
     }
   }
-  return NULL;
+  return nullptr;
 }
 
 bool Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float speedFactor){
@@ -1293,10 +1293,10 @@ bool Engine::walkTo(CharacterObject* chr, const Vec2i& pos, LookDir dir, float s
 
 ItemObject* Engine::createItem(const std::string& name, int count){
   Item* it = mData->getItem(name);
-  if (it == NULL){
+  if (it == nullptr){
     TR_USE(ADV_Engine);
     TR_BREAK("Item %s not found", name.c_str());
-    return NULL;
+    return nullptr;
   }
   int state = mInterpreter->getItemState(name);
   ItemObject* object = new ItemObject(state, Vec2i(), Vec2i(50,50), it->name);
@@ -1330,8 +1330,8 @@ void Engine::setGiveObject(const std::string& object, const std::string& objectI
 void Engine::handleDragging(const std::string& object){
   if (mData->getProjectSettings()->draw_dragged_items){
     delete mDraggingObject;
-    if (object.empty() || mClickedObject == NULL)
-      mDraggingObject = NULL;
+    if (object.empty() || mClickedObject == nullptr)
+      mDraggingObject = nullptr;
     else{
       mDraggingObject = createItem(mCoinShown ? mPrevClickedObject->getName() : mClickedObject->getName(), 1);
       if (mDraggingObject){
@@ -1407,26 +1407,26 @@ RoomObject* Engine::getContainingRoom(Object2D* object){
     if ((*iter)->containsObject(object))
       return *iter;
   }
-  return NULL;
+  return nullptr;
 }
 
 CharacterObject* Engine::loadCharacter(const std::string& instanceName, const std::string& className, ExecutionContext* loadreason){
   TR_USE(ADV_Engine);
-  SaveStateProvider::CharSaveObject* obj = NULL;
+  SaveStateProvider::CharSaveObject* obj = nullptr;
   std::string room;
   std::string realName;
   if (mFocussedChar && _stricmp(mFocussedChar->getName().c_str(), instanceName.c_str()) == 0)
-    return NULL;
+    return nullptr;
   if (!obj){
     obj = mSaver->findCharacter(instanceName, room, realName);
-    if (obj == NULL){
+    if (obj == nullptr){
       TR_WARN("Character %s not found or currently beamed around", instanceName.c_str());
-      return NULL;
+      return nullptr;
     }
   }
   Character* chbase = mData->getCharacter(className);
-  if (chbase == NULL)
-    return NULL;
+  if (chbase == nullptr)
+    return nullptr;
   String key = instanceName;
   key = key.toLower();
   bool fromCache = chbase->memresistent && mCharCache.find(key) != mCharCache.end();
@@ -1506,7 +1506,7 @@ void Engine::keyPress(int key){
         }
         else if (mConsole->isShown()){
           mConsole->show(false);
-          unloadRoom(mConsole, false, false, NULL);
+          unloadRoom(mConsole, false, false, nullptr);
         }
         else if (!mTextEnter.empty()){
           mInterpreter->resumeBlockingScript();
@@ -1519,7 +1519,7 @@ void Engine::keyPress(int key){
             popupMenu();
           }
           else{
-            unloadRoom(NULL, false, false, NULL);
+            unloadRoom(nullptr, false, false, nullptr);
             mMenuShown = false;
           }
         }
@@ -1542,7 +1542,7 @@ void Engine::keyPress(int key){
       }
       else{
         mConsole->show(false);
-        unloadRoom(mConsole, false, false, NULL);
+        unloadRoom(mConsole, false, false, nullptr);
       }
       break;
     case KEY_UP:
@@ -1599,14 +1599,14 @@ void Engine::finishTextInput(bool commit){
 }
 
 int Engine::unloadRooms(bool triggerExitScripts){
-  setFocus("none", NULL);
+  setFocus("none", nullptr);
   if (mCurrentObject){
     mCurrentObject->getScript()->setEvent(EVT_MOUSEOUT);
     delete mDraggingObject;
-    mDraggingObject = NULL;
+    mDraggingObject = nullptr;
     resetCursor(true, true);
   }
-  mCurrentObject = NULL;
+  mCurrentObject = nullptr;
   for (std::list<RoomObject*>::iterator iter = mRooms.begin(); iter != mRooms.end(); ){
     (*iter)->setFadeout(0); //skip fading of subrooms
     mRoomsToUnload.push_back(*iter);
@@ -1619,7 +1619,7 @@ int Engine::unloadRooms(bool triggerExitScripts){
   }
   mMainRoomLoaded = false;
   mSubRoomLoaded = false;
-  mTaskbar = NULL;
+  mTaskbar = nullptr;
   return (int)mRoomsToUnload.size();
 }
 
@@ -1695,11 +1695,11 @@ void Engine::renderUnloadingRoom(){
 
 void Engine::remove(Object2D* obj){
   if (mCurrentObject == obj)
-    mCurrentObject = NULL;
+    mCurrentObject = nullptr;
   if (mClickedObject == obj)
-    mClickedObject = NULL;
+    mClickedObject = nullptr;
   if (mPrevClickedObject == obj)
-    mPrevClickedObject = NULL;
+    mPrevClickedObject = nullptr;
 }
 
 void Engine::enterText(const String& variable, int maxcharacters, ExecutionContext* suspensionReason){
@@ -1717,18 +1717,18 @@ void Engine::restoreRenderDefaults(){
 
 RoomObject* Engine::getMainRoom(){
   if (!mMainRoomLoaded)
-    return NULL;
+    return nullptr;
   return mRooms.back();
 }
 
 void Engine::removeScript(ExecutionContext* ctx){
   if (ctx == mPendingLoadRoom.reason)
-    mPendingLoadRoom.reason = NULL;
+    mPendingLoadRoom.reason = nullptr;
 }
 
 void Engine::triggerScreenchange(ExecutionContext* loadreason, ScreenChange change, bool unload){
-  if (loadreason == NULL || !loadreason->isSkipping()){
-    ScreenChangeBase* scb = NULL;
+  if (loadreason == nullptr || !loadreason->isSkipping()){
+    ScreenChangeBase* scb = nullptr;
     switch(change){
       case SC_DIRECT:
         break;
@@ -1761,7 +1761,7 @@ void Engine::triggerScreenchange(ExecutionContext* loadreason, ScreenChange chan
                          }
                          break;
     }
-    if (scb != NULL){
+    if (scb != nullptr){
       scb->setUnload(unload);
       Engine::instance()->getAnimator()->add(scb);
     }
@@ -1775,9 +1775,9 @@ void Engine::triggerScreenchange(ExecutionContext* loadreason, ScreenChange chan
 
 void Engine::resetCursor(bool resetInstMouse, bool resetDragging){
   if (resetDragging){
-    if (mDraggingObject != NULL){
+    if (mDraggingObject != nullptr){
       delete mDraggingObject;
-      mDraggingObject = NULL;
+      mDraggingObject = nullptr;
     }
   }
   if (resetInstMouse){
@@ -1821,10 +1821,10 @@ void Engine::enableTextScene(bool doit){
 }
 
 void Engine::setBlockingSpeaker(CharacterObject* chr){
-  if (chr == NULL){
+  if (chr == nullptr){
     --mBlockingSpeakerCount;
     if (mBlockingSpeakerCount == 0)
-      mBlockingSpeaker = NULL;
+      mBlockingSpeaker = nullptr;
   }
   else{
     if (mBlockingSpeaker == chr)
@@ -1843,7 +1843,7 @@ void Engine::setMousePosition(int x, int y){
 
 void Engine::disposeCharacter(CharacterObject* character){
   TR_USE(ADV_Engine);
-  if (character == NULL)
+  if (character == nullptr)
     return;
   if (!character->getClass()->memresistent){
     mCharsToUnload.push_back(character);
@@ -1870,7 +1870,7 @@ void Engine::closeCoinMenu(){
   if (mCoinShown){
     RoomObject* cr = getRoom(mData->getProjectSettings()->coinRoom);
     if (cr){
-      unloadRoom(cr, false, false, NULL);
+      unloadRoom(cr, false, false, nullptr);
     }
   }
 }
@@ -1880,7 +1880,7 @@ bool Engine::applyCommandToSelObj(bool prevObj){
   if (!obj)
     return false;
   ExecutionContext* script = obj->getScript();
-  if (script != NULL){
+  if (script != nullptr){
     script->setEvent(EVT_CLICK);
     if (!mUseObjectName.empty()){
       script->setUseObjectName(mUseObjectName);
@@ -1898,7 +1898,7 @@ bool Engine::applyCommandToSelObj(bool prevObj){
 }
 
 void Engine::drawQuad(){
-  mVerts->draw(CGE::VB_Tristrip, NULL);
+  mVerts->draw(CGE::VB_Tristrip, nullptr);
 }
 
 void Engine::drawQuadLines(){
@@ -1929,7 +1929,7 @@ void Engine::popupMenu(){
     return;
   if (mData->getProjectSettings()->has_menuroom && !mData->getProjectSettings()->menuroom.empty()){
     mMenuShown = true;
-    loadSubRoom(mData->getProjectSettings()->menuroom, NULL, mData->getProjectSettings()->menu_fading);
+    loadSubRoom(mData->getProjectSettings()->menuroom, nullptr, mData->getProjectSettings()->menu_fading);
   }
   else{
     //use internal menu

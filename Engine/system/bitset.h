@@ -16,7 +16,6 @@
 
 #include <map>
 
-using std::map;
 
 namespace CGE {
 //! stores up to eight bits in one byte. 
@@ -51,7 +50,7 @@ private:
   //! Here are the bits stored
   char data_;
   //! Maps the specified bit position to the actual bit position
-  map<short,unsigned char> idx_;
+  std::map<short,unsigned char> idx_;
 };
 
 }

@@ -48,7 +48,7 @@ public:
   void setOpacityTex(Texture* tex) { mOpacityTex = tex; }
   Texture const* getOpacityTex() const { return mOpacityTex; }
 
-  bool isTransparent() const { return mOpacity != 1.0f || mOpacityTex != NULL; }
+  bool isTransparent() const { return mOpacity != 1.0f || mOpacityTex != nullptr; }
   
   std::string const & getName() const { return mName; }
 

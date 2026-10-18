@@ -22,7 +22,7 @@ Overlay::Overlay(){
   rendered_ = false;
   found_ = false;
   walkable_ = true;
-  model_ = NULL;
+  model_ = nullptr;
 }
 
 //Destructor

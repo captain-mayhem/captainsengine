@@ -12,7 +12,7 @@ TR_CHANNEL_EXT(CGE_Window);
 using namespace CGE;
 
 X11Window::X11Window(CGE::Renderer* renderer) : AppWindow(renderer){
-  disp_ = NULL;
+  disp_ = nullptr;
   win_ = 0;
 }
 
@@ -30,7 +30,7 @@ void X11Window::init(const std::string& name){
     GLX_DEPTH_SIZE, 16,
     None};
   XVisualInfo* vi = glXChooseVisual(disp_, screen_, attribs);
-  if (vi == NULL)
+  if (vi == nullptr)
     EXIT2("Got no doublebuffered window");
 
   int glxMajor;
@@ -74,12 +74,12 @@ void X11Window::init(const std::string& name){
     Atom wmDelete = XInternAtom(disp_, "WM_DELETE_WINDOW", True);
     XSetWMProtocols(disp_, win_, &wmDelete, 1);
     XSetStandardProperties(disp_, win_, name.c_str(), name.c_str(), 
-        None, NULL, 0, NULL);
+        None, nullptr, 0, nullptr);
     if (shown_)
       show(true);
   }
 
-  glx = NULL;
+  glx = nullptr;
   renderer_->initContext(this);
   renderer_->resizeScene(width_, height_);
 

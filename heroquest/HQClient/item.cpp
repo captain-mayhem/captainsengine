@@ -59,11 +59,11 @@ bool Item::use(Vector2D source, Vector2D target){
       string name = self->getPlayer();
       ServerSocket* ss = globl.getPlayer(name)->getSock();
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
         return false;
       }
       if (game.isActionPerformed(GameState::Spell)){
-        *ss << toStr(NO_ACTION);
+        *ss << std::to_string(NO_ACTION);
         return false;
       }
       game.setActionPlace(target);
@@ -76,19 +76,19 @@ bool Item::use(Vector2D source, Vector2D target){
         toWhich = dynamic_cast<Creature*>(o);
       
       if (self->getBackPointer()){
-        *ss << toStr(CHAT)+" You stay on no valid position.";
+        *ss << std::to_string(CHAT)+" You stay on no valid position.";
         return false;
       }
       if (scr.spell(source,target,id_)){
         game.performAction(GameState::Spell);
         count_--;
-        *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+        *ss << std::to_string(MOVE)+" "+std::to_string(1)+" "+std::to_string(0);
       }
       else{
         if (object)
-          *ss << toStr(CHAT)+" You cannot cast a spell on "+toWhich->getName();
+          *ss << std::to_string(CHAT)+" You cannot cast a spell on "+toWhich->getName();
         else
-          *ss << toStr(CHAT)+" You cannot cast a spell on Nobody";
+          *ss << std::to_string(CHAT)+" You cannot cast a spell on Nobody";
         return false;
       }
 #endif
@@ -105,15 +105,15 @@ bool Item::use(Vector2D source, Vector2D target){
       string name = self->getPlayer();
       ServerSocket* ss = globl.getPlayer(name)->getSock();
       if (self->getBackPointer()){
-        *ss << toStr(CHAT)+" You stay on no valid position.";
+        *ss << std::to_string(CHAT)+" You stay on no valid position.";
         return false;
       }
       if (scr.item(source, target, id_)){
         count_--;
-        *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+        *ss << std::to_string(MOVE)+" "+std::to_string(1)+" "+std::to_string(0);
       }
       else{
-        *ss << toStr(CHAT)+" You cannot use this item.";
+        *ss << std::to_string(CHAT)+" You cannot use this item.";
         return true;
       }
 #endif
@@ -128,11 +128,11 @@ bool Item::use(Vector2D source, Vector2D target){
       string name = self->getPlayer();
       ServerSocket* ss = globl.getPlayer(name)->getSock();
       if (self->getBackPointer()){
-        *ss << toStr(CHAT)+" You stay on no valid position.";
+        *ss << std::to_string(CHAT)+" You stay on no valid position.";
         return false;
       }
       if (!scr.armory(source, target, id_)){
-        *ss << toStr(CHAT)+" Conflicting armory already in use. Take off the armory that blocks the required body part.";
+        *ss << std::to_string(CHAT)+" Conflicting armory already in use. Take off the armory that blocks the required body part.";
         return true;
       }
 #endif
@@ -144,7 +144,7 @@ bool Item::use(Vector2D source, Vector2D target){
       Creature* self = dynamic_cast<Creature*>(wrld.getObject(source));
       string name = self->getPlayer();
       ServerSocket* ss = globl.getPlayer(name)->getSock();
-      *ss << toStr(CHAT)+" You cannot use this item.";
+      *ss << std::to_string(CHAT)+" You cannot use this item.";
 #endif
       return true;
     }
@@ -195,9 +195,9 @@ string Item::toString(){
   string ret;
   ret += name_+"*";
   ret += additional_+"*";
-  ret += toStr(type_)+"*";
-  ret += toStr(id_)+"*";
-  ret += toStr(count_)+"*";
+  ret += std::to_string(type_)+"*";
+  ret += std::to_string(id_)+"*";
+  ret += std::to_string(count_)+"*";
   string desc = description_;
   
   unsigned int pos = 0;

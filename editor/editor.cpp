@@ -30,7 +30,7 @@ using Gui::Button;
 using CGE::Model;
 using CGE::Filesystem;
 
-Editor* Editor::edi_ = NULL;
+Editor* Editor::edi_ = nullptr;
 
 Editor::Editor(){
   TR_USE(CGE_Editor_Main);
@@ -269,7 +269,7 @@ void Editor::update(){
 std::string Editor::attribString(int attrib){
   //normal number
   if (attrib < 1000)
-    return toStr(attrib);
+    return std::to_string(attrib);
   return vToa_[attrib];
 }
   

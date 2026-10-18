@@ -202,7 +202,7 @@ void Player::loadStatus(){
   //setup trading
   //open appropriate trade file
   trade_ = new Trade();
-  string pth = "data/trade"+toStr(wonPackage_)+".dat";
+  string pth = "data/trade"+std::to_string(wonPackage_)+".dat";
   ifstream trade(pth.c_str());
   if (!trade)
     cerr << pth << " not found!";

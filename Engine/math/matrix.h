@@ -18,7 +18,6 @@
 #include "vector.h"
 #include "quaternion.h"
 
-using std::ostream;
 
 namespace CGE{
 
@@ -93,7 +92,7 @@ public:
   //! returns the matrix as float array
 	float* operator*();
   //! write matrix to a stream
-	friend ostream& operator<<(ostream& stream, const Matrix& mat);
+	friend std::ostream& operator<<(std::ostream& stream, const Matrix& mat);
   //! access a row of the matrix
   CGE::Vec3<float*> operator[](int i);
   const float& at(int i) const {return data_[i];}
@@ -120,7 +119,7 @@ private:
 };
 
 Matrix operator*(float number, const Matrix& mat);
-ostream& operator<<(ostream& stream, const Matrix& mat);
+std::ostream& operator<<(std::ostream& stream, const Matrix& mat);
 
 }
 

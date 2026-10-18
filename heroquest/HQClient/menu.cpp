@@ -13,6 +13,10 @@
 #include "trade.h"
 #include "menu.h"
 
+using std::string;
+using std::vector;
+using std::list;
+
 //to compile on windows
 #undef MessageBox
 using CGE::Font;
@@ -171,7 +175,7 @@ void Menu::login(GuiElement*){
     CGE::Engine::instance()->setActiveInput(NULL);
   }
   list<GuiElement*>::iterator iter;
-  string send = toStr(LOGIN);
+  string send = std::to_string(LOGIN);
   bool firstInput = true;
   for (iter = CGE::Engine::instance()->getGuiElements().begin(); iter != CGE::Engine::instance()->getGuiElements().end(); iter++){
     InputField* inp = dynamic_cast<InputField*>(*iter);
@@ -311,7 +315,7 @@ void Menu::play(GuiElement*){
     string file = home+plyr.getName()+inp->getText() +".sav";
     Hero* heroe = plyr.addHero(file);
     if (heroe != NULL)
-      msg.special(toStr(position), PLAY, (void*)heroe);
+      msg.special(std::to_string(position), PLAY, (void*)heroe);
   }
 
   //Reset GUI
@@ -380,14 +384,14 @@ void Menu::attack(GuiElement*){
       pos.x--;
       break;
   }
-  string cmd = "attack "+toStr(pos.x)+" "+toStr(pos.y);
+  string cmd = "attack "+std::to_string(pos.x)+" "+std::to_string(pos.y);
   msg.process(cmd.c_str());
 }
 
 //! attack button for long range
 void Menu::attackOn(Vector2D click){
   HQRenderer::instance()->setViewTo3D(true);
-  string cmd = "attack "+toStr(click.x)+" "+toStr(click.y);
+  string cmd = "attack "+std::to_string(click.x)+" "+std::to_string(click.y);
   msg.process(cmd.c_str());
 }
 
@@ -519,7 +523,7 @@ void Menu::useOn(Vector2D click){
   Item* ite = HQRenderer::instance()->getInventory()->getChosenItem();
   HQRenderer::instance()->getInventory()->makeVisible(true);
   HQRenderer::instance()->getInventory()->deselect();
-  msg.process(("use "+ite->getName()+" "+toStr(click.x)+" "+toStr(click.y)).c_str());
+  msg.process(("use "+ite->getName()+" "+std::to_string(click.x)+" "+std::to_string(click.y)).c_str());
 }
 
 //takeoff button
@@ -669,7 +673,7 @@ void Menu::whois(GuiElement*){
   
 //! whois button
 void Menu::whois(Vector2D click){
-  msg.process(("whois "+toStr(click.x)+" "+toStr(click.y)).c_str());
+  msg.process(("whois "+std::to_string(click.x)+" "+std::to_string(click.y)).c_str());
 }
 
 //! shop button

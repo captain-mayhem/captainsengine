@@ -24,6 +24,8 @@ extern "C"{
 #include "Console.h"
 #include <system/allocation.h>
 
+using std::string;
+
 using namespace adv;
 
 TR_CHANNEL(ADV_ScriptFunc);

@@ -13,6 +13,9 @@
 #include "mesh/model.h"
 #include "renderer/texture.h"
 
+using std::string;
+using std::vector;
+
 using namespace Gui;
 using CGE::Vector2D;
 using CGE::Mesh;
@@ -281,7 +284,7 @@ void Menu::options(Gui::GuiElement* elem){
   InputField* input = new InputField();
   input->setPosition(Vector2D(20, 650));
   float step = Editor::instance()->getGridStep();
-  input->setText(toStr(step));
+  input->setText(std::to_string(step));
   dia->addUnscaledElement(input);
 
   //OK button

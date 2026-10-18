@@ -44,7 +44,7 @@ void CommandReceiver::threadLoop(){
     }
     mConnSocket.set_non_blocking(true);
     std::string msg;
-    msg = "cge "+toStr(Engine::instance()->getResolution().x+32)+" "+toStr(Engine::instance()->getResolution().y+32)+"\n";
+    msg = "cge "+std::to_string(Engine::instance()->getResolution().x+32)+" "+std::to_string(Engine::instance()->getResolution().y+32)+"\n";
     mConnSocket.send(msg);
     msg.clear();
     std::string cmd;
