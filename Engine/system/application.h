@@ -44,15 +44,16 @@ public:
   virtual void onKeyUp(int key) {}
   //! a printable character was typed
   virtual void onChar(unsigned char ch) {}
-  //! a mouse button was pressed at (x,y) in 1024x768 GUI coordinates
+  //! a mouse button was pressed at (x,y)
+  /*! All mouse positions are in virtual coordinates (Engine::getVirtualScreen()). */
   virtual void onMouseDown(int x, int y, int button) {}
-  //! a mouse button was released at (x,y) in 1024x768 GUI coordinates
+  //! a mouse button was released at (x,y)
   virtual void onMouseUp(int x, int y, int button) {}
-  //! a mouse button was double-clicked at (x,y) in 1024x768 GUI coordinates
+  //! a mouse button was double-clicked at (x,y)
   virtual void onDoubleClick(int x, int y, int button) {}
-  //! the mouse moved to (x,y) in window pixels
+  //! the mouse moved to (x,y)
   virtual void onMouseMove(int x, int y, int buttons) {}
-  //! the mouse wheel turned by delta notches at (x,y) in window pixels
+  //! the mouse wheel turned by delta notches at (x,y)
   virtual void onMouseWheel(int x, int y, int delta) {}
 };
 

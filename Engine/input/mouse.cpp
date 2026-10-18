@@ -82,16 +82,15 @@ void Mouse::buttonDown(int x, int y, int button){
   //CGE::Log << "Click: " << x << " " << y << " " << button<< "\n";
   
   //map to virtual resolution
-  AppWindow* wnd = CGE::Engine::instance()->getWindow();
-  clickPos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
-  clickPos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
+  CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  clickPos_ = screen.toVirtual(x, y);
   
   gui_click_ = false;
 /*
   //click on a GUI-element?
   list<InputField*>::iterator iter;
   for (iter = CGE::Engine::instance()->getInputFields().begin(); iter != CGE::Engine::instance()->getInputFields().end(); iter++){
-    if ((*iter)->isClicked(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
+    if ((*iter)->isClicked(Vector2D(clickPos_.x, screen.getHeight()-clickPos_.y))){
       //set only input focus if console is not active
       if (!CGE::Engine::instance()->getConsole()->isActive()){
         //another input field was active, so remove cursor
@@ -104,7 +103,7 @@ void Mouse::buttonDown(int x, int y, int button){
 */
   list<GuiElement*>::iterator iter2;
   for (iter2 = CGE::Engine::instance()->getGuiElements().begin(); iter2 != CGE::Engine::instance()->getGuiElements().end(); iter2++){
-    if ((*iter2)->isClicked(Vector2D(clickPos_.x, SCREENHEIGHT-clickPos_.y))){
+    if ((*iter2)->isClicked(Vector2D(clickPos_.x, screen.getHeight()-clickPos_.y))){
       /*//is it an input field?
       InputField* inp = dynamic_cast<InputField*>(*iter2);
       if ((*iter2)->getType() == Gui::InputFieldT && inp){
@@ -150,10 +149,7 @@ void Mouse::buttonDown(int x, int y, int button){
 }
 
 void Mouse::buttonUp(int x, int y, int button){
-  AppWindow* wnd = CGE::Engine::instance()->getWindow();
-  Vector2D pos;
-  pos.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
-  pos.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
+  Vector2D pos = CGE::Engine::instance()->getVirtualScreen().toVirtual(x, y);
   switch(button){
     case MB_LEFT:
       pressed_[0] = false;
@@ -171,9 +167,7 @@ void Mouse::buttonUp(int x, int y, int button){
 }
 
 void Mouse::doubleClick(int x, int y, int button){
-  AppWindow* wnd = CGE::Engine::instance()->getWindow();
-  clickPos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
-  clickPos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
+  clickPos_ = CGE::Engine::instance()->getVirtualScreen().toVirtual(x, y);
   if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
     app->onDoubleClick(clickPos_.x, clickPos_.y, button);
 }
@@ -185,10 +179,9 @@ void Mouse::move(int x, int y, int buttons){
   AppWindow* wnd = CGE::Engine::instance()->getWindow();
   if (!wnd)
     return;
-  mousePos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
-  mousePos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
+  mousePos_ = CGE::Engine::instance()->getVirtualScreen().toVirtual(x, y);
   if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
-    app->onMouseMove(x, y, buttons);
+    app->onMouseMove(mousePos_.x, mousePos_.y, buttons);
 }
 
 void Mouse::wheel(int x, int y, int delta){
@@ -197,10 +190,9 @@ void Mouse::wheel(int x, int y, int delta){
   AppWindow* wnd = CGE::Engine::instance()->getWindow();
   if (!wnd)
     return;
-  mousePos_.x = (int)((float)x/wnd->getWidth()*SCREENWIDTH);
-  mousePos_.y = (int)((float)y/wnd->getHeight()*SCREENHEIGHT);
+  mousePos_ = CGE::Engine::instance()->getVirtualScreen().toVirtual(x, y);
   if (CGE::IApplication* app = CGE::Engine::instance()->getApplication())
-    app->onMouseWheel(x, y, delta);
+    app->onMouseWheel(mousePos_.x, mousePos_.y, delta);
 }
 
 void Mouse::showCursor(bool visible){
@@ -225,6 +217,9 @@ void Mouse::showCursor(bool visible){
 }
 
 void Mouse::setMousePos(int x, int y){
+  CGE::Vec2i win = CGE::Engine::instance()->getVirtualScreen().toWindow(x, y);
+  x = win.x;
+  y = win.y;
 #ifdef WIN32
   POINT point;
   point.x = x;

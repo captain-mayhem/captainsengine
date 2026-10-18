@@ -75,13 +75,14 @@ void Dialog::process(){
 
 //! Add an element
 void Dialog::addElement(GuiElement* elem){
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
   //Change coordinates to dialog-relative ones
   Vector2D pos = elem->getPosition();
   Vector2D span = elem->getSpan();
-  pos.x = pos_.x+(short)((float)pos.x/SCREENWIDTH*span_.x);
-  pos.y = pos_.y+(short)((float)pos.y/SCREENHEIGHT*span_.y);
-  span.x = (short)((float)span.x/SCREENWIDTH*span_.x);
-  span.y = (short)((float)span.y/SCREENHEIGHT*span_.y);
+  pos.x = pos_.x+(short)((float)pos.x/screen.getWidth()*span_.x);
+  pos.y = pos_.y+(short)((float)pos.y/screen.getHeight()*span_.y);
+  span.x = (short)((float)span.x/screen.getWidth()*span_.x);
+  span.y = (short)((float)span.y/screen.getHeight()*span_.y);
   elem->setPosition(pos);
   elem->setSpan(span);
   elem->setParent(this);
@@ -90,10 +91,11 @@ void Dialog::addElement(GuiElement* elem){
 
 //! Add an unscaled element
 void Dialog::addUnscaledElement(GuiElement* elem){
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
    //Change position to dialog-relative ones
   Vector2D pos = elem->getPosition();
-  pos.x = pos_.x+(short)((float)pos.x/SCREENWIDTH*span_.x);
-  pos.y = pos_.y+(short)((float)pos.y/SCREENHEIGHT*span_.y);
+  pos.x = pos_.x+(short)((float)pos.x/screen.getWidth()*span_.x);
+  pos.y = pos_.y+(short)((float)pos.y/screen.getHeight()*span_.y);
   elem->setPosition(pos);
   //elem->setSpan(elem->getSpan());
   elem->setParent(this);
@@ -107,9 +109,10 @@ void Dialog::addOriginalElement(GuiElement* elem){
 }
 
 void Dialog::preparePosition(GuiElement* elem) const {
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
   Vector2D pos = elem->getPosition();
-  pos.x = pos_.x+(short)((float)pos.x/SCREENWIDTH*span_.x);
-  pos.y = pos_.y+(short)((float)pos.y/SCREENHEIGHT*span_.y);
+  pos.x = pos_.x+(short)((float)pos.x/screen.getWidth()*span_.x);
+  pos.y = pos_.y+(short)((float)pos.y/screen.getHeight()*span_.y);
   elem->setPosition(pos);
 }
 

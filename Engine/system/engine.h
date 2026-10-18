@@ -27,9 +27,6 @@ using std::vector;
 #define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=NULL; } }
 #define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=NULL; } }
 
-#define SCREENWIDTH 1024
-#define SCREENHEIGHT 768
-
 #ifndef VERSION
 #define VERSION 0.7
 #define VERSTRING "0.7"
@@ -114,6 +111,7 @@ CGE_API double getTime();
 
 #include "thread.h"
 #include "application.h"
+#include "virtualscreen.h"
 
 namespace CGE{
 
@@ -142,6 +140,9 @@ class CGE_API Engine{
     void resume();
     inline bool isPaused() {return paused_;}
     inline CGE::Renderer* getRenderer() {return rend_;}
+    //! the virtual resolution of the GUI pass and the input events
+    /*! Its window size is updated from the window on every call. */
+    CGE::VirtualScreen& getVirtualScreen();
     inline CGE::Font* getFont(int idx) {return fnt_[idx];}
     //! Get the standard forms
     inline CGE::Forms* getForms() {return forms_;}
@@ -209,6 +210,8 @@ class CGE_API Engine{
     
     //! The renderer
     CGE::Renderer* rend_;
+    //! the virtual resolution
+    CGE::VirtualScreen virtual_;
     //! The fonts
     CGE::Font** fnt_;
     //! Stadard forms

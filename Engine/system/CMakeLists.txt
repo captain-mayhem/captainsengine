@@ -14,6 +14,7 @@ SET(Engine_system_SRCS
 	${PRE}/soloader.cpp
 	${PRE}/thread.cpp
 	${PRE}/utilities.cpp
+	${PRE}/virtualscreen.cpp
 )
 
 SET(Engine_system_HDRS
@@ -32,6 +33,7 @@ SET(Engine_system_HDRS
 	${PRE}/thread.h
 	${PRE}/types.h 
 	${PRE}/utilities.h
+	${PRE}/virtualscreen.h
 	${PRE}/allocation.h
 )
 
