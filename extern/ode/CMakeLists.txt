@@ -1,24 +1,3 @@
-IF(${OS} STREQUAL "wince")
-	ADD_DEFINITIONS(
-		-Dcosf=cos
-		-Dsinf=sin
-		-Dasinf=asin
-		-Dacosf=acos
-	)
-ENDIF(${OS} STREQUAL "wince")
-
-IF(${OS} STREQUAL "qnx")
-	ADD_DEFINITIONS(-D__linux__)
-ENDIF(${OS} STREQUAL "qnx")
-
-IF(${OS} STREQUAL "linux")
-	ADD_DEFINITIONS(-D__linux__)
-ENDIF(${OS} STREQUAL "linux")
-
-ADD_DEFINITIONS(
-	-DODE_LIB
-)
-
 ADD_LIBRARY(ode STATIC
 	array.cpp
 	box.cpp
@@ -128,5 +107,18 @@ ADD_LIBRARY(ode STATIC
 	Ice/IceTriangle.cpp
 	Ice/IceUtils.cpp
 )
+# the engine's physics headers include <ode/ode.h>, so the precision define is
+# part of the interface
+target_include_directories(ode PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+if (PHYSICS_DOUBLE_PRECISION)
+  target_compile_definitions(ode PUBLIC dDOUBLE)
+else()
+  target_compile_definitions(ode PUBLIC dSINGLE)
+endif()
+target_compile_definitions(ode PRIVATE ODE_LIB)
+if (OS STREQUAL "linux")
+  target_compile_definitions(ode PRIVATE __linux__)
+endif()
+cge_extern_defaults(ode)
 
 INSTALL(TARGETS ode ARCHIVE DESTINATION Engine/lib)

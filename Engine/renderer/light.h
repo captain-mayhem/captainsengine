@@ -1,12 +1,14 @@
 #ifndef CGE_LIGHT_H
 #define CGE_LIGHT_H
 
+#include <cge_export.h>
+
 #include "../math/vector.h"
 #include "material.h"
 
 namespace CGE{
 
-class Light{
+class CGE_API Light{
 public:
   enum Type{
     Directional,

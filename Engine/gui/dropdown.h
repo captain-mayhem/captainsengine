@@ -1,6 +1,8 @@
 #ifndef DROPDOWN_H
 #define DROPDOWN_H
 
+#include <cge_export.h>
+
 #include <vector>
 
 #include "gui.h"
@@ -9,7 +11,7 @@ using std::vector;
 
 namespace Gui{
 
-class DDEntryButton : public Button {
+class CGE_API DDEntryButton : public Button {
 public:
   //! Constructor
   DDEntryButton(int number);
@@ -29,7 +31,7 @@ private:
 //! This class is a drop down field.
 /*! only a drop down field
  */
-class DropDownButton : public Button {
+class CGE_API DropDownButton : public Button {
   public:
     //! Constructor
     DropDownButton();

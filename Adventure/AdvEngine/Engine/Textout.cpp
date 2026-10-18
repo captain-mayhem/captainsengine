@@ -12,11 +12,11 @@ Textout::Textout() : Object2D(1, Vec2i(), Vec2i(), "textout"), mEnabled(false), 
 }
 
 Textout::~Textout(){
-  mText->unref();
+  ExecutionContext::unref(mText);
 }
 
 void Textout::setText(ExecutionContext* text){
-  mText->unref();
+  ExecutionContext::unref(mText);
   mText = new ExecutionContext(*text);
 }
 

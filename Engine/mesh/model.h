@@ -2,6 +2,8 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include <cge_export.h>
+
 #include "../renderer/scenenode.h"
 #include "../mesh/mesh.h"
 
@@ -15,7 +17,7 @@ namespace CGE{
 #define MAX_TEXTURES 8
 #define MAX_ATTRIBS 8
 
-class Model : public CGE::SceneNode{
+class CGE_API Model : public CGE::SceneNode{
 public:
   //! Default constructor
   Model();

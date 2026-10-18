@@ -1,14 +1,16 @@
 #ifndef CGE_ZIPREADER_H
 #define CGE_ZIPREADER_H
 
+#include <cge_export.h>
+
 #include <string>
 #include <map>
-#include <../extern/zlib/unzip.h>
+#include <unzip.h>
 #include "MemReader.h"
 
 namespace CGE{
 
-class ZipReader : public MemReader{
+class CGE_API ZipReader : public MemReader{
 public:
 	ZipReader();
   ZipReader(const std::string& zippath);

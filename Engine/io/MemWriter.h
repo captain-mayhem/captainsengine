@@ -1,6 +1,8 @@
 #ifndef MEMWRITER_H
 #define MEMWRITER_H
 
+#include <cge_export.h>
+
 #include "Writer.h"
 
 #include <string>
@@ -9,7 +11,7 @@
 
 namespace CGE{
 
-class MemWriter : public Writer{
+class CGE_API MemWriter : public Writer{
 public:
   MemWriter(uint32 size=0);
   MemWriter(void* address, unsigned int length);

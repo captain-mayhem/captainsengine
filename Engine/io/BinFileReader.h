@@ -1,6 +1,8 @@
 #ifndef BINFILEREADER_H
 #define BINFILEREADER_H
 
+#include <cge_export.h>
+
 #include "Reader.h"
 
 #include <string>
@@ -8,7 +10,7 @@
 
 namespace CGE{
 
-class BinFileReader : public Reader{
+class CGE_API BinFileReader : public Reader{
 public:
   BinFileReader(std::string filename);
   virtual ~BinFileReader();

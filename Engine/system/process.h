@@ -1,6 +1,8 @@
 #ifndef CGE_PROCESS_H
 #define CGE_PROCESS_H
 
+#include <cge_export.h>
+
 #include <string>
 
 #ifdef WIN32
@@ -12,7 +14,7 @@
 
 namespace CGE{
 
-class Process{
+class CGE_API Process{
 public:
   Process();
   Process(std::string const& name);

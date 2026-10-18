@@ -1,10 +1,12 @@
 #ifndef DUMMYRENDERER_H
 #define DUMMYRENDERER_H
 
+#include <cge_export.h>
+
 #include "renderer.h"
 
 namespace CGE{
-class DummyRenderer : public Renderer{
+class CGE_API DummyRenderer : public Renderer{
 public: 
   //! Constructor
   DummyRenderer(){}

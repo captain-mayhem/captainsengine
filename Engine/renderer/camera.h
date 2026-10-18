@@ -13,13 +13,15 @@
 #ifndef CGE_CAMERA_H
 #define CGE_CAMERA_H
 
+#include <cge_export.h>
+
 #include "../math/vector.h"
 #include "../math/matrix.h"
 #include "../math/frustum.h"
 
 namespace CGE{
 
-class Camera{
+class CGE_API Camera{
 public:
   Camera();
   virtual ~Camera();

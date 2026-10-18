@@ -1,6 +1,8 @@
 #ifndef CGE_TEXTURE_H
 #define CGE_TEXTURE_H
 
+#include <cge_export.h>
+
 #include <string>
 
 using std::string;
@@ -9,7 +11,7 @@ namespace CGE{
 
 class Image;
 
-class Texture{
+class CGE_API Texture{
 public:
   enum Format{
     AUTO = 0,

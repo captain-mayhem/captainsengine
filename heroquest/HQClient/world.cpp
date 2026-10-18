@@ -595,7 +595,7 @@ void World::render2D(bool vis){
       //render items
       if ((curr.getStatus() || !vis) && curr.items){
         TextureManager::instance()->otherTex[3]->activate();
- #pragma warn "needs to be ported to renderer"
+        // TODO: needs to be ported to the renderer
         /*glBegin(GL_TRIANGLE_STRIP);
 					glTexCoord2f(1.0f, 0.0f);
 					glVertex2f(i*xstep+xstep, (height_-j)*ystep);

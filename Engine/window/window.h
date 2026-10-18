@@ -1,6 +1,8 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#include <cge_export.h>
+
 #include <string>
 
 namespace CGE{
@@ -11,7 +13,7 @@ namespace CGE{
 
 #define WINDOW_NAME "Captains Game Engine"
 
-class AppWindow{
+class CGE_API AppWindow{
 public:
   AppWindow(CGE::Renderer* render);
   virtual ~AppWindow(){};

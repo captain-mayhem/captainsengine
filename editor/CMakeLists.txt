@@ -1,7 +1,3 @@
-INCLUDE_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine)
-
-LINK_DIRECTORIES(${CaptainsEngine_SOURCE_DIR}/Engine/lib)
-
 SET(editor_SRCS
 	camera.cpp
 	editor.cpp
@@ -24,12 +20,14 @@ else()
 ADD_EXECUTABLE(editor ${editor_SRCS} ${editor_HDRS})
 endif()
 
-TARGET_LINK_LIBRARIES(editor EngineMain ${ENGINE_LINK_LIBRARIES})
+TARGET_LINK_LIBRARIES(editor PRIVATE CGE::Engine)
 
 IF (${OS} STREQUAL "windows")
 SET_TARGET_PROPERTIES(editor PROPERTIES WIN32_EXECUTABLE TRUE)
 ENDIF (${OS} STREQUAL "windows")
 
+cge_copy_runtime(editor)
 INSTALL(TARGETS editor RUNTIME DESTINATION editor LIBRARY DESTINATION editor)
+cge_install_runtime(editor editor)
 INSTALL(FILES engine.ini DESTINATION editor)
 INSTALL(FILES textures/font/font.bmp DESTINATION editor/textures/font)

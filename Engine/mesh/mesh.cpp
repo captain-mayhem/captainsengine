@@ -364,10 +364,10 @@ bool Mesh::loadOFF(std::string filename){
 }
 
 
-//! get the normal of a triangle
-float* Mesh::getNormal(int i){
+//! get the normal of a vertex (averaged over its adjacent triangles)
+Vector3D Mesh::getNormal(int i){
   if (!mComputeEdges)
-    return NULL;
+    return Vector3D(0,0,1);
 
   Vertex v = vertices_[i];
 
@@ -389,7 +389,7 @@ float* Mesh::getNormal(int i){
 
   normal.normalize();
 
-  return normal.data;
+  return normal;
 }
 
 //! build vertex buffer object

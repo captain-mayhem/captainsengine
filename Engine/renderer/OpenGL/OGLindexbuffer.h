@@ -1,12 +1,14 @@
 #ifndef CGE_OGL_INDEXBUFFER_H
 #define CGE_OGL_INDEXBUFFER_H
 
+#include <cge_export.h>
+
 #include "../../system/types.h"
 #include "../indexbuffer.h"
 
 namespace CGE{
 
-class OGLIndexBuffer : public IndexBuffer{
+class CGE_API OGLIndexBuffer : public IndexBuffer{
 public:
   OGLIndexBuffer(Type t, int32 size);
   virtual ~OGLIndexBuffer();

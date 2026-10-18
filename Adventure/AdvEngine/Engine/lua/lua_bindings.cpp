@@ -60,7 +60,7 @@ void engine_thread_func(void* data){
       lua_setfield(L, LUA_REGISTRYINDEX, "cge.config");
     }
   }*/
-  CGE::Engine::mainLoop(0, NULL, engineMain);
+  CGE::runApplication(0, NULL, engineMain);
   CommThread* thread = CommThread::getSelf(L);
   thread->~CommThread();
   lua_close(L);

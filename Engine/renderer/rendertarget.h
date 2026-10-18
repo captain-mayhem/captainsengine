@@ -1,11 +1,13 @@
 #ifndef CGE_RENDERTARGET_H
 #define CGE_RENDERTARGET_H
 
+#include <cge_export.h>
+
 #include <renderer/texture.h>
 
 namespace CGE{
 
-class RenderTarget{
+class CGE_API RenderTarget{
   friend class GL2Renderer;
 public:
   RenderTarget() : mOldTarget(NULL) {}

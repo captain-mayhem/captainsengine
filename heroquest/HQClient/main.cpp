@@ -1,5 +1,6 @@
 #include <iostream>
 #include "system/engine.h"
+#include "system/application.h"
 #include "renderer/renderer.h"
 #include "gamestate.h"
 #include "camera.h"
@@ -71,3 +72,5 @@ void engineMain(int argc, char** argv){
   Input::Mouse::instance()->setButtonDownCB(HQRenderer::buttonDown);
   Input::Mouse::instance()->setMouseMoveCB(HQRenderer::mouseMove);
 }
+
+CGE_MAIN(engineMain)

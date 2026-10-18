@@ -1,6 +1,8 @@
 #ifndef DXTEXTURE_H
 #define DXTEXTURE_H
 
+#include <cge_export.h>
+
 #ifdef WIN32
 
 #include <d3d11.h>
@@ -8,7 +10,7 @@
 
 namespace CGE{
 
-class DXTexture : public Texture {
+class CGE_API DXTexture : public Texture {
 public:
   DXTexture();
   virtual ~DXTexture();
@@ -38,7 +40,7 @@ protected:
 
 namespace Graphics{
 
-class DXTexture : public Texture {
+class CGE_API DXTexture : public Texture {
 public:
   DXTexture(string filename){};
   virtual ~DXTexture(){}

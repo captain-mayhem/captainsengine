@@ -12,6 +12,8 @@
 #ifndef BITSET_H
 #define BITSET_H
 
+#include <cge_export.h>
+
 #include <map>
 
 using std::map;
@@ -22,7 +24,7 @@ namespace CGE {
  * It takes less memory than the bitset class from STL. Moveover,
  * memory management overhead is lower than in the STL_bitset.
  */
-class Bitset {
+class CGE_API Bitset {
 public: 
   //! Constructor
   Bitset();

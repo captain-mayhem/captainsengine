@@ -58,11 +58,19 @@ void Script::loadLevelScript(string name){
 
 void Script::init(){
 	L = luaL_newstate();
-	luaopen_base(L);
-	luaopen_table(L);
-	luaopen_io(L);
-	luaopen_string(L);
-	luaopen_math(L);
+  // Lua 5.2: the libraries become globals only through luaL_requiref
+  luaL_requiref(L, "_G", luaopen_base, 1);
+  lua_pop(L, 1);
+  luaL_requiref(L, "table", luaopen_table, 1);
+  lua_pop(L, 1);
+  luaL_requiref(L, "io", luaopen_io, 1);
+  lua_pop(L, 1);
+  luaL_requiref(L, "string", luaopen_string, 1);
+  lua_pop(L, 1);
+  luaL_requiref(L, "math", luaopen_math, 1);
+  lua_pop(L, 1);
+  luaL_requiref(L, "os", luaopen_os, 1);
+  lua_pop(L, 1);
 
 	lua_pushcfunction(L, Script::console);
 	lua_setglobal(L, "console");

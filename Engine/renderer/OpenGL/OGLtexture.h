@@ -1,6 +1,8 @@
 #ifndef OGLTEXTURE_H
 #define OGLTEXTURE_H
 
+#include <cge_export.h>
+
 #include <cstdio>
 
 #include "../texture.h"
@@ -8,7 +10,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#if !defined QNX && !defined ANDROID
+#if !defined(ANDROID)
 #ifdef OPENGL2
 #include <GL/glew.h>
 #else
@@ -20,7 +22,7 @@
 
 namespace CGE{
 
-class OGLTexture : public Texture {
+class CGE_API OGLTexture : public Texture {
 public:
   OGLTexture();
   virtual ~OGLTexture();

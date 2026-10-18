@@ -1,12 +1,14 @@
 #ifndef CGE_SCENENODE_H
 #define CGE_SCENENODE_H
 
+#include <cge_export.h>
+
 #include <math/matrix.h>
 #include <vector>
 
 namespace CGE{
 
-class SceneNode{
+class CGE_API SceneNode{
 public:
   enum Type{
     MESH,

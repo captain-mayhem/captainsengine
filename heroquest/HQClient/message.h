@@ -16,6 +16,7 @@
 #include <map>
 #include <vector>
 #include <queue>
+#include <mutex>
 
 #include <system/thread.h>
 #include <system/process.h>
@@ -95,6 +96,8 @@ private:
   bool toDefend_;
   //! the incoming messages
   std::queue<string> messages_;
+  //! guards messages_, which the receiving thread fills
+  std::mutex messagesMutex_;
   //! the server process - if started locally
   CGE::Process mServer;
 };

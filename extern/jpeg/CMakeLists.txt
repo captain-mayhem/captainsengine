@@ -1,63 +1,62 @@
-IF (${OS} STREQUAL "wince")
-SET(JPEG_MEM_MGR jmemnobs.c)
-ELSE (${OS} STREQUAL "wince")
-SET(JPEG_MEM_MGR jmemansi.c)
-ENDIF (${OS} STREQUAL "wince")
+add_library(jpeg STATIC
+	jconfig.h
+	jdct.h
+	jerror.h
+	jinclude.h
+	jmemsys.h
+	jmorecfg.h
+	jpegint.h
+	jpeglib.h
+	jversion.h
 
-ADD_LIBRARY(jpeg STATIC
-jcapimin.c
-jcapistd.c
-jccoefct.c
-jccolor.c
-jcdctmgr.c
-jchuff.c
-jcinit.c
-jcmainct.c
-jcmarker.c
-jcmaster.c
-jcomapi.c
-jcparam.c
-jcphuff.c
-jcprepct.c
-jcsample.c
-jctrans.c
-jdapimin.c
-jdapistd.c
-jdatadst.c
-jdatasrc.c
-jdcoefct.c
-jdcolor.c
-jddctmgr.c
-jdhuff.c
-jdinput.c
-jdmainct.c
-jdmarker.c
-jdmaster.c
-jdmerge.c
-jdphuff.c
-jdpostct.c
-jdsample.c
-jdtrans.c
-jerror.c
-jfdctflt.c
-jfdctfst.c
-jfdctint.c
-jidctflt.c
-jidctfst.c
-jidctint.c
-jidctred.c
-jquant1.c
-jquant2.c
-jutils.c
-jmemmgr.c
-${JPEG_MEM_MGR}
+	jaricom.c
+	jcapimin.c
+	jcapistd.c
+	jcarith.c
+	jccoefct.c
+	jccolor.c
+	jcdctmgr.c
+	jchuff.c
+	jcinit.c
+	jcmainct.c
+	jcmarker.c
+	jcmaster.c
+	jcomapi.c
+	jcparam.c
+	jcprepct.c
+	jcsample.c
+	jctrans.c
+	jdapimin.c
+	jdapistd.c
+	jdarith.c
+	jdatadst.c
+	jdatasrc.c
+	jdcoefct.c
+	jdcolor.c
+	jddctmgr.c
+	jdhuff.c
+	jdinput.c
+	jdmainct.c
+	jdmarker.c
+	jdmaster.c
+	jdmerge.c
+	jdpostct.c
+	jdsample.c
+	jdtrans.c
+	jerror.c
+	jfdctflt.c
+	jfdctfst.c
+	jfdctint.c
+	jidctflt.c
+	jidctfst.c
+	jidctint.c
+	jquant1.c
+	jquant2.c
+	jutils.c
+	jmemmgr.c
+	jmemansi.c
 )
 
-IF (${OS} STREQUAL "wince")
-REMOVE_DEFINITIONS(-DHAVE_BOOLEAN)
-ADD_DEFINITIONS(-D__inline__= -DNO_GETENV)
-ELSE (${OS} STREQUAL "wince")
-ADD_DEFINITIONS(-D__inline__=)
-ENDIF (${OS} STREQUAL "wince")
+target_include_directories(jpeg PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
-INSTALL(TARGETS jpeg ARCHIVE DESTINATION Engine/lib)
+add_library(JPEG::JPEG ALIAS jpeg)

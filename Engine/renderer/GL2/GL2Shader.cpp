@@ -84,3 +84,52 @@ bool GL2Shader::linkShaders(){
   }
   return success != 0;
 }
+
+// the GL calls stay out of the header: they go through GLEW, which is private to the engine
+void GL2Shader::bindAttribLocation(int location, const char* name){
+  glBindAttribLocation(mProgram, location, name);
+}
+
+int GL2Shader::getAttribLocation(const char* name){
+  return glGetAttribLocation(mProgram, name);
+}
+
+int GL2Shader::getUniformLocation(Type t, const char* name){
+  return glGetUniformLocation(mProgram, name);
+}
+
+void GL2Shader::uniform(int location, int value){
+  glUniform1i(location, value);
+}
+
+void GL2Shader::uniform(int location, float value){
+  glUniform1f(location, value);
+}
+
+void GL2Shader::uniform(int location, float v0, float v1){
+  glUniform2f(location, v0, v1);
+}
+
+void GL2Shader::uniform(int location, float v0, float v1, float v2, float v3){
+  glUniform4f(location, v0, v1, v2, v3);
+}
+
+void GL2Shader::uniform(int location, const Vec3f& vec){
+  glUniform3fv(location, 1, vec.data);
+}
+
+void GL2Shader::uniform(int location, const CGE::Matrix& mat){
+  glUniformMatrix4fv(location, 1, GL_FALSE, mat.getData());
+}
+
+void GL2Shader::uniform(int location, const CGE::Color& col){
+  glUniform4fv(location, 1, col.array);
+}
+
+void GL2Shader::use(){
+  glUseProgram(mProgram);
+}
+
+void GL2Shader::unuse(){
+  glUseProgram(0);
+}

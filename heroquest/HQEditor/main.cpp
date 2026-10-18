@@ -11,8 +11,11 @@
 
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include "system/engine.h"
+#include "system/application.h"
 #include "system/file.h"
+#include "io/TraceManager.h"
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "math/vector.h"
@@ -29,6 +32,8 @@ using namespace CGE;
 TR_CHANNEL(HQ_Editor);
 
 void engineMain(int argc, char** argv){
+  CGE::LogOutputter* putty = new CGE::LogOutputter("HQEditor.log");
+  CGE::TraceManager::instance()->setTraceOutputter(putty);
   TR_USE(HQ_Editor);
   if (argc < 2){
     TR_ERROR("Usage: HQEdit <mapfile>");
@@ -45,18 +50,24 @@ void engineMain(int argc, char** argv){
   else
     path = getCwd()+"/";
 */
+  //the models and textures are loaded from the client's directory, so the map
+  //paths are made absolute before changing to it; the compiled maps are written
+  //next to the .map files
+  std::vector<string> mapfiles;
   for (int mc = 1; mc < argc; mc++){
+    mapfiles.push_back(std::filesystem::absolute(argv[mc]).string());
+  }
+  Filesystem::changeDir("../HQClient/");
+
+  for (const string& mapfile : mapfiles){
 
     //open .map file
     string temp;
-    ifstream in(argv[mc]);
+    ifstream in(mapfile);
     if (!(in >> temp)){
-      TR_ERROR("map not found");
+      TR_ERROR("map %s not found", mapfile.c_str());
       exit(EXIT_FAILURE);
     }
-
-    //change working dir
-    Filesystem::changeDir("../HQClient/");
 
     int width,height,i,j;
     char c;
@@ -244,7 +255,7 @@ void engineMain(int argc, char** argv){
     in.close();
 
     //write the compiled map
-    cmp.write(string(argv[mc]));
+    cmp.write(mapfile);
 
     //delete allocated memory
     for (int k = 0; k < height * 3 + 1; k++){
@@ -253,7 +264,7 @@ void engineMain(int argc, char** argv){
     delete [] map;
 
     HQMExport exp;
-    string filename = argv[mc];
+    string filename = mapfile;
     int idx = filename.find_last_of(".");
     filename.erase(idx);
     filename += ".hqm";
@@ -263,3 +274,5 @@ void engineMain(int argc, char** argv){
 
   Engine::instance()->requestShutdown();
 }
+
+CGE_MAIN(engineMain)

@@ -1,6 +1,8 @@
 #ifndef CGE_TRACEMANAGER_H
 #define CGE_TRACEMANAGER_H
 
+#include <cge_export.h>
+
 #include <cstdlib>
 #include <list>
 #include <string>
@@ -12,8 +14,8 @@ namespace CGE{
 
 class TraceOutputter;
 
-class TraceManager{
-  struct Message{
+class CGE_API TraceManager{
+  struct CGE_API Message{
     Message(){
     }
     Message(const Message& msg){

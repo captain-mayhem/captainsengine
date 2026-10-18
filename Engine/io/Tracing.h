@@ -1,6 +1,8 @@
 #ifndef TRACING_H
 #define TRACING_H
 
+#include <cge_export.h>
+
 #include <cstdarg>
 #include <map>
 #include <fstream>
@@ -17,14 +19,14 @@
 
 namespace CGE{
 
-class TraceOutputter{
+class CGE_API TraceOutputter{
 public:
   virtual ~TraceOutputter() {}
   virtual bool init()=0;
   virtual void trace(unsigned channel, int level, const char* function, const char* message)=0;
 };
 
-class TraceChannel{
+class CGE_API TraceChannel{
 public:
   TraceChannel(const char* name);
   TraceChannel(const char* name, int level);
@@ -38,7 +40,7 @@ protected:
   unsigned mChannel;
 };
 
-class TraceObject{
+class CGE_API TraceObject{
 public:
   TraceObject(TraceChannel* channel);
   void trace(int level, const char* function, const char* message, ...);
@@ -47,7 +49,7 @@ protected:
   TraceChannel* mChannel;
 };
 
-class LogOutputter : public TraceOutputter{
+class CGE_API LogOutputter : public TraceOutputter{
 public:
   LogOutputter();
   LogOutputter(std::string const& file);

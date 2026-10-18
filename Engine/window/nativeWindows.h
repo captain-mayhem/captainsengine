@@ -1,6 +1,8 @@
 #ifndef NATIVE_WINDOWS_H
 #define NATIVE_WINDOWS_H
 
+#include <cge_export.h>
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 
@@ -9,7 +11,7 @@
 
 namespace CGE{
 
-class WindowsWindow : public AppWindow{
+class CGE_API WindowsWindow : public AppWindow{
 public:
   WindowsWindow(CGE::Renderer* renderer);
   ~WindowsWindow();
@@ -39,7 +41,7 @@ protected:
 #ifdef UNIX
 #include "window.h"
 namespace CGE{
-class WindowsWindow : public AppWindow{
+class CGE_API WindowsWindow : public AppWindow{
 public:
   WindowsWindow(CGE::Renderer* renderer) : AppWindow(renderer) {}
   ~WindowsWindow() {}

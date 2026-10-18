@@ -1,6 +1,8 @@
 #ifndef THREAD_H
 #define THREAD_H
 
+#include <cge_export.h>
+
 #ifdef WIN32
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -14,7 +16,7 @@
 
 namespace CGE {
   
-class Thread{
+class CGE_API Thread{
 public:
   Thread();
   enum Priority{
@@ -42,7 +44,7 @@ private:
   bool mStarted;
 };
 
-class Mutex{
+class CGE_API Mutex{
 public:
   Mutex(bool recursive=false);
   ~Mutex();
@@ -64,7 +66,7 @@ private:
 #endif
 };
 
-class Condition{
+class CGE_API Condition{
 public:
   Condition();
   ~Condition();
@@ -84,7 +86,7 @@ protected:
 #endif
 };
 
-class Semaphore{
+class CGE_API Semaphore{
 public:
   Semaphore(int count);
   ~Semaphore();

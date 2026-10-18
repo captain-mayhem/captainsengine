@@ -3,18 +3,8 @@
 #include "Sound.h"
 #include "Engine.h"
 
-#ifdef UNIX
-#define UINT64_C(val) (uint64_t)val
-#endif
-#ifndef UINT64_C
-#define UINT64_C(val) val##ui64
-#endif
-#ifdef UNIX
-#define INT64_C(val) (int64_t)val
-#endif
-#ifndef INT64_C
-#define INT64_C(val) val##i64
-#endif
+// FFmpeg's headers need UINT64_C and INT64_C, which <cstdint> defines
+#include <cstdint>
 
 #ifndef AVCODEC_MAX_AUDIO_FRAME_SIZE
 #define AVCODEC_MAX_AUDIO_FRAME_SIZE 192000
@@ -27,12 +17,7 @@
 #ifndef DISABLE_SOUND
 #include <AL/alut.h>
 #ifndef DISABLE_EFX
-#ifdef UNIX
 #include <AL/efx.h>
-#else
-#include <AL/efx.h>
-#include <AL/efx-creative.h>
-#endif
 #endif
 extern "C"{
 #include <libavcodec/avcodec.h>
@@ -92,7 +77,7 @@ void SoundPlayer::realize(){
 SoundPlayer::~SoundPlayer(){
   if (mSuspensionScript){
     mSuspensionScript->resume();
-    mSuspensionScript->unref();
+    ExecutionContext::unref(mSuspensionScript);
     mSuspensionScript = NULL;
   }
   if (mSpeaker){
@@ -122,7 +107,7 @@ void SoundPlayer::setVolume(float volume){
 void SoundPlayer::setSuspensionScript(ExecutionContext* ctx){
   if (mSuspensionScript != NULL){
     mSuspensionScript->reset(true,true);
-    mSuspensionScript->unref();
+    ExecutionContext::unref(mSuspensionScript);
   }
   ctx->ref();
   mSuspensionScript = ctx;

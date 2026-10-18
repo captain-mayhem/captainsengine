@@ -1,11 +1,13 @@
 #ifndef FORMS_H
 #define FORMS_H
 
+#include <cge_export.h>
+
 namespace CGE{
 
 class VertexBuffer;
   
-class Forms{
+class CGE_API Forms{
 public:
   Forms();
   ~Forms();

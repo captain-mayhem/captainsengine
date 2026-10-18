@@ -10,7 +10,7 @@ TR_CHANNEL(ADV_Render_BlitObject);
 
 using namespace adv;
 
-#ifdef RENDER_TEGRA
+#ifdef RENDER_EMBEDDED
 #define glClearDepth glClearDepthf
 #endif
 

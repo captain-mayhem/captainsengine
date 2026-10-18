@@ -1,0 +1,80 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # all projects, including the StoryDesigner (C#, built by MSBuild)
+          - os: windows-latest
+            preset: windows
+            build_dir: build/windows
+          # all projects; the Adventure is built without sound (DISABLE_SOUND)
+          - os: ubuntu-latest
+            preset: default
+            build_dir: build/default
+          # only the engine library: the projects don't build for Android yet
+          - os: ubuntu-latest
+            preset: android
+            build_dir: build/android
+            options: -DPROJECT_ADVENTURE=OFF -DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF
+          # The web (emscripten preset) is added with the web port in Phase 1c;
+          # until then the engine fails at configure time there.
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+
+      # The Adventure needs a JDK (ANTLR and the StoryDesigner's runtime packages)
+      - if: matrix.preset != 'android'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - if: runner.os == 'Linux' && matrix.preset == 'default'
+        name: Install Linux build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            ninja-build \
+            libx11-dev \
+            libxxf86vm-dev \
+            libgl1-mesa-dev \
+            libglu1-mesa-dev \
+            libopenal-dev
+
+      - if: matrix.preset == 'android'
+        name: Install Android build dependencies
+        # The NDK is preinstalled on the runner; the preset reads ANDROID_NDK_HOME.
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
+          echo "ANDROID_NDK_HOME=$ANDROID_NDK_LATEST_HOME" >> "$GITHUB_ENV"
+
+      # On Windows the Adventure needs OpenAL; the StoryDesigner's runtime
+      # packages contain OpenAL32.dll, which CMake expects in ../bin relative
+      # to the import library (vcpkg's layout).
+      - if: runner.os == 'Windows'
+        name: Cache vcpkg packages
+        uses: actions/cache@v5
+        with:
+          path: ${{ github.workspace }}/vcpkg-cache
+          key: vcpkg-openal-soft-${{ runner.os }}
+      - if: runner.os == 'Windows'
+        name: Install OpenAL
+        shell: pwsh
+        env:
+          VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg-cache
+        run: |
+          New-Item -ItemType Directory -Force $env:VCPKG_DEFAULT_BINARY_CACHE | Out-Null
+          & "$env:VCPKG_INSTALLATION_ROOT/vcpkg" install openal-soft:x64-windows
+          $root = "$env:VCPKG_INSTALLATION_ROOT/installed/x64-windows" -replace '\\', '/'
+          "OPENAL_OPTIONS=-DOPENAL_INCLUDE_DIR=$root/include/AL -DOPENAL_LIBRARY=$root/lib/OpenAL32.lib" >> $env:GITHUB_ENV
+
+      - run: cmake --preset ${{ matrix.preset }} ${{ matrix.options }} ${{ env.OPENAL_OPTIONS }}
+      - run: cmake --build ${{ matrix.build_dir }} --config Release
+      - if: matrix.preset != 'android'
+        run: cmake --install ${{ matrix.build_dir }} --config Release

@@ -1,6 +1,8 @@
 #ifndef CGE_ENGINE_H
 #define CGE_ENGINE_H
 
+#include <cge_export.h>
+
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT 0x0500
 #endif
@@ -46,10 +48,6 @@ class GuiElement;
 class InputField;
 class Button;
 class Console;
-}
-
-namespace CGE{
-class Simulator;
 }
 
 //! changes an integer to a string
@@ -112,17 +110,15 @@ inline const string toLower(const string& s){
 #include <android_native_app_glue.h>
 #endif
 
-double getTime();
+CGE_API double getTime();
 
 #include "thread.h"
+#include "application.h"
 
 namespace CGE{
 
-typedef void(*USERMAINFUNC)(int argc, char** argv);
-
-class Engine{
+class CGE_API Engine{
   public:
-    static int mainLoop(int argc, char** argv, USERMAINFUNC func, void* data=NULL);
     static void init();
     inline static Engine* instance() {return eng;}
     void startup(int argc, char** argv);
@@ -168,7 +164,6 @@ class Engine{
     ::Gui::GuiElement* getGuiListener(const string& name);
     //! get the gui mutex
     Mutex& getGuiMutex() {return guitex_;}
-    inline CGE::Simulator* getSimulator() {return mSimulator;}
     void requestShutdown();
     inline bool isShutdownRequested() {return mShutdownRequested;}
     void messageBox(const std::string& message, const std::string& title);
@@ -179,6 +174,7 @@ class Engine{
     }
 #endif
   private:
+    friend CGE_API int runApplication(int argc, char** argv, USERMAINFUNC func, void* platformData);
     static Engine* eng;
     Engine();
 
@@ -209,11 +205,6 @@ class Engine{
     int fpscounter_;
     //! fps
     int fps_;
-
-    //! physics subsystem
-    bool physics_;
-    //! the simulator
-    CGE::Simulator* mSimulator;
 
     //! waiting input fields
     //list< ::Gui::InputField*> listeners_;

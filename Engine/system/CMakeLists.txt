@@ -1,9 +1,5 @@
 SET(PRE system)
 
-IF(${OS} STREQUAL "wince")
-SET (SYS_FILE cefunctions.cpp)
-ENDIF(${OS} STREQUAL "wince")
-
 SET(Engine_system_SRCS
 	${PRE}/AtomicCounter.cpp
 	${PRE}/bitset.cpp
@@ -18,11 +14,11 @@ SET(Engine_system_SRCS
 	${PRE}/soloader.cpp
 	${PRE}/thread.cpp
 	${PRE}/utilities.cpp
-	${PRE}/${SYS_FILE}
 )
 
 SET(Engine_system_HDRS
 	${PRE}/AtomicCounter.h
+	${PRE}/application.h
 	#${PRE}/clientsocket.h
 	${PRE}/bitset.h 
 	${PRE}/engine.h

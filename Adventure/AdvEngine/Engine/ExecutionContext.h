@@ -114,7 +114,10 @@ public:
   bool isEventHandled() {return mEventHandled;}
   bool isSuspended() {return mSuspended;}
   void ref() {++mRefCount;}
-  bool unref() {if (this == NULL) return false; --mRefCount; if (mRefCount == 0){ delete this; return true;} return false; }
+  //! drops a reference; ctx may be NULL. Returns true if ctx was deleted.
+  //! (A NULL check on "this" inside a member function is undefined behaviour,
+  //! and GCC removes it.)
+  static bool unref(ExecutionContext* ctx) {if (ctx == NULL) return false; --ctx->mRefCount; if (ctx->mRefCount == 0){ delete ctx; return true;} return false; }
   CodeSegment* getCode() {return mCode;}
   void save(std::ostream& out);
   ExecutionContext* getLoop1() {return mLoop1;}
