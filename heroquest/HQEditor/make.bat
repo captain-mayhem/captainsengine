@@ -15,6 +15,7 @@ HQEditor basic\spiritBlade.map
 HQEditor basic\returnBarakTor.map
 rem copy basic\*.hqm ..\HQClient\levels\basic\
 rem copy basic\*.lua ..\HQClient\levels\basic\
+rem copy basic\*.hsf ..\HQClient\levels\basic\
 rem copy basic\*.hqm ..\HQServer\levels\basic\
 rem copy basic\*.lua ..\HQServer\levels\basic\
 cmd

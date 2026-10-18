@@ -30,6 +30,7 @@
 //#include "SDL.h"
 //#include "SDL_thread.h"
 #include "system/engine.h"
+#include "system/application.h"
 #include "system/thread.h"
 #include "serversocket.h"
 #include "../HQClient/socketexception.h"
@@ -129,6 +130,8 @@ void engineMain(int argc, char** argv) {
   //return 0;
 }
 
+CGE_MAIN(engineMain)
+
 void running(void* s){
   ServerSocket *ss = (ServerSocket*) s;
 
@@ -152,6 +155,8 @@ void running(void* s){
   welcome += output;
   *ss << welcome;
 
+  //a message can arrive split over several reads; the incomplete rest waits here
+  string pending;
   while(1){
     string receive;
     //int cmd;
@@ -163,12 +168,14 @@ void running(void* s){
       cout << e.description() << endl;
       globl.end(ss);
     }
-    int pos = 0;
-    unsigned found;
-    while ((found = receive.find(SEPARATOR,pos)) != string::npos){
-      string tmp = receive.substr(pos,found-pos);
+    pending += receive;
+    size_t pos = 0;
+    size_t found;
+    while ((found = pending.find(SEPARATOR,pos)) != string::npos){
+      string tmp = pending.substr(pos,found-pos);
       pos = found+1;
       msg.process(ss, tmp);
     }
+    pending.erase(0, pos);
   }
 }

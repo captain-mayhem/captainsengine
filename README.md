@@ -15,15 +15,29 @@ On top level is the code of the engine and its main projects. In this Readme, th
 * Compiler: A java-like VM at a very early stage
 * OSMRacer: A car racing game based on OpenStreetMap data
 * extern: The libs from contrib unpacked and integrated into CMake buildsystem
-* buildtools: CMake stuff for special builds like Android, emscripten, ...
 * contrib: 3rd-party libraries used by the engine or its projects. Things like libjpeg, lua, etc.
 * playground: Small code snippets, ideas or projects that were not continued. In short, all the stuff that is too useless to be put into the repository at top level but too interesting to be thrown away.
 
 ## How to build
-Run cmake with trunk as source directory. If you are not doing a cross-platform build and have all dependencies available on your system (OpenGL, OpenAL, ffmpeg, Java runtime), it does not need additional arguments. There are tons of it if something needs to be tweaked.
-You can find more detailed instructions in my [Wiki](http://wiki.captain-online.de)
+Requirements: CMake 3.21 or newer and a C++20 compiler (Visual Studio 2022/2026, GCC 13). The Adventure also needs a Java JDK (found through `JAVA_HOME` or `PATH`) and, on Windows, OpenAL (`OPENAL_LIBRARY`, `OPENAL_INCLUDE_DIR`).
 
-Requirements: CMake 3.21 or newer and a C++20 compiler (Visual Studio 2022/2026, GCC 13). On Windows, build through the generated solution (MSBuild): `cmake --build` fails on the C# projects of the StoryDesigner.
+`CMakePresets.json` has one configure preset per platform; each builds into `build/<preset>`:
+
+| Preset | Platform | Needs |
+|---|---|---|
+| `default`, `debug` | Ninja, Release or Debug: Linux, or Windows from a developer prompt | Ninja |
+| `windows` | Visual Studio 2026 solution, x64 | |
+| `emscripten` | Web | `EMSDK` pointing to an emsdk (run `emsdk_env` first). The engine doesn't build for the web yet |
+| `android`, `android-x86_64` | Android (API 24) with the NDK's toolchain | `ANDROID_NDK_HOME` pointing to an NDK |
+
+```
+cmake --preset default
+cmake --build --preset default
+```
+
+On Windows, the StoryDesigner's C# projects are built by MSBuild in custom targets (`CSharpZip`, `StoryDesigner`, `RemoteControl`), so `cmake --build` and the generated solution build everything. With Ninja, MSBuild must be in `PATH` (a developer prompt). Edit the C# projects in their own solution, `Adventure/Editor/StoryDesigner/StoryDesigner.sln`.
+
+Paths that only exist on your machine (a JDK, an OpenAL build, an NDK) go into a `CMakeUserPresets.json` (not committed) with presets that inherit the ones above and set `environment` or `cacheVariables`.
 
 Notes:
 * The engine is built as a shared library: `CGE.dll` on Windows, `libCGE.so` on Linux. Lua is part of it and exported, because applications use the Lua API directly. The other third-party libraries (zlib, libpng, libjpeg, giflib, GLEW) are linked into it statically and not exported.
@@ -36,7 +50,7 @@ Add the engine with `add_subdirectory()` and link the `CGE::Engine` target. It c
 ```cmake
 add_subdirectory(../captainsengine cge)
 add_executable(mygame WIN32 main.cpp)
-target_link_libraries(mygame PRIVATE EngineMain CGE::Engine)
+target_link_libraries(mygame PRIVATE CGE::Engine)
 cge_copy_runtime(mygame)                   # copies CGE.dll next to the .exe after building
 cge_install_runtime(mygame mygame)         # installs the engine library with the application
 ```

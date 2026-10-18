@@ -18,6 +18,7 @@ SET(Engine_system_SRCS
 
 SET(Engine_system_HDRS
 	${PRE}/AtomicCounter.h
+	${PRE}/application.h
 	#${PRE}/clientsocket.h
 	${PRE}/bitset.h 
 	${PRE}/engine.h

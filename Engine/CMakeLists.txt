@@ -194,18 +194,20 @@ SOURCE_GROUP("util" FILES ${Engine_util_SRCS})
 SOURCE_GROUP("util" FILES ${Engine_util_HDRS})
 
 
+# Applications define their entry point with CGE_MAIN (system/application.h).
+# On Android that is android_main, which the NDK's native app glue calls; the
+# glue is compiled into the application's library, not into the engine.
 if (OS STREQUAL "android")
-find_file(ENGINE_MAIN_ADD_SRC android_native_app_glue.c)
-endif()
-
-ADD_LIBRARY(EngineMain STATIC
-	system/engineMain.cpp
-	${ENGINE_MAIN_ADD_SRC}
-)
-TARGET_LINK_LIBRARIES(EngineMain PUBLIC Engine)
-if (OS STREQUAL "android")
-	# keep android_main from the native app glue in the application library
-	target_link_options(EngineMain INTERFACE -Wl,--no-undefined -u android_main)
+	# ANDROID_NDK comes from the NDK's toolchain file
+	set(ANDROID_NATIVE_APP_GLUE_DIR ${ANDROID_NDK}/sources/android/native_app_glue)
+	add_library(cge_android_glue STATIC ${ANDROID_NATIVE_APP_GLUE_DIR}/android_native_app_glue.c)
+	target_include_directories(cge_android_glue PUBLIC ${ANDROID_NATIVE_APP_GLUE_DIR})
+	target_link_libraries(cge_android_glue PUBLIC android log)
+	# engine headers include android_native_app_glue.h
+	target_include_directories(Engine PUBLIC ${ANDROID_NATIVE_APP_GLUE_DIR})
+	# keep the glue's entry point, which nothing in the application references
+	target_link_options(cge_android_glue INTERFACE -u ANativeActivity_onCreate)
+	target_link_libraries(Engine INTERFACE cge_android_glue)
 endif()
 	  
 # optional physics library on top of the engine; ODE appears in its public headers
@@ -218,7 +220,6 @@ if (CGE_WITH_PHYSICS)
 	INSTALL(TARGETS EnginePhysics ARCHIVE DESTINATION Engine/lib)
 endif()
 
-INSTALL(TARGETS EngineMain ARCHIVE DESTINATION Engine/lib)
 
 # Runtime helpers for applications
 

@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <filesystem>
 #include <stdlib.h>
 #include <ctype.h>
 #include <assert.h>
@@ -229,7 +230,15 @@ void Message::process_(const char* cmd){
       consol << "You are already connected to a server";
       break;
     }
-    mServer.setExecutable(CGE::Script::instance()->getStringSetting("HQServerExe"));
+    {
+      //HQServerExe names the server without extension, the same on every platform
+      string serverExe = CGE::Script::instance()->getStringSetting("HQServerExe");
+#ifdef WIN32
+      if (!std::filesystem::path(serverExe).has_extension())
+        serverExe += ".exe";
+#endif
+      mServer.setExecutable(serverExe);
+    }
     mServer.setArguments(argv[0]);
     mServer.setWorkingDirectory(CGE::Script::instance()->getStringSetting("HQServerDir"));
     if (!mServer.start()){
@@ -784,14 +793,22 @@ void Message::process_(const char* cmd){
 
 //processing of the received server messages
 void Message::process(){
-  while (!messages_.empty()){
-    string answer = messages_.front();
-    messages_.pop();
+  while (true){
+    string answer;
+    {
+      std::lock_guard<std::mutex> lock(messagesMutex_);
+      if (messages_.empty())
+        break;
+      answer = std::move(messages_.front());
+      messages_.pop();
+    }
 	  istringstream temp(answer);
 	  string args;
-	  int opcode;
+	  int opcode = 0;
 
-	  temp >> opcode;
+	  //skip anything that doesn't start with an opcode
+	  if (!(temp >> opcode))
+	    continue;
 
 	  //build argument vectors as above
 	  vector<string> argv;
@@ -1534,19 +1551,24 @@ void Message::init(){
 //receiving thread
 void Message::receiver(void* v){
   ClientSocket* sock = (ClientSocket*)v;
+  //a message can arrive split over several reads; the incomplete rest waits here
+  string pending;
   while(true){
     string answer;
     try{
       *sock >> answer;
+      pending += answer;
       //separate messages
-      int pos = 0;
+      size_t pos = 0;
       size_t found;
-      while ((found = answer.find(SEPARATOR,pos)) != string::npos){
-        string tmp = answer.substr(pos,found-pos);
-        pos = (int)found+1;
+      while ((found = pending.find(SEPARATOR,pos)) != string::npos){
+        string tmp = pending.substr(pos,found-pos);
+        pos = found+1;
+        std::lock_guard<std::mutex> lock(msg.messagesMutex_);
         msg.messages_.push(tmp);
         //msg.process(tmp);
       }
+      pending.erase(0, pos);
     }
     catch (SocketException& e){
       TR_USE(HQ_Client_Message);

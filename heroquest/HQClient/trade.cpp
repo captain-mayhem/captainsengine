@@ -103,8 +103,8 @@ string Trade::toString(){
 }
 
 void Trade::fromString(string it){
-  int pos = 0;
-  unsigned found;
+  size_t pos = 0;
+  size_t found;
   items_.clear();
   while ((found = it.find('!',pos)) != string::npos){
     string tmp = it.substr(pos,found-pos);

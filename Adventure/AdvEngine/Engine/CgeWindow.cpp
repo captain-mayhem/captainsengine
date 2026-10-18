@@ -1,4 +1,5 @@
 #include "system/engine.h"
+#include "system/application.h"
 #include "renderer/renderer.h"
 #include "window/window.h"
 #include "system/utilities.h"
@@ -244,3 +245,5 @@ void engineMain(int argc, char** argv){
   Input::Mouse::instance()->setWheelTurnCB(mouse_wheel);
   Input::Mouse::instance()->showCursor(false);
 }
+
+CGE_MAIN(engineMain)

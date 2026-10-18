@@ -1,4 +1,5 @@
 #include <system/engine.h>
+#include <system/application.h>
 #include <renderer/renderer.h>
 #include <renderer/camera.h>
 #include <input/keyboard.h>
@@ -208,4 +209,6 @@ void engineMain(int argc, char** argv){
   activeCam = &cam;
   followCam.setTarget(car);
 }
+
+CGE_MAIN(engineMain)
 

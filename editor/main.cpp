@@ -6,6 +6,7 @@
 //#include "include/cal3d/cal3d.h"
 #include <iostream>
 #include "system/engine.h"
+#include "system/application.h"
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "renderer/forms.h"
@@ -61,3 +62,5 @@ void engineMain(int argc, char** argv){
     }
   }
 }
+
+CGE_MAIN(engineMain)
