@@ -25,6 +25,8 @@ public:
 	bool open(std::string path, std::string library, bool buildLibName=true);
 	void addSearchPath(const std::string& path);
 	loadedFunc getFunction(const char* name);
+  //! the system's message about the last failed open or getFunction
+  static std::string getLastError();
 protected:
 #ifdef WIN32
 	HMODULE mLibrary;

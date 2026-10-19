@@ -5,17 +5,25 @@
 
 #include <string>
 
+#include "../renderer/gfxtypes.h"
+
 namespace CGE{
-class Renderer;
+namespace Gfx{
+class RenderDevice;
+}
 }
 
 namespace CGE{
 
 #define WINDOW_NAME "Captains Game Engine"
 
+//! A native window
+/*! It only provides native handles (getNativeWindow); the render device
+    creates the graphics context on it. */
 class CGE_API AppWindow{
 public:
-  AppWindow(CGE::Renderer* render);
+  //! the window is created for device, which gets desc in its init
+  AppWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc);
   virtual ~AppWindow(){};
   virtual void init(const std::string& name){};
   virtual void kill(){};
@@ -35,6 +43,8 @@ public:
   void focus(bool hasFocus);
 	//! get a native window handle
 	virtual void* getHandle() {return nullptr;}
+  //! the native handles for the render device
+  virtual Gfx::NativeWindow getNativeWindow() const {return Gfx::NativeWindow();}
 
   virtual void changeSize(int width, int height){
     width_ = width;
@@ -49,7 +59,8 @@ public:
 
   virtual void setTitle(const std::string& title) {}
 protected:
-  CGE::Renderer* renderer_;
+  Gfx::RenderDevice* device_;
+  Gfx::DeviceDesc deviceDesc_;
   bool fullscreen_;
   int width_;
   int height_;

@@ -6,6 +6,7 @@ add_executable(cge_tests
 	test_assets.cpp
 	test_filesystem.cpp
 	test_images.cpp
+	test_renderdevice.cpp
 	test_services.cpp
 	test_settings.cpp
 	test_userdirs.cpp
@@ -15,7 +16,7 @@ add_executable(cge_tests
 target_link_libraries(cge_tests PRIVATE CGE::Engine GTest::gtest)
 # the test files are read from the source tree, independent of the working directory
 target_compile_definitions(cge_tests PRIVATE CGE_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
-# CGE.dll next to the executable
+# CGE.dll and the render backend plugins next to the executable
 cge_copy_runtime(cge_tests)
 
 include(GoogleTest)

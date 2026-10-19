@@ -1826,7 +1826,7 @@ private:
     float sx = ((mPos.x-xres/2)/xres)*2;
     float yres = (float)Engine::instance()->getResolution().y;
     float y = (float)mPos.y;
-    if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::DirectX)
+    if (CGE::Engine::instance()->getRenderDevice()->getClipSpace().originTopLeft)
       y = yres - mPos.y;
     float sy = ((y-yres/2)/yres)*2;
     float scale = mScale;

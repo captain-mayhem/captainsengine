@@ -8,13 +8,6 @@
 #include "../dummyrenderer.h"
 #undef Dummy
 #else
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-#ifdef UNIX
-#include <GL/glx.h>
-#endif
 #include "../renderer.h"
 
 namespace CGE{
@@ -25,20 +18,8 @@ public:
   OGLRenderer();
   //! Destructor
   ~OGLRenderer();
-  //! init rendering context
+  //! init on the render device's context
   void initContext(CGE::AppWindow* win);
-#ifdef WIN32
-  //! get the device context
-  inline HDC getDevice() {return hDC_;}
-#endif
-#ifdef UNIX
-  //set glx context
-  inline void setGLX(GLXContext glx){glx_ = glx;}
-  //get glx context
-  inline GLXContext getGLX() const {return glx_;}
-#endif
-  //! kill rendering context
-  void killContext();
   //! initialize scene
   void initRendering();
   //! render scene
@@ -117,24 +98,12 @@ public:
   virtual void getViewport(int view[4]);
   //! get a matrix
   virtual CGE::Matrix getMatrix(MatrixType mt);
-  //! swap back and front buffer
-  virtual void swapBuffers();
   //! switch matrix stack
   virtual void switchMatrixStack(MatrixType type);
   //! set scissor rect
   virtual void scissor(int x, int y, unsigned w, unsigned h);
   //! enable scissor test
   virtual void enableScissorTest(bool flag);
-protected:
-#ifdef WIN32
-  //! device context
-  HDC hDC_;
-  //! GL rendering context
-  HGLRC hRC_;
-#endif
-#ifdef UNIX
-  GLXContext glx_;
-#endif
 };
 
 }

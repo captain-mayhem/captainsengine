@@ -22,8 +22,6 @@ class Shader;
 
 enum RenderType{
   OpenGL,
-  DirectX,
-  OpenGL_ES,
   OpenGL2,
 };
 
@@ -59,12 +57,12 @@ public:
   Renderer();
   virtual ~Renderer();
   //! Returns the type of the renderer
-  /*! It can be an OpenGL or DirectX renderer
+  /*! the fixed-function OpenGL or the OpenGL 2 renderer
   */
   RenderType getRenderType() {return type_;}
-  //! initialize rendering context
+  //! initialize on the render device's context, which is current
   virtual void initContext(AppWindow* win);
-  //! kill rendering context
+  //! release the renderer's GL objects before the context goes away
   virtual void killContext();
   //! initialize render settings
   virtual void initRendering();
@@ -151,8 +149,6 @@ public:
   virtual void getViewport(int view[4])=0;
   //! get a matrix
   virtual CGE::Matrix getMatrix(MatrixType mt)=0;
-  //! swap back and front buffer
-  virtual void swapBuffers()=0;
   //! get the window
   AppWindow* getWindow() {return win_;}
   //! switch matrix type
@@ -164,7 +160,7 @@ public:
 protected:
   virtual Texture* createTexture() = 0;
   //! the type of the renderer
-  /*! can be OpenGL or DirectX*/
+  /*! can be OpenGL or OpenGL2*/
   RenderType type_;
   //! the window in which is rendered
   AppWindow* win_;

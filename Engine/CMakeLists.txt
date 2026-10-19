@@ -2,13 +2,11 @@
 
 if (OS STREQUAL android)
   option(RENDER_OPENGL "compile renderer with OpenGL support" OFF)
-  option(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
   option(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
   option(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" ON)
   option(NO_PTHREAD_CANCEL "Platform has no pthread cancel" ON)
 else()
   option(RENDER_OPENGL "compile renderer with OpenGL support" ON)
-  option(RENDER_DIRECTX "compile with DirectX libraries (Windows only) in order to be able to use this renderer" OFF)
   option(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
   option(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" OFF)
   option(NO_PTHREAD_CANCEL "Platform has no pthread cancel" OFF)
@@ -143,11 +141,11 @@ endfunction()
 cge_engine_public_headers(zlibstatic)
 cge_engine_public_headers(minizip)
 
-# renderers; these definitions are internal to the engine
-if (RENDER_DIRECTX)
-	target_compile_definitions(Engine PRIVATE DIRECTX)
-	target_link_libraries(Engine PRIVATE d3d11 d3dcompiler dxguid)
-endif()
+# the render backends: OpenGL (renderer/GL/)
+INCLUDE(renderer/GL/CMakeLists.txt)
+
+# the old renderers, which draw on the OpenGL backend's context until they
+# are replaced; these definitions are internal to the engine
 if (RENDER_OPENGL)
 	message(STATUS "with OpenGL renderer")
 	target_compile_definitions(Engine PRIVATE OPENGL)
@@ -164,9 +162,6 @@ endif()
 if ((RENDER_OPENGL OR RENDER_GL2) AND NOT RENDER_EMBEDDED)
 	find_package(OpenGL REQUIRED)
 	target_link_libraries(Engine PUBLIC OpenGL::GL OpenGL::GLU)
-	if (TARGET OpenGL::GLX)
-		target_link_libraries(Engine PUBLIC OpenGL::GLX)
-	endif()
 endif()
 if (RENDER_EMBEDDED)
 	message(STATUS "with OpenGL ES 2.0 renderer")
@@ -245,24 +240,38 @@ endif()
 
 # Runtime helpers for applications
 
-# copies the engine library next to an application's executable after building,
-# so it can be started from the build folder (Windows has no RPATH)
+# The render backend plugins are loaded at runtime, so applications don't
+# link them; these functions build, copy and install them with the engine.
+
+# copies the engine library and the backend plugins next to an application's
+# executable after building, so it can be started from the build folder
+# (Windows has no RPATH; elsewhere the plugins are next to the engine library)
 function(cge_copy_runtime target)
+	if (TARGET EngineGL)
+		add_dependencies(${target} EngineGL)
+	endif()
 	if (WIN32)
 		add_custom_command(TARGET ${target} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${target}> $<TARGET_FILE_DIR:${target}>
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_RUNTIME_DLLS:${target}> $<TARGET_FILE:EngineGL> $<TARGET_FILE_DIR:${target}>
 			COMMAND_EXPAND_LISTS
 		)
 	endif()
 endfunction()
 
-# installs the engine library for an application installed to <destination>:
-# next to the executable on Windows, in lib/ (found through RPATH) elsewhere
+# installs the engine library and the backend plugins for an application
+# installed to <destination>: next to the executable on Windows, in lib/
+# (found through RPATH) elsewhere
 function(cge_install_runtime target destination)
 	if (WIN32)
 		install(TARGETS Engine RUNTIME DESTINATION ${destination} ${ARGN})
+		if (TARGET EngineGL)
+			install(TARGETS EngineGL LIBRARY DESTINATION ${destination} ${ARGN})
+		endif()
 	else()
 		install(TARGETS Engine LIBRARY DESTINATION ${destination}/lib ${ARGN})
+		if (TARGET EngineGL)
+			install(TARGETS EngineGL LIBRARY DESTINATION ${destination}/lib ${ARGN})
+		endif()
 		set_target_properties(${target} PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
 	endif()
 endfunction()

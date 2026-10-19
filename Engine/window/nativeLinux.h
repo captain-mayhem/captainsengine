@@ -15,22 +15,23 @@ namespace CGE{
 
 class CGE_API X11Window : public AppWindow{
 public:
-  X11Window(CGE::Renderer* renderer);
+  X11Window(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc);
   ~X11Window() {}
   //! init the window
-  void init(const std::string& name);
+  void init(const std::string& name) override;
   //! get display
   inline Display* getDisplay() const {return disp_;}
   //! get window
   inline Window getWindow() const {return win_;}
   //! get screen
   inline int getScreen() const {return screen_;}
+  Gfx::NativeWindow getNativeWindow() const override;
   //! kill the window
-  void kill();
+  void kill() override;
   
-  virtual void changeSize(int width, int height);
+  virtual void changeSize(int width, int height) override;
   
-  virtual void show(bool doit);
+  virtual void show(bool doit) override;
 protected:
   void applyResolution();
   //! the window handle
@@ -54,7 +55,7 @@ protected:
 namespace CGE{
 class CGE_API X11Window : public AppWindow{
 public:
-  X11Window(CGE::Renderer* renderer) : AppWindow(renderer) {}
+  X11Window(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : AppWindow(device, desc) {}
   ~X11Window() {}
 };
 }
