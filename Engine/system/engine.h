@@ -85,6 +85,7 @@ CGE_API double getTime();
 #include "thread.h"
 #include "application.h"
 #include "virtualscreen.h"
+#include "../renderer/renderdevice.h"
 
 namespace CGE{
 
@@ -113,6 +114,9 @@ class CGE_API Engine{
     void resume();
     inline bool isPaused() {return paused_;}
     inline CGE::Renderer* getRenderer() {return rend_.get();}
+    //! the render device, which owns the window's graphics context
+    /*! The Null device when engine.ini says graphics = false. */
+    inline Gfx::RenderDevice* getRenderDevice() {return device_.get();}
     //! the virtual resolution of the GUI pass and the input events
     /*! Its window size is updated from the window on every call. */
     CGE::VirtualScreen& getVirtualScreen();
@@ -174,7 +178,7 @@ class CGE_API Engine{
     void processEvents();
     //! one frame, with or without updating the application
     void frame(bool update);
-    //! renders the application and the GUI and swaps buffers
+    //! renders the application and the GUI and presents the frame
     void renderFrame();
     //! applies the deferred changes to the GUI element list
     void updateGuiElements();
@@ -183,7 +187,9 @@ class CGE_API Engine{
 
     //! The window
     std::unique_ptr<CGE::AppWindow> win_;
-    
+    //! the render device; destroyed after the renderer
+    std::unique_ptr<Gfx::RenderDevice> device_;
+
     //! The renderer
     std::unique_ptr<CGE::Renderer> rend_;
     //! the virtual resolution

@@ -1,9 +1,7 @@
 #ifdef WIN32
 #include "../system/engine.h"
-#include "../renderer/renderer.h"
 #include "../input/keyboard.h"
 #include "../input/mouse.h"
-#include "../system/script.h"
 #include "nativeWindows.h"
 #include "../platform/platform_internal.h"
 
@@ -96,7 +94,7 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
   return DefWindowProc(wnd, msg, wparam, lparam);
 }
 
-WindowsWindow::WindowsWindow(CGE::Renderer* renderer) : AppWindow(renderer){
+WindowsWindow::WindowsWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : AppWindow(device, desc){
   handle_ = nullptr;
   instance_ = nullptr;
 }
@@ -183,18 +181,6 @@ void WindowsWindow::init(const std::string& name){
   rectWin.bottom += yoffset;
   MoveWindow(handle_, rectWin.left, rectWin.top, rectWin.right-rectWin.left, rectWin.bottom-rectWin.top, TRUE);
 
-  renderer_->initContext(this);
-
-  //vsync (on unless engine.ini says vsync = false)
-  bool exists;
-  bool vsync = CGE::Script::instance()->getBoolSetting("vsync", &exists) || !exists;
-  typedef BOOL (WINAPI *SwapIntervalFunc)(int interval);
-  SwapIntervalFunc swapInterval = (SwapIntervalFunc)wglGetProcAddress("wglSwapIntervalEXT");
-  if (swapInterval)
-    swapInterval(vsync ? 1 : 0);
-  else
-    TR_WARN("wglSwapIntervalEXT not available, vsync can't be set");
-
   if (shown_)
     show(true);
 
@@ -202,22 +188,27 @@ void WindowsWindow::init(const std::string& name){
 
 void WindowsWindow::applyResolution(){
   TR_USE(CGE_Window);
-  if (renderer_->getRenderType() == CGE::OpenGL || renderer_->getRenderType() == CGE::OpenGL2){
-    if (fullscreen_){
-      DEVMODE screenSettings;
-      memset(&screenSettings, 0, sizeof(screenSettings));
-      screenSettings.dmSize = sizeof(screenSettings);
-      screenSettings.dmPelsWidth = width_;
-      screenSettings.dmPelsHeight = height_;
-      screenSettings.dmBitsPerPel = bpp_;
-      screenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+  if (fullscreen_){
+    DEVMODE screenSettings;
+    memset(&screenSettings, 0, sizeof(screenSettings));
+    screenSettings.dmSize = sizeof(screenSettings);
+    screenSettings.dmPelsWidth = width_;
+    screenSettings.dmPelsHeight = height_;
+    screenSettings.dmBitsPerPel = bpp_;
+    screenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
-      if (ChangeDisplaySettings(&screenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL){
-        TR_WARN("Changing to fullscreen failed - Trying windowed mode");
-        fullscreen_ = false;
-      }
+    if (ChangeDisplaySettings(&screenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL){
+      TR_WARN("Changing to fullscreen failed - Trying windowed mode");
+      fullscreen_ = false;
     }
   }
+}
+
+Gfx::NativeWindow WindowsWindow::getNativeWindow() const{
+  Gfx::NativeWindow wnd;
+  wnd.kind = Gfx::NativeWindow::Win32;
+  wnd.window = (uintptr_t)handle_;
+  return wnd;
 }
 
 void WindowsWindow::kill(){
@@ -227,8 +218,6 @@ void WindowsWindow::kill(){
     ChangeDisplaySettings(nullptr, 0);
     ShowCursor(TRUE);
   }
-
-  renderer_->killContext();
 
   if (handle_ && !DestroyWindow(handle_)){
     TR_ERROR("Destroying window failed");

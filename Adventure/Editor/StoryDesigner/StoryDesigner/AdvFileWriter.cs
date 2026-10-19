@@ -927,10 +927,11 @@ namespace StoryDesigner
                 entry = zis.GetNextEntry();
                 while (entry != null)
                 {
-                    //string name = entry.Name;
-                    //if (name == "Adventure.exe")
-                    //name = runtimeName;
-                    writeFile(zis, Path.Combine(datadir, runtimeName));
+                    //the executable gets the game's name, the libraries keep theirs
+                    string name = entry.Name;
+                    if (name.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
+                        name = runtimeName;
+                    writeFile(zis, Path.Combine(datadir, name));
                     entry = zis.GetNextEntry();
                 }
                 zis.Close();

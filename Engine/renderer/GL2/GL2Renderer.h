@@ -14,10 +14,6 @@
 #endif
 #if defined(UNIX) && !defined(ANDROID)
 #include <GL/glew.h>
-#include <GL/glx.h>
-#endif
-#ifdef ANDROID
-#include <EGL/egl.h>
 #endif
 #include "../renderer.h"
 #include "GL2Shader.h"
@@ -33,24 +29,9 @@ public:
   GL2Renderer();
   //! Destructor
   ~GL2Renderer();
-  //! init rendering context
+  //! init on the render device's context
   void initContext(AppWindow* win);
-#ifdef WIN32
-  //! get the device context
-  inline HDC getDevice() {return hDC_;}
-#endif
-#if defined(UNIX) && !defined(ANDROID)
-  //set glx context
-  inline void setGLX(GLXContext glx){glx_ = glx;}
-  //get glx context
-  inline GLXContext getGLX() const {return glx_;}
-#endif
-#ifdef ANDROID
-  inline void setContext(EGLContext ctx){
-    m_ctx = ctx;
-  }
-#endif
-  //! kill rendering context
+  //! release the GL objects while the context still exists
   void killContext();
   //! initialize scene
   void initRendering();
@@ -128,8 +109,6 @@ public:
   virtual void getViewport(int view[4]);
   //! get a matrix
   virtual CGE::Matrix getMatrix(MatrixType mt);
-  //! swap back and front buffer
-  virtual void swapBuffers();
   //! switch matrix stack
   virtual void switchMatrixStack(MatrixType type);
   //! set scissor rect
@@ -137,18 +116,6 @@ public:
   //! enable scissor test
   virtual void enableScissorTest(bool flag);
 protected:
-#ifdef WIN32
-  //! device context
-  HDC hDC_;
-  //! GL rendering context
-  HGLRC hRC_;
-#endif
-#if defined(UNIX) && !defined(ANDROID)
-  GLXContext glx_;
-#endif
-#ifdef ANDROID
-  EGLContext m_ctx;
-#endif
   //! matrix stacks
   std::stack<CGE::Matrix> mMatrixStack[3];
   CGE::Matrix mMatrix[3];

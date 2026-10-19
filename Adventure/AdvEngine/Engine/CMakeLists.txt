@@ -290,10 +290,12 @@ add_subdirectory(emscripten)
 endif()
 
 if(NOT RENDER_EMBEDDED)
-# engine1.dat is the runtime the StoryDesigner unpacks: the Adventure and the engine library
+# engine1.dat is the runtime the StoryDesigner unpacks: the Adventure, the
+# engine library and its OpenGL backend plugin
 add_custom_command(TARGET Adventure${ADV_SUFFIX} POST_BUILD
 COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure${ADV_SUFFIX}> $<TARGET_FILE_NAME:Adventure${ADV_SUFFIX}>
-  -C $<TARGET_FILE_DIR:Engine> $<TARGET_FILE_NAME:Engine>)
+  -C $<TARGET_FILE_DIR:Engine> $<TARGET_FILE_NAME:Engine>
+  -C $<TARGET_FILE_DIR:EngineGL> $<TARGET_FILE_NAME:EngineGL>)
 endif()
 
 #install
@@ -318,13 +320,11 @@ COMMAND ${Java_JAR_EXECUTABLE} cfM engine2.dat -C ${OPENAL_PATH} ${OPENAL_FILE}
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} avutil-52.dll
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swresample-0.dll
 -C ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU} swscale-2.dll
--C ${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/${CPU} d3dcompiler_47.dll
 DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avcodec-55.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
-${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/${CPU}/d3dcompiler_47.dll
 )
 
 add_custom_target(pack_engine_deps ALL DEPENDS engine2.dat)
@@ -337,7 +337,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avformat-55.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/avutil-52.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swresample-0.dll
 ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/${CPU}/swscale-2.dll
-${CMAKE_CURRENT_SOURCE_DIR}/../../../Engine/lib/${CPU}/d3dcompiler_47.dll
 DESTINATION adventure)
 
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)

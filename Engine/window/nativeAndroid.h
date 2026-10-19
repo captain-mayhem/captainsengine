@@ -5,31 +5,19 @@
 
 #if defined(ANDROID)
 
-#include <EGL/egl.h>
-
 #include "window.h"
 
 namespace CGE{
 
 class CGE_API AndroidWindow : public AppWindow{
 public:
-  AndroidWindow(CGE::Renderer* renderer);
+  AndroidWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc);
   ~AndroidWindow() {}
   //! init the window
-  void init(const std::string& name);
+  void init(const std::string& name) override;
   //! kill the window
-  void kill();
-  
-  EGLDisplay getDisplay() {
-    return m_display;
-  }
-  
-  EGLSurface getSurface(){
-    return m_surface;
-  }
-protected:
-  EGLDisplay m_display;
-  EGLSurface m_surface;
+  void kill() override;
+  Gfx::NativeWindow getNativeWindow() const override;
 };
 
 }
@@ -41,7 +29,7 @@ protected:
 namespace CGE{
 class CGE_API AndroidWindow : public AppWindow{
 public:
-  AndroidWindow(CGE::Renderer* renderer) : AppWindow(renderer) {}
+  AndroidWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : AppWindow(device, desc) {}
   ~AndroidWindow() {}
 };
 }

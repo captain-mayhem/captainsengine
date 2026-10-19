@@ -1,17 +1,14 @@
 #if defined(LINUX)
-#include "../renderer/GL2/GL2Renderer.h"
-#include <GL/glx.h>
+#include <X11/Xutil.h>
 #include "../system/engine.h"
-#include "../system/script.h"
-#include "../renderer/OpenGL/OGLrenderer.h"
-//#include "../input/keyboard.h"
+#include "../renderer/renderdevice.h"
 #include "nativeLinux.h"
 
 TR_CHANNEL_EXT(CGE_Window);
 
 using namespace CGE;
 
-X11Window::X11Window(CGE::Renderer* renderer) : AppWindow(renderer){
+X11Window::X11Window(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : AppWindow(device, desc){
   disp_ = nullptr;
   win_ = 0;
 }
@@ -23,28 +20,20 @@ void X11Window::init(const std::string& name){
   disp_ = XOpenDisplay(0);
   screen_ = DefaultScreen(disp_);
 
-  int attribs[] = {GLX_RGBA, GLX_DOUBLEBUFFER,
-    GLX_RED_SIZE, 4,
-    GLX_GREEN_SIZE, 4,
-    GLX_BLUE_SIZE, 4,
-    GLX_DEPTH_SIZE, 16,
-    None};
-  XVisualInfo* vi = glXChooseVisual(disp_, screen_, attribs);
-  if (vi == nullptr)
-    EXIT2("Got no doublebuffered window");
+  //the render device may need a particular visual for its context
+  XVisualInfo templ;
+  templ.screen = screen_;
+  templ.visualid = device_ ? device_->chooseX11Visual(disp_, screen_, deviceDesc_) : 0;
+  if (templ.visualid == 0)
+    templ.visualid = XVisualIDFromVisual(DefaultVisual(disp_, screen_));
+  int count;
+  XVisualInfo* vi = XGetVisualInfo(disp_, VisualIDMask | VisualScreenMask, &templ, &count);
+  if (vi == nullptr){
+    EXIT2("No visual for the window");
+    return;
+  }
 
-  int glxMajor;
-  int glxMinor;
-  glXQueryVersion(disp_, &glxMajor, &glxMinor);
-  
   XSetWindowAttributes attr;
-  GLXContext glx = glXCreateContext(disp_, vi, 0, GL_TRUE);
-  if (renderer_->getRenderType() == CGE::OpenGL)
-    static_cast< CGE::OGLRenderer* >(renderer_)->setGLX(glx);
-  else if (renderer_->getRenderType() == CGE::OpenGL2)
-    static_cast< CGE::GL2Renderer* >(renderer_)->setGLX(glx);
-  else
-    TR_ERROR("Unsupported renderer");
   Colormap color = XCreateColormap(disp_, RootWindow(disp_, vi->screen),
       vi->visual, AllocNone);
   attr.colormap = color;
@@ -78,26 +67,16 @@ void X11Window::init(const std::string& name){
     if (shown_)
       show(true);
   }
+  XFree(vi);
+}
 
-  glx = nullptr;
-  renderer_->initContext(this);
-  renderer_->resizeScene(width_, height_);
-
-  //vsync (on unless engine.ini says vsync = false)
-  bool exists;
-  bool vsync = CGE::Script::instance()->getBoolSetting("vsync", &exists) || !exists;
-  typedef void (*SwapIntervalEXTFunc)(Display* dpy, GLXDrawable drawable, int interval);
-  typedef int (*SwapIntervalMESAFunc)(unsigned interval);
-  SwapIntervalEXTFunc swapIntervalEXT = (SwapIntervalEXTFunc)glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalEXT");
-  SwapIntervalMESAFunc swapIntervalMESA = (SwapIntervalMESAFunc)glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalMESA");
-  //Mesa under XWayland (WSLg) lists the swap control extensions only on the client side
-  std::string extensions = std::string(glXQueryExtensionsString(disp_, screen_)) + " " + glXGetClientString(disp_, GLX_EXTENSIONS);
-  if (swapIntervalEXT && extensions.find("GLX_EXT_swap_control") != std::string::npos)
-    swapIntervalEXT(disp_, win_, vsync ? 1 : 0);
-  else if (swapIntervalMESA && extensions.find("GLX_MESA_swap_control") != std::string::npos)
-    swapIntervalMESA(vsync ? 1 : 0);
-  else
-    TR_WARN("No GLX swap control extension, vsync can't be set");
+Gfx::NativeWindow X11Window::getNativeWindow() const{
+  Gfx::NativeWindow wnd;
+  wnd.kind = Gfx::NativeWindow::X11;
+  wnd.display = disp_;
+  wnd.window = (uintptr_t)win_;
+  wnd.screen = screen_;
+  return wnd;
 }
 
 void X11Window::applyResolution(){
@@ -136,8 +115,6 @@ void X11Window::applyResolution(){
 void X11Window::kill(){
   TR_USE(CGE_Window);
   TR_INFO("Killing window");
-
-  renderer_->killContext();
 
   if (fullscreen_){
     XF86VidModeSwitchToMode(disp_, screen_, &prevDesktop_);

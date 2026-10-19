@@ -1,7 +1,6 @@
 #include "engine.h"
 #include "../renderer/GL2/GL2Renderer.h"
 #include "../renderer/OpenGL/OGLrenderer.h"
-#include "../renderer/DirectX/DXrenderer.h"
 #include "../renderer/dummyrenderer.h"
 #include "../input/mouse.h"
 #include "../input/keyboard.h"
@@ -32,6 +31,10 @@ using std::list;
 
 #ifdef ANDROID
 #include <android_native_app_glue.h>
+#endif
+#ifdef LINUX
+//XLookupString
+#include <X11/Xutil.h>
 #endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -108,22 +111,37 @@ void Engine::startup(int argc, char** argv){
   if (!exists)
     graphics_ = true;
 
+  Gfx::DeviceDesc deviceDesc;
+  deviceDesc.vsync = Script::instance()->getBoolSetting("vsync", &exists) || !exists;
+  int bpp = Script::instance()->getNumberSetting("bitsPerPixel");
+  if (bpp > 0)
+    deviceDesc.colorBits = bpp;
+
   if (graphics_){
+    //the old renderers draw on the OpenGL device's context until they are replaced
+    device_ = Gfx::RenderDevice::create("OpenGL");
+    if (!device_){
+      EXIT2("The OpenGL render backend is not available");
+      return;
+    }
     if (!startupRenderer(type)){
       EXIT2("No valid renderer specified in engine.ini");
+      return;
     }
 
 #ifdef WIN32
-    win_ = std::make_unique<WindowsWindow>(rend_.get());
+    win_ = std::make_unique<WindowsWindow>(device_.get(), deviceDesc);
 #endif
 #if defined(LINUX)
-    win_ = std::make_unique<X11Window>(rend_.get());
+    win_ = std::make_unique<X11Window>(device_.get(), deviceDesc);
 #endif
 #ifdef ANDROID
-    win_ = std::make_unique<AndroidWindow>(rend_.get());
+    win_ = std::make_unique<AndroidWindow>(device_.get(), deviceDesc);
 #endif
   }
   else{
+    device_ = Gfx::RenderDevice::create("Null");
+    device_->init(Gfx::NativeWindow(), deviceDesc);
     rend_ = std::make_unique<CGE::DummyRenderer>();
   }
   if (graphics_){
@@ -135,6 +153,13 @@ void Engine::startup(int argc, char** argv){
 #ifdef LINUX
     XSynchronize(static_cast<X11Window*>(win_.get())->getDisplay(), true);
 #endif
+    if (!device_->init(win_->getNativeWindow(), deviceDesc)){
+      EXIT2("The render device could not be initialised");
+      win_->kill();
+      return;
+    }
+    rend_->initContext(win_.get());
+    rend_->resizeScene(device_->getWidth(), device_->getHeight());
   }
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
@@ -168,27 +193,15 @@ bool Engine::startupRenderer(const std::string& type){
     TR_ERROR("OpenGL support is not compiled in");
 #endif
   }
-  else if (type == "DirectX"){
-#ifdef DIRECTX
-    rend_ = std::make_unique<CGE::DXRenderer>();
-#else
-    TR_ERROR("DirectX support is not compiled in\n");
-#endif
-  }
-  else if (type == "GLES"){
-#ifdef GLES
-    rend_ = std::make_unique<CGE::GLESRenderer>();
-#else
-    TR_ERROR("OpenGL ES support is not compiled in\n");
-#endif
-  }
   else if (type == "GL2"){
 #ifdef OPENGL2
     rend_ = std::make_unique<CGE::GL2Renderer>();
 #else
-    TR_ERROR("OpenGL (ES) 2 support is not compiled in\n");
+    TR_ERROR("OpenGL (ES) 2 support is not compiled in");
 #endif
   }
+  else
+    TR_ERROR("Unknown renderer %s", type.c_str());
   return rend_ != nullptr;
 }
 
@@ -216,10 +229,14 @@ void Engine::shutdown(){
     for (auto& fnt : fnt_)
       fnt.reset();
     forms_.reset();
+    //the GL objects go before the context, the context before the window
+    rend_->killContext();
+    device_->shutdown();
     if (win_)
       win_->kill();
     win_.reset();
     rend_.reset();
+    device_.reset();
 #ifdef WIN32
     if (graphics_)
       timeEndPeriod(1);
@@ -305,6 +322,8 @@ void Engine::updateGuiElements(){
 void Engine::renderFrame(){
   if (!graphics_)
     return;
+  if (!device_->beginFrame())
+    return;
   rendering_ = true;
   //render scene
   rend_->renderScene();
@@ -339,7 +358,7 @@ void Engine::renderFrame(){
   rend_->enableBlend(false);
   rend_->enableDepthTest(true);
 
-  rend_->swapBuffers();
+  device_->endFrame();
   rendering_ = false;
 }
 
@@ -361,6 +380,7 @@ void Engine::limitFrame(){
 void Engine::resize(int width, int height){
   if (!rend_)
     return;
+  device_->resize(width, height);
   rend_->resizeScene(width, height);
   if (app_ && win_)
     app_->onResize(win_->getWidth(), win_->getHeight());

@@ -8,8 +8,9 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Window);
 
-AppWindow::AppWindow(CGE::Renderer* render){
-  renderer_ = render;
+AppWindow::AppWindow(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc){
+  device_ = device;
+  deviceDesc_ = desc;
   fullscreen_ = CGE::Script::instance()->getBoolSetting("fullscreen");
   width_ = CGE::Script::instance()->getNumberSetting("width");
   if (width_ == 0)
@@ -17,9 +18,7 @@ AppWindow::AppWindow(CGE::Renderer* render){
   height_ = CGE::Script::instance()->getNumberSetting("height");
   if (height_ == 0)
     height_ = 480;
-  bpp_ = CGE::Script::instance()->getNumberSetting("bitsPerPixel");
-  if (bpp_ == 0)
-    bpp_ = 32;
+  bpp_ = desc.colorBits;
   bool shownSet;
   shown_ = CGE::Script::instance()->getBoolSetting("windowShown", &shownSet);
   if (!shownSet)

@@ -12,11 +12,13 @@ using namespace CGE;
 SOLoader::SOLoader() : mLibrary(NULL){
 }
 
-SOLoader::SOLoader(const std::string& path, const std::string& library){
+SOLoader::SOLoader(const std::string& path, const std::string& library) : mLibrary(NULL){
 	open(path, library);
 }
 
 SOLoader::~SOLoader(){
+  if (!mLibrary)
+    return;
 #ifdef WIN32
 	FreeLibrary(mLibrary);
 #endif
@@ -52,6 +54,24 @@ loadedFunc SOLoader::getFunction(const char* name){
 #endif
 #ifdef UNIX
 	return (loadedFunc)dlsym(mLibrary, name);
+#endif
+}
+
+std::string SOLoader::getLastError(){
+#ifdef WIN32
+  DWORD err = GetLastError();
+  char* msg = NULL;
+  FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+    NULL, err, 0, (LPSTR)&msg, 0, NULL);
+  std::string result = msg ? msg : "error "+std::to_string(err);
+  LocalFree(msg);
+  while (!result.empty() && (result.back() == '\n' || result.back() == '\r'))
+    result.pop_back();
+  return result;
+#endif
+#ifdef UNIX
+  const char* msg = dlerror();
+  return msg ? msg : "";
 #endif
 }
 

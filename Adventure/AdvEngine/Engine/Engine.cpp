@@ -1906,7 +1906,7 @@ void Engine::drawQuadLines(){
 }
 
 void Engine::flipTexture(){
-  if (CGE::Engine::instance()->getRenderer()->getRenderType() != CGE::DirectX){ //flip the quad in open gl case
+  if (!CGE::Engine::instance()->getRenderDevice()->getClipSpace().originTopLeft){ //flip the quad in open gl case
     CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
     rend->translate(0.0f, (float)Engine::instance()->getResolution().y, 0.0f);
     rend->scale(1.0f, -1.0f, 1.0f);

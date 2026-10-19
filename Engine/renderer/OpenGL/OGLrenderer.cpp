@@ -1,9 +1,4 @@
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-#include "../../window/nativeWindows.h"
-#include "../../window/nativeLinux.h"
+#include "../../window/window.h"
 #include "../../system/engine.h"
 //#include <GL/gl.h>
 #include "OGLvertexbuffer.h"
@@ -17,118 +12,20 @@ TR_CHANNEL(CGE_Renderer_OGL);
 
 OGLRenderer::OGLRenderer(): Renderer() {
   type_ = OpenGL;
-#ifdef WIN32
-  hDC_ = nullptr;
-  hRC_ = nullptr;
-#endif
-#ifdef UNIX
-  glx_ = nullptr;
-#endif
 }
 
 OGLRenderer::~OGLRenderer(){
-#if defined(WIN32)
-  wglDeleteContext(hRC_);
-#endif
 }
 
 void OGLRenderer::initContext(CGE::AppWindow* win){
   TR_USE(CGE_Renderer_OGL);
-  TR_INFO("Initializing OpenGL context");
+  TR_INFO("Initializing OpenGL renderer");
   win_ = win;
-#if defined(WIN32)
-  static PIXELFORMATDESCRIPTOR pfd ={
-    sizeof(PIXELFORMATDESCRIPTOR),
-      1,
-      PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,
-      PFD_TYPE_RGBA,
-      win->getBpp(),
-      0, 0, 0, 0, 0, 0,   //Color bits ignored
-      0,					//No Alpha buffer
-      0,					//shift bit ignored
-      0,					//no accumulation buffer
-      0, 0, 0, 0,			//accumulation bits ignored
-      16,					//Z-buffer depth
-      0,					//no stencil buffer
-      0,					//no auxiliary buffer
-      PFD_MAIN_PLANE,
-      0,					//Reserved
-      0, 0, 0				//Layer masks ignored
-  };
-
-  HWND wnd = (HWND)static_cast<WindowsWindow*>(win)->getHandle();
-  if(!(hDC_ = GetDC(wnd))){
-    TR_ERROR("Can't create GL device context");
-    EXIT();
-  }
-
-  GLuint pixelFormat;
-  if(!(pixelFormat = ChoosePixelFormat(hDC_, &pfd))){
-    TR_ERROR("Can't find a suitable PixelFormat");
-    EXIT();
-  }
-
-  if (!SetPixelFormat(hDC_, pixelFormat, &pfd)){
-    TR_ERROR("Can't set the PixelFormat");
-    EXIT();
-  }
-
-  if (!(hRC_ = wglCreateContext(hDC_))){
-    TR_ERROR("Can't create GL rendering context");
-    EXIT();
-  }
-
-  if (!wglMakeCurrent(hDC_, hRC_)){
-    TR_ERROR("Cant't activate GL rendering context");
-    EXIT();
-  }
-
-#endif
-#ifdef UNIX
-  X11Window* x11 = static_cast<X11Window* >(win_);
-  glXMakeCurrent(x11->getDisplay(), x11->getWindow(), glx_);
-#endif
 #ifdef OPENGL2
   // OGLTexture is shared with the GL2 renderer and calls glActiveTexture
   // through GLEW, so the GLEW function pointers are needed here too
   if (glewInit() != GLEW_OK)
     TR_ERROR("Unable to init OpenGL extensions");
-#endif
-#ifdef WIN32
-  resizeScene(win->getWidth(), win->getHeight());
-#endif
-  //initRendering();  
-  
-}
-
-void OGLRenderer::killContext(){
-  TR_USE(CGE_Renderer_OGL);
-#if defined(WIN32)
-  if (hRC_){
-    if (!wglMakeCurrent(nullptr,nullptr)){
-      TR_ERROR("Release of GL context failed");
-    }
-    if (!wglDeleteContext(hRC_)){
-      TR_ERROR("Release of rendering context failed");
-    }
-    hRC_ = nullptr;
-  }
-
-  HWND wnd = (HWND)static_cast<WindowsWindow*>(win_)->getHandle();
-  if (hDC_ && !ReleaseDC(wnd,hDC_)){
-    TR_ERROR("Release of device context failed");
-    hDC_ = nullptr;
-  }
-#endif
-#ifdef UNIX
-  X11Window* x11 = static_cast<X11Window* >(win_);
-  if (glx_){
-    if (!glXMakeCurrent(x11->getDisplay(), None, nullptr)){
-      TR_ERROR("Release of GL context failed");
-    }
-    glXDestroyContext(x11->getDisplay(), glx_);
-    glx_ = nullptr;
-  }
 #endif
 }
 
@@ -162,10 +59,9 @@ void OGLRenderer::renderScene(){
 
 void OGLRenderer::resizeScene(int width, int height){
   TR_USE(CGE_Renderer_OGL);
-#ifdef WIN32
-  if (hRC_ == nullptr)
+  //before initContext (e.g. while the window is created)
+  if (win_ == nullptr)
     return;
-#endif
   TR_INFO("Resizing Scene");
   if (height == 0){
     height = 1;
@@ -440,16 +336,6 @@ Matrix OGLRenderer::getMatrix(MatrixType mt){
     return Matrix(tmp);
   }
   return Matrix(Matrix::Identity);
-}
-
-void OGLRenderer::swapBuffers(){
-#ifdef WIN32
-  SwapBuffers(hDC_);
-#endif
-#ifdef UNIX
-  X11Window* win = static_cast<X11Window*>(win_);
-  glXSwapBuffers(win->getDisplay(), win->getWindow());
-#endif
 }
 
 void OGLRenderer::setLight(int number, const Light& lit){

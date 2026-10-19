@@ -19,7 +19,7 @@ void RenderTarget::drawFullscreen(bool transform){
   rend->enableTexturing(true);
   rend->setColor(1, 1, 1, 1);
   if (transform){
-    if (rend->getRenderType() != DirectX){
+    if (!CGE::Engine::instance()->getRenderDevice()->getClipSpace().originTopLeft){
       rend->switchMatrixStack(CGE::MatTexture);
       rend->resetModelView();
       rend->scale(1, -1, 1);
@@ -30,7 +30,7 @@ void RenderTarget::drawFullscreen(bool transform){
   }
   forms.drawQuad(Vec2f(), Vec2f(1, 1));
   if (transform){
-    if (rend->getRenderType() != DirectX){
+    if (!CGE::Engine::instance()->getRenderDevice()->getClipSpace().originTopLeft){
       rend->resetModelView();
       rend->switchMatrixStack(CGE::Modelview);
     }
