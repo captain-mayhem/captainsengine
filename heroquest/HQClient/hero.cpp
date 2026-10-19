@@ -231,14 +231,14 @@ void Hero::write(const string& p) const{
 //makes a string out of all creature values
 const string Hero::data(short posIdx){
   string data = player_+" "+name_+" "+type_;
-  data += " "+toStr(body_)+" "+toStr(mind_)+" "+toStr(attack_);
-  data += " "+toStr(defend_);
-  data += " "+toStr(position_.x)+" "+toStr(position_.y)+" "+toStr(id_);
-  data += " "+toStr(posIdx);
-  data += " "+toStr(movement_);
-  data += " "+toStr(money_);
+  data += " "+std::to_string(body_)+" "+std::to_string(mind_)+" "+std::to_string(attack_);
+  data += " "+std::to_string(defend_);
+  data += " "+std::to_string(position_.x)+" "+std::to_string(position_.y)+" "+std::to_string(id_);
+  data += " "+std::to_string(posIdx);
+  data += " "+std::to_string(movement_);
+  data += " "+std::to_string(money_);
   data += " "+items_.toString();
-  data += " "+toStr(spellClasses_);
+  data += " "+std::to_string(spellClasses_);
   return data;
 }
 

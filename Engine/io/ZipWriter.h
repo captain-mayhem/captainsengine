@@ -19,7 +19,7 @@ public:
 	bool createFile(const std::string& filename);
   bool addEntry(const std::string& entry, Reader& file, const std::string& password = "");
   virtual ~ZipWriter();
-  virtual bool isWorking() { return mHandle != NULL; }
+  virtual bool isWorking() { return mHandle != nullptr; }
 protected:
   zipFile mHandle;
   zlib_filefunc_def mFileFuncs;

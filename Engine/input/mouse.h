@@ -40,22 +40,12 @@ namespace Input{
     static void init(bool hasGraphics);
     inline static Mouse* instance() {return mouse_;}
     inline static void release() {SAFE_DELETE(mouse_);}
-    //! set button down callback
-    inline void setButtonDownCB(void (*proc)(int x, int y, int button)) {buttonDownCB_ = proc;}
-    //! set button up callback
-    inline void setButtonUpCB(void (*proc)(int x, int y, int button)) {buttonUpCB_ = proc;}
-    //! set double click callback
-    inline void setDoubleClickCB(void (*proc)(int x, int y, int button)) {doubleClickCB_ = proc;}
-    //! set mouse move callback
-    inline void setMouseMoveCB(void (*proc)(int x, int y, int button)) {moveCB_ = proc;}
-    //! set mouse wheel callback
-    inline void setWheelTurnCB(void (*proc)(int x, int y, int delta)) {wheelCB_ = proc;}
     void buttonDown(int x, int y, int button);
     void buttonUp(int x, int y, int button);
     void doubleClick(int x, int y, int button);
     void move(int x, int y, int buttons);
     void wheel(int x, int y, int delta);
-    //! get the position of the last click
+    //! get the position of the last click in virtual coordinates
     inline CGE::Vector2D getClickPos() {return clickPos_;}
     //! reset click position
     inline void resetMousePos() {clickPos_ = CGE::Vector2D(-1,-1);}
@@ -63,27 +53,17 @@ namespace Input{
     inline bool isGuiClick() {return gui_click_;}
     //! show the cursor
     void showCursor(bool visible);
-    //! set mouse position
+    //! set the mouse position in virtual coordinates
     void setMousePos(int x, int y);
     //! is the mouse visible
     inline bool isMouseActive() {return mousePointer_;}
     //! is a button clicked
     bool isPressed(int button);
-    //! get the position of the mouse
+    //! get the position of the mouse in virtual coordinates
     inline CGE::Vector2D getMousePos() {return mousePos_;}
   protected:
     static Mouse* mouse_;
     Mouse();
-    //! button down callback
-    void (*buttonDownCB_)(int x, int y, int button);
-    //! button up callback
-    void (*buttonUpCB_)(int x, int y, int button);
-    //! double click callback
-    void (*doubleClickCB_)(int x, int y, int button);
-    //! mouse move callback
-    void (*moveCB_)(int x, int y, int button);
-    //! mouse wheel callback
-    void (*wheelCB_)(int x, int y, int delta);
     //! the position of the last click
     CGE::Vector2D clickPos_;
     //! the position of the mouse

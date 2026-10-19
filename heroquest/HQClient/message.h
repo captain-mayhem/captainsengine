@@ -29,9 +29,6 @@ extern Message msg;
 
 class Hero;
 
-using std::string;
-using std::map;
-using std::vector;
 
 //! The central message handling class
 /*! This class is responsible for handling all game commands that
@@ -62,40 +59,40 @@ public:
    * \param mode mode can switch the behaviour of this special function
    * \param additional if additional data is required, it can be passed in here
    */
-  inline static void special(const string& message, int mode, void* additional) {msg.special_(message, mode, additional); }
+  inline static void special(const std::string& message, int mode, void* additional) {msg.special_(message, mode, additional); }
   //! quits the application with notifying the server
   void quit();
   //! returns true if the client is connected to the server
-  inline bool isConnected() {return ss_ != NULL;}
+  inline bool isConnected() {return ss_ != nullptr;}
   //! sends a message directly to the server without preprocessing
-  void send(const string& text);
+  void send(const std::string& text);
   //! gets an initial setting value
-  string& getSetting(short number);
+  std::string& getSetting(short number);
   //! get the defend status
   inline bool isToDefend() {return toDefend_;}
   //! set defended
   inline void setDefended() {toDefend_ = false;}
   //! get all available heros
-  inline vector<Hero>& getHeros() {return heros_;}
+  inline std::vector<Hero>& getHeros() {return heros_;}
 private:
   //! the special function callback
-  void special_(const string& message, int mode, void* additional);
+  void special_(const std::string& message, int mode, void* additional);
   //! processes a command from user input
   void process_(const char* cmd);
   //! maps typed in commands to server opcodes
-  map<string,int> cliToSrv_;
+  std::map<std::string,int> cliToSrv_;
   //! all available heros
-  vector<Hero> heros_;
+  std::vector<Hero> heros_;
   //! the socket for communication with the server
   ClientSocket* ss_;
   //! the receiving thread
   CGE::Thread tid_;
   //! initialization settings
-  vector<string> settings_;
+  std::vector<std::string> settings_;
   //! if there is something to defend
   bool toDefend_;
   //! the incoming messages
-  std::queue<string> messages_;
+  std::queue<std::string> messages_;
   //! guards messages_, which the receiving thread fills
   std::mutex messagesMutex_;
   //! the server process - if started locally

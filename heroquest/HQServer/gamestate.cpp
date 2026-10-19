@@ -26,6 +26,9 @@
 #include "admin.h"
 #include "gamestate.h"
 
+using std::string;
+using std::cerr;
+
 GameState::GameState(){
   cerr << "Server is running...\n";
   pendingDamage = 0;
@@ -133,7 +136,7 @@ string GameState::die(const short num, const bool movementDice, short* s, short*
       double number = ((double)rand() / RAND_MAX * 6.0)+1;
       if (m)
         *m += (short)number;
-      ret += toStr((int)number)+" ";
+      ret += std::to_string((int)number)+" ";
     }
     return ret;
   }
@@ -195,7 +198,7 @@ void GameState::endTurn(ServerSocket* ss){
   //is damage pending?
   if (game.getPendingDamage() != 0){
     Vector2D pos = game.getActionPlace();
-    string msg = toStr(DAMAGE)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(game.getPendingDamage());
+    string msg = std::to_string(DAMAGE)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(game.getPendingDamage());
     GameObject* o = wrld.getObject(pos);
     Creature* c = dynamic_cast<Creature*>(o);
     c->setBody(c->getBody()-game.getPendingDamage());
@@ -227,30 +230,30 @@ void GameState::endTurn(ServerSocket* ss){
     }
   }
   if (actSs == NULL || !heroThere){
-    //*ss << toStr(CHAT)+ "Nobody plays a role. Game cannot run";
+    //*ss << std::to_string(CHAT)+ "Nobody plays a role. Game cannot run";
     game.end();
-    globl.broadcast(toStr(END)+" game");
+    globl.broadcast(std::to_string(END)+" game");
     return;
   }
   wrld.setObjectAnchor(msg.getCreature(), msg.getCreature()->getPosition());
   scr.startTurn(msg.getCreature()->getPosition());
   //is creature sleeping?
   if (msg.getCreature()->isSleeping()){
-    string newop = toStr(END)+" turn";
+    string newop = std::to_string(END)+" turn";
     wait();
     msg.process(actSs, newop);
     return;
   }
   globl.getPlayer(actSs)->setLastCreature(msg.getCreature());
-  *actSs << toStr(TURN)+" "+ msg.getCreature()->getName();
-  globl.chat(actSs, toStr(CHAT)+" It's "+ globl.getPlayer(actSs)->getName()+ "'s turn.");
+  *actSs << std::to_string(TURN)+" "+ msg.getCreature()->getName();
+  globl.chat(actSs, std::to_string(CHAT)+" It's "+ globl.getPlayer(actSs)->getName()+ "'s turn.");
 }
 
 // get and generate random numbers
 int GameState::getRandomNumber(){
   const int maxEntries = 20;
   int diff = maxEntries - randoms_.size();
-  string message = toStr(RANDOM)+" "+toStr(diff);
+  string message = std::to_string(RANDOM)+" "+std::to_string(diff);
   for (int i = 0; i < diff; i++){
     string result = game.die(1, true);
     message += " "+result;

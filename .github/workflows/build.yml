@@ -76,5 +76,8 @@ jobs:
 
       - run: cmake --preset ${{ matrix.preset }} ${{ matrix.options }} ${{ env.OPENAL_OPTIONS }}
       - run: cmake --build ${{ matrix.build_dir }} --config Release
+      # the unit tests (googletest); they need no display. Not built for Android.
+      - if: matrix.preset != 'android'
+        run: ctest --test-dir ${{ matrix.build_dir }} -C Release --output-on-failure -j 4
       - if: matrix.preset != 'android'
         run: cmake --install ${{ matrix.build_dir }} --config Release

@@ -6,6 +6,9 @@
 #include "mesh/mesh.h"
 #include "templates.h"
 
+using std::vector;
+using std::cerr;
+
 using std::ifstream;
 using std::string;
 

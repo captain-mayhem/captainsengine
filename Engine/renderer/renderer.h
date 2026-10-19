@@ -62,14 +62,6 @@ public:
   /*! It can be an OpenGL or DirectX renderer
   */
   RenderType getRenderType() {return type_;}
-  //! set render callback
-  void setRenderCB(void (*proc)()) {renderCB_ = proc;}
-  //! set init callback
-  void setInitCB(void (*proc)()) {initCB_ = proc;}
-  //! set deinit callback
-  void setDeinitCB(void (*proc)()) {deinitCB_ = proc;}
-  //! set resize callback
-  void setResizeCB(void (*proc)(int width, int height)) {resizeCB_ = proc;}
   //! initialize rendering context
   virtual void initContext(AppWindow* win);
   //! kill rendering context
@@ -89,11 +81,11 @@ public:
   //! clear scene
   virtual void clear(long flags){}
   //! create vertex buffer
-  virtual VertexBuffer* createVertexBuffer(){return NULL;}
+  virtual VertexBuffer* createVertexBuffer(){return nullptr;}
   //! create index buffer
-  virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size){return NULL;}
+  virtual IndexBuffer* createIndexBuffer(IndexBuffer::Type t, uint32 size){return nullptr;}
   //! create texture
-  Texture* createTexture(string filename, Texture::Format fmt=Texture::AUTO);
+  Texture* createTexture(std::string filename, Texture::Format fmt=Texture::AUTO);
   //! create texture
   Texture* createTexture(Image const* img, Texture::Format fmt);
   //! create empty texture
@@ -176,14 +168,6 @@ protected:
   RenderType type_;
   //! the window in which is rendered
   AppWindow* win_;
-  //! the render callback
-  void (*renderCB_)();
-  //! the init callback
-  void (*initCB_)();
-  //! the deinit callback
-  void (*deinitCB_)();
-  //! the resize callback
-  void (*resizeCB_)(int width, int height);
 };
 
 }

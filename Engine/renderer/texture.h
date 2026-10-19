@@ -5,7 +5,6 @@
 
 #include <string>
 
-using std::string;
 
 namespace CGE{
 
@@ -30,7 +29,7 @@ public:
   virtual bool createEmpty(unsigned width, unsigned height, Format fmt) = 0;
   virtual void update(int x, int y, unsigned width, unsigned height, void* data) = 0;
   virtual Texture* copy() = 0;
-  static Texture** loadFromDat(const string& path, const string& filename, int& number);
+  static Texture** loadFromDat(const std::string& path, const std::string& filename, int& number);
   //! load a texture
   static Texture* create(const std::string& filename);
   //! get a filename

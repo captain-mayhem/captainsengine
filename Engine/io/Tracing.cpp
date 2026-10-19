@@ -83,11 +83,11 @@ void TraceObject::trace(int level, const char* function, const char* message, ..
 }
 
 LogOutputter::LogOutputter(){
-  mLogName = /*Filesystem::getStorageDir()+*/"engine.log";
+  mLogName = "engine.log";
 }
 
 LogOutputter::LogOutputter(std::string const& file){
-  mLogName = /*Filesystem::getStorageDir()+*/file;
+  mLogName = file;
 }
 
 LogOutputter::~LogOutputter(){

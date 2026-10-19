@@ -14,9 +14,9 @@
 using namespace CGE;
 
 GL2VertexBuffer::GL2VertexBuffer(){
-  vb_ = NULL;
+  vb_ = nullptr;
   flags_ = 0;
-  verts_ = NULL;
+  verts_ = nullptr;
   vertoffset_ = -1;
   coloffset_ = -1;
   texoffset_ = -1;
@@ -64,7 +64,7 @@ void* GL2VertexBuffer::lockVertexPointer(){
 }
 
 void GL2VertexBuffer::unlockVertexPointer(){
-  verts_ = NULL;
+  verts_ = nullptr;
 }
 
 void GL2VertexBuffer::activate(){
@@ -102,7 +102,7 @@ void GL2VertexBuffer::activate(){
 
 void GL2VertexBuffer::draw(PrimitiveType pt, IndexBuffer* indices, int offset, int count){
   GL2Shader::getCurrentShader()->applyEngineUniforms();
-  if (indices == NULL){
+  if (indices == nullptr){
     if (pt == VB_Tristrip)
       glDrawArrays(GL_TRIANGLE_STRIP, offset, count);
     else if (pt == VB_Triangles)

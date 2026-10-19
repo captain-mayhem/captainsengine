@@ -117,8 +117,8 @@ Message::~Message(){
 
 //quit game
 void Message::quit(){
-	if (ss_ != NULL){
-		*ss_ << toStr(QUIT);
+	if (ss_ != nullptr){
+		*ss_ << std::to_string(QUIT);
 		//SDL_KillThread(tid_);
     tid_.destroy();
 		delete ss_;
@@ -142,14 +142,14 @@ void Message::process_(const char* cmd){
 		//Chat to everybody
 		if (what == ":"){
 			opcode = CHAT;
-			toSend = toStr(opcode);
+			toSend = std::to_string(opcode);
 		}
 		//Chat to someone specific
 		else{
 			string arg = what.erase(0,1);
 			argv.push_back(arg);
 			opcode = CHAT_PERSON;
-			toSend = toStr(opcode);
+			toSend = std::to_string(opcode);
 		}
 	}
 	else{
@@ -167,7 +167,7 @@ void Message::process_(const char* cmd){
     }
 		opcode = cliToSrv_[op];
 		op.clear();
-		toSend = toStr(opcode);
+		toSend = std::to_string(opcode);
 	}
 
 	//store all other arguments in a string vector
@@ -217,7 +217,7 @@ void Message::process_(const char* cmd){
 			consol << "Error: " + e.description()  + "\n";
 			line << "Error: " + e.description()  + "\n";
 			delete ss_;
-			ss_ = NULL;
+			ss_ = nullptr;
 		}
 	break;
 
@@ -248,13 +248,13 @@ void Message::process_(const char* cmd){
     else{
       CGE::Thread::sleep(100); //wait so that the server has time to initialize
       process_(("connect 127.0.0.1 " + argv[0]).c_str());
-      if (ss_ == NULL){
+      if (ss_ == nullptr){
         consol << "Unable to start server...\n";
         line << "Unable to start server...\n";
       }
       else{
         plyr.setName(msg.getSetting(2));
-        special_(msg.getSetting(3), LOGIN, NULL);
+        special_(msg.getSetting(3), LOGIN, nullptr);
       }
     }
     break;
@@ -285,7 +285,7 @@ void Message::process_(const char* cmd){
 	// just for conveniece, some hints on available commands
 	case HELP:
 		//not connected
-		if (ss_ == NULL){
+		if (ss_ == nullptr){
 			consol << "connect <server> <port>\nstartserver <port>";
 		}
 		//not logged in
@@ -326,13 +326,13 @@ void Message::process_(const char* cmd){
       vector<Item>::iterator it = items.begin();
       it++;
       while( it != items.end() ) {
-        consol<<toStr(it->getNumber())+" "+it->getName()+" "+it->getAdditional();
+        consol<<std::to_string(it->getNumber())+" "+it->getName()+" "+it->getAdditional();
         it++;
       }
       // display money if it is a hero
       Hero* h = dynamic_cast<Hero*>(plyr.getCreature());
       if (h){
-        consol<<"Money: "+toStr(h->getMoney());
+        consol<<"Money: "+std::to_string(h->getMoney());
       }
       // display worn items
       Inventory* inv = plyr.getCreature()->getInventory();
@@ -356,7 +356,7 @@ void Message::process_(const char* cmd){
         consol << ite.getName()+" is worn on the breast.";
     }
     else if(toLower(argv[0]) == "shop"){
-      if (plyr.getTrade() == NULL){
+      if (plyr.getTrade() == nullptr){
         consol<<"There is no shop available at the moment.";
         break;
       }
@@ -406,7 +406,7 @@ void Message::process_(const char* cmd){
 			string name = argv[0];
 			//playing the evil zargon
 			if (toLower(name) == "zargon"){
-				*ss_ << toStr(PLAY)+ " zargon";
+				*ss_ << std::to_string(PLAY)+ " zargon";
 			}
 			//or a hero
 			else{
@@ -422,7 +422,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		*ss_ << toStr(START);
+		*ss_ << std::to_string(START);
 	break;
     
 	case END:
@@ -440,10 +440,10 @@ void Message::process_(const char* cmd){
 			Creature* creat = plyr.getCreature();
 			const Field* back = creat->getBackPointer();
 			//move did not succeed?
-			if (back != NULL){
+			if (back != nullptr){
         Vector3D move = Vector3D(back->getPosition()-creat->getPosition());
         cam.moveTo(move.magnitude()*QUADSIZE, move);
-				*ss_ << toStr(POSITION) + " " + toStr(back->getPosition().x) + " "+ toStr(back->getPosition().y);
+				*ss_ << std::to_string(POSITION) + " " + std::to_string(back->getPosition().x) + " "+ std::to_string(back->getPosition().y);
 			}
 			wait();
 			game.setMoves(0);
@@ -452,7 +452,7 @@ void Message::process_(const char* cmd){
 			creat->setCamPos(cam.position());
 			creat->setRot(cam.getCurrRotX());
 			plyr.setTurn(false);
-			*ss_ << toStr(END)+ " turn";
+			*ss_ << std::to_string(END)+ " turn";
 			scr.endTurn(creat->getPosition());
 			break;
 		}
@@ -466,7 +466,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		*ss_ << toStr(MOVE);
+		*ss_ << std::to_string(MOVE);
 	break;
     
 	case UP_DIR:
@@ -481,7 +481,7 @@ void Message::process_(const char* cmd){
 			consol << "Not yet moved or no more moves left.";
 			break;
 		}
-		*ss_ << toStr(opcode);
+		*ss_ << std::to_string(opcode);
 	break;
 
 	case OPEN:
@@ -506,7 +506,7 @@ void Message::process_(const char* cmd){
 			consol << "wrong direction";
 			break;
 		}
-		*ss_ << toStr(OPEN) + " " + toStr((int)d);
+		*ss_ << std::to_string(OPEN) + " " + std::to_string((int)d);
 		}
 	break;
 
@@ -519,7 +519,7 @@ void Message::process_(const char* cmd){
 			consol << "Usage: Attack <x> <y>";
 			break;
 		}
-		*ss_ << toStr(ATTACK)+" "+argv[0]+" "+argv[1];
+		*ss_ << std::to_string(ATTACK)+" "+argv[0]+" "+argv[1];
 	break;
 
 	case DEFEND:
@@ -531,7 +531,7 @@ void Message::process_(const char* cmd){
 			consol << "You have nothing to defend";
 			break;
 		}
-		*ss_ << toStr(DEFEND)+" "+toStr(game.getPendingDamage());
+		*ss_ << std::to_string(DEFEND)+" "+std::to_string(game.getPendingDamage());
 		game.setPendingDamage(0);
 	break;
 
@@ -560,7 +560,7 @@ void Message::process_(const char* cmd){
 		}
 		Creature* creat = dynamic_cast<Creature*>(o);
 		if (creat){
-			string msg = "Name: "+creat->getName()+ "/"+creat->getPlayer()+"("+creat->getType()+"), Body Points: "+toStr(creat->getBody())+ ", Attack: "+toStr(creat->getAttack())+ ", Defense: "+toStr(creat->getDefence());
+			string msg = "Name: "+creat->getName()+ "/"+creat->getPlayer()+"("+creat->getType()+"), Body Points: "+std::to_string(creat->getBody())+ ", Attack: "+std::to_string(creat->getAttack())+ ", Defense: "+std::to_string(creat->getDefence());
 			consol << msg;
       line << msg;
 			break;
@@ -573,7 +573,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		*ss_ << toStr(SECRETDOOR);
+		*ss_ << std::to_string(SECRETDOOR);
 	break;
 
 	case SPELL:
@@ -585,7 +585,7 @@ void Message::process_(const char* cmd){
 			consol << "Usage: spell <x> <y> <spellindex>";
 			break;
 		}
-		*ss_ << toStr(SPELL)+" "+argv[0]+" "+argv[1]+" "+argv[2];
+		*ss_ << std::to_string(SPELL)+" "+argv[0]+" "+argv[1]+" "+argv[2];
 	break;
 
   case USE_ITEM:
@@ -598,9 +598,9 @@ void Message::process_(const char* cmd){
 			break;
 		}
     if (argv.size() < 3)
-		  *ss_ << toStr(USE_ITEM)+" "+"0"+" "+"0"+" "+argv[0]+" "+plyr.getActCreature(); 
+		  *ss_ << std::to_string(USE_ITEM)+" "+"0"+" "+"0"+" "+argv[0]+" "+plyr.getActCreature(); 
     else
-		  *ss_ << toStr(USE_ITEM)+" "+argv[1]+" "+argv[2]+" "+argv[0]+" "+plyr.getActCreature();
+		  *ss_ << std::to_string(USE_ITEM)+" "+argv[1]+" "+argv[2]+" "+argv[0]+" "+plyr.getActCreature();
     break;
 
   case TREASURE:
@@ -608,7 +608,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		*ss_ << toStr(TREASURE);
+		*ss_ << std::to_string(TREASURE);
 	  break;
     
   case WHATIS:
@@ -636,7 +636,7 @@ void Message::process_(const char* cmd){
       consol << "Usage: takeoff <item>";
       break;
     }
-    *ss_ << toStr(TAKE_OFF)+" "+argv[0];
+    *ss_ << std::to_string(TAKE_OFF)+" "+argv[0];
     break;
 
   case SPAWN:
@@ -648,7 +648,7 @@ void Message::process_(const char* cmd){
       consol << "Usage: spawn <item> <amount>";
       break;
     }
-    *ss_ << toStr(SPAWN)+" "+argv[0]+" "+argv[1];
+    *ss_ << std::to_string(SPAWN)+" "+argv[0]+" "+argv[1];
     break;
 
   case TRAP:
@@ -656,7 +656,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
     }
-    *ss_ << toStr(TRAP);
+    *ss_ << std::to_string(TRAP);
     break;
    
   case DISARM:
@@ -682,7 +682,7 @@ void Message::process_(const char* cmd){
 			consol << "wrong direction";
 			break;
 		}
-		*ss_ << toStr(DISARM) + " " + toStr((int)d);
+		*ss_ << std::to_string(DISARM) + " " + std::to_string((int)d);
 		}
 	break;
  	
@@ -709,7 +709,7 @@ void Message::process_(const char* cmd){
 			consol << "wrong direction";
 			break;
 		}
-		*ss_ << toStr(JUMP) + " " + toStr((int)d);
+		*ss_ << std::to_string(JUMP) + " " + std::to_string((int)d);
 		}
 	break;
   
@@ -718,7 +718,7 @@ void Message::process_(const char* cmd){
 			consol << "Usage: dump <filename>";
       break;
 		}
-    *ss_ << toStr(DUMP) + " " + argv[0];
+    *ss_ << std::to_string(DUMP) + " " + argv[0];
     break;
 
   case REPLAY:
@@ -726,7 +726,7 @@ void Message::process_(const char* cmd){
 			consol << "Usage: replay <filename>";
       break;
 		}
-    *ss_ << toStr(REPLAY) + " " + argv[0];
+    *ss_ << std::to_string(REPLAY) + " " + argv[0];
     break;
 
   case DROP:
@@ -738,7 +738,7 @@ void Message::process_(const char* cmd){
 			consol << "Usage: drop <item>";
       break;
 		}
-		*ss_ << toStr(DROP) + " " + argv[0];
+		*ss_ << std::to_string(DROP) + " " + argv[0];
     break;
 
   case BUY:
@@ -754,7 +754,7 @@ void Message::process_(const char* cmd){
       consol << "There exists no "+argv[0]+" in the shop";
       break;
     }
-    *ss_ << toStr(BUY) + " " + argv[0];
+    *ss_ << std::to_string(BUY) + " " + argv[0];
     break;
 
   case SELL:
@@ -770,7 +770,7 @@ void Message::process_(const char* cmd){
       consol << "You possess no "+argv[0]+" that you could sell";
       break;
     }
-    *ss_ << toStr(SELL) + " " + argv[0];
+    *ss_ << std::to_string(SELL) + " " + argv[0];
 
     break;
 
@@ -779,7 +779,7 @@ void Message::process_(const char* cmd){
 			consol << "Not allowed at the moment";
 			break;
 		}
-		*ss_ << toStr(PICKUP);
+		*ss_ << std::to_string(PICKUP);
 	  break;
 
 	default:
@@ -1117,9 +1117,9 @@ void Message::process(){
 		  scr.move(newPos);
       //check if level dependent script is activated
       Field& f = wrld.getField(newPos);
-      if (f.script != NULL){
+      if (f.script != nullptr){
         if (scr.call(OnWalkAt, f.script))
-          f.script = NULL;
+          f.script = nullptr;
       }
 	  }
 	  break;
@@ -1154,7 +1154,7 @@ void Message::process(){
 		  Direction dir = (Direction)toInt(argv[2]);
 		  Door* doo = wrld.getDoor(pos,dir);
       //is a script on the door
-      if (doo->getScript() != NULL){
+      if (doo->getScript() != nullptr){
         scr.call(OnOpen, doo->getScript(), pos);
       }
 		  doo->setClosed(false);
@@ -1219,7 +1219,7 @@ void Message::process(){
         break;
 		  creat->setBody(creat->getBody()-damage);
 		  scr.hit(pos);
-		  string msg = creat->getName()+ " suffers a damage of "+toStr(damage);
+		  string msg = creat->getName()+ " suffers a damage of "+std::to_string(damage);
 		  line << msg;
 		  consol << msg;
 		  //creature died
@@ -1258,7 +1258,7 @@ void Message::process(){
         unsigned id = d->getModel()->getID();
         //wrld.getScene().deleteModel(id);
         //set new door model
-        CGE::Mesh* msh = NULL;
+        CGE::Mesh* msh = nullptr;
         std::vector<CGE::Mesh*> meshes = wrld.getScene().getMeshes();
         for (unsigned  i = 0; i < meshes.size(); ++i){
           if (meshes[i]->getName() == "models/world/door.obj"){
@@ -1267,7 +1267,7 @@ void Message::process(){
           }
         }
         assert(msh);
-        CGE::Texture* tex = NULL;
+        CGE::Texture* tex = nullptr;
         std::vector<CGE::Texture*> textures = wrld.getScene().getTextures();
         for (unsigned i = 0; i < textures.size(); ++i){
           if (textures[i]->getName() == "textures/world/door.jpg"){
@@ -1346,7 +1346,7 @@ void Message::process(){
       Vector2D src(toInt(argv[0]), toInt(argv[1]));
       if (argv[2] == "event"){
         eventType e = (eventType)toInt(argv[3]);
-        ScriptInfo* si = NULL;
+        ScriptInfo* si = nullptr;
         Vector2D pos = Vector2D(-1,-1);
         switch (e){
           case OnTreasure:
@@ -1365,7 +1365,7 @@ void Message::process(){
       else if (argv[2] == "trap"){
         Vector2D trg(toInt(argv[3]), toInt(argv[4]));
         Field& f = wrld.getField(trg);
-        if (!f.object || (f.object && dynamic_cast<Furniture*>(f.object) == NULL)){
+        if (!f.object || (f.object && dynamic_cast<Furniture*>(f.object) == nullptr)){
           cam.moveTo(QUADSIZE, Vector3D(trg-src));
           wrld.setObject(wrld.getObject(src), trg, true);
           src = trg;
@@ -1403,12 +1403,12 @@ void Message::process(){
       Vector2D newpos = Vector2D(toInt(argv[2]), toInt(argv[3]));
       Field& f = wrld.getField(newpos);
       //no furniture trap
-      if (!f.object || (f.object && dynamic_cast<Furniture*>(f.object) == NULL)){
+      if (!f.object || (f.object && dynamic_cast<Furniture*>(f.object) == nullptr)){
         cam.moveTo(QUADSIZE, Vector3D(newpos-pos));
         wrld.setObject(wrld.getObject(pos), newpos, true);
       }
       if (f.script->script[0] < 'n')
-        f.script = NULL;
+        f.script = nullptr;
       else
         f.script->script[0] = toupper(f.script->script[0]);
       f.overlay->find(false);
@@ -1477,7 +1477,7 @@ void Message::process(){
             inv->addItem(it);
           }
           //delete inventory on the ground
-          wrld.placeInventory(NULL, f->getPosition());
+          wrld.placeInventory(nullptr, f->getPosition());
         }
       }
       consol << dynamic_cast<Creature*>(wrld.getObject(pos))->getName()+" picked up "+names;
@@ -1584,14 +1584,14 @@ void Message::special_(const string& message, int mode, void* additional){
     case LOGIN:
       //hidden input for password entering
       consol.setParams(Vector3D(1,1,1), CGE::Color(0,0,0,0), 0);
-      toSend = toStr(LOGIN)+" "+plyr.getName() + " " + message;
+      toSend = std::to_string(LOGIN)+" "+plyr.getName() + " " + message;
       consol.hideLastInput();
       *ss_ << toSend;
     break;
     
     case CREATE:
       //first pass (called from Hero::Create)
-      if (additional == NULL){
+      if (additional == nullptr){
         short selection = toInt(message);
         Hero* h = new Hero();
         *h = heros_[selection];
@@ -1662,7 +1662,7 @@ void Message::special_(const string& message, int mode, void* additional){
       heroe->setPosition(pos);
 
       string data = heroe->data(posidx);
-      *ss_ << toStr(PLAY)+" "+data;
+      *ss_ << std::to_string(PLAY)+" "+data;
       delete heroe;
     }
     break;

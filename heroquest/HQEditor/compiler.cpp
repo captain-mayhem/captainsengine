@@ -206,7 +206,7 @@ void Compiler::addRoom(const Vector2D& pos, short id){
   if (id == 0)
     texName = "textures/world/floor.bmp";
   else
-    texName = "textures/world/room"+toStr(id)+".bmp";
+    texName = "textures/world/room"+std::to_string(id)+".bmp";
 
   //get texture
   CGE::Texture* tex = getTexture(texName);

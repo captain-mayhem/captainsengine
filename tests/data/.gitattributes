@@ -1,0 +1,3 @@
+# The tests compare these files byte for byte: never convert line endings
+# (a Windows checkout with core.autocrlf would turn the .txt files into CRLF).
+* -text

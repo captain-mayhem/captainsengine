@@ -27,6 +27,10 @@
 #include "menu.h"
 #include "gamestate.h"
 
+using std::string;
+using std::vector;
+using std::cerr;
+
 using Gui::InputField;
 using Gui::Button;
 using Gui::DropDownButton;

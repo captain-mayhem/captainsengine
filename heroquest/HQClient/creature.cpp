@@ -45,7 +45,7 @@ Creature::Creature() : name_(), type_(){
   xRot_ = 0;
   sleeping_ = false;
   diceToMove_ = false;
-  model_ = NULL;
+  model_ = nullptr;
 }
 
 Creature::Creature(const Creature& c){
@@ -99,17 +99,17 @@ Creature::Creature(const string& player, const string& name, const string& type,
 	lookAt_ = Vector3D(1,2,0);
   xRot_ = 0;
   sleeping_ = false;
-  model_ = NULL;
+  model_ = nullptr;
 }
 
 //makes a string out of all creature values
 const string Creature::data(short posIdx){
   string data = player_+" "+name_+" "+type_;
-  data += " "+toStr(body_)+" "+toStr(mind_)+" "+toStr(attack_);
-  data += " "+toStr(defend_);
-  data += " "+toStr(position_.x)+" "+toStr(position_.y)+" "+toStr(id_);
-  data += " "+toStr(posIdx);
-  data += " "+toStr(movement_);
+  data += " "+std::to_string(body_)+" "+std::to_string(mind_)+" "+std::to_string(attack_);
+  data += " "+std::to_string(defend_);
+  data += " "+std::to_string(position_.x)+" "+std::to_string(position_.y)+" "+std::to_string(id_);
+  data += " "+std::to_string(posIdx);
+  data += " "+std::to_string(movement_);
   return data;
 }
 
@@ -132,8 +132,9 @@ void Creature::render() const{
 void Creature::render2D() const{
 #ifdef _CLIENT_	
   int height = wrld.getMapSize().y;
-  float dx = (float)(SCREENWIDTH/wrld.getMapSize().x);
-  float dy = (float)(SCREENHEIGHT/height);
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  float dx = (float)(screen.getWidth()/wrld.getMapSize().x);
+  float dy = (float)(screen.getHeight()/height);
 
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   CGE::Forms* forms = CGE::Engine::instance()->getForms();

@@ -6,6 +6,9 @@
 #include "dialog.h"
 #include "dropdown.h"
 
+using std::string;
+using std::list;
+
 using std::istringstream;
 using namespace Gui;
 using CGE::Color;
@@ -13,8 +16,8 @@ using CGE::Vector3D;
 using CGE::Vector2D;
 
 DDEntryButton::DDEntryButton(int number) : Button(){
-  parent_ = NULL;
-  handleClicks_ = NULL;
+  parent_ = nullptr;
+  handleClicks_ = nullptr;
   entryNum_ = number;
 }
 
@@ -35,10 +38,10 @@ void DDEntryButton::process(){
 
 //The MessageBox constructor
 DropDownButton::DropDownButton(){
-  handleClicks_ = NULL;
+  handleClicks_ = nullptr;
   setColors(Vector3D(1.0f,1.0f,0.1f),Color(0.2f,0.01f,0.01f,1.0f));
   setSpan(Vector2D(160,18));
-  ddPos_ = Vector2D(0, 768);
+  ddPos_ = Vector2D(0, CGE::Engine::instance()->getVirtualScreen().getHeight());
   isOpen_ = false;
   direction_ = 0;
   entryNum_ = 0;

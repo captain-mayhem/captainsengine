@@ -23,21 +23,20 @@
 using std::cerr;
 using namespace CGE;
 
-void engineMain(int argc, char** argv){
+class EditorApp : public CGE::IApplication{
+public:
+  void init(int argc, char** argv) override;
+  void render() override {Graphic::render();}
+  void onResize(int width, int height) override {Graphic::resize(width, height);}
+  void onKeyDown(int key) override {Editor::keypress(key);}
+  void onMouseDown(int x, int y, int button) override {Editor::mouseDown(x, y, button);}
+  void onMouseUp(int x, int y, int button) override {Editor::mouseUp(x, y, button);}
+};
+
+void EditorApp::init(int argc, char** argv){
   CGE::LogOutputter* putty = new CGE::LogOutputter("editor.log");
   CGE::TraceManager::instance()->setTraceOutputter(putty);
-  Editor::instance()->init();
-  
-  //render callbacks
-  Renderer* rend = Engine::instance()->getRenderer();
-  rend->setRenderCB(Graphic::render);
-  rend->setInitCB(Graphic::init);
-  rend->setResizeCB(Graphic::resize);
-
-  //input callbacks
-  Input::Keyboard::instance()->setKeyDownCB(Editor::keypress);
-  Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
-  Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);
+  Editor::init();
 
   //check command line
   int state = 0;
@@ -61,6 +60,8 @@ void engineMain(int argc, char** argv){
       state = 0;
     }
   }
+
+  Graphic::init();
 }
 
-CGE_MAIN(engineMain)
+CGE_MAIN(EditorApp)

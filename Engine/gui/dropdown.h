@@ -7,7 +7,6 @@
 
 #include "gui.h"
 
-using std::vector;
 
 namespace Gui{
 
@@ -45,7 +44,7 @@ class CGE_API DropDownButton : public Button {
      */
     void calcDDPos(int direction);
     //! add a drop down entry
-    void addEntry(const string& entry);
+    void addEntry(const std::string& entry);
     //! clear all entries
     void clear();
     //! process the click
@@ -58,7 +57,7 @@ class CGE_API DropDownButton : public Button {
     inline int getSelection() const {return selected_;}
   private:
     //! the drop down entries
-    vector<DDEntryButton*> entries_;
+    std::vector<DDEntryButton*> entries_;
     //! the current drop down position
     CGE::Vector2D ddPos_;
     //! the status of the field

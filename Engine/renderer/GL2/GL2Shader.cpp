@@ -57,7 +57,7 @@ bool GL2Shader::addShader(Type shadertype, const char* shaderstring, int stringl
     glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
     if (len > 0){
       char* log = new char[len];
-      glGetShaderInfoLog(shader, len, NULL, log);
+      glGetShaderInfoLog(shader, len, nullptr, log);
       TR_ERROR("GL2: %s\nshader was\n%s", log, shadercode.c_str());
       delete [] log;
     }
@@ -77,7 +77,7 @@ bool GL2Shader::linkShaders(){
     glGetProgramiv(mProgram, GL_INFO_LOG_LENGTH, &len);
     if (len > 0){
       char* log = new char[len];
-      glGetProgramInfoLog(mProgram, len, NULL, log);
+      glGetProgramInfoLog(mProgram, len, nullptr, log);
       TR_ERROR("GL2: %s", log);
       delete [] log;
     }

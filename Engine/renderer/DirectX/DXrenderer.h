@@ -16,7 +16,6 @@
 #include "../../math/vector.h"
 #include "../renderer.h"
 
-using std::stack;
 
 namespace CGE{
 

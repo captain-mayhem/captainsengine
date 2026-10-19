@@ -25,7 +25,7 @@ CGE::Camera* activeCam;
 CGE::Camera cam;
 FollowCam followCam;
 
-Terrain test(256,256,4.0f,4.0f,NULL,1.0f);
+Terrain test(256,256,4.0f,4.0f,nullptr,1.0f);
 Vehicle* car;
 MapChunk map;
 // the physics library is separate from the engine core, so the game owns the simulator
@@ -54,7 +54,6 @@ void deinit(){
 }
 
 void render(){
-  sim->doSimulationStep(CGE::Engine::instance()->getFrameInterval());
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->clear(ZBUFFER | COLORBUFFER);
   
@@ -76,6 +75,7 @@ void render(){
 float acceleration = 0;
 float steer = 0;
 
+//! a key is held down for timeInterval seconds
 void keyPress(int key, float timeInterval){
   switch(key){
     case KEY_W:
@@ -171,27 +171,33 @@ bool collide(CollisionObject* a, CollisionObject* b, CollisionResponse& collisio
   return handleCollision;
 }
 
-void engineMain(int argc, char** argv){
+class OSMRacer : public CGE::IApplication{
+public:
+  void init(int argc, char** argv) override;
+  void update(double dt) override;
+  void render() override {::render();}
+  void shutdown() override {deinit();}
+  void onKeyDown(int key) override {keyDown(key);}
+  void onKeyUp(int key) override {keyUp(key);}
+};
 
-  //render callbacks
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->setRenderCB(render);
-  rend->setInitCB(init);
-  rend->setDeinitCB(deinit);
+void OSMRacer::update(double dt){
+  static const int heldKeys[] = {KEY_W, KEY_S, KEY_A, KEY_D, KEY_I, KEY_K, KEY_J, KEY_L,
+    KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT};
+  for (int key : heldKeys){
+    if (Input::Keyboard::instance()->isPressed(key))
+      keyPress(key, (float)dt);
+  }
+  sim->doSimulationStep(dt);
+}
 
+void OSMRacer::init(int argc, char** argv){
   //physics callbacks
   float step = CGE::Script::instance()->getRealSetting("integration_interval")/1000;
   sim = new CGE::Simulator(step);
   sim->setSimulationCallback(simulate);
   sim->setCollisionCallback(collide);
   sim->setGravitation(Vec3f(0,-9.81f,0));
-
-  //input callbacks
-  Input::Keyboard::instance()->setKeyPressedCB(keyPress);
-  Input::Keyboard::instance()->setKeyUpCB(keyUp);
-  Input::Keyboard::instance()->setKeyDownCB(keyDown);
-/*Input::Mouse::instance()->setButtonUpCB(Editor::mouseUp);
-  Input::Mouse::instance()->setButtonDownCB(Editor::mouseDown);*/
 
   car = new Vehicle(*sim);
 
@@ -208,7 +214,9 @@ void engineMain(int argc, char** argv){
 
   activeCam = &cam;
   followCam.setTarget(car);
+
+  ::init();
 }
 
-CGE_MAIN(engineMain)
+CGE_MAIN(OSMRacer)
 

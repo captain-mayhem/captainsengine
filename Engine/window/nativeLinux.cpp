@@ -2,6 +2,7 @@
 #include "../renderer/GL2/GL2Renderer.h"
 #include <GL/glx.h>
 #include "../system/engine.h"
+#include "../system/script.h"
 #include "../renderer/OpenGL/OGLrenderer.h"
 //#include "../input/keyboard.h"
 #include "nativeLinux.h"
@@ -11,7 +12,7 @@ TR_CHANNEL_EXT(CGE_Window);
 using namespace CGE;
 
 X11Window::X11Window(CGE::Renderer* renderer) : AppWindow(renderer){
-  disp_ = NULL;
+  disp_ = nullptr;
   win_ = 0;
 }
 
@@ -29,7 +30,7 @@ void X11Window::init(const std::string& name){
     GLX_DEPTH_SIZE, 16,
     None};
   XVisualInfo* vi = glXChooseVisual(disp_, screen_, attribs);
-  if (vi == NULL)
+  if (vi == nullptr)
     EXIT2("Got no doublebuffered window");
 
   int glxMajor;
@@ -73,14 +74,30 @@ void X11Window::init(const std::string& name){
     Atom wmDelete = XInternAtom(disp_, "WM_DELETE_WINDOW", True);
     XSetWMProtocols(disp_, win_, &wmDelete, 1);
     XSetStandardProperties(disp_, win_, name.c_str(), name.c_str(), 
-        None, NULL, 0, NULL);
+        None, nullptr, 0, nullptr);
     if (shown_)
       show(true);
   }
 
-  glx = NULL;
+  glx = nullptr;
   renderer_->initContext(this);
   renderer_->resizeScene(width_, height_);
+
+  //vsync (on unless engine.ini says vsync = false)
+  bool exists;
+  bool vsync = CGE::Script::instance()->getBoolSetting("vsync", &exists) || !exists;
+  typedef void (*SwapIntervalEXTFunc)(Display* dpy, GLXDrawable drawable, int interval);
+  typedef int (*SwapIntervalMESAFunc)(unsigned interval);
+  SwapIntervalEXTFunc swapIntervalEXT = (SwapIntervalEXTFunc)glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalEXT");
+  SwapIntervalMESAFunc swapIntervalMESA = (SwapIntervalMESAFunc)glXGetProcAddressARB((const GLubyte*)"glXSwapIntervalMESA");
+  //Mesa under XWayland (WSLg) lists the swap control extensions only on the client side
+  std::string extensions = std::string(glXQueryExtensionsString(disp_, screen_)) + " " + glXGetClientString(disp_, GLX_EXTENSIONS);
+  if (swapIntervalEXT && extensions.find("GLX_EXT_swap_control") != std::string::npos)
+    swapIntervalEXT(disp_, win_, vsync ? 1 : 0);
+  else if (swapIntervalMESA && extensions.find("GLX_MESA_swap_control") != std::string::npos)
+    swapIntervalMESA(vsync ? 1 : 0);
+  else
+    TR_WARN("No GLX swap control extension, vsync can't be set");
 }
 
 void X11Window::applyResolution(){

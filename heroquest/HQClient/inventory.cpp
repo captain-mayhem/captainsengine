@@ -27,7 +27,7 @@ Inventory::Inventory(){
   //fnt_.setBase(text.getBase());
   //fnt_.setColor(0,1,1);
   page_ = 1;
-  chosenItem_ = NULL;
+  chosenItem_ = nullptr;
   visible_ = true;
 #endif
 }
@@ -152,12 +152,12 @@ string Inventory::toString(){
   for (unsigned i = 0; i < items_.size(); i++){
     ret += items_[i].toString()+"!";
   }
-  ret += toStr(left_hand_)+"$";
-  ret += toStr(right_hand_)+"$";
-  ret += toStr(head_)+"$";
-  ret += toStr(body_)+"$";
-  ret += toStr(belt_)+"$";
-  ret += toStr(breast_)+"$";
+  ret += std::to_string(left_hand_)+"$";
+  ret += std::to_string(right_hand_)+"$";
+  ret += std::to_string(head_)+"$";
+  ret += std::to_string(body_)+"$";
+  ret += std::to_string(belt_)+"$";
+  ret += std::to_string(breast_)+"$";
   return ret;
 }
 
@@ -336,7 +336,8 @@ void Inventory::render(){
   //glBindTexture(GL_TEXTURE_2D, tex.otherTex[1]);
   CGE::Forms* forms = CGE::Engine::instance()->getForms();
   forms->activateQuad();
-  forms->drawQuad(Vec2f(), Vec2f(SCREENWIDTH, SCREENHEIGHT));
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  forms->drawQuad(Vec2f(), Vec2f((float)screen.getWidth(), (float)screen.getHeight()));
   rend->enableBlend(true);
 
   //items
@@ -350,7 +351,7 @@ void Inventory::render(){
     int fill = (int)(11 - name.size())/2;
     name.insert(name.begin(), fill, ' ');
     fnt_->print(pos.x, pos.y, name.c_str(), 1);
-    fnt_->print(pos.x+48, pos.y-18, toStr(items_[i].getNumber()).c_str(), 1);
+    fnt_->print(pos.x+48, pos.y-18, std::to_string(items_[i].getNumber()).c_str(), 1);
     pos.x += 148;
     count++;
     if (count == 3){
@@ -359,20 +360,20 @@ void Inventory::render(){
       pos.y -= 193;
     }
   }
-  fnt_->print(177, 50, ("<<  Page "+toStr(page_)+"  >>").c_str(), 0);
+  fnt_->print(177, 50, ("<<  Page "+std::to_string(page_)+"  >>").c_str(), 0);
 
   //stats
   Creature* c = plyr.getCreature();
   fnt_->setColor(0,1,1);
   fnt_->print(600, 700, ("Name: "+c->getName()).c_str(), 0);
   fnt_->print(800, 700, ("Race: "+c->getType()).c_str(), 0);
-  fnt_->print(600, 680, ("Attack: "+toStr(c->getAttack())).c_str(), 0);
-  fnt_->print(800, 680, ("Defense: "+toStr(c->getDefence())).c_str(), 0);
-  fnt_->print(600, 660, ("Body: "+toStr(c->getBody())+"/"+toStr(c->getMaxBody())).c_str(), 0);
-  fnt_->print(800, 660, ("Mind: "+toStr(c->getMind())+"/"+toStr(c->getMaxMind())).c_str(), 0);
+  fnt_->print(600, 680, ("Attack: "+std::to_string(c->getAttack())).c_str(), 0);
+  fnt_->print(800, 680, ("Defense: "+std::to_string(c->getDefence())).c_str(), 0);
+  fnt_->print(600, 660, ("Body: "+std::to_string(c->getBody())+"/"+std::to_string(c->getMaxBody())).c_str(), 0);
+  fnt_->print(800, 660, ("Mind: "+std::to_string(c->getMind())+"/"+std::to_string(c->getMaxMind())).c_str(), 0);
   Hero* h = dynamic_cast<Hero*>(c);
   if (h){
-    fnt_->print(600, 620, ("Money: "+toStr(h->getMoney())).c_str(), 0);
+    fnt_->print(600, 620, ("Money: "+std::to_string(h->getMoney())).c_str(), 0);
   }
 
   //worn items
@@ -402,9 +403,9 @@ void Inventory::render(){
   }
 
   //Vector2D click = gl->getMousePos();
-  //fnt_->glPrint(600, 460, (toStr(click.x)+"/"+toStr(click.y)).c_str(), 0);
+  //fnt_->glPrint(600, 460, (std::to_string(click.x)+"/"+std::to_string(click.y)).c_str(), 0);
 
-  if (chosenItem_ != NULL){
+  if (chosenItem_ != nullptr){
     fnt_->print(600, 440, chosenItem_->getName().c_str(), 0);
   }
 

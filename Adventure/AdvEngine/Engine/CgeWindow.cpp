@@ -21,10 +21,10 @@ TR_CHANNEL(ADV_CGE_Window);
 
 String filename;
 std::string savegame;
-AdvDocument* adoc = NULL;
+AdvDocument* adoc = nullptr;
 CommandReceiver receiver;
 bool openConsole;
-CGE::SplashWindow* splashWindow = NULL;
+CGE::SplashWindow* splashWindow = nullptr;
 
 Vec2i windowsize(640,480);
 
@@ -41,7 +41,6 @@ void init(){
   TR_USE(ADV_CGE_Window);
   Engine::init();
   adoc = new AdvDocument();
-  //adoc->getProjectSettings()->savedir = "C:\\tmp";
   adoc->setFileChangedCB(fileChanged);
   adoc->setSpashScreenCB(splash_screen);
   if (!adoc->loadDocument(filename)){
@@ -53,6 +52,8 @@ void init(){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   //rend->getWindow()->setTitle(adoc->getProjectSettings()->)
   rend->getWindow()->changeSize(windowsize.x, windowsize.y);
+  //the game and its input use the project resolution
+  CGE::Engine::instance()->getVirtualScreen().setSize(windowsize.x, windowsize.y);
   
   Engine::instance()->setData(adoc);
   SoundEngine::init();
@@ -60,8 +61,7 @@ void init(){
 
   rend->switchMatrixStack(CGE::Projection);
   rend->resetModelView();
-  rend->ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
-  //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
+  CGE::Engine::instance()->getVirtualScreen().ortho(rend, true);
 
   rend->switchMatrixStack(CGE::Modelview);
   rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -82,7 +82,7 @@ void init(){
     receiver.start();
   Engine::instance()->initGame(quit, set_mouse);
   delete splashWindow;
-  splashWindow = NULL;
+  splashWindow = nullptr;
   rend->getWindow()->show(true);
 }
 
@@ -110,7 +110,7 @@ void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* 
   image.setFormat(numChannels, width, height);
   image.setData((unsigned char*)data);
   splashWindow->show(image);
-  image.setData(NULL);
+  image.setData(nullptr);
 }
 
 void render(){
@@ -118,8 +118,7 @@ void render(){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->switchMatrixStack(CGE::Projection);
   rend->resetModelView();
-  rend->ortho(0, (float)windowsize.x, (float)windowsize.y, 0, -1.0, 1.0);
-  //glFrustum(-0.5f, 0.5f, -0.5f, 0.5f, 1.0f, 3.0f);
+  CGE::Engine::instance()->getVirtualScreen().ortho(rend, true);
 
   rend->switchMatrixStack(CGE::Modelview);
   rend->enableDepthTest(false);
@@ -159,7 +158,7 @@ void mouse_move(int x, int y, int button){
 }
 
 void mouse_click(int x, int y, int button){
-  Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
+  Vec2i pos(x, y);
   if (button == MB_LEFT)
     Engine::instance()->leftClick(pos);
   else if (button == MB_RIGHT)
@@ -167,14 +166,14 @@ void mouse_click(int x, int y, int button){
 }
 
 void mouse_release(int x, int y, int button){
-  Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
+  Vec2i pos(x, y);
   if (button == MB_LEFT)
     Engine::instance()->leftRelease(pos);
 }
 
 void double_click(int x, int y, int button){
   mouse_click(x, y, button); //also emit a single click when double click occurs
-  Vec2i pos((int)(x/(float)SCREENWIDTH*windowsize.x), (int)(y/(float)SCREENHEIGHT*windowsize.y));
+  Vec2i pos(x, y);
   Engine::instance()->doubleClick(pos);
 }
 
@@ -204,7 +203,22 @@ void cleanup(){
 #endif
 }
 
-void engineMain(int argc, char** argv){
+class AdventureApp : public CGE::IApplication{
+public:
+  void init(int argc, char** argv) override;
+  void render() override {::render();}
+  void shutdown() override {deinit();}
+  void onKeyDown(int key) override {key_press(key);}
+  void onKeyUp(int key) override {key_release(key);}
+  void onChar(unsigned char ch) override {key_ascii(ch);}
+  void onMouseDown(int x, int y, int button) override {mouse_click(x, y, button);}
+  void onMouseUp(int x, int y, int button) override {mouse_release(x, y, button);}
+  void onDoubleClick(int x, int y, int button) override {double_click(x, y, button);}
+  void onMouseMove(int x, int y, int buttons) override {mouse_move(x, y, buttons);}
+  void onMouseWheel(int x, int y, int delta) override {mouse_wheel(x, y, delta);}
+};
+
+void AdventureApp::init(int argc, char** argv){
   atexit(cleanup);
 #ifdef WIN32
   openConsole = CGE::Script::instance()->getBoolSetting("openConsole");
@@ -227,23 +241,9 @@ void engineMain(int argc, char** argv){
   filename.replaceWith('\\', '/');
   if (!filename.endsWith(".dat") && !filename.endsWith(".adv"))
     filename += "/data/game.dat";
-  //render callbacks
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->setRenderCB(render);
-  rend->setInitCB(init);
-  rend->setDeinitCB(deinit);
-
-  //input callbacks
-  Input::Keyboard::instance()->setKeyDownCB(key_press);
-  Input::Keyboard::instance()->setKeyUpCB(key_release);
-  Input::Keyboard::instance()->setAsciiCB(key_ascii);
   Input::Keyboard::instance()->enableBuitInConsole(false);
-  Input::Mouse::instance()->setButtonDownCB(mouse_click);
-  Input::Mouse::instance()->setButtonUpCB(mouse_release);
-  Input::Mouse::instance()->setMouseMoveCB(mouse_move);
-  Input::Mouse::instance()->setDoubleClickCB(double_click);
-  Input::Mouse::instance()->setWheelTurnCB(mouse_wheel);
   Input::Mouse::instance()->showCursor(false);
+  ::init();
 }
 
-CGE_MAIN(engineMain)
+CGE_MAIN(AdventureApp)

@@ -78,13 +78,13 @@ void Message::process(ServerSocket* ss, const string& cmd){
       break;
       
     case CHAT:
-      message = toStr(CHAT)+" "+globl.getPlayer(ss)->getName()+": ";
+      message = std::to_string(CHAT)+" "+globl.getPlayer(ss)->getName()+": ";
       message += cmd.substr(4);
       globl.chat(ss, message);
       break;
       
     case CHAT_PERSON: {
-      message = toStr(CHAT)+" "+globl.getPlayer(ss)->getName()+":";
+      message = std::to_string(CHAT)+" "+globl.getPlayer(ss)->getName()+":";
       for(unsigned i = 1; i < argv.size()-1; i++){
         message += " "+argv[i];
       }
@@ -99,28 +99,28 @@ void Message::process(ServerSocket* ss, const string& cmd){
         Player* pl = globl.getPlayer(ss);
         //user already logged in?
         if (globl.getPlayer(argv[0]))
-          *ss << toStr(CHAT) + " " + argv[0] + " is already logged in.";
+          *ss << std::to_string(CHAT) + " " + argv[0] + " is already logged in.";
         else{
-          *ss << toStr(LOGIN)+ " "+ toStr(pl->getStatus());
+          *ss << std::to_string(LOGIN)+ " "+ std::to_string(pl->getStatus());
           pl->set_identity(argv[0], argv[1]);
-          string toSend = toStr(CHAT) + argv[0] + " joined the server.";
+          string toSend = std::to_string(CHAT) + argv[0] + " joined the server.";
           globl.chat(ss, toSend);
           //send queued messages to update state
           globl.update(ss);
         }
       }
       else{
-        *ss << toStr(NAK);
+        *ss << std::to_string(NAK);
       }
       break;
       
     case LIST:
       if (argv[0] == "players"){
         string ret = globl.listPlayers();
-        *ss << toStr(LIST) + " " + ret;
+        *ss << std::to_string(LIST) + " " + ret;
       }
       else{
-        *ss << toStr(NAK);
+        *ss << std::to_string(NAK);
       }
       break;
       
@@ -131,7 +131,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         //Race conditions???
         string levelFile = globl.getPath()+"levels/"+argv[1]+"/"+argv[2]+".hqm";
         if(!wrld.load(levelFile)){
-          *ss << toStr(CHAT)+ " "+"File not found or wrong version";
+          *ss << std::to_string(CHAT)+ " "+"File not found or wrong version";
           //SDL_mutexV(gamtex);
           gamtex.unlock();
           break;
@@ -144,7 +144,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         break;
       }
       else{
-        *ss << toStr(NAK);
+        *ss << std::to_string(NAK);
       }
       break;
       
@@ -155,14 +155,14 @@ void Message::process(ServerSocket* ss, const string& cmd){
           for (unsigned i = 0; i < wrld.getMonsters().size(); i++){
             wrld.getMonsters()[i]->setPlayer(name);
           }
-          string msg = toStr(PLAY)+" "+argv[0]+" "+name;
+          string msg = std::to_string(PLAY)+" "+argv[0]+" "+name;
           *ss << cmd;
-          globl.chat(ss, toStr(CHAT)+" "+name +" plays the evil Zargon.");
+          globl.chat(ss, std::to_string(CHAT)+" "+name +" plays the evil Zargon.");
           wait();
           globl.broadcast(msg);
         }
         else{
-          *ss << toStr(NAK);
+          *ss << std::to_string(NAK);
         }
         break;
       }
@@ -176,7 +176,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       if (wrld.getStarts()[posidx] == Vector2D(-1,-1)){
         //SDL_mutexV(gamtex);
         gamtex.unlock();
-        *ss << toStr(NAK);
+        *ss << std::to_string(NAK);
         break;
       }
       wrld.addHero(heroe, posidx);
@@ -193,20 +193,20 @@ void Message::process(ServerSocket* ss, const string& cmd){
       game.start();
       ServerSocket* actSs = game.getNextPlayer();
       if (actSs == NULL){
-        *ss << toStr(CHAT)+ "Nobody plays a role. Game cannot run";
+        *ss << std::to_string(CHAT)+ "Nobody plays a role. Game cannot run";
         break;
       }
       globl.broadcast(cmd);
       wait();
       globl.getPlayer(actSs)->setLastCreature(getCreature());
-      *actSs << toStr(TURN)+" "+getCreature()->getName();
-      globl.chat(actSs, toStr(CHAT)+" It's "+ globl.getPlayer(actSs)->getName()+ "'s turn.");
+      *actSs << std::to_string(TURN)+" "+getCreature()->getName();
+      globl.chat(actSs, std::to_string(CHAT)+" It's "+ globl.getPlayer(actSs)->getName()+ "'s turn.");
       break;
     }
 
     case END:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
         break;
       }
       if (argv[0] == "turn"){
@@ -216,11 +216,11 @@ void Message::process(ServerSocket* ss, const string& cmd){
       
     case MOVE:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
         break;
       }
       if(game.hasMoved()){
-        *ss << toStr(NAK);
+        *ss << std::to_string(NAK);
         break;
       }
       {
@@ -237,7 +237,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
           rolled = game.die(num, true, NULL, NULL, NULL, &move);
         else{
           game.die(0, true);
-          rolled = toStr(num);
+          rolled = std::to_string(num);
           num = 1;
         }
         game.setMovement(move);
@@ -251,19 +251,19 @@ void Message::process(ServerSocket* ss, const string& cmd){
           rolled = game.die(num, true, NULL, NULL, NULL, &move);
         else{
           game.die(0, true);
-          rolled = toStr(num);
+          rolled = std::to_string(num);
           num = 1;
         }
         game.setMovement(move);
       }
-      message = toStr(MOVE)+" "+toStr(num)+" "+rolled;
+      message = std::to_string(MOVE)+" "+std::to_string(num)+" "+rolled;
       *ss << message;
-      globl.chat(ss,toStr(CHAT)+" "+name+" rolled "+rolled);
+      globl.chat(ss,std::to_string(CHAT)+" "+name+" rolled "+rolled);
       }
       break;
     case UP_DIR:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
         break;
       }
       {
@@ -279,13 +279,13 @@ void Message::process(ServerSocket* ss, const string& cmd){
         if (scr.call(OnWalkAt, f.script))
           f.script = NULL;
       }
-      message = toStr(UP_DIR)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
+      message = std::to_string(UP_DIR)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(newPos.x)+" "+std::to_string(newPos.y);
       globl.broadcast(message);
       break;
       }
     case DOWN_DIR:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
         break;
       }
       {
@@ -302,13 +302,13 @@ void Message::process(ServerSocket* ss, const string& cmd){
           f.script = NULL;
       }
 
-      message = toStr(DOWN_DIR)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
+      message = std::to_string(DOWN_DIR)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(newPos.x)+" "+std::to_string(newPos.y);
       globl.broadcast(message);
       break;
       }
     case LEFT_DIR:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
         break;
       }
       {
@@ -324,13 +324,13 @@ void Message::process(ServerSocket* ss, const string& cmd){
         if (scr.call(OnWalkAt, f.script))
           f.script = NULL;
       }
-      message = toStr(LEFT_DIR)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
+      message = std::to_string(LEFT_DIR)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(newPos.x)+" "+std::to_string(newPos.y);
       globl.broadcast(message);
       break;
       }
     case RIGHT_DIR:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
         break;
       }
       {
@@ -346,7 +346,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         if (scr.call(OnWalkAt, f.script))
           f.script = NULL;
       }
-      message = toStr(RIGHT_DIR)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
+      message = std::to_string(RIGHT_DIR)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(newPos.x)+" "+std::to_string(newPos.y);
       globl.broadcast(message);
       break;
       }
@@ -357,32 +357,32 @@ void Message::process(ServerSocket* ss, const string& cmd){
       Vector2D newPos = Vector2D(toInt(argv[0]), toInt(argv[1]));
       wrld.setObject(o, newPos);
 			scr.move(newPos);
-      message = toStr(POSITION)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(newPos.x)+" "+toStr(newPos.y);
+      message = std::to_string(POSITION)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(newPos.x)+" "+std::to_string(newPos.y);
       globl.broadcast(message);
       }
       break;
       
     case OPEN:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
       }
       {
       short idx = game.getActivePlayerIdx();
       if (idx >= wrld.getHeroSize()){
-        *ss << toStr(CHAT)+" You, as monster, are not allowed to open doors";
+        *ss << std::to_string(CHAT)+" You, as monster, are not allowed to open doors";
         break;
       }
       Vector2D pos = wrld.getHeros()[idx].getPosition();
       Door* doo = wrld.getDoor(pos,(Direction)toInt(argv[0]));
       if (!doo){
-        *ss << toStr(CHAT)+ " There is no door.";
+        *ss << std::to_string(CHAT)+ " There is no door.";
 	      break;
       }
       else{
 	      //can't open secret doors
         if (doo->getType() > 0){
-          *ss << toStr(CHAT)+ " There is no door.";
+          *ss << std::to_string(CHAT)+ " There is no door.";
 	        break;
 	      }
       }
@@ -396,18 +396,18 @@ void Message::process(ServerSocket* ss, const string& cmd){
         wrld.update_visibility(doo->getPosition2());
       else
         wrld.update_visibility(doo->getPosition());
-      message = toStr(OPEN)+ " "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0];
+      message = std::to_string(OPEN)+ " "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+argv[0];
       globl.broadcast(message);
       }
       break;
     
     case ATTACK:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
       }
       if (game.isActionPerformed(GameState::Attack)){
-        *ss << toStr(NO_ACTION);
+        *ss << std::to_string(NO_ACTION);
         break;
       }
       {
@@ -415,7 +415,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       game.setActionPlace(target);
       GameObject* o = wrld.getObject(target);
       if (o == NULL){
-        *ss << toStr(CHAT)+ " There is nobody to attack.";
+        *ss << std::to_string(CHAT)+ " There is nobody to attack.";
 	      break;
       }
       Creature* toAttack = dynamic_cast<Creature*>(o);
@@ -425,21 +425,21 @@ void Message::process(ServerSocket* ss, const string& cmd){
         Vector2D pos = getCreature()->getPosition();
 	      //is there a backpoiter set
 	      if(getCreature()->getBackPointer()){
-	        *ss << toStr(CHAT)+" You stay on no valid position.";
+	        *ss << std::to_string(CHAT)+" You stay on no valid position.";
 	        break;
 	      }
         short num = scr.useWeapon(pos, target);
         if (num == -1){
-	        *ss << toStr(CHAT)+" Your weapon is not capable of such an attack.";
+	        *ss << std::to_string(CHAT)+" Your weapon is not capable of such an attack.";
           break;
         }
-        *ss << toStr(SCRIPT)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0]+" "+argv[1]+" 0 attack";
+        *ss << std::to_string(SCRIPT)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+argv[0]+" "+argv[1]+" 0 attack";
         wait();
         wait();
         //wait();
 	      //everything is correct, throw attack dices
 	      game.performAction(GameState::Attack);
-	      *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+	      *ss << std::to_string(MOVE)+" "+std::to_string(1)+" "+std::to_string(0);
         //wait();
         //wait();
         //short num = getCreature()->getAttack();
@@ -447,15 +447,15 @@ void Message::process(ServerSocket* ss, const string& cmd){
 	      short skulls = 0;
         string rolled = game.die(num, false, &skulls);
 	      game.setPendingDamage(skulls);
-        message = cmd+" "+toStr(num)+" "+rolled;
+        message = cmd+" "+std::to_string(num)+" "+rolled;
 	      Player* pl = globl.getPlayer(toAttack->getPlayer());
         ServerSocket* attacked = NULL;
         if (pl){
-	        string msg = toStr(ATTACK)+" "+argv[0]+" "+argv[1]+" "+toStr(num)+" "+rolled;
+	        string msg = std::to_string(ATTACK)+" "+argv[0]+" "+argv[1]+" "+std::to_string(num)+" "+rolled;
           *pl << msg;
           attacked = pl->getSock();
         }
-        globl.chat(attacked,toStr(CHAT)+" "+name+
+        globl.chat(attacked,std::to_string(CHAT)+" "+name+
 			    " attacked "+toAttack->getName()+" and rolled "+rolled);
         }
       }
@@ -463,7 +463,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
     
 		case FIGHT:
 			if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
       }
       {
@@ -476,7 +476,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       GameObject* o = wrld.getObject(target);
       
 			if (o == NULL){
-        *ss << toStr(CHAT)+" There is nobody to attack.";
+        *ss << std::to_string(CHAT)+" There is nobody to attack.";
 	      break;
       }
       Creature* toAttack = dynamic_cast<Creature*>(o);
@@ -513,11 +513,11 @@ void Message::process(ServerSocket* ss, const string& cmd){
  		 				wrld.removeObject(toAttack->getPosition());
             wrld.placeInventory(toAttack->getInventory(), toAttack->getPosition());
  		 			}
- 		 			string msg = toStr(DAMAGE)+" "+toStr(target.x)+" "+toStr(target.y)+" "+toStr(damage);
+ 		 			string msg = std::to_string(DAMAGE)+" "+std::to_string(target.x)+" "+std::to_string(target.y)+" "+std::to_string(damage);
 	 				globl.broadcast(msg);
  	 			}
         else{
- 		 			string msg = toStr(DAMAGE)+" "+toStr(target.x)+" "+toStr(target.y)+" "+toStr(0);
+ 		 			string msg = std::to_string(DAMAGE)+" "+std::to_string(target.x)+" "+std::to_string(target.y)+" "+std::to_string(0);
 	 				globl.broadcast(msg);
         }
 			}
@@ -541,8 +541,8 @@ void Message::process(ServerSocket* ss, const string& cmd){
 			rolled = game.die(num, false, NULL, NULL, &shields);
 		else
 			rolled = game.die(num, false, NULL, &shields, NULL);
-		*ss << toStr(CHAT)+" "+creat->getName()+", you defended with "+rolled;
-		globl.chat(ss, toStr(CHAT)+" "+creat->getName()+" defended with "+rolled);
+		*ss << std::to_string(CHAT)+" "+creat->getName()+", you defended with "+rolled;
+		globl.chat(ss, std::to_string(CHAT)+" "+creat->getName()+" defended with "+rolled);
 		short damage = toInt(argv[0]) - shields;
 		scr.attacking(pos);
     if (damage > 0){
@@ -554,11 +554,11 @@ void Message::process(ServerSocket* ss, const string& cmd){
 				wrld.removeObject(creat->getPosition());
         wrld.placeInventory(creat->getInventory(), creat->getPosition());
 			}
-			string msg = toStr(DAMAGE)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(damage);
+			string msg = std::to_string(DAMAGE)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(damage);
 			globl.broadcast(msg);
 		}
     else{
-			string msg = toStr(DAMAGE)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(0);
+			string msg = std::to_string(DAMAGE)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(0);
 			globl.broadcast(msg);
     }
 	}
@@ -566,22 +566,22 @@ void Message::process(ServerSocket* ss, const string& cmd){
 
     case SECRETDOOR:{
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
       }
       if (game.isActionPerformed(GameState::Search)){
-        *ss << toStr(NO_ACTION);
+        *ss << std::to_string(NO_ACTION);
         break;
       }
       short idx = game.getActivePlayerIdx();
       if (idx >= wrld.getHeroSize()){
-        *ss << toStr(CHAT)+" You, as monster, are not allowed to search for secret doors";
+        *ss << std::to_string(CHAT)+" You, as monster, are not allowed to search for secret doors";
         break;
       }
       Vector2D pos = wrld.getHeros()[idx].getPosition();
       //get all visible fields
       if(wrld.isMonsterVisible(pos)){
-	      *ss << toStr(CHAT)+" You can't search for secret doors with monsters being present.";
+	      *ss << std::to_string(CHAT)+" You can't search for secret doors with monsters being present.";
 	      break;
       }
 
@@ -621,19 +621,19 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       //search for secret doors
       game.performAction(GameState::Search);
-      *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+      *ss << std::to_string(MOVE)+" "+std::to_string(1)+" "+std::to_string(0);
       if (secretDoors.size() == 0){
-        *ss << toStr(CHAT)+"There are no secret doors.";
+        *ss << std::to_string(CHAT)+"There are no secret doors.";
 	      break;
       }
       string msg;
-      msg += toStr(SECRETDOOR)+" "+toStr((unsigned)secretDoors.size());
+      msg += std::to_string(SECRETDOOR)+" "+std::to_string((unsigned)secretDoors.size());
       for (unsigned i = 0; i < secretDoors.size(); i++){
         Door* d = secretDoors[i];
 	      //make door "unsecret";
 	      d->setType(0);
-	      msg += " "+toStr(d->getPosition().x)+" "+toStr(d->getPosition().y)+" "+
-		    toStr(d->getPosition2().x)+" "+toStr(d->getPosition2().y);
+	      msg += " "+std::to_string(d->getPosition().x)+" "+std::to_string(d->getPosition().y)+" "+
+		    std::to_string(d->getPosition2().x)+" "+std::to_string(d->getPosition2().y);
       }
       globl.broadcast(msg);
 
@@ -642,11 +642,11 @@ void Message::process(ServerSocket* ss, const string& cmd){
 
 	case SPELL:
 	  if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
     }
     if (game.isActionPerformed(GameState::Spell)){
-      *ss << toStr(NO_ACTION);
+      *ss << std::to_string(NO_ACTION);
       break;
     }
     {
@@ -657,7 +657,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
 		Creature* toWhich = NULL;
 		if (o == NULL){
 			object = false;
-      //*ss << toStr(CHAT)+ " There is nobody to cast a spell on.";
+      //*ss << std::to_string(CHAT)+ " There is nobody to cast a spell on.";
 	  	//break;
     }
 		else{
@@ -669,7 +669,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
 		
 		//is there a backpoiter set
 		if(getCreature()->getBackPointer()){
-			*ss << toStr(CHAT)+" You stay on no valid position.";
+			*ss << std::to_string(CHAT)+" You stay on no valid position.";
 			break;
 		}
 	      
@@ -679,17 +679,17 @@ void Message::process(ServerSocket* ss, const string& cmd){
 		if (scr.spell(pos, target, toInt(argv[2]))){
 			//everything is correct
 			game.performAction(GameState::Spell);
-			*ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
-			string msg = toStr(SPELL)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+
-				toStr(target.x)+" "+toStr(target.y)+" "+argv[2];
+			*ss << std::to_string(MOVE)+" "+std::to_string(1)+" "+std::to_string(0);
+			string msg = std::to_string(SPELL)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+
+				std::to_string(target.x)+" "+std::to_string(target.y)+" "+argv[2];
 			globl.broadcast(msg);
 		}
 		//the spell went wrong
 		else{
 			if(object)
-				*ss << toStr(CHAT)+" You cannot cast a spell on "+toWhich->getName();
+				*ss << std::to_string(CHAT)+" You cannot cast a spell on "+toWhich->getName();
 			else
-				*ss << toStr(CHAT)+" You cannot cast a spell on Nobody";
+				*ss << std::to_string(CHAT)+" You cannot cast a spell on Nobody";
 		}
 	  }
     break;
@@ -701,7 +701,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
 		Creature* toWhich = NULL;
 		if (o == NULL){
 			object = false;
-      //*ss << toStr(CHAT)+ " There is nobody to cast a spell on.";
+      //*ss << std::to_string(CHAT)+ " There is nobody to cast a spell on.";
 	  	//break;
     }
 		else{
@@ -711,18 +711,18 @@ void Message::process(ServerSocket* ss, const string& cmd){
 		//get your own position
     Creature* c = globl.getPlayer(ss)->getLastCreature();
     if (c == NULL){
-      *ss << toStr(CHAT)+" Wait until your first turn before using anything.";
+      *ss << std::to_string(CHAT)+" Wait until your first turn before using anything.";
       break;
     }
     Vector2D pos = c->getPosition();
     Inventory *inv = c->getInventory();
     
     if (!inv->useItem(argv[2],pos,target)){
-      *ss << toStr(CHAT)+" You have no "+argv[2]+" that could be used in such a way";
+      *ss << std::to_string(CHAT)+" You have no "+argv[2]+" that could be used in such a way";
       break;
     }
-		string msg = toStr(USE_ITEM)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+
-			toStr(target.x)+" "+toStr(target.y)+" "+argv[2];
+		string msg = std::to_string(USE_ITEM)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+
+			std::to_string(target.x)+" "+std::to_string(target.y)+" "+argv[2];
 		globl.broadcast(msg);
     
     }
@@ -732,35 +732,35 @@ void Message::process(ServerSocket* ss, const string& cmd){
     
     case TREASURE:{
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
       }
       if (game.isActionPerformed(GameState::Search)){
-        *ss << toStr(NO_ACTION);
+        *ss << std::to_string(NO_ACTION);
         break;
       }
       Vector2D pos = getCreature()->getPosition();
       //on the corridor
       short roomId = wrld.getField(pos).getId();
       if (roomId == 0){
-        *ss << toStr(CHAT)+" "+"You can only search for treasure when you are in a room.";
+        *ss << std::to_string(CHAT)+" "+"You can only search for treasure when you are in a room.";
         break;
       }
       //is monster visible
       if(wrld.isMonsterVisible(pos)){
-        *ss << toStr(CHAT)+" "+"You can only search for treasure when no monster is present.";
+        *ss << std::to_string(CHAT)+" "+"You can only search for treasure when no monster is present.";
         break;
       }
       //already searched in this room
       Field* f = wrld.getRoom(roomId)[0];
       if (f->treasure){
-        *ss << toStr(CHAT)+" "+"You have already searched for treasure in this room.";
+        *ss << std::to_string(CHAT)+" "+"You have already searched for treasure in this room.";
         break;
       }
       f->treasure = true;
       
       game.performAction(GameState::Search);
-      *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+      *ss << std::to_string(MOVE)+" "+std::to_string(1)+" "+std::to_string(0);
       wait();
       //is a treasure script availabale?
       bool scripttreasure = false;
@@ -769,8 +769,8 @@ void Message::process(ServerSocket* ss, const string& cmd){
         if (f->script != NULL){
           if(scr.call(OnTreasure, f->script, pos)){
             scripttreasure = true;
-            string msg = toStr(SCRIPT)+" "+toStr(f->getPosition().x)+" "+toStr(f->getPosition().y)
-              +" event "+toStr(OnTreasure)+ " "+toStr(pos.x)+" "+toStr(pos.y);
+            string msg = std::to_string(SCRIPT)+" "+std::to_string(f->getPosition().x)+" "+std::to_string(f->getPosition().y)
+              +" event "+std::to_string(OnTreasure)+ " "+std::to_string(pos.x)+" "+std::to_string(pos.y);
             globl.broadcast(msg);
             break;
           }
@@ -780,7 +780,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       if (!scripttreasure){
         short idx = scr.getTreasureIdx();
         scr.treasure(pos, idx);
-        string msg = toStr(TREASURE)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(idx);
+        string msg = std::to_string(TREASURE)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(idx);
         globl.broadcast(msg);
       }
     }
@@ -789,14 +789,14 @@ void Message::process(ServerSocket* ss, const string& cmd){
     case TAKE_OFF:{
       Creature* c = globl.getPlayer(ss)->getLastCreature();
       if (c == NULL){
-        *ss << toStr(CHAT)+" Wait until your first turn before using anything.";
+        *ss << std::to_string(CHAT)+" Wait until your first turn before using anything.";
         break;
       }
       Vector2D pos = c->getPosition();
       Item it = Templates::instance()->getArmory(argv[0]);
       short idx = it.getId();
       scr.armoryOff(pos, idx);
-      string msg = toStr(TAKE_OFF)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+toStr(idx);
+      string msg = std::to_string(TAKE_OFF)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+std::to_string(idx);
       globl.broadcast(msg);
     }
     break;
@@ -804,7 +804,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
     case SPAWN:{
       Creature* c = globl.getPlayer(ss)->getLastCreature();
       if (c == NULL){
-        *ss << toStr(CHAT)+" Wait until your first turn before spawning anything.";
+        *ss << std::to_string(CHAT)+" Wait until your first turn before spawning anything.";
         break;
       }
       Vector2D pos = c->getPosition();
@@ -812,11 +812,11 @@ void Message::process(ServerSocket* ss, const string& cmd){
       if (argv[0] == "money"){
         Hero* h = dynamic_cast<Hero*>(c);
         if (!h){
-          *ss << toStr(CHAT)+" Only a hero can possess money.";
+          *ss << std::to_string(CHAT)+" Only a hero can possess money.";
           break;
         }
         h->changeMoney(toInt(argv[1]));
-        string msg = toStr(SPAWN)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0]+" "+argv[1];
+        string msg = std::to_string(SPAWN)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+argv[0]+" "+argv[1];
         globl.broadcast(msg);
         break;
       }
@@ -826,7 +826,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
           it.increase();
         }
         inv->addItem(it);
-        string msg = toStr(SPAWN)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0]+" "+argv[1];
+        string msg = std::to_string(SPAWN)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+argv[0]+" "+argv[1];
         globl.broadcast(msg);
       }
     }
@@ -834,32 +834,32 @@ void Message::process(ServerSocket* ss, const string& cmd){
 
     case TRAP:{
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
       }
       if (game.isActionPerformed(GameState::Search)){
-        *ss << toStr(NO_ACTION);
+        *ss << std::to_string(NO_ACTION);
         break;
       }
       Vector2D pos = getCreature()->getPosition();
       //is monster visible
       if(wrld.isMonsterVisible(pos)){
-        *ss << toStr(CHAT)+" "+"You can only search for traps when no monster is present.";
+        *ss << std::to_string(CHAT)+" "+"You can only search for traps when no monster is present.";
         break;
       }
       //search for traps in visible area
       game.performAction(GameState::Search);
-      *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
+      *ss << std::to_string(MOVE)+" "+std::to_string(1)+" "+std::to_string(0);
       wait();
       vector<Field*> vf = wrld.getVisibleFields(pos);
       bool trapfound = false;
-      string message = toStr(TRAP);
+      string message = std::to_string(TRAP);
       for (unsigned i = 0; i < vf.size(); i++){
         Field* f = vf[i];
         if (f->script && f->script->isTrap && (!f->overlay->isFound() && !f->overlay->getStatus())){
           trapfound = true;
           f->overlay->find(true);
-          message += " "+toStr(f->getPosition().x)+" "+toStr(f->getPosition().y);
+          message += " "+std::to_string(f->getPosition().x)+" "+std::to_string(f->getPosition().y);
         }
       }
       message += " end";
@@ -867,28 +867,28 @@ void Message::process(ServerSocket* ss, const string& cmd){
         globl.broadcast(message);
       }
       else{
-        *ss << toStr(CHAT)+" "+"There are no traps.";
+        *ss << std::to_string(CHAT)+" "+"There are no traps.";
       }
     }
     break;
 
     case DISARM:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
       }
       {
       short idx = game.getActivePlayerIdx();
       if (idx >= wrld.getHeroSize()){
-        *ss << toStr(CHAT)+" You, as monster, are not allowed to disarm traps";
+        *ss << std::to_string(CHAT)+" You, as monster, are not allowed to disarm traps";
         break;
       }
       if (game.isActionPerformed(GameState::Disarm)){
-        *ss << toStr(NO_ACTION);
+        *ss << std::to_string(NO_ACTION);
         break;
       }
       if (game.getMovement() < 1){
-        *ss << toStr(CHAT)+" You need at least one field of movement left.";
+        *ss << std::to_string(CHAT)+" You need at least one field of movement left.";
         break;
       }
       Vector2D pos = wrld.getHeros()[idx].getPosition();
@@ -907,7 +907,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
         }
         //not able to disarm traps
         else{
-          *ss << toStr(CHAT) + " You are not capable of disarming traps. You need a tool kit to do so.";
+          *ss << std::to_string(CHAT) + " You are not capable of disarming traps. You need a tool kit to do so.";
           break;
         }
       }
@@ -931,7 +931,7 @@ void Message::process(ServerSocket* ss, const string& cmd){
       Field& f = wrld.getField(newpos);
       //is there a trap that is discovered, but unsprung
       if (!(f.script && f.script->isTrap && f.overlay->isFound())){
-        *ss << toStr(CHAT) + " There is no trap that can be disarmed.";
+        *ss << std::to_string(CHAT) + " There is no trap that can be disarmed.";
         break;
       }
       game.performAction(GameState::Disarm);
@@ -949,8 +949,8 @@ void Message::process(ServerSocket* ss, const string& cmd){
         else
           scr.call(f.script->event, f.script, pos);
         
-        string message = toStr(SCRIPT)+" "+toStr(pos.x)+" "+toStr(pos.y)+
-          " trap "+toStr(newpos.x)+" "+toStr(newpos.y);
+        string message = std::to_string(SCRIPT)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+
+          " trap "+std::to_string(newpos.x)+" "+std::to_string(newpos.y);
         globl.broadcast(message);
       }
       else{
@@ -964,8 +964,8 @@ void Message::process(ServerSocket* ss, const string& cmd){
         }
         f.overlay->find(false);
         //cerr << "Disarm: DONE";
-        string message = toStr(DISARM) + " "+toStr(pos.x)+" "+toStr(pos.y)+" "
-          +toStr(newpos.x)+" "+toStr(newpos.y);
+        string message = std::to_string(DISARM) + " "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "
+          +std::to_string(newpos.x)+" "+std::to_string(newpos.y);
         globl.broadcast(message);
       }
       }
@@ -973,13 +973,13 @@ void Message::process(ServerSocket* ss, const string& cmd){
 
     case JUMP:
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
       }
       {
       short idx = game.getActivePlayerIdx();
       if (game.getMovement() < 2){
-        *ss << toStr(CHAT)+" You need at least two fields of movement left.";
+        *ss << std::to_string(CHAT)+" You need at least two fields of movement left.";
         break;
       }
       Vector2D pos;
@@ -1012,12 +1012,12 @@ void Message::process(ServerSocket* ss, const string& cmd){
       Field& f = wrld.getField(newpos);
       //is there a visible trap?
       if (!(f.script && f.script->isTrap) || !(f.overlay->getStatus() || f.overlay->isFound())){
-        *ss << toStr(CHAT) + " There is no trap that can be jumped over.";
+        *ss << std::to_string(CHAT) + " There is no trap that can be jumped over.";
         break;
       }
       //is it a furniture trap?
       if (f.object && dynamic_cast<Furniture*>(f.object) != NULL){
-        *ss << toStr(CHAT) + " You can't jump over furniture traps.";
+        *ss << std::to_string(CHAT) + " You can't jump over furniture traps.";
         break;
       }
       
@@ -1028,17 +1028,17 @@ void Message::process(ServerSocket* ss, const string& cmd){
       if (thrown > 0){
         //cerr << "Jump: NOOO!";
         scr.call(f.script->event, f.script, newpos);
-        string message = toStr(SCRIPT)+" "+toStr(pos.x)+" "+toStr(pos.y)+
-          " trap "+toStr(newpos.x)+" "+toStr(newpos.y);
+        string message = std::to_string(SCRIPT)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+
+          " trap "+std::to_string(newpos.x)+" "+std::to_string(newpos.y);
         globl.broadcast(message);
       }
       else{
         //jump successful
-        *ss << toStr(CHAT)+" You jumped successfully.";
+        *ss << std::to_string(CHAT)+" You jumped successfully.";
         wait();
         //cerr << "Jump: DONE";
-        string message = toStr(JUMP) + " "+toStr(pos.x)+" "+toStr(pos.y)+" "
-          +toStr(newpos.x)+" "+toStr(newpos.y);
+        string message = std::to_string(JUMP) + " "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "
+          +std::to_string(newpos.x)+" "+std::to_string(newpos.y);
         globl.broadcast(message);
       }
       }
@@ -1047,14 +1047,14 @@ void Message::process(ServerSocket* ss, const string& cmd){
     case DROP:{
       Creature* c = globl.getPlayer(ss)->getLastCreature();
       if (c == NULL){
-        *ss << toStr(CHAT)+" Wait until your first turn before dropping anything.";
+        *ss << std::to_string(CHAT)+" Wait until your first turn before dropping anything.";
         break;
       }
       Vector2D pos = c->getPosition();
       Inventory* inv = c->getInventory();
       Item it = inv->getItem(argv[0]);
       if (!it.isValid() || it.getType() == Item::Unusable){
-        *ss << toStr(CHAT)+" You do not have a "+argv[0]+" that could be dropped.";
+        *ss << std::to_string(CHAT)+" You do not have a "+argv[0]+" that could be dropped.";
         break;
       }
       inv->deleteItemSavely(pos, argv[0]);
@@ -1064,19 +1064,19 @@ void Message::process(ServerSocket* ss, const string& cmd){
       Inventory* newInv = new Inventory();
       newInv->addItem(it);
       wrld.placeInventory(newInv, pos);
-      *ss << toStr(DROP)+" "+toStr(pos.x)+" "+toStr(pos.y)+" "+argv[0];
+      *ss << std::to_string(DROP)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y)+" "+argv[0];
       break;
     }
 
     case CREAT_CHANGE:{
       GameObject* obj = wrld.getObject(Vector2D(toInt(argv[0]), toInt(argv[1])));
       if (!obj){
-        *ss << toStr(NAK);
+        *ss << std::to_string(NAK);
         break;
       }
       Creature* c = dynamic_cast<Creature*>(obj);
       if (!c){
-        *ss << toStr(NAK);
+        *ss << std::to_string(NAK);
         break;
       }
       globl.getPlayer(ss)->setLastCreature(c);
@@ -1086,29 +1086,29 @@ void Message::process(ServerSocket* ss, const string& cmd){
     case BUY:{
       Creature* c = globl.getPlayer(ss)->getLastCreature();
       if (c == NULL){
-        *ss << toStr(CHAT)+" Wait until your first turn before buying anything.";
+        *ss << std::to_string(CHAT)+" Wait until your first turn before buying anything.";
         break;
       }
       Hero* h = dynamic_cast<Hero*>(c);
       if (!h){
-        *ss << toStr(CHAT)+" Only heros can buy goods.";
+        *ss << std::to_string(CHAT)+" Only heros can buy goods.";
         break;
       }
       Item good = Templates::instance()->searchItem(argv[0]);
       if (!good.isValid()){
-        *ss << toStr(CHAT)+" This cannot be bought.";
+        *ss << std::to_string(CHAT)+" This cannot be bought.";
         break;
       }
       int price = toInt(good.getAdditional());
       if (h->getMoney() < price){
-        *ss << toStr(CHAT)+" You don't have enough money to buy this.";
+        *ss << std::to_string(CHAT)+" You don't have enough money to buy this.";
         break;
       }
       //everything seems alright, so buy it.
       h->changeMoney(-price);
       h->getInventory()->addItem(good);
-      string message = toStr(BUY) +" "+toStr(h->getPosition().x)+
-        " "+toStr(h->getPosition().y)+" "+argv[0];
+      string message = std::to_string(BUY) +" "+std::to_string(h->getPosition().x)+
+        " "+std::to_string(h->getPosition().y)+" "+argv[0];
       globl.broadcast(message);
       break;
     }
@@ -1116,42 +1116,42 @@ void Message::process(ServerSocket* ss, const string& cmd){
     case SELL:{
       Creature* c = globl.getPlayer(ss)->getLastCreature();
       if (c == NULL){
-        *ss << toStr(CHAT)+" Wait until your first turn before selling anything.";
+        *ss << std::to_string(CHAT)+" Wait until your first turn before selling anything.";
         break;
       }
       Hero* h = dynamic_cast<Hero*>(c);
       if (!h){
-        *ss << toStr(CHAT)+" Only heros can sell goods.";
+        *ss << std::to_string(CHAT)+" Only heros can sell goods.";
         break;
       }
       Vector2D pos = h->getPosition();
       Inventory* inv = h->getInventory();
       Item good = inv->getItem(argv[0]);
       if (!good.isValid()){
-        *ss << toStr(CHAT)+" You do not have a "+argv[0]+" that could be sold.";
+        *ss << std::to_string(CHAT)+" You do not have a "+argv[0]+" that could be sold.";
         break;
       }
       int price = toInt(good.getAdditional());
       if (price <= 0){
-        *ss << toStr(CHAT)+" You cannot sell this item.";
+        *ss << std::to_string(CHAT)+" You cannot sell this item.";
         break;
       }
       //everything seems alright, so sell it.
       h->changeMoney(price/2);
       inv->deleteItemSavely(pos, argv[0]);
-      string message = toStr(SELL) +" "+toStr(h->getPosition().x)+
-        " "+toStr(h->getPosition().y)+" "+argv[0];
+      string message = std::to_string(SELL) +" "+std::to_string(h->getPosition().x)+
+        " "+std::to_string(h->getPosition().y)+" "+argv[0];
       globl.broadcast(message);
       break;
     }
 
     case PICKUP:{
       if (!game.isActivePlayer(ss)){
-        *ss << toStr(NO_TURN);
+        *ss << std::to_string(NO_TURN);
 	      break;
       }
       if (game.isActionPerformed(GameState::Search)){
-        *ss << toStr(NO_ACTION);
+        *ss << std::to_string(NO_ACTION);
         break;
       }
       Vector2D pos = getCreature()->getPosition();
@@ -1176,18 +1176,18 @@ void Message::process(ServerSocket* ss, const string& cmd){
       }
       if (foundAny){
         game.performAction(GameState::Search);
-        *ss << toStr(MOVE)+" "+toStr(1)+" "+toStr(0);
-        globl.broadcast(toStr(PICKUP)+" "+toStr(pos.x)+" "+toStr(pos.y));
+        *ss << std::to_string(MOVE)+" "+std::to_string(1)+" "+std::to_string(0);
+        globl.broadcast(std::to_string(PICKUP)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y));
       }
       else{
-        *ss << toStr(CHAT)+ " There are no items to be picked up.";
+        *ss << std::to_string(CHAT)+ " There are no items to be picked up.";
       }
     }
     break;
 
       
     default:      
-      *ss << toStr(NAK);
+      *ss << std::to_string(NAK);
   }
 }
 

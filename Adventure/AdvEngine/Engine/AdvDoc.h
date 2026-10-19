@@ -269,7 +269,7 @@ struct FontData{
 };
 
 struct DataBuffer{
-  DataBuffer() : data(NULL), length(0), used(0) {}
+  DataBuffer() : data(nullptr), length(0), used(0) {}
   DataBuffer(const DataBuffer& d){
     name = d.name;
     data = new char[d.length];
@@ -339,7 +339,8 @@ public:
   bool hasLanguageInfo() {return mLanguages.size() > 0 && mLanguages["origin"].sections[Language::COMMANDS].size() > 0;}
   void setSpashScreenCB(SPLASHSCREENCB sscb) { mSSCB = sscb; }
   void setFileChangedCB(FILECHANGEDCB fcb) { mFCB = fcb; }
-  void fileChanged(std::string const& file) { if (!mFCB) return; mFCB(file); }
+  //! a file in the save folder was written
+  void fileChanged(std::string const& file);
   bool hasUnifiedFonts() { return mFontsPNG; }
   SimpleFrames getAnimation(const std::string& name);
 protected:

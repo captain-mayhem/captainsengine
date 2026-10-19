@@ -58,9 +58,9 @@ public:
   //! create texture
   Texture* createTexture();
   //! create rendertarget
-  virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) { return NULL; }
+  virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) { return nullptr; }
   //! create shader
-  virtual Shader* createShader() { return NULL; }
+  virtual Shader* createShader() { return nullptr; }
   //! set look at
   void lookAt(const CGE::Vec3f& position, const CGE::Vec3f& look, const CGE::Vec3f& up);
   //! set projection

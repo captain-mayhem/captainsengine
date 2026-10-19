@@ -55,10 +55,23 @@ if (PROJECT_OSMRACER AND NOT CGE_WITH_PHYSICS)
   message(FATAL_ERROR "OSMRacer needs CGE_WITH_PHYSICS")
 endif()
 
+# unit tests (googletest, run with ctest); by default only for desktop builds
+# of the engine itself, since they run on the build machine
+if (CGE_IS_TOP_LEVEL AND NOT ANDROID AND NOT EMSCRIPTEN)
+  set(CGE_BUILD_TESTS_DEFAULT ON)
+else()
+  set(CGE_BUILD_TESTS_DEFAULT OFF)
+endif()
+option(CGE_BUILD_TESTS "build the engine's unit tests" ${CGE_BUILD_TESTS_DEFAULT})
+
 include(FindFBX)
 
 add_subdirectory(extern)
 add_subdirectory(Engine)
+if (CGE_BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(tests)
+endif()
 if (PROJECT_HEROQUEST)
   add_subdirectory(editor)
   add_subdirectory(heroquest)

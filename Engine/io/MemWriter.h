@@ -36,7 +36,7 @@ public:
 
   virtual uint32 getSize() const { return (uint32)mStorage.size(); }
 
-  char const* getData() const {return mStorage.empty() ? NULL : (char const*)&mStorage[0];}
+  char const* getData() const {return mStorage.empty() ? nullptr : (char const*)&mStorage[0];}
   char* getCurrentData() {return mCurrent;}
 protected:
   char* mStart;

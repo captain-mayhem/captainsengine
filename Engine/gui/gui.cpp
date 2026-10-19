@@ -20,6 +20,9 @@
 #include "../renderer/forms.h"
 #include "gui.h"
 
+using std::string;
+using std::list;
+
 using namespace Gui;
 using CGE::Color;
 using namespace CGE;

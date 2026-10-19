@@ -120,30 +120,15 @@ public:
   static void init();
   inline static Keyboard* instance() {return key_;}
   inline static void release() {SAFE_DELETE(key_);}
-  //! set keydown callback
-  inline void setKeyDownCB(void (*proc)(int key)) {keyDownCB_ = proc;}
-  //! set keyup callback
-  inline void setKeyUpCB(void (*proc)(int key)) {keyUpCB_ = proc;}
-  //! set keydown callback
-  inline void setAsciiCB(void (*proc)(unsigned char key)) {asciiCB_ = proc;}
-  //! set keypressed callback
-  inline void setKeyPressedCB(void (*proc)(int key, float diffTime)) {keyPressedCB_ = proc;}
   void keyDown(int key);
   void keyUp(int key);
   void ascii(unsigned char key);
-  void processPressedKeys(float diffTime);
+  //! is the key held down?
+  bool isPressed(int key) const;
   void enableBuitInConsole(bool doit) { mBuiltInConsole = doit; }
 protected:
   static Keyboard* key_;
   Keyboard();
-  //! keydown callback
-  void (*keyDownCB_)(int key);
-  //! keyup callback
-  void (*keyUpCB_)(int key);
-  //! ascii callback
-  void (*asciiCB_)(unsigned char key);
-  //! key pressed callback
-  void (*keyPressedCB_)(int key, float diffTime);
   //! the key state
   std::list<int> pressedKeys_;
   //! enable built-in console

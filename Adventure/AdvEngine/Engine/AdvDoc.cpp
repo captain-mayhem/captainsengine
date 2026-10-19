@@ -10,6 +10,7 @@
 #include "Engine.h"
 #include <system/allocation.h>
 #include <system/file.h>
+#include <platform/userdirs.h>
 #include "Console.h"
 
 const float FPS_MAX = 50.0f;
@@ -23,11 +24,13 @@ const int FXSHAPES_MAX = 3;
 #include <io/ZipReader.h>
 #include <io/Tracing.h>
 
+using std::string;
+
 using namespace adv;
 
 TR_CHANNEL(ADV_DATA);
 
-AdvDocument::AdvDocument() : mUseCompressedData(false), mSSCB(NULL), mFCB(NULL){
+AdvDocument::AdvDocument() : mUseCompressedData(false), mSSCB(nullptr), mFCB(nullptr){
 }
 
 AdvDocument::~AdvDocument(){
@@ -70,7 +73,7 @@ bool AdvDocument::loadDocument(const std::string filename){
   //spash screen
   if (mSSCB){
     CGE::ImageLoader loader;
-    CGE::Image* splash = NULL;
+    CGE::Image* splash = nullptr;
     if (!mSettings.splashscreen.empty()){
       string splashfile = mImageNames[mSettings.splashscreen];
       if (mUseCompressedData){
@@ -137,21 +140,32 @@ bool AdvDocument::loadDocument(const std::string filename){
     TR_INFO("%4i scripts", scriptcount);
   }
 
+  //the saves go to a folder named after the project's folder, by default
+  //in the user's data folder
   if (mSettings.savedir.empty())
-    mSettings.savedir = mPath + "/../saves";
-  else{
-    string dirname = mSettings.dir;
-    CGE::Utilities::replaceWith(dirname, '\\', '/');
-    size_t idx = dirname.find_last_of('/');
-    //dirname = dirname.erase(idx);
-    //idx = dirname.find_last_of('/');
-    dirname.erase(0, idx);
-    mSettings.savedir = CGE::Filesystem::combinePath(mSettings.savedir, dirname);
+    mSettings.savedir = CGE::UserDirs::getDataDir();
+  string dirname = mSettings.dir;
+  CGE::Utilities::replaceWith(dirname, '\\', '/');
+  while (!dirname.empty() && dirname.back() == '/')
+    dirname.pop_back();
+  dirname.erase(0, dirname.find_last_of('/') + 1);
+  if (dirname.empty())
+    dirname = "game";
+  mSettings.savedir = mSettings.savedir + "/" + dirname;
+
+  if (!CGE::Filesystem::createDirs(mSettings.savedir)){
+    TR_USE(ADV_DATA);
+    TR_ERROR("Cannot create the save folder %s", mSettings.savedir.c_str());
   }
 
-  CGE::Filesystem::createDir(mSettings.savedir);
-
   return true;
+}
+
+void AdvDocument::fileChanged(std::string const& file){
+  //makes the save persistent on the web
+  CGE::UserDirs::commit();
+  if (mFCB)
+    mFCB(file);
 }
 
 bool AdvDocument::loadFile1(CGE::MemReader& txtstream, int& ver_major, int& ver_minor){
@@ -777,7 +791,7 @@ bool AdvDocument::loadFile3(CGE::MemReader& txtstream){
     return false;
   }
   txtstream.readLine();
-  mLastScript = NULL;
+  mLastScript = nullptr;
   while (txtstream.isWorking()){
     str = txtstream.readLine();
     //if (!txtstream.isWorking())
@@ -916,7 +930,7 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
   else{
     TR_ERROR("Image %s not found", name.c_str());
     mMuty.unlock();
-    return NULL;
+    return nullptr;
   }
   if (mUseCompressedData){
     size_t namepos = filename.find_last_of('/');
@@ -925,10 +939,10 @@ CGE::Image* AdvDocument::getImage(const std::string& name){
     CGE::MemReader rdr = zrdr.openEntry(imagename, mZipPwd);
     if (!rdr.isWorking()){
       mMuty.unlock();
-      return NULL;
+      return nullptr;
     }
     size_t extpos = filename.find_last_of('.');
-    CGE::Image* img = NULL;
+    CGE::Image* img = nullptr;
     if (filename.substr(extpos + 1) == "pnj"){
       CGE::Image* rgbimage = CGE::ImageLoader::load(rdr.getData(), rdr.getSize(), CGE::ImageLoader::JPG);
       filename[filename.length() - 1] = 'a';
@@ -1099,7 +1113,7 @@ Room* AdvDocument::getRoom(std::string name){
       if (_stricmp(name.c_str(), iter->first.c_str()) == 0)
         return &iter->second;
     }
-    return NULL;
+    return nullptr;
   }
   return &((*iter).second);
 }
@@ -1111,7 +1125,7 @@ Object* AdvDocument::getObject(std::string name){
       if (_stricmp(name.c_str(), iter->first.c_str()) == 0)
         return &iter->second;
     }
-    return NULL;
+    return nullptr;
   }
   return &((*iter).second);
 }
@@ -1127,7 +1141,7 @@ ProjectSettings* AdvDocument::getProjectSettings(){
 Character* AdvDocument::getCharacter(std::string name){
   std::map<std::string, Character>::iterator iter = mCharacters.find(name);
   if (iter == mCharacters.end())
-    return NULL;
+    return nullptr;
   return &((*iter).second);
 }
 
@@ -1138,7 +1152,7 @@ Script* AdvDocument::getScript(Script::Type t, std::string name){
       if (_stricmp(name.c_str(), iter->first.second.c_str()) == 0)
         return &iter->second;
     }
-    return NULL;
+    return nullptr;
   }
   return &((*iter).second);
 }
@@ -1162,7 +1176,7 @@ bool AdvDocument::parseFontData(const std::string& name, FontData& data){
   TiXmlElement* elem = font->ToElement();
   data.fontsize.x = atoi(elem->Attribute("width"));
   data.fontsize.y = atoi(elem->Attribute("height"));
-  for (TiXmlNode* child = font->FirstChild(); child != NULL; child = child->NextSibling()){
+  for (TiXmlNode* child = font->FirstChild(); child != nullptr; child = child->NextSibling()){
     TiXmlElement* elem = child->ToElement();
     const char* value = elem->Attribute("ascii");
     if (!value)
@@ -1194,9 +1208,9 @@ FontData AdvDocument::getFont(int num){
   //if (num < 10)
   number << "0";
   number << num;
-  CGE::ZipReader* firstzrdr = NULL;
+  CGE::ZipReader* firstzrdr = nullptr;
   CGE::MemReader firstrdr;
-  CGE::ZipReader* zrdr = NULL;
+  CGE::ZipReader* zrdr = nullptr;
   CGE::MemReader in;
   if (num == 0){
     if (hasUnifiedFonts()){
@@ -1288,7 +1302,7 @@ Item* AdvDocument::getItem(const std::string& name){
       if (_stricmp(name.c_str(), iter->first.c_str()) == 0)
         return &iter->second;
     }
-    return NULL;
+    return nullptr;
   }
   return &((*iter).second);
 }
@@ -1381,6 +1395,6 @@ Roomobject* AdvDocument::findRoomObject(const std::string& name, Room*& containi
       }
     }
   }
-  return NULL;
+  return nullptr;
 }
 

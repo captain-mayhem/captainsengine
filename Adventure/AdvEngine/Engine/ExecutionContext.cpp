@@ -51,8 +51,8 @@ void CodeSegment::load(std::istream& in){
 
 ExecutionContext::ExecutionContext(CodeSegment* segment, bool isGameObject, const std::string& objectinfo) : 
 mCode(segment), mIsGameObject(isGameObject), mObjectInfo(objectinfo),
-mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
-mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK), mLoop1(NULL){
+mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(nullptr), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
+mSuspender(nullptr), mShouldFinish(false), mLuaRet(LUA_OK), mLoop1(nullptr){
   mL = newThread();
   mStack.setState(mL);
 }
@@ -62,7 +62,7 @@ ExecutionContext::ExecutionContext(const ExecutionContext& ctx) : mLuaRet(LUA_OK
   if (ctx.mCode)
     mCode = new CodeSegment(*ctx.mCode);
   else{
-    mCode = NULL;
+    mCode = nullptr;
     lua_State* L = ((ExecutionContext&)ctx).getState();
     lua_pushthread(L);
     lua_gettable(L, LUA_REGISTRYINDEX);
@@ -101,7 +101,7 @@ const char* ExecutionContext::luaReader(lua_State* L, void* data, size_t* size){
   *size = sz;
   static std::vector<char> dat;
   if (sz == 0){
-    return NULL;
+    return nullptr;
   }
   dat.resize(sz);
   in.read(&dat[0], sz);
@@ -109,8 +109,8 @@ const char* ExecutionContext::luaReader(lua_State* L, void* data, size_t* size){
 }
 
 ExecutionContext::ExecutionContext(std::istream& in) : 
-mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), 
-mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK)
+mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(nullptr), mSkip(false), mIdle(false), 
+mEventHandled(false), mRefCount(1), mSuspender(nullptr), mShouldFinish(false), mLuaRet(LUA_OK)
 {
   mL = newThread();
   mStack.setState(mL);
@@ -123,7 +123,7 @@ mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false), mLua
     mCode->load(in);
   }
   else{
-    mCode = NULL;
+    mCode = nullptr;
     lua_load(mL, luaReader, &in, "saved chunk", "bt");
     Engine::instance()->getInterpreter()->initLuaContext(this);
   }
@@ -132,13 +132,13 @@ mEventHandled(false), mRefCount(1), mSuspender(NULL), mShouldFinish(false), mLua
   if (tag == "loop1")
     mLoop1 = new ExecutionContext(in);
   else
-    mLoop1 = NULL;
+    mLoop1 = nullptr;
 }
 
 ExecutionContext::ExecutionContext(lua_State* L) :
-mCode(NULL), mIsGameObject(false), mObjectInfo(""),
-mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(NULL), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
-mSuspender(NULL), mShouldFinish(false), mLuaRet(LUA_OK), mLoop1(NULL){
+mCode(nullptr), mIsGameObject(false), mObjectInfo(""),
+mStack(), mPC(0), mSuspended(false), mSleepTime(0), mOwner(nullptr), mSkip(false), mIdle(false), mEventHandled(false), mRefCount(1),
+mSuspender(nullptr), mShouldFinish(false), mLuaRet(LUA_OK), mLoop1(nullptr){
   mL = newThread();
   mStack.setState(mL);
   lua_xmove(L, mL, 1);
@@ -275,7 +275,7 @@ void ExecutionContext::save(std::ostream& out){
     lua_pop(mL, 2);
   }
   out << " ";
-  if (mLoop1 == NULL)
+  if (mLoop1 == nullptr)
     out << "none\n";
   else{
     out << "loop1\n";
@@ -286,7 +286,7 @@ void ExecutionContext::save(std::ostream& out){
 
 bool ExecutionContext::isLoop1(){
   CCode* code = mCode->get(0);
-  if (code == NULL)
+  if (code == nullptr)
     return false;
   if (code->getType() != CCode::BNEEVT)
     return false;
@@ -311,7 +311,7 @@ String ExecutionContext::resolveCharName(const String& name){
 CharacterObject* ExecutionContext::getCharacter(const String& name){
   String realname = resolveCharName(name);
   if (realname.empty())
-    return NULL;
+    return nullptr;
   return Engine::instance()->getCharacter(realname);
 }
 

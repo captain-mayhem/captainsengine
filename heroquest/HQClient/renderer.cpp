@@ -30,7 +30,7 @@ using Gui::InputField;
 using Gui::Button;
 using Input::Mouse;
 
-HQRenderer* HQRenderer::rend_ = NULL;
+HQRenderer* HQRenderer::rend_ = nullptr;
 
 HQRenderer::HQRenderer(CGE::Renderer* rend){
   render_ = rend;
@@ -48,12 +48,12 @@ HQRenderer::HQRenderer(CGE::Renderer* rend){
   threeD_ = false;
   // the clicked field
   clickedField_ = Vector2D(-1,-1);
-  awaitMapClick_ = NULL;
+  awaitMapClick_ = nullptr;
   mousePos_ = Vector2D(0,0);
 
-  inventory_ = NULL;
+  inventory_ = nullptr;
   trade_ = false;
-  m3DShader = NULL;
+  m3DShader = nullptr;
 }
 
 HQRenderer::~HQRenderer(){
@@ -70,7 +70,7 @@ void HQRenderer::special_(int key){
   switch (key){
   case KEY_ESCAPE:
     if (inventory_){
-      Menu::close(NULL);
+      Menu::close(nullptr);
       break;
     }
     line << "Do you really want to quit (y/n)";
@@ -160,12 +160,12 @@ void HQRenderer::ascii_(unsigned char key){
 		wrld.updateCollisionVertices(c->getPosition());
     plyr.setActCreature(c->getName());
     //notify server
-    msg.send(toStr(CREAT_CHANGE)+" "+toStr(pos.x)+" "+toStr(pos.y));
+    msg.send(std::to_string(CREAT_CHANGE)+" "+std::to_string(pos.x)+" "+std::to_string(pos.y));
     break;
   }
   case 'i':
     if (game.getState() == RUN)
-      Menu::inventory(NULL);
+      Menu::inventory(nullptr);
     break;
   case 'w':
   case 's':
@@ -198,7 +198,7 @@ void HQRenderer::ascii_(unsigned char key){
       if (wrld.isWall(pos.x, pos.y, d))
         break;
       //is move not allowed due to other reasons?
-	    bool selfHero = dynamic_cast<Hero*>(wrld.getObject(pos)) == NULL ? false : true;
+	    bool selfHero = dynamic_cast<Hero*>(wrld.getObject(pos)) == nullptr ? false : true;
       bool objectHero = true;
 	    bool objectMonster = true;
       bool objectFurni = false;
@@ -206,9 +206,9 @@ void HQRenderer::ascii_(unsigned char key){
 	    
       GameObject *o = wrld.getObject(moveTo);
 	    if (o){
-		    objectHero = dynamic_cast<Hero*>(o) == NULL ? false : true;
-		    objectMonster = dynamic_cast<Monster*>(o) == NULL ? false : true;
-        objectFurni = dynamic_cast<Furniture*>(o) == NULL ? false : true;
+		    objectHero = dynamic_cast<Hero*>(o) == nullptr ? false : true;
+		    objectMonster = dynamic_cast<Monster*>(o) == nullptr ? false : true;
+        objectFurni = dynamic_cast<Furniture*>(o) == nullptr ? false : true;
 	    }
       Field* f = &wrld.getField(moveTo);
       if (f->overlay && f->overlay->getStatus() && !f->overlay->isWalkable())
@@ -232,9 +232,13 @@ void HQRenderer::ascii_(unsigned char key){
 // the button click handling
 void HQRenderer::buttonDown_(int x, int y, int buttons){
   //clickable map
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  //clicks beside the 4:3 area of a wider or narrower window are outside the map
+  if (x < 0 || x >= screen.getWidth() || y < 0 || y >= screen.getHeight())
+    return;
   if (game.getState() == PREPARE && !Mouse::instance()->isGuiClick() && clickedField_ == Vector2D(-1,-1) && !trade_){
-    float dx = (float)wrld.getMapSize().x/SCREENWIDTH;
-    float dy = (float)wrld.getMapSize().y/SCREENHEIGHT;
+    float dx = (float)wrld.getMapSize().x/screen.getWidth();
+    float dy = (float)wrld.getMapSize().y/screen.getHeight();
     clickedField_.x = (int)(x*dx);
     clickedField_.y = (int)(y*dy);
 
@@ -255,20 +259,24 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
   }
   else if (game.getState() == RUN && !Mouse::instance()->isGuiClick() && awaitMapClick_){
     //awaiting click on map for various ingame functions
-    float dx = (float)wrld.getMapSize().x/SCREENWIDTH;
-    float dy = (float)wrld.getMapSize().y/SCREENHEIGHT;
+    float dx = (float)wrld.getMapSize().x/screen.getWidth();
+    float dy = (float)wrld.getMapSize().y/screen.getHeight();
     Vector2D click;
     click.x = (int)(x*dx);
     click.y = (int)(y*dy);
     //call function that awaits the click
     awaitMapClick_(click);
-    awaitMapClick_ = NULL;
+    awaitMapClick_ = nullptr;
   }
 }
 
 void HQRenderer::mouseMove_(int x, int y, int buttons){
-  int width = CGE::Engine::instance()->getWindow()->getWidth();
-  int height = CGE::Engine::instance()->getWindow()->getHeight();
+  //the visible area of the virtual screen
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  int left = (int)screen.getVisibleMin().x;
+  int top = (int)screen.getVisibleMin().y;
+  int right = (int)screen.getVisibleMax().x;
+  int bottom = (int)screen.getVisibleMax().y;
   
   //if (x == width/2 && y == height/2)
   //  return;
@@ -286,20 +294,20 @@ void HQRenderer::mouseMove_(int x, int y, int buttons){
     //mousePos_.y = height/2;
     //Mouse::instance()->setMousePos(width/2, height/2);
     bool needsSet = false;
-    if (x < 10){
-      x = width - 10;
+    if (x < left + 10){
+      x = right - 10;
       needsSet = true;
     }
-    else if (x > width - 10){
-      x = 10;
+    else if (x > right - 10){
+      x = left + 10;
       needsSet = true;
     }
-    if (y < 10){
-      y = height - 10;
+    if (y < top + 10){
+      y = bottom - 10;
       needsSet = true;
     }
-    else if (y > height - 10){
-      y = 10;
+    else if (y > bottom - 10){
+      y = top + 10;
       needsSet = true;
     }
     if (needsSet)
@@ -469,7 +477,7 @@ void HQRenderer::paint_(){
 
   if (wrld.isLoaded()){
     //number of moves in the upper right corner
-    CGE::Engine::instance()->getFont(0)->print(1000, 750, toStr(game.getMoves()).c_str(), 1);
+    CGE::Engine::instance()->getFont(0)->print(1000, 750, std::to_string(game.getMoves()).c_str(), 1);
     //get the nearest vertices and check them for camera collision
     //Vector3D** worldCollision = wrld.getWorld();
     //cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
@@ -494,8 +502,9 @@ void HQRenderer::paint_(){
     setViewTo3D(false);
   }
   
-  render_->ortho(SCREENWIDTH, SCREENHEIGHT);
-  render_->translate(-SCREENWIDTH/2, -SCREENHEIGHT/2, 0);
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  render_->resetModelView();
+  screen.ortho(render_);
   render_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
   render_->enableBlend(true);
   render_->enableTexturing(true);
@@ -504,28 +513,15 @@ void HQRenderer::paint_(){
     TextureManager::instance()->otherTex[0]->activate();
     CGE::Forms* form = CGE::Engine::instance()->getForms();
     render_->pushMatrix();
-    render_->translate(512, 384, 0);
-    render_->scale(1024, 768, 1);
+    render_->translate(screen.getWidth()/2.0f, screen.getHeight()/2.0f, 0);
+    render_->scale((float)screen.getWidth(), (float)screen.getHeight(), 1);
     form->activateQuad();
     form->drawQuad();
     render_->popMatrix();
-    /*
-    glBegin(GL_QUADS);
-      glTexCoord2f(1,0);
-      glVertex2i(SCREENWIDTH, SCREENHEIGHT);
-      glTexCoord2f(0,0);
-      glVertex2i(0, SCREENHEIGHT);
-      glTexCoord2f(0,1);
-      glVertex2i(0, 0);
-      glTexCoord2f(1,1);
-      glVertex2i(SCREENWIDTH, 0); 
-    glEnd();
-    */
   }
  
   //render inventory
   render_->resetModelView();
-  render_->translate(-512, -384, 0);
   if (inventory_){
     inventory_->render();
     inventory_->update();
@@ -538,7 +534,7 @@ void HQRenderer::paint_(){
   
   CGE::Font *f = CGE::Engine::instance()->getFont(0);
   f->setColor(0,1,0);
-  f->print(20, 720, ("Current Frames Per Second: "+toStr(CGE::Engine::instance()->getFPS())).c_str(), 0);
+  f->print(20, 720, ("Current Frames Per Second: "+std::to_string(CGE::Engine::instance()->getFPS())).c_str(), 0);
   
   //interpolate hero positions
   for (int i = 0; i < wrld.getHeroSize(); i++){

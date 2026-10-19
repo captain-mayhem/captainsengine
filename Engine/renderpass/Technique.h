@@ -11,7 +11,7 @@ class Scene;
 
 class CGE_API RenderTechnique{
 public:
-  RenderTechnique() : mScene(NULL) {}
+  RenderTechnique() : mScene(nullptr) {}
   virtual void setScene(Scene& scene) { mScene = &scene; }
   virtual void init() {}
   virtual void deinit() {}

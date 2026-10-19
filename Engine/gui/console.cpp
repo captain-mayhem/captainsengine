@@ -23,15 +23,19 @@
 #include "../renderer/forms.h"
 #include "console.h"
 
+using std::string;
+using std::list;
+
 using namespace Gui;
 using namespace CGE;
 
 //CONSTRUCTOR
 Console::Console(){
-  //set standard values
-  pos_ = Vector2D(0, 468);
+  //set standard values: the upper part of the virtual screen
+  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
+  span_ = Vector2D(screen.getWidth(), 300);
+  pos_ = Vector2D(0, screen.getHeight()-span_.y);
   //fnt_ = CGE::Engine::instance()->getFont();
-  span_ = Vector2D(1024,300);
   opacity_ = 0.7f;
   //put in a nice starting message
   string start("HeroQuest v");
@@ -42,8 +46,8 @@ Console::Console(){
   histIter_ = history_.begin(); 
   new_ = false;
   active_ = false;
-  special_ = NULL;
-  process_ = NULL;
+  special_ = nullptr;
+  process_ = nullptr;
   init();
 }
 
@@ -75,12 +79,12 @@ Console::~Console(){
 void Console::init(){
   input_ = new InputField();
   input_->setFont(CGE::Engine::instance()->getFont(2));
-  input_->setPosition(Vector2D(0, 468));
+  input_->setPosition(pos_);
   input_->setOpacity(0);
   bgColor_ = CGE::Color(0, 0, 0, 0.7f);
   fgColor_ = Vector3D(1.0, 1.0, 1.0);
   input_->setColors(fgColor_, bgColor_);
-  input_->setSpan(Vector2D(1024,18));
+  input_->setSpan(Vector2D(span_.x,18));
 }
 
 //adds text to the console
@@ -126,7 +130,7 @@ void Console::update(){
     if (special_){
       void (*s)(const string&, int, void*);
       s = special_;
-      special_ = NULL;
+      special_ = nullptr;
       (*s)(history_.front(), mode_, additional_);
     }
     else if (process_)

@@ -10,11 +10,7 @@
 using namespace CGE;
 
 Renderer::Renderer(){
-  win_ = NULL;
-  renderCB_ = NULL;
-  initCB_ = NULL;
-  deinitCB_ = NULL;
-  resizeCB_ = NULL;
+  win_ = nullptr;
 }
 
 Renderer::~Renderer(){
@@ -29,27 +25,15 @@ void Renderer::killContext(){
 }
 
 void Renderer::initRendering(){
-  if (initCB_){
-    initCB_();
-  }
 }
 
 void Renderer::deinitRendering(){
-  if (deinitCB_){
-    deinitCB_();
-  }
 }
 
 void Renderer::renderScene(){
-  if (renderCB_){
-    renderCB_();
-  }
 }
 
 void Renderer::resizeScene(int width, int height){
-  if (resizeCB_){
-    resizeCB_(width, height);
-  }
 }
 
 void Renderer::ortho(const int width, const int height){
@@ -65,7 +49,7 @@ void Renderer::setMaterial(const Material& mat){
     enableBlend(false);
     enableDepthWrite(true);
   }
-  if (Shader::getCurrentShader() != NULL && Shader::getCurrentShader()->applyMaterial(mat)){ //handled by shader  
+  if (Shader::getCurrentShader() != nullptr && Shader::getCurrentShader()->applyMaterial(mat)){ //handled by shader  
     return;
   }
   Color diff = mat.getDiffuse();
@@ -84,12 +68,12 @@ void Renderer::setMaterial(const Material& mat){
 
 Texture* Renderer::createTexture(std::string filename, Texture::Format fmt){
   //filename_ = filename;
-  Image *img = NULL;
+  Image *img = nullptr;
 
   img = ImageLoader::load(filename.c_str());
 
   if (!img)
-    return NULL;
+    return nullptr;
 
   if (fmt == Texture::ALPHA)
     img->convertFormat(1);
@@ -108,14 +92,14 @@ Texture* Renderer::createTexture(Image const* img, Texture::Format fmt){
   if (tex->createFromImage(img, fmt))
     return tex;
   delete tex;
-  return NULL;
+  return nullptr;
 }
 
 Texture* Renderer::createTexture(unsigned width, unsigned height, Texture::Format fmt){
   Texture* tex = createTexture();
   if (!tex->createEmpty(width, height, fmt)){
     delete tex;
-    return NULL;
+    return nullptr;
   }
   int bpp = (int)fmt;
   uint8* data = new uint8[width*height*bpp];

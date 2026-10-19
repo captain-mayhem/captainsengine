@@ -111,7 +111,7 @@ void Admin::end(ServerSocket* ss){
     }
   }
   mutex.unlock();
-  chat(ss, toStr(CHAT)+ name +" left the server");
+  chat(ss, std::to_string(CHAT)+ name +" left the server");
   delete ss;
   //quit server if last player left
   if (players.size() == 1){
@@ -119,8 +119,8 @@ void Admin::end(ServerSocket* ss){
     exit(EXIT_SUCCESS);
   }
   if (newSs != NULL){
-    *newSs << toStr(CHAT)+ " It's your turn";
-    globl.chat(newSs, toStr(CHAT)+" It's "+ globl.getPlayer(newSs)->getName()+ "'s turn.");
+    *newSs << std::to_string(CHAT)+ " It's your turn";
+    globl.chat(newSs, std::to_string(CHAT)+" It's "+ globl.getPlayer(newSs)->getName()+ "'s turn.");
   }
   //SDL_KillThread(thread);
   thread->destroy();

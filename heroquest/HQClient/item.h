@@ -38,7 +38,7 @@ class Item{
     inline string getAdditional() {return additional_;}
     inline void setDescription(string description) {description_ = description;}
     inline string getDescription() {return description_;}
-    inline void setAdditional(int value) {additional_ = toStr(value);}
+    inline void setAdditional(int value) {additional_ = std::to_string(value);}
     inline int getAdditionalInt() {return toInt(additional_);}
     inline void setType(Type type) {type_ = type;}
     inline Type getType(){return type_;}

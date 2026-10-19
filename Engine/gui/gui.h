@@ -22,9 +22,6 @@
 #include "../math/vector.h"
 #include "../renderer/font.h"
 
-using std::string;
-using std::list;
-using std::ostringstream;
 
 //using CGE::Vector3D;
 //using CGE::Vector2D;
@@ -50,9 +47,9 @@ public:
   virtual bool isClicked(const ::CGE::Vector2D& pos);
   virtual void process() = 0;
   //! sets the button text
-  inline void setName(const string& text) { name_ = text; }
+  inline void setName(const std::string& text) { name_ = text; }
   //! gets the button text
-  inline const string& getName() const { return name_; }
+  inline const std::string& getName() const { return name_; }
   //! Sets the position of the input field
   /*! The position is specified by the lower left corner of the field
    */
@@ -112,9 +109,9 @@ class CGE_API InputField : public GuiElement{
     //! Remove a character from the field
     inline void removeChar() {if(field_.length() > 0) field_.erase(field_.length()-1);}
     //! Sets text in the input field
-    inline void setText(const string text) {field_ = text;}
+    inline void setText(const std::string text) {field_ = text;}
     //! Returns the text in the input field
-    inline string& getText() {finished_ = false; if (field_.length() == 0) return field_; if(field_[field_.length()-1] == '_')
+    inline std::string& getText() {finished_ = false; if (field_.length() == 0) return field_; if(field_[field_.length()-1] == '_')
 	    field_.erase(field_.length()-1,1); return field_;}
     //! Says that the user input has finished
     inline void end() {finished_ = true;}
@@ -134,7 +131,7 @@ class CGE_API InputField : public GuiElement{
     //! The font to write the field text with
     CGE::Font* fnt_;
     //! The field text
-    string field_;
+    std::string field_;
     //! Input finished?
     bool finished_;
     //! Password field?

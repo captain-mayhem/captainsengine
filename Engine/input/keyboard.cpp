@@ -8,13 +8,9 @@ using Gui::InputField;
 
 using namespace Input;
 
-Keyboard* Keyboard::key_ = NULL;
+Keyboard* Keyboard::key_ = nullptr;
 
 Keyboard::Keyboard() : mBuiltInConsole(true){
-  keyDownCB_ = NULL;
-  keyUpCB_ = NULL;
-  asciiCB_ = NULL;
-  keyPressedCB_ = NULL;
 }
 
 void Keyboard::init(){
@@ -31,21 +27,21 @@ void Keyboard::keyDown(int key){
       cons->toggle();
       if (CGE::Engine::instance()->getActiveInput()){
         CGE::Engine::instance()->getActiveInput()->clear();
-        CGE::Engine::instance()->setActiveInput(NULL);
+        CGE::Engine::instance()->setActiveInput(nullptr);
       }
       return;
     }
   }
   InputField* input = CGE::Engine::instance()->getActiveInput();
   //input goes to input field
-  if (input != NULL){
+  if (input != nullptr){
     //input finished
     if (key == KEY_RETURN){
       input->removeChar();
       input->end();
       //normal input ==> single line
       if (!CGE::Engine::instance()->getConsole()->isActive())
-        CGE::Engine::instance()->setActiveInput(NULL);
+        CGE::Engine::instance()->setActiveInput(nullptr);
       return;
     }
     //delete one char
@@ -65,20 +61,16 @@ void Keyboard::keyDown(int key){
     return;
   }
   
-  if (keyDownCB_){
-    keyDownCB_(key);
-  }
-  else{
-    if (key == KEY_ESCAPE)
-      EXIT();
-  }
+  CGE::IApplication* app = CGE::Engine::instance()->getApplication();
+  if (app)
+    app->onKeyDown(key);
 }
 
 void Keyboard::keyUp(int key){
   pressedKeys_.remove(key);
-  if (keyUpCB_){
-    keyUpCB_(key);
-  }
+  CGE::IApplication* app = CGE::Engine::instance()->getApplication();
+  if (app)
+    app->onKeyUp(key);
 }
 
 void Keyboard::ascii(unsigned char key){
@@ -87,7 +79,7 @@ void Keyboard::ascii(unsigned char key){
     return;
   InputField* input = CGE::Engine::instance()->getActiveInput();
   //input goes to input field
-  if (input != NULL){
+  if (input != nullptr){
     input->removeChar();
     input->addChar(key);
     input->addChar('_');
@@ -99,17 +91,16 @@ void Keyboard::ascii(unsigned char key){
     CGE::Engine::instance()->setActiveInput(CGE::Engine::instance()->getConsole()->GetInputField());
   }
 
-  if (asciiCB_){
-    asciiCB_(key);
-  }
-  //::CGE::Log << (unsigned char)key << " ";
+  CGE::IApplication* app = CGE::Engine::instance()->getApplication();
+  if (app)
+    app->onChar(key);
 }
 
-void Keyboard::processPressedKeys(float diffTime){
-  if (keyPressedCB_){
-    for (std::list<int>::iterator iter = pressedKeys_.begin(); iter != pressedKeys_.end(); ++iter){
-      keyPressedCB_(*iter, diffTime);
-    }
+bool Keyboard::isPressed(int key) const{
+  for (int pressed : pressedKeys_){
+    if (pressed == key)
+      return true;
   }
+  return false;
 }
 
