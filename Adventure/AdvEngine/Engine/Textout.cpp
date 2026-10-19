@@ -5,7 +5,7 @@
 
 using namespace adv;
 
-Textout::Textout() : Object2D(1, Vec2i(), Vec2i(), "textout"), mEnabled(false), mText(NULL), mFont(1), mColor(Engine::instance()->getSettings()->infotextcolor),
+Textout::Textout() : Object2D(1, Vec2i(), Vec2i(), "textout"), mEnabled(false), mText(nullptr), mFont(1), mColor(Engine::instance()->getSettings()->infotextcolor),
   mAlignment(ALGN_LEFT), mTimeShown(0), mFadingOut(false){
     FontRenderer::Font* fnt = Engine::instance()->getFontRenderer()->getFont(mFont);
     mFadingTime = fnt ? fnt->getFading() : 0;
@@ -32,10 +32,10 @@ void Textout::render(unsigned time){
   Vec2i pos(0,0);
   //bool keepOnScreen = true;
   int depth = DEPTH_GAME_FONT;
-  RoomObject* boundRoom = NULL;
+  RoomObject* boundRoom = nullptr;
   if (!mBoundRoom.empty()){
     boundRoom = Engine::instance()->getRoom(mBoundRoom);
-    if (boundRoom == NULL)
+    if (boundRoom == nullptr)
       return;
     pos = boundRoom->getScrollOffset()+boundRoom->getPosition();
     depth = boundRoom->getDepth()+DEPTH_BOUND_FONT;
@@ -110,7 +110,7 @@ void Textout::load(std::istream& in, int version){
   if (hasText)
     mText = new ExecutionContext(in);
   else
-    mText = NULL;
+    mText = nullptr;
 }
 
 void Textout::setEnabled(bool enabled){

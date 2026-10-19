@@ -33,22 +33,22 @@ using namespace adv;
 
 TR_CHANNEL(ADV_SOUND_ENGINE);
 
-SoundEngine* SoundEngine::mInstance = NULL;
+SoundEngine* SoundEngine::mInstance = nullptr;
 
 #if !defined(DISABLE_SOUND) && !defined(DISABLE_EFX)
-static LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots = NULL;
-static LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots = NULL;
-static LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti = NULL;
-static LPALAUXILIARYEFFECTSLOTF alAuxiliaryEffectSlotf = NULL;
-static LPALGENEFFECTS alGenEffects = NULL;
-static LPALDELETEEFFECTS alDeleteEffects = NULL;
-static LPALEFFECTF alEffectf = NULL;
-static LPALEFFECTFV alEffectfv = NULL;
-static LPALEFFECTI alEffecti = NULL;
-static LPALGENFILTERS alGenFilters = NULL;
-static LPALDELETEFILTERS alDeleteFilters = NULL;
-static LPALFILTERI alFilteri = NULL;
-static LPALFILTERF alFilterf = NULL;
+static LPALGENAUXILIARYEFFECTSLOTS alGenAuxiliaryEffectSlots = nullptr;
+static LPALDELETEAUXILIARYEFFECTSLOTS alDeleteAuxiliaryEffectSlots = nullptr;
+static LPALAUXILIARYEFFECTSLOTI alAuxiliaryEffectSloti = nullptr;
+static LPALAUXILIARYEFFECTSLOTF alAuxiliaryEffectSlotf = nullptr;
+static LPALGENEFFECTS alGenEffects = nullptr;
+static LPALDELETEEFFECTS alDeleteEffects = nullptr;
+static LPALEFFECTF alEffectf = nullptr;
+static LPALEFFECTFV alEffectfv = nullptr;
+static LPALEFFECTI alEffecti = nullptr;
+static LPALGENFILTERS alGenFilters = nullptr;
+static LPALDELETEFILTERS alDeleteFilters = nullptr;
+static LPALFILTERI alFilteri = nullptr;
+static LPALFILTERF alFilterf = nullptr;
 #endif
 
 #ifdef FFMPEG_ANCIENT_API
@@ -66,12 +66,12 @@ int avcodec_decode_video2(AVCodecContext* avctx, AVFrame* picture, int* got_pict
 
 #endif
 
-SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL), mMusicVolume(1.0f), mSpeechVolume(1.0f), mCurrentEffect("none"), mIsDSPEffect(false), mFadingTime(300), mSpeedFactor(1.0){
+SoundEngine::SoundEngine() : mData(nullptr), mActiveMusic(nullptr), mActiveVideo(nullptr), mMusicVolume(1.0f), mSpeechVolume(1.0f), mCurrentEffect("none"), mIsDSPEffect(false), mFadingTime(300), mSpeedFactor(1.0){
   TR_USE(ADV_SOUND_ENGINE);
 #ifndef DISABLE_SOUND
-  mDevice = alcOpenDevice(NULL);
+  mDevice = alcOpenDevice(nullptr);
   if (mDevice){
-    mContext = alcCreateContext(mDevice, NULL);
+    mContext = alcCreateContext(mDevice, nullptr);
     alcMakeContextCurrent(mContext);
   }
 #ifndef DISABLE_EFX
@@ -131,7 +131,7 @@ SoundEngine::SoundEngine() : mData(NULL), mActiveMusic(NULL), mActiveVideo(NULL)
   }
 #endif
   //init codecs
-  alutInitWithoutContext(NULL, NULL);
+  alutInitWithoutContext(nullptr, nullptr);
   av_register_all();
   av_log_set_level(AV_LOG_ERROR);
 #endif
@@ -150,7 +150,7 @@ SoundEngine::~SoundEngine(){
   alDeleteEffects(6, mEffect);
   alDeleteAuxiliaryEffectSlots(1, &mEffectSlot);
 #endif
-  alcMakeContextCurrent(NULL);
+  alcMakeContextCurrent(nullptr);
   alcDestroyContext(mContext);
   alcCloseDevice(mDevice);
   //exit codecs
@@ -164,9 +164,9 @@ void SoundEngine::reset(){
   }
   mActiveSounds.clear();
   delete mActiveMusic;
-  mActiveMusic = NULL;
+  mActiveMusic = nullptr;
   delete mActiveVideo;
-  mActiveVideo = NULL;
+  mActiveVideo = nullptr;
   mMusicVolume = 1.0f;
   mSpeechVolume = 1.0f;
   mCurrentEffect = "none";
@@ -412,7 +412,7 @@ SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled, 
   mMutex.lock();
   if (!(flags & PLAYER_CREATE_ALWAYS)){
     std::multimap<std::string,SoundPlayer*>::iterator lowerit = mActiveSounds.find(name);
-    if (lowerit != mActiveSounds.end() && lowerit->second != NULL){
+    if (lowerit != mActiveSounds.end() && lowerit->second != nullptr){
       SoundPlayer* ret = lowerit->second;
       mMutex.unlock();
       return ret;
@@ -423,7 +423,7 @@ SoundPlayer* SoundEngine::getSound(const std::string& name, bool effectEnabled, 
   if (!mData->getSound(name, *db)){
     delete db;
     mMutex.unlock();
-    return NULL;
+    return nullptr;
   }
   SoundPlayer* plyr = createPlayer(name, *db, effectEnabled);
   //TR_WARN("creating player %s %p", name.c_str(), plyr);
@@ -441,8 +441,8 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name){
 }
 
 SoundPlayer* SoundEngine::getMusic(const std::string& name, bool effectEnabled){
-  SoundPlayer* plyr = NULL;
-  if (name.empty() || (mActiveMusic != NULL && mActiveMusic->getName() == name)){
+  SoundPlayer* plyr = nullptr;
+  if (name.empty() || (mActiveMusic != nullptr && mActiveMusic->getName() == name)){
     return mActiveMusic;
   }
   //else
@@ -478,7 +478,7 @@ SoundPlayer* SoundEngine::getMusic(const std::string& name, bool effectEnabled){
 }
 
 VideoPlayer* SoundEngine::getMovie(const std::string& name, bool isSwf){
-  VideoPlayer* plyr = NULL;
+  VideoPlayer* plyr = nullptr;
   if (name.empty()){
     return mActiveVideo;
   }
@@ -497,8 +497,8 @@ VideoPlayer* SoundEngine::getMovie(const std::string& name, bool isSwf){
 
 SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer& db, bool effectEnabled){
 #ifndef DISABLE_SOUND
-  if (db.data == NULL || db.length == 0){
-    return NULL;
+  if (db.data == nullptr || db.length == 0){
+    return nullptr;
   }
   /*char* tmp = tmpnam(NULL);
   std::string filename = mData->getProjectSettings()->savedir
@@ -524,14 +524,14 @@ SoundPlayer* SoundEngine::createPlayer(const std::string& name, const DataBuffer
     return NULL;
   }*/
 #else
-  return NULL;
+  return nullptr;
 #endif
 }
 
 VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataBuffer& db, bool isSwf){
 #ifndef DISABLE_SOUND
-  if (db.data == NULL || db.length == 0){
-    return NULL;
+  if (db.data == nullptr || db.length == 0){
+    return nullptr;
   }
   if (isSwf){
     SwfPlayer* plyr = new SwfPlayer(name, &db);
@@ -560,7 +560,7 @@ VideoPlayer* SoundEngine::createVideoPlayer(const std::string& name, const DataB
     return NULL;
   }*/
 #else
-  return NULL;
+  return nullptr;
 #endif
 }
 
@@ -575,7 +575,7 @@ void SoundEngine::removeSpeaker(CharacterObject* chr){
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && iter->second->getSpeaker() == chr){
       delete iter->second;
-      iter->second = NULL;
+      iter->second = nullptr;
     }
   }
   mMutex.unlock();
@@ -583,7 +583,7 @@ void SoundEngine::removeSpeaker(CharacterObject* chr){
 
 void SoundEngine::setMusicVolume(float volume){
   mMusicVolume = volume;
-  if (mActiveMusic != NULL){
+  if (mActiveMusic != nullptr){
     if (!mActiveMusic->isFading())
       mActiveMusic->setVolume(volume);
   }
@@ -602,7 +602,7 @@ std::ostream& SoundEngine::save(std::ostream& out){
   alGetListenerf(AL_GAIN, &volume);
 #endif
   out << volume << std::endl;
-  if (mActiveMusic != NULL){
+  if (mActiveMusic != nullptr){
     out << String(mActiveMusic->getName()) << " " << mActiveMusic->hasEffect();
   }
   else{
@@ -629,12 +629,12 @@ std::istream& SoundEngine::load(std::istream& in, int version){
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && iter->second->hasAutoDeletion()){
       delete iter->second;
-      iter->second = NULL;
+      iter->second = nullptr;
     }
   }
   //mActiveSounds.clear(); //that does not work anymore with unmanaged sounds. Let the sound garbage collector do the work
   delete mActiveMusic;
-  mActiveMusic = NULL;
+  mActiveMusic = nullptr;
   
   in >> mMusicVolume >> mSpeechVolume;
   in >> mFadingTime >> mCurrentEffect;
@@ -701,11 +701,11 @@ void SoundEngine::setSpeedFactor(float speed){
   mMutex.lock();
   mSpeedFactor = speed;
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
-    if (iter->second == NULL)
+    if (iter->second == nullptr)
       continue;
     iter->second->setSpeed(speed);
   }
-  if (mActiveMusic != NULL)
+  if (mActiveMusic != nullptr)
     mActiveMusic->setSpeed(speed);
   mMutex.unlock();
 }
@@ -724,9 +724,9 @@ bool SoundEngine::run(unsigned time){
   for (std::multimap<std::string, SoundPlayer*>::iterator iter = mActiveSounds.begin(); iter != mActiveSounds.end(); ++iter){
     if (iter->second && !iter->second->update(time)){
       delete iter->second;
-      iter->second = NULL;
+      iter->second = nullptr;
     }
-    if (iter->second == NULL)
+    if (iter->second == nullptr)
       garbage = iter;
   }
   if (garbage != mActiveSounds.end()){ //a little cleanup to get rid of old sounds
@@ -735,11 +735,11 @@ bool SoundEngine::run(unsigned time){
   }
   if (mActiveMusic && !mActiveMusic->update(time)){
     delete mActiveMusic;
-    mActiveMusic = NULL;
+    mActiveMusic = nullptr;
   }
   if (mActiveVideo && !mActiveVideo->update(time)){
     delete mActiveVideo;
-    mActiveVideo = NULL;
+    mActiveVideo = nullptr;
   }
   mMutex.unlock();
   //CGE::Thread::sleep(10);

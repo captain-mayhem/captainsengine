@@ -21,7 +21,7 @@ public:
         if (mLoadreason)
           ExecutionContext::unref(mLoadreason);
         //delete mRoom;
-        return NULL;
+        return nullptr;
       }
 private:
   RoomObject* mRoom;
@@ -45,7 +45,7 @@ public:
     Room* room = mData->getRoom(mName);
     SaveStateProvider::SaveRoom* save = Engine::instance()->getSaver()->getRoom(room->name);
     if (!room || !save)
-      return NULL;
+      return nullptr;
     /*int depthoffset = 0;
     if (mIsSubRoom){
       depthoffset = (int)mRooms.size()*1000;
@@ -70,7 +70,7 @@ public:
     std::vector<std::pair<Vec2i,Script*> > wmscripts = mData->getWMScripts(room->name);
     for (unsigned i = 0; i < wmscripts.size(); ++i){
       ExecutionContext* scr = mCompiler->parseProgram(wmscripts[i].second->text);
-      if (scr != NULL)
+      if (scr != nullptr)
         roomobj->addWalkmapScript(wmscripts[i].first-Vec2i(1,1), scr);
     }
     for (unsigned i = 0; i < room->objects.size(); ++i){
@@ -143,7 +143,7 @@ public:
     Script* script = mData->getScript(Script::ROOM,room->name);
     if (script){
       ExecutionContext* scr = mCompiler->parseProgram(script->text);
-      if (scr != NULL){
+      if (scr != nullptr){
         roomobj->setScript(scr);
         if (mExecuteEnter)
           scr->setEvent(EVT_ENTER);
@@ -184,7 +184,7 @@ public:
     Engine::instance()->insertCharacter(mCharacter, mRoom, mPos, mDir);
     if (mReason)
       ExecutionContext::unref(mReason);
-    return NULL;
+    return nullptr;
   }
 private:
   CharacterObject* mCharacter;
@@ -229,7 +229,7 @@ public:
     Engine::instance()->changeFocus(mCharacter, mReason);
     if (mReason)
       ExecutionContext::unref(mReason);
-    return NULL;
+    return nullptr;
   }
 private:
   std::string mCharacter;
@@ -270,7 +270,7 @@ public:
   virtual bool animationEnded(Animation* anim){
     if (mReason)
       mReason->resume();
-    Engine::instance()->unloadRoom(this, false, false, NULL);
+    Engine::instance()->unloadRoom(this, false, false, nullptr);
     return true;
   }
 private:
@@ -291,13 +291,13 @@ public:
       std::reverse(frames.begin(), frames.end());
       mFps = -mFps;
     }
-    AnimationRoom* ro = new AnimationRoom(mPrefix, mSize + mPos, mWait ? mReason : NULL);
+    AnimationRoom* ro = new AnimationRoom(mPrefix, mSize + mPos, mWait ? mReason : nullptr);
     Animation* anim = new Animation(frames, mFps, Vec2i(), DEPTH_VIDEO_LAYER, Vec2i());
     anim->registerAnimationEndHandler(ro);
     Object2D* animobj = new Object2D(1, mPos, mSize, mPrefix);
     animobj->addAnimation(anim);
     ro->addObject(animobj);
-    return new RoomLoadedEvent(ro, true, mWait ? NULL : mReason, SC_DIRECT, 0);
+    return new RoomLoadedEvent(ro, true, mWait ? nullptr : mReason, SC_DIRECT, 0);
   }
 private:
   std::string mPrefix;
@@ -309,7 +309,7 @@ private:
   AdvDocument* mData;
 };
 
-ResLoader::ResLoader() : mData(NULL), mCompiler(NULL) {
+ResLoader::ResLoader() : mData(nullptr), mCompiler(nullptr) {
 
 }
 
@@ -330,12 +330,12 @@ bool ResLoader::run(){
   while(!mQReq.empty()){
     Event* evt = mQReq.getEvent();
     mMutex.unlock();
-    if (evt == NULL)
+    if (evt == nullptr)
       TR_BREAK("Event is NULL");
     TR_DETAIL("Executing an event");
     Event* res = evt->execute();
     delete evt;
-    if (res != NULL){
+    if (res != nullptr){
       mResMutex.lock();
       mQRes.addEvent(res);
 #ifndef ENGINE_SINGLE_THREADED
@@ -418,7 +418,7 @@ void ResLoader::loadRoom(std::string name, bool isSubRoom, ExecutionContext* loa
 void ResLoader::beamCharacter(const std::string& name, ExecutionContext* reason, const std::string& room, const Vec2i& pos, LookDir dir){
 #if 1
   if (reason)
-    reason->suspend(0, NULL);
+    reason->suspend(0, nullptr);
   BeamCharacterEvent* bce = new BeamCharacterEvent(name, reason, room, pos, dir);
   mMutex.lock();
   mQReq.addEvent(bce);
@@ -437,7 +437,7 @@ void ResLoader::beamCharacter(const std::string& name, ExecutionContext* reason,
 
 void ResLoader::setFocus(const std::string& name, ExecutionContext* reason){
   if (reason)
-    reason->suspend(0, NULL);
+    reason->suspend(0, nullptr);
   SetFocusEvent* sfe = new SetFocusEvent(name, reason);
   sfe->setData(mData, mCompiler);
   mMutex.lock();
@@ -450,7 +450,7 @@ void ResLoader::setFocus(const std::string& name, ExecutionContext* reason){
 
 void ResLoader::loadAnimation(const std::string& prefix, float fps, Vec2i pos, Vec2i size, ExecutionContext* loadreason, bool wait){
   if (loadreason)
-    loadreason->suspend(0, NULL);
+    loadreason->suspend(0, nullptr);
   LoadAnimationEvent* lae = new LoadAnimationEvent(prefix, fps, pos, size, wait, loadreason);
   lae->setData(mData);
   mMutex.lock();

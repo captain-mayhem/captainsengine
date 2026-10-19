@@ -31,13 +31,13 @@ template<typename T>
 class Ptr{
 public:
   Ptr(){
-    mObject = NULL;
+    mObject = nullptr;
     mStrong = false;
   }
   Ptr(T* obj, bool isWeak = false){
     mObject = obj;
     mStrong = !isWeak;
-    if (mObject == NULL)
+    if (mObject == nullptr)
       mStrong = false;
     if (mStrong)
       mObject->ref();

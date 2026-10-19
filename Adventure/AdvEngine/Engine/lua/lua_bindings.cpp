@@ -13,9 +13,8 @@ extern "C"{
 #define LUA_EXPORT
 #endif
 
-void engineMain(int argc, char** argv){
-
-}
+//! the engine runs without an application of its own; Lua drives it
+CGE::IApplication luaApplication;
 
 class CommThread{
 public:
@@ -31,7 +30,7 @@ public:
     return thrd;
   }
 private:
-  CommThread(lua_State *state) : L(state), channel(NULL){
+  CommThread(lua_State *state) : L(state), channel(nullptr){
     lua_setfield(L, LUA_REGISTRYINDEX, "CGE_COMM_SELF");
     thread.createSelf();
   }
@@ -60,7 +59,7 @@ void engine_thread_func(void* data){
       lua_setfield(L, LUA_REGISTRYINDEX, "cge.config");
     }
   }*/
-  CGE::runApplication(0, NULL, engineMain);
+  CGE::runApplication(0, nullptr, luaApplication);
   CommThread* thread = CommThread::getSelf(L);
   thread->~CommThread();
   lua_close(L);
@@ -72,7 +71,7 @@ static int initEngine(lua_State* L){
     lua_error(L);
   }
   lua_State* L2 = luaL_newstate();
-  if (L2 == NULL)
+  if (L2 == nullptr)
     luaL_error(L, "cannot create new lua state");
   engine_thread.create(engine_thread_func, L2);
   /*int args = lua_gettop(L);
@@ -107,13 +106,13 @@ static const struct luaL_Reg cgelib[] = {
   { "shutdown", shutdownEngine },
   { "send", messageSend },
   { "receive", messageReceive },
-  { NULL, NULL }
+  { nullptr, nullptr }
 };
 
 void cge_setfuncs(lua_State *L, const luaL_Reg *l, int nup){
   //luaL_checkversion(L);
   luaL_checkstack(L, nup, "too many upvalues");
-  for (; l->name != NULL; l++) {  /* fill the table with given functions */
+  for (; l->name != nullptr; l++) {  /* fill the table with given functions */
     int i;
     for (i = 0; i < nup; i++)  /* copy upvalues to the top */
       lua_pushvalue(L, -nup);

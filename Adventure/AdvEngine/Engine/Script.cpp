@@ -95,7 +95,7 @@ mOffAlign(ALGN_CENTER), mOffRelative(false){
   luaL_openlibs(mL);
   ScriptFunctions::registerFunctions(this);
   mOfftextColor = data->getProjectSettings()->offspeechcolor;
-  mCutScene = NULL;
+  mCutScene = nullptr;
   mTSLevel = 1;
   mNextTSLevel = 0;
   mHideUI = false;
@@ -175,7 +175,7 @@ PcdkScript::~PcdkScript(){
 void PcdkScript::stop(){
   mScriptMutex.lock();
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
-    if ((*iter)->mExecuteOnce && (*iter)->mOwner == NULL)
+    if ((*iter)->mExecuteOnce && (*iter)->mOwner == nullptr)
       ExecutionContext::unref((*iter));
   }
   for (std::map<std::string,ExecutionContext*>::iterator iter = mScriptFunctions.begin(); iter != mScriptFunctions.end(); ++iter){
@@ -187,7 +187,7 @@ void PcdkScript::stop(){
   mGlobalSuspend = false;
   mHideUI = false;
   ExecutionContext::unref(mCutScene);
-  mCutScene = NULL;
+  mCutScene = nullptr;
   mPrevState.clear();
   for (unsigned i = 0; i < mGroups.size(); ++i){
     delete mGroups[i];
@@ -237,7 +237,7 @@ void reportParseError(struct ANTLR3_BASE_RECOGNIZER_struct * recognizer){
 void*	
 recoverFromMismatchedToken  (pANTLR3_BASE_RECOGNIZER recognizer, ANTLR3_UINT32 ttype, pANTLR3_BITSET_LIST follow){
   recognizer->mismatch(recognizer, ttype, follow);
-  return NULL;
+  return nullptr;
 }
 
 std::string PcdkScript::internal_stringify(ASTNode* node){
@@ -275,7 +275,7 @@ std::string PcdkScript::internal_stringify(ASTNode* node){
   case ASTNode::VARIABLE:
     {
       VariableNode* var = static_cast<VariableNode*>(node);
-      if (var->getChild() != NULL)
+      if (var->getChild() != nullptr)
         TR_BREAK("Variable with child unhandled");
       Engine::instance()->getInterpreter()->getExecMutex().lock();
       StackData s = getVariable(var->name().c_str());
@@ -303,19 +303,19 @@ ASTNode* stringify(ASTNode* node){
 }
 
 ExecutionContext* PcdkScript::parseProgram(const std::string& program, ScriptLang type){
-  mLoop1 = NULL;
+  mLoop1 = nullptr;
   if (type == DEFAULT_SCRIPT)
     type = mData->getProjectSettings()->script_lang;
   if (type == PCDK_SCRIPT)
     return parseProgramPCDK(program);
   else if (type == LUA_SCRIPT)
     return parseProgramLUA(program);
-  return NULL;
+  return nullptr;
 }
 
 ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
   if (program.empty())
-    return NULL;
+    return nullptr;
   mMutex.lock();
   pANTLR3_INPUT_STREAM input;
   ppcdkLexer lexer;
@@ -342,7 +342,7 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
     input->free(input);
     delete p;
     mMutex.unlock();
-    return NULL;
+    return nullptr;
   }
   parser->free(parser);
   tokStream->free(tokStream);
@@ -361,9 +361,9 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
   //transform AST to CIL
   mIsGameObject = false;
   mObjectInfo = "";
-  mLastRelation = NULL;
-  mFirstArg = NULL;
-  mUnresolvedBlockEnd = NULL;
+  mLastRelation = nullptr;
+  mFirstArg = nullptr;
+  mUnresolvedBlockEnd = nullptr;
   mInRow = false;
   CodeSegment* segment = new CodeSegment;
   segment->addCode(new CSTATE(CSTATE::NORMAL));
@@ -378,9 +378,9 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
   std::string objectInfo = mObjectInfo;
   mEvents.clear();
   mMutex.unlock();
-  if (segment->numInstructions() <= 1 && mLoop1 == NULL){
+  if (segment->numInstructions() <= 1 && mLoop1 == nullptr){
     delete segment;
-    return NULL;
+    return nullptr;
   }
   /*LuaChunk ch;
   String ret = ch.serialize();
@@ -394,13 +394,13 @@ ExecutionContext* PcdkScript::parseProgramPCDK(const std::string& program){
 
 ExecutionContext* PcdkScript::parseProgramLUA(const std::string& program){
   TR_USE(ADV_Console);
-  ExecutionContext* ret = new ExecutionContext(NULL, program.find("showinfo") != program.npos, "");
+  ExecutionContext* ret = new ExecutionContext(nullptr, program.find("showinfo") != program.npos, "");
   lua_State* L = ret->getState();
   if (luaL_loadstring(L, program.c_str()) != LUA_OK){
     TR_ERROR("%s", lua_tostring(L, -1));
     lua_pop(L, 2);
     delete ret;
-    return NULL;
+    return nullptr;
   }
   lua_pushvalue(L, -1); //duplicate function for possible loop1 context
   initLuaContext(ret);
@@ -460,7 +460,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         mCurrFunc = fc->getName();
         if (fc->getName() == "break"){
           //break within minicut, add minicut end before break
-          if (mUnresolvedBlockEnd != NULL){
+          if (mUnresolvedBlockEnd != nullptr){
             codes->addCode(new CFCPUSH(ScriptFunctions::miniCutEnd, "minicutend"));
             codes->addCode(new CCALL(0, 0));
             count += 2;
@@ -483,12 +483,12 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           nl->reset(true);
         }
         else if (fc->getName() == "minicut"){
-          if (mUnresolvedBlockEnd == NULL){
+          if (mUnresolvedBlockEnd == nullptr){
             mUnresolvedBlockEnd = new CFCPUSH(ScriptFunctions::miniCutEnd, "minicut");
           }
         }
         ScriptFunc f = mFunctions[fc->getName()];
-        if (f == NULL){
+        if (f == nullptr){
           f = ScriptFunctions::dummy;
           TR_BREAK("script function %s does not exist", fc->getName().c_str());
         }
@@ -565,11 +565,11 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
           codes->addCode(state);
           ++offset;
         }
-        if (mUnresolvedBlockEnd != NULL){
+        if (mUnresolvedBlockEnd != nullptr){
           codes->addCode(mUnresolvedBlockEnd);
           codes->addCode(new CCALL(0, 0));
           offset += 2;
-          mUnresolvedBlockEnd = NULL;
+          mUnresolvedBlockEnd = nullptr;
         }
         cevt->setOffset(offset+1);
         if (evtcode == EVT_LOOP1){
@@ -588,7 +588,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
         CondNode* cond = static_cast<CondNode*>(node);
         mCurrFunc = cond->getCondFuncName();
         ScriptFunc f = mFunctions[cond->getCondFuncName()];
-        if(f == NULL){
+        if(f == nullptr){
           f = ScriptFunctions::dummy;
           TR_BREAK("conditional script function %s does not exist", cond->getCondFuncName().c_str());
         }
@@ -606,7 +606,7 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
       break;
       case ASTNode::VARIABLE:{
         VariableNode* var = static_cast<VariableNode*>(node);
-        if (var->getChild() != NULL){ //build variable name dynamically
+        if (var->getChild() != nullptr){ //build variable name dynamically
           codes->addCode(new CPUSH(var->name()));
           ++count;
           count += transform(var->getChild(), codes);
@@ -787,8 +787,8 @@ unsigned PcdkScript::transform(ASTNode* node, CodeSegment* codes){
 }
 
 CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
-  mLastRelation = NULL;
-  if (relnode == NULL){
+  mLastRelation = nullptr;
+  if (relnode == nullptr){
     if (!negated)
       return new CBNE;
     return new CBE;
@@ -809,7 +809,7 @@ CBRA* PcdkScript::getBranchInstr(RelationalNode* relnode, bool negated){
     else if (relnode->type() == RelationalNode::REL_LESS)
       return new CBLT;
   }
-  return NULL;
+  return nullptr;
 }
 
 void PcdkScript::registerFunction(std::string name, ScriptFunc func){
@@ -847,9 +847,9 @@ bool PcdkScript::update(unsigned time){
   }
   mTimeAccu -= 20;
   time = 20;
-  applyPrevState(NULL);
+  applyPrevState(nullptr);
   //check if a character becomes current during that script run
-  mACharacterAtScriptStart = Engine::instance()->getCharacter("self") != NULL;
+  mACharacterAtScriptStart = Engine::instance()->getCharacter("self") != nullptr;
   //for (std::list<std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
     /*if (iter->first->getScript()->isEventSet(EVT_MOUSEOUT)){
       iter->first->getScript()->resetEvent(EVT_MOUSEOUT);
@@ -897,7 +897,7 @@ bool PcdkScript::update(unsigned time){
       current->setEvents(events);
     }
     if (current->mExecuteOnce && !current->mSuspended){
-      if (current->mOwner == NULL){
+      if (current->mOwner == nullptr){
         mTimers.erase(current);
         ExecutionContext::unref(current);
       }
@@ -914,9 +914,9 @@ bool PcdkScript::update(unsigned time){
     mCutScene->resetEvents(false);
     mCutScene->setEvent((EngineEvent)(EVT_LEVEL+mTSLevel));
     ExecutionContext* oldcutscene = mCutScene;
-    mCutScene = NULL;
+    mCutScene = nullptr;
     update(oldcutscene, time);
-    if (mCutScene == NULL)
+    if (mCutScene == nullptr)
       mCutScene = oldcutscene;
     else
       ExecutionContext::unref(oldcutscene);
@@ -925,11 +925,11 @@ bool PcdkScript::update(unsigned time){
       mHideUI = false;
       Engine::instance()->setCommand(mPrevActiveCommand, false);
       ExecutionContext::unref(mCutScene);
-      mCutScene = NULL;
+      mCutScene = nullptr;
       //reload room if changed through cutscene
       CharacterObject* chr = Engine::instance()->getCharacter("self");
       if (chr)
-        Engine::instance()->loadMainRoom(chr->getRoom(), NULL, Engine::instance()->getScreenChange());
+        Engine::instance()->loadMainRoom(chr->getRoom(), nullptr, Engine::instance()->getScreenChange());
     }
     if (mCutScene && !mCutScene->mSuspended && mCutScene == oldcutscene){
       int count = 0;
@@ -963,7 +963,7 @@ void PcdkScript::update(ExecutionContext* ctx, unsigned time, bool execute){
       ctx->resume();
     }
   }
-  if (ctx->getLoop1() != NULL){ //update timer of loop1 scripts
+  if (ctx->getLoop1() != nullptr){ //update timer of loop1 scripts
     update(ctx->getLoop1(), time, false);
   }
   if (execute)
@@ -971,7 +971,7 @@ void PcdkScript::update(ExecutionContext* ctx, unsigned time, bool execute){
 }
 
 void PcdkScript::execute(ExecutionContext* script, bool executeOnce){
-  if (script == NULL)
+  if (script == nullptr)
     return;
   mScriptMutex.lock();
   script->mExecuteOnce = executeOnce;
@@ -1003,7 +1003,7 @@ int PcdkScript::luaPcdkCall(lua_State* L){
 }
 
 bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAfterExec){
-  if (script->getLoop1() != NULL){
+  if (script->getLoop1() != nullptr){
     if (!(!script->getEvents().empty() && script->getEvents().front() == EVT_ENTER)) //loop events only after enter
       script->getLoop1()->setEvent(EVT_LOOP1);
     executeImmediately(script->getLoop1(), clearStackAfterExec);
@@ -1013,19 +1013,19 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
       return false;
     lua_State* L = script->mL;
     mExecMutex.lock();
-    if (script->mCode == NULL){
+    if (script->mCode == nullptr){
       //real lua script
       int numArgs = lua_gettop(L);
       if (script->mLuaRet != LUA_YIELD)
         lua_getglobal(L, "execScript");
-      script->mLuaRet = lua_resume(script->mL, NULL, numArgs);
+      script->mLuaRet = lua_resume(script->mL, nullptr, numArgs);
     }
     else{
       //pcdk script
       int numArgs = lua_gettop(L);
       if (script->mLuaRet != LUA_YIELD)
         lua_pushcfunction(L, luaPcdkCall);
-      script->mLuaRet = lua_resume(script->mL, NULL, numArgs);
+      script->mLuaRet = lua_resume(script->mL, nullptr, numArgs);
     }
     mExecMutex.unlock();
     if (script->mLuaRet == LUA_YIELD){
@@ -1075,12 +1075,12 @@ bool PcdkScript::executeImmediately(ExecutionContext* script, bool clearStackAft
 
 void PcdkScript::executeCutscene(ExecutionContext* script, bool looping){
   mGlobalSuspend = true;
-  if (mCutScene != NULL){
+  if (mCutScene != nullptr){
     Engine::instance()->setCommand(mPrevActiveCommand, false);
     ExecutionContext::unref(mCutScene);
   }
   mCutScene = script;
-  if (script == NULL){
+  if (script == nullptr){
     mGlobalSuspend = false;
     mHideUI = false;
     return;
@@ -1099,7 +1099,7 @@ void PcdkScript::remove(Object2D* object){
 }
 
 void PcdkScript::remove(ExecutionContext* script){
-  if (script == NULL)
+  if (script == nullptr)
     return;
   mScriptMutex.lock();
   for (std::list<ExecutionContext*>::iterator iter = mScripts.begin(); iter != mScripts.end(); ++iter){
@@ -1171,7 +1171,7 @@ void PcdkScript::clickEndHandler(ExecutionContext& ctx){
   if (evt != EVT_NONE && evt != EVT_LINK && evt != EVT_GIVE_LINK && ctx.isEventSet(evt) && !ctx.isEventHandled()){
     //an action remained unhandled
     CharacterObject* chr = Engine::instance()->getCharacter("self");
-    if (chr && chr->getScript() != NULL){
+    if (chr && chr->getScript() != nullptr){
       if (evt <= EVT_USER_END){
         //ctx.resetEvent(evt);
         if (ctx.mIsGameObject && Engine::instance()->getInterpreter()->mACharacterAtScriptStart)
@@ -1417,7 +1417,7 @@ inline int getTime(TimeVal tv){
 #ifdef WIN32
   SYSTEMTIME time;
   GetSystemTime(&time);
-  SystemTimeToTzSpecificLocalTime(NULL, &time, &time);
+  SystemTimeToTzSpecificLocalTime(nullptr, &time, &time);
   switch(tv){
     case TM_HOUR:
       return time.wHour;
@@ -1610,7 +1610,7 @@ int PcdkScript::getSpecialVar(lua_State* L){
       std::string room;
       std::string realname;
       SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, realname);
-      if (cso == NULL){
+      if (cso == nullptr){
         TR_BREAK("Character %s not found", name.substr(idx).c_str());
         lua_pushinteger(L, 0);
         return 1;
@@ -1643,7 +1643,7 @@ int PcdkScript::getSpecialVar(lua_State* L){
       std::string room;
       std::string realname;
       SaveStateProvider::CharSaveObject* cso = Engine::instance()->getSaver()->findCharacter(charname, room, realname);
-      if (cso == NULL){
+      if (cso == nullptr){
         TR_BREAK("Character %s not found", name.substr(idx).c_str());
         lua_pushinteger(L, 0);
         return 1;
@@ -1665,14 +1665,14 @@ int PcdkScript::getSpecialVar(lua_State* L){
   }
   else if (name.size() > 4 && lname.substr(0, 4) == "obj:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(4).trim(), false);
-    if (obj == NULL)
+    if (obj == nullptr)
       TR_BREAK("Object %s not found", name.substr(4).c_str());
     lua_pushinteger(L, obj->getState());
     return 1;
   }
   else if (name.size() > 5 && lname.substr(0, 5) == "objx:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
-    if (obj == NULL){
+    if (obj == nullptr){
       TR_BREAK("Object %s not found", name.substr(5).c_str());
       lua_pushinteger(L, 0);
     }
@@ -1682,7 +1682,7 @@ int PcdkScript::getSpecialVar(lua_State* L){
   }
   else if (name.size() > 5 && lname.substr(0, 5) == "objy:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
-    if (obj == NULL)
+    if (obj == nullptr)
       TR_BREAK("Object %s not found", name.substr(5).c_str());
     lua_pushinteger(L, obj->getPosition().y);
     return 1;
@@ -1694,10 +1694,10 @@ int PcdkScript::getSpecialVar(lua_State* L){
     if (grp)
       objname = grp->getObjects()[0];
     Object2D* obj = Engine::instance()->getObject(objname, false);
-    if (obj == NULL){
+    if (obj == nullptr){
       std::string dummy;
       SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
-      if (so == NULL){
+      if (so == nullptr){
         TR_ERROR("Object %s not found", name.substr(8).c_str());
         lua_pushinteger(L, 0);
       }
@@ -1715,10 +1715,10 @@ int PcdkScript::getSpecialVar(lua_State* L){
     if (grp)
       objname = grp->getObjects()[0];
     Object2D* obj = Engine::instance()->getObject(objname, false);
-    if (obj == NULL){
+    if (obj == nullptr){
       std::string dummy;
       SaveStateProvider::SaveObject* so = Engine::instance()->getSaver()->findObject(objname, dummy);
-      if (so == NULL){
+      if (so == nullptr){
         TR_ERROR("Object %s not found", name.substr(8).c_str());
         lua_pushinteger(L, 0);
       }
@@ -1731,14 +1731,14 @@ int PcdkScript::getSpecialVar(lua_State* L){
   }
   else if (name.size() > 5 && lname.substr(0, 5) == "objw:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
-    if (obj == NULL)
+    if (obj == nullptr)
       TR_BREAK("Object %s not found", name.substr(5).c_str());
     lua_pushinteger(L, obj->getSize().x);
     return 1;
   }
   else if (name.size() > 5 && lname.substr(0, 5) == "objh:"){
     Object2D* obj = Engine::instance()->getObject(name.substr(5), false);
-    if (obj == NULL)
+    if (obj == nullptr)
       TR_BREAK("Object %s not found", name.substr(5).c_str());
     lua_pushinteger(L, obj->getSize().y);
     return 1;
@@ -1857,7 +1857,7 @@ void PcdkScript::setPrevState(Object2D* trigger, Object2D* target){
 }
 
 bool PcdkScript::applyPrevState(Object2D* obj){
-  if (obj == NULL){
+  if (obj == nullptr){
     std::map<Object2D*, std::pair<Object2D*,int> >::iterator deliter = mPrevState.end();
     Vec2i cursor = Engine::instance()->getCursorPos();
     for (std::map<Object2D*, std::pair<Object2D*,int> >::iterator iter = mPrevState.begin(); iter != mPrevState.end(); ++iter){
@@ -1902,7 +1902,7 @@ ExecutionContext* PcdkScript::removeScript(const std::string& name, bool onlyFro
     mScriptFunctions.erase(iter);
     return scr;
   }
-  return NULL;
+  return nullptr;
 }
 
 void PcdkScript::addTimer(ExecutionContext* timer){
@@ -1919,7 +1919,7 @@ ASTNode* PcdkScript::parseLangArg(const char* funcname, int argnum, int strindex
   Language::Section sec = mData->getLanguageSection(funcname, argnum);
   std::string text = mData->getLanguageString(mLanguage, sec, strindex);
   if (text.size() == 1 && text[0] == ' ')
-    return NULL;
+    return nullptr;
   text += ";";
 
   pANTLR3_INPUT_STREAM input;
@@ -1946,7 +1946,7 @@ ASTNode* PcdkScript::parseLangArg(const char* funcname, int argnum, int strindex
     lexer->free(lexer);
     input->free(input);
     delete node;
-    return NULL;
+    return nullptr;
   }
   parser->free(parser);
   tokStream->free(tokStream);
@@ -1963,7 +1963,7 @@ ObjectGroup* PcdkScript::getGroup(const std::string& name){
     if (_stricmp((*iter)->getName().c_str(), name.c_str()) == 0)
       return *iter;
   }
-  return NULL;
+  return nullptr;
 }
 
 int PcdkScript::getItemState(const String& name){

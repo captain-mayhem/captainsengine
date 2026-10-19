@@ -15,11 +15,11 @@ public:
   //! set clear depth
   virtual void setClearDepth(float depth) {}
   //! create texture
-  Texture* createTexture(){return NULL;}
+  Texture* createTexture(){return nullptr;}
   //! create rendertarget
-  virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) { return NULL; }
+  virtual RenderTarget* createRenderTarget(unsigned width, unsigned height) { return nullptr; }
   //! create shader
-  virtual Shader* createShader() { return NULL; }
+  virtual Shader* createShader() { return nullptr; }
   //! set orthographic projection
   virtual void ortho(float left, float right, float bottom, float top, float nearp, float farp){}
   //! reset modelview matrix

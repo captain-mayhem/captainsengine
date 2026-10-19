@@ -2,12 +2,15 @@
 #include "engine.h"
 #include "script.h"
 #include "file.h"
+#include "../platform/assets.h"
+
+using std::string;
 
 namespace CGE{
 
 TR_CHANNEL(CGE_Script);
 
-Script* Script::scr_ = NULL;
+Script* Script::scr_ = nullptr;
 
 Script::Script() : L(0) {
 }
@@ -37,9 +40,14 @@ void Script::initEnv(){
   luaL_requiref(L, "math", luaopen_math, 1);
   lua_pop(L, 1);
 
-  if (luaL_loadfile(L, (Filesystem::getCwd()+"engine.ini").c_str()) || lua_pcall(L,0,0,0)){
+  //engine.ini is an asset (in the APK on Android)
+  std::string ini;
+  if (!Assets::loadText("engine.ini", ini)){
+    TR_WARN("Cannot load engine.ini");
+  }
+  else if (luaL_loadbuffer(L, ini.data(), ini.size(), "engine.ini") || lua_pcall(L,0,0,0)){
     TR_WARN("Cannot load engine.ini: %s", lua_tostring(L, -1));
-	}
+  }
 }
 
 int Script::getNumberSetting(const string& name){
@@ -72,11 +80,12 @@ bool Script::getBoolSetting(const string& name, bool* exists){
   return ret;
 }
 
-string Script::getStringSetting(const string& name){
+string Script::getStringSetting(const string& name, bool warnIfMissing){
   TR_USE(CGE_Script);
   lua_getglobal(L, name.c_str());
   if (!lua_isstring(L,-1)){
-    TR_WARN("Lua_Error: %s is no string.", name.c_str());
+    if (warnIfMissing)
+      TR_WARN("Lua_Error: %s is no string.", name.c_str());
     lua_pop(L, 1);
     return "";
   }

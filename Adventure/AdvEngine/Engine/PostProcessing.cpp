@@ -669,7 +669,7 @@ public:
   virtual void deinit(){
     if (mBlendTex != 0){
       delete mBlendTex;
-      mBlendTex = NULL;
+      mBlendTex = nullptr;
     }
   }
   virtual void activate(bool fade, ...){
@@ -1025,7 +1025,7 @@ public:
   virtual void deinit(){
     if (mBlendTex != 0){
       delete mBlendTex;
-      mBlendTex = NULL;
+      mBlendTex = nullptr;
     }
   }
   virtual void activate(bool fade, ...){
@@ -1142,7 +1142,7 @@ static const char druggedvs[] =
 
 class DruggedEffect : public PostProcessor::Effect{
 public:
-  DruggedEffect() : Effect(druggedvs, stdfs), mVB(NULL){
+  DruggedEffect() : Effect(druggedvs, stdfs), mVB(nullptr){
     mName = "drugged";
   }
   virtual void init(const Vec2f& size){
@@ -1160,7 +1160,7 @@ public:
   }
   virtual void deinit(){
     delete mVB;
-    mVB = NULL;
+    mVB = nullptr;
     Effect::deinit();
   }
   virtual void activate(bool fade, ...){
@@ -1220,7 +1220,7 @@ public:
     mVB->setTexCoord2(3, CGE::Vec2f(tmp[6], tmp[7]));
     mVB->unlockVertexPointer();
     mVB->activate();
-    mVB->draw(CGE::VB_Tristrip, NULL);
+    mVB->draw(CGE::VB_Tristrip, nullptr);
     mShader.deactivate();
     Engine::instance()->restoreRenderDefaults();
   }
@@ -1364,7 +1364,7 @@ static const char drawfs[] =
 
 class LightningEffect : public PostProcessor::Effect{
 public:
-  LightningEffect() : Effect(stdvs, lightningfs), mFBO(NULL), mDrawShader(*CGE::Engine::instance()->getRenderer()->createShader()){
+  LightningEffect() : Effect(stdvs, lightningfs), mFBO(nullptr), mDrawShader(*CGE::Engine::instance()->getRenderer()->createShader()){
     mName = "lightning";
     mDrawShader.addShader(CGE::Shader::VERTEX_SHADER, drawvs);
     mDrawShader.addShader(CGE::Shader::FRAGMENT_SHADER, drawfs);
@@ -1395,7 +1395,7 @@ public:
   }
   virtual void deinit(){
     delete mFBO;
-    mFBO = NULL;
+    mFBO = nullptr;
   }
   virtual void activate(bool fade, ...){
     Lightning* lightning = new Lightning;
@@ -1415,9 +1415,9 @@ public:
     ltn.delay = va_arg(args, int);
     va_end(args);
     ltn.timeaccu = ltn.delay;
-    ltn.verts = NULL;
+    ltn.verts = nullptr;
     ltn.timeaccu2 = (int)(ltn.delay*1.5f);
-    ltn.verts2 = NULL;
+    ltn.verts2 = nullptr;
     delete mLigthnings[slot];
     mLigthnings[slot] = lightning;
     Effect::activate(fade);
@@ -1468,9 +1468,9 @@ public:
         drawFlash(numVerts, iter->second, true);
       }
       iter->second->verts->activate();
-      iter->second->verts->draw(CGE::VB_Linestrip, NULL);
+      iter->second->verts->draw(CGE::VB_Linestrip, nullptr);
       iter->second->verts2->activate();
-      iter->second->verts2->draw(CGE::VB_Linestrip, NULL);
+      iter->second->verts2->draw(CGE::VB_Linestrip, nullptr);
     }
     mDrawShader.deactivate();
     Engine::instance()->restoreRenderDefaults();
@@ -1542,9 +1542,9 @@ private:
       in >> color;
       in >> numSpikes >> height >> delay;
       timeaccu = delay;
-      verts = NULL;
+      verts = nullptr;
       timeaccu2 = (int)(delay*1.5f);
-      verts2 = NULL;
+      verts2 = nullptr;
       return in;
     }
 
@@ -1731,7 +1731,7 @@ private:
 
 class ZoomEffect : public PostProcessor::Effect{
 public:
-  ZoomEffect() : Effect(druggedvs, stdfs), mVB(NULL){
+  ZoomEffect() : Effect(druggedvs, stdfs), mVB(nullptr){
     mName = "zoom";
   }
   virtual void init(const Vec2f& size){
@@ -1749,7 +1749,7 @@ public:
   }
   virtual void deinit(){
     delete mVB;
-    mVB = NULL;
+    mVB = nullptr;
     Effect::deinit();
   }
   virtual void activate(bool fade, ...){
@@ -1802,7 +1802,7 @@ public:
     mVB->setTexCoord2(3, CGE::Vec2f(tmp[6], tmp[7]));
     mVB->unlockVertexPointer();
     mVB->activate();
-    mVB->draw(CGE::VB_Tristrip, NULL);
+    mVB->draw(CGE::VB_Tristrip, nullptr);
     mShader.deactivate();
     Engine::instance()->restoreRenderDefaults();
   }
@@ -2255,7 +2255,7 @@ PostProcessor::Effect* PostProcessor::getEffect(const std::string& effect){
   if (iter != mEffects.end()){
     return iter->second;
   }
-  return NULL;
+  return nullptr;
 }
 
 void PostProcessor::stopEffects(){

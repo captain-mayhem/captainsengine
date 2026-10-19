@@ -34,7 +34,7 @@ public:
   //! set focussed
   void focus(bool hasFocus);
 	//! get a native window handle
-	virtual void* getHandle() {return NULL;}
+	virtual void* getHandle() {return nullptr;}
 
   virtual void changeSize(int width, int height){
     width_ = width;

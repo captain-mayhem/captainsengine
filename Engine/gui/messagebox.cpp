@@ -5,6 +5,9 @@
 #include "../math/vector.h"
 #include "messagebox.h"
 
+using std::string;
+using std::list;
+
 using std::istringstream;
 using namespace Gui;
 using CGE::Color;

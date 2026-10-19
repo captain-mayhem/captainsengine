@@ -16,6 +16,14 @@ endif()
 if (OS STREQUAL linux)
   option(DISABLE_XF86VMODE "Disables the X11 xf86 vmode extension" OFF)
 endif()
+# Without threads the engine and its applications do their work in the main
+# loop (the browser's main thread on the web).
+if (EMSCRIPTEN)
+  set(ENGINE_SINGLE_THREADED_DEFAULT ON)
+else()
+  set(ENGINE_SINGLE_THREADED_DEFAULT OFF)
+endif()
+option(ENGINE_SINGLE_THREADED "build the engine and its applications without threads" ${ENGINE_SINGLE_THREADED_DEFAULT})
 
 INCLUDE(gui/CMakeLists.txt)
 INCLUDE(image/CMakeLists.txt)
@@ -23,6 +31,7 @@ INCLUDE(input/CMakeLists.txt)
 INCLUDE(io/CMakeLists.txt)
 INCLUDE(math/CMakeLists.txt)
 INCLUDE(mesh/CMakeLists.txt)
+INCLUDE(platform/CMakeLists.txt)
 INCLUDE(renderer/CMakeLists.txt)
 INCLUDE(renderpass/CMakeLists.txt)
 INCLUDE(system/CMakeLists.txt)
@@ -39,6 +48,7 @@ ADD_LIBRARY(Engine SHARED
 	${Engine_io_SRCS}
 	${Engine_math_SRCS}
 	${Engine_mesh_SRCS}
+	${Engine_platform_SRCS}
 	${Engine_renderer_SRCS}
 	${Engine_renderpass_SRCS}
 	${Engine_system_SRCS}
@@ -52,6 +62,8 @@ ADD_LIBRARY(Engine SHARED
 	${Engine_io_HDRS}
 	${Engine_math_HDRS}
 	${Engine_mesh_HDRS}
+	${Engine_platform_HDRS}
+	${Engine_platform_internal_HDRS}
 	${Engine_renderer_HDRS}
 	${Engine_renderpass_HDRS}
 	${Engine_system_HDRS}
@@ -96,6 +108,8 @@ target_include_directories(Engine PUBLIC
 if (OS STREQUAL "windows")
 	target_compile_definitions(Engine PUBLIC _CRT_SECURE_NO_DEPRECATE)
 	target_link_libraries(Engine PUBLIC wsock32 winmm)
+	# user folders (SHGetKnownFolderPath) and ShellExecute
+	target_link_libraries(Engine PRIVATE shell32 ole32)
 elseif (OS STREQUAL "linux")
 	target_compile_definitions(Engine PUBLIC UNIX LINUX __STDC_LIMIT_MACROS)
 	find_package(Threads REQUIRED)
@@ -103,6 +117,10 @@ elseif (OS STREQUAL "linux")
 elseif (OS STREQUAL "android")
 	target_compile_definitions(Engine PUBLIC UNIX ANDROID)
 	target_link_libraries(Engine PUBLIC android log)
+endif()
+
+if (ENGINE_SINGLE_THREADED)
+	target_compile_definitions(Engine PUBLIC ENGINE_SINGLE_THREADED)
 endif()
 
 # Third-party libraries are linked statically into the engine library.
@@ -182,6 +200,8 @@ SOURCE_GROUP("math" FILES ${Engine_math_SRCS})
 SOURCE_GROUP("math" FILES ${Engine_math_HDRS})
 SOURCE_GROUP("mesh" FILES ${Engine_mesh_SRCS})
 SOURCE_GROUP("mesh" FILES ${Engine_mesh_HDRS})
+SOURCE_GROUP("platform" FILES ${Engine_platform_SRCS})
+SOURCE_GROUP("platform" FILES ${Engine_platform_HDRS} ${Engine_platform_internal_HDRS})
 SOURCE_GROUP("renderer" FILES ${Engine_renderer_SRCS})
 SOURCE_GROUP("renderer" FILES ${Engine_renderer_HDRS})
 SOURCE_GROUP("renderpass" FILES ${Engine_renderpass_SRCS})

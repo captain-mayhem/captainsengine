@@ -54,7 +54,7 @@ public:
   CCode* get(unsigned pc){
     if (this && pc < mCodes.size())
       return mCodes[pc];
-    return NULL;
+    return nullptr;
   }
   unsigned numInstructions(){
     return (unsigned)mCodes.size();
@@ -117,7 +117,7 @@ public:
   //! drops a reference; ctx may be NULL. Returns true if ctx was deleted.
   //! (A NULL check on "this" inside a member function is undefined behaviour,
   //! and GCC removes it.)
-  static bool unref(ExecutionContext* ctx) {if (ctx == NULL) return false; --ctx->mRefCount; if (ctx->mRefCount == 0){ delete ctx; return true;} return false; }
+  static bool unref(ExecutionContext* ctx) {if (ctx == nullptr) return false; --ctx->mRefCount; if (ctx->mRefCount == 0){ delete ctx; return true;} return false; }
   CodeSegment* getCode() {return mCode;}
   void save(std::ostream& out);
   ExecutionContext* getLoop1() {return mLoop1;}

@@ -25,9 +25,6 @@
 
 #define consol (*CGE::Engine::instance()->getConsole())
 
-using std::string;
-using std::list;
-using std::ostringstream;
 
 //using ::CGE::Vector2D;
 //using ::Gui::InputField;
@@ -72,7 +69,7 @@ class CGE_API Console{
       {input_->setColors(fgCol, bgCol); input_->setOpacity(opaque);}
     
     //! returns the text of the input field
-    inline string getText() {new_ = false; return history_.front();}
+    inline std::string getText() {new_ = false; return history_.front();}
     
     //! sets the main callback function
     /*! the main callback is called every time the user has finished his input 
@@ -89,14 +86,14 @@ class CGE_API Console{
      *  \param i an integer that gets passed to the special callback when it is called
      *  \param add a void pointer that is handled like i and can point to everything.
      */
-    inline void setSpecialFunc(void (*spec)(const string&, int, void*), int i, void* add)
+    inline void setSpecialFunc(void (*spec)(const std::string&, int, void*), int i, void* add)
       {special_ = spec; mode_ = i; additional_ = add;}
     
     //! Syntactic sugar for calling addText
-    inline void operator<<(const string& text) {addText(text);}
+    inline void operator<<(const std::string& text) {addText(text);}
     
     //! Calls also addText
-    inline void operator<<(const ostringstream& text) {addText(text.str());}
+    inline void operator<<(const std::ostringstream& text) {addText(text.str());}
     
     //! Hides last input line.
     /*! This is useful for e.g. entering a password
@@ -110,7 +107,7 @@ class CGE_API Console{
     inline void Down(){if(histIter_ != history_.begin()){histIter_--;input_->setText(*histIter_);input_->addChar('_');}}
     
     //! Adds text to the console output.
-    void addText(const string& text);
+    void addText(const std::string& text);
      
     //! Displays the console using OpenGL
     void render();
@@ -122,9 +119,9 @@ private:
     //! The input field
     InputField* input_;
     //! Here 
-    list<string> history_;
+    std::list<std::string> history_;
     //! To iterate on the history
-    list<string>::iterator histIter_;
+    std::list<std::string>::iterator histIter_;
     //! position of lower left corner
     CGE::Vector2D pos_;
     //! the console dimensions
@@ -144,7 +141,7 @@ private:
     //! main callback
     void (*process_)(const char*);
     //! special callback function
-    void (*special_)(const string&, int, void*);
+    void (*special_)(const std::string&, int, void*);
     //! integer parameter for special callback
     int mode_;
     //! void pointer for special callback

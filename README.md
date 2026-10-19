@@ -39,9 +39,18 @@ On Windows, the StoryDesigner's C# projects are built by MSBuild in custom targe
 
 Paths that only exist on your machine (a JDK, an OpenAL build, an NDK) go into a `CMakeUserPresets.json` (not committed) with presets that inherit the ones above and set `environment` or `cacheVariables`.
 
+### Unit tests
+The engine's unit tests in `tests/` use googletest (`extern/googletest`) and need no window, so they also run on CI machines. They're built by default for desktop builds of the engine itself (`CGE_BUILD_TESTS`; off for Android, the web and when another project includes the engine). Run them with the test preset of the same name:
+
+```
+ctest --preset default      # or: ctest --preset windows
+```
+
+The test files are in `tests/data`; `tests/data/make_fixtures.py` writes them again. Each test run uses its own user folders (`UserDirs`) and removes them at the end.
+
 Notes:
 * The engine is built as a shared library: `CGE.dll` on Windows, `libCGE.so` on Linux. Lua is part of it and exported, because applications use the Lua API directly. The other third-party libraries (zlib with minizip, libpng, libjpeg, giflib, GLEW) are linked into it statically and not exported.
-* `extern/` also has FreeType, Dear ImGui, miniaudio, libogg and libvorbis, which the engine will use for text, UI and audio. zlib, libpng, libjpeg and these libraries are the same copies as in guitads.
+* `extern/` also has FreeType, Dear ImGui, miniaudio, libogg and libvorbis, which the engine will use for text, UI and audio. zlib, libpng, libjpeg and these libraries are the same copies as in guitads. googletest is only used by the unit tests.
 * The physics module (ODE) is a separate library, `CGE::Physics`. It is built when `CGE_WITH_PHYSICS` is on, which is the default when OSMRacer is built.
 * On Linux the Adventure is built without sound by default (`DISABLE_SOUND`): its sound code needs the FFmpeg 2.x API, which current distributions don't ship.
 

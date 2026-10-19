@@ -11,24 +11,18 @@
 #include <string>
 #include <list>
 #include <vector>
+#include <array>
+#include <memory>
 #include <cstring>
 #include <cstdlib>
 #include <io/Tracing.h>
 
-using std::string;
-using std::ofstream;
-using std::cerr;
-using std::list;
-using std::vector;
 
 #define EXIT() (CGE::Engine::instance()->requestShutdown())
 #define EXIT2(msg, ...) {TR_ERROR(msg, ##__VA_ARGS__); CGE::Engine::instance()->requestShutdown(); }
-#define SAFE_DELETE(ptr)       { if(ptr) { delete (ptr); (ptr)=NULL; } }
-#define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=NULL; } }
-#define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=NULL; } }
-
-#define SCREENWIDTH 1024
-#define SCREENHEIGHT 768
+#define SAFE_DELETE(ptr)       { if(ptr) { delete (ptr); (ptr)=nullptr; } }
+#define SAFE_DELETE_ARRAY(ptr) { if(ptr) { delete[] (ptr); (ptr)=nullptr; } }
+#define SAFE_RELEASE(ptr)      { if(ptr) { (ptr)->Release(); (ptr)=nullptr; } }
 
 #ifndef VERSION
 #define VERSION 0.7
@@ -50,50 +44,26 @@ class Button;
 class Console;
 }
 
-//! changes an integer to a string
-inline string toStr(const unsigned i){
-  char tmp[16];
-  memset(tmp, 0, 16);
-  sprintf(tmp, "%d", i);
-  return string(tmp);
-}
-
-//! changes an integer to a string
-inline string toStr(const int i){
-  char tmp[16];
-  memset(tmp, 0, 16);
-  sprintf(tmp, "%d", i);
-  return string(tmp);
-}
-
 //! changes a string to an integer
-inline const int toInt(const string& s){
+inline const int toInt(const std::string& s){
   return atoi(s.c_str());
 }
 
-//! changed a float to a string
-inline string toStr(const float f){
-  char tmp[32];
-  memset(tmp, 0, 32);
-  sprintf(tmp, "%f", f);
-  return string(tmp);
-}
-
 //! changes a string to a float
-inline float toFloat(const string& s){
+inline float toFloat(const std::string& s){
   return (float)atof(s.c_str());
 }
 
 //! changes a string to lowercase
-inline const string toLower(string& s){
+inline const std::string toLower(std::string& s){
   for (unsigned i = 0; i < s.length(); i++){
     s.at(i) = tolower(s.at(i));
   }
   return s;
 }
 
-inline const string toLower(const string& s){
-  string ret;
+inline const std::string toLower(const std::string& s){
+  std::string ret;
   for (unsigned i = 0; i < s.length(); i++){
     ret += tolower(s.at(i));
   }
@@ -114,6 +84,7 @@ CGE_API double getTime();
 
 #include "thread.h"
 #include "application.h"
+#include "virtualscreen.h"
 
 namespace CGE{
 
@@ -123,23 +94,42 @@ class CGE_API Engine{
     inline static Engine* instance() {return eng;}
     void startup(int argc, char** argv);
     bool startupRenderer(const std::string& renderer);
-    void run();
+    //! runs one frame: processes the window events, calls the application's
+    //! update as often as needed, renders and waits for the frame limit
+    void runFrame();
+    //! processes the window events and renders one frame without calling update
+    /*! For applications that wait for input in a nested loop of their own,
+        started from update or init. Must not be called from render or from an
+        input handler. Returns false once a shutdown is requested. */
+    bool pumpFrame();
     void shutdown();
-    inline CGE::Renderer* getRenderer() {return rend_;}
-    inline CGE::Font* getFont(int idx) {return fnt_[idx];}
+    //! the application, or nullptr while it isn't initialised
+    inline IApplication* getApplication() {return app_;}
+    //! the window was resized to width x height pixels
+    void resize(int width, int height);
+    //! the application goes into the background: no updates and no rendering
+    void pause();
+    //! the application comes back from the background
+    void resume();
+    inline bool isPaused() {return paused_;}
+    inline CGE::Renderer* getRenderer() {return rend_.get();}
+    //! the virtual resolution of the GUI pass and the input events
+    /*! Its window size is updated from the window on every call. */
+    CGE::VirtualScreen& getVirtualScreen();
+    inline CGE::Font* getFont(int idx) {return fnt_[idx].get();}
     //! Get the standard forms
-    inline CGE::Forms* getForms() {return forms_;}
+    inline CGE::Forms* getForms() {return forms_.get();}
     //! get the window
-    inline CGE::AppWindow* getWindow() {return win_;}
+    inline CGE::AppWindow* getWindow() {return win_.get();}
     //! get the console
-    inline ::Gui::Console* getConsole() {return console_;}
+    inline ::Gui::Console* getConsole() {return console_.get();}
     inline double getFrameInterval() {return frameInterval_;}
     inline int getFPS() {return fps_;}
    
     //! get the input field list
     //inline list< ::Gui::InputField*>& getInputFields() {return listeners_;}
     //! get the button list
-    inline list< ::Gui::GuiElement*>& getGuiElements() {return guiElems_;}
+    inline std::list< ::Gui::GuiElement*>& getGuiElements() {return guiElems_;}
     //! adds an input field for mouse click checking
     //void addInputListener(::Gui::InputField* in, bool immediate=true){if (immediate)listeners_.push_back(in);
     //  else newIn_.push_back(in);}
@@ -157,11 +147,11 @@ class CGE_API Engine{
     //! remove the button listener at position idx
     void removeGuiListener(int idx, bool immediate=true);
     //! remove the button listener with a certain name
-    void removeGuiListener(const string& name);
+    void removeGuiListener(const std::string& name);
     //! remove all button listeners beginning at idx
     void removeGuiListeners(int idx);
     //! get a button by name
-    ::Gui::GuiElement* getGuiListener(const string& name);
+    ::Gui::GuiElement* getGuiListener(const std::string& name);
     //! get the gui mutex
     Mutex& getGuiMutex() {return guitex_;}
     void requestShutdown();
@@ -174,27 +164,50 @@ class CGE_API Engine{
     }
 #endif
   private:
-    friend CGE_API int runApplication(int argc, char** argv, USERMAINFUNC func, void* platformData);
+    friend CGE_API int runApplication(int argc, char** argv, IApplication& app, void* platformData);
     static Engine* eng;
     Engine();
+    ~Engine();
+    Engine(const Engine&) = delete;
+    Engine& operator=(const Engine&) = delete;
+    //! processes the pending window events
+    void processEvents();
+    //! one frame, with or without updating the application
+    void frame(bool update);
+    //! renders the application and the GUI and swaps buffers
+    void renderFrame();
+    //! applies the deferred changes to the GUI element list
+    void updateGuiElements();
+    //! sleeps until the frame limit (maxFramerate in engine.ini) is reached
+    void limitFrame();
 
     //! The window
-    CGE::AppWindow* win_;
+    std::unique_ptr<CGE::AppWindow> win_;
     
     //! The renderer
-    CGE::Renderer* rend_;
+    std::unique_ptr<CGE::Renderer> rend_;
+    //! the virtual resolution
+    CGE::VirtualScreen virtual_;
     //! The fonts
-    CGE::Font** fnt_;
+    std::array<std::unique_ptr<CGE::Font>, 3> fnt_;
     //! Stadard forms
-    CGE::Forms* forms_;
+    std::unique_ptr<CGE::Forms> forms_;
     //! is the engine initialized and running?
     bool isUp_;
     //! graphics subsystem
     bool graphics_;
-    //! max framerate
-    /*! 0 means time based rendering,
-        >0 is maximum frame rate*/
+    //! the application
+    IApplication* app_;
+    //! is the application in the background?
+    bool paused_;
+    //! is a frame being rendered? (pumpFrame isn't allowed then)
+    bool rendering_;
+    //! max framerate (0 means unlimited)
     int maxFramerate_;
+    //! the fixed update interval
+    double updateInterval_;
+    //! the time that the updates still have to catch up with
+    double updateLag_;
     //! the frame interval
     double frameInterval_;
     //! the time of the previous frame
@@ -209,11 +222,11 @@ class CGE_API Engine{
     //! waiting input fields
     //list< ::Gui::InputField*> listeners_;
     //! waiting buttons
-    list< ::Gui::GuiElement*> guiElems_;
+    std::list< ::Gui::GuiElement*> guiElems_;
     //! the new input fields
     //list< ::Gui::InputField*> newIn_;
     //! the new buttons
-    list< ::Gui::GuiElement*> newBut_;
+    std::list< ::Gui::GuiElement*> newBut_;
     //! if the input listeners should be cleared
     bool clear_;
     //! which buttons should be removed
@@ -221,11 +234,15 @@ class CGE_API Engine{
     //! where should the keyboard input go to?
     ::Gui::InputField* input_;
     //! the game console
-    ::Gui::Console* console_;
+    std::unique_ptr< ::Gui::Console> console_;
     //! a gui lock mutex
     Mutex guitex_;
     bool mShutdownRequested;
     
+#ifdef LINUX
+    //! the time of the last click, to detect double clicks
+    double lastClick_;
+#endif
 #ifdef ANDROID
 	static int32_t handleInput(struct android_app* app, AInputEvent* event);
 	static void handleCmd(struct android_app* app, int32_t cmd);
