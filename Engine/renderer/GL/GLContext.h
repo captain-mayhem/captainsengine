@@ -9,8 +9,10 @@ namespace CGE{
 namespace Gfx{
 
 //! An OpenGL context on a window, created by the GL backend
-/*! One implementation per platform: WGL (Windows), GLX (Linux/X11) and EGL
-    (Android). */
+/*! One implementation per platform: WGL (Windows), EGL on X11 (Linux) and
+    EGL with OpenGL ES (Android). On desktop it is an OpenGL 3.3 context with
+    the core profile, or the compatibility profile for the old renderers
+    (DeviceDesc::compatibilityProfile). */
 class GLContext{
 public:
   //! the context implementation of this platform
@@ -25,6 +27,8 @@ public:
   virtual void swapBuffers() = 0;
   //! 1 waits for the vertical blank, 0 doesn't
   virtual void setSwapInterval(int interval) = 0;
+  //! a GL function of the current context, for glad
+  virtual void* getProcAddress(const char* name) = 0;
 };
 
 }

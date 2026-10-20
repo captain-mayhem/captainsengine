@@ -116,6 +116,11 @@ void Engine::startup(int argc, char** argv){
   int bpp = Script::instance()->getNumberSetting("bitsPerPixel");
   if (bpp > 0)
     deviceDesc.colorBits = bpp;
+#ifndef NDEBUG
+  deviceDesc.debug = true;
+#endif
+  //the old renderers use fixed-function GL
+  deviceDesc.compatibilityProfile = true;
 
   if (graphics_){
     //the old renderers draw on the OpenGL device's context until they are replaced

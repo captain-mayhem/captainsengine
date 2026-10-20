@@ -4,8 +4,8 @@
 # On Android it is compiled into the engine (CGE_GL_BUILTIN).
 
 set(CGE_GL_SRCS
-	renderer/GL/GLContextEGL.cpp
-	renderer/GL/GLContextGLX.cpp
+	renderer/GL/GLContextEGLAndroid.cpp
+	renderer/GL/GLContextEGLX11.cpp
 	renderer/GL/GLContextWGL.cpp
 	renderer/GL/GLDevice.cpp
 )
@@ -26,13 +26,18 @@ else()
 		CXX_VISIBILITY_PRESET hidden
 		VISIBILITY_INLINES_HIDDEN ON
 	)
-	find_package(OpenGL REQUIRED)
-	target_link_libraries(EngineGL PRIVATE Engine OpenGL::GL)
+	# the plugin's own copy of glad, loaded from its context
+	target_link_libraries(EngineGL PRIVATE Engine glad)
 	if (OS STREQUAL "linux")
-		target_link_libraries(EngineGL PRIVATE X11)
-		if (TARGET OpenGL::GLX)
-			target_link_libraries(EngineGL PRIVATE OpenGL::GLX)
-		endif()
+		# EGL on X11; the GL functions come from eglGetProcAddress
+		find_package(OpenGL REQUIRED COMPONENTS EGL)
+		target_link_libraries(EngineGL PRIVATE OpenGL::EGL X11)
+		# glad stays private to the plugin, like the engine's copy
+		target_link_options(EngineGL PRIVATE -Wl,--exclude-libs,ALL)
+	else()
+		# WGL
+		find_package(OpenGL REQUIRED)
+		target_link_libraries(EngineGL PRIVATE OpenGL::GL)
 	endif()
 	SOURCE_GROUP("" FILES ${CGE_GL_SRCS} ${CGE_GL_HDRS} renderer/GL/GLPlugin.cpp)
 endif()

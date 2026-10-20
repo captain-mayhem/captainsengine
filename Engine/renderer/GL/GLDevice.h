@@ -8,10 +8,11 @@ namespace CGE{
 namespace Gfx{
 
 //! The OpenGL render device
-/*! Owns the window's GL context (WGL, GLX or EGL). For now it creates the
-    same legacy contexts as the old renderers, which draw on it until they are
-    ported; the core-profile contexts and glad come next (Phase 1b step 2),
-    the resources, pipelines and draws after that (step 3). */
+/*! Owns the window's GL context (WGL, EGL on X11, or EGL with OpenGL ES on
+    Android) and loads the plugin's GL functions with glad. On desktop the
+    context is OpenGL 3.3 core, or 3.3 compatibility for the old renderers,
+    which draw on it until they are ported. The resources, pipelines and draws
+    come next (Phase 1b step 3). */
 class GLDevice : public RenderDevice{
 public:
   GLDevice();

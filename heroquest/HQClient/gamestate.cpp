@@ -89,7 +89,7 @@ bool GameState::start(){
 
   but = new Button();
   but->setPosition(Vector2D(200, 250));
-  but->setText("   ´Connect");
+  but->setText("   Connect");
   CGE::Engine::instance()->addGuiListener(but);
   //void (*p)();
   //p = &Renderer::connect;

@@ -2,6 +2,8 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
+// the fog is still fixed-function GL (until HQClient is ported to the new renderer)
+#include <GL/gl.h>
 #include <renderer/GL2/GL2Shader.h>
 
 #include "renderer/renderer.h"

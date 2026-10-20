@@ -12,9 +12,6 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#if defined(UNIX) && !defined(ANDROID)
-#include <GL/glew.h>
-#endif
 #include "../renderer.h"
 #include "GL2Shader.h"
 #include "GL2rendertarget.h"

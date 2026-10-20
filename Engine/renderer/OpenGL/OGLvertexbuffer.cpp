@@ -3,7 +3,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#include <GL/gl.h>
+#include "OGLfunctions.h"
 #include "OGLvertexbuffer.h"
 #include "OGLindexbuffer.h"
 
@@ -126,8 +126,13 @@ void OGLVertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t){
 
 void OGLVertexBuffer::setVertexOffset(int offset){
   userVertOffset_ = 4*offset*structsize_;//offset*structsize_;
-  glVertexPointer(3, GL_FLOAT, structsize_, vb_+vertoffset_+userVertOffset_);
-  glColorPointer(4, GL_FLOAT, structsize_, vb_+coloffset_+userVertOffset_);
-  glTexCoordPointer(2, GL_FLOAT, structsize_, vb_+texoffset_+userVertOffset_);
-  glNormalPointer(GL_FLOAT, structsize_, vb_+normoffset_+userVertOffset_);
+  //only the arrays this buffer has (the others have offset -1 and are disabled)
+  if (flags_ & VB_POSITION)
+    glVertexPointer(3, GL_FLOAT, structsize_, vb_+vertoffset_+userVertOffset_);
+  if (flags_ & VB_COLOR)
+    glColorPointer(4, GL_FLOAT, structsize_, vb_+coloffset_+userVertOffset_);
+  if (flags_ & VB_TEXCOORD)
+    glTexCoordPointer(2, GL_FLOAT, structsize_, vb_+texoffset_+userVertOffset_);
+  if (flags_ & VB_NORMAL)
+    glNormalPointer(GL_FLOAT, structsize_, vb_+normoffset_+userVertOffset_);
 }

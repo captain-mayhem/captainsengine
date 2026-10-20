@@ -91,6 +91,10 @@ public:
     eglSwapInterval(display_, interval);
   }
 
+  void* getProcAddress(const char* name) override{
+    return (void*)eglGetProcAddress(name);
+  }
+
 private:
   EGLDisplay display_;
   EGLSurface surface_;
