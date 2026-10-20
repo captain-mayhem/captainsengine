@@ -6,7 +6,7 @@
 #include <GLES2/gl2.h>
 #define glClearDepth glClearDepthf
 #else
-#include <GL/gl.h>
+#include <glad/gl.h>
 #endif
 
 #include "GLDevice.h"
@@ -19,6 +19,16 @@ TR_CHANNEL(CGE_Renderer_GL);
 RenderDevice* CGE::Gfx::createGLRenderDevice(){
   return new GLDevice();
 }
+
+#if !defined(ANDROID)
+namespace{
+
+GLADapiproc loadGLFunction(void* context, const char* name){
+  return (GLADapiproc)((GLContext*)context)->getProcAddress(name);
+}
+
+}
+#endif
 
 GLDevice::GLDevice(){
   context_ = GLContext::create();
@@ -39,23 +49,64 @@ bool GLDevice::doInit(const NativeWindow& window, const DeviceDesc& desc){
     context_->shutdown();
     return false;
   }
+#if defined(ANDROID)
   TR_INFO("OpenGL %s on %s", (const char*)glGetString(GL_VERSION), (const char*)glGetString(GL_RENDERER));
+#else
+  int version = gladLoadGLUserPtr(loadGLFunction, context_.get());
+  if (!version){
+    TR_ERROR("Can't load the OpenGL functions");
+    context_->shutdown();
+    return false;
+  }
+  const char* profile = "";
+  if (GLAD_VERSION_MAJOR(version)*10+GLAD_VERSION_MINOR(version) >= 32){
+    GLint mask = 0;
+    glGetIntegerv(GL_CONTEXT_PROFILE_MASK, &mask);
+    profile = (mask & GL_CONTEXT_CORE_PROFILE_BIT) ? ", core profile" : ", compatibility profile";
+  }
+  TR_INFO("OpenGL %s on %s%s", (const char*)glGetString(GL_VERSION), (const char*)glGetString(GL_RENDERER), profile);
+  if (!GLAD_GL_VERSION_3_3)
+    TR_WARN("Not an OpenGL 3.3 context: only the old renderers work on it");
+#endif
   context_->setSwapInterval(desc.vsync ? 1 : 0);
   hasStencil_ = desc.stencilBits > 0;
 
   GLint value = 0;
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
   caps_.maxTextureSize = value;
-  //the rest needs the GL 3.3 / ES 3.0 context (step 2)
+#if defined(ANDROID)
+  //the OpenGL ES 2.0 context; ES 3.0 comes with the Android port (Phase 1c)
   caps_.maxTextureLayers = 1;
   caps_.maxColorAttachments = 1;
-  caps_.maxVertexAttributes = 0;
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &value);
+  caps_.maxVertexAttributes = value;
   caps_.maxUniformBufferSize = 0;
   caps_.uniformBufferOffsetAlignment = 256;
   caps_.maxAnisotropy = 1;
-#if defined(ANDROID)
   caps_.wireframe = false;
 #else
+  caps_.maxTextureLayers = 1;
+  caps_.maxColorAttachments = 1;
+  caps_.maxUniformBufferSize = 0;
+  caps_.uniformBufferOffsetAlignment = 256;
+  if (GLAD_GL_VERSION_3_1){
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &value);
+    caps_.maxTextureLayers = value;
+    glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &value);
+    caps_.maxColorAttachments = value;
+    glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &value);
+    caps_.maxUniformBufferSize = value;
+    glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &value);
+    caps_.uniformBufferOffsetAlignment = value;
+  }
+  glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &value);
+  caps_.maxVertexAttributes = value;
+  caps_.maxAnisotropy = 1;
+  if (GLAD_GL_ARB_texture_filter_anisotropic || GLAD_GL_EXT_texture_filter_anisotropic){
+    GLfloat anisotropy = 1;
+    glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY, &anisotropy);
+    caps_.maxAnisotropy = anisotropy;
+  }
   caps_.wireframe = true;
 #endif
   //OpenGL's conventions are the reference, so nothing differs

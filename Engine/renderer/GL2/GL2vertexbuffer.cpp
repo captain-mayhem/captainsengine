@@ -4,9 +4,7 @@
 #include <windows.h>
 #endif
 #include "GL2Shader.h"
-#if !defined(ANDROID)
-#include <GL/gl.h>
-#endif
+#include "../OpenGL/OGLfunctions.h"
 #include "GL2vertexbuffer.h"
 #include "GL2indexbuffer.h"
 #include "../renderer.h"
@@ -141,9 +139,15 @@ void GL2VertexBuffer::setTexCoord(int pos, ::CGE::Vec2f t){
 
 void GL2VertexBuffer::setVertexOffset(int offset){
   userVertOffset_ = 4*offset*structsize_;//offset*structsize_;
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, structsize_, vb_ + vertoffset_ + userVertOffset_);
-  glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, structsize_, vb_ + coloffset_ + userVertOffset_);
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, structsize_, vb_+texoffset_+userVertOffset_);
-  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, structsize_, vb_ + normoffset_ + userVertOffset_);
-  glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, structsize_, vb_ + tex2offset_ + userVertOffset_);
+  //only the attributes this buffer has (the others have offset -1 and are disabled)
+  if (flags_ & VB_POSITION)
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, structsize_, vb_ + vertoffset_ + userVertOffset_);
+  if (flags_ & VB_COLOR)
+    glVertexAttribPointer(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, structsize_, vb_ + coloffset_ + userVertOffset_);
+  if (flags_ & VB_TEXCOORD)
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, structsize_, vb_+texoffset_+userVertOffset_);
+  if (flags_ & VB_NORMAL)
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, structsize_, vb_ + normoffset_ + userVertOffset_);
+  if (flags_ & VB_TEXCOORD2)
+    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, structsize_, vb_ + tex2offset_ + userVertOffset_);
 }

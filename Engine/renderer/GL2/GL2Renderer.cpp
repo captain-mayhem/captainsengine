@@ -5,13 +5,10 @@
 #endif
 #include "../../window/window.h"
 #include "../../system/engine.h"
+#include "../OpenGL/OGLfunctions.h"
 #if defined(ANDROID)
-#include <GLES2/gl2.h>
 #define glClearDepth glClearDepthf
-#else
-#include <GL/glew.h>
 #endif
-//#include <GL/gl.h>
 #include "GL2Renderer.h"
 #include "GL2vertexbuffer.h"
 #include "../OpenGL/OGLtexture.h"
@@ -39,13 +36,12 @@ void GL2Renderer::initContext(AppWindow* win){
   TR_INFO("Initializing OpenGL 2 renderer");
   win_ = win;
 #if !defined(ANDROID)
-  GLenum err = glewInit();
-  if (err != GLEW_OK){
-    TR_ERROR("Unable to init OpenGL extensions");
+  if (!loadGLFunctions()){
+    TR_ERROR("Unable to load the OpenGL functions");
     CGE::Engine::instance()->requestShutdown();
     return;
   }
-  if (!GLEW_VERSION_2_0){
+  if (!GLAD_GL_VERSION_2_0){
     TR_ERROR("OpenGL 2.0 not available");
     CGE::Engine::instance()->requestShutdown();
     return;

@@ -21,12 +21,8 @@ void OGLRenderer::initContext(CGE::AppWindow* win){
   TR_USE(CGE_Renderer_OGL);
   TR_INFO("Initializing OpenGL renderer");
   win_ = win;
-#ifdef OPENGL2
-  // OGLTexture is shared with the GL2 renderer and calls glActiveTexture
-  // through GLEW, so the GLEW function pointers are needed here too
-  if (glewInit() != GLEW_OK)
-    TR_ERROR("Unable to init OpenGL extensions");
-#endif
+  if (!loadGLFunctions())
+    TR_ERROR("Unable to load the OpenGL functions");
 }
 
 void OGLRenderer::initRendering(){

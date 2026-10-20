@@ -2,6 +2,7 @@ SET(PRE renderer)
 
 IF(RENDER_OPENGL)
 	SET(RENDERER_SRCS
+		${PRE}/OpenGL/OGLfunctions.cpp
 		${PRE}/OpenGL/OGLindexbuffer.cpp
 		${PRE}/OpenGL/OGLrenderer.cpp
 		${PRE}/OpenGL/OGLtexture.cpp
@@ -9,6 +10,7 @@ IF(RENDER_OPENGL)
 		${RENDERER_SRCS}
 	)
 	SET(RENDERER_HDRS_OGL
+		${PRE}/OpenGL/OGLfunctions.h
 		${PRE}/OpenGL/OGLindexbuffer.h
 		${PRE}/OpenGL/OGLrenderer.h
 		${PRE}/OpenGL/OGLtexture.h
@@ -21,6 +23,7 @@ IF(RENDER_GL2 OR RENDER_EMBEDDED)
 		${PRE}/GL2/GL2Renderer.cpp
 		${PRE}/GL2/GL2rendertarget.cpp
 		${PRE}/GL2/GL2Shader.cpp
+		${PRE}/OpenGL/OGLfunctions.cpp
 		${PRE}/OpenGL/OGLtexture.cpp
 		${PRE}/GL2/GL2indexbuffer.cpp
 		${PRE}/GL2/GL2vertexbuffer.cpp
@@ -29,6 +32,7 @@ IF(RENDER_GL2 OR RENDER_EMBEDDED)
 		${PRE}/GL2/GL2Renderer.h
 		${PRE}/GL2/GL2rendertarget.h
 		${PRE}/GL2/GL2Shader.h
+		${PRE}/OpenGL/OGLfunctions.h
 		${PRE}/OpenGL/OGLtexture.h
 		${PRE}/GL2/GL2indexbuffer.h
 		${PRE}/GL2/GL2vertexbuffer.h

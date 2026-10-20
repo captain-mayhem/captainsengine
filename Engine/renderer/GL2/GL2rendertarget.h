@@ -4,11 +4,7 @@
 #include <cge_export.h>
 
 #include <renderer/rendertarget.h>
-#if !defined(ANDROID)
-#include <GL/glew.h>
-#else
-#include <GLES2/gl2.h>
-#endif
+#include "../OpenGL/OGLfunctions.h"
 #include <vector>
 
 namespace CGE{

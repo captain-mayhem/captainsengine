@@ -3,11 +3,6 @@
 
 #include <cge_export.h>
 
-#if !defined(ANDROID)
-#include <GL/glew.h>
-#else
-#include <GLES2/gl2.h>
-#endif
 #include <map>
 #include <math/matrix.h>
 #include <renderer/renderer.h>
@@ -37,7 +32,8 @@ public:
 protected:
   virtual void use();
   virtual void unuse();
-  GLuint mProgram;
+  //! the GL program (a GLuint; GL stays out of this header, which HQClient includes)
+  unsigned mProgram;
 };
 
 }

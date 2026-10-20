@@ -175,9 +175,12 @@ void Font::render(){
       //The bases are selected such that 
       //the ascii code of a character corresponds to the right list
       for (unsigned i = 0; i < f.text->size(); i++){
-        //unsigned char tmp = (*f.text)[i]-32;
-        buffer_->setVertexOffset(f.text->at(i)-32+(128*f.set));
-        buffer_->draw(VB_Tristrip, inds_);
+        //the font has 256 glyphs: two sets of 128 characters from the space on
+        int glyph = (int)(unsigned char)f.text->at(i)-32+(128*f.set);
+        if (glyph >= 0 && glyph < 256){
+          buffer_->setVertexOffset(glyph);
+          buffer_->draw(VB_Tristrip, inds_);
+        }
         //increase translation
         rend->translate(10,0,0);
       }

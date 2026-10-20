@@ -153,15 +153,17 @@ endif()
 if (RENDER_GL2)
 	message(STATUS "with OpenGL 2 renderer")
 	target_compile_definitions(Engine PRIVATE OPENGL2)
-	if (NOT OS STREQUAL "android")
-		# the GL2 renderer headers include <GL/glew.h>; GLEW itself stays private
-		target_link_libraries(Engine PRIVATE glew)
-		cge_engine_public_headers(glew)
-	endif()
 endif()
 if ((RENDER_OPENGL OR RENDER_GL2) AND NOT RENDER_EMBEDDED)
+	# the old renderers load their own copy of glad (renderer/OpenGL/OGLfunctions.cpp);
+	# OpenGL::GL stays public for projects that still call fixed-function GL
 	find_package(OpenGL REQUIRED)
-	target_link_libraries(Engine PUBLIC OpenGL::GL OpenGL::GLU)
+	target_link_libraries(Engine PRIVATE glad PUBLIC OpenGL::GL OpenGL::GLU)
+	if (OS STREQUAL linux)
+		# the GL backend's context is an EGL context, so the functions come from EGL
+		find_package(OpenGL REQUIRED COMPONENTS EGL)
+		target_link_libraries(Engine PRIVATE OpenGL::EGL)
+	endif()
 endif()
 if (RENDER_EMBEDDED)
 	message(STATUS "with OpenGL ES 2.0 renderer")

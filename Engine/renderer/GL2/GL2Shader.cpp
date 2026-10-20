@@ -1,4 +1,5 @@
 #include "GL2Shader.h"
+#include "../OpenGL/OGLfunctions.h"
 
 #include <cstring>
 
@@ -85,7 +86,7 @@ bool GL2Shader::linkShaders(){
   return success != 0;
 }
 
-// the GL calls stay out of the header: they go through GLEW, which is private to the engine
+// the GL calls stay out of the header: they go through glad, which is private to the engine
 void GL2Shader::bindAttribLocation(int location, const char* name){
   glBindAttribLocation(mProgram, location, name);
 }

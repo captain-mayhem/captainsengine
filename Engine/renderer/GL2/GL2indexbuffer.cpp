@@ -5,11 +5,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #endif
-#if !defined(ANDROID)
-#include <GL/gl.h>
-#else
-#include <GLES2/gl2.h>
-#endif
+#include "../OpenGL/OGLfunctions.h"
 
 using namespace CGE;
 

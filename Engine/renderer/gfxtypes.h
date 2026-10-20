@@ -45,6 +45,10 @@ struct DeviceDesc{
   bool vsync = true;
   //! backend debug output (e.g. KHR_debug) into the engine's tracing
   bool debug = false;
+  //! OpenGL: a compatibility-profile context instead of a core-profile one
+  /*! Only for the old renderers, which still use fixed-function GL; it goes
+      away with them. Other backends ignore it. */
+  bool compatibilityProfile = false;
   //! bits per pixel of the window's colour buffer
   int colorBits = 32;
   //! bits of the window's depth buffer
