@@ -13,7 +13,7 @@ class RenderDevice;
 }
 
 //! changes whenever RenderDevice or the resource classes change their layout
-#define CGE_RENDER_BACKEND_VERSION 1
+#define CGE_RENDER_BACKEND_VERSION 2
 
 #define CGE_RENDER_BACKEND_VERSION_FUNC "cgeRenderBackendVersion"
 #define CGE_RENDER_BACKEND_CREATE_FUNC "cgeCreateRenderDevice"

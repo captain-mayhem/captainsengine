@@ -173,6 +173,15 @@ public:
   void draw(int vertexCount, int instanceCount = 1, int firstVertex = 0);
   void drawIndexed(int indexCount, int instanceCount = 1, int firstIndex = 0);
 
+  // --- reading back ---
+
+  //! reads pixels of the window (target == nullptr) or of a render target's colour attachment
+  /*! data gets rect.width*rect.height RGBA8 pixels, rows from the bottom up
+      like rect. The attachment's format must be RGBA8 or SRGBA8. The window
+      is read from the frame being drawn, so call it before endFrame.
+      Slow: for tests and screenshots. */
+  bool readPixels(RenderTarget* target, int attachment, const Rect& rect, void* data);
+
 protected:
   RenderDevice();
 
@@ -196,6 +205,7 @@ protected:
   virtual void doSetScissor(const Rect& rect) = 0;
   virtual void doDraw(int vertexCount, int instanceCount, int firstVertex) = 0;
   virtual void doDrawIndexed(int indexCount, int instanceCount, int firstIndex) = 0;
+  virtual bool doReadPixels(RenderTarget* target, int attachment, const Rect& rect, void* data) = 0;
 
   Caps caps_;
   ClipSpace clipSpace_;

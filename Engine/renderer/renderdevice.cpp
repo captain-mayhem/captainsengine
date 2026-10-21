@@ -320,3 +320,37 @@ void RenderDevice::drawIndexed(int indexCount, int instanceCount, int firstIndex
     return;
   doDrawIndexed(indexCount, instanceCount, firstIndex);
 }
+
+bool RenderDevice::readPixels(RenderTarget* target, int attachment, const Rect& rect, void* data){
+  TR_USE(CGE_RenderDevice);
+  if (state_ == State::Uninitialized){
+    TR_ERROR("readPixels called uninitialised");
+    return false;
+  }
+  int width = width_;
+  int height = height_;
+  Format format = Format::RGBA8;
+  if (target){
+    const RenderTargetDesc& desc = target->getDesc();
+    if (attachment < 0 || attachment >= (int)desc.colorFormats.size()){
+      TR_ERROR("readPixels: the render target has no colour attachment %d", attachment);
+      return false;
+    }
+    width = desc.width;
+    height = desc.height;
+    format = desc.colorFormats[attachment];
+  }
+  else if (attachment != 0){
+    TR_ERROR("readPixels: the window only has colour attachment 0");
+    return false;
+  }
+  if (format != Format::RGBA8 && format != Format::SRGBA8){
+    TR_ERROR("readPixels: only RGBA8 attachments can be read");
+    return false;
+  }
+  if (rect.x < 0 || rect.y < 0 || rect.width <= 0 || rect.height <= 0 || rect.x+rect.width > width || rect.y+rect.height > height){
+    TR_ERROR("readPixels: the rectangle is outside the target");
+    return false;
+  }
+  return doReadPixels(target, attachment, rect, data);
+}

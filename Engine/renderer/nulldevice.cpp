@@ -1,5 +1,6 @@
 #include "nulldevice.h"
 
+#include <cstring>
 #include <vector>
 
 using namespace CGE::Gfx;
@@ -98,4 +99,9 @@ std::unique_ptr<Shader> NullDevice::createShader(const ShaderDesc& desc){
 
 std::unique_ptr<Pipeline> NullDevice::createPipeline(const PipelineDesc& desc){
   return std::make_unique<NullPipeline>(desc);
+}
+
+bool NullDevice::doReadPixels(RenderTarget* target, int attachment, const Rect& rect, void* data){
+  memset(data, 0, (size_t)rect.width*rect.height*4);
+  return true;
 }

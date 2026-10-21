@@ -43,6 +43,8 @@ protected:
   void doSetScissor(const Rect& rect) override {}
   void doDraw(int vertexCount, int instanceCount, int firstVertex) override {draws_++;}
   void doDrawIndexed(int indexCount, int instanceCount, int firstIndex) override {draws_++;}
+  //! black pixels
+  bool doReadPixels(RenderTarget* target, int attachment, const Rect& rect, void* data) override;
 private:
   int frames_;
   int draws_;

@@ -1,12 +1,13 @@
 # Unit tests of the engine library (googletest), run with ctest.
 # They need no window and no graphics, so they also run on CI machines; the
-# OpenGL context tests (test_glcontext.cpp) skip themselves there.
+# OpenGL tests (test_glcontext.cpp, test_gldevice.cpp) skip themselves there.
 
 add_executable(cge_tests
 	main.cpp
 	test_assets.cpp
 	test_filesystem.cpp
 	test_glcontext.cpp
+	test_gldevice.cpp
 	test_images.cpp
 	test_renderdevice.cpp
 	test_services.cpp
@@ -14,6 +15,7 @@ add_executable(cge_tests
 	test_userdirs.cpp
 	test_zip.cpp
 	testenv.h
+	testwindow.h
 )
 target_link_libraries(cge_tests PRIVATE CGE::Engine GTest::gtest)
 # the test files are read from the source tree, independent of the working directory
