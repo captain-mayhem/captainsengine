@@ -84,6 +84,8 @@ struct ClipSpace{
   bool originTopLeft = false;
 };
 
+//! a rectangle in pixels, from the target's bottom left corner (OpenGL's convention)
+/*! Backends whose origin is the top left convert it. */
 struct Rect{
   int x = 0;
   int y = 0;
@@ -91,6 +93,7 @@ struct Rect{
   int height = 0;
 };
 
+//! a viewport in pixels, from the target's bottom left corner like Rect
 struct Viewport{
   float x = 0;
   float y = 0;
@@ -281,6 +284,9 @@ struct ShaderDesc{
 
 // --- pipelines ---
 
+//! the format of a vertex attribute
+/*! The float and normalised formats feed float inputs (float, vec2, ...),
+    the other integer formats integer inputs (uvec4, ivec2, int). */
 enum class VertexFormat{
   Float,
   Float2,
@@ -288,9 +294,13 @@ enum class VertexFormat{
   Float4,
   //! four bytes, normalised to 0..1
   UByte4Norm,
+  //! four bytes for a uvec4
   UByte4,
+  //! two shorts for an ivec2
   Short2,
+  //! two shorts, normalised to -1..1
   Short2Norm,
+  //! an int
   Int,
 };
 

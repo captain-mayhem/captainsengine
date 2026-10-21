@@ -8,15 +8,20 @@ set(CGE_GL_SRCS
 	renderer/GL/GLContextEGLX11.cpp
 	renderer/GL/GLContextWGL.cpp
 	renderer/GL/GLDevice.cpp
+	renderer/GL/GLResources.cpp
 )
 set(CGE_GL_HDRS
+	renderer/GL/GLApi.h
 	renderer/GL/GLContext.h
 	renderer/GL/GLDevice.h
+	renderer/GL/GLResources.h
 )
 
 if (OS STREQUAL "android")
 	target_sources(Engine PRIVATE ${CGE_GL_SRCS} ${CGE_GL_HDRS})
 	target_compile_definitions(Engine PRIVATE CGE_GL_BUILTIN)
+	# the backend uses OpenGL ES 3.0
+	target_link_libraries(Engine PRIVATE GLESv3)
 	SOURCE_GROUP("renderer/GL" FILES ${CGE_GL_SRCS} ${CGE_GL_HDRS})
 else()
 	add_library(EngineGL MODULE ${CGE_GL_SRCS} ${CGE_GL_HDRS} renderer/GL/GLPlugin.cpp)
