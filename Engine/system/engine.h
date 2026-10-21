@@ -35,6 +35,9 @@ class AppWindow;
 class Renderer;
 class Font;
 class Forms;
+namespace Gfx{
+class DrawContext;
+}
 }
 
 namespace Gui{
@@ -117,6 +120,8 @@ class CGE_API Engine{
     //! the render device, which owns the window's graphics context
     /*! The Null device when engine.ini says graphics = false. */
     inline Gfx::RenderDevice* getRenderDevice() {return device_.get();}
+    //! the engine's drawing state on the render device, for Forms, Mesh, Scene and the render techniques
+    inline Gfx::DrawContext* getDrawContext() {return draw_.get();}
     //! the virtual resolution of the GUI pass and the input events
     /*! Its window size is updated from the window on every call. */
     CGE::VirtualScreen& getVirtualScreen();
@@ -189,6 +194,8 @@ class CGE_API Engine{
     std::unique_ptr<CGE::AppWindow> win_;
     //! the render device; destroyed after the renderer
     std::unique_ptr<Gfx::RenderDevice> device_;
+    //! drawing on the render device; destroyed before it
+    std::unique_ptr<Gfx::DrawContext> draw_;
 
     //! The renderer
     std::unique_ptr<CGE::Renderer> rend_;

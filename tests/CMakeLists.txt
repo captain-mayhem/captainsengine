@@ -5,6 +5,7 @@
 add_executable(cge_tests
 	main.cpp
 	test_assets.cpp
+	test_drawing.cpp
 	test_filesystem.cpp
 	test_glcontext.cpp
 	test_gldevice.cpp

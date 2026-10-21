@@ -70,6 +70,13 @@ void Scene::render(Mesh::DrawPart part){
   }
 }
 
+void Scene::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
+  for (SceneNode* node : mNodes){
+    if (node->getType() == SceneNode::MESH)
+      static_cast<Model*>(node)->render(ctx, part);
+  }
+}
+
 //! Get a model
 Model* Scene::getModel(const unsigned id){
   list<SceneNode*>::iterator iter;

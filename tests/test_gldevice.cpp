@@ -48,11 +48,15 @@ TEST(ShaderLibrary, BuiltinDescriptionsBindTheEngineSlots){
   EXPECT_EQ(desc.name, "engine/textured");
   EXPECT_FALSE(desc.vertexSource.empty());
   EXPECT_NE(desc.fragmentSource.find("cge_texture"), std::string::npos);
-  ASSERT_EQ(desc.uniformBlocks.size(), 2u);
+  ASSERT_EQ(desc.uniformBlocks.size(), 4u);
   EXPECT_EQ(desc.uniformBlocks[0].name, "CGE_Frame");
   EXPECT_EQ(desc.uniformBlocks[0].slot, SLOT_FRAME);
   EXPECT_EQ(desc.uniformBlocks[1].name, "CGE_Draw");
   EXPECT_EQ(desc.uniformBlocks[1].slot, SLOT_DRAW);
+  EXPECT_EQ(desc.uniformBlocks[2].name, "CGE_Material");
+  EXPECT_EQ(desc.uniformBlocks[2].slot, SLOT_MATERIAL);
+  EXPECT_EQ(desc.uniformBlocks[3].name, "CGE_Lights");
+  EXPECT_EQ(desc.uniformBlocks[3].slot, SLOT_LIGHTS);
   ASSERT_EQ(desc.textures.size(), 1u);
   EXPECT_EQ(desc.textures[0].slot, SLOT_TEXTURE);
 }

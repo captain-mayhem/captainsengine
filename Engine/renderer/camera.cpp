@@ -2,6 +2,8 @@
 #include "camera.h"
 #include "../renderer/renderer.h"
 #include "../system/engine.h"
+#include "drawcontext.h"
+#include "renderdevice.h"
 
 using namespace CGE;
 
@@ -66,7 +68,15 @@ void Camera::roll(float angle){
 void Camera::activate(){
   CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
   rend->projection(mFrustum.getAngle(),mFrustum.getRatio(),mFrustum.getNearDist(),mFrustum.getFarDist());
-  Matrix mat = Matrix(mSide, mUp, mForward*-1, Vec3f()/*eye*1*/)*Matrix(Matrix::Translation,mPosition*-1);
-  rend->multiplyMatrix(mat);
+  rend->multiplyMatrix(getViewMatrix());
+}
+
+void Camera::activate(Gfx::DrawContext& ctx){
+  ctx.setProjection(ctx.getDevice().perspective(mFrustum.getAngle(), mFrustum.getRatio(), mFrustum.getNearDist(), mFrustum.getFarDist()));
+  ctx.setView(getViewMatrix());
+}
+
+Matrix Camera::getViewMatrix() const{
+  return Matrix(mSide, mUp, mForward*-1, Vec3f())*Matrix(Matrix::Translation, mPosition*-1);
 }
 

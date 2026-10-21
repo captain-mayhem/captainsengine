@@ -3,6 +3,7 @@
 
 #include <cge_export.h>
 
+#include <string>
 #include <vector>
 #include "../math/vector.h"
 
@@ -47,8 +48,13 @@ public:
   const float getOpacity() const { return mOpacity; }
   void setOpacityTex(Texture* tex) { mOpacityTex = tex; }
   Texture const* getOpacityTex() const { return mOpacityTex; }
+  //! the files of the textures, for loading them on a render device
+  void setDiffuseTexFile(std::string const& file) { mDiffuseTexFile = file; }
+  std::string const& getDiffuseTexFile() const { return mDiffuseTexFile; }
+  void setOpacityTexFile(std::string const& file) { mOpacityTexFile = file; }
+  std::string const& getOpacityTexFile() const { return mOpacityTexFile; }
 
-  bool isTransparent() const { return mOpacity != 1.0f || mOpacityTex != nullptr; }
+  bool isTransparent() const { return mOpacity != 1.0f || mOpacityTex != nullptr || !mOpacityTexFile.empty(); }
   
   std::string const & getName() const { return mName; }
 
@@ -62,6 +68,8 @@ protected:
   float mSpecPower;
   float mOpacity;
   Texture* mOpacityTex;
+  std::string mDiffuseTexFile;
+  std::string mOpacityTexFile;
 };
 
 }

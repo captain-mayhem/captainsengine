@@ -15,4 +15,6 @@ layout(std140) uniform CGE_Draw{
   mat4 cge_model;
   // multiplied with the vertex colour
   vec4 cge_color;
+  // the inverse transpose of cge_view*cge_model, for normals in view space
+  mat4 cge_normalMatrix;
 };

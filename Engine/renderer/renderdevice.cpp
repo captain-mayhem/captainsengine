@@ -109,6 +109,7 @@ RenderDevice::RenderDevice(){
   state_ = State::Uninitialized;
   pipeline_ = nullptr;
   indexBufferSet_ = false;
+  frameCount_ = 0;
 }
 
 RenderDevice::~RenderDevice(){
@@ -184,6 +185,7 @@ bool RenderDevice::beginFrame(){
   if (!doBeginFrame())
     return false;
   state_ = State::InFrame;
+  ++frameCount_;
   return true;
 }
 

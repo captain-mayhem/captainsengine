@@ -80,7 +80,7 @@ bool ShaderLibrary::loadSource(const std::string& path, std::string& source){
 bool ShaderLibrary::loadDesc(const std::string& vertexPath, const std::string& fragmentPath, ShaderDesc& desc){
   if (!loadSource(vertexPath, desc.vertexSource) || !loadSource(fragmentPath, desc.fragmentSource))
     return false;
-  desc.uniformBlocks = {{"CGE_Frame", SLOT_FRAME}, {"CGE_Draw", SLOT_DRAW}};
+  desc.uniformBlocks = {{"CGE_Frame", SLOT_FRAME}, {"CGE_Draw", SLOT_DRAW}, {"CGE_Material", SLOT_MATERIAL}, {"CGE_Lights", SLOT_LIGHTS}};
   desc.textures = {{"cge_texture", SLOT_TEXTURE}};
   if (desc.name.empty())
     desc.name = vertexPath;
@@ -95,6 +95,9 @@ ShaderDesc ShaderLibrary::getBuiltinDesc(BuiltinShader shader){
       break;
     case BuiltinShader::Textured:
       desc.name = "engine/textured";
+      break;
+    case BuiltinShader::Lit:
+      desc.name = "engine/lit";
       break;
   }
   //the built-in files are part of the engine library, so this can't fail

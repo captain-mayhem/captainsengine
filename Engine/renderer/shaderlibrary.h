@@ -30,6 +30,12 @@ enum BuiltinAttribute{
 const int SLOT_FRAME = 0;
 //! uniform buffer slot of the CGE_Draw block (DrawUniforms)
 const int SLOT_DRAW = 1;
+//! uniform buffer slot of the CGE_Material block (MaterialUniforms)
+const int SLOT_MATERIAL = 2;
+//! uniform buffer slot of the CGE_Lights block (LightUniforms)
+const int SLOT_LIGHTS = 3;
+//! the lights a lit draw takes into account
+const int MAX_LIGHTS = 8;
 //! texture slot of the cge_texture sampler
 const int SLOT_TEXTURE = 0;
 
@@ -47,14 +53,46 @@ struct DrawUniforms{
   Matrix model = Matrix(Matrix::Identity);
   //! multiplied with the vertex colour
   float color[4] = {1, 1, 1, 1};
+  //! the inverse transpose of view*model, for normals in view space
+  Matrix normalMatrix = Matrix(Matrix::Identity);
 };
-static_assert(sizeof(DrawUniforms) == 80, "DrawUniforms must match CGE_Draw");
+static_assert(sizeof(DrawUniforms) == 144, "DrawUniforms must match CGE_Draw");
+
+//! the CGE_Material block (std140) of lit shaders (lighting.glsl)
+struct MaterialUniforms{
+  //! rgb, a: the opacity
+  float diffuse[4] = {1, 1, 1, 1};
+  float ambient[4] = {0, 0, 0, 1};
+  //! rgb, w: the shininess (specular exponent)
+  float specular[4] = {0, 0, 0, 10};
+  //! x: 1 if the surface is textured
+  int32_t flags[4] = {0, 0, 0, 0};
+};
+static_assert(sizeof(MaterialUniforms) == 64, "MaterialUniforms must match CGE_Material");
+
+//! the CGE_Lights block (std140) of lit shaders (lighting.glsl), in view space
+struct LightUniforms{
+  //! x: the number of lights; without lights, surfaces are drawn unlit
+  int32_t count[4] = {0, 0, 0, 0};
+  //! w = 0: a directional light shining from the direction xyz
+  float position[MAX_LIGHTS][4] = {};
+  //! xyz: the spot direction, w: the cutoff angle in radians
+  float direction[MAX_LIGHTS][4] = {};
+  float color[MAX_LIGHTS][4] = {};
+  //! x: the quadratic attenuation
+  float attenuation[MAX_LIGHTS][4] = {};
+};
+static_assert(sizeof(LightUniforms) == 16+4*MAX_LIGHTS*16, "LightUniforms must match CGE_Lights");
 
 enum class BuiltinShader{
   //! position and colour
   Color,
   //! position, colour and texture coordinates, with the texture in SLOT_TEXTURE
   Textured,
+  //! position, normal and texture coordinates, lit with the material and lights
+  /*! Unlit (the material's diffuse colour) without lights. The texture in
+      SLOT_TEXTURE is used if the material's flags say so. */
+  Lit,
 };
 
 //! Shader sources and the built-in shaders
@@ -69,7 +107,8 @@ public:
   static bool loadSource(const std::string& path, std::string& source);
   //! a shader description from a vertex and a fragment shader file
   /*! The description binds the engine's blocks and sampler (CGE_Frame,
-      CGE_Draw, cge_texture); add more bindings before creating the shader. */
+      CGE_Draw, CGE_Material, CGE_Lights, cge_texture); add more bindings
+      before creating the shader. */
   static bool loadDesc(const std::string& vertexPath, const std::string& fragmentPath, ShaderDesc& desc);
   //! the description of a built-in shader
   static ShaderDesc getBuiltinDesc(BuiltinShader shader);

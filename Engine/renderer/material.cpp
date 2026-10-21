@@ -27,6 +27,8 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
   Material* currMat = NULL;
   Color col;
 
+  //the old renderer's textures, if there is one
+  Renderer* rend = Engine::instance() ? Engine::instance()->getRenderer() : NULL;
   std::map<std::string, Texture*> texturemap;
   for (unsigned i = 0; i < textures.size(); ++i){
     Texture* tex = textures[i];
@@ -47,9 +49,10 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
         texture.resize(texture.size()-1);
         std::string path = Filesystem::getPathComponent(filename);
         texture = Filesystem::combinePath(path, texture);
+        currMat->setDiffuseTexFile(texture);
         Texture* tex = texturemap[texture];
-        if (tex == NULL){
-          tex = Engine::instance()->getRenderer()->createTexture(texture);
+        if (tex == NULL && rend){
+          tex = rend->createTexture(texture);
           texturemap[texture] = tex;
           if (tex)
             textures.push_back(tex);
@@ -64,9 +67,10 @@ bool Material::loadFromMTL(std::string const& filename, std::vector<Material*>& 
         texture.resize(texture.size()-1);
         std::string path = Filesystem::getPathComponent(filename);
         texture = Filesystem::combinePath(path, texture);
+        currMat->setOpacityTexFile(texture);
         Texture* tex = texturemap[texture];
-        if (tex == NULL){
-          tex = Engine::instance()->getRenderer()->createTexture(texture, Texture::ALPHA);
+        if (tex == NULL && rend){
+          tex = rend->createTexture(texture, Texture::ALPHA);
           texturemap[texture] = tex;
           if (tex)
             textures.push_back(tex);

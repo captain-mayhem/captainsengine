@@ -17,6 +17,10 @@
 #include "../system/engine.h"
 #include "../renderer/renderer.h"
 #include "../renderer/vertexbuffer.h"
+#include "../renderer/drawcontext.h"
+#include "../renderer/renderdevice.h"
+#include "../image/image.h"
+#include "../image/loader.h"
 #include "../math/ray.h"
 #include "../system/file.h"
 
@@ -38,7 +42,7 @@ TR_CHANNEL(CGE_Mesh);
 // --------------------------------------------------------------------
 //  Default constructor
 // --------------------------------------------------------------------
-Mesh::Mesh() : mComputeEdges(true){
+Mesh::Mesh() : mComputeEdges(true), mDeviceTried(false){
   numTriangles_ = 0;
   numVertices_ = 0;
   numTexCoords_ = 0;
@@ -395,18 +399,15 @@ Vector3D Mesh::getNormal(int i){
   return normal;
 }
 
-//! build vertex buffer object
-void Mesh::buildVBO(){
+void Mesh::buildDrawData(std::vector<float>& vdata, std::vector<int>& idata){
   materialSort();
-  //float* vertices = new float[numTriangles_*3*3];
-  //unsigned int* indices = new unsigned int[numTriangles_*3];
+  mDrawList.clear();
   std::map<Vec3i, int> distinctVertices;
-  std::vector<float> vdata;
+  vdata.clear();
   vdata.reserve(numVertices_*(3 + 3 + 2));
-  std::vector<int> idata;
+  idata.clear();
   idata.reserve(numTriangles_ * 3);
   int vidx = 0;
-  int numVertices = 0;
   
   unsigned offset = (unsigned)idata.size();
   int idxcount = 0;
@@ -429,7 +430,6 @@ void Mesh::buildVBO(){
         Vec3i idx(tri->data[j], tri->texdata[j], tri->normdata[j]);
         int di = distinctVertices[idx];
         if (di == 0){
-          ++numVertices;
           Vec3f pos = vertices_[tri->data[j]];
           vdata.push_back(pos.x); vdata.push_back(pos.y); vdata.push_back(pos.z);
           if (numTexCoords_ > 0){
@@ -452,6 +452,14 @@ void Mesh::buildVBO(){
     }
   }
   mDrawList.push_back(SubMesh(offset, idxcount, matid, mMaterials[matid]));
+}
+
+//! build vertex buffer object
+void Mesh::buildVBO(){
+  std::vector<float> vdata;
+  std::vector<int> idata;
+  buildDrawData(vdata, idata);
+  int numVertices = (int)vdata.size()/(numTexCoords_ > 0 ? 3+2+3 : 3+3);
 
   vb_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
   if (numTexCoords_ > 0)
@@ -565,6 +573,130 @@ void Mesh::draw(DrawPart part){
   //vb_->draw(CGE::VB_Triangles, mIB);
 }
 
+bool Mesh::buildBuffers(Gfx::RenderDevice& device){
+  std::vector<float> vdata;
+  std::vector<int> idata;
+  buildDrawData(vdata, idata);
+  center_ = center_ / (float)numVertices_;
+  return createDeviceResources(device, vdata, idata);
+}
+
+namespace{
+
+//! a texture of a material file on a device, or nullptr
+/*! An opacity texture becomes white with the image's first channel as alpha. */
+std::unique_ptr<Gfx::Texture> loadDeviceTexture(Gfx::RenderDevice& device, const std::string& file, bool opacity){
+  TR_USE(CGE_Mesh);
+  std::unique_ptr<Image> image(ImageLoader::load(file.c_str()));
+  if (!image){
+    TR_ERROR("cannot load texture %s", file.c_str());
+    return nullptr;
+  }
+  Gfx::TextureDesc desc;
+  desc.width = (int)image->getWidth();
+  desc.height = (int)image->getHeight();
+  desc.mipLevels = 0;
+  std::vector<unsigned char> rgba;
+  if (opacity){
+    unsigned channels = image->getNumChannels();
+    unsigned pixels = image->getWidth()*image->getHeight();
+    rgba.resize(pixels*4);
+    for (unsigned i = 0; i < pixels; ++i){
+      rgba[4*i] = rgba[4*i+1] = rgba[4*i+2] = 255;
+      rgba[4*i+3] = image->getData()[channels*i];
+    }
+  }
+  else{
+    image->convertFormat(4);
+    rgba.assign(image->getData(), image->getData()+image->getWidth()*image->getHeight()*4);
+  }
+  std::unique_ptr<Gfx::Texture> texture = device.createTexture(desc, rgba.data());
+  if (texture)
+    device.generateMipmaps(texture.get());
+  return texture;
+}
+
+//! the vertex layouts of buildDrawData's vertices
+const Gfx::VertexLayout& meshLayout(bool texCoords){
+  using namespace Gfx;
+  static const VertexLayout withTexCoords = {
+    {
+      {ATTR_POSITION, VertexFormat::Float3, 0, 0},
+      {ATTR_TEXCOORD, VertexFormat::Float2, 0, 12},
+      {ATTR_NORMAL, VertexFormat::Float3, 0, 20},
+    },
+    {{(3+2+3)*(int)sizeof(float), false}},
+  };
+  static const VertexLayout withoutTexCoords = {
+    {
+      {ATTR_POSITION, VertexFormat::Float3, 0, 0},
+      {ATTR_NORMAL, VertexFormat::Float3, 0, 12},
+    },
+    {{(3+3)*(int)sizeof(float), false}},
+  };
+  return texCoords ? withTexCoords : withoutTexCoords;
+}
+
+}
+
+bool Mesh::createDeviceResources(Gfx::RenderDevice& device, const std::vector<float>& vdata, const std::vector<int>& idata){
+  using namespace Gfx;
+  mDeviceTried = true;
+  mVertices = device.createBuffer({BufferType::Vertex, Usage::Immutable, vdata.size()*sizeof(float)}, vdata.data());
+  mIndices = device.createBuffer({BufferType::Index, Usage::Immutable, idata.size()*sizeof(int)}, idata.data());
+  //the materials' textures, each file once
+  mMaterialTextures.assign(mMaterials.size(), nullptr);
+  mDeviceTextures.clear();
+  std::map<std::string, Gfx::Texture*> loaded;
+  for (unsigned i = 0; i < mMaterials.size(); ++i){
+    Material* mat = mMaterials[i];
+    if (!mat)
+      continue;
+    //the diffuse texture wins, as with the old renderers
+    bool opacity = mat->getDiffuseTexFile().empty();
+    std::string file = opacity ? mat->getOpacityTexFile() : mat->getDiffuseTexFile();
+    if (file.empty())
+      continue;
+    std::string key = (opacity ? "opacity:" : "diffuse:")+file;
+    if (loaded.find(key) == loaded.end()){
+      std::unique_ptr<Gfx::Texture> texture = loadDeviceTexture(device, file, opacity);
+      loaded[key] = texture.get();
+      if (texture)
+        mDeviceTextures.push_back(std::move(texture));
+    }
+    mMaterialTextures[i] = loaded[key];
+  }
+  return mVertices && mIndices;
+}
+
+void Mesh::draw(Gfx::DrawContext& ctx, DrawPart part){
+  //a mesh built with buildVBO gets its device buffers when it's first drawn on the device
+  if (!mDeviceTried && !mDrawList.empty()){
+    std::vector<float> vdata;
+    std::vector<int> idata;
+    buildDrawData(vdata, idata);
+    createDeviceResources(ctx.getDevice(), vdata, idata);
+  }
+  if (!mVertices || !mIndices)
+    return;
+  const Gfx::VertexLayout& layout = meshLayout(numTexCoords_ > 0);
+  for (const SubMesh& msh : mDrawList){
+    Material* mat = mMaterials[msh.material];
+    //no material is assumed opaque
+    bool transparent = mat && mat->isTransparent();
+    if ((transparent && part == DRAW_OPAQUE) || (!transparent && part == DRAW_TRANSPARENT))
+      continue;
+    if (mat)
+      ctx.setMaterial(*mat);
+    else
+      ctx.resetMaterial();
+    ctx.setTexture(msh.material < (int)mMaterialTextures.size() ? mMaterialTextures[msh.material] : nullptr);
+    ctx.drawIndexed(Gfx::BuiltinShader::Lit, mVertices.get(), layout, mIndices.get(), Gfx::IndexType::UInt32,
+      Gfx::PrimitiveType::Triangles, msh.count, msh.offset);
+  }
+  ctx.setTexture(nullptr);
+}
+
 //! intersects a ray and a triangle
 float Mesh::intersect(const CGE::Ray& r) const{
   float intersection = FLT_MAX;
@@ -627,6 +759,11 @@ void Mesh::clear(){
   edges_.clear();
   SAFE_DELETE(vb_);
   SAFE_DELETE(mIB);
+  mVertices.reset();
+  mIndices.reset();
+  mMaterialTextures.clear();
+  mDeviceTextures.clear();
+  mDeviceTried = false;
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
   max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
   center_ = Vector3D();

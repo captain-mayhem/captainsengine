@@ -154,6 +154,8 @@ public:
   bool beginFrame();
   //! ends the frame and presents it in the window
   void endFrame();
+  //! the number of frames begun so far; changes when a new frame begins
+  uint64_t getFrameCount() const {return frameCount_;}
   //! starts a pass into the window (desc.target == nullptr) or a render target
   /*! Sets the viewport and the scissor rectangle to the whole target. */
   bool beginPass(const PassDesc& desc);
@@ -224,6 +226,7 @@ private:
   State state_;
   Pipeline* pipeline_;
   bool indexBufferSet_;
+  uint64_t frameCount_;
 };
 
 }

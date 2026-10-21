@@ -5,6 +5,8 @@
 #include "../system/engine.h"
 #include "../renderer/renderer.h"
 #include "../mesh/mesh.h"
+#include "../math/matrixstack.h"
+#include "../renderer/drawcontext.h"
 
 #include <cassert>
 
@@ -62,6 +64,14 @@ void Model::render(Mesh::DrawPart part){
   rend->multiplyMatrix(trafo_);
   mesh_->draw(part);
   rend->popMatrix();
+}
+
+void Model::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
+  assert(mesh_ && "A mesh needs to be assigned to the model");
+  ctx.model().push();
+  ctx.model().multiply(trafo_);
+  mesh_->draw(ctx, part);
+  ctx.model().pop();
 }
 
 //! Setup material
