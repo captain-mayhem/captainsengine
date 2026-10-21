@@ -2,6 +2,8 @@
 #include <renderer/scene.h>
 #include <renderer/renderer.h>
 #include <renderer/camera.h>
+#include <renderer/drawcontext.h>
+#include <renderer/renderdevice.h>
 #include <system/engine.h>
 
 using namespace CGE;
@@ -36,4 +38,28 @@ void ForwardRenderer::render(Mesh::DrawPart part){
   }
   mScene->render(part);
   rend->enableLighting(false);
+}
+
+void ForwardRenderer::render(Gfx::DrawContext& ctx, const Gfx::PassDesc& output){
+  if (!ctx.getDevice().beginPass(output))
+    return;
+  render(ctx, Mesh::DRAW_ALL);
+  ctx.getDevice().endPass();
+}
+
+void ForwardRenderer::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
+  if (!mScene)
+    return;
+  Camera* cam = mScene->getActiveCam();
+  if (cam)
+    cam->activate(ctx);
+  std::vector<Light*> lights = mScene->getLights();
+  if (lights.size() > Gfx::MAX_LIGHTS && cam){
+    camPos = cam->getPosition();
+    qsort(lights.data(), lights.size(), sizeof(Light*), compareLightDist);
+  }
+  ctx.setLights(lights);
+  ctx.setDepth(true, true);
+  mScene->render(ctx, part);
+  ctx.clearLights();
 }

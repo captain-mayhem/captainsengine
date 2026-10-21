@@ -41,6 +41,7 @@ ENDIF(RENDER_GL2 OR RENDER_EMBEDDED)
 
 SET(Engine_renderer_SRCS
 	${PRE}/camera.cpp
+	${PRE}/drawcontext.cpp
 	${PRE}/font.cpp
 	${PRE}/forms.cpp
 	${PRE}/indexbuffer.cpp
@@ -55,12 +56,14 @@ SET(Engine_renderer_SRCS
 	${PRE}/shader.cpp
 	${PRE}/shaderlibrary.cpp
 	${PRE}/texture.cpp
+	${PRE}/uniformstream.cpp
 	${PRE}/vertexbuffer.cpp
 	${RENDERER_SRCS}
 )
 
 SET(RENDERER_HDRS_CORE
 	${PRE}/camera.h
+	${PRE}/drawcontext.h
 	${PRE}/dummyrenderer.h
 	${PRE}/font.h
 	${PRE}/forms.h
@@ -78,6 +81,7 @@ SET(RENDERER_HDRS_CORE
 	${PRE}/shader.h
 	${PRE}/shaderlibrary.h
 	${PRE}/texture.h
+	${PRE}/uniformstream.h
 	${PRE}/vertexbuffer.h
 )
 

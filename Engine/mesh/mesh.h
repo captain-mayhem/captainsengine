@@ -33,6 +33,7 @@
 #include <windows.h>
 #endif
 
+#include <memory>
 #include <string>
 
 #include "triangle.h"
@@ -43,6 +44,12 @@ class VertexBuffer;
 class IndexBuffer;
 class Material;
 class Texture;
+namespace Gfx{
+class Buffer;
+class DrawContext;
+class RenderDevice;
+class Texture;
+}
 }
 
 namespace CGE{
@@ -82,10 +89,19 @@ public:
   void addSubMesh(int triangleFrom, int triangleCount, int materialIdx);
   //! loads a mesh from a file
   bool loadFromFile(std::string filename);
-  //! build vertex buffer object
+  //! builds the buffers for the old renderer
+  /*! The render device's buffers follow when the mesh is first drawn
+      through a Gfx::DrawContext. */
   void buildVBO();
-	//! draw the mesh
+  //! builds the buffers for a render device only, instead of buildVBO
+  /*! Also loads the materials' textures onto the device. */
+  bool buildBuffers(Gfx::RenderDevice& device);
+	//! draw the mesh with the old renderer
 	void draw(DrawPart part);
+  //! draws the mesh through a render device with the context's lit shader
+  /*! Sets the context's material and texture per submesh; the texture is
+      none afterwards. */
+  void draw(Gfx::DrawContext& ctx, DrawPart part);
   //! get the name of the mesh
   std::string getName() const {return name_;}
   //! get the filename of the mesh
@@ -126,6 +142,11 @@ protected:
 
   //! the submesh compare function
   static int submeshCompare(const void* p1, const void* p2);
+
+  //! the interleaved vertices (position, texture coordinates if any, normal) and the indices
+  void buildDrawData(std::vector<float>& vdata, std::vector<int>& idata);
+  //! the buffers and textures on a render device
+  bool createDeviceResources(Gfx::RenderDevice& device, const std::vector<float>& vdata, const std::vector<int>& idata);
   
   //! the number of vertices
   int numVertices_;
@@ -192,6 +213,15 @@ protected:
 
   //! draw list
   std::vector<SubMesh> mDrawList;
+
+  //! the vertex and index buffer on a render device
+  std::unique_ptr<Gfx::Buffer> mVertices;
+  std::unique_ptr<Gfx::Buffer> mIndices;
+  //! the materials' textures on the render device, by material index (nullptr: untextured)
+  std::vector<Gfx::Texture*> mMaterialTextures;
+  std::vector<std::unique_ptr<Gfx::Texture>> mDeviceTextures;
+  //! the device resources were created (or failed)
+  bool mDeviceTried;
 };
 
 }

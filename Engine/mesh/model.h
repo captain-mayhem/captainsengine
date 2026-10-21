@@ -10,6 +10,9 @@
 namespace CGE{
 class BoundingObject;
 class Texture;
+namespace Gfx{
+class DrawContext;
+}
 }
 
 namespace CGE{
@@ -27,8 +30,12 @@ public:
   Model(Mesh* mesh);
   //! Destructor
   virtual ~Model();
-  //! Render the model
+  //! Render the model with the old renderer
   void render(Mesh::DrawPart part);
+  //! renders the model through a render device in the context's model matrix
+  /*! The mesh's materials decide the textures; the textures assigned to the
+      model are for the old renderer. */
+  void render(Gfx::DrawContext& ctx, Mesh::DrawPart part);
   //! Setup material
   void setupMaterial();
   //! Reset material

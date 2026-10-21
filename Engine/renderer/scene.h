@@ -14,6 +14,9 @@ class Ray;
 class Mesh;
 class Light;
 class Camera;
+namespace Gfx{
+class DrawContext;
+}
 }
 
 namespace CGE{
@@ -42,8 +45,12 @@ public:
   unsigned addLight(Light* light) { mLights.push_back(light); return (unsigned)mLights.size(); }
   //! Get the lights
   std::vector<Light*>& getLights() { return mLights; }
-  //! render the scene
+  //! render the scene with the old renderer
   void render(Mesh::DrawPart part=Mesh::DRAW_ALL);
+  //! renders the models through a render device (in a pass)
+  /*! The context's projection, view and lights stay as they are; see
+      ForwardRenderer for a pass with the scene's camera and lights. */
+  void render(Gfx::DrawContext& ctx, Mesh::DrawPart part=Mesh::DRAW_ALL);
   //! save the scene
   void save(const std::string& filename) const;
   //! load the scene

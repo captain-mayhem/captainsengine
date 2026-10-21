@@ -9,6 +9,7 @@
 #include "../window/nativeAndroid.h"
 #include "script.h"
 #include "../gui/console.h"
+#include "../renderer/drawcontext.h"
 #include "../renderer/forms.h"
 #include "../io/Tracing.h"
 #include "../io/TraceManager.h"
@@ -166,6 +167,7 @@ void Engine::startup(int argc, char** argv){
     rend_->initContext(win_.get());
     rend_->resizeScene(device_->getWidth(), device_->getHeight());
   }
+  draw_ = std::make_unique<Gfx::DrawContext>(*device_);
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
   
@@ -234,6 +236,7 @@ void Engine::shutdown(){
     for (auto& fnt : fnt_)
       fnt.reset();
     forms_.reset();
+    draw_.reset();
     //the GL objects go before the context, the context before the window
     rend_->killContext();
     device_->shutdown();
