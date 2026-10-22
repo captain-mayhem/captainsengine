@@ -25,8 +25,7 @@ using namespace CGE::Gfx;
 
 // Dear ImGui in the engine: the platform backend (events, keys), the renderer
 // backend on the Null device and, on a hidden window, on the OpenGL device
-// (drawn into render targets and read back, with the core and the
-// compatibility profile), and the console.
+// (drawn into render targets and read back), and the console.
 
 namespace{
 
@@ -247,21 +246,17 @@ public:
 
 const int TARGET_SIZE = 32;
 
-//! the parameter: the compatibility profile
-class ImGuiGL : public ::testing::TestWithParam<bool>{
+class ImGuiGL : public ::testing::Test{
 protected:
   void SetUp() override{
     device_ = RenderDevice::create("OpenGL");
     ASSERT_NE(device_, nullptr);
     DeviceDesc desc;
     desc.debug = true;
-    desc.compatibilityProfile = GetParam();
     if (!window_.create(*device_, desc))
       GTEST_SKIP() << "no window";
     if (!device_->init(window_.native(), desc))
       GTEST_SKIP() << "no OpenGL 3.3 core-profile driver";
-    if (!device_->createSampler(SamplerDesc()))
-      GTEST_SKIP() << "no OpenGL 3.3 driver";
     RenderTargetDesc rt;
     rt.width = rt.height = TARGET_SIZE;
     rt.depthFormat = Format::Undefined;
@@ -335,7 +330,7 @@ protected:
 
 }
 
-TEST_P(ImGuiGL, RectanglesAreUprightInTheirColour){
+TEST_F(ImGuiGL, RectanglesAreUprightInTheirColour){
   //the upper half red, a blended blue square in the lower left
   std::vector<Pixel> pixels = render([](ImDrawList* list){
     list->AddRectFilled(ImVec2(0, 0), ImVec2(TARGET_SIZE, TARGET_SIZE/2), IM_COL32(255, 0, 0, 255));
@@ -347,7 +342,7 @@ TEST_P(ImGuiGL, RectanglesAreUprightInTheirColour){
   EXPECT_TRUE(isColor(at(pixels, 4, 24), 0, 0, 128));
 }
 
-TEST_P(ImGuiGL, DrawsAreClippedToTheirClipRect){
+TEST_F(ImGuiGL, DrawsAreClippedToTheirClipRect){
   std::vector<Pixel> pixels = render([](ImDrawList* list){
     list->PushClipRect(ImVec2(8, 0), ImVec2(16, 8));
     list->AddRectFilled(ImVec2(0, 0), ImVec2(TARGET_SIZE, TARGET_SIZE), IM_COL32(0, 255, 0, 255));
@@ -359,7 +354,7 @@ TEST_P(ImGuiGL, DrawsAreClippedToTheirClipRect){
   EXPECT_TRUE(isColor(at(pixels, 12, 12), 0, 0, 0));
 }
 
-TEST_P(ImGuiGL, ImagesShowDeviceTextures){
+TEST_F(ImGuiGL, ImagesShowDeviceTextures){
   //2x1: red left, green right
   const uint8_t texels[] = {255, 0, 0, 255, 0, 255, 0, 255};
   TextureDesc desc;
@@ -375,7 +370,7 @@ TEST_P(ImGuiGL, ImagesShowDeviceTextures){
   EXPECT_TRUE(isColor(at(pixels, 30, 16), 0, 255, 0));
 }
 
-TEST_P(ImGuiGL, WindowsWithTextAreDrawn){
+TEST_F(ImGuiGL, WindowsWithTextAreDrawn){
   std::vector<Pixel> pixels = render([](ImDrawList*){
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(ImVec2(TARGET_SIZE, TARGET_SIZE));
@@ -397,9 +392,5 @@ TEST_P(ImGuiGL, WindowsWithTextAreDrawn){
   EXPECT_GT(light, 5);
 }
 
-INSTANTIATE_TEST_SUITE_P(Profiles, ImGuiGL, ::testing::Values(false, true),
-  [](const ::testing::TestParamInfo<bool>& info){
-    return info.param ? "Compatibility" : "Core";
-  });
 
 #endif

@@ -1,6 +1,5 @@
 
 #include "camera.h"
-#include "../renderer/renderer.h"
 #include "../system/engine.h"
 #include "drawcontext.h"
 #include "renderdevice.h"
@@ -63,12 +62,6 @@ void Camera::roll(float angle){
   mSide = rot*mSide;
   mUp = rot*mUp;
   mFrustum.setCoordSys(mPosition, mForward, mSide, mUp);
-}
-
-void Camera::activate(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->projection(mFrustum.getAngle(),mFrustum.getRatio(),mFrustum.getNearDist(),mFrustum.getFarDist());
-  rend->multiplyMatrix(getViewMatrix());
 }
 
 void Camera::activate(Gfx::DrawContext& ctx){

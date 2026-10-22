@@ -200,8 +200,6 @@ GLDevice::GLDevice(){
   context_ = GLContext::create();
   hasStencil_ = false;
   resourcesSupported_ = false;
-  legacy_ = false;
-  legacyState_ = LegacyState();
   fbo_ = 0;
   pipeline_ = nullptr;
   indexBuffer_ = nullptr;
@@ -234,7 +232,7 @@ bool GLDevice::doInit(const NativeWindow& window, const DeviceDesc& desc){
   while (glGetError() != GL_NO_ERROR){}
   resourcesSupported_ = major >= 3;
   if (!resourcesSupported_)
-    TR_WARN("Not an OpenGL ES 3.0 context: only the old renderers work on it");
+    TR_WARN("Not an OpenGL ES 3.0 context: the device can only clear");
 #else
   int version = gladLoadGLUserPtr(loadGLFunction, context_.get());
   if (!version){
@@ -251,7 +249,7 @@ bool GLDevice::doInit(const NativeWindow& window, const DeviceDesc& desc){
   TR_INFO("OpenGL %s on %s%s", (const char*)glGetString(GL_VERSION), (const char*)glGetString(GL_RENDERER), profile);
   resourcesSupported_ = GLAD_GL_VERSION_3_3 != 0;
   if (!resourcesSupported_)
-    TR_WARN("Not an OpenGL 3.3 context: only the old renderers work on it");
+    TR_WARN("Not an OpenGL 3.3 context: the device can only clear");
   if (desc.debug && GLAD_GL_KHR_debug){
     glEnable(GL_DEBUG_OUTPUT);
     glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -264,7 +262,6 @@ bool GLDevice::doInit(const NativeWindow& window, const DeviceDesc& desc){
 #endif
   context_->setSwapInterval(desc.vsync ? 1 : 0);
   hasStencil_ = desc.stencilBits > 0;
-  legacy_ = desc.compatibilityProfile;
 
   GLint value = 0;
   glGetIntegerv(GL_MAX_TEXTURE_SIZE, &value);
@@ -300,7 +297,7 @@ bool GLDevice::doInit(const NativeWindow& window, const DeviceDesc& desc){
   //OpenGL's conventions are the reference, so nothing differs
   clipSpace_ = ClipSpace();
 
-  //uploads and read-backs are tightly packed (the old renderers also use 1)
+  //uploads and read-backs are tightly packed
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glPixelStorei(GL_PACK_ALIGNMENT, 1);
   invalidateState();
@@ -436,103 +433,10 @@ void GLDevice::applyRenderState(const PipelineDesc& desc){
   renderStateKnown_ = true;
 }
 
-void GLDevice::endUpload(){
-  //the old renderers enable fixed-function texturing on the active unit
-  if (legacy_ && !isInPass())
-    setActiveUnit(0);
-}
-
-void GLDevice::saveLegacyState(){
-  LegacyState& s = legacyState_;
-  glGetIntegerv(GL_CURRENT_PROGRAM, &s.program);
-  glGetIntegerv(GL_FRAMEBUFFER_BINDING, &s.framebuffer);
-  glGetIntegerv(GL_VERTEX_ARRAY_BINDING, &s.vao);
-  glGetIntegerv(GL_ARRAY_BUFFER_BINDING, &s.arrayBuffer);
-  glGetIntegerv(GL_ACTIVE_TEXTURE, &s.activeUnit);
-  glActiveTexture(GL_TEXTURE0);
-  glGetIntegerv(GL_TEXTURE_BINDING_2D, &s.texture0);
-  glGetIntegerv(GL_VIEWPORT, s.viewport);
-  glGetIntegerv(GL_SCISSOR_BOX, s.scissorBox);
-  glGetFloatv(GL_DEPTH_RANGE, s.depthRange);
-  glGetFloatv(GL_COLOR_CLEAR_VALUE, s.clearColor);
-  glGetFloatv(GL_DEPTH_CLEAR_VALUE, &s.clearDepth);
-  glGetIntegerv(GL_STENCIL_CLEAR_VALUE, &s.clearStencil);
-  glGetIntegerv(GL_STENCIL_WRITEMASK, &s.stencilMask);
-  glGetBooleanv(GL_COLOR_WRITEMASK, s.colorMask);
-  glGetBooleanv(GL_DEPTH_WRITEMASK, &s.depthMask);
-  s.blend = glIsEnabled(GL_BLEND) != GL_FALSE;
-  s.depthTest = glIsEnabled(GL_DEPTH_TEST) != GL_FALSE;
-  s.cull = glIsEnabled(GL_CULL_FACE) != GL_FALSE;
-  s.scissor = glIsEnabled(GL_SCISSOR_TEST) != GL_FALSE;
-  glGetIntegerv(GL_BLEND_SRC_RGB, &s.blendSrcColor);
-  glGetIntegerv(GL_BLEND_DST_RGB, &s.blendDstColor);
-  glGetIntegerv(GL_BLEND_SRC_ALPHA, &s.blendSrcAlpha);
-  glGetIntegerv(GL_BLEND_DST_ALPHA, &s.blendDstAlpha);
-  glGetIntegerv(GL_BLEND_EQUATION_RGB, &s.blendColorOp);
-  glGetIntegerv(GL_BLEND_EQUATION_ALPHA, &s.blendAlphaOp);
-  glGetIntegerv(GL_DEPTH_FUNC, &s.depthFunc);
-  glGetIntegerv(GL_CULL_FACE_MODE, &s.cullFace);
-  glGetIntegerv(GL_FRONT_FACE, &s.frontFace);
-#if !defined(CGE_GLES)
-  s.srgb = glIsEnabled(GL_FRAMEBUFFER_SRGB) != GL_FALSE;
-  GLint polygonMode[2] = {GL_FILL, GL_FILL};
-  glGetIntegerv(GL_POLYGON_MODE, polygonMode);
-  s.polygonMode = polygonMode[0];
-#endif
-}
-
-void GLDevice::restoreLegacyState(){
-  const LegacyState& s = legacyState_;
-  glBindFramebuffer(GL_FRAMEBUFFER, s.framebuffer);
-  glBindVertexArray(s.vao);
-  glUseProgram(s.program);
-  glBindBuffer(GL_ARRAY_BUFFER, s.arrayBuffer);
-  //sampler objects would override the old renderers' texture parameters
-  for (int i = 0; i <= MAX_TEXTURE_SLOTS; i++){
-    if (units_[i].sampler != 0 && units_[i].sampler != GL_UNKNOWN)
-      glBindSampler(i, 0);
-  }
-  glActiveTexture(GL_TEXTURE0);
-  glBindTexture(GL_TEXTURE_2D, s.texture0);
-  glActiveTexture(s.activeUnit);
-  glViewport(s.viewport[0], s.viewport[1], s.viewport[2], s.viewport[3]);
-  glScissor(s.scissorBox[0], s.scissorBox[1], s.scissorBox[2], s.scissorBox[3]);
-  glClearColor(s.clearColor[0], s.clearColor[1], s.clearColor[2], s.clearColor[3]);
-  glClearStencil(s.clearStencil);
-  glStencilMask(s.stencilMask);
-  glColorMask(s.colorMask[0], s.colorMask[1], s.colorMask[2], s.colorMask[3]);
-  glDepthMask(s.depthMask);
-  enable(GL_BLEND, s.blend);
-  enable(GL_DEPTH_TEST, s.depthTest);
-  enable(GL_CULL_FACE, s.cull);
-  enable(GL_SCISSOR_TEST, s.scissor);
-  glBlendFuncSeparate(s.blendSrcColor, s.blendDstColor, s.blendSrcAlpha, s.blendDstAlpha);
-  glBlendEquationSeparate(s.blendColorOp, s.blendAlphaOp);
-  glDepthFunc(s.depthFunc);
-  glCullFace(s.cullFace);
-  glFrontFace(s.frontFace);
-#if defined(CGE_GLES)
-  glDepthRangef(s.depthRange[0], s.depthRange[1]);
-  glClearDepthf(s.clearDepth);
-#else
-  glDepthRange(s.depthRange[0], s.depthRange[1]);
-  glClearDepth(s.clearDepth);
-  enable(GL_FRAMEBUFFER_SRGB, s.srgb);
-  glPolygonMode(GL_FRONT_AND_BACK, s.polygonMode);
-#endif
-  invalidateState();
-}
-
 // --- passes and draws ---
 
 void GLDevice::doBeginPass(const PassDesc& desc, int width, int height){
   TR_USE(CGE_Renderer_GL);
-  //the old renderers changed the GL state since the last pass
-  if (legacy_){
-    invalidateState();
-    if (resourcesSupported_)
-      saveLegacyState();
-  }
   pipeline_ = nullptr;
   indexBuffer_ = nullptr;
   for (VertexBinding& binding : vertexBuffers_)
@@ -591,8 +495,6 @@ void GLDevice::doBeginPass(const PassDesc& desc, int width, int height){
 void GLDevice::doEndPass(){
   pipeline_ = nullptr;
   indexBuffer_ = nullptr;
-  if (legacy_ && resourcesSupported_)
-    restoreLegacyState();
 }
 
 void GLDevice::doSetPipeline(Pipeline* pipeline){
@@ -841,7 +743,6 @@ std::unique_ptr<GLTexture> GLDevice::makeTexture(const TextureDesc& desc, const 
   //complete with the levels it has
   glTexParameteri(target, GL_TEXTURE_BASE_LEVEL, 0);
   glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, levels-1);
-  endUpload();
   return texture;
 }
 
@@ -875,7 +776,6 @@ void GLDevice::updateTexture(Texture* texture, const TextureRegion& region, cons
     glTexSubImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+region.layer, region.mipLevel, region.x, region.y, region.width, region.height, format.format, format.type, data);
   else
     glTexSubImage2D(target, region.mipLevel, region.x, region.y, region.width, region.height, format.format, format.type, data);
-  endUpload();
 }
 
 void GLDevice::generateMipmaps(Texture* texture){
@@ -886,7 +786,6 @@ void GLDevice::generateMipmaps(Texture* texture){
     return;
   bindUploadTexture(glTexture);
   glGenerateMipmap(glTexture->getTarget());
-  endUpload();
 }
 
 std::unique_ptr<Sampler> GLDevice::createSampler(const SamplerDesc& desc){
@@ -944,7 +843,7 @@ std::unique_ptr<RenderTarget> GLDevice::createRenderTarget(const RenderTargetDes
       return nullptr;
   }
 
-  //the current framebuffer is the pass's, or the old renderers' outside passes
+  //the current framebuffer is the pass's, if a pass is running
   GLint previous = 0;
   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &previous);
   GLuint fbo = 0;
@@ -1020,7 +919,7 @@ std::unique_ptr<Shader> GLDevice::createShader(const ShaderDesc& desc){
   }
   if (!desc.textures.empty()){
     //sampler uniforms are set on the current program; the previous one (of a
-    //pass, or of the old renderers) comes back afterwards
+    //pass) comes back afterwards
     GLint previous = 0;
     glGetIntegerv(GL_CURRENT_PROGRAM, &previous);
     glUseProgram(program);

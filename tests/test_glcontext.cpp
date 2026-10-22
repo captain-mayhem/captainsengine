@@ -8,10 +8,8 @@ using namespace CGE::Gfx;
 using TestEnv::TestWindow;
 
 // The OpenGL backend's contexts on a real, hidden window. Skipped where no
-// window can be created (Linux without a display) and, for the core profile,
-// where the driver has no OpenGL 3.3 (e.g. Windows' software renderer on CI
-// machines). The compatibility profile falls back to the driver's default
-// context, so it works with any OpenGL driver.
+// window can be created (Linux without a display) or the driver has no
+// OpenGL 3.3 core profile (e.g. Windows' software renderer on CI machines).
 
 #if defined(CGE_TEST_WINDOW)
 
@@ -54,16 +52,15 @@ TEST(GLContext, CoreProfile){
   drawFrame(*device);
 }
 
-TEST(GLContext, CompatibilityProfile){
+TEST(GLContext, SecondContextOnAnotherWindow){
   TestWindow window, second;
   auto device = RenderDevice::create("OpenGL");
   ASSERT_NE(device, nullptr);
   DeviceDesc desc;
-  desc.compatibilityProfile = true;
   if (!window.create(*device, desc))
     GTEST_SKIP() << "no window";
-  ASSERT_TRUE(device->init(window.native(), desc));
-  EXPECT_GE(device->getCaps().maxTextureSize, 64);
+  if (!device->init(window.native(), desc))
+    GTEST_SKIP() << "no OpenGL 3.3 core-profile driver";
   drawFrame(*device);
   device->setVsync(false);
   device->shutdown();

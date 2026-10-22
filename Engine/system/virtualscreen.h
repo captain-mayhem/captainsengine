@@ -8,7 +8,6 @@
 
 namespace CGE{
 
-class Renderer;
 namespace Gfx{
 class RenderDevice;
 }
@@ -46,12 +45,11 @@ public:
   Vec2i toVirtual(int x, int y) const;
   //! maps virtual coordinates to window pixels
   Vec2i toWindow(int x, int y) const;
-  //! sets an orthographic projection that puts the virtual area at its place in the window
-  /*! With yDown, the origin is at the top left with y down. Otherwise it's at
-      the bottom left with y up, as in the engine's GUI pass. Covers the whole
-      viewport, which is expected to be the whole window. */
-  void ortho(Renderer* rend, bool yDown = false) const;
-  //! the same projection for a render device (for Gfx::DrawContext::setProjection)
+  //! an orthographic projection for a render device that puts the virtual area at its place in the window
+  /*! For Gfx::DrawContext::setProjection. With yDown, the origin is at the
+      top left with y down. Otherwise it's at the bottom left with y up, as
+      for the engine's fonts. Covers the whole viewport, which is expected to
+      be the whole window. */
   Matrix ortho(const Gfx::RenderDevice& device, bool yDown = false) const;
 private:
   void update();

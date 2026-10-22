@@ -10,10 +10,13 @@
 //  ==================================================================
 
 #include "../system/engine.h"
-#include "../system/file.h"
-#include "texture.h"
-#include "renderer.h"
+#include "../platform/assets.h"
 #include "font.h"
+#include "drawcontext.h"
+#include "renderdevice.h"
+#include "textureloader.h"
+
+#include <cstdint>
 
 using std::string;
 using std::ostringstream;
@@ -23,88 +26,60 @@ using namespace CGE;
 
 TR_CHANNEL(CGE_Font);
 
+namespace{
+
+//! a glyph corner
+struct GlyphVertex{
+  float position[3];
+  uint8_t color[4];
+  float texcoord[2];
+};
+
+const Gfx::VertexLayout& glyphLayout(){
+  using namespace Gfx;
+  static const VertexLayout layout = {
+    {
+      {ATTR_POSITION, VertexFormat::Float3, 0, 0},
+      {ATTR_COLOR, VertexFormat::UByte4Norm, 0, 12},
+      {ATTR_TEXCOORD, VertexFormat::Float2, 0, 16},
+    },
+    {{(int)sizeof(GlyphVertex), false}},
+  };
+  return layout;
+}
+
+uint8_t toByte(float value){
+  if (value <= 0)
+    return 0;
+  if (value >= 1)
+    return 255;
+  return (uint8_t)(value*255.0f+0.5f);
+}
+
+}
+
 //Constructor
-Font::Font(){
+Font::Font(Gfx::RenderDevice& device){
 	TR_USE(CGE_Font);
   show_ = true;
   rgb_ = Color(1.0,1.0,1.0,1.0);
-  tex_ = CGE::Engine::instance()->getRenderer()->createTexture("textures/font/font.bmp");
+  id_ = -1;
+  const char* file = "textures/font/font.bmp";
+  if (Assets::exists(file))
+    tex_ = Gfx::loadTexture(device, file);
   if (tex_ == nullptr){
   	TR_WARN("Builtin font  not available");
+    return;
   }
-  buffer_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
-  inds_ = CGE::Engine::instance()->getRenderer()->createIndexBuffer(IndexBuffer::IB_USHORT, 4);
-  id_ = -1;
-}
-
-Font::Font(const Font& f){
-  show_ = f.show_;
-  rgb_ = f.rgb_;
-  q_ = queue<font_data>(f.q_);
-  id_ = f.id_;
-  tex_ = nullptr;
-  buffer_ = nullptr;
-  inds_ = nullptr;
+  //like the old renderers' textures: linear with mipmaps, repeating
+  Gfx::SamplerDesc sampler;
+  sampler.mipFilter = Gfx::MipFilter::Linear;
+  sampler_ = device.createSampler(sampler);
 }
 
 //Destructor
 Font::~Font(){
-  while (!q_.empty()){
-    font_data& data = q_.front();
-    delete data.text;
-    q_.pop();
-  }
-  SAFE_DELETE(tex_);
-  SAFE_DELETE(buffer_);
-  SAFE_DELETE(inds_);
-}
-
-//Build font display list
-void Font::buildFont(VertexBuffer* other){
-  //character coords
-  float	cx;
-  float	cy;
-
-  if (other != nullptr){
-    delete buffer_;
-    buffer_ = other;
-  }
-
-  if (tex_ == nullptr)
-    return;
-  tex_->activate();
-  if (other == nullptr){
-    buffer_->create(VB_POSITION | VB_TEXCOORD, 4 * 256);
-    buffer_->lockVertexPointer();
-
-    for (int i = 0; i < 256; i++){
-      //position of current character in font texture
-      cx = float(i % 16) / 16.0f;
-      cy = float(i / 16) / 16.0f;
-
-      //A Quad for each character
-      buffer_->setPosition(4 * i + 0, Vec3f(0, 0, 0));
-      buffer_->setPosition(4 * i + 1, Vec3f(16, 0, 0));
-      buffer_->setPosition(4 * i + 3, Vec3f(16, 16, 0));
-      buffer_->setPosition(4 * i + 2, Vec3f(0, 16, 0));
-      buffer_->setTexCoord(4 * i + 0, Vec2f(cx, cy + 0.0625f));
-      buffer_->setTexCoord(4 * i + 1, Vec2f(cx + 0.0625f, cy + 0.0625f));
-      buffer_->setTexCoord(4 * i + 3, Vec2f(cx + 0.0625f, cy));
-      buffer_->setTexCoord(4 * i + 2, Vec2f(cx, cy));
-    }
-
-    buffer_->unlockVertexPointer();
-  }
-
-  short* in = (short*)inds_->lockIndexPointer();
-  in[0] = 0; in[1] = 1; in[3] = 3;
-  in[2] = 2; //in[4] = 1; in[5] = 2;
-  inds_->unlockIndexPointer();
-}
-
-// Delete Font
-void Font::killFont(){
-  //glDeleteLists(base_,256);
+  clear();
 }
 
 // Stores all necessary information to render the text
@@ -134,62 +109,64 @@ void Font::setColor(Color& c){
 }
 
 // Render all stored text strings
-void Font::render(){
-	TR_USE(CGE_Font);
-  Renderer* rend = CGE::Engine::instance()->getRenderer();
+void Font::render(Gfx::DrawContext& ctx, double interval){
   queue<font_data> temp;
-
-  if (tex_ == nullptr)
-    return;
-
-  if (!q_.empty()){
-    tex_->activate();
-    buffer_->activate();
-    inds_->activate();
-  }
+  std::vector<GlyphVertex> vertices;
 
   while(!q_.empty()){
     
     //take out the next font_data
     font_data f = q_.front();
     q_.pop();
-    f.duration -= ::CGE::Engine::instance()->getFrameInterval();//gl->getFrameInterval();
+    f.duration -= interval;
     
     //not displayed long enough, so display again in the next cycle
     if (f.duration > 0){
       temp.push(f);
     }
-    if (show_){
-      rend->pushMatrix();
-
-      rend->setColor(&f.rgb);
+    if (show_ && tex_){
       if (f.set>1){
         f.set=1;
       }
-      //glBindTexture(GL_TEXTURE_2D, tex.fontTex[0]);
-      //glLoadIdentity();
-      //rend->resetModelView();
-      //rend->translate(-512, -384, 0);
-      rend->translate(f.pos.x,f.pos.y,0);
-      
-      //The bases are selected such that 
-      //the ascii code of a character corresponds to the right list
+      uint8_t color[4] = {toByte(f.rgb.r), toByte(f.rgb.g), toByte(f.rgb.b), toByte(f.rgb.a)};
+      float x = (float)f.pos.x;
+      float y = (float)f.pos.y;
       for (unsigned i = 0; i < f.text->size(); i++){
         //the font has 256 glyphs: two sets of 128 characters from the space on
         int glyph = (int)(unsigned char)f.text->at(i)-32+(128*f.set);
         if (glyph >= 0 && glyph < 256){
-          buffer_->setVertexOffset(glyph);
-          buffer_->draw(VB_Tristrip, inds_);
+          //position of the character in the font texture, 16x16 units on the screen
+          float cx = float(glyph % 16) / 16.0f;
+          float cy = float(glyph / 16) / 16.0f;
+          GlyphVertex bottomLeft = {{x, y, 0}, {color[0], color[1], color[2], color[3]}, {cx, cy + 0.0625f}};
+          GlyphVertex bottomRight = {{x + 16, y, 0}, {color[0], color[1], color[2], color[3]}, {cx + 0.0625f, cy + 0.0625f}};
+          GlyphVertex topLeft = {{x, y + 16, 0}, {color[0], color[1], color[2], color[3]}, {cx, cy}};
+          GlyphVertex topRight = {{x + 16, y + 16, 0}, {color[0], color[1], color[2], color[3]}, {cx + 0.0625f, cy}};
+          vertices.insert(vertices.end(), {bottomLeft, bottomRight, topLeft, topLeft, bottomRight, topRight});
         }
-        //increase translation
-        rend->translate(10,0,0);
+        x += 10;
       }
-      rend->popMatrix();
     }
     if (f.duration <= 0)
       delete f.text;
   }
   q_ = temp;
+
+  if (vertices.empty())
+    return;
+  Gfx::RenderDevice& device = ctx.getDevice();
+  size_t size = vertices.size()*sizeof(GlyphVertex);
+  //a buffer for the longest text so far, whole-buffer updates
+  if (!buffer_ || buffer_->getDesc().size < size){
+    buffer_ = device.createBuffer({Gfx::BufferType::Vertex, Gfx::Usage::Stream, size});
+    if (!buffer_)
+      return;
+  }
+  device.updateBuffer(buffer_.get(), 0, size, vertices.data());
+  ctx.setTexture(tex_.get(), sampler_.get());
+  ctx.setColor(1, 1, 1, 1);
+  ctx.draw(Gfx::BuiltinShader::Textured, buffer_.get(), glyphLayout(), Gfx::PrimitiveType::Triangles, (int)vertices.size());
+  ctx.setTexture(nullptr);
 }
 
 //simplified glPrint

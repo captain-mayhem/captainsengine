@@ -15,8 +15,6 @@
 #include "mesh.h"
 
 #include "../system/engine.h"
-#include "../renderer/renderer.h"
-#include "../renderer/vertexbuffer.h"
 #include "../renderer/drawcontext.h"
 #include "../renderer/renderdevice.h"
 #include "../renderer/textureloader.h"
@@ -49,8 +47,6 @@ Mesh::Mesh() : mComputeEdges(true), mDeviceTried(false){
   name_ = "none";
   filename_ = "none";
   m_visible = true;
-  vb_ = nullptr;
-  mIB = nullptr;
   min_ = Vector3D(FLT_MAX,FLT_MAX,FLT_MAX);
   max_ = Vector3D(FLT_MIN,FLT_MIN,FLT_MIN);
   center_ = Vector3D();
@@ -264,7 +260,7 @@ bool Mesh::loadOBJ(std::string filename){
         string path = Filesystem::getPathComponent(filename);
         mtlfile = Filesystem::combinePath(path, mtlfile);
         unsigned from = (unsigned)mMaterials.size();
-        if (!Material::loadFromMTL(mtlfile, mMaterials, mTextures))
+        if (!Material::loadFromMTL(mtlfile, mMaterials))
           TR_ERROR("mtlfile %s not found", mtlfile.c_str());
         for (unsigned i = from; i < mMaterials.size(); ++i){
           materialMap[mMaterials[i]->getName()] = i;
@@ -453,125 +449,6 @@ void Mesh::buildDrawData(std::vector<float>& vdata, std::vector<int>& idata){
   mDrawList.push_back(SubMesh(offset, idxcount, matid, mMaterials[matid]));
 }
 
-//! build vertex buffer object
-void Mesh::buildVBO(){
-  std::vector<float> vdata;
-  std::vector<int> idata;
-  buildDrawData(vdata, idata);
-  int numVertices = (int)vdata.size()/(numTexCoords_ > 0 ? 3+2+3 : 3+3);
-
-  vb_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
-  if (numTexCoords_ > 0)
-    vb_->create(VB_POSITION | VB_NORMAL | VB_TEXCOORD, numVertices);
-  else
-    vb_->create(VB_POSITION | VB_NORMAL, numVertices);
-  void* vdat = vb_->lockVertexPointer();
-  memcpy(vdat, vdata.data(), vdata.size()*sizeof(float));
-  vb_->unlockVertexPointer();
-  /*
-  vb_ = CGE::Engine::instance()->getRenderer()->createVertexBuffer();
-  if (numTexCoords_ > 0)
-    vb_->create(VB_POSITION | VB_NORMAL | VB_TEXCOORD, numTriangles_*3);
-  else
-    vb_->create(VB_POSITION | VB_NORMAL, numTriangles_*3);
-  vb_->lockVertexPointer();
-  
-  for (int i = 0; i < numTriangles_; i++){
-    Triangle* tri = triangles_[i];
-    Vector3D v0 = vertices_[tri->v0];
-    Vector3D v1 = vertices_[tri->v1];
-    Vector3D v2 = vertices_[tri->v2];
-    vb_->setPosition(3*i+0, v0);
-    vb_->setPosition(3*i+1, v1);
-    vb_->setPosition(3*i+2, v2);
-    Vector3D n0, n1, n2;
-    if (mNumNormals == 0){
-      n0 = getNormal(tri->v0);
-      n1 = getNormal(tri->v1);
-      n2 = getNormal(tri->v2);
-    }
-    else{
-      n0 = mNormals[tri->n0];
-      n1 = mNormals[tri->n1];
-      n2 = mNormals[tri->n2];
-    }
-    vb_->setNormal(3*i+0, n0);
-    vb_->setNormal(3*i+1, n1);
-    vb_->setNormal(3*i+2, n2);
-    if (numTexCoords_ > 0){
-      Vector3D t0 = texCoords_[tri->t0];
-      Vector3D t1 = texCoords_[tri->t1];
-      Vector3D t2 = texCoords_[tri->t2];
-      vb_->setTexCoord(3*i+0, Vec2f(t0.x,t0.y));
-      vb_->setTexCoord(3*i+1, Vec2f(t1.x,t1.y));
-      vb_->setTexCoord(3*i+2, Vec2f(t2.x,t2.y));
-    }
-    //indices[i*3+0] = i*3+0;
-    //indices[i*3+1] = i*3+1;
-    //indices[i*3+2] = i*3+2;
-  }*/
-/*
-  vb_->unlockVertexPointer();
-
-  short* indi = vb_->lockIndexPointer();
-  for (int i = 0; i < numTriangles_*3; i++){
-    indi[i] = i;
-  }
-  vb_->unlockIndexPointer();*/
-/*
-  glGenBuffersARB(1, &m_vbo);
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, m_vbo);
-  glEnableClientState(GL_VERTEX_ARRAY);
-  glEnableClientState(GL_NORMAL_ARRAY);
-  glBufferDataARB(GL_ARRAY_BUFFER_ARB, m_numVertices*(3+3)*sizeof(float), vertices, GL_STATIC_DRAW_ARB);
-
-  glGenBuffersARB(1, &m_vboidx);
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m_vboidx);
-  glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, m_numTriangles*3*sizeof(unsigned int), indices,GL_STATIC_DRAW_ARB);
-  glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-  glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-*/
-  //delete [] vertices;
-  //delete [] indices;
-  mIB = CGE::Engine::instance()->getRenderer()->createIndexBuffer(IndexBuffer::IB_UINT, (uint32)idata.size());
-  void* data = mIB->lockIndexPointer();
-  memcpy(data, idata.data(), idata.size()*sizeof(int));
-  mIB->unlockIndexPointer();
-
-  //compute real center
-  center_ = center_ / (float)numVertices_;
-}
-
-// --------------------------------------------------------------------
-//  draw the mesh
-// --------------------------------------------------------------------
-void Mesh::draw(DrawPart part){
-  bool activate = true;
-  for (unsigned i = 0; i < mDrawList.size(); ++i){
-    SubMesh& msh = mDrawList[i];
-    Material* mat = mMaterials[msh.material];
-    if (mat){
-      if (mat->isTransparent() && part == DRAW_OPAQUE)
-        continue;
-      if (!mat->isTransparent() && part == DRAW_TRANSPARENT)
-        continue;
-      Engine::instance()->getRenderer()->setMaterial(*mat);
-    }
-    else{
-      //no material is assumed opaque
-      if (part == DRAW_TRANSPARENT)
-        continue;
-    }
-    if (activate){
-      activate = false;
-      vb_->activate();
-      mIB->activate();
-    }
-    vb_->draw(VB_Triangles, mIB, msh.offset, msh.count);
-  }
-  //vb_->draw(CGE::VB_Triangles, mIB);
-}
-
 bool Mesh::buildBuffers(Gfx::RenderDevice& device){
   std::vector<float> vdata;
   std::vector<int> idata;
@@ -636,17 +513,13 @@ bool Mesh::createDeviceResources(Gfx::RenderDevice& device, const std::vector<fl
 }
 
 void Mesh::draw(Gfx::DrawContext& ctx, DrawPart part){
-  //a mesh built with buildVBO gets its device buffers when it's first drawn on the device
-  if (!mDeviceTried && !mDrawList.empty()){
-    std::vector<float> vdata;
-    std::vector<int> idata;
-    buildDrawData(vdata, idata);
-    createDeviceResources(ctx.getDevice(), vdata, idata);
-  }
+  //a mesh that isn't built gets its buffers when it's first drawn
+  if (!mDeviceTried && !mSubmeshes.empty())
+    buildBuffers(ctx.getDevice());
   if (!mVertices || !mIndices)
     return;
   const Gfx::VertexLayout& layout = meshLayout(numTexCoords_ > 0);
-  //submeshes without a material keep the texture the caller set, as with the old renderers
+  //submeshes without a material keep the texture the caller set
   Gfx::Texture* texture = ctx.getTexture();
   Gfx::Sampler* sampler = ctx.getSampler();
   for (const SubMesh& msh : mDrawList){
@@ -729,8 +602,6 @@ void Mesh::clear(){
     edges_[i] = nullptr;
   }
   edges_.clear();
-  SAFE_DELETE(vb_);
-  SAFE_DELETE(mIB);
   mVertices.reset();
   mIndices.reset();
   mMaterialTextures.clear();
@@ -744,10 +615,6 @@ void Mesh::clear(){
     delete mMaterials[i];
   }
   mMaterials.clear();
-  for (unsigned i = 0; i < mTextures.size(); ++i){
-    delete mTextures[i];
-  }
-  mTextures.clear();
   mSubmeshes.clear();
   mDrawList.clear();
 }

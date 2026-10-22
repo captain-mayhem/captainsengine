@@ -11,9 +11,6 @@
 
 namespace CGE{
 
-class IndexBuffer;
-class VertexBuffer;
-
 namespace Gfx{
 class Buffer;
 class DrawContext;
@@ -24,9 +21,7 @@ class RenderDevice;
 /*! They're drawn through a Gfx::DrawContext on a render device. The 2D
     shapes (quads, lines) use the built-in Textured shader if the context
     has a texture, the Color shader otherwise, so the context's colour tints
-    them. The 3D shapes use the Lit shader.
-    The functions without a context draw with the old renderers; they go
-    with them (Phase 1b step 7). */
+    them. The 3D shapes use the Lit shader. */
 class CGE_API Forms{
 public:
   //! a vertex buffer, an index buffer and the parts to draw
@@ -45,16 +40,12 @@ public:
     std::vector<Part> parts;
   };
 
-  //! the shapes for the old renderer and, if it has one, the engine's render device
-  Forms();
-  //! the shapes for a render device only
+  //! the shapes on a render device
   explicit Forms(Gfx::RenderDevice& device);
   ~Forms();
 
   //! the layout of the shapes' vertices: position, normal, colour (white) and texture coordinates
   static const Gfx::VertexLayout& getVertexLayout();
-
-  // --- through a render device ---
 
   //! the unit quad, from -0.5 to 0.5 on each edge, in the context's model matrix
   /*! v = 0 is the top edge in a projection whose y points up, so textures
@@ -74,31 +65,9 @@ public:
   static void drawShape(Gfx::DrawContext& ctx, const Shape& shape);
 
   void setLineWidth(float width) { mLineWidth = width; }
-
-  // --- through the old renderers (deleted with them) ---
-
-  void activateQuad();
-  //! draw a unit quad
-  /*! A unit quad reaches from -0.5 to 0.5 on each edge
-  */
-  void drawQuad();
-  //! draw a quad at position position with the spanning of size
-  void drawQuad(const CGE::Vector2D& position, const CGE::Vector2D& size, float rotation=0) const;
-
-  void activateCylinder();
-  void drawCylinder();
-  static VertexBuffer* createCylinder(float radius, float height, int cylinder_segments, IndexBuffer** indices);
-  static VertexBuffer* createBox(float width, float height, float depth, IndexBuffer** indices);
-  void activateLines();
-  void drawLine(Vec2f const& from, Vec2f const& to);
 private:
-  void constructVBOs();
   //! the device's quad and cylinder
   void createShapes(Gfx::RenderDevice& device);
-  VertexBuffer* quad_;
-  VertexBuffer* cylinder_;
-  IndexBuffer* mCylinderInds[3];
-  VertexBuffer* lines_;
   float mLineWidth;
   std::unique_ptr<Shape> mQuad;
   std::unique_ptr<Shape> mCylinder;

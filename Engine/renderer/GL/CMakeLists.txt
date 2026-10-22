@@ -20,8 +20,8 @@ set(CGE_GL_HDRS
 if (OS STREQUAL "android")
 	target_sources(Engine PRIVATE ${CGE_GL_SRCS} ${CGE_GL_HDRS})
 	target_compile_definitions(Engine PRIVATE CGE_GL_BUILTIN)
-	# the backend uses OpenGL ES 3.0
-	target_link_libraries(Engine PRIVATE GLESv3)
+	# the backend uses OpenGL ES 3.0 on an EGL context
+	target_link_libraries(Engine PRIVATE GLESv3 EGL)
 	SOURCE_GROUP("renderer/GL" FILES ${CGE_GL_SRCS} ${CGE_GL_HDRS})
 else()
 	add_library(EngineGL MODULE ${CGE_GL_SRCS} ${CGE_GL_HDRS} renderer/GL/GLPlugin.cpp)
@@ -37,7 +37,7 @@ else()
 		# EGL on X11; the GL functions come from eglGetProcAddress
 		find_package(OpenGL REQUIRED COMPONENTS EGL)
 		target_link_libraries(EngineGL PRIVATE OpenGL::EGL X11)
-		# glad stays private to the plugin, like the engine's copy
+		# glad stays private to the plugin
 		target_link_options(EngineGL PRIVATE -Wl,--exclude-libs,ALL)
 	else()
 		# WGL

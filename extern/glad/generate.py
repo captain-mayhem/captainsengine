@@ -18,12 +18,11 @@ import tempfile
 import venv
 
 GLAD_VERSION = "2.0.8"
-API = "gl:compatibility=3.3"
+API = "gl:core=3.3"
 EXTENSIONS = [
     "GL_ARB_texture_filter_anisotropic",
     "GL_EXT_texture_filter_anisotropic",
     "GL_KHR_debug",
-    "GL_NV_copy_image",
 ]
 
 HERE = os.path.dirname(os.path.abspath(__file__))

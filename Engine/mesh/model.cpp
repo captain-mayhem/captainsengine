@@ -3,7 +3,6 @@
 #include "../math/matrix.h"
 #include "../math/bsphere.h"
 #include "../system/engine.h"
-#include "../renderer/renderer.h"
 #include "../mesh/mesh.h"
 #include "../math/matrixstack.h"
 #include "../renderer/drawcontext.h"
@@ -17,7 +16,6 @@ Model::Model() : SceneNode(MESH){
   mesh_ = NULL;
   boundingObj_ = NULL;
   for (int i = 0; i < MAX_TEXTURES; i++){
-    textures_[i] = NULL;
     deviceTextures_[i] = nullptr;
   }
   for (int i = 0; i < MAX_ATTRIBS; i++){
@@ -33,7 +31,6 @@ Model::Model(Mesh* mesh) : SceneNode(MESH){
   float radius = (box.getMax()-box.getMin()).length()/2.0f;
   boundingObj_ = new BSphere(center, radius);
   for (int i = 0; i < MAX_TEXTURES; i++){
-    textures_[i] = NULL;
     deviceTextures_[i] = nullptr;
   }
   for (int i = 0; i < MAX_ATTRIBS; i++){
@@ -47,7 +44,6 @@ Model::Model(const Model& m) : SceneNode(m){
   mesh_ = m.mesh_;
   boundingObj_ = new BSphere(*dynamic_cast<BSphere*>(m.boundingObj_));
   for (int i = 0; i < MAX_TEXTURES; i++){
-    textures_[i] = m.textures_[i];
     deviceTextures_[i] = m.deviceTextures_[i];
   }
   for (int i = 0; i < MAX_ATTRIBS; i++){
@@ -57,16 +53,6 @@ Model::Model(const Model& m) : SceneNode(m){
 
 Model::~Model(){
   SAFE_DELETE(boundingObj_);
-}
-
-// Render the model
-void Model::render(Mesh::DrawPart part){
-  assert(mesh_ && "A mesh needs to be assigned to the model");
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->pushMatrix();
-  rend->multiplyMatrix(trafo_);
-  mesh_->draw(part);
-  rend->popMatrix();
 }
 
 void Model::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
@@ -84,26 +70,3 @@ void Model::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
     mesh_->draw(ctx, part);
   ctx.model().pop();
 }
-
-//! Setup material
-void Model::setupMaterial(){
-  /*
-  for (int i = 0; i < MAX_TEXTURES; i++){
-    if (textures_[i])
-      textures_[i]->activate();
-  }*/
-  if (textures_[0])
-    textures_[0]->activate();
-}
-  
-//! Reset material
-void Model::resetMaterial(){
-  if (textures_[0])
-    textures_[0]->deactivate();
-}
-
-//! Assign a texture
-void Model::assignTexture(CGE::Texture* tex, int stage){
-  textures_[stage] = tex;
-}
-

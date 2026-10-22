@@ -1,7 +1,4 @@
 #include "engine.h"
-#include "../renderer/GL2/GL2Renderer.h"
-#include "../renderer/OpenGL/OGLrenderer.h"
-#include "../renderer/dummyrenderer.h"
 #include "../input/mouse.h"
 #include "../input/keyboard.h"
 #include "../window/nativeWindows.h"
@@ -11,6 +8,7 @@
 #include "../renderer/drawcontext.h"
 #include "../renderer/font.h"
 #include "../renderer/forms.h"
+#include "../math/matrixstack.h"
 #include "../io/Tracing.h"
 #include "../io/TraceManager.h"
 #include "../platform/settings.h"
@@ -97,9 +95,10 @@ void Engine::startup(int argc, char** argv){
   Script::instance()->initEnv();
   PlatformInternal::applyEngineSettings(Script::instance()->getStringSetting("assetDir", false),
     Script::instance()->getStringSetting("appName", false));
+  //the render backend
   string type = Script::instance()->getStringSetting("renderer");
   if (type.empty())
-    type = "GL2";
+    type = "OpenGL";
   maxFramerate_ = Script::instance()->getNumberSetting("maxFramerate");
   int updateRate = Script::instance()->getNumberSetting("updateRate");
   if (updateRate <= 0)
@@ -122,18 +121,11 @@ void Engine::startup(int argc, char** argv){
 #ifndef NDEBUG
   deviceDesc.debug = true;
 #endif
-  //the old renderers use fixed-function GL
-  deviceDesc.compatibilityProfile = true;
 
   if (graphics_){
-    //the old renderers draw on the OpenGL device's context until they are replaced
-    device_ = Gfx::RenderDevice::create("OpenGL");
+    device_ = Gfx::RenderDevice::create(type);
     if (!device_){
-      EXIT2("The OpenGL render backend is not available");
-      return;
-    }
-    if (!startupRenderer(type)){
-      EXIT2("No valid renderer specified in engine.ini");
+      EXIT2("The render backend %s is not available", type.c_str());
       return;
     }
 
@@ -150,7 +142,6 @@ void Engine::startup(int argc, char** argv){
   else{
     device_ = Gfx::RenderDevice::create("Null");
     device_->init(Gfx::NativeWindow(), deviceDesc);
-    rend_ = std::make_unique<CGE::DummyRenderer>();
   }
   if (graphics_){
 #ifdef WIN32
@@ -166,8 +157,8 @@ void Engine::startup(int argc, char** argv){
       win_->kill();
       return;
     }
-    rend_->initContext(win_.get());
-    rend_->resizeScene(device_->getWidth(), device_->getHeight());
+    win_->setWidth(device_->getWidth());
+    win_->setHeight(device_->getHeight());
   }
   draw_ = std::make_unique<Gfx::DrawContext>(*device_);
   Input::Keyboard::init();
@@ -175,18 +166,13 @@ void Engine::startup(int argc, char** argv){
   
   if (graphics_){
     for (auto& fnt : fnt_){
-      fnt = std::make_unique<CGE::Font>();
+      fnt = std::make_unique<CGE::Font>(*device_);
     }
-    //the other fonts share the first one's vertex buffer
-    fnt_[0]->buildFont(nullptr);
-    fnt_[1]->buildFont(fnt_[0]->getVB());
-    fnt_[2]->buildFont(fnt_[0]->getVB());
-    forms_ = std::make_unique<CGE::Forms>();
+    forms_ = std::make_unique<CGE::Forms>(*device_);
     startupImGui();
   }
   console_ = std::make_unique<CGE::Console>();
   isUp_ = true;
-  rend_->initRendering();
   app_ = internalApplication;
   if (app_)
     app_->init(argc, argv);
@@ -218,27 +204,6 @@ void Engine::shutdownImGui(){
   imgui_ = false;
 }
 
-bool Engine::startupRenderer(const std::string& type){
-  TR_USE(CGE_Engine);
-  if (type == "OpenGL"){
-#ifdef OPENGL
-    rend_ = std::make_unique<CGE::OGLRenderer>();
-#else
-    TR_ERROR("OpenGL support is not compiled in");
-#endif
-  }
-  else if (type == "GL2"){
-#ifdef OPENGL2
-    rend_ = std::make_unique<CGE::GL2Renderer>();
-#else
-    TR_ERROR("OpenGL (ES) 2 support is not compiled in");
-#endif
-  }
-  else
-    TR_ERROR("Unknown renderer %s", type.c_str());
-  return rend_ != nullptr;
-}
-
 void Engine::shutdown(){
   TR_USE(CGE_Engine);
   if (isUp_){
@@ -246,7 +211,6 @@ void Engine::shutdown(){
       app_->shutdown();
     app_ = nullptr;
     Settings::saveUser();
-    rend_->deinitRendering();
     TR_INFO("engine shutting down");
     isUp_ = false;
     Input::Keyboard::release();
@@ -254,24 +218,15 @@ void Engine::shutdown(){
     console_.reset();
     //its textures are on the device
     shutdownImGui();
-    //the first font owns the vertex buffer the others share
-    if (fnt_[0])
-      fnt_[0]->killFont();
-    for (int i = 1; i < 3; i++){
-      if (fnt_[i])
-        fnt_[i]->resetVB();
-    }
     for (auto& fnt : fnt_)
       fnt.reset();
     forms_.reset();
     draw_.reset();
-    //the GL objects go before the context, the context before the window
-    rend_->killContext();
+    //the resources go before the context, the context before the window
     device_->shutdown();
     if (win_)
       win_->kill();
     win_.reset();
-    rend_.reset();
     device_.reset();
 #ifdef WIN32
     if (graphics_)
@@ -352,25 +307,10 @@ void Engine::renderFrame(){
     ImGui_ImplCGE_Platform_NewFrame();
     ImGui::NewFrame();
   }
-  //render scene
-  rend_->renderScene();
   if (app_)
     app_->render();
 
-  rend_->resetModelView();
-  getVirtualScreen().ortho(rend_.get());
-  rend_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
-  rend_->enableBlend(true);
-  rend_->enableDepthTest(false);
-  rend_->enableTexturing(true);
-
-  //the texts of the fonts
-  fnt_[0]->render();
-  fnt_[1]->render();
-  fnt_[2]->render();
-
-  rend_->enableBlend(false);
-  rend_->enableDepthTest(true);
+  renderFonts();
 
   //ImGui on top of everything, the console last
   if (imgui_){
@@ -380,6 +320,30 @@ void Engine::renderFrame(){
 
   device_->endFrame();
   rendering_ = false;
+}
+
+void Engine::renderFonts(){
+  bool texts = false;
+  for (auto& fnt : fnt_)
+    texts = texts || !fnt->isEmpty();
+  if (!texts)
+    return;
+  Gfx::PassDesc pass;
+  pass.colorLoad = Gfx::LoadAction::Load;
+  pass.depthLoad = Gfx::LoadAction::Load;
+  if (!device_->beginPass(pass))
+    return;
+  //in the virtual screen with y up, added onto the frame
+  draw_->setProjection(getVirtualScreen().ortho(*device_));
+  draw_->setView(Matrix(Matrix::Identity));
+  draw_->model().load(Matrix(Matrix::Identity));
+  draw_->setBlend(Gfx::BlendMode::Additive);
+  draw_->setDepth(false, false);
+  draw_->setCull(Gfx::CullMode::Off);
+  for (auto& fnt : fnt_)
+    fnt->render(*draw_, frameInterval_);
+  draw_->setBlend(Gfx::BlendMode::Opaque);
+  device_->endPass();
 }
 
 void Engine::renderImGui(){
@@ -414,10 +378,13 @@ void Engine::limitFrame(){
 }
 
 void Engine::resize(int width, int height){
-  if (!rend_)
+  if (!device_ || !win_)
     return;
+  if (height == 0)
+    height = 1;
   device_->resize(width, height);
-  rend_->resizeScene(width, height);
+  win_->setWidth(width);
+  win_->setHeight(height);
   if (app_ && win_)
     app_->onResize(win_->getWidth(), win_->getHeight());
 }

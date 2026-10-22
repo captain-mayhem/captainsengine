@@ -107,5 +107,5 @@ void Graphic::addTexture(const std::string& filename){
 }
 
 void Graphic::loadScene(const std::string& filename){
-  scene_.load(filename, Engine::instance()->getRenderDevice());
+  scene_.load(filename, *Engine::instance()->getRenderDevice());
 }

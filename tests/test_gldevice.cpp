@@ -17,9 +17,8 @@ using TestEnv::TestWindow;
 
 // The shader library and the OpenGL backend's resources and draws. The GL
 // tests draw into render targets on a hidden window and read the pixels
-// back, once with the core profile and once with the compatibility profile
-// that the old renderers share. They skip themselves where no window can be
-// created or the driver has no OpenGL 3.3.
+// back. They skip themselves where no window can be created or the driver
+// has no OpenGL 3.3 core profile.
 
 TEST(ShaderLibrary, ResolvesIncludes){
   std::string source;
@@ -116,23 +115,19 @@ struct Pixel{
     << ") instead of (" << r << ", " << g << ", " << b << ", " << a << ")";
 }
 
-//! the parameter: the compatibility profile
-class GLBackend : public ::testing::TestWithParam<bool>{
+class GLBackend : public ::testing::Test{
 protected:
   void SetUp() override{
     device_ = RenderDevice::create("OpenGL");
     ASSERT_NE(device_, nullptr);
     DeviceDesc desc;
     desc.debug = true;
-    desc.compatibilityProfile = GetParam();
     if (!window_.create(*device_, desc))
       GTEST_SKIP() << "no window";
     if (!device_->init(window_.native(), desc))
       GTEST_SKIP() << "no OpenGL 3.3 core-profile driver";
-    //the compatibility profile falls back to any context
     sampler_ = device_->createSampler(SamplerDesc());
-    if (!sampler_)
-      GTEST_SKIP() << "no OpenGL 3.3 driver";
+    ASSERT_NE(sampler_, nullptr);
     FrameUniforms frame;
     frameBuffer_ = device_->createBuffer({BufferType::Uniform, Usage::Dynamic, sizeof(frame)}, &frame);
     ASSERT_NE(frameBuffer_, nullptr);
@@ -203,7 +198,7 @@ protected:
 
 }
 
-TEST_P(GLBackend, ClearsRenderTargets){
+TEST_F(GLBackend, ClearsRenderTargets){
   auto rt = target(4, 4);
   ASSERT_NE(rt, nullptr);
   begin(rt.get(), 1, 0, 0);
@@ -212,7 +207,7 @@ TEST_P(GLBackend, ClearsRenderTargets){
     EXPECT_TRUE(isNear(p, 255, 0, 0));
 }
 
-TEST_P(GLBackend, DrawsWithTheColorShader){
+TEST_F(GLBackend, DrawsWithTheColorShader){
   auto rt = target(8, 4);
   auto shader = ShaderLibrary::createBuiltin(*device_, BuiltinShader::Color);
   ASSERT_NE(shader, nullptr);
@@ -235,7 +230,7 @@ TEST_P(GLBackend, DrawsWithTheColorShader){
   }
 }
 
-TEST_P(GLBackend, BindsUniformBufferRanges){
+TEST_F(GLBackend, BindsUniformBufferRanges){
   auto rt = target(8, 2);
   auto shader = ShaderLibrary::createBuiltin(*device_, BuiltinShader::Color);
   auto pipe = pipeline(shader.get());
@@ -267,7 +262,7 @@ TEST_P(GLBackend, BindsUniformBufferRanges){
   EXPECT_TRUE(isNear(pixels[6], 0, 0, 255));
 }
 
-TEST_P(GLBackend, SamplesTextures){
+TEST_F(GLBackend, SamplesTextures){
   auto rt = target(4, 4);
   auto shader = ShaderLibrary::createBuiltin(*device_, BuiltinShader::Textured);
   ASSERT_NE(shader, nullptr);
@@ -298,7 +293,7 @@ TEST_P(GLBackend, SamplesTextures){
   EXPECT_TRUE(isNear(pixels[15], 255, 255, 255));
 }
 
-TEST_P(GLBackend, UpdatesTexturesAndGeneratesMipmaps){
+TEST_F(GLBackend, UpdatesTexturesAndGeneratesMipmaps){
   auto shader = ShaderLibrary::createBuiltin(*device_, BuiltinShader::Textured);
   auto pipe = pipeline(shader.get());
   ASSERT_NE(pipe, nullptr);
@@ -334,7 +329,7 @@ TEST_P(GLBackend, UpdatesTexturesAndGeneratesMipmaps){
   EXPECT_TRUE(isNear(read(rt.get())[0], 128, 128, 128, 255, 3));
 }
 
-TEST_P(GLBackend, Blends){
+TEST_F(GLBackend, Blends){
   auto rt = target(2, 2);
   auto shader = ShaderLibrary::createBuiltin(*device_, BuiltinShader::Color);
   PipelineDesc desc;
@@ -358,7 +353,7 @@ TEST_P(GLBackend, Blends){
   EXPECT_TRUE(isNear(read(rt.get())[0], 128, 0, 128, 128));
 }
 
-TEST_P(GLBackend, TestsDepth){
+TEST_F(GLBackend, TestsDepth){
   auto rt = target(2, 2, Format::Depth24);
   ASSERT_NE(rt, nullptr);
   auto shader = ShaderLibrary::createBuiltin(*device_, BuiltinShader::Color);
@@ -387,7 +382,7 @@ TEST_P(GLBackend, TestsDepth){
   EXPECT_TRUE(isNear(read(rt.get())[0], 255, 0, 0));
 }
 
-TEST_P(GLBackend, DrawsIndexedInstances){
+TEST_F(GLBackend, DrawsIndexedInstances){
   //the source has no #version line: the backend adds it
   ShaderDesc shaderDesc;
   shaderDesc.name = "instances";
@@ -442,7 +437,7 @@ TEST_P(GLBackend, DrawsIndexedInstances){
   EXPECT_TRUE(isNear(pixels[3], 0, 255, 255));
 }
 
-TEST_P(GLBackend, DrawsIntoSeveralAttachments){
+TEST_F(GLBackend, DrawsIntoSeveralAttachments){
   ShaderDesc shaderDesc;
   shaderDesc.name = "two outputs";
   shaderDesc.vertexSource =
@@ -478,7 +473,7 @@ TEST_P(GLBackend, DrawsIntoSeveralAttachments){
   EXPECT_TRUE(isNear(read(rt.get(), 1)[0], 0, 255, 0));
 }
 
-TEST_P(GLBackend, UpdatesBuffers){
+TEST_F(GLBackend, UpdatesBuffers){
   auto rt = target(2, 2);
   auto shader = ShaderLibrary::createBuiltin(*device_, BuiltinShader::Color);
   auto pipe = pipeline(shader.get());
@@ -506,7 +501,7 @@ TEST_P(GLBackend, UpdatesBuffers){
   EXPECT_TRUE(isNear(read(rt.get())[0], 0, 255, 0));
 }
 
-TEST_P(GLBackend, ReusedGLNamesDontFoolTheStateCache){
+TEST_F(GLBackend, ReusedGLNamesDontFoolTheStateCache){
   auto rt = target(8, 2);
   auto shader = ShaderLibrary::createBuiltin(*device_, BuiltinShader::Color);
   auto pipe = pipeline(shader.get());
@@ -528,7 +523,7 @@ TEST_P(GLBackend, ReusedGLNamesDontFoolTheStateCache){
   EXPECT_TRUE(isNear(pixels[6], 255, 255, 255));
 }
 
-TEST_P(GLBackend, CreatesTextureKinds){
+TEST_F(GLBackend, CreatesTextureKinds){
   TextureDesc desc;
   desc.width = 8;
   desc.height = 8;
@@ -558,7 +553,7 @@ TEST_P(GLBackend, CreatesTextureKinds){
   EXPECT_EQ(device_->createTexture(desc, nullptr), nullptr);
 }
 
-TEST_P(GLBackend, RejectsBrokenShaders){
+TEST_F(GLBackend, RejectsBrokenShaders){
   ShaderDesc desc;
   desc.name = "broken";
   desc.vertexSource = "void main(){\n  gl_Position = undefined;\n}\n";
@@ -581,7 +576,7 @@ public:
 
 }
 
-TEST_P(GLBackend, TracesDriverErrors){
+TEST_F(GLBackend, TracesDriverErrors){
   //desc.debug is set, so KHR_debug reports GL errors into the tracing
   ErrorCollector collector;
   CGE::TraceManager::instance()->setTraceOutputter(&collector);
@@ -599,7 +594,5 @@ TEST_P(GLBackend, TracesDriverErrors){
   EXPECT_TRUE(found) << "no GL error traced";
 }
 
-INSTANTIATE_TEST_SUITE_P(Profiles, GLBackend, ::testing::Values(false, true),
-  [](const ::testing::TestParamInfo<bool>& info){return info.param ? "Compatibility" : "Core";});
 
 #endif

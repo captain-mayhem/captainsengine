@@ -57,13 +57,8 @@ public:
       return false;
     }
     rc_ = createContext(desc, pixelFormat, pfd);
-    if (!rc_ && desc.compatibilityProfile){
-      //the old renderers also work on the driver's default context
-      TR_WARN("No OpenGL 3.3 compatibility context, using the driver's default context");
-      rc_ = wglCreateContext(dc_);
-    }
     if (!rc_){
-      TR_ERROR("Can't create an OpenGL 3.3 %s context", desc.compatibilityProfile ? "compatibility" : "core-profile");
+      TR_ERROR("Can't create an OpenGL 3.3 core-profile context");
       return false;
     }
     if (!wglMakeCurrent(dc_, rc_)){
@@ -143,7 +138,7 @@ private:
         const int attribs[] = {
           WGL_CONTEXT_MAJOR_VERSION_ARB, 3,
           WGL_CONTEXT_MINOR_VERSION_ARB, 3,
-          WGL_CONTEXT_PROFILE_MASK_ARB, desc.compatibilityProfile ? WGL_CONTEXT_COMPATIBILITY_PROFILE_BIT_ARB : WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+          WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
           WGL_CONTEXT_FLAGS_ARB, desc.debug ? WGL_CONTEXT_DEBUG_BIT_ARB : 0,
           0
         };
