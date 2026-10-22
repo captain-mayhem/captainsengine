@@ -258,6 +258,10 @@ Gfx::Texture* DrawContext::getTexture() const{
   return impl_->texture;
 }
 
+Gfx::Sampler* DrawContext::getSampler() const{
+  return impl_->sampler;
+}
+
 void DrawContext::setBlend(BlendMode mode){
   impl_->blend = mode;
 }

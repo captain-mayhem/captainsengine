@@ -13,6 +13,7 @@
 #define WORLD_HH
 
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include "math/vector.h"
@@ -31,10 +32,11 @@ using std::string;
 #define QUAD_SIZE 8;
 
 namespace CGE{
-  class Texture;
+namespace Gfx{
+class Buffer;
+}
 }
 
-//using CGE::Texture;
 
 
 //! The world in the game
@@ -64,6 +66,9 @@ public:
   //! deallocates all the memory that was taken for the map
   void deInit();
   
+  //! deletes what the world has on the render device; before the device goes
+  void releaseResources();
+
 	//! renders the map
   void render();
   
@@ -339,6 +344,11 @@ private:
 
   //! the scene
   CGE::Scene scene_;
+
+  //! the ceiling over the whole map, one texture repeat per field
+  std::unique_ptr<CGE::Gfx::Buffer> ceiling_;
+  //! the map size the ceiling was made for
+  Vector2D ceilingSize_;
 };
 
 extern class World wrld;

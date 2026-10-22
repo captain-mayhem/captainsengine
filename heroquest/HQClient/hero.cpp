@@ -19,6 +19,7 @@
 #include "renderer.h"
 #include "camera.h"
 #include "textureManager.h"
+#include "renderer/drawcontext.h"
 #include "message.h"
 #include "mesh/mesh.h"
 #endif
@@ -296,18 +297,20 @@ bool Hero::load(const string& filename){
 
 void Hero::render() const {
 #ifdef _CLIENT_
-  TextureManager::instance()->heroTex[id_]->activate();
-  //glBindTexture(GL_TEXTURE_2D, tex.heroTex[id_]);
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
+  ctx.setTexture(TextureManager::instance()->heroTex[id_].get());
   Creature::render();
+  ctx.setTexture(nullptr);
 #endif
 }
 
 
 void Hero::render2D() const {
 #ifdef _CLIENT_
-  TextureManager::instance()->heroTex[id_]->activate();
-  //glBindTexture(GL_TEXTURE_2D, tex.heroTex[id_]);
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
+  ctx.setTexture(TextureManager::instance()->heroTex[id_].get());
   Creature::render2D();
+  ctx.setTexture(nullptr);
 #endif
 }
 
@@ -333,7 +336,7 @@ void Hero::createModel(){
 #ifdef _CLIENT_
   CGE::Mesh* mesh = new CGE::Mesh();
   mesh->loadFromFile("models/heros/"+toLower(type_)+".obj");
-  mesh->buildVBO();
+  mesh->buildBuffers(*CGE::Engine::instance()->getRenderDevice());
   model_ = new CGE::Model(mesh);
   //model_->assignTexture
 #endif

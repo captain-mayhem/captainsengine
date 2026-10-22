@@ -13,7 +13,6 @@
 
 #include <mesh/mesh.h>
 #include <renderer/font.h>
-#include <renderer/renderer.h>
 #include "math.h"
 #include "renderer.h"
 //#include "font.hh"
@@ -268,11 +267,11 @@ void Camera::update(){
 
 
 // set lookat of the camera
-void Camera::look(){
-  CGE::Engine::instance()->getRenderer()->lookAt(position_, view_, upVector_);
-  //gluLookAt(position_.x, position_.y, position_.z,
-	//    view_.x, view_.y, view_.z,
-	//    upVector_.x, upVector_.y, upVector_.z);
+CGE::Matrix Camera::getViewMatrix() const{
+  CGE::Vec3f forward = (view_ - position_).normalized();
+  CGE::Vec3f side = forward.cross(upVector_).normalized();
+  CGE::Vec3f up = side.cross(forward);
+  return CGE::Matrix(side, up, forward*-1, CGE::Vec3f())*CGE::Matrix(CGE::Matrix::Translation, position_*-1);
 }
 
 // update movement on the map

@@ -7,7 +7,6 @@
 #include <iostream>
 //#include "array.hh"
 #ifdef _CLIENT_
-#include "renderer/renderer.h"
 //#include "renderer/vertexbuffer.h"
 #include "renderer/font.h"
 #endif

@@ -1,14 +1,10 @@
-#ifdef WIN32
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#endif
-// the fog is still fixed-function GL (until HQClient is ported to the new renderer)
-#include <GL/gl.h>
-#include <renderer/GL2/GL2Shader.h>
-
-#include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "renderer/forms.h"
+#include "renderer/drawcontext.h"
+#include "renderer/renderdevice.h"
+#include "renderer/shaderlibrary.h"
+#include "math/matrixstack.h"
+#include "io/Tracing.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
 #include "window/window.h"
@@ -25,6 +21,7 @@
 #include "message.h"
 #include "trade.h"
 #include "renderer.h"
+#include "registerHeroquestShaders.h"
 
 #define line *CGE::Engine::instance()->getFont(0)
 
@@ -32,10 +29,11 @@ using Gui::InputField;
 using Gui::Button;
 using Input::Mouse;
 
+TR_CHANNEL(HQ_Renderer);
+
 HQRenderer* HQRenderer::rend_ = nullptr;
 
-HQRenderer::HQRenderer(CGE::Renderer* rend){
-  render_ = rend;
+HQRenderer::HQRenderer(){
   ask_ = false;
 
   //camera
@@ -55,16 +53,24 @@ HQRenderer::HQRenderer(CGE::Renderer* rend){
 
   inventory_ = nullptr;
   trade_ = false;
-  m3DShader = nullptr;
 }
 
 HQRenderer::~HQRenderer(){
-  delete m3DShader;
+}
+
+void HQRenderer::releaseResources(){
+  if (!rend_)
+    return;
+  //the draw context's pipelines refer to the shader
+  if (rend_->fogShader_)
+    CGE::Engine::instance()->getDrawContext()->forgetShader(rend_->fogShader_.get());
+  rend_->fogShader_.reset();
+  TextureManager::release();
+  wrld.releaseResources();
 }
 
 void HQRenderer::resize_(int width, int height){
   aspect_ = (float)width/height;
-  render_->projection(fieldOV_, aspect_, 0.1f, 100.0f);
 }
 
 //special input
@@ -353,110 +359,25 @@ void HQRenderer::mouseMove_(int x, int y, int buttons){
   }
 }
 
-static char const * vs_src =
-"attribute vec3 pos;\n"
-"attribute vec4 color;\n"
-"attribute vec2 texcoord;\n"
-"attribute vec3 normal;\n"
-"\n"
-"uniform mat4 mvmat;\n"
-"uniform mat4 projmat;\n"
-"uniform mat4 texmat;\n"
-"\n"
-"varying vec2 uvcoord;\n"
-"varying vec4 vcolor;\n"
-"varying vec4 eyepos;\n"
-"\n"
-"void main(){\n"
-"  uvcoord = (texmat*vec4(texcoord,1,1)).xy;\n"
-"  vcolor = color;\n"
-"  vec4 ep = mvmat*vec4(pos, 1.0);\n"
-"  eyepos = ep;\n"
-"  gl_Position = projmat*ep;\n"
-"}\n"
-"";
-
-static char const * fs_src =
-"uniform sampler2D texture;\n"
-"uniform bool textureEnabled;\n"
-"uniform float density;\n"
-"uniform vec4 fogColor;\n"
-"\n"
-"varying vec2 uvcoord;\n"
-"varying vec4 vcolor;\n"
-"varying vec4 eyepos;\n"
-"\n"
-"float getFogFactor(float fogCoord){\n"
-"  float result = 0.0;\n"
-"  result = exp(-pow(density*fogCoord, 2.0));\n" //EXP2
-//"  result = exp(-density*fogCoord);\n" //EXP
-//"  result = (end - fogCoord) / (end - start);\n" //LINEAR
-"  result = 1.0-clamp(result, 0.0, 1.0);\n"
-"  return result;\n"
-"}\n"
-"\n"
-"void main(){\n"
-"  vec4 color = vec4(1.0);\n"
-"  if (textureEnabled)\n"
-"     color = texture2D(texture, uvcoord);\n"
-"  color = color*vcolor;\n"
-"  float fogFactor = abs(eyepos.z/eyepos.w);\n"
-"  fogFactor = getFogFactor(fogFactor);\n"
-"  color = mix(color, fogColor, fogFactor);\n"
-"  gl_FragColor = color;\n"
-"}\n"
-"";
-
 void HQRenderer::initialize_(){
-  //init shader
-  if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL2){
-    m3DShader = new CGE::GL2Shader();
-    m3DShader->addShader(CGE::Shader::VERTEX_SHADER, vs_src);
-    m3DShader->addShader(CGE::Shader::FRAGMENT_SHADER, fs_src);
-    m3DShader->bindAttribLocation(0, "pos");
-    m3DShader->bindAttribLocation(1, "color");
-    m3DShader->bindAttribLocation(2, "texcoord");
-    m3DShader->bindAttribLocation(3, "normal");
-    m3DShader->linkShaders();
-    m3DShader->syncMatrix("mvmat", CGE::Modelview);
-    m3DShader->syncMatrix("projmat", CGE::Projection);
-    m3DShader->syncMatrix("texmat", CGE::MatTexture);
-    m3DShader->activate();
-    int tex = m3DShader->getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "texture");
-    m3DShader->uniform(tex, 0);//texture at stage 0
-    int dens = m3DShader->getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "density");
-    m3DShader->uniform(dens, 0.035f);
-    int col = m3DShader->getUniformLocation(CGE::Shader::FRAGMENT_SHADER, "fogColor");
-    m3DShader->uniform(col, 0, 0, 0, 1);
-    m3DShader->deactivate();
-  }
-  else if (CGE::Engine::instance()->getRenderer()->getRenderType() == CGE::OpenGL){
- #ifndef RENDER_EMBEDDED
-    //setup some nice dark fog
-    float fogColor[4] = { 0, 0, 0, 1 };
-    glFogi(GL_FOG_MODE, GL_EXP2);
-    glFogfv(GL_FOG_COLOR, fogColor);
-    glFogf(GL_FOG_DENSITY, 0.035f);
-    glHint(GL_FOG_HINT, GL_DONT_CARE);
-    glFogf(GL_FOG_START, 0.0);
-    glFogf(GL_FOG_END, 100.0);
-    glEnable(GL_FOG);
-#endif
-  }
+  TR_USE(HQ_Renderer);
+  //the lit shader with some nice dark fog for the 3D view
+  registerHeroquestShaders();
+  CGE::Gfx::ShaderDesc desc;
+  desc.name = "heroquest/fog";
+  if (CGE::Gfx::ShaderLibrary::loadDesc("engine/lit.vert", "heroquest/fog.frag", desc))
+    fogShader_ = CGE::Engine::instance()->getRenderDevice()->createShader(desc);
+  if (!fogShader_)
+    TR_WARN("no fog shader, the 3D view is drawn without fog");
+
   //init textures
   TextureManager::init();
-
-  render_->setClearColor(Vector3D());
 
   //init game
   if (!game.init()){
     EXIT();
     return;
   }
-
-  //back face culling
-  //glCullFace(GL_BACK);
-  render_->enableBackFaceCulling(true);
 
   //start game
   if (!game.start())
@@ -471,73 +392,78 @@ void HQRenderer::paint_(){
   if (threeD_)
     handleKeys();
 
-  render_->projection(fieldOV_, aspect_, 0.1f, 100.0f);
-  
-  render_->clear(ZBUFFER | COLORBUFFER);
-  render_->setColor(1.0,1.0,1.0,1.0);
-  render_->resetModelView();
+  CGE::Engine* engine = CGE::Engine::instance();
+  CGE::Gfx::RenderDevice* device = engine->getRenderDevice();
+  CGE::Gfx::DrawContext& ctx = *engine->getDrawContext();
+  CGE::Forms* forms = engine->getForms();
+  const CGE::VirtualScreen& screen = engine->getVirtualScreen();
+
+  //cleared black, the colour of the fog
+  CGE::Gfx::PassDesc pass;
+  pass.clearColor = {0, 0, 0, 1};
+  if (!device->beginPass(pass))
+    return;
+  ctx.setColor(1.0,1.0,1.0,1.0);
 
   if (wrld.isLoaded()){
     //number of moves in the upper right corner
-    CGE::Engine::instance()->getFont(0)->print(1000, 750, std::to_string(game.getMoves()).c_str(), 1);
+    engine->getFont(0)->print(1000, 750, std::to_string(game.getMoves()).c_str(), 1);
     //get the nearest vertices and check them for camera collision
     //Vector3D** worldCollision = wrld.getWorld();
     //cam.checkCameraCollision(worldCollision, wrld.getNumberOfVerts());
     //allow lookat changes by mouse
-    cam.look();
-    render_->enableDepthTest(true);
-    //render world without blending
-    render_->enableBlend(false);
-    //glEnable(GL_TEXTURE_2D);
+    ctx.setProjection(device->perspective(fieldOV_, aspect_, 0.1f, 100.0f));
+    ctx.setView(cam.getViewMatrix());
+    //render world without blending, with back face culling
+    ctx.setDepth(true, true);
+    ctx.setBlend(CGE::Gfx::BlendMode::Opaque);
+    ctx.setCull(CGE::Gfx::CullMode::Back);
     if (threeD_){
-      if (m3DShader)
-        m3DShader->activate();
+      ctx.setLitShader(fogShader_.get());
       wrld.render();
-      if (m3DShader)
-        m3DShader->deactivate();
+      ctx.setLitShader(nullptr);
     }
     else
       wrld.render2D(!plyr.isZargon());
-    render_->enableBlend(true);
+    ctx.setCull(CGE::Gfx::CullMode::Off);
   }
   else{
     setViewTo3D(false);
   }
-  
-  const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
-  render_->resetModelView();
-  screen.ortho(render_);
-  render_->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
-  render_->enableBlend(true);
-  render_->enableTexturing(true);
-  
+
+  //the 2D screens and overlays in virtual coordinates (y up), added to what is there
+  ctx.setProjection(screen.ortho(*device));
+  ctx.setView(CGE::Matrix(CGE::Matrix::Identity));
+  ctx.setDepth(false, false);
+  ctx.setBlend(CGE::Gfx::BlendMode::Additive);
+  ctx.setColor(1.0,1.0,1.0,1.0);
+
   if (!wrld.isLoaded()){
-    TextureManager::instance()->otherTex[0]->activate();
-    CGE::Forms* form = CGE::Engine::instance()->getForms();
-    render_->pushMatrix();
-    render_->translate(screen.getWidth()/2.0f, screen.getHeight()/2.0f, 0);
-    render_->scale((float)screen.getWidth(), (float)screen.getHeight(), 1);
-    form->activateQuad();
-    form->drawQuad();
-    render_->popMatrix();
+    ctx.setTexture(TextureManager::instance()->otherTex[0].get());
+    CGE::MatrixStack& model = ctx.model();
+    model.push();
+    model.translate(screen.getWidth()/2.0f, screen.getHeight()/2.0f, 0);
+    model.scale((float)screen.getWidth(), (float)screen.getHeight(), 1);
+    forms->drawQuad(ctx);
+    model.pop();
+    ctx.setTexture(nullptr);
   }
- 
+
   //render inventory
-  render_->resetModelView();
   if (inventory_){
     inventory_->render();
     inventory_->update();
   }
-  
+
   if (trade_){
     plyr.getTrade()->render();
     plyr.getTrade()->update();
   }
-  
-  CGE::Font *f = CGE::Engine::instance()->getFont(0);
+
+  CGE::Font *f = engine->getFont(0);
   f->setColor(0,1,0);
-  f->print(20, 720, ("Current Frames Per Second: "+std::to_string(CGE::Engine::instance()->getFPS())).c_str(), 0);
-  
+  f->print(20, 720, ("Current Frames Per Second: "+std::to_string(engine->getFPS())).c_str(), 0);
+
   //interpolate hero positions
   for (int i = 0; i < wrld.getHeroSize(); i++){
     if (wrld.getStarts()[i] != Vector2D(-1,-1))
@@ -552,11 +478,12 @@ void HQRenderer::paint_(){
         wrld.getMonsters()[i]->update();
     }
   }
- 
+
   //the buttons, input fields and message boxes
   widgets.render();
 
-  render_->enableBlend(false);  
+  ctx.setBlend(CGE::Gfx::BlendMode::Opaque);
+  device->endPass();
 }
 
 // set the view to 3D

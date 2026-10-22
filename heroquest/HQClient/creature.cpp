@@ -19,6 +19,7 @@
 #include "player.h"
 #include "camera.h"
 #include "renderer/forms.h"
+#include "renderer/drawcontext.h"
 #endif
 #include "common.h"
 #include "opcodes.h"
@@ -120,11 +121,8 @@ void Creature::render() const{
   if (plyr.getName() == player_ && name_ == plyr.getActCreature())
     return;
 
-  if (model_){
-    model_->setupMaterial();
-    model_->render(CGE::Mesh::DRAW_ALL);
-    model_->resetMaterial();
-  }
+  if (model_)
+    model_->render(*CGE::Engine::instance()->getDrawContext(), CGE::Mesh::DRAW_ALL);
 #endif
 }
 
@@ -136,19 +134,21 @@ void Creature::render2D() const{
   float dx = (float)(screen.getWidth()/wrld.getMapSize().x);
   float dy = (float)(screen.getHeight()/height);
 
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
   CGE::Forms* forms = CGE::Engine::instance()->getForms();
-  
+
+  //inactive creatures are dimmed
   if (active_)
-    rend->setColor(1,1,1,1);
-  else
-    rend->setColor(1,1,1,0.3f);
-  rend->enableTexturing(true);
-  
-  forms->drawQuad(Vec2f(position_.x*dx, (height - position_.y)*dy - dy), Vec2f(dx, dy));
-  
-  rend->setColor(1,1,1,1);
-  rend->enableTexturing(false);
+    ctx.setColor(1,1,1,1);
+  else{
+    ctx.setColor(1,1,1,0.3f);
+    ctx.setBlend(CGE::Gfx::BlendMode::Additive);
+  }
+
+  forms->drawQuad(ctx, Vec2f(position_.x*dx, (height - position_.y)*dy - dy), Vec2f(dx, dy));
+
+  ctx.setColor(1,1,1,1);
+  ctx.setBlend(CGE::Gfx::BlendMode::Opaque);
 #endif
 }
 

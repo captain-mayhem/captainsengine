@@ -371,8 +371,11 @@ void Forms::drawLine(Gfx::DrawContext& ctx, const Vec2f& from, const Vec2f& to) 
   MatrixStack& model = ctx.model();
   model.push();
   model.translate((from.x+to.x)/2, (from.y+to.y)/2, 0);
-  model.rotate(atan2f(dir.y, dir.x)/(float)M_PI*180, 0, 0, 1);
-  model.scale(length, mLineWidth, 1);
+  //the quad's x axis along the line, its y axis across it; built from the
+  //direction instead of an angle, so axis-aligned lines get exact corners
+  //(their edges often fall on pixel centres)
+  Vec2f across = Vec2f(-dir.y, dir.x)*(mLineWidth/length);
+  model.multiply(Matrix(Vec3f(dir.x, across.x, 0), Vec3f(dir.y, across.y, 0), Vec3f(0, 0, 1), Vec3f()));
   drawQuad(ctx);
   model.pop();
 }

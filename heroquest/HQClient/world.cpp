@@ -14,8 +14,11 @@
 #include "camera.h"
 #include "renderer/font.h"
 #include "renderer/forms.h"
+#include "renderer/drawcontext.h"
+#include "math/matrixstack.h"
 #include <Engine/system/script.h>
 #endif
+#include "renderer/renderdevice.h"
 
 #ifdef WIN32
 #ifdef _DEBUG
@@ -154,7 +157,7 @@ bool World::load(const string& name){
   unsigned idx = name.find_last_of('.');
   scenename.erase(idx+1);
   scenename += "hsf";
-  scene_.load(scenename);
+  scene_.load(scenename, CGE::Engine::instance()->getRenderDevice());
 #endif
   
   float version;
@@ -366,15 +369,19 @@ bool World::load(const string& name){
 	return true;
 }
 
+void World::releaseResources(){
+  ceiling_.reset();
+  scene_.clear();
+}
+
 //Render world in 3D
 void World::render(){
 #ifdef _CLIENT_
 	if (!isLoaded())
 		return;
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-	rend->setColor(1,1,1,1);
-  rend->enableTexturing(true);
-  
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
+	ctx.setColor(1,1,1,1);
+
 	//reset canSee_ and calculate new pvs
 	for (unsigned i = 0; i < canSee_.size(); i++){
 		canSee_[i]->tempVis.unset(2);
@@ -383,7 +390,7 @@ void World::render(){
 	canSee_.clear();
 	Direction dir = cam.getLookDirection();
 	currently_visible(cam.modelPos(),dir);
-  
+
 	//print a nice debug message
 	ostringstream fields;
 	unsigned size = (unsigned)canSee_.size();
@@ -400,70 +407,22 @@ void World::render(){
   for (unsigned i = 0; i < overlays_.size(); i++){
     overlays_[i]->reset();
   }
-  
-  //scene_.render();
-  
+
 	//Render scene
 	for (unsigned i = 0; i < canSee_.size(); i++){
 		Field& curr = *canSee_[i];
 
+    //ground tiles and walls
     for (unsigned j = 0; j < curr.numModels; ++j){
-      curr.models[j]->setupMaterial();
-      curr.models[j]->render(CGE::Mesh::DRAW_ALL);
-      curr.models[j]->resetMaterial();
+      curr.models[j]->render(ctx, CGE::Mesh::DRAW_ALL);
     }
-    
-		//render ground tiles
-    //TextureManager::instance()->floorTex[curr.getId()]->activate();
-    //glBindTexture(GL_TEXTURE_2D, tex.floorTex[curr.getId()]);
-    /*
-		glBegin(GL_TRIANGLE_STRIP);
-			glTexCoord2f(curr.texCoords[0].x, curr.texCoords[0].y);
-			glVertex3f(curr.vertices[0].x, curr.vertices[0].y, curr.vertices[0].z);
-			glTexCoord2f(curr.texCoords[1].x, curr.texCoords[1].y);
-			glVertex3f(curr.vertices[1].x, curr.vertices[1].y, curr.vertices[1].z);
-			glTexCoord2f(curr.texCoords[2].x, curr.texCoords[2].y);
-			glVertex3f(curr.vertices[2].x, curr.vertices[2].y, curr.vertices[2].z);
-			glTexCoord2f(curr.texCoords[3].x, curr.texCoords[3].y);
-			glVertex3f(curr.vertices[3].x, curr.vertices[3].y, curr.vertices[3].z);
-		glEnd();
-    */
-    //for (unsigned j = 0; j < curr.numModels; j++){
-      //curr.models[j].activate();
-      //glPushMatrix();
-      //CGE::Engine::instance()->getRenderer()->multiplyMatrix(curr.models[j].getTransform());
-      //curr.models[j].draw();
-      //glPopMatrix();
-    //}
-
-		//render walls
-    //TextureManager::instance()->wallTex[0]->activate();
-		//glBindTexture(GL_TEXTURE_2D, tex.wallTex[0]);
-		//short num = curr.doorbits.numSetBits()*3;
-		/*short count = 0;
-		for (unsigned k = 1; k < curr.numVertices/4; k++){
-			if (count >= 3)
-				count = 0;
-			if(k >= curr.numVertices/4-num)
-				count++;
-			glBegin(GL_TRIANGLE_STRIP);
-				glTexCoord2f(curr.texCoords[k*4+0].x, curr.texCoords[k*4+0].y);
-				glVertex3f(curr.vertices[k*4+0].x,curr.vertices[k*4+0].y,curr.vertices[k*4+0].z);
-				glTexCoord2f(curr.texCoords[k*4+1].x, curr.texCoords[k*4+1].y);
-				glVertex3f(curr.vertices[k*4+1].x,curr.vertices[k*4+1].y,curr.vertices[k*4+1].z);
-				glTexCoord2f(curr.texCoords[k*4+2].x, curr.texCoords[k*4+2].y);
-				glVertex3f(curr.vertices[k*4+2].x,curr.vertices[k*4+2].y,curr.vertices[k*4+2].z);
-				glTexCoord2f(curr.texCoords[k*4+3].x, curr.texCoords[k*4+3].y);
-				glVertex3f(curr.vertices[k*4+3].x,curr.vertices[k*4+3].y,curr.vertices[k*4+3].z);
-			glEnd();
-		}*/
 
     //render overlay
     if (curr.getStatus() && curr.overlay){
       curr.overlay->render();
       curr.overlay->update();
     }
-    
+
 		//if there are objects on the field, render them, too
 		if (curr.object){
 			if (curr.object->getStatus()){
@@ -478,7 +437,7 @@ void World::render(){
 			if (curr.tryObject->getStatus())
 				curr.tryObject->render();
 		}
-    
+
 		//render doors
 		if (curr.doorbits.getData() != '\0'){
 			if (curr.doorbits.test(BOTTOM)){
@@ -499,37 +458,44 @@ void World::render(){
 			}
 		}
 	}
-  
-	//render ceiling
-  TextureManager::instance()->wallTex[2]->activate();
-	//glBindTexture(GL_TEXTURE_2D, tex.wallTex[2]);
-  CGE::Forms* forms = CGE::Engine::instance()->getForms();
-  forms->activateQuad();
-  rend->pushMatrix();
-  rend->translate(QUADSIZE*width_ / 2, WALLHEIGHT, QUADSIZE*height_/2);
-  rend->rotate(90, 1, 0, 0);
-  rend->scale(QUADSIZE*width_, QUADSIZE*height_, 1);
 
-  rend->switchMatrixStack(CGE::MatTexture);
-  rend->pushMatrix();
-  rend->scale(width_, height_, 1);
-  
-  forms->drawQuad();
-
-  rend->popMatrix();
-  rend->switchMatrixStack(CGE::Modelview);
-  rend->popMatrix();
-
-  string messg;
-  /*GLenum errCode;
-
-  const GLubyte *errString;
-
-  if( (errCode = glGetError() ) != GL_NO_ERROR ){
-    errString = gluErrorString(errCode);
-    messg = string("An OpenGL error has occurred [") + (const char*)errString + "]";
-    CGE::Log << messg;
-  }*/
+	//render ceiling: the engine's quad turned to face down, its texture repeated once per field
+  static const CGE::Gfx::VertexLayout ceilingLayout = {
+    {
+      {CGE::Gfx::ATTR_POSITION, CGE::Gfx::VertexFormat::Float3, 0, 0},
+      {CGE::Gfx::ATTR_NORMAL, CGE::Gfx::VertexFormat::Float3, 0, 12},
+      {CGE::Gfx::ATTR_TEXCOORD, CGE::Gfx::VertexFormat::Float2, 0, 24},
+    },
+    {{8*(int)sizeof(float), false}},
+  };
+  if (!ceiling_ || ceilingSize_ != Vector2D(width_, height_)){
+    float w = (float)width_;
+    float h = (float)height_;
+    //the corners and texture coordinates of the engine's quad (a triangle strip)
+    const float vertices[4*8] = {
+      -0.5f, -0.5f, 0, 0, 0, 1, 0, h,
+       0.5f, -0.5f, 0, 0, 0, 1, w, h,
+      -0.5f,  0.5f, 0, 0, 0, 1, 0, 0,
+       0.5f,  0.5f, 0, 0, 0, 1, w, 0,
+    };
+    CGE::Gfx::BufferDesc desc;
+    desc.type = CGE::Gfx::BufferType::Vertex;
+    desc.usage = CGE::Gfx::Usage::Immutable;
+    desc.size = sizeof(vertices);
+    ceiling_ = ctx.getDevice().createBuffer(desc, vertices);
+    ceilingSize_ = Vector2D(width_, height_);
+  }
+  if (ceiling_){
+    ctx.setTexture(TextureManager::instance()->wallTex[2].get());
+    CGE::MatrixStack& model = ctx.model();
+    model.push();
+    model.translate(QUADSIZE*width_ / 2, WALLHEIGHT, QUADSIZE*height_/2);
+    model.rotate(90, 1, 0, 0);
+    model.scale(QUADSIZE*width_, QUADSIZE*height_, 1);
+    ctx.draw(CGE::Gfx::BuiltinShader::Lit, ceiling_.get(), ceilingLayout, CGE::Gfx::PrimitiveType::TriangleStrip, 4);
+    model.pop();
+    ctx.setTexture(nullptr);
+  }
 #endif
 }
 
@@ -539,58 +505,51 @@ void World::render2D(bool vis){
 	if (!isLoaded())
 		return;
 
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
 	//Setup orthographic view
-  rend->enableDepthTest(false);
-  rend->enableBlend(false);
-  rend->switchMatrixStack(CGE::Projection);
-  rend->pushMatrix();
+  CGE::Matrix projection = ctx.getProjection();
+  CGE::Matrix view = ctx.getView();
   const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
-  screen.ortho(rend);
-  
-  rend->switchMatrixStack(CGE::Modelview);
-  rend->pushMatrix();
-  rend->resetModelView();
+  ctx.setProjection(screen.ortho(ctx.getDevice()));
+  ctx.setView(CGE::Matrix(CGE::Matrix::Identity));
+  ctx.setDepth(false, false);
+  ctx.setBlend(CGE::Gfx::BlendMode::Opaque);
 
 	//reset furniture
 	for (unsigned i = 0; i < furniture_.size(); i++){
 		furniture_[i]->reset();
 	}
- 
+
 	//reset overlay
 	for (unsigned i = 0; i < overlays_.size(); i++){
 		overlays_[i]->reset();
 	}
-  
+
 	//how big may a single field be that all fit on the screen
 	float xstep = (float)(screen.getWidth()/width_);
 	float ystep = (float)(screen.getHeight()/height_);
-  
-  rend->setColor(1, 1, 1, 1);
+
+  ctx.setColor(1, 1, 1, 1);
   CGE::Forms* form = CGE::Engine::instance()->getForms();
-  
+
   form->setLineWidth(3);
 	for (int j = 0; j < height_; j++){
 		for (int i = 0; i < width_; i++){
-      form->activateQuad();
-
 			Field& curr = world_[j][i];
 			// ground tiles
 			// not visible?
 			if (!curr.getStatus() && vis)
-        TextureManager::instance()->floorTex[0]->activate();
+        ctx.setTexture(TextureManager::instance()->floorTex[0].get());
 			else
-        TextureManager::instance()->floorTex[curr.getId()]->activate();
-      
-			if ((!curr.object && 
+        ctx.setTexture(TextureManager::instance()->floorTex[curr.getId()].get());
+
+			if ((!curr.object &&
             (!curr.overlay || !curr.overlay->getStatus())
-          ) 
+          )
           || (!curr.getStatus() && vis)){
-        form->drawQuad(Vec2f(i*xstep, (height_-j)*ystep-ystep), Vec2f(xstep, ystep));
+        form->drawQuad(ctx, Vec2f(i*xstep, (height_-j)*ystep-ystep), Vec2f(xstep, ystep));
 			}
-     
-      //glColor3f(1,1,1);
-			
+
       //render overlay
       if ((curr.getStatus() || !vis) && curr.overlay){
 				curr.overlay->render2D();
@@ -599,18 +558,8 @@ void World::render2D(bool vis){
 
       //render items
       if ((curr.getStatus() || !vis) && curr.items){
-        TextureManager::instance()->otherTex[3]->activate();
-        // TODO: needs to be ported to the renderer
-        /*glBegin(GL_TRIANGLE_STRIP);
-					glTexCoord2f(1.0f, 0.0f);
-					glVertex2f(i*xstep+xstep, (height_-j)*ystep);
-					glTexCoord2f(0.0f, 0.0f);
-					glVertex2f(i*xstep, (height_-j)*ystep);
-					glTexCoord2f(1.0f, 1.0f);
-					glVertex2f(i*xstep+xstep, (height_-j)*ystep-ystep);
-					glTexCoord2f(0.0f, 1.0f);
-					glVertex2f(i*xstep, (height_-j)*ystep-ystep);
-				glEnd();*/
+        ctx.setTexture(TextureManager::instance()->otherTex[3].get());
+        form->drawQuad(ctx, Vec2f(i*xstep, (height_-j)*ystep-ystep), Vec2f(xstep, ystep));
       }
 			//if there's an object, render it too.
 			if ((curr.getStatus() || !vis) && curr.object){
@@ -620,121 +569,108 @@ void World::render2D(bool vis){
 					f->update();
 			}
 
-      rend->enableTexturing(false);
-      form->activateLines();
-      
+      ctx.setTexture(nullptr);
+
 			//mark starting positions as long as the game did not start
-      rend->enableBlend(false);
 			if (game.getState() == PREPARE){
-        rend->setColor(1, 0, 0, 1);
+        ctx.setColor(1, 0, 0, 1);
 				for (int k = 0; k < heroSize_; k++){
 					if (Vector2D(i,j) == starts_[k]){
-            form->drawLine(Vec2f(i*xstep + 3, (height_ - j)*ystep - ystep + 3), Vec2f(i*xstep + xstep - 3, (height_ - j)*ystep - 3));
-            form->drawLine(Vec2f(i*xstep + 3, (height_ - j)*ystep - 2), Vec2f(i*xstep + xstep - 3, (height_ - j)*ystep - ystep + 3));
+            form->drawLine(ctx, Vec2f(i*xstep + 3, (height_ - j)*ystep - ystep + 3), Vec2f(i*xstep + xstep - 3, (height_ - j)*ystep - 3));
+            form->drawLine(ctx, Vec2f(i*xstep + 3, (height_ - j)*ystep - 2), Vec2f(i*xstep + xstep - 3, (height_ - j)*ystep - ystep + 3));
 					}
 				}
 			}
-      
+
 			//draw walls and doors as colored lines
-      rend->setColor(1, 1, 1, 1);
+      ctx.setColor(1, 1, 1, 1);
 			if (isWall(i,j,TOP, vis) && !isDoor(i,j,TOP,vis)){
-				form->drawLine(Vec2f(i*xstep, (height_-j)*ystep), Vec2f(i*xstep+xstep, (height_-j)*ystep));
+				form->drawLine(ctx, Vec2f(i*xstep, (height_-j)*ystep), Vec2f(i*xstep+xstep, (height_-j)*ystep));
 			}
       if (isWall(i, j, RIGHT, vis) && !isDoor(i, j, RIGHT, vis)){
-        form->drawLine(Vec2f(i*xstep + xstep, (height_ - j)*ystep), Vec2f(i*xstep+xstep, (height_-j)*ystep-ystep));
+        form->drawLine(ctx, Vec2f(i*xstep + xstep, (height_ - j)*ystep), Vec2f(i*xstep+xstep, (height_-j)*ystep-ystep));
 			}
       if (isWall(i, j, BOTTOM, vis) && !isDoor(i, j, BOTTOM, vis)){
-        form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
+        form->drawLine(ctx, Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
 			}
       if (isWall(i, j, LEFT, vis) && !isDoor(i, j, LEFT, vis)){
-        form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep, (height_ - j)*ystep));
+        form->drawLine(ctx, Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep, (height_ - j)*ystep));
 			}
 			if (isDoor(i,j,TOP, vis)){
 				Door* doo = getDoor(Vector2D(i,j),TOP);
 				if (doo->getType() > 0)
-					rend->setColor(1,1,1,1);
+					ctx.setColor(1,1,1,1);
 				else
-        	rend->setColor(0.8f,0.12f,0.12f,1);
+        	ctx.setColor(0.8f,0.12f,0.12f,1);
 				if(doo->isClosed()){
-          form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep));
+          form->drawLine(ctx, Vec2f(i*xstep, (height_ - j)*ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep));
 				}
 			}
 			if (isDoor(i,j,RIGHT, vis)){
 				Door* doo = getDoor(Vector2D(i,j),RIGHT);
 				if (doo->getType() > 0)
-					rend->setColor(1,1,1,1);
+					ctx.setColor(1,1,1,1);
 				else
-        	rend->setColor(0.8f,0.12f,0.12f,1);
+        	ctx.setColor(0.8f,0.12f,0.12f,1);
 				if(doo->isClosed()){
-          form->drawLine(Vec2f(i*xstep + xstep, (height_ - j)*ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
+          form->drawLine(ctx, Vec2f(i*xstep + xstep, (height_ - j)*ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
 				}
 			}
 			if (isDoor(i,j,BOTTOM, vis)){
 				Door* doo = getDoor(Vector2D(i,j),BOTTOM);
 				if (doo->getType() > 0)
-					rend->setColor(1,1,1,1);
+					ctx.setColor(1,1,1,1);
 				else
-        	rend->setColor(0.8f,0.12f,0.12f,1);
+        	ctx.setColor(0.8f,0.12f,0.12f,1);
 				if(doo->isClosed()){
-          form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
+          form->drawLine(ctx, Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep + xstep, (height_ - j)*ystep - ystep));
 				}
 			}
 			if (isDoor(i,j,LEFT, vis)){
 				Door* doo = getDoor(Vector2D(i,j),LEFT);
 				if (doo->getType() > 0)
-					rend->setColor(1,1,1,1);
+					ctx.setColor(1,1,1,1);
 				else
-        	rend->setColor(0.8f,0.12f,0.12f,1);
+        	ctx.setColor(0.8f,0.12f,0.12f,1);
 				if(doo->isClosed()){
-          form->drawLine(Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep, (height_ - j)*ystep));
+          form->drawLine(ctx, Vec2f(i*xstep, (height_ - j)*ystep - ystep), Vec2f(i*xstep, (height_ - j)*ystep));
 				}
 			}
-		
-      rend->setColor(1.0,1.0,1.0,1.0);
-      //glEnable(GL_BLEND);
-			
-      rend->enableTexturing(true);
+
+      ctx.setColor(1.0,1.0,1.0,1.0);
 		}
-    rend->enableBlend(true);
 	}
 
-	//Render orientation line (the direction in which the camera looks)
-  rend->enableTexturing(false);
-	//glDisable(GL_BLEND);
-	rend->setColor(1,1,0,1);
-	Vector3D view = (cam.view() - cam.position()).normalized();
+	//Render orientation line (the direction in which the camera looks), added to the map
+  ctx.setBlend(CGE::Gfx::BlendMode::Additive);
+	ctx.setColor(1,1,0,1);
+	Vector3D look = (cam.view() - cam.position()).normalized();
 	Vector2D pos = cam.modelPos();
-  form->drawLine(Vec2f((pos.x+0.5f)*xstep, (height_-pos.y-0.5f)*ystep), 
-    Vec2f((pos.x+0.5f)*xstep + 0.5f*xstep*view.x, (height_-pos.y-0.5f)*ystep - 0.5f*ystep*view.z));
-	rend->setColor(1,1,1,1);
-  rend->enableBlend(true);
-  rend->enableTexturing(true);
-  
-	//for debugging, visualize all fields that will be rendered in 3D on the 2D map.   
+  form->drawLine(ctx, Vec2f((pos.x+0.5f)*xstep, (height_-pos.y-0.5f)*ystep),
+    Vec2f((pos.x+0.5f)*xstep + 0.5f*xstep*look.x, (height_-pos.y-0.5f)*ystep - 0.5f*ystep*look.z));
+	ctx.setColor(1,1,1,1);
+  ctx.setBlend(CGE::Gfx::BlendMode::Opaque);
+
+	//for debugging, visualize all fields that will be rendered in 3D on the 2D map.
   if (CGE::Script::instance()->getBoolSetting("debugVisibility")){
     //what is visible in 3D?
     currently_visible(cam.modelPos(), cam.getLookDirection());
-    rend->enableTexturing(false);
-    rend->enableBlend(false);
-    rend->setColor(0, 1, 0, 1);
+    ctx.setColor(0, 1, 0, 1);
     for (unsigned k = 0; k < canSee_.size(); k++){
       int i = canSee_[k]->getPosition().x;
       int j = canSee_[k]->getPosition().y;
-      form->drawLine(Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - ystep + 3)),
+      form->drawLine(ctx, Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - ystep + 3)),
         Vec2f((float)(i*xstep + xstep - 3), (float)((height_ - j)*ystep - 3)));
-      form->drawLine(Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - 2)),
+      form->drawLine(ctx, Vec2f((float)(i*xstep + 3), (float)((height_ - j)*ystep - 2)),
         Vec2f((float)(i*xstep + xstep - 3), (float)((height_ - j)*ystep - ystep + 3)));
     }
-    rend->enableBlend(true);
-    rend->enableTexturing(true);
+    ctx.setColor(1, 1, 1, 1);
   }
-  
+
 	//Restore original
-  rend->enableDepthTest(true);
-  rend->switchMatrixStack(CGE::Projection);
-  rend->popMatrix();
-  rend->switchMatrixStack(CGE::Modelview);
-  rend->popMatrix();
+  ctx.setDepth(true, true);
+  ctx.setProjection(projection);
+  ctx.setView(view);
 #endif
 }
 

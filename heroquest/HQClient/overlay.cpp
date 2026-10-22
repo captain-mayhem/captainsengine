@@ -14,6 +14,7 @@
 #ifdef _CLIENT_
   #include "textureManager.h"
   #include "renderer/forms.h"
+  #include "renderer/drawcontext.h"
 #endif
 
 //Constructor
@@ -49,36 +50,37 @@ void Overlay::render2D() const {
 #ifdef _CLIENT_
   if (rendered_ || (!active_ && !found_))
     return;
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
   CGE::Forms* forms = CGE::Engine::instance()->getForms();
+  //found traps are shown dimmed
   if (found_){
-    rend->setColor(1., 1., 1., 0.4f);
-    rend->enableBlend(true);
+    ctx.setColor(1., 1., 1., 0.4f);
+    ctx.setBlend(CGE::Gfx::BlendMode::Additive);
   }
   int height = wrld.getMapSize().y;
   const CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
   float dx = (float)(screen.getWidth()/wrld.getMapSize().x);
   float dy = (float)(screen.getHeight()/height);
-  rend->enableTexturing(true);
-  TextureManager::instance()->overlayTex[id_-4000]->activate();
+  ctx.setTexture(TextureManager::instance()->overlayTex[id_-4000].get());
 
   switch (orientation_){
   case TOP:
-    forms->drawQuad(Vec2f(position_.x*dx, (height - position_.y - height_)*dy), Vec2f(dx*width_, dy*height_));
+    forms->drawQuad(ctx, Vec2f(position_.x*dx, (height - position_.y - height_)*dy), Vec2f(dx*width_, dy*height_));
     break;
   case BOTTOM:
-    forms->drawQuad(Vec2f((position_.x - width_ + 1)*dx, (height - (position_.y + 1))*dy), Vec2f(dx*width_, dy*height_), 180);
+    forms->drawQuad(ctx, Vec2f((position_.x - width_ + 1)*dx, (height - (position_.y + 1))*dy), Vec2f(dx*width_, dy*height_), 180);
     break;
   case RIGHT:
-    forms->drawQuad(Vec2f((position_.x - height_ + 1)*dx, (height - (position_.y + width_))*dy), Vec2f(dx*width_, dy*height_), 270);
+    forms->drawQuad(ctx, Vec2f((position_.x - height_ + 1)*dx, (height - (position_.y + width_))*dy), Vec2f(dx*width_, dy*height_), 270);
     break;
   case LEFT:
-    forms->drawQuad(Vec2f((position_.x)*dx, (height - (position_.y + 1))*dy), Vec2f(dx*width_, dy*height_), 90);
+    forms->drawQuad(ctx, Vec2f((position_.x)*dx, (height - (position_.y + 1))*dy), Vec2f(dx*width_, dy*height_), 90);
     break;
   }
+  ctx.setTexture(nullptr);
   if (found_){
-    rend->setColor(1., 1., 1., 1.);
-    rend->enableBlend(false);
+    ctx.setColor(1., 1., 1., 1.);
+    ctx.setBlend(CGE::Gfx::BlendMode::Opaque);
   }
 #endif
 }
@@ -87,10 +89,7 @@ void Overlay::render() const{
 #ifdef _CLIENT_
   if (rendered_ || (!active_ && !found_))
     return;
-  if (model_){
-    model_->setupMaterial();
-    model_->render(CGE::Mesh::DRAW_ALL);
-    model_->resetMaterial();
-  }
+  if (model_)
+    model_->render(*CGE::Engine::instance()->getDrawContext(), CGE::Mesh::DRAW_ALL);
 #endif
 }

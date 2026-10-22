@@ -1265,18 +1265,11 @@ void Message::process(){
           }
         }
         assert(msh);
-        CGE::Texture* tex = nullptr;
-        std::vector<CGE::Texture*> textures = wrld.getScene().getTextures();
-        for (unsigned i = 0; i < textures.size(); ++i){
-          if (textures[i]->getName() == "textures/world/door.jpg"){
-            tex = textures[i];
-            break;
-          }
-        }
+        CGE::Gfx::Texture* tex = wrld.getScene().getDeviceTexture("textures/world/door.jpg");
         assert(tex);
         CGE::Model* mdl = new CGE::Model(msh);
         mdl->setTrafo(wrld.getScene().getModel(id)->getTrafo());
-        mdl->assignTexture(tex, 0);
+        mdl->assignDeviceTexture(tex, 0);
         mdl->setAttrib(0, 1003);
         mdl->setAttrib(1, 0);
         d->setModel(mdl);

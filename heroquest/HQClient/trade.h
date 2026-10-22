@@ -6,7 +6,6 @@
 #include <fstream>
 #include <iostream>
 #ifdef _CLIENT_
-#include "renderer/renderer.h"
 #include "renderer/font.h"
 #endif
 #include "item.h"

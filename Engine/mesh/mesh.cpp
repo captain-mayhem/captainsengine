@@ -19,8 +19,7 @@
 #include "../renderer/vertexbuffer.h"
 #include "../renderer/drawcontext.h"
 #include "../renderer/renderdevice.h"
-#include "../image/image.h"
-#include "../image/loader.h"
+#include "../renderer/textureloader.h"
 #include "../math/ray.h"
 #include "../system/file.h"
 
@@ -583,39 +582,6 @@ bool Mesh::buildBuffers(Gfx::RenderDevice& device){
 
 namespace{
 
-//! a texture of a material file on a device, or nullptr
-/*! An opacity texture becomes white with the image's first channel as alpha. */
-std::unique_ptr<Gfx::Texture> loadDeviceTexture(Gfx::RenderDevice& device, const std::string& file, bool opacity){
-  TR_USE(CGE_Mesh);
-  std::unique_ptr<Image> image(ImageLoader::load(file.c_str()));
-  if (!image){
-    TR_ERROR("cannot load texture %s", file.c_str());
-    return nullptr;
-  }
-  Gfx::TextureDesc desc;
-  desc.width = (int)image->getWidth();
-  desc.height = (int)image->getHeight();
-  desc.mipLevels = 0;
-  std::vector<unsigned char> rgba;
-  if (opacity){
-    unsigned channels = image->getNumChannels();
-    unsigned pixels = image->getWidth()*image->getHeight();
-    rgba.resize(pixels*4);
-    for (unsigned i = 0; i < pixels; ++i){
-      rgba[4*i] = rgba[4*i+1] = rgba[4*i+2] = 255;
-      rgba[4*i+3] = image->getData()[channels*i];
-    }
-  }
-  else{
-    image->convertFormat(4);
-    rgba.assign(image->getData(), image->getData()+image->getWidth()*image->getHeight()*4);
-  }
-  std::unique_ptr<Gfx::Texture> texture = device.createTexture(desc, rgba.data());
-  if (texture)
-    device.generateMipmaps(texture.get());
-  return texture;
-}
-
 //! the vertex layouts of buildDrawData's vertices
 const Gfx::VertexLayout& meshLayout(bool texCoords){
   using namespace Gfx;
@@ -659,7 +625,7 @@ bool Mesh::createDeviceResources(Gfx::RenderDevice& device, const std::vector<fl
       continue;
     std::string key = (opacity ? "opacity:" : "diffuse:")+file;
     if (loaded.find(key) == loaded.end()){
-      std::unique_ptr<Gfx::Texture> texture = loadDeviceTexture(device, file, opacity);
+      std::unique_ptr<Gfx::Texture> texture = Gfx::loadTexture(device, file, opacity);
       loaded[key] = texture.get();
       if (texture)
         mDeviceTextures.push_back(std::move(texture));
@@ -680,21 +646,27 @@ void Mesh::draw(Gfx::DrawContext& ctx, DrawPart part){
   if (!mVertices || !mIndices)
     return;
   const Gfx::VertexLayout& layout = meshLayout(numTexCoords_ > 0);
+  //submeshes without a material keep the texture the caller set, as with the old renderers
+  Gfx::Texture* texture = ctx.getTexture();
+  Gfx::Sampler* sampler = ctx.getSampler();
   for (const SubMesh& msh : mDrawList){
     Material* mat = mMaterials[msh.material];
     //no material is assumed opaque
     bool transparent = mat && mat->isTransparent();
     if ((transparent && part == DRAW_OPAQUE) || (!transparent && part == DRAW_TRANSPARENT))
       continue;
-    if (mat)
+    if (mat){
       ctx.setMaterial(*mat);
-    else
+      ctx.setTexture(msh.material < (int)mMaterialTextures.size() ? mMaterialTextures[msh.material] : nullptr);
+    }
+    else{
       ctx.resetMaterial();
-    ctx.setTexture(msh.material < (int)mMaterialTextures.size() ? mMaterialTextures[msh.material] : nullptr);
+      ctx.setTexture(texture, sampler);
+    }
     ctx.drawIndexed(Gfx::BuiltinShader::Lit, mVertices.get(), layout, mIndices.get(), Gfx::IndexType::UInt32,
       Gfx::PrimitiveType::Triangles, msh.count, msh.offset);
   }
-  ctx.setTexture(nullptr);
+  ctx.setTexture(texture, sampler);
 }
 
 //! intersects a ray and a triangle

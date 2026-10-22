@@ -101,6 +101,8 @@ public:
   /*! Without a sampler, a linear one that repeats is used. */
   void setTexture(Texture* texture, Sampler* sampler = nullptr);
   Texture* getTexture() const;
+  //! the sampler given with the texture; nullptr for the default one
+  Sampler* getSampler() const;
   void setBlend(BlendMode mode);
   BlendMode getBlend() const;
   //! depth testing and writing; both off by default

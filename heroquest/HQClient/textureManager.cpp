@@ -1,57 +1,55 @@
+#include <sstream>
+
 #include "system/engine.h"
-#include "renderer/texture.h"
+#include "platform/assets.h"
+#include "io/Tracing.h"
+#include "renderer/renderdevice.h"
+#include "renderer/textureloader.h"
 #include "textureManager.h"
+
+TR_CHANNEL(HQ_Textures);
 
 TextureManager* TextureManager::texMan_ = NULL;
 
 TextureManager::TextureManager(){
-  floorTex = NULL;
-  wallTex = NULL;
-  heroTex = NULL;
-  monsterTex = NULL;
-  furnitureTex = NULL;
-  overlayTex = NULL;
-  otherTex = NULL;
   loadTextures();
 }
 
 TextureManager::~TextureManager(){
-  for (int i = 0; i < floorNum_; i++){
-    SAFE_DELETE(floorTex[i]);
-  }
-  SAFE_DELETE_ARRAY(floorTex);
-  for (int i = 0; i < wallNum_; i++){
-    SAFE_DELETE(wallTex[i]);
-  }
-  SAFE_DELETE_ARRAY(wallTex);
-  for (int i = 0; i < heroNum_; i++){
-    SAFE_DELETE(heroTex[i]);
-  }
-  SAFE_DELETE_ARRAY(heroTex);
-  for (int i = 0; i < monsterNum_; i++){
-    SAFE_DELETE(monsterTex[i]);
-  }
-  SAFE_DELETE_ARRAY(monsterTex);
-  for (int i = 0; i < furnitureNum_; i++){
-    SAFE_DELETE(furnitureTex[i]);
-  }
-  SAFE_DELETE_ARRAY(furnitureTex);
-  for (int i = 0; i < overlayNum_; i++){
-    SAFE_DELETE(overlayTex[i]);
-  }
-  SAFE_DELETE_ARRAY(overlayTex);
-  for (int i = 0; i < otherNum_; i++){
-    SAFE_DELETE(otherTex[i]);
-  }
-  SAFE_DELETE_ARRAY(otherTex);
 }
 
 void TextureManager::loadTextures(){
-  floorTex = CGE::Texture::loadFromDat("textures/world/","ground.dat",floorNum_);
-  wallTex = CGE::Texture::loadFromDat("textures/world/","wall.dat",wallNum_);
-  heroTex = CGE::Texture::loadFromDat("textures/heros/","heros.dat",heroNum_);
-  monsterTex = CGE::Texture::loadFromDat("textures/monsters/","monsters.dat",monsterNum_);
-  furnitureTex = CGE::Texture::loadFromDat("textures/furniture/","furniture.dat",furnitureNum_);
-  overlayTex = CGE::Texture::loadFromDat("textures/overlays/","overlays.dat",overlayNum_);
-  otherTex = CGE::Texture::loadFromDat("textures/other/","other.dat",otherNum_);
+  loadFromDat("textures/world/","ground.dat",floorTex);
+  loadFromDat("textures/world/","wall.dat",wallTex);
+  loadFromDat("textures/heros/","heros.dat",heroTex);
+  loadFromDat("textures/monsters/","monsters.dat",monsterTex);
+  loadFromDat("textures/furniture/","furniture.dat",furnitureTex);
+  loadFromDat("textures/overlays/","overlays.dat",overlayTex);
+  loadFromDat("textures/other/","other.dat",otherTex);
+}
+
+void TextureManager::loadFromDat(const std::string& path, const std::string& filename, Textures& textures){
+  TR_USE(HQ_Textures);
+  std::string text;
+  if (!CGE::Assets::loadText(path+filename, text)){
+    TR_WARN("Cannot load %s", filename.c_str());
+    return;
+  }
+  CGE::Gfx::RenderDevice* device = CGE::Engine::instance()->getRenderDevice();
+  std::istringstream in(text);
+  std::string name;
+  int number = 0;
+  in >> name;
+  in >> number;
+  textures.resize(number);
+  for (int i = 0; i < number; i++){
+    int idx = -1;
+    in >> name;
+    in >> idx;
+    if (idx < 0 || idx >= number){
+      TR_WARN("%s: index %d of %s out of range", filename.c_str(), idx, name.c_str());
+      continue;
+    }
+    textures[idx] = CGE::Gfx::loadTexture(*device, path+name);
+  }
 }

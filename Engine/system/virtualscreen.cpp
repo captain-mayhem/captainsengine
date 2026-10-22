@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include "../renderer/renderer.h"
+#include "../renderer/renderdevice.h"
 
 using namespace CGE;
 
@@ -54,4 +55,12 @@ void VirtualScreen::ortho(Renderer* rend, bool yDown) const{
     rend->ortho(vmin.x, vmax.x, vmax.y, vmin.y, -1.0f, 1.0f);
   else
     rend->ortho(vmin.x, vmax.x, height_-vmax.y, height_-vmin.y, -1.0f, 1.0f);
+}
+
+Matrix VirtualScreen::ortho(const Gfx::RenderDevice& device, bool yDown) const{
+  Vec2f vmin = getVisibleMin();
+  Vec2f vmax = getVisibleMax();
+  if (yDown)
+    return device.ortho(vmin.x, vmax.x, vmax.y, vmin.y, -1.0f, 1.0f);
+  return device.ortho(vmin.x, vmax.x, height_-vmax.y, height_-vmin.y, -1.0f, 1.0f);
 }

@@ -7,7 +7,7 @@
 #include <imgui.h>
 
 #include "system/engine.h"
-#include "renderer/renderer.h"
+#include "renderer/drawcontext.h"
 #include "renderer/forms.h"
 #include "renderer/font.h"
 
@@ -226,16 +226,14 @@ void MessageBox::setMessage(const string& text){
 }
 
 void MessageBox::renderBackground(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
-  rend->enableTexturing(false);
-  CGE::Color background(0, 0, 0, 0.8f);
-  rend->setColor(&background);
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
+  CGE::Gfx::BlendMode blend = ctx.getBlend();
+  ctx.setBlend(CGE::Gfx::BlendMode::Alpha);
+  ctx.setColor(0, 0, 0, 0.8f);
   CGE::Forms* forms = CGE::Engine::instance()->getForms();
-  forms->activateQuad();
-  forms->drawQuad(surPos_, surSpan_);
-  rend->enableTexturing(true);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE);
+  forms->drawQuad(ctx, surPos_, surSpan_);
+  ctx.setColor(1, 1, 1, 1);
+  ctx.setBlend(blend);
 }
 
 bool MessageBox::render(){

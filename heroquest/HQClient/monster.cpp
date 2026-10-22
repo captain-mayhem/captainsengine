@@ -18,6 +18,7 @@
 #include "renderer.h"
 #include "camera.h"
 #include "textureManager.h"
+#include "renderer/drawcontext.h"
 #endif
 #include "opcodes.h"
 #include "world.h"
@@ -95,16 +96,18 @@ Monster::Monster(const string& player, const string& name, const string& type,
 
 void Monster::render() const {
 #ifdef _CLIENT_
-  TextureManager::instance()->monsterTex[id_-2000]->activate();
-  //glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_-2000]);
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
+  ctx.setTexture(TextureManager::instance()->monsterTex[id_-2000].get());
   Creature::render();
+  ctx.setTexture(nullptr);
 #endif
 }
 
 void Monster::render2D() const {
 #ifdef _CLIENT_
-  TextureManager::instance()->monsterTex[id_-2000]->activate();
-  //glBindTexture(GL_TEXTURE_2D, tex.monsterTex[id_-2000]);
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
+  ctx.setTexture(TextureManager::instance()->monsterTex[id_-2000].get());
   Creature::render2D();
+  ctx.setTexture(nullptr);
 #endif
 }

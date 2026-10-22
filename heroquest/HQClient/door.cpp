@@ -12,7 +12,7 @@
 #include <string>
 
 #include "system/engine.h"
-#include "renderer/renderer.h"
+#include "renderer/drawcontext.h"
 
 #include "common.h"
 //#include "../HQEditor/compiler.h"
@@ -68,9 +68,7 @@ void Door::render() const{
   if (!closed_)
     return;
 
-  model_->setupMaterial();
-  model_->render(CGE::Mesh::DRAW_ALL);
-  model_->resetMaterial();
+  model_->render(*CGE::Engine::instance()->getDrawContext(), CGE::Mesh::DRAW_ALL);
 #endif
   
 }
