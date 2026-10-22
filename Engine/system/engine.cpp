@@ -8,8 +8,8 @@
 #include "../window/nativeLinux.h"
 #include "../window/nativeAndroid.h"
 #include "script.h"
-#include "../gui/console.h"
 #include "../renderer/drawcontext.h"
+#include "../renderer/font.h"
 #include "../renderer/forms.h"
 #include "../io/Tracing.h"
 #include "../io/TraceManager.h"
@@ -40,6 +40,10 @@ using std::list;
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
 #endif
+//after the X11 headers: imgui.h undefines X11's Status
+#include "../ui/console.h"
+#include "../ui/imgui_impl_cge_platform.h"
+#include "../ui/imgui_impl_cge_render.h"
 
 using namespace CGE;
 
@@ -68,9 +72,7 @@ Engine::Engine(){
   lastTime_ = 0;
   fpscounter_ = 0;
   fps_ = 0;
-  input_ = nullptr;
-  clear_ = false;
-  //guitex_ = Mutex();
+  imgui_ = false;
   mShutdownRequested = false;
 #ifdef LINUX
   lastClick_ = 0;
@@ -180,8 +182,9 @@ void Engine::startup(int argc, char** argv){
     fnt_[1]->buildFont(fnt_[0]->getVB());
     fnt_[2]->buildFont(fnt_[0]->getVB());
     forms_ = std::make_unique<CGE::Forms>();
+    startupImGui();
   }
-  console_ = std::make_unique< ::Gui::Console>();
+  console_ = std::make_unique<CGE::Console>();
   isUp_ = true;
   rend_->initRendering();
   app_ = internalApplication;
@@ -189,6 +192,30 @@ void Engine::startup(int argc, char** argv){
     app_->init(argc, argv);
   frameTime_ = getTime();
   updateLag_ = 0;
+}
+
+void Engine::startupImGui(){
+  TR_USE(CGE_Engine);
+  IMGUI_CHECKVERSION();
+  ImGui::CreateContext();
+  ImGuiIO& io = ImGui::GetIO();
+  //applications that want ImGui's window settings saved set a file name
+  io.IniFilename = nullptr;
+  ImGui::StyleColorsDark();
+  ImGui_ImplCGE_Platform_Init(win_.get());
+  //the context stays without a working renderer, so applications can still call ImGui
+  if (!ImGui_ImplCGE_Render_Init(*device_))
+    TR_WARN("ImGui can't draw on this render device");
+  imgui_ = true;
+}
+
+void Engine::shutdownImGui(){
+  if (!imgui_)
+    return;
+  ImGui_ImplCGE_Render_Shutdown();
+  ImGui_ImplCGE_Platform_Shutdown();
+  ImGui::DestroyContext();
+  imgui_ = false;
 }
 
 bool Engine::startupRenderer(const std::string& type){
@@ -224,8 +251,9 @@ void Engine::shutdown(){
     isUp_ = false;
     Input::Keyboard::release();
     Input::Mouse::release();
-    clearListeners();
     console_.reset();
+    //its textures are on the device
+    shutdownImGui();
     //the first font owns the vertex buffer the others share
     if (fnt_[0])
       fnt_[0]->killFont();
@@ -292,7 +320,6 @@ void Engine::frame(bool update){
   }
 
   console_->update();
-  updateGuiElements();
 
   if (paused_){
     //nothing to do in the background
@@ -313,26 +340,18 @@ void Engine::frame(bool update){
   limitFrame();
 }
 
-void Engine::updateGuiElements(){
-  //something with the GUI elements changed, so update here
-  for (unsigned i = 0; i < remBut_.size(); i++){
-    removeGuiListener(remBut_[i]);
-  }
-  remBut_.clear();
-  if (newBut_.size() != 0 || clear_){
-    clear_ = false;
-    clearListeners();
-    guiElems_ = newBut_;
-    newBut_.clear();
-  }
-}
-
 void Engine::renderFrame(){
   if (!graphics_)
     return;
   if (!device_->beginFrame())
     return;
   rendering_ = true;
+  //the application builds its ImGui windows in render
+  if (imgui_){
+    ImGui_ImplCGE_Render_NewFrame();
+    ImGui_ImplCGE_Platform_NewFrame();
+    ImGui::NewFrame();
+  }
   //render scene
   rend_->renderScene();
   if (app_)
@@ -345,29 +364,38 @@ void Engine::renderFrame(){
   rend_->enableDepthTest(false);
   rend_->enableTexturing(true);
 
-  //render GUI-elements
-  guitex_.lock();
-
+  //the texts of the fonts
   fnt_[0]->render();
-
-  list< ::Gui::GuiElement*>::iterator iter2;
-  for (iter2 = guiElems_.begin(); iter2 != guiElems_.end(); iter2++){
-    (*iter2)->render();
-  }
-
   fnt_[1]->render();
-
-  CGE::Engine::instance()->getConsole()->render();
-
   fnt_[2]->render();
-
-  guitex_.unlock();
 
   rend_->enableBlend(false);
   rend_->enableDepthTest(true);
 
+  //ImGui on top of everything, the console last
+  if (imgui_){
+    console_->render();
+    renderImGui();
+  }
+
   device_->endFrame();
   rendering_ = false;
+}
+
+void Engine::renderImGui(){
+  ImGui::Render();
+  ImDrawData* drawData = ImGui::GetDrawData();
+  //the texture requests are handled also when nothing is drawn
+  bool draw = drawData->TotalVtxCount > 0;
+  if (draw){
+    Gfx::PassDesc pass;
+    pass.colorLoad = Gfx::LoadAction::Load;
+    pass.depthLoad = Gfx::LoadAction::Load;
+    draw = device_->beginPass(pass);
+  }
+  ImGui_ImplCGE_Render_RenderDrawData(drawData);
+  if (draw)
+    device_->endPass();
 }
 
 void Engine::limitFrame(){
@@ -436,11 +464,39 @@ void Engine::processEvents(){
   POINT p;
   GetCursorPos(&p);
   ScreenToClient((HWND)static_cast<CGE::WindowsWindow*>(win_.get())->getHandle(), &p);
+  ImGui_ImplCGE_Platform_AddMousePos((float)p.x, (float)p.y);
   Input::Mouse::instance()->move(p.x, p.y, 0);
 }
 #endif
 
 #ifdef LINUX
+namespace{
+
+//! passes the modifier state of an X11 event on to ImGui
+void imguiModifiers(unsigned state){
+  ImGui_ImplCGE_Platform_AddModifiers((state & ControlMask) != 0, (state & ShiftMask) != 0,
+    (state & Mod1Mask) != 0, (state & Mod4Mask) != 0);
+}
+
+//! passes an X11 button event on to ImGui: buttons 1-3, or wheel notches (4-7)
+void imguiButton(const XButtonEvent& event, bool down){
+  imguiModifiers(event.state);
+  ImGui_ImplCGE_Platform_AddMousePos((float)event.x, (float)event.y);
+  switch (event.button){
+    case Button1: ImGui_ImplCGE_Platform_AddMouseButton(ImGuiMouseButton_Left, down); break;
+    case Button2: ImGui_ImplCGE_Platform_AddMouseButton(ImGuiMouseButton_Middle, down); break;
+    case Button3: ImGui_ImplCGE_Platform_AddMouseButton(ImGuiMouseButton_Right, down); break;
+    //a wheel notch is a press and a release
+    case Button4: if (down) ImGui_ImplCGE_Platform_AddMouseWheel(0, 1); break;
+    case Button5: if (down) ImGui_ImplCGE_Platform_AddMouseWheel(0, -1); break;
+    case 6: if (down) ImGui_ImplCGE_Platform_AddMouseWheel(1, 0); break;
+    case 7: if (down) ImGui_ImplCGE_Platform_AddMouseWheel(-1, 0); break;
+    default: break;
+  }
+}
+
+}
+
 void Engine::processEvents(){
   if (!win_)
     return;
@@ -466,6 +522,8 @@ void Engine::processEvents(){
       break;
     case KeyPress:
     {
+      imguiModifiers(event.xkey.state);
+      ImGui_ImplCGE_Platform_AddKey((int)XLookupKeysym(&event.xkey, 0), true);
       char ascii;
       KeySym key;
       int num = XLookupString(&event.xkey, &ascii, 1, &key, nullptr);
@@ -475,9 +533,12 @@ void Engine::processEvents(){
       break;
     }
     case KeyRelease:
+      imguiModifiers(event.xkey.state);
+      ImGui_ImplCGE_Platform_AddKey((int)XLookupKeysym(&event.xkey, 0), false);
       Input::Keyboard::instance()->keyUp(XLookupKeysym(&event.xkey, 0));
       break;
     case ButtonPress:
+      imguiButton(event.xbutton, true);
       if (event.xbutton.button > Button3){
         Input::Mouse::instance()->wheel(event.xbutton.x, event.xbutton.y, event.xbutton.button == Button4 ? 1 : -1);
       }
@@ -494,11 +555,22 @@ void Engine::processEvents(){
       }
       break;
     case ButtonRelease:
+      imguiButton(event.xbutton, false);
       if (event.xbutton.button <= Button3 && lastClick_ != 0)
         Input::Mouse::instance()->buttonUp(event.xbutton.x, event.xbutton.y, event.xbutton.button);
       break;
     case MotionNotify:
+      ImGui_ImplCGE_Platform_AddMousePos((float)event.xmotion.x, (float)event.xmotion.y);
       Input::Mouse::instance()->move(event.xmotion.x, event.xmotion.y, event.xmotion.state);
+      break;
+    case LeaveNotify:
+      ImGui_ImplCGE_Platform_AddMouseLeave();
+      break;
+    case FocusIn:
+      ImGui_ImplCGE_Platform_AddFocus(true);
+      break;
+    case FocusOut:
+      ImGui_ImplCGE_Platform_AddFocus(false);
       break;
     case ClientMessage:
       if (*XGetAtomName(disp, event.xclient.message_type) == *"WM_PROTOCOLS"){
@@ -524,109 +596,6 @@ void Engine::processEvents(){
   //the browser delivers events between frames (web backend in Phase 1c)
 }
 #endif
-
-// set the current input field that should be active
-void Engine::setActiveInput(::Gui::InputField* field){
-  if (field == nullptr){
-    input_ = nullptr;
-    return;
-  }
-  if (input_ != nullptr){
-    input_->removeChar();
-  }
-  input_ = field;
-  input_->addChar('_');
-}
-
-// clears the input and button listeners
-void Engine::clearListeners(bool immediate){
-  if (!immediate){
-    clear_ = true;
-    return;
-  }
-  guitex_.lock();
-  list< ::Gui::GuiElement* >::iterator iter2;
-  for (iter2 = guiElems_.begin(); iter2 != guiElems_.end(); iter2++){
-    delete (*iter2);
-  }
-  guiElems_.clear();
-  fnt_[0]->clear();
-  fnt_[1]->clear();
-  fnt_[2]->clear();
-  guitex_.unlock();
-}
-
-
-// remove the input listener at position idx
-/*
-void Engine::removeInputListener(int idx){
-  guitex_.lock();
-  list< ::Gui::InputField*>::iterator iter = listeners_.begin();
-  for (int i = 0; i < idx; i++){
-    iter++;
-  }
-  listeners_.erase(iter);
-  guitex_.unlock();
-}*/
-
-// remove the button listener at position idx
-void Engine::removeGuiListener(int idx, bool immediate){
-  if (!immediate){
-    remBut_.push_back(idx);
-    return;
-  }
-  guitex_.lock();
-  list< ::Gui::GuiElement*>::iterator iter = guiElems_.begin();
-  for (int i = 0; i < idx; i++){
-    iter++;
-  }
-  delete *iter;
-  guiElems_.erase(iter);
-  guitex_.unlock();
-}
-
-
-// remove the button listener with a certain name
-void Engine::removeGuiListener(const string& name){
-  guitex_.lock();
-  list< ::Gui::GuiElement*>::iterator iter = guiElems_.begin();
-  for (unsigned i = 0; i < guiElems_.size(); i++){
-    if((*iter)->getName() == name){
-      delete *iter;
-      guiElems_.erase(iter);
-      break;
-    }
-    iter++;
-  }
-  guitex_.unlock();
-}
-
-
-// remove all button listeners beginning at idx
-void Engine::removeGuiListeners(int idx){
-  guitex_.lock();
-  list< ::Gui::GuiElement*>::iterator iter = guiElems_.begin();
-  for (int i = 0; i < idx; i++){
-    iter++;
-  }
-  while (iter != guiElems_.end()){
-    delete *iter;
-    iter = guiElems_.erase(iter);
-  }
-  guitex_.unlock();
-}
-
-// get a button by name
-::Gui::GuiElement* Engine::getGuiListener(const string& name){
-  list< ::Gui::GuiElement*>::iterator iter = guiElems_.begin();
-  for (unsigned i = 0; i < guiElems_.size(); i++){
-    if ((*iter)->getName() == name){
-      return *iter;
-    }
-    iter++;
-  }
-  return nullptr;
-}
 
 double getTime(){
   using namespace std::chrono;

@@ -23,7 +23,6 @@ else()
 endif()
 option(ENGINE_SINGLE_THREADED "build the engine and its applications without threads" ${ENGINE_SINGLE_THREADED_DEFAULT})
 
-INCLUDE(gui/CMakeLists.txt)
 INCLUDE(image/CMakeLists.txt)
 INCLUDE(input/CMakeLists.txt)
 INCLUDE(io/CMakeLists.txt)
@@ -33,6 +32,7 @@ INCLUDE(platform/CMakeLists.txt)
 INCLUDE(renderer/CMakeLists.txt)
 INCLUDE(renderpass/CMakeLists.txt)
 INCLUDE(system/CMakeLists.txt)
+INCLUDE(ui/CMakeLists.txt)
 INCLUDE(window/CMakeLists.txt)
 INCLUDE(common/CMakeLists.txt)
 INCLUDE(util/CMakeLists.txt)
@@ -40,7 +40,6 @@ INCLUDE(util/CMakeLists.txt)
 # The engine is a shared library (CGE.dll / libCGE.so), so that applications
 # link the LGPL code dynamically. Only what is marked CGE_API is exported.
 ADD_LIBRARY(Engine SHARED
-	${Engine_gui_SRCS}
 	${Engine_image_SRCS}
 	${Engine_input_SRCS}
 	${Engine_io_SRCS}
@@ -50,11 +49,11 @@ ADD_LIBRARY(Engine SHARED
 	${Engine_renderer_SRCS}
 	${Engine_renderpass_SRCS}
 	${Engine_system_SRCS}
+	${Engine_ui_SRCS}
 	${Engine_window_SRCS}
 	${Engine_common_SRCS}
 	${Engine_util_SRCS}
 
-	${Engine_gui_HDRS}
 	${Engine_image_HDRS}
 	${Engine_input_HDRS}
 	${Engine_io_HDRS}
@@ -65,6 +64,7 @@ ADD_LIBRARY(Engine SHARED
 	${Engine_renderer_HDRS}
 	${Engine_renderpass_HDRS}
 	${Engine_system_HDRS}
+	${Engine_ui_HDRS}
 	${Engine_window_HDRS}
 	${Engine_common_HDRS}
 	${Engine_util_HDRS}
@@ -141,6 +141,13 @@ endfunction()
 cge_engine_public_headers(zlibstatic)
 cge_engine_public_headers(minizip)
 
+# Dear ImGui is compiled into the engine library (its sources come with the
+# imgui target) and exported from it through ui/imgui_config.h, so the engine
+# and the application share one ImGui context. Applications include <imgui.h>.
+target_link_libraries(Engine PRIVATE imgui)
+cge_engine_public_headers(imgui)
+target_compile_definitions(Engine PUBLIC IMGUI_USER_CONFIG="ui/imgui_config.h")
+
 # the render backends: OpenGL (renderer/GL/)
 INCLUDE(renderer/GL/CMakeLists.txt)
 
@@ -185,8 +192,6 @@ if (NO_PTHREAD_CANCEL)
 	target_compile_definitions(Engine PRIVATE NO_PTHREAD_CANCEL)
 endif()
 
-SOURCE_GROUP("gui" FILES ${Engine_gui_SRCS})
-SOURCE_GROUP("gui" FILES ${Engine_gui_HDRS})
 SOURCE_GROUP("image" FILES ${Engine_image_SRCS})
 SOURCE_GROUP("image" FILES ${Engine_image_HDRS})
 SOURCE_GROUP("input" FILES ${Engine_input_SRCS})
@@ -205,6 +210,8 @@ SOURCE_GROUP("renderpass" FILES ${Engine_renderpass_SRCS})
 SOURCE_GROUP("renderpass" FILES ${Engine_renderpass_HDRS})
 SOURCE_GROUP("system" FILES ${Engine_system_SRCS})
 SOURCE_GROUP("system" FILES ${Engine_system_HDRS})
+SOURCE_GROUP("ui" FILES ${Engine_ui_SRCS})
+SOURCE_GROUP("ui" FILES ${Engine_ui_HDRS})
 SOURCE_GROUP("window" FILES ${Engine_window_SRCS})
 SOURCE_GROUP("window" FILES ${Engine_window_HDRS})
 SOURCE_GROUP("common" FILES ${Engine_common_SRCS})

@@ -16,7 +16,7 @@ TR_CHANNEL(CGE_DrawContext);
 
 namespace{
 
-const int BUILTIN_COUNT = 3;
+const int BUILTIN_COUNT = 4;
 
 //! what a cached pipeline was made for
 struct PipelineKey{

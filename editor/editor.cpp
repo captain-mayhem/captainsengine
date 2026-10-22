@@ -9,7 +9,6 @@
 #include "math/ray.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
-#include "gui/gui.h"
 #include "mesh/model.h"
 #include "renderer/renderer.h"
 #include "system/file.h"
@@ -26,7 +25,6 @@ using CGE::Vector2D;
 using CGE::Vector3D;
 using CGE::Matrix;
 using CGE::Ray;
-using Gui::Button;
 using CGE::Model;
 using CGE::Filesystem;
 

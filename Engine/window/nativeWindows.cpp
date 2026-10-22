@@ -4,10 +4,35 @@
 #include "../input/mouse.h"
 #include "nativeWindows.h"
 #include "../platform/platform_internal.h"
+#include "../ui/imgui_impl_cge_platform.h"
+
+#include <windowsx.h>
+
+//Windows Vista's, not declared for the engine's _WIN32_WINNT
+#ifndef WM_MOUSEHWHEEL
+#define WM_MOUSEHWHEEL 0x020E
+#endif
 
 TR_CHANNEL_EXT(CGE_Window);
 
 using namespace CGE;
+
+namespace{
+
+//! passes a key and the modifier state on to ImGui
+void imguiKey(WPARAM key, bool down){
+  ImGui_ImplCGE_Platform_AddModifiers(GetKeyState(VK_CONTROL) < 0, GetKeyState(VK_SHIFT) < 0,
+    GetKeyState(VK_MENU) < 0, GetKeyState(VK_LWIN) < 0 || GetKeyState(VK_RWIN) < 0);
+  ImGui_ImplCGE_Platform_AddKey((int)key, down);
+}
+
+//! passes a mouse button event on to ImGui, at the position it happened
+void imguiButton(LPARAM pos, int button, bool down){
+  ImGui_ImplCGE_Platform_AddMousePos((float)GET_X_LPARAM(pos), (float)GET_Y_LPARAM(pos));
+  ImGui_ImplCGE_Platform_AddMouseButton(button, down);
+}
+
+}
 
 LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
   PAINTSTRUCT ps;
@@ -45,12 +70,27 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       return 0;
       break;
     case WM_KEYDOWN:
+      imguiKey(wparam, true);
       Input::Keyboard::instance()->keyDown((int)wparam);
       return 0;
       break;
     case WM_KEYUP:
+      imguiKey(wparam, false);
       Input::Keyboard::instance()->keyUp((int)wparam);
       return 0;
+      break;
+    //Alt and F10 (only for ImGui); DefWindowProc keeps Alt+F4 working
+    case WM_SYSKEYDOWN:
+      imguiKey(wparam, true);
+      break;
+    case WM_SYSKEYUP:
+      imguiKey(wparam, false);
+      break;
+    case WM_SETFOCUS:
+      ImGui_ImplCGE_Platform_AddFocus(true);
+      break;
+    case WM_KILLFOCUS:
+      ImGui_ImplCGE_Platform_AddFocus(false);
       break;
     case WM_CHAR:
       Input::Keyboard::instance()->ascii((unsigned char)wparam);
@@ -59,34 +99,48 @@ LRESULT CALLBACK messageLoop(HWND wnd, UINT msg, WPARAM wparam, LPARAM lparam){
       //Input::Mouse::instance()->move((int)LOWORD(lparam), (int)HIWORD(lparam), (int)wparam);
       return 0;
     case WM_LBUTTONDOWN:
+      imguiButton(lparam, ImGuiMouseButton_Left, true);
       Input::Mouse::instance()->buttonDown((int)LOWORD(lparam), (int)HIWORD(lparam), MK_LBUTTON);
       return 0;
     case WM_MBUTTONDOWN:
+      imguiButton(lparam, ImGuiMouseButton_Middle, true);
       Input::Mouse::instance()->buttonDown((int)LOWORD(lparam), (int)HIWORD(lparam), MK_MBUTTON);
       return 0;
     case WM_RBUTTONDOWN:
+      imguiButton(lparam, ImGuiMouseButton_Right, true);
       Input::Mouse::instance()->buttonDown((int)LOWORD(lparam), (int)HIWORD(lparam), MK_RBUTTON);
       return 0;
     case WM_LBUTTONUP:
+      imguiButton(lparam, ImGuiMouseButton_Left, false);
       Input::Mouse::instance()->buttonUp((int)LOWORD(lparam), (int)HIWORD(lparam), MK_LBUTTON);
       return 0;
     case WM_MBUTTONUP:
+      imguiButton(lparam, ImGuiMouseButton_Middle, false);
       Input::Mouse::instance()->buttonUp((int)LOWORD(lparam), (int)HIWORD(lparam), MK_MBUTTON);
       return 0;
     case WM_RBUTTONUP:
+      imguiButton(lparam, ImGuiMouseButton_Right, false);
       Input::Mouse::instance()->buttonUp((int)LOWORD(lparam), (int)HIWORD(lparam), MK_RBUTTON);
       return 0;
+    //ImGui detects double clicks itself
     case WM_LBUTTONDBLCLK:
+      imguiButton(lparam, ImGuiMouseButton_Left, true);
       Input::Mouse::instance()->doubleClick((int)LOWORD(lparam), (int)HIWORD(lparam), MK_LBUTTON);
       return 0;
     case WM_MBUTTONDBLCLK:
+      imguiButton(lparam, ImGuiMouseButton_Middle, true);
       Input::Mouse::instance()->doubleClick((int)LOWORD(lparam), (int)HIWORD(lparam), MK_MBUTTON);
       return 0;
     case WM_RBUTTONDBLCLK:
+      imguiButton(lparam, ImGuiMouseButton_Right, true);
       Input::Mouse::instance()->doubleClick((int)LOWORD(lparam), (int)HIWORD(lparam), MK_RBUTTON);
       return 0;
     case WM_MOUSEWHEEL:
+      ImGui_ImplCGE_Platform_AddMouseWheel(0, (float)GET_WHEEL_DELTA_WPARAM(wparam)/WHEEL_DELTA);
       Input::Mouse::instance()->wheel((int)LOWORD(lparam), (int)HIWORD(lparam), GET_WHEEL_DELTA_WPARAM(wparam)/120);
+      return 0;
+    case WM_MOUSEHWHEEL:
+      ImGui_ImplCGE_Platform_AddMouseWheel(-(float)GET_WHEEL_DELTA_WPARAM(wparam)/WHEEL_DELTA, 0);
       return 0;
     default:
       break;
@@ -209,6 +263,16 @@ Gfx::NativeWindow WindowsWindow::getNativeWindow() const{
   wnd.kind = Gfx::NativeWindow::Win32;
   wnd.window = (uintptr_t)handle_;
   return wnd;
+}
+
+float WindowsWindow::getContentScale() const{
+  //GetDpiForWindow (Windows 10) isn't declared for the engine's _WIN32_WINNT
+  typedef UINT (WINAPI *GetDpiForWindowFunc)(HWND);
+  static GetDpiForWindowFunc getDpiForWindow = (GetDpiForWindowFunc)GetProcAddress(GetModuleHandleA("user32.dll"), "GetDpiForWindow");
+  if (!handle_ || !getDpiForWindow)
+    return 1;
+  UINT dpi = getDpiForWindow(handle_);
+  return dpi > 0 ? dpi/96.0f : 1.0f;
 }
 
 void WindowsWindow::kill(){

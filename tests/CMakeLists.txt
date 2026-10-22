@@ -10,6 +10,7 @@ add_executable(cge_tests
 	test_glcontext.cpp
 	test_gldevice.cpp
 	test_images.cpp
+	test_imgui.cpp
 	test_renderdevice.cpp
 	test_services.cpp
 	test_settings.cpp

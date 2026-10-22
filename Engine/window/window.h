@@ -45,6 +45,8 @@ public:
 	virtual void* getHandle() {return nullptr;}
   //! the native handles for the render device
   virtual Gfx::NativeWindow getNativeWindow() const {return Gfx::NativeWindow();}
+  //! the size of the window's contents relative to 96 DPI (1 = no scaling)
+  virtual float getContentScale() const {return 1;}
 
   virtual void changeSize(int width, int height){
     width_ = width;

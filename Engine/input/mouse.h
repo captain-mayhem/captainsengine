@@ -49,7 +49,7 @@ namespace Input{
     inline CGE::Vector2D getClickPos() {return clickPos_;}
     //! reset click position
     inline void resetMousePos() {clickPos_ = CGE::Vector2D(-1,-1);}
-    //! was the last click a gui click
+    //! was the last click on an ImGui window? (the application gets it anyway)
     inline bool isGuiClick() {return gui_click_;}
     //! show the cursor
     void showCursor(bool visible);
@@ -68,7 +68,7 @@ namespace Input{
     CGE::Vector2D clickPos_;
     //! the position of the mouse
     CGE::Vector2D mousePos_;
-    //! was it a click on a gui element?
+    //! was it a click on an ImGui window?
     bool gui_click_;
     //! is the mouse pointer present
     bool mousePointer_;
