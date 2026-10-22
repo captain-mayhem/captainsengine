@@ -7,9 +7,6 @@
 #include <iostream>
 #include "system/engine.h"
 #include "system/application.h"
-#include "renderer/renderer.h"
-#include "renderer/font.h"
-#include "renderer/forms.h"
 #include "math/vector.h"
 #include "input/keyboard.h"
 #include "input/mouse.h"
@@ -25,6 +22,8 @@ class EditorApp : public CGE::IApplication{
 public:
   void init(int argc, char** argv) override;
   void render() override {Graphic::render();}
+  //the scene's buffers and textures go before the render device
+  void shutdown() override {Graphic::release();}
   void onResize(int width, int height) override {Graphic::resize(width, height);}
   void onKeyDown(int key) override {Editor::keypress(key);}
   void onMouseDown(int x, int y, int button) override {Editor::mouseDown(x, y, button);}

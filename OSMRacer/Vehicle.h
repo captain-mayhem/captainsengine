@@ -6,6 +6,9 @@
 
 namespace CGE{
   class Camera;
+  namespace Gfx{
+  class DrawContext;
+  }
 }
 
 namespace CGE{
@@ -19,7 +22,7 @@ public:
   virtual CGE::Vec3f getPosition();
   virtual CGE::Vec3f getDirection();
   void setPosition(const CGE::Vec3f& pos);
-  void render(const CGE::Camera& cam);
+  void render(CGE::Gfx::DrawContext& ctx, const CGE::Camera& cam);
   void simulate(float acceleration, float steering);
 protected:
   CGE::CollisionBody* mAutobody;

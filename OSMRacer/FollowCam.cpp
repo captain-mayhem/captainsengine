@@ -12,10 +12,10 @@ FollowCam::~FollowCam(){
 
 }
 
-void FollowCam::activate(){
+void FollowCam::activate(CGE::Gfx::DrawContext& ctx){
   CGE::Vec3f pos = mTarget->getPosition();
   pos = pos-mTarget->getDirection()*-10;
   pos += Vec3f(0,1,0)*3;
   lookAt(pos,mTarget->getPosition(),Vec3f(0,1,0));
-  CGE::Camera::activate();
+  CGE::Camera::activate(ctx);
 }

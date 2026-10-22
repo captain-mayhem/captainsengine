@@ -122,11 +122,15 @@ void Scene::save(const std::string& filename) const{
     out.write((char*)&length, sizeof(length));
     out.write(name.c_str(), (std::streamsize) sizeof(char)*length);
   }
-  //textures
-  size = (unsigned)textures_.size();
+  //textures: the old renderer's, then the ones on a render device
+  std::vector<string> textureNames;
+  for (Texture* tex : textures_)
+    textureNames.push_back(tex->getFilename());
+  textureNames.insert(textureNames.end(), mDeviceTextureNames.begin(), mDeviceTextureNames.end());
+  size = (unsigned)textureNames.size();
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
-    string name = textures_[i]->getFilename();
+    string name = textureNames[i];
 #ifdef UNIX
     Utilities::replaceWith(name, '/', '\\');
 #endif
@@ -171,14 +175,20 @@ void Scene::save(const std::string& filename) const{
     //texture links
     for (int i = 0; i < MAX_TEXTURES; i++){
       Texture* tex = mdl->getTexture(i);
-      unsigned idx;
-      if (tex == nullptr){
-        idx = UINT_MAX;
-      }
-      else{
+      Gfx::Texture* deviceTex = mdl->getDeviceTexture(i);
+      unsigned idx = UINT_MAX;
+      if (tex != nullptr){
         for (idx = 0; idx < textures_.size(); idx++){
           if (tex == textures_[idx])
             break;
+        }
+      }
+      else if (deviceTex != nullptr){
+        for (unsigned j = 0; j < mDeviceTextures.size(); j++){
+          if (deviceTex == mDeviceTextures[j].get()){
+            idx = (unsigned)textures_.size()+j;
+            break;
+          }
         }
       }
       out.write((char*)&idx, sizeof(idx));
@@ -230,6 +240,8 @@ void Scene::load(const std::string& filename, Gfx::RenderDevice* device){
       return;
     }
     buffer[length] = -52;
+    //saved again as in the file, not with the working directory in front
+    msh->setFilename(name);
     if (device)
       msh->buildBuffers(*device);
     else
@@ -324,6 +336,20 @@ Gfx::Texture* Scene::getDeviceTexture(const std::string& name) const{
       return mDeviceTextures[i].get();
   }
   return nullptr;
+}
+
+unsigned Scene::addDeviceTexture(std::unique_ptr<Gfx::Texture> tex, const std::string& name){
+  std::string file = name;
+  Utilities::replaceWith(file, '\\', '/');
+  mDeviceTextures.push_back(std::move(tex));
+  mDeviceTextureNames.push_back(file);
+  return (unsigned)mDeviceTextures.size();
+}
+
+Gfx::Texture* Scene::getDeviceTextureAt(unsigned index) const{
+  if (index >= mDeviceTextures.size())
+    return nullptr;
+  return mDeviceTextures[index].get();
 }
 
 //! Get the model that is the nearest one on the ray

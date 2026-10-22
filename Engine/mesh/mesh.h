@@ -108,6 +108,8 @@ public:
   std::string getName() const {return name_;}
   //! get the filename of the mesh
   std::string getFilename() const {return filename_;}
+  //! the file name a scene saves for the mesh
+  void setFilename(const std::string& filename) {filename_ = filename;}
 
   //! is the mesh visible
   bool isVisible() {return m_visible;}

@@ -1,7 +1,9 @@
 #include <system/engine.h>
 #include <system/application.h>
-#include <renderer/renderer.h>
 #include <renderer/camera.h>
+#include <renderer/drawcontext.h>
+#include <renderer/light.h>
+#include <renderer/renderdevice.h>
 #include <input/keyboard.h>
 #include <physics/Simulator.h>
 #include <physics/CollisionPlane.h>
@@ -17,7 +19,6 @@
 #include "StreetGenerator.h"
 #include "FollowCam.h"
 #include "Terrain.h"
-#include <renderer/forms.h>
 
 using namespace CGE;
 
@@ -32,13 +33,6 @@ MapChunk map;
 CGE::Simulator* sim = nullptr;
 
 void init(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->setClearColor(Vec3f(0.2f,0.3f,1.0f));
-  rend->enableLighting(true);
-  rend->setNumLights(1);
-  rend->enableLighting(false);
-  //rend->renderMode(CGE::Wireframe);
-  rend->enableBackFaceCulling(true);
   //Vec3f ep = Vec3f(map.getCenter().x,map.getCenter().y,map.getCenter().z);
   //ep.normalize();
   cam.project(60,1,0.1f,5000);
@@ -54,22 +48,27 @@ void deinit(){
 }
 
 void render(){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->clear(ZBUFFER | COLORBUFFER);
-  
-  rend->enableTexturing(false);
-  rend->resetModelView();
-  rend->enableLighting(true);
+  CGE::Gfx::RenderDevice* device = CGE::Engine::instance()->getRenderDevice();
+  CGE::Gfx::DrawContext& ctx = *CGE::Engine::instance()->getDrawContext();
+  CGE::Gfx::PassDesc pass;
+  pass.clearColor = {0.2f, 0.3f, 1.0f, 1.0f};
+  if (!device->beginPass(pass))
+    return;
+  ctx.setDepth(true, true);
+  ctx.setCull(CGE::Gfx::CullMode::Back);
 
-  activeCam->activate();
+  activeCam->activate(ctx);
   CGE::Light lit(CGE::Light::Directional, Vec3f(0.5,1,0));
-  rend->setLight(0, lit);
-  test.render(*rend, *activeCam);
+  ctx.setLights({&lit});
+  test.render(ctx, *activeCam);
 
-  car->render(*activeCam);
-  map.render(activeCam);
-  rend->enableLighting(false);
-  
+  car->render(ctx, *activeCam);
+  map.render(ctx, activeCam);
+  ctx.clearLights();
+  ctx.resetMaterial();
+  ctx.setCull(CGE::Gfx::CullMode::Off);
+  ctx.setDepth(false, false);
+  device->endPass();
 }
 
 float acceleration = 0;

@@ -10,7 +10,6 @@
 #include "input/keyboard.h"
 #include "input/mouse.h"
 #include "mesh/model.h"
-#include "renderer/renderer.h"
 #include "system/file.h"
 
 #ifndef M_PI
@@ -222,11 +221,11 @@ void Editor::_mouseDown(int x, int y, int button){
   }
   if (button == MB_LEFT){
     //Picking
-    CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-    int viewport[4];
-    rend->getViewport(viewport);
-    rend->projection(60, 4.0f/3.0f, 0.1f, 1000.0f);
-    Matrix proj = rend->getMatrix(CGE::Projection);
+    //the camera's projection in OpenGL's convention, which the ray expects
+    const CGE::Frustum& frustum = Graphic::instance()->getCam().getFrustum();
+    float top = frustum.getNearDist()*tanf(frustum.getAngle()*(float)M_PI/360.0f);
+    float right = top*frustum.getRatio();
+    Matrix proj(Matrix::Perspective, -right, right, -top, top, frustum.getNearDist(), frustum.getFarDist());
     //the 3D view covers the whole window, so pick in window pixels
     CGE::VirtualScreen& screen = CGE::Engine::instance()->getVirtualScreen();
     CGE::Vec2i pixel = screen.toWindow(x, y);
@@ -284,7 +283,7 @@ int Editor::attribValue(const std::string& attrib){
 //! startup after renderer is initialized
 void Editor::startup(){
   if (!mLoadScene.empty()){
-    Graphic::instance()->getScene().load(mLoadScene);
+    Graphic::instance()->loadScene(mLoadScene);
     Graphic::instance()->setFilename(mLoadScene);
   }
   for (unsigned i = 0; i < mLoadModels.size(); ++i){

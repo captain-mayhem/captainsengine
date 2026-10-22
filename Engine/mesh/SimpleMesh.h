@@ -1,24 +1,39 @@
 #include <cge_export.h>
 
-#include "../renderer/vertexbuffer.h"
+#include <cstdint>
+#include <memory>
+#include <vector>
+
+#include "../renderer/gfxtypes.h"
 
 namespace CGE{
 
-class VertexBuffer;
-class IndexBuffer;
-class Camera;
-class Renderer;
+namespace Gfx{
+class Buffer;
+class DrawContext;
+class RenderDevice;
+}
 
+//! Lit geometry without materials: a vertex buffer and maybe 16-bit indices
+/*! It is drawn with the context's material and lights (BuiltinShader::Lit). */
 class CGE_API SimpleMesh{
 public:
-  SimpleMesh(VertexBuffer* vb, IndexBuffer* ib, PrimitiveType rt);
+  struct Vertex{
+    float position[3];
+    float normal[3];
+  };
+  //! the layout of Vertex: position and normal
+  static const Gfx::VertexLayout& getVertexLayout();
+  //! makes the buffers on the device; without indices the vertices are drawn in order
+  SimpleMesh(Gfx::RenderDevice& device, const std::vector<Vertex>& vertices,
+    const std::vector<uint16_t>& indices, Gfx::PrimitiveType primitive);
   ~SimpleMesh();
-  void render();
+  void render(Gfx::DrawContext& ctx);
 protected:
-  VertexBuffer* mVB;
-  IndexBuffer* mIB;
-  PrimitiveType mRenderType;
+  std::unique_ptr<Gfx::Buffer> mVB;
+  std::unique_ptr<Gfx::Buffer> mIB;
+  int mCount;
+  Gfx::PrimitiveType mRenderType;
 };
 
 }
-

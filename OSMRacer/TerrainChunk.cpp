@@ -2,8 +2,10 @@
 #include "TerrainChunk.h"
 
 #include "system/engine.h"
-#include "renderer/renderer.h"
 #include "renderer/camera.h"
+#include "renderer/drawcontext.h"
+#include "renderer/renderdevice.h"
+#include "mesh/SimpleMesh.h"
 
 using namespace CGE;
 
@@ -11,38 +13,29 @@ TerrainChunk::TerrainChunk(){
 }
 
 TerrainChunk::~TerrainChunk(){
-  delete mVB;
-  for (int i = 0; i < 5; ++i){
-    delete mInds[i];
-  }
-  delete [] mInds;
 }
 
 void TerrainChunk::generate(int32 numVertices, float widthScale, float startX, float startZ){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  mVB = rend->createVertexBuffer();
+  using namespace CGE::Gfx;
+  RenderDevice* device = CGE::Engine::instance()->getRenderDevice();
   int numLODs = (int)(log((double)(numVertices-1))/log(2.0))+1;
-  mVB->create(VB_POSITION | VB_NORMAL, numVertices*numVertices);
-  mInds = new CGE::IndexBuffer*[numLODs];
   
   //generate vertices 
-  mVB->lockVertexPointer();
+  std::vector<SimpleMesh::Vertex> vertices(numVertices*numVertices);
   for (int j = 0; j < numVertices; ++j){
     for (int i = 0; i < numVertices; ++i){
       Vec3f p(startX+i*widthScale,0,startZ+j*widthScale);
       mBox.addPoint(p);
-      mVB->setPosition(j*numVertices+i,p);
-      mVB->setNormal(j*numVertices+i,Vec3f(0,1,0));
+      vertices[j*numVertices+i] = {{p.x, p.y, p.z}, {0, 1, 0}};
     }
   }
-  mVB->unlockVertexPointer();
+  mVB = device->createBuffer({BufferType::Vertex, Usage::Immutable, vertices.size()*sizeof(SimpleMesh::Vertex)}, vertices.data());
   
   //generate indices
   int skipSize = 1;
   for (int bufferNum = 0; bufferNum < numLODs; ++bufferNum){
     int numQuads = (numVertices-1)/skipSize;
-    mInds[bufferNum] = rend->createIndexBuffer(CGE::IndexBuffer::IB_USHORT,2*numQuads*(numQuads+1));
-    short* indices = (short*)mInds[bufferNum]->lockIndexPointer();
+    std::vector<uint16_t> indices(2*numQuads*(numQuads+1));
     int idx = 0;
     int curr_row = 0;
     for (int j = 0; j < (numVertices-1)/skipSize; ++j){
@@ -55,7 +48,8 @@ void TerrainChunk::generate(int32 numVertices, float widthScale, float startX, f
       }
       curr_row = next_row;
     }
-    mInds[bufferNum]->unlockIndexPointer();
+    mInds.push_back(device->createBuffer({BufferType::Index, Usage::Immutable, indices.size()*sizeof(uint16_t)}, indices.data()));
+    mIndexCounts.push_back((int)indices.size());
     skipSize *= 2;
   }
   /*indices[0] = 0;
@@ -64,8 +58,9 @@ void TerrainChunk::generate(int32 numVertices, float widthScale, float startX, f
   indices[3] = numVertices*numVertices-1;*/
 }
 
-void TerrainChunk::render(const CGE::Camera& cam){
-  mVB->activate();
+void TerrainChunk::render(CGE::Gfx::DrawContext& ctx, const CGE::Camera& cam){
+  if (!mVB)
+    return;
   float dist = (cam.getPosition()-mBox.getCenter()).magnitude();
   float dist2 = dist*dist;
   int lodLevel;
@@ -79,7 +74,10 @@ void TerrainChunk::render(const CGE::Camera& cam){
     lodLevel = 3;
   else
     lodLevel = 4;
-  mVB->draw(CGE::VB_Tristrip, mInds[lodLevel]);
+  if (lodLevel >= (int)mInds.size())
+    lodLevel = (int)mInds.size()-1;
+  ctx.drawIndexed(CGE::Gfx::BuiltinShader::Lit, mVB.get(), SimpleMesh::getVertexLayout(), mInds[lodLevel].get(),
+    CGE::Gfx::IndexType::UInt16, CGE::Gfx::PrimitiveType::TriangleStrip, mIndexCounts[lodLevel]);
 }
 
 CGE::BBox TerrainChunk::getBox(){

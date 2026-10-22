@@ -10,7 +10,7 @@ public:
   CollisionPlane(const Vec3f& normal, float distance);
   virtual ~CollisionPlane();
   virtual Type getType() {return Plane;}
-  virtual void render(const CGE::Camera& cam);
+  virtual void render(Gfx::DrawContext& ctx, const CGE::Camera& cam);
 };
 
 }

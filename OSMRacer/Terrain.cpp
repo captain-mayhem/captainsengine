@@ -2,6 +2,9 @@
 #include "Terrain.h"
 
 #include "TerrainChunk.h"
+#include <renderer/drawcontext.h>
+#include <renderer/font.h>
+#include <system/engine.h>
 
 using namespace CGE;
 
@@ -49,13 +52,21 @@ void Terrain::generateTerrainChunks(int chunksize){
 }
 
 static int count;
-void Terrain::render(CGE::Renderer& rend, CGE::Camera& cam){
+namespace{
+struct Traversal{
+  CGE::Gfx::DrawContext* ctx;
+  const CGE::Camera* cam;
+};
+}
+
+void Terrain::render(CGE::Gfx::DrawContext& ctx, const CGE::Camera& cam){
   count = 0;
   CGE::Material mat("terrain");
   mat.setDiffuse(CGE::Color(0,1,0,1));
   mat.setAmbient(CGE::Color(0,0.7f,0,1));
-  rend.setMaterial(mat);
-  mChunks.traverse(&cam);
+  ctx.setMaterial(mat);
+  Traversal traversal = {&ctx, &cam};
+  mChunks.traverse(&traversal);
   char buf[256];
   sprintf(buf, "Terrain chunks rendered: %i", count);
   CGE::Font* fnt = CGE::Engine::instance()->getFont(0);
@@ -63,7 +74,8 @@ void Terrain::render(CGE::Renderer& rend, CGE::Camera& cam){
 }
 
 CGE::OctreeStatic<TerrainChunk*>::TraversalState Terrain::renderCB(const std::vector<TerrainChunk*>& values, const CGE::BBox& box, uint8 flags, void* data){
-  CGE::Camera* cam = (CGE::Camera*)data;
+  Traversal* traversal = (Traversal*)data;
+  const CGE::Camera* cam = traversal->cam;
   OctreeStatic<TerrainChunk*>::TraversalState state = OctreeStatic<TerrainChunk*>::RECURSE_TO_END;
 
   //check if we do not pass through
@@ -76,7 +88,7 @@ CGE::OctreeStatic<TerrainChunk*>::TraversalState Terrain::renderCB(const std::ve
   }
 
   for (uint32 i = 0; i < values.size(); ++i){
-    values[i]->render(*cam);
+    values[i]->render(*traversal->ctx, *cam);
     ++count;
   }
 
