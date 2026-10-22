@@ -14,8 +14,10 @@
 #include <math/matrixstack.h>
 #include <mesh/mesh.h>
 #include <mesh/model.h>
+#include <platform/assets.h>
 #include <renderer/camera.h>
 #include <renderer/drawcontext.h>
+#include <renderer/font.h>
 #include <renderer/forms.h>
 #include <renderer/light.h>
 #include <renderer/renderdevice.h>
@@ -31,10 +33,9 @@ using namespace CGE;
 using namespace CGE::Gfx;
 
 // The engine's drawing code on a render device: the matrix stack, the
-// uniform stream, the draw context, Forms, Mesh, Scene and the render
+// uniform stream, the draw context, Forms, Font, Mesh, Scene and the render
 // techniques. The GL tests draw into render targets on a hidden window and
-// read the pixels back, once with the core profile and once with the
-// compatibility profile.
+// read the pixels back.
 
 TEST(MatrixStack, MultipliesFromTheRight){
   MatrixStack stack;
@@ -190,21 +191,17 @@ void writeFile(const std::filesystem::path& path, const char* text){
   out << text;
 }
 
-//! the parameter: the compatibility profile
-class Drawing : public ::testing::TestWithParam<bool>{
+class Drawing : public ::testing::Test{
 protected:
   void SetUp() override{
     device_ = RenderDevice::create("OpenGL");
     ASSERT_NE(device_, nullptr);
     DeviceDesc desc;
     desc.debug = true;
-    desc.compatibilityProfile = GetParam();
     if (!window_.create(*device_, desc))
       GTEST_SKIP() << "no window";
     if (!device_->init(window_.native(), desc))
       GTEST_SKIP() << "no OpenGL 3.3 core-profile driver";
-    if (!device_->createSampler(SamplerDesc()))
-      GTEST_SKIP() << "no OpenGL 3.3 driver";
     ctx_ = std::make_unique<DrawContext>(*device_);
     forms_ = std::make_unique<Forms>(*device_);
     SamplerDesc nearest;
@@ -332,7 +329,7 @@ protected:
 
 }
 
-TEST_P(Drawing, QuadsTakeTheContextsColorAndModelMatrix){
+TEST_F(Drawing, QuadsTakeTheContextsColorAndModelMatrix){
   auto rt = target(8, 8);
   begin(rt.get());
   ctx_->setColor(1, 0, 0);
@@ -355,7 +352,7 @@ TEST_P(Drawing, QuadsTakeTheContextsColorAndModelMatrix){
   EXPECT_EQ(ctx_->model().depth(), 1);
 }
 
-TEST_P(Drawing, EveryDrawKeepsItsUniforms){
+TEST_F(Drawing, EveryDrawKeepsItsUniforms){
   //eight draws in one pass with eight colours: the stream must not reuse their ranges
   auto rt = target(8, 1);
   begin(rt.get());
@@ -369,7 +366,7 @@ TEST_P(Drawing, EveryDrawKeepsItsUniforms){
     EXPECT_TRUE(isNear(pixels[i], (int)(i/7.0f*255+0.5f), (int)((1-i/7.0f)*255+0.5f), (i%2)*255)) << "draw " << i;
 }
 
-TEST_P(Drawing, TexturedQuadsAreUpright){
+TEST_F(Drawing, TexturedQuadsAreUpright){
   auto rt = target(3, 2);
   auto tex = pictureTexture();
   ASSERT_NE(tex, nullptr);
@@ -387,7 +384,7 @@ TEST_P(Drawing, TexturedQuadsAreUpright){
   }
 }
 
-TEST_P(Drawing, LinesHaveTheLineWidth){
+TEST_F(Drawing, LinesHaveTheLineWidth){
   auto rt = target(8, 8);
   begin(rt.get());
   ctx_->setColor(0, 1, 0);
@@ -406,7 +403,7 @@ TEST_P(Drawing, LinesHaveTheLineWidth){
   EXPECT_TRUE(isNear(pixels[1*8+2], 0, 0, 0));
 }
 
-TEST_P(Drawing, BlendModesCombineWithWhatIsDrawn){
+TEST_F(Drawing, BlendModesCombineWithWhatIsDrawn){
   auto rt = target(4, 1);
   begin(rt.get());
   ctx_->setColor(0.5f, 0.5f, 0.5f);
@@ -432,7 +429,7 @@ TEST_P(Drawing, BlendModesCombineWithWhatIsDrawn){
   EXPECT_TRUE(isNear(pixels[3], 128, 128, 128));
 }
 
-TEST_P(Drawing, DepthOnlyDrawsMaskLaterOnes){
+TEST_F(Drawing, DepthOnlyDrawsMaskLaterOnes){
   //a mask in the depth buffer only, then a draw that passes where depth is equal
   auto rt = target(4, 1, Format::Depth24);
   ASSERT_TRUE(device_->beginFrame());
@@ -460,7 +457,7 @@ TEST_P(Drawing, DepthOnlyDrawsMaskLaterOnes){
   EXPECT_TRUE(isNear(pixels[3], 0, 0, 0));
 }
 
-TEST_P(Drawing, ShapesAreLitByTheLights){
+TEST_F(Drawing, ShapesAreLitByTheLights){
   auto rt = target(8, 8, Format::Depth24);
   auto box = Forms::createBox(*device_, 4, 4, 4);
   ASSERT_NE(box, nullptr);
@@ -489,7 +486,7 @@ TEST_P(Drawing, ShapesAreLitByTheLights){
   EXPECT_TRUE(isNear(pixels[6*8+6], 128, 64, 255));
 }
 
-TEST_P(Drawing, MeshesShowTheirMaterialsTextures){
+TEST_F(Drawing, MeshesShowTheirMaterialsTextures){
   Mesh mesh;
   ASSERT_TRUE(mesh.loadFromFile(writeQuadObj("picture", 0, 0, 3, 2, 0)));
   ASSERT_TRUE(mesh.buildBuffers(*device_));
@@ -521,7 +518,7 @@ void expectPicture(const std::vector<Pixel>& pixels){
 
 }
 
-TEST_P(Drawing, MeshesWithoutMaterialKeepTheContextsTexture){
+TEST_F(Drawing, MeshesWithoutMaterialKeepTheContextsTexture){
   Mesh mesh;
   ASSERT_TRUE(mesh.loadFromFile(writeQuadObj("plain", 0, 0, 3, 2, 0, nullptr)));
   ASSERT_TRUE(mesh.buildBuffers(*device_));
@@ -538,7 +535,7 @@ TEST_P(Drawing, MeshesWithoutMaterialKeepTheContextsTexture){
   expectPicture(read(rt.get()));
 }
 
-TEST_P(Drawing, ModelsGiveMeshesWithoutMaterialTheirDeviceTexture){
+TEST_F(Drawing, ModelsGiveMeshesWithoutMaterialTheirDeviceTexture){
   Mesh mesh;
   ASSERT_TRUE(mesh.loadFromFile(writeQuadObj("plain", 0, 0, 3, 2, 0, nullptr)));
   ASSERT_TRUE(mesh.buildBuffers(*device_));
@@ -554,7 +551,7 @@ TEST_P(Drawing, ModelsGiveMeshesWithoutMaterialTheirDeviceTexture){
   expectPicture(read(rt.get()));
 }
 
-TEST_P(Drawing, ScenesLoadTheirTexturesOntoTheDevice){
+TEST_F(Drawing, ScenesLoadTheirTexturesOntoTheDevice){
   //a scene file with the quad without material, image.png and one model with it
   std::string obj = writeQuadObj("plain", 0, 0, 3, 2, 0, nullptr);
   std::filesystem::path dir = std::filesystem::path(obj).parent_path();
@@ -587,12 +584,11 @@ TEST_P(Drawing, ScenesLoadTheirTexturesOntoTheDevice){
   std::filesystem::path cwd = std::filesystem::current_path();
   std::filesystem::current_path(dir);
   Scene scene;
-  scene.load("test.hsf", device_.get());
+  scene.load("test.hsf", *device_);
   std::filesystem::current_path(cwd);
 
   Gfx::Texture* tex = scene.getDeviceTexture("image.png");
   ASSERT_NE(tex, nullptr);
-  EXPECT_TRUE(scene.getTextures().empty());
   Model* model = scene.getModel(7);
   ASSERT_NE(model, nullptr);
   EXPECT_EQ(model->getDeviceTexture(0), tex);
@@ -606,7 +602,7 @@ TEST_P(Drawing, ScenesLoadTheirTexturesOntoTheDevice){
   EXPECT_EQ(scene.getDeviceTexture("image.png"), nullptr);
 }
 
-TEST_P(Drawing, ForwardAndLightPrepassLightTheSame){
+TEST_F(Drawing, ForwardAndLightPrepassLightTheSame){
   Scene scene;
   Camera cam;
   fillScene(scene, cam, {writeQuadObj("lit", 0, 0, 3, 2, 0)});
@@ -641,7 +637,7 @@ TEST_P(Drawing, ForwardAndLightPrepassLightTheSame){
   EXPECT_LT(lit, (int)forwardPixels.size());
 }
 
-TEST_P(Drawing, LightPrepassHidesTransparentSurfacesBehindOpaqueOnes){
+TEST_F(Drawing, LightPrepassHidesTransparentSurfacesBehindOpaqueOnes){
   //a white opaque quad in front of a larger blue transparent one
   const char* white = "Kd 1 1 1\n";
   const char* blue = "Kd 0 0 1\nd 0.5\n";
@@ -685,9 +681,63 @@ TEST_P(Drawing, LightPrepassHidesTransparentSurfacesBehindOpaqueOnes){
   EXPECT_LT(beside.b, 140);
 }
 
-INSTANTIATE_TEST_SUITE_P(Profiles, Drawing, ::testing::Values(false, true),
-  [](const ::testing::TestParamInfo<bool>& info){
-    return info.param ? "Compatibility" : "Core";
-  });
+
+TEST_F(Drawing, FontDrawsItsTextsInTheirColours){
+  //the font is the asset textures/font/font.bmp
+  std::filesystem::path dir = std::filesystem::temp_directory_path()/"cge_test_font";
+  std::filesystem::create_directories(dir/"textures"/"font");
+  std::filesystem::copy_file(CGE_TEST_FONT, dir/"textures"/"font"/"font.bmp", std::filesystem::copy_options::overwrite_existing);
+  std::string root = Assets::getRoot();
+  Assets::setRoot(dir.string());
+  //CGE:: because of X11's Font
+  CGE::Font font(*device_);
+  Assets::setRoot(root);
+
+  //"A" in red for one frame at (2, 2), "B" in green at (20, 2) for two seconds
+  font.setColor(1, 0, 0);
+  font.print(2, 2, "A", 0);
+  font.setColor(0, 1, 0);
+  font.print(20, 2, "B", 0, 2.0f);
+  auto rt = target(40, 20);
+  begin(rt.get());
+  ctx_->setBlend(BlendMode::Additive);
+  font.render(*ctx_, 0.5);
+  end();
+  std::vector<Pixel> pixels = read(rt.get());
+  //each glyph's cell is 16x16 units from its position, the next one 10 units further
+  int red = 0, green = 0;
+  for (int y = 0; y < 20; ++y){
+    for (int x = 0; x < 40; ++x){
+      const Pixel& p = pixels[y*40+x];
+      EXPECT_EQ(p.b, 0) << x << "," << y;
+      if (p.r > 128){
+        ++red;
+        EXPECT_TRUE(x >= 2 && x < 18 && y >= 2 && y < 18) << x << "," << y;
+      }
+      if (p.g > 128){
+        ++green;
+        EXPECT_TRUE(x >= 20 && x < 36 && y >= 2 && y < 18) << x << "," << y;
+      }
+    }
+  }
+  EXPECT_GT(red, 10);
+  EXPECT_GT(green, 10);
+  //the red text was shown for its frame, the green one stays
+  EXPECT_FALSE(font.isEmpty());
+  begin(rt.get());
+  ctx_->setBlend(BlendMode::Additive);
+  font.render(*ctx_, 0.5);
+  end();
+  pixels = read(rt.get());
+  red = green = 0;
+  for (const Pixel& p : pixels){
+    red += p.r > 128;
+    green += p.g > 128;
+  }
+  EXPECT_EQ(red, 0);
+  EXPECT_GT(green, 10);
+  font.clear();
+  EXPECT_TRUE(font.isEmpty());
+}
 
 #endif

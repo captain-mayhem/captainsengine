@@ -37,8 +37,6 @@ public:
   void pitch(float angle);
   void yaw(float angle);
   void roll(float angle);
-  //! sets the projection and view of the old renderer
-  virtual void activate();
   //! sets the context's projection (for its device) and view
   virtual void activate(Gfx::DrawContext& ctx);
   //! from world space to the camera's view space

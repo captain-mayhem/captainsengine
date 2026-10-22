@@ -157,7 +157,7 @@ bool World::load(const string& name){
   unsigned idx = name.find_last_of('.');
   scenename.erase(idx+1);
   scenename += "hsf";
-  scene_.load(scenename, CGE::Engine::instance()->getRenderDevice());
+  scene_.load(scenename, *CGE::Engine::instance()->getRenderDevice());
 #endif
   
   float version;

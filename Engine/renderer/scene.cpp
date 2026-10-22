@@ -1,6 +1,5 @@
 
 #include "scene.h"
-#include "texture.h"
 #include "../system/engine.h"
 #include "../system/utilities.h"
 #include "../system/file.h"
@@ -8,7 +7,6 @@
 #include "../mesh/mesh.h"
 #include "../math/ray.h"
 #include "../renderer/light.h"
-#include "../renderer/renderer.h"
 #include "../renderer/camera.h"
 #include "../renderer/renderdevice.h"
 #include "../renderer/textureloader.h"
@@ -54,29 +52,12 @@ void Scene::clear(){
     SAFE_DELETE(meshes_[i]);
   }
   meshes_.clear();
-  for (unsigned i = 0; i < textures_.size(); i++){
-    SAFE_DELETE(textures_[i]);
-  }
   for (unsigned i = 0; i < mLights.size(); ++i){
     SAFE_DELETE(mLights[i]);
   }
   mLights.clear();
-  textures_.clear();
   mDeviceTextures.clear();
   mDeviceTextureNames.clear();
-}
-
-void Scene::render(Mesh::DrawPart part){
-  Renderer* rend = Engine::instance()->getRenderer();
-  list<SceneNode*>::iterator iter;
-  for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
-    if ((*iter)->getType() == SceneNode::MESH){
-      Model* mdl = (Model*)*iter;
-      mdl->setupMaterial();
-      mdl->render(part);
-      mdl->resetMaterial();
-    }
-  }
 }
 
 void Scene::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
@@ -122,15 +103,11 @@ void Scene::save(const std::string& filename) const{
     out.write((char*)&length, sizeof(length));
     out.write(name.c_str(), (std::streamsize) sizeof(char)*length);
   }
-  //textures: the old renderer's, then the ones on a render device
-  std::vector<string> textureNames;
-  for (Texture* tex : textures_)
-    textureNames.push_back(tex->getFilename());
-  textureNames.insert(textureNames.end(), mDeviceTextureNames.begin(), mDeviceTextureNames.end());
-  size = (unsigned)textureNames.size();
+  //textures
+  size = (unsigned)mDeviceTextureNames.size();
   out.write((char*)&size, sizeof(size));
   for (unsigned i = 0; i < size; i++){
-    string name = textureNames[i];
+    string name = mDeviceTextureNames[i];
 #ifdef UNIX
     Utilities::replaceWith(name, '/', '\\');
 #endif
@@ -174,19 +151,12 @@ void Scene::save(const std::string& filename) const{
     out.write((char*)&idx, sizeof(idx));
     //texture links
     for (int i = 0; i < MAX_TEXTURES; i++){
-      Texture* tex = mdl->getTexture(i);
       Gfx::Texture* deviceTex = mdl->getDeviceTexture(i);
       unsigned idx = UINT_MAX;
-      if (tex != nullptr){
-        for (idx = 0; idx < textures_.size(); idx++){
-          if (tex == textures_[idx])
-            break;
-        }
-      }
-      else if (deviceTex != nullptr){
+      if (deviceTex != nullptr){
         for (unsigned j = 0; j < mDeviceTextures.size(); j++){
           if (deviceTex == mDeviceTextures[j].get()){
-            idx = (unsigned)textures_.size()+j;
+            idx = j;
             break;
           }
         }
@@ -206,7 +176,7 @@ void Scene::save(const std::string& filename) const{
 }
 
 //! load the scene
-void Scene::load(const std::string& filename, Gfx::RenderDevice* device){
+void Scene::load(const std::string& filename, Gfx::RenderDevice& device){
   TR_USE(CGE_Scene);
   ifstream in(filename.c_str(), ios::binary);
   if (!in)
@@ -214,7 +184,6 @@ void Scene::load(const std::string& filename, Gfx::RenderDevice* device){
   //the files are relative to the working directory
   std::string cwd = CGE::Filesystem::getCwd();
 #ifdef WIN32
-  //the old Texture::getName gives what follows the last backslash
   cwd += "\\";
 #else
   cwd += "/";
@@ -242,10 +211,7 @@ void Scene::load(const std::string& filename, Gfx::RenderDevice* device){
     buffer[length] = -52;
     //saved again as in the file, not with the working directory in front
     msh->setFilename(name);
-    if (device)
-      msh->buildBuffers(*device);
-    else
-      msh->buildVBO();
+    msh->buildBuffers(device);
     meshes_.push_back(msh);
   }
   //read and rebuild textures
@@ -260,14 +226,9 @@ void Scene::load(const std::string& filename, Gfx::RenderDevice* device){
 #ifdef UNIX
     Utilities::replaceWith(name, '\\', '/');
 #endif
-    if (device){
-      mDeviceTextures.push_back(Gfx::loadTexture(*device, cwd+name));
-      Utilities::replaceWith(name, '\\', '/');
-      mDeviceTextureNames.push_back(name);
-      continue;
-    }
-    Texture* tex = Texture::create(cwd+name);
-    textures_.push_back(tex);
+    mDeviceTextures.push_back(Gfx::loadTexture(device, cwd+name));
+    Utilities::replaceWith(name, '\\', '/');
+    mDeviceTextureNames.push_back(name);
   }
   //read lights
   in.read((char*)&size, sizeof(size));
@@ -307,12 +268,8 @@ void Scene::load(const std::string& filename, Gfx::RenderDevice* device){
     //texture links
     for (int i = 0; i < MAX_TEXTURES; i++){
       in.read((char*)&idx, sizeof(idx));
-      if (idx != UINT_MAX){
-        if (device)
-          mdl->assignDeviceTexture(mDeviceTextures[idx].get(), i);
-        else
-          mdl->assignTexture(textures_[idx], i);
-      }
+      if (idx != UINT_MAX && idx < mDeviceTextures.size())
+        mdl->assignDeviceTexture(mDeviceTextures[idx].get(), i);
     }
     //trafo
     float mat[16];

@@ -18,7 +18,6 @@
 #include <cassert>
 #include "math/vector.h"
 #include "system/engine.h"
-#include "renderer/renderer.h"
 #include "renderer/camera.h"
 #include "renderer/font.h"
 #include "system/types.h"

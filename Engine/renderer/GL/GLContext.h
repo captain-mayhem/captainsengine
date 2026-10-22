@@ -11,8 +11,7 @@ namespace Gfx{
 //! An OpenGL context on a window, created by the GL backend
 /*! One implementation per platform: WGL (Windows), EGL on X11 (Linux) and
     EGL with OpenGL ES (Android). On desktop it is an OpenGL 3.3 context with
-    the core profile, or the compatibility profile for the old renderers
-    (DeviceDesc::compatibilityProfile). */
+    the core profile. */
 class GLContext{
 public:
   //! the context implementation of this platform

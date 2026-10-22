@@ -40,10 +40,7 @@
 #include "../math/bbox.h"
 
 namespace CGE{
-class VertexBuffer;
-class IndexBuffer;
 class Material;
-class Texture;
 namespace Gfx{
 class Buffer;
 class DrawContext;
@@ -89,20 +86,14 @@ public:
   void addSubMesh(int triangleFrom, int triangleCount, int materialIdx);
   //! loads a mesh from a file
   bool loadFromFile(std::string filename);
-  //! builds the buffers for the old renderer
-  /*! The render device's buffers follow when the mesh is first drawn
-      through a Gfx::DrawContext. */
-  void buildVBO();
-  //! builds the buffers for a render device only, instead of buildVBO
-  /*! Also loads the materials' textures onto the device. */
+  //! builds the buffers on a render device
+  /*! Also loads the materials' textures onto the device. A mesh that isn't
+      built gets its buffers when it is first drawn. */
   bool buildBuffers(Gfx::RenderDevice& device);
-	//! draw the mesh with the old renderer
-	void draw(DrawPart part);
   //! draws the mesh through a render device with the context's lit shader
   /*! Sets the context's material and texture per submesh. Submeshes
-      without a material are drawn white with the texture the context had
-      (as with the old renderers, which kept the bound texture), and that
-      texture is the context's again afterwards. */
+      without a material are drawn white with the texture the context had,
+      and that texture is the context's again afterwards. */
   void draw(Gfx::DrawContext& ctx, DrawPart part);
   //! get the name of the mesh
   std::string getName() const {return name_;}
@@ -188,12 +179,6 @@ protected:
   //! the indices
   std::vector<unsigned short> indices_;
 
-  //! the vertex buffer
-  CGE::VertexBuffer* vb_;
-
-  //! the index buffer
-  IndexBuffer* mIB;
-
   //! the name of the mesh
   std::string name_;
 
@@ -208,9 +193,6 @@ protected:
 
   //! the materials
   std::vector<Material*> mMaterials;
-
-  //! the textures
-  std::vector<Texture*> mTextures;
 
   //! the sub meshes
   std::vector<SubMesh> mSubmeshes;

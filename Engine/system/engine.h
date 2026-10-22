@@ -32,7 +32,6 @@
 
 namespace CGE{
 class AppWindow;
-class Renderer;
 class Font;
 class Forms;
 class Console;
@@ -91,7 +90,6 @@ class CGE_API Engine{
     static void init();
     inline static Engine* instance() {return eng;}
     void startup(int argc, char** argv);
-    bool startupRenderer(const std::string& renderer);
     //! runs one frame: processes the window events, calls the application's
     //! update as often as needed, renders and waits for the frame limit
     void runFrame();
@@ -110,9 +108,9 @@ class CGE_API Engine{
     //! the application comes back from the background
     void resume();
     inline bool isPaused() {return paused_;}
-    inline CGE::Renderer* getRenderer() {return rend_.get();}
     //! the render device, which owns the window's graphics context
-    /*! The Null device when engine.ini says graphics = false. */
+    /*! The backend that renderer in engine.ini names (default OpenGL), or
+        the Null device when engine.ini says graphics = false. */
     inline Gfx::RenderDevice* getRenderDevice() {return device_.get();}
     //! the engine's drawing state on the render device, for Forms, Mesh, Scene and the render techniques
     inline Gfx::DrawContext* getDrawContext() {return draw_.get();}
@@ -154,6 +152,8 @@ class CGE_API Engine{
     void frame(bool update);
     //! renders the application and the GUI and presents the frame
     void renderFrame();
+    //! draws the texts of the fonts in their own pass
+    void renderFonts();
     //! creates the ImGui context and its backends for the window and the device
     void startupImGui();
     void shutdownImGui();
@@ -164,13 +164,11 @@ class CGE_API Engine{
 
     //! The window
     std::unique_ptr<CGE::AppWindow> win_;
-    //! the render device; destroyed after the renderer
+    //! the render device
     std::unique_ptr<Gfx::RenderDevice> device_;
     //! drawing on the render device; destroyed before it
     std::unique_ptr<Gfx::DrawContext> draw_;
 
-    //! The renderer
-    std::unique_ptr<CGE::Renderer> rend_;
     //! the virtual resolution
     CGE::VirtualScreen virtual_;
     //! The fonts

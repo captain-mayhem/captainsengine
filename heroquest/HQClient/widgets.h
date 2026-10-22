@@ -39,7 +39,7 @@ public:
   virtual ~GuiElement(){}
   //! draws it with ImGui; true if it was clicked (process is called then)
   virtual bool render() = 0;
-  //! draws what goes below the engine's font texts, with the old renderer
+  //! draws what goes below the engine's font texts, through the engine's draw context
   virtual void renderBackground() {}
   //! reacts on a click
   virtual void process() {}
@@ -173,8 +173,8 @@ public:
   //! locks the elements (for the message thread)
   CGE::Mutex& getMutex() {return mutex_;}
   //! draws the elements and processes the one clicked
-  /*! In the application's render, with the old renderer's 2D projection of
-      the virtual screen (y up). */
+  /*! In the application's render, inside a pass with the draw context's 2D
+      projection of the virtual screen (y up). */
   void render();
   //! the font the elements are drawn with
   ImFont* getFont();

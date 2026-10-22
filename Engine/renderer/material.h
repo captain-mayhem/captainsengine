@@ -9,8 +9,6 @@
 
 namespace CGE{
 
-class Texture;
-
 struct CGE_API Color{
   Color(){r = 1.0; g = 1.0; b = 1.0; a=1.0;}
   Color(float rn, float gn, float bn, float an){
@@ -36,8 +34,6 @@ public:
   ~Material();
   void setDiffuse(const Color& diffuse) {mDiffuse = diffuse;}
   const Color& getDiffuse() const {return mDiffuse;}
-  void setDiffuseTex(Texture* tex) { mDiffuseTex = tex; }
-  Texture const* getDiffuseTex() const { return mDiffuseTex; }
   void setAmbient(const Color& ambient) {mAmbient = ambient;}
   const Color& getAmbient() const {return mAmbient;}
   void setSpecular(const Color& specular) {mSpecular = specular;}
@@ -46,28 +42,25 @@ public:
   const float& getPower() const {return mSpecPower;}
   void setOpacity(float opacity) { mOpacity = opacity; }
   const float getOpacity() const { return mOpacity; }
-  void setOpacityTex(Texture* tex) { mOpacityTex = tex; }
-  Texture const* getOpacityTex() const { return mOpacityTex; }
   //! the files of the textures, for loading them on a render device
   void setDiffuseTexFile(std::string const& file) { mDiffuseTexFile = file; }
   std::string const& getDiffuseTexFile() const { return mDiffuseTexFile; }
   void setOpacityTexFile(std::string const& file) { mOpacityTexFile = file; }
   std::string const& getOpacityTexFile() const { return mOpacityTexFile; }
 
-  bool isTransparent() const { return mOpacity != 1.0f || mOpacityTex != nullptr || !mOpacityTexFile.empty(); }
+  bool isTransparent() const { return mOpacity != 1.0f || !mOpacityTexFile.empty(); }
   
   std::string const & getName() const { return mName; }
 
-  static bool loadFromMTL(std::string const& file, std::vector<Material*>& materials, std::vector<Texture*>& textures);
+  //! adds the materials of an MTL file; the textures are loaded when a mesh is drawn
+  static bool loadFromMTL(std::string const& file, std::vector<Material*>& materials);
 protected:
   std::string mName;
   Color mDiffuse;
-  Texture* mDiffuseTex;
   Color mAmbient;
   Color mSpecular;
   float mSpecPower;
   float mOpacity;
-  Texture* mOpacityTex;
   std::string mDiffuseTexFile;
   std::string mOpacityTexFile;
 };

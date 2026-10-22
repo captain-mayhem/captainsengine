@@ -16,13 +16,10 @@ class GLShader;
 //! The OpenGL render device
 /*! Owns the window's GL context (WGL, EGL on X11, or EGL with OpenGL ES on
     Android) and loads the plugin's GL functions with glad. On desktop the
-    context is OpenGL 3.3 core, or 3.3 compatibility for the old renderers,
-    which draw on it until they are ported.
+    context is OpenGL 3.3 core.
     The resources are GL objects (buffers, textures, sampler objects,
     programs, a vertex array object per pipeline, framebuffers). A state cache
-    skips GL calls that wouldn't change anything; with the compatibility
-    profile it is reset at every pass, because the old renderers change the
-    GL state between the passes. */
+    skips GL calls that wouldn't change anything. */
 class GLDevice : public RenderDevice{
 public:
   GLDevice();
@@ -69,39 +66,15 @@ private:
   void bindVao(GLPipeline* pipeline);
   //! applies the pipeline's blend, depth and raster state
   void applyRenderState(const PipelineDesc& desc);
-  //after uploading: compatibility profile outside passes, back to unit 0
-  void endUpload();
   //! sets the attribute pointers and the index buffer of the current pipeline
   bool prepareDraw(bool indexed);
   //! forgets the cached GL state
   void invalidateState();
-  //! compatibility profile: saves the old renderers' GL state at the start of a pass
-  void saveLegacyState();
-  //! and restores it at the end
-  void restoreLegacyState();
 
   std::unique_ptr<GLContext> context_;
   bool hasStencil_;
   //! OpenGL 3.3 or OpenGL ES 3.0, so resources and draws work
   bool resourcesSupported_;
-  //! the old renderers draw on this context too
-  bool legacy_;
-  //! the old renderers' state during a pass
-  struct LegacyState{
-    int program, framebuffer, vao, arrayBuffer, activeUnit, texture0;
-    int viewport[4];
-    int scissorBox[4];
-    float depthRange[2];
-    float clearColor[4];
-    float clearDepth;
-    int clearStencil, stencilMask;
-    unsigned char colorMask[4];
-    unsigned char depthMask;
-    bool blend, depthTest, cull, scissor, srgb;
-    int blendSrcColor, blendDstColor, blendSrcAlpha, blendDstAlpha, blendColorOp, blendAlphaOp;
-    int depthFunc, cullFace, frontFace, polygonMode;
-  };
-  LegacyState legacyState_;
 
   // the cached GL state (serials, see GLResources.h)
   struct TextureUnit{

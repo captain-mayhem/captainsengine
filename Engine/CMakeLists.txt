@@ -1,14 +1,10 @@
 # Captain's Game Engine library
 
 if (OS STREQUAL android)
-  option(RENDER_OPENGL "compile renderer with OpenGL support" OFF)
-  option(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
-  option(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" ON)
+  option(RENDER_EMBEDDED "an embedded platform with OpenGL ES (applications check RENDER_EMBEDDED)" ON)
   option(NO_PTHREAD_CANCEL "Platform has no pthread cancel" ON)
 else()
-  option(RENDER_OPENGL "compile renderer with OpenGL support" ON)
-  option(RENDER_GL2 "compile renderer with OpenGL (ES) 2.0 support" ON)
-  option(RENDER_EMBEDDED "use variant of OpenGL ES 2.0 renderer for embedded systems" OFF)
+  option(RENDER_EMBEDDED "an embedded platform with OpenGL ES (applications check RENDER_EMBEDDED)" OFF)
   option(NO_PTHREAD_CANCEL "Platform has no pthread cancel" OFF)
 endif()
 if (OS STREQUAL linux)
@@ -151,32 +147,8 @@ target_compile_definitions(Engine PUBLIC IMGUI_USER_CONFIG="ui/imgui_config.h")
 # the render backends: OpenGL (renderer/GL/)
 INCLUDE(renderer/GL/CMakeLists.txt)
 
-# the old renderers, which draw on the OpenGL backend's context until they
-# are replaced; these definitions are internal to the engine
-if (RENDER_OPENGL)
-	message(STATUS "with OpenGL renderer")
-	target_compile_definitions(Engine PRIVATE OPENGL)
-endif()
-if (RENDER_GL2)
-	message(STATUS "with OpenGL 2 renderer")
-	target_compile_definitions(Engine PRIVATE OPENGL2)
-endif()
-if ((RENDER_OPENGL OR RENDER_GL2) AND NOT RENDER_EMBEDDED)
-	# the old renderers load their own copy of glad (renderer/OpenGL/OGLfunctions.cpp);
-	# OpenGL::GL stays public for projects that still call fixed-function GL
-	find_package(OpenGL REQUIRED)
-	target_link_libraries(Engine PRIVATE glad PUBLIC OpenGL::GL OpenGL::GLU)
-	if (OS STREQUAL linux)
-		# the GL backend's context is an EGL context, so the functions come from EGL
-		find_package(OpenGL REQUIRED COMPONENTS EGL)
-		target_link_libraries(Engine PRIVATE OpenGL::EGL)
-	endif()
-endif()
 if (RENDER_EMBEDDED)
-	message(STATUS "with OpenGL ES 2.0 renderer")
-	target_compile_definitions(Engine PRIVATE OPENGL2 RENDER_ES20)
 	target_compile_definitions(Engine PUBLIC RENDER_EMBEDDED)
-	target_link_libraries(Engine PUBLIC GLESv2 EGL)
 endif()
 
 if (OS STREQUAL linux)
