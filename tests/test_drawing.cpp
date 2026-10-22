@@ -399,6 +399,60 @@ TEST_P(Drawing, LinesHaveTheLineWidth){
   EXPECT_TRUE(isNear(pixels[1*8+2], 0, 0, 0));
 }
 
+TEST_P(Drawing, BlendModesCombineWithWhatIsDrawn){
+  auto rt = target(4, 1);
+  begin(rt.get());
+  ctx_->setColor(0.5f, 0.5f, 0.5f);
+  forms_->drawQuad(*ctx_, Vec2f(0, 0), Vec2f(4, 1));
+  //premultiplied: src + dst*(1-alpha)
+  ctx_->setBlend(BlendMode::PremultipliedAlpha);
+  ctx_->setColor(0.5f, 0, 0, 0.5f);
+  forms_->drawQuad(*ctx_, Vec2f(0, 0), Vec2f(1, 1));
+  //multiply: src*dst
+  ctx_->setBlend(BlendMode::Multiply);
+  ctx_->setColor(1, 0.5f, 0);
+  forms_->drawQuad(*ctx_, Vec2f(1, 0), Vec2f(1, 1));
+  //additive: src*alpha + dst
+  ctx_->setBlend(BlendMode::Additive);
+  ctx_->setColor(0, 0, 1, 0.5f);
+  forms_->drawQuad(*ctx_, Vec2f(2, 0), Vec2f(1, 1));
+  ctx_->setBlend(BlendMode::Opaque);
+  end();
+  std::vector<Pixel> pixels = read(rt.get());
+  EXPECT_TRUE(isNear(pixels[0], 191, 64, 64));
+  EXPECT_TRUE(isNear(pixels[1], 128, 64, 0));
+  EXPECT_TRUE(isNear(pixels[2], 128, 128, 255));
+  EXPECT_TRUE(isNear(pixels[3], 128, 128, 128));
+}
+
+TEST_P(Drawing, DepthOnlyDrawsMaskLaterOnes){
+  //a mask in the depth buffer only, then a draw that passes where depth is equal
+  auto rt = target(4, 1, Format::Depth24);
+  ASSERT_TRUE(device_->beginFrame());
+  PassDesc pass;
+  pass.target = rt.get();
+  pass.clearColor = {0, 0, 0, 1};
+  pass.clearDepth = 0;
+  ASSERT_TRUE(device_->beginPass(pass));
+  ctx_->setProjection(device_->ortho(0, 4, 0, 1, -1, 1));
+  ctx_->setView(Matrix(Matrix::Identity));
+  ctx_->setColorWrite(false);
+  ctx_->setDepth(true, true, CompareFunc::GreaterEqual);
+  ctx_->setColor(1, 1, 1);
+  forms_->drawQuad(*ctx_, Vec2f(1, 0), Vec2f(2, 1));
+  ctx_->setColorWrite(true);
+  ctx_->setDepth(true, false, CompareFunc::Equal);
+  ctx_->setColor(0, 1, 0);
+  forms_->drawQuad(*ctx_, Vec2f(0, 0), Vec2f(4, 1));
+  ctx_->setDepth(false, false);
+  end();
+  std::vector<Pixel> pixels = read(rt.get());
+  EXPECT_TRUE(isNear(pixels[0], 0, 0, 0));
+  EXPECT_TRUE(isNear(pixels[1], 0, 255, 0));
+  EXPECT_TRUE(isNear(pixels[2], 0, 255, 0));
+  EXPECT_TRUE(isNear(pixels[3], 0, 0, 0));
+}
+
 TEST_P(Drawing, ShapesAreLitByTheLights){
   auto rt = target(8, 8, Format::Depth24);
   auto box = Forms::createBox(*device_, 4, 4, 4);

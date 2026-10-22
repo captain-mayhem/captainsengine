@@ -5,6 +5,9 @@
 
 namespace adv{
 
+//! a disk of segments as a triangle strip (2*segments+1 vertices), starting at angle
+std::unique_ptr<CGE::Gfx::Buffer> createCircle(float radius, float angle, int segments);
+
 class ScreenChangeBase : public RenderableBlitObject, public DynamicAnimation{
 public:
   ScreenChangeBase(int width, int height, int depth) : RenderableBlitObject(width, height, depth), mUnload(false) {realize();}
@@ -33,7 +36,7 @@ protected:
   void generateCircle(float radius);
   int mDuration;
   int mCurrentTime;
-  CGE::VertexBuffer* mVerts;
+  std::unique_ptr<CGE::Gfx::Buffer> mVerts;
   bool mClosing;
   Screenshot mShot;
   int mSegments;
@@ -80,7 +83,7 @@ protected:
   void generateCircle(float radius);
   int mDuration;
   int mCurrentTime;
-  CGE::VertexBuffer* mVerts;
+  std::unique_ptr<CGE::Gfx::Buffer> mVerts;
   bool mClosing;
   Screenshot mShot;
   int mSegments;

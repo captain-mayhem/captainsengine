@@ -509,8 +509,9 @@ void Engine::processEvents(){
     XNextEvent(disp, &event);
     switch (event.type){
     case ConfigureNotify:
-      if (event.xconfigure.width != win->getWidth() ||
-        event.xconfigure.height != win->getHeight()){
+      //compared with the device: changeSize sets the window's size before the event arrives
+      if (event.xconfigure.width != device_->getWidth() ||
+        event.xconfigure.height != device_->getHeight()){
         resize(event.xconfigure.width, event.xconfigure.height);
       }
       break;

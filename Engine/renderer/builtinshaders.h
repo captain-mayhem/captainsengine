@@ -4,15 +4,13 @@
 // The engine's built-in shader files, generated from Engine/shaders/ by
 // shaders/embed.cmake (internal to the engine).
 
+#include "shaderlibrary.h"
+
 namespace CGE{
 namespace Gfx{
 namespace Builtin{
 
-struct ShaderFile{
-  //! "engine/" and the file name
-  const char* path;
-  const char* source;
-};
+//! the paths are "engine/" and the file name
 extern const ShaderFile files[];
 extern const int fileCount;
 

@@ -4,6 +4,7 @@
 
 #include "EngineObjects.h"
 #include "Engine.h"
+#include "Graphics.h"
 #include <system/allocation.h>
 
 TR_CHANNEL(ADV_Animator);
@@ -184,14 +185,13 @@ void Animator::update(unsigned interval){
   if (mCamera.active){
     Vec2i dims = Engine::instance()->getSettings()->resolution;
     mCamera.currPos = mCamera.currPos+mCamera.dir*(float)interval;
-    CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-    rend->viewport((int)mCamera.currPos.x, (int)mCamera.currPos.y, dims.x, dims.y);
-    rend->scissor((int)mCamera.currPos.x, (int)mCamera.currPos.y, dims.x, dims.y);
+    Graphics* gfx = Engine::instance()->getGraphics();
+    gfx->setWindowOffset(Vec2f((float)(int)mCamera.currPos.x, (float)(int)mCamera.currPos.y), true);
     if ((mCamera.dir.x > 0 && mCamera.currPos.x > mCamera.target.x)
       || (mCamera.dir.x < 0 && mCamera.currPos.x < mCamera.target.x)
       || (mCamera.dir.y > 0 && mCamera.currPos.y > mCamera.target.y)
       || (mCamera.dir.y < 0 && mCamera.currPos.y < mCamera.target.y)){
-        rend->viewport(0, 0, dims.x, dims.y);
+        gfx->setWindowOffset(Vec2f(), false);
         mCamera.active = false;
     }
   }
@@ -413,6 +413,5 @@ void Animator::moveCameraViewport(LookDir dir){
     mCamera.target = Vec2f(0, 0);
   }
   mCamera.active = true;
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->scissor((int)mCamera.currPos.x, (int)mCamera.currPos.y, dims.x, dims.y);
+  Engine::instance()->getGraphics()->setWindowOffset(Vec2f((float)(int)mCamera.currPos.x, (float)(int)mCamera.currPos.y), true);
 }

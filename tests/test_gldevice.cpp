@@ -10,6 +10,7 @@
 
 #include "testenv.h"
 #include "testwindow.h"
+#include "registerTestShaders.h"
 
 using namespace CGE::Gfx;
 using TestEnv::TestWindow;
@@ -41,6 +42,17 @@ TEST(ShaderLibrary, MissingFilesFail){
   EXPECT_FALSE(ShaderLibrary::loadSource(TestEnv::dataFile("shaders/missing.vert"), source));
   ShaderDesc desc;
   EXPECT_FALSE(ShaderLibrary::loadDesc("engine/color.vert", "engine/missing.frag", desc));
+}
+
+TEST(ShaderLibrary, FindsFilesCompiledIntoTheApplication){
+  std::string source;
+  //cge_embed_shaders in tests/CMakeLists.txt; adding them twice does no harm
+  registerTestShaders();
+  registerTestShaders();
+  ASSERT_TRUE(ShaderLibrary::loadSource("test/embedded.vert", source));
+  EXPECT_NE(source.find("a_embedded"), std::string::npos);
+  EXPECT_NE(source.find("uniform CGE_Frame"), std::string::npos);
+  EXPECT_FALSE(ShaderLibrary::loadSource("test/missing.vert", source));
 }
 
 TEST(ShaderLibrary, BuiltinDescriptionsBindTheEngineSlots){

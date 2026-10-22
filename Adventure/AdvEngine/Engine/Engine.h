@@ -21,6 +21,7 @@ class SaveStateProvider;
 class SoundPlayer;
 class ParticleEngine;
 class PostProcessor;
+class Graphics;
 class ItemObject;
 class GuiRoom;
 class Console;
@@ -39,7 +40,9 @@ public:
   void render(unsigned time);
   void initGame(exit_callback exit_cb, set_mouse_callback set_mouse_cb);
   void exitGame();
-  CGE::Texture* genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
+  //! a texture of the image's size rounded up to powers of 2, with the image in its top left corner
+  /*! size gets the image's size, scale the part of the texture it covers. */
+  CGE::Gfx::Texture* genTexture(const CGE::Image* image, Vec2i& size, Vec2f& scale, const CGE::Image* alphaimage=NULL);
   void beginRendering();
   void endRendering(bool inverse=false);
   void insertToBlit(BaseBlitObject* obj);
@@ -108,10 +111,10 @@ public:
   void enterText(const String& variable, int maxcharacters, ExecutionContext* suspensionReason);
   int getMouseWheelDelta() {return mWheelCount;}
   void setMouseWheelDelta(int delta) {mWheelCount = delta;}
-  void restoreRenderDefaults();
   void forceNotToRenderUnloadingRoom() {mForceNotToRenderUnloadingRoom = true;}
   AdvDocument* getData() {return mData;}
   PostProcessor* getPostProcessor() {return mPostProc;}
+  Graphics* getGraphics() {return mGraphics;}
   RoomObject* getMainRoom();
   void removeScript(ExecutionContext* ctx);
   void showMouse(bool doIt) {mMouseShown = doIt;}
@@ -146,9 +149,7 @@ public:
   void popupMenu();
   bool isCoinMenuActive() { return mCoinShown; }
   bool applyCommandToSelObj(bool prevObj);
-  void drawQuad();
-  void drawQuadLines();
-  void fillWithStdQuad(CGE::VertexBuffer* vb);
+  //! flips the model matrix vertically, so what is drawn into a render target is upright in its texture
   void flipTexture();
 protected:
   Engine();
@@ -156,8 +157,7 @@ protected:
   AdvDocument* mData;
   //rendering
   std::vector<std::list<BaseBlitObject*> > mBlitQueues;
-  CGE::VertexBuffer* mVerts;
-  CGE::IndexBuffer* mInds;
+  Graphics* mGraphics;
   bool mInitialized;
   Vec2i mScrollOffset;
   //data

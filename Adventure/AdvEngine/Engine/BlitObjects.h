@@ -1,15 +1,21 @@
 #ifndef BLIT_OBJECTS_H
 #define BLIT_OBJECTS_H
 
+#include <memory>
 #include <string>
 
-#include <renderer/renderer.h>
+#include <renderer/gfxtypes.h>
 
 #include "Vector.h"
 #include "Ids.h"
 
 namespace CGE{
   class Image;
+  namespace Gfx{
+    class Buffer;
+    class RenderTarget;
+    class Texture;
+  }
 }
 
 namespace adv{
@@ -48,7 +54,8 @@ public:
   };
   BlitObject(int width, int height, int depth);
   BlitObject(std::string texture, const Vec2i& size, int depth, Vec2i offset);
-  BlitObject(CGE::Texture* texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
+  //! a blit of a texture it doesn't own
+  BlitObject(CGE::Gfx::Texture* texture, const Vec2i& size, const Vec2f& scale, int depth, const Vec2i& offset);
   virtual ~BlitObject();
   BlitObject* clone();
   bool operator<(const BlitObject& obj);
@@ -59,13 +66,15 @@ public:
   void setRotation(float angle) {mRotAngle = angle;}
   void setBlendMode(BlendMode mode) {mBlendMode = mode;}
   void updateTexture(unsigned width, unsigned height, void* data);
-  CGE::Texture* getTexture() {return mTex;}
+  CGE::Gfx::Texture* getTexture() {return mTex;}
   virtual void realize();
-  void realizeEmpty(CGE::Texture::Format format=CGE::Texture::RGBA);
+  //! a texture of the size rounded up to powers of 2, with undefined contents
+  void realizeEmpty(CGE::Gfx::Format format=CGE::Gfx::Format::RGBA8);
 protected:
   Vec2i mOffset;
+  //! the used part of the texture (mSize / its size)
   Vec2f mScale;
-  CGE::Texture* mTex;
+  CGE::Gfx::Texture* mTex;
   CGE::Image* mImage;
   Vec2f mZoomScale;
   bool mDeleteTex;
@@ -94,12 +103,12 @@ class RenderableBlitObject : public BlitObject{
 public:
   RenderableBlitObject(int width, int height, int depth);
   ~RenderableBlitObject();
+  //! draws into the texture until unbind (see Graphics::pushTarget)
   void bind();
   void unbind();
   virtual void realize();
 protected:
-  CGE::RenderTarget* mFrameBuffer;
-  int mOldViewport[4];
+  std::unique_ptr<CGE::Gfx::RenderTarget> mFrameBuffer;
 };
 
 class Object2D;
@@ -135,7 +144,7 @@ public:
 protected:
   void renderCharacter(CharacterObject* chr);
   Vec2i mPoints[4];
-  CGE::VertexBuffer* mPolygon;
+  std::unique_ptr<CGE::Gfx::Buffer> mPolygon;
   RoomObject* mRoom;
   Vec2i mMirrorOffset;
   bool mPositionDependent;

@@ -5,6 +5,8 @@
 #include "ScriptFunc.h"
 #include "Sound.h"
 #include "SoundPlayer.h"
+#include "Graphics.h"
+#include <math/matrixstack.h>
 #include <system/allocation.h>
 
 using namespace adv;
@@ -417,21 +419,20 @@ void ButtonObject::blit(){
     BlitObject::blit();
     return;
   }
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->pushMatrix();
-  rend->enableTexturing(false);
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->model().push();
+  gfx->setTexture(nullptr);
   if (mState == 1 || mHighlightText)
-    rend->setColor(mBackgroundColor.r / 255.0f, mBackgroundColor.g / 255.0f, mBackgroundColor.b / 255.0f, mBackgroundColor.a*mLightingColor.a / 255 / 255.0f);
+    gfx->setColor(mBackgroundColor.r / 255.0f, mBackgroundColor.g / 255.0f, mBackgroundColor.b / 255.0f, mBackgroundColor.a*mLightingColor.a / 255 / 255.0f);
   else if (mState == 2)
-    rend->setColor(mHighlightColor.r / 255.0f, mHighlightColor.g / 255.0f, mHighlightColor.b / 255.0f, mHighlightColor.a*mLightingColor.a / 255 / 255.0f);
-  rend->translate((float)BaseBlitObject::mPos.x,(float)BaseBlitObject::mPos.y,0.0f);
-  rend->scale((float)BaseBlitObject::mSize.x,(float)BaseBlitObject::mSize.y,1.0f);
-  Engine::instance()->drawQuad();
-  rend->setColor(mBorderColor.r / 255.0f, mBorderColor.g / 255.0f, mBorderColor.b / 255.0f, mBorderColor.a*mLightingColor.a / 255 / 255.0f);
-  Engine::instance()->drawQuadLines();
-  rend->enableTexturing(true);
-  rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
-  rend->popMatrix();
+    gfx->setColor(mHighlightColor.r / 255.0f, mHighlightColor.g / 255.0f, mHighlightColor.b / 255.0f, mHighlightColor.a*mLightingColor.a / 255 / 255.0f);
+  gfx->model().translate((float)BaseBlitObject::mPos.x,(float)BaseBlitObject::mPos.y,0.0f);
+  gfx->model().scale((float)BaseBlitObject::mSize.x,(float)BaseBlitObject::mSize.y,1.0f);
+  gfx->drawQuad();
+  gfx->setColor(mBorderColor.r / 255.0f, mBorderColor.g / 255.0f, mBorderColor.b / 255.0f, mBorderColor.a*mLightingColor.a / 255 / 255.0f);
+  gfx->drawQuadLines();
+  gfx->setColor(1.0f, 1.0f, 1.0f, 1.0f);
+  gfx->model().pop();
 }
 
 CursorObject::CursorObject(const Vec2i& pos, int rightclick) : Object2D(1, pos, Vec2i(32,32), "xxx"), mSavedState(0), mRightclick(rightclick) {
