@@ -8,6 +8,7 @@
 #include <renderer/drawcontext.h>
 #include <renderer/renderdevice.h>
 #include <renderer/shaderlibrary.h>
+#include <renderer/spritebatch.h>
 #include <renderer/uniformstream.h>
 #include <system/engine.h>
 
@@ -38,9 +39,12 @@ mInPass(false), mClearDepth(1.0f), mWindowMoving(false), mTexture(nullptr){
   sampler.minFilter = sampler.magFilter = Filter::Nearest;
   sampler.addressU = sampler.addressV = AddressMode::ClampToEdge;
   mNearest = mDevice.createSampler(sampler);
+  mBatch = std::make_unique<SpriteBatch>(mContext);
+  mBatch->setSampler(mSampler.get());
 }
 
 Graphics::~Graphics(){
+  mBatch.reset();
   destroyShader(mTextured);
   destroyShader(mUntextured);
 }
@@ -117,6 +121,7 @@ void Graphics::endFrame(){
   TR_USE(ADV_Graphics);
   if (mTargets.size() != 1)
     TR_ERROR("endFrame: %i render targets weren't popped", (int)mTargets.size()-1);
+  flushSprites();
   if (mInPass)
     mDevice.endPass();
   mInPass = false;
@@ -152,6 +157,7 @@ void Graphics::endFrame(){
 }
 
 void Graphics::pushTarget(RenderTarget* target, const Vec2i& size){
+  flushSprites();
   if (mInPass)
     mDevice.endPass();
   mInPass = false;
@@ -165,6 +171,7 @@ void Graphics::popTarget(){
     TR_ERROR("popTarget without pushTarget");
     return;
   }
+  flushSprites();
   if (mInPass)
     mDevice.endPass();
   mInPass = false;
@@ -174,6 +181,8 @@ void Graphics::popTarget(){
 }
 
 void Graphics::setWindowOffset(const Vec2f& offset, bool moving){
+  //the waiting sprites keep the projection they were drawn with
+  flushSprites();
   mWindowOffset = offset;
   mWindowMoving = moving;
   if (mInPass && mTargets.back().screen)
@@ -194,6 +203,7 @@ void Graphics::clear(){
     TR_ERROR("clear outside of a frame");
     return;
   }
+  flushSprites();
   if (mTargets.back().screen && mWindowMoving){
     //only the area the game moved to, as with a scissor rectangle
     CGE::Gfx::BlendMode blend = mContext.getBlend();
@@ -294,10 +304,12 @@ void Graphics::setTexture(Texture* texture, const Vec2f& scale, const Vec2f& off
 }
 
 void Graphics::setDepth(bool test, bool write, CompareFunc compare){
+  flushSprites();
   mContext.setDepth(test, write, compare);
 }
 
 void Graphics::setColorWrite(bool write){
+  flushSprites();
   mContext.setColorWrite(write);
 }
 
@@ -318,6 +330,26 @@ bool Graphics::prepareDraw(PrimitiveType primitive){
   return prepare(mTexture ? mTextured.get() : mUntextured.get(), getVertexLayout(), primitive, mTexTransform, sizeof(mTexTransform));
 }
 
+void Graphics::drawSprite(Texture* texture, const Vec2f& scale, const Vec2f& offset, float r, float g, float b, float a){
+  TR_USE(ADV_Graphics);
+  if (!mInPass){
+    TR_ERROR("Drawing outside of a pass");
+    return;
+  }
+  TexRect rect;
+  rect.u0 = offset.x;
+  rect.v0 = offset.y;
+  rect.u1 = offset.x+scale.x;
+  rect.v1 = offset.y+scale.y;
+  mBatch->setBlend(mContext.getBlend());
+  mBatch->draw(texture, mContext.model().top(), rect, CGE::Color(r, g, b, a));
+}
+
+void Graphics::flushSprites(){
+  if (mInPass)
+    mBatch->flush();
+}
+
 void Graphics::drawQuad(){
   draw(mQuad.get(), PrimitiveType::TriangleStrip, 4);
 }
@@ -334,6 +366,8 @@ void Graphics::draw(Buffer* vertices, PrimitiveType primitive, int count, int fi
 }
 
 bool Graphics::prepare(Shader* shader, const VertexLayout& layout, PrimitiveType primitive, const void* uniforms, size_t size){
+  //the sprites before come first
+  flushSprites();
   //the context keeps the texture it had, which may be deleted by now
   mContext.setTexture(mTexture, mTextureSampler);
   if (!mContext.prepare(shader, layout, primitive))

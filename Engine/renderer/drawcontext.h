@@ -110,6 +110,7 @@ public:
   //! writes to the colour attachments; on by default (off: depth only)
   void setColorWrite(bool write);
   void setCull(CullMode cull);
+  CullMode getCull() const;
 
   // --- drawing, inside a pass ---
 

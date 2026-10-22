@@ -103,13 +103,10 @@ void BlitObject::blit(){
 
   model.scale((float)mSize.x,(float)mSize.y,1.0f);
 
-  gfx->setTexture(mTex, mScale);
-  gfx->setColor(mColor.r/255.0f, mColor.g/255.0f, mColor.b/255.0f, mColor.a/255.0f);
-  gfx->drawQuad();
+  gfx->drawSprite(mTex, mScale, Vec2f(0, 0), mColor.r/255.0f, mColor.g/255.0f, mColor.b/255.0f, mColor.a/255.0f);
   model.pop();
   if (mBlendMode != BLEND_ALPHA)
     gfx->setBlend(Graphics::BLEND_ALPHA);
-  gfx->setTexture(nullptr);
 }
 
 BlitObject* BlitObject::clone(){

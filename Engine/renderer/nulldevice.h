@@ -29,6 +29,8 @@ public:
   int getFrameCount() const {return frames_;}
   //! draw calls that reached the backend so far
   int getDrawCount() const {return draws_;}
+  //! instances those draw calls drew
+  int getInstanceCount() const {return instances_;}
 protected:
   bool doInit(const NativeWindow& window, const DeviceDesc& desc) override;
   void doShutdown() override {}
@@ -41,13 +43,14 @@ protected:
   void doSetTexture(int slot, Texture* texture, Sampler* sampler) override {}
   void doSetViewport(const Viewport& viewport) override {}
   void doSetScissor(const Rect& rect) override {}
-  void doDraw(int vertexCount, int instanceCount, int firstVertex) override {draws_++;}
-  void doDrawIndexed(int indexCount, int instanceCount, int firstIndex) override {draws_++;}
+  void doDraw(int vertexCount, int instanceCount, int firstVertex) override {draws_++; instances_ += instanceCount;}
+  void doDrawIndexed(int indexCount, int instanceCount, int firstIndex) override {draws_++; instances_ += instanceCount;}
   //! black pixels
   bool doReadPixels(RenderTarget* target, int attachment, const Rect& rect, void* data) override;
 private:
   int frames_;
   int draws_;
+  int instances_;
 };
 
 }

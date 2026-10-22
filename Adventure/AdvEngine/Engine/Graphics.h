@@ -19,6 +19,7 @@ class RenderDevice;
 class RenderTarget;
 class Sampler;
 class Shader;
+class SpriteBatch;
 class Texture;
 }
 }
@@ -30,6 +31,10 @@ namespace adv{
     renderer (model matrices, colour, blending, texture, clear colour,
     render targets) and draws through the engine's Gfx::DrawContext.
     Everything is drawn in the game's resolution with y pointing down.
+    The blits (drawSprite) are collected in a Gfx::SpriteBatch and drawn
+    together: every other draw, every change of target, projection or depth
+    state, and the end of the frame draws the waiting ones first, so the
+    order stays that of the calls.
     Render targets become passes: pushTarget ends the pass being drawn and
     begins one into the target, popTarget continues the previous pass.
     A frame is drawn into a render target of the window's size, the screen,
@@ -110,6 +115,12 @@ public:
 
   // --- drawing ---
 
+  //! the unit quad in the model matrix with a texture, batched
+  /*! The texture coordinates (0, 0) to (1, 1) are scaled by scale, then
+      offset is added (see setTexture); the texture is multiplied with the
+      colour and blended with the current blend mode. The texture and the
+      colour set with setTexture and setColor stay as they are. */
+  void drawSprite(CGE::Gfx::Texture* texture, const Vec2f& scale, const Vec2f& offset, float r, float g, float b, float a);
   //! the unit quad from (0, 0) to (1, 1) in the model matrix
   void drawQuad();
   //! the outline of the unit quad
@@ -157,6 +168,8 @@ private:
   //! sets the projection (and viewport) of the top of the target stack
   void setupTarget();
   bool prepareDraw(CGE::Gfx::PrimitiveType primitive);
+  //! draws the batched sprites
+  void flushSprites();
 
   CGE::Gfx::DrawContext& mContext;
   CGE::Gfx::RenderDevice& mDevice;
@@ -178,6 +191,7 @@ private:
   std::unique_ptr<CGE::Gfx::Sampler> mNearest;
   std::unique_ptr<CGE::Gfx::RenderTarget> mScreen;
   Vec2i mScreenSize;
+  std::unique_ptr<CGE::Gfx::SpriteBatch> mBatch;
 };
 
 }

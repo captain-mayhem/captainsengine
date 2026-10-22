@@ -8,6 +8,7 @@
 #include "../renderer/drawcontext.h"
 #include "../renderer/font.h"
 #include "../renderer/forms.h"
+#include "../renderer/spritebatch.h"
 #include "../math/matrixstack.h"
 #include "../io/Tracing.h"
 #include "../io/TraceManager.h"
@@ -169,6 +170,7 @@ void Engine::startup(int argc, char** argv){
       fnt = std::make_unique<CGE::Font>(*device_);
     }
     forms_ = std::make_unique<CGE::Forms>(*device_);
+    sprites_ = std::make_unique<Gfx::SpriteBatch>(*draw_);
     startupImGui();
   }
   console_ = std::make_unique<CGE::Console>();
@@ -221,6 +223,7 @@ void Engine::shutdown(){
     for (auto& fnt : fnt_)
       fnt.reset();
     forms_.reset();
+    sprites_.reset();
     draw_.reset();
     //the resources go before the context, the context before the window
     device_->shutdown();

@@ -103,6 +103,9 @@ enum class BuiltinShader{
   //! Dear ImGui's vertices: 2D position in pixels, texture coordinates and
   //! colour, with ImGui's texture in SLOT_TEXTURE (ui/imgui_impl_cge_render.h)
   ImGui,
+  //! SpriteBatch's instanced quads (renderer/spritebatch.h), with the
+  //! texture in SLOT_TEXTURE
+  Sprite,
 };
 
 //! Shader sources and the built-in shaders

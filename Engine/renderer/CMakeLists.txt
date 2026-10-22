@@ -12,6 +12,8 @@ SET(Engine_renderer_SRCS
 	${PRE}/scene.cpp
 	${PRE}/scenenode.cpp
 	${PRE}/shaderlibrary.cpp
+	${PRE}/spritebatch.cpp
+	${PRE}/textureatlas.cpp
 	${PRE}/textureloader.cpp
 	${PRE}/uniformstream.cpp
 )
@@ -30,6 +32,8 @@ SET(RENDERER_HDRS_CORE
 	${PRE}/scene.h
 	${PRE}/scenenode.h
 	${PRE}/shaderlibrary.h
+	${PRE}/spritebatch.h
+	${PRE}/textureatlas.h
 	${PRE}/textureloader.h
 	${PRE}/uniformstream.h
 )

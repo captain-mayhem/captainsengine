@@ -128,6 +128,9 @@ ShaderDesc ShaderLibrary::getBuiltinDesc(BuiltinShader shader){
     case BuiltinShader::ImGui:
       desc.name = "engine/imgui";
       break;
+    case BuiltinShader::Sprite:
+      desc.name = "engine/sprite";
+      break;
   }
   //the built-in files are part of the engine library, so this can't fail
   loadDesc(desc.name+".vert", desc.name+".frag", desc);

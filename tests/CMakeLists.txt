@@ -11,9 +11,11 @@ add_executable(cge_tests
 	test_gldevice.cpp
 	test_images.cpp
 	test_imgui.cpp
+	test_json.cpp
 	test_renderdevice.cpp
 	test_services.cpp
 	test_settings.cpp
+	test_sprites.cpp
 	test_userdirs.cpp
 	test_zip.cpp
 	testenv.h

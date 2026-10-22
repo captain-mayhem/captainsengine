@@ -16,7 +16,7 @@ TR_CHANNEL(CGE_DrawContext);
 
 namespace{
 
-const int BUILTIN_COUNT = 4;
+const int BUILTIN_COUNT = 5;
 
 //! what a cached pipeline was made for
 struct PipelineKey{
@@ -282,6 +282,10 @@ void DrawContext::setColorWrite(bool write){
 
 void DrawContext::setCull(CullMode cull){
   impl_->cull = cull;
+}
+
+CullMode DrawContext::getCull() const{
+  return impl_->cull;
 }
 
 Shader* DrawContext::getShader(BuiltinShader shader){
