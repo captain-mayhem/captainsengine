@@ -37,6 +37,7 @@ class Forms;
 class Console;
 namespace Gfx{
 class DrawContext;
+class SpriteBatch;
 }
 }
 
@@ -120,6 +121,8 @@ class CGE_API Engine{
     inline CGE::Font* getFont(int idx) {return fnt_[idx].get();}
     //! Get the standard forms
     inline CGE::Forms* getForms() {return forms_.get();}
+    //! batched sprites on the draw context (not without graphics)
+    inline Gfx::SpriteBatch* getSpriteBatch() {return sprites_.get();}
     //! get the window
     inline CGE::AppWindow* getWindow() {return win_.get();}
     //! get the console
@@ -175,6 +178,8 @@ class CGE_API Engine{
     std::array<std::unique_ptr<CGE::Font>, 3> fnt_;
     //! Stadard forms
     std::unique_ptr<CGE::Forms> forms_;
+    //! the sprite batch on draw_
+    std::unique_ptr<Gfx::SpriteBatch> sprites_;
     //! is the engine initialized and running?
     bool isUp_;
     //! graphics subsystem

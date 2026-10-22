@@ -109,6 +109,61 @@ def zip_archive():
         z.writestr("dir/stored.bin", bytes(range(16)), compress_type=zipfile.ZIP_STORED)
 
 
+# the atlas page atlas/page.png, 8x4: 2x2 blocks, rows top to bottom
+ATLAS_BLOCKS = [
+    [(255, 0, 0), (0, 255, 0), (0, 0, 255), (0, 0, 128)],
+    [(0, 0, 64), (0, 0, 192), (255, 255, 255), (255, 255, 255)],
+]
+
+# the frames on it: name, block column and row; green is trimmed out of a 4x4
+# image, the blue ones are an animation listed out of order
+ATLAS_FRAMES = [
+    ("red.png", 0, 0, None),
+    ("green.png", 1, 0, (1, 2, 4, 4)),
+    ("blue_1.png", 2, 0, None),
+    ("blue_10.png", 3, 0, None),
+    ("blue_0.png", 0, 1, None),
+    ("blue_2.png", 1, 1, None),
+]
+
+
+def atlas_page():
+    rows = []
+    for block_row in ATLAS_BLOCKS:
+        line = [tuple(c) + (255,) for c in block_row for _ in range(2)]
+        rows += [line, line]
+    return png(rows, 6)
+
+
+def atlas_frame(name, col, row, trim, scale):
+    frame = {"frame": {"x": col * 2, "y": row * 2, "w": 2, "h": 2}, "rotated": False}
+    if trim:
+        x, y, w, h = trim
+        frame["trimmed"] = True
+        frame["spriteSourceSize"] = {"x": x, "y": y, "w": 2, "h": 2}
+        frame["sourceSize"] = {"w": w, "h": h}
+        frame["pivot"] = {"x": 0.25, "y": 1}
+    return frame
+
+
+def atlases():
+    """The same frames as TexturePacker's JSON (Hash), JSON (Array) and
+    Phaser 3 (two pages, at scale 2) formats."""
+    import json
+    os.makedirs(os.path.join(HERE, "atlas"), exist_ok=True)
+    write("atlas/page.png", atlas_page())
+    meta = {"image": "page.png", "size": {"w": 8, "h": 4}, "scale": "1"}
+    frames = {name: atlas_frame(name, c, r, t, 1) for name, c, r, t in ATLAS_FRAMES}
+    write("atlas/hash.json", json.dumps({"frames": frames, "meta": meta}, indent=1).encode())
+    array = [dict(filename=name, **atlas_frame(name, c, r, t, 1)) for name, c, r, t in ATLAS_FRAMES]
+    write("atlas/array.json", json.dumps({"frames": array, "meta": meta}, indent=1).encode())
+    pages = [
+        {"image": "page.png", "format": "RGBA8888", "size": {"w": 8, "h": 4}, "scale": "2", "frames": array[:3]},
+        {"image": "page.png", "format": "RGBA8888", "size": {"w": 8, "h": 4}, "scale": 2, "frames": array[3:]},
+    ]
+    write("atlas/pages.json", json.dumps({"textures": pages}, indent=1).encode())
+
+
 def main():
     write("image.bmp", bmp())
     write("image.png", png(PIXELS, 2))
@@ -118,6 +173,7 @@ def main():
     os.makedirs(os.path.join(HERE, "folder"), exist_ok=True)
     write("folder/a.txt", b"first\n")
     write("folder/b.txt", b"second\n")
+    atlases()
 
 
 if __name__ == "__main__":

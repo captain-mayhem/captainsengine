@@ -28,11 +28,8 @@ BlitObject(texture, size, scale, depth, offset){
     gfx->model().translate((float)mPos.x,(float)mPos.y,0.0f);
     gfx->model().scale((float)mSize.x,(float)mSize.y,1.0f);
     //the glyph's cell: scaled, then moved by mTexTrans cells
-    gfx->setTexture(mTex, mScale, Vec2f(mScale.x*mTexTrans.x, mScale.y*mTexTrans.y));
-    gfx->setColor(mColor.r / 255.0f, mColor.g / 255.0f, mColor.b / 255.0f, mColor.a / 255.0f);
-    gfx->drawQuad();
-    gfx->setColor(1.0f, 1.0f, 1.0f, 1.0f);
-    gfx->setTexture(nullptr);
+    gfx->drawSprite(mTex, mScale, Vec2f(mScale.x*mTexTrans.x, mScale.y*mTexTrans.y),
+      mColor.r / 255.0f, mColor.g / 255.0f, mColor.b / 255.0f, mColor.a / 255.0f);
     gfx->model().pop();
   }
   void setOpacity(unsigned char opacity){

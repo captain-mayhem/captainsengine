@@ -63,6 +63,7 @@ private:
 NullDevice::NullDevice(){
   frames_ = 0;
   draws_ = 0;
+  instances_ = 0;
 }
 
 bool NullDevice::doInit(const NativeWindow& window, const DeviceDesc& desc){
