@@ -90,7 +90,7 @@ private:
   //! load or get a mesh
   CGE::Mesh* getMesh(std::string tilename, std::string path);
   //! load or get a texture
-  CGE::Texture* getTexture(std::string texname);
+  CGE::Gfx::Texture* getTexture(std::string texname);
   /*! get the info which side has to be longer
     \result 0 nothing is longer
             1 left is longer

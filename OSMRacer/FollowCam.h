@@ -10,7 +10,8 @@ public:
   FollowCam();
   ~FollowCam();
   void setTarget(::GameObject* obj) {mTarget = obj;}
-  virtual void activate();
+  //! moves behind the target, then sets the context's projection and view
+  void activate(CGE::Gfx::DrawContext& ctx) override;
 protected:
   ::GameObject* mTarget;
 };

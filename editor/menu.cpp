@@ -14,7 +14,6 @@
 #include "system/file.h"
 #include "mesh/mesh.h"
 #include "mesh/model.h"
-#include "renderer/texture.h"
 
 using std::string;
 using std::vector;
@@ -22,7 +21,6 @@ using std::vector;
 using CGE::Filesystem;
 using CGE::Mesh;
 using CGE::Model;
-using CGE::Texture;
 
 #ifdef WIN32
 #define SEPARATOR "\\"
@@ -149,7 +147,7 @@ void acceptFile(){
       Graphic::instance()->setFilename(file);
       break;
     case FileAction::LoadScene:
-      Graphic::instance()->getScene().load(file);
+      Graphic::instance()->loadScene(file);
       Graphic::instance()->setFilename(file);
       break;
   }
@@ -268,10 +266,10 @@ void propertiesDialog(){
 
 void assignTextureDialog(){
   if (beginDialog("Assign texture", 30, 30)){
-    vector<Texture*> textures = Graphic::instance()->getScene().getTextures();
+    const CGE::Scene& scene = Graphic::instance()->getScene();
     vector<string> names;
-    for (Texture* tex : textures)
-      names.push_back(tex->getName());
+    for (const string& file : scene.getDeviceTextureNames())
+      names.push_back(file.substr(file.find_last_of('/')+1));
     char stage[16];
     snprintf(stage, sizeof(stage), "Stage %d", state.stage);
     if (ImGui::BeginCombo("Texture stage", stage)){
@@ -285,8 +283,8 @@ void assignTextureDialog(){
     selectionList("##textures", names);
     if (ImGui::Button("OK", ImVec2(6*ImGui::GetFontSize(), 0))){
       Model* mdl = Graphic::instance()->getCurrModel();
-      if (mdl && state.selected >= 0 && state.selected < (int)textures.size())
-        mdl->assignTexture(textures[state.selected], state.stage);
+      if (mdl && state.selected >= 0 && state.selected < (int)names.size())
+        mdl->assignDeviceTexture(scene.getDeviceTextureAt(state.selected), state.stage);
       close();
     }
   }

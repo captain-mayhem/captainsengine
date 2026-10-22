@@ -16,8 +16,6 @@
 #include "system/application.h"
 #include "system/file.h"
 #include "io/TraceManager.h"
-#include "renderer/renderer.h"
-#include "renderer/font.h"
 #include "math/vector.h"
 #include "../editor/hqmExport.h"
 

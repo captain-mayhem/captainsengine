@@ -50,6 +50,12 @@ public:
   //! a texture the scene loaded onto a render device, by its file name in the scene file
   /*! E.g. "textures/world/door.jpg"; nullptr if the scene has none of that name. */
   Gfx::Texture* getDeviceTexture(const std::string& name) const;
+  //! Add a texture on a render device under its file name, which save() writes
+  unsigned addDeviceTexture(std::unique_ptr<Gfx::Texture> tex, const std::string& name);
+  //! the file names of the textures on a render device, in the order they were added
+  std::vector<std::string> const& getDeviceTextureNames() const {return mDeviceTextureNames;}
+  //! the texture on a render device at index (getDeviceTextureNames)
+  Gfx::Texture* getDeviceTextureAt(unsigned index) const;
   //! Add a light
   unsigned addLight(Light* light) { mLights.push_back(light); return (unsigned)mLights.size(); }
   //! Get the lights

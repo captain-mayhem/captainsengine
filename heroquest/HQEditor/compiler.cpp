@@ -16,8 +16,8 @@
 
 #include "system/engine.h"
 #include "mesh/mesh.h"
-#include "renderer/texture.h"
-#include "renderer/renderer.h"
+#include "renderer/light.h"
+#include "renderer/textureloader.h"
 
 #include "../HQClient/common.h"
 #include "compiler.h"
@@ -64,10 +64,10 @@ void Compiler::setWall(const Vector2D& pos, Direction d){
   texName = "textures/world/floorWall.jpg";
   
   //get texture
-  CGE::Texture* tex = getTexture(texName);
+  CGE::Gfx::Texture* tex = getTexture(texName);
   
   CGE::Model* mdl = new CGE::Model(msh);
-  mdl->assignTexture(tex, 0);
+  mdl->assignDeviceTexture(tex, 0);
   //wall
   mdl->setAttrib(0, 1001);
   //mdl->setAttrib(1, id);
@@ -142,10 +142,10 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   texName = "textures/world/floorWall.jpg";
 
   //get texture
-  CGE::Texture* tex = getTexture(texName);
+  CGE::Gfx::Texture* tex = getTexture(texName);
 
   CGE::Model* mdl = new CGE::Model(msh);
-  mdl->assignTexture(tex, 0);
+  mdl->assignDeviceTexture(tex, 0);
   //wall
   mdl->setAttrib(0, 1004);
   CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),0,(float)(pos.y*8+4)));
@@ -179,7 +179,7 @@ void Compiler::setDoor(const Vector2D& pos, Direction d, short type){
   mdl = new CGE::Model(msh);
 
   tex = getTexture(texName);
-  mdl->assignTexture(tex, 0);
+  mdl->assignDeviceTexture(tex, 0);
   //door
   mdl->setAttrib(0, 1003);
   mdl->setAttrib(1, type);
@@ -209,10 +209,10 @@ void Compiler::addRoom(const Vector2D& pos, short id){
     texName = "textures/world/room"+std::to_string(id)+".bmp";
 
   //get texture
-  CGE::Texture* tex = getTexture(texName);
+  CGE::Gfx::Texture* tex = getTexture(texName);
   
   CGE::Model* mdl = new CGE::Model(msh);
-  mdl->assignTexture(tex, 0);
+  mdl->assignDeviceTexture(tex, 0);
   //ground
   mdl->setAttrib(0, 1000);
   mdl->setAttrib(1, id);
@@ -228,8 +228,8 @@ void Compiler::addStartPos(const Vector2D& pos){
   CGE::Mesh* msh = getMesh("startpos.obj", "models/world/");
   CGE::Model* mdl = new CGE::Model(msh);
   
-  CGE::Texture* tex = getTexture("textures/world/startpos1.jpg");
-  mdl->assignTexture(tex, 0);
+  CGE::Gfx::Texture* tex = getTexture("textures/world/startpos1.jpg");
+  mdl->assignDeviceTexture(tex, 0);
   //startpos
   mdl->setAttrib(0, 1002);
   CGE::Matrix mat(Matrix::Translation, Vector3D((float)(pos.x*8+4),4,(float)(pos.y*8+4)));
@@ -300,8 +300,8 @@ void Compiler::addMonster(const Vector2D& pos, char monster[2]){
   CGE::Mesh* msh = getMesh(monstername+".obj", "models/monsters/");
   CGE::Model* mdl = new CGE::Model(msh);
 
-  CGE::Texture* tex = getTexture("textures/monsters/"+monstername+".jpg");
-  mdl->assignTexture(tex, 0);
+  CGE::Gfx::Texture* tex = getTexture("textures/monsters/"+monstername+".jpg");
+  mdl->assignDeviceTexture(tex, 0);
   //monster
   mdl->setAttrib(0, 1005);
   mdl->setAttrib(1, monstervalue);
@@ -395,8 +395,8 @@ void Compiler::addFurniture(const Vector2D& pos, char furniture[2]){
   CGE::Mesh* msh = getMesh(furniturename+".obj", "models/furniture/");
   CGE::Model* mdl = new CGE::Model(msh);
 
-  CGE::Texture* tex = getTexture("textures/furniture/"+furniturename+".jpg");
-  mdl->assignTexture(tex, 0);
+  CGE::Gfx::Texture* tex = getTexture("textures/furniture/"+furniturename+".jpg");
+  mdl->assignDeviceTexture(tex, 0);
   //furniture
   mdl->setAttrib(0, 1006);
   mdl->setAttrib(1, furniturevalue);
@@ -438,8 +438,8 @@ void Compiler::addOverlay(const Vector2D& pos, char overlay[3]){
   CGE::Mesh* msh = getMesh(overlayname + ".obj", "models/overlays/");
   CGE::Model* mdl = new CGE::Model(msh);
 
-  CGE::Texture* tex = getTexture("textures/overlays/" + overlayname + ".jpg");
-  mdl->assignTexture(tex, 0);
+  CGE::Gfx::Texture* tex = getTexture("textures/overlays/" + overlayname + ".jpg");
+  mdl->assignDeviceTexture(tex, 0);
 
   //overlays
   mdl->setAttrib(0, 1007);
@@ -457,8 +457,8 @@ void Compiler::addScript(char ident, const Vector2D& pos){
   CGE::Mesh* msh = getMesh("script.obj", "models/other/");
   CGE::Model* mdl = new CGE::Model(msh);
 
-  CGE::Texture* tex = getTexture("textures/other/script.jpg");
-  mdl->assignTexture(tex, 0);
+  CGE::Gfx::Texture* tex = getTexture("textures/other/script.jpg");
+  mdl->assignDeviceTexture(tex, 0);
   //script
   mdl->setAttrib(0, 1008);
   mdl->setAttrib(1, 5000);
@@ -487,22 +487,17 @@ CGE::Mesh* Compiler::getMesh(std::string tilename, std::string path){
   return msh;
 }
 
-CGE::Texture* Compiler::getTexture(std::string texname){
+CGE::Gfx::Texture* Compiler::getTexture(std::string texname){
   //see if the texture is in there
-  CGE::Texture* tex = NULL;
-  std::vector<CGE::Texture*> textures = scene_.getTextures();
-  for (unsigned i = 0; i < textures.size(); ++i){
-    if (textures[i]->getFilename() == texname){
-      tex = textures[i];
-      break;
-    }
+  const std::vector<std::string>& names = scene_.getDeviceTextureNames();
+  for (unsigned i = 0; i < names.size(); ++i){
+    if (names[i] == texname)
+      return scene_.getDeviceTextureAt(i);
   }
-  //load texture
-  if (!tex){
-    tex = CGE::Engine::instance()->getRenderer()->createTexture(texname);
-    scene_.addTexture(tex);
-  }
-  return tex;
+  //load texture; only its name goes into the compiled scene, so the engine's
+  //device can be the Null device (graphics = false)
+  scene_.addDeviceTexture(CGE::Gfx::loadTexture(*CGE::Engine::instance()->getRenderDevice(), texname), texname);
+  return scene_.getDeviceTextureAt((unsigned)names.size()-1);
 }
 
 short Compiler::getLengthInfo(const Vector2D& pos, Direction d, Matrix* rot){

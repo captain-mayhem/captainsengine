@@ -3,8 +3,7 @@
 
 //#define _USE_MATH_DEFINES
 #include "math.h"
-#include "renderer/renderer.h"
-#include "renderer/forms.h"
+#include "renderer/drawcontext.h"
 #include "system/engine.h"
 #include <physics/Simulator.h>
 #include <physics/Hinge2Joint.h>
@@ -107,20 +106,17 @@ void Vehicle::setPosition(const CGE::Vec3f& pos){
   mAutobody->setPosition(pos);
 }
 
-void Vehicle::render(const CGE::Camera& cam){
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  CGE::Forms* form = CGE::Engine::instance()->getForms();
-
+void Vehicle::render(CGE::Gfx::DrawContext& ctx, const CGE::Camera& cam){
   CGE::Material mat("vehicle");
   mat.setDiffuse(CGE::Color(1.0,1.0,0.0,1.0));
   mat.setAmbient(CGE::Color(0.7f,0.7f,0.0,1.0));
-  rend->setMaterial(mat);
-  mAutobody->render(cam);
+  ctx.setMaterial(mat);
+  mAutobody->render(ctx, cam);
   mat.setDiffuse(CGE::Color(0.0,0.0,1.0,1.0));
   mat.setAmbient(CGE::Color(0.0,0.0,0.3f,1.0));
-  rend->setMaterial(mat);
+  ctx.setMaterial(mat);
   for (int i = 0; i < 4; ++i){
-    mWheels[i]->render(cam);
+    mWheels[i]->render(ctx, cam);
   }
 }
 

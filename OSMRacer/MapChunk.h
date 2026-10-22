@@ -12,6 +12,9 @@
 
 namespace CGE{
 class SimpleMesh;
+namespace Gfx{
+class DrawContext;
+}
 }
 
 class MapChunk{
@@ -47,7 +50,7 @@ public:
   //CGE::Vec3d getCenter(){return (mMinBox+mMaxBox)/2.0;}
   CGE::Vec3f getNormal() {return CGE::Vec3f(0,1,0);}
   Iterator getStreetNodeIterator() {return Iterator(mGraph);}
-  void render(const CGE::Camera* cam);
+  void render(CGE::Gfx::DrawContext& ctx, const CGE::Camera* cam);
   CGE::OctreeStatic<CGE::SimpleMesh*>& getStreets() {return mStreets;}
 protected:
   static CGE::OctreeStatic<CGE::SimpleMesh*>::TraversalState renderCB(const std::vector<CGE::SimpleMesh*>& values, const CGE::BBox& box, uint8 flags, void* data);

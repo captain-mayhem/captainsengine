@@ -12,6 +12,6 @@ CollisionPlane::~CollisionPlane(){
 
 }
 
-void CollisionPlane::render(const CGE::Camera& cam){
+void CollisionPlane::render(Gfx::DrawContext& ctx, const CGE::Camera& cam){
 
 }
