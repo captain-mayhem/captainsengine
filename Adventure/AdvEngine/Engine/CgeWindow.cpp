@@ -1,6 +1,5 @@
 #include "system/engine.h"
 #include "system/application.h"
-#include "renderer/renderer.h"
 #include "window/window.h"
 #include "system/utilities.h"
 #include "system/script.h"
@@ -12,6 +11,7 @@
 
 #include "AdvDoc.h"
 #include "Engine.h"
+#include "Graphics.h"
 #include "Sound.h"
 #include "CmdReceiver.h"
 
@@ -49,41 +49,25 @@ void init(){
     return;
   }
   windowsize = adoc->getProjectSettings()->resolution;
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  //rend->getWindow()->setTitle(adoc->getProjectSettings()->)
-  rend->getWindow()->changeSize(windowsize.x, windowsize.y);
+  CGE::AppWindow* window = CGE::Engine::instance()->getWindow();
+  window->changeSize(windowsize.x, windowsize.y);
   //the game and its input use the project resolution
   CGE::Engine::instance()->getVirtualScreen().setSize(windowsize.x, windowsize.y);
-  
+
   Engine::instance()->setData(adoc);
   SoundEngine::init();
   SoundEngine::instance()->setData(adoc);
 
-  rend->switchMatrixStack(CGE::Projection);
-  rend->resetModelView();
-  CGE::Engine::instance()->getVirtualScreen().ortho(rend, true);
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->setColor(1.0f, 1.0f, 1.0f, 1.0f);
+  gfx->setBlend(Graphics::BLEND_ALPHA);
 
-  rend->switchMatrixStack(CGE::Modelview);
-  rend->setColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-  rend->enableDepthTest(false);
-  //GL()enableClientState(ATTR_VERTEX_ARRAY);
-  //GL()enableClientState(ATTR_TEXTURE_COORD_ARRAY);
-  rend->enableTexturing(true);
-  //glAlphaFunc(GL_GREATER, 0);
-  //glEnable(GL_ALPHA_TEST);
-  //glBlendFunc(GL_ZERO, GL_SRC_COLOR);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
-  rend->enableBlend(true);
-
-  rend->viewport(0, 0, windowsize.x, windowsize.y);
-  
   if (CGE::Script::instance()->getBoolSetting("debugPorts"))
     receiver.start();
   Engine::instance()->initGame(quit, set_mouse);
   delete splashWindow;
   splashWindow = nullptr;
-  rend->getWindow()->show(true);
+  window->show(true);
 }
 
 void deinit(){
@@ -115,28 +99,19 @@ void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* 
 
 void render(){
   double start = getTime();
-  CGE::Renderer* rend = CGE::Engine::instance()->getRenderer();
-  rend->switchMatrixStack(CGE::Projection);
-  rend->resetModelView();
-  CGE::Engine::instance()->getVirtualScreen().ortho(rend, true);
-
-  rend->switchMatrixStack(CGE::Modelview);
-  rend->enableDepthTest(false);
-  //glEnableClientState(GL_VERTEX_ARRAY);
-  //glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-  rend->enableTexturing(true);
-  rend->blendFunc(CGE::BLEND_SRC_ALPHA, CGE::BLEND_ONE_MINUS_SRC_ALPHA);
-  rend->enableBlend(true);
-
-  rend->setClearColor(CGE::Vec4f(0.0, 0.0, 0.0, 1.0));
-  //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  rend->resetModelView();
+  //the game draws into the window with y down, in its resolution
+  Graphics* gfx = Engine::instance()->getGraphics();
+  gfx->setBlend(Graphics::BLEND_ALPHA);
+  gfx->setDepth(false, false);
+  gfx->setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+  gfx->beginFrame();
 
   receiver.processCommands();
   unsigned time = (unsigned)(CGE::Engine::instance()->getFrameInterval()*1000);
   Engine::instance()->render(time);
 
   SoundEngine::instance()->update(time);
+  gfx->endFrame();
 
   double diff = getTime()-start;
   int sleeptime = 5 - (int)(diff*1000);

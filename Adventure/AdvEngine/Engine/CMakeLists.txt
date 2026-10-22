@@ -27,9 +27,8 @@ IF(RENDER_EMBEDDED)
     SET(ADVENTURE_LINK_LIBS OpenSLES)
   ENDIF()
 ELSE(RENDER_EMBEDDED)
-  find_package(OpenGL REQUIRED)
+  # draws through the engine's render device, without own GL calls
   SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
-  SET(ADVENTURE_LINK_LIBS OpenGL::GL)
 ENDIF(RENDER_EMBEDDED)
 
 ###ANTLR###
@@ -120,6 +119,8 @@ SET(AppBuilder_SRCS
   ExecutionContext.h
   Font.cpp
   Font.h
+  Graphics.cpp
+  Graphics.h
   GuiRoom.h
   Ids.h
   Inventory.cpp
@@ -161,6 +162,8 @@ SET(AppBuilder_SRCS
 )
 
 ADD_LIBRARY(AdventureBase STATIC ${AppBuilder_SRCS})
+# the shaders (post-processing effects and the quads) are compiled in as adventure/...
+cge_embed_shaders(AdventureBase ${CMAKE_CURRENT_SOURCE_DIR}/shaders adventure/ registerAdventureShaders)
 
 # the generated parser and the copied AST.h are in the binary directory
 target_include_directories(AdventureBase PUBLIC ${CMAKE_CURRENT_BINARY_DIR})

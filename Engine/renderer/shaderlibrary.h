@@ -84,6 +84,13 @@ struct LightUniforms{
 };
 static_assert(sizeof(LightUniforms) == 16+4*MAX_LIGHTS*16, "LightUniforms must match CGE_Lights");
 
+//! a shader file compiled into a program (cge_embed_shaders in CMake)
+struct ShaderFile{
+  //! the path it is loaded by, e.g. "engine/common.glsl"
+  const char* path;
+  const char* source;
+};
+
 enum class BuiltinShader{
   //! position and colour
   Color,
@@ -103,9 +110,15 @@ enum class BuiltinShader{
     without a #version line (the backend adds it). They can include other
     files with #include "path". Paths starting with "engine/" name the
     engine's built-in files from Engine/shaders/, which are compiled into the
-    engine library; other paths are assets (see Assets). */
+    engine library. Applications can compile their own files in the same
+    way (addFiles, cge_embed_shaders); other paths are assets (see Assets). */
 class CGE_API ShaderLibrary{
 public:
+  //! makes files compiled into the application loadable by their paths
+  /*! They're found before assets of the same path. The array isn't copied;
+      it has to stay valid (cge_embed_shaders generates a static one). Adding
+      the same array again does nothing. */
+  static void addFiles(const ShaderFile* files, int count);
   //! the source of a shader file with its #include lines resolved
   static bool loadSource(const std::string& path, std::string& source);
   //! a shader description from a vertex and a fragment shader file

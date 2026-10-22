@@ -32,6 +32,10 @@ enum class BlendMode{
   Alpha,
   //! src*alpha + dst
   Additive,
+  //! src + dst*(1-alpha), for colours already multiplied by their alpha
+  PremultipliedAlpha,
+  //! src*dst, e.g. darkening or masking what is drawn
+  Multiply,
 };
 
 //! What the engine's drawing code draws with on a render device
@@ -99,8 +103,10 @@ public:
   Texture* getTexture() const;
   void setBlend(BlendMode mode);
   BlendMode getBlend() const;
-  //! depth testing (less or equal) and writing; both off by default
-  void setDepth(bool test, bool write);
+  //! depth testing and writing; both off by default
+  void setDepth(bool test, bool write, CompareFunc compare = CompareFunc::LessEqual);
+  //! writes to the colour attachments; on by default (off: depth only)
+  void setColorWrite(bool write);
   void setCull(CullMode cull);
 
   // --- drawing, inside a pass ---

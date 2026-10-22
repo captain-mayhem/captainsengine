@@ -1,6 +1,9 @@
 #include "shaderlibrary.h"
 
 #include <cstring>
+#include <mutex>
+#include <utility>
+#include <vector>
 
 #include "builtinshaders.h"
 #include "renderdevice.h"
@@ -17,16 +20,30 @@ const char* ENGINE_PREFIX = "engine/";
 //! includes nested deeper are taken as a loop
 const int MAX_INCLUDE_DEPTH = 16;
 
-//! one file, built-in or asset, without resolving includes
-bool loadFile(const std::string& path, std::string& text){
-  if (path.compare(0, strlen(ENGINE_PREFIX), ENGINE_PREFIX) == 0){
-    for (int i = 0; i < Builtin::fileCount; i++){
-      if (path == Builtin::files[i].path){
-        text = Builtin::files[i].source;
-        return true;
-      }
+//! the files the applications compiled in (ShaderLibrary::addFiles)
+std::mutex filesMutex;
+std::vector<std::pair<const ShaderFile*, int>> appFiles;
+
+bool findFile(const ShaderFile* files, int count, const std::string& path, std::string& text){
+  for (int i = 0; i < count; i++){
+    if (path == files[i].path){
+      text = files[i].source;
+      return true;
     }
-    return false;
+  }
+  return false;
+}
+
+//! one file, built-in, compiled in or asset, without resolving includes
+bool loadFile(const std::string& path, std::string& text){
+  if (path.compare(0, strlen(ENGINE_PREFIX), ENGINE_PREFIX) == 0)
+    return findFile(Builtin::files, Builtin::fileCount, path, text);
+  {
+    std::lock_guard<std::mutex> lock(filesMutex);
+    for (const auto& files : appFiles){
+      if (findFile(files.first, files.second, path, text))
+        return true;
+    }
   }
   return CGE::Assets::loadText(path, text);
 }
@@ -70,6 +87,15 @@ bool resolve(const std::string& path, std::string& source, int depth){
   return true;
 }
 
+}
+
+void ShaderLibrary::addFiles(const ShaderFile* files, int count){
+  std::lock_guard<std::mutex> lock(filesMutex);
+  for (const auto& added : appFiles){
+    if (added.first == files)
+      return;
+  }
+  appFiles.emplace_back(files, count);
 }
 
 bool ShaderLibrary::loadSource(const std::string& path, std::string& source){

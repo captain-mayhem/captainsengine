@@ -61,7 +61,7 @@ public:
     Vec2i mNumChars;
     Vec2i mTexSize;
     Vec2f mScale;
-    std::vector<CGE::Texture*> mImages;
+    std::vector<CGE::Gfx::Texture*> mImages;
     std::vector<FontData::Glyph> mGlyphMap;
     std::list<String*> mRenderQueue;
     int mFading;

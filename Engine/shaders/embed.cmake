@@ -1,11 +1,20 @@
-# Writes the engine's built-in shader files (Engine/shaders/) into a C++
-# source as raw string literals, so the engine library carries them and
-# applications needn't ship them.
-# cmake -DSOURCE_DIR=<Engine/shaders> -DOUTPUT=<file.cpp> -P embed.cmake
+# Writes shader files into a C++ source as raw string literals, so a library
+# or program carries them and needn't ship them.
+#
+# The engine's built-in shaders (Engine/shaders/):
+#   cmake -DSOURCE_DIR=<Engine/shaders> -DOUTPUT=<file.cpp> -P embed.cmake
+# An application's shaders (cge_embed_shaders in Engine/CMakeLists.txt):
+#   cmake -DSOURCE_DIR=<dir> -DOUTPUT=<file.cpp> -DPREFIX=<prefix/> -DFUNCTION=<name> -P embed.cmake
+# The second form defines void <name>(), which hands the files to
+# CGE::Gfx::ShaderLibrary::addFiles under the paths <prefix/><file name>.
+
+if (NOT DEFINED PREFIX)
+	set(PREFIX "engine/")
+endif()
 
 file(GLOB files RELATIVE ${SOURCE_DIR} ${SOURCE_DIR}/*.glsl ${SOURCE_DIR}/*.vert ${SOURCE_DIR}/*.frag)
 list(SORT files)
-set(out "// Generated from Engine/shaders/ by embed.cmake. Don't edit.\n\n#include \"renderer/builtinshaders.h\"\n\nnamespace CGE{\nnamespace Gfx{\nnamespace Builtin{\n\nextern const ShaderFile files[] = {\n")
+set(entries "")
 foreach(name ${files})
 	file(READ ${SOURCE_DIR}/${name} text)
 	string(REPLACE "\r\n" "\n" text "${text}")
@@ -25,7 +34,12 @@ foreach(name ${files})
 	if (literal STREQUAL "")
 		set(literal "\"\"")
 	endif()
-	string(APPEND out "  {\"engine/${name}\",\n${literal}},\n")
+	string(APPEND entries "  {\"${PREFIX}${name}\",\n${literal}},\n")
 endforeach()
-string(APPEND out "};\n\nextern const int fileCount = sizeof(files)/sizeof(files[0]);\n\n}\n}\n}\n")
+
+if (DEFINED FUNCTION)
+	set(out "// Generated from ${SOURCE_DIR} by embed.cmake. Don't edit.\n\n#include <renderer/shaderlibrary.h>\n\nnamespace{\n\nconst CGE::Gfx::ShaderFile files[] = {\n${entries}};\n\n}\n\nvoid ${FUNCTION}(){\n  CGE::Gfx::ShaderLibrary::addFiles(files, (int)(sizeof(files)/sizeof(files[0])));\n}\n")
+else()
+	set(out "// Generated from Engine/shaders/ by embed.cmake. Don't edit.\n\n#include \"renderer/builtinshaders.h\"\n\nnamespace CGE{\nnamespace Gfx{\nnamespace Builtin{\n\nextern const ShaderFile files[] = {\n${entries}};\n\nextern const int fileCount = sizeof(files)/sizeof(files[0]);\n\n}\n}\n}\n")
+endif()
 file(WRITE ${OUTPUT} "${out}")

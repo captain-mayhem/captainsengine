@@ -22,6 +22,8 @@ add_executable(cge_tests
 target_link_libraries(cge_tests PRIVATE CGE::Engine GTest::gtest)
 # the test files are read from the source tree, independent of the working directory
 target_compile_definitions(cge_tests PRIVATE CGE_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/data")
+# a shader folder compiled in, for ShaderLibrary::addFiles
+cge_embed_shaders(cge_tests ${CMAKE_CURRENT_SOURCE_DIR}/data/embedded test/ registerTestShaders)
 # CGE.dll and the render backend plugins next to the executable
 cge_copy_runtime(cge_tests)
 

@@ -27,11 +27,14 @@ struct PipelineKey{
   BlendMode blend;
   bool depthTest;
   bool depthWrite;
+  CompareFunc depthCompare;
+  bool colorWrite;
   CullMode cull;
 
   bool operator<(const PipelineKey& other) const{
-    return std::tie(shader, layout, primitive, blend, depthTest, depthWrite, cull) <
-      std::tie(other.shader, other.layout, other.primitive, other.blend, other.depthTest, other.depthWrite, other.cull);
+    return std::tie(shader, layout, primitive, blend, depthTest, depthWrite, depthCompare, colorWrite, cull) <
+      std::tie(other.shader, other.layout, other.primitive, other.blend, other.depthTest, other.depthWrite,
+        other.depthCompare, other.colorWrite, other.cull);
   }
 };
 
@@ -121,6 +124,8 @@ struct DrawContext::Impl{
   BlendMode blend = BlendMode::Opaque;
   bool depthTest = false;
   bool depthWrite = false;
+  CompareFunc depthCompare = CompareFunc::LessEqual;
+  bool colorWrite = true;
   CullMode cull = CullMode::Off;
 
   std::unique_ptr<Shader> builtins[BUILTIN_COUNT];
@@ -261,9 +266,14 @@ BlendMode DrawContext::getBlend() const{
   return impl_->blend;
 }
 
-void DrawContext::setDepth(bool test, bool write){
+void DrawContext::setDepth(bool test, bool write, CompareFunc compare){
   impl_->depthTest = test;
   impl_->depthWrite = write;
+  impl_->depthCompare = compare;
+}
+
+void DrawContext::setColorWrite(bool write){
+  impl_->colorWrite = write;
 }
 
 void DrawContext::setCull(CullMode cull){
@@ -285,7 +295,7 @@ Pipeline* DrawContext::getPipeline(Shader* shader, const VertexLayout& layout, P
   if (!shader)
     return nullptr;
   Impl& d = *impl_;
-  PipelineKey key{shader, layoutKey(layout), primitive, d.blend, d.depthTest, d.depthWrite, d.cull};
+  PipelineKey key{shader, layoutKey(layout), primitive, d.blend, d.depthTest, d.depthWrite, d.depthCompare, d.colorWrite, d.cull};
   auto iter = d.pipelines.find(key);
   if (iter != d.pipelines.end())
     return iter->second.get();
@@ -307,9 +317,21 @@ Pipeline* DrawContext::getPipeline(Shader* shader, const VertexLayout& layout, P
       desc.blend.srcColor = desc.blend.srcAlpha = BlendFactor::SrcAlpha;
       desc.blend.dstColor = desc.blend.dstAlpha = BlendFactor::One;
       break;
+    case BlendMode::PremultipliedAlpha:
+      desc.blend.enabled = true;
+      desc.blend.srcColor = desc.blend.srcAlpha = BlendFactor::One;
+      desc.blend.dstColor = desc.blend.dstAlpha = BlendFactor::OneMinusSrcAlpha;
+      break;
+    case BlendMode::Multiply:
+      desc.blend.enabled = true;
+      desc.blend.srcColor = desc.blend.srcAlpha = BlendFactor::DstColor;
+      desc.blend.dstColor = desc.blend.dstAlpha = BlendFactor::Zero;
+      break;
   }
+  desc.blend.writeMask = d.colorWrite ? COLOR_ALL : 0;
   desc.depth.test = d.depthTest;
   desc.depth.write = d.depthWrite;
+  desc.depth.compare = d.depthCompare;
   desc.raster.cull = d.cull;
   desc.name = "DrawContext " + shader->getName();
   std::unique_ptr<Pipeline> pipeline = d.device.createPipeline(desc);
