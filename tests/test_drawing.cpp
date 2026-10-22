@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <climits>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -275,23 +276,29 @@ protected:
   }
 
   //! writes an OBJ of a quad from (x0, y0) to (x1, y1) at depth z
-  /*! material: the lines of its MTL material; by default white with image.png */
+  /*! material: the lines of its MTL material; by default white with
+      image.png; nullptr for a quad without a material */
   std::string writeQuadObj(const std::string& name, float x0, float y0, float x1, float y1, float z,
     const char* material = "Kd 1 1 1\nmap_Kd image.png\n"){
     std::filesystem::path dir = std::filesystem::temp_directory_path()/"cge_test_drawing";
     std::filesystem::create_directories(dir);
     std::filesystem::copy_file(TestEnv::dataFile("image.png"), dir/"image.png", std::filesystem::copy_options::overwrite_existing);
     char text[1024];
-    snprintf(text, sizeof(text), "newmtl pic\n%s", material);
-    writeFile(dir/(name+".mtl"), text);
+    std::string mtllib, usemtl;
+    if (material){
+      snprintf(text, sizeof(text), "newmtl pic\n%s", material);
+      writeFile(dir/(name+".mtl"), text);
+      mtllib = "mtllib "+name+".mtl\n";
+      usemtl = "usemtl pic\n";
+    }
     snprintf(text, sizeof(text),
-      "mtllib %s.mtl\n"
+      "%s"
       "v %g %g %g\nv %g %g %g\nv %g %g %g\nv %g %g %g\n"
       "vt 0 0\nvt 1 0\nvt 1 1\nvt 0 1\n"
       "vn 0 0 1\n"
-      "usemtl pic\n"
+      "%s"
       "f 1/1/1 2/2/1 3/3/1 4/4/1\n",
-      name.c_str(), x0, y0, z, x1, y0, z, x1, y1, z, x0, y1, z);
+      mtllib.c_str(), x0, y0, z, x1, y0, z, x1, y1, z, x0, y1, z, usemtl.c_str());
     writeFile(dir/(name+".obj"), text);
     return (dir/(name+".obj")).string();
   }
@@ -498,6 +505,105 @@ TEST_P(Drawing, MeshesShowTheirMaterialsTextures){
       EXPECT_TRUE(isNear(pixels[y*3+x], expected[0], expected[1], expected[2])) << x << ", " << y;
     }
   }
+}
+
+namespace{
+
+//! expects the picture of image.png in pixels of a 3x2 target (rows from the bottom up)
+void expectPicture(const std::vector<Pixel>& pixels){
+  for (int y = 0; y < 2; ++y){
+    for (int x = 0; x < 3; ++x){
+      const int* expected = picture[1-y][x];
+      EXPECT_TRUE(isNear(pixels[y*3+x], expected[0], expected[1], expected[2])) << x << ", " << y;
+    }
+  }
+}
+
+}
+
+TEST_P(Drawing, MeshesWithoutMaterialKeepTheContextsTexture){
+  Mesh mesh;
+  ASSERT_TRUE(mesh.loadFromFile(writeQuadObj("plain", 0, 0, 3, 2, 0, nullptr)));
+  ASSERT_TRUE(mesh.buildBuffers(*device_));
+  auto tex = pictureTexture();
+  ASSERT_NE(tex, nullptr);
+  auto rt = target(3, 2);
+  begin(rt.get());
+  ctx_->setTexture(tex.get(), nearest_.get());
+  mesh.draw(*ctx_, Mesh::DRAW_ALL);
+  end();
+  EXPECT_EQ(ctx_->getTexture(), tex.get());
+  EXPECT_EQ(ctx_->getSampler(), nearest_.get());
+  ctx_->setTexture(nullptr);
+  expectPicture(read(rt.get()));
+}
+
+TEST_P(Drawing, ModelsGiveMeshesWithoutMaterialTheirDeviceTexture){
+  Mesh mesh;
+  ASSERT_TRUE(mesh.loadFromFile(writeQuadObj("plain", 0, 0, 3, 2, 0, nullptr)));
+  ASSERT_TRUE(mesh.buildBuffers(*device_));
+  auto tex = pictureTexture();
+  ASSERT_NE(tex, nullptr);
+  Model model(&mesh);
+  model.assignDeviceTexture(tex.get(), 0);
+  auto rt = target(3, 2);
+  begin(rt.get());
+  model.render(*ctx_, Mesh::DRAW_ALL);
+  end();
+  EXPECT_EQ(ctx_->getTexture(), nullptr);
+  expectPicture(read(rt.get()));
+}
+
+TEST_P(Drawing, ScenesLoadTheirTexturesOntoTheDevice){
+  //a scene file with the quad without material, image.png and one model with it
+  std::string obj = writeQuadObj("plain", 0, 0, 3, 2, 0, nullptr);
+  std::filesystem::path dir = std::filesystem::path(obj).parent_path();
+  {
+    std::ofstream out(dir/"test.hsf", std::ios::binary);
+    auto writeUnsigned = [&](unsigned value){out.write((const char*)&value, sizeof(value));};
+    auto writeString = [&](const std::string& text){writeUnsigned((unsigned)text.size()); out.write(text.c_str(), text.size());};
+    int version = 1;
+    out.write((const char*)&version, sizeof(version));
+    writeUnsigned(1);
+    writeString("plain.obj");
+    writeUnsigned(1);
+    writeString("image.png");
+    //no lights
+    writeUnsigned(0);
+    writeUnsigned(1);
+    //the model: id, mesh, textures, transformation, attributes
+    writeUnsigned(7);
+    writeUnsigned(0);
+    for (int i = 0; i < MAX_TEXTURES; ++i)
+      writeUnsigned(i == 0 ? 0 : UINT_MAX);
+    Matrix identity(Matrix::Identity);
+    out.write((const char*)identity.getData(), 16*sizeof(float));
+    for (int i = 0; i < MAX_ATTRIBS; ++i){
+      int attrib = 0;
+      out.write((const char*)&attrib, sizeof(attrib));
+    }
+  }
+  //the scene's files are relative to the working directory
+  std::filesystem::path cwd = std::filesystem::current_path();
+  std::filesystem::current_path(dir);
+  Scene scene;
+  scene.load("test.hsf", device_.get());
+  std::filesystem::current_path(cwd);
+
+  Gfx::Texture* tex = scene.getDeviceTexture("image.png");
+  ASSERT_NE(tex, nullptr);
+  EXPECT_TRUE(scene.getTextures().empty());
+  Model* model = scene.getModel(7);
+  ASSERT_NE(model, nullptr);
+  EXPECT_EQ(model->getDeviceTexture(0), tex);
+  auto rt = target(3, 2);
+  begin(rt.get());
+  scene.render(*ctx_);
+  end();
+  expectPicture(read(rt.get()));
+  //what is on the device goes before it
+  scene.clear();
+  EXPECT_EQ(scene.getDeviceTexture("image.png"), nullptr);
 }
 
 TEST_P(Drawing, ForwardAndLightPrepassLightTheSame){

@@ -56,6 +56,7 @@ SET(Engine_renderer_SRCS
 	${PRE}/shader.cpp
 	${PRE}/shaderlibrary.cpp
 	${PRE}/texture.cpp
+	${PRE}/textureloader.cpp
 	${PRE}/uniformstream.cpp
 	${PRE}/vertexbuffer.cpp
 	${RENDERER_SRCS}
@@ -81,6 +82,7 @@ SET(RENDERER_HDRS_CORE
 	${PRE}/shader.h
 	${PRE}/shaderlibrary.h
 	${PRE}/texture.h
+	${PRE}/textureloader.h
 	${PRE}/uniformstream.h
 	${PRE}/vertexbuffer.h
 )

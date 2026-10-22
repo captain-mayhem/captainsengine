@@ -4,10 +4,14 @@
 #include <cge_export.h>
 
 #include "../math/vector.h"
+#include "../math/matrix.h"
 
 namespace CGE{
 
 class Renderer;
+namespace Gfx{
+class RenderDevice;
+}
 
 //! The virtual resolution: the coordinate space of the GUI pass and the input events
 /*! The virtual area of width x height units is scaled uniformly to the largest
@@ -47,6 +51,8 @@ public:
       the bottom left with y up, as in the engine's GUI pass. Covers the whole
       viewport, which is expected to be the whole window. */
   void ortho(Renderer* rend, bool yDown = false) const;
+  //! the same projection for a render device (for Gfx::DrawContext::setProjection)
+  Matrix ortho(const Gfx::RenderDevice& device, bool yDown = false) const;
 private:
   void update();
   int width_;

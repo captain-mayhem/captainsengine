@@ -18,6 +18,7 @@ Model::Model() : SceneNode(MESH){
   boundingObj_ = NULL;
   for (int i = 0; i < MAX_TEXTURES; i++){
     textures_[i] = NULL;
+    deviceTextures_[i] = nullptr;
   }
   for (int i = 0; i < MAX_ATTRIBS; i++){
     attribs_[i] = 0;
@@ -33,6 +34,7 @@ Model::Model(Mesh* mesh) : SceneNode(MESH){
   boundingObj_ = new BSphere(center, radius);
   for (int i = 0; i < MAX_TEXTURES; i++){
     textures_[i] = NULL;
+    deviceTextures_[i] = nullptr;
   }
   for (int i = 0; i < MAX_ATTRIBS; i++){
     attribs_[i] = 0;
@@ -46,6 +48,7 @@ Model::Model(const Model& m) : SceneNode(m){
   boundingObj_ = new BSphere(*dynamic_cast<BSphere*>(m.boundingObj_));
   for (int i = 0; i < MAX_TEXTURES; i++){
     textures_[i] = m.textures_[i];
+    deviceTextures_[i] = m.deviceTextures_[i];
   }
   for (int i = 0; i < MAX_ATTRIBS; i++){
     attribs_[i] = m.attribs_[i];
@@ -70,7 +73,15 @@ void Model::render(Gfx::DrawContext& ctx, Mesh::DrawPart part){
   assert(mesh_ && "A mesh needs to be assigned to the model");
   ctx.model().push();
   ctx.model().multiply(trafo_);
-  mesh_->draw(ctx, part);
+  if (deviceTextures_[0]){
+    Gfx::Texture* texture = ctx.getTexture();
+    Gfx::Sampler* sampler = ctx.getSampler();
+    ctx.setTexture(deviceTextures_[0]);
+    mesh_->draw(ctx, part);
+    ctx.setTexture(texture, sampler);
+  }
+  else
+    mesh_->draw(ctx, part);
   ctx.model().pop();
 }
 

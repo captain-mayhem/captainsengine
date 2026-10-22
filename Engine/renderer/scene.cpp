@@ -10,6 +10,8 @@
 #include "../renderer/light.h"
 #include "../renderer/renderer.h"
 #include "../renderer/camera.h"
+#include "../renderer/renderdevice.h"
+#include "../renderer/textureloader.h"
 
 #include <iostream>
 #include <fstream>
@@ -39,6 +41,10 @@ Scene::Scene() : mActiveCam(nullptr){
 }
 
 Scene::~Scene(){
+  clear();
+}
+
+void Scene::clear(){
   list<SceneNode*>::iterator iter;
   for (iter = mNodes.begin(); iter != mNodes.end(); iter++){
     SAFE_DELETE(*iter);
@@ -54,7 +60,10 @@ Scene::~Scene(){
   for (unsigned i = 0; i < mLights.size(); ++i){
     SAFE_DELETE(mLights[i]);
   }
+  mLights.clear();
   textures_.clear();
+  mDeviceTextures.clear();
+  mDeviceTextureNames.clear();
 }
 
 void Scene::render(Mesh::DrawPart part){
@@ -187,13 +196,19 @@ void Scene::save(const std::string& filename) const{
 }
 
 //! load the scene
-void Scene::load(const std::string& filename){
+void Scene::load(const std::string& filename, Gfx::RenderDevice* device){
   TR_USE(CGE_Scene);
   ifstream in(filename.c_str(), ios::binary);
   if (!in)
     return;
+  //the files are relative to the working directory
   std::string cwd = CGE::Filesystem::getCwd();
+#ifdef WIN32
+  //the old Texture::getName gives what follows the last backslash
   cwd += "\\";
+#else
+  cwd += "/";
+#endif
   char buffer[256];
   //version
   in.read((char*)&version_, sizeof(version_));
@@ -215,7 +230,10 @@ void Scene::load(const std::string& filename){
       return;
     }
     buffer[length] = -52;
-    msh->buildVBO();
+    if (device)
+      msh->buildBuffers(*device);
+    else
+      msh->buildVBO();
     meshes_.push_back(msh);
   }
   //read and rebuild textures
@@ -230,6 +248,12 @@ void Scene::load(const std::string& filename){
 #ifdef UNIX
     Utilities::replaceWith(name, '\\', '/');
 #endif
+    if (device){
+      mDeviceTextures.push_back(Gfx::loadTexture(*device, cwd+name));
+      Utilities::replaceWith(name, '\\', '/');
+      mDeviceTextureNames.push_back(name);
+      continue;
+    }
     Texture* tex = Texture::create(cwd+name);
     textures_.push_back(tex);
   }
@@ -272,8 +296,10 @@ void Scene::load(const std::string& filename){
     for (int i = 0; i < MAX_TEXTURES; i++){
       in.read((char*)&idx, sizeof(idx));
       if (idx != UINT_MAX){
-        Texture* tex = textures_[idx];
-        mdl->assignTexture(tex,i);
+        if (device)
+          mdl->assignDeviceTexture(mDeviceTextures[idx].get(), i);
+        else
+          mdl->assignTexture(textures_[idx], i);
       }
     }
     //trafo
@@ -288,6 +314,16 @@ void Scene::load(const std::string& filename){
     }
   }
   in.close();
+}
+
+Gfx::Texture* Scene::getDeviceTexture(const std::string& name) const{
+  std::string wanted = name;
+  Utilities::replaceWith(wanted, '\\', '/');
+  for (size_t i = 0; i < mDeviceTextureNames.size(); ++i){
+    if (mDeviceTextureNames[i] == wanted)
+      return mDeviceTextures[i].get();
+  }
+  return nullptr;
 }
 
 //! Get the model that is the nearest one on the ray

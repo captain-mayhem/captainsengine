@@ -99,8 +99,10 @@ public:
 	//! draw the mesh with the old renderer
 	void draw(DrawPart part);
   //! draws the mesh through a render device with the context's lit shader
-  /*! Sets the context's material and texture per submesh; the texture is
-      none afterwards. */
+  /*! Sets the context's material and texture per submesh. Submeshes
+      without a material are drawn white with the texture the context had
+      (as with the old renderers, which kept the bound texture), and that
+      texture is the context's again afterwards. */
   void draw(Gfx::DrawContext& ctx, DrawPart part);
   //! get the name of the mesh
   std::string getName() const {return name_;}

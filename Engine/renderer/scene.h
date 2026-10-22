@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <list>
+#include <memory>
 #include <string>
 #include <mesh/model.h>
 
@@ -16,6 +17,8 @@ class Light;
 class Camera;
 namespace Gfx{
 class DrawContext;
+class RenderDevice;
+class Texture;
 }
 }
 
@@ -26,6 +29,9 @@ class Texture;
 class CGE_API Scene{
 public:
   Scene();
+  //! owns its models, meshes and textures
+  Scene(const Scene&) = delete;
+  Scene& operator=(const Scene&) = delete;
   virtual ~Scene();
   //! Add a mesh
   unsigned addMesh(Mesh* mesh) {meshes_.push_back(mesh); return (unsigned)meshes_.size();}
@@ -41,6 +47,9 @@ public:
   unsigned addTexture(Texture* tex) {textures_.push_back(tex); return (unsigned)textures_.size();}
   //! Get all textures
   std::vector<CGE::Texture*> getTextures() const {return textures_;}
+  //! a texture the scene loaded onto a render device, by its file name in the scene file
+  /*! E.g. "textures/world/door.jpg"; nullptr if the scene has none of that name. */
+  Gfx::Texture* getDeviceTexture(const std::string& name) const;
   //! Add a light
   unsigned addLight(Light* light) { mLights.push_back(light); return (unsigned)mLights.size(); }
   //! Get the lights
@@ -53,8 +62,16 @@ public:
   void render(Gfx::DrawContext& ctx, Mesh::DrawPart part=Mesh::DRAW_ALL);
   //! save the scene
   void save(const std::string& filename) const;
+  //! deletes the models, meshes, textures and lights
+  /*! Also what is on a render device, so call it before the device goes
+      when the scene lives longer. */
+  void clear();
   //! load the scene
-  void load(const std::string& filename);
+  /*! With a device, the meshes get their buffers on it and the textures
+      are loaded onto it and assigned to the models as device textures;
+      nothing is made for the old renderer. Without one, the old renderer's
+      buffers and textures are made. */
+  void load(const std::string& filename, Gfx::RenderDevice* device = nullptr);
   //! Get the model that is the nearest one on the ray
   Model* pickModel(const CGE::Ray& ray) const;
   //! get the models
@@ -72,6 +89,9 @@ protected:
   std::vector<Mesh*> meshes_;
   //! The textures
   std::vector<Texture*> textures_;
+  //! The textures on a render device, and their file names in the scene file
+  std::vector<std::unique_ptr<Gfx::Texture>> mDeviceTextures;
+  std::vector<std::string> mDeviceTextureNames;
   //! The lights
   std::vector<Light*> mLights;
   //! active camera
