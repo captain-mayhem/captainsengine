@@ -35,16 +35,10 @@ class AppWindow;
 class Renderer;
 class Font;
 class Forms;
+class Console;
 namespace Gfx{
 class DrawContext;
 }
-}
-
-namespace Gui{
-class GuiElement;
-class InputField;
-class Button;
-class Console;
 }
 
 //! changes a string to an integer
@@ -131,38 +125,13 @@ class CGE_API Engine{
     //! get the window
     inline CGE::AppWindow* getWindow() {return win_.get();}
     //! get the console
-    inline ::Gui::Console* getConsole() {return console_.get();}
+    inline CGE::Console* getConsole() {return console_.get();}
+    //! is Dear ImGui set up? (not without graphics)
+    /*! The engine draws ImGui on top of each frame: applications call ImGui's
+        functions in their render() (see ui/imgui_impl_cge_platform.h). */
+    inline bool hasImGui() const {return imgui_;}
     inline double getFrameInterval() {return frameInterval_;}
     inline int getFPS() {return fps_;}
-   
-    //! get the input field list
-    //inline list< ::Gui::InputField*>& getInputFields() {return listeners_;}
-    //! get the button list
-    inline std::list< ::Gui::GuiElement*>& getGuiElements() {return guiElems_;}
-    //! adds an input field for mouse click checking
-    //void addInputListener(::Gui::InputField* in, bool immediate=true){if (immediate)listeners_.push_back(in);
-    //  else newIn_.push_back(in);}
-    //! adds a button for mouse click checking
-    void addGuiListener(::Gui::GuiElement* element, bool immediate=true){if (immediate)guiElems_.push_back(element);
-      else newBut_.push_back(element);}
-    //! set the current input field that should be active
-    void setActiveInput(::Gui::InputField* field);
-    //! get the current input field that should be active
-    inline ::Gui::InputField* getActiveInput() {return input_;}
-    //! clears the input and button listeners
-    void clearListeners(bool immediate=true);
-    //! remove the input listener at position idx
-    //void removeInputListener(int idx);
-    //! remove the button listener at position idx
-    void removeGuiListener(int idx, bool immediate=true);
-    //! remove the button listener with a certain name
-    void removeGuiListener(const std::string& name);
-    //! remove all button listeners beginning at idx
-    void removeGuiListeners(int idx);
-    //! get a button by name
-    ::Gui::GuiElement* getGuiListener(const std::string& name);
-    //! get the gui mutex
-    Mutex& getGuiMutex() {return guitex_;}
     void requestShutdown();
     inline bool isShutdownRequested() {return mShutdownRequested;}
     void messageBox(const std::string& message, const std::string& title);
@@ -185,8 +154,11 @@ class CGE_API Engine{
     void frame(bool update);
     //! renders the application and the GUI and presents the frame
     void renderFrame();
-    //! applies the deferred changes to the GUI element list
-    void updateGuiElements();
+    //! creates the ImGui context and its backends for the window and the device
+    void startupImGui();
+    void shutdownImGui();
+    //! draws the ImGui frame the application and the console built
+    void renderImGui();
     //! sleeps until the frame limit (maxFramerate in engine.ini) is reached
     void limitFrame();
 
@@ -232,24 +204,10 @@ class CGE_API Engine{
     //! fps
     int fps_;
 
-    //! waiting input fields
-    //list< ::Gui::InputField*> listeners_;
-    //! waiting buttons
-    std::list< ::Gui::GuiElement*> guiElems_;
-    //! the new input fields
-    //list< ::Gui::InputField*> newIn_;
-    //! the new buttons
-    std::list< ::Gui::GuiElement*> newBut_;
-    //! if the input listeners should be cleared
-    bool clear_;
-    //! which buttons should be removed
-    std::vector<short> remBut_;
-    //! where should the keyboard input go to?
-    ::Gui::InputField* input_;
     //! the game console
-    std::unique_ptr< ::Gui::Console> console_;
-    //! a gui lock mutex
-    Mutex guitex_;
+    std::unique_ptr<CGE::Console> console_;
+    //! is ImGui set up?
+    bool imgui_;
     bool mShutdownRequested;
     
 #ifdef LINUX

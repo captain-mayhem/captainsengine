@@ -9,11 +9,11 @@
 #include "renderer/renderer.h"
 #include "renderer/font.h"
 #include "renderer/forms.h"
-#include "gui/gui.h"
 #include "input/mouse.h"
 #include "input/keyboard.h"
 #include "window/window.h"
 
+#include "widgets.h"
 #include "common.h"
 #include "opcodes.h"
 #include "textureManager.h"
@@ -250,14 +250,14 @@ void HQRenderer::buttonDown_(int x, int y, int buttons){
     InputField* in = new InputField();
     in->setName("Playname");
     in->setPosition(Vector2D(400, 500));
-    CGE::Engine::instance()->addGuiListener(in);
+    widgets.add(in);
 
     Button* but = new Button();
     but->setPosition(Vector2D(400, 450));
     but->setText("    Play");
     but->setName("Play");
     but->setCbFunc(Menu::play);
-    CGE::Engine::instance()->addGuiListener(but);
+    widgets.add(but);
   }
   else if (game.getState() == RUN && !Mouse::instance()->isGuiClick() && awaitMapClick_){
     //awaiting click on map for various ingame functions
@@ -553,6 +553,9 @@ void HQRenderer::paint_(){
     }
   }
  
+  //the buttons, input fields and message boxes
+  widgets.render();
+
   render_->enableBlend(false);  
 }
 

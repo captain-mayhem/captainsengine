@@ -4,11 +4,14 @@
 #include "editor.h"
 #include "hqmExport.h"
 
-#include "gui/gui.h"
-#include "gui/filedialog.h"
-#include "gui/listbox.h"
-#include "gui/dropdown.h"
+#include <cfloat>
+#include <cstdio>
+#include <cstring>
+
+#include <imgui.h>
+
 #include "system/engine.h"
+#include "system/file.h"
 #include "mesh/mesh.h"
 #include "mesh/model.h"
 #include "renderer/texture.h"
@@ -16,300 +19,302 @@
 using std::string;
 using std::vector;
 
-using namespace Gui;
-using CGE::Vector2D;
+using CGE::Filesystem;
 using CGE::Mesh;
 using CGE::Model;
 using CGE::Texture;
 
-//! The add mesh callback function
-void Menu::addMesh(GuiElement* elem){
-  FileDialog* fd = new FileDialog();
-  fd->setCbFunc(loadMesh);
-  CGE::Engine::instance()->addGuiListener(fd);
+#ifdef WIN32
+#define SEPARATOR "\\"
+#endif
+#ifdef UNIX
+#define SEPARATOR "/"
+#endif
+
+namespace{
+
+//! the dialogs; one is open at a time
+enum class Dialog{
+  None,
+  File,
+  AddModel,
+  Properties,
+  AssignTexture,
+  Options,
+};
+
+//! what the file dialog was opened for
+enum class FileAction{
+  AddMesh,
+  AddTexture,
+  SaveScene,
+  LoadScene,
+};
+
+const int NUM_ATTRIBS = 8;
+const int NUM_STAGES = 8;
+const char* PLANE_NAMES[] = {"XZ Plane", "XY Plane", "YZ Plane"};
+
+//! the open dialog and what it shows
+struct State{
+  Dialog dialog = Dialog::None;
+  //the dialog was opened in this frame: it is centred
+  bool opened = false;
+  //file dialog: the working directory, the path relative to it and its contents
+  FileAction fileAction = FileAction::AddMesh;
+  string cwd = Filesystem::getCwd();
+  string path = ".";
+  vector<string> dirs;
+  vector<string> files;
+  char filename[256] = "";
+  //the selected list entry
+  int selected = -1;
+  //the texture stage
+  int stage = 0;
+  //the current model's attributes
+  char attribs[NUM_ATTRIBS][64] = {};
+  int plane = 0;
+  float gridStep = 1;
+};
+
+State state;
+
+void open(Dialog dialog){
+  state.dialog = dialog;
+  state.opened = true;
+  state.selected = -1;
 }
 
-//! Load a mesh
-void Menu::loadMesh(Gui::GuiElement* elem){
-  FileDialog* fd = dynamic_cast<FileDialog*>(elem->getParent());
-  Graphic::instance()->addMesh(fd->getRelFile());
+void close(){
+  state.dialog = Dialog::None;
 }
 
-//! The add model callback
-void Menu::addModel(Gui::GuiElement* elem){
-  //Dialog
-  Dialog* dia = new Dialog();
-  //Meshes
-  ListBox* lb = new ListBox();
-  lb->setPosition(Vector2D(50, 100));
-  lb->setSpan(Vector2D(400,600));
-  vector<Mesh*> meshes = Graphic::instance()->getScene().getMeshes();
-  for (unsigned i = 0; i < meshes.size(); i++){
-    lb->addEntry(meshes[i]->getName());
+//! a dialog window of width x height font sizes, centred when it opens
+/*! Always followed by ImGui::End(). */
+bool beginDialog(const char* title, float width, float height){
+  if (state.opened){
+    const float size = ImGui::GetFontSize();
+    ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+    ImGui::SetNextWindowSize(ImVec2(width*size, height*size));
+    state.opened = false;
   }
-  dia->addElement(lb);
-  //OK button
-  PDButton* ok = new PDButton();
-  ok->setPosition(Vector2D(575, 50));
-  ok->setSpan(Vector2D(75,18));
-  ok->setText("  OK");
-  ok->setCbFunc(setModel);
-  dia->addUnscaledElement(ok);
-  CGE::Engine::instance()->addGuiListener(dia);
+  bool keepOpen = true;
+  bool visible = ImGui::Begin(title, &keepOpen, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoSavedSettings);
+  if (!keepOpen)
+    close();
+  return visible;
 }
 
-//! The set model callback
-void Menu::setModel(Gui::GuiElement* elem){
-  Dialog* dia = dynamic_cast<Dialog*>(elem->getParent());
-  ListBox* lb = dynamic_cast<ListBox*>(dia->getElement(0));
-  int sel = lb->selected();
-  if (sel >= 0){
-    Graphic::instance()->addModel(sel);
+// --- file dialog ---
+
+void listDirectory(){
+  state.dirs = Filesystem::getDirectories(state.cwd+SEPARATOR+state.path);
+  state.files = Filesystem::getFiles(state.cwd+SEPARATOR+state.path);
+}
+
+void openFile(FileAction action){
+  state.fileAction = action;
+  state.filename[0] = '\0';
+  listDirectory();
+  open(Dialog::File);
+}
+
+void changeDir(const string& dir){
+  //collapse the path when .. is chosen and the situation is appropriate
+  string& path = state.path;
+  if (dir == ".." && path.length() > 1 && path[path.length()-1] != '.'){
+    size_t n = path.find_last_of(SEPARATOR);
+    if (n != path.npos)
+      path.erase(n);
+    else
+      path += ".";
+  }
+  else
+    path += SEPARATOR+dir;
+  listDirectory();
+}
+
+void acceptFile(){
+  string relFile = state.path+SEPARATOR+state.filename;
+  string file = state.cwd+SEPARATOR+relFile;
+  switch (state.fileAction){
+    case FileAction::AddMesh:
+      Graphic::instance()->addMesh(relFile);
+      break;
+    case FileAction::AddTexture:
+      Graphic::instance()->addTexture(relFile);
+      break;
+    case FileAction::SaveScene:
+      Graphic::instance()->getScene().save(file);
+      Graphic::instance()->setFilename(file);
+      break;
+    case FileAction::LoadScene:
+      Graphic::instance()->getScene().load(file);
+      Graphic::instance()->setFilename(file);
+      break;
+  }
+  close();
+}
+
+void fileDialog(){
+  if (beginDialog("Choose a file", 50, 30)){
+    ImGui::TextUnformatted(state.path.c_str());
+    const ImGuiStyle& style = ImGui::GetStyle();
+    const float half = (ImGui::GetContentRegionAvail().x - style.ItemSpacing.x)/2;
+    const ImVec2 listSize(half, -2*ImGui::GetFrameHeightWithSpacing());
+    string dir;
+    if (ImGui::BeginListBox("##dirs", listSize)){
+      for (const string& entry : state.dirs){
+        if (ImGui::Selectable(entry.c_str()))
+          dir = entry;
+      }
+      ImGui::EndListBox();
+    }
+    ImGui::SameLine();
+    bool accept = false;
+    if (ImGui::BeginListBox("##files", listSize)){
+      for (const string& entry : state.files){
+        if (ImGui::Selectable(entry.c_str(), entry == state.filename, ImGuiSelectableFlags_AllowDoubleClick)){
+          snprintf(state.filename, sizeof(state.filename), "%s", entry.c_str());
+          accept = ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left);
+        }
+      }
+      ImGui::EndListBox();
+    }
+    //after the lists, which it changes
+    if (!dir.empty())
+      changeDir(dir);
+    ImGui::SetNextItemWidth(-FLT_MIN);
+    if (ImGui::InputText("##file", state.filename, sizeof(state.filename), ImGuiInputTextFlags_EnterReturnsTrue))
+      accept = true;
+    ImGui::BeginDisabled(state.filename[0] == '\0');
+    if (ImGui::Button("OK", ImVec2(6*ImGui::GetFontSize(), 0)))
+      accept = true;
+    ImGui::EndDisabled();
+    ImGui::SameLine();
+    if (ImGui::Button("Abort", ImVec2(6*ImGui::GetFontSize(), 0)))
+      close();
+    if (accept && state.filename[0] != '\0')
+      acceptFile();
+  }
+  ImGui::End();
+}
+
+// --- model dialogs ---
+
+//! a list box of names that sets state.selected
+void selectionList(const char* id, const vector<string>& names){
+  if (ImGui::BeginListBox(id, ImVec2(-FLT_MIN, -ImGui::GetFrameHeightWithSpacing()*2))){
+    for (int i = 0; i < (int)names.size(); i++){
+      ImGui::PushID(i);
+      if (ImGui::Selectable(names[i].c_str(), state.selected == i))
+        state.selected = i;
+      ImGui::PopID();
+    }
+    ImGui::EndListBox();
   }
 }
 
-//! The save scene callback
-void Menu::save(Gui::GuiElement* elem){
-  FileDialog* fd = new FileDialog();
-  fd->setCbFunc(saveScene);
-  CGE::Engine::instance()->addGuiListener(fd);
+void addModelDialog(){
+  if (beginDialog("Add model", 30, 30)){
+    vector<string> names;
+    for (Mesh* mesh : Graphic::instance()->getScene().getMeshes())
+      names.push_back(mesh->getName());
+    selectionList("##meshes", names);
+    if (ImGui::Button("OK", ImVec2(6*ImGui::GetFontSize(), 0))){
+      if (state.selected >= 0)
+        Graphic::instance()->addModel(state.selected);
+      close();
+    }
+  }
+  ImGui::End();
 }
 
-//! The save scene callback
-void Menu::saveScene(Gui::GuiElement* elem){
-  FileDialog* fd = dynamic_cast<FileDialog*>(elem->getParent());
-  Graphic::instance()->getScene().save(fd->getFile());
-  Graphic::instance()->setFilename(fd->getFile());
-}
-
-//! The load scene callback
-void Menu::load(Gui::GuiElement* elem){
-  FileDialog* fd = new FileDialog();
-  fd->setCbFunc(loadScene);
-  CGE::Engine::instance()->addGuiListener(fd);
-}
-  
-//! The load scene callback
-void Menu::loadScene(Gui::GuiElement* elem){
-  FileDialog* fd = dynamic_cast<FileDialog*>(elem->getParent());
-  Graphic::instance()->getScene().load(fd->getFile());
-  Graphic::instance()->setFilename(fd->getFile());
-}
-
-//! The add texture callback
-void Menu::addTexture(Gui::GuiElement* elem){
-  FileDialog* fd = new FileDialog();
-  fd->setCbFunc(loadTexture);
-  CGE::Engine::instance()->addGuiListener(fd);
-}
-  
-//! The set texture callback
-void Menu::loadTexture(Gui::GuiElement* elem){
-  FileDialog* fd = dynamic_cast<FileDialog*>(elem->getParent());
-  Graphic::instance()->addTexture(fd->getRelFile());
-}
-
-//! the model properties callback
-void Menu::properties(Gui::GuiElement* elem){
-  //Dialog
-  Dialog* dia = new Dialog();
-  CGE::Engine::instance()->addGuiListener(dia);
-  //Assign texture button
-  PDButton* assTex = new PDButton();
-  assTex->setPosition(Vector2D(20, 730));
-  assTex->setText("Assign Texture");
-  assTex->setCbFunc(assignTexture);
-  dia->addUnscaledElement(assTex);
-
+void openProperties(){
   Model* mdl = Graphic::instance()->getCurrModel();
-  
-  //Attributes
-  InputField* in = new InputField();
-  in->setPosition(Vector2D(20, 690));
-  if (!mdl)
-    in->setText("-1");
-  else
-    in->setText(Editor::instance()->attribString(mdl->getAttrib(0)));
-  dia->addUnscaledElement(in);
-  
-  in = new InputField();
-  in->setPosition(Vector2D(20, 660));
-  if (!mdl)
-    in->setText("-1");
-  else
-    in->setText(Editor::instance()->attribString(mdl->getAttrib(1)));
-  dia->addUnscaledElement(in);
-
-  in = new InputField();
-  in->setPosition(Vector2D(20, 630));
-  if (!mdl)
-    in->setText("-1");
-  else
-    in->setText(Editor::instance()->attribString(mdl->getAttrib(2)));
-  dia->addUnscaledElement(in);
-
-  in = new InputField();
-  in->setPosition(Vector2D(20, 600));
-  if (!mdl)
-    in->setText("-1");
-  else
-    in->setText(Editor::instance()->attribString(mdl->getAttrib(3)));
-  dia->addUnscaledElement(in);
-
-  in = new InputField();
-  in->setPosition(Vector2D(20, 570));
-  if (!mdl)
-    in->setText("-1");
-  else
-    in->setText(Editor::instance()->attribString(mdl->getAttrib(4)));
-  dia->addUnscaledElement(in);
-
-  in = new InputField();
-  in->setPosition(Vector2D(20, 540));
-  if (!mdl)
-    in->setText("-1");
-  else
-    in->setText(Editor::instance()->attribString(mdl->getAttrib(5)));
-  dia->addUnscaledElement(in);
-
-  in = new InputField();
-  in->setPosition(Vector2D(20, 510));
-  if (!mdl)
-    in->setText("-1");
-  else
-    in->setText(Editor::instance()->attribString(mdl->getAttrib(6)));
-  dia->addUnscaledElement(in);
-
-  in = new InputField();
-  in->setPosition(Vector2D(20, 480));
-  if (!mdl)
-    in->setText("-1");
-  else
-    in->setText(Editor::instance()->attribString(mdl->getAttrib(7)));
-  dia->addUnscaledElement(in);
-  
-  //Close button
-  PDButton* close = new PDButton();
-  close->setPosition(Vector2D(575, 50));
-  close->setSpan(Vector2D(75,18));
-  close->setText(" Close");
-  close->setCbFunc(evaluateAttribs);
-  dia->addUnscaledElement(close);
-}
-
-//! the assign texture button
-void Menu::assignTexture(Gui::GuiElement* elem){
-  //Dialog
-  Dialog* dia = new Dialog();
-  //Textures
-  ListBox* lb = new ListBox();
-  lb->setPosition(Vector2D(50, 100));
-  lb->setSpan(Vector2D(400,600));
-  vector<Texture*> textures = Graphic::instance()->getScene().getTextures();
-  for (unsigned i = 0; i < textures.size(); i++){
-    lb->addEntry(textures[i]->getName());
+  for (int i = 0; i < NUM_ATTRIBS; i++){
+    string text = mdl ? Editor::instance()->attribString(mdl->getAttrib(i)) : "-1";
+    snprintf(state.attribs[i], sizeof(state.attribs[i]), "%s", text.c_str());
   }
-  dia->addElement(lb);
-  //Texture stages
-  DropDownButton* stages = new DropDownButton();
-  stages->setPosition(Vector2D(500, 680));
-  dia->addUnscaledElement(stages);
-  stages->calcDDPos(1);
-  stages->setText("Stage 0");
-  stages->addEntry("Stage 0");
-  stages->addEntry("Stage 1");
-  stages->addEntry("Stage 2");
-  stages->addEntry("Stage 3");
-  stages->addEntry("Stage 4");
-  stages->addEntry("Stage 5");
-  stages->addEntry("Stage 6");
-  stages->addEntry("Stage 7");
-  //OK button
-  PDButton* ok = new PDButton();
-  ok->setPosition(Vector2D(575, 50));
-  ok->setSpan(Vector2D(75,18));
-  ok->setText("  OK");
-  ok->setCbFunc(assignTextureDialog);
-  dia->addUnscaledElement(ok);
-  CGE::Engine::instance()->addGuiListener(dia);
+  open(Dialog::Properties);
 }
 
-//! the assign texture dialog handler
-void Menu::assignTextureDialog(Gui::GuiElement* elem){
-  //current model needed
+void evaluateAttribs(){
   Model* mdl = Graphic::instance()->getCurrModel();
   if (!mdl)
     return;
-  //get the chosen texture
-  Texture* tex = NULL;
-  Dialog* dia = dynamic_cast<Dialog*>(elem->getParent());
-  ListBox* lb = dynamic_cast<ListBox*>(dia->getElement(0));
-  int sel = lb->selected();
-  if (sel >= 0){
-    tex = Graphic::instance()->getScene().getTextures()[sel];
+  for (int i = 0; i < NUM_ATTRIBS; i++)
+    mdl->setAttrib(i, Editor::instance()->attribValue(state.attribs[i]));
+}
+
+void propertiesDialog(){
+  if (beginDialog("Model properties", 25, 22)){
+    if (!Graphic::instance()->getCurrModel())
+      ImGui::TextUnformatted("No model selected");
+    if (ImGui::Button("Assign texture"))
+      open(Dialog::AssignTexture);
+    for (int i = 0; i < NUM_ATTRIBS; i++){
+      char label[32];
+      snprintf(label, sizeof(label), "Attribute %d", i);
+      ImGui::InputText(label, state.attribs[i], sizeof(state.attribs[i]));
+    }
+    if (ImGui::Button("Close", ImVec2(6*ImGui::GetFontSize(), 0))){
+      evaluateAttribs();
+      close();
+    }
   }
-  if (!tex)
-    return;
-  //get the texture stage
-  DropDownButton* dd = dynamic_cast<DropDownButton*>(dia->getElement(1));
-  int stage = dd->getSelection();
-  //assign the texture
-  mdl->assignTexture(tex,stage);
+  ImGui::End();
 }
 
-void Menu::options(Gui::GuiElement* elem){
-  //Dialog
-  Dialog* dia = new Dialog();
-  CGE::Engine::instance()->addGuiListener(dia);
-
-  //The plane chooser
-  DropDownButton* planes = new DropDownButton();
-  planes->setPosition(Vector2D(20, 680));
-  dia->addUnscaledElement(planes);
-  planes->calcDDPos(1);
-  Editor::Plane plane = Editor::instance()->getEditPlane();
-  string label;
-  if (plane == Editor::XZ)
-    label = "XZ Plane";
-  else if (plane == Editor::XY)
-    label = "XY Plane";
-  else if (plane == Editor::YZ)
-    label = "YZ Plane";
-  planes->setText(label);
-  planes->addEntry("XZ Plane");
-  planes->addEntry("XY Plane");
-  planes->addEntry("YZ Plane");
-
-  //The translation step
-  InputField* input = new InputField();
-  input->setPosition(Vector2D(20, 650));
-  float step = Editor::instance()->getGridStep();
-  input->setText(std::to_string(step));
-  dia->addUnscaledElement(input);
-
-  //OK button
-  PDButton* ok = new PDButton();
-  ok->setPosition(Vector2D(575, 50));
-  ok->setSpan(Vector2D(75,18));
-  ok->setText("  OK");
-  ok->setCbFunc(changeOptions);
-  dia->addUnscaledElement(ok);
+void assignTextureDialog(){
+  if (beginDialog("Assign texture", 30, 30)){
+    vector<Texture*> textures = Graphic::instance()->getScene().getTextures();
+    vector<string> names;
+    for (Texture* tex : textures)
+      names.push_back(tex->getName());
+    char stage[16];
+    snprintf(stage, sizeof(stage), "Stage %d", state.stage);
+    if (ImGui::BeginCombo("Texture stage", stage)){
+      for (int i = 0; i < NUM_STAGES; i++){
+        snprintf(stage, sizeof(stage), "Stage %d", i);
+        if (ImGui::Selectable(stage, state.stage == i))
+          state.stage = i;
+      }
+      ImGui::EndCombo();
+    }
+    selectionList("##textures", names);
+    if (ImGui::Button("OK", ImVec2(6*ImGui::GetFontSize(), 0))){
+      Model* mdl = Graphic::instance()->getCurrModel();
+      if (mdl && state.selected >= 0 && state.selected < (int)textures.size())
+        mdl->assignTexture(textures[state.selected], state.stage);
+      close();
+    }
+  }
+  ImGui::End();
 }
 
-void Menu::changeOptions(Gui::GuiElement* elem){
-  Dialog* dia = dynamic_cast<Dialog*>(elem->getParent());
-  //The edit plane
-  DropDownButton* dd = dynamic_cast<DropDownButton*>(dia->getElement(0));
-  Editor::Plane plane = (Editor::Plane)dd->getSelection();
-  Editor::instance()->setEditPlane(plane);
-  //The translation step
-  InputField* input = dynamic_cast<InputField*>(dia->getElement(1));
-  float step = toFloat(input->getText());
-  Editor::instance()->setGridStep(step);
+// --- options ---
+
+void openOptions(){
+  state.plane = (int)Editor::instance()->getEditPlane();
+  state.gridStep = Editor::instance()->getGridStep();
+  open(Dialog::Options);
 }
 
-//! the export hqm button
-void Menu::hqmExport(Gui::GuiElement* elem){
+void optionsDialog(){
+  if (beginDialog("Options", 22, 9)){
+    ImGui::Combo("Edit plane", &state.plane, PLANE_NAMES, IM_ARRAYSIZE(PLANE_NAMES));
+    ImGui::InputFloat("Grid step", &state.gridStep);
+    if (ImGui::Button("OK", ImVec2(6*ImGui::GetFontSize(), 0))){
+      Editor::instance()->setEditPlane((Editor::Plane)state.plane);
+      Editor::instance()->setGridStep(state.gridStep);
+      close();
+    }
+  }
+  ImGui::End();
+}
+
+void hqmExport(){
   HQMExport exp;
   std::string file = Graphic::instance()->getFilename();
   unsigned idx = file.find_last_of('.');
@@ -318,35 +323,55 @@ void Menu::hqmExport(Gui::GuiElement* elem){
   exp.exportHQM(Graphic::instance()->getScene(), file);
 }
 
-//! evaluate attribs button
-void Menu::evaluateAttribs(Gui::GuiElement* elem){
-  Model* mdl = Graphic::instance()->getCurrModel();
-  if (!mdl)
-    return;
-  Dialog* dia = dynamic_cast<Dialog*>(elem->getParent());
-  InputField* in = dynamic_cast<InputField*>(dia->getElement(1));
-  int att = Editor::instance()->attribValue(in->getText());
-  mdl->setAttrib(0,att);
-  in = dynamic_cast<InputField*>(dia->getElement(2));
-  att = Editor::instance()->attribValue(in->getText());
-  mdl->setAttrib(1,att);
-  in = dynamic_cast<InputField*>(dia->getElement(3));
-  att = Editor::instance()->attribValue(in->getText());
-  mdl->setAttrib(2,att);
-  in = dynamic_cast<InputField*>(dia->getElement(4));
-  att = Editor::instance()->attribValue(in->getText());
-  mdl->setAttrib(3,att);
-  in = dynamic_cast<InputField*>(dia->getElement(5));
-  att = Editor::instance()->attribValue(in->getText());
-  mdl->setAttrib(4,att);
-  in = dynamic_cast<InputField*>(dia->getElement(6));
-  att = Editor::instance()->attribValue(in->getText());
-  mdl->setAttrib(5,att);
-  in = dynamic_cast<InputField*>(dia->getElement(7));
-  att = Editor::instance()->attribValue(in->getText());
-  mdl->setAttrib(6,att);
-  in = dynamic_cast<InputField*>(dia->getElement(8));
-  att = Editor::instance()->attribValue(in->getText());
-  mdl->setAttrib(7,att);
+//! the buttons, in the lower right corner
+void toolWindow(){
+  const ImGuiViewport* viewport = ImGui::GetMainViewport();
+  const float margin = ImGui::GetFontSize();
+  ImGui::SetNextWindowPos(ImVec2(viewport->WorkPos.x + viewport->WorkSize.x - margin, viewport->WorkPos.y + viewport->WorkSize.y - margin),
+    ImGuiCond_FirstUseEver, ImVec2(1, 1));
+  if (ImGui::Begin("Editor", nullptr, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings)){
+    const ImVec2 size(9*ImGui::GetFontSize(), 0);
+    if (ImGui::Button("Export HQM", size))
+      hqmExport();
+    if (ImGui::Button("Load scene", size))
+      openFile(FileAction::LoadScene);
+    if (ImGui::Button("Save scene", size))
+      openFile(FileAction::SaveScene);
+    if (ImGui::Button("Properties", size))
+      openProperties();
+    if (ImGui::Button("Add model", size))
+      open(Dialog::AddModel);
+    if (ImGui::Button("Add mesh", size))
+      openFile(FileAction::AddMesh);
+    if (ImGui::Button("Add texture", size))
+      openFile(FileAction::AddTexture);
+    if (ImGui::Button("Options", size))
+      openOptions();
+  }
+  ImGui::End();
 }
 
+}
+
+void Menu::render(){
+  toolWindow();
+  switch (state.dialog){
+    case Dialog::File:
+      fileDialog();
+      break;
+    case Dialog::AddModel:
+      addModelDialog();
+      break;
+    case Dialog::Properties:
+      propertiesDialog();
+      break;
+    case Dialog::AssignTexture:
+      assignTextureDialog();
+      break;
+    case Dialog::Options:
+      optionsDialog();
+      break;
+    case Dialog::None:
+      break;
+  }
+}

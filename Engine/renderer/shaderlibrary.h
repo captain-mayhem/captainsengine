@@ -93,6 +93,9 @@ enum class BuiltinShader{
   /*! Unlit (the material's diffuse colour) without lights. The texture in
       SLOT_TEXTURE is used if the material's flags say so. */
   Lit,
+  //! Dear ImGui's vertices: 2D position in pixels, texture coordinates and
+  //! colour, with ImGui's texture in SLOT_TEXTURE (ui/imgui_impl_cge_render.h)
+  ImGui,
 };
 
 //! Shader sources and the built-in shaders

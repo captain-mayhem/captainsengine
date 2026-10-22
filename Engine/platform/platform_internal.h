@@ -20,6 +20,9 @@ void init(int argc, char** argv, void* androidApp);
 void applyEngineSettings(const std::string& assetDir, const std::string& appName);
 //! sets the current cursor again (Windows: WM_SETCURSOR; X11: when the mouse is shown again) (services.cpp)
 void applyCursor();
+//! shows cursor (a Platform::Cursor) instead of the application's one, -1 shows the application's again (services.cpp)
+/*! For the ImGui platform backend while the mouse is over an ImGui window. */
+void setOverrideCursor(int cursor);
 
 //! the application name used when engine.ini has none (userdirs.cpp)
 void setDefaultAppName(const std::string& name);

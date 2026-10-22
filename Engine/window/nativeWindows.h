@@ -20,6 +20,8 @@ public:
   //! get window handle
   inline void* getHandle() override {return handle_;}
   Gfx::NativeWindow getNativeWindow() const override;
+  //! the window's DPI / 96; 1 unless the process is DPI aware
+  float getContentScale() const override;
   //! kill the window
   void kill() override;
   virtual void changeSize(int width, int height) override;

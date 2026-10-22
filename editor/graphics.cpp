@@ -3,7 +3,6 @@
 #include "renderer/font.h"
 #include "mesh/mesh.h"
 #include "mesh/model.h"
-#include "gui/gui.h"
 #include "window/window.h"
 #include "renderer/forms.h"
 #include "renderpass/Forward.h"
@@ -14,7 +13,6 @@
 #include "graphics.h"
 
 using CGE::Engine;
-using Gui::Button;
 using CGE::Mesh;
 using CGE::Model;
 using namespace CGE;
@@ -67,54 +65,6 @@ void Graphic::init(){
   gra_ = new Graphic();
   atexit(Graphic::release);
 
-  Button* opt = new Button();
-  opt->setPosition(Vector2D(900,40));
-  opt->setText("Options");
-  opt->setCbFunc(Menu::options);
-  CGE::Engine::instance()->addGuiListener(opt);
-
-  Button* addTex = new Button();
-  addTex->setPosition(Vector2D(900,70));
-  addTex->setText("Add texture");
-  addTex->setCbFunc(Menu::addTexture);
-  CGE::Engine::instance()->addGuiListener(addTex);
-  
-  Button* add = new Button();
-  add->setPosition(Vector2D(900,100));
-  add->setText("Add mesh");
-  add->setCbFunc(Menu::addMesh);
-  CGE::Engine::instance()->addGuiListener(add);
-
-  Button* mdl = new Button();
-  mdl->setPosition(Vector2D(900,130));
-  mdl->setText("Add model");
-  mdl->setCbFunc(Menu::addModel);
-  CGE::Engine::instance()->addGuiListener(mdl);
-
-  Button* mdlProp = new Button();
-  mdlProp->setPosition(Vector2D(900,160));
-  mdlProp->setText("Properties");
-  mdlProp->setCbFunc(Menu::properties);
-  CGE::Engine::instance()->addGuiListener(mdlProp);
-  
-  Button* save = new Button();
-  save->setPosition(Vector2D(900,190));
-  save->setText("Save scene");
-  save->setCbFunc(Menu::save);
-  CGE::Engine::instance()->addGuiListener(save);
-  
-  Button* load = new Button();
-  load->setPosition(Vector2D(900,220));
-  load->setText("Load scene");
-  load->setCbFunc(Menu::load);
-  CGE::Engine::instance()->addGuiListener(load);
-
-  Button* hqm = new Button();
-  hqm->setPosition(Vector2D(900, 250));
-  hqm->setText("Export HQM");
-  hqm->setCbFunc(Menu::hqmExport);
-  CGE::Engine::instance()->addGuiListener(hqm);
-
   Editor::instance()->startup();
 }
 
@@ -133,6 +83,7 @@ void Graphic::addMesh(std::string filename){
 void Graphic::render(){
   Editor::instance()->update();
   gra_->render_();
+  Menu::render();
 }
 
 void Graphic::resize(int width, int height){

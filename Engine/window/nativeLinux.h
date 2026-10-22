@@ -26,6 +26,8 @@ public:
   //! get screen
   inline int getScreen() const {return screen_;}
   Gfx::NativeWindow getNativeWindow() const override;
+  //! the desktop's font DPI (Xft.dpi) / 96
+  float getContentScale() const override;
   //! kill the window
   void kill() override;
   
@@ -40,6 +42,8 @@ protected:
   Display* disp_;
   //! the screen number
   int screen_;
+  //! the content scale, 0 until it is read
+  mutable float contentScale_;
 #ifndef DISABLE_XF86VMODE
   //! desktop resolution
   XF86VidModeModeInfo prevDesktop_;

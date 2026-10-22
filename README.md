@@ -49,8 +49,9 @@ ctest --preset default      # or: ctest --preset windows
 The test files are in `tests/data`; `tests/data/make_fixtures.py` writes them again. Each test run uses its own user folders (`UserDirs`) and removes them at the end.
 
 Notes:
-* The engine is built as a shared library: `CGE.dll` on Windows, `libCGE.so` on Linux. Lua is part of it and exported, because applications use the Lua API directly. The other third-party libraries (zlib with minizip, libpng, libjpeg, giflib, glad) are linked into it statically and not exported. The OpenGL backend plugin has its own copy of glad.
-* `extern/` also has FreeType, Dear ImGui, miniaudio, libogg and libvorbis, which the engine will use for text, UI and audio. zlib, libpng, libjpeg and these libraries are the same copies as in guitads. googletest is only used by the unit tests.
+* The engine is built as a shared library: `CGE.dll` on Windows, `libCGE.so` on Linux. Lua and Dear ImGui are part of it and exported, because applications use their APIs directly (and there must be one ImGui context). The other third-party libraries (zlib with minizip, libpng, libjpeg, giflib, FreeType, glad) are linked into it statically and not exported. The OpenGL backend plugin has its own copy of glad.
+* `extern/` also has miniaudio, libogg and libvorbis, which the engine will use for audio. zlib, libpng, libjpeg, FreeType, Dear ImGui and these libraries are the same copies as in guitads. googletest is only used by the unit tests.
+* The UI is Dear ImGui: the engine draws ImGui on top of every frame, so applications call ImGui's functions (`#include <imgui.h>`) in their `render()`. While ImGui wants the keyboard or the mouse (a text field is active, the mouse is over an ImGui window), the application doesn't get the keys and characters, and `Input::Mouse::isGuiClick()` is true. The console (`consol`, toggled with `~`) is an ImGui window.
 * The physics module (ODE) is a separate library, `CGE::Physics`. It is built when `CGE_WITH_PHYSICS` is on, which is the default when OSMRacer is built.
 * On Linux the Adventure is built without sound by default (`DISABLE_SOUND`): its sound code needs the FFmpeg 2.x API, which current distributions don't ship.
 

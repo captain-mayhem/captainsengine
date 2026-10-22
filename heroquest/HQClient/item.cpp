@@ -8,7 +8,7 @@
 #include "world.h"
 #endif
 #include "item.h"
-#include "gui/console.h"
+#include "ui/console.h"
 
 Item::Item(){
   count_ = 1;

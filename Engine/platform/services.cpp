@@ -36,6 +36,13 @@ TR_CHANNEL(CGE_Platform);
 namespace{
 
 Platform::Cursor currentCursor = Platform::CURSOR_ARROW;
+//! the cursor ImGui wants while the mouse is over one of its windows, or -1
+int overrideCursor = -1;
+
+//! the cursor shown over the window
+Platform::Cursor shownCursor(){
+  return overrideCursor >= 0 ? (Platform::Cursor)overrideCursor : currentCursor;
+}
 #ifdef ANDROID
 ANativeActivity* activity = nullptr;
 #endif
@@ -323,6 +330,13 @@ void applyEngineSettings(const std::string& assetDir, const std::string& appName
     UserDirs::setAppName(appName);
 }
 
+void setOverrideCursor(int cursor){
+  if (cursor == overrideCursor)
+    return;
+  overrideCursor = cursor;
+  applyCursor();
+}
+
 void applyCursor(){
 #if defined(WIN32)
   //WM_SETCURSOR sets it again whenever the mouse moves over the window
@@ -332,13 +346,13 @@ void applyCursor(){
   POINT pt;
   RECT rect;
   if (GetCursorPos(&pt) && ScreenToClient(wnd, &pt) && GetClientRect(wnd, &rect) && PtInRect(&rect, pt))
-    SetCursor(systemCursor(currentCursor));
+    SetCursor(systemCursor(shownCursor()));
 #elif defined(LINUX)
   X11Window* wnd = engineWindow();
   Input::Mouse* mouse = Input::Mouse::instance();
   if (!wnd || !wnd->getDisplay() || (mouse && !mouse->isMouseActive()))
     return;
-  XDefineCursor(wnd->getDisplay(), wnd->getWindow(), systemCursor(wnd->getDisplay(), currentCursor));
+  XDefineCursor(wnd->getDisplay(), wnd->getWindow(), systemCursor(wnd->getDisplay(), shownCursor()));
   XFlush(wnd->getDisplay());
 #endif
 }

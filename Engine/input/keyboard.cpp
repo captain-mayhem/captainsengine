@@ -1,14 +1,21 @@
 #include <cstdlib>
 #include "../system/engine.h"
-#include "../gui/gui.h"
-#include "../gui/console.h"
+#include "../ui/console.h"
+#include "../ui/imgui_impl_cge_platform.h"
 #include "../input/keyboard.h"
-
-using Gui::InputField;
 
 using namespace Input;
 
 Keyboard* Keyboard::key_ = nullptr;
+
+namespace{
+
+//! ImGui takes the keyboard (e.g. for a text field): the application doesn't get it
+bool imguiWantsKeyboard(){
+  return ImGui::GetCurrentContext() && ImGui::GetIO().WantCaptureKeyboard;
+}
+
+}
 
 Keyboard::Keyboard() : mBuiltInConsole(true){
 }
@@ -20,47 +27,14 @@ void Keyboard::init(){
 void Keyboard::keyDown(int key){
   pressedKeys_.remove(key);
   pressedKeys_.push_back(key);
-  if (key == KEY_ESCAPE){
-    Gui::Console* cons = CGE::Engine::instance()->getConsole();
-    //quit console
-    if (cons->isActive()){
-      cons->toggle();
-      if (CGE::Engine::instance()->getActiveInput()){
-        CGE::Engine::instance()->getActiveInput()->clear();
-        CGE::Engine::instance()->setActiveInput(nullptr);
-      }
-      return;
-    }
-  }
-  InputField* input = CGE::Engine::instance()->getActiveInput();
-  //input goes to input field
-  if (input != nullptr){
-    //input finished
-    if (key == KEY_RETURN){
-      input->removeChar();
-      input->end();
-      //normal input ==> single line
-      if (!CGE::Engine::instance()->getConsole()->isActive())
-        CGE::Engine::instance()->setActiveInput(nullptr);
-      return;
-    }
-    //delete one char
-    else if (key == KEY_BACKSPACE){
-      input->removeChar();
-      input->removeChar();
-      input->addChar('_');
-      return;
-    }
-    //history
-    else if (key == KEY_UP){
-      CGE::Engine::instance()->getConsole()->Up();
-    }
-    else if (key == KEY_DOWN){
-      CGE::Engine::instance()->getConsole()->Down();
-    }
+  //quit console
+  CGE::Console* cons = CGE::Engine::instance()->getConsole();
+  if (key == KEY_ESCAPE && cons && cons->isActive()){
+    cons->toggle();
     return;
   }
-  
+  if (imguiWantsKeyboard())
+    return;
   CGE::IApplication* app = CGE::Engine::instance()->getApplication();
   if (app)
     app->onKeyDown(key);
@@ -77,20 +51,15 @@ void Keyboard::ascii(unsigned char key){
   //accept only printable asciis
   if (key <= 31 /*|| key >= 127*/)
     return;
-  InputField* input = CGE::Engine::instance()->getActiveInput();
-  //input goes to input field
-  if (input != nullptr){
-    input->removeChar();
-    input->addChar(key);
-    input->addChar('_');
+  //open console (the character doesn't go into its input line)
+  CGE::Console* cons = CGE::Engine::instance()->getConsole();
+  if (mBuiltInConsole && key == '~' && cons && !cons->isActive() && !imguiWantsKeyboard()){
+    cons->toggle();
     return;
   }
-  //open console
-  if (mBuiltInConsole && key == '~'){
-    CGE::Engine::instance()->getConsole()->toggle();
-    CGE::Engine::instance()->setActiveInput(CGE::Engine::instance()->getConsole()->GetInputField());
-  }
-
+  ImGui_ImplCGE_Platform_AddChar(key);
+  if (imguiWantsKeyboard())
+    return;
   CGE::IApplication* app = CGE::Engine::instance()->getApplication();
   if (app)
     app->onChar(key);

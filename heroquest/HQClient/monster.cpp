@@ -13,7 +13,7 @@
 #include <fstream>
 #include <sstream>
 #ifdef _CLIENT_
-#include "gui/console.h"
+#include "ui/console.h"
 #include "common.h"
 #include "renderer.h"
 #include "camera.h"

@@ -13,8 +13,8 @@
 #include <fstream>
 #include <sstream>
 #ifdef _CLIENT_
-#include "gui/console.h"
-#include "gui/dropdown.h"
+#include "ui/console.h"
+#include "widgets.h"
 #include "common.h"
 #include "renderer.h"
 #include "camera.h"
@@ -135,7 +135,7 @@ void Hero::createFromGui(Gui::GuiElement*){
 #ifdef _CLIENT_
   const vector<Hero>& heros = msg.getHeros();
   //write available heros to the gui
-  Gui::DropDownButton* cls = dynamic_cast<Gui::DropDownButton*>(CGE::Engine::instance()->getGuiListener("class"));
+  Gui::DropDownButton* cls = dynamic_cast<Gui::DropDownButton*>(widgets.get("class"));
   ostringstream tmp;
   Hero heroe;
   for (unsigned i = 0; i < heros.size(); i++){
@@ -161,8 +161,8 @@ void Hero::createFromGui(Gui::GuiElement*){
     fnt->print(120, 530, "Spells:", 1, (float)HUGE_VAL);
   }
 
-  while (GuiElement* but = CGE::Engine::instance()->getGuiListener("spell")){
-    CGE::Engine::instance()->removeGuiListener(but->getName());
+  while (GuiElement* but = widgets.get("spell")){
+    widgets.remove(but->getName());
   }
 
   //read spell classes
@@ -180,14 +180,13 @@ void Hero::createFromGui(Gui::GuiElement*){
   for (int i = 0; i < heroe.getSpellClasses(); i++){
     Gui::DropDownButton* spell = new Gui::DropDownButton();
     spell->setPosition(pos);
-    spell->calcDDPos(2);
     spell->setName("spell");
     for (unsigned i = 0; i < spellClasses.size(); i++){
       if (i == 0)
         spell->setText(spellClasses[i]);
       spell->addEntry(spellClasses[i]);
     }
-    CGE::Engine::instance()->addGuiListener(spell);
+    widgets.add(spell);
     pos.x += 190;
   }
 #endif

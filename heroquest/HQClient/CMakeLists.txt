@@ -24,6 +24,7 @@ SET(HQClient_SRCS
 	templates.cpp
 	textureManager.cpp
 	trade.cpp
+	widgets.cpp
 	world.cpp
 )
 
@@ -54,6 +55,7 @@ SET(HQClient_HDRS
 	templates.h
 	textureManager.h
 	trade.h
+	widgets.h
 	world.h
 )
 

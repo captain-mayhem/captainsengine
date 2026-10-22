@@ -1,5 +1,7 @@
 #if defined(LINUX)
 #include <X11/Xutil.h>
+#include <X11/Xresource.h>
+#include <cstdlib>
 #include "../system/engine.h"
 #include "../renderer/renderdevice.h"
 #include "nativeLinux.h"
@@ -11,6 +13,8 @@ using namespace CGE;
 X11Window::X11Window(Gfx::RenderDevice* device, const Gfx::DeviceDesc& desc) : AppWindow(device, desc){
   disp_ = nullptr;
   win_ = 0;
+  screen_ = 0;
+  contentScale_ = 0;
 }
 
 void X11Window::init(const std::string& name){
@@ -44,7 +48,8 @@ void X11Window::init(const std::string& name){
   
   if (fullscreen_){
     attr.override_redirect = True;
-    attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
+    attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask
+      | LeaveWindowMask | FocusChangeMask;
     win_ = XCreateWindow(disp_, RootWindow(disp_, vi->screen), 0, 0,
         width_, height_, 0, vi->depth, InputOutput, vi->visual,
         CWBorderPixel | CWColormap | CWEventMask | CWOverrideRedirect,
@@ -56,7 +61,8 @@ void X11Window::init(const std::string& name){
         GrabModeAsync, win_, None, CurrentTime);
   }
   else{
-    attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask;
+    attr.event_mask = ExposureMask | KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask
+      | LeaveWindowMask | FocusChangeMask;
     win_ = XCreateWindow(disp_, RootWindow(disp_, vi->screen), 0, 0,
         width_, height_, 0, vi->depth, InputOutput, vi->visual,
         CWBorderPixel | CWColormap | CWEventMask, &attr);
@@ -77,6 +83,28 @@ Gfx::NativeWindow X11Window::getNativeWindow() const{
   wnd.window = (uintptr_t)win_;
   wnd.screen = screen_;
   return wnd;
+}
+
+float X11Window::getContentScale() const{
+  if (contentScale_ > 0)
+    return contentScale_;
+  contentScale_ = 1;
+  //desktops that scale set the font DPI in the resource database
+  const char* resources = disp_ ? XResourceManagerString(disp_) : nullptr;
+  if (!resources)
+    return contentScale_;
+  XrmInitialize();
+  XrmDatabase db = XrmGetStringDatabase(resources);
+  char* type = nullptr;
+  XrmValue value;
+  if (db && XrmGetResource(db, "Xft.dpi", "Xft.Dpi", &type, &value) && value.addr){
+    float dpi = (float)atof(value.addr);
+    if (dpi > 0)
+      contentScale_ = dpi/96.0f;
+  }
+  if (db)
+    XrmDestroyDatabase(db);
+  return contentScale_;
 }
 
 void X11Window::applyResolution(){

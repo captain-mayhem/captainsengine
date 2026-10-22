@@ -11,16 +11,15 @@
 
 #include "system/engine.h"
 
+#include "widgets.h"
 #include "common.h"
 #include "camera.h"
 #include "world.h"
 #include "renderer.h"
 #include "textureManager.h"
 #include "renderer/font.h"
-#include "gui/gui.h"
-#include "gui/dropdown.h"
 #include "message.h"
-#include "gui/console.h"
+#include "ui/console.h"
 #include "script.h"
 #include "templates.h"
 #include "player.h"
@@ -73,24 +72,24 @@ bool GameState::start(){
   InputField* in = new InputField();
   in->setPosition(Vector2D(200, 450));
   in->setText(msg.getSetting(0));
-  CGE::Engine::instance()->addGuiListener(in);
+  widgets.add(in);
   
   f->print(120, 400, "Port:", 1, (float)HUGE_VAL);
   InputField* in2 = new InputField();
   in2->setPosition(Vector2D(200, 400));
   in2->setText(msg.getSetting(1));
-  CGE::Engine::instance()->addGuiListener(in2);
+  widgets.add(in2);
 
   Button* but = new Button();
   but->setPosition(Vector2D(200,300));
   but->setText("  Play local");
-  CGE::Engine::instance()->addGuiListener(but);
+  widgets.add(but);
   but->setCbFunc(Menu::playLocal);
 
   but = new Button();
   but->setPosition(Vector2D(200, 250));
   but->setText("   Connect");
-  CGE::Engine::instance()->addGuiListener(but);
+  widgets.add(but);
   //void (*p)();
   //p = &Renderer::connect;
   but->setCbFunc(Menu::connect);
@@ -116,30 +115,28 @@ void GameState::end(){
   //wrld.deInit();
   //re-setup GUI to choose level
   Font* f = CGE::Engine::instance()->getFont(0);
-  CGE::Engine::instance()->clearListeners(false);
+  widgets.clear(false);
 	//only the player with admin status can create games
 	if (plyr.getStatus() == 2){
     f->setColor(1,1,1);
     f->print(120, 450, "Package:",1, (float)HUGE_VAL);
 	  DropDownButton* but = new DropDownButton();
 		but->setPosition(Vector2D(200,450));
-    but->calcDDPos(1);
 		but->setText("basic");
     but->setCbFunc(Menu::level);
-    CGE::Engine::instance()->addGuiListener(but,false);
+    widgets.add(but,false);
 
 		f->print(120, 400, "Level:", 1, (float)HUGE_VAL);
 		DropDownButton* but2 = new DropDownButton();
 		but2->setPosition(Vector2D(200,400));
-    but2->calcDDPos(1);
-    CGE::Engine::instance()->addGuiListener(but2,false);
+    widgets.add(but2,false);
     game.choosePackage(but, but2);
 
 		Button* but3 = new Button();
 		but3->setPosition(Vector2D(200,300));
 		but3->setText("     Load");
 		but3->setCbFunc(Menu::loadLevel);
-    CGE::Engine::instance()->addGuiListener(but3,false);
+    widgets.add(but3,false);
 	}
 }
 
