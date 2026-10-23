@@ -110,6 +110,7 @@ RenderDevice::RenderDevice(){
   pipeline_ = nullptr;
   indexBufferSet_ = false;
   frameCount_ = 0;
+  windowReleased_ = false;
 }
 
 RenderDevice::~RenderDevice(){
@@ -133,6 +134,7 @@ bool RenderDevice::init(const NativeWindow& window, const DeviceDesc& desc){
     return false;
   }
   state_ = State::Idle;
+  windowReleased_ = false;
   return true;
 }
 
@@ -179,8 +181,34 @@ Matrix RenderDevice::perspective(float fovy, float aspect, float nearPlane, floa
   return adjustProjection(Matrix(Matrix::Perspective, -right, right, -top, top, nearPlane, farPlane));
 }
 
+void RenderDevice::releaseWindow(){
+  if (state_ == State::Uninitialized || windowReleased_)
+    return;
+  if (state_ == State::InPass)
+    endPass();
+  if (state_ == State::InFrame)
+    endFrame();
+  doReleaseWindow();
+  windowReleased_ = true;
+}
+
+bool RenderDevice::attachWindow(const NativeWindow& window){
+  TR_USE(CGE_RenderDevice);
+  if (!checkState(State::Idle, "attachWindow"))
+    return false;
+  if (!doAttachWindow(window)){
+    TR_WARN("Render device %s can't render into the new window", getName());
+    return false;
+  }
+  windowReleased_ = false;
+  return true;
+}
+
 bool RenderDevice::beginFrame(){
   if (!checkState(State::Idle, "beginFrame"))
+    return false;
+  //nothing to draw into until attachWindow
+  if (windowReleased_)
     return false;
   if (!doBeginFrame())
     return false;

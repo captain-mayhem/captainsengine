@@ -13,6 +13,8 @@
 #include <windows.h>
 #elif defined(LINUX)
 #include <X11/keysym.h>
+#elif defined(ANDROID)
+#include <android/keycodes.h>
 #endif
 
 using namespace CGE;
@@ -407,6 +409,66 @@ ImGuiKey ImGui_ImplCGE_Platform_ToImGuiKey(int key){
     case 91: return ImGuiKey_LeftSuper;
     case 92: return ImGuiKey_RightSuper;
     case 93: return ImGuiKey_Menu;
+    default: return ImGuiKey_None;
+  }
+#elif defined(ANDROID)
+  //AKEYCODE_
+  if (key >= AKEYCODE_0 && key <= AKEYCODE_9)
+    return (ImGuiKey)(ImGuiKey_0 + (key - AKEYCODE_0));
+  if (key >= AKEYCODE_A && key <= AKEYCODE_Z)
+    return (ImGuiKey)(ImGuiKey_A + (key - AKEYCODE_A));
+  if (key >= AKEYCODE_F1 && key <= AKEYCODE_F12)
+    return (ImGuiKey)(ImGuiKey_F1 + (key - AKEYCODE_F1));
+  if (key >= AKEYCODE_NUMPAD_0 && key <= AKEYCODE_NUMPAD_9)
+    return (ImGuiKey)(ImGuiKey_Keypad0 + (key - AKEYCODE_NUMPAD_0));
+  switch (key){
+    case AKEYCODE_TAB: return ImGuiKey_Tab;
+    case AKEYCODE_DPAD_LEFT: return ImGuiKey_LeftArrow;
+    case AKEYCODE_DPAD_RIGHT: return ImGuiKey_RightArrow;
+    case AKEYCODE_DPAD_UP: return ImGuiKey_UpArrow;
+    case AKEYCODE_DPAD_DOWN: return ImGuiKey_DownArrow;
+    case AKEYCODE_PAGE_UP: return ImGuiKey_PageUp;
+    case AKEYCODE_PAGE_DOWN: return ImGuiKey_PageDown;
+    case AKEYCODE_MOVE_HOME: return ImGuiKey_Home;
+    case AKEYCODE_MOVE_END: return ImGuiKey_End;
+    case AKEYCODE_INSERT: return ImGuiKey_Insert;
+    case AKEYCODE_FORWARD_DEL: return ImGuiKey_Delete;
+    case AKEYCODE_DEL: return ImGuiKey_Backspace;
+    case AKEYCODE_SPACE: return ImGuiKey_Space;
+    case AKEYCODE_ENTER: return ImGuiKey_Enter;
+    case AKEYCODE_ESCAPE: return ImGuiKey_Escape;
+    case AKEYCODE_APOSTROPHE: return ImGuiKey_Apostrophe;
+    case AKEYCODE_COMMA: return ImGuiKey_Comma;
+    case AKEYCODE_MINUS: return ImGuiKey_Minus;
+    case AKEYCODE_PERIOD: return ImGuiKey_Period;
+    case AKEYCODE_SLASH: return ImGuiKey_Slash;
+    case AKEYCODE_SEMICOLON: return ImGuiKey_Semicolon;
+    case AKEYCODE_EQUALS: return ImGuiKey_Equal;
+    case AKEYCODE_LEFT_BRACKET: return ImGuiKey_LeftBracket;
+    case AKEYCODE_BACKSLASH: return ImGuiKey_Backslash;
+    case AKEYCODE_RIGHT_BRACKET: return ImGuiKey_RightBracket;
+    case AKEYCODE_GRAVE: return ImGuiKey_GraveAccent;
+    case AKEYCODE_CAPS_LOCK: return ImGuiKey_CapsLock;
+    case AKEYCODE_SCROLL_LOCK: return ImGuiKey_ScrollLock;
+    case AKEYCODE_NUM_LOCK: return ImGuiKey_NumLock;
+    case AKEYCODE_SYSRQ: return ImGuiKey_PrintScreen;
+    case AKEYCODE_BREAK: return ImGuiKey_Pause;
+    case AKEYCODE_NUMPAD_DOT: return ImGuiKey_KeypadDecimal;
+    case AKEYCODE_NUMPAD_DIVIDE: return ImGuiKey_KeypadDivide;
+    case AKEYCODE_NUMPAD_MULTIPLY: return ImGuiKey_KeypadMultiply;
+    case AKEYCODE_NUMPAD_SUBTRACT: return ImGuiKey_KeypadSubtract;
+    case AKEYCODE_NUMPAD_ADD: return ImGuiKey_KeypadAdd;
+    case AKEYCODE_NUMPAD_ENTER: return ImGuiKey_KeypadEnter;
+    case AKEYCODE_NUMPAD_EQUALS: return ImGuiKey_KeypadEqual;
+    case AKEYCODE_SHIFT_LEFT: return ImGuiKey_LeftShift;
+    case AKEYCODE_CTRL_LEFT: return ImGuiKey_LeftCtrl;
+    case AKEYCODE_ALT_LEFT: return ImGuiKey_LeftAlt;
+    case AKEYCODE_META_LEFT: return ImGuiKey_LeftSuper;
+    case AKEYCODE_SHIFT_RIGHT: return ImGuiKey_RightShift;
+    case AKEYCODE_CTRL_RIGHT: return ImGuiKey_RightCtrl;
+    case AKEYCODE_ALT_RIGHT: return ImGuiKey_RightAlt;
+    case AKEYCODE_META_RIGHT: return ImGuiKey_RightSuper;
+    case AKEYCODE_MENU: return ImGuiKey_Menu;
     default: return ImGuiKey_None;
   }
 #else

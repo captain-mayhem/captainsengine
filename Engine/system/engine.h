@@ -109,6 +109,13 @@ class CGE_API Engine{
     //! the application comes back from the background
     void resume();
     inline bool isPaused() {return paused_;}
+    //! creates the render device and everything on it again, as after a
+    //! lost context (Android)
+    /*! The application gets onDeviceLost before and onDeviceRestored after.
+        The engine does this itself when the device reports that its context
+        was lost; calling it tests that path on any platform. Not from
+        render or from an input handler. */
+    void restartRenderDevice();
     //! the render device, which owns the window's graphics context
     /*! The backend that renderer in engine.ini names (default OpenGL), or
         the Null device when engine.ini says graphics = false. */
@@ -157,6 +164,11 @@ class CGE_API Engine{
     void renderFrame();
     //! draws the texts of the fonts in their own pass
     void renderFonts();
+    //! creates the engine's objects on the render device: the draw context,
+    //! the fonts, the forms and the sprite batch
+    void createDeviceObjects();
+    //! deletes them before the device goes
+    void destroyDeviceObjects();
     //! creates the ImGui context and its backends for the window and the device
     void startupImGui();
     void shutdownImGui();
@@ -169,6 +181,8 @@ class CGE_API Engine{
     std::unique_ptr<CGE::AppWindow> win_;
     //! the render device
     std::unique_ptr<Gfx::RenderDevice> device_;
+    //! what the device was initialised with (engine.ini)
+    Gfx::DeviceDesc deviceDesc_;
     //! drawing on the render device; destroyed before it
     std::unique_ptr<Gfx::DrawContext> draw_;
 
@@ -218,8 +232,12 @@ class CGE_API Engine{
     double lastClick_;
 #endif
 #ifdef ANDROID
-	static int32_t handleInput(struct android_app* app, AInputEvent* event);
-	static void handleCmd(struct android_app* app, int32_t cmd);
+    //! the activity's lifecycle (android_app::onAppCmd)
+    static void handleCmd(struct android_app* app, int32_t cmd);
+    //! starts the engine on the activity's new window, or attaches it to the device
+    void windowCreated();
+    //! pauses or resumes the engine after a change of the activity's state
+    void updateActivity();
     struct android_app* m_app;
 #endif
 };

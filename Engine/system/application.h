@@ -32,11 +32,21 @@ public:
   virtual void shutdown() {}
   //! the window was resized to width x height pixels
   virtual void onResize(int width, int height) {}
-  //! the application went into the background (minimised, or lost focus on Android)
+  //! the application went into the background (minimised; on Android also
+  //! without a window or without the focus, e.g. under the notifications)
   /*! update and render aren't called until onResume. */
   virtual void onPause() {}
   //! the application came back from the background
   virtual void onResume() {}
+  //! the render device lost its context and all resources (Android)
+  /*! The application deletes everything it created on the device, and
+      forgets the engine's draw context, sprite batch, fonts and forms: they
+      are created again, too. The GL objects are already gone, so nothing is
+      drawn until onDeviceRestored. Applications that run on Android must
+      handle this; Engine::restartRenderDevice tests it on any platform. */
+  virtual void onDeviceLost() {}
+  //! the render device works again: the application creates its resources again
+  virtual void onDeviceRestored() {}
 
   //! a key was pressed; the default quits on Escape
   virtual void onKeyDown(int key);
