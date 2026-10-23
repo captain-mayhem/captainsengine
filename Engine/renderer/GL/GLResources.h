@@ -73,6 +73,12 @@ public:
   ~GLShader();
   GLuint getProgram() const {return program_;}
   uint64_t getSerial() const {return serial_;}
+  //! a uniform block the program uses: its slot and its size in bytes
+  struct Block{
+    int slot;
+    int size;
+  };
+  std::vector<Block> blocks;
 private:
   GLuint program_;
   uint64_t serial_;

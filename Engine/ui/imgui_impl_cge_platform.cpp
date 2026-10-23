@@ -215,7 +215,7 @@ void ImGui_ImplCGE_Platform_AddChar(unsigned int ch){
     return;
   }
 #endif
-  //Latin-1 on X11, which are the first 256 Unicode code points
+  //Latin-1 on X11, which are the first 256 Unicode code points; code points on the web
   io.AddInputCharacter(ch);
 }
 
@@ -348,6 +348,65 @@ ImGuiKey ImGui_ImplCGE_Platform_ToImGuiKey(int key){
     case XK_ISO_Level3_Shift: return ImGuiKey_RightAlt;
     case XK_Super_R: return ImGuiKey_RightSuper;
     case XK_Menu: return ImGuiKey_Menu;
+    default: return ImGuiKey_None;
+  }
+#elif defined(__EMSCRIPTEN__)
+  //KeyboardEvent.keyCode; the same values as Windows' virtual keys
+  if (key >= '0' && key <= '9')
+    return (ImGuiKey)(ImGuiKey_0 + (key - '0'));
+  if (key >= 'A' && key <= 'Z')
+    return (ImGuiKey)(ImGuiKey_A + (key - 'A'));
+  if (key >= 112 && key <= 135)
+    return (ImGuiKey)(ImGuiKey_F1 + (key - 112));
+  if (key >= 96 && key <= 105)
+    return (ImGuiKey)(ImGuiKey_Keypad0 + (key - 96));
+  switch (key){
+    case 9: return ImGuiKey_Tab;
+    case 37: return ImGuiKey_LeftArrow;
+    case 39: return ImGuiKey_RightArrow;
+    case 38: return ImGuiKey_UpArrow;
+    case 40: return ImGuiKey_DownArrow;
+    case 33: return ImGuiKey_PageUp;
+    case 34: return ImGuiKey_PageDown;
+    case 36: return ImGuiKey_Home;
+    case 35: return ImGuiKey_End;
+    case 45: return ImGuiKey_Insert;
+    case 46: return ImGuiKey_Delete;
+    case 8: return ImGuiKey_Backspace;
+    case 32: return ImGuiKey_Space;
+    case 13: return ImGuiKey_Enter;
+    case 27: return ImGuiKey_Escape;
+    case 222: return ImGuiKey_Apostrophe;
+    case 188: return ImGuiKey_Comma;
+    case 189: return ImGuiKey_Minus;
+    case 173: return ImGuiKey_Minus; //Firefox
+    case 190: return ImGuiKey_Period;
+    case 191: return ImGuiKey_Slash;
+    case 186: return ImGuiKey_Semicolon;
+    case 59: return ImGuiKey_Semicolon; //Firefox
+    case 187: return ImGuiKey_Equal;
+    case 61: return ImGuiKey_Equal; //Firefox
+    case 219: return ImGuiKey_LeftBracket;
+    case 220: return ImGuiKey_Backslash;
+    case 221: return ImGuiKey_RightBracket;
+    case 192: return ImGuiKey_GraveAccent;
+    case 20: return ImGuiKey_CapsLock;
+    case 145: return ImGuiKey_ScrollLock;
+    case 144: return ImGuiKey_NumLock;
+    case 44: return ImGuiKey_PrintScreen;
+    case 19: return ImGuiKey_Pause;
+    case 110: return ImGuiKey_KeypadDecimal;
+    case 111: return ImGuiKey_KeypadDivide;
+    case 106: return ImGuiKey_KeypadMultiply;
+    case 109: return ImGuiKey_KeypadSubtract;
+    case 107: return ImGuiKey_KeypadAdd;
+    //keyCode doesn't tell the sides apart
+    case 16: return ImGuiKey_LeftShift;
+    case 17: return ImGuiKey_LeftCtrl;
+    case 18: return ImGuiKey_LeftAlt;
+    case 91: return ImGuiKey_LeftSuper;
+    case 92: return ImGuiKey_RightSuper;
+    case 93: return ImGuiKey_Menu;
     default: return ImGuiKey_None;
   }
 #else

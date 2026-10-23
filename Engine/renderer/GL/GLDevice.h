@@ -64,10 +64,14 @@ private:
   void setActiveUnit(int unit);
   void bindProgram(GLShader* shader);
   void bindVao(GLPipeline* pipeline);
+  //! binds the GL buffer id to the target its data is written through and returns the target
+  unsigned bindForWrite(BufferType type, unsigned id);
   //! applies the pipeline's blend, depth and raster state
   void applyRenderState(const PipelineDesc& desc);
   //! sets the attribute pointers and the index buffer of the current pipeline
   bool prepareDraw(bool indexed);
+  //! binds zeros to the slots of the shader's uniform blocks that have no buffer
+  void bindMissingUniforms(GLShader* shader);
   //! forgets the cached GL state
   void invalidateState();
 
@@ -93,6 +97,8 @@ private:
   uint64_t arrayBuffer_;
   TextureUnit units_[MAX_TEXTURE_SLOTS+1];
   UniformBinding uniformBuffers_[MAX_UNIFORM_BUFFERS];
+  //! zeros for uniform blocks without a buffer (bindMissingUniforms)
+  std::unique_ptr<Buffer> fallbackUniforms_;
   bool renderStateKnown_;
   BlendState blend_;
   DepthState depth_;

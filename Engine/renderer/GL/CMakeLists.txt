@@ -1,11 +1,12 @@
 # The OpenGL render backend (included by Engine/CMakeLists.txt after the
 # Engine target). On desktop it is a plugin library, CGE_GL.dll /
 # libCGE_GL.so, next to the engine library, which RenderDevice::create loads.
-# On Android it is compiled into the engine (CGE_GL_BUILTIN).
+# On Android and the web it is compiled into the engine (CGE_GL_BUILTIN).
 
 set(CGE_GL_SRCS
 	renderer/GL/GLContextEGLAndroid.cpp
 	renderer/GL/GLContextEGLX11.cpp
+	renderer/GL/GLContextWebGL.cpp
 	renderer/GL/GLContextWGL.cpp
 	renderer/GL/GLDevice.cpp
 	renderer/GL/GLResources.cpp
@@ -22,6 +23,12 @@ if (OS STREQUAL "android")
 	target_compile_definitions(Engine PRIVATE CGE_GL_BUILTIN)
 	# the backend uses OpenGL ES 3.0 on an EGL context
 	target_link_libraries(Engine PRIVATE GLESv3 EGL)
+	SOURCE_GROUP("renderer/GL" FILES ${CGE_GL_SRCS} ${CGE_GL_HDRS})
+elseif (OS STREQUAL "web")
+	# WebGL 2 (OpenGL ES 3.0) through emscripten's GLES headers; the link
+	# options are the engine's
+	target_sources(Engine PRIVATE ${CGE_GL_SRCS} ${CGE_GL_HDRS})
+	target_compile_definitions(Engine PRIVATE CGE_GL_BUILTIN)
 	SOURCE_GROUP("renderer/GL" FILES ${CGE_GL_SRCS} ${CGE_GL_HDRS})
 else()
 	add_library(EngineGL MODULE ${CGE_GL_SRCS} ${CGE_GL_HDRS} renderer/GL/GLPlugin.cpp)

@@ -18,7 +18,7 @@ class AppWindow;
 //
 // The engine sets it up for its window (Engine::startup). Mouse positions are
 // window pixels, so ImGui works in window pixels, not in virtual coordinates.
-// Windows and Linux (X11) for now; touch and the web come in Phase 1c.
+// Windows, Linux (X11) and the web (mouse and keyboard); touch comes in Phase 1c.
 
 //! window: the window ImGui is shown in
 CGE_API bool ImGui_ImplCGE_Platform_Init(CGE::AppWindow* window);
@@ -34,11 +34,11 @@ CGE_API void ImGui_ImplCGE_Platform_AddMouseLeave();
 CGE_API void ImGui_ImplCGE_Platform_AddMouseButton(int button, bool down);
 //! wheel notches; positive y scrolls up, positive x to the left
 CGE_API void ImGui_ImplCGE_Platform_AddMouseWheel(float x, float y);
-//! a key in the engine's codes (input/keyboard.h: virtual keys on Windows, KeySyms on X11)
+//! a key in the engine's codes (input/keyboard.h: virtual keys on Windows, KeySyms on X11, keyCodes on the web)
 CGE_API void ImGui_ImplCGE_Platform_AddKey(int key, bool down);
 //! the state of the modifier keys
 CGE_API void ImGui_ImplCGE_Platform_AddModifiers(bool ctrl, bool shift, bool alt, bool super);
-//! a typed character in the window system's encoding (the ANSI code page on Windows, Latin-1 on X11)
+//! a typed character in the window system's encoding (the ANSI code page on Windows, Latin-1 on X11, a code point on the web)
 CGE_API void ImGui_ImplCGE_Platform_AddChar(unsigned int ch);
 //! the window got or lost the keyboard focus
 CGE_API void ImGui_ImplCGE_Platform_AddFocus(bool focused);

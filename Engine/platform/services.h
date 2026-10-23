@@ -14,10 +14,13 @@ namespace CGE{
     | Service      | Windows | Linux (X11) | Android | Web     |
     |--------------|---------|-------------|---------|---------|
     | tick clock   | yes     | yes         | yes     | yes     |
-    | clipboard    | yes     | Phase 1c    | Phase 1c| Phase 1c|
-    | cursors      | yes     | yes         | -       | Phase 1c|
+    | clipboard    | yes     | Phase 1c    | Phase 1c| yes (1) |
+    | cursors      | yes     | yes         | -       | yes     |
     | open URL     | yes     | xdg-open    | intent  | new tab |
     | open file    | yes     | xdg-open    | -       | -       |
+
+    (1) The web reads the last text copied or pasted in the page (Ctrl+V
+    brings the system clipboard's text with it), not the clipboard itself.
 
     Where a service is missing, the functions do nothing and return false or
     an empty result. Text (clipboard, URLs) is UTF-8; file paths use the

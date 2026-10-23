@@ -27,7 +27,8 @@ Requirements: CMake 3.21 or newer and a C++20 compiler (Visual Studio 2022/2026,
 |---|---|---|
 | `default`, `debug` | Ninja, Release or Debug: Linux, or Windows from a developer prompt | Ninja |
 | `windows` | Visual Studio 2026 solution, x64 | |
-| `emscripten` | Web | `EMSDK` pointing to an emsdk (run `emsdk_env` first). The engine doesn't build for the web yet |
+| `emscripten` | Web, single-threaded | `EMSDK` pointing to an emsdk (run `emsdk_env` first) |
+| `emscripten-threads` | Web with pthreads and ASYNCIFY (`CGE_WEB_THREADS`) | the same |
 | `android`, `android-x86_64` | Android (API 24) with the NDK's toolchain | `ANDROID_NDK_HOME` pointing to an NDK |
 
 ```
@@ -48,6 +49,15 @@ ctest --preset default      # or: ctest --preset windows
 
 The test files are in `tests/data`; `tests/data/make_fixtures.py` writes them again. Each test run uses its own user folders (`UserDirs`) and removes them at the end.
 
+### The web
+The web build is WebAssembly with WebGL 2. Each application becomes a page: `<name>.html` (the engine's shell page, `Engine/web/shell.html`: the canvas over the whole browser window and a loading bar), `<name>.js`, `<name>.wasm` and `<name>.data` with its preloaded files. The engine is linked statically into it. Pages must be served over HTTP; for a quick test, `python -m http.server` in the folder with the files will do.
+
+* **Two configurations:** single-threaded by default, which works on any web server. `CGE_WEB_THREADS=ON` (preset `emscripten-threads`) builds with pthreads and ASYNCIFY, for applications that wait for input in their own nested loop (`Engine::pumpFrame()` yields to the browser); its page must be served cross-origin isolated (the headers `Cross-Origin-Opener-Policy: same-origin` and `Cross-Origin-Embedder-Policy: require-corp`). Both run the engine's main loop on the browser's main thread, which must not block: there is no frame limiter (the browser paces the frames), and a single-threaded application can't wait in a nested loop.
+* **Files:** the application's preloaded files are its assets (`Assets`); the user folders (`UserDirs`) are in IndexedDB, and the settings store is saved after each frame that changed it, since a page can be closed at any time.
+* **Data packages:** files that several pages share or that are chosen when the page is opened, like the Adventure's games, go into a data package (`cge_web_package`). The page loads the packages named in its address before the application starts: `Adventure.html?data=demo` loads `demo.js` and `demo.data`.
+* **Input:** mouse, keyboard and touch (one finger acts as the left mouse button). The page keeps the browser's function of Ctrl+C/V/X, F5, F11 and F12. The clipboard holds the text copied last in the page; Ctrl+V brings the system clipboard's text with it.
+* The Adventure runs in the browser without sound (`DISABLE_SOUND`, as on Linux): `Adventure.html?data=demo` with the demo game, whose package is installed next to it.
+
 Notes:
 * The engine is built as a shared library: `CGE.dll` on Windows, `libCGE.so` on Linux. Lua and Dear ImGui are part of it and exported, because applications use their APIs directly (and there must be one ImGui context). The other third-party libraries (zlib with minizip, libpng, libjpeg, giflib, FreeType, glad) are linked into it statically and not exported. The OpenGL backend plugin has its own copy of glad.
 * `extern/` also has miniaudio, libogg and libvorbis, which the engine will use for audio. zlib, libpng, libjpeg, FreeType, Dear ImGui and these libraries are the same copies as in guitads. googletest is only used by the unit tests.
@@ -64,9 +74,11 @@ add_executable(mygame WIN32 main.cpp)
 target_link_libraries(mygame PRIVATE CGE::Engine)
 cge_copy_runtime(mygame)                   # copies CGE.dll next to the .exe after building
 cge_install_runtime(mygame mygame)         # installs the engine library with the application
+# on the web: the page with the files the application reads (<source>@<path>); nothing elsewhere
+cge_web_application(mygame PRELOAD engine.ini@engine.ini assets@assets)
 ```
 
-The engine's own projects (Adventure, Heroquest, OSMRacer) are switched off when the engine isn't the top-level project. `cge_install_runtime` puts the engine library next to the executable on Windows, and into `lib/` (found through an `$ORIGIN/lib` RPATH) on Linux.
+The engine's own projects (Adventure, Heroquest, OSMRacer) are switched off when the engine isn't the top-level project. `cge_install_runtime` puts the engine library next to the executable on Windows, and into `lib/` (found through an `$ORIGIN/lib` RPATH) on Linux; on the web it installs the page's `.js`, `.wasm` and `.data` files. `cge_web_package(name <source>@<path>... [DESTINATION dir])` makes a data package for web pages.
 
 Engine classes and functions that applications use must be marked `CGE_API` (from `<cge_export.h>`). On Linux the library is built with hidden visibility, so anything else isn't visible to applications.
 

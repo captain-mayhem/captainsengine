@@ -594,5 +594,34 @@ TEST_F(GLBackend, TracesDriverErrors){
   EXPECT_TRUE(found) << "no GL error traced";
 }
 
+TEST_F(GLBackend, UnboundUniformBlocksReadZeros){
+  //WebGL refuses draws whose shader has a uniform block without a buffer;
+  //the device binds zeros there, which draw nothing with the Color shader
+  //(model matrix and colour 0), and the application's buffer replaces them
+  ErrorCollector collector;
+  CGE::TraceManager::instance()->setTraceOutputter(&collector);
+  collector.errors.clear();
+  auto rt = target(8, 2);
+  auto shader = ShaderLibrary::createBuiltin(*device_, BuiltinShader::Color);
+  auto pipe = pipeline(shader.get());
+  ASSERT_NE(pipe, nullptr);
+  auto left = vertices(quad(-1, -1, 0, 1));
+  auto right = vertices(quad(0, -1, 1, 1));
+  auto green = drawUniforms(0, 1, 0, 1);
+  begin(rt.get(), 1, 0, 0);
+  device_->setPipeline(pipe.get());
+  device_->setVertexBuffer(0, left.get());
+  device_->draw(4);
+  device_->setVertexBuffer(0, right.get());
+  device_->setUniformBuffer(SLOT_DRAW, green.get());
+  device_->draw(4);
+  end();
+  CGE::TraceManager::instance()->removeTraceOutputter(&collector);
+  std::vector<Pixel> pixels = read(rt.get());
+  EXPECT_TRUE(isNear(pixels[1], 255, 0, 0));
+  EXPECT_TRUE(isNear(pixels[6], 0, 255, 0));
+  EXPECT_TRUE(collector.errors.empty()) << collector.errors.front();
+}
+
 
 #endif

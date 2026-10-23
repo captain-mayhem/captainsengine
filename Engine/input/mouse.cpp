@@ -181,6 +181,10 @@ void Mouse::showCursor(bool visible){
     XDefineCursor(wnd->getDisplay(), wnd->getWindow(), invCursor_);
   }
 #endif
+#if defined(__EMSCRIPTEN__)
+  //the canvas's CSS cursor, "none" while hidden
+  CGE::PlatformInternal::applyCursor();
+#endif
 }
 
 void Mouse::setMousePos(int x, int y){

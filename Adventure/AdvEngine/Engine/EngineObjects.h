@@ -38,7 +38,8 @@ public:
   int getDepth() {if (mBlits.empty()) return 0; return mBlits[0]->getDepth();}
   void start();
   void update(unsigned interval);
-  bool exists() {return this != NULL && mBlits.size() > 0;}
+  //! anim may be null (a state without an animation)
+  static bool exists(Animation* anim) {return anim != nullptr && !anim->mBlits.empty();}
   void registerAnimationEndHandler(AnimationEndHandler* handler) {mHandler = handler;}
   void setBlendMode(BlitObject::BlendMode mode);
   void realize();

@@ -21,8 +21,16 @@ jobs:
             preset: android
             build_dir: build/android
             options: -DPROJECT_ADVENTURE=OFF -DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF
-          # The web (emscripten preset) is added with the web port in Phase 1c;
-          # until then the engine fails at configure time there.
+          # the engine and the Adventure (without sound) as web pages, in both
+          # web configurations; the other projects are desktop programs
+          - os: ubuntu-latest
+            preset: emscripten
+            build_dir: build/emscripten
+            options: -DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF
+          - os: ubuntu-latest
+            preset: emscripten-threads
+            build_dir: build/emscripten-threads
+            options: -DPROJECT_HEROQUEST=OFF -DPROJECT_OSMRACER=OFF
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
@@ -45,6 +53,17 @@ jobs:
             libgl1-mesa-dev \
             libglu1-mesa-dev \
             libopenal-dev
+
+      - if: startsWith(matrix.preset, 'emscripten')
+        name: Set up emsdk
+        # sets EMSDK, which the presets' toolchain file path uses
+        uses: mymindstorm/setup-emsdk@v16
+        with:
+          version: 4.0.22
+      - if: startsWith(matrix.preset, 'emscripten')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build
 
       - if: matrix.preset == 'android'
         name: Install Android build dependencies
@@ -76,8 +95,8 @@ jobs:
 
       - run: cmake --preset ${{ matrix.preset }} ${{ matrix.options }} ${{ env.OPENAL_OPTIONS }}
       - run: cmake --build ${{ matrix.build_dir }} --config Release
-      # the unit tests (googletest); they need no display. Not built for Android.
-      - if: matrix.preset != 'android'
+      # the unit tests (googletest); they need no display. Not built for Android and the web.
+      - if: matrix.preset != 'android' && !startsWith(matrix.preset, 'emscripten')
         run: ctest --test-dir ${{ matrix.build_dir }} -C Release --output-on-failure -j 4
       - if: matrix.preset != 'android'
         run: cmake --install ${{ matrix.build_dir }} --config Release
