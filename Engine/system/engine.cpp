@@ -17,6 +17,7 @@
 #include "../platform/platform_internal.h"
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <thread>
 
@@ -77,6 +78,9 @@ Engine::Engine(){
 #ifdef LINUX
   lastClick_ = 0;
 #endif
+#ifdef ANDROID
+  m_app = nullptr;
+#endif
 #ifdef WIN32
 	_CrtSetDbgFlag ( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
   _CrtSetReportMode( _CRT_ERROR, _CRTDBG_MODE_DEBUG );
@@ -115,13 +119,13 @@ void Engine::startup(int argc, char** argv){
   if (!exists)
     graphics_ = true;
 
-  Gfx::DeviceDesc deviceDesc;
-  deviceDesc.vsync = Script::instance()->getBoolSetting("vsync", &exists) || !exists;
+  deviceDesc_ = Gfx::DeviceDesc();
+  deviceDesc_.vsync = Script::instance()->getBoolSetting("vsync", &exists) || !exists;
   int bpp = Script::instance()->getNumberSetting("bitsPerPixel");
   if (bpp > 0)
-    deviceDesc.colorBits = bpp;
+    deviceDesc_.colorBits = bpp;
 #ifndef NDEBUG
-  deviceDesc.debug = true;
+  deviceDesc_.debug = true;
 #endif
 
   if (graphics_){
@@ -132,21 +136,21 @@ void Engine::startup(int argc, char** argv){
     }
 
 #ifdef WIN32
-    win_ = std::make_unique<WindowsWindow>(device_.get(), deviceDesc);
+    win_ = std::make_unique<WindowsWindow>(device_.get(), deviceDesc_);
 #endif
 #if defined(LINUX)
-    win_ = std::make_unique<X11Window>(device_.get(), deviceDesc);
+    win_ = std::make_unique<X11Window>(device_.get(), deviceDesc_);
 #endif
 #ifdef ANDROID
-    win_ = std::make_unique<AndroidWindow>(device_.get(), deviceDesc);
+    win_ = std::make_unique<AndroidWindow>(device_.get(), deviceDesc_);
 #endif
 #ifdef __EMSCRIPTEN__
-    win_ = std::make_unique<EmscriptenWindow>(device_.get(), deviceDesc);
+    win_ = std::make_unique<EmscriptenWindow>(device_.get(), deviceDesc_);
 #endif
   }
   else{
     device_ = Gfx::RenderDevice::create("Null");
-    device_->init(Gfx::NativeWindow(), deviceDesc);
+    device_->init(Gfx::NativeWindow(), deviceDesc_);
   }
   if (graphics_){
 #ifdef WIN32
@@ -157,7 +161,7 @@ void Engine::startup(int argc, char** argv){
 #ifdef LINUX
     XSynchronize(static_cast<X11Window*>(win_.get())->getDisplay(), true);
 #endif
-    if (!device_->init(win_->getNativeWindow(), deviceDesc)){
+    if (!device_->init(win_->getNativeWindow(), deviceDesc_)){
       EXIT2("The render device could not be initialised");
       win_->kill();
       return;
@@ -165,18 +169,12 @@ void Engine::startup(int argc, char** argv){
     win_->setWidth(device_->getWidth());
     win_->setHeight(device_->getHeight());
   }
-  draw_ = std::make_unique<Gfx::DrawContext>(*device_);
+  createDeviceObjects();
   Input::Keyboard::init();
   Input::Mouse::init(graphics_);
   
-  if (graphics_){
-    for (auto& fnt : fnt_){
-      fnt = std::make_unique<CGE::Font>(*device_);
-    }
-    forms_ = std::make_unique<CGE::Forms>(*device_);
-    sprites_ = std::make_unique<Gfx::SpriteBatch>(*draw_);
+  if (graphics_)
     startupImGui();
-  }
   console_ = std::make_unique<CGE::Console>();
   isUp_ = true;
   app_ = internalApplication;
@@ -184,6 +182,50 @@ void Engine::startup(int argc, char** argv){
     app_->init(argc, argv);
   frameTime_ = getTime();
   updateLag_ = 0;
+}
+
+void Engine::createDeviceObjects(){
+  draw_ = std::make_unique<Gfx::DrawContext>(*device_);
+  if (!graphics_)
+    return;
+  for (auto& fnt : fnt_)
+    fnt = std::make_unique<CGE::Font>(*device_);
+  forms_ = std::make_unique<CGE::Forms>(*device_);
+  sprites_ = std::make_unique<Gfx::SpriteBatch>(*draw_);
+}
+
+void Engine::destroyDeviceObjects(){
+  for (auto& fnt : fnt_)
+    fnt.reset();
+  forms_.reset();
+  sprites_.reset();
+  draw_.reset();
+}
+
+void Engine::restartRenderDevice(){
+  TR_USE(CGE_Engine);
+  if (!isUp_ || !graphics_ || rendering_)
+    return;
+  TR_INFO("Creating the render device and its resources again");
+  if (app_)
+    app_->onDeviceLost();
+  if (imgui_)
+    ImGui_ImplCGE_Render_Shutdown();
+  destroyDeviceObjects();
+  device_->shutdown();
+  if (!device_->init(win_->getNativeWindow(), deviceDesc_)){
+    EXIT2("The render device could not be initialised again");
+    return;
+  }
+  createDeviceObjects();
+  //ImGui creates its textures again by itself
+  if (imgui_ && !ImGui_ImplCGE_Render_Init(*device_))
+    TR_WARN("ImGui can't draw on this render device");
+  if (app_)
+    app_->onDeviceRestored();
+  //the new context's drawable may have another size
+  if (device_->getWidth() != win_->getWidth() || device_->getHeight() != win_->getHeight())
+    resize(device_->getWidth(), device_->getHeight());
 }
 
 void Engine::startupImGui(){
@@ -224,11 +266,7 @@ void Engine::shutdown(){
     console_.reset();
     //its textures are on the device
     shutdownImGui();
-    for (auto& fnt : fnt_)
-      fnt.reset();
-    forms_.reset();
-    sprites_.reset();
-    draw_.reset();
+    destroyDeviceObjects();
     //the resources go before the context, the context before the window
     device_->shutdown();
     if (win_)
@@ -242,7 +280,12 @@ void Engine::shutdown(){
     Script::kill();
   }
   SAFE_DELETE(eng);
+#ifndef ANDROID
   TraceManager::deinit();
+#else
+  //the process goes on and may start the engine again for a new activity;
+  //the trace channels registered with the manager only once
+#endif
   //exit(0);
 }
 
@@ -301,6 +344,9 @@ void Engine::frame(bool update){
 
   if (!mShutdownRequested)
     renderFrame();
+  //Android: the context and the resources were lost
+  if (graphics_ && device_->isLost() && !mShutdownRequested)
+    restartRenderDevice();
 #ifdef __EMSCRIPTEN__
   //a page may be closed at any time without a shutdown, and the IndexedDB
   //writes of a closing page don't finish, so changes are saved right away
@@ -573,8 +619,106 @@ void Engine::processEvents(){
 
 #ifdef ANDROID
 void Engine::processEvents(){
-  //the loop in runApplication polls the looper, which calls handleCmd and
-  //handleInput (redone with the Android port in Phase 1c)
+  //the activity's commands (handleCmd) and input events (AndroidWindow)
+  android_app* app = m_app;
+  int events;
+  android_poll_source* source;
+  while (ALooper_pollOnce(0, nullptr, &events, (void**)&source) >= 0){
+    if (source)
+      source->process(app, source);
+    if (app->destroyRequested)
+      return;
+  }
+  AndroidWindow::dispatchBack();
+  //a rotation or a split screen changes the window's size without a command
+  //that comes reliably after the change
+  if (win_ && !device_->isWindowReleased() && static_cast<AndroidWindow*>(win_.get())->updateSize())
+    resize(win_->getWidth(), win_->getHeight());
+}
+
+namespace{
+
+//! the state of an activity (android_app::userData)
+struct ActivityState{
+  //! between onResume and onPause
+  bool resumed = false;
+  //! the window has the input focus
+  bool focused = false;
+};
+
+//! the activity whose thread runs the engine, nullptr while none does
+/*! The system can create a new activity of the process before the old one
+    is destroyed (e.g. when it is started with FLAG_ACTIVITY_CLEAR_TASK);
+    the new one waits until the old one shut the engine down. */
+std::atomic<android_app*> engineActivity(nullptr);
+
+}
+
+void Engine::handleCmd(struct android_app* app, int32_t cmd){
+  TR_USE(CGE_Engine);
+  ActivityState* activity = (ActivityState*)app->userData;
+  switch (cmd){
+    case APP_CMD_RESUME: activity->resumed = true; break;
+    case APP_CMD_PAUSE: activity->resumed = false; break;
+    case APP_CMD_GAINED_FOCUS: activity->focused = true; break;
+    case APP_CMD_LOST_FOCUS: activity->focused = false; break;
+    default: break;
+  }
+  //nothing else to do while another activity has the engine, or after the shutdown
+  Engine* engine = engineActivity == app ? Engine::instance() : nullptr;
+  if (!engine)
+    return;
+  switch (cmd){
+    case APP_CMD_INIT_WINDOW:
+      engine->windowCreated();
+      break;
+    case APP_CMD_TERM_WINDOW:
+      //the window goes away when this returns
+      if (engine->isUp_ && engine->graphics_)
+        engine->device_->releaseWindow();
+      break;
+    case APP_CMD_SAVE_STATE:
+      //the system may end the process in the background
+      if (engine->isUp_)
+        Settings::saveUser();
+      break;
+    case APP_CMD_DESTROY:
+      TR_INFO("The activity is destroyed");
+      engine->requestShutdown();
+      break;
+    default:
+      break;
+  }
+  engine->updateActivity();
+}
+
+void Engine::windowCreated(){
+  if (!m_app->window || mShutdownRequested)
+    return;
+  if (!isUp_){
+    static char title[] = "cge";
+    char* argv[] = {title, nullptr};
+    startup(1, argv);
+  }
+  else if (graphics_){
+    //the next window; the resources are still there unless the context was lost
+    if (!device_->attachWindow(win_->getNativeWindow()))
+      restartRenderDevice();
+    if (static_cast<AndroidWindow*>(win_.get())->updateSize() ||
+      device_->getWidth() != win_->getWidth() || device_->getHeight() != win_->getHeight())
+      resize(win_->getWidth(), win_->getHeight());
+  }
+}
+
+void Engine::updateActivity(){
+  if (!isUp_)
+    return;
+  ActivityState* activity = (ActivityState*)m_app->userData;
+  bool window = !graphics_ || (m_app->window && !device_->isWindowReleased());
+  if (activity->resumed && activity->focused && window)
+    resume();
+  else
+    pause();
 }
 #endif
 
@@ -606,105 +750,6 @@ void Engine::messageBox(const std::string& message, const std::string& title){
     win_->messageBox(title, message);
 }
 
-#ifdef ANDROID
-#include <android/sensor.h>
-#include <android_native_app_glue.h>
-
-/**
- * Shared state for our app.
- */
-struct engine {
-    struct android_app* app;
-
-    ASensorManager* sensorManager;
-    const ASensor* accelerometerSensor;
-    ASensorEventQueue* sensorEventQueue;
-
-    int animating;
-};
-
-
-/**
- * Process the next input event.
- */
-int32_t Engine::handleInput(struct android_app* app, AInputEvent* event) {
-    struct engine* engine = (struct engine*)app->userData;
-    if (AInputEvent_getType(event) == AINPUT_EVENT_TYPE_MOTION) {
-    	engine->animating = 1;
-    	int action = AKeyEvent_getAction(event) & AMOTION_EVENT_ACTION_MASK;
-    switch(action){
-    	case AMOTION_EVENT_ACTION_DOWN:
-    	 Input::Mouse::instance()->buttonDown(AMotionEvent_getX(event, 0), AMotionEvent_getY(event, 0), MB_LEFT);
-    	break;
-    	case AMOTION_EVENT_ACTION_UP:
-    	 Input::Mouse::instance()->buttonUp(AMotionEvent_getX(event, 0), AMotionEvent_getY(event, 0), MB_LEFT);
-    	break;
-    	case AMOTION_EVENT_ACTION_MOVE:
-    	 Input::Mouse::instance()->move(AMotionEvent_getX(event, 0), AMotionEvent_getY(event, 0), MB_LEFT);
-    	break;
-    }
-    return 1;
-  }
-  return 0;
-}
-
-/**
- * Process the next main command.
- */
-void Engine::handleCmd(struct android_app* app, int32_t cmd) {
-    struct engine* engine = (struct engine*)app->userData;
-    switch (cmd) {
-        case APP_CMD_SAVE_STATE:
-            // The system has asked us to save our current state.  Do so.
-            //engine->app->savedState = malloc(sizeof(struct saved_state));
-            //*((struct saved_state*)engine->app->savedState) = engine->state;
-            //engine->app->savedStateSize = sizeof(struct saved_state);
-            break;
-        case APP_CMD_INIT_WINDOW:
-        	if (!Engine::instance())
-        		Engine::init();
-            // The window is being shown, get it ready.
-            if (engine->app->window != nullptr) {
-                static char title[] = "cge";
-                char* argv[] = {title, nullptr};
-                CGE::Engine::instance()->startup(1, argv);
-                CGE::Engine::instance()->runFrame();
-            }
-            break;
-        case APP_CMD_TERM_WINDOW:
-            // The window is being hidden or closed, clean it up.
-            CGE::Engine::instance()->shutdown();
-            break;
-        case APP_CMD_GAINED_FOCUS:
-            // When our app gains focus, we start monitoring the accelerometer.
-            if (engine->accelerometerSensor != nullptr) {
-                ASensorEventQueue_enableSensor(engine->sensorEventQueue,
-                        engine->accelerometerSensor);
-                // We'd like to get 60 events per second (in us).
-                ASensorEventQueue_setEventRate(engine->sensorEventQueue,
-                        engine->accelerometerSensor, (1000L/60)*1000);
-            }
-            if (CGE::Engine::instance())
-                CGE::Engine::instance()->resume();
-            break;
-        case APP_CMD_LOST_FOCUS:
-            // When our app loses focus, we stop monitoring the accelerometer.
-            // This is to avoid consuming battery while not being used.
-            if (engine->accelerometerSensor != nullptr) {
-                ASensorEventQueue_disableSensor(engine->sensorEventQueue,
-                        engine->accelerometerSensor);
-            }
-            // Also stop animating.
-            engine->animating = 0;
-            if (CGE::Engine::instance())
-                CGE::Engine::instance()->pause();
-            //engine_draw_frame
-            break;
-    }
-}
-
-#endif
-
 IApplication::~IApplication(){
 }
 
@@ -714,9 +759,11 @@ void IApplication::onKeyDown(int key){
 }
 
 int CGE::runApplication(int argc, char** argv, IApplication& app, void* data){
+#if !defined(ANDROID)
   internalApplication = &app;
   PlatformInternal::init(argc, argv, data);
   CGE::Engine::init();
+#endif
 
 #if defined(__EMSCRIPTEN__)
   installBrowserConsoleTracing();
@@ -761,58 +808,67 @@ int CGE::runApplication(int argc, char** argv, IApplication& app, void* data){
   internalApplication = nullptr;
   return 0;
 #else
-  struct android_app* state = (android_app*)data;
-  CGE::Engine::instance()->m_app = state;
-  struct engine engine;
-
-  memset(&engine, 0, sizeof(engine));
-  state->userData = &engine;
+  //the engine starts when the activity's window comes (handleCmd) and stops
+  //when the application quits or the activity is destroyed
+  android_app* state = (android_app*)data;
+  ActivityState activity;
+  state->userData = &activity;
   state->onAppCmd = Engine::handleCmd;
-  state->onInputEvent = Engine::handleInput;
-  engine.app = state;
-
-  // Prepare to monitor accelerometer
-  engine.sensorManager = ASensorManager_getInstance();
-  engine.accelerometerSensor = ASensorManager_getDefaultSensor(engine.sensorManager,
-    ASENSOR_TYPE_ACCELEROMETER);
-  engine.sensorEventQueue = ASensorManager_createEventQueue(engine.sensorManager,
-    state->looper, LOOPER_ID_USER, nullptr, nullptr);
-
-  TR_USE(CGE_Engine);
-  while (1){
-    int ident;
-    int events;
-    struct android_poll_source* source;
-    while ((ident = ALooper_pollOnce(engine.animating ? 0 : -1, nullptr, &events, (void**)&source)) >= 0){
-      // Process this event.
-      if (source != nullptr){
+  state->onInputEvent = AndroidWindow::handleInput;
+  bool started = false;
+  bool finished = false;
+  while (!state->destroyRequested){
+    if (!started){
+      //another activity of the process may still be shutting the engine down
+      android_app* none = nullptr;
+      if (engineActivity.compare_exchange_strong(none, state)){
+        started = true;
+        installLogcatTracing();
+        internalApplication = &app;
+        PlatformInternal::init(argc, argv, state);
+        CGE::Engine::init();
+        CGE::Engine::instance()->m_app = state;
+        AndroidWindow::registerBackCallback(state);
+        //the window may have come already
+        CGE::Engine::instance()->windowCreated();
+        CGE::Engine::instance()->updateActivity();
+        continue;
+      }
+      int events;
+      android_poll_source* source;
+      if (ALooper_pollOnce(20, nullptr, &events, (void**)&source) >= 0 && source)
         source->process(state, source);
-      }
-
-      // If a sensor has data, process it now.
-      if (ident == LOOPER_ID_USER){
-        if (engine.accelerometerSensor != nullptr){
-          ASensorEvent event;
-          while (ASensorEventQueue_getEvents(engine.sensorEventQueue, &event, 1) > 0){
-            TR_DEBUG("accelerometer: x=%f y=%f z=%f",
-              event.acceleration.x, event.acceleration.y,
-              event.acceleration.z);
-          }
-        }
-      }
-      if (state->destroyRequested){
-        if (CGE::Engine::instance())
-          CGE::Engine::instance()->shutdown();
-        internalApplication = nullptr;
-        return 0;
-      }
-
-      if (engine.animating && CGE::Engine::instance()){
-        // Drawing is throttled to the screen update rate, so there
-        // is no need to do timing here.
-        CGE::Engine::instance()->runFrame();
-      }
+      continue;
     }
+    Engine* engine = finished ? nullptr : CGE::Engine::instance();
+    if (engine && engine->isUp_ && !engine->paused_ && !engine->mShutdownRequested){
+      //processes the events itself
+      engine->runFrame();
+    }
+    else{
+      //nothing to draw: wait for the next event
+      int events;
+      android_poll_source* source;
+      if (ALooper_pollOnce(-1, nullptr, &events, (void**)&source) >= 0 && source)
+        source->process(state, source);
+      if (engine)
+        AndroidWindow::dispatchBack();
+    }
+    if (engine && engine->mShutdownRequested){
+      //the application quit, or the activity is going: shut down now, while
+      //the window is still there, and wait for the activity's end
+      engine->shutdown();
+      internalApplication = nullptr;
+      finished = true;
+      engineActivity = nullptr;
+      if (!state->destroyRequested)
+        ANativeActivity_finish(state->activity);
+    }
+  }
+  if (started && !finished){
+    CGE::Engine::instance()->shutdown();
+    internalApplication = nullptr;
+    engineActivity = nullptr;
   }
   return 0;
 #endif

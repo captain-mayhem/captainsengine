@@ -120,6 +120,10 @@ elseif (OS STREQUAL "linux")
 	find_package(Threads REQUIRED)
 	target_link_libraries(Engine PUBLIC Threads::Threads rt)
 elseif (OS STREQUAL "android")
+	# the engine and the application are two libraries that share STL objects
+	if (NOT ANDROID_STL STREQUAL "c++_shared")
+		message(FATAL_ERROR "The engine needs ANDROID_STL=c++_shared on Android (it is ${ANDROID_STL})")
+	endif()
 	target_compile_definitions(Engine PUBLIC UNIX ANDROID)
 	target_link_libraries(Engine PUBLIC android log)
 elseif (OS STREQUAL "web")
@@ -277,6 +281,24 @@ function(cge_embed_shaders target dir prefix function)
 	target_sources(${target} PRIVATE ${cpp} ${gendir}/${function}.h ${files})
 	target_include_directories(${target} PUBLIC ${gendir})
 	source_group("shaders" FILES ${files})
+endfunction()
+
+
+# Applications
+
+# adds an application: an executable (add_executable's arguments, e.g.
+#   cge_add_application(Game WIN32 main.cpp)
+# ), but on Android a shared library, lib<target>.so, which the activity
+# loads (android.app.lib_name in the manifest; see Engine/android). The
+# application links CGE::Engine itself.
+function(cge_add_application target)
+	if (ANDROID)
+		set(args ${ARGN})
+		list(REMOVE_ITEM args WIN32 MACOSX_BUNDLE)
+		add_library(${target} SHARED ${args})
+	else()
+		add_executable(${target} ${ARGN})
+	endif()
 endfunction()
 
 

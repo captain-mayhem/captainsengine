@@ -28,6 +28,13 @@ public:
   virtual void setSwapInterval(int interval) = 0;
   //! a GL function of the current context, for glad
   virtual void* getProcAddress(const char* name) = 0;
+  //! Android: the window goes away; the context and its objects stay
+  virtual void releaseWindow() {}
+  //! Android: makes the context current on a new window and returns its
+  //! size; false if that isn't possible (e.g. the context was lost)
+  virtual bool attachWindow(const NativeWindow& window, int& width, int& height) {return false;}
+  //! Android: the context and all its objects are gone (EGL_CONTEXT_LOST)
+  virtual bool isLost() const {return false;}
 };
 
 }

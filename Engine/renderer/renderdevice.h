@@ -120,6 +120,21 @@ public:
   //! turns waiting for the vertical blank on or off
   virtual void setVsync(bool vsync) = 0;
 
+  //! the window goes away, but the context and the resources stay (Android,
+  //! when the application goes into the background)
+  /*! beginFrame returns false until attachWindow. */
+  void releaseWindow();
+  //! renders into a window again after releaseWindow
+  /*! False if that isn't possible, e.g. because the context was lost: then
+      the device has to be shut down and initialised again. */
+  bool attachWindow(const NativeWindow& window);
+  //! has the window been released?
+  bool isWindowReleased() const {return windowReleased_;}
+  //! were the context and all resources lost? (Android, EGL_CONTEXT_LOST)
+  /*! Then the resources have to be deleted, and the device shut down and
+      initialised again (Engine::restartRenderDevice). */
+  virtual bool isLost() const {return false;}
+
   const Caps& getCaps() const {return caps_;}
   const ClipSpace& getClipSpace() const {return clipSpace_;}
   //! converts a projection matrix made for OpenGL's clip space to this device's
@@ -193,6 +208,9 @@ protected:
   virtual bool doInit(const NativeWindow& window, const DeviceDesc& desc) = 0;
   virtual void doShutdown() = 0;
   virtual void doResize(int width, int height) {}
+  virtual void doReleaseWindow() {}
+  //! makes the context current on the new window and sets width_ and height_
+  virtual bool doAttachWindow(const NativeWindow& window) {return false;}
   virtual bool doBeginFrame() {return true;}
   virtual void doEndFrame() = 0;
   //! the pass's width and height are passed in
@@ -227,6 +245,7 @@ private:
   Pipeline* pipeline_;
   bool indexBufferSet_;
   uint64_t frameCount_;
+  bool windowReleased_;
 };
 
 }

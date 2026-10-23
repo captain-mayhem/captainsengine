@@ -177,6 +177,27 @@ std::string infoLog(GLuint object, bool program){
   return log;
 }
 
+#if defined(CGE_GLES)
+//! from EXT_texture_filter_anisotropic, which the OpenGL ES 3.0 headers don't have
+const GLenum TEXTURE_MAX_ANISOTROPY = 0x84FE;
+const GLenum MAX_TEXTURE_MAX_ANISOTROPY = 0x84FF;
+
+//! does the OpenGL ES 3.0 context have the extension?
+bool hasExtension(const char* name){
+  GLint count = 0;
+  glGetIntegerv(GL_NUM_EXTENSIONS, &count);
+  for (GLint i = 0; i < count; i++){
+    const char* ext = (const char*)glGetStringi(GL_EXTENSIONS, i);
+    if (ext && strcmp(ext, name) == 0)
+      return true;
+  }
+  return false;
+}
+#else
+//! the same values as the extensions' (OpenGL 4.6 names)
+const GLenum TEXTURE_MAX_ANISOTROPY = GL_TEXTURE_MAX_ANISOTROPY;
+#endif
+
 //! compiles one stage with the version header; 0 (and an error) if that fails
 GLuint compileStage(GLenum stage, const std::string& source, const std::string& name){
   TR_USE(CGE_Renderer_GL);
@@ -200,6 +221,7 @@ GLDevice::GLDevice(){
   context_ = GLContext::create();
   hasStencil_ = false;
   resourcesSupported_ = false;
+  vsyncInterval_ = 1;
   fbo_ = 0;
   pipeline_ = nullptr;
   indexBuffer_ = nullptr;
@@ -260,7 +282,8 @@ bool GLDevice::doInit(const NativeWindow& window, const DeviceDesc& desc){
     glDebugMessageControl(GL_DEBUG_SOURCE_SHADER_COMPILER, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_FALSE);
   }
 #endif
-  context_->setSwapInterval(desc.vsync ? 1 : 0);
+  vsyncInterval_ = desc.vsync ? 1 : 0;
+  context_->setSwapInterval(vsyncInterval_);
   hasStencil_ = desc.stencilBits > 0;
 
   GLint value = 0;
@@ -284,7 +307,12 @@ bool GLDevice::doInit(const NativeWindow& window, const DeviceDesc& desc){
   }
   caps_.maxAnisotropy = 1;
 #if defined(CGE_GLES)
-  //anisotropic filtering and wireframe come with the Android port (Phase 1c)
+  if (resourcesSupported_ && hasExtension("GL_EXT_texture_filter_anisotropic")){
+    GLfloat anisotropy = 1;
+    glGetFloatv(MAX_TEXTURE_MAX_ANISOTROPY, &anisotropy);
+    caps_.maxAnisotropy = anisotropy;
+  }
+  //OpenGL ES has no polygon mode
   caps_.wireframe = false;
 #else
   if (GLAD_GL_ARB_texture_filter_anisotropic || GLAD_GL_EXT_texture_filter_anisotropic){
@@ -310,9 +338,21 @@ void GLDevice::doShutdown(){
   resourcesSupported_ = false;
 }
 
+void GLDevice::doReleaseWindow(){
+  context_->releaseWindow();
+}
+
+bool GLDevice::doAttachWindow(const NativeWindow& window){
+  if (!context_->attachWindow(window, width_, height_))
+    return false;
+  context_->setSwapInterval(vsyncInterval_);
+  return true;
+}
+
 void GLDevice::setVsync(bool vsync){
+  vsyncInterval_ = vsync ? 1 : 0;
   if (isInitialized())
-    context_->setSwapInterval(vsync ? 1 : 0);
+    context_->setSwapInterval(vsyncInterval_);
 }
 
 void GLDevice::doEndFrame(){
@@ -841,10 +881,8 @@ std::unique_ptr<Sampler> GLDevice::createSampler(const SamplerDesc& desc){
   glSamplerParameteri(id, GL_TEXTURE_WRAP_S, toGL(desc.addressU));
   glSamplerParameteri(id, GL_TEXTURE_WRAP_T, toGL(desc.addressV));
   glSamplerParameteri(id, GL_TEXTURE_WRAP_R, toGL(desc.addressW));
-#if !defined(CGE_GLES)
   if (caps_.maxAnisotropy > 1 && desc.maxAnisotropy > 1)
-    glSamplerParameterf(id, GL_TEXTURE_MAX_ANISOTROPY, (std::min)(desc.maxAnisotropy, caps_.maxAnisotropy));
-#endif
+    glSamplerParameterf(id, TEXTURE_MAX_ANISOTROPY, (std::min)(desc.maxAnisotropy, caps_.maxAnisotropy));
   return std::make_unique<GLSampler>(desc, id);
 }
 

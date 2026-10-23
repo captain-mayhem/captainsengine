@@ -27,6 +27,7 @@ public:
   const char* getName() const override {return "OpenGL";}
   unsigned long chooseX11Visual(void* display, int screen, const DeviceDesc& desc) override;
   void setVsync(bool vsync) override;
+  bool isLost() const override {return context_->isLost();}
 
   std::unique_ptr<Buffer> createBuffer(const BufferDesc& desc, const void* data) override;
   std::unique_ptr<Texture> createTexture(const TextureDesc& desc, const void* data) override;
@@ -41,6 +42,8 @@ public:
 protected:
   bool doInit(const NativeWindow& window, const DeviceDesc& desc) override;
   void doShutdown() override;
+  void doReleaseWindow() override;
+  bool doAttachWindow(const NativeWindow& window) override;
   void doEndFrame() override;
   void doBeginPass(const PassDesc& desc, int width, int height) override;
   void doEndPass() override;
@@ -79,6 +82,8 @@ private:
   bool hasStencil_;
   //! OpenGL 3.3 or OpenGL ES 3.0, so resources and draws work
   bool resourcesSupported_;
+  //! the swap interval, set again on a new window
+  int vsyncInterval_;
 
   // the cached GL state (serials, see GLResources.h)
   struct TextureUnit{
