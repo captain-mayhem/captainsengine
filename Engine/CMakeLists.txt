@@ -12,7 +12,7 @@ if (OS STREQUAL linux)
 endif()
 # Without threads the engine and its applications do their work in the main
 # loop (the browser's main thread on the web).
-if (EMSCRIPTEN)
+if (EMSCRIPTEN AND NOT CGE_WEB_THREADS)
   set(ENGINE_SINGLE_THREADED_DEFAULT ON)
 else()
   set(ENGINE_SINGLE_THREADED_DEFAULT OFF)
@@ -35,7 +35,14 @@ INCLUDE(util/CMakeLists.txt)
 
 # The engine is a shared library (CGE.dll / libCGE.so), so that applications
 # link the LGPL code dynamically. Only what is marked CGE_API is exported.
-ADD_LIBRARY(Engine SHARED
+# Browsers have no practical shared libraries, so on the web it is static
+# (LGPL 2.1 section 6: the application's objects can be relinked instead).
+if (EMSCRIPTEN)
+	set(CGE_LIBRARY_TYPE STATIC)
+else()
+	set(CGE_LIBRARY_TYPE SHARED)
+endif()
+ADD_LIBRARY(Engine ${CGE_LIBRARY_TYPE}
 	${Engine_image_SRCS}
 	${Engine_input_SRCS}
 	${Engine_io_SRCS}
@@ -81,6 +88,10 @@ generate_export_header(Engine
 	EXPORT_FILE_NAME ${CMAKE_CURRENT_BINARY_DIR}/include/cge_export.h
 )
 target_include_directories(Engine PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/include)
+if (CGE_LIBRARY_TYPE STREQUAL STATIC)
+	# CGE_API and IMGUI_API are empty
+	target_compile_definitions(Engine PUBLIC CGE_STATIC_DEFINE)
+endif()
 if (MSVC)
 	# exported classes with STL members or bases; fine because everything uses
 	# the same compiler and the DLL runtime
@@ -111,6 +122,29 @@ elseif (OS STREQUAL "linux")
 elseif (OS STREQUAL "android")
 	target_compile_definitions(Engine PUBLIC UNIX ANDROID)
 	target_link_libraries(Engine PUBLIC android log)
+elseif (OS STREQUAL "web")
+	# POSIX like Linux, but no X11 (__EMSCRIPTEN__ tells the web apart)
+	target_compile_definitions(Engine PUBLIC UNIX)
+	# applications are WebAssembly with a WebGL 2 context, a growing heap,
+	# IndexedDB for the user folders (UserDirs) and the file system's runtime
+	# functions for data packages loaded by the page (cge_web_package)
+	target_link_options(Engine INTERFACE
+		-sMIN_WEBGL_VERSION=2
+		-sMAX_WEBGL_VERSION=2
+		-sALLOW_MEMORY_GROWTH=1
+		-sFORCE_FILESYSTEM=1
+		-sEXPORTED_RUNTIME_METHODS=ccall
+		-lidbfs.js
+	)
+	if (CGE_WEB_THREADS)
+		# the applications' own objects need it too
+		target_compile_options(Engine PUBLIC -pthread)
+		# Engine::pumpFrame yields to the browser with emscripten_sleep; the
+		# workers are created up front (a thread can't start one reliably);
+		# a growing heap is slower for JavaScript code with threads, which
+		# applications accept as guit3 does
+		target_link_options(Engine INTERFACE -pthread -sPTHREAD_POOL_SIZE=8 -sASYNCIFY -Wno-pthreads-mem-growth)
+	endif()
 endif()
 
 if (ENGINE_SINGLE_THREADED)
@@ -275,6 +309,11 @@ function(cge_install_runtime target destination)
 		if (TARGET EngineGL)
 			install(TARGETS EngineGL LIBRARY DESTINATION ${destination} ${ARGN})
 		endif()
+	elseif (EMSCRIPTEN)
+		# the engine is linked in; the page's other files go with its .html
+		set(base $<TARGET_FILE_DIR:${target}>/$<TARGET_FILE_BASE_NAME:${target}>)
+		install(FILES ${base}.js ${base}.wasm DESTINATION ${destination} ${ARGN})
+		install(FILES ${base}.data DESTINATION ${destination} OPTIONAL ${ARGN})
 	else()
 		install(TARGETS Engine LIBRARY DESTINATION ${destination}/lib ${ARGN})
 		if (TARGET EngineGL)
@@ -282,6 +321,91 @@ function(cge_install_runtime target destination)
 		endif()
 		set_target_properties(${target} PROPERTIES INSTALL_RPATH "$ORIGIN/lib")
 	endif()
+endfunction()
+
+
+# Web pages
+
+set(CGE_WEB_SHELL ${CMAKE_CURRENT_SOURCE_DIR}/web/shell.html CACHE INTERNAL "")
+
+# splits a "<source>@<path>" argument of the web functions: the source
+# relative to the current source folder becomes absolute (in spec_var), and
+# the files it stands for (a folder's contents) are added to the list deps_var
+function(_cge_web_file arg spec_var deps_var)
+	string(FIND "${arg}" "@" at)
+	if (at LESS 0)
+		message(FATAL_ERROR "${arg}: web files are given as <source>@<path in the virtual file system>")
+	endif()
+	string(SUBSTRING "${arg}" 0 ${at} src)
+	string(SUBSTRING "${arg}" ${at} -1 dest)
+	get_filename_component(src "${src}" ABSOLUTE BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
+	set(${spec_var} "${src}${dest}" PARENT_SCOPE)
+	if (IS_DIRECTORY "${src}")
+		file(GLOB_RECURSE files CONFIGURE_DEPENDS "${src}/*")
+	else()
+		set(files "${src}")
+	endif()
+	set(${deps_var} ${${deps_var}} ${files} PARENT_SCOPE)
+endfunction()
+
+# makes an application a web page: <target>.html with the engine's shell page
+# (the canvas over the whole browser window and a loading bar; SHELL names
+# another one), <target>.js, <target>.wasm and, with PRELOAD, <target>.data
+# with the given files, "<source>@<path in the virtual file system>"; a
+# folder brings its contents. The application reads them as assets. Does
+# nothing on other platforms.
+#   cge_web_application(Game PRELOAD engine.ini@engine.ini assets@assets)
+function(cge_web_application target)
+	if (NOT EMSCRIPTEN)
+		return()
+	endif()
+	cmake_parse_arguments(WEB "" "SHELL" "PRELOAD" ${ARGN})
+	if (NOT WEB_SHELL)
+		set(WEB_SHELL ${CGE_WEB_SHELL})
+	endif()
+	set_target_properties(${target} PROPERTIES SUFFIX ".html")
+	target_link_options(${target} PRIVATE "SHELL:--shell-file \"${WEB_SHELL}\"")
+	set(deps ${WEB_SHELL})
+	foreach(arg ${WEB_PRELOAD})
+		_cge_web_file("${arg}" spec deps)
+		target_link_options(${target} PRIVATE "SHELL:--preload-file \"${spec}\"")
+	endforeach()
+	set_property(TARGET ${target} APPEND PROPERTY LINK_DEPENDS ${deps})
+endfunction()
+
+# makes a data package that a web page loads before the application
+# (?data=<name>, see web/shell.html): <name>.data and <name>.js in the
+# current binary folder, with files given as for cge_web_application. They
+# are made again when one of the files changes, and installed into
+# DESTINATION (default: the installation's root) with COMPONENT, if given.
+#   cge_web_package(demo ${CMAKE_SOURCE_DIR}/games/demo/data@data DESTINATION adventure)
+function(cge_web_package name)
+	if (NOT EMSCRIPTEN)
+		return()
+	endif()
+	cmake_parse_arguments(WEB "" "DESTINATION;COMPONENT" "" ${ARGN})
+	set(specs)
+	set(deps)
+	foreach(arg ${WEB_UNPARSED_ARGUMENTS})
+		_cge_web_file("${arg}" spec deps)
+		list(APPEND specs "${spec}")
+	endforeach()
+	set(out ${CMAKE_CURRENT_BINARY_DIR}/${name})
+	add_custom_command(OUTPUT ${out}.data ${out}.js
+		COMMAND ${EMSCRIPTEN_ROOT_PATH}/tools/file_packager${EMCC_SUFFIX} ${name}.data --quiet --preload ${specs} --js-output=${name}.js
+		DEPENDS ${deps}
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		COMMENT "Packaging the web data ${name}"
+	)
+	add_custom_target(${name}_web_data ALL DEPENDS ${out}.data ${out}.js)
+	if (NOT WEB_DESTINATION)
+		set(WEB_DESTINATION .)
+	endif()
+	set(component)
+	if (WEB_COMPONENT)
+		set(component COMPONENT ${WEB_COMPONENT})
+	endif()
+	install(FILES ${out}.data ${out}.js DESTINATION ${WEB_DESTINATION} ${component})
 endfunction()
 INSTALL(FILES engine.ini DESTINATION Engine)
 INSTALL(FILES textures/font/font.bmp DESTINATION Engine/textures/font)

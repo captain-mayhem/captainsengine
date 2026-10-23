@@ -51,9 +51,10 @@ public:
   void addEmbeddedContext(ExecutionContext* ctx){
     mEmbeddedContexts.push_back(ctx);
   }
-  CCode* get(unsigned pc){
-    if (this && pc < mCodes.size())
-      return mCodes[pc];
+  //! segment may be null (a context without code)
+  static CCode* get(CodeSegment* segment, unsigned pc){
+    if (segment && pc < segment->mCodes.size())
+      return segment->mCodes[pc];
     return nullptr;
   }
   unsigned numInstructions(){

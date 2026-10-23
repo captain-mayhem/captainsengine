@@ -8,6 +8,7 @@
 #include "io/Tracing.h"
 #include "io/TraceManager.h"
 #include "window/splashwindow.h"
+#include "platform/userdirs.h"
 
 #include "AdvDoc.h"
 #include "Engine.h"
@@ -18,6 +19,16 @@
 using namespace adv;
 
 TR_CHANNEL(ADV_CGE_Window);
+
+// On the web, the browser runs the frames on its main thread, which must not
+// block: no sleeping between frames and no debug ports (a server thread).
+// The game is a data package that the page loads to data/game.dat (see
+// test/CMakeLists.txt), and the traces go to the browser's console.
+#ifdef __EMSCRIPTEN__
+static const bool debugPorts = false;
+#else
+static bool debugPorts = false;
+#endif
 
 String filename;
 std::string savegame;
@@ -62,7 +73,7 @@ void init(){
   gfx->setColor(1.0f, 1.0f, 1.0f, 1.0f);
   gfx->setBlend(Graphics::BLEND_ALPHA);
 
-  if (CGE::Script::instance()->getBoolSetting("debugPorts"))
+  if (debugPorts)
     receiver.start();
   Engine::instance()->initGame(quit, set_mouse);
   delete splashWindow;
@@ -72,7 +83,7 @@ void init(){
 
 void deinit(){
   Engine::instance()->exitGame();
-  if (CGE::Script::instance()->getBoolSetting("debugPorts"))
+  if (debugPorts)
     receiver.stop();
 
   SoundEngine::deinit();
@@ -98,7 +109,9 @@ void splash_screen(unsigned width, unsigned height, unsigned numChannels, void* 
 }
 
 void render(){
+#ifndef __EMSCRIPTEN__
   double start = getTime();
+#endif
   //the game draws into the window with y down, in its resolution
   Graphics* gfx = Engine::instance()->getGraphics();
   gfx->setBlend(Graphics::BLEND_ALPHA);
@@ -113,12 +126,14 @@ void render(){
   SoundEngine::instance()->update(time);
   gfx->endFrame();
 
+#ifndef __EMSCRIPTEN__
   double diff = getTime()-start;
   int sleeptime = 5 - (int)(diff*1000);
   if (sleeptime < 0)
     sleeptime = 0;
 
   CGE::Thread::sleep(sleeptime); //just a little sleep to avoid frame times < 5ms.
+#endif
 
   if (!savegame.empty()){
     savegame = Engine::instance()->getSaver()->saveSlotToPath(atoi(savegame.c_str()));
@@ -203,8 +218,14 @@ void AdventureApp::init(int argc, char** argv){
     freopen("CONOUT$", "wb", stderr);
   }
 #endif
+#ifdef __EMSCRIPTEN__
+  //the saves stay where the old web port had them, in /IDBFS/adventure/<game>
+  CGE::UserDirs::setAppName("adventure");
+#else
+  debugPorts = CGE::Script::instance()->getBoolSetting("debugPorts");
   CGE::LogOutputter* putty = new CGE::LogOutputter();
   CGE::TraceManager::instance()->setTraceOutputter(putty);
+#endif
   if (argc > 1)
     filename = argv[1];
   else

@@ -305,6 +305,7 @@ bool GLDevice::doInit(const NativeWindow& window, const DeviceDesc& desc){
 }
 
 void GLDevice::doShutdown(){
+  fallbackUniforms_.reset();
   context_->shutdown();
   resourcesSupported_ = false;
 }
@@ -569,12 +570,39 @@ void GLDevice::doSetScissor(const Rect& rect){
   glScissor(rect.x, rect.y, rect.width, rect.height);
 }
 
+void GLDevice::bindMissingUniforms(GLShader* shader){
+  //Reading a block without a buffer is undefined in OpenGL and an error in
+  //WebGL, where a std140 block counts as used even if the shader never
+  //reads it (e.g. CGE_Draw in the ImGui shader).
+  for (const GLShader::Block& block : shader->blocks){
+    uint64_t bound = uniformBuffers_[block.slot].buffer;
+    if (bound != 0 && bound != GL_UNKNOWN)
+      continue;
+    if (!fallbackUniforms_ || fallbackUniforms_->getDesc().size < (size_t)block.size){
+      //the slots that have the smaller one lose it with it
+      if (fallbackUniforms_){
+        uint64_t old = ((GLBuffer*)fallbackUniforms_.get())->getSerial();
+        for (UniformBinding& binding : uniformBuffers_){
+          if (binding.buffer == old)
+            binding = {0, 0, 0};
+        }
+      }
+      std::vector<uint8_t> zeros((std::max)(block.size, 1024), 0);
+      fallbackUniforms_ = createBuffer({BufferType::Uniform, Usage::Immutable, zeros.size()}, zeros.data());
+      if (!fallbackUniforms_)
+        return;
+    }
+    doSetUniformBuffer(block.slot, fallbackUniforms_.get(), 0, block.size);
+  }
+}
+
 bool GLDevice::prepareDraw(bool indexed){
   TR_USE(CGE_Renderer_GL);
   if (!resourcesSupported_ || !pipeline_)
     return false;
   GLPipeline* pipeline = pipeline_;
   bindVao(pipeline);
+  bindMissingUniforms(pipeline->getShader());
   const VertexLayout& layout = pipeline->getDesc().vertexLayout;
   for (size_t i = 0; i < layout.attributes.size(); i++){
     const VertexAttribute& attr = layout.attributes[i];
@@ -657,12 +685,27 @@ std::unique_ptr<Buffer> GLDevice::createBuffer(const BufferDesc& desc, const voi
     TR_WARN("createBuffer: uniform buffer of %d bytes, but blocks can only have %d", (int)desc.size, caps_.maxUniformBufferSize);
   GLuint id = 0;
   glGenBuffers(1, &id);
+  GLenum target = bindForWrite(desc.type, id);
+  GLenum usage = desc.usage == Usage::Stream ? GL_STREAM_DRAW : desc.usage == Usage::Dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
+  glBufferData(target, desc.size, data, usage);
+  glBindBuffer(target, 0);
+  return std::make_unique<GLBuffer>(desc, id);
+}
+
+unsigned GLDevice::bindForWrite(BufferType type, unsigned id){
+#if defined(__EMSCRIPTEN__)
+  //WebGL gives a buffer its kind at its first binding, and one bound to
+  //another target can never become an index buffer; the index buffer
+  //binding belongs to the VAO, so VAO 0 gets it
+  if (type == BufferType::Index){
+    bindVao(nullptr);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+    return GL_ELEMENT_ARRAY_BUFFER;
+  }
+#endif
   //the copy target, so neither the VAO's index buffer nor GL_ARRAY_BUFFER changes
   glBindBuffer(GL_COPY_WRITE_BUFFER, id);
-  GLenum usage = desc.usage == Usage::Stream ? GL_STREAM_DRAW : desc.usage == Usage::Dynamic ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
-  glBufferData(GL_COPY_WRITE_BUFFER, desc.size, data, usage);
-  glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
-  return std::make_unique<GLBuffer>(desc, id);
+  return GL_COPY_WRITE_BUFFER;
 }
 
 void GLDevice::updateBuffer(Buffer* buffer, size_t offset, size_t size, const void* data){
@@ -678,15 +721,15 @@ void GLDevice::updateBuffer(Buffer* buffer, size_t offset, size_t size, const vo
     TR_ERROR("updateBuffer: %d bytes at %d don't fit into %d", (int)size, (int)offset, (int)desc.size);
     return;
   }
-  glBindBuffer(GL_COPY_WRITE_BUFFER, ((GLBuffer*)buffer)->getId());
+  GLenum target = bindForWrite(desc.type, ((GLBuffer*)buffer)->getId());
   if (offset == 0 && size == desc.size){
     //new storage for the whole buffer, so the driver needn't wait for draws that still read the old data
     GLenum usage = desc.usage == Usage::Stream ? GL_STREAM_DRAW : GL_DYNAMIC_DRAW;
-    glBufferData(GL_COPY_WRITE_BUFFER, size, data, usage);
+    glBufferData(target, size, data, usage);
   }
   else
-    glBufferSubData(GL_COPY_WRITE_BUFFER, offset, size, data);
-  glBindBuffer(GL_COPY_WRITE_BUFFER, 0);
+    glBufferSubData(target, offset, size, data);
+  glBindBuffer(target, 0);
 }
 
 std::unique_ptr<GLTexture> GLDevice::makeTexture(const TextureDesc& desc, const void* data){
@@ -912,10 +955,14 @@ std::unique_ptr<Shader> GLDevice::createShader(const ShaderDesc& desc){
     }
     GLuint index = glGetUniformBlockIndex(program, block.name.c_str());
     //the compiler removes unused blocks
-    if (index == GL_INVALID_INDEX)
+    if (index == GL_INVALID_INDEX){
       TR_DEBUG("Shader %s doesn't use uniform block %s", desc.name.c_str(), block.name.c_str());
-    else
-      glUniformBlockBinding(program, index, block.slot);
+      continue;
+    }
+    glUniformBlockBinding(program, index, block.slot);
+    GLint size = 0;
+    glGetActiveUniformBlockiv(program, index, GL_UNIFORM_BLOCK_DATA_SIZE, &size);
+    shader->blocks.push_back({block.slot, size});
   }
   if (!desc.textures.empty()){
     //sampler uniforms are set on the current program; the previous one (of a

@@ -4,6 +4,7 @@
 #include "../window/nativeWindows.h"
 #include "../window/nativeLinux.h"
 #include "../window/nativeAndroid.h"
+#include "../window/nativeEmscripten.h"
 #include "script.h"
 #include "../renderer/drawcontext.h"
 #include "../renderer/font.h"
@@ -138,6 +139,9 @@ void Engine::startup(int argc, char** argv){
 #endif
 #ifdef ANDROID
     win_ = std::make_unique<AndroidWindow>(device_.get(), deviceDesc);
+#endif
+#ifdef __EMSCRIPTEN__
+    win_ = std::make_unique<EmscriptenWindow>(device_.get(), deviceDesc);
 #endif
   }
   else{
@@ -280,8 +284,10 @@ void Engine::frame(bool update){
   console_->update();
 
   if (paused_){
-    //nothing to do in the background
+#ifndef __EMSCRIPTEN__
+    //nothing to do in the background (the browser sends no frames then)
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
+#endif
     return;
   }
 
@@ -295,6 +301,11 @@ void Engine::frame(bool update){
 
   if (!mShutdownRequested)
     renderFrame();
+#ifdef __EMSCRIPTEN__
+  //a page may be closed at any time without a shutdown, and the IndexedDB
+  //writes of a closing page don't finish, so changes are saved right away
+  Settings::saveUser();
+#endif
   limitFrame();
 }
 
@@ -366,6 +377,11 @@ void Engine::renderImGui(){
 }
 
 void Engine::limitFrame(){
+#ifdef __EMSCRIPTEN__
+  //the browser paces the frames (requestAnimationFrame), and sleeping would
+  //block its main thread
+  return;
+#endif
   if (maxFramerate_ <= 0)
     return;
   //sleep for most of the remaining time and wait out the rest, because
@@ -564,7 +580,12 @@ void Engine::processEvents(){
 
 #ifdef __EMSCRIPTEN__
 void Engine::processEvents(){
-  //the browser delivers events between frames (web backend in Phase 1c)
+  //the browser delivers the input events between frames (nativeEmscripten.cpp);
+  //the canvas's size is checked here, since not every change sends an event
+  if (!win_)
+    return;
+  if (static_cast<EmscriptenWindow*>(win_.get())->updateSize())
+    resize(win_->getWidth(), win_->getHeight());
 }
 #endif
 
@@ -698,6 +719,7 @@ int CGE::runApplication(int argc, char** argv, IApplication& app, void* data){
   CGE::Engine::init();
 
 #if defined(__EMSCRIPTEN__)
+  installBrowserConsoleTracing();
   //the user folders live in IndexedDB: mount them and load their contents
   //before the engine starts (see UserDirs)
   EM_ASM(
@@ -712,7 +734,8 @@ int CGE::runApplication(int argc, char** argv, IApplication& app, void* data){
   );
   static int startupArgc = argc;
   static char** startupArgv = argv;
-  //the browser calls runFrame once per frame; main returns right away
+  //the browser calls runFrame once per frame; this doesn't return, so the
+  //application in main's stack frame (CGE_MAIN) stays valid
   emscripten_set_main_loop([](){
     static bool started = false;
     if (!started){
@@ -727,7 +750,7 @@ int CGE::runApplication(int argc, char** argv, IApplication& app, void* data){
       CGE::Engine::instance()->shutdown();
       internalApplication = nullptr;
     }
-  }, 0, false);
+  }, 0, true);
   return 0;
 #elif !defined(ANDROID)
   CGE::Engine::instance()->startup(argc, argv);

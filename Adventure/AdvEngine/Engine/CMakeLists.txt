@@ -1,8 +1,9 @@
 ###OPTIONS###
 # The sound code uses the FFmpeg 2.x API, which only the bundled Windows
-# libraries provide (current Linux distributions ship FFmpeg 5+). It moves to
-# the engine's audio module later; until then Linux builds without sound.
-if (OS STREQUAL "linux")
+# libraries provide (current Linux distributions ship FFmpeg 5+, the web has
+# none). It moves to the engine's audio module later; until then Linux and the
+# web build without sound.
+if (OS STREQUAL "linux" OR OS STREQUAL "web")
   set(DISABLE_SOUND_DEFAULT ON)
 else()
   set(DISABLE_SOUND_DEFAULT OFF)
@@ -10,8 +11,7 @@ endif()
 OPTION(DISABLE_SOUND "disables the ffmpeg and openal backends" ${DISABLE_SOUND_DEFAULT})
 OPTION(FFMPEG_OLD_API "activate use of older ffmpeg API" OFF)
 OPTION(JNI_FRONTEND "enables a JNI frontend for Android" OFF)
-OPTION(EMSCRIPTEN_FRONTEND "enables a C frontend for emscripten" OFF)
-OPTION(DISABLE_EFX "disables EFX sound effects" ${EMSCRIPTEN_FRONTEND})
+OPTION(DISABLE_EFX "disables EFX sound effects" ${EMSCRIPTEN})
 
 # the frontend (window and main loop) and the libraries only it needs
 SET(ADVENTURE_LINK_LIBS)
@@ -19,15 +19,13 @@ IF(RENDER_EMBEDDED)
   IF(JNI_FRONTEND)
     SET(ADVENTURE_SRCS JNIFrontend.cpp)
     SET(ADVENTURE_LINK_LIBS GLESv2 log)
-  ELSEIF(EMSCRIPTEN_FRONTEND)
-    SET(ADVENTURE_SRCS CFrontend.cpp)
-    SET(ADVENTURE_LINK_LIBS GLESv2)
   ELSE()
     SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
     SET(ADVENTURE_LINK_LIBS OpenSLES)
   ENDIF()
 ELSE(RENDER_EMBEDDED)
-  # draws through the engine's render device, without own GL calls
+  # draws through the engine's render device, without own GL calls; also
+  # the web's frontend (the engine's window and main loop in the browser)
   SET(ADVENTURE_SRCS CgeWindow.cpp CgeWindow.h)
 ENDIF(RENDER_EMBEDDED)
 
@@ -70,10 +68,13 @@ ${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.c
 ${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.h
 )
 
+SET_SOURCE_FILES_PROPERTIES(${PARSER_SRCS} PROPERTIES GENERATED TRUE)
+# the generated C sources are compiled as C++ (only those: a header with a
+# language becomes an object file of its own)
 SET_SOURCE_FILES_PROPERTIES(
-${PARSER_SRCS}
+${CMAKE_CURRENT_BINARY_DIR}/pcdkParser.c
+${CMAKE_CURRENT_BINARY_DIR}/pcdkLexer.c
 PROPERTIES
-GENERATED TRUE
 LANGUAGE CXX
 )
 
@@ -231,7 +232,10 @@ IF(FFMPEG_OLD_API)
 target_compile_definitions(AdventureBase PUBLIC FFMPEG_OLD_API)
 ENDIF(FFMPEG_OLD_API)
 
-ADD_SUBDIRECTORY(lua)
+# the Lua module (a shared library loaded by Lua) doesn't exist on the web
+if (NOT EMSCRIPTEN)
+  ADD_SUBDIRECTORY(lua)
+endif()
 
 ###Adventure###
 
@@ -244,20 +248,6 @@ ADD_LIBRARY(Adventure SHARED
 )
 
 ADD_SUBDIRECTORY(java)
-
-ELSEIF(EMSCRIPTEN_FRONTEND)
-
-SET(ADV_SUFFIX .js)
-
-ADD_EXECUTABLE(Adventure${ADV_SUFFIX}
-	${ADVENTURE_SRCS}
-  CmdReceiver.h
-  CmdReceiver.cpp
-)
-
-SET_TARGET_PROPERTIES(Adventure${ADV_SUFFIX} PROPERTIES LINK_FLAGS "-O2 -s FULL_ES2=1 -s OUTLINING_LIMIT=10000 -s TOTAL_MEMORY=268435456 -s ASM_JS=1 -s EXPORTED_FUNCTIONS=\"['_main', '_fsMounted', '_fileWritten', '_fileSynced']\"")
-#-s ALLOW_MEMORY_GROWTH=1
-
 
 elseif(OS STREQUAL "android")
 
@@ -278,7 +268,7 @@ ADD_EXECUTABLE(Adventure
 
 ENDIF(JNI_FRONTEND)
 
-TARGET_LINK_LIBRARIES(Adventure${ADV_SUFFIX} PRIVATE AdventureBase ${ADVENTURE_LINK_LIBS})
+TARGET_LINK_LIBRARIES(Adventure PRIVATE AdventureBase ${ADVENTURE_LINK_LIBS})
 
 IF (NOT RENDER_EMBEDDED)
 SET_TARGET_PROPERTIES(Adventure
@@ -286,27 +276,29 @@ PROPERTIES
 WIN32_EXECUTABLE TRUE)
 ENDIF(NOT RENDER_EMBEDDED)
 
+# the web page Adventure.html; a game comes as a data package that the page
+# loads (Adventure.html?data=demo, see test/CMakeLists.txt) to data/game.dat
+cge_web_application(Adventure PRELOAD ffmpeg/bin/engine.ini@engine.ini)
+
 ADD_SUBDIRECTORY(eax2efx)
 
-if (EMSCRIPTEN_FRONTEND)
-add_subdirectory(emscripten)
-endif()
-
-if(NOT RENDER_EMBEDDED)
+if(NOT RENDER_EMBEDDED AND NOT EMSCRIPTEN)
 # engine1.dat is the runtime the StoryDesigner unpacks: the Adventure, the
 # engine library and its OpenGL backend plugin
-add_custom_command(TARGET Adventure${ADV_SUFFIX} POST_BUILD
-COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure${ADV_SUFFIX}> $<TARGET_FILE_NAME:Adventure${ADV_SUFFIX}>
+add_custom_command(TARGET Adventure POST_BUILD
+COMMAND ${Java_JAR_EXECUTABLE} cfM engine1.dat -C $<TARGET_FILE_DIR:Adventure> $<TARGET_FILE_NAME:Adventure>
   -C $<TARGET_FILE_DIR:Engine> $<TARGET_FILE_NAME:Engine>
   -C $<TARGET_FILE_DIR:EngineGL> $<TARGET_FILE_NAME:EngineGL>)
 endif()
 
 #install
 
-cge_copy_runtime(Adventure${ADV_SUFFIX})
-INSTALL(TARGETS Adventure${ADV_SUFFIX} RUNTIME DESTINATION adventure LIBRARY	DESTINATION adventure COMPONENT adv_runtime)
-cge_install_runtime(Adventure${ADV_SUFFIX} adventure COMPONENT adv_runtime)
+cge_copy_runtime(Adventure)
+INSTALL(TARGETS Adventure RUNTIME DESTINATION adventure LIBRARY	DESTINATION adventure COMPONENT adv_runtime)
+cge_install_runtime(Adventure adventure COMPONENT adv_runtime)
+if (NOT EMSCRIPTEN)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine1.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
+endif()
 
 if (OS STREQUAL windows)
 #openal
@@ -345,4 +337,7 @@ DESTINATION adventure)
 INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/engine2.dat DESTINATION StoryDesigner COMPONENT StoryDesignerEngine)
 endif()
 
+# the web page has it in its data
+if (NOT EMSCRIPTEN)
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/ffmpeg/bin/engine.ini DESTINATION adventure)
+endif()

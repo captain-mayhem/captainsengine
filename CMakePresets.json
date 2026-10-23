@@ -47,6 +47,15 @@
       "toolchainFile": "$env{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake"
     },
     {
+      "name": "emscripten-threads",
+      "inherits": "emscripten",
+      "displayName": "Web (emscripten) with threads",
+      "description": "pthreads and ASYNCIFY; the page must be served cross-origin isolated",
+      "cacheVariables": {
+        "CGE_WEB_THREADS": "ON"
+      }
+    },
+    {
       "name": "android",
       "inherits": "default",
       "displayName": "Android (arm64-v8a)",
@@ -72,6 +81,7 @@
     { "name": "windows", "configurePreset": "windows", "configuration": "Release" },
     { "name": "windows-debug", "configurePreset": "windows", "configuration": "Debug" },
     { "name": "emscripten", "configurePreset": "emscripten" },
+    { "name": "emscripten-threads", "configurePreset": "emscripten-threads" },
     { "name": "android", "configurePreset": "android" },
     { "name": "android-x86_64", "configurePreset": "android-x86_64" }
   ],

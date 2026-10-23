@@ -292,7 +292,7 @@ void Object2D::activateNextState(){
     return;
   mState = mNextStates.front();
   mNextStates.pop_front();
-  if (mState > 0 && mAnimations[mState-1]->exists())
+  if (mState > 0 && Animation::exists(mAnimations[mState-1]))
     mAnimations[mState-1]->registerAnimationEndHandler(this);
 }
 
@@ -308,7 +308,7 @@ Object2D* Object2D::clone(){
 
 unsigned Object2D::getNumDefinedStates(){
   for (unsigned i = 0; i < mAnimations.size(); ++i){
-    if (!mAnimations[i]->exists())
+    if (!Animation::exists(mAnimations[i]))
       return i;
   }
   return (unsigned)mAnimations.size();
@@ -458,7 +458,7 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
   }
   //right click changes to icon 1
   else if (mRightclick == 1){
-    if (2-1 >= (int)mAnimations.size()-1 || !mAnimations[2-1]->exists()){ //no command bound
+    if (2-1 >= (int)mAnimations.size()-1 || !Animation::exists(mAnimations[2-1])){ //no command bound
       mState = 1;
       leftClickRequired = true;
       return mCommands[2] != 0 ? mCommands[2] : 2;  //take the next action
@@ -477,7 +477,7 @@ int CursorObject::getNextCommand(bool& leftClickRequired, const Vec2i& pos){
   //classic mode
   else{
     ++mState;
-    if (mState-1 >= (int)mAnimations.size()-1 || !mAnimations[mState-1]->exists()){ //no command bound
+    if (mState-1 >= (int)mAnimations.size()-1 || !Animation::exists(mAnimations[mState-1])){ //no command bound
       if (mState == 2){
         mState = 1;
         leftClickRequired = true;
@@ -502,7 +502,7 @@ void CursorObject::setCommand(int command){
   for (unsigned i = 0; i < mCommands.size(); ++i){
     if (mCommands[i] == command){
       state = i+1;
-      if (state - 1 >= (int)mAnimations.size() - 1 || !mAnimations[state - 1]->exists()){
+      if (state - 1 >= (int)mAnimations.size() - 1 || !Animation::exists(mAnimations[state - 1])){
         state = 1;
       }
       break;
@@ -908,7 +908,7 @@ void RoomObject::getBBox(Vec2i& min, Vec2i& max){
   min.x = INT_MAX; min.y = INT_MAX;
   max.x = INT_MIN; max.y = INT_MIN;
   for (unsigned i = 0; i < mObjects.size(); ++i){
-    if (!mObjects[i]->getAnimation()->exists())
+    if (!Animation::exists(mObjects[i]->getAnimation()))
       continue;
     Vec2i minpos = mObjects[i]->getPosition();
     Vec2i maxpos = minpos+mObjects[i]->getSize();
@@ -1215,10 +1215,10 @@ void CharacterObject::setState(int state){
   mState = state;
   //mNextStates.clear();
   //fallback to lower states when they not exist (walk,talk  back => walk back)
-  if (!getAnimation()->exists()){
+  if (!Animation::exists(getAnimation())){
     if (mState > 3)
       mState = calculateState(mState, isWalking(), false, false);
-		if (!getAnimation()->exists())
+		if (!Animation::exists(getAnimation()))
 			mState = oldstate;
   }
   Vec2i newoffset;
@@ -1243,10 +1243,10 @@ void CharacterObject::update(unsigned interval){
       //int oldstate = getState();
       float rnd = rand()/(float)RAND_MAX;
       int nextbored = (int)(rnd+0.5f);
-      if (!mAnimations[13-1+nextbored]->exists()){
+      if (!Animation::exists(mAnimations[13-1+nextbored])){
         nextbored = 1 - nextbored;
       }
-      if (mAnimations[13-1+nextbored]->exists()){
+      if (Animation::exists(mAnimations[13-1+nextbored])){
         setState(13+nextbored);
         getAnimation()->registerAnimationEndHandler(this);
         addNextState(0);
@@ -1320,7 +1320,7 @@ void CharacterObject::activateNextState(){
     updateState(false, true);
   else{
     setState(mNextStates.front());
-    if (mState > 0 && mAnimations[mState-1]->exists())
+    if (mState > 0 && Animation::exists(mAnimations[mState-1]))
       mAnimations[mState-1]->registerAnimationEndHandler(this);
   }
   mNextStates.pop_front();

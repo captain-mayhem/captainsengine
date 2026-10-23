@@ -1,1 +1,0 @@
-python D:\emsdk\emscripten\1.21.0\tools\file_packager.py %1.dat --preload data --js-output=%1.js

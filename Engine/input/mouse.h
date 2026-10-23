@@ -24,6 +24,14 @@
 #define MB_CTRL ControlMask
 #define MB_SHIFT ShiftMask
 #endif
+#if defined(__EMSCRIPTEN__)
+//button numbers and state bits at once, like Windows' MK_ values
+#define MB_LEFT 1
+#define MB_RIGHT 2
+#define MB_SHIFT 4
+#define MB_CTRL 8
+#define MB_MIDDLE 16
+#endif
 #if defined(ANDROID)
 #define MB_LEFT 0
 #define MB_MIDDLE 1

@@ -75,7 +75,8 @@ public:
 
   //! the application's settings, loaded on first use from settings.ini in UserDirs::getConfigDir()
   /*! The engine saves them (saveUser) when the application goes into the
-      background and when it shuts down, if they were changed. */
+      background and when it shuts down, if they were changed; on the web
+      also after every frame that changed them. */
   static Settings& user();
   //! saves the application's settings now if they were changed, and commits them (UserDirs::commit)
   static bool saveUser();

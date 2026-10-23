@@ -1,12 +1,14 @@
 #include "services.h"
 
 #include <chrono>
+#include <cstdlib>
 
 #include "../io/Tracing.h"
 #include "../system/engine.h"
 #include "../input/mouse.h"
 #include "../window/nativeWindows.h"
 #include "../window/nativeLinux.h"
+#include "../window/nativeEmscripten.h"
 #include "assets.h"
 #include "userdirs.h"
 #include "platform_internal.h"
@@ -27,6 +29,65 @@
 #endif
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
+
+// The browser's clipboard (guit3's approach): a page can't read it
+// synchronously, so a copy of its text is kept in Module.cgeClipboard. A copy
+// sets it and writes the system clipboard (navigator.clipboard, or a copy
+// event where that is missing, e.g. on plain HTTP); both need the user
+// activation of the key press or click that copies. Ctrl+V's default action
+// is a paste event with the clipboard's text, which updates the copy before
+// the next frame handles the key (the window keeps the default of
+// Ctrl+C/V/X). Without such an event, only the last copied or pasted text
+// can be pasted.
+EM_JS_DEPS(cge_clipboard, "$stringToNewUTF8,$UTF8ToString");
+
+EM_JS(void, cge_clipboard_install, (), {
+  if (typeof document === "undefined" || Module["cgeClipboard"] !== undefined)
+    return;
+  Module["cgeClipboard"] = "";
+  document.addEventListener("paste", function(e){
+    if (e.clipboardData)
+      Module["cgeClipboard"] = e.clipboardData.getData("text/plain");
+  }, true);
+});
+
+EM_JS(void, cge_clipboard_set, (const char* text), {
+  var s = UTF8ToString(text);
+  Module["cgeClipboard"] = s;
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(s).catch(function(err){
+      console.warn("CGE: can't write the clipboard: " + err);
+    });
+    return;
+  }
+  var onCopy = function(e){
+    e.clipboardData.setData("text/plain", s);
+    e.preventDefault();
+  };
+  document.addEventListener("copy", onCopy, true);
+  try{
+    document.execCommand("copy");
+  }
+  finally{
+    document.removeEventListener("copy", onCopy, true);
+  }
+});
+
+EM_JS(char*, cge_clipboard_get, (), {
+  var s = Module["cgeClipboard"];
+  return s ? stringToNewUTF8(s) : 0;
+});
+
+EM_JS(int, cge_clipboard_has_text, (), {
+  return Module["cgeClipboard"] ? 1 : 0;
+});
+
+//! sets the CSS cursor of the canvas
+EM_JS(void, cge_set_canvas_cursor, (const char* canvas, const char* cursor), {
+  var element = document.querySelector(UTF8ToString(canvas));
+  if (element)
+    element.style.cursor = UTF8ToString(cursor);
+});
 #endif
 
 using namespace CGE;
@@ -45,6 +106,28 @@ Platform::Cursor shownCursor(){
 }
 #ifdef ANDROID
 ANativeActivity* activity = nullptr;
+#endif
+
+#ifdef __EMSCRIPTEN__
+EmscriptenWindow* engineWindow(){
+  Engine* engine = Engine::instance();
+  return engine ? dynamic_cast<EmscriptenWindow*>(engine->getWindow()) : nullptr;
+}
+
+//! the CSS name of a cursor
+const char* cssCursor(Platform::Cursor cursor){
+  switch (cursor){
+    case Platform::CURSOR_IBEAM: return "text";
+    case Platform::CURSOR_HAND: return "pointer";
+    case Platform::CURSOR_WAIT: return "wait";
+    case Platform::CURSOR_CROSSHAIR: return "crosshair";
+    case Platform::CURSOR_RESIZE_H: return "ew-resize";
+    case Platform::CURSOR_RESIZE_V: return "ns-resize";
+    case Platform::CURSOR_MOVE: return "move";
+    case Platform::CURSOR_FORBIDDEN: return "not-allowed";
+    default: return "default";
+  }
+}
 #endif
 
 #ifdef WIN32
@@ -221,6 +304,9 @@ bool Platform::setClipboardText(const std::string& text){
   }
   CloseClipboard();
   return ok;
+#elif defined(__EMSCRIPTEN__)
+  cge_clipboard_set(text.c_str());
+  return true;
 #else
   return false;
 #endif
@@ -240,6 +326,13 @@ std::string Platform::getClipboardText(){
   }
   CloseClipboard();
   return ret;
+#elif defined(__EMSCRIPTEN__)
+  char* text = cge_clipboard_get();
+  if (!text)
+    return std::string();
+  std::string ret = text;
+  free(text);
+  return ret;
 #else
   return std::string();
 #endif
@@ -248,6 +341,8 @@ std::string Platform::getClipboardText(){
 bool Platform::hasClipboardText(){
 #ifdef WIN32
   return IsClipboardFormatAvailable(CF_UNICODETEXT) != FALSE;
+#elif defined(__EMSCRIPTEN__)
+  return cge_clipboard_has_text() != 0;
 #else
   return false;
 #endif
@@ -311,7 +406,9 @@ void init(int argc, char** argv, void* androidApp){
     setAssetManager(activity->assetManager);
     setAndroidDataPath(activity->internalDataPath);
   }
-#elif !defined(__EMSCRIPTEN__)
+#elif defined(__EMSCRIPTEN__)
+  cge_clipboard_install();
+#else
   if (argc > 0 && argv[0]){
     std::string name = argv[0];
     name.erase(0, name.find_last_of('/') + 1);
@@ -354,6 +451,12 @@ void applyCursor(){
     return;
   XDefineCursor(wnd->getDisplay(), wnd->getWindow(), systemCursor(wnd->getDisplay(), shownCursor()));
   XFlush(wnd->getDisplay());
+#elif defined(__EMSCRIPTEN__)
+  EmscriptenWindow* wnd = engineWindow();
+  if (!wnd)
+    return;
+  Input::Mouse* mouse = Input::Mouse::instance();
+  cge_set_canvas_cursor(wnd->getCanvas().c_str(), mouse && !mouse->isMouseActive() ? "none" : cssCursor(shownCursor()));
 #endif
 }
 

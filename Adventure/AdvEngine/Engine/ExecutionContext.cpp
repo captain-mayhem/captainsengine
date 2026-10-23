@@ -285,7 +285,7 @@ void ExecutionContext::save(std::ostream& out){
 }
 
 bool ExecutionContext::isLoop1(){
-  CCode* code = mCode->get(0);
+  CCode* code = CodeSegment::get(mCode, 0);
   if (code == nullptr)
     return false;
   if (code->getType() != CCode::BNEEVT)

@@ -110,6 +110,40 @@
 #define KEY_W 119
 
 #endif
+#if defined(__EMSCRIPTEN__)
+//the browser's KeyboardEvent.keyCode, which has the values of Windows' virtual keys
+#define KEY_BACKSPACE 8
+#define KEY_RETURN 13
+#define KEY_CTRL 17
+#define KEY_ALT 18
+#define KEY_ESCAPE 27
+#define KEY_SPACE 32
+#define KEY_PAGEUP 33
+#define KEY_PAGEDOWN 34
+#define KEY_LEFT 37
+#define KEY_UP 38
+#define KEY_RIGHT 39
+#define KEY_DOWN 40
+#define KEY_DELETE 46
+#define KEY_0 '0'
+#define KEY_1 '1'
+#define KEY_2 '2'
+#define KEY_A 'A'
+#define KEY_C 'C'
+#define KEY_D 'D'
+#define KEY_I 'I'
+#define KEY_J 'J'
+#define KEY_K 'K'
+#define KEY_L 'L'
+#define KEY_R 'R'
+#define KEY_S 'S'
+#define KEY_T 'T'
+#define KEY_W 'W'
+#define KEY_F1 112
+#define KEY_F2 113
+//the key left of 1 on a German keyboard, like VK_OEM_5
+#define KEY_CIRCUMFLEX 220
+#endif
 
 #include "../system/engine.h"
 

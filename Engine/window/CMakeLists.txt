@@ -6,6 +6,7 @@ SET(Engine_window_SRCS
 	${PRE}/window.cpp
 	${PRE}/splashwindow.cpp
 	${PRE}/nativeAndroid.cpp
+	${PRE}/nativeEmscripten.cpp
 )
 
 SET(Engine_window_HDRS
@@ -14,6 +15,7 @@ SET(Engine_window_HDRS
 	${PRE}/window.h
 	${PRE}/splashwindow.h
 	${PRE}/nativeAndroid.h
+	${PRE}/nativeEmscripten.h
 )
 
 INSTALL(FILES ${Engine_window_HDRS} DESTINATION Engine/include/${PRE})

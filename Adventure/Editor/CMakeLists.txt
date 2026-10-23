@@ -1,4 +1,5 @@
-if (NOT CMAKE_HOST_WIN32)
+# the StoryDesigner is a Windows program; the web build has only the Adventure
+if (NOT CMAKE_HOST_WIN32 OR EMSCRIPTEN)
   return()
 endif()
 
